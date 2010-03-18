@@ -349,6 +349,7 @@ void MyUncaughtExceptionHandler(NSException *exception)
 	{
 		[controller presentModalViewController:modalController animated:animated];
 	}
+	[controller windowFocused:modalController];
 }
 
 -(void)hideModalController:(UIViewController*)modalController animated:(BOOL)animated
@@ -366,6 +367,7 @@ void MyUncaughtExceptionHandler(NSException *exception)
 	{
 		[controller dismissModalViewControllerAnimated:animated];
 	}
+	[controller windowClosed:modalController];
 }
 
 
