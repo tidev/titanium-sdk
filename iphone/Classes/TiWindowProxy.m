@@ -472,7 +472,7 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 {
 	if (newFocused == focused)
 	{
-		NSLog(@"[WARN] Setting focus to %d when it's already set to that.",focused);
+		NSLog(@"[DEBUG] Setting focus to %d when it's already set to that.",focused);
 //		return;
 	}
 

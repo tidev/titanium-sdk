@@ -265,7 +265,7 @@ DEFINE_EXCEPTIONS
 	ImageCacheEntry * newEntry = [[[ImageCacheEntry alloc] init] autorelease];
 	[newEntry setFullImage:image];
 	
-	NSLog(@"[INFO] Caching image %@: %@",urlString,image);
+	NSLog(@"[DEBUG] Caching image %@: %@",urlString,image);
 	[cache setObject:newEntry forKey:urlString];
 	return newEntry;
 }
