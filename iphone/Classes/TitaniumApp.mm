@@ -359,6 +359,7 @@ void MyUncaughtExceptionHandler(NSException *exception)
 	{
 //		navController = [controller currentNavController];
 	}
+	[controller windowClosed:modalController];
 	if (navController!=nil)
 	{
 		[navController dismissModalViewControllerAnimated:animated];
@@ -367,7 +368,6 @@ void MyUncaughtExceptionHandler(NSException *exception)
 	{
 		[controller dismissModalViewControllerAnimated:animated];
 	}
-	[controller windowClosed:modalController];
 }
 
 

@@ -246,8 +246,9 @@ enum
 			picker.cameraViewTransform = CGAffineTransformScale(picker.cameraViewTransform, CAMERA_TRANSFORM_X, CAMERA_TRANSFORM_Y);
 		}
 	}
-	
-	[[TitaniumApp app] showModalController:picker animated:animatedPicker];
+	TitaniumApp * tiApp = [TitaniumApp app];
+	[[tiApp controller] manuallyRotateToOrientation:UIInterfaceOrientationPortrait];
+	[tiApp showModalController:picker animated:animatedPicker];
 }
 
 #pragma mark Public APIs

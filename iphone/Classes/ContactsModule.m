@@ -160,7 +160,11 @@ MAKE_SYSTEM_STR(ADDRESS_COUNTRY_CODE,@"countryCode");
 		}
 		[picker setDisplayedProperties:pickerFields];
 	}
-	[[TitaniumApp app] showModalController:picker animated:pickerAnimated];
+
+	TitaniumApp * tiApp = [TitaniumApp app];
+	//TODO: Make sure we only do this on iPhone, not iPad.
+	[[tiApp controller] manuallyRotateToOrientation:UIInterfaceOrientationPortrait];
+	[tiApp showModalController:picker animated:pickerAnimated];
 }
 
 -(void)dismissPickerWithEvent:(KrollCallback*)callback event:(id)event type:(NSString*)type
