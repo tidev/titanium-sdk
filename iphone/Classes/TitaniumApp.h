@@ -58,7 +58,7 @@
 -(void)showModalError:(NSString*)message;
 
 -(void)showModalController:(UIViewController*)controller animated:(BOOL)animated;
--(void)dismissModalController:(BOOL)animated;
+-(void)hideModalController:(UIViewController*)controller animated:(BOOL)animated;
 
 -(NSString*)userAgent;
 -(NSString*)sessionId;

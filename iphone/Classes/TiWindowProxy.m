@@ -322,7 +322,7 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 			[self setNavController:nc];
 			BOOL animated = args!=nil && [args isKindOfClass:[NSDictionary class]] ? [TiUtils boolValue:@"animated" properties:[args objectAtIndex:0] def:YES] : YES;
 			[self setupWindowDecorations];
-			[[[TitaniumApp app] controller] presentModalViewController:nc animated:animated];
+			[[TitaniumApp app] showModalController:nc animated:animated];
 		}
 		if (animation==nil)
 		{
@@ -347,7 +347,7 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 	{
 		UIViewController *vc = [self controller];
 		BOOL animated = args!=nil && [args isKindOfClass:[NSDictionary class]] ? [TiUtils boolValue:@"animated" properties:[args objectAtIndex:0] def:YES] : YES;
-		[vc dismissModalViewControllerAnimated:animated];
+		[[TitaniumApp app] hideModalController:vc animated:animated];
 		if (animated)
 		{
 			// if animated, we don't want to immediately remove our view but instead need

@@ -165,7 +165,7 @@ MAKE_SYSTEM_STR(ADDRESS_COUNTRY_CODE,@"countryCode");
 
 -(void)dismissPickerWithEvent:(KrollCallback*)callback event:(id)event type:(NSString*)type
 {
-	[[picker parentViewController] dismissModalViewControllerAnimated:pickerAnimated];
+	[[TitaniumApp app] hideModalController:picker animated:pickerAnimated];
 	
 	if (callback!=nil)
 	{

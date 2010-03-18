@@ -247,7 +247,7 @@ enum
 		}
 	}
 	
-	[[[TitaniumApp app] controller] presentModalViewController:picker animated:animatedPicker];
+	[[TitaniumApp app] showModalController:picker animated:animatedPicker];
 }
 
 #pragma mark Public APIs
@@ -475,7 +475,7 @@ MAKE_SYSTEM_UINT(AUDIO_FILEFORMAT_AMR,kAudioFileAMRType);
 	ENSURE_UI_THREAD(hideCamera,args);
 	if (picker!=nil)
 	{
-		[[picker parentViewController] dismissModalViewControllerAnimated:animatedPicker];
+		[[TitaniumApp app] hideModalController:picker animated:animatedPicker];
 		[self destroyPicker];
 	}
 }
@@ -486,7 +486,7 @@ MAKE_SYSTEM_UINT(AUDIO_FILEFORMAT_AMR,kAudioFileAMRType);
 {
 	if (autoHidePicker)
 	{
-		[[picker parentViewController] dismissModalViewControllerAnimated:animatedPicker];
+		[[TitaniumApp app] hideModalController:picker animated:animatedPicker];
 	}
 	
 	NSMutableDictionary *dictionary = [NSMutableDictionary dictionary];
@@ -585,7 +585,7 @@ MAKE_SYSTEM_UINT(AUDIO_FILEFORMAT_AMR,kAudioFileAMRType);
 
 - (void)imagePickerControllerDidCancel:(UIImagePickerController *)picker_
 {
-	[[picker parentViewController] dismissModalViewControllerAnimated:animatedPicker];
+	[[TitaniumApp app] hideModalController:picker animated:animatedPicker];
 	[self sendPickerCancel];
 }
 
