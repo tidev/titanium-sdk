@@ -9,7 +9,8 @@
 #import "TiUtils.h"
 #import "TiViewProxy.h"
 #import "TiWindowProxy.h"
-#import "TiTab.h" 
+#import "TiTab.h"
+#import <MessageUI/MessageUI.h>
 
 @interface TitaniumRootView : UIView
 @end
@@ -124,8 +125,18 @@
     [super viewDidDisappear:animated];
 }
 
+-(BOOL)isEmailViewControllerOnTop
+{
+	return [[windowViewControllers lastObject] isKindOfClass:[MFMailComposeViewController class]];
+}
+
 -(void) manuallyRotateToOrientation:(UIInterfaceOrientation)orientation;
 {
+	if ([self isEmailViewControllerOnTop])
+	{
+		return;
+	}
+
 	UIWindow *win = [[UIApplication sharedApplication] keyWindow];
 	[UIView beginAnimations:@"orientation" context:nil];
 	[UIView setAnimationDuration:[UIApplication sharedApplication].statusBarOrientationAnimationDuration];
@@ -155,7 +166,8 @@
 			break;
 		}
 	}
-	[win setTransform:transform];	
+
+	[win setTransform:transform];
 	[TiUtils setView:win positionRect:rect];
 	[UIApplication sharedApplication].statusBarOrientation = orientation;	
 	[UIView commitAnimations];
@@ -250,7 +262,7 @@
 	{
 		[self setOrientationModes:candidateOrientationModes];
 	}
-	else if(noPrefrenceTab) // || (currentWindow == nil))
+	else if(noPrefrenceTab)
 	{
 		[self setOrientationModes:nil];
 	}
@@ -277,6 +289,11 @@
 
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation 
 {
+	if ([self isEmailViewControllerOnTop])
+	{
+		return NO;
+	}
+
 	orientationRequestTimes[interfaceOrientation] = [NSDate timeIntervalSinceReferenceDate];
 
 	BOOL result;
