@@ -27,6 +27,21 @@ android, iphone
 fullscreen[boolean]: boolean indicates if the window is fullscreen (no device chrome)
 modal[boolean]: boolean to indicate if the window should be opened modal in front of other windows
 url[string]: url to a JavaScript file with the windows instructions. this window will create a new JavaScript sub-context that will run in its own thread and global variable space.
+navBarHidden[boolean]: boolean to indicate if the nav bar should be hidden. this is only valid when the window is a child of a tab.
+orientationModes[array]: array of orientation mode constants defined in [Titanium.UI]
+tabBarHidden[boolean]: boolean to indicate if the tab bar should be hidden. this is only valid when the window is a child of a tab.
+title[string]: title of the window.
+titlePrompt[string]: title prompt for the window. only available in iPhone.
+titleImage[string]: url to a image that show in the title area. only available in iPhone.
+titleControl[object]: view to show in the title area. only available in iPhone.
+barColor[string]: web named color or hex value for the color of the nav bar. only available in iPhone.
+translucent[boolean]: boolean to indicate if the nav bar is translucent. only available in iPhone.
+leftNavButton[object]: view to show in the left nav bar area. only available in iPhone.
+rightNavButton[object]: view to show in the right nav bar area. only available in iPhone.
+toolbar[array]: array of button objects to show in the toolbar of the window. only available in iPhone. this is only valid when the window is a child of a tab.
+backButtonTitleImage[string]: url to an image to show as the back button.  only available in iPhone. this is only valid when the window is a child of a tab.
+backButtonTitle[string]: title for the back button. only available in iPhone. this is only valid when the window is a child of a tab.
+
 
 - methods
 
