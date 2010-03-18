@@ -67,7 +67,7 @@ class IPhone(object):
 		if not os.path.exists(iphone_resources_dir):
 			os.makedirs(iphone_resources_dir)
 
-		for lib in ['MainWindow.xib']:
+		for lib in ['MainWindow_iphone.xib','MainWindow_ipad.xib']:
 			shutil.copy(os.path.join(template_dir,lib),os.path.join(iphone_resources_dir,lib))
 
 		# NOTE, by default we just copy in iphone 3.0 since thats what

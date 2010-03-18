@@ -107,7 +107,7 @@ class TiAppXML(object):
 			
 		self.dom.writexml(codecs.open(self.file, 'w+','utf-8','replace'), encoding="UTF-8")
 
-	def generate_infoplist(self,file,template,appid):
+	def generate_infoplist(self,file,template,appid,family):
 		icon = 'appicon.png'
 		if self.properties.has_key('icon'):
 			icon = self.properties['icon']
@@ -132,6 +132,9 @@ class TiAppXML(object):
 					status_bar_style = '<string>UIStatusBarStyleDefault</string>'
 				self.infoplist_properties['UIStatusBarStyle']=status_bar_style
 
+		if family=='ipad':
+			self.infoplist_properties['UIDeviceFamily']='<array>\n        <key>item 0</key>\n        <string>2</string>\n        </array>'
+			
 		plist = codecs.open(template,'r','utf-8','replace').read()
 		plist = plist.replace('appicon.png',icon)
 

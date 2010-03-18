@@ -7,7 +7,7 @@
 
 
 #import "PlatformModuleDisplayCapsProxy.h"
-
+#import "TiUtils.h"
 
 @implementation PlatformModuleDisplayCapsProxy
 
@@ -18,11 +18,19 @@
 
 - (id)density
 {
+	if ([TiUtils isIPad])
+	{
+		return @"high";
+	}
 	return @"low";
 }
 
 - (id)dpi
 {
+	if ([TiUtils isIPad])
+	{
+		return [NSNumber numberWithInt:130];
+	}
 	return [NSNumber numberWithInt:160];
 }
 

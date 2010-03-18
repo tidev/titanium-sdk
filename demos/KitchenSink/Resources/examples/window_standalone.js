@@ -72,8 +72,11 @@ b2.addEventListener('click', function()
 	}
 	var w = Titanium.UI.createWindow(options);
 	var a = Titanium.UI.createAnimation();
-	a.height = 460;
-	a.width = 320;
+	
+	// NOTE: good example of making dynamic platform height / width values
+	// iPad vs. iPhone vs Android etc.
+	a.height = Titanium.Platform.displayCaps.platformHeight;
+	a.width = Titanium.Platform.displayCaps.platformWidth;
 	a.duration = 300;
 
 	// create a button to close window

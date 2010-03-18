@@ -241,7 +241,6 @@ DEFINE_EXCEPTIONS
 {
 	UIViewController *active = nil;
 	
-//	NSArray * tabViewControllers = [[self tabController] viewControllers];
 	if (controller == nil)
 	{
 		return;

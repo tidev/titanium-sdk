@@ -91,6 +91,7 @@ def main(args):
 	name = dequote(args[5].decode("utf-8"))
 	target = 'Debug'
 	deploytype = 'development'
+	devicefamily = 'iphone'
 	debug = False
 	
 	if command == 'distribute':
@@ -102,6 +103,7 @@ def main(args):
 	elif command == 'simulator':
 		deploytype = 'development'
 		debug = True
+		devicefamily = dequote(args[6].decode("utf-8"))
 	elif command == 'install':
 		appuuid = dequote(args[6].decode("utf-8"))
 		dist_name = dequote(args[7].decode("utf-8"))
@@ -249,13 +251,11 @@ def main(args):
 		shutil.copy(os.path.join(template_dir,'libTiCore.a'),os.path.join(iphone_resources_dir,'libTiCore.a'))
 
 	# must copy the XIBs each time since they can change per SDK
-	os.chdir(template_dir)
-	for xib in glob.glob('*.xib'):
-		s = os.path.join(template_dir,xib)
-		t = os.path.join(iphone_resources_dir,xib)
-		if not os.path.exists(t) or os.path.getsize(s)!=os.path.getsize(t): 	
-			shutil.copy(s,t)
-	os.chdir(cwd)		
+	xib = 'MainWindow_%s.xib' % devicefamily
+	s = os.path.join(template_dir,xib)
+	t = os.path.join(iphone_resources_dir,'MainWindow.xib')
+	if not os.path.exists(t) or os.path.getsize(s)!=os.path.getsize(t): 	
+		shutil.copy(s,t)
 		
 	def is_adhoc(uuid):
 		path = "~/Library/MobileDevice/Provisioning Profiles/%s.mobileprovision" % uuid
@@ -284,7 +284,7 @@ def main(args):
 		# write out the updated Info.plist
 		infoplist_tmpl = os.path.join(iphone_dir,'Info.plist.template')
 		infoplist = os.path.join(iphone_dir,'Info.plist')
-		appicon = ti.generate_infoplist(infoplist,infoplist_tmpl,appid)
+		appicon = ti.generate_infoplist(infoplist,infoplist_tmpl,appid,devicefamily)
 		
 		# copy the app icon to the build resources
 		iconf = os.path.join(iphone_tmp_dir,appicon)
@@ -315,6 +315,12 @@ def main(args):
 			if os.path.exists(app_dir):
 				shutil.rmtree(app_dir)
 
+			deploy_target = "IPHONEOS_DEPLOYMENT_TARGET=3.1"
+			device_target = "TARGETED_DEVICE_FAMILY=iPhone"
+			if devicefamily == 'ipad':
+				iphone_version='3.2'
+				device_target=" TARGETED_DEVICE_FAMILY=iPad"
+				
 			output = run.run([
     			"xcodebuild",
     			"-configuration",
@@ -322,7 +328,9 @@ def main(args):
     			"-sdk",
     			"iphonesimulator%s" % iphone_version,
     			"WEB_SRC_ROOT=%s" % iphone_tmp_dir,
-    			"GCC_PREPROCESSOR_DEFINITIONS=__LOG__ID__=%s DEPLOYTYPE=development DEBUG=1" % log_id
+    			"GCC_PREPROCESSOR_DEFINITIONS=__LOG__ID__=%s DEPLOYTYPE=development DEBUG=1" % log_id,
+				deploy_target,
+				device_target
 			])
 	    	
 			print output
@@ -375,9 +383,9 @@ def main(args):
 			print "[INFO] Launching application in Simulator"
 			sys.stdout.flush()
 			sys.stderr.flush()
-	
-			#launch the simulator
-			sim = subprocess.Popen("\"%s\" launch \"%s\" %s" % (simulator,app_dir,iphone_version),shell=True)
+
+			# launch the simulator
+			sim = subprocess.Popen("\"%s\" launch \"%s\" %s %s" % (simulator,app_dir,iphone_version,devicefamily),shell=True)
 						
 			# activate the simulator window
 			ass = os.path.join(template_dir,'iphone_sim_activate.scpt')

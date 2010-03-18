@@ -85,7 +85,14 @@
 	UIColor * chosenColor = (backgroundColor==nil)?[UIColor blackColor]:backgroundColor;
 	[ourView setBackgroundColor:chosenColor];
 	[[ourView superview] setBackgroundColor:chosenColor];
-	[[ourView layer] setContents:(id)backgroundImage.CGImage];
+	if (backgroundImage!=nil)
+	{
+		[[ourView layer] setContents:(id)backgroundImage.CGImage];
+	}
+	else
+	{
+		[[ourView layer] setContents:nil];
+	}
 }
 
 -(void)loadView
@@ -132,7 +139,8 @@
 			//Flow into portrait.
 		case UIInterfaceOrientationPortrait:
 		{
-			rect = CGRectMake(0, 0, 320, 480);
+			CGRect rect_ = [TiUtils screenRect];
+			rect = CGRectMake(0, 0, rect_.size.width, rect_.size.height);
 			break;
 		}
 		case UIInterfaceOrientationLandscapeLeft:
@@ -142,7 +150,8 @@
 		{
 			transform = CGAffineTransformMakeRotation( sign * M_PI_2 );
 			transform = CGAffineTransformTranslate( transform, sign * 90.0, sign * 90.0 );
-			rect = CGRectMake(10, -10, 480, 320);
+			CGRect rect_ = [TiUtils screenRect];
+			rect = CGRectMake(10, -10, rect_.size.height, rect_.size.width);
 			break;
 		}
 	}

@@ -153,4 +153,6 @@
 
 +(void)queueAnalytics:(NSString*)type name:(NSString*)name data:(NSDictionary*)data;
 
++(BOOL)isIPad;
+
 @end

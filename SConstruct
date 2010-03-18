@@ -24,9 +24,6 @@ elif ARGUMENTS.get('PRODUCT_VERSION', 0):
 	version = ARGUMENTS.get('PRODUCT_VERSION')
 
 # we clean at the top-level but do incremental at the specific folder level
-if os.path.exists('iphone/build'):
-	shutil.rmtree('iphone/build')
-
 if os.path.exists('android/titanium/bin'):
 	shutil.rmtree('android/titanium/bin')
 	
@@ -51,6 +48,9 @@ if ARGUMENTS.get("package",0):
 
 clean = "clean" in COMMAND_LINE_TARGETS or ARGUMENTS.get("clean", 0)
 
+if clean and os.path.exists('iphone/iphone/build'):
+	shutil.rmtree('iphone/iphone/build')
+
 # TEMP until android is merged
 build_type = 'full'
 build_dirs = ['iphone', 'android']
@@ -62,6 +62,10 @@ if ARGUMENTS.get('iphone',0):
 if ARGUMENTS.get('android',0):
 	build_type='android'
 	build_dirs=['android']
+
+if ARGUMENTS.get('ipad',0):
+	build_type='ipad'
+	build_dirs=['ipad']
 
 if ARGUMENTS.get('COMPILER_FLAGS', 0):
 	flags = ARGUMENTS.get('COMPILER_FLAGS')
@@ -80,7 +84,7 @@ if build_type in ['full', 'android'] and not only_package:
 	finally:
 		os.chdir(d)
 
-if build_type in ['full', 'iphone'] and not only_package:
+if build_type in ['full', 'iphone', 'ipad'] and not only_package:
 	d = os.getcwd()
 	os.chdir('iphone')
 	try:
@@ -103,7 +107,8 @@ def package_sdk(target, source, env):
 	print "Packaging MobileSDK (%s)..." % version
 	android = build_type in ['full', 'android']
 	iphone = build_type in ['full', 'iphone']
-	package.Packager().build(os.path.abspath('dist'), version, android, iphone)
+	ipad = build_type in ['full', 'ipad']
+	package.Packager().build(os.path.abspath('dist'), version, android, iphone, ipad)
 
 package_builder = Builder(action = package_sdk)
 env.Append(BUILDERS = {'PackageMobileSDK': package_builder})

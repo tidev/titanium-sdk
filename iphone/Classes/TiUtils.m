@@ -19,6 +19,19 @@
 
 @implementation TiUtils
 
+
++(BOOL)isIPad
+{
+	UIDevice *theDevice = [UIDevice currentDevice];
+	NSString *username = [theDevice name];
+	
+	//TODO: right now, we can't officially tell how to deal with
+	//the runtime difference between ipad and iphone... so we can
+	//look at the ipad key in the username... this will of course
+	//be different for ondevice and probably 4.0
+	return ([username rangeOfString:@"iPad"].location!=NSNotFound);
+}
+
 +(void)queueAnalytics:(NSString*)type name:(NSString*)name data:(NSDictionary*)data
 {
 	NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:
@@ -688,15 +701,10 @@
 
 +(CGRect)screenRect
 {
-	CGRect bounds = [UIScreen mainScreen].bounds;
-	if ([self isOrientationLandscape])
-	{
-		CGFloat width = bounds.size.width;
-		bounds.size.width = bounds.size.height;
-		bounds.size.height = width;
-	}
-	return bounds;
+	return [UIScreen mainScreen].bounds;
 }
+
+//TODO: rework these to be more accurate and multi-device
 
 +(CGRect)navBarRect
 {
