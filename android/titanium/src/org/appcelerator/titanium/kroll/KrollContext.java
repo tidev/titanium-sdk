@@ -146,8 +146,10 @@ public class KrollContext extends HandlerThread implements Handler.Callback
 			result = ctx.evaluateReader(jsScope, br, filename, 0, null);
 		} catch (EcmaError e) {
 			Log.e(LCAT, "ECMA Error evaluating source: " + e.getMessage(), e);
+			Context.reportRuntimeError(e.getMessage(), e.sourceName(), e.lineNumber(), e.lineSource(), e.columnNumber());
 		} catch (EvaluatorException e) {
 			Log.e(LCAT, "Error evaluating source: " + e.getMessage(), e);
+			Context.reportRuntimeError(e.getMessage(), e.sourceName(), e.lineNumber(), e.lineSource(), e.columnNumber());
 		} catch (Exception e) {
 			Log.e(LCAT, "Error: " + e.getMessage(), e);
 			Context.throwAsScriptRuntimeEx(e);
@@ -190,8 +192,10 @@ public class KrollContext extends HandlerThread implements Handler.Callback
 			result = ctx.evaluateString(jsScope, src, "", 0, null);
 		} catch (EcmaError e) {
 			Log.e(LCAT, "ECMA Error evaluating source: " + e.getMessage(), e);
+			Context.reportRuntimeError(e.getMessage(), e.sourceName(), e.lineNumber(), e.lineSource(), e.columnNumber());
 		} catch (EvaluatorException e) {
 			Log.e(LCAT, "Error evaluating source: " + e.getMessage(), e);
+			Context.reportRuntimeError(e.getMessage(), e.sourceName(), e.lineNumber(), e.lineSource(), e.columnNumber());
 		} catch (Exception e) {
 			Log.e(LCAT, "Error evaluating source: " + e.getMessage(), e);
 			Context.throwAsScriptRuntimeEx(e);
