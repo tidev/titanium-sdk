@@ -58,6 +58,13 @@
 	NSLog(@"%@, %@ -> %X",CODELOCATION,self,proxy);
 }
 
+- (BOOL) shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation
+{
+	//Since the AppController will be the deciding factor,
+	return [[[TitaniumApp app] controller] shouldAutorotateToInterfaceOrientation:toInterfaceOrientation];
+}
+
+
 @end
 
 
