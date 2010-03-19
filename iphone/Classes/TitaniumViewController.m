@@ -137,6 +137,10 @@
 		return;
 	}
 
+
+	UIDevice * ourDevice = [UIDevice currentDevice];
+	[ourDevice beginGeneratingDeviceOrientationNotifications];
+
 	UIWindow *win = [[UIApplication sharedApplication] keyWindow];
 	[UIView beginAnimations:@"orientation" context:nil];
 	[UIView setAnimationDuration:[UIApplication sharedApplication].statusBarOrientationAnimationDuration];
@@ -171,6 +175,7 @@
 	[TiUtils setView:win positionRect:rect];
 	[UIApplication sharedApplication].statusBarOrientation = orientation;	
 	[UIView commitAnimations];
+	[ourDevice endGeneratingDeviceOrientationNotifications];
 	lastOrientation = orientation;
 }
 
