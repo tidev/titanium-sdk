@@ -1062,7 +1062,7 @@
 			isa = PBXContainerItemProxy;
 			containerPortal = 29B97313FDCFA39411CA2CEA /* Project object */;
 			proxyType = 1;
-			remoteGlobalIDString = 2461CE231151D856007A4CC9 /* Titanium-KitchenSink-iPad */;
+			remoteGlobalIDString = 2461CE231151D856007A4CC9;
 			remoteInfo = "Titanium-KitchenSink-iPad";
 		};
 /* End PBXContainerItemProxy section */

@@ -7,6 +7,10 @@ var imageView = Titanium.UI.createImageView({
 	top:20
 });
 
+imageView.addEventListener('load', function()
+{
+	Ti.API.info('LOAD CALLED');
+});
 win.add(imageView);
 
 var l = Titanium.UI.createLabel({
