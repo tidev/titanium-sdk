@@ -11,6 +11,7 @@ import java.util.ArrayList;
 
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiContext;
+import org.appcelerator.titanium.TiRootActivity;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.view.ITiWindowHandler;
@@ -98,8 +99,12 @@ public class TiTabActivity extends ActivityGroup
 			        	Message msg = Message.obtain();
 			        	msg.what = fMessageId;
 			        	msg.obj = me;
-			        	fMessenger.send(msg);
-			        	Log.w(LCAT, "Notifying TiTabGroup, activity is created");
+			        	if(fMessenger.getBinder().pingBinder()) {
+			        		fMessenger.send(msg);
+				        	Log.w(LCAT, "Notifying TiTabGroup, activity is created");
+			        	} else {
+			        		me.finish();
+			        	}
 		        	} catch (RemoteException e) {
 		        		Log.e(LCAT, "Unable to message creator. finishing.");
 		        		me.finish();
@@ -137,7 +142,13 @@ public class TiTabActivity extends ActivityGroup
 		if (intent != null) {
 			if (intent.getBooleanExtra("finishRoot", false)) {
 				if (getApplication() != null) {
-					getTiApp().getRootActivity().finish();
+					TiApplication tiApp = getTiApp();
+					if (tiApp != null) {
+						TiRootActivity rootActivity = tiApp.getRootActivity();
+						if (rootActivity != null) {
+							rootActivity.finish();
+						}
+					}
 				}
 			}
 		}
