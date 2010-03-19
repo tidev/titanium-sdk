@@ -20,7 +20,6 @@ import org.json.JSONObject;
 
 import android.content.Context;
 import android.graphics.Color;
-import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.OvalShape;
@@ -88,6 +87,10 @@ public class TitaniumMapView extends TitaniumBaseView
 	class LocalMapView extends MapView
 	{
 		private boolean scrollEnabled;
+		private int lastLongitude;
+		private int lastLatitude;
+		private int lastLatitudeSpan;
+		private int lastLongitudeSpan;
 
 		public LocalMapView(Context context, String apiKey) {
 			super(context, apiKey);
@@ -112,6 +115,34 @@ public class TitaniumMapView extends TitaniumBaseView
 				return true;
 			}
 			return super.dispatchTrackballEvent(ev);
+		}
+
+		@Override
+		public void computeScroll() {
+			super.computeScroll();
+
+			GeoPoint center = getMapCenter();
+			if (lastLatitude != center.getLatitudeE6() || lastLongitude != center.getLongitudeE6() ||
+					lastLatitudeSpan != getLatitudeSpan() || lastLongitudeSpan != getLongitudeSpan())
+			{
+				lastLatitude = center.getLatitudeE6();
+				lastLongitude = center.getLongitudeE6();
+				lastLatitudeSpan = getLatitudeSpan();
+				lastLongitudeSpan = getLongitudeSpan();
+
+				try {
+					JSONObject data = new JSONObject();
+
+					data.put("latitude", scaleFromGoogle(lastLatitude));
+					data.put("longitude", scaleFromGoogle(lastLongitude));
+					data.put("latitudeDelta", scaleFromGoogle(lastLatitudeSpan));
+					data.put("longitudeDelta", scaleFromGoogle(lastLongitudeSpan));
+
+					eventManager.invokeSuccessListeners(EVENT_REGION_CHANGED, data.toString());
+				} catch (JSONException e) {
+					Log.e(LCAT, "Unable to fire regionChanged: " + e.getMessage());
+				}
+			}
 		}
 	}
 
@@ -660,7 +691,7 @@ public class TitaniumMapView extends TitaniumBaseView
 		handler.obtainMessage(MSG_SET_USERLOCATION, enabled ? 1 : 0).sendToTarget();
 	}
 	private double scaleFromGoogle(int value) {
-		return value / 1000000;
+		return (double) value / 1000000.0;
 	}
 
 	private int scaleToGoogle(double value) {
