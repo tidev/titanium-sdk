@@ -394,7 +394,7 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 	NSLog(@"DEALLOC: %@ (%d)",self,[self hash]);
 #endif
 	[[NSNotificationCenter defaultCenter] removeObserver:self
-													name:UIApplicationDidReceiveMemoryWarningNotification  
+													name:nil  
 												  object:nil];  
 	[self _destroy];
 	RELEASE_TO_NIL(destroyLock);
