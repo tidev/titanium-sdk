@@ -137,6 +137,10 @@
 		return;
 	}
 
+
+	UIDevice * ourDevice = [UIDevice currentDevice];
+	[ourDevice beginGeneratingDeviceOrientationNotifications];
+
 	UIWindow *win = [[UIApplication sharedApplication] keyWindow];
 	[UIView beginAnimations:@"orientation" context:nil];
 	[UIView setAnimationDuration:[UIApplication sharedApplication].statusBarOrientationAnimationDuration];
@@ -171,6 +175,7 @@
 	[TiUtils setView:win positionRect:rect];
 	[UIApplication sharedApplication].statusBarOrientation = orientation;	
 	[UIView commitAnimations];
+	[ourDevice endGeneratingDeviceOrientationNotifications];
 	lastOrientation = orientation;
 }
 
@@ -256,6 +261,11 @@
 				break;
 			}
 		}
+		
+		if (noPrefrenceTab)
+		{
+			NSLog(@"No preference found!");
+		}
 	}
 
 	if ([candidateOrientationModes isKindOfClass:arrayClass])
@@ -311,6 +321,11 @@
 
 -(void)windowFocused:(UIViewController*)focusedViewController
 {
+	if ([focusedViewController isKindOfClass:[UINavigationController class]])
+	{
+		focusedViewController = [(UINavigationController *)focusedViewController topViewController];
+	}
+
 	TiWindowProxy * focusedProxy = nil;
 
 	if ([focusedViewController respondsToSelector:@selector(proxy)])
@@ -346,6 +361,12 @@
 
 -(void)windowClosed:(UIViewController *)closedViewController
 {
+	if ([closedViewController isKindOfClass:[UINavigationController class]])
+	{
+		closedViewController = [(UINavigationController *)closedViewController topViewController];
+	}
+
+
 	BOOL focusChanged = [windowViewControllers lastObject] == closedViewController;
 	[windowViewControllers removeObject:closedViewController];
 	if (!focusChanged)
