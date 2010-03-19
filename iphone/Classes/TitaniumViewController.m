@@ -261,6 +261,11 @@
 				break;
 			}
 		}
+		
+		if (noPrefrenceTab)
+		{
+			NSLog(@"No preference found!");
+		}
 	}
 
 	if ([candidateOrientationModes isKindOfClass:arrayClass])
