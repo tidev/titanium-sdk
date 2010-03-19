@@ -5,8 +5,12 @@
 import os,platform,sys,urllib,gzip
 from progressbar import ProgressBar
 
-ticore_version = '1'
+ticore_version = '2'
 
+# NOTE: this is simply a pre-built version of the source at http://github.com/appcelerator/tijscore
+# since this is so freaking complicated to setup and build in an stable environment, and since 
+# it takes like an hour to build the library, we have, as a convenience, pre-built it from the
+# exact same source and are providing the pre-compiled versions for i386/arm
 libname = 'libTiCore-%s.a' % ticore_version
 thirdparty_name = '%s.gz' % libname
 libfile = 'lib/%s' % libname
