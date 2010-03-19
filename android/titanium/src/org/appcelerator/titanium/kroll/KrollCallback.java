@@ -9,6 +9,8 @@ package org.appcelerator.titanium.kroll;
 import org.appcelerator.titanium.TiDict;
 import org.appcelerator.titanium.util.Log;
 import org.mozilla.javascript.Context;
+import org.mozilla.javascript.EcmaError;
+import org.mozilla.javascript.EvaluatorException;
 import org.mozilla.javascript.Function;
 
 public class KrollCallback implements IKrollCallable
@@ -54,9 +56,18 @@ public class KrollCallback implements IKrollCallable
 						jsArgs[i] = jsArg;
 					}
 					method.call(ctx, thisObj, thisObj, jsArgs);
+				} catch (EcmaError e) {
+					Log.e(LCAT, "ECMA Error evaluating source: " + e.getMessage(), e);
+					Context.reportRuntimeError(e.getMessage(), e.sourceName(), e.lineNumber(), e.lineSource(), e.columnNumber());
+				} catch (EvaluatorException e) {
+					Log.e(LCAT, "Error evaluating source: " + e.getMessage(), e);
+					Context.reportRuntimeError(e.getMessage(), e.sourceName(), e.lineNumber(), e.lineSource(), e.columnNumber());
+				} catch (Exception e) {
+					Log.e(LCAT, "Error: " + e.getMessage(), e);
+					Context.throwAsScriptRuntimeEx(e);
 				} catch (Throwable e) {
-					Log.e(LCAT, "ERROR: " + e.getMessage(), e);
-					//Context.throwAsScriptRuntimeEx(e);
+					Log.e(LCAT, "Unhandled throwable: " + e.getMessage(), e);
+					Context.throwAsScriptRuntimeEx(e);
 				} finally {
 					kroll.exit();
 				}

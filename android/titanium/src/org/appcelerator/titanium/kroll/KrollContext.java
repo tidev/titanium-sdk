@@ -20,9 +20,14 @@ import org.appcelerator.titanium.util.AsyncResult;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiFileHelper2;
 import org.mozilla.javascript.Context;
+import org.mozilla.javascript.EcmaError;
+import org.mozilla.javascript.EvaluatorException;
 import org.mozilla.javascript.Scriptable;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+import android.content.DialogInterface.OnClickListener;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Message;
@@ -139,8 +144,14 @@ public class KrollContext extends HandlerThread implements Handler.Callback
 			TiBaseFile tbf = TiFileFactory.createTitaniumFile(tiContext, parts, false);
 			br = new BufferedReader(new InputStreamReader(tbf.getInputStream()));
 			result = ctx.evaluateReader(jsScope, br, filename, 0, null);
-		} catch (Exception e) {
+		} catch (EcmaError e) {
+			Log.e(LCAT, "ECMA Error evaluating source: " + e.getMessage(), e);
+			Context.reportRuntimeError(e.getMessage(), e.sourceName(), e.lineNumber(), e.lineSource(), e.columnNumber());
+		} catch (EvaluatorException e) {
 			Log.e(LCAT, "Error evaluating source: " + e.getMessage(), e);
+			Context.reportRuntimeError(e.getMessage(), e.sourceName(), e.lineNumber(), e.lineSource(), e.columnNumber());
+		} catch (Exception e) {
+			Log.e(LCAT, "Error: " + e.getMessage(), e);
 			Context.throwAsScriptRuntimeEx(e);
 		} finally {
 			if (br != null) {
@@ -179,6 +190,12 @@ public class KrollContext extends HandlerThread implements Handler.Callback
 		Context ctx = enter();
 		try {
 			result = ctx.evaluateString(jsScope, src, "", 0, null);
+		} catch (EcmaError e) {
+			Log.e(LCAT, "ECMA Error evaluating source: " + e.getMessage(), e);
+			Context.reportRuntimeError(e.getMessage(), e.sourceName(), e.lineNumber(), e.lineSource(), e.columnNumber());
+		} catch (EvaluatorException e) {
+			Log.e(LCAT, "Error evaluating source: " + e.getMessage(), e);
+			Context.reportRuntimeError(e.getMessage(), e.sourceName(), e.lineNumber(), e.lineSource(), e.columnNumber());
 		} catch (Exception e) {
 			Log.e(LCAT, "Error evaluating source: " + e.getMessage(), e);
 			Context.throwAsScriptRuntimeEx(e);
@@ -210,6 +227,7 @@ public class KrollContext extends HandlerThread implements Handler.Callback
 		Context ctx = Context.enter();
         // FOR NOW (UNTIL WE CAN COMPILE IN PACKAGING) WE HAVE TO TURN OFF OPTIMIZATIONS
 		ctx.setOptimizationLevel(-1);
+		ctx.setErrorReporter(getTiContext());
 		return ctx;
 	}
 

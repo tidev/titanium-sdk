@@ -26,6 +26,14 @@
 -(void)layoutSubviews
 {
 	CGRect ourBounds = [self bounds];
+	CGFloat height = [self bounds].size.height;	
+	if (height != [self verifyHeight:height])
+	{
+		[(TiViewProxy *)[self proxy] setNeedsReposition];
+		return;
+	}
+
+
 	CGRect toolBounds = [[self toolBar] bounds];
 	toolBounds.size = [toolBar sizeThatFits:toolBounds.size];
 	CGPoint toolBarCenter = CGPointMake(ourBounds.size.width/2, toolBounds.size.height/2);
@@ -129,6 +137,19 @@
 {
 	[toolBar setTranslucent:[TiUtils boolValue:value]];
 }
+
+
+-(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
+{
+	[super frameSizeChanged:frame bounds:bounds];
+	CGFloat height = bounds.size.height;
+	
+	if (height != [self verifyHeight:height])
+	{
+		[(TiViewProxy *)[self proxy] setNeedsReposition];
+	}
+}
+
 
 -(CGFloat)verifyHeight:(CGFloat)suggestedHeight
 {
