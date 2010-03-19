@@ -41,6 +41,7 @@ if (Titanium.Platform.name == 'iPhone OS')
 	data.push({title:'Headers with Filter', hasChild:true, test:'../examples/table_view_headers_filter.js'});
 	data.push({title:'Delete Mode', hasChild:true, test:'../examples/table_view_delete.js'});
 	data.push({title:'Delete Mode (2)', hasChild:true, test:'../examples/table_view_delete_2.js'});
+	data.push({title:'Delete Mode (3)', hasChild:true, test:'../examples/table_view_delete_3.js'});
 	data.push({title:'Move Mode', hasChild:true, test:'../examples/table_view_move.js'});
 	data.push({title:'Table Custom Footer', hasChild:true, test:'../examples/table_view_api_custom_footer.js'});
 	data.push({title:'Table View Options', hasChild:true, test:'../examples/table_view_options.js'});
