@@ -316,6 +316,11 @@
 
 -(void)windowFocused:(UIViewController*)focusedViewController
 {
+	if ([focusedViewController isKindOfClass:[UINavigationController class]])
+	{
+		focusedViewController = [(UINavigationController *)focusedViewController topViewController];
+	}
+
 	TiWindowProxy * focusedProxy = nil;
 
 	if ([focusedViewController respondsToSelector:@selector(proxy)])
@@ -351,6 +356,12 @@
 
 -(void)windowClosed:(UIViewController *)closedViewController
 {
+	if ([closedViewController isKindOfClass:[UINavigationController class]])
+	{
+		closedViewController = [(UINavigationController *)closedViewController topViewController];
+	}
+
+
 	BOOL focusChanged = [windowViewControllers lastObject] == closedViewController;
 	[windowViewControllers removeObject:closedViewController];
 	if (!focusChanged)
