@@ -458,8 +458,8 @@
 		{
 			CGFloat leftMargin = result.origin.y;
 			CGFloat topMargin = result.origin.x;
-			CGFloat newHeight = result.size.width + topMargin - leftMargin;
-			CGFloat newWidth = result.size.height - topMargin + leftMargin;
+			CGFloat newHeight = result.size.width;
+			CGFloat newWidth = result.size.height;
 			result = CGRectMake(leftMargin, topMargin, newWidth, newHeight);
 			break;
 		}
