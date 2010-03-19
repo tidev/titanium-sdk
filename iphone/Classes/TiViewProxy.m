@@ -450,7 +450,21 @@
 
 -(CGRect)appFrame
 {
-	return [[UIScreen mainScreen] applicationFrame];
+	CGRect result=[[UIScreen mainScreen] applicationFrame];
+	switch ([[UIApplication sharedApplication] statusBarOrientation])
+	{
+		case UIInterfaceOrientationLandscapeLeft:
+		case UIInterfaceOrientationLandscapeRight:
+		{
+			CGFloat leftMargin = result.origin.y;
+			CGFloat topMargin = result.origin.x;
+			CGFloat newHeight = result.size.width;
+			CGFloat newWidth = result.size.height;
+			result = CGRectMake(leftMargin, topMargin, newWidth, newHeight);
+			break;
+		}
+	}
+	return result;
 }
 
 #pragma mark Memory Management
