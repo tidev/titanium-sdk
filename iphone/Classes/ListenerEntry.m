@@ -37,10 +37,10 @@
 
 -(void)dealloc
 {
-	if (removed==NO)
-	{
+//	if (removed==NO)
+//	{
 		[[NSNotificationCenter defaultCenter] removeObserver:self name:kKrollShutdownNotification object:context];
-	}
+//	}
 	RELEASE_TO_NIL(listener);
 	RELEASE_TO_NIL(type);
 	RELEASE_TO_NIL(context);
