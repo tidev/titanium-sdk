@@ -11,9 +11,6 @@ data[3]=Ti.UI.createPickerRow({title:'Grapes',custom_item:'g'});
 
 picker.add(data);
 
-// turn on the selection indicator (off by default)
-picker.selectionIndicator = true;
-
 win.add(picker);
 
 var label = Ti.UI.createLabel({

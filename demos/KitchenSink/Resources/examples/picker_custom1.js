@@ -3,13 +3,27 @@ win.backgroundColor = 'black';
 
 var picker = Ti.UI.createPicker();
 
-var data = [];
-data[0]=Ti.UI.createPickerRow({title:'Bananas',custom_item:'b'});
-data[1]=Ti.UI.createPickerRow({title:'Strawberries',custom_item:'s'});
-data[2]=Ti.UI.createPickerRow({title:'Mangos',custom_item:'m'});
-data[3]=Ti.UI.createPickerRow({title:'Grapes',custom_item:'g'});
+function addRow(text)
+{
+	var row = Ti.UI.createPickerRow();
+	var label = Ti.UI.createLabel({
+		text:text,
+		font:{fontSize:24,fontWeight:'bold'},
+		color:text,
+		width:'auto',
+		height:'auto'
+	});
+	row.add(label);
+	picker.add(row);
+}
 
-picker.add(data);
+addRow('red');
+addRow('green');
+addRow('blue');
+addRow('orange');
+addRow('purple');
+addRow('brown');
+addRow('yellow');
 
 // turn on the selection indicator (off by default)
 picker.selectionIndicator = true;

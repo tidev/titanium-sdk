@@ -154,11 +154,33 @@ USE_PROXY_FOR_VERIFY_AUTORESIZING
 	return [rowproxy valueForKey:@"title"];
 }
 
-/*- (UIView *)pickerView:(UIPickerView *)pickerView viewForRow:(NSInteger)row forComponent:(NSInteger)component reusingView:(UIView *)view
+- (UIView *)pickerView:(UIPickerView *)pickerView viewForRow:(NSInteger)row forComponent:(NSInteger)component reusingView:(UIView *)view
 {
-	return view;
+	TiUIPickerColumnProxy *proxy = [[self columns] objectAtIndex:component];
+	TiUIPickerRowProxy *rowproxy = [proxy rowAt:row];
+	NSString *title = [rowproxy valueForKey:@"title"];
+	if (title!=nil)
+	{
+		UILabel *pickerLabel = (UILabel *)view;
+		
+		if (pickerLabel == nil) 
+		{
+			CGRect frame = CGRectMake(0.0, 0.0, [self pickerView:pickerView widthForComponent:component]-20, [self pickerView:pickerView rowHeightForComponent:component]);
+			pickerLabel = [[[UILabel alloc] initWithFrame:frame] autorelease];
+			[pickerLabel setTextAlignment:UITextAlignmentLeft];
+			[pickerLabel setBackgroundColor:[UIColor clearColor]];
+			[pickerLabel setFont:[UIFont boldSystemFontOfSize:18]];
+		}
+		
+		[pickerLabel setText:title];
+		return pickerLabel;
+	}
+	else 
+	{
+		return [rowproxy view];
+	}
 }
-*/
+
 
 - (void)pickerView:(UIPickerView *)pickerView didSelectRow:(NSInteger)row inComponent:(NSInteger)component
 {

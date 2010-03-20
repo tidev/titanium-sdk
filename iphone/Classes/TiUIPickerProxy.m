@@ -67,17 +67,47 @@
 		TiUIPickerRowProxy *row = (TiUIPickerRowProxy*)data;
 		TiUIPickerColumnProxy *column = [self columnAt:0];
 		[column addRow:row];
-		[picker performSelectorOnMainThread:@selector(reloadColumn:) withObject:column waitUntilDone:NO];
+		if ([self viewAttached])
+		{
+			[picker performSelectorOnMainThread:@selector(reloadColumn:) withObject:column waitUntilDone:NO];
+		}
+	}
+	else if ([data isKindOfClass:[TiUIPickerColumnProxy class]])
+	{
+		NSMutableArray *columns = [self columns];
+		[columns addObject:data];
+		if ([self viewAttached])
+		{
+			[picker performSelectorOnMainThread:@selector(reloadColumn:) withObject:data waitUntilDone:NO];
+		}
 	}
 	else if ([data isKindOfClass:[NSArray class]])
 	{
-		TiUIPickerColumnProxy *column = [self columnAt:0];
-		for (id item in data)
+		// peek to see what our first row is ... 
+		id firstRow = [data objectAtIndex:0];
+		
+		// if an array of columns, just add them
+		if ([firstRow isKindOfClass:[TiUIPickerColumnProxy class]])
 		{
-			ENSURE_TYPE(item,TiUIPickerRowProxy);
-			[column addRow:item];
+			NSMutableArray *columns = [self columns];
+			for (id column in data)
+			{
+				[columns addObject:column];
+			}
 		}
-		[picker performSelectorOnMainThread:@selector(reloadColumn:) withObject:column waitUntilDone:NO];
+		else
+		{
+			TiUIPickerColumnProxy *column = [self columnAt:0];
+			for (id item in data)
+			{
+				ENSURE_TYPE(item,TiUIPickerRowProxy);
+				[column addRow:item];
+			}
+			if ([self viewAttached])
+			{
+				[picker performSelectorOnMainThread:@selector(reloadColumn:) withObject:column waitUntilDone:NO];
+			}
+		}
 	}
 }
 

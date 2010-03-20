@@ -303,7 +303,8 @@ DEFINE_EXCEPTIONS
 	ImageCacheEntry * result = [cache objectForKey:urlString];
 	
 	if ((result == nil) && [url isFileURL])
-	{//Well, let's make it for them!
+	{
+		//Well, let's make it for them!
 		UIImage * resultImage = [UIImage imageWithContentsOfFile:[url path]];
 		result = [self setImage:resultImage forKey:urlString];
 	}
