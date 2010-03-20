@@ -347,7 +347,6 @@
 	Class sectionClass = [TiUITableViewSectionProxy class];
 	Class rowClass = [TiUITableViewRowProxy class];
 	
-	BOOL tableAttached = [self viewAttached];
 	TiUITableView *table = [self tableView];
 	
 	NSMutableArray *data = [NSMutableArray array];

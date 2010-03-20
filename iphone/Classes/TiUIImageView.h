@@ -16,8 +16,6 @@
 @interface TiUIImageView : TiUIView <ImageLoaderDelegate>
 {
 @private
-	UIImageView * imageView;
-
 	NSMutableArray *images;
 	NSTimer *timer;
 	NSTimeInterval interval;

@@ -34,7 +34,6 @@ DEFINE_EXCEPTIONS
 	RELEASE_TO_NIL(container);
 	RELEASE_TO_NIL(previous);
 	RELEASE_TO_NIL(urlRequest);
-	RELEASE_TO_NIL(imageView);
 	[super dealloc];
 }
 
@@ -211,7 +210,7 @@ DEFINE_EXCEPTIONS
 	int position = [TiUtils intValue:pos];
 	
 	UIView *view = [[container subviews] objectAtIndex:position];
-	UIImageView *imageView = [[UIImageView alloc] initWithImage:theimage];
+	UIImageView *newImageView = [[UIImageView alloc] initWithImage:theimage];
 	
 	// remove the spinner now that we've loaded our image
 	UIView *spinner = [[view subviews] count] > 0 ? [[view subviews] objectAtIndex:0] : nil;
@@ -220,8 +219,8 @@ DEFINE_EXCEPTIONS
 		[spinner removeFromSuperview];
 	}
 	
-	[view addSubview:imageView];
-	[imageView release];
+	[view addSubview:newImageView];
+	[newImageView release];
 	view.hidden = YES;
 	
 #if IMAGEVIEW_DEBUG	== 1
@@ -564,10 +563,6 @@ DEFINE_EXCEPTIONS
 		{
 			if ([view isKindOfClass:[UIImageView class]])
 			{
-				if (view == imageView)
-				{
-					RELEASE_TO_NIL(imageView);
-				}
 				[view removeFromSuperview];
 			}
 		}

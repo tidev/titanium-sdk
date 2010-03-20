@@ -10,16 +10,18 @@
 #import "TiUtils.h"
 #import "ASIHTTPRequest.h"
 #import "TitaniumApp.h"
+#import "UIImage+Resize.h"
+
 
 @interface ImageCacheEntry : NSObject
 {
 	UIImage * fullImage;
 	UIImage * stretchableImage;
-	CGFloat thumbnailScale;
-	UIImage * thumbnail;
+	UIImage * recentlyResizedImage;
 }
 
 @property(nonatomic,readwrite,retain) UIImage * fullImage;
+@property(nonatomic,readwrite,retain) UIImage * recentlyResizedImage;
 -(UIImage *)imageForSize:(CGSize)imageSize;
 -(UIImage *)stretchableImage;
 
@@ -28,51 +30,66 @@
 @end
 
 @implementation ImageCacheEntry
-@synthesize fullImage;
+@synthesize fullImage, recentlyResizedImage;
 
--(UIImage *)imageForSize:(CGSize)imageSize
+-(UIImage *)imageForSize:(CGSize)imageSize scalingStyle:(TiImageScalingStyle)scalingStyle
 {
-	CGSize fullImageSize = [fullImage size];
-	CGFloat scale = 1.0;
-	
-	if (imageSize.height > 1.0)
+	if (scalingStyle == TiImageScalingStretch)
 	{
-		scale = MIN(scale,imageSize.height/fullImageSize.height);
-	}
-	if (imageSize.width > 1.0)
-	{
-		scale = MIN(scale,imageSize.width/fullImageSize.width);
+		return [self stretchableImage];
 	}
 
-	if (scale == 1.0)
+	CGSize fullImageSize = [fullImage size];
+
+	if (scalingStyle != TiImageScalingNonProportional)
+	{
+		BOOL validScale = NO;
+		CGFloat scale = 1.0;
+		
+		if (imageSize.height > 1.0)
+		{
+			scale = imageSize.height/fullImageSize.height;
+			validScale = YES;
+		}
+		if (imageSize.width > 1.0)
+		{
+			CGFloat widthScale = imageSize.width/fullImageSize.width;
+			if (!validScale || (widthScale<scale))
+			{
+				scale = widthScale;
+				validScale = YES;
+			}
+		}
+		
+		if (validScale && ((scalingStyle != TiImageScalingThumbnail) || (scale < 1.0)))
+		{
+			imageSize = CGSizeMake(ceilf(scale*fullImageSize.width),
+					ceilf(scale*fullImageSize.height));
+		}
+		else
+		{
+			imageSize = fullImageSize;
+		}
+	}
+
+	if (CGSizeEqualToSize(imageSize, fullImageSize))
 	{
 		return fullImage;
 	}
-
-	if (thumbnailScale == scale)
+	
+	if (CGSizeEqualToSize(imageSize, [recentlyResizedImage size]))
 	{
-		return thumbnail;
+		return recentlyResizedImage;
 	}
 
-	thumbnailScale = scale;
-	CGFloat width = ceilf(scale*fullImageSize.width);
-	CGFloat height = ceilf(scale*fullImageSize.height);
+//TODO: Tweak quality depending on how large the result will be.
+	CGInterpolationQuality quality = kCGInterpolationDefault;
 
-    CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
-	CGContextRef thumbnailContext = CGBitmapContextCreate (NULL, width,height, 8,0, colorSpace, kCGImageAlphaPremultipliedLast);
-    CGColorSpaceRelease(colorSpace);
-
-	CGImageRef fullImageRef = [fullImage CGImage];
-	CGContextDrawImage(thumbnailContext, CGRectMake(0, 0, width, height), fullImageRef);
-
-	CGImageRef thumbnailRef = CGBitmapContextCreateImage(thumbnailContext);
-	CGContextRelease(thumbnailContext);
-
-	[thumbnail release];
-	thumbnail = [[UIImage alloc] initWithCGImage:thumbnailRef];
-	CGImageRelease(thumbnailRef);
-
-	return thumbnail;
+	[self setRecentlyResizedImage:[UIImageResize
+			resizedImage:imageSize
+			interpolationQuality:quality
+			image:fullImage]];
+	return recentlyResizedImage;
 }
 
 -(UIImage *)stretchableImage
@@ -85,12 +102,17 @@
 	return stretchableImage;
 }
 
+-(UIImage *)imageForSize:(CGSize)imageSize
+{
+	return [self imageForSize:imageSize scalingStyle:TiImageScalingDefault];
+}
+
 -(BOOL)purgable
 {
 	BOOL canPurge = YES;
-	if ([thumbnail retainCount]<2)
+	if ([recentlyResizedImage retainCount]<2)
 	{
-		RELEASE_TO_NIL(thumbnail)
+		RELEASE_TO_NIL(recentlyResizedImage)
 	}
 	else
 	{
@@ -116,7 +138,7 @@
 
 - (void) dealloc
 {
-	RELEASE_TO_NIL(thumbnail);
+	RELEASE_TO_NIL(recentlyResizedImage);
 	RELEASE_TO_NIL(stretchableImage);
 	RELEASE_TO_NIL(fullImage);
 	[super dealloc];
