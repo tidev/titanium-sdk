@@ -103,7 +103,8 @@ def main(args):
 	elif command == 'simulator':
 		deploytype = 'development'
 		debug = True
-		devicefamily = dequote(args[6].decode("utf-8"))
+		if argc > 6:
+			devicefamily = dequote(args[6].decode("utf-8"))
 	elif command == 'install':
 		appuuid = dequote(args[6].decode("utf-8"))
 		dist_name = dequote(args[7].decode("utf-8"))
