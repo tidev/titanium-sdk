@@ -76,6 +76,19 @@
 	return proxy;
 }
 
+-(NSArray*)annotationsFromArgs:(id)value
+{
+	ENSURE_TYPE_OR_NIL(value,NSArray);
+	NSMutableArray * result = [NSMutableArray arrayWithCapacity:[value count]];
+	if (value!=nil)
+	{
+		for (id arg in value)
+		{
+			[result addObject:[self annotationFromArg:arg]];
+		}
+	}
+	return result;
+}
 
 -(void)refreshAnnotation:(TiMapAnnotationProxy*)proxy readd:(BOOL)yn
 {
@@ -87,10 +100,7 @@
 	}
 	else
 	{
-//		MKAnnotationView * doomedView = [map viewForAnnotation:proxy];
-//		[map deselectAnnotation:proxy animated:NO];
 		[map removeAnnotation:proxy];
-//		[doomedView prepareForReuse];
 		[map addAnnotation:proxy];
 		[map setNeedsLayout];
 	}
@@ -107,6 +117,13 @@
 	ENSURE_UI_THREAD(addAnnotation,args);
 	ENSURE_SINGLE_ARG(args,NSObject);
 	[[self map] addAnnotation:[self annotationFromArg:args]];
+}
+
+-(void)addAnnotations:(id)args
+{
+	ENSURE_UI_THREAD(addAnnotations,args);
+	ENSURE_SINGLE_ARG(args,NSObject);
+	[[self map] addAnnotations:[self annotationsFromArgs:args]];
 }
 
 -(void)removeAnnotation:(id)args
@@ -130,6 +147,14 @@
 	{
 		[[self map] removeAnnotation:args];
 	}
+}
+
+-(void)removeAnnotations:(id)args
+{
+	ENSURE_UI_THREAD(removeAnnotations,args);
+	ENSURE_SINGLE_ARG(args,NSObject);
+	ENSURE_TYPE(args,NSArray); // assumes an array of TiMapAnnotationProxy classes
+	[[self map] removeAnnotations:args];
 }
 
 -(void)selectAnnotation:(id)args
