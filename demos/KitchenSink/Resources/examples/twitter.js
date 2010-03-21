@@ -1,10 +1,12 @@
 var win = Titanium.UI.currentWindow;
 
+var android = Ti.Platform.name == 'android';
+
 var username = Ti.UI.createTextField({
 	autocapitalization:Titanium.UI.TEXT_AUTOCAPITALIZATION_NONE,
 	width:300,
 	top:10,
-	height:35,
+	height: android ? 45 : 35,
 	borderStyle:Titanium.UI.INPUT_BORDERSTYLE_ROUNDED,
 	hintText:'Twitter Username'
 });
@@ -13,8 +15,8 @@ win.add(username);
 var password = Ti.UI.createTextField({
 	autocapitalization:Titanium.UI.TEXT_AUTOCAPITALIZATION_NONE,
 	width:300,
-	top:55,
-	height:35,
+	top: android ? 65 : 55,
+	height: android ? 45 : 35,
 	borderStyle:Titanium.UI.INPUT_BORDERSTYLE_ROUNDED,
 	passwordMask:true,
 	hintText:'Twitter Password'
@@ -23,9 +25,9 @@ win.add(password);
 
 var button = Titanium.UI.createButton({
 	title:'Get Status',
-	top:100,
+	top: android ? 120 : 100,
 	width:300,
-	height:40
+	height: android ? 45 : 40
 });
 win.add(button);
 button.addEventListener('click', function()
@@ -42,18 +44,18 @@ button.addEventListener('click', function()
 		for (var i=0;i<resp.length;i++)
 		{
 			status.text += resp[i].user.name + '\n' + resp[i].text + '\n\n';
-			
+
 		}
 		scrollView.add(status);
 	};
 	// open the client
 	xhr.open('GET','http://'+username.value+':'+password.value+'@twitter.com/statuses/friends_timeline.json?count=5');
-	
+
 	// send the data
-	xhr.send();	
+	xhr.send();
 });
 var scrollView = Titanium.UI.createScrollView({
-	top:150,
+	top: android ? 180 : 150,
 	contentHeight:'auto',
 	contentWidth:'auto',
 	backgroundColor:'#13386c',
