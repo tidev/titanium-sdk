@@ -83,7 +83,7 @@ def main(args):
 
 	iphone_version = dequote(args[2].decode("utf-8"))
 	
-	simulator = os.path.abspath(os.path.join(template_dir,'iphonesim'))
+	iphonesim = os.path.abspath(os.path.join(template_dir,'iphonesim'))
 	
 	command = args[1].decode("utf-8")
 	project_dir = os.path.expanduser(dequote(args[3].decode("utf-8")))
@@ -93,6 +93,7 @@ def main(args):
 	deploytype = 'development'
 	devicefamily = 'iphone'
 	debug = False
+	simulator = False
 	
 	if command == 'distribute':
 		appuuid = dequote(args[6].decode("utf-8"))
@@ -103,6 +104,7 @@ def main(args):
 	elif command == 'simulator':
 		deploytype = 'development'
 		debug = True
+		simulator = True
 		if argc > 6:
 			devicefamily = dequote(args[6].decode("utf-8"))
 	elif command == 'install':
@@ -122,13 +124,12 @@ def main(args):
 	iphone_resources_dir = os.path.join(iphone_dir,'Resources')
 	iphone_tmp_dir = os.path.join(iphone_dir,'tmp')
 	
-	
 	if not os.path.exists(iphone_dir):
 		print "Could not find directory: %s" % iphone_dir
 		sys.exit(1)
 	
 	cwd = os.getcwd()
-	
+
 	app_js = os.path.join(project_dir,'Resources','app.js')
 	if not os.path.exists(app_js):
 		print "[ERROR] This project looks to not be ported to 0.9+."
@@ -144,218 +145,249 @@ def main(args):
 	encrypt = False
 	if ti.properties.has_key('encrypt'): 
 		encrypt = (ti.properties['encrypt']=='true')
-	
-	# compile resources
-	compiler = Compiler(appid,project_dir,encrypt,debug)
-	compiler.compile()
 
-	# find the module directory relative to the root of the SDK	
-	tp_module_dir = os.path.abspath(os.path.join(template_dir,'..','..','..','..','modules','iphone'))
-	
-	tp_modules = []
-	
-	for module in ti.properties['modules']:
-		tp_name = module['name'].lower()
-		tp_version = module['version']
-		tp_dir = os.path.join(tp_module_dir,tp_name,tp_version)
-		if not os.path.exists(tp_dir):
-			print "[ERROR] Third-party module: %s/%s detected in tiapp.xml but not found at %s" % (tp_name,tp_version,tp_dir)
-			#sys.exit(1)
-		tp_module = os.path.join(tp_dir,'lib%s.a' % tp_name)
-		if not os.path.exists(tp_module):
-			print "[ERROR] Third-party module: %s/%s missing library at %s" % (tp_name,tp_version,tp_module)
-			#sys.exit(1)
-		tp_modules.append(tp_module)	
-		print "[INFO] Detected third-party module: %s/%s" % (tp_name,tp_version)
-		# copy module resources
-		img_dir = os.path.join(tp_dir,'assets','images')
-		if os.path.exists(img_dir):
-			dest_img_dir = os.path.join(iphone_tmp_dir,'modules',tp_name,'images')
-			if os.path.exists(dest_img_dir):
-				shutil.rmtree(dest_img_dir)
-			os.makedirs(dest_img_dir)
-			copy_module_resources(img_dir,dest_img_dir)
-	
-	# compiler dependencies
-	dependscompiler = DependencyCompiler()
-	dependscompiler.compile(template_dir,project_dir,tp_modules)
-	
-	# copy any module image directories
-	for module in dependscompiler.modules:
-		img_dir = os.path.abspath(os.path.join(template_dir,'modules',module.lower(),'images'))
-		if os.path.exists(img_dir):
-			dest_img_dir = os.path.join(iphone_tmp_dir,'modules',module.lower(),'images')
-			if os.path.exists(dest_img_dir):
-				shutil.rmtree(dest_img_dir)
-			os.makedirs(dest_img_dir)
-			copy_module_resources(img_dir,dest_img_dir)
-	
+	force_rebuild = True
+	version_file = None
+	log_id = None
 
-	# copy over main since it can change with each release
-	main_template = codecs.open(os.path.join(template_dir,'main.m'),'r','utf-8','replace').read()
-	main_template = main_template.replace('__PROJECT_NAME__',name)
-	main_template = main_template.replace('__PROJECT_ID__',appid)
-	main_template = main_template.replace('__DEPLOYTYPE__',deploytype)
-	main_template = main_template.replace('__APP_ID__',appid)
-	main_template = main_template.replace('__APP_ANALYTICS__',ti.properties['analytics'])
-	main_template = main_template.replace('__APP_PUBLISHER__',ti.properties['publisher'])
-	main_template = main_template.replace('__APP_URL__',ti.properties['url'])
-	main_template = main_template.replace('__APP_NAME__',ti.properties['name'])
-	main_template = main_template.replace('__APP_VERSION__',ti.properties['version'])
-	main_template = main_template.replace('__APP_DESCRIPTION__',ti.properties['description'])
-	main_template = main_template.replace('__APP_COPYRIGHT__',ti.properties['copyright'])
-	main_template = main_template.replace('__APP_GUID__',ti.properties['guid'])
-	
-	
-	main_dest = codecs.open(os.path.join(iphone_dir,'main.m'),'w','utf-8','replace')
-	main_dest.write(main_template.encode("utf-8"))
-	main_dest.close()
-	
-	# attempt to use a slightly faster xcodeproject template when simulator which avoids
-	# optimizing PNGs etc
-	if deploytype == 'simulator':
-		xcodeproj = codecs.open(os.path.join(template_dir,'project_simulator.pbxproj'),'r','utf-8','replace').read()
-	else:
-		xcodeproj = codecs.open(os.path.join(template_dir,'project.pbxproj'),'r','utf-8','replace').read()
+	# for simulator, we only need to compile once so we check to 
+	# see if we've already compiled for the simulator for the
+	# same version of titanium and if so, we don't need to rebuild
+	if simulator:
+		version_file = os.path.join(iphone_resources_dir,'.simulator')
+		if os.path.exists(app_dir):
+			if os.path.exists(version_file):
+				line = open(version_file).read().strip()
+				(v,log_id) = line.split(",")
+				if template_dir==v:
+					force_rebuild = False
+				else:
+					log_id = None
+
+	# only do this stuff when we're in a force rebuild which is either
+	# non-simulator build or when we're simulator and it's the first time
+	# or different version of titanium
+	#
+	if force_rebuild:
 		
-	xcodeproj = xcodeproj.replace('__PROJECT_NAME__',name)
-	xcodeproj = xcodeproj.replace('__PROJECT_ID__',appid)
-	xcode_dir = os.path.join(iphone_dir,name+'.xcodeproj')
-	xcode_pbx = codecs.open(os.path.join(xcode_dir,'project.pbxproj'),'w','utf-8','replace')
-	xcode_pbx.write(xcodeproj.encode("utf-8"))
-	xcode_pbx.close()	
+		print "[INFO] Performing full rebuild. This will take a little bit. Hold tight..."
+		
+		if simulator==False:
+			# compile resources only if non-simulator (for speedups)
+			compiler = Compiler(appid,project_dir,encrypt,debug)
+			compiler.compile()
+
+		# find the module directory relative to the root of the SDK	
+		tp_module_dir = os.path.abspath(os.path.join(template_dir,'..','..','..','..','modules','iphone'))
 	
-	# copy in the default PNG
-	default_png = os.path.join(project_resources,'iphone','Default.png')
-	if os.path.exists(default_png):
-		target_png = os.path.join(iphone_resources_dir,'Default.png')
-		if os.path.exists(target_png):
-			os.remove(target_png)
-		shutil.copy(default_png,target_png)	
+		tp_modules = []
+	
+		for module in ti.properties['modules']:
+			tp_name = module['name'].lower()
+			tp_version = module['version']
+			tp_dir = os.path.join(tp_module_dir,tp_name,tp_version)
+			if not os.path.exists(tp_dir):
+				print "[ERROR] Third-party module: %s/%s detected in tiapp.xml but not found at %s" % (tp_name,tp_version,tp_dir)
+				#sys.exit(1)
+			tp_module = os.path.join(tp_dir,'lib%s.a' % tp_name)
+			if not os.path.exists(tp_module):
+				print "[ERROR] Third-party module: %s/%s missing library at %s" % (tp_name,tp_version,tp_module)
+				#sys.exit(1)
+			tp_modules.append(tp_module)	
+			print "[INFO] Detected third-party module: %s/%s" % (tp_name,tp_version)
+			# copy module resources
+			img_dir = os.path.join(tp_dir,'assets','images')
+			if os.path.exists(img_dir):
+				dest_img_dir = os.path.join(iphone_tmp_dir,'modules',tp_name,'images')
+				if os.path.exists(dest_img_dir):
+					shutil.rmtree(dest_img_dir)
+				os.makedirs(dest_img_dir)
+				copy_module_resources(img_dir,dest_img_dir)
+	
+		# compiler dependencies
+		dependscompiler = DependencyCompiler()
+		dependscompiler.compile(template_dir,project_dir,tp_modules,simulator)
+	
+		# copy any module image directories
+		for module in dependscompiler.modules:
+			img_dir = os.path.abspath(os.path.join(template_dir,'modules',module.lower(),'images'))
+			if os.path.exists(img_dir):
+				dest_img_dir = os.path.join(iphone_tmp_dir,'modules',module.lower(),'images')
+				if os.path.exists(dest_img_dir):
+					shutil.rmtree(dest_img_dir)
+				os.makedirs(dest_img_dir)
+				copy_module_resources(img_dir,dest_img_dir)
+	
+
+		# copy over main since it can change with each release
+		main_template = codecs.open(os.path.join(template_dir,'main.m'),'r','utf-8','replace').read()
+		main_template = main_template.replace('__PROJECT_NAME__',name)
+		main_template = main_template.replace('__PROJECT_ID__',appid)
+		main_template = main_template.replace('__DEPLOYTYPE__',deploytype)
+		main_template = main_template.replace('__APP_ID__',appid)
+		main_template = main_template.replace('__APP_ANALYTICS__',ti.properties['analytics'])
+		main_template = main_template.replace('__APP_PUBLISHER__',ti.properties['publisher'])
+		main_template = main_template.replace('__APP_URL__',ti.properties['url'])
+		main_template = main_template.replace('__APP_NAME__',ti.properties['name'])
+		main_template = main_template.replace('__APP_VERSION__',ti.properties['version'])
+		main_template = main_template.replace('__APP_DESCRIPTION__',ti.properties['description'])
+		main_template = main_template.replace('__APP_COPYRIGHT__',ti.properties['copyright'])
+		main_template = main_template.replace('__APP_GUID__',ti.properties['guid'])
+		if simulator:
+			main_template = main_template.replace('__APP_RESOURCE_DIR__',os.path.abspath(project_resources))
+			
+	
+	
+		main_dest = codecs.open(os.path.join(iphone_dir,'main.m'),'w','utf-8','replace')
+		main_dest.write(main_template.encode("utf-8"))
+		main_dest.close()
+	
+		# attempt to use a slightly faster xcodeproject template when simulator which avoids
+		# optimizing PNGs etc
+		if simulator:
+			xcodeproj = codecs.open(os.path.join(template_dir,'project_simulator.pbxproj'),'r','utf-8','replace').read()
+		else:
+			xcodeproj = codecs.open(os.path.join(template_dir,'project.pbxproj'),'r','utf-8','replace').read()
+		
+		xcodeproj = xcodeproj.replace('__PROJECT_NAME__',name)
+		xcodeproj = xcodeproj.replace('__PROJECT_ID__',appid)
+		xcode_dir = os.path.join(iphone_dir,name+'.xcodeproj')
+		xcode_pbx = codecs.open(os.path.join(xcode_dir,'project.pbxproj'),'w','utf-8','replace')
+		xcode_pbx.write(xcodeproj.encode("utf-8"))
+		xcode_pbx.close()	
+	
+		# copy in the default PNG
+		default_png = os.path.join(project_resources,'iphone','Default.png')
+		if os.path.exists(default_png):
+			target_png = os.path.join(iphone_resources_dir,'Default.png')
+			if os.path.exists(target_png):
+				os.remove(target_png)
+			shutil.copy(default_png,target_png)	
 		
 	
-	# TODO: review this with new module SDK
-	# in case the developer has their own modules we can pick them up
-	project_module_dir = os.path.join(project_dir,"modules","iphone")
+		# TODO: review this with new module SDK
+		# in case the developer has their own modules we can pick them up
+		project_module_dir = os.path.join(project_dir,"modules","iphone")
 	
-	# copy in any resources in our module like icons
-	if os.path.exists(project_module_dir):
-		copy_module_resources(project_module_dir,iphone_tmp_dir)
+		# copy in any resources in our module like icons
+		if os.path.exists(project_module_dir):
+			copy_module_resources(project_module_dir,iphone_tmp_dir)
 	
-	sys.stdout.flush()
+		sys.stdout.flush()
 	
-	source_lib=os.path.join(template_dir,'libTiCore.a')
-	target_lib=os.path.join(iphone_resources_dir,'libTiCore.a')
+		source_lib=os.path.join(template_dir,'libTiCore.a')
+		target_lib=os.path.join(iphone_resources_dir,'libTiCore.a')
 	
-	# attempt to only copy (this takes ~7sec) if its changed
-	if not os.path.exists(target_lib) or os.path.getsize(source_lib)!=os.path.getsize(target_lib):
-		shutil.copy(os.path.join(template_dir,'libTiCore.a'),os.path.join(iphone_resources_dir,'libTiCore.a'))
+		# attempt to only copy (this takes ~7sec) if its changed
+		if not os.path.exists(target_lib) or os.path.getsize(source_lib)!=os.path.getsize(target_lib):
+			shutil.copy(os.path.join(template_dir,'libTiCore.a'),os.path.join(iphone_resources_dir,'libTiCore.a'))
 
-	# must copy the XIBs each time since they can change per SDK
-	xib = 'MainWindow_%s.xib' % devicefamily
-	s = os.path.join(template_dir,xib)
-	t = os.path.join(iphone_resources_dir,'MainWindow.xib')
-	if not os.path.exists(t) or os.path.getsize(s)!=os.path.getsize(t): 	
+		# must copy the XIBs each time since they can change per SDK
+		xib = 'MainWindow_%s.xib' % devicefamily
+		s = os.path.join(template_dir,xib)
+		t = os.path.join(iphone_resources_dir,'MainWindow.xib')
 		shutil.copy(s,t)
 		
-	def is_adhoc(uuid):
-		path = "~/Library/MobileDevice/Provisioning Profiles/%s.mobileprovision" % uuid
-		f = os.path.expanduser(path)
-		if os.path.exists(f):
-			c = codecs.open(f,'r','utf-8','replace').read()
-			return c.find("ProvisionedDevices")!=-1
-		return False	
+		def is_adhoc(uuid):
+			path = "~/Library/MobileDevice/Provisioning Profiles/%s.mobileprovision" % uuid
+			f = os.path.expanduser(path)
+			if os.path.exists(f):
+				c = codecs.open(f,'r','utf-8','replace').read()
+				return c.find("ProvisionedDevices")!=-1
+			return False	
 		
-	def add_plist(dir):
+		def add_plist(dir):
 		
-		if not os.path.exists(dir):		
-			os.makedirs(dir)
+			if not os.path.exists(dir):		
+				os.makedirs(dir)
 	
-		# write out the modules we're using in the APP
-		for m in dependscompiler.required_modules:
-			print "[INFO] Detected required module: Titanium.%s" % (m)
+			# write out the modules we're using in the APP
+			for m in dependscompiler.required_modules:
+				print "[INFO] Detected required module: Titanium.%s" % (m)
 	
-		if command == 'install':
-			version = ti.properties['version']
-			# we want to make sure in debug mode the version always changes
-			version = "%s.%d" % (version,time.time())
-			ti.properties['version']=version
+			if command == 'install':
+				version = ti.properties['version']
+				# we want to make sure in debug mode the version always changes
+				version = "%s.%d" % (version,time.time())
+				ti.properties['version']=version
 
 		
-		# write out the updated Info.plist
-		infoplist_tmpl = os.path.join(iphone_dir,'Info.plist.template')
-		infoplist = os.path.join(iphone_dir,'Info.plist')
-		appicon = ti.generate_infoplist(infoplist,infoplist_tmpl,appid,devicefamily)
+			# write out the updated Info.plist
+			infoplist_tmpl = os.path.join(iphone_dir,'Info.plist.template')
+			infoplist = os.path.join(iphone_dir,'Info.plist')
+			appicon = ti.generate_infoplist(infoplist,infoplist_tmpl,appid,devicefamily)
 		
-		# copy the app icon to the build resources
-		iconf = os.path.join(iphone_tmp_dir,appicon)
-		iconf_dest = os.path.join(dir,appicon)
-		if os.path.exists(iconf):
-			shutil.copy(iconf, iconf_dest)
+			# copy the app icon to the build resources
+			iconf = os.path.join(iphone_tmp_dir,appicon)
+			iconf_dest = os.path.join(dir,appicon)
+			if os.path.exists(iconf):
+				shutil.copy(iconf, iconf_dest)
+				
+		# update our simulator file with the current version	
+		if simulator:
+			f = open(version_file,'w+')
+			log_id = ti.properties['guid']
+			f.write("%s,%s" % (template_dir,log_id))
+			f.close()
 	
 	try:
 		os.chdir(iphone_dir)
 
+		if force_rebuild:
 		
-		# write out plist
-		add_plist(os.path.join(iphone_dir,'Resources'))
+			# write out plist
+			add_plist(os.path.join(iphone_dir,'Resources'))
 
-		print "[DEBUG] compile checkpoint: %0.2f seconds" % (time.time()-start_time)
-
-		print "[INFO] Executing XCode build..."
-		print "[BEGIN_VERBOSE] Executing XCode Compiler  <span>[toggle output]</span>"
+			print "[DEBUG] compile checkpoint: %0.2f seconds" % (time.time()-start_time)
+			print "[INFO] Executing XCode build..."
+			print "[BEGIN_VERBOSE] Executing XCode Compiler  <span>[toggle output]</span>"
 		
+		elif simulator:
+			
+			print "[INFO] detected pre-built simulator, re-using to speed up the launch"
+			
 		sys.stdout.flush()
+
+		deploy_target = "IPHONEOS_DEPLOYMENT_TARGET=3.1"
+		device_target = "TARGETED_DEVICE_FAMILY=iPhone"
+		if devicefamily == 'ipad':
+			iphone_version='3.2'
+			device_target=" TARGETED_DEVICE_FAMILY=iPad"
 		
 		if command == 'simulator':
 	
-			# first build it
-			log_id = uuid.uuid4()
-			
-			# make sure it's clean
-			if os.path.exists(app_dir):
-				shutil.rmtree(app_dir)
-
-			deploy_target = "IPHONEOS_DEPLOYMENT_TARGET=3.1"
-			device_target = "TARGETED_DEVICE_FAMILY=iPhone"
-			if devicefamily == 'ipad':
-				iphone_version='3.2'
-				device_target=" TARGETED_DEVICE_FAMILY=iPad"
+			if force_rebuild:
 				
-			output = run.run([
-    			"xcodebuild",
-    			"-configuration",
-    			"Debug",
-    			"-sdk",
-    			"iphonesimulator%s" % iphone_version,
-    			"WEB_SRC_ROOT=%s" % iphone_tmp_dir,
-    			"GCC_PREPROCESSOR_DEFINITIONS=__LOG__ID__=%s DEPLOYTYPE=development DEBUG=1" % log_id,
-				deploy_target,
-				device_target
-			])
+				# make sure it's clean
+				if os.path.exists(app_dir):
+					shutil.rmtree(app_dir)
+
+				output = run.run([
+	    			"xcodebuild",
+	    			"-configuration",
+	    			"Debug",
+	    			"-sdk",
+	    			"iphonesimulator%s" % iphone_version,
+	    			"WEB_SRC_ROOT=%s" % iphone_tmp_dir,
+	    			"GCC_PREPROCESSOR_DEFINITIONS=__LOG__ID__=%s DEPLOYTYPE=development DEBUG=1" % log_id,
+					deploy_target,
+					device_target
+				])
 	    	
-			print output
-			print "[END_VERBOSE]"
-			sys.stdout.flush()
+				print output
+				print "[END_VERBOSE]"
+				sys.stdout.flush()
 
-			shutil.rmtree(iphone_tmp_dir)
+				if os.path.exists(iphone_tmp_dir):
+					shutil.rmtree(iphone_tmp_dir)
 
-			if output.find("** BUILD FAILED **")!=-1 or output.find("ld returned 1")!=-1:
-			    print "[ERROR] Build Failed. Please see output for more details"
-			    sys.exit(1)
+				if output.find("** BUILD FAILED **")!=-1 or output.find("ld returned 1")!=-1:
+				    print "[ERROR] Build Failed. Please see output for more details"
+				    sys.exit(1)
 	
 			# first make sure it's not running
 			kill_simulator()
 
-			logger = os.path.realpath(os.path.join(template_dir,'logger.py'))
-			
-			# start the logger
-			log = subprocess.Popen([
-			  	logger,
-				str(log_id)+'.log',
-				iphone_version
-			])	
-			
 			sim = None
 	
 			def handler(signum, frame):
@@ -385,13 +417,27 @@ def main(args):
 			sys.stdout.flush()
 			sys.stderr.flush()
 
+			
 			# launch the simulator
-			sim = subprocess.Popen("\"%s\" launch \"%s\" %s %s" % (simulator,app_dir,iphone_version,devicefamily),shell=True)
+			sim = subprocess.Popen("\"%s\" launch \"%s\" %s %s" % (iphonesim,app_dir,iphone_version,devicefamily),shell=True)
 						
 			# activate the simulator window
 			ass = os.path.join(template_dir,'iphone_sim_activate.scpt')
 			cmd = "osascript \"%s\"" % ass
 			os.system(cmd)
+
+			# give the simulator a bit to get started and up and running before 
+			# starting the logger
+			time.sleep(3)
+			
+			logger = os.path.realpath(os.path.join(template_dir,'logger.py'))
+			
+			# start the logger
+			log = subprocess.Popen([
+			  	logger,
+				str(log_id)+'.log',
+				iphone_version
+			])	
 			
 			end_time = time.time()-start_time
 			
@@ -430,7 +476,9 @@ def main(args):
 				"CODE_SIGN_ENTITLEMENTS=",
 				"GCC_PREPROCESSOR_DEFINITIONS='DEPLOYTYPE=test'",
 				"PROVISIONING_PROFILE[sdk=iphoneos*]=%s" % appuuid,
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]=iPhone Developer: %s" % dist_name
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]=iPhone Developer: %s" % dist_name,
+				deploy_target,
+				device_target
 			])
 
 			shutil.rmtree(iphone_tmp_dir)
@@ -485,7 +533,9 @@ def main(args):
 				"%s" % adhoc_line,
 				"GCC_PREPROCESSOR_DEFINITIONS='DEPLOYTYPE=%s'" % deploytype,
 				"PROVISIONING_PROFILE[sdk=iphoneos*]=%s" % appuuid,
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]=iPhone Distribution: %s" % dist_name
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]=iPhone Distribution: %s" % dist_name,
+				deploy_target,
+				device_target
 			])
 
 			shutil.rmtree(iphone_tmp_dir)

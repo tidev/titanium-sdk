@@ -12,6 +12,7 @@
 
 #ifdef DEBUG
 #define DEBUG_EVENTS 0
+extern NSString * const TI_APPLICATION_RESOURCE_DIR;
 #endif
 
 extern NSString * const TI_APPLICATION_ID;
@@ -32,6 +33,16 @@ extern NSString * const TI_APPLICATION_ID;
 		if (start!=NULL)
 		{
 			fn = [NSString stringWithCString:start encoding:NSUTF8StringEncoding];
+		}
+		else
+		{
+#ifdef DEBUG
+			if (TI_APPLICATION_RESOURCE_DIR!=nil)
+			{
+				// we use our app resource directory
+				path = TI_APPLICATION_RESOURCE_DIR;
+			}
+#endif
 		}
 		NSString *fullpath = [NSString stringWithFormat:@"%@/%@",path,fn];
 		NSString *dir = [fullpath stringByDeletingLastPathComponent];

@@ -6,6 +6,7 @@
  */
 #import <QuartzCore/QuartzCore.h>
 
+#import "TiBase.h"
 #import "TiUtils.h"
 #import "TiHost.h"
 #import "TiPoint.h"
@@ -16,6 +17,11 @@
 #import "TiColor.h"
 #import "TiFile.h"
 #import "TiBlob.h"
+
+
+#ifdef DEBUG
+extern NSString * const TI_APPLICATION_RESOURCE_DIR;
+#endif
 
 @implementation TiUtils
 
@@ -785,6 +791,33 @@
 {
 	if ([url isFileURL] || [[url scheme] hasPrefix:@"app"])
 	{
+		NSString *urlstring = [[url standardizedURL] path];
+		NSString *resourceurl = [[NSBundle mainBundle] resourcePath];
+		NSRange range = [urlstring rangeOfString:resourceurl];
+		NSString *appurlstr = urlstring;
+		if (range.location!=NSNotFound)
+		{
+			appurlstr = [urlstring substringFromIndex:range.location + range.length + 1];
+		}
+		if ([appurlstr hasPrefix:@"/"])
+		{
+			appurlstr = [appurlstr substringFromIndex:1];
+		}
+#ifdef DEBUG
+		if (TI_APPLICATION_RESOURCE_DIR!=nil)
+		{
+			// this path is only taken during a simulator build
+			// in this path, we will attempt to load resources directly from the
+			// app's Resources directory to speed up round-trips
+			NSString *filepath = [TI_APPLICATION_RESOURCE_DIR stringByAppendingPathComponent:appurlstr];
+			NSLog(@"[DEBUG] attempting to load: %@",filepath);
+			if ([[NSFileManager defaultManager] fileExistsAtPath:filepath])
+			{
+				NSLog(@"[DEBUG] found: %@",filepath);
+				return [NSData dataWithContentsOfFile:filepath];
+			}
+		}
+#endif
 		static id AppRouter;
 		if (AppRouter==nil)
 		{
@@ -792,18 +825,6 @@
 		}
 		if (AppRouter!=nil)
 		{
-			NSString *urlstring = [[url standardizedURL] path];
-			NSString *resourceurl = [[NSBundle mainBundle] resourcePath];
-			NSRange range = [urlstring rangeOfString:resourceurl];
-			NSString *appurlstr = urlstring;
-			if (range.location!=NSNotFound)
-			{
-				appurlstr = [urlstring substringFromIndex:range.location + range.length + 1];
-			}
-			if ([appurlstr hasPrefix:@"/"])
-			{
-				appurlstr = [appurlstr substringFromIndex:1];
-			}
 			appurlstr = [appurlstr stringByReplacingOccurrencesOfString:@"." withString:@"_"];
 #ifdef DEBUG			
 			NSLog(@"[DEBUG] loading: %@, resource: %@",urlstring,appurlstr);

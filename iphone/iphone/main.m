@@ -20,6 +20,7 @@ NSString * const TI_APPLICATION_DESCRIPTION = @"Kitchen Sink from XCode";
 NSString * const TI_APPLICATION_COPYRIGHT = @"Appcelerator";
 NSString * const TI_APPLICATION_GUID = @"25FE4B6E-7DA9-4344-B55B-25195570860F";
 BOOL const TI_APPLICATION_ANALYTICS = YES;
+NSString * const TI_APPLICATION_RESOURCE_DIR = nil;
 
 int main(int argc, char *argv[]) {
     

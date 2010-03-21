@@ -4,7 +4,7 @@
 # Tail an application log file running in the iPhone Simulator
 #
 
-import os, sys, subprocess, time, signal, run
+import os, sys, subprocess, time, signal, run, filetail
 
 def find_file(folder, fname):
     for root, dirs, files in os.walk(folder):
@@ -52,21 +52,14 @@ def main(args):
 
 	while logfile == None:
 		try:
+			sys.stdout.flush()
 			logfile = find_file(logfile_dir,logname)
 			if logfile == None:
 					time.sleep(1)
 		except KeyboardInterrupt:
 			sys.exit(0)
 
-	log = subprocess.Popen([
-		'tail',
-		'-F',
-		logfile
-	],bufsize=1)	
-	
 	def handler(signum, frame):
-		if not log == None:
-			os.system("kill -9 %d >/dev/null" % log.pid)
 		sys.exit(0)
 	
 	signal.signal(signal.SIGHUP, handler)
@@ -75,13 +68,16 @@ def main(args):
 	signal.signal(signal.SIGABRT, handler)
 	signal.signal(signal.SIGTERM, handler)
 	
-	# wait for process to end or until we get a signal
-	os.waitpid(log.pid,0)
+	t = filetail.Tail(logfile)
+	sys.stdout.flush()
+	try:
+	  	for line in t:
+	  		print line
+			sys.stdout.flush()
+	except:
+		sys.stdout.flush()
+		sys.exit(0)
 	
-	# just to be sure...
-	handler(3,None)
-	
-	sys.exit(0)
 	
 		
 if __name__ == "__main__":
