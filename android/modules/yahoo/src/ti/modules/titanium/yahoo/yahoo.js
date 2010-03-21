@@ -35,7 +35,33 @@ Ti.Yahoo.setOAuthParameters = function(consumerKey,sharedSecret)
    Ti.Yahoo._sharedSecret = sharedSecret;
 };
 
-Ti.Yahoo.yql = function(apiQuery,callback)
+Ti.Yahoo.yql = function(apiQuery, callback) {
+	var apiEndpoint = 'http://query.yahooapis.com/v1/public/yql?format=json&env=http%3A%2F%2Fdatatables.org%2Falltables.env';
+	var url = apiEndpoint + "&q=" + Ti.Yahoo.percentEscape(apiQuery);
+   	var xhr = Ti.Network.createHTTPClient();
+  	xhr.onerror = function(e) {
+   		callback(e);
+   		var msg = this.responseText;
+   		if (msg === null) {
+   			msg = this.statusText;
+   		}
+   		Titanium.API.error("Error during query (" + apiQuery + "): " + msg);
+   	};
+
+	xhr.onload = function()
+	{
+		Ti.API.info("YQL: " + this.reponseText);
+		callback(eval('('+this.responseText+')').query.results);
+	};
+
+	xhr.onreadystatechange = function() {
+		Ti.API.info("RS:" + this.readyState);
+	};
+	xhr.open('GET',url);
+	xhr.send();
+};
+
+Ti.Yahoo.yqlO = function(apiQuery,callback)
 {
    	var apiEndpoint = 'http://query.yahooapis.com/v1/yql?format=json';
    	var url = Ti.Yahoo.oauthRequest(Ti.Yahoo._consumerKey, Ti.Yahoo._sharedSecret, apiEndpoint, apiQuery);
