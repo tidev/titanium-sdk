@@ -25,18 +25,21 @@ def main(args):
 	# starting in SDK 3.2 they changed the directory on us where logs 
 	# go so we have to compensate for that by looking at the version
 	# of xcode the user has
-	xoutput = run.run(["xcodebuild","-version"])
-	idx = xoutput.find("Xcode ")
-	version = xoutput[idx+6:]
-	idx = version.find("\n")
-	version = version[0:idx].strip()
-	version_split = version.split('.')
-	major = int(version_split[0])
-	minor = int(version_split[1])
-	build = 0
-	# some versions are simply 3.1 (2 digits)
-	if len(version_split) > 2:
-		build = int(version_split[2])
+	try:
+		xoutput = run.run(["xcodebuild","-version"])
+		idx = xoutput.find("Xcode ")
+		version = xoutput[idx+6:]
+		idx = version.find("\n")
+		version = version[0:idx].strip()
+		version_split = version.split('.')
+		major = int(version_split[0])
+		minor = int(version_split[1])
+		build = 0
+		# some versions are simply 3.1 (2 digits)
+		if len(version_split) > 2:
+			build = int(version_split[2])
+	except:
+		sys.exit(0)
 	
 	
 	# this was the default up until 3.2.2 release
