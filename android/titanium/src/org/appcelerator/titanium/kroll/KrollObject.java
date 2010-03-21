@@ -124,6 +124,7 @@ public class KrollObject extends ScriptableObject
 			if (p != null) {
 				o = new KrollObject(this, p);
 				put(name, this, o);
+				((TiModule) p).postCreate();
 			}
 		} else {
 			if (DBG) {
@@ -284,7 +285,7 @@ public class KrollObject extends ScriptableObject
 				// get value from native
 				Object[] args = new Object[1];
 				args[0] = name;
-				
+
 				o = KrollObject.fromNative(getMethod.invoke(target, args), getKrollContext());
 			} catch (InvocationTargetException e) {
 				Log.e(LCAT, "Error getting property: " + e.getMessage(), e);
@@ -351,8 +352,8 @@ public class KrollObject extends ScriptableObject
 				}
 			}
 		}
-		
-		if (has(name, start) || (value != null && value instanceof KrollObject) && !isDynamic) {
+
+		if (has(name, start) || (value != null && (value instanceof KrollObject /*|| value instanceof Function*/)) && !isDynamic) {
 			super.put(name, start, value);
 		} else {
 			handleMethodOrProperty(name, start, false, value);
@@ -410,7 +411,6 @@ public class KrollObject extends ScriptableObject
 
 		if (p != null && p instanceof TiModule) {
 			TiModule m = (TiModule)p;
-			m.postCreate();
 		}
 		return p;
 	}
@@ -642,7 +642,7 @@ public class KrollObject extends ScriptableObject
 			for (int i = 0; i < array.length; i++) {
 				jsArray[i] = fromNative(array[i], kroll);
 			}
-			
+
 			o = Context.getCurrentContext().newObject(kroll.getScope(), "Array", jsArray);
 		} else {
 			o = new KrollObject(kroll, value);

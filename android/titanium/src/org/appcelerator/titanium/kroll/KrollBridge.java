@@ -35,10 +35,11 @@ public class KrollBridge
 		kroll.put("JSON", (Scriptable) titanium.get("JSON", titanium));
 
 		if (preload != null) {
-			titanium.loadModule("UI");
+			Object p = titanium.loadModule("UI");
 			Scriptable root = kroll.getScope();
 			Scriptable ti = (Scriptable) root.get("Ti", root);
-			KrollObject ui = (KrollObject) ti.get("UI", ti);
+			KrollObject ui = new KrollObject((KrollObject) ti, p);
+			ti.put("UI", ti, ui);
 
 			for(String key : preload.keySet()) {
 				KrollObject ko = new KrollObject(ui, preload.get(key));

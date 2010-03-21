@@ -1,11 +1,12 @@
 var win = Titanium.UI.currentWindow;
 
+var android = Ti.Platform.name == 'android';
 
 var username = Ti.UI.createTextField({
 	autocapitalization:Titanium.UI.TEXT_AUTOCAPITALIZATION_NONE,
 	width:300,
 	top:10,
-	height:35,
+	height: android ? 45 : 35,
 	borderStyle:Titanium.UI.INPUT_BORDERSTYLE_ROUNDED,
 	hintText:'Foursquare Username'
 });
@@ -14,8 +15,8 @@ win.add(username);
 var password = Ti.UI.createTextField({
 	autocapitalization:Titanium.UI.TEXT_AUTOCAPITALIZATION_NONE,
 	width:300,
-	top:55,
-	height:35,
+	top:android ? 65 : 55,
+	height:android ? 45 : 35,
 	borderStyle:Titanium.UI.INPUT_BORDERSTYLE_ROUNDED,
 	passwordMask:true,
 	hintText:'Foursquare Password'
@@ -24,9 +25,9 @@ win.add(password);
 
 var button = Titanium.UI.createButton({
 	title:'Get Venues Nearby',
-	top:100,
+	top: android ? 120 : 100,
 	width:300,
-	height:40
+	height: android ? 45 : 40
 });
 win.add(button);
 
@@ -52,7 +53,7 @@ button.addEventListener('click', function()
 		var latitude = e.coords.latitude;
 
 		label.text = "You are at: "+longitude+"\n"+latitude+"\n\nFinding venues...";
-		
+
 		var xhr = Titanium.Network.createHTTPClient();
 		xhr.onerror = function(e)
 		{
@@ -64,7 +65,7 @@ button.addEventListener('click', function()
 		{
 			label.hide();
 //			Ti.API.info("foursquare response was "+this.responseText);
-			
+
 			var resp =  eval('('+this.responseText+')');
 			var venues = resp.groups[0].venues;
 			for (var i=0;i<venues.length;i++)
@@ -73,7 +74,7 @@ button.addEventListener('click', function()
 
 			}
 			scrollView.add(status);
-			
+
 			navActInd.hide();
 		};
 		// open the client and encode our URL
@@ -87,7 +88,7 @@ button.addEventListener('click', function()
 	});
 });
 var scrollView = Titanium.UI.createScrollView({
-	top:150,
+	top: android ? 180 : 150,
 	contentHeight:'auto',
 	contentWidth:'auto',
 	backgroundColor:'#13386c',

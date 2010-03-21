@@ -5,7 +5,7 @@
  * Please see the LICENSE included with this distribution for details.
  */
 package ti.modules.titanium.network;
- 
+
 import java.io.ByteArrayOutputStream;
 import java.io.FilterOutputStream;
 import java.io.IOException;
@@ -60,25 +60,26 @@ import org.appcelerator.titanium.util.TiMimeTypeHelper;
 import ti.modules.titanium.xml.DocumentProxy;
 import ti.modules.titanium.xml.XMLModule;
 import android.net.Uri;
- 
+
 public class TiHTTPClient
 {
 	private static final String LCAT = "TiHttpClient";
 	private static final boolean DBG = TiConfig.LOGD;
- 
+	private static final int IS_BINARY_THRESHOLD = 30;
+
 	private static AtomicInteger httpClientThreadCounter;
 	public static final int READY_STATE_UNSENT = 0; // Unsent, open() has not yet been called
 	public static final int READY_STATE_OPENED = 1; // Opened, send() has not yet been called
 	public static final int READY_STATE_HEADERS_RECEIVED = 2; // Headers received, headers have returned and the status is available
 	public static final int READY_STATE_LOADING = 3; // Loading, responseText is being loaded with data
 	public static final int READY_STATE_DONE = 4; // Done, all operations have finished
-    
+
 	private static final String ON_READY_STATE_CHANGE = "onreadystatechange";
 	private static final String ON_LOAD = "onload";
 	private static final String ON_ERROR = "onerror";
 	private static final String ON_DATA_STREAM = "ondatastream";
 	private static final String ON_SEND_STREAM = "onsendstream";
-	
+
 	private TiProxy proxy;
 	private int readyState;
 	private String responseText;
@@ -86,7 +87,7 @@ public class TiHTTPClient
 	private int status;
 	private String statusText;
 	private boolean connected;
- 
+
 	private HttpRequest request;
 	private HttpResponse response;
 	private String method;
@@ -94,34 +95,34 @@ public class TiHTTPClient
 	private DefaultHttpClient client;
 	private LocalResponseHandler handler;
 	private Credentials credentials;
- 
+
 	private TiBlob responseData;
 	private String charset;
 	private String contentType;
- 
+
 	private ArrayList<NameValuePair> nvPairs;
 	private HashMap<String, ContentBody> parts;
 	private String data;
- 
+
 	Thread clientThread;
 	private boolean aborted;
- 
+
 	class LocalResponseHandler implements ResponseHandler<String>
 	{
 		public WeakReference<TiHTTPClient> client;
 		public InputStream is;
 		public HttpEntity entity;
- 
+
 		public LocalResponseHandler(TiHTTPClient client) {
 			this.client = new WeakReference<TiHTTPClient>(client);
 		}
- 
+
 		public String handleResponse(HttpResponse response)
 				throws HttpResponseException, IOException
 		{
 			connected = true;
 	        String clientResponse = null;
- 
+
 			if (client != null) {
 				TiHTTPClient c = client.get();
 				if (c != null) {
@@ -131,7 +132,7 @@ public class TiHTTPClient
 					c.setStatusText(response.getStatusLine().getReasonPhrase());
 					c.setReadyState(READY_STATE_LOADING);
 				}
- 
+
 				if (DBG) {
 					try {
 						Log.w(LCAT, "Entity Type: " + response.getEntity().getClass());
@@ -142,13 +143,13 @@ public class TiHTTPClient
 						// Ignore
 					}
 				}
- 
+
 				StatusLine statusLine = response.getStatusLine();
 		        if (statusLine.getStatusCode() >= 300) {
 					setResponseText(response.getEntity());
 					throw new HttpResponseException(statusLine.getStatusCode(), statusLine.getReasonPhrase());
 				}
-				
+
 				entity = response.getEntity();
 				if (entity.getContentType() != null) {
 					contentType = entity.getContentType().getValue();
@@ -157,9 +158,9 @@ public class TiHTTPClient
 				if (onDataStreamCallback != null) {
 					is = entity.getContent();
 					charset = EntityUtils.getContentCharSet(entity);
-					
+
 					responseData = null;
-					
+
 					if (is != null) {
 						final KrollCallback cb = onDataStreamCallback;
 						long contentLength = entity.getContentLength();
@@ -191,11 +192,11 @@ public class TiHTTPClient
 								} else {
 									responseData.append(TiBlob.blobFromData(proxy.getTiContext(), newbuf));
 								}
-								
+
 								TiBlob blob = TiBlob.blobFromData(proxy.getTiContext(), newbuf);
 								o.put("blob", blob);
 								o.put("progress", ((double)totalSize)/((double)contentLength));
-								
+
 								cb.callWithProperties(o);
 							}
 							if (entity != null) {
@@ -213,7 +214,7 @@ public class TiHTTPClient
 			}
 			return clientResponse;
 		}
- 
+
 		private void setResponseData(HttpEntity entity)
 			throws IOException, ParseException
 		{
@@ -222,7 +223,7 @@ public class TiHTTPClient
 				charset = EntityUtils.getContentCharSet(entity);
 			}
 		}
- 
+
 		private void setResponseText(HttpEntity entity)
 			throws IOException, ParseException
 		{
@@ -231,11 +232,11 @@ public class TiHTTPClient
 			}
 		}
 	}
- 
+
 	private interface ProgressListener {
 		public void progress(int progress);
 	}
-	
+
 	private class ProgressEntity implements HttpEntity
 	{
 		private HttpEntity delegate;
@@ -245,57 +246,57 @@ public class TiHTTPClient
 			this.delegate = delegate;
 			this.listener = listener;
 		}
-		
+
 		public void consumeContent() throws IOException {
 			delegate.consumeContent();
 		}
-		
+
 		public InputStream getContent() throws IOException,
 				IllegalStateException {
 			return delegate.getContent();
 		}
-		
+
 		public Header getContentEncoding() {
 			return delegate.getContentEncoding();
 		}
-		
+
 		public long getContentLength() {
 			return delegate.getContentLength();
 		}
-		
+
 		public Header getContentType() {
 			return delegate.getContentType();
 		}
-		
+
 		public boolean isChunked() {
 			return delegate.isChunked();
 		}
-		
+
 		public boolean isRepeatable() {
 			return delegate.isRepeatable();
 		}
-		
+
 		public boolean isStreaming() {
 			return delegate.isStreaming();
 		}
-		
+
 		public void writeTo(OutputStream stream) throws IOException {
 			OutputStream progressOut = new ProgressOutputStream(stream, listener);
 			delegate.writeTo(progressOut);
 		}
 	}
-	
+
 	private class ProgressOutputStream extends FilterOutputStream
 	{
 		private ProgressListener listener;
 		private int transferred = 0, lastTransferred = 0;
-		
+
 		public ProgressOutputStream(OutputStream delegate, ProgressListener listener)
 		{
 			super(delegate);
 			this.listener = listener;
 		}
-		
+
 		private void fireProgress() {
 			// filter to 512 bytes of granularity
 			if (transferred - lastTransferred >= 512) {
@@ -311,14 +312,14 @@ public class TiHTTPClient
 				}).start();
 			}
 		}
-		
+
 		@Override
 		public void write(byte[] b, int off, int len) throws IOException {
 			super.write(b, off, len);
 			transferred += len;
 			fireProgress();
 		}
-		
+
 		@Override
 		public void write(int b) throws IOException {
 			super.write(b);
@@ -326,11 +327,11 @@ public class TiHTTPClient
 			fireProgress();
 		}
 	}
-	
+
 	public TiHTTPClient(TiProxy proxy)
 	{
 		this.proxy = proxy;
- 
+
 		if (httpClientThreadCounter == null) {
 			httpClientThreadCounter = new AtomicInteger();
 		}
@@ -341,14 +342,14 @@ public class TiHTTPClient
 		this.nvPairs = new ArrayList<NameValuePair>();
 		this.parts = new HashMap<String,ContentBody>();
 	}
- 
+
 	public int getReadyState() {
 		synchronized(this) {
 			this.notify();
 		}
 		return readyState;
 	}
- 
+
 	public KrollCallback getCallback(String name)
 	{
 		Object value = proxy.getDynamicValue(name);
@@ -358,12 +359,12 @@ public class TiHTTPClient
 		}
 		return null;
 	}
- 
+
 	public void fireCallback(String name)
 	{
 		fireCallback(name, new Object[0]);
 	}
- 
+
 	public void fireCallback(String name, Object[] args)
 	{
 		KrollCallback cb = getCallback(name);
@@ -372,18 +373,18 @@ public class TiHTTPClient
 			cb.call(args);
 		}
 	}
- 
+
 	public void setReadyState(int readyState) {
 		Log.d(LCAT, "Setting ready state to " + readyState);
 		this.readyState = readyState;
- 
+
 		fireCallback(ON_READY_STATE_CHANGE);
 		if (readyState == READY_STATE_DONE) {
 			// Fire onload callback
 			fireCallback(ON_LOAD);
 		}
 	}
- 
+
 	public void sendError(String error) {
 		Log.i(LCAT, "Sending error " + error);
 		TiDict event = new TiDict();
@@ -391,34 +392,50 @@ public class TiHTTPClient
 		event.put("source", proxy);
 		fireCallback(ON_ERROR, new Object[] {event});
 	}
- 
+
 	public String getResponseText()
 	{
-		// avoid eating up tons of memory if we have a large binary data blob
-		if (TiMimeTypeHelper.isBinaryMimeType(contentType))
+		if (responseData != null && responseText == null)
 		{
-			return null;
-		}
-		if (responseData != null && responseText == null) {
+			byte[] data = responseData.getBytes();
 			if (charset == null) {
+				// Detect binary
+				int binaryCount = 0;
+				int len = data.length;
+
+				if (len > 0) {
+					for (int i = 0; i < len; i++) {
+						byte b = data[i];
+						if (b < 32 || b > 127 ) {
+							if (b != '\n' && b != '\r' && b != '\t' && b != '\b') {
+								binaryCount++;
+							}
+						}
+					}
+
+					if ((binaryCount * 100)/len >= IS_BINARY_THRESHOLD) {
+						return null;
+					}
+				}
+
 				charset = HTTP.DEFAULT_CONTENT_CHARSET;
 			}
- 
+
 			try {
-				responseText = new String(responseData.getBytes(), charset);
+				responseText = new String(data, charset);
 			} catch (UnsupportedEncodingException e) {
 				Log.e(LCAT, "Unable to convert to String using charset: " + charset);
 			}
 		}
- 
+
 		return responseText;
 	}
- 
+
 	public TiBlob getResponseData()
 	{
 		return responseData;
 	}
-	
+
 	public DocumentProxy getResponseXML()
 	{
 		// avoid eating up tons of memory if we have a large binary data blob
@@ -433,30 +450,30 @@ public class TiHTTPClient
 				Log.e(LCAT, "Error parsing XML", e);
 			}
 		}
-		
+
 		return responseXml;
 	}
- 
+
 	public void setResponseText(String responseText) {
 		this.responseText = responseText;
 	}
- 
+
 	public int getStatus() {
 		return status;
 	}
- 
+
 	public  void setStatus(int status) {
 		this.status = status;
 	}
- 
+
 	public  String getStatusText() {
 		return statusText;
 	}
- 
+
 	public  void setStatusText(String statusText) {
 		this.statusText = statusText;
 	}
- 
+
 	public void abort() {
 		if (readyState > READY_STATE_UNSENT && readyState < READY_STATE_DONE) {
 			if (client != null) {
@@ -486,13 +503,13 @@ public class TiHTTPClient
 			}
 		}
 	}
- 
+
 	public String getAllResponseHeaders() {
 		String result = "";
 		if (readyState >= READY_STATE_HEADERS_RECEIVED)
 		{
 			StringBuilder sb = new StringBuilder(1024);
- 
+
 			Header[] headers = request.getAllHeaders();
 			int len = headers.length;
 			for(int i = 0; i < len; i++) {
@@ -503,10 +520,10 @@ public class TiHTTPClient
 		} else {
 			// Spec says return "";
 		}
- 
+
 		return result;
 	}
- 
+
 	protected HashMap<String,String> headers = new HashMap<String,String>();
 	private Uri uri;
 	public void setRequestHeader(String header, String value)
@@ -517,10 +534,10 @@ public class TiHTTPClient
 			throw new IllegalStateException("setRequestHeader can only be called before invoking send.");
 		}
 	}
- 
+
 	public String getResponseHeader(String header) {
 		String result = "";
- 
+
 		if (readyState > READY_STATE_OPENED) {
 			Header h = response.getFirstHeader(header);
 			if (h != null) {
@@ -533,16 +550,16 @@ public class TiHTTPClient
 		} else {
 			throw new IllegalStateException("getResponseHeader can only be called when readyState > 1");
 		}
- 
+
 		return result;
 	}
- 
+
 	public void open(String method, String url)
 	{
 		if (DBG) {
 			Log.d(LCAT, "open request method=" + method + " url=" + url);
 		}
- 
+
 		this.method = method;
 		uri = Uri.parse(url);
 		host = new HttpHost(uri.getHost(), uri.getPort(), uri.getScheme());
@@ -553,11 +570,11 @@ public class TiHTTPClient
 		setRequestHeader("User-Agent", (String) proxy.getDynamicValue("userAgent"));
 		setRequestHeader("X-Requested-With","XMLHttpRequest");
 	}
- 
+
 	public void addStringData(String data) {
 		this.data = data;
 	}
- 
+
 	public void addPostData(String name, String value) {
 		if (value == null) {
 			value = "";
@@ -568,7 +585,7 @@ public class TiHTTPClient
 			nvPairs.add(new BasicNameValuePair(name,value.toString()));
 		}
 	}
-	
+
 	public int addTitaniumFileAsPostData(String name, Object value) {
 		try {
 			if (value instanceof TiBaseFile) {
@@ -593,7 +610,7 @@ public class TiHTTPClient
 		}
 		return 0;
 	}
- 
+
 	public void send(Object userData)
 		throws MethodNotSupportedException
 	{
@@ -604,10 +621,10 @@ public class TiHTTPClient
 		{
 			if (userData instanceof TiDict) {
 				TiDict data = (TiDict)userData;
- 
+
 				for (String key : data.keySet()) {
 					Object value = data.get(key);
- 
+
 					if (method.equals("POST")) {
 						if (value instanceof TiBaseFile || value instanceof TiBlob) {
 							totalLength += addTitaniumFileAsPostData(key, value);
@@ -625,17 +642,17 @@ public class TiHTTPClient
 				addStringData(TiConvert.toString(userData));
 			}
 		}
- 
+
 		request = new DefaultHttpRequestFactory().newHttpRequest(method, uri.toString());
 		for (String header : headers.keySet()) {
 			request.setHeader(header, headers.get(header));
 		}
-		
+
 		final double fTotalLength = totalLength;
 		clientThread = new Thread(new Runnable(){
 			public void run() {
 				try {
- 
+
 					Thread.sleep(10);
 					if (DBG) {
 						Log.d(LCAT, "send()");
@@ -649,21 +666,21 @@ public class TiHTTPClient
 					 */
 					handler = new LocalResponseHandler(me);
 					client = new DefaultHttpClient();
- 
+
 					if (credentials != null) {
 						client.getCredentialsProvider().setCredentials(
 								new AuthScope(null, -1), credentials);
 						credentials = null;
 					}
- 
+
 					HttpProtocolParams.setUseExpectContinue(client.getParams(), false);
 					HttpProtocolParams.setVersion(client.getParams(), HttpVersion.HTTP_1_1);
- 
+
 					if(request instanceof BasicHttpEntityEnclosingRequest) {
- 
+
 						UrlEncodedFormEntity form = null;
 						MultipartEntity mpe = null;
- 
+
 						if (nvPairs.size() > 0) {
 							try {
 								form = new UrlEncodedFormEntity(nvPairs, "UTF-8");
@@ -671,7 +688,7 @@ public class TiHTTPClient
 								Log.e(LCAT, "Unsupported encoding: ", e);
 							}
 						}
- 
+
 						if(parts.size() > 0) {
 							mpe = new MultipartEntity();
 							for(String name : parts.keySet()) {
@@ -688,10 +705,10 @@ public class TiHTTPClient
 									Log.e(LCAT, "Error converting form to string: ", e);
 								}
 							}
- 
+
 							HttpEntityEnclosingRequest e = (HttpEntityEnclosingRequest) request;
 							Log.d(LCAT, "totalLength="+fTotalLength);
-							
+
 							/*ProgressEntity progressEntity = new ProgressEntity(mpe, new ProgressListener() {
 								public void progress(int progress) {
 									KrollCallback cb = getCallback(ON_SEND_STREAM);
@@ -749,25 +766,25 @@ public class TiHTTPClient
 				}
 			}}, "TiHttpClient-" + httpClientThreadCounter.incrementAndGet());
 		clientThread.setPriority(Thread.MIN_PRIORITY);
- 
+
 		clientThread.start();
- 
+
 		if (DBG) {
 			Log.d(LCAT, "Leaving send()");
 		}
 	}
-	
+
 	public String getLocation() {
 		if (uri != null) {
 			return uri.toString();
 		}
 		return null;
 	}
-	
+
 	public String getConnectionType() {
 		return method;
 	}
-	
+
 	public boolean isConnected() {
 		return connected;
 	}
