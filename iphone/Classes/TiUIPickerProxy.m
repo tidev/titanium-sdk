@@ -95,6 +95,16 @@
 				[columns addObject:column];
 			}
 		}
+		else if ([firstRow isKindOfClass:[NSDictionary class]])
+		{
+			for (id rowdata in data)
+			{
+				TiUIPickerRowProxy *row = [[TiUIPickerRowProxy alloc] _initWithPageContext:[self executionContext] args:[NSArray arrayWithObject:rowdata]];
+				TiUIPickerColumnProxy *column = [self columnAt:0];
+				[column addRow:row];
+				[row release];
+			}
+		}
 		else
 		{
 			TiUIPickerColumnProxy *column = [self columnAt:0];
@@ -116,6 +126,28 @@
 	//TODO
 }
 
+-(id)getSelectedRow:(id)args
+{
+	ENSURE_SINGLE_ARG(args,NSObject);
+	if ([self viewAttached])
+	{
+		return [(TiUIPicker*)[self view] selectedRowForColumn:[TiUtils intValue:args]];
+	}
+	return nil;
+}
+
+-(void)setSelectedRow:(id)args
+{
+	ENSURE_UI_THREAD(setSelectedRow,args);
+	
+	if ([self viewAttached])
+	{
+		NSInteger column = [TiUtils intValue:[args objectAtIndex:0]];
+		NSInteger row = [TiUtils intValue:[args objectAtIndex:1]];
+		BOOL animated = [args count]>2 ? [TiUtils boolValue:[args objectAtIndex:2]] : YES;
+		[(TiUIPicker*)[self view] selectRowForColumn:column row:row animated:animated];
+	}
+}
 
 -(UIViewAutoresizing)verifyAutoresizing:(UIViewAutoresizing)suggestedResizing
 {

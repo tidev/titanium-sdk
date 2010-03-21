@@ -83,6 +83,36 @@ USE_PROXY_FOR_VERIFY_AUTORESIZING
 	return [self.proxy valueForKey:@"columns"];
 }
 
+-(TiProxy*)selectedRowForColumn:(NSInteger)column
+{
+	if ([self isDatePicker])
+	{
+		//FIXME
+		return nil;
+	}
+	NSInteger row = [(UIPickerView*)picker selectedRowInComponent:column];
+	if (row==-1)
+	{
+		return nil;
+	}
+	TiUIPickerColumnProxy *columnProxy = [[self columns] objectAtIndex:column];
+	return [columnProxy rowAt:row];
+}
+
+-(void)selectRowForColumn:(NSInteger)column row:(NSInteger)row animated:(BOOL)animated
+{
+	if ([self isDatePicker])
+	{
+		//TODO
+	}
+	else 
+	{
+		[(UIPickerView*)picker selectRow:row inComponent:column animated:animated];
+		[self pickerView:(UIPickerView*)picker didSelectRow:row inComponent:column];
+	}
+}
+
+
 #pragma mark Public APIs 
 
 -(void)setType_:(id)type_
@@ -169,7 +199,9 @@ USE_PROXY_FOR_VERIFY_AUTORESIZING
 			pickerLabel = [[[UILabel alloc] initWithFrame:frame] autorelease];
 			[pickerLabel setTextAlignment:UITextAlignmentLeft];
 			[pickerLabel setBackgroundColor:[UIColor clearColor]];
-			[pickerLabel setFont:[UIFont boldSystemFontOfSize:18]];
+			
+			float fontSize = [TiUtils floatValue:[rowproxy valueForUndefinedKey:@"fontSize"] def:[TiUtils floatValue:[self.proxy valueForUndefinedKey:@"fontSize"] def:18.0]];	
+			[pickerLabel setFont:[UIFont boldSystemFontOfSize:fontSize]];
 		}
 		
 		[pickerLabel setText:title];
@@ -181,7 +213,6 @@ USE_PROXY_FOR_VERIFY_AUTORESIZING
 	}
 }
 
-
 - (void)pickerView:(UIPickerView *)pickerView didSelectRow:(NSInteger)row inComponent:(NSInteger)component
 {
 	if ([self.proxy _hasListeners:@"change"])
@@ -189,7 +220,7 @@ USE_PROXY_FOR_VERIFY_AUTORESIZING
 		TiUIPickerColumnProxy *proxy = [[self columns] objectAtIndex:component];
 		TiUIPickerRowProxy *rowproxy = [proxy rowAt:row];
 		NSMutableArray *selected = [NSMutableArray array];
-		//TODO: implemented selectedValue
+		//TODO: implement selectedValue
 		NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:
 							   selected,@"selectedValue",
 							   NUMINT(row),@"rowIndex",

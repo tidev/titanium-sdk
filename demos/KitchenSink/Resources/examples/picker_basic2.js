@@ -3,11 +3,12 @@ win.backgroundColor = 'black';
 
 var picker = Ti.UI.createPicker();
 
-var data = [];
-data[0]=Ti.UI.createPickerRow({title:'Bananas',custom_item:'b'});
-data[1]=Ti.UI.createPickerRow({title:'Strawberries',custom_item:'s'});
-data[2]=Ti.UI.createPickerRow({title:'Mangos',custom_item:'m'});
-data[3]=Ti.UI.createPickerRow({title:'Grapes',custom_item:'g'});
+var data = [
+	{title:'Bananas',custom_item:'b',fontSize:18},
+	{title:'Strawberries',custom_item:'s',fontSize:20},
+	{title:'Mangos',custom_item:'m',fontSize:22},
+	{title:'Grapes',custom_item:'g',fontSize:24}
+];
 
 picker.add(data);
 

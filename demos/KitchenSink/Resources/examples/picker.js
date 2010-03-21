@@ -1,6 +1,7 @@
 // create table view data object
 var data = [
 	{title:'Basic Picker', hasChild:true, test:'../examples/picker_basic.js'},
+	{title:'Basic Picker 2', hasChild:true, test:'../examples/picker_basic2.js'},
 	{title:'Picker w/o selection', hasChild:true, test:'../examples/picker_noselection.js'},
 
 	{title:'Picker Single column 1', hasChild:true, test:'../examples/picker_singlecolumn1.js'},
