@@ -348,7 +348,7 @@ def main(args):
 		
 		elif simulator:
 			
-			print "[INFO] detected pre-built simulator, re-using to speed up the launch"
+			print "[INFO] Detected pre-compiled app, will run in interpreted mode to speed launch"
 			
 		sys.stdout.flush()
 
@@ -430,9 +430,15 @@ def main(args):
 			cmd = "osascript \"%s\"" % ass
 			os.system(cmd)
 
+			end_time = time.time()-start_time
+			
+			print "[INFO] Launched application in Simulator (%0.2f seconds)" % end_time
+			sys.stdout.flush()
+			sys.stderr.flush()
+
 			# give the simulator a bit to get started and up and running before 
 			# starting the logger
-			time.sleep(3)
+			time.sleep(2)
 			
 			logger = os.path.realpath(os.path.join(template_dir,'logger.py'))
 			
@@ -442,12 +448,6 @@ def main(args):
 				str(log_id)+'.log',
 				iphone_version
 			])	
-			
-			end_time = time.time()-start_time
-			
-			print "[INFO] Launched application in Simulator (%0.2f seconds)" % end_time
-			sys.stdout.flush()
-			sys.stderr.flush()
 			
 			os.waitpid(sim.pid,0)
 
