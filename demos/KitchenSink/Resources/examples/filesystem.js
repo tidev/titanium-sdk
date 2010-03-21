@@ -11,11 +11,11 @@ Titanium.API.info('Line Ending :' + Titanium.Filesystem.lineEnding);
 
 
 var f = Titanium.Filesystem.getFile(Titanium.Filesystem.resourcesDirectory, 'text.txt');
-Ti.API.info('file = ' + f)
+Ti.API.info('file = ' + f);
 var contents = f.read();
 Ti.API.info("contents blob object = "+contents);
-Ti.API.info('contents = ' + contents.text)
-Ti.API.info('mime type = ' + contents.mimeType)
+Ti.API.info('contents = ' + contents.text);
+Ti.API.info('mime type = ' + contents.mimeType);
 Ti.API.info('nativePath = ' + f.nativePath);
 Ti.API.info('exists = ' + f.exists());
 Ti.API.info('size = ' + f.size);
@@ -34,6 +34,6 @@ Ti.API.info('getParent = ' + dir.getParent());
 Ti.API.info('spaceAvailable = ' + dir.spaceAvailable());
 	
 var l = Titanium.UI.createLabel({text:'Check Log for details', width:300, height:'auto', textAlign:'center'});
-win.add(l)
+win.add(l);
 
 

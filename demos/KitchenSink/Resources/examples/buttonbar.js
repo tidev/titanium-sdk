@@ -34,12 +34,12 @@ bb1.addEventListener('click', function(e)
 {
 	if (odd)
 	{
-		bb1.labels = ['Three','Four', 'Five']
+		bb1.labels = ['Three','Four', 'Five'];
 		odd=false;
 	}
 	else
 	{
-		bb1.labels = ['One','Two', 'Three']
+		bb1.labels = ['One','Two', 'Three'];
 		odd=true;
 	}
 	l.text = 'You clicked index = ' + e.index;
@@ -50,7 +50,7 @@ bb1.addEventListener('click', function(e)
 // 
 var bb2 = Titanium.UI.createButtonBar({
 	labels:['One', 'Two', 'Three', 'Four', 'Five'],
-	backgroundColor:'maroon',
+	backgroundColor:'maroon'
 });
 var flexSpace = Titanium.UI.createButton({
 	systemButton:Titanium.UI.iPhone.SystemButton.FLEXIBLE_SPACE
@@ -85,14 +85,14 @@ bb3.addEventListener('click', function(e)
 var buttonObjects = [
 	{title:'Toggle Style', width:110, enabled:false},
 	{image:'../images/slider_thumb.png', width:50},
-	{title:'Toggle Enabled', width:140},	
+	{title:'Toggle Enabled', width:140}
 ];
 var bb4 = Titanium.UI.createButtonBar({
 	labels:buttonObjects,
 	backgroundColor:'#000',
 	top:100,
 	style:Titanium.UI.iPhone.SystemButtonStyle.BAR,
-	height:40,
+	height:40
 });
 
 win.add(bb4);

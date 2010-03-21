@@ -12,7 +12,7 @@ var webview = Ti.UI.createWebView({
 	width:200,
 	backgroundColor:'#ff0000',
 	html:html
-})
+});
 overlay.add(webview);
 
 Ti.App.addEventListener('camera_button', function()

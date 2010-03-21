@@ -31,8 +31,41 @@ var button = Titanium.UI.createButton({
 });
 win.add(button);
 
+var statusLabel = Titanium.UI.createLabel({
+	font:{fontSize:18},
+	color:'white',
+	width:250,
+	height:'auto',
+	top:20,
+	text:'',
+	textAlign:'center'
+});
+
 var navActInd = Titanium.UI.createActivityIndicator();
 win.setRightNavButton(navActInd);
+
+var label = Titanium.UI.createLabel({
+	text:'Please login',
+	font:{fontSize:18},
+	color:'white',
+	width:250,
+	height:'auto',
+	textAlign:'center'
+});
+
+var scrollView = Titanium.UI.createScrollView({
+	top: android ? 180 : 150,
+	contentHeight:'auto',
+	contentWidth:'auto',
+	backgroundColor:'#13386c',
+	width:300,
+	height:200,
+	borderRadius:10
+});
+win.add(scrollView);
+
+scrollView.add(label);
+
 
 button.addEventListener('click', function()
 {
@@ -60,20 +93,19 @@ button.addEventListener('click', function()
 			Ti.API.info("ERROR " + e.error);
 			navActInd.hide();
 			alert(e.error);
-		}
+		};
 		xhr.onload = function()
 		{
 			label.hide();
-//			Ti.API.info("foursquare response was "+this.responseText);
 
 			var resp =  eval('('+this.responseText+')');
 			var venues = resp.groups[0].venues;
 			for (var i=0;i<venues.length;i++)
 			{
-				status.text += venues[i].name+'\n\n';
+				statusLabel.text += venues[i].name+'\n\n';
 
 			}
-			scrollView.add(status);
+			scrollView.add(statusLabel);
 
 			navActInd.hide();
 		};
@@ -86,36 +118,6 @@ button.addEventListener('click', function()
 		xhr.send();
 		Ti.API.info("sending foursquare API request for "+latitude+","+longitude);
 	});
-});
-var scrollView = Titanium.UI.createScrollView({
-	top: android ? 180 : 150,
-	contentHeight:'auto',
-	contentWidth:'auto',
-	backgroundColor:'#13386c',
-	width:300,
-	height:200,
-	borderRadius:10
-});
-win.add(scrollView);
-
-var label = Titanium.UI.createLabel({
-	text:'Please login',
-	font:{fontSize:18},
-	color:'white',
-	width:250,
-	height:'auto',
-	textAlign:'center'
-});
-scrollView.add(label);
-
-var status = Titanium.UI.createLabel({
-	font:{fontSize:18},
-	color:'white',
-	width:250,
-	height:'auto',
-	top:20,
-	text:'',
-	textAlign:'center'
 });
 
 

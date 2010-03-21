@@ -18,7 +18,7 @@ var camera = Titanium.UI.createButton({
 	backgroundImage:'../images/camera.png',
 	height:33,
 	width:33
-})
+});
 camera.addEventListener('click', function()
 {
 	Titanium.UI.createAlertDialog({title:'Toolbar',message:'You clicked camera!'}).show();
@@ -28,7 +28,7 @@ var send = Titanium.UI.createButton({
 	backgroundImage:'../images/send.png',
 	backgroundSelectedImage:'../images/send_selected.png',
 	width:67,
-	height:32,
+	height:32
 });
 send.addEventListener('click', function()
 {
@@ -45,7 +45,7 @@ var textfield = Titanium.UI.createTextField({
 	borderStyle:Titanium.UI.INPUT_BORDERSTYLE_ROUNDED,
 	keyboardToolbar:[flexSpace,camera, flexSpace,tf,flexSpace, send,flexSpace],
 	keyboardToolbarColor: '#999',	
-	keyboardToolbarHeight: 40,
+	keyboardToolbarHeight: 40
 });
 
 var textfield2 = Titanium.UI.createTextField({

@@ -2,15 +2,14 @@
 var data = [
 	{title:'Events', hasChild:true, test:'../examples/textfield_events.js'},
 	{title:'Keyboard', hasChild:true, test:'../examples/textfield_keyboards.js'},
-	{title:'Border Style', hasChild:true, test:'../examples/textfield_borders.js'},
-
+	{title:'Border Style', hasChild:true, test:'../examples/textfield_borders.js'}
 ];
 
 // add iphone specific tests
 if (Titanium.Platform.name == 'iPhone OS')
 {
 	data.push({title:'Toolbar', hasChild:true, test:'../examples/textfield_toolbar.js'});
-	data.push({title:'Buttons on Textfields', hasChild:true, test:'../examples/textfield_buttons.js'})
+	data.push({title:'Buttons on Textfields', hasChild:true, test:'../examples/textfield_buttons.js'});
 	data.push({title:'The Rest', hasChild:true, test:'../examples/textfield_therest.js'});
 }
 // create table view
@@ -27,7 +26,7 @@ tableview.addEventListener('click', function(e)
 			url:e.rowData.test,
 			title:e.rowData.title
 		});
-		Titanium.UI.currentTab.open(win,{animated:true})
+		Titanium.UI.currentTab.open(win,{animated:true});
 	}
 });
 

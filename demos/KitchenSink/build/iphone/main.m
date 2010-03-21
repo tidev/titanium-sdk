@@ -8,7 +8,7 @@
 #define STRING(x) _QUOTEME(x)
 
 NSString * const TI_APPLICATION_DEPLOYTYPE = @"development";
-NSString * const TI_APPLICATION_ID = @"com.nolanwright.kitchensink";
+NSString * const TI_APPLICATION_ID = @"com.appcelerator.titanium";
 NSString * const TI_APPLICATION_PUBLISHER = @"nwright";
 NSString * const TI_APPLICATION_URL = @"appcelerator.com";
 NSString * const TI_APPLICATION_NAME = @"KitchenSink";
@@ -17,6 +17,10 @@ NSString * const TI_APPLICATION_DESCRIPTION = @"No description provided";
 NSString * const TI_APPLICATION_COPYRIGHT = @"2010 by nwright";
 NSString * const TI_APPLICATION_GUID = @"6fe33f33fd1f4e95a06d2d217170866d";
 BOOL const TI_APPLICATION_ANALYTICS = true;
+
+#ifdef DEBUG
+NSString * const TI_APPLICATION_RESOURCE_DIR = @"/Users/jhaynie/work/titanium_mobile/demos/KitchenSink/Resources";
+#endif
 
 int main(int argc, char *argv[]) {
     NSAutoreleasePool * pool = [[NSAutoreleasePool alloc] init];

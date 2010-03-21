@@ -30,7 +30,7 @@ b.addEventListener('click', function()
 			ind4.hide();
 			win.setToolbar(null,{animated:true});
 			win.setTitleControl(null);
-			win.setTitle('Progress Bar')
+			win.setTitle('Progress Bar');
 			return;
 		}
 		ind.value = val;
@@ -44,7 +44,7 @@ b.addEventListener('click', function()
 		
 		val++;
 		
-	},1000)
+	},1000);
 });
 
 
@@ -93,7 +93,7 @@ var ind3=Titanium.UI.createProgressBar({
 	color:'#fff',
 	message:'Downloading 0 of 10',
 	font:{fontSize:14, fontWeight:'bold'},
-	style:Titanium.UI.iPhone.ProgressBarStyle.PLAIN,
+	style:Titanium.UI.iPhone.ProgressBarStyle.PLAIN
 });
 
 //
@@ -107,7 +107,7 @@ var ind4=Titanium.UI.createProgressBar({
 	color:'#fff',
 	message:'Downloading 0 of 10',
 	font:{fontSize:14, fontWeight:'bold'},
-	style:Titanium.UI.iPhone.ProgressBarStyle.PLAIN,
+	style:Titanium.UI.iPhone.ProgressBarStyle.PLAIN
 });
 
 if (Titanium.Platform.name == 'iPhone OS')

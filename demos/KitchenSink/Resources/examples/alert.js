@@ -8,14 +8,6 @@ var a = Titanium.UI.createAlertDialog({
 	message:'Hello World'
 });
 
-a.addEventListener('click', function(e)
-{
-	l.text = 'You clicked ' + e.index;
-});
-
-//
-// GENERIC LABEL
-//
 var l = Titanium.UI.createLabel({
 	text:'I will tell you which alert buttons you clicked',
 	textAlign:'center',
@@ -25,6 +17,15 @@ var l = Titanium.UI.createLabel({
 	width:'auto',
 	height:'auto'
 });
+
+a.addEventListener('click', function(e)
+{
+	l.text = 'You clicked ' + e.index;
+});
+
+//
+// GENERIC LABEL
+//
 win.add(l);
 
 //

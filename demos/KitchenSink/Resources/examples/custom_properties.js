@@ -29,7 +29,7 @@ b.addEventListener('click', function()
 	w2.myFunc = function()
 	{
 		return 'myFunc was called';
-	}
+	};
 	tab.open(w2,{animated:true});	
 });
 win.add(b);

@@ -13,7 +13,6 @@ win.add(circle);
 var label = Titanium.UI.createLabel({
 	text:'Click circle repeatedly to animate or drag the circle',
 	bottom:100,
-	height:20,
 	color:'#555',
 	font:{fontSize:12,fontFamily:'Helvetica Neue'},
 	textAlign:'center',

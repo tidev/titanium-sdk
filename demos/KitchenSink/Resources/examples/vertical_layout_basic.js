@@ -18,7 +18,7 @@ body.add(bodyView1);
 body.add(bodyView2);
 body.add(bodyView3);
 
-win.add(body)
+win.add(body);
 
 // FOOTER
 var footer = Ti.UI.createView({height:50,borderWidth:1,borderColor:'#999'});

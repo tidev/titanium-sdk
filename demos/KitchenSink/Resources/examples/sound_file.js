@@ -83,16 +83,6 @@ var volumeUp = Titanium.UI.createButton({
 	left:10,
 	top:110
 });
-volumeUp.addEventListener('click', function()
-{
-	if (sound.volume < 1.0)
-	{
-		sound.volume += 0.1;
-		volumeUp.title = 'Volume++ (' + String(sound.volume).substring(0,3) + ')';
-		volumeDown.title = 'Volume--';
-	}
-});
-win.add(volumeUp);
 
 //
 // VOLUME -
@@ -104,6 +94,17 @@ var volumeDown = Titanium.UI.createButton({
 	right:10,
 	top:110
 });
+
+volumeUp.addEventListener('click', function()
+{
+	if (sound.volume < 1.0)
+	{
+		sound.volume += 0.1;
+		volumeUp.title = 'Volume++ (' + String(sound.volume).substring(0,3) + ')';
+		volumeDown.title = 'Volume--';
+	}
+});
+
 volumeDown.addEventListener('click', function()
 {
 	if (sound.volume > 0)
@@ -117,6 +118,8 @@ volumeDown.addEventListener('click', function()
 	}
 
 });
+
+win.add(volumeUp);
 win.add(volumeDown);
 
 //

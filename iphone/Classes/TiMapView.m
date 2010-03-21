@@ -505,16 +505,6 @@
 }
 
 
-//-(void)applyAnnotation:(TiMapAnnotationProxy *)ann toView:(MKPinAnnotationView *)annView
-//{
-//
-//
-//
-//
-//}
-
-
-
 // mapView:viewForAnnotation: provides the view for each annotation.
 // This method may be called for all or some of the added annotations.
 // For MapKit provided annotations (eg. MKUserLocation) return nil to use the MapKit provided annotation view.

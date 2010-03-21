@@ -1,7 +1,7 @@
 // create table view data object
 var data = [
 	{title:'Twitter', hasChild:true, test:'../examples/twitter.js', title_image:'../images/twitter_logo_header.png'},
-	{title:'Foursquare', hasChild:true, test:'../examples/foursquare.js', title_image:'../images/light-poweredby-foursquare.png'},
+	{title:'Foursquare', hasChild:true, test:'../examples/foursquare.js', title_image:'../images/light-poweredby-foursquare.png'}
 ];
 
 //add iphone specific tests
@@ -35,7 +35,7 @@ tableview.addEventListener('click', function(e)
 		{
 			win.titleImage = e.rowData.title_image;
 		}
-		Titanium.UI.currentTab.open(win,{animated:true})
+		Titanium.UI.currentTab.open(win,{animated:true});
 	}
 });
 

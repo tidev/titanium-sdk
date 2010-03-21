@@ -8,7 +8,7 @@ var data = [
 	{title:'Label', hasChild:true, test:'../examples/label.js'},
 	{title:'Search Bar', hasChild:true, test:'../examples/searchbar.js'},
 	{title:'Text Field', hasChild:true, test:'../examples/textfield.js'},
-	{title:'Text Area', hasChild:true, test:'../examples/textarea.js'},
+	{title:'Text Area', hasChild:true, test:'../examples/textarea.js'}
 ];
 
 // add iphone specific tests
@@ -35,7 +35,7 @@ tableview.addEventListener('click', function(e)
 			url:e.rowData.test,
 			title:e.rowData.title
 		});
-		Titanium.UI.currentTab.open(win,{animated:true})
+		Titanium.UI.currentTab.open(win,{animated:true});
 	}
 });
 

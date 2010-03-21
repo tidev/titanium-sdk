@@ -15,7 +15,7 @@ var button = Titanium.UI.createButton({
 var messageView = Titanium.UI.createView({
 	height:60,
 	width:250,
-	top:10,
+	top:10
 });
 
 var indView = Titanium.UI.createView({
@@ -48,12 +48,12 @@ button.addEventListener('click',function()
 });
 
 var heading;
-var location='calculating';
+var gps='calculating';
 var address='calculating address';
 
 function refreshLabel()
 {
-	var text = "Heading: "+Math.round(heading)+"°, Location: "+location;
+	var text = "Heading: "+Math.round(heading)+"°, Location: "+gps;
 	if (address)
 	{
 		text+="\n"+address;
@@ -65,7 +65,7 @@ Titanium.Geolocation.addEventListener('location',function(e)
 {
 	var longitude = e.coords.longitude;
 	var latitude = e.coords.latitude;
-	location = Math.round(longitude)+' x '+Math.round(latitude);
+	gps = Math.round(longitude)+' x '+Math.round(latitude);
 	Titanium.Geolocation.reverseGeocoder(latitude,longitude,function(evt)
 	{
 		var places = evt.places[0];
@@ -79,7 +79,7 @@ Titanium.Geolocation.addEventListener('heading',function(e)
 {
 	if (e.error)
 	{
-		updatedHeading.text = 'error: ' + e.error
+		updatedHeading.text = 'error: ' + e.error;
 		return;
 	}
 

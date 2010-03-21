@@ -9,7 +9,7 @@ function getContacts()
 	contacts = Titanium.Contacts.getAllContacts();
 	for (var i=0;i<contacts.length;i++)
 	{
-		var c = contacts[i]
+		var c = contacts[i];
 		data.push({title:c.firstName + ' ' + c.lastName,hasChild:true});
 	}
 	return data;
@@ -18,7 +18,7 @@ function getContacts()
 var data = getContacts();
 
 var tableview = Titanium.UI.createTableView({
-	data:data,
+	data:data
 });
 
 
@@ -31,7 +31,7 @@ tableview.addEventListener('click', function(e)
 			hintText:'First Name',
 			top:10,
 			borderStyle:Titanium.UI.INPUT_BORDERSTYLE_ROUNDED,
-			height:35,
+			height:35
 		});
 		var ln = Titanium.UI.createTextField({
 			width:200,
@@ -339,7 +339,7 @@ tableview.addEventListener('click', function(e)
 			top:0
 		});
 		
-		editWin.backgroundColor = '#13386c'
+		editWin.backgroundColor = '#13386c';
 		editView.add(fn);
 		editView.add(ln);
 		editView.add(middleName);
@@ -366,15 +366,18 @@ tableview.addEventListener('click', function(e)
 		editView.add(url);
 		editView.add(button);
 		
-		if (deleteButton != null) editView.add(deleteButton);
+		if (deleteButton != null) 
+		{
+			editView.add(deleteButton);
+		}
 		
 		editWin.add(editView);
 		
 		Titanium.UI.currentTab.open(editWin,{animated:true});		
 	}
-	catch(e)
+	catch(ex)
 	{
-		Ti.API.info('error ' + e)
+		Ti.API.error('contacts error = ' + ex);
 	}
 
 

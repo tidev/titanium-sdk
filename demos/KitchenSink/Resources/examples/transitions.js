@@ -3,7 +3,7 @@ var win = Ti.UI.currentWindow;
 // this is our second view for the view transition example
 // we add it first, so the next one will be initially visible (last on the stack)
 var view2 = Ti.UI.createView({
-	backgroundColor:'#13386c',
+	backgroundColor:'#13386c'
 });
 win.add(view2);
 
@@ -14,6 +14,14 @@ view = Ti.UI.createView({
 	backgroundColor:'#fff'
 });
 win.add(view);
+
+// initialize container view 
+var imageView = Titanium.UI.createView({
+	height:75,
+	width:75,
+	top:110,
+	backgroundColor:'red'
+});
 
 //
 // FULL WINDOW TRANSITON. 
@@ -38,7 +46,7 @@ b1.addEventListener('click', function()
 	b.addEventListener('click',function()
 	{
 		w.close();
-	})
+	});
 	w.add(b);
 	
 	// open window and transiton with tab group
@@ -65,7 +73,7 @@ b2.addEventListener('click', function()
 	b.addEventListener('click',function()
 	{
 		win.animate({view:view,transition:Ti.UI.iPhone.AnimationStyle.CURL_UP});
-	})
+	});
 	view2.add(b);
 	
 	// transition to view
@@ -80,11 +88,7 @@ var image1 = Titanium.UI.createView({
 	height:75,
 	width:75,
 	borderWidth:3,
-	borderColor:'#777',
-});
-image1.addEventListener('click', function()
-{
-	imageView.animate({view:image2,transition:Ti.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT});
+	borderColor:'#777'
 });
 
 var image2 = Titanium.UI.createView({
@@ -92,11 +96,7 @@ var image2 = Titanium.UI.createView({
 	height:75,
 	width:75,
 	borderWidth:3,
-	borderColor:'#777',
-});
-image2.addEventListener('click', function()
-{
-	imageView.animate({view:image3,transition:Ti.UI.iPhone.AnimationStyle.CURL_DOWN});
+	borderColor:'#777'
 });
 
 var image3 = Titanium.UI.createView({
@@ -104,20 +104,24 @@ var image3 = Titanium.UI.createView({
 	height:75,
 	width:75,
 	borderWidth:3,
-	borderColor:'#777',
+	borderColor:'#777'
 });
+
+image1.addEventListener('click', function()
+{
+	imageView.animate({view:image2,transition:Ti.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT});
+});
+
+image2.addEventListener('click', function()
+{
+	imageView.animate({view:image3,transition:Ti.UI.iPhone.AnimationStyle.CURL_DOWN});
+});
+
 image3.addEventListener('click', function()
 {
 	imageView.animate({view:image1,transition:Ti.UI.iPhone.AnimationStyle.CURL_UP});
 });
 
-// initialize container view 
-var imageView = Titanium.UI.createView({
-	height:75,
-	width:75,
-	top:110,
-	backgroundColor:'red'
-});
 view.add(imageView);
 
 imageView.add(image3);
@@ -198,7 +202,7 @@ var toolbarView = Ti.UI.createView({
 	height:45,
 	bottom:0
 });
-view.add(toolbarView)
+view.add(toolbarView);
 
 // create and add toolbar
 var toolbar = Titanium.UI.createToolbar({
@@ -276,7 +280,7 @@ var b2 = Titanium.UI.createView({
 b2.addEventListener('click', function()
 {
 	funView.animate({view:b, transition:Ti.UI.iPhone.AnimationStyle.CURL_DOWN});	
-})
+});
 var bViewLabel = Titanium.UI.createLabel({
 	text:'Ouch!',
 	color:'#fff',

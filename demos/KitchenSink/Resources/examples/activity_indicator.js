@@ -1,5 +1,5 @@
 var win = Titanium.UI.currentWindow;
-win.backgroundColor = '#13386c'
+win.backgroundColor = '#13386c';
 
 //
 // BASE INDICATOR
@@ -16,7 +16,7 @@ var button0 = Titanium.UI.createButton({
 	height:35,
 	width:130,
 	top:10,
-	right:20,
+	right:20
 });
 
 button0.addEventListener('click', function()
@@ -34,7 +34,7 @@ var button1 = Titanium.UI.createButton({
 	height:35,
 	width:130,
 	top:10,
-	left:20,
+	left:20
 });
 
 button1.addEventListener('click', function()
@@ -50,12 +50,12 @@ var button2 = Titanium.UI.createButton({
 	title:'Show Indicator (BIG)',
 	height:35,
 	width:200,
-	top:55,
+	top:55
 });
 
 button2.addEventListener('click', function()
 {
-	actInd.style = Titanium.UI.iPhone.ActivityIndicatorStyle.BIG
+	actInd.style = Titanium.UI.iPhone.ActivityIndicatorStyle.BIG;
 	actInd.show();
 });
 
@@ -66,7 +66,7 @@ var button3 = Titanium.UI.createButton({
 	title:'Show Indicator (DARK)',
 	height:35,
 	width:200,
-	top:100,
+	top:100
 });
 
 button3.addEventListener('click', function()
@@ -82,7 +82,7 @@ var button4 = Titanium.UI.createButton({
 	title:'Show Indicator (Message)',
 	height:35,
 	width:200,
-	top:145,
+	top:145
 });
 
 button4.addEventListener('click', function()
@@ -104,7 +104,7 @@ var button5 = Titanium.UI.createButton({
 	title:'Show Indicator (Toolbar)',
 	height:35,
 	width:200,
-	top:190,
+	top:190
 });
 
 button5.addEventListener('click', function()
@@ -132,7 +132,7 @@ var button6 = Titanium.UI.createButton({
 	title:'Show Indicator (Navbar)',
 	height:35,
 	width:200,
-	top:235,
+	top:235
 });
 
 button6.addEventListener('click', function()
@@ -145,7 +145,7 @@ button6.addEventListener('click', function()
 		navActInd.hide();
 		win.setRightNavButton(null);
 	
-	},3000)
+	},3000);
 
 });
 
@@ -156,7 +156,7 @@ var button7 = Titanium.UI.createButton({
 	title:'Show Indicator (Title)',
 	height:35,
 	width:200,
-	top:235,
+	top:235
 });
 
 button7.addEventListener('click', function()
@@ -170,7 +170,7 @@ button7.addEventListener('click', function()
 		win.setTitleControl(null);
 		win.title = 'Activity Indicator';
 
-	},3000)
+	},3000);
 });
 
 win.add(actInd);
@@ -190,7 +190,7 @@ if (Titanium.Platform.name == 'iPhone OS')
 else
 {
 	actInd.show();
-	actInd.message = 'Loading...'
+	actInd.message = 'Loading...';
 	setTimeout(function()
 	{
 		actInd.hide();

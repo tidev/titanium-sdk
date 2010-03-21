@@ -1,9 +1,7 @@
 //create table view data object
 var data = [
 	{title:'Basic', hasChild:true, test:'../examples/vertical_layout_basic.js'},
-	 {title:'Table View', hasChild:true, test:'../examples/vertical_layout_table_view.js'},
-	// {title:'Table View', hasChild:true, test:'../examples/vertical_layout_table_view.js'}
-
+	 {title:'Table View', hasChild:true, test:'../examples/vertical_layout_table_view.js'}
 ];
 
 
@@ -21,7 +19,7 @@ tableview.addEventListener('click', function(e)
 			url:e.rowData.test,
 			title:e.rowData.title
 		});
-		Titanium.UI.currentTab.open(win,{animated:true})
+		Titanium.UI.currentTab.open(win,{animated:true});
 	}
 });
 

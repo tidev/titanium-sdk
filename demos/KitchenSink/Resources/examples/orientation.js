@@ -19,9 +19,47 @@ win.orientationModes = [
 	Titanium.UI.LANDSCAPE_LEFT,
 	Titanium.UI.LANDSCAPE_RIGHT,
 	Titanium.UI.FACE_UP,
-	Titanium.UI.FACE_DOWN,		
+	Titanium.UI.FACE_DOWN
 ]; 
 
+
+//
+// helper function
+//
+function getOrientation(o)
+{
+	switch (o)
+	{
+		case Titanium.UI.PORTRAIT:
+		{
+			return 'portrait';
+		}
+		case Titanium.UI.UPSIDE_PORTRAIT:
+		{
+			return 'upside portrait';
+		}
+		case Titanium.UI.LANDSCAPE_LEFT:
+		{
+			return 'landscape left';
+		}
+		case Titanium.UI.LANDSCAPE_RIGHT:
+		{
+			return 'landscape right';
+		}
+		case Titanium.UI.FACE_UP:
+		{
+			return 'face up';
+		}
+		case Titanium.UI.FACE_DOWN:
+		{
+			return 'face down';
+		}
+		case Titanium.UI.UNKNOWN:
+		{
+			return 'unknown';
+		}
+	}
+}
 
 //
 // get current orientation
@@ -96,9 +134,9 @@ landscape.addEventListener('click', function()
 	// set and enforce landscape for this window
 	win.orientationModes = [
 		Titanium.UI.LANDSCAPE_LEFT,
-		Titanium.UI.LANDSCAPE_RIGHT,
+		Titanium.UI.LANDSCAPE_RIGHT
 	]; 
-	Titanium.UI.orientation = Titanium.UI.LANDSCAPE_LEFT
+	Titanium.UI.orientation = Titanium.UI.LANDSCAPE_LEFT;
 });
 
 //
@@ -116,7 +154,7 @@ b3.addEventListener('click', function()
 {
 	var win = Ti.UI.createWindow({
 		url:'vibrate.js',
-		backgroundColor:'purple', 
+		backgroundColor:'purple'
 	});
 	
 	win.orientationModes = [ 
@@ -125,7 +163,7 @@ b3.addEventListener('click', function()
 		Titanium.UI.LANDSCAPE_LEFT, 
 		Titanium.UI.LANDSCAPE_RIGHT, 
 		Titanium.UI.FACE_UP, 
-		Titanium.UI.FACE_DOWN, 
+		Titanium.UI.FACE_DOWN
 	];
 	
 	var close = Titanium.UI.createButton({
@@ -138,47 +176,9 @@ b3.addEventListener('click', function()
 	close.addEventListener('click', function()
 	{
 		win.close();
-	})
-	win.open()
-	//Ti.UI.currentTab.open(win,{animated:true});
+	});
+	win.open();
 });
 win.add(landscape);
 
-//
-// helper function
-//
-function getOrientation(o)
-{
-	switch (o)
-	{
-		case Titanium.UI.PORTRAIT:
-		{
-			return 'portrait';
-		}
-		case Titanium.UI.UPSIDE_PORTRAIT:
-		{
-			return 'upside portrait';
-		}
-		case Titanium.UI.LANDSCAPE_LEFT:
-		{
-			return 'landscape left';
-		}
-		case Titanium.UI.LANDSCAPE_RIGHT:
-		{
-			return 'landscape right';
-		}
-		case Titanium.UI.FACE_UP:
-		{
-			return 'face up';
-		}
-		case Titanium.UI.FACE_DOWN:
-		{
-			return 'face down';
-		}
-		case Titanium.UI.UNKNOWN:
-		{
-			return 'unknown';
-		}
-	}
-}
 

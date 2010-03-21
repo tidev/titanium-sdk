@@ -211,7 +211,7 @@ else
 		{
 			if (e.error)
 			{
-				currentHeading.text = 'error: ' + e.error
+				currentHeading.text = 'error: ' + e.error;
 				return;
 			}
 			var x = e.heading.x;
@@ -233,7 +233,7 @@ else
 		{
 			if (e.error)
 			{
-				updatedHeading.text = 'error: ' + e.error
+				updatedHeading.text = 'error: ' + e.error;
 				return;
 			}
 

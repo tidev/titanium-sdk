@@ -8,9 +8,7 @@ var data = [
 	{title:'Row 4'},
 	{title:'Row 5'},
 	{title:'Row 6'},
-	{title:'Row 7'},
-	
-
+	{title:'Row 7'}
 ];
 
 // create table view

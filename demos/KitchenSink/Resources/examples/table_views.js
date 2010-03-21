@@ -16,8 +16,7 @@ var data = [
 	{title:'Table API Basic', hasChild:true, test:'../examples/table_view_api_basic.js', header:'New Programmatic API'},
 	{title:'Table Custom Row Header', hasChild:true, test:'../examples/table_view_api_custom_rowheader.js'},
 	{title:'Table Section Header', hasChild:true, test:'../examples/table_view_section_header.js'},
-	{title:'Table Empty Dataset (Create)', hasChild:true, test:'../examples/table_view_api_emptydata.js'},
-
+	{title:'Table Empty Dataset (Create)', hasChild:true, test:'../examples/table_view_api_emptydata.js'}
 ];
 
 // add iphone specific tests
@@ -78,7 +77,7 @@ tableview.addEventListener('click', function(e)
 			url:e.rowData.test,
 			title:e.rowData.title
 		});
-		Titanium.UI.currentTab.open(win,{animated:true})
+		Titanium.UI.currentTab.open(win,{animated:true});
 	}
 });
 

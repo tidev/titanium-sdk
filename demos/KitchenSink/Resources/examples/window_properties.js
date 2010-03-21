@@ -14,7 +14,7 @@ button.addEventListener('click', function()
 {
 	win.backgroundImage = null;
 	win.backgroundColor = '#336699';
-})
+});
 win.add(button);
 
 //
@@ -29,7 +29,7 @@ var buttonImage = Titanium.UI.createButton({
 buttonImage.addEventListener('click', function()
 {
 	win.backgroundImage = '../images/bg.png';
-})
+});
 win.add(buttonImage);
 
 //
@@ -44,7 +44,7 @@ var buttonWidthHeight = Titanium.UI.createButton({
 var full=true;
 buttonWidthHeight.addEventListener('click', function()
 {
-	Ti.API.info('in width height')
+	Ti.API.info('in width height');
 	if (full)
 	{
 		win.height = 300;

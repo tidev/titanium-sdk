@@ -22,7 +22,7 @@ var l1 = Titanium.UI.createLabel({
 	font:{fontSize:14,fontFamily:'Helvetica Neue'}
 });
 
-view.add(l1)
+view.add(l1);
 
 var l2 = Titanium.UI.createLabel({
 	text:'touchmove not fired',

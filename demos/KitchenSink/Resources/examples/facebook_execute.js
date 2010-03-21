@@ -17,29 +17,6 @@ var b1 = Ti.UI.createButton({
 	top:10
 });
 win.add(b1);
-b1.addEventListener('click', function()
-{
-	if (Titanium.Facebook.isLoggedIn()==false)
-	{
-		Ti.UI.createAlertDialog({title:'Facebook', message:'Login before uploading your photo'}).show();
-		return;
-	}
-	if (!Titanium.Facebook.hasPermission("photo_upload"))
-	{
-		Titanium.Facebook.requestPermission("photo_upload",function(evt)
-		{
-			if (evt.success)
-			{
-				uploadPhoto();
-			}
-		})
-	}
-	else
-	{
-		uploadPhoto();
-	}
-	
-});
 
 
 function uploadPhoto()
@@ -73,6 +50,30 @@ function uploadPhoto()
 		error:function(error)
 		{
 		},
-		allowImageEditing:true,
+		allowImageEditing:true
 	});
 };
+
+b1.addEventListener('click', function()
+{
+	if (Titanium.Facebook.isLoggedIn()==false)
+	{
+		Ti.UI.createAlertDialog({title:'Facebook', message:'Login before uploading your photo'}).show();
+		return;
+	}
+	if (!Titanium.Facebook.hasPermission("photo_upload"))
+	{
+		Titanium.Facebook.requestPermission("photo_upload",function(evt)
+		{
+			if (evt.success)
+			{
+				uploadPhoto();
+			}
+		});
+	}
+	else
+	{
+		uploadPhoto();
+	}
+	
+});

@@ -1,5 +1,5 @@
 var win = Titanium.UI.currentWindow;
-win.backgroundColor = '#13386c'
+win.backgroundColor = '#13386c';
 win.name = "window";
 
 var a = Ti.UI.createView({borderColor:'#133899',borderWidth:6,borderRadius:2,backgroundColor:'orange',width:100,height:100,top:10,name:"view a"});
@@ -20,7 +20,7 @@ var l = Ti.UI.createLabel({
 	text:'click anywhere',
 	height:'auto',
 	width:'auto'
-})
+});
 
 var l2 = Ti.UI.createLabel({
 	color:'white',
@@ -30,7 +30,7 @@ var l2 = Ti.UI.createLabel({
 	text:'',
 	height:'auto',
 	width:'auto'
-})
+});
 
 win.add(a);
 win.add(b);

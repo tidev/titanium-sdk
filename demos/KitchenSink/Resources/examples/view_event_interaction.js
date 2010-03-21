@@ -26,7 +26,7 @@ var label = Ti.UI.createLabel({
 	font:{fontSize:15,fontWeight:'bold'},
 	width:'auto',
 	height:'auto'
-})
+});
 
 view2.add(label);
 
@@ -38,7 +38,7 @@ var l = Ti.UI.createLabel({
 	width:300,
 	height:'auto',
 	top:10,
-	font:{fontSize:13},
+	font:{fontSize:13}
 });
 win.add(l);
 var l2 = Ti.UI.createLabel({
@@ -46,7 +46,7 @@ var l2 = Ti.UI.createLabel({
 	width:300,
 	height:'auto',
 	top:25,
-	font:{fontSize:13},
+	font:{fontSize:13}
 });
 win.add(l2);
 view2.addEventListener('click',function()

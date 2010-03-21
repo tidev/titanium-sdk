@@ -82,7 +82,7 @@ var sv = Titanium.UI.createButton({
 });
 sv.addEventListener('click', function()
 {
-	Ti.API.info('IN SV CHANGE')
+	Ti.API.info('IN SV CHANGE');
 	// set location to sv
 	mapview.setLocation(regionSV);
 	
@@ -189,13 +189,13 @@ mapview.addEventListener('click',function(evt)
 	}
 	if (myid == 2 && annotationAdded==false)
 	{
-		Ti.API.info('adding mountain view annotation')
+		Ti.API.info('adding mountain view annotation');
 		mapview.addAnnotation(mountainView);
 		annotationAdded=true;
 	}
 	else
 	{
-		Ti.API.info('removing mountain view annotation')
+		Ti.API.info('removing mountain view annotation');
 		mapview.removeAnnotation(mountainView);
 		annotationAdded=false;
 	}

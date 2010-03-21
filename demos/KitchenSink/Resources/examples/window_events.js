@@ -1,21 +1,29 @@
 // current window
 var win = Titanium.UI.currentWindow;
 
-var focusText = (Titanium.App.Properties.getString('window_focus_event')!=null)
-				 ? 'Focus fired ' + Titanium.App.Properties.getString('window_focus_event')
-				 : 'Focus not fired';
+var focusText = 'Focus not fired';
+if (Titanium.App.Properties.getString('window_focus_event')!=null)
+{
+	focusText = 'Focus fired ' + Titanium.App.Properties.getString('window_focus_event');
+}
 
-var blurText = (Titanium.App.Properties.getString('window_blur_event')!=null)
-				 ? 'Blur fired ' + Titanium.App.Properties.getString('window_blur_event')
-				 : 'Blur not fired';
+var blurText = 'Blur not fired';
+if (Titanium.App.Properties.getString('window_blur_event')!=null)
+{
+	blurText = 'Blur fired ' + Titanium.App.Properties.getString('window_blur_event');
+}
 
-var openText = (Titanium.App.Properties.getString('window_open_event'))
-				 ? 'Open fired ' + Titanium.App.Properties.getString('window_open_event')
-				 : 'Open not fired';
+var openText = 'Open not fired';
+if (Titanium.App.Properties.getString('window_open_event'))
+{
+	openText = 'Open fired ' + Titanium.App.Properties.getString('window_open_event');
+}
 
-var closeText = (Titanium.App.Properties.getString('window_close_event'))
-				 ? 'Close fired ' + Titanium.App.Properties.getString('window_close_event')
-				 : 'Close not fired';
+var closeText = 'Close not fired';
+if (Titanium.App.Properties.getString('window_close_event'))
+{
+	closeText = 'Close fired ' + Titanium.App.Properties.getString('window_close_event');
+}
 
 //
 // FOCUS LABEL
@@ -104,7 +112,7 @@ var l1 = Titanium.UI.createLabel({
 	font:{fontSize:14,fontFamily:'Helvetica Neue'}
 });
 
-win.add(l1)
+win.add(l1);
 
 var l2 = Titanium.UI.createLabel({
 	text:'touchmove not fired',

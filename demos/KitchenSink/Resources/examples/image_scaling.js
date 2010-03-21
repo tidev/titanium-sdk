@@ -98,7 +98,7 @@ image3.addEventListener('click', function()
 		image3.animate({transform:t,center:center3,zIndex:1,duration:500});
 		scaled3 = false;
 	}
-})
+});
 
 var label = Titanium.UI.createLabel({
 	text:'Click images to toggle scale',

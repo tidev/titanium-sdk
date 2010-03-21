@@ -4,13 +4,13 @@ var win = Ti.UI.currentWindow;
 win.orientationModes = [
 	Titanium.UI.PORTRAIT,
 	Titanium.UI.LANDSCAPE_LEFT,
-	Titanium.UI.LANDSCAPE_RIGHT,
+	Titanium.UI.LANDSCAPE_RIGHT
 ];
 Titanium.Media.openPhotoGallery({
 	success: function(event)
 	{
 		
-		var emailDialog = Titanium.UI.createEmailDialog()
+		var emailDialog = Titanium.UI.createEmailDialog();
 		emailDialog.setSubject('Hello from Titanium!');
 		emailDialog.setToRecipients(['foo@yahoo.com']);
 		emailDialog.setCcRecipients(['bar@yahoo.com']);

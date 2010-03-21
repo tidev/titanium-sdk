@@ -18,7 +18,7 @@ var imageView = Titanium.UI.createImageView({
 	images:images,
 	duration:100, // in milliseconds, the time before next frame is shown
 	repeatCount:0,  // 0 means animation repeats indefinitely, use > 1 to control repeat count
-	top:0,
+	top:0
 });
 
 
@@ -64,7 +64,7 @@ imageView.addEventListener('change', function(e)
 	frame.text = e.index;
 });
 
-win.add(imageView)
+win.add(imageView);
 
 //
 // CONTROLS
@@ -148,6 +148,16 @@ var durationUp = Titanium.UI.createButton({
 	top:50,
 	left:10
 });
+
+// help text
+var l = Titanium.UI.createLabel({
+	text:'Duration = 110 ms (re-start to apply)',
+	bottom:10,
+	color:'white',
+	width:'auto',
+	height:'auto'
+});
+
 durationUp.addEventListener('click', function()
 {
 	imageView.duration += 100;
@@ -165,6 +175,8 @@ var durationDown = Titanium.UI.createButton({
 	top:50,
 	right:10
 });
+
+
 durationDown.addEventListener('click', function()
 {
 	if (imageView.duration > 100)
@@ -180,14 +192,6 @@ durationDown.addEventListener('click', function()
 });
 win.add(durationDown);
 
-// help text
-var l = Titanium.UI.createLabel({
-	text:'Duration = 110 ms (re-start to apply)',
-	bottom:10,
-	color:'white',
-	width:'auto',
-	height:'auto'
-});
 win.add(l);
 
 win.add(frame);

@@ -1,5 +1,6 @@
 var win = Titanium.UI.currentWindow;
-win.backgroundColor = '#336699'
+win.backgroundColor = '#336699';
+
 var button = Titanium.UI.createButton({
 	title:'Animate Me', 
 	width:300,
@@ -17,5 +18,5 @@ button.addEventListener('click', function()
 	t = t.translate(20,50,170);
 	t.m34 = 1.0/-2000;
 	button.animate({transform:t, duration:1000, autoreverse:true});
-})
+});
 

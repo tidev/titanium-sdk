@@ -38,12 +38,11 @@ var button2 = Titanium.UI.createButton({
 button2.addEventListener('click', function()
 {
 	dialog.title = 'I changed the title';
-	dialog.options = ['New Option 1', 'New Option 2', 'New Option 3', 'New Option 4'],
+	dialog.options = ['New Option 1', 'New Option 2', 'New Option 3', 'New Option 4'];
 	dialog.destructive = 0;
 	dialog.cancel = 1;
 	dialog.show();
-	
-})
+});
 
 // label that shows clicked option
 var label = Titanium.UI.createLabel({
