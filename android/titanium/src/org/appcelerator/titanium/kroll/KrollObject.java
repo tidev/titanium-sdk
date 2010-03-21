@@ -353,7 +353,7 @@ public class KrollObject extends ScriptableObject
 			}
 		}
 
-		if (has(name, start) || (value != null && (value instanceof KrollObject || value instanceof Function)) && !isDynamic) {
+		if (has(name, start) || (value != null && (value instanceof KrollObject /*|| value instanceof Function*/)) && !isDynamic) {
 			super.put(name, start, value);
 		} else {
 			handleMethodOrProperty(name, start, false, value);
