@@ -26,7 +26,6 @@ var xhr = Titanium.Network.createHTTPClient();
 xhr.onload = function()
 {
 	l2.text = this.responseText;
-	Titanium.UI.currentWindow.repaint();
 };
 
 xhr.onerror = function(e)
