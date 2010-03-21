@@ -164,6 +164,10 @@ def main(args):
 				else:
 					log_id = None
 
+	# if using custom modules, we have to force rebuild each time for now
+	if ti.properties.has_key('modules') and len(ti.properties['modules']) > 0:
+		force_rebuild = True
+
 	# only do this stuff when we're in a force rebuild which is either
 	# non-simulator build or when we're simulator and it's the first time
 	# or different version of titanium
