@@ -643,5 +643,5 @@ if __name__ == "__main__":
 #	main(sys.argv)
 #	main([sys.argv[0],'json','output=~/tmp/doc'])	
 #	main([sys.argv[0],'devhtml','output=~/work/appcelerator_network/new/public/devcenter/application/apidoc/mobile/1.0.0'])
-	main([sys.argv[0],'devhtml','output=~/work/appcelerator_network/new/public/devcenter/application/apidoc/mobile/1.0'])
+	main([sys.argv[0],'devhtml','output=~/work/appcelerator_network/new/public/devcenter/application/apidoc/mobile/1.1'])
 	

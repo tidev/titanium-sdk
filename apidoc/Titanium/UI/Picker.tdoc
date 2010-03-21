@@ -12,7 +12,7 @@ proxy
 
 - description
 
-A Picker is created by the method `Titanium.UI.createPicker`.  A Picker can be used to select one or more fixed values.
+A Picker is created by the method [Titanium.UI.createPicker](Titanium.UI.createPicker).  A Picker can be used to select one or more fixed values.
 
 - since
 
@@ -31,7 +31,24 @@ selectionIndicator[boolean]: for basic picker, boolean value to indicate whether
 
 - methods
 
+add: add an array of rows, a single row or a column to the picker
 reloadColumn: causes the picker to reload the values from the new column
+getSelectedRow: get the selected row object for column
+setSelectedRow: set the column's row to the selected state
+
+- method : getSelectedRow, object
+
+index[int]: for the column index, return the row object or nil if not found
+
+- method : setSelectedRow
+
+column[int]: the column index
+row[int]: the row index
+animated[boolean]: boolean to indicate if the selection should be animated (default)
+
+- method : add
+
+data[array,object]: add an array of rows, a single row or a column to the picker
 
 - method : reloadColumn
 
