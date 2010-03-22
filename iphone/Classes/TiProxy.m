@@ -266,9 +266,15 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 	executionContext = context; //don't retain
 }
 
+-(void)_configurationSet
+{
+	// for subclass
+}
+
 -(void)_initWithProperties:(NSDictionary*)properties
 {
 	[self setValuesForKeysWithDictionary:properties];
+	[self _configurationSet];
 }
 
 -(void)_initWithCallback:(KrollCallback*)callback
