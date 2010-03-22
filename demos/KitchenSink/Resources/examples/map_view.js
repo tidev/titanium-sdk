@@ -165,15 +165,17 @@ var annotationAdded = false;
 // map view click event listener
 mapview.addEventListener('click',function(evt)
 {
+
 	// map event properties 
 	var annotation = evt.annotation;
 	var title = evt.title;
 	var clickSource = evt.clicksource;
+
+	Titanium.API.info('MAPVIEW EVENT - you clicked on '+title+' with click source = '+clickSource);
 	
 	// custom annotation attribute
-	var myid = evt.annotation.myid;
+	var myid = (evt.annotation)?evt.annotation.myid:-1;
 	
-	Titanium.API.info('MAPVIEW EVENT - you clicked on '+title+' with click source = '+clickSource);
 
 	// use custom event attribute to determine if atlanta annotation was clicked
 	if (myid == 3 && evt.clicksource == 'rightButton')
