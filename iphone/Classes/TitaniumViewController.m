@@ -322,7 +322,7 @@
 
 -(void)windowFocused:(UIViewController*)focusedViewController
 {
-	if ([focusedViewController isKindOfClass:[UINavigationController class]])
+	if ([focusedViewController isKindOfClass:[UINavigationController class]] && ![focusedViewController isKindOfClass:[MFMailComposeViewController class]])
 	{
 		UIViewController * topViewController = [(UINavigationController *)focusedViewController topViewController];
 		if (topViewController != nil)
