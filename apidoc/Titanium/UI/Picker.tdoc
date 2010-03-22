@@ -77,20 +77,36 @@ row: the row object
 In this basic picker example, we create a one column picker with 4 rows. 
 
 <code>
-var picker = Ti.UI.createPicker();
-
+var picker = Titanium.UI.createPicker();
 var data = [];
-data[0]=Ti.UI.createPickerRow({title:'Bananas',custom_item:'b'});
-data[1]=Ti.UI.createPickerRow({title:'Strawberries',custom_item:'s'});
-data[2]=Ti.UI.createPickerRow({title:'Mangos',custom_item:'m'});
-data[3]=Ti.UI.createPickerRow({title:'Grapes',custom_item:'g'});
-
+data[0]=Titanium.UI.createPickerRow({title:'Bananas'});
+data[1]=Titanium.UI.createPickerRow({title:'Strawberries'});
+data[2]=Titanium.UI.createPickerRow({title:'Mangos'});
+data[3]=Titanium.UI.createPickerRow({title:'Grapes'});
 picker.add(data);
 </code>
 
+- example : Custom View for Row
+
+In this example, we use a custom label for each row in a column.
+
+<code>
+var picker = Titanium.UI.createPicker();
+var row = Titanium.UI.createPickerRow();
+var label = Titanium.UI.createLabel({
+	text:text,
+	font:{fontSize:24,fontWeight:'bold'},
+	color:text,
+	width:'auto',
+	height:'auto'
+});
+row.add(label);
+picker.add(row);
+</code>
+
+
 - notes
 
-In iPhone 1.0, only basic pickers are supported. However, `Date`, `Time` and `DateTime` pickers will be supported in a point release just after 1.0.
+Android does not support the DateTime or Count Down Timer picker type.
 
-Android does not support the `DateTime` picker type.
 
