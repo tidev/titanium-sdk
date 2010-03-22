@@ -302,7 +302,11 @@ USE_PROXY_FOR_VERIFY_AUTORESIZING
 		NSInteger colIndex = 0;
 		for (TiUIPickerColumnProxy *col in [self columns])
 		{
-			int rowIndex = [pickerView selectedRowInComponent:colIndex];
+			int rowIndex = row;
+			if (component!=colIndex)
+			{
+				rowIndex = [pickerView selectedRowInComponent:colIndex];
+			}
 			TiUIPickerRowProxy *rowSelected = [col rowAt:rowIndex];
 			NSString *title = [rowSelected valueForUndefinedKey:@"title"];
 			// if they have a title, make that the value otherwise use the row proxy
