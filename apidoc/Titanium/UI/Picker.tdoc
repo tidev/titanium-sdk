@@ -25,8 +25,14 @@ android, iphone
 - properties
 
 columns[array]: array of column values
-type[int]: the type constant for the picker
+type[int]: the type constant for the picker. One of `Titanium.UI.PICKER_TYPE_PLAIN` (default), `Titanium.UI.PICKER_TYPE_DATE_AND_TIME`, `Titanium.UI.PICKER_TYPE_DATE`, `Titanium.UI.PICKER_TYPE_TIME` or `Titanium.UI.PICKER_TYPE_COUNT_DOWN_TIMER`.
 selectionIndicator[boolean]: for basic picker, boolean value to indicate whether the visual selection style is shown. On the iPhone, this is a blue selected bar.
+minDate[date]: the minimum Date/Time for value for date pickers
+maxDate[date]:the maximum Date/Time for value for date pickers
+value[date]: the Date/Time value for date pickers
+countDownDuration[double]: the duration value in milliseconds for count down timer pickers
+locale[string]: the locale used for displaying Date/Time pickers values
+minuteInterval[int]: property to set the interval displayed by the minutes wheel (for example, 15 minutes). The interval value must be evenly divided into 60; if it is not, the default value is used. The default and minimum values are 1; the maximum value is 30.
 
 
 - methods

@@ -16,6 +16,7 @@
 -(void)_configure
 {
 	[self replaceValue:NUMINT(-1) forKey:@"type" notification:NO];
+	[self replaceValue:nil forKey:@"value" notification:NO];
 	[super _configure];
 }
 

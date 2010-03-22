@@ -48,6 +48,7 @@ USE_PROXY_FOR_VERIFY_AUTORESIZING
 			
 			picker = [[UIDatePicker alloc] initWithFrame:CGRectZero];
 			[(UIDatePicker*)picker setDatePickerMode:type];
+			[picker addTarget:self action:@selector(valueChanged:) forControlEvents:UIControlEventValueChanged];
 		}
 		[self addSubview:picker];
 	}
@@ -101,11 +102,7 @@ USE_PROXY_FOR_VERIFY_AUTORESIZING
 
 -(void)selectRowForColumn:(NSInteger)column row:(NSInteger)row animated:(BOOL)animated
 {
-	if ([self isDatePicker])
-	{
-		//TODO
-	}
-	else 
+	if (![self isDatePicker])
 	{
 		[(UIPickerView*)picker selectRow:row inComponent:column animated:animated];
 		[self pickerView:(UIPickerView*)picker didSelectRow:row inComponent:column];
@@ -125,8 +122,13 @@ USE_PROXY_FOR_VERIFY_AUTORESIZING
 
 -(void)setType_:(id)type_
 {
+	NSInteger curtype = type;
 	type = [TiUtils intValue:type_];
-	[self picker];
+	id picker_ = [self picker];
+	if (curtype!=type && [self isDatePicker])
+	{
+		[(UIDatePicker*)picker_ setDatePickerMode:type];
+	}
 }
 
 -(void)setSelectionIndicator_:(id)value
@@ -134,6 +136,75 @@ USE_PROXY_FOR_VERIFY_AUTORESIZING
 	if ([self isDatePicker]==NO)
 	{
 		[(UIPickerView*)[self picker] setShowsSelectionIndicator:[TiUtils boolValue:value]];
+	}
+}
+
+-(void)setMinDate_:(id)date
+{
+	ENSURE_SINGLE_ARG_OR_NIL(date,NSDate);
+	if ([self isDatePicker])
+	{
+		[(UIDatePicker*)[self picker] setMinimumDate:date];
+	}
+}
+
+-(void)setMaxDate_:(id)date
+{
+	ENSURE_SINGLE_ARG_OR_NIL(date,NSDate);
+	if ([self isDatePicker])
+	{
+		[(UIDatePicker*)[self picker] setMaximumDate:date];
+	}
+}
+
+//TODO: minute interval
+
+-(void)setValue_:(id)date
+{
+	ENSURE_SINGLE_ARG_OR_NIL(date,NSDate);
+	if ([self isDatePicker] && date!=nil)
+	{
+		[(UIDatePicker*)[self picker] setDate:date];
+	}
+}
+
+-(void)setLocale_:(id)value
+{
+	ENSURE_SINGLE_ARG_OR_NIL(value,NSString);
+	if ([self isDatePicker])
+	{
+		if (value==nil)
+		{
+			[(UIDatePicker*)[self picker] setLocale:[NSLocale currentLocale]];
+		}
+		else
+		{
+			NSString *identifier = [NSLocale canonicalLocaleIdentifierFromString:value];
+			NSLocale *locale = [[NSLocale alloc] initWithLocaleIdentifier:identifier];
+			[(UIDatePicker*)[self picker] setLocale:locale];
+			[locale release];
+		}
+	}
+}
+
+-(void)setMinuteInterval_:(id)value
+{
+	ENSURE_SINGLE_ARG(value,NSObject);
+	if ([self isDatePicker])
+	{
+		NSInteger interval = [TiUtils intValue:value];
+		[(UIDatePicker*)[self picker] setMinuteInterval:interval];
+	}
+}
+
+-(void)setCountDownDuration_:(id)value
+{
+	ENSURE_SINGLE_ARG(value,NSObject);
+	if ([self isDatePicker])
+	{
+		double duration = [TiUtils doubleValue:value] / 1000;
+		[(UIDatePicker*)[self picker] setDatePickerMode:UIDatePickerModeCountDownTimer];
+		[(UIDatePicker*)[self picker] setCountDownDuration:duration];
 	}
 }
 
@@ -252,6 +323,17 @@ USE_PROXY_FOR_VERIFY_AUTORESIZING
 							   proxy,@"column",
 							   rowproxy,@"row",
 							   nil];
+		[self.proxy fireEvent:@"change" withObject:event];
+	}
+}
+
+-(void)valueChanged:(id)sender
+{
+	if ([self.proxy _hasListeners:@"change"])
+	{
+		NSDate *date = [(UIDatePicker*)sender date];
+		NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:date,@"value",nil];
+		[self.proxy replaceValue:date forKey:@"value" notification:NO];
 		[self.proxy fireEvent:@"change" withObject:event];
 	}
 }
