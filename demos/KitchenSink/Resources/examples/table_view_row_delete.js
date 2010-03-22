@@ -7,14 +7,29 @@ var data = [
 	{title:'Row 3 (no animation)', name:'foo'},
 	{title:'Row 4 (no animation)', name:'bar'},
 	{title:'Row 5'}
-	
-
 ];
 
-// create table view
-var tableview = Titanium.UI.createTableView({
-	data:data
+//
+// set right nav button
+//
+var button = Titanium.UI.createButton({
+	title:'Delete Row',
+	style:Titanium.UI.iPhone.SystemButtonStyle.BORDERED
 });
+
+var tableViewOptions = {data: data};
+if (Titanium.Platform.name == 'iPhone OS') {
+	win.rightNavButton = button;
+} else {
+	button.top = 5;
+	button.width = 300;
+	button.height = 30;
+	tableViewOptions.top = 45;
+	win.add(button);
+}
+
+// create table view
+var tableview = Titanium.UI.createTableView(tableViewOptions);
 
 // create table view event listener
 tableview.addEventListener('click', function(e)
@@ -32,16 +47,10 @@ tableview.addEventListener('click', function(e)
 // add table view to the window
 win.add(tableview);
 
-//
-// set right nav button
-//
-var button = Titanium.UI.createButton({
-	title:'Delete Row',
-	style:Titanium.UI.iPhone.SystemButtonStyle.BORDERED
-});
-win.rightNavButton = button;
-
 button.addEventListener('click', function()
 {
-	tableview.deleteRow((tableview.data.length-1),{animationStyle:Titanium.UI.iPhone.RowAnimationStyle.UP});
+	var index = tableview.data.length-1;
+	Ti.API.info("deleting row "+index);
+	
+	tableview.deleteRow(index,{animationStyle:Titanium.UI.iPhone.RowAnimationStyle.UP});
 });

@@ -72,7 +72,11 @@ public class TableViewSectionProxy extends TiViewProxy
 	public void updateRowAt(int index, TableViewRowProxy row)
 	{
 		//TODO this may not be the most efficient way to handle this model change
-		rows.remove(index);
-		rows.add(index, row);
+		rows.set(index, row);
+	}
+	
+	@Override
+	public String toString() {
+		return "[object TiUITableViewSection]";
 	}
 }

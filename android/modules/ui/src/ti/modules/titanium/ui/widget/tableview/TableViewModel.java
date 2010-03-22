@@ -121,6 +121,11 @@ public class TableViewModel
     	return viewModel.size();
     }
 
+    public TableViewSectionProxy getSection(int index)
+    {
+    	return proxy.getSections().get(index);
+    }
+    
     public ArrayList<Item> getViewModel()
     {
         if (dirty) {
@@ -192,4 +197,8 @@ public class TableViewModel
 
         return rowHeight;
     }
+
+	public void setDirty() {
+		dirty = true;
+	}
  }

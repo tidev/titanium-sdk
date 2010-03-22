@@ -263,12 +263,7 @@ public abstract class TiUIView
 			handleBackgroundImage(d);
 		} else if (d.containsKey("backgroundColor")) {
 			bgColor = TiConvert.toColor(d, "backgroundColor", "opacity");
-			//background.setBackgroundColor(bgColor);
-			ShapeDrawable drawable = new ShapeDrawable();
-			drawable.getPaint().setColor(bgColor);
-			drawable.getPaint().setAntiAlias(true);
-
-			nativeView.setBackgroundDrawable(drawable);
+			nativeView.setBackgroundColor(bgColor);
 		}
 		if (d.containsKey("visible")) {
 			nativeView.setVisibility(TiConvert.toBoolean(d, "visible") ? View.VISIBLE : View.INVISIBLE);

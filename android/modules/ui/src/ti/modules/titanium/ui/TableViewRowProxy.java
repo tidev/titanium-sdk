@@ -17,7 +17,7 @@ import android.app.Activity;
 public class TableViewRowProxy extends TiViewProxy
 {
 	protected ArrayList<TiViewProxy> controls;
-
+	
 	public TableViewRowProxy(TiContext tiContext, Object[] args) {
 		super(tiContext, args);
 	}
@@ -40,5 +40,10 @@ public class TableViewRowProxy extends TiViewProxy
 			controls = new ArrayList<TiViewProxy>();
 		}
 		controls.add(control);
+	}
+	
+	@Override
+	public String toString() {
+		return "[object TiUITableViewRow]";
 	}
 }

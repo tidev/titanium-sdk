@@ -9,7 +9,7 @@ win.backgroundImage = '../images/tableview/easycustom/gradientBackground.png';
 var data = [];
 
 var headerView = Ti.UI.createView({
-	height:60
+	height:80
 });
 
 var headerLabel = Ti.UI.createLabel({
@@ -85,6 +85,9 @@ for (var c=0;c<30;c++)
 		height:'auto',
 		font:{fontWeight:'bold',fontSize:18}
 	});
+	if (Titanium.Platform.name == 'android') {
+		label.top = 10;
+	}
 	row.add(label);
 	
 	label.addEventListener('click',function(e)
@@ -104,6 +107,9 @@ for (var c=0;c<30;c++)
 		left:85,
 		right:50
 	});
+	if (Titanium.Platform.name == 'android') {
+		label2.right = 30;
+	}
 	row.add(label2);
 	data[c]=row;
 }
@@ -123,6 +129,5 @@ tableview.addEventListener('click',function(e)
 {
 	Ti.API.info("clicked on table view = "+e.source);
 });
-
 
 win.add(tableview);

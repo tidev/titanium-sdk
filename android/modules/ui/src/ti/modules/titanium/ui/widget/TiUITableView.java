@@ -10,14 +10,17 @@ import java.util.concurrent.Semaphore;
 
 import org.appcelerator.titanium.TiDict;
 import org.appcelerator.titanium.proxy.TiViewProxy;
+import org.appcelerator.titanium.util.AsyncResult;
 import org.appcelerator.titanium.view.TiUIView;
 import org.json.JSONObject;
 
 import ti.modules.titanium.ui.TableViewProxy;
+import ti.modules.titanium.ui.ViewProxy;
 import ti.modules.titanium.ui.widget.searchbar.TiUISearchBar;
 import ti.modules.titanium.ui.widget.tableview.TiTableView;
 import ti.modules.titanium.ui.widget.tableview.TiTableView.OnItemClickedListener;
 import android.os.Handler;
+import android.os.Message;
 import android.widget.RelativeLayout;
 
 public class TiUITableView extends TiUIView
@@ -27,11 +30,10 @@ public class TiUITableView extends TiUIView
 	private static final String LCAT = "TitaniumTableView";
 
 	private static final String EVENT_CLICK = "click";
-
+	
 	private String callback;
 	private String searchBarName;
 	private TiUISearchBar searchBar;
-	private RelativeLayout view;
 	private Semaphore modifySemaphore;
 	private Handler handler;
 
@@ -70,6 +72,18 @@ public class TiUITableView extends TiUIView
 
 	private TiTableView getView() {
 		return (TiTableView) getNativeView();
+	}
+	
+	public void setModelDirty() {
+		getView().getTableViewModel().setDirty();
+	}
+	
+	public void updateView() {
+		getView().dataSetChanged();
+	}	
+
+	public void scrollToIndex(final int index) {
+		getView().getListView().setSelection(index);
 	}
 
 	@Override
@@ -311,5 +325,4 @@ public class TiUITableView extends TiUIView
 //	public void setOption(String key, String value) {
 //		defaults.put(key, value);
 //	}
-
 }

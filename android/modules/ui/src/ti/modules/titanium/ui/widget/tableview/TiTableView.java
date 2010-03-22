@@ -13,8 +13,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiDict;
+import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
+import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUIHelper;
 
 import ti.modules.titanium.ui.TableViewProxy;
@@ -27,11 +29,13 @@ import android.graphics.drawable.Drawable;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.FrameLayout;
 import android.widget.ListView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.AdapterView.OnItemSelectedListener;
 
 public class TiTableView extends FrameLayout
 {
@@ -135,6 +139,10 @@ public class TiTableView extends FrameLayout
 		}
 
 		public Object getItem(int position) {
+			if (position >= index.size()) {
+				return null;
+			}
+			
 			return viewModel.getViewModel().get(index.get(position));
 		}
 
@@ -192,6 +200,12 @@ public class TiTableView extends FrameLayout
 					v = new TiTableViewRowProxyItem(tiContext);
 					v.setClassName(item.className);
 				}
+
+				AbsListView.LayoutParams p = new AbsListView.LayoutParams(AbsListView.LayoutParams.FILL_PARENT, AbsListView.LayoutParams.FILL_PARENT);
+				/*TiCompositeLayout.LayoutParams p = new TiCompositeLayout.LayoutParams();
+				p.autoFillsHeight = true;
+				p.autoFillsWidth = true;*/
+				v.setLayoutParams(p);
 			}
 
 			v.setRowData(defaults, item);
@@ -205,12 +219,11 @@ public class TiTableView extends FrameLayout
 
 		@Override
 		public boolean isEnabled(int position) {
-			boolean enabled = true;
 			Item item = (Item) getItem(position);
-			if (item.className.equals(TableViewProxy.CLASSNAME_HEADER)) {
+			
+			boolean enabled = true;
+			if (item != null && item.className.equals(TableViewProxy.CLASSNAME_HEADER)) {
 				enabled = false;
-			} else {
-				enabled = true;
 			}
 			return enabled;
 		}
@@ -247,7 +260,7 @@ public class TiTableView extends FrameLayout
 
 //TODO bookmark
 		this.defaults = new TiTableViewItemOptions();
-		defaults.put("rowHeight", "43");
+//		defaults.put("rowHeight", "43");
 		defaults.put("fontSize", TiUIHelper.getDefaultFontSize(getContext()));
 		defaults.put("fontWeight", TiUIHelper.getDefaultFontWeight(getContext()));
 		defaults.put("marginLeft", "0");
@@ -301,10 +314,20 @@ public class TiTableView extends FrameLayout
 		listView.setBackgroundColor(Color.TRANSPARENT);
 		listView.setCacheColorHint(Color.TRANSPARENT);
 		adapter = new TTVListAdapter(viewModel);
+		
+		if (proxy.getDynamicProperties().containsKey("headerView")) {
+			TiViewProxy view = (TiViewProxy) proxy.getDynamicValue("headerView");
+			listView.addHeaderView(view.getView(tiContext.getActivity()).getNativeView());
+		}
+		if (proxy.getDynamicProperties().containsKey("footerView")) {
+			TiViewProxy view = (TiViewProxy) proxy.getDynamicValue("footerView");
+			listView.addFooterView(view.getView(tiContext.getActivity()).getNativeView());
+		}
+		
+		
 		listView.setAdapter(adapter);
 
 		listView.setOnItemClickListener(new OnItemClickListener() {
-
 			public void onItemClick(AdapterView<?> parent, View view, int position, long id)
 			{
 				if (itemClickListener != null) {
@@ -312,10 +335,10 @@ public class TiTableView extends FrameLayout
 					String viewClicked = v.getLastClickedViewName();
 					Item item = viewModel.getViewModel().get(adapter.index.get(position));
 					TiDict event = new TiDict();
-
+					
 					event.put("rowData", item.rowData);
-					event.put("section", item.sectionIndex);
-					event.put("row", item.indexInSection);
+					event.put("section", viewModel.getSection(item.sectionIndex));
+					event.put("row", item.proxy);
 					event.put("index", item.index);
 					event.put("detail", false);
 
@@ -327,12 +350,43 @@ public class TiTableView extends FrameLayout
 
 					itemClickListener.onClick(event);
 				}
-			}});
-
+			}
+		});
+		listView.setOnItemSelectedListener(new OnItemSelectedListener() {
+			private TiBaseTableViewItem lastSelected = null;
+			private TiDict lastSelectedProperties = null;
+			
+			public void onItemSelected(AdapterView<?> parent, View view,
+					int position, long id) {
+				TiBaseTableViewItem v = (TiBaseTableViewItem) view;
+				TiDict viewProperties = null;
+				Item item = viewModel.getViewModel().get(adapter.index.get(position));
+				if (item.proxy != null) {
+					viewProperties = item.proxy.getDynamicProperties();
+					if (viewProperties.containsKey("selectedBackgroundImage")) {
+						v.setBackgroundImageProperty(viewProperties, "selectedBackgroundImage");
+					} else if (viewProperties.containsKey("selectedBackgroundColor")) {
+						v.setBackgroundDrawable(new ColorDrawable(TiConvert.toColor(viewProperties, "selectedBackgroundColor")));
+					}
+				}
+				if (lastSelected != null && lastSelectedProperties != null) {
+					lastSelected.setBackgroundFromProperties(lastSelectedProperties);
+				}
+				lastSelected = v;
+				lastSelectedProperties = viewProperties;
+			}
+			public void onNothingSelected(AdapterView<?> parent) {
+				if (lastSelected != null && lastSelectedProperties != null) {
+					lastSelected.setBackgroundFromProperties(lastSelectedProperties);
+				}
+				lastSelected = null;
+				lastSelectedProperties = null;
+			}
+		});
 		addView(listView);
 	}
 
-	private void dataSetChanged() {
+	public void dataSetChanged() {
 		if (adapter != null) {
 			adapter.notifyDataSetChanged();
 		}
@@ -341,7 +395,15 @@ public class TiTableView extends FrameLayout
 	public void setOnItemClickListener(OnItemClickedListener listener) {
 		this.itemClickListener = listener;
 	}
-
+	
+	public TableViewModel getTableViewModel() {
+		return this.viewModel;
+	}
+	
+	public ListView getListView() {
+		return listView;
+	}
+	
 //	public void setData(Object[] rows) {
 //		viewModel.setData(rows);
 //		dataSetChanged();

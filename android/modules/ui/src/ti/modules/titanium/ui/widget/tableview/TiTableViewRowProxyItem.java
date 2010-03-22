@@ -6,22 +6,29 @@
  */
 package ti.modules.titanium.ui.widget.tableview;
 
+import java.io.IOException;
 import java.util.ArrayList;
 
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiDict;
+import org.appcelerator.titanium.io.TiBaseFile;
+import org.appcelerator.titanium.io.TiFileFactory;
 import org.appcelerator.titanium.proxy.TiViewProxy;
+import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiConvert;
+import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.ui.TableViewRowProxy;
 import ti.modules.titanium.ui.widget.TiUILabel;
 import ti.modules.titanium.ui.widget.tableview.TableViewModel.Item;
+import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.ShapeDrawable;
 import android.os.Handler;
 import android.view.View;
 import android.widget.ImageView;
@@ -40,6 +47,7 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 	private ImageView rightImage;
 	private TiCompositeLayout content;
 	private TiUIView[] views;
+	private boolean hasControls;
 
 	public TiTableViewRowProxyItem(TiContext tiContext)
 	{
@@ -52,7 +60,7 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 
 		this.content = new TiCompositeLayout(tiContext.getActivity());
 		content.setMinimumHeight(48);
-		this.addView(content, new LayoutParams(LayoutParams.WRAP_CONTENT,LayoutParams.WRAP_CONTENT));
+		addView(content, new LayoutParams(LayoutParams.WRAP_CONTENT,LayoutParams.WRAP_CONTENT));
 
 		this.rightImage = new ImageView(tiContext.getActivity());
 		rightImage.setVisibility(GONE);
@@ -63,7 +71,10 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 	{
 		TableViewRowProxy rp = (TableViewRowProxy) item.proxy;
 		TiDict props = rp.getDynamicProperties();
-
+		hasControls = rp.hasControls();
+		
+		setBackgroundFromProperties(props);
+		
 		// Handle right image
 		boolean clearRightImage = true;
 		if (props.containsKey("hasChild")) {
@@ -142,11 +153,11 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 			}
 			TiUILabel t = (TiUILabel) views[0];
 			t.setProxy(rp);
-			t.processProperties(rp.getDynamicProperties());
+			t.processProperties(filterProperties(rp.getDynamicProperties()));
 			View v = t.getNativeView();
 			if (v.getParent() == null) {
 				TextView tv = (TextView) v;
-				tv.setTextColor(Color.WHITE);
+				//tv.setTextColor(Color.WHITE);
 				TiCompositeLayout.LayoutParams params = (TiCompositeLayout.LayoutParams) t.getLayoutParams();
 				params.optionLeft = 5;
 				params.optionRight = 5;
@@ -169,7 +180,7 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 		int leftImageWidth = 0;
 		int leftImageHeight = 0;
 
-		if (leftImage != null && !(leftImage.getVisibility() == View.GONE)) {
+		if (leftImage != null && leftImage.getVisibility() != View.GONE) {
 			measureChild(leftImage, widthMeasureSpec, heightMeasureSpec);
 			leftImageWidth = leftImage.getMeasuredWidth();
 			leftImageHeight = leftImage.getMeasuredHeight();
@@ -179,15 +190,15 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 		int rightImageWidth = 0;
 		int rightImageHeight = 0;
 
-		if (rightImage != null && !(rightImage.getVisibility() == View.GONE)) {
+		if (rightImage != null && rightImage.getVisibility() != View.GONE) {
 			measureChild(rightImage, widthMeasureSpec, heightMeasureSpec);
 			rightImageWidth = rightImage.getMeasuredWidth();
 			rightImageHeight = rightImage.getMeasuredHeight();
 			imageHMargin += RIGHT_MARGIN;
 		}
 
-		//int adjustedWidth = w - leftImageWidth - rightImageWidth - imageHMargin;
-		int adjustedWidth = w;
+		int adjustedWidth = w - leftImageWidth - rightImageWidth - imageHMargin;
+		//int adjustedWidth = w;
 
 		measureChild(content, MeasureSpec.makeMeasureSpec(adjustedWidth, wMode), heightMeasureSpec);
 
@@ -202,14 +213,14 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 	@Override
 	protected void onLayout(boolean changed, int left, int top, int right, int bottom)
 	{
-		int contentLeft = 0;
-		int contentRight = right-left;
+		int contentLeft = left;
+		int contentRight = right;
 		bottom = bottom - top;
 		top = 0;
 
 		int height = bottom - top;
 
-		if (leftImage != null && !(leftImage.getVisibility() == GONE)) {
+		if (leftImage != null && leftImage.getVisibility() != GONE) {
 			int w = leftImage.getMeasuredWidth();
 			int h = leftImage.getMeasuredHeight();
 			int leftMargin = LEFT_MARGIN;
@@ -219,7 +230,7 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 			leftImage.layout(left+leftMargin, top+offset, left+leftMargin+w, top+offset+h);
 		}
 
-		if (rightImage != null && !(rightImage.getVisibility() == GONE)) {
+		if (rightImage != null && rightImage.getVisibility() != GONE) {
 			int w = rightImage.getMeasuredWidth();
 			int h = rightImage.getMeasuredHeight();
 			int rightMargin = RIGHT_MARGIN;
@@ -229,9 +240,30 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 			rightImage.layout(right-w-rightMargin, top+offset, right-rightMargin, top+offset+h);
 		}
 
-		contentLeft = left + LEFT_MARGIN;
-		contentRight = right - RIGHT_MARGIN;
+		if (hasControls) {
+			contentLeft = left + LEFT_MARGIN;
+			contentRight = right - RIGHT_MARGIN;
+		}
 
 		content.layout(contentLeft, top, contentRight, bottom);
+	}
+	
+	private static String[] filteredProperties = new String[]{ 
+		"backgroundImage", "backgroundColor"
+	};
+	private TiDict filterProperties(TiDict d)
+	{
+		TiDict filtered = new TiDict(d);
+		for (int i = 0;i < filteredProperties.length; i++) {
+			if (filtered.containsKey(filteredProperties[i])) {
+				filtered.remove(filteredProperties[i]);
+			}
+		}
+		return filtered;
+	}
+	
+	@Override
+	public boolean providesOwnSelector() {
+		return true;
 	}
 }

@@ -58,8 +58,8 @@ public class TiColorHelper
 						buildColorTable();
 					}
 
-					if (colorTable.containsKey(value)) {
-						color = colorTable.get(value);
+					if (colorTable.containsKey(lowval)) {
+						color = colorTable.get(lowval);
 					} else {
 						Log.w("TiColorHelper", "Unknown color: " + value);
 					}

@@ -107,6 +107,10 @@ public class TiConvert
     }
     public static int toColor(TiDict d, String colorKey, String opacityKey) {
         int color = toColor(d, colorKey);
+        if (color == Color.TRANSPARENT) {
+        	return color;
+        }
+        
         int alpha = 255;
         if (d.containsKey(opacityKey)) {
             alpha = (int) Math.round(255 * TiConvert.toDouble(d, opacityKey));
