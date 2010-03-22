@@ -20,9 +20,17 @@
 	[super dealloc];
 }
 
--(void)parse:(NSURL *)url
+-(void)setDocument:(GDataXMLDocument*)doc
 {
-	//TODO:
+	RELEASE_TO_NIL(document);
+	document = [doc retain];
+}
+
+-(BOOL)equals:(id)value
+{
+	if ([value isKindOfClass:[TiDOMDocumentProxy class]])
+	{
+	}
 }
 
 -(void)parseString:(NSString*)xml
@@ -30,6 +38,7 @@
 	RELEASE_TO_NIL(document);
 	NSError *error = nil;
 	document = [[GDataXMLDocument alloc] initWithXMLString:xml options:0 error:&error];
+	[self setElement:[document rootElement]];
 	if (error!=nil)
 	{
 		RELEASE_TO_NIL(document);
@@ -62,6 +71,10 @@
 		TiDOMNodeListProxy *proxy = [[[TiDOMNodeListProxy alloc] _initWithPageContext:[self pageContext]] autorelease];
 		[proxy setNodes:nodes];
 		return proxy;
+	}
+	if (error!=nil)
+	{
+		[self throwException:[error description] subreason:nil location:CODELOCATION];
 	}
 	return nil;
 }

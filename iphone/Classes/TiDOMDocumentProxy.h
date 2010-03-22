@@ -6,13 +6,14 @@
  */
 #import "TiProxy.h"
 #import "GDataXMLNode.h"
+#import "TiDOMElementProxy.h"
 
-@interface TiDOMDocumentProxy : TiProxy {
+@interface TiDOMDocumentProxy : TiDOMElementProxy {
 @private
 	GDataXMLDocument *document;
 }
 
--(void)parse:(NSURL*)url;
 -(void)parseString:(NSString*)xml;
+-(void)setDocument:(GDataXMLDocument*)doc;
 
 @end

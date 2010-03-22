@@ -6,6 +6,7 @@
  */
 
 #import "TiDOMNodeProxy.h"
+#import "TiDOMDocumentProxy.h"
 #import "TiDOMElementProxy.h"
 #import "TiDOMNamedNodeMapProxy.h"
 #import "TiDOMNodeListProxy.h"
@@ -72,8 +73,9 @@
 
 -(id)parentNode
 {
-	//TODO:
-	return nil;
+	xmlNodePtr p = [node XMLNode]->parent;
+	GDataXMLNode* sibling = [GDataXMLNode nodeBorrowingXMLNode:p];
+	return [TiDOMNodeProxy makeNode:sibling context:[self executionContext]];
 }
 
 -(id)childNodes
@@ -106,14 +108,24 @@
 
 -(id)previousSibling
 {
-	//TODO:
-	return nil;
+	xmlNodePtr p = xmlPreviousElementSibling([node XMLNode]);
+	if (p==nil) 
+	{
+		return nil;
+	}
+	GDataXMLNode* sibling = [GDataXMLNode nodeBorrowingXMLNode:p];
+	return [TiDOMNodeProxy makeNode:sibling context:[self executionContext]];
 }
 
 -(id)nextSibling
 {
-	//TODO:
-	return nil;
+	xmlNodePtr p = xmlNextElementSibling([node XMLNode]);
+	if (p==nil) 
+	{
+		return nil;
+	}
+	GDataXMLNode* sibling = [GDataXMLNode nodeBorrowingXMLNode:p];
+	return [TiDOMNodeProxy makeNode:sibling context:[self executionContext]];
 }
 
 -(id)attributes
@@ -125,32 +137,35 @@
 
 -(id)ownerDocument
 {
-	//TODO:
-	return nil;
+	xmlDocPtr p = [node XMLNode]->doc;
+	if (p==nil) 
+	{
+		return nil;
+	}
+	GDataXMLDocument *doc = [[[GDataXMLDocument alloc] initWithDocument:xmlCopyDoc(p, 1)] autorelease];
+	TiDOMDocumentProxy *proxy = [[[TiDOMDocumentProxy alloc] _initWithPageContext:[self executionContext]] autorelease];
+	[proxy setDocument:doc];
+	return proxy;
 }
 
 -(id)insertBefore:(id)args
 {
-	//TODO:
-	return nil;
+	[self throwException:@"mutation not supported" subreason:nil location:CODELOCATION];
 }
 
 -(id)replaceChild:(id)args
 {
-	//TODO:
-	return nil;
+	[self throwException:@"mutation not supported" subreason:nil location:CODELOCATION];
 }
 
 -(id)removeChild:(id)args
 {
-	//TODO:
-	return nil;
+	[self throwException:@"mutation not supported" subreason:nil location:CODELOCATION];
 }
 
 -(id)appendChild:(id)args
 {
-	//TODO:
-	return nil;
+	[self throwException:@"mutation not supported" subreason:nil location:CODELOCATION];
 }
 
 -(id)hasChildNodes:(id)args
