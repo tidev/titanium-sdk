@@ -36,4 +36,15 @@
 	[[self view] performSelectorOnMainThread:@selector(removeView:) withObject:args waitUntilDone:NO];
 }
 
+-(void)childWillResize:(TiViewProxy *)child
+{
+	if (![[self children] containsObject:child])
+	{
+		return;
+		//In the case of views added with addView, as they are not part of children, they should be ignored.
+	}
+	[super childWillResize:child];
+}
+
+
 @end
