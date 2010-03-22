@@ -403,6 +403,25 @@ def main(args):
 	
 			# first make sure it's not running
 			kill_simulator()
+			
+			# sometimes the simulator doesn't remove old log files
+			# in which case we get our logging jacked - we need to remove
+			# them before running the simulator
+			def cleanup_app_logfiles():
+				def find_all_log_files(folder, fname):
+					results = []
+					for root, dirs, files in os.walk(os.path.expanduser(folder)):
+						for file in files:
+							if fname==file:
+								fullpath = os.path.join(root, file)
+								results.append(fullpath)
+					return results
+				for f in find_all_log_files("~/Library/Application Support/iPhone Simulator",'%s.log' % log_id):
+					print "[DEBUG] removing old log file: %s" % f
+					sys.stdout.flush()
+					os.remove(f)
+				
+			cleanup_app_logfiles()
 
 			sim = None
 	
