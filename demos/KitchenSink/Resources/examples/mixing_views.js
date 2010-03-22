@@ -3,7 +3,7 @@ var data = [
 	{title:'Example 1', hasChild:true, test:'../examples/mixing_views_1.js'},
 	{title:'Example 2', hasChild:true, test:'../examples/mixing_views_2.js'},
 	{title:'Example 3', hasChild:true, test:'../examples/mixing_views_3.js'},
-	{title:'Example 4', hasChild:true, test:'../examples/mixing_views_4.js'},
+	{title:'Example 4', hasChild:true, test:'../examples/mixing_views_4.js'}
 
 ];
 
@@ -21,7 +21,7 @@ tableview.addEventListener('click', function(e)
 			url:e.rowData.test,
 			title:e.rowData.title
 		});
-		Titanium.UI.currentTab.open(win,{animated:true})
+		Titanium.UI.currentTab.open(win,{animated:true});
 	}
 });
 

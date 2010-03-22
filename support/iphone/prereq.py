@@ -19,6 +19,7 @@ def sdk_found(apiversion):
 
 def get_sdks():
 	found = []
+	ipad = False
 	output = run.run(["xcodebuild","-showsdks"])
 	#print output
 	for line in output.split("\n"):
@@ -29,13 +30,17 @@ def get_sdks():
 			cmd = line[i+5:]
 			if cmd.find("iphoneos")==0:
 				ver = cmd[8:]
-				if ver[0]=='3' and ver!='3.0':
+				major = int(ver[0])
+				if major>=3 and ver!='3.0':
 					found.append(ver)
-	return found
+				# ipad is anything 3.2+
+				if major>3 or ver.startswith('3.2'):
+					ipad=True
+	return (found,ipad)
 	
 def check_iphone3():
 	try:
-		found = get_sdks()		
+		found,ipad = get_sdks()		
 		if len(found) > 0:
 			sys.stdout.write('{"success":true, "sdks":[')
 			c = 0
@@ -44,11 +49,14 @@ def check_iphone3():
 				if c+1 < len(found):
 					sys.stdout.write(",")
 				c+=1
-			sys.stdout.write(']}')
+			ipadstr = 'false'
+			if ipad:
+				ipadstr='true'
+			sys.stdout.write('],"ipad":%s}'%ipadstr)
 			print
 			sys.exit(0)
 		else:				
-			print '{"success":false,"message":"Missing iPhone SDK which supports either 2.2.1 or 3.0"}'
+			print '{"success":false,"message":"Missing iPhone SDK which supports 3.1+"}'
 			sys.exit(2)
 
 		
@@ -124,7 +132,9 @@ def check_for_package():
 	props = {}
 	check_itunes_version(props)
 	check_certs(props)
-	props['sdks']=get_sdks()
+	sdks,ipad = get_sdks()
+	props['sdks']=sdks
+	props['ipad']=ipad
 	print json.encode(props).decode('utf-8')
 			
 def main(args):
@@ -145,4 +155,5 @@ if __name__ == "__main__":
 
 # FOR TESTING
 #check_for_package()
+#check_iphone3()
 

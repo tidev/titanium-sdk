@@ -21,7 +21,7 @@ var tf1 = Titanium.UI.createTextField({
 	width:250,
 	keyboardType:Titanium.UI.KEYBOARD_DEFAULT,
 	returnKeyType:Titanium.UI.RETURNKEY_DEFAULT,
-	borderStyle:Titanium.UI.INPUT_BORDERSTYLE_ROUNDED,
+	borderStyle:Titanium.UI.INPUT_BORDERSTYLE_ROUNDED
 
 });
 tf1.addEventListener('return', function()

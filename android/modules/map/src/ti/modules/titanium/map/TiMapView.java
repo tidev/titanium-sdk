@@ -90,6 +90,10 @@ public class TiMapView extends TiUIView
 	class LocalMapView extends MapView
 	{
 		private boolean scrollEnabled;
+		private int lastLongitude;
+		private int lastLatitude;
+		private int lastLatitudeSpan;
+		private int lastLongitudeSpan;
 
 		public LocalMapView(Context context, String apiKey) {
 			super(context, apiKey);
@@ -114,6 +118,30 @@ public class TiMapView extends TiUIView
 				return true;
 			}
 			return super.dispatchTrackballEvent(ev);
+		}
+
+		@Override
+		public void computeScroll() {
+			super.computeScroll();
+
+			GeoPoint center = getMapCenter();
+			if (lastLatitude != center.getLatitudeE6() || lastLongitude != center.getLongitudeE6() ||
+					lastLatitudeSpan != getLatitudeSpan() || lastLongitudeSpan != getLongitudeSpan())
+			{
+				lastLatitude = center.getLatitudeE6();
+				lastLongitude = center.getLongitudeE6();
+				lastLatitudeSpan = getLatitudeSpan();
+				lastLongitudeSpan = getLongitudeSpan();
+
+				TiDict d = new TiDict();
+				d.put("latitude", scaleFromGoogle(lastLatitude));
+				d.put("longitude", scaleFromGoogle(lastLongitude));
+				d.put("latitudeDelta", scaleFromGoogle(lastLatitudeSpan));
+				d.put("longitudeDelta", scaleFromGoogle(lastLongitudeSpan));
+
+				proxy.fireEvent("regionChanged", d);
+			}
+
 		}
 	}
 
@@ -201,7 +229,7 @@ public class TiMapView extends TiUIView
 		String oldKey = appProperties.getString(OLD_API_KEY, TI_DEVELOPMENT_KEY);
 		String developmentKey = appProperties.getString(DEVELOPMENT_API_KEY, oldKey);
 		String productionKey = appProperties.getString(PRODUCTION_API_KEY, oldKey);
-		
+
 		String apiKey = developmentKey;
 		if (app.getDeployType().equals(TiApplication.DEPLOY_TYPE_PRODUCTION)) {
 			apiKey = productionKey;
@@ -619,7 +647,7 @@ public class TiMapView extends TiUIView
 		return d;
 	}
 	private double scaleFromGoogle(int value) {
-		return value / 1000000;
+		return (double)value / 1000000.0;
 	}
 
 	private int scaleToGoogle(double value) {

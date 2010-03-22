@@ -56,8 +56,7 @@ var customSlider = Titanium.UI.createSlider({
 	top:90,
 	leftTrackImage:'../images/slider_orangebar.png',
 	rightTrackImage:'../images/slider_lightbar.png',
-	thumbImage:'../images/slider_thumb.png',
-	
+	thumbImage:'../images/slider_thumb.png'	
 });
 customSlider.addEventListener('change',function(e)
 {
@@ -92,7 +91,7 @@ var toggleButton = Titanium.UI.createButton({
 	title:'Hide/Show Slider',
 	height:40,
 	width:200,
-	top:170,
+	top:170
 });
 
 var visible = true;
@@ -132,7 +131,7 @@ navbarButton.addEventListener('click', function()
 			min:0,
 			max:10,
 			value:5,
-			width:100,
+			width:100
 		});
 		win.setRightNavButton(navbarSlider);
 		inNavbar = true;
@@ -165,12 +164,12 @@ toolbarButton.addEventListener('click', function()
 			value:5,
 			width:200
 		});
-		win.setToolbar([toolbarSlider],{animated:true})
+		win.setToolbar([toolbarSlider],{animated:true});
 		inToolbar = true;
 	}
 	else
 	{
-		win.setToolbar(null,{animated:true})
+		win.setToolbar(null,{animated:true});
 		inToolbar = false;
 	}
 });

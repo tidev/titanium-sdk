@@ -266,9 +266,15 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 	executionContext = context; //don't retain
 }
 
+-(void)_configurationSet
+{
+	// for subclass
+}
+
 -(void)_initWithProperties:(NSDictionary*)properties
 {
 	[self setValuesForKeysWithDictionary:properties];
+	[self _configurationSet];
 }
 
 -(void)_initWithCallback:(KrollCallback*)callback
@@ -394,7 +400,7 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 	NSLog(@"DEALLOC: %@ (%d)",self,[self hash]);
 #endif
 	[[NSNotificationCenter defaultCenter] removeObserver:self
-													name:UIApplicationDidReceiveMemoryWarningNotification  
+													name:nil  
 												  object:nil];  
 	[self _destroy];
 	RELEASE_TO_NIL(destroyLock);

@@ -37,7 +37,7 @@ Titanium.Media.openPhotoGallery({
 		{
 			ind.value = e.progress ;
 			Ti.API.info('ONSENDSTREAM - PROGRESS: ' + e.progress);
-		}
+		};
 		// open the client
 		xhr.open('POST','https://twitpic.com/api/uploadAndPost');
 
@@ -52,5 +52,5 @@ Titanium.Media.openPhotoGallery({
 	error:function(error)
 	{
 	},
-	allowImageEditing:true,
+	allowImageEditing:true
 });

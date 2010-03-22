@@ -22,7 +22,7 @@ var firstNameField = Titanium.UI.createTextField({
 	top:35,
 	left:30,
 	width:250,
-	borderStyle:Titanium.UI.INPUT_BORDERSTYLE_ROUNDED,
+	borderStyle:Titanium.UI.INPUT_BORDERSTYLE_ROUNDED
 });
 
 win.add(firstNameField);
@@ -47,7 +47,7 @@ var lastNameField = Titanium.UI.createTextField({
 	top:100,
 	left:30,
 	width:250,
-	borderStyle:Titanium.UI.INPUT_BORDERSTYLE_ROUNDED,
+	borderStyle:Titanium.UI.INPUT_BORDERSTYLE_ROUNDED
 });
 
 win.add(lastNameField);

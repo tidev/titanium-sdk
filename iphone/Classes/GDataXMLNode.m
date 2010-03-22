@@ -116,7 +116,6 @@ static xmlChar *SplitQNameReverse(const xmlChar *qname, xmlChar **prefix) {
 + (id)nodeConsumingXMLNode:(xmlNodePtr)theXMLNode;
 - (id)initConsumingXMLNode:(xmlNodePtr)theXMLNode;
 
-+ (id)nodeBorrowingXMLNode:(xmlNodePtr)theXMLNode;
 - (id)initBorrowingXMLNode:(xmlNodePtr)theXMLNode;
 
 // getters of the underlying node
@@ -1634,6 +1633,15 @@ static xmlChar *SplitQNameReverse(const xmlChar *qname, xmlChar **prefix) {
 		}
 	}
 	
+	return self;
+}
+
+- (id)initWithDocument:(xmlDocPtr)xml
+{
+	self = [super init];
+	if (self) {
+		xmlDoc_ = xml;
+	}
 	return self;
 }
 

@@ -19,7 +19,7 @@ b1.addEventListener('click', function()
 	});
 	b.enabled = false;
 	win.setToolbar([b]);
-})
+});
 win.add(b1);
 
 //
@@ -41,7 +41,7 @@ b2.addEventListener('click', function()
 		systemButton:Titanium.UI.iPhone.SystemButton.FLEXIBLE_SPACE
 	});
 	win.setToolbar([flexSpace,b]);
-})
+});
 win.add(b2);
 
 //
@@ -63,7 +63,7 @@ b3.addEventListener('click', function()
 		systemButton:Titanium.UI.iPhone.SystemButton.FLEXIBLE_SPACE
 	});
 	win.setToolbar([flexSpace,b,flexSpace]);
-})
+});
 win.add(b3);
 
 //
@@ -95,7 +95,7 @@ b4.addEventListener('click', function()
 		width:50
 	});
 	win.setToolbar([flexSpace,a,fixedSpace,b,flexSpace]);
-})
+});
 win.add(b4);
 
 //
@@ -110,7 +110,7 @@ var b5 = Titanium.UI.createButton({
 b5.addEventListener('click', function()
 {
 	win.setToolbar(null,{animated:true});
-})
+});
 win.add(b5);
 
 

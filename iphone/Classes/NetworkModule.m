@@ -10,7 +10,29 @@
 #import "TitaniumApp.h"
 #import "SBJSON.h"
 
+NSString* const INADDR_ANY_token = @"INADDR_ANY";
+
 @implementation NetworkModule
+
+-(NSString*)INADDR_ANY
+{
+    return INADDR_ANY_token;
+}
+
+-(NSNumber*)READ_MODE
+{
+    return [NSNumber numberWithInt:READ_MODE];
+}
+
+-(NSNumber*)WRITE_MODE
+{
+    return [NSNumber numberWithInt:WRITE_MODE];
+}
+
+-(NSNumber*)READ_WRITE_MODE
+{
+    return [NSNumber numberWithInt:READ_WRITE_MODE];
+}
 
 -(void)startReachability
 {

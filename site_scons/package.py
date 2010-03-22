@@ -24,7 +24,7 @@ def ignore(file):
 			return True
 	 return False
 
-def zip_dir(zf,dir,basepath):
+def zip_dir(zf,dir,basepath,subs=None):
 	for root, dirs, files in os.walk(dir):
 		for name in ignoreDirs:
 			if name in dirs:
@@ -34,7 +34,13 @@ def zip_dir(zf,dir,basepath):
 			if len(e)==2 and e[1]=='.pyc': continue
 			from_ = os.path.join(root, file)
 			to_ = from_.replace(dir, basepath, 1)
-			zf.write(from_, to_)
+			if subs!=None:
+				c = open(from_).read()
+				for key in subs:
+					c = c.replace(key,subs[key])
+				zf.writestr(to_,c)
+			else:		
+				zf.write(from_, to_)
 
 def zip_android(zf,basepath):
 	android_dist_dir = os.path.join(top_dir, 'dist', 'android')
@@ -69,7 +75,7 @@ def resolve_source_imports(platform):
 	import run,prereq
 	return importresolver.resolve_source_imports(os.path.join(top_dir,platform,'Classes'))
 	
-def zip_iphone_ipad(zf,basepath,platform):
+def zip_iphone_ipad(zf,basepath,platform,version):
 	  
 	zf.writestr('%s/iphone/imports.json'%basepath,resolve_source_imports(platform))
 	
@@ -90,8 +96,11 @@ def zip_iphone_ipad(zf,basepath,platform):
 		if os.path.isfile(os.path.join(tp_headers_dir,f)) and os.path.splitext(f)[1]=='.h':
 			 zf.write(os.path.join(tp_headers_dir,f),'%s/iphone/include/TiCore/%s' % (basepath,f))
 	
+	subs = {
+		"__VERSION__":version
+	}
 	xcode_templates_dir =  os.path.join(top_dir,'iphone','templates','xcode')
-	zip_dir(zf,xcode_templates_dir,basepath+'/iphone/xcode/templates')
+	zip_dir(zf,xcode_templates_dir,basepath+'/iphone/xcode/templates',subs)
 	
 	iphone_lib = os.path.join(top_dir,'iphone',platform,'build')
 	zf.write(os.path.join(iphone_lib,'libTitanium.a'),'%s/%s/libTitanium.a'%(basepath,platform))
@@ -122,7 +131,7 @@ def zip_mobilesdk(dist_dir,osname,version,android,iphone,ipad):
 	zip_dir(zf,all_dir,basepath)
 	zip_dir(zf,template_dir,basepath)
 	if android: zip_android(zf,basepath)
-	if (iphone or ipad) and osname == "osx": zip_iphone_ipad(zf,basepath,'iphone')
+	if (iphone or ipad) and osname == "osx": zip_iphone_ipad(zf,basepath,'iphone',version)
 	zf.close()
 				
 def zip_it(dist_dir,osname,version,android,iphone,ipad):

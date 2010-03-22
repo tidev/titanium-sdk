@@ -5,15 +5,14 @@
 var win = Titanium.UI.currentWindow
 
 var inputData = [
-{title:'row 1', header:'Header 1'},
-{title:'row 2'},
-{title:'row 3'},
-{title:'row 4', header:'Header 2'},
-{title:'row 5'}
-
+	{title:'row 1', header:'Header 1'},
+	{title:'row 2'},
+	{title:'row 3'},
+	{title:'row 4', header:'Header 2'},
+	{title:'row 5'}
 ]; 
 var tableView = Titanium.UI.createTableView({ 
 	data:inputData, 
-	style:Titanium.UI.iPhone.TableViewStyle.GROUPED, 
+	style:Titanium.UI.iPhone.TableViewStyle.GROUPED
 }); 
 win.add(tableView);

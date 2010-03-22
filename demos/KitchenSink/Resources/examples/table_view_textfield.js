@@ -27,8 +27,7 @@ for (var x=0;x<10;x++)
 
 var tableView = Ti.UI.createTableView({
 	data:data, 	
-	style: Titanium.UI.iPhone.TableViewStyle.GROUPED,
-
+	style: Titanium.UI.iPhone.TableViewStyle.GROUPED
 });
 
 win.add(tableView);

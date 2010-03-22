@@ -64,8 +64,6 @@ SOAPClient.invoke = function(url, method, parameters, async, callback)
 {
 	if(async)
 	{
-		Ti.API.info('IN INVOKE')
-		
 		SOAPClient._loadWsdl(url, method, parameters, async, callback);
 	}
 	else
@@ -81,13 +79,10 @@ SOAPClient_cacheWsdl = [];
 // private: invoke async
 SOAPClient._loadWsdl = function(url, method, parameters, async, callback)
 {
-	Ti.API.info('IN LOAD WSDL')
 	// load from cache?
 	var wsdl = SOAPClient_cacheWsdl[url];
-	Ti.API.info('AFTER WSDL CACHE')
 	if(wsdl + "" != "" && wsdl + "" != "undefined")
 	{
-		Ti.API.info('LOAD WSDL - returing SOAP CLient')
 		return SOAPClient._sendSoapRequest(url, method, parameters, async, callback, wsdl);
 	}
 	// get wsdl
@@ -95,16 +90,13 @@ SOAPClient._loadWsdl = function(url, method, parameters, async, callback)
 	xmlHttp.open("GET", url + "?wsdl");
 	xmlHttp.onload = function() 
 	{
-		Ti.API.info('LOAD WSDL -on load')
-
-			SOAPClient._onLoadWsdl(url, method, parameters, async, callback, xmlHttp);
+		SOAPClient._onLoadWsdl(url, method, parameters, async, callback, xmlHttp);
 	};
 	xmlHttp.onerror = function(e)
 	{
-		Ti.API.info('ERROR ' + e)
+		Ti.API.error('WSDL ERROR ' + e)
 	}
 	xmlHttp.send(null);
-	Ti.API.info('LOAD WSDL -aftr send')
 
 	// if (!async)
 	// {
@@ -119,12 +111,9 @@ SOAPClient._onLoadWsdl = function(url, method, parameters, async, callback, req)
 };
 SOAPClient._sendSoapRequest = function(url, method, parameters, async, callback, wsdl)
 {
-	Ti.API.info('HERE IN SEND ')
 	// get namespace
-	Ti.API.info('wsdl ' + wsdl.documentElement.attributes );
 	var ns = (wsdl.documentElement.attributes["targetNamespace"] + "" == "undefined") ? wsdl.documentElement.attributes.getNamedItem("targetNamespace").nodeValue : wsdl.documentElement.attributes["targetNamespace"].value;
 	// build SOAP request
-	Ti.API.info('ns ' + ns + ' method ' + method)
 	var sr = 
 				"<?xml version=\"1.0\" encoding=\"utf-8\"?>" +
 				"<soap:Envelope " +
@@ -139,8 +128,7 @@ SOAPClient._sendSoapRequest = function(url, method, parameters, async, callback,
 	var xmlHttp = SOAPClient._getXmlHttp();
 	xmlHttp.onload = function() 
 	{
-			Ti.API.info('IN ON LOAD');
-			SOAPClient._onSendSoapRequest(method, async, callback, wsdl, xmlHttp);
+		SOAPClient._onSendSoapRequest(method, async, callback, wsdl, xmlHttp);
 	};
 
 	xmlHttp.open("POST", url);
@@ -149,7 +137,6 @@ SOAPClient._sendSoapRequest = function(url, method, parameters, async, callback,
 	xmlHttp.setRequestHeader("SOAPAction", soapaction);
 	xmlHttp.setRequestHeader("Content-Type", "text/xml; charset=utf-8");
 	xmlHttp.send(sr);
-	Ti.API.info('after send')
 	// if (!async)
 	// {
 	// 	return SOAPClient._onSendSoapRequest(method, async, callback, wsdl, xmlHttp);
@@ -157,7 +144,6 @@ SOAPClient._sendSoapRequest = function(url, method, parameters, async, callback,
 };
 SOAPClient._onSendSoapRequest = function(method, async, callback, wsdl, req)
 {
-	Ti.API.info('in onSendSoapRequest')
 	var o = null;
 	var nd = SOAPClient._getElementsByTagName(req.responseXML, method + "Result");
 	if(nd.length == 0)

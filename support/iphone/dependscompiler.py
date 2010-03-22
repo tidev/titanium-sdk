@@ -73,13 +73,27 @@ Titanium.package = 'Ti'
 
 class DependencyCompiler(object):
 	def __init__(self):
-		pass
 		self.modules = []
 		self.required_modules = []
 		
-	def compile(self,iphone_dir,app_dir,thirdparty_modules):
+	def compile(self,iphone_dir,app_dir,thirdparty_modules,simulator):
+		
+		self.simulator = simulator
 		
 		start_time = time.time()
+		
+		resources_dir = os.path.join(app_dir,'Resources')
+		iphone_build_dir = os.path.join(app_dir,'build','iphone')
+		build_dir = os.path.join(iphone_build_dir,'Resources')
+		build_tmp_dir = os.path.join(iphone_build_dir,'tmp')
+		finallibfile = os.path.join(build_dir,'libTitanium.a')
+		
+		# if running in simulator, we just use all symbols
+		if simulator:
+			toplibfile = os.path.join(iphone_dir,'libTitanium.a')
+			shutil.copy(toplibfile,finallibfile)
+			return
+		
 		import_depends.append('TitaniumModule')
 		import_depends.append('AnalyticsModule')
 		import_depends.append('PlatformModule')
@@ -87,12 +101,6 @@ class DependencyCompiler(object):
 		# these are needed for app routing and aren't imported in code
 		import_depends.append('Base64Transcoder') 
 		import_depends.append('NSData+Additions')
-		
-		resources_dir = os.path.join(app_dir,'Resources')
-		iphone_build_dir = os.path.join(app_dir,'build','iphone')
-		build_dir = os.path.join(iphone_build_dir,'Resources')
-		build_tmp_dir = os.path.join(iphone_build_dir,'tmp')
-		finallibfile = os.path.join(build_dir,'libTitanium.a')
 		
 		# read in the imports map
 		import_path = os.path.join(iphone_dir,'imports.json')
@@ -261,6 +269,8 @@ class DependencyCompiler(object):
 			arm_dir = os.path.join(compilezone,'arm')
 		
 			if not os.path.exists(compilezone):
+				print "[INFO] Preparing compiler for the first time. This will take a little while but will only need to be done once."
+				sys.stdout.flush()
 				os.makedirs(compilezone)
 			
 			toplibfile = os.path.join(iphone_dir,'libTitanium.a')
@@ -356,8 +366,9 @@ class DependencyCompiler(object):
 
 if __name__ == '__main__':
 	compiler = DependencyCompiler()
-	iphone_dir = '/Library/Application Support/Titanium/mobilesdk/osx/0.9.0/iphone'
+	iphone_dir = '/Library/Application Support/Titanium/mobilesdk/osx/1.1.0/iphone'
 	#app_dir = '/Users/jhaynie/tmp/blahblah/foobar'
 	app_dir = '/Users/jhaynie/work/titanium_mobile/demos/KitchenSink'
-	compiler.compile(iphone_dir,app_dir)
+	compiler.compile(iphone_dir,app_dir,[],True)
+	
 	

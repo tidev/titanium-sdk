@@ -17,6 +17,22 @@ var changeTitleButton = Titanium.UI.createButton({
 	width:200
 });
 
+//
+// CURRENT TAB 
+//
+var label = Titanium.UI.createLabel({
+	text:'Tab title is ' + tab.title,
+	color:'#777',
+	font:{
+		fontFamily:'Helvetica Neue',
+		fontSize:15
+	},
+	textAlign:'center',
+	top:260,
+	width:300,
+	height:'auto'
+});
+
 changeTitleButton.addEventListener('click', function(e)
 {
 	if (tab.title == 'Base UI')
@@ -138,21 +154,6 @@ systemTabIconsButton.addEventListener('click', function(e)
 	}
 });
 
-//
-// CURRENT TAB 
-//
-var label = Titanium.UI.createLabel({
-	text:'Tab title is ' + tab.title,
-	color:'#777',
-	font:{
-		fontFamily:'Helvetica Neue',
-		fontSize:15
-	},
-	textAlign:'center',
-	top:260,
-	width:300,
-	height:'auto'
-});
 
 
 // add views based on platform

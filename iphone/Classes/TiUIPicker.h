@@ -15,5 +15,8 @@
 }
 
 -(void)reloadColumn:(id)column;
+-(TiProxy*)selectedRowForColumn:(NSInteger)column;
+-(void)selectRowForColumn:(NSInteger)column row:(NSInteger)row animated:(BOOL)animated;
+-(void)selectRow:(NSArray*)array;
 
 @end

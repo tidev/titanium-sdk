@@ -15,8 +15,7 @@ var data = [
 	{title:'Row12'},
 	{title:'Row13'},
 	{title:'Row14'},
-	{title:'Row15'},
-	
+	{title:'Row15'}
 ];
 
 //

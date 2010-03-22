@@ -55,14 +55,18 @@ button.addEventListener('click', function()
 	a1.addEventListener('complete', function()
 	{
 		if (!stopped)
+		{
 			winContainer.animate(a2);
-	})
+		}
+	});
 
 	a2.addEventListener('complete', function()
 	{
 		if (!stopped)
+		{
 			winContainer.animate(a1);
-	})
+		}
+	});
 	
 
 });
@@ -80,8 +84,11 @@ var button2 = Titanium.UI.createButton({
 
 button2.addEventListener('click', function()
 {
-	if (!stopped) stopped = true;
-})
+	if (!stopped) 
+	{
+		stopped = true;
+	}
+});
 win.add(button2);
 
 // open container 

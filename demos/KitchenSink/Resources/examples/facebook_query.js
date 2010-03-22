@@ -17,27 +17,6 @@ var b1 = Ti.UI.createButton({
 	top:10
 });
 win.add(b1);
-b1.addEventListener('click', function()
-{
-	if (Titanium.Facebook.isLoggedIn()==false)
-	{
-		Ti.UI.createAlertDialog({title:'Facebook', message:'Login before running query'}).show();
-		return;
-	}
-	
-	Ti.API.info('Facebook read_stream permission ' + Titanium.Facebook.hasPermission("read_stream"))
-	if (!Titanium.Facebook.hasPermission("read_stream"))
-	{
-		Titanium.Facebook.requestPermission("read_stream",function(evt)
-		{
-			if (evt.success)
-			{
-				runQuery();
-			}
-		})
-	}
-	runQuery();
-});
 
 function runQuery()
 {
@@ -105,7 +84,7 @@ function runQuery()
 			});
 			tvRow.add(statusLabel);
 			
-			tvRow.uid = row.uid
+			tvRow.uid = row.uid;
 			
 			data[c] = tvRow;
 		}
@@ -115,3 +94,24 @@ function runQuery()
 	});	
 };
 
+b1.addEventListener('click', function()
+{
+	if (Titanium.Facebook.isLoggedIn()==false)
+	{
+		Ti.UI.createAlertDialog({title:'Facebook', message:'Login before running query'}).show();
+		return;
+	}
+	
+	Ti.API.info('Facebook read_stream permission ' + Titanium.Facebook.hasPermission("read_stream"));
+	if (!Titanium.Facebook.hasPermission("read_stream"))
+	{
+		Titanium.Facebook.requestPermission("read_stream",function(evt)
+		{
+			if (evt.success)
+			{
+				runQuery();
+			}
+		});
+	}
+	runQuery();
+});

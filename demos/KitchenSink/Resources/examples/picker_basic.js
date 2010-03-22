@@ -16,8 +16,32 @@ picker.selectionIndicator = true;
 
 win.add(picker);
 
+var label = Ti.UI.createLabel({
+	text:'Make a move',
+	top:6,
+	width:'auto',
+	height:'auto',
+	textAlign:'center',
+	color:'white'
+});
+win.add(label);
+
+var button = Ti.UI.createButton({
+	title:'Set to Grapes',
+	top:34,
+	width:120,
+	height:30
+});
+win.add(button);
+
+button.addEventListener('click',function()
+{
+	// column, row, animated (optional)
+	picker.setSelectedRow(0,3,true);
+});
+
 picker.addEventListener('change',function(e)
 {
 	Ti.API.info("You selected row: "+e.row+", column: "+e.column+", custom_item: "+e.row.custom_item);
-	Ti.API.info("row index: "+e.rowIndex+", column index: "+e.columnIndex);
+	label.text = "row index: "+e.rowIndex+", column index: "+e.columnIndex;
 });

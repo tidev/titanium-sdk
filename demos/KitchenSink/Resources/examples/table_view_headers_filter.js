@@ -96,8 +96,7 @@ tableview.index = [
 	{title:'M',index:48},
 	{title:'N',index:52},
 	{title:'O',index:55},
-	{title:'P',index:(data.length -1)},
-	
+	{title:'P',index:(data.length -1)}	
 ];
 
 // add table view to the window

@@ -5,7 +5,7 @@ var scanner = Titanium.UI.createView({
 	height:200,
 	borderColor:'red',
 	borderWidth:5,
-	borderRadius:15,
+	borderRadius:15
 });
 
 var button = Titanium.UI.createButton({

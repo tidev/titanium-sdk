@@ -9,6 +9,12 @@
 #import "KrollCallback.h"
 #import "Reachability.h"
 
+typedef enum {
+	READ_MODE = 1,
+	WRITE_MODE = 2,
+	READ_WRITE_MODE = 3 // Alias for READ | WRITE
+} SocketMode;
+
 @interface NetworkModule : TiModule {
 @private
 	TiNetworkConnectionState state;
@@ -34,6 +40,11 @@
 @property(nonatomic,readonly) NSNumber* NOTIFICATION_TYPE_BADGE;
 @property(nonatomic,readonly) NSNumber* NOTIFICATION_TYPE_ALERT;
 @property(nonatomic,readonly) NSNumber* NOTIFICATION_TYPE_SOUND;
+
+@property(readonly, nonatomic) NSNumber* READ_MODE;
+@property(readonly, nonatomic) NSNumber* WRITE_MODE;
+@property(readonly, nonatomic) NSNumber* READ_WRITE_MODE;
+@property(readonly, nonatomic) NSString* INADDR_ANY;
 
 
 -(id)encodeURIComponent:(id)args;

@@ -1,5 +1,5 @@
 var win = Titanium.UI.currentWindow;
-win.backgroundColor = '#13386c'
+win.backgroundColor = '#13386c';
 
 //
 // CREATE TWO CLOUDS

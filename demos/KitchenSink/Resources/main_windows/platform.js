@@ -20,6 +20,8 @@ var data = [
 if (Titanium.Platform.name == 'iPhone OS')
 {
 	data.push({title:'Passing Data (windows)', hasChild:true, test:'../examples/custom_properties.js'});
+	data.push({title:'Bonjour', hasChild:true, test:'../examples/bonjour.js'});
+	data.push({title:'Sockets', hasChild:true, test:'../examples/sockets.js'});
 }
 
 // create table view
@@ -36,7 +38,7 @@ tableview.addEventListener('click', function(e)
 			url:e.rowData.test,
 			title:e.rowData.title
 		});
-		Titanium.UI.currentTab.open(win,{animated:true})
+		Titanium.UI.currentTab.open(win,{animated:true});
 	}
 });
 

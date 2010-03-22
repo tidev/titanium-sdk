@@ -1,7 +1,6 @@
 // create table view data object
 var data = [
-	{title:'Coverflow Local Files', hasChild:true, test:'../examples/coverflow_view.js'},
-
+	{title:'Coverflow Local Files', hasChild:true, test:'../examples/coverflow_view.js'}
 ];
 
 // create table view
@@ -18,7 +17,7 @@ tableview.addEventListener('click', function(e)
 			url:e.rowData.test,
 			title:e.rowData.title
 		});
-		Titanium.UI.currentTab.open(win,{animated:true})
+		Titanium.UI.currentTab.open(win,{animated:true});
 	}
 });
 

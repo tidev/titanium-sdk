@@ -18,6 +18,10 @@ NSString * const TI_APPLICATION_COPYRIGHT = @"__APP_COPYRIGHT__";
 NSString * const TI_APPLICATION_GUID = @"__APP_GUID__";
 BOOL const TI_APPLICATION_ANALYTICS = __APP_ANALYTICS__;
 
+#ifdef DEBUG
+NSString * const TI_APPLICATION_RESOURCE_DIR = @"__APP_RESOURCE_DIR__";
+#endif
+
 int main(int argc, char *argv[]) {
     NSAutoreleasePool * pool = [[NSAutoreleasePool alloc] init];
 

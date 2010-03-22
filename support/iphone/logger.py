@@ -4,7 +4,7 @@
 # Tail an application log file running in the iPhone Simulator
 #
 
-import os, sys, subprocess, time, signal, run
+import os, sys, subprocess, time, signal, run, filetail
 
 def find_file(folder, fname):
     for root, dirs, files in os.walk(folder):
@@ -25,18 +25,21 @@ def main(args):
 	# starting in SDK 3.2 they changed the directory on us where logs 
 	# go so we have to compensate for that by looking at the version
 	# of xcode the user has
-	xoutput = run.run(["xcodebuild","-version"])
-	idx = xoutput.find("Xcode ")
-	version = xoutput[idx+6:]
-	idx = version.find("\n")
-	version = version[0:idx].strip()
-	version_split = version.split('.')
-	major = int(version_split[0])
-	minor = int(version_split[1])
-	build = 0
-	# some versions are simply 3.1 (2 digits)
-	if len(version_split) > 2:
-		build = int(version_split[2])
+	try:
+		xoutput = run.run(["xcodebuild","-version"])
+		idx = xoutput.find("Xcode ")
+		version = xoutput[idx+6:]
+		idx = version.find("\n")
+		version = version[0:idx].strip()
+		version_split = version.split('.')
+		major = int(version_split[0])
+		minor = int(version_split[1])
+		build = 0
+		# some versions are simply 3.1 (2 digits)
+		if len(version_split) > 2:
+			build = int(version_split[2])
+	except:
+		sys.exit(0)
 	
 	
 	# this was the default up until 3.2.2 release
@@ -52,21 +55,14 @@ def main(args):
 
 	while logfile == None:
 		try:
+			sys.stdout.flush()
 			logfile = find_file(logfile_dir,logname)
 			if logfile == None:
 					time.sleep(1)
 		except KeyboardInterrupt:
 			sys.exit(0)
 
-	log = subprocess.Popen([
-		'tail',
-		'-F',
-		logfile
-	],bufsize=1)	
-	
 	def handler(signum, frame):
-		if not log == None:
-			os.system("kill -9 %d >/dev/null" % log.pid)
 		sys.exit(0)
 	
 	signal.signal(signal.SIGHUP, handler)
@@ -75,13 +71,16 @@ def main(args):
 	signal.signal(signal.SIGABRT, handler)
 	signal.signal(signal.SIGTERM, handler)
 	
-	# wait for process to end or until we get a signal
-	os.waitpid(log.pid,0)
+	t = filetail.Tail(logfile)
+	sys.stdout.flush()
+	try:
+	  	for line in t:
+	  		print line
+			sys.stdout.flush()
+	except:
+		sys.stdout.flush()
+		sys.exit(0)
 	
-	# just to be sure...
-	handler(3,None)
-	
-	sys.exit(0)
 	
 		
 if __name__ == "__main__":

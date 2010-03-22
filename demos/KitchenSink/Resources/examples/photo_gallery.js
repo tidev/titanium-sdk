@@ -30,5 +30,5 @@ Titanium.Media.openPhotoGallery({
 	error:function(error)
 	{
 	},
-	allowImageEditing:true,
+	allowImageEditing:true
 });

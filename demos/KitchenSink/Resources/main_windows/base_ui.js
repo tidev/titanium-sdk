@@ -51,7 +51,7 @@ tableview.addEventListener('click', function(e)
 		{
 			win.hideTabBar();
 		}
-		Titanium.UI.currentTab.open(win,{animated:true})
+		Titanium.UI.currentTab.open(win,{animated:true});
 	}
 });
 

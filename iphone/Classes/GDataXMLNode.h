@@ -158,6 +158,8 @@ typedef NSUInteger GDataXMLNodeKind;
 - (xmlNodePtr)XMLNode;
 - (void)releaseCachedValues;
 
++ (id)nodeBorrowingXMLNode:(xmlNodePtr)theXMLNode;
+
 @end
 
 
@@ -192,6 +194,7 @@ typedef NSUInteger GDataXMLNodeKind;
 - (id)initWithXMLString:(NSString *)str options:(unsigned int)mask error:(NSError **)error;
 - (id)initWithData:(NSData *)data options:(unsigned int)mask error:(NSError **)error;
 - (id)initWithRootElement:(GDataXMLElement *)element;
+- (id)initWithDocument:(xmlDocPtr)xml;
 
 - (GDataXMLElement *)rootElement;
 

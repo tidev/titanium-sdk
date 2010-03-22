@@ -46,8 +46,6 @@ xhr.ondatastream = function(e)
 		label.text += 'responseData ' + xhr.responseData + '\n';
 		label.text += 'connectionType ' + xhr.connectionType + '\n';
 		label.text += 'location ' + xhr.location + '\n';
-		label.text += 'updateCount ' + updateCount;
-		
 	}
 
 };

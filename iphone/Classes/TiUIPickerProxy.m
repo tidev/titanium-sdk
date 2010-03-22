@@ -16,6 +16,7 @@
 -(void)_configure
 {
 	[self replaceValue:NUMINT(-1) forKey:@"type" notification:NO];
+	[self replaceValue:nil forKey:@"value" notification:NO];
 	[super _configure];
 }
 
@@ -66,18 +67,66 @@
 	{
 		TiUIPickerRowProxy *row = (TiUIPickerRowProxy*)data;
 		TiUIPickerColumnProxy *column = [self columnAt:0];
-		[column addRow:row];
-		[picker performSelectorOnMainThread:@selector(reloadColumn:) withObject:column waitUntilDone:NO];
+		NSInteger rowIndex = [column addRow:row];
+		if ([self viewAttached])
+		{
+			[picker performSelectorOnMainThread:@selector(reloadColumn:) withObject:column waitUntilDone:NO];
+		}
+		if ([TiUtils boolValue:[row valueForUndefinedKey:@"selected"] def:NO])
+		{
+			[picker performSelectorOnMainThread:@selector(selectRow:) withObject:[NSArray arrayWithObjects:NUMINT(0),NUMINT(rowIndex),nil] waitUntilDone:NO];
+		}
+	}
+	else if ([data isKindOfClass:[TiUIPickerColumnProxy class]])
+	{
+		NSMutableArray *columns = [self columns];
+		[columns addObject:data];
+		if ([self viewAttached])
+		{
+			[picker performSelectorOnMainThread:@selector(reloadColumn:) withObject:data waitUntilDone:NO];
+		}
 	}
 	else if ([data isKindOfClass:[NSArray class]])
 	{
-		TiUIPickerColumnProxy *column = [self columnAt:0];
-		for (id item in data)
+		// peek to see what our first row is ... 
+		id firstRow = [data objectAtIndex:0];
+		
+		// if an array of columns, just add them
+		if ([firstRow isKindOfClass:[TiUIPickerColumnProxy class]])
 		{
-			ENSURE_TYPE(item,TiUIPickerRowProxy);
-			[column addRow:item];
+			NSMutableArray *columns = [self columns];
+			for (id column in data)
+			{
+				[columns addObject:column];
+			}
 		}
-		[picker performSelectorOnMainThread:@selector(reloadColumn:) withObject:column waitUntilDone:NO];
+		else if ([firstRow isKindOfClass:[NSDictionary class]])
+		{
+			for (id rowdata in data)
+			{
+				TiUIPickerRowProxy *row = [[TiUIPickerRowProxy alloc] _initWithPageContext:[self executionContext] args:[NSArray arrayWithObject:rowdata]];
+				TiUIPickerColumnProxy *column = [self columnAt:0];
+				NSInteger rowIndex = [column addRow:row];
+				[row release];
+				if ([TiUtils boolValue:[row valueForUndefinedKey:@"selected"] def:NO])
+				{
+					[[self view] performSelectorOnMainThread:@selector(selectRow:) withObject:[NSArray arrayWithObjects:NUMINT(0),NUMINT(rowIndex),nil] waitUntilDone:NO];
+				}
+			}
+		}
+		else
+		{
+			TiUIPickerColumnProxy *column = [self columnAt:0];
+			for (id item in data)
+			{
+				ENSURE_TYPE(item,TiUIPickerRowProxy);
+				[column addRow:item];
+			}
+			if ([self viewAttached])
+			{
+				[picker performSelectorOnMainThread:@selector(reloadColumn:) withObject:column waitUntilDone:NO];
+			}
+		}
 	}
 }
 
@@ -86,6 +135,28 @@
 	//TODO
 }
 
+-(id)getSelectedRow:(id)args
+{
+	ENSURE_SINGLE_ARG(args,NSObject);
+	if ([self viewAttached])
+	{
+		return [(TiUIPicker*)[self view] selectedRowForColumn:[TiUtils intValue:args]];
+	}
+	return nil;
+}
+
+-(void)setSelectedRow:(id)args
+{
+	ENSURE_UI_THREAD(setSelectedRow,args);
+	
+	if ([self viewAttached])
+	{
+		NSInteger column = [TiUtils intValue:[args objectAtIndex:0]];
+		NSInteger row = [TiUtils intValue:[args objectAtIndex:1]];
+		BOOL animated = [args count]>2 ? [TiUtils boolValue:[args objectAtIndex:2]] : YES;
+		[(TiUIPicker*)[self view] selectRowForColumn:column row:row animated:animated];
+	}
+}
 
 -(UIViewAutoresizing)verifyAutoresizing:(UIViewAutoresizing)suggestedResizing
 {

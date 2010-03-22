@@ -43,7 +43,10 @@ var left = Titanium.UI.createButton({
 left.addEventListener('click', function(e)
 {
 	var i = view.selected - 1;
-	if (i < 0) i = 0;
+	if (i < 0) 
+	{
+		i = 0;
+	}
 	view.selected = i;
 });
 
@@ -54,7 +57,10 @@ var right = Titanium.UI.createButton({
 right.addEventListener('click', function(e)
 {
 	var i = view.selected + 1;
-	if (i > images.length) i = images.length - 1;
+	if (i > images.length) 
+	{
+		i = images.length - 1;
+	}
 	view.selected = i;
 });
 var flexSpace = Titanium.UI.createButton({

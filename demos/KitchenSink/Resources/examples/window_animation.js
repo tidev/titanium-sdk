@@ -72,7 +72,7 @@ button3.addEventListener('click', function()
 {
 	var t1 = Ti.UI.create3DMatrix();
 	t1 = t1.scale(0.00001);
-	t1 = t1.rotate(180,0,0,1)
+	t1 = t1.rotate(180,0,0,1);
 	var a1 = Titanium.UI.createAnimation();
 	a1.transform = t1;
 	a1.duration = 500;

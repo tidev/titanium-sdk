@@ -52,6 +52,7 @@ if (Titanium.Platform.name == 'iPhone OS')
 	data.push({title:'Grouped w/BG Image', hasChild:true, test:'../examples/table_view_grouped_bg_image.js'});
 	data.push({title:'Delete Mode', hasChild:true, test:'../examples/table_view_delete.js'});
 	data.push({title:'Delete Mode (2)', hasChild:true, test:'../examples/table_view_delete_2.js'});
+	data.push({title:'Delete Mode (3)', hasChild:true, test:'../examples/table_view_delete_3.js'});
 	data.push({title:'Move Mode', hasChild:true, test:'../examples/table_view_move.js'});
 	data.push({title:'Table Grouped View', hasChild:true, test:'../examples/table_view_api_grouped.js'});
 	data.push({title:'Table Empty AppendRow', hasChild:true, test:'../examples/table_view_api_empty_append.js'});
@@ -78,7 +79,7 @@ tableview.addEventListener('click', function(e)
 			url:e.rowData.test,
 			title:e.rowData.title
 		});
-		Titanium.UI.currentTab.open(win,{animated:true})
+		Titanium.UI.currentTab.open(win,{animated:true});
 	}
 });
 

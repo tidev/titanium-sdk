@@ -1,8 +1,6 @@
 // create table view data object
 var data = [
-	{title:'Local', hasChild:true, test:'../examples/movie_local.js'},
-	
-
+	{title:'Local', hasChild:true, test:'../examples/movie_local.js'}
 ];
 
 // add iphone specific tests
@@ -25,7 +23,7 @@ tableview.addEventListener('click', function(e)
 			url:e.rowData.test,
 			title:e.rowData.title
 		});
-		Titanium.UI.currentTab.open(win,{animated:true})
+		Titanium.UI.currentTab.open(win,{animated:true});
 	}
 });
 

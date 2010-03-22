@@ -219,7 +219,16 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 	if (error!=nil)
 	{
 		NSLog(@"[ERROR] error loading path: %@, %@",path,error);
-		[self scriptError:[NSString stringWithFormat:@"Error loading script %@. %@",[path lastPathComponent],[error description]]];
+		
+		// check for file not found a give a friendlier message
+		if ([error code]==260 && [error domain]==NSCocoaErrorDomain)
+		{
+			[self scriptError:[NSString stringWithFormat:@"Could not find the file %@",[path lastPathComponent]]];
+		}
+		else 
+		{
+			[self scriptError:[NSString stringWithFormat:@"Error loading script %@. %@",[path lastPathComponent],[error description]]];
+		}
 		return;
 	}
 

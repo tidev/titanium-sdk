@@ -1,7 +1,7 @@
 var win = Ti.UI.currentWindow;
 
 var tv = Ti.UI.createTableView({
-	style:Titanium.UI.iPhone.TableViewStyle.GROUPED,
+	style:Titanium.UI.iPhone.TableViewStyle.GROUPED
 });
 
 function setData()
@@ -14,18 +14,15 @@ function setData()
 		row.add(l1);
 		var image1 = Ti.UI.createImageView({url:'../images/chat.png', right:5,height:23, width:29});
 		row.add(image1);
-		data.push(row)
+		data.push(row);
 	}
 	tv.setData(data);
 }
 tv.addEventListener('click', function(e)
 {
-	Ti.API.info('FOO')
-
 	var label = e.row.children[0];
 	label.text = 'I was clicked';
-
-})
+});
 win.add(tv);
 setData();
 

@@ -11,7 +11,7 @@ var data = [
 	{title:'Logging and Unicode', hasChild:true, url:'webview_logging.html'},
 	{title:'Local Eval', hasChild:true, url:'local_webview.html', evaljs:true},
 	{title:'Inline HTML w/ Trans Bg', hasChild:true, innerHTML:'<html><body><div style="color:white;">Hello from inline HTML. You should see white text and black background</div></body></html>', bgcolor:'black'},
-	{title:'Inline HTML w/ Color Bg', hasChild:true, innerHTML:'<html><body><div style="color:red;">Hello from inline HTML. You should see red text and yellow background</div></body></html>', bgcolor:'yellow'},
+	{title:'Inline HTML w/ Color Bg', hasChild:true, innerHTML:'<html><body><div style="color:red;">Hello from inline HTML. You should see red text and yellow background</div></body></html>', bgcolor:'yellow'}
 ];
 
 // add iphone specific tests
@@ -120,7 +120,7 @@ tableview.addEventListener('click', function(e)
 				w.setToolbar([button]);
 			} else {
 				toolbar = Titanium.UI.createView({backgroundColor: '#000',opacity:0.8,bottom:10,width:300,height:50,zIndex:1000});
-				toolbar.add(Ti.UI.createLabel({text: 'Click above to hide me'}))
+				toolbar.add(Ti.UI.createLabel({text: 'Click above to hide me'}));
 				w.add(toolbar);
 			}
 		}
@@ -131,7 +131,7 @@ tableview.addEventListener('click', function(e)
 		// hide toolbar for local web view
 		Ti.App.addEventListener('webview_hidetoolbar', function(e)
 		{
-			Ti.API.info('received hidetoolbar event, foo = ' + e.foo)
+			Ti.API.info('received hidetoolbar event, foo = ' + e.foo);
 			if (Titanium.Platform.name == 'iPhone OS') {
 				w.setToolbar(null,{animated:true});
 			} else {
@@ -142,8 +142,8 @@ tableview.addEventListener('click', function(e)
 		});
 		webview.addEventListener('click', function()
 		{
-			Ti.API.info('RECEIVED CLICK ON WEBVIEW')
-		})
+			Ti.API.info('RECEIVED CLICK ON WEBVIEW');
+		});
 		win.tab.open(w);		
 	}
 

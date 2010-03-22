@@ -6,7 +6,7 @@ var data = [
 	{title:'Query', hasChild:true, test:'../examples/facebook_query.js'},
 	{title:'Properties', hasChild:true, test:'../examples/facebook_properties.js'},
 	{title:'Publish Stream', hasChild:true, test:'../examples/facebook_publish_stream.js'},
-	{title:'Execute', hasChild:true, test:'../examples/facebook_execute.js'},
+	{title:'Execute', hasChild:true, test:'../examples/facebook_execute.js'}
 
 ];
 
@@ -25,7 +25,7 @@ tableview.addEventListener('click', function(e)
 			url:e.rowData.test,
 			title:e.rowData.title
 		});
-		Titanium.UI.currentTab.open(win,{animated:true})
+		Titanium.UI.currentTab.open(win,{animated:true});
 	}
 });
 

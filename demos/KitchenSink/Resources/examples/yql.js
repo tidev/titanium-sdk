@@ -1,6 +1,6 @@
 // create table view data object
 var data = [
-	{title:'YQL + Flickr', hasChild:true, test:'../examples/yql_flickr.js'},
+	{title:'YQL + Flickr', hasChild:true, test:'../examples/yql_flickr.js'}
 
 ];
 
@@ -18,7 +18,7 @@ tableview.addEventListener('click', function(e)
 			url:e.rowData.test,
 			title:e.rowData.title
 		});
-		Titanium.UI.currentTab.open(win,{animated:true})
+		Titanium.UI.currentTab.open(win,{animated:true});
 	}
 });
 

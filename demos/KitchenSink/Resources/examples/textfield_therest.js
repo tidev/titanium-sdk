@@ -2,7 +2,6 @@ var win = Titanium.UI.currentWindow;
 
 var tf1 = Titanium.UI.createTextField({
 	color:'#336699',
-	height:35,
 	top:10,
 	left:10,
 	width:250,
@@ -10,8 +9,7 @@ var tf1 = Titanium.UI.createTextField({
 	hintText:'hintText',
 	keyboardType:Titanium.UI.KEYBOARD_DEFAULT,
 	returnKeyType:Titanium.UI.RETURNKEY_DEFAULT,
-	borderStyle:Titanium.UI.INPUT_BORDERSTYLE_ROUNDED,
-
+	borderStyle:Titanium.UI.INPUT_BORDERSTYLE_ROUNDED
 });
 tf1.addEventListener('return', function()
 {
@@ -29,7 +27,7 @@ var b1 = Titanium.UI.createButton({
 });
 b1.addEventListener('click', function()
 {
-	Ti.API.info('enabled ' + tf1.enabled)
+	Ti.API.info('enabled ' + tf1.enabled);
 	tf1.enabled = (tf1.enabled)?false:true;
 });
 win.add(b1);
@@ -44,7 +42,7 @@ var b2 = Titanium.UI.createButton({
 var bgi = false;
 b2.addEventListener('click', function()
 {
-	Ti.API.info('backgroundImage ' + tf1.backgroundImage)
+	Ti.API.info('backgroundImage ' + tf1.backgroundImage);
 	if (!bgi)
 	{
 		tf1.backgroundImage = '../images/chat.png';
@@ -68,7 +66,7 @@ var b3 = Titanium.UI.createButton({
 });
 b3.addEventListener('click', function()
 {
-	Ti.API.info('autocorrect ' + tf1.autocorrect)
+	Ti.API.info('autocorrect ' + tf1.autocorrect);
 	tf1.autocorrect = (tf1.autocorrect)?false:true;
 });
 win.add(b3);
@@ -82,7 +80,7 @@ var b4 = Titanium.UI.createButton({
 });
 b4.addEventListener('click', function()
 {
-	Ti.API.info('clearOnEdit ' + tf1.clearOnEdit)
+	Ti.API.info('clearOnEdit ' + tf1.clearOnEdit);
 	tf1.clearOnEdit = (tf1.clearOnEdit)?false:true;
 });
 win.add(b4);
@@ -96,7 +94,7 @@ var b5 = Titanium.UI.createButton({
 });
 b5.addEventListener('click', function()
 {
-	Ti.API.info('passwordMask ' + tf1.passwordMask)
+	Ti.API.info('passwordMask ' + tf1.passwordMask);
 	tf1.passwordMask = (tf1.passwordMask)?false:true;
 });
 win.add(b5);
@@ -111,7 +109,7 @@ var b6 = Titanium.UI.createButton({
 var auto = 0;
 b6.addEventListener('click', function()
 {
-	Ti.API.info('autocapitalization ' + tf1.autocapitalization)
+	Ti.API.info('autocapitalization ' + tf1.autocapitalization);
 	
 	switch (auto)
 	{

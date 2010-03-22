@@ -46,7 +46,7 @@ b1.addEventListener('click', function()
 	{
 		ind.value = e.progress ;
 		Ti.API.info('ONDATASTREAM1 - PROGRESS: ' + e.progress);
-	}
+	};
 	
 	// open the client
 	if (Titanium.Platform.name == 'android') {
@@ -86,7 +86,7 @@ b2.addEventListener('click', function()
 	{
 		ind.value = e.progress ;
 		Ti.API.info('ONDATASTREAM2 - PROGRESS: ' + e.progress);
-	}
+	};
 
 	// open the client
 	if (Titanium.Platform.name == 'android') {

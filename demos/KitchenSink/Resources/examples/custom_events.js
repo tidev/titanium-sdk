@@ -12,7 +12,7 @@ var b1 = Titanium.UI.createButton({
 
 b1.addEventListener('click', function()
 {
-	Titanium.App.fireEvent('event_one',{data:['1','2','3']})
+	Titanium.App.fireEvent('event_one',{data:['1','2','3']});
 });
 
 win.add(b1);

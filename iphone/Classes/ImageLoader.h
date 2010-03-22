@@ -9,6 +9,15 @@
 #import "ASIHTTPRequest.h"
 #import "ASINetworkQueue.h"
 
+typedef enum {
+	TiImageScalingDefault,
+	TiImageScalingThumbnail,
+	TiImageScalingNonProportional,
+	TiImageScalingStretch,
+}	TiImageScalingStyle;
+
+
+
 @class ImageLoaderRequest;
 
 @protocol ImageLoaderDelegate

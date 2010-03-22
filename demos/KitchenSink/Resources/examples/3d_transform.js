@@ -1,5 +1,5 @@
 var win = Titanium.UI.currentWindow;
-win.backgroundColor = '#000'
+win.backgroundColor = '#000';
 
 //
 //  CREATE VIEW, LABEL and BUTTON
@@ -37,7 +37,7 @@ button.addEventListener('click', function()
 
 	var t1 = Ti.UI.create3DMatrix();
 	t1 = t1.translate(0,0,1000);
-	t1.m34 = 1.0/-90
+	t1.m34 = 1.0/-90;
 	var a1 = Titanium.UI.createAnimation();
 	a1.transform = t1;
 	a1.duration = 1000;
@@ -47,7 +47,7 @@ button.addEventListener('click', function()
 	a1.addEventListener('complete', function(e)
 	{
 		 	t1 = t1.rotate(180,1,1,0);
-			t1 = t1.scale(2.0,2.0,2.0)
+			t1 = t1.scale(2.0,2.0,2.0);
 			t1.m34 = 1.0/-1500;
 			var a1 = Titanium.UI.createAnimation();
 			a1.transform = t1;
@@ -59,8 +59,8 @@ button.addEventListener('click', function()
 			a1.addEventListener('complete', function(e)
 			{
 					t1 = t1.rotate(180,0,1,1);
-					t1 = t1.scale(3.0,3.0,3.0)			
-					t1.m34 = 1.0/-3000
+					t1 = t1.scale(3.0,3.0,3.0);
+					t1.m34 = 1.0/-3000;
 					var a3 = Titanium.UI.createAnimation();
 					a3.transform = t1;
 					a3.duration = 1000;
@@ -78,4 +78,4 @@ button.addEventListener('click', function()
 });
 
 win.add(button);
-win.add(view)
+win.add(view);
