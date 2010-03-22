@@ -50,7 +50,7 @@ const CFOptionFlags writeStreamEventFlags =
 
 #pragma mark Macros
 
-#define VALID [[self isValid:nil] boolValue]
+#define VALID (socket!=NULL) && [[self isValid:nil] boolValue]
 
 #pragma mark Private
 
@@ -346,10 +346,10 @@ const CFOptionFlags writeStreamEventFlags =
     if (VALID) {
         [self close:nil];
     }
-    
-    [hostName release];
-    [remoteSocketDictionary release];
-    [configureCondition release];
+	
+	RELEASE_TO_NIL(hostName);
+	RELEASE_TO_NIL(remoteSocketDictionary);
+	RELEASE_TO_NIL(configureCondition);
 	
     [super _destroy];
 }
@@ -401,7 +401,7 @@ const CFOptionFlags writeStreamEventFlags =
 
 -(NSNumber*)isValid:(id)unused
 {
-    if (socket) {
+    if (socket!=NULL) {
         return [NSNumber numberWithBool:CFSocketIsValid(socket)];
     }
     return [NSNumber numberWithBool:false];
@@ -445,6 +445,10 @@ const CFOptionFlags writeStreamEventFlags =
     
     CFDataRef addressData = (CFDataRef)[self createAddressData];
     
+	int reuseOn = 1;
+	setsockopt(CFSocketGetNative(socket), SOL_SOCKET, SO_REUSEADDR, &reuseOn, sizeof(reuseOn));
+	setsockopt(CFSocketGetNative(socket), SOL_SOCKET, SO_REUSEPORT, &reuseOn, sizeof(reuseOn));
+	
     CFSocketError sockError = CFSocketSetAddress(socket,
 												 addressData);
     switch (sockError) {
@@ -464,15 +468,12 @@ const CFOptionFlags writeStreamEventFlags =
     
     CFRelease(addressData);
     
-    //[self performSelectorInBackground:@selector(runSocket) withObject:nil];
-    
-    CFRunLoopSourceRef socketRunLoop = CFSocketCreateRunLoopSource(kCFAllocatorDefault,
+    socketRunLoop = CFSocketCreateRunLoopSource(kCFAllocatorDefault,
                                                                    socket,
                                                                    1);
     CFRunLoopAddSource(CFRunLoopGetMain(),
                        socketRunLoop,
                        kCFRunLoopCommonModes);
-    CFRelease(socketRunLoop); 
 }
 
 -(void)connect:(id)unused
@@ -538,27 +539,41 @@ const CFOptionFlags writeStreamEventFlags =
 
 -(void)close:(id)unused
 {
-    if (!VALID) {
-        [self throwException:@"Socket is not open"
-                   subreason:nil
-                    location:CODELOCATION];
-    }
-    
-    NSEnumerator* keys = [[remoteSocketDictionary allKeys] objectEnumerator];
-    id remoteSocketObject;
-    
-    // Shut down all of the streams and remote connections
-    while ((remoteSocketObject = [keys nextObject])) {
-        CFSocketNativeHandle remoteSocket = [remoteSocketObject intValue];
-        [self closeRemoteSocket:remoteSocket];
-    }
-    
-    if (socket) {
-        CFSocketInvalidate(socket);
-        CFRelease(socket);
-    }
-    
-    socket = NULL;
+	@synchronized(self)
+	{
+		if (!VALID) {
+			[self throwException:@"Socket is not open"
+					   subreason:nil
+						location:CODELOCATION];
+		}
+		
+		if (socketRunLoop!=NULL)
+		{
+			CFRunLoopRemoveSource(CFRunLoopGetMain(),
+								  socketRunLoop,
+								  kCFRunLoopCommonModes);
+			CFRelease(socketRunLoop); 
+			socketRunLoop=NULL;
+		}
+		
+		NSEnumerator* keys = [[remoteSocketDictionary allKeys] objectEnumerator];
+		id remoteSocketObject;
+		
+		// Shut down all of the streams and remote connections
+		while ((remoteSocketObject = [keys nextObject])) 
+		{
+			CFSocketNativeHandle remoteSocket = [remoteSocketObject intValue];
+			[self closeRemoteSocket:remoteSocket];
+		}
+		
+		if (socket!=NULL) 
+		{
+			CFSocketInvalidate(socket);
+			CFRelease(socket);
+		}
+		
+		socket = NULL;
+	}
 }
 
 -(void)write:(id)args;
