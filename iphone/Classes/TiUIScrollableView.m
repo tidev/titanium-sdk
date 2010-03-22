@@ -109,8 +109,6 @@
 		return;
 	}
 
-//	NSLog(@"Rendering for view %d.",index);
-
 	UIView *wrapper = [[sv subviews] objectAtIndex:index];
 	if ([[wrapper subviews] count]==0)
 	{
@@ -242,9 +240,7 @@
 {
 	if (!CGRectIsEmpty(visibleBounds))
 	{
-	//	UIScrollView *sv = [self scrollview];
-		BOOL readd = YES; //[sv subviews]==0 || [views count]!=[[sv subviews] count];
-		[self refreshScrollView:visibleBounds readd:readd];
+		[self refreshScrollView:visibleBounds readd:YES];
 		
 		if (![scrollview isDecelerating] && ![scrollview isDragging] && ![scrollview isTracking])
 		{
@@ -267,17 +263,6 @@
 	}
 	RELEASE_TO_NIL(views);
 	views = [args retain];
-//	// set the parent so we can propagate events
-//	for (TiViewProxy *viewproxy in views)
-//	{
-//		[viewproxy setParent:self.parent];
-//	}
-//	if (showPageControl)
-//	{
-//		[[self pagecontrol] setCurrentPage:0];
-//	}
-//	currentPage = 0;
-//	[self.proxy replaceValue:NUMINT(0) forKey:@"currentPage" notification:NO];
 
 	if (refresh)
 	{
@@ -376,7 +361,7 @@
 -(void)addView:(id)viewproxy
 {
 	ENSURE_SINGLE_ARG(viewproxy,TiProxy);
-	[viewproxy setParent:self.parent];
+	[viewproxy setParent:(TiViewProxy *)self.proxy];
 	[views addObject:viewproxy];
 	[self refreshScrollView:[self bounds] readd:YES];
 }
