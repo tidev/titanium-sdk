@@ -41,6 +41,16 @@
 			<entry key="build.version" value="${build.version}"/>
 			<entry key="build.timestamp" type="date" value="now"/>
 		</propertyfile>
+		<copy todir="${classesdir}/titanium">
+			<fileset dir="titanium/src">
+				<include name="**/*"/>
+				<exclude name="**/*.java"/>
+			</fileset>
+			<fileset dir="titanium/thirdparty">
+				<include name="**/*"/>
+				<exclude name="**/*.java"/>
+			</fileset>
+		</copy>
 		<jar destfile="${distdir}/titanium.jar" basedir="${classesdir}/titanium"/>
 	</target>
 	
@@ -105,6 +115,12 @@
 					</fileset>
 				</classpath>
 			</javac>
+			<copy todir="${classesdir}/@{name}">
+				<fileset dir="@{prefix}@{name}/src">
+					<include name="**/*"/>
+					<exclude name="**/*.java"/>
+				</fileset>
+			</copy>
 			<jar destfile="${distdir}/titanium-@{name}.jar" basedir="${classesdir}/@{name}"/>
 		</sequential>
 	</macrodef>
