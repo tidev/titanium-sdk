@@ -18,8 +18,8 @@ NSData * decode64 (NSData * thedata)
 	int decodedLength = Base64decode_len(str);
 	char* decoded = (char*)malloc(sizeof(char) * decodedLength);
 	Base64decode(decoded,str);
-	NSData *result = [NSData dataWithBytesNoCopy:decoded length:decodedLength freeWhenDone:YES];
-	return result;
+	NSString *result = [NSString stringWithUTF8String:decoded];
+	return [result dataUsingEncoding:NSUTF8StringEncoding];
 }
 
 NSData * encode64 (NSData * thedata)
@@ -28,8 +28,8 @@ NSData * encode64 (NSData * thedata)
 	int encodedLength = Base64encode_len([thedata length]);
 	char* encoded = (char*)malloc(sizeof(char) * encodedLength);
 	Base64encode(encoded,str,[thedata length]);
-	NSData *result = [NSData dataWithBytesNoCopy:encoded length:encodedLength freeWhenDone:YES];
-	return result;
+	NSString *result = [NSString stringWithUTF8String:encoded];
+	return [result dataUsingEncoding:NSUTF8StringEncoding];
 }
 
 #pragma mark Hex
