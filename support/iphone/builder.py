@@ -147,6 +147,7 @@ def main(args):
 		encrypt = (ti.properties['encrypt']=='true')
 
 	force_rebuild = True
+	force_compile = False
 	version_file = None
 	log_id = None
 
@@ -163,6 +164,14 @@ def main(args):
 					force_rebuild = False
 				else:
 					log_id = None
+		if force_rebuild==False:
+			if not os.path.exists(os.path.join(iphone_dir,'Classes','ApplicationRouting.h')):
+				force_rebuild = True
+				force_compile = True
+			if force_rebuild==False and not os.path.exists(os.path.join(iphone_dir,'Classes','ApplicationRouting.m')):
+				force_rebuild = True
+				force_compile = True
+			
 
 	# if using custom modules, we have to force rebuild each time for now
 	if ti.properties.has_key('modules') and len(ti.properties['modules']) > 0:
@@ -176,7 +185,7 @@ def main(args):
 		
 		print "[INFO] Performing full rebuild. This will take a little bit. Hold tight..."
 		
-		if simulator==False:
+		if simulator==False or force_compile:
 			# compile resources only if non-simulator (for speedups)
 			compiler = Compiler(appid,project_dir,encrypt,debug)
 			compiler.compile()
@@ -357,6 +366,7 @@ def main(args):
 		if devicefamily == 'ipad':
 			iphone_version='3.2'
 			device_target=" TARGETED_DEVICE_FAMILY=iPad"
+			deploy_target = "IPHONEOS_DEPLOYMENT_TARGET=3.2"
 		
 		if command == 'simulator':
 	
