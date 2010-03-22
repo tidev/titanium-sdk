@@ -16,7 +16,7 @@
 @property(nonatomic,readonly) NSInteger rowCount;
 @property(nonatomic,readwrite,assign) NSInteger column;
 
--(NSInteger)addRow:(id)row;
+-(NSNumber*)addRow:(id)row;
 -(void)removeRow:(id)row;
 -(id)rowAt:(NSInteger)row;
 

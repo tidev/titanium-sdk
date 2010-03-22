@@ -21,6 +21,7 @@
     NSCondition* configureCondition;
 	
 	SocketMode mode;
+	CFRunLoopSourceRef socketRunLoop;
 }
 
 -(void)listen:(id)unused;

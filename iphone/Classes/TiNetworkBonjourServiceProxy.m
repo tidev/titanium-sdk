@@ -67,17 +67,23 @@ const NSString* socketKey = @"socket";
     return self;
 }
 
--(void)dealloc
+-(void)_destroy
 {
-    [service release];
-    [socket release];
-    [connectCondition release];
+	[self stop:nil];
 	
-	[domains release];
-    [domainBrowser release];
-    [searchCondition release];
-    
-    [super dealloc];
+	if (socket!=nil && [[socket isValid:nil] boolValue])
+	{
+		[socket close:nil];
+	}
+	
+	RELEASE_TO_NIL(service);
+	RELEASE_TO_NIL(socket);
+	RELEASE_TO_NIL(connectCondition);
+	RELEASE_TO_NIL(domains);
+	RELEASE_TO_NIL(domainBrowser);
+	RELEASE_TO_NIL(searchCondition);
+	
+    [super _destroy];
 }
 
 -(BOOL)isEqual:(id)obj

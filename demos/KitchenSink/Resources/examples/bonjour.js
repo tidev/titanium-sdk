@@ -100,7 +100,7 @@ updateUI = function(e) {
 serviceBrowser.addEventListener('updatedServices', updateUI);
 
 // Cleanup
-Titanium.UI.currentWindow.addEventListener('blur', function(e) {
+Titanium.UI.currentWindow.addEventListener('close', function(e) {
 	if (serviceBrowser.isSearching()) {
 		serviceBrowser.stopSearch();
 	}
