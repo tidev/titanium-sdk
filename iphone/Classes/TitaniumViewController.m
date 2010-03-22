@@ -366,10 +366,15 @@
 
 -(void)windowClosed:(UIViewController *)closedViewController
 {
-	if ([closedViewController isKindOfClass:[UINavigationController class]])
+	if ([closedViewController isKindOfClass:[UINavigationController class]] && ![closedViewController isKindOfClass:[MFMailComposeViewController class]])
 	{
-		closedViewController = [(UINavigationController *)closedViewController topViewController];
+		UIViewController * topViewController = [(UINavigationController *)closedViewController topViewController];
+		if (topViewController != nil)
+		{
+			closedViewController = topViewController;
+		}
 	}
+
 
 
 	BOOL focusChanged = [windowViewControllers lastObject] == closedViewController;
