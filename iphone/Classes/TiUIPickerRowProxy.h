@@ -6,10 +6,8 @@
  */
 #import "TiViewProxy.h"
 
-@interface TiUIPickerRowProxy : TiViewProxy {
-
-@private
-
+@interface TiUIPickerRowProxy : TiViewProxy 
+{
 }
 
 @end

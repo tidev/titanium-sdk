@@ -112,6 +112,14 @@ USE_PROXY_FOR_VERIFY_AUTORESIZING
 	}
 }
 
+-(void)selectRow:(NSArray*)array
+{
+	NSInteger column = [TiUtils intValue:[array objectAtIndex:0]];
+	NSInteger row = [TiUtils intValue:[array objectAtIndex:1]];
+	BOOL animated = [array count] > 2 ? [TiUtils boolValue:[array objectAtIndex:2]] : NO;
+	[self selectRowForColumn:column row:row animated:animated];
+}
+
 
 #pragma mark Public APIs 
 
@@ -220,7 +228,23 @@ USE_PROXY_FOR_VERIFY_AUTORESIZING
 		TiUIPickerColumnProxy *proxy = [[self columns] objectAtIndex:component];
 		TiUIPickerRowProxy *rowproxy = [proxy rowAt:row];
 		NSMutableArray *selected = [NSMutableArray array];
-		//TODO: implement selectedValue
+		NSInteger colIndex = 0;
+		for (TiUIPickerColumnProxy *col in [self columns])
+		{
+			int rowIndex = [pickerView selectedRowInComponent:colIndex];
+			TiUIPickerRowProxy *rowSelected = [col rowAt:rowIndex];
+			NSString *title = [rowSelected valueForUndefinedKey:@"title"];
+			// if they have a title, make that the value otherwise use the row proxy
+			if (title!=nil)
+			{
+				[selected addObject:title];
+			}
+			else 
+			{
+				[selected addObject:rowSelected];
+			}
+			colIndex++;
+		}
 		NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:
 							   selected,@"selectedValue",
 							   NUMINT(row),@"rowIndex",

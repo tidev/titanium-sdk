@@ -66,10 +66,14 @@
 	{
 		TiUIPickerRowProxy *row = (TiUIPickerRowProxy*)data;
 		TiUIPickerColumnProxy *column = [self columnAt:0];
-		[column addRow:row];
+		NSInteger rowIndex = [column addRow:row];
 		if ([self viewAttached])
 		{
 			[picker performSelectorOnMainThread:@selector(reloadColumn:) withObject:column waitUntilDone:NO];
+		}
+		if ([TiUtils boolValue:[row valueForUndefinedKey:@"selected"] def:NO])
+		{
+			[picker performSelectorOnMainThread:@selector(selectRow:) withObject:[NSArray arrayWithObjects:NUMINT(0),NUMINT(rowIndex),nil] waitUntilDone:NO];
 		}
 	}
 	else if ([data isKindOfClass:[TiUIPickerColumnProxy class]])
@@ -101,8 +105,12 @@
 			{
 				TiUIPickerRowProxy *row = [[TiUIPickerRowProxy alloc] _initWithPageContext:[self executionContext] args:[NSArray arrayWithObject:rowdata]];
 				TiUIPickerColumnProxy *column = [self columnAt:0];
-				[column addRow:row];
+				NSInteger rowIndex = [column addRow:row];
 				[row release];
+				if ([TiUtils boolValue:[row valueForUndefinedKey:@"selected"] def:NO])
+				{
+					[[self view] performSelectorOnMainThread:@selector(selectRow:) withObject:[NSArray arrayWithObjects:NUMINT(0),NUMINT(rowIndex),nil] waitUntilDone:NO];
+				}
 			}
 		}
 		else
