@@ -1,10 +1,11 @@
-//
-//  TiBonjourBrowserProxy.h
-//  Titanium
-//
-//  Created by Stiv on 2/20/10.
-//  Copyright 2010 Apple Inc. All rights reserved.
-//
+/**
+ * Appcelerator Titanium Mobile
+ * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Licensed under the terms of the Apache Public License
+ * Please see the LICENSE included with this distribution for details.
+
+ * Special thanks to Steve Tramer for implementing this.
+ */
 
 #import <Foundation/Foundation.h>
 #import "TiProxy.h"
