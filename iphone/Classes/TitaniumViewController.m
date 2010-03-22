@@ -324,7 +324,11 @@
 {
 	if ([focusedViewController isKindOfClass:[UINavigationController class]])
 	{
-		focusedViewController = [(UINavigationController *)focusedViewController topViewController];
+		UIViewController * topViewController = [(UINavigationController *)focusedViewController topViewController];
+		if (topViewController != nil)
+		{
+			focusedViewController = topViewController;
+		}
 	}
 
 	TiWindowProxy * focusedProxy = nil;
@@ -338,7 +342,7 @@
 	
 	TiWindowProxy * oldTopWindow = [windowViewControllers lastObject];
 	[windowViewControllers removeObject:focusedViewController];
-	if ([(TiWindowProxy *)focusedProxy _isChildOfTab] || ([(TiWindowProxy *)focusedProxy parent]!=nil))
+	if ((focusedViewController==nil) || [(TiWindowProxy *)focusedProxy _isChildOfTab] || ([(TiWindowProxy *)focusedProxy parent]!=nil))
 	{
 		return;
 	}
