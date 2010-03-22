@@ -307,7 +307,7 @@ public class TiTableView extends FrameLayout
 			}
 
 		};
-		listView.setSelector(adaptableSelector);
+		//listView.setSelector(adaptableSelector);
 
 		listView.setFocusable(true);
 		listView.setFocusableInTouchMode(true);
