@@ -49,6 +49,7 @@ var tab3 = Titanium.UI.createTab({
     window:win3
 });
 
+
 //
 // create platform tab and root window
 //

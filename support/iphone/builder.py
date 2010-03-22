@@ -66,7 +66,7 @@ def read_properties(propFile):
 	
 def main(args):
 	argc = len(args)
-	if argc < 5 or (argc > 1 and args[1] == 'distribute' and argc!=9):
+	if argc < 5 or (argc > 1 and args[1] == 'distribute' and argc!=10):
 		print "%s <command> <version> <project_dir> <appid> <name> [uuid] [dist_name] [output_dir]" % os.path.basename(args[0])
 		print
 		print "available commands: "
@@ -99,6 +99,7 @@ def main(args):
 		appuuid = dequote(args[6].decode("utf-8"))
 		dist_name = dequote(args[7].decode("utf-8"))
 		output_dir = os.path.expanduser(dequote(args[8].decode("utf-8")))
+		devicefamily = dequote(args[9].decode("utf-8"))
 		target = 'Release'
 		deploytype = 'production'
 	elif command == 'simulator':
@@ -110,6 +111,7 @@ def main(args):
 	elif command == 'install':
 		appuuid = dequote(args[6].decode("utf-8"))
 		dist_name = dequote(args[7].decode("utf-8"))
+		devicefamily = dequote(args[8].decode("utf-8"))
 		deploytype = 'test'
 		
 	
