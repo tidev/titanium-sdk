@@ -372,9 +372,12 @@ def main(args):
 		copy_module_resources(project_resources,app_dir,True,True)
 		copy_module_resources(os.path.join(project_resources,'iphone'),app_dir,True,True)
 		shutil.rmtree(os.path.join(app_dir,'iphone'))
+		shutil.rmtree(os.path.join(app_dir,'android'))
 	else:
 		copy_module_resources(project_resources,iphone_tmp_dir)
 		copy_module_resources(os.path.join(project_resources,'iphone'),iphone_tmp_dir)
+		shutil.rmtree(os.path.join(iphone_tmp_dir,'iphone'))
+		shutil.rmtree(os.path.join(iphone_tmp_dir,'android'))
 		
 	
 	try:
