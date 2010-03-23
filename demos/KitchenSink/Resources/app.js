@@ -98,8 +98,6 @@ tabGroup.open({
 	transition:Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT
 });
 
-
-
 //
 //  TAB GROUP EVENTS
 //

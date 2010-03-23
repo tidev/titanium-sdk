@@ -32,11 +32,11 @@ public class KitchensinkAppInfo implements ITiAppInfo
 	}
 	
 	public String getVersion() {
-		return "1.3.0";
+		return "1.0";
 	}
 	
 	public String getPublisher() {
-		return "Appcelerator";
+		return "nwright";
 	}
 	
 	public String getUrl() {
@@ -44,11 +44,11 @@ public class KitchensinkAppInfo implements ITiAppInfo
 	}
 	
 	public String getCopyright() {
-		return "2010 by Appcelerator";
+		return "2010 by nwright";
 	}
 	
 	public String getDescription() {
-		return "Kitchen Sink is a demo application";
+		return "No description provided";
 	}
 	
 	public String getIcon() {
