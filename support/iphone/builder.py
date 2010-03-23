@@ -125,6 +125,10 @@ def main(args):
 	app_bundle = os.path.join(app_bundle_folder,app_name)
 	iphone_resources_dir = os.path.join(iphone_dir,'Resources')
 	iphone_tmp_dir = os.path.join(iphone_dir,'tmp')
+		
+	# TODO: review this with new module SDK
+	# in case the developer has their own modules we can pick them up
+	project_module_dir = os.path.join(project_dir,"modules","iphone")
 	
 	if not os.path.exists(iphone_dir):
 		print "Could not find directory: %s" % iphone_dir
@@ -223,16 +227,6 @@ def main(args):
 		dependscompiler = DependencyCompiler()
 		dependscompiler.compile(template_dir,project_dir,tp_modules,simulator)
 	
-		# copy any module image directories
-		for module in dependscompiler.modules:
-			img_dir = os.path.abspath(os.path.join(template_dir,'modules',module.lower(),'images'))
-			if os.path.exists(img_dir):
-				dest_img_dir = os.path.join(iphone_tmp_dir,'modules',module.lower(),'images')
-				if os.path.exists(dest_img_dir):
-					shutil.rmtree(dest_img_dir)
-				os.makedirs(dest_img_dir)
-				copy_module_resources(img_dir,dest_img_dir)
-	
 
 		# copy over main since it can change with each release
 		main_template = codecs.open(os.path.join(template_dir,'main.m'),'r','utf-8','replace').read()
@@ -252,6 +246,16 @@ def main(args):
 			main_template = main_template.replace('__APP_RESOURCE_DIR__',os.path.abspath(project_resources))
 			
 	
+		# copy any module image directories
+		for module in dependscompiler.modules:
+			img_dir = os.path.abspath(os.path.join(template_dir,'modules',module.lower(),'images'))
+			if os.path.exists(img_dir):
+				dest_img_dir = os.path.join(iphone_tmp_dir,'modules',module.lower(),'images')
+				if os.path.exists(dest_img_dir):
+					shutil.rmtree(dest_img_dir)
+				os.makedirs(dest_img_dir)
+				copy_module_resources(img_dir,dest_img_dir)
+
 	
 		main_dest = codecs.open(os.path.join(iphone_dir,'main.m'),'w','utf-8','replace')
 		main_dest.write(main_template.encode("utf-8"))
@@ -270,26 +274,7 @@ def main(args):
 		xcode_pbx = codecs.open(os.path.join(xcode_dir,'project.pbxproj'),'w','utf-8','replace')
 		xcode_pbx.write(xcodeproj.encode("utf-8"))
 		xcode_pbx.close()	
-	
-		# copy in the default PNG
-		default_png = os.path.join(project_resources,'iphone','Default.png')
-		if os.path.exists(default_png):
-			target_png = os.path.join(iphone_resources_dir,'Default.png')
-			if os.path.exists(target_png):
-				os.remove(target_png)
-			shutil.copy(default_png,target_png)	
 		
-	
-		# TODO: review this with new module SDK
-		# in case the developer has their own modules we can pick them up
-		project_module_dir = os.path.join(project_dir,"modules","iphone")
-	
-		# copy in any resources in our module like icons
-		if os.path.exists(project_module_dir):
-			copy_module_resources(project_module_dir,iphone_tmp_dir)
-	
-		sys.stdout.flush()
-	
 		source_lib=os.path.join(template_dir,'libTiCore.a')
 		target_lib=os.path.join(iphone_resources_dir,'libTiCore.a')
 	
@@ -344,6 +329,30 @@ def main(args):
 			log_id = ti.properties['guid']
 			f.write("%s,%s" % (template_dir,log_id))
 			f.close()
+	
+	# copy in the default PNG
+	default_png = os.path.join(project_resources,'iphone','Default.png')
+	if os.path.exists(default_png):
+		target_png = os.path.join(iphone_resources_dir,'Default.png')
+		if os.path.exists(target_png):
+			os.remove(target_png)
+		shutil.copy(default_png,target_png)	
+
+	# copy in any resources in our module like icons
+	if os.path.exists(project_module_dir):
+		copy_module_resources(project_module_dir,iphone_tmp_dir)
+
+	# if we didn't force rebuild we still need to copy modules images
+	if force_compile or not force_rebuild:
+		# copy any module image directories
+		for module in os.listdir(os.path.join(template_dir,'modules')):
+			img_dir = os.path.abspath(os.path.join(template_dir,'modules',module.lower(),'images'))
+			if os.path.exists(img_dir):
+				dest_img_dir = os.path.join(app_dir,'modules',module.lower(),'images')
+				if os.path.exists(dest_img_dir):
+					shutil.rmtree(dest_img_dir)
+				os.makedirs(dest_img_dir)
+				copy_module_resources(img_dir,dest_img_dir)
 	
 	try:
 		os.chdir(iphone_dir)
