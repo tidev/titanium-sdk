@@ -198,10 +198,9 @@ def main(args):
 		if os.path.exists(app_dir):	
 			shutil.rmtree(app_dir)
 
-		if simulator==False or force_compile:
-			# compile resources only if non-simulator (for speedups)
-			compiler = Compiler(appid,project_dir,encrypt,debug)
-			compiler.compile()
+		# compile resources only if non-simulator (for speedups)
+		compiler = Compiler(appid,project_dir,encrypt,debug)
+		compiler.compile()
 
 		# find the module directory relative to the root of the SDK	
 		tp_module_dir = os.path.abspath(os.path.join(template_dir,'..','..','..','..','modules','iphone'))
@@ -357,27 +356,11 @@ def main(args):
 	if os.path.exists(project_module_dir):
 		copy_module_resources(project_module_dir,iphone_tmp_dir)
 		
-	# if we didn't force rebuild we still need to copy modules images
-	if simulator:
-		# copy any module image directories
-		for module in os.listdir(os.path.join(template_dir,'modules')):
-			img_dir = os.path.abspath(os.path.join(template_dir,'modules',module.lower(),'images'))
-			if os.path.exists(img_dir):
-				dest_img_dir = os.path.join(app_dir,'modules',module.lower(),'images')
-				if os.path.exists(dest_img_dir):
-					shutil.rmtree(dest_img_dir)
-				os.makedirs(dest_img_dir)
-				copy_module_resources(img_dir,dest_img_dir)
-		
-		copy_module_resources(project_resources,app_dir,True,True)
-		copy_module_resources(os.path.join(project_resources,'iphone'),app_dir,True,True)
-		shutil.rmtree(os.path.join(app_dir,'iphone'))
-		shutil.rmtree(os.path.join(app_dir,'android'))
-	else:
+	if force_rebuild:
 		copy_module_resources(project_resources,iphone_tmp_dir)
 		copy_module_resources(os.path.join(project_resources,'iphone'),iphone_tmp_dir)
-		shutil.rmtree(os.path.join(iphone_tmp_dir,'iphone'))
-		shutil.rmtree(os.path.join(iphone_tmp_dir,'android'))
+		if os.path.exists(os.path.join(iphone_tmp_dir,'iphone')):
+			shutil.rmtree(os.path.join(iphone_tmp_dir,'iphone'))
 		
 	
 	try:
@@ -412,10 +395,6 @@ def main(args):
 	
 			if force_rebuild:
 				
-				# make sure it's clean
-				if os.path.exists(app_dir):
-					shutil.rmtree(app_dir)
-
 				output = run.run([
 	    			"xcodebuild",
 	    			"-configuration",
@@ -489,6 +468,24 @@ def main(args):
 			print "[INFO] Launching application in Simulator"
 			sys.stdout.flush()
 			sys.stderr.flush()
+
+			# we have to do this in simulator *after* the potential compile since his screen
+			# removes html, etc
+			for module in os.listdir(os.path.join(template_dir,'modules')):
+				img_dir = os.path.abspath(os.path.join(template_dir,'modules',module.lower(),'images'))
+				if os.path.exists(img_dir):
+					dest_img_dir = os.path.join(app_dir,'modules',module.lower(),'images')
+					if os.path.exists(dest_img_dir):
+						shutil.rmtree(dest_img_dir)
+					os.makedirs(dest_img_dir)
+					copy_module_resources(img_dir,dest_img_dir)
+
+			copy_module_resources(project_resources,app_dir,True,True)
+			copy_module_resources(os.path.join(project_resources,'iphone'),app_dir,True,True)
+			if os.path.exists(os.path.join(app_dir,'iphone')):
+				shutil.rmtree(os.path.join(app_dir,'iphone'))
+			if os.path.exists(os.path.join(app_dir,'android')):
+				shutil.rmtree(os.path.join(app_dir,'android'))
 
 			
 			# launch the simulator
