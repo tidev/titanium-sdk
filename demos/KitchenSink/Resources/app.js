@@ -288,4 +288,3 @@ Ti.include("welcome.js");
 Ti.API.info("Welcome to Kitchen Sink for Titanium/"+Titanium.version);
 Ti.API.debug("user agent set to "+Titanium.userAgent);
 
-
