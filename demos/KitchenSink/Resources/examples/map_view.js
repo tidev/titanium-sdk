@@ -171,8 +171,6 @@ mapview.addEventListener('click',function(evt)
 	var title = evt.title;
 	var clickSource = evt.clicksource;
 
-	Titanium.API.info('MAPVIEW EVENT - you clicked on '+title+' with click source = '+clickSource);
-	
 	// custom annotation attribute
 	var myid = (evt.annotation)?evt.annotation.myid:-1;
 	
@@ -191,13 +189,11 @@ mapview.addEventListener('click',function(evt)
 	}
 	if (myid == 2 && annotationAdded==false)
 	{
-		Ti.API.info('adding mountain view annotation');
 		mapview.addAnnotation(mountainView);
 		annotationAdded=true;
 	}
 	else
 	{
-		Ti.API.info('removing mountain view annotation');
 		mapview.removeAnnotation(mountainView);
 		annotationAdded=false;
 	}
@@ -210,6 +206,16 @@ atlanta.addEventListener('click', function(evt)
 	var annotation = evt.source;
 	var clicksource = evt.clicksource;
 	
-	Titanium.API.info('ANNOTATION EVENT - you clicked on '+annotation.title+' with click source = '+clicksource);
+	
+});
+
+apple.addEventListener('click', function(evt)
+{
+	Ti.API.info('Apple Annotation clicked ' + evt.clicksource);
+	
+	// get event properties
+	var annotation = evt.source;
+	var clicksource = evt.clicksource;
+	
 	
 });

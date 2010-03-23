@@ -17,16 +17,12 @@ var data = [
 	{title:'Table Custom Row Header', hasChild:true, test:'../examples/table_view_api_custom_rowheader.js'},
 	{title:'Table Section Header', hasChild:true, test:'../examples/table_view_section_header.js'},
 	{title:'Table Empty Dataset (Create)', hasChild:true, test:'../examples/table_view_api_emptydata.js'},
-	{title:'Table View (Layout)', hasChild:true, test:'../examples/table_view_layout.js'},
-	{title:'Table View (Layout 3)', hasChild:true, test:'../examples/table_view_layout_3.js'},
 	{title:'Append Row', hasChild:true, test:'../examples/table_view_row_append.js'},
 	{title:'Delete Row', hasChild:true, test:'../examples/table_view_row_delete.js'},
 	{title:'Insert Row', hasChild:true, test:'../examples/table_view_row_insert.js'},
 	{title:'Update Row', hasChild:true, test:'../examples/table_view_row_update.js'},
 	{title:'Set Row Data', hasChild:true, test:'../examples/table_view_set.js'},
 	{title:'Empty Table View', hasChild:true, test:'../examples/table_view_empty.js'},
-	{title:'Refresh Table View', hasChild:true, test:'../examples/table_view_refresh.js'},
-	{title:'Composite (Partial Size)', hasChild:true, test:'../examples/table_view_composite.js'},
 	{title:'Table Auto Height', hasChild:true, test:'../examples/table_view_api_auto_height.js'}
 ];
 
@@ -34,13 +30,16 @@ var data = [
 if (Titanium.Platform.name == 'iPhone OS')
 {
 	// these are mostly working in android but require minor fixes
+	data.push({title:'Composite (Partial Size)', hasChild:true, test:'../examples/table_view_composite.js'});
+	data.push({title:'Refresh Table View', hasChild:true, test:'../examples/table_view_refresh.js'});
+	data.push({title:'Table View (Layout)', hasChild:true, test:'../examples/table_view_layout.js'});
 	data.push({title:'Table View (Layout 2)', hasChild:true, test:'../examples/table_view_layout_2.js'});
+	data.push({title:'Table View (Layout 3)', hasChild:true, test:'../examples/table_view_layout_3.js'});
 	data.push({title:'Table View (Layout 4)', hasChild:true, test:'../examples/table_view_layout_4.js'});
 	data.push({title:'Table Custom Header', hasChild:true, test:'../examples/table_view_api_custom_header.js'});
 	data.push({title:'Table Custom Footer', hasChild:true, test:'../examples/table_view_api_custom_footer.js'});
 	data.push({title:'Table with Controls', hasChild:true, test:'../examples/table_view_api_controls.js'});
-	data.push({title:'Table with Controls 2', hasChild:true, test:'../examples/table_view_controls_2.js'});
-	
+	data.push({title:'Table with Controls 2', hasChild:true, test:'../examples/table_view_controls_2.js'});	
 	data.push({title:'Update Row Objects', hasChild:true, test:'../examples/table_view_update_row_objects.js'});
 	data.push({title:'Table View w/Text Field', hasChild:true, test:'../examples/table_view_textfield.js'});
 	data.push({title:'Headers with Filter', hasChild:true, test:'../examples/table_view_headers_filter.js'});

@@ -1,7 +1,7 @@
 var win = Titanium.UI.currentWindow;
 win.backgroundColor = 'black';
 
-var picker = Ti.UI.createPicker();
+var picker = Ti.UI.createPicker({backgroundColor:'#ff9900'});
 
 function addRow(text)
 {

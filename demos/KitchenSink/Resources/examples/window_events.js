@@ -257,11 +257,6 @@ win.addEventListener('blur', function()
 	Titanium.App.Properties.setString('window_blur_event',  date);
 	blurLabel.text = 'Blur fired ' + date;
 });
-win.addEventListener('click', function()
-{
-	Titanium.API.info('click called');
-	clickLabel.text = 'Click fired';
-});
 
 win.addEventListener('touchstart', function(e)
 {

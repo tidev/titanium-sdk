@@ -62,6 +62,7 @@ var scrollView = Titanium.UI.createScrollView({
 
 button.addEventListener('click', function()
 {
+	password.blur();
 	var xhr = Titanium.Network.createHTTPClient();
 	xhr.onerror = function(e)
 	{
