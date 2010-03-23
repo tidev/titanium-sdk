@@ -326,21 +326,38 @@ NSString * const TI_DB_VERSION = @"1";
 
 -(void)enroll
 {
-	id platform = [self platform];
-	
-	NSMutableDictionary *enrollment = [NSMutableDictionary dictionary];
-	
-	[enrollment setObject:[platform valueForKey:@"macaddress"] forKey:@"mac_addr"];
-	[enrollment setObject:[platform valueForKey:@"processorCount"] forKey:@"oscpu"];
-	[enrollment setObject:[platform valueForKey:@"ostype"] forKey:@"ostype"];
-	[enrollment setObject:[platform valueForKey:@"architecture"] forKey:@"osarch"];
-	[enrollment setObject:[platform valueForKey:@"model"] forKey:@"model"];
-	[enrollment setObject:TI_APPLICATION_NAME forKey:@"app_name"];
-	[enrollment setObject:TI_APPLICATION_DEPLOYTYPE forKey:@"deploytype"];
-	[enrollment setObject:TI_APPLICATION_ID forKey:@"app_id"];
-	[enrollment setObject:@"iphone" forKey:@"platform"];
-
-	[self queueEvent:@"ti.enroll" name:@"ti.enroll" data:enrollment immediate:NO];
+	// don't let analytics ever crash the app
+	@try 
+	{
+		// if not online (since we need some stuff), re-queue for later
+		id online = [[self network] valueForKey:@"online"];
+		if ([TiUtils boolValue:online]==NO)
+		{
+			NSLog(@"[DEBUG] attempted to enroll, but we're offline. will try again in 10s");
+			[self performSelector:@selector(entroll) withObject:nil afterDelay:10];
+			return;
+		}
+		
+		id platform = [self platform];
+		
+		NSMutableDictionary *enrollment = [NSMutableDictionary dictionary];
+		
+		[enrollment setObject:[platform valueForKey:@"macaddress"] forKey:@"mac_addr"];
+		[enrollment setObject:[platform valueForKey:@"processorCount"] forKey:@"oscpu"];
+		[enrollment setObject:[platform valueForKey:@"ostype"] forKey:@"ostype"];
+		[enrollment setObject:[platform valueForKey:@"architecture"] forKey:@"osarch"];
+		[enrollment setObject:[platform valueForKey:@"model"] forKey:@"model"];
+		[enrollment setObject:TI_APPLICATION_NAME forKey:@"app_name"];
+		[enrollment setObject:TI_APPLICATION_DEPLOYTYPE forKey:@"deploytype"];
+		[enrollment setObject:TI_APPLICATION_ID forKey:@"app_id"];
+		[enrollment setObject:@"iphone" forKey:@"platform"];
+		
+		[self queueEvent:@"ti.enroll" name:@"ti.enroll" data:enrollment immediate:NO];
+	}
+	@catch (NSException * e) 
+	{
+		NSLog(@"[ERROR] Error sending analytics event. %@",e);
+	}
 }
 
 -(void)begin

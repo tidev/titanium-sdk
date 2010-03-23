@@ -37,7 +37,7 @@ extern NSString * const TI_APPLICATION_ID;
 		else
 		{
 #ifdef DEBUG
-			if (TI_APPLICATION_RESOURCE_DIR!=nil)
+			if (TI_APPLICATION_RESOURCE_DIR!=nil && [TI_APPLICATION_RESOURCE_DIR isEqualToString:@""]==NO)
 			{
 				// we use our app resource directory
 				path = TI_APPLICATION_RESOURCE_DIR;

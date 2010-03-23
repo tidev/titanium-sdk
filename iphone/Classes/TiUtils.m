@@ -804,16 +804,21 @@ extern NSString * const TI_APPLICATION_RESOURCE_DIR;
 			appurlstr = [appurlstr substringFromIndex:1];
 		}
 #ifdef DEBUG
-		if (TI_APPLICATION_RESOURCE_DIR!=nil)
+		if (TI_APPLICATION_RESOURCE_DIR!=nil && [TI_APPLICATION_RESOURCE_DIR isEqualToString:@""]==NO)
 		{
+			if ([appurlstr hasPrefix:TI_APPLICATION_RESOURCE_DIR])
+			{
+				if ([[NSFileManager defaultManager] fileExistsAtPath:appurlstr])
+				{
+					return [NSData dataWithContentsOfFile:appurlstr];
+				}
+			}
 			// this path is only taken during a simulator build
 			// in this path, we will attempt to load resources directly from the
 			// app's Resources directory to speed up round-trips
 			NSString *filepath = [TI_APPLICATION_RESOURCE_DIR stringByAppendingPathComponent:appurlstr];
-			NSLog(@"[DEBUG] attempting to load: %@",filepath);
 			if ([[NSFileManager defaultManager] fileExistsAtPath:filepath])
 			{
-				NSLog(@"[DEBUG] found: %@",filepath);
 				return [NSData dataWithContentsOfFile:filepath];
 			}
 		}
