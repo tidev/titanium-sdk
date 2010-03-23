@@ -27,7 +27,7 @@ def dequote(s):
 def kill_simulator():
 	run.run(['/usr/bin/killall',"iPhone Simulator"],True)
 
-def copy_module_resources(source, target):
+def copy_module_resources(source, target, copy_all=False, force=False):
 	if not os.path.exists(os.path.expanduser(target)):
 		os.mkdir(os.path.expanduser(target))
 	for root, dirs, files in os.walk(source):
@@ -35,7 +35,7 @@ def copy_module_resources(source, target):
 			if name in dirs:
 				dirs.remove(name)	# don't visit ignored directories			  
 		for file in files:
-			if splitext(file)[-1] in ('.html', '.js', '.css', '.a', '.m', '.c', '.cpp', '.h', '.mm'):
+			if copy_all==False and splitext(file)[-1] in ('.html', '.js', '.css', '.a', '.m', '.c', '.cpp', '.h', '.mm'):
 				continue
 			if file in ignoreFiles:
 				continue
@@ -45,7 +45,8 @@ def copy_module_resources(source, target):
 			if not exists(to_directory):
 				os.makedirs(to_directory)
 			# only copy if different filesize or doesn't exist
-			if not os.path.exists(to_) or os.path.getsize(from_)!=os.path.getsize(to_):
+			if not os.path.exists(to_) or os.path.getsize(from_)!=os.path.getsize(to_) or force:
+				if os.path.exists(to_): os.remove(to_)
 				copyfile(from_, to_)
 
 def read_properties(propFile):
@@ -66,8 +67,8 @@ def read_properties(propFile):
 	
 def main(args):
 	argc = len(args)
-	if argc < 5 or (argc > 1 and args[1] == 'distribute' and argc!=10):
-		print "%s <command> <version> <project_dir> <appid> <name> [uuid] [dist_name] [output_dir]" % os.path.basename(args[0])
+	if argc == 2 and (args[1]=='--help' or args[1]=='-h'):
+		print "%s <command> <version> <project_dir> <appid> <name> [options]" % os.path.basename(args[0])
 		print
 		print "available commands: "
 		print
@@ -91,7 +92,7 @@ def main(args):
 	name = dequote(args[5].decode("utf-8"))
 	target = 'Debug'
 	deploytype = 'development'
-	devicefamily = 'iphone'
+	devicefamily = None
 	debug = False
 	simulator = False
 	
@@ -99,7 +100,8 @@ def main(args):
 		appuuid = dequote(args[6].decode("utf-8"))
 		dist_name = dequote(args[7].decode("utf-8"))
 		output_dir = os.path.expanduser(dequote(args[8].decode("utf-8")))
-		devicefamily = dequote(args[9].decode("utf-8"))
+		if argc > 9:
+			devicefamily = dequote(args[9].decode("utf-8"))
 		target = 'Release'
 		deploytype = 'production'
 	elif command == 'simulator':
@@ -111,10 +113,10 @@ def main(args):
 	elif command == 'install':
 		appuuid = dequote(args[6].decode("utf-8"))
 		dist_name = dequote(args[7].decode("utf-8"))
-		devicefamily = dequote(args[8].decode("utf-8"))
+		if argc > 8:
+			devicefamily = dequote(args[8].decode("utf-8"))
 		deploytype = 'test'
 		
-	
 	iphone_dir = os.path.abspath(os.path.join(project_dir,'build','iphone'))
 	project_resources = os.path.join(project_dir,'Resources')
 	
@@ -156,7 +158,8 @@ def main(args):
 	force_compile = False
 	version_file = None
 	log_id = None
-
+	
+	
 	# for simulator, we only need to compile once so we check to 
 	# see if we've already compiled for the simulator for the
 	# same version of titanium and if so, we don't need to rebuild
@@ -178,10 +181,11 @@ def main(args):
 				force_rebuild = True
 				force_compile = True
 			
-
+	
 	# if using custom modules, we have to force rebuild each time for now
-	if ti.properties.has_key('modules') and len(ti.properties['modules']) > 0:
+	if force_rebuild==False and ti.properties.has_key('modules') and len(ti.properties['modules']) > 0:
 		force_rebuild = True
+
 
 	# only do this stuff when we're in a force rebuild which is either
 	# non-simulator build or when we're simulator and it's the first time
@@ -190,11 +194,13 @@ def main(args):
 	if force_rebuild:
 		
 		print "[INFO] Performing full rebuild. This will take a little bit. Hold tight..."
-		
-		if simulator==False or force_compile:
-			# compile resources only if non-simulator (for speedups)
-			compiler = Compiler(appid,project_dir,encrypt,debug)
-			compiler.compile()
+
+		if os.path.exists(app_dir):	
+			shutil.rmtree(app_dir)
+
+		# compile resources only if non-simulator (for speedups)
+		compiler = Compiler(appid,project_dir,encrypt,debug)
+		compiler.compile()
 
 		# find the module directory relative to the root of the SDK	
 		tp_module_dir = os.path.abspath(os.path.join(template_dir,'..','..','..','..','modules','iphone'))
@@ -243,7 +249,9 @@ def main(args):
 		main_template = main_template.replace('__APP_COPYRIGHT__',ti.properties['copyright'])
 		main_template = main_template.replace('__APP_GUID__',ti.properties['guid'])
 		if simulator:
-			main_template = main_template.replace('__APP_RESOURCE_DIR__',os.path.abspath(project_resources))
+			main_template = main_template.replace('__APP_RESOURCE_DIR__',os.path.abspath(app_dir))
+		else:
+			main_template = main_template.replace('__APP_RESOURCE_DIR__','')
 			
 	
 		# copy any module image directories
@@ -283,7 +291,10 @@ def main(args):
 			shutil.copy(os.path.join(template_dir,'libTiCore.a'),os.path.join(iphone_resources_dir,'libTiCore.a'))
 
 		# must copy the XIBs each time since they can change per SDK
-		xib = 'MainWindow_%s.xib' % devicefamily
+		if devicefamily!=None:
+			xib = 'MainWindow_%s.xib' % devicefamily
+		else:
+			xib = 'MainWindow_iphone.xib'
 		s = os.path.join(template_dir,xib)
 		t = os.path.join(iphone_resources_dir,'MainWindow.xib')
 		shutil.copy(s,t)
@@ -315,8 +326,11 @@ def main(args):
 			# write out the updated Info.plist
 			infoplist_tmpl = os.path.join(iphone_dir,'Info.plist.template')
 			infoplist = os.path.join(iphone_dir,'Info.plist')
-			appicon = ti.generate_infoplist(infoplist,infoplist_tmpl,appid,devicefamily)
-		
+			if devicefamily!=None:
+				appicon = ti.generate_infoplist(infoplist,infoplist_tmpl,appid,devicefamily)
+			else:
+				appicon = ti.generate_infoplist(infoplist,infoplist_tmpl,appid,'iphone')
+				
 			# copy the app icon to the build resources
 			iconf = os.path.join(iphone_tmp_dir,appicon)
 			iconf_dest = os.path.join(dir,appicon)
@@ -341,18 +355,13 @@ def main(args):
 	# copy in any resources in our module like icons
 	if os.path.exists(project_module_dir):
 		copy_module_resources(project_module_dir,iphone_tmp_dir)
-
-	# if we didn't force rebuild we still need to copy modules images
-	if force_compile or not force_rebuild:
-		# copy any module image directories
-		for module in os.listdir(os.path.join(template_dir,'modules')):
-			img_dir = os.path.abspath(os.path.join(template_dir,'modules',module.lower(),'images'))
-			if os.path.exists(img_dir):
-				dest_img_dir = os.path.join(app_dir,'modules',module.lower(),'images')
-				if os.path.exists(dest_img_dir):
-					shutil.rmtree(dest_img_dir)
-				os.makedirs(dest_img_dir)
-				copy_module_resources(img_dir,dest_img_dir)
+		
+	if force_rebuild:
+		copy_module_resources(project_resources,iphone_tmp_dir)
+		copy_module_resources(os.path.join(project_resources,'iphone'),iphone_tmp_dir)
+		if os.path.exists(os.path.join(iphone_tmp_dir,'iphone')):
+			shutil.rmtree(os.path.join(iphone_tmp_dir,'iphone'))
+		
 	
 	try:
 		os.chdir(iphone_dir)
@@ -373,20 +382,19 @@ def main(args):
 		sys.stdout.flush()
 
 		deploy_target = "IPHONEOS_DEPLOYMENT_TARGET=3.1"
-		device_target = "TARGETED_DEVICE_FAMILY=iPhone"
-		if devicefamily == 'ipad':
-			iphone_version='3.2'
-			device_target=" TARGETED_DEVICE_FAMILY=iPad"
-			deploy_target = "IPHONEOS_DEPLOYMENT_TARGET=3.2"
+		device_target = 'a=b'  # this is non-sensical, but you can't pass empty string
+		
+		if devicefamily!=None:
+			device_target = "TARGETED_DEVICE_FAMILY=iPhone"
+			if devicefamily == 'ipad':
+				iphone_version='3.2'
+				device_target=" TARGETED_DEVICE_FAMILY=iPad"
+				deploy_target = "IPHONEOS_DEPLOYMENT_TARGET=3.2"
 		
 		if command == 'simulator':
 	
 			if force_rebuild:
 				
-				# make sure it's clean
-				if os.path.exists(app_dir):
-					shutil.rmtree(app_dir)
-
 				output = run.run([
 	    			"xcodebuild",
 	    			"-configuration",
@@ -461,9 +469,30 @@ def main(args):
 			sys.stdout.flush()
 			sys.stderr.flush()
 
+			# we have to do this in simulator *after* the potential compile since his screen
+			# removes html, etc
+			for module in os.listdir(os.path.join(template_dir,'modules')):
+				img_dir = os.path.abspath(os.path.join(template_dir,'modules',module.lower(),'images'))
+				if os.path.exists(img_dir):
+					dest_img_dir = os.path.join(app_dir,'modules',module.lower(),'images')
+					if os.path.exists(dest_img_dir):
+						shutil.rmtree(dest_img_dir)
+					os.makedirs(dest_img_dir)
+					copy_module_resources(img_dir,dest_img_dir)
+
+			copy_module_resources(project_resources,app_dir,True,True)
+			copy_module_resources(os.path.join(project_resources,'iphone'),app_dir,True,True)
+			if os.path.exists(os.path.join(app_dir,'iphone')):
+				shutil.rmtree(os.path.join(app_dir,'iphone'))
+			if os.path.exists(os.path.join(app_dir,'android')):
+				shutil.rmtree(os.path.join(app_dir,'android'))
+
 			
 			# launch the simulator
-			sim = subprocess.Popen("\"%s\" launch \"%s\" %s %s" % (iphonesim,app_dir,iphone_version,devicefamily),shell=True)
+			if devicefamily==None:
+				sim = subprocess.Popen("\"%s\" launch \"%s\" %s iphone" % (iphonesim,app_dir,iphone_version),shell=True)
+			else:
+				sim = subprocess.Popen("\"%s\" launch \"%s\" %s %s" % (iphonesim,app_dir,iphone_version,devicefamily),shell=True)
 						
 			# activate the simulator window
 			ass = os.path.join(template_dir,'iphone_sim_activate.scpt')
