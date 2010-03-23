@@ -433,6 +433,9 @@ public class TiUIWindow extends TiUIView
 			} else {
 				nativeView.setBackgroundDrawable(bgColor);
 			}
+		} else if (d.containsKey("title")) {
+			String title = TiConvert.toString(d,"title");
+			proxy.getTiContext().getActivity().setTitle(title);
 		}
 
 		// Don't allow default processing.
@@ -486,6 +489,9 @@ public class TiUIWindow extends TiUIView
 
 			lastWidth = width;
 			lastHeight = height;
+		} else if (key.equals("title")) {
+			String title = TiConvert.toString(newValue);
+			proxy.getTiContext().getActivity().setTitle(title);
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}
