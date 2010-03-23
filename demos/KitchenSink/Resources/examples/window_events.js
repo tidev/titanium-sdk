@@ -260,7 +260,7 @@ win.addEventListener('blur', function()
 win.addEventListener('click', function()
 {
 	Titanium.API.info('click called');
-	clickLabel.text = 'Click fired';
+	l9.text = 'Click fired';
 });
 
 win.addEventListener('touchstart', function(e)
