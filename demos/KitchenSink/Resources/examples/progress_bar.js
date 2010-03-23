@@ -16,11 +16,11 @@ b.addEventListener('click', function()
 	ind2.show();
 	ind3.show();
 	ind4.show();
-	
+
 	var val = 0;
 	var interval = setInterval(function()
 	{
-		Ti.API.info('INTERVAL FIRED value ' + val)
+		Ti.API.info('INTERVAL FIRED value ' + val);
 		if (val == 11)
 		{
 			clearInterval(interval);
@@ -41,9 +41,9 @@ b.addEventListener('click', function()
 		ind3.message = 'Downloading ' + val + ' of 10';
 		ind4.value = val;
 		ind4.message = 'Downloading ' + val + ' of 10';
-		
+
 		val++;
-		
+
 	},1000);
 });
 
@@ -61,7 +61,7 @@ var ind=Titanium.UI.createProgressBar({
 	message:'Downloading 0 of 10',
 	font:{fontSize:14, fontWeight:'bold'},
 	style:Titanium.UI.iPhone.ProgressBarStyle.PLAIN,
-	top:60	
+	top:60
 });
 
 
@@ -78,7 +78,7 @@ var ind2=Titanium.UI.createProgressBar({
 	message:'Downloading 0 of 10',
 	font:{fontSize:14, fontWeight:'bold'},
 	style:Titanium.UI.iPhone.ProgressBarStyle.BAR,
-	top:120	
+	top:120
 });
 
 
@@ -123,7 +123,7 @@ if (Titanium.Platform.name == 'iPhone OS')
 else
 {
 	var value = 0;
-	
+	win.title = 'Starting...';
 	// create indicator
 	var ind = Titanium.UI.createActivityIndicator({
 		location:Titanium.UI.ActivityIndicator.DIALOG,
@@ -133,9 +133,9 @@ else
 		max:10,
 		value:0
 	});
-	
+
 	ind.show();
-	
+
     var interval = setInterval(function()
     {
 		value += 2;
@@ -145,6 +145,7 @@ else
 		{
 			clearInterval(interval);
 			ind.hide();
+			win.setTitle('Progress Bar');
 		}
      },1000);
 }
