@@ -157,6 +157,13 @@
 	[[self map] removeAnnotations:args];
 }
 
+-(void)removeAllAnnotations:(id)args
+{
+	[[self map] removeAnnotations:[[self map] annotations]];
+}
+
+
+
 -(void)selectAnnotation:(id)args
 {
 	ENSURE_UI_THREAD(selectAnnotation,args);
@@ -419,10 +426,6 @@
 		{
 			if ([annotation tag] == pinview.tag)
 			{
-				if ([annotation needsRefreshingWithSelection])
-				{
-//					return nil;
-				}
 				return annotation;
 			}
 		}
