@@ -74,7 +74,6 @@ if (xml2.evaluate) {
 
 
 
-
 var xmlstr3 = '<?xml version="1.0" encoding="UTF-8"?>\n'+
 '<response>'+
 '        <nodes id="nodes">'+
@@ -102,7 +101,6 @@ var xmlstr3 = '<?xml version="1.0" encoding="UTF-8"?>\n'+
 '        </nodes>'+
 '</response>';
 
-
 var doc = Ti.XML.parseString(xmlstr3);
 var nodes = doc.getElementsByTagName("nodes");
 
@@ -111,6 +109,11 @@ result = result && (elements!=null && elements.length==13);
 
 elements = nodes.item(0).childNodes;
 result = result && (elements!=null && elements.length==3);
+
+result = result && (typeof elements == 'object');
+result = result && (typeof elements.item == 'function');
+result = result && (elements.item(0).nodeName=='node');
+
 
 elements = doc.firstChild.childNodes;
 result = result && (elements!=null && elements.length==3);

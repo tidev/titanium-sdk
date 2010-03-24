@@ -8,7 +8,7 @@
 #import "GDataXMLNode.h"
 
 @interface TiDOMNodeProxy : TiProxy {
-@private
+@protected
 	GDataXMLNode *node;
 }
 
