@@ -1,9 +1,9 @@
 // create table view data object
 var data = [
-	{title:'Row 1', hasChild:true},
-	{title:'Row 2', hasDetail:true},
-	{title:'Row 3', hasCheck:true},
-	{title:'Row 4'}
+	{title:'Row 1', hasChild:true, color:'red', selectedColor:'#fff'},
+	{title:'Row 2', hasDetail:true, color:'green', selectedColor:'#fff'},
+	{title:'Row 3', hasCheck:true, color:'blue', selectedColor:'#fff'},
+	{title:'Row 4', color:'orange', selectedColor:'#fff'}
 	
 
 ];

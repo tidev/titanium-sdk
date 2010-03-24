@@ -24,8 +24,8 @@ var ta1 = Titanium.UI.createTextArea({
 	returnKeyType:Titanium.UI.RETURNKEY_EMERGENCY_CALL,
 	borderWidth:2,
 	borderColor:'#bbb',
-	borderRadius:5
-
+	borderRadius:5,
+	suppressReturn:false
 	
 });
 win.add(ta1);
@@ -104,6 +104,7 @@ b4.addEventListener('click', function()
 		ta1.backgroundColor = '#336699';
 		ta1.color = '#fff';
 		ta1.textAlign = 'center';
+		ta1.suppressReturn = true;
 		ta1.autocapitalization = Titanium.UI.TEXT_AUTOCAPITALIZATION_ALL;
 		changed=true;
 	}
@@ -114,6 +115,7 @@ b4.addEventListener('click', function()
 		ta1.textAlign = 'left';
 		ta1.autocapitalization = Titanium.UI.TEXT_AUTOCAPITALIZATION_NONE;
 		changed=false;
+		ta1.suppressReturn = false;
 	}
 });
 
