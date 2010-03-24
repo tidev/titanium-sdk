@@ -130,6 +130,12 @@ class API(object):
 			self.add_property('visible','boolean','a boolean of the visibility of the view')
 			self.add_property('touchEnabled','boolean','a boolean indicating if the view should receive touch events (true, default) or forward them to peers (false)')
 			self.add_property('size','object','the size of the view as a dictionary of width and height properties')
+			self.add_property('width','float,string','property for the view width. can either be `auto`, a float value or a string of the width.')
+			self.add_property('height','float,string','property for the view height. can be either float value or a string of the width.')
+			self.add_property('top','float,string','property for the view top position. this position is relative to the views parent. can be either a float value or a string of the width.')
+			self.add_property('left','float,string','property for the view left position. this position is relative to the views parent. can be either a float value or a string of the width.')
+			self.add_property('right','float,string','property for the view right position. this position is relative to the views parent. can be either a float value or a string of the width.')
+			self.add_property('bottom','float,string','property for the view bottom position. this position is relative to the views parent. can be either a float value or a string of the width.')
 			# these are common methods
 			self.add_method('add','add a child to the view hierarchy')
 			self.add_method_property('add','view','object','the view to add to this views hiearchy')
