@@ -4088,7 +4088,7 @@
 				PREBINDING = NO;
 				PROVISIONING_PROFILE = "";
 				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
-				SDKROOT = iphoneos3.1.2;
+				SDKROOT = iphoneos3.1;
 				USER_HEADER_SEARCH_PATHS = "";
 			};
 			name = Debug;
@@ -4117,7 +4117,7 @@
 				PREBINDING = NO;
 				PROVISIONING_PROFILE = "";
 				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
-				SDKROOT = iphoneos3.1.2;
+				SDKROOT = iphoneos3.1;
 				USER_HEADER_SEARCH_PATHS = "";
 			};
 			name = Release;

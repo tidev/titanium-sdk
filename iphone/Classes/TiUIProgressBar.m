@@ -118,35 +118,6 @@
 			TiDimensionIsAuto(self.layoutProperties->width) || TiDimensionIsAuto(self.layoutProperties->height));
 }
 
-//-(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
-//{
-//	if ([self isFrameUndefined] || [self isFrameAuto])
-//	{
-//		// center the progress bar in the center of our frame
-//		
-//		CGFloat w = TiDimensionIsPixels(self.layout->width) ? self.layout->width.value : progress.bounds.size.width;
-//		CGFloat h = TiDimensionIsPixels(self.layout->height) ? self.layout->height.value : progress.bounds.size.height;
-//		
-//		if (w > bounds.size.width && bounds.size.width > 1)
-//		{
-//			w = bounds.size.width;
-//		}
-//		
-//		if (h > bounds.size.height && bounds.size.height > 1)
-//		{
-//			h = bounds.size.height;
-//		}
-//		
-//		CGFloat y = (bounds.size.height / 2) - (h / 2);
-//		CGFloat x = (bounds.size.width / 2) - (w / 2);
-//		[TiUtils setView:progress positionRect:CGRectMake(x, y, w, h)];
-//	}
-//	else 
-//	{
-//		[TiUtils setView:progress positionRect:bounds];
-//	}
-//}
-
 #pragma mark Properties
 
 -(void)setMin_:(id)value

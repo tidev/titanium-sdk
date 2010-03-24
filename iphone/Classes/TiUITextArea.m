@@ -128,8 +128,17 @@
 - (BOOL)textView:(UITextView *)tv shouldChangeTextInRange:(NSRange)range replacementText:(NSString *)text
 {
 	NSString *curText = [[tv text] stringByReplacingCharactersInRange:range withString:text];
+	if ([text isEqualToString:@"\n"])
+	{
+		[self.proxy fireEvent:@"return" withObject:[NSDictionary dictionaryWithObject:[(UITextView *)textWidgetView text] forKey:@"value"]];
+		if (suppressReturn)
+		{
+			[tv resignFirstResponder];
+			return NO;
+		}
+	}
+	
 	[(TiUITextAreaProxy *)self.proxy noteValueChange:curText];
-
 	return TRUE;
 }
 

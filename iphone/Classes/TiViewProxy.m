@@ -367,7 +367,6 @@
 			for (id child in self.children)
 			{
 				TiUIView *childView = [(TiViewProxy*)child view];
-				//[childView setParent:self];
 				[view addSubview:childView];
 			}
 			[childLock unlock];
@@ -378,8 +377,6 @@
 		// make sure we do a layout of ourselves
 
 		[view updateLayout:NULL withBounds:view.bounds];
-		//TODO: reintegrate
-//		[self setNeedsReposition];
 		
 		viewInitialized = YES;
 	}
@@ -395,6 +392,30 @@
 }
 
 #pragma mark Layout 
+
+-(id)animatedCenter;
+{
+	if (![self viewAttached])
+	{
+		return nil;
+	}
+	UIView * ourView = [self view];
+	CALayer * ourLayer = [ourView layer];
+	CALayer * animatedLayer = [ourLayer presentationLayer];
+	
+	CGPoint result;
+	if (animatedLayer !=nil)
+	{
+		result = [animatedLayer position];
+	}
+	else
+	{
+		result = [ourLayer position];
+	}
+
+	return [TiUtils pointToDictionary:result];
+}
+
 
 -(void)layoutChild:(TiViewProxy*)child;
 {
@@ -420,8 +441,6 @@
 		[view addSubview:childView];
 	}
 	[[child view] updateLayout:NULL withBounds:bounds];
-//TODO: reintegrate.
-//	[childView insertIntoView:view bounds:bounds];
 	
 	// tell our children to also layout
 	[child layoutChildren];
@@ -583,7 +602,6 @@
 		result = MAX(result,[thisChildProxy minimumParentWidthForWidth:suggestedWidth]);
 	}
 	return MIN(suggestedWidth,result);
-//	return MIN(suggestedWidth,AutoWidthForView([self view], suggestedWidth));
 }
 
 -(CGFloat)autoHeightForWidth:(CGFloat)width
@@ -704,7 +722,7 @@
 -(void)repositionIfNeeded
 {
 	BOOL wasSet=OSAtomicTestAndClearBarrier(NEEDS_REPOSITION, &dirtyflags);
-	if (wasSet && [self viewAttached]) // && ![parent willBeRelaying])
+	if (wasSet && [self viewAttached])
 	{
 		[self reposition];
 	}

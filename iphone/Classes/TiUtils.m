@@ -31,10 +31,9 @@ extern NSString * const TI_APPLICATION_RESOURCE_DIR;
 	UIDevice *theDevice = [UIDevice currentDevice];
 	NSString *username = [theDevice name];
 	
-	//TODO: right now, we can't officially tell how to deal with
-	//the runtime difference between ipad and iphone... so we can
-	//look at the ipad key in the username... this will of course
-	//be different for ondevice and probably 4.0
+	//TODO: Use the official detection technique. Namely,
+	//on the iPad, [theDevice userInterfaceIdiom] will exist
+	//and will return UIUserInterfaceIdiomPad.
 	return ([username rangeOfString:@"iPad"].location!=NSNotFound);
 }
 

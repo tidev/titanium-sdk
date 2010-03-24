@@ -160,7 +160,8 @@ bool Base64EncodeData(const void *inInputData, size_t inInputDataSize, char *out
 			outOutputData[theOutIndex++] = '\n';
 		}
 	}
-	if (theOutIndex) { } // make clang happy
+		// make clang happy
+#pragma unused(theOutIndex)
 	return(true);
 }
 

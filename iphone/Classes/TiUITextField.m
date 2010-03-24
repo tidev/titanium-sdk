@@ -201,7 +201,6 @@
 		[wrapperView autorelease];
 	}
 
-NSLog(@"Left view (%fx%f) %@",[value bounds].size.width,[value bounds].size.height,value);
 	[super setLeftView:value];
 }
 
@@ -218,7 +217,6 @@ NSLog(@"Left view (%fx%f) %@",[value bounds].size.width,[value bounds].size.heig
 		[wrapperView autorelease];
 	}
 
-NSLog(@"Right view (%fx%f) %@",[value bounds].size.width,[value bounds].size.height,value);
 	[super setRightView:value];
 }
 
@@ -468,8 +466,14 @@ NSLog(@"Right view (%fx%f) %@",[value bounds].size.width,[value bounds].size.hei
 	{
 		[self.proxy fireEvent:@"return" withObject:[NSDictionary dictionaryWithObject:[tf text] forKey:@"value"]];
 	}
-//TODO: handling return.
-	
+
+
+	if (suppressReturn)
+	{
+		[tf resignFirstResponder];
+		return NO;
+	}
+
 	return YES;
 }
 	

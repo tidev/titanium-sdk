@@ -42,7 +42,6 @@
 		{
 			//FIXME:
 			TiDOMAttrProxy *proxy = [[[TiDOMAttrProxy alloc] _initWithPageContext:context] autorelease];
-			//[proxy setAttribute:name value:value owner:element];
 			return proxy;
 		}
 		default:

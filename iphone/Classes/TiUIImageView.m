@@ -197,7 +197,6 @@ DEFINE_EXCEPTIONS
 			autoHeight = theimage.size.height;
 		}
 
-//		theimage = [UIImageResize resizedImage:CGSizeMake(width, height) interpolationQuality:kCGInterpolationHigh image:theimage];
 		theimage = [UIImageResize resizedImage:CGSizeMake(width, height) interpolationQuality:kCGInterpolationDefault image:theimage];
 	}
 	return theimage;
@@ -462,11 +461,6 @@ DEFINE_EXCEPTIONS
 	{
 		TiBlob *blob = (TiBlob*)arg;
 		UIImage *image = [self scaleImageIfRequired:[blob image]];
-//		UIImageView *view = [[UIImageView alloc] initWithImage:image];
-//		view.autoresizingMask = UIViewAutoresizingNone;
-//		[self addSubview:view];
-//		[view release];
-
 		[[self imageView] setImage:image];
 
 		autoHeight = image.size.height;
@@ -479,12 +473,8 @@ DEFINE_EXCEPTIONS
 		NSURL * fileUrl = [NSURL fileURLWithPath:[file path]];		
 		UIImage *image = [[ImageLoader sharedLoader] loadImmediateImage:fileUrl withSize:CGSizeMake(width, height)];
 
-//		UIImageView *view = [[UIImageView alloc] initWithImage:image];
-//		view.autoresizingMask = UIViewAutoresizingNone;
 		autoHeight = image.size.height;
 		autoWidth = image.size.width;
-//		[self addSubview:view];
-//		[view release];
 		[[self imageView] setImage:image];
 
 		[self.proxy replaceValue:arg forKey:@"image" notification:NO];
@@ -586,15 +576,8 @@ DEFINE_EXCEPTIONS
 			if (defURL!=nil)
 			{
 				UIImage *poster = [[ImageLoader sharedLoader] loadImmediateImage:defURL withSize:imageSize];
-
-//				UIImageView *iv = [[UIImageView alloc] initWithImage:poster];
-//				iv.autoresizingMask = UIViewAutoresizingNone;
-//				iv.contentMode = UIViewContentModeCenter;
-
 				autoWidth = poster.size.width;
 				autoHeight = poster.size.height;
-//				[self addSubview:iv];
-//				[iv release];
 				[[self imageView] setImage:poster];
 
 			}
@@ -604,11 +587,6 @@ DEFINE_EXCEPTIONS
 		}
 		if (image!=nil)
 		{
-//			image = [self scaleImageIfRequired:image];
-//			UIImageView *view = [[UIImageView alloc] initWithImage:image];
-//			view.autoresizingMask = UIViewAutoresizingNone;
-//			[self addSubview:view];
-//			[view release];
 			[[self imageView] setImage:image];
 
 			

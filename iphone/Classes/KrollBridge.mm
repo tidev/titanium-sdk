@@ -177,10 +177,6 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 - (void)scriptError:(NSString*)message
 {
 	[[TitaniumApp app] showModalError:message];
-	/*
-	UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Script Error" message:message delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil];
-	[alert show];
-	[alert autorelease];*/
 }
 
 - (void)evalFileOnThread:(NSString*)path context:(KrollContext*)context_ 

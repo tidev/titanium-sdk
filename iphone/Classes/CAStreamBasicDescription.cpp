@@ -122,7 +122,6 @@ char *CAStreamBasicDescription::AsString(char *buf, size_t bufsize) const
 		nc = snprintf(buf, bufsize, "%s-bit%s%s %s%s%s%s%s",
 			bitdepth, endian, sign, floatInt, 
 			commaSpace, packed, align, deinter);
-		//buf += nc; bufsize -= nc;
 	} else if (mFormatID == 'alac') {	//	kAudioFormatAppleLossless
 		int sourceBits = 0;
 		switch (mFormatFlags)
@@ -146,7 +145,6 @@ char *CAStreamBasicDescription::AsString(char *buf, size_t bufsize) const
 			nc = snprintf(buf, bufsize, "from UNKNOWN source bit depth, ");
 		buf += nc; bufsize -= nc;
 		nc = snprintf(buf, bufsize, "%d frames/packet", (int)mFramesPerPacket);
-		//buf += nc; bufsize -= nc;
 	}
 	else
 		nc = snprintf(buf, bufsize, "%d bits/channel, %d bytes/packet, %d frames/packet, %d bytes/frame", 

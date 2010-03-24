@@ -55,7 +55,7 @@
 
 -(id)height
 {
-	return [NSNumber numberWithFloat:rect.size.width];
+	return [NSNumber numberWithFloat:rect.size.height];
 }
 
 -(void)setHeight:(id)h

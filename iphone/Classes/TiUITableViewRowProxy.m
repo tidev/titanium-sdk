@@ -124,17 +124,22 @@
 
 -(void)configureTitle:(UITableViewCell*)cell
 {
+	UILabel * textLabel = [cell textLabel];
+
 	NSString *title = [self valueForKey:@"title"];
 	if (title!=nil)
 	{
-		if ([cell.textLabel.text isEqualToString:title]==NO)
-		{
-			[cell.textLabel setText:title];
-		}
+		[textLabel setText:title]; //UILabel already checks to see if it hasn't changed.
+		
+		UIColor * textColor = [[TiUtils colorValue:[self valueForKey:@"color"]] _color];
+		[textLabel setTextColor:(textColor==nil)?[UIColor blackColor]:textColor];
+		
+		UIColor * selectedTextColor = [[TiUtils colorValue:[self valueForKey:@"selectedColor"]] _color];
+		[textLabel setHighlightedTextColor:(selectedTextColor==nil)?[UIColor whiteColor]:selectedTextColor];	
 	}
-	else 
+	else
 	{
-		[cell.textLabel setText:nil];
+		[textLabel setText:nil];
 	}
 }
 
@@ -521,7 +526,7 @@
 		TableViewRowProperties = [[NSSet alloc] initWithObjects:
 					@"title", @"backgroundColor",@"backgroundImage",
 					@"leftImage",@"hasDetail",@"hasCheck",@"hasChild",	
-					@"indentionLevel",@"selectionStyle",
+					@"indentionLevel",@"selectionStyle",@"color",@"selectedColor",
 					nil];
 	}
 	

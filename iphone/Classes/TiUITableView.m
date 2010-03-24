@@ -42,14 +42,6 @@
 	[super dealloc];
 }
 
--(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
-{
-//	if (tableview!=nil && CGRectIsEmpty(bounds)==NO)
-//	{
-//		[TiUtils setView:tableview positionRect:bounds];
-//	}
-}
-
 -(CGFloat)tableRowHeight:(CGFloat)height
 {
 	if (TiDimensionIsPixels(rowHeight))

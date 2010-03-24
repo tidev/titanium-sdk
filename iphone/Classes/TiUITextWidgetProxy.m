@@ -12,6 +12,8 @@
 
 @implementation TiUITextWidgetProxy
 
+DEFINE_DEF_BOOL_PROP(suppressReturn,YES);
+
 -(BOOL)hasText
 {
 	if ([self viewAttached])

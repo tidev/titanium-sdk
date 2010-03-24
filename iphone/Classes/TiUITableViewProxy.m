@@ -405,11 +405,9 @@
 	}
 	
 	[self replaceValue:data forKey:@"data" notification:NO];
-//	if (tableAttached)
-	{
-		TiUITableViewAction *action = [[[TiUITableViewAction alloc] initWithRow:nil animation:properties section:0 type:TiUITableViewActionSetData] autorelease];
-		[table dispatchAction:action];
-	}
+
+	TiUITableViewAction *action = [[[TiUITableViewAction alloc] initWithRow:nil animation:properties section:0 type:TiUITableViewActionSetData] autorelease];
+	[table dispatchAction:action];
 }
 
 -(void)setData:(id)args

@@ -115,10 +115,6 @@ CGFloat AutoHeightForView(UIView * superView,CGFloat suggestedWidth,BOOL isVerti
 }
 
 #define USE_PROXY_FOR_VERIFY_AUTORESIZING	USE_PROXY_FOR_METHOD(UIViewAutoresizing,verifyAutoresizing,UIViewAutoresizing)
-#define USE_PROXY_FOR_AUTO_HEIGHT			USE_PROXY_FOR_METHOD(CGFloat,autoWidthForWidth,CGFloat)
-#define USE_PROXY_FOR_AUTO_WIDTH			USE_PROXY_FOR_METHOD(CGFloat,autoHeightForWidth,CGFloat)
-#define USE_PROXY_FOR_MIN_PARENT_WIDTH		USE_PROXY_FOR_METHOD(CGFloat,minimumParentWidthForWidth,CGFloat)
-#define USE_PROXY_FOR_MIN_PARENT_HEIGHT		USE_PROXY_FOR_METHOD(CGFloat,minimumParentHeightForWidth,CGFloat)
 
 
 

@@ -13,6 +13,23 @@
 
 @implementation TiUITextWidget
 
+- (id) init
+{
+	self = [super init];
+	if (self != nil)
+	{
+		suppressReturn = YES;
+	}
+	return self;
+}
+
+
+
+-(void)setSuppressReturn_:(id)value
+{
+	suppressReturn = [TiUtils boolValue:value def:YES];
+}
+
 - (void) dealloc
 {
 	[[NSNotificationCenter defaultCenter] removeObserver:self name:UIKeyboardDidHideNotification object:nil];
@@ -226,21 +243,6 @@
 	if ((toolbar!=nil) && !toolbarVisible)
 	{
 		CGFloat height = MAX(toolbarHeight,40);
-
-		NSArray *windows = [[UIApplication sharedApplication] windows];
-		UIWindow *window = nil;
-
-		// in a keyboard situation, a new UIWindow is insert into the heirarchy
-		// temporarily and we need to find that view.  in testing, it seems to 
-		// be on the 2nd index from our window
-		if ([windows count] > 1)
-		{
-			window = [windows objectAtIndex:1];
-		}
-		else
-		{
-			window = [windows objectAtIndex:0];
-		}
 
 		kbEndTop -= height;	//This also affects tweaking the scroll view.
 		

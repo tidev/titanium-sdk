@@ -30,7 +30,9 @@ extern NSString * const TI_APPLICATION_GUID;
 #define TI_DB_RETRY_INTERVAL_IN_SEC 15
 #define TI_DB_FLUSH_INTERVAL_IN_SEC 5
 
+#ifndef TI_ANALYTICS_URL
 #define TI_ANALYTICS_URL "https://api.appcelerator.net/p/v2/mobile-track"
+#endif
 
 // version of our analytics DB
 NSString * const TI_DB_VERSION = @"1";
@@ -152,8 +154,7 @@ NSString * const TI_DB_VERSION = @"1";
 	[request setRequestMethod:@"POST"];
 	[request addRequestHeader:@"text/json" value:@"Content-Type"];
 	[request addRequestHeader:[[TitaniumApp app] userAgent] value:@"User-Agent"];
-	//TODO: need to update backend to accept compressed bodies
-	//[request setShouldCompressRequestBody:YES];
+	//TODO: need to update backend to accept compressed bodies. When done, use [request setShouldCompressRequestBody:YES]
 	[request setTimeOutSeconds:5];
 	[request setShouldPresentAuthenticationDialog:NO];
 	[request setUseSessionPersistance:NO];

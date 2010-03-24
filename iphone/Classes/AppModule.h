@@ -36,8 +36,3 @@
 @property(nonatomic,readwrite,assign) NSNumber *proximityDetection;
 
 @end
-
-/*
-appUrlInvoc,@"appURLToPath",
-launchOptionsInvoc,@"getArguments",
-*/

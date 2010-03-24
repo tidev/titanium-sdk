@@ -17,5 +17,6 @@ USE_VIEW_FOR_UI_METHOD(addAnnotation)
 USE_VIEW_FOR_UI_METHOD(addAnnotations)
 USE_VIEW_FOR_UI_METHOD(removeAnnotation)
 USE_VIEW_FOR_UI_METHOD(removeAnnotations)
+USE_VIEW_FOR_UI_METHOD(removeAllAnnotations)
 
 @end

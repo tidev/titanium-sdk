@@ -39,12 +39,6 @@
 	[self replaceValue:nil forKey:@"badge" notification:NO];
 }
 
--(void)removeFromTabGroup
-{
-//	RELEASE_TO_NIL(controller);
-//I'm assuming that this happens automatically now that we base off of whatnot.
-}
-
 -(TiUITabController *)rootController
 {
 	if (rootController == nil)
@@ -72,6 +66,10 @@
 {
 	RELEASE_TO_NIL(tabGroup);
 	tabGroup = [proxy retain];
+}
+
+-(void)removeFromTabGroup
+{
 }
 
 #pragma mark Delegates
@@ -192,7 +190,6 @@
 	TiUITabController *root = [[TiUITabController alloc] initWithProxy:window tab:self];
 
 	[self controller];
-//	[[self controller] pushViewController:root animated:animated];
 	[[rootController navigationController] pushViewController:root animated:animated];
 	[root release];
 }
