@@ -800,21 +800,17 @@ extern NSString * const TI_APPLICATION_RESOURCE_DIR;
 		{
 			appurlstr = [urlstring substringFromIndex:range.location + range.length + 1];
 		}
-		NSLog(@"[INFO] app = %d",app);
-		NSLog(@"[INFO] 1 appurlstr = %@",appurlstr);
 		if ([appurlstr hasPrefix:@"/"])
 		{
 			had_splash_removed = YES;
 			appurlstr = [appurlstr substringFromIndex:1];
 		}
-		NSLog(@"[INFO] 2 appurlstr = %@",appurlstr);
 #ifdef DEBUG
 		if (app==YES && had_splash_removed)
 		{
 			// on simulator we want to keep slash since it's coming from file
 			appurlstr = [@"/" stringByAppendingString:appurlstr];
 		}
-		NSLog(@"[INFO] 3 appurlstr = %@",appurlstr);
 		if (TI_APPLICATION_RESOURCE_DIR!=nil && [TI_APPLICATION_RESOURCE_DIR isEqualToString:@""]==NO)
 		{
 			if ([appurlstr hasPrefix:TI_APPLICATION_RESOURCE_DIR])
