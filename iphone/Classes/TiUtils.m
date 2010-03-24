@@ -788,7 +788,8 @@ extern NSString * const TI_APPLICATION_RESOURCE_DIR;
 
 +(NSData *)loadAppResource:(NSURL*)url
 {
-	if ([url isFileURL] || [[url scheme] hasPrefix:@"app"])
+	BOOL app = [[url scheme] hasPrefix:@"app"];
+	if ([url isFileURL] || app)
 	{
 		NSString *urlstring = [[url standardizedURL] path];
 		NSString *resourceurl = [[NSBundle mainBundle] resourcePath];
@@ -798,7 +799,7 @@ extern NSString * const TI_APPLICATION_RESOURCE_DIR;
 		{
 			appurlstr = [urlstring substringFromIndex:range.location + range.length + 1];
 		}
-		if ([appurlstr hasPrefix:@"/"])
+		if (app==NO && [appurlstr hasPrefix:@"/"])
 		{
 			appurlstr = [appurlstr substringFromIndex:1];
 		}
