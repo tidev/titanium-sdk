@@ -19,11 +19,7 @@ NSString * const TI_APPLICATION_GUID = @"6fe33f33fd1f4e95a06d2d217170866d";
 BOOL const TI_APPLICATION_ANALYTICS = true;
 
 #ifdef DEBUG
-<<<<<<< HEAD:demos/KitchenSink/build/iphone/main.m
-NSString * const TI_APPLICATION_RESOURCE_DIR = @"/Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink/Resources";
-=======
-NSString * const TI_APPLICATION_RESOURCE_DIR = @"";
->>>>>>> 4149bd635016d8cdc205cdac38bb965b032debda:demos/KitchenSink/build/iphone/main.m
+NSString * const TI_APPLICATION_RESOURCE_DIR = @"/Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink/build/iphone/build/Debug-iphonesimulator/KitchenSink.app";
 #endif
 
 int main(int argc, char *argv[]) {

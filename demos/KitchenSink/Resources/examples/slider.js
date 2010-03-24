@@ -28,7 +28,7 @@ var basicSlider = Titanium.UI.createSlider({
 });
 basicSlider.addEventListener('change',function(e)
 {
-	basicSliderLabel.text = 'Basic Slider - value = ' + e.value + ' act val ' + basicSlider.value;
+	basicSliderLabel.text = 'Basic Slider - value = ' + Math.round(e.value) + ' act val ' + Math.round(basicSlider.value);
 });
 
 //

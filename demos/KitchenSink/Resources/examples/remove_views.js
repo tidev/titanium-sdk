@@ -20,12 +20,13 @@ var v2 = Ti.UI.createView({
 
 win.add(v2);
 
-var v3 = Ti.UI.createView({
+var v3 = Ti.UI.createWebView({
 	height:40,
 	width:200,
 	backgroundColor:'#ff9900',
 	top:110,
-	borderRadius:10
+	borderRadius:10,
+	html:'<html><body><div style="color:#fff;text-align:center">FOO</div></body></html>'
 });
 
 win.add(v3);
