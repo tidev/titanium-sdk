@@ -8,21 +8,26 @@
 package ti.modules.titanium.map;
 
 import java.util.List;
+import java.io.IOException;
 
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiDict;
 import org.appcelerator.titanium.TiProperties;
 import org.appcelerator.titanium.TiProxy;
 import org.appcelerator.titanium.TiContext.OnLifecycleEvent;
+import org.appcelerator.titanium.io.TiBaseFile;
+import org.appcelerator.titanium.io.TiFileFactory;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiUIView;
+import org.appcelerator.titanium.util.TiUIHelper;
 import org.json.JSONObject;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.OvalShape;
@@ -188,7 +193,16 @@ public class TiMapView extends TiUIView
 						break;
 					}
 				}
-
+				
+				//If pinimage is set
+				if (a.containsKey("pinimage"))
+				{
+					String imagePath = a.getString("pinimage");
+					Drawable marker = makeMarker(imagePath);
+					boundCenterBottom(marker);
+					item.setMarker(marker);
+				}
+				
 				if (a.containsKey("leftButton")) {
 					item.setLeftButton(a.getString("leftButton"));
 				}
@@ -366,9 +380,10 @@ public class TiMapView extends TiUIView
 	{
 		if (view != null && itemView != null && item != null) {
 			itemView.setItem(index, item);
-
+			//Make sure the atonnation is always on top of the marker
+			int y = -1*item.getMarker(TiOverlayItem.ITEM_STATE_FOCUSED_MASK).getIntrinsicHeight();
 			MapView.LayoutParams params = new MapView.LayoutParams(LayoutParams.WRAP_CONTENT,
-					LayoutParams.WRAP_CONTENT, item.getPoint(), MapView.LayoutParams.BOTTOM_CENTER);
+					LayoutParams.WRAP_CONTENT, item.getPoint(), 0, y, MapView.LayoutParams.BOTTOM_CENTER);
 			params.mode = MapView.LayoutParams.MODE_MAP;
 
 			view.addView(itemView, params);
@@ -680,6 +695,20 @@ public class TiMapView extends TiUIView
 		d.getPaint().setColor(c);
 
 		return d;
+	}
+	
+	private Drawable makeMarker(String pinimage)
+	{
+		String url = proxy.getTiContext().resolveUrl(null, (String)pinimage);
+		TiBaseFile file = TiFileFactory.createTitaniumFile(proxy.getTiContext(), new String[] { url }, false);
+		try {
+			Drawable d = new BitmapDrawable(TiUIHelper.createBitmap(file.getInputStream()));
+			d.setBounds(0, 0, d.getIntrinsicWidth(), d.getIntrinsicHeight());
+			return d;
+		} catch (IOException e) {
+			Log.e(LCAT, "Error creating drawable from path: " + pinimage.toString(), e);
+		}
+		return null;
 	}
 	private double scaleFromGoogle(int value) {
 		return (double)value / 1000000.0;
