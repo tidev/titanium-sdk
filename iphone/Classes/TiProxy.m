@@ -766,15 +766,6 @@ DEFINE_EXCEPTIONS
 
 - (void) setValue:(id)value forUndefinedKey: (NSString *) key
 {
-	// if the object specifies a validKeys set, we enforce setting against only those keys
-//	if (self.validKeys!=nil)
-//	{
-//		if ([(id)self.validKeys containsObject:key]==NO)
-//		{
-//			[self throwException:[NSString stringWithFormat:@"property '%@' not supported",key] subreason:nil location:CODELOCATION];
-//		}
-//	}
-	
 	id current = nil;
 	if (dynPropsLock==nil)
 	{

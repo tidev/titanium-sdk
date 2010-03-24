@@ -51,7 +51,7 @@
 
 -(BOOL)willBeRelaying
 {
-	return [super willBeRelaying]; // || 
+	return [super willBeRelaying];
 }
 
 -(void)childWillResize:(TiViewProxy *)child
@@ -87,8 +87,6 @@
 	}
 
 	[[child view] updateLayout:NULL withBounds:bounds];
-//TODO: Reintegrate
-//	[[child view] relayout:bounds];
 	
 	// tell our children to also layout
 	[child layoutChildren];

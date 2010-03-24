@@ -251,39 +251,54 @@ DEFINE_EXCEPTIONS
 	return transformMatrix;
 }
 
-#pragma mark Layout 
+#pragma mark Legacy layout calls
+/*	These methods are due to layoutProperties and such things origionally being a property of UIView
+	and not the proxy. To lessen dependance on UIView (In cases where layout is needed without views
+	such as TableViews), this was moved to the proxy. In order to degrade gracefully, these shims are
+	left here. They should not be relied upon, but instead used to find methods that still incorrectly
+	rely on the view, and fix those methods.
+*/
 
 -(LayoutConstraint*)layoutProperties
 {
-	NSLog(@"[INFO] Using view proxy via redirection instead of directly for %@.",self);	\
+	NSLog(@"[INFO] Using view proxy via redirection instead of directly for %@.",self);
 	return [(TiViewProxy *)proxy layoutProperties];
-//	return &layoutProperties;
 }
 
 -(void)setLayoutProperties:(LayoutConstraint *)layout_
 {
-	NSLog(@"[INFO] Using view proxy via redirection instead of directly for %@.",self);	\
+	NSLog(@"[INFO] Using view proxy via redirection instead of directly for %@.",self);
 	[(TiViewProxy *)proxy setLayoutProperties:layout_];
-//	layoutProperties = *layout_;
 }
 
 -(CGFloat)minimumParentWidthForWidth:(CGFloat)value
-{ { const char *__s = [[NSString stringWithFormat:@"[INFO] Using view proxy via redirection instead of directly for %@.",self] UTF8String]; if (__s[0]=='[') { fprintf(__stderrp,"%s\n", __s); fflush(__stderrp); } else { fprintf(__stderrp,"[DEBUG] %s\n", __s); fflush(__stderrp); }};
+{
+	NSLog(@"[INFO] Using view proxy via redirection instead of directly for %@.",self);
 	return [(TiViewProxy *)[self proxy] minimumParentWidthForWidth:value];
 }
--(CGFloat)minimumParentHeightForWidth:(CGFloat)value { { const char *__s = [[NSString stringWithFormat:@"[INFO] Using view proxy via redirection instead of directly for %@.",self] UTF8String]; if (__s[0]=='[') { fprintf(__stderrp,"%s\n", __s); fflush(__stderrp); } else { fprintf(__stderrp,"[DEBUG] %s\n", __s); fflush(__stderrp); }}; return [(TiViewProxy *)[self proxy] minimumParentHeightForWidth:value]; }
--(CGFloat)autoWidthForWidth:(CGFloat)value { { const char *__s = [[NSString stringWithFormat:@"[INFO] Using view proxy via redirection instead of directly for %@.",self] UTF8String]; if (__s[0]=='[') { fprintf(__stderrp,"%s\n", __s); fflush(__stderrp); } else { fprintf(__stderrp,"[DEBUG] %s\n", __s); fflush(__stderrp); }}; return [(TiViewProxy *)[self proxy] autoWidthForWidth:value]; }
--(CGFloat)autoHeightForWidth:(CGFloat)value { { const char *__s = [[NSString stringWithFormat:@"[INFO] Using view proxy via redirection instead of directly for %@.",self] UTF8String]; if (__s[0]=='[') { fprintf(__stderrp,"%s\n", __s); fflush(__stderrp); } else { fprintf(__stderrp,"[DEBUG] %s\n", __s); fflush(__stderrp); }}; return [(TiViewProxy *)[self proxy] autoHeightForWidth:value]; }
+
+-(CGFloat)minimumParentHeightForWidth:(CGFloat)value
+{
+	NSLog(@"[INFO] Using view proxy via redirection instead of directly for %@.",self);
+	return [(TiViewProxy *)[self proxy] minimumParentHeightForWidth:value];
+}
+
+-(CGFloat)autoWidthForWidth:(CGFloat)value
+{
+	NSLog(@"[INFO] Using view proxy via redirection instead of directly for %@.",self);
+	return [(TiViewProxy *)[self proxy] autoWidthForWidth:value];
+}
+
+-(CGFloat)autoHeightForWidth:(CGFloat)value
+{
+	NSLog(@"[INFO] Using view proxy via redirection instead of directly for %@.",self);
+	return [(TiViewProxy *)[self proxy] autoHeightForWidth:value];
+}
 
 
-//USE_PROXY_FOR_MIN_PARENT_WIDTH
-//USE_PROXY_FOR_MIN_PARENT_HEIGHT
-//USE_PROXY_FOR_AUTO_HEIGHT
-//USE_PROXY_FOR_AUTO_WIDTH
 
 
-
-
+#pragma mark Layout 
 
 
 -(void)insertIntoView:(UIView*)newSuperview bounds:(CGRect)bounds
@@ -308,41 +323,6 @@ DEFINE_EXCEPTIONS
 	}
 }
 
-//TODO: Reintegrate this.
-//-(void)insertIntoView:(UIView*)newSuperview bounds:(CGRect)bounds
-//{
-//	if (newSuperview==self)
-//	{
-//		NSLog(@"[ERROR] invalid call to insertIntoView, new super view is same as myself");
-//		return;
-//	}
-//	if (repositioning==NO)
-//	{
-//		repositioning = YES;		
-//		ApplyConstraintToViewWithinViewWithBounds([(TiViewProxy *)proxy layoutProperties], self, newSuperview, bounds,YES);
-//		[(TiViewProxy *)[self proxy] clearNeedsReposition];
-//		repositioning = NO;
-//	}
-//}
-//
-//-(void)relayout:(CGRect)bounds
-//{
-//	if (animating)
-//	{
-//#ifdef DEBUG		
-//		// changing the layout while animating is bad, ignore for now
-//		NSLog(@"[DEBUG] ignoring new layout while animating..");
-//#endif		
-//		return;
-//	}
-//	if (repositioning==NO)
-//	{
-//		repositioning = YES;		
-//		ApplyConstraintToViewWithinViewWithBounds([(TiViewProxy *)proxy layoutProperties], self, [self superview], bounds, YES);
-//		[(TiViewProxy *)proxy clearNeedsReposition];
-//		repositioning = NO;
-//	}
-//}
 
 -(void)updateLayout:(LayoutConstraint*)layout_ withBounds:(CGRect)bounds
 {
@@ -354,7 +334,6 @@ DEFINE_EXCEPTIONS
 #endif		
 		return;
 	}
-//	[self setLayoutProperties:layout_];
 	[self relayout:bounds];
 }
 

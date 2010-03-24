@@ -179,9 +179,7 @@ void GetHWAddresses()
 		close(sockfd);
 		return;
 	}
-	
-//	ifr = ifc.ifc_req;
-	
+
 	cplim = buffer + ifc.ifc_len;
 	
 	for (cp=buffer; cp < cplim; )

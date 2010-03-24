@@ -3017,7 +3017,6 @@ static BOOL isiPhoneOS2;
 {
 	[bandwidthThrottlingLock lock];
 	bandwidthUsedInLastSecond += bytes;
-	//NSLog(@"used in last second: %lu",bandwidthUsedInLastSecond);
 	[bandwidthThrottlingLock unlock];
 }
 
@@ -3032,7 +3031,6 @@ static BOOL isiPhoneOS2;
 			interval++;
 		}
 	}
-	//NSLog(@"Used: %qi",bandwidthUsedInLastSecond);
 	[bandwidthUsageTracker addObject:[NSNumber numberWithUnsignedLong:bandwidthUsedInLastSecond]];
 	[bandwidthMeasurementDate release];
 	bandwidthMeasurementDate = [[NSDate dateWithTimeIntervalSinceNow:1] retain];

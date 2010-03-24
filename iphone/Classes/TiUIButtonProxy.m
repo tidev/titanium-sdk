@@ -24,10 +24,6 @@
 	[super _configure];
 }
 
-//USE_VIEW_FOR_AUTO_WIDTH
-//
-//USE_VIEW_FOR_AUTO_HEIGHT
-
 -(void)setStyle:(id)value
 {
 	styleCache = [TiUtils intValue:value def:UIButtonTypeCustom];

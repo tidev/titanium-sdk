@@ -76,7 +76,6 @@ const CFOptionFlags writeStreamEventFlags =
     [streams->writeBuffer release];
     [streams->writeLock release];
     
-    // close(remoteSocket); Should be closed by closing the streams.
     [remoteSocketDictionary removeObjectForKey:remoteSocketObject];
 }
 

@@ -78,9 +78,6 @@ static NSLock *readLock = nil;
 		} else if (toRead == 0) {
 			toRead = 1;
 		}
-		//NSLog(@"Throttled read %u",toRead);
-	} else {
-		//NSLog(@"Unthrottled read %u",toRead);
 	}
 	[ASIHTTPRequest incrementBandwidthUsedInLastSecond:toRead];
 	[readLock unlock];

@@ -48,10 +48,6 @@
 
 - (void)updateNetworkActivityIndicator
 {
-	//NOTE: JGH commented out since we handle ourselves in Titanium
-//#if TARGET_OS_IPHONE
-//	[[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:[self isNetworkActive]];
-//#endif
 }
 
 - (void)setSuspended:(BOOL)suspend

@@ -96,10 +96,8 @@ static char ctrl[0x24];
 {
     ctrl[0] = '\"';
     ctrl[1] = '\\';
-	//	ctrl[2] = '\'';
     for (int i = 1; i < 0x20; i++)
 		ctrl[i+1] = i;
-	//        ctrl[i+2] = i;
     ctrl[0x21] = 0;    
 }
 
@@ -348,7 +346,6 @@ static char ctrl[0x24];
             unichar uc = [fragment characterAtIndex:i];
             switch (uc) {
                 case '"':   [json appendString:@"\\\""];       break;
-					//               case '\'':   [json appendString:@"\\\'"];       break;
                 case '\\':  [json appendString:@"\\\\"];       break;
                 case '\t':  [json appendString:@"\\t"];        break;
                 case '\n':  [json appendString:@"\\n"];        break;
@@ -440,22 +437,6 @@ static char ctrl[0x24];
     return [self objectWithString:repr allowScalar:NO error:error];
 }
 
-- (id)transformSpecialObject:(NSDictionary*)obj
-{
-	/* FIXME
-	id proxyId = [obj objectForKey:@"proxy$"];
-	if (proxyId!=nil)
-	{
-		id fid = [obj objectForKey:@"fid$"];
-		if (fid!=nil)
-		{
-			// this is a proxy object
-			return [[TiHost sharedHost] proxyForId:fid];
-		}
-	}*/
-	return nil;
-}
-
 /*
  In contrast to the public methods, it is an error to omit the error parameter here.
  */
@@ -464,28 +445,12 @@ static char ctrl[0x24];
 	
 	skipWhitespace(c);
 	
-	BOOL result;
-//	NSString * token;
-//	TitaniumBlobWrapper * ourBlob;
-	
+	BOOL result;	
 	char ch = *c++;
 	
     switch (ch) {
         case '{':
             result = [self scanRestOfDictionary:(NSMutableDictionary **)o error:error];
-			if (!result) return result;
-			
-			id special = [self transformSpecialObject:(NSMutableDictionary *)*o];
-			if (special!=nil)
-			{
-				*o = special;
-				return YES;
-			}
-			
-//			token = [(NSDictionary *)*o valueForKey:@"_TOKEN"];
-//			ourBlob = [[TitaniumHost sharedHost] blobForToken:token];
-//			if (ourBlob != nil) *o = ourBlob;
-			
 			return result;
             break;
         case '[':
