@@ -423,6 +423,11 @@
 		248133B3115761DE00E3A9BA /* TiNetworkBonjourBrowserProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 248133A2115761DE00E3A9BA /* TiNetworkBonjourBrowserProxy.m */; };
 		248133B4115761DE00E3A9BA /* TiNetworkBonjourServiceProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 248133A4115761DE00E3A9BA /* TiNetworkBonjourServiceProxy.m */; };
 		248133B5115761DE00E3A9BA /* TiNetworkTCPSocketProxy.mm in Sources */ = {isa = PBXBuildFile; fileRef = 248133A6115761DE00E3A9BA /* TiNetworkTCPSocketProxy.mm */; };
+		24813713115A852800E3A9BA /* TiDOMTextNodeProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24813712115A852800E3A9BA /* TiDOMTextNodeProxy.m */; };
+		24813714115A852800E3A9BA /* TiDOMTextNodeProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24813712115A852800E3A9BA /* TiDOMTextNodeProxy.m */; };
+		24813715115A852800E3A9BA /* TiDOMTextNodeProxy.h in Headers */ = {isa = PBXBuildFile; fileRef = 24813711115A852800E3A9BA /* TiDOMTextNodeProxy.h */; };
+		24813716115A852800E3A9BA /* TiDOMTextNodeProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24813712115A852800E3A9BA /* TiDOMTextNodeProxy.m */; };
+		24813717115A852800E3A9BA /* TiDOMTextNodeProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24813712115A852800E3A9BA /* TiDOMTextNodeProxy.m */; };
 		24A1E517112D33AF003DA834 /* TiMediaAudioSession.h in Headers */ = {isa = PBXBuildFile; fileRef = 24A1E515112D33AF003DA834 /* TiMediaAudioSession.h */; };
 		24A1E518112D33AF003DA834 /* TiMediaAudioSession.m in Sources */ = {isa = PBXBuildFile; fileRef = 24A1E516112D33AF003DA834 /* TiMediaAudioSession.m */; };
 		24A1E519112D33AF003DA834 /* TiMediaAudioSession.m in Sources */ = {isa = PBXBuildFile; fileRef = 24A1E516112D33AF003DA834 /* TiMediaAudioSession.m */; };
@@ -1108,6 +1113,8 @@
 		248133A4115761DE00E3A9BA /* TiNetworkBonjourServiceProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiNetworkBonjourServiceProxy.m; sourceTree = "<group>"; };
 		248133A5115761DE00E3A9BA /* TiNetworkTCPSocketProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiNetworkTCPSocketProxy.h; sourceTree = "<group>"; };
 		248133A6115761DE00E3A9BA /* TiNetworkTCPSocketProxy.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = TiNetworkTCPSocketProxy.mm; sourceTree = "<group>"; };
+		24813711115A852800E3A9BA /* TiDOMTextNodeProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiDOMTextNodeProxy.h; sourceTree = "<group>"; };
+		24813712115A852800E3A9BA /* TiDOMTextNodeProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiDOMTextNodeProxy.m; sourceTree = "<group>"; };
 		24A1E515112D33AF003DA834 /* TiMediaAudioSession.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiMediaAudioSession.h; sourceTree = "<group>"; };
 		24A1E516112D33AF003DA834 /* TiMediaAudioSession.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiMediaAudioSession.m; sourceTree = "<group>"; };
 		24A1E873112DF80B003DA834 /* TiUIPickerProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUIPickerProxy.h; sourceTree = "<group>"; };
@@ -2589,6 +2596,8 @@
 				24EB0842111D500E001DC2D1 /* TiDOMNodeListProxy.m */,
 				24EB085B111D51D9001DC2D1 /* TiDOMAttrProxy.h */,
 				24EB085C111D51D9001DC2D1 /* TiDOMAttrProxy.m */,
+				24813711115A852800E3A9BA /* TiDOMTextNodeProxy.h */,
+				24813712115A852800E3A9BA /* TiDOMTextNodeProxy.m */,
 			);
 			name = DOM;
 			sourceTree = "<group>";
@@ -2865,6 +2874,7 @@
 				248133AD115761DE00E3A9BA /* TiNetworkBonjourBrowserProxy.h in Headers */,
 				248133AF115761DE00E3A9BA /* TiNetworkBonjourServiceProxy.h in Headers */,
 				248133B1115761DE00E3A9BA /* TiNetworkTCPSocketProxy.h in Headers */,
+				24813715115A852800E3A9BA /* TiDOMTextNodeProxy.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3246,6 +3256,7 @@
 				248133A7115761DE00E3A9BA /* TiNetworkBonjourBrowserProxy.m in Sources */,
 				248133A8115761DE00E3A9BA /* TiNetworkBonjourServiceProxy.m in Sources */,
 				248133A9115761DE00E3A9BA /* TiNetworkTCPSocketProxy.mm in Sources */,
+				24813714115A852800E3A9BA /* TiDOMTextNodeProxy.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3459,6 +3470,7 @@
 				248133B3115761DE00E3A9BA /* TiNetworkBonjourBrowserProxy.m in Sources */,
 				248133B4115761DE00E3A9BA /* TiNetworkBonjourServiceProxy.m in Sources */,
 				248133B5115761DE00E3A9BA /* TiNetworkTCPSocketProxy.mm in Sources */,
+				24813713115A852800E3A9BA /* TiDOMTextNodeProxy.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3672,6 +3684,7 @@
 				248133AA115761DE00E3A9BA /* TiNetworkBonjourBrowserProxy.m in Sources */,
 				248133AB115761DE00E3A9BA /* TiNetworkBonjourServiceProxy.m in Sources */,
 				248133AC115761DE00E3A9BA /* TiNetworkTCPSocketProxy.mm in Sources */,
+				24813717115A852800E3A9BA /* TiDOMTextNodeProxy.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3885,6 +3898,7 @@
 				248133AE115761DE00E3A9BA /* TiNetworkBonjourBrowserProxy.m in Sources */,
 				248133B0115761DE00E3A9BA /* TiNetworkBonjourServiceProxy.m in Sources */,
 				248133B2115761DE00E3A9BA /* TiNetworkTCPSocketProxy.mm in Sources */,
+				24813716115A852800E3A9BA /* TiDOMTextNodeProxy.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

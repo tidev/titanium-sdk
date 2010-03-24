@@ -135,7 +135,7 @@
 		[textLabel setTextColor:(textColor==nil)?[UIColor blackColor]:textColor];
 		
 		UIColor * selectedTextColor = [[TiUtils colorValue:[self valueForKey:@"selectedColor"]] _color];
-		[textLabel setSelectedTextColor:(selectedTextColor==nil)?[UIColor whiteColor]:selectedTextColor];	
+		[textLabel setHighlightedTextColor:(selectedTextColor==nil)?[UIColor whiteColor]:selectedTextColor];	
 	}
 	else
 	{

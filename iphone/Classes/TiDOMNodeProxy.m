@@ -8,6 +8,7 @@
 #import "TiDOMNodeProxy.h"
 #import "TiDOMDocumentProxy.h"
 #import "TiDOMElementProxy.h"
+#import "TiDOMTextNodeProxy.h"
 #import "TiDOMNamedNodeMapProxy.h"
 #import "TiDOMNodeListProxy.h"
 #import "TiDOMAttrProxy.h"
@@ -30,6 +31,12 @@
 
 +(id)makeNode:(id)child context:(id<TiEvaluator>)context
 {
+	// if already a proxy, just return it.
+	if ([child isKindOfClass:[TiDOMNodeProxy class]])
+	{
+		return child;
+	}
+	
 	switch([child kind])
 	{
 		case GDataXMLElementKind:
@@ -42,6 +49,12 @@
 		{
 			//FIXME:
 			TiDOMAttrProxy *proxy = [[[TiDOMAttrProxy alloc] _initWithPageContext:context] autorelease];
+			return proxy;
+		}
+		case GDataXMLTextKind:
+		{
+			TiDOMTextNodeProxy *proxy = [[[TiDOMTextNodeProxy alloc] _initWithPageContext:context] autorelease];
+			[proxy setNode:child];
 			return proxy;
 		}
 		default:
