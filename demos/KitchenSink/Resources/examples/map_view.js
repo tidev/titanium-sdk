@@ -58,6 +58,17 @@ var regionAtlanta = {latitude:33.74511,longitude:-84.38993,animate:true,latitude
 var regionSV = {latitude:37.337681,longitude:-122.038193,animate:true,latitudeDelta:0.04, longitudeDelta:0.04};
 
 //
+// NAVBAR BUTTONS
+//
+var removeAll = Titanium.UI.createButton({
+	style:Titanium.UI.iPhone.SystemButtonStyle.BORDERED,
+	title:'Remove All'
+});
+removeAll.addEventListener('click', function()
+{
+	mapview.removeAllAnnotations();
+});
+//
 // TOOLBAR BUTTONS
 //
 
