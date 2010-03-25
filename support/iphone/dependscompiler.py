@@ -89,7 +89,7 @@ class DependencyCompiler(object):
 		finallibfile = os.path.join(build_dir,'libTitanium.a')
 		
 		# if running in simulator, we just use all symbols
-		if simulator:
+		if simulator and (thirdparty_modules==None or len(thirdparty_modules)==0):
 			toplibfile = os.path.join(iphone_dir,'libTitanium.a')
 			shutil.copy(toplibfile,finallibfile)
 			return
