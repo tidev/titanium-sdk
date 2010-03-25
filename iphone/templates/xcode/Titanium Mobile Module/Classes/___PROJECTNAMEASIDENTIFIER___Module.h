@@ -6,7 +6,7 @@
  */
 #import "TiModule.h"
 
-@interface MyFirstModule : TiModule 
+@interface ___PROJECTNAMEASIDENTIFIER___Module : TiModule 
 {
 }
 

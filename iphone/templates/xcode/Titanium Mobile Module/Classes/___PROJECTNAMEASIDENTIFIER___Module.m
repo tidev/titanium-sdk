@@ -4,12 +4,12 @@
  * Appcelerator Titanium is Copyright (c) 2009-2010 by Appcelerator, Inc.
  * and licensed under the Apache Public License (version 2)
  */
-#import "MyFirstModule.h"
+#import "___PROJECTNAMEASIDENTIFIER___Module.h"
 #import "TiBase.h"
 #import "TiHost.h"
 #import "TiUtils.h"
 
-@implementation MyFirstModule
+@implementation ___PROJECTNAMEASIDENTIFIER___Module
 
 #pragma mark Lifecycle
 
@@ -68,6 +68,25 @@
 		// been removed, we can optionally clean up any resources
 		// since no body is listening at this point for that event
 	}
+}
+
+#pragma Public APIs
+
+-(id)example:(id)args
+{
+	// example method
+	return @"hello world";
+}
+
+-(id)exampleProp
+{
+	// example property getter
+	return @"hello world";
+}
+
+-(void)exampleProp:(id)value
+{
+	// example property setter
 }
 
 @end
