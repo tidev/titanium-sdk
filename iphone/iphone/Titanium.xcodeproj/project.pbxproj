@@ -218,7 +218,6 @@
 		2461CE491151D856007A4CC9 /* FBSession.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA893D111161050084E2DE /* FBSession.m */; };
 		2461CE4A1151D856007A4CC9 /* FBStreamDialog.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA893F111161050084E2DE /* FBStreamDialog.m */; };
 		2461CE4B1151D856007A4CC9 /* FBXMLHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8941111161050084E2DE /* FBXMLHandler.m */; };
-		2461CE4C1151D856007A4CC9 /* IPAddress.c in Sources */ = {isa = PBXBuildFile; fileRef = 24CA894B111161050084E2DE /* IPAddress.c */; };
 		2461CE4D1151D856007A4CC9 /* PlausibleDatabase.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA894F111161050084E2DE /* PlausibleDatabase.m */; };
 		2461CE4E1151D856007A4CC9 /* PLSqliteDatabase.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8954111161050084E2DE /* PLSqliteDatabase.m */; };
 		2461CE4F1151D856007A4CC9 /* PLSqlitePreparedStatement.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8956111161050084E2DE /* PLSqlitePreparedStatement.m */; };
@@ -493,7 +492,6 @@
 		24CA8971111161050084E2DE /* FBSession.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA893D111161050084E2DE /* FBSession.m */; };
 		24CA8972111161050084E2DE /* FBStreamDialog.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA893F111161050084E2DE /* FBStreamDialog.m */; };
 		24CA8973111161050084E2DE /* FBXMLHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8941111161050084E2DE /* FBXMLHandler.m */; };
-		24CA897C111161050084E2DE /* IPAddress.c in Sources */ = {isa = PBXBuildFile; fileRef = 24CA894B111161050084E2DE /* IPAddress.c */; };
 		24CA897D111161050084E2DE /* PlausibleDatabase.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA894F111161050084E2DE /* PlausibleDatabase.m */; };
 		24CA897E111161050084E2DE /* PLSqliteDatabase.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8954111161050084E2DE /* PLSqliteDatabase.m */; };
 		24CA897F111161050084E2DE /* PLSqlitePreparedStatement.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8956111161050084E2DE /* PLSqlitePreparedStatement.m */; };
@@ -671,7 +669,6 @@
 		24CA8F9111116C490084E2DE /* FBSession.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA893D111161050084E2DE /* FBSession.m */; };
 		24CA8F9211116C490084E2DE /* FBStreamDialog.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA893F111161050084E2DE /* FBStreamDialog.m */; };
 		24CA8F9311116C490084E2DE /* FBXMLHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8941111161050084E2DE /* FBXMLHandler.m */; };
-		24CA8F9411116C490084E2DE /* IPAddress.c in Sources */ = {isa = PBXBuildFile; fileRef = 24CA894B111161050084E2DE /* IPAddress.c */; };
 		24CA8F9511116C490084E2DE /* PlausibleDatabase.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA894F111161050084E2DE /* PlausibleDatabase.m */; };
 		24CA8F9611116C490084E2DE /* PLSqliteDatabase.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8954111161050084E2DE /* PLSqliteDatabase.m */; };
 		24CA8F9711116C490084E2DE /* PLSqlitePreparedStatement.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8956111161050084E2DE /* PLSqlitePreparedStatement.m */; };
@@ -852,7 +849,6 @@
 		24CB0DF0111A971B00A813AD /* FBSession.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA893D111161050084E2DE /* FBSession.m */; };
 		24CB0DF1111A971B00A813AD /* FBStreamDialog.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA893F111161050084E2DE /* FBStreamDialog.m */; };
 		24CB0DF2111A971B00A813AD /* FBXMLHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8941111161050084E2DE /* FBXMLHandler.m */; };
-		24CB0DF3111A971B00A813AD /* IPAddress.c in Sources */ = {isa = PBXBuildFile; fileRef = 24CA894B111161050084E2DE /* IPAddress.c */; };
 		24CB0DF4111A971B00A813AD /* PlausibleDatabase.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA894F111161050084E2DE /* PlausibleDatabase.m */; };
 		24CB0DF5111A971B00A813AD /* PLSqliteDatabase.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8954111161050084E2DE /* PLSqliteDatabase.m */; };
 		24CB0DF6111A971B00A813AD /* PLSqlitePreparedStatement.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8956111161050084E2DE /* PLSqlitePreparedStatement.m */; };
@@ -1196,8 +1192,6 @@
 		24CA8948111161050084E2DE /* login_down.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = login_down.png; sourceTree = "<group>"; };
 		24CA8949111161050084E2DE /* logout.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = logout.png; sourceTree = "<group>"; };
 		24CA894A111161050084E2DE /* logout_down.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = logout_down.png; sourceTree = "<group>"; };
-		24CA894B111161050084E2DE /* IPAddress.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = IPAddress.c; path = ../Classes/IPAddress.c; sourceTree = SOURCE_ROOT; };
-		24CA894C111161050084E2DE /* IPAddress.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IPAddress.h; path = ../Classes/IPAddress.h; sourceTree = SOURCE_ROOT; };
 		24CA894E111161050084E2DE /* PlausibleDatabase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PlausibleDatabase.h; sourceTree = "<group>"; };
 		24CA894F111161050084E2DE /* PlausibleDatabase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PlausibleDatabase.m; sourceTree = "<group>"; };
 		24CA8950111161050084E2DE /* PLDatabase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PLDatabase.h; sourceTree = "<group>"; };
@@ -1882,8 +1876,6 @@
 				24EB0B73111E7EE8001DC2D1 /* NSData+Additions.m */,
 				24CA892A111161050084E2DE /* Base64Transcoder.c */,
 				24CA892B111161050084E2DE /* Base64Transcoder.h */,
-				24CA894B111161050084E2DE /* IPAddress.c */,
-				24CA894C111161050084E2DE /* IPAddress.h */,
 				24CA8959111161050084E2DE /* SBJSON.h */,
 				24CA895A111161050084E2DE /* SBJSON.m */,
 			);
@@ -3085,7 +3077,6 @@
 				24CA8971111161050084E2DE /* FBSession.m in Sources */,
 				24CA8972111161050084E2DE /* FBStreamDialog.m in Sources */,
 				24CA8973111161050084E2DE /* FBXMLHandler.m in Sources */,
-				24CA897C111161050084E2DE /* IPAddress.c in Sources */,
 				24CA897D111161050084E2DE /* PlausibleDatabase.m in Sources */,
 				24CA897E111161050084E2DE /* PLSqliteDatabase.m in Sources */,
 				24CA897F111161050084E2DE /* PLSqlitePreparedStatement.m in Sources */,
@@ -3299,7 +3290,6 @@
 				2461CE491151D856007A4CC9 /* FBSession.m in Sources */,
 				2461CE4A1151D856007A4CC9 /* FBStreamDialog.m in Sources */,
 				2461CE4B1151D856007A4CC9 /* FBXMLHandler.m in Sources */,
-				2461CE4C1151D856007A4CC9 /* IPAddress.c in Sources */,
 				2461CE4D1151D856007A4CC9 /* PlausibleDatabase.m in Sources */,
 				2461CE4E1151D856007A4CC9 /* PLSqliteDatabase.m in Sources */,
 				2461CE4F1151D856007A4CC9 /* PLSqlitePreparedStatement.m in Sources */,
@@ -3513,7 +3503,6 @@
 				24CA8F9111116C490084E2DE /* FBSession.m in Sources */,
 				24CA8F9211116C490084E2DE /* FBStreamDialog.m in Sources */,
 				24CA8F9311116C490084E2DE /* FBXMLHandler.m in Sources */,
-				24CA8F9411116C490084E2DE /* IPAddress.c in Sources */,
 				24CA8F9511116C490084E2DE /* PlausibleDatabase.m in Sources */,
 				24CA8F9611116C490084E2DE /* PLSqliteDatabase.m in Sources */,
 				24CA8F9711116C490084E2DE /* PLSqlitePreparedStatement.m in Sources */,
@@ -3727,7 +3716,6 @@
 				24CB0DF0111A971B00A813AD /* FBSession.m in Sources */,
 				24CB0DF1111A971B00A813AD /* FBStreamDialog.m in Sources */,
 				24CB0DF2111A971B00A813AD /* FBXMLHandler.m in Sources */,
-				24CB0DF3111A971B00A813AD /* IPAddress.c in Sources */,
 				24CB0DF4111A971B00A813AD /* PlausibleDatabase.m in Sources */,
 				24CB0DF5111A971B00A813AD /* PLSqliteDatabase.m in Sources */,
 				24CB0DF6111A971B00A813AD /* PLSqlitePreparedStatement.m in Sources */,
