@@ -343,8 +343,10 @@ self.p = v;\
 		// we need to first make sure our new view that we're transitioning to is sized but we don't want
 		// to add to the view hiearchry inside the animation block or you'll get the sizings as part of the
 		// animation.. which we don't want
-		LayoutConstraint *contraints = [(TiViewProxy*)[view_ proxy] layoutProperties];
+		TiViewProxy * ourProxy = (TiViewProxy*)[view_ proxy];
+		LayoutConstraint *contraints = [ourProxy layoutProperties];
 		ApplyConstraintToViewWithinViewWithBounds(contraints, view_, transitionView, transitionView.bounds, NO);
+		[ourProxy layoutChildren];
 	}
 
 	// hold on to our animation during the animation and until it stops
