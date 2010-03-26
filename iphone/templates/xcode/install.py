@@ -11,6 +11,11 @@ xcodedir = os.path.join("/Developer","Platforms","iPhoneOS.platform","Developer"
 file_dir = os.path.join(xcodedir,"File Templates","Appcelerator")
 project_dir = os.path.join(xcodedir,"Project Templates","Appcelerator")
 
+if os.path.exists(file_dir):
+	shutil.rmtree(file_dir)
+if os.path.exists(project_dir):
+	shutil.rmtree(project_dir)
+
 if not os.path.exists(file_dir):
 	os.makedirs(file_dir)
 

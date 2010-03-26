@@ -6,7 +6,6 @@
  */
 
 #import "PlatformModule.h"
-#import "IPAddress.h"
 #import "TitaniumApp.h"
 
 #import <sys/sysctl.h>  
@@ -42,49 +41,8 @@
 			[self replaceValue:@"iphone" forKey:@"osname" notification:NO];
 		}
 		
-		//TODO: save CPU and RAM by moving these into dynamic properties
-		
-		NSString *deviceMac = nil; 
-		NSString *deviceIP = nil;
-		InitAddresses();
-		GetIPAddresses();
-		GetHWAddresses();
-		
-		for (int i=0; i<MAXADDRS; ++i)
-		{ 
-			static unsigned long localHost = 0x7F000001;            // 127.0.0.1
-			unsigned long theAddr;
-			
-			theAddr = ip_addrs[i];
-			
-			if (theAddr == 0) break;
-			if (theAddr == localHost) continue;
-			if (if_names[i] == NULL) continue;
-			NSString *s = [NSString stringWithCString:if_names[i] encoding:NSUTF8StringEncoding];
-			if ([s hasPrefix:@"lo"]) continue;
-			// guard in case we don't have a mac or ipaddress which has been reported
-			if (hw_addrs[i]!=NULL)
-			{
-				deviceMac = [NSString stringWithCString:hw_addrs[i] encoding:NSUTF8StringEncoding];
-			}
-			else
-			{
-				deviceMac = @"0-0-0-0";
-			}
-			if (ip_names[i]!=NULL)
-			{
-				deviceIP = [NSString stringWithCString:ip_names[i] encoding:NSUTF8StringEncoding];
-			}
-			else 
-			{
-				deviceIP = @"0.0.0.0";
-			}
-			
-			break;
-		}		
-		
-		address = [deviceIP retain];
-		macaddress = [deviceMac	retain];
+		macaddress = [[[UIDevice currentDevice] uniqueIdentifier] retain];
+		address = [@"127.0.0.1" retain];
 		
 		NSString *themodel = [theDevice model];
 		

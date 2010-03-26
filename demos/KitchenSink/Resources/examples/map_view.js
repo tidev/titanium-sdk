@@ -68,6 +68,7 @@ removeAll.addEventListener('click', function()
 {
 	mapview.removeAllAnnotations();
 });
+win.rightNavButton = removeAll;
 //
 // TOOLBAR BUTTONS
 //

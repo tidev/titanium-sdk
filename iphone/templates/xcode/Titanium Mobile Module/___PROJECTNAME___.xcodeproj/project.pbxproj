@@ -7,15 +7,15 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		24DD6CF91134B3F500162E58 /* MyFirstModule.h in Headers */ = {isa = PBXBuildFile; fileRef = 24DD6CF71134B3F500162E58 /* MyFirstModule.h */; };
-		24DD6CFA1134B3F500162E58 /* MyFirstModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 24DD6CF81134B3F500162E58 /* MyFirstModule.m */; };
+		24DD6CF91134B3F500162E58 /* ___PROJECTNAMEASIDENTIFIER___Module.h in Headers */ = {isa = PBXBuildFile; fileRef = 24DD6CF71134B3F500162E58 /* ___PROJECTNAMEASIDENTIFIER___Module.h */; };
+		24DD6CFA1134B3F500162E58 /* ___PROJECTNAMEASIDENTIFIER___Module.m in Sources */ = {isa = PBXBuildFile; fileRef = 24DD6CF81134B3F500162E58 /* ___PROJECTNAMEASIDENTIFIER___Module.m */; };
 		AA747D9F0F9514B9006C5449 /* ___PROJECTNAMEASIDENTIFIER____Prefix.pch in Headers */ = {isa = PBXBuildFile; fileRef = AA747D9E0F9514B9006C5449 /* ___PROJECTNAMEASIDENTIFIER____Prefix.pch */; };
 		AACBBE4A0F95108600F1A2B1 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AACBBE490F95108600F1A2B1 /* Foundation.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		24DD6CF71134B3F500162E58 /* MyFirstModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MyFirstModule.h; path = Classes/MyFirstModule.h; sourceTree = "<group>"; };
-		24DD6CF81134B3F500162E58 /* MyFirstModule.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = MyFirstModule.m; path = Classes/MyFirstModule.m; sourceTree = "<group>"; };
+		24DD6CF71134B3F500162E58 /* ___PROJECTNAMEASIDENTIFIER___Module.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ___PROJECTNAMEASIDENTIFIER___Module.h; path = Classes/___PROJECTNAMEASIDENTIFIER___Module.h; sourceTree = "<group>"; };
+		24DD6CF81134B3F500162E58 /* ___PROJECTNAMEASIDENTIFIER___Module.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ___PROJECTNAMEASIDENTIFIER___Module.m; path = Classes/___PROJECTNAMEASIDENTIFIER___Module.m; sourceTree = "<group>"; };
 		24DD6D1B1134B66800162E58 /* titanium.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = titanium.xcconfig; sourceTree = "<group>"; };
 		AA747D9E0F9514B9006C5449 /* ___PROJECTNAMEASIDENTIFIER____Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "___PROJECTNAMEASIDENTIFIER____Prefix.pch"; sourceTree = SOURCE_ROOT; };
 		AACBBE490F95108600F1A2B1 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
@@ -64,8 +64,8 @@
 		08FB77AEFE84172EC02AAC07 /* Classes */ = {
 			isa = PBXGroup;
 			children = (
-				24DD6CF71134B3F500162E58 /* MyFirstModule.h */,
-			    24DD6CF81134B3F500162E58 /* MyFirstModule.m */,
+				24DD6CF71134B3F500162E58 /* ___PROJECTNAMEASIDENTIFIER___Module.h */,
+			    24DD6CF81134B3F500162E58 /* ___PROJECTNAMEASIDENTIFIER___Module.m */,
 			);
 			name = Classes;
 			sourceTree = "<group>";
@@ -87,7 +87,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				AA747D9F0F9514B9006C5449 /* ___PROJECTNAMEASIDENTIFIER____Prefix.pch in Headers */,
-				24DD6CF91134B3F500162E58 /* MyFirstModule.h in Headers */,
+				24DD6CF91134B3F500162E58 /* ___PROJECTNAMEASIDENTIFIER___Module.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -134,7 +134,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				24DD6CFA1134B3F500162E58 /* MyFirstModule.m in Sources */,
+				24DD6CFA1134B3F500162E58 /* ___PROJECTNAMEASIDENTIFIER___Module.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

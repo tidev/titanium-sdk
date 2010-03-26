@@ -791,6 +791,7 @@ extern NSString * const TI_APPLICATION_RESOURCE_DIR;
 	BOOL app = [[url scheme] hasPrefix:@"app"];
 	if ([url isFileURL] || app)
 	{
+		BOOL had_splash_removed = NO;
 		NSString *urlstring = [[url standardizedURL] path];
 		NSString *resourceurl = [[NSBundle mainBundle] resourcePath];
 		NSRange range = [urlstring rangeOfString:resourceurl];
@@ -799,11 +800,17 @@ extern NSString * const TI_APPLICATION_RESOURCE_DIR;
 		{
 			appurlstr = [urlstring substringFromIndex:range.location + range.length + 1];
 		}
-		if (app==NO && [appurlstr hasPrefix:@"/"])
+		if ([appurlstr hasPrefix:@"/"])
 		{
+			had_splash_removed = YES;
 			appurlstr = [appurlstr substringFromIndex:1];
 		}
 #ifdef DEBUG
+		if (app==YES && had_splash_removed)
+		{
+			// on simulator we want to keep slash since it's coming from file
+			appurlstr = [@"/" stringByAppendingString:appurlstr];
+		}
 		if (TI_APPLICATION_RESOURCE_DIR!=nil && [TI_APPLICATION_RESOURCE_DIR isEqualToString:@""]==NO)
 		{
 			if ([appurlstr hasPrefix:TI_APPLICATION_RESOURCE_DIR])
