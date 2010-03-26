@@ -82,7 +82,7 @@
 			if (![thisProxy supportsNavBarPositioning])
 			{
 				//TODO: This is an exception that should have been raised long ago.
-				NSLog(@"ERROR: %@ does not support NavBar positioning!",thisProxy);
+				NSLog(@"[ERROR] %@ does not support being in a toolbar!",thisProxy);
 				//continue;
 			}
 			[result addObject:[thisProxy barButtonItem]];
