@@ -49,8 +49,8 @@ keyboardToolbarHeight[float]: the height of the keyboard toolbar
 
 - methods
 
-blur: force the field to gain focus
-focus: force the field to lose focus
+focus: force the field to gain focus
+blur: force the field to lose focus
 hasText: return boolean (true) if the field has text
 
 - events
