@@ -29,4 +29,6 @@
 #pragma mark Framework
 -(void)refreshAnnotation:(TiMapAnnotationProxy*)proxy readd:(BOOL)yn;
 
+-(void)fireClickEvent:(MKPinAnnotationView *) pinview source:(NSString *)source;
+
 @end

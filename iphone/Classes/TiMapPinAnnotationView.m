@@ -34,4 +34,55 @@
 	return self;
 }
 
+-(NSString *)lastHitName
+{
+	NSString * result = lastHitName;
+	lastHitName = nil;
+	return result;
+}
+
+
+- (UIView *)hitTest:(CGPoint) point withEvent:(UIEvent *)event 
+{
+    UIView * result = [super hitTest:point withEvent:event];
+
+	if (result==nil)
+	{
+		for (UIView * ourSubView in [self subviews])
+		{
+			CGPoint subPoint = [self convertPoint:point toView:ourSubView];
+			for (UIView * ourSubSubView in [ourSubView subviews])
+			{
+				if (CGRectContainsPoint([ourSubSubView frame], subPoint) &&
+						[ourSubSubView isKindOfClass:[UILabel class]])
+				{
+					NSString * labelText = [(UILabel *)ourSubSubView text];
+					TiMapAnnotationProxy * ourProxy = (TiMapAnnotationProxy *)[self annotation];
+					if ([labelText isEqualToString:[ourProxy title]])
+					{
+						lastHitName = @"title";
+					}
+					else if ([labelText isEqualToString:[ourProxy subtitle]])
+					{
+						lastHitName = @"subtitle";
+					}
+					else
+					{
+						lastHitName = nil;
+					}
+					return nil;
+				}
+			}
+			if (CGRectContainsPoint([ourSubView bounds], subPoint))
+			{
+				lastHitName = @"annotation";
+				return nil;
+			}
+	
+		}
+	}
+	lastHitName = nil;
+	return result;
+}
+
 @end

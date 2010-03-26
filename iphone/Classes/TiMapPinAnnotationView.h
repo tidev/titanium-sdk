@@ -11,9 +11,10 @@
 @private
 	TiMapView *map;
 	BOOL observing;
+	NSString * lastHitName;
 }
 
 -(id)initWithAnnotation:(id<MKAnnotation>)annotation reuseIdentifier:(NSString *)reuseIdentifier map:(TiMapView*)map;
-
+-(NSString *)lastHitName;
 
 @end
