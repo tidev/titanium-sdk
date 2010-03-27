@@ -210,6 +210,14 @@ public class TiUIText extends TiUIView
 		super.onFocusChange(v, hasFocus);
 	}
 
+	@Override
+	protected TiDict getFocusEventObject(boolean hasFocus)
+	{
+		TiDict event = new TiDict();
+		event.put("value", tv.getText().toString());
+		return event;
+	}
+
 	public boolean onEditorAction(TextView v, int actionId, KeyEvent keyEvent)
 	{
 		String value = tv.getText().toString();
