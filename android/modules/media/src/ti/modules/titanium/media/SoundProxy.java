@@ -47,6 +47,7 @@ public class SoundProxy extends TiProxy
 				Log.i(LCAT, "Creating sound proxy for url: " + url);
 			}
 		}
+		setDynamicValue("volume", 0.5);
 	}
 
 	public boolean isPlaying() {
@@ -117,6 +118,10 @@ public class SoundProxy extends TiProxy
 		}
 	}
 
+	public void destroy() {
+		release();
+	}
+
 	public void stop() {
 		TiSound s = getSound();
 		if (s != null) {
@@ -129,6 +134,7 @@ public class SoundProxy extends TiProxy
 		if (snd == null) {
 			if (url != null) {
 				snd = new TiSound(this, Uri.parse(url));
+				setModelListener(snd);
 			}
 		}
 		return snd;
@@ -158,4 +164,6 @@ public class SoundProxy extends TiProxy
 		}
 		snd = null;
 	}
+
+
 }
