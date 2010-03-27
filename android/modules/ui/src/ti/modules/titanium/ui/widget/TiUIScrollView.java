@@ -234,6 +234,8 @@ public class TiUIScrollView extends TiUIView {
 	{
 		// we create the view after the properties are procesed
 		super(proxy);
+		getLayoutParams().autoFillsHeight = true;
+		getLayoutParams().autoFillsWidth = true;
 	}
 
 	@Override
