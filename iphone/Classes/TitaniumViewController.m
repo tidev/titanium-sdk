@@ -192,7 +192,6 @@
 	}
 
 	BOOL noOrientations = YES;
-	NSLog(@"[DEBUG] Clearing Orientations");
 	for (id mode in newOrientationModes)
 	{
 		UIInterfaceOrientation orientation = [TiUtils orientationValue:mode def:-1];
@@ -203,7 +202,6 @@
 			case UIDeviceOrientationLandscapeLeft:
 			case UIDeviceOrientationLandscapeRight:
 				allowedOrientations[orientation] = YES;
-				NSLog(@"[DEBUG] Allowing orientation %d",orientation);
 				noOrientations = NO;
 				break;
 			case -1:
@@ -269,11 +267,6 @@
 				noPrefrenceTab = NO;
 				break;
 			}
-		}
-		
-		if (noPrefrenceTab)
-		{
-			NSLog(@"[DEBUG] No orientation preference found!");
 		}
 	}
 

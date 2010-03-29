@@ -6,11 +6,10 @@
  */
 package ti.modules.titanium.ui.widget;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiContext;
@@ -29,7 +28,6 @@ import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.filesystem.FileProxy;
 import android.graphics.Bitmap;
-import android.graphics.Bitmap.CompressFormat;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.view.View;
@@ -46,7 +44,7 @@ public class TiUIImageView extends TiUIView
 	private Timer timer;
 	private AnimationTask animationTask;
 	private Drawable[] drawables;
-	private boolean animating = false;
+	private AtomicBoolean animating = new AtomicBoolean(false);
 	private boolean reverse = false;
 
 	private class BgImageLoader extends TiBackgroundImageLoadTask
@@ -199,15 +197,16 @@ public class TiUIImageView extends TiUIView
 		public int index = 0;
 
 		@Override
-		public void run() {
-			animating = true;
-			if (!started) {
-				fireStart();
-				started = true;
-			}
-
+		public void run()
+		{
 			synchronized(this) {
 				if (!paused) {
+					animating.set(true);
+					if (!started) {
+						fireStart();
+						started = true;
+					}
+
 					if (index < drawables.length && index >= 0) {
 						setImage(drawables[index]);
 						fireChange(index);
@@ -226,6 +225,8 @@ public class TiUIImageView extends TiUIView
 					} else {
 						index--;
 					}
+				} else {
+					animating.set(false);
 				}
 			}
 		}
@@ -246,11 +247,15 @@ public class TiUIImageView extends TiUIView
 
 	public void handleStart()
 	{
-		int duration = (int) getDuration();
+		if (animationTask == null) {
 
-		timer = new Timer();
-		animationTask = new AnimationTask();
-		timer.schedule(animationTask, duration, duration);
+			timer = new Timer();
+			animationTask = new AnimationTask();
+			int duration = (int) getDuration();
+			timer.schedule(animationTask, duration, duration);
+		} else {
+			resume();
+		}
 	}
 
 	public void pause()
@@ -258,7 +263,6 @@ public class TiUIImageView extends TiUIView
 		if (animationTask != null) {
 			synchronized(animationTask) {
 				animationTask.paused = true;
-				animating = false;
 			}
 		}
 	}
@@ -268,7 +272,6 @@ public class TiUIImageView extends TiUIView
 		if (animationTask != null) {
 			synchronized(animationTask) {
 				animationTask.paused = false;
-				animating = true;
 			}
 		}
 	}
@@ -280,7 +283,7 @@ public class TiUIImageView extends TiUIView
 		}
 		timer = null;
 		animationTask = null;
-		animating = false;
+		animating.set(false);
 
 		fireStop();
 	}
@@ -362,7 +365,7 @@ public class TiUIImageView extends TiUIView
 	}
 
 	public boolean isAnimating() {
-		return animating;
+		return animating.get();
 	}
 
 	public boolean isReverse() {
@@ -378,7 +381,7 @@ public class TiUIImageView extends TiUIView
 			this.reverse = reverse;
 		}
 	}
-	
+
 	public TiBlob toBlob ()
 	{
 		Drawable drawable = getView().getImageDrawable();
@@ -386,7 +389,7 @@ public class TiUIImageView extends TiUIView
 			Bitmap bitmap = ((BitmapDrawable)drawable).getBitmap();
 			return TiBlob.blobFromImage(proxy.getTiContext(), bitmap);
 		}
-		
+
 		return null;
 	}
 }

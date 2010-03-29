@@ -88,11 +88,11 @@ public class FileProxy extends TiProxy
 		return tbf.isDirectory();
 	}
 
-	public boolean isReadonly() {
+	public boolean getReadonly() {
 		return tbf.isReadonly();
 	}
 
-	public boolean isWriteable() {
+	public boolean getWritable() {
 		return tbf.isWriteable();
 	}
 
@@ -118,6 +118,18 @@ public class FileProxy extends TiProxy
 
 	public String extension() {
 		return tbf.extension();
+	}
+
+	public boolean getSymbolicLink() {
+		return tbf.isSymbolicLink();
+	}
+
+	public boolean getExecutable() {
+		return tbf.isExecutable();
+	}
+
+	public boolean getHidden() {
+		return tbf.isHidden();
 	}
 
 	public String[] getDirectoryListing()
@@ -167,7 +179,7 @@ public class FileProxy extends TiProxy
 		return tbf.resolve();
 	}
 
-	public double size() {
+	public double getSize() {
 		return tbf.size();
 	}
 
@@ -190,7 +202,7 @@ public class FileProxy extends TiProxy
 			}
 		}
 	}
-	
+
 	public void writeLine(String data)
 		throws IOException
 	{
