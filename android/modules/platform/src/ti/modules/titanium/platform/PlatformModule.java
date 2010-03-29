@@ -69,8 +69,6 @@ public class PlatformModule extends TiModule
 		return constants;
 	}
 
-
-
 	public String getName() {
 		return TiPlatformHelper.getName();
 	}
@@ -116,6 +114,10 @@ public class PlatformModule extends TiModule
 
 	public String getArchitecture() {
 		return TiPlatformHelper.getArchitecture();
+	}
+
+	public String createUUID() {
+		return TiPlatformHelper.createUUID();
 	}
 
 	public boolean openURL(String url) {
