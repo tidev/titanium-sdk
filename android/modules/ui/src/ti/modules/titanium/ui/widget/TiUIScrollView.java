@@ -234,17 +234,34 @@ public class TiUIScrollView extends TiUIView {
 	{
 		// we create the view after the properties are procesed
 		super(proxy);
+		getLayoutParams().autoFillsHeight = true;
+		getLayoutParams().autoFillsWidth = true;
 	}
 
 	@Override
 	public void processProperties(TiDict d)
 	{
+		boolean showHorizontalScrollBar = false;
+		boolean showVerticalScrollBar = false;
+
+		if (d.containsKey(SHOW_HORIZONTAL_SCROLL_INDICATOR)) {
+			showHorizontalScrollBar = TiConvert.toBoolean(d, SHOW_HORIZONTAL_SCROLL_INDICATOR);
+		}
+		if (d.containsKey(SHOW_VERTICAL_SCROLL_INDICATOR)) {
+			showVerticalScrollBar = TiConvert.toBoolean(d, SHOW_VERTICAL_SCROLL_INDICATOR);
+		}
+
+		if (showHorizontalScrollBar && showVerticalScrollBar) {
+			Log.w(LCAT, "Both scroll bars cannot be shown. Defaulting to vertical shown");
+			showHorizontalScrollBar = false;
+		}
+
 		int type = TYPE_VERTICAL;
 
 		if (d.containsKey("width") && d.containsKey("contentWidth")) {
 			Object width = d.get("width");
 			Object contentWidth = d.get("contentWidth");
-			if (width.equals(contentWidth)) {
+			if (width.equals(contentWidth) || showVerticalScrollBar) {
 				type = TYPE_VERTICAL;
 			}
 		}
@@ -252,7 +269,7 @@ public class TiUIScrollView extends TiUIView {
 		if (d.containsKey("height") && d.containsKey("contentHeight")) {
 			Object height = d.get("height");
 			Object contentHeight = d.get("contentHeight");
-			if (height.equals(contentHeight)) {
+			if (height.equals(contentHeight) || showHorizontalScrollBar) {
 				type = TYPE_HORIZONTAL;
 			}
 		}
@@ -271,17 +288,8 @@ public class TiUIScrollView extends TiUIView {
 		}
 		setNativeView(view);
 
-		if (type == TYPE_HORIZONTAL && d.containsKey(SHOW_HORIZONTAL_SCROLL_INDICATOR)) {
-			nativeView.setHorizontalScrollBarEnabled(TiConvert.toBoolean(d, SHOW_HORIZONTAL_SCROLL_INDICATOR));
-		} else {
-			nativeView.setHorizontalScrollBarEnabled(false);
-		}
-
-		if (type == TYPE_VERTICAL && d.containsKey(SHOW_VERTICAL_SCROLL_INDICATOR)) {
-			nativeView.setVerticalScrollBarEnabled(TiConvert.toBoolean(d, SHOW_VERTICAL_SCROLL_INDICATOR));
-		} else {
-			nativeView.setVerticalScrollBarEnabled(false);
-		}
+		nativeView.setHorizontalScrollBarEnabled(showHorizontalScrollBar);
+		nativeView.setVerticalScrollBarEnabled(showVerticalScrollBar);
 
 		super.processProperties(d);
 	}

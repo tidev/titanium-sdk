@@ -7,6 +7,16 @@ var activeMovie = Titanium.Media.createVideoPlayer({
 	scalingMode:Titanium.Media.VIDEO_SCALING_MODE_FILL
 });
 
+if (Titanium.Platform.osname == "ipad")
+{
+	activeMovie.movieControlStyle = Titanium.Media.VIDEO_CONTROL_EMBEDDED;
+//	activeMovie.movieControlStyle = Titanium.Media.VIDEO_CONTROL_FULLSCREEN;
+//	activeMovie.movieControlStyle = Titanium.Media.VIDEO_CONTROL_NONE;
+	activeMovie.width = 400;
+	activeMovie.height = 300;
+	win.add(activeMovie);
+}
+
 // label 
 var movieLabel = Titanium.UI.createLabel({
 	text:'Do not try this at home',

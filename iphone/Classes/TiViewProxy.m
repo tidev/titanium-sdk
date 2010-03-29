@@ -384,7 +384,6 @@
 	CGRect bounds = [view bounds];
 	if (!CGPointEqualToPoint(bounds.origin, CGPointZero))
 	{
-		NSLog(@"Unusual bounds origin again! (%f,%f) %@",bounds.origin.x, bounds.origin.y,view);
 		[view setBounds:CGRectMake(0, 0, bounds.size.width, bounds.size.height)];
 	}
 	
@@ -393,13 +392,9 @@
 
 #pragma mark Layout 
 
--(id)animatedCenter;
+-(void)getAnimatedCenterPoint:(NSMutableDictionary *)resultDict
 {
-	if (![self viewAttached])
-	{
-		return nil;
-	}
-	UIView * ourView = [self view];
+	UIView * ourView = view;
 	CALayer * ourLayer = [ourView layer];
 	CALayer * animatedLayer = [ourLayer presentationLayer];
 	
@@ -413,7 +408,20 @@
 		result = [ourLayer position];
 	}
 
-	return [TiUtils pointToDictionary:result];
+	[resultDict setObject:NUMFLOAT(result.x) forKey:@"x"];
+	[resultDict setObject:NUMFLOAT(result.y) forKey:@"y"];
+}
+
+-(id)animatedCenter;
+{
+	if (![self viewAttached])
+	{
+		return nil;
+	}
+	NSMutableDictionary * result = [NSMutableDictionary dictionary];
+	[self performSelectorOnMainThread:@selector(getAnimatedCenterPoint:) withObject:result waitUntilDone:YES];
+
+	return result;
 }
 
 
@@ -747,10 +755,6 @@
 -(void)clearNeedsReposition
 {
 	BOOL wasSet = OSAtomicTestAndClearBarrier(NEEDS_REPOSITION, &dirtyflags);
-	if (wasSet)
-	{
-		NSLog(@"Was set was set to %d",wasSet);
-	}
 }
 
 -(void)setNeedsRepositionIfAutoSized

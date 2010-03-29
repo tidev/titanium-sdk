@@ -61,6 +61,7 @@ public class TiContext implements TiEvaluator, ITiMenuDispatcherListener, ErrorR
 
 	private WeakReference<Activity> weakActivity;
 	private SoftReference<TiEvaluator>	softTiEvaluator;
+	private TiEvaluator strongTiEvaluator; // used to avoid temporary dereferencing before we execute app.js
 	private HashMap<String, HashMap<Integer, TiListener>> eventListeners;
 	private AtomicInteger listenerIdGenerator;
 
@@ -151,6 +152,11 @@ public class TiContext implements TiEvaluator, ITiMenuDispatcherListener, ErrorR
 	}
 
 	private TiEvaluator getJSContext() {
+		if (strongTiEvaluator != null) {
+			TiEvaluator tmp = strongTiEvaluator;
+			strongTiEvaluator = null;
+			return tmp;
+		}
 		return softTiEvaluator.get();
 	}
 
@@ -158,7 +164,8 @@ public class TiContext implements TiEvaluator, ITiMenuDispatcherListener, ErrorR
 		if (DBG) {
 			Log.i(LCAT, "Setting JS Context");
 		}
-		this.softTiEvaluator = new SoftReference<TiEvaluator>(evaluator);
+		this.strongTiEvaluator = evaluator;
+		softTiEvaluator = new SoftReference<TiEvaluator>(strongTiEvaluator);
 	}
 
 	public Activity getActivity() {

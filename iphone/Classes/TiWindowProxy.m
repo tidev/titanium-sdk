@@ -11,16 +11,8 @@
 #import "TiAnimation.h"
 #import "TiAction.h"
 
-@interface WindowViewController : UIViewController
-{
-	TiWindowProxy *proxy;
-}
--(id)initWithWindow:(TiWindowProxy*)window;
-@property(nonatomic,readonly)	TiWindowProxy *proxy;
 
-@end
-
-@implementation WindowViewController
+@implementation TiWindowViewController
 
 -(id)initWithWindow:(TiWindowProxy*)window_
 {
@@ -41,29 +33,14 @@
 	return proxy;
 }
 
-- (void)viewWillAppear:(BOOL)animated;    // Called when the view is about to made visible. Default does nothing
-{
-	NSLog(@"%@, %@ -> %X",CODELOCATION,self,proxy);
-}
-- (void)viewDidAppear:(BOOL)animated;     // Called when the view has been fully transitioned onto the screen. Default does nothing
-{
-	NSLog(@"%@, %@ -> %X",CODELOCATION,self,proxy);
-}
-- (void)viewWillDisappear:(BOOL)animated; // Called when the view is dismissed, covered or otherwise hidden. Default does nothing
-{
-	NSLog(@"%@, %@ -> %X",CODELOCATION,self,proxy);
-}
-- (void)viewDidDisappear:(BOOL)animated;  // Called after the view was dismissed, covered or otherwise hidden. Default does nothing
-{
-	NSLog(@"%@, %@ -> %X",CODELOCATION,self,proxy);
-}
-
 - (BOOL) shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation
 {
+#ifdef IPAD
+	return YES;
+#endif
 	//Since the AppController will be the deciding factor,
 	return [[[TitaniumApp app] controller] shouldAutorotateToInterfaceOrientation:toInterfaceOrientation];
 }
-
 
 @end
 
@@ -75,7 +52,7 @@
 {
 	if (controller == nil)
 	{
-		controller = [[WindowViewController alloc] initWithWindow:self];
+		controller = [[TiWindowViewController alloc] initWithWindow:self];
 	}
 	return controller;
 }
@@ -102,7 +79,12 @@
 
 -(TiUIView*)newView
 {
-	TiUIWindow * win = [[TiUIWindow alloc] initWithFrame:[self appFrame]];
+	CGRect frame = [self appFrame];
+	if (navController!=nil)
+	{
+		frame = navController.view.frame;
+	}
+	TiUIWindow * win = [[TiUIWindow alloc] initWithFrame:frame];
 	return win;
 }
 
@@ -329,7 +311,7 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 		{
 			modal = YES;
 			attached = YES;
-			WindowViewController *wc = [[[WindowViewController alloc] initWithWindow:self] autorelease];
+			TiWindowViewController *wc = [[[TiWindowViewController alloc] initWithWindow:self] autorelease];
 			UINavigationController *nc = [[[UINavigationController alloc] initWithRootViewController:wc] autorelease];
 			[self setController:wc];
 			[self setNavController:nc];

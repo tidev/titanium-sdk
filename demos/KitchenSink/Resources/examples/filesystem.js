@@ -34,6 +34,11 @@ var dir = Titanium.Filesystem.getFile(Titanium.Filesystem.resourcesDirectory);
 Ti.API.info('directoryListing = ' + dir.getDirectoryListing());
 Ti.API.info('getParent = ' + dir.getParent());
 Ti.API.info('spaceAvailable = ' + dir.spaceAvailable());
+
+if (Ti.Platform.name == 'android') {
+	var dir = Titanium.Filesystem.getFile(Titanium.Filesystem.externalStorageDirectory);
+	Ti.API.info('external directoryListing = ' + dir.getParent().getDirectoryListing());
+}
 	
 var l = Titanium.UI.createLabel({text:'Check Log for details', width:300, height:'auto', textAlign:'center'});
 win.add(l);

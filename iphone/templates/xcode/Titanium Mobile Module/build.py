@@ -9,8 +9,8 @@ import zipfile
 cwd = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
 required_module_keys = ['name','version','moduleid','description','copyright','license','copyright','platform','minsdk']
 module_defaults = {
-	'name':'mymodule',
-	'moduleid':'com.company.yourmodule',
+	'name':'___PROJECTNAMEASIDENTIFIER___',
+	'moduleid':'com.company.___PROJECTNAMEASIDENTIFIER___',
 	'description':'My module',
 	'author': 'Your Name',
 	'license' : 'Specify your license',

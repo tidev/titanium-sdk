@@ -10,6 +10,14 @@
 #import "TiUIWindow.h"
 #import "TiUIView.h"
 
+@interface TiWindowViewController : UIViewController
+{
+	TiWindowProxy *proxy;
+}
+-(id)initWithWindow:(TiWindowProxy*)window;
+@property(nonatomic,readonly)	TiWindowProxy *proxy;
+@end
+
 // specialization for TiViews that act like top level 
 // windows when opened, closed, etc.
 //

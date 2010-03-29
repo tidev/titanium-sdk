@@ -199,12 +199,10 @@ public abstract class TiViewProxy extends TiProxy implements Handler.Callback
 	public void realizeViews(Activity activity, TiUIView view)
 	{
 
-		modelListener = view;
-		modelListener.processProperties(dynprops != null ? new TiDict(dynprops) : new TiDict());
+		setModelListener(view);
 
 		// Use a copy so bundle can be modified as it passes up the inheritance
 		// tree. Allows defaults to be added and keys removed.
-
 
 		if (children != null) {
 			for (TiViewProxy p : children) {
@@ -463,11 +461,11 @@ public abstract class TiViewProxy extends TiProxy implements Handler.Callback
 			return e;
 		}
 	}
-	
+
 	@Override
 	public boolean fireEvent(String eventName, TiDict data) {
 		boolean handled = super.fireEvent(eventName, data);
-		
+
 		if (parent != null && parent.get() != null) {
 			boolean parentHandled = parent.get().fireEvent(eventName, data);
 			handled = handled || parentHandled;
