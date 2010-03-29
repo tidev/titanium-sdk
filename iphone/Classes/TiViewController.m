@@ -30,24 +30,35 @@
 	return [proxy view];
 }
 
+- (void)viewDidUnload
+{
+	[proxy detachView];
+}
+
 - (void)viewWillAppear:(BOOL)animated;    // Called when the view is about to made visible. Default does nothing
 {
-	NSLog(@"%@, %@ -> %X",CODELOCATION,self,proxy);
+	NSLog(@"[DEBUG] %@, %@ -> %X",CODELOCATION,self,proxy);
 }
 - (void)viewDidAppear:(BOOL)animated;     // Called when the view has been fully transitioned onto the screen. Default does nothing
 {
-	NSLog(@"%@, %@ -> %X",CODELOCATION,self,proxy);
+	NSLog(@"[DEBUG] %@, %@ -> %X",CODELOCATION,self,proxy);
 }
 - (void)viewWillDisappear:(BOOL)animated; // Called when the view is dismissed, covered or otherwise hidden. Default does nothing
 {
-	NSLog(@"%@, %@ -> %X",CODELOCATION,self,proxy);
+	NSLog(@"[DEBUG] %@, %@ -> %X",CODELOCATION,self,proxy);
 }
 - (void)viewDidDisappear:(BOOL)animated;  // Called after the view was dismissed, covered or otherwise hidden. Default does nothing
 {
-	NSLog(@"%@, %@ -> %X",CODELOCATION,self,proxy);
+	NSLog(@"[DEBUG] %@, %@ -> %X",CODELOCATION,self,proxy);
 }
 
-
+#ifdef IPAD
+- (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation
+{
+	// must return YES on ipad for all orientations
+	return YES;
+}
+#endif
 
 
 @end

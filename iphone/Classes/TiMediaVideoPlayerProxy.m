@@ -45,7 +45,14 @@
 	}
 	else
 	{
-		url = [[TiUtils toURL:[properties objectForKey:@"contentURL"] proxy:self] retain];
+		if ([properties objectForKey:@"contentURL"]!=nil)
+		{
+			url = [[TiUtils toURL:[properties objectForKey:@"contentURL"] proxy:self] retain];
+		}
+		else
+		{
+			url = [[TiUtils toURL:[properties objectForKey:@"url"] proxy:self] retain];
+		}
 	}
 	
 	id color = [TiUtils stringValue:@"backgroundColor" properties:properties];
@@ -56,6 +63,7 @@
 	
 	scalingMode = [TiUtils intValue:@"scalingMode" properties:properties def:MPMovieScalingModeNone];
 	movieControlMode = [TiUtils intValue:@"movieControlMode" properties:properties def:MPMovieControlModeDefault];
+	movieControlStyle = [TiUtils intValue:@"movieControlStyle" properties:properties def:MPMovieControlStyleDefault];
 	initialPlaybackTime = [TiUtils doubleValue:@"initialPlaybackTime" properties:properties def:0];
 	
 	//TODO: other properties
@@ -115,6 +123,7 @@
 			   name:MPMoviePlayerPlaybackStateDidChangeNotification 
 			 object:nil];
 #endif	
+	
 }
 
 -(void)_destroy
@@ -174,6 +183,7 @@
 		{
 			[movie setInitialPlaybackTime:initialPlaybackTime];
 		}
+		
 	}
 	return movie;
 }
@@ -233,20 +243,20 @@
 
 -(void)updateControlMode
 {
-	[movie setMovieControlMode:movieControlMode];
+	[[self player] setMovieControlMode:movieControlMode];
 }
 
 -(void)updateControlStyle
 {
-	[movie setControlStyle:movieControlStyle];
+	[[self player] setControlStyle:movieControlStyle];
 }
 
 -(void)setMovieControlMode:(NSNumber *)value
 {
-	movieControlMode = [TiUtils intValue:value];
+	movieControlMode = [TiUtils intValue:value def:MPMovieControlModeDefault];
 	if (movie!=nil)
 	{
-		[movie performSelectorOnMainThread:@selector(updateControlMode) withObject:nil waitUntilDone:NO];
+		[self performSelectorOnMainThread:@selector(updateControlMode) withObject:nil waitUntilDone:NO];
 	}
 }
 
@@ -257,10 +267,10 @@
 
 -(void)setMovieControlStyle:(NSNumber *)value
 {
-	movieControlStyle = [TiUtils intValue:value];
+	movieControlStyle = [TiUtils intValue:value def:MPMovieControlStyleDefault];
 	if (movie!=nil)
 	{
-		[movie performSelectorOnMainThread:@selector(updateControlStyle) withObject:nil waitUntilDone:NO];
+		[self performSelectorOnMainThread:@selector(updateControlStyle) withObject:nil waitUntilDone:NO];
 	}
 }
 
@@ -322,12 +332,12 @@
 	return url;
 }
 
--(NSNumber*)shouldAutoplay
+-(NSNumber*)autoplay
 {
 	return NUMBOOL([[self player] shouldAutoplay]);
 }
 
--(void)setShouldAutoplay:(id)value
+-(void)setAutoplay:(id)value
 {
 	[[self player] setShouldAutoplay:[TiUtils boolValue:value]];
 }
@@ -474,8 +484,8 @@
 {
 	ENSURE_UI_THREAD(play,args);
 	
-	// indicate we're going to start recording
-	[[TiMediaAudioSession sharedSession] playback];
+	// indicate we're going to start playing
+	//[[TiMediaAudioSession sharedSession] playback];
 	
 	if (playing)
 	{
@@ -530,6 +540,7 @@
 	{
 		[views removeObject:viewProxy];
 		[[viewProxy view] removeFromSuperview];
+		[viewProxy detachView];
 		
 		if ([views count]==0)
 		{
@@ -712,10 +723,10 @@
 
 -(void)handleLoadStateChangeNotification:(NSNotification*)note
 {
-	if ([self _hasListeners:@"naturalSizeAvailable"])
+	if ([self _hasListeners:@"loadstate"])
 	{
-		NSDictionary *event = [NSDictionary dictionaryWithObject:[self naturalSize] forKey:@"naturalSize"];
-		[self fireEvent:@"naturalSizeAvailable" withObject:event];
+		NSDictionary *event = [NSDictionary dictionaryWithObject:[self loadState] forKey:@"loadState"];
+		[self fireEvent:@"loadstate" withObject:event];
 	}
 }
 

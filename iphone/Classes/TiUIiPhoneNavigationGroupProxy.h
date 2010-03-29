@@ -4,9 +4,10 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-#import "TiUIWindow.h"
+#import "TiViewProxy.h"
 
-@implementation TiUIWindow
-
+@interface TiUIiPhoneNavigationGroupProxy : TiViewProxy {
+@private
+}
 
 @end

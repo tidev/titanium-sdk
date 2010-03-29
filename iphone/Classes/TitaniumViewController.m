@@ -40,6 +40,8 @@
 -(void)dealloc
 {
 	RELEASE_TO_NIL(windowViewControllers);
+	RELEASE_TO_NIL(backgroundColor);
+	RELEASE_TO_NIL(backgroundImage);
 	[super dealloc];
 }
 
@@ -115,7 +117,7 @@
 
 - (void) viewDidAppear:(BOOL)animated
 {
-    [self.view becomeFirstResponder];
+	[self.view becomeFirstResponder];
     [super viewDidAppear:animated];
 }
 
@@ -132,11 +134,14 @@
 
 -(void) manuallyRotateToOrientation:(UIInterfaceOrientation)orientation;
 {
+#ifdef IPAD
+	return;
+#endif
+	
 	if ([self isEmailViewControllerOnTop])
 	{
 		return;
 	}
-
 
 	UIDevice * ourDevice = [UIDevice currentDevice];
 	[ourDevice beginGeneratingDeviceOrientationNotifications];
@@ -187,7 +192,7 @@
 	}
 
 	BOOL noOrientations = YES;
-	NSLog(@"Clearing Orientations");
+	NSLog(@"[DEBUG] Clearing Orientations");
 	for (id mode in newOrientationModes)
 	{
 		UIInterfaceOrientation orientation = [TiUtils orientationValue:mode def:-1];
@@ -198,7 +203,7 @@
 			case UIDeviceOrientationLandscapeLeft:
 			case UIDeviceOrientationLandscapeRight:
 				allowedOrientations[orientation] = YES;
-				NSLog(@"Allowing orientation %d",orientation);
+				NSLog(@"[DEBUG] Allowing orientation %d",orientation);
 				noOrientations = NO;
 				break;
 			case -1:
@@ -225,9 +230,12 @@
 	[self enforceOrientationModesFromWindow:currentWindow];
 }
 
-
 -(void)enforceOrientationModesFromWindow:(TiWindowProxy *) newCurrentWindow
 {
+#ifdef IPAD
+	return;
+#endif
+	
 	currentWindow = newCurrentWindow;
 
 	Class arrayClass = [NSArray class];
@@ -265,7 +273,7 @@
 		
 		if (noPrefrenceTab)
 		{
-			NSLog(@"No preference found!");
+			NSLog(@"[DEBUG] No orientation preference found!");
 		}
 	}
 
@@ -300,6 +308,10 @@
 
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation 
 {
+#ifdef IPAD
+	return YES;
+#endif
+	
 	if ([self isEmailViewControllerOnTop])
 	{
 		return NO;
@@ -375,8 +387,6 @@
 		}
 	}
 
-
-
 	BOOL focusChanged = [windowViewControllers lastObject] == closedViewController;
 	[windowViewControllers removeObject:closedViewController];
 	if (!focusChanged)
@@ -392,5 +402,6 @@
 	}
 	
 }
+
 
 @end

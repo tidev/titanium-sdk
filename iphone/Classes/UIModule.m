@@ -15,10 +15,17 @@
 #import "ImageLoader.h"
 #import "Webcolor.h"
 
+#ifdef IPAD
+#import "TiUIiPadProxy.h"
+#endif
+
 @implementation UIModule
 
 -(void)dealloc
 {
+#ifdef IPAD
+	RELEASE_TO_NIL(ipad);
+#endif
 	RELEASE_TO_NIL(iphone);
 	[super dealloc];
 }
@@ -212,6 +219,17 @@ MAKE_SYSTEM_PROP(FACE_DOWN,UIDeviceOrientationFaceDown);
 	}
 	return iphone;
 }
+
+#ifdef IPAD
+-(id)iPad
+{
+	if (ipad==nil)
+	{
+		ipad = [[TiUIiPadProxy alloc] _initWithPageContext:[self pageContext]];
+	}
+	return ipad;
+}
+#endif
 
 #pragma mark Internal Memory Management
 

@@ -166,6 +166,20 @@ extern NSString * const TI_APPLICATION_RESOURCE_DIR;
 	return 0;
 }
 
++(CGRect)rectValue:(id)value
+{
+	if ([value isKindOfClass:[NSDictionary class]])
+	{
+		NSDictionary *dict = (NSDictionary*)value;
+		CGFloat x = [TiUtils floatValue:@"x" properties:dict def:0];
+		CGFloat y = [TiUtils floatValue:@"y" properties:dict def:0];
+		CGFloat w = [TiUtils floatValue:@"width" properties:dict def:0];
+		CGFloat h = [TiUtils floatValue:@"height" properties:dict def:0];
+		return CGRectMake(x, y, w, h);
+	}
+	return CGRectMake(0, 0, 0, 0);
+}
+
 +(CGPoint)pointValue:(id)value
 {
 	if ([value isKindOfClass:[TiPoint class]])

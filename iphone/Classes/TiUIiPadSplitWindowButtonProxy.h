@@ -4,9 +4,17 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-#import "TiUIWindow.h"
+#ifdef IPAD
 
-@implementation TiUIWindow
+#import "TiUIWidgetProxy.h"
 
+@interface TiUIiPadSplitWindowButtonProxy : TiUIWidgetProxy {
+@private
+	UIBarButtonItem *button;
+}
+
+-(id)initWithButton:(UIBarButtonItem*)button pageContext:(id<TiEvaluator>)pageContext;
 
 @end
+
+#endif
