@@ -24,21 +24,21 @@ public class ScrollViewProxy extends TiViewProxy
 
 	private static final int MSG_SCROLL_TO = MSG_FIRST_ID + 100;
 	protected static final int MSG_LAST_ID = MSG_FIRST_ID + 999;
-	
+
 	public ScrollViewProxy(TiContext context, Object[] args)
 	{
 		super(context, args);
 	}
-	
+
 	@Override
 	public TiUIView createView(Activity activity) {
 		return new TiUIScrollView(this);
 	}
-	
+
 	public TiUIScrollView getScrollView(Activity activity) {
 		return (TiUIScrollView)getView(activity);
 	}
-	
+
 	public void scrollTo(int x, int y) {
 		if (!getTiContext().isUIThread()) {
 			AsyncResult result = new AsyncResult(getTiContext().getActivity());
@@ -46,21 +46,23 @@ public class ScrollViewProxy extends TiViewProxy
 			msg.arg1 = x;
 			msg.arg2 = y;
 			msg.sendToTarget();
-			result.getResult();
+			result.getResult(); // wait for scroll
 		} else {
 			handleScrollTo(x,y);
 		}
 	}
-	
+
 	@Override
 	public boolean handleMessage(Message msg) {
 		if (msg.what == MSG_SCROLL_TO) {
 			handleScrollTo(msg.arg1, msg.arg2);
+			AsyncResult result = (AsyncResult) msg.obj;
+			result.setResult(null); // signal scrolled
 			return true;
 		}
 		return super.handleMessage(msg);
 	}
-	
+
 	public void handleScrollTo(int x, int y) {
 		getScrollView(getTiContext().getActivity()).scrollTo(x, y);
 	}
