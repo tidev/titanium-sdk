@@ -128,8 +128,14 @@ sv.addEventListener('click', function()
 
 	// activate annotation
 	mapview.selectAnnotation(mapview.annotations[0].title,true);
-
 });
+mapview.addEventListener('complete', function()
+{
+	mapview.selectAnnotation(mapview.annotations[0].title,true);
+	mapview.selectAnnotation(mapview.annotations[1].title,true);
+	
+})
+
 
 var flexSpace = Titanium.UI.createButton({
 	systemButton:Titanium.UI.iPhone.SystemButton.FLEXIBLE_SPACE
