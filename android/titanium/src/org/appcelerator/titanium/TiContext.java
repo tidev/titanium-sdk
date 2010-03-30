@@ -67,7 +67,7 @@ public class TiContext implements TiEvaluator, ITiMenuDispatcherListener, ErrorR
 
 	private ArrayList<WeakReference<OnEventListenerChange>> eventChangeListeners;
 	private ArrayList<WeakReference<OnLifecycleEvent>> lifecycleListeners;
-	private WeakReference<OnMenuEvent> weakMenuEvent;
+	private OnMenuEvent menuEventListener;
 	private WeakReference<OnConfigurationChanged> weakConfigurationChangedListeners;
 
 	public static interface OnLifecycleEvent
@@ -535,13 +535,13 @@ public class TiContext implements TiEvaluator, ITiMenuDispatcherListener, ErrorR
 
 	public void setOnMenuEventListener(OnMenuEvent listener) {
 		if (listener != null) {
-			weakMenuEvent = new WeakReference<OnMenuEvent>(listener);
+			menuEventListener = listener;
 			TiActivitySupport tis = (TiActivitySupport) getActivity();
 			if (tis != null) {
 				tis.setMenuDispatchListener(this);
 			}
 		} else {
-			weakMenuEvent = null;
+			menuEventListener = null;
 			TiActivitySupport tis = (TiActivitySupport) getActivity();
 			if (tis != null) {
 				tis.setMenuDispatchListener(null);
@@ -551,11 +551,8 @@ public class TiContext implements TiEvaluator, ITiMenuDispatcherListener, ErrorR
 
 	public boolean dispatchHasMenu()
 	{
-		if (weakMenuEvent != null) {
-			OnMenuEvent listener = weakMenuEvent.get();
-			if (listener != null) {
-				return listener.hasMenu();
-			}
+		if (menuEventListener != null) {
+			return menuEventListener.hasMenu();
 		}
 
 		return false;
@@ -563,11 +560,8 @@ public class TiContext implements TiEvaluator, ITiMenuDispatcherListener, ErrorR
 
 	public boolean dispatchPrepareMenu(Menu menu)
 	{
-		if (weakMenuEvent != null) {
-			OnMenuEvent listener = weakMenuEvent.get();
-			if (listener != null) {
-				return listener.prepareMenu(menu);
-			}
+		if (menuEventListener != null) {
+			return menuEventListener.prepareMenu(menu);
 		}
 
 		return false;
@@ -575,11 +569,8 @@ public class TiContext implements TiEvaluator, ITiMenuDispatcherListener, ErrorR
 
 	public boolean dispatchMenuItemSelected(MenuItem item)
 	{
-		if (weakMenuEvent != null) {
-			OnMenuEvent listener = weakMenuEvent.get();
-			if (listener != null) {
-				return listener.menuItemSelected(item);
-			}
+		if (menuEventListener != null) {
+			return menuEventListener.menuItemSelected(item);
 		}
 
 		return false;

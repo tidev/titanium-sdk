@@ -31,6 +31,7 @@
 	UITableView *searchTableView;
 	NSString * filterAttribute;
 	NSMutableArray * searchResultIndexes;
+	BOOL filterCaseInsensitive;
 	
 	id	lastFocusedView; //DOES NOT RETAIN.	
 }

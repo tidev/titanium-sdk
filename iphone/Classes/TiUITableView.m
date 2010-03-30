@@ -23,6 +23,7 @@
 	if (self = [super init])
 	{
 		sections = [[NSMutableArray array] retain];
+		filterCaseInsensitive = YES; // defaults to true on search
 	}
 	return self;
 }
@@ -525,6 +526,8 @@
 		ourSearchAttribute = @"title";
 	}
 	
+	NSStringCompareOptions searchOpts = (filterCaseInsensitive ? NSCaseInsensitiveSearch : 0);
+	
 	for (TiUITableViewSectionProxy * thisSection in sections) 
 	{
 		NSMutableIndexSet * thisIndexSet = [searchResultIndexEnumerator nextObject];
@@ -542,7 +545,7 @@
 		for (TiUITableViewRowProxy *row in [thisSection rows]) 
 		{
 			id value = [row valueForKey:ourSearchAttribute];
-			if (value!=nil && [[TiUtils stringValue:value] rangeOfString:searchString].location!=NSNotFound)
+			if (value!=nil && [[TiUtils stringValue:value] rangeOfString:searchString options:searchOpts].location!=NSNotFound)
 			{
 				[thisIndexSet addIndex:cellIndex];
 			}
@@ -842,6 +845,11 @@
 		[sectionIndex addObject:title];
 		[sectionIndexMap setObject:[NSNumber numberWithInt:[TiUtils intValue:theindex]] forKey:title];
 	}
+}
+
+-(void)setFilterCaseInsensitive_:(id)caseBool
+{
+	filterCaseInsensitive = [TiUtils boolValue:caseBool];
 }
 
 -(void)setEditable_:(id)args

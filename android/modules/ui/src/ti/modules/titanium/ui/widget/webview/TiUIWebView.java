@@ -42,7 +42,7 @@ public class TiUIWebView extends TiUIView {
 		settings.setSupportZoom(true);
 		settings.setLoadsImagesAutomatically(true);
 		settings.setLightTouchEnabled(true);
-
+		
 		webView.setWebChromeClient(new TiWebChromeClient(this));
 		client = new TiWebViewClient((WebViewProxy)proxy, webView);
 		webView.setWebViewClient(client);
@@ -51,6 +51,7 @@ public class TiUIWebView extends TiUIView {
 		TiCompositeLayout.LayoutParams params = getLayoutParams();
 		params.autoFillsHeight = true;
 		params.autoFillsWidth = true;
+		
 		setNativeView(webView);
 	}
 
@@ -72,9 +73,6 @@ public class TiUIWebView extends TiUIView {
 			if (value instanceof TiBlob) {
 				setData((TiBlob)value);
 			}
-		}
-		if (d.containsKey("backgroundColor")) {
-			nativeView.setBackgroundColor(Color.TRANSPARENT);
 		}
 	}
 
