@@ -13,6 +13,8 @@
 #import "LayoutConstraint.h"
 #import "KrollCallback.h"
 
+#import <QuartzCore/QuartzCore.h>
+
 #ifdef DEBUG 
 	#define ANIMATION_DEBUG 0
 #endif
@@ -348,16 +350,26 @@ self.p = v;\
 		ApplyConstraintToViewWithinViewWithBounds(contraints, view_, transitionView, transitionView.bounds, NO);
 		[ourProxy layoutChildren];
 	}
+	else
+	{
+		CALayer * modelLayer = [view_ layer];
+		CALayer * transitionLayer = [modelLayer presentationLayer];
+		NSArray * animationKeys = [transitionLayer animationKeys];
+		for (NSString * thisKey in animationKeys)
+		{
+			[modelLayer setValue:[transitionLayer valueForKey:thisKey] forKey:thisKey];
+		}
+	}
+
 
 	// hold on to our animation during the animation and until it stops
 	[self retain];
 	[theview retain];
 	
-	[UIView beginAnimations:[NSString stringWithFormat:@"%@",[self description]] context:(void*)theview];
+	[UIView beginAnimations:[NSString stringWithFormat:@"%X",(void *)theview] context:(void*)theview];
 	[UIView setAnimationDelegate:self];
 	[UIView setAnimationWillStartSelector:@selector(animationStarted:context:)];
 	[UIView setAnimationDidStopSelector:@selector(animationCompleted:finished:context:)];
-	[UIView setAnimationBeginsFromCurrentState:YES];
 	
 	if (duration!=nil)
 	{

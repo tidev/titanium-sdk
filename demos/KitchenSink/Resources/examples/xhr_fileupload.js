@@ -27,10 +27,12 @@ Titanium.Media.openPhotoGallery({
 
 		xhr.onerror = function(e)
 		{
+			Ti.UI.createAlertDialog({title:'Error', message:e.error}).show();
 			Ti.API.info('IN ERROR ' + e.error);
 		};
-		xhr.onload = function()
+		xhr.onload = function(e)
 		{
+			Ti.UI.createAlertDialog({title:'Success', message:'status code ' + this.status}).show();
 			Ti.API.info('IN ONLOAD ' + this.status + ' readyState ' + this.readyState);
 		};
 		xhr.onsendstream = function(e)
