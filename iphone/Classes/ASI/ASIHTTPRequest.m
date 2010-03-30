@@ -1516,9 +1516,60 @@ static BOOL isiPhoneOS2;
 					{
 						// JGH: take the new cookie from response during a Location
 						NSString *freshCookie = [responseHeaders valueForKey:@"Set-Cookie"];
-						if (freshCookie!=nil)
+						// MBender: Patch for needed old cookie-values with new ones from redirect cookie
+						// taken form newer ASIHTTPRequest version with a slight modification
+						
+						// Apply request cookies
+						NSArray *cookies;
+						cookies = [self requestCookies];
+						
+						if ([cookies count] > 0) 
 						{
-							[self addRequestHeader:@"Cookie" value:freshCookie];
+							NSHTTPCookie *cookie;
+							
+							NSString *cookieHeader = nil;
+							
+							for (cookie in cookies) 
+							{
+								// Check if in the freshCookie a key is equal to one in the old cookie....
+								// in that case  do not take the old key/value to the new request cookie
+								// cause we take the new keys/values from freshCookie
+								// the expired keys/values from the previous cookie will not be taken....
+								// this is needed for some server authentication processes
+								// example: first get == anonymous session  then post login == private session
+								// but cookie values from the anonymous cookie are needed in the new one
+								// example: serverid=01234  --> webserver cluster / loadbalancer  with different sessions....
+								
+								// Maybe here could a Titanium-Api-Call made it configurable what cookie values are
+								// taken from first cookie (in case of redirect).... and what not....
+								
+								NSRange cookieRange;
+								cookieRange =[[freshCookie lowercaseString] rangeOfString:[[cookie name] lowercaseString]];
+								if(cookieRange.location != NSNotFound) {
+									//Does contain the Key
+								}
+								else {
+									if (!cookieHeader) {
+										cookieHeader = [NSString stringWithFormat: @"%@=%@",[cookie name],[cookie value]];
+									} else {
+										cookieHeader = [NSString stringWithFormat: @"%@; %@=%@",cookieHeader,[cookie name],[cookie value]];
+									}
+								}
+							}
+							
+							if (freshCookie!=nil) {
+							    cookieHeader = [NSString stringWithFormat: @"%@; %@",cookieHeader, freshCookie];
+							}
+							
+							if (cookieHeader) {
+								[self addRequestHeader:@"Cookie" value:cookieHeader];
+							}
+							
+							// Here should a User-Agent header be set... cause on redirect this is be lost in Line 1505
+							// the redirect is sending here somethin like this:
+							// User-Agent: appname / 1.0 CFNetwork / 459 Darwin / 10.2.0
+							// wich is not the same then in request before.... :-(
+							
 						}
 					}
 				}
