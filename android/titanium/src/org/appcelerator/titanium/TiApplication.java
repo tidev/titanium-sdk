@@ -218,7 +218,7 @@ public class TiApplication extends Application
 		boolean handled = false;
 		for (TiProxy appEventProxy : appEventProxies)
 		{
-			boolean proxyHandled = appEventProxy.getTiContext().dispatchEvent(eventName, data);
+			boolean proxyHandled = appEventProxy.getTiContext().dispatchEvent(eventName, data, appEventProxy);
 			handled = handled || proxyHandled;
 		}
 		return handled;
