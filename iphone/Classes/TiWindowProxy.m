@@ -35,9 +35,11 @@
 
 - (BOOL) shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation
 {
-#ifdef IPAD
-	return YES;
-#endif
+	if ([TiUtils isIPad])
+	{
+		return YES;
+	}
+	
 	//Since the AppController will be the deciding factor,
 	return [[[TitaniumApp app] controller] shouldAutorotateToInterfaceOrientation:toInterfaceOrientation];
 }

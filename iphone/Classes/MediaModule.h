@@ -82,6 +82,7 @@
 @property(nonatomic,readonly) NSNumber* AUDIO_FILEFORMAT_3GP2;
 @property(nonatomic,readonly) NSNumber* AUDIO_FILEFORMAT_AMR;
 
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
 
 // NOTE: these are introduced in 3.2
 @property(nonatomic,readonly) NSNumber* VIDEO_CONTROL_NONE;			// No controls
@@ -95,6 +96,8 @@
 @property(nonatomic,readonly) NSNumber* VIDEO_SOURCE_TYPE_UNKNOWN;
 @property(nonatomic,readonly) NSNumber* VIDEO_SOURCE_TYPE_FILE;
 @property(nonatomic,readonly) NSNumber* VIDEO_SOURCE_TYPE_STREAMING;
+
+#endif
 
 
 @end

@@ -61,15 +61,29 @@ NSStringEncoding ExtractEncodingFromData(NSData * inputData)
 	return NSUTF8StringEncoding;
 }
 
+extern NSString * const TI_APPLICATION_DEPLOYTYPE;
+
 @implementation TiNetworkHTTPClientProxy
 
 @synthesize onload, onerror, onreadystatechange, ondatastream, onsendstream;
+@synthesize validatesSecureCertificate;
 
 -(id)init
 {
 	if (self = [super init])
 	{
 		readyState = NetworkClientStateUnsent;
+		
+		// if in production, the *default* is YES. otherwise during
+		// simulator or on-device testing, it's NO
+		if ([TI_APPLICATION_DEPLOYTYPE isEqualToString:@"production"])
+		{
+			validatesSecureCertificate = YES;
+		}
+		else
+		{
+			validatesSecureCertificate = NO;
+		}
 	}
 	return self;
 }
@@ -344,6 +358,9 @@ NSStringEncoding ExtractEncodingFromData(NSData * inputData)
 	[[TitaniumApp app] startNetwork];
 	[self _fireReadyStateChange:NetworkClientStateLoading];
 	[request setAllowCompressedResponse:YES];
+	
+	// allow self-signed certs (NO) or required valid SSL (YES)
+	[request setValidatesSecureCertificate:validatesSecureCertificate];
 	
 	if (async)
 	{

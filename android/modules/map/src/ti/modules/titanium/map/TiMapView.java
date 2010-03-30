@@ -12,6 +12,7 @@ import java.util.List;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiDict;
 import org.appcelerator.titanium.TiProperties;
+import org.appcelerator.titanium.TiProxy;
 import org.appcelerator.titanium.TiContext.OnLifecycleEvent;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.Log;
@@ -72,6 +73,7 @@ public class TiMapView extends TiUIView
 	private static final int MSG_ADD_ANNOTATION = 307;
 	private static final int MSG_REMOVE_ANNOTATION = 308;
 	private static final int MSG_SELECT_ANNOTATION = 309;
+	private static final int MSG_REMOVE_ALL_ANNOTATIONS = 310;
 
 	//private MapView view;
 	private boolean scrollEnabled;
@@ -344,6 +346,9 @@ public class TiMapView extends TiUIView
 				String title = (String) msg.obj;
 				doSelectAnnotation(select, title, animate);
 				return true;
+			case MSG_REMOVE_ALL_ANNOTATIONS :
+				doSetAnnotations(new TiDict[0]);
+				return true;
 		}
 
 		return false;
@@ -419,6 +424,7 @@ public class TiMapView extends TiUIView
 			doUserLocation(d.getBoolean("userLocation"));
 		}
 		if (d.containsKey("annotations")) {
+			proxy.internalSetDynamicValue("annotations", d.get("annotations"), false);
 			Object[] annotations = (Object[]) d.get("annotations");
 			TiDict[] anns = new TiDict[annotations.length];
 			for(int i = 0; i < annotations.length; i++) {
@@ -429,6 +435,30 @@ public class TiMapView extends TiUIView
 		}
 
 		super.processProperties(d);
+	}
+
+	@Override
+	public void propertyChanged(String key, Object oldValue, Object newValue, TiProxy proxy)
+	{
+
+		if (key.equals("location")) {
+			if (newValue != null) {
+				if (newValue instanceof AnnotationProxy) {
+					AnnotationProxy ap = (AnnotationProxy) newValue;
+					doSetLocation(ap.getDynamicProperties());
+				} else if (newValue instanceof TiDict) {
+					doSetLocation((TiDict) newValue);
+				}
+			}
+		} else if (key.equals("mapType")) {
+			if (newValue == null) {
+				doSetMapType(MAP_VIEW_STANDARD);
+			} else {
+				doSetMapType(TiConvert.toInt(newValue));
+			}
+		} else {
+			super.propertyChanged(key, oldValue, newValue, proxy);
+		}
 	}
 
 	public void doSetLocation(TiDict d)
@@ -494,8 +524,9 @@ public class TiMapView extends TiUIView
 					overlay = new TitaniumOverlay(makeMarker(Color.BLUE), this);
 					overlay.setAnnotations(annotations);
 					overlays.add(overlay);
-					view.invalidate();
 				}
+
+				view.invalidate();
 			}
 		}
 	}
@@ -519,6 +550,10 @@ public class TiMapView extends TiUIView
 	public void removeAnnotation(String title) {
 		handler.obtainMessage(MSG_REMOVE_ANNOTATION, title).sendToTarget();
 	};
+
+	public void removeAllAnnotations() {
+		handler.obtainMessage(MSG_REMOVE_ALL_ANNOTATIONS).sendToTarget();
+	}
 
 	private int findAnnotation(String title)
 	{

@@ -30,6 +30,8 @@ var ta1 = Titanium.UI.createTextArea({
 });
 win.add(ta1);
 
+
+
 //
 // Focus text area
 //
