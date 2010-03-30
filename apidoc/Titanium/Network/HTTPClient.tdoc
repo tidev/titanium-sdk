@@ -78,5 +78,6 @@ onsendstream[function]: set this to a function before calling open to cause the 
 
 ondatastream[function]: set this to a function before calling open to cause the function to be called at regular intervals as the request data is being received. the `progress` property of the event will contain a value from 0.0-1.0 with the progress.
 
+validatesSecureCertificate[boolean]: set this to control how SSL certification validation is performed on connection.  defaults to false if in simulator or device testing and true if release for distribution mode.  
 
 

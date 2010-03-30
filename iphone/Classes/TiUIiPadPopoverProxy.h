@@ -6,8 +6,6 @@
  */
 #import "TiViewProxy.h"
 
-#ifdef IPAD
-
 @interface TiUIiPadPopoverProxy : TiViewProxy {
 
 @private
@@ -15,6 +13,3 @@
 }
 
 @end
-
-
-#endif

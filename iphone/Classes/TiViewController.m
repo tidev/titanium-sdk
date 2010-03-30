@@ -35,13 +35,14 @@
 	[proxy detachView];
 }
 
-#ifdef IPAD
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation
 {
-	// must return YES on ipad for all orientations
-	return YES;
+	if ([TiUtils isIPad])
+	{
+		// must return YES on ipad for all orientations
+		return YES;
+	}
+	return [super shouldAutorotateToInterfaceOrientation:interfaceOrientation];
 }
-#endif
-
 
 @end

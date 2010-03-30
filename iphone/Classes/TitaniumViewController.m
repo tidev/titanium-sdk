@@ -134,9 +134,10 @@
 
 -(void) manuallyRotateToOrientation:(UIInterfaceOrientation)orientation;
 {
-#ifdef IPAD
-	return;
-#endif
+	if ([TiUtils isIPad])
+	{
+		return;
+	}
 	
 	if ([self isEmailViewControllerOnTop])
 	{
@@ -230,9 +231,10 @@
 
 -(void)enforceOrientationModesFromWindow:(TiWindowProxy *) newCurrentWindow
 {
-#ifdef IPAD
-	return;
-#endif
+	if ([TiUtils isIPad])
+	{
+		return;
+	}
 	
 	currentWindow = newCurrentWindow;
 
@@ -301,9 +303,10 @@
 
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation 
 {
-#ifdef IPAD
-	return YES;
-#endif
+	if ([TiUtils isIPad])
+	{
+		return YES;
+	}
 	
 	if ([self isEmailViewControllerOnTop])
 	{

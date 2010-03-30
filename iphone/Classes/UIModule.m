@@ -11,21 +11,16 @@
 #import "Ti3DMatrix.h"
 #import "TiAnimation.h"
 #import "TiUIiPhoneProxy.h"
+#import "TiUIiPadProxy.h"
 #import "TitaniumApp.h"
 #import "ImageLoader.h"
 #import "Webcolor.h"
-
-#ifdef IPAD
-#import "TiUIiPadProxy.h"
-#endif
 
 @implementation UIModule
 
 -(void)dealloc
 {
-#ifdef IPAD
 	RELEASE_TO_NIL(ipad);
-#endif
 	RELEASE_TO_NIL(iphone);
 	[super dealloc];
 }
@@ -220,16 +215,19 @@ MAKE_SYSTEM_PROP(FACE_DOWN,UIDeviceOrientationFaceDown);
 	return iphone;
 }
 
-#ifdef IPAD
 -(id)iPad
 {
 	if (ipad==nil)
 	{
-		ipad = [[TiUIiPadProxy alloc] _initWithPageContext:[self pageContext]];
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
+		if ([TiUtils isIPad])
+		{
+			ipad = [[TiUIiPadProxy alloc] _initWithPageContext:[self pageContext]];
+		}
+#endif
 	}
 	return ipad;
 }
-#endif
 
 #pragma mark Internal Memory Management
 

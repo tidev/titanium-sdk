@@ -16,9 +16,7 @@
 
 @private
 	TiProxy *iphone;
-#ifdef IPAD
 	TiProxy *ipad;
-#endif
 }
 
 //TODO: review these, maybe they need to go on iPhone Animation Style - however, they are platform generic
@@ -124,9 +122,6 @@
 -(id)createAnimation:(id)args;
 
 @property(nonatomic,readonly)			TiProxy* iPhone;
-
-#ifdef IPAD
 @property(nonatomic,readonly)			TiProxy* iPad;
-#endif
 
 @end

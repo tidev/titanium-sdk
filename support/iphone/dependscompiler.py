@@ -76,7 +76,7 @@ class DependencyCompiler(object):
 		self.modules = []
 		self.required_modules = []
 		
-	def compile(self,iphone_dir,app_dir,thirdparty_modules,simulator):
+	def compile(self,iphone_dir,app_dir,thirdparty_modules,simulator,iphone_version):
 		
 		self.simulator = simulator
 		
@@ -87,10 +87,13 @@ class DependencyCompiler(object):
 		build_dir = os.path.join(iphone_build_dir,'Resources')
 		build_tmp_dir = os.path.join(iphone_build_dir,'tmp')
 		finallibfile = os.path.join(build_dir,'libTitanium.a')
+		if iphone_version.startswith('3.2'):
+			toplibfile = os.path.join(iphone_dir,'libTitanium_3.2.a')
+		else:
+			toplibfile = os.path.join(iphone_dir,'libTitanium.a')
 		
 		# if running in simulator, we just use all symbols
 		if simulator and (thirdparty_modules==None or len(thirdparty_modules)==0):
-			toplibfile = os.path.join(iphone_dir,'libTitanium.a')
 			shutil.copy(toplibfile,finallibfile)
 			return
 		
@@ -231,7 +234,11 @@ class DependencyCompiler(object):
 			except:
 				dependencies.append(fn)
 
-		compilezone = os.path.join(iphone_dir,'compilezone')
+		v = ''
+		if iphone_version.startswith('3.2'):
+			v='_3_2'
+
+		compilezone = os.path.join(iphone_dir,'compilezone%s'%v)
 		
 		skip = False
 		if not os.path.exists(build_tmp_dir):
@@ -273,7 +280,6 @@ class DependencyCompiler(object):
 				sys.stdout.flush()
 				os.makedirs(compilezone)
 			
-			toplibfile = os.path.join(iphone_dir,'libTitanium.a')
 			i386libfile = os.path.join(i386_dir,'libTitanium.a')
 			armlibfile = os.path.join(arm_dir,'libTitanium.a')
 			curdir = os.path.abspath(os.curdir)
