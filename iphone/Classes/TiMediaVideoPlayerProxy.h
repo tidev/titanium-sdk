@@ -16,14 +16,14 @@
 	TiColor *backgroundColor;
 	MPMovieScalingMode scalingMode;
 	MPMovieControlMode movieControlMode;
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
 	MPMovieControlStyle movieControlStyle;
+#endif
 	NSTimeInterval initialPlaybackTime;
 	BOOL playing;
 	NSMutableArray *views;
 	TiFile *tempFile;
-#ifdef IPAD
 	KrollCallback *thumbnailCallback;
-#endif
 }
 
 @property(nonatomic,readwrite,assign) id url;
@@ -39,8 +39,10 @@
 // this was deprecated in 3.2 but kept around for older devices
 @property(nonatomic,readwrite,assign) NSNumber* movieControlMode;
 
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
 // introduced in 3.2
 @property(nonatomic,readwrite,assign) NSNumber* movieControlStyle;
+#endif
 
 
 @end

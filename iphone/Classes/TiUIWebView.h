@@ -17,7 +17,6 @@
 	AppModule *appModule;
 	NSString *pageToken;
 	BOOL scalingOverride;
-	UIView *delegateView;
 }
 
 @property(nonatomic,readonly) id url;

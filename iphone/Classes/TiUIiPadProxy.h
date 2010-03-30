@@ -4,10 +4,9 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-
-#ifdef IPAD
-
 #import "TiProxy.h"
+
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
 
 @interface TiUIiPadProxy : TiProxy {
 
@@ -23,11 +22,10 @@
 @property(nonatomic,readonly) NSNumber* POPOVER_ARROW_DIRECTION_UNKNOWN;
 
 
-//TODO: need to figure out how to do the correct module resolution for submodules
-
 -(id)createPopover:(id)args;
 -(id)createSplitWindow:(id)args;
 
 @end
+
 
 #endif

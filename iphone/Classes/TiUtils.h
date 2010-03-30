@@ -159,4 +159,6 @@
 
 +(BOOL)isIPad;
 
++(BOOL)isDevice_Pre_3_2;
+
 @end

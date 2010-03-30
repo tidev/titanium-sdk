@@ -5,7 +5,7 @@
 # the application on the device via iTunes
 #
 
-import os, sys, uuid, subprocess, shutil, signal, time, re, run, glob, codecs
+import os, sys, uuid, subprocess, shutil, signal, time, re, run, glob, codecs, hashlib
 from compiler import Compiler
 from dependscompiler import DependencyCompiler
 from os.path import join, splitext, split, exists
@@ -159,6 +159,9 @@ def main(args):
 	version_file = None
 	log_id = None
 	
+	source_lib=os.path.join(template_dir,'libTiCore.a')
+	target_lib=os.path.join(iphone_resources_dir,'libTiCore.a')
+	lib_hash = None	
 	
 	# for simulator, we only need to compile once so we check to 
 	# see if we've already compiled for the simulator for the
@@ -168,11 +171,20 @@ def main(args):
 		if os.path.exists(app_dir):
 			if os.path.exists(version_file):
 				line = open(version_file).read().strip()
-				(v,log_id) = line.split(",")
-				if template_dir==v:
-					force_rebuild = False
+				lines = line.split(",")
+				v = lines[0]
+				log_id = lines[1]
+				if len(lines) > 2:
+					lib_hash = lines[2]
+					if iphone_version!=lines[3]:
+						force_rebuild=True
+				if lib_hash==None:
+					force_rebuild = True
 				else:
-					log_id = None
+					if template_dir==v and force_rebuild==False:
+						force_rebuild = False
+					else:
+						log_id = None
 		if force_rebuild==False:
 			if not os.path.exists(os.path.join(iphone_dir,'Classes','ApplicationRouting.h')):
 				force_rebuild = True
@@ -186,6 +198,16 @@ def main(args):
 	if force_rebuild==False and ti.properties.has_key('modules') and len(ti.properties['modules']) > 0:
 		force_rebuild = True
 
+	fd = open(source_lib,'rb')
+	m = hashlib.md5()
+	m.update(fd.read(1024)) # just read 1K, it's binary
+	new_lib_hash = m.hexdigest()
+	fd.close()
+	
+	if new_lib_hash!=lib_hash:
+		force_rebuild=True
+		
+	lib_hash=new_lib_hash
 
 	# only do this stuff when we're in a force rebuild which is either
 	# non-simulator build or when we're simulator and it's the first time
@@ -231,7 +253,7 @@ def main(args):
 	
 		# compiler dependencies
 		dependscompiler = DependencyCompiler()
-		dependscompiler.compile(template_dir,project_dir,tp_modules,simulator)
+		dependscompiler.compile(template_dir,project_dir,tp_modules,simulator,iphone_version)
 	
 
 		# copy over main since it can change with each release
@@ -283,9 +305,6 @@ def main(args):
 		xcode_pbx.write(xcodeproj.encode("utf-8"))
 		xcode_pbx.close()	
 		
-		source_lib=os.path.join(template_dir,'libTiCore.a')
-		target_lib=os.path.join(iphone_resources_dir,'libTiCore.a')
-	
 		# attempt to only copy (this takes ~7sec) if its changed
 		if not os.path.exists(target_lib) or os.path.getsize(source_lib)!=os.path.getsize(target_lib):
 			shutil.copy(os.path.join(template_dir,'libTiCore.a'),os.path.join(iphone_resources_dir,'libTiCore.a'))
@@ -341,7 +360,7 @@ def main(args):
 		if simulator:
 			f = open(version_file,'w+')
 			log_id = ti.properties['guid']
-			f.write("%s,%s" % (template_dir,log_id))
+			f.write("%s,%s,%s,%s" % (template_dir,log_id,lib_hash,iphone_version))
 			f.close()
 	
 	# copy in the default PNG
@@ -382,12 +401,10 @@ def main(args):
 		sys.stdout.flush()
 
 		deploy_target = "IPHONEOS_DEPLOYMENT_TARGET=3.1"
-		device_target = 'a=b'  # this is non-sensical, but you can't pass empty string
+		device_target = 'TARGETED_DEVICE_FAMILY=iPhone'  # this is non-sensical, but you can't pass empty string
 		
 		if devicefamily!=None:
-			device_target = "TARGETED_DEVICE_FAMILY=iPhone"
 			if devicefamily == 'ipad':
-				iphone_version='3.2'
 				device_target=" TARGETED_DEVICE_FAMILY=iPad"
 				deploy_target = "IPHONEOS_DEPLOYMENT_TARGET=3.2"
 		

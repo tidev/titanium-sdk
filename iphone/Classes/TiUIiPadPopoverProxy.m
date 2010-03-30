@@ -8,8 +8,6 @@
 #import "TiUIiPadPopoverProxy.h"
 #import "TiUtils.h"
 
-#ifdef IPAD
-
 @implementation TiUIiPadPopoverProxy
 
 -(void)show:(id)args
@@ -34,4 +32,3 @@
 
 @end
 
-#endif

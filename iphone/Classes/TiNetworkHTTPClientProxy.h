@@ -28,6 +28,7 @@ typedef enum {
 	NSURL *url;
 	CGFloat uploadProgress;
 	CGFloat downloadProgress;
+	BOOL validatesSecureCertificate;
 	
 	// callbacks
 	KrollCallback *onload;
@@ -53,6 +54,7 @@ typedef enum {
 @property(nonatomic,readonly) TiBlob* responseData;	
 @property(nonatomic,readonly) NSString* connectionType;
 @property(nonatomic,readonly) NSString* location;
+@property(nonatomic,readwrite) BOOL validatesSecureCertificate;
 
 // constants
 @property(nonatomic,readonly) NSInteger UNSENT;

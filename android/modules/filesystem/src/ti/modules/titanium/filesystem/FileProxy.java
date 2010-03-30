@@ -17,6 +17,7 @@ import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiProxy;
 import org.appcelerator.titanium.io.TiBaseFile;
 import org.appcelerator.titanium.io.TiFileFactory;
+import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiFileHelper2;
 
 import android.net.Uri;
@@ -100,11 +101,21 @@ public class FileProxy extends TiProxy
 		return tbf.copy(destination);
 	}
 
-	public void createDirectory(boolean recursive) {
+	public void createDirectory(Object arg) {
+		boolean recursive = true;
+
+		if (arg != null) {
+			recursive = TiConvert.toBoolean(arg);
+		}
 		tbf.createDirectory(recursive);
 	}
 
-	public boolean deleteDirectory(boolean recursive) {
+	public boolean deleteDirectory(Object arg) {
+		boolean recursive = true;
+
+		if (arg != null) {
+			recursive = TiConvert.toBoolean(arg);
+		}
 		return tbf.deleteDirectory(recursive);
 	}
 

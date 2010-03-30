@@ -105,6 +105,10 @@ def zip_iphone_ipad(zf,basepath,platform,version):
 	iphone_lib = os.path.join(top_dir,'iphone',platform,'build')
 	zf.write(os.path.join(iphone_lib,'libTitanium.a'),'%s/%s/libTitanium.a'%(basepath,platform))
 	
+	# in 3.2 apple supports only ipad based simulator testing so we have to distribute
+	# both until they resolve this and then we can do one library with weak linking again
+	zf.write(os.path.join(iphone_lib,'libTitanium_3.2.a'),'%s/%s/libTitanium_3.2.a'%(basepath,platform))
+	
 	ticore_lib = os.path.join(top_dir,'iphone','lib')
 	zf.write(os.path.join(ticore_lib,'libTiCore.a'),'%s/%s/libTiCore.a'%(basepath,platform))
 	

@@ -6,10 +6,9 @@
  */
 
 #import "TiMediaVideoPlayer.h"
-
 #import "TiUtils.h"
 
-#ifdef IPAD
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
 
 @implementation TiMediaVideoPlayer
 
