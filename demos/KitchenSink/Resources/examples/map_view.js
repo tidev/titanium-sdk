@@ -32,17 +32,23 @@ var apple = Titanium.Map.createAnnotation({
 	myid:2 // CUSTOM ATTRIBUTE THAT IS PASSED INTO EVENT OBJECTS
 });
 
-var atlanta = Titanium.Map.createAnnotation({
-	latitude:33.74511,
-	longitude:-84.38993,
-	title:"Atlanta, GA",
-	subtitle:'Atlanta Braves Stadium',
-	pincolor:Titanium.Map.ANNOTATION_PURPLE,
-	animate:true,
-	leftButton:'../images/atlanta.jpg',
-	rightButton: Titanium.UI.iPhone.SystemButton.DISCLOSURE,
-	myid:3 // CUSTOM ATTRIBUTE THAT IS PASSED INTO EVENT OBJECTS
-});
+var atlantaParams = {
+		latitude:33.74511,
+		longitude:-84.38993,
+		title:"Atlanta, GA",
+		subtitle:'Atlanta Braves Stadium',
+		animate:true,
+		leftButton:'../images/atlanta.jpg',
+		rightButton: Titanium.UI.iPhone.SystemButton.DISCLOSURE,
+		myid:3 // CUSTOM ATTRIBUTE THAT IS PASSED INTO EVENT OBJECTS
+	};
+
+if (!isAndroid) {
+	atlantaParams.pincolor = Titanium.Map.ANNOTATION_PURPLE;
+} else {
+	atlantaParams.pinImage = "/images/map-pin.png";
+}
+var atlanta = Titanium.Map.createAnnotation(atlantaParams);
 
 //
 // CREATE MAP VIEW
@@ -133,7 +139,7 @@ mapview.addEventListener('complete', function()
 {
 	mapview.selectAnnotation(mapview.annotations[0].title,true);
 	mapview.selectAnnotation(mapview.annotations[1].title,true);
-	
+
 })
 
 
