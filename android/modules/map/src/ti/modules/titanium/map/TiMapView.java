@@ -197,7 +197,7 @@ public class TiMapView extends TiUIView
 				//If pinimage is set
 				if (a.containsKey("pinimage"))
 				{
-					String imagePath = a.getString("pinimage");
+					String imagePath = a.getString("pinImage");
 					Drawable marker = makeMarker(imagePath);
 					boundCenterBottom(marker);
 					item.setMarker(marker);
@@ -697,16 +697,16 @@ public class TiMapView extends TiUIView
 		return d;
 	}
 	
-	private Drawable makeMarker(String pinimage)
+	private Drawable makeMarker(String pinImage)
 	{
-		String url = proxy.getTiContext().resolveUrl(null, (String)pinimage);
+		String url = proxy.getTiContext().resolveUrl(null, pinImage);
 		TiBaseFile file = TiFileFactory.createTitaniumFile(proxy.getTiContext(), new String[] { url }, false);
 		try {
 			Drawable d = new BitmapDrawable(TiUIHelper.createBitmap(file.getInputStream()));
 			d.setBounds(0, 0, d.getIntrinsicWidth(), d.getIntrinsicHeight());
 			return d;
 		} catch (IOException e) {
-			Log.e(LCAT, "Error creating drawable from path: " + pinimage.toString(), e);
+			Log.e(LCAT, "Error creating drawable from path: " + pinImage.toString(), e);
 		}
 		return null;
 	}
