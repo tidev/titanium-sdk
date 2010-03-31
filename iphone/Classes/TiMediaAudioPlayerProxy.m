@@ -21,7 +21,7 @@
 
 -(void)_destroy
 {
-	[[TiMediaAudioSession sharedSession] stopAudioSession];
+    [[TiMediaAudioSession sharedSession] stopAudioSession];
 	if (timer!=nil)
 	{
 		[timer invalidate];
@@ -32,6 +32,7 @@
 	}
 	RELEASE_TO_NIL(player);
 	RELEASE_TO_NIL(timer);
+    [super _destroy];
 }
 
 -(void)_listenerAdded:(NSString *)type count:(int)count
