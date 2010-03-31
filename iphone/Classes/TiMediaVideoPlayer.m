@@ -25,6 +25,10 @@
 
 -(void)dealloc
 {
+	if (controller!=nil)
+	{
+		[[controller view] removeFromSuperview];
+	}
 	RELEASE_TO_NIL(controller);
 	[super dealloc];
 }

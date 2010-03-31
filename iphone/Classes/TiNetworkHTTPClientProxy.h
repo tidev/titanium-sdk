@@ -55,6 +55,7 @@ typedef enum {
 @property(nonatomic,readonly) NSString* connectionType;
 @property(nonatomic,readonly) NSString* location;
 @property(nonatomic,readwrite) BOOL validatesSecureCertificate;
+@property(nonatomic,assign,readwrite) NSNumber* timeout;
 
 // constants
 @property(nonatomic,readonly) NSInteger UNSENT;
@@ -67,7 +68,6 @@ typedef enum {
 -(void)abort:(id)args;
 -(void)open:(id)args;
 -(void)setRequestHeader:(id)args;
--(void)setTimeout:(id)args;
 -(void)send:(id)args;
 -(id)getResponseHeader:(id)args;
 
