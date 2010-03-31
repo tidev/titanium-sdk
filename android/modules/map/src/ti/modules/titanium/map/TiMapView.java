@@ -180,29 +180,28 @@ public class TiMapView extends TiUIView
 				GeoPoint location = new GeoPoint(scaleToGoogle(a.getDouble("latitude")), scaleToGoogle(a.getDouble("longitude")));
 				item = new TiOverlayItem(location, title, subtitle);
 
-				if (a.containsKey("pincolor")) {
-					switch(a.getInt("pincolor")) {
-					case 1 : // RED
-						item.setMarker(makeMarker(Color.RED));
-						break;
-					case 2 : // GREEN
-						item.setMarker(makeMarker(Color.GREEN));
-						break;
-					case 3 : // PURPLE
-						item.setMarker(makeMarker(Color.argb(255,192,0,192)));
-						break;
-					}
-				}
-				
-				//If pinimage is set
-				if (a.containsKey("pinimage"))
+				//prefer pinImage to pincolor.
+				if (a.containsKey("pinImage"))
 				{
 					String imagePath = a.getString("pinImage");
 					Drawable marker = makeMarker(imagePath);
 					boundCenterBottom(marker);
 					item.setMarker(marker);
+				} else if (a.containsKey("pincolor")) {
+					switch(a.getInt("pincolor")) {
+						case 1 : // RED
+							item.setMarker(makeMarker(Color.RED));
+							break;
+						case 2 : // GREEN
+							item.setMarker(makeMarker(Color.GREEN));
+							break;
+						case 3 : // PURPLE
+							item.setMarker(makeMarker(Color.argb(255,192,0,192)));
+							break;
+					}
 				}
-				
+
+
 				if (a.containsKey("leftButton")) {
 					item.setLeftButton(a.getString("leftButton"));
 				}
@@ -696,7 +695,7 @@ public class TiMapView extends TiUIView
 
 		return d;
 	}
-	
+
 	private Drawable makeMarker(String pinImage)
 	{
 		String url = proxy.getTiContext().resolveUrl(null, pinImage);
