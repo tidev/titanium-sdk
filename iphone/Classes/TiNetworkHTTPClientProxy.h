@@ -29,6 +29,7 @@ typedef enum {
 	CGFloat uploadProgress;
 	CGFloat downloadProgress;
 	BOOL validatesSecureCertificate;
+    NSNumber* timeout;
 	
 	// callbacks
 	KrollCallback *onload;
@@ -55,7 +56,7 @@ typedef enum {
 @property(nonatomic,readonly) NSString* connectionType;
 @property(nonatomic,readonly) NSString* location;
 @property(nonatomic,readwrite) BOOL validatesSecureCertificate;
-@property(nonatomic,assign,readwrite) NSNumber* timeout;
+@property(nonatomic,retain,readwrite) NSNumber* timeout;
 
 // constants
 @property(nonatomic,readonly) NSInteger UNSENT;

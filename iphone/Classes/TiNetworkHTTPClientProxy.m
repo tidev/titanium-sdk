@@ -65,7 +65,7 @@ extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 
 @implementation TiNetworkHTTPClientProxy
 
-@synthesize onload, onerror, onreadystatechange, ondatastream, onsendstream;
+@synthesize onload, onerror, onreadystatechange, ondatastream, timeout, onsendstream;
 @synthesize validatesSecureCertificate;
 
 -(id)init
@@ -258,6 +258,10 @@ extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 	
 	request = [[ASIFormDataRequest requestWithURL:url] retain];	
 	[request setDelegate:self];
+    if (timeout) {
+        NSTimeInterval timeoutVal = [timeout doubleValue] / 1000;
+        [request setTimeOutSeconds:timeoutVal];
+    }
 	
 	if (onsendstream!=nil)
 	{
@@ -286,20 +290,6 @@ extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 	NSString *key = [TiUtils stringValue:[args objectAtIndex:0]];
 	NSString *value = [TiUtils stringValue:[args objectAtIndex:1]];
 	[request addRequestHeader:key value:value];
-}
-
--(void)setTimeout:(NSNumber*)arg
-{
-	double timeout = [arg doubleValue] / 1000;
-	[request setTimeOutSeconds:timeout];
-}
-
--(NSNumber*)timeout
-{
-    if (request != nil) {
-        return [NSNumber numberWithDouble:([request timeOutSeconds] * 1000)];
-    }
-    return [NSNumber numberWithInt:0];
 }
 
 -(void)send:(id)args
