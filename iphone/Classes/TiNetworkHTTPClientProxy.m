@@ -288,10 +288,18 @@ extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 	[request addRequestHeader:key value:value];
 }
 
--(void)setTimeout:(id)args
+-(void)setTimeout:(NSNumber*)arg
 {
-	double timeout = [[args objectAtIndex:0] doubleValue] / 1000;
+	double timeout = [arg doubleValue] / 1000;
 	[request setTimeOutSeconds:timeout];
+}
+
+-(NSNumber*)timeout
+{
+    if (request != nil) {
+        return [NSNumber numberWithDouble:([request timeOutSeconds] * 1000)];
+    }
+    return [NSNumber numberWithInt:0];
 }
 
 -(void)send:(id)args
