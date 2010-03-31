@@ -24,6 +24,7 @@
 	NSMutableArray *views;
 	TiFile *tempFile;
 	KrollCallback *thumbnailCallback;
+	UIView *oldparent;
 }
 
 @property(nonatomic,readwrite,assign) id url;

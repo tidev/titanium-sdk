@@ -260,7 +260,9 @@
 
 -(void)updateControlMode
 {
+#if __IPHONE_OS_VERSION_MAX_ALLOWED < __IPHONE_3_2
 	[[self player] setMovieControlMode:movieControlMode];
+#endif
 }
 
 -(void)updateControlStyle
@@ -499,8 +501,6 @@
 	if (movie!=nil)
 	{
 		[movie stop];
-		[movie autorelease]; // release after we return
-		movie = nil;
 	}
 	playing = NO;
 }
@@ -525,6 +525,8 @@
 -(void)release:(id)args
 {
 	ENSURE_UI_THREAD(release,args);
+	[self stop:nil];
+	[self detachView];
 	[self _destroy];
 }
 
