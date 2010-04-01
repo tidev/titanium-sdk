@@ -1038,8 +1038,18 @@ if(tableView == searchTableView)	\
 		[self triggerActionForIndexPath:indexPath fromPath:nil wasAccessory:NO search:NO name:@"delete"];
 		
 		[[section rows] removeObjectAtIndex:[indexPath row]];
+        
+        // If the section is empty, we want to remove it as well.
+        BOOL emptySection = ([[section rows] count] == 0);
+        if (emptySection) {
+            [sections removeObjectAtIndex:[indexPath section]];
+        }
+
 		[table beginUpdates];
-		[table deleteRowsAtIndexPaths:[NSArray arrayWithObject:path] withRowAnimation:UITableViewRowAnimationFade];
+        [table deleteRowsAtIndexPaths:[NSArray arrayWithObject:path] withRowAnimation:UITableViewRowAnimationFade];
+        if (emptySection) {
+            [table deleteSections:[NSIndexSet indexSetWithIndex:[indexPath section]] withRowAnimation:UITableViewRowAnimationFade];
+        }
 		[table endUpdates];
 	}
 }
