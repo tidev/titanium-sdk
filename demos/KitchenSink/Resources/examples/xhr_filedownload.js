@@ -35,7 +35,7 @@ b1.addEventListener('click', function()
 		f.write(this.responseData);
 		var wv = Ti.UI.createWebView({
 			url:f.nativePath,
-			height:300,
+			bottom:0,
 			left:0,
 			right:0,
 			top:170
@@ -75,7 +75,7 @@ b2.addEventListener('click', function()
 	{
 		var wv = Ti.UI.createWebView({
 			data:this.responseData,
-			height:300,
+			bottom:0,
 			left:0,
 			right:0,
 			top:170
