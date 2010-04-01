@@ -25,16 +25,30 @@ extern NSString * const TI_APPLICATION_RESOURCE_DIR;
 
 @implementation TiUtils
 
++(BOOL)isDevice_Pre_3_2
+{
+	static BOOL checked = NO;
+	static BOOL is_pre_3_2 = NO;
+	
+	if (checked==NO)
+	{
+		NSString *version = [UIDevice currentDevice].systemVersion;
+		NSArray *tokens = [version componentsSeparatedByString:@"."];
+		NSInteger major = [TiUtils intValue:[tokens objectAtIndex:0]];
+		NSInteger minor = [TiUtils intValue:[tokens objectAtIndex:1]];
+		is_pre_3_2 = (major==3 && minor < 2);
+		checked = YES;
+	}
+	return is_pre_3_2;
+}
 
 +(BOOL)isIPad
 {
-	UIDevice *theDevice = [UIDevice currentDevice];
-	NSString *username = [theDevice name];
-	
-	//TODO: Use the official detection technique. Namely,
-	//on the iPad, [theDevice userInterfaceIdiom] will exist
-	//and will return UIUserInterfaceIdiomPad.
-	return ([username rangeOfString:@"iPad"].location!=NSNotFound);
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
+	return UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad;
+#else
+	return NO;
+#endif
 }
 
 +(void)queueAnalytics:(NSString*)type name:(NSString*)name data:(NSDictionary*)data
@@ -164,6 +178,20 @@ extern NSString * const TI_APPLICATION_RESOURCE_DIR;
 		return [value doubleValue];
 	}
 	return 0;
+}
+
++(CGRect)rectValue:(id)value
+{
+	if ([value isKindOfClass:[NSDictionary class]])
+	{
+		NSDictionary *dict = (NSDictionary*)value;
+		CGFloat x = [TiUtils floatValue:@"x" properties:dict def:0];
+		CGFloat y = [TiUtils floatValue:@"y" properties:dict def:0];
+		CGFloat w = [TiUtils floatValue:@"width" properties:dict def:0];
+		CGFloat h = [TiUtils floatValue:@"height" properties:dict def:0];
+		return CGRectMake(x, y, w, h);
+	}
+	return CGRectMake(0, 0, 0, 0);
 }
 
 +(CGPoint)pointValue:(id)value

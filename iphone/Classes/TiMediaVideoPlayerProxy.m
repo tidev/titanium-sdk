@@ -45,7 +45,14 @@
 	}
 	else
 	{
-		url = [[TiUtils toURL:[properties objectForKey:@"contentURL"] proxy:self] retain];
+		if ([properties objectForKey:@"contentURL"]!=nil)
+		{
+			url = [[TiUtils toURL:[properties objectForKey:@"contentURL"] proxy:self] retain];
+		}
+		else
+		{
+			url = [[TiUtils toURL:[properties objectForKey:@"url"] proxy:self] retain];
+		}
 	}
 	
 	id color = [TiUtils stringValue:@"backgroundColor" properties:properties];
@@ -56,6 +63,11 @@
 	
 	scalingMode = [TiUtils intValue:@"scalingMode" properties:properties def:MPMovieScalingModeNone];
 	movieControlMode = [TiUtils intValue:@"movieControlMode" properties:properties def:MPMovieControlModeDefault];
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
+
+	movieControlStyle = [TiUtils intValue:@"movieControlStyle" properties:properties def:MPMovieControlStyleDefault];
+#endif
+	
 	initialPlaybackTime = [TiUtils doubleValue:@"initialPlaybackTime" properties:properties def:0];
 	
 	//TODO: other properties
@@ -66,55 +78,56 @@
 			   name:MPMoviePlayerPlaybackDidFinishNotification
 			 object:nil];
 	
-	if ([TiUtils isIPad]==NO)
+	if ([TiUtils isDevice_Pre_3_2])
 	{
 		[nc addObserver:self selector:@selector(handleKeyWindowChanged:) 
 				   name:UIWindowDidBecomeKeyNotification
 				 object:nil];
 	}
-
-#ifdef IPAD
-	
-	[nc addObserver:self selector:@selector(handleThumbnailImageRequestFinishNotification:) 
-			   name:MPMoviePlayerThumbnailImageRequestDidFinishNotification
-			 object:nil];
-	
-	[nc addObserver:self selector:@selector(handleFullscreenEnterNotification:) 
-			   name:MPMoviePlayerWillEnterFullscreenNotification
-			 object:nil];
-
-	[nc addObserver:self selector:@selector(handleFullscreenExitNotification:)
-			   name:MPMoviePlayerWillExitFullscreenNotification
-			 object:nil];
-	
-	[nc addObserver:self selector:@selector(handleSourceTypeNotification:) 
-			   name:MPMovieSourceTypeAvailableNotification
-			 object:nil];
-
-	[nc addObserver:self selector:@selector(handleDurationAvailableNotification:) 
-			   name:MPMovieDurationAvailableNotification 
-			 object:nil];
-	
-	[nc addObserver:self selector:@selector(handleMediaTypesNotification:) 
-			   name:MPMovieMediaTypesAvailableNotification 
-			 object:nil];
-	
-	[nc addObserver:self selector:@selector(handleNaturalSizeAvailableNotification:)
-			   name:MPMovieNaturalSizeAvailableNotification 
-			 object:nil];
-
-	[nc addObserver:self selector:@selector(handleLoadStateChangeNotification:)
-			   name:MPMoviePlayerLoadStateDidChangeNotification 
-			 object:nil];
-	
-	[nc addObserver:self selector:@selector(handleNowPlayingNotification:)
-			   name:MPMoviePlayerNowPlayingMovieDidChangeNotification 
-			 object:nil];
-
-	[nc addObserver:self selector:@selector(handlePlaybackStateChangeNotification:)
-			   name:MPMoviePlayerPlaybackStateDidChangeNotification 
-			 object:nil];
-#endif	
+	else 
+	{
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
+		[nc addObserver:self selector:@selector(handleThumbnailImageRequestFinishNotification:) 
+				   name:MPMoviePlayerThumbnailImageRequestDidFinishNotification
+				 object:nil];
+		
+		[nc addObserver:self selector:@selector(handleFullscreenEnterNotification:) 
+				   name:MPMoviePlayerWillEnterFullscreenNotification
+				 object:nil];
+		
+		[nc addObserver:self selector:@selector(handleFullscreenExitNotification:)
+				   name:MPMoviePlayerWillExitFullscreenNotification
+				 object:nil];
+		
+		[nc addObserver:self selector:@selector(handleSourceTypeNotification:) 
+				   name:MPMovieSourceTypeAvailableNotification
+				 object:nil];
+		
+		[nc addObserver:self selector:@selector(handleDurationAvailableNotification:) 
+				   name:MPMovieDurationAvailableNotification 
+				 object:nil];
+		
+		[nc addObserver:self selector:@selector(handleMediaTypesNotification:) 
+				   name:MPMovieMediaTypesAvailableNotification 
+				 object:nil];
+		
+		[nc addObserver:self selector:@selector(handleNaturalSizeAvailableNotification:)
+				   name:MPMovieNaturalSizeAvailableNotification 
+				 object:nil];
+		
+		[nc addObserver:self selector:@selector(handleLoadStateChangeNotification:)
+				   name:MPMoviePlayerLoadStateDidChangeNotification 
+				 object:nil];
+		
+		[nc addObserver:self selector:@selector(handleNowPlayingNotification:)
+				   name:MPMoviePlayerNowPlayingMovieDidChangeNotification 
+				 object:nil];
+		
+		[nc addObserver:self selector:@selector(handlePlaybackStateChangeNotification:)
+				   name:MPMoviePlayerPlaybackStateDidChangeNotification 
+				 object:nil];
+#endif
+	}
 }
 
 -(void)_destroy
@@ -123,26 +136,29 @@
 	[movie stop];
 	
 	NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
-	
-	[nc removeObserver:self name:UIWindowDidBecomeKeyNotification object:nil];
 	[nc removeObserver:self name:MPMoviePlayerPlaybackDidFinishNotification object:nil];
 
-#ifdef IPAD
-	[nc removeObserver:self name:MPMoviePlayerThumbnailImageRequestDidFinishNotification object:nil];
-	[nc removeObserver:self name:MPMoviePlayerPlaybackStateDidChangeNotification object:nil];
-	[nc removeObserver:self name:MPMoviePlayerNowPlayingMovieDidChangeNotification object:nil];
-	[nc removeObserver:self name:MPMoviePlayerLoadStateDidChangeNotification object:nil];
-	[nc removeObserver:self name:MPMovieNaturalSizeAvailableNotification object:nil];
-	[nc removeObserver:self name:MPMovieMediaTypesAvailableNotification object:nil];
-	[nc removeObserver:self name:MPMovieDurationAvailableNotification object:nil];
-	[nc removeObserver:self name:MPMovieSourceTypeAvailableNotification object:nil];
-	[nc removeObserver:self name:MPMoviePlayerWillExitFullscreenNotification object:nil];
-	[nc removeObserver:self name:MPMoviePlayerWillEnterFullscreenNotification object:nil];
-	
-	RELEASE_TO_NIL(thumbnailCallback);
+	if ([TiUtils isDevice_Pre_3_2])
+	{
+		[nc removeObserver:self name:UIWindowDidBecomeKeyNotification object:nil];
+	}
+	else 
+	{
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
+		[nc removeObserver:self name:MPMoviePlayerThumbnailImageRequestDidFinishNotification object:nil];
+		[nc removeObserver:self name:MPMoviePlayerPlaybackStateDidChangeNotification object:nil];
+		[nc removeObserver:self name:MPMoviePlayerNowPlayingMovieDidChangeNotification object:nil];
+		[nc removeObserver:self name:MPMoviePlayerLoadStateDidChangeNotification object:nil];
+		[nc removeObserver:self name:MPMovieNaturalSizeAvailableNotification object:nil];
+		[nc removeObserver:self name:MPMovieMediaTypesAvailableNotification object:nil];
+		[nc removeObserver:self name:MPMovieDurationAvailableNotification object:nil];
+		[nc removeObserver:self name:MPMovieSourceTypeAvailableNotification object:nil];
+		[nc removeObserver:self name:MPMoviePlayerWillExitFullscreenNotification object:nil];
+		[nc removeObserver:self name:MPMoviePlayerWillEnterFullscreenNotification object:nil];
 #endif
+	}
 
-	
+	RELEASE_TO_NIL(thumbnailCallback);
 	RELEASE_TO_NIL(tempFile);
 	RELEASE_TO_NIL(movie);
 	RELEASE_TO_NIL(url);
@@ -156,38 +172,48 @@
 		movie = [[MPMoviePlayerController alloc] initWithContentURL:url];
 		[movie setScalingMode:scalingMode];
 		
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
 		if ([movie respondsToSelector:@selector(setControlStyle:)])
 		{
 			[movie setControlStyle:movieControlStyle];
 		}
 		else 
 		{
+#endif			
 			// for older devices (non 3.2)
 			[movie setMovieControlMode:movieControlMode];
 			if (backgroundColor!=nil)
 			{
 				[movie setBackgroundColor:[backgroundColor _color]];
 			}		
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
 		}
+#endif
 		
 		if (initialPlaybackTime>0)
 		{
 			[movie setInitialPlaybackTime:initialPlaybackTime];
 		}
+		
 	}
 	return movie;
 }
 
-#ifdef IPAD
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
 -(TiUIView*)newView
 {
-	// override since we're constructing ourselfs
-	return [[TiMediaVideoPlayer alloc] initWithPlayer:[self player]];
+	if ([TiUtils isDevice_Pre_3_2]==NO)
+	{
+		// override since we're constructing ourselfs
+		return [[TiMediaVideoPlayer alloc] initWithPlayer:[self player]];
+	}
+	return nil;
 }
 #endif
 
 #pragma mark Public APIs
 
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
 -(void)setBackgroundView:(id)proxy
 {
 	UIView *background = [[self player] backgroundView];
@@ -197,6 +223,7 @@
 	}
 	[background addSubview:[proxy view]];
 }
+#endif
 
 -(void)setInitialPlaybackTime:(id)time
 {
@@ -233,20 +260,24 @@
 
 -(void)updateControlMode
 {
-	[movie setMovieControlMode:movieControlMode];
+#if __IPHONE_OS_VERSION_MAX_ALLOWED < __IPHONE_3_2
+	[[self player] setMovieControlMode:movieControlMode];
+#endif
 }
 
 -(void)updateControlStyle
 {
-	[movie setControlStyle:movieControlStyle];
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
+	[[self player] setControlStyle:movieControlStyle];
+#endif
 }
 
 -(void)setMovieControlMode:(NSNumber *)value
 {
-	movieControlMode = [TiUtils intValue:value];
+	movieControlMode = [TiUtils intValue:value def:MPMovieControlModeDefault];
 	if (movie!=nil)
 	{
-		[movie performSelectorOnMainThread:@selector(updateControlMode) withObject:nil waitUntilDone:NO];
+		[self performSelectorOnMainThread:@selector(updateControlMode) withObject:nil waitUntilDone:NO];
 	}
 }
 
@@ -255,12 +286,13 @@
 	return NUMINT(movieControlMode);
 }
 
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
 -(void)setMovieControlStyle:(NSNumber *)value
 {
-	movieControlStyle = [TiUtils intValue:value];
+	movieControlStyle = [TiUtils intValue:value def:MPMovieControlStyleDefault];
 	if (movie!=nil)
 	{
-		[movie performSelectorOnMainThread:@selector(updateControlStyle) withObject:nil waitUntilDone:NO];
+		[self performSelectorOnMainThread:@selector(updateControlStyle) withObject:nil waitUntilDone:NO];
 	}
 }
 
@@ -268,6 +300,7 @@
 {
 	return NUMINT(movieControlStyle);
 }
+#endif
 
 -(void)setMedia:(id)media_
 {
@@ -322,17 +355,17 @@
 	return url;
 }
 
--(NSNumber*)shouldAutoplay
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
+
+-(NSNumber*)autoplay
 {
 	return NUMBOOL([[self player] shouldAutoplay]);
 }
 
--(void)setShouldAutoplay:(id)value
+-(void)setAutoplay:(id)value
 {
 	[[self player] setShouldAutoplay:[TiUtils boolValue:value]];
 }
-
-#ifdef IPAD
 
 -(NSNumber*)useApplicationAudioSession
 {
@@ -378,7 +411,6 @@
 	[self performSelectorOnMainThread:@selector(generateThumbnail:) withObject:array waitUntilDone:YES];
 	return blob;
 }
-
 #endif
 
 -(void)setBackgroundColor:(id)color
@@ -387,11 +419,15 @@
 	backgroundColor = [[TiUtils colorValue:color] retain];
 	if (movie!=nil)
 	{
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
 		UIView *background = [[self player] backgroundView];
 		[background performSelectorOnMainThread:@selector(setBackgroundColor:) withObject:[backgroundColor _color] waitUntilDone:NO];
+#else
+#endif
 	}
 }
 
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
 -(NSNumber*)playableDuration
 {
 	return NUMDOUBLE([[self player] playableDuration]);
@@ -452,6 +488,7 @@
 	BOOL fs = [TiUtils boolValue:value];
 	[[self player] setFullscreen:fs];
 }
+#endif
 
 -(TiColor*)backgroundColor
 {
@@ -464,8 +501,6 @@
 	if (movie!=nil)
 	{
 		[movie stop];
-		[movie autorelease]; // release after we return
-		movie = nil;
 	}
 	playing = NO;
 }
@@ -474,8 +509,8 @@
 {
 	ENSURE_UI_THREAD(play,args);
 	
-	// indicate we're going to start recording
-	[[TiMediaAudioSession sharedSession] playback];
+	// indicate we're going to start playing
+	//[[TiMediaAudioSession sharedSession] playback];
 	
 	if (playing)
 	{
@@ -490,17 +525,22 @@
 -(void)release:(id)args
 {
 	ENSURE_UI_THREAD(release,args);
+	[self stop:nil];
+	[self detachView];
 	[self _destroy];
 }
 
-#ifdef IPAD
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
 -(void)viewDidAttach
 {
-	if (views!=nil && [TiUtils isIPad])
+	if ([TiUtils isDevice_Pre_3_2]==NO)
 	{
-		for (TiViewProxy *p in views)
+		if (views!=nil && [TiUtils isIPad])
 		{
-			[[self view] addSubview:[p view]];
+			for (TiViewProxy *p in views)
+			{
+				[[self view] addSubview:[p view]];
+			}
 		}
 	}
 }
@@ -515,8 +555,8 @@
 	}
 	[views addObject:viewProxy];
 
-#ifdef IPAD
-	if ([self viewAttached])
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2	
+	if ([TiUtils isDevice_Pre_3_2]==NO && [self viewAttached])
 	{
 		[[self view] addSubview:[viewProxy view]];
 	}
@@ -530,6 +570,7 @@
 	{
 		[views removeObject:viewProxy];
 		[[viewProxy view] removeFromSuperview];
+		[viewProxy detachView];
 		
 		if ([views count]==0)
 		{
@@ -556,11 +597,14 @@
 		if ([self _hasListeners:@"complete"])
 		{
 			NSMutableDictionary *event = [NSMutableDictionary dictionary];
-#ifdef IPAD
-			NSNumber *reason = [[notification userInfo] objectForKey:MPMoviePlayerPlaybackDidFinishReasonUserInfoKey];
-			if (reason!=nil)
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
+			if ([TiUtils isDevice_Pre_3_2]==NO)
 			{
-				[event setObject:reason forKey:@"reason"];
+				NSNumber *reason = [[notification userInfo] objectForKey:MPMoviePlayerPlaybackDidFinishReasonUserInfoKey];
+				if (reason!=nil)
+				{
+					[event setObject:reason forKey:@"reason"];
+				}
 			}
 #endif
 			[self fireEvent:@"complete" withObject:event];
@@ -617,8 +661,7 @@
 	}
 }
 
-#ifdef IPAD
-
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
 -(void)handleThumbnailImageRequestFinishNotification:(NSNotification*)note
 {
 	if (thumbnailCallback!=nil)
@@ -712,10 +755,10 @@
 
 -(void)handleLoadStateChangeNotification:(NSNotification*)note
 {
-	if ([self _hasListeners:@"naturalSizeAvailable"])
+	if ([self _hasListeners:@"loadstate"])
 	{
-		NSDictionary *event = [NSDictionary dictionaryWithObject:[self naturalSize] forKey:@"naturalSize"];
-		[self fireEvent:@"naturalSizeAvailable" withObject:event];
+		NSDictionary *event = [NSDictionary dictionaryWithObject:[self loadState] forKey:@"loadState"];
+		[self fireEvent:@"loadstate" withObject:event];
 	}
 }
 
@@ -736,7 +779,6 @@
 		[self fireEvent:@"loadStateChange" withObject:event];
 	}
 }
-
 #endif
 
 @end

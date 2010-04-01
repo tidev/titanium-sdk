@@ -10,6 +10,7 @@ import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiContext.OnLifecycleEvent;
 import org.appcelerator.titanium.proxy.TiViewProxy;
+import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiUIView;
 
 import android.app.Activity;
@@ -48,6 +49,66 @@ public class ViewProxy extends TiViewProxy
 		mapWindow = lam.startActivity("TIMAP", intent);
 		lam.dispatchResume();
 		return new TiMapView(this, mapWindow);
+	}
+
+	public void zoom(int delta) {
+		TiMapView mv = (TiMapView) view;
+		if (mv != null) {
+			mv.changeZoomLevel(delta);
+		}
+	}
+
+	public void removeAllAnnotations()
+	{
+		TiMapView mv = (TiMapView) view;
+		if (mv != null) {
+			mv.removeAllAnnotations();
+		}
+	}
+
+	public void removeAnnotation(Object arg)
+	{
+		String title = null;
+
+		if (arg != null) {
+			if (arg instanceof AnnotationProxy) {
+				title = TiConvert.toString(((AnnotationProxy) arg).getDynamicValue("title"));
+			} else {
+				title = TiConvert.toString(arg);
+			}
+
+			if (title != null) {
+				TiMapView mv = (TiMapView) view;
+				if (mv != null) {
+					mv.removeAnnotation(title);
+				}
+			}
+		}
+	}
+
+	public void selectAnnotation(Object[] args)
+	{
+		String title = null;
+
+		if (args.length > 0) {
+			if (args[0] instanceof AnnotationProxy) {
+				title = TiConvert.toString(((AnnotationProxy) args[0]).getDynamicValue("title"));
+			} else if (args[0] instanceof String) {
+				title = TiConvert.toString(args[0]);
+			}
+		}
+		if (title != null) {
+			boolean animate = false;
+
+			if (args.length > 1) {
+				animate = TiConvert.toBoolean(args[1]);
+			}
+
+			TiMapView mv = (TiMapView) view;
+			if (mv != null) {
+				mv.selectAnnotation(true, title, animate);
+			}
+		}
 	}
 
 	public void onDestroy() {

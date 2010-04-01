@@ -112,7 +112,7 @@ b3.addEventListener('click', function()
 		backgroundColor:'#336699',
 		title:'Modal Window',
 		barColor:'black',
-		url:'vibrate.js'
+		url:'vibrate.js',
 	});
 	var b = Titanium.UI.createButton({
 		title:'Close',
@@ -380,6 +380,11 @@ if (Titanium.Platform.name == 'iPhone OS')
 	win.add(b7);
 	win.add(b4);
 	win.add(b5);
+	var flexSpace = Titanium.UI.createButton({
+		style:Titanium.UI.iPhone.SystemButtonStyle.FLEXIBLE_SPACE
+	});
+	
+	win.setToolbar([flexSpace],{translucent:true});
 
 }
 else

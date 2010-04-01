@@ -17,6 +17,7 @@ import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiProxy;
 import org.appcelerator.titanium.io.TiBaseFile;
 import org.appcelerator.titanium.io.TiFileFactory;
+import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiFileHelper2;
 
 import android.net.Uri;
@@ -88,11 +89,11 @@ public class FileProxy extends TiProxy
 		return tbf.isDirectory();
 	}
 
-	public boolean isReadonly() {
+	public boolean getReadonly() {
 		return tbf.isReadonly();
 	}
 
-	public boolean isWriteable() {
+	public boolean getWritable() {
 		return tbf.isWriteable();
 	}
 
@@ -100,11 +101,21 @@ public class FileProxy extends TiProxy
 		return tbf.copy(destination);
 	}
 
-	public void createDirectory(boolean recursive) {
+	public void createDirectory(Object arg) {
+		boolean recursive = true;
+
+		if (arg != null) {
+			recursive = TiConvert.toBoolean(arg);
+		}
 		tbf.createDirectory(recursive);
 	}
 
-	public boolean deleteDirectory(boolean recursive) {
+	public boolean deleteDirectory(Object arg) {
+		boolean recursive = true;
+
+		if (arg != null) {
+			recursive = TiConvert.toBoolean(arg);
+		}
 		return tbf.deleteDirectory(recursive);
 	}
 
@@ -118,6 +129,18 @@ public class FileProxy extends TiProxy
 
 	public String extension() {
 		return tbf.extension();
+	}
+
+	public boolean getSymbolicLink() {
+		return tbf.isSymbolicLink();
+	}
+
+	public boolean getExecutable() {
+		return tbf.isExecutable();
+	}
+
+	public boolean getHidden() {
+		return tbf.isHidden();
 	}
 
 	public String[] getDirectoryListing()
@@ -167,7 +190,7 @@ public class FileProxy extends TiProxy
 		return tbf.resolve();
 	}
 
-	public double size() {
+	public double getSize() {
 		return tbf.size();
 	}
 
@@ -190,7 +213,7 @@ public class FileProxy extends TiProxy
 			}
 		}
 	}
-	
+
 	public void writeLine(String data)
 		throws IOException
 	{

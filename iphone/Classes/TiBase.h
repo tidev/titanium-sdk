@@ -234,6 +234,16 @@ if (((x)<(minX)) || ((x)>(maxX))) \
 #define THROW_INVALID_ARG(m) \
 [self throwException:TiExceptionInvalidType subreason:m location:CODELOCATION]; \
 
+#define MAKE_SYSTEM_PROP_IPAD(name,map) \
+-(NSNumber*)name \
+{\
+   if ([TiUtils isIPad])\
+   {\
+      return [NSNumber numberWithInt:map];\
+    }\
+}\
+
+
 #define MAKE_SYSTEM_PROP(name,map) \
 -(NSNumber*)name \
 {\
@@ -391,4 +401,9 @@ extern NSString * const kKrollShutdownNotification;
 extern NSString * const kTitaniumShutdownNotification;
 extern NSString * const kTitaniumAnalyticsNotification;
 extern NSString * const kTitaniumRemoteDeviceUUIDNotification;
+
+
+#ifndef __IPHONE_3_2
+#define __IPHONE_3_2 30200
+#endif
 

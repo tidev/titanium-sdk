@@ -8,20 +8,26 @@
 package ti.modules.titanium.map;
 
 import java.util.List;
+import java.io.IOException;
 
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiDict;
 import org.appcelerator.titanium.TiProperties;
+import org.appcelerator.titanium.TiProxy;
 import org.appcelerator.titanium.TiContext.OnLifecycleEvent;
+import org.appcelerator.titanium.io.TiBaseFile;
+import org.appcelerator.titanium.io.TiFileFactory;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiUIView;
+import org.appcelerator.titanium.util.TiUIHelper;
 import org.json.JSONObject;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.OvalShape;
@@ -72,6 +78,7 @@ public class TiMapView extends TiUIView
 	private static final int MSG_ADD_ANNOTATION = 307;
 	private static final int MSG_REMOVE_ANNOTATION = 308;
 	private static final int MSG_SELECT_ANNOTATION = 309;
+	private static final int MSG_REMOVE_ALL_ANNOTATIONS = 310;
 
 	//private MapView view;
 	private boolean scrollEnabled;
@@ -173,19 +180,27 @@ public class TiMapView extends TiUIView
 				GeoPoint location = new GeoPoint(scaleToGoogle(a.getDouble("latitude")), scaleToGoogle(a.getDouble("longitude")));
 				item = new TiOverlayItem(location, title, subtitle);
 
-				if (a.containsKey("pincolor")) {
+				//prefer pinImage to pincolor.
+				if (a.containsKey("pinImage"))
+				{
+					String imagePath = a.getString("pinImage");
+					Drawable marker = makeMarker(imagePath);
+					boundCenterBottom(marker);
+					item.setMarker(marker);
+				} else if (a.containsKey("pincolor")) {
 					switch(a.getInt("pincolor")) {
-					case 1 : // RED
-						item.setMarker(makeMarker(Color.RED));
-						break;
-					case 2 : // GREEN
-						item.setMarker(makeMarker(Color.GREEN));
-						break;
-					case 3 : // PURPLE
-						item.setMarker(makeMarker(Color.argb(255,192,0,192)));
-						break;
+						case 1 : // RED
+							item.setMarker(makeMarker(Color.RED));
+							break;
+						case 2 : // GREEN
+							item.setMarker(makeMarker(Color.GREEN));
+							break;
+						case 3 : // PURPLE
+							item.setMarker(makeMarker(Color.argb(255,192,0,192)));
+							break;
 					}
 				}
+
 
 				if (a.containsKey("leftButton")) {
 					item.setLeftButton(a.getString("leftButton"));
@@ -344,6 +359,9 @@ public class TiMapView extends TiUIView
 				String title = (String) msg.obj;
 				doSelectAnnotation(select, title, animate);
 				return true;
+			case MSG_REMOVE_ALL_ANNOTATIONS :
+				doSetAnnotations(new TiDict[0]);
+				return true;
 		}
 
 		return false;
@@ -361,9 +379,10 @@ public class TiMapView extends TiUIView
 	{
 		if (view != null && itemView != null && item != null) {
 			itemView.setItem(index, item);
-
+			//Make sure the atonnation is always on top of the marker
+			int y = -1*item.getMarker(TiOverlayItem.ITEM_STATE_FOCUSED_MASK).getIntrinsicHeight();
 			MapView.LayoutParams params = new MapView.LayoutParams(LayoutParams.WRAP_CONTENT,
-					LayoutParams.WRAP_CONTENT, item.getPoint(), MapView.LayoutParams.BOTTOM_CENTER);
+					LayoutParams.WRAP_CONTENT, item.getPoint(), 0, y, MapView.LayoutParams.BOTTOM_CENTER);
 			params.mode = MapView.LayoutParams.MODE_MAP;
 
 			view.addView(itemView, params);
@@ -419,6 +438,7 @@ public class TiMapView extends TiUIView
 			doUserLocation(d.getBoolean("userLocation"));
 		}
 		if (d.containsKey("annotations")) {
+			proxy.internalSetDynamicValue("annotations", d.get("annotations"), false);
 			Object[] annotations = (Object[]) d.get("annotations");
 			TiDict[] anns = new TiDict[annotations.length];
 			for(int i = 0; i < annotations.length; i++) {
@@ -429,6 +449,30 @@ public class TiMapView extends TiUIView
 		}
 
 		super.processProperties(d);
+	}
+
+	@Override
+	public void propertyChanged(String key, Object oldValue, Object newValue, TiProxy proxy)
+	{
+
+		if (key.equals("location")) {
+			if (newValue != null) {
+				if (newValue instanceof AnnotationProxy) {
+					AnnotationProxy ap = (AnnotationProxy) newValue;
+					doSetLocation(ap.getDynamicProperties());
+				} else if (newValue instanceof TiDict) {
+					doSetLocation((TiDict) newValue);
+				}
+			}
+		} else if (key.equals("mapType")) {
+			if (newValue == null) {
+				doSetMapType(MAP_VIEW_STANDARD);
+			} else {
+				doSetMapType(TiConvert.toInt(newValue));
+			}
+		} else {
+			super.propertyChanged(key, oldValue, newValue, proxy);
+		}
 	}
 
 	public void doSetLocation(TiDict d)
@@ -494,8 +538,9 @@ public class TiMapView extends TiUIView
 					overlay = new TitaniumOverlay(makeMarker(Color.BLUE), this);
 					overlay.setAnnotations(annotations);
 					overlays.add(overlay);
-					view.invalidate();
 				}
+
+				view.invalidate();
 			}
 		}
 	}
@@ -519,6 +564,10 @@ public class TiMapView extends TiUIView
 	public void removeAnnotation(String title) {
 		handler.obtainMessage(MSG_REMOVE_ANNOTATION, title).sendToTarget();
 	};
+
+	public void removeAllAnnotations() {
+		handler.obtainMessage(MSG_REMOVE_ALL_ANNOTATIONS).sendToTarget();
+	}
 
 	private int findAnnotation(String title)
 	{
@@ -645,6 +694,20 @@ public class TiMapView extends TiUIView
 		d.getPaint().setColor(c);
 
 		return d;
+	}
+
+	private Drawable makeMarker(String pinImage)
+	{
+		String url = proxy.getTiContext().resolveUrl(null, pinImage);
+		TiBaseFile file = TiFileFactory.createTitaniumFile(proxy.getTiContext(), new String[] { url }, false);
+		try {
+			Drawable d = new BitmapDrawable(TiUIHelper.createBitmap(file.getInputStream()));
+			d.setBounds(0, 0, d.getIntrinsicWidth(), d.getIntrinsicHeight());
+			return d;
+		} catch (IOException e) {
+			Log.e(LCAT, "Error creating drawable from path: " + pinImage.toString(), e);
+		}
+		return null;
 	}
 	private double scaleFromGoogle(int value) {
 		return (double)value / 1000000.0;

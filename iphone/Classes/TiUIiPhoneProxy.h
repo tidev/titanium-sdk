@@ -46,6 +46,7 @@
 -(void)hideStatusBar:(id)args;
 -(void)showStatusBar:(id)args;
 
+-(id)createNavigationGroup:(id)args;
 
 
 @end

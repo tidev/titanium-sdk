@@ -16,10 +16,8 @@ import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.ui.WebViewProxy;
-import android.graphics.Color;
+import android.content.Context;
 import android.net.Uri;
-import android.text.style.BackgroundColorSpan;
-import android.webkit.URLUtil;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 
@@ -28,11 +26,26 @@ public class TiUIWebView extends TiUIView {
 	private TiWebViewBinding binding;
 	private TiWebViewClient client;
 
+	private class TiWebView extends WebView {
+		public TiWebViewClient client;
+		public TiWebView(Context context) {
+			super(context);
+		}
+		
+		@Override
+		public void destroy() {
+			if (client != null) {
+				client.getBinding().destroy(); 
+			}
+			super.destroy();
+		}
+	}
+	
 	public TiUIWebView(TiViewProxy proxy)
 	{
 		super(proxy);
 
-		WebView webView = new WebView(proxy.getContext());
+		TiWebView webView = new TiWebView(proxy.getContext());
 		webView.setVerticalScrollbarOverlay(true);
 
 		WebSettings settings = webView.getSettings();
@@ -42,15 +55,17 @@ public class TiUIWebView extends TiUIView {
 		settings.setSupportZoom(true);
 		settings.setLoadsImagesAutomatically(true);
 		settings.setLightTouchEnabled(true);
-
+		
 		webView.setWebChromeClient(new TiWebChromeClient(this));
 		client = new TiWebViewClient((WebViewProxy)proxy, webView);
 		webView.setWebViewClient(client);
+		webView.client = client;
 
 		//binding = new TiWebViewBinding(proxy.getTiContext(), webView);
 		TiCompositeLayout.LayoutParams params = getLayoutParams();
 		params.autoFillsHeight = true;
 		params.autoFillsWidth = true;
+		
 		setNativeView(webView);
 	}
 
@@ -72,9 +87,6 @@ public class TiUIWebView extends TiUIView {
 			if (value instanceof TiBlob) {
 				setData((TiBlob)value);
 			}
-		}
-		if (d.containsKey("backgroundColor")) {
-			nativeView.setBackgroundColor(Color.TRANSPARENT);
 		}
 	}
 

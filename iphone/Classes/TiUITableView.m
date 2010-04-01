@@ -23,6 +23,7 @@
 	if (self = [super init])
 	{
 		sections = [[NSMutableArray array] retain];
+		filterCaseInsensitive = YES; // defaults to true on search
 	}
 	return self;
 }
@@ -525,6 +526,8 @@
 		ourSearchAttribute = @"title";
 	}
 	
+	NSStringCompareOptions searchOpts = (filterCaseInsensitive ? NSCaseInsensitiveSearch : 0);
+	
 	for (TiUITableViewSectionProxy * thisSection in sections) 
 	{
 		NSMutableIndexSet * thisIndexSet = [searchResultIndexEnumerator nextObject];
@@ -542,7 +545,7 @@
 		for (TiUITableViewRowProxy *row in [thisSection rows]) 
 		{
 			id value = [row valueForKey:ourSearchAttribute];
-			if (value!=nil && [[TiUtils stringValue:value] rangeOfString:searchString].location!=NSNotFound)
+			if (value!=nil && [[TiUtils stringValue:value] rangeOfString:searchString options:searchOpts].location!=NSNotFound)
 			{
 				[thisIndexSet addIndex:cellIndex];
 			}
@@ -842,6 +845,11 @@
 		[sectionIndex addObject:title];
 		[sectionIndexMap setObject:[NSNumber numberWithInt:[TiUtils intValue:theindex]] forKey:title];
 	}
+}
+
+-(void)setFilterCaseInsensitive_:(id)caseBool
+{
+	filterCaseInsensitive = [TiUtils boolValue:caseBool];
 }
 
 -(void)setEditable_:(id)args
@@ -1202,18 +1210,19 @@ if(tableView == searchTableView)	\
 	RETURN_IF_SEARCH_TABLE_VIEW(tableView.sectionHeaderHeight);
 	TiUITableViewSectionProxy *sectionProxy = nil;
 	TiUIView *view = [self sectionView:section forLocation:@"headerView" section:&sectionProxy];
+	TiViewProxy *viewProxy = (TiViewProxy *)[view proxy];
 	CGFloat size = 0;
 	BOOL hasTitle = NO;
-	if (view!=nil)
+	if (viewProxy!=nil)
 	{
-		LayoutConstraint *viewLayout = [view layoutProperties];
+		LayoutConstraint *viewLayout = [viewProxy layoutProperties];
 		switch (viewLayout->height.type)
 		{
 			case TiDimensionTypePixels:
 				size += viewLayout->height.value;
 				break;
 			case TiDimensionTypeAuto:
-				size += [view autoHeightForWidth:[tableView bounds].size.width];
+				size += [viewProxy autoHeightForWidth:[tableView bounds].size.width];
 				break;
 			default:
 				size+=DEFAULT_SECTION_HEADERFOOTER_HEIGHT;
@@ -1241,18 +1250,19 @@ if(tableView == searchTableView)	\
 	RETURN_IF_SEARCH_TABLE_VIEW(tableView.sectionFooterHeight);
 	TiUITableViewSectionProxy *sectionProxy = nil;
 	TiUIView *view = [self sectionView:section forLocation:@"footerView" section:&sectionProxy];
+	TiViewProxy *viewProxy = (TiViewProxy *)[view proxy];
 	CGFloat size = 0;
 	BOOL hasTitle = NO;
-	if (view!=nil)
+	if (viewProxy!=nil)
 	{
-		LayoutConstraint *viewLayout = [view layoutProperties];
+		LayoutConstraint *viewLayout = [viewProxy layoutProperties];
 		switch (viewLayout->height.type)
 		{
 			case TiDimensionTypePixels:
 				size += viewLayout->height.value;
 				break;
 			case TiDimensionTypeAuto:
-				size += [view autoHeightForWidth:[tableView bounds].size.width];
+				size += [viewProxy autoHeightForWidth:[tableView bounds].size.width];
 				break;
 			default:
 				size+=DEFAULT_SECTION_HEADERFOOTER_HEIGHT;

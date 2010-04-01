@@ -61,15 +61,19 @@ NSStringEncoding ExtractEncodingFromData(NSData * inputData)
 	return NSUTF8StringEncoding;
 }
 
+extern NSString * const TI_APPLICATION_DEPLOYTYPE;
+
 @implementation TiNetworkHTTPClientProxy
 
-@synthesize onload, onerror, onreadystatechange, ondatastream, onsendstream;
+@synthesize onload, onerror, onreadystatechange, ondatastream, timeout, onsendstream;
+@synthesize validatesSecureCertificate;
 
 -(id)init
 {
 	if (self = [super init])
 	{
 		readyState = NetworkClientStateUnsent;
+		validatesSecureCertificate = NO;
 	}
 	return self;
 }
@@ -244,6 +248,10 @@ NSStringEncoding ExtractEncodingFromData(NSData * inputData)
 	
 	request = [[ASIFormDataRequest requestWithURL:url] retain];	
 	[request setDelegate:self];
+    if (timeout) {
+        NSTimeInterval timeoutVal = [timeout doubleValue] / 1000;
+        [request setTimeOutSeconds:timeoutVal];
+    }
 	
 	if (onsendstream!=nil)
 	{
@@ -272,12 +280,6 @@ NSStringEncoding ExtractEncodingFromData(NSData * inputData)
 	NSString *key = [TiUtils stringValue:[args objectAtIndex:0]];
 	NSString *value = [TiUtils stringValue:[args objectAtIndex:1]];
 	[request addRequestHeader:key value:value];
-}
-
--(void)setTimeout:(id)args
-{
-	double timeout = [[args objectAtIndex:0] doubleValue] / 1000;
-	[request setTimeOutSeconds:timeout];
 }
 
 -(void)send:(id)args
@@ -344,6 +346,9 @@ NSStringEncoding ExtractEncodingFromData(NSData * inputData)
 	[[TitaniumApp app] startNetwork];
 	[self _fireReadyStateChange:NetworkClientStateLoading];
 	[request setAllowCompressedResponse:YES];
+	
+	// allow self-signed certs (NO) or required valid SSL (YES)
+	[request setValidatesSecureCertificate:validatesSecureCertificate];
 	
 	if (async)
 	{

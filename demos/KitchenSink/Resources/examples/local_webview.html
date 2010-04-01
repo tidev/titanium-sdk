@@ -10,13 +10,19 @@
 	Hello from local webview. You should see an indicator in the middle and my text should be blue.
 	We are also including JQuery
 	<div id="foo" style="margin-top:20px;font-weight:bold">hello</div>
-	
+	<img src="" id="image"/>
 	<script>
+
 		Ti.API.info('before image')
 		var i = new Image();
 		Ti.API.info('image '  + i);
 		window.my_global_variable = 10;
-		
+		Ti.App.addEventListener('image', function(d)
+		{
+			var path = d.path;
+			Ti.API.info('RECEIVED PATH ' + path)
+			document.getElementById('image').src = path;
+		})
 		Ti.App.addEventListener('show_indicator',function(e)
 		{
 			Ti.API.info("removeEventListener: a="+e.a);

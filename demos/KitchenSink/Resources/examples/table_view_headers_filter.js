@@ -63,10 +63,11 @@ var data = [
 	{title:'Potsie'}
 ];
 
-
+var search = Titanium.UI.createSearchBar();
 // create table view
 var tableview = Titanium.UI.createTableView({
-	data:data
+	data:data,
+	search:search
 });
 
 // create table view event listener

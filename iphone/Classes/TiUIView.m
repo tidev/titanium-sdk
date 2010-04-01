@@ -261,37 +261,37 @@ DEFINE_EXCEPTIONS
 
 -(LayoutConstraint*)layoutProperties
 {
-	NSLog(@"[INFO] Using view proxy via redirection instead of directly for %@.",self);
+	NSLog(@"[DEBUG] Using view proxy via redirection instead of directly for %@.",self);
 	return [(TiViewProxy *)proxy layoutProperties];
 }
 
 -(void)setLayoutProperties:(LayoutConstraint *)layout_
 {
-	NSLog(@"[INFO] Using view proxy via redirection instead of directly for %@.",self);
+	NSLog(@"[DEBUG] Using view proxy via redirection instead of directly for %@.",self);
 	[(TiViewProxy *)proxy setLayoutProperties:layout_];
 }
 
 -(CGFloat)minimumParentWidthForWidth:(CGFloat)value
 {
-	NSLog(@"[INFO] Using view proxy via redirection instead of directly for %@.",self);
+	NSLog(@"[DEBUG] Using view proxy via redirection instead of directly for %@.",self);
 	return [(TiViewProxy *)[self proxy] minimumParentWidthForWidth:value];
 }
 
 -(CGFloat)minimumParentHeightForWidth:(CGFloat)value
 {
-	NSLog(@"[INFO] Using view proxy via redirection instead of directly for %@.",self);
+	NSLog(@"[DEBUG] Using view proxy via redirection instead of directly for %@.",self);
 	return [(TiViewProxy *)[self proxy] minimumParentHeightForWidth:value];
 }
 
 -(CGFloat)autoWidthForWidth:(CGFloat)value
 {
-	NSLog(@"[INFO] Using view proxy via redirection instead of directly for %@.",self);
+	NSLog(@"[DEBUG] Using view proxy via redirection instead of directly for %@.",self);
 	return [(TiViewProxy *)[self proxy] autoWidthForWidth:value];
 }
 
 -(CGFloat)autoHeightForWidth:(CGFloat)value
 {
-	NSLog(@"[INFO] Using view proxy via redirection instead of directly for %@.",self);
+	NSLog(@"[DEBUG] Using view proxy via redirection instead of directly for %@.",self);
 	return [(TiViewProxy *)[self proxy] autoHeightForWidth:value];
 }
 

@@ -79,61 +79,24 @@ NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._listeners={
 
 -(UIView*)hitTest:(CGPoint)point withEvent:(UIEvent *)event
 {
-	// webview is a little _special_ so we need to intercept
-	// his events and handle them as well as dispatch directly
-	// to the webview to handle inside HTML
+	/*	webview is a little _special_ and refuses to share events.
+	 *	As such, we have to take the events away if we have event listeners
+	 *	Or let webview has his entire cake. Through experimenting, if the
+	 *	webview is interested, a subview or subsubview will be the target.
+	 */
+
 	UIView *view = [super hitTest:point withEvent:event];
-	id desc = [[view class] description];
-	// we check the description since the actual class is a private
-	// class UIWebDocumentView and we can't worry about apple triggering
-	// their private apis sound alarm
-	if ([desc hasPrefix:@"UIWeb"])
+	if ([self hasTouchableListener])
 	{
-		delegateView = view;
-		return self;
+		UIView *superview = [view superview];
+		UIView *superduperview = [superview superview];
+		if ((view == webview) || (superview == webview) || (superduperview == webview))
+		{
+			return self;
+		}
 	}
-	else
-	{
-		delegateView = nil;
-	}
+	
 	return view;
-}
-
-
-- (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event 
-{
-	[super touchesBegan:touches withEvent:event];
-	if (delegateView!=nil)
-	{
-		[delegateView touchesBegan:touches withEvent:event];
-	}
-}
-
-- (void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event 
-{
-	[super touchesMoved:touches withEvent:event];
-	if (delegateView!=nil)
-	{
-		[delegateView touchesMoved:touches withEvent:event];
-	}
-}
-
-- (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event 
-{
-	[super touchesEnded:touches withEvent:event];
-	if (delegateView!=nil)
-	{
-		[delegateView touchesEnded:touches withEvent:event];
-	}
-}
-
-- (void)touchesCancelled:(NSSet *)touches withEvent:(UIEvent *)event 
-{
-	[super touchesCancelled:touches withEvent:event];
-	if (delegateView!=nil)
-	{
-		[delegateView touchesCancelled:touches withEvent:event];
-	}
 }
 
 
@@ -258,7 +221,62 @@ NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._listeners={
 
 -(id)url
 {
+	if (webview!=nil)
+	{
+		return [[[webview request] URL] absoluteString];
+	}
 	return url;
+}
+
+- (void)reload:(id)args
+{
+	if (webview!=nil)
+	{
+		[webview reload];
+	}
+}
+
+- (void)stopLoading:(id)args
+{
+	if (webview!=nil)
+	{
+		[webview stopLoading];
+	}
+}
+
+- (void)goBack:(id)args
+{
+	if (webview!=nil)
+	{
+		[webview goBack];
+	}
+}
+
+- (void)goForward:(id)args
+{
+	if (webview!=nil)
+	{
+		[webview goForward];
+	}
+}
+
+-(id)loading
+{
+	if (webview!=nil)
+	{
+		return NUMBOOL([webview isLoading]);
+	}
+	return NUMBOOL(NO);
+}
+
+-(void)canGoBack:(NSMutableArray*)arg
+{
+	[arg addObject:NUMBOOL([webview canGoBack])];
+}
+
+-(void)canGoForward:(NSMutableArray*)arg
+{
+	[arg addObject:NUMBOOL([webview canGoForward])];
 }
 
 -(void)setBackgroundColor_:(id)color
@@ -508,7 +526,7 @@ NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._listeners={
 	}
 	if ([self.proxy _hasListeners:@"load"])
 	{
-		NSDictionary *event = url == nil ? nil : [NSDictionary dictionaryWithObject:[url absoluteString] forKey:@"url"];
+		NSDictionary *event = url == nil ? nil : [NSDictionary dictionaryWithObject:[self url] forKey:@"url"];
 		[self.proxy fireEvent:@"load" withObject:event];
 	}
 	
@@ -521,7 +539,7 @@ NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._listeners={
 {
 	if ([self.proxy _hasListeners:@"error"])
 	{
-		NSMutableDictionary *event = [NSMutableDictionary dictionaryWithObject:[url absoluteString] forKey:@"url"];
+		NSMutableDictionary *event = [NSMutableDictionary dictionaryWithObject:[self url] forKey:@"url"];
 		[event setObject:[error description] forKey:@"message"];
 		[self.proxy fireEvent:@"error" withObject:event];
 	}

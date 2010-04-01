@@ -68,7 +68,7 @@ public class TiBlob extends TiProxy
 		if (image.compress(CompressFormat.PNG, 100, bos)) {
 			data = bos.toByteArray();
 		}
-		
+
 		TiBlob blob = new TiBlob(tiContext, TYPE_IMAGE, data, "image/bitmap");
 		blob.width = image.getWidth();
 		blob.height = image.getHeight();
@@ -108,7 +108,7 @@ public class TiBlob extends TiProxy
 
 		return bytes;
 	}
-	
+
 	public int getLength() {
 		switch (type) {
 			case TYPE_FILE:
@@ -121,7 +121,7 @@ public class TiBlob extends TiProxy
 				return getBytes().length;
 		}
 	}
-	
+
 	public InputStream getInputStream()
 	{
 		switch (type) {
@@ -135,7 +135,7 @@ public class TiBlob extends TiProxy
 				return new ByteArrayInputStream(getBytes());
 		}
 	}
-	
+
 	public void append(TiBlob blob) {
 		switch(type) {
 			case TYPE_STRING :
@@ -153,7 +153,7 @@ public class TiBlob extends TiProxy
 				byte[] newData = new byte[dataBytes.length + appendBytes.length];
 				System.arraycopy(dataBytes, 0, newData, 0, dataBytes.length);
 				System.arraycopy(appendBytes, 0, newData, dataBytes.length, appendBytes.length);
-				
+
 				data = newData;
 				break;
 			case TYPE_FILE :
@@ -162,6 +162,24 @@ public class TiBlob extends TiProxy
 			default :
 				throw new IllegalArgumentException("Unknown Blob type id " + type);
 		}
+	}
+
+	public String getText() {
+		String result = null;
+
+		// Only support String and Data. Same as iPhone
+		switch(type) {
+			case TYPE_STRING :
+				result = (String) data;
+			case TYPE_DATA :
+				try {
+					result = new String(getBytes(), "utf-8");
+				} catch (UnsupportedEncodingException e) {
+					Log.w(LCAT, "Unable to convert to string.");
+				}
+		}
+
+		return result;
 	}
 
 	public String getMimeType() {
@@ -175,20 +193,20 @@ public class TiBlob extends TiProxy
 	public int getType() {
 		return type;
 	}
-	
+
 	public int getWidth() {
 		return width;
 	}
-	
+
 	public int getHeight() {
 		return height;
 	}
-	
+
 	public String toString()
 	{
 		return "[object TiBlob]";
 	}
-	
+
 	public String toBase64()
 	{
 		return new String(Base64.encodeBase64(getBytes()));

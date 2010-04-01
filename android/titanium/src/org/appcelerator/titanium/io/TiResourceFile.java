@@ -17,12 +17,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
-import org.appcelerator.titanium.util.TiFileHelper;
 import org.appcelerator.titanium.util.TiFileHelper2;
 
 import android.content.Context;
@@ -230,7 +231,46 @@ public class TiResourceFile extends TiBaseFile
 	}
 	public double size()
 	{
-		return getNativeFile().length();
+		long length = 0;
+		InputStream is = null;
+		try {
+			is = getInputStream();
+			length = is.skip(Long.MAX_VALUE);
+		} catch (IOException e) {
+			Log.w(LCAT, "Error while trying to determine file size: " + e.getMessage());
+		} finally {
+			if (is != null) {
+				try {
+					is.close();
+				} catch (IOException e) {
+					//ignore
+				}
+			}
+		}
+		return length;
+	}
+
+
+	@Override
+	public List<String> getDirectoryListing()
+	{
+		List<String> listing = new ArrayList<String>();
+		try {
+			String lpath = TiFileHelper2.joinSegments("Resources", path);
+			if (lpath.endsWith("/")) {
+				lpath = lpath.substring(0, lpath.lastIndexOf("/"));
+			}
+			String[] names = getTiContext().getActivity().getAssets().list(lpath);
+			if (names != null) {
+				int len = names.length;
+				for(int i = 0; i < len; i++) {
+					listing.add(names[i]);
+				}
+			}
+		} catch (IOException e) {
+			Log.e(LCAT, "Error while getting a directory listing: " + e.getMessage(), e);
+		}
+		return listing;
 	}
 
 	public String toString ()

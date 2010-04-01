@@ -129,6 +129,13 @@ result = [NSNumber numberWithBool:[[UIApplication sharedApplication] application
 END_UI_THREAD_PROTECTED_VALUE(appSupportsShakeToEdit)
 
 
+-(id)createNavigationGroup:(id)args
+{
+	// don't create a static depedency, do it with lazy binding
+	Class cl = NSClassFromString(@"TiUIiPhoneNavigationGroupProxy");
+	return [[[cl alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
+}
+
 #pragma mark Internal
 
 -(void)didReceiveMemoryWarning:(NSNotification*)notification

@@ -29,6 +29,7 @@
 +(NSString *)encodeURIParameters:(NSString *)unencodedString;
 
 +(UIImage*)toImage:(id)object proxy:(TiProxy*)proxy;
+
 +(NSURL*)toURL:(id)object proxy:(TiProxy*)proxy;
 
 +(UIImage *)image:(id)object proxy:(TiProxy*)proxy;
@@ -43,7 +44,10 @@
 
 +(CGPoint)pointValue:(id)value;
 
++(CGRect)rectValue:(id)value;
+
 +(CGFloat)floatValue:(id)value;
+
 +(CGFloat)floatValue:(id)value def:(CGFloat) def;
 
 +(double)doubleValue:(id)value;
@@ -154,5 +158,7 @@
 +(void)queueAnalytics:(NSString*)type name:(NSString*)name data:(NSDictionary*)data;
 
 +(BOOL)isIPad;
+
++(BOOL)isDevice_Pre_3_2;
 
 @end

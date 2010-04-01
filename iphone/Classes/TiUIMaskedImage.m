@@ -110,10 +110,8 @@
 {
 	if([self isHidden])
 	{
-		NSLog(@"Why are we drawing %@/%@ while hidden?",[imageURL absoluteString],[maskURL absoluteString]);
 		return;
 	}
-	NSLog(@"Rendering image %@/%@",[imageURL absoluteString],[maskURL absoluteString]);
 
 	CGContextRef ourContext = UIGraphicsGetCurrentContext();
 	CGRect bounds = [self bounds];

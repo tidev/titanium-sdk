@@ -9,11 +9,10 @@
 /* Begin PBXBuildFile section */
 		1D60589B0D05DD56006BFB54 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 29B97316FDCFA39411CA2CEA /* main.m */; };
 		1D60589F0D05DD5A006BFB54 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1D30AB110D05D00D00671497 /* Foundation.framework */; };
-		1DF5F4E00D08C38300B7A737 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1DF5F4DF0D08C38300B7A737 /* UIKit.framework */; };
+		1DF5F4E00D08C38300B7A737 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1DF5F4DF0D08C38300B7A737 /* UIKit.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		2402F88D10AB57070060E89D /* MobileCoreServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2402F88C10AB57070060E89D /* MobileCoreServices.framework */; };
 		2418F31F0FCB095700BFE545 /* ApplicationRouting.m in Sources */ = {isa = PBXBuildFile; fileRef = 2418F31E0FCB095700BFE545 /* ApplicationRouting.m */; };
 		2459A0D9111AAE5E00400F0F /* libTiCore.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2459A0D8111AAE5E00400F0F /* libTiCore.a */; };
-		2459A12A111AAF1500400F0F /* libicucore.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2459A129111AAF1500400F0F /* libicucore.dylib */; };
 		24B51C78109EC1D300B87D18 /* CFNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 24B51C77109EC1D300B87D18 /* CFNetwork.framework */; };
 		249377BD10797681003847F0 /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 249377BC10797681003847F0 /* OpenGLES.framework */; };
 		249378A210797846003847F0 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 249378A110797846003847F0 /* QuartzCore.framework */; };
@@ -24,10 +23,10 @@
 		24B7119F0FC7758C004726E8 /* libsqlite3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2432E3980FC77343004A7260 /* libsqlite3.dylib */; };
 		25444A39102CE6BF0089FBDD /* MessageUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 25444A38102CE6BF0089FBDD /* MessageUI.framework */; };
 		259A152D0FDB01B5000372D8 /* Resources/Entitlements.plist in Resources */ = {isa = PBXBuildFile; fileRef = 259A152C0FDB01B5000372D8 /* Resources/Entitlements.plist */; };
-		25C89E2E0FD0671D000A63BB /* MediaPlayer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 25C89E2D0FD0671D000A63BB /* MediaPlayer.framework */; };
+		25C89E2E0FD0671D000A63BB /* MediaPlayer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 25C89E2D0FD0671D000A63BB /* MediaPlayer.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		288765FD0DF74451002DB57D /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 288765FC0DF74451002DB57D /* CoreGraphics.framework */; };
 		28AD733F0D9D9553002E5188 /* MainWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = 28AD733E0D9D9553002E5188 /* MainWindow.xib */; };
-		B4EA71F00FBC94DB005AA7FB /* libTitanium.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B49D35000FBC943A0029ABEB /* libTitanium.a */; };
+		B4EA71F00FBC94DB005AA7FB /* libTitanium.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B49D35000FBC943A0029ABEB /* libTitanium.a */; settings = {ATTRIBUTES = (Weak, ); }; };
 		24EB0A58111E1BAE001DC2D1 /* libxml2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 24EB0A57111E1BAE001DC2D1 /* libxml2.dylib */; };
 		B4EA732B0FBC9893005AA7FB /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B4EA72ED0FBC9868005AA7FB /* AudioToolbox.framework */; };
 		B4EA732C0FBC9896005AA7FB /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = B4EA72EE0FBC9868005AA7FB /* libz.dylib */; };
@@ -48,7 +47,6 @@
 		2432E3980FC77343004A7260 /* libsqlite3.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libsqlite3.dylib; path = usr/lib/libsqlite3.dylib; sourceTree = SDKROOT; };
 		249377BC10797681003847F0 /* OpenGLES.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGLES.framework; path = System/Library/Frameworks/OpenGLES.framework; sourceTree = SDKROOT; };
 		2459A0D8111AAE5E00400F0F /* libTiCore.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libTiCore.a; path = Resources/libTiCore.a; sourceTree = "<group>"; };
-		2459A129111AAF1500400F0F /* libicucore.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libicucore.dylib; path = usr/lib/libicucore.dylib; sourceTree = SDKROOT; };
 		24B51C77109EC1D300B87D18 /* CFNetwork.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CFNetwork.framework; path = System/Library/Frameworks/CFNetwork.framework; sourceTree = SDKROOT; };
 		249378A110797846003847F0 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = /System/Library/Frameworks/QuartzCore.framework; sourceTree = "<absolute>"; };
 		2493799B10798AD0003847F0 /* MapKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MapKit.framework; path = System/Library/Frameworks/MapKit.framework; sourceTree = SDKROOT; };
@@ -99,7 +97,6 @@
 				24B51C78109EC1D300B87D18 /* CFNetwork.framework in Frameworks */,
 				2402F88D10AB57070060E89D /* MobileCoreServices.framework in Frameworks */,
 				2459A0D9111AAE5E00400F0F /* libTiCore.a in Frameworks */,
-				2459A12A111AAF1500400F0F /* libicucore.dylib in Frameworks */,
 				24EB0A58111E1BAE001DC2D1 /* libxml2.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -180,7 +177,6 @@
 				249379A110798AF8003847F0 /* AddressBookUI.framework */,
 				24B51C77109EC1D300B87D18 /* CFNetwork.framework */,
 				2402F88C10AB57070060E89D /* MobileCoreServices.framework */,
-				2459A129111AAF1500400F0F /* libicucore.dylib */,
 				24EB0A57111E1BAE001DC2D1 /* libxml2.dylib */,
 			);
 			name = Frameworks;
@@ -322,7 +318,7 @@
 					"-lstdc++",
 				);
 				PREBINDING = NO;
-				SDKROOT = iphonesimulator3.1.2;
+				SDKROOT = iphonesimulator3.2;
 				WEB_SRC_ROOT = $PROJECT_DIR/tmp;
 			};
 			name = Debug;
@@ -346,7 +342,7 @@
 					"-lstdc++",
 				);
 				PREBINDING = NO;
-				SDKROOT = iphoneos3.1.2;
+				SDKROOT = iphoneos3.2;
 				WEB_SRC_ROOT = $PROJECT_DIR/tmp;
 			};
 			name = Release;

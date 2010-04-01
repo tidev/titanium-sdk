@@ -7,7 +7,7 @@
 #import "TiUIView.h"
 #import <MediaPlayer/MediaPlayer.h>
 
-#ifdef IPAD
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
 
 @interface TiMediaVideoPlayer : TiUIView {
 @private

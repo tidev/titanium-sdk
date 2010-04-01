@@ -6,10 +6,9 @@
  */
 
 #import "TiMediaVideoPlayer.h"
-
 #import "TiUtils.h"
 
-#ifdef IPAD
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
 
 @implementation TiMediaVideoPlayer
 
@@ -26,6 +25,10 @@
 
 -(void)dealloc
 {
+	if (controller!=nil)
+	{
+		[[controller view] removeFromSuperview];
+	}
 	RELEASE_TO_NIL(controller);
 	[super dealloc];
 }

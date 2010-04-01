@@ -10,6 +10,7 @@ import java.io.IOException;
 
 import org.appcelerator.titanium.TiDict;
 import org.appcelerator.titanium.TiProxy;
+import org.appcelerator.titanium.TiProxyListener;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiConvert;
@@ -21,7 +22,7 @@ import android.net.Uri;
 import android.webkit.URLUtil;
 
 public class TiSound
-	implements MediaPlayer.OnCompletionListener, MediaPlayer.OnErrorListener
+	implements MediaPlayer.OnCompletionListener, MediaPlayer.OnErrorListener, TiProxyListener
 {
 	private static final String LCAT = "TiSound";
 	private static final boolean DBG = TiConfig.LOGD;
@@ -49,7 +50,6 @@ public class TiSound
 
 		this.proxy = proxy;
 		this.url = TiConvert.toURL(uri);
-		this.volume = 0.5f;
 		this.playOnResume = false;
 	}
 
@@ -83,18 +83,14 @@ public class TiSound
 				}
 			}
 			mp.prepare();
-			mp.setVolume(volume, volume);
+			setVolume(volume);
+			//mp.setVolume(volume, volume); Use internal method to scale
 			mp.setLooping(looping);
 			mp.setOnCompletionListener(this);
 			mp.setOnErrorListener(this);
 		} catch (Throwable t) {
 			Log.w(LCAT, "Issue while initializing : " , t);
 		}
-	}
-
-	public float getVolume()
-	{
-		return volume;
 	}
 
 	public boolean isLooping() {
@@ -148,7 +144,7 @@ public class TiSound
 					if (DBG) {
 						Log.d(LCAT,"audio is not playing, starting.");
 					}
-					mp.setVolume(volume, volume);
+					setVolume(volume);
 					if (DBG) {
 						Log.d(LCAT, "Play: Volume set to " + volume);
 					}
@@ -212,6 +208,7 @@ public class TiSound
 				Log.w(LCAT, "Attempt to set volume less than 0.0. Volume set to 0.0");
 			} else if (volume > 1.0) {
 				this.volume = 1.0f;
+				proxy.internalSetDynamicValue("volume", volume, false);
 				Log.w(LCAT, "Attempt to set volume greater than 1.0. Volume set to 1.0");
 			} else {
 				this.volume = volume; // Store in 0.0 to 1.0, scale when setting hw
@@ -298,6 +295,31 @@ public class TiSound
 				play();
 				playOnResume = false;
 			}
+		}
+	}
+
+	@Override
+	public void listenerAdded(String type, int count, TiProxy proxy) {
+	}
+
+	@Override
+	public void listenerRemoved(String type, int count, TiProxy proxy) {
+	}
+
+	@Override
+	public void processProperties(TiDict d) {
+		if (d.containsKey("volume")) {
+			setVolume(TiConvert.toFloat(d, "volume"));
+		} else {
+			setVolume(0.5f);
+		}
+	}
+
+	@Override
+	public void propertyChanged(String key, Object oldValue, Object newValue, TiProxy proxy)
+	{
+		if ("volume".equals(key)) {
+			setVolume(TiConvert.toFloat(newValue));
 		}
 	}
 }

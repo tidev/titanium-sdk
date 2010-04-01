@@ -80,6 +80,7 @@ def package_module(manifest,mf):
 	name = manifest['name'].lower()
 	version = manifest['version']
 	modulezip = '%s-iphone-%s.zip' % (name,version)
+	if os.path.exists(modulezip): os.remove(modulezip)
 	zf = zipfile.ZipFile(modulezip, 'w', zipfile.ZIP_DEFLATED)
 	modulepath = 'modules/iphone/%s/%s' % (name,version)
 	zf.write(mf,'%s/manifest' % modulepath)

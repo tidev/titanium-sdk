@@ -139,9 +139,20 @@ static XHRBridge *xhrBridge = nil;
 	{
 		// check to see if it's a local resource in the bundle, could be
 		// a bundled image, etc. - or we could be running from XCode :)
-		NSString *resourceurl = [[NSBundle mainBundle] resourcePath];
-		NSString *path = [NSString stringWithFormat:@"%@%@",resourceurl,[url path]];
-		data = [[[NSData alloc] initWithContentsOfFile:path] autorelease];
+		NSString *urlpath = [url path];
+		if ([urlpath characterAtIndex:0]=='/')
+		{
+			if ([[NSFileManager defaultManager] fileExistsAtPath:urlpath])
+			{
+				data = [[[NSData alloc] initWithContentsOfFile:urlpath] autorelease];
+			}
+		}
+		if (data==nil)
+		{
+			NSString *resourceurl = [[NSBundle mainBundle] resourcePath];
+			NSString *path = [NSString stringWithFormat:@"%@%@",resourceurl,urlpath];
+			data = [[[NSData alloc] initWithContentsOfFile:path] autorelease];
+		}
 	}
 	
 	if (data!=nil)

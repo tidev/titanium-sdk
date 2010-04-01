@@ -21,6 +21,8 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.net.MalformedURLException;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiContext;
@@ -226,6 +228,40 @@ public class TiFile extends TiBaseFile
 
 	public File getNativeFile() {
 		return file;
+	}
+
+	@Override
+	public List<String> getDirectoryListing() {
+		File dir = getNativeFile();
+		List<String> listing = new ArrayList<String>();
+
+		String[] names = dir.list();
+		if (names != null) {
+			int len = names.length;
+			for (int i = 0; i < len; i++) {
+				listing.add(names[i]);
+			}
+		}
+
+		return listing;
+	}
+
+
+	@Override
+	public TiBaseFile getParent()
+	{
+		TiBaseFile parentFile = null;
+
+		File f = getNativeFile();
+		if (f != null) {
+			File p = f.getParentFile();
+
+			if (p != null) {
+				parentFile = TiFileFactory.createTitaniumFile(getTiContext(), "file://" + p.getAbsolutePath(), false);
+			}
+		}
+
+		return parentFile;
 	}
 
 	@Override
