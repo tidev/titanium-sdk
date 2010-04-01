@@ -221,7 +221,62 @@ NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._listeners={
 
 -(id)url
 {
+	if (webview!=nil)
+	{
+		return [[[webview request] URL] absoluteString];
+	}
 	return url;
+}
+
+- (void)reload:(id)args
+{
+	if (webview!=nil)
+	{
+		[webview reload];
+	}
+}
+
+- (void)stopLoading:(id)args
+{
+	if (webview!=nil)
+	{
+		[webview stopLoading];
+	}
+}
+
+- (void)goBack:(id)args
+{
+	if (webview!=nil)
+	{
+		[webview goBack];
+	}
+}
+
+- (void)goForward:(id)args
+{
+	if (webview!=nil)
+	{
+		[webview goForward];
+	}
+}
+
+-(id)loading
+{
+	if (webview!=nil)
+	{
+		return NUMBOOL([webview isLoading]);
+	}
+	return NUMBOOL(NO);
+}
+
+-(void)canGoBack:(NSMutableArray*)arg
+{
+	[arg addObject:NUMBOOL([webview canGoBack])];
+}
+
+-(void)canGoForward:(NSMutableArray*)arg
+{
+	[arg addObject:NUMBOOL([webview canGoForward])];
 }
 
 -(void)setBackgroundColor_:(id)color
@@ -471,7 +526,7 @@ NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._listeners={
 	}
 	if ([self.proxy _hasListeners:@"load"])
 	{
-		NSDictionary *event = url == nil ? nil : [NSDictionary dictionaryWithObject:[url absoluteString] forKey:@"url"];
+		NSDictionary *event = url == nil ? nil : [NSDictionary dictionaryWithObject:[self url] forKey:@"url"];
 		[self.proxy fireEvent:@"load" withObject:event];
 	}
 	
@@ -484,7 +539,7 @@ NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._listeners={
 {
 	if ([self.proxy _hasListeners:@"error"])
 	{
-		NSMutableDictionary *event = [NSMutableDictionary dictionaryWithObject:[url absoluteString] forKey:@"url"];
+		NSMutableDictionary *event = [NSMutableDictionary dictionaryWithObject:[self url] forKey:@"url"];
 		[event setObject:[error description] forKey:@"message"];
 		[self.proxy fireEvent:@"error" withObject:event];
 	}
