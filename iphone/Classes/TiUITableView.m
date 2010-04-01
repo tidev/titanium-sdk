@@ -1043,6 +1043,13 @@ if(tableView == searchTableView)	\
         BOOL emptySection = ([[section rows] count] == 0);
         if (emptySection) {
             [sections removeObjectAtIndex:[indexPath section]];
+            
+            // Manage the collation
+            NSArray* titles = [sectionIndexMap allKeysForObject:[NSNumber numberWithInt:[indexPath section]]];
+            [sectionIndex removeObjectsInArray:titles];
+            for (id title in titles) {
+                [sectionIndexMap removeObjectForKey:title];
+            }
         }
 
 		[table beginUpdates];
