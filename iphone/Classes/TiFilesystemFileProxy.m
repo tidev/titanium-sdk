@@ -203,10 +203,22 @@ FILENOOP(setHidden:(id)x);
 		TiBlob *blob = (TiBlob*)arg;
 		return NUMBOOL([blob writeTo:path error:nil]);
 	}
+	else if ([arg isKindOfClass:[TiFile class]])
+	{
+		TiFile *file = (TiFile*)arg;
+		[[NSFileManager defaultManager] removeItemAtPath:path error:nil];
+		NSError *error = nil;
+		[[NSFileManager defaultManager] copyItemAtPath:[file path] toPath:path error:&error];
+		if (error!=nil)
+		{
+			NSLog(@"[ERROR] error writing file: %@ to: %@. Error: %@",[file path],path,error);
+		}
+		return NUMBOOL(error==nil);
+	}
 	else
 	{
 		NSString *data = [TiUtils stringValue:arg];
-		return NUMBOOL([data writeToFile:path atomically:NO encoding:NSUTF8StringEncoding error:nil]);
+		return NUMBOOL([data writeToFile:path atomically:YES encoding:NSUTF8StringEncoding error:nil]);
 	}
 }
 

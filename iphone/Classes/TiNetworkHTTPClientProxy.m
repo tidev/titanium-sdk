@@ -73,17 +73,7 @@ extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 	if (self = [super init])
 	{
 		readyState = NetworkClientStateUnsent;
-		
-		// if in production, the *default* is YES. otherwise during
-		// simulator or on-device testing, it's NO
-		if ([TI_APPLICATION_DEPLOYTYPE isEqualToString:@"production"])
-		{
-			validatesSecureCertificate = YES;
-		}
-		else
-		{
-			validatesSecureCertificate = NO;
-		}
+		validatesSecureCertificate = NO;
 	}
 	return self;
 }
