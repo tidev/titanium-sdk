@@ -125,7 +125,6 @@ tableview.addEventListener('click', function(e)
 			}
 		}
 
-
 		w.add(webview);
 
 		// hide toolbar for local web view
@@ -139,10 +138,6 @@ tableview.addEventListener('click', function(e)
 					w.remove(toolbar);
 				}
 			}
-		});
-		webview.addEventListener('click', function()
-		{
-			Ti.API.info('RECEIVED CLICK ON WEBVIEW');
 		});
 		win.tab.open(w);		
 	}
