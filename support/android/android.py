@@ -43,7 +43,7 @@ def copy_resources(source, target):
 	
 class Android(object):
 
-	def __init__(self, name, myid, sdk):
+	def __init__(self, name, myid, sdk, deploy_type):
 		self.name = name
 		
 		# android requires at least one dot in packageid
@@ -59,9 +59,11 @@ class Android(object):
 			'appname' : self.name,
 			'appversion' : '1',
 			'apiversion' : '4', #Android 1.6
+			'deploy_type': deploy_type,
 		}
 		self.config['classname'] = "".join(string.capwords(self.name).split(' '))
-
+		self.deploy_type = deploy_type
+	
 	def newdir(self, *segments):
 		path = os.path.join(*segments)
 		if not os.path.exists(path):
@@ -78,6 +80,7 @@ class Android(object):
 		tmpl = self.load_template(os.path.join(template_dir, 'templates', template_file))
 		f = None
 		try:
+			print "[TRACE] Generating %s" % os.path.join(dest, dest_file)
 			f = open(os.path.join(dest, dest_file), "w")
 			f.write(tmpl.render(config = self.config, **kwargs))
 		finally:

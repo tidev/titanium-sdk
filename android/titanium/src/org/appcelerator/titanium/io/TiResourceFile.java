@@ -11,6 +11,7 @@ import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -29,15 +30,29 @@ import android.content.Context;
 public class TiResourceFile extends TiBaseFile
 {
 	private static final String LCAT = "TiResourceFile";
+	private static final String LOAD_FROM_SD_CARD = "ti.android.loadfromsdcard";
+	
 	@SuppressWarnings("unused")
 	private static final boolean DBG = TiConfig.LOGD;
 
 	private final String path;
-
+	private boolean loadFromSDCard;
+	private String sdCardPrefix;
+	
 	public TiResourceFile(TiContext tiContext, String path)
 	{
 		super(tiContext, TYPE_RESOURCE);
 		this.path = path;
+		this.loadFromSDCard = tiContext.getTiApp().getAppProperties().getBool(LOAD_FROM_SD_CARD, false);
+		
+		if (loadFromSDCard) {
+			Log.d(LCAT, "Loading data from sdcard");
+		}
+	}
+	
+	private String getSDCardPath(String path) {
+		return TiFileHelper2.joinSegments(TiFileHelper.SD_CARD_PREFIX,
+			getTiContext().getTiApp().getAppInfo().getId(), path);
 	}
 
 	@Override
@@ -54,7 +69,11 @@ public class TiResourceFile extends TiBaseFile
 		Context context = getTiContext().getActivity();
 		if (context != null) {
 			String p = TiFileHelper2.joinSegments("Resources", path);
-			in = context.getAssets().open(p);
+			if (loadFromSDCard) {
+				in = new FileInputStream(new File(getSDCardPath(p)));
+			} else {
+				in = context.getAssets().open(p);
+			}
 		}
 		return in;
 	}
@@ -203,7 +222,11 @@ public class TiResourceFile extends TiBaseFile
 	}
 
 	public String toURL() {
-		return "file:///android_asset/Resources/" + path;
+		if (loadFromSDCard) {
+			return getSDCardPath("Resources/"+path);
+		} else {
+			return "file:///android_asset/Resources/" + path;
+		}
 	}
 	public double size()
 	{

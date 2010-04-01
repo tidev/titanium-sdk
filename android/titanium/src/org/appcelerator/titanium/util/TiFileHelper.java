@@ -43,9 +43,10 @@ public class TiFileHelper
 	public static final String TI_DIR_JS = "tijs";
 	private static final String MACOSX_PREFIX = "__MACOSX";
 	private static final String TI_RESOURCE_PREFIX = "ti:";
-
+	
 	public static final String RESOURCE_ROOT_ASSETS = "file:///android_asset/Resources";
-
+	public static final String SD_CARD_PREFIX = "/sdcard/Ti.debug";
+	
 	static HashMap<String, Integer> systemIcons;
 
 	private SoftReference<Context> softContext;
@@ -162,6 +163,8 @@ public class TiFileHelper
 				int len = "file:///android_asset/".length();
 				path = path.substring(len);
 				is = context.getAssets().open(path);
+			} else if (path.startsWith(SD_CARD_PREFIX)) {
+				is = new FileInputStream(new File(path));
 			} else if (URLUtil.isFileUrl(path)) {
 				URL u = new URL(path);
 				is = u.openStream();

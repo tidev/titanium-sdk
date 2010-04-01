@@ -21,6 +21,7 @@ public class KitchensinkAppInfo implements ITiAppInfo
 		properties.setString("ti.deploytype", "development");
 					
 		properties.setString("ti.android.google.map.api.key", "0ZnKXkWA2dIAu2EM-OV4ZD2lJY3sEWE5TSgjJNg");
+		properties.setBool("ti.android.loadfromsdcard", true);
 	}
 	
 	public String getId() {
