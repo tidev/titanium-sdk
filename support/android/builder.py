@@ -114,7 +114,7 @@ class Builder(object):
 		sys.stdout.flush()
 		duration = time.time() - t
 		print "[DEBUG] waited %f seconds on emulator to get ready" % duration
-		if duration > 0.15:
+		if duration > 1.0:
 			print "[INFO] Waiting for the Android Emulator to become available"
 			time.sleep(15) # give it a little more time to get installed
 	
