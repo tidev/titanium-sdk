@@ -379,11 +379,11 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 	if (dynprops!=nil)
 	{
 		[dynPropsLock lock];
-		[dynprops removeAllObjects];
+		[dynprops autorelease];
+		dynprops = nil;
 		[dynPropsLock unlock];
 	}
 	[listeners removeAllObjects];
-	RELEASE_TO_NIL(dynprops);
 	RELEASE_TO_NIL(listeners);
 	RELEASE_TO_NIL(baseURL);
 	RELEASE_TO_NIL(krollDescription);

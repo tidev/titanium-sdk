@@ -48,7 +48,8 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 	private TiCompositeLayout content;
 	private TiUIView[] views;
 	private boolean hasControls;
-
+	private int height = -1;
+	
 	public TiTableViewRowProxyItem(TiContext tiContext)
 	{
 		super(tiContext);
@@ -119,7 +120,11 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 			leftImage.setImageDrawable(null);
 			leftImage.setVisibility(GONE);
 		}
-
+		
+		if (props.containsKey("height")) {
+			height = TiConvert.toInt(props, "height");
+		}
+		
 		if (rp.hasControls()) {
 			ArrayList<TiViewProxy> proxies = rp.getControls();
 			int len = proxies.size();
@@ -203,7 +208,11 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 		measureChild(content, MeasureSpec.makeMeasureSpec(adjustedWidth, wMode), heightMeasureSpec);
 
 		if(hMode == MeasureSpec.UNSPECIFIED) {
-			h = Math.max(h, Math.max(content.getMeasuredHeight(), Math.max(leftImageHeight, rightImageHeight)));
+			if (height == -1) {
+				h = Math.max(h, Math.max(content.getMeasuredHeight(), Math.max(leftImageHeight, rightImageHeight)));
+			} else {
+				h = height;
+			}
 			measureChild(content, MeasureSpec.makeMeasureSpec(adjustedWidth, wMode), MeasureSpec.makeMeasureSpec(h, MeasureSpec.EXACTLY));
 		}
 

@@ -13,7 +13,8 @@ var data = [
 	{title:'Set Timeout (timer)', hasChild:true, test:'../examples/set_timeout.js'},
 	{title:'Set Interval (timer)', hasChild:true, test:'../examples/set_interval.js'},
 	{title:'XML DOM', hasChild:true, test:'../examples/xml_dom.js'},
-	{title:'XML RSS', hasChild:true, test:'../examples/xml_rss.js'}
+	{title:'XML RSS', hasChild:true, test:'../examples/xml_rss.js'},
+	{title:'Utils', hasChild:true, test:'../examples/utils.js'}
 	
 ];
 

@@ -12,8 +12,10 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.concurrent.Semaphore;
 
+import org.appcelerator.titanium.TiActivity;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiDict;
+import org.appcelerator.titanium.TiContext.OnLifecycleEvent;
 import org.appcelerator.titanium.kroll.IKrollCallable;
 import org.appcelerator.titanium.util.Log;
 import org.json.JSONException;
@@ -21,6 +23,7 @@ import org.json.JSONObject;
 
 import ti.modules.titanium.api.APIModule;
 import ti.modules.titanium.app.AppModule;
+import android.app.Activity;
 import android.webkit.WebView;
 
 public class TiWebViewBinding {
@@ -28,16 +31,26 @@ public class TiWebViewBinding {
 	private static final String LCAT = "TiWebViewBinding";
 	
 	private WebView webView;
+	private APIBinding apiBinding;
+	private AppBinding appBinding;
+	
 	public TiWebViewBinding(TiContext context, WebView webView)
 	{
 		this.webView = webView;
 		
-		webView.addJavascriptInterface(new APIBinding(context), "TiAPI");
-		webView.addJavascriptInterface(new AppBinding(context), "TiApp");
+		apiBinding = new APIBinding(context);
+		appBinding = new AppBinding(context);
+		webView.addJavascriptInterface(apiBinding, "TiAPI");
+		webView.addJavascriptInterface(appBinding, "TiApp");
 		webView.addJavascriptInterface(new TiReturn(), "_TiReturn");
 		
 		evalJS(getClass().getClassLoader().getResourceAsStream("ti/modules/titanium/ui/widget/webview/json2.js"));
 		evalJS(getClass().getClassLoader().getResourceAsStream("ti/modules/titanium/ui/widget/webview/binding.js"));
+	}
+	
+	public void destroy() {
+		appBinding.module.onDestroy();
+		apiBinding.module.onDestroy();
 	}
 	
 	private void evalJS(InputStream stream)
