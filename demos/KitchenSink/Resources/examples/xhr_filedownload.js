@@ -27,7 +27,7 @@ var b1 = Titanium.UI.createButton({
 win.add(b1);
 b1.addEventListener('click', function()
 {
-
+	c.setTimeout(1000);
 	c.onload = function()
 	{
 		var filename = Titanium.Platform.name == 'android' ? 'test.png' : 'test.pdf';

@@ -112,7 +112,7 @@ b3.addEventListener('click', function()
 		backgroundColor:'#336699',
 		title:'Modal Window',
 		barColor:'black',
-		url:'vibrate.js'
+		url:'vibrate.js',
 	});
 	var b = Titanium.UI.createButton({
 		title:'Close',
