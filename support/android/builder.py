@@ -738,9 +738,9 @@ class Builder(object):
 				relaunched = False
 				processes = run.run([self.sdk.get_adb(), '-e', 'shell', 'ps'])
 				for line in processes.splitlines():
-					columns = line.split(" ")
+					columns = line.split()
 					if len(columns) > 1:
-						pid = columns[3]
+						pid = columns[1]
 						id = columns[len(columns)-1]
 						
 						if id == self.app_id:
