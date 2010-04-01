@@ -162,11 +162,10 @@
 	ENSURE_UI_THREAD(updateRow,args);
 	
 	int index = [TiUtils intValue:[args objectAtIndex:0]];
-	NSDictionary *data = [args objectAtIndex:1];
-	NSDictionary *anim = [args count] > 2 ? [args objectAtIndex:2] : nil;
+    id data = [args objectAtIndex:1]; // Can be either dictionary or row object
+    NSDictionary *anim = [args count] > 2 ? [args objectAtIndex:2] : nil;
 	
 	TiUITableViewRowProxy *newrow = [self tableRowFromArg:data];
-
 	TiUITableView *table = [self tableView];
 	
 	NSMutableArray *sections = [self valueForKey:@"data"];
@@ -201,7 +200,11 @@
 	newrow.row = rowProxy.row;
 	newrow.parent = newrow.section;
 	
-	[newrow updateRow:data withObject:anim];
+    // Only update the row if we're loading it with data; but most of this should
+    // be taken care of by -[TiUITableViewProxy tableRowFromArg:] anyway, right?
+    if ([data isKindOfClass:[NSDictionary class]]) {
+        [newrow updateRow:data withObject:anim];
+    }
 	
 	TiUITableViewAction *action = [[[TiUITableViewAction alloc] initWithRow:newrow animation:anim section:-1 type:TiUITableViewActionUpdateRow] autorelease];
 	[table dispatchAction:action];
