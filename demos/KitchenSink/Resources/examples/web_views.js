@@ -40,6 +40,7 @@ tableview.addEventListener('click', function(e)
 		Titanium.UI.LANDSCAPE_RIGHT
 	];
 
+	
 	var webview = Ti.UI.createWebView();
 
 	// handle xhr to filesystem case first
@@ -85,6 +86,12 @@ tableview.addEventListener('click', function(e)
 			// and either allow pinch/zoom (set to true) or not (set to false)
 			webview.scalesPageToFit = true;
 		}
+		
+		// test out applicationDataDir file usage in web view
+		var f1 = Titanium.Filesystem.getFile(Titanium.Filesystem.resourcesDirectory, 'images', 'apple_logo.jpg');
+		var f2 = Titanium.Filesystem.getFile(Titanium.Filesystem.applicationDataDirectory,'apple_logo.jpg');
+		f2.write(f1);
+		
 		webview.addEventListener('load',function(e)
 		{
 			Ti.API.debug("webview loaded: "+e.url);
@@ -96,6 +103,7 @@ tableview.addEventListener('click', function(e)
 			{
 				alert("HTML is: "+webview.html);
 			}
+			Ti.App.fireEvent('image', {path:f2.nativePath});
 		});
 		if (rowdata.bgcolor)
 		{
