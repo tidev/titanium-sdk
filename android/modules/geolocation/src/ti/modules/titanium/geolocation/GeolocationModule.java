@@ -39,11 +39,11 @@ public class GeolocationModule
 	private static final String LCAT = "TiGeo";
 	private static final boolean DBG = TiConfig.LOGD;
 	private static final String BASE_GEO_URL = "http://api.appcelerator.net/p/v1/geo?";
-	
+
 	private static final int MSG_FIRST_ID = TiProxy.MSG_LAST_ID + 1;
 	private static final int MSG_LOOKUP = MSG_FIRST_ID + 100;
 	protected static final int MSG_LAST_ID = MSG_FIRST_ID + 999;
-	
+
 	private static TiDict constants;
 
 	private TiLocation tiLocation;
@@ -197,20 +197,23 @@ public class GeolocationModule
 		}
 	}
 
-	
+
 	private TiDict placeToAddress(JSONObject place)
 	{
 		TiDict address = new TiDict();
 		address.put("street1", place.optString("street", ""));
+		address.put("street", place.optString("street", ""));
 		address.put("city", place.optString("city", ""));
 		address.put("region1", ""); // AdminArea
 		address.put("region2", ""); // SubAdminArea
 		address.put("postalCode", place.optString("zipcode", ""));
 		address.put("country", place.optString("country", ""));
 		address.put("countryCode", place.optString("country_code", ""));
+		address.put("country_code", place.optString("country_code", ""));
 		address.put("longitude", place.optString("longitude", ""));
 		address.put("latitude", place.optString("latitude", ""));
 		address.put("displayAddress", place.optString("address"));
+		address.put("address", place.optString("address"));
 
 		return address;
 	}
@@ -253,7 +256,7 @@ public class GeolocationModule
 						String url = (String) args[0];
 						String direction = (String) args[1];
 						KrollCallback callback = (KrollCallback) args[2];
-						
+
 						if (DBG) {
 							Log.d(LCAT, "GEO URL: " + url);
 						}
@@ -293,7 +296,7 @@ public class GeolocationModule
 												+ e.getMessage(), e);
 							}
 						}
-						
+
 						event.put("source", this);
 						callback.callWithProperties(event);
 					} catch (Throwable t) {
@@ -306,15 +309,15 @@ public class GeolocationModule
 
 			};
 
-			task.execute(msg.getData().getString("url"), 
+			task.execute(msg.getData().getString("url"),
 				msg.getData().getString("direction"), msg.obj);
 
 			return true;
 		}
-		
+
 		return super.handleMessage(msg);
 	}
-	
+
 	// Lifecycle
 
 	@Override
