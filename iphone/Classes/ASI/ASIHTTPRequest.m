@@ -717,8 +717,21 @@ static BOOL isiPhoneOS2;
     }
 
 	// Tell CFNetwork not to validate SSL certificates
-	if (!validatesSecureCertificate) {
-		CFReadStreamSetProperty(readStream, kCFStreamPropertySSLSettings, [NSMutableDictionary dictionaryWithObject:(NSString *)kCFBooleanFalse forKey:(NSString *)kCFStreamSSLValidatesCertificateChain]); 
+	if (!validatesSecureCertificate && [[[self url] scheme] isEqual:@"https"]) 
+	{
+		//JGH: patch for self-signed and expired certs 
+		CFMutableDictionaryRef securityDictRef = CFDictionaryCreateMutable(kCFAllocatorDefault,
+																		   0,
+																		   &kCFTypeDictionaryKeyCallBacks,
+																		   &kCFTypeDictionaryValueCallBacks);
+		if (securityDictRef != nil) 
+		{ 
+			CFDictionarySetValue(securityDictRef, kCFStreamSSLAllowsExpiredCertificates, kCFBooleanTrue);
+			CFDictionarySetValue(securityDictRef, kCFStreamSSLValidatesCertificateChain, kCFBooleanFalse);
+			CFDictionarySetValue(securityDictRef, kCFStreamSSLAllowsAnyRoot, kCFBooleanTrue);
+			CFReadStreamSetProperty(readStream, kCFStreamPropertySSLSettings, securityDictRef);
+			CFRelease(securityDictRef);
+		}
 	}
 	
 	

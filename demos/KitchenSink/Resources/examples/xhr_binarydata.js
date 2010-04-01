@@ -25,8 +25,8 @@ xhr.onload = function()
 	f.write(this.responseData);
 	imageView.url = f.nativePath;
 };
-// open the client
-xhr.open('GET','http://www.appcelerator.com/wp-content/uploads/2009/06/titanium_desk.png');
+// open the client (and test HTTPS)
+xhr.open('GET','https://www.appcelerator.com/wp-content/uploads/2009/06/titanium_desk.png');
 
 // send the data
 xhr.send();
