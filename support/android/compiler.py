@@ -9,6 +9,7 @@
 import os, sys, re, shutil, tempfile
 import jspacker 
 from csspacker import CSSPacker
+from deltafy import Deltafy
 
 ignoreFiles = ['.gitignore', '.cvsignore', '.DS_Store'];
 ignoreDirs = ['.git','.svn','_svn', 'CVS'];
@@ -65,40 +66,34 @@ class Compiler(object):
 		for line in out.split(';'):
 			self.extract_and_combine_modules('Titanium',line)
 			self.extract_and_combine_modules('Ti',line)
-		
-	def make_function_from_file(self,file):
 	
-		fp = os.path.splitext(file)
-		ext = fp[1][1:]
-
-		thefile = os.path.expanduser(file)
-		file_contents = open(thefile).read()
-		save_off = False
-		parse_modules = True
-
-		# minimize javascript, css files
-		if ext == 'js':
-			file_contents = jspacker.jsmin(file_contents)
-			save_off = True
-		elif ext == 'css':
-			packer = CSSPacker(file_contents)
-			file_contents = packer.pack()
-			save_off = True
-			parse_modules = False
-
-		if save_off:
-				of = open(thefile,'w')
-				of.write(file_contents)
-				of.close()
-				print "[DEBUG] compressing: %s" % thefile
+	def get_ext(self, path):
+		fp = os.path.splitext(path)
+		return fp[1][1:]
 		
-		if parse_modules:
+	def make_function_from_file(self, path, pack=True):
+		ext = self.get_ext(path)
+		path = os.path.expanduser(path)
+		file_contents = open(path).read()
+			
+		if pack: self.pack(path, ext, file_contents)
+		if ext == 'js':
 			# determine which modules this file is using
 			self.extract_modules(file_contents)
 		
-
-	def compile(self):
+	def pack(self, path, ext, file_contents):
+		def jspack(c): return jspacker.jsmin(c)
+		def csspack(c): return CSSPacker(c).pack()
 		
+		packers = {'js': jspack, 'css': csspack }
+		if ext in packers:
+			file_contents = packers[ext](file_contents)
+			of = open(path,'w')
+			of.write(file_contents)
+			of.close()
+			print "[DEBUG] packed: %s" % path
+	
+	def compile(self, deltas):
 		for root, dirs, files in os.walk(self.project_dir):
 			for dir in dirs:
 				if dir in ignoreDirs:
@@ -111,5 +106,6 @@ class Compiler(object):
 					if not fp[1] in ['.html','.js','.css']: continue
 					if f in ignoreFiles: continue
 					fullpath = os.path.join(root,f)
-					metadata = self.make_function_from_file(fullpath)
+					pack = deltas.has_path(fullpath)
+					self.make_function_from_file(fullpath, pack=pack)
 					

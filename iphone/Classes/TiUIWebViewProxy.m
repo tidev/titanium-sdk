@@ -41,5 +41,52 @@ USE_VIEW_FOR_AUTO_HEIGHT
 	return html;
 }
 
+-(void)goBack:(id)args
+{
+	[[self view] performSelectorOnMainThread:@selector(goBack:) withObject:args waitUntilDone:NO];
+}
+
+-(void)goForward:(id)args
+{
+	[[self view] performSelectorOnMainThread:@selector(goForward:) withObject:args waitUntilDone:NO];
+}
+
+-(void)stopLoading:(id)args
+{
+	[[self view] performSelectorOnMainThread:@selector(stopLoading:) withObject:args waitUntilDone:NO];
+}
+
+-(void)reload:(id)args
+{
+	[[self view] performSelectorOnMainThread:@selector(reload:) withObject:args waitUntilDone:NO];
+}
+
+-(id)canGoBack:(id)args
+{
+	if ([self viewAttached])
+	{
+		NSMutableArray *result = [NSMutableArray array];
+		[[self view] performSelectorOnMainThread:@selector(canGoBack:) withObject:result waitUntilDone:YES];
+		return [result objectAtIndex:0];
+	}
+	return NUMBOOL(NO);
+}
+
+-(id)canGoForward:(id)args
+{
+	if ([self viewAttached])
+	{
+		NSMutableArray *result = [NSMutableArray array];
+		[[self view] performSelectorOnMainThread:@selector(canGoForward:) withObject:result waitUntilDone:YES];
+		return [result objectAtIndex:0];
+	}
+	return NUMBOOL(NO);
+}
+
+-(void)setBasicAuthentication:(NSArray*)args
+{
+	[[self view] performSelectorOnMainThread:@selector(setBasicAuthentication:) withObject:args waitUntilDone:NO];
+}
+
 @end
 

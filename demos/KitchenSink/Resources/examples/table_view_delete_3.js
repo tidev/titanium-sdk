@@ -3,9 +3,9 @@ var win = Titanium.UI.currentWindow;
 // create table view data object
 var data = [
 	{title:'Row 1', header:'header 1'},
-	{title:'Row 2', header:'header 1'},
-	{title:'Row 3', header:'header 1'},
-	{title:'Row 4', header:'header 1'}
+	{title:'Row 2', header:'header 2'},
+	{title:'Row 3', header:'header 3'},
+	{title:'Row 4', header:'header 4'}
 	
 
 ];

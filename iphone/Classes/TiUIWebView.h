@@ -17,10 +17,15 @@
 	AppModule *appModule;
 	NSString *pageToken;
 	BOOL scalingOverride;
+	NSString *basicCredentials;
 }
 
 @property(nonatomic,readonly) id url;
+@property(nonatomic,readonly) id loading;
 
 -(void)evalJS:(NSArray*)args;
+-(void)canGoBack:(NSMutableArray*)result;
+-(void)canGoForward:(NSMutableArray*)result;
+
 
 @end

@@ -228,7 +228,7 @@ public class KrollObject extends ScriptableObject
 				// add set method
 				km = new KrollMethod(this, target, setMethod, KrollMethodType.KrollMethodSetter);
 				put(buildMethodName("set", pname), this, km);
-
+				o = km;
 				// pass value through to native
 				if (!retrieveValue) {
 					Object[] args = new Object[1];

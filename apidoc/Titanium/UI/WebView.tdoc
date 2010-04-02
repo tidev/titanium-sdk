@@ -25,15 +25,32 @@ android, iphone
 
 - properties
 
-url[string]: the url to the web document
+url[string]: the url to the web document. this property will change as the content of the webview changes (such as from internal hyperlinks, etc)
 backgroundColor[string]: the background color for the webview
 html[string]: the html content of the web document
 data[object]: a data blob or file that is used to load the web document
 scalesPageToFit[boolean]: whether the webview should scale it's contents or not
+loading[boolean]: boolean indicating if the webview is loading content
 
 - methods
 
 evalJS: invoke JavaScript inside the context of the webview and optionally, return a result
+reload: reload the current webpage
+stopLoading: stop loading a currently loading page
+goBack: go back one entry in history to the previous page
+goForward: go forward one entry in history to the page before the current page
+canGoBack: returns true if the webview can go back in history
+canGoForward: returns true if the webview can go forward in history
+setBasicAuthentication: set the basic authentication for the webview instance to be used on subsequent url requests
+
+- method : setBasicAuthentication
+
+username[string]: the username
+password[string]: the password
+
+- method : canGoBack, boolean
+
+- method : canGoForward, boolean
 
 - method : evalJS, string
 

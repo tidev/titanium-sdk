@@ -36,6 +36,9 @@ public class ${config['classname']}AppInfo implements ITiAppInfo
 				%endtry
 			%endfor
 		%endif
+		%if config['deploy_type'] == 'development':
+		properties.setBool("ti.android.loadfromsdcard", true);
+		%endif
 	}
 	
 	public String getId() {

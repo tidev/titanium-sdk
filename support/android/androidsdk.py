@@ -3,7 +3,7 @@
 # An autodetection utility for the Android SDK
 #
 
-import os, sys, platform, glob
+import os, sys, platform, glob, subprocess
 
 android_api_levels = {
 	3: 'android-1.5',
@@ -14,27 +14,40 @@ android_api_levels = {
 }
 
 class AndroidSDK:
-	def get_dir(self, envKey, default, supplied):
-		if envKey in os.environ:
-			return os.environ[envKey]
-		
-		if supplied is not None:
-			return supplied
-			
-		return default
-	
 	def __init__(self, android_sdk, api_level):
-		if platform.system() == 'Windows':
-			default_android_sdk = 'C:\\android-sdk'
-		else:
-			default_android_sdk = '/opt/android-sdk'
-			
-		self.android_sdk = self.get_dir('ANDROID_SDK', default_android_sdk, android_sdk)
+		self.android_sdk = self.find_sdk(android_sdk)
+		if self.android_sdk is None:
+			raise Exception('No Android SDK directory found')
+		
 		self.api_level = api_level
 		
 		self.find_platform_dir()
 		self.find_google_apis_dir()
 
+	def find_sdk(self, supplied):
+		if platform.system() == 'Windows':
+			default_dirs = ['C:\\android-sdk', 'C:\\android', 'C:\\Program Files\\android-sdk', 'C:\\Program Files\\android']
+		else:
+			default_dirs = ['/opt/android', '/opt/android-sdk', '/usr/android', '/usr/android-sdk']
+			
+		if 'ANDROID_SDK' in os.environ:
+			return os.environ['ANDROID_SDK']
+		
+		if supplied is not None:
+			return supplied
+		
+		for default_dir in default_dirs:
+			if os.path.exists(default_dir):
+				return default_dir
+		
+		path = os.environ['PATH']
+		for dir in os.path.split(os.pathsep):
+			if os.path.exists(os.path.join(dir, 'android')) \
+				or os.path.exists(os.path.join(dir, 'android.exe')):
+					return dir
+		
+		return None
+	
 	def find_dir(self, version, prefix):
 		dirs = glob.glob(os.path.join(self.android_sdk, prefix+str(version)+"*"))
 		if len(dirs) > 0:
@@ -49,6 +62,9 @@ class AndroidSDK:
 			old_style_dir = os.path.join(self.android_sdk, 'platforms', android_api_levels[self.api_level])
 			if os.path.exists(old_style_dir):
 				platform_dir = old_style_dir
+		if platform_dir is None:
+			raise Exception("Couldn't find platform directory for API level %s" % self.api_level)
+		
 		self.platform_dir = platform_dir
 	
 	def find_google_apis_dir(self):
