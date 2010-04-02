@@ -202,7 +202,10 @@
 			return [[viewClass alloc] init];
 		}
 	}
-
+	else
+	{
+		NSLog(@"[WARN] No TiView for Proxy: %@, couldn't find class: %@",self,proxyName);
+	}
 	return [[TiUIView alloc] initWithFrame:[self appFrame]];
 }
 
@@ -343,7 +346,7 @@
 		
 		// on open we need to create a new view
 		view = [self newView];
-
+		
 		view.proxy = self;
 		view.parent = parent;
 		view.layer.transform = CATransform3DIdentity;

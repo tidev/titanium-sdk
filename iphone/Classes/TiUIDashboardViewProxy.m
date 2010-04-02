@@ -6,7 +6,7 @@
  */
 
 #import "TiUIDashboardViewProxy.h"
-
+#import "TiUIDashboardView.h"
 #import "TiUtils.h"
 
 @implementation TiUIDashboardViewProxy

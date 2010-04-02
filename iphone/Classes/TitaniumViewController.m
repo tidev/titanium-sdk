@@ -110,7 +110,10 @@
 	{
 		TiUIView * thisView = [thisWindowProxy view];
 		[rootView addSubview:thisView];
-		[thisWindowProxy reposition];
+		if ([thisWindowProxy respondsToSelector:@selector(reposition)])
+		{
+			[thisWindowProxy reposition];
+		}
 	}
 	[self manuallyRotateToOrientation:[[UIApplication sharedApplication] statusBarOrientation] duration:0];
 	[rootView release];
