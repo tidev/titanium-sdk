@@ -58,7 +58,6 @@
 {
 	if (button!=nil)
 	{
-		NSLog(@"BUTTON REPAINT");
 		[button performSelectorOnMainThread:@selector(setNeedsLayout) withObject:nil waitUntilDone:NO];
 	}
 }

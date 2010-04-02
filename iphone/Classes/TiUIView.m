@@ -417,8 +417,6 @@ DEFINE_EXCEPTIONS
 	}
 }
 
-
-
 -(void)setBounds:(CGRect)bounds
 {
 	[super setBounds:bounds];
@@ -430,7 +428,6 @@ DEFINE_EXCEPTIONS
 	[super layoutSubviews];
 	[self checkBounds];
 }
-
 
 -(void)updateTransform
 {

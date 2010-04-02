@@ -188,7 +188,6 @@ static const NSTimeInterval kLauncherViewFastTransitionDuration = 0.2;
 	return nil;
 }
 
-
 - (void)setCurrentPageIndex:(NSInteger)pageIndex 
 {
 	scrollView.contentOffset = CGPointMake(scrollView.frame.size.width*pageIndex, 0);

@@ -68,7 +68,6 @@
 	{
 		item = [item_ retain];
 		item.button = self;
-		NSLog(@">>> BUTTON ITEM = %@",item.image);
 		[self setImage:item.image forState:UIControlStateNormal];
 		if (item.selectedImage!=nil)
 		{
