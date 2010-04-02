@@ -68,12 +68,14 @@
 	{
 		item = [item_ retain];
 		item.button = self;
+		NSLog(@">>> BUTTON ITEM = %@",item.image);
 		[self setImage:item.image forState:UIControlStateNormal];
 		if (item.selectedImage!=nil)
 		{
 			[self setImage:item.selectedImage forState:UIControlStateHighlighted];
 		}
 	}
+	[self setNeedsLayout];
 }
 
 - (void)touchesBegan:(NSSet*)touches withEvent:(UIEvent *)event 

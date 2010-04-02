@@ -228,6 +228,18 @@ def main(args):
 		tp_module_dir = os.path.abspath(os.path.join(template_dir,'..','..','..','..','modules','iphone'))
 	
 		tp_modules = []
+		tp_depends = []
+		
+		def find_depends(config,depends):
+			for line in open(config).readlines():
+				if line.find(':')!=-1:
+					(token,value)=line.split(':')
+					for entry in value.join(','):
+						entry = entry.strip()
+						try:
+							depends.index(entry)
+						except:
+							depends.append(entry)
 	
 		for module in ti.properties['modules']:
 			tp_name = module['name'].lower()
@@ -240,6 +252,10 @@ def main(args):
 			if not os.path.exists(tp_module):
 				print "[ERROR] Third-party module: %s/%s missing library at %s" % (tp_name,tp_version,tp_module)
 				#sys.exit(1)
+			tp_config = os.path.join(tp_dir,'manifest')
+			if not os.path.exists(tp_config):
+				print "[ERROR] Third-party module: %s/%s missing manifest at %s" % (tp_name,tp_version,tp_config)
+			find_depends(tp_config,tp_depends)	
 			tp_modules.append(tp_module)	
 			print "[INFO] Detected third-party module: %s/%s" % (tp_name,tp_version)
 			# copy module resources
@@ -253,7 +269,7 @@ def main(args):
 	
 		# compiler dependencies
 		dependscompiler = DependencyCompiler()
-		dependscompiler.compile(template_dir,project_dir,tp_modules,simulator,iphone_version)
+		dependscompiler.compile(template_dir,project_dir,tp_modules,tp_depends,simulator,iphone_version)
 	
 
 		# copy over main since it can change with each release

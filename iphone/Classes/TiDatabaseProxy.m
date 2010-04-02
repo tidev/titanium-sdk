@@ -204,4 +204,10 @@
 	return name;
 }
 
+#pragma mark Internal
+-(PLSqliteDatabase*)database
+{
+	return database;
+}
+
 @end
