@@ -90,8 +90,7 @@ for (var c=1;c<50;c++)
 		// use rowNum property on object to get row number
 		var rowNum = e.source.rowNum;
 		updateRowText.text = 'You clicked on the photo';
-		//TODO: FIX UPDATE ROW
-		//tableView.updateRow(rowNum,updateRow,{animationStyle:Titanium.UI.iPhone.RowAnimationStyle.LEFT});	
+		tableView.updateRow(rowNum,updateRow,{animationStyle:Titanium.UI.iPhone.RowAnimationStyle.LEFT});	
 		
 	});
 	photo.rowNum = c;
