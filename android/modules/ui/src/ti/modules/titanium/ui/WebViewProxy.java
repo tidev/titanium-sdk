@@ -40,7 +40,6 @@ public class WebViewProxy extends ViewProxy
 		return (TiUIWebView)getView(getTiContext().getActivity());
 	}
 
-
 	public Object evalJS(String code) {
 		if (getTiContext().isUIThread()) {
 			return getWebView().getJSValue(code);
@@ -63,5 +62,10 @@ public class WebViewProxy extends ViewProxy
 				return true;
 		}
 		return super.handleMessage(msg);
+	}
+	
+	public void setBasicAuthentication(String username, String password)
+	{
+		getWebView().setBasicAuthentication(username, password);
 	}
 }
