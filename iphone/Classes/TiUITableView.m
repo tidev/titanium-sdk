@@ -845,6 +845,9 @@
 		[sectionIndex addObject:title];
 		[sectionIndexMap setObject:[NSNumber numberWithInt:[TiUtils intValue:theindex]] forKey:title];
 	}
+    
+    [[self tableView] reloadData]; // HACK - Should just reload section indexes when reloadSelectionIndexTitles functions properly.
+    //[[self tableView] reloadSectionIndexTitles];  THIS DOESN'T WORK.
 }
 
 -(void)setFilterCaseInsensitive_:(id)caseBool
@@ -1043,13 +1046,6 @@ if(tableView == searchTableView)	\
         BOOL emptySection = ([[section rows] count] == 0);
         if (emptySection) {
             [sections removeObjectAtIndex:[indexPath section]];
-            
-            // Manage the collation
-            NSArray* titles = [sectionIndexMap allKeysForObject:[NSNumber numberWithInt:[indexPath section]]];
-            [sectionIndex removeObjectsInArray:titles];
-            for (id title in titles) {
-                [sectionIndexMap removeObjectForKey:title];
-            }
         }
 
 		[table beginUpdates];
