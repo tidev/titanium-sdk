@@ -991,6 +991,11 @@
 		24CB0E87111A971B00A813AD /* TiUIScrollableView.m in Sources */ = {isa = PBXBuildFile; fileRef = B421C4151113AAA900DBCB42 /* TiUIScrollableView.m */; };
 		24CB0E88111A971B00A813AD /* TiUIScrollViewProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = B4F97B6E111A41B600E2F72C /* TiUIScrollViewProxy.m */; };
 		24CB0E89111A971B00A813AD /* TiUIScrollView.m in Sources */ = {isa = PBXBuildFile; fileRef = B4F97B72111A41C800E2F72C /* TiUIScrollView.m */; };
+		24DDF65F11646D51006FD6E1 /* TiUIiPadDocumentViewerProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24DDF65E11646D51006FD6E1 /* TiUIiPadDocumentViewerProxy.m */; };
+		24DDF66011646D51006FD6E1 /* TiUIiPadDocumentViewerProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24DDF65E11646D51006FD6E1 /* TiUIiPadDocumentViewerProxy.m */; };
+		24DDF66111646D51006FD6E1 /* TiUIiPadDocumentViewerProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24DDF65E11646D51006FD6E1 /* TiUIiPadDocumentViewerProxy.m */; };
+		24DDF66211646D51006FD6E1 /* TiUIiPadDocumentViewerProxy.h in Headers */ = {isa = PBXBuildFile; fileRef = 24DDF65D11646D51006FD6E1 /* TiUIiPadDocumentViewerProxy.h */; };
+		24DDF66311646D51006FD6E1 /* TiUIiPadDocumentViewerProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24DDF65E11646D51006FD6E1 /* TiUIiPadDocumentViewerProxy.m */; };
 		24DEDA6311236F0C00398D86 /* libxml2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 24EB0A57111E1BAE001DC2D1 /* libxml2.dylib */; };
 		24DEDAC5112371A500398D86 /* XMLModule.h in Headers */ = {isa = PBXBuildFile; fileRef = 24DEDAC3112371A500398D86 /* XMLModule.h */; };
 		24DEDAC6112371A500398D86 /* XMLModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 24DEDAC4112371A500398D86 /* XMLModule.m */; };
@@ -1584,6 +1589,8 @@
 		24CA916411116F870084E2DE /* Titanium.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Titanium.plist; sourceTree = "<group>"; };
 		24CA9182111170820084E2DE /* Default.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Default.png; path = ../Resources/Default.png; sourceTree = SOURCE_ROOT; };
 		24CB0C9A111A96EE00A813AD /* libTitanium.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libTitanium.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		24DDF65D11646D51006FD6E1 /* TiUIiPadDocumentViewerProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUIiPadDocumentViewerProxy.h; sourceTree = "<group>"; };
+		24DDF65E11646D51006FD6E1 /* TiUIiPadDocumentViewerProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIiPadDocumentViewerProxy.m; sourceTree = "<group>"; };
 		24DEDAC3112371A500398D86 /* XMLModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = XMLModule.h; sourceTree = "<group>"; };
 		24DEDAC4112371A500398D86 /* XMLModule.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = XMLModule.m; sourceTree = "<group>"; };
 		24E25CBF112A698C0083D43D /* AQRecorder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AQRecorder.h; path = ../Classes/AQRecorder.h; sourceTree = SOURCE_ROOT; };
@@ -2670,6 +2677,15 @@
 			name = Label;
 			sourceTree = "<group>";
 		};
+		24DDF65B11646D0F006FD6E1 /* Document View */ = {
+			isa = PBXGroup;
+			children = (
+				24DDF65D11646D51006FD6E1 /* TiUIiPadDocumentViewerProxy.h */,
+				24DDF65E11646D51006FD6E1 /* TiUIiPadDocumentViewerProxy.m */,
+			);
+			name = "Document View";
+			sourceTree = "<group>";
+		};
 		24DEDAC21123719700398D86 /* XML */ = {
 			isa = PBXGroup;
 			children = (
@@ -2735,6 +2751,7 @@
 		24FB4ECF115C8120001AAF99 /* iPad */ = {
 			isa = PBXGroup;
 			children = (
+				24DDF65B11646D0F006FD6E1 /* Document View */,
 				24FB4ED2115C813F001AAF99 /* Popover */,
 				24FB4ED0115C812E001AAF99 /* Split View */,
 				24FB4F40115C8C4E001AAF99 /* TiUIiPadProxy.h */,
@@ -3055,6 +3072,7 @@
 				24E50E25116066A800AF54AF /* TiUIDashboardViewProxy.h in Headers */,
 				24E50E2E116066B400AF54AF /* TiUIDashboardView.h in Headers */,
 				24E50F8F1160792D00AF54AF /* TiUIDashboardItemProxy.h in Headers */,
+				24DDF66211646D51006FD6E1 /* TiUIiPadDocumentViewerProxy.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3451,6 +3469,7 @@
 				24E50E27116066A800AF54AF /* TiUIDashboardViewProxy.m in Sources */,
 				24E50E30116066B400AF54AF /* TiUIDashboardView.m in Sources */,
 				24E50F911160792D00AF54AF /* TiUIDashboardItemProxy.m in Sources */,
+				24DDF66011646D51006FD6E1 /* TiUIiPadDocumentViewerProxy.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3679,6 +3698,7 @@
 				24E50E24116066A800AF54AF /* TiUIDashboardViewProxy.m in Sources */,
 				24E50E2D116066B400AF54AF /* TiUIDashboardView.m in Sources */,
 				24E50F8E1160792D00AF54AF /* TiUIDashboardItemProxy.m in Sources */,
+				24DDF66111646D51006FD6E1 /* TiUIiPadDocumentViewerProxy.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3907,6 +3927,7 @@
 				24E50E28116066A800AF54AF /* TiUIDashboardViewProxy.m in Sources */,
 				24E50E31116066B400AF54AF /* TiUIDashboardView.m in Sources */,
 				24E50F921160792D00AF54AF /* TiUIDashboardItemProxy.m in Sources */,
+				24DDF65F11646D51006FD6E1 /* TiUIiPadDocumentViewerProxy.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -4135,6 +4156,7 @@
 				24E50E26116066A800AF54AF /* TiUIDashboardViewProxy.m in Sources */,
 				24E50E2F116066B400AF54AF /* TiUIDashboardView.m in Sources */,
 				24E50F901160792D00AF54AF /* TiUIDashboardItemProxy.m in Sources */,
+				24DDF66311646D51006FD6E1 /* TiUIiPadDocumentViewerProxy.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

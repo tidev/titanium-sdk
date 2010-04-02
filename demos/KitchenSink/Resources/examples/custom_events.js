@@ -33,3 +33,22 @@ b2.addEventListener('click', function()
 });
 
 win.add(b2);
+
+
+//
+// FIRE EVENT WITH OBJECT DATA
+//
+var b3 = Titanium.UI.createButton({
+	title:'Fire Event 3',
+	width:200,
+	height:40,
+	top:110
+});
+
+b3.addEventListener('click', function()
+{
+	b2.fireEvent('click');
+});
+
+win.add(b3);
+
