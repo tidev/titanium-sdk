@@ -41,6 +41,12 @@ goBack: go back one entry in history to the previous page
 goForward: go forward one entry in history to the page before the current page
 canGoBack: returns true if the webview can go back in history
 canGoForward: returns true if the webview can go forward in history
+setBasicAuthentication: set the basic authentication for the webview instance to be used on subsequent url requests
+
+- method : setBasicAuthentication
+
+username[string]: the username
+password[string]: the password
 
 - method : canGoBack, boolean
 

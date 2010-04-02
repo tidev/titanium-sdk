@@ -17,6 +17,7 @@
 	AppModule *appModule;
 	NSString *pageToken;
 	BOOL scalingOverride;
+	NSString *basicCredentials;
 }
 
 @property(nonatomic,readonly) id url;

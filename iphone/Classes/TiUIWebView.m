@@ -16,6 +16,7 @@
 #import "TiBlob.h"
 #import "TiFile.h"
 #import "Mimetypes.h"
+#import "Base64Transcoder.h"
 
 extern NSString * const TI_APPLICATION_ID;
 NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._listeners={};Ti.App._listener_id=1;Ti.App.id=Ti.appId;Ti.App._xhr=XMLHttpRequest;"
@@ -67,9 +68,11 @@ NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._listeners={
 	RELEASE_TO_NIL(url);
 	RELEASE_TO_NIL(spinner);
 	RELEASE_TO_NIL(appModule);
+	RELEASE_TO_NIL(basicCredentials);
 	[self unregister];
 	[super dealloc];
 }
+
 
 -(BOOL)isURLRemote
 {
@@ -122,6 +125,15 @@ NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._listeners={
 		}
 	}
 	return webview;
+}
+
+-(void)loadURLRequest:(NSMutableURLRequest*)request
+{
+	if (basicCredentials!=nil)
+	{
+		[request setValue:basicCredentials forHTTPHeaderField:@"Authorization"];
+	}
+	[[self webview] loadRequest:request];
 }
 
 -(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
@@ -315,7 +327,7 @@ NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._listeners={
 			case TiBlobTypeFile:
 			{
 				url = [[NSURL fileURLWithPath:[blob path]] retain];
-				[[self webview] loadRequest:[NSURLRequest requestWithURL:url]];
+				[self loadURLRequest:[NSMutableURLRequest requestWithURL:url]];
 				break;
 			}
 			default:
@@ -332,7 +344,7 @@ NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._listeners={
 		{
 			[[self webview] setScalesPageToFit:YES];
 		}
-		[[self webview] loadRequest:[NSURLRequest requestWithURL:url]];
+		[self loadURLRequest:[NSMutableURLRequest requestWithURL:url]];
 	}
 	else
 	{
@@ -353,15 +365,19 @@ NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._listeners={
 	RELEASE_TO_NIL(url);
 	ENSURE_SINGLE_ARG(args,NSString);
 	
-	url = [TiUtils toURL:args proxy:(TiProxy*)self.proxy];
+	url = [[TiUtils toURL:args proxy:(TiProxy*)self.proxy] retain];
+
+	if (webview!=nil)
+	{
+		[self stopLoading:nil];
+	}
 	
 	[self unregister];
 	
 	if ([self isURLRemote])
 	{
-		[url retain];
-		NSURLRequest *request = [NSURLRequest requestWithURL:url];
-		[[self webview] loadRequest:request];
+		NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url];
+		[self loadURLRequest:request];
 		if (scalingOverride==NO)
 		{
 			[[self webview] setScalesPageToFit:YES];
@@ -437,9 +453,8 @@ NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._listeners={
 			if (error!=nil && [error code]==261)
 			{
 				// this is a different encoding than specified, just send it to the webview to load
-				[url retain];
-				NSURLRequest *request = [NSURLRequest requestWithURL:url];
-				[[self webview] loadRequest:request];
+				NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url];
+				[self loadURLRequest:request];
 				if (scalingOverride==NO)
 				{
 					[[self webview] setScalesPageToFit:YES];
@@ -449,13 +464,14 @@ NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._listeners={
 			else if (error!=nil)
 			{
 				NSLog(@"[ERROR] error loading file: %@. Message was: %@",path,error);
+				RELEASE_TO_NIL(url);
 			}
 		}
 		else
 		{
 			// convert it into a app:// relative path to load the resource
 			// from our application
-			url = [self fileURLToAppURL:url];
+			url = [[self fileURLToAppURL:url] retain];
 			NSData *data = [TiUtils loadAppResource:url];
 			if (data!=nil)
 			{
@@ -465,15 +481,53 @@ NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._listeners={
 		if (html!=nil)
 		{
 			[self loadHTML:html encoding:encoding textEncodingName:textEncodingName mimeType:mimeType];
-			[url retain];
 		}
 		else 
 		{
 			NSLog(@"[WARN] couldn't load URL: %@",url);
-			url = nil; // not retained at this point so just release it
+			RELEASE_TO_NIL(url);
 		}
 	}
 }
+
+-(void)setBasicAuthentication:(NSArray*)args
+{
+	ENSURE_ARG_COUNT(args,2);
+	NSString *username = [args objectAtIndex:0];
+	NSString *password = [args objectAtIndex:1];
+	
+	if (username==nil && password==nil)
+	{
+		RELEASE_TO_NIL(basicCredentials);
+		return;
+	}
+	
+	NSString *toEncode = [NSString stringWithFormat:@"%@:%@",username,password];
+	const char *data = [toEncode UTF8String];
+	size_t len = [toEncode length];
+	
+	size_t outsize = EstimateBas64EncodedDataSize(len);
+	char *base64Result = malloc(sizeof(char)*outsize);
+    size_t theResultLength = outsize;
+	
+    bool result = Base64EncodeData(data, len, base64Result, &theResultLength);
+	if (result)
+	{
+		NSData *theData = [NSData dataWithBytes:base64Result length:theResultLength];
+		free(base64Result);
+		NSString *string = [[[NSString alloc] initWithData:theData encoding:NSUTF8StringEncoding] autorelease];
+		RELEASE_TO_NIL(basicCredentials);
+		basicCredentials = [[NSString stringWithFormat:@"Basic %@",string] retain];
+		if (url!=nil)
+		{
+			[self setUrl_:[NSArray arrayWithObject:[url absoluteString]]];
+		}
+		return;
+	}    
+	free(base64Result);
+}
+
+
 
 -(void)evalJS:(NSArray*)args
 {
@@ -537,6 +591,15 @@ NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._listeners={
 
 - (void)webView:(UIWebView *)webView didFailLoadWithError:(NSError *)error
 {
+	// this means the pending request has been cancelled and should be
+	// safely squashed
+	if ([[error domain] isEqual:NSURLErrorDomain] && [error code]==-999)
+	{
+		return;
+	}
+	
+	NSLog(@"[ERROR] Error loading: %@, Error: %@",[self url],error);
+	
 	if ([self.proxy _hasListeners:@"error"])
 	{
 		NSMutableDictionary *event = [NSMutableDictionary dictionaryWithObject:[self url] forKey:@"url"];
