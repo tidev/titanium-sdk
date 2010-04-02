@@ -58,6 +58,7 @@
 {
 	if (button!=nil)
 	{
+		NSLog(@"BUTTON REPAINT");
 		[button performSelectorOnMainThread:@selector(setNeedsLayout) withObject:nil waitUntilDone:NO];
 	}
 }
@@ -79,6 +80,12 @@
 {
 	[selectedImage release];
 	selectedImage = [image_ retain];
+	[self repaint];
+}
+
+-(void)setButton:(LauncherButton *)button_
+{
+	button = button_;
 	[self repaint];
 }
 

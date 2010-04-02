@@ -406,7 +406,6 @@
 		2461CF001151D856007A4CC9 /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 24CA8C85111167B60084E2DE /* OpenGLES.framework */; };
 		2461CF011151D856007A4CC9 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 24CA8C87111167B60084E2DE /* QuartzCore.framework */; };
 		2461CF021151D856007A4CC9 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 24CA8C89111167B60084E2DE /* SystemConfiguration.framework */; };
-		2461CF031151D856007A4CC9 /* libicucore.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 24CA8C8B111167B60084E2DE /* libicucore.dylib */; };
 		2461CF041151D856007A4CC9 /* libsqlite3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 24CA8C8D111167B60084E2DE /* libsqlite3.dylib */; };
 		2461CF051151D856007A4CC9 /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 24CA8C8F111167B60084E2DE /* libz.dylib */; };
 		2461CF061151D856007A4CC9 /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 24CA8CEC1111689B0084E2DE /* AudioToolbox.framework */; };
@@ -821,7 +820,6 @@
 		24CA903311116C490084E2DE /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 24CA8C85111167B60084E2DE /* OpenGLES.framework */; };
 		24CA903411116C490084E2DE /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 24CA8C87111167B60084E2DE /* QuartzCore.framework */; };
 		24CA903511116C490084E2DE /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 24CA8C89111167B60084E2DE /* SystemConfiguration.framework */; };
-		24CA903611116C490084E2DE /* libicucore.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 24CA8C8B111167B60084E2DE /* libicucore.dylib */; };
 		24CA903711116C490084E2DE /* libsqlite3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 24CA8C8D111167B60084E2DE /* libsqlite3.dylib */; };
 		24CA903811116C490084E2DE /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 24CA8C8F111167B60084E2DE /* libz.dylib */; };
 		24CA903911116C490084E2DE /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 24CA8CEC1111689B0084E2DE /* AudioToolbox.framework */; };
@@ -1578,7 +1576,6 @@
 		24CA8C85111167B60084E2DE /* OpenGLES.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGLES.framework; path = System/Library/Frameworks/OpenGLES.framework; sourceTree = SDKROOT; };
 		24CA8C87111167B60084E2DE /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
 		24CA8C89111167B60084E2DE /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
-		24CA8C8B111167B60084E2DE /* libicucore.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libicucore.dylib; path = usr/lib/libicucore.dylib; sourceTree = SDKROOT; };
 		24CA8C8D111167B60084E2DE /* libsqlite3.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libsqlite3.dylib; path = usr/lib/libsqlite3.dylib; sourceTree = SDKROOT; };
 		24CA8C8F111167B60084E2DE /* libz.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libz.dylib; path = usr/lib/libz.dylib; sourceTree = SDKROOT; };
 		24CA8CEC1111689B0084E2DE /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = System/Library/Frameworks/AudioToolbox.framework; sourceTree = SDKROOT; };
@@ -1726,7 +1723,6 @@
 				2461CF001151D856007A4CC9 /* OpenGLES.framework in Frameworks */,
 				2461CF011151D856007A4CC9 /* QuartzCore.framework in Frameworks */,
 				2461CF021151D856007A4CC9 /* SystemConfiguration.framework in Frameworks */,
-				2461CF031151D856007A4CC9 /* libicucore.dylib in Frameworks */,
 				2461CF041151D856007A4CC9 /* libsqlite3.dylib in Frameworks */,
 				2461CF051151D856007A4CC9 /* libz.dylib in Frameworks */,
 				2461CF061151D856007A4CC9 /* AudioToolbox.framework in Frameworks */,
@@ -1755,7 +1751,6 @@
 				24CA903311116C490084E2DE /* OpenGLES.framework in Frameworks */,
 				24CA903411116C490084E2DE /* QuartzCore.framework in Frameworks */,
 				24CA903511116C490084E2DE /* SystemConfiguration.framework in Frameworks */,
-				24CA903611116C490084E2DE /* libicucore.dylib in Frameworks */,
 				24CA903711116C490084E2DE /* libsqlite3.dylib in Frameworks */,
 				24CA903811116C490084E2DE /* libz.dylib in Frameworks */,
 				24CA903911116C490084E2DE /* AudioToolbox.framework in Frameworks */,
@@ -2835,7 +2830,6 @@
 				24CA8C85111167B60084E2DE /* OpenGLES.framework */,
 				24CA8C87111167B60084E2DE /* QuartzCore.framework */,
 				24CA8C89111167B60084E2DE /* SystemConfiguration.framework */,
-				24CA8C8B111167B60084E2DE /* libicucore.dylib */,
 				24CA8C8D111167B60084E2DE /* libsqlite3.dylib */,
 				24CA8C8F111167B60084E2DE /* libz.dylib */,
 				24CA8CEC1111689B0084E2DE /* AudioToolbox.framework */,

@@ -76,7 +76,7 @@ class DependencyCompiler(object):
 		self.modules = []
 		self.required_modules = []
 		
-	def compile(self,iphone_dir,app_dir,thirdparty_modules,simulator,iphone_version):
+	def compile(self,iphone_dir,app_dir,thirdparty_modules,thirdparty_depends,simulator,iphone_version):
 		
 		self.simulator = simulator
 		
@@ -104,6 +104,12 @@ class DependencyCompiler(object):
 		# these are needed for app routing and aren't imported in code
 		import_depends.append('Base64Transcoder') 
 		import_depends.append('NSData+Additions')
+		
+		# add any internal dependencies that our third-party modules
+		# depend on
+		if thirdparty_depends!=None and len(thirdparty_depends)>0:
+			for d in thirdparty_depends:
+				import_depends.append(d)
 		
 		# read in the imports map
 		import_path = os.path.join(iphone_dir,'imports.json')

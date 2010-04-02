@@ -8,7 +8,7 @@
 #import "PlausibleDatabase.h"
 
 @interface TiDatabaseProxy : TiProxy {
-@private
+@protected
 	NSString *name;
 	PLSqliteDatabase *database;
 	NSMutableArray *statements;
@@ -25,5 +25,6 @@
 #pragma mark Internal
 
 -(void)removeStatement:(PLSqliteResultSet*)statement;
+-(PLSqliteDatabase*)database;
 
 @end
