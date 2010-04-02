@@ -50,7 +50,6 @@ def zip_android(zf,basepath):
 	titanium_lib_dir = os.path.join(top_dir, 'android', 'titanium', 'lib')
 	for thirdparty_jar in os.listdir(titanium_lib_dir):
 		if thirdparty_jar == "smalljs.jar": continue
-		elif thirdparty_jar == "commons-codec-1.3.jar": continue
 		elif thirdparty_jar == "commons-logging-1.1.1.jar": continue
 		jar_path = os.path.join(top_dir, 'android', 'titanium', 'lib', thirdparty_jar)
 		zf.write(jar_path, '%s/android/%s' % (basepath, thirdparty_jar))
