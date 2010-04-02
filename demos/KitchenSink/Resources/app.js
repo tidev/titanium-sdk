@@ -15,7 +15,6 @@ var win1 = Titanium.UI.createWindow({
     titleImage:'images/appcelerator_small.png'
 });
 
-
 var tab1 = Titanium.UI.createTab({
     icon:'images/tabs/KS_nav_views.png',
     title:'Base UI',

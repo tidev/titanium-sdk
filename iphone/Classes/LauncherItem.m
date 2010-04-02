@@ -73,6 +73,8 @@
 {
 	[image release];
 	image = [image_ retain];
+	NSLog(@"In launcher set Image");
+
 	[self repaint];
 }
 
@@ -85,6 +87,8 @@
 
 -(void)setButton:(LauncherButton *)button_
 {
+	NSLog(@"In launcher setButton %@", button_);
+
 	button = button_;
 	[self repaint];
 }

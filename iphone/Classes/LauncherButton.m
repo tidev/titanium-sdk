@@ -57,6 +57,8 @@
 
 -(void)setItem:(LauncherItem *)item_
 {
+	NSLog(@">>> setItem = %@",item_);
+	
 	if (item!=nil)
 	{
 		item.button = nil;
