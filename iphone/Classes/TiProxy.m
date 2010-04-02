@@ -14,6 +14,7 @@
 #import "TiModule.h"
 #import "ListenerEntry.h"
 #import "TiComplexValue.h"
+#import "TiViewProxy.h"
 
 //Common exceptions to throw when the function call was improper
 NSString * const TiExceptionInvalidType = @"Invalid type passed to function";
@@ -118,7 +119,15 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 {
 	BOOL isMainThread = [NSThread isMainThread];
 	NSNull * nullObject = [NSNull null];
-
+	BOOL viewAttached = YES;
+	
+	// assume if we don't have a view that we can send on the 
+	// main thread to the proxy
+	if ([target isKindOfClass:[TiViewProxy class]])
+	{
+		viewAttached = [(TiViewProxy*)target viewAttached];
+	}
+	
 	for (NSString * thisKey in keys)
 	{
 		// use valueForUndefined since this should really come from dynprops
@@ -143,7 +152,7 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 		{
 			continue;
 		}
-		if (isMainThread)
+		if (isMainThread==YES || viewAttached==NO)
 		{
 			[target performSelector:sel withObject:newValue];
 		}
@@ -151,7 +160,6 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 		{
 			[target performSelectorOnMainThread:sel withObject:newValue waitUntilDone:NO modes:[NSArray arrayWithObject:NSRunLoopCommonModes]];
 		}
-
 	}
 }
 
