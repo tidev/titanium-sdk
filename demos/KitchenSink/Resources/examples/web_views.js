@@ -10,6 +10,7 @@ var data = [
 	{title:'Inline HTML', hasChild:true, innerHTML:'<html><body>Hello from inline HTML.</body></html>'},
 	{title:'Inline HTML w/ Trans Bg', hasChild:true, innerHTML:'<html><body><div style="color:white;">Hello from inline HTML. You should see white text and black background</div></body></html>', bgcolor:'black'},
 	{title:'Inline HTML w/ Color Bg', hasChild:true, innerHTML:'<html><body><div style="color:red;">Hello from inline HTML. You should see red text and yellow background</div></body></html>', bgcolor:'yellow'},
+	{title:'Basic Auth', hasChild:true, url: 'http://irisresearch.library.cornell.edu/control/authBasic/authTest/', username: 'test', password: 'this'}
 ];
 
 // add iphone specific tests
@@ -86,6 +87,11 @@ tableview.addEventListener('click', function(e)
 			// override the default pinch/zoom behavior of local (or remote) webpages
 			// and either allow pinch/zoom (set to true) or not (set to false)
 			webview.scalesPageToFit = true;
+		}
+		
+		if (rowdata.username)
+		{
+			webview.setBasicAuthentication(rowdata.username, rowdata.password);
 		}
 		
 		// test out applicationDataDir file usage in web view

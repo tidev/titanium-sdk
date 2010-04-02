@@ -15,6 +15,7 @@ import ti.modules.titanium.ui.WebViewProxy;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
+import android.webkit.HttpAuthHandler;
 import android.webkit.URLUtil;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -27,6 +28,8 @@ public class TiWebViewClient extends WebViewClient
 	private WebView webView;
 	private TiWebViewBinding binding;
 
+	private String username, password;
+	
 	public TiWebViewClient(WebViewProxy proxy, WebView webView) {
 		super();
 		this.proxy = proxy;
@@ -94,5 +97,19 @@ public class TiWebViewClient extends WebViewClient
 		}
 
 		return false;
+	}
+	
+	@Override
+	public void onReceivedHttpAuthRequest(WebView view,
+			HttpAuthHandler handler, String host, String realm) {
+		
+		if (this.username != null && this.password != null) {
+			handler.proceed(this.username, this.password);
+		}
+	}
+	
+	public void setBasicAuthentication(String username, String password) {
+		this.username = username;
+		this.password = password;
 	}
 }
