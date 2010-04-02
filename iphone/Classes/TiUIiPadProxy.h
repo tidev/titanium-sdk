@@ -24,6 +24,7 @@
 
 -(id)createPopover:(id)args;
 -(id)createSplitWindow:(id)args;
+-(id)createDocumentViewer:(id)args;
 
 @end
 

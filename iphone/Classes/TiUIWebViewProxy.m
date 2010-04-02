@@ -83,8 +83,10 @@ USE_VIEW_FOR_AUTO_HEIGHT
 	return NUMBOOL(NO);
 }
 
-
-
+-(void)setBasicAuthentication:(NSArray*)args
+{
+	[[self view] performSelectorOnMainThread:@selector(setBasicAuthentication:) withObject:args waitUntilDone:NO];
+}
 
 @end
 

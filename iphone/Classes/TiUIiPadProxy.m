@@ -40,6 +40,15 @@ MAKE_SYSTEM_PROP_IPAD(POPOVER_ARROW_DIRECTION_UNKNOWN,UIPopoverArrowDirectionUnk
 	[self throwException:@"this API is not available on non iPad devices" subreason:nil location:CODELOCATION];
 }
 
+-(id)createDocumentViewer:(id)args
+{
+	if ([TiUtils isIPad])
+	{
+		Class cl = NSClassFromString(@"TiUIiPadDocumentViewerProxy");
+		return [[[cl alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
+	}
+	[self throwException:@"this API is not available on non iPad devices" subreason:nil location:CODELOCATION];
+}
 
 @end
 

@@ -594,9 +594,23 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 	[self _listenerRemoved:type count:count];
 }
 
--(void)fireEvent:(NSString*)type
+-(void)fireEvent:(id)args
 {
-	[self fireEvent:type withObject:nil withSource:self propagate:YES];
+	NSString *type = nil;
+	id params = nil;
+	if ([args isKindOfClass:[NSArray class]])
+	{
+		type = [args objectAtIndex:0];
+		if ([args count] > 1)
+		{
+			params = [args objectAtIndex:1];
+		}
+	}
+	else if ([args isKindOfClass:[NSString class]])
+	{
+		type = (NSString*)args;
+	}
+	[self fireEvent:type withObject:params withSource:self propagate:YES];
 }
 
 -(void)fireEvent:(NSString*)type withObject:(id)obj
