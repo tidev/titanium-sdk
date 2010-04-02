@@ -10,6 +10,7 @@
 #import "TiUtils.h"
 #import "TitaniumApp.h"
 #import "TiDOMDocumentProxy.h"
+#import "Mimetypes.h"
 
 int CaselessCompare(const char * firstString, const char * secondString, int size)
 {
@@ -312,7 +313,10 @@ extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 						else
 						{
 							NSData *data = [blob data];
-							[request setData:data forKey:(NSString*)key];
+							// give it a generated file name for the attachment so you can look at the extension at least to 
+							// attempt to figure out what it is (as well as mime)
+							NSString *filename = [NSString stringWithFormat:@"%x.%@",data,[Mimetypes extensionForMimeType:[blob mimeType]]];
+							[request setData:data withFileName:filename andContentType:[blob mimeType] forKey:key];
 						}
 					}
 					else

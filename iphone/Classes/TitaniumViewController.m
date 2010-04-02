@@ -109,7 +109,10 @@
 	{
 		TiUIView * thisView = [thisWindowProxy view];
 		[rootView addSubview:thisView];
-		[thisWindowProxy reposition];
+		if ([thisWindowProxy respondsToSelector:@selector(reposition)])
+		{
+			[thisWindowProxy reposition];
+		}
 	}
 
 	[rootView release];
