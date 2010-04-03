@@ -92,7 +92,8 @@ var bb4 = Titanium.UI.createButtonBar({
 	backgroundColor:'#000',
 	top:100,
 	style:Titanium.UI.iPhone.SystemButtonStyle.BAR,
-	height:40
+	height:40,
+	width:'auto'
 });
 
 win.add(bb4);

@@ -37,10 +37,10 @@ function batteryStateToString(state)
 }
 
 var l1 = Titanium.UI.createLabel({
-	text:'name:' + Titanium.Platform.name,
+	text:'name/osname:' + Titanium.Platform.name+'/'+Titanium.Platform.osname,
 	top:10,
 	left:10,
-	width:300,
+	width:'auto',
 	font:{fontSize:14},
 	color:'#777',
 	height:'auto'
@@ -88,7 +88,7 @@ var l5 = Titanium.UI.createLabel({
 	text:'macaddress:' + Titanium.Platform.macaddress,
 	top:90,
 	left:10,
-	width:300,
+	width:'auto',
 	height:'auto',
 	font:{fontSize:14},
 	color:'#777',

@@ -3,18 +3,13 @@ var data = [
 	{title:'Local', hasChild:true, test:'../examples/movie_local.js'}
 ];
 
-// add iphone specific tests
-if (Titanium.Platform.osname == 'iphone')
+Ti.include("version.js");
+
+
+if (isIPhone3_2_Plus())
 {
-	var version = Titanium.Platform.version.split(".");
-	var major = parseInt(version[0]);
-	var minor = parseInt(version[1]);
-	
 	// can only test this support on a 3.2+ device
-	if (major > 3 || (major == 3 && minor > 1))
-	{
-		data.push({title:'Embedded Video', hasChild:true, test:'../examples/movie_embed.js'});
-	}
+	data.push({title:'Embedded Video', hasChild:true, test:'../examples/movie_embed.js'});
 }
 
 // add iphone specific tests

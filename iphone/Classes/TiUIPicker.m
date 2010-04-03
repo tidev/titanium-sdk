@@ -44,8 +44,6 @@ USE_PROXY_FOR_VERIFY_AUTORESIZING
 		}
 		else 
 		{
-			//TODO: count down timer requires us to drive our own timer (or the dev)
-			
 			picker = [[UIDatePicker alloc] initWithFrame:CGRectZero];
 			[(UIDatePicker*)picker setDatePickerMode:type];
 			[picker addTarget:self action:@selector(valueChanged:) forControlEvents:UIControlEventValueChanged];
@@ -59,6 +57,12 @@ USE_PROXY_FOR_VERIFY_AUTORESIZING
 {
 	if (picker!=nil)
 	{
+		// on ipad, the height is sent in invalid but on iphone, it's fixed
+		// so we need to compensate for that here so that it will be visible
+		if (bounds.size.height<6)
+		{
+			bounds = CGRectMake(bounds.origin.x, bounds.origin.y, bounds.size.width, 228);
+		}
 		[TiUtils setView:picker positionRect:bounds];
 	}
 }

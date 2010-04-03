@@ -43,6 +43,22 @@
 @property(nonatomic,readwrite,assign)	NSNumber *appBadge;
 @property(nonatomic,readwrite,assign)	NSNumber *appSupportsShakeToEdit;
 
+@property(nonatomic,readonly) NSNumber *MODAL_TRANSITION_STYLE_COVER_VERTICAL;
+@property(nonatomic,readonly) NSNumber *MODAL_TRANSITION_STYLE_FLIP_HORIZONTAL;
+@property(nonatomic,readonly) NSNumber *MODAL_TRANSITION_STYLE_CROSS_DISSOLVE;
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
+@property(nonatomic,readonly) NSNumber *MODAL_TRANSITION_STYLE_PARTIAL_CURL;
+#endif
+
+
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
+@property(nonatomic,readonly) NSNumber *MODAL_PRESENTATION_FULLSCREEN;
+@property(nonatomic,readonly) NSNumber *MODAL_PRESENTATION_PAGESHEET;
+@property(nonatomic,readonly) NSNumber *MODAL_PRESENTATION_FORMSHEET;
+@property(nonatomic,readonly) NSNumber *MODAL_PRESENTATION_CURRENT_CONTEXT;
+#endif
+
+
 -(void)hideStatusBar:(id)args;
 -(void)showStatusBar:(id)args;
 

@@ -15,7 +15,7 @@ column2.addRow(Ti.UI.createPickerRow({title:'green'}));
 column2.addRow(Ti.UI.createPickerRow({title:'blue'}));
 column2.addRow(Ti.UI.createPickerRow({title:'orange'}));
 
-// 1 column as an array
+// 2 columns as an array
 picker.add([column1,column2]);
 
 // turn on the selection indicator (off by default)

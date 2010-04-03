@@ -157,7 +157,7 @@
 			break;
 	}
 
-	//Propigate this to everyone else. This has to be done outside the animation.
+	//Propagate this to everyone else. This has to be done outside the animation.
 	for (UIViewController * thisVC in windowViewControllers)
 	{
 		UINavigationController * thisNavCon = [thisVC navigationController];
@@ -361,6 +361,7 @@
 	[windowViewControllers removeObject:focusedViewController];
 	if ((focusedViewController==nil) || [(TiWindowProxy *)focusedProxy _isChildOfTab] || ([(TiWindowProxy *)focusedProxy parent]!=nil))
 	{
+		focusedViewController=nil;
 		[self enforceOrientationModesFromWindow:(id)focusedProxy];
 		return;
 	}
@@ -397,6 +398,7 @@
 	[windowViewControllers removeObject:closedViewController];
 	if (!focusChanged)
 	{
+		closedViewController=nil;
 		return; //Exit early. We're done here.
 	}
 	
