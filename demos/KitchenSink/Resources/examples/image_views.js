@@ -14,9 +14,9 @@ if (Titanium.Platform.name == 'iPhone OS')
 {
 	data.push({title:'Image Blob', hasChild:true, test:'../examples/image_view_blob.js'});
 	data.push({title:'Image Masking', hasChild:true, test:'../examples/image_mask.js'});
-	data.push({title:'Image Rapid Update', hasChild:true, test:'../examples/image_view_updateimages.js'});
-
 }
+
+data.push({title:'Image Rapid Update', hasChild:true, test:'../examples/image_view_updateimages.js'});
 
 // create table view
 var tableview = Titanium.UI.createTableView({
