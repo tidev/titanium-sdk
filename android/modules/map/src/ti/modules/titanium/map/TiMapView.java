@@ -306,6 +306,7 @@ public class TiMapView extends TiUIView
 					d.put("latitude", scaleFromGoogle(item.getPoint().getLatitudeE6()));
 					d.put("longitude", scaleFromGoogle(item.getPoint().getLongitudeE6()));
 					d.put("annotation", item.getProxy());
+					d.put("clicksource", clickedItem);
 
 					fproxy.fireEvent(EVENT_CLICK, d);
 				}
