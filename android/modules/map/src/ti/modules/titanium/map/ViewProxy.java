@@ -66,6 +66,16 @@ public class ViewProxy extends TiViewProxy
 		}
 	}
 
+	public void addAnnotation(Object arg)
+	{
+		if (arg != null) {
+			if (arg instanceof AnnotationProxy) {
+				TiMapView mv = (TiMapView) view;
+				mv.addAnnotation((AnnotationProxy) arg);
+			}
+		}
+	}
+
 	public void removeAnnotation(Object arg)
 	{
 		String title = null;

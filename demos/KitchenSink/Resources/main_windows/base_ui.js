@@ -18,6 +18,13 @@ if (Titanium.Platform.name == 'iPhone OS')
 	data.push({title:'Window Constructor', hasChild:true, test:'../examples/window_constructor.js'});
 	data.push({title:'Animation', hasChild:true, test:'../examples/animation.js'});
 	data.push({title:'Vertical Layout', hasChild:true, test:'../examples/vertical_layout.js'});
+	
+	Ti.include("../examples/version.js");
+	
+	if (isIPhone3_2_Plus())
+	{
+		data.push({title:'Modal Windows', hasChild:true, test:'../examples/modal_windows.js'});
+	}
 }
 
 // create table view

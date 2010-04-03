@@ -69,21 +69,51 @@ DEFINE_SUBPROXY(TableViewCellSelectionStyle,tableViewCellSelectionStyle);
 -(void)hideStatusBar:(id)args
 {
 	ENSURE_UI_THREAD(hideStatusBar,args);
-	[[UIApplication sharedApplication] setStatusBarHidden:YES animated:[TiUtils boolValue:args]];
+	ENSURE_SINGLE_ARG_OR_NIL(args,NSDictionary);
+	
+	BOOL animated = [TiUtils boolValue:@"animated" properties:args def:YES];
+	
+#if __IPHONE_OS_VERSION_MAX_ALLOWED < __IPHONE_3_2
+	[[UIApplication sharedApplication] setStatusBarHidden:YES animated:animated];
+#else
+	int style = (animated==NO) ? UIStatusBarAnimationNone : [TiUtils intValue:@"animationStyle" properties:args def:UIStatusBarAnimationSlide];
+	[[UIApplication sharedApplication] setStatusBarHidden:YES withAnimation:style];
+#endif
+	
 	[[[TitaniumApp app] controller] resizeView];
 }
 
 -(void)showStatusBar:(id)args
 {
 	ENSURE_UI_THREAD(showStatusBar,args);
-	[[UIApplication sharedApplication] setStatusBarHidden:NO animated:[TiUtils boolValue:args]];
+	ENSURE_SINGLE_ARG_OR_NIL(args,NSDictionary);
+	
+	BOOL animated = [TiUtils boolValue:@"animated" properties:args def:YES];
+
+	
+#if __IPHONE_OS_VERSION_MAX_ALLOWED < __IPHONE_3_2
+	[[UIApplication sharedApplication] setStatusBarHidden:NO animated:animated];
+#else
+	int style = (animated==NO) ? UIStatusBarAnimationNone : [TiUtils intValue:@"animationStyle" properties:args def:UIStatusBarAnimationSlide];
+	[[UIApplication sharedApplication] setStatusBarHidden:NO withAnimation:style];
+#endif
+
 	[[[TitaniumApp app] controller] resizeView];
 }
 
--(void)setStatusBarHidden:(NSNumber *)hidden
+-(void)setStatusBarHidden:(id)hidden
 {
 	ENSURE_UI_THREAD(setStatusBarHidden,hidden);
-	[[UIApplication sharedApplication] setStatusBarHidden:[hidden boolValue] animated:NO];
+	ENSURE_SINGLE_ARG(hidden,NSObject);
+	
+	BOOL value = [TiUtils boolValue:hidden];
+	
+#if __IPHONE_OS_VERSION_MAX_ALLOWED < __IPHONE_3_2
+	[[UIApplication sharedApplication] setStatusBarHidden:value animated:NO];
+#else
+	[[UIApplication sharedApplication] setStatusBarHidden:value withAnimation:UIStatusBarAnimationNone];
+#endif
+
 	[[[TitaniumApp app] controller] resizeView];
 }
 
@@ -135,6 +165,24 @@ END_UI_THREAD_PROTECTED_VALUE(appSupportsShakeToEdit)
 	Class cl = NSClassFromString(@"TiUIiPhoneNavigationGroupProxy");
 	return [[[cl alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
 }
+
+MAKE_SYSTEM_PROP(MODAL_TRANSITION_STYLE_COVER_VERTICAL,UIModalTransitionStyleCoverVertical);
+MAKE_SYSTEM_PROP(MODAL_TRANSITION_STYLE_FLIP_HORIZONTAL,UIModalTransitionStyleFlipHorizontal);
+MAKE_SYSTEM_PROP(MODAL_TRANSITION_STYLE_CROSS_DISSOLVE,UIModalTransitionStyleCrossDissolve);
+
+
+
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
+
+MAKE_SYSTEM_PROP(MODAL_PRESENTATION_FULLSCREEN,UIModalPresentationFullScreen);
+MAKE_SYSTEM_PROP(MODAL_TRANSITION_STYLE_PARTIAL_CURL,UIModalTransitionStylePartialCurl);
+MAKE_SYSTEM_PROP(MODAL_PRESENTATION_PAGESHEET,UIModalPresentationPageSheet);
+MAKE_SYSTEM_PROP(MODAL_PRESENTATION_FORMSHEET,UIModalPresentationFormSheet);
+MAKE_SYSTEM_PROP(MODAL_PRESENTATION_CURRENT_CONTEXT,UIModalPresentationCurrentContext);
+
+#endif
+
+
 
 #pragma mark Internal
 

@@ -54,6 +54,7 @@ public class TiContext implements TiEvaluator, ITiMenuDispatcherListener, ErrorR
 {
 	private static final String LCAT = "TiContext";
 	private static final boolean DBG = TiConfig.LOGD;
+	private static final boolean TRACE = TiConfig.LOGV;
 
 	private long mainThreadId;
 
@@ -508,7 +509,9 @@ public class TiContext implements TiEvaluator, ITiMenuDispatcherListener, ErrorR
 					}
 				}
 			} else {
-				Log.w(LCAT, "No listeners for eventName: " + eventName);
+				if(TRACE) {
+					Log.w(LCAT, "No listeners for eventName: " + eventName);
+				}
 			}
 		} else {
 			throw new IllegalStateException("dispatchEvent expects a non-null eventName");

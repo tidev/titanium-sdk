@@ -13,9 +13,11 @@ public class TiOverlayItem extends OverlayItem
 {
 	private String leftButtonPath;
 	private String rightButtonPath;
+	private AnnotationProxy proxy;
 
-	public TiOverlayItem(GeoPoint location, String title, String snippet) {
+	public TiOverlayItem(GeoPoint location, String title, String snippet, AnnotationProxy proxy) {
 		super(location,title,snippet);
+		this.proxy = proxy;
 	}
 
 	public void setLeftButton(String path) {
@@ -34,6 +36,9 @@ public class TiOverlayItem extends OverlayItem
 		return rightButtonPath;
 	}
 
+	public AnnotationProxy getProxy() {
+		return proxy;
+	}
 	public boolean hasData() {
 		return getTitle() != null || getSnippet() != null | leftButtonPath != null || rightButtonPath != null;
 	}
