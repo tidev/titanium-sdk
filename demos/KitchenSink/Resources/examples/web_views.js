@@ -44,7 +44,10 @@ tableview.addEventListener('click', function(e)
 
 	
 	var webview = Ti.UI.createWebView();
-
+	// webview.addEventListener('singletap', function(e)
+	// {
+	// 	alert('singletap');
+	// });
 	// handle xhr to filesystem case first
 	if (e.index == 2)
 	{

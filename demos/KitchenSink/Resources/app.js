@@ -97,6 +97,15 @@ tabGroup.open({
 	transition:Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT
 });
 
+// setTimeout(function()
+// {
+// 	tabGroup.close({
+// 		transition:Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT
+// 	});
+// 	
+// },2000);
+
+
 //
 //  TAB GROUP EVENTS
 //
