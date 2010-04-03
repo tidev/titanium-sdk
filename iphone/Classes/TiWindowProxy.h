@@ -74,5 +74,6 @@
 -(void)_tabBeforeBlur;
 
 -(void)setupWindowDecorations;
+- (void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration;
 
 @end

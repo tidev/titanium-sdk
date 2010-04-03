@@ -35,13 +35,14 @@
 
 - (BOOL) shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation
 {
-	if ([TiUtils isIPad])
-	{
-		return YES;
-	}
-	
-	//Since the AppController will be the deciding factor,
+	//Since the AppController will be the deciding factor, and it compensates for iPad, let it do the work.
 	return [[[TitaniumApp app] controller] shouldAutorotateToInterfaceOrientation:toInterfaceOrientation];
+}
+
+- (void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
+{
+	[proxy willAnimateRotationToInterfaceOrientation:toInterfaceOrientation duration:duration];
+	[super willAnimateRotationToInterfaceOrientation:toInterfaceOrientation duration:duration];
 }
 
 @end
@@ -49,6 +50,12 @@
 
 @implementation TiWindowProxy
 @synthesize navController, controller;
+
+- (void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
+{
+	//This is in place for TabController (Or any others) to subclass.
+}
+
 
 -(UIViewController *)controller
 {
@@ -59,14 +66,14 @@
 	return controller;
 }
 
--(void)dealloc
+-(void)_destroy
 {
 	RELEASE_TO_NIL(controller);
 	RELEASE_TO_NIL(navController);
 	RELEASE_TO_NIL(tab);
 	RELEASE_TO_NIL(reattachWindows);
 	RELEASE_TO_NIL(closeView);
-	[super dealloc];
+	[super _destroy];
 }
 
 -(void)_initWithProperties:(NSDictionary *)properties
@@ -314,12 +321,46 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 			modal = YES;
 			attached = YES;
 			TiWindowViewController *wc = [[[TiWindowViewController alloc] initWithWindow:self] autorelease];
-			UINavigationController *nc = [[[UINavigationController alloc] initWithRootViewController:wc] autorelease];
+			UINavigationController *nc = nil;
+			
+			if ([self argOrWindowProperty:@"navBarHidden" args:args]==NO)
+			{
+				nc = [[[UINavigationController alloc] initWithRootViewController:wc] autorelease];
+			}
+			
+			
+			NSDictionary *dict = [args count] > 0 ? [args objectAtIndex:0] : nil;
+			int style = [TiUtils intValue:@"modalTransitionStyle" properties:dict def:-1];
+			if (style!=-1)
+			{
+				[wc setModalTransitionStyle:style];
+			}
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
+			style = [TiUtils intValue:@"modalStyle" properties:dict def:-1];
+			if (style!=-1)
+			{
+				// modal transition style page curl must be done only in fullscreen
+				// so only allow if not page curl
+				if ([wc modalTransitionStyle]!=UIModalTransitionStylePartialCurl)
+				{
+					[wc setModalPresentationStyle:style];
+				}
+			}
+#endif			
 			[self setController:wc];
 			[self setNavController:nc];
 			BOOL animated = args!=nil && [args isKindOfClass:[NSDictionary class]] ? [TiUtils boolValue:@"animated" properties:[args objectAtIndex:0] def:YES] : YES;
 			[self setupWindowDecorations];
-			[[TitaniumApp app] showModalController:nc animated:animated];
+			
+			if (nc!=nil)
+			{
+				[[TitaniumApp app] showModalController:nc animated:animated];
+			}
+			else 
+			{
+				[[TitaniumApp app] showModalController:wc animated:animated];
+			}
+
 		}
 		if (animation==nil)
 		{
@@ -464,7 +505,6 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 	if (newFocused == focused)
 	{
 		NSLog(@"[DEBUG] Setting focus to %d when it's already set to that.",focused);
-//		return;
 	}
 
 	[self fireEvent: newFocused?@"focus":@"blur" ];

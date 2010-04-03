@@ -10,6 +10,17 @@ var imageView = Titanium.UI.createImageView({
 
 win.add(imageView);
 
+var popoverView;
+var arrowDirection;
+
+if (Titanium.Platform.osname == 'ipad')
+{
+	// photogallery displays in a popover on the ipad and we 
+	// want to make it relative to our image with a left arrow
+	arrowDirection = Ti.UI.iPad.POPOVER_ARROW_DIRECTION_LEFT;
+	popoverView = imageView;
+}
+
 Titanium.Media.openPhotoGallery({
 
 	success:function(event)
@@ -30,5 +41,7 @@ Titanium.Media.openPhotoGallery({
 	error:function(error)
 	{
 	},
-	allowImageEditing:true
+	allowImageEditing:true,
+	popoverView:popoverView,
+	arrowDirection:arrowDirection
 });

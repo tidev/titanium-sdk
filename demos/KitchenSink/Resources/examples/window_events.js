@@ -107,6 +107,7 @@ win.add(l0);
 var l1 = Titanium.UI.createLabel({
 	text:'touchstart not fired',
 	top:90,
+	left:10,
 	width:300,
 	height:'auto',
 	font:{fontSize:14,fontFamily:'Helvetica Neue'}
