@@ -35,13 +35,14 @@
 
 - (BOOL) shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation
 {
-	if ([TiUtils isIPad])
-	{
-		return YES;
-	}
-	
-	//Since the AppController will be the deciding factor,
+	//Since the AppController will be the deciding factor, and it compensates for iPad, let it do the work.
 	return [[[TitaniumApp app] controller] shouldAutorotateToInterfaceOrientation:toInterfaceOrientation];
+}
+
+- (void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
+{
+	[proxy willAnimateRotationToInterfaceOrientation:toInterfaceOrientation duration:duration];
+	[super willAnimateRotationToInterfaceOrientation:toInterfaceOrientation duration:duration];
 }
 
 @end
@@ -49,6 +50,12 @@
 
 @implementation TiWindowProxy
 @synthesize navController, controller;
+
+- (void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
+{
+	//This is in place for TabController (Or any others) to subclass.
+}
+
 
 -(UIViewController *)controller
 {

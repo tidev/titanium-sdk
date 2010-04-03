@@ -4354,7 +4354,10 @@
 					../headers,
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 3.1;
-				OTHER_CFLAGS = "-DDEBUG=1";
+				OTHER_CFLAGS = (
+					"-DVERBOSE=1",
+					"-DDEBUG=1",
+				);
 				OTHER_LDFLAGS = "";
 				PREBINDING = NO;
 				PROVISIONING_PROFILE = "";

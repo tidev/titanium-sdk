@@ -48,7 +48,8 @@
 -(CGRect)resizeView
 {
 	CGRect rect = [[UIScreen mainScreen] applicationFrame];
-	[TiUtils setView:[self view] positionRect:rect];
+	[[self view] setFrame:rect];
+	//Because of the transition in landscape orientation, TiUtils can't be used here... SetFrame compensates for it.
 	return rect;
 }
 
@@ -109,9 +110,12 @@
 	{
 		TiUIView * thisView = [thisWindowProxy view];
 		[rootView addSubview:thisView];
-		[thisWindowProxy reposition];
+		if ([thisWindowProxy respondsToSelector:@selector(reposition)])
+		{
+			[thisWindowProxy reposition];
+		}
 	}
-
+	[self manuallyRotateToOrientation:[[UIApplication sharedApplication] statusBarOrientation] duration:0];
 	[rootView release];
 }
 
@@ -127,62 +131,88 @@
     [super viewDidDisappear:animated];
 }
 
+-(void)manuallyRotateToOrientation:(UIInterfaceOrientation)newOrientation duration:(NSTimeInterval)duration
+{
+	UIApplication * ourApp = [UIApplication sharedApplication];
+	if (newOrientation != [ourApp statusBarOrientation])
+	{
+		[ourApp setStatusBarOrientation:newOrientation animated:YES];
+	}
+
+	CGAffineTransform transform;
+
+	switch (newOrientation)
+	{
+		case UIInterfaceOrientationPortraitUpsideDown:
+			transform = CGAffineTransformMakeRotation(M_PI);
+			break;
+		case UIInterfaceOrientationLandscapeLeft:
+			transform = CGAffineTransformMakeRotation(-M_PI_2);
+			break;
+		case UIInterfaceOrientationLandscapeRight:
+			transform = CGAffineTransformMakeRotation(M_PI_2);
+			break;
+		default:
+			transform = CGAffineTransformIdentity;
+			break;
+	}
+
+	//Propigate this to everyone else. This has to be done outside the animation.
+	for (UIViewController * thisVC in windowViewControllers)
+	{
+		UINavigationController * thisNavCon = [thisVC navigationController];
+		if (thisNavCon != nil)
+		{
+			[thisNavCon willAnimateRotationToInterfaceOrientation:newOrientation duration:duration];
+		}
+		else
+		{
+			[thisVC willAnimateRotationToInterfaceOrientation:newOrientation duration:duration];
+		}
+
+	}
+
+
+	if (duration > 0.0)
+	{
+		[UIView beginAnimations:@"orientation" context:nil];
+		[UIView setAnimationDuration:duration];
+	}
+
+	[[self view] setTransform:transform];
+	[self resizeView];
+
+	//Propigate this to everyone else. This has to be done INSIDE the animation.
+	for (UIView * subView in [[self view] subviews])
+	{
+		if ([subView respondsToSelector:@selector(proxy)])
+		{
+			[(TiViewProxy *)[(TiUIView *)subView proxy] reposition];
+		}
+	}
+
+	if (duration > 0.0)
+	{
+		[UIView commitAnimations];
+	}
+	lastOrientation = newOrientation;
+}
+
+-(void)manuallyRotateToOrientation:(UIInterfaceOrientation) newOrientation
+{
+	[self manuallyRotateToOrientation:newOrientation duration:[[UIApplication sharedApplication] statusBarOrientationAnimationDuration]];
+}
+
+- (void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
+{
+	windowOrientation = toInterfaceOrientation;
+	[self manuallyRotateToOrientation:toInterfaceOrientation duration:duration];
+	[super willAnimateRotationToInterfaceOrientation:toInterfaceOrientation duration:duration];
+}
+
 -(BOOL)isEmailViewControllerOnTop
 {
 	return [[windowViewControllers lastObject] isKindOfClass:[MFMailComposeViewController class]];
-}
-
--(void) manuallyRotateToOrientation:(UIInterfaceOrientation)orientation;
-{
-	if ([TiUtils isIPad])
-	{
-		return;
-	}
-	
-	if ([self isEmailViewControllerOnTop])
-	{
-		return;
-	}
-
-	UIDevice * ourDevice = [UIDevice currentDevice];
-	[ourDevice beginGeneratingDeviceOrientationNotifications];
-
-	UIWindow *win = [[UIApplication sharedApplication] keyWindow];
-	[UIView beginAnimations:@"orientation" context:nil];
-	[UIView setAnimationDuration:[UIApplication sharedApplication].statusBarOrientationAnimationDuration];
-	CGAffineTransform transform = CGAffineTransformIdentity;
-	int sign = 1;
-	CGRect rect;
-	switch (orientation)
-	{
-		case UIInterfaceOrientationPortraitUpsideDown:
-			transform = CGAffineTransformMakeRotation(M_PI); //180 degrees
-			//Flow into portrait.
-		case UIInterfaceOrientationPortrait:
-		{
-			CGRect rect_ = [TiUtils screenRect];
-			rect = CGRectMake(0, 0, rect_.size.width, rect_.size.height);
-			break;
-		}
-		case UIInterfaceOrientationLandscapeLeft:
-			sign = -1;
-			//Flow into landscape.
-		case UIInterfaceOrientationLandscapeRight:
-		{
-			transform = CGAffineTransformMakeRotation( sign * M_PI_2 );
-			transform = CGAffineTransformTranslate( transform, sign * 90.0, sign * 90.0 );
-			CGRect rect_ = [TiUtils screenRect];
-			rect = CGRectMake(10, -10, rect_.size.height, rect_.size.width);
-			break;
-		}
-	}
-
-	[win setTransform:transform];
-	[TiUtils setView:win positionRect:rect];
-	[UIApplication sharedApplication].statusBarOrientation = orientation;	
-	[UIView commitAnimations];
-	[ourDevice endGeneratingDeviceOrientationNotifications];
-	lastOrientation = orientation;
 }
 
 -(void)setOrientationModes:(NSArray *)newOrientationModes
@@ -303,28 +333,8 @@
 
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation 
 {
-	if ([TiUtils isIPad])
-	{
-		return YES;
-	}
-	
-	if ([self isEmailViewControllerOnTop])
-	{
-		return NO;
-	}
-
 	orientationRequestTimes[interfaceOrientation] = [NSDate timeIntervalSinceReferenceDate];
-
-	BOOL result;
-
-	result = allowedOrientations[interfaceOrientation];
-
-	if (result)
-	{
-		[self manuallyRotateToOrientation:interfaceOrientation];
-	}
-	
-	return interfaceOrientation == [[UIApplication sharedApplication] statusBarOrientation];
+	return [TiUtils isIPad] || allowedOrientations[interfaceOrientation];
 }
 
 
@@ -346,12 +356,12 @@
 		focusedProxy = (TiWindowProxy *)[(id)focusedViewController proxy];
 	}
 
-	[self enforceOrientationModesFromWindow:(id)focusedProxy];
 	
 	TiWindowProxy * oldTopWindow = [windowViewControllers lastObject];
 	[windowViewControllers removeObject:focusedViewController];
 	if ((focusedViewController==nil) || [(TiWindowProxy *)focusedProxy _isChildOfTab] || ([(TiWindowProxy *)focusedProxy parent]!=nil))
 	{
+		[self enforceOrientationModesFromWindow:(id)focusedProxy];
 		return;
 	}
 	
@@ -369,7 +379,7 @@
 		[(TiWindowProxy *)[(id)oldTopWindow proxy] _tabBlur];
 	}
 	
-	
+	[self enforceOrientationModesFromWindow:(id)focusedProxy];
 }
 
 -(void)windowClosed:(UIViewController *)closedViewController

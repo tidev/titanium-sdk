@@ -11,21 +11,24 @@ const NSString * htmlMimeType = @"text/html";
 const NSString * textMimeType = @"text/plain";
 const NSString * jpegMimeType = @"image/jpeg";
 
+static NSDictionary * mimeTypeFromExtensionDict = nil;
+
 @implementation Mimetypes
 
-+ (NSString *)mimeTypeForExtension:(NSString *)ext
++ (void)initialize
 {
-	static NSDictionary * mimeTypeFromExtensionDict = nil;
-	
-	if (mimeTypeFromExtensionDict == nil){
+	if (mimeTypeFromExtensionDict == nil)
+	{
 		mimeTypeFromExtensionDict = [[NSDictionary alloc] initWithObjectsAndKeys:
 									 @"image/png",@"png",@"image/gif",@"gif",
-									 jpegMimeType,@"jpeg",jpegMimeType,@"jpg",
+									 jpegMimeType,@"jpg",jpegMimeType,@"jpeg",
 									 @"image/x-icon",@"ico",
 									 htmlMimeType,@"html",htmlMimeType,@"htm",
 									 textMimeType,@"text",textMimeType,@"txt",
 									 @"text/json",@"json",					 
 									 @"text/javascript",@"js",
+									 @"text/x-javascript",@"js",
+									 @"application/x-javascript",@"js",
 									 @"text/css",@"css",
 									 @"text/xml",@"xml",
 									 @"audio/x-wav",@"wav",
@@ -33,7 +36,25 @@ const NSString * jpegMimeType = @"image/jpeg";
 									 @"video/mpeg",@"m4v",
 									 nil];
 	}
-	
+}
+
++ (NSString *)extensionForMimeType:(NSString *)mimetype
+{
+	[Mimetypes initialize];
+	for (NSString *key in mimeTypeFromExtensionDict)
+	{
+		NSString *value = [mimeTypeFromExtensionDict objectForKey:key];
+		if ([value isEqualToString:mimetype])
+		{
+			return key;
+		}
+	}
+	return @"bin";
+}
+
++ (NSString *)mimeTypeForExtension:(NSString *)ext
+{
+	[Mimetypes initialize];
 	NSString *result=[mimeTypeFromExtensionDict objectForKey:[ext pathExtension]];
 	if (result == nil){
 		result = @"application/octet-stream";
