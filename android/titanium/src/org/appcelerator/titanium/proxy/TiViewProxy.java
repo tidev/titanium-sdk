@@ -192,6 +192,7 @@ public abstract class TiViewProxy extends TiProxy implements Handler.Callback
 
 			view = createView(activity);
 			realizeViews(activity, view);
+			view.registerForTouch();
 		}
 		return view;
 	}
