@@ -21,7 +21,7 @@ The Web View allows you to open an HTML5 based view which can load either local 
 
 - platforms
 
-android, iphone
+android, iphone, ipad
 
 - properties
 
@@ -91,5 +91,7 @@ Create a web view to a remote URL and open the window as modal.
 
 Creating webviews are more expensive than creating pure native views because of the requirement to\
 load the HTML browser into memory.
+
+Since a webview internally wants to handle its own events, scrolling and other related touch events against it's own view surface, you cannot have both Titanium style events against the webview instance and internal Javascript events in the DOM.  You must choose between one or the other.
 
 

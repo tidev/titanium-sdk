@@ -20,7 +20,7 @@ The top level Gestures module.  The Gesture module is responsible for high level
 
 - platforms
 
-android, iphone
+android, iphone, ipad
 
 
 - events

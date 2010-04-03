@@ -463,6 +463,12 @@
 	return NUMINT([[self player] movieSourceType]);
 }
 
+-(void)setSourceType:(id)type
+{
+	ENSURE_SINGLE_ARG(type,NSObject);
+	[self player].movieSourceType = [TiUtils intValue:type];
+}
+
 -(NSNumber*)playbackState
 {
 	return NUMINT([[self player] playbackState]);

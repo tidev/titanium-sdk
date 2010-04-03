@@ -16,7 +16,7 @@ The Option Dialog is created by `Titanium.UI.createOptionDialog` and allows you 
 
 - platforms
 
-android, iphone
+android, iphone, ipad
 
 - properties
 

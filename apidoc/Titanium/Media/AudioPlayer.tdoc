@@ -1,0 +1,89 @@
+- namespace
+
+Titanium.Media.AudioPlayer
+
+- type
+
+object
+
+- subtype
+
+proxy
+
+- description
+
+The AudioPlayer object is returned by [[Titanum.Media.createAudioPlayer]] and is used for streaming audio to the device and low-level control of the audio playback.
+
+- since
+
+0.9
+
+- platforms
+
+android, iphone, ipad
+
+- properties
+
+waiting[boolean]: returns boolean indicating if the playback is waiting for audio data from the network
+idle[boolean]: returns boolean indicating if the playback is idle
+playing[boolean]: returns boolean indicating if the playback is streaming audio
+paused[boolean]: returns boolean indicating if the playback is paused
+bitRate[double]: bit rate of the current playback stream
+progress[double]: returns the current playback progress. Will return zero if sampleRate has not yet been detected
+state[int]: returns int for the current state of playback
+url[string]: returns the url for the current playback
+
+STATE_INITIALIZED[int]: current playback is in the initialization state
+STATE_STARTING[int]: current playback is in the starting playback state
+STATE_WAITING_FOR_DATA[int]: current playback is in the waiting for audio data from the network state
+STATE_WAITING_FOR_QUEUE[int]: current playback is in the waiting for audio data to fill the queue state
+STATE_PLAYING[int]: current playback is in the playing state
+STATE_BUFFERING[int]: current playback is in the buffering from the network state
+STATE_STOPPING[int]: current playback is in the stopping state
+STATE_STOPPED[int]: current playback is in the stopped state
+STATE_PAUSED[int]: current playback is in the paused state
+
+
+- methods 
+
+setPaused: control the playback of the audio
+setUrl: change the url of the audio playback
+start: start playback
+stop: stop playback
+pause: pause playback
+stateDescription: convert a state into a textual description suitable for display
+
+- method : stateDescription, string
+
+- method : setPaused
+
+paused[boolean]: pass true to pause the current playback temporarily, false to unpause it
+
+- method : setUrl
+
+url[string]: the new url
+
+- events
+
+change: fired when the state of the playback changes
+progress: fired once per second with the current progress during playback
+
+- event : change
+
+state: current state of playback
+description: textual description of the state of playback
+
+
+- event : progress
+
+progress: current progress value
+
+
+
+
+
+
+
+
+
+

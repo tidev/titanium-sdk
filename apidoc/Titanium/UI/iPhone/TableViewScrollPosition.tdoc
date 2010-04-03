@@ -4,11 +4,11 @@ Titanium.UI.iPhone.TableViewScrollPosition
 
 - type
 
-object
+proxy
 
 - description
 
-A set of constants for the position value that can be used for the `position` property of `Titanium.UI.TableView` when invoking `scrollToIndex`.
+A set of constants for the position value that can be used for the `position` property of [[Titanium.UI.TableView]] when invoking `scrollToIndex`.
 
 - since
 
@@ -16,7 +16,7 @@ A set of constants for the position value that can be used for the `position` pr
 
 - platforms
 
-iphone
+iphone, ipad
 
 - properties
 

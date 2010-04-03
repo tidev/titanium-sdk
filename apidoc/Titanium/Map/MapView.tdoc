@@ -20,7 +20,7 @@ The MapView is an object created by [Titanium.Map.createView](Titanium.Map.creat
 
 - platforms
 
-android, iphone
+android, iphone, ipad
 
 - methods
 

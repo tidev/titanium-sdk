@@ -20,7 +20,7 @@ The top level Geolocation module.  The Geolocation module is used for accessing 
 
 - platforms
 
-android, iphone
+android, iphone, ipad
 
 - methods
 
@@ -37,4 +37,22 @@ ACCURACY_THREE_KILOMETERS[int]: accuracy constant
 locationServicesEnabled[boolean]: returns true if the user has enabled or disable location services for the device (not the application).  This is an iPhone only property.
 showCalibration[boolean]: returns true if the calibration UI can show
 
+
+- events
+
+calibration: fired only on iPhone/iPad when the device detects interface and requires calibration. when this event is fired, the calibration UI is being displayed to the end user.
+heading: fired when a heading event is received
+location: fired when a location event is received
+
+- event : location
+
+success: boolean to indicate if the location event was successfully received or an error occurred
+error: if success is false, returns a string of the error description
+coords: location coordinates dictionary with the following sub-properties: `latitude`, `longitude`, `altitude`, `accuracy`, `altitudeAccuracy`, `heading`, `speed`, `timestamp`.
+
+- event : heading
+
+success: boolean to indicate if the heading event was successfully received or an error occurred
+error: if success is false, returns a string of the error description
+heading: heading results dictionary with the following sub-properties: `magneticHeading`, `trueHeading`, `accuracy`, `x`, `y`, `z`, `timestamp`.
 

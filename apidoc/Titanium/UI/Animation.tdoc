@@ -20,7 +20,7 @@ The Animation object is used for specifying lower-level animation properties and
 
 - platforms
 
-android, iphone
+android, iphone, ipad
 
 - properties
 

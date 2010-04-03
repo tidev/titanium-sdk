@@ -16,7 +16,7 @@ A Progress Bar is created by the method `Titanium.UI.createProgressBar`.
 
 - platforms
 
-android, iphone
+android, iphone, ipad
 
 - properties
 

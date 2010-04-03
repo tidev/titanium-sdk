@@ -4,11 +4,11 @@ Titanium.XML.DOMDocument
 
 - type
 
-object
+proxy
 
 - description
 
-The DOMDocument returned from `Titanium.XML.parseString`. The result is an object that implementes the DOM Level 2 API.
+The DOMDocument returned from [[Titanium.XML.parseString]]. The result is an object that implementes the DOM Level 2 API.
 
 - since
 
@@ -16,5 +16,5 @@ The DOMDocument returned from `Titanium.XML.parseString`. The result is an objec
 
 - platforms
 
-android, iphone
+android, iphone, ipad
 

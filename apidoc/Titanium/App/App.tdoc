@@ -20,7 +20,7 @@ The top level App module.  The App module is mainly used for accessing informati
 
 - platforms
 
-android, iphone
+android, iphone, ipad
 
 
 - methods

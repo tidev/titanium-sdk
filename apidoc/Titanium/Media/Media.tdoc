@@ -20,7 +20,7 @@ The top level Media module.  The Media module is used accessing the device's med
 
 - platforms
 
-android, iphone
+android, iphone, ipad
 
 
 - methods
@@ -54,7 +54,7 @@ options[object]: pass a dictionary with the following supported keys: `success` 
 - method : openPhotoGallery
 
 
-options[object]: pass a dictionary with the following supported keys: `success` a function that will be called when the camera is completed, `error` a function that will be called upon receiving an error, `cancel` a function that will be called if the user presses the cancel button, `autohide` boolean if the camera should auto hide after the media capture is completed (defaults to true), `animated` boolean if the dialog should be animated (defaults to true) upon showing and hiding, `saveToPhotoGallery` boolean if the media should be saved to the photo gallery upon successful capture, `allowEditing` boolean if the media should be editable after capture in the UI interface, `mediaTypes` an array of media type constants supported by the capture device UI, `showControls` boolean to indicate if the built-in UI controls should be displayed, `overlay` view which is added as an overlay to the UI (on top), `transform` an transformation matrix that applies to the UI transform.
+options[object]: pass a dictionary with the following supported keys: `success` a function that will be called when the camera is completed, `error` a function that will be called upon receiving an error, `cancel` a function that will be called if the user presses the cancel button, `autohide` boolean if the camera should auto hide after the media capture is completed (defaults to true), `animated` boolean if the dialog should be animated (defaults to true) upon showing and hiding, `saveToPhotoGallery` boolean if the media should be saved to the photo gallery upon successful capture, `allowEditing` boolean if the media should be editable after capture in the UI interface, `mediaTypes` an array of media type constants supported by the capture device UI, `showControls` boolean to indicate if the built-in UI controls should be displayed, `overlay` view which is added as an overlay to the UI (on top), `transform` an transformation matrix that applies to the UI transform. For iPad, `popoverView` can be provided to position the photo gallery popover a specific view and `arrowDirection` can be provided to control the type of arrow and position of the gallery.
 
 - method : takeScreenshot
 
@@ -134,6 +134,20 @@ availablePhotoGalleryMediaTypes[array]: return an array of media type constants 
 peakMicrophonePower[float]: return the current microphone level peak power in dB or -1 if microphone monitoring is disabled
 
 averageMicrophonePower[float]: return the current average microphone level in dB or -1 if microphone monitoring is disabled
+
+# NOTE: these are introduced in 3.2
+VIDEO_CONTROL_NONE[int]: No controls. Used in conjunction with movieControlStyle property of [[Titanium.Media.VideoPlayer]] in iPhone 3.2+
+VIDEO_CONTROL_EMBEDDED[int]: Controls for an embedded view. Used in conjunction with movieControlStyle property of [[Titanium.Media.VideoPlayer]] in iPhone 3.2+
+VIDEO_CONTROL_FULLSCREEN[int]: Controls for fullscreen. Used in conjunction with movieControlStyle property of [[Titanium.Media.VideoPlayer]] in iPhone 3.2+
+
+VIDEO_MEDIA_TYPE_NONE[int]: An unknown type of media in the movie returned by [[Titanium.Media.VideoPlayer]] `mediaTypes` property.
+VIDEO_MEDIA_TYPE_VIDEO[int]: A video type of media in the movie returned by [[Titanium.Media.VideoPlayer]] `mediaTypes` property
+VIDEO_MEDIA_TYPE_AUDIO[int]: A audio type of media in the movie returned by [[Titanium.Media.VideoPlayer]] `mediaTypes` property
+
+VIDEO_SOURCE_TYPE_UNKNOWN[int]: the video source type is unknown. Related to the `sourceType` property of [[Titanium.Media.VideoPlayer]]
+VIDEO_SOURCE_TYPE_FILE[int]: the video source type is a file. Related to the `sourceType` property of [[Titanium.Media.VideoPlayer]]
+VIDEO_SOURCE_TYPE_STREAMING[int]: the video source type is a remote stream. Related to the `sourceType` property of [[Titanium.Media.VideoPlayer]]
+
 
 - events
 

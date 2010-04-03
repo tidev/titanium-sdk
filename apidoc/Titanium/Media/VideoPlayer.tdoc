@@ -1,0 +1,33 @@
+- namespace
+
+Titanium.Media.VideoPlayer
+
+- type
+
+object
+
+- subtype
+
+proxy
+
+- description
+
+The VideoPlayer object is returned by [[Titanum.Media.createVideoPlayer]] and is useful for playing videos. 
+
+- since
+
+0.9
+
+- platforms
+
+android, iphone, ipad
+
+
+
+
+
+
+
+
+
+

@@ -17,7 +17,7 @@ related functionality.
 
 - platforms
 
-android, iphone
+android, iphone, ipad
 
 - methods
 
@@ -58,7 +58,7 @@ BATTERY_STATE_FULL[int]: the battery is fully charged
 
 - events
 
-battery: fired when the battery state changes.  the battery state changes are only tracked on iPhone at 5% increments.
+battery: fired when the battery state changes.  the battery state changes are only tracked on iPhone/iPad at 5% increments.
 
 - event : battery
 

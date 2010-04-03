@@ -4,7 +4,7 @@ Titanium.Database.ResultSet
 
 - type
 
-object
+proxy
 
 - description
 
@@ -16,7 +16,7 @@ The ResultSet instance returned by invoking a database SQL `execute`.
 
 - platforms
 
-android, iphone
+android, iphone, ipad
 
 
 - methods

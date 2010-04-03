@@ -16,7 +16,7 @@ The top level Titanium module.
 
 - platforms
 
-android, iphone
+android, iphone, ipad
 
 - properties
 
@@ -30,6 +30,27 @@ include: one or more filenames to include as if the Javascript code was written 
 - method : include
 
 name[string]: filename to include
+
+- notes
+
+Titanium provides a number of built-in objects in the Javascript that are not part of the Titanium namespace.  Specifically, the following are available.
+
+#### JSON
+
+Titanium has a built-in JSON parser with two main functions: `parse` and `stringify`.  `JSON.parse` will safely evaluate a string encoded as Javascript into a Javascript object.  `JSON.stringify` will encode a Javascript object into a string.
+
+#### Timers
+
+Titanium has built-in support for one-shot and repeating timers with two main functions: `setTimeout` and `setInterval`.  `setTimeout` takes 2 arguments: function and timeout in milliseconds after which the function should be executed and returns a timer handle that can be used to cancel a pending timer with `clearTimeout`.  `setInterval` takes 2 arguments: function and timeout in milliseconds for how often the function should be executed until cancelled and returns a timer handle that can be used to cancel a timer with `clearInterval`.
+
+#### Alert
+
+Titanium has a built-in convenience function `alert` which can be used as a shortcut to [[Titanium.UI.createAlertDialog]] for creating a message box.  Note that unlike a web browser-based version of `alert`, the method is asynchronous.
+
+
+
+
+
 
 
 

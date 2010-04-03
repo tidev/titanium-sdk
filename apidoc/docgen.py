@@ -70,6 +70,7 @@ class API(object):
 		self.parameters = []
 		self.notes = None
 		self.objects = []
+		self.parent_namespace = ".".join(self.namespace.split('.')[0:-1])
 	
 	def build_search_index(self):
 		index = []
@@ -86,6 +87,16 @@ class API(object):
 			index.append(o['description'])
 		return remove_html_tags(" ".join(index))	
 	def add_object(self,obj):
+		if obj.typestr!='proxy': 
+			tokens = obj.namespace.split(".")
+			m = 'create%s' % tokens[len(tokens)-1]
+			tokens[len(tokens)-1] = m
+			link = '<a href="%s">%s</a>'%(obj.namespace,obj.namespace)
+			self.add_method(m,'create and return an instance of %s' %link,'object')
+			self.add_method_property(m,'parmeters','object','(optional) a dictionary object properties defined in %s'%link)
+#			print "added object: %s" % (".".join(tokens))
+		if obj.typestr == 'proxy':
+			obj.typestr = 'object'
 		self.objects.append(obj)
 		self.objects.sort(apisort)
 	def set_description(self,desc):
@@ -265,8 +276,24 @@ def tickerize(line):
 	if idx == -1:
 		return line
 	idx2 = line.find('`',idx+1)
-	return tickerize(line[0:idx] + "<tt>%s</tt>" % line[idx+1:idx2] + line[idx2+1:])
+	token = line[idx+1:idx2]
+	if token.startswith("Titanium."):
+		content = "<a href=\"%s\">%s</a>" % (token,token)
+	else:
+		content = "<tt>%s</tt>" % token
+	return tickerize(line[0:idx] + content + line[idx2+1:])
 
+def anchorize(line):
+	idx = line.find('[[')
+	if idx == -1:
+		return line
+	idx2 = line.find(']]',idx+2)
+	anchor = line[idx+2:idx2] 
+	before = line[0:idx-1] + ' '
+	after = line[idx2+2:]
+	result = before + "<a href=\"%s\">%s</a>" % (anchor,anchor) + after
+	return anchorize(result)
+	
 def htmlerize(content):
 	begin = 0
 	end = len(content)
@@ -278,7 +305,7 @@ def htmlerize(content):
 		idx = content.find('\\',begin)
 		if idx < 0: break
 	if begin < end: buf+=content[begin:]
-	return html_unescape(markdown.markdown(tickerize(buf),['extra'],output_format='html4'))
+	return html_unescape(markdown.markdown(anchorize(tickerize(buf)),['extra'],output_format='html4'))
 			
 def paragraphize(line):
 	return htmlerize(line)
@@ -495,7 +522,7 @@ search_json = []
 # gather all the child objects into their parents
 for name in apis:
 	obj = apis[name]
-	if obj.typestr == 'object':
+	if obj.typestr == 'object' or obj.typestr == 'proxy':
 		tokens = name.split('.')
 		parent = ''
 		c = 0
@@ -649,5 +676,5 @@ if __name__ == "__main__":
 #	main(sys.argv)
 #	main([sys.argv[0],'json','output=~/tmp/doc'])	
 #	main([sys.argv[0],'devhtml','output=~/work/appcelerator_network/new/public/devcenter/application/apidoc/mobile/1.0.0'])
-	main([sys.argv[0],'devhtml','output=~/work/appcelerator_network/new/public/devcenter/application/apidoc/mobile/1.1'])
+	main([sys.argv[0],'devhtml','output=~/work/appcelerator_network/new/public/devcenter/application/apidoc/mobile/1.2'])
 	

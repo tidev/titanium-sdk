@@ -4,7 +4,7 @@ Titanium.UI.iPhone.StatusBar
 
 - type
 
-object
+proxy
 
 - description
 
@@ -16,7 +16,7 @@ A set of constants for the status bar style.
 
 - platforms
 
-iphone
+iphone, ipad
 
 - properties
 

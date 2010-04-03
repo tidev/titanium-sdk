@@ -1,5 +1,10 @@
 <h1 class="namespace">${data.namespace}</h1>
+% if data.parent_namespace: 
+<div class="namespace_type">submodule of <a href="${data.parent_namespace}">${data.parent_namespace}</a></div>
+% else: 
 <div class="namespace_type">module</div>
+% endif 
+
 <div class="platforms">
 % for p in data.platforms:
 <span class="${p}">&nbsp;&nbsp;&nbsp;</span>
@@ -93,6 +98,13 @@ This module has no events
 </table>
 % endif
 
+% if data.notes and len(data.notes) > 0:
+<h3>Notes</h3>
+
+${data.notes}
+
+% endif
+
 % if len(data.examples) > 0:
 <h3>Code Examples</h3>
 
@@ -103,3 +115,4 @@ This module has no events
 % endfor
 
 % endif
+

@@ -20,7 +20,7 @@ A Label is created by the method `Titanium.UI.createLabel`.
 
 - platforms
 
-android, iphone
+android, iphone, ipad
 
 - properties
 
