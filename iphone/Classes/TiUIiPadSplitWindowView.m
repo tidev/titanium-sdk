@@ -17,6 +17,7 @@
 
 -(void)dealloc
 {
+	[[[TitaniumApp app] controller] windowClosed:controller];
 	RELEASE_TO_NIL(popoverProxy);
 	RELEASE_TO_NIL(controller);
 	[super dealloc];
@@ -41,15 +42,18 @@
 		controller = [[UISplitViewController alloc] init];
 		controller.viewControllers = [NSArray arrayWithObjects:leftNav,rightNav,nil];
 		controller.delegate = self;
-
-		UIWindow *window = [TitaniumApp app].window;
-		TitaniumViewController *viewController = [[TitaniumApp app] controller];
-		[[viewController view] removeFromSuperview];
 		
+		[self addSubview:controller.view];
+		
+		//		[[[TitaniumApp app] controller] windowFocused:controller];
+
+		//		UIWindow *window = [TitaniumApp app].window;
+//		TitaniumViewController *viewController = [[TitaniumApp app] controller];
+//		[[viewController view] removeFromSuperview];
+//		[window addSubview:[controller view]];
+				
 		[mc release];
 		[dc release];
-		
-		[window addSubview:[controller view]];
 	}
 	return controller;
 }
@@ -59,6 +63,8 @@
 	self.frame = CGRectIntegral(self.frame);
 	[TiUtils setView:[[self controller] view] positionRect:bounds];
 }	
+
+//FIXME - probably should remove this ... not sure...
 
 -(void)setToolbar:(id)items withObject:(id)properties
 {
