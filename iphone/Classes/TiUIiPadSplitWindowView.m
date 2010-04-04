@@ -43,14 +43,14 @@
 		controller.viewControllers = [NSArray arrayWithObjects:leftNav,rightNav,nil];
 		controller.delegate = self;
 		
-		[self addSubview:controller.view];
+		//		[self addSubview:controller.view];
 		
 		//		[[[TitaniumApp app] controller] windowFocused:controller];
 
-		//		UIWindow *window = [TitaniumApp app].window;
-//		TitaniumViewController *viewController = [[TitaniumApp app] controller];
-//		[[viewController view] removeFromSuperview];
-//		[window addSubview:[controller view]];
+		UIWindow *window = [TitaniumApp app].window;
+		TitaniumViewController *viewController = [[TitaniumApp app] controller];
+		[[viewController view] removeFromSuperview];
+		[window addSubview:[controller view]];
 				
 		[mc release];
 		[dc release];
