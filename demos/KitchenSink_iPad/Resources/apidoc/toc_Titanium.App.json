@@ -1,0 +1,22 @@
+{
+    "objects": [], 
+    "methods": [
+        "addEventListener", 
+        "fireEvent", 
+        "getArguments", 
+        "removeEventListener"
+    ], 
+    "properties": [
+        "copyright", 
+        "description", 
+        "guid", 
+        "id", 
+        "idleTimerDisabled", 
+        "name", 
+        "proximityDetection", 
+        "proximityState", 
+        "publisher", 
+        "url", 
+        "version"
+    ]
+}

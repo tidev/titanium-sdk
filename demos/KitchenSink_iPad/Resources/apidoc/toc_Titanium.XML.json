@@ -1,0 +1,12 @@
+{
+    "objects": [
+        "DOMDocument"
+    ], 
+    "methods": [
+        "addEventListener", 
+        "fireEvent", 
+        "parseString", 
+        "removeEventListener"
+    ], 
+    "properties": []
+}

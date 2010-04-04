@@ -124,6 +124,16 @@
 	[self replaceValue:args forKey:@"searchHidden" notification:YES];
 }
 
+-(void)selectRow:(id)args
+{
+	[[self view] performSelectorOnMainThread:@selector(selectRow:) withObject:args waitUntilDone:NO];
+}
+
+-(void)deselectRow:(id)args
+{
+	[[self view] performSelectorOnMainThread:@selector(deselectRow:) withObject:args waitUntilDone:NO];
+}
+
 -(void)scrollToIndex:(id)args
 {
 	ENSURE_UI_THREAD(scrollToIndex,args);

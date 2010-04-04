@@ -1,0 +1,10 @@
+{
+    "objects": [], 
+    "methods": [
+        "addEventListener", 
+        "fireEvent", 
+        "removeEventListener", 
+        "yql"
+    ], 
+    "properties": []
+}
