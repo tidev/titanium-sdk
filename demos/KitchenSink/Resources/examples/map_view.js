@@ -261,7 +261,7 @@ mapview.addEventListener('click',function(evt)
 	// custom annotation attribute
 	var myid = (evt.annotation)?evt.annotation.myid:-1;
 
-
+	Ti.API.info('mapview click clicksource = ' + clickSource)
 	// use custom event attribute to determine if atlanta annotation was clicked
 	if (myid == 3 && evt.clicksource == 'rightButton')
 	{
@@ -292,17 +292,16 @@ atlanta.addEventListener('click', function(evt)
 	// get event properties
 	var annotation = evt.source;
 	var clicksource = evt.clicksource;
-
-
+	Ti.API.info('atlanta annotation click clicksource = ' + clicksource)
 });
 
 apple.addEventListener('click', function(evt)
 {
-	Ti.API.info('Apple Annotation clicked ' + evt.clicksource);
 
 	// get event properties
 	var annotation = evt.source;
 	var clicksource = evt.clicksource;
+	Ti.API.info('atlanta annotation click clicksource = ' + clicksource)
 
 
 });
