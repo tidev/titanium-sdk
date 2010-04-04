@@ -132,10 +132,14 @@
 	[[self popover] presentPopoverFromRect:rect inView:view permittedArrowDirections:directions animated:animated];
 }
 
--(void)hide:(id)args withObject:(id)properties
+-(void)hide:(id)args
 {
-	BOOL animated = [TiUtils boolValue:@"animated" properties:args def:YES];
-	[[self popover] dismissPopoverAnimated:animated];
+	if (popover!=nil)
+	{
+		ENSURE_SINGLE_ARG_OR_NIL(args,NSDictionary);
+		BOOL animated = [TiUtils boolValue:@"animated" properties:args def:YES];
+		[[self popover] dismissPopoverAnimated:animated];
+	}
 }
 
 #pragma mark Delegate 
