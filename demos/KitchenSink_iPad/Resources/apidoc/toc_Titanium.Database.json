@@ -1,0 +1,14 @@
+{
+    "objects": [
+        "DB", 
+        "ResultSet"
+    ], 
+    "methods": [
+        "addEventListener", 
+        "fireEvent", 
+        "install", 
+        "open", 
+        "removeEventListener"
+    ], 
+    "properties": []
+}

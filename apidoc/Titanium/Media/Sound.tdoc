@@ -12,7 +12,7 @@ proxy
 
 - description
 
-The Sound object is returned by `Titanum.Media.createSound` and is useful for playing basic sounds. The Sound object loads the entire media resource in memory before playing.  If you need to support streaming, use the `Titanium.Media.createSoundPlayer` API.
+The Sound object is returned by [[Titanum.Media.createSound]] and is useful for playing basic sounds. The Sound object loads the entire media resource in memory before playing.  If you need to support streaming, use the [[Titanium.Media.createAudioPlayer]] API.
 
 - since
 
@@ -20,7 +20,7 @@ The Sound object is returned by `Titanum.Media.createSound` and is useful for pl
 
 - platforms
 
-android, iphone
+android, iphone, ipad
 
 - properties
 

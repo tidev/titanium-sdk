@@ -55,6 +55,7 @@ if (Titanium.Platform.name == 'iPhone OS')
 	data.push({title:'Move Mode', hasChild:true, test:'../examples/table_view_move.js'});
 	data.push({title:'Table Grouped View', hasChild:true, test:'../examples/table_view_api_grouped.js'});
 	data.push({title:'Table Empty AppendRow', hasChild:true, test:'../examples/table_view_api_empty_append.js'});
+	data.push({title:'Selectable Rows', hasChild:true, test:'../examples/table_view_selectable.js'});
 }
 // create table view
 var tableViewOptions = {

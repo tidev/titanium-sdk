@@ -20,7 +20,7 @@ The 2DMatrix is created by `Titanium.UI.create2DMatrix`.  The 2D Matrix is an ob
 
 - platforms
 
-android, iphone
+android, iphone, ipad
 
 - properties
 

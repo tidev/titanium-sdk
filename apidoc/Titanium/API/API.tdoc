@@ -20,7 +20,7 @@ The top level API module.  The API module is mainly used for logging.
 
 - platforms
 
-android, iphone
+android, iphone, ipad
 
 
 - methods

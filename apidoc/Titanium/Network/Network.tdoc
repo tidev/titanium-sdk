@@ -16,7 +16,7 @@ The top level Network module.  The Network module is used accessing Networking r
 
 - platforms
 
-android, iphone
+android, iphone, ipad
 
 
 - methods

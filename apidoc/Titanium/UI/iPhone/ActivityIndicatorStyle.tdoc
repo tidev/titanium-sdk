@@ -4,11 +4,11 @@ Titanium.UI.iPhone.ActivityIndicatorStyle
 
 - type
 
-object
+proxy
 
 - description
 
-A set of constants for the styles available for [Titanium.UI.ActivityIndicator](Titanium.UI.ActivityIndicator) objects.
+A set of constants for the styles available for [[Titanium.UI.ActivityIndicator]] objects.
 
 - since
 
@@ -16,7 +16,7 @@ A set of constants for the styles available for [Titanium.UI.ActivityIndicator](
 
 - platforms
 
-iphone
+iphone, ipad
 
 - properties
 

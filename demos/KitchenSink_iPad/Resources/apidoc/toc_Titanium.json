@@ -1,0 +1,13 @@
+{
+    "objects": [], 
+    "methods": [
+        "addEventListener", 
+        "fireEvent", 
+        "include", 
+        "removeEventListener"
+    ], 
+    "properties": [
+        "userAgent", 
+        "version"
+    ]
+}

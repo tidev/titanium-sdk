@@ -16,7 +16,7 @@ The top level XML module.  The XML module is used parsing and processing XML-bas
 
 - platforms
 
-android, iphone
+android, iphone, ipad
 
 - methods
 

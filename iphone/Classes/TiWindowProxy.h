@@ -38,6 +38,7 @@
 	int transitionAnimation;
 	NSMutableArray *reattachWindows;
 	UIView *closeView;
+	UIViewController *tempController;
 }
 
 -(void)fireFocus:(BOOL)newFocused;

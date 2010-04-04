@@ -16,7 +16,7 @@ An Activity Indicator is created by the method `Titanium.UI.createActivityIndica
 
 - platforms
 
-android, iphone
+android, iphone, ipad
 
 - properties
 

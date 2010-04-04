@@ -20,7 +20,7 @@ The Login Button created by `Titanium.Facebook.createLoginButton`.
 
 - platforms
 
-android, iphone
+android, iphone, ipad
 
 
 - methods

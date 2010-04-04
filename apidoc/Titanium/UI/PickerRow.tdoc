@@ -20,7 +20,7 @@ The picker row object created by [Titanium.UI.createPickerRow](Titanium.UI.creat
 
 - platforms
 
-android, iphone
+android, iphone, ipad
 
 - properties
 

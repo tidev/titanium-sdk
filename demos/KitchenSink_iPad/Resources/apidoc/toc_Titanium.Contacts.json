@@ -1,0 +1,9 @@
+{
+    "objects": [], 
+    "methods": [
+        "addEventListener", 
+        "fireEvent", 
+        "removeEventListener"
+    ], 
+    "properties": []
+}

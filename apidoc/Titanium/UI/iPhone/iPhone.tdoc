@@ -12,7 +12,7 @@ object
 
 - description
 
-The iPhone specific UI capabilities.  All properties, methods and events in this namespace will only work on the Apple iPhone or iPad related devices.
+The iPhone/iPad specific UI capabilities.  All properties, methods and events in this namespace will only work on the Apple iPhone or iPad related devices.
 
 - since
 
@@ -20,7 +20,7 @@ The iPhone specific UI capabilities.  All properties, methods and events in this
 
 - platforms
 
-iphone
+iphone, ipad
 
 - properties
 

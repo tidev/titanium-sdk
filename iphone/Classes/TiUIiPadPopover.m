@@ -33,16 +33,102 @@
 		controller = (UIPopoverController*)[self.proxy valueForUndefinedKey:@"popoverController"];
 		if (controller==nil)
 		{
-			controller = [[UIPopoverController alloc] initWithContentViewController:viewController];
+			UINavigationController *nc = [[UINavigationController alloc]initWithRootViewController:viewController];
+			controller = [[UIPopoverController alloc] initWithContentViewController:nc];
+			[nc release];
 		}
 		else 
 		{
+			if ([controller.contentViewController isKindOfClass:[UINavigationController class]]==NO)
+			{
+				UINavigationController *nc = [[UINavigationController alloc]initWithRootViewController:controller.contentViewController];
+				[controller setContentViewController:nc];
+				[nc release];
+			}
 			[controller retain];
 		}
-
+		
+		UINavigationController *nav = (UINavigationController*)controller.contentViewController;
+		NSString *title = [self.proxy valueForUndefinedKey:@"title"];
+		if (title!=nil)
+		{
+			nav.navigationBar.topItem.title = title;
+		}
+		TiViewProxy *leftItem = [self.proxy valueForUndefinedKey:@"leftNavButton"];
+		if (leftItem!=nil)
+		{
+			nav.navigationBar.topItem.leftBarButtonItem = [leftItem barButtonItem];
+		}
+		TiViewProxy *rightItem = [self.proxy valueForUndefinedKey:@"rightNavButton"];
+		if (rightItem!=nil)
+		{
+			nav.navigationBar.topItem.rightBarButtonItem = [rightItem barButtonItem];
+		}
+		
 		controller.delegate = self;
 	}
 	return controller;
+}
+
+-(UINavigationController*)navigationController
+{
+	return (UINavigationController*)[self popover].contentViewController;
+}
+
+-(UINavigationItem*)item
+{
+	return [self navigationController].navigationBar.topItem;
+}
+
+-(void)setTitle_:(id)title
+{
+	ENSURE_SINGLE_ARG(title,NSString);
+	if (controller!=nil)
+	{
+		[self item].title = title;
+	}
+}
+
+-(void)setLeftNavButton_:(id)item
+{
+	ENSURE_SINGLE_ARG_OR_NIL(item,TiViewProxy);
+	if (controller!=nil)
+	{
+		UIBarButtonItem *existingItem = [self item].leftBarButtonItem;
+		if (existingItem!=nil && [existingItem isKindOfClass:[TiViewProxy class]])
+		{
+			[(TiViewProxy*)existingItem removeBarButtonView];
+		}
+		if (item!=nil && [item supportsNavBarPositioning])
+		{
+			[self item].leftBarButtonItem = [item barButtonItem];
+		}
+		else 
+		{
+			[self item].leftBarButtonItem = nil;
+		}
+	}
+}
+
+-(void)setRightNavButton_:(id)item
+{
+	ENSURE_SINGLE_ARG_OR_NIL(item,TiViewProxy);
+	if (controller!=nil)
+	{
+		UIBarButtonItem *existingItem = [self item].rightBarButtonItem;
+		if (existingItem!=nil && [existingItem isKindOfClass:[TiViewProxy class]])
+		{
+			[(TiViewProxy*)existingItem removeBarButtonView];
+		}
+		if (item!=nil && [item supportsNavBarPositioning])
+		{
+			[self item].rightBarButtonItem = [item barButtonItem];
+		}
+		else 
+		{
+			[self item].rightBarButtonItem = nil;
+		}
+	}
 }
 
 -(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
@@ -132,10 +218,14 @@
 	[[self popover] presentPopoverFromRect:rect inView:view permittedArrowDirections:directions animated:animated];
 }
 
--(void)hide:(id)args withObject:(id)properties
+-(void)hide:(id)args
 {
-	BOOL animated = [TiUtils boolValue:@"animated" properties:args def:YES];
-	[[self popover] dismissPopoverAnimated:animated];
+	if (controller!=nil)
+	{
+		ENSURE_SINGLE_ARG_OR_NIL(args,NSDictionary);
+		BOOL animated = [TiUtils boolValue:@"animated" properties:args def:YES];
+		[[self popover] dismissPopoverAnimated:animated];
+	}
 }
 
 #pragma mark Delegate 

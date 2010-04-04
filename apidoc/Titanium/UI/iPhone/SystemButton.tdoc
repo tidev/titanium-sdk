@@ -4,7 +4,7 @@ Titanium.UI.iPhone.SystemIcon
 
 - type
 
-object
+proxy
 
 - description
 
@@ -16,7 +16,7 @@ A set of constants for the system button style for buttons.
 
 - platforms
 
-iphone
+iphone, ipad
 
 - properties
 

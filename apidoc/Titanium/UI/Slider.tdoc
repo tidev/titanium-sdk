@@ -20,7 +20,7 @@ A Slider is created by the method `Titanium.UI.createSlider`.
 
 - platforms
 
-android, iphone
+android, iphone, ipad
 
 - properties
 

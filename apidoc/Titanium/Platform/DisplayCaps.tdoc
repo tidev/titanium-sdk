@@ -4,7 +4,7 @@ Titanium.Platform.DisplayCaps
 
 - type
 
-object
+proxy
 
 - description
 
@@ -16,7 +16,7 @@ The Display Caps object returned by the `Titanium.Platform.displayCaps` property
 
 - platforms
 
-android, iphone
+android, iphone, ipad
 
 - properties
 

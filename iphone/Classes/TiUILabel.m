@@ -55,6 +55,7 @@
 		label = [[UILabel alloc] initWithFrame:CGRectZero];
 		label.backgroundColor = [UIColor clearColor];
 		label.numberOfLines = 0;
+        label.contentMode = UIViewContentModeRedraw;
 		[self addSubview:label];
 	}
 	return label;

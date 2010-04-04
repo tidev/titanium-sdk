@@ -4,7 +4,7 @@ Titanium.UI.iPhone.AnimationStyle
 
 - type
 
-object
+proxy
 
 - description
 
@@ -16,7 +16,7 @@ A set of constants for the Animation Styles used for transitions.
 
 - platforms
 
-iphone
+iphone, ipad
 
 - properties
 

@@ -20,7 +20,7 @@ A Picker is created by the method [Titanium.UI.createPicker](Titanium.UI.createP
 
 - platforms
 
-android, iphone
+android, iphone, ipad
 
 - properties
 

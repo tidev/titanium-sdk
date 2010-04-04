@@ -20,7 +20,7 @@ The top level Map module.  The Map module is used for creating in-application na
 
 - platforms
 
-android, iphone
+android, iphone, ipad
 
 - properties
 
@@ -37,7 +37,7 @@ ANNOTATION_PURPLE[int]:The head of the pin is purple. Purple pins indicate user-
 
 This is a basic map example that uses a custom annotation on the map.
 
-<code>
+~~~
 var mountainView = Titanium.Map.createAnnotation({
 	latitude:37.390749,
 	longitude:-122.081651,
@@ -60,5 +60,6 @@ var mapview = Titanium.Map.createView({
 });
 
 win.add(mapview);
-</code>
+~~~
+
 

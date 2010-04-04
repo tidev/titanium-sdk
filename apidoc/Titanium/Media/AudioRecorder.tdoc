@@ -1,0 +1,33 @@
+- namespace
+
+Titanium.Media.AudioRecorder
+
+- type
+
+object
+
+- subtype
+
+proxy
+
+- description
+
+The AudioRecorder object is returned by [[Titanum.Media.createAudioRecorder]] and is used for recording audio from the device microphone.
+
+- since
+
+0.9
+
+- platforms
+
+iphone, ipad
+
+
+
+
+
+
+
+
+
+

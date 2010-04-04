@@ -16,7 +16,7 @@ The top level Yahoo module.  The Yahoo module is used for accessing Yahoo relate
 
 - platforms
 
-android, iphone
+android, iphone, ipad
 
 
 - methods

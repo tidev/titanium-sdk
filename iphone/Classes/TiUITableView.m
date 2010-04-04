@@ -40,6 +40,7 @@
 	RELEASE_TO_NIL(searchTableView);
 	RELEASE_TO_NIL(filterAttribute);
 	RELEASE_TO_NIL(searchResultIndexes);
+	RELEASE_TO_NIL(initialSelection);
 	[super dealloc];
 }
 
@@ -728,6 +729,12 @@
 	[[self tableView] setBackgroundColor:[UIColor colorWithPatternImage:image]];
 }
 
+-(void)setAllowsSelection_:(id)arg
+{
+	allowsSelectionSet = [TiUtils boolValue:arg];
+	[[self tableView] setAllowsSelection:allowsSelectionSet];
+}
+
 -(void)setSeparatorStyle_:(id)arg
 {
 	[[self tableView] setSeparatorStyle:[TiUtils intValue:arg]];
@@ -1124,11 +1131,39 @@ if(tableView == searchTableView)	\
 	return 0;
 }
 
+-(void)selectRow:(id)args
+{
+	NSInteger index = [TiUtils intValue:[args objectAtIndex:0]];
+	NSIndexPath *path = [self indexPathFromInt:index];
+	if (initiallyDisplayed==NO)
+	{
+		RELEASE_TO_NIL(initialSelection);
+		initialSelection = [path retain];
+		return;
+	}
+	NSDictionary *dict = [args count] > 1 ? [args objectAtIndex:1] : nil;
+	BOOL animated = [TiUtils boolValue:@"animated" properties:dict def:YES];
+	int scrollPosition = [TiUtils intValue:@"position" properties:dict def:UITableViewScrollPositionMiddle];
+	[[self tableView] selectRowAtIndexPath:path animated:animated scrollPosition:scrollPosition];
+}
+
+-(void)deselectRow:(id)args
+{
+	NSInteger index = [TiUtils intValue:[args objectAtIndex:0]];
+	NSDictionary *dict = [args count] > 1 ? [args objectAtIndex:1] : nil;
+	BOOL animated = [TiUtils boolValue:@"animated" properties:dict def:YES];
+	NSIndexPath *path = [self indexPathFromInt:index];
+	[[self tableView] deselectRowAtIndexPath:path animated:animated];
+}
+
 #pragma mark Delegate
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
-	[tableView deselectRowAtIndexPath:indexPath animated:YES];
+	if (allowsSelectionSet==NO || [tableView allowsSelection]==NO)
+	{
+		[tableView deselectRowAtIndexPath:indexPath animated:YES];
+	}
 	if(tableView == searchTableView)
 	{
 		[self hideSearchScreen:nil];
@@ -1156,6 +1191,24 @@ if(tableView == searchTableView)	\
 	if (color!=nil)
 	{
 		cell.backgroundColor = UIColorWebColorNamed(color);
+	}
+	
+	if (initiallyDisplayed==NO && [indexPath section]==[sections count]-1 && [indexPath row]==[section rowCount]-1)
+	{
+		// we need to track when we've initially rendered the last row
+		initiallyDisplayed = YES;
+		
+		// trigger the initial selection
+		if (initialSelection!=nil)
+		{
+			// we seem to have to do this after this has fully completed so we 
+			// just spin off and do this just a few ms later
+			NSInteger index = [self indexForIndexPath:initialSelection];
+			NSDictionary *dict = [NSDictionary dictionaryWithObject:NUMBOOL(NO) forKey:@"animated"];
+			NSArray *args = [NSArray arrayWithObjects:NUMINT(index),dict,nil];
+			[self performSelector:@selector(selectRow:) withObject:args afterDelay:0.09];
+			RELEASE_TO_NIL(initialSelection);
+		}
 	}
 }
 
