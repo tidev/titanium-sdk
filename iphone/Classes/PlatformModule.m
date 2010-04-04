@@ -12,10 +12,17 @@
 #import <mach/mach.h>
 #import <sys/utsname.h>
 
+#import <sys/types.h>
+#import <sys/socket.h>
+#import <ifaddrs.h>
+#import <arpa/inet.h>
+
+NSString* const WIFI_IFACE = @"en0";
+NSString* const DATA_IFACE = @"pdp_ip0";
 
 @implementation PlatformModule
 
-@synthesize name, model, version, architecture, macaddress, processorCount, username, address, ostype, availableMemory;
+@synthesize name, model, version, architecture, macaddress, processorCount, username, ostype, availableMemory;
 
 #pragma mark Internal
 
@@ -38,11 +45,10 @@
 		else 
 		{
 			// iphone is a constant for Ti.Platform.osname
-			[self replaceValue:@"iphone" forKey:@"osname" notification:NO];
+			[self replaceValue:@"iphone" forKey:@"osname" notification:NO]; 
 		}
 		
 		macaddress = [[[UIDevice currentDevice] uniqueIdentifier] retain];
-		address = [@"127.0.0.1" retain];
 		
 		NSString *themodel = [theDevice model];
 		
@@ -131,6 +137,35 @@
 	}
 }
 
+-(NSString*)getIface:(NSString*)iname mask:(BOOL)mask
+{
+    struct ifaddrs* head = NULL;
+    struct ifaddrs* ifaddr = NULL;
+    getifaddrs(&head);
+    
+    NSString* str = nil;
+    for (ifaddr = head; ifaddr != NULL; ifaddr = ifaddr->ifa_next) {
+        if (ifaddr->ifa_addr->sa_family == AF_INET &&
+            !strcmp(ifaddr->ifa_name, [iname UTF8String])) {
+            
+            char ipaddr[20];
+            struct sockaddr_in* addr;
+            if (mask) {
+                addr = (struct sockaddr_in*)ifaddr->ifa_netmask;
+            }
+            else {
+                addr = (struct sockaddr_in*)ifaddr->ifa_addr;
+            }
+            inet_ntop(ifaddr->ifa_addr->sa_family, &(addr->sin_addr), ipaddr, 20);
+            str = [NSString stringWithUTF8String:ipaddr];
+            break;
+        }
+    }
+    
+    freeifaddrs(head);
+    return str;
+}
+
 #pragma mark Public APIs
 
 -(NSString*)locale
@@ -207,11 +242,29 @@
 	return NUMFLOAT([[UIDevice currentDevice] batteryLevel]);
 }
 
+// Note that every time address is called we have to run through the available interfaces; however,
+// this should be pretty quick.
+// ALSO NOTE: This must be tested on a physical device to be accurate.
+-(NSString*)address
+{
+    return [self getIface:WIFI_IFACE mask:NO];
+}
+
+-(NSString*)dataAddress
+{
+    return [self getIface:DATA_IFACE mask:NO];
+}
+
+// Only available for the local wifi; why would you want it for the data network?
+-(NSString*)netmask
+{
+    return [self getIface:WIFI_IFACE mask:YES];
+}
+
 MAKE_SYSTEM_PROP(BATTERY_STATE_UNKNOWN,UIDeviceBatteryStateUnknown);
 MAKE_SYSTEM_PROP(BATTERY_STATE_UNPLUGGED,UIDeviceBatteryStateUnplugged);
 MAKE_SYSTEM_PROP(BATTERY_STATE_CHARGING,UIDeviceBatteryStateCharging);
 MAKE_SYSTEM_PROP(BATTERY_STATE_FULL,UIDeviceBatteryStateFull);
-
 
 #pragma mark Delegates
 
