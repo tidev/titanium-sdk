@@ -122,7 +122,9 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 		}
 		
 		if (props.containsKey("height")) {
-			height = TiConvert.toInt(props, "height");
+			if (!props.get("height").equals("auto")) {
+				height = TiConvert.toInt(props, "height");
+			}
 		}
 		
 		if (rp.hasControls()) {
