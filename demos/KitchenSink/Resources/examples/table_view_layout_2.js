@@ -76,7 +76,7 @@ for (var c=1;c<50;c++)
 {
 	var row = Ti.UI.createTableViewRow();
 	row.selectedBackgroundColor = '#fff';
-	row.height  =100;
+	row.height = 100;
 	row.className = 'datarow';
 
 	
@@ -125,9 +125,13 @@ for (var c=1;c<50;c++)
 	user.rowNum = c;
 	row.add(user);
 
+	var fontSize = 16;
+	if (Titanium.Platform.name == 'android') {
+		fontSize = 14;
+	}
 	var comment = Ti.UI.createLabel({
 		color:'#222',
-		font:{fontSize:16,fontWeight:'normal', fontFamily:'Arial'},
+		font:{fontSize:fontSize,fontWeight:'normal', fontFamily:'Arial'},
 		left:70,
 		top:21,
 		height:50,
@@ -215,7 +219,8 @@ for (var c=1;c<50;c++)
 tableView = Titanium.UI.createTableView({
 	data:data,
 	search:search,
-	filterAttribute:'filter'
+	filterAttribute:'filter',
+	backgroundColor:'white'
 });
 
 tableView.addEventListener('click', function(e)

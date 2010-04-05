@@ -24,7 +24,7 @@
 
 @synthesize delegate;
 @synthesize zIndex, left, right, top, bottom, width, height;
-@synthesize duration, backgroundColor, opacity, opaque, view;
+@synthesize duration, color, backgroundColor, opacity, opaque, view;
 @synthesize visible, curve, repeat, autoreverse, delay, transform, transition;
 
 -(id)initWithDictionary:(NSDictionary*)properties context:(id<TiEvaluator>)context_ callback:(KrollCallback*)callback_
@@ -222,32 +222,6 @@ self.p = v;\
 -(TiPoint*)center
 {
     return center;
-}
-
--(void)setColor:(id)color_
-{
-    if (color != color_) {
-        [color release];
-        color = [TiUtils colorValue:color_];
-    }
-}
-
--(TiColor*)color
-{
-    return color;
-}
-
--(void)setBackgroundColor:(id)bgcolor_
-{
-    if (backgroundColor != bgcolor_) {
-        [backgroundColor release];
-        backgroundColor = [TiUtils colorValue:bgcolor_];
-    }
-}
-
--(TiColor*)backgroundColor
-{
-    return backgroundColor;
 }
 
 -(id)description

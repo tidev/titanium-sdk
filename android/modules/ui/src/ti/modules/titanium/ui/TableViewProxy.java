@@ -60,7 +60,7 @@ public class TableViewProxy extends TiViewProxy
 		return (TiUITableView) getView(getTiContext().getActivity());
 	}
 	
-	public void updateRow(Object row, TiDict data, TiDict options) {
+	public void updateRow(Object row, Object data, TiDict options) {
 		TableViewRowProxy rowProxy = null;
 		TableViewSectionProxy sectionProxy = null;
 		int rowIndex = -1;

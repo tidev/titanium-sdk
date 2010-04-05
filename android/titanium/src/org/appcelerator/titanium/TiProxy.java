@@ -159,6 +159,13 @@ public class TiProxy implements Handler.Callback, TiDynamicMethod, OnEventListen
 		}
 		return result;
 	}
+	
+	public boolean hasDynamicValue(String key) {
+		if (dynprops == null) {
+			return false;
+		}
+		return dynprops.containsKey(key);
+	}
 
 	public void setDynamicValue(String key, Object value) {
 		internalSetDynamicValue(key, value, true);

@@ -24,18 +24,19 @@ var data = [
 	{title:'Set Row Data', hasChild:true, test:'../examples/table_view_set.js'},
 	{title:'Empty Table View', hasChild:true, test:'../examples/table_view_empty.js'},
 	{title:'Table Auto Height', hasChild:true, test:'../examples/table_view_api_auto_height.js'},
-	{title:'Refresh Table View', hasChild:true, test:'../examples/table_view_refresh.js'}
+	{title:'Refresh Table View', hasChild:true, test:'../examples/table_view_refresh.js'},
+	{title:'Table View (Layout)', hasChild:true, test:'../examples/table_view_layout.js'},
+	{title:'Table View (Layout 2)', hasChild:true, test:'../examples/table_view_layout_2.js'}
 ];
 
 // add iphone specific tests
 if (Titanium.Platform.name == 'iPhone OS')
 {
 	// these are mostly working in android but require minor fixes
-	data.push({title:'Composite (Partial Size)', hasChild:true, test:'../examples/table_view_composite.js'});
-	data.push({title:'Table View (Layout)', hasChild:true, test:'../examples/table_view_layout.js'});
-	data.push({title:'Table View (Layout 2)', hasChild:true, test:'../examples/table_view_layout_2.js'});
+	
 	data.push({title:'Table View (Layout 3)', hasChild:true, test:'../examples/table_view_layout_3.js'});
 	data.push({title:'Table View (Layout 4)', hasChild:true, test:'../examples/table_view_layout_4.js'});
+	data.push({title:'Composite (Partial Size)', hasChild:true, test:'../examples/table_view_composite.js'});
 	data.push({title:'Table Custom Header', hasChild:true, test:'../examples/table_view_api_custom_header.js'});
 	data.push({title:'Table Custom Footer', hasChild:true, test:'../examples/table_view_api_custom_footer.js'});
 	data.push({title:'Table with Controls', hasChild:true, test:'../examples/table_view_api_controls.js'});
