@@ -607,7 +607,7 @@ DEFINE_EXCEPTIONS
 			}
 			
 			[self fireLoadEventWithState:@"url"];
-`		}
+		}
 		else 
 		{
 			NSLog(@"[ERROR] couldn't find image for ImageView at: %@",img);
