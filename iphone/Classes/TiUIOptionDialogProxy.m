@@ -15,6 +15,7 @@
 
 -(void)show:(id)args
 {
+	ENSURE_SINGLE_ARG_OR_NIL(args,NSDictionary);
 	ENSURE_UI_THREAD(show,args);
 	
 	NSMutableArray *options = [self valueForKey:@"options"];
@@ -49,7 +50,7 @@
 	else 
 	{
 		BOOL animated = [TiUtils boolValue:@"animated" properties:args def:YES];
-		if ([proxy supportsNavBarPositioning])
+		if ([proxy supportsNavBarPositioning] && [proxy isUsingBarButtonItem])
 		{
 			UIBarButtonItem *button = [proxy barButtonItem];
 			[actionSheet showFromBarButtonItem:button animated:animated];
