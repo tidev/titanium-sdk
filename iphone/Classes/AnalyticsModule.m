@@ -220,8 +220,8 @@ NSString * const TI_DB_VERSION = @"1";
 	[dict setObject:NUMINT(sequence++) forKey:@"seq"];
 	[dict setObject:[[UIDevice currentDevice] uniqueIdentifier] forKey:@"mid"];
 	[dict setObject:TI_APPLICATION_GUID forKey:@"aguid"];
-	[dict setObject:name forKey:@"event"];
 	[dict setObject:TI_APPLICATION_DEPLOYTYPE forKey:@"deploytype"];
+	[dict setObject:name forKey:@"event"];
 	[dict setObject:type forKey:@"type"];
 	[dict setObject:[[TitaniumApp app] sessionId] forKey:@"sid"];
 	if (data==nil)
@@ -350,6 +350,7 @@ NSString * const TI_DB_VERSION = @"1";
 		[enrollment setObject:[platform valueForKey:@"architecture"] forKey:@"osarch"];
 		[enrollment setObject:[platform valueForKey:@"model"] forKey:@"model"];
 		[enrollment setObject:TI_APPLICATION_NAME forKey:@"app_name"];
+		[enrollment setObject:TI_APPLICATION_DEPLOYTYPE forKey:@"deploytype"];
 		[enrollment setObject:TI_APPLICATION_ID forKey:@"app_id"];
 		[enrollment setObject:@"iphone" forKey:@"platform"];
 		
@@ -388,6 +389,7 @@ NSString * const TI_DB_VERSION = @"1";
 	
 	NSDictionary * data = [NSDictionary dictionaryWithObjectsAndKeys:
 						   NUMINT(tz),@"tz",
+						   TI_APPLICATION_DEPLOYTYPE,@"deploytype",
 						   @"iphone",@"os",
 						   version,@"version",
 						   VAL_OR_NSNULL(username),@"un",
