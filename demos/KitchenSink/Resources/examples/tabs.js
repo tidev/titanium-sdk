@@ -157,7 +157,7 @@ systemTabIconsButton.addEventListener('click', function(e)
 
 
 // add views based on platform
-if (Titanium.Platform.osname == 'iphone')
+if (Titanium.Platform.osname == 'iphone' || Titanium.Platform.osname == 'ipad')
 {
 	win.add(tabBadgeButton);
 	win.add(systemTabIconsButton);

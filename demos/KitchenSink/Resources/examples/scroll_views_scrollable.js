@@ -176,7 +176,7 @@ var flexSpace = Titanium.UI.createButton({
 	systemButton:Titanium.UI.iPhone.SystemButton.FLEXIBLE_SPACE
 });
 
-if (Titanium.Platform.osname == 'iphone')
+if (Titanium.Platform.osname == 'iphone' || Titanium.Platform.osname == 'ipad')
 {
 	// set toolbar
 	win.setToolbar([flexSpace,left,change,add,jump,right,flexSpace]);
