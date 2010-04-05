@@ -183,6 +183,18 @@ DEFINE_EXCEPTIONS
 	}
 }
 
+-(void)fireLoadEventWithState:(NSString *)stateString
+{
+	if (![self.proxy _hasListeners:@"load"])
+	{
+		return;
+	}
+
+	NSDictionary *event = [NSDictionary dictionaryWithObject:stateString forKey:@"state"];
+	[self.proxy fireEvent:@"load" withObject:event];
+}
+
+
 -(UIImage*)scaleImageIfRequired:(UIImage*)theimage
 {
 	// attempt to scale the image
@@ -236,11 +248,7 @@ DEFINE_EXCEPTIONS
 	loadCount++;
 	if (loadCount==loadTotal)
 	{
-		if ([self.proxy _hasListeners:@"load"])
-		{
-			NSDictionary *event = [NSDictionary dictionaryWithObject:@"images" forKey:@"state"];
-			[self.proxy fireEvent:@"load" withObject:event];
-		}
+		[self fireLoadEventWithState:@"images"];
 	}
 	
 	if (ready)
@@ -318,6 +326,7 @@ DEFINE_EXCEPTIONS
 {
 	UIImage *image = [[ImageLoader sharedLoader] loadRemote:url];
 	image = [self scaleImageIfRequired:image];
+	[self fireLoadEventWithState:@"url"];
 	[self performSelectorOnMainThread:@selector(setURLImageOnUIThread:) withObject:image waitUntilDone:NO modes:[NSArray arrayWithObject:NSRunLoopCommonModes]];
 }
 
@@ -597,11 +606,7 @@ DEFINE_EXCEPTIONS
 				[(TiViewProxy *)[self proxy] setNeedsReposition];
 			}
 			
-			if ([self.proxy _hasListeners:@"load"])
-			{
-				NSDictionary *event = [NSDictionary dictionaryWithObject:@"url" forKey:@"state"];
-				[self.proxy fireEvent:@"load" withObject:event];
-			}
+			[self fireLoadEventWithState:@"url"];
 		}
 		else 
 		{
@@ -656,6 +661,7 @@ DEFINE_EXCEPTIONS
 		{
 			image = [self scaleImageIfRequired:image];
 		}
+		[self fireLoadEventWithState:@"url"];
 		[self performSelectorOnMainThread:@selector(setURLImageOnUIThread:) withObject:image waitUntilDone:NO modes:[NSArray arrayWithObject:NSRunLoopCommonModes]];
 		RELEASE_TO_NIL(urlRequest);
 	}

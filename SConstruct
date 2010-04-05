@@ -84,7 +84,8 @@ if build_type in ['full', 'android'] and not only_package:
 	finally:
 		os.chdir(d)
 
-if build_type in ['full', 'iphone', 'ipad'] and not only_package:
+if build_type in ['full', 'iphone', 'ipad'] and not only_package \
+	and platform.system() == "Darwin":
 	d = os.getcwd()
 	os.chdir('iphone')
 	try:

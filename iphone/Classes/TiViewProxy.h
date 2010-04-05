@@ -59,6 +59,7 @@
 -(UIBarButtonItem*)barButtonItem;
 - (TiUIView *)barButtonViewForSize:(CGSize)bounds;
 -(void)removeBarButtonView;
+- (BOOL) isUsingBarButtonItem;
 
 -(CGRect)appFrame;
 -(void)firePropertyChanges;

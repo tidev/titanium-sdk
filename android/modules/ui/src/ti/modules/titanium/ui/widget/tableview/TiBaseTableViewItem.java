@@ -22,6 +22,7 @@ import ti.modules.titanium.ui.widget.tableview.TableViewModel.Item;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.ShapeDrawable;
+import android.graphics.drawable.StateListDrawable;
 import android.os.Handler;
 import android.os.Message;
 import android.view.ViewGroup;
@@ -43,7 +44,7 @@ public abstract class TiBaseTableViewItem extends ViewGroup implements Handler.C
 		this.handler = new Handler(this);
 	}
 
-	public abstract void setRowData(TiTableViewItemOptions defaults, Item item);
+	public abstract void setRowData(Item item);
 
 	public boolean handleMessage(Message msg)
 	{
@@ -60,6 +61,10 @@ public abstract class TiBaseTableViewItem extends ViewGroup implements Handler.C
 
 	public BitmapDrawable createHasChildDrawable() {
 		return new BitmapDrawable(TiDict.class.getResourceAsStream("/org/appcelerator/titanium/res/drawable/btn_more.png"));
+	}
+	
+	public BitmapDrawable createHasCheckDrawable() {
+		return new BitmapDrawable(TiDict.class.getResourceAsStream("/org/appcelerator/titanium/res/drawable/btn_check_buttonless_on.png"));
 	}
 
 	public Drawable loadDrawable(String url) {

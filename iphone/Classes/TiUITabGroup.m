@@ -33,6 +33,11 @@ DEFINE_EXCEPTIONS
 	return controller;
 }
 
+-(UITabBar*)tabbar
+{
+	return [self tabController].tabBar;
+}
+
 -(int)findIndexForTab:(TiProxy*)proxy
 {
 	if (proxy!=nil)

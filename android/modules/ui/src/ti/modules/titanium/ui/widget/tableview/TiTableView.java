@@ -214,7 +214,7 @@ public class TiTableView extends FrameLayout
 					AbsListView.LayoutParams.FILL_PARENT, AbsListView.LayoutParams.FILL_PARENT));
 			}
 
-			v.setRowData(defaults, item);
+			v.setRowData(item);
 			return v;
 		}
 

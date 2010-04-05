@@ -44,7 +44,7 @@ USE_PROXY_FOR_VERIFY_AUTORESIZING
 		}
 		else 
 		{
-			picker = [[UIDatePicker alloc] initWithFrame:CGRectZero];
+			picker = [[UIDatePicker alloc] initWithFrame:CGRectMake(0, 0, 2000, 228)];
 			[(UIDatePicker*)picker setDatePickerMode:type];
 			[picker addTarget:self action:@selector(valueChanged:) forControlEvents:UIControlEventValueChanged];
 		}
@@ -55,13 +55,13 @@ USE_PROXY_FOR_VERIFY_AUTORESIZING
 
 -(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
 {
-	if (picker!=nil)
+	if (picker!=nil && !CGRectIsEmpty(bounds))
 	{
 		// on ipad, the height is sent in invalid but on iphone, it's fixed
 		// so we need to compensate for that here so that it will be visible
 		if (bounds.size.height<6)
 		{
-			bounds = CGRectMake(bounds.origin.x, bounds.origin.y, bounds.size.width, 228);
+			bounds.size.height = 228;
 		}
 		[TiUtils setView:picker positionRect:bounds];
 	}

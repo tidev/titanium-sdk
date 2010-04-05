@@ -74,7 +74,7 @@ public class TiTableViewHeaderItem extends TiBaseTableViewItem
 		setMinimumHeight(18);
 	}
 
-	public void setRowData(TiTableViewItemOptions defaults, Item item) {
+	public void setRowData(Item item) {
 		rowView.setRowData(item);
 	}
 

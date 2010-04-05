@@ -20,6 +20,7 @@
 -(void)open:(id)args;
 -(void)close:(id)args;
 
+-(UITabBar*)tabbar;
 
 -(void)focusVisibleWindow;
 -(void)blurVisibleWindow;

@@ -220,6 +220,7 @@ NSString * const TI_DB_VERSION = @"1";
 	[dict setObject:NUMINT(sequence++) forKey:@"seq"];
 	[dict setObject:[[UIDevice currentDevice] uniqueIdentifier] forKey:@"mid"];
 	[dict setObject:TI_APPLICATION_GUID forKey:@"aguid"];
+	[dict setObject:TI_APPLICATION_DEPLOYTYPE forKey:@"deploytype"];
 	[dict setObject:name forKey:@"event"];
 	[dict setObject:type forKey:@"type"];
 	[dict setObject:[[TitaniumApp app] sessionId] forKey:@"sid"];
