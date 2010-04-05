@@ -11,6 +11,11 @@ var activeMovie = Titanium.Media.createVideoPlayer({
 	scalingMode:Titanium.Media.VIDEO_SCALING_MODE_FILL
 });
 
+if (Titanium.Platform.osname == "ipad")
+{
+	win.add(activeMovie);
+}
+
 activeMovie.addEventListener('complete',function()
 {
 	Titanium.UI.createAlertDialog({title:'Movie', message:'Completed!'}).show();

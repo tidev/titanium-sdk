@@ -16,7 +16,6 @@ var ind=Titanium.UI.createProgressBar({
 win.add(ind);
 ind.show();
 
-var c = Titanium.Network.createHTTPClient();
 
 var b1 = Titanium.UI.createButton({
 	title:'Set Web View (url)',
@@ -27,9 +26,13 @@ var b1 = Titanium.UI.createButton({
 win.add(b1);
 b1.addEventListener('click', function()
 {
-	c.setTimeout(1000);
+	var c = Titanium.Network.createHTTPClient();
+	
+	c.setTimeout(10000);
 	c.onload = function()
 	{
+		Ti.API.info('IN ONLOAD ');
+
 		var filename = Titanium.Platform.name == 'android' ? 'test.png' : 'test.pdf';
 		var f = Titanium.Filesystem.getFile(Titanium.Filesystem.applicationDataDirectory,filename);
 		f.write(this.responseData);
@@ -46,6 +49,10 @@ b1.addEventListener('click', function()
 	{
 		ind.value = e.progress ;
 		Ti.API.info('ONDATASTREAM1 - PROGRESS: ' + e.progress);
+	};
+	c.error = function(e)
+	{
+		Ti.UI.createAlertDialog({title:'XHR', message:'Error: ' + e.error}).show();
 	};
 	
 	// open the client
@@ -70,6 +77,7 @@ var b2 = Titanium.UI.createButton({
 });
 b2.addEventListener('click', function()
 {
+	var c = Titanium.Network.createHTTPClient();
 
 	c.onload = function()
 	{
