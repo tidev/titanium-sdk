@@ -15,10 +15,12 @@ jdk_jar_added = False
 def get_java():
 	global jdk_jar_added
 	java = 'java'
-	if platform.system() == 'Windows':
+	if platform.system() != 'Darwin':
 		# oh windows, we hate you so
 		if 'JAVA_HOME' in os.environ:
-			java = os.path.join(os.environ['JAVA_HOME'], 'bin', 'java.exe')
+			java_exec = 'java'
+			if platform.system() == 'Windows': java_exec = 'java.exe'
+			java = os.path.join(os.environ['JAVA_HOME'], 'bin', java_exec)
 			if not jdk_jar_added:
 				ant_classpath.append(os.path.join(os.environ['JAVA_HOME'], 'lib', 'tools.jar'))
 				jdk_jar_added = True

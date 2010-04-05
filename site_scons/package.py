@@ -5,7 +5,7 @@
 import os, types, glob, shutil, sys, platform
 import zipfile
 
-if platform.system() != 'Windows':
+if platform.system() == 'Darwin':
 	import importresolver
 
 cur_dir = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
