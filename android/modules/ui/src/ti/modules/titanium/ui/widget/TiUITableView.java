@@ -90,7 +90,7 @@ public class TiUITableView extends TiUIView
 		if (d.containsKey("search")) {
 			RelativeLayout layout = new RelativeLayout(proxy.getTiContext().getActivity());
 			layout.setGravity(Gravity.NO_GRAVITY);
-			layout.setPadding(4, 2, 4, 2);
+			layout.setPadding(0, 0, 0, 0);
 			
 			TiViewProxy searchView = (TiViewProxy) d.get("search");
 			TiUISearchBar searchBar = (TiUISearchBar)searchView.getView(proxy.getTiContext().getActivity());
