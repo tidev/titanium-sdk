@@ -38,6 +38,11 @@
 	return group;
 }
 
+-(UITabBar*)tabbar
+{
+	return [(TiUITabGroup*)[self view] tabbar];
+}
+
 #pragma mark Public APIs
 
 -(void)addTab:(id)tabProxy

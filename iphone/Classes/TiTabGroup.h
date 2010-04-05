@@ -5,21 +5,11 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
-#import "TiProxy.h"
+#import <UIKit/UIKit.h>
 
-@class TiWindow;
 
-@protocol TiTabWindow
+@protocol TiTabGroup
 
-@required
-
--(TiWindow*)window;
--(TiProxy*)tabGroup;
--(TiProxy*)tab;
-
-@optional
-
--(void)focus;
--(void)blur;
+-(UITabBar*)tabbar;
 
 @end

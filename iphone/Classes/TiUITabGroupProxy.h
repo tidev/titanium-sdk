@@ -5,11 +5,14 @@
  * Please see the LICENSE included with this distribution for details.
  */
 #import "TiWindowProxy.h"
+#import "TiTabGroup.h"
 
-@interface TiUITabGroupProxy : TiWindowProxy
+@interface TiUITabGroupProxy : TiWindowProxy<TiTabGroup>
 {
 @private
 	NSMutableArray *tabs;
 }
+
+-(UITabBar*)tabbar;
 
 @end
