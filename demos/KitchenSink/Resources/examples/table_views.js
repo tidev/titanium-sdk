@@ -24,16 +24,17 @@ var data = [
 	{title:'Set Row Data', hasChild:true, test:'../examples/table_view_set.js'},
 	{title:'Empty Table View', hasChild:true, test:'../examples/table_view_empty.js'},
 	{title:'Table Auto Height', hasChild:true, test:'../examples/table_view_api_auto_height.js'},
-	{title:'Refresh Table View', hasChild:true, test:'../examples/table_view_refresh.js'}
+	{title:'Refresh Table View', hasChild:true, test:'../examples/table_view_refresh.js'},
+	{title:'Composite (Partial Size)', hasChild:true, test:'../examples/table_view_composite.js'},
+	{title:'Table View (Layout)', hasChild:true, test:'../examples/table_view_layout.js'},
+	{title:'Table View (Layout 2)', hasChild:true, test:'../examples/table_view_layout_2.js'}
 ];
 
 // add iphone specific tests
 if (Titanium.Platform.name == 'iPhone OS')
 {
 	// these are mostly working in android but require minor fixes
-	data.push({title:'Composite (Partial Size)', hasChild:true, test:'../examples/table_view_composite.js'});
-	data.push({title:'Table View (Layout)', hasChild:true, test:'../examples/table_view_layout.js'});
-	data.push({title:'Table View (Layout 2)', hasChild:true, test:'../examples/table_view_layout_2.js'});
+	
 	data.push({title:'Table View (Layout 3)', hasChild:true, test:'../examples/table_view_layout_3.js'});
 	data.push({title:'Table View (Layout 4)', hasChild:true, test:'../examples/table_view_layout_4.js'});
 	data.push({title:'Table Custom Header', hasChild:true, test:'../examples/table_view_api_custom_header.js'});
@@ -56,6 +57,8 @@ if (Titanium.Platform.name == 'iPhone OS')
 	data.push({title:'Table Grouped View', hasChild:true, test:'../examples/table_view_api_grouped.js'});
 	data.push({title:'Table Empty AppendRow', hasChild:true, test:'../examples/table_view_api_empty_append.js'});
 	data.push({title:'Selectable Rows', hasChild:true, test:'../examples/table_view_selectable.js'});
+	data.push({title:'Events', hasChild:true, test:'../examples/table_view_events.js'});
+
 }
 // create table view
 var tableViewOptions = {

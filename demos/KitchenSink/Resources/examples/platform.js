@@ -122,6 +122,8 @@ var l7 = Titanium.UI.createLabel({
 
 win.add(l7);
 
+// NOTE: Needs to be tested on a physical device to get an accurate value;
+// may select the wrong interface on non-mobile devices.
 var l8 = Titanium.UI.createLabel({
 	text:'address:' + Titanium.Platform.address,
 	top:150,
@@ -280,3 +282,9 @@ Titanium.Platform.addEventListener('battery', function(e)
 
 Titanium.API.info("Current Phone Locale is "+Titanium.Platform.locale);
 Titanium.API.info("OS name is " + Titanium.Platform.osname);
+
+// Commented out until #647 is fixed
+//if (Titanium.Platform.osname == 'iphone') {
+//	Titanium.API.info("Data network: " + Titanium.Platform.dataAddress);
+//	Titanium.API.info("Netmask: " + Titanium.Platform.netmask);
+//}
