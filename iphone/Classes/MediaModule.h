@@ -18,6 +18,9 @@
 	KrollCallback *pickerSuccessCallback;
 	KrollCallback *pickerErrorCallback;
 	KrollCallback *pickerCancelCallback;
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
+	id popover;
+#endif
 }
 
 @property(nonatomic,readonly) CGFloat volume;

@@ -4,11 +4,11 @@ Titanium.UI.iPhone.ProgressBarStyle
 
 - type
 
-object
+proxy
 
 - description
 
-A set of constants for the bar styles used on the `style` property of [Titanium.UI.ProgressBar](Titanium.UI.ProgressBar).
+A set of constants for the bar styles used on the `style` property of [[Titanium.UI.ProgressBar]].
 
 - since
 
@@ -16,7 +16,7 @@ A set of constants for the bar styles used on the `style` property of [Titanium.
 
 - platforms
 
-iphone
+iphone, ipad
 
 - properties
 

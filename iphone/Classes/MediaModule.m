@@ -41,6 +41,9 @@ enum
 
 -(void)dealloc
 {
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
+	RELEASE_TO_NIL(popover);
+#endif
 	RELEASE_TO_NIL(picker);
 	RELEASE_TO_NIL(pickerSuccessCallback);
 	RELEASE_TO_NIL(pickerErrorCallback);
@@ -50,6 +53,9 @@ enum
 
 -(void)destroyPicker
 {
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
+	RELEASE_TO_NIL(popover);
+#endif
 	RELEASE_TO_NIL(picker);
 	RELEASE_TO_NIL(pickerSuccessCallback);
 	RELEASE_TO_NIL(pickerErrorCallback);
@@ -247,8 +253,26 @@ enum
 		}
 	}
 	TitaniumApp * tiApp = [TitaniumApp app];
-	[[tiApp controller] manuallyRotateToOrientation:UIInterfaceOrientationPortrait];
-	[tiApp showModalController:picker animated:animatedPicker];
+	if ([TiUtils isIPad]==NO)
+	{
+		[[tiApp controller] manuallyRotateToOrientation:UIInterfaceOrientationPortrait];
+		[tiApp showModalController:picker animated:animatedPicker];
+	}
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
+	else
+	{
+		RELEASE_TO_NIL(popover);
+		TiViewProxy *popoverViewProxy = [args objectForKey:@"popoverView"];
+		UIView *poView = [tiApp controller].view;
+		if (popoverViewProxy!=nil)
+		{
+			poView = [popoverViewProxy view];
+		}
+		UIPopoverArrowDirection arrow = [TiUtils intValue:@"arrowDirection" properties:args def:UIPopoverArrowDirectionAny];
+		popover = [[UIPopoverController alloc] initWithContentViewController:picker];
+		[popover presentPopoverFromRect:poView.frame inView:poView permittedArrowDirections:arrow animated:animatedPicker];
+	}
+#endif
 }
 
 #pragma mark Public APIs
@@ -507,7 +531,18 @@ MAKE_SYSTEM_PROP(VIDEO_SOURCE_TYPE_STREAMING,MPMovieSourceTypeStreaming);
 {
 	if (autoHidePicker)
 	{
-		[[TitaniumApp app] hideModalController:picker animated:animatedPicker];
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
+		if ([TiUtils isIPad]==YES)
+		{
+			[(UIPopoverController*)popover dismissPopoverAnimated:animatedPicker];
+		}
+		else
+		{
+#endif
+			[[TitaniumApp app] hideModalController:picker animated:animatedPicker];
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
+		}
+#endif		
 	}
 	
 	NSMutableDictionary *dictionary = [NSMutableDictionary dictionary];
@@ -538,7 +573,7 @@ MAKE_SYSTEM_PROP(VIDEO_SOURCE_TYPE_STREAMING,MPMovieSourceTypeStreaming);
 		}
 		else 
 		{
-			[media setMimeType:@"image/jpeg" type:TiBlobTypeImage];
+			[media setMimeType:@"image/jpeg" type:TiBlobTypeFile];
 		}
 		
 		if (saveToRoll)

@@ -82,5 +82,11 @@
 	[self repaint];
 }
 
+-(void)setButton:(LauncherButton *)button_
+{
+	button = button_;
+	[self repaint];
+}
+
 
 @end

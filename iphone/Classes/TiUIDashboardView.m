@@ -48,8 +48,6 @@
 
 -(void)setData_:(id)args
 {
-	ENSURE_ARRAY(args);
-	
 	[self launcher];
 	
 	for (TiUIDashboardItemProxy *proxy in args)

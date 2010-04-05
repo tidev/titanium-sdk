@@ -6,7 +6,7 @@
  */
 
 #import "TiViewController.h"
-
+#import "TitaniumApp.h"
 
 @implementation TiViewController
 
@@ -35,14 +35,15 @@
 	[proxy detachView];
 }
 
+- (void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
+{
+	[super willAnimateRotationToInterfaceOrientation:toInterfaceOrientation duration:duration];
+}
+
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation
 {
-	if ([TiUtils isIPad])
-	{
-		// must return YES on ipad for all orientations
-		return YES;
-	}
-	return [super shouldAutorotateToInterfaceOrientation:interfaceOrientation];
+	//Since the AppController will be the deciding factor, and it compensates for iPad, let it do the work.
+	return [[[TitaniumApp app] controller] shouldAutorotateToInterfaceOrientation:interfaceOrientation];
 }
 
 @end

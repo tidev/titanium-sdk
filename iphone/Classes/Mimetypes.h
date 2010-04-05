@@ -9,6 +9,7 @@
 
 }
 + (NSString *)mimeTypeForExtension:(NSString *)ext;
++ (NSString *)extensionForMimeType:(NSString *)mimetype;
 
 @end
 

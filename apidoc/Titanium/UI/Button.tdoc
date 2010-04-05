@@ -20,7 +20,7 @@ A Button is created by the method `Titanium.UI.createButton`.
 
 - platforms
 
-android, iphone
+android, iphone, ipad
 
 - properties
 

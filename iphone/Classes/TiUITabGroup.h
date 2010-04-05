@@ -13,6 +13,8 @@
 @private
 	UITabBarController *controller;
 	TiUITabProxy *focused;
+	
+	UIColor *moreBarColor;
 }
 
 -(void)open:(id)args;
@@ -21,6 +23,6 @@
 
 -(void)focusVisibleWindow;
 -(void)blurVisibleWindow;
-
+- (void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration;
 
 @end

@@ -16,7 +16,8 @@ var data = [
 	{title:'2D Transform', hasChild:true, test:'../examples/2d_transform.js'},
 	{title:'3D Transform', hasChild:true, test:'../examples/3d_transform.js'},
 	{title:'Anchor Point', hasChild:true, test:'../examples/anchor_point.js'},
-	{title:'Image Scaling', hasChild:true, test:'../examples/image_scaling.js'}
+	{title:'Image Scaling', hasChild:true, test:'../examples/image_scaling.js'},
+	{title:'Animation Points', hasChild:true, test:'../examples/animation_points.js'}
 
 ];
 

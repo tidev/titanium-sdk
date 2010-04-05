@@ -15,7 +15,6 @@ var win1 = Titanium.UI.createWindow({
     titleImage:'images/appcelerator_small.png'
 });
 
-
 var tab1 = Titanium.UI.createTab({
     icon:'images/tabs/KS_nav_views.png',
     title:'Base UI',
@@ -97,6 +96,15 @@ tabGroup.setActiveTab(1);
 tabGroup.open({
 	transition:Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT
 });
+
+// setTimeout(function()
+// {
+// 	tabGroup.close({
+// 		transition:Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT
+// 	});
+// 	
+// },2000);
+
 
 //
 //  TAB GROUP EVENTS

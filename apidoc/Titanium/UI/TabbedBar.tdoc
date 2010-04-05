@@ -20,7 +20,7 @@ A Tabbed Bar is created by the method `Titanium.UI.createTabbedBar`. The differe
 
 - platforms
 
-iphone
+iphone, ipad
 
 - properties
 

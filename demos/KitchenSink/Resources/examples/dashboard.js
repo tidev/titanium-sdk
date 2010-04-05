@@ -19,6 +19,15 @@ var dashboard = Titanium.UI.createDashboardView({
 });
 win.add(dashboard);
 
+var label = Titanium.UI.createLabel({
+	text:"Click and hold to re-order or delete",
+	width:"auto",
+	top:10,
+	color:"yellow",
+	height:"auto"
+});
+win.add(label);
+
 
 var cancel = Titanium.UI.createButton({
 	systemButton:Titanium.UI.iPhone.SystemButton.DONE

@@ -20,7 +20,7 @@ A Scroll View is used to create a scrollable region of content.  Views added to 
 
 - platforms
 
-android, iphone
+android, iphone, ipad
 
 - properties
 

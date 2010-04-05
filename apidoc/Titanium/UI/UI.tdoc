@@ -16,7 +16,7 @@ The main `Titanium.UI` module.  The UI module is responsible for native user-int
 
 - platforms
 
-android, iphone
+android, iphone, ipad
 
 - properties
 

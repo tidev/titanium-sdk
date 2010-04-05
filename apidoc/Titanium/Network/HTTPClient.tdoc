@@ -16,7 +16,7 @@ The HttpClient instance returned from `Titanium.Network.createHTTPClient`. This 
 
 - platforms
 
-android, iphone
+android, iphone, ipad
 
 
 - methods

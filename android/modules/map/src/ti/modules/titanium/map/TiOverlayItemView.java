@@ -37,6 +37,7 @@ public class TiOverlayItemView extends FrameLayout
 	private TextView title;
 	private TextView snippet;
 	private int lastIndex;
+	private View[] hitTestList;
 
 	private OnOverlayClicked overlayClickedListener;
 
@@ -119,6 +120,8 @@ public class TiOverlayItemView extends FrameLayout
 		FrameLayout.LayoutParams fparams = new FrameLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
 		fparams.gravity = Gravity.NO_GRAVITY;
 		addView(layout, fparams);
+
+		hitTestList = new View[] { leftImage, title, snippet, rightImage };
 	}
 
 	private RelativeLayout.LayoutParams createBaseParams() {
@@ -176,18 +179,17 @@ public class TiOverlayItemView extends FrameLayout
 			int x = (int) ev.getX();
 			int y = (int) ev.getY();
 
-			String lastTouchedViewName = null;
 			Rect hitRect = new Rect();
 
-			int count = layout.getChildCount();
+			int count = hitTestList.length;
 			for(int i = 0; i < count; i++) {
-				View v = layout.getChildAt(i);
-				if (v.getVisibility() == View.VISIBLE) {
+				View v = hitTestList[i];
+				String tag = (String) v.getTag();
+				if (v.getVisibility() == View.VISIBLE && tag != null) {
 					v.getHitRect(hitRect);
 					if (hitRect.contains(x, y)) {
-						lastTouchedViewName = (String) v.getTag();
 						if (overlayClickedListener != null) {
-							overlayClickedListener.onClick(lastIndex, lastTouchedViewName);
+							overlayClickedListener.onClick(lastIndex, tag);
 						}
 						break;
 					}

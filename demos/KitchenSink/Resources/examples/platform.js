@@ -37,10 +37,10 @@ function batteryStateToString(state)
 }
 
 var l1 = Titanium.UI.createLabel({
-	text:'name:' + Titanium.Platform.name,
+	text:'name/osname:' + Titanium.Platform.name+'/'+Titanium.Platform.osname,
 	top:10,
 	left:10,
-	width:300,
+	width:'auto',
 	font:{fontSize:14},
 	color:'#777',
 	height:'auto'
@@ -88,7 +88,7 @@ var l5 = Titanium.UI.createLabel({
 	text:'macaddress:' + Titanium.Platform.macaddress,
 	top:90,
 	left:10,
-	width:300,
+	width:'auto',
 	height:'auto',
 	font:{fontSize:14},
 	color:'#777',
@@ -122,6 +122,8 @@ var l7 = Titanium.UI.createLabel({
 
 win.add(l7);
 
+// NOTE: Needs to be tested on a physical device to get an accurate value;
+// may select the wrong interface on non-mobile devices.
 var l8 = Titanium.UI.createLabel({
 	text:'address:' + Titanium.Platform.address,
 	top:150,
@@ -280,3 +282,9 @@ Titanium.Platform.addEventListener('battery', function(e)
 
 Titanium.API.info("Current Phone Locale is "+Titanium.Platform.locale);
 Titanium.API.info("OS name is " + Titanium.Platform.osname);
+
+// Commented out until #647 is fixed
+//if (Titanium.Platform.osname == 'iphone') {
+//	Titanium.API.info("Data network: " + Titanium.Platform.dataAddress);
+//	Titanium.API.info("Netmask: " + Titanium.Platform.netmask);
+//}

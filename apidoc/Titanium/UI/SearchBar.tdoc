@@ -20,7 +20,7 @@ A Search Bar is created by the method `Titanium.UI.createSearchBar`.
 
 - platforms
 
-android, iphone
+android, iphone, ipad
 
 - properties
 

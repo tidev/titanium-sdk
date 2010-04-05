@@ -132,57 +132,15 @@ public class TiUIWindow extends TiUIView
 		handlePostOpen();
 	}
 
-	private static HashMap<Integer, String> motionEvents = new HashMap<Integer,String>();
-	static {
-		motionEvents.put(MotionEvent.ACTION_DOWN, "touchstart");
-		motionEvents.put(MotionEvent.ACTION_UP, "touchend");
-		motionEvents.put(MotionEvent.ACTION_MOVE, "touchmove");
-		motionEvents.put(MotionEvent.ACTION_CANCEL, "touchcancel");
-	}
-
-	private TiDict dictFromEvent(MotionEvent e) {
-		TiDict data = new TiDict();
-		data.put("x", (double)e.getX());
-		data.put("y", (double)e.getY());
-		return data;
-	}
-
 	protected void handlePostOpen() {
 		//TODO unique key per window, params for intent
 		activityKey = "window$" + idGenerator.incrementAndGet();
 		TiDict props = proxy.getDynamicProperties();
 
-		final GestureDetector detector = new GestureDetector(proxy.getTiContext().getActivity(),
-			new SimpleOnGestureListener() {
-				@Override
-				public boolean onDoubleTap(MotionEvent e) {
-					boolean handledTap = proxy.fireEvent("doubletap", dictFromEvent(e));
-					boolean handledClick = proxy.fireEvent("dblclick", dictFromEvent(e));
-					return handledTap || handledClick;
-				}
-
-				@Override
-				public boolean onSingleTapConfirmed(MotionEvent e) {
-					boolean handledTap = proxy.fireEvent("singletap", dictFromEvent(e));
-					boolean handledClick = proxy.fireEvent("click", dictFromEvent(e));
-					return handledTap || handledClick;
-				}
-			});
-
-		getLayout().setOnTouchListener(new OnTouchListener() {
-			public boolean onTouch(View view, MotionEvent event) {
-				boolean handled = detector.onTouchEvent(event);
-				if (!handled && motionEvents.containsKey(event.getAction())) {
-					handled = proxy.fireEvent(motionEvents.get(event.getAction()), dictFromEvent(event));
-				}
-				return handled;
-			}
-		});
-
+		registerForTouch(getLayout());
 		getLayout().setOnFocusChangeListener(new OnFocusChangeListener() {
 			public void onFocusChange(View view, boolean hasFocus) {
-				boolean handled = false;
-				handled = proxy.fireEvent(hasFocus ? "focus" : "blur", new TiDict());
+				proxy.fireEvent(hasFocus ? "focus" : "blur", new TiDict());
 			}
 		});
 

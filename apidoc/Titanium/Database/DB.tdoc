@@ -4,7 +4,7 @@ Titanium.Database.DB
 
 - type
 
-object
+proxy
 
 - description
 
@@ -16,7 +16,7 @@ The Database instance returned by `Titanium.Database.open` or `Titanium.Database
 
 - platforms
 
-android, iphone
+android, iphone, ipad
 
 
 - methods

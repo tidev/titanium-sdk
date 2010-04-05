@@ -20,7 +20,7 @@ A Text Area is created by the method `Titanium.UI.createTextField`. The Text Fie
 
 - platforms
 
-android, iphone
+android, iphone, ipad
 
 - properties
 

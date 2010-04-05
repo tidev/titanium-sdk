@@ -38,6 +38,7 @@
 	int transitionAnimation;
 	NSMutableArray *reattachWindows;
 	UIView *closeView;
+	UIViewController *tempController;
 }
 
 -(void)fireFocus:(BOOL)newFocused;
@@ -74,5 +75,6 @@
 -(void)_tabBeforeBlur;
 
 -(void)setupWindowDecorations;
+- (void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration;
 
 @end

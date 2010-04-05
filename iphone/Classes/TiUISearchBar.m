@@ -57,6 +57,11 @@
 	[searchView setShowsCancelButton:[TiUtils boolValue:value]];
 }
 
+-(void)setHintText_:(id)value
+{
+	[searchView setPlaceholder:[TiUtils stringValue:value]];
+}
+
 -(void)setBarColor_:(id)value
 {
 	UIColor * newBarColor = [[TiUtils colorValue:value] _color];

@@ -20,7 +20,7 @@ A Toolbar is created by the method `Titanium.UI.createToolbar`.  A Toolbar can b
 
 - platforms
 
-iphone
+iphone, ipad
 
 - properties
 

@@ -2,7 +2,7 @@ var win = Titanium.UI.currentWindow;
 
 var isAndroid = false;
 
-if (Titanium.Platform.name = 'android') {
+if (Titanium.Platform.name == 'android') {
 	isAndroid = true;
 	menu = Titanium.UI.Android.OptionMenu.createMenu();
 }
@@ -46,7 +46,7 @@ var atlantaParams = {
 if (!isAndroid) {
 	atlantaParams.pincolor = Titanium.Map.ANNOTATION_PURPLE;
 } else {
-	atlantaParams.pinImage = "/images/map-pin.png";
+	atlantaParams.pinImage = "../images/map-pin.png";
 }
 var atlanta = Titanium.Map.createAnnotation(atlantaParams);
 
@@ -137,9 +137,7 @@ sv.addEventListener('click', function()
 });
 mapview.addEventListener('complete', function()
 {
-	mapview.selectAnnotation(mapview.annotations[0].title,true);
-	mapview.selectAnnotation(mapview.annotations[1].title,true);
-
+	Ti.API.info("map has completed loaded region");
 })
 
 
@@ -263,7 +261,7 @@ mapview.addEventListener('click',function(evt)
 	// custom annotation attribute
 	var myid = (evt.annotation)?evt.annotation.myid:-1;
 
-
+	Ti.API.info('mapview click clicksource = ' + clickSource)
 	// use custom event attribute to determine if atlanta annotation was clicked
 	if (myid == 3 && evt.clicksource == 'rightButton')
 	{
@@ -294,17 +292,16 @@ atlanta.addEventListener('click', function(evt)
 	// get event properties
 	var annotation = evt.source;
 	var clicksource = evt.clicksource;
-
-
+	Ti.API.info('atlanta annotation click clicksource = ' + clicksource)
 });
 
 apple.addEventListener('click', function(evt)
 {
-	Ti.API.info('Apple Annotation clicked ' + evt.clicksource);
 
 	// get event properties
 	var annotation = evt.source;
 	var clicksource = evt.clicksource;
+	Ti.API.info('atlanta annotation click clicksource = ' + clicksource)
 
 
 });

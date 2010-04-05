@@ -74,6 +74,7 @@
 			[self setImage:item.selectedImage forState:UIControlStateHighlighted];
 		}
 	}
+	[self setNeedsLayout];
 }
 
 - (void)touchesBegan:(NSSet*)touches withEvent:(UIEvent *)event 

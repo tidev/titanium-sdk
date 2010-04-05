@@ -8,6 +8,7 @@ package org.appcelerator.titanium.view;
 
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.appcelerator.titanium.TiDict;
@@ -25,10 +26,14 @@ import org.appcelerator.titanium.view.TiCompositeLayout.LayoutParams;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
+import android.view.GestureDetector;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.GestureDetector.SimpleOnGestureListener;
 import android.view.View.OnClickListener;
 import android.view.View.OnFocusChangeListener;
+import android.view.View.OnTouchListener;
 import android.view.animation.AnimationSet;
 import android.view.inputmethod.InputMethodManager;
 
@@ -424,6 +429,64 @@ public abstract class TiUIView
 			border.setWidth(TiConvert.toFloat(value));
 		}
 		applyCustomBackground();
+	}
+
+	private static HashMap<Integer, String> motionEvents = new HashMap<Integer,String>();
+	static {
+		motionEvents.put(MotionEvent.ACTION_DOWN, "touchstart");
+		motionEvents.put(MotionEvent.ACTION_UP, "touchend");
+		motionEvents.put(MotionEvent.ACTION_MOVE, "touchmove");
+		motionEvents.put(MotionEvent.ACTION_CANCEL, "touchcancel");
+	}
+
+	private TiDict dictFromEvent(MotionEvent e) {
+		TiDict data = new TiDict();
+		data.put("x", (double)e.getX());
+		data.put("y", (double)e.getY());
+		return data;
+	}
+
+	protected boolean allowRegisterForTouch() {
+		return true;
+	}
+
+	public void registerForTouch() {
+		if (allowRegisterForTouch()) {
+			registerForTouch(getNativeView());
+		}
+	}
+
+	protected void registerForTouch(View touchable) {
+		if (touchable == null) {
+			return;
+		}
+		final GestureDetector detector = new GestureDetector(proxy.getTiContext().getActivity(),
+				new SimpleOnGestureListener() {
+					@Override
+					public boolean onDoubleTap(MotionEvent e) {
+						boolean handledTap = proxy.fireEvent("doubletap", dictFromEvent(e));
+						boolean handledClick = proxy.fireEvent("dblclick", dictFromEvent(e));
+						return handledTap || handledClick;
+					}
+
+					@Override
+					public boolean onSingleTapConfirmed(MotionEvent e) {
+						boolean handledTap = proxy.fireEvent("singletap", dictFromEvent(e));
+						boolean handledClick = proxy.fireEvent("click", dictFromEvent(e));
+						return handledTap || handledClick;
+					}
+				});
+
+			touchable.setOnTouchListener(new OnTouchListener() {
+				public boolean onTouch(View view, MotionEvent event) {
+					boolean handled = detector.onTouchEvent(event);
+					if (!handled && motionEvents.containsKey(event.getAction())) {
+						handled = proxy.fireEvent(motionEvents.get(event.getAction()), dictFromEvent(event));
+					}
+					return handled;
+				}
+			});
+
 	}
 
 	@Override

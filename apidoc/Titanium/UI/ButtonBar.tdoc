@@ -20,7 +20,7 @@ A Button Bar is created by the method `Titanium.UI.createButtonBar`.
 
 - platforms
 
-iphone
+iphone, ipad
 
 - properties
 

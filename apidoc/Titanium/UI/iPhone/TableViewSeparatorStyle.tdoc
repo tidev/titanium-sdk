@@ -4,11 +4,11 @@ Titanium.UI.iPhone.TableViewSeparatorStyle
 
 - type
 
-object
+proxy
 
 - description
 
-A set of constants for the style that can be used for the `separatorStyle` property of [Titanium.UI.TableView](Titanium.UI.TableView).
+A set of constants for the style that can be used for the `separatorStyle` property of [[Titanium.UI.TableView]].
 
 - since
 
@@ -16,7 +16,7 @@ A set of constants for the style that can be used for the `separatorStyle` prope
 
 - platforms
 
-iphone
+iphone, ipad
 
 - properties
 

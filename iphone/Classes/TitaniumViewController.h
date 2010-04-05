@@ -21,6 +21,8 @@
 	BOOL	allowedOrientations[MAX_ORIENTATIONS];
 	NSTimeInterval	orientationRequestTimes[MAX_ORIENTATIONS];
 	UIInterfaceOrientation lastOrientation;
+	
+	UIInterfaceOrientation windowOrientation;
 
 }
 
@@ -33,6 +35,7 @@
 -(CGRect)resizeView;
 
 -(void) manuallyRotateToOrientation:(UIInterfaceOrientation)orientation;
+-(void)manuallyRotateToOrientation:(UIInterfaceOrientation)newOrientation duration:(NSTimeInterval)duration;
 
 -(void)refreshOrientationModesIfNeeded:(TiWindowProxy *)oldCurrentWindow;
 -(void)enforceOrientationModesFromWindow:(TiWindowProxy *) newCurrentWindow;

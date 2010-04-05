@@ -52,3 +52,16 @@ Ti.Accelerometer.addEventListener('update',function(e)
 	y.text = 'y:' + e.y;
 	z.text = 'z:' + e.z;
 });
+
+if (Titanium.Platform.name == 'iPhone OS' && Titanium.Platform.model == 'Simulator')
+{
+	var notice = Titanium.UI.createLabel({
+		bottom:50,
+		font:{fontSize:18},
+		color:'#900',
+		width:'auto',
+		text:'Note: Accelerometer does not work in simulator',
+		textAlign:'center'
+	});
+	win.add(notice);
+}

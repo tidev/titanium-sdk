@@ -1,0 +1,14 @@
+{
+    "objects": [], 
+    "methods": [
+        "addEventListener", 
+        "debug", 
+        "error", 
+        "fireEvent", 
+        "info", 
+        "log", 
+        "removeEventListener", 
+        "warn"
+    ], 
+    "properties": []
+}

@@ -23,7 +23,7 @@ window cannot be removed. The Tab Group is created by the method `Titanium.UI.cr
 
 - platforms
 
-android, iphone
+android, iphone, ipad
 
 - properties
 

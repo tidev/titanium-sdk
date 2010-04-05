@@ -20,7 +20,7 @@ The Alert Dialog is created by `Titanium.UI.createAlertDialog` and allows you to
 
 - platforms
 
-android, iphone
+android, iphone, ipad
 
 - properties
 
