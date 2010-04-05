@@ -6,29 +6,21 @@
  */
 package ti.modules.titanium.ui.widget.tableview;
 
-import java.io.IOException;
 import java.util.ArrayList;
 
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiDict;
-import org.appcelerator.titanium.io.TiBaseFile;
-import org.appcelerator.titanium.io.TiFileFactory;
 import org.appcelerator.titanium.proxy.TiViewProxy;
-import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiConvert;
-import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.ui.TableViewRowProxy;
 import ti.modules.titanium.ui.widget.TiUILabel;
 import ti.modules.titanium.ui.widget.tableview.TableViewModel.Item;
-import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
-import android.graphics.drawable.ShapeDrawable;
 import android.os.Handler;
 import android.view.View;
 import android.widget.ImageView;
@@ -42,7 +34,7 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 	private static final int LEFT_MARGIN = 5;
 	private static final int RIGHT_MARGIN = 7;
 
-	private BitmapDrawable hasChildDrawable;
+	private BitmapDrawable hasChildDrawable, hasCheckDrawable;
 	private ImageView leftImage;
 	private ImageView rightImage;
 	private TiCompositeLayout content;
@@ -68,9 +60,15 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 		addView(rightImage,new LayoutParams(LayoutParams.WRAP_CONTENT,LayoutParams.WRAP_CONTENT));
 	}
 
-	public void setRowData(TiTableViewItemOptions defaults, Item item)
+	public void setRowData(Item item)
 	{
 		TableViewRowProxy rp = (TableViewRowProxy) item.proxy;
+		rp.setTableViewItem(this);
+		setRowData(rp);
+	}
+	
+	public void setRowData(TableViewRowProxy rp)
+	{
 		TiDict props = rp.getDynamicProperties();
 		hasControls = rp.hasControls();
 		
@@ -88,7 +86,17 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 				clearRightImage = false;
 			}
 		}
-
+		else if (props.containsKey("hasCheck")) {
+			if (TiConvert.toBoolean(props, "hasCheck")) {
+				if (hasCheckDrawable == null) {
+					hasCheckDrawable = createHasCheckDrawable();
+				}
+				rightImage.setImageDrawable(hasCheckDrawable);
+				rightImage.setVisibility(VISIBLE);
+				clearRightImage = false;
+			}
+		}
+		
 		if (props.containsKey("rightImage")) {
 			String path = TiConvert.toString(props, "rightImage");
 			String url = tiContext.resolveUrl(null, path);
