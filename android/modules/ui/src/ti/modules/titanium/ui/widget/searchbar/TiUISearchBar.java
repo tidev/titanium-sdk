@@ -23,9 +23,14 @@ import android.widget.RelativeLayout;
 
 public class TiUISearchBar extends TiUIText
 {
-
 	protected ImageButton cancelBtn;
-
+	
+	public interface OnSearchChangeListener {
+		public void filterBy(String text);
+	}
+	
+	protected OnSearchChangeListener searchChangeListener;
+	
 	public TiUISearchBar(final TiViewProxy proxy)
 	{
 		super(proxy, true);
@@ -70,6 +75,14 @@ public class TiUISearchBar extends TiUIText
 
 		setNativeView(layout);
 	}
+	
+	@Override
+	public void onTextChanged(CharSequence s, int start, int before, int count) {
+		if (this.searchChangeListener != null) {
+			this.searchChangeListener.filterBy(s.toString());
+		}
+		super.onTextChanged(s, start, before, count);
+	}
 
 	@Override
 	public void processProperties(TiDict d)
@@ -95,5 +108,9 @@ public class TiUISearchBar extends TiUIText
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}
+	}
+	
+	public void setOnSearchChangeListener(OnSearchChangeListener listener) {
+		this.searchChangeListener = listener;
 	}
 }

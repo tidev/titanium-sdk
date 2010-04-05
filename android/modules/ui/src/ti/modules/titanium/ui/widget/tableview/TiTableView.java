@@ -20,6 +20,7 @@ import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUIHelper;
 
 import ti.modules.titanium.ui.TableViewProxy;
+import ti.modules.titanium.ui.widget.searchbar.TiUISearchBar.OnSearchChangeListener;
 import ti.modules.titanium.ui.widget.tableview.TableViewModel.Item;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -38,8 +39,9 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemSelectedListener;
 
 public class TiTableView extends FrameLayout
+	implements OnSearchChangeListener
 {
-
+	public static final int TI_TABLE_VIEW_ID = 101;
 	private static final String LCAT = "TiTableView";
 	private static final boolean DBG = TiConfig.LOGD;
 
@@ -58,6 +60,7 @@ public class TiTableView extends FrameLayout
 
 	private TiContext tiContext;
 	private TableViewProxy proxy;
+	private boolean filterCaseInsensitive = true;
 
 	public interface OnItemClickedListener {
 		public void onClick(TiDict item);
@@ -88,7 +91,11 @@ public class TiTableView extends FrameLayout
 			if (filterAttribute != null && filterText != null && filterAttribute.length() > 0 && filterText.length() > 0) {
 				filtered = true;
 
-				String lfilter = filterText.toLowerCase();
+				String filter = filterText;
+				if (filterCaseInsensitive) {
+					filter = filterText.toLowerCase();
+				}
+				
 				for(int i = 0; i < count; i++) {
 					boolean keep = true;
 
@@ -100,13 +107,15 @@ public class TiTableView extends FrameLayout
 						rowTypes.put(item.className, rowTypeCounter.incrementAndGet());
 						classChange = true;
 					}
-// TODO fix filtering
-//					if (item.containsKey(filterAttribute)) {
-//						String t = item.getString(filterAttribute).toLowerCase();
-//						if(t.indexOf(lfilter) < 0) {
-//							keep = false;
-//						}
-//					}
+					if (item.proxy.hasDynamicValue(filterAttribute)) {
+						String t = TiConvert.toString(item.proxy.getDynamicValue(filterAttribute));
+						if (filterCaseInsensitive) {
+							t = t.toLowerCase();
+						}
+						if(t.indexOf(filter) < 0) {
+							keep = false;
+						}
+					}
 
 					if (keep) {
 						index.add(i);
@@ -201,11 +210,8 @@ public class TiTableView extends FrameLayout
 					v.setClassName(item.className);
 				}
 
-				AbsListView.LayoutParams p = new AbsListView.LayoutParams(AbsListView.LayoutParams.FILL_PARENT, AbsListView.LayoutParams.FILL_PARENT);
-				/*TiCompositeLayout.LayoutParams p = new TiCompositeLayout.LayoutParams();
-				p.autoFillsHeight = true;
-				p.autoFillsWidth = true;*/
-				v.setLayoutParams(p);
+				v.setLayoutParams(new AbsListView.LayoutParams(
+					AbsListView.LayoutParams.FILL_PARENT, AbsListView.LayoutParams.FILL_PARENT));
 			}
 
 			v.setRowData(defaults, item);
@@ -279,7 +285,7 @@ public class TiTableView extends FrameLayout
 				return super.dispatchKeyEvent(event);
 			}
 		};
-		listView.setId(101);
+		listView.setId(TI_TABLE_VIEW_ID);
 
 		final Drawable defaultSelector = listView.getSelector();
 		final Drawable adaptableSelector = new ColorDrawable(Color.TRANSPARENT) {
@@ -402,6 +408,27 @@ public class TiTableView extends FrameLayout
 	
 	public ListView getListView() {
 		return listView;
+	}
+	
+	@Override
+	public void filterBy(String text) {
+		filterText = text;
+		if (adapter != null) {
+			tiContext.getActivity().runOnUiThread(new Runnable() {
+				public void run() {
+					dataSetChanged();
+				}
+			});
+		}
+	}
+	
+	
+	public void setFilterAttribute(String filterAttribute) {
+		this.filterAttribute = filterAttribute;
+	}
+
+	public void setFilterCaseInsensitive(boolean filterCaseInsensitive) {
+		this.filterCaseInsensitive  = filterCaseInsensitive;
 	}
 	
 //	public void setData(Object[] rows) {
