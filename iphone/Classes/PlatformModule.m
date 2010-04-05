@@ -22,7 +22,7 @@ NSString* const DATA_IFACE = @"pdp_ip0";
 
 @implementation PlatformModule
 
-@synthesize name, model, version, architecture, macaddress, processorCount, username, ostype, availableMemory;
+@synthesize name, model, version, architecture, macaddress, address, processorCount, username, ostype, availableMemory;
 
 #pragma mark Internal
 
@@ -36,6 +36,7 @@ NSString* const DATA_IFACE = @"pdp_ip0";
 		processorCount = [[NSNumber numberWithInt:1] retain];
 		username = [theDevice name];
 		ostype = [@"32bit" retain];
+        address = [@"127.0.0.1" retain];
 		
 		if ([TiUtils isIPad])
 		{
@@ -242,9 +243,8 @@ NSString* const DATA_IFACE = @"pdp_ip0";
 	return NUMFLOAT([[UIDevice currentDevice] batteryLevel]);
 }
 
-// Note that every time address is called we have to run through the available interfaces; however,
-// this should be pretty quick.
-// ALSO NOTE: This must be tested on a physical device to be accurate.
+/*
+ * COMMENTED OUT until we can perform testing on all physical devices (iPod Touch, 2G, 3G, 3GS, iPad)
 -(NSString*)address
 {
     return [self getIface:WIFI_IFACE mask:NO];
@@ -260,6 +260,7 @@ NSString* const DATA_IFACE = @"pdp_ip0";
 {
     return [self getIface:WIFI_IFACE mask:YES];
 }
+ */
 
 MAKE_SYSTEM_PROP(BATTERY_STATE_UNKNOWN,UIDeviceBatteryStateUnknown);
 MAKE_SYSTEM_PROP(BATTERY_STATE_UNPLUGGED,UIDeviceBatteryStateUnplugged);

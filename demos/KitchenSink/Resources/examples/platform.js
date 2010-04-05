@@ -283,7 +283,8 @@ Titanium.Platform.addEventListener('battery', function(e)
 Titanium.API.info("Current Phone Locale is "+Titanium.Platform.locale);
 Titanium.API.info("OS name is " + Titanium.Platform.osname);
 
-if (Titanium.Platform.osname == 'iphone') {
-	Titanium.API.info("Data network: " + Titanium.Platform.dataAddress);
-	Titanium.API.info("Netmask: " + Titanium.Platform.netmask);
-}
+// Commented out until #647 is fixed
+//if (Titanium.Platform.osname == 'iphone') {
+//	Titanium.API.info("Data network: " + Titanium.Platform.dataAddress);
+//	Titanium.API.info("Netmask: " + Titanium.Platform.netmask);
+//}
