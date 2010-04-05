@@ -592,6 +592,11 @@
 	// called to remove
 }
 
+- (BOOL) isUsingBarButtonItem
+{
+	return FALSE;
+}
+
 #pragma mark For autosizing of table views
 
 -(LayoutConstraint *)layoutProperties

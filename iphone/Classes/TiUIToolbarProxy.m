@@ -6,7 +6,7 @@
  */
 
 #import "TiUIToolbarProxy.h"
-
+#import "TiUIToolbar.h"
 
 @implementation TiUIToolbarProxy
 
@@ -15,6 +15,12 @@ USE_VIEW_FOR_VERIFY_HEIGHT
 -(UIViewAutoresizing)verifyAutoresizing:(UIViewAutoresizing)suggestedResizing
 {
 	return suggestedResizing & ~UIViewAutoresizingFlexibleHeight;
+}
+
+-(UIToolbar*)toolbar
+{
+	TiUIToolbar *theview = (TiUIToolbar*) [self view];
+	return [theview toolBar];
 }
 
 @end

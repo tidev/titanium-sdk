@@ -14,7 +14,7 @@
 }
 
 @property(nonatomic,retain) UIBarButtonItem * barButtonItem;
-- (BOOL) isUsingBarButtonItem;
+
 
 @end
 

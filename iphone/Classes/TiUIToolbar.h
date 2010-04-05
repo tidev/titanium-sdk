@@ -13,4 +13,6 @@
 	BOOL showBottomBorder;
 }
 
+-(UIToolbar *)toolBar;
+
 @end

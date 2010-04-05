@@ -7,6 +7,11 @@
 
 #import "TiToolbar.h"
 
-@interface TiUIToolbarProxy : TiToolbar {
+@implementation TiToolbar
+
+-(UIToolbar*)toolbar
+{
+	@throw @"Invalid subclass - must override this method";
 }
+
 @end
