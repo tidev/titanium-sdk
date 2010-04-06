@@ -133,9 +133,9 @@ rowData: table view row data object
 
 The most basic example of a table view.
 
-<code>
+~~~
 var data = [{title:"Row 1"},{title:"Row 2"}];
 var table = Titanium.UI.createTableView({data:data});
 win.add(table);
-</code>
+~~~
 

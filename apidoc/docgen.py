@@ -53,6 +53,9 @@ current_line = -1
 apis = {}
 current_api = None
 
+def strip_tags(value):
+	return re.sub(r'<[^>]*?>', '', value)
+
 def namesort(a,b):
 	return cmp(a['name'],b['name'])
 
@@ -94,7 +97,9 @@ class API(object):
 		for o in self.properties:
 			index.append(o['name'])
 		for o in self.examples:
-			index.append(o['description'])
+			index.append(strip_tags(o['description']))
+		if self.notes!=None:
+			index.append(strip_tags(self.notes))
 		return remove_html_tags(" ".join(index))	
 	def add_object(self,obj):
 		if obj.typestr!='proxy': 
@@ -103,8 +108,7 @@ class API(object):
 			tokens[len(tokens)-1] = m
 			link = '<a href="%s.html">%s</a>'%(obj.namespace,obj.namespace)
 			self.add_method(m,'create and return an instance of %s' %link,'object')
-			self.add_method_property(m,'parmeters','object','(optional) a dictionary object properties defined in %s'%link)
-#			print "added object: %s" % (".".join(tokens))
+			self.add_method_property(m,'parameters','object','(optional) a dictionary object properties defined in %s'%link)
 		if obj.typestr == 'proxy':
 			obj.typestr = 'object'
 		self.objects.append(obj)
@@ -350,11 +354,11 @@ def emit_properties(line):
 	
 def emit_methods(line):
 	for tokens in tokenize_keyvalues(line):
-		current_api.add_method(tokens[0],tokens[1])
+		current_api.add_method(tokens[0],htmlerize(tokens[1]))
 	
 def emit_events(line):
 	for tokens in tokenize_keyvalues(line):
-		current_api.add_event(tokens[0],tokens[1])
+		current_api.add_event(tokens[0],htmlerize(tokens[1]))
 
 def emit_namespace(line):
 	global apis, current_api
@@ -613,6 +617,8 @@ def produce_devhtml_output(config,templates,outdir,theobj):
 			f.write("<link rel=\"stylesheet\" type=\"text/css\" href=\"%s\">\n" % config['css'])
 		if config.has_key('colorize'):			
 			f.write(colorize_code(output))
+		else:
+			f.write(output)
 		f.close()
 		
 		if obj.typestr == 'module' or obj.typestr == 'object':
@@ -624,11 +630,26 @@ def produce_devhtml_output(config,templates,outdir,theobj):
 				am.parameters = me['parameters']
 				o = generate_template_output(config,templates,outdir,'method',am)
 				mo = os.path.join(outdir,'%s.html'%n)
+				print "  + %s" % n
 				out = open(mo,'w+')
 				if config.has_key('css'):
 					out.write("<link rel=\"stylesheet\" type=\"text/css\" href=\"%s\">\n" % config['css'])
 				out.write(o)
 				out.close()
+			for me in obj.properties:
+				n = obj.namespace + '.' + me['name']
+				am = API(n)
+				am.description = me['value']
+				am.type = me['type']
+				o = generate_template_output(config,templates,outdir,'property',am)
+				print "  + %s" % n
+				mo = os.path.join(outdir,'%s.html'%n)
+				out = open(mo,'w+')
+				if config.has_key('css'):
+					out.write("<link rel=\"stylesheet\" type=\"text/css\" href=\"%s\">\n" % config['css'])
+				out.write(o)
+				out.close()
+
 		
 		if obj.typestr == 'module':
 			toc_filename = os.path.join(outdir,'toc_%s.json' % name)
@@ -649,6 +670,20 @@ def produce_devhtml_output(config,templates,outdir,theobj):
 			o = json.dumps({'objects':objects,'methods':methods,'properties':properties},indent=4)
 			f.write(o)
 			f.close()
+
+			for me in obj.properties:
+				n = obj.namespace + '.' + me['name']
+				am = API(n)
+				am.description = me['value']
+				am.type = me['type']
+				o = generate_template_output(config,templates,outdir,'property',am)
+				mo = os.path.join(outdir,'%s.html'%n)
+				print "  %s" % n
+				out = open(mo,'w+')
+				if config.has_key('css'):
+					out.write("<link rel=\"stylesheet\" type=\"text/css\" href=\"%s\">\n" % config['css'])
+				out.write(o)
+				out.close()
 			
 			
 	
@@ -707,6 +742,6 @@ if __name__ == "__main__":
 #	main(sys.argv)
 #	main([sys.argv[0],'json','output=~/tmp/doc'])	
 #	main([sys.argv[0],'devhtml','output=~/work/appcelerator_network/new/public/devcenter/application/apidoc/mobile/1.0.0'])
-#	main([sys.argv[0],'devhtml','output=~/work/appcelerator_network/new/public/devcenter/application/apidoc/mobile/1.2'])
-	main([sys.argv[0],'devhtml','colorize','css=page.css','output=~/work/titanium_mobile/demos/KitchenSink_iPad/Resources/apidoc'])
+	main([sys.argv[0],'devhtml','output=~/work/appcelerator_network/new/public/devcenter/application/apidoc/mobile/1.2'])
+#	main([sys.argv[0],'devhtml','colorize','css=page.css','output=~/work/titanium_mobile/demos/KitchenSink_iPad/Resources/apidoc'])
 	

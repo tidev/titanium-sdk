@@ -57,7 +57,7 @@ complete: fired when the animation completes
 
 Create a simple animation and apply it to the view.  In this example, the view will animate from red to black to orange over 2 seconds.
 
-<code>
+~~~
 var view = Titanium.UI.createView({
    backgroundColor:'red'
 });
@@ -71,7 +71,7 @@ animation.addEventListener('complete',function()
    view.animate(animation);
 });
 view.animate(animation);
-</code>
+~~~
 
 - notes
 

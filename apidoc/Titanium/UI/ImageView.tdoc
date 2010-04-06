@@ -67,10 +67,10 @@ index: the index of the image frame being displayed
 
 In this example, we create a simple image view:
 
-<code>
+~~~
 var image = Titanium.UI.createImageView({url:'myimage.png'});
 view.add(image);
-</code>
+~~~
 
 - notes
 

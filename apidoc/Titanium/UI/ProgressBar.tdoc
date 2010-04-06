@@ -36,7 +36,7 @@ message[string]: the progress bar message
 
 In this example we create a progress bar with the min value of `0` and the max value of `10` and the current value of `0`.  The change the value of the progress bar to cause it to move, we would set the `value` property to a value between `min` and `max`.
 
-<code>
+~~~
 var pb=Titanium.UI.createProgressBar({
 	width:250,
 	min:0,
@@ -47,7 +47,7 @@ var pb=Titanium.UI.createProgressBar({
 	font:{fontSize:14, fontWeight:'bold'},
 	style:Titanium.UI.iPhone.ProgressBarStyle.PLAIN,
 });
-</code>
+~~~
 
 - notes
 

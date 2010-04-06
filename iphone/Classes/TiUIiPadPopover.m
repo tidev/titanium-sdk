@@ -25,6 +25,7 @@
 	if (viewController==nil)
 	{
 		viewController = [[TiViewController alloc] initWithViewProxy:(TiViewProxy*)self.proxy];
+		viewController.contentSizeForViewInPopover = size;
 	}
 	if (controller == nil)
 	{
@@ -134,25 +135,7 @@
 -(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
 {
 	self.frame = CGRectIntegral(self.frame);
-	
-	CGSize size = frame.size;
-	if (size.width < 320)
-	{
-		size.width = 320;
-	}
-	else if (size.width > 600)
-	{
-		size.width = 600;
-	}
-		
-	//When changing the value of this property, the width value you specify must be at 
-	//least 320 points and no more than 600 points. There are no restrictions on 
-	//the height value. However, both the width and height values you specify may 
-	//be adjusted to ensure the popup fits on screen and is not covered by the 
-	//keyboard. If you change the value of this property while the popover is 
-	//visible, the size change is animated.
-		
-	[[self popover] setPopoverContentSize:size animated:NO];
+	viewController.contentSizeForViewInPopover = bounds.size;
 	[TiUtils setView:[viewController view] positionRect:bounds];
 }
 
@@ -160,30 +143,16 @@
 
 -(void)setWidth_:(id)value
 {
-	CGFloat width = [TiUtils floatValue:value];
-	CGSize size = [[self popover] popoverContentSize];
-	CGFloat height = size.height;
-	if (size.width < 320)
-	{
-		width = 320;
-	}
-	else if (size.width > 600)
-	{
-		width = 600;
-	}
-	if (height <= 0)
-	{
-		height = 600;
-	}
-	[[self popover] setPopoverContentSize:CGSizeMake(width, height) animated:NO];
+	ENSURE_SINGLE_ARG(value,NSObject);
+	size.width = [TiUtils floatValue:value];
+	viewController.contentSizeForViewInPopover = size;
 }
 
 -(void)setHeight_:(id)value
 {
-	CGFloat height = [TiUtils floatValue:value];
-	CGSize size = [[self popover] popoverContentSize];
-	CGFloat width = MAX(320,size.width);
-	[[self popover] setPopoverContentSize:CGSizeMake(width, height) animated:NO];
+	ENSURE_SINGLE_ARG(value,NSObject);
+	size.height = [TiUtils floatValue:value];
+	viewController.contentSizeForViewInPopover = size;
 }
 
 -(NSNumber*)visible
@@ -212,7 +181,9 @@
 		rect.size.height = [TiUtils floatValue:@"height" properties:rectProps];
 	}
 	
-	UIView *view = [[args objectForKey:@"view"] view];
+	TiViewProxy *proxy = [args objectForKey:@"view"];
+	
+	UIView *view = [proxy view];
 	UIPopoverArrowDirection directions = [TiUtils intValue:@"arrow" properties:args def:UIPopoverArrowDirectionAny];
 	
 	[[self popover] presentPopoverFromRect:rect inView:view permittedArrowDirections:directions animated:animated];

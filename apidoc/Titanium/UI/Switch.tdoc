@@ -42,7 +42,7 @@ value[boolean]: the new value of the switch
 
 The following is a simple example of a switch and receiving `change` events.
 
-<code>
+~~~
 var basicSwitch = Titanium.UI.createSwitch({
 	value:false
 });
@@ -50,7 +50,7 @@ basicSwitch.addEventListener('change',function(e)
 {
 	Titanium.API.info('Basic Switch value = ' + e.value + ' act val ' + basicSwitch.value);
 });
-</code>
+~~~
 
 - notes
 

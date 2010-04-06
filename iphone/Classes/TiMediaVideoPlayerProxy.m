@@ -55,6 +55,8 @@
 		}
 	}
 	
+	//TODO: call prepareToPlay for 3.2
+	
 	id color = [TiUtils stringValue:@"backgroundColor" properties:properties];
 	if (color!=nil)
 	{
@@ -126,6 +128,9 @@
 		[nc addObserver:self selector:@selector(handlePlaybackStateChangeNotification:)
 				   name:MPMoviePlayerPlaybackStateDidChangeNotification 
 				 object:nil];
+		
+		//FIXME add to replace preload for 3.2
+		//MPMediaPlaybackIsPreparedToPlayDidChangeNotification
 #endif
 	}
 }
@@ -377,7 +382,7 @@
 	[[self player] setUseApplicationAudioSession:[TiUtils boolValue:value]];
 }
 
--(void)cancelAllThumbnailImageRequests
+-(void)cancelAllThumbnailImageRequests:(id)value
 {
 	[[self player] performSelectorOnMainThread:@selector(cancelAllThumbnailImageRequests) withObject:nil waitUntilDone:NO];
 }
@@ -629,7 +634,7 @@
 		}
 		else if ([self _hasListeners:@"preload"])
 		{
-			NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:nil,@"message",NUMBOOL(YES),@"success",nil];
+			NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:[NSNull null],@"message",NUMBOOL(YES),@"success",nil];
 			[self fireEvent:@"preload" withObject:event];
 		}
 	}
@@ -779,10 +784,10 @@
 
 -(void)handlePlaybackStateChangeNotification:(NSNotification*)note
 {
-	if ([self _hasListeners:@"loadStateChange"])
+	if ([self _hasListeners:@"playbackState"])
 	{
-		NSDictionary *event = [NSDictionary dictionaryWithObject:[self loadState] forKey:@"loadState"];
-		[self fireEvent:@"loadStateChange" withObject:event];
+		NSDictionary *event = [NSDictionary dictionaryWithObject:[self playbackState] forKey:@"playbackState"];
+		[self fireEvent:@"playbackState" withObject:event];
 	}
 }
 #endif

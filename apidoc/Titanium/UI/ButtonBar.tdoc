@@ -41,7 +41,7 @@ index[int]: the index of the button that was clicked
 
 - example : Simple 3 button button bar
 
-<code>
+~~~
 var bb1 = Titanium.UI.createButtonBar({
 	labels:['One', 'Two', 'Three'],
 	backgroundColor:'#336699',
@@ -51,7 +51,7 @@ var bb1 = Titanium.UI.createButtonBar({
 	width:200
 });
 win.add(bb1);
-</code>
+~~~
 
 - notes
 

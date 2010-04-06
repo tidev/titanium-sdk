@@ -68,12 +68,12 @@ blur: fired when the window loses focus
 
 Create a fullscreen window with a red background.
 
-<code>
+~~~
 var window = Titanium.UI.createWindow({
    backgroundColor:'red'
 });
 window.open({fullscreen:true});
-</code>
+~~~
 
 
 - notes

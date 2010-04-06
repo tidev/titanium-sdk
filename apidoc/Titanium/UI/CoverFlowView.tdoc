@@ -56,13 +56,13 @@ previous: the previous index of the image that was visible
 
 Create a rounded view.
 
-<code>
+~~~
 var view = Titanium.UI.createCoverFlowView({
 	images:['a.png','b.png','c.png'],
 	backgroundColor:'#000'
 });
 window.add(view);
-</code>
+~~~
 
 - notes
 

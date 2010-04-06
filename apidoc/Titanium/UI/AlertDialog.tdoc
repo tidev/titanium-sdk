@@ -46,22 +46,23 @@ cancel: boolean to indicate if the cancel button was pressed
 
 In this example, we show a simple alert dialog.
 
-<code>
+~~~
 var alertDialog = Titanium.UI.createAlertDialog({
 	title: 'Hello',
 	message: 'You got mail',
 	buttonNames: ['OK','Doh!']
 });
 alertDialog.show();
-</code>
+~~~
 
 - notes
 
 the global method `alert` is aliased to this object and can be invoked with a single message. For example:
 
-<code>
+~~~
 alert("this is a message");
-</code>
+~~~
+
 
 Note: you should be careful not to call alert more than once while a pending alert is visible.
 

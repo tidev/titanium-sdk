@@ -65,7 +65,7 @@ dragging: boolean to indicate if the scroll is based on a dragging gesture
 
 Create a scroll view with content.
 
-<code>
+~~~
 var scrollView = Titanium.UI.createScrollView({
 	contentWidth:'auto',
 	contentHeight:'auto',
@@ -82,7 +82,7 @@ var view = Ti.UI.createView({
 });
 scrollView.add(view);
 Titanium.UI.currentWindow.add(scrollView);
-</code>
+~~~
 
 - notes
 

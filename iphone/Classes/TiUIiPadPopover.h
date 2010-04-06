@@ -13,6 +13,7 @@
 @private
 	UIPopoverController *controller;
 	TiViewController *viewController;
+	CGSize size;
 }
 
 @end
