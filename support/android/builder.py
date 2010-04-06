@@ -107,7 +107,7 @@ class Builder(object):
 			output = run.run([self.sdk.get_adb(),"-%s" % type, 'devices'],True)
 			print "[TRACE] wait_for_device returned: %s" % output
 			if output != None: 
-				if output.find("emulator-") != -1 and output.find("offline") == -1:
+				if (type == 'd' or output.find("emulator-") != -1) and output.find("offline") == -1:
 					break
 			time.sleep(1)
 		print "[DEBUG] Device connected..."
@@ -248,10 +248,10 @@ class Builder(object):
 				sys.stdout.flush()
 				shutil.copy(path, dest)
 				# copy to the sdcard in development mode
-				if self.app_installed and self.deploy_type == 'development':
+				if self.app_installed and (self.deploy_type == 'development' or self.deploy_type == 'test'):
 					relative_path = delta.get_path()[len(resources_dir)+1:]
 					relative_path = relative_path.replace("\\", "/")
-					cmd = [self.sdk.get_adb(), "push", delta.get_path(), "/sdcard/Ti.debug/%s/Resources/%s" % (self.app_id, relative_path)]
+					cmd = [self.sdk.get_adb(), self.device_type_arg, "push", delta.get_path(), "/sdcard/Ti.debug/%s/Resources/%s" % (self.app_id, relative_path)]
 					run.run(cmd)
 
 	def generate_android_manifest(self):
@@ -585,8 +585,8 @@ class Builder(object):
 				time.sleep(3)
 				attempts+=1
 		
-		if not self.app_installed and self.deploy_type == 'development':
-			cmd = [self.sdk.get_adb(), "push", os.path.join(self.top_dir, 'Resources'), "/sdcard/Ti.debug/%s/Resources" % self.app_id]
+		if not self.app_installed and (self.deploy_type == 'development' or self.deploy_type == 'test'):
+			cmd = [self.sdk.get_adb(), self.device_type_arg, "push", os.path.join(self.top_dir, 'Resources'), "/sdcard/Ti.debug/%s/Resources" % self.app_id]
 			output = run.run(cmd)
 			print "[TRACE] sdcard output: %s" % output
 			
@@ -596,7 +596,7 @@ class Builder(object):
 		print "[INFO] Launching application ... %s" % self.name
 		sys.stdout.flush()
 		output = run.run([
-			self.sdk.get_adb(), '-e' , 'shell', 'am', 'start',
+			self.sdk.get_adb(), self.device_type_arg, 'shell', 'am', 'start',
 			'-a', 'android.intent.action.MAIN',
 			'-c','android.intent.category.LAUNCHER',
 			'-n', '%s/.%sActivity' % (self.app_id , self.classname)])
@@ -604,16 +604,25 @@ class Builder(object):
 		print "[TRACE] Launch output: %s" % output
 		
 	def build_and_run(self, install, avd_id, keystore=None, keystore_pass='tirocks', keystore_alias='tidev', dist_dir=None):
-		self.wait_for_device('e')
 		deploy_type = 'development'
 		if install:
 			if keystore == None:
 				deploy_type = 'test'
 			else:
 				deploy_type = 'production'
+
+		if deploy_type == 'development':
+			self.wait_for_device('e')
+		elif deploy_type == 'test':
+			self.wait_for_device('d')
 		
 		self.install = install
 		self.deploy_type = deploy_type
+		
+		self.device_type_arg = '-e'
+		if self.deploy_type == 'test':
+			self.device_type_arg = '-d'
+			
 		self.dist_dir = dist_dir
 		self.aapt = self.sdk.get_aapt()
 		self.android_jar = self.sdk.get_android_jar()
@@ -736,7 +745,7 @@ class Builder(object):
 				sys.stdout.flush()
 				
 				relaunched = False
-				processes = run.run([self.sdk.get_adb(), '-e', 'shell', 'ps'])
+				processes = run.run([self.sdk.get_adb(), self.device_type_arg, 'shell', 'ps'])
 				for line in processes.splitlines():
 					columns = line.split()
 					if len(columns) > 1:
@@ -744,7 +753,7 @@ class Builder(object):
 						id = columns[len(columns)-1]
 						
 						if id == self.app_id:
-							run.run([self.sdk.get_adb(), '-e', 'shell', 'kill', pid])
+							run.run([self.sdk.get_adb(), self.device_type_arg, 'shell', 'kill', pid])
 							relaunched = True
 				
 				if relaunched:			
