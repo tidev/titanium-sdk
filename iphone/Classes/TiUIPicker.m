@@ -38,7 +38,7 @@ USE_PROXY_FOR_VERIFY_AUTORESIZING
 	{
 		if (type == -1)
 		{
-			picker = [[UIPickerView alloc] initWithFrame:CGRectZero];
+			picker = [[UIPickerView alloc] initWithFrame:CGRectMake(0, 0, 2000, 228)];
 			((UIPickerView*)picker).delegate = self;
 			((UIPickerView*)picker).dataSource = self;
 		}
