@@ -695,6 +695,11 @@ def produce_devhtml(config):
 	if not config.has_key('output'):
 		print "Required command line argument 'output' not provided"
 		sys.exit(1)
+	if not config.has_key('version'):
+		print "Required command line argument 'version' not provided"
+		sys.exit(1)
+			
+	version = config['version']
 	
 	templates = {}
 	outdir = os.path.expanduser(config['output'])
@@ -720,7 +725,10 @@ def produce_devhtml(config):
 	out.write(produce_json(config,False));
 	out.close()
 	
-	produce_json
+	changelog = open(os.path.join(template_dir,'Titanium','CHANGELOG','%s.mdoc'%version)).read()
+	out = open(os.path.join(outdir,'changelog.html'),'w+')
+	out.write(markdown.markdown(changelog))
+	out.close()
 	
 	
 def main(args):
@@ -751,6 +759,6 @@ if __name__ == "__main__":
 #	main(sys.argv)
 #	main([sys.argv[0],'json','output=~/tmp/doc'])	
 #	main([sys.argv[0],'devhtml','output=~/work/appcelerator_network/new/public/devcenter/application/apidoc/mobile/1.0.0'])
-	main([sys.argv[0],'devhtml','output=~/work/appcelerator_network/new/public/devcenter/application/apidoc/mobile/1.2'])
+	main([sys.argv[0],'devhtml','version=1.2','output=~/work/appcelerator_network/new/public/devcenter/application/apidoc/mobile/1.2'])
 #	main([sys.argv[0],'devhtml','colorize','css=page.css','output=~/work/titanium_mobile/demos/KitchenSink_iPad/Resources/apidoc'])
 	

@@ -8,6 +8,7 @@
 #import "TiUIiPhoneNavigationGroupProxy.h"
 #import "TiUtils.h"
 #import "TiWindowProxy.h"
+#import "TiUIiPhoneNavigationGroup.h"
 
 @implementation TiUIiPhoneNavigationGroupProxy
 
