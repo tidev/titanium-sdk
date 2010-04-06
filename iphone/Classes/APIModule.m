@@ -46,6 +46,12 @@
 	fflush(stderr);
 }
 
+-(void)timestamp:(NSArray*)args
+{
+	NSLog(@"[TIMESTAMP] %f %@", [NSDate timeIntervalSinceReferenceDate], [self transform:[args objectAtIndex:0]]);
+	fflush(stderr);
+}
+
 -(void)notice:(NSArray*)args
 {
 	NSLog(@"[INFO] %@", [args objectAtIndex:0]);
