@@ -727,7 +727,7 @@ def produce_devhtml(config):
 	
 	changelog = open(os.path.join(template_dir,'Titanium','CHANGELOG','%s.mdoc'%version)).read()
 	out = open(os.path.join(outdir,'changelog.html'),'w+')
-	out.write(markdown.markdown(changelog))
+	out.write(htmlerize(changelog))
 	out.close()
 	
 	
