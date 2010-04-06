@@ -113,10 +113,6 @@ public class TiUIWebView extends TiUIView {
 			getWebView().loadUrl(url);
 		} else {
 			String resolvedUrl = getProxy().getTiContext().resolveUrl(null, url);
-			if (resolvedUrl.startsWith("/")) {
-				resolvedUrl = "file://"+resolvedUrl;
-			}
-			
 			getWebView().loadUrl(resolvedUrl);
 		}
 	}
