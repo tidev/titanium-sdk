@@ -5,6 +5,10 @@
  * Please see the LICENSE included with this distribution for details.
  */
 #import "TiProxy.h"
+#import "TiUIiPadPopoverProxy.h"
+#import "TiUIiPadSplitWindowProxy.h"
+#import "TiUIiPadDocumentViewerProxy.h"
+
 
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
 

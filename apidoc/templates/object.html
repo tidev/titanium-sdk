@@ -1,16 +1,19 @@
-<div class="apidoc_container">
+<div class="apidoc_container apidoc_object">
 	
 <h1 class="namespace">${data.namespace}</h1>
-<div class="namespace_type">object <a href="${data.parent_namespace}.html">${data.parent_namespace}</a></div>
+<div class="namespace_type">object of <a href="${data.parent_namespace}.html">${data.parent_namespace}</a></div>
 <div class="platforms">
 % for p in data.platforms:
 <span class="${p}">&nbsp;&nbsp;&nbsp;</span>
 % endfor
+<div class="clear"></div>
+<span class="since">${data.since}</span>
 </div>
 
 <div class="description">
 ${data.description}
 </div>
+
 
 <h3>Methods</h3>
 % if len(data.methods)==0:

@@ -14,7 +14,7 @@ view
 
 A SplitWindow is a window that manages the presentation of two side-by-side view controllers. You use this class to implement a master-detail interface, in which the left-side view presents a list of items and the right-side presents details of the selected item. The SplitView is for use exclusively on iPad devices. The SplitWindow is created by the method [[Titanium.UI.iPad.createSplitWindow]].
 
-![splitview](http://img.skitch.com/20100406-mck3g1xhn498d3h1cgttsm5k95.jpg)
+![splitview](http://img.skitch.com/20100406-1f85bm9cx8t768xgsjqax1ng6y.png)
 
 - since
 

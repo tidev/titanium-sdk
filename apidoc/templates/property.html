@@ -1,4 +1,4 @@
-<div class="apidoc_container">
+<div class="apidoc_container apidoc_property">
 	
 <h1 class="namespace">${data.namespace}</h1>
 <div class="namespace_type">property of <a href="${data.parent_namespace}.html">${data.parent_namespace}</a></div>
@@ -6,6 +6,8 @@
 % for p in data.platforms:
 <span class="${p}">&nbsp;&nbsp;&nbsp;</span>
 % endfor
+<div class="clear"></div>
+<span class="since">${data.since}</span>
 </div>
 
 <div class="description">
