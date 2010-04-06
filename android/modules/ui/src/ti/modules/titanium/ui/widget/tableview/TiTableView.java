@@ -87,7 +87,7 @@ public class TiTableView extends FrameLayout
 
 			index.clear();
 			filtered = false;
-
+			
 			if (filterAttribute != null && filterText != null && filterAttribute.length() > 0 && filterText.length() > 0) {
 				filtered = true;
 
@@ -136,7 +136,7 @@ public class TiTableView extends FrameLayout
 					index.add(i);
 				}
 			}
-
+			
 			if (classChange) {
 				listView.setAdapter(this);
 			}
@@ -337,6 +337,13 @@ public class TiTableView extends FrameLayout
 			public void onItemClick(AdapterView<?> parent, View view, int position, long id)
 			{
 				if (itemClickListener != null) {
+					if (!(view instanceof TiBaseTableViewItem)) {
+						return;
+					}
+					
+					if (TiTableView.this.proxy.hasDynamicValue("headerView")) {
+						position -= 1;
+					}
 					TiBaseTableViewItem v = (TiBaseTableViewItem) view;
 					String viewClicked = v.getLastClickedViewName();
 					Item item = viewModel.getViewModel().get(adapter.index.get(position));
@@ -364,6 +371,13 @@ public class TiTableView extends FrameLayout
 			
 			public void onItemSelected(AdapterView<?> parent, View view,
 					int position, long id) {
+				if (!(view instanceof TiBaseTableViewItem)) {
+					return;
+				}
+				
+				if (TiTableView.this.proxy.hasDynamicValue("headerView")) {
+					position -= 1;
+				}
 				TiBaseTableViewItem v = (TiBaseTableViewItem) view;
 				TiDict viewProperties = null;
 				Item item = viewModel.getViewModel().get(adapter.index.get(position));

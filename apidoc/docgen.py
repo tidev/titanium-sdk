@@ -53,6 +53,13 @@ current_line = -1
 apis = {}
 current_api = None
 
+stats = {
+	'modules':0,
+	'objects':0,
+	'properties':0,
+	'methods':0
+}
+
 def strip_tags(value):
 	return re.sub(r'<[^>]*?>', '', value)
 
@@ -601,7 +608,9 @@ def generate_template_output(config,templates,outdir,typestr,obj):
 		output = colorize_code(output)
 	return output
 	
+modules_found = {}
 def produce_devhtml_output(config,templates,outdir,theobj):
+	global stats, modules_found
 	for name in theobj:
 		obj = theobj[name]
 		typestr = obj.typestr
@@ -612,7 +621,7 @@ def produce_devhtml_output(config,templates,outdir,theobj):
 			template = load_template(typestr)
 			templates[typestr] = template
 		
-		print obj.namespace	
+#		print obj.namespace	
 		output = Template(template).render(config=config,apis=apis,data=obj)
 		filename = os.path.join(outdir,'%s.html' % name)
 		f = open(filename,'w+')
@@ -623,6 +632,13 @@ def produce_devhtml_output(config,templates,outdir,theobj):
 		else:
 			f.write(output)
 		f.close()
+		if obj.typestr == 'module':
+			if not modules_found.has_key(obj.namespace):
+				stats['modules']+=1
+				modules_found[obj.namespace]=True
+				print obj.namespace
+		if obj.typestr == 'object':
+			stats['objects']+=1
 		
 		if obj.typestr == 'module' or obj.typestr == 'object':
 			for me in obj.methods:
@@ -633,25 +649,27 @@ def produce_devhtml_output(config,templates,outdir,theobj):
 				am.parameters = me['parameters']
 				o = generate_template_output(config,templates,outdir,'method',am)
 				mo = os.path.join(outdir,'%s.html'%n)
-				print "  + %s" % n
+#				print "  + %s" % n
 				out = open(mo,'w+')
 				if config.has_key('css'):
 					out.write("<link rel=\"stylesheet\" type=\"text/css\" href=\"%s\">\n" % config['css'])
 				out.write(o)
 				out.close()
+				stats['methods']+=1
 			for me in obj.properties:
 				n = obj.namespace + '.' + me['name']
 				am = API(n)
 				am.description = me['value']
 				am.type = me['type']
 				o = generate_template_output(config,templates,outdir,'property',am)
-				print "  + %s" % n
+#				print "  + %s" % n
 				mo = os.path.join(outdir,'%s.html'%n)
 				out = open(mo,'w+')
 				if config.has_key('css'):
 					out.write("<link rel=\"stylesheet\" type=\"text/css\" href=\"%s\">\n" % config['css'])
 				out.write(o)
 				out.close()
+				stats['properties']+=1
 
 		
 		if obj.typestr == 'module':
@@ -681,12 +699,13 @@ def produce_devhtml_output(config,templates,outdir,theobj):
 				am.type = me['type']
 				o = generate_template_output(config,templates,outdir,'property',am)
 				mo = os.path.join(outdir,'%s.html'%n)
-				print "  %s" % n
+#				print "  %s" % n
 				out = open(mo,'w+')
 				if config.has_key('css'):
 					out.write("<link rel=\"stylesheet\" type=\"text/css\" href=\"%s\">\n" % config['css'])
 				out.write(o)
 				out.close()
+				stats['properties']+=1
 			
 			
 	
@@ -716,6 +735,10 @@ def produce_devhtml(config):
 	toc = open(os.path.join(outdir,'toc.json'),'w+')
 	toc.write(json.dumps(ns,indent=4))
 	toc.close()	
+
+	out = open(os.path.join(outdir,'stats.json'),'w+')
+	out.write(json.dumps(stats,indent=4))
+	out.close()
 	
 	out = open(os.path.join(outdir,'search.json'),'w+')
 	out.write(json.dumps(search_json,indent=4))
