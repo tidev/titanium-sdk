@@ -6,6 +6,7 @@
  */
 
 #import "TiUIiPadPopoverProxy.h"
+#import "TiUIiPadPopover.h"
 #import "TiUtils.h"
 
 @implementation TiUIiPadPopoverProxy
