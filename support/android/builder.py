@@ -636,8 +636,12 @@ class Builder(object):
 		self.titanium_jar = os.path.join(self.support_dir,'titanium.jar')
 		dx = self.sdk.get_dx()
 		self.apkbuilder = self.sdk.get_apkbuilder()
-		self.app_installed = self.is_app_installed()
-		print "[DEBUG] %s installed? %s" % (self.app_id, self.app_installed)
+		
+		if deploy_type == "production":
+			self.app_installed = False
+		else:
+			self.app_installed = self.is_app_installed()
+			print "[DEBUG] %s installed? %s" % (self.app_id, self.app_installed)
 		
 		if keystore == None:
 			keystore = os.path.join(self.support_dir,'dev_keystore')
@@ -679,7 +683,7 @@ class Builder(object):
 			
 			tiapp_delta = self.project_deltafy.scan_single_file(project_tiappxml)
 			tiapp_changed = tiapp_delta is not None
-			if tiapp_changed:
+			if tiapp_changed or self.deploy_type == "production":
 				print "[TRACE] Generating Java Classes"
 				self.android.create(os.path.abspath(os.path.join(self.top_dir,'..')),True)
 			else:
@@ -706,7 +710,7 @@ class Builder(object):
 				os.makedirs(self.classes_dir)
 			
 			generated_classes_built = False
-			if manifest_changed or tiapp_changed:
+			if manifest_changed or tiapp_changed or self.deploy_type == "production":
 				self.build_generated_classes()
 				generated_classes_built = True
 			else:
@@ -722,7 +726,7 @@ class Builder(object):
 			support_deltas = support_deltafy.scan()
 			
 			dex_built = False
-			if len(support_deltas) > 0 or generated_classes_built:
+			if len(support_deltas) > 0 or generated_classes_built or self.deploy_type == "production":
 				# the dx.bat that ships with android in windows doesn't allow command line
 				# overriding of the java heap space, so we call the jar directly
 				if platform.system() == 'Windows':
