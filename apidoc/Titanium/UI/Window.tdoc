@@ -41,6 +41,7 @@ rightNavButton[object]: view to show in the right nav bar area. only available i
 toolbar[array]: array of button objects to show in the toolbar of the window. only available in iPhone. this is only valid when the window is a child of a tab.
 backButtonTitleImage[string]: url to an image to show as the back button.  only available in iPhone. this is only valid when the window is a child of a tab.
 backButtonTitle[string]: title for the back button. only available in iPhone. this is only valid when the window is a child of a tab.
+navBarHidden[boolean]: for modal windows, hide the nav bar (true) or show the nav bar (false, default).
 
 
 - methods
@@ -199,10 +200,24 @@ a.addEventListener('complete', function()
 ~~~
 
 
+### iPad Modal Windows
 
+For iPad, iPhone SDK 3.2 and Titanium 1.2 introduced several new ways of presenting modal windows.  
 
+The example below is a modal window.
 
+![modal](http://img.skitch.com/20100406-bqb3f8pb6e4ger7wkcdcw5mbar.png)
 
+You can create this type of modal window on iPad with the following code snippet:
+
+~~~
+var window = Titanium.UI.createWindow();
+window.open({
+	modal:true,
+	modalTransitionStyle: Ti.UI.iPhone.MODAL_TRANSITION_STYLE_FLIP_HORIZONTAL,
+	modalStyle: Ti.UI.iPhone.MODAL_PRESENTATION_FORMSHEET
+})
+~~~
 
 
 

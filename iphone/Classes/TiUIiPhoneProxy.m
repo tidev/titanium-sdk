@@ -22,6 +22,9 @@
 #import "TiUITableViewScrollPositionProxy.h"
 #import "TiUITableViewCellSelectionStyleProxy.h"
 
+//TEMP HACK FOR 1.2
+#import "TiUIiPadProxy.h"
+
 @implementation TiUIiPhoneProxy
 
 -(void)dealloc
