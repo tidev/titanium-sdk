@@ -1,4 +1,4 @@
-<div class="apidoc_container">
+<div class="apidoc_container apidoc_module">
 
 <h1 class="namespace">${data.namespace}</h1>
 % if data.parent_namespace: 
@@ -11,6 +11,8 @@
 % for p in data.platforms:
 <span class="${p}">&nbsp;&nbsp;&nbsp;</span>
 % endfor
+<div class="clear"></div>
+<span class="since">${data.since}</span>
 </div>
 
 <div class="description">

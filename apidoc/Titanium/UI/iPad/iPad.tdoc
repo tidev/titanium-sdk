@@ -38,11 +38,8 @@ createSplitWindow: create a [[Titanium.UI.iPad.SplitWindow]] window
 
 - method : createPopover, object
 
-properties[object]: optional dictionary of properties defined in [[Titanium.UI.iPad.Popover]]
-
 - method : createSplitWindow, object
 
-properties[object]: optional dictionary of properties defined in [[Titanium.UI.iPad.SplitWindow]]
 
 
 

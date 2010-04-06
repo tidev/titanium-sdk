@@ -12,7 +12,7 @@ view
 
 - description
 
-The VideoPlayer object is returned by [[Titanum.Media.createVideoPlayer]] and is useful for playing videos. 
+The VideoPlayer object is returned by [[Titanium.Media.createVideoPlayer]] and is useful for playing videos. 
 
 - since
 
@@ -180,4 +180,11 @@ url: url of the media
 - event : playbackState
 
 playbackState: playbackState
+
+
+- notes
+
+Starting in iPhone 3.2 SDK, the video player can be embedded in any normal view.  Prior to 3.2, only fullscreen views were available on iPhone.
+
+
 
