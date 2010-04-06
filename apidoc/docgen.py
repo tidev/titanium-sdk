@@ -557,11 +557,14 @@ for name in apis:
 		'type':obj.typestr
 	})
 
-def produce_json(config):
+def produce_json(config,dump=True):
 	result = {}
 	for key in apis:
 		result[key] = apis[key].to_json()
-	print json.dumps(result,sort_keys=True,indent=4)
+	if dump:
+		print json.dumps(result,sort_keys=True,indent=4)
+	else:
+		return json.dumps(result,sort_keys=True,indent=4)
 	
 def load_template(type):
 	template = os.path.join(template_dir,'templates','%s.html' % type)
@@ -712,6 +715,12 @@ def produce_devhtml(config):
 	out = open(os.path.join(outdir,'search.json'),'w+')
 	out.write(json.dumps(search_json,indent=4))
 	out.close()
+	
+	out = open(os.path.join(outdir,'api.json'),'w+')
+	out.write(produce_json(config,False));
+	out.close()
+	
+	produce_json
 	
 	
 def main(args):

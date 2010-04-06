@@ -12,7 +12,9 @@ object
 
 - description
 
-The iPad specific UI capabilities.  All properties, methods and events in this namespace will only work on the Apple iPad related devices.
+The iPad specific UI capabilities.  All properties, methods and events in this namespace will only work on the Apple iPad related devices.  To develop for iPad, you will need the Apple iPhone SDK 3.2 or later and Titanium Mobile SDK 1.2 or later. 
+
+For iPad UI programming guidelines, please review the [iPad Human Interface Guidelines](http://developer.apple.com/iphone/library/documentation/General/Conceptual/iPadHIG/Introduction/Introduction.html). 
 
 - since
 
@@ -40,6 +42,12 @@ createSplitWindow: create a [[Titanium.UI.iPad.SplitWindow]] window
 
 - method : createSplitWindow, object
 
+
+- notes
+
+### Custom Fonts
+
+The iPad supports the ability to embed your own fonts in your iPad application. To add your own fonts, you should add the 
 
 
 
