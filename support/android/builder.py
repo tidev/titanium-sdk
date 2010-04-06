@@ -258,9 +258,7 @@ class Builder(object):
 		# compile resources
 		full_resource_dir = os.path.join(self.project_dir,self.assets_resources_dir)
 		compiler = Compiler(self.app_id,full_resource_dir,False)
-		if len(self.project_deltas) > 0:
-			print "[INFO] Compiling javascript..."
-			compiler.compile(self.project_deltas)
+		compiler.compile(self.project_deltas)
 		
 		# NOTE: these are built-in permissions we need -- we probably need to refine when these are needed too
 		permissions_required = ['INTERNET','ACCESS_WIFI_STATE','ACCESS_NETWORK_STATE', 'WRITE_EXTERNAL_STORAGE']
@@ -414,12 +412,18 @@ class Builder(object):
 		# NOTE: allow the user to use their own custom AndroidManifest if they put a file named
 		# AndroidManifest.custom.xml in their android project directory in which case all bets are
 		# off
+		is_custom = False
 		android_custom_manifest = os.path.join(self.project_dir, 'AndroidManifest.custom.xml')
 		if os.path.exists(android_custom_manifest):
 			android_manifest_to_read = android_custom_manifest
+			is_custom = True
 			print "[INFO] Detected custom ApplicationManifest.xml -- no Titanium version migration supported"
 		
-		manifest_contents = open(android_manifest_to_read,'r').read()
+		if not is_custom:
+			manifest_contents = self.android.render_android_manifest()
+		else:
+			manifest_contents = open(android_manifest_to_read,'r').read()
+		
 		ti_activities = '<!-- TI_ACTIVITIES -->'
 		ti_permissions = '<!-- TI_PERMISSIONS -->'
 		manifest_changed = False
@@ -431,19 +435,22 @@ class Builder(object):
 		manifest_sdk_version = None
 		if match != None:
 			manifest_sdk_version = match.group(1)
+			
+		manifest_contents = manifest_contents.replace(ti_activities,"\n\n\t\t".join(activities))
+		manifest_contents = manifest_contents.replace(ti_permissions,permissions_required_xml)
+		manifest_contents = manifest_contents.replace('<uses-sdk android:minSdkVersion="4" />', '<uses-sdk android:minSdkVersion="%s" />' % android_sdk_version)
 		
-		if manifest_contents.find(ti_activities) != -1 or manifest_contents.find(ti_permissions) != -1 \
-			or android_sdk_version != manifest_sdk_version \
-			or Deltafy.compare_paths(android_manifest_to_read, android_manifest) > 0:
-				print "[TRACE] Generating AndroidManifest.xml"
-				# we need to write out the new manifest
-				manifest_contents = manifest_contents.replace(ti_activities,"\n\n\t\t".join(activities))
-				manifest_contents = manifest_contents.replace(ti_permissions,permissions_required_xml)
-				manifest_contents = manifest_contents.replace('<uses-sdk android:minSdkVersion="4" />', '<uses-sdk android:minSdkVersion="%s" />' % android_sdk_version)
-				amf = open(android_manifest,'w')
-				amf.write(manifest_contents)
-				amf.close()
-				manifest_changed = True
+		old_contents = None
+		if os.path.exists(android_manifest):
+			old_contents = open(android_manifest, 'r').read()
+		
+		if manifest_contents != old_contents:
+			print "[TRACE] Generating AndroidManifest.xml"
+			# we need to write out the new manifest
+			amf = open(android_manifest,'w')
+			amf.write(manifest_contents)
+			amf.close()
+			manifest_changed = True
 		
 		if manifest_changed:
 			res_dir = os.path.join(self.project_dir, 'res')
@@ -645,6 +652,7 @@ class Builder(object):
 		
 		try:
 			os.chdir(self.project_dir)
+			self.android = Android(self.name,self.app_id,self.sdk,deploy_type)
 			
 			if not os.path.exists('bin'):
 				os.makedirs('bin')
@@ -673,8 +681,7 @@ class Builder(object):
 			tiapp_changed = tiapp_delta is not None
 			if tiapp_changed:
 				print "[TRACE] Generating Java Classes"
-				android = Android(self.name,self.app_id,self.sdk,deploy_type)
-				android.create(os.path.abspath(os.path.join(self.top_dir,'..')),True)
+				self.android.create(os.path.abspath(os.path.join(self.top_dir,'..')),True)
 			else:
 				print "[INFO] Tiapp.xml unchanged, skipping class generation"
 			sys.stdout.flush()
