@@ -50,7 +50,7 @@ row[object]: the row object to remove from the section
 
 In this example, we create a section with the header `Hello` and add two rows to it.
 
-<code>
+~~~
 var section = Titanium.UI.createTableViewSection();
 section.headerTitle = "Hello";
 var row1 = Titanium.UI.createTableViewRow({title:"Hello 1"});
@@ -58,5 +58,5 @@ var row2 = Titanium.UI.createTableViewRow({title:"Hello 2"});
 section.add(row1);
 section.add(row2);
 tableview.add(section);
-</code>
+~~~
 

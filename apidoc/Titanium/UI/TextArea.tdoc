@@ -70,7 +70,7 @@ value: the value of the field upon return
 
 This example created a highly customized text area.
 
-<code>
+~~~
 var ta1 = Titanium.UI.createTextArea({
 	value:'I am a textarea',
 	height:70,
@@ -86,7 +86,7 @@ var ta1 = Titanium.UI.createTextArea({
 	borderColor:'#bbb',
 	borderRadius:5
 });
-</code>
+~~~
 
 - notes
 
@@ -94,7 +94,7 @@ Both Text Areas and Text Fields can control the buttons displayed in a button ba
 
 Example using a custom keyboard toolbar:
 
-<code>
+~~~
 var textfield = Titanium.UI.createTextField({
 	color:'#336699',
 	value:'Focus to see keyboard w/ toolbar',
@@ -106,7 +106,7 @@ var textfield = Titanium.UI.createTextField({
 	keyboardToolbarColor: '#999',	
 	keyboardToolbarHeight: 40,
 });
-</code>
+~~~
 
 
 

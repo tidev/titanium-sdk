@@ -85,10 +85,10 @@ message: error message
 
 Simple example of playing a WAVE file from the Resources directory.
 
-<code>
+~~~
 var player = Ti.UI.createSound({url:"sound.wav"});
 player.play();
-</code>
+~~~
 
 - notes
 

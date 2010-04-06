@@ -43,12 +43,12 @@ destructive: boolean to indicate if the destructive button was pressed
 
 In this example, we show a simple option dialog.
 
-<code>
+~~~
 var dialog = Titanium.UI.createOptionDialog({
 	title: 'Hello',
 	options: ['Option 1','Option 2'],
 	cancel:1
 });
 dialog.show();
-</code>
+~~~
 

@@ -100,6 +100,28 @@
 @property(nonatomic,readonly) NSNumber* VIDEO_SOURCE_TYPE_FILE;
 @property(nonatomic,readonly) NSNumber* VIDEO_SOURCE_TYPE_STREAMING;
 
+@property(nonatomic,readonly) NSNumber* VIDEO_PLAYBACK_STATE_STOPPED;
+@property(nonatomic,readonly) NSNumber* VIDEO_PLAYBACK_STATE_PLAYING;
+@property(nonatomic,readonly) NSNumber* VIDEO_PLAYBACK_STATE_PAUSED;
+@property(nonatomic,readonly) NSNumber* VIDEO_PLAYBACK_STATE_INTERRUPTED;
+@property(nonatomic,readonly) NSNumber* VIDEO_PLAYBACK_STATE_SEEKING_FORWARD;
+@property(nonatomic,readonly) NSNumber* VIDEO_PLAYBACK_STATE_SEEKING_BACKWARD;
+
+@property(nonatomic,readonly) NSNumber* VIDEO_LOAD_STATE_UNKNOWN;
+@property(nonatomic,readonly) NSNumber* VIDEO_LOAD_STATE_PLAYABLE;
+@property(nonatomic,readonly) NSNumber* VIDEO_LOAD_STATE_PLAYTHROUGH_OK;
+@property(nonatomic,readonly) NSNumber* VIDEO_LOAD_STATE_STALLED;
+
+@property(nonatomic,readonly) NSNumber* VIDEO_REPEAT_MODE_NONE;
+@property(nonatomic,readonly) NSNumber* VIDEO_REPEAT_MODE_ONE;
+
+@property(nonatomic,readonly) NSNumber* VIDEO_TIME_OPTION_NEAREST_KEYFRAME;
+@property(nonatomic,readonly) NSNumber* VIDEO_TIME_OPTION_EXACT;
+
+@property(nonatomic,readonly) NSNumber* VIDEO_FINISH_REASON_PLAYBACK_ENDED;
+@property(nonatomic,readonly) NSNumber* VIDEO_FINISH_REASON_PLAYBACK_ERROR;
+@property(nonatomic,readonly) NSNumber* VIDEO_FINISH_REASON_USER_EXITED;
+
 #endif
 
 

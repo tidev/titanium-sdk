@@ -34,7 +34,7 @@ fontSize[int]: the font size when displaying the text. ignored when using a cust
 Since the row object is itself a view, you can add views and widgets to it to customize the \
 the rows display. In the example below, we create a custom label for the row.
 
-<code>
+~~~
 var row = Ti.UI.createPickerRow();
 var label = Ti.UI.createLabel({
 	text:text,
@@ -45,5 +45,5 @@ var label = Ti.UI.createLabel({
 });
 row.add(label);
 picker.add(row);
-</code>
+~~~
 

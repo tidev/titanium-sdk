@@ -76,7 +76,7 @@ row: the row object
 
 In this basic picker example, we create a one column picker with 4 rows. 
 
-<code>
+~~~
 var picker = Titanium.UI.createPicker();
 var data = [];
 data[0]=Titanium.UI.createPickerRow({title:'Bananas'});
@@ -84,13 +84,13 @@ data[1]=Titanium.UI.createPickerRow({title:'Strawberries'});
 data[2]=Titanium.UI.createPickerRow({title:'Mangos'});
 data[3]=Titanium.UI.createPickerRow({title:'Grapes'});
 picker.add(data);
-</code>
+~~~
 
 - example : Custom View for Row
 
 In this example, we use a custom label for each row in a column.
 
-<code>
+~~~
 var picker = Titanium.UI.createPicker();
 var row = Titanium.UI.createPickerRow();
 var label = Titanium.UI.createLabel({
@@ -102,7 +102,7 @@ var label = Titanium.UI.createLabel({
 });
 row.add(label);
 picker.add(row);
-</code>
+~~~
 
 
 - notes

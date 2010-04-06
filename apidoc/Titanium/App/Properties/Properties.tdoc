@@ -109,19 +109,19 @@ default[array]: optional default value if property is not found
 
 In this example, we store a string property:
 
-<code>
+~~~
 Titanium.App.Properties.setString("my_prop","cool");
-</code>
+~~~
 
 - example : enumerate over saved properties
 
 In this example, we print out all the saved properties to the console:
 
-<code>
+~~~
 var props = Titanium.App.Properties.listProperties();
 for (var c=0;c<props.length;c++)
 {
 	var value = Titanium.App.Properties.getString(props[c]);
 	Titanium.API.info(props[c]+" = "+value);
 }
-</code>
+~~~

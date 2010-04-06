@@ -66,7 +66,7 @@ error: string message of the error or null if successfully sent
 
 In this example, we send an email with a file attachment.
 
-<code>
+~~~
 var emailDialog = Titanium.UI.createEmailDialog()
 emailDialog.subject = "Hello from Titanium";
 emailDialog.toRecipients = ['foo@yahoo.com'];
@@ -74,7 +74,7 @@ emailDialog.messageBody = '<b>Appcelerator Titanium Rocks!</b>';
 var f = Ti.Filesystem.getFile('cricket.wav');
 emailDialog.addAttachment(f);
 emailDialog.open();
-</code>
+~~~
 
 - notes
 

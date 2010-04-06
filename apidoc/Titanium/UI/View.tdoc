@@ -32,7 +32,7 @@ android, iphone, ipad
 
 Create a rounded view.
 
-<code>
+~~~
 var view = Titanium.UI.createView({
    borderRadius:10,
    backgroundColor:'red',
@@ -40,7 +40,7 @@ var view = Titanium.UI.createView({
    height:50
 });
 window.add(view);
-</code>
+~~~
 
 - notes
 
