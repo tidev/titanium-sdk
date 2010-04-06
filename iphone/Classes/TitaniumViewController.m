@@ -395,6 +395,7 @@
 	}
 
 	BOOL focusChanged = [windowViewControllers lastObject] == closedViewController;
+	[[closedViewController retain] autorelease];
 	[windowViewControllers removeObject:closedViewController];
 	if (!focusChanged)
 	{
