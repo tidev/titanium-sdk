@@ -21,8 +21,6 @@ import org.appcelerator.titanium.view.TiUIView;
 
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
-import android.view.View;
-import android.view.View.OnClickListener;
 import android.widget.Button;
 
 public class TiUIButton extends TiUIView
@@ -36,7 +34,6 @@ public class TiUIButton extends TiUIView
 			Log.d(LCAT, "Creating a button");
 		}
 		Button btn = new Button(proxy.getContext());
-		btn.setOnClickListener(this);
 		btn.setPadding(8, 0, 8, 0);
 		setNativeView(btn);
 	}
