@@ -225,7 +225,7 @@ public class TiResourceFile extends TiBaseFile
 
 	public String toURL() {
 		if (loadFromSDCard) {
-			return getSDCardPath("Resources/"+path);
+			return "file:///"+getSDCardPath("Resources/"+path);
 		} else {
 			return "file:///android_asset/Resources/" + path;
 		}
