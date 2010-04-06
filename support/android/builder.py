@@ -210,7 +210,7 @@ class Builder(object):
 		sys.exit(rc)
 	
 	def is_app_installed(self):
-		output = run.run([self.sdk.get_adb(), 'shell', 'ls', '/data/app/%s.apk' % self.app_id])
+		output = run.run([self.sdk.get_adb(), self.device_type_arg, 'shell', 'ls', '/data/app/%s.apk' % self.app_id])
 		if output != None:
 			if output.find("No such file or directory") == -1:
 				return True
@@ -555,7 +555,7 @@ class Builder(object):
 		if self.dist_dir:
 			sys.exit(0)
 
-		out = subprocess.Popen([self.sdk.get_adb(),'get-state'], stderr=subprocess.PIPE, stdout=subprocess.PIPE).communicate()[0]
+		out = subprocess.Popen([self.sdk.get_adb(), self.device_type_arg, 'get-state'], stderr=subprocess.PIPE, stdout=subprocess.PIPE).communicate()[0]
 		out = str(out).strip()
 		
 		# try a few times as sometimes it fails waiting on boot
