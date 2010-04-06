@@ -14,9 +14,17 @@
 +(id)colorNamed:(NSString *)name
 {
 	TiColor * result;
-	UIColor * translatedColor = UIColorWebColorNamed(name);
-	
-	if(translatedColor == nil)return nil;
+	UIColor * translatedColor = nil;
+
+	if ([name caseInsensitiveCompare:@"default"] != NSOrderedSame)
+	{	//Default is allowed nil, while still counting as a color to stop inheritance.
+		translatedColor = UIColorWebColorNamed(name);
+		if(translatedColor == nil)
+		{
+			return nil;
+		}
+	}
+
 	result = [[self alloc] initWithColor:translatedColor name:name];
 	return [result autorelease];
 }

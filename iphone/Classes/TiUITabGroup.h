@@ -14,7 +14,7 @@
 	UITabBarController *controller;
 	TiUITabProxy *focused;
 	
-	UIColor *moreBarColor;
+	TiColor *barColor;
 }
 
 -(void)open:(id)args;

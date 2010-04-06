@@ -557,10 +557,12 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 
 -(void)fireFocus:(BOOL)newFocused;
 {
+#ifdef VERBOSE
 	if (newFocused == focused)
 	{
-		NSLog(@"[DEBUG] Setting focus to %d when it's already set to that.",focused);
+		VerboseLog(@"[DEBUG] Setting focus to %d when it's already set to that.",focused);
 	}
+#endif
 
 	[self fireEvent: newFocused?@"focus":@"blur" ];
 	focused = newFocused;

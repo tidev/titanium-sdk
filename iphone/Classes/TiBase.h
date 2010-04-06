@@ -383,6 +383,16 @@ return value;\
 	}\
 }
 
+#ifdef VERBOSE
+
+#define VerboseLog(...)	{NSLog(__VA_ARGS__);}
+
+#else
+
+#define VerboseLog(...)	{}
+
+#endif
+
 #define VAL_OR_NSNULL(foo)	(((foo) != nil)?((id)foo):[NSNull null])
 
 NSData * dataWithHexString (NSString * hexString);

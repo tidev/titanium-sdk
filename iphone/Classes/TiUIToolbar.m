@@ -111,26 +111,11 @@
 
 -(void)setBarColor_:(id)value
 {
-	UIColor * newBarColor = [[TiUtils colorValue:value] _color];
-
-	if (newBarColor == nil)
-	{
-		[[self toolBar] setBarStyle:UIBarStyleDefault];
-		[toolBar setTintColor:nil];
-		[toolBar setTranslucent:NO];
-		return;
-	}
-
-	if (newBarColor == [UIColor clearColor])
-	{
-		[[self toolBar] setTintColor:nil];
-		[toolBar setTranslucent:YES];
-		[toolBar setBarStyle:UIBarStyleBlack];
-		return;
-	}
-
-	[toolBar setBarStyle:UIBarStyleBlack];
-	[toolBar setTintColor:newBarColor];
+	TiColor * newBarColor = [TiUtils colorValue:value];
+	
+	[[self toolBar] setBarStyle:[TiUtils barStyleForColor:newBarColor]];
+	[toolBar setTintColor:[TiUtils barColorForColor:newBarColor]];
+	[toolBar setTranslucent:[TiUtils barTranslucencyForColor:newBarColor]];
 }
 
 -(void)setTranslucent_:(id)value
