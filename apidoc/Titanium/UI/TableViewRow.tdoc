@@ -58,12 +58,12 @@ rowData: table view row data object
 
 In this simple example, we create a table view row with a red square in the cell.
 
-<code>
+~~~
 var row = Titanium.UI.createTableViewRow();
 var view = Titanium.UI.createView({backgroundColor:'red',width:20,height:20});
 row.height = 'auto';
 row.add(view);
-</code>
+~~~
 
 - notes
 

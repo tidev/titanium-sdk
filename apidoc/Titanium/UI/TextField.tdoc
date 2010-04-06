@@ -77,7 +77,7 @@ value: the value of the field upon focus
 
 Create a simple text field with a round border style.
 
-<code>
+~~~
 var tf1 = Titanium.UI.createTextField({
 	color:'#336699',
 	height:35,
@@ -86,7 +86,7 @@ var tf1 = Titanium.UI.createTextField({
 	width:250,
 	borderStyle:Titanium.UI.INPUT_BORDERSTYLE_ROUNDED
 });
-</code>
+~~~
 
 - notes
 
@@ -97,7 +97,7 @@ Both Text Areas and Text Fields can control the buttons displayed in a button ba
 
 Example using a custom keyboard toolbar:
 
-<code>
+~~~
 var textfield = Titanium.UI.createTextField({
 	color:'#336699',
 	value:'Focus to see keyboard w/ toolbar',
@@ -109,6 +109,6 @@ var textfield = Titanium.UI.createTextField({
 	keyboardToolbarColor: '#999',	
 	keyboardToolbarHeight: 40,
 });
-</code>
+~~~
 
 

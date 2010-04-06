@@ -7,6 +7,9 @@
 
 #import "TiUIiPadProxy.h"
 #import "TiUtils.h"
+#import "TiUIiPadPopoverProxy.h"
+#import "TiUIiPadSplitWindowProxy.h"
+#import "TiUIiPadDocumentViewerProxy.h"
 
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
 
@@ -24,8 +27,7 @@ MAKE_SYSTEM_PROP_IPAD(POPOVER_ARROW_DIRECTION_UNKNOWN,UIPopoverArrowDirectionUnk
 {
 	if ([TiUtils isIPad])
 	{
-		Class cl = NSClassFromString(@"TiUIiPadPopoverProxy");
-		return [[[cl alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
+		return [[[TiUIiPadPopoverProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
 	}
 	[self throwException:@"this API is not available on non iPad devices" subreason:nil location:CODELOCATION];
 }
@@ -34,8 +36,7 @@ MAKE_SYSTEM_PROP_IPAD(POPOVER_ARROW_DIRECTION_UNKNOWN,UIPopoverArrowDirectionUnk
 {
 	if ([TiUtils isIPad])
 	{
-		Class cl = NSClassFromString(@"TiUIiPadSplitWindowProxy");
-		return [[[cl alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
+		return [[[TiUIiPadSplitWindowProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
 	}
 	[self throwException:@"this API is not available on non iPad devices" subreason:nil location:CODELOCATION];
 }
@@ -44,8 +45,7 @@ MAKE_SYSTEM_PROP_IPAD(POPOVER_ARROW_DIRECTION_UNKNOWN,UIPopoverArrowDirectionUnk
 {
 	if ([TiUtils isIPad])
 	{
-		Class cl = NSClassFromString(@"TiUIiPadDocumentViewerProxy");
-		return [[[cl alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
+		return [[[TiUIiPadDocumentViewerProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
 	}
 	[self throwException:@"this API is not available on non iPad devices" subreason:nil location:CODELOCATION];
 }

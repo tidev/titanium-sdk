@@ -43,14 +43,14 @@ cancel: fired when the cancel button is pressed
 
 - example : Simple Search Bar
 
-<code>
+~~~
 var search = Titanium.UI.createSearchBar({
 	barColor:'#000', 
 	showCancel:true,
 	height:43,
 	top:0,
 });
-</code>
+~~~
 
 - notes
 

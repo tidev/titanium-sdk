@@ -148,6 +148,28 @@ VIDEO_SOURCE_TYPE_UNKNOWN[int]: the video source type is unknown. Related to the
 VIDEO_SOURCE_TYPE_FILE[int]: the video source type is a file. Related to the `sourceType` property of [[Titanium.Media.VideoPlayer]]
 VIDEO_SOURCE_TYPE_STREAMING[int]: the video source type is a remote stream. Related to the `sourceType` property of [[Titanium.Media.VideoPlayer]]
 
+VIDEO_PLAYBACK_STATE_STOPPED[int]: playback has stopped
+VIDEO_PLAYBACK_STATE_PLAYING[int]: playback is playing
+VIDEO_PLAYBACK_STATE_PAUSED[int]: playback is paused
+VIDEO_PLAYBACK_STATE_INTERRUPTED[int]: playback has been interrupted
+VIDEO_PLAYBACK_STATE_SEEKING_FORWARD[int]: playback is seeking forward
+VIDEO_PLAYBACK_STATE_SEEKING_BACKWARD[int]: playback is rewinding
+
+VIDEO_LOAD_STATE_UNKNOWN[int]: the current load state is not known
+VIDEO_LOAD_STATE_PLAYABLE[int]: the current media is playable
+VIDEO_LOAD_STATE_PLAYTHROUGH_OK[int]: playback will be automatically started in this state when `autoplay` is true
+VIDEO_LOAD_STATE_STALLED[int]: playback will be automatically paused in this state, if started
+
+VIDEO_REPEAT_MODE_NONE[int]: the video will not repeat
+VIDEO_REPEAT_MODE_ONE[int]: the video will repeat once
+
+VIDEO_TIME_OPTION_NEAREST_KEYFRAME[int]: use the closest keyframe in the time
+VIDEO_TIME_OPTION_EXACT[int]: use the exact time
+
+VIDEO_FINISH_REASON_PLAYBACK_ENDED[int]: the video playback ended normally
+VIDEO_FINISH_REASON_PLAYBACK_ERROR[int]: the video playback ended abnormally
+VIDEO_FINISH_REASON_USER_EXITED[int]: the video playback ended by user action (such as clicking the `Done` button)
+
 
 - events
 

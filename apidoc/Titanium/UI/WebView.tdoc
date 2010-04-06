@@ -80,12 +80,12 @@ message: the error message
 
 Create a web view to a remote URL and open the window as modal.
 
-<code>
+~~~
 	var webview = Titanium.UI.createWebView({url:'http://www.appcelerator.com'});
 	var window = Titanium.UI.createWindow();
 	window.add(webview);
 	window.open({modal:true});
-</code>
+~~~
 
 - notes
 

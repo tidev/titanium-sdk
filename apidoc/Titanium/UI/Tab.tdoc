@@ -40,14 +40,14 @@ badge[string]: the badge value for the tab group for this tab. null indicates no
 
 In this example, we create a simple tab and add it to a tab group.
 
-<code>
+~~~
 var tab = Titanium.UI.createTab({
 	window:mywin,
 	title:'Hello',
 	icon:'myicon.png'
 });
 tabGroup.addTab(tab);
-</code>
+~~~
 
 - notes
 

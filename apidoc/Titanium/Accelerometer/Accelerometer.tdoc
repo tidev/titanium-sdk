@@ -47,12 +47,12 @@ device is moved.  You should generally remove the event when not used to conserv
 resources.  If you do not have an active event listener, the accelerometer is turned off to \
 conserve device resources.
 
-<code>
+~~~
 Titanium.Accelerometer.addEventListener('update',function(e)
 {
 	Ti.API.debug("accelerometer - x:"+e.x+",y:"+e.y+",z:"+e.z);
 });
-</code>
+~~~
 
 - notes
 
@@ -62,7 +62,7 @@ turn off the accelerometer when you're not using it.
 You can turn off the accelerometer by simply removing your event listener function.  You can turn it \
 back on by re-adding the same function with `addEventListener`.
 
-<code>
+~~~
 Titanium.Accelerometer.removeEventListener('update',myFunction);
-</code>
+~~~
 

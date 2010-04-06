@@ -44,7 +44,7 @@ click: fired when the user presses the button
 
 - example : Simple Button Example
 
-<code>
+~~~
 var button = Titanium.UI.createButton({
    title: 'Hello'
 });
@@ -52,7 +52,7 @@ button.addEventListener('click',function(e)
 {
    Titanium.API.info("You clicked the button");
 });
-</code>
+~~~
 
 - notes
 

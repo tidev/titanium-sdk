@@ -69,7 +69,7 @@ view: the current page view
 
 Create three views and place each into a scrollable view.
 
-<code>
+~~~
 var view1 = Titanium.UI.createView({backgroundColor:'#123'});
 var view2 = Titanium.UI.createView({backgroundColor:'#123'});
 var view3 = Titanium.UI.createView({backgroundColor:'#123'});
@@ -78,7 +78,7 @@ var scrollView = Titanium.UI.createScrollableView({
 	showPagingControl:true
 });
 win.add(scrollView);
-</code>
+~~~
 
 
 
