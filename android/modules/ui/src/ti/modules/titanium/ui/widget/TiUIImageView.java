@@ -31,10 +31,9 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.view.View;
-import android.view.View.OnClickListener;
 
 public class TiUIImageView extends TiUIView
-	implements OnClickListener, OnLifecycleEvent
+	implements OnLifecycleEvent
 {
 	private static final String LCAT = "TiUIImageView";
 	private static final boolean DBG = TiConfig.LOGD;
@@ -77,7 +76,6 @@ public class TiUIImageView extends TiUIView
 		TiImageView view = new TiImageView(proxy.getContext());
 		setNativeView(view);
 		proxy.getTiContext().addOnLifecycleEventListener(this);
-		view.setOnClickListener(this);
 	}
 
 	private TiImageView getView() {
@@ -358,10 +356,6 @@ public class TiUIImageView extends TiUIView
 
 	public void onStop() {
 		stop();
-	}
-
-	public void onClick(View view) {
-		proxy.fireEvent(EVENT_CLICK, null);
 	}
 
 	public boolean isAnimating() {
