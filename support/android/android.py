@@ -76,6 +76,11 @@ class Android(object):
 	def load_template(self, template):
 		return Template(filename=template, output_encoding='utf-8', encoding_errors='replace')
 
+	def render_android_manifest(self):
+		template_dir = os.path.dirname(sys._getframe(0).f_code.co_filename)
+		tmpl = self.load_template(os.path.join(template_dir, 'templates', 'AndroidManifest.xml'))
+		return tmpl.render(config = self.config)
+
 	def render(self, template_dir, template_file, dest, dest_file, **kwargs):
 		tmpl = self.load_template(os.path.join(template_dir, 'templates', template_file))
 		f = None
