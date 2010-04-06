@@ -24,6 +24,7 @@
 
 //TEMP HACK FOR 1.2
 #import "TiUIiPadProxy.h"
+#import "TiUIiPhoneNavigationGroup.h"
 
 @implementation TiUIiPhoneProxy
 
