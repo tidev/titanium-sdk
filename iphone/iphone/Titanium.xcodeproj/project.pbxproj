@@ -46,7 +46,6 @@
 		243ECD001126991000639DF4 /* TiUITableViewAction.m in Sources */ = {isa = PBXBuildFile; fileRef = 243EC7D6112634AF00639DF4 /* TiUITableViewAction.m */; };
 		243ECD011126991000639DF4 /* TiFile.m in Sources */ = {isa = PBXBuildFile; fileRef = 24F5AEB3111F9DE9005C9199 /* TiFile.m */; };
 		243ECD021126991000639DF4 /* TiMapPinAnnotationView.m in Sources */ = {isa = PBXBuildFile; fileRef = 24EB0BA9111F7959001DC2D1 /* TiMapPinAnnotationView.m */; };
-		243ECD031126991000639DF4 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 29B97316FDCFA39411CA2CEA /* main.m */; };
 		243ECD041126991000639DF4 /* TiUIScrollIndicatorStyleProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = B4F97C57111BAD4700E2F72C /* TiUIScrollIndicatorStyleProxy.m */; };
 		243ECD051126991000639DF4 /* TiUITableViewSectionProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 243EC5EA112617F900639DF4 /* TiUITableViewSectionProxy.m */; };
 		243ECD061126991000639DF4 /* ListenerEntry.m in Sources */ = {isa = PBXBuildFile; fileRef = 24F5B145111FDFE8005C9199 /* ListenerEntry.m */; };
@@ -4262,7 +4261,6 @@
 				243ECD001126991000639DF4 /* TiUITableViewAction.m in Sources */,
 				243ECD011126991000639DF4 /* TiFile.m in Sources */,
 				243ECD021126991000639DF4 /* TiMapPinAnnotationView.m in Sources */,
-				243ECD031126991000639DF4 /* main.m in Sources */,
 				24CB0DDA111A971B00A813AD /* AFItemView.m in Sources */,
 				24CB0DDB111A971B00A813AD /* AFOpenFlowView.m in Sources */,
 				24CB0DDC111A971B00A813AD /* AFUIImageReflection.m in Sources */,

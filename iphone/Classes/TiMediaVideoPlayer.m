@@ -16,11 +16,21 @@
 {
 	if (self = [super initWithFrame:CGRectZero])
 	{
-		controller = [controller_ retain];
-		[self addSubview:[controller view]];
-		[self sendSubviewToBack:[controller view]];
+		[self setMovie:controller_];
 	}
 	return self;
+}
+
+-(void)setMovie:(MPMoviePlayerController*)controller_
+{
+	if (controller!=nil)
+	{
+		[[controller view] removeFromSuperview];
+	}
+	RELEASE_TO_NIL(controller);
+	controller = [controller_ retain];
+	[self addSubview:[controller view]];
+	[self sendSubviewToBack:[controller view]];
 }
 
 -(void)dealloc
