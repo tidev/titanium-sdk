@@ -87,6 +87,25 @@
 	return nil;
 }
 
+-(id)fieldName:(id)args
+{
+	ENSURE_SINGLE_ARG(args,NSObject);
+	if (results != nil)
+	{
+		int requestedIndex = [TiUtils intValue:args def:NSNotFound];
+		if (requestedIndex == NSNotFound)
+		{
+			[self throwException:TiExceptionInvalidType subreason:nil location:CODELOCATION];
+		}
+		
+		NSArray * fieldNames = [results fieldNames];
+		ENSURE_VALUE_RANGE(requestedIndex,0,[fieldNames count]-1);
+
+		return [fieldNames objectAtIndex:requestedIndex];
+	}
+	return nil;
+}
+
 -(id)fieldCount:(id)args
 {
 	if (results!=nil)
