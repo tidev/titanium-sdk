@@ -39,13 +39,24 @@
 	return [self sizeForFont:width].height;
 }
 
+// Move this to TiBase.h?
+#if CGFLOAT_IS_DOUBLE
+#define PORTABLE_ROUND(x) roundl(x)
+#else 
+#define PORTABLE_ROUND(x) round(x)
+#endif
+
 -(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
 {
 	// CoreGraphics renders fonts anti-aliased by drawing text on the 0.5 offset of the 
 	// origin. If your origin is on a fraction vs whole number, you'll get blurry text
 	// the CGRectIntegral method ensures that the origin is not on the half pixel
 	self.frame = CGRectIntegral(self.frame);
-	[TiUtils setView:label positionRect:bounds];
+    [TiUtils setView:label positionRect:bounds];
+    
+    // And we also need to center the frame on integer values as well!  So
+    // we fuss with the center value a bit.
+    [label setCenter:CGPointMake(PORTABLE_ROUND([label center].x), PORTABLE_ROUND([label center].y))];
 }
 
 -(UILabel*)label
