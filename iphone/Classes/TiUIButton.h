@@ -13,4 +13,6 @@
 	int style;
 }
 
+-(UIButton*)button;
+
 @end

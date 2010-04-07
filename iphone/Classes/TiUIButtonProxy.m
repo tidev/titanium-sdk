@@ -84,6 +84,37 @@
 	return suggestedResizing;
 }
 
+-(void)layoutChild:(TiViewProxy*)child
+{
+	if (![self viewAttached])
+	{
+		return;
+	}
+
+	UIView * wrapperView = [(TiUIButton *)[self view] button];
+
+	CGRect bounds = [wrapperView bounds];
+
+	if(TiLayoutRuleIsVertical(layoutProperties.layout)){
+		bounds.origin.y += verticalLayoutBoundary;
+		bounds.size.height = [child minimumParentHeightForWidth:bounds.size.width];
+		verticalLayoutBoundary += bounds.size.height;
+	}
+
+	// layout out ourself
+	UIView *childView = [child view];
+
+	if ([childView superview]!=wrapperView)
+	{
+		[wrapperView addSubview:childView];
+	}	
+
+	[[child view] updateLayout:NULL withBounds:bounds];
+	
+	// tell our children to also layout
+	[child layoutChildren];
+}
+
 
 -(void)removeBarButtonView
 {

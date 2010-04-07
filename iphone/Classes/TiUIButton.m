@@ -12,6 +12,10 @@
 #import "ImageLoader.h"
 #import "TiButtonUtil.h"
 
+const UIControlEvents highlightingTouches = UIControlEventTouchDown|UIControlEventTouchDragEnter;
+const UIControlEvents unHighlightingTouches = UIControlEventTouchCancel|UIControlEventTouchDragExit|UIControlEventTouchUpInside;
+
+
 @implementation TiUIButton
 
 #pragma mark Internal
@@ -19,6 +23,8 @@
 -(void)dealloc
 {
 	[button removeTarget:self action:@selector(clicked:) forControlEvents:UIControlEventTouchUpInside];
+	[button removeTarget:self action:@selector(highlightOn:) forControlEvents:highlightingTouches];
+	[button removeTarget:self action:@selector(highlightOff:) forControlEvents:unHighlightingTouches];
 	RELEASE_TO_NIL(button);
 	[super dealloc];
 }
@@ -28,6 +34,29 @@
 	// since this guy only works with touch events, we always want them
 	// just always return YES no matter what listeners we have registered
 	return YES;
+}
+
+-(void)setHighlighting:(BOOL)isHiglighted
+{
+	NSArray * proxyChildren = [(TiUIButtonProxy *)[self proxy] children];
+	for (TiViewProxy * thisProxy in proxyChildren)
+	{
+		TiUIView * thisView = [thisProxy view];
+		if ([thisView respondsToSelector:@selector(setHighlighted:)])
+		{
+			[(id)thisView setHighlighted:isHiglighted];
+		}
+	}
+}
+
+-(IBAction)highlightOn:(id)sender
+{
+	[self setHighlighting:YES];
+}
+
+-(IBAction)highlightOff:(id)sender
+{
+	[self setHighlighting:NO];
 }
 
 -(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
@@ -60,6 +89,8 @@
 			[button setTitleColor:[UIColor whiteColor] forState:UIControlStateHighlighted];
 		}
 		[button addTarget:self action:@selector(clicked:) forControlEvents:UIControlEventTouchUpInside];
+		[button addTarget:self action:@selector(highlightOn:) forControlEvents:highlightingTouches];
+		[button addTarget:self action:@selector(highlightOff:) forControlEvents:unHighlightingTouches];
 	}
 	return button;
 }

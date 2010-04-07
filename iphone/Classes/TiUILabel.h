@@ -12,4 +12,6 @@
 	BOOL requiresLayout;
 }
 
+@property(nonatomic,getter=isHighlighted) BOOL     highlighted;          // default is NO
+
 @end

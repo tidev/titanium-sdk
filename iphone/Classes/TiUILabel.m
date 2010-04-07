@@ -61,6 +61,17 @@
 	return label;
 }
 
+-(void)setHighlighted:(BOOL)newValue
+{
+	[[self label] setHighlighted:newValue];
+}
+
+-(BOOL)isHighlighted
+{
+	return [[self label] isHighlighted];
+}
+
+
 #pragma mark Public APIs
 
 -(void)setText_:(id)text
