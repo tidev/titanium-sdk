@@ -612,6 +612,10 @@ const CFOptionFlags writeStreamEventFlags =
     }
     else {
         key = [keyEnum nextObject];
+        // Short-circut to avoid degenerate case where there are 0 sockets attached to a listener
+        if (key == nil) {
+            return;
+        }
     }
     
     do {
