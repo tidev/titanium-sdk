@@ -1232,7 +1232,18 @@ if(tableView == searchTableView)	\
 {
 	RETURN_IF_SEARCH_TABLE_VIEW(nil);
 	//TODO
-	return NSLocalizedString(@"Delete",@"Table View Delete Confirm");
+	TiUITableViewRowProxy * ourRow = [self rowForIndexPath:indexPath];
+	NSString * result = [TiUtils stringValue:[ourRow valueForKey:@"deleteButtonTitle"]];
+	if (result == nil)
+	{
+		result = [[self proxy] valueForKey:@"deleteButtonTitle"];
+	}
+
+	if (result == nil)
+	{
+		result = NSLocalizedString(@"Delete",@"Table View Delete Confirm");
+	}
+	return result;
 }
 
 - (void)tableView:(UITableView *)tableView accessoryButtonTappedForRowWithIndexPath:(NSIndexPath *)indexPath
