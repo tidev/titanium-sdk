@@ -170,6 +170,13 @@
 -(void)setRightNavButton:(id)proxy withObject:(id)properties
 {
 	ENSURE_UI_THREAD_WITH_OBJ(setRightNavButton,proxy,properties);
+    if (properties == nil) {
+        properties = [self valueForKey:@"rightNavSettings"];
+    }
+    else {
+        [self setValue:properties forKey:@"rightNavSettings"];
+    }
+    
 	if (controller!=nil)
 	{
 		ENSURE_TYPE_OR_NIL(proxy,TiViewProxy);
@@ -208,6 +215,13 @@
 -(void)setLeftNavButton:(id)proxy withObject:(id)properties
 {
 	ENSURE_UI_THREAD_WITH_OBJ(setLeftNavButton,proxy,properties);
+    if (properties == nil) {
+        properties = [self valueForKey:@"leftNavSettings"];
+    }
+    else {
+        [self setValue:properties forKey:@"leftNavSettings"];
+    }
+    
 	if (controller!=nil)
 	{
 		ENSURE_TYPE_OR_NIL(proxy,TiViewProxy);
@@ -402,6 +416,13 @@
 -(void)setToolbar:(id)items withObject:(id)properties
 {
 	ENSURE_UI_THREAD_WITH_OBJ(setToolbar,items,properties);
+    if (properties == nil) {
+        properties = [self valueForKey:@"toolbarSettings"];
+    }
+    else {
+        [self setValue:properties forKey:@"toolbarSettings"];
+    }
+    
 	if (controller!=nil)
 	{
 		ENSURE_TYPE_OR_NIL(items,NSArray);
