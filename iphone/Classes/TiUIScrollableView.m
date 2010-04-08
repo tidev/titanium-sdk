@@ -173,7 +173,7 @@
 {
 	CGRect viewBounds;
 	viewBounds.size = visibleBounds.size;
-	viewBounds.size.height = viewBounds.size.height - (showPageControl ? pageControlHeight : 0);
+	viewBounds.size.height = visibleBounds.size.height - (showPageControl ? pageControlHeight : 0);
 	viewBounds.origin.y = 0;
 	
 	UIScrollView *sv = [self scrollview];
@@ -233,7 +233,7 @@
 	contentBounds.size.width *= [views count];
 	
 	[sv setContentSize:contentBounds.size];
-	[sv setFrame:CGRectMake(0, 0, visibleBounds.size.width, visibleBounds.size.height-(showPageControl ? pageControlHeight : 0))];
+	[sv setFrame:CGRectMake(0, 0, visibleBounds.size.width, visibleBounds.size.height)];
 }
 
 -(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)visibleBounds
