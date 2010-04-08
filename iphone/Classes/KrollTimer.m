@@ -59,8 +59,11 @@
 	[kroll unregisterTimer:timerId];
 }
 
--(void)invoke
+-(void)invokeWithCondition:(NSConditionLock *)invokeCond
 {
+	VerboseLog(@"In Invoke; Locking Invoke condition: %d",[invokeCond condition]);
+	[invokeCond lockWhenCondition:0];
+	VerboseLog(@"In Invoke; Locked Invoke condition: %d",[invokeCond condition]);
 	TiValueRef exception = NULL;
 	TiObjectCallAsFunction(context,function,jsThis,0,NULL,&exception);
 	if (exception!=NULL)
@@ -68,6 +71,8 @@
 		id excm = [KrollObject toID:kroll value:exception];
 		NSLog(@"[ERROR] While executing Timer, received script error. '%@'",[TiUtils exceptionMessage:excm]);
 	}
+	[invokeCond unlockWithCondition:1];
+	VerboseLog(@"In Invoke; UnLocking Invoke condition: %d",[invokeCond condition]);
 }
 
 -(NSString*)description
@@ -84,26 +89,30 @@
 	// timer will stop
 	[self retain];
 	
-	NSCondition *invokeCond = [[NSCondition alloc] init];
+	NSConditionLock *invokeCond = [[NSConditionLock alloc] initWithCondition:0];
 
 	NSDate *date = [NSDate dateWithTimeIntervalSinceNow:duration/1000];
 	
 	while(1)
 	{
 		// wait until we're signaled or we timeout
+		VerboseLog(@"Locking condition");
 		[condition lock];
 		[condition waitUntilDate:date];
 		[condition unlock];
+		VerboseLog(@"Unlocking condition");
 
 		// calculate the next interval before execution so we exclude it's time
 		date = [NSDate dateWithTimeIntervalSinceNow:duration/1000];
 		
 		// push the invocation to happen on the context thread
-		[kroll invokeOnThread:self method:@selector(invoke) withObject:nil condition:invokeCond];
+		[kroll invokeOnThread:self method:@selector(invokeWithCondition:) withObject:invokeCond condition:nil];
 
-		[invokeCond lock];
-		[invokeCond wait];
-		[invokeCond unlock];
+		VerboseLog(@"Locking Invoke condition: %d",[invokeCond condition]);
+		[invokeCond lockWhenCondition:1];
+		VerboseLog(@"Locked Invoke condition: %d",[invokeCond condition]);
+		[invokeCond unlockWithCondition:0];
+		VerboseLog(@"UnLocking Invoke condition: %d",[invokeCond condition]);
 
 		// if we're on time (a timer), just stop
 		// we always check for stopped after the timer fires just in
