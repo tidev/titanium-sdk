@@ -62,23 +62,33 @@
 	[searchView setPlaceholder:[TiUtils stringValue:value]];
 }
 
+-(void)setKeyboardType_:(id)value
+{
+	[searchView setKeyboardType:[TiUtils intValue:value]];
+}
+
+-(void)setAutocorrect_:(id)value
+{
+	[searchView setAutocorrectionType:[TiUtils boolValue:value] ? UITextAutocorrectionTypeYes : UITextAutocorrectionTypeNo];
+}
+
+-(void)setAutocapitalization_:(id)value
+{
+	[searchView setAutocapitalizationType:[TiUtils intValue:value]];
+}
+
+
+@property(nonatomic) UITextAutocapitalizationType autocapitalizationType;  // default is UITextAutocapitalizationTypeNone
+@property(nonatomic) UITextAutocorrectionType     autocorrectionType;      // default is UITextAutocorrectionTypeDefault
+@property(nonatomic) UIKeyboardType               keyboardType;            // default is UIKeyboardTypeDefault
+
+
 -(void)setBarColor_:(id)value
 {
-	UIColor * newBarColor = [[TiUtils colorValue:value] _color];
-	BOOL newTransparency = NO;
-	UIBarStyle newBarStyle = UIBarStyleBlack;
-	if (newBarColor==nil)
-	{
-		newBarStyle=UIBarStyleDefault;
-	}
-	else if (newBarColor == [UIColor clearColor])
-	{
-		newTransparency = YES;
-		newBarColor = nil;
-	}
-	[searchView setBarStyle:newBarStyle];
-	[searchView setTintColor:newBarColor];
-	[searchView setTranslucent:newTransparency];
+	TiColor * newBarColor = [TiUtils colorValue:value];
+	[searchView setBarStyle:[TiUtils barStyleForColor:newBarColor]];
+	[searchView setTintColor:[TiUtils barColorForColor:newBarColor]];
+	[searchView setTranslucent:[TiUtils barTranslucencyForColor:newBarColor]];
 }
 
 
