@@ -14,8 +14,6 @@ for (var c=0;c<labels.length;c++)
 
 var dashboard = Titanium.UI.createDashboardView({
 	data:data,
-	top:30,
-	bottom:10
 });
 win.add(dashboard);
 
@@ -26,7 +24,7 @@ var label = Titanium.UI.createLabel({
 	color:"yellow",
 	height:"auto"
 });
-win.add(label);
+//win.add(label);
 
 
 var cancel = Titanium.UI.createButton({
