@@ -353,10 +353,12 @@
 		}
 		[movie autorelease];
 		movie = nil;
-		
+
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
 		TiMediaVideoPlayer *video = (TiMediaVideoPlayer*)[self view];
 		[video setMovie:[self player]];
 		[video frameSizeChanged:[video frame] bounds:[video bounds]];
+#endif
 		
 		if (restart)
 		{

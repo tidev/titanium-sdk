@@ -138,6 +138,12 @@
 	{
 		[ourApp setStatusBarOrientation:newOrientation animated:YES];
 	}
+	
+	// if already in the orientation, don't do it again
+	if (lastOrientation==newOrientation)
+	{
+		return;
+	}
 
 	CGAffineTransform transform;
 
