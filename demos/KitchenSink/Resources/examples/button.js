@@ -29,6 +29,17 @@ var b3 = Titanium.UI.createButton({
 	title:'Click Me'
 });
 
+var buttonLabel = Titanium.UI.createLabel({
+	color:'#f00',
+	highlightedColor:'#0f0',
+	backgroundColor:'transparent',
+	width:'100',
+	height:'auto',
+	right:5,
+	text:'Custom Label'
+});
+
+b3.add(buttonLabel);
 
 var state = 0;
 b3.addEventListener('click', function()

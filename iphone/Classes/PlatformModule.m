@@ -22,7 +22,7 @@ NSString* const DATA_IFACE = @"pdp_ip0";
 
 @implementation PlatformModule
 
-@synthesize name, model, version, architecture, macaddress, address, processorCount, username, ostype, availableMemory;
+@synthesize name, model, version, architecture, macaddress, processorCount, username, ostype, availableMemory;
 
 #pragma mark Internal
 
@@ -36,7 +36,6 @@ NSString* const DATA_IFACE = @"pdp_ip0";
 		processorCount = [[NSNumber numberWithInt:1] retain];
 		username = [theDevice name];
 		ostype = [@"32bit" retain];
-        address = [@"127.0.0.1" retain];
 		
 		if ([TiUtils isIPad])
 		{
@@ -157,7 +156,7 @@ NSString* const DATA_IFACE = @"pdp_ip0";
             else {
                 addr = (struct sockaddr_in*)ifaddr->ifa_addr;
             }
-            inet_ntop(ifaddr->ifa_addr->sa_family, &(addr->sin_addr), ipaddr, 20);
+            inet_ntop(addr->sin_family, &(addr->sin_addr), ipaddr, 20);
             str = [NSString stringWithUTF8String:ipaddr];
             break;
         }
@@ -243,24 +242,49 @@ NSString* const DATA_IFACE = @"pdp_ip0";
 	return NUMFLOAT([[UIDevice currentDevice] batteryLevel]);
 }
 
-/*
- * COMMENTED OUT until we can perform testing on all physical devices (iPod Touch, 2G, 3G, 3GS, iPad)
 -(NSString*)address
 {
+#if TARGET_IPHONE_SIMULATOR
+    // Assume classical ethernet and wifi interfaces
+    NSArray* interfaces = [NSArray arrayWithObjects:@"en0", @"en1", nil];
+    for (NSString* interface in interfaces) {
+        NSString* iface = [self getIface:interface mask:NO];
+        if (iface) {
+            return iface;
+        }
+    }
+    return nil;
+#else
     return [self getIface:WIFI_IFACE mask:NO];
+#endif
 }
 
 -(NSString*)dataAddress
 {
+#if TARGET_IPHONE_SIMULATOR
+    return nil; // Handy shortcut
+#else
     return [self getIface:DATA_IFACE mask:NO];
+#endif
 }
 
 // Only available for the local wifi; why would you want it for the data network?
 -(NSString*)netmask
 {
+#if TARGET_IPHONE_SIMULATOR
+    // Assume classical ethernet and wifi interfaces
+    NSArray* interfaces = [NSArray arrayWithObjects:@"en0", @"en1", nil];
+    for (NSString* interface in interfaces) {
+        NSString* iface = [self getIface:interface mask:YES];
+        if (iface) {
+            return iface;
+        }
+    }
+    return nil;
+#else
     return [self getIface:WIFI_IFACE mask:YES];
+#endif
 }
- */
 
 MAKE_SYSTEM_PROP(BATTERY_STATE_UNKNOWN,UIDeviceBatteryStateUnknown);
 MAKE_SYSTEM_PROP(BATTERY_STATE_UNPLUGGED,UIDeviceBatteryStateUnplugged);

@@ -85,7 +85,7 @@ This module has no events
 </tr> 
 % for event in data.events:
 <tr>
-	<td class="name"><a href="${data.namespace}.${event['name']}.html">${event['name']}</a></td>
+	<td class="name">${event['name']}</td>
 	<td class="description">
 		${event['value']}
 % if event.has_key('properties') :		

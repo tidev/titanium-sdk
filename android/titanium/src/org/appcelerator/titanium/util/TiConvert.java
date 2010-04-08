@@ -317,7 +317,7 @@ public class TiConvert
     }
 
     // JSON
-
+    
     public static JSONObject toJSON(TiDict data)
     {
     	JSONObject json = new JSONObject();
@@ -349,7 +349,7 @@ public class TiConvert
     	return json;
     }
 
-    private static JSONArray toJSONArray(Object[] a) {
+    public static JSONArray toJSONArray(Object[] a) {
     	JSONArray ja = new JSONArray();
 
 

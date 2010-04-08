@@ -11,6 +11,7 @@ import org.appcelerator.titanium.TiDict;
 import org.appcelerator.titanium.TiModule;
 import org.appcelerator.titanium.TiProperties;
 import org.appcelerator.titanium.util.Log;
+import org.appcelerator.titanium.util.TiConvert;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -95,7 +96,14 @@ public class PropertiesModule extends TiModule {
 	public void setList(String key, Object[] value) {
 		String[] valueList = new String[value.length];
 		for (int i = 0; i < value.length; i++) {
-			valueList[i] = value[i].toString();
+			Object v = value[i];
+			if (v instanceof TiDict) {
+				valueList[i] = TiConvert.toJSON((TiDict)v).toString();
+			} else if (v instanceof Object[]) {
+				valueList[i] = TiConvert.toJSONArray((Object[])v).toString();
+			} else {
+				valueList[i] = v.toString();
+			}
 		}
 		appProperties.setList(key, valueList);
 	}

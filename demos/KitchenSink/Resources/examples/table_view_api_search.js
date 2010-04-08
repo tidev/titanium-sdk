@@ -44,16 +44,27 @@ tableview.addEventListener('click', function(e)
 	Titanium.UI.createAlertDialog({title:'Table View',message:'row ' + row + ' index ' + index + ' section ' + section  + ' row data ' + rowdata}).show();
 });
 
+var hide = Titanium.UI.createButtonBar({
+	labels:['Hide', 'Scroll'],
+	backgroundColor:'#336699',
+	height:25,
+	width:120
+});
+
+
 // add table view to the window
 win.add(tableview);
 
-var hide = Titanium.UI.createButton({
-	title:'Hide Search'
-});
-
-hide.addEventListener('click', function()
+hide.addEventListener('click', function(e)
 {
 	Ti.API.info("search hidden = "+tableview.searchHidden);
-	tableview.searchHidden = true;
+	if (e.index == 0)
+	{
+		tableview.searchHidden = true;
+	}
+	else if (e.index == 1)
+	{
+		tableview.scrollToTop(0,{animated:true});
+	}
 });
 win.setRightNavButton(hide);

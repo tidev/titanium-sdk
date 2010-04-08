@@ -7,10 +7,10 @@
 
 #import "TiUIWidgetProxy.h"
 
-@interface TiUISearchBarProxy : TiUIWidgetProxy<UISearchBarDelegate> {
-	id<UISearchBarDelegate> delegate;	//Yes, we subdelegate. No, the delegate is not retained.
+@interface TiUISearchBarProxy : TiUIWidgetProxy {
 }
 
-@property(nonatomic,readwrite,assign)	id<UISearchBarDelegate> delegate;
+-(void)setDelegate:(id<UISearchBarDelegate>)delegate;
+-(UISearchBar*)searchBar;
 
 @end

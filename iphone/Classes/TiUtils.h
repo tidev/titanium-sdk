@@ -155,6 +155,12 @@
 
 +(CGRect)viewPositionRect:(UIView *)view;
 
++(BOOL)barTranslucencyForColor:(TiColor *)color;
++(UIColor *)barColorForColor:(TiColor *)color;
++(UIBarStyle)barStyleForColor:(TiColor *)color;
+
++(void)applyColor:(TiColor *)color toNavigationController:(UINavigationController *)navController;
+
 +(void)queueAnalytics:(NSString*)type name:(NSString*)name data:(NSDictionary*)data;
 
 +(BOOL)isIPad;

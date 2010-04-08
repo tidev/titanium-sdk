@@ -31,6 +31,13 @@
 
 -(void)dealloc
 {
+	if (searchField!=nil)
+	{
+		[searchField setDelegate:nil];
+		RELEASE_TO_NIL(searchField);
+	}
+	RELEASE_TO_NIL(tableController);
+	RELEASE_TO_NIL(searchController);
 	RELEASE_TO_NIL(sections);
 	RELEASE_TO_NIL(tableview);
 	RELEASE_TO_NIL(sectionIndex);
@@ -555,32 +562,70 @@
 	}
 }
 
+-(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
+{
+	if (searchHidden)
+	{
+		if (searchField!=nil && searchHiddenSet)
+		{
+			[self performSelector:@selector(hideSearchScreen:) withObject:self];
+		}
+	}
+	else 
+	{
+		if (tableview!=nil && searchField!=nil)
+		{
+			[tableview setContentOffset:CGPointMake(0,0)];
+		}
+	}
+}
+
 #pragma mark Searchbar-related IBActions
 
 - (IBAction) hideSearchScreen: (id) sender
 {
-	[UIView beginAnimations:@"searchy" context:nil];
+	// check to make sure we're not in the middle of a layout, in which case we 
+	// want to try later or we'll get weird drawing animation issues
+	if (tableview.frame.size.width==0)
+	{
+		[self performSelector:@selector(hideSearchScreen:) withObject:sender afterDelay:0.1];
+		return;
+	}
+	
 	[[searchField view] resignFirstResponder];
 	[self makeRootViewFirstResponder];
 	[searchTableView removeFromSuperview];
+	[tableview setScrollEnabled:YES];
+	[self.proxy replaceValue:NUMBOOL(YES) forKey:@"searchHidden" notification:NO];
+
+	if (sender==nil)
+	{
+		[UIView beginAnimations:@"searchy" context:nil];
+	}
 	[searchScreenView setEnabled:NO];
 	[searchScreenView setAlpha:0.0];
-
-	[tableview setScrollEnabled:YES];
-	if (autohideSearch || searchHidden)
+	if (searchHidden)
 	{
-		searchHidden = YES;
-		[self.proxy replaceValue:NUMBOOL(YES) forKey:@"searchHidden" notification:NO];
-		[tableview setContentOffset:CGPointMake(0,searchField.view.frame.size.height)];
+		[tableview setContentOffset:CGPointMake(0,MAX(TI_NAVBAR_HEIGHT,searchField.view.frame.size.height)) animated:NO];
 	}
-	[UIView commitAnimations];
+	if (sender==nil)
+	{
+		[UIView commitAnimations];
+	}
 }
 
+-(void)scrollToTop:(NSInteger)top animated:(BOOL)animated
+{
+	[tableview setContentOffset:CGPointMake(0,top) animated:animated];
+}
 
 - (IBAction) showSearchScreen: (id) sender
 {
-	[tableview scrollToRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0]
-					 atScrollPosition:UITableViewScrollPositionBottom animated:NO];
+	if ([sections count]>0)
+	{
+		[tableview scrollToRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0]
+						 atScrollPosition:UITableViewScrollPositionBottom animated:NO];
+	}
 	[tableview setScrollEnabled:NO];
 	
 	CGRect screenRect = [TiUtils viewPositionRect:tableview];
@@ -629,11 +674,8 @@
 		tableHeaderView = [[UIView alloc] initWithFrame:wrapperFrame];
 		[TiUtils setView:searchView positionRect:wrapperFrame];
 		[tableHeaderView addSubview:searchView];
-	}
-	
-	if ([tableview tableHeaderView] != tableHeaderView)
-	{
 		[tableview setTableHeaderView:tableHeaderView];
+		[searchView sizeToFit];
 	}
 }
 
@@ -788,24 +830,64 @@
 -(void)setSearch_:(id)search
 {
 	ENSURE_TYPE_OR_NIL(search,TiUISearchBarProxy);
+	if (searchField!=nil)
+	{
+		[searchField setDelegate:nil];
+	}
 	RELEASE_TO_NIL(searchField);
+	RELEASE_TO_NIL(tableController);
+	RELEASE_TO_NIL(searchController);
 	
 	if (search!=nil)
 	{
+		//TODO: now that we're using the search controller, we can move away from
+		//doing our own custom search screen since the controller gives this to us
+		//for free
 		searchField = [search retain];
-		searchField.delegate = self;
+		[searchField setDelegate:self];
+		tableController = [[UITableViewController alloc] init];
+		tableController.tableView = [self tableView];
+		searchController = [[UISearchDisplayController alloc] initWithSearchBar:[search searchBar] contentsController:tableController];
+		searchController.searchResultsDataSource = self;
+		searchController.searchResultsDelegate = self;
+		searchController.delegate = self;
+		
+		if (searchHiddenSet==NO)
+		{
+			return;
+		}
+		
+		if (searchHidden)
+		{
+			[self hideSearchScreen:nil];
+			return;
+		}
+		searchHidden = NO;
+		[self.proxy replaceValue:NUMBOOL(NO) forKey:@"searchHidden" notification:NO];
 	}
-
-	[self.proxy replaceValue:NUMBOOL(NO) forKey:@"searchHidden" notification:NO];
+	else 
+	{
+		searchHidden = YES;
+		[self.proxy replaceValue:NUMBOOL(NO) forKey:@"searchHidden" notification:NO];
+	}
 }
 
--(void)setAutoHideSearch_:(id)autohide
+-(void)configurationSet
 {
-	autohideSearch = [TiUtils boolValue:autohide];
+	[super configurationSet];
+	
+	if ([self.proxy valueForUndefinedKey:@"searchHidden"]==nil && 
+		[self.proxy valueForUndefinedKey:@"search"]==nil)
+	{
+		searchHidden = YES;
+		[self.proxy replaceValue:NUMBOOL(YES) forKey:@"searchHidden" notification:NO];
+	}
 }
 
 -(void)setSearchHidden_:(id)hide
 {
+	searchHiddenSet = YES;
+	
 	if ([TiUtils boolValue:hide])
 	{
 		searchHidden=YES;
@@ -1232,7 +1314,18 @@ if(tableView == searchTableView)	\
 {
 	RETURN_IF_SEARCH_TABLE_VIEW(nil);
 	//TODO
-	return NSLocalizedString(@"Delete",@"Table View Delete Confirm");
+	TiUITableViewRowProxy * ourRow = [self rowForIndexPath:indexPath];
+	NSString * result = [TiUtils stringValue:[ourRow valueForKey:@"deleteButtonTitle"]];
+	if (result == nil)
+	{
+		result = [[self proxy] valueForKey:@"deleteButtonTitle"];
+	}
+
+	if (result == nil)
+	{
+		result = NSLocalizedString(@"Delete",@"Table View Delete Confirm");
+	}
+	return result;
 }
 
 - (void)tableView:(UITableView *)tableView accessoryButtonTappedForRowWithIndexPath:(NSIndexPath *)indexPath
@@ -1410,6 +1503,13 @@ if(tableView == searchTableView)	\
 {
 	// resume image loader when we're done scrolling
 	[[ImageLoader sharedLoader] resume];
+}
+
+#pragma mark Search Display Controller Delegates
+
+- (void) searchDisplayControllerDidEndSearch:(UISearchDisplayController *)controller
+{
+	[self hideSearchScreen:nil];
 }
 
 @end

@@ -35,7 +35,7 @@
 }
 - (void)boot:(id)callback url:(NSURL*)url preload:(NSDictionary*)preload;
 - (void)evalJS:(NSString*)code;
-- (void)evalFile:(NSString*)path condition:(NSCondition*)condition;
+
 - (void)fireEvent:(id)listener withObject:(id)obj remove:(BOOL)yn thisObject:(TiProxy*)thisObject;
 - (id)preloadForKey:(id)key;
 - (KrollContext*)krollContext;

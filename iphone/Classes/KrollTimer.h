@@ -27,6 +27,5 @@
 -(id)initWithContext:(TiContextRef)context function:(TiValueRef)function_ jsThis:(TiObjectRef)jsThis duration:(double)duration_ onetime:(BOOL)onetime_ kroll:(KrollContext*)kroll_ timerId:(double)timerId;
 -(void)start;
 -(void)cancel;
--(void)invoke;
 
 @end

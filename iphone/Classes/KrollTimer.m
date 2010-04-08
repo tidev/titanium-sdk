@@ -59,8 +59,9 @@
 	[kroll unregisterTimer:timerId];
 }
 
--(void)invoke
+-(void)invokeWithCondition:(NSConditionLock *)invokeCond
 {
+	[invokeCond lockWhenCondition:0];
 	TiValueRef exception = NULL;
 	TiObjectCallAsFunction(context,function,jsThis,0,NULL,&exception);
 	if (exception!=NULL)
@@ -68,6 +69,7 @@
 		id excm = [KrollObject toID:kroll value:exception];
 		NSLog(@"[ERROR] While executing Timer, received script error. '%@'",[TiUtils exceptionMessage:excm]);
 	}
+	[invokeCond unlockWithCondition:1];
 }
 
 -(NSString*)description
@@ -84,7 +86,7 @@
 	// timer will stop
 	[self retain];
 	
-	NSCondition *invokeCond = [[NSCondition alloc] init];
+	NSConditionLock *invokeCond = [[NSConditionLock alloc] initWithCondition:0];
 
 	NSDate *date = [NSDate dateWithTimeIntervalSinceNow:duration/1000];
 	
@@ -99,11 +101,10 @@
 		date = [NSDate dateWithTimeIntervalSinceNow:duration/1000];
 		
 		// push the invocation to happen on the context thread
-		[kroll invokeOnThread:self method:@selector(invoke) withObject:nil condition:invokeCond];
+		[kroll invokeOnThread:self method:@selector(invokeWithCondition:) withObject:invokeCond condition:nil];
 
-		[invokeCond lock];
-		[invokeCond wait];
-		[invokeCond unlock];
+		[invokeCond lockWhenCondition:1];
+		[invokeCond unlockWithCondition:0];
 
 		// if we're on time (a timer), just stop
 		// we always check for stopped after the timer fires just in

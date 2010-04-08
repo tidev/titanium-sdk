@@ -139,30 +139,14 @@
 	[self replaceValue:color forKey:@"barColor" notification:NO];
 	if (controller!=nil)
 	{
+		TiColor * newColor = [TiUtils colorValue:color];
+		if (newColor == nil)
+		{
+			newColor =[TiUtils colorValue:[[self tabGroup] valueForKey:@"barColor"]];
+		}
+
 		UINavigationController * ourNC = [controller navigationController];
-		UINavigationBar * ourNCBar = [ourNC navigationBar];
-		//TODO: do we need to be more flexible in the bar styles?
-		
-		if ([color isEqualToString:@"transparent"])
-		{
-			ourNCBar.barStyle = UIBarStyleBlackTranslucent;
-			ourNCBar.translucent = YES;
-		}
-		else 
-		{
-			UIColor *acolor = UIColorWebColorNamed(color);
-			UIBarStyle newStyle = UIBarStyleDefault;
-			if (acolor != nil)
-			{
-				if ([ourNCBar barStyle] == UIBarStyleDefault)
-				{
-					newStyle = UIBarStyleBlack;
-				}
-			}
-			ourNCBar.barStyle = newStyle;
-			ourNCBar.tintColor = acolor;
-			ourNC.toolbar.tintColor = acolor;
-		}
+		[TiUtils applyColor:newColor toNavigationController:ourNC];
 		[self performSelector:@selector(_refreshBackButton) withObject:nil afterDelay:0.0];
 	}
 }
@@ -186,6 +170,13 @@
 -(void)setRightNavButton:(id)proxy withObject:(id)properties
 {
 	ENSURE_UI_THREAD_WITH_OBJ(setRightNavButton,proxy,properties);
+    if (properties == nil) {
+        properties = [self valueForKey:@"rightNavSettings"];
+    }
+    else {
+        [self setValue:properties forKey:@"rightNavSettings"];
+    }
+    
 	if (controller!=nil)
 	{
 		ENSURE_TYPE_OR_NIL(proxy,TiViewProxy);
@@ -224,6 +215,13 @@
 -(void)setLeftNavButton:(id)proxy withObject:(id)properties
 {
 	ENSURE_UI_THREAD_WITH_OBJ(setLeftNavButton,proxy,properties);
+    if (properties == nil) {
+        properties = [self valueForKey:@"leftNavSettings"];
+    }
+    else {
+        [self setValue:properties forKey:@"leftNavSettings"];
+    }
+    
 	if (controller!=nil)
 	{
 		ENSURE_TYPE_OR_NIL(proxy,TiViewProxy);
@@ -418,6 +416,13 @@
 -(void)setToolbar:(id)items withObject:(id)properties
 {
 	ENSURE_UI_THREAD_WITH_OBJ(setToolbar,items,properties);
+    if (properties == nil) {
+        properties = [self valueForKey:@"toolbarSettings"];
+    }
+    else {
+        [self setValue:properties forKey:@"toolbarSettings"];
+    }
+    
 	if (controller!=nil)
 	{
 		ENSURE_TYPE_OR_NIL(items,NSArray);

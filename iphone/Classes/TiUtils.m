@@ -875,4 +875,47 @@ extern NSString * const TI_APPLICATION_RESOURCE_DIR;
 	return nil;
 }
 
++(BOOL)barTranslucencyForColor:(TiColor *)color
+{
+	return [color _color]==[UIColor clearColor];
+}
+
++(UIColor *)barColorForColor:(TiColor *)color
+{
+	UIColor * result = [color _color];
+	if ((result == [UIColor clearColor]) || (result == [UIColor blackColor]))
+	{
+		return nil;
+	}
+	return result;
+}
+
++(UIBarStyle)barStyleForColor:(TiColor *)color
+{
+	UIColor * result = [color _color];
+	if ((result == [UIColor clearColor]) || (result == [UIColor blackColor]))
+	{
+		return UIBarStyleBlack;
+	}
+	return UIBarStyleDefault;
+}
+
+
++(void)applyColor:(TiColor *)color toNavigationController:(UINavigationController *)navController
+{
+	UIColor * barColor = [self barColorForColor:color];
+	UIBarStyle barStyle = [self barStyleForColor:color];
+	BOOL isTranslucent = [self barTranslucencyForColor:color];
+
+	UINavigationBar * navBar = [navController navigationBar];
+	[navBar setBarStyle:barStyle];
+	[navBar setTranslucent:isTranslucent];
+	[navBar setTintColor:barColor];
+
+	UIToolbar * toolBar = [navController toolbar];
+	[toolBar setBarStyle:barStyle];
+	[toolBar setTranslucent:isTranslucent];
+	[toolBar setTintColor:barColor];
+}
+
 @end

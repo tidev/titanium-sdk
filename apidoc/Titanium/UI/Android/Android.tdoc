@@ -1,0 +1,33 @@
+- namespace
+
+Titanium.UI.Android
+
+- type
+
+module
+
+- returns
+
+object
+
+- description
+
+The Android specific UI capabilities. All properties, methods and events in this namespace will only work on Android related devices.
+
+- since
+
+1.0
+
+- platforms
+
+android
+
+- properties
+
+None
+
+- methods
+
+None
+
+

@@ -108,25 +108,8 @@ DEFINE_EXCEPTIONS
 	{
 		return;
 	}
-	UINavigationBar * ourBar = [moreController navigationBar];
-	if (moreBarColor == nil)
-	{
-		[ourBar setTintColor:nil];
-		[ourBar setOpaque:YES];
-		[ourBar setBarStyle:UIBarStyleDefault];
-	}
-	else if (moreBarColor == [UIColor clearColor])
-	{
-		[ourBar setBarStyle:UIBarStyleBlack];
-		[ourBar setOpaque:NO];
-		[ourBar setTintColor:nil];
-	}
-	else
-	{
-		[ourBar setBarStyle:UIBarStyleBlack];
-		[ourBar setOpaque:YES];
-		[ourBar setTintColor:moreBarColor];
-	}
+	
+	[TiUtils applyColor:barColor toNavigationController:moreController];
 }
 
 -(void)navigationController:(UINavigationController *)navigationController willShowViewController:(UIViewController *)viewController animated:(BOOL)animated	
@@ -280,10 +263,10 @@ DEFINE_EXCEPTIONS
 	}
 }
 
--(void)setMoreBarColor_:(id)value
+-(void)setBarColor_:(id)value
 {
-	[moreBarColor release];
-	moreBarColor = [[[TiUtils colorValue:value] _color] retain];
+	[barColor release];
+	barColor = [[TiUtils colorValue:value] retain];
 	[self updateMoreBar:[controller moreNavigationController]];
 }
 

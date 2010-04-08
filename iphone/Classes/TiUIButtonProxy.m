@@ -37,9 +37,10 @@
 	{
 		return [super barButtonItem];
 	}
-
+	
 	if (button==nil)
 	{
+		isUsingBarButtonItem = YES;
 		button = [[TiUINavBarButton alloc] initWithProxy:self];
 	}
 	return button;
@@ -84,10 +85,56 @@
 	return suggestedResizing;
 }
 
+-(void)layoutChild:(TiViewProxy*)child
+{
+	if (![self viewAttached])
+	{
+		return;
+	}
+
+	UIView * wrapperView = [(TiUIButton *)[self view] button];
+
+	CGRect bounds = [wrapperView bounds];
+
+	if(TiLayoutRuleIsVertical(layoutProperties.layout)){
+		bounds.origin.y += verticalLayoutBoundary;
+		bounds.size.height = [child minimumParentHeightForWidth:bounds.size.width];
+		verticalLayoutBoundary += bounds.size.height;
+	}
+
+	// layout out ourself
+	UIView *childView = [child view];
+
+	if ([childView superview]!=wrapperView)
+	{
+		[wrapperView addSubview:childView];
+	}	
+
+	[[child view] updateLayout:NULL withBounds:bounds];
+	
+	// tell our children to also layout
+	[child layoutChildren];
+}
 
 -(void)removeBarButtonView
 {
 	RELEASE_TO_NIL(button);
+}
+
+-(void)setToolbar:(TiToolbar*)toolbar_
+{
+	RELEASE_TO_NIL(toolbar);
+	toolbar = [toolbar_ retain];
+}
+
+-(TiToolbar*)toolbar
+{
+	return toolbar;
+}
+
+-(BOOL)attachedToToolbar
+{
+	return toolbar!=nil;
 }
 
 

@@ -10,6 +10,10 @@
 @interface TiUISearchBar : TiUIView<UISearchBarDelegate> {
 @private
 	UISearchBar *searchView;
+	id<UISearchBarDelegate> delegate;
 }
+
+-(void)setDelegate:(id<UISearchBarDelegate>)delegate;
+-(UISearchBar*)searchBar;
 
 @end

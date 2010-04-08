@@ -18,10 +18,54 @@
 
 @interface TiUITableViewRowContainer : UIView
 {
+	TiProxy * hitTarget;
 }
+@property(nonatomic,retain,readwrite) TiProxy * hitTarget;
+-(void)clearHitTarget;
+
 @end
 
+
 @implementation TiUITableViewRowContainer
+@synthesize hitTarget;
+
+-(void)clearHitTarget
+{
+	[hitTarget autorelease];
+	hitTarget = nil;
+}
+
+-(TiProxy *)hitTarget
+{
+	TiProxy * result = hitTarget;
+	[self clearHitTarget];
+	return result;
+}
+
+- (UIView *)hitTest:(CGPoint) point withEvent:(UIEvent *)event 
+{
+    UIView * result = [super hitTest:point withEvent:event];
+
+	if (result==nil)
+	{
+		for (UIView * ourSubView in [self subviews])
+		{
+			CGPoint subPoint = [self convertPoint:point toView:ourSubView];
+			//TODO: Hittest.
+			
+			
+			
+		}
+	}
+	//TODO: clear last touched proxy.
+	[self clearHitTarget];
+	return result;
+}
+
+
+
+
+
 @end
 
 

@@ -5,14 +5,12 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
-#import "TiUIView.h"
+#include "TiToolbar.h"
 
-@interface TiUIButton : TiUIView {
-@private
-	UIButton *button;
-	int style;
-}
+@protocol TiToolbarButton
 
--(UIButton*)button;
+-(void)setToolbar:(TiToolbar*)toolbar;
+-(TiToolbar*)toolbar;
+-(BOOL)attachedToToolbar;
 
 @end

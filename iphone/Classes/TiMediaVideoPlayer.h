@@ -15,6 +15,7 @@
 }
 
 -(id)initWithPlayer:(MPMoviePlayerController*)controller;
+-(void)setMovie:(MPMoviePlayerController*)controller;
 
 @end
 

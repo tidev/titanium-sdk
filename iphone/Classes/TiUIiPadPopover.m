@@ -191,12 +191,9 @@
 
 -(void)hide:(id)args
 {
-	if (controller!=nil)
-	{
-		ENSURE_SINGLE_ARG_OR_NIL(args,NSDictionary);
-		BOOL animated = [TiUtils boolValue:@"animated" properties:args def:YES];
-		[[self popover] dismissPopoverAnimated:animated];
-	}
+	ENSURE_SINGLE_ARG_OR_NIL(args,NSDictionary);
+	BOOL animated = [TiUtils boolValue:@"animated" properties:args def:YES];
+	[[self popover] dismissPopoverAnimated:animated];
 }
 
 #pragma mark Delegate 

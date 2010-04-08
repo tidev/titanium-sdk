@@ -93,9 +93,14 @@ class Android(object):
 
 	def build_app_info(self, project_dir):
 		tiapp = ElementTree()
-		tiapp.parse(open(os.path.join(project_dir, 'build', 'android', 'bin', 'assets', 'tiapp.xml'), 'r'))
+		assets_tiappxml = os.path.join(project_dir, 'build', 'android', 'bin', 'assets', 'tiapp.xml')
+		
 		self.app_info = {}
 		self.app_properties = {}
+		if not os.path.exists(assets_tiappxml):
+			shutil.copy(os.path.join(project_dir, 'tiapp.xml'), assets_tiappxml)
+		
+		tiapp.parse(open(assets_tiappxml, 'r'))
 		for key in ['id', 'name', 'version', 'publisher', 'url', 'copyright',
 			'description', 'icon', 'analytics', 'guid']:
 			el = tiapp.find(key)
@@ -133,7 +138,8 @@ class Android(object):
 		app_res_drawable_dir = self.newdir(app_res_dir, 'drawable')
 		app_assets_dir = self.newdir(app_dir, 'assets')
 		app_package_dir = self.newdir(app_src_dir, *self.id.split('.'))
-
+		app_bin_assets_dir = self.newdir(app_bin_dir, 'assets')
+		
 		self.build_app_info(project_dir)
 		# Create android source
 		self.render(template_dir, 'AppInfo.java', app_package_dir, self.config['classname'] + 'AppInfo.java',
@@ -189,5 +195,5 @@ if __name__ == '__main__':
 
 	
 	sdk = AndroidSDK(sys.argv[4], 4)
-	android = Android(sys.argv[1],sys.argv[2],sdk)
+	android = Android(sys.argv[1],sys.argv[2],sdk,None)
 	android.create(sys.argv[3])

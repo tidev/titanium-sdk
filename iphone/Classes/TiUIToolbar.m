@@ -8,8 +8,17 @@
 #import "TiUIViewProxy.h"
 #import "TiUtils.h"
 #import "TiColor.h"
+#import "TiToolbarButton.h"
+#import "TiToolbar.h"
 
 @implementation TiUIToolbar
+
+-(void)dealloc
+{
+	[self performSelector:@selector(setItems_:) withObject:nil];
+	RELEASE_TO_NIL(toolBar);
+	[super dealloc];
+}
 
 -(UIToolbar *)toolBar
 {
@@ -85,13 +94,29 @@
 				NSLog(@"[ERROR] %@ does not support being in a toolbar!",thisProxy);
 				//continue;
 			}
+			if ([thisProxy conformsToProtocol:@protocol(TiToolbarButton)])
+			{
+				[(id<TiToolbarButton>)thisProxy setToolbar:(TiToolbar*)self.proxy];
+			}
 			[result addObject:[thisProxy barButtonItem]];
+			
 		}
 		[[self toolBar] setItems:result];
 	}
 	else 
 	{
-		[[self toolBar] setItems:nil];
+		UIToolbar *toolbar = [self toolBar];
+		if (toolbar!=nil)
+		{
+			for (id thisProxy in [toolbar items])
+			{
+				if ([thisProxy conformsToProtocol:@protocol(TiToolbarButton)])
+				{
+					[(id<TiToolbarButton>)thisProxy setToolbar:nil];
+				}
+			}
+		}
+		[toolbar setItems:nil];
 	}
 }
 
@@ -111,26 +136,11 @@
 
 -(void)setBarColor_:(id)value
 {
-	UIColor * newBarColor = [[TiUtils colorValue:value] _color];
-
-	if (newBarColor == nil)
-	{
-		[[self toolBar] setBarStyle:UIBarStyleDefault];
-		[toolBar setTintColor:nil];
-		[toolBar setTranslucent:NO];
-		return;
-	}
-
-	if (newBarColor == [UIColor clearColor])
-	{
-		[[self toolBar] setTintColor:nil];
-		[toolBar setTranslucent:YES];
-		[toolBar setBarStyle:UIBarStyleBlack];
-		return;
-	}
-
-	[toolBar setBarStyle:UIBarStyleBlack];
-	[toolBar setTintColor:newBarColor];
+	TiColor * newBarColor = [TiUtils colorValue:value];
+	
+	[[self toolBar] setBarStyle:[TiUtils barStyleForColor:newBarColor]];
+	[toolBar setTintColor:[TiUtils barColorForColor:newBarColor]];
+	[toolBar setTranslucent:[TiUtils barTranslucencyForColor:newBarColor]];
 }
 
 -(void)setTranslucent_:(id)value

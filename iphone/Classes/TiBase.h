@@ -201,10 +201,15 @@ if(__x != __v)	\
 }
 
 #define ENSURE_VALUE_RANGE(x,minX,maxX) \
-if (((x)<(minX)) || ((x)>(maxX))) \
+{	\
+__typeof__(x) __x = (x);	\
+__typeof__(minX) __minX = (minX);	\
+__typeof__(maxX) __maxX = (maxX);	\
+if ((__x<__minX) || (__x>__maxX)) \
 { \
-[self throwException:TiExceptionRangeError subreason:[NSString stringWithFormat:@"%d was not > %d and < %d",x,maxX,minX] location:CODELOCATION]; \
+[self throwException:TiExceptionRangeError subreason:[NSString stringWithFormat:@"%d was not > %d and < %d",__x,__maxX,__minX] location:CODELOCATION]; \
 }\
+}
 
 
 #define ENSURE_DICT(x) ENSURE_TYPE(x,NSDictionary)
@@ -382,6 +387,16 @@ return value;\
 		fflush(stderr);\
 	}\
 }
+
+#ifdef VERBOSE
+
+#define VerboseLog(...)	{NSLog(__VA_ARGS__);}
+
+#else
+
+#define VerboseLog(...)	{}
+
+#endif
 
 #define VAL_OR_NSNULL(foo)	(((foo) != nil)?((id)foo):[NSNull null])
 

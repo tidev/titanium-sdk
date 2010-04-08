@@ -7,11 +7,14 @@
 
 #import "TiUIWidgetProxy.h"
 #import "TiUINavBarButton.h"
+#import "TiToolbarButton.h"
+#import "TiToolbar.h"
 
-@interface TiUIButtonProxy : TiUIWidgetProxy {
+@interface TiUIButtonProxy : TiUIWidgetProxy<TiToolbarButton> {
 @private
 	UIButtonType styleCache;
 	TiUINavBarButton *button;
+	TiToolbar *toolbar;
 }
 
 @end

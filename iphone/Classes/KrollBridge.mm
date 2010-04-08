@@ -261,11 +261,6 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 	TiStringRelease(jsURL);
 }
 
-- (void)evalFile:(NSString*)path condition:(NSCondition*)condition
-{
-	[context invokeOnThread:self method:@selector(evalFileOnThread:context:) withObject:path condition:condition];
-}
-
 - (void)evalFile:(NSString*)path callback:(id)callback selector:(SEL)selector
 {
 	[context invokeOnThread:self method:@selector(evalFileOnThread:context:) withObject:path callback:callback selector:selector];
@@ -273,7 +268,7 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 
 - (void)evalFile:(NSString *)file
 {
-	[self evalFile:file condition:nil];
+	[context invokeOnThread:self method:@selector(evalFileOnThread:context:) withObject:file condition:nil];
 }
 
 - (void)fireEvent:(id)listener withObject:(id)obj remove:(BOOL)yn thisObject:(TiProxy*)thisObject_
