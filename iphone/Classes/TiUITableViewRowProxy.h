@@ -38,6 +38,7 @@
 -(void)initializeTableViewCell:(UITableViewCell*)cell;
 -(void)renderTableViewCell:(UITableViewCell*)cell;
 -(CGFloat)rowHeight:(CGRect)bounds;
+-(TiProxy *)touchedViewProxyInCell:(UITableViewCell *)targetCell;
 
 -(void)updateRow:(NSDictionary*)data withObject:(NSDictionary*)properties;
 

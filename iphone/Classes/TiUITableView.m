@@ -452,9 +452,13 @@
 	// fire it to our row since the row, section and table are
 	// in a hierarchy and it will bubble up from there...
 	
-	if ([row _hasListeners:name])
+	UITableViewCell * thisCell = [tableview cellForRowAtIndexPath:indexPath];
+	
+	TiProxy * target = [row touchedViewProxyInCell:thisCell];
+
+	if ([target _hasListeners:name])
 	{
-		[row fireEvent:name withObject:eventObject];
+		[target fireEvent:name withObject:eventObject];
 	}	
 }
 

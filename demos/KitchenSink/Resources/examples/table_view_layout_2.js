@@ -78,27 +78,16 @@ for (var c=1;c<50;c++)
 	row.selectedBackgroundColor = '#fff';
 	row.height = 100;
 	row.className = 'datarow';
+	row.clickName = 'row';
 
-	
 	var photo = Ti.UI.createView({
 		backgroundImage:'../images/custom_tableview/user.png',
 		top:5,
 		left:10,
 		width:50,
-		height:50
+		height:50,
+		clickName:'photo',
 	});
-	photo.rowNum = c;
-	photo.addEventListener('click', function(e)
-	{
-		Ti.API.info('photo click ' + e.source.rowNum + ' new row ' + updateRow);
-
-		// use rowNum property on object to get row number
-		var rowNum = e.source.rowNum;
-		var updateRow = createUpdateRow('You clicked on the photo');
-		tableView.updateRow(rowNum,updateRow,{animationStyle:Titanium.UI.iPhone.RowAnimationStyle.LEFT});	
-		
-	});
-	photo.rowNum = c;
 	row.add(photo);
 	
 	
@@ -109,20 +98,11 @@ for (var c=1;c<50;c++)
 		top:2,
 		height:30,
 		width:200,
+		clickName:'user',
 		text:'Fred Smith '+c
 	});
-	user.rowNum = c;
-	user.addEventListener('click', function(e)
-	{
-		// use rowNum property on object to get row number
-		var rowNum = e.source.rowNum;
-		var updateRow = createUpdateRow('You clicked on the user');
-		tableView.updateRow(rowNum,updateRow,{animationStyle:Titanium.UI.iPhone.RowAnimationStyle.LEFT});				
-	});
-	
+
 	row.filter = user.text;
-	
-	user.rowNum = c;
 	row.add(user);
 
 	var fontSize = 16;
@@ -136,18 +116,9 @@ for (var c=1;c<50;c++)
 		top:21,
 		height:50,
 		width:200,
+		clickName:'comment',
 		text:'Got some fresh fruit, conducted some business, took a nap'
 	});
-	comment.rowNum = c;
-	comment.addEventListener('click', function(e)
-	{
-		// use rowNum property on object to get row number
-		var rowNum = e.source.rowNum;
-		var updateRow = createUpdateRow('You clicked on the comment');
-		tableView.updateRow(rowNum,updateRow,{animationStyle:Titanium.UI.iPhone.RowAnimationStyle.LEFT});				
-	});
-	
-	comment.rowNum = c;
 	row.add(comment);
 
 	var calendar = Ti.UI.createView({
@@ -155,18 +126,9 @@ for (var c=1;c<50;c++)
 		bottom:2,
 		left:70,
 		width:32,
+		clickName:'calendar',
 		height:32
 	});
-	calendar.rowNum = c;
-	calendar.addEventListener('click', function(e)
-	{
-		// use rowNum property on object to get row number
-		var rowNum = e.source.rowNum;
-		var updateRow = createUpdateRow('You clicked on the calendar');
-		tableView.updateRow(rowNum,updateRow,{animationStyle:Titanium.UI.iPhone.RowAnimationStyle.LEFT});				
-	});
-	
-	calendar.rowNum = c;
 	row.add(calendar);
 
 	var button = Ti.UI.createView({
@@ -174,18 +136,9 @@ for (var c=1;c<50;c++)
 		top:35,
 		right:5,
 		width:36,
+		clickName:'button',
 		height:34
 	});
-	button.rowNum = c;
-	button.addEventListener('click', function(e)
-	{
-		// use rowNum property on object to get row number
-		var rowNum = e.source.rowNum;
-		var updateRow = createUpdateRow('You clicked on the button');
-		tableView.updateRow(rowNum,updateRow,{animationStyle:Titanium.UI.iPhone.RowAnimationStyle.LEFT});				
-	});
-
-	button.rowNum = c;
 	row.add(button);
 	
 	var date = Ti.UI.createLabel({
@@ -195,18 +148,9 @@ for (var c=1;c<50;c++)
 		bottom:5,
 		height:20,
 		width:100,
+		clickName:'date',
 		text:'posted on 3/11'
 	});
-	date.rowNum = c;
-	date.addEventListener('click', function(e)
-	{
-		// use rowNum property on object to get row number
-		var rowNum = e.source.rowNum;
-		var updateRow = createUpdateRow('You clicked on the date');
-		tableView.updateRow(rowNum,updateRow,{animationStyle:Titanium.UI.iPhone.RowAnimationStyle.LEFT});				
-	});
-	
-	date.rowNum = c;
 	row.add(date);
 	
     data.push(row);
@@ -225,17 +169,11 @@ tableView = Titanium.UI.createTableView({
 
 tableView.addEventListener('click', function(e)
 {
-	if (currentRow != null && e.row.isUpdateRow == false)
-	{
-		//TODO: FIX UPDATE ROW
-		//tableView.updateRow(currentRowIndex, currentRow, {animationStyle:Titanium.UI.iPhone.RowAnimationStyle.RIGHT});
-	}
-	currentRow = e.row;
-	currentRowIndex = e.index;
-	
+	// use rowNum property on object to get row number
+	var rowNum = e.index;
+	var updateRow = createUpdateRow('You clicked on the '+e.source.clickName);
+	tableView.updateRow(rowNum,updateRow,{animationStyle:Titanium.UI.iPhone.RowAnimationStyle.LEFT});	
 })
 
-
 win.add(tableView);
-
 
