@@ -78,11 +78,6 @@
 }
 
 
-@property(nonatomic) UITextAutocapitalizationType autocapitalizationType;  // default is UITextAutocapitalizationTypeNone
-@property(nonatomic) UITextAutocorrectionType     autocorrectionType;      // default is UITextAutocorrectionTypeDefault
-@property(nonatomic) UIKeyboardType               keyboardType;            // default is UIKeyboardTypeDefault
-
-
 -(void)setBarColor_:(id)value
 {
 	TiColor * newBarColor = [TiUtils colorValue:value];
