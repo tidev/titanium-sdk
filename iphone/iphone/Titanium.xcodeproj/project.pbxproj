@@ -1239,6 +1239,7 @@
 		24DD0430116A6C58006FD6E1 /* TiToolbar.m in Sources */ = {isa = PBXBuildFile; fileRef = 24DD042B116A6C58006FD6E1 /* TiToolbar.m */; };
 		24DD0431116A6C58006FD6E1 /* TiToolbar.m in Sources */ = {isa = PBXBuildFile; fileRef = 24DD042B116A6C58006FD6E1 /* TiToolbar.m */; };
 		24DD0456116A6F02006FD6E1 /* TiTabGroup.h in Headers */ = {isa = PBXBuildFile; fileRef = 24DD0455116A6F02006FD6E1 /* TiTabGroup.h */; };
+		24DD0978116D8E07006FD6E1 /* TiToolbarButton.h in Headers */ = {isa = PBXBuildFile; fileRef = 24DD0977116D8E07006FD6E1 /* TiToolbarButton.h */; };
 		24DDF65F11646D51006FD6E1 /* TiUIiPadDocumentViewerProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24DDF65E11646D51006FD6E1 /* TiUIiPadDocumentViewerProxy.m */; };
 		24DDF66011646D51006FD6E1 /* TiUIiPadDocumentViewerProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24DDF65E11646D51006FD6E1 /* TiUIiPadDocumentViewerProxy.m */; };
 		24DDF66111646D51006FD6E1 /* TiUIiPadDocumentViewerProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24DDF65E11646D51006FD6E1 /* TiUIiPadDocumentViewerProxy.m */; };
@@ -1839,6 +1840,7 @@
 		24DD042A116A6C58006FD6E1 /* TiToolbar.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiToolbar.h; sourceTree = "<group>"; };
 		24DD042B116A6C58006FD6E1 /* TiToolbar.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiToolbar.m; sourceTree = "<group>"; };
 		24DD0455116A6F02006FD6E1 /* TiTabGroup.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiTabGroup.h; sourceTree = "<group>"; };
+		24DD0977116D8E07006FD6E1 /* TiToolbarButton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiToolbarButton.h; sourceTree = "<group>"; };
 		24DDF65D11646D51006FD6E1 /* TiUIiPadDocumentViewerProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUIiPadDocumentViewerProxy.h; sourceTree = "<group>"; };
 		24DDF65E11646D51006FD6E1 /* TiUIiPadDocumentViewerProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIiPadDocumentViewerProxy.m; sourceTree = "<group>"; };
 		24DEDAC3112371A500398D86 /* XMLModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = XMLModule.h; sourceTree = "<group>"; };
@@ -2433,6 +2435,7 @@
 				24DD042A116A6C58006FD6E1 /* TiToolbar.h */,
 				24DD042B116A6C58006FD6E1 /* TiToolbar.m */,
 				24DD0455116A6F02006FD6E1 /* TiTabGroup.h */,
+				24DD0977116D8E07006FD6E1 /* TiToolbarButton.h */,
 			);
 			name = API;
 			sourceTree = "<group>";
@@ -3352,6 +3355,7 @@
 				24DDF66211646D51006FD6E1 /* TiUIiPadDocumentViewerProxy.h in Headers */,
 				24DD042F116A6C58006FD6E1 /* TiToolbar.h in Headers */,
 				24DD0456116A6F02006FD6E1 /* TiTabGroup.h in Headers */,
+				24DD0978116D8E07006FD6E1 /* TiToolbarButton.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

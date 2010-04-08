@@ -37,9 +37,10 @@
 	{
 		return [super barButtonItem];
 	}
-
+	
 	if (button==nil)
 	{
+		isUsingBarButtonItem = YES;
 		button = [[TiUINavBarButton alloc] initWithProxy:self];
 	}
 	return button;
@@ -115,10 +116,25 @@
 	[child layoutChildren];
 }
 
-
 -(void)removeBarButtonView
 {
 	RELEASE_TO_NIL(button);
+}
+
+-(void)setToolbar:(TiToolbar*)toolbar_
+{
+	RELEASE_TO_NIL(toolbar);
+	toolbar = [toolbar_ retain];
+}
+
+-(TiToolbar*)toolbar
+{
+	return toolbar;
+}
+
+-(BOOL)attachedToToolbar
+{
+	return toolbar!=nil;
 }
 
 

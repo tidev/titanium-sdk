@@ -4,16 +4,13 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-#import "TiUIView.h"
 
+#include "TiToolbar.h"
 
-@interface TiUISearchBar : TiUIView<UISearchBarDelegate> {
-@private
-	UISearchBar *searchView;
-	id<UISearchBarDelegate> delegate;
-}
+@protocol TiToolbarButton
 
--(void)setDelegate:(id<UISearchBarDelegate>)delegate;
--(UISearchBar*)searchBar;
+-(void)setToolbar:(TiToolbar*)toolbar;
+-(TiToolbar*)toolbar;
+-(BOOL)attachedToToolbar;
 
 @end
