@@ -82,9 +82,13 @@
 		tableview.autoresizingMask = UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight;
 		tableview.backgroundColor = style == UITableViewStylePlain ? [UIColor whiteColor] : [UIColor groupTableViewBackgroundColor];
 		tableview.opaque = YES;
-		[self addSubview:tableview];
 		[self updateSearchView];
 	}
+	if ([tableview superview] != self)
+	{
+		[self addSubview:tableview];
+	}
+	
 	return tableview;
 }
 
@@ -452,9 +456,13 @@
 	// fire it to our row since the row, section and table are
 	// in a hierarchy and it will bubble up from there...
 	
-	if ([row _hasListeners:name])
+	UITableViewCell * thisCell = [tableview cellForRowAtIndexPath:indexPath];
+	
+	TiProxy * target = [row touchedViewProxyInCell:thisCell];
+
+	if ([target _hasListeners:name])
 	{
-		[row fireEvent:name withObject:eventObject];
+		[target fireEvent:name withObject:eventObject];
 	}	
 }
 
