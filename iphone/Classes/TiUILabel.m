@@ -39,24 +39,24 @@
 	return [self sizeForFont:width].height;
 }
 
-// Move this to TiBase.h?
-#if CGFLOAT_IS_DOUBLE
-#define PORTABLE_ROUND(x) roundl(x)
-#else 
-#define PORTABLE_ROUND(x) round(x)
-#endif
 
 -(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
 {
 	// CoreGraphics renders fonts anti-aliased by drawing text on the 0.5 offset of the 
 	// origin. If your origin is on a fraction vs whole number, you'll get blurry text
 	// the CGRectIntegral method ensures that the origin is not on the half pixel
-	self.frame = CGRectIntegral(self.frame);
+    self.frame = CGRectIntegral(self.frame);
     [TiUtils setView:label positionRect:bounds];
     
-    // And we also need to center the frame on integer values as well!  So
-    // we fuss with the center value a bit.
-    [label setCenter:CGPointMake(PORTABLE_ROUND([label center].x), PORTABLE_ROUND([label center].y))];
+    // Because the center point might possibly have been screwed up and adjusted the frame
+    // so that it now lies on a sub-pixel boundary (in terms of the base coordinates), we normalize it.
+    CGPoint normalizedCenter = [label convertPoint:[label center] toView:nil];
+    normalizedCenter.x = PORTABLE_ROUND(normalizedCenter.x);
+    normalizedCenter.y = PORTABLE_ROUND(normalizedCenter.y);
+    [label setCenter:[label convertPoint:normalizedCenter fromView:nil]];
+    
+     // Need to force a redraw of the label, since its text may not fit in the new frame/bounds
+    [label setNeedsDisplay];
 }
 
 -(UILabel*)label
@@ -66,7 +66,6 @@
 		label = [[UILabel alloc] initWithFrame:CGRectZero];
 		label.backgroundColor = [UIColor clearColor];
 		label.numberOfLines = 0;
-        label.contentMode = UIViewContentModeRedraw;
 		[self addSubview:label];
 	}
 	return label;
@@ -81,7 +80,6 @@
 {
 	return [[self label] isHighlighted];
 }
-
 
 #pragma mark Public APIs
 
