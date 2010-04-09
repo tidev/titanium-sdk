@@ -82,9 +82,13 @@
 		tableview.autoresizingMask = UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight;
 		tableview.backgroundColor = style == UITableViewStylePlain ? [UIColor whiteColor] : [UIColor groupTableViewBackgroundColor];
 		tableview.opaque = YES;
-		[self addSubview:tableview];
 		[self updateSearchView];
 	}
+	if ([tableview superview] != self)
+	{
+		[self addSubview:tableview];
+	}
+	
 	return tableview;
 }
 

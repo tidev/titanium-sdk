@@ -123,50 +123,12 @@
 
 -(void)loadNextFrames:(BOOL)forward
 {
+	//At minimum, we should have three views.
+	//However, we shouldn't need to remove a view until it's necessary from memory panics.
 	[self renderViewForIndex:currentPage-1];
 	[self renderViewForIndex:currentPage];
 	[self renderViewForIndex:currentPage+1];
-	
-
-	// determine if we're going forward or reverse should determine
-	// the next set of frames we'll load
-	
-	// the goal of this logic is to simply attempt to keep 3 frames
-	// in memory at a time (attached to the view tree)
-	// depending on the direction it will keep the 
-	// current frame +1 and -1 available so that those are immediately
-	// visible when you scroll
-	
-	if (forward)
-	{
-		for (int c=currentPage;c<MIN(currentPage+2,[views count]);c++)
-		{
-			[self renderViewForIndex:c];
-		}
-		for (int c=currentPage-3;c>=0;c--)
-		{
-			TiViewProxy *viewproxy = [views objectAtIndex:c];
-			if ([viewproxy viewAttached])
-			{
-				[viewproxy detachView];
-			}
-		}
-	}
-	else 
-	{
-		for (int c=currentPage+2;c<MIN(currentPage+4,[views count]);c++)
-		{
-			TiViewProxy *viewproxy = [views objectAtIndex:c];
-			if ([viewproxy viewAttached])
-			{
-				[viewproxy detachView];
-			}
-		}
-		for (int c=currentPage;c>=MAX(0,currentPage-3);c--)
-		{
-			[self renderViewForIndex:c];
-		}
-	}
+	[self renderViewForIndex:currentPage+(forward?2:-2)];
 }
 
 -(void)refreshScrollView:(CGRect)visibleBounds readd:(BOOL)readd
