@@ -610,8 +610,8 @@
 	{
 		[UIView beginAnimations:@"searchy" context:nil];
 	}
-	[searchScreenView setEnabled:NO];
-	[searchScreenView setAlpha:0.0];
+//	[searchScreenView setEnabled:NO];
+//	[searchScreenView setAlpha:0.0];
 	if (searchHidden)
 	{
 		[tableview setContentOffset:CGPointMake(0,MAX(TI_NAVBAR_HEIGHT,searchField.view.frame.size.height)) animated:NO];
@@ -645,14 +645,14 @@
 	UIView * wrapperView = [tableview superview];
 	if ([[self searchScreenView] superview] != wrapperView) 
 	{
-		[searchScreenView setAlpha:0.0];
-		[wrapperView insertSubview:searchScreenView aboveSubview:tableview];
+//		[searchScreenView setAlpha:0.0];
+//		[wrapperView insertSubview:searchScreenView aboveSubview:tableview];
 	}
-	[TiUtils setView:searchScreenView positionRect:screenRect];
+//	[TiUtils setView:searchScreenView positionRect:screenRect];
 	
 	[UIView beginAnimations:@"searchy" context:nil];
-	[searchScreenView setEnabled:YES];
-	[searchScreenView setAlpha:0.85];
+//	[searchScreenView setEnabled:YES];
+//	[searchScreenView setAlpha:0.85];
 	[tableview setContentOffset:CGPointMake(0,0)];
 	[UIView commitAnimations];
 }
@@ -717,7 +717,7 @@
 			[searchTableView reloadSections:[NSIndexSet indexSetWithIndex:0]
 						   withRowAnimation:UITableViewRowAnimationFade];
 		}
-		[wrapperView insertSubview:searchTableView aboveSubview:searchScreenView];
+//		[wrapperView insertSubview:searchTableView aboveSubview:searchScreenView];
 	} 
 	else 
 	{
