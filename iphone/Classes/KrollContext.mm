@@ -610,7 +610,14 @@ static TiValueRef SetTimeoutCallback (TiContextRef jsContext, TiObjectRef jsFunc
 #endif
 		
 		[condition lock];
-		[condition wait];
+		[lock lock];
+		int queue_count = [queue count];
+
+		[lock unlock];
+		if (queue_count == 0)
+		{
+			[condition wait];		
+		}
 		[condition unlock]; 
 		
 #if CONTEXT_DEBUG == 1	

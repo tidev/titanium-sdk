@@ -20,4 +20,4 @@ win.add(Ti.UI.createLabel({
 	text: "md5 checksum " + data + " => " + Ti.Utils.md5HexDigest(data)
 }));
 
-win
+

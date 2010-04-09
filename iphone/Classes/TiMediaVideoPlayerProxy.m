@@ -340,14 +340,26 @@
 
 -(void)setUrl:(id)url_
 {
+	ENSURE_UI_THREAD(setUrl,url_);
 	RELEASE_TO_NIL(url);
 	url = [[TiUtils toURL:url_ proxy:self] retain];
+	
 	if (movie!=nil)
 	{
 		BOOL restart = playing;
-		[movie stop];
+		if (playing)
+		{
+			[movie stop];
+		}
 		[movie autorelease];
-		[self player];
+		movie = nil;
+
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
+		TiMediaVideoPlayer *video = (TiMediaVideoPlayer*)[self view];
+		[video setMovie:[self player]];
+		[video frameSizeChanged:[video frame] bounds:[video bounds]];
+#endif
+		
 		if (restart)
 		{
 			[self performSelectorOnMainThread:@selector(play:) withObject:nil waitUntilDone:NO];

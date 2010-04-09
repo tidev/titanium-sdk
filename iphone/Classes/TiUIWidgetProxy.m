@@ -31,7 +31,6 @@
 
 - (TiUIView *)barButtonViewForSize:(CGSize)bounds
 {
-	isUsingBarButtonItem = YES;
 	TiUIView * barButtonView = [self view];
 	//TODO: This logic should have a good place in case that refreshLayout is used.
 	LayoutConstraint barButtonLayout = layoutProperties;
@@ -57,6 +56,7 @@
 {
 	if (barButtonItem == nil)
 	{
+		isUsingBarButtonItem = YES;
 		barButtonItem = [[UIBarButtonItem alloc] initWithCustomView:[self barButtonViewForSize:CGSizeZero]];
 	}
 	return barButtonItem;

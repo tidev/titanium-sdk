@@ -25,6 +25,28 @@
 
 @end
 
+TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint point)
+{
+	if (!CGRectContainsPoint([targetView bounds], point))
+	{
+		return nil;
+	}
+	for (UIView * subView in [targetView subviews])
+	{
+		TiProxy * subProxy = DeepScanForProxyOfViewContainingPoint(subView,[targetView convertPoint:point toView:subView]);
+		if (subProxy != nil)
+		{
+			return subProxy;
+		}
+	}
+
+	//By now, no subviews have claimed ownership.
+	if ([targetView respondsToSelector:@selector(proxy)])
+	{
+		return [(TiUIView *)targetView proxy];
+	}
+	return nil;
+}
 
 @implementation TiUITableViewRowContainer
 @synthesize hitTarget;
@@ -48,22 +70,27 @@
 
 	if (result==nil)
 	{
-		for (UIView * ourSubView in [self subviews])
-		{
-			CGPoint subPoint = [self convertPoint:point toView:ourSubView];
-			//TODO: Hittest.
-			
-			
-			
-		}
+		[self setHitTarget:DeepScanForProxyOfViewContainingPoint(self,point)];
+		return nil;
 	}
-	//TODO: clear last touched proxy.
-	[self clearHitTarget];
+
+	if ([result respondsToSelector:@selector(proxy)])
+	{
+		[self setHitTarget:[(TiUIView *)result proxy]];
+	}
+	else
+	{
+		[self clearHitTarget];
+	}
+
 	return result;
 }
 
-
-
+- (void) dealloc
+{
+	[self clearHitTarget];
+	[super dealloc];
+}
 
 
 @end
@@ -419,12 +446,11 @@
 			return;
 		}
 		BOOL found = NO;
-		for (size_t c=0;c<[subviews count];c++)
+		for (UIView *aview in subviews)
 		{
 			// since the table will insert the accessory view and 
 			// other stuff in our contentView we need to check and
 			// and skip non TiUIViews
-			UIView *aview = [subviews objectAtIndex:c];
 			if ([aview isKindOfClass:[TiUITableViewRowContainer class]])
 			{
 				NSArray *subviews = [aview subviews];
@@ -530,6 +556,23 @@
 {
 	[self triggerRowUpdate];
 }
+
+-(TiProxy *)touchedViewProxyInCell:(UITableViewCell *)targetCell
+{
+	for (TiUITableViewRowContainer * thisContainer in [[targetCell contentView] subviews])
+	{
+		if ([thisContainer isKindOfClass:[TiUITableViewRowContainer class]])
+		{
+			TiProxy * result = [thisContainer hitTarget];
+			if (result != nil)
+			{
+				return result;
+			}
+		}
+	}
+	return self;
+}
+
 
 -(void)fireEvent:(NSString *)type withObject:(id)obj withSource:(id)source propagate:(BOOL)propagate
 {

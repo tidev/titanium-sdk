@@ -19,13 +19,6 @@
 
 #pragma mark Internal 
 
--(void)_configure
-{
-	[super _configure];
-	[self replaceValue:NUMBOOL(YES) forKey:@"searchHidden" notification:NO];
-	[self replaceValue:NUMBOOL(NO) forKey:@"autoHideSearch" notification:NO];
-}
-
 -(id<NSFastEnumeration>)allKeys
 {
 	NSArray * result = (NSArray *)[super allKeys];
@@ -146,6 +139,17 @@
 	
 	[(TiUITableView*)[self view] scrollToIndex:index position:scrollPosition animated:animated];
 }
+
+-(void)scrollToTop:(id)args
+{
+	ENSURE_UI_THREAD(scrollToTop,args);
+	NSInteger top = [TiUtils intValue:[args objectAtIndex:0]];
+	NSDictionary *options = [args count] > 1 ? [args objectAtIndex:1] : nil;
+	BOOL animated = [TiUtils boolValue:@"animated" properties:options def:YES];
+	
+	[(TiUITableView*)[self view] scrollToTop:top animated:animated];
+}
+
 
 -(NSNumber*)getIndexByName:(id)args
 {

@@ -9,6 +9,7 @@
 #import "TiUtils.h"
 #import "TitaniumApp.h"
 #import "TiToolbar.h"
+#import "TiToolbarButton.h"
 #import	"TiTab.h"
 
 @implementation TiUIOptionDialogProxy
@@ -49,6 +50,8 @@
 	}
 	else 
 	{
+		//TODO: need to deal with button in a Toolbar which will have a nil view
+		
 		BOOL animated = [TiUtils boolValue:@"animated" properties:args def:YES];
 		if ([proxy supportsNavBarPositioning] && [proxy isUsingBarButtonItem])
 		{

@@ -8,8 +8,17 @@
 #import "TiUIViewProxy.h"
 #import "TiUtils.h"
 #import "TiColor.h"
+#import "TiToolbarButton.h"
+#import "TiToolbar.h"
 
 @implementation TiUIToolbar
+
+-(void)dealloc
+{
+	[self performSelector:@selector(setItems_:) withObject:nil];
+	RELEASE_TO_NIL(toolBar);
+	[super dealloc];
+}
 
 -(UIToolbar *)toolBar
 {
@@ -85,13 +94,29 @@
 				NSLog(@"[ERROR] %@ does not support being in a toolbar!",thisProxy);
 				//continue;
 			}
+			if ([thisProxy conformsToProtocol:@protocol(TiToolbarButton)])
+			{
+				[(id<TiToolbarButton>)thisProxy setToolbar:(TiToolbar*)self.proxy];
+			}
 			[result addObject:[thisProxy barButtonItem]];
+			
 		}
 		[[self toolBar] setItems:result];
 	}
 	else 
 	{
-		[[self toolBar] setItems:nil];
+		UIToolbar *toolbar = [self toolBar];
+		if (toolbar!=nil)
+		{
+			for (id thisProxy in [toolbar items])
+			{
+				if ([thisProxy conformsToProtocol:@protocol(TiToolbarButton)])
+				{
+					[(id<TiToolbarButton>)thisProxy setToolbar:nil];
+				}
+			}
+		}
+		[toolbar setItems:nil];
 	}
 }
 
