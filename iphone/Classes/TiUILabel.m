@@ -43,6 +43,13 @@
 -(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
 {
     [TiUtils setView:label positionRect:bounds];
+    
+    // Because resetting the center may have shifted the label's origin,
+    // we need to readjust the center point.  See below.
+    CGPoint normalizedCenter = [label center];
+    normalizedCenter.x = PORTABLE_ROUND(normalizedCenter.x);
+    normalizedCenter.y = PORTABLE_ROUND(normalizedCenter.y);
+    [label setCenter:normalizedCenter];
 }
 
 // CoreGraphics renders fonts anti-aliased by drawing text on the 0.5 offset of the 
