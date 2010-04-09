@@ -24,6 +24,8 @@ if (Titanium.Platform.name == 'iPhone OS')
 	data.push({title:'SVG URL', hasChild:true, url:'http://upload.wikimedia.org/wikipedia/commons/5/55/1st_Cavalry_Division_-_Shoulder_Sleeve_Insignia.svg'});
 	data.push({title:'Local Pinch/Zoom', hasChild:true, url:'local_webview_pinchzoom.html', scale:true});
 	data.push({title:'Webview controls', hasChild:true, url:'http://www.google.com', controls:true});
+	data.push({title:'Auto Height', auto:true,hasChild:true, innerHTML:'<html><body style="height:200px;border:1px solid #ccc;padding:10px">200 px height.</body></html>'});
+
 }
 
 // create table view
@@ -42,8 +44,15 @@ tableview.addEventListener('click', function(e)
 		Titanium.UI.LANDSCAPE_RIGHT
 	];
 
-	
-	var webview = Ti.UI.createWebView();
+	var webview = null;
+	if (rowdata.auto ==true)
+	{
+		webview = Ti.UI.createWebView({height:'auto',width:'auto'});
+	}
+	else
+	{
+		webview = Ti.UI.createWebView();
+	}
 	// webview.addEventListener('singletap', function(e)
 	// {
 	// 	alert('singletap');
