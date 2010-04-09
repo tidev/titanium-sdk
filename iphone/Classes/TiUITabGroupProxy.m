@@ -130,7 +130,6 @@
 	{
 		[tabGroup close:args];
 	}
-	[self detachView];
 	return YES;
 }
 
