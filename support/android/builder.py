@@ -109,7 +109,9 @@ class Builder(object):
 			if output != None: 
 				if (type == 'd' or output.find("emulator-") != -1) and output.find("offline") == -1:
 					break
-			time.sleep(1)
+			try: time.sleep(1) # for some reason KeyboardInterrupts get caught here from time to time
+			except KeyboardInterrupt: pass
+		
 		print "[DEBUG] Device connected..."
 		sys.stdout.flush()
 		duration = time.time() - t
@@ -209,12 +211,18 @@ class Builder(object):
 		print "[INFO] Android Emulator has exited"
 		sys.exit(rc)
 	
-	def is_app_installed(self):
-		output = run.run([self.sdk.get_adb(), self.device_type_arg, 'shell', 'ls', '/data/app/%s.apk' % self.app_id])
+	def check_file_exists(self, path):
+		output = run.run([self.sdk.get_adb(), self.device_type_arg, 'shell', 'ls', path])
 		if output != None:
 			if output.find("No such file or directory") == -1:
 				return True
 		return False
+		
+	def is_app_installed(self):
+		return self.check_file_exists('/data/app/%s.apk' % self.app_id)
+		
+	def are_resources_installed(self):
+		return self.check_file_exists(self.sdcard_resources+'/app.js')
 	
 	def include_path(self, path, isfile):
 		if not isfile and os.path.basename(path) in ignoreDirs: return False
@@ -234,13 +242,19 @@ class Builder(object):
 			if s[0:1]=='/' or s[0:1]=='\\': return s[1:]
 			return s
 		
+		def make_relative(path, relative_to, prefix=None):
+			relative_path = strip_slash(path[len(relative_to):])
+			if prefix is not None:
+				return os.path.join(prefix, relative_path)
+			return relative_path
+		
 		for delta in self.project_deltas:
 			if delta.get_status() != Delta.DELETED:
 				path = delta.get_path()
 				if path.startswith(android_resources_dir):
-					dest = os.path.join(self.assets_resources_dir, strip_slash(path[len(android_resources_dir):]))
+					dest = make_relative(path, android_resources_dir, self.assets_resources_dir)
 				else:
-					dest = os.path.join(self.assets_resources_dir, strip_slash(path[len(resources_dir):]))
+					dest = make_relative(path, resources_dir, self.assets_resources_dir)
 				parent = os.path.dirname(dest)
 				if not os.path.exists(parent):
 					os.makedirs(parent)
@@ -249,9 +263,12 @@ class Builder(object):
 				shutil.copy(path, dest)
 				# copy to the sdcard in development mode
 				if self.app_installed and (self.deploy_type == 'development' or self.deploy_type == 'test'):
-					relative_path = delta.get_path()[len(resources_dir)+1:]
+					if path.startswith(android_resources_dir):
+						relative_path = make_relative(delta.get_path(), android_resources_dir)
+					else:
+						relative_path = make_relative(delta.get_path(), resources_dir)
 					relative_path = relative_path.replace("\\", "/")
-					cmd = [self.sdk.get_adb(), self.device_type_arg, "push", delta.get_path(), "/sdcard/Ti.debug/%s/Resources/%s" % (self.app_id, relative_path)]
+					cmd = [self.sdk.get_adb(), self.device_type_arg, "push", delta.get_path(), "%s/%s" % (self.sdcard_resources, relative_path)]
 					run.run(cmd)
 
 	def generate_android_manifest(self):
@@ -591,11 +608,6 @@ class Builder(object):
 				print '[ERROR] %s' % e
 				time.sleep(3)
 				attempts+=1
-		
-		if not self.app_installed and (self.deploy_type == 'development' or self.deploy_type == 'test'):
-			cmd = [self.sdk.get_adb(), self.device_type_arg, "push", os.path.join(self.top_dir, 'Resources'), "/sdcard/Ti.debug/%s/Resources" % self.app_id]
-			output = run.run(cmd)
-			print "[TRACE] sdcard output: %s" % output
 			
 		return (launched, launch_failed)
 	
@@ -636,13 +648,18 @@ class Builder(object):
 		self.titanium_jar = os.path.join(self.support_dir,'titanium.jar')
 		dx = self.sdk.get_dx()
 		self.apkbuilder = self.sdk.get_apkbuilder()
+		self.sdcard_resources = '/sdcard/Ti.debug/%s/Resources' % self.app_id
 		
+		self.resources_installed = False
 		if deploy_type == "production":
 			self.app_installed = False
 		else:
 			self.app_installed = self.is_app_installed()
 			print "[DEBUG] %s installed? %s" % (self.app_id, self.app_installed)
-		
+			
+			self.resources_installed = self.are_resources_installed()
+			print "[DEBUG] %s resources installed? %s" % (self.app_id, self.resources_installed)
+			
 		if keystore == None:
 			keystore = os.path.join(self.support_dir,'dev_keystore')
 		
@@ -741,6 +758,21 @@ class Builder(object):
 				dex_built = True
 			
 			
+			if (not self.resources_installed or not self.app_installed) and (self.deploy_type == 'development' or self.deploy_type == 'test'):
+				if self.install: self.wait_for_device('e')
+				else: self.wait_for_device('d')
+				
+				print "[TRACE] Performing full copy to SDCARD -> %s" % self.sdcard_resources
+				cmd = [self.sdk.get_adb(), self.device_type_arg, "push", os.path.join(self.top_dir, 'Resources'), self.sdcard_resources]
+				output = run.run(cmd)
+				print "[TRACE] result: %s" % output
+				
+				android_resources_dir = os.path.join(self.top_dir, 'Resources', 'android')
+				if os.path.exists(android_resources_dir):
+					cmd = [self.sdk.get_adb(), self.device_type_arg, "push", android_resources_dir, self.sdcard_resources]
+					output = run.run(cmd)
+					print "[TRACE] result: %s" % output
+						
 			if dex_built or generated_classes_built or tiapp_changed or manifest_changed or not self.app_installed:
 				# metadata has changed, we need to do a full re-deploy
 				launched, launch_failed = self.package_and_deploy()
@@ -750,6 +782,7 @@ class Builder(object):
 				elif launch_failed==False:
 					print "[INFO] Application installed. Launch from drawer on Home Screen"
 			else:
+				
 				# we copied all the files to the sdcard, no need to package
 				# just kill from adb which forces a restart
 				print "[INFO] Re-launching application ... %s" % self.name
