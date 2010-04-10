@@ -109,7 +109,9 @@ class Builder(object):
 			if output != None: 
 				if (type == 'd' or output.find("emulator-") != -1) and output.find("offline") == -1:
 					break
-			time.sleep(1)
+			try: time.sleep(1) # for some reason KeyboardInterrupts get caught here from time to time
+			except KeyboardInterrupt: pass
+		
 		print "[DEBUG] Device connected..."
 		sys.stdout.flush()
 		duration = time.time() - t
@@ -240,13 +242,19 @@ class Builder(object):
 			if s[0:1]=='/' or s[0:1]=='\\': return s[1:]
 			return s
 		
+		def make_relative(path, relative_to, prefix=None):
+			relative_path = strip_slash(path[len(relative_to):])
+			if prefix is not None:
+				return os.path.join(prefix, relative_path)
+			return relative_path
+		
 		for delta in self.project_deltas:
 			if delta.get_status() != Delta.DELETED:
 				path = delta.get_path()
 				if path.startswith(android_resources_dir):
-					dest = os.path.join(self.assets_resources_dir, strip_slash(path[len(android_resources_dir):]))
+					dest = make_relative(path, android_resources_dir, self.assets_resources_dir)
 				else:
-					dest = os.path.join(self.assets_resources_dir, strip_slash(path[len(resources_dir):]))
+					dest = make_relative(path, resources_dir, self.assets_resources_dir)
 				parent = os.path.dirname(dest)
 				if not os.path.exists(parent):
 					os.makedirs(parent)
@@ -255,7 +263,10 @@ class Builder(object):
 				shutil.copy(path, dest)
 				# copy to the sdcard in development mode
 				if self.app_installed and (self.deploy_type == 'development' or self.deploy_type == 'test'):
-					relative_path = delta.get_path()[len(resources_dir)+1:]
+					if path.startswith(android_resources_dir):
+						relative_path = make_relative(delta.get_path(), android_resources_dir)
+					else:
+						relative_path = make_relative(delta.get_path(), resources_dir)
 					relative_path = relative_path.replace("\\", "/")
 					cmd = [self.sdk.get_adb(), self.device_type_arg, "push", delta.get_path(), "%s/%s" % (self.sdcard_resources, relative_path)]
 					run.run(cmd)
@@ -755,6 +766,12 @@ class Builder(object):
 				cmd = [self.sdk.get_adb(), self.device_type_arg, "push", os.path.join(self.top_dir, 'Resources'), self.sdcard_resources]
 				output = run.run(cmd)
 				print "[TRACE] result: %s" % output
+				
+				android_resources_dir = os.path.join(self.top_dir, 'Resources', 'android')
+				if os.path.exists(android_resources_dir):
+					cmd = [self.sdk.get_adb(), self.device_type_arg, "push", android_resources_dir, self.sdcard_resources]
+					output = run.run(cmd)
+					print "[TRACE] result: %s" % output
 						
 			if dex_built or generated_classes_built or tiapp_changed or manifest_changed or not self.app_installed:
 				# metadata has changed, we need to do a full re-deploy
