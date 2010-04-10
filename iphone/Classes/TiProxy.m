@@ -279,21 +279,9 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 	// for subclass
 }
 
-#define shortCutPropertyAssigning 1
 -(void)_initWithProperties:(NSDictionary*)properties
 {
-#if shortCutPropertyAssigning
-	ignoreValueChanged = YES;
-	if (dynprops == nil)
-	{
-		dynprops = [[NSMutableDictionary alloc] initWithCapacity:[properties count]];
-	}
-	[dynprops addEntriesFromDictionary:properties];
 	[self setValuesForKeysWithDictionary:properties];
-	ignoreValueChanged = NO;
-#else
-	[self setValuesForKeysWithDictionary:properties];
-#endif
 	[self _configurationSet];
 }
 
