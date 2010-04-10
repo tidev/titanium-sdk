@@ -252,6 +252,12 @@
 	if (noOrientations)
 	{
 		allowedOrientations[UIInterfaceOrientationPortrait] = YES;
+		if ([TiUtils isIPad])
+		{
+			allowedOrientations[UIInterfaceOrientationPortraitUpsideDown] = YES;
+			allowedOrientations[UIInterfaceOrientationLandscapeLeft] = YES;
+			allowedOrientations[UIInterfaceOrientationLandscapeRight] = YES;
+		}
 	}
 }
 
@@ -266,12 +272,7 @@
 }
 
 -(void)enforceOrientationModesFromWindow:(TiWindowProxy *) newCurrentWindow
-{
-	if ([TiUtils isIPad])
-	{
-		return;
-	}
-	
+{	
 	currentWindow = newCurrentWindow;
 
 	Class arrayClass = [NSArray class];
@@ -340,7 +341,7 @@
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation 
 {
 	orientationRequestTimes[interfaceOrientation] = [NSDate timeIntervalSinceReferenceDate];
-	return [TiUtils isIPad] || allowedOrientations[interfaceOrientation];
+	return allowedOrientations[interfaceOrientation];
 }
 
 

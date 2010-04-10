@@ -279,9 +279,21 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 	// for subclass
 }
 
+#define shortCutPropertyAssigning 1
 -(void)_initWithProperties:(NSDictionary*)properties
 {
+#if shortCutPropertyAssigning
+	ignoreValueChanged = YES;
+	if (dynprops == nil)
+	{
+		dynprops = [[NSMutableDictionary alloc] initWithCapacity:[properties count]];
+	}
+	[dynprops addEntriesFromDictionary:properties];
 	[self setValuesForKeysWithDictionary:properties];
+	ignoreValueChanged = NO;
+#else
+	[self setValuesForKeysWithDictionary:properties];
+#endif
 	[self _configurationSet];
 }
 
@@ -756,29 +768,32 @@ DEFINE_EXCEPTIONS
 		value = [NSNull null];
 	}
 	id current = nil;
-	if (dynPropsLock==nil)
+	if (!ignoreValueChanged)
 	{
-		dynPropsLock = [[NSRecursiveLock alloc] init];
-	}
-	[dynPropsLock lock];
-	if (dynprops==nil)
-	{
-		dynprops = [[NSMutableDictionary alloc] init];
-	}
-	else
-	{
-		// hold it for this invocation since set may cause it to be deleted
-		current = [dynprops objectForKey:key];
-		if (current!=nil)
+		if (dynPropsLock==nil)
 		{
-			current = [[current retain] autorelease];
+			dynPropsLock = [[NSRecursiveLock alloc] init];
 		}
+		[dynPropsLock lock];
+		if (dynprops==nil)
+		{
+			dynprops = [[NSMutableDictionary alloc] init];
+		}
+		else
+		{
+			// hold it for this invocation since set may cause it to be deleted
+			current = [dynprops objectForKey:key];
+			if (current!=nil)
+			{
+				current = [[current retain] autorelease];
+			}
+		}
+		if ((current!=value)&&![current isEqual:value])
+		{
+			[dynprops setValue:value forKey:key];
+		}
+		[dynPropsLock unlock];
 	}
-	if ((current!=value)&&![current isEqual:value])
-	{
-		[dynprops setValue:value forKey:key];
-	}
-	[dynPropsLock unlock];
 	
 	if (notify && self.modelDelegate!=nil)
 	{

@@ -38,6 +38,11 @@ CGPoint midpointBetweenPoints(CGPoint a, CGPoint b);
 #define degreesToRadians(x) (M_PI * x / 180.0)
 #define radiansToDegrees(x) (x * (180.0 / M_PI))
 
+#if CGFLOAT_IS_DOUBLE
+#define PORTABLE_ROUND(x) roundl(x)
+#else 
+#define PORTABLE_ROUND(x) round(x)
+#endif
 
 #define RELEASE_TO_NIL(x) { if (x!=nil) { [x release]; x = nil; } }
 #define RELEASE_TO_NIL_AUTORELEASE(x) { if (x!=nil) { [x autorelease]; x = nil; } }

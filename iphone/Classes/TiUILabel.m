@@ -39,35 +39,61 @@
 	return [self sizeForFont:width].height;
 }
 
-// Move this to TiBase.h?
-#if CGFLOAT_IS_DOUBLE
-#define PORTABLE_ROUND(x) roundl(x)
-#else 
-#define PORTABLE_ROUND(x) round(x)
-#endif
 
 -(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
 {
-	// CoreGraphics renders fonts anti-aliased by drawing text on the 0.5 offset of the 
-	// origin. If your origin is on a fraction vs whole number, you'll get blurry text
-	// the CGRectIntegral method ensures that the origin is not on the half pixel
-	self.frame = CGRectIntegral(self.frame);
     [TiUtils setView:label positionRect:bounds];
     
-    // And we also need to center the frame on integer values as well!  So
-    // we fuss with the center value a bit.
-    [label setCenter:CGPointMake(PORTABLE_ROUND([label center].x), PORTABLE_ROUND([label center].y))];
+    // Because resetting the center may have shifted the label's origin,
+    // we need to readjust the center point.  See below.
+    CGPoint normalizedCenter = [label center];
+    normalizedCenter.x = PORTABLE_ROUND(normalizedCenter.x);
+    normalizedCenter.y = PORTABLE_ROUND(normalizedCenter.y);
+    [label setCenter:normalizedCenter];
+}
+
+// CoreGraphics renders fonts anti-aliased by drawing text on the 0.5 offset of the 
+// origin. If your origin is on a fraction vs whole number, you'll get blurry text
+// the CGRectIntegral method ensures that the origin is not on the half pixel,
+// and this must be computed in as broad a frame of reference as possible (ideally,
+// at the window level).
+//
+// NOTE: When dequeuing from a table, this gets really ugly... because we HAVE
+// no window coordinate system (the cell doesn't belong to a window yet).  So
+// this, unfortunately, is the best we can do.
+
+-(UIView*)superMostView
+{
+    UIView* superView = self;
+    while ([superView superview] != nil) {
+        superView = [superView superview];
+    }
+    return superView;
+}
+
+-(void)setFrame:(CGRect)frame
+{
+    UIView* referenceView = [self superMostView];
+    CGRect normalizedFrame = CGRectIntegral([self convertRect:frame toView:referenceView]);
+    [super setFrame:[self convertRect:normalizedFrame fromView:referenceView]];
+}
+
+-(void)setBounds:(CGRect)bounds
+{
+    UIView* referenceView = [self superMostView];
+    CGRect normalizedBounds = CGRectIntegral([self convertRect:bounds toView:referenceView]);
+    [super setBounds:[self convertRect:normalizedBounds fromView:referenceView]];
 }
 
 -(UILabel*)label
 {
 	if (label==nil)
 	{
-		label = [[UILabel alloc] initWithFrame:CGRectZero];
-		label.backgroundColor = [UIColor clearColor];
-		label.numberOfLines = 0;
+        label = [[UILabel alloc] initWithFrame:CGRectZero];
+        label.backgroundColor = [UIColor clearColor];
+        label.numberOfLines = 0;
         label.contentMode = UIViewContentModeRedraw;
-		[self addSubview:label];
+        [self addSubview:label];
 	}
 	return label;
 }
@@ -81,7 +107,6 @@
 {
 	return [[self label] isHighlighted];
 }
-
 
 #pragma mark Public APIs
 
