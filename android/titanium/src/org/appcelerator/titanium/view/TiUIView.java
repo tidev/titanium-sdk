@@ -31,14 +31,13 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.GestureDetector.SimpleOnGestureListener;
-import android.view.View.OnClickListener;
 import android.view.View.OnFocusChangeListener;
 import android.view.View.OnTouchListener;
 import android.view.animation.AnimationSet;
 import android.view.inputmethod.InputMethodManager;
 
 public abstract class TiUIView
-	implements TiProxyListener, OnFocusChangeListener, OnClickListener
+	implements TiProxyListener, OnFocusChangeListener
 {
 	private static final String LCAT = "TiUIView";
 	private static final boolean DBG = TiConfig.LOGD;
@@ -285,7 +284,7 @@ public abstract class TiUIView
 
 	private void applyCustomBackground() {
 		if (nativeView != null && !usingCustomBackground) {
-			nativeView.setOnClickListener(this);
+			nativeView.setClickable(true);
 
 			Drawable currentDrawable = nativeView.getBackground();
 			if (currentDrawable != null) {
@@ -471,6 +470,7 @@ public abstract class TiUIView
 
 					@Override
 					public boolean onSingleTapConfirmed(MotionEvent e) {
+						Log.e(LCAT, "TAP, TAP, TAP");
 						boolean handledTap = proxy.fireEvent("singletap", dictFromEvent(e));
 						boolean handledClick = proxy.fireEvent("click", dictFromEvent(e));
 						return handledTap || handledClick;
@@ -487,14 +487,6 @@ public abstract class TiUIView
 				}
 			});
 
-	}
-
-	@Override
-	public void onClick(View view) {
-		TiDict data = new TiDict();
-		data.put("source", getProxy());
-
-		getProxy().fireEvent("click", data);
 	}
 
 	public TiDict toImage() {
