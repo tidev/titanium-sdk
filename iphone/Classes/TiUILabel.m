@@ -39,19 +39,6 @@
 	return [self sizeForFont:width].height;
 }
 
-
--(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
-{
-    [TiUtils setView:label positionRect:bounds];
-    
-    // Because resetting the center may have shifted the label's origin,
-    // we need to readjust the center point.  See below.
-    CGPoint normalizedCenter = [label center];
-    normalizedCenter.x = PORTABLE_ROUND(normalizedCenter.x);
-    normalizedCenter.y = PORTABLE_ROUND(normalizedCenter.y);
-    [label setCenter:normalizedCenter];
-}
-
 // CoreGraphics renders fonts anti-aliased by drawing text on the 0.5 offset of the 
 // origin. If your origin is on a fraction vs whole number, you'll get blurry text
 // the CGRectIntegral method ensures that the origin is not on the half pixel,
@@ -62,7 +49,7 @@
 // no window coordinate system (the cell doesn't belong to a window yet).  So
 // this, unfortunately, is the best we can do.
 
--(UIView*)superMostView
+-(UIView*)supermostView
 {
     UIView* superView = self;
     while ([superView superview] != nil) {
@@ -71,16 +58,27 @@
     return superView;
 }
 
+-(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
+{
+    [TiUtils setView:label positionRect:bounds];
+    CGRect normalizedFrame = CGRectIntegral(frame);
+    CGRect adjustedFrame = CGRectMake(normalizedFrame.origin.x - frame.origin.x,
+                                      normalizedFrame.origin.y - frame.origin.y,
+                                      normalizedFrame.size.width,
+                                      normalizedFrame.size.height);
+    [label setFrame:adjustedFrame];
+}
+
 -(void)setFrame:(CGRect)frame
 {
-    UIView* referenceView = [self superMostView];
+    UIView* referenceView = [self supermostView];
     CGRect normalizedFrame = CGRectIntegral([self convertRect:frame toView:referenceView]);
     [super setFrame:[self convertRect:normalizedFrame fromView:referenceView]];
 }
 
 -(void)setBounds:(CGRect)bounds
 {
-    UIView* referenceView = [self superMostView];
+    UIView* referenceView = [self supermostView];
     CGRect normalizedBounds = CGRectIntegral([self convertRect:bounds toView:referenceView]);
     [super setBounds:[self convertRect:normalizedBounds fromView:referenceView]];
 }
