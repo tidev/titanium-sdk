@@ -26,7 +26,7 @@ xhr.onload = function()
 					left:72,
 					top:5,
 					bottom:5,
-					right:5
+					right:5				
 				});
 				row.add(label);
 				var img = Ti.UI.createImageView({

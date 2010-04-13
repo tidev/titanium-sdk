@@ -12,7 +12,7 @@ var l1 = Titanium.UI.createLabel({
 win.add(l1);
 
 var l2 = Titanium.UI.createLabel({
-	text:'Appcelerator',
+	text:' β',
 	height:50,
 	width:'auto',
 	shadowColor:'#aaa',
