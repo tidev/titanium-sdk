@@ -41,10 +41,10 @@ public class TiUIImageView extends TiUIView
 {
 	private static final String LCAT = "TiUIImageView";
 	private static final boolean DBG = TiConfig.LOGD;
-	
+
 	private static final String EVENT_CLICK = "click";
 	private static final int MAX_BITMAPS = 3;
-	
+
 	private Timer timer;
 	private AnimationTask animationTask;
 	private Drawable[] drawables;
@@ -70,7 +70,7 @@ public class TiUIImageView extends TiUIView
 			}
 		}
 	}
-	
+
 	public TiUIImageView(TiViewProxy proxy) {
 		super(proxy);
 
@@ -128,7 +128,7 @@ public class TiUIImageView extends TiUIView
 			b.getBitmap().recycle();
 		}*/
 	}
-	
+
 	public void setImage(final Drawable drawable)
 	{
 		if (drawable != null) {
@@ -151,7 +151,7 @@ public class TiUIImageView extends TiUIView
 		proxy.getTiContext().getActivity().runOnUiThread(new Runnable(){
 			public void run() {
 				if (images == null) return;
-				
+
 				TiUIImageView.this.drawables = new Drawable[images.length];
 				int length = Math.min(MAX_BITMAPS, images.length);
 				for (int i = 0; i < images.length; i++) {
@@ -212,12 +212,21 @@ public class TiUIImageView extends TiUIView
 		public boolean started = false;
 		public boolean paused = false;
 		public int index = 0;
-		
+		public int repeatCount = -1; // repeat always
+
 		public Drawable getDrawable()
 		{
 			return drawables[index];
 		}
-		
+
+		public void setRepeatCount(int repeatCount) {
+			if (repeatCount <= 0) {
+				repeatCount = -1;
+			} else {
+				this.repeatCount = repeatCount;
+			}
+		}
+
 		@Override
 		public void run()
 		{
@@ -233,13 +242,24 @@ public class TiUIImageView extends TiUIView
 						setImage(getDrawable());
 						fireChange(index);
 					} else {
-						if (index < 0) {
-							index = drawables.length-1;
-						} else if (index >= drawables.length) {
-							index = 0;
+						boolean stopping = false;
+						if (repeatCount > -1) {
+							repeatCount -= 1;
+							if (repeatCount == 0) {
+								stop();
+								stopping = true;
+							}
 						}
-						setImage(getDrawable());
-						fireChange(index);
+
+						if (!stopping) {
+							if (index < 0) {
+								index = drawables.length-1;
+							} else if (index >= drawables.length) {
+								index = 0;
+							}
+							setImage(getDrawable());
+							fireChange(index);
+						}
 					}
 
 					if (!reverse) {
@@ -273,6 +293,10 @@ public class TiUIImageView extends TiUIView
 
 			timer = new Timer();
 			animationTask = new AnimationTask();
+			Object repeat = proxy.getDynamicValue("repeatCount");
+			if (repeat != null) {
+				animationTask.setRepeatCount(TiConvert.toInt(repeat));
+			}
 			int duration = (int) getDuration();
 			timer.schedule(animationTask, duration, duration);
 		} else {
