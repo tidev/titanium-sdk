@@ -1515,6 +1515,16 @@ if(tableView == searchTableView)	\
 
 #pragma mark Search Display Controller Delegates
 
+- (void) searchDisplayController:(UISearchDisplayController *)controller willShowSearchResultsTableView:(UITableView *)tableView
+{
+    // Carry over (relevant) display properties from our table to the search table, for consistency.  Note that
+    // we MAY NOT be able to get the correct row height min/max.
+    [tableView setBackgroundColor:[[self tableView] backgroundColor]];
+    [tableView setSeparatorStyle:[[self tableView] separatorStyle]];
+    [tableView setSeparatorColor:[[self tableView] separatorColor]];
+    [tableView setRowHeight:[[self tableView] rowHeight]];
+}
+
 - (void) searchDisplayControllerDidEndSearch:(UISearchDisplayController *)controller
 {
 	[self hideSearchScreen:nil];
