@@ -12,6 +12,11 @@
 #import "TitaniumApp.h"
 #import "UIImage+Resize.h"
 
+#ifdef VERBOSE
+#import <mach/mach.h>
+#endif
+
+
 
 @interface ImageCacheEntry : NSObject
 {
@@ -243,7 +248,16 @@ DEFINE_EXCEPTIONS
 -(void)didReceiveMemoryWarning:(id)sender
 {
 	NSString * doomedKey;
+
+#ifdef VERBOSE
 	int cacheCount = [cache count];
+	vm_statistics_data_t vmStats;
+	mach_msg_type_number_t infoCount = HOST_VM_INFO_COUNT;
+	kern_return_t kernReturn = host_statistics(mach_host_self(), HOST_VM_INFO, (host_info_t)&vmStats, &infoCount);
+	NSLog(@"[INFO] %d pages free before clearing image cache.",vmStats.free_count);
+#endif
+
+
 	do
 	{
 		doomedKey = nil;
@@ -258,11 +272,16 @@ DEFINE_EXCEPTIONS
 		}
 		if (doomedKey != nil)
 		{
-			NSLog(@"[INFO] Due to memory conditions, releasing cached image: %@",doomedKey);
+			VerboseLog(@"[INFO] Due to memory conditions, releasing cached image: %@",doomedKey);
 			[cache removeObjectForKey:doomedKey];
 		}
 	} while (doomedKey != nil);
-	NSLog(@"[INFO] %d of %d images remain in cache.",[cache count],cacheCount);
+#ifdef VERBOSE
+	kernReturn = host_statistics(mach_host_self(), HOST_VM_INFO, (host_info_t)&vmStats, &infoCount);
+	NSLog(@"[INFO] %d of %d images remain in cache, %d pages now free.",[cache count],cacheCount,vmStats.free_count);
+#endif
+
+
 }
 
 +(ImageLoader*)sharedLoader
@@ -274,7 +293,7 @@ DEFINE_EXCEPTIONS
 	return sharedLoader;
 }
 
--(ImageCacheEntry *)setImage:(UIImage *)image forKey:(NSString *)urlString
+-(ImageCacheEntry *)setImage:(UIImage *)image forKey:(NSString *)urlString cache:(BOOL)doCache
 {
 	if (image==nil)
 	{
@@ -287,9 +306,17 @@ DEFINE_EXCEPTIONS
 	ImageCacheEntry * newEntry = [[[ImageCacheEntry alloc] init] autorelease];
 	[newEntry setFullImage:image];
 	
-	VerboseLog(@"[DEBUG] Caching image %@: %@",urlString,image);
-	[cache setObject:newEntry forKey:urlString];
+	if (doCache)
+	{
+		VerboseLog(@"[DEBUG] Caching image %@: %@",urlString,image);
+		[cache setObject:newEntry forKey:urlString];
+	}
 	return newEntry;
+}
+
+-(ImageCacheEntry *)setImage:(UIImage *)image forKey:(NSString *)urlString
+{
+	return [self setImage:image forKey:urlString cache:YES];
 }
 
 -(ImageCacheEntry *)entryForKey:(NSURL *)url
