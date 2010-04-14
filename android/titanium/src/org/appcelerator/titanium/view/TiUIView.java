@@ -22,6 +22,7 @@ import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiAnimationBuilder;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiConvert;
+import org.appcelerator.titanium.util.TiFileHelper;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiCompositeLayout.LayoutParams;
 
@@ -141,7 +142,7 @@ public abstract class TiUIView
 			int h = nativeView.getMeasuredHeight();
 
 			AnimationSet as = builder.render(w, h);
-
+			Log.d(LCAT, "starting animation: "+as);
 			nativeView.startAnimation(as);
 
 			// Clean up proxy
@@ -285,11 +286,15 @@ public abstract class TiUIView
 	}
 
 	private void applyCustomBackground() {
+		applyCustomBackground(true);
+	}
+	
+	private void applyCustomBackground(boolean reuseCurrentDrawable) {
 		if (nativeView != null && !usingCustomBackground) {
 			nativeView.setClickable(true);
 
 			Drawable currentDrawable = nativeView.getBackground();
-			if (currentDrawable != null) {
+			if (currentDrawable != null && reuseCurrentDrawable) {
 				background.setBackgroundDrawable(currentDrawable);
 			}
 			nativeView.setBackgroundDrawable(background);
@@ -379,28 +384,36 @@ public abstract class TiUIView
 	private void handleBackgroundImage(TiDict d)
 	{
 		String path = TiConvert.toString(d, "backgroundImage");
-		String url = getProxy().getTiContext().resolveUrl(null, path);
-		TiBaseFile file = TiFileFactory.createTitaniumFile(getProxy().getTiContext(), new String[] { url }, false);
-		InputStream is = null;
-		try {
-			is = file.getInputStream();
-			Bitmap b = TiUIHelper.createBitmap(is);
-			if (b != null) {
-				background.setBackgroundImage(b);
-				applyCustomBackground();
+		if (path.endsWith(".9.png")) {
+			TiFileHelper helper = new TiFileHelper(getProxy().getTiContext().getActivity());
+			Drawable drawable = helper.loadDrawable(path, false, true);
+			if (drawable !=  null) {
+				background.setBackgroundDrawable(drawable);
+				applyCustomBackground(false);
 			}
-		} catch (IOException e) {
-			Log.e(LCAT, "Error creating background image from path: " + path.toString(), e);
-		} finally {
-			if (is != null) {
-				try {
-					is.close();
-				} catch (IOException ig) {
-					// Ignore
+		} else {
+			String url = getProxy().getTiContext().resolveUrl(null, path);
+			TiBaseFile file = TiFileFactory.createTitaniumFile(getProxy().getTiContext(), new String[] { url }, false);
+			InputStream is = null;
+			try {
+				is = file.getInputStream();
+				Bitmap b = TiUIHelper.createBitmap(is);
+				if (b != null) {
+					background.setBackgroundImage(b);
+					applyCustomBackground(false);
+				}
+			} catch (IOException e) {
+				Log.e(LCAT, "Error creating background image from path: " + path.toString(), e);
+			} finally {
+				if (is != null) {
+					try {
+						is.close();
+					} catch (IOException ig) {
+						// Ignore
+					}
 				}
 			}
 		}
-
 	}
 
 	private void initializeBorder(TiDict d, Integer bgColor)
