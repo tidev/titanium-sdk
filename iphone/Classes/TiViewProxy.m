@@ -19,6 +19,15 @@
 
 #pragma mark Internal
 
+- (void) _initWithProperties:(NSDictionary *)properties
+{
+#if USE_VISIBLE_BOOL
+	visible = YES;
+#endif
+	[super _initWithProperties:properties];
+}
+
+
 -(void)dealloc
 {
 	if (view!=nil)
@@ -48,6 +57,31 @@
 }
 
 #pragma mark Public
+
+#if USE_VISIBLE_BOOL
+-(BOOL)visible
+{
+	return visible;
+}
+
+-(void)setVisible:(BOOL)newValue
+{
+	if (visible == newValue)
+	{
+		return;
+	}
+	visible = newValue;
+	[self replaceValue:[NSNumber numberWithBool:visible] forKey:@"visible" notification:YES];
+
+#if DONTSHOWHIDDEN
+	if (visible)
+	{
+		[parent childWillResize:self];
+	}
+#endif
+
+}
+#endif
 
 -(void)add:(id)arg
 {
@@ -122,13 +156,21 @@
 -(void)show:(id)arg
 {
 	//TODO: animate
+#if USE_VISIBLE_BOOL
+	[self setVisible:YES];
+#else
 	[self setValue:[NSNumber numberWithBool:YES] forKey:@"visible"];
+#endif
 }
  
 -(void)hide:(id)arg
 {
 	//TODO: animate
+#if USE_VISIBLE_BOOL
+	[self setVisible:NO];
+#else
 	[self setValue:[NSNumber numberWithBool:NO] forKey:@"visible"];
+#endif
 }
 
 -(void)animate:(id)arg
@@ -445,11 +487,34 @@
 		verticalLayoutBoundary += bounds.size.height;
 	}
 
-	UIView *childView = [child view];
 
+#if DONTSHOWHIDDEN
+	if (![TiUtils boolValue:[child valueForKey:@"visible"] def:YES])
+	{
+		return;
+	}
+#endif
+
+	UIView *childView = [child view];
 	if ([childView superview]!=view)
 	{
+#if DONTSHOWHIDDEN
+		int insertPosition = 0;
+		for (TiViewProxy * thisProxy in children)
+		{
+			if (thisProxy == child)
+			{
+				break;
+			}
+			if ([thisProxy viewAttached])
+			{
+				insertPosition ++;
+			}
+		}
+		[view insertSubview:childView atIndex:insertPosition];
+#else
 		[view addSubview:childView];
+#endif
 	}
 	[[child view] updateLayout:NULL withBounds:bounds];
 	

@@ -10,6 +10,9 @@
 #define NEEDS_REPOSITION	0
 #define NEEDS_LAYOUT_CHILDREN	1
 
+#define USE_VISIBLE_BOOL 0
+#define DONTSHOWHIDDEN 0
+
 //For TableRows, we need to have minimumParentHeightForWidth:
 @interface TiViewProxy : TiProxy<LayoutAutosizing> 
 {
@@ -25,6 +28,9 @@
 	TiUIView *view;
 	TiViewProxy *parent;
 	BOOL viewInitialized;
+#if USE_VISIBLE_BOOL
+	BOOL visible;
+#endif
 }
 
 @property(nonatomic,readwrite,assign) LayoutConstraint * layoutProperties;
@@ -32,6 +38,10 @@
 @property(nonatomic,readonly) NSArray *children;
 @property(nonatomic,readonly) TiViewProxy *parent;
 @property(nonatomic,readonly) TiPoint *center;
+
+#if USE_VISIBLE_BOOL
+@property(nonatomic,readwrite,assign) BOOL visible;
+#endif
 
 //NOTE: DO NOT SET VIEW UNLESS IN A TABLE VIEW, AND EVEN THEN.
 @property(nonatomic,readwrite,retain)TiUIView * view;
