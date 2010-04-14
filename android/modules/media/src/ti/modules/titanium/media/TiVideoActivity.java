@@ -27,6 +27,7 @@ import android.os.Messenger;
 import android.os.RemoteException;
 import android.os.ResultReceiver;
 import android.view.View;
+import android.widget.MediaController;
 import android.widget.TiVideoView4;
 
 public class TiVideoActivity extends Activity
@@ -90,6 +91,8 @@ public class TiVideoActivity extends Activity
 				started = false;
 			}
 		});
+
+		videoView.setMediaController(new MediaController(this));
 
 		TiCompositeLayout.LayoutParams params = new TiCompositeLayout.LayoutParams();
 //		params.autoFillsHeight = true;
