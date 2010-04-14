@@ -49,6 +49,7 @@
 {
 	CGRect rect = [[UIScreen mainScreen] applicationFrame];
 	[[self view] setFrame:rect];
+	VerboseLog(@"(%f,%f),(%fx%f)",rect.origin.x,rect.origin.y,rect.size.width,rect.size.height);
 	//Because of the transition in landscape orientation, TiUtils can't be used here... SetFrame compensates for it.
 	return rect;
 }
@@ -106,16 +107,16 @@
 	self.view = rootView;
 	[self updateBackground];
 	[self resizeView];
-	for (TiWindowProxy * thisWindowProxy in windowViewControllers)
+	for (TiWindowViewController * thisWindowController in windowViewControllers)
 	{
-		TiUIView * thisView = [thisWindowProxy view];
-		[rootView addSubview:thisView];
-		if ([thisWindowProxy respondsToSelector:@selector(reposition)])
+		if ([thisWindowController isKindOfClass:[TiWindowViewController class]])
 		{
-			[thisWindowProxy reposition];
+			UIView * thisView = [thisWindowController view];
+			[rootView addSubview:thisView];
+			[[thisWindowController proxy] reposition];
 		}
 	}
-	[self manuallyRotateToOrientation:[[UIApplication sharedApplication] statusBarOrientation] duration:0];
+	[self willAnimateRotationToInterfaceOrientation:[[UIApplication sharedApplication] statusBarOrientation] duration:0];
 	[rootView release];
 }
 
@@ -211,6 +212,7 @@
 
 - (void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
 {
+	VerboseLog(@"Rotating to %d (Landscape? %d)",toInterfaceOrientation,UIInterfaceOrientationIsLandscape(toInterfaceOrientation));
 	windowOrientation = toInterfaceOrientation;
 	[self manuallyRotateToOrientation:toInterfaceOrientation duration:duration];
 	[super willAnimateRotationToInterfaceOrientation:toInterfaceOrientation duration:duration];
@@ -287,7 +289,7 @@
 		UINavigationController * navCon = [newCurrentWindow navController];
 		NSEnumerator * viewControllerEnum = [[navCon viewControllers] reverseObjectEnumerator];
 
-		noPrefrenceTab = (viewControllerEnum != nil);
+		noPrefrenceTab = YES;
 
 		for (UIViewController * thisViewController in viewControllerEnum)
 		{
@@ -323,7 +325,7 @@
 		return; //Nothing to enforce.
 	}
 
-	UIInterfaceOrientation requestedOrientation = UIInterfaceOrientationPortrait;
+	UIInterfaceOrientation requestedOrientation = [[UIApplication sharedApplication] statusBarOrientation];
 	NSTimeInterval latestRequest = 0.0;
 	for (int i=0; i<MAX_ORIENTATIONS; i++)
 	{
@@ -364,7 +366,7 @@
 	}
 
 	
-	TiWindowProxy * oldTopWindow = [windowViewControllers lastObject];
+	UIViewController * oldTopWindow = [windowViewControllers lastObject];
 	[windowViewControllers removeObject:focusedViewController];
 	if ((focusedViewController==nil) || [(TiWindowProxy *)focusedProxy _isChildOfTab] || ([(TiWindowProxy *)focusedProxy parent]!=nil))
 	{
@@ -382,7 +384,7 @@
 		[windowViewControllers addObject:focusedViewController];
 	}
 	
-	if ((oldTopWindow != focusedProxy) && [oldTopWindow respondsToSelector:@selector(proxy)])
+	if ((oldTopWindow != focusedViewController) && [oldTopWindow respondsToSelector:@selector(proxy)])
 	{
 		[(TiWindowProxy *)[(id)oldTopWindow proxy] _tabBlur];
 	}
