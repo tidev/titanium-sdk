@@ -288,6 +288,10 @@ public class TiActivity extends Activity
 				contextRef.get().dispatchOnDestroy();
 			}
 		}
+		if (layout != null) {
+			Log.e(LCAT, "Layout cleanup.");
+			layout.removeAllViews();
+		}
 	}
 
 	@Override
@@ -299,6 +303,22 @@ public class TiActivity extends Activity
 				contextRef.get().dispatchEvent("close", data);
 			}
 		}
+
+		Intent intent = getIntent();
+		if (intent != null) {
+			if (intent.getBooleanExtra("finishRoot", false)) {
+				if (getApplication() != null) {
+					TiApplication tiApp = getTiApp();
+					if (tiApp != null) {
+						TiRootActivity rootActivity = tiApp.getRootActivity();
+						if (rootActivity != null) {
+							rootActivity.finish();
+						}
+					}
+				}
+			}
+		}
+
 		super.finish();
 	}
 }
