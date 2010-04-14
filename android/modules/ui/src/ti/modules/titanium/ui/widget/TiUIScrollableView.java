@@ -100,6 +100,14 @@ public class TiUIScrollableView extends TiUIView
 
 	public void setCurrentPage(int page)
 	{
-		getView().doScrollToView(page);
+		getView().doSetCurrentPage(page);
+	}
+
+	public void doSetCurrentPage(Object view) {
+		if (view instanceof Number) {
+			getView().doSetCurrentPage(((Number) view).intValue());
+		} else if (view instanceof TiViewProxy) {
+			getView().doSetCurrentPage((TiViewProxy) view);
+		}
 	}
 }

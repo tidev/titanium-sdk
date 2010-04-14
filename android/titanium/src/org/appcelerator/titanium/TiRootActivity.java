@@ -27,6 +27,8 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 
 public class TiRootActivity extends ActivityGroup
 	implements TiActivitySupport, ITiWindowHandler
@@ -60,6 +62,20 @@ public class TiRootActivity extends ActivityGroup
 		TiApplication host = getTiApp();
 		host.setRootActivity(this);
 		tiContext = TiContext.createTiContext(this, null, null);
+
+		 if (host.getAppInfo().isFullscreen()) {
+			getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+					WindowManager.LayoutParams.FLAG_FULLSCREEN);
+		}
+
+		if (!host.getAppInfo().isNavBarHidden()) {
+			this.requestWindowFeature(Window.FEATURE_LEFT_ICON); // TODO Keep?
+			this.requestWindowFeature(Window.FEATURE_RIGHT_ICON);
+			this.requestWindowFeature(Window.FEATURE_PROGRESS);
+			this.requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
+		} else {
+			this.requestWindowFeature(Window.FEATURE_NO_TITLE);
+		}
 
 		rootLayout = new TiCompositeLayout(this);
 		setContentView(rootLayout);

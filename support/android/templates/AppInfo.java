@@ -80,4 +80,12 @@ public class ${config['classname']}AppInfo implements ITiAppInfo
 	public String getGUID() {
 		return "${app_info['guid']}";
 	}
+	
+	public boolean isFullscreen() {
+		return ${app_info['fullscreen']};
+	}
+	
+	public boolean isNavBarHidden() {
+		return ${app_info['navbar-hidden']};
+	}
 }
