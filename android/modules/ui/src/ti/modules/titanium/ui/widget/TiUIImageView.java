@@ -301,8 +301,6 @@ public class TiUIImageView extends TiUIView
 	private class Animator extends TimerTask
 	{
 		private Loader loader;
-		//private Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
-		//public Bitmap currentBitmap;
 		
 		public Animator(Loader loader)
 		{
@@ -311,72 +309,17 @@ public class TiUIImageView extends TiUIView
 		
 		public void run()
 		{
-			//while (animating.get()) {
-				try {
-					BitmapWithIndex b = loader.getBitmapQueue().take();
-					Log.d(LCAT, "set image: "+b.index);
-					setImage(b.bitmap);
-					fireChange(b.index);
-					
-					//drawBitmap(holder, currentBitmap);
-				
-					//Thread.sleep((long)getDuration());
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-			//}
+			try {
+				BitmapWithIndex b = loader.getBitmapQueue().take();
+				Log.d(LCAT, "set image: "+b.index);
+				setImage(b.bitmap);
+				fireChange(b.index);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
 		}
-		
-		
 	}
-	/*private class AnimationTask extends TimerTask
-	{
-		public boolean started = false;
-		public int index = 0;
-		
-		@Override
-		public void run()
-		{
-				try {
-					BitmapWithIndex b = loader.getBitmapQueue().take();
-					setImage(b.bitmap);
-					fireChange(b.index);
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				
-				if (!paused) {
-					animating.set(true);
-					if (!started) {
-						fireStart();
-						started = true;
-					}
-
-					if (index < images.length && index >= 0) {
-						setImage(createBitmap(images[index]));
-						fireChange(index);
-					} else {
-						if (index < 0) {
-							index = images.length-1;
-						} else if (index >= images.length) {
-							index = 0;
-						}
-						setImage(createBitmap(images[index]));
-						fireChange(index);
-					}
-
-					if (!reverse) {
-						index++;
-					} else {
-						index--;
-					}
-				} else {
-					animating.set(false);
-				}
-		}
-	}*/
-
+	
 	public void start()
 	{
 		if (!proxy.getTiContext().isUIThread()) {
@@ -393,10 +336,9 @@ public class TiUIImageView extends TiUIView
 	public void handleStart()
 	{
 		if (animator == null) {
-
 			timer = new Timer();
 			animator = new Animator(loader);
-			//new Thread(animator).start();
+
 			int duration = (int) getDuration();
 			timer.schedule(animator, duration, duration);
 		} else {
@@ -406,13 +348,11 @@ public class TiUIImageView extends TiUIView
 
 	public void pause()
 	{
-		//TODO synchronize
 		paused = true;
 	}
 
 	public void resume()
 	{
-		//TODO synchronize
 		paused = false;
 	}
 
@@ -422,7 +362,6 @@ public class TiUIImageView extends TiUIView
 			timer.cancel();
 		}
 		timer = null;
-		//animationTask = null;
 		animator = null;
 		animating.set(false);
 
@@ -477,13 +416,6 @@ public class TiUIImageView extends TiUIView
 
 
 	public void onDestroy() {
-		/*if (drawables != null) {
-			for (int i = 0; i < drawables.length; i++) {
-				BitmapDrawable d = (BitmapDrawable) drawables[i];
-				d.getBitmap().recycle();
-			}
-			drawables = new Drawable[0];
-		}*/
 	}
 
 	public void onPause() {
@@ -510,14 +442,6 @@ public class TiUIImageView extends TiUIView
 	}
 
 	public void setReverse(boolean reverse) {
-		/*if (animationTask != null) {
-			synchronized(animationTask) {
-				this.reverse = reverse;
-			}
-		} else {
-			this.reverse = reverse;
-		}*/
-		//TODO synchronize
 		this.reverse = reverse;
 	}
 

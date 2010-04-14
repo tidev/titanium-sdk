@@ -58,6 +58,19 @@ public class TiImageView extends ViewGroup
 	private Matrix changeMatrix;
 
 
+	public class NoLayoutImageView extends ImageView
+	{
+		
+		public NoLayoutImageView(Context context) {
+			super(context);
+		}
+
+		@Override
+		public void requestLayout() {
+			// no-op!!
+		}
+	}
+	
 	public TiImageView(Context context) {
 		super(context);
 
@@ -75,7 +88,7 @@ public class TiImageView extends ViewGroup
 		baseMatrix = new Matrix();
 		changeMatrix = new Matrix();
 
-		imageView = new ImageView(context);
+		imageView = new NoLayoutImageView(context);
 		addView(imageView);
 		setCanScaleImage(false);
 
