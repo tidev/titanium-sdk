@@ -303,7 +303,7 @@ public class TiUIHelper
 
 		return sld;
 	}
-	
+
 	public static TiDict createDictForImage(TiContext context, int width, int height, byte[] data)
 	{
 		TiDict d = new TiDict();
@@ -322,7 +322,7 @@ public class TiUIHelper
 
 		return d;
 	}
-	
+
 	public static TiBlob getImageFromDict(TiDict dict)
 	{
 		if (dict != null) {
@@ -335,7 +335,7 @@ public class TiUIHelper
 		}
 		return null;
 	}
-	
+
 	public static TiDict viewToImage(TiContext context, View view)
 	{
 		Activity a = null;
@@ -346,7 +346,7 @@ public class TiUIHelper
 			int height = view.getHeight();
 			Bitmap bitmap = Bitmap.createBitmap(width, height, Config.RGB_565);
 			Canvas canvas = new Canvas(bitmap);
-			
+
 			view.draw(canvas);
 
 			ByteArrayOutputStream bos = new ByteArrayOutputStream();
@@ -357,7 +357,7 @@ public class TiUIHelper
 			canvas = null;
 			bitmap.recycle();
 		}
-		
+
 		return image;
 	}
 
@@ -366,6 +366,12 @@ public class TiUIHelper
 		Rect pad = new Rect();
 		BitmapFactory.Options opts = new BitmapFactory.Options();
 		opts.inScreenDensity = DisplayMetrics.DENSITY_HIGH;
-		return BitmapFactory.decodeResourceStream(null, null, stream, pad, opts);
+		Bitmap b = null;
+		try {
+			b = BitmapFactory.decodeResourceStream(null, null, stream, pad, opts);
+		} catch (OutOfMemoryError e) {
+			Log.e(LCAT, "Unable to load bitmap. Not enough memory: " + e.getMessage());
+		}
+		return b;
 	}
 }

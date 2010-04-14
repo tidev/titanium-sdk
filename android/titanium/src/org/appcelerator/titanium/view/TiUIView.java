@@ -26,6 +26,7 @@ import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiCompositeLayout.LayoutParams;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
@@ -342,6 +343,13 @@ public abstract class TiUIView
 				vg.removeAllViews();
 			}
 		}
+
+		Drawable d = nv.getBackground();
+		if (d != null) {
+			nv.setBackgroundDrawable(null);
+			d.setCallback(null);
+			d = null;
+		}
 	}
 
 	public void show()
@@ -376,8 +384,11 @@ public abstract class TiUIView
 		InputStream is = null;
 		try {
 			is = file.getInputStream();
-			background.setBackgroundImage(TiUIHelper.createBitmap(is));
-			applyCustomBackground();
+			Bitmap b = TiUIHelper.createBitmap(is);
+			if (b != null) {
+				background.setBackgroundImage(b);
+				applyCustomBackground();
+			}
 		} catch (IOException e) {
 			Log.e(LCAT, "Error creating background image from path: " + path.toString(), e);
 		} finally {
@@ -481,7 +492,6 @@ public abstract class TiUIView
 
 					@Override
 					public boolean onSingleTapConfirmed(MotionEvent e) {
-						Log.e(LCAT, "TAP, TAP, TAP");
 						boolean handledTap = proxy.fireEvent("singletap", dictFromEvent(e));
 						boolean handledClick = proxy.fireEvent("click", dictFromEvent(e));
 						return handledTap || handledClick;
