@@ -20,6 +20,7 @@
 }
 
 USE_VIEW_FOR_AUTO_HEIGHT
+USE_VIEW_FOR_AUTO_WIDTH
 
 - (NSString*)html
 {

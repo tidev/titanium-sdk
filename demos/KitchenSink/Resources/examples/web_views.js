@@ -24,8 +24,9 @@ if (Titanium.Platform.name == 'iPhone OS')
 	data.push({title:'SVG URL', hasChild:true, url:'http://upload.wikimedia.org/wikipedia/commons/5/55/1st_Cavalry_Division_-_Shoulder_Sleeve_Insignia.svg'});
 	data.push({title:'Local Pinch/Zoom', hasChild:true, url:'local_webview_pinchzoom.html', scale:true});
 	data.push({title:'Webview controls', hasChild:true, url:'http://www.google.com', controls:true});
-	data.push({title:'Auto Height', auto:true,hasChild:true, innerHTML:'<html><body style="height:200px;border:1px solid #ccc;padding:10px">200 px height.</body></html>'});
-
+	// The result for this is going to be centered, because that's where layout puts it.
+	// But users can make sure that embedded webviews are anchored in the usual way.
+	data.push({title:'Auto Size', auto:true, hasChild:true, innerHTML:'<html><body style="height:200px;width:100px;border:1px solid #ccc;padding:10px">200 px height, 100 px width.</body></html>'});
 }
 
 // create table view
