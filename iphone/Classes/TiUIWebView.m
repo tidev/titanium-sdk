@@ -111,6 +111,7 @@ NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._listeners={
 		webview.delegate = self;
 		webview.opaque = NO;
 		webview.backgroundColor = [UIColor whiteColor];
+       webview.contentMode = UIViewContentModeRedraw;
 		[self addSubview:webview];
 		
 		// only show the loading indicator if it's a remote URL
@@ -541,7 +542,10 @@ NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._listeners={
 	}
 }
 
-
+// Webview appears to have an interesting quirk where the web content is always scaled/sized to just barely
+// not fit within the bounds of its specialized scroll box, UNLESS you are sizing the view to 320px (full width).
+// 'auto' width setting for web views is NOT RECOMMENDED as a result.  'auto' height is OK, and necessary
+// when placing webviews with other elements.
 -(CGFloat)autoHeightForWidth:(CGFloat)value
 {
 	CGRect oldBounds = [[self webview] bounds];
@@ -549,6 +553,16 @@ NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._listeners={
 	CGFloat result = [[webview stringByEvaluatingJavaScriptFromString:@"document.height"] floatValue];
 	[webview setBounds:oldBounds];
 	return result;
+}
+
+-(CGFloat)autoWidthForWidth:(CGFloat)value
+{
+    CGRect oldBounds = [[self webview] bounds];
+    CGFloat currentHeight = [[webview stringByEvaluatingJavaScriptFromString:@"document.height"] floatValue];
+    [webview setBounds:CGRectMake(0, 0, 0, currentHeight)];
+    CGFloat realWidth = [[webview stringByEvaluatingJavaScriptFromString:@"document.width"] floatValue];
+    [webview setBounds:oldBounds];
+    return (value < realWidth) ? value : realWidth;
 }
 
 #pragma mark WebView Delegate
