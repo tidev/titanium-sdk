@@ -8,6 +8,7 @@ package org.appcelerator.titanium.view;
 
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -31,14 +32,13 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.GestureDetector.SimpleOnGestureListener;
-import android.view.View.OnClickListener;
 import android.view.View.OnFocusChangeListener;
 import android.view.View.OnTouchListener;
 import android.view.animation.AnimationSet;
 import android.view.inputmethod.InputMethodManager;
 
 public abstract class TiUIView
-	implements TiProxyListener, OnFocusChangeListener, OnClickListener
+	implements TiProxyListener, OnFocusChangeListener
 {
 	private static final String LCAT = "TiUIView";
 	private static final boolean DBG = TiConfig.LOGD;
@@ -285,7 +285,7 @@ public abstract class TiUIView
 
 	private void applyCustomBackground() {
 		if (nativeView != null && !usingCustomBackground) {
-			nativeView.setOnClickListener(this);
+			nativeView.setClickable(true);
 
 			Drawable currentDrawable = nativeView.getBackground();
 			if (currentDrawable != null) {
@@ -373,11 +373,21 @@ public abstract class TiUIView
 		String path = TiConvert.toString(d, "backgroundImage");
 		String url = getProxy().getTiContext().resolveUrl(null, path);
 		TiBaseFile file = TiFileFactory.createTitaniumFile(getProxy().getTiContext(), new String[] { url }, false);
+		InputStream is = null;
 		try {
-			background.setBackgroundImage(TiUIHelper.createBitmap(file.getInputStream()));
+			is = file.getInputStream();
+			background.setBackgroundImage(TiUIHelper.createBitmap(is));
 			applyCustomBackground();
 		} catch (IOException e) {
 			Log.e(LCAT, "Error creating background image from path: " + path.toString(), e);
+		} finally {
+			if (is != null) {
+				try {
+					is.close();
+				} catch (IOException ig) {
+					// Ignore
+				}
+			}
 		}
 
 	}
@@ -471,6 +481,7 @@ public abstract class TiUIView
 
 					@Override
 					public boolean onSingleTapConfirmed(MotionEvent e) {
+						Log.e(LCAT, "TAP, TAP, TAP");
 						boolean handledTap = proxy.fireEvent("singletap", dictFromEvent(e));
 						boolean handledClick = proxy.fireEvent("click", dictFromEvent(e));
 						return handledTap || handledClick;
@@ -487,14 +498,6 @@ public abstract class TiUIView
 				}
 			});
 
-	}
-
-	@Override
-	public void onClick(View view) {
-		TiDict data = new TiDict();
-		data.put("source", getProxy());
-
-		getProxy().fireEvent("click", data);
 	}
 
 	public TiDict toImage() {

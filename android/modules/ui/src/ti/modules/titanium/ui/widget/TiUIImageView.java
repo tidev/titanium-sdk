@@ -7,9 +7,13 @@
 package ti.modules.titanium.ui.widget;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiContext;
@@ -30,7 +34,7 @@ import ti.modules.titanium.filesystem.FileProxy;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
-import android.view.View;
+import android.os.AsyncTask;
 
 public class TiUIImageView extends TiUIView
 	implements OnLifecycleEvent
@@ -39,6 +43,7 @@ public class TiUIImageView extends TiUIView
 	private static final boolean DBG = TiConfig.LOGD;
 
 	private static final String EVENT_CLICK = "click";
+	private static final int MAX_BITMAPS = 3;
 
 	private Timer timer;
 	private AnimationTask animationTask;
@@ -60,7 +65,7 @@ public class TiUIImageView extends TiUIView
 			if (d != null) {
 				TiImageView view = getView();
 				if (view != null) {
-					view.setImageDrawable(d);
+					view.setImageDrawable(d, false);
 				}
 			}
 		}
@@ -113,6 +118,17 @@ public class TiUIImageView extends TiUIView
 		return null;
 	}
 
+	public void recyclePreviousImage()
+	{
+		/*int prevIndex = animationTask.getPrev(animationTask.index);
+		if (drawables[prevIndex] != null) {
+			BitmapDrawable b = (BitmapDrawable)drawables[prevIndex];
+			Log.d(LCAT, "recycling bitmap "+prevIndex);
+			drawables[prevIndex] = null;
+			b.getBitmap().recycle();
+		}*/
+	}
+
 	public void setImage(final Drawable drawable)
 	{
 		if (drawable != null) {
@@ -120,10 +136,12 @@ public class TiUIImageView extends TiUIView
 				proxy.getTiContext().getActivity().runOnUiThread(new Runnable(){
 					public void run() {
 						getView().setImageDrawable(drawable, false);
+						//recyclePreviousImage();
 					}
 				});
 			} else {
 				getView().setImageDrawable(drawable, false);
+				//recyclePreviousImage();
 			}
 		}
 	}
@@ -135,6 +153,7 @@ public class TiUIImageView extends TiUIView
 				if (images == null) return;
 
 				TiUIImageView.this.drawables = new Drawable[images.length];
+				int length = Math.min(MAX_BITMAPS, images.length);
 				for (int i = 0; i < images.length; i++) {
 					Drawable drawable = createImage(images[i]);
 					if (drawable != null) {
@@ -193,6 +212,20 @@ public class TiUIImageView extends TiUIView
 		public boolean started = false;
 		public boolean paused = false;
 		public int index = 0;
+		public int repeatCount = -1; // repeat always
+
+		public Drawable getDrawable()
+		{
+			return drawables[index];
+		}
+
+		public void setRepeatCount(int repeatCount) {
+			if (repeatCount <= 0) {
+				repeatCount = -1;
+			} else {
+				this.repeatCount = repeatCount;
+			}
+		}
 
 		@Override
 		public void run()
@@ -206,16 +239,27 @@ public class TiUIImageView extends TiUIView
 					}
 
 					if (index < drawables.length && index >= 0) {
-						setImage(drawables[index]);
+						setImage(getDrawable());
 						fireChange(index);
 					} else {
-						if (index < 0) {
-							index = drawables.length-1;
-						} else if (index >= drawables.length) {
-							index = 0;
+						boolean stopping = false;
+						if (repeatCount > -1) {
+							repeatCount -= 1;
+							if (repeatCount == 0) {
+								stop();
+								stopping = true;
+							}
 						}
-						setImage(drawables[index]);
-						fireChange(index);
+
+						if (!stopping) {
+							if (index < 0) {
+								index = drawables.length-1;
+							} else if (index >= drawables.length) {
+								index = 0;
+							}
+							setImage(getDrawable());
+							fireChange(index);
+						}
 					}
 
 					if (!reverse) {
@@ -249,6 +293,10 @@ public class TiUIImageView extends TiUIView
 
 			timer = new Timer();
 			animationTask = new AnimationTask();
+			Object repeat = proxy.getDynamicValue("repeatCount");
+			if (repeat != null) {
+				animationTask.setRepeatCount(TiConvert.toInt(repeat));
+			}
 			int duration = (int) getDuration();
 			timer.schedule(animationTask, duration, duration);
 		} else {

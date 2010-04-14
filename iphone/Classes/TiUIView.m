@@ -615,7 +615,7 @@ DEFINE_EXCEPTIONS
 
 	[oldProxy setView:nil];
 	[newProxy setView:self];
-	[self setProxy:newProxy];
+	[self setProxy:[newProxy retain]];
 
 	for (NSString * thisKey in oldProperties)
 	{
