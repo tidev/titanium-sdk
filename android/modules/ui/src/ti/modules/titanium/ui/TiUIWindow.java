@@ -9,10 +9,10 @@ package ti.modules.titanium.ui;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.appcelerator.titanium.TiActivity;
+import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiDict;
 import org.appcelerator.titanium.TiProxy;
@@ -36,13 +36,9 @@ import android.os.Handler;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
-import android.view.GestureDetector;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
-import android.view.GestureDetector.SimpleOnGestureListener;
 import android.view.View.OnFocusChangeListener;
-import android.view.View.OnTouchListener;
 import android.view.ViewGroup.LayoutParams;
 
 public class TiUIWindow extends TiUIView
@@ -485,7 +481,10 @@ public class TiUIWindow extends TiUIView
 		resolver.release();
 		resolver = null;
 
-		intent.putExtra("finishRoot", activity.isTaskRoot());
+		boolean finishRoot = false;
+
+
+		intent.putExtra("finishRoot", finishRoot);
 		Messenger messenger = new Messenger(handler);
 		intent.putExtra("messenger", messenger);
 		intent.putExtra("messageId", MSG_ACTIVITY_CREATED);
