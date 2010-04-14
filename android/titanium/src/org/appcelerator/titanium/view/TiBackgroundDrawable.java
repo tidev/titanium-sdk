@@ -9,27 +9,23 @@ package org.appcelerator.titanium.view;
 import java.io.IOException;
 import java.util.Arrays;
 
-import org.appcelerator.titanium.util.Log;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
 import android.content.res.Resources;
 import android.graphics.Bitmap;
-import android.graphics.BlurMaskFilter;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.Rect;
 import android.graphics.RectF;
-import android.graphics.BlurMaskFilter.Blur;
 import android.graphics.Path.Direction;
 import android.graphics.Path.FillType;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.PaintDrawable;
-import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.StateListDrawable;
 import android.util.AttributeSet;
 
@@ -106,7 +102,7 @@ public class TiBackgroundDrawable extends StateListDrawable {
 		boolean changed = super.onStateChange(stateSet);
 		boolean drawableChanged = false;
 		if (background != null) {
-			Log.d("TiBackground", "background="+background.getClass().getSimpleName()+",state.len="+stateSet.length+",state[0]="+stateSet[0]);
+			//Log.d("TiBackground", "background="+background.getClass().getSimpleName()+",state.len="+stateSet.length+",state[0]="+stateSet[0]);
 			drawableChanged = background.setState(stateSet);
 			/*if (drawableChanged) {
 				background.invalidateSelf();

@@ -250,6 +250,7 @@ public abstract class TiViewProxy extends TiProxy implements Handler.Callback
 				}
 			}
 			view.release();
+			view = null;
 		}
 	}
 

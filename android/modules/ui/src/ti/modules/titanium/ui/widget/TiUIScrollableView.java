@@ -38,6 +38,8 @@ public class TiUIScrollableView extends TiUIView
 	public void processProperties(TiDict d) {
 		if (d.containsKey("views")) {
 			getView().setViews(d.get("views"));
+		} else if (d.containsKey("showPagingControls")) {
+			getView().setShowPagingControl(TiConvert.toBoolean(d, "showPagingControls"));
 		}
 		super.processProperties(d);
 	}
