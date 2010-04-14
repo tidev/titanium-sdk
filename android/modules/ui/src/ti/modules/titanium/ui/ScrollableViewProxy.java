@@ -25,7 +25,7 @@ import android.view.animation.Animation.AnimationListener;
 public class ScrollableViewProxy extends TiViewProxy
 	implements AnimationListener
 {
-	
+
 	private static final String EVENT_SCROLL = "scroll";
 
 	private static final int MSG_FIRST_ID = TiViewProxy.MSG_LAST_ID + 1;
@@ -36,27 +36,28 @@ public class ScrollableViewProxy extends TiViewProxy
 	public static final int MSG_SCROLL_TO = MSG_FIRST_ID + 104;
 	public static final int MSG_SET_VIEWS = MSG_FIRST_ID + 105;
 	public static final int MSG_ADD_VIEW = MSG_FIRST_ID + 106;
+	public static final int MSG_SET_CURRENT = MSG_FIRST_ID + 107;
 	public static final int MSG_LAST_ID = MSG_FIRST_ID + 999;
-	
+
 	protected AtomicBoolean inAnimation;
 	protected AtomicBoolean inScroll;
-	
+
 	public ScrollableViewProxy(TiContext context, Object[] args)
 	{
 		super(context, args);
 		inAnimation = new AtomicBoolean(false);
 		inScroll = new AtomicBoolean(false);
 	}
-	
+
 	@Override
 	public TiUIView createView(Activity activity) {
 		return new TiUIScrollableView(this, getUIHandler());
 	}
-	
+
 	protected TiUIScrollableView getView() {
 		return (TiUIScrollableView)getView(getTiContext().getActivity());
 	}
-	
+
 	public boolean handleMessage(Message msg)
 	{
 		boolean handled = false;
@@ -87,6 +88,10 @@ public class ScrollableViewProxy extends TiViewProxy
 				inScroll.set(false);
 				handled = true;
 				break;
+			case MSG_SET_CURRENT :
+				getView().doSetCurrentPage(msg.obj);
+				handled = true;
+				break;
 			case MSG_SET_VIEWS:
 				getView().setViews(msg.obj);
 				handled = true;
@@ -115,36 +120,36 @@ public class ScrollableViewProxy extends TiViewProxy
 		msg.obj = viewsObject;
 		msg.sendToTarget();
 	}
-	
+
 	public void addView(Object viewObject) {
 		Message msg = getUIHandler().obtainMessage(MSG_ADD_VIEW);
 		msg.obj = viewObject;
 		msg.sendToTarget();
 	}
-	
+
 	public void scrollToView(Object view) {
 		if (inScroll.get()) return;
 		getUIHandler().obtainMessage(MSG_SCROLL_TO, view).sendToTarget();
 	}
-	
+
 	public void movePrevious() {
 		if (inScroll.get() || inAnimation.get()) return;
 		getUIHandler().removeMessages(MSG_MOVE_PREV);
 		getUIHandler().sendEmptyMessage(MSG_MOVE_PREV);
 	}
-	
+
 	public void moveNext() {
 		// was synchronized(gallery) {
 		if (inScroll.get() || inAnimation.get()) return;
 		getUIHandler().removeMessages(MSG_MOVE_NEXT);
 		getUIHandler().sendEmptyMessage(MSG_MOVE_NEXT);
 	}
-	
+
 	public void setPagerTimeout() {
 		getUIHandler().removeMessages(MSG_HIDE_PAGER);
 		getUIHandler().sendEmptyMessageDelayed(MSG_HIDE_PAGER, 3000);
 	}
-	
+
 	public void setShowPagingControl(boolean showPagingControl) {
 		getView().setShowPagingControl(showPagingControl);
 		if (!showPagingControl) {
@@ -153,7 +158,7 @@ public class ScrollableViewProxy extends TiViewProxy
 			getUIHandler().sendEmptyMessage(MSG_SHOW_PAGER);
 		}
 	}
-	
+
 	public void fireScroll(int to)
 	{
 		if (hasListeners(EVENT_SCROLL)) {
@@ -164,15 +169,15 @@ public class ScrollableViewProxy extends TiViewProxy
 			TiEventHelper.fireViewEvent(this, EVENT_SCROLL, options);
 		}
 	}
-	
+
 	public int getCurrentPage() {
 		return getView().getCurrentPage();
 	}
-	
+
 	public void setCurrentPage(Object page) {
-		scrollToView(page);
+		getUIHandler().obtainMessage(MSG_SET_CURRENT, page).sendToTarget();
 	}
-	
+
 	public void onAnimationRepeat(Animation anim) {
 
 	}
@@ -183,5 +188,5 @@ public class ScrollableViewProxy extends TiViewProxy
 
 	public void onAnimationStart(Animation anim) {
 		inAnimation.set(true);
-	}	
+	}
 }

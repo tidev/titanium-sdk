@@ -75,7 +75,7 @@ public class TiScrollableView extends TiCompositeLayout
 
 		public void doDetachView() {
 			if (view != null) {
-				removeAllViews();
+				removeView(view);
 				view = null;
 				views.get(position).releaseViews();
 			}
@@ -290,7 +290,7 @@ public class TiScrollableView extends TiCompositeLayout
 				ViewWrapper toWrapper = (ViewWrapper) gallery.getChildAt(to);
 				toWrapper.doAttachView();
 				animNext.apply(gallery);
-				animPrev.setAnimationListener(new AnimationListener(){
+				animNext.setAnimationListener(new AnimationListener(){
 					@Override
 					public void onAnimationEnd(Animation arg0) {
 						fromWrapper.doDetachView();
@@ -392,6 +392,23 @@ public class TiScrollableView extends TiCompositeLayout
 	{
 		if (views.contains(view)) {
 			doScrollToView(views.indexOf(view));
+		}
+	}
+
+	public void doSetCurrentPage(int position) {
+		if(position < gallery.getChildCount()) {
+			int from = getSelectedItemPosition();
+			final ViewWrapper fromWrapper = (ViewWrapper) gallery.getChildAt(from);
+			ViewWrapper toWrapper = (ViewWrapper) gallery.getChildAt(position);
+			toWrapper.doAttachView();
+			gallery.setDisplayedChild(position);
+			fromWrapper.doDetachView();
+		}
+	}
+
+	public void doSetCurrentPage(TiViewProxy view) {
+		if (views.contains(view)) {
+			doSetCurrentPage(views.indexOf(view));
 		}
 	}
 
