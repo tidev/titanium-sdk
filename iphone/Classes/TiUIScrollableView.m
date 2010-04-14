@@ -134,9 +134,9 @@
 -(void)refreshScrollView:(CGRect)visibleBounds readd:(BOOL)readd
 {
 	CGRect viewBounds;
-	viewBounds.size = visibleBounds.size;
+	viewBounds.size.width = visibleBounds.size.width;
 	viewBounds.size.height = visibleBounds.size.height - (showPageControl ? pageControlHeight : 0);
-	viewBounds.origin.y = 0;
+	viewBounds.origin = CGPointMake(0, 0);
 	
 	UIScrollView *sv = [self scrollview];
 	

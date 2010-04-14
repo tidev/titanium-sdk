@@ -186,7 +186,7 @@ self.p = v;\
 		
 		if (isArray && [args count] > 1)
 		{
-			cb = [[args objectAtIndex:1] retain];
+			cb = [args objectAtIndex:1];
 			ENSURE_TYPE(cb,KrollCallback);
 		}
 		

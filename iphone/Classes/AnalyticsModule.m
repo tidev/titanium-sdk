@@ -152,13 +152,14 @@ NSString * const TI_DB_VERSION = @"1";
 	
 	ASIHTTPRequest *request = [ASIHTTPRequest requestWithURL:url];
 	[request setRequestMethod:@"POST"];
-	[request addRequestHeader:@"text/json" value:@"Content-Type"];
-	[request addRequestHeader:[[TitaniumApp app] userAgent] value:@"User-Agent"];
+	[request addRequestHeader:@"Content-Type" value:@"text/json"];
+	[request addRequestHeader:@"User-Agent" value:[[TitaniumApp app] userAgent]];
 	//TODO: need to update backend to accept compressed bodies. When done, use [request setShouldCompressRequestBody:YES]
 	[request setTimeOutSeconds:5];
 	[request setShouldPresentAuthenticationDialog:NO];
 	[request setUseSessionPersistance:NO];
-	[request appendPostData:[[SBJSON stringify:data] dataUsingEncoding:NSUTF8StringEncoding]];
+	NSString * stringifiedData = [SBJSON stringify:data];
+	[request appendPostData:[stringifiedData dataUsingEncoding:NSUTF8StringEncoding]];
 	[request setDelegate:self];
 	
 	@try 
@@ -174,7 +175,8 @@ NSString * const TI_DB_VERSION = @"1";
 		
 			if (result!=nil)
 			{
-				NSLog(@"[DEBUG] analytics response %@",result);
+				VerboseLog(@"[DEBUG] analytics response %@",result);
+				VerboseLog(@"[DEBUG] We tried to send to %@ the data: %@ ",url,stringifiedData);
 			}
 		}
 		

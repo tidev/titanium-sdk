@@ -289,7 +289,7 @@
 		UINavigationController * navCon = [newCurrentWindow navController];
 		NSEnumerator * viewControllerEnum = [[navCon viewControllers] reverseObjectEnumerator];
 
-		noPrefrenceTab = (viewControllerEnum != nil);
+		noPrefrenceTab = YES;
 
 		for (UIViewController * thisViewController in viewControllerEnum)
 		{
