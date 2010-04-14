@@ -102,7 +102,7 @@ class Android(object):
 		
 		tiapp.parse(open(assets_tiappxml, 'r'))
 		for key in ['id', 'name', 'version', 'publisher', 'url', 'copyright',
-			'description', 'icon', 'analytics', 'guid']:
+			'description', 'icon', 'analytics', 'guid', 'navbar-hidden', 'fullscreen']:
 			el = tiapp.find(key)
 			if el != None:
 				self.app_info[key] = el.text

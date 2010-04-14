@@ -598,8 +598,10 @@ class Builder(object):
 					print "[INFO] Installing application on device"
 					cmd += ['-e', 'install', '-r', app_apk]
 				output = run.run(cmd)
-				print "[TRACE] output: %s" % output
 				if output == None:
+					launch_failed = True
+				elif "Failure" in output:
+					print "[ERROR] Failed installing %s: %s" % (self.app_id, output)
 					launch_failed = True
 				elif not self.install:
 					launched = True
