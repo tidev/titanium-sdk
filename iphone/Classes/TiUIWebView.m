@@ -541,7 +541,7 @@ NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._listeners={
 	}
 }
 
-
+// TODO: Right now these size the WEBVIEW properly (or so it seems) but do NOT properly size the containing scroll view.
 -(CGFloat)autoHeightForWidth:(CGFloat)value
 {
 	CGRect oldBounds = [[self webview] bounds];
@@ -549,6 +549,12 @@ NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._listeners={
 	CGFloat result = [[webview stringByEvaluatingJavaScriptFromString:@"document.height"] floatValue];
 	[webview setBounds:oldBounds];
 	return result;
+}
+
+-(CGFloat)autoWidthForWidth:(CGFloat)value
+{
+    CGFloat realWidth = [[webview stringByEvaluatingJavaScriptFromString:@"document.width"] floatValue];
+    return (value < realWidth) ? value : realWidth;
 }
 
 #pragma mark WebView Delegate
