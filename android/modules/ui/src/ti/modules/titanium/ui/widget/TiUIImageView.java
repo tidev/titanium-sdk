@@ -385,7 +385,15 @@ public class TiUIImageView extends TiUIView
 		if (drawables != null) {
 			for (int i = 0; i < drawables.length; i++) {
 				BitmapDrawable d = (BitmapDrawable) drawables[i];
-				d.getBitmap().recycle();
+				if (d != null) {
+					d.setCallback(null);
+					Bitmap b = d.getBitmap();
+					if (b != null) {
+						b.recycle();
+						b = null;
+					}
+					d = null;
+				}
 			}
 			drawables = new Drawable[0];
 		}
