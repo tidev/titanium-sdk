@@ -18,14 +18,19 @@ import org.appcelerator.titanium.util.TiEventHelper;
 import org.appcelerator.titanium.view.TiCompositeLayout;
 
 import ti.modules.titanium.ui.ScrollableViewProxy;
+import android.content.Context;
 import android.graphics.Color;
 import android.os.Handler;
-import android.text.method.MovementMethod;
+import android.view.GestureDetector;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.GestureDetector.OnGestureListener;
+import android.view.animation.Animation;
+import android.view.animation.Animation.AnimationListener;
 import android.widget.AdapterView;
+import android.widget.FrameLayout;
 import android.widget.RelativeLayout;
 import android.widget.ViewAnimator;
 
@@ -50,6 +55,32 @@ public class TiScrollableView extends TiCompositeLayout
 	protected ArrayList<TiViewProxy> views;
 	protected ScrollableViewProxy proxy;
 	protected Handler handler;
+
+	class ViewWrapper extends FrameLayout
+	{
+		private int position;
+		private View view;
+
+		public ViewWrapper(Context context, int position) {
+			super(context);
+			this.position = position;
+		}
+
+		public void doAttachView() {
+			if (view == null) {
+				view = views.get(position).getView(null).getNativeView();
+				addView(view);
+			}
+		}
+
+		public void doDetachView() {
+			if (view != null) {
+				removeAllViews();
+				view = null;
+				views.get(position).releaseViews();
+			}
+		}
+	}
 
 	public TiScrollableView(ScrollableViewProxy proxy, Handler handler)
 	{
@@ -124,11 +155,54 @@ public class TiScrollableView extends TiCompositeLayout
 		p.autoFillsWidth = true;
 		addView(pager, p);
 
+		final GestureDetector detector = new GestureDetector(new OnGestureListener(){
+
+			@Override
+			public boolean onDown(MotionEvent arg0) {
+				return true;
+			}
+
+			@Override
+			public boolean onFling(MotionEvent me1, MotionEvent me2, float velocityX, float velocityY) {
+
+				if(Math.abs(me2.getY() - me1.getY()) > 100) {
+					return false; // Keep it relatively level
+				}
+
+				Log.e(LCAT, "FLING IT");
+
+				if (me1.getX() > me2.getX()) {
+					doMoveNext();
+				} else {
+					doMovePrevious();
+				}
+
+				return true;
+			}
+
+			@Override
+			public void onLongPress(MotionEvent arg0) {
+			}
+
+			@Override
+			public boolean onScroll(MotionEvent arg0, MotionEvent arg1, float arg2, float arg3) {
+				return false;
+			}
+
+			@Override
+			public void onShowPress(MotionEvent arg0) {
+			}
+
+			@Override
+			public boolean onSingleTapUp(MotionEvent arg0) {
+				return false;
+			}});
+
 		glass = new View(getContext()) {
 
 			@Override
 			public boolean onTouchEvent(MotionEvent event) {
-				boolean handled = false;
+				boolean handled = detector.onTouchEvent(event);
 
 				if (event.getAction() == MotionEvent.ACTION_DOWN && showPagingControl) {
 					if (pager.getVisibility() != View.VISIBLE) {
@@ -147,20 +221,18 @@ public class TiScrollableView extends TiCompositeLayout
 				Log.w(LCAT, "TRACKBALL");
 				return super.onTrackballEvent(event);
 			}
-
-
 		};
-		glass.setBackgroundColor(Color.argb(100, 0, 0, 255));
+		glass.setBackgroundColor(Color.argb(0, 0, 0, 255));
 		glass.setFocusable(false);
 		glass.setFocusableInTouchMode(false);
 
-		//addView(glass);
+		addView(glass);
 	}
 
 	public int getSelectedItemPosition() {
-		synchronized(gallery) {
+//		synchronized(gallery) {
 			return gallery.getDisplayedChild();
-		}
+//		}
 	}
 
 	public boolean hasPrevious() {
@@ -168,19 +240,35 @@ public class TiScrollableView extends TiCompositeLayout
 	}
 
 	public boolean hasNext() {
-		synchronized (gallery) {
+//		synchronized (gallery) {
 			return getSelectedItemPosition() < gallery.getChildCount() - 1;
-		}
+//		}
 	}
 
 	public void doMovePrevious() {
-		synchronized(gallery) {
+//		synchronized(gallery) {
 			int pos = getSelectedItemPosition();
 			if (pos > 0) {
 				int from = pos;
 				int to = pos - 1;
 				TiEventHelper.fireFocused(views.get(from));
+				final ViewWrapper fromWrapper = (ViewWrapper) gallery.getChildAt(from);
+				ViewWrapper toWrapper = (ViewWrapper) gallery.getChildAt(to);
 				animPrev.apply(gallery);
+				animPrev.setAnimationListener(new AnimationListener(){
+					@Override
+					public void onAnimationEnd(Animation arg0) {
+						fromWrapper.doDetachView();
+					}
+
+					@Override
+					public void onAnimationRepeat(Animation arg0) {
+					}
+
+					@Override
+					public void onAnimationStart(Animation arg0) {
+					}});
+				toWrapper.doAttachView();
 				gallery.setDisplayedChild(to);
 				TiEventHelper.fireUnfocused(views.get(to));
 				onScrolled(from, to);
@@ -188,17 +276,33 @@ public class TiScrollableView extends TiCompositeLayout
 					proxy.setPagerTimeout();
 				}
 			}
-		}
+//		}
 	}
 
 	public void doMoveNext() {
-		synchronized(gallery) {
+//		synchronized(gallery) {
 			int pos = getSelectedItemPosition();
 			if (pos < gallery.getChildCount() - 1) {
 				int from = pos;
 				int to = pos + 1;
 				TiEventHelper.fireFocused(views.get(from));
+				final ViewWrapper fromWrapper = (ViewWrapper) gallery.getChildAt(from);
+				ViewWrapper toWrapper = (ViewWrapper) gallery.getChildAt(to);
+				toWrapper.doAttachView();
 				animNext.apply(gallery);
+				animPrev.setAnimationListener(new AnimationListener(){
+					@Override
+					public void onAnimationEnd(Animation arg0) {
+						fromWrapper.doDetachView();
+					}
+
+					@Override
+					public void onAnimationRepeat(Animation arg0) {
+					}
+
+					@Override
+					public void onAnimationStart(Animation arg0) {
+					}});
 				gallery.setDisplayedChild(to);
 				TiEventHelper.fireUnfocused(views.get(to));
 				onScrolled(from, to);
@@ -206,7 +310,7 @@ public class TiScrollableView extends TiCompositeLayout
 					proxy.setPagerTimeout();
 				}
 			}
-		}
+//		}
 	}
 
 	public void showPager() {
@@ -246,10 +350,12 @@ public class TiScrollableView extends TiCompositeLayout
 				if (views[i] instanceof TiViewProxy) {
 					TiViewProxy tv = (TiViewProxy)views[i];
 					this.views.add(tv);
-					gallery.addView(tv.getView(null).getNativeView());
+					gallery.addView(new ViewWrapper(getContext(), i));
+					//gallery.addView(tv.getView(null).getNativeView());
 				}
 			}
 			if (views.length >= 0) {
+				((ViewWrapper) gallery.getChildAt(0)).doAttachView();
 				((TiViewProxy)views[0]).show(new TiDict());
 			}
 		}
@@ -259,7 +365,7 @@ public class TiScrollableView extends TiCompositeLayout
 	{
 		if (proxy != null) {
 			this.views.add(proxy);
-			gallery.addView(proxy.getView(null).getNativeView());
+			//gallery.addView(proxy.getView(null).getNativeView());
 		}
 	}
 
