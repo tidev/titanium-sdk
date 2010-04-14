@@ -7,13 +7,10 @@
 package ti.modules.titanium.ui.widget;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiContext;
@@ -23,6 +20,7 @@ import org.appcelerator.titanium.TiContext.OnLifecycleEvent;
 import org.appcelerator.titanium.io.TiBaseFile;
 import org.appcelerator.titanium.io.TiFileFactory;
 import org.appcelerator.titanium.proxy.TiViewProxy;
+import org.appcelerator.titanium.util.AsyncResult;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiBackgroundImageLoadTask;
 import org.appcelerator.titanium.util.TiConfig;
@@ -34,10 +32,11 @@ import ti.modules.titanium.filesystem.FileProxy;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
-import android.os.AsyncTask;
+import android.os.Handler;
+import android.os.Message;
 
 public class TiUIImageView extends TiUIView
-	implements OnLifecycleEvent
+	implements OnLifecycleEvent, Handler.Callback
 {
 	private static final String LCAT = "TiUIImageView";
 	private static final boolean DBG = TiConfig.LOGD;
@@ -46,10 +45,13 @@ public class TiUIImageView extends TiUIView
 	private static final int MAX_BITMAPS = 3;
 	
 	private Timer timer;
-	private AnimationTask animationTask;
-	private Drawable[] drawables;
+	//private AnimationTask animationTask;
+	private Animator animator;
+	private Object[] images;
+	private Loader loader;
 	private AtomicBoolean animating = new AtomicBoolean(false);
 	private boolean reverse = false;
+	private boolean paused = false;
 
 	private class BgImageLoader extends TiBackgroundImageLoadTask
 	{
@@ -87,15 +89,15 @@ public class TiUIImageView extends TiUIView
 		return (TiImageView) nativeView;
 	}
 
-	public Drawable createImage(Object image)
+	public Bitmap createBitmap(Object image)
 	{
 		if (image instanceof TiBlob) {
 			TiBlob blob = (TiBlob)image;
-			return new BitmapDrawable(TiUIHelper.createBitmap(blob.getInputStream()));
+			return TiUIHelper.createBitmap(blob.getInputStream());
 		} else if (image instanceof FileProxy) {
 			FileProxy file = (FileProxy)image;
 			try {
-				return new BitmapDrawable(TiUIHelper.createBitmap(file.getBaseFile().getInputStream()));
+				return TiUIHelper.createBitmap(file.getBaseFile().getInputStream());
 			} catch (IOException e) {
 				Log.e(LCAT, "Error creating drawable from file: " + file.getBaseFile().getNativeFile().getName(), e);
 			}
@@ -103,70 +105,159 @@ public class TiUIImageView extends TiUIView
 			String url = proxy.getTiContext().resolveUrl(null, (String)image);
 			TiBaseFile file = TiFileFactory.createTitaniumFile(proxy.getTiContext(), new String[] { url }, false);
 			try {
-				return new BitmapDrawable(TiUIHelper.createBitmap(file.getInputStream()));
+				return TiUIHelper.createBitmap(file.getInputStream());
 			} catch (IOException e) {
 				Log.e(LCAT, "Error creating drawable from path: " + image.toString(), e);
 			}
 		} else if (image instanceof TiDict) {
 			TiBlob blob = TiUIHelper.getImageFromDict((TiDict)image);
 			if (blob != null) {
-				return new BitmapDrawable(TiUIHelper.createBitmap(blob.getInputStream()));
+				return TiUIHelper.createBitmap(blob.getInputStream());
 			} else {
 				Log.e(LCAT, "Couldn't find valid image in object: " + image.toString());
 			}
 		}
 		return null;
 	}
-
-	public void recyclePreviousImage()
-	{
-		/*int prevIndex = animationTask.getPrev(animationTask.index);
-		if (drawables[prevIndex] != null) {
-			BitmapDrawable b = (BitmapDrawable)drawables[prevIndex];
-			Log.d(LCAT, "recycling bitmap "+prevIndex);
-			drawables[prevIndex] = null;
-			b.getBitmap().recycle();
-		}*/
+	
+	private Handler handler = new Handler(this);
+	private static final int SET_IMAGE = 10001;
+	
+	@Override
+	public boolean handleMessage(Message msg) {
+		if (msg.what == SET_IMAGE) {
+			AsyncResult result = (AsyncResult)msg.obj;
+			getView().setImageBitmap((Bitmap)result.getArg());
+			result.setResult(null);
+		}
+		return false;
 	}
 	
-	public void setImage(final Drawable drawable)
+	public void setImage(final Bitmap bitmap)
 	{
-		if (drawable != null) {
+		if (bitmap != null) {
 			if (!proxy.getTiContext().isUIThread()) {
-				proxy.getTiContext().getActivity().runOnUiThread(new Runnable(){
+				Message msg = Message.obtain(handler, SET_IMAGE);
+				AsyncResult result = new AsyncResult(bitmap);
+				msg.obj = result;
+				msg.sendToTarget();
+				result.getResult();
+				/*proxy.getTiContext().getActivity().runOnUiThread(new Runnable(){
 					public void run() {
-						getView().setImageDrawable(drawable, false);
-						//recyclePreviousImage();
 					}
-				});
+				});*/
 			} else {
-				getView().setImageDrawable(drawable, false);
-				//recyclePreviousImage();
+				getView().setImageBitmap(bitmap);
 			}
+		}
+	}
+	
+	private class BitmapWithIndex {
+		public BitmapWithIndex(Bitmap b, int i) {
+			this.bitmap = b;
+			this.index = i;
+		}
+		
+		public Bitmap bitmap;
+		public int index;
+	}
+	
+	private class Loader implements Runnable
+	{
+		public static final int INFINITE = 0;
+		
+		private ArrayBlockingQueue<BitmapWithIndex> bitmapQueue;
+		private int repeatIndex = 0;
+		
+		public Loader()
+		{
+			bitmapQueue = new ArrayBlockingQueue<BitmapWithIndex>(5);
+		}
+		
+		private int getRepeatCount() {
+			if (proxy.hasDynamicValue("repeatCount")) {
+				return TiConvert.toInt(proxy.getDynamicValue("repeatCount"));
+			}
+			return INFINITE;
+		}
+		
+		private boolean isRepeating()
+		{
+			int repeatCount = getRepeatCount();
+			if (repeatCount == INFINITE) {
+				return true;
+			}
+			return repeatIndex < repeatCount;
+		}
+		
+		private int getStart()
+		{
+			if (reverse) { return images.length-1; }
+			return 0;
+		}
+		
+		private boolean isNotFinalFrame(int frame)
+		{
+			if (reverse) { return frame >= 0; }
+			return frame < images.length;
+		}
+		private int getCounter()
+		{
+			if (reverse) { return -1; }
+			return 1;
+		}
+		
+		public void run()
+		{
+			repeatIndex = 0;
+			animating.set(true);
+			boolean firedLoad = false;
+			topLoop: while(isRepeating()) {
+				long time = System.currentTimeMillis();
+				for (int j = getStart(); isNotFinalFrame(j); j+=getCounter()) {
+					if (bitmapQueue.size() == 5 && !firedLoad) {
+						fireLoad("images");
+						firedLoad = true;
+					}
+					while (paused) {
+						try {
+							Thread.sleep(200L);
+						} catch (InterruptedException e) {
+							e.printStackTrace();
+						}
+					}
+					if (!animating.get()) {
+						break topLoop;
+					}
+					Object image = images[j];
+					Bitmap b = createBitmap(image);
+					try {
+						bitmapQueue.put(new BitmapWithIndex(b, j));
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+					repeatIndex++;
+				}
+				Log.d(LCAT, "TIME TO LOAD FRAMES: "+(System.currentTimeMillis()-time)+"ms");
+			}
+			animating.set(false);
+		}
+		
+		public ArrayBlockingQueue<BitmapWithIndex> getBitmapQueue()
+		{
+			return bitmapQueue;
 		}
 	}
 
 	public void setImages(final Object[] images)
 	{
-		proxy.getTiContext().getActivity().runOnUiThread(new Runnable(){
-			public void run() {
-				if (images == null) return;
-				
-				TiUIImageView.this.drawables = new Drawable[images.length];
-				int length = Math.min(MAX_BITMAPS, images.length);
-				for (int i = 0; i < images.length; i++) {
-					Drawable drawable = createImage(images[i]);
-					if (drawable != null) {
-						TiUIImageView.this.drawables[i] = drawable;
-					}
-				}
-
-				if (images.length > 0) {
-					getView().setImageDrawable(drawables[0], false);
-					fireLoad("images");
-				}
-			}
-		});
+		if (images == null) return;
+		
+		TiUIImageView.this.images = images;
+		loader = new Loader();
+		Thread loaderThread = new Thread(loader);
+		Log.d(LCAT, "STARTING LOADER THREAD "+loaderThread +" for "+this);
+		loaderThread.start();
 	}
 
 	public double getDuration()
@@ -175,8 +266,8 @@ public class TiUIImageView extends TiUIView
 			return TiConvert.toDouble(proxy.getDynamicValue("duration"));
 		}
 
-		if (drawables != null) {
-			return drawables.length * 33;
+		if (images != null) {
+			return images.length * 33;
 		}
 		return 100;
 	}
@@ -207,21 +298,54 @@ public class TiUIImageView extends TiUIView
 		proxy.fireEvent("stop", data);
 	}
 
-	private class AnimationTask extends TimerTask
+	private class Animator extends TimerTask
+	{
+		private Loader loader;
+		//private Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
+		//public Bitmap currentBitmap;
+		
+		public Animator(Loader loader)
+		{
+			this.loader = loader;
+		}
+		
+		public void run()
+		{
+			//while (animating.get()) {
+				try {
+					BitmapWithIndex b = loader.getBitmapQueue().take();
+					Log.d(LCAT, "set image: "+b.index);
+					setImage(b.bitmap);
+					fireChange(b.index);
+					
+					//drawBitmap(holder, currentBitmap);
+				
+					//Thread.sleep((long)getDuration());
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			//}
+		}
+		
+		
+	}
+	/*private class AnimationTask extends TimerTask
 	{
 		public boolean started = false;
-		public boolean paused = false;
 		public int index = 0;
-		
-		public Drawable getDrawable()
-		{
-			return drawables[index];
-		}
 		
 		@Override
 		public void run()
 		{
-			synchronized(this) {
+				try {
+					BitmapWithIndex b = loader.getBitmapQueue().take();
+					setImage(b.bitmap);
+					fireChange(b.index);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				
 				if (!paused) {
 					animating.set(true);
 					if (!started) {
@@ -229,16 +353,16 @@ public class TiUIImageView extends TiUIView
 						started = true;
 					}
 
-					if (index < drawables.length && index >= 0) {
-						setImage(getDrawable());
+					if (index < images.length && index >= 0) {
+						setImage(createBitmap(images[index]));
 						fireChange(index);
 					} else {
 						if (index < 0) {
-							index = drawables.length-1;
-						} else if (index >= drawables.length) {
+							index = images.length-1;
+						} else if (index >= images.length) {
 							index = 0;
 						}
-						setImage(getDrawable());
+						setImage(createBitmap(images[index]));
 						fireChange(index);
 					}
 
@@ -250,9 +374,8 @@ public class TiUIImageView extends TiUIView
 				} else {
 					animating.set(false);
 				}
-			}
 		}
-	}
+	}*/
 
 	public void start()
 	{
@@ -269,12 +392,13 @@ public class TiUIImageView extends TiUIView
 
 	public void handleStart()
 	{
-		if (animationTask == null) {
+		if (animator == null) {
 
 			timer = new Timer();
-			animationTask = new AnimationTask();
+			animator = new Animator(loader);
+			//new Thread(animator).start();
 			int duration = (int) getDuration();
-			timer.schedule(animationTask, duration, duration);
+			timer.schedule(animator, duration, duration);
 		} else {
 			resume();
 		}
@@ -282,20 +406,14 @@ public class TiUIImageView extends TiUIView
 
 	public void pause()
 	{
-		if (animationTask != null) {
-			synchronized(animationTask) {
-				animationTask.paused = true;
-			}
-		}
+		//TODO synchronize
+		paused = true;
 	}
 
 	public void resume()
 	{
-		if (animationTask != null) {
-			synchronized(animationTask) {
-				animationTask.paused = false;
-			}
-		}
+		//TODO synchronize
+		paused = false;
 	}
 
 	public void stop()
@@ -304,7 +422,8 @@ public class TiUIImageView extends TiUIView
 			timer.cancel();
 		}
 		timer = null;
-		animationTask = null;
+		//animationTask = null;
+		animator = null;
 		animating.set(false);
 
 		fireStop();
@@ -315,24 +434,24 @@ public class TiUIImageView extends TiUIView
 	{
 		TiImageView view = getView();
 
-		if (d.containsKey("url")) {
-			new BgImageLoader(getProxy().getTiContext(), null, null).load(TiConvert.toString(d, "url"));
-		}
-		if (d.containsKey("canScale")) {
-			view.setCanScaleImage(TiConvert.toBoolean(d, "canScale"));
-		}
-		if (d.containsKey("image")) {
-			setImage(createImage(d.get("image")));
-		} else {
-			getProxy().internalSetDynamicValue("image", null, false);
-		}
 		if (d.containsKey("images")) {
 			Object o = d.get("images");
 			if (o instanceof Object[]) {
 				setImages((Object[])o);
 			}
 		}
-
+		else if (d.containsKey("url")) {
+			new BgImageLoader(getProxy().getTiContext(), null, null).load(TiConvert.toString(d, "url"));
+		}
+		if (d.containsKey("canScale")) {
+			view.setCanScaleImage(TiConvert.toBoolean(d, "canScale"));
+		}
+		if (d.containsKey("image")) {
+			setImage(createBitmap(d.get("image")));
+		} else {
+			getProxy().internalSetDynamicValue("image", null, false);
+		}
+		
 		super.processProperties(d);
 	}
 
@@ -346,7 +465,7 @@ public class TiUIImageView extends TiUIView
 		} else if (key.equals("url")) {
 			new BgImageLoader(getProxy().getTiContext(), null, null).load(TiConvert.toString(newValue));
 		} else if (key.equals("image")) {
-			setImage(createImage(newValue));
+			setImage(createBitmap(newValue));
 		} else if (key.equals("images")) {
 			if (newValue instanceof Object[]) {
 				setImages((Object[])newValue);
@@ -358,13 +477,13 @@ public class TiUIImageView extends TiUIView
 
 
 	public void onDestroy() {
-		if (drawables != null) {
+		/*if (drawables != null) {
 			for (int i = 0; i < drawables.length; i++) {
 				BitmapDrawable d = (BitmapDrawable) drawables[i];
 				d.getBitmap().recycle();
 			}
 			drawables = new Drawable[0];
-		}
+		}*/
 	}
 
 	public void onPause() {
@@ -391,13 +510,15 @@ public class TiUIImageView extends TiUIView
 	}
 
 	public void setReverse(boolean reverse) {
-		if (animationTask != null) {
+		/*if (animationTask != null) {
 			synchronized(animationTask) {
 				this.reverse = reverse;
 			}
 		} else {
 			this.reverse = reverse;
-		}
+		}*/
+		//TODO synchronize
+		this.reverse = reverse;
 	}
 
 	public TiBlob toBlob ()

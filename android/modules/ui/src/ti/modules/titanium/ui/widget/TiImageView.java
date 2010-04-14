@@ -6,10 +6,10 @@
  */
 package ti.modules.titanium.ui.widget;
 
-import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.graphics.Matrix;
 import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
@@ -173,6 +173,10 @@ public class TiImageView extends ViewGroup
 		return imageView.getDrawable();
 	}
 
+	public void setImageBitmap(Bitmap bitmap) {
+		imageView.setImageBitmap(bitmap);
+	}
+	
 	public void setOnClickListener(OnClickListener clickListener) {
 		this.clickListener = clickListener;
 	}
@@ -324,7 +328,7 @@ public class TiImageView extends ViewGroup
 			int h = MeasureSpec.getSize(heightMeasureSpec);
 			int hm = MeasureSpec.getMode(heightMeasureSpec);
 
-			Log.i(LCAT, "w: " + w + " wm: " + wm + " h: " + h + " hm: " + hm);
+			//Log.i(LCAT, "w: " + w + " wm: " + wm + " h: " + h + " hm: " + hm);
 		}
 
 		// TODO padding and margins
