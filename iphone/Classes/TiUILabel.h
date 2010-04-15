@@ -10,6 +10,7 @@
 @private
 	UILabel *label;
 	BOOL requiresLayout;
+    BOOL antialiasOK;
 }
 
 @property(nonatomic,getter=isHighlighted) BOOL     highlighted;          // default is NO

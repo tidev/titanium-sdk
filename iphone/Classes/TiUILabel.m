@@ -66,21 +66,45 @@
                                       normalizedFrame.origin.y - frame.origin.y,
                                       normalizedFrame.size.width,
                                       normalizedFrame.size.height);
+    
     [label setFrame:adjustedFrame];
 }
 
 -(void)setFrame:(CGRect)frame
 {
-    UIView* referenceView = [self supermostView];
-    CGRect normalizedFrame = CGRectIntegral([self convertRect:frame toView:referenceView]);
-    [super setFrame:[self convertRect:normalizedFrame fromView:referenceView]];
+    if (!antialiasOK) {
+        UIView* referenceView = [self supermostView];
+        CGRect normalizedFrame = CGRectIntegral([self convertRect:frame toView:referenceView]);
+        [super setFrame:[self convertRect:normalizedFrame fromView:referenceView]];
+        
+        // But wait!  There's more!  We now have to INDIVIDUALLY ADJUST the label frame using the same method!
+        // The reason?  There is always this awful, degenerate case:
+        // - The label frame was placed at a +/-0.5 offset by frameSizeChanged:
+        // - But within the REFERENCE VIEW the current frame is being set on a +/-0.5 offset
+        // - So the frame is normalized to be on an integer boundary
+        // - WHICH PLACES THE LABEL ON A +/-0.5 BOUNDARY.
+        normalizedFrame = CGRectIntegral([label convertRect:[label frame] toView:referenceView]);
+        [label setFrame:[label convertRect:normalizedFrame fromView:referenceView]];
+    }
+    else {
+        [super setFrame:frame];
+    }
 }
 
 -(void)setBounds:(CGRect)bounds
 {
-    UIView* referenceView = [self supermostView];
-    CGRect normalizedBounds = CGRectIntegral([self convertRect:bounds toView:referenceView]);
-    [super setBounds:[self convertRect:normalizedBounds fromView:referenceView]];
+    if (!antialiasOK) {
+        UIView* referenceView = [self supermostView];
+        CGRect normalizedBounds = CGRectIntegral([self convertRect:bounds toView:referenceView]);
+        [super setBounds:[self convertRect:normalizedBounds fromView:referenceView]];
+        
+        // See above for why we do this ridiculous thing.
+        normalizedBounds = CGRectIntegral([label convertRect:[label bounds] toView:referenceView]);
+        [label setBounds:[label convertRect:normalizedBounds fromView:referenceView]];
+    }
+    else {
+        [super setBounds:bounds];
+    }
 }
 
 -(UILabel*)label
@@ -164,6 +188,11 @@
 	CGPoint p = [TiUtils pointValue:value];
 	CGSize size = {p.x,p.y};
 	[[self label] setShadowOffset:size];
+}
+
+-(void)setAllowAntialiasing_:(id)value
+{
+    antialiasOK = [TiUtils boolValue:value];
 }
 
 @end
