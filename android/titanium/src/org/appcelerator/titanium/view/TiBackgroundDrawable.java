@@ -145,6 +145,16 @@ public class TiBackgroundDrawable extends StateListDrawable {
 			background.inflate(r, parser, attrs);
 		}
 	}
+	
+	public void releaseDelegate() {
+		if (background != null) {
+			if (background instanceof BitmapDrawable) {
+				((BitmapDrawable)background).getBitmap().recycle();
+			}
+			background.setCallback(null);
+			background = null;
+		}
+	}
 
 	public static class Border {
 		public static final int SOLID = 0;

@@ -28,6 +28,7 @@ import org.appcelerator.titanium.view.TiCompositeLayout.LayoutParams;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
@@ -353,6 +354,9 @@ public abstract class TiUIView
 		if (d != null) {
 			nv.setBackgroundDrawable(null);
 			d.setCallback(null);
+			if (d instanceof TiBackgroundDrawable) {
+				((TiBackgroundDrawable)d).releaseDelegate();
+			}
 			d = null;
 		}
 	}
