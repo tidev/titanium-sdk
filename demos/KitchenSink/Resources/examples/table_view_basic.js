@@ -21,6 +21,7 @@ tableview.addEventListener('click', function(e)
 	var section = e.section;
 	var row = e.row;
 	var rowdata = e.rowData;
+	Ti.API.info('detail ' + e.detail);
 	Titanium.UI.createAlertDialog({title:'Table View',message:'row ' + row + ' index ' + index + ' section ' + section  + ' row data ' + rowdata}).show();
 });
 

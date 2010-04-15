@@ -9,7 +9,8 @@ var data = [
 	{title:'Alert Dialog', hasChild:true, test:'../examples/alert.js'},
 	{title:'Options Dialog', hasChild:true, test:'../examples/options_dialog.js'},
 	{title:'Map View', hasChild:true, test:'../examples/map_view.js'},
-	{title:'Remove Views', hasChild:true, test:'../examples/remove_views.js'}
+	{title:'Remove Views', hasChild:true, test:'../examples/remove_views.js'},
+	{title:'zIndex', hasChild:true, test:'../examples/views_zindex.js'}
 
 ];
 
