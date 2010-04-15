@@ -160,6 +160,7 @@
 	[self setVisible:YES];
 #else
 	[self setValue:[NSNumber numberWithBool:YES] forKey:@"visible"];
+	[parent childWillResize:self];
 #endif
 }
  
@@ -176,6 +177,12 @@
 -(void)animate:(id)arg
 {
 	ENSURE_UI_THREAD(animate,arg);
+	if ([view superview]==nil)
+	{
+		VerboseLog(@"Entering animation without a superview Parent is %@, props are %@",parent,dynprops);
+		[parent childWillResize:self];
+	}
+	[parent layoutChildrenIfNeeded];
 	[[self view] animate:arg];
 }
 
@@ -487,11 +494,12 @@
 		verticalLayoutBoundary += bounds.size.height;
 	}
 
-
 #if DONTSHOWHIDDEN
-	if (![TiUtils boolValue:[child valueForKey:@"visible"] def:YES])
+	BOOL isVisible = [TiUtils boolValue:[child valueForKey:@"visible"] def:YES];
+
+	if (!isVisible)
 	{
-		return;
+//		return;
 	}
 #endif
 
@@ -511,7 +519,10 @@
 				insertPosition ++;
 			}
 		}
-		[view insertSubview:childView atIndex:insertPosition];
+		if (isVisible)
+		{
+			[view insertSubview:childView atIndex:insertPosition];
+		}
 #else
 		[view addSubview:childView];
 #endif

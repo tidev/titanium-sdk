@@ -317,6 +317,10 @@ DEFINE_EXCEPTIONS
 	if (repositioning==NO)
 	{
 		repositioning = YES;
+		if ([self superview] == nil)
+		{
+			[[(TiViewProxy *)proxy parent] layoutChild:(TiViewProxy *)proxy];
+		}
 		ApplyConstraintToViewWithinViewWithBounds([(TiViewProxy *)proxy layoutProperties], self, [self superview], bounds, YES);
 		[(TiViewProxy *)[self proxy] clearNeedsReposition];
 		repositioning = NO;
@@ -556,7 +560,7 @@ DEFINE_EXCEPTIONS
 	if ([self.proxy isKindOfClass:[TiViewProxy class]] && [(TiViewProxy*)self.proxy viewReady]==NO)
 	{
 #ifdef DEBUG
-		NSLog(@"[DEBUG] animated called and we're not ready ... (will try again)");
+		NSLog(@"[DEBUG] animated called and we're not ready ... (will try again) %@",self);
 #endif		
 		if (animationDelayGuard++ > 5)
 		{
