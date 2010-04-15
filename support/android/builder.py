@@ -56,6 +56,7 @@ class Builder(object):
 		self.name = name
 		self.app_id = app_id
 		self.support_dir = support_dir
+		self.compiled_files = []
 		
 		# we place some files in the users home
 		if platform.system() == "Windows":
@@ -67,7 +68,7 @@ class Builder(object):
 		
 		if not os.path.exists(self.home_dir):
 			os.makedirs(self.home_dir)
-		self.sdcard = os.path.join(self.home_dir,'android.sdcard')
+		self.sdcard = os.path.join(self.home_dir,'android2.sdcard')
 		self.classname = "".join(string.capwords(self.name).split(' '))
 		self.set_java_commands()
 	
@@ -118,16 +119,15 @@ class Builder(object):
 		print "[DEBUG] waited %f seconds on emulator to get ready" % duration
 		if duration > 1.0:
 			print "[INFO] Waiting for the Android Emulator to become available"
-			time.sleep(15) # give it a little more time to get installed
+			time.sleep(20) # give it a little more time to get installed
 	
 	def create_avd(self,avd_id,avd_skin):
 		name = "titanium_%s_%s" % (avd_id,avd_skin)
 		if not os.path.exists(self.home_dir):
 			os.makedirs(self.home_dir)
-		sdcard = os.path.abspath(os.path.join(self.home_dir,'android.sdcard'))
-		if not os.path.exists(sdcard):
+		if not os.path.exists(self.sdcard):
 			print "[INFO] Created shared 64M SD card for use in Android emulator(s)"
-			run.run([self.sdk.get_mksdcard(), '64M', sdcard])
+			run.run([self.sdk.get_mksdcard(), '64M', self.sdcard])
 
 		avd_path = os.path.join(self.android_home_dir, 'avd')
 		my_avd = os.path.join(avd_path,"%s.avd" % name)
@@ -255,6 +255,8 @@ class Builder(object):
 					dest = make_relative(path, android_resources_dir, self.assets_resources_dir)
 				else:
 					dest = make_relative(path, resources_dir, self.assets_resources_dir)
+				# check to see if this is a compiled file and if so, don't copy
+				if dest in self.compiled_files: continue
 				parent = os.path.dirname(dest)
 				if not os.path.exists(parent):
 					os.makedirs(parent)
@@ -271,11 +273,7 @@ class Builder(object):
 					cmd = [self.sdk.get_adb(), self.device_type_arg, "push", delta.get_path(), "%s/%s" % (self.sdcard_resources, relative_path)]
 					run.run(cmd)
 
-	def generate_android_manifest(self):
-		# compile resources
-		full_resource_dir = os.path.join(self.project_dir,self.assets_resources_dir)
-		compiler = Compiler(self.app_id,full_resource_dir,False)
-		compiler.compile(self.project_deltas)
+	def generate_android_manifest(self,compiler):
 		
 		# NOTE: these are built-in permissions we need -- we probably need to refine when these are needed too
 		permissions_required = ['INTERNET','ACCESS_WIFI_STATE','ACCESS_NETWORK_STATE', 'WRITE_EXTERNAL_STORAGE']
@@ -565,16 +563,12 @@ class Builder(object):
 			print "[ERROR] %s " %success[0]
 			sys.exit(1)
 		
-		# NOTE: we can't zipalign until we officially support 1.6+
-		# # attempt to zipalign -- this only exists in 1.6 and above so be nice
-		# zipalign = os.path.join(self.tools_dir,'zipalign')
-		# if platform.system() == "Windows":
-		# 	zipalign+=".exe"
-		# 	
-		# if os.path.exists(zipalign):
-		# 	#zipalign -v 4 source.apk destination.apk
-		# 	run.run([zipalign, '-v', '4', app_apk, app_apk+'z'])
-		# 	os.rename(app_apk+'z',app_apk)
+		# zipalign to align byte boundaries
+		zipalign = self.sdk.get_zipalign()
+		if os.path.exists(app_apk+'z'):
+			os.remove(app_apk+'z')
+		run.run([zipalign, '-v', '4', app_apk, app_apk+'z'])
+		os.rename(app_apk+'z',app_apk)
 
 		if self.dist_dir:
 			sys.exit(0)
@@ -696,12 +690,25 @@ class Builder(object):
 			finalxml = os.path.join(self.assets_dir,'tiapp.xml')
 			self.tiapp = TiAppXML(finalxml)
 			self.tiapp.setDeployType(deploy_type)
-			
+
+			self.classes_dir = os.path.join(self.project_dir, 'bin', 'classes')	
+			if not os.path.exists(self.classes_dir):
+				os.makedirs(self.classes_dir)
+
+			# compile resources
+			full_resource_dir = os.path.join(self.project_dir,self.assets_resources_dir)
+			compiler = Compiler(self.app_id,full_resource_dir,self.java,self.classes_dir)
+			compiler.compile()
+			self.compiled_files = compiler.compiled_files
+
+			# FIXME: remove compiled files so they don't get compiled into jar
+
 			self.copy_project_resources()
 			sys.stdout.flush()
-			
+
 			tiapp_delta = self.project_deltafy.scan_single_file(project_tiappxml)
 			tiapp_changed = tiapp_delta is not None
+			
 			if tiapp_changed or self.deploy_type == "production":
 				print "[TRACE] Generating Java Classes"
 				self.android.create(os.path.abspath(os.path.join(self.top_dir,'..')),True)
@@ -712,6 +719,9 @@ class Builder(object):
 			if not os.path.exists(self.assets_dir):
 				os.makedirs(self.assets_dir)
 				
+
+			manifest_changed = self.generate_android_manifest(compiler)
+				
 			my_avd = None	
 			self.google_apis_supported = False
 				
@@ -719,14 +729,9 @@ class Builder(object):
 			for avd_props in avd.get_avds(self.sdk):
 				if avd_props['id'] == avd_id:
 					my_avd = avd_props
-					self.google_apis_supported = (my_avd['name'].find('Google')!=-1)
+					self.google_apis_supported = (my_avd['name'].find('Google')!=-1 or my_avd['name'].find('APIs')!=-1)
 					break
-
-			manifest_changed = self.generate_android_manifest()
-			
-			self.classes_dir = os.path.join(self.project_dir, 'bin', 'classes')	
-			if not os.path.exists(self.classes_dir):
-				os.makedirs(self.classes_dir)
+					
 			
 			generated_classes_built = False
 			if manifest_changed or tiapp_changed or self.deploy_type == "production":
@@ -751,11 +756,14 @@ class Builder(object):
 				if platform.system() == 'Windows':
 					dex_args = [self.java, '-Xmx512M', '-Djava.ext.dirs=%s' % self.sdk.get_platform_tools_dir(), '-jar', self.sdk.get_dx_jar()]
 				else:
-					dex_args = [dx, '-JXmx512M']
+					dex_args = [dx, '-JXmx768M']
 				dex_args += ['--dex', '--output='+self.classes_dex, self.classes_dir]
 				dex_args += self.android_jars
 				dex_args += self.android_module_jars
 		
+				print "[INFO] Compiling Android Resources... This could take some time"
+				sys.stdout.flush()
+				
 				run.run(dex_args)
 				dex_built = True
 			
@@ -813,7 +821,7 @@ class Builder(object):
 			
 
 if __name__ == "__main__":
-	
+
 	if len(sys.argv)<6 or sys.argv[1] == '--help' or (sys.argv[1]=='distribute' and len(sys.argv)<10):
 		print "%s <command> <project_name> <sdk_dir> <project_dir> <app_id> [key] [password] [alias] [dir] [avdid] [avdsdk]" % os.path.basename(sys.argv[0])
 		print
