@@ -126,13 +126,13 @@ class Builder(object):
 		if not os.path.exists(self.home_dir):
 			os.makedirs(self.home_dir)
 		if not os.path.exists(self.sdcard):
-			print "[INFO] Created shared 64M SD card for use in Android emulator(s)"
+			print "[INFO] Creating shared 64M SD card for use in Android emulator(s)"
 			run.run([self.sdk.get_mksdcard(), '64M', self.sdcard])
 
 		avd_path = os.path.join(self.android_home_dir, 'avd')
 		my_avd = os.path.join(avd_path,"%s.avd" % name)
 		if not os.path.exists(my_avd):
-			print "[INFO] creating new AVD %s %s" % (avd_id,avd_skin)
+			print "[INFO] Creating new Android Virtual Device (%s %s)" % (avd_id,avd_skin)
 			inputgen = os.path.join(template_dir,'input.py')
 			pipe([sys.executable, inputgen], [self.sdk.get_android(), '--verbose', 'create', 'avd', '--name', name, '--target', avd_id, '-s', avd_skin, '--force', '--sdcard', sdcard])
 			inifile = os.path.join(my_avd,'config.ini')
