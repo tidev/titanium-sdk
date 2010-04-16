@@ -300,6 +300,7 @@
 		[tf setBorderStyle:UITextBorderStyleNone];
 	}
 	[tf setBackground:[self loadImage:image]];
+    self.backgroundImage = image;
 }
 
 -(void)setBackgroundDisabledImage_:(id)image

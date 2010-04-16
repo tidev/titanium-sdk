@@ -114,6 +114,9 @@ class AndroidSDK:
 		if self.platform_dir is not None:
 			return os.path.join(self.platform_dir, 'tools', 'lib', 'dx.jar')
 		return None
+		
+	def get_zipalign(self):
+		return self.get_tool(self.android_sdk,'zipalign')
 	
 	def get_aapt(self):
 		return self.get_tool(self.platform_dir, 'aapt')

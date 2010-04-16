@@ -57,6 +57,11 @@ CGFloat AutoHeightForView(UIView * superView,CGFloat suggestedWidth,BOOL isVerti
 	
 	//Resizing handling
 	CGSize oldSize;
+    
+    // Image capping/backgrounds
+    id backgroundImage;
+    TiDimension leftCap;
+    TiDimension topCap;
 }
 
 @property(nonatomic,readwrite,assign)	TiProxy *proxy;
@@ -65,6 +70,7 @@ CGFloat AutoHeightForView(UIView * superView,CGFloat suggestedWidth,BOOL isVerti
 @property(nonatomic,readonly)			LayoutConstraint *layoutProperties;
 @property(nonatomic,readwrite,assign)	UIView *touchDelegate;
 @property(nonatomic,readonly)			id transformMatrix;
+@property(nonatomic,readwrite,retain) id backgroundImage;
 
 		  
 #pragma mark Public API 

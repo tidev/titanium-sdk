@@ -23,10 +23,15 @@
 	UIImage * fullImage;
 	UIImage * stretchableImage;
 	UIImage * recentlyResizedImage;
+    TiDimension leftCap;
+    TiDimension topCap;
+    BOOL recapStretchableImage;
 }
 
 @property(nonatomic,readwrite,retain) UIImage * fullImage;
 @property(nonatomic,readwrite,retain) UIImage * recentlyResizedImage;
+@property(nonatomic,readwrite) TiDimension leftCap;
+@property(nonatomic,readwrite) TiDimension topCap;
 -(UIImage *)imageForSize:(CGSize)imageSize;
 -(UIImage *)stretchableImage;
 
@@ -35,7 +40,7 @@
 @end
 
 @implementation ImageCacheEntry
-@synthesize fullImage, recentlyResizedImage;
+@synthesize fullImage, recentlyResizedImage, leftCap, topCap;
 
 -(UIImage *)imageForSize:(CGSize)imageSize scalingStyle:(TiImageScalingStyle)scalingStyle
 {
@@ -97,13 +102,40 @@
 	return recentlyResizedImage;
 }
 
+-(void)setLeftCap:(TiDimension)cap
+{
+    if (!TiDimensionEqual(leftCap, cap)) {
+        leftCap = cap;
+        recapStretchableImage = YES;
+    }
+}
+
+-(void)setTopCap:(TiDimension)cap
+{
+    if (!TiDimensionEqual(topCap, cap)) {
+        topCap = cap;
+        recapStretchableImage = YES;
+    }
+}
+
 -(UIImage *)stretchableImage
 {
-	if (stretchableImage == nil)
-	{
-		CGSize imageSize = [fullImage size];
-		stretchableImage = [[fullImage stretchableImageWithLeftCapWidth:imageSize.width/2 topCapHeight:imageSize.height/2] retain];
-	}
+    if (stretchableImage == nil || recapStretchableImage) {
+        [stretchableImage release];
+        
+        CGSize imageSize = [fullImage size];
+        
+        NSInteger left = (TiDimensionIsAuto(leftCap) || TiDimensionIsUndefined(leftCap) || leftCap.value == 0) ?
+                                imageSize.width/2  : 
+                                TiDimensionCalculateValue(leftCap, imageSize.width);
+        NSInteger top = (TiDimensionIsAuto(topCap) || TiDimensionIsUndefined(topCap) || topCap.value == 0) ? 
+                                imageSize.height/2  : 
+                                TiDimensionCalculateValue(topCap, imageSize.height);
+        
+        stretchableImage = [[fullImage stretchableImageWithLeftCapWidth:left
+                                                           topCapHeight:top] retain];
+        recapStretchableImage = NO;
+    }
 	return stretchableImage;
 }
 
@@ -389,7 +421,15 @@ DEFINE_EXCEPTIONS
 
 -(UIImage *)loadImmediateStretchableImage:(NSURL *)url
 {
-	return [[self entryForKey:url] stretchableImage];
+    return [self loadImmediateStretchableImage:url withLeftCap:TiDimensionAuto topCap:TiDimensionAuto];
+}
+
+-(UIImage *)loadImmediateStretchableImage:(NSURL *)url withLeftCap:(TiDimension)left topCap:(TiDimension)top
+{
+    ImageCacheEntry* image = [self entryForKey:url];
+    image.leftCap = left;
+    image.topCap = top;
+	return [image stretchableImage];    
 }
 
 -(void)notifyImageCompleted:(NSArray*)args

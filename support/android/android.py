@@ -59,7 +59,7 @@ class Android(object):
 			'appname' : self.name,
 			'appversion' : '1',
 			'apiversion' : '4', #Android 1.6
-			'deploy_type': deploy_type,
+			'deploy_type': deploy_type
 		}
 		self.config['classname'] = "".join(string.capwords(self.name).split(' '))
 		self.deploy_type = deploy_type
@@ -95,7 +95,7 @@ class Android(object):
 		tiapp = ElementTree()
 		assets_tiappxml = os.path.join(project_dir, 'build', 'android', 'bin', 'assets', 'tiapp.xml')
 		
-		self.app_info = {}
+		self.app_info = {'fullscreen':'false','navbar-hidden':'false'}
 		self.app_properties = {}
 		if not os.path.exists(assets_tiappxml):
 			shutil.copy(os.path.join(project_dir, 'tiapp.xml'), assets_tiappxml)
@@ -118,10 +118,10 @@ class Android(object):
 	
 	def create(self, dir, build_time=False):
 		template_dir = os.path.dirname(sys._getframe(0).f_code.co_filename)
-
+		
 		# Build up output directory tree
 		project_dir = self.newdir(dir, self.name)
-				
+		
 		# Paths to Titanium assets that need to be linked into eclipse structure
 		self.config['ti_tiapp_xml'] = os.path.join(project_dir, 'tiapp.xml')
 		resource_dir = os.path.join(project_dir, 'Resources')
@@ -129,11 +129,21 @@ class Android(object):
 
 		app_build_dir = self.newdir(project_dir, 'build')
 		app_dir = self.newdir(app_build_dir, 'android')
+
+		if os.path.exists(os.path.join(app_dir,'bin')):
+			shutil.rmtree(os.path.join(app_dir,'bin'))
+			
+		if os.path.exists(os.path.join(app_dir,'src')):
+			shutil.rmtree(os.path.join(app_dir,'src'))
+
+		if os.path.exists(os.path.join(app_dir,'res')):
+			shutil.rmtree(os.path.join(app_dir,'res'))
+			
 		app_bin_dir = self.newdir(app_dir, 'bin')
 		app_lib_dir = self.newdir(app_dir, 'lib')
 		app_src_dir = self.newdir(app_dir, 'src')
 		app_res_dir = self.newdir(app_dir, 'res')
-		app_sim_dir = self.newdir(app_dir, 'sim')
+		app_bin_classes_dir = self.newdir(app_bin_dir, 'classes')
 		
 		app_res_drawable_dir = self.newdir(app_res_dir, 'drawable')
 		app_assets_dir = self.newdir(app_dir, 'assets')
@@ -151,40 +161,15 @@ class Android(object):
 		self.render(template_dir, 'classpath', app_dir, '.classpath')
 		self.render(template_dir, 'project', app_dir, '.project')
 		self.render(template_dir, 'default.properties', app_dir, 'default.properties')
+		self.render(template_dir, 'gitignore', app_dir, '.gitignore')
 
-		# Copy drawable
-		android_resources = os.path.join(resource_dir,'android')
-		
 		android_project_resources = os.path.join(project_dir,'Resources','android')
+
 		if build_time==False and os.path.exists(android_project_resources):
 			shutil.rmtree(android_project_resources)
 		
-		if build_time==False:		
+		if not os.path.exists(android_project_resources):
 			copy_resources(os.path.join(template_dir,'resources'),android_project_resources)
-		
-
-		self.copyfile('titanium.jar', os.path.join(template_dir), app_lib_dir)
-		#self.copyfile('titanium-map.jar', os.path.join(template_dir), app_lib_dir)
-		
-		if build_time==False:
-			# create the AVD and SDCard inside the users home
-			home_dir = os.path.join(os.path.expanduser('~'), '.titanium')
-			if not os.path.exists(home_dir):
-				os.makedirs(home_dir)
-		
-			avd_output = run([self.sdk.get_android(),'list','avd'])
-		
-			sdcard = os.path.join(home_dir,'android.sdcard')
-		
-			# only create the avd if we can't find it
-			if len(re.findall('titanium\.avd',avd_output))==0:
-				# create a special AVD for the project
-				inputgen = os.path.join(template_dir,'input.py')
-				pipe([sys.executable, inputgen], [self.sdk.get_android(), '--verbose', 'create', 'avd', '--name', 'titanium', '--target', '2', '--force'])
-			
-			# create a 10M SDCard for the project
-			if not os.path.exists(sdcard):
-				run([self.sdk.get_mksdcard(), '10M', sdcard])
 		
 
 if __name__ == '__main__':
