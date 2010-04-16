@@ -104,22 +104,40 @@ class Builder(object):
 		print "[DEBUG] Waiting for device to be ready ..."
 		sys.stdout.flush()
 		t = time.time()
+		max_wait = 30
+		attempts = 0
+		timed_out = True
 		while True:
 			output = run.run([self.sdk.get_adb(),"-%s" % type, 'devices'],True)
 			print "[TRACE] wait_for_device returned: %s" % output
 			if output != None: 
 				if (type == 'd' or output.find("emulator-") != -1) and output.find("offline") == -1:
+					timed_out = False
 					break
-			try: time.sleep(1) # for some reason KeyboardInterrupts get caught here from time to time
+			try: time.sleep(5) # for some reason KeyboardInterrupts get caught here from time to time
 			except KeyboardInterrupt: pass
+			attempts += 1
+			if attempts == max_wait:
+				break
 		
-		print "[DEBUG] Device connected..."
+		if timed_out:
+			if type == "e":
+				device = "emulator"
+				extra_message = "you may need to close the emulator and try again"
+			else:
+				device = "device"
+				extra_message = "you may try reconnecting the USB chord"
+			print "[ERROR] Timed out waiting for %s to be ready, %s" % (device, extra_message)
+			return False
+
+		print "[DEBUG] Device connected... (waited %d seconds)" % (attempts*5)
 		sys.stdout.flush()
 		duration = time.time() - t
 		print "[DEBUG] waited %f seconds on emulator to get ready" % duration
 		if duration > 1.0:
 			print "[INFO] Waiting for the Android Emulator to become available"
 			time.sleep(20) # give it a little more time to get installed
+		return True
 	
 	def create_avd(self,avd_id,avd_skin):
 		name = "titanium_%s_%s" % (avd_id,avd_skin)
@@ -237,7 +255,17 @@ class Builder(object):
 		android_resources_dir = os.path.join(resources_dir, 'android')
 		self.project_deltafy = Deltafy(resources_dir, include_callback=self.include_path)
 		self.project_deltas = self.project_deltafy.scan()
-		
+		tiapp_delta = self.project_deltafy.scan_single_file(self.project_tiappxml)
+		self.tiapp_changed = tiapp_delta is not None
+		if self.tiapp_changed:
+			print "[INFO] Detected tiapp.xml change, forcing full re-build..."
+			sys.stdout.flush()
+			# force a clean scan/copy when the tiapp.xml has changed
+			self.project_deltafy.clear_state()
+			self.project_deltas = self.project_deltafy.scan()
+			# rescan tiapp.xml so it doesn't show up as created next time around 
+			self.project_deltafy.scan_single_file(self.project_tiappxml)
+			
 		def strip_slash(s):
 			if s[0:1]=='/' or s[0:1]=='\\': return s[1:]
 			return s
@@ -256,7 +284,7 @@ class Builder(object):
 				else:
 					dest = make_relative(path, resources_dir, self.assets_resources_dir)
 				# check to see if this is a compiled file and if so, don't copy
-				if dest in self.compiled_files: continue
+				#if dest in self.compiled_files: continue
 				parent = os.path.dirname(dest)
 				if not os.path.exists(parent):
 					os.makedirs(parent)
@@ -264,7 +292,7 @@ class Builder(object):
 				sys.stdout.flush()
 				shutil.copy(path, dest)
 				# copy to the sdcard in development mode
-				if self.app_installed and (self.deploy_type == 'development' or self.deploy_type == 'test'):
+				if self.sdcard_copy and self.app_installed and (self.deploy_type == 'development' or self.deploy_type == 'test'):
 					if path.startswith(android_resources_dir):
 						relative_path = make_relative(delta.get_path(), android_resources_dir)
 					else:
@@ -272,7 +300,7 @@ class Builder(object):
 					relative_path = relative_path.replace("\\", "/")
 					cmd = [self.sdk.get_adb(), self.device_type_arg, "push", delta.get_path(), "%s/%s" % (self.sdcard_resources, relative_path)]
 					run.run(cmd)
-
+		
 	def generate_android_manifest(self,compiler):
 		
 		# NOTE: these are built-in permissions we need -- we probably need to refine when these are needed too
@@ -685,11 +713,16 @@ class Builder(object):
 			if not os.path.exists(self.assets_dir):
 				os.makedirs(self.assets_dir)
 			
-			project_tiappxml = os.path.join(self.top_dir,'tiapp.xml')
-			shutil.copy(project_tiappxml, self.assets_dir)
+			self.project_tiappxml = os.path.join(self.top_dir,'tiapp.xml')
+
+			shutil.copy(self.project_tiappxml, self.assets_dir)
 			finalxml = os.path.join(self.assets_dir,'tiapp.xml')
 			self.tiapp = TiAppXML(finalxml)
 			self.tiapp.setDeployType(deploy_type)
+			self.sdcard_copy = False
+			sdcard_property = "ti.android.loadfromsdcard"
+			if self.tiapp.has_app_property(sdcard_property):
+				self.sdcard_copy = self.tiapp.to_bool(self.tiapp.get_app_property(sdcard_property))
 
 			self.classes_dir = os.path.join(self.project_dir, 'bin', 'classes')	
 			if not os.path.exists(self.classes_dir):
@@ -705,11 +738,8 @@ class Builder(object):
 
 			self.copy_project_resources()
 			sys.stdout.flush()
-
-			tiapp_delta = self.project_deltafy.scan_single_file(project_tiappxml)
-			tiapp_changed = tiapp_delta is not None
 			
-			if tiapp_changed or self.deploy_type == "production":
+			if self.tiapp_changed or self.deploy_type == "production":
 				print "[TRACE] Generating Java Classes"
 				self.android.create(os.path.abspath(os.path.join(self.top_dir,'..')),True)
 			else:
@@ -734,7 +764,7 @@ class Builder(object):
 					
 			
 			generated_classes_built = False
-			if manifest_changed or tiapp_changed or self.deploy_type == "production":
+			if manifest_changed or self.tiapp_changed or self.deploy_type == "production":
 				self.build_generated_classes()
 				generated_classes_built = True
 			else:
@@ -768,22 +798,25 @@ class Builder(object):
 				dex_built = True
 			
 			
-			if (not self.resources_installed or not self.app_installed) and (self.deploy_type == 'development' or self.deploy_type == 'test'):
-				if self.install: self.wait_for_device('e')
-				else: self.wait_for_device('d')
+			if self.sdcard_copy and \
+				(not self.resources_installed or not self.app_installed) and \
+				(self.deploy_type == 'development' or self.deploy_type == 'test'):
 				
-				print "[TRACE] Performing full copy to SDCARD -> %s" % self.sdcard_resources
-				cmd = [self.sdk.get_adb(), self.device_type_arg, "push", os.path.join(self.top_dir, 'Resources'), self.sdcard_resources]
-				output = run.run(cmd)
-				print "[TRACE] result: %s" % output
-				
-				android_resources_dir = os.path.join(self.top_dir, 'Resources', 'android')
-				if os.path.exists(android_resources_dir):
-					cmd = [self.sdk.get_adb(), self.device_type_arg, "push", android_resources_dir, self.sdcard_resources]
+					if self.install: self.wait_for_device('e')
+					else: self.wait_for_device('d')
+			
+					print "[TRACE] Performing full copy to SDCARD -> %s" % self.sdcard_resources
+					cmd = [self.sdk.get_adb(), self.device_type_arg, "push", os.path.join(self.top_dir, 'Resources'), self.sdcard_resources]
 					output = run.run(cmd)
 					print "[TRACE] result: %s" % output
+			
+					android_resources_dir = os.path.join(self.top_dir, 'Resources', 'android')
+					if os.path.exists(android_resources_dir):
+						cmd = [self.sdk.get_adb(), self.device_type_arg, "push", android_resources_dir, self.sdcard_resources]
+						output = run.run(cmd)
+						print "[TRACE] result: %s" % output
 						
-			if dex_built or generated_classes_built or tiapp_changed or manifest_changed or not self.app_installed:
+			if dex_built or generated_classes_built or self.tiapp_changed or manifest_changed or not self.app_installed or not self.sdcard_copy:
 				# metadata has changed, we need to do a full re-deploy
 				launched, launch_failed = self.package_and_deploy()
 				if launched:
@@ -810,10 +843,9 @@ class Builder(object):
 							run.run([self.sdk.get_adb(), self.device_type_arg, 'shell', 'kill', pid])
 							relaunched = True
 				
-				if relaunched:			
+				self.run_app()
+				if relaunched:
 					print "[INFO] Relaunched %s ... Application should be running." % self.name
-				else:
-					self.run_app()
 
 		finally:
 			os.chdir(curdir)

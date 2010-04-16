@@ -13,9 +13,10 @@ public class ${config['classname']}AppInfo implements ITiAppInfo
 {
 	private static final String LCAT = "AppInfo";
 	
+	<%def name="to_bool(value)">${str(value in ['true', 'True', 'TRUE', 'yes', 'Yes', 'YES', 'y', 't', '1']).lower()}</%def>
 	public ${config['classname']}AppInfo(TiApplication app) {
 		%if len(app_properties.keys()) > 0:
-		TiProperties properties = app.getAppProperties();
+		TiProperties properties = app.getSystemProperties();
 			%for property in app_properties.keys():
 				%try:
 					<%
@@ -25,7 +26,7 @@ public class ${config['classname']}AppInfo implements ITiAppInfo
 					%if type == "string":
 		properties.setString("${property}", "${value}");
 					%elif type == "bool":
-		properties.setBool("${property}", ${str(bool(value)).lower()});
+		properties.setBool("${property}", ${to_bool(value=value)});
 					%elif type == "int":
 		properties.setInt("${property}", ${int(value)});
 					%elif type == "double":
@@ -35,9 +36,6 @@ public class ${config['classname']}AppInfo implements ITiAppInfo
 		Log.e(LCAT, "Couldn't convert application property '${property}' to ${type}, skipping.");
 				%endtry
 			%endfor
-		%endif
-		%if config['deploy_type'] == 'development':
-		properties.setBool("ti.android.loadfromsdcard", true);
 		%endif
 	}
 	

@@ -16,15 +16,15 @@ import org.appcelerator.titanium.util.TiConvert;
 
 import ti.modules.titanium.filesystem.FileProxy;
 
-public class SoundProxy extends TiProxy
+public class AudioPlayerProxy extends TiProxy
 	implements OnLifecycleEvent
 {
-	private static final String LCAT = "SoundProxy";
+	private static final String LCAT = "AudioPlayerProxy";
 	private static final boolean DBG = TiConfig.LOGD;
 
 	protected TiSound snd;
 
-	public SoundProxy(TiContext tiContext, Object[] args)
+	public AudioPlayerProxy(TiContext tiContext, Object[] args)
 	{
 		super(tiContext);
 
@@ -44,7 +44,7 @@ public class SoundProxy extends TiProxy
 					internalSetDynamicValue("allowBackground", options.get("allowBackground"), false);
 				}
 				if (DBG) {
-					Log.i(LCAT, "Creating sound proxy for url: " + TiConvert.toString(getDynamicValue("url")));
+					Log.i(LCAT, "Creating audio player proxy for url: " + TiConvert.toString(getDynamicValue("url")));
 				}
 			}
 		}
@@ -68,30 +68,7 @@ public class SoundProxy extends TiProxy
 		return false;
 	}
 
-	public boolean isLooping() {
-		TiSound s = getSound();
-		if (s != null) {
-			return s.isLooping();
-		}
-		return false;
-	}
-
-	public boolean getLooping() {
-		TiSound s = getSound();
-		if (s != null) {
-			return s.isLooping();
-		}
-		return false;
-	}
-
-	public void setLooping(boolean looping) {
-		TiSound s = getSound();
-		if (s != null) {
-			s.setLooping(looping);
-		}
-	}
-
-	// An alias for play so that sound can be used instead of an audioplayer
+	// An alias for play so that
 	public void start() {
 		play();
 	}
@@ -107,13 +84,6 @@ public class SoundProxy extends TiProxy
 		TiSound s = getSound();
 		if (s != null) {
 			s.pause();
-		}
-	}
-
-	public void reset() {
-		TiSound s = getSound();
-		if (s != null) {
-			s.reset();
 		}
 	}
 
@@ -136,31 +106,6 @@ public class SoundProxy extends TiProxy
 		}
 	}
 
-	public int getDuration() {
-		TiSound s = getSound();
-		if (s != null) {
-			return s.getDuration();
-		}
-
-		return 0;
-	}
-
-	public int getTime() {
-		TiSound s = getSound();
-		if (s != null) {
-			return s.getTime();
-		}
-		return 0;
-	}
-
-	public void setTime(Object pos) {
-		if (pos != null) {
-			TiSound s = getSound();
-			if (s != null) {
-				s.setTime(TiConvert.toInt(pos));
-			}
-		}
-	}
 	protected TiSound getSound()
 	{
 		if (snd == null) {
@@ -206,6 +151,4 @@ public class SoundProxy extends TiProxy
 		}
 		snd = null;
 	}
-
-
 }

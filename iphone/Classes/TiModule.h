@@ -13,6 +13,8 @@
 {
 @protected
 	TiHost *host;
+@private
+	CFMutableDictionaryRef classNameLookup;
 }
 
 -(void)setPageContext:(id<TiEvaluator>)evaluator;

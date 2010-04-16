@@ -32,6 +32,7 @@ bitRate[double]: bit rate of the current playback stream
 progress[double]: returns the current playback progress. Will return zero if sampleRate has not yet been detected
 state[int]: returns int for the current state of playback
 url[string]: returns the url for the current playback
+allowBackground[boolean]: boolean to indicate if audio should continue playing even if Activity is paused (Android only as of 1.3.0)
 
 STATE_INITIALIZED[int]: current playback is in the initialization state
 STATE_STARTING[int]: current playback is in the starting playback state

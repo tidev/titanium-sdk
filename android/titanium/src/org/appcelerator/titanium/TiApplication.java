@@ -57,6 +57,7 @@ public class TiApplication extends Application
 	private HashMap<String, SoftReference<TiProxy>> proxyMap;
 	private TiRootActivity rootActivity;
 	private TiProperties appProperties;
+	private TiProperties systemProperties;
 	private ITiWindowHandler windowHandler;
 	protected ITiAppInfo appInfo;
 
@@ -102,6 +103,7 @@ public class TiApplication extends Application
 		TiPlatformHelper.initialize(this);
 
 		appProperties = new TiProperties(getApplicationContext(), "titanium", false);
+		systemProperties = new TiProperties(getApplicationContext(), "system", true);
 	}
 
 	public void setRootActivity(TiRootActivity rootActivity) {
@@ -228,6 +230,11 @@ public class TiApplication extends Application
 	{
 		return appProperties;
 	}
+	
+	public TiProperties getSystemProperties()
+	{
+		return systemProperties;
+	}
 
 	public ITiAppInfo getAppInfo() {
 		return appInfo;
@@ -336,6 +343,6 @@ public class TiApplication extends Application
 
 	public String getDeployType()
 	{
-		return getAppProperties().getString(PROPERTY_DEPLOY_TYPE, DEPLOY_TYPE_DEVELOPMENT);
+		return getSystemProperties().getString(PROPERTY_DEPLOY_TYPE, DEPLOY_TYPE_DEVELOPMENT);
 	}
 }

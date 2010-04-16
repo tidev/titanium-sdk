@@ -9,23 +9,16 @@
 #import "TiModule.h"
 #import "TiProxy.h"
 
-CFMutableDictionaryRef classNameLookup = NULL;
-
 @implementation TiModule
-
-+(void)initialize
-{
-	if (classNameLookup == NULL)
-	{
-		classNameLookup = CFDictionaryCreateMutable(kCFAllocatorDefault, 10, &kCFTypeDictionaryKeyCallBacks, NULL);
-		//We do not retain the Class, but simply assign them.
-	}
-}
 
 -(void)dealloc
 {
 	[[NSNotificationCenter defaultCenter] removeObserver:self];
 	RELEASE_TO_NIL(host);
+	if (classNameLookup != NULL)
+	{
+		CFRelease(classNameLookup);
+	}
 	[super dealloc];
 }
 
@@ -51,6 +44,12 @@ CFMutableDictionaryRef classNameLookup = NULL;
 
 -(void)startup
 {
+	if (classNameLookup == NULL)
+	{
+		classNameLookup = CFDictionaryCreateMutable(kCFAllocatorDefault, 10, &kCFTypeDictionaryKeyCallBacks, NULL);
+		//We do not retain the Class, but simply assign them.
+	}
+
 	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(shutdown:) name:kTitaniumShutdownNotification object:nil];
 }
 
