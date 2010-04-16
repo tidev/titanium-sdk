@@ -38,18 +38,12 @@ public class TiSound
 
 	protected TiProxy proxy;
 	protected MediaPlayer mp;
-	protected String url;
 	protected float volume;
 	protected boolean playOnResume;
 
-	public TiSound(TiProxy proxy, Uri uri )
+	public TiSound(TiProxy proxy)
 	{
-		if (DBG) {
-			Log.d(LCAT, "Creating sound from " + uri.toString());
-		}
-
 		this.proxy = proxy;
-		this.url = TiConvert.toURL(uri);
 		this.playOnResume = false;
 	}
 
@@ -58,6 +52,7 @@ public class TiSound
 	{
 		try {
 			mp = new MediaPlayer();
+			String url = TiConvert.toString(proxy.getDynamicValue("url"));
 			if (URLUtil.isAssetUrl(url)) {
 				Context context = proxy.getTiContext().getTiApp();
 				String path = url.substring(TiConvert.ASSET_URL.length());

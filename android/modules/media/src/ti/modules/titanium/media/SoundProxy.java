@@ -23,28 +23,30 @@ public class SoundProxy extends TiProxy
 	private static final String LCAT = "SoundProxy";
 	private static final boolean DBG = TiConfig.LOGD;
 
-	protected String url;
 	protected TiSound snd;
 
 	public SoundProxy(TiContext tiContext, Object[] args)
 	{
 		super(tiContext);
 
-		TiDict options = (TiDict) args[0];
-		if (options != null) {
-			if (options.containsKey("url")) {
-				this.url = tiContext.resolveUrl(null, TiConvert.toString(options, "url"));
-			} else if (options.containsKey("sound")) {
-				FileProxy fp = (FileProxy) options.get("sound");
-				if (fp != null) {
-					url = fp.getNativePath();
+		if (args != null && args.length > 0) {
+			TiDict options = (TiDict) args[0];
+			if (options != null) {
+				if (options.containsKey("url")) {
+					internalSetDynamicValue("url", tiContext.resolveUrl(null, TiConvert.toString(options, "url")), false);
+				} else if (options.containsKey("sound")) {
+					FileProxy fp = (FileProxy) options.get("sound");
+					if (fp != null) {
+						String url = fp.getNativePath();
+						internalSetDynamicValue("url", url, false);
+					}
 				}
-			}
 
-			tiContext.addOnLifecycleEventListener(this);
+				tiContext.addOnLifecycleEventListener(this);
 
-			if (DBG) {
-				Log.i(LCAT, "Creating sound proxy for url: " + url);
+				if (DBG) {
+					Log.i(LCAT, "Creating sound proxy for url: " + TiConvert.toString(getDynamicValue("url")));
+				}
 			}
 		}
 		setDynamicValue("volume", 0.5);
@@ -157,10 +159,8 @@ public class SoundProxy extends TiProxy
 	protected TiSound getSound()
 	{
 		if (snd == null) {
-			if (url != null) {
-				snd = new TiSound(this, Uri.parse(url));
-				setModelListener(snd);
-			}
+			snd = new TiSound(this);
+			setModelListener(snd);
 		}
 		return snd;
 	}
