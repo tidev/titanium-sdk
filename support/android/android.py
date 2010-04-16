@@ -130,8 +130,8 @@ class Android(object):
 		app_build_dir = self.newdir(project_dir, 'build')
 		app_dir = self.newdir(app_build_dir, 'android')
 
-		if os.path.exists(os.path.join(app_dir,'bin')):
-			shutil.rmtree(os.path.join(app_dir,'bin'))
+		#if os.path.exists(os.path.join(app_dir,'bin')):
+		#	shutil.rmtree(os.path.join(app_dir,'bin'))
 			
 		if os.path.exists(os.path.join(app_dir,'src')):
 			shutil.rmtree(os.path.join(app_dir,'src'))
