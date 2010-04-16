@@ -241,7 +241,7 @@ public class TiMapView extends TiUIView
 
 		//TODO MapKey
 		TiApplication app = proxy.getTiContext().getTiApp();
-		TiProperties appProperties = app.getAppProperties();
+		TiProperties appProperties = app.getSystemProperties();
 		String oldKey = appProperties.getString(OLD_API_KEY, TI_DEVELOPMENT_KEY);
 		String developmentKey = appProperties.getString(DEVELOPMENT_API_KEY, oldKey);
 		String productionKey = appProperties.getString(PRODUCTION_API_KEY, oldKey);

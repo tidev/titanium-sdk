@@ -55,7 +55,8 @@ class TiAppXML(object):
 			'analytics':'true',
 			'modules' : []
 		}
-				
+		self.app_properties = {}
+
 		root = self.dom.getElementsByTagName("ti:app")
 		children = root[0].childNodes
 		self.windows = []
@@ -74,6 +75,12 @@ class TiAppXML(object):
 							ver = module.getAttribute('version')
 							name = getText(module.childNodes)
 							self.properties['modules'].append({'name':name,'version':ver})
+				elif child.nodeName == 'property':
+					name = child.getAttribute('name')
+					value = getText(child.childNodes)
+					print "[TRACE] app property, %s : %s" % (name, value)
+					self.app_properties[name] = value
+					
 				# properties of the app
 				else:
 					self.properties[child.nodeName]=getText(child.childNodes)
@@ -87,7 +94,16 @@ class TiAppXML(object):
 			root[0].appendChild(n)
 			root[0].appendChild(self.dom.createTextNode("\n"))
 			self.dom.writexml(codecs.open(self.file, 'w+','utf-8','replace'), encoding="UTF-8")
-					
+	
+	def has_app_property(self, property):
+		return property in self.app_properties
+	
+	def get_app_property(self, property):
+		return self.app_properties[property]
+	
+	def to_bool(self, value):
+		return value in ['true', 'True', 'TRUE', 'yes', 'Yes', 'YES', 'y', 't', '1']
+	
 	def setDeployType(self, deploy_type):
 		found = False
 		children = self.dom.getElementsByTagName("ti:app")[0].childNodes

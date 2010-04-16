@@ -45,7 +45,7 @@ public class TiResourceFile extends TiBaseFile
 	{
 		super(tiContext, TYPE_RESOURCE);
 		this.path = path;
-		this.loadFromSDCard = tiContext.getTiApp().getAppProperties().getBool(LOAD_FROM_SD_CARD, false);
+		this.loadFromSDCard = tiContext.getTiApp().getSystemProperties().getBool(LOAD_FROM_SD_CARD, false);
 		
 		if (loadFromSDCard) {
 			Log.d(LCAT, "Loading data from sdcard");
