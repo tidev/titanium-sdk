@@ -21,6 +21,8 @@
 		map.delegate = nil;
 		RELEASE_TO_NIL(map);
 	}
+	RELEASE_TO_NIL(pendingAnnotationRemovals);
+	RELEASE_TO_NIL(pendingAnnotationAdditions);
 	[super dealloc];
 }
 
@@ -28,7 +30,7 @@
 {
 	if (region.center.latitude!=0 && region.center.longitude!=0)
 	{
-		[map setRegion:region animated:animate];
+		[map setRegion:[map regionThatFits:region] animated:animate];
 	}
 }
 
@@ -110,26 +112,86 @@
 	}
 }
 
+-(void)updateAnnotations
+{
+	//Because the pending annotations are always touched on the main thread only, there's no need for locking.
+	if ([pendingAnnotationAdditions count] != 0)
+	{
+		[[self map] removeAnnotations:pendingAnnotationRemovals];
+		RELEASE_TO_NIL(pendingAnnotationRemovals);
+	}
+
+	if ([pendingAnnotationAdditions count] != 0)
+	{
+		[[self map] addAnnotations:pendingAnnotationAdditions];
+		RELEASE_TO_NIL(pendingAnnotationAdditions);
+	}
+}
+
+-(void)setNeedsUpdateAnnotations
+{
+	//Because the pending annotations are always touched on the main thread only, there's no need for locking.
+	//However, since we check the state of the additions, this MUST be called before changing the annotations.
+	if (([pendingAnnotationAdditions count]==0) && ([pendingAnnotationRemovals count]==0))
+	{
+		[self performSelector:@selector(updateAnnotations) withObject:nil afterDelay:0.1];
+	}
+}
+
 #pragma mark Public APIs
+
 
 -(void)addAnnotation:(id)args
 {
 	ENSURE_UI_THREAD(addAnnotation,args);
 	ENSURE_SINGLE_ARG(args,NSObject);
-	[[self map] addAnnotation:[self annotationFromArg:args]];
+
+	[self setNeedsUpdateAnnotations];
+	
+	TiMapAnnotationProxy * newAnnotation = [self annotationFromArg:args];
+	
+	if (pendingAnnotationAdditions == nil)
+	{
+		pendingAnnotationAdditions = [[NSMutableArray alloc] initWithObjects:newAnnotation,nil];
+	}
+	else
+	{
+		[pendingAnnotationAdditions addObject:newAnnotation];
+	}
+	
+	//If the annotations were already scheduled for removal, let's not remove them.
+	[pendingAnnotationRemovals removeObject:newAnnotation];
 }
 
 -(void)addAnnotations:(id)args
 {
 	ENSURE_UI_THREAD(addAnnotations,args);
 	ENSURE_SINGLE_ARG(args,NSObject);
-	[[self map] addAnnotations:[self annotationsFromArgs:args]];
+
+	[self setNeedsUpdateAnnotations];
+	
+	NSArray * newAnnotations = [self annotationsFromArgs:args];
+	
+	if (pendingAnnotationAdditions == nil)
+	{
+		pendingAnnotationAdditions = [newAnnotations mutableCopy];
+	}
+	else
+	{
+		[pendingAnnotationAdditions addObjectsFromArray:newAnnotations];
+	}
+	
+	//If these annotations were already scheduled for removal, let's not remove them.
+	[pendingAnnotationRemovals removeObjectsInArray:newAnnotations];
 }
 
 -(void)removeAnnotation:(id)args
 {
 	ENSURE_UI_THREAD(removeAnnotation,args);
 	ENSURE_SINGLE_ARG(args,NSObject);
+
+	id<MKAnnotation> doomedAnnotation = nil;
+	
 	if ([args isKindOfClass:[NSString class]])
 	{
 		// for pre 0.9, we supporting removing by passing the annotation title
@@ -138,15 +200,34 @@
 		{
 			if ([title isEqualToString:an.title])
 			{
-				[[self map] removeAnnotation:an];
+				doomedAnnotation = an;
 				break;
 			}
 		}
 	}
 	else if ([args isKindOfClass:[TiMapAnnotationProxy class]])
 	{
-		[[self map] removeAnnotation:args];
+		doomedAnnotation = args;
 	}
+
+	if (doomedAnnotation == nil) //Nothing to see here, move along, move along.
+	{
+		return;
+	}
+	
+	[self setNeedsUpdateAnnotations];
+	
+	if (pendingAnnotationRemovals == nil)
+	{
+		pendingAnnotationRemovals = [[NSMutableArray alloc] initWithObjects:doomedAnnotation,nil];
+	}
+	else
+	{
+		[pendingAnnotationRemovals addObject:doomedAnnotation];
+	}
+	
+	//If the annotations were already scheduled for removal, let's not remove them.
+	[pendingAnnotationAdditions removeObject:doomedAnnotation];
 }
 
 -(void)removeAnnotations:(id)args
@@ -159,10 +240,41 @@
 
 -(void)removeAllAnnotations:(id)args
 {
-	[[self map] removeAnnotations:[[self map] annotations]];
+	[self setNeedsUpdateAnnotations];
+	//Wipe the board.
+	RELEASE_TO_NIL(pendingAnnotationAdditions);
+	RELEASE_TO_NIL(pendingAnnotationRemovals);
+	pendingAnnotationRemovals = [[[self map] annotations] mutableCopy];
 }
 
+-(void)setAnnotations_:(id)value
+{
+	ENSURE_TYPE_OR_NIL(value,NSArray);
+	[self setNeedsUpdateAnnotations];
+	//Wipe the board.
+	RELEASE_TO_NIL(pendingAnnotationAdditions);
+	RELEASE_TO_NIL(pendingAnnotationRemovals);
+	pendingAnnotationRemovals = [[[self map] annotations] mutableCopy];
 
+	int valueCount = [value count];
+
+	if (valueCount > 0)
+	{
+		pendingAnnotationAdditions = [[NSMutableArray alloc] initWithCapacity:valueCount];
+		for (id arg in value)
+		{
+			TiMapAnnotationProxy * newAnnotation = [self annotationFromArg:arg];
+			if ([pendingAnnotationRemovals containsObject:newAnnotation])
+			{
+				[pendingAnnotationRemovals removeObject:newAnnotation];
+			}
+			else
+			{
+				[pendingAnnotationAdditions addObject:newAnnotation];
+			}
+		}
+	}
+}
 
 -(void)selectAnnotation:(id)args
 {
@@ -343,28 +455,6 @@
 	}
 	[self render];
 }
-
--(void)setAnnotations_:(id)value
-{
-	ENSURE_TYPE_OR_NIL(value,NSArray);
-	MKMapView *view = [self map];
-	if (value!=nil)
-	{
-		for (id arg in value)
-		{
-			[view addAnnotation:[self annotationFromArg:arg]];
-		}
-	}
-	else
-	{
-		// if passed nil, remove all annotations
-		for (id ann in [NSArray arrayWithArray:view.annotations])
-		{
-			[view removeAnnotation:ann];
-		}
-	}
-}
-
 
 #pragma mark Delegates
 
