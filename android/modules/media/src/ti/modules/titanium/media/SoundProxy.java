@@ -91,6 +91,11 @@ public class SoundProxy extends TiProxy
 		}
 	}
 
+	// An alias for play so that sound can be used instead of an audioplayer
+	public void start() {
+		play();
+	}
+
 	public void play() {
 		TiSound s = getSound();
 		if (s != null) {
