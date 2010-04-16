@@ -777,6 +777,8 @@
 	NSURL *url = [TiUtils toURL:arg proxy:(TiProxy*)self.proxy];
 	UIImage *image = [[ImageLoader sharedLoader] loadImmediateImage:url];
 	[[self tableView] setBackgroundColor:[UIColor colorWithPatternImage:image]];
+    
+    self.backgroundImage = arg;
 }
 
 -(void)setAllowsSelection_:(id)arg

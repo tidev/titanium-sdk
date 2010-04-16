@@ -82,7 +82,8 @@
         // - The label frame was placed at a +/-0.5 offset by frameSizeChanged:
         // - But within the REFERENCE VIEW the current frame is being set on a +/-0.5 offset
         // - So the frame is normalized to be on an integer boundary
-        // - WHICH PLACES THE LABEL ON A +/-0.5 BOUNDARY.
+        // - WHICH PLACES THE LABEL ON A +/-0.5 BOUNDARY.  Provided that the reference view is being
+        //   placed on an integer in the global coordinates.  Maybe it won't be!  Fun!
         normalizedFrame = CGRectIntegral([label convertRect:[label frame] toView:referenceView]);
         [label setFrame:[label convertRect:normalizedFrame fromView:referenceView]];
     }
@@ -98,7 +99,8 @@
         CGRect normalizedBounds = CGRectIntegral([self convertRect:bounds toView:referenceView]);
         [super setBounds:[self convertRect:normalizedBounds fromView:referenceView]];
         
-        // See above for why we do this ridiculous thing.
+        // See above for why we do this ridiculous thing.  Frames are usually only set once though,
+        // boundaries can be set up to 6+ times for a deeply nested view.
         normalizedBounds = CGRectIntegral([label convertRect:[label bounds] toView:referenceView]);
         [label setBounds:[label convertRect:normalizedBounds fromView:referenceView]];
     }

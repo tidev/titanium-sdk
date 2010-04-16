@@ -162,6 +162,7 @@ const UIControlEvents unHighlightingTouches = UIControlEventTouchCancel|UIContro
 -(void)setBackgroundImage_:(id)value
 {
 	[[self button] setBackgroundImage:[self loadImage:value] forState:UIControlStateNormal];
+    self.backgroundImage = value;
 }
 
 -(void)setBackgroundSelectedImage_:(id)value
