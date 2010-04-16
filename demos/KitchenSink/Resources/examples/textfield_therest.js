@@ -45,6 +45,9 @@ b2.addEventListener('click', function()
 	Ti.API.info('backgroundImage ' + tf1.backgroundImage);
 	if (!bgi)
 	{
+		// Uncomment to see 'bad' capping behavior
+		//tf1.backgroundLeftCap = 9;
+		//tf1.backgroundTopCap = 10;
 		tf1.backgroundImage = '../images/chat.png';
 		bgi=true;
 	}

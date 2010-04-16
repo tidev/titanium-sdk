@@ -400,9 +400,13 @@ public class TiScrollableView extends TiCompositeLayout
 			int from = getSelectedItemPosition();
 			final ViewWrapper fromWrapper = (ViewWrapper) gallery.getChildAt(from);
 			ViewWrapper toWrapper = (ViewWrapper) gallery.getChildAt(position);
-			toWrapper.doAttachView();
-			gallery.setDisplayedChild(position);
-			fromWrapper.doDetachView();
+			if (toWrapper != null) {
+				toWrapper.doAttachView();
+				gallery.setDisplayedChild(position);
+				if (fromWrapper != null) {
+					fromWrapper.doDetachView();
+				}
+			}
 		}
 	}
 

@@ -140,7 +140,7 @@ NSInteger zindexSort(TiUIView* view1, TiUIView* view2, void *reverse)
 
 DEFINE_EXCEPTIONS
 
-@synthesize proxy,parent,touchDelegate;
+@synthesize proxy,parent,touchDelegate,backgroundImage;
 
 #pragma mark Internal Methods
 
@@ -148,6 +148,7 @@ DEFINE_EXCEPTIONS
 {
 	RELEASE_TO_NIL(transformMatrix);
 	RELEASE_TO_NIL(animation);
+    RELEASE_TO_NIL(backgroundImage);
 	[super dealloc];
 }
 
@@ -243,7 +244,7 @@ DEFINE_EXCEPTIONS
 		NSLog(@"[WARN] could not find image: %@",[url absoluteString]);
 		return nil;
 	}
-	return [[ImageLoader sharedLoader] loadImmediateStretchableImage:url];
+	return [[ImageLoader sharedLoader] loadImmediateStretchableImage:url withLeftCap:leftCap topCap:topCap];
 }
 
 -(id)transformMatrix
@@ -317,6 +318,10 @@ DEFINE_EXCEPTIONS
 	if (repositioning==NO)
 	{
 		repositioning = YES;
+		if ([self superview] == nil)
+		{
+			[[(TiViewProxy *)proxy parent] layoutChild:(TiViewProxy *)proxy];
+		}
 		ApplyConstraintToViewWithinViewWithBounds([(TiViewProxy *)proxy layoutProperties], self, [self superview], bounds, YES);
 		[(TiViewProxy *)[self proxy] clearNeedsReposition];
 		repositioning = NO;
@@ -493,7 +498,9 @@ DEFINE_EXCEPTIONS
 -(void)setBackgroundImage_:(id)image
 {
 	NSURL *bgURL = [TiUtils toURL:image proxy:proxy];
-	UIImage *resultImage = [[ImageLoader sharedLoader] loadImmediateStretchableImage:bgURL];
+	UIImage *resultImage = [[ImageLoader sharedLoader] loadImmediateStretchableImage:bgURL
+                                                                         withLeftCap:leftCap
+                                                                          topCap:topCap];
 	if (resultImage==nil && [image isEqualToString:@"Default.png"])
 	{
 		// special case where we're asking for Default.png and it's in Bundle not path
@@ -501,6 +508,25 @@ DEFINE_EXCEPTIONS
 	}
 	self.layer.contents = (id)resultImage.CGImage;
 	self.clipsToBounds = image!=nil;
+    self.backgroundImage = image;
+}
+
+-(void)setBackgroundLeftCap_:(id)value
+{
+    TiDimension cap = TiDimensionFromObject(value);
+    if (!TiDimensionEqual(leftCap, cap)) {
+        leftCap = cap;
+        [self setBackgroundImage_:backgroundImage];
+    }
+}
+
+-(void)setBackgroundTopCap_:(id)value
+{
+    TiDimension cap = TiDimensionFromObject(value);
+    if (!TiDimensionEqual(topCap, cap)) {
+        topCap = cap;
+        [self setBackgroundImage_:backgroundImage];
+    }
 }
 
 -(void)setBorderRadius_:(id)radius
@@ -556,7 +582,7 @@ DEFINE_EXCEPTIONS
 	if ([self.proxy isKindOfClass:[TiViewProxy class]] && [(TiViewProxy*)self.proxy viewReady]==NO)
 	{
 #ifdef DEBUG
-		NSLog(@"[DEBUG] animated called and we're not ready ... (will try again)");
+		NSLog(@"[DEBUG] animated called and we're not ready ... (will try again) %@",self);
 #endif		
 		if (animationDelayGuard++ > 5)
 		{

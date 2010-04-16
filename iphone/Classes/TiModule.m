@@ -9,7 +9,18 @@
 #import "TiModule.h"
 #import "TiProxy.h"
 
+CFMutableDictionaryRef classNameLookup = NULL;
+
 @implementation TiModule
+
++(void)initialize
+{
+	if (classNameLookup == NULL)
+	{
+		classNameLookup = CFDictionaryCreateMutable(kCFAllocatorDefault, 10, &kCFTypeDictionaryKeyCallBacks, NULL);
+		//We do not retain the Class, but simply assign them.
+	}
+}
 
 -(void)dealloc
 {
@@ -56,27 +67,30 @@
 //
 -(id)createProxy:(NSArray*)args forName:(NSString*)name context:(id<TiEvaluator>)context
 {
-	NSRange range = [name rangeOfString:@"create"];
-	if (range.location!=NSNotFound)
+	Class resultClass = (Class)CFDictionaryGetValue(classNameLookup, name);
+	if (resultClass == NULL)
 	{
+		NSRange range = [name rangeOfString:@"create"];
+		if (range.location==NSNotFound)
+		{
+			return nil;
+		}
+		
 		NSString *moduleName = [NSString stringWithCString:class_getName([self class]) encoding:NSUTF8StringEncoding];
 		moduleName = [moduleName stringByReplacingOccurrencesOfString:@"Module" withString:@""];
 		NSString *className = [NSString stringWithFormat:@"Ti%@%@Proxy",moduleName,[name substringFromIndex:range.location+6]];	
-		Class moduleClass = NSClassFromString(className);
-		if (moduleClass!=nil)
-		{
-			TiProxy *proxy = [moduleClass alloc];
-			return [[proxy _initWithPageContext:context args:args] autorelease];
-		}
-		else 
+		resultClass = NSClassFromString(className);
+		if (resultClass==nil)
 		{
 			@throw [NSException exceptionWithName:@"org.appcelerator.module" 
 										   reason:[NSString stringWithFormat:@"invalid method (%@) passed to %@",name,[self class]] 
 										 userInfo:nil];
 		}
-		
+		CFDictionarySetValue(classNameLookup, name, resultClass);		
 	}
-	return nil;
+
+	TiProxy *proxy = [resultClass alloc];
+	return [[proxy _initWithPageContext:context args:args] autorelease];
 }
 
 

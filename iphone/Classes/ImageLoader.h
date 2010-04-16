@@ -8,6 +8,7 @@
 #import <UIKit/UIKit.h>
 #import "ASIHTTPRequest.h"
 #import "ASINetworkQueue.h"
+#import "TiDimension.h"
 
 typedef enum {
 	TiImageScalingDefault,
@@ -67,6 +68,7 @@ typedef enum {
 -(UIImage *)loadImmediateImage:(NSURL *)url;
 -(UIImage *)loadImmediateImage:(NSURL *)url withSize:(CGSize)imageSize;
 -(UIImage *)loadImmediateStretchableImage:(NSURL *)url;
+-(UIImage *)loadImmediateStretchableImage:(NSURL *)url withLeftCap:(TiDimension)left topCap:(TiDimension)top;
 
 -(ImageLoaderRequest*)loadImage:(NSURL*)url 
 					   delegate:(NSObject<ImageLoaderDelegate>*)delegate 
