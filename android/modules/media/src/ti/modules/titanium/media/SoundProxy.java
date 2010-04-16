@@ -15,7 +15,6 @@ import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiConvert;
 
 import ti.modules.titanium.filesystem.FileProxy;
-import android.net.Uri;
 
 public class SoundProxy extends TiProxy
 	implements OnLifecycleEvent
@@ -41,14 +40,15 @@ public class SoundProxy extends TiProxy
 						internalSetDynamicValue("url", url, false);
 					}
 				}
-
-				tiContext.addOnLifecycleEventListener(this);
-
+				if (options.containsKey("allowBackground")) {
+					internalSetDynamicValue("allowBackground", options.get("allowBackground"), false);
+				}
 				if (DBG) {
 					Log.i(LCAT, "Creating sound proxy for url: " + TiConvert.toString(getDynamicValue("url")));
 				}
 			}
 		}
+		tiContext.addOnLifecycleEventListener(this);
 		setDynamicValue("volume", 0.5);
 	}
 
@@ -170,18 +170,30 @@ public class SoundProxy extends TiProxy
 		return snd;
 	}
 
+	private boolean allowBackground() {
+		boolean allow = false;
+		if (hasDynamicValue("allowBackground")) {
+			allow = TiConvert.toBoolean(getDynamicValue("allowBackground"));
+		}
+		return allow;
+	}
+
 	public void onStart() {
 	}
 
 	public void onResume() {
-		if (snd != null) {
-			snd.onResume();
+		if (!allowBackground()) {
+			if (snd != null) {
+				snd.onResume();
+			}
 		}
 	}
 
 	public void onPause() {
-		if (snd != null) {
-			snd.onPause();
+		if (!allowBackground()) {
+			if (snd != null) {
+				snd.onPause();
+			}
 		}
 	}
 
