@@ -84,7 +84,9 @@ public class TiSound
 			}
 			mp.prepare();
 			setVolume(volume);
-			//mp.setVolume(volume, volume); Use internal method to scale
+			if (proxy.hasDynamicValue("time")) {
+				setTime(TiConvert.toInt(proxy.getDynamicValue("time")));
+			}
 			mp.setLooping(looping);
 			mp.setOnCompletionListener(this);
 			mp.setOnErrorListener(this);
@@ -222,6 +224,42 @@ public class TiSound
 		}
 	}
 
+	public int getDuration() {
+		int duration = 0;
+		if (mp != null) {
+			duration = mp.getDuration();
+		}
+		return duration;
+	}
+
+	public int getTime() {
+		int time = 0;
+
+		if (mp != null) {
+			time = mp.getCurrentPosition();
+		}
+
+		return time;
+	}
+
+	public void setTime(int position)
+	{
+		if (position < 0) {
+			position = 0;
+		}
+
+		if (mp != null) {
+			int duration = mp.getDuration();
+			if (position > duration) {
+				position = duration;
+			}
+
+			mp.seekTo(position);
+		}
+
+		proxy.internalSetDynamicValue("time", position, false);
+	}
+
 	public void stop() {
 		try {
 			if (mp != null) {
@@ -313,6 +351,10 @@ public class TiSound
 		} else {
 			setVolume(0.5f);
 		}
+
+		if (d.containsKey("time")) {
+			setTime(TiConvert.toInt(d, "time"));
+		}
 	}
 
 	@Override
@@ -320,6 +362,8 @@ public class TiSound
 	{
 		if ("volume".equals(key)) {
 			setVolume(TiConvert.toFloat(newValue));
+		} else if ("time".equals(key)) {
+			setTime(TiConvert.toInt(newValue));
 		}
 	}
 }

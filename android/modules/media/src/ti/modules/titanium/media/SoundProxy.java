@@ -129,6 +129,31 @@ public class SoundProxy extends TiProxy
 		}
 	}
 
+	public int getDuration() {
+		TiSound s = getSound();
+		if (s != null) {
+			return s.getDuration();
+		}
+
+		return 0;
+	}
+
+	public int getTime() {
+		TiSound s = getSound();
+		if (s != null) {
+			return s.getTime();
+		}
+		return 0;
+	}
+
+	public void setTime(Object pos) {
+		if (pos != null) {
+			TiSound s = getSound();
+			if (s != null) {
+				s.setTime(TiConvert.toInt(pos));
+			}
+		}
+	}
 	protected TiSound getSound()
 	{
 		if (snd == null) {
