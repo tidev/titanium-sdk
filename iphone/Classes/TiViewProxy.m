@@ -477,14 +477,21 @@
 }
 
 
+-(UIView *)parentViewForChild:(TiViewProxy *)child
+{
+	return view;
+}
+
 -(void)layoutChild:(TiViewProxy*)child;
 {
-	if (view==nil)
+	UIView * ourView = [self parentViewForChild:child];
+
+	if (ourView==nil)
 	{
 		return;
 	}
 
-	CGRect bounds = [view bounds];
+	CGRect bounds = [ourView bounds];
 
 	// layout out ourself
 
@@ -503,29 +510,42 @@
 	}
 #endif
 
-	UIView *childView = [child view];
-	if ([childView superview]!=view)
-	{
-#if DONTSHOWHIDDEN
+	TiUIView *childView = [child view];
+	if ([childView superview]!=ourView)
+	{	//TODO: Optimize!
 		int insertPosition = 0;
-		for (TiViewProxy * thisProxy in children)
+		CGFloat zIndex = [childView zIndex];
+		int childProxyIndex = [children indexOfObject:child];
+
+		for (TiUIView * thisView in [ourView subviews])
 		{
-			if (thisProxy == child)
+			if (![thisView isKindOfClass:[TiUIView class]])
+			{
+				insertPosition ++;
+				continue;
+			}
+			
+			CGFloat thisZIndex=[thisView zIndex];
+			if (zIndex < thisZIndex) //We've found our stop!
 			{
 				break;
 			}
-			if ([thisProxy viewAttached])
+			if (zIndex == thisZIndex)
 			{
-				insertPosition ++;
+				TiProxy * thisProxy = [thisView proxy];
+				if (childProxyIndex <= [children indexOfObject:thisProxy])
+				{
+					break;
+				}
 			}
+			insertPosition ++;
 		}
-		if (isVisible)
+		
+//		if (isVisible)
 		{
-			[view insertSubview:childView atIndex:insertPosition];
+			[ourView insertSubview:childView atIndex:insertPosition];
+			[self childWillResize:child];
 		}
-#else
-		[view addSubview:childView];
-#endif
 	}
 	[[child view] updateLayout:NULL withBounds:bounds];
 	
