@@ -22,6 +22,10 @@
 
 	int dirtyflags;	//For atomic actions, best to be explicit about the 32 bitness.
 
+//From TiUIWidgetProxy
+	BOOL isUsingBarButtonItem;
+	UIBarButtonItem * barButtonItem;
+
 @private
 	NSRecursiveLock *childLock;
 	NSMutableArray *children;
@@ -38,6 +42,8 @@
 @property(nonatomic,readonly) NSArray *children;
 @property(nonatomic,readonly) TiViewProxy *parent;
 @property(nonatomic,readonly) TiPoint *center;
+
+@property(nonatomic,retain) UIBarButtonItem * barButtonItem;
 
 #if USE_VISIBLE_BOOL
 @property(nonatomic,readwrite,assign) BOOL visible;
