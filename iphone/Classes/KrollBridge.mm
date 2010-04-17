@@ -113,9 +113,30 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 #if KROLLBRIDGE_MEMORY_DEBUG==1
 		NSLog(@"INIT: %@",self);
 #endif
+		[[NSNotificationCenter defaultCenter] addObserver:self
+												 selector:@selector(didReceiveMemoryWarning:)
+													 name:UIApplicationDidReceiveMemoryWarningNotification  
+												   object:nil]; 
 	}
 	return self;
 }
+
+-(void)didReceiveMemoryWarning:(NSNotification*)notification
+{
+	if (proxies!=nil)
+	{
+		SEL sel = @selector(didReceiveMemoryWarning:);
+		// we have to copy during traversal since proxies can be removed during
+		for (id proxy in [NSArray arrayWithArray:proxies])
+		{
+			if ([proxy respondsToSelector:sel])
+			{
+				[proxy didReceiveMemoryWarning:notification];
+			}
+		}
+	}
+}
+
 
 #if KROLLBRIDGE_MEMORY_DEBUG==1
 -(id)retain
@@ -130,11 +151,35 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 }
 #endif
 
+-(void)removeProxies
+{
+	if (proxies!=nil)
+	{
+		SEL sel = @selector(contextShutdown:);
+		while ([proxies count] > 0)
+		{
+			id proxy = [proxies objectAtIndex:0];
+			[proxy retain]; // hold while we work
+			[proxies removeObjectAtIndex:0];
+			if ([proxy respondsToSelector:sel])
+			{
+				[proxy contextShutdown:self];
+			}
+			[proxy release];
+		}
+	}
+	RELEASE_TO_NIL(proxies);
+}
+
 -(void)dealloc
 {
 #if KROLLBRIDGE_MEMORY_DEBUG==1
 	NSLog(@"DEALLOC: %@",self);
 #endif
+	
+	[[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationDidReceiveMemoryWarningNotification object:nil];
+	
+	[self removeProxies];
 	RELEASE_TO_NIL(preload);
 	RELEASE_TO_NIL(context);
 	RELEASE_TO_NIL(titanium);
@@ -378,9 +423,35 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 
 -(void)didStopNewContext:(KrollContext*)kroll
 {
+	[self removeProxies];
 	RELEASE_TO_NIL(titanium);
 	RELEASE_TO_NIL(context);
 	RELEASE_TO_NIL(preload);
 }
+
+- (void)registerProxy:(id)proxy 
+{
+	if (proxies==nil)
+	{ 
+		CFArrayCallBacks callbacks = kCFTypeArrayCallBacks;
+		callbacks.retain = NULL;
+		callbacks.release = NULL; 
+		proxies = (NSMutableArray*)CFArrayCreateMutable(nil, 50, &callbacks);
+	}
+	[proxies addObject:proxy];
+}
+
+- (void)unregisterProxy:(id)proxy
+{
+	if (proxies!=nil)
+	{
+		[proxies removeObject:proxy];
+		if ([proxies count]==0)
+		{
+			RELEASE_TO_NIL(proxies);
+		}
+	}
+}
+
 
 @end

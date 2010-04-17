@@ -691,58 +691,82 @@ bool KrollSetProperty(TiContextRef jsContext, TiObjectRef object, TiStringRef pr
 
 -(id)valueForKey:(NSString *)key
 {
+	BOOL executionSet = NO;
 	if ([target conformsToProtocol:@protocol(KrollTargetable)])
 	{
+		executionSet = YES;
 		[target setExecutionContext:context.delegate];
 	}
 	
-	// first consult our fixed properties dictionary if we have one
-	if (properties!=nil)
+	@try 
 	{
-		id result = [properties objectForKey:key];
-		if (result!=nil)
+		// first consult our fixed properties dictionary if we have one
+		if (properties!=nil)
 		{
-			return result;
+			id result = [properties objectForKey:key];
+			if (result!=nil)
+			{
+				return result;
+			}
+		}	
+		id result = [self _valueForKey:key];
+		// we can safely cache method objects
+		if ([result isKindOfClass:[KrollObject class]])
+		{
+			// TODO: we need to probably support removing these objects
+			// on low memory condition since they're recreated on demand
+			[self setStaticValue:result forKey:key];
 		}
-	}	
-	id result = [self _valueForKey:key];
-	// we can safely cache method objects
-	if ([result isKindOfClass:[KrollObject class]])
-	{
-		// TODO: we need to probably support removing these objects
-		// on low memory condition since they're recreated on demand
-		[self setStaticValue:result forKey:key];
+		return result;
 	}
-	return result;
+	@finally 
+	{
+		if (executionSet)
+		{
+			[target setExecutionContext:nil];
+		}
+	}
 }
 
 
 -(void)setValue:(id)value forKey:(NSString *)key
 {
+	BOOL executionSet = NO;
 	if ([target conformsToProtocol:@protocol(KrollTargetable)])
 	{
+		executionSet = YES;
 		[target setExecutionContext:context.delegate];
 	}
 	
-	if (value == [NSNull null])
+	@try 
 	{
-		value = nil;
+		if (value == [NSNull null])
+		{
+			value = nil;
+		}
+		NSString *name = [self propercase:key index:0];
+		SEL selector = NSSelectorFromString([NSString stringWithFormat:@"set%@:withObject:",name]);
+		if ([target respondsToSelector:selector])
+		{
+			[target performSelector:selector withObject:value withObject:nil];
+			return;
+		}
+		selector = NSSelectorFromString([NSString stringWithFormat:@"set%@:",name]);
+		if ([target respondsToSelector:selector])
+		{
+			[target performSelector:selector withObject:value];
+		}
+		else 
+		{
+			[target setValue:value forKey:key];
+		}
 	}
-	NSString *name = [self propercase:key index:0];
-	SEL selector = NSSelectorFromString([NSString stringWithFormat:@"set%@:withObject:",name]);
-	if ([target respondsToSelector:selector])
+	@finally 
 	{
-		[target performSelector:selector withObject:value withObject:nil];
-		return;
-	}
-	selector = NSSelectorFromString([NSString stringWithFormat:@"set%@:",name]);
-	if ([target respondsToSelector:selector])
-	{
-		[target performSelector:selector withObject:value];
-	}
-	else 
-	{
-		[target setValue:value forKey:key];
+		if (executionSet)
+		{
+			[target setExecutionContext:nil];
+		}
 	}
 }
 

@@ -10,6 +10,7 @@ else
 // create table view data object
 var data = [
 	{title:'Basic', hasChild:true, test:'../examples/table_view_basic.js', header:'Simple Table API'},
+	{title:'Performance', hasChild:true, test:'../examples/table_view_perf.js'},
 	{title:'Custom Row Data', hasChild:true, test:'../examples/table_view_custom_rowdata.js'},
 	{title:'Headers', hasChild:true, test:'../examples/table_view_headers.js'},
 	{title:'Footers', hasChild:true, test:'../examples/table_view_footers.js'},

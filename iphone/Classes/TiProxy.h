@@ -92,7 +92,7 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 -(void)_willChangeValue:(id)property value:(id)value;
 -(void)_didChangeValue:(id)property value:(id)value;
 -(void)_contextDestroyed;
--(void)contextWasShutdown:(KrollBridge*)bridge;
+-(void)contextWasShutdown:(id<TiEvaluator>)context;
 -(TiHost*)_host;
 -(NSURL*)_baseURL;
 -(void)_setBaseURL:(NSURL*)url;
@@ -104,7 +104,7 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 -(TiProxy*)currentWindow;
 -(void)contextShutdown:(id)sender;
 
-#pragma mark Public
+#pragma mark Public 
 -(id<NSFastEnumeration>)allKeys;
 -(void)setValuesForKeysWithDictionary:(NSDictionary *)keyedValues usingKeys:(id<NSFastEnumeration>)keys;
 +(void)throwException:(NSString *) reason subreason:(NSString*)subreason location:(NSString *)location;

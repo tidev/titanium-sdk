@@ -16,6 +16,9 @@
 #import "TiComplexValue.h"
 #import "TiViewProxy.h"
 
+#define TI_USE_PROPERTY_LOCK 0
+
+
 //Common exceptions to throw when the function call was improper
 NSString * const TiExceptionInvalidType = @"Invalid type passed to function";
 NSString * const TiExceptionNotEnoughArguments = @"Invalid number of arguments to function";
@@ -180,11 +183,6 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 #if PROXY_MEMORY_TRACK == 1
 		NSLog(@"INIT: %@ (%d)",self,[self hash]);
 #endif
-		[[NSNotificationCenter defaultCenter] addObserver:self
-												 selector:@selector(didReceiveMemoryWarning:)
-													 name:UIApplicationDidReceiveMemoryWarningNotification  
-												   object:nil]; 
-		
 		modelDelegate = nil;
 		pageContext = nil;
 		executionContext = nil;
@@ -196,19 +194,16 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 -(id)_initWithPageContext:(id<TiEvaluator>)context
 {
 	if (self = [self init])
-	{
+	{   
 		pageContext = (id)context; // do not retain 
 
 		contextListeners = [[NSMutableDictionary alloc] init];
 		if (context!=nil)
 		{
-			[[NSNotificationCenter defaultCenter] addObserver:self 
-													 selector:@selector(contextShutdown:) 
-														 name:kKrollShutdownNotification 
-													   object:pageContext];
-			
 			[contextListeners setObject:pageContext forKey:[pageContext description]];
 		}
+		
+		[pageContext registerProxy:self];
 		
 		// allow subclasses to configure themselves
 		[self _configure];
@@ -216,24 +211,19 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 	return self;
 }
 
--(void)contextWasShutdown:(KrollBridge*)bridge
+-(void)contextWasShutdown:(id<TiEvaluator>)context
 {
 }
 
--(void)contextShutdown:(NSNotification*)sender
+-(void)contextShutdown:(id)sender
 {
-	KrollBridge *bridge = (KrollBridge*)[sender object];
-	[[bridge retain] autorelease];
+	id<TiEvaluator> context = (id<TiEvaluator>)sender;
 	if (contextListeners!=nil)
 	{
-		id key = [bridge description];
+		id key = [context description];
 		id value = [contextListeners objectForKey:key];
 		if (value!=nil)
 		{
-			[[NSNotificationCenter defaultCenter] removeObserver:self 
-															name:kKrollShutdownNotification 
-														  object:value];
-		
 			[contextListeners removeObjectForKey:key];
 			
 			// remove any listeners that match this context being destroyed that we have registered
@@ -244,7 +234,7 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 					NSArray *a = [listeners objectForKey:type];
 					for (KrollCallback *callback in [NSArray arrayWithArray:a])
 					{
-						if ([bridge krollContext] == [callback context])
+						if ([context krollContext] == [callback context])
 						{
 							[self removeEventListener:[NSArray arrayWithObjects:type,callback,nil]];
 						}
@@ -256,7 +246,7 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 			[self _contextDestroyed];
 		}
 	}
-	[self contextWasShutdown:bridge];
+	[self contextWasShutdown:context];
 }
 
 -(void)setExecutionContext:(id<TiEvaluator>)context
@@ -342,12 +332,14 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 #if PROXY_MEMORY_TRACK == 1
 	NSLog(@"DESTROY: %@ (%d)",self,[self hash]);
 #endif
+
+	if (pageContext!=nil)
+	{
+		[pageContext unregisterProxy:self];
+	}
 	
 	if (executionContext!=nil)
 	{
-		[[NSNotificationCenter defaultCenter] removeObserver:self 
-												 name:kKrollShutdownNotification 
-												   object:executionContext];
 		executionContext = nil;
 	}
 	
@@ -369,29 +361,18 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 				}
 			}
 		}
-		[listeners removeAllObjects];
-		[listeners release];
-		listeners = nil;
-	}
-	if (contextListeners!=nil)
-	{
-		for (id key in contextListeners)
-		{
-			id value = [contextListeners objectForKey:key];
-			[[NSNotificationCenter defaultCenter] removeObserver:self 
-															name:kKrollShutdownNotification 
-														  object:value];
-		}
-		[contextListeners removeAllObjects];
+		RELEASE_TO_NIL(listeners);
 	}
 	if (dynprops!=nil)
 	{
+#if TI_USE_PROPERTY_LOCK == 1		
 		[dynPropsLock lock];
-		[dynprops autorelease];
-		dynprops = nil;
+#endif		
+		RELEASE_TO_NIL(dynprops);
+#if TI_USE_PROPERTY_LOCK == 1		
 		[dynPropsLock unlock];
+#endif
 	}
-	[listeners removeAllObjects];
 	RELEASE_TO_NIL(listeners);
 	RELEASE_TO_NIL(baseURL);
 	RELEASE_TO_NIL(krollDescription);
@@ -407,9 +388,6 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 #if PROXY_MEMORY_TRACK == 1
 	NSLog(@"DEALLOC: %@ (%d)",self,[self hash]);
 #endif
-	[[NSNotificationCenter defaultCenter] removeObserver:self
-													name:nil  
-												  object:nil];  
 	[self _destroy];
 	RELEASE_TO_NIL(destroyLock);
 	[super dealloc];
@@ -463,7 +441,7 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 	{
 		RELEASE_TO_NIL(baseURL);
 		baseURL = [[url absoluteURL] retain];
-	}
+	} 
 }
 
 -(BOOL)_hasListeners:(NSString*)type
@@ -731,9 +709,13 @@ DEFINE_EXCEPTIONS
 	}
 	if (dynprops != nil)
 	{
+#if TI_USE_PROPERTY_LOCK == 1		
 		[dynPropsLock lock];
+#endif
 		id result = [dynprops objectForKey:key];
+#if TI_USE_PROPERTY_LOCK == 1		
 		[dynPropsLock unlock];
+#endif		
 		// if we have a stored value as complex, just unwrap 
 		// it and return the internal value
 		if ([result isKindOfClass:[TiComplexValue class]])
@@ -758,11 +740,13 @@ DEFINE_EXCEPTIONS
 	id current = nil;
 	if (!ignoreValueChanged)
 	{
+#if TI_USE_PROPERTY_LOCK == 1		
 		if (dynPropsLock==nil)
 		{
 			dynPropsLock = [[NSRecursiveLock alloc] init];
 		}
 		[dynPropsLock lock];
+#endif
 		if (dynprops==nil)
 		{
 			dynprops = [[NSMutableDictionary alloc] init];
@@ -780,7 +764,9 @@ DEFINE_EXCEPTIONS
 		{
 			[dynprops setValue:value forKey:key];
 		}
+#if TI_USE_PROPERTY_LOCK == 1		
 		[dynPropsLock unlock];
+#endif
 	}
 	
 	if (notify && self.modelDelegate!=nil)
@@ -792,11 +778,13 @@ DEFINE_EXCEPTIONS
 - (void) setValue:(id)value forUndefinedKey: (NSString *) key
 {
 	id current = nil;
+#if TI_USE_PROPERTY_LOCK == 1		
 	if (dynPropsLock==nil)
 	{
 		dynPropsLock = [[NSRecursiveLock alloc] init];
 	}
 	[dynPropsLock lock];
+#endif
 	if (dynprops!=nil)
 	{
 		// hold it for this invocation since set may cause it to be deleted
@@ -826,7 +814,9 @@ DEFINE_EXCEPTIONS
 	if (current!=value)
 	{
 		[dynprops setValue:propvalue forKey:key];
+#if TI_USE_PROPERTY_LOCK == 1		
 		[dynPropsLock unlock];
+#endif
 		if (self.modelDelegate!=nil)
 		{
 			[[(NSObject*)self.modelDelegate retain] autorelease];
@@ -834,7 +824,9 @@ DEFINE_EXCEPTIONS
 		}
 		return; // so we don't unlock twice
 	}
+#if TI_USE_PROPERTY_LOCK == 1		
 	[dynPropsLock unlock];
+#endif
 }
 
 -(NSDictionary*)allProperties
@@ -849,7 +841,7 @@ DEFINE_EXCEPTIONS
 	//FOR NOW, we're not dropping anything but we'll want to do before release
 	//subclasses need to call super if overriden
 }
-
+ 
 #pragma mark Dispatching Helper
 
 -(void)_dispatchWithObjectOnUIThread:(NSArray*)args
@@ -872,11 +864,11 @@ DEFINE_EXCEPTIONS
 }
 
 #pragma mark Description for nice toString in JS
-
+ 
 -(id)toString
 {
-	if (krollDescription==nil)
-	{
+	if (krollDescription==nil) 
+	{ 
 		NSString *cn = [[self class] description];
 		krollDescription = [[NSString stringWithFormat:@"[object %@]",[cn stringByReplacingOccurrencesOfString:@"Proxy" withString:@""]] retain];
 	}

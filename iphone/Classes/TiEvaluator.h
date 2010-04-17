@@ -23,4 +23,9 @@
 
 - (KrollContext*)krollContext;
 
+- (void)registerProxy:(id)proxy;
+
+- (void)unregisterProxy:(id)proxy;
+
+
 @end

@@ -662,4 +662,12 @@ NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._listeners={
 	return nil;
 }
 
+- (void)registerProxy:(id)proxy
+{
+}
+
+- (void)unregisterProxy:(id)proxy
+{
+}
+
 @end
