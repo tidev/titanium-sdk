@@ -373,6 +373,7 @@
     headerLabel.shadowOffset = CGSizeMake(0, 1);
 	headerLabel.font = font;
     headerLabel.backgroundColor = [UIColor clearColor];
+    headerLabel.numberOfLines = 0;
     [containerView addSubview:headerLabel];
 	
 	return containerView;

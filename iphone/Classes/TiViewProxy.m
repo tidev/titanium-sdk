@@ -16,6 +16,7 @@
 @implementation TiViewProxy
 
 @synthesize children, parent;
+@synthesize barButtonItem;
 
 #pragma mark Internal
 
@@ -34,6 +35,7 @@
 	{
 		view.proxy = nil;
 	}
+	RELEASE_TO_NIL(barButtonItem);
 	RELEASE_TO_NIL(view);
 	RELEASE_TO_NIL(children);
 	RELEASE_TO_NIL(childLock);
@@ -477,14 +479,21 @@
 }
 
 
+-(UIView *)parentViewForChild:(TiViewProxy *)child
+{
+	return view;
+}
+
 -(void)layoutChild:(TiViewProxy*)child;
 {
-	if (view==nil)
+	UIView * ourView = [self parentViewForChild:child];
+
+	if (ourView==nil)
 	{
 		return;
 	}
 
-	CGRect bounds = [view bounds];
+	CGRect bounds = [ourView bounds];
 
 	// layout out ourself
 
@@ -503,29 +512,42 @@
 	}
 #endif
 
-	UIView *childView = [child view];
-	if ([childView superview]!=view)
-	{
-#if DONTSHOWHIDDEN
+	TiUIView *childView = [child view];
+	if ([childView superview]!=ourView)
+	{	//TODO: Optimize!
 		int insertPosition = 0;
-		for (TiViewProxy * thisProxy in children)
+		CGFloat zIndex = [childView zIndex];
+		int childProxyIndex = [children indexOfObject:child];
+
+		for (TiUIView * thisView in [ourView subviews])
 		{
-			if (thisProxy == child)
+			if (![thisView isKindOfClass:[TiUIView class]])
+			{
+				insertPosition ++;
+				continue;
+			}
+			
+			CGFloat thisZIndex=[thisView zIndex];
+			if (zIndex < thisZIndex) //We've found our stop!
 			{
 				break;
 			}
-			if ([thisProxy viewAttached])
+			if (zIndex == thisZIndex)
 			{
-				insertPosition ++;
+				TiProxy * thisProxy = [thisView proxy];
+				if (childProxyIndex <= [children indexOfObject:thisProxy])
+				{
+					break;
+				}
 			}
+			insertPosition ++;
 		}
-		if (isVisible)
+		
+//		if (isVisible)
 		{
-			[view insertSubview:childView atIndex:insertPosition];
+			[ourView insertSubview:childView atIndex:insertPosition];
+			[self childWillResize:child];
 		}
-#else
-		[view addSubview:childView];
-#endif
 	}
 	[[child view] updateLayout:NULL withBounds:bounds];
 	
@@ -576,7 +598,8 @@
 #pragma mark Memory Management
 
 -(void)_destroy
-{
+{//TODO: What's the difference between _destroy and dealloc? Or rather, when do you call destroy and not release?
+	RELEASE_TO_NIL(barButtonItem);
 	if (view!=nil)
 	{
 		view.proxy = nil;
@@ -650,27 +673,51 @@
 
 -(BOOL)supportsNavBarPositioning
 {
-	return NO;
+	return YES;
 }
 
 - (TiUIView *)barButtonViewForSize:(CGSize)bounds
 {
-	return nil;
+	TiUIView * barButtonView = [self view];
+	//TODO: This logic should have a good place in case that refreshLayout is used.
+	LayoutConstraint barButtonLayout = layoutProperties;
+	if (TiDimensionIsUndefined(barButtonLayout.width))
+	{
+		barButtonLayout.width = TiDimensionAuto;
+	}
+	if (TiDimensionIsUndefined(barButtonLayout.height))
+	{
+		barButtonLayout.height = TiDimensionAuto;
+	}
+	CGRect barBounds;
+	barBounds.origin = CGPointZero;
+	barBounds.size = SizeConstraintViewWithSizeAddingResizing(&barButtonLayout, self, bounds, NULL);
+	
+	[TiUtils setView:barButtonView positionRect:barBounds];
+	[barButtonView setAutoresizingMask:UIViewAutoresizingNone];
+	
+	return barButtonView;
 }
 
 -(UIBarButtonItem*)barButtonItem
 {
-	return nil;
+	if (barButtonItem == nil)
+	{
+		isUsingBarButtonItem = YES;
+		barButtonItem = [[UIBarButtonItem alloc] initWithCustomView:[self barButtonViewForSize:CGSizeZero]];
+	}
+	return barButtonItem;
 }
 
 -(void)removeBarButtonView
 {
-	// called to remove
+	isUsingBarButtonItem = NO;
+	[self setBarButtonItem:nil];
 }
 
 - (BOOL) isUsingBarButtonItem
 {
-	return FALSE;
+	return isUsingBarButtonItem;
 }
 
 #pragma mark For autosizing of table views

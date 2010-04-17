@@ -60,7 +60,12 @@
 	[(TiUIScrollView *)[self view] setNeedsHandleContentSizeIfAutosizing];
 }
 
--(void)layoutChild:(TiViewProxy*)child
+-(UIView *)parentViewForChild:(TiViewProxy *)child
+{
+	return [(TiUIScrollView *)[self view] wrapperView];
+}
+
+-(void)oldLayoutChild:(TiViewProxy*)child
 {
 	if (![self viewAttached])
 	{

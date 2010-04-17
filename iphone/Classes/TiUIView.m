@@ -377,8 +377,8 @@ DEFINE_EXCEPTIONS
 {
 	if (parent!=nil && [parent viewAttached])
 	{
-		TiUIView *parentView = [parent view];
-		[parentView performZIndexRepositioning];
+		[self removeFromSuperview];
+		[parent layoutChild:(TiViewProxy *)[self proxy]];
 	}
 }
 

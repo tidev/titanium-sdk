@@ -15,6 +15,9 @@
 	BOOL regionFits;
 	BOOL animate;
 	MKCoordinateRegion region;
+	
+	NSMutableArray * pendingAnnotationAdditions;
+	NSMutableArray * pendingAnnotationRemovals;
 }
 
 #pragma mark Public APIs

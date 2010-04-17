@@ -9,12 +9,7 @@
 
 @interface TiUIWidgetProxy : TiViewProxy 
 {
-	BOOL isUsingBarButtonItem;
-	UIBarButtonItem * barButtonItem;
 }
-
-@property(nonatomic,retain) UIBarButtonItem * barButtonItem;
-
 
 @end
 
