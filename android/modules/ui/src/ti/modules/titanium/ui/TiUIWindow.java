@@ -133,6 +133,8 @@ public class TiUIWindow extends TiUIView
 		activityKey = "window$" + idGenerator.incrementAndGet();
 		TiDict props = proxy.getDynamicProperties();
 
+
+		getLayout().setClickable(true);
 		registerForTouch(getLayout());
 		getLayout().setOnFocusChangeListener(new OnFocusChangeListener() {
 			public void onFocusChange(View view, boolean hasFocus) {
