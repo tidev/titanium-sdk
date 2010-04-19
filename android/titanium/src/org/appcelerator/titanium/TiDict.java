@@ -10,11 +10,11 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
+import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConvert;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
 
 public class TiDict
 	extends HashMap<String, Object>
@@ -30,21 +30,26 @@ public class TiDict
 		for (Iterator<String> iter = object.keys(); iter.hasNext();) {
 			String key = iter.next();
 			Object value = object.get(key);
-			
+			put(key, fromJSON(value));
+		}
+	}
+	
+	private static Object fromJSON(Object value) {
+		try {
 			if (value instanceof JSONObject) {
-				put(key, new TiDict((JSONObject)value));
+				return new TiDict((JSONObject)value);
 			} else if (value instanceof JSONArray) {
 				JSONArray array = (JSONArray)value;
 				Object[] values = new Object[array.length()];
 				for (int i = 0; i < array.length(); i++) {
-					values[i] = new TiDict(array.getJSONObject(i));
+					values[i] = fromJSON(array.get(i));
 				}
-				put(key, values);
+				return values;
 			}
-			else {
-				put(key, value);
-			}
+		} catch (JSONException e) {
+			Log.e("TiDict", "Error parsing JSON", e);
 		}
+		return value;
 	}
 	
 	public TiDict(Map<? extends String, ? extends Object> map) {
