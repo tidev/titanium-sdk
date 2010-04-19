@@ -32,12 +32,14 @@
 
 -(UIBarButtonItem*)barButtonItem
 {
+    /*
 	id backgroundImageValue = [self valueForKey:@"backgroundImage"];
 	if (!IS_NULL_OR_NIL(backgroundImageValue))
 	{
 		return [super barButtonItem];
 	}
-	
+	*/
+    
 	if (button==nil)
 	{
 		isUsingBarButtonItem = YES;

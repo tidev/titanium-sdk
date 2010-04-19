@@ -277,3 +277,34 @@ b10.addEventListener('click', function()
 });
 
 win.add(b10);
+
+var b11 = Titanium.UI.createButton({
+	title:'Back button background',
+	height:40,
+	width:145,
+	top:260,
+	left:10
+});
+
+var colored = false;
+b11.addEventListener('click', function()
+{
+	if (!colored) {
+		var backbutton = Titanium.UI.createButton({
+			title:'BG nav', 
+			backgroundImage:'../images/chat.png',
+			width:100,
+			height:20
+		});
+		backbutton.addEventListener('click', function() {
+			win.close();
+		});
+		win.leftNavButton = backbutton;
+		colored = true;
+	}
+	else {
+		win.leftNavButton = null;
+		colored = false;
+	}
+});
+win.add(b11);
