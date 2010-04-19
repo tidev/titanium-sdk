@@ -67,7 +67,8 @@ public class TiVideoActivity extends Activity
 		contentUrl = intent.getStringExtra("contentURL");
 		proxyMessenger = intent.getParcelableExtra("messenger");
 		messengerReceiver = intent.getParcelableExtra("messengerReceiver");
-
+		boolean play = intent.getBooleanExtra("play", false);
+		
 		if (intent.hasExtra("backgroundColor")) {
 			ColorDrawable d = new ColorDrawable(intent.getIntExtra("backgroundColor", Color.RED));
 			getWindow().setBackgroundDrawable(d);
@@ -93,6 +94,11 @@ public class TiVideoActivity extends Activity
 		});
 
 		videoView.setMediaController(new MediaController(this));
+		videoView.requestFocus();
+		if (play) {
+			videoView.setVideoURI(Uri.parse(contentUrl));
+			videoView.start();
+		}
 
 		TiCompositeLayout.LayoutParams params = new TiCompositeLayout.LayoutParams();
 //		params.autoFillsHeight = true;

@@ -11,11 +11,12 @@ import org.appcelerator.titanium.TiDict;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 
+import ti.modules.titanium.media.TiVideoActivity;
 import ti.modules.titanium.ui.WebViewProxy;
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.net.Uri;
 import android.webkit.HttpAuthHandler;
+import android.webkit.MimeTypeMap;
 import android.webkit.URLUtil;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -91,11 +92,29 @@ public class TiWebViewClient extends WebViewClient
 			proxy.getTiContext().getActivity().startActivity(geoviewer);
 			return true;
 		} else {
+			String extension = MimeTypeMap.getFileExtensionFromUrl(url);
+			String mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension);
+			if (mimeType != null) {
+				return shouldHandleMimeType(mimeType, url);
+			}
+			
 			if (DBG) {
 				Log.e(LCAT, "NEED to Handle " + url);
 			}
+			return super.shouldOverrideUrlLoading(view, url);
 		}
-
+	}
+	
+	private boolean shouldHandleMimeType(String mimeType, String url) {
+		if (mimeType.startsWith("video/")) {
+			Intent intent = new Intent();
+			intent.setClass(proxy.getContext(), TiVideoActivity.class);
+			intent.putExtra("contentURL", url);
+			intent.putExtra("play", true);
+			proxy.getTiContext().getActivity().startActivity(intent);
+			
+			return true;
+		}
 		return false;
 	}
 	

@@ -5,5 +5,6 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/titanium-filesystem"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/titanium-api"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/titanium-app"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/titanium-media"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
