@@ -89,24 +89,23 @@
 	else 
 	{
 		id image = [proxy_ valueForKey:@"image"];
-        id background = [proxy_ valueForKey:@"backgroundImage"];
-		if (image!=nil)
-		{
-			NSURL *url = [TiUtils toURL:image proxy:proxy_];
-			UIImage *theimage = [[ImageLoader sharedLoader] loadImmediateStretchableImage:url];
-			self = [super initWithImage:theimage style:[self style:proxy_] target:self action:@selector(clicked:)];
-		}
-        else if (background != nil) {
-            self = [super initWithCustomView:[proxy_ view]];
-            self.target = self;
-            self.action = @selector(clicked:);
-			if ([[proxy_ view] isKindOfClass:[UIControl class]])
-			{
-				[(UIControl*)[proxy_ view] addTarget:self action:@selector(clicked:) forControlEvents:UIControlEventTouchUpInside];
-			}            
-        }
+       id background = [proxy_ valueForKey:@"backgroundImage"];
+       if (background != nil) {
+           self = [super initWithCustomView:[proxy_ view]];
+           self.target = self;
+           self.action = @selector(clicked:);
+           if ([[proxy_ view] isKindOfClass:[UIControl class]])
+           { 
+               [(UIControl*)[proxy_ view] addTarget:self action:@selector(clicked:) forControlEvents:UIControlEventTouchUpInside];
+           }            
+       }
+       else if (image!=nil) {
+           NSURL *url = [TiUtils toURL:image proxy:proxy_];
+           UIImage *theimage = [[ImageLoader sharedLoader] loadImmediateStretchableImage:url];
+           self = [super initWithImage:theimage style:[self style:proxy_] target:self action:@selector(clicked:)];
+       }
 		else {
-            self = [super initWithTitle:[self title:proxy_] style:[self style:proxy_] target:self action:@selector(clicked:)];
+           self = [super initWithTitle:[self title:proxy_] style:[self style:proxy_] target:self action:@selector(clicked:)];
 		}
 	}
 	proxy = proxy_; // Don't retain
