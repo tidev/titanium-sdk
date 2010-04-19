@@ -47,6 +47,7 @@ public class TableViewRowProxy extends TiViewProxy
 			controls = new ArrayList<TiViewProxy>();
 		}
 		controls.add(control);
+		control.setParent(this);
 	}
 	
 	public void setTableViewItem(TiTableViewRowProxyItem item) {
