@@ -10,7 +10,7 @@
 
 @implementation WebFont
 
-@synthesize family, size, isBoldWeight, isNormalWeight;
+@synthesize family, size, isBoldWeight, isNormalWeight, isItalicStyle, isNormalStyle;
 
 -(void)dealloc
 {
@@ -40,7 +40,7 @@
 		UIFont * result;
 		if (family!=nil)
 		{
-			if (isBoldWeight)
+			if (isBoldWeight || isItalicStyle)
 			{
 				// cache key must include size or .... yeah, you know what
 				NSString *cacheKey = [NSString stringWithFormat:@"%@-%f",family,self.size];
@@ -58,7 +58,21 @@
 				// bold weight for non system fonts are based on the name of the 
 				// font family, not actually settable - so we need to attempt to 
 				// resolve it in a terribly inconsistently named font way
-				if ([family rangeOfString:@"Bold"].location==NSNotFound)
+                NSString* primaryStyle;
+                BOOL hasSecondaryStyle = NO;
+                NSString* secondaryStyle;
+                if (isBoldWeight) { // 'Italic' is considered a secondary style when bolded; see the font check loop
+                    primaryStyle = @"Bold";
+                    secondaryStyle = @"Italic";
+                    if (isItalicStyle) {
+                        hasSecondaryStyle = YES;
+                    }
+                }
+                else { // Must be italic (for now) and secondary styling is handled by the 'bold' conditions
+                    primaryStyle = @"Italic";
+                    secondaryStyle = @"Bold";
+                }
+				if ([family rangeOfString:primaryStyle].location==NSNotFound)
 				{
 					// this means we aren't asking for the bold font name, so but 
 					// we've set a property for bold, now we need to see if we can find it
@@ -66,8 +80,9 @@
 					{
 						// see if the font name has Bold in it (since the names aren't based on any pattern)
 						// but filter out italic-style fonts
-						if ([name rangeOfString:@"Bold"].location!=NSNotFound &&
-							[name rangeOfString:@"Italic"].location==NSNotFound &&
+						if ([name rangeOfString:primaryStyle].location!=NSNotFound &&
+							((!hasSecondaryStyle &&[name rangeOfString:secondaryStyle].location==NSNotFound) ||
+                         (hasSecondaryStyle && [name rangeOfString:secondaryStyle].location!=NSNotFound))&&
 							[name rangeOfString:@"Oblique"].location==NSNotFound)
 						{
 							result = [UIFont fontWithName:name size:self.size];
@@ -87,7 +102,22 @@
 		{
 			if (self.isBoldWeight){ //normalWeight is the default.
 				result = [UIFont boldSystemFontOfSize:self.size];
-			} else {
+                if (self.isItalicStyle) {
+                    NSString* localFamily = [result familyName];
+                    NSString* fontName = [result fontName];
+                    
+                    // Don't cache; we set 'font'
+                    for (NSString* name in [UIFont fontNamesForFamilyName:localFamily]) {
+                        if ([name rangeOfString:fontName].location != NSNotFound &&
+                            [name rangeOfString:@"Italic"].location != NSNotFound &&
+                            [name rangeOfString:@"Oblique"].location == NSNotFound) {
+                            result = [UIFont fontWithName:name size:self.size];
+                        }
+                    }
+                }
+			} else if (self.isItalicStyle) {
+                result =[UIFont italicSystemFontOfSize:self.size];
+            } else {
 				result = [UIFont systemFontOfSize:self.size];
 			}
 		}
@@ -162,6 +192,33 @@
 			self.isNormalWeight = isNormalBool;
 		}
 	}
+    
+    NSString* fontStyleObject = [fontDict objectForKey:@"fontStyle"];
+    if ([fontStyleObject isKindOfClass:[NSString class]]) {
+        fontStyleObject = [fontStyleObject lowercaseString];
+        if ([fontStyleObject isEqualToString:@"italic"]) {
+            didChange |= !(self.isItalicStyle)||(self.isNormalStyle);
+            self.isItalicStyle = YES;
+            self.isNormalStyle = NO;
+        }
+        else if ([fontStyleObject isEqualToString:@"normal"]) {
+            didChange |= (self.isItalicStyle)||!(self.isNormalStyle);
+            self.isItalicStyle = NO;
+            self.isNormalStyle = YES;
+        }
+    }
+    else if ((inheritedFont != NULL) && (fontStyleObject == nil)) {
+        BOOL isItalic = inheritedFont.isItalicStyle;
+        if (self.isItalicStyle != isItalic) {
+            didChange = YES;
+            self.isItalicStyle = isItalic;
+        }
+        BOOL isNormal = inheritedFont.isNormalStyle;
+        if (self.isNormalStyle != isNormal) {
+            didChange = YES;
+            self.isNormalStyle = isNormal;
+        }
+    }
 
 	return didChange;
 }
@@ -173,6 +230,14 @@
 	result.size = 15;
 	result.isBoldWeight = YES;
 	return [result autorelease];
+}
+
++(WebFont *)defaultItalicFont
+{
+    WebFont * result = [[self alloc] init];
+    result.size = 15;
+    result.isItalicStyle = YES;
+    return [result autorelease];
 }
 
 
