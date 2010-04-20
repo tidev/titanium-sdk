@@ -17,7 +17,7 @@
 @interface TiViewProxy : TiProxy<LayoutAutosizing> 
 {
 @protected
-	CGFloat verticalLayoutBoundary;
+	CGFloat layoutBoundary;
 	LayoutConstraint layoutProperties;
 
 	int dirtyflags;	//For atomic actions, best to be explicit about the 32 bitness.

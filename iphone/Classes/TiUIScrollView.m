@@ -89,10 +89,7 @@
 		}
 		case TiDimensionTypeAuto:
 		{
-			for (TiViewProxy * thisChildProxy in [(TiViewProxy *)[self proxy] children])
-			{
-				newContentSize.width = MAX(newContentSize.width,[thisChildProxy minimumParentWidthForWidth:newContentSize.width]);
-			}
+			newContentSize.width = MAX(newContentSize.width,[(TiViewProxy *)[self proxy] autoWidthForWidth:0.0]);
 			break;
 		}
 	}
@@ -106,21 +103,7 @@
 		}
 		case TiDimensionTypeAuto:
 		{
-			BOOL isVertical = TiLayoutRuleIsVertical([(TiViewProxy *)[self proxy] layoutProperties]->layout);
-			minimumContentHeight=0.0;
-
-			for (TiViewProxy * thisChildProxy in [(TiViewProxy *)[self proxy] children])
-			{
-				CGFloat thisHeight = [thisChildProxy minimumParentHeightForWidth:newContentSize.width];
-				if (isVertical)
-				{
-					minimumContentHeight += thisHeight;
-				}
-				else if(minimumContentHeight<thisHeight)
-				{
-					minimumContentHeight = thisHeight;
-				}
-			}
+			minimumContentHeight=[(TiViewProxy *)[self proxy] autoHeightForWidth:newContentSize.width];
 			break;
 		}
 		default:
