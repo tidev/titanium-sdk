@@ -12,7 +12,7 @@ proxy
 
 - description
 
-The AudioRecorder object is returned by [[Titanum.Media.createAudioRecorder]] and is used for recording audio from the device microphone.
+The AudioRecorder object is returned by [[Titanium.Media.createAudioRecorder]] and is used for recording audio from the device microphone.
 
 - since
 
