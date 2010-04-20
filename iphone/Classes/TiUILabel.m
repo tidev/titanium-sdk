@@ -167,6 +167,22 @@
 	}
 }
 
+-(void)setMinimumFontSize_:(id)size
+{
+    CGFloat newSize = [TiUtils floatValue:size];
+    if (newSize < 4) { // Beholden to 'most minimum' font size
+        [[self label] setAdjustsFontSizeToFitWidth:NO];
+        [[self label] setMinimumFontSize:0.0];
+        [[self label] setNumberOfLines:0];
+    }
+    else {
+        [[self label] setNumberOfLines:1];
+        [[self label] setAdjustsFontSizeToFitWidth:YES];
+        [[self label] setMinimumFontSize:newSize];
+    }
+    
+}
+
 -(void)setTextAlign_:(id)alignment
 {
 	[[self label] setTextAlignment:[TiUtils textAlignmentValue:alignment]];
