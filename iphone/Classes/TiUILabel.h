@@ -9,6 +9,8 @@
 @interface TiUILabel : TiUIView<LayoutAutosizing> {
 @private
 	UILabel *label;
+    UIImageView* backgroundView;
+    CGRect padding;
 	BOOL requiresLayout;
     BOOL antialiasOK;
 }
