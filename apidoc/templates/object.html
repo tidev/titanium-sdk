@@ -1,7 +1,7 @@
 <div class="apidoc_container apidoc_object">
 	
 <h1 class="namespace">${data.namespace}</h1>
-<div class="namespace_type">object of <a href="${data.parent_namespace}.html">${data.parent_namespace}</a></div>
+<div class="namespace_type">object of <a href="${data.get_parent_filename()}.html">${data.parent_namespace}</a></div>
 <div class="platforms">
 % for p in data.platforms:
 <span class="${p}">&nbsp;&nbsp;&nbsp;</span>
@@ -26,7 +26,7 @@ This object has no methods
 </tr> 
 % for method in data.methods:
 <tr>
-	<td class="name"><a href="${data.namespace}.${method['name']}.html">${method['name']}</a></td>
+	<td class="name"><a href="${method['filename']}.html">${method['name']}</a></td>
 	<td class="description">${method['value']}</td>
 </tr>
 % endfor
