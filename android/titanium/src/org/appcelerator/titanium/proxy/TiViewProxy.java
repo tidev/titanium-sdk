@@ -504,6 +504,11 @@ public abstract class TiViewProxy extends TiProxy implements Handler.Callback
 		return handled;
 	}
 	
+	public TiViewProxy getParent() {
+		if (this.parent == null) { return null; }
+		return this.parent.get();
+	}
+	
 	public void setParent(TiViewProxy parent) {
 		this.parent = new WeakReference<TiViewProxy>(parent);	
 	}

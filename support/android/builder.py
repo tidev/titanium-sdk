@@ -596,6 +596,7 @@ class Builder(object):
 		if os.path.exists(app_apk+'z'):
 			os.remove(app_apk+'z')
 		run.run([zipalign, '-v', '4', app_apk, app_apk+'z'])
+		os.unlink(app_apk)
 		os.rename(app_apk+'z',app_apk)
 
 		if self.dist_dir:
