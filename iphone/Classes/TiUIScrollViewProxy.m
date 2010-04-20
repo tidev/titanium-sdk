@@ -65,38 +65,6 @@
 	return [(TiUIScrollView *)[self view] wrapperView];
 }
 
--(void)oldLayoutChild:(TiViewProxy*)child
-{
-	if (![self viewAttached])
-	{
-		return;
-	}
-
-	UIView * wrapperView = [(TiUIScrollView *)[self view] wrapperView];
-
-	CGRect bounds = [wrapperView bounds];
-
-	// layout out ourself
-	UIView *childView = [child view];
-
-	if ([childView superview]!=wrapperView)
-	{
-		[wrapperView addSubview:childView];
-		[(TiUIScrollView *)[self view] setNeedsHandleContentSize];
-	}
-	
-	if(TiLayoutRuleIsVertical(layoutProperties.layout)){
-		bounds.origin.y += verticalLayoutBoundary;
-		bounds.size.height = [child minimumParentHeightForWidth:bounds.size.width];
-		verticalLayoutBoundary += bounds.size.height;
-	}
-
-	[[child view] updateLayout:NULL withBounds:bounds];
-	
-	// tell our children to also layout
-	[child layoutChildren];
-}
-
 -(void)scrollTo:(id)args
 {
 	ENSURE_ARG_COUNT(args,2);

@@ -136,7 +136,7 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 
 -(void)setLayout:(id)value
 {
-	layout = TiLayoutRuleFromObject(value);
+	layoutProperties.layout = TiLayoutRuleFromObject(value);
 	[self replaceValue:value forKey:@"layout" notification:YES];
 }
 
@@ -149,25 +149,7 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 	CGFloat result = 0;
 	if (TiDimensionIsAuto(height))
 	{
-		SEL autoHeightSelector = @selector(minimumParentHeightForWidth:);
-		BOOL useVerticalLayout = TiLayoutRuleIsVertical(layout);
-		for (TiViewProxy * proxy in self.children)
-		{
-			if (![proxy respondsToSelector:autoHeightSelector])
-			{
-				continue;
-			}
-			
-			CGFloat newResult = [proxy minimumParentHeightForWidth:bounds.size.width];
-			if (useVerticalLayout)
-			{
-				result += newResult;
-			}
-			else if (newResult > result)
-			{
-				result = newResult;
-			}
-		}
+		result = [self autoHeightForWidth:bounds.size.width];
 	}
 	return result == 0 ? [table tableRowHeight:0] : result;
 }
@@ -340,25 +322,14 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 	}
 }
 
--(void)layoutChildren
+-(UIView *)parentViewForChild:(TiViewProxy *)child
 {
-	CGRect viewrect = [rowContainerView bounds];
-	BOOL useVerticalLayout = TiLayoutRuleIsVertical(layout);
+	return rowContainerView;
+}
 
-	for (TiViewProxy *proxy in self.children)
-	{
-		if (useVerticalLayout)
-		{
-			viewrect.size.height = [proxy minimumParentHeightForWidth:viewrect.size.width];
-			[proxy repositionWithBounds:viewrect];
-			viewrect.origin.y += viewrect.size.height;
-		}
-		else
-		{
-			[proxy repositionWithBounds:viewrect];
-		}
-		[proxy layoutChildren];
-	}
+-(BOOL)viewAttached
+{
+	return rowContainerView != nil;
 }
 
 

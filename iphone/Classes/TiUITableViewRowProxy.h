@@ -18,7 +18,6 @@
 	TiUITableView *table;
 	TiUITableViewSectionProxy *section;
 	TiDimension height;
-	TiLayoutRule layout;
 	
 	UIView * rowContainerView;
 	BOOL modifyingRow;

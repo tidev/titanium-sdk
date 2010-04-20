@@ -29,6 +29,7 @@
 typedef enum {
 	TiLayoutRuleAbsolute,
 	TiLayoutRuleVertical,
+	TiLayoutRuleHorizontal,
 } TiLayoutRule;
 
 
@@ -39,6 +40,10 @@ TI_INLINE TiLayoutRule TiLayoutRuleFromObject(id object)
 		if ([object caseInsensitiveCompare:@"vertical"]==NSOrderedSame)
 		{
 			return TiLayoutRuleVertical;
+		}
+		if ([object caseInsensitiveCompare:@"horizontal"]==NSOrderedSame)
+		{
+			return TiLayoutRuleHorizontal;
 		}
 	}
 	return TiLayoutRuleAbsolute;
@@ -52,6 +57,11 @@ TI_INLINE BOOL TiLayoutRuleIsAbsolute(TiLayoutRule rule)
 TI_INLINE BOOL TiLayoutRuleIsVertical(TiLayoutRule rule)
 {
 	return rule==TiLayoutRuleVertical;
+}
+
+TI_INLINE BOOL TiLayoutRuleIsHorizontal(TiLayoutRule rule)
+{
+	return rule==TiLayoutRuleHorizontal;
 }
 
 
