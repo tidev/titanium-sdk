@@ -142,12 +142,14 @@ def zip_it(dist_dir,osname,version,android,iphone,ipad):
 
 class Packager(object):
 	def __init__(self):
-		pass
+		self.os_names = { "Windows":"win32", "Linux":"linux", "Darwin":"osx" }
 	 
 	def build(self,dist_dir,version,android=True,iphone=True,ipad=True):
-		os_names = { "Windows":"win32", "Linux":"linux", "Darwin":"osx" }
-		zip_it(dist_dir,os_names[platform.system()],version,android,iphone,ipad)
+		zip_it(dist_dir,self.os_names[platform.system()],version,android,iphone,ipad)
 
-
+	def build_all_platforms(self,dist_dir,version,android=True,iphone=True,ipad=True):
+		for os in self.os_names.values():
+			zip_it(dist_dir,os,version,android,iphone,ipad)
+		
 if __name__ == '__main__':
 	Packager().build(os.path.abspath('../dist'), "1.1.0")
