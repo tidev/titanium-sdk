@@ -57,11 +57,19 @@
 
 -(void)padLabel
 {
-    if (label != nil) {
-        [label setBounds:CGRectMake(label.bounds.origin.x + padding.origin.x,
-                                    label.bounds.origin.y + padding.origin.y,
-                                    label.bounds.size.width - padding.size.width,
-                                    label.bounds.size.height - padding.size.height)];
+    if (repad &&
+        backgroundView != nil && 
+        !CGRectEqualToRect(label.frame, CGRectZero)) 
+    {
+        [backgroundView setFrame:CGRectMake(backgroundView.frame.origin.x - padding.origin.x,
+                                            backgroundView.frame.origin.y - padding.origin.y,
+                                            backgroundView.frame.size.width + padding.origin.x + padding.size.width,
+                                            backgroundView.frame.size.height + padding.origin.y + padding.size.height)];
+        [label setFrame:CGRectMake(label.frame.origin.x + padding.origin.x,
+                                   label.frame.origin.y + padding.origin.y,
+                                   label.frame.size.width,
+                                   label.frame.size.height)];
+        repad = NO;
     }
 }
 
@@ -97,6 +105,7 @@
         [backgroundView setFrame:CGRectMake(0, 0, normalizedFrame.size.width, normalizedFrame.size.height)];
     }
     [label setFrame:adjustedFrame];
+    repad = YES; // Force repadding every time the frame size changes
     [self padLabel];
 }
 
@@ -222,7 +231,8 @@
                                   interpolationQuality:kCGInterpolationDefault
                                                  image:[self loadImage:url]];
         
-        bgImage = [self loadImage:url]; // Dunno why this has to happen twice, but it does.
+        // Resizing doesn't preserve stretchability.  Should we maybe fix this?
+        bgImage = [self loadImage:url];
         if (backgroundView == nil) {
             backgroundView = [[UIImageView alloc] initWithImage:bgImage];
             backgroundView.userInteractionEnabled = NO;
@@ -231,10 +241,12 @@
             [label removeFromSuperview];
             [backgroundView addSubview:label];
             [self addSubview:backgroundView];
+            [self padLabel];
         }
         else {
             backgroundView.image = bgImage;
             [backgroundView setNeedsDisplay];
+            [self padLabel];
         }
     }
     else {
@@ -243,35 +255,37 @@
             [backgroundView removeFromSuperview];
             [self addSubview:label];
             RELEASE_TO_NIL(backgroundView);
-            
-            [self setNeedsDisplay];
         }
     }
     
     self.backgroundImage = url;
 }
 
--(void)setPaddingLeft_:(id)left
+-(void)setBackgroundPaddingLeft_:(id)left
 {
     padding.origin.x = [TiUtils floatValue:left];
+    repad = YES;
     [self padLabel];
 }
 
--(void)setPaddingRight_:(id)right
+-(void)setBackgroundPaddingRight_:(id)right
 {
     padding.size.width = [TiUtils floatValue:right];
+    repad = YES;
     [self padLabel];
 }
 
--(void)setPaddingTop_:(id)top
+-(void)setBackgroundPaddingTop_:(id)top
 {
-    padding.size.height = [TiUtils floatValue:top];
+    padding.origin.y = [TiUtils floatValue:top];
+    repad = YES;
     [self padLabel];
 }
 
--(void)setPaddingBottom_:(id)bottom
+-(void)setBackgroundPaddingBottom_:(id)bottom
 {
-    padding.origin.y = [TiUtils floatValue:bottom];
+    padding.size.height = [TiUtils floatValue:bottom];
+    repad = YES;
     [self padLabel];
 }
 

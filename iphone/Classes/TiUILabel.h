@@ -10,9 +10,10 @@
 @private
 	UILabel *label;
     UIImageView* backgroundView;
-    CGRect padding;
 	BOOL requiresLayout;
     BOOL antialiasOK;
+    CGRect padding;
+    BOOL repad;
 }
 
 @property(nonatomic,getter=isHighlighted) BOOL     highlighted;          // default is NO
