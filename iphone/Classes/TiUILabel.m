@@ -241,11 +241,15 @@
             [label removeFromSuperview];
             [backgroundView addSubview:label];
             [self addSubview:backgroundView];
+            
+            repad = YES;
             [self padLabel];
         }
         else {
             backgroundView.image = bgImage;
             [backgroundView setNeedsDisplay];
+            
+            repad = YES;
             [self padLabel];
         }
     }
