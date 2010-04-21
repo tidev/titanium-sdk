@@ -332,6 +332,14 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 	return rowContainerView != nil;
 }
 
+-(void)redelegateViews:(TiViewProxy *)proxy toView:(UIView *)touchDelegate;
+{
+	[[proxy view] setTouchDelegate:touchDelegate];
+	for (TiViewProxy * childProxy in [proxy children])
+	{
+		[self redelegateViews:childProxy toView:touchDelegate];
+	}
+}
 
 -(void)configureChildren:(UITableViewCell*)cell
 {
@@ -357,7 +365,7 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 		{
 			TiUIView *uiview = [proxy view];
 			uiview.parent = self;
-			uiview.touchDelegate = contentView;
+			[self redelegateViews:proxy toView:contentView];
 			[rowContainerView addSubview:uiview];
 		}
 		[self layoutChildren];
