@@ -8,10 +8,26 @@
 #import "TiUILabel.h"
 #import "TiUILabelProxy.h"
 #import "TiUtils.h"
+#import "UIImage+Resize.h"
 
 @implementation TiUILabel
 
 #pragma mark Internal
+
+-(id)init
+{
+    if (self = [super init]) {
+        padding = CGRectZero;
+    }
+    return self;
+}
+
+-(void)dealloc
+{
+    RELEASE_TO_NIL(label);
+    RELEASE_TO_NIL(backgroundView);
+    [super dealloc];
+}
 
 - (BOOL)interactionDefault
 {
@@ -37,6 +53,16 @@
 -(CGFloat)autoHeightForWidth:(CGFloat)width
 {
 	return [self sizeForFont:width].height;
+}
+
+-(void)padLabel
+{
+    if (label != nil) {
+        [label setBounds:CGRectMake(label.bounds.origin.x + padding.origin.x,
+                                    label.bounds.origin.y + padding.origin.y,
+                                    label.bounds.size.width - padding.size.width,
+                                    label.bounds.size.height - padding.size.height)];
+    }
 }
 
 // CoreGraphics renders fonts anti-aliased by drawing text on the 0.5 offset of the 
@@ -66,8 +92,12 @@
                                       normalizedFrame.origin.y - frame.origin.y,
                                       normalizedFrame.size.width,
                                       normalizedFrame.size.height);
-    
+
+    if (backgroundView) {
+        [backgroundView setFrame:CGRectMake(0, 0, normalizedFrame.size.width, normalizedFrame.size.height)];
+    }
     [label setFrame:adjustedFrame];
+    [self padLabel];
 }
 
 -(void)setFrame:(CGRect)frame
@@ -90,6 +120,7 @@
     else {
         [super setFrame:frame];
     }
+    [self padLabel];
 }
 
 -(void)setBounds:(CGRect)bounds
@@ -107,6 +138,7 @@
     else {
         [super setBounds:bounds];
     }
+    [self padLabel];
 }
 
 -(UILabel*)label
@@ -181,6 +213,66 @@
         [[self label] setMinimumFontSize:newSize];
     }
     
+}
+
+-(void)setBackgroundImage_:(id)url
+{
+    if (url != nil) {
+        UIImage* bgImage = [UIImageResize resizedImage:self.frame.size 
+                                  interpolationQuality:kCGInterpolationDefault
+                                                 image:[self loadImage:url]];
+        
+        bgImage = [self loadImage:url]; // Dunno why this has to happen twice, but it does.
+        if (backgroundView == nil) {
+            backgroundView = [[UIImageView alloc] initWithImage:bgImage];
+            backgroundView.userInteractionEnabled = NO;
+            backgroundView.contentMode = UIViewContentModeRedraw;
+            
+            [label removeFromSuperview];
+            [backgroundView addSubview:label];
+            [self addSubview:backgroundView];
+        }
+        else {
+            backgroundView.image = bgImage;
+            [backgroundView setNeedsDisplay];
+        }
+    }
+    else {
+        if (backgroundView) {
+            [label removeFromSuperview];
+            [backgroundView removeFromSuperview];
+            [self addSubview:label];
+            RELEASE_TO_NIL(backgroundView);
+            
+            [self setNeedsDisplay];
+        }
+    }
+    
+    self.backgroundImage = url;
+}
+
+-(void)setPaddingLeft_:(id)left
+{
+    padding.origin.x = [TiUtils floatValue:left];
+    [self padLabel];
+}
+
+-(void)setPaddingRight_:(id)right
+{
+    padding.size.width = [TiUtils floatValue:right];
+    [self padLabel];
+}
+
+-(void)setPaddingTop_:(id)top
+{
+    padding.size.height = [TiUtils floatValue:top];
+    [self padLabel];
+}
+
+-(void)setPaddingBottom_:(id)bottom
+{
+    padding.origin.y = [TiUtils floatValue:bottom];
+    [self padLabel];
 }
 
 -(void)setTextAlign_:(id)alignment

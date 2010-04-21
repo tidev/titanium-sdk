@@ -234,35 +234,6 @@ DEFINE_EXCEPTIONS
 }
 
 
-
--(void)setTabs_:(id)tabs
-{
-	ENSURE_TYPE_OR_NIL(tabs,NSArray);
-	
-	if (tabs!=nil && [tabs count] > 0)
-	{
-		NSMutableArray *controllers = [[NSMutableArray alloc] init];
-		for (TiUITabProxy *tabProxy in tabs)
-		{
-			[controllers addObject:[tabProxy controller]];
-		}
-		[self tabController].viewControllers = nil;
-		[self tabController].viewControllers = controllers;
-		[controllers release];
-		if (focused == nil)
-		{
-			focused = [tabs objectAtIndex:0];
-			[self.proxy	replaceValue:focused forKey:@"activeTab" notification:NO];
-		}
-	}
-	else
-	{
-		focused = nil;
-		[self.proxy	replaceValue:nil forKey:@"activeTab" notification:NO];
-		[self tabController].viewControllers = nil;
-	}
-}
-
 -(void)setBarColor_:(id)value
 {
 	[barColor release];
@@ -303,6 +274,43 @@ DEFINE_EXCEPTIONS
 	[self tabController].selectedViewController = active;
 	[self tabBarController:[self tabController] didSelectViewController:active];
 }
+
+-(void)setTabs_:(id)tabs
+{
+	ENSURE_TYPE_OR_NIL(tabs,NSArray);
+
+	if (tabs!=nil && [tabs count] > 0)
+	{		
+		NSMutableArray *controllers = [[NSMutableArray alloc] init];
+		id thisTab = [[self proxy] valueForKey:@"activeTab"];
+		
+		for (TiUITabProxy *tabProxy in tabs)
+		{
+			[controllers addObject:[tabProxy controller]];
+			if ([TiUtils boolValue:[tabProxy valueForKey:@"active"]])
+			{
+				focused = tabProxy;
+			}
+		}
+
+		[self tabController].viewControllers = nil;
+		[self tabController].viewControllers = controllers;
+		if (![tabs containsObject:focused])
+		{
+			[self setActiveTab_:thisTab];
+		}
+
+		[controllers release];
+	}
+	else
+	{
+		focused = nil;
+		[self tabController].viewControllers = nil;
+	}
+
+	[self.proxy	replaceValue:focused forKey:@"activeTab" notification:YES];
+}
+
 
 -(void)open:(id)args
 {

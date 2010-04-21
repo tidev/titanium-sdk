@@ -107,6 +107,16 @@ class Builder(object):
 		max_wait = 30
 		attempts = 0
 		timed_out = True
+		
+		# in Windows, if the adb server isn't running, calling "adb devices"
+		# will fork off a new adb server, and cause a lock-up when we 
+		# try to pipe the process' stdout/stderr. the workaround is 
+		# to simply call adb start-server here, and not care about
+		# the return code / pipes. (this is harmless if adb is already running)
+		# -- thanks to Bill Dawson for the workaround
+		if platform.system() == "Windows":
+			os.system("%s start-server" % self.sdk.get_adb())
+		
 		while True:
 			output = run.run([self.sdk.get_adb(),"-%s" % type, 'devices'],True)
 			print "[TRACE] wait_for_device returned: %s" % output
