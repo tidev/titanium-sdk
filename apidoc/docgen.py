@@ -292,12 +292,9 @@ def find_filename(namespace):
 	(parent, delim, name) = namespace.rpartition('.')
 	if parent != '' and parent in apis:
 		parent = apis[parent]
-		for item in (item for item in parent.methods if item['name'] == name):
-			return item['filename']
-		for item in (item for item in parent.properties if item['name'] == name):
-			return item['filename']
-		for item in (item for item in parent.events if item['name'] == name):
-			return item['filename']
+		for item in (parent.methods + parent.properties + parent.events):
+			if item['name'] == name:
+				return item['filename']
 	# Guess we failed to find anything interesting
 	return namespace
 
