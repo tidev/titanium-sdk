@@ -115,7 +115,7 @@ class Builder(object):
 		# the return code / pipes. (this is harmless if adb is already running)
 		# -- thanks to Bill Dawson for the workaround
 		if platform.system() == "Windows":
-			os.system("%s start-server" % self.sdk.get_adb())
+			run.run([self.sdk.get_adb(), "start-server"], True, ignore_output=True)
 		
 		while True:
 			output = run.run([self.sdk.get_adb(),"-%s" % type, 'devices'],True)
