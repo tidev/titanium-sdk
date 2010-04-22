@@ -1,9 +1,12 @@
 import os,subprocess,types,sys
 
-def run(args,ignore_error=False,debug=True):
+def run(args,ignore_error=False,debug=True, ignore_output=False):
 	if debug:
 		print "[DEBUG] %s"%(" ".join(args))
 		sys.stdout.flush()
+	if ignore_output:
+		subprocess.Popen(args, stderr=subprocess.PIPE, stdout=subprocess.PIPE).wait()
+		return None
 	(so,se) = subprocess.Popen(args, stderr=subprocess.PIPE, stdout=subprocess.PIPE).communicate()
 	if type(se)!=types.NoneType and len(se)>0:
 		if not ignore_error:
