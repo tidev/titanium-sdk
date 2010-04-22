@@ -325,11 +325,11 @@ public class TiTableView extends FrameLayout
 		
 		if (proxy.getDynamicProperties().containsKey("headerView")) {
 			TiViewProxy view = (TiViewProxy) proxy.getDynamicValue("headerView");
-			listView.addHeaderView(layoutHeaderOrFooter(view));
+			listView.addHeaderView(layoutHeaderOrFooter(view), null, false);
 		}
 		if (proxy.getDynamicProperties().containsKey("footerView")) {
 			TiViewProxy view = (TiViewProxy) proxy.getDynamicValue("footerView");
-			listView.addFooterView(layoutHeaderOrFooter(view));
+			listView.addFooterView(layoutHeaderOrFooter(view), null, false);
 		}
 		
 		
