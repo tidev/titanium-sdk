@@ -33,6 +33,10 @@ def build(script='build.xml', target='', properties={}):
 	for property in properties.keys():
 		ant_cmd.append('-D%s=%s' % (property, properties[property]))
 
-	ant_cmd.extend(['-buildfile', script, target])
+	use_shell = platform.system() != "Windows"
+	ant_cmd.extend(['-buildfile', script])
+	if target != '':
+		ant_cmd.append(target)
+	
 	print ant_cmd
-	subprocess.Popen(ant_cmd, shell=False).wait()
+	subprocess.Popen(ant_cmd, shell=use_shell).wait()
