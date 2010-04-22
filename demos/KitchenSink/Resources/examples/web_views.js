@@ -10,14 +10,14 @@ var data = [
 	{title:'Inline HTML', hasChild:true, innerHTML:'<html><body>Hello from inline HTML.</body></html>'},
 	{title:'Inline HTML w/ Trans Bg', hasChild:true, innerHTML:'<html><body><div style="color:white;">Hello from inline HTML. You should see white text and black background</div></body></html>', bgcolor:'black'},
 	{title:'Inline HTML w/ Color Bg', hasChild:true, innerHTML:'<html><body><div style="color:red;">Hello from inline HTML. You should see red text and yellow background</div></body></html>', bgcolor:'yellow'},
-	{title:'Basic Auth', hasChild:true, url: 'http://irisresearch.library.cornell.edu/control/authBasic/authTest/', username: 'test', password: 'this'}
+	{title:'Basic Auth', hasChild:true, url: 'http://irisresearch.library.cornell.edu/control/authBasic/authTest/', username: 'test', password: 'this'},
+	{title:'Logging and Unicode', hasChild:true, url:'webview_logging.html'}
 ];
 
 // add iphone specific tests
 if (Titanium.Platform.name == 'iPhone OS')
 {
 	data.push({title:'Local Eval', hasChild:true, url:'local_webview.html', evaljs:true});
-	data.push({title:'Logging and Unicode', hasChild:true, url:'webview_logging.html'});
 	data.push({title:'Local HTML', hasChild:true, url:'local_webview.html', evalhtml:true});
 	data.push({title:'Inline HTML w/ Border', hasChild:true, innerHTML:'<html><body><div>Hello from inline HTML. You should see red border</div></body></html>', border: true});
 	data.push({title:'PDF URL', hasChild:true, url:'http://www.appcelerator.com/assets/The_iPad_App_Wave.pdf'});
