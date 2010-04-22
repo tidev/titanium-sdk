@@ -1,4 +1,4 @@
-import os, sys, platform
+import os, sys, platform, subprocess
 
 root = os.path.abspath(os.path.join(os.path.dirname(sys._getframe(0).f_code.co_filename), ".."))
 
@@ -27,11 +27,12 @@ def get_java():
 	return java
 
 def build(script='build.xml', target='', properties={}):
-	ant_cmd = '%s -cp %s org.apache.tools.ant.launch.Launcher -Dant.home=build' % \
-		(get_java(), os.pathsep.join(ant_classpath))
+	ant_cmd = [get_java(), '-cp', os.pathsep.join(ant_classpath),
+		'org.apache.tools.ant.launch.Launcher', '-Dant.home=build']
+
 	for property in properties.keys():
-		ant_cmd += ' -D%s=%s' % (property, properties[property])
-	
-	ant_cmd += ' -buildfile %s %s' % (script, target)
+		ant_cmd.append('-D%s=%s' % (property, properties[property]))
+
+	ant_cmd.extend(['-buildfile', script, target])
 	print ant_cmd
-	os.system(ant_cmd)
+	subprocess.Popen(ant_cmd, shell=False).wait()
