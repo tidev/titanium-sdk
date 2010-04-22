@@ -7,12 +7,12 @@
 package ti.modules.titanium.ui;
 
 import java.io.IOException;
+import java.lang.ref.WeakReference;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.appcelerator.titanium.TiActivity;
-import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiDict;
 import org.appcelerator.titanium.TiProxy;
@@ -37,9 +37,9 @@ import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
 import android.view.View;
-import android.view.Window;
 import android.view.View.OnFocusChangeListener;
 import android.view.ViewGroup.LayoutParams;
+import android.view.Window;
 
 public class TiUIWindow extends TiUIView
 	implements Handler.Callback
@@ -68,6 +68,7 @@ public class TiUIWindow extends TiUIView
 
 	protected int lastWidth;
 	protected int lastHeight;
+	private WeakReference<TiContext> createdContext;
 
 	private static AtomicInteger idGenerator;
 
@@ -246,7 +247,7 @@ public class TiUIWindow extends TiUIView
 				@Override
 				public void run() {
 					try {
-						proxy.switchContext(ftiContext);
+						createdContext = new WeakReference<TiContext>(proxy.switchContext(ftiContext));
 						Messenger m = new Messenger(handler);
 						ftiContext.evalFile(furl, m, MSG_BOOTED);
 					} catch (IOException e) {
@@ -285,6 +286,10 @@ public class TiUIWindow extends TiUIView
 		data.put("source", proxy);
 		proxy.fireEvent("close", data);
 
+		if (createdContext != null && createdContext.get() != null) {
+			createdContext.get().dispatchEvent("close", data, proxy);
+			createdContext.clear();
+		}
 		if (!lightWeight) {
 			if (windowActivity != null) {
 				windowActivity.finish();
