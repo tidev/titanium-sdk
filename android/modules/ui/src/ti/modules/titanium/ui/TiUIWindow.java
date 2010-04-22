@@ -254,6 +254,10 @@ public class TiUIWindow extends TiUIView
 						Log.e(LCAT, "Error opening URL: " + furl, e);
 					}
 				}}).start();
+		} else if (!lightWeight) {
+			TiContext tiContext = TiContext.createTiContext(windowActivity, new TiDict(), proxy.getTiContext().getBaseUrl());
+			createdContext = new WeakReference<TiContext>(proxy.switchContext(tiContext));
+			handleBooted();
 		} else {
 			handleBooted();
 		}

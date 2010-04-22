@@ -512,4 +512,15 @@ public abstract class TiViewProxy extends TiProxy implements Handler.Callback
 	public void setParent(TiViewProxy parent) {
 		this.parent = new WeakReference<TiViewProxy>(parent);	
 	}
+	
+	@Override
+	public TiContext switchContext(TiContext tiContext) {
+		TiContext oldContext = super.switchContext(tiContext);
+		if (children != null) {
+			for (TiViewProxy child : children) {
+				child.switchContext(tiContext);
+			}
+		}
+		return oldContext;
+	}
 }
