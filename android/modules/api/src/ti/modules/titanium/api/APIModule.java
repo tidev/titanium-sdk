@@ -50,39 +50,39 @@ public class APIModule extends TiModule
 		return constants;
 	}
 
-	public void debug(String msg) {
-		Log.d(LCAT, msg);
+	public void debug(Object msg) {
+		Log.d(LCAT, msg.toString());
 	}
 
-	public void info(String msg) {
-		Log.i(LCAT, msg);
+	public void info(Object msg) {
+		Log.i(LCAT, msg.toString());
 	}
 
-	public void warn(String msg) {
-		Log.w(LCAT, msg);
+	public void warn(Object msg) {
+		Log.w(LCAT, msg.toString());
 	}
 
-	public void error(String msg) {
-		Log.e(LCAT, msg);
+	public void error(Object msg) {
+		Log.e(LCAT, msg.toString());
 	}
 
-	public void trace(String msg) {
-		Log.d(LCAT, msg);
+	public void trace(Object msg) {
+		Log.d(LCAT, msg.toString());
 	}
 
-	public void notice(String msg) {
-		Log.i(LCAT, msg);
+	public void notice(Object msg) {
+		Log.i(LCAT, msg.toString());
 	}
 
-	public void critical(String msg) {
-		Log.e(LCAT, msg);
+	public void critical(Object msg) {
+		Log.e(LCAT, msg.toString());
 	}
 
-	public void fatal(String msg) {
-		Log.e(LCAT, msg);
+	public void fatal(Object msg) {
+		Log.e(LCAT, msg.toString());
 	}
 
-	public void log(String level, String msg)
+	public void log(String level, Object msg)
 	{
 		String ulevel = level.toUpperCase();
 		int severity = INFO;
@@ -107,7 +107,7 @@ public class APIModule extends TiModule
 			msg = "[" + level + "] " + msg;
 		}
 
-		internalLog(severity, msg);
+		internalLog(severity, msg.toString());
 	}
 
 	public void internalLog(int severity, String msg)

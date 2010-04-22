@@ -10,6 +10,7 @@ import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiDict;
 import org.appcelerator.titanium.TiProxy;
 import org.appcelerator.titanium.proxy.TiViewProxy;
+import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiMimeTypeHelper;
 import org.appcelerator.titanium.view.TiCompositeLayout;
@@ -23,8 +24,10 @@ import android.webkit.WebView;
 
 public class TiUIWebView extends TiUIView {
 
+	private static final String LCAT = "TiUIWebView";
 	private TiWebViewBinding binding;
 	private TiWebViewClient client;
+	private boolean changingUrl = false;
 
 	private class TiWebView extends WebView {
 		public TiWebViewClient client;
@@ -57,7 +60,7 @@ public class TiUIWebView extends TiUIView {
 		settings.setLightTouchEnabled(true);
 
 		webView.setWebChromeClient(new TiWebChromeClient(this));
-		client = new TiWebViewClient((WebViewProxy)proxy, webView);
+		client = new TiWebViewClient(this, webView);
 		webView.setWebViewClient(client);
 		webView.client = client;
 
@@ -69,7 +72,7 @@ public class TiUIWebView extends TiUIView {
 		setNativeView(webView);
 	}
 
-	protected WebView getWebView()
+	public WebView getWebView()
 	{
 		return (WebView)getNativeView();
 	}
@@ -92,7 +95,7 @@ public class TiUIWebView extends TiUIView {
 
 	@Override
 	public void propertyChanged(String key, Object oldValue, Object newValue, TiProxy proxy) {
-		if ("url".equals(key)) {
+		if ("url".equals(key) && !changingUrl) {
 			setUrl(TiConvert.toString(newValue));
 		} else if ("html".equals(key)) {
 			setHtml(TiConvert.toString(newValue));
@@ -115,6 +118,16 @@ public class TiUIWebView extends TiUIView {
 			String resolvedUrl = getProxy().getTiContext().resolveUrl(null, url);
 			getWebView().loadUrl(resolvedUrl);
 		}
+	}
+	
+	public void changeProxyUrl(String url) {
+		changingUrl = true;
+		getProxy().setDynamicValue("url", url);
+		changingUrl = false;
+	}
+	
+	public String getUrl() {
+		return getWebView().getUrl();
 	}
 
 	public void setHtml(String html)
