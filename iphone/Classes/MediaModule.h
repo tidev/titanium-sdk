@@ -28,6 +28,7 @@
 @property(nonatomic,readonly) CGFloat averageMicrophonePower;
 @property(nonatomic,readonly) NSInteger audioLineType;
 @property(nonatomic,readonly) BOOL audioPlaying;
+@property(nonatomic) NSNumber* defaultAudioSessionMode;
 
 
 @property(nonatomic,readonly) NSNumber* UNKNOWN_ERROR;
@@ -84,6 +85,12 @@
 @property(nonatomic,readonly) NSNumber* AUDIO_FILEFORMAT_3GPP;
 @property(nonatomic,readonly) NSNumber* AUDIO_FILEFORMAT_3GP2;
 @property(nonatomic,readonly) NSNumber* AUDIO_FILEFORMAT_AMR;
+
+@property(nonatomic,readonly) NSNumber* AUDIO_SESSION_MODE_AMBIENT;
+@property(nonatomic,readonly) NSNumber* AUDIO_SESSION_MODE_SOLO_AMBIENT;
+@property(nonatomic,readonly) NSNumber* AUDIO_SESSION_MODE_PLAYBACK;
+@property(nonatomic,readonly) NSNumber* AUDIO_SESSION_MODE_RECORD;
+@property(nonatomic,readonly) NSNumber* AUDIO_SESSION_MODE_PLAY_AND_RECORD;
 
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
 
