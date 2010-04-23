@@ -7,7 +7,7 @@
 
 #import "TiUISwitch.h"
 #import "TiUtils.h"
-#import "TiUIWidgetProxy.h"
+#import "TiViewProxy.h"
 
 @implementation TiUISwitch
 

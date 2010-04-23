@@ -28,6 +28,8 @@
 
 +(NSString *)encodeURIParameters:(NSString *)unencodedString;
 
+
++(UIImage*)toImage:(id)object proxy:(TiProxy*)proxy size:(CGSize)imageSize;
 +(UIImage*)toImage:(id)object proxy:(TiProxy*)proxy;
 
 +(NSURL*)toURL:(id)object proxy:(TiProxy*)proxy;
