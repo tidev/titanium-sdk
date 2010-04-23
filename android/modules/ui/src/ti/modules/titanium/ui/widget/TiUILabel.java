@@ -100,4 +100,8 @@ public class TiUILabel extends TiUIView
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}
 	}
+
+	public void setClickable(boolean clickable) {
+		((TextView)getNativeView()).setClickable(clickable);
+	}
 }
