@@ -6,6 +6,7 @@
  */
 #import "TiProxy.h"
 #import "TiAnimation.h"
+#import "TiGradient.h"
 #import "LayoutConstraint.h"
 
 //By declaring a scrollView protocol, TiUITextWidget can access 
@@ -33,6 +34,8 @@ CGFloat AutoHeightForView(UIView * superView,CGFloat suggestedWidth,BOOL isVerti
 	TiProxy *proxy;
 	TiViewProxy *parent;
 	TiAnimation *animation;
+	
+	CALayer *gradientLayer;
 	
 	CGAffineTransform virtualParentTransform;
 	id transformMatrix;
