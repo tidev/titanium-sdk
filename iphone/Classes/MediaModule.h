@@ -28,7 +28,7 @@
 @property(nonatomic,readonly) CGFloat averageMicrophonePower;
 @property(nonatomic,readonly) NSInteger audioLineType;
 @property(nonatomic,readonly) BOOL audioPlaying;
-@property(nonatomic) NSNumber* defaultAudioSessionMode;
+@property(nonatomic, assign) NSNumber* defaultAudioSessionMode;
 
 
 @property(nonatomic,readonly) NSNumber* UNKNOWN_ERROR;
