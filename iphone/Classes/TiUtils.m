@@ -18,6 +18,7 @@
 #import "TiFile.h"
 #import "TiBlob.h"
 
+#import "UIImage+Resize.h"
 
 #ifdef DEBUG
 extern NSString * const TI_APPLICATION_RESOURCE_DIR;
@@ -269,6 +270,47 @@ extern NSString * const TI_APPLICATION_RESOURCE_DIR;
 			return [NSNumber numberWithFloat:dimension.value];
 	}
 	return nil;
+}
+
++(UIImage*)scaleImage:(UIImage *)image toSize:(CGSize)newSize
+{
+	if (!CGSizeEqualToSize(newSize, CGSizeZero))
+	{
+		CGSize imageSize = [image size];
+		if (newSize.width==0)
+		{
+			newSize.width = imageSize.width;
+		}
+		if (newSize.height==0)
+		{
+			newSize.height = imageSize.height;
+		}
+		if (!CGSizeEqualToSize(newSize, imageSize))
+		{
+			image = [UIImageResize resizedImage:newSize interpolationQuality:kCGInterpolationDefault image:image];
+		}
+	}
+	return image;
+}
+
++(UIImage*)toImage:(id)object proxy:(TiProxy*)proxy size:(CGSize)imageSize
+{
+	if ([object isKindOfClass:[TiBlob class]])
+	{
+		return [self scaleImage:[(TiBlob *)object image] toSize:imageSize];
+	}
+
+	if ([object isKindOfClass:[TiFile class]])
+	{
+		TiFile *file = (TiFile*)object;
+		UIImage *image = [UIImage imageWithContentsOfFile:[file path]];
+		return [self scaleImage:image toSize:imageSize];
+	}
+
+	NSURL * urlAttempt = [self toURL:object proxy:proxy];
+	UIImage * image = [[ImageLoader sharedLoader] loadImmediateImage:urlAttempt withSize:imageSize];
+	return image;
+	//Note: If url is a nonimmediate image, this returns nil.
 }
 
 +(UIImage*)toImage:(id)object proxy:(TiProxy*)proxy

@@ -4,9 +4,9 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-#import "TiUIWidgetProxy.h"
+#import "TiViewProxy.h"
 
-@interface TiUIButtonBarProxy : TiUIWidgetProxy {
+@interface TiUIButtonBarProxy : TiViewProxy {
 }
 
 @end

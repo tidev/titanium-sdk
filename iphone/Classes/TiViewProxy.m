@@ -85,6 +85,22 @@
 }
 #endif
 
+-(void)setBackgroundGradient:(id)arg
+{
+	TiGradient * newGradient;
+	if ([arg isKindOfClass:[NSDictionary class]])
+	{
+		newGradient = [[[TiGradient alloc] _initWithPageContext:[self executionContext]] autorelease];
+		[newGradient _initWithProperties:arg];
+	}
+	else
+	{
+		newGradient = arg;
+	}
+	ENSURE_TYPE_OR_NIL(newGradient,TiGradient);
+	[self replaceValue:newGradient forKey:@"backgroundGradient" notification:YES];
+}
+
 -(void)add:(id)arg
 {
 	ENSURE_SINGLE_ARG(arg,TiViewProxy);
