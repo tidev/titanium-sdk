@@ -11,6 +11,7 @@
 #import "WebFont.h"
 #import "ImageLoader.h"
 #import "TiProxy.h"
+#import "TiUIViewProxy.h"
 
 #define DEFAULT_SECTION_HEADERFOOTER_HEIGHT 20.0
 
@@ -413,6 +414,24 @@
 	}
 	
 	return 0;
+}
+
+-(void)setBounds:(CGRect)bounds
+{
+    [super setBounds:bounds];
+    
+    // Since the header proxy is not properly attached to a view proxy in the titanium
+    // system, we have to reposition it here.  Resetting the table header view
+    // is because there's a charming bug in UITableView that doesn't respect redisplay
+    // for headers/footers when the frame changes.
+    TiUIView* headerView = (TiUIView*)[[self tableView] tableHeaderView];
+    [(TiUIViewProxy*)[headerView proxy] reposition];
+    [[self tableView] setTableHeaderView:headerView];
+    
+    // ... And we have to do the same thing for the footer.
+    TiUIView* footerView = (TiUIView*)[[self tableView] tableFooterView];
+    [(TiUIViewProxy*)[footerView proxy] reposition];
+    [[self tableView] setTableFooterView:footerView];
 }
 
 - (void)triggerActionForIndexPath: (NSIndexPath *)indexPath fromPath:(NSIndexPath*)fromPath wasAccessory: (BOOL) accessoryTapped search: (BOOL) viaSearch name:(NSString*)name
