@@ -424,14 +424,18 @@
     // system, we have to reposition it here.  Resetting the table header view
     // is because there's a charming bug in UITableView that doesn't respect redisplay
     // for headers/footers when the frame changes.
-    TiUIView* headerView = (TiUIView*)[[self tableView] tableHeaderView];
-    [(TiUIViewProxy*)[headerView proxy] reposition];
-    [[self tableView] setTableHeaderView:headerView];
+    UIView* headerView = [[self tableView] tableHeaderView];
+    if ([headerView isKindOfClass:[TiUIView class]]) {
+        [(TiUIViewProxy*)[(TiUIView*)headerView proxy] reposition];
+        [[self tableView] setTableHeaderView:headerView];
+    }
     
     // ... And we have to do the same thing for the footer.
-    TiUIView* footerView = (TiUIView*)[[self tableView] tableFooterView];
-    [(TiUIViewProxy*)[footerView proxy] reposition];
-    [[self tableView] setTableFooterView:footerView];
+    UIView* footerView = [[self tableView] tableFooterView];
+    if ([footerView isKindOfClass:[TiUIView class]]) {
+        [(TiUIViewProxy*)[(TiUIView*)footerView proxy] reposition];
+        [[self tableView] setTableFooterView:footerView];
+    }
 }
 
 - (void)triggerActionForIndexPath: (NSIndexPath *)indexPath fromPath:(NSIndexPath*)fromPath wasAccessory: (BOOL) accessoryTapped search: (BOOL) viaSearch name:(NSString*)name
