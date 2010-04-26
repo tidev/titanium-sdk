@@ -45,6 +45,7 @@
 +(BOOL)boolValue:(id)value def:(BOOL)def;
 
 +(CGPoint)pointValue:(id)value;
++(CGPoint)pointValue:(id)value bounds:(CGRect)bounds defaultOffset:(CGPoint)defaultOffset;
 
 +(CGRect)rectValue:(id)value;
 

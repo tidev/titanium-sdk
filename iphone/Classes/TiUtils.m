@@ -208,6 +208,42 @@ extern NSString * const TI_APPLICATION_RESOURCE_DIR;
 	return CGPointMake(0,0);
 }
 
++(CGPoint)pointValue:(id)value bounds:(CGRect)bounds defaultOffset:(CGPoint)defaultOffset;
+{
+	TiDimension xDimension;
+	TiDimension yDimension;
+	CGPoint result;
+
+	if ([value isKindOfClass:[TiPoint class]])
+	{
+		xDimension = [value xDimension];
+		yDimension = [value yDimension];
+	}
+	else if ([value isKindOfClass:[NSDictionary class]])
+	{
+		xDimension = [self dimensionValue:@"x" properties:value];
+		yDimension = [self dimensionValue:@"x" properties:value];
+	}
+	else
+	{
+		xDimension = TiDimensionUndefined;
+		yDimension = TiDimensionUndefined;
+	}
+
+	if (!TiDimensionDidCalculateValue(xDimension, bounds.size.width, &result.x))
+	{
+		result.x = defaultOffset.x * bounds.size.width;
+	}
+	if (!TiDimensionDidCalculateValue(yDimension, bounds.size.height, &result.y))
+	{
+		result.y = defaultOffset.y * bounds.size.height;
+	}
+
+	return CGPointMake(result.x + bounds.origin.x,result.y + bounds.origin.y);
+}
+
+
+
 +(CGFloat)floatValue:(id)value def:(CGFloat) def
 {
 	if ([value respondsToSelector:@selector(floatValue)])

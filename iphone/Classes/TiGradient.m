@@ -70,6 +70,8 @@
 	{
 		CFRelease(colorValues);
 	}
+	[endPoint release];
+	[startPoint release];
 	[self clearCache];
 	free(colorOffsets);
 	[super dealloc];
@@ -108,12 +110,26 @@
 
 -(void)setStartPoint:(id)newStart
 {
-	startPoint = [TiUtils pointValue:newStart];
+	if (startPoint == nil)
+	{
+		startPoint = [[TiPoint alloc] initWithObject:newStart];
+	}
+	else
+	{
+		[startPoint setValues:newStart];
+	}
 }
 
 -(void)setEndPoint:(id)newEnd
 {
-	endPoint = [TiUtils pointValue:newEnd];
+	if (endPoint == nil)
+	{
+		endPoint = [[TiPoint alloc] initWithObject:newEnd];
+	}
+	else
+	{
+		[endPoint setValues:newEnd];
+	}
 }
 
 -(void)setStartRadius:(id)newRadius
@@ -123,7 +139,7 @@
 
 -(void)setEndRadius:(id)newRadius
 {
-	startRadius = [TiUtils dimensionValue:newRadius];
+	endRadius = [TiUtils dimensionValue:newRadius];
 }
 
 -(void)setColors:(NSArray *)newColors;
@@ -171,6 +187,8 @@
 	[self clearCache];
 }
 
+#define PYTHAG(bounds)	sqrt(bounds.width * bounds.width + bounds.height * bounds.height)/2
+
 -(void)paintContext:(CGContextRef)context bounds:(CGRect)bounds
 {
 	CGGradientDrawingOptions options = 0;
@@ -186,11 +204,44 @@
 	switch (type)
 	{
 		case TiGradientTypeLinear:
-			CGContextDrawLinearGradient(context, [self cachedGradient], startPoint, endPoint, options);
+			CGContextDrawLinearGradient(context, [self cachedGradient], 
+					[TiUtils pointValue:startPoint bounds:bounds defaultOffset:CGPointZero],
+					[TiUtils pointValue:endPoint bounds:bounds defaultOffset:CGPointMake(0, 1)],
+					options);
 			break;
 		case TiGradientTypeRadial:
-			CGContextDrawRadialGradient(context, [self cachedGradient], startPoint,
-					TiDimensionCalculateValue(startRadius,0), endPoint, TiDimensionCalculateValue(endRadius,0), options);
+			{
+			CGFloat startRadiusPixels;
+			CGFloat endRadiusPixels;
+			switch (startRadius.type)
+			{
+				case TiDimensionTypePixels:
+					startRadiusPixels = startRadius.value;
+					break;
+				case TiDimensionTypePercent:
+					startRadiusPixels = startRadius.value * PYTHAG(bounds.size);
+					break;
+				default:
+					startRadiusPixels = 0;
+			}
+			
+			switch (endRadius.type)
+			{
+				case TiDimensionTypePixels:
+					endRadiusPixels = endRadius.value;
+					break;
+				case TiDimensionTypePercent:
+					endRadiusPixels = endRadius.value * PYTHAG(bounds.size);
+					break;
+				default:
+					endRadiusPixels = PYTHAG(bounds.size);
+			}
+			
+			CGContextDrawRadialGradient(context, [self cachedGradient],
+					[TiUtils pointValue:startPoint bounds:bounds defaultOffset:CGPointMake(0.5, 0.5)],startRadiusPixels,
+					[TiUtils pointValue:endPoint bounds:bounds defaultOffset:CGPointMake(0.5, 0.5)],endRadiusPixels,
+					options);
+			}
 			break;
 	}
 }

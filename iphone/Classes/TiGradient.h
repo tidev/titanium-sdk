@@ -20,8 +20,8 @@ typedef enum {
 @interface TiGradient : TiProxy {
 	TiGradientType type;
 
-	CGPoint startPoint;
-	CGPoint endPoint;
+	TiPoint * startPoint;
+	TiPoint * endPoint;
 
 	TiDimension startRadius;
 	TiDimension endRadius;
