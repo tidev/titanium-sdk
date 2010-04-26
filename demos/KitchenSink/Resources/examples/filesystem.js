@@ -35,6 +35,16 @@ Ti.API.info('directoryListing = ' + dir.getDirectoryListing());
 Ti.API.info('getParent = ' + dir.getParent());
 Ti.API.info('spaceAvailable = ' + dir.spaceAvailable());
 
+var newDir = Titanium.Filesystem.getFile(Titanium.Filesystem.applicationDataDirectory,'mydir');
+newDir.createDirectory();
+Ti.API.info('newdir ' + newDir)
+var newFile = Titanium.Filesystem.getFile(newDir.nativePath,'newfile.txt');
+newFile.write(f.read());
+Ti.API.info('directoryListing for newDir = ' + newDir.getDirectoryListing());
+newFile.deleteFile();
+newDir.deleteDirectory();
+Ti.API.info('directoryListing for newDir after deleteDirectory = ' + newDir.getDirectoryListing());
+
 if (Ti.Platform.name == 'android') {
 	var dir = Titanium.Filesystem.getFile(Titanium.Filesystem.externalStorageDirectory);
 	Ti.API.info('external directoryListing = ' + dir.getParent().getDirectoryListing());

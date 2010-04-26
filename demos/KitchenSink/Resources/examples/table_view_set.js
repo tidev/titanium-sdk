@@ -41,7 +41,7 @@ tableView.addEventListener('click',function(e)
 				data[c]=row;
 			}
 			tableView.separatorStyle = Ti.UI.iPhone.TableViewSeparatorStyle.NONE;
-			tableView.setData(data);				
+			tableView.setData(data,{animationStyle:Titanium.UI.iPhone.RowAnimationStyle.NONE});				
 			break;
 		}
 		case 1:

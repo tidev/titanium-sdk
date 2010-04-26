@@ -12,5 +12,6 @@ var tableview = Titanium.UI.createTableView({
 	allowsSelection:true
 });
 
+tableview.selectRow(3);
 // add table view to the window
 Titanium.UI.currentWindow.add(tableview);
