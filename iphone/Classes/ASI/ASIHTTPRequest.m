@@ -857,16 +857,19 @@ static BOOL isiPhoneOS2;
 		// This may take a while, so we'll create a new pool each cycle to stop a giant backlog of autoreleased objects building up
 		NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 		
-		
-		NSDate *now = [NSDate date];
-		
 		// See if we need to timeout
-		if (lastActivityTime && timeOutSeconds > 0 && [now timeIntervalSinceDate:lastActivityTime] > timeOutSeconds) {
-			
+		if (lastActivityTime && timeOutSeconds > 0 && [lastActivityTime timeIntervalSinceNow] < -timeOutSeconds) {
+			NSLog(@"Last activity time: %f timeout: %f",[lastActivityTime timeIntervalSinceNow],timeOutSeconds);
 			// Prevent timeouts before 128KB* has been sent when the size of data to upload is greater than 128KB* (*32KB on iPhone 3.0 SDK)
 			// This is to workaround the fact that kCFStreamPropertyHTTPRequestBytesWrittenCount is the amount written to the buffer, not the amount actually sent
 			// This workaround prevents erroneous timeouts in low bandwidth situations (eg iPhone)
-			if (totalBytesSent || postLength <= uploadBufferSize || (uploadBufferSize > 0 && totalBytesSent > uploadBufferSize)) {
+			
+			NSLog(@"Total bytes sent: %d, postLength: %d, uploadBufferSize: %d",totalBytesSent,postLength,uploadBufferSize);
+			
+			
+			if (((totalBytesSent == 0) && (uploadBufferSize == 0)) ||
+					totalBytesSent || (postLength <= uploadBufferSize) ||
+					((uploadBufferSize > 0) && (totalBytesSent > uploadBufferSize))) {
 				[self failWithError:ASIRequestTimedOutError];
 				[self cancelLoad];
 				[self setComplete:YES];

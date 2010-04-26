@@ -210,7 +210,7 @@ class API(object):
 				e['returntype']=returntype
 				break
 		if found==False:
-			self.methods.append({'name':key,'value':value,'parameters':[],'returntype':returntype})
+			self.methods.append({'name':key,'value':value,'parameters':[],'returntype':returntype,'filename':make_filename('method',self.namespace,key)})
 		self.methods.sort(namesort)
 	def set_method_returntype(self,key,value):
 		for m in self.methods:
@@ -223,7 +223,7 @@ class API(object):
 				prop['type']=typev
 				prop['value']=value
 				return
-		self.properties.append({'name':key,'type':typev,'value':value})
+		self.properties.append({'name':key,'type':typev,'value':value,'filename':make_filename('property',self.namespace,key)})
 		self.properties.sort(namesort)
 	def add_event(self,key,value):
 		props = {}
@@ -236,7 +236,7 @@ class API(object):
 				found = True
 				break
 		if found==False:			
-			self.events.append({'name':key,'value':value,'properties':props})
+			self.events.append({'name':key,'value':value,'properties':props,'filename':make_filename('event',self.namespace,key)})
 		self.events.sort(namesort)
 	def add_event_property(self,event,key,value):
 		for e in self.events:
@@ -275,6 +275,28 @@ class API(object):
 			'objects' : subs
 		}
 		return result
+	def get_filename(self):
+		return make_filename(self.typestr, self.namespace)
+	def get_parent_filename(self):
+		if self.parent_namespace in apis:
+			return apis[self.parent_namespace].get_filename()
+
+def make_filename(objtype, namespace, name=None):
+	fullname = name and '.'.join([namespace,name]) or namespace
+	return '%s-%s' % (fullname, objtype)
+
+def find_filename(namespace):
+	if namespace in apis:
+		return apis[namespace].get_filename()
+	# Try finding the parent
+	(parent, delim, name) = namespace.rpartition('.')
+	if parent != '' and parent in apis:
+		parent = apis[parent]
+		for item in (parent.methods + parent.properties + parent.events):
+			if item['name'] == name:
+				return item['filename']
+	# Guess we failed to find anything interesting
+	return namespace
 
 def split_keyvalue(line):
 	idx = line.find(":")
@@ -299,7 +321,7 @@ def tickerize(line):
 	idx2 = line.find('`',idx+1)
 	token = line[idx+1:idx2]
 	if token.startswith("Titanium."):
-		content = "<a href=\"%s.html\">%s</a>" % (token,token)
+		content = "<a href=\"%s.html\">%s</a>" % (find_filename(token),token)
 	else:
 		content = "<tt>%s</tt>" % token
 	return tickerize(line[0:idx] + content + line[idx2+1:])
@@ -312,7 +334,7 @@ def anchorize(line):
 	anchor = line[idx+2:idx2] 
 	before = line[0:idx-1] + ' '
 	after = line[idx2+2:]
-	result = before + "<a href=\"%s.html\">%s</a>" % (anchor,anchor) + after
+	result = before + "<a href=\"%s.html\">%s</a>" % (find_filename(anchor),anchor) + after
 	return anchorize(result)
 	
 def htmlerize(content):
@@ -564,6 +586,12 @@ for name in apis:
 		'type':obj.typestr
 	})
 
+def clean_links(text):
+	link1 = re.compile(r'"([^"]*?)\.html"')
+	link2 = re.compile(r"'([^']*?)\.html'")
+	repl = lambda match: '"%s.html"' % find_filename(match.group(1))
+	return link2.sub(repl, link1.sub(repl, text))
+
 def produce_json(config,dump=True):
 	result = {}
 	for key in apis:
@@ -604,7 +632,8 @@ def generate_template_output(config,templates,outdir,typestr,obj):
 		templates[typestr] = template
 
 	output = Template(template).render(config=config,apis=apis,data=obj)
-	if config.has_key('colorize'):			
+	output = clean_links(output)
+	if config.has_key('colorize'):
 		output = colorize_code(output)
 	return output
 	
@@ -623,7 +652,8 @@ def produce_devhtml_output(config,templates,outdir,theobj):
 		
 #		print obj.namespace	
 		output = Template(template).render(config=config,apis=apis,data=obj)
-		filename = os.path.join(outdir,'%s.html' % name)
+		output = clean_links(output)
+		filename = os.path.join(outdir,'%s.html' % obj.get_filename())
 		f = open(filename,'w+')
 		if config.has_key('css'):
 			f.write("<link rel=\"stylesheet\" type=\"text/css\" href=\"%s\">\n" % config['css'])
@@ -648,7 +678,7 @@ def produce_devhtml_output(config,templates,outdir,theobj):
 				am.returns = me['returntype']
 				am.parameters = me['parameters']
 				o = generate_template_output(config,templates,outdir,'method',am)
-				mo = os.path.join(outdir,'%s.html'%n)
+				mo = os.path.join(outdir,'%s.html'%me['filename'])
 #				print "  + %s" % n
 				out = open(mo,'w+')
 				if config.has_key('css'):
@@ -663,7 +693,7 @@ def produce_devhtml_output(config,templates,outdir,theobj):
 				am.type = me['type']
 				o = generate_template_output(config,templates,outdir,'property',am)
 #				print "  + %s" % n
-				mo = os.path.join(outdir,'%s.html'%n)
+				mo = os.path.join(outdir,'%s.html'%me['filename'])
 				out = open(mo,'w+')
 				if config.has_key('css'):
 					out.write("<link rel=\"stylesheet\" type=\"text/css\" href=\"%s\">\n" % config['css'])
@@ -698,7 +728,7 @@ def produce_devhtml_output(config,templates,outdir,theobj):
 				am.description = me['value']
 				am.type = me['type']
 				o = generate_template_output(config,templates,outdir,'property',am)
-				mo = os.path.join(outdir,'%s.html'%n)
+				mo = os.path.join(outdir,'%s.html'%me['filename'])
 #				print "  %s" % n
 				out = open(mo,'w+')
 				if config.has_key('css'):
@@ -752,8 +782,8 @@ def produce_devhtml(config):
 	out = open(os.path.join(outdir,'changelog.html'),'w+')
 	out.write(htmlerize(changelog))
 	out.close()
-	
-	
+
+
 def main(args):
 	if len(args) == 1:
 		print "Usage: %s <format>" % os.path.basename(args[0])

@@ -5,12 +5,12 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
-#import "TiUIWidgetProxy.h"
+#import "TiViewProxy.h"
 #import "TiUINavBarButton.h"
 #import "TiToolbarButton.h"
 #import "TiToolbar.h"
 
-@interface TiUIButtonProxy : TiUIWidgetProxy<TiToolbarButton> {
+@interface TiUIButtonProxy : TiViewProxy<TiToolbarButton> {
 @private
 	UIButtonType styleCache;
 	TiUINavBarButton *button;

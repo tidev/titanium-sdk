@@ -11,6 +11,7 @@
 #import "WebFont.h"
 #import "ImageLoader.h"
 #import "TiProxy.h"
+#import "TiUIViewProxy.h"
 
 #define DEFAULT_SECTION_HEADERFOOTER_HEIGHT 20.0
 
@@ -413,6 +414,28 @@
 	}
 	
 	return 0;
+}
+
+-(void)setBounds:(CGRect)bounds
+{
+    [super setBounds:bounds];
+    
+    // Since the header proxy is not properly attached to a view proxy in the titanium
+    // system, we have to reposition it here.  Resetting the table header view
+    // is because there's a charming bug in UITableView that doesn't respect redisplay
+    // for headers/footers when the frame changes.
+    UIView* headerView = [[self tableView] tableHeaderView];
+    if ([headerView isKindOfClass:[TiUIView class]]) {
+        [(TiUIViewProxy*)[(TiUIView*)headerView proxy] reposition];
+        [[self tableView] setTableHeaderView:headerView];
+    }
+    
+    // ... And we have to do the same thing for the footer.
+    UIView* footerView = [[self tableView] tableFooterView];
+    if ([footerView isKindOfClass:[TiUIView class]]) {
+        [(TiUIViewProxy*)[(TiUIView*)footerView proxy] reposition];
+        [[self tableView] setTableFooterView:footerView];
+    }
 }
 
 - (void)triggerActionForIndexPath: (NSIndexPath *)indexPath fromPath:(NSIndexPath*)fromPath wasAccessory: (BOOL) accessoryTapped search: (BOOL) viaSearch name:(NSString*)name
@@ -966,7 +989,7 @@
 	UITableView *table = [self tableView];
 	BOOL animated = [TiUtils boolValue:@"animated" properties:properties def:YES];
 	[table beginUpdates];
-	[table setEditing:editing animated:animated];
+	[table setEditing:moving||editing animated:animated];
 	[table endUpdates];
 }
 
@@ -1091,41 +1114,6 @@ if(tableView == searchTableView)	\
 	return [sectionProxy footerTitle];
 }
 
-// Individual rows can opt out of having the -editing property set for them. If not implemented, all rows are assumed to be editable.
-- (BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath
-{
-	RETURN_IF_SEARCH_TABLE_VIEW(NO);
-	if (editing || moving)
-	{
-		TiUITableViewRowProxy *row = [self rowForIndexPath:indexPath];
-		id editable_ = [row valueForKey:@"editable"];
-		
-		if (editable_!=nil && !moving)
-		{
-			return [TiUtils boolValue:editable_];
-		}
-		
-		return editing || moving;
-	}
-	return editable;
-}
-
-- (BOOL)tableView:(UITableView *)tableView shouldIndentWhileEditingRowAtIndexPath:(NSIndexPath *)indexPath
-{
-	RETURN_IF_SEARCH_TABLE_VIEW(NO);
-	if (moving)
-	{
-		return NO;
-	}
-	TiUITableViewRowProxy *row = [self rowForIndexPath:indexPath];
-	id value = [row valueForKey:@"indentOnEdit"];
-	if (value!=nil)
-	{
-		return [TiUtils boolValue:value];
-	}
-	return YES;
-}
-
 // After a row has the minus or plus button invoked (based on the UITableViewCellEditingStyle for the cell), the dataSource must commit the change
 - (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath
 {
@@ -1157,17 +1145,67 @@ if(tableView == searchTableView)	\
 	}
 }
 
+// Individual rows can opt out of having the -editing property set for them. If not implemented, all rows are assumed to be editable.
+- (BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath
+{
+	RETURN_IF_SEARCH_TABLE_VIEW(NO);
+	
+	TiUITableViewRowProxy *row = [self rowForIndexPath:indexPath];
+
+	//If editable, then this is always true.
+	if ([TiUtils boolValue:[row valueForKey:@"editable"] def:editable])
+	{
+		return YES;
+	}
+
+	//Elsewhise, when not editing nor moving, return NO, so that swipes don't trigger.
+
+	if (!editing && !moving)
+	{
+		return NO;
+	}
+
+	//Otherwise, when editing or moving, make sure that both can be done.
+	
+	return [TiUtils boolValue:[row valueForKey:@"moveable"] def:moving] || [TiUtils boolValue:[row valueForKey:@"editable"] def:editing];
+	
+	//Why are we checking editable twice? Well, once it's with the default of editable. The second time with the default of editing.
+	//Effectively, editable is being tri-state.
+}
+
+- (BOOL)tableView:(UITableView *)tableView shouldIndentWhileEditingRowAtIndexPath:(NSIndexPath *)indexPath
+{
+	RETURN_IF_SEARCH_TABLE_VIEW(NO);
+	TiUITableViewRowProxy *row = [self rowForIndexPath:indexPath];
+
+	return [TiUtils boolValue:[row valueForKey:@"indentOnEdit"] def:editing];
+}
+
 // Allows the reorder accessory view to optionally be shown for a particular row. By default, the reorder control will be shown only if the datasource implements -tableView:moveRowAtIndexPath:toIndexPath:
 - (BOOL)tableView:(UITableView *)tableView canMoveRowAtIndexPath:(NSIndexPath *)indexPath
 {
 	RETURN_IF_SEARCH_TABLE_VIEW(NO);
-	if (moving)
-	{
-		TiUITableViewRowProxy *row = [self rowForIndexPath:indexPath];
-		return [TiUtils boolValue:[row valueForKey:@"moveable"] def:YES];
-	}
-	return NO;
+
+	TiUITableViewRowProxy *row = [self rowForIndexPath:indexPath];
+	return [TiUtils boolValue:[row valueForKey:@"moveable"] def:moving];
 }
+
+// Allows customization of the editingStyle for a particular cell located at 'indexPath'. If not implemented, all editable cells will have UITableViewCellEditingStyleDelete set for them when the table has editing property set to YES.
+- (UITableViewCellEditingStyle)tableView:(UITableView *)tableView editingStyleForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+	RETURN_IF_SEARCH_TABLE_VIEW(UITableViewCellEditingStyleNone);
+	TiUITableViewRowProxy *row = [self rowForIndexPath:indexPath];
+
+	//Yes, this looks similar to canEdit, but here we need to make the distinction between moving and editing.
+	
+	//Actually, it's easier than that. editable or editing causes this to default true. Otherwise, it's the editable flag.
+	if ([TiUtils boolValue:[row valueForKey:@"editable"] def:editable || editing])
+	{
+		return UITableViewCellEditingStyleDelete;
+	}
+	return UITableViewCellEditingStyleNone;
+}
+
 
 - (void)tableView:(UITableView *)tableView moveRowAtIndexPath:(NSIndexPath *)sourceIndexPath toIndexPath:(NSIndexPath *)destinationIndexPath
 {
@@ -1303,22 +1341,6 @@ if(tableView == searchTableView)	\
 			RELEASE_TO_NIL(initialSelection);
 		}
 	}
-}
-
-// Allows customization of the editingStyle for a particular cell located at 'indexPath'. If not implemented, all editable cells will have UITableViewCellEditingStyleDelete set for them when the table has editing property set to YES.
-- (UITableViewCellEditingStyle)tableView:(UITableView *)tableView editingStyleForRowAtIndexPath:(NSIndexPath *)indexPath
-{
-	RETURN_IF_SEARCH_TABLE_VIEW(UITableViewCellEditingStyleNone);
-
-	if (moving)
-	{
-		return UITableViewCellEditingStyleNone;
-	}
-	if ([self tableView:tableView canEditRowAtIndexPath:indexPath])
-	{
-		return UITableViewCellEditingStyleDelete;
-	}
-	return UITableViewCellEditingStyleNone;
 }
 
 - (NSString *)tableView:(UITableView *)tableView titleForDeleteConfirmationButtonForRowAtIndexPath:(NSIndexPath *)indexPath

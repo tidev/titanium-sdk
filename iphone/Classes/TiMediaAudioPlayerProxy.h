@@ -14,6 +14,7 @@
 	AudioStreamer *player;
 	BOOL progress;
 	NSTimer *timer;
+    UInt32 sessionMode;
 }
 
 @property (nonatomic,readonly) NSURL *url;
@@ -24,6 +25,7 @@
 @property (nonatomic,readonly) NSNumber *bitRate;
 @property (nonatomic,readonly) NSNumber *progress;
 @property (nonatomic,readonly) NSNumber *state;
+@property (nonatomic,readwrite,assign) NSNumber* audioSessionMode;
 
 @property (nonatomic,readonly) NSNumber *STATE_INITIALIZED;
 @property (nonatomic,readonly) NSNumber *STATE_STARTING;

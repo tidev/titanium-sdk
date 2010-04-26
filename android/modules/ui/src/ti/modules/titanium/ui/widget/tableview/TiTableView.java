@@ -18,6 +18,8 @@ import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUIHelper;
+import org.appcelerator.titanium.view.TiCompositeLayout;
+import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.ui.TableViewProxy;
 import ti.modules.titanium.ui.widget.searchbar.TiUISearchBar.OnSearchChangeListener;
@@ -323,11 +325,11 @@ public class TiTableView extends FrameLayout
 		
 		if (proxy.getDynamicProperties().containsKey("headerView")) {
 			TiViewProxy view = (TiViewProxy) proxy.getDynamicValue("headerView");
-			listView.addHeaderView(view.getView(tiContext.getActivity()).getNativeView());
+			listView.addHeaderView(layoutHeaderOrFooter(view), null, false);
 		}
 		if (proxy.getDynamicProperties().containsKey("footerView")) {
 			TiViewProxy view = (TiViewProxy) proxy.getDynamicValue("footerView");
-			listView.addFooterView(view.getView(tiContext.getActivity()).getNativeView());
+			listView.addFooterView(layoutHeaderOrFooter(view), null, false);
 		}
 		
 		
@@ -406,6 +408,34 @@ public class TiTableView extends FrameLayout
 		addView(listView);
 	}
 
+	private View layoutHeaderOrFooter(TiViewProxy viewProxy)
+	{
+		TiUIView tiView = viewProxy.getView(tiContext.getActivity());
+		View nativeView = tiView.getNativeView();
+		
+		TiCompositeLayout.LayoutParams tiParams = tiView.getLayoutParams();
+		int width = AbsListView.LayoutParams.WRAP_CONTENT;
+		int height = AbsListView.LayoutParams.WRAP_CONTENT;
+		if (tiParams.autoHeight) {
+			if (tiParams.autoFillsHeight) {
+				height = AbsListView.LayoutParams.FILL_PARENT;
+			}
+		} else {
+			height = tiParams.optionHeight;
+		}
+		if (tiParams.autoWidth) {
+			if (tiParams.autoFillsWidth) {
+				width = AbsListView.LayoutParams.FILL_PARENT;
+			}
+		} else {
+			width = tiParams.optionWidth;
+		}
+		
+		AbsListView.LayoutParams p = new AbsListView.LayoutParams(width, height);
+		nativeView.setLayoutParams(p);
+		return nativeView;
+	}
+	
 	public void dataSetChanged() {
 		if (adapter != null) {
 			adapter.notifyDataSetChanged();

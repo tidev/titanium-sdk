@@ -126,7 +126,6 @@
 		245E7668111A9A7800A18644 /* TiUIWebViewProxy.h in Headers */ = {isa = PBXBuildFile; fileRef = 24CA8A29111161FD0084E2DE /* TiUIWebViewProxy.h */; };
 		245E7669111A9A7800A18644 /* TiUIImageViewProxy.h in Headers */ = {isa = PBXBuildFile; fileRef = 24CA8A79111161FD0084E2DE /* TiUIImageViewProxy.h */; };
 		245E766A111A9A7800A18644 /* TiUIImageView.h in Headers */ = {isa = PBXBuildFile; fileRef = 24CA8A7B111161FD0084E2DE /* TiUIImageView.h */; };
-		245E766B111A9A7800A18644 /* TiUIWidgetProxy.h in Headers */ = {isa = PBXBuildFile; fileRef = 24CA8A27111161FD0084E2DE /* TiUIWidgetProxy.h */; };
 		245E766C111A9A7800A18644 /* TiUILabelProxy.h in Headers */ = {isa = PBXBuildFile; fileRef = 24CA8A73111161FD0084E2DE /* TiUILabelProxy.h */; };
 		245E766D111A9A7800A18644 /* TiUILabel.h in Headers */ = {isa = PBXBuildFile; fileRef = 24CA8A75111161FD0084E2DE /* TiUILabel.h */; };
 		245E766E111A9A7800A18644 /* TiUIButtonProxy.h in Headers */ = {isa = PBXBuildFile; fileRef = 24CA8A8F111161FD0084E2DE /* TiUIButtonProxy.h */; };
@@ -248,7 +247,6 @@
 		2461CE621151D856007A4CC9 /* TiUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A20111161FD0084E2DE /* TiUtils.m */; };
 		2461CE631151D856007A4CC9 /* TiUIWindowProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A22111161FD0084E2DE /* TiUIWindowProxy.m */; };
 		2461CE641151D856007A4CC9 /* TiUIWindow.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A24111161FD0084E2DE /* TiUIWindow.m */; };
-		2461CE651151D856007A4CC9 /* TiUIWidgetProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A26111161FD0084E2DE /* TiUIWidgetProxy.m */; };
 		2461CE661151D856007A4CC9 /* TiUIWebViewProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A28111161FD0084E2DE /* TiUIWebViewProxy.m */; };
 		2461CE671151D856007A4CC9 /* TiUIViewProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A2A111161FD0084E2DE /* TiUIViewProxy.m */; };
 		2461CE681151D856007A4CC9 /* TiUIView.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A2C111161FD0084E2DE /* TiUIView.m */; };
@@ -520,7 +518,6 @@
 		24CA8B70111161FE0084E2DE /* TiUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A20111161FD0084E2DE /* TiUtils.m */; };
 		24CA8B71111161FE0084E2DE /* TiUIWindowProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A22111161FD0084E2DE /* TiUIWindowProxy.m */; };
 		24CA8B72111161FE0084E2DE /* TiUIWindow.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A24111161FD0084E2DE /* TiUIWindow.m */; };
-		24CA8B73111161FE0084E2DE /* TiUIWidgetProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A26111161FD0084E2DE /* TiUIWidgetProxy.m */; };
 		24CA8B74111161FE0084E2DE /* TiUIWebViewProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A28111161FD0084E2DE /* TiUIWebViewProxy.m */; };
 		24CA8B75111161FE0084E2DE /* TiUIViewProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A2A111161FD0084E2DE /* TiUIViewProxy.m */; };
 		24CA8B76111161FE0084E2DE /* TiUIView.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A2C111161FD0084E2DE /* TiUIView.m */; };
@@ -696,7 +693,6 @@
 		24CA8FAC11116C490084E2DE /* TiUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A20111161FD0084E2DE /* TiUtils.m */; };
 		24CA8FAD11116C490084E2DE /* TiUIWindowProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A22111161FD0084E2DE /* TiUIWindowProxy.m */; };
 		24CA8FAE11116C490084E2DE /* TiUIWindow.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A24111161FD0084E2DE /* TiUIWindow.m */; };
-		24CA8FAF11116C490084E2DE /* TiUIWidgetProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A26111161FD0084E2DE /* TiUIWidgetProxy.m */; };
 		24CA8FB011116C490084E2DE /* TiUIWebViewProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A28111161FD0084E2DE /* TiUIWebViewProxy.m */; };
 		24CA8FB111116C490084E2DE /* TiUIViewProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A2A111161FD0084E2DE /* TiUIViewProxy.m */; };
 		24CA8FB211116C490084E2DE /* TiUIView.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A2C111161FD0084E2DE /* TiUIView.m */; };
@@ -875,7 +871,6 @@
 		24CB0E0B111A971B00A813AD /* TiUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A20111161FD0084E2DE /* TiUtils.m */; };
 		24CB0E0C111A971B00A813AD /* TiUIWindowProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A22111161FD0084E2DE /* TiUIWindowProxy.m */; };
 		24CB0E0D111A971B00A813AD /* TiUIWindow.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A24111161FD0084E2DE /* TiUIWindow.m */; };
-		24CB0E0E111A971B00A813AD /* TiUIWidgetProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A26111161FD0084E2DE /* TiUIWidgetProxy.m */; };
 		24CB0E0F111A971B00A813AD /* TiUIWebViewProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A28111161FD0084E2DE /* TiUIWebViewProxy.m */; };
 		24CB0E10111A971B00A813AD /* TiUIViewProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A2A111161FD0084E2DE /* TiUIViewProxy.m */; };
 		24CB0E11111A971B00A813AD /* TiUIView.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A2C111161FD0084E2DE /* TiUIView.m */; };
@@ -1049,7 +1044,6 @@
 		24DD026011686DE8006FD6E1 /* TiUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A20111161FD0084E2DE /* TiUtils.m */; };
 		24DD026111686DE8006FD6E1 /* TiUIWindowProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A22111161FD0084E2DE /* TiUIWindowProxy.m */; };
 		24DD026211686DE8006FD6E1 /* TiUIWindow.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A24111161FD0084E2DE /* TiUIWindow.m */; };
-		24DD026311686DE8006FD6E1 /* TiUIWidgetProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A26111161FD0084E2DE /* TiUIWidgetProxy.m */; };
 		24DD026411686DE8006FD6E1 /* TiUIWebViewProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A28111161FD0084E2DE /* TiUIWebViewProxy.m */; };
 		24DD026511686DE8006FD6E1 /* TiUIViewProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A2A111161FD0084E2DE /* TiUIViewProxy.m */; };
 		24DD026611686DE8006FD6E1 /* TiUIView.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A2C111161FD0084E2DE /* TiUIView.m */; };
@@ -1395,6 +1389,12 @@
 		B4D5829211264FD000A6B66C /* TiUITextWidgetProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = B4D5829011264FD000A6B66C /* TiUITextWidgetProxy.m */; };
 		B4D5829711264FF500A6B66C /* TiUITextWidget.h in Headers */ = {isa = PBXBuildFile; fileRef = B4D5829511264FF500A6B66C /* TiUITextWidget.h */; };
 		B4D5829811264FF500A6B66C /* TiUITextWidget.m in Sources */ = {isa = PBXBuildFile; fileRef = B4D5829611264FF500A6B66C /* TiUITextWidget.m */; };
+		B4DE7E4E11823E990006DDE1 /* TiGradient.m in Sources */ = {isa = PBXBuildFile; fileRef = B4DE7E4D11823E990006DDE1 /* TiGradient.m */; };
+		B4DE7E4F11823E990006DDE1 /* TiGradient.m in Sources */ = {isa = PBXBuildFile; fileRef = B4DE7E4D11823E990006DDE1 /* TiGradient.m */; };
+		B4DE7E5011823E990006DDE1 /* TiGradient.m in Sources */ = {isa = PBXBuildFile; fileRef = B4DE7E4D11823E990006DDE1 /* TiGradient.m */; };
+		B4DE7E5111823E990006DDE1 /* TiGradient.h in Headers */ = {isa = PBXBuildFile; fileRef = B4DE7E4C11823E990006DDE1 /* TiGradient.h */; };
+		B4DE7E5211823E990006DDE1 /* TiGradient.m in Sources */ = {isa = PBXBuildFile; fileRef = B4DE7E4D11823E990006DDE1 /* TiGradient.m */; };
+		B4DE7E5311823E990006DDE1 /* TiGradient.m in Sources */ = {isa = PBXBuildFile; fileRef = B4DE7E4D11823E990006DDE1 /* TiGradient.m */; };
 		B4F97B6F111A41B600E2F72C /* TiUIScrollViewProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = B4F97B6E111A41B600E2F72C /* TiUIScrollViewProxy.m */; };
 		B4F97B73111A41C800E2F72C /* TiUIScrollView.m in Sources */ = {isa = PBXBuildFile; fileRef = B4F97B72111A41C800E2F72C /* TiUIScrollView.m */; };
 		B4F97C58111BAD4700E2F72C /* TiUIScrollIndicatorStyleProxy.h in Headers */ = {isa = PBXBuildFile; fileRef = B4F97C56111BAD4700E2F72C /* TiUIScrollIndicatorStyleProxy.h */; };
@@ -1594,8 +1594,6 @@
 		24CA8A23111161FD0084E2DE /* TiUIWindowProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TiUIWindowProxy.h; path = ../Classes/TiUIWindowProxy.h; sourceTree = SOURCE_ROOT; };
 		24CA8A24111161FD0084E2DE /* TiUIWindow.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TiUIWindow.m; path = ../Classes/TiUIWindow.m; sourceTree = SOURCE_ROOT; };
 		24CA8A25111161FD0084E2DE /* TiUIWindow.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TiUIWindow.h; path = ../Classes/TiUIWindow.h; sourceTree = SOURCE_ROOT; };
-		24CA8A26111161FD0084E2DE /* TiUIWidgetProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TiUIWidgetProxy.m; path = ../Classes/TiUIWidgetProxy.m; sourceTree = SOURCE_ROOT; };
-		24CA8A27111161FD0084E2DE /* TiUIWidgetProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TiUIWidgetProxy.h; path = ../Classes/TiUIWidgetProxy.h; sourceTree = SOURCE_ROOT; };
 		24CA8A28111161FD0084E2DE /* TiUIWebViewProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TiUIWebViewProxy.m; path = ../Classes/TiUIWebViewProxy.m; sourceTree = SOURCE_ROOT; };
 		24CA8A29111161FD0084E2DE /* TiUIWebViewProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TiUIWebViewProxy.h; path = ../Classes/TiUIWebViewProxy.h; sourceTree = SOURCE_ROOT; };
 		24CA8A2A111161FD0084E2DE /* TiUIViewProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TiUIViewProxy.m; path = ../Classes/TiUIViewProxy.m; sourceTree = SOURCE_ROOT; };
@@ -1924,6 +1922,8 @@
 		B4D5829011264FD000A6B66C /* TiUITextWidgetProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUITextWidgetProxy.m; sourceTree = "<group>"; };
 		B4D5829511264FF500A6B66C /* TiUITextWidget.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUITextWidget.h; sourceTree = "<group>"; };
 		B4D5829611264FF500A6B66C /* TiUITextWidget.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUITextWidget.m; sourceTree = "<group>"; };
+		B4DE7E4C11823E990006DDE1 /* TiGradient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiGradient.h; sourceTree = "<group>"; };
+		B4DE7E4D11823E990006DDE1 /* TiGradient.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiGradient.m; sourceTree = "<group>"; };
 		B4F97B6D111A41B600E2F72C /* TiUIScrollViewProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUIScrollViewProxy.h; sourceTree = "<group>"; };
 		B4F97B6E111A41B600E2F72C /* TiUIScrollViewProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIScrollViewProxy.m; sourceTree = "<group>"; };
 		B4F97B71111A41C800E2F72C /* TiUIScrollView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUIScrollView.h; sourceTree = "<group>"; };
@@ -2384,6 +2384,8 @@
 				24CA8B0D111161FE0084E2DE /* ImageLoader.h */,
 				24F5B144111FDFE8005C9199 /* ListenerEntry.h */,
 				24F5B145111FDFE8005C9199 /* ListenerEntry.m */,
+				B4DE7E4C11823E990006DDE1 /* TiGradient.h */,
+				B4DE7E4D11823E990006DDE1 /* TiGradient.m */,
 			);
 			name = Utils;
 			sourceTree = "<group>";
@@ -2650,8 +2652,6 @@
 		24CA8C591111653B0084E2DE /* Widgets */ = {
 			isa = PBXGroup;
 			children = (
-				24CA8A26111161FD0084E2DE /* TiUIWidgetProxy.m */,
-				24CA8A27111161FD0084E2DE /* TiUIWidgetProxy.h */,
 				24CA8C72111167590084E2DE /* Label */,
 				24CA8C701111672E0084E2DE /* Button */,
 				24CA8C6F111167140084E2DE /* TabbedBar */,
@@ -3231,7 +3231,6 @@
 				245E7668111A9A7800A18644 /* TiUIWebViewProxy.h in Headers */,
 				245E7669111A9A7800A18644 /* TiUIImageViewProxy.h in Headers */,
 				245E766A111A9A7800A18644 /* TiUIImageView.h in Headers */,
-				245E766B111A9A7800A18644 /* TiUIWidgetProxy.h in Headers */,
 				245E766C111A9A7800A18644 /* TiUILabelProxy.h in Headers */,
 				245E766D111A9A7800A18644 /* TiUILabel.h in Headers */,
 				245E766E111A9A7800A18644 /* TiUIButtonProxy.h in Headers */,
@@ -3356,6 +3355,7 @@
 				24DD042F116A6C58006FD6E1 /* TiToolbar.h in Headers */,
 				24DD0456116A6F02006FD6E1 /* TiTabGroup.h in Headers */,
 				24DD0978116D8E07006FD6E1 /* TiToolbarButton.h in Headers */,
+				B4DE7E5111823E990006DDE1 /* TiGradient.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3631,7 +3631,6 @@
 				24CA8B70111161FE0084E2DE /* TiUtils.m in Sources */,
 				24CA8B71111161FE0084E2DE /* TiUIWindowProxy.m in Sources */,
 				24CA8B72111161FE0084E2DE /* TiUIWindow.m in Sources */,
-				24CA8B73111161FE0084E2DE /* TiUIWidgetProxy.m in Sources */,
 				24CA8B74111161FE0084E2DE /* TiUIWebViewProxy.m in Sources */,
 				24CA8B75111161FE0084E2DE /* TiUIViewProxy.m in Sources */,
 				24CA8B76111161FE0084E2DE /* TiUIView.m in Sources */,
@@ -3795,6 +3794,7 @@
 				24E50F911160792D00AF54AF /* TiUIDashboardItemProxy.m in Sources */,
 				24DDF66011646D51006FD6E1 /* TiUIiPadDocumentViewerProxy.m in Sources */,
 				24DD042D116A6C58006FD6E1 /* TiToolbar.m in Sources */,
+				B4DE7E4E11823E990006DDE1 /* TiGradient.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3861,7 +3861,6 @@
 				2461CE621151D856007A4CC9 /* TiUtils.m in Sources */,
 				2461CE631151D856007A4CC9 /* TiUIWindowProxy.m in Sources */,
 				2461CE641151D856007A4CC9 /* TiUIWindow.m in Sources */,
-				2461CE651151D856007A4CC9 /* TiUIWidgetProxy.m in Sources */,
 				2461CE661151D856007A4CC9 /* TiUIWebViewProxy.m in Sources */,
 				2461CE671151D856007A4CC9 /* TiUIViewProxy.m in Sources */,
 				2461CE681151D856007A4CC9 /* TiUIView.m in Sources */,
@@ -4025,6 +4024,7 @@
 				24E50F8E1160792D00AF54AF /* TiUIDashboardItemProxy.m in Sources */,
 				24DDF66111646D51006FD6E1 /* TiUIiPadDocumentViewerProxy.m in Sources */,
 				24DD042E116A6C58006FD6E1 /* TiToolbar.m in Sources */,
+				B4DE7E5311823E990006DDE1 /* TiGradient.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -4091,7 +4091,6 @@
 				24CA8FAC11116C490084E2DE /* TiUtils.m in Sources */,
 				24CA8FAD11116C490084E2DE /* TiUIWindowProxy.m in Sources */,
 				24CA8FAE11116C490084E2DE /* TiUIWindow.m in Sources */,
-				24CA8FAF11116C490084E2DE /* TiUIWidgetProxy.m in Sources */,
 				24CA8FB011116C490084E2DE /* TiUIWebViewProxy.m in Sources */,
 				24CA8FB111116C490084E2DE /* TiUIViewProxy.m in Sources */,
 				24CA8FB211116C490084E2DE /* TiUIView.m in Sources */,
@@ -4255,6 +4254,7 @@
 				24E50F921160792D00AF54AF /* TiUIDashboardItemProxy.m in Sources */,
 				24DDF65F11646D51006FD6E1 /* TiUIiPadDocumentViewerProxy.m in Sources */,
 				24DD042C116A6C58006FD6E1 /* TiToolbar.m in Sources */,
+				B4DE7E5011823E990006DDE1 /* TiGradient.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -4320,7 +4320,6 @@
 				24CB0E0B111A971B00A813AD /* TiUtils.m in Sources */,
 				24CB0E0C111A971B00A813AD /* TiUIWindowProxy.m in Sources */,
 				24CB0E0D111A971B00A813AD /* TiUIWindow.m in Sources */,
-				24CB0E0E111A971B00A813AD /* TiUIWidgetProxy.m in Sources */,
 				24CB0E0F111A971B00A813AD /* TiUIWebViewProxy.m in Sources */,
 				24CB0E10111A971B00A813AD /* TiUIViewProxy.m in Sources */,
 				24CB0E11111A971B00A813AD /* TiUIView.m in Sources */,
@@ -4484,6 +4483,7 @@
 				24E50F901160792D00AF54AF /* TiUIDashboardItemProxy.m in Sources */,
 				24DDF66311646D51006FD6E1 /* TiUIiPadDocumentViewerProxy.m in Sources */,
 				24DD0430116A6C58006FD6E1 /* TiToolbar.m in Sources */,
+				B4DE7E5211823E990006DDE1 /* TiGradient.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -4550,7 +4550,6 @@
 				24DD026011686DE8006FD6E1 /* TiUtils.m in Sources */,
 				24DD026111686DE8006FD6E1 /* TiUIWindowProxy.m in Sources */,
 				24DD026211686DE8006FD6E1 /* TiUIWindow.m in Sources */,
-				24DD026311686DE8006FD6E1 /* TiUIWidgetProxy.m in Sources */,
 				24DD026411686DE8006FD6E1 /* TiUIWebViewProxy.m in Sources */,
 				24DD026511686DE8006FD6E1 /* TiUIViewProxy.m in Sources */,
 				24DD026611686DE8006FD6E1 /* TiUIView.m in Sources */,
@@ -4714,6 +4713,7 @@
 				24DD030411686DE8006FD6E1 /* TiUIDashboardItemProxy.m in Sources */,
 				24DD030511686DE8006FD6E1 /* TiUIiPadDocumentViewerProxy.m in Sources */,
 				24DD0431116A6C58006FD6E1 /* TiToolbar.m in Sources */,
+				B4DE7E4F11823E990006DDE1 /* TiGradient.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

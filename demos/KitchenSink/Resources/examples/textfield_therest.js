@@ -272,6 +272,28 @@ b8.addEventListener('click', function()
 });
 win.add(b8);
 
+var b9 = Titanium.UI.createButton({
+	title:'Allow resizing',
+	height:40,
+	width:145,
+	right:10,
+	top:255
+});
+
+var resizing = false;
+b9.addEventListener('click', function()
+{
+	if (!resizing) {
+		tf1.minimumFontSize = 8;
+		resizing = true;
+	}
+	else {
+		tf1.minimumFontSize = 0;
+		resizing = false;
+	}
+});
+win.add(b9);
+
 var l = Titanium.UI.createLabel({
 	text:'Click buttons to toggle properties',
 	left:10,
