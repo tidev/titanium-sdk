@@ -200,7 +200,9 @@ class Builder(object):
 			self.sdcard,
 			'-logcat',
 			"'*:d *'",
-			'-no-boot-anim'
+			'-no-boot-anim',
+			'-partition-size',
+			'128' # in between nexusone and droid
 		]
 		print '[DEBUG] ' + (' '.join(emulator_cmd))
 		sys.stdout.flush()
