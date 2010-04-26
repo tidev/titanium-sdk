@@ -568,7 +568,9 @@ public class TiHTTPClient
 		}
 		setReadyState(READY_STATE_OPENED);
 		setRequestHeader("User-Agent", (String) proxy.getDynamicValue("userAgent"));
-		setRequestHeader("X-Requested-With","XMLHttpRequest");
+		// Causes Auth to Fail with twitter and other size apparently block X- as well
+		// Ticket #729
+		//setRequestHeader("X-Requested-With","XMLHttpRequest");
 	}
 
 	public void addStringData(String data) {
