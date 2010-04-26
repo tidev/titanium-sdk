@@ -9,10 +9,11 @@ package ti.modules.titanium.ui;
 import java.util.ArrayList;
 
 import org.appcelerator.titanium.TiContext;
+import org.appcelerator.titanium.TiDict;
 import org.appcelerator.titanium.proxy.TiViewProxy;
-import org.appcelerator.titanium.util.AsyncResult;
 import org.appcelerator.titanium.view.TiUIView;
 
+import ti.modules.titanium.ui.widget.tableview.TableViewModel;
 import ti.modules.titanium.ui.widget.tableview.TiTableViewRowProxyItem;
 import ti.modules.titanium.ui.widget.tableview.TableViewModel.Item;
 import android.app.Activity;
@@ -47,6 +48,7 @@ public class TableViewRowProxy extends TiViewProxy
 			controls = new ArrayList<TiViewProxy>();
 		}
 		controls.add(control);
+		control.setParent(this);
 	}
 	
 	public void setTableViewItem(TiTableViewRowProxyItem item) {
@@ -74,5 +76,24 @@ public class TableViewRowProxy extends TiViewProxy
 	@Override
 	public String toString() {
 		return "[object TiUITableViewRow]";
+	}
+	
+	@Override
+	public boolean fireEvent(String eventName, TiDict data) {
+		if (eventName.equals("click")) {
+			// inject row click data for events coming from row children
+			TableViewProxy table = (TableViewProxy)getParent();
+			Item item = tableViewItem.getRowData();
+			if (table != null && item != null) {
+				TableViewModel model = table.getTableView().getModel();
+				data.put("rowData", item.rowData);
+				data.put("section", model.getSection(item.sectionIndex));
+				data.put("row", item.proxy);
+				data.put("index", item.index);
+				data.put("detail", false);
+			}
+		}
+		
+		return super.fireEvent(eventName, data);
 	}
 }

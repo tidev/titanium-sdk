@@ -109,7 +109,11 @@ def package_sdk(target, source, env):
 	android = build_type in ['full', 'android']
 	iphone = build_type in ['full', 'iphone']
 	ipad = build_type in ['full', 'ipad']
-	package.Packager().build(os.path.abspath('dist'), version, android, iphone, ipad)
+	package_all = ARGUMENTS.get('package_all', 0)
+	if package_all:
+		package.Packager().build_all_platforms(os.path.abspath('dist'), version, android, iphone, ipad)
+	else:
+		package.Packager().build(os.path.abspath('dist'), version, android, iphone, ipad)
 
 package_builder = Builder(action = package_sdk)
 env.Append(BUILDERS = {'PackageMobileSDK': package_builder})

@@ -55,7 +55,7 @@ var atlanta = Titanium.Map.createAnnotation(atlantaParams);
 //
 var mapview = Titanium.Map.createView({
 	mapType: Titanium.Map.STANDARD_TYPE,
-	region: {latitude:33.74511, longitude:-84.38993, latitudeDelta:0.01, longitudeDelta:0.01},
+	region: {latitude:33.74511, longitude:-84.38993, latitudeDelta:0.5, longitudeDelta:0.5},
 	animate:true,
 	regionFit:true,
 	userLocation:true,

@@ -7,17 +7,17 @@
 #import "TiProxy.h"
 #import "TiUIView.h"
 
-#define NEEDS_REPOSITION	0
+#define NEEDS_REPOSITION	0 
 #define NEEDS_LAYOUT_CHILDREN	1
 
 #define USE_VISIBLE_BOOL 0
-#define DONTSHOWHIDDEN 0
+#define DONTSHOWHIDDEN 0 
 
 //For TableRows, we need to have minimumParentHeightForWidth:
 @interface TiViewProxy : TiProxy<LayoutAutosizing> 
 {
 @protected
-	CGFloat verticalLayoutBoundary;
+	CGFloat layoutBoundary;
 	LayoutConstraint layoutProperties;
 
 	int dirtyflags;	//For atomic actions, best to be explicit about the 32 bitness.
@@ -64,6 +64,7 @@
 -(BOOL)viewAttached;
 -(BOOL)viewInitialized;
 -(void)layoutChildren;
+-(void)layoutChildrenIfNeeded;
 -(void)layoutChild:(TiViewProxy*)child;
 
 -(void)animationCompleted:(TiAnimation*)animation;

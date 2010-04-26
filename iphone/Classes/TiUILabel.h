@@ -9,8 +9,11 @@
 @interface TiUILabel : TiUIView<LayoutAutosizing> {
 @private
 	UILabel *label;
+    UIImageView* backgroundView;
 	BOOL requiresLayout;
     BOOL antialiasOK;
+    CGRect padding;
+    BOOL repad;
 }
 
 @property(nonatomic,getter=isHighlighted) BOOL     highlighted;          // default is NO

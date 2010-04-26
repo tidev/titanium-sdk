@@ -41,6 +41,7 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 	private TiUIView[] views;
 	private boolean hasControls;
 	private int height = -1;
+	private Item item;
 	
 	public TiTableViewRowProxyItem(TiContext tiContext)
 	{
@@ -62,9 +63,14 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 
 	public void setRowData(Item item)
 	{
+		this.item = item;
 		TableViewRowProxy rp = (TableViewRowProxy) item.proxy;
 		rp.setTableViewItem(this);
 		setRowData(rp);
+	}
+	
+	public Item getRowData() {
+		return this.item;
 	}
 	
 	public void setRowData(TableViewRowProxy rp)

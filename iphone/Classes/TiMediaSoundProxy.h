@@ -18,6 +18,7 @@
 	BOOL looping;
 	CGFloat volume;
 	CGFloat resumeTime;
+    UInt32 sessionMode;
 }
 
 @property (nonatomic,readwrite,assign) NSNumber *volume;
@@ -29,6 +30,7 @@
 
 @property (nonatomic,readonly) NSNumber *duration;
 @property (nonatomic,readwrite,assign) NSNumber *time;
+@property (nonatomic,readwrite,assign) NSNumber *audioSessionMode;
 
 @end
 

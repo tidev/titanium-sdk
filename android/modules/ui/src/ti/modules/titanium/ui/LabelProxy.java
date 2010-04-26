@@ -25,4 +25,12 @@ public class LabelProxy extends TiViewProxy
 	{
 		return new TiUILabel(this);
 	}
+	
+	@Override
+	public int addEventListener(String eventName, Object listener) {
+		if (eventName.equals("click")) {
+			((TiUILabel)getView(getTiContext().getActivity())).setClickable(true);
+		}
+		return super.addEventListener(eventName, listener);
+	}
 }

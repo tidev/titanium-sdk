@@ -16,6 +16,10 @@
 -(void)_initWithProperties:(NSDictionary *)properties
 {
 	url = [[TiUtils toURL:[properties objectForKey:@"url"] proxy:self] retain];
+    int initialMode = [TiUtils intValue:@"audioSessionMode" 
+                             properties:properties
+                                    def:[[TiMediaAudioSession sharedSession] defaultSessionMode]];
+    [self setAudioSessionMode:[NSNumber numberWithInt:initialMode]];
 	[[TiMediaAudioSession sharedSession] startAudioSession];
 }
 
@@ -176,7 +180,7 @@ PLAYER_PROP_DOUBLE(state,state);
 {
 	ENSURE_UI_THREAD(start,args);
 	// indicate we're going to start playing
-	[[TiMediaAudioSession sharedSession] playback];
+	[[TiMediaAudioSession sharedSession] playback:sessionMode];
 	[[self player] start];
 }
 
@@ -207,6 +211,21 @@ MAKE_SYSTEM_PROP(STATE_BUFFERING,AS_BUFFERING);
 MAKE_SYSTEM_PROP(STATE_STOPPING,AS_STOPPING);
 MAKE_SYSTEM_PROP(STATE_STOPPED,AS_STOPPED);
 MAKE_SYSTEM_PROP(STATE_PAUSED,AS_PAUSED);
+
+-(void)setAudioSessionMode:(NSNumber*)mode
+{
+    UInt32 newMode = [mode unsignedIntegerValue]; // Close as we can get to UInt32
+    if (newMode == kAudioSessionCategory_RecordAudio) {
+        NSLog(@"Invalid mode for audio player... setting to default.");
+        newMode = kAudioSessionCategory_SoloAmbientSound;
+    }
+    sessionMode = newMode;
+}
+
+-(NSNumber*)audioSessionMode
+{
+    return [NSNumber numberWithUnsignedInteger:sessionMode];
+}
 
 -(NSString*)stateToString:(int)state
 {

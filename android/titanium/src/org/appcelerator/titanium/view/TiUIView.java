@@ -499,32 +499,32 @@ public abstract class TiUIView
 			return;
 		}
 		final GestureDetector detector = new GestureDetector(proxy.getTiContext().getActivity(),
-				new SimpleOnGestureListener() {
-					@Override
-					public boolean onDoubleTap(MotionEvent e) {
-						boolean handledTap = proxy.fireEvent("doubletap", dictFromEvent(e));
-						boolean handledClick = proxy.fireEvent("dblclick", dictFromEvent(e));
-						return handledTap || handledClick;
-					}
+			new SimpleOnGestureListener() {
+				@Override
+				public boolean onDoubleTap(MotionEvent e) {
+					boolean handledTap = proxy.fireEvent("doubletap", dictFromEvent(e));
+					boolean handledClick = proxy.fireEvent("dblclick", dictFromEvent(e));
+					return handledTap || handledClick;
+				}
 
-					@Override
-					public boolean onSingleTapConfirmed(MotionEvent e) {
-						Log.e(LCAT, "TAP, TAP, TAP");
-						boolean handledTap = proxy.fireEvent("singletap", dictFromEvent(e));
-						boolean handledClick = proxy.fireEvent("click", dictFromEvent(e));
-						return handledTap || handledClick;
-					}
-				});
-
-			touchable.setOnTouchListener(new OnTouchListener() {
-				public boolean onTouch(View view, MotionEvent event) {
-					boolean handled = detector.onTouchEvent(event);
-					if (!handled && motionEvents.containsKey(event.getAction())) {
-						handled = proxy.fireEvent(motionEvents.get(event.getAction()), dictFromEvent(event));
-					}
-					return handled;
+				@Override
+				public boolean onSingleTapConfirmed(MotionEvent e) {
+					Log.e(LCAT, "TAP, TAP, TAP");
+					boolean handledTap = proxy.fireEvent("singletap", dictFromEvent(e));
+					boolean handledClick = proxy.fireEvent("click", dictFromEvent(e));
+					return handledTap || handledClick;
 				}
 			});
+		
+		touchable.setOnTouchListener(new OnTouchListener() {
+			public boolean onTouch(View view, MotionEvent event) {
+				boolean handled = detector.onTouchEvent(event);
+				if (!handled && motionEvents.containsKey(event.getAction())) {
+					handled = proxy.fireEvent(motionEvents.get(event.getAction()), dictFromEvent(event));
+				}
+				return handled;
+			}
+		});
 
 	}
 

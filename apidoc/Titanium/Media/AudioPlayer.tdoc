@@ -12,7 +12,7 @@ proxy
 
 - description
 
-The AudioPlayer object is returned by [[Titanum.Media.createAudioPlayer]] and is used for streaming audio to the device and low-level control of the audio playback.
+The AudioPlayer object is returned by [[Titanium.Media.createAudioPlayer]] and is used for streaming audio to the device and low-level control of the audio playback.
 
 - since
 

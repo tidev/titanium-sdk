@@ -85,6 +85,22 @@
 }
 #endif
 
+-(void)setBackgroundGradient:(id)arg
+{
+	TiGradient * newGradient;
+	if ([arg isKindOfClass:[NSDictionary class]])
+	{
+		newGradient = [[[TiGradient alloc] _initWithPageContext:[self executionContext]] autorelease];
+		[newGradient _initWithProperties:arg];
+	}
+	else
+	{
+		newGradient = arg;
+	}
+	ENSURE_TYPE_OR_NIL(newGradient,TiGradient);
+	[self replaceValue:newGradient forKey:@"backgroundGradient" notification:YES];
+}
+
 -(void)add:(id)arg
 {
 	ENSURE_SINGLE_ARG(arg,TiViewProxy);
@@ -130,11 +146,11 @@
 	if (view!=nil)
 	{
 		TiUIView *childView = [(TiViewProxy *)arg view];
-		BOOL verticalNeedsRearranging = TiLayoutRuleIsVertical(layoutProperties.layout);
+		BOOL layoutNeedsRearranging = !TiLayoutRuleIsAbsolute(layoutProperties.layout);
 		if ([NSThread isMainThread])
 		{
 			[childView removeFromSuperview];
-			if (verticalNeedsRearranging)
+			if (layoutNeedsRearranging)
 			{
 				[self layoutChildren];
 			}
@@ -142,7 +158,7 @@
 		else
 		{
 			[childView performSelectorOnMainThread:@selector(removeFromSuperview) withObject:nil waitUntilDone:NO];
-			if (verticalNeedsRearranging)
+			if (layoutNeedsRearranging)
 			{
 				[self performSelectorOnMainThread:@selector(layout) withObject:nil waitUntilDone:NO modes:[NSArray arrayWithObject:NSRunLoopCommonModes]];
 			}
@@ -497,10 +513,17 @@
 
 	// layout out ourself
 
-	if(TiLayoutRuleIsVertical(layoutProperties.layout)){
-		bounds.origin.y += verticalLayoutBoundary;
+	if(TiLayoutRuleIsVertical(layoutProperties.layout))\
+	{
+		bounds.origin.y += layoutBoundary;
 		bounds.size.height = [child minimumParentHeightForWidth:bounds.size.width];
-		verticalLayoutBoundary += bounds.size.height;
+		layoutBoundary += bounds.size.height;
+	}
+	else if(TiLayoutRuleIsHorizontal(layoutProperties.layout))
+	{
+		bounds.origin.x += layoutBoundary;
+		bounds.size.width = [child minimumParentWidthForWidth:bounds.size.width-layoutBoundary];
+		layoutBoundary += bounds.size.width;
 	}
 
 #if DONTSHOWHIDDEN
@@ -508,7 +531,7 @@
 
 	if (!isVisible)
 	{
-//		return;
+		//TODO: Return early for speed
 	}
 #endif
 
@@ -543,11 +566,8 @@
 			insertPosition ++;
 		}
 		
-//		if (isVisible)
-		{
-			[ourView insertSubview:childView atIndex:insertPosition];
-			[self childWillResize:child];
-		}
+		[ourView insertSubview:childView atIndex:insertPosition];
+		[self childWillResize:child];
 	}
 	[[child view] updateLayout:NULL withBounds:bounds];
 	
@@ -557,9 +577,9 @@
 
 -(void)layoutChildren
 {
-	verticalLayoutBoundary = 0.0;
+	layoutBoundary = 0.0;
 	// now ask each of our children for their view
-	if (view==nil)
+	if (![self viewAttached])
 	{
 		return;
 	}
@@ -735,10 +755,24 @@
 
 -(CGFloat)autoWidthForWidth:(CGFloat)suggestedWidth
 {
+	BOOL isHorizontal = TiLayoutRuleIsHorizontal(layoutProperties.layout);
 	CGFloat result = 0.0;
+
 	for (TiViewProxy * thisChildProxy in children)
 	{
-		result = MAX(result,[thisChildProxy minimumParentWidthForWidth:suggestedWidth]);
+		CGFloat thisWidth = [thisChildProxy minimumParentWidthForWidth:suggestedWidth];
+		if (isHorizontal)
+		{
+			result += thisWidth;
+		}
+		else if(result<thisWidth)
+		{
+			result = thisWidth;
+		}
+	}
+	if (suggestedWidth == 0.0)
+	{
+		return result;
 	}
 	return MIN(suggestedWidth,result);
 }

@@ -55,7 +55,7 @@ public class WindowProxy extends TiWindowProxy
 	{
 		switch(msg.what) {
 			case MSG_FINISH_OPEN: {
-				realizeViews(null, view);
+				realizeViews(getTiContext().getActivity(), view);
 				if (tab == null) {
 					//TODO attach window
 				}

@@ -14,6 +14,7 @@
 	TiFile *file;
 	NSNumber *compression;
 	NSNumber *format;
+    UInt32 sessionMode;
 }
 
 #pragma mark Public APIs
@@ -23,6 +24,7 @@
 @property(nonatomic,readonly) BOOL paused;
 @property(nonatomic,readwrite,retain) NSNumber *compression;
 @property(nonatomic,readwrite,retain) NSNumber *format;
+@property(nonatomic,readwrite,retain) NSNumber* audioSessionMode;
 
 -(void)pause:(id)args;
 -(void)resume:(id)args;

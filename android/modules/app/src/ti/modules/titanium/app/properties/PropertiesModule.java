@@ -56,7 +56,7 @@ public class PropertiesModule extends TiModule {
 				try {
 					list[i] = new TiDict(new JSONObject(value));
 				} catch (JSONException e) {
-					Log.w(LCAT, "Error converting JSON string to TiDict: " + value);
+					Log.e(LCAT, "Error converting JSON string to TiDict, property:" + key, e);
 				}
 			} else {
 				list[i] = value;

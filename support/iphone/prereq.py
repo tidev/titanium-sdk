@@ -135,7 +135,7 @@ def check_for_package():
 	sdks,ipad = get_sdks()
 	props['sdks']=sdks
 	props['ipad']=ipad
-	print json.encode(props).decode('utf-8')
+	print json.encode(props).encode('utf-8')
 			
 def main(args):
 	if len(args)!=2:

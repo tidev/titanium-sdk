@@ -8,10 +8,26 @@
 #import "TiUILabel.h"
 #import "TiUILabelProxy.h"
 #import "TiUtils.h"
+#import "UIImage+Resize.h"
 
 @implementation TiUILabel
 
 #pragma mark Internal
+
+-(id)init
+{
+    if (self = [super init]) {
+        padding = CGRectZero;
+    }
+    return self;
+}
+
+-(void)dealloc
+{
+    RELEASE_TO_NIL(label);
+    RELEASE_TO_NIL(backgroundView);
+    [super dealloc];
+}
 
 - (BOOL)interactionDefault
 {
@@ -37,6 +53,24 @@
 -(CGFloat)autoHeightForWidth:(CGFloat)width
 {
 	return [self sizeForFont:width].height;
+}
+
+-(void)padLabel
+{
+    if (repad &&
+        backgroundView != nil && 
+        !CGRectEqualToRect(label.frame, CGRectZero)) 
+    {
+        [backgroundView setFrame:CGRectMake(backgroundView.frame.origin.x - padding.origin.x,
+                                            backgroundView.frame.origin.y - padding.origin.y,
+                                            backgroundView.frame.size.width + padding.origin.x + padding.size.width,
+                                            backgroundView.frame.size.height + padding.origin.y + padding.size.height)];
+        [label setFrame:CGRectMake(label.frame.origin.x + padding.origin.x,
+                                   label.frame.origin.y + padding.origin.y,
+                                   label.frame.size.width,
+                                   label.frame.size.height)];
+        repad = NO;
+    }
 }
 
 // CoreGraphics renders fonts anti-aliased by drawing text on the 0.5 offset of the 
@@ -66,8 +100,13 @@
                                       normalizedFrame.origin.y - frame.origin.y,
                                       normalizedFrame.size.width,
                                       normalizedFrame.size.height);
-    
+
+    if (backgroundView) {
+        [backgroundView setFrame:CGRectMake(0, 0, normalizedFrame.size.width, normalizedFrame.size.height)];
+    }
     [label setFrame:adjustedFrame];
+    repad = YES; // Force repadding every time the frame size changes
+    [self padLabel];
 }
 
 -(void)setFrame:(CGRect)frame
@@ -90,6 +129,7 @@
     else {
         [super setFrame:frame];
     }
+    [self padLabel];
 }
 
 -(void)setBounds:(CGRect)bounds
@@ -107,6 +147,7 @@
     else {
         [super setBounds:bounds];
     }
+    [self padLabel];
 }
 
 -(UILabel*)label
@@ -165,6 +206,91 @@
 	{
 		[(TiViewProxy *)[self proxy] setNeedsReposition];
 	}
+}
+
+-(void)setMinimumFontSize_:(id)size
+{
+    CGFloat newSize = [TiUtils floatValue:size];
+    if (newSize < 4) { // Beholden to 'most minimum' font size
+        [[self label] setAdjustsFontSizeToFitWidth:NO];
+        [[self label] setMinimumFontSize:0.0];
+        [[self label] setNumberOfLines:0];
+    }
+    else {
+        [[self label] setNumberOfLines:1];
+        [[self label] setAdjustsFontSizeToFitWidth:YES];
+        [[self label] setMinimumFontSize:newSize];
+    }
+    
+}
+
+-(void)setBackgroundImage_:(id)url
+{
+    if (url != nil) {
+        UIImage* bgImage = [UIImageResize resizedImage:self.frame.size 
+                                  interpolationQuality:kCGInterpolationDefault
+                                                 image:[self loadImage:url]];
+        
+        // Resizing doesn't preserve stretchability.  Should we maybe fix this?
+        bgImage = [self loadImage:url];
+        if (backgroundView == nil) {
+            backgroundView = [[UIImageView alloc] initWithImage:bgImage];
+            backgroundView.userInteractionEnabled = NO;
+            backgroundView.contentMode = UIViewContentModeRedraw;
+            
+            [label removeFromSuperview];
+            [backgroundView addSubview:label];
+            [self addSubview:backgroundView];
+            
+            repad = YES;
+            [self padLabel];
+        }
+        else {
+            backgroundView.image = bgImage;
+            [backgroundView setNeedsDisplay];
+            
+            repad = YES;
+            [self padLabel];
+        }
+    }
+    else {
+        if (backgroundView) {
+            [label removeFromSuperview];
+            [backgroundView removeFromSuperview];
+            [self addSubview:label];
+            RELEASE_TO_NIL(backgroundView);
+        }
+    }
+    
+    self.backgroundImage = url;
+}
+
+-(void)setBackgroundPaddingLeft_:(id)left
+{
+    padding.origin.x = [TiUtils floatValue:left];
+    repad = YES;
+    [self padLabel];
+}
+
+-(void)setBackgroundPaddingRight_:(id)right
+{
+    padding.size.width = [TiUtils floatValue:right];
+    repad = YES;
+    [self padLabel];
+}
+
+-(void)setBackgroundPaddingTop_:(id)top
+{
+    padding.origin.y = [TiUtils floatValue:top];
+    repad = YES;
+    [self padLabel];
+}
+
+-(void)setBackgroundPaddingBottom_:(id)bottom
+{
+    padding.size.height = [TiUtils floatValue:bottom];
+    repad = YES;
+    [self padLabel];
 }
 
 -(void)setTextAlign_:(id)alignment

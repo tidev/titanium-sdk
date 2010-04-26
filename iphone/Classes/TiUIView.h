@@ -6,6 +6,7 @@
  */
 #import "TiProxy.h"
 #import "TiAnimation.h"
+#import "TiGradient.h"
 #import "LayoutConstraint.h"
 
 //By declaring a scrollView protocol, TiUITextWidget can access 
@@ -34,6 +35,8 @@ CGFloat AutoHeightForView(UIView * superView,CGFloat suggestedWidth,BOOL isVerti
 	TiViewProxy *parent;
 	TiAnimation *animation;
 	
+	CALayer *gradientLayer;
+	
 	CGAffineTransform virtualParentTransform;
 	id transformMatrix;
 	BOOL childrenInitialized;
@@ -46,9 +49,9 @@ CGFloat AutoHeightForView(UIView * superView,CGFloat suggestedWidth,BOOL isVerti
 	// Touch detection
 	BOOL handlesTouches;
 	BOOL handlesTaps;
-    CGPoint tapLocation;         // Needed to record location of single tap, which will only be registered after delayed perform.
-    BOOL multipleTouches;        // YES if a touch event contains more than one touch; reset when all fingers are lifted.
-    BOOL twoFingerTapIsPossible; // Set to NO when 2-finger tap can be ruled out (e.g. 3rd finger down, fingers touch down too far apart, etc).	
+	CGPoint tapLocation;         // Needed to record location of single tap, which will only be registered after delayed perform.
+	BOOL multipleTouches;        // YES if a touch event contains more than one touch; reset when all fingers are lifted.
+	BOOL twoFingerTapIsPossible; // Set to NO when 2-finger tap can be ruled out (e.g. 3rd finger down, fingers touch down too far apart, etc).	
 	CGPoint touchLocation;		 // Need for swipe detection
 	BOOL handlesSwipes;
 	UIView *touchDelegate;		 // used for touch delegate forwarding
@@ -58,10 +61,10 @@ CGFloat AutoHeightForView(UIView * superView,CGFloat suggestedWidth,BOOL isVerti
 	//Resizing handling
 	CGSize oldSize;
     
-    // Image capping/backgrounds
-    id backgroundImage;
-    TiDimension leftCap;
-    TiDimension topCap;
+	// Image capping/backgrounds
+  id backgroundImage;
+  TiDimension leftCap;
+  TiDimension topCap;
 }
 
 @property(nonatomic,readwrite,assign)	TiProxy *proxy;
@@ -104,7 +107,7 @@ CGFloat AutoHeightForView(UIView * superView,CGFloat suggestedWidth,BOOL isVerti
 +(void)throwException:(NSString *) reason subreason:(NSString*)subreason location:(NSString *)location;
 -(void)throwException:(NSString *) reason subreason:(NSString*)subreason location:(NSString *)location;
 
--(BOOL)interactionDefault;
+-(BOOL)interactionDefault; 
 -(BOOL)hasTouchableListener;
 
 -(void)setVisible_:(id)visible;
@@ -116,7 +119,7 @@ CGFloat AutoHeightForView(UIView * superView,CGFloat suggestedWidth,BOOL isVerti
 #define USE_PROXY_FOR_METHOD(resultType,methodname,inputType)	\
 -(resultType)methodname:(inputType)value	\
 {	\
-	NSLog(@"[INFO] Using view proxy via redirection instead of directly for %@.",self);	\
+	NSLog(@"[DEBUG] Using view proxy via redirection instead of directly for %@.",self);	\
 	return [(TiViewProxy *)[self proxy] methodname:value];	\
 }
 

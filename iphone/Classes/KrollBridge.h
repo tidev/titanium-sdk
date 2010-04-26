@@ -32,6 +32,7 @@
 	NSDictionary *preload;
 	TitaniumObject *titanium;
 	BOOL shutdown;
+	NSMutableArray *proxies;
 }
 - (void)boot:(id)callback url:(NSURL*)url preload:(NSDictionary*)preload;
 - (void)evalJS:(NSString*)code;

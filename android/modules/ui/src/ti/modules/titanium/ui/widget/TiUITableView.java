@@ -18,6 +18,7 @@ import org.json.JSONObject;
 import ti.modules.titanium.ui.TableViewProxy;
 import ti.modules.titanium.ui.ViewProxy;
 import ti.modules.titanium.ui.widget.searchbar.TiUISearchBar;
+import ti.modules.titanium.ui.widget.tableview.TableViewModel;
 import ti.modules.titanium.ui.widget.tableview.TiTableView;
 import ti.modules.titanium.ui.widget.tableview.TiTableView.OnItemClickedListener;
 import android.os.Handler;
@@ -71,6 +72,10 @@ public class TiUITableView extends TiUIView
 	
 	public void setModelDirty() {
 		tableView.getTableViewModel().setDirty();
+	}
+	
+	public TableViewModel getModel() {
+		return tableView.getTableViewModel();
 	}
 	
 	public void updateView() {

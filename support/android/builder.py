@@ -107,6 +107,16 @@ class Builder(object):
 		max_wait = 30
 		attempts = 0
 		timed_out = True
+		
+		# in Windows, if the adb server isn't running, calling "adb devices"
+		# will fork off a new adb server, and cause a lock-up when we 
+		# try to pipe the process' stdout/stderr. the workaround is 
+		# to simply call adb start-server here, and not care about
+		# the return code / pipes. (this is harmless if adb is already running)
+		# -- thanks to Bill Dawson for the workaround
+		if platform.system() == "Windows":
+			run.run([self.sdk.get_adb(), "start-server"], True, ignore_output=True)
+		
 		while True:
 			output = run.run([self.sdk.get_adb(),"-%s" % type, 'devices'],True)
 			print "[TRACE] wait_for_device returned: %s" % output
@@ -152,7 +162,7 @@ class Builder(object):
 		if not os.path.exists(my_avd):
 			print "[INFO] Creating new Android Virtual Device (%s %s)" % (avd_id,avd_skin)
 			inputgen = os.path.join(template_dir,'input.py')
-			pipe([sys.executable, inputgen], [self.sdk.get_android(), '--verbose', 'create', 'avd', '--name', name, '--target', avd_id, '-s', avd_skin, '--force', '--sdcard', sdcard])
+			pipe([sys.executable, inputgen], [self.sdk.get_android(), '--verbose', 'create', 'avd', '--name', name, '--target', avd_id, '-s', avd_skin, '--force', '--sdcard', self.sdcard])
 			inifile = os.path.join(my_avd,'config.ini')
 			inifilec = open(inifile,'r').read()
 			inifiledata = open(inifile,'w')
@@ -596,6 +606,7 @@ class Builder(object):
 		if os.path.exists(app_apk+'z'):
 			os.remove(app_apk+'z')
 		run.run([zipalign, '-v', '4', app_apk, app_apk+'z'])
+		os.unlink(app_apk)
 		os.rename(app_apk+'z',app_apk)
 
 		if self.dist_dir:

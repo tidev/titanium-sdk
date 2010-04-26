@@ -5,9 +5,9 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
-#import "TiUIWidgetProxy.h"
+#import "TiViewProxy.h"
 
-@interface TiUISearchBarProxy : TiUIWidgetProxy {
+@interface TiUISearchBarProxy : TiViewProxy {
 }
 
 -(void)setDelegate:(id<UISearchBarDelegate>)delegate;

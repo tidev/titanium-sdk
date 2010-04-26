@@ -30,14 +30,17 @@ TiMediaAudioSessionInputType;
 @private
 	NSInteger count;
 	NSLock *lock;
+    UInt32 defaultSessionMode;
 }
 
 +(TiMediaAudioSession*)sharedSession;
 
+@property (nonatomic,readwrite) UInt32 defaultSessionMode;
+
 -(void)startAudioSession;
 -(void)stopAudioSession;
--(void)record;
--(void)playback;
+-(void)record:(UInt32)mode;
+-(void)playback:(UInt32)mode;
 -(BOOL)isActive;
 -(TiMediaAudioSessionInputType)inputType;
 -(CGFloat)volume;

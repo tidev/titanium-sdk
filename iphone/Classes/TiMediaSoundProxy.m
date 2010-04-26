@@ -65,6 +65,10 @@
 						}
 					}
 				}
+                int initialMode = [TiUtils intValue:@"audioSessionMode" 
+                                         properties:arg
+                                                def:[[TiMediaAudioSession sharedSession] defaultSessionMode]];
+                [self setAudioSessionMode:[NSNumber numberWithInt:initialMode]];
 			}
 			if (url==nil)
 			{
@@ -141,7 +145,7 @@
 -(void)play:(id)args
 {
 	// indicate we're going to start playing
-	[[TiMediaAudioSession sharedSession] playback];
+	[[TiMediaAudioSession sharedSession] playback:sessionMode];
 	
 	[[self player] play];
 }
@@ -308,6 +312,21 @@
 -(NSURL*)url
 {
 	return url;
+}
+
+-(void)setAudioSessionMode:(NSNumber*)mode
+{
+    UInt32 newMode = [mode unsignedIntegerValue]; // Close as we can get to UInt32
+    if (newMode == kAudioSessionCategory_RecordAudio) {
+        NSLog(@"Invalid mode for audio player... setting to default.");
+        newMode = kAudioSessionCategory_SoloAmbientSound;
+    }
+    sessionMode = newMode;
+}
+
+-(NSNumber*)audioSessionMode
+{
+    return [NSNumber numberWithUnsignedInteger:sessionMode];
 }
 
 #pragma mark Delegate

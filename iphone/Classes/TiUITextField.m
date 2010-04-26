@@ -313,6 +313,19 @@
 	[[self textWidgetView] setPlaceholder:[TiUtils stringValue:value]];
 }
 
+-(void)setMinimumFontSize_:(id)value
+{
+    CGFloat newSize = [TiUtils floatValue:value];
+    if (newSize < 4) {
+        [[self textWidgetView] setAdjustsFontSizeToFitWidth:NO];
+        [[self textWidgetView] setMinimumFontSize:0.0];
+    }
+    else {
+        [[self textWidgetView] setAdjustsFontSizeToFitWidth:YES];
+        [[self textWidgetView] setMinimumFontSize:newSize];
+    }
+}
+
 -(void)setClearOnEdit_:(id)value
 {
 	[[self textWidgetView] setClearsOnBeginEditing:[TiUtils boolValue:value]];

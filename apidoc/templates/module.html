@@ -2,7 +2,7 @@
 
 <h1 class="namespace">${data.namespace}</h1>
 % if data.parent_namespace: 
-<div class="namespace_type">submodule of <a href="${data.parent_namespace}.html">${data.parent_namespace}</a></div>
+<div class="namespace_type">submodule of <a href="${data.get_parent_filename()}.html">${data.parent_namespace}</a></div>
 % else: 
 <div class="namespace_type">module</div>
 % endif 
@@ -28,7 +28,7 @@ ${data.description}
 </tr> 
 % for o in data.objects:
 <tr>
-	<td class="name"><a href="${o.namespace}.html">${o.namespace}</a></td>
+	<td class="name"><a href="${o.get_filename()}.html">${o.namespace}</a></td>
 	<td class="description">${o.description}</td>
 </tr>
 % endfor
@@ -47,7 +47,7 @@ This module has no methods
 </tr> 
 % for method in data.methods:
 <tr>
-	<td class="name"><a href="${data.namespace}.${method['name']}.html">${method['name']}</a></td>
+	<td class="name"><a href="${method['filename']}.html">${method['name']}</a></td>
 	<td class="description">${method['value']}</td>
 </tr>
 % endfor

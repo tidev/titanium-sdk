@@ -13,6 +13,8 @@
 	CGFloat size;
 	BOOL isBoldWeight;
 	BOOL isNormalWeight;
+    BOOL isItalicStyle;
+    BOOL isNormalStyle;
 	UIFont *font;
 }
 @property(nonatomic,retain) NSString *family;
@@ -20,6 +22,8 @@
 @property(nonatomic,readonly) BOOL isSizeNotSet;
 @property(nonatomic) BOOL isBoldWeight;
 @property(nonatomic) BOOL isNormalWeight;
+@property(nonatomic) BOOL isItalicStyle;
+@property(nonatomic) BOOL isNormalStyle;
 
 -(UIFont*)font;
 

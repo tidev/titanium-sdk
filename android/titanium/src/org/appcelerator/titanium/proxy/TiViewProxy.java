@@ -503,4 +503,24 @@ public abstract class TiViewProxy extends TiProxy implements Handler.Callback
 		}
 		return handled;
 	}
+	
+	public TiViewProxy getParent() {
+		if (this.parent == null) { return null; }
+		return this.parent.get();
+	}
+	
+	public void setParent(TiViewProxy parent) {
+		this.parent = new WeakReference<TiViewProxy>(parent);	
+	}
+	
+	@Override
+	public TiContext switchContext(TiContext tiContext) {
+		TiContext oldContext = super.switchContext(tiContext);
+		if (children != null) {
+			for (TiViewProxy child : children) {
+				child.switchContext(tiContext);
+			}
+		}
+		return oldContext;
+	}
 }
