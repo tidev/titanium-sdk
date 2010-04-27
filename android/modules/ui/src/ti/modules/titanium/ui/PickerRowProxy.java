@@ -8,33 +8,30 @@ package ti.modules.titanium.ui;
 
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.proxy.TiViewProxy;
+import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.view.TiUIView;
 
-import ti.modules.titanium.ui.widget.TiUIPicker;
 import android.app.Activity;
-import android.util.Log;
 
-public class PickerProxy extends TiViewProxy
-{
-	private static final String LCAT = "PickerProxy";
+public class PickerRowProxy extends TiViewProxy {
+	
+	private static final String LCAT = "PickerRowProxy";
 	private static final boolean DBG = TiConfig.LOGD;
-	public PickerProxy(TiContext tiContext, Object[] args)
-	{
+
+	public PickerRowProxy(TiContext tiContext, Object[] args) {
 		super(tiContext, args);
+		if (DBG) {
+			Log.d(LCAT, "Creating a pickerrowproxy with args length " + args.length);
+		}	
+		
+		
 	}
 
 	@Override
-	public TiUIView createView(Activity activity)
-	{
-		return new TiUIPicker(this);
+	public TiUIView createView(Activity activity) {
+		// TODO Auto-generated method stub
+		return null;
 	}
-	
-	public void add(Object obj) {
-		if (DBG) {
-			Log.d(LCAT, "adding to Picker");
-		}
-	}
-	
-	
+
 }

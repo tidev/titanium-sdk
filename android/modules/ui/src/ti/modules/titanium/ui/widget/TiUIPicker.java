@@ -31,6 +31,29 @@ public class TiUIPicker extends TiUIView implements OnItemClickedListener {
 	}
 	
 	
+	
+	
+	
+
+
+
+
+	@Override
+	public void processProperties(TiDict d) {
+		// TODO Auto-generated method stub
+		super.processProperties(d);
+		Log.d(LCAT, "process properties");
+		
+	}
+
+
+
+
+
+
+
+
+
 	@Override
 	public void onClick(TiDict item) {
 		// TODO Auto-generated method stub
