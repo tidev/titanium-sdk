@@ -35,6 +35,14 @@
 
 - (BOOL)isEqual:(id)anObject
 {
+	if (anObject == self)
+	{
+		return YES;
+	}
+	if (anObject == nil)
+	{
+		return NO;
+	}
 	if (function!=NULL && [anObject isKindOfClass:[KrollCallback class]])
 	{
 		TiObjectRef ref1 = function;
