@@ -6,6 +6,8 @@
  */
 package ti.modules.titanium.ui;
 
+import java.util.ArrayList;
+
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConfig;
@@ -17,22 +19,37 @@ import android.util.Log;
 
 public class PickerProxy extends TiViewProxy
 {
+	private static final ArrayList<PickerColumnProxy> columns = 
+		new ArrayList<PickerColumnProxy>();
+	
+	 
 	private static final String LCAT = "PickerProxy";
 	private static final boolean DBG = TiConfig.LOGD;
 	public PickerProxy(TiContext tiContext, Object[] args)
 	{
 		super(tiContext, args);
+		// give me one column for starters column
+		columns.add(new PickerColumnProxy(this.getTiContext()));
 	}
-
+	
+	public ArrayList<PickerColumnProxy> getColumns() {
+		return columns;
+	}
+	
 	@Override
 	public TiUIView createView(Activity activity)
 	{
 		return new TiUIPicker(this);
 	}
 	
-	public void add(Object obj) {
+	
+	
+	public void add(TiViewProxy control) {
 		if (DBG) {
-			Log.d(LCAT, "adding to Picker");
+			Log.d(LCAT, "adding a TiViewProxy to picker");
+		}
+		if (control instanceof PickerRowProxy) {
+			columns.get(0).addRow((PickerRowProxy) control);
 		}
 	}
 	
