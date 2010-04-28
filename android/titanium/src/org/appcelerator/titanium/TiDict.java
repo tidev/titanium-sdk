@@ -34,7 +34,7 @@ public class TiDict
 		}
 	}
 	
-	private static Object fromJSON(Object value) {
+	public static Object fromJSON(Object value) {
 		try {
 			if (value instanceof JSONObject) {
 				return new TiDict((JSONObject)value);

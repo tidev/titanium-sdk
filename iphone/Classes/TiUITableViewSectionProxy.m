@@ -20,6 +20,13 @@
 -(void)_destroy
 {
 	self.modelDelegate = nil;
+	for (TiUITableViewRowProxy * thisRow in rows)
+	{
+		if ([thisRow parent] == self)
+		{
+			[thisRow setParent:nil];
+		}
+	}
 	RELEASE_TO_NIL(rows);
 	[super _destroy];
 }
