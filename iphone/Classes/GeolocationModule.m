@@ -160,6 +160,7 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 	RELEASE_TO_NIL(locationManager);
 	RELEASE_TO_NIL(singleHeading);
 	RELEASE_TO_NIL(singleLocation);
+	[super _destroy];
 }
 
 -(void)contextWasShutdown:(KrollBridge*)bridge
