@@ -210,15 +210,15 @@
 		return;
 	}
 	
-	//We now need to disconnect the old row proxy.
-	rowProxy.section = nil;
-	rowProxy.row = nil;
-	rowProxy.parent = nil;
-
-	
 	newrow.section = rowProxy.section;
 	newrow.row = rowProxy.row;
 	newrow.parent = newrow.section;
+
+	//We now need to disconnect the old row proxy.
+	rowProxy.section = nil;
+	rowProxy.parent = nil;
+	rowProxy.table = nil;
+
 	
     // Only update the row if we're loading it with data; but most of this should
     // be taken care of by -[TiUITableViewProxy tableRowFromArg:] anyway, right?
