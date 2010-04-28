@@ -509,7 +509,7 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 
 -(BOOL)isAttached
 {
-	return table!=nil;
+	return (table!=nil) && ([self parent]!=nil);
 }
 
 -(void)triggerRowUpdate

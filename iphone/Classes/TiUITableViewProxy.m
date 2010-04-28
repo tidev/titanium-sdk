@@ -210,6 +210,12 @@
 		return;
 	}
 	
+	//We now need to disconnect the old row proxy.
+	rowProxy.section = nil;
+	rowProxy.row = nil;
+	rowProxy.parent = nil;
+
+	
 	newrow.section = rowProxy.section;
 	newrow.row = rowProxy.row;
 	newrow.parent = newrow.section;

@@ -37,6 +37,10 @@
 	}
 	RELEASE_TO_NIL(barButtonItem);
 	RELEASE_TO_NIL(view);
+	for (TiViewProxy * thisProxy in children)
+	{
+		[thisProxy setParent:nil];
+	}
 	RELEASE_TO_NIL(children);
 	RELEASE_TO_NIL(childLock);
 	[super dealloc];
