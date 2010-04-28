@@ -14,8 +14,8 @@ var data = [
 	{title:'Set Interval (timer)', hasChild:true, test:'../examples/set_interval.js'},
 	{title:'XML DOM', hasChild:true, test:'../examples/xml_dom.js'},
 	{title:'XML RSS', hasChild:true, test:'../examples/xml_rss.js'},
-	{title:'Utils', hasChild:true, test:'../examples/utils.js'}
-	
+	{title:'Utils', hasChild:true, test:'../examples/utils.js'},
+	{title:'JSON', hasChild:true, test:'../examples/json.js'}
 ];
 
 if (Titanium.Platform.name == 'iPhone OS')
