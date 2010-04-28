@@ -73,23 +73,21 @@ extern NSString * const TI_APPLICATION_GUID;
 	ListenerEntry *entry = nil;
 	
 	NSMutableArray *l = [appListeners objectForKey:type];
-	if (l!=nil && [l count]>0)
+
+	BOOL needsScanning;
+	do
 	{
-		// unfortunately we need to scan
-		for (entry in [NSArray arrayWithArray:l])
+		needsScanning = NO;
+		for (entry in l)	//The fast iteration is blindly fast when l is nil or count.
 		{
-			if ([listener isEqual:[entry listener]] || (
-				//XHR bridge users NSNumber for listeners
-				 [listener isKindOfClass:[NSNumber class]] && 
-				 [[entry listener] isKindOfClass:[NSNumber class]] && 
-				 [listener intValue]==[[entry listener] intValue]
-				))
+			if ([listener isEqual:[entry listener]]) //NSNumber does the right thing with this too.
 			{
-				[l removeObject:entry];
+				[l removeObject:entry];	//It's safe to modify the array as long as you break right after.
+				needsScanning = YES;
 				break;
 			}
 		}
-	}
+	} while (needsScanning);
 	
 	[[self _host] removeListener:listener context:pageContext];
 } 

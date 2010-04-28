@@ -12,6 +12,8 @@
     <prerendered-icon>false</prerendered-icon>
     <statusbar-style>default</statusbar-style>
     <statusbar-hidden>false</statusbar-hidden>
+    <fullscreen>false</fullscreen>
+    <navbar-hidden>false</navbar-hidden>
     <analytics>true</analytics>
     <guid></guid>
 </ti:app>

@@ -6,49 +6,74 @@
  */
 
 #import "TiPoint.h"
-
+#import "TiUtils.h"
 
 @implementation TiPoint
+@synthesize xDimension,yDimension;
 
 -(id)initWithPoint:(CGPoint)point_
 {
 	if (self = [super init])
 	{
-		point = point_;
+		[self setPoint:point_];
 	}
 	return self;
 }
 
+-(id)initWithObject:(id)object
+{
+	if (self = [super init])
+	{
+		[self setValues:object];
+	}
+	return self;
+}
+
+-(void)setValues:(id)object
+{
+	if ([object isKindOfClass:[NSDictionary class]])
+	{
+		xDimension = TiDimensionFromObject([object objectForKey:@"x"]);
+		yDimension = TiDimensionFromObject([object objectForKey:@"y"]);
+	}
+	else
+	{
+		xDimension = TiDimensionUndefined;
+		yDimension = TiDimensionUndefined;
+	}
+
+}
+
 -(void)setPoint:(CGPoint)point_
 {
-	point = point_;
+	xDimension = TiDimensionPixels(point_.x);
+	yDimension = TiDimensionPixels(point_.y);
 }
 
 -(CGPoint)point
 {
-	return point;
+	return CGPointMake(TiDimensionCalculateValue(xDimension, 0),
+			TiDimensionCalculateValue(yDimension, 0));
 }
 
 -(id)x
 {
-	return [NSNumber numberWithFloat:point.x];
+	return [TiUtils valueFromDimension:xDimension];
 }
 
 -(void)setX:(id)x
 {
-	ENSURE_SINGLE_ARG(x,NSNumber);
-	point.x = [x floatValue];
+	xDimension = TiDimensionFromObject(x);
 }
 
 -(id)y
 {
-	return [NSNumber numberWithFloat:point.y];
+	return [TiUtils valueFromDimension:yDimension];
 }
 
 -(void)setY:(id)y
 {
-	ENSURE_SINGLE_ARG(y,NSNumber);
-	point.y = [y floatValue];
+	yDimension = TiDimensionFromObject(y);
 }
 
 @end

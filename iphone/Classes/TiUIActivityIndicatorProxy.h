@@ -7,8 +7,8 @@
 
 
 #import <UIKit/UIKit.h>
-#import "TiUIWidgetProxy.h"
+#import "TiViewProxy.h"
 
-@interface TiUIActivityIndicatorProxy : TiUIWidgetProxy {
+@interface TiUIActivityIndicatorProxy : TiViewProxy {
 }
 @end

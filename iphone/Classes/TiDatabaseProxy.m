@@ -32,6 +32,7 @@
 {
 	[[NSNotificationCenter defaultCenter] removeObserver:self name:kTitaniumShutdownNotification object:nil];
 	[self shutdown:nil];
+	[super _destroy];
 }
 
 -(void)_configure

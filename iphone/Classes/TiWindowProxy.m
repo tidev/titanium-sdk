@@ -82,14 +82,10 @@
 	[super _destroy];
 }
 
--(void)_initWithProperties:(NSDictionary *)properties
-{
-	[super _initWithProperties:properties];
-	
-	if (properties == nil || [properties objectForKey:@"orientationModes"]==nil)
-	{
-		[self replaceValue:nil forKey:@"orientationModes" notification:NO];
-	}
+-(void)_configure
+{	
+	[self replaceValue:nil forKey:@"orientationModes" notification:NO];
+	[super _configure];
 }
 
 -(TiUIView*)newView
