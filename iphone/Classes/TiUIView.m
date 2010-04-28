@@ -878,16 +878,16 @@ DEFINE_EXCEPTIONS
 		
 		if ([proxy _hasListeners:@"touchstart"])
 		{
-			[proxy fireEvent:@"touchstart" withObject:evt propagate:(touchDelegate==nil)];
+			[proxy fireEvent:@"touchstart" withObject:evt propagate:YES];
 		}
 		
 		if ([touch tapCount] == 1 && [proxy _hasListeners:@"click"])
 		{
-			[proxy fireEvent:@"click" withObject:evt propagate:(touchDelegate==nil)];
+			[proxy fireEvent:@"click" withObject:evt propagate:YES];
 		}
 		else if ([touch tapCount] == 2 && [proxy _hasListeners:@"dblclick"])
 		{
-			[proxy fireEvent:@"dblclick" withObject:evt propagate:(touchDelegate==nil)];
+			[proxy fireEvent:@"dblclick" withObject:evt propagate:YES];
 		}
 	}
 	
@@ -906,7 +906,7 @@ DEFINE_EXCEPTIONS
 		NSDictionary *evt = [TiUtils pointToDictionary:point];
 		if ([proxy _hasListeners:@"touchmove"])
 		{
-			[proxy fireEvent:@"touchmove" withObject:evt propagate:(touchDelegate==nil)];
+			[proxy fireEvent:@"touchmove" withObject:evt propagate:YES];
 		}
 	}
 	if (handlesSwipes)
@@ -1021,7 +1021,7 @@ DEFINE_EXCEPTIONS
 		NSDictionary *evt = [TiUtils pointToDictionary:point];
 		if ([proxy _hasListeners:@"touchend"])
 		{
-			[proxy fireEvent:@"touchend" withObject:evt propagate:(touchDelegate==nil)];
+			[proxy fireEvent:@"touchend" withObject:evt propagate:YES];
 		}
 	}
 	if (handlesSwipes)
@@ -1049,7 +1049,7 @@ DEFINE_EXCEPTIONS
 		NSDictionary *evt = [TiUtils pointToDictionary:point];
 		if ([proxy _hasListeners:@"touchcancel"])
 		{
-			[proxy fireEvent:@"touchcancel" withObject:evt propagate:(touchDelegate==nil)];
+			[proxy fireEvent:@"touchcancel" withObject:evt propagate:YES];
 		}
 	}
 	if (handlesSwipes)
