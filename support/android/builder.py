@@ -46,6 +46,26 @@ def read_properties(propFile):
 	propFile.close()
 	return propDict
 
+def info(msg):
+	print "[INFO] "+msg
+	sys.stdout.flush()
+
+def debug(msg):
+	print "[DEBUG] "+msg
+	sys.stdout.flush()
+
+def warn(msg):
+	print "[WARN] "+msg
+	sys.stdout.flush()
+
+def trace(msg):
+	print "[TRACE] "+msg
+	sys.stdout.flush()
+
+def error(msg):
+	print "[ERROR] "+msg
+	sys.stdout.flush()
+
 class Builder(object):
 
 	def __init__(self, name, sdk, project_dir, support_dir, app_id):
@@ -97,7 +117,7 @@ class Builder(object):
 						found = True
 						break
 				if not found:
-					print "[ERROR] Error locating JDK: set $JAVA_HOME or put javac and jarsigner on your $PATH"
+					error("Error locating JDK: set $JAVA_HOME or put javac and jarsigner on your $PATH")
 					sys.exit(1)
 
 	def wait_for_device(self,type):
@@ -105,8 +125,11 @@ class Builder(object):
 		sys.stdout.flush()
 		t = time.time()
 		max_wait = 30
+		max_zero = 6
 		attempts = 0
+		zero_attempts = 0
 		timed_out = True
+		no_devices = False
 		
 		# in Windows, if the adb server isn't running, calling "adb devices"
 		# will fork off a new adb server, and cause a lock-up when we 
@@ -118,16 +141,25 @@ class Builder(object):
 			run.run([self.sdk.get_adb(), "start-server"], True, ignore_output=True)
 		
 		while True:
-			output = run.run([self.sdk.get_adb(),"-%s" % type, 'devices'],True)
-			print "[TRACE] wait_for_device returned: %s" % output
-			if output != None: 
-				if (type == 'd' or output.find("emulator-") != -1) and output.find("offline") == -1:
+			devices = self.sdk.list_devices()
+			trace("adb devices returned %s devices/emulators" % len(devices))
+			if len(devices) > 0:
+				found = False
+				for device in devices:
+					if type == "e" and device.is_emulator() and not device.is_offline(): found = True
+					elif type == "d" and device.is_device(): found = True
+				if found:
 					timed_out = False
 					break
+			else: zero_attempts += 1
+
 			try: time.sleep(5) # for some reason KeyboardInterrupts get caught here from time to time
 			except KeyboardInterrupt: pass
 			attempts += 1
 			if attempts == max_wait:
+				break
+			elif zero_attempts == max_zero:
+				no_devices = True
 				break
 		
 		if timed_out:
@@ -137,15 +169,16 @@ class Builder(object):
 			else:
 				device = "device"
 				extra_message = "you may try reconnecting the USB chord"
-			print "[ERROR] Timed out waiting for %s to be ready, %s" % (device, extra_message)
+			error("Timed out waiting for %s to be ready, %s" % (device, extra_message))
+			if no_devices:
+				sys.exit(1)
 			return False
 
-		print "[DEBUG] Device connected... (waited %d seconds)" % (attempts*5)
-		sys.stdout.flush()
+		debug("Device connected... (waited %d seconds)" % (attempts*5))
 		duration = time.time() - t
-		print "[DEBUG] waited %f seconds on emulator to get ready" % duration
+		debug("waited %f seconds on emulator to get ready" % duration)
 		if duration > 1.0:
-			print "[INFO] Waiting for the Android Emulator to become available"
+			info("Waiting for the Android Emulator to become available")
 			time.sleep(20) # give it a little more time to get installed
 		return True
 	
@@ -154,13 +187,13 @@ class Builder(object):
 		if not os.path.exists(self.home_dir):
 			os.makedirs(self.home_dir)
 		if not os.path.exists(self.sdcard):
-			print "[INFO] Creating shared 64M SD card for use in Android emulator(s)"
+			info("Creating shared 64M SD card for use in Android emulator(s)")
 			run.run([self.sdk.get_mksdcard(), '64M', self.sdcard])
 
 		avd_path = os.path.join(self.android_home_dir, 'avd')
 		my_avd = os.path.join(avd_path,"%s.avd" % name)
 		if not os.path.exists(my_avd):
-			print "[INFO] Creating new Android Virtual Device (%s %s)" % (avd_id,avd_skin)
+			info("Creating new Android Virtual Device (%s %s)" % (avd_id,avd_skin))
 			inputgen = os.path.join(template_dir,'input.py')
 			pipe([sys.executable, inputgen], [self.sdk.get_android(), '--verbose', 'create', 'avd', '--name', name, '--target', avd_id, '-s', avd_skin, '--force', '--sdcard', self.sdcard])
 			inifile = os.path.join(my_avd,'config.ini')
@@ -174,20 +207,18 @@ class Builder(object):
 	
 	def run_emulator(self,avd_id,avd_skin):
 		
-		print "[INFO] Launching Android emulator...one moment"
-		print "[DEBUG] From: " + self.sdk.get_emulator()
-		print "[DEBUG] SDCard: " + self.sdcard
-		print "[DEBUG] AVD ID: " + avd_id
-		print "[DEBUG] AVD Skin: " + avd_skin
-		print "[DEBUG] SDK: " + sdk_dir
+		info("Launching Android emulator...one moment")
+		debug("From: " + self.sdk.get_emulator())
+		debug("SDCard: " + self.sdcard)
+		debug("AVD ID: " + avd_id)
+		debug("AVD Skin: " + avd_skin)
+		debug("SDK: " + sdk_dir)
 		
 		# flush before a long IO operation
 		sys.stdout.flush()
 		
 		# this will create an AVD on demand or re-use existing one if already created
 		avd_name = self.create_avd(avd_id,avd_skin)
-
-		sys.stdout.flush()
 
 		# start the emulator
 		emulator_cmd = [
@@ -204,16 +235,14 @@ class Builder(object):
 			'-partition-size',
 			'128' # in between nexusone and droid
 		]
-		print '[DEBUG] ' + (' '.join(emulator_cmd))
-		sys.stdout.flush()
+		debug(' '.join(emulator_cmd))
 		
 		p = subprocess.Popen(emulator_cmd)
 		
 		def handler(signum, frame):
-			print "[DEBUG] signal caught: %d" % signum
+			debug("signal caught: %d" % signum)
 			if not p == None:
-				print "[DEBUG] calling emulator kill on %d" % p.pid
-				#os.system("kill -9 %d" % p.pid)
+				debug("calling emulator kill on %d" % p.pid)
 				p.kill()
 
 		if platform.system() != "Windows":
@@ -238,7 +267,7 @@ class Builder(object):
 		except OSError:
 			handler(3,None)
 
-		print "[INFO] Android Emulator has exited"
+		info("Android Emulator has exited")
 		sys.exit(rc)
 	
 	def check_file_exists(self, path):
@@ -260,7 +289,7 @@ class Builder(object):
 		return True
 	
 	def copy_project_resources(self):
-		print "[INFO] Copying project resources.."
+		info("Copying project resources..")
 		sys.stdout.flush()
 		
 		resources_dir = os.path.join(self.top_dir, 'Resources')
@@ -270,8 +299,7 @@ class Builder(object):
 		tiapp_delta = self.project_deltafy.scan_single_file(self.project_tiappxml)
 		self.tiapp_changed = tiapp_delta is not None
 		if self.tiapp_changed:
-			print "[INFO] Detected tiapp.xml change, forcing full re-build..."
-			sys.stdout.flush()
+			info("Detected tiapp.xml change, forcing full re-build...")
 			# force a clean scan/copy when the tiapp.xml has changed
 			self.project_deltafy.clear_state()
 			self.project_deltas = self.project_deltafy.scan()
@@ -300,8 +328,7 @@ class Builder(object):
 				parent = os.path.dirname(dest)
 				if not os.path.exists(parent):
 					os.makedirs(parent)
-				print "[TRACE] COPYING %s FILE: %s => %s" % (delta.get_status_str(), path, dest)
-				sys.stdout.flush()
+				trace("COPYING %s FILE: %s => %s" % (delta.get_status_str(), path, dest))
 				shutil.copy(path, dest)
 				# copy to the sdcard in development mode
 				if self.sdcard_copy and self.app_installed and (self.deploy_type == 'development' or self.deploy_type == 'test'):
@@ -400,8 +427,7 @@ class Builder(object):
 				mappings = activity_mapping[mn]
 				try:
 					if google_apis[mn] and not self.google_apis_supported:
-						print "[WARN] Google APIs detected but a device has been selected that doesn't support them. The API call to Titanium.%s will fail using '%s'" % (mn,my_avd['name'])
-						sys.stdout.flush()
+						warn("Google APIs detected but a device has been selected that doesn't support them. The API call to Titanium.%s will fail using '%s'" % (mn,my_avd['name']))
 						continue
 				except:
 					pass
@@ -453,7 +479,7 @@ class Builder(object):
 		splashimage = os.path.join(self.assets_resources_dir,'default.png')
 		background_png = os.path.join('res','drawable','background.png')
 		if os.path.exists(splashimage):
-			print "[DEBUG] found splash screen at %s" % os.path.abspath(splashimage)
+			debug("found splash screen at %s" % os.path.abspath(splashimage))
 			shutil.copy(splashimage, background_png)
 		else:
 			shutil.copy(os.path.join(self.support_resources_dir, 'default.png'), background_png)
@@ -472,7 +498,7 @@ class Builder(object):
 		if os.path.exists(android_custom_manifest):
 			android_manifest_to_read = android_custom_manifest
 			is_custom = True
-			print "[INFO] Detected custom ApplicationManifest.xml -- no Titanium version migration supported"
+			info("Detected custom ApplicationManifest.xml -- no Titanium version migration supported")
 		
 		if not is_custom:
 			manifest_contents = self.android.render_android_manifest()
@@ -500,7 +526,7 @@ class Builder(object):
 			old_contents = open(android_manifest, 'r').read()
 		
 		if manifest_contents != old_contents:
-			print "[TRACE] Generating AndroidManifest.xml"
+			trace("Generating AndroidManifest.xml")
 			# we need to write out the new manifest
 			amf = open(android_manifest,'w')
 			amf.write(manifest_contents)
@@ -511,7 +537,7 @@ class Builder(object):
 			res_dir = os.path.join(self.project_dir, 'res')
 			output = run.run([self.aapt, 'package', '-m', '-J', self.src_dir, '-M', android_manifest, '-S', res_dir, '-I', self.android_jar])
 			if output == None:
-				print "[ERROR] Error generating R.java from manifest"
+				error("Error generating R.java from manifest")
 				sys.exit(1)
 		return manifest_changed
 
@@ -576,8 +602,7 @@ class Builder(object):
 		
 		javac_command = [self.javac, '-classpath', classpath, '-d', self.classes_dir, '-sourcepath', self.src_dir]
 		javac_command += srclist
-		print "[DEBUG] %s" % javac_command
-		sys.stdout.flush()
+		debug(javac_command)
 		out = run.run(javac_command)
 	
 	def package_and_deploy(self):
@@ -600,7 +625,7 @@ class Builder(object):
 		output = run.run([self.jarsigner, '-storepass', self.keystore_pass, '-keystore', self.keystore, '-signedjar', app_apk, unsigned_apk, self.keystore_alias])
 		success = re.findall(r'RuntimeException: (.*)', output)
 		if len(success) > 0:
-			print "[ERROR] %s " %success[0]
+			error(success[0])
 			sys.exit(1)
 		
 		# zipalign to align byte boundaries
@@ -626,38 +651,37 @@ class Builder(object):
 				cmd = [self.sdk.get_adb()]
 				if self.install:
 					self.wait_for_device('d')
-					print "[INFO] Installing application on emulator"
+					info("Installing application on emulator")
 					cmd += ['-d', 'install', '-r', app_apk]
 				else:
 					self.wait_for_device('e')
-					print "[INFO] Installing application on device"
+					info("Installing application on device")
 					cmd += ['-e', 'install', '-r', app_apk]
 				output = run.run(cmd)
 				if output == None:
 					launch_failed = True
 				elif "Failure" in output:
-					print "[ERROR] Failed installing %s: %s" % (self.app_id, output)
+					error("Failed installing %s: %s" % (self.app_id, output))
 					launch_failed = True
 				elif not self.install:
 					launched = True
 				break
 			except Exception, e:
-				print '[ERROR] %s' % e
+				error(e)
 				time.sleep(3)
 				attempts+=1
 			
 		return (launched, launch_failed)
 	
 	def run_app(self):
-		print "[INFO] Launching application ... %s" % self.name
-		sys.stdout.flush()
+		info("Launching application ... %s" % self.name)
 		output = run.run([
 			self.sdk.get_adb(), self.device_type_arg, 'shell', 'am', 'start',
 			'-a', 'android.intent.action.MAIN',
 			'-c','android.intent.category.LAUNCHER',
 			'-n', '%s/.%sActivity' % (self.app_id , self.classname)])
 		
-		print "[TRACE] Launch output: %s" % output
+		trace("Launch output: %s" % output)
 		
 	def build_and_run(self, install, avd_id, keystore=None, keystore_pass='tirocks', keystore_alias='tidev', dist_dir=None):
 		deploy_type = 'development'
@@ -692,10 +716,10 @@ class Builder(object):
 			self.app_installed = False
 		else:
 			self.app_installed = self.is_app_installed()
-			print "[DEBUG] %s installed? %s" % (self.app_id, self.app_installed)
+			debug("%s installed? %s" % (self.app_id, self.app_installed))
 			
 			self.resources_installed = self.are_resources_installed()
-			print "[DEBUG] %s resources installed? %s" % (self.app_id, self.resources_installed)
+			debug("%s resources installed? %s" % (self.app_id, self.resources_installed))
 			
 		if keystore == None:
 			keystore = os.path.join(self.support_dir,'dev_keystore')
@@ -748,20 +772,16 @@ class Builder(object):
 			self.compiled_files = compiler.compiled_files
 
 			# FIXME: remove compiled files so they don't get compiled into jar
-
 			self.copy_project_resources()
-			sys.stdout.flush()
 			
 			if self.tiapp_changed or self.deploy_type == "production":
-				print "[TRACE] Generating Java Classes"
+				trace("Generating Java Classes")
 				self.android.create(os.path.abspath(os.path.join(self.top_dir,'..')),True)
 			else:
-				print "[INFO] Tiapp.xml unchanged, skipping class generation"
-			sys.stdout.flush()
+				info("Tiapp.xml unchanged, skipping class generation")
 
 			if not os.path.exists(self.assets_dir):
 				os.makedirs(self.assets_dir)
-				
 
 			manifest_changed = self.generate_android_manifest(compiler)
 				
@@ -781,7 +801,7 @@ class Builder(object):
 				self.build_generated_classes()
 				generated_classes_built = True
 			else:
-				print "[INFO] Manifest unchanged, skipping Java build"
+				info("Manifest unchanged, skipping Java build")
 			
 			self.classes_dex = os.path.join(self.project_dir, 'bin', 'classes.dex')
 			self.android_module_jars = glob.glob(os.path.join(self.support_dir, 'modules', '*.jar'))
@@ -804,12 +824,11 @@ class Builder(object):
 				dex_args += self.android_jars
 				dex_args += self.android_module_jars
 		
-				print "[INFO] Compiling Android Resources... This could take some time"
+				info("Compiling Android Resources... This could take some time")
 				sys.stdout.flush()
 				
 				run.run(dex_args)
 				dex_built = True
-			
 			
 			if self.sdcard_copy and \
 				(not self.resources_installed or not self.app_installed) and \
@@ -817,32 +836,31 @@ class Builder(object):
 				
 					if self.install: self.wait_for_device('e')
 					else: self.wait_for_device('d')
-			
-					print "[TRACE] Performing full copy to SDCARD -> %s" % self.sdcard_resources
+				
+					trace("Performing full copy to SDCARD -> %s" % self.sdcard_resources)
 					cmd = [self.sdk.get_adb(), self.device_type_arg, "push", os.path.join(self.top_dir, 'Resources'), self.sdcard_resources]
 					output = run.run(cmd)
-					print "[TRACE] result: %s" % output
+					trace("result: %s" % output)
 			
 					android_resources_dir = os.path.join(self.top_dir, 'Resources', 'android')
 					if os.path.exists(android_resources_dir):
 						cmd = [self.sdk.get_adb(), self.device_type_arg, "push", android_resources_dir, self.sdcard_resources]
 						output = run.run(cmd)
-						print "[TRACE] result: %s" % output
+						trace("result: %s" % output)
 						
 			if dex_built or generated_classes_built or self.tiapp_changed or manifest_changed or not self.app_installed or not self.sdcard_copy:
 				# metadata has changed, we need to do a full re-deploy
 				launched, launch_failed = self.package_and_deploy()
 				if launched:
 					self.run_app()
-					print "[INFO] Deployed %s ... Application should be running." % self.name
+					info("Deployed %s ... Application should be running." % self.name)
 				elif launch_failed==False:
-					print "[INFO] Application installed. Launch from drawer on Home Screen"
+					info("Application installed. Launch from drawer on Home Screen")
 			else:
 				
 				# we copied all the files to the sdcard, no need to package
 				# just kill from adb which forces a restart
-				print "[INFO] Re-launching application ... %s" % self.name
-				sys.stdout.flush()
+				info("Re-launching application ... %s" % self.name)
 				
 				relaunched = False
 				processes = run.run([self.sdk.get_adb(), self.device_type_arg, 'shell', 'ps'])
@@ -858,7 +876,7 @@ class Builder(object):
 				
 				self.run_app()
 				if relaunched:
-					print "[INFO] Relaunched %s ... Application should be running." % self.name
+					info("Relaunched %s ... Application should be running." % self.name)
 
 		finally:
 			os.chdir(curdir)
@@ -866,8 +884,7 @@ class Builder(object):
 			
 
 if __name__ == "__main__":
-
-	if len(sys.argv)<6 or sys.argv[1] == '--help' or (sys.argv[1]=='distribute' and len(sys.argv)<10):
+	def usage():
 		print "%s <command> <project_name> <sdk_dir> <project_dir> <app_id> [key] [password] [alias] [dir] [avdid] [avdsdk]" % os.path.basename(sys.argv[0])
 		print
 		print "available commands: "
@@ -878,6 +895,9 @@ if __name__ == "__main__":
 		print "  distribute	   build final distribution package for upload to marketplace"
 		
 		sys.exit(1)
+		
+	if len(sys.argv)<6 or sys.argv[1] == '--help' or (sys.argv[1]=='distribute' and len(sys.argv)<10):
+		usage()
 
 	template_dir = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
 	project_name = dequote(sys.argv[2])
@@ -892,7 +912,7 @@ if __name__ == "__main__":
 		avd_skin = dequote(sys.argv[7])
 		s.run_emulator(avd_id,avd_skin)
 	elif sys.argv[1] == 'simulator':
-		print "[INFO] Building %s for Android ... one moment" % project_name
+		info("Building %s for Android ... one moment" % project_name)
 		avd_id = dequote(sys.argv[6])
 		s.build_and_run(False,avd_id)
 	elif sys.argv[1] == 'install':
@@ -906,8 +926,7 @@ if __name__ == "__main__":
 		avd_id = dequote(sys.argv[10])
 		s.build_and_run(True,avd_id,key,password,alias,output_dir)
 	else:
-		print "[ERROR] Unknown command"
-		sys.exit(1)
+		error("Unknown command: %s" % sys.argv[1])
+		usage()
 
 	sys.exit(0)
-	

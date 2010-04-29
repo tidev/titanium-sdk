@@ -14,10 +14,11 @@ android_api_levels = {
 }
 
 class Device:
-	def __init__(self, name, port=-1, emulator=False):
+	def __init__(self, name, port=-1, emulator=False, offline=False):
 		self.name = name
 		self.port = port
 		self.emulator = emulator
+		self.offline = offline
 	
 	def get_name(self):
 		return self.name
@@ -27,6 +28,12 @@ class Device:
 	
 	def is_emulator(self):
 		return self.emulator
+	
+	def is_device(self):
+		return not self.emulator
+	
+	def is_offline(self):
+		return self.offline
 
 class AndroidSDK:
 	def __init__(self, android_sdk, api_level):
@@ -161,9 +168,12 @@ class AndroidSDK:
 			line = line.strip()
 			if line.startswith("List of devices"): continue
 			elif line.startswith("emulator-"):
-				name = line.split()[0]
+				(name, status) = line.split()
 				port = int(name[name.index("-")+1:])
-				devices.append(Device(name, port, True))
+				offline = False
+				if status == "offline":
+					offline = True
+				devices.append(Device(name, port, True, offline))
 			elif "device" in line:
 				name = line.split()[0]
 				devices.append(Device(name))
