@@ -58,8 +58,6 @@ public class TiActivity extends Activity
         super.onCreate(savedInstanceState);
         handler = new Handler();
 
-        layout = new TiCompositeLayout(this);
-
         Intent intent = getIntent();
 
         boolean fullscreen = false;
@@ -67,7 +65,8 @@ public class TiActivity extends Activity
         boolean modal = false;
         Messenger messenger = null;
         Integer messageId = null;
-
+        boolean vertical = false;
+        
         if (intent != null) {
         	if (intent.hasExtra("modal")) {
         		modal = intent.getBooleanExtra("modal", modal);
@@ -82,7 +81,12 @@ public class TiActivity extends Activity
         		messenger = (Messenger) intent.getParcelableExtra("messenger");
         		messageId = intent.getIntExtra("messageId", -1);
         	}
+        	if (intent.hasExtra("vertical")) {
+        		vertical = intent.getBooleanExtra("vertical", vertical);
+        	}
         }
+
+        layout = new TiCompositeLayout(this, vertical);
 
         if (modal) {
         	setTheme(android.R.style.Theme_Translucent_NoTitleBar_Fullscreen);

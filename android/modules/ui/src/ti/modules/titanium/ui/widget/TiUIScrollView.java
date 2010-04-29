@@ -36,8 +36,8 @@ public class TiUIScrollView extends TiUIView {
 		private static final int AUTO = Integer.MAX_VALUE;
 		protected int measuredWidth = 0, measuredHeight = 0;
 
-		public TiScrollViewLayout(Context context) {
-			super(context);
+		public TiScrollViewLayout(Context context, boolean vertical) {
+			super(context, vertical);
 		}
 
 		private LayoutParams getParams(View child) {
@@ -169,7 +169,7 @@ public class TiUIScrollView extends TiUIView {
 			//setFillViewport(true);
 			//setScrollContainer(true);
 
-			layout = new TiScrollViewLayout(context);
+			layout = new TiScrollViewLayout(context, false);
 			FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
 				ViewGroup.LayoutParams.FILL_PARENT,
 				ViewGroup.LayoutParams.FILL_PARENT);
@@ -205,7 +205,7 @@ public class TiUIScrollView extends TiUIView {
 			setFillViewport(true);
 			setScrollContainer(true);
 
-			layout = new TiScrollViewLayout(context);
+			layout = new TiScrollViewLayout(context, false);
 			FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
 				ViewGroup.LayoutParams.FILL_PARENT,
 				ViewGroup.LayoutParams.FILL_PARENT);

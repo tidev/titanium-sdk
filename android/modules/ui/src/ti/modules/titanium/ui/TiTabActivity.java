@@ -48,15 +48,14 @@ public class TiTabActivity extends ActivityGroup
 		super.onCreate(savedInstanceState);
 		handler = new Handler();
 
-		layout = new TiCompositeLayout(this);
-
-        Intent intent = getIntent();
+		Intent intent = getIntent();
 
         boolean fullscreen = false;
         boolean navbar = false;
         Messenger messenger = null;
         Integer messageId = null;
-
+        boolean vertical = false;
+        
         if (intent != null) {
         	if (intent.hasExtra("fullscreen")) {
         		fullscreen = intent.getBooleanExtra("fullscreen", fullscreen);
@@ -68,7 +67,12 @@ public class TiTabActivity extends ActivityGroup
         		messenger = (Messenger) intent.getParcelableExtra("messenger");
         		messageId = intent.getIntExtra("messageId", -1);
         	}
+        	if (intent.hasExtra("vertical")) {
+        		vertical = intent.getBooleanExtra("vertical", vertical);
+        	}
         }
+
+        layout = new TiCompositeLayout(this, vertical);
 
         if (fullscreen) {
         	getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
