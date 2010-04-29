@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		1D60589B0D05DD56006BFB54 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 29B97316FDCFA39411CA2CEA /* main.m */; };
 		1D60589F0D05DD5A006BFB54 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1D30AB110D05D00D00671497 /* Foundation.framework */; };
+		8D292C37117E8020005AF6D0 /* StoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8D292C36117E8020005AF6D0 /* StoreKit.framework */; };
 		1DF5F4E00D08C38300B7A737 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1DF5F4DF0D08C38300B7A737 /* UIKit.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		2402F88D10AB57070060E89D /* MobileCoreServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2402F88C10AB57070060E89D /* MobileCoreServices.framework */; };
 		2418F31F0FCB095700BFE545 /* ApplicationRouting.m in Sources */ = {isa = PBXBuildFile; fileRef = 2418F31E0FCB095700BFE545 /* ApplicationRouting.m */; };
@@ -41,6 +42,7 @@
 		1D30AB110D05D00D00671497 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		1D6058910D05DD3D006BFB54 /* __PROJECT_NAME__.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "__PROJECT_NAME__.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		1DF5F4DF0D08C38300B7A737 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
+		8D292C36117E8020005AF6D0 /* StoreKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = StoreKit.framework; path = System/Library/Frameworks/StoreKit.framework; sourceTree = SDKROOT; };
 		2402F88C10AB57070060E89D /* MobileCoreServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MobileCoreServices.framework; path = System/Library/Frameworks/MobileCoreServices.framework; sourceTree = SDKROOT; };
 		2418F31D0FCB095700BFE545 /* ApplicationRouting.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ApplicationRouting.h; sourceTree = "<group>"; };
 		2418F31E0FCB095700BFE545 /* ApplicationRouting.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ApplicationRouting.m; sourceTree = "<group>"; };
@@ -98,6 +100,7 @@
 				2402F88D10AB57070060E89D /* MobileCoreServices.framework in Frameworks */,
 				2459A0D9111AAE5E00400F0F /* libTiCore.a in Frameworks */,
 				24EB0A58111E1BAE001DC2D1 /* libxml2.dylib in Frameworks */,
+				8D292C37117E8020005AF6D0 /* StoreKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -178,6 +181,7 @@
 				24B51C77109EC1D300B87D18 /* CFNetwork.framework */,
 				2402F88C10AB57070060E89D /* MobileCoreServices.framework */,
 				24EB0A57111E1BAE001DC2D1 /* libxml2.dylib */,
+				8D292C36117E8020005AF6D0 /* StoreKit.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";

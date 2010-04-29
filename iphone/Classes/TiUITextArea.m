@@ -17,8 +17,8 @@
 
 -(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
 {
-	[super frameSizeChanged:frame bounds:bounds];
 	[textWidgetView sizeToFit];
+	[super frameSizeChanged:frame bounds:bounds];
 }
 
 -(UIView<UITextInputTraits>*)textWidgetView
@@ -27,7 +27,6 @@
 	{
 		textWidgetView = [[UITextView alloc] initWithFrame:CGRectMake(0, 0, 100, 100)];
 		((UITextView *)textWidgetView).delegate = self;
-		((UITextView *)textWidgetView).contentInset = UIEdgeInsetsMake(2, 2, 2, 2);
 		[self addSubview:textWidgetView];
 		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillHide:) name:UIKeyboardWillHideNotification object:nil];
 		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillShow:) name:UIKeyboardWillShowNotification object:nil];
