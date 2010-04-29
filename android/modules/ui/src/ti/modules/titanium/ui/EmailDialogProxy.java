@@ -7,40 +7,214 @@
 
 package ti.modules.titanium.ui;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+
+import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiContext;
-import org.appcelerator.titanium.TiProxy;
+import org.appcelerator.titanium.TiDict;
+import org.appcelerator.titanium.io.TiFile;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.Log;
+import org.appcelerator.titanium.util.TiActivityResultHandler;
+import org.appcelerator.titanium.util.TiActivitySupport;
+import org.appcelerator.titanium.util.TiConfig;
+import org.appcelerator.titanium.util.TiConvert;
+import org.appcelerator.titanium.util.TiMimeTypeHelper;
 import org.appcelerator.titanium.view.TiUIView;
 
+import ti.modules.titanium.filesystem.FileProxy;
 import android.app.Activity;
+import android.content.Intent;
+import android.net.Uri;
 
 public class EmailDialogProxy extends TiViewProxy {
 	
+	private static final String LCAT = "EmailDialogProxy";
+	private static final boolean DBG = TiConfig.LOGD;
+	private ArrayList<Object> attachments;
+	
 	public EmailDialogProxy(TiContext tiContext, Object[] args) {
-		super(tiContext, args);
-		// TODO Auto-generated constructor stub
+		super(tiContext, args);		
 	}
 
-	public static int CANCELLED = 0;
-	public static int SAVED = 1;
-	public static int SENT = 2;
-	public static int FAILED = 3;
+	public final int CANCELLED = 0;
+	public final int SAVED = 1;
+	public final int SENT = 2;
+	public final int FAILED = 3;
 	
-	private String subject;
-
+	public void addAttachment(Object attachment) {
+		if (attachment instanceof FileProxy || attachment instanceof TiBlob) {
+			if (attachments == null) {
+				attachments = new ArrayList<Object>();
+			}
+			attachments.add(attachment);
+		} else {
+			// silently ignore?
+			if (DBG) {
+				Log.d(LCAT, "addAttachment for type " + attachment.getClass().getName() + " ignored. Only files and blobs may be attached.");
+			}
+			
+		}
+	}
 	
+		
 	public void open(){
-		Log.d("EmailDialogProxy", "opening, with subject " + this.getDynamicValue("subject"));
+		Intent sendIntent = new Intent(Intent.ACTION_SEND);
+		String intentType = "message/rfc822";
+		if (hasDynamicValue("html")) {
+			if (TiConvert.toBoolean(getDynamicValue("html"))) {
+				intentType = "text/html";
+			}			
+		}
+		sendIntent.setType(intentType);
+		putAddressExtra(sendIntent, Intent.EXTRA_EMAIL, "toRecipients");
+		putAddressExtra(sendIntent, Intent.EXTRA_CC, "ccRecipients");
+		putAddressExtra(sendIntent, Intent.EXTRA_BCC, "bccRecipients");
+		
+		putStringExtra(sendIntent, Intent.EXTRA_SUBJECT, "subject");
+		putStringExtra(sendIntent, Intent.EXTRA_TEXT , "messageBody");
+		
+		prepareAttachments(sendIntent);
+		
+		Intent choosingIntent = Intent.createChooser(sendIntent, "Send");
+	
+		Activity activity = getTiContext().getActivity();
+		TiActivitySupport activitySupport = (TiActivitySupport) activity;
+		final int code = activitySupport.getUniqueResultCode();
+		
+		activitySupport.launchActivityForResult(choosingIntent, code, 
+			new TiActivityResultHandler() {
+				
+				@Override
+				public void onResult(Activity activity, int requestCode, int resultCode,
+						Intent data) {					
+					// ACTION_SEND does not set a result code (so the default of 0
+					// is always returned. We'll neither confirm nor deny -- assume SENT
+					// cf http://code.google.com/p/android/issues/detail?id=5512
+					TiDict result = new TiDict();
+					result.put("result", SENT); // TODO fix this when figure out above
+					result.put("success", true);
+					fireEvent("complete", result);					
+				}
+				
+				@Override
+				public void onError(Activity activity, int requestCode, Exception e) {
+					TiDict result = new TiDict();
+					result.put("result", FAILED);
+					result.put("error", e.getMessage());
+					result.put("success", false);
+					fireEvent("complete", result);					
+				}
+			});
+			
 	}
 	
-
-	@Override
-	public TiUIView createView(Activity activity) {
-		// TODO Auto-generated method stub
+	private File blobToTemp(TiBlob blob, String fileName) {
+		
+		File tempFolder = new File (getTiContext().getTiFileHelper().getDataDirectory(false), "temp");
+		tempFolder.mkdirs();
+		
+		File tempfilej = new File(tempFolder, fileName);
+		TiFile tempfile = new TiFile(getTiContext(),tempfilej,tempfilej.getPath(), false);
+		
+		if (tempfile.exists()) {
+			tempfile.deleteFile();
+		}
+					
+		try {
+			tempfile.write(blob, false);
+			return tempfile.getNativeFile();
+		} catch (IOException e) {
+			Log.e(LCAT, "Unable to attach file " + fileName + ": " + e.getMessage(), e);
+		}
+		
 		return null;
 	}
 	
+	private void attachAssetFile(Intent sendIntent, FileProxy file) {
+		File tempfile = null;
+		try {			
+			tempfile = blobToTemp(file.read(), file.getName()); 
+		} catch(IOException e) {
+			Log.e(LCAT, "Unable to attach file " + file.getName() + ": " + e.getMessage(), e);
+		}
+		if (tempfile != null) {
+			attachStandardFile(sendIntent, Uri.fromFile(tempfile));	
+		}
+	}
 	
+	private void attachStandardFile(Intent sendIntent, Uri uri) {
+		attachStandardFile(sendIntent, uri, TiMimeTypeHelper.getMimeType(uri.toString()));		
+	}
+	
+	private void attachStandardFile(Intent sendIntent, Uri uri, String mimeType) {
+		if (DBG) {
+			Log.d(LCAT, "Attaching standard file " + uri.toString() + " with mimetype " + mimeType);
+		}
+		sendIntent.putExtra(Intent.EXTRA_STREAM, uri);
+		sendIntent.setType(mimeType);		
+	}
+	
+	private void attachBlob(Intent sendIntent, TiBlob blob) {
+		if (DBG) {
+			Log.d(LCAT, "Attaching blob of type " + blob.getMimeType());
+		}
+		String fileName ="attachment";
+		String extension = TiMimeTypeHelper.getFileExtensionFromMimeType(blob.getMimeType(), "");
+		if (extension.length() > 0 ) {
+			fileName += "." + extension;
+		}
+		File f = blobToTemp(blob, fileName);
+		if (f != null) {
+			attachStandardFile(sendIntent, Uri.fromFile(f), blob.getMimeType());
+		}
+			
+	}
+	
+	private void prepareAttachments(Intent sendIntent) {
+		// sending multiple attachments in Android not yet supported		
+		// 
+		if (attachments == null) {
+			return;
+		}		
+		
+		for (Object attachment : attachments) {			
+			if (attachment instanceof FileProxy) {				
+				FileProxy fileProxy = (FileProxy) attachment;
+				if (fileProxy.isFile()) {	
+					if (fileProxy.getNativePath().contains("android_asset")) {
+						attachAssetFile(sendIntent, fileProxy);
+					} else {
+						attachStandardFile(sendIntent, Uri.fromFile(fileProxy.getBaseFile().getNativeFile()));						
+					}					
+				}				
+			} else if (attachment instanceof TiBlob) {
+				TiBlob blob = (TiBlob) attachment;
+				attachBlob(sendIntent, blob);				
+			}
+			break; // just sending one attachment for now
+		}
+	}
+	
+	
+	private void putStringExtra(Intent intent, String extraType, String ourkey) {		
+		if (this.hasDynamicValue(ourkey)) {
+			intent.putExtra(extraType, TiConvert.toString(this.getDynamicValue(ourkey)) );
+		}
+	}
+	
+	private void putAddressExtra(Intent intent, String extraType, String ourkey) {
+		Object testprop = this.getDynamicValue(ourkey);
+		if (testprop instanceof String[]) {
+			intent.putExtra(extraType, (String[])testprop);
+		}		
+	}
 
+	@Override
+	public TiUIView createView(Activity activity) {		
+		return null;
+	}
+	
 }

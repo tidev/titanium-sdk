@@ -41,7 +41,7 @@ FAILED[int]: constant for the FAILED status result
 - methods
 
 open: open the email dialog. the email dialog itself is a modal window
-addAttachment: add an attachment to the email. the attachment can either be a Blob or File object.
+addAttachment: add an attachment to the email. the attachment can either be a Blob or File object. (Note: Android will only accept one attachment at this time.)
 
 - method : open
 
@@ -57,7 +57,7 @@ complete: fired when the email dialog has completed sending the email
 
 - event : complete
 
-result: result status either as SENT, SAVED, CANCELLED or FAILED
+result: result status either as SENT, SAVED, CANCELLED or FAILED. (Note: Android result will be SENT even if user discards or saves the message.  SAVED and CANCELLED are not supported on Android.)
 success: boolean to indicate if the email was successfully sent
 error: string message of the error or null if successfully sent
 
