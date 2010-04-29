@@ -30,6 +30,19 @@ public class TiMimeTypeHelper
 		return mimetype;
 	}
 	
+	public static String getFileExtensionFromMimeType(String mimeType, String defaultExtension)
+	{
+		String result = defaultExtension; 		
+		String extension = MimeTypeMap.getSingleton().getExtensionFromMimeType(mimeType);
+		if (extension != null) {
+			result = extension;
+		}
+		
+		return result;
+	}
+	
+	
+	
 	public static boolean isBinaryMimeType(String mimeType) {
 		if (mimeType != null) {
 			if (mimeType.startsWith("application/") && !mimeType.startsWith("application/xml"))
