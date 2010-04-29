@@ -264,6 +264,14 @@ extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 	}
 	
 	[request addRequestHeader:@"User-Agent" value:[[TitaniumApp app] userAgent]];
+	
+	// twitter specifically disallows X-Requested-With so we only add this normal
+	// XHR header if not going to twitter. however, other services generally expect
+	// this header to indicate an XHR request (such as RoR)
+	if ([[url host] rangeOfString:@"twitter.com"].location==NSNotFound)
+	{
+		[request addRequestHeader:@"X-Requested-With" value:@"XMLHttpRequest"];
+	}
 	[request setRequestMethod:method];
 	[request setDefaultResponseEncoding:NSUTF8StringEncoding];
 	// don't cache credentials, session etc since each request might be to

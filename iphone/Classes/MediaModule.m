@@ -18,6 +18,7 @@
 
 #import <AudioToolbox/AudioToolbox.h>
 #import <AVFoundation/AVAudioPlayer.h>
+#import <AVFoundation/AVAudioSession.h>
 #import <MediaPlayer/MediaPlayer.h>
 #import <MobileCoreServices/UTCoreTypes.h>
 #import <QuartzCore/QuartzCore.h>
@@ -328,6 +329,12 @@ MAKE_SYSTEM_UINT(AUDIO_FILEFORMAT_3GPP,kAudioFile3GPType);
 MAKE_SYSTEM_UINT(AUDIO_FILEFORMAT_3GP2,kAudioFile3GP2Type);
 MAKE_SYSTEM_UINT(AUDIO_FILEFORMAT_AMR,kAudioFileAMRType);
 
+MAKE_SYSTEM_UINT(AUDIO_SESSION_MODE_AMBIENT, kAudioSessionCategory_AmbientSound);
+MAKE_SYSTEM_UINT(AUDIO_SESSION_MODE_SOLO_AMBIENT, kAudioSessionCategory_SoloAmbientSound);
+MAKE_SYSTEM_UINT(AUDIO_SESSION_MODE_PLAYBACK, kAudioSessionCategory_MediaPlayback);
+MAKE_SYSTEM_UINT(AUDIO_SESSION_MODE_RECORD, kAudioSessionCategory_RecordAudio);
+MAKE_SYSTEM_UINT(AUDIO_SESSION_MODE_PLAY_AND_RECORD, kAudioSessionCategory_PlayAndRecord);
+
 
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
 // these are new in 3.2
@@ -546,6 +553,16 @@ MAKE_SYSTEM_PROP(VIDEO_FINISH_REASON_USER_EXITED,MPMovieFinishReasonUserExited);
 		[[TitaniumApp app] hideModalController:picker animated:animatedPicker];
 		[self destroyPicker];
 	}
+}
+
+-(void)setDefaultAudioSessionMode:(NSNumber*)mode
+{
+    [[TiMediaAudioSession sharedSession] setDefaultSessionMode:[mode unsignedIntValue]];
+}
+
+-(NSNumber*)defaultAudioSessionMode
+{
+    return [NSNumber numberWithUnsignedInt:[[TiMediaAudioSession sharedSession] defaultSessionMode]];
 }
 
 #pragma mark Delegates

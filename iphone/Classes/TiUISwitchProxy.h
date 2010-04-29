@@ -5,8 +5,8 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
-#import "TiUIWidgetProxy.h"
+#import "TiViewProxy.h"
 
-@interface TiUISwitchProxy : TiUIWidgetProxy {
+@interface TiUISwitchProxy : TiViewProxy {
 }
 @end

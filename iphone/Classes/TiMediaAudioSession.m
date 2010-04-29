@@ -95,10 +95,13 @@ void TiAudioSessionAudioRouteChangeCallback(void *inUserData, AudioSessionProper
 
 @implementation TiMediaAudioSession
 
+@synthesize defaultSessionMode;
+
 -(id)init
 {
 	if (self = [super init])
 	{
+        defaultSessionMode = kAudioSessionCategory_SoloAmbientSound;
 		count = 0;
 		lock = [[NSLock alloc] init];
 	}
@@ -191,22 +194,22 @@ void TiAudioSessionAudioRouteChangeCallback(void *inUserData, AudioSessionProper
 	return TiMediaAudioSessionInputUnavailable;
 }
 
--(void)record
+-(void)record:(UInt32)mode
 {
-	// ensure we're in record mode
-	UInt32 sessionCategory = kAudioSessionCategory_RecordAudio;
-	AudioSessionSetProperty(kAudioSessionProperty_AudioCategory, sizeof (sessionCategory), &sessionCategory);
+    if (mode != kAudioSessionCategory_RecordAudio && mode != kAudioSessionCategory_PlayAndRecord) {
+        // Default is to use RecordAudio mode
+        mode = kAudioSessionCategory_RecordAudio;
+    }
+	AudioSessionSetProperty(kAudioSessionProperty_AudioCategory, sizeof (mode), &mode);
 }
 
--(void)playback
+-(void)playback:(UInt32)mode
 {
-	// ensure we're in playback mode
-	UInt32 sessionCategory = kAudioSessionCategory_MediaPlayback;
-	AudioSessionSetProperty(kAudioSessionProperty_AudioCategory, sizeof(sessionCategory), &sessionCategory);
-	
-	// NOTE: this code will ensure that the SILENCE switch is respected when media plays
-	sessionCategory = kAudioSessionCategory_SoloAmbientSound;
-	AudioSessionSetProperty(kAudioSessionProperty_AudioCategory, sizeof(sessionCategory), &sessionCategory);
+    if (mode == kAudioSessionCategory_RecordAudio) {
+        // Default is to use solo ambient
+        mode = kAudioSessionCategory_SoloAmbientSound;
+    }
+	AudioSessionSetProperty(kAudioSessionProperty_AudioCategory, sizeof(mode), &mode);
 }
 
 -(void)startAudioSession
@@ -230,6 +233,7 @@ void TiAudioSessionAudioRouteChangeCallback(void *inUserData, AudioSessionProper
 		}
 
 		// make our audio session active
+        AudioSessionSetProperty(kAudioSessionProperty_AudioCategory, sizeof(defaultSessionMode), &defaultSessionMode);
 		AudioSessionSetActive(true);
 	}
 	[lock unlock];

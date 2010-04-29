@@ -10,8 +10,11 @@ import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiDict;
 import org.appcelerator.titanium.TiModule;
 import org.appcelerator.titanium.util.TiConvert;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.json.JSONStringer;
+import org.json.JSONTokener;
 
 public class JSONModule extends TiModule {
 
@@ -37,10 +40,24 @@ public class JSONModule extends TiModule {
 		} else return data.toString();
 	}
 
-	public TiDict parse(String json)
+	public Object parse(String json)
 		throws JSONException
 	{
-		return new TiDict(new JSONObject(json));
+		String trimmed = json.trim();
+		char firstChar = trimmed.charAt(0);
+		
+		if (firstChar == '{') {
+			return new TiDict(new JSONObject(json));
+		} else if (firstChar == '[') {
+			JSONArray array = new JSONArray(json);
+			Object result[] = new Object[array.length()];
+			for (int i = 0; i < array.length(); i++) {
+				result[i] = TiDict.fromJSON(array.get(i));
+			}
+			return result;
+		} else {
+			return new JSONTokener(json).nextValue();
+		}
 	}
 
 }

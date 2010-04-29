@@ -26,6 +26,7 @@
 
 -(void)_configure
 {
+    sessionMode = kAudioSessionCategory_RecordAudio; // Doesn't fit into the 'default' mode paradigm.. but I guess that's OK?
 	recorder = NULL;
 	format = [[NSNumber numberWithUnsignedInt:kAudioFileCAFType] retain];
 	compression = [[NSNumber numberWithUnsignedInt:kAudioFormatLinearPCM] retain];
@@ -124,7 +125,7 @@
 		file = [[TiUtils createTempFile:extension] retain];
 		
 		// indicate we're going to start recording
-		[[TiMediaAudioSession sharedSession] record];
+		[[TiMediaAudioSession sharedSession] record:sessionMode];
 		
 		// Start the recorder
 		recorder->StartRecord((CFStringRef)[file path], fmt);
@@ -137,8 +138,8 @@
 	{
 		recorder->StopRecord();
 		
-		// place the session back in playback mode
-		[[TiMediaAudioSession sharedSession] playback];
+		// place the session back in playback mode; reset to default category
+		[[TiMediaAudioSession sharedSession] playback:kAudioSessionCategory_SoloAmbientSound];
 		
 		return file;
 	}
@@ -187,6 +188,21 @@
 		return !recorder->IsRunning();
 	}
 	return YES;
+}
+
+-(void)setAudioSessionMode:(NSNumber*)mode
+{
+    UInt32 newMode = [mode unsignedIntegerValue]; // Close as we can get to UInt32
+    if (newMode != kAudioSessionCategory_RecordAudio && newMode != kAudioSessionCategory_PlayAndRecord) {
+        NSLog(@"Invalid mode for audio recorder... setting to default.");
+        newMode = kAudioSessionCategory_RecordAudio;
+    }
+    sessionMode = newMode;
+}
+
+-(NSNumber*)audioSessionMode
+{
+    return [NSNumber numberWithUnsignedInteger:sessionMode];
 }
 
 #pragma mark Delegates 

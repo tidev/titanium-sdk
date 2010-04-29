@@ -18,6 +18,7 @@
 #import "TiFile.h"
 #import "TiBlob.h"
 
+#import "UIImage+Resize.h"
 
 #ifdef DEBUG
 extern NSString * const TI_APPLICATION_RESOURCE_DIR;
@@ -207,6 +208,42 @@ extern NSString * const TI_APPLICATION_RESOURCE_DIR;
 	return CGPointMake(0,0);
 }
 
++(CGPoint)pointValue:(id)value bounds:(CGRect)bounds defaultOffset:(CGPoint)defaultOffset;
+{
+	TiDimension xDimension;
+	TiDimension yDimension;
+	CGPoint result;
+
+	if ([value isKindOfClass:[TiPoint class]])
+	{
+		xDimension = [value xDimension];
+		yDimension = [value yDimension];
+	}
+	else if ([value isKindOfClass:[NSDictionary class]])
+	{
+		xDimension = [self dimensionValue:@"x" properties:value];
+		yDimension = [self dimensionValue:@"x" properties:value];
+	}
+	else
+	{
+		xDimension = TiDimensionUndefined;
+		yDimension = TiDimensionUndefined;
+	}
+
+	if (!TiDimensionDidCalculateValue(xDimension, bounds.size.width, &result.x))
+	{
+		result.x = defaultOffset.x * bounds.size.width;
+	}
+	if (!TiDimensionDidCalculateValue(yDimension, bounds.size.height, &result.y))
+	{
+		result.y = defaultOffset.y * bounds.size.height;
+	}
+
+	return CGPointMake(result.x + bounds.origin.x,result.y + bounds.origin.y);
+}
+
+
+
 +(CGFloat)floatValue:(id)value def:(CGFloat) def
 {
 	if ([value respondsToSelector:@selector(floatValue)])
@@ -269,6 +306,47 @@ extern NSString * const TI_APPLICATION_RESOURCE_DIR;
 			return [NSNumber numberWithFloat:dimension.value];
 	}
 	return nil;
+}
+
++(UIImage*)scaleImage:(UIImage *)image toSize:(CGSize)newSize
+{
+	if (!CGSizeEqualToSize(newSize, CGSizeZero))
+	{
+		CGSize imageSize = [image size];
+		if (newSize.width==0)
+		{
+			newSize.width = imageSize.width;
+		}
+		if (newSize.height==0)
+		{
+			newSize.height = imageSize.height;
+		}
+		if (!CGSizeEqualToSize(newSize, imageSize))
+		{
+			image = [UIImageResize resizedImage:newSize interpolationQuality:kCGInterpolationDefault image:image];
+		}
+	}
+	return image;
+}
+
++(UIImage*)toImage:(id)object proxy:(TiProxy*)proxy size:(CGSize)imageSize
+{
+	if ([object isKindOfClass:[TiBlob class]])
+	{
+		return [self scaleImage:[(TiBlob *)object image] toSize:imageSize];
+	}
+
+	if ([object isKindOfClass:[TiFile class]])
+	{
+		TiFile *file = (TiFile*)object;
+		UIImage *image = [UIImage imageWithContentsOfFile:[file path]];
+		return [self scaleImage:image toSize:imageSize];
+	}
+
+	NSURL * urlAttempt = [self toURL:object proxy:proxy];
+	UIImage * image = [[ImageLoader sharedLoader] loadImmediateImage:urlAttempt withSize:imageSize];
+	return image;
+	//Note: If url is a nonimmediate image, this returns nil.
 }
 
 +(UIImage*)toImage:(id)object proxy:(TiProxy*)proxy

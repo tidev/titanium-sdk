@@ -132,6 +132,33 @@ NSInteger zindexSort(TiUIView* view1, TiUIView* view2, void *reverse)
 }
 
 
+@interface TiGradientLayer : CALayer
+{
+	TiGradient * gradient;
+}
+@property(nonatomic,readwrite,retain) TiGradient * gradient;
+@end
+
+@implementation TiGradientLayer
+@synthesize gradient;
+
+- (void) dealloc
+{
+	[gradient release];
+	[super dealloc];
+}
+
+-(void)drawInContext:(CGContextRef)ctx
+{
+	[gradient paintContext:ctx bounds:[self bounds]];
+}
+
+@end
+
+
+
+
+
 #define DOUBLE_TAP_DELAY		0.35
 #define HORIZ_SWIPE_DRAG_MIN	12
 #define VERT_SWIPE_DRAG_MAX		4
@@ -162,13 +189,13 @@ DEFINE_EXCEPTIONS
 	return self;
 }
 
-
 -(BOOL)viewSupportsBaseTouchEvents
 {
 	// give the ability for the subclass to turn off our event handling
 	// if it wants too
 	return YES;
 }
+
 
 -(BOOL)proxyHasTapListener
 {
@@ -418,6 +445,7 @@ DEFINE_EXCEPTIONS
 	if(!CGSizeEqualToSize(oldSize, newBounds.size))
 	{
 		oldSize = newBounds.size;
+		[gradientLayer setFrame:newBounds];
 		[self frameSizeChanged:[TiUtils viewPositionRect:self] bounds:newBounds];
 	}
 }
@@ -573,6 +601,32 @@ DEFINE_EXCEPTIONS
 {
 	touchEnabled = [TiUtils boolValue:arg];
 }
+
+-(void)setBackgroundGradient_:(id)arg
+{
+	if (arg == nil)
+	{
+		[gradientLayer removeFromSuperlayer];
+		RELEASE_TO_NIL(gradientLayer);
+	}
+	else if (gradientLayer == nil)
+	{
+		gradientLayer = [[TiGradientLayer alloc] init];
+		[(TiGradientLayer *)gradientLayer setGradient:arg];
+		[gradientLayer setNeedsDisplayOnBoundsChange:YES];
+//		[gradientLayer setDelegate:self];
+		[gradientLayer setFrame:[self bounds]];
+		[gradientLayer setNeedsDisplay];
+//		[[self layer] addSublayer:gradientLayer];
+		[[self layer] insertSublayer:gradientLayer atIndex:0];
+	}
+	else
+	{
+		[(TiGradientLayer *)gradientLayer setGradient:arg];
+		[gradientLayer setNeedsDisplay];
+	}
+}
+
 
 -(void)animate:(id)arg
 {
@@ -824,16 +878,16 @@ DEFINE_EXCEPTIONS
 		
 		if ([proxy _hasListeners:@"touchstart"])
 		{
-			[proxy fireEvent:@"touchstart" withObject:evt propagate:(touchDelegate==nil)];
+			[proxy fireEvent:@"touchstart" withObject:evt propagate:YES];
 		}
 		
 		if ([touch tapCount] == 1 && [proxy _hasListeners:@"click"])
 		{
-			[proxy fireEvent:@"click" withObject:evt propagate:(touchDelegate==nil)];
+			[proxy fireEvent:@"click" withObject:evt propagate:YES];
 		}
 		else if ([touch tapCount] == 2 && [proxy _hasListeners:@"dblclick"])
 		{
-			[proxy fireEvent:@"dblclick" withObject:evt propagate:(touchDelegate==nil)];
+			[proxy fireEvent:@"dblclick" withObject:evt propagate:YES];
 		}
 	}
 	
@@ -852,7 +906,7 @@ DEFINE_EXCEPTIONS
 		NSDictionary *evt = [TiUtils pointToDictionary:point];
 		if ([proxy _hasListeners:@"touchmove"])
 		{
-			[proxy fireEvent:@"touchmove" withObject:evt propagate:(touchDelegate==nil)];
+			[proxy fireEvent:@"touchmove" withObject:evt propagate:YES];
 		}
 	}
 	if (handlesSwipes)
@@ -967,7 +1021,7 @@ DEFINE_EXCEPTIONS
 		NSDictionary *evt = [TiUtils pointToDictionary:point];
 		if ([proxy _hasListeners:@"touchend"])
 		{
-			[proxy fireEvent:@"touchend" withObject:evt propagate:(touchDelegate==nil)];
+			[proxy fireEvent:@"touchend" withObject:evt propagate:YES];
 		}
 	}
 	if (handlesSwipes)
@@ -995,7 +1049,7 @@ DEFINE_EXCEPTIONS
 		NSDictionary *evt = [TiUtils pointToDictionary:point];
 		if ([proxy _hasListeners:@"touchcancel"])
 		{
-			[proxy fireEvent:@"touchcancel" withObject:evt propagate:(touchDelegate==nil)];
+			[proxy fireEvent:@"touchcancel" withObject:evt propagate:YES];
 		}
 	}
 	if (handlesSwipes)

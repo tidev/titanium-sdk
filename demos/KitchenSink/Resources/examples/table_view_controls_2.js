@@ -20,6 +20,7 @@ function addRow()
 	
 	sw.addEventListener('change', function(e)
 	{
+		Ti.API.info('parent for switch ' + e.source.parent)
 		clickLabel.text = 'Switch changed to ' + e.value + ' at ' + new Date();
 	});
 	

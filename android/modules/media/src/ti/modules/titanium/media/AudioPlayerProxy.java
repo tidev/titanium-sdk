@@ -22,6 +22,8 @@ public class AudioPlayerProxy extends TiProxy
 	private static final String LCAT = "AudioPlayerProxy";
 	private static final boolean DBG = TiConfig.LOGD;
 
+	protected static TiDict constants;
+
 	protected TiSound snd;
 
 	public AudioPlayerProxy(TiContext tiContext, Object[] args)
@@ -150,5 +152,24 @@ public class AudioPlayerProxy extends TiProxy
 			snd.onDestroy();
 		}
 		snd = null;
+	}
+
+	@Override
+	public TiDict getConstants()
+	{
+		if (constants == null) {
+			constants = new TiDict();
+			constants.put("STATE_BUFFERING",TiSound.STATE_BUFFERING);
+			constants.put("STATE_INITIALIZED", TiSound.STATE_INITIALIZED);
+			constants.put("STATE_PAUSED", TiSound.STATE_PAUSED);
+			constants.put("STATE_PLAYING", TiSound.STATE_PLAYING);
+			constants.put("STATE_STARTING", TiSound.STATE_STARTING);
+			constants.put("STATE_STOPPED", TiSound.STATE_STOPPED);
+			constants.put("STATE_STOPPING", TiSound.STATE_STOPPING);
+			constants.put("STATE_WAITING_FOR_DATA", TiSound.STATE_WAITING_FOR_DATA);
+			constants.put("STATE_WAITING_FOR_QUEUE", TiSound.STATE_WAITING_FOR_QUEUE);
+		}
+
+		return constants;
 	}
 }

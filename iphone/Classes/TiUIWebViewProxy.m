@@ -89,5 +89,10 @@ USE_VIEW_FOR_AUTO_WIDTH
 	[[self view] performSelectorOnMainThread:@selector(setBasicAuthentication:) withObject:args waitUntilDone:NO];
 }
 
+-(void)repaint:(id)unused
+{
+	[self setNeedsReposition];
+}
+
 @end
 

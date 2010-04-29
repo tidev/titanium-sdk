@@ -5,7 +5,7 @@
  * Please see the LICENSE included with this distribution for details.
  */
 #import "TiUIButtonBar.h"
-#import "TiUIWidgetProxy.h"
+#import "TiViewProxy.h"
 #import "TiUtils.h"
 #import "Webcolor.h"
 
@@ -86,7 +86,7 @@
 		return;
 	}
 
-	if ([(TiUIWidgetProxy *)[self proxy] isUsingBarButtonItem])
+	if ([(TiViewProxy *)[self proxy] isUsingBarButtonItem])
 	{
 		[self useStyle:UISegmentedControlStyleBar];
 	}
