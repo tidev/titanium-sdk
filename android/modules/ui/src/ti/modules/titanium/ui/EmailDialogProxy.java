@@ -32,17 +32,31 @@ import android.net.Uri;
 public class EmailDialogProxy extends TiViewProxy {
 	
 	private static final String LCAT = "EmailDialogProxy";
-	private static final boolean DBG = TiConfig.LOGD;
+	private static final boolean DBG = TiConfig.LOGD;	
+	public static final int CANCELLED = 0;
+	public static final int SAVED = 1;
+	public static final int SENT = 2;
+	public static final int FAILED = 3;
+	
+	public static TiDict constants;
+	
 	private ArrayList<Object> attachments;
 	
 	public EmailDialogProxy(TiContext tiContext, Object[] args) {
 		super(tiContext, args);		
 	}
-
-	public final int CANCELLED = 0;
-	public final int SAVED = 1;
-	public final int SENT = 2;
-	public final int FAILED = 3;
+	
+	@Override
+	public TiDict getConstants() {
+		if (constants == null) {
+			constants = new TiDict();
+			constants.put("CANCELLED", CANCELLED);
+			constants.put("SAVED", SAVED);
+			constants.put("SENT", SENT);
+			constants.put("FAILED", FAILED);			
+		}
+		return constants;
+	} 
 	
 	public void addAttachment(Object attachment) {
 		if (attachment instanceof FileProxy || attachment instanceof TiBlob) {
@@ -54,12 +68,10 @@ public class EmailDialogProxy extends TiViewProxy {
 			// silently ignore?
 			if (DBG) {
 				Log.d(LCAT, "addAttachment for type " + attachment.getClass().getName() + " ignored. Only files and blobs may be attached.");
-			}
-			
+			}			
 		}
 	}
-	
-		
+			
 	public void open(){
 		Intent sendIntent = new Intent(Intent.ACTION_SEND);
 		String intentType = "message/rfc822";
