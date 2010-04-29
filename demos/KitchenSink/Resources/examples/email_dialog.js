@@ -7,61 +7,58 @@ win.orientationModes = [
 	Titanium.UI.LANDSCAPE_RIGHT
 ];
 
-var emailDialog = Titanium.UI.createEmailDialog();
 
-if (Titanium.Platform.name == 'iPhone OS') {
-    Titanium.Media.openPhotoGallery({
-        success: function(event)
-        {
-            emailDialog.setSubject('Hello from Titanium!');
-            emailDialog.setToRecipients(['foo@yahoo.com']);
-            emailDialog.setCcRecipients(['bar@yahoo.com']);
-            emailDialog.setBccRecipients(['blah@yahoo.com']);
+Titanium.Media.openPhotoGallery({
+    allowImageEditing:true,
+
+    success: function(event)
+    {
+        var emailDialog = Titanium.UI.createEmailDialog();
+        emailDialog.setSubject('Hello from Titanium!');
+        emailDialog.setToRecipients(['foo@yahoo.com']);
+        emailDialog.setCcRecipients(['bar@yahoo.com']);
+        emailDialog.setBccRecipients(['blah@yahoo.com']);
+        if (Ti.Platform.name == 'iPhone OS') {
             emailDialog.setMessageBody('<b>Appcelerator Titanium Rocks!</b>');
             emailDialog.setHtml(true);
             emailDialog.setBarColor('#336699');
+        } else {
+            emailDialog.setMessageBody('Appcelerator Titanium Rocks!');
+        }
 
-            // attach a blob
-            emailDialog.addAttachment(event.media);
-            
-            // attach a file
-            var f = Ti.Filesystem.getFile('cricket.wav');
-            emailDialog.addAttachment(f);
-            
-        },
-        error: function(error)
+        // attach a blob
+        emailDialog.addAttachment(event.media);
+        
+        // attach a file
+        var f = Ti.Filesystem.getFile(Titanium.Filesystem.resourcesDirectory, 'cricket.wav');
+        emailDialog.addAttachment(f);
+        
+        emailDialog.addEventListener('complete',function(e)
         {
-        },
-        cancel: function()
-        {
+            if (e.result == emailDialog.SENT)
+            {
+                if (Ti.Platform.osname != 'android') {
+                    // android doesn't give us useful result codes.
+                    // it anyway shows a toast.
+                    alert("message was sent");
+                }
+            }
+            else
+            {
+                alert("message was not sent. result = " + e.result);
+            }
+        });
+        emailDialog.open();
+    },
 
-        },
-        allowImageEditing:true
-    });
-} else {
-    // 29 Apr 2010 - Our current Android implementation has not implemented
-    // something required for the photo gallery example above. Just
-    // attach a normal file.
-    emailDialog.setSubject('Hello from Titanium!');
-    emailDialog.setToRecipients(['foo@yahoo.com']);
-    emailDialog.setCcRecipients(['bar@yahoo.com']);
-    emailDialog.setBccRecipients(['blah@yahoo.com']);
-    emailDialog.setMessageBody('Appcelerator Titanium Rocks!');
+    error: function(error)
+    {
 
-    // attach a file
-    var f = Ti.Filesystem.getFile(Titanium.Filesystem.resourcesDirectory, 'cricket.wav');
-    emailDialog.addAttachment(f);
-}
+    },
 
-emailDialog.addEventListener('complete',function(e)
-{
-if (e.result == emailDialog.SENT)
-{
-    alert("message was sent");
-}
-else
-{
-    alert("message was not sent. result = "+e.result);
-}
+    cancel: function()
+    {
+
+    }
 });
-emailDialog.open();
+

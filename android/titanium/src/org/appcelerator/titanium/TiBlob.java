@@ -99,9 +99,21 @@ public class TiBlob extends TiProxy
 				//TODO deal with mimetypes.
 				bytes = (byte[]) data;
 				break;
-			case TYPE_FILE:
-				throw new IllegalStateException("Not yet implemented. TYPE_FILE");
-				//break;
+			case TYPE_FILE:	
+				InputStream stream = getInputStream();
+				try {
+					bytes = new byte[getLength()];
+					stream.read(bytes);
+				} catch(IOException e) {
+					Log.w(LCAT, e.getMessage(), e);
+				} finally {
+					try {
+						stream.close();
+					} catch (IOException e) {
+						Log.w(LCAT, e.getMessage(), e);
+					}
+				}
+				break;
 			default :
 				throw new IllegalArgumentException("Unknown Blob type id " + type);
 		}
