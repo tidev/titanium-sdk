@@ -256,7 +256,15 @@ public abstract class TiUIView
 
 	public void processProperties(TiDict d)
 	{
-   		if (TiConvert.fillLayout(d, layoutParams)) {
+		if (d.containsKey("layout")) {
+			String layout = TiConvert.toString(d, "layout");
+			if (layout.equals("vertical")) {
+				if (nativeView instanceof TiCompositeLayout) {
+					((TiCompositeLayout)nativeView).setVerticalLayout(true);
+				}
+			}
+		}
+		if (TiConvert.fillLayout(d, layoutParams)) {
 			if (nativeView != null) {
 				nativeView.requestLayout();
 			}

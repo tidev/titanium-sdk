@@ -8,6 +8,7 @@ package ti.modules.titanium.ui.widget;
 
 import org.appcelerator.titanium.TiDict;
 import org.appcelerator.titanium.proxy.TiViewProxy;
+import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiUIView;
 import org.appcelerator.titanium.view.TiCompositeLayout;
 
@@ -17,7 +18,8 @@ public class TiView extends TiUIView
 	public TiView(TiViewProxy proxy) {
 		super(proxy);
 
-		setNativeView(new TiCompositeLayout(proxy.getContext()));
+		boolean vertical = proxy.hasDynamicValue("layout") && TiConvert.toString(proxy.getDynamicValue("layout")).equals("vertical");
+		setNativeView(new TiCompositeLayout(proxy.getContext(), vertical));
 	}
 
 	@Override

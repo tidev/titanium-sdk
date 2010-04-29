@@ -37,9 +37,9 @@ import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
 import android.view.View;
+import android.view.Window;
 import android.view.View.OnFocusChangeListener;
 import android.view.ViewGroup.LayoutParams;
-import android.view.Window;
 
 public class TiUIWindow extends TiUIView
 	implements Handler.Callback
@@ -76,6 +76,7 @@ public class TiUIWindow extends TiUIView
 	{
 		super(proxy);
 
+		proxy.setModelListener(this);
 		if (idGenerator == null) {
 			idGenerator = new AtomicInteger(0);
 		}
@@ -92,7 +93,8 @@ public class TiUIWindow extends TiUIView
 		if (!newActivity && options != null && options.containsKey("tabOpen")) {
 			newActivity = TiConvert.toBoolean(options,"tabOpen");
 		}
-
+		
+		boolean vertical = isVerticalLayout(resolver);
 		resolver.release();
 		resolver = null;
 
@@ -104,7 +106,7 @@ public class TiUIWindow extends TiUIView
 			activity.startActivity(intent);
 		} else {
 			lightWeight = true;
-			liteWindow = new TiCompositeLayout(proxy.getContext());
+			liteWindow = new TiCompositeLayout(proxy.getContext(), vertical);
 			layoutParams.autoFillsHeight = true;
 			layoutParams.autoFillsWidth = true;
 
@@ -457,6 +459,19 @@ public class TiUIWindow extends TiUIView
 		} else if (key.equals("title")) {
 			String title = TiConvert.toString(newValue);
 			proxy.getTiContext().getActivity().setTitle(title);
+		} else if (key.equals("layout")) {
+			if (!lightWeight) {
+				boolean vertical = TiConvert.toString(newValue).equals("vertical");
+				TiCompositeLayout layout = null;
+				if (windowActivity instanceof TiActivity) {
+					layout = ((TiActivity)windowActivity).getLayout();
+				} else if (windowActivity instanceof TiTabActivity) {
+					layout = ((TiTabActivity)windowActivity).getLayout();
+				}
+				if (layout != null) {
+					layout.setVerticalLayout(vertical);
+				}
+			}
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}
@@ -467,6 +482,16 @@ public class TiUIWindow extends TiUIView
 		return resolver.hasAnyOf(NEW_ACTIVITY_REQUIRED_KEYS);
 	}
 
+	protected boolean isVerticalLayout(TiPropertyResolver resolver)
+	{
+		boolean vertical = false;
+		TiDict d = resolver.findProperty("layout");
+		if (d != null) {
+			vertical = TiConvert.toString(d, "layout").equals("vertical");
+		}
+		return vertical;
+	}
+	
 	protected Intent createIntent(Activity activity, TiDict options)
 	{
 		TiPropertyResolver resolver = new TiPropertyResolver(options, proxy.getDynamicProperties());
@@ -488,6 +513,10 @@ public class TiUIWindow extends TiUIView
 		props = resolver.findProperty("url");
 		if (props != null && props.containsKey("url")) {
 			intent.putExtra("url", TiConvert.toString(props, "url"));
+		}
+		props = resolver.findProperty("layout");
+		if (props != null && props.containsKey("layout")) {
+			intent.putExtra("vertical", TiConvert.toString(props, "layout").equals("vertical"));
 		}
 		resolver.release();
 		resolver = null;

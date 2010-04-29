@@ -3,7 +3,7 @@
 # An autodetection utility for the Android SDK
 #
 
-import os, sys, platform, glob, subprocess
+import os, sys, platform, glob, subprocess, types
 
 android_api_levels = {
 	3: 'android-1.5',
@@ -12,6 +12,21 @@ android_api_levels = {
 	6: 'android-2.0.1',
 	7: 'android-2.1'
 }
+
+class Device:
+	def __init__(self, name, port=-1, emulator=False):
+		self.name = name
+		self.port = port
+		self.emulator = emulator
+	
+	def get_name(self):
+		return self.name
+	
+	def get_port(self):
+		return self.port
+	
+	def is_emulator(self):
+		return self.emulator
 
 class AndroidSDK:
 	def __init__(self, android_sdk, api_level):
@@ -135,3 +150,21 @@ class AndroidSDK:
 	
 	def get_mksdcard(self):
 		return self.get_tool(self.android_sdk, 'mksdcard')
+		
+	def list_devices(self):
+		adb = self.get_adb()
+		(out, err) = subprocess.Popen([adb, 'devices'], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
+		if type(err) != types.NoneType and len(err) > 0:
+			raise Exception(err)
+		devices = []
+		for line in out.splitlines():
+			line = line.strip()
+			if line.startswith("List of devices"): continue
+			elif line.startswith("emulator-"):
+				name = line.split()[0]
+				port = int(name[name.index("-")+1:])
+				devices.append(Device(name, port, True))
+			elif "device" in line:
+				name = line.split()[0]
+				devices.append(Device(name))
+		return devices

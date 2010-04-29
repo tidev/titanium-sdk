@@ -77,7 +77,7 @@ public class TiRootActivity extends ActivityGroup
 			this.requestWindowFeature(Window.FEATURE_NO_TITLE);
 		}
 
-		rootLayout = new TiCompositeLayout(this);
+		rootLayout = new TiCompositeLayout(this, false);
 		setContentView(rootLayout);
 
 		new Thread(new Runnable(){

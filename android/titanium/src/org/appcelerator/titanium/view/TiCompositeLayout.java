@@ -24,11 +24,12 @@ public class TiCompositeLayout extends ViewGroup
 
 	private TreeSet<View> viewSorter;
 	private boolean needsSort;
-
-	public TiCompositeLayout(Context context)
+	private boolean vertical;
+	
+	public TiCompositeLayout(Context context, boolean vertical)
 	{
 		super(context);
-
+		this.vertical = vertical;
 		this.viewSorter = new TreeSet<View>(new Comparator<View>(){
 
 			public int compare(View o1, View o2)
@@ -77,6 +78,11 @@ public class TiCompositeLayout extends ViewGroup
 		setOnHierarchyChangeListener(this);
 	}
 
+	public void setVerticalLayout(boolean vertical)
+	{
+		this.vertical = vertical;
+	}
+	
 	public TiCompositeLayout(Context context, AttributeSet attrs) {
 		super(context, attrs);
 	}
@@ -141,16 +147,22 @@ public class TiCompositeLayout extends ViewGroup
 			}
 
 			maxWidth = Math.max(maxWidth, child.getMeasuredWidth());
-			maxHeight = Math.max(maxHeight, child.getMeasuredHeight());
+			if (vertical) {
+				maxHeight += child.getMeasuredHeight();
+				LayoutParams p = (LayoutParams) child.getLayoutParams();
+				if (p.optionTop != NOT_SET) {
+					maxHeight += p.optionTop;
+				}
+			} else {
+				maxHeight = Math.max(maxHeight, child.getMeasuredHeight());
+			}
 		}
 
 		// account for padding
-
 		maxWidth += getPaddingLeft() + getPaddingRight();
 		maxHeight += getPaddingTop() + getPaddingBottom();
 
 		// Account for border
-
 		//int padding = Math.round(borderHelper.calculatePadding());
 		//maxWidth += padding;
 		//maxHeight += padding;
@@ -173,7 +185,7 @@ public class TiCompositeLayout extends ViewGroup
 		if (p.optionWidth != NOT_SET) {
 			childDimension = p.optionWidth;
 		} else {
-			if (p.autoFillsWidth) {
+			if (p.autoWidth && p.autoFillsWidth) {
 				childDimension = LayoutParams.FILL_PARENT;
 			}
 		}
@@ -191,7 +203,7 @@ public class TiCompositeLayout extends ViewGroup
 		if (p.optionHeight != NOT_SET) {
 			childDimension = p.optionHeight;
 		} else {
-			if (p.autoFillsHeight) {
+			if (p.autoHeight && p.autoFillsHeight && !vertical) {
 				childDimension = LayoutParams.FILL_PARENT;
 			}
 		}
@@ -206,7 +218,7 @@ public class TiCompositeLayout extends ViewGroup
 		}
 
 		int heightSpec = ViewGroup.getChildMeasureSpec(MeasureSpec.makeMeasureSpec(height, hMode), padding, childDimension);
-
+		
 		child.measure(widthSpec, heightSpec);
 
 //      Useful for debugging.
@@ -234,7 +246,7 @@ public class TiCompositeLayout extends ViewGroup
 		int top = 0;
 		int right = r - l;
 		int bottom = b - t;
-
+		
 		if (needsSort) {
 			if (count > 1) { // No need to sort one item.
 				Log.e("SORTING", "Sorting.....");
@@ -260,6 +272,7 @@ public class TiCompositeLayout extends ViewGroup
 		int[] horizontal = new int[2];
 		int[] vertical = new int[2];
 
+		int currentHeight = 0;
 		for (int i = 0; i < count; i++) {
 			View child = getChildAt(i);
 			TiCompositeLayout.LayoutParams params =
@@ -268,11 +281,21 @@ public class TiCompositeLayout extends ViewGroup
 				// Dimension is required from Measure. Positioning is determined here.
 
 				computePosition(params.optionLeft, params.optionRight, child.getMeasuredWidth(), left, right, horizontal);
-				computePosition(params.optionTop, params.optionBottom, child.getMeasuredHeight(), top, bottom, vertical);
+				
+				if (this.vertical) {
+					computeVerticalLayoutPosition(currentHeight, params.optionTop, params.optionBottom, child.getMeasuredHeight(), top, bottom, vertical);
+				} else {
+					computePosition(params.optionTop, params.optionBottom, child.getMeasuredHeight(), top, bottom, vertical);
+				}
 
 				Log.d("LAYOUT", child.getClass().getSimpleName() + " {" + horizontal[0] + "," + vertical[0] + "," + horizontal[1] + "," + vertical[1] + "}");
 
 				child.layout(horizontal[0], vertical[0], horizontal[1], vertical[1]);
+				
+				currentHeight += vertical[1] - vertical[0];
+				if (params.optionTop != NOT_SET) {
+					currentHeight += params.optionTop;
+				}
 			}
 		}
 	}
@@ -301,6 +324,17 @@ public class TiCompositeLayout extends ViewGroup
 			pos[1] = p1 - o1;
 		}
 	}
+	
+	private void computeVerticalLayoutPosition(int currentHeight, int optionTop, int optionBottom, int measuredHeight, int layoutTop, int layoutBottom, int[] pos)
+	{
+		int top = layoutTop + currentHeight;
+		if (optionTop != NOT_SET) {
+			top += optionTop;
+		}
+		int bottom = top + measuredHeight;
+		pos[0] = top;
+		pos[1] = bottom;
+	}
 
 	protected int getWidthMeasureSpec(View child)
 	{
@@ -324,7 +358,7 @@ public class TiCompositeLayout extends ViewGroup
 		public int optionBottom = NOT_SET;
 		public int optionWidth = NOT_SET;
 		public int optionHeight = NOT_SET;
-
+		
 		public boolean autoHeight = true;
 		public boolean autoWidth = true;
 		public boolean autoFillsWidth = false;

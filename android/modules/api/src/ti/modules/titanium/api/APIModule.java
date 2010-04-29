@@ -6,6 +6,9 @@
  */
 package ti.modules.titanium.api;
 
+import java.io.UnsupportedEncodingException;
+import java.nio.charset.Charset;
+
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiDict;
 import org.appcelerator.titanium.TiModule;
@@ -50,36 +53,43 @@ public class APIModule extends TiModule
 		return constants;
 	}
 
+	private String toString(Object msg) {
+		if (msg == null) {
+			return "null";
+		}
+		return msg.toString();
+	}
+	
 	public void debug(Object msg) {
-		Log.d(LCAT, msg.toString());
+		Log.d(LCAT, toString(msg));
 	}
 
 	public void info(Object msg) {
-		Log.i(LCAT, msg.toString());
+		Log.i(LCAT, toString(msg));
 	}
 
 	public void warn(Object msg) {
-		Log.w(LCAT, msg.toString());
+		Log.w(LCAT, toString(msg));
 	}
 
 	public void error(Object msg) {
-		Log.e(LCAT, msg.toString());
+		Log.e(LCAT, toString(msg));
 	}
 
 	public void trace(Object msg) {
-		Log.d(LCAT, msg.toString());
+		Log.d(LCAT, toString(msg));
 	}
 
 	public void notice(Object msg) {
-		Log.i(LCAT, msg.toString());
+		Log.i(LCAT, toString(msg));
 	}
 
 	public void critical(Object msg) {
-		Log.e(LCAT, msg.toString());
+		Log.e(LCAT, toString(msg));
 	}
 
 	public void fatal(Object msg) {
-		Log.e(LCAT, msg.toString());
+		Log.e(LCAT, toString(msg));
 	}
 
 	public void log(String level, Object msg)
@@ -107,7 +117,7 @@ public class APIModule extends TiModule
 			msg = "[" + level + "] " + msg;
 		}
 
-		internalLog(severity, msg.toString());
+		internalLog(severity, toString(msg));
 	}
 
 	public void internalLog(int severity, String msg)
