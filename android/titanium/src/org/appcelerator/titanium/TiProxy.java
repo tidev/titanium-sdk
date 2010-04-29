@@ -102,7 +102,7 @@ public class TiProxy implements Handler.Callback, TiDynamicMethod, OnEventListen
 		}
 	}
 
-	protected void setModelListener(TiProxyListener modelListener) {
+	public void setModelListener(TiProxyListener modelListener) {
 		this.modelListener = modelListener;
 		this.modelListener.processProperties(dynprops != null ? new TiDict(dynprops) : new TiDict());
 	}

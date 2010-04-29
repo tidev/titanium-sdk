@@ -64,7 +64,7 @@
 
 -(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
 {
-	[TiUtils setView:textWidgetView positionRect:bounds];
+	[textWidgetView setFrame:[self bounds]];
 }
 
 -(void)setColor_:(id)color

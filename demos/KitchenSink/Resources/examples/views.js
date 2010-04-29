@@ -10,7 +10,8 @@ var data = [
 	{title:'Options Dialog', hasChild:true, test:'../examples/options_dialog.js'},
 	{title:'Map View', hasChild:true, test:'../examples/map_view.js'},
 	{title:'Remove Views', hasChild:true, test:'../examples/remove_views.js'},
-	{title:'zIndex', hasChild:true, test:'../examples/views_zindex.js'}
+	{title:'zIndex', hasChild:true, test:'../examples/views_zindex.js'},
+    {title:'Email Dialog', hasChild:true, test:'../examples/email_dialog.js'}
 
 ];
 
@@ -20,7 +21,6 @@ if (Titanium.Platform.name == 'iPhone OS')
 	data.push({title:'Events with Views', hasChild:true, test:'../examples/view_events_2.js'});
 	data.push({title:'Coverflow View', hasChild:true, test:'../examples/coverflow.js'});
 	data.push({title:'Dashboard View', hasChild:true, test:'../examples/dashboard.js'});
-	data.push({title:'Email Dialog', hasChild:true, test:'../examples/email_dialog.js'});
 	data.push({title:'Auto Height', hasChild:true, test:'../examples/views_auto_height.js'});
 	data.push({title:'Mixing Views', hasChild:true, test:'../examples/mixing_views_1.js'});
 

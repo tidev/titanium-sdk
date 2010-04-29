@@ -78,6 +78,10 @@ public class TiUIButton extends TiUIView
 		if (d.containsKey("color")) {
 			btn.setTextColor(TiConvert.toColor(d, "color"));
 		}
+		if (d.containsKey("font")) {
+			TiUIHelper.styleText(btn, d.getTiDict("font"));
+		}
+
 	}
 
 
@@ -92,6 +96,8 @@ public class TiUIButton extends TiUIView
 			btn.setText((String) newValue);
 		} else if (key.equals("color")) {
 			btn.setTextColor(TiConvert.toColor(TiConvert.toString(newValue)));
+		} else if (key.equals("font")) {
+			TiUIHelper.styleText(btn, (TiDict) newValue);
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}
