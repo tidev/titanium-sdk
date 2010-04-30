@@ -42,7 +42,18 @@
 	UIFont *font = [label font];
 	CGSize maxSize = CGSizeMake(suggestedWidth<=0 ? 480 : suggestedWidth, 1000);
 	requiresLayout = YES;
-	return [value sizeWithFont:font constrainedToSize:maxSize lineBreakMode:UILineBreakModeTailTruncation];
+	CGSize result = [value sizeWithFont:font constrainedToSize:maxSize lineBreakMode:UILineBreakModeTailTruncation];
+	int height = ceil(result.height);
+	int width = ceil(result.width);
+	if (height & 0x01)
+	{
+		height ++;
+	}
+	if (width & 0x01)
+	{
+		width ++;
+	}
+	return CGSizeMake(width, height);
 }
 
 -(CGFloat)autoWidthForWidth:(CGFloat)suggestedWidth
