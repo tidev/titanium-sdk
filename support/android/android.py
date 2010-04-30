@@ -61,9 +61,12 @@ class Android(object):
 			'apiversion' : '4', #Android 1.6
 			'deploy_type': deploy_type
 		}
-		self.config['classname'] = "".join(string.capwords(self.name).split(' '))
+		self.config['classname'] = self.strip_classname()
 		self.deploy_type = deploy_type
 	
+	def strip_classname(self):
+		return ''.join([str.capitalize() for str in re.split('[^A-Za-z0-9_]', self.name)])
+		
 	def newdir(self, *segments):
 		path = os.path.join(*segments)
 		if not os.path.exists(path):

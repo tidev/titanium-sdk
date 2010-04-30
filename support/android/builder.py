@@ -89,9 +89,12 @@ class Builder(object):
 		if not os.path.exists(self.home_dir):
 			os.makedirs(self.home_dir)
 		self.sdcard = os.path.join(self.home_dir,'android2.sdcard')
-		self.classname = "".join(string.capwords(self.name).split(' '))
+		self.classname = self.strip_classname()
 		self.set_java_commands()
 	
+	def strip_classname(self):
+		return ''.join([str.capitalize() for str in re.split('[^A-Za-z0-9_]', self.name)])
+		
 	def set_java_commands(self):
 		self.jarsigner = "jarsigner"
 		self.javac = "javac"
@@ -206,7 +209,6 @@ class Builder(object):
 		return name
 	
 	def run_emulator(self,avd_id,avd_skin):
-		
 		info("Launching Android emulator...one moment")
 		debug("From: " + self.sdk.get_emulator())
 		debug("SDCard: " + self.sdcard)
@@ -214,8 +216,11 @@ class Builder(object):
 		debug("AVD Skin: " + avd_skin)
 		debug("SDK: " + sdk_dir)
 		
-		# flush before a long IO operation
-		sys.stdout.flush()
+		devices = self.sdk.list_devices()
+		for device in devices:
+			if device.is_emulator() and device.get_port() == 5560:
+				info("Emulator is running.")
+				sys.exit(0)
 		
 		# this will create an AVD on demand or re-use existing one if already created
 		avd_name = self.create_avd(avd_id,avd_skin)
@@ -243,7 +248,10 @@ class Builder(object):
 			debug("signal caught: %d" % signum)
 			if not p == None:
 				debug("calling emulator kill on %d" % p.pid)
-				p.kill()
+				if platform.system() == "Windows":
+					os.system("taskkill /F /T /PID %i" % p.pid)
+				else:
+					os.kill(p.pid, signal.SIGTERM)
 
 		if platform.system() != "Windows":
 			signal.signal(signal.SIGHUP, handler)
