@@ -602,7 +602,7 @@ class Builder(object):
 		
 		javac_command = [self.javac, '-classpath', classpath, '-d', self.classes_dir, '-sourcepath', self.src_dir]
 		javac_command += srclist
-		debug(javac_command)
+		debug(" ".join(javac_command))
 		out = run.run(javac_command)
 	
 	def package_and_deploy(self):
