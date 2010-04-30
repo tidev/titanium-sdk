@@ -68,6 +68,20 @@
 
 -(void)padLabel
 {
+    if (repad &&
+        backgroundView != nil && 
+        !CGRectEqualToRect(label.frame, CGRectZero)) 
+    {
+        [backgroundView setFrame:CGRectMake(backgroundView.frame.origin.x - padding.origin.x,
+                                            backgroundView.frame.origin.y - padding.origin.y,
+                                            backgroundView.frame.size.width + padding.origin.x + padding.size.width,
+                                            backgroundView.frame.size.height + padding.origin.y + padding.size.height)];
+        [label setFrame:CGRectMake(label.frame.origin.x + padding.origin.x,
+                                   label.frame.origin.y + padding.origin.y,
+                                   label.frame.size.width,
+                                   label.frame.size.height)];
+        repad = NO;
+    }
 	return;
 }
 
@@ -83,6 +97,9 @@
 	labelFrame.size.height = height & ~0x01;
 	labelFrame.size.width = width & ~0x01;
 	[label setFrame:labelFrame];
+    
+    repad = YES;
+    [self padLabel];
 }
 
 -(UILabel*)label
