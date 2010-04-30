@@ -5,6 +5,8 @@
 //  Created by Ben Copsey on 13/07/2009.
 //  Copyright 2009 All-Seeing Interactive. All rights reserved.
 //
+#ifdef USE_ASI_S3
+
 #import "ASIS3ListRequest.h"
 #import "ASIS3BucketObject.h"
 
@@ -134,3 +136,5 @@ static NSDateFormatter *dateFormatter = nil;
 @synthesize maxResultCount;
 @synthesize delimiter;
 @end
+
+#endif

@@ -14,6 +14,8 @@
  * limitations under the License.
 */
 
+#ifdef USE_TI_FACEBOOK
+
 #import "FBSession.h"
 #import "FBRequest.h"
 #import "FBLoginButton.h"
@@ -21,3 +23,5 @@
 #import "FBPermissionDialog.h"
 #import "FBFeedDialog.h"
 #import "FBStreamDialog.h"
+
+#endif

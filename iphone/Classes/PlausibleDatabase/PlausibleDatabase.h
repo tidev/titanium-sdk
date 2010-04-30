@@ -27,7 +27,6 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-
 /* Dependencies */
 #import <Foundation/Foundation.h>
 
@@ -236,3 +235,4 @@ typedef enum {
  * - #PLDatabaseErrorVendorErrorKey - The native database error code.
  * - #PLDatabaseErrorVendorStringKey - The native database error string.
  */
+

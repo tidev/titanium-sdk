@@ -6,6 +6,8 @@
 //  Copyright 2009 All-Seeing Interactive. All rights reserved.
 //
 
+#ifdef USE_ASI_S3
+
 #import <Foundation/Foundation.h>
 @class ASIS3Request;
 
@@ -50,3 +52,5 @@
 @property (retain) NSString *ownerID;
 @property (retain) NSString *ownerName;
 @end
+
+#endif

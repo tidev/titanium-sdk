@@ -3,9 +3,10 @@
  * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
-
+ *
  * Special thanks to Steve Tramer for implementing this.
  */
+#ifdef USE_TI_NETWORK
 
 #import <Foundation/Foundation.h>
 #import "TiProxy.h"
@@ -51,3 +52,5 @@
 +(NSString*)stringForErrorCode:(NSNetServicesError)code;
 
 @end
+
+#endif

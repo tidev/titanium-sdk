@@ -6,6 +6,8 @@
  */
 #import "TiModule.h"
 
+#ifdef USE_TI_UTILS
+
 @interface UtilsModule : TiModule {
 
 @private
@@ -13,3 +15,5 @@
 }
 
 @end
+
+#endif

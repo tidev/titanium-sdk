@@ -4,6 +4,7 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
+#ifdef USE_TI_YAHOO
 
 #import "TiModule.h"
 #import "KrollCallback.h"
@@ -26,3 +27,5 @@
 -(id)initWithCallback:(KrollCallback*)callback module:(YahooModule*)module;
 
 @end
+
+#endif

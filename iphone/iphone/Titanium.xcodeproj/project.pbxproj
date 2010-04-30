@@ -17,6 +17,7 @@
 		2412F46A115C296300454E5B /* TiMediaVideoPlayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 2412F465115C296300454E5B /* TiMediaVideoPlayer.m */; };
 		2412F4F6115C44B000454E5B /* MainWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = 28AD733E0D9D9553002E5188 /* MainWindow.xib */; };
 		2412F531115C62AF00454E5B /* MainWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2461CF111151D858007A4CC9 /* MainWindow.xib */; };
+		241EAA22118AB3BB0081A5BE /* defines.h in Headers */ = {isa = PBXBuildFile; fileRef = 241EAA21118AB3BB0081A5BE /* defines.h */; };
 		243EC5EB112617F900639DF4 /* TiUITableViewSectionProxy.h in Headers */ = {isa = PBXBuildFile; fileRef = 243EC5E9112617F900639DF4 /* TiUITableViewSectionProxy.h */; };
 		243EC5EE112617F900639DF4 /* TiUITableViewSectionProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 243EC5EA112617F900639DF4 /* TiUITableViewSectionProxy.m */; };
 		243EC7D7112634AF00639DF4 /* TiUITableViewAction.h in Headers */ = {isa = PBXBuildFile; fileRef = 243EC7D5112634AF00639DF4 /* TiUITableViewAction.h */; };
@@ -1417,6 +1418,7 @@
 		1DF5F4DF0D08C38300B7A737 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		2412F464115C296300454E5B /* TiMediaVideoPlayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiMediaVideoPlayer.h; sourceTree = "<group>"; };
 		2412F465115C296300454E5B /* TiMediaVideoPlayer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiMediaVideoPlayer.m; sourceTree = "<group>"; };
+		241EAA21118AB3BB0081A5BE /* defines.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = defines.h; path = ../Classes/defines.h; sourceTree = SOURCE_ROOT; };
 		243EC5E9112617F900639DF4 /* TiUITableViewSectionProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUITableViewSectionProxy.h; sourceTree = "<group>"; };
 		243EC5EA112617F900639DF4 /* TiUITableViewSectionProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUITableViewSectionProxy.m; sourceTree = "<group>"; };
 		243EC7D5112634AF00639DF4 /* TiUITableViewAction.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUITableViewAction.h; sourceTree = "<group>"; };
@@ -3084,6 +3086,7 @@
 			children = (
 				32CA4F630368D1EE00C91783 /* Titanium_Prefix.pch */,
 				29B97316FDCFA39411CA2CEA /* main.m */,
+				241EAA21118AB3BB0081A5BE /* defines.h */,
 			);
 			name = "Other Sources";
 			sourceTree = "<group>";
@@ -3356,6 +3359,7 @@
 				24DD0456116A6F02006FD6E1 /* TiTabGroup.h in Headers */,
 				24DD0978116D8E07006FD6E1 /* TiToolbarButton.h in Headers */,
 				B4DE7E5111823E990006DDE1 /* TiGradient.h in Headers */,
+				241EAA22118AB3BB0081A5BE /* defines.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

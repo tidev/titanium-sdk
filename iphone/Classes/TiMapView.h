@@ -4,6 +4,8 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
+#ifdef USE_TI_MAP
+
 #import "TiUIView.h"
 #import <MapKit/MapKit.h>
 
@@ -35,3 +37,5 @@
 -(void)fireClickEvent:(MKPinAnnotationView *) pinview source:(NSString *)source;
 
 @end
+
+#endif

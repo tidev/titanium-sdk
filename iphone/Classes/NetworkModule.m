@@ -4,6 +4,7 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
+#ifdef USE_TI_NETWORK
 
 #import "NetworkModule.h"
 #import "Reachability.h"
@@ -315,3 +316,6 @@ MAKE_SYSTEM_PROP(NOTIFICATION_TYPE_SOUND,3);
 }
 
 @end
+
+
+#endif

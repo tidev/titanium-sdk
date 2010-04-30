@@ -6,6 +6,7 @@
  */
 #include <Foundation/Foundation.h>
 #include <UIKit/UIKit.h>
+#include "defines.h"
 
 #define MEMORY_DEBUG 0
 

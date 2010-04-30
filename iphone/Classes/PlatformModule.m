@@ -4,6 +4,7 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
+#ifdef USE_TI_PLATFORM
 
 #import "PlatformModule.h"
 #import "TitaniumApp.h"
@@ -307,3 +308,5 @@ MAKE_SYSTEM_PROP(BATTERY_STATE_FULL,UIDeviceBatteryStateFull);
 
 
 @end
+
+#endif

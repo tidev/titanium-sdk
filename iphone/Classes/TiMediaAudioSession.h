@@ -4,6 +4,7 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
+#ifdef USE_TI_MEDIA
 
 extern NSString * const kTiMediaAudioSessionInterruptionBegin;
 extern NSString * const kTiMediaAudioSessionInterruptionEnd;
@@ -47,3 +48,5 @@ TiMediaAudioSessionInputType;
 -(BOOL)isAudioPlaying;
 
 @end
+
+#endif

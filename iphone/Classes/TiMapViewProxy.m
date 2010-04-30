@@ -4,6 +4,7 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
+#ifdef USE_TI_MAP
 
 #import "TiMapViewProxy.h"
 #import "TiMapView.h"
@@ -20,3 +21,5 @@ USE_VIEW_FOR_UI_METHOD(removeAnnotations)
 USE_VIEW_FOR_UI_METHOD(removeAllAnnotations)
 
 @end
+
+#endif

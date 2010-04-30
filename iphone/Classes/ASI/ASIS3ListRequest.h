@@ -5,6 +5,7 @@
 //  Created by Ben Copsey on 13/07/2009.
 //  Copyright 2009 All-Seeing Interactive. All rights reserved.
 //
+#ifdef USE_ASI_S3
 
 #import <Foundation/Foundation.h>
 #import "ASIS3Request.h"
@@ -45,3 +46,5 @@
 @property (assign) int maxResultCount;
 @property (retain) NSString *delimiter;	
 @end
+
+#endif

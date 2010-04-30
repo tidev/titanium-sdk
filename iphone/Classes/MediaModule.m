@@ -4,6 +4,7 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
+#ifdef USE_TI_MEDIA
 
 #import "MediaModule.h"
 #import "TiUtils.h"
@@ -761,3 +762,5 @@ MAKE_SYSTEM_PROP(VIDEO_FINISH_REASON_USER_EXITED,MPMovieFinishReasonUserExited);
 }
 
 @end
+
+#endif

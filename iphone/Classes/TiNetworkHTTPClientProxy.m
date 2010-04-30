@@ -4,6 +4,8 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
+#ifdef USE_TI_NETWORK
+
 
 #import "TiNetworkHTTPClientProxy.h"
 #import "TiNetworkHTTPClientResultProxy.h"
@@ -451,3 +453,5 @@ extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 }
 
 @end
+
+#endif

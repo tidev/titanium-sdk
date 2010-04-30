@@ -4,6 +4,8 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
+#ifdef USE_TI_FACEBOOK
+
 #import "TiBase.h"
 #import "TitaniumApp.h"
 #import "FacebookModule.h"
@@ -632,3 +634,5 @@ MAKE_SYSTEM_PROP(LOGIN_BUTTON_STYLE_NORMAL,FBLoginButtonStyleNormal);
 
 
 @end
+
+#endif

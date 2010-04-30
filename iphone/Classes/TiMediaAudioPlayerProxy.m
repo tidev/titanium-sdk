@@ -4,6 +4,7 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
+#ifdef USE_TI_MEDIA
 
 #import "TiMediaAudioPlayerProxy.h"
 #import "TiUtils.h"
@@ -286,3 +287,5 @@ MAKE_SYSTEM_PROP(STATE_PAUSED,AS_PAUSED);
 }
 
 @end
+
+#endif
