@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiDict;
+import org.appcelerator.titanium.io.TiBaseFile;
 import org.appcelerator.titanium.io.TiFile;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.Log;
@@ -62,7 +63,7 @@ public class EmailDialogProxy extends TiViewProxy {
 		if (attachment instanceof FileProxy || attachment instanceof TiBlob) {
 			if (attachments == null) {
 				attachments = new ArrayList<Object>();
-			}
+			}			
 			attachments.add(attachment);
 		} else {
 			// silently ignore?
@@ -75,11 +76,16 @@ public class EmailDialogProxy extends TiViewProxy {
 	public void open(){
 		Intent sendIntent = new Intent(Intent.ACTION_SEND);
 		String intentType = "message/rfc822";
+		/*
 		if (hasDynamicValue("html")) {
 			if (TiConvert.toBoolean(getDynamicValue("html"))) {
 				intentType = "text/html";
 			}			
-		}
+		}*/ 
+		// seems to be no benefit to setting it to html. 
+		// keeping it at message/rfc822 will help force e-mail dialog as opposed 
+		// to another activity the "chooser" may find.
+		
 		sendIntent.setType(intentType);
 		putAddressExtra(sendIntent, Intent.EXTRA_EMAIL, "toRecipients");
 		putAddressExtra(sendIntent, Intent.EXTRA_CC, "ccRecipients");
@@ -104,7 +110,7 @@ public class EmailDialogProxy extends TiViewProxy {
 						Intent data) {					
 					// ACTION_SEND does not set a result code (so the default of 0
 					// is always returned. We'll neither confirm nor deny -- assume SENT
-					// cf http://code.google.com/p/android/issues/detail?id=5512
+					// see http://code.google.com/p/android/issues/detail?id=5512
 					TiDict result = new TiDict();
 					result.put("result", SENT); // TODO fix this when figure out above
 					result.put("success", true);
@@ -129,7 +135,7 @@ public class EmailDialogProxy extends TiViewProxy {
 		tempFolder.mkdirs();
 		
 		File tempfilej = new File(tempFolder, fileName);
-		TiFile tempfile = new TiFile(getTiContext(),tempfilej,tempfilej.getPath(), false);
+		TiFile tempfile = new TiFile(getTiContext(),tempfilej, tempfilej.getPath(), false);
 		
 		if (tempfile.exists()) {
 			tempfile.deleteFile();
@@ -166,13 +172,24 @@ public class EmailDialogProxy extends TiViewProxy {
 			Log.d(LCAT, "Attaching standard file " + uri.toString() + " with mimetype " + mimeType);
 		}
 		sendIntent.putExtra(Intent.EXTRA_STREAM, uri);
-		sendIntent.setType(mimeType);		
+		
 	}
 	
 	private void attachBlob(Intent sendIntent, TiBlob blob) {
 		if (DBG) {
 			Log.d(LCAT, "Attaching blob of type " + blob.getMimeType());
 		}
+		
+		// Some blobs refer to files (TYPE_FILE), such as a selection from
+		// the photo gallery . If that's the case with this
+		// blob, then just attach the file and be done with it.
+		if (blob.getType() == TiBlob.TYPE_FILE) {
+			TiBaseFile baseFile =  (TiBaseFile) blob.getData();
+			attachStandardFile(sendIntent, Uri.fromFile(baseFile.getNativeFile()), blob.getMimeType());
+			return;
+		}
+		
+		// For non-file blobs, make a temp file and attach.
 		String fileName ="attachment";
 		String extension = TiMimeTypeHelper.getFileExtensionFromMimeType(blob.getMimeType(), "");
 		if (extension.length() > 0 ) {

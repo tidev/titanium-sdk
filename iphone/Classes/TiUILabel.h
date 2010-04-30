@@ -11,7 +11,6 @@
 	UILabel *label;
     UIImageView* backgroundView;
 	BOOL requiresLayout;
-    BOOL antialiasOK;
     CGRect padding;
     BOOL repad;
 }

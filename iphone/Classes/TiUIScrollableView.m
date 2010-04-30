@@ -83,7 +83,7 @@
 		[scrollview setShowsHorizontalScrollIndicator:NO];
 		[scrollview setDelaysContentTouches:NO];
 		[scrollview setClipsToBounds:[TiUtils boolValue:[self.proxy valueForKey:@"clipViews"] def:YES]];
-		[self addSubview:scrollview];
+		[self insertSubview:scrollview atIndex:0];
 	}
 	return scrollview;
 }
