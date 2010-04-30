@@ -4,6 +4,8 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
+#ifdef USE_TI_APP
+
 #import "TiModule.h"
 #import "TiAppPropertiesProxy.h"
 
@@ -36,3 +38,5 @@
 @property(nonatomic,readwrite,assign) NSNumber *proximityDetection;
 
 @end
+
+#endif

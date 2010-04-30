@@ -4,6 +4,7 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
+#ifdef USE_TI_YAHOO
 
 #import "YahooModule.h"
 #import "ASIHTTPRequest.h"
@@ -180,3 +181,5 @@ const NSString *apiEndpoint = @"http://query.yahooapis.com/v1/public/yql?format=
 }
 
 @end
+
+#endif

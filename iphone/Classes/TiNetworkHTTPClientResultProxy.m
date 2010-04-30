@@ -4,6 +4,8 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
+#ifdef USE_TI_NETWORK
+
 #import "TiNetworkHTTPClientResultProxy.h"
 #import "KrollMethod.h"
 #import "KrollMethodDelegate.h"
@@ -74,3 +76,5 @@
 }
 
 @end
+
+#endif

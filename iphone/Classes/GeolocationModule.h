@@ -4,6 +4,7 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
+#ifdef USE_TI_GEOLOCATION
 
 #import "TiModule.h"
 #import <CoreLocation/CoreLocation.h>
@@ -35,3 +36,5 @@
 
 
 @end
+
+#endif

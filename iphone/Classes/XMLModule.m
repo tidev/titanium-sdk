@@ -4,6 +4,7 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
+#ifdef USE_TI_XML
 
 #import "XMLModule.h"
 #import "TiDOMDocumentProxy.h"
@@ -20,3 +21,5 @@
 }
 
 @end
+
+#endif

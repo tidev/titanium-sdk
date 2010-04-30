@@ -11,6 +11,7 @@
 //  this copyright and permission notice. Attribution in compiled projects is
 //  appreciated but not required.
 //
+#ifdef USE_TI_MEDIA
 
 #ifdef TARGET_OS_IPHONE			
 #import <UIKit/UIKit.h>
@@ -155,7 +156,4 @@ extern NSString * const ASStatusChangedNotification;
 @end
 
 
-
-
-
-
+#endif
