@@ -165,10 +165,12 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 	[self detachView];
 	
 	// notify our child that his window is closing
+	[self lockChildrenForReading];
 	for (TiViewProxy *child in self.children)
 	{
 		[child windowDidClose];
-	}	
+	}
+	[self unlockChildren];
 	
 	[self windowDidClose];
 
@@ -458,16 +460,15 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 	if ([self _hasListeners:@"close"])
 	{
 		[self fireEvent:@"close" withObject:nil];
-	}	
+	}
 	
 	// notify our child that his window is closing
-	if (self.children!=nil)
-	{
+	[self lockChildrenForReading];
 		for (TiViewProxy *child in self.children)
 		{
 			[child windowWillClose];
 		}
-	}
+	[self unlockChildren];
 
 	if ([self _handleClose:args])
 	{

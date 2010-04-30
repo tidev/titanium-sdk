@@ -346,6 +346,7 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 	// this method is called when the cell is initially created
 	// to be initialized. on subsequent repaints of a re-used
 	// table cell, the updateChildren below will be called instead
+	[self lockChildrenForReading];
 	if (self.children!=nil)
 	{
 		UIView *contentView = cell.contentView;
@@ -371,6 +372,7 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 		[self layoutChildren];
 		[contentView addSubview:rowContainerView];
 	}
+	[self unlockChildren];
 }
 
 -(void)reproxyChildren:(TiViewProxy*)proxy 
@@ -381,6 +383,7 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 	[uiview transferProxy:proxy];
 	
 	// because proxies can have children, we need to recursively do this
+	[proxy lockChildrenForReading];
 	NSArray *children_ = proxy.children;
 	if (children_!=nil && [children_ count]>0)
 	{
@@ -389,6 +392,7 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 		{
 			NSLog(@"[WARN] looks like we have a different table cell layout than expected.  Make sure you set the 'className' property of the table row when you have different cell layouts");
 			NSLog(@"[WARN] if you don't fix this, your tableview will suffer performance issues and also will not render properly");
+			[proxy unlockChildren];
 			return;
 		}
 		int c = 0;
@@ -399,6 +403,7 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 						   parent:proxy touchDelegate:nil];
 		}
 	}
+	[proxy unlockChildren];
 }
 
 -(void)updateChildren:(UITableViewCell*)cell
@@ -412,36 +417,44 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 	// cached cell (and resulting underlying UI component changes)
 	// and the proxy change ensures that the new row proxy gets the
 	// events now
-	if (self.children!=nil)
+	[self lockChildrenForReading];
+		BOOL emptyChildren = [[self children] count] == 0;
+	[self unlockChildren];
+	
+	if (emptyChildren)
 	{
-		UIView *contentView = cell.contentView;
-		NSArray *subviews = [contentView subviews];
-		if (contentView==nil || [subviews count]==0)
+		return;
+	}
+	
+	UIView *contentView = cell.contentView;
+	NSArray *subviews = [contentView subviews];
+	if (contentView==nil || [subviews count]==0)
+	{
+		// this can happen if we're giving a reused table cell
+		// but he's removed the children from it... in this 
+		// case we just re-add like it was brand new
+		[self configureChildren:cell];
+		return;
+	}
+	BOOL found = NO;
+	for (UIView *aview in subviews)
+	{
+		// since the table will insert the accessory view and 
+		// other stuff in our contentView we need to check and
+		// and skip non TiUIViews
+		if ([aview isKindOfClass:[TiUITableViewRowContainer class]])
 		{
-			// this can happen if we're giving a reused table cell
-			// but he's removed the children from it... in this 
-			// case we just re-add like it was brand new
-			[self configureChildren:cell];
-			return;
-		}
-		BOOL found = NO;
-		for (UIView *aview in subviews)
-		{
-			// since the table will insert the accessory view and 
-			// other stuff in our contentView we need to check and
-			// and skip non TiUIViews
-			if ([aview isKindOfClass:[TiUITableViewRowContainer class]])
+			NSArray *subviews = [aview subviews];
+			// this can happen because the cell dropped our views
+			if ([subviews count]==0)
 			{
-				NSArray *subviews = [aview subviews];
-				// this can happen because the cell dropped our views
-				if ([subviews count]==0)
-				{
-					[aview removeFromSuperview];
-					[self configureChildren:cell];
-					return;
-				}
-				[rowContainerView release];
-				rowContainerView = [aview retain];
+				[aview removeFromSuperview];
+				[self configureChildren:cell];
+				return;
+			}
+			[rowContainerView release];
+			rowContainerView = [aview retain];
+			[self lockChildrenForReading];
 				for (size_t x=0;x<[subviews count];x++)
 				{
 					TiViewProxy *proxy = [self.children objectAtIndex:x];
@@ -449,35 +462,35 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 					[self reproxyChildren:proxy view:uiview parent:self touchDelegate:contentView];
 				}
 				[self layoutChildren];
-				found = YES;
-				// once we find the container we can break
-				break;
-			}
-		} 
-		if (found==NO)
-		{
-			// this probably happens if a developer specified the same
-			// row but the layout is different and they're trying to reuse
-			// it -- in this case, we're just going to reconfig
-			
-			// at least warn the user
-			NSLog(@"[WARN] looks like we have a different table cell layout than expected.  Make sure you set the 'className' property of the table row when you have different cell layouts");
-			NSLog(@"[WARN] if you don't fix this, your tableview will suffer performance issues");
-			
-			// change the classname so at least we don't too much of a performance
-			// hit on subsequent repaints
-			RELEASE_TO_NIL(tableClass);
-			tableClass = [[NSString stringWithFormat:@"%d",[self hash]] retain];
-			
-			// now force a repaint by reconfiguring this cell
-			for (UIView *v in subviews)
-			{
-				[v removeFromSuperview];
-			}
-			
-			[self configureChildren:cell];
-			return;
+			[self unlockChildren];
+			found = YES;
+			// once we find the container we can break
+			break;
 		}
+	} 
+	if (found==NO)
+	{
+		// this probably happens if a developer specified the same
+		// row but the layout is different and they're trying to reuse
+		// it -- in this case, we're just going to reconfig
+		
+		// at least warn the user
+		NSLog(@"[WARN] looks like we have a different table cell layout than expected.  Make sure you set the 'className' property of the table row when you have different cell layouts");
+		NSLog(@"[WARN] if you don't fix this, your tableview will suffer performance issues");
+		
+		// change the classname so at least we don't too much of a performance
+		// hit on subsequent repaints
+		RELEASE_TO_NIL(tableClass);
+		tableClass = [[NSString stringWithFormat:@"%d",[self hash]] retain];
+		
+		// now force a repaint by reconfiguring this cell
+		for (UIView *v in subviews)
+		{
+			[v removeFromSuperview];
+		}
+		
+		[self configureChildren:cell];
+		return;
 	}
 }
 

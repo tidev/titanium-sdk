@@ -27,7 +27,8 @@
 	UIBarButtonItem * barButtonItem;
 
 @private
-	NSRecursiveLock *childLock;
+	//Cocoa doesn't have a readwrite lock, so we use pthreads.
+	pthread_rwlock_t rwChildrenLock;
 	NSMutableArray *children;
 	TiUIView *view;
 	TiViewProxy *parent;
@@ -36,6 +37,12 @@
 	BOOL visible;
 #endif
 }
+
+//ALWAYS use these when accessing children. For best results, treat this as brackets in a block (IE, indent code inside)
+-(void)lockChildrenForReading;
+-(void)lockChildrenForWriting;
+-(void)unlockChildren;
+
 
 @property(nonatomic,readwrite,assign) LayoutConstraint * layoutProperties;
 
