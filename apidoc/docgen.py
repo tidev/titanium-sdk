@@ -7,7 +7,10 @@
 # format that can be used by other documentation generators
 # such as PDF, etc.
 # 
-import os, sys, json, re
+try: import json
+except: import simplejson as json
+
+import os, sys, re
 from os.path import join, splitext, split, exists
 from htmlentitydefs import name2codepoint 
 

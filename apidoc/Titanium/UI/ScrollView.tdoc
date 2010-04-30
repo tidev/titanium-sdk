@@ -12,7 +12,7 @@ view
 
 - description
 
-A Scroll View is used to create a scrollable region of content.  Views added to the Scroll View will be scrolled based on the content size of the Scroll View. The Scroll View is created by the method `Titanium.UI.createScrollView`.
+A Scroll View is used to create a scrollable region of content.  Views added to the Scroll View will be scrolled based on the content size of the Scroll View. The Scroll View is created by the method `Titanium.UI.createScrollView`. Note: In Android, Scroll Views can only scroll in one direction, either vertical or horizontal, but not both at the same time. See the `Titanium.UI.ScrollView.scrollType` property
 
 - since
 
@@ -35,6 +35,7 @@ contentOffset[object]: an object (with x and y properties) to indicate the offse
 zoomScale[float]: set the zoom scale for the current content area
 maxZoomScale[float]: the maximum scale of the content
 minZoomScale[float]: the minimum scale of the content
+scrollType[string]: (Android only) the type of ScrollView: "vertical" or "horizontal"
 
 - methods
 
