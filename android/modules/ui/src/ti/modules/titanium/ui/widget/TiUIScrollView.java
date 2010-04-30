@@ -16,6 +16,7 @@ import org.appcelerator.titanium.view.TiCompositeLayout;
 import android.content.Context;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.View.MeasureSpec;
 import android.widget.FrameLayout;
 import android.widget.HorizontalScrollView;
 import android.widget.ScrollView;
@@ -89,6 +90,7 @@ public class TiUIScrollView extends TiUIView {
 		{
 			LayoutParams p = (LayoutParams)child.getLayoutParams();
 			int contentHeight = getContentProperty("contentHeight");
+			
 			if (contentHeight == AUTO) {
 				int childMeasuredHeight = child.getMeasuredHeight();
 				if (!p.autoHeight) {
@@ -112,6 +114,8 @@ public class TiUIScrollView extends TiUIView {
 		protected void constrainChild(View child, int width, int wMode,
 				int height, int hMode) {
 
+			super.constrainChild(child, width, wMode, height, hMode);
+			
 			// We need to support an automatically growing contentArea, so this code is
 			LayoutParams p = (LayoutParams)child.getLayoutParams();
 			calculateAbsoluteRight(child);
@@ -274,6 +278,16 @@ public class TiUIScrollView extends TiUIView {
 			}
 		}
 
+		// android only property
+		if (d.containsKey("scrollType")) {
+			Object scrollType = d.get("scrollType");
+			if (scrollType.equals("vertical")) {
+				type = TYPE_VERTICAL;
+			} else if (scrollType.equals("horizontal")) {
+				type = TYPE_HORIZONTAL;
+			}
+		}
+		
 		// we create the view here since we now know the potential widget type
 		View view = null;
 		switch (type) {
@@ -308,6 +322,18 @@ public class TiUIScrollView extends TiUIView {
 		getNativeView().scrollTo(x, y);
 		getNativeView().computeScroll();
 		//getLayout().scrollTo(x, y);
+	}
+	
+	@Override
+	public void add(TiUIView child) {
+		super.add(child);
+		
+		if (getNativeView() != null) {
+			getLayout().requestLayout();
+			if (child.getNativeView() != null) {
+				child.getNativeView().requestLayout();
+			}
+		}
 	}
 
 }
