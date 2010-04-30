@@ -707,7 +707,11 @@
 	// views support event propagation. we need to check our
 	// parent and if he has the same named listener, we fire
 	// an event and set the source of the event to ourself
-	if (parent!=nil && propagate==YES)
+    
+    // TODO: Based on bugs 810/824, do we really need the 'propagate' flag?
+    // What we really want to do is stop the event firing chain when the first event is fired, not
+    // fire every event in the chain...
+	if (parent!=nil && ![super _hasListeners:type] && propagate==YES)
 	{
 		[parent fireEvent:type withObject:obj withSource:source];
 	}
