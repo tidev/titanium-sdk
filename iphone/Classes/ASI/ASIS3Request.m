@@ -4,6 +4,7 @@
 //  Created by Ben Copsey on 30/06/2009.
 //  Copyright 2009 All-Seeing Interactive. All rights reserved.
 //
+#ifdef USE_ASI_S3
 
 #import "ASIS3Request.h"
 #import <CommonCrypto/CommonHMAC.h>
@@ -264,3 +265,5 @@ static NSString *sharedSecretAccessKey = nil;
 @synthesize sourceBucket;
 @synthesize sourcePath;
 @end
+
+#endif

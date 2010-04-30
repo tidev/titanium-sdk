@@ -5,6 +5,7 @@
 //  Created by Ben Copsey on 13/07/2009.
 //  Copyright 2009 All-Seeing Interactive. All rights reserved.
 //
+#ifdef USE_ASI_S3
 
 #import "ASIS3BucketObject.h"
 #import "ASIS3Request.h"
@@ -59,3 +60,5 @@
 @synthesize ownerID;
 @synthesize ownerName;
 @end
+
+#endif

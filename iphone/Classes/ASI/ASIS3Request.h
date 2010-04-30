@@ -5,6 +5,7 @@
 //  Copyright 2009 All-Seeing Interactive. All rights reserved.
 //
 // A (basic) class for accessing data stored on Amazon's Simple Storage Service (http://aws.amazon.com/s3/) using the REST API
+#ifdef USE_ASI_S3
 
 #import <Foundation/Foundation.h>
 #import "ASIHTTPRequest.h"
@@ -101,3 +102,5 @@ typedef enum _ASIS3ErrorType {
 @property (retain) NSString *sourceBucket;
 @property (retain) NSString *sourcePath;
 @end
+	
+#endif
