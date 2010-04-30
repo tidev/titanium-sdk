@@ -5,30 +5,52 @@
 #
 
 import os, sys, subprocess, re, platform, run
-
 from androidsdk import *
-
 	
 def check_java():
+	failed = False
+	status = "OK"
 	try:
 		if platform.system() == "Windows":
-			run.run(['cmd.exe','/C','javac','-version'])
+			(out,err) = subprocess.Popen(['cmd.exe','/C','javac','-version'], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
 		else:
-			run.run(['javac','-version'])	
-	except:
-		print "Missing Java SDK. Please make sure Java SDK is on your PATH"
-		sys.exit(1)
+			(out,err) = subprocess.Popen(['javac','-version'], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
+		
+		# javac prints it's version on stderr
+		version = err.replace("javac ", "").strip()
+		if not version.startswith("1.6"):
+			status = "JDK version %s detected, but 1.6 is required" % version
+			failed = True
+	except Exception,e:
+		status = "Missing Java SDK. Please make sure Java SDK is on your PATH (exception: %s)" % e
+		failed = True
+	
+	return (failed, status)
 
 def check_android1_6():
+	failed = False
+	status = "OK"
 	try:
 		sdk = AndroidSDK(None, 4)
+		status = sdk.get_android_sdk()
 	except Exception, e:
-		print "Missing Android 1.6 SDK: %s" % e
-		sys.exit(2)
+		status = "Missing Android 1.6 SDK: %s" % e
+		failed = True
+	
+	return (failed, status)
 
 def main(args):
-	check_java()
-	check_android1_6()
+	(java_failed, java_status) = check_java()
+	if java_failed:
+		print java_status
+		sys.exit(1)
+	
+	(android_failed, android_status) = check_android1_6()
+	if android_failed:
+		print android_status
+		sys.exit(2)
+	
+	print android_status
 	sys.exit(0)
 
 if __name__ == "__main__":
