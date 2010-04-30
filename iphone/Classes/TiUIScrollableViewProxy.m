@@ -38,7 +38,11 @@
 
 -(void)childWillResize:(TiViewProxy *)child
 {
-	if (![[self children] containsObject:child])
+	[self lockChildrenForReading];
+		BOOL hasChild = [[self children] containsObject:child];
+	[self unlockChildren];
+
+	if (!hasChild)
 	{
 		return;
 		//In the case of views added with addView, as they are not part of children, they should be ignored.
