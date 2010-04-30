@@ -4,7 +4,8 @@
 # Android Simulator for building a project and launching
 # the Android Emulator or on the device
 #
-import os, sys, subprocess, shutil, time, signal, string, platform, re, run, avd, glob
+import os, sys, subprocess, shutil, time, signal, string, platform, re, glob
+import run, avd, prereq
 from os.path import splitext
 from compiler import Compiler
 from os.path import join, splitext, split, exists
@@ -699,6 +700,11 @@ class Builder(object):
 			else:
 				deploy_type = 'production'
 
+		(java_failed, java_status) = prereq.check_java()
+		if java_failed:
+			error(java_status)
+			sys.exit(1)
+		
 		if deploy_type == 'development':
 			self.wait_for_device('e')
 		elif deploy_type == 'test':
