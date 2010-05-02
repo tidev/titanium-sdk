@@ -272,11 +272,9 @@
 {
 	NSAssert(sections!=nil,@"sections was nil");
 	row.table = self;
-	TiUITableViewSectionProxy *section = [sections objectAtIndex:[sections count]-1];
+	TiUITableViewSectionProxy *section = [sections lastObject];
 	row.section = section;
-	NSMutableArray *rows = [row.section rows];
-	NSAssert(rows!=nil,@"rows was nil");
-	[rows addObject:row];
+    [section add:row];
 	[row.section reorderRows];
 }
 
@@ -350,6 +348,13 @@
 			[tableview insertRowsAtIndexPaths:[NSArray arrayWithObject:path] withRowAnimation:action.animation];
 			break;
 		}
+        case TiUITableViewActionAppendRowWithSection:
+        {
+            [sections addObject:action.row.section];
+            [self appendRow:action.row];
+            [tableview insertSections:[NSIndexSet indexSetWithIndex:[sections count]-1] withRowAnimation:action.animation];
+            break;
+        }
 	}
 	
 	[table endUpdates];
