@@ -3,7 +3,10 @@ Titanium.UI.setBackgroundColor('#000');
 
 
 // create tab group
-var tabGroup = Titanium.UI.createTabGroup();
+var tabGroup = Titanium.UI.createTabGroup(
+{
+	barColor:'#336699'
+});
 
 
 
