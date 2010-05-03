@@ -988,6 +988,11 @@
 	editable = [TiUtils boolValue:args];
 }
 
+-(void)setMoveable_:(id)args
+{
+	moveable = [TiUtils boolValue:args];
+}
+
 -(void)setEditing_:(id)args withObject:(id)properties
 {
 	[self changeEditing:[TiUtils boolValue:args]];
@@ -1172,7 +1177,7 @@ if(tableView == searchTableView)	\
 
 	//Otherwise, when editing or moving, make sure that both can be done.
 	
-	return [TiUtils boolValue:[row valueForKey:@"moveable"] def:moving] || [TiUtils boolValue:[row valueForKey:@"editable"] def:editing];
+	return [TiUtils boolValue:[row valueForKey:@"moveable"] def:moving || moveable] || [TiUtils boolValue:[row valueForKey:@"editable"] def:editing];
 	
 	//Why are we checking editable twice? Well, once it's with the default of editable. The second time with the default of editing.
 	//Effectively, editable is being tri-state.
@@ -1192,7 +1197,7 @@ if(tableView == searchTableView)	\
 	RETURN_IF_SEARCH_TABLE_VIEW(NO);
 
 	TiUITableViewRowProxy *row = [self rowForIndexPath:indexPath];
-	return [TiUtils boolValue:[row valueForKey:@"moveable"] def:moving];
+	return [TiUtils boolValue:[row valueForKey:@"moveable"] def:moving || moveable];
 }
 
 // Allows customization of the editingStyle for a particular cell located at 'indexPath'. If not implemented, all editable cells will have UITableViewCellEditingStyleDelete set for them when the table has editing property set to YES.
