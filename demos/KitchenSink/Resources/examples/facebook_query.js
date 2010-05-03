@@ -40,7 +40,7 @@ function runQuery()
 	var query = "SELECT uid, name, pic_square, status FROM user ";
 	query +=  "where uid IN (SELECT uid2 FROM friend WHERE uid1 = " + Titanium.Facebook.getUserId() + ")"; 
 	query += "order by last_name";
-	
+	Ti.API.info('user id ' + Titanium.Facebook.getUserId())
 	Titanium.Facebook.query(query, function(r)
 	{
 		var data = [];

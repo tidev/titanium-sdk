@@ -2,7 +2,7 @@
 var data = [
 	{title:'Row 1', hasChild:true},
 	{title:'Row 2', hasDetail:true},
-	{title:'Row 3'},
+	{title:'Append Row with Header'},
 	{title:'Append Row & height=100'}
 	
 
@@ -24,8 +24,20 @@ tableview.addEventListener('click', function(e)
 	var row = e.row;
 	row.height = 100;
 	var rowdata = e.rowData;
-	
-	if (index == 3)
+	if (index == 2)
+	{
+		// var row = Ti.UI.createTableViewRow({header:'New Header'});
+		// var l = Ti.UI.createLabel({
+		//     text:' I am a new row',
+		//     height:30,
+		//     width:200
+		// });
+		// row.add(l);
+		var data = {title:'New Row ' + newRowCount, header:'New Header'};
+
+		tableview.appendRow(data)
+	}
+	else if (index == 3)
 	{
 		var data = {title:'New Row ' + newRowCount};
 		if (newRowCount == 1)

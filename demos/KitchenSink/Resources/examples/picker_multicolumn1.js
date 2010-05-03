@@ -5,7 +5,7 @@ var picker = Ti.UI.createPicker();
 
 var column1 = Ti.UI.createPickerColumn({opacity:0});
 column1.addRow(Ti.UI.createPickerRow({title:'Bananas',custom_item:'b'}));
-column1.addRow(Ti.UI.createPickerRow({title:'Strawberries',custom_item:'s'}));
+column1.addRow(Ti.UI.createPickerRow({title:'Strawberries',custom_item:'s', selected:true}));
 column1.addRow(Ti.UI.createPickerRow({title:'Mangos',custom_item:'m'}));
 column1.addRow(Ti.UI.createPickerRow({title:'Grapes',custom_item:'g'}));
 

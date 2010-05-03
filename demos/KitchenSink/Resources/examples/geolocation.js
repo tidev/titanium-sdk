@@ -329,6 +329,8 @@ else
 		var timestamp = e.coords.timestamp;
 		var altitudeAccuracy = e.coords.altitudeAccuracy;
 
+		//Titanium.Geolocation.distanceFilter = 100; //changed after first location event 
+		
 		updatedLocation.text = 'long:' + longitude;
 		updatedLatitude.text = 'lat: '+ latitude;
 		updatedLocationAccuracy.text = 'accuracy:' + accuracy;

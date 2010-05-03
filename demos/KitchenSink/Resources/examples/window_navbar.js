@@ -279,7 +279,7 @@ b10.addEventListener('click', function()
 win.add(b10);
 
 var b11 = Titanium.UI.createButton({
-	title:'Back button background',
+	title:'Back button BG',
 	height:40,
 	width:145,
 	top:260,
@@ -308,3 +308,43 @@ b11.addEventListener('click', function()
 	}
 });
 win.add(b11);
+
+//
+// BACKGROUND IMAGE ON NORMAL BUTTON
+//
+var b12 = Titanium.UI.createButton({
+	title:'Button With Image',
+	height:40,
+	width:145,
+	top:260,
+	right:10
+});
+b12.addEventListener('click', function()
+{
+	var b = Ti.UI.createButton({
+		backgroundImage:'../images/camera.png',
+		height:33,
+		width:33
+	});
+	win.rightNavButton = b;
+});
+win.add(b12);
+
+var b13 = Titanium.UI.createButton({
+	title:'Set Label',
+	height:40,
+	width:145,
+	top:310,
+	left:10
+});
+
+b13.addEventListener('click', function()
+{
+	var l = Ti.UI.createLabel({
+		text:'Hello',
+		color:'#fff',
+		font:{fontSize:14}
+	});
+	win.rightNavButton = l;
+});
+win.add(b13);

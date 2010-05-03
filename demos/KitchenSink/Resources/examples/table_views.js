@@ -59,6 +59,8 @@ if (Titanium.Platform.name == 'iPhone OS')
 	data.push({title:'Table Empty AppendRow', hasChild:true, test:'../examples/table_view_api_empty_append.js'});
 	data.push({title:'Selectable Rows', hasChild:true, test:'../examples/table_view_selectable.js'});
 	data.push({title:'Events', hasChild:true, test:'../examples/table_view_events.js'});
+	data.push({title:'Touch Events', hasChild:true, test:'../examples/table_view_touch.js'});
+	data.push({title:'Edit and Move', hasChild:true, test:'../examples/table_view_edit_and_move.js'});
 
 }
 // create table view

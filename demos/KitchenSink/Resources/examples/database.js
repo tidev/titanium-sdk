@@ -102,7 +102,7 @@ Titanium.API.info('ROW COUNT = ' + rows.getRowCount());
 
 while (rows.isValidRow())
 {
-	Titanium.API.info('ID: ' + rows.field(0) + ' NAME: ' + rows.fieldByName('name'));
+	Titanium.API.info('ID: ' + rows.field(0) + ' NAME: ' + rows.fieldByName('name') + ' COLUMN NAME ' + rows.fieldName(0));
 	if (rows.field(0)==5)
 	{
 		l3.text = rows.fieldByName('name');
