@@ -76,7 +76,7 @@ public class TiUIWindow extends TiUIView
 	{
 		super(proxy);
 
-		proxy.setModelListener(this);
+		//proxy.setModelListener(this);
 		if (idGenerator == null) {
 			idGenerator = new AtomicInteger(0);
 		}
@@ -93,7 +93,7 @@ public class TiUIWindow extends TiUIView
 		if (!newActivity && options != null && options.containsKey("tabOpen")) {
 			newActivity = TiConvert.toBoolean(options,"tabOpen");
 		}
-		
+
 		boolean vertical = isVerticalLayout(resolver);
 		resolver.release();
 		resolver = null;
@@ -111,6 +111,7 @@ public class TiUIWindow extends TiUIView
 			layoutParams.autoFillsWidth = true;
 
 			setNativeView(liteWindow);
+			proxy.setModelListener(this);
 			handlePostOpen();
 		}
 	}
@@ -319,6 +320,8 @@ public class TiUIWindow extends TiUIView
 			case MSG_ACTIVITY_CREATED :
 				Log.w(LCAT, "Received Activity creation message");
 				windowActivity = (Activity) msg.obj;
+				proxy.setModelListener(this);
+
 				handler.sendEmptyMessage(MSG_POST_OPEN);
 				return true;
 			case MSG_ANIMATE : {
@@ -491,7 +494,7 @@ public class TiUIWindow extends TiUIView
 		}
 		return vertical;
 	}
-	
+
 	protected Intent createIntent(Activity activity, TiDict options)
 	{
 		TiPropertyResolver resolver = new TiPropertyResolver(options, proxy.getDynamicProperties());
