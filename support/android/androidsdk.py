@@ -85,7 +85,7 @@ class AndroidSDK:
 			if os.path.exists(old_style_dir):
 				platform_dir = old_style_dir
 		if platform_dir is None:
-			raise Exception("Couldn't find platform directory for API level %s" % self.api_level)
+			raise Exception("No \"%s\" or \"%s\" in the Android SDK" % ('android-%s' % self.api_level, android_api_levels[self.api_level]))
 		
 		self.platform_dir = platform_dir
 	
