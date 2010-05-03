@@ -119,10 +119,10 @@ public class TiUIImageView extends TiUIView
 		}
 		return null;
 	}
-	
+
 	private Handler handler = new Handler(this);
 	private static final int SET_IMAGE = 10001;
-	
+
 	@Override
 	public boolean handleMessage(Message msg) {
 		if (msg.what == SET_IMAGE) {
@@ -132,7 +132,7 @@ public class TiUIImageView extends TiUIView
 		}
 		return false;
 	}
-	
+
 	public void setImage(final Bitmap bitmap)
 	{
 		if (bitmap != null) {
@@ -147,36 +147,36 @@ public class TiUIImageView extends TiUIView
 			}
 		}
 	}
-	
+
 	private class BitmapWithIndex {
 		public BitmapWithIndex(Bitmap b, int i) {
 			this.bitmap = b;
 			this.index = i;
 		}
-		
+
 		public Bitmap bitmap;
 		public int index;
 	}
-	
+
 	private class Loader implements Runnable
 	{
 		public static final int INFINITE = 0;
-		
+
 		private ArrayBlockingQueue<BitmapWithIndex> bitmapQueue;
 		private int repeatIndex = 0;
-		
+
 		public Loader()
 		{
 			bitmapQueue = new ArrayBlockingQueue<BitmapWithIndex>(5);
 		}
-		
+
 		private int getRepeatCount() {
 			if (proxy.hasDynamicValue("repeatCount")) {
 				return TiConvert.toInt(proxy.getDynamicValue("repeatCount"));
 			}
 			return INFINITE;
 		}
-		
+
 		private boolean isRepeating()
 		{
 			int repeatCount = getRepeatCount();
@@ -185,13 +185,13 @@ public class TiUIImageView extends TiUIView
 			}
 			return repeatIndex < repeatCount;
 		}
-		
+
 		private int getStart()
 		{
 			if (reverse) { return images.length-1; }
 			return 0;
 		}
-		
+
 		private boolean isNotFinalFrame(int frame)
 		{
 			if (reverse) { return frame >= 0; }
@@ -202,7 +202,7 @@ public class TiUIImageView extends TiUIView
 			if (reverse) { return -1; }
 			return 1;
 		}
-		
+
 		public void run()
 		{
 			repeatIndex = 0;
@@ -238,7 +238,7 @@ public class TiUIImageView extends TiUIView
 			}
 			animating.set(false);
 		}
-		
+
 		public ArrayBlockingQueue<BitmapWithIndex> getBitmapQueue()
 		{
 			return bitmapQueue;
@@ -248,7 +248,7 @@ public class TiUIImageView extends TiUIView
 	public void setImages(final Object[] images)
 	{
 		if (images == null) return;
-		
+
 		TiUIImageView.this.images = images;
 		loader = new Loader();
 		Thread loaderThread = new Thread(loader);
@@ -297,12 +297,12 @@ public class TiUIImageView extends TiUIView
 	private class Animator extends TimerTask
 	{
 		private Loader loader;
-		
+
 		public Animator(Loader loader)
 		{
 			this.loader = loader;
 		}
-		
+
 		public void run()
 		{
 			try {
@@ -315,7 +315,7 @@ public class TiUIImageView extends TiUIView
 			}
 		}
 	}
-	
+
 	public void start()
 	{
 		if (!proxy.getTiContext().isUIThread()) {
@@ -381,12 +381,15 @@ public class TiUIImageView extends TiUIView
 		if (d.containsKey("canScale")) {
 			view.setCanScaleImage(TiConvert.toBoolean(d, "canScale"));
 		}
+		if (d.containsKey("enableZoomControls")) {
+			view.setEnableZoomControls(TiConvert.toBoolean(d, "enableZoomControls"));
+		}
 		if (d.containsKey("image")) {
 			setImage(createBitmap(d.get("image")));
 		} else {
 			getProxy().internalSetDynamicValue("image", null, false);
 		}
-		
+
 		super.processProperties(d);
 	}
 
@@ -397,6 +400,8 @@ public class TiUIImageView extends TiUIView
 
 		if (key.equals("canScale")) {
 			view.setCanScaleImage(TiConvert.toBoolean(newValue));
+		} else if (key.equals("enableZoomControls")) {
+			view.setEnableZoomControls(TiConvert.toBoolean(newValue));
 		} else if (key.equals("url")) {
 			new BgImageLoader(getProxy().getTiContext(), null, null).load(TiConvert.toString(newValue));
 		} else if (key.equals("image")) {

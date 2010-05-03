@@ -41,6 +41,7 @@ public class TiImageView extends ViewGroup
 	private OnClickListener clickListener;
 
 	private boolean canScaleImage;
+	private boolean enableZoomControls;
 	private Integer imageHeight;
 	private Integer imageWidth;
 
@@ -60,7 +61,7 @@ public class TiImageView extends ViewGroup
 
 	public class NoLayoutImageView extends ImageView
 	{
-		
+
 		public NoLayoutImageView(Context context) {
 			super(context);
 		}
@@ -70,7 +71,7 @@ public class TiImageView extends ViewGroup
 			// no-op!!
 		}
 	}
-	
+
 	public TiImageView(Context context) {
 		super(context);
 
@@ -79,6 +80,7 @@ public class TiImageView extends ViewGroup
 		handler = new Handler(this);
 
 		canScaleImage = false;
+		enableZoomControls = true; // to mimic original behavior.
 		scaleFactor = 1.0f;
 		originalScaleFactor = scaleFactor;
 		scaleIncrement = 0.1f;
@@ -163,12 +165,17 @@ public class TiImageView extends ViewGroup
 		} else {
 			imageView.setScaleType(ScaleType.CENTER);
 		}
+		requestLayout();
+	}
+
+	public void setEnableZoomControls(boolean enableZoomControls) {
+		this.enableZoomControls = enableZoomControls;
 	}
 
 	public void setImageDrawable(Drawable d) {
 		setImageDrawable(d, true);
 	}
-	
+
 	public void setImageDrawable(Drawable d, boolean recycle) {
 		Drawable od = imageView.getDrawable();
 		if (od != null) {
@@ -180,8 +187,9 @@ public class TiImageView extends ViewGroup
 		imageView.setImageDrawable(d);
 		scaleFactor = originalScaleFactor;
 		updateChangeMatrix(0);
+		invalidate();
 	}
-	
+
 	public Drawable getImageDrawable() {
 		return imageView.getDrawable();
 	}
@@ -189,7 +197,7 @@ public class TiImageView extends ViewGroup
 	public void setImageBitmap(Bitmap bitmap) {
 		imageView.setImageBitmap(bitmap);
 	}
-	
+
 	public void setOnClickListener(OnClickListener clickListener) {
 		this.clickListener = clickListener;
 	}
@@ -207,7 +215,7 @@ public class TiImageView extends ViewGroup
 	public void onClick(View view)
 	{
 		boolean sendClick = true;
-		if (canScaleImage) {
+		if (canScaleImage && enableZoomControls) {
 			if (zoomControls.getVisibility() != View.VISIBLE) {
 				sendClick = false;
 				manageControls();
