@@ -30,7 +30,7 @@ public class TiProxy implements Handler.Callback, TiDynamicMethod, OnEventListen
 
 	protected static final int MSG_LAST_ID = 999;
 
-	private TiContext tiContext;
+	private TiContext tiContext, creatingContext;
 	private Handler uiHandler;
 	private CountDownLatch waitForHandler;
 
@@ -110,6 +110,13 @@ public class TiProxy implements Handler.Callback, TiDynamicMethod, OnEventListen
 	public TiContext switchContext(TiContext tiContext) {
 		TiContext oldContext = this.tiContext;
 		this.tiContext = tiContext;
+		if (creatingContext == null) {
+			// We'll assume for now that if we're switching contexts,
+			// it's because the creation of a window forced a new context
+			// In that case, we need to hold on to the original / creating
+			// context so that event listeners registered there still receive events.
+			creatingContext = oldContext;
+		}
 		return oldContext;
 	}
 	protected Handler getUIHandler() {
@@ -252,10 +259,14 @@ public class TiProxy implements Handler.Callback, TiDynamicMethod, OnEventListen
 
 	public boolean fireEvent(String eventName, TiDict data) {
 		TiContext ctx = getTiContext();
+		boolean handled = false;
 		if (ctx != null) {
-			return ctx.dispatchEvent(eventName, data, this);
+			handled = ctx.dispatchEvent(eventName, data, this);
 		}
-		return false;
+		if (creatingContext != null) {
+			handled = creatingContext.dispatchEvent(eventName, data, this) || handled;
+		}
+		return handled;
 	}
 
 	public void fireSingleEvent(String eventName, Object listener, TiDict data)
@@ -271,7 +282,11 @@ public class TiProxy implements Handler.Callback, TiDynamicMethod, OnEventListen
 
 	public boolean hasListeners(String eventName)
 	{
-		return getTiContext().hasAnyEventListener(eventName);
+		boolean hasListeners = getTiContext().hasAnyEventListener(eventName);
+		if (creatingContext != null) {
+			hasListeners = hasListeners || creatingContext.hasAnyEventListener(eventName);
+		}
+		return hasListeners;
 	}
 
 	public Object resultForUndefinedMethod(String name, Object[] args) {
