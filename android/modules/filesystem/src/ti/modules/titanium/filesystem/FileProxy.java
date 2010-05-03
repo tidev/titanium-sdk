@@ -210,6 +210,8 @@ public class FileProxy extends TiProxy
 				tbf.write((TiBlob)args[0], append);
 			} else if (args[0] instanceof String) {
 				tbf.write((String)args[0], append);
+			} else if (args[0] instanceof FileProxy) {
+				tbf.write(((FileProxy)args[0]).read(), append);
 			}
 		}
 	}

@@ -141,6 +141,8 @@ win.add(looping);
 //
 sound.addEventListener('complete', function()
 {
+	Titanium.API.info('COMPLETE CALLED');
+
 	pb.value = 0;
 });
 sound.addEventListener('resume', function()

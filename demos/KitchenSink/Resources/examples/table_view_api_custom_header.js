@@ -2,21 +2,32 @@
 var data = [];
 
 var header = Ti.UI.createView({
-	backgroundColor:'#111',
-	height:20
+	backgroundColor:'#999',
+	height:'auto'
 });
 
 var headerLabel = Ti.UI.createLabel({
 	font:{fontFamily:'Helvetica Neue',fontSize:18,fontWeight:'bold'},
-	text:'Custom Header',
-	color:'#191',
+	text:'Custom Header - first label',
+	color:'#222',
+	textAlign:'left',
+	top:0,
+	left:10,
+	width:300,
+	height:30
+});
+var headerLabel2 = Ti.UI.createLabel({
+	font:{fontFamily:'Helvetica Neue',fontSize:18,fontWeight:'bold'},
+	text:'Custom Header - second label',
+	color:'#222',
 	textAlign:'left',
 	left:10,
-	width:'auto',
-	height:'auto'
+	top:50,
+	width:300,
+	height:30
 });
-
 header.add(headerLabel);
+header.add(headerLabel2);
 
 var section = Ti.UI.createTableViewSection();
 section.headerView = header;

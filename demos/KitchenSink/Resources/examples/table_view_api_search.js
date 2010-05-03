@@ -10,7 +10,8 @@ data[3] = Ti.UI.createTableViewRow({title:'Row 4'});
 
 var search = Titanium.UI.createSearchBar({
 	barColor:'#385292', 
-	showCancel:false
+	showCancel:false,
+	hintText:'search'
 });
 search.addEventListener('change', function(e)
 {
