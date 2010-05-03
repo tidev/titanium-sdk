@@ -42,18 +42,7 @@
 	UIFont *font = [label font];
 	CGSize maxSize = CGSizeMake(suggestedWidth<=0 ? 480 : suggestedWidth, 1000);
 	requiresLayout = YES;
-	CGSize result = [value sizeWithFont:font constrainedToSize:maxSize lineBreakMode:UILineBreakModeTailTruncation];
-	int height = ceil(result.height);
-	int width = ceil(result.width);
-	if (height & 0x01)
-	{
-		height ++;
-	}
-	if (width & 0x01)
-	{
-		width ++;
-	}
-	return CGSizeMake(width, height);
+	return [value sizeWithFont:font constrainedToSize:maxSize lineBreakMode:UILineBreakModeTailTruncation];
 }
 
 -(CGFloat)autoWidthForWidth:(CGFloat)suggestedWidth
@@ -90,13 +79,7 @@
 
 -(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
 {
-	int height = floor(bounds.size.height);
-	int width = floor(bounds.size.width);
-	CGRect labelFrame;
-	labelFrame.origin = bounds.origin;
-	labelFrame.size.height = height & ~0x01;
-	labelFrame.size.width = width & ~0x01;
-	[label setFrame:labelFrame];
+	[label setFrame:bounds];
     
     repad = YES;
     [self padLabel];
