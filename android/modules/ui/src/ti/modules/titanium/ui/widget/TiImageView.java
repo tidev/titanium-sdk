@@ -42,8 +42,6 @@ public class TiImageView extends ViewGroup
 
 	private boolean canScaleImage;
 	private boolean enableZoomControls;
-	private Integer imageHeight;
-	private Integer imageWidth;
 
 	private GestureDetector gestureDetector;
 	private ImageView imageView;
@@ -62,13 +60,19 @@ public class TiImageView extends ViewGroup
 	public class NoLayoutImageView extends ImageView
 	{
 
+		public boolean allowLayoutRequest;
+
 		public NoLayoutImageView(Context context) {
 			super(context);
+			allowLayoutRequest = true;
 		}
 
 		@Override
 		public void requestLayout() {
-			// no-op!!
+			if (allowLayoutRequest) {
+				super.requestLayout();
+				allowLayoutRequest = false;
+			}
 		}
 	}
 
@@ -165,6 +169,7 @@ public class TiImageView extends ViewGroup
 		} else {
 			imageView.setScaleType(ScaleType.CENTER);
 		}
+		((NoLayoutImageView) imageView).allowLayoutRequest = true;
 		requestLayout();
 	}
 
@@ -187,7 +192,7 @@ public class TiImageView extends ViewGroup
 		imageView.setImageDrawable(d);
 		scaleFactor = originalScaleFactor;
 		updateChangeMatrix(0);
-		invalidate();
+		setCanScaleImage(canScaleImage); // Apply scale
 	}
 
 	public Drawable getImageDrawable() {
@@ -343,14 +348,14 @@ public class TiImageView extends ViewGroup
 		int maxWidth = 0;
 		int maxHeight = 0;
 
-		if (DBG) {
-			int w = MeasureSpec.getSize(widthMeasureSpec);
-			int wm = MeasureSpec.getMode(widthMeasureSpec);
-			int h = MeasureSpec.getSize(heightMeasureSpec);
-			int hm = MeasureSpec.getMode(heightMeasureSpec);
-
-			//Log.i(LCAT, "w: " + w + " wm: " + wm + " h: " + h + " hm: " + hm);
-		}
+//		if (DBG) {
+//			int w = MeasureSpec.getSize(widthMeasureSpec);
+//			int wm = MeasureSpec.getMode(widthMeasureSpec);
+//			int h = MeasureSpec.getSize(heightMeasureSpec);
+//			int hm = MeasureSpec.getMode(heightMeasureSpec);
+//
+//			Log.i(LCAT, "w: " + w + " wm: " + wm + " h: " + h + " hm: " + hm);
+//		}
 
 		// TODO padding and margins
 
