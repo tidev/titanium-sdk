@@ -93,7 +93,10 @@ public class TiUIText extends TiUIView
 	public void processProperties(TiDict d)
 	{
 		super.processProperties(d);
-
+		
+		if (d.containsKey("enabled")) {
+			tv.setEnabled(d.getBoolean("enabled"));
+		}
 		if (d.containsKey("value")) {
 			tv.setText(d.getString("value"));
 		}
@@ -142,7 +145,9 @@ public class TiUIText extends TiUIView
 		if (DBG) {
 			Log.d(LCAT, "Property: " + key + " old: " + oldValue + " new: " + newValue);
 		}
-		if (key.equals("value")) {
+		if (key.equals("enabled")) {
+			tv.setEnabled(TiConvert.toBoolean(newValue));
+		} else if (key.equals("value")) {
 			tv.setText((String) newValue);
 		} else if (key.equals("color")) {
 			tv.setTextColor(TiConvert.toColor((String) newValue));
