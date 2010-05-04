@@ -46,6 +46,7 @@
  
  
  */
+#ifdef USE_TI_MEDIA
 
 #include "AQRecorder.h"
 
@@ -340,3 +341,5 @@ void AQRecorder::StopRecord()
 	AudioFileClose(mRecordFile);
 	mRecordFile = NULL;
 }
+
+#endif

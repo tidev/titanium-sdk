@@ -4,9 +4,13 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
+#ifdef USE_TI_UITEXTAREA
+
 #import "TiUITextAreaProxy.h"
 #import "TiUITextArea.h"
 
 @implementation TiUITextAreaProxy
 
 @end
+
+#endif

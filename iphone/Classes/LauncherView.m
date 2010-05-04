@@ -27,6 +27,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
+#ifdef USE_TI_UIDASHBOARDVIEW
+
 
 #ifndef TI_INVALIDATE_TIMER
 #define TI_INVALIDATE_TIMER(__TIMER) { [__TIMER invalidate]; __TIMER = nil; }
@@ -883,3 +885,5 @@ static const NSTimeInterval kLauncherViewFastTransitionDuration = 0.2;
 }
 
 @end
+
+#endif

@@ -16,7 +16,50 @@ android_dir = os.path.abspath(os.path.join(template_dir,'android'))
 iphone_dir = os.path.abspath(os.path.join(template_dir,'iphone'))
 osx_dir = os.path.abspath(os.path.join(template_dir,'osx'))
 
-ignoreDirs = ['.DS_Store','.git','.gitignore','libTitanium.a','titanium.jar']
+ignoreDirs = ['.DS_Store','.git','.gitignore','libTitanium.a','titanium.jar','build','bridge.txt']
+
+# these are symbols that are always included and should not be defined out
+# probably should move these into the file themselves and not here - for now
+# this is OK
+symbol_exclusions = ['TitaniumModule',
+					'TitaniumApp',
+					'TitaniumViewController',
+					'TitaniumErrorController',
+					'TiProxy',
+					'TiView',
+					'TiViewProxy',
+					'TiBase',
+					'TiGradient',
+					'TiFile',
+					'TiUtils',
+					'TiController',
+					'TiTabController',
+					'TiModule',
+					'TiTextLabel',
+					'TiTab',
+					'TiEvaluator',
+					'TiWindow',
+					'TiHost',
+					'TiAnimation',
+					'TiAction',
+					'TiToolbar',
+					'TiTabGroup',
+					'TiToolbarButton',
+					'TiViewController',
+					'TiGradient',
+					'TiRange',
+					'TiRect',
+					'TiPoint',
+					'TiDimension',
+					'TiColor',
+					'TiComplexValue',
+					'TiColor',
+					'TiButtonUtil',
+					'Ti3DMatrix',
+					'Ti2DMatrix',
+					'TiBlob',
+					'TiWindowProxy',
+					'TiUIView']
 
 def ignore(file):
 	 for f in ignoreDirs:
@@ -24,7 +67,7 @@ def ignore(file):
 			return True
 	 return False
 
-def zip_dir(zf,dir,basepath,subs=None):
+def zip_dir(zf,dir,basepath,subs=None,cb=None):
 	for root, dirs, files in os.walk(dir):
 		for name in ignoreDirs:
 			if name in dirs:
@@ -38,6 +81,8 @@ def zip_dir(zf,dir,basepath,subs=None):
 				c = open(from_).read()
 				for key in subs:
 					c = c.replace(key,subs[key])
+				if cb!=None:
+					c = cb(file,e[1],c)
 				zf.writestr(to_,c)
 			else:		
 				zf.write(from_, to_)
@@ -73,7 +118,45 @@ def resolve_source_imports(platform):
 	sys.path.append(iphone_dir)
 	import run,prereq
 	return importresolver.resolve_source_imports(os.path.join(top_dir,platform,'Classes'))
+
+def make_symbol(fn):
+	if fn.startswith('TI') and fn!='TITANIUM' and fn!='TI':
+		return fn[2:]
+	return fn
+
+def make_define(fn):
+	if not fn.startswith('Ti'):
+		return None
+	for sym in symbol_exclusions:
+		if sym == fn:
+			return None
+	if fn.endswith('Module'):
+		name = make_symbol(fn.replace('Module','').upper())
+		return 'USE_TI_%s' % name
+	elif fn.endswith('Proxy'):
+		name = make_symbol(fn.replace('Proxy','').upper())
+		return 'USE_TI_%s' % name
+	return 'USE_TI_%s' % make_symbol(fn.upper())
 	
+def process_defines(filename,ext,contents):
+	if ext in ('.h','.m','.mm'):
+		base = os.path.basename(filename)
+		ext = os.path.splitext(base)
+		fn = ext[0]
+		define = make_define(fn)
+		if define!=None and contents.find('#ifdef USE_TI_') < 0 and contents.find('#if defined(USE_TI_') < 0:
+			idx = contents.find('*/')
+			if idx > 0:
+				#print define
+				before = contents[0:idx+3]
+				after = contents[idx+3:]
+				buf = before
+				buf += "#ifdef %s\n\n" % define
+				buf += after
+				buf += "\n\n#endif\n"
+				return buf
+	return contents
+		
 def zip_iphone_ipad(zf,basepath,platform,version):
 	  
 	zf.writestr('%s/iphone/imports.json'%basepath,resolve_source_imports(platform))
@@ -102,11 +185,10 @@ def zip_iphone_ipad(zf,basepath,platform,version):
 	zip_dir(zf,xcode_templates_dir,basepath+'/iphone/xcode/templates',subs)
 	
 	iphone_lib = os.path.join(top_dir,'iphone',platform,'build')
-	zf.write(os.path.join(iphone_lib,'libTitanium.a'),'%s/%s/libTitanium.a'%(basepath,platform))
 	
-	# in 3.2 apple supports only ipad based simulator testing so we have to distribute
-	# both until they resolve this and then we can do one library with weak linking again
-	zf.write(os.path.join(iphone_lib,'libTitanium_3.2.a'),'%s/%s/libTitanium_3.2.a'%(basepath,platform))
+	zip_dir(zf,os.path.join(top_dir,'iphone','Classes'),basepath+'/iphone/Classes',subs,process_defines)
+	zip_dir(zf,os.path.join(top_dir,'iphone','headers'),basepath+'/iphone/headers',subs)
+	zip_dir(zf,os.path.join(top_dir,'iphone','iphone'),basepath+'/iphone/iphone',subs)
 	
 	ticore_lib = os.path.join(top_dir,'iphone','lib')
 	zf.write(os.path.join(ticore_lib,'libTiCore.a'),'%s/%s/libTiCore.a'%(basepath,platform))

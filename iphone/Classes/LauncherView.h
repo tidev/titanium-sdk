@@ -27,6 +27,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
+#ifdef USE_TI_UIDASHBOARDVIEW
 
 #import <UIKit/UIKit.h>
 
@@ -90,3 +91,5 @@
 - (void)launcherViewDidEndEditing:(LauncherView*)launcher;
 
 @end
+
+#endif

@@ -46,6 +46,7 @@ Copyright (C) 2009 Apple Inc. All Rights Reserved.
 
   
 */
+#ifdef USE_TI_MEDIA
 
 #ifndef __CAMath_h__
 #define __CAMath_h__
@@ -69,3 +70,5 @@ inline bool fnotequal(const Float64 &a, const Float64 &b) { return !fequal(a, b)
 inline bool fnotequal(const Float32 &a, const Float32 &b) { return !fequal(a, b); }
 
 #endif // __CAMath_h__
+
+#endif

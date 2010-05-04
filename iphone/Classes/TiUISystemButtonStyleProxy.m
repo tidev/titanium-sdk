@@ -4,6 +4,7 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
+#ifdef USE_TI_UIIPHONESYSTEMBUTTONSTYLE
 
 #import "TiUISystemButtonStyleProxy.h"
 
@@ -17,3 +18,5 @@ MAKE_SYSTEM_PROP(PLAIN,UIBarButtonItemStylePlain);
 MAKE_SYSTEM_PROP(BAR,UISegmentedControlStyleBar);
 
 @end
+
+#endif

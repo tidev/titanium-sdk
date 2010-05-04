@@ -22,6 +22,8 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  */
+#ifdef USE_TI_UICOVERFLOWVIEW
+
 #import <UIKit/UIKit.h>
 #import "AFItemView.h"
 #import <QuartzCore/QuartzCore.h>
@@ -81,3 +83,5 @@
 - (void)openFlowView:(AFOpenFlowView *)openFlowView requestImageForIndex:(int)index;
 - (UIImage *)defaultImage;
 @end
+
+#endif

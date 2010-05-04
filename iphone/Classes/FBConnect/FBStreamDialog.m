@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#ifdef USE_TI_FACEBOOK
 
 #import "FBStreamDialog.h"
 #import "FBSession.h"
@@ -75,3 +76,5 @@ static NSString* kStreamURL = @"http://www.facebook.com/connect/prompt_feed.php"
 }
 
 @end
+
+#endif

@@ -4,6 +4,7 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
+#ifdef USE_TI_UIWINDOW
 
 #import "TiUIWindowProxy.h"
 #import "Webcolor.h"
@@ -11,7 +12,7 @@
 #import "ImageLoader.h"
 #import "TiComplexValue.h"
 #import "TitaniumApp.h"
-#import "TiUITabController.h"
+#import "TiTabController.h"
 
 @implementation TiUIWindowProxy
 
@@ -298,9 +299,10 @@
 	else
 	{
 		NSString * backTitle = [TiUtils stringValue:[self valueForKey:@"backButtonTitle"]];
-		if ((backTitle == nil) && [parentController isKindOfClass:[TiUITabController class]])
+		if ((backTitle == nil) && [parentController conformsToProtocol:@protocol(TiTabController)])
 		{
-			backTitle = [TiUtils stringValue:[[(TiUITabController *)parentController window] valueForKey:@"title"]];
+			id<TiTabController> tc = (id<TiTabController>)parentController;
+			backTitle = [TiUtils stringValue:[[tc window] valueForKey:@"title"]];
 		}
 		if (backTitle != nil)
 		{
@@ -599,3 +601,5 @@ else{\
 }
 
 @end
+
+#endif

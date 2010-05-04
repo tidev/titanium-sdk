@@ -46,7 +46,7 @@ Copyright (C) 2009 Apple Inc. All Rights Reserved.
 
  
 */
-
+#ifdef USE_TI_MEDIA
 
 #ifndef __CAXException_h__
 #define __CAXException_h__
@@ -214,3 +214,5 @@ private:
 #define XThrowIfErr(error) XThrowIfError(error, #error)
 
 #endif // __CAXException_h__
+
+#endif

@@ -108,7 +108,7 @@ def build(apiversion,targetversion,name,target,namever=''):
 	build_titanium_target(target,apiversion,targetversion,"build")
 	
 	# build the merged library using lipo
-	os.system("lipo build/%s-iphonesimulator/lib%s.a build/%s-iphoneos/lib%s.a -create -output build/lib%s%s.a" %(config,name,config,name,name,namever))
+	#os.system("lipo build/%s-iphonesimulator/lib%s.a build/%s-iphoneos/lib%s.a -create -output build/lib%s%s.a" %(config,name,config,name,name,namever))
 	
 	os.chdir(curdir)
 

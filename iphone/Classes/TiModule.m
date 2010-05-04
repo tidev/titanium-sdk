@@ -75,9 +75,16 @@
 			return nil;
 		}
 		
+		// this is a magic check to see if we're inside a compiled code or not
+		// and if so, drop the prefix
+		NSString *prefix = @"Ti";
+		if (![prefix isEqualToString:[NSString stringWithFormat:@"T%s","i"]])
+		{
+			prefix = @"";
+		}
 		NSString *moduleName = [NSString stringWithCString:class_getName([self class]) encoding:NSUTF8StringEncoding];
 		moduleName = [moduleName stringByReplacingOccurrencesOfString:@"Module" withString:@""];
-		NSString *className = [NSString stringWithFormat:@"Ti%@%@Proxy",moduleName,[name substringFromIndex:range.location+6]];	
+		NSString *className = [NSString stringWithFormat:@"%@%@%@Proxy",prefix,moduleName,[name substringFromIndex:range.location+6]];	
 		resultClass = NSClassFromString(className);
 		if (resultClass==nil)
 		{

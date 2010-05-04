@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
 */
+#ifdef USE_TI_FACEBOOK
 
 #import "FBPermissionDialog.h"
 #import "FBSession.h"
@@ -98,3 +99,5 @@ static NSString* kPermissionURL = @"http://www.facebook.com/connect/prompt_permi
 }
 
 @end
+
+#endif

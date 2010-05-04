@@ -46,6 +46,7 @@ Copyright (C) 2009 Apple Inc. All Rights Reserved.
 
  
 */
+#ifdef USE_TI_MEDIA
 
 #if !defined(__CADebugMacros_h__)
 #define __CADebugMacros_h__
@@ -436,5 +437,7 @@ void	LogWarning(const char *fmt, ...);		// writes to syslog (and stderr if debug
 #endif	//	defined(__cplusplus)
 
 #endif  //  DEBUG || CoreAudio_Debug
+
+#endif
 
 #endif
