@@ -849,7 +849,7 @@
 -(CGFloat)autoHeightForWidth:(CGFloat)width
 {
 	BOOL isVertical = TiLayoutRuleIsVertical(layoutProperties.layout);
-	BOOL isHorizontal = TiLayoutRuleIsHorizontal(layoutProperties.layout)
+	BOOL isHorizontal = TiLayoutRuleIsHorizontal(layoutProperties.layout);
 	CGFloat result=0.0;
 
 	//Autoheight with a set autoheight for width gets complicated.

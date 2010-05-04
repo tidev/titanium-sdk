@@ -57,6 +57,8 @@ def dequote(s):
 # - encryptor
 # - modules
 # - iphone dir
+# - info.plist generate and template
+# - remove old files
 #
 	
 class Compiler(object):
