@@ -354,7 +354,7 @@ public class TiScrollableView extends TiCompositeLayout
 					//gallery.addView(tv.getView(null).getNativeView());
 				}
 			}
-			if (views.length >= 0) {
+			if (views.length > 0) {
 				((ViewWrapper) gallery.getChildAt(0)).doAttachView();
 				((TiViewProxy)views[0]).show(new TiDict());
 			}

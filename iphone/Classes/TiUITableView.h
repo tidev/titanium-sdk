@@ -19,6 +19,7 @@
 	BOOL editing;
 	BOOL searchHidden;
 	BOOL editable;
+	BOOL moveable;
 	BOOL initiallyDisplayed;
 	NSIndexPath *initialSelection;
 	NSMutableArray * sectionIndex;

@@ -31,4 +31,24 @@ USE_VIEW_FOR_AUTO_WIDTH
 	return size.height;
 }
 
+-(CGFloat) verifyWidth:(CGFloat)suggestedWidth
+{
+	int width = ceil(suggestedWidth);
+	if (width & 0x01)
+	{
+		width ++;
+	}
+	return width;
+}
+
+-(CGFloat) verifyHeight:(CGFloat)suggestedHeight
+{
+	int height = ceil(suggestedHeight);
+	if (height & 0x01)
+	{
+		height ++;
+	}
+	return height;
+}
+
 @end

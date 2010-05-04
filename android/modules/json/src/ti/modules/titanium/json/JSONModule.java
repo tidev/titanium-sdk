@@ -43,9 +43,13 @@ public class JSONModule extends TiModule {
 	public Object parse(String json)
 		throws JSONException
 	{
+		if (json == null) {
+			return null;
+		}
+
 		String trimmed = json.trim();
 		char firstChar = trimmed.charAt(0);
-		
+
 		if (firstChar == '{') {
 			return new TiDict(new JSONObject(json));
 		} else if (firstChar == '[') {

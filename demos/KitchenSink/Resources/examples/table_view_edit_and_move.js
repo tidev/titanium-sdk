@@ -13,7 +13,7 @@ var data = [
 
 // create table view
 var tableview = Titanium.UI.createTableView({
-	data:data
+	data:data, editable:true, moveable:true,
 });
 
 
@@ -36,7 +36,6 @@ var edit = Titanium.UI.createButton({
 edit.addEventListener('click', function()
 {
 	win.setRightNavButton(cancel);
-	tableview.moving = true;
 	tableview.editing = true;
 });
 
@@ -47,7 +46,6 @@ var cancel = Titanium.UI.createButton({
 cancel.addEventListener('click', function()
 {
 	win.setRightNavButton(edit);
-	tableview.moving = false;
 	tableview.editing = false;
 });
 

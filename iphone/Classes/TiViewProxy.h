@@ -17,7 +17,10 @@
 @interface TiViewProxy : TiProxy<LayoutAutosizing> 
 {
 @protected
-	CGFloat layoutBoundary;
+	CGFloat verticalLayoutBoundary;
+	CGFloat horizontalLayoutBoundary;
+	CGFloat horizontalLayoutRowHeight;	//Note, this has nothing to do with table views.
+
 	LayoutConstraint layoutProperties;
 
 	int dirtyflags;	//For atomic actions, best to be explicit about the 32 bitness.

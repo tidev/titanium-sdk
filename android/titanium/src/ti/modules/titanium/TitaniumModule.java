@@ -18,9 +18,12 @@ import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiDict;
 import org.appcelerator.titanium.TiModule;
 import org.appcelerator.titanium.kroll.KrollCallback;
+import org.appcelerator.titanium.kroll.KrollContext;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUIHelper;
+
+import sun.awt.geom.AreaOp.AddOp;
 
 public class TitaniumModule
 	extends TiModule
@@ -50,7 +53,7 @@ public class TitaniumModule
 
 	public TitaniumModule(TiContext tiContext) {
 		super(tiContext);
-
+		tiContext.addOnLifecycleEventListener(this);
 	}
 
 	@Override
@@ -136,4 +139,26 @@ public class TitaniumModule
 		Log.i("ALERT", msg);
 		TiUIHelper.doOkDialog(getTiContext().getActivity(), "Alert", msg, null);
 	}
+	
+	@Override
+	public void onDestroy() {
+		cancelTimers();
+		super.onDestroy();
+	}
+	
+	@Override
+	public void onStop() {
+		cancelTimers();
+		super.onStop();
+	}
+	
+	public void cancelTimers() {
+		for (Timer timer: timers.values()) {
+			if (timer != null) {
+				timer.cancel();
+			}
+		}
+		timers.clear();
+	}
+	
 }

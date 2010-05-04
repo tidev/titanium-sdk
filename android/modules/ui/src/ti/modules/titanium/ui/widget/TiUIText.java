@@ -94,6 +94,9 @@ public class TiUIText extends TiUIView
 	{
 		super.processProperties(d);
 
+		if (d.containsKey("enabled")) {
+			tv.setEnabled(d.getBoolean("enabled"));
+		}
 		if (d.containsKey("value")) {
 			tv.setText(d.getString("value"));
 		}
@@ -142,7 +145,9 @@ public class TiUIText extends TiUIView
 		if (DBG) {
 			Log.d(LCAT, "Property: " + key + " old: " + oldValue + " new: " + newValue);
 		}
-		if (key.equals("value")) {
+		if (key.equals("enabled")) {
+			tv.setEnabled(TiConvert.toBoolean(newValue));
+		} else if (key.equals("value")) {
 			tv.setText((String) newValue);
 		} else if (key.equals("color")) {
 			tv.setTextColor(TiConvert.toColor((String) newValue));
@@ -159,7 +164,7 @@ public class TiUIText extends TiUIView
 			}
 			handleTextAlign(textAlign, verticalAlign);
 		} else if (key.equals("autocapitalization")) {
-		} else if (key.equals("keyboardType")) {
+		} else if (key.equals("keyboardType") || (key.equals("autocorrect"))) {
 			TiDict d = proxy.getDynamicProperties();
 			boolean autocorrect = true;
 			if (d.containsKey("autocorrect")) {
@@ -271,13 +276,15 @@ public class TiUIText extends TiUIView
 		switch(type) {
 			case KEYBOARD_ASCII :
 				tv.setKeyListener(TextKeyListener.getInstance(autocorrect, Capitalize.NONE));
+				tv.setRawInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_NORMAL);
 				break;
 			case KEYBOARD_NUMBERS_PUNCTUATION :
 				tv.setKeyListener(DigitsKeyListener.getInstance());
+				tv.setRawInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_NORMAL);
 				break;
 			case KEYBOARD_URL :
-				tv.setKeyListener(TextKeyListener.getInstance(autocorrect, Capitalize.NONE));
-				tv.setRawInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_URI);
+				//tv.setKeyListener(TextKeyListener.getInstance(autocorrect, Capitalize.NONE));
+				tv.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_URI);
 				break;
 			case KEYBOARD_NUMBER_PAD :
 				tv.setKeyListener(DigitsKeyListener.getInstance(true,true));
@@ -285,13 +292,15 @@ public class TiUIText extends TiUIView
 				break;
 			case KEYBOARD_PHONE_PAD :
 				tv.setKeyListener(DialerKeyListener.getInstance());
+				tv.setRawInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_CLASS_PHONE);
 				break;
 			case KEYBOARD_EMAIL_ADDRESS :
-				tv.setKeyListener(TextKeyListener.getInstance(autocorrect, Capitalize.NONE));
-				tv.setRawInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS);
+				//tv.setKeyListener(TextKeyListener.getInstance(autocorrect, Capitalize.NONE));
+				tv.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS);
 				break;
 			case KEYBOARD_DEFAULT :
 				tv.setKeyListener(TextKeyListener.getInstance(autocorrect, Capitalize.NONE));
+				tv.setRawInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_NORMAL);
 				break;
 		}
 	}
