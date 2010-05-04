@@ -555,15 +555,35 @@
 
 	if(TiLayoutRuleIsVertical(layoutProperties.layout))\
 	{
-		bounds.origin.y += layoutBoundary;
+		bounds.origin.y += verticalLayoutBoundary;
 		bounds.size.height = [child minimumParentHeightForWidth:bounds.size.width];
-		layoutBoundary += bounds.size.height;
+		verticalLayoutBoundary += bounds.size.height;
 	}
 	else if(TiLayoutRuleIsHorizontal(layoutProperties.layout))
 	{
-		bounds.origin.x += layoutBoundary;
-		bounds.size.width = [child minimumParentWidthForWidth:bounds.size.width-layoutBoundary];
-		layoutBoundary += bounds.size.width;
+		CGFloat desiredWidth = [child minimumParentWidthForWidth:bounds.size.width-horizontalLayoutBoundary];
+		if ((horizontalLayoutBoundary + desiredWidth) > bounds.size.width) //No room! Start over!
+		{
+			horizontalLayoutBoundary = 0.0;
+			verticalLayoutBoundary += horizontalLayoutRowHeight;
+			horizontalLayoutRowHeight = 0;
+			desiredWidth = [child minimumParentWidthForWidth:bounds.size.width];
+		}
+		else
+		{
+			bounds.origin.x += horizontalLayoutBoundary;
+		}
+
+		horizontalLayoutBoundary += desiredWidth;
+		bounds.size.width = desiredWidth;
+		
+		CGFloat desiredHeight = [child minimumParentHeightForWidth:desiredWidth];
+		if (desiredHeight > horizontalLayoutRowHeight)
+		{
+			horizontalLayoutRowHeight = desiredHeight;
+		}
+		bounds.origin.y += verticalLayoutBoundary;
+		bounds.size.height = desiredHeight;
 	}
 
 #if DONTSHOWHIDDEN
@@ -620,7 +640,9 @@
 
 -(void)layoutChildren
 {
-	layoutBoundary = 0.0;
+	verticalLayoutBoundary = 0.0;
+	horizontalLayoutBoundary = 0.0;
+	horizontalLayoutRowHeight = 0.0;
 	// now ask each of our children for their view
 	if (![self viewAttached])
 	{
@@ -827,23 +849,47 @@
 -(CGFloat)autoHeightForWidth:(CGFloat)width
 {
 	BOOL isVertical = TiLayoutRuleIsVertical(layoutProperties.layout);
+	BOOL isHorizontal = TiLayoutRuleIsHorizontal(layoutProperties.layout)
 	CGFloat result=0.0;
+
+	//Autoheight with a set autoheight for width gets complicated.
+	CGFloat widthLeft=width;
+	CGFloat currentRowHeight = 0.0;
 
 	[self lockChildrenForReading];
 		for (TiViewProxy * thisChildProxy in children)
 		{
-			CGFloat thisHeight = [thisChildProxy minimumParentHeightForWidth:width];
-			if (isVertical)
+			if (isHorizontal)
 			{
-				result += thisHeight;
+				CGFloat requestedWidth = [thisChildProxy minimumParentWidthForWidth:widthLeft];
+				if (requestedWidth > widthLeft) //Wrap around!
+				{
+					result += currentRowHeight;
+					currentRowHeight = 0.0;
+					widthLeft = width;
+				}
+				widthLeft -= requestedWidth;
+				CGFloat thisHeight = [thisChildProxy minimumParentHeightForWidth:requestedWidth];
+				if (thisHeight > currentRowHeight)
+				{
+					currentRowHeight = thisHeight;
+				}
 			}
-			else if(result<thisHeight)
+			else
 			{
-				result = thisHeight;
+				CGFloat thisHeight = [thisChildProxy minimumParentHeightForWidth:width];
+				if (isVertical)
+				{
+					result += thisHeight;
+				}
+				else if(result<thisHeight)
+				{
+					result = thisHeight;
+				}
 			}
 		}
 	[self unlockChildren];
-	return result;
+	return result + currentRowHeight;
 }
 
 -(CGFloat)minimumParentWidthForWidth:(CGFloat)suggestedWidth
