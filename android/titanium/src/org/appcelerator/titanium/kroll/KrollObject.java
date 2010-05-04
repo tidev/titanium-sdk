@@ -185,6 +185,7 @@ public class KrollObject extends ScriptableObject
 
 		if (isGetter || isSetter) {
 			Log.i(LCAT, "Treating as property: " + pname);
+			boolean getRetrieved = false;
 			if (getMethod != null) {
 				// add getter
 				KrollMethod km = null;
@@ -208,6 +209,7 @@ public class KrollObject extends ScriptableObject
 					try {
 						// get value from native
 						o = KrollObject.fromNative(getMethod.invoke(target, new Object[0]), getKrollContext());
+						getRetrieved = true;
 					} catch (InvocationTargetException e) {
 						Log.e(LCAT, "Error getting property: " + e.getMessage(), e);
 						Context.throwAsScriptRuntimeEx(e);
@@ -228,7 +230,9 @@ public class KrollObject extends ScriptableObject
 				// add set method
 				km = new KrollMethod(this, target, setMethod, KrollMethodType.KrollMethodSetter);
 				put(buildMethodName("set", pname), this, km);
-				o = km;
+				if (!getRetrieved) {
+					o = km;
+				}
 				// pass value through to native
 				if (!retrieveValue) {
 					Object[] args = new Object[1];
