@@ -9,8 +9,11 @@ package ti.modules.titanium.ui.widget;
 import java.util.concurrent.Semaphore;
 
 import org.appcelerator.titanium.TiDict;
+import org.appcelerator.titanium.TiProxy;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.AsyncResult;
+import org.appcelerator.titanium.util.Log;
+import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiUIView;
 import org.json.JSONObject;
@@ -30,8 +33,8 @@ public class TiUITableView extends TiUIView
 	implements OnItemClickedListener
 //	implements  Handler.Callback
 {
-	private static final String LCAT = "TitaniumTableView";
-
+	private static final String LCAT = "TitaniumTableView";	
+	private static final boolean DBG = TiConfig.LOGD;
 	private static final String EVENT_CLICK = "click";
 	
 	private String callback;
@@ -175,6 +178,8 @@ public class TiUITableView extends TiUIView
 
 		super.processProperties(d);
 	}
+	
+	
 
 //	public void processLocalOptions(JSONObject o) throws JSONException
 //	{
@@ -275,6 +280,19 @@ public class TiUITableView extends TiUIView
 //		}
 //	}
 
+
+	@Override
+	public void propertyChanged(String key, Object oldValue, Object newValue,
+			TiProxy proxy) {
+		if (DBG) {
+			Log.d(LCAT, "Property: " + key + " old: " + oldValue + " new: " + newValue);
+		}
+		if (key.equals("separatorColor")) {
+			tableView.setSeparatorColor(TiConvert.toString(newValue));			
+		} else {
+			super.propertyChanged(key, oldValue, newValue, proxy);
+		}
+	}
 
 	private void acquireModifySemaphore() {
 		try {
