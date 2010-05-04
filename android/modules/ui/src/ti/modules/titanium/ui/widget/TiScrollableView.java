@@ -70,6 +70,9 @@ public class TiScrollableView extends TiCompositeLayout
 			if (view == null) {
 				view = views.get(position).getView(null).getNativeView();
 				addView(view);
+				if (getChildCount() > 2) {
+					Log.e(LCAT, "----------------------- CHILD COUNT: " + getChildCount());
+				}
 			}
 		}
 
@@ -338,12 +341,19 @@ public class TiScrollableView extends TiCompositeLayout
 			Log.d(LCAT, "Views: " + viewsObject);
 		}
 		if (views != null) {
+
+			int len = gallery.getChildCount();
+			for (int i = 0; i < len; i++) {
+				((ViewWrapper) gallery.getChildAt(i)).doDetachView();
+			}
+
 			views.clear();
 		} else {
 			views = new ArrayList<TiViewProxy>();
 		}
 
 		if (viewsObject instanceof Object[]) {
+
 			Object[] views = (Object[])viewsObject;
 			gallery.removeAllViews();
 			for (int i = 0; i < views.length; i++) {
@@ -365,6 +375,7 @@ public class TiScrollableView extends TiCompositeLayout
 	{
 		if (proxy != null) {
 			this.views.add(proxy);
+			gallery.addView(new ViewWrapper(getContext(), gallery.getChildCount()));
 			//gallery.addView(proxy.getView(null).getNativeView());
 		}
 	}
@@ -402,6 +413,8 @@ public class TiScrollableView extends TiCompositeLayout
 			ViewWrapper toWrapper = (ViewWrapper) gallery.getChildAt(position);
 			if (toWrapper != null) {
 				toWrapper.doAttachView();
+				gallery.setInAnimation(null);
+				gallery.setOutAnimation(null);
 				gallery.setDisplayedChild(position);
 				if (fromWrapper != null) {
 					fromWrapper.doDetachView();
