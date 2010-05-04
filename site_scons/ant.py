@@ -38,4 +38,6 @@ def build(script='build.xml', target='', properties={}):
 		ant_cmd.append(target)
 	
 	print " ".join(ant_cmd)
-	subprocess.Popen(ant_cmd, shell=False).wait()
+	ret = subprocess.Popen(ant_cmd, shell=False).wait()
+	if ret:
+		sys.exit(ret)
