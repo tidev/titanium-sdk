@@ -334,6 +334,9 @@ public class TiUIImageView extends TiUIView
 		if (animator == null) {
 			timer = new Timer();
 			animator = new Animator(loader);
+			if (!animating.get()) {
+				new Thread(loader).start();
+			}
 
 			int duration = (int) getDuration();
 			timer.schedule(animator, duration, duration);
