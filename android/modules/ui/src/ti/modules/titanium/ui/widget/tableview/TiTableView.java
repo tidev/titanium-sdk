@@ -15,6 +15,7 @@ import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiDict;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.Log;
+import org.appcelerator.titanium.util.TiColorHelper;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUIHelper;
@@ -321,6 +322,12 @@ public class TiTableView extends FrameLayout
 		listView.setFocusableInTouchMode(true);
 		listView.setBackgroundColor(Color.TRANSPARENT);
 		listView.setCacheColorHint(Color.TRANSPARENT);
+		
+		if (proxy.getDynamicProperties().containsKey("separatorColor")) {
+			setSeparatorColor(TiConvert.toString(proxy.getDynamicValue("separatorColor")));
+			
+		}
+		
 		adapter = new TTVListAdapter(viewModel);
 		
 		if (proxy.getDynamicProperties().containsKey("headerView")) {
@@ -444,6 +451,13 @@ public class TiTableView extends FrameLayout
 
 	public void setOnItemClickListener(OnItemClickedListener listener) {
 		this.itemClickListener = listener;
+	}
+	
+	public void setSeparatorColor(String colorstring) {
+		int sepColor = TiColorHelper.parseColor(colorstring);
+		int dividerHeight = listView.getDividerHeight();
+		listView.setDivider(new ColorDrawable(sepColor));
+		listView.setDividerHeight(dividerHeight);
 	}
 	
 	public TableViewModel getTableViewModel() {
