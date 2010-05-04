@@ -27,6 +27,7 @@ if (Titanium.Platform.name == 'iPhone OS')
 	// The result for this is going to be centered, because that's where layout puts it.
 	// But users can make sure that embedded webviews are anchored in the usual way.
 	data.push({title:'Auto Size', auto:true, hasChild:true, innerHTML:'<html><body style="height:200px;width:100px;border:1px solid #ccc;padding:10px">200 px height, 100 px width.</body></html>'});
+
 }
 
 // create table view

@@ -7,6 +7,7 @@
 package ti.modules.titanium.ui;
 
 import org.appcelerator.titanium.TiContext;
+import org.appcelerator.titanium.TiProxy;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.view.TiUIView;
 
@@ -18,6 +19,7 @@ public class LabelProxy extends TiViewProxy
 	public LabelProxy(TiContext tiContext, Object[] args)
 	{
 		super(tiContext, args);
+		tiContext.addOnEventChangeListener(this);
 	}
 
 	@Override
@@ -27,10 +29,20 @@ public class LabelProxy extends TiViewProxy
 	}
 	
 	@Override
-	public int addEventListener(String eventName, Object listener) {
+	public void eventListenerAdded(String eventName, int count, TiProxy proxy) {
+		super.eventListenerAdded(eventName, count, proxy);
+		
 		if (eventName.equals("click")) {
 			((TiUILabel)getView(getTiContext().getActivity())).setClickable(true);
 		}
-		return super.addEventListener(eventName, listener);
+	}
+	
+	@Override
+	public void eventListenerRemoved(String eventName, int count, TiProxy proxy) {
+		super.eventListenerRemoved(eventName, count, proxy);
+		
+		if (eventName.equals("click") && count == 0) {
+			((TiUILabel)getView(getTiContext().getActivity())).setClickable(false);
+		}
 	}
 }

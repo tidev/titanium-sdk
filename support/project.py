@@ -6,7 +6,7 @@
 import os, sys, subprocess, shutil, codecs
 
 def run(args):
-	return subprocess.Popen(args, stderr=subprocess.PIPE, stdout=subprocess.PIPE).communicate()[0]
+	return subprocess.Popen(args, stderr=subprocess.PIPE, stdout=subprocess.PIPE).communicate()
 	
 def main(args,argc):
 	if argc < 5 or args[1]=='--help':
@@ -19,14 +19,22 @@ def main(args,argc):
 	iphone = False
 	android = False
 	android_sdk = None
+	sdk = None
 	
 	if args[4] == 'iphone' or (argc > 5 and args[5] == 'iphone'):
 		iphone = True
 	if args[4] == 'android' or (argc > 5 and args[5] == 'android'):
 		android = True
-		
+	
 	if android:
+		sys.path.append(os.path.join(os.path.dirname(args[0]), "android"))
+		from androidsdk import AndroidSDK
 		android_sdk = args[argc-1].decode("utf-8")
+		try:
+			sdk = AndroidSDK(android_sdk, 4)
+		except Exception, e:
+			print >>sys.stderr, e
+			sys.exit(1)
 	
 	if not os.path.exists(directory):
 		os.makedirs(directory)

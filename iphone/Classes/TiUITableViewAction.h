@@ -16,6 +16,7 @@ typedef enum
 	TiUITableViewActionInsertRowBefore,
 	TiUITableViewActionInsertRowAfter,
 	TiUITableViewActionAppendRow,
+    TiUITableViewActionAppendRowWithSection,
 	TiUITableViewActionSectionReload,
 	TiUITableViewActionRowReload,
 	TiUITableViewActionSetData

@@ -20,4 +20,9 @@ win.add(Ti.UI.createLabel({
 	text: "md5 checksum " + data + " => " + Ti.Utils.md5HexDigest(data)
 }));
 
-
+var s = " ♥Amanda22♥".toUpperCase();
+win.add(Ti.UI.createLabel({
+	top: 215,
+	width: 'auto', height: 'auto',
+	text: "toUpper test => " +s
+}));

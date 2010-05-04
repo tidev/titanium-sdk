@@ -779,15 +779,15 @@ class Builder(object):
 			if not os.path.exists(self.classes_dir):
 				os.makedirs(self.classes_dir)
 
+			# FIXME: remove compiled files so they don't get compiled into jar
+			self.copy_project_resources()
+			
 			# compile resources
 			full_resource_dir = os.path.join(self.project_dir,self.assets_resources_dir)
 			compiler = Compiler(self.app_id,full_resource_dir,self.java,self.classes_dir)
 			compiler.compile()
 			self.compiled_files = compiler.compiled_files
 
-			# FIXME: remove compiled files so they don't get compiled into jar
-			self.copy_project_resources()
-			
 			if self.tiapp_changed or self.deploy_type == "production":
 				trace("Generating Java Classes")
 				self.android.create(os.path.abspath(os.path.join(self.top_dir,'..')),True)

@@ -273,11 +273,9 @@
 {
 	NSAssert(sections!=nil,@"sections was nil");
 	row.table = self;
-	TiUITableViewSectionProxy *section = [sections objectAtIndex:[sections count]-1];
+	TiUITableViewSectionProxy *section = [sections lastObject];
 	row.section = section;
-	NSMutableArray *rows = [row.section rows];
-	NSAssert(rows!=nil,@"rows was nil");
-	[rows addObject:row];
+    [section add:row];
 	[row.section reorderRows];
 }
 
@@ -351,6 +349,13 @@
 			[tableview insertRowsAtIndexPaths:[NSArray arrayWithObject:path] withRowAnimation:action.animation];
 			break;
 		}
+        case TiUITableViewActionAppendRowWithSection:
+        {
+            [sections addObject:action.row.section];
+            [self appendRow:action.row];
+            [tableview insertSections:[NSIndexSet indexSetWithIndex:[sections count]-1] withRowAnimation:action.animation];
+            break;
+        }
 	}
 	
 	[table endUpdates];
@@ -984,6 +989,11 @@
 	editable = [TiUtils boolValue:args];
 }
 
+-(void)setMoveable_:(id)args
+{
+	moveable = [TiUtils boolValue:args];
+}
+
 -(void)setEditing_:(id)args withObject:(id)properties
 {
 	[self changeEditing:[TiUtils boolValue:args]];
@@ -1168,7 +1178,7 @@ if(tableView == searchTableView)	\
 
 	//Otherwise, when editing or moving, make sure that both can be done.
 	
-	return [TiUtils boolValue:[row valueForKey:@"moveable"] def:moving] || [TiUtils boolValue:[row valueForKey:@"editable"] def:editing];
+	return [TiUtils boolValue:[row valueForKey:@"moveable"] def:moving || moveable] || [TiUtils boolValue:[row valueForKey:@"editable"] def:editing];
 	
 	//Why are we checking editable twice? Well, once it's with the default of editable. The second time with the default of editing.
 	//Effectively, editable is being tri-state.
@@ -1188,7 +1198,7 @@ if(tableView == searchTableView)	\
 	RETURN_IF_SEARCH_TABLE_VIEW(NO);
 
 	TiUITableViewRowProxy *row = [self rowForIndexPath:indexPath];
-	return [TiUtils boolValue:[row valueForKey:@"moveable"] def:moving];
+	return [TiUtils boolValue:[row valueForKey:@"moveable"] def:moving || moveable];
 }
 
 // Allows customization of the editingStyle for a particular cell located at 'indexPath'. If not implemented, all editable cells will have UITableViewCellEditingStyleDelete set for them when the table has editing property set to YES.

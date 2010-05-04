@@ -5,11 +5,14 @@ var data = [
 	{title:'Local with File URL', hasChild:true, test:'../examples/sound_file_url.js'},
 	{title:'Remote URL', hasChild:true, test:'../examples/sound_remote_url.js'},
 	{title:'Remote Streaming', hasChild:true, test:'../examples/sound_remote.js'}
+
 ];
 
 if (Titanium.Platform.name == 'iPhone OS')
 {
 	data.push({title:'Record', hasChild:true, test:'../examples/sound_record.js'});
+	data.push({title:'Audio Session Mode', hasChild:true, test:'../examples/sound_session_mode.js'});
+
 }
 
 // create table view

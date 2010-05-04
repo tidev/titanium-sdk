@@ -18,6 +18,7 @@ if (Titanium.Platform.name == 'iPhone OS')
 	data.push({title:'Window Toolbar', hasChild:true, test:'../examples/window_toolbar.js'});
 	data.push({title:'Window Constructor', hasChild:true, test:'../examples/window_constructor.js'});
 	data.push({title:'Animation', hasChild:true, test:'../examples/animation.js'});
+	data.push({title:'Horizontal Layout', hasChild:true, test:'../examples/horizontal_layout.js'});
 	
 	Ti.include("../examples/version.js");
 	

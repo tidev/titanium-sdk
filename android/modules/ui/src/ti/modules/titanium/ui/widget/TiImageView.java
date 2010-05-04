@@ -41,8 +41,7 @@ public class TiImageView extends ViewGroup
 	private OnClickListener clickListener;
 
 	private boolean canScaleImage;
-	private Integer imageHeight;
-	private Integer imageWidth;
+	private boolean enableZoomControls;
 
 	private GestureDetector gestureDetector;
 	private ImageView imageView;
@@ -60,17 +59,23 @@ public class TiImageView extends ViewGroup
 
 	public class NoLayoutImageView extends ImageView
 	{
-		
+
+		public boolean allowLayoutRequest;
+
 		public NoLayoutImageView(Context context) {
 			super(context);
+			allowLayoutRequest = true;
 		}
 
 		@Override
 		public void requestLayout() {
-			// no-op!!
+			if (allowLayoutRequest) {
+				super.requestLayout();
+				allowLayoutRequest = false;
+			}
 		}
 	}
-	
+
 	public TiImageView(Context context) {
 		super(context);
 
@@ -79,6 +84,7 @@ public class TiImageView extends ViewGroup
 		handler = new Handler(this);
 
 		canScaleImage = false;
+		enableZoomControls = true; // to mimic original behavior.
 		scaleFactor = 1.0f;
 		originalScaleFactor = scaleFactor;
 		scaleIncrement = 0.1f;
@@ -163,12 +169,18 @@ public class TiImageView extends ViewGroup
 		} else {
 			imageView.setScaleType(ScaleType.CENTER);
 		}
+		((NoLayoutImageView) imageView).allowLayoutRequest = true;
+		requestLayout();
+	}
+
+	public void setEnableZoomControls(boolean enableZoomControls) {
+		this.enableZoomControls = enableZoomControls;
 	}
 
 	public void setImageDrawable(Drawable d) {
 		setImageDrawable(d, true);
 	}
-	
+
 	public void setImageDrawable(Drawable d, boolean recycle) {
 		Drawable od = imageView.getDrawable();
 		if (od != null) {
@@ -180,8 +192,9 @@ public class TiImageView extends ViewGroup
 		imageView.setImageDrawable(d);
 		scaleFactor = originalScaleFactor;
 		updateChangeMatrix(0);
+		setCanScaleImage(canScaleImage); // Apply scale
 	}
-	
+
 	public Drawable getImageDrawable() {
 		return imageView.getDrawable();
 	}
@@ -189,7 +202,7 @@ public class TiImageView extends ViewGroup
 	public void setImageBitmap(Bitmap bitmap) {
 		imageView.setImageBitmap(bitmap);
 	}
-	
+
 	public void setOnClickListener(OnClickListener clickListener) {
 		this.clickListener = clickListener;
 	}
@@ -207,7 +220,7 @@ public class TiImageView extends ViewGroup
 	public void onClick(View view)
 	{
 		boolean sendClick = true;
-		if (canScaleImage) {
+		if (canScaleImage && enableZoomControls) {
 			if (zoomControls.getVisibility() != View.VISIBLE) {
 				sendClick = false;
 				manageControls();
@@ -335,14 +348,14 @@ public class TiImageView extends ViewGroup
 		int maxWidth = 0;
 		int maxHeight = 0;
 
-		if (DBG) {
-			int w = MeasureSpec.getSize(widthMeasureSpec);
-			int wm = MeasureSpec.getMode(widthMeasureSpec);
-			int h = MeasureSpec.getSize(heightMeasureSpec);
-			int hm = MeasureSpec.getMode(heightMeasureSpec);
-
-			//Log.i(LCAT, "w: " + w + " wm: " + wm + " h: " + h + " hm: " + hm);
-		}
+//		if (DBG) {
+//			int w = MeasureSpec.getSize(widthMeasureSpec);
+//			int wm = MeasureSpec.getMode(widthMeasureSpec);
+//			int h = MeasureSpec.getSize(heightMeasureSpec);
+//			int hm = MeasureSpec.getMode(heightMeasureSpec);
+//
+//			Log.i(LCAT, "w: " + w + " wm: " + wm + " h: " + h + " hm: " + hm);
+//		}
 
 		// TODO padding and margins
 

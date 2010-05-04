@@ -169,6 +169,7 @@ tableView = Titanium.UI.createTableView({
 
 tableView.addEventListener('click', function(e)
 {
+	Ti.API.info('table view row clicked - source ' + e.source);
 	// use rowNum property on object to get row number
 	var rowNum = e.index;
 	var updateRow = createUpdateRow('You clicked on the '+e.source.clickName);

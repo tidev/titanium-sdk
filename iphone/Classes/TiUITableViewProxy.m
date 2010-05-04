@@ -350,11 +350,24 @@
 	}
 	else
 	{
+        id header = [row valueForKey:@"header"];
+        TiUITableViewActionType actionType = TiUITableViewActionAppendRow;
+        if (header != nil) {
+            TiUITableViewSectionProxy *newSection = [[[TiUITableViewSectionProxy alloc] _initWithPageContext:[self executionContext] args:nil] autorelease];
+            
+            newSection.section = [sections count]-1;
+            newSection.table = table;
+            [newSection setValue:header forUndefinedKey:@"headerTitle"];
+            
+            [sections addObject:newSection];
+            
+            actionType = TiUITableViewActionAppendRowWithSection;
+        }
 		TiUITableViewSectionProxy *section = [sections lastObject];
 		row.section = section;
 		row.parent = section;
 		
-		TiUITableViewAction *action = [[[TiUITableViewAction alloc] initWithRow:row animation:anim section:row.section.section type:TiUITableViewActionAppendRow] autorelease];
+		TiUITableViewAction *action = [[[TiUITableViewAction alloc] initWithRow:row animation:anim section:row.section.section type:actionType] autorelease];
 		[table dispatchAction:action];
 	}	
 }

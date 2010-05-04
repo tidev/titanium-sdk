@@ -12,6 +12,7 @@
 #import "TiRect.h"
 #import <QuartzCore/QuartzCore.h>
 #import <libkern/OSAtomic.h>
+#import <pthread.h>
 
 @implementation TiViewProxy
 
@@ -19,6 +20,21 @@
 @synthesize barButtonItem;
 
 #pragma mark Internal
+- (id) init
+{
+	self = [super init];
+	if (self != nil)
+	{
+		int error = pthread_rwlock_init(&rwChildrenLock, NULL);
+		if (error != 0)
+		{
+			NSLog(@"[ERROR] View proxy was unable to initialize the readwrite lock: %d",error);
+		}
+	}
+	return self;
+}
+
+
 
 - (void) _initWithProperties:(NSDictionary *)properties
 {
@@ -37,14 +53,41 @@
 	}
 	RELEASE_TO_NIL(barButtonItem);
 	RELEASE_TO_NIL(view);
-	for (TiViewProxy * thisProxy in children)
-	{
-		[thisProxy setParent:nil];
-	}
-	RELEASE_TO_NIL(children);
-	RELEASE_TO_NIL(childLock);
+	
+	//Dealing with children is in _destroy, which is called by super dealloc.
+	
 	[super dealloc];
 }
+
+-(void)lockChildrenForReading
+{
+	int error = pthread_rwlock_rdlock(&rwChildrenLock);
+	if (error != 0)
+	{
+		NSLog(@"[ERROR] View proxy readwrite read lock failed: %d",error);
+	}
+}
+
+-(void)lockChildrenForWriting
+{
+	int error = pthread_rwlock_wrlock(&rwChildrenLock);
+	if (error != 0)
+	{
+		NSLog(@"[ERROR] View proxy readwrite write lock failed: %d",error);
+	}
+}
+
+-(void)unlockChildren
+{
+	int error = pthread_rwlock_unlock(&rwChildrenLock);
+	if (error != 0)
+	{
+		NSLog(@"[ERROR] View proxy readwrite unlock failed: %d",error);
+	}
+}
+
+
+
 
 #pragma mark Subclass Callbacks 
 
@@ -108,18 +151,16 @@
 -(void)add:(id)arg
 {
 	ENSURE_SINGLE_ARG(arg,TiViewProxy);
-	if (childLock==nil)
-	{
-		// since we can have multiple threads (one for JS context, one for UI thread)
-		// we need to (unfortunately) lock
-		childLock = [[NSRecursiveLock alloc] init];
-	}
-	[childLock lock];
-	if (children==nil)
-	{
-		children = [[NSMutableArray alloc] init];
-	}
-	[children addObject:arg];
+	ENSURE_UI_THREAD_1_ARG(arg);
+	[self lockChildrenForWriting];
+		if (children==nil)
+		{
+			children = [[NSMutableArray alloc] init];
+		}
+		VerboseLog(@"Adding child %@%X to %@%X",arg,arg,self,self);
+		[children addObject:arg];
+	[self unlockChildren];
+	
 	[arg setParent:self];
 	// only call layout if the view is attached
 	if ([self viewAttached])
@@ -127,26 +168,31 @@
 		[self layoutChildOnMainThread:arg];
 	}
 	[self childAdded:arg];
-	[childLock unlock];
 }
 
 
 -(void)remove:(id)arg
 {
 	ENSURE_SINGLE_ARG(arg,TiViewProxy);
-	if (children!=nil)
-	{
-		[childLock lock];
-		[self childRemoved:arg];
+
+	[self lockChildrenForReading];
+		BOOL viewIsInChildren = [children containsObject:arg];
+	[self unlockChildren];
+
+	ENSURE_VALUE_CONSISTENCY(viewIsInChildren,YES);
+	ENSURE_UI_THREAD_1_ARG(arg);
+	[self childRemoved:arg];
+
+	[self lockChildrenForWriting];
 		[children removeObject:arg];
-		[arg setParent:nil];
-		
 		if ([children count]==0)
 		{
 			RELEASE_TO_NIL(children);
 		}
-		[childLock unlock];
-	}
+	[self unlockChildren];
+		
+	[arg setParent:nil];
+	
 	if (view!=nil)
 	{
 		TiUIView *childView = [(TiViewProxy *)arg view];
@@ -308,28 +354,22 @@
 
 -(void)windowDidClose
 {
-	if (children!=nil)
-	{
-		[childLock lock];
+	[self lockChildrenForReading];
 		for (TiViewProxy *child in children)
 		{
 			[child windowDidClose];
 		}
-		[childLock unlock];
-	}
+	[self unlockChildren];
 }
 
 -(void)windowWillClose
 {
-	if (children!=nil)
-	{
-		[childLock lock];
+	[self lockChildrenForReading];
 		for (TiViewProxy *child in children)
 		{
 			[child windowWillClose];
 		}
-		[childLock unlock];
-	}
+	[self unlockChildren];
 	[self detachView];
 }
 
@@ -434,18 +474,14 @@
 		[view didSendConfiguration];
 
 		[view configurationSet];
-		
-		if (children!=nil)
-		{
-			[childLock lock];
+
+		[self lockChildrenForReading];
 			for (id child in self.children)
 			{
 				TiUIView *childView = [(TiViewProxy*)child view];
 				[view addSubview:childView];
 			}
-			[childLock unlock];
-		}
-
+		[self unlockChildren];
 		[self viewDidAttach];
 
 		// make sure we do a layout of ourselves
@@ -519,15 +555,35 @@
 
 	if(TiLayoutRuleIsVertical(layoutProperties.layout))\
 	{
-		bounds.origin.y += layoutBoundary;
+		bounds.origin.y += verticalLayoutBoundary;
 		bounds.size.height = [child minimumParentHeightForWidth:bounds.size.width];
-		layoutBoundary += bounds.size.height;
+		verticalLayoutBoundary += bounds.size.height;
 	}
 	else if(TiLayoutRuleIsHorizontal(layoutProperties.layout))
 	{
-		bounds.origin.x += layoutBoundary;
-		bounds.size.width = [child minimumParentWidthForWidth:bounds.size.width-layoutBoundary];
-		layoutBoundary += bounds.size.width;
+		CGFloat desiredWidth = [child minimumParentWidthForWidth:bounds.size.width-horizontalLayoutBoundary];
+		if ((horizontalLayoutBoundary + desiredWidth) > bounds.size.width) //No room! Start over!
+		{
+			horizontalLayoutBoundary = 0.0;
+			verticalLayoutBoundary += horizontalLayoutRowHeight;
+			horizontalLayoutRowHeight = 0;
+			desiredWidth = [child minimumParentWidthForWidth:bounds.size.width];
+		}
+		else
+		{
+			bounds.origin.x += horizontalLayoutBoundary;
+		}
+
+		horizontalLayoutBoundary += desiredWidth;
+		bounds.size.width = desiredWidth;
+		
+		CGFloat desiredHeight = [child minimumParentHeightForWidth:desiredWidth];
+		if (desiredHeight > horizontalLayoutRowHeight)
+		{
+			horizontalLayoutRowHeight = desiredHeight;
+		}
+		bounds.origin.y += verticalLayoutBoundary;
+		bounds.size.height = desiredHeight;
 	}
 
 #if DONTSHOWHIDDEN
@@ -544,31 +600,34 @@
 	{	//TODO: Optimize!
 		int insertPosition = 0;
 		CGFloat zIndex = [childView zIndex];
-		int childProxyIndex = [children indexOfObject:child];
+		
+		[self lockChildrenForReading];
+			int childProxyIndex = [children indexOfObject:child];
 
-		for (TiUIView * thisView in [ourView subviews])
-		{
-			if (![thisView isKindOfClass:[TiUIView class]])
+			for (TiUIView * thisView in [ourView subviews])
 			{
-				insertPosition ++;
-				continue;
-			}
-			
-			CGFloat thisZIndex=[thisView zIndex];
-			if (zIndex < thisZIndex) //We've found our stop!
-			{
-				break;
-			}
-			if (zIndex == thisZIndex)
-			{
-				TiProxy * thisProxy = [thisView proxy];
-				if (childProxyIndex <= [children indexOfObject:thisProxy])
+				if (![thisView isKindOfClass:[TiUIView class]])
+				{
+					insertPosition ++;
+					continue;
+				}
+				
+				CGFloat thisZIndex=[thisView zIndex];
+				if (zIndex < thisZIndex) //We've found our stop!
 				{
 					break;
 				}
+				if (zIndex == thisZIndex)
+				{
+					TiProxy * thisProxy = [thisView proxy];
+					if (childProxyIndex <= [children indexOfObject:thisProxy])
+					{
+						break;
+					}
+				}
+				insertPosition ++;
 			}
-			insertPosition ++;
-		}
+		[self unlockChildren];
 		
 		[ourView insertSubview:childView atIndex:insertPosition];
 		[self childWillResize:child];
@@ -581,22 +640,23 @@
 
 -(void)layoutChildren
 {
-	layoutBoundary = 0.0;
+	verticalLayoutBoundary = 0.0;
+	horizontalLayoutBoundary = 0.0;
+	horizontalLayoutRowHeight = 0.0;
 	// now ask each of our children for their view
 	if (![self viewAttached])
 	{
 		return;
 	}
 	OSAtomicTestAndSetBarrier(NEEDS_LAYOUT_CHILDREN, &dirtyflags);
-	if (self.children!=nil)
-	{
-		[childLock lock];
+
+	[self lockChildrenForReading];
 		for (id child in self.children)
 		{
 			[self layoutChild:child];
 		}
-		[childLock unlock];
-	}
+	[self unlockChildren];
+
 	OSAtomicTestAndClearBarrier(NEEDS_LAYOUT_CHILDREN, &dirtyflags);
 }
 
@@ -630,13 +690,11 @@
 		[view removeFromSuperview];
 		RELEASE_TO_NIL(view);
 	}
-	if (children!=nil)
-	{
-		[childLock lock];
+	
+	[self lockChildrenForWriting];
 		[children removeAllObjects];
-		[childLock unlock];
 		RELEASE_TO_NIL(children);
-	}
+	[self unlockChildren];
 	[super _destroy];
 }
 
@@ -671,7 +729,11 @@
 	// views support event propagation. we need to check our
 	// parent and if he has the same named listener, we fire
 	// an event and set the source of the event to ourself
-	if (parent!=nil && propagate==YES)
+    
+    // TODO: Based on bugs 810/824, do we really need the 'propagate' flag?
+    // What we really want to do is stop the event firing chain when the first event is fired, not
+    // fire every event in the chain...
+	if (parent!=nil && ![super _hasListeners:type] && propagate==YES)
 	{
 		[parent fireEvent:type withObject:obj withSource:source];
 	}
@@ -762,18 +824,21 @@
 	BOOL isHorizontal = TiLayoutRuleIsHorizontal(layoutProperties.layout);
 	CGFloat result = 0.0;
 
-	for (TiViewProxy * thisChildProxy in children)
-	{
-		CGFloat thisWidth = [thisChildProxy minimumParentWidthForWidth:suggestedWidth];
-		if (isHorizontal)
+	[self lockChildrenForReading];
+		for (TiViewProxy * thisChildProxy in children)
 		{
-			result += thisWidth;
+			CGFloat thisWidth = [thisChildProxy minimumParentWidthForWidth:suggestedWidth];
+			if (isHorizontal)
+			{
+				result += thisWidth;
+			}
+			else if(result<thisWidth)
+			{
+				result = thisWidth;
+			}
 		}
-		else if(result<thisWidth)
-		{
-			result = thisWidth;
-		}
-	}
+	[self unlockChildren];
+	
 	if (suggestedWidth == 0.0)
 	{
 		return result;
@@ -784,21 +849,47 @@
 -(CGFloat)autoHeightForWidth:(CGFloat)width
 {
 	BOOL isVertical = TiLayoutRuleIsVertical(layoutProperties.layout);
+	BOOL isHorizontal = TiLayoutRuleIsHorizontal(layoutProperties.layout)
 	CGFloat result=0.0;
 
-	for (TiViewProxy * thisChildProxy in children)
-	{
-		CGFloat thisHeight = [thisChildProxy minimumParentHeightForWidth:width];
-		if (isVertical)
+	//Autoheight with a set autoheight for width gets complicated.
+	CGFloat widthLeft=width;
+	CGFloat currentRowHeight = 0.0;
+
+	[self lockChildrenForReading];
+		for (TiViewProxy * thisChildProxy in children)
 		{
-			result += thisHeight;
+			if (isHorizontal)
+			{
+				CGFloat requestedWidth = [thisChildProxy minimumParentWidthForWidth:widthLeft];
+				if (requestedWidth > widthLeft) //Wrap around!
+				{
+					result += currentRowHeight;
+					currentRowHeight = 0.0;
+					widthLeft = width;
+				}
+				widthLeft -= requestedWidth;
+				CGFloat thisHeight = [thisChildProxy minimumParentHeightForWidth:requestedWidth];
+				if (thisHeight > currentRowHeight)
+				{
+					currentRowHeight = thisHeight;
+				}
+			}
+			else
+			{
+				CGFloat thisHeight = [thisChildProxy minimumParentHeightForWidth:width];
+				if (isVertical)
+				{
+					result += thisHeight;
+				}
+				else if(result<thisHeight)
+				{
+					result = thisHeight;
+				}
+			}
 		}
-		else if(result<thisHeight)
-		{
-			result = thisHeight;
-		}
-	}
-	return result;
+	[self unlockChildren];
+	return result + currentRowHeight;
 }
 
 -(CGFloat)minimumParentWidthForWidth:(CGFloat)suggestedWidth
@@ -858,7 +949,11 @@
 
 -(void)childWillResize:(TiViewProxy *)child
 {
-	ENSURE_CONSISTENCY([children containsObject:child]);
+	[self lockChildrenForReading];
+	BOOL containsChild = [children containsObject:child];
+	[self unlockChildren];
+
+	ENSURE_VALUE_CONSISTENCY(containsChild,YES);
 	[self setNeedsRepositionIfAutoSized];
 
 	if (TiLayoutRuleIsVertical(layoutProperties.layout))

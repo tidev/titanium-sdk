@@ -114,4 +114,50 @@ b5.addEventListener('click', function()
 win.add(b5);
 
 
+//
+// BACKGROUND IMAGE ON NORMAL BUTTON
+//
+var b7 = Titanium.UI.createButton({
+	title:'Button With Image',
+	height:40,
+	width:200,
+	top:260,
+});
+b7.addEventListener('click', function()
+{
+	var b = Ti.UI.createButton({
+		backgroundImage:'../images/camera.png',
+		height:33,
+		width:33
+	});
+	var flexSpace = Titanium.UI.createButton({
+		systemButton:Titanium.UI.iPhone.SystemButton.FLEXIBLE_SPACE
+	});
+	
+	win.setToolbar([flexSpace,b,flexSpace]);
+});
+win.add(b7);
+
+var b8 = Titanium.UI.createButton({
+	title:'Set Label',
+	height:40,
+	width:200,
+	top:310,
+});
+
+b8.addEventListener('click', function()
+{
+	var l = Ti.UI.createLabel({
+		text:'Hello',
+		color:'#fff',
+		font:{fontSize:14}
+	});
+	var flexSpace = Titanium.UI.createButton({
+		systemButton:Titanium.UI.iPhone.SystemButton.FLEXIBLE_SPACE
+	});
+	
+	win.setToolbar([flexSpace,l,flexSpace]);
+
+});
+win.add(b8);
 
