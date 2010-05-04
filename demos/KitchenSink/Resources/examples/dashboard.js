@@ -43,6 +43,11 @@ dashboard.addEventListener('edit',function()
 dashboard.addEventListener('commit',function()
 {
 	win.rightNavButton = null;
+	Ti.API.info('data ' + dashboard.data);
+	for (var i=0;i<dashboard.data.length;i++)
+	{
+		Ti.API.info('label ' + dashboard.data[i].label)
+	}
 });
 
 dashboard.addEventListener('click',function(e)

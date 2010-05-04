@@ -35,7 +35,8 @@ for (var c=0;c<50;c++)
     data.push(row);
 }
 var tableView = Titanium.UI.createTableView({
-	data:data
+	data:data,
+	deleteButtonTitle:'Foo'
 });
 
 
