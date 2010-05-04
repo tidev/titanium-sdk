@@ -52,16 +52,32 @@
 	[table dispatchAction:action];
 }
 
+-(void)setTable:(TiUITableView *)newTable
+{
+	table = newTable;
+	for (TiUITableViewRowProxy * thisRow in rows)
+	{
+		[thisRow setTable:newTable];
+	}
+}
+
 #pragma mark Public APIs
+
+- (NSUInteger)countByEnumeratingWithState:(NSFastEnumerationState *)state objects:(id *)stackbuf count:(NSUInteger)len;
+{
+	return [rows countByEnumeratingWithState:state objects:stackbuf count:len];
+}
 
 -(NSInteger)rowCount
 {
-	return rows!=nil ? [rows count] : 0;
+//The result of a method call on a nil is 0;
+	return [rows count];
 }
 
 -(TiUITableViewRowProxy*)rowAtIndex:(NSInteger)index
 {
-	return rows!=nil ? [rows objectAtIndex:index] : nil;
+//The result of a method call also happens to be nil.
+	return [rows objectAtIndex:index];
 }
 
 -(void)add:(id)proxy

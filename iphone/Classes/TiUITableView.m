@@ -181,46 +181,71 @@
 
 -(void)replaceData:(UITableViewRowAnimation)animation
 {
-	NSAssert(sections!=nil,@"sections was nil");
-	
+//Technically, we should assert that sections is non-nil, but this code
+//won't have any problems in the case that it is actually nil.	
 	UITableView *table = [self tableView];
+	TiProxy * ourProxy = [self proxy];
 	
-	if ([sections count] > 0)
+	int oldCount = [sections count];
+
+	for (TiUITableViewSectionProxy *section in sections)
 	{
-		NSIndexSet *oldSectionSet = [NSIndexSet indexSetWithIndexesInRange:NSMakeRange(0,[sections count])];
-		[table deleteSections:oldSectionSet withRowAnimation:UITableViewRowAnimationNone];
-	}
-	
-	RELEASE_TO_NIL(sections);
-	sections = [[NSMutableArray alloc] init];
-	
-	// get new data array from the proxy
-	NSArray *newsections = [self.proxy valueForKey:@"data"];
-	
-	// if nil, means we're removing
-	if (newsections!=nil)
-	{
-		// wire up the relationships
-		for (int c=0;c<[newsections count];c++)
+		if ([section parent] == ourProxy)
 		{
-			TiUITableViewSectionProxy *section = [newsections objectAtIndex:c];
-			section.section = c;
-			section.table = self;
-			for (int x=0;x<[section rowCount];x++)
-			{
-				TiUITableViewRowProxy *row = [section rowAtIndex:x];
-				row.table = self;
-				row.section = section;
-				row.row = x;
-				row.parent = section;
-			}
-			section.parent = self.proxy;
-			[sections addObject:section];
+			[section setTable:nil];
+			[section setParent:nil];
 		}
-		
-		NSIndexSet *newSectionSet = [NSIndexSet indexSetWithIndexesInRange:NSMakeRange(0,[sections count])];
-		[table insertSections:newSectionSet withRowAnimation:animation];
 	}
+	RELEASE_TO_NIL(sections);
+
+	NSArray *newsections = [ourProxy valueForKey:@"data"];
+	// get new data array from the proxy
+	sections = [newsections mutableCopy];	//Mutablecopy is faster than adding one by one.
+
+	int newCount = 0;	//Since we're iterating anyways, we might as well not get count.
+
+	for (TiUITableViewSectionProxy *section in sections)
+	{
+		[section setTable:self];
+		[section setParent:ourProxy];
+		[section setSection:newCount ++];
+		[section reorderRows];
+		//TODO: Shouldn't this be done by Section itself? Doesn't it already?
+		for (TiUITableViewRowProxy *row in section)
+		{
+			row.section = section;
+			row.parent = section;
+		}
+	}
+
+	if ((animation == UITableViewRowAnimationNone) && ![tableview isEditing])
+	{
+		[tableview reloadData];
+		return;
+	}
+
+
+	int commonality = MIN(oldCount,newCount);
+	oldCount -= commonality;
+	newCount -= commonality;
+	
+	[tableview beginUpdates];
+	if (commonality > 0)
+	{
+		[table reloadSections:[NSIndexSet indexSetWithIndexesInRange:NSMakeRange(0, commonality)]
+				withRowAnimation:animation];
+	}
+	if (oldCount > 0)
+	{
+		[table deleteSections:[NSIndexSet indexSetWithIndexesInRange:NSMakeRange(commonality,oldCount)]
+				withRowAnimation:animation];
+	}
+	if (newCount > 0)
+	{
+		[table insertSections:[NSIndexSet indexSetWithIndexesInRange:NSMakeRange(commonality,newCount)]
+				withRowAnimation:animation];
+	}
+	[tableview endUpdates];
 }
 
 -(void)updateRow:(TiUITableViewRowProxy*)row
@@ -283,8 +308,6 @@
 	ENSURE_UI_THREAD(dispatchAction,action);
 	
 	UITableView *table = [self tableView];
-
-	[table beginUpdates];
 	
 	switch (action.type)
 	{
@@ -356,8 +379,6 @@
             break;
         }
 	}
-	
-	[table endUpdates];
 }
 
 -(UIView*)titleViewForText:(NSString*)text footer:(BOOL)footer
