@@ -4,6 +4,7 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
+#ifdef USE_TI_UIIPADSPLITWINDOW
 
 #import "TiUIView.h"
 
@@ -11,7 +12,7 @@
 
 @class TiUIiPadPopoverProxy;
 
-@interface TiUIiPadSplitWindowView : TiUIView<UISplitViewControllerDelegate> {
+@interface TiUIiPadSplitWindow : TiUIView<UISplitViewControllerDelegate> {
 
 @private
 	UISplitViewController *controller;
@@ -28,3 +29,5 @@
 
 #endif
 
+
+#endif

@@ -19,49 +19,6 @@ osx_dir = os.path.abspath(os.path.join(template_dir,'osx'))
 ignoreExtensions = ['.pbxuser','.perspectivev3','.pyc']
 ignoreDirs = ['.DS_Store','.git','.gitignore','libTitanium.a','titanium.jar','build','bridge.txt']
 
-# these are symbols that are always included and should not be defined out
-# probably should move these into the file themselves and not here - for now
-# this is OK
-symbol_exclusions = ['TitaniumModule',
-					'TitaniumApp',
-					'TitaniumViewController',
-					'TitaniumErrorController',
-					'TiProxy',
-					'TiView',
-					'TiViewProxy',
-					'TiBase',
-					'TiGradient',
-					'TiFile',
-					'TiUtils',
-					'TiController',
-					'TiTabController',
-					'TiModule',
-					'TiTextLabel',
-					'TiTab',
-					'TiEvaluator',
-					'TiWindow',
-					'TiHost',
-					'TiAnimation',
-					'TiAction',
-					'TiToolbar',
-					'TiTabGroup',
-					'TiToolbarButton',
-					'TiViewController',
-					'TiGradient',
-					'TiRange',
-					'TiRect',
-					'TiPoint',
-					'TiDimension',
-					'TiColor',
-					'TiComplexValue',
-					'TiColor',
-					'TiButtonUtil',
-					'Ti3DMatrix',
-					'Ti2DMatrix',
-					'TiBlob',
-					'TiWindowProxy',
-					'TiUIView']
-
 def ignore(file):
 	 for f in ignoreDirs:
 		if file == f:
@@ -125,39 +82,6 @@ def make_symbol(fn):
 		return fn[2:]
 	return fn
 
-def make_define(fn):
-	if not fn.startswith('Ti'):
-		return None
-	for sym in symbol_exclusions:
-		if sym == fn:
-			return None
-	if fn.endswith('Module'):
-		name = make_symbol(fn.replace('Module','').upper())
-		return 'USE_TI_%s' % name
-	elif fn.endswith('Proxy'):
-		name = make_symbol(fn.replace('Proxy','').upper())
-		return 'USE_TI_%s' % name
-	return 'USE_TI_%s' % make_symbol(fn.upper())
-	
-def process_defines(filename,ext,contents):
-	if ext in ('.h','.m','.mm'):
-		base = os.path.basename(filename)
-		ext = os.path.splitext(base)
-		fn = ext[0]
-		define = make_define(fn)
-		if define!=None and contents.find('#ifdef USE_TI_') < 0 and contents.find('#if defined(USE_TI_') < 0:
-			idx = contents.find('*/')
-			if idx > 0:
-				#print define
-				before = contents[0:idx+3]
-				after = contents[idx+3:]
-				buf = before
-				buf += "#ifdef %s\n\n" % define
-				buf += after
-				buf += "\n\n#endif\n"
-				return buf
-	return contents
-		
 def zip_iphone_ipad(zf,basepath,platform,version):
 	  
 	zf.writestr('%s/iphone/imports.json'%basepath,resolve_source_imports(platform))
@@ -187,7 +111,7 @@ def zip_iphone_ipad(zf,basepath,platform,version):
 	
 	iphone_lib = os.path.join(top_dir,'iphone',platform,'build')
 	
-	zip_dir(zf,os.path.join(top_dir,'iphone','Classes'),basepath+'/iphone/Classes',subs,process_defines)
+	zip_dir(zf,os.path.join(top_dir,'iphone','Classes'),basepath+'/iphone/Classes',subs)
 	zip_dir(zf,os.path.join(top_dir,'iphone','headers'),basepath+'/iphone/headers',subs)
 	zip_dir(zf,os.path.join(top_dir,'iphone','iphone'),basepath+'/iphone/iphone',subs)
 	

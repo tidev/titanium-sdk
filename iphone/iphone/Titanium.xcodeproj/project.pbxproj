@@ -60,6 +60,12 @@
 		24596696118E70D300519F79 /* ApplicationRouting.m in Sources */ = {isa = PBXBuildFile; fileRef = 24596692118E70D300519F79 /* ApplicationRouting.m */; };
 		24596A2A118E890B00519F79 /* TiTabController.h in Headers */ = {isa = PBXBuildFile; fileRef = 24596A29118E88FE00519F79 /* TiTabController.h */; };
 		24597035118FF66300519F79 /* StoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 24597034118FF66300519F79 /* StoreKit.framework */; };
+		245972C611921D0D00519F79 /* TiUIiPadSplitWindow.m in Sources */ = {isa = PBXBuildFile; fileRef = 245972C511921D0D00519F79 /* TiUIiPadSplitWindow.m */; };
+		245972C711921D0D00519F79 /* TiUIiPadSplitWindow.m in Sources */ = {isa = PBXBuildFile; fileRef = 245972C511921D0D00519F79 /* TiUIiPadSplitWindow.m */; };
+		245972C811921D0D00519F79 /* TiUIiPadSplitWindow.m in Sources */ = {isa = PBXBuildFile; fileRef = 245972C511921D0D00519F79 /* TiUIiPadSplitWindow.m */; };
+		245972C911921D0D00519F79 /* TiUIiPadSplitWindow.m in Sources */ = {isa = PBXBuildFile; fileRef = 245972C511921D0D00519F79 /* TiUIiPadSplitWindow.m */; };
+		245972CA11921D0D00519F79 /* TiUIiPadSplitWindow.h in Headers */ = {isa = PBXBuildFile; fileRef = 245972C411921D0D00519F79 /* TiUIiPadSplitWindow.h */; };
+		245972CB11921D0E00519F79 /* TiUIiPadSplitWindow.m in Sources */ = {isa = PBXBuildFile; fileRef = 245972C511921D0D00519F79 /* TiUIiPadSplitWindow.m */; };
 		245B3C3A11375A6600CE7530 /* UtilsModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 245B3C3911375A6600CE7530 /* UtilsModule.m */; };
 		245B3C3B11375A6600CE7530 /* UtilsModule.h in Headers */ = {isa = PBXBuildFile; fileRef = 245B3C3811375A6600CE7530 /* UtilsModule.h */; };
 		245B3C3C11375A6600CE7530 /* UtilsModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 245B3C3911375A6600CE7530 /* UtilsModule.m */; };
@@ -1178,7 +1184,6 @@
 		24DD02F511686DE8006FD6E1 /* TiDOMTextNodeProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24813712115A852800E3A9BA /* TiDOMTextNodeProxy.m */; };
 		24DD02F611686DE8006FD6E1 /* TiMediaVideoPlayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 2412F465115C296300454E5B /* TiMediaVideoPlayer.m */; };
 		24DD02F711686DE8006FD6E1 /* TiUIiPadSplitWindowProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24FB4EDC115C81A7001AAF99 /* TiUIiPadSplitWindowProxy.m */; };
-		24DD02F811686DE8006FD6E1 /* TiUIiPadSplitWindowView.m in Sources */ = {isa = PBXBuildFile; fileRef = 24FB4EE5115C81B2001AAF99 /* TiUIiPadSplitWindowView.m */; };
 		24DD02F911686DE8006FD6E1 /* TiUIiPadPopoverProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24FB4EEE115C81C5001AAF99 /* TiUIiPadPopoverProxy.m */; };
 		24DD02FA11686DE8006FD6E1 /* TiUIiPadPopover.m in Sources */ = {isa = PBXBuildFile; fileRef = 24FB4EF7115C81DD001AAF99 /* TiUIiPadPopover.m */; };
 		24DD02FB11686DE8006FD6E1 /* TiUIiPadProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24FB4F41115C8C4E001AAF99 /* TiUIiPadProxy.m */; };
@@ -1321,11 +1326,6 @@
 		24FB4EDF115C81A7001AAF99 /* TiUIiPadSplitWindowProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24FB4EDC115C81A7001AAF99 /* TiUIiPadSplitWindowProxy.m */; };
 		24FB4EE0115C81A7001AAF99 /* TiUIiPadSplitWindowProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24FB4EDC115C81A7001AAF99 /* TiUIiPadSplitWindowProxy.m */; };
 		24FB4EE3115C81A7001AAF99 /* TiUIiPadSplitWindowProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24FB4EDC115C81A7001AAF99 /* TiUIiPadSplitWindowProxy.m */; };
-		24FB4EE8115C81B2001AAF99 /* TiUIiPadSplitWindowView.h in Headers */ = {isa = PBXBuildFile; fileRef = 24FB4EE4115C81B2001AAF99 /* TiUIiPadSplitWindowView.h */; };
-		24FB4EE9115C81B2001AAF99 /* TiUIiPadSplitWindowView.m in Sources */ = {isa = PBXBuildFile; fileRef = 24FB4EE5115C81B2001AAF99 /* TiUIiPadSplitWindowView.m */; };
-		24FB4EEA115C81B2001AAF99 /* TiUIiPadSplitWindowView.m in Sources */ = {isa = PBXBuildFile; fileRef = 24FB4EE5115C81B2001AAF99 /* TiUIiPadSplitWindowView.m */; };
-		24FB4EEB115C81B2001AAF99 /* TiUIiPadSplitWindowView.m in Sources */ = {isa = PBXBuildFile; fileRef = 24FB4EE5115C81B2001AAF99 /* TiUIiPadSplitWindowView.m */; };
-		24FB4EEC115C81B2001AAF99 /* TiUIiPadSplitWindowView.m in Sources */ = {isa = PBXBuildFile; fileRef = 24FB4EE5115C81B2001AAF99 /* TiUIiPadSplitWindowView.m */; };
 		24FB4EF1115C81C5001AAF99 /* TiUIiPadPopoverProxy.h in Headers */ = {isa = PBXBuildFile; fileRef = 24FB4EED115C81C5001AAF99 /* TiUIiPadPopoverProxy.h */; };
 		24FB4EF2115C81C5001AAF99 /* TiUIiPadPopoverProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24FB4EEE115C81C5001AAF99 /* TiUIiPadPopoverProxy.m */; };
 		24FB4EF3115C81C5001AAF99 /* TiUIiPadPopoverProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24FB4EEE115C81C5001AAF99 /* TiUIiPadPopoverProxy.m */; };
@@ -1419,6 +1419,8 @@
 		24596692118E70D300519F79 /* ApplicationRouting.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ApplicationRouting.m; path = ../Classes/ApplicationRouting.m; sourceTree = SOURCE_ROOT; };
 		24596A29118E88FE00519F79 /* TiTabController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiTabController.h; sourceTree = "<group>"; };
 		24597034118FF66300519F79 /* StoreKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = StoreKit.framework; path = System/Library/Frameworks/StoreKit.framework; sourceTree = SDKROOT; };
+		245972C411921D0D00519F79 /* TiUIiPadSplitWindow.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUIiPadSplitWindow.h; sourceTree = "<group>"; };
+		245972C511921D0D00519F79 /* TiUIiPadSplitWindow.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIiPadSplitWindow.m; sourceTree = "<group>"; };
 		245B3C3811375A6600CE7530 /* UtilsModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UtilsModule.h; sourceTree = "<group>"; };
 		245B3C3911375A6600CE7530 /* UtilsModule.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = UtilsModule.m; sourceTree = "<group>"; };
 		245B455F1139B41800CE7530 /* TiUITableViewCellSelectionStyleProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUITableViewCellSelectionStyleProxy.h; sourceTree = "<group>"; };
@@ -1865,8 +1867,6 @@
 		24F5B145111FDFE8005C9199 /* ListenerEntry.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ListenerEntry.m; sourceTree = "<group>"; };
 		24FB4EDB115C81A7001AAF99 /* TiUIiPadSplitWindowProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUIiPadSplitWindowProxy.h; sourceTree = "<group>"; };
 		24FB4EDC115C81A7001AAF99 /* TiUIiPadSplitWindowProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIiPadSplitWindowProxy.m; sourceTree = "<group>"; };
-		24FB4EE4115C81B2001AAF99 /* TiUIiPadSplitWindowView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUIiPadSplitWindowView.h; sourceTree = "<group>"; };
-		24FB4EE5115C81B2001AAF99 /* TiUIiPadSplitWindowView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIiPadSplitWindowView.m; sourceTree = "<group>"; };
 		24FB4EED115C81C5001AAF99 /* TiUIiPadPopoverProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUIiPadPopoverProxy.h; sourceTree = "<group>"; };
 		24FB4EEE115C81C5001AAF99 /* TiUIiPadPopoverProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIiPadPopoverProxy.m; sourceTree = "<group>"; };
 		24FB4EF6115C81DD001AAF99 /* TiUIiPadPopover.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUIiPadPopover.h; sourceTree = "<group>"; };
@@ -2998,10 +2998,10 @@
 		24FB4ED0115C812E001AAF99 /* Split View */ = {
 			isa = PBXGroup;
 			children = (
+				245972C411921D0D00519F79 /* TiUIiPadSplitWindow.h */,
+				245972C511921D0D00519F79 /* TiUIiPadSplitWindow.m */,
 				24FB4EDB115C81A7001AAF99 /* TiUIiPadSplitWindowProxy.h */,
 				24FB4EDC115C81A7001AAF99 /* TiUIiPadSplitWindowProxy.m */,
-				24FB4EE4115C81B2001AAF99 /* TiUIiPadSplitWindowView.h */,
-				24FB4EE5115C81B2001AAF99 /* TiUIiPadSplitWindowView.m */,
 				24E50CF21160569B00AF54AF /* TiUIiPadSplitWindowButtonProxy.h */,
 				24E50CF31160569B00AF54AF /* TiUIiPadSplitWindowButtonProxy.m */,
 			);
@@ -3297,7 +3297,6 @@
 				24813715115A852800E3A9BA /* TiDOMTextNodeProxy.h in Headers */,
 				2412F468115C296300454E5B /* TiMediaVideoPlayer.h in Headers */,
 				24FB4EDE115C81A7001AAF99 /* TiUIiPadSplitWindowProxy.h in Headers */,
-				24FB4EE8115C81B2001AAF99 /* TiUIiPadSplitWindowView.h in Headers */,
 				24FB4EF1115C81C5001AAF99 /* TiUIiPadPopoverProxy.h in Headers */,
 				24FB4EF9115C81DD001AAF99 /* TiUIiPadPopover.h in Headers */,
 				24FB4F43115C8C4E001AAF99 /* TiUIiPadProxy.h in Headers */,
@@ -3316,6 +3315,7 @@
 				24DD0978116D8E07006FD6E1 /* TiToolbarButton.h in Headers */,
 				B4DE7E5111823E990006DDE1 /* TiGradient.h in Headers */,
 				241EAA22118AB3BB0081A5BE /* defines.h in Headers */,
+				245972CA11921D0D00519F79 /* TiUIiPadSplitWindow.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3767,7 +3767,6 @@
 				24813714115A852800E3A9BA /* TiDOMTextNodeProxy.m in Sources */,
 				2412F467115C296300454E5B /* TiMediaVideoPlayer.m in Sources */,
 				24FB4EE3115C81A7001AAF99 /* TiUIiPadSplitWindowProxy.m in Sources */,
-				24FB4EEB115C81B2001AAF99 /* TiUIiPadSplitWindowView.m in Sources */,
 				24FB4EF4115C81C5001AAF99 /* TiUIiPadPopoverProxy.m in Sources */,
 				24FB4EFC115C81DD001AAF99 /* TiUIiPadPopover.m in Sources */,
 				24FB4F42115C8C4E001AAF99 /* TiUIiPadProxy.m in Sources */,
@@ -3784,6 +3783,7 @@
 				24DD042D116A6C58006FD6E1 /* TiToolbar.m in Sources */,
 				B4DE7E4E11823E990006DDE1 /* TiGradient.m in Sources */,
 				24596694118E70D300519F79 /* ApplicationRouting.m in Sources */,
+				245972C611921D0D00519F79 /* TiUIiPadSplitWindow.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3994,7 +3994,6 @@
 				24813713115A852800E3A9BA /* TiDOMTextNodeProxy.m in Sources */,
 				2412F466115C296300454E5B /* TiMediaVideoPlayer.m in Sources */,
 				24FB4EE0115C81A7001AAF99 /* TiUIiPadSplitWindowProxy.m in Sources */,
-				24FB4EEA115C81B2001AAF99 /* TiUIiPadSplitWindowView.m in Sources */,
 				24FB4EF3115C81C5001AAF99 /* TiUIiPadPopoverProxy.m in Sources */,
 				24FB4EFB115C81DD001AAF99 /* TiUIiPadPopover.m in Sources */,
 				24FB4F45115C8C4E001AAF99 /* TiUIiPadProxy.m in Sources */,
@@ -4011,6 +4010,7 @@
 				24DD042E116A6C58006FD6E1 /* TiToolbar.m in Sources */,
 				B4DE7E5311823E990006DDE1 /* TiGradient.m in Sources */,
 				24596693118E70D300519F79 /* ApplicationRouting.m in Sources */,
+				245972C711921D0D00519F79 /* TiUIiPadSplitWindow.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -4221,7 +4221,6 @@
 				24813717115A852800E3A9BA /* TiDOMTextNodeProxy.m in Sources */,
 				2412F46A115C296300454E5B /* TiMediaVideoPlayer.m in Sources */,
 				24FB4EDD115C81A7001AAF99 /* TiUIiPadSplitWindowProxy.m in Sources */,
-				24FB4EEC115C81B2001AAF99 /* TiUIiPadSplitWindowView.m in Sources */,
 				24FB4EF5115C81C5001AAF99 /* TiUIiPadPopoverProxy.m in Sources */,
 				24FB4EF8115C81DD001AAF99 /* TiUIiPadPopover.m in Sources */,
 				24FB4F48115C8C4E001AAF99 /* TiUIiPadProxy.m in Sources */,
@@ -4238,6 +4237,7 @@
 				24DD042C116A6C58006FD6E1 /* TiToolbar.m in Sources */,
 				B4DE7E5011823E990006DDE1 /* TiGradient.m in Sources */,
 				24596696118E70D300519F79 /* ApplicationRouting.m in Sources */,
+				245972C911921D0D00519F79 /* TiUIiPadSplitWindow.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -4447,7 +4447,6 @@
 				24813716115A852800E3A9BA /* TiDOMTextNodeProxy.m in Sources */,
 				2412F469115C296300454E5B /* TiMediaVideoPlayer.m in Sources */,
 				24FB4EDF115C81A7001AAF99 /* TiUIiPadSplitWindowProxy.m in Sources */,
-				24FB4EE9115C81B2001AAF99 /* TiUIiPadSplitWindowView.m in Sources */,
 				24FB4EF2115C81C5001AAF99 /* TiUIiPadPopoverProxy.m in Sources */,
 				24FB4EFA115C81DD001AAF99 /* TiUIiPadPopover.m in Sources */,
 				24FB4F44115C8C4E001AAF99 /* TiUIiPadProxy.m in Sources */,
@@ -4463,6 +4462,7 @@
 				24DDF66311646D51006FD6E1 /* TiUIiPadDocumentViewerProxy.m in Sources */,
 				24DD0430116A6C58006FD6E1 /* TiToolbar.m in Sources */,
 				B4DE7E5211823E990006DDE1 /* TiGradient.m in Sources */,
+				245972CB11921D0E00519F79 /* TiUIiPadSplitWindow.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -4673,7 +4673,6 @@
 				24DD02F511686DE8006FD6E1 /* TiDOMTextNodeProxy.m in Sources */,
 				24DD02F611686DE8006FD6E1 /* TiMediaVideoPlayer.m in Sources */,
 				24DD02F711686DE8006FD6E1 /* TiUIiPadSplitWindowProxy.m in Sources */,
-				24DD02F811686DE8006FD6E1 /* TiUIiPadSplitWindowView.m in Sources */,
 				24DD02F911686DE8006FD6E1 /* TiUIiPadPopoverProxy.m in Sources */,
 				24DD02FA11686DE8006FD6E1 /* TiUIiPadPopover.m in Sources */,
 				24DD02FB11686DE8006FD6E1 /* TiUIiPadProxy.m in Sources */,
@@ -4690,6 +4689,7 @@
 				24DD0431116A6C58006FD6E1 /* TiToolbar.m in Sources */,
 				B4DE7E4F11823E990006DDE1 /* TiGradient.m in Sources */,
 				24596695118E70D300519F79 /* ApplicationRouting.m in Sources */,
+				245972C811921D0D00519F79 /* TiUIiPadSplitWindow.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

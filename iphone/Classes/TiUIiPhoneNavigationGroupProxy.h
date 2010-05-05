@@ -4,6 +4,8 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
+#ifdef USE_TI_UIIPHONENAVIGATIONGROUP
+
 #import "TiViewProxy.h"
 
 @interface TiUIiPhoneNavigationGroupProxy : TiViewProxy {
@@ -11,3 +13,5 @@
 }
 
 @end
+
+#endif

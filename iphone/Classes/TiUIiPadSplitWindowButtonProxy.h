@@ -4,6 +4,8 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
+#ifdef USE_TI_UIIPADSPLITWINDOW
+
 #import "TiViewProxy.h"
 
 @interface TiUIiPadSplitWindowButtonProxy : TiViewProxy {
@@ -15,3 +17,4 @@
 
 @end
 
+#endif

@@ -75,6 +75,11 @@ class IPhone(object):
 		gitignore.write("*.perspectivev3\n")
 		gitignore.close()
 
+		gitignore = open(os.path.join(iphone_dir,'Resources','.gitignore'),'w')
+		# exclude generated files
+		gitignore.write(".simulator\n")
+		gitignore.close()
+
 		main_dest = open(os.path.join(iphone_dir,'main.m'),'w')
 		main_dest.write(main_template)
 		main_dest.close()
