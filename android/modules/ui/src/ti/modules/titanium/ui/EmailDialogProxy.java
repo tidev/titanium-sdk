@@ -72,10 +72,19 @@ public class EmailDialogProxy extends TiViewProxy {
 			}			
 		}
 	}
+	
+	private String baseMimeType() {
+		String result = "text/plain";
+		if (android.os.Build.VERSION.SDK_INT > android.os.Build.VERSION_CODES.DONUT) {
+			result = "message/rfc822";
+		}
+		return result;
+	}
 			
 	public void open(){
 		Intent sendIntent = new Intent(Intent.ACTION_SEND);
-		String intentType = "message/rfc822";
+		
+		String intentType = baseMimeType();
 		/*
 		if (hasDynamicValue("html")) {
 			if (TiConvert.toBoolean(getDynamicValue("html"))) {
@@ -96,6 +105,9 @@ public class EmailDialogProxy extends TiViewProxy {
 		
 		prepareAttachments(sendIntent);
 		
+		if (DBG) {
+			Log.d(LCAT, "Choosing for mime type " + sendIntent.getType());
+		}
 		Intent choosingIntent = Intent.createChooser(sendIntent, "Send");
 	
 		Activity activity = getTiContext().getActivity();
@@ -172,6 +184,14 @@ public class EmailDialogProxy extends TiViewProxy {
 			Log.d(LCAT, "Attaching standard file " + uri.toString() + " with mimetype " + mimeType);
 		}
 		sendIntent.putExtra(Intent.EXTRA_STREAM, uri);
+		// Only set SEND intent's type to attachment's type
+		// if API level 4, because in later API levels
+		// we want to force a true e-mail dialog instead
+		// of a chooser. Someday we'll have an intents module
+		// to make choice/choosers easier!
+		if (android.os.Build.VERSION.SDK_INT == android.os.Build.VERSION_CODES.DONUT) {
+			sendIntent.setType(mimeType);
+		}
 		
 	}
 	

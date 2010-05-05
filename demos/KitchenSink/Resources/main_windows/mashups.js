@@ -9,9 +9,10 @@ if (Titanium.Platform.name == 'iPhone OS')
 {
 	data.push({title:'YQL', hasChild:true, test:'../examples/yql.js'});
 	data.push({title:'Facebook', hasChild:true, test:'../examples/facebook.js'});
-	data.push({title:'SOAP', hasChild:true, test:'../examples/soap.js'});
 	data.push({title:'RSS', hasChild:true, test:'../examples/rss.js', barColor:'#b40000'});
 }
+
+data.push({title:'SOAP', hasChild:true, test:'../examples/soap.js'});
 
 // create table view
 var tableview = Titanium.UI.createTableView({
