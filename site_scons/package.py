@@ -16,6 +16,7 @@ android_dir = os.path.abspath(os.path.join(template_dir,'android'))
 iphone_dir = os.path.abspath(os.path.join(template_dir,'iphone'))
 osx_dir = os.path.abspath(os.path.join(template_dir,'osx'))
 
+ignoreExtensions = ['.pbxuser','.perspectivev3','.pyc']
 ignoreDirs = ['.DS_Store','.git','.gitignore','libTitanium.a','titanium.jar','build','bridge.txt']
 
 # these are symbols that are always included and should not be defined out
@@ -74,7 +75,7 @@ def zip_dir(zf,dir,basepath,subs=None,cb=None):
 				dirs.remove(name)	# don't visit ignored directories
 		for file in files:
 			e = os.path.splitext(file)
-			if len(e)==2 and e[1]=='.pyc': continue
+			if len(e)==2 and e[1] in ignoreExtensions: continue
 			from_ = os.path.join(root, file)
 			to_ = from_.replace(dir, basepath, 1)
 			if subs!=None:

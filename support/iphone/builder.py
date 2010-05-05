@@ -8,6 +8,7 @@
 import os, sys, uuid, subprocess, shutil, signal, time, re, run, glob, codecs, hashlib
 from compiler import Compiler
 from projector import Projector
+from pbxproj import PBXProj
 
 template_dir = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
 sys.path.append(os.path.join(template_dir,'../'))
@@ -22,6 +23,13 @@ def dequote(s):
 def kill_simulator():
 	run.run(['/usr/bin/killall',"iPhone Simulator"],True)
 
+def write_project_property(f,prop,val):
+	existing_val = read_project_property(f,prop)
+	if existing_val!=val:
+		fx = open(f,'w')
+		fx.write("%s=%s\n"%(prop,val))
+		fx.close()
+		
 def read_project_property(f,prop):
 	if os.path.exists(f):
 		contents = open(f).read()
@@ -104,11 +112,59 @@ def main(args):
 		appid = dequote(args[4].decode("utf-8"))
 		name = dequote(args[5].decode("utf-8"))
 		iphone_dir = os.path.abspath(os.path.join(project_dir,'build','iphone'))
+		project_xcconfig = os.path.join(iphone_dir,'project.xcconfig')
 		tiapp_xml = os.path.join(project_dir,'tiapp.xml')
 		ti = TiAppXML(tiapp_xml)
 		target = 'Release'
 		ostype = 'os'
-	
+		
+		# find the module directory relative to the root of the SDK	
+		tp_module_dir = os.path.abspath(os.path.join(template_dir,'..','..','..','..','modules','iphone'))
+		tp_modules = []
+		tp_depends = []
+		
+		def find_depends(config,depends):
+			for line in open(config).readlines():
+				if line.find(':')!=-1:
+					(token,value)=line.split(':')
+					for entry in value.join(','):
+						entry = entry.strip()
+						try:
+							depends.index(entry)
+						except:
+							depends.append(entry)
+
+		tp_lib_search_path = []
+		for module in ti.properties['modules']:
+			tp_name = module['name'].lower()
+			tp_version = module['version']
+			tp_dir = os.path.join(tp_module_dir,tp_name,tp_version)
+			if not os.path.exists(tp_dir):
+				print "[ERROR] Third-party module: %s/%s detected in tiapp.xml but not found at %s" % (tp_name,tp_version,tp_dir)
+				sys.exit(1)
+			libname = 'lib%s.a' % tp_name
+			tp_module = os.path.join(tp_dir,libname)
+			if not os.path.exists(tp_module):
+				print "[ERROR] Third-party module: %s/%s missing library at %s" % (tp_name,tp_version,tp_module)
+				sys.exit(1)
+			tp_config = os.path.join(tp_dir,'manifest')
+			if not os.path.exists(tp_config):
+				print "[ERROR] Third-party module: %s/%s missing manifest at %s" % (tp_name,tp_version,tp_config)
+				sys.exit(1)
+			find_depends(tp_config,tp_depends)	
+			tp_modules.append(tp_module)
+			tp_lib_search_path.append([libname,os.path.abspath(tp_module)])	
+			print "[INFO] Detected third-party module: %s/%s" % (tp_name,tp_version)
+		
+			# # copy module resources
+			# img_dir = os.path.join(tp_dir,'assets','images')
+			# if os.path.exists(img_dir):
+			# 	dest_img_dir = os.path.join(iphone_tmp_dir,'modules',tp_name,'images')
+			# 	if os.path.exists(dest_img_dir):
+			# 		shutil.rmtree(dest_img_dir)
+			# 	os.makedirs(dest_img_dir)
+			# 	copy_module_resources(img_dir,dest_img_dir)
+		
 		if command == 'distribute':
 			appuuid = dequote(args[6].decode("utf-8"))
 			dist_name = dequote(args[7].decode("utf-8"))
@@ -132,7 +188,6 @@ def main(args):
 			deploytype = 'test'
 		
 		build_dir = os.path.abspath(os.path.join(iphone_dir,'build','%s-iphone%s'%(target,ostype)))
-		project_xcconfig = os.path.join(iphone_dir,'project.xcconfig')
 		app_dir = os.path.abspath(os.path.join(build_dir,name+'.app'))
 		binary = os.path.join(app_dir,name)
 		sdk_version = os.path.basename(os.path.abspath(os.path.join(template_dir,'../')))
@@ -142,6 +197,20 @@ def main(args):
 		print "[INFO] Titanium SDK version: %s" % sdk_version
 		print "[INFO] iPhone Device family: %s" % devicefamily
 		print "[INFO] iPhone SDK version: %s" % iphone_version
+
+		# write out any modules into the xcode project
+		if len(tp_lib_search_path)>0:
+			proj = PBXProj()
+			xcode_proj = os.path.join(iphone_dir,'%s.xcodeproj'%name,'project.pbxproj')
+			current_xcode = open(xcode_proj).read()
+			for tp in tp_lib_search_path:
+				proj.add_static_library(tp[0],tp[1])
+			out = proj.parse(xcode_proj)
+			# since xcode changes can be destructive, only write as necessary (if changed)
+			if current_xcode!=out:
+				o = open(xcode_proj,'w')
+				o.write(out)
+				o.close()
 		
 		# check to see if the appid is different (or not specified) - we need to re-generate
 		# the Info.plist before we actually invoke the compiler in this case
