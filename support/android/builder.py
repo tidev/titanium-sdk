@@ -135,15 +135,6 @@ class Builder(object):
 		timed_out = True
 		no_devices = False
 		
-		# in Windows, if the adb server isn't running, calling "adb devices"
-		# will fork off a new adb server, and cause a lock-up when we 
-		# try to pipe the process' stdout/stderr. the workaround is 
-		# to simply call adb start-server here, and not care about
-		# the return code / pipes. (this is harmless if adb is already running)
-		# -- thanks to Bill Dawson for the workaround
-		if platform.system() == "Windows":
-			run.run([self.sdk.get_adb(), "start-server"], True, ignore_output=True)
-		
 		while True:
 			devices = self.sdk.list_devices()
 			trace("adb devices returned %s devices/emulators" % len(devices))
@@ -217,6 +208,11 @@ class Builder(object):
 		debug("AVD Skin: " + avd_skin)
 		debug("SDK: " + sdk_dir)
 		
+		# make sure adb is running on windows, else XP can lockup the python
+		# process when adb runs first time
+		if platform.system() == "Windows":
+			run.run([self.sdk.get_adb(), "start-server"], True, ignore_output=True)
+
 		devices = self.sdk.list_devices()
 		for device in devices:
 			if device.is_emulator() and device.get_port() == 5560:
@@ -704,6 +700,16 @@ class Builder(object):
 		if java_failed:
 			error(java_status)
 			sys.exit(1)
+
+		# in Windows, if the adb server isn't running, calling "adb devices"
+		# will fork off a new adb server, and cause a lock-up when we 
+		# try to pipe the process' stdout/stderr. the workaround is 
+		# to simply call adb start-server here, and not care about
+		# the return code / pipes. (this is harmless if adb is already running)
+		# -- thanks to Bill Dawson for the workaround
+		if platform.system() == "Windows":
+			run.run([self.sdk.get_adb(), "start-server"], True, ignore_output=True)
+		
 		
 		if deploy_type == 'development':
 			self.wait_for_device('e')
