@@ -8,7 +8,7 @@ var ind=Titanium.UI.createProgressBar({
 	value:0,
 	style:Titanium.UI.iPhone.ProgressBarStyle.PLAIN,
 	top:10,
-	message:'Downloading PDFs File',
+	message:'Downloading ' + (Ti.Platform.name == 'android' ? 'PNG' : 'PDF') + ' File',
 	font:{fontSize:12, fontWeight:'bold'},
 	color:'#888'
 });
