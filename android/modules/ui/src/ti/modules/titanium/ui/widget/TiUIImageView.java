@@ -11,6 +11,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiContext;
@@ -41,6 +42,8 @@ public class TiUIImageView extends TiUIView
 	private static final String LCAT = "TiUIImageView";
 	private static final boolean DBG = TiConfig.LOGD;
 
+	static final AtomicInteger imageTokenGenerator = new AtomicInteger(0);
+
 	private static final String EVENT_CLICK = "click";
 	private static final int MAX_BITMAPS = 3;
 
@@ -52,12 +55,15 @@ public class TiUIImageView extends TiUIView
 	private AtomicBoolean animating = new AtomicBoolean(false);
 	private boolean reverse = false;
 	private boolean paused = false;
+	private int token;
 
 	private class BgImageLoader extends TiBackgroundImageLoadTask
 	{
+		private int token;
 
-		public BgImageLoader(TiContext tiContext, Integer imageWidth, Integer imageHeight) {
+		public BgImageLoader(TiContext tiContext, Integer imageWidth, Integer imageHeight, int token) {
 			super(tiContext, imageWidth, imageHeight);
+			this.token = token;
 		}
 
 		@Override
@@ -65,10 +71,7 @@ public class TiUIImageView extends TiUIView
 			super.onPostExecute(d);
 
 			if (d != null) {
-				TiImageView view = getView();
-				if (view != null) {
-					view.setImageDrawable(d, false);
-				}
+				setImageDrawable(d, token);
 			}
 		}
 	}
@@ -87,6 +90,19 @@ public class TiUIImageView extends TiUIView
 
 	private TiImageView getView() {
 		return (TiImageView) nativeView;
+	}
+	// This method is intented to only be use from the background task, it's basically
+	// an optimistic commit.
+	private void setImageDrawable(Drawable d, int token) {
+		TiImageView view = getView();
+		if (view != null) {
+			synchronized(imageTokenGenerator) {
+				if (this.token == token) {
+					view.setImageDrawable(d, false);
+					token = -1;
+				}
+			}
+		}
 	}
 
 	public Bitmap createBitmap(Object image)
@@ -234,7 +250,9 @@ public class TiUIImageView extends TiUIView
 					}
 					repeatIndex++;
 				}
-				Log.d(LCAT, "TIME TO LOAD FRAMES: "+(System.currentTimeMillis()-time)+"ms");
+				if (DBG) {
+					Log.d(LCAT, "TIME TO LOAD FRAMES: "+(System.currentTimeMillis()-time)+"ms");
+				}
 			}
 			animating.set(false);
 		}
@@ -252,7 +270,9 @@ public class TiUIImageView extends TiUIView
 		TiUIImageView.this.images = images;
 		loader = new Loader();
 		Thread loaderThread = new Thread(loader);
-		Log.d(LCAT, "STARTING LOADER THREAD "+loaderThread +" for "+this);
+		if (DBG) {
+			Log.d(LCAT, "STARTING LOADER THREAD "+loaderThread +" for "+this);
+		}
 		loaderThread.start();
 	}
 
@@ -307,7 +327,9 @@ public class TiUIImageView extends TiUIView
 		{
 			try {
 				BitmapWithIndex b = loader.getBitmapQueue().take();
-				Log.d(LCAT, "set image: "+b.index);
+				if (DBG) {
+					Log.d(LCAT, "set image: "+b.index);
+				}
 				setImage(b.bitmap);
 				fireChange(b.index);
 			} catch (InterruptedException e) {
@@ -379,7 +401,11 @@ public class TiUIImageView extends TiUIView
 			}
 		}
 		else if (d.containsKey("url")) {
-			new BgImageLoader(getProxy().getTiContext(), null, null).load(TiConvert.toString(d, "url"));
+			synchronized(imageTokenGenerator) {
+				token = imageTokenGenerator.incrementAndGet();
+				getView().setImageDrawable(null);
+				new BgImageLoader(getProxy().getTiContext(), null, null, token).load(TiConvert.toString(d, "url"));
+			}
 		}
 		if (d.containsKey("canScale")) {
 			view.setCanScaleImage(TiConvert.toBoolean(d, "canScale"));
@@ -406,7 +432,12 @@ public class TiUIImageView extends TiUIView
 		} else if (key.equals("enableZoomControls")) {
 			view.setEnableZoomControls(TiConvert.toBoolean(newValue));
 		} else if (key.equals("url")) {
-			new BgImageLoader(getProxy().getTiContext(), null, null).load(TiConvert.toString(newValue));
+
+			synchronized(imageTokenGenerator) {
+				token = imageTokenGenerator.incrementAndGet();
+				getView().setImageDrawable(null);
+				new BgImageLoader(getProxy().getTiContext(), null, null, token).load(TiConvert.toString(newValue));
+			}
 		} else if (key.equals("image")) {
 			setImage(createBitmap(newValue));
 		} else if (key.equals("images")) {
