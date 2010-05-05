@@ -15,6 +15,7 @@ var tableview = Titanium.UI.createTableView({
 
 
 var newRowCount = 1;
+var newSectionCount = 1;
 // create table view event listener
 tableview.addEventListener('click', function(e)
 {
@@ -33,9 +34,11 @@ tableview.addEventListener('click', function(e)
 		//     width:200
 		// });
 		// row.add(l);
-		var data = {title:'New Row ' + newRowCount, header:'New Header'};
+		var data = {title:'New Row ' + newRowCount, header:'New Header '+newSectionCount};
 
 		tableview.appendRow(data)
+		newSectionCount++;
+		newRowCount++;
 	}
 	else if (index == 3)
 	{
