@@ -103,7 +103,7 @@ def main(args):
 	simulator = False
 	xcode_build = False
 	force_xcode = False
-
+	
 	if command == 'xcode':
 		xcode_build = True
 		project_dir = os.path.expanduser(dequote(args[2].decode("utf-8")))
@@ -144,6 +144,8 @@ def main(args):
 		ti = TiAppXML(tiapp_xml)
 		target = 'Release'
 		ostype = 'os'
+		version_file = None
+		log_id = None
 		
 		if command == 'distribute':
 			appuuid = dequote(args[6].decode("utf-8"))
@@ -249,11 +251,50 @@ def main(args):
 			else:
 				ti.generate_infoplist(infoplist,infoplist_tmpl,appid,'iphone')
 		
+		new_lib_hash = None
+		lib_hash = None	
+		if simulator:
+			iphone_resources_dir = os.path.join(iphone_dir,'Resources')
+			version_file = os.path.join(iphone_resources_dir,'.simulator')
+			
+		if simulator and force_xcode==False:
+			if os.path.exists(app_dir):
+				if os.path.exists(version_file):
+					line = open(version_file).read().strip()
+					lines = line.split(",")
+					v = lines[0]
+					log_id = lines[1]
+					if len(lines) > 2:
+						lib_hash = lines[2]
+						if iphone_version!=lines[3]:
+							force_xcode=True
+					if lib_hash==None:
+						force_xcode = True
+					else:
+						if template_dir==v and force_rebuild==False:
+							force_rebuild = False
+						else:
+							log_id = None
+
+		if simulator:
+			source_lib=os.path.join(template_dir,'libTiCore.a')
+			fd = open(source_lib,'rb')
+			m = hashlib.md5()
+			m.update(fd.read(1024)) # just read 1K, it's binary
+			new_lib_hash = m.hexdigest()
+			fd.close()
+		
+		if force_xcode==False and new_lib_hash!=lib_hash:
+			force_xcode=True
+		
+		lib_hash=new_lib_hash
+					
 		if force_rebuild:
 			print "[INFO] forcing full rebuild..."
 			sys.stdout.flush()
 			project = Projector(name,sdk_version,template_dir,project_dir,appid)
 			project.create(template_dir,iphone_dir)	
+			force_xcode = True
 		else:
 			xcconfig = open(project_xcconfig,'w')
 			xcconfig.write("TI_VERSION=%s\n"% sdk_version)
@@ -334,7 +375,11 @@ def main(args):
 				
 				# only build if force rebuild (different version) or 
 				# the app hasn't yet been built initially
-				log_id = ti.properties['guid']
+				if ti.properties['guid']!=log_id or force_xcode:
+					log_id = ti.properties['guid']
+					f = open(version_file,'w+')
+					f.write("%s,%s,%s,%s" % (template_dir,log_id,lib_hash,iphone_version))
+					f.close()
 				
 				if force_rebuild or force_xcode or not os.path.exists(binary):
 					shutil.copy(os.path.join(template_dir,'Classes','defines.h'),os.path.join(iphone_dir,'Classes','defines.h'))
