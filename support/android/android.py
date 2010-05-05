@@ -61,11 +61,15 @@ class Android(object):
 			'apiversion' : '4', #Android 1.6
 			'deploy_type': deploy_type
 		}
-		self.config['classname'] = self.strip_classname()
+		self.config['classname'] = Android.strip_classname(self.name)
 		self.deploy_type = deploy_type
 	
-	def strip_classname(self):
-		return ''.join([str.capitalize() for str in re.split('[^A-Za-z0-9_]', self.name)])
+	@classmethod
+	def strip_classname(cls, name):
+		classname = ''.join([str.capitalize() for str in re.split('[^A-Za-z0-9_]', name)])
+		if re.search("^[0-9]", classname) != None:
+			classname = "_" + classname
+		return classname
 		
 	def newdir(self, *segments):
 		path = os.path.join(*segments)

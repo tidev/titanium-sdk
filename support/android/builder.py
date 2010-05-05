@@ -90,11 +90,8 @@ class Builder(object):
 		if not os.path.exists(self.home_dir):
 			os.makedirs(self.home_dir)
 		self.sdcard = os.path.join(self.home_dir,'android2.sdcard')
-		self.classname = self.strip_classname()
+		self.classname = Android.strip_classname(self.name)
 		self.set_java_commands()
-	
-	def strip_classname(self):
-		return ''.join([str.capitalize() for str in re.split('[^A-Za-z0-9_]', self.name)])
 		
 	def set_java_commands(self):
 		self.jarsigner = "jarsigner"

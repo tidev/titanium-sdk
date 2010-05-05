@@ -10,6 +10,8 @@ import java.util.ArrayList;
 
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiDict;
+import org.appcelerator.titanium.TiProxy;
+import org.appcelerator.titanium.bridge.OnEventListenerChange;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.view.TiUIView;
 
@@ -95,5 +97,15 @@ public class TableViewRowProxy extends TiViewProxy
 		}
 		
 		return super.fireEvent(eventName, data);
+	}
+	
+	public void setLabelsClickable(boolean clickable) {
+		if (controls != null) {
+			for (TiViewProxy control : controls) {
+				if (control instanceof LabelProxy) {
+					((LabelProxy)control).setClickable(clickable);
+				}
+			}
+		}
 	}
 }
