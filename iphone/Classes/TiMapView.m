@@ -117,7 +117,7 @@
 -(void)updateAnnotations
 {
 	//Because the pending annotations are always touched on the main thread only, there's no need for locking.
-	if ([pendingAnnotationAdditions count] != 0)
+	if ([pendingAnnotationRemovals count] != 0)
 	{
 		[[self map] removeAnnotations:pendingAnnotationRemovals];
 		RELEASE_TO_NIL(pendingAnnotationRemovals);
