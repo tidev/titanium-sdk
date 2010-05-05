@@ -104,6 +104,34 @@ b4.addEventListener('click', function()
 	}
 });
 
+var b5 = Titanium.UI.createButton({
+	width:200,
+	height:40,
+	top:225
+});
+var b5Label = Ti.UI.createLabel({
+	text:'Label',
+	width:50,
+	height:20,
+	color:'#336699'
+});
+b5.add(b5Label);
+
+var b5ImageView = Ti.UI.createImageView({
+	url:'../images/camera.png',
+	left:10,
+	height:33,
+	width:33
+});
+b5.add(b5ImageView);
+b5.addEventListener('touchstart', function()
+{
+	b5.color = 'white';
+});
+b5.addEventListener('touchend', function()
+{
+	b5.color = '#336699';
+});
 win.add(b1);
 win.add(b3);
 win.add(b4);
@@ -112,5 +140,7 @@ win.add(b4);
 if (Titanium.Platform.name == 'iPhone OS')
 {
 	win.add(b2);
+	win.add(b5);
 }
+
 

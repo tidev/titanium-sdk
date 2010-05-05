@@ -521,11 +521,14 @@ public class TiUIWindow extends TiUIView
 		if (props != null && props.containsKey("layout")) {
 			intent.putExtra("vertical", TiConvert.toString(props, "layout").equals("vertical"));
 		}
-		resolver.release();
-		resolver = null;
 
 		boolean finishRoot = false;
-
+		props = resolver.findProperty("exitOnClose");
+		if (props != null && props.containsKey("exitOnClose")) {
+			finishRoot = TiConvert.toBoolean(props, "exitOnClose");
+		}
+		resolver.release();
+		resolver = null;
 
 		intent.putExtra("finishRoot", finishRoot);
 		Messenger messenger = new Messenger(handler);

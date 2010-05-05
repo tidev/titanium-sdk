@@ -11,7 +11,7 @@
 @class TiUITableViewRowProxy;
 @class TiUITableView;
 
-@interface TiUITableViewSectionProxy : TiViewProxy <TiProxyDelegate> 
+@interface TiUITableViewSectionProxy : TiViewProxy <TiProxyDelegate,NSFastEnumeration> 
 {
 @private
 	NSMutableArray *rows;

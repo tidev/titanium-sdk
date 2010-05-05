@@ -851,9 +851,13 @@ DEFINE_EXCEPTIONS
     return [super hitTest:point withEvent:event];
 }
 
+// TODO: Take a very close look at event handling.
+// It's kind of broken for tables right now, but there are a couple
+// hacks to get around it.
 - (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event 
 {
 	UITouch *touch = [touches anyObject];
+    BOOL clickEvent = NO;
 	
 	if (handlesSwipes)
 	{
@@ -887,10 +891,13 @@ DEFINE_EXCEPTIONS
 		{
 			[proxy fireEvent:@"touchstart" withObject:evt propagate:YES];
 		}
-		
+        
+        // Click handling is special; don't propagate if we have a delegate,
+        // but DO invoke the touch delegate at the end.
 		if ([touch tapCount] == 1 && [proxy _hasListeners:@"click"])
 		{
-			[proxy fireEvent:@"click" withObject:evt propagate:YES];
+			[proxy fireEvent:@"click" withObject:evt propagate:(touchDelegate==nil)];
+            clickEvent = YES;
 		}
 		else if ([touch tapCount] == 2 && [proxy _hasListeners:@"dblclick"])
 		{
@@ -898,7 +905,7 @@ DEFINE_EXCEPTIONS
 		}
 	}
 	
-	if (touchDelegate!=nil)
+	if (touchDelegate!=nil && clickEvent)
 	{
 		[touchDelegate touchesBegan:touches withEvent:event];
 	}

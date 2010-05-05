@@ -182,46 +182,71 @@
 
 -(void)replaceData:(UITableViewRowAnimation)animation
 {
-	NSAssert(sections!=nil,@"sections was nil");
-	
+//Technically, we should assert that sections is non-nil, but this code
+//won't have any problems in the case that it is actually nil.	
 	UITableView *table = [self tableView];
+	TiProxy * ourProxy = [self proxy];
 	
-	if ([sections count] > 0)
+	int oldCount = [sections count];
+
+	for (TiUITableViewSectionProxy *section in sections)
 	{
-		NSIndexSet *oldSectionSet = [NSIndexSet indexSetWithIndexesInRange:NSMakeRange(0,[sections count])];
-		[table deleteSections:oldSectionSet withRowAnimation:UITableViewRowAnimationNone];
-	}
-	
-	RELEASE_TO_NIL(sections);
-	sections = [[NSMutableArray alloc] init];
-	
-	// get new data array from the proxy
-	NSArray *newsections = [self.proxy valueForKey:@"data"];
-	
-	// if nil, means we're removing
-	if (newsections!=nil)
-	{
-		// wire up the relationships
-		for (int c=0;c<[newsections count];c++)
+		if ([section parent] == ourProxy)
 		{
-			TiUITableViewSectionProxy *section = [newsections objectAtIndex:c];
-			section.section = c;
-			section.table = self;
-			for (int x=0;x<[section rowCount];x++)
-			{
-				TiUITableViewRowProxy *row = [section rowAtIndex:x];
-				row.table = self;
-				row.section = section;
-				row.row = x;
-				row.parent = section;
-			}
-			section.parent = self.proxy;
-			[sections addObject:section];
+			[section setTable:nil];
+			[section setParent:nil];
 		}
-		
-		NSIndexSet *newSectionSet = [NSIndexSet indexSetWithIndexesInRange:NSMakeRange(0,[sections count])];
-		[table insertSections:newSectionSet withRowAnimation:animation];
 	}
+	RELEASE_TO_NIL(sections);
+
+	NSArray *newsections = [ourProxy valueForKey:@"data"];
+	// get new data array from the proxy
+	sections = [newsections mutableCopy];	//Mutablecopy is faster than adding one by one.
+
+	int newCount = 0;	//Since we're iterating anyways, we might as well not get count.
+
+	for (TiUITableViewSectionProxy *section in sections)
+	{
+		[section setTable:self];
+		[section setParent:ourProxy];
+		[section setSection:newCount ++];
+		[section reorderRows];
+		//TODO: Shouldn't this be done by Section itself? Doesn't it already?
+		for (TiUITableViewRowProxy *row in section)
+		{
+			row.section = section;
+			row.parent = section;
+		}
+	}
+
+	if ((animation == UITableViewRowAnimationNone) && ![tableview isEditing])
+	{
+		[tableview reloadData];
+		return;
+	}
+
+
+	int commonality = MIN(oldCount,newCount);
+	oldCount -= commonality;
+	newCount -= commonality;
+	
+	[tableview beginUpdates];
+	if (commonality > 0)
+	{
+		[table reloadSections:[NSIndexSet indexSetWithIndexesInRange:NSMakeRange(0, commonality)]
+				withRowAnimation:animation];
+	}
+	if (oldCount > 0)
+	{
+		[table deleteSections:[NSIndexSet indexSetWithIndexesInRange:NSMakeRange(commonality,oldCount)]
+				withRowAnimation:animation];
+	}
+	if (newCount > 0)
+	{
+		[table insertSections:[NSIndexSet indexSetWithIndexesInRange:NSMakeRange(commonality,newCount)]
+				withRowAnimation:animation];
+	}
+	[tableview endUpdates];
 }
 
 -(void)updateRow:(TiUITableViewRowProxy*)row
@@ -284,8 +309,6 @@
 	ENSURE_UI_THREAD(dispatchAction,action);
 	
 	UITableView *table = [self tableView];
-
-	[table beginUpdates];
 	
 	switch (action.type)
 	{
@@ -357,8 +380,6 @@
             break;
         }
 	}
-	
-	[table endUpdates];
 }
 
 -(UIView*)titleViewForText:(NSString*)text footer:(BOOL)footer
@@ -1037,14 +1058,14 @@
 
 
 #define RETURN_IF_SEARCH_TABLE_VIEW(result)	\
-if(tableView == searchTableView)	\
+if(ourTableView != tableview)	\
 {	\
 	return result;	\
 }
 
 - (NSInteger)tableView:(UITableView *)table numberOfRowsInSection:(NSInteger)section
 {
-	if(table == searchTableView)
+	if(table != tableview)
 	{
 		int rowCount = 0;
 		for (NSIndexSet * thisSet in searchResultIndexes) 
@@ -1065,11 +1086,11 @@ if(tableView == searchTableView)	\
 // Row display. Implementers should *always* try to reuse cells by setting each cell's reuseIdentifier and querying for available reusable cells with dequeueReusableCellWithIdentifier:
 // Cell gets various attributes set automatically based on table (separators) and data source (accessory views, editing controls)
 
-- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
+- (UITableViewCell *)tableView:(UITableView *)ourTableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-	if(tableView == searchTableView)
+	if(ourTableView != tableview)
 	{
-		UITableViewCell * result = [tableView dequeueReusableCellWithIdentifier:@"__search__"];
+		UITableViewCell * result = [ourTableView dequeueReusableCellWithIdentifier:@"__search__"];
 		if(result==nil)
 		{
 			result = [[[UITableViewCell alloc] initWithFrame:CGRectZero reuseIdentifier:@"__search__"] autorelease];
@@ -1089,7 +1110,7 @@ if(tableView == searchTableView)	\
 	
 	// the classname for all rows that have the same substainal layout will be the same
 	// we reuse them for speed
-	UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:row.tableClass];
+	UITableViewCell *cell = [ourTableView dequeueReusableCellWithIdentifier:row.tableClass];
 	if (cell == nil)
 	{
 		cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:row.tableClass] autorelease];
@@ -1105,20 +1126,20 @@ if(tableView == searchTableView)	\
 	return cell;
 }
 
-- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)ourTableView
 {
 	RETURN_IF_SEARCH_TABLE_VIEW(1);
 	return sections!=nil ? [sections count] : 0;
 }
 
-- (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section
+- (NSString *)tableView:(UITableView *)ourTableView titleForHeaderInSection:(NSInteger)section
 {
 	RETURN_IF_SEARCH_TABLE_VIEW(nil);
 	TiUITableViewSectionProxy *sectionProxy = [sections objectAtIndex:section];
 	return [sectionProxy headerTitle];
 }
 
-- (NSString *)tableView:(UITableView *)tableView titleForFooterInSection:(NSInteger)section
+- (NSString *)tableView:(UITableView *)ourTableView titleForFooterInSection:(NSInteger)section
 {
 	RETURN_IF_SEARCH_TABLE_VIEW(nil);
 	TiUITableViewSectionProxy *sectionProxy = [sections objectAtIndex:section];
@@ -1126,7 +1147,7 @@ if(tableView == searchTableView)	\
 }
 
 // After a row has the minus or plus button invoked (based on the UITableViewCellEditingStyle for the cell), the dataSource must commit the change
-- (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath
+- (void)tableView:(UITableView *)ourTableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath
 {
 	RETURN_IF_SEARCH_TABLE_VIEW();
 	if (editingStyle==UITableViewCellEditingStyleDelete)
@@ -1157,7 +1178,7 @@ if(tableView == searchTableView)	\
 }
 
 // Individual rows can opt out of having the -editing property set for them. If not implemented, all rows are assumed to be editable.
-- (BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath
+- (BOOL)tableView:(UITableView *)ourTableView canEditRowAtIndexPath:(NSIndexPath *)indexPath
 {
 	RETURN_IF_SEARCH_TABLE_VIEW(NO);
 	
@@ -1184,7 +1205,7 @@ if(tableView == searchTableView)	\
 	//Effectively, editable is being tri-state.
 }
 
-- (BOOL)tableView:(UITableView *)tableView shouldIndentWhileEditingRowAtIndexPath:(NSIndexPath *)indexPath
+- (BOOL)tableView:(UITableView *)ourTableView shouldIndentWhileEditingRowAtIndexPath:(NSIndexPath *)indexPath
 {
 	RETURN_IF_SEARCH_TABLE_VIEW(NO);
 	TiUITableViewRowProxy *row = [self rowForIndexPath:indexPath];
@@ -1193,7 +1214,7 @@ if(tableView == searchTableView)	\
 }
 
 // Allows the reorder accessory view to optionally be shown for a particular row. By default, the reorder control will be shown only if the datasource implements -tableView:moveRowAtIndexPath:toIndexPath:
-- (BOOL)tableView:(UITableView *)tableView canMoveRowAtIndexPath:(NSIndexPath *)indexPath
+- (BOOL)tableView:(UITableView *)ourTableView canMoveRowAtIndexPath:(NSIndexPath *)indexPath
 {
 	RETURN_IF_SEARCH_TABLE_VIEW(NO);
 
@@ -1202,7 +1223,7 @@ if(tableView == searchTableView)	\
 }
 
 // Allows customization of the editingStyle for a particular cell located at 'indexPath'. If not implemented, all editable cells will have UITableViewCellEditingStyleDelete set for them when the table has editing property set to YES.
-- (UITableViewCellEditingStyle)tableView:(UITableView *)tableView editingStyleForRowAtIndexPath:(NSIndexPath *)indexPath
+- (UITableViewCellEditingStyle)tableView:(UITableView *)ourTableView editingStyleForRowAtIndexPath:(NSIndexPath *)indexPath
 {
 	RETURN_IF_SEARCH_TABLE_VIEW(UITableViewCellEditingStyleNone);
 	TiUITableViewRowProxy *row = [self rowForIndexPath:indexPath];
@@ -1218,7 +1239,7 @@ if(tableView == searchTableView)	\
 }
 
 
-- (void)tableView:(UITableView *)tableView moveRowAtIndexPath:(NSIndexPath *)sourceIndexPath toIndexPath:(NSIndexPath *)destinationIndexPath
+- (void)tableView:(UITableView *)ourTableView moveRowAtIndexPath:(NSIndexPath *)sourceIndexPath toIndexPath:(NSIndexPath *)destinationIndexPath
 {
 	RETURN_IF_SEARCH_TABLE_VIEW();
 	int fromSectionIndex = [sourceIndexPath section];
@@ -1253,7 +1274,7 @@ if(tableView == searchTableView)	\
 
 #pragma mark Collation
 
-- (NSArray *)sectionIndexTitlesForTableView:(UITableView *)tableView
+- (NSArray *)sectionIndexTitlesForTableView:(UITableView *)ourTableView
 {
 	if (sectionIndex!=nil && editing==NO)
 	{
@@ -1262,7 +1283,7 @@ if(tableView == searchTableView)	\
 	return nil;
 }
 
-- (NSInteger)tableView:(UITableView *)tableView sectionForSectionIndexTitle:(NSString *)title atIndex:(NSInteger)index
+- (NSInteger)tableView:(UITableView *)ourTableView sectionForSectionIndexTitle:(NSString *)title atIndex:(NSInteger)index
 {
 	if (sectionIndexMap!=nil)
 	{
@@ -1300,13 +1321,13 @@ if(tableView == searchTableView)	\
 
 #pragma mark Delegate
 
-- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
+- (void)tableView:(UITableView *)ourTableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
-	if (allowsSelectionSet==NO || [tableView allowsSelection]==NO)
+	if (allowsSelectionSet==NO || [ourTableView allowsSelection]==NO)
 	{
-		[tableView deselectRowAtIndexPath:indexPath animated:YES];
+		[ourTableView deselectRowAtIndexPath:indexPath animated:YES];
 	}
-	if(tableView == searchTableView)
+	if(ourTableView != tableview)
 	{
 		[self hideSearchScreen:nil];
 		indexPath = [self indexPathFromSearchIndex:[indexPath row]];
@@ -1315,7 +1336,7 @@ if(tableView == searchTableView)	\
 }
 
 
--(void)tableView:(UITableView *)tableView willDisplayCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath
+-(void)tableView:(UITableView *)ourTableView willDisplayCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath
 {
 	RETURN_IF_SEARCH_TABLE_VIEW();
 	
@@ -1354,7 +1375,7 @@ if(tableView == searchTableView)	\
 	}
 }
 
-- (NSString *)tableView:(UITableView *)tableView titleForDeleteConfirmationButtonForRowAtIndexPath:(NSIndexPath *)indexPath
+- (NSString *)tableView:(UITableView *)ourTableView titleForDeleteConfirmationButtonForRowAtIndexPath:(NSIndexPath *)indexPath
 {
 	RETURN_IF_SEARCH_TABLE_VIEW(nil);
 	//TODO
@@ -1372,12 +1393,12 @@ if(tableView == searchTableView)	\
 	return result;
 }
 
-- (void)tableView:(UITableView *)tableView accessoryButtonTappedForRowWithIndexPath:(NSIndexPath *)indexPath
+- (void)tableView:(UITableView *)ourTableView accessoryButtonTappedForRowWithIndexPath:(NSIndexPath *)indexPath
 {
 	[self triggerActionForIndexPath:indexPath fromPath:nil wasAccessory:YES search:NO name:@"click"];
 }
 
-- (NSInteger)tableView:(UITableView *)tableView indentationLevelForRowAtIndexPath:(NSIndexPath *)indexPath
+- (NSInteger)tableView:(UITableView *)ourTableView indentationLevelForRowAtIndexPath:(NSIndexPath *)indexPath
 {
 	RETURN_IF_SEARCH_TABLE_VIEW(0);
 
@@ -1386,31 +1407,31 @@ if(tableView == searchTableView)	\
 	return indent == nil ? 0 : [TiUtils intValue:indent];
 }
 
-- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
+- (CGFloat)tableView:(UITableView *)ourTableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-	RETURN_IF_SEARCH_TABLE_VIEW(tableView.rowHeight);
+	RETURN_IF_SEARCH_TABLE_VIEW(ourTableView.rowHeight);
 	
 	TiUITableViewRowProxy *row = [self rowForIndexPath:indexPath];
-	CGFloat height = [row rowHeight:tableView.bounds];
+	CGFloat height = [row rowHeight:tableview.bounds];
 	height = [self tableRowHeight:height];
-	return height < 1 ? tableView.rowHeight : height;
+	return height < 1 ? tableview.rowHeight : height;
 }
 
-- (UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section
+- (UIView *)tableView:(UITableView *)ourTableView viewForHeaderInSection:(NSInteger)section
 {
 	RETURN_IF_SEARCH_TABLE_VIEW(nil);
 	return [self sectionView:section forLocation:@"headerView" section:nil];
 }
 
-- (UIView *)tableView:(UITableView *)tableView viewForFooterInSection:(NSInteger)section
+- (UIView *)tableView:(UITableView *)ourTableView viewForFooterInSection:(NSInteger)section
 {
 	RETURN_IF_SEARCH_TABLE_VIEW(nil);
 	return [self sectionView:section forLocation:@"footerView" section:nil];
 }
 
-- (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section
+- (CGFloat)tableView:(UITableView *)ourTableView heightForHeaderInSection:(NSInteger)section
 {
-	RETURN_IF_SEARCH_TABLE_VIEW(tableView.sectionHeaderHeight);
+	RETURN_IF_SEARCH_TABLE_VIEW(ourTableView.sectionHeaderHeight);
 	TiUITableViewSectionProxy *sectionProxy = nil;
 	TiUIView *view = [self sectionView:section forLocation:@"headerView" section:&sectionProxy];
 	TiViewProxy *viewProxy = (TiViewProxy *)[view proxy];
@@ -1425,7 +1446,7 @@ if(tableView == searchTableView)	\
 				size += viewLayout->height.value;
 				break;
 			case TiDimensionTypeAuto:
-				size += [viewProxy autoHeightForWidth:[tableView bounds].size.width];
+				size += [viewProxy autoHeightForWidth:[tableview bounds].size.width];
 				break;
 			default:
 				size+=DEFAULT_SECTION_HEADERFOOTER_HEIGHT;
@@ -1435,11 +1456,11 @@ if(tableView == searchTableView)	\
 	else if ([sectionProxy headerTitle]!=nil)
 	{
 		hasTitle = YES;
-		size+=[tableView sectionHeaderHeight];
+		size+=[tableview sectionHeaderHeight];
 	}
-	if ([tableView tableHeaderView]!=nil && searchField == nil)
+	if ([tableview tableHeaderView]!=nil && searchField == nil)
 	{
-		size+=[tableView tableHeaderView].frame.size.height;
+		size+=[tableview tableHeaderView].frame.size.height;
 	}
 	if (hasTitle && size < DEFAULT_SECTION_HEADERFOOTER_HEIGHT)
 	{
@@ -1448,9 +1469,9 @@ if(tableView == searchTableView)	\
 	return size;
 }
 
-- (CGFloat)tableView:(UITableView *)tableView heightForFooterInSection:(NSInteger)section
+- (CGFloat)tableView:(UITableView *)ourTableView heightForFooterInSection:(NSInteger)section
 {
-	RETURN_IF_SEARCH_TABLE_VIEW(tableView.sectionFooterHeight);
+	RETURN_IF_SEARCH_TABLE_VIEW(ourTableView.sectionFooterHeight);
 	TiUITableViewSectionProxy *sectionProxy = nil;
 	TiUIView *view = [self sectionView:section forLocation:@"footerView" section:&sectionProxy];
 	TiViewProxy *viewProxy = (TiViewProxy *)[view proxy];
@@ -1465,7 +1486,7 @@ if(tableView == searchTableView)	\
 				size += viewLayout->height.value;
 				break;
 			case TiDimensionTypeAuto:
-				size += [viewProxy autoHeightForWidth:[tableView bounds].size.width];
+				size += [viewProxy autoHeightForWidth:[tableview bounds].size.width];
 				break;
 			default:
 				size+=DEFAULT_SECTION_HEADERFOOTER_HEIGHT;
@@ -1475,11 +1496,11 @@ if(tableView == searchTableView)	\
 	else if ([sectionProxy footerTitle]!=nil)
 	{
 		hasTitle = YES;
-		size+=[tableView sectionFooterHeight];
+		size+=[tableview sectionFooterHeight];
 	}
-	if ([tableView tableFooterView]!=nil)
+	if ([tableview tableFooterView]!=nil)
 	{
-		size+=[tableView tableFooterView].frame.size.height;
+		size+=[tableview tableFooterView].frame.size.height;
 	}
 	if (hasTitle && size < DEFAULT_SECTION_HEADERFOOTER_HEIGHT)
 	{
