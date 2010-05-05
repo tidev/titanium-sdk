@@ -50,10 +50,12 @@ public class TiConvert
             int len = a.length;
             if (len > 0) {
                 Object v = a[0];
-                if (v != null) {
-                    Log.w(LCAT, "Array member is type: " + v.getClass().getSimpleName());
-                } else {
-                    Log.w(LCAT, "First member of array is null");
+                if (DBG) {
+	                if (v != null) {
+	                    Log.w(LCAT, "Array member is type: " + v.getClass().getSimpleName());
+	                } else {
+	                    Log.w(LCAT, "First member of array is null");
+	                }
                 }
                 if (v != null && v instanceof String) {
                     String[] sa = new String[len];
@@ -110,7 +112,7 @@ public class TiConvert
         if (color == Color.TRANSPARENT) {
         	return color;
         }
-        
+
         int alpha = 255;
         if (d.containsKey(opacityKey)) {
             alpha = (int) Math.round(255 * TiConvert.toDouble(d, opacityKey));
@@ -317,7 +319,7 @@ public class TiConvert
     }
 
     // JSON
-    
+
     public static JSONObject toJSON(TiDict data)
     {
     	JSONObject json = new JSONObject();

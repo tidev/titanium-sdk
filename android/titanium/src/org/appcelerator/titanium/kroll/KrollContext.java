@@ -18,6 +18,7 @@ import org.appcelerator.titanium.io.TiBaseFile;
 import org.appcelerator.titanium.io.TiFileFactory;
 import org.appcelerator.titanium.util.AsyncResult;
 import org.appcelerator.titanium.util.Log;
+import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiFileHelper2;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.EcmaError;
@@ -35,6 +36,7 @@ import android.os.Message;
 public class KrollContext extends HandlerThread implements Handler.Callback
 {
 	private static final String LCAT = "KrollContext";
+	private static boolean DBG = TiConfig.DEBUG;
 
 	private static final int MSG_EVAL_STRING = 1000;
 	private static final int MSG_EVAL_FILE = 1001;
@@ -61,15 +63,21 @@ public class KrollContext extends HandlerThread implements Handler.Callback
 	{
 		super.onLooperPrepared();
 
-		Log.e("KrollContext", "Context Thread: " + Thread.currentThread().getName());
+		if (DBG) {
+			Log.e("KrollContext", "Context Thread: " + Thread.currentThread().getName());
+		}
 
 		contextHandler = new Handler(this);
         Context ctx = enter();
         try
         {
-        	Log.i(LCAT, "Preparing scope");
+        	if (DBG) {
+        		Log.i(LCAT, "Preparing scope");
+        	}
             this.jsScope = ctx.initStandardObjects();
-            Log.i(LCAT, "Scope prepared");
+            if (DBG) {
+            	Log.i(LCAT, "Scope prepared");
+            }
             initialized.countDown();
          } finally {
         	 exit();
@@ -102,7 +110,9 @@ public class KrollContext extends HandlerThread implements Handler.Callback
 	}
 
 	protected boolean isOurThread() {
-		Log.i(LCAT, "ThreadId: " + getId() + " currentThreadId: " + Thread.currentThread().getId());
+		if (DBG) {
+			Log.i(LCAT, "ThreadId: " + getId() + " currentThreadId: " + Thread.currentThread().getId());
+		}
 		return getId() == Thread.currentThread().getId();
 	}
 
@@ -117,7 +127,9 @@ public class KrollContext extends HandlerThread implements Handler.Callback
 
 	public Object evalFile(String filename)
 	{
-		Log.i(LCAT, "evalFile: " + filename);
+		if (DBG) {
+			Log.i(LCAT, "evalFile: " + filename);
+		}
 
 		if (isOurThread()) {
 			return handleEvalFile(filename);

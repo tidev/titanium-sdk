@@ -90,7 +90,7 @@ public class TiTableView extends FrameLayout
 
 			index.clear();
 			filtered = false;
-			
+
 			if (filterAttribute != null && filterText != null && filterAttribute.length() > 0 && filterText.length() > 0) {
 				filtered = true;
 
@@ -98,7 +98,7 @@ public class TiTableView extends FrameLayout
 				if (filterCaseInsensitive) {
 					filter = filterText.toLowerCase();
 				}
-				
+
 				for(int i = 0; i < count; i++) {
 					boolean keep = true;
 
@@ -139,7 +139,7 @@ public class TiTableView extends FrameLayout
 					index.add(i);
 				}
 			}
-			
+
 			if (classChange) {
 				listView.setAdapter(this);
 			}
@@ -154,7 +154,7 @@ public class TiTableView extends FrameLayout
 			if (position >= index.size()) {
 				return null;
 			}
-			
+
 			return viewModel.getViewModel().get(index.get(position));
 		}
 
@@ -229,7 +229,7 @@ public class TiTableView extends FrameLayout
 		@Override
 		public boolean isEnabled(int position) {
 			Item item = (Item) getItem(position);
-			
+
 			boolean enabled = true;
 			if (item != null && item.className.equals(TableViewProxy.CLASSNAME_HEADER)) {
 				enabled = false;
@@ -322,14 +322,14 @@ public class TiTableView extends FrameLayout
 		listView.setFocusableInTouchMode(true);
 		listView.setBackgroundColor(Color.TRANSPARENT);
 		listView.setCacheColorHint(Color.TRANSPARENT);
-		
+
 		if (proxy.getDynamicProperties().containsKey("separatorColor")) {
 			setSeparatorColor(TiConvert.toString(proxy.getDynamicValue("separatorColor")));
-			
+
 		}
-		
+
 		adapter = new TTVListAdapter(viewModel);
-		
+
 		if (proxy.getDynamicProperties().containsKey("headerView")) {
 			TiViewProxy view = (TiViewProxy) proxy.getDynamicValue("headerView");
 			listView.addHeaderView(layoutHeaderOrFooter(view), null, false);
@@ -338,8 +338,8 @@ public class TiTableView extends FrameLayout
 			TiViewProxy view = (TiViewProxy) proxy.getDynamicValue("footerView");
 			listView.addFooterView(layoutHeaderOrFooter(view), null, false);
 		}
-		
-		
+
+
 		listView.setAdapter(adapter);
 
 		listView.setOnItemClickListener(new OnItemClickListener() {
@@ -349,7 +349,7 @@ public class TiTableView extends FrameLayout
 					if (!(view instanceof TiBaseTableViewItem)) {
 						return;
 					}
-					
+
 					if (TiTableView.this.proxy.hasDynamicValue("headerView")) {
 						position -= 1;
 					}
@@ -357,7 +357,7 @@ public class TiTableView extends FrameLayout
 					String viewClicked = v.getLastClickedViewName();
 					Item item = viewModel.getViewModel().get(adapter.index.get(position));
 					TiDict event = new TiDict();
-					
+
 					event.put("rowData", item.rowData);
 					event.put("section", viewModel.getSection(item.sectionIndex));
 					event.put("row", item.proxy);
@@ -377,13 +377,13 @@ public class TiTableView extends FrameLayout
 		listView.setOnItemSelectedListener(new OnItemSelectedListener() {
 			private TiBaseTableViewItem lastSelected = null;
 			private TiDict lastSelectedProperties = null;
-			
+
 			public void onItemSelected(AdapterView<?> parent, View view,
 					int position, long id) {
 				if (!(view instanceof TiBaseTableViewItem)) {
 					return;
 				}
-				
+
 				if (TiTableView.this.proxy.hasDynamicValue("headerView")) {
 					position -= 1;
 				}
@@ -419,7 +419,7 @@ public class TiTableView extends FrameLayout
 	{
 		TiUIView tiView = viewProxy.getView(tiContext.getActivity());
 		View nativeView = tiView.getNativeView();
-		
+
 		TiCompositeLayout.LayoutParams tiParams = tiView.getLayoutParams();
 		int width = AbsListView.LayoutParams.WRAP_CONTENT;
 		int height = AbsListView.LayoutParams.WRAP_CONTENT;
@@ -437,12 +437,12 @@ public class TiTableView extends FrameLayout
 		} else {
 			width = tiParams.optionWidth;
 		}
-		
+
 		AbsListView.LayoutParams p = new AbsListView.LayoutParams(width, height);
 		nativeView.setLayoutParams(p);
 		return nativeView;
 	}
-	
+
 	public void dataSetChanged() {
 		if (adapter != null) {
 			adapter.notifyDataSetChanged();
@@ -452,22 +452,22 @@ public class TiTableView extends FrameLayout
 	public void setOnItemClickListener(OnItemClickedListener listener) {
 		this.itemClickListener = listener;
 	}
-	
+
 	public void setSeparatorColor(String colorstring) {
 		int sepColor = TiColorHelper.parseColor(colorstring);
 		int dividerHeight = listView.getDividerHeight();
 		listView.setDivider(new ColorDrawable(sepColor));
 		listView.setDividerHeight(dividerHeight);
 	}
-	
+
 	public TableViewModel getTableViewModel() {
 		return this.viewModel;
 	}
-	
+
 	public ListView getListView() {
 		return listView;
 	}
-	
+
 	@Override
 	public void filterBy(String text) {
 		filterText = text;
@@ -479,8 +479,8 @@ public class TiTableView extends FrameLayout
 			});
 		}
 	}
-	
-	
+
+
 	public void setFilterAttribute(String filterAttribute) {
 		this.filterAttribute = filterAttribute;
 	}
@@ -488,7 +488,7 @@ public class TiTableView extends FrameLayout
 	public void setFilterCaseInsensitive(boolean filterCaseInsensitive) {
 		this.filterCaseInsensitive  = filterCaseInsensitive;
 	}
-	
+
 //	public void setData(Object[] rows) {
 //		viewModel.setData(rows);
 //		dataSetChanged();

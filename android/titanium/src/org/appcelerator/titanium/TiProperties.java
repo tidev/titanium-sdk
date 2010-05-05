@@ -18,29 +18,29 @@ import android.content.SharedPreferences;
 public class TiProperties
 {
 	private static final String LCAT = "TiProperties";
-	public static boolean DBG = TiConfig.LOGD;
- 
+	public static boolean DBG = TiConfig.LOGD && false;
+
 	SharedPreferences preferences;
- 
+
 	public TiProperties(Context context, String name, boolean clear) {
 		preferences = context.getSharedPreferences(name,Context.MODE_PRIVATE);
 		if (clear) {
 			preferences.edit().clear().commit();
 		}
 	}
- 
+
 	public String getString(String key, String def)
 	{
 		if (DBG) {
 			Log.d(LCAT,"getString called with key:"+key+", def:"+def);
 		}
-		
+
 		if (!preferences.contains(key))
 			return def;
-		
+
 		return preferences.getAll().get(key).toString();
 	}
- 
+
 	public void setString(String key, String value)
 	{
 		if (DBG) {
@@ -57,7 +57,7 @@ public class TiProperties
 		}
 		editor.commit();
 	}
- 
+
 	public int getInt(String key, int def)
 	{
 		if (DBG) {
@@ -70,7 +70,7 @@ public class TiProperties
 		if (DBG) {
 			Log.d(LCAT,"setInt called with key:"+key+", value:"+value);
 		}
- 
+
 		SharedPreferences.Editor editor = preferences.edit();
 		editor.putInt(key,value);
 		editor.commit();
@@ -87,7 +87,7 @@ public class TiProperties
 		if (DBG) {
 			Log.d(LCAT,"setDouble called with key:"+key+", value:"+value);
 		}
- 
+
 		SharedPreferences.Editor editor = preferences.edit();
 		editor.putFloat(key,(float)value);
 		editor.commit();
@@ -104,52 +104,52 @@ public class TiProperties
 		if (DBG) {
 			Log.d(LCAT,"setBool called with key:"+key+", value:"+value);
 		}
- 
+
 		SharedPreferences.Editor editor = preferences.edit();
 		editor.putBoolean(key,value);
 		editor.commit();
 	}
- 
+
 	public String[] getList(String key, String def[])
 	{
 		if (DBG) {
 			Log.d(LCAT,"getList called with key:"+key+", def:"+def);
 		}
-		
+
 		int length = preferences.getInt(key+".length", -1);
 		if (length == -1) {
 			return def;
 		}
-		
+
 		String list[] = new String[length];
 		for (int i = 0; i < length; i++) {
 			list[i] = preferences.getString(key+"."+i, "");
 		}
 		return list;
 	}
- 
+
 	public void setList(String key, String[] value)
 	{
 		if (DBG) {
 			Log.d(LCAT,"setList called with key:"+key+", value:"+value);
 		}
- 
+
 		SharedPreferences.Editor editor = preferences.edit();
 		for (int i = 0; i < value.length; i++)
 		{
 			editor.putString(key+"."+i, value[i]);
 		}
 		editor.putInt(key+".length", value.length);
-		
+
 		editor.commit();
- 
+
 	}
- 
+
 	public boolean hasProperty(String key)
 	{
 		return preferences.contains(key);
 	}
- 
+
 	public String[] listProperties()
 	{
 		ArrayList<String> properties = new ArrayList<String>();
@@ -159,7 +159,7 @@ public class TiProperties
 				properties.add(key.substring(0, key.length()-7));
 			}
 			else if (key.matches(".+\\.\\d+$")) {
-				
+
 			}
 			else {
 				properties.add(key);
@@ -167,7 +167,7 @@ public class TiProperties
 		}
 		return properties.toArray(new String[properties.size()]);
 	}
- 
+
 	public void removeProperty(String key)
 	{
 		if (preferences.contains(key)) {

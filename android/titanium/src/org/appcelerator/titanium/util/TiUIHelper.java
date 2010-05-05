@@ -192,7 +192,9 @@ public class TiUIHelper
 			} else if ("sans-serif".equals(fontFamily)) {
 				tf = Typeface.SANS_SERIF;
 			} else {
-				Log.w(LCAT, "Unsupported font: '" + fontFamily + "' supported fonts are 'monospace', 'serif', 'sans-serif'.");
+				if (DBG) {
+					Log.w(LCAT, "Unsupported font: '" + fontFamily + "' supported fonts are 'monospace', 'serif', 'sans-serif'.");
+				}
 			}
 		}
 		tv.setTypeface(tf, toTypefaceStyle(fontWeight));
