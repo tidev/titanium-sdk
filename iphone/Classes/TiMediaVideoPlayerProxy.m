@@ -40,43 +40,9 @@
 
 #pragma mark Internal
 
--(void)_initWithProperties:(NSDictionary *)properties
-{
-	if ([properties objectForKey:@"media"])
-	{
-		[self performSelector:@selector(setMedia:) withObject:[properties objectForKey:@"media"]];
-	}
-	else
-	{
-		if ([properties objectForKey:@"contentURL"]!=nil)
-		{
-			url = [[TiUtils toURL:[properties objectForKey:@"contentURL"] proxy:self] retain];
-		}
-		else
-		{
-			url = [[TiUtils toURL:[properties objectForKey:@"url"] proxy:self] retain];
-		}
-	}
-	
-	//TODO: call prepareToPlay for 3.2
-	
-	id color = [TiUtils stringValue:@"backgroundColor" properties:properties];
-	if (color!=nil)
-	{
-		backgroundColor = [[TiUtils colorValue:color] retain];
-	}
-	
-	scalingMode = [TiUtils intValue:@"scalingMode" properties:properties def:MPMovieScalingModeNone];
-	movieControlMode = [TiUtils intValue:@"movieControlMode" properties:properties def:MPMovieControlModeDefault];
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
 
-	movieControlStyle = [TiUtils intValue:@"movieControlStyle" properties:properties def:MPMovieControlStyleDefault];
-#endif
-	
-	initialPlaybackTime = [TiUtils doubleValue:@"initialPlaybackTime" properties:properties def:0];
-	
-	//TODO: other properties
-	
+-(void)_initWithProperties:(NSDictionary *)properties
+{	
 	NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
 	
 	[nc addObserver:self selector:@selector(handlePlayerNotification:) 
@@ -136,6 +102,7 @@
 		//MPMediaPlaybackIsPreparedToPlayDidChangeNotification
 #endif
 	}
+	[super _initWithProperties:properties];
 }
 
 -(void)_destroy
@@ -177,6 +144,11 @@
 {
 	if (movie==nil)
 	{
+		if (url==nil)
+		{
+			NSLog(@"[ERROR] Tried to play movie player without a valid url, media, or contentURL property");
+			return nil;
+		}
 		movie = [[MPMoviePlayerController alloc] initWithContentURL:url];
 		[movie setScalingMode:scalingMode];
 		
@@ -370,7 +342,17 @@
 	}
 }
 
+-(void)setContentURL:(id)newUrl
+{
+	[self setUrl:newUrl];
+}
+
 -(id)url
+{
+	return url;
+}
+
+-(id)contentURL
 {
 	return url;
 }
@@ -533,6 +515,13 @@
 
 -(void)play:(id)args
 {
+	if ((url == nil) && (movie == nil))
+	{
+		[self throwException:TiExceptionInvalidType
+				subreason:@"Tried to play movie player without a valid url, media, or contentURL property"
+				location:CODELOCATION];
+	}
+
 	ENSURE_UI_THREAD(play,args);
 	
 	// indicate we're going to start playing
