@@ -1,0 +1,356 @@
+TKitchenSink-iPad
+v7
+r0
+t294539957.051834
+cCheck dependencies
+cProcessInfoPlistFile /Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink-iPad/build/iphone/build/Debug-iphonesimulator/KitchenSink-iPad.app/Info.plist Info.plist
+cPhaseScriptExecution "Run Script" /Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink-iPad/build/iphone/build/KitchenSink-iPad.build/Debug-iphonesimulator/KitchenSink-iPad.build/Script-B4EA72B50FBC96AA005AA7FB.sh
+cCompileXIB /Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink-iPad/build/iphone/Resources/MainWindow.xib
+cCpResource build/Debug-iphonesimulator/KitchenSink-iPad.app/Default.png Resources/Default.png
+cCopyPlistFile /Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink-iPad/build/iphone/build/Debug-iphonesimulator/KitchenSink-iPad.app/Entitlements.plist Resources/Entitlements.plist
+cProcessPCH /var/folders/M8/M8CBhDG5HOCz2ZP6HhwJRk+++TI/-Caches-/com.apple.Xcode.501/SharedPrecompiledHeaders/KitchenSink-iPad_Prefix-ghblxwozirvkxietkdgzxsqvvwyy/KitchenSink-iPad_Prefix.pch.gch KitchenSink-iPad_Prefix.pch normal i386 objective-c com.apple.compilers.gcc.4_2
+cCompileC build/KitchenSink-iPad.build/Debug-iphonesimulator/KitchenSink-iPad.build/Objects-normal/i386/main.o /Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink-iPad/build/iphone/main.m normal i386 objective-c com.apple.compilers.gcc.4_2
+cCompileC build/KitchenSink-iPad.build/Debug-iphonesimulator/KitchenSink-iPad.build/Objects-normal/i386/ApplicationRouting.o /Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink-iPad/build/iphone/Classes/ApplicationRouting.m normal i386 objective-c com.apple.compilers.gcc.4_2
+cLd /Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink-iPad/build/iphone/build/Debug-iphonesimulator/KitchenSink-iPad.app/KitchenSink-iPad normal i386
+cGenerateDSYMFile /Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink-iPad/build/iphone/build/Debug-iphonesimulator/KitchenSink-iPad.app.dSYM /Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink-iPad/build/iphone/build/Debug-iphonesimulator/KitchenSink-iPad.app/KitchenSink-iPad
+cTouch /Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink-iPad/build/iphone/build/Debug-iphonesimulator/KitchenSink-iPad.app
+
+N/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator3.2.sdk
+c000000004BB8CA6A0000000000000110
+t1270401642
+s272
+
+N/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator3.2.sdk/System/Library/Frameworks/AVFoundation.framework/AVFoundation
+c000000004B9F1E0B0000000000012140
+t1268719115
+s74048
+
+N/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator3.2.sdk/System/Library/Frameworks/AddressBook.framework/AddressBook
+c000000004B9F2554000000000003E8A0
+t1268720980
+s256160
+
+N/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator3.2.sdk/System/Library/Frameworks/AddressBookUI.framework/AddressBookUI
+c000000004B9F32170000000000128990
+t1268724247
+s1214864
+
+N/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator3.2.sdk/System/Library/Frameworks/AudioToolbox.framework/AudioToolbox
+c000000004B9F1D810000000000193D80
+t1268718977
+s1654144
+
+N/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator3.2.sdk/System/Library/Frameworks/CFNetwork.framework/CFNetwork
+c000000004B9F1D6800000000001255B0
+t1268718952
+s1201584
+
+N/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator3.2.sdk/System/Library/Frameworks/CoreGraphics.framework/CoreGraphics
+c000000004BA03AB3000000000026F020
+t1268791987
+s2551840
+
+N/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator3.2.sdk/System/Library/Frameworks/CoreLocation.framework/CoreLocation
+c000000004BA18C610000000000060DB0
+t1268878433
+s396720
+
+N/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator3.2.sdk/System/Library/Frameworks/Foundation.framework/Foundation
+c000000004B9F1DE40000000000289C20
+t1268719076
+s2661408
+
+N/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator3.2.sdk/System/Library/Frameworks/Foundation.framework/Headers/Foundation.h
+c000000004B9F1DD60000000000001355
+t1268719062
+s4949
+
+N/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator3.2.sdk/System/Library/Frameworks/MapKit.framework/MapKit
+c000000004B9F323B0000000000160170
+t1268724283
+s1442160
+
+N/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator3.2.sdk/System/Library/Frameworks/MediaPlayer.framework/MediaPlayer
+c000000004B9F33530000000000117CE0
+t1268724563
+s1146080
+
+N/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator3.2.sdk/System/Library/Frameworks/MessageUI.framework/MessageUI
+c000000004B9F326E0000000000084660
+t1268724334
+s542304
+
+N/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator3.2.sdk/System/Library/Frameworks/MobileCoreServices.framework/MobileCoreServices
+c000000004B9F2556000000000005AF90
+t1268720982
+s372624
+
+N/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator3.2.sdk/System/Library/Frameworks/OpenGLES.framework/OpenGLES
+c000000004B9F266D000000000001F9F0
+t1268721261
+s129520
+
+N/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator3.2.sdk/System/Library/Frameworks/StoreKit.framework/StoreKit
+c000000004BA03BB40000000000011B30
+t1268792244
+s72496
+
+N/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator3.2.sdk/System/Library/Frameworks/SystemConfiguration.framework/SystemConfiguration
+c000000004B9F1D0B0000000000055570
+t1268718859
+s349552
+
+N/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator3.2.sdk/System/Library/Frameworks/UIKit.framework/Headers/UIKit.h
+c000000004BA6CAEC000000000000098F
+t1269222124
+s2447
+
+N/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator3.2.sdk/System/Library/Frameworks/UIKit.framework/UIKit
+c000000004BA6CB31000000000214E400
+t1269222193
+s34923520
+
+N/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator3.2.sdk/usr/lib/libsqlite3.dylib
+c000000004B9F1ABC00000000000E1D70
+t1268718268
+s925040
+
+N/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator3.2.sdk/usr/lib/libxml2.dylib
+c000000004B9F1D990000000000122A80
+t1268719001
+s1190528
+
+N/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator3.2.sdk/usr/lib/libz.dylib
+c00000000476CCCD10000000000006EE8
+t1198312657
+s28392
+
+N/System/Library/Frameworks/QuartzCore.framework/QuartzCore
+c000000004ADE5FA10000000000CF0BE0
+t1256087457
+s13568992
+
+N/Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink-iPad/build/iphone/Classes/ApplicationRouting.h
+c000000004BDE1B1D000000000000014D
+t1272847133
+s333
+i<Foundation/Foundation.h>
+
+N/Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink-iPad/build/iphone/Classes/ApplicationRouting.m
+c000000004BDE1B1D0000000000000CEB
+t1272847133
+s3307
+i<Foundation/Foundation.h>
+i"ApplicationRouting.h"
+
+N/Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink-iPad/build/iphone/KitchenSink-iPad_Prefix.pch
+c000000004BDE16E60000000000000086
+t1272846054
+s134
+i<Foundation/Foundation.h>
+i<UIKit/UIKit.h>
+
+N/Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink-iPad/build/iphone/Resources/Default.png
+c000000004BDE1B240000000000004091
+t1272847140
+s16529
+
+N/Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink-iPad/build/iphone/Resources/Entitlements.plist
+c000000004BDE16E600000000000000E1
+t1272846054
+s225
+
+N/Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink-iPad/build/iphone/Resources/MainWindow.xib
+c000000004BDE1B240000000000003D74
+t1272847140
+s15732
+
+N/Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink-iPad/build/iphone/Resources/libTiCore.a
+c000000004BDE1B24000000000C62084C
+t1272847140
+s207751244
+
+N/Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink-iPad/build/iphone/Resources/libTitanium.a
+c000000004BDE1B1E0000000000FCBC78
+t1272847134
+s16563320
+
+N/Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink-iPad/build/iphone/build/Debug-iphonesimulator/KitchenSink-iPad.app
+t1272847156
+s374
+
+N/Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink-iPad/build/iphone/build/Debug-iphonesimulator/KitchenSink-iPad.app.dSYM
+t1272847156
+s102
+
+N/Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink-iPad/build/iphone/build/Debug-iphonesimulator/KitchenSink-iPad.app/Default.png
+t1272847142
+s16529
+
+N/Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink-iPad/build/iphone/build/Debug-iphonesimulator/KitchenSink-iPad.app/Entitlements.plist
+t1272847143
+s62
+
+N/Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink-iPad/build/iphone/build/Debug-iphonesimulator/KitchenSink-iPad.app/Info.plist
+t1272847142
+s720
+
+N/Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink-iPad/build/iphone/build/Debug-iphonesimulator/KitchenSink-iPad.app/KitchenSink-iPad
+t1272847149
+s4312404
+
+N/Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink-iPad/build/iphone/build/Debug-iphonesimulator/KitchenSink-iPad.app/MainWindow.nib
+t1272847144
+s971
+
+N/Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink-iPad/build/iphone/build/Debug-iphonesimulator/KitchenSink-iPad.app/PkgInfo
+t1272847142
+s8
+
+N/Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink-iPad/build/iphone/build/KitchenSink-iPad.build/Debug-iphonesimulator/KitchenSink-iPad.build/Objects-normal/i386/ApplicationRouting.o
+t1272847146
+s10332
+
+N/Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink-iPad/build/iphone/build/KitchenSink-iPad.build/Debug-iphonesimulator/KitchenSink-iPad.build/Objects-normal/i386/KitchenSink-iPad.LinkFileList
+c000000004BDE1B260000000000000184
+t1272847142
+s388
+
+N/Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink-iPad/build/iphone/build/KitchenSink-iPad.build/Debug-iphonesimulator/KitchenSink-iPad.build/Objects-normal/i386/main.o
+t1272847146
+s11564
+
+N/Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink-iPad/build/iphone/build/KitchenSink-iPad.build/Debug-iphonesimulator/KitchenSink-iPad.build/Script-B4EA72B50FBC96AA005AA7FB.sh
+c000000004BDE1B2600000000000001B8
+t1272847142
+s440
+
+N/Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink-iPad/build/iphone/main.m
+c000000004BDE1B1E000000000000066A
+t1272847134
+s1642
+i<UIKit/UIKit.h>
+
+N/var/folders/M8/M8CBhDG5HOCz2ZP6HhwJRk+++TI/-Caches-/com.apple.Xcode.501/SharedPrecompiledHeaders/KitchenSink-iPad_Prefix-ghblxwozirvkxietkdgzxsqvvwyy/KitchenSink-iPad_Prefix.pch.gch
+t1272847146
+s13797264
+
+NInfo.plist
+c000000004BDE1B24000000000000043B
+t1272847140
+s1083
+
+CCheck dependencies
+r0
+lSLF07#2@18"Check dependencies294539941#294539942#0(0"0(0#1#0"7741240616551802880#0"0#
+
+CCompileC build/KitchenSink-iPad.build/Debug-iphonesimulator/KitchenSink-iPad.build/Objects-normal/i386/ApplicationRouting.o /Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink-iPad/build/iphone/Classes/ApplicationRouting.m normal i386 objective-c com.apple.compilers.gcc.4_2
+s294539946.334472
+e294539946.420174
+r1
+xCompileC
+xbuild/KitchenSink-iPad.build/Debug-iphonesimulator/KitchenSink-iPad.build/Objects-normal/i386/ApplicationRouting.o
+x/Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink-iPad/build/iphone/Classes/ApplicationRouting.m
+xnormal
+xi386
+xobjective-c
+xcom.apple.compilers.gcc.4_2
+lSLF07#2@122"Compile /Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink-iPad/build/iphone/Classes/ApplicationRouting.m294539946#294539946#0(0"0(0#0#114"/Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink-iPad/build/iphone/Classes/ApplicationRouting.m4301231320#2676"    cd /Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink-iPad/build/iphone    setenv LANG en_US.US-ASCII    setenv PATH "/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/bin:/Developer/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin"    /Developer/Platforms/iPhoneSimulator.platform/Developer/usr/bin/gcc-4.2 -x objective-c -arch i386 -fmessage-length=0 -pipe -std=c99 -Wno-trigraphs -fpascal-strings -fasm-blocks -O0 -Wreturn-type -Wunused-variable -D__LOG__ID__=1000da51-9909-4a9e-a82f-52de59746d37 -DDEPLOYTYPE=development -DDEBUG=1 -D__IPHONE_OS_VERSION_MIN_REQUIRED=30200 -isysroot /Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator3.2.sdk -fvisibility=hidden -mmacosx-version-min=10.5 -gdwarf-2 -iquote /Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink-iPad/build/iphone/build/KitchenSink-iPad.build/Debug-iphonesimulator/KitchenSink-iPad.build/KitchenSink-iPad-generated-files.hmap -I/Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink-iPad/build/iphone/build/KitchenSink-iPad.build/Debug-iphonesimulator/KitchenSink-iPad.build/KitchenSink-iPad-own-target-headers.hmap -I/Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink-iPad/build/iphone/build/KitchenSink-iPad.build/Debug-iphonesimulator/KitchenSink-iPad.build/KitchenSink-iPad-all-target-headers.hmap -iquote /Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink-iPad/build/iphone/build/KitchenSink-iPad.build/Debug-iphonesimulator/KitchenSink-iPad.build/KitchenSink-iPad-project-headers.hmap -F/Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink-iPad/build/iphone/build/Debug-iphonesimulator -I/Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink-iPad/build/iphone/build/Debug-iphonesimulator/include -I/Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink-iPad/build/iphone/build/KitchenSink-iPad.build/Debug-iphonesimulator/KitchenSink-iPad.build/DerivedSources/i386 -I/Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink-iPad/build/iphone/build/KitchenSink-iPad.build/Debug-iphonesimulator/KitchenSink-iPad.build/DerivedSources -include /var/folders/M8/M8CBhDG5HOCz2ZP6HhwJRk+++TI/-Caches-/com.apple.Xcode.501/SharedPrecompiledHeaders/KitchenSink-iPad_Prefix-ghblxwozirvkxietkdgzxsqvvwyy/KitchenSink-iPad_Prefix.pch -c /Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink-iPad/build/iphone/Classes/ApplicationRouting.m -o /Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink-iPad/build/iphone/build/KitchenSink-iPad.build/Debug-iphonesimulator/KitchenSink-iPad.build/Objects-normal/i386/ApplicationRouting.o0#
+
+CCompileC build/KitchenSink-iPad.build/Debug-iphonesimulator/KitchenSink-iPad.build/Objects-normal/i386/main.o /Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink-iPad/build/iphone/main.m normal i386 objective-c com.apple.compilers.gcc.4_2
+s294539946.332993
+e294539946.393870
+r1
+xCompileC
+xbuild/KitchenSink-iPad.build/Debug-iphonesimulator/KitchenSink-iPad.build/Objects-normal/i386/main.o
+x/Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink-iPad/build/iphone/main.m
+xnormal
+xi386
+xobjective-c
+xcom.apple.compilers.gcc.4_2
+lSLF07#2@100"Compile /Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink-iPad/build/iphone/main.m294539946#294539946#0(0"0(0#0#92"/Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink-iPad/build/iphone/main.m4301231320#2640"    cd /Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink-iPad/build/iphone    setenv LANG en_US.US-ASCII    setenv PATH "/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/bin:/Developer/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin"    /Developer/Platforms/iPhoneSimulator.platform/Developer/usr/bin/gcc-4.2 -x objective-c -arch i386 -fmessage-length=0 -pipe -std=c99 -Wno-trigraphs -fpascal-strings -fasm-blocks -O0 -Wreturn-type -Wunused-variable -D__LOG__ID__=1000da51-9909-4a9e-a82f-52de59746d37 -DDEPLOYTYPE=development -DDEBUG=1 -D__IPHONE_OS_VERSION_MIN_REQUIRED=30200 -isysroot /Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator3.2.sdk -fvisibility=hidden -mmacosx-version-min=10.5 -gdwarf-2 -iquote /Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink-iPad/build/iphone/build/KitchenSink-iPad.build/Debug-iphonesimulator/KitchenSink-iPad.build/KitchenSink-iPad-generated-files.hmap -I/Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink-iPad/build/iphone/build/KitchenSink-iPad.build/Debug-iphonesimulator/KitchenSink-iPad.build/KitchenSink-iPad-own-target-headers.hmap -I/Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink-iPad/build/iphone/build/KitchenSink-iPad.build/Debug-iphonesimulator/KitchenSink-iPad.build/KitchenSink-iPad-all-target-headers.hmap -iquote /Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink-iPad/build/iphone/build/KitchenSink-iPad.build/Debug-iphonesimulator/KitchenSink-iPad.build/KitchenSink-iPad-project-headers.hmap -F/Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink-iPad/build/iphone/build/Debug-iphonesimulator -I/Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink-iPad/build/iphone/build/Debug-iphonesimulator/include -I/Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink-iPad/build/iphone/build/KitchenSink-iPad.build/Debug-iphonesimulator/KitchenSink-iPad.build/DerivedSources/i386 -I/Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink-iPad/build/iphone/build/KitchenSink-iPad.build/Debug-iphonesimulator/KitchenSink-iPad.build/DerivedSources -include /var/folders/M8/M8CBhDG5HOCz2ZP6HhwJRk+++TI/-Caches-/com.apple.Xcode.501/SharedPrecompiledHeaders/KitchenSink-iPad_Prefix-ghblxwozirvkxietkdgzxsqvvwyy/KitchenSink-iPad_Prefix.pch -c /Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink-iPad/build/iphone/main.m -o /Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink-iPad/build/iphone/build/KitchenSink-iPad.build/Debug-iphonesimulator/KitchenSink-iPad.build/Objects-normal/i386/main.o0#
+
+CCompileXIB /Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink-iPad/build/iphone/Resources/MainWindow.xib
+s294539942.670126
+e294539944.295239
+r1
+xCompileXIB
+x/Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink-iPad/build/iphone/Resources/MainWindow.xib
+lSLF07#2@35"CompileXIB Resources/MainWindow.xib294539942#294539944#0(0"0(0#0#110"/Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink-iPad/build/iphone/Resources/MainWindow.xib4301231320#640"    cd /Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink-iPad/build/iphone    setenv IBC_MINIMUM_COMPATIBILITY_VERSION 3.2    setenv PATH "/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/bin:/Developer/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin"    /Developer/usr/bin/ibtool --errors --warnings --notices --output-format human-readable-text --compile /Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink-iPad/build/iphone/build/Debug-iphonesimulator/KitchenSink-iPad.app/MainWindow.nib /Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink-iPad/build/iphone/Resources/MainWindow.xib0#
+
+CCopyPlistFile /Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink-iPad/build/iphone/build/Debug-iphonesimulator/KitchenSink-iPad.app/Entitlements.plist Resources/Entitlements.plist
+s294539942.671578
+e294539943.396056
+r1
+xCopyPlistFile
+x/Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink-iPad/build/iphone/build/Debug-iphonesimulator/KitchenSink-iPad.app/Entitlements.plist
+xResources/Entitlements.plist
+lSLF07#2@33"Copy Resources/Entitlements.plist294539942#294539943#0(0"0(0#0#114"/Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink-iPad/build/iphone/Resources/Entitlements.plist4301231320#506"    cd /Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink-iPad/build/iphone    setenv PATH "/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/bin:/Developer/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin"    /Developer/Library/Xcode/Plug-ins/CoreBuildTasks.xcplugin/Contents/Resources/copyplist --convert binary1 Resources/Entitlements.plist --outdir /Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink-iPad/build/iphone/build/Debug-iphonesimulator/KitchenSink-iPad.app0#
+
+CCpResource build/Debug-iphonesimulator/KitchenSink-iPad.app/Default.png Resources/Default.png
+s294539942.670909
+e294539942.675751
+r1
+xCpResource
+xbuild/Debug-iphonesimulator/KitchenSink-iPad.app/Default.png
+xResources/Default.png
+lSLF07#2@26"Copy Resources/Default.png294539942#294539942#0(0"0(0#0#107"/Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink-iPad/build/iphone/Resources/Default.png4301231320#615"    cd /Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink-iPad/build/iphone    setenv PATH "/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/bin:/Developer/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin"    /Developer/Library/PrivateFrameworks/DevToolsCore.framework/Resources/pbxcp -exclude .DS_Store -exclude CVS -exclude .svn -resolve-src-symlinks /Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink-iPad/build/iphone/Resources/Default.png /Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink-iPad/build/iphone/build/Debug-iphonesimulator/KitchenSink-iPad.app0#
+
+CGenerateDSYMFile /Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink-iPad/build/iphone/build/Debug-iphonesimulator/KitchenSink-iPad.app.dSYM /Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink-iPad/build/iphone/build/Debug-iphonesimulator/KitchenSink-iPad.app/KitchenSink-iPad
+s294539949.918585
+e294539956.778060
+r1
+xGenerateDSYMFile
+x/Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink-iPad/build/iphone/build/Debug-iphonesimulator/KitchenSink-iPad.app.dSYM
+x/Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink-iPad/build/iphone/build/Debug-iphonesimulator/KitchenSink-iPad.app/KitchenSink-iPad
+lSLF07#2@136"GenerateDSYMFile build/Debug-iphonesimulator/KitchenSink-iPad.app.dSYM build/Debug-iphonesimulator/KitchenSink-iPad.app/KitchenSink-iPad294539949#294539956#0(0"0(0#0#151"/Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink-iPad/build/iphone/build/Debug-iphonesimulator/KitchenSink-iPad.app/KitchenSink-iPad4301231320#551"    cd /Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink-iPad/build/iphone    setenv PATH "/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/bin:/Developer/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin"    /Developer/usr/bin/dsymutil /Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink-iPad/build/iphone/build/Debug-iphonesimulator/KitchenSink-iPad.app/KitchenSink-iPad -o /Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink-iPad/build/iphone/build/Debug-iphonesimulator/KitchenSink-iPad.app.dSYM0#
+
+CLd /Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink-iPad/build/iphone/build/Debug-iphonesimulator/KitchenSink-iPad.app/KitchenSink-iPad normal i386
+s294539946.420286
+e294539949.918300
+r1
+xLd
+x/Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink-iPad/build/iphone/build/Debug-iphonesimulator/KitchenSink-iPad.app/KitchenSink-iPad
+xnormal
+xi386
+lSLF07#2@156"Link /Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink-iPad/build/iphone/build/Debug-iphonesimulator/KitchenSink-iPad.app/KitchenSink-iPad294539946#294539949#0(0"0(0#0#0"4301231320#1673"    cd /Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink-iPad/build/iphone    setenv MACOSX_DEPLOYMENT_TARGET 10.5    setenv PATH "/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/bin:/Developer/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin"    /Developer/Platforms/iPhoneSimulator.platform/Developer/usr/bin/gcc-4.2 -arch i386 -isysroot /Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator3.2.sdk -L/Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink-iPad/build/iphone/build/Debug-iphonesimulator -L/Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink-iPad/build/iphone -LResources -F/Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink-iPad/build/iphone/build/Debug-iphonesimulator -filelist /Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink-iPad/build/iphone/build/KitchenSink-iPad.build/Debug-iphonesimulator/KitchenSink-iPad.build/Objects-normal/i386/KitchenSink-iPad.LinkFileList -mmacosx-version-min=10.5 -framework Foundation -framework UIKit -ObjC -lstdc++ -framework SystemConfiguration -framework AVFoundation -framework CoreLocation -lz -framework AudioToolbox -framework Foundation -weak_framework UIKit -framework MediaPlayer -framework CoreGraphics -weak-lTitanium -lsqlite3 -framework MessageUI -framework OpenGLES -framework QuartzCore -framework MapKit -framework AddressBook -framework AddressBookUI -framework CFNetwork -framework MobileCoreServices -lTiCore -lxml2 -framework StoreKit -o /Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink-iPad/build/iphone/build/Debug-iphonesimulator/KitchenSink-iPad.app/KitchenSink-iPad0#
+
+CPhaseScriptExecution "Run Script" /Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink-iPad/build/iphone/build/KitchenSink-iPad.build/Debug-iphonesimulator/KitchenSink-iPad.build/Script-B4EA72B50FBC96AA005AA7FB.sh
+s294539942.545011
+e294539942.669743
+r1
+xPhaseScriptExecution
+xRun Script
+x/Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink-iPad/build/iphone/build/KitchenSink-iPad.build/Debug-iphonesimulator/KitchenSink-iPad.build/Script-B4EA72B50FBC96AA005AA7FB.sh
+lSLF07#2@36"Run custom shell script 'Run Script'294539942#294539942#0(0"0(0#0#0"4301231320#20076"    cd /Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink-iPad/build/iphone    setenv ACTION build    setenv ALTERNATE_GROUP staff    setenv ALTERNATE_MODE u+w,go-w,a+rX    setenv ALTERNATE_OWNER nwright    setenv ALWAYS_SEARCH_USER_PATHS NO    setenv APPLE_INTERNAL_DEVELOPER_DIR /AppleInternal/Developer    setenv APPLE_INTERNAL_DIR /AppleInternal    setenv APPLE_INTERNAL_DOCUMENTATION_DIR /AppleInternal/Documentation    setenv APPLE_INTERNAL_LIBRARY_DIR /AppleInternal/Library    setenv APPLE_INTERNAL_TOOLS /AppleInternal/Developer/Tools    setenv APPLY_RULES_IN_COPY_FILES NO    setenv ARCHS i386    setenv ARCHS_STANDARD_32_BIT i386    setenv ARCHS_UNIVERSAL_IPHONE_OS i386    setenv BUILD_COMPONENTS "headers build"    setenv BUILD_DIR /Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink-iPad/build/iphone/build    setenv BUILD_ROOT /Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink-iPad/build/iphone/build    setenv BUILD_STYLE Debug    setenv BUILD_VARIANTS normal    setenv BUILT_PRODUCTS_DIR /Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink-iPad/build/iphone/build/Debug-iphonesimulator    setenv CACHE_ROOT /var/folders/M8/M8CBhDG5HOCz2ZP6HhwJRk+++TI/-Caches-/com.apple.Xcode.501    setenv CCHROOT /var/folders/M8/M8CBhDG5HOCz2ZP6HhwJRk+++TI/-Caches-/com.apple.Xcode.501    setenv CHMOD /bin/chmod    setenv CHOWN /usr/sbin/chown    setenv CLASS_FILE_DIR /Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink-iPad/build/iphone/build/KitchenSink-iPad.build/Debug-iphonesimulator/KitchenSink-iPad.build/JavaClasses    setenv CLEAN_PRECOMPS YES    setenv CLONE_HEADERS NO    setenv CODESIGNING_FOLDER_PATH /Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink-iPad/build/iphone/build/Debug-iphonesimulator/KitchenSink-iPad.app    setenv CODE_SIGN_ENTITLEMENTS Resources/Entitlements.plist    setenv CODE_SIGN_IDENTITY "Don't Code Sign"    setenv COMMAND_MODE legacy    setenv COMPOSITE_SDK_DIRS /var/folders/M8/M8CBhDG5HOCz2ZP6HhwJRk+++TI/-Caches-/com.apple.Xcode.501/CompositeSDKs    setenv COMPRESS_PNG_FILES YES    setenv CONFIGURATION Debug    setenv CONFIGURATION_BUILD_DIR /Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink-iPad/build/iphone/build/Debug-iphonesimulator    setenv CONFIGURATION_TEMP_DIR /Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink-iPad/build/iphone/build/KitchenSink-iPad.build/Debug-iphonesimulator    setenv CONTENTS_FOLDER_PATH KitchenSink-iPad.app    setenv COPYING_PRESERVES_HFS_DATA NO    setenv COPY_PHASE_STRIP NO    setenv COPY_RESOURCES_FROM_STATIC_FRAMEWORKS YES    setenv CP /bin/cp    setenv CURRENT_ARCH i386    setenv CURRENT_VARIANT normal    setenv DEAD_CODE_STRIPPING NO    setenv DEBUGGING_SYMBOLS YES    setenv DEBUG_INFORMATION_FORMAT dwarf-with-dsym    setenv DEPLOYMENT_LOCATION NO    setenv DEPLOYMENT_POSTPROCESSING NO    setenv DERIVED_FILES_DIR /Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink-iPad/build/iphone/build/KitchenSink-iPad.build/Debug-iphonesimulator/KitchenSink-iPad.build/DerivedSources    setenv DERIVED_FILE_DIR /Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink-iPad/build/iphone/build/KitchenSink-iPad.build/Debug-iphonesimulator/KitchenSink-iPad.build/DerivedSources    setenv DERIVED_SOURCES_DIR /Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink-iPad/build/iphone/build/KitchenSink-iPad.build/Debug-iphonesimulator/KitchenSink-iPad.build/DerivedSources    setenv DEVELOPER_APPLICATIONS_DIR /Developer/Applications    setenv DEVELOPER_BIN_DIR /Developer/usr/bin    setenv DEVELOPER_DIR /Developer    setenv DEVELOPER_FRAMEWORKS_DIR /Developer/Library/Frameworks    setenv DEVELOPER_FRAMEWORKS_DIR_QUOTED "\"/Developer/Library/Frameworks\""    setenv DEVELOPER_LIBRARY_DIR /Developer/Library    setenv DEVELOPER_SDK_DIR /Developer/SDKs    setenv DEVELOPER_TOOLS_DIR /Developer/Tools    setenv DEVELOPER_USR_DIR /Developer/usr    setenv DEVELOPMENT_LANGUAGE English    setenv DOCUMENTATION_FOLDER_PATH /Documentation    setenv DO_HEADER_SCANNING_IN_JAM NO    setenv DSTROOT /tmp/KitchenSink-iPad.dst    setenv DWARF_DSYM_FILE_NAME KitchenSink-iPad.app.dSYM    setenv DWARF_DSYM_FOLDER_PATH /Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink-iPad/build/iphone/build/Debug-iphonesimulator    setenv EFFECTIVE_PLATFORM_NAME -iphonesimulator    setenv ENABLE_HEADER_DEPENDENCIES YES    setenv ENABLE_OPENMP_SUPPORT NO    setenv EXCLUDED_INSTALLSRC_SUBDIRECTORY_PATTERNS ".svn CVS"    setenv EXCLUDED_RECURSIVE_SEARCH_PATH_SUBDIRECTORIES "*.nib *.lproj *.framework *.gch (*) CVS .svn *.xcodeproj *.xcode *.pbproj *.pbxproj"    setenv EXECUTABLES_FOLDER_PATH KitchenSink-iPad.app/Executables    setenv EXECUTABLE_FOLDER_PATH KitchenSink-iPad.app    setenv EXECUTABLE_NAME KitchenSink-iPad    setenv EXECUTABLE_PATH KitchenSink-iPad.app/KitchenSink-iPad    setenv FILE_LIST /Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink-iPad/build/iphone/build/KitchenSink-iPad.build/Debug-iphonesimulator/KitchenSink-iPad.build/Objects/LinkFileList    setenv FIXED_FILES_DIR /Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink-iPad/build/iphone/build/KitchenSink-iPad.build/Debug-iphonesimulator/KitchenSink-iPad.build/FixedFiles    setenv FRAMEWORKS_FOLDER_PATH KitchenSink-iPad.app/Frameworks    setenv FRAMEWORK_FLAG_PREFIX -framework    setenv FRAMEWORK_SEARCH_PATHS "\"/Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink-iPad/build/iphone/build/Debug-iphonesimulator\" "    setenv FRAMEWORK_VERSION A    setenv FULL_PRODUCT_NAME KitchenSink-iPad.app    setenv GCC3_VERSION 3.3    setenv GCC_C_LANGUAGE_STANDARD c99    setenv GCC_DYNAMIC_NO_PIC NO    setenv GCC_INLINES_ARE_PRIVATE_EXTERN YES    setenv GCC_OPTIMIZATION_LEVEL 0    setenv GCC_PFE_FILE_C_DIALECTS "c objective-c c++ objective-c++"    setenv GCC_PRECOMPILE_PREFIX_HEADER YES    setenv GCC_PREFIX_HEADER KitchenSink-iPad_Prefix.pch    setenv GCC_PREPROCESSOR_DEFINITIONS "__LOG__ID__=1000da51-9909-4a9e-a82f-52de59746d37 DEPLOYTYPE=development DEBUG=1"    setenv GCC_PRODUCT_TYPE_PREPROCESSOR_DEFINITIONS " __IPHONE_OS_VERSION_MIN_REQUIRED=30200"    setenv GCC_SYMBOLS_PRIVATE_EXTERN YES    setenv GCC_TREAT_WARNINGS_AS_ERRORS NO    setenv GCC_VERSION 4.2    setenv GCC_VERSION_IDENTIFIER __2    setenv GCC_WARN_ABOUT_RETURN_TYPE YES    setenv GCC_WARN_UNUSED_VARIABLE YES    setenv GENERATE_MASTER_OBJECT_FILE NO    setenv GENERATE_PKGINFO_FILE YES    setenv GENERATE_PROFILING_CODE NO    setenv GID 20    setenv GROUP staff    setenv HEADERMAP_INCLUDES_FLAT_ENTRIES_FOR_TARGET_BEING_BUILT YES    setenv HEADERMAP_INCLUDES_FRAMEWORK_ENTRIES_FOR_ALL_PRODUCT_TYPES YES    setenv HEADERMAP_INCLUDES_NONPUBLIC_NONPRIVATE_HEADERS YES    setenv HEADERMAP_INCLUDES_PROJECT_HEADERS YES    setenv HEADER_SEARCH_PATHS "\"/Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink-iPad/build/iphone/build/Debug-iphonesimulator/include\" "    setenv ICONV /usr/bin/iconv    setenv INFOPLIST_EXPAND_BUILD_SETTINGS YES    setenv INFOPLIST_FILE Info.plist    setenv INFOPLIST_OUTPUT_FORMAT binary    setenv INFOPLIST_PATH KitchenSink-iPad.app/Info.plist    setenv INFOPLIST_PREPROCESS NO    setenv INFOSTRINGS_PATH /InfoPlist.strings    setenv INSTALL_DIR /tmp/KitchenSink-iPad.dst/Users/nwright/Applications    setenv INSTALL_GROUP staff    setenv INSTALL_MODE_FLAG u+w,go-w,a+rX    setenv INSTALL_OWNER nwright    setenv INSTALL_PATH /Users/nwright/Applications    setenv INSTALL_ROOT /tmp/KitchenSink-iPad.dst    setenv IPHONEOS_DEPLOYMENT_TARGET 3.2    setenv JAVAC_DEFAULT_FLAGS "-J-Xms64m -J-XX:NewSize=4M -J-Dfile.encoding=UTF8"    setenv JAVA_APP_STUB /System/Library/Frameworks/JavaVM.framework/Resources/MacOS/JavaApplicationStub    setenv JAVA_ARCHIVE_CLASSES YES    setenv JAVA_ARCHIVE_TYPE JAR    setenv JAVA_COMPILER /usr/bin/javac    setenv JAVA_FOLDER_PATH KitchenSink-iPad.app/Java    setenv JAVA_FRAMEWORK_RESOURCES_DIRS Resources    setenv JAVA_JAR_FLAGS cv    setenv JAVA_SOURCE_SUBDIR .    setenv JAVA_USE_DEPENDENCIES YES    setenv JAVA_ZIP_FLAGS -urg    setenv JIKES_DEFAULT_FLAGS "+E +OLDCSO"    setenv KEEP_PRIVATE_EXTERNS NO    setenv LD_GENERATE_MAP_FILE NO    setenv LD_MAP_FILE_PATH /Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink-iPad/build/iphone/build/KitchenSink-iPad.build/Debug-iphonesimulator/KitchenSink-iPad.build/KitchenSink-iPad-LinkMap-normal-i386.txt    setenv LD_OPENMP_FLAGS -fopenmp    setenv LEX /Developer/usr/bin/lex    setenv LIBRARY_FLAG_NOSPACE YES    setenv LIBRARY_FLAG_PREFIX -l    setenv LIBRARY_SEARCH_PATHS "\"/Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink-iPad/build/iphone/build/Debug-iphonesimulator\"  \"/Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink-iPad/build/iphone\" Resources"    setenv LINKER_DISPLAYS_MANGLED_NAMES NO    setenv LINK_FILE_LIST_normal_i386 /Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink-iPad/build/iphone/build/KitchenSink-iPad.build/Debug-iphonesimulator/KitchenSink-iPad.build/Objects-normal/i386/KitchenSink-iPad.LinkFileList    setenv LINK_WITH_STANDARD_LIBRARIES YES    setenv LOCAL_ADMIN_APPS_DIR /Applications/Utilities    setenv LOCAL_APPS_DIR /Applications    setenv LOCAL_DEVELOPER_DIR /Library/Developer    setenv LOCAL_LIBRARY_DIR /Library    setenv MACH_O_TYPE mh_execute    setenv MACOSX_DEPLOYMENT_TARGET 10.5    setenv MAC_OS_X_VERSION_ACTUAL 1062    setenv MAC_OS_X_VERSION_MAJOR 1060    setenv MAC_OS_X_VERSION_MINOR 0602    setenv NATIVE_ARCH i386    setenv NATIVE_ARCH_32_BIT i386    setenv NATIVE_ARCH_64_BIT x86_64    setenv NATIVE_ARCH_ACTUAL x86_64    setenv NO_COMMON YES    setenv OBJECT_FILE_DIR /Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink-iPad/build/iphone/build/KitchenSink-iPad.build/Debug-iphonesimulator/KitchenSink-iPad.build/Objects    setenv OBJECT_FILE_DIR_normal /Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink-iPad/build/iphone/build/KitchenSink-iPad.build/Debug-iphonesimulator/KitchenSink-iPad.build/Objects-normal    setenv OBJROOT /Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink-iPad/build/iphone/build    setenv ONLY_ACTIVE_ARCH YES    setenv OPTIMIZATION_LEVEL 0    setenv OS MACOS    setenv OSAC /usr/bin/osacompile    setenv OTHER_LDFLAGS "-framework Foundation -framework UIKit -ObjC -lstdc++"    setenv PACKAGE_TYPE com.apple.package-type.wrapper.application    setenv PASCAL_STRINGS YES    setenv PATH "/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/bin:/Developer/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin"    setenv PATH_PREFIXES_EXCLUDED_FROM_HEADER_DEPENDENCIES "/usr/include /usr/local/include /System/Library/Frameworks /System/Library/PrivateFrameworks /Developer/Headers /Developer/SDKs /Developer/Platforms"    setenv PBDEVELOPMENTPLIST_PATH KitchenSink-iPad.app/pbdevelopment.plist    setenv PFE_FILE_C_DIALECTS objective-c    setenv PKGINFO_FILE_PATH /Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink-iPad/build/iphone/build/KitchenSink-iPad.build/Debug-iphonesimulator/KitchenSink-iPad.build/PkgInfo    setenv PKGINFO_PATH KitchenSink-iPad.app/PkgInfo    setenv PLATFORM_DEVELOPER_APPLICATIONS_DIR /Developer/Platforms/iPhoneSimulator.platform/Developer/Applications    setenv PLATFORM_DEVELOPER_BIN_DIR /Developer/Platforms/iPhoneSimulator.platform/Developer/usr/bin    setenv PLATFORM_DEVELOPER_LIBRARY_DIR /Developer/Platforms/iPhoneSimulator.platform/Developer/Library    setenv PLATFORM_DEVELOPER_SDK_DIR /Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs    setenv PLATFORM_DEVELOPER_TOOLS_DIR /Developer/Platforms/iPhoneSimulator.platform/Developer/Tools    setenv PLATFORM_DEVELOPER_USR_DIR /Developer/Platforms/iPhoneSimulator.platform/Developer/usr    setenv PLATFORM_DIR /Developer/Platforms/iPhoneSimulator.platform    setenv PLATFORM_NAME iphonesimulator    setenv PLIST_FILE_OUTPUT_FORMAT binary    setenv PLUGINS_FOLDER_PATH KitchenSink-iPad.app/PlugIns    setenv PREBINDING NO    setenv PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR YES    setenv PRECOMP_DESTINATION_DIR /Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink-iPad/build/iphone/build/KitchenSink-iPad.build/Debug-iphonesimulator/KitchenSink-iPad.build/PrefixHeaders    setenv PRESERVE_DEAD_CODE_INITS_AND_TERMS NO    setenv PRIVATE_HEADERS_FOLDER_PATH KitchenSink-iPad.app/PrivateHeaders    setenv PRODUCT_NAME KitchenSink-iPad    setenv PRODUCT_SETTINGS_PATH /Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink-iPad/build/iphone/Info.plist    setenv PRODUCT_TYPE com.apple.product-type.application    setenv PROFILING_CODE NO    setenv PROJECT KitchenSink-iPad    setenv PROJECT_DERIVED_FILE_DIR /Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink-iPad/build/iphone/build/KitchenSink-iPad.build/DerivedSources    setenv PROJECT_DIR /Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink-iPad/build/iphone    setenv PROJECT_FILE_PATH /Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink-iPad/build/iphone/KitchenSink-iPad.xcodeproj    setenv PROJECT_NAME KitchenSink-iPad    setenv PROJECT_TEMP_DIR /Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink-iPad/build/iphone/build/KitchenSink-iPad.build    setenv PUBLIC_HEADERS_FOLDER_PATH KitchenSink-iPad.app/Headers    setenv RECURSIVE_SEARCH_PATHS_FOLLOW_SYMLINKS YES    setenv REMOVE_CVS_FROM_RESOURCES YES    setenv REMOVE_SVN_FROM_RESOURCES YES    setenv REZ_COLLECTOR_DIR /Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink-iPad/build/iphone/build/KitchenSink-iPad.build/Debug-iphonesimulator/KitchenSink-iPad.build/ResourceManagerResources    setenv REZ_OBJECTS_DIR /Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink-iPad/build/iphone/build/KitchenSink-iPad.build/Debug-iphonesimulator/KitchenSink-iPad.build/ResourceManagerResources/Objects    setenv REZ_SEARCH_PATHS "\"/Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink-iPad/build/iphone/build/Debug-iphonesimulator\" "    setenv RUN_CLANG_STATIC_ANALYZER NO    setenv SCAN_ALL_SOURCE_FILES_FOR_INCLUDES NO    setenv SCRIPTS_FOLDER_PATH KitchenSink-iPad.app/Scripts    setenv SCRIPT_INPUT_FILE_COUNT 0    setenv SCRIPT_OUTPUT_FILE_COUNT 0    setenv SDKROOT /Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator3.2.sdk    setenv SDK_DIR /Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator3.2.sdk    setenv SDK_NAME iphonesimulator3.2    setenv SED /usr/bin/sed    setenv SEPARATE_STRIP NO    setenv SEPARATE_SYMBOL_EDIT NO    setenv SET_DIR_MODE_OWNER_GROUP YES    setenv SET_FILE_MODE_OWNER_GROUP NO    setenv SHALLOW_BUNDLE YES    setenv SHARED_DERIVED_FILE_DIR /Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink-iPad/build/iphone/build/Debug-iphonesimulator/DerivedSources    setenv SHARED_FRAMEWORKS_FOLDER_PATH KitchenSink-iPad.app/SharedFrameworks    setenv SHARED_PRECOMPS_DIR /var/folders/M8/M8CBhDG5HOCz2ZP6HhwJRk+++TI/-Caches-/com.apple.Xcode.501/SharedPrecompiledHeaders    setenv SHARED_SUPPORT_FOLDER_PATH KitchenSink-iPad.app/SharedSupport    setenv SKIP_INSTALL YES    setenv SOURCE_ROOT /Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink-iPad/build/iphone    setenv SRCROOT /Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink-iPad/build/iphone    setenv STANDARD_C_PLUS_PLUS_LIBRARY_TYPE dynamic    setenv STRINGS_FILE_OUTPUT_ENCODING binary    setenv STRIP_INSTALLED_PRODUCT YES    setenv STRIP_STYLE all    setenv SUPPORTED_DEVICE_FAMILIES "1 2"    setenv SYMBOL_REPOSITORY_DIR /Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink-iPad/build/iphone/build/KitchenSink-iPad.build/Debug-iphonesimulator/KitchenSink-iPad.build/SymbolRepositories    setenv SYMROOT /Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink-iPad/build/iphone/build    setenv SYSTEM_ADMIN_APPS_DIR /Applications/Utilities    setenv SYSTEM_APPS_DIR /Applications    setenv SYSTEM_CORE_SERVICES_DIR /System/Library/CoreServices    setenv SYSTEM_DEMOS_DIR /Applications/Extras    setenv SYSTEM_DEVELOPER_APPS_DIR /Developer/Applications    setenv SYSTEM_DEVELOPER_BIN_DIR /Developer/usr/bin    setenv SYSTEM_DEVELOPER_DEMOS_DIR "/Developer/Applications/Utilities/Built Examples"    setenv SYSTEM_DEVELOPER_DIR /Developer    setenv SYSTEM_DEVELOPER_DOC_DIR "/Developer/ADC Reference Library"    setenv SYSTEM_DEVELOPER_GRAPHICS_TOOLS_DIR "/Developer/Applications/Graphics Tools"    setenv SYSTEM_DEVELOPER_JAVA_TOOLS_DIR "/Developer/Applications/Java Tools"    setenv SYSTEM_DEVELOPER_PERFORMANCE_TOOLS_DIR "/Developer/Applications/Performance Tools"    setenv SYSTEM_DEVELOPER_RELEASENOTES_DIR "/Developer/ADC Reference Library/releasenotes"    setenv SYSTEM_DEVELOPER_TOOLS /Developer/Tools    setenv SYSTEM_DEVELOPER_TOOLS_DOC_DIR "/Developer/ADC Reference Library/documentation/DeveloperTools"    setenv SYSTEM_DEVELOPER_TOOLS_RELEASENOTES_DIR "/Developer/ADC Reference Library/releasenotes/DeveloperTools"    setenv SYSTEM_DEVELOPER_USR_DIR /Developer/usr    setenv SYSTEM_DEVELOPER_UTILITIES_DIR /Developer/Applications/Utilities    setenv SYSTEM_DOCUMENTATION_DIR /Library/Documentation    setenv SYSTEM_LIBRARY_DIR /System/Library    setenv TARGETED_DEVICE_FAMILY iPad    setenv TARGETNAME KitchenSink-iPad    setenv TARGET_BUILD_DIR /Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink-iPad/build/iphone/build/Debug-iphonesimulator    setenv TARGET_NAME KitchenSink-iPad    setenv TARGET_TEMP_DIR /Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink-iPad/build/iphone/build/KitchenSink-iPad.build/Debug-iphonesimulator/KitchenSink-iPad.build    setenv TEMP_DIR /Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink-iPad/build/iphone/build/KitchenSink-iPad.build/Debug-iphonesimulator/KitchenSink-iPad.build    setenv TEMP_FILES_DIR /Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink-iPad/build/iphone/build/KitchenSink-iPad.build/Debug-iphonesimulator/KitchenSink-iPad.build    setenv TEMP_FILE_DIR /Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink-iPad/build/iphone/build/KitchenSink-iPad.build/Debug-iphonesimulator/KitchenSink-iPad.build    setenv TEMP_ROOT /Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink-iPad/build/iphone/build    setenv UID 501    setenv UNLOCALIZED_RESOURCES_FOLDER_PATH KitchenSink-iPad.app    setenv UNSTRIPPED_PRODUCT NO    setenv USER nwright    setenv USER_APPS_DIR /Users/nwright/Applications    setenv USER_LIBRARY_DIR /Users/nwright/Library    setenv USE_DYNAMIC_NO_PIC YES    setenv USE_HEADERMAP YES    setenv USE_HEADER_SYMLINKS NO    setenv VALIDATE_PRODUCT NO    setenv VALID_ARCHS i386    setenv VERBOSE_PBXCP NO    setenv VERSIONPLIST_PATH KitchenSink-iPad.app/version.plist    setenv VERSION_INFO_BUILDER nwright    setenv VERSION_INFO_FILE KitchenSink-iPad_vers.c    setenv VERSION_INFO_STRING "\"@(#)PROGRAM:KitchenSink-iPad  PROJECT:KitchenSink-iPad-\""    setenv WEB_SRC_ROOT /Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink-iPad/build/iphone/tmp    setenv WRAPPER_EXTENSION app    setenv WRAPPER_NAME KitchenSink-iPad.app    setenv WRAPPER_SUFFIX .app    setenv XCODE_APP_SUPPORT_DIR /Developer/Library/Xcode    setenv XCODE_VERSION_ACTUAL 0322    setenv XCODE_VERSION_MAJOR 0300    setenv XCODE_VERSION_MINOR 0320    setenv YACC /Developer/usr/bin/yacc    /bin/sh -c /Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink-iPad/build/iphone/build/KitchenSink-iPad.build/Debug-iphonesimulator/KitchenSink-iPad.build/Script-B4EA72B50FBC96AA005AA7FB.sh0#
+
+CProcessInfoPlistFile /Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink-iPad/build/iphone/build/Debug-iphonesimulator/KitchenSink-iPad.app/Info.plist Info.plist
+s294539942.539466
+e294539942.544827
+r1
+xProcessInfoPlistFile
+x/Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink-iPad/build/iphone/build/Debug-iphonesimulator/KitchenSink-iPad.app/Info.plist
+xInfo.plist
+lSLF07#2@18"Process Info.plist294539942#294539942#0(0"0(0#0#96"/Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink-iPad/build/iphone/Info.plist21110825124233328#630"    cd /Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink-iPad/build/iphone    setenv PATH "/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/bin:/Developer/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin"    builtin-infoPlistUtility Info.plist -genpkginfo /Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink-iPad/build/iphone/build/Debug-iphonesimulator/KitchenSink-iPad.app/PkgInfo -expandbuildsettings -format binary -platform iphonesimulator -o /Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink-iPad/build/iphone/build/Debug-iphonesimulator/KitchenSink-iPad.app/Info.plist0#
+
+CProcessPCH /var/folders/M8/M8CBhDG5HOCz2ZP6HhwJRk+++TI/-Caches-/com.apple.Xcode.501/SharedPrecompiledHeaders/KitchenSink-iPad_Prefix-ghblxwozirvkxietkdgzxsqvvwyy/KitchenSink-iPad_Prefix.pch.gch KitchenSink-iPad_Prefix.pch normal i386 objective-c com.apple.compilers.gcc.4_2
+s294539944.295498
+e294539946.332651
+r1
+xProcessPCH
+x/var/folders/M8/M8CBhDG5HOCz2ZP6HhwJRk+++TI/-Caches-/com.apple.Xcode.501/SharedPrecompiledHeaders/KitchenSink-iPad_Prefix-ghblxwozirvkxietkdgzxsqvvwyy/KitchenSink-iPad_Prefix.pch.gch
+xKitchenSink-iPad_Prefix.pch
+xnormal
+xi386
+xobjective-c
+xcom.apple.compilers.gcc.4_2
+lSLF07#2@38"Precompile KitchenSink-iPad_Prefix.pch294539944#294539946#0(0"0(0#0#113"/Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink-iPad/build/iphone/KitchenSink-iPad_Prefix.pch4301231320#2476"    cd /Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink-iPad/build/iphone    setenv LANG en_US.US-ASCII    setenv PATH "/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/bin:/Developer/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin"    /Developer/Platforms/iPhoneSimulator.platform/Developer/usr/bin/gcc-4.2 -x objective-c-header -arch i386 -fmessage-length=0 -pipe -std=c99 -Wno-trigraphs -fpascal-strings -fasm-blocks -O0 -Wreturn-type -Wunused-variable -D__LOG__ID__=1000da51-9909-4a9e-a82f-52de59746d37 -DDEPLOYTYPE=development -DDEBUG=1 -D__IPHONE_OS_VERSION_MIN_REQUIRED=30200 -isysroot /Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator3.2.sdk -fvisibility=hidden -mmacosx-version-min=10.5 -gdwarf-2 -iquote /Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink-iPad/build/iphone/build/KitchenSink-iPad.build/Debug-iphonesimulator/KitchenSink-iPad.build/KitchenSink-iPad-generated-files.hmap -I/Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink-iPad/build/iphone/build/KitchenSink-iPad.build/Debug-iphonesimulator/KitchenSink-iPad.build/KitchenSink-iPad-own-target-headers.hmap -I/Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink-iPad/build/iphone/build/KitchenSink-iPad.build/Debug-iphonesimulator/KitchenSink-iPad.build/KitchenSink-iPad-all-target-headers.hmap -iquote /Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink-iPad/build/iphone/build/KitchenSink-iPad.build/Debug-iphonesimulator/KitchenSink-iPad.build/KitchenSink-iPad-project-headers.hmap -F/Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink-iPad/build/iphone/build/Debug-iphonesimulator -I/Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink-iPad/build/iphone/build/Debug-iphonesimulator/include -I/Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink-iPad/build/iphone/build/KitchenSink-iPad.build/Debug-iphonesimulator/KitchenSink-iPad.build/DerivedSources/i386 -I/Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink-iPad/build/iphone/build/KitchenSink-iPad.build/Debug-iphonesimulator/KitchenSink-iPad.build/DerivedSources -c /Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink-iPad/build/iphone/KitchenSink-iPad_Prefix.pch -o /var/folders/M8/M8CBhDG5HOCz2ZP6HhwJRk+++TI/-Caches-/com.apple.Xcode.501/SharedPrecompiledHeaders/KitchenSink-iPad_Prefix-ghblxwozirvkxietkdgzxsqvvwyy/KitchenSink-iPad_Prefix.pch.gch0#
+
+CTouch /Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink-iPad/build/iphone/build/Debug-iphonesimulator/KitchenSink-iPad.app
+s294539956.778290
+e294539957.051692
+r1
+xTouch
+x/Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink-iPad/build/iphone/build/Debug-iphonesimulator/KitchenSink-iPad.app
+lSLF07#2@140"Touch /Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink-iPad/build/iphone/build/Debug-iphonesimulator/KitchenSink-iPad.app294539956#294539957#0(0"0(0#0#0"4301231320#381"    cd /Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink-iPad/build/iphone    setenv PATH "/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/bin:/Developer/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin"    /usr/bin/touch -c /Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink-iPad/build/iphone/build/Debug-iphonesimulator/KitchenSink-iPad.app0#
+
