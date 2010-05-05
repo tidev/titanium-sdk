@@ -42,7 +42,7 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 	private boolean hasControls;
 	private int height = -1;
 	private Item item;
-	
+
 	public TiTableViewRowProxyItem(TiContext tiContext)
 	{
 		super(tiContext);
@@ -68,18 +68,18 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 		rp.setTableViewItem(this);
 		setRowData(rp);
 	}
-	
+
 	public Item getRowData() {
 		return this.item;
 	}
-	
+
 	public void setRowData(TableViewRowProxy rp)
 	{
 		TiDict props = rp.getDynamicProperties();
 		hasControls = rp.hasControls();
-		
+
 		setBackgroundFromProperties(props);
-		
+
 		// Handle right image
 		boolean clearRightImage = true;
 		if (props.containsKey("hasChild")) {
@@ -102,7 +102,7 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 				clearRightImage = false;
 			}
 		}
-		
+
 		if (props.containsKey("rightImage")) {
 			String path = TiConvert.toString(props, "rightImage");
 			String url = tiContext.resolveUrl(null, path);
@@ -134,13 +134,13 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 			leftImage.setImageDrawable(null);
 			leftImage.setVisibility(GONE);
 		}
-		
+
 		if (props.containsKey("height")) {
 			if (!props.get("height").equals("auto")) {
 				height = TiConvert.toInt(props, "height");
 			}
 		}
-		
+
 		if (rp.hasControls()) {
 			ArrayList<TiViewProxy> proxies = rp.getControls();
 			int len = proxies.size();
@@ -151,11 +151,13 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 				TiUIView view = views[i];
 				TiViewProxy proxy = proxies.get(i);
 				if (view == null) {
+					if (proxy.peekView() != null) {
+						proxy.releaseViews();
+					}
 					view = proxy.getView(tiContext.getActivity());
 					views[i] = view;
-				} else {
-					view.setProxy(proxy);
 				}
+				view.setProxy(proxy);
 				view.processProperties(proxy.getDynamicProperties());
 				View v = view.getNativeView();
 				if (v.getParent() == null) {
@@ -272,8 +274,8 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 
 		content.layout(contentLeft, top, contentRight, bottom);
 	}
-	
-	private static String[] filteredProperties = new String[]{ 
+
+	private static String[] filteredProperties = new String[]{
 		"backgroundImage", "backgroundColor"
 	};
 	private TiDict filterProperties(TiDict d)
@@ -286,7 +288,7 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 		}
 		return filtered;
 	}
-	
+
 	@Override
 	public boolean providesOwnSelector() {
 		return true;

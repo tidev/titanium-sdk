@@ -168,7 +168,7 @@ public class TiProxy implements Handler.Callback, TiDynamicMethod, OnEventListen
 		}
 		return result;
 	}
-	
+
 	public boolean hasDynamicValue(String key) {
 		if (dynprops == null) {
 			return false;
@@ -214,7 +214,9 @@ public class TiProxy implements Handler.Callback, TiDynamicMethod, OnEventListen
 	public int addEventListener(String eventName, Object listener) {
 		int listenerId = -1;
 
-		Log.i(LCAT, "Adding listener for \"" + eventName + "\": " + listener.getClass().getName());
+		if (DBG) {
+			Log.i(LCAT, "Adding listener for \"" + eventName + "\": " + listener.getClass().getName());
+		}
 		TiContext ctx = getTiContext();
 		if (ctx != null) {
 			listenerId = ctx.addEventListener(eventName, this, listener);

@@ -250,7 +250,9 @@ public abstract class TiUIView
 		} else if (key.startsWith("border")) {
 			handleBorderProperty(key, newValue);
 		} else {
-			Log.i(LCAT, "Unhandled property key: " + key);
+			if (DBG) {
+				Log.i(LCAT, "Unhandled property key: " + key);
+			}
 		}
 	}
 
@@ -297,7 +299,7 @@ public abstract class TiUIView
 	private void applyCustomBackground() {
 		applyCustomBackground(true);
 	}
-	
+
 	private void applyCustomBackground(boolean reuseCurrentDrawable) {
 		if (nativeView != null && !usingCustomBackground) {
 			nativeView.setClickable(true);
@@ -348,12 +350,16 @@ public abstract class TiUIView
 
 	public void release()
 	{
-		Log.i(LCAT, "Release: " + getClass().getSimpleName());
+		if (DBG) {
+			Log.i(LCAT, "Release: " + getClass().getSimpleName());
+		}
 		View nv = getNativeView();
 		if (nv != null) {
 			if (nv instanceof ViewGroup) {
 				ViewGroup vg = (ViewGroup) nv;
-				Log.d(LCAT, "Group has: " + vg.getChildCount());
+				if (DBG) {
+					Log.d(LCAT, "Group has: " + vg.getChildCount());
+				}
 				vg.removeAllViews();
 			}
 		}
@@ -523,7 +529,7 @@ public abstract class TiUIView
 					return handledTap || handledClick;
 				}
 			});
-		
+
 		touchable.setOnTouchListener(new OnTouchListener() {
 			public boolean onTouch(View view, MotionEvent event) {
 				boolean handled = detector.onTouchEvent(event);

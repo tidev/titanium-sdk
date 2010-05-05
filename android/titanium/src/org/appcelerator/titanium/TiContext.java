@@ -109,7 +109,9 @@ public class TiContext implements TiEvaluator, ITiMenuDispatcherListener, ErrorR
 				p.fireSingleEvent(eventName, listener, data);
 				invoked = true;
 			} else {
-				Log.w(LCAT, "Unable to fire event with eventName '" + eventName + "' references were garbage collected.");
+				if (DBG) {
+					Log.w(LCAT, "Unable to fire event with eventName '" + eventName + "' references were garbage collected.");
+				}
 			}
 
 			return invoked;
@@ -291,7 +293,9 @@ public class TiContext implements TiEvaluator, ITiMenuDispatcherListener, ErrorR
 				Message msg = Message.obtain();
 				msg.what = messageId;
 				messenger.send(msg);
-				Log.e(LCAT, "Notifying caller that evalFile has completed");
+				if (DBG) {
+					Log.d(LCAT, "Notifying caller that evalFile has completed");
+				}
 			} catch(RemoteException e) {
 				Log.w(LCAT, "Failed to notify caller that eval completed");
 			}
@@ -368,7 +372,9 @@ public class TiContext implements TiEvaluator, ITiMenuDispatcherListener, ErrorR
 
 						listenerId = listenerIdGenerator.incrementAndGet();
 						listeners.put(listenerId, new TiListener(tiProxy, listener));
-						Log.i(LCAT, "Added for eventName '" + eventName + "' with id " + listenerId);
+						if (DBG) {
+							Log.d(LCAT, "Added for eventName '" + eventName + "' with id " + listenerId);
+						}
 						dispatchOnEventChange(true, eventName, listeners.size(), tiProxy);
 					}
 				} else {
@@ -391,10 +397,14 @@ public class TiContext implements TiEvaluator, ITiMenuDispatcherListener, ErrorR
 			if (listeners != null) {
 				TiListener listener = listeners.get(listenerId);
 				if (listeners.remove(listenerId) == null) {
-					Log.w(LCAT, "listenerId " + listenerId + " not for eventName '" + eventName + "'");
+					if (DBG) {
+						Log.w(LCAT, "listenerId " + listenerId + " not for eventName '" + eventName + "'");
+					}
 				} else {
 					dispatchOnEventChange(false, eventName, listeners.size(), listener.weakTiProxy.get());
-					Log.i(LCAT, "listener with id " + listenerId + " with eventName '" + eventName + "' was removed.");
+					if (DBG) {
+						Log.i(LCAT, "listener with id " + listenerId + " with eventName '" + eventName + "' was removed.");
+					}
 				}
 			}
 		} else {

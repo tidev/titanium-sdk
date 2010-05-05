@@ -77,6 +77,11 @@
 
 //	Sadly, there was a brilliant solution for fixing the blurring here, but it turns out there's a 
 //	quicker fix: Make sure the label itself has an even height and width. Everything else is irrelevant.
+-(void)setCenter:(CGPoint)newCenter
+{
+	[super setCenter:CGPointMake(floorf(newCenter.x), floorf(newCenter.y))];
+}
+
 
 -(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
 {

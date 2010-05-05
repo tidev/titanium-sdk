@@ -234,7 +234,9 @@ public class TiUIImageView extends TiUIView
 					}
 					repeatIndex++;
 				}
-				Log.d(LCAT, "TIME TO LOAD FRAMES: "+(System.currentTimeMillis()-time)+"ms");
+				if (DBG) {
+					Log.d(LCAT, "TIME TO LOAD FRAMES: "+(System.currentTimeMillis()-time)+"ms");
+				}
 			}
 			animating.set(false);
 		}
@@ -252,7 +254,9 @@ public class TiUIImageView extends TiUIView
 		TiUIImageView.this.images = images;
 		loader = new Loader();
 		Thread loaderThread = new Thread(loader);
-		Log.d(LCAT, "STARTING LOADER THREAD "+loaderThread +" for "+this);
+		if (DBG) {
+			Log.d(LCAT, "STARTING LOADER THREAD "+loaderThread +" for "+this);
+		}
 		loaderThread.start();
 	}
 
@@ -307,7 +311,9 @@ public class TiUIImageView extends TiUIView
 		{
 			try {
 				BitmapWithIndex b = loader.getBitmapQueue().take();
-				Log.d(LCAT, "set image: "+b.index);
+				if (DBG) {
+					Log.d(LCAT, "set image: "+b.index);
+				}
 				setImage(b.bitmap);
 				fireChange(b.index);
 			} catch (InterruptedException e) {
