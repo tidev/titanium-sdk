@@ -1,35 +1,37 @@
-Titanium.include('soap_client_library.js');
+Titanium.include('suds.js');
+var window = Ti.UI.currentWindow;
+var label = Ti.UI.createLabel({
+    top: 10,
+    left: 10,
+    width: 'auto',
+    height: 'auto',
+    text: 'Contacting currency rates web service...'
+});
+
+window.add(label);
 
 
 var url = "http://www.webservicex.net/CurrencyConvertor.asmx";
-var pl = new SOAPClientParameters();
+var callparams = {
+    FromCurrency: 'EUR',
+    ToCurrency: 'USD'
+};
 
-SOAPClient.invoke(url,"ConversionRate",pl,true,function(r)
-{
-	Ti.API.info('r.length ' + r.length)
-	var data = [];
-	var letter = null;
-	for (var c=0;c<r.length;c++)
-	{
-		// this is particular to this webservice which has multiple lists - just break at ALL
-		if (!r[c].CurrencyName)
-		{
-			break;
-		}
-		data[c] = {title:r[c].CurrencyName+' ('+r[c].CurrencyShortName+')'};
-		try
-		{
-			if (r[c] && (letter == null || letter!=r[c].CurrencyName.charAt(0)))
-			{
-				letter = r[c].CurrencyName.charAt(0);
-				data[c].header = letter;
-			}
-		}
-		catch(X)
-		{
-			console.error(X);
-		}
-	}
-	var tableView = Titanium.UI.createTableView({data:data});
-	Titanium.UI.currentWindow.add(tableView);
+var suds = new SudsClient({
+    endpoint: url,
+    targetNamespace: 'http://www.webserviceX.NET/'
 });
+
+try {
+    suds.invoke('ConversionRate', callparams, function(xmlDoc) {
+        var results = xmlDoc.documentElement.getElementsByTagName('ConversionRateResult');
+        if (results && results.length>0) {
+            var result = results.item(0);
+            label.text = '1 Euro buys you ' + results.item(0).text + ' U.S. Dollars.';
+        } else {
+            label.text = 'Oops, could not determine result of SOAP call.';
+        }
+    });
+} catch(e) {
+    Ti.API.error('Error: ' + e);
+}
