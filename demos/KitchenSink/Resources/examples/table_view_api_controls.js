@@ -49,6 +49,7 @@ var tableview = Titanium.UI.createTableView({
 // create table view event listener
 tableview.addEventListener('click', function(e)
 {
+	Ti.API.info("row click on table view. index = "+e.index+", row = "+e.row+", section = "+e.section+", source="+e.source);
 
 	// event data
 	var index = e.index;

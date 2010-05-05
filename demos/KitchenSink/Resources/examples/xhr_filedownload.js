@@ -24,9 +24,10 @@ var b1 = Titanium.UI.createButton({
 	top:70
 });
 win.add(b1);
+var c = null;
 b1.addEventListener('click', function()
 {
-	var c = Titanium.Network.createHTTPClient();
+	c = Titanium.Network.createHTTPClient();
 	
 	c.setTimeout(10000);
 	c.onload = function()
@@ -77,7 +78,7 @@ var b2 = Titanium.UI.createButton({
 });
 b2.addEventListener('click', function()
 {
-	var c = Titanium.Network.createHTTPClient();
+	c = Titanium.Network.createHTTPClient();
 
 	c.onload = function()
 	{

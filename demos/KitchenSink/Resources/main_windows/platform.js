@@ -15,7 +15,9 @@ var data = [
 	{title:'XML DOM', hasChild:true, test:'../examples/xml_dom.js'},
 	{title:'XML RSS', hasChild:true, test:'../examples/xml_rss.js'},
 	{title:'Utils', hasChild:true, test:'../examples/utils.js'},
-	{title:'JSON', hasChild:true, test:'../examples/json.js'}
+	{title:'JSON', hasChild:true, test:'../examples/json.js'},
+	{title:'JS search', hasChild:true, test:'../examples/search_case_insensitive.js'}
+
 ];
 
 if (Titanium.Platform.name == 'iPhone OS')
