@@ -11,6 +11,7 @@ import java.util.Arrays;
 
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiDict;
+import org.appcelerator.titanium.TiProxy;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.AsyncResult;
 import org.appcelerator.titanium.util.TiConfig;
@@ -45,6 +46,7 @@ public class TableViewProxy extends TiViewProxy
 	public TableViewProxy(TiContext tiContext, Object[] args) {
 		super(tiContext, args);
 		
+		tiContext.addOnEventChangeListener(this);
 		Object o = getDynamicValue("data");
 		if (o != null) {
 			processData((Object[]) o);
@@ -333,5 +335,32 @@ public class TableViewProxy extends TiViewProxy
 		}
 
 		return super.handleMessage(msg);
+	}
+	
+
+	// labels only send out click events when they are explicitly told to do so.
+	// we need to tell each label child to enable clicks when a click listener is added
+	@Override
+	public void eventListenerAdded(String eventName, int count, TiProxy proxy) {
+		super.eventListenerAdded(eventName, count, proxy);
+		if (eventName.equals("click") && proxy == this) {
+			for (TableViewSectionProxy section : getSections()) {
+				for (TableViewRowProxy row : section.getRows()) {
+					row.setLabelsClickable(true);
+				}
+			}
+		}
+	}
+	
+	@Override
+	public void eventListenerRemoved(String eventName, int count, TiProxy proxy) {
+		super.eventListenerRemoved(eventName, count, proxy);
+		if (eventName.equals("click") && count == 0 && proxy == this) {
+			for (TableViewSectionProxy section : getSections()) {
+				for (TableViewRowProxy row : section.getRows()) {
+					row.setLabelsClickable(false);
+				}
+			}
+		}
 	}
 }

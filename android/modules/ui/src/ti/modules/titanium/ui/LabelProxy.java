@@ -12,10 +12,12 @@ import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.ui.widget.TiUILabel;
+import ti.modules.titanium.ui.widget.tableview.TiTableViewRowProxyItem;
 import android.app.Activity;
 
 public class LabelProxy extends TiViewProxy
 {
+	private boolean clickable = false;
 	public LabelProxy(TiContext tiContext, Object[] args)
 	{
 		super(tiContext, args);
@@ -25,7 +27,11 @@ public class LabelProxy extends TiViewProxy
 	@Override
 	public TiUIView createView(Activity activity)
 	{
-		return new TiUILabel(this);
+		TiUILabel label = new TiUILabel(this);
+		if (clickable) {
+			label.setClickable(true);
+		}
+		return label;
 	}
 	
 	@Override
@@ -44,5 +50,13 @@ public class LabelProxy extends TiViewProxy
 		if (eventName.equals("click") && count == 0) {
 			((TiUILabel)getView(getTiContext().getActivity())).setClickable(false);
 		}
+	}
+	
+	public void setClickable(boolean clickable) {
+		TiUILabel label = (TiUILabel)getView(getTiContext().getActivity());
+		if (label != null) {
+			label.setClickable(clickable);
+		}
+		this.clickable = clickable;
 	}
 }
