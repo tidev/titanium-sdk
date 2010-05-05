@@ -5,6 +5,7 @@ var data = [
 	{title:'Geolocation', hasChild:true, test:'../examples/geolocation.js'},
 	{title:'Accelerometer', hasChild:true, test:'../examples/accelerometer.js'},
 	{title:'Sound', hasChild:true, test:'../examples/sound.js'},
+ //{title:'Contacts', hasChild:true, test:'../examples/contacts.js'},
 	{title:'Photo Gallery', hasChild:true, test:'../examples/photo_gallery.js'}
 ];
 

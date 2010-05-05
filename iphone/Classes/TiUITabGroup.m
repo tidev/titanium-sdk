@@ -89,10 +89,12 @@ DEFINE_EXCEPTIONS
 
 	[self.proxy fireEvent:@"blur" withObject:event];
 	[focused handleDidBlur:event];
+    [focused replaceValue:[NSNumber numberWithBool:NO] forKey:@"active" notification:NO];
 	
 	RELEASE_TO_NIL(focused);
 	focused = [newFocus retain];
 	[self.proxy replaceValue:focused forKey:@"activeTab" notification:NO];
+    [focused replaceValue:[NSNumber numberWithBool:YES] forKey:@"active" notification:NO];
 
 	[self.proxy fireEvent:@"focus" withObject:event];
 	[focused handleDidFocus:event];
