@@ -79,7 +79,9 @@ public class WindowProxy extends TiWindowProxy
 	@Override
 	protected void handleOpen(TiDict options)
 	{
-		Log.i(LCAT, "handleOpen");
+		if (DBG) {
+			Log.i(LCAT, "handleOpen");
+		}
 
 		Messenger messenger = new Messenger(getUIHandler());
 		view = new TiUIWindow(this, options, messenger, MSG_FINISH_OPEN);
@@ -94,7 +96,9 @@ public class WindowProxy extends TiWindowProxy
 	@Override
 	protected void handleClose(TiDict options)
 	{
-		Log.i(LCAT, "handleClose");
+		if (DBG) {
+			Log.i(LCAT, "handleClose");
+		}
 		fireEvent("close", null);
 
 		if (view != null) {

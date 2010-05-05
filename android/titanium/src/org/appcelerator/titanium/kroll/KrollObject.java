@@ -82,9 +82,13 @@ public class KrollObject extends ScriptableObject
 		KrollContext kroll = weakKrollContext.get();
 		Scriptable scope = kroll.getScope();
 
-		Log.e(LCAT, "getModulePath(): " + getClassName());
+		if (DBG) {
+			Log.e(LCAT, "getModulePath(): " + getClassName());
+		}
 		if (target != null) {
-			Log.e(LCAT, "targetPath: " + target.getClass().getPackage().getName());
+			if (DBG) {
+				Log.e(LCAT, "targetPath: " + target.getClass().getPackage().getName());
+			}
 			return target.getClass().getPackage().getName() + ".";
 		}
 
@@ -184,7 +188,9 @@ public class KrollObject extends ScriptableObject
 		boolean isSetter = setMethod != null && setMethod.getParameterTypes().length == 1;
 
 		if (isGetter || isSetter) {
-			Log.i(LCAT, "Treating as property: " + pname);
+			if (DBG) {
+				Log.d(LCAT, "Treating as property: " + pname);
+			}
 			boolean getRetrieved = false;
 			if (getMethod != null) {
 				// add getter
@@ -278,7 +284,9 @@ public class KrollObject extends ScriptableObject
 		Method getMethod = (Method) loadMethod(target.getClass(), "getDynamicValue");
 		Method setMethod = (Method) loadMethod(target.getClass(), "setDynamicValue");
 
-		Log.i(LCAT, "Treating as dynamic property: " + name);
+		if (DBG) {
+			Log.d(LCAT, "Treating as dynamic property: " + name);
+		}
 		// add getter
 		KrollMethod getterKm  = new KrollMethod(this, target, getMethod, KrollMethodType.KrollMethodDynamic, pname);
 		setGetterOrSetter(pname, 0, getterKm, false);
@@ -337,7 +345,9 @@ public class KrollObject extends ScriptableObject
 	public void put(int arg0, Scriptable arg1, Object arg2) {
 		// TODO Auto-generated method stub
 		super.put(arg0, arg1, arg2);
-		Log.w(LCAT, "Put[]");
+		if (DBG) {
+			Log.w(LCAT, "Put[]");
+		}
 	}
 
 	public void superPut(String name, Scriptable start, Object value) {
@@ -388,7 +398,9 @@ public class KrollObject extends ScriptableObject
 		Object p = null;
 
 		String moduleName = createModuleName(name);
-		Log.d(LCAT, "Module: " + moduleName);
+		if (DBG) {
+			Log.d(LCAT, "Module: " + moduleName);
+		}
 
 		try {
 			Class<?> c = Class.forName(moduleName);
@@ -569,7 +581,9 @@ public class KrollObject extends ScriptableObject
 		Object[] a = new Object[len];
 		for(int i = 0; i < len; i++) {
 			Object v = svalue.get(i, svalue);
-			Log.i(LCAT, "Index: " + i + " value: " + v + " type: " + v.getClass().getName());
+			if (DBG) {
+				Log.d(LCAT, "Index: " + i + " value: " + v + " type: " + v.getClass().getName());
+			}
 			a[i] = toNative(v, Object.class);
 		}
 		return a;

@@ -254,7 +254,9 @@ public class TiCompositeLayout extends ViewGroup
 
 		if (needsSort) {
 			if (count > 1) { // No need to sort one item.
-				Log.e("SORTING", "Sorting.....");
+				if (DBG) {
+					Log.e("SORTING", "Sorting.....");
+				}
 				viewSorter.clear();
 
 				for(int i = 0; i < count; i++) {

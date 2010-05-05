@@ -16,7 +16,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
-import java.util.concurrent.Semaphore;
 
 import org.appcelerator.titanium.analytics.TiAnalyticsEvent;
 import org.appcelerator.titanium.analytics.TiAnalyticsEventFactory;
@@ -27,17 +26,8 @@ import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiPlatformHelper;
 import org.appcelerator.titanium.view.ITiWindowHandler;
 
-import android.app.Activity;
-import android.app.AlertDialog;
 import android.app.Application;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.DialogInterface.OnClickListener;
-import android.graphics.Color;
-import android.os.Process;
-import android.widget.FrameLayout;
-import android.widget.LinearLayout;
-import android.widget.TextView;
 
 // Naming TiHost to more closely match other implementations
 public class TiApplication extends Application
@@ -90,7 +80,7 @@ public class TiApplication extends Application
 		});
 
 		//TODO read from tiapp.xml
-		TiConfig.LOGD = true;
+		//TiConfig.LOGD = true;
 
 		baseUrl = "file:///android_asset/Resources/";
 
@@ -104,6 +94,8 @@ public class TiApplication extends Application
 
 		appProperties = new TiProperties(getApplicationContext(), "titanium", false);
 		systemProperties = new TiProperties(getApplicationContext(), "system", true);
+
+		TiConfig.LOGD = systemProperties.getBool("ti.android.debug", false);
 	}
 
 	public void setRootActivity(TiRootActivity rootActivity) {
@@ -230,7 +222,7 @@ public class TiApplication extends Application
 	{
 		return appProperties;
 	}
-	
+
 	public TiProperties getSystemProperties()
 	{
 		return systemProperties;

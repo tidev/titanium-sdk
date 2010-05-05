@@ -152,9 +152,11 @@ public class TiUIWindow extends TiUIView
 			String url = props.getString("url");
 			String baseUrl = proxy.getTiContext().getBaseUrl();
 
-			Log.e(LCAT, "BASEURL: " + baseUrl);
-			if (url != null) {
-				Log.e(LCAT, "RELURL: " + url);
+			if (DBG) {
+				Log.e(LCAT, "BASEURL: " + baseUrl);
+				if (url != null) {
+					Log.e(LCAT, "RELURL: " + url);
+				}
 			}
 
 			try {
@@ -318,7 +320,9 @@ public class TiUIWindow extends TiUIView
 	{
 		switch (msg.what) {
 			case MSG_ACTIVITY_CREATED :
-				Log.w(LCAT, "Received Activity creation message");
+				if (DBG) {
+					Log.w(LCAT, "Received Activity creation message");
+				}
 				windowActivity = (Activity) msg.obj;
 				proxy.setModelListener(this);
 
