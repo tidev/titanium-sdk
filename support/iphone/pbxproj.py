@@ -23,7 +23,7 @@ class PBXProj(object):
 			path = os.path.abspath(os.path.join(path,name))
 		self.static_libs.append((name,path,os.path.dirname(path)))
 		
-	def parse(self,file):
+	def parse(self,f):
 		contents = open(os.path.expanduser(f)).read()
 		file_markers = []
 		ref_markers = []
@@ -48,8 +48,6 @@ class PBXProj(object):
 		file_markers_to_file_refs = {}
 		file_markers_to_frameworks = {}
 		group_uuid = None
-		for file in file_markers: print file
-		for file in framework_markers: print file
 		for fm in file_markers:
 			m = re.search(r'([0-9a-zA-Z]+) /*',fm)
 			uuid = m.group(1).strip()
@@ -72,9 +70,6 @@ class PBXProj(object):
 				m = re.search(r'([0-9a-zA-Z]+) /*',fm)
 				new_uuid = file_markers_to_file_refs[m.group(1)]
 				line = line.replace(m.group(1),new_uuid)
-				print fm
-				print line
-				print "-"*80
 				contents = contents[0:end] + '\n' + line + '\n' + contents[end+1:]
 			for rm in ref_markers:
 				begin = contents.find(rm)
@@ -86,8 +81,6 @@ class PBXProj(object):
 				m = re.search(r'([0-9a-zA-Z]+) /*',rm)
 				uuid = m.group(1).strip()
 				line = line.replace(uuid,new_group_uuid)
-				print rm
-				print line
 				contents = contents[0:end] + '\n' + line + '\n' + contents[end+1:]
 			for gm in group_markers:
 				begin = contents.find(gm)

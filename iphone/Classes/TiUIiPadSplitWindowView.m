@@ -9,7 +9,10 @@
 #import "TiViewController.h"
 #import "TitaniumApp.h"
 #import "TiUIiPadPopoverProxy.h"
+
+#ifdef USE_TI_UIIPADSPLITWINDOWBUTTON
 #import "TiUIiPadSplitWindowButtonProxy.h"
+#endif
 
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
 
@@ -126,9 +129,11 @@
 	if ([self.proxy _hasListeners:@"visible"])
 	{
 		NSMutableDictionary *event = [NSMutableDictionary dictionaryWithObject:@"detail" forKey:@"view"];
+#ifdef USE_TI_UIIPADSPLITWINDOWBUTTON
 		TiUIiPadSplitWindowButtonProxy *button = [[TiUIiPadSplitWindowButtonProxy alloc] initWithButton:barButtonItem pageContext:[self.proxy pageContext]];
 		[event setObject:button forKey:@"button"];
 		[button release];
+#endif		
 		[event setValue:[self makePopoverProxy:pc] forKey:@"popover"];
 		[self.proxy fireEvent:@"visible" withObject:event];
 	}

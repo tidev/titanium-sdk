@@ -76,6 +76,7 @@ def main(args):
 	debug = False
 	simulator = False
 	xcode_build = False
+	force_xcode = False
 
 	if command == 'xcode':
 		xcode_build = True
@@ -155,6 +156,7 @@ def main(args):
 			tp_modules.append(tp_module)
 			tp_lib_search_path.append([libname,os.path.abspath(tp_module)])	
 			print "[INFO] Detected third-party module: %s/%s" % (tp_name,tp_version)
+			force_xcode = True
 		
 			# # copy module resources
 			# img_dir = os.path.join(tp_dir,'assets','images')
@@ -309,7 +311,7 @@ def main(args):
 				# the app hasn't yet been built initially
 				log_id = ti.properties['guid']
 				
-				if force_rebuild or not os.path.exists(binary):
+				if force_rebuild or force_xcode or not os.path.exists(binary):
 					shutil.copy(os.path.join(template_dir,'Classes','defines.h'),os.path.join(iphone_dir,'Classes','defines.h'))
 					execute_xcode("iphonesimulator%s" % iphone_version,["GCC_PREPROCESSOR_DEFINITIONS=__LOG__ID__=%s DEPLOYTYPE=development DEBUG=1 TI_VERSION=%s" % (log_id,sdk_version)])
 				
