@@ -9,11 +9,15 @@ import os, sys, uuid, subprocess, shutil, signal, time, re, run, glob, codecs, h
 from compiler import Compiler
 from projector import Projector
 from pbxproj import PBXProj
+from os.path import join, splitext, split, exists
 
 template_dir = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
 sys.path.append(os.path.join(template_dir,'../'))
 
 from tiapp import *
+
+ignoreFiles = ['.gitignore', '.cvsignore']
+ignoreDirs = ['.git','.svn', 'CVS']
 
 def dequote(s):
 	if s[0:1] == '"':
@@ -50,6 +54,28 @@ def infoplist_has_appid(f,appid):
 		contents = open(f).read()
 		return contents.find(appid)>0
 	return False
+		
+def copy_module_resources(source, target, copy_all=False, force=False):
+	if not os.path.exists(os.path.expanduser(target)):
+		os.mkdirs(os.path.expanduser(target))
+	for root, dirs, files in os.walk(source):
+		for name in ignoreDirs:
+			if name in dirs:
+				dirs.remove(name)	# don't visit ignored directories			  
+		for file in files:
+			if copy_all==False and splitext(file)[-1] in ('.html', '.js', '.css', '.a', '.m', '.c', '.cpp', '.h', '.mm'):
+				continue
+			if file in ignoreFiles:
+				continue
+			from_ = os.path.join(root, file)			  
+			to_ = os.path.expanduser(from_.replace(source, target, 1))
+			to_directory = os.path.expanduser(split(to_)[0])
+			if not exists(to_directory):
+				os.makedirs(to_directory)
+			# only copy if different filesize or doesn't exist
+			if not os.path.exists(to_) or os.path.getsize(from_)!=os.path.getsize(to_) or force:
+				if os.path.exists(to_): os.remove(to_)
+				shutil.copyfile(from_, to_)
 				
 def main(args):
 	argc = len(args)
@@ -119,6 +145,35 @@ def main(args):
 		target = 'Release'
 		ostype = 'os'
 		
+		if command == 'distribute':
+			appuuid = dequote(args[6].decode("utf-8"))
+			dist_name = dequote(args[7].decode("utf-8"))
+			output_dir = os.path.expanduser(dequote(args[8].decode("utf-8")))
+			if argc > 9:
+				devicefamily = dequote(args[9].decode("utf-8"))
+			deploytype = 'production'
+		elif command == 'simulator':
+			deploytype = 'development'
+			debug = True
+			simulator = True
+			target = 'Debug'
+			ostype = 'simulator'
+			if argc > 6:
+				devicefamily = dequote(args[6].decode("utf-8"))
+		elif command == 'install':
+			appuuid = dequote(args[6].decode("utf-8"))
+			dist_name = dequote(args[7].decode("utf-8"))
+			if argc > 8:
+				devicefamily = dequote(args[8].decode("utf-8"))
+			deploytype = 'test'
+		
+		build_dir = os.path.abspath(os.path.join(iphone_dir,'build','%s-iphone%s'%(target,ostype)))
+		app_dir = os.path.abspath(os.path.join(build_dir,name+'.app'))
+		binary = os.path.join(app_dir,name)
+		sdk_version = os.path.basename(os.path.abspath(os.path.join(template_dir,'../')))
+		force_rebuild = read_project_version(project_xcconfig)!=sdk_version
+		infoplist = os.path.join(iphone_dir,'Info.plist')
+
 		# find the module directory relative to the root of the SDK	
 		tp_module_dir = os.path.abspath(os.path.join(template_dir,'..','..','..','..','modules','iphone'))
 		tp_modules = []
@@ -158,43 +213,13 @@ def main(args):
 			print "[INFO] Detected third-party module: %s/%s" % (tp_name,tp_version)
 			force_xcode = True
 		
-			# # copy module resources
-			# img_dir = os.path.join(tp_dir,'assets','images')
-			# if os.path.exists(img_dir):
-			# 	dest_img_dir = os.path.join(iphone_tmp_dir,'modules',tp_name,'images')
-			# 	if os.path.exists(dest_img_dir):
-			# 		shutil.rmtree(dest_img_dir)
-			# 	os.makedirs(dest_img_dir)
-			# 	copy_module_resources(img_dir,dest_img_dir)
-		
-		if command == 'distribute':
-			appuuid = dequote(args[6].decode("utf-8"))
-			dist_name = dequote(args[7].decode("utf-8"))
-			output_dir = os.path.expanduser(dequote(args[8].decode("utf-8")))
-			if argc > 9:
-				devicefamily = dequote(args[9].decode("utf-8"))
-			deploytype = 'production'
-		elif command == 'simulator':
-			deploytype = 'development'
-			debug = True
-			simulator = True
-			target = 'Debug'
-			ostype = 'simulator'
-			if argc > 6:
-				devicefamily = dequote(args[6].decode("utf-8"))
-		elif command == 'install':
-			appuuid = dequote(args[6].decode("utf-8"))
-			dist_name = dequote(args[7].decode("utf-8"))
-			if argc > 8:
-				devicefamily = dequote(args[8].decode("utf-8"))
-			deploytype = 'test'
-		
-		build_dir = os.path.abspath(os.path.join(iphone_dir,'build','%s-iphone%s'%(target,ostype)))
-		app_dir = os.path.abspath(os.path.join(build_dir,name+'.app'))
-		binary = os.path.join(app_dir,name)
-		sdk_version = os.path.basename(os.path.abspath(os.path.join(template_dir,'../')))
-		force_rebuild = read_project_version(project_xcconfig)!=sdk_version
-		infoplist = os.path.join(iphone_dir,'Info.plist')
+			# copy module resources
+			img_dir = os.path.join(tp_dir,'assets','images')
+			if os.path.exists(img_dir):
+				dest_img_dir = os.path.join(app_dir,'modules',tp_name,'images')
+				if not os.path.exists(dest_img_dir):
+					os.makedirs(dest_img_dir)
+				copy_module_resources(img_dir,dest_img_dir)
 		
 		print "[INFO] Titanium SDK version: %s" % sdk_version
 		print "[INFO] iPhone Device family: %s" % devicefamily
