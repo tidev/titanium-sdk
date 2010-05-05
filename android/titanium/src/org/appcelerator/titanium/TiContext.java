@@ -508,7 +508,9 @@ public class TiContext implements TiEvaluator, ITiMenuDispatcherListener, ErrorR
 							boolean invoked = false;
 							try {
 								if (listener.weakTiProxy.get() != null) {
-									data.put("source", listener.weakTiProxy.get());
+									if (!data.containsKey("source")) {
+										data.put("source", listener.weakTiProxy.get());
+									}
 									invoked = listener.invoke(eventName, data);
 								}
 							} catch (Exception e) {

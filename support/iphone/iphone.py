@@ -78,6 +78,13 @@ class IPhone(object):
 		gitignore = open(os.path.join(iphone_dir,'Resources','.gitignore'),'w')
 		# exclude generated files
 		gitignore.write(".simulator\n")
+		gitignore.write("libTiCore.a\n")
+		gitignore.write("libTitanium.a\n")
+		gitignore.close()
+
+		gitignore = open(os.path.join(iphone_dir,'lib','.gitignore'),'w')
+		# exclude lib since it's dynamic
+		gitignore.write("libTiCore.a\n")
 		gitignore.close()
 
 		main_dest = open(os.path.join(iphone_dir,'main.m'),'w')

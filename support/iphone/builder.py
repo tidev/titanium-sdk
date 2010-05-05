@@ -173,7 +173,8 @@ def main(args):
 		app_dir = os.path.abspath(os.path.join(build_dir,name+'.app'))
 		binary = os.path.join(app_dir,name)
 		sdk_version = os.path.basename(os.path.abspath(os.path.join(template_dir,'../')))
-		force_rebuild = read_project_version(project_xcconfig)!=sdk_version
+		version_file = os.path.join(iphone_resources_dir,'.simulator')
+		force_rebuild = read_project_version(project_xcconfig)!=sdk_version or not os.path.exists(version_file)
 		infoplist = os.path.join(iphone_dir,'Info.plist')
 
 		# find the module directory relative to the root of the SDK	
@@ -227,20 +228,6 @@ def main(args):
 		print "[INFO] iPhone Device family: %s" % devicefamily
 		print "[INFO] iPhone SDK version: %s" % iphone_version
 
-		# write out any modules into the xcode project
-		if len(tp_lib_search_path)>0:
-			proj = PBXProj()
-			xcode_proj = os.path.join(iphone_dir,'%s.xcodeproj'%name,'project.pbxproj')
-			current_xcode = open(xcode_proj).read()
-			for tp in tp_lib_search_path:
-				proj.add_static_library(tp[0],tp[1])
-			out = proj.parse(xcode_proj)
-			# since xcode changes can be destructive, only write as necessary (if changed)
-			if current_xcode!=out:
-				o = open(xcode_proj,'w')
-				o.write(out)
-				o.close()
-		
 		# check to see if the appid is different (or not specified) - we need to re-generate
 		# the Info.plist before we actually invoke the compiler in this case
 		if read_project_appid(project_xcconfig)!=appid or not infoplist_has_appid(infoplist,appid):
@@ -255,7 +242,6 @@ def main(args):
 		lib_hash = None	
 		if simulator:
 			iphone_resources_dir = os.path.join(iphone_dir,'Resources')
-			version_file = os.path.join(iphone_resources_dir,'.simulator')
 			
 		if simulator and force_xcode==False:
 			if os.path.exists(app_dir):
@@ -303,6 +289,21 @@ def main(args):
 			xcconfig.write("TI_APPID=%s\n" % appid)
 			xcconfig.close()
 			
+		# write out any modules into the xcode project
+		# this must be done after project create above or this will be overriden
+		if len(tp_lib_search_path)>0:
+			proj = PBXProj()
+			xcode_proj = os.path.join(iphone_dir,'%s.xcodeproj'%name,'project.pbxproj')
+			current_xcode = open(xcode_proj).read()
+			for tp in tp_lib_search_path:
+				proj.add_static_library(tp[0],tp[1])
+			out = proj.parse(xcode_proj)
+			# since xcode changes can be destructive, only write as necessary (if changed)
+			if current_xcode!=out:
+				o = open(xcode_proj,'w')
+				o.write(out)
+				o.close()
+
 		cwd = os.getcwd()
 		
 		# check to see if the symlink exists and that it points to the
