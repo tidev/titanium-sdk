@@ -77,7 +77,7 @@
 	if (tableview==nil)
 	{
 		UITableViewStyle style = [TiUtils intValue:[self.proxy valueForKey:@"style"] def:UITableViewStylePlain];
-		tableview = [[UITableView alloc] initWithFrame:[self bounds] style:style];
+		tableview = [[UITableView alloc] initWithFrame:CGRectMake(0, 0, [self bounds].size.width, [self bounds].size.height) style:style];
 		tableview.delegate = self;
 		tableview.dataSource = self;
 		tableview.autoresizingMask = UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight;
