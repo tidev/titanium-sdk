@@ -6,13 +6,12 @@ var data = [
 	{title:'XML Data', hasChild:true, test:'../examples/xhr_xml.js'},
 	{title:'XML Properties', hasChild:true, test:'../examples/xhr_properties.js'},
 	{title:'File Download', hasChild:true, test:'../examples/xhr_filedownload.js'},
-	{title:'UTF-8 + GET/POST', hasChild:true, test:'../examples/xhr_utf8.js'},
-	{title:'setTimeout', hasChild:true, test:'../examples/xhr_settimeout.js'}
-
+	{title:'UTF-8 + GET/POST', hasChild:true, test:'../examples/xhr_utf8.js'}
 ];
 // add iphone specific tests
 if (Titanium.Platform.name == 'iPhone OS')
 {
+	data.push({title:'setTimeout', hasChild:true, test:'../examples/xhr_settimeout.js'});
 	data.push({title:'File Upload', hasChild:true, test:'../examples/xhr_fileupload.js'});
 }
 // create table view
