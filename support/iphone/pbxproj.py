@@ -102,11 +102,15 @@ class PBXProj(object):
 			
 			libpath = "\"\\\"$(SRCROOT)/lib\\\"\","
 			begin = contents.find(libpath)
-			end = begin + len(libpath)
-			line = contents[begin:end]
-			line = line.replace(libpath,"\"\\\"%s\\\"\"," % libdir)
-			contents = contents[0:end] + '\n                                        ' +  line + '\n' + contents[end+1:]
-			
+			while begin>0:
+				end = begin + len(libpath)
+				line = contents[begin:end]
+				line = line.replace(libpath,"\"\\\"%s\\\"\"," % libdir)
+				contents = contents[0:end] + '\n                                        ' +  line + '\n' + contents[end+1:]
+				begin = contents.find(libpath,end)
+				
+			contents = contents.replace('Resources-iPad/MainWindow.xib','Resources/MainWindow.xib')	
+			contents = contents.replace('path = MainWindow.xib;','path = Resources/MainWindow.xib;')	
 				
 		return contents	
 

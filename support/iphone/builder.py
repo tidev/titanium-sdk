@@ -76,6 +76,17 @@ def copy_module_resources(source, target, copy_all=False, force=False):
 			if not os.path.exists(to_) or os.path.getsize(from_)!=os.path.getsize(to_) or force:
 				if os.path.exists(to_): os.remove(to_)
 				shutil.copyfile(from_, to_)
+
+def make_appname(s):
+	r = re.compile('[0-9a-zA-Z_]')
+	buf = ''
+	for i in s:
+		if r.match(i)!=None:
+			buf+=i
+	# if name starts with number, we simply append a k to it
+	if re.match('^[0-9]+',buf):
+		buf = 'k%s' % buf
+	return buf
 				
 def main(args):
 	argc = len(args)
@@ -169,10 +180,12 @@ def main(args):
 				devicefamily = dequote(args[8].decode("utf-8"))
 			deploytype = 'test'
 		
-		build_dir = os.path.abspath(os.path.join(iphone_dir,'build','%s-iphone%s'%(target,ostype)))
+		build_out_dir = os.path.abspath(os.path.join(iphone_dir,'build'))
+		build_dir = os.path.abspath(os.path.join(build_out_dir,'%s-iphone%s'%(target,ostype)))
 		app_dir = os.path.abspath(os.path.join(build_dir,name+'.app'))
 		binary = os.path.join(app_dir,name)
 		sdk_version = os.path.basename(os.path.abspath(os.path.join(template_dir,'../')))
+		iphone_resources_dir = os.path.join(iphone_dir,'Resources')
 		version_file = os.path.join(iphone_resources_dir,'.simulator')
 		force_rebuild = read_project_version(project_xcconfig)!=sdk_version or not os.path.exists(version_file)
 		infoplist = os.path.join(iphone_dir,'Info.plist')
@@ -227,7 +240,25 @@ def main(args):
 		print "[INFO] Titanium SDK version: %s" % sdk_version
 		print "[INFO] iPhone Device family: %s" % devicefamily
 		print "[INFO] iPhone SDK version: %s" % iphone_version
-
+		
+		if devicefamily!=None:
+			xib = 'MainWindow_%s.xib' % devicefamily
+		else:
+			xib = 'MainWindow_iphone.xib'
+		s = os.path.join(template_dir,xib)
+		t = os.path.join(iphone_resources_dir,'MainWindow.xib')
+		xib_out = open(s).read()
+		xib_out = xib_out.replace('Titanium',make_appname(name))
+		xib_f = open(t,'w')
+		xib_f.write(xib_out)
+		xib_f.close()
+		
+		if not simulator:
+			version = ti.properties['version']
+			# we want to make sure in debug mode the version always changes
+			version = "%s.%d" % (version,time.time())
+			ti.properties['version']=version
+		
 		# check to see if the appid is different (or not specified) - we need to re-generate
 		# the Info.plist before we actually invoke the compiler in this case
 		if read_project_appid(project_xcconfig)!=appid or not infoplist_has_appid(infoplist,appid):
@@ -240,9 +271,7 @@ def main(args):
 		
 		new_lib_hash = None
 		lib_hash = None	
-		if simulator:
-			iphone_resources_dir = os.path.join(iphone_dir,'Resources')
-			
+		
 		if simulator and force_xcode==False:
 			if os.path.exists(app_dir):
 				if os.path.exists(version_file):
@@ -276,7 +305,7 @@ def main(args):
 		lib_hash=new_lib_hash
 					
 		if force_rebuild:
-			print "[INFO] forcing full rebuild..."
+			print "[INFO] Performing full rebuild. This will take a little bit. Hold tight..."
 			sys.stdout.flush()
 			project = Projector(name,sdk_version,template_dir,project_dir,appid)
 			project.create(template_dir,iphone_dir)	
@@ -320,31 +349,57 @@ def main(args):
 			os.chdir(os.path.join(iphone_dir,'lib'))
 			os.symlink(libticore,"libTiCore.a")
 			os.chdir(cwd)
-			
+		
+		def optimize_build():
+			return run.run(["/Developer/Platforms/iPhoneOS.platform/Developer/usr/bin/iphoneos-optimize",app_dir])
+		
 		try:		
 			os.chdir(iphone_dir)
 			
 			deploy_target = "IPHONEOS_DEPLOYMENT_TARGET=3.1"
 			device_target = 'TARGETED_DEVICE_FAMILY=iPhone'  # this is non-sensical, but you can't pass empty string
 
+			# write out the build log, useful for debugging
+			if not os.path.exists(build_out_dir): os.makedirs(build_out_dir)
+			o = open(os.path.join(build_out_dir,'build.log'),'w')
+
 			if devicefamily!=None:
 				if devicefamily == 'ipad':
 					device_target=" TARGETED_DEVICE_FAMILY=iPad"
 					deploy_target = "IPHONEOS_DEPLOYMENT_TARGET=3.2"
 			
-			def execute_xcode(sdk,extras):
+			def is_adhoc(uuid):
+				path = "~/Library/MobileDevice/Provisioning Profiles/%s.mobileprovision" % uuid
+				f = os.path.expanduser(path)
+				if os.path.exists(f):
+					c = codecs.open(f,'r','utf-8','replace').read()
+					return c.find("ProvisionedDevices")!=-1
+				return False	
+	
+			def execute_xcode(sdk,extras,print_output=True):
 				
 				args = ["xcodebuild","-configuration",target,"-sdk",sdk]
 				args += extras
 				args += [deploy_target,device_target]
 				
-				print "[DEBUG] compile checkpoint: %0.2f seconds" % (time.time()-start_time)
-				print "[INFO] Executing XCode build..."
-				print "[BEGIN_VERBOSE] Executing XCode Compiler  <span>[toggle output]</span>"
+				o.write("Starting Xcode compile with the following arguments:\n\n")
+				for arg in args: o.write("    %s\n" % arg)
+				o.write("\n\n")
+				o.flush()
+				
+				if print_output:
+					print "[DEBUG] compile checkpoint: %0.2f seconds" % (time.time()-start_time)
+					print "[INFO] Executing XCode build..."
+					print "[BEGIN_VERBOSE] Executing XCode Compiler  <span>[toggle output]</span>"
+
 				output = run.run(args)
-				print output
-				print "[END_VERBOSE]"
-				sys.stdout.flush()
+				
+				if print_output:
+					print output
+					print "[END_VERBOSE]"
+					sys.stdout.flush()
+
+				o.write(output)
 				
 				# check to make sure the user doesn't have a custom build location 
 				# configured in Xcode which currently causes issues with titanium
@@ -388,6 +443,8 @@ def main(args):
 				
 				# first make sure it's not running
 				kill_simulator()
+				
+				o.close()
 
 				# sometimes the simulator doesn't remove old log files
 				# in which case we get our logging jacked - we need to remove
@@ -488,36 +545,76 @@ def main(args):
 				
 				
 			elif command == 'install':
-				
+
 				args = [
-					"CODE_SIGN_ENTITLEMENTS=",
-					"GCC_PREPROCESSOR_DEFINITIONS='DEPLOYTYPE=test' TI_VERSION=%s" % sdk_version,
+					"GCC_PREPROCESSOR_DEFINITIONS='DEPLOYTYPE=test'",
 					"PROVISIONING_PROFILE[sdk=iphoneos*]=%s" % appuuid,
 					"CODE_SIGN_IDENTITY[sdk=iphoneos*]=iPhone Developer: %s" % dist_name
 				]
-				execute_xcode("iphoneos%s" % iphone_version,args)
+				execute_xcode("iphoneos%s" % iphone_version,args,False)
 				
 				print "[INFO] Installing application in iTunes ... one moment"
 				sys.stdout.flush()
+				
+				output = run.run(["/Developer/Platforms/iPhoneOS.platform/Developer/usr/bin/PackageApplication",app_dir,"-v"])
+				o.write(output)
+				
+				# optimize the build
+				output = optimize_build()
+				o.write(output)
 
 				# for install, launch itunes with the app
-				cmd = "open -b com.apple.itunes \"%s\"" % app_dir
+				ipa = os.path.join(os.path.dirname(app_dir),"%s.ipa" % name)
+				cmd = "open -b com.apple.itunes \"%s\"" % ipa
 				os.system(cmd)
-
+				
 				# now run our applescript to tell itunes to sync to get
 				# the application on the phone
 				ass = os.path.join(template_dir,'itunes_sync.scpt')
 				cmd = "osascript \"%s\"" % ass
 				os.system(cmd)
-
+				
 				print "[INFO] iTunes sync initiated"
+
+				o.close()
 				sys.stdout.flush()
 				sys.exit(0)
 				
 			elif command == 'distribute':
-				#FIXME
-				#FIXME- sdk_version
-				pass
+
+				# in this case, we have to do different things based on if it's
+				# an ad-hoc distribution cert or not - in the case of non-adhoc
+				# we don't use the entitlements file but in ad hoc we need to
+				adhoc_line = ""
+				deploytype = "production_adhoc"
+				if not is_adhoc(appuuid):
+					adhoc_line="CODE_SIGN_ENTITLEMENTS = Resources/Entitlements.plist"
+					deploytype = "production"
+
+				# build the final release distribution
+				args = [
+					adhoc_line,
+					"GCC_PREPROCESSOR_DEFINITIONS='DEPLOYTYPE=%s'" % deploytype,
+					"PROVISIONING_PROFILE[sdk=iphoneos*]=%s" % appuuid,
+					"CODE_SIGN_IDENTITY[sdk=iphoneos*]=iPhone Distribution: %s" % dist_name
+				]
+				execute_xcode("iphoneos%s" % iphone_version,args,False)
+
+				# optimize the build
+				output = optimize_build()
+				o.write(output)
+				o.close()
+
+				# switch to app_bundle for zip
+				os.chdir(app_bundle_folder)
+
+				outfile = os.path.join(output_dir,"%s.zip"%app_name)
+				if os.path.exists(outfile): os.remove(outfile)
+				
+				# you *must* use ditto here or it won't upload to appstore
+				os.system('ditto -ck --keepParent --sequesterRsrc "%s" "%s"' % (app_name,outfile))
+				
+				sys.exit(0)
 				
 		finally:
 			os.chdir(cwd)

@@ -4,6 +4,8 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
+#ifdef USE_TI_UITEXTFIELD
+
 #import "TiUITextField.h"
 #import "TiUITextFieldProxy.h"
 
@@ -492,3 +494,5 @@
 }
 	
 @end
+
+#endif

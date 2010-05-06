@@ -14,7 +14,7 @@ import jspacker
 from csspacker import CSSPacker
 
 ignoreFiles = ['.gitignore', '.cvsignore', '.DS_Store'];
-ignoreDirs = ['.git','.svn','_svn', 'CVS'];
+ignoreDirs = ['.git','.svn','_svn','CVS','android','iphone'];
 
 HEADER = """/**
  * Appcelerator Titanium Mobile
@@ -52,13 +52,10 @@ def dequote(s):
 		return s[1:-1]
 	return s
 	
+#
 # TODO/FIXME
 #
 # - encryptor
-# - modules
-# - iphone dir
-# - info.plist generate and template
-# - remove old files
 #
 	
 class Compiler(object):
@@ -125,9 +122,9 @@ class Compiler(object):
 
 		resources_dir = os.path.join(project_dir,'Resources')
 		iphone_resources_dir = os.path.join(resources_dir,'iphone')
-		
-		#FIXME: remove android and iphone Resources
-		#FIXME: nib vs. xib in Resources
+	
+		xib_file = os.path.join(app_dir,'MainWindow.xib')
+		if os.path.exists(xib_file): os.remove(xib_file)
 		
 		# write out the updated Info.plist
 		infoplist_tmpl = os.path.join(self.iphone_dir,'Info.plist.template')
@@ -143,28 +140,18 @@ class Compiler(object):
 			appicon_path = os.path.join(resources_dir,appicon)
 		if os.path.exists(appicon_path):
 			shutil.copy(appicon_path, app_dir)
-			
-		if devicefamily!=None:
-			xib = 'MainWindow_%s.xib' % devicefamily
-		else:
-			xib = 'MainWindow_iphone.xib'
-		s = os.path.join(template_dir,xib)
-		t = os.path.join(iphone_resources_dir,'MainWindow.xib')
-		shutil.copy(s,t)
-		
+					
 		# copy in any resources in our module like icons
 		project_module_dir = os.path.join(project_dir,'modules','iphone')
 		if os.path.exists(project_module_dir):
 			self.copy_resources([project_module_dir],app_dir,False)
 		
-		print "[DEBUG] deploytype = %s" % deploytype
-			
 		if deploytype!='development':
 			self.copy_resources([iphone_resources_dir,resources_dir],app_dir)
 
 			defines_header = open(os.path.join(self.classes_dir,'defines.h'),'w')
 			defines_header.write("// Warning: this is generated file. Do not modify!\n\n")
-			defines_header.write("TI_VERSION=%s\n"%sdk_version)
+			defines_header.write("#define TI_VERSION %s\n"%sdk_version)
 			for sym in self.defines:
 				defines_header.write("#define %s 1\n"%sym)
 			defines_header.flush()
@@ -211,7 +198,7 @@ class Compiler(object):
 	def clean_api_symbol(self,line):
 		if re.match(r'^([a-zA-Z0-9_\.]+)$',line)!=None:
 			return line
-		print "[DEBUG] rejecting API symbol: %s" % line
+		print "[DEBUG] rejecting invalid API symbol: %s" % line
 		return None
 
 	def extract_api_line(self,line):

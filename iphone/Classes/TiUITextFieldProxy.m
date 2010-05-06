@@ -4,6 +4,8 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
+#ifdef USE_TI_UITEXTFIELD
+
 #import "TiUITextFieldProxy.h"
 #import "TiUITextField.h"
 
@@ -39,3 +41,5 @@ DEFINE_DEF_INT_PROP(appearance,UIKeyboardAppearanceDefault);
 DEFINE_DEF_INT_PROP(autocapitalization,UITextAutocapitalizationTypeNone);
 					
 @end
+
+#endif
