@@ -4,6 +4,7 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
+#ifdef USE_TI_UICOVERFLOWVIEW
 
 #import "TiUIView.h"
 #import "AFOpenFlow/AFOpenFlowView.h"
@@ -19,3 +20,5 @@
 -(void)setURL:(id)urlstr forIndex:(NSInteger)index;
 
 @end
+
+#endif

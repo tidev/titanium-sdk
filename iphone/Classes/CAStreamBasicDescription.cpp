@@ -47,6 +47,8 @@ Copyright (C) 2009 Apple Inc. All Rights Reserved.
 
 */
 
+#ifdef USE_TI_MEDIA
+
 #include "CAStreamBasicDescription.h"
 #include "CAMath.h"
 
@@ -548,3 +550,5 @@ bool SanityCheck(const AudioStreamBasicDescription& x)
 		&& (x.mChannelsPerFrame <= 1024)
 		&& (x.mBitsPerChannel <= 1024);
 }
+
+#endif

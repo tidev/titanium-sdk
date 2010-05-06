@@ -9,17 +9,22 @@
 
 #import "TiHost.h"
 #import "KrollBridge.h"
-#import "XHRBridge.h"
+#ifdef USE_TI_UIWEBVIEW
+	#import "XHRBridge.h"
+#endif
 #import "TitaniumViewController.h"
 
 @interface TitaniumApp : TiHost <UIApplicationDelegate> 
 {
-    UIWindow *window;
+	UIWindow *window;
 	UIImageView *loadView;
 	BOOL splashDone;
 	
 	KrollBridge *kjsBridge;
+
+#ifdef USE_TI_UIWEBVIEW
 	XHRBridge *xhrBridge;
+#endif
 	
 	NSMutableDictionary *launchOptions;
 	NSTimeInterval started;

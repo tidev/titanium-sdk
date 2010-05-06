@@ -16,7 +16,8 @@ android_dir = os.path.abspath(os.path.join(template_dir,'android'))
 iphone_dir = os.path.abspath(os.path.join(template_dir,'iphone'))
 osx_dir = os.path.abspath(os.path.join(template_dir,'osx'))
 
-ignoreDirs = ['.DS_Store','.git','.gitignore','libTitanium.a','titanium.jar']
+ignoreExtensions = ['.pbxuser','.perspectivev3','.pyc']
+ignoreDirs = ['.DS_Store','.git','.gitignore','libTitanium.a','titanium.jar','build','bridge.txt']
 
 def ignore(file):
 	 for f in ignoreDirs:
@@ -24,20 +25,22 @@ def ignore(file):
 			return True
 	 return False
 
-def zip_dir(zf,dir,basepath,subs=None):
+def zip_dir(zf,dir,basepath,subs=None,cb=None):
 	for root, dirs, files in os.walk(dir):
 		for name in ignoreDirs:
 			if name in dirs:
 				dirs.remove(name)	# don't visit ignored directories
 		for file in files:
 			e = os.path.splitext(file)
-			if len(e)==2 and e[1]=='.pyc': continue
+			if len(e)==2 and e[1] in ignoreExtensions: continue
 			from_ = os.path.join(root, file)
 			to_ = from_.replace(dir, basepath, 1)
 			if subs!=None:
 				c = open(from_).read()
 				for key in subs:
 					c = c.replace(key,subs[key])
+				if cb!=None:
+					c = cb(file,e[1],c)
 				zf.writestr(to_,c)
 			else:		
 				zf.write(from_, to_)
@@ -73,7 +76,12 @@ def resolve_source_imports(platform):
 	sys.path.append(iphone_dir)
 	import run,prereq
 	return importresolver.resolve_source_imports(os.path.join(top_dir,platform,'Classes'))
-	
+
+def make_symbol(fn):
+	if fn.startswith('TI') and fn!='TITANIUM' and fn!='TI':
+		return fn[2:]
+	return fn
+
 def zip_iphone_ipad(zf,basepath,platform,version):
 	  
 	zf.writestr('%s/iphone/imports.json'%basepath,resolve_source_imports(platform))
@@ -102,11 +110,10 @@ def zip_iphone_ipad(zf,basepath,platform,version):
 	zip_dir(zf,xcode_templates_dir,basepath+'/iphone/xcode/templates',subs)
 	
 	iphone_lib = os.path.join(top_dir,'iphone',platform,'build')
-	zf.write(os.path.join(iphone_lib,'libTitanium.a'),'%s/%s/libTitanium.a'%(basepath,platform))
 	
-	# in 3.2 apple supports only ipad based simulator testing so we have to distribute
-	# both until they resolve this and then we can do one library with weak linking again
-	zf.write(os.path.join(iphone_lib,'libTitanium_3.2.a'),'%s/%s/libTitanium_3.2.a'%(basepath,platform))
+	zip_dir(zf,os.path.join(top_dir,'iphone','Classes'),basepath+'/iphone/Classes',subs)
+	zip_dir(zf,os.path.join(top_dir,'iphone','headers'),basepath+'/iphone/headers',subs)
+	zip_dir(zf,os.path.join(top_dir,'iphone','iphone'),basepath+'/iphone/iphone',subs)
 	
 	ticore_lib = os.path.join(top_dir,'iphone','lib')
 	zf.write(os.path.join(ticore_lib,'libTiCore.a'),'%s/%s/libTiCore.a'%(basepath,platform))

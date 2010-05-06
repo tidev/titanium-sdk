@@ -5,7 +5,7 @@
 import os,platform,sys,urllib,gzip
 from progressbar import ProgressBar
 
-ticore_version = '4'
+ticore_version = '5'
 
 # NOTE: this is simply a pre-built version of the source at http://github.com/appcelerator/tijscore
 # since this is so freaking complicated to setup and build in an stable environment, and since 
@@ -108,7 +108,7 @@ def build(apiversion,targetversion,name,target,namever=''):
 	build_titanium_target(target,apiversion,targetversion,"build")
 	
 	# build the merged library using lipo
-	os.system("lipo build/%s-iphonesimulator/lib%s.a build/%s-iphoneos/lib%s.a -create -output build/lib%s%s.a" %(config,name,config,name,name,namever))
+	#os.system("lipo build/%s-iphonesimulator/lib%s.a build/%s-iphoneos/lib%s.a -create -output build/lib%s%s.a" %(config,name,config,name,name,namever))
 	
 	os.chdir(curdir)
 

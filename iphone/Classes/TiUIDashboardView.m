@@ -4,6 +4,7 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
+#ifdef USE_TI_UIDASHBOARDVIEW
 
 #import "TiUIDashboardView.h"
 #import "TiUtils.h"
@@ -74,8 +75,11 @@
 {
 }
 
-- (void)launcherView:(LauncherView*)launcher didRemoveItem:(LauncherItem*)item
+- (void)launcherView:(LauncherView*)launcher_ didRemoveItem:(LauncherItem*)item
 {
+	// update our data array
+	[self.proxy replaceValue:[launcher items] forKey:@"data" notification:NO];
+
 	NSMutableDictionary *event = [NSMutableDictionary dictionary];
 	[event setObject:item.userData forKey:@"item"];
 	
@@ -89,10 +93,14 @@
 	}
 }
 
-- (void)launcherView:(LauncherView*)launcher didMoveItem:(LauncherItem*)item
+- (void)launcherView:(LauncherView*)launcher_ didMoveItem:(LauncherItem*)item
 {
 	NSMutableDictionary *event = [NSMutableDictionary dictionary];
+	// the actual item being moved
 	[event setObject:item.userData forKey:@"item"];
+	// the new (uncommitted) items in order
+	[event setObject:[launcher items] forKey:@"items"];
+	
 	if ([self.proxy _hasListeners:@"move"])
 	{
 		[self.proxy fireEvent:@"move" withObject:event];
@@ -134,8 +142,11 @@
 	}
 }
 
-- (void)launcherViewDidEndEditing:(LauncherView*)launcher
+- (void)launcherViewDidEndEditing:(LauncherView*)launcher_
 {
+	// update our data array since it's possible been reordered
+	[self.proxy replaceValue:[launcher_ items] forKey:@"data" notification:NO];
+	
 	if ([self.proxy _hasListeners:@"commit"])
 	{
 		NSMutableDictionary *event = [NSMutableDictionary dictionary];
@@ -145,3 +156,5 @@
 
 
 @end
+
+#endif

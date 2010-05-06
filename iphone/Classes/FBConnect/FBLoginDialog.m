@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
 */
+#ifdef USE_TI_FACEBOOK
 
 #import "FBLoginDialog.h"
 #import "FBSession.h"
@@ -129,3 +130,5 @@ static NSString* kLoginURL = @"http://www.facebook.com/login.php";
 }
  
 @end
+
+#endif

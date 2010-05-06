@@ -4,6 +4,8 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
+#ifdef USE_TI_UITABLEVIEW
+
 #import "TiBase.h"
 #import "TiUITableViewAction.h"
 #import "TiUtils.h"
@@ -43,3 +45,5 @@
 }
 
 @end
+
+#endif

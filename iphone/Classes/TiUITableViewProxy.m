@@ -4,6 +4,7 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
+#ifdef USE_TI_UITABLEVIEW
 
 #import "TiUITableViewProxy.h"
 #import "TiUITableView.h"
@@ -354,10 +355,9 @@
         if (header != nil) {
             TiUITableViewSectionProxy *newSection = [[[TiUITableViewSectionProxy alloc] _initWithPageContext:[self executionContext] args:nil] autorelease];
             
-            newSection.section = [sections count]-1;
+            newSection.section = [sections count];
             newSection.table = table;
-            [newSection setValue:header forUndefinedKey:@"headerTitle"];
-            
+
             [sections addObject:newSection];
             
             actionType = TiUITableViewActionAppendRowWithSection;
@@ -368,6 +368,11 @@
 		
 		TiUITableViewAction *action = [[[TiUITableViewAction alloc] initWithRow:row animation:anim section:row.section.section type:actionType] autorelease];
 		[table dispatchAction:action];
+        
+        // Have to do this after the action or else there's an update of a nonexistant section
+        if (header != nil) {
+            [section setValue:header forUndefinedKey:@"headerTitle"];
+        }
 	}	
 }
 
@@ -453,3 +458,5 @@
 }
 
 @end 
+
+#endif

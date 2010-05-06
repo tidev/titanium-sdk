@@ -117,10 +117,17 @@
 @property(nonatomic,readonly) NSNumber *BLEND_MODE_PLUS_DARKER;
 @property(nonatomic,readonly) NSNumber *BLEND_MODE_PLUS_LIGHTER;
 
-
+#ifdef USE_TI_UI2DMATRIX
 -(id)create2DMatrix:(id)args;
+#endif
+
+#ifdef USE_TI_UI3DMATRIX
 -(id)create3DMatrix:(id)args;
+#endif
+
+#ifdef USE_TI_UIANIMATION
 -(id)createAnimation:(id)args;
+#endif
 
 @property(nonatomic,readonly)			TiProxy* iPhone;
 @property(nonatomic,readonly)			TiProxy* iPad;

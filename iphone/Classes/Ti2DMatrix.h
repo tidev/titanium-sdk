@@ -29,3 +29,4 @@
 @property(nonatomic,readwrite,retain) NSNumber* ty;
 
 @end
+

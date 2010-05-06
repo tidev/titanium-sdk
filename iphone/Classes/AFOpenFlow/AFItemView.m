@@ -22,6 +22,8 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  */
+#ifdef USE_TI_UICOVERFLOWVIEW
+
 #import "AFItemView.h"
 #import <QuartzCore/QuartzCore.h>
 #import "AFOpenFlowConstants.h"
@@ -87,3 +89,5 @@
 }
 
 @end
+
+#endif

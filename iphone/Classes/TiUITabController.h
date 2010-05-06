@@ -4,10 +4,13 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
+#ifdef USE_TI_UITAB
+
 #import "TiWindowProxy.h"
 #import "TiUITabProxy.h"
+#import "TiTabController.h"
 
-@interface TiUITabController : UIViewController {
+@interface TiUITabController : UIViewController<TiTabController> {
 @private
 	TiWindowProxy *window;
 	TiUITabProxy *tab;
@@ -20,3 +23,5 @@
 -(TiWindowProxy *)proxy;
 
 @end
+
+#endif

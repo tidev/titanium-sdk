@@ -4,6 +4,8 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
+#ifdef USE_TI_UIIPHONETABLEVIEWCELLSELECTIONSTYLE
+
 #import "TiProxy.h"
 
 @interface TiUITableViewCellSelectionStyleProxy : TiProxy {
@@ -17,3 +19,5 @@
 @property(nonatomic,readonly) NSNumber* GRAY;
 
 @end
+
+#endif

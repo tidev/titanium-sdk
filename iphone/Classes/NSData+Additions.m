@@ -74,6 +74,13 @@ NSData * dataWithHexString (NSString * hexString)
 	return [NSData dataWithData:result];
 }
 
+NSString *stringWithHexString (NSString * hexString)
+{
+	NSData *data = dataWithHexString(hexString);
+	return [[[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding] autorelease];
+}
+
+
 #pragma mark AES128
 
 // we use 128 bits vs 256 as a much better performance alternative

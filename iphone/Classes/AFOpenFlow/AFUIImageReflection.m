@@ -22,6 +22,8 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  */
+#ifdef USE_TI_UICOVERFLOWVIEW
+
 #import "AFUIImageReflection.h"
 
 
@@ -91,3 +93,5 @@ UIImage* AddImageReflection(UIImage *image, CGFloat reflectionFraction)
 	
 	return result;
 }
+
+#endif

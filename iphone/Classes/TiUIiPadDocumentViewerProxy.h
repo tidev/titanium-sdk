@@ -4,6 +4,8 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
+#ifdef USE_TI_UIIPADDOCUMENTVIEWER
+
 #import "TiProxy.h"
 
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
@@ -19,5 +21,7 @@
 
 
 @end
+
+#endif
 
 #endif

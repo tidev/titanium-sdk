@@ -4,6 +4,8 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
+#ifdef USE_TI_UITABLEVIEW
+
 #include "TiViewProxy.h"
 
 @interface TiUITableViewProxy : TiViewProxy
@@ -12,3 +14,5 @@
 -(void)setData:(id)args withObject:(id)properties;
 
 @end
+
+#endif

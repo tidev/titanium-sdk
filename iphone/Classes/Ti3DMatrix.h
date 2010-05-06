@@ -4,6 +4,8 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
+#ifdef USE_TI_UI3DMATRIX
+
 #import <QuartzCore/QuartzCore.h>
 #import "TiProxy.h"
 
@@ -40,3 +42,5 @@
 @property(nonatomic,readwrite,retain) NSNumber* m44;
 
 @end
+
+#endif

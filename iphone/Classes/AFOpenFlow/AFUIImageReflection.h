@@ -22,6 +22,8 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  */
+#ifdef USE_TI_UICOVERFLOWVIEW
+
 #import <UIKit/UIKit.h>
 
 // Appcelerator modification note: 
@@ -31,3 +33,5 @@
 // originally)
 
 UIImage* AddImageReflection(UIImage *src, CGFloat reflectionFraction);
+
+#endif

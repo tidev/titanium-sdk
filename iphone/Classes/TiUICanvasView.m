@@ -4,6 +4,7 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
+#ifdef USE_TI_UICANVAS
 
 #import "TiUICanvasView.h"
 #import "TiUtils.h"
@@ -368,3 +369,5 @@ MAKE_OP(textBaseline,TextBaseline);
 MAKE_OP(fillText,FillText);
 
 @end
+
+#endif

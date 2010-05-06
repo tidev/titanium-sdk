@@ -4,10 +4,26 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
+#ifdef USE_TI_UIIPAD
+
 #import "TiProxy.h"
-#import "TiUIiPadPopoverProxy.h"
-#import "TiUIiPadSplitWindowProxy.h"
-#import "TiUIiPadDocumentViewerProxy.h"
+
+// if we use a split window, we need to include the ipad popover
+#ifdef USE_TI_UIIPADSPLITWINDOW
+#ifndef USE_TI_UIIPADPOPOVER
+#define USE_TI_UIIPADPOPOVER
+#endif
+#endif
+
+#ifdef USE_TI_UIIPADPOPOVER
+	#import "TiUIiPadPopoverProxy.h"
+#endif
+#ifdef USE_TI_UIIPADSPLITWINDOW
+	#import "TiUIiPadSplitWindowProxy.h"
+#endif
+#ifdef USE_TI_UIIPADDOCUMENTVIEWER
+	#import "TiUIiPadDocumentViewerProxy.h"
+#endif
 
 
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
@@ -18,6 +34,7 @@
 
 }
 
+#ifdef USE_TI_UIIPADPOPOVER
 @property(nonatomic,readonly) NSNumber* POPOVER_ARROW_DIRECTION_UP;
 @property(nonatomic,readonly) NSNumber* POPOVER_ARROW_DIRECTION_DOWN;
 @property(nonatomic,readonly) NSNumber* POPOVER_ARROW_DIRECTION_LEFT;
@@ -25,12 +42,20 @@
 @property(nonatomic,readonly) NSNumber* POPOVER_ARROW_DIRECTION_ANY;
 @property(nonatomic,readonly) NSNumber* POPOVER_ARROW_DIRECTION_UNKNOWN;
 
-
 -(id)createPopover:(id)args;
+#endif
+
+#ifdef USE_TI_UIIPADSPLITWINDOW
 -(id)createSplitWindow:(id)args;
+#endif
+
+#ifdef USE_TI_UIIPADDOCUMENTVIEWER
 -(id)createDocumentViewer:(id)args;
+#endif
 
 @end
 
+
+#endif
 
 #endif

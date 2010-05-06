@@ -4,6 +4,7 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
+#ifdef USE_TI_UITABLEVIEW
 
 @class TiUITableViewRowProxy;
 @class TiUITableViewSectionProxy;
@@ -39,3 +40,5 @@ typedef enum
 +(UITableViewRowAnimation)animationStyleForProperties:(NSDictionary*)properties;
 
 @end
+
+#endif

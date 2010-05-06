@@ -4,6 +4,7 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
+#ifdef USE_TI_UITABLEVIEW
 
 #import "TiUITableViewRowProxy.h"
 #import "TiUITableViewAction.h"
@@ -617,3 +618,5 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 
 
 @end
+
+#endif

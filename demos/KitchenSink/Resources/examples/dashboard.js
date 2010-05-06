@@ -3,13 +3,16 @@ win.backgroundColor = '#13386c';
 
 var data = [];
 var labels = ['account','cases','calls','contacts','emps','leads','meetings','opps','tasks'];
-for (var c=0;c<labels.length;c++)
+for (var x=0;x<2;x++)
 {
-	data[c] = Titanium.UI.createDashboardItem({
-		image:'../images/dashboard/'+labels[c]+'_off.png',
-		selectedImage:'../images/dashboard/'+labels[c]+'_on.png',
-		label:labels[c]
-	});
+	for (var c=0;c<labels.length;c++)
+	{
+		data.push(Titanium.UI.createDashboardItem({
+			image:'../images/dashboard/'+labels[c]+'_off.png',
+			selectedImage:'../images/dashboard/'+labels[c]+'_on.png',
+			label:labels[c]
+		}));
+	}
 }
 
 var dashboard = Titanium.UI.createDashboardView({
@@ -20,11 +23,11 @@ win.add(dashboard);
 var label = Titanium.UI.createLabel({
 	text:"Click and hold to re-order or delete",
 	width:"auto",
-	top:10,
+	bottom:20,
 	color:"yellow",
 	height:"auto"
 });
-//win.add(label);
+win.add(label);
 
 
 var cancel = Titanium.UI.createButton({

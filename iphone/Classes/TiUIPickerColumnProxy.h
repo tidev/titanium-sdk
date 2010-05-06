@@ -4,6 +4,7 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
+#ifdef USE_TI_UIPICKER
 #import "TiProxy.h"
 
 @interface TiUIPickerColumnProxy : TiProxy {
@@ -21,3 +22,4 @@
 -(id)rowAt:(NSInteger)row;
 
 @end
+#endif
