@@ -4,6 +4,7 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
+#ifdef USE_TI_UIIPHONETABLEVIEWSTYLE
 
 #import "TiUITableViewStyleProxy.h"
 
@@ -13,3 +14,5 @@ MAKE_SYSTEM_PROP(PLAIN,UITableViewStylePlain);
 MAKE_SYSTEM_PROP(GROUPED,UITableViewStyleGrouped);
 
 @end
+
+#endif

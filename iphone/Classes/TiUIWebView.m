@@ -4,6 +4,7 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
+#ifdef USE_TI_UIWEBVIEW
 
 #import "TiUIWebView.h"
 #import "TiUIWebViewProxy.h"
@@ -59,15 +60,11 @@ NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._listeners={
 	}
 	if (listeners!=nil)
 	{
-		for (TiProxy *listener in listeners)
-		{
-		}
 		RELEASE_TO_NIL(listeners);
 	}
 	RELEASE_TO_NIL(webview);
 	RELEASE_TO_NIL(url);
 	RELEASE_TO_NIL(spinner);
-	RELEASE_TO_NIL(appModule);
 	RELEASE_TO_NIL(basicCredentials);
 	[self unregister];
 	[super dealloc];
@@ -671,3 +668,5 @@ NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._listeners={
 }
 
 @end
+
+#endif

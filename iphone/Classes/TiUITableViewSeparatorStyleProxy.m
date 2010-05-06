@@ -4,6 +4,7 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
+#ifdef USE_TI_UIIPHONETABLEVIEWSEPARATORSTYLE
 
 #import "TiUITableViewSeparatorStyleProxy.h"
 
@@ -14,3 +15,5 @@ MAKE_SYSTEM_PROP(SINGLE_LINE,UITableViewCellSeparatorStyleSingleLine);
 
 
 @end
+
+#endif

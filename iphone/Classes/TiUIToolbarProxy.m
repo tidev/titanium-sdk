@@ -4,6 +4,7 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
+#ifdef USE_TI_UITOOLBAR
 
 #import "TiUIToolbarProxy.h"
 #import "TiUIToolbar.h"
@@ -24,3 +25,5 @@ USE_VIEW_FOR_VERIFY_HEIGHT
 }
 
 @end
+
+#endif

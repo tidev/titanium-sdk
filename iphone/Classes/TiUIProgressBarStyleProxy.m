@@ -4,6 +4,7 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
+#ifdef USE_TI_UIIPHONEPROGRESSBARSTYLE
 
 #import "TiUIProgressBarStyleProxy.h"
 
@@ -15,3 +16,5 @@ MAKE_SYSTEM_PROP(DEFAULT,UIProgressViewStyleDefault);
 MAKE_SYSTEM_PROP(BAR,UIProgressViewStyleBar);
 
 @end
+
+#endif

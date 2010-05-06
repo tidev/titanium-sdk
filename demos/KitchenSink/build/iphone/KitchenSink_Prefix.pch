@@ -1,8 +1,9 @@
 //
-// Prefix header for all source files
+// Prefix header for all source files of the 'Titanium' target in the 'Titanium' project
 //
 
 #ifdef __OBJC__
     #import <Foundation/Foundation.h>
     #import <UIKit/UIKit.h>
+	  #import "defines.h"
 #endif

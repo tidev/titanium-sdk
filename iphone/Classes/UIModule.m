@@ -7,9 +7,15 @@
 
 #import "UIModule.h"
 #import "TiProxy.h"
-#import "Ti2DMatrix.h"
-#import "Ti3DMatrix.h"
-#import "TiAnimation.h"
+#ifdef USE_TI_UI2DMATRIX
+	#import "Ti2DMatrix.h"
+#endif
+#ifdef USE_TI_UI3DMATRIX
+	#import "Ti3DMatrix.h"
+#endif
+#ifdef USE_TI_UIANIMATION
+	#import "TiAnimation.h"
+#endif
 #import "TiUIiPhoneProxy.h"
 #import "TiUIiPadProxy.h"
 #import "TitaniumApp.h"
@@ -135,6 +141,7 @@ MAKE_SYSTEM_PROP(BLEND_MODE_PLUS_LIGHTER,kCGBlendModePlusLighter);
 
 #pragma mark Factory methods 
 
+#ifdef USE_TI_UI2DMATRIX
 -(id)create2DMatrix:(id)args
 {
 	if (args==nil || [args count] == 0)
@@ -145,7 +152,9 @@ MAKE_SYSTEM_PROP(BLEND_MODE_PLUS_LIGHTER,kCGBlendModePlusLighter);
 	Ti2DMatrix *matrix = [[Ti2DMatrix alloc] initWithProperties:args];
 	return [matrix autorelease];
 }
+#endif
 
+#ifdef USE_TI_UI3DMATRIX
 -(id)create3DMatrix:(id)args
 {
 	if (args==nil || [args count] == 0)
@@ -156,7 +165,9 @@ MAKE_SYSTEM_PROP(BLEND_MODE_PLUS_LIGHTER,kCGBlendModePlusLighter);
 	Ti3DMatrix *matrix = [[Ti3DMatrix alloc] initWithProperties:args];
 	return [matrix autorelease];
 }
+#endif
 
+#ifdef USE_TI_UIANIMATION
 -(id)createAnimation:(id)args
 {
 	if (args!=nil && [args isKindOfClass:[NSArray class]])
@@ -172,6 +183,7 @@ MAKE_SYSTEM_PROP(BLEND_MODE_PLUS_LIGHTER,kCGBlendModePlusLighter);
 	}
 	return [[[TiAnimation alloc] _initWithPageContext:[self pageContext]] autorelease];
 }
+#endif
 
 -(void)setOrientation:(id)mode
 {
@@ -210,7 +222,9 @@ MAKE_SYSTEM_PROP(FACE_DOWN,UIDeviceOrientationFaceDown);
 	if (iphone==nil)
 	{
 		// cache it since it's used alot
+#ifdef USE_TI_UIIPHONE		
 		iphone = [[TiUIiPhoneProxy alloc] _initWithPageContext:[self pageContext]];
+#endif
 	}
 	return iphone;
 }
@@ -220,10 +234,12 @@ MAKE_SYSTEM_PROP(FACE_DOWN,UIDeviceOrientationFaceDown);
 	if (ipad==nil)
 	{
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
+#ifdef USE_TI_UIIPAD
 		if ([TiUtils isIPad])
 		{
 			ipad = [[TiUIiPadProxy alloc] _initWithPageContext:[self pageContext]];
 		}
+#endif
 #endif
 	}
 	return ipad;

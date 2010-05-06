@@ -28,6 +28,8 @@
 // limitations under the License.
 //
 
+#ifdef USE_TI_UIDASHBOARDVIEW
+
 #import "LauncherItem.h"
 #import "LauncherButton.h"
 
@@ -90,3 +92,5 @@
 
 
 @end
+
+#endif

@@ -4,6 +4,8 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
+#ifdef USE_TI_UISLIDER
+
 #import "TiUIView.h"
 
 
@@ -15,3 +17,5 @@
 - (IBAction)sliderChanged:(id)sender;
 
 @end
+
+#endif

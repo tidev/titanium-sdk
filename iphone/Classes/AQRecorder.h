@@ -47,6 +47,8 @@
  
  */
 
+#ifdef USE_TI_MEDIA
+
 #include <AudioToolbox/AudioToolbox.h>
 #include <Foundation/Foundation.h>
 #include <libkern/OSAtomic.h>
@@ -98,3 +100,5 @@ private:
 									 UInt32								inNumPackets,
 									 const AudioStreamPacketDescription*	inPacketDesc);
 };
+
+#endif

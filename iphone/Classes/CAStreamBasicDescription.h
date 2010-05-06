@@ -46,7 +46,7 @@ Copyright (C) 2009 Apple Inc. All Rights Reserved.
 
  
 */
-
+#ifdef USE_TI_MEDIA
 
 #ifndef __CAStreamBasicDescription_h__
 #define __CAStreamBasicDescription_h__
@@ -308,3 +308,5 @@ bool SanityCheck(const AudioStreamBasicDescription& x);
 
 
 #endif // __CAStreamBasicDescription_h__
+
+#endif

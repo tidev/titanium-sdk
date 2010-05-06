@@ -4,6 +4,8 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
+#ifdef USE_TI_UITABLEVIEW
+
 #import "TiUIView.h"
 #import "TiUITableViewRowProxy.h"
 #import "TiUITableViewSectionProxy.h"
@@ -53,3 +55,5 @@
 -(void)scrollToTop:(NSInteger)top animated:(BOOL)animated;
 
 @end
+
+#endif

@@ -495,6 +495,7 @@ public abstract class TiUIView
 		TiDict data = new TiDict();
 		data.put("x", (double)e.getX());
 		data.put("y", (double)e.getY());
+		data.put("source", proxy);
 		return data;
 	}
 

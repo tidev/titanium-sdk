@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
 */
+#ifdef USE_TI_FACEBOOK
 
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
@@ -215,3 +216,4 @@ typedef unsigned long long FBID;
 
 NSMutableArray* FBCreateNonRetainingArray();
 
+#endif

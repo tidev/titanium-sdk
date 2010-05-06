@@ -12,6 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#if defined(USE_TI_XML) || defined(USE_TI_NETWORK)
 
 // These node, element, and document classes implement a subset of the methods
 // provided by NSXML.  While NSXML behavior is mimicked as much as possible,
@@ -215,3 +216,5 @@ typedef NSUInteger GDataXMLNodeKind;
 
 - (NSString *)description;
 @end
+
+#endif

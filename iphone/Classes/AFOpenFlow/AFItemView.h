@@ -22,6 +22,8 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  */
+#ifdef USE_TI_UICOVERFLOWVIEW
+
 #import <UIKit/UIKit.h>
 
 
@@ -42,3 +44,5 @@
 - (CGSize)calculateNewSize:(CGSize)originalImageSize boundingBox:(CGSize)boundingBox;
 
 @end
+
+#endif

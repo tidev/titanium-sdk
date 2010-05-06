@@ -13,13 +13,15 @@
 @implementation TiUIiPadProxy
 
 
+#ifdef USE_TI_UIIPADPOPOVER
+
 MAKE_SYSTEM_PROP_IPAD(POPOVER_ARROW_DIRECTION_UP,UIPopoverArrowDirectionUp);
 MAKE_SYSTEM_PROP_IPAD(POPOVER_ARROW_DIRECTION_DOWN,UIPopoverArrowDirectionDown);
 MAKE_SYSTEM_PROP_IPAD(POPOVER_ARROW_DIRECTION_LEFT,UIPopoverArrowDirectionLeft);
 MAKE_SYSTEM_PROP_IPAD(POPOVER_ARROW_DIRECTION_RIGHT,UIPopoverArrowDirectionRight);
 MAKE_SYSTEM_PROP_IPAD(POPOVER_ARROW_DIRECTION_ANY,UIPopoverArrowDirectionAny);
 MAKE_SYSTEM_PROP_IPAD(POPOVER_ARROW_DIRECTION_UNKNOWN,UIPopoverArrowDirectionUnknown);
-				 
+			
 -(id)createPopover:(id)args
 {
 	if ([TiUtils isIPad])
@@ -28,7 +30,9 @@ MAKE_SYSTEM_PROP_IPAD(POPOVER_ARROW_DIRECTION_UNKNOWN,UIPopoverArrowDirectionUnk
 	}
 	[self throwException:@"this API is not available on non iPad devices" subreason:nil location:CODELOCATION];
 }
+#endif
 
+#ifdef USE_TI_UIIPADSPLITWINDOW
 -(id)createSplitWindow:(id)args
 {
 	if ([TiUtils isIPad])
@@ -37,7 +41,9 @@ MAKE_SYSTEM_PROP_IPAD(POPOVER_ARROW_DIRECTION_UNKNOWN,UIPopoverArrowDirectionUnk
 	}
 	[self throwException:@"this API is not available on non iPad devices" subreason:nil location:CODELOCATION];
 }
+#endif
 
+#ifdef USE_TI_UIIPADDOCUMENTVIEWER
 -(id)createDocumentViewer:(id)args
 {
 	if ([TiUtils isIPad])
@@ -46,6 +52,7 @@ MAKE_SYSTEM_PROP_IPAD(POPOVER_ARROW_DIRECTION_UNKNOWN,UIPopoverArrowDirectionUnk
 	}
 	[self throwException:@"this API is not available on non iPad devices" subreason:nil location:CODELOCATION];
 }
+#endif
 
 @end
 

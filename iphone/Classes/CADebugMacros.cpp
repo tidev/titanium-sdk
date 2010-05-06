@@ -46,6 +46,7 @@ Copyright (C) 2009 Apple Inc. All Rights Reserved.
 
  
 */
+#ifdef USE_TI_MEDIA
 
 #include "CADebugMacros.h"
 #include <stdio.h>
@@ -88,4 +89,6 @@ void	LogWarning(const char *fmt, ...)
 	vsyslog(LOG_WARNING, fmt, args);
 	va_end(args);
 }
+#endif
+
 #endif

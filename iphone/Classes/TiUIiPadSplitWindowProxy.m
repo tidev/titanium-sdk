@@ -4,9 +4,10 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
+#ifdef USE_TI_UIIPADSPLITWINDOW
 
 #import "TiUIiPadSplitWindowProxy.h"
-#import "TiUIiPadSplitWindowView.h"
+#import "TiUIiPadSplitWindow.h"
 #import "TiUtils.h"
 
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
@@ -16,7 +17,7 @@
 
 -(TiUIView*)newView
 {
-	return [[TiUIiPadSplitWindowView alloc] init];
+	return [[TiUIiPadSplitWindow alloc] init];
 }
 
 -(UIViewController *)controller
@@ -25,7 +26,7 @@
 	{
 		return controller;
 	}
-	TiUIiPadSplitWindowView *view = (TiUIiPadSplitWindowView*)[self view];
+	TiUIiPadSplitWindow *view = (TiUIiPadSplitWindow*)[self view];
 	UIViewController *c = [view controller];
 	self.controller = c;
 	return c;
@@ -40,9 +41,11 @@
 -(void)setToolbar:(id)items withObject:(id)properties
 {
 	ENSURE_UI_THREAD_WITH_OBJ(setToolbar,items,properties);
-	[(TiUIiPadSplitWindowView*)[self view] setToolbar:items withObject:properties];
+	[(TiUIiPadSplitWindow*)[self view] setToolbar:items withObject:properties];
 }
 
 @end
+
+#endif
 
 #endif

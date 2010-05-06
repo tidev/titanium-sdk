@@ -22,6 +22,8 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  */
+#ifdef USE_TI_UICOVERFLOWVIEW
+
 #import "AFOpenFlowView.h"
 #import "AFOpenFlowConstants.h"
 #import "AFUIImageReflection.h"
@@ -460,3 +462,5 @@ const static CGFloat kReflectionFraction = 0.85;
 }
 
 @end
+
+#endif
