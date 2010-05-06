@@ -201,6 +201,7 @@ static const NSTimeInterval kLauncherViewFastTransitionDuration = 0.2;
 	if (numberOfPages != pager.numberOfPages) 
 	{
 		pager.numberOfPages = numberOfPages;
+		[pager setCurrentPage:numberOfPages-1];
 	}
 }
 - (void)layoutButtons 
@@ -378,7 +379,6 @@ static const NSTimeInterval kLauncherViewFastTransitionDuration = 0.2;
 	[button setSelected:NO];
 }
 
-
 - (void)buttonTouchedUpInside:(LauncherButton*)button 
 {
 	if (editing) 
@@ -545,6 +545,19 @@ static const NSTimeInterval kLauncherViewFastTransitionDuration = 0.2;
 			}
 		}
 	}
+}
+
+- (NSArray*)items
+{
+	NSMutableArray *items = [NSMutableArray array];
+	for (NSArray* buttonPage in buttons) 
+	{
+		for (LauncherButton* button in buttonPage) 
+		{
+			[items addObject:button.item.userData];
+		}
+	}
+	return items;
 }
 
 - (LauncherItem*)itemForIndex:(NSInteger)index

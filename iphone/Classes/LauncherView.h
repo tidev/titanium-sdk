@@ -70,6 +70,7 @@
 - (void)endEditing;
 
 - (LauncherItem*)itemForIndex:(NSInteger)index;
+- (NSArray*)items;
 
 @end
 
