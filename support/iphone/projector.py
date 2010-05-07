@@ -39,13 +39,14 @@ class Projector(object):
 		self.namespace_upper = self.namespace.upper()+'_'
 
 	def form_target_filename(self,fn):
-		target = fn
+		dirname = os.path.dirname(fn)
+		target = os.path.basename(fn)
 		target = target.replace('TitaniumModule','%s$Module'%self.namespace)
 		target = target.replace('TitaniumViewController','%s$ViewController'%self.namespace)
 		for symbol in symbolicMap:
 			target = target.replace(symbol,self.namespace)
 		target = target.replace('%sme'%self.namespace,'Time')
-		return target
+		return os.path.join(dirname,target)
 				
 	def process_file(self,source,target,cb=None):
 	
