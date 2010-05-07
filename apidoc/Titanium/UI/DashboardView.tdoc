@@ -1,0 +1,68 @@
+- namespace
+
+Titanium.UI.DashboardView
+
+- type
+
+object
+
+- subtype
+
+view
+
+- description
+
+The Dashboard View provides a view that supports the ability to have Springboard-like view of icons which can be reordered by dragging and can contain multiple pages of icons in a scrollable view. The Dashboard View is created by the method `Titanium.UI.createDashboardView`.
+
+- since
+
+1.2
+
+- platforms
+
+iphone, ipad
+
+- properties
+
+data[array]: an array of [[Titanium.UI.DashboardItem]] objects to display in the view
+
+- methods
+
+startEditing: put the dashboard in edit mode
+stopEditing: cancel editing
+
+- events
+
+edit: fired when editing begins
+commit: fired when editing ends
+click: fired when a [[Titanium.UI.DashboardItem]] is clicked
+move: fired when a  [[Titanium.UI.DashboardItem]] is moved during editing
+delete: fired when a  [[Titanium.UI.DashboardItem]] is deleted during editings
+
+- event : edit
+
+- event : commit
+
+- event : click
+
+item: the [[Titanium.UI.DashboardItem]] that was clicked
+location: the location object with the properties `x` and `y` of where in the parent view the click was
+
+- event : move
+
+item: the [[Titanium.UI.DashboardItem]] that was moved
+items: the pending data array in the new order (uncommitted)
+
+- event : delete
+
+item: the [[Titanium.UI.DashboardItem]] that was deleted
+
+
+
+
+
+
+
+
+
+

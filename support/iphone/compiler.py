@@ -160,6 +160,7 @@ class Compiler(object):
 			print "[INFO] Skipping JS compile, running from simulator"
 	
 	def add_symbol(self,api):
+		print "[DEBUG] detected symbol: %s" % api
 		curtoken = ''
 		for token in api.split("."):
 			curtoken+=token+"."
@@ -169,49 +170,39 @@ class Compiler(object):
 			except:
 				self.defines.append(symbol)
 			
-	def extract_modules(self,out,symbol):
-		for line in out.split(';'):
-			self.extract_module_with_token('Titanium',line)
-			self.extract_module_with_token('Ti',line)
-			f = re.findall(r'%s\.(.*)'%symbol,line)
-			if len(f) > 0:
-				for sym in f:
-					#print sym
-					api = self.extract_api_line(sym)
-					if api!=None: self.add_symbol(api)
-
-	def extract_module_with_token(self,token,line):
-		f = re.findall(r'%s\.(\w+)'%token,line)
-		if len(f) > 0:
-			for sym in f:
-				# skip top level properties that aren't modules
-				if sym in ['version','userAgent','name','include']:
-					continue
-				sym = self.clean_api_symbol(sym)
-				if sym==None: continue
-				try:
-					self.modules.index(sym)
-				except:	
-					self.modules.append(sym)
-					self.add_symbol(sym)
+	def extract_tokens(self,sym,line):
+		# sloppy joe parsing coooode
+		# could be prettier and faster but it works and rather reliable
+		c = 0
+		tokens = []
+		search = sym + "."
+		size = len(search)
+		while True:
+			i = line.find(search,c)
+			if i < 0:
+				break
+			found = False
+			buf = ''
+			x = 0
+			for n in line[i+size:]:
+				# look for a terminal - this could probably be easier
+				if n in ['(','}','=',',',' ',':',')','!','[','+','*','/','~','^','%','\n','\t','\r']:
+					found = True
+					break
+				buf+=n
+				x+=1
+			tokens.append(buf)
+			if found:
+				c = i + x + 1
+				continue
+			break
+		return tokens	
 	
-	def clean_api_symbol(self,line):
-		if re.match(r'^([a-zA-Z0-9_\.]+)$',line)!=None:
-			return line
-		print "[DEBUG] rejecting invalid API symbol: %s" % line
-		return None
-
-	def extract_api_line(self,line):
-		# these are terminals that indicate that the symbol is complete
-		for sym in ['(','}','=',',',' ',':',')','!','[','+','*','/','~','^','%']:
-			index = line.find(sym)
-			if index != -1:
-				return self.extract_api_line(line[0:index])
-		return self.clean_api_symbol(line)	
-
 	def compile_js(self,file_contents):
-		self.extract_modules(file_contents,'Titanium')
-		self.extract_modules(file_contents,'Ti')
+		for line in file_contents.split(';'):
+			for symbol in ('Titanium','Ti'):
+				for sym in self.extract_tokens(symbol,line):
+					self.add_symbol(sym)
 		
 	def make_function_from_file(self,path,file):
 		fp = os.path.splitext(path)
