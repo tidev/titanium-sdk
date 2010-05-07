@@ -5,11 +5,19 @@
  * Please see the LICENSE included with this distribution for details.
  */
 #import "TiViewProxy.h"
+#import "TiViewController.h"
 
-@interface TiUIiPadPopoverProxy : TiViewProxy {
-
+//The iPadPopoverProxy should be seen more as like a window or such, because
+//The popover controller will contain the viewController, which has the view.
+//If the view had the logic, you get some nasty dependency loops.
+@interface TiUIiPadPopoverProxy : TiViewProxy<UIPopoverControllerDelegate> {
 @private
-
+	UIPopoverController *popoverController;
+	TiViewController *viewController;
 }
+
+//Because the Popover isn't meant to be placed in anywhere specific, 
+@property(nonatomic,readwrite,retain) UIPopoverController *popoverController;
+@property(nonatomic,readwrite,retain) TiViewController *viewController;
 
 @end
