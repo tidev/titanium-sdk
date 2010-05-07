@@ -18,7 +18,7 @@
 		<fileset dir="titanium/lib" includes="**/*.jar"/>
 	</path>
 
-	<target name="build-titanium">
+	<target name="build-titanium" depends="clean">
 		<mkdir dir="${classesdir}/titanium"/>
 		<javac destdir="${classesdir}/titanium"
 			classpathref="android"

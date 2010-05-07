@@ -608,13 +608,13 @@ def main(args):
 				o.close()
 
 				# switch to app_bundle for zip
-				os.chdir(app_bundle_folder)
+				os.chdir(build_dir)
 
-				outfile = os.path.join(output_dir,"%s.zip"%app_name)
+				outfile = os.path.join(output_dir,"%s.zip"%name)
 				if os.path.exists(outfile): os.remove(outfile)
 				
 				# you *must* use ditto here or it won't upload to appstore
-				os.system('ditto -ck --keepParent --sequesterRsrc "%s" "%s"' % (app_name,outfile))
+				os.system('ditto -ck --keepParent --sequesterRsrc "%s.app" "%s"' % (name,outfile))
 				
 				sys.exit(0)
 				
