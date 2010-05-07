@@ -241,12 +241,15 @@ def main(args):
 		print "[INFO] iPhone Device family: %s" % devicefamily
 		print "[INFO] iPhone SDK version: %s" % iphone_version
 		
-		# TEMP HACK FOR UI module resources
-		img_dir = os.path.join(template_dir,'modules','ui','images')
-		dest_img_dir = os.path.join(app_dir,'modules','ui','images')
-		if not os.path.exists(dest_img_dir):
-			os.makedirs(dest_img_dir)
-		copy_module_resources(img_dir,dest_img_dir)
+		if simulator:
+			# during simulator we need to copy in standard built-in module files
+			# since we might not run the compiler on subsequent launches
+			for module_name in ('facebook','ui'):
+				img_dir = os.path.join(template_dir,'modules',module_name,'images')
+				dest_img_dir = os.path.join(app_dir,'modules',module_name,'images')
+				if not os.path.exists(dest_img_dir):
+					os.makedirs(dest_img_dir)
+				copy_module_resources(img_dir,dest_img_dir)
 		
 		
 		if devicefamily!=None:

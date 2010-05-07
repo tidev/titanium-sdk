@@ -4687,6 +4687,7 @@
 /* Begin XCBuildConfiguration section */
 		1D6058940D05DD3E006BFB54 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 241EAEC5118E2BA90081A5BE /* project.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				COPY_PHASE_STRIP = NO;
@@ -4707,6 +4708,7 @@
 		};
 		1D6058950D05DD3E006BFB54 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 241EAEC5118E2BA90081A5BE /* project.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				COPY_PHASE_STRIP = YES;
@@ -4726,6 +4728,7 @@
 		};
 		2461CF0C1151D856007A4CC9 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 241EAEC5118E2BA90081A5BE /* project.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				"ARCHS[sdk=iphoneos*]" = armv7;
@@ -4743,6 +4746,7 @@
 					"\"$(SRCROOT)/../lib\"",
 				);
 				OTHER_CFLAGS = (
+					"-DDEBUG",
 					"-DTI_POST_1_2",
 					"-DIPAD=1",
 				);
@@ -4754,6 +4758,7 @@
 		};
 		2461CF0D1151D856007A4CC9 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 241EAEC5118E2BA90081A5BE /* project.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				"ARCHS[sdk=iphoneos*]" = armv7;
@@ -4781,6 +4786,7 @@
 		};
 		24CA903F11116C490084E2DE /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 241EAEC5118E2BA90081A5BE /* project.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				COPY_PHASE_STRIP = NO;
@@ -4793,13 +4799,17 @@
 					"$(inherited)",
 					"\"$(SRCROOT)/../lib\"",
 				);
-				OTHER_CFLAGS = "-DTI_POST_1_2";
+				OTHER_CFLAGS = (
+					"-DDEBUG",
+					"-DTI_POST_1_2",
+				);
 				PRODUCT_NAME = Titanium;
 			};
 			name = Debug;
 		};
 		24CA904011116C490084E2DE /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 241EAEC5118E2BA90081A5BE /* project.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				COPY_PHASE_STRIP = YES;
@@ -4863,6 +4873,7 @@
 		};
 		24DD031D11686DE8006FD6E1 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 241EAEC5118E2BA90081A5BE /* project.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				"ARCHS[sdk=iphoneos*]" = armv7;
@@ -4880,6 +4891,7 @@
 					"\"$(SRCROOT)/../lib\"",
 				);
 				OTHER_CFLAGS = (
+					"-DDEBUG",
 					"-DIPAD=1",
 					"-DTI_POST_1_2",
 				);
@@ -4891,6 +4903,7 @@
 		};
 		24DD031E11686DE8006FD6E1 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 241EAEC5118E2BA90081A5BE /* project.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				"ARCHS[sdk=iphoneos*]" = armv7;
@@ -4939,7 +4952,10 @@
 					../headers,
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 3.1;
-				OTHER_CFLAGS = "-DTI_POST_1_2";
+				OTHER_CFLAGS = (
+					"-DDEBUG",
+					"-DTI_POST_1_2",
+				);
 				OTHER_LDFLAGS = "-ObjC";
 				PREBINDING = NO;
 				PROVISIONING_PROFILE = "";
