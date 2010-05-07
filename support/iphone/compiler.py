@@ -182,7 +182,7 @@ class Compiler(object):
 			x = 0
 			for n in line[i+size:]:
 				# look for a terminal - this could probably be easier
-				if n in ['(','}','=',',',' ',':',')','!','[','+','*','/','~','^','%','\n','\t','\r']:
+				if n in ['(',')','{','}','=',',',' ',':','!','[',']','+','*','/','~','^','%','\n','\t','\r']:
 					found = True
 					break
 				buf+=n
@@ -261,7 +261,7 @@ class Compiler(object):
 				for file in files:
 					if file in ignoreFiles:
 						continue
-					prefix = root[len(target):]
+					prefix = root[len(source):]
 					from_ = os.path.join(root, file)			  
 					to_ = os.path.expanduser(from_.replace(source, target, 1))
 					to_directory = os.path.expanduser(os.path.split(to_)[0])

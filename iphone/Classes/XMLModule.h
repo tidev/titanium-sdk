@@ -4,9 +4,10 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
+#import "TiModule.h"
+
 #ifdef USE_TI_XML
 
-#import "TiModule.h"
 
 @interface XMLModule : TiModule {
 

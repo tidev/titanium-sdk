@@ -78,7 +78,7 @@ def copy_module_resources(source, target, copy_all=False, force=False):
 				shutil.copyfile(from_, to_)
 
 def make_appname(s):
-	r = re.compile('[0-9a-zA-Z_]')
+	r = re.compile('[0-9a-zA-Z_-]')
 	buf = ''
 	for i in s:
 		if r.match(i)!=None:
@@ -241,6 +241,14 @@ def main(args):
 		print "[INFO] iPhone Device family: %s" % devicefamily
 		print "[INFO] iPhone SDK version: %s" % iphone_version
 		
+		# TEMP HACK FOR UI module resources
+		img_dir = os.path.join(template_dir,'modules','ui','images')
+		dest_img_dir = os.path.join(app_dir,'modules','ui','images')
+		if not os.path.exists(dest_img_dir):
+			os.makedirs(dest_img_dir)
+		copy_module_resources(img_dir,dest_img_dir)
+		
+		
 		if devicefamily!=None:
 			xib = 'MainWindow_%s.xib' % devicefamily
 		else:
@@ -272,35 +280,37 @@ def main(args):
 		new_lib_hash = None
 		lib_hash = None	
 		
-		if simulator and force_xcode==False:
-			if os.path.exists(app_dir):
-				if os.path.exists(version_file):
-					line = open(version_file).read().strip()
-					lines = line.split(",")
-					v = lines[0]
-					log_id = lines[1]
-					if len(lines) > 2:
-						lib_hash = lines[2]
-						if iphone_version!=lines[3]:
-							force_xcode=True
-					if lib_hash==None:
-						force_xcode = True
+		if os.path.exists(app_dir):
+			if os.path.exists(version_file):
+				line = open(version_file).read().strip()
+				lines = line.split(",")
+				v = lines[0]
+				log_id = lines[1]
+				if len(lines) > 2:
+					lib_hash = lines[2]
+					if iphone_version!=lines[3]:
+						force_rebuild = True
+				if lib_hash==None:
+					force_rebuild = True
+				else:
+					if template_dir==v and force_rebuild==False:
+						force_rebuild = False
 					else:
-						if template_dir==v and force_rebuild==False:
-							force_rebuild = False
-						else:
-							log_id = None
+						log_id = None
+			else:
+				force_rebuild = True
+		else:
+			force_rebuild = True
 
-		if simulator:
-			source_lib=os.path.join(template_dir,'libTiCore.a')
-			fd = open(source_lib,'rb')
-			m = hashlib.md5()
-			m.update(fd.read(1024)) # just read 1K, it's binary
-			new_lib_hash = m.hexdigest()
-			fd.close()
+		source_lib=os.path.join(template_dir,'libTiCore.a')
+		fd = open(source_lib,'rb')
+		m = hashlib.md5()
+		m.update(fd.read(1024)) # just read 1K, it's binary
+		new_lib_hash = m.hexdigest()
+		fd.close()
 		
-		if force_xcode==False and new_lib_hash!=lib_hash:
-			force_xcode=True
+		if new_lib_hash!=lib_hash:
+			force_rebuild=True
 		
 		lib_hash=new_lib_hash
 					
@@ -310,6 +320,7 @@ def main(args):
 			project = Projector(name,sdk_version,template_dir,project_dir,appid)
 			project.create(template_dir,iphone_dir)	
 			force_xcode = True
+			if os.path.exists(build_out_dir): shutil.rmtree(build_out_dir)
 		else:
 			xcconfig = open(project_xcconfig,'w')
 			xcconfig.write("TI_VERSION=%s\n"% sdk_version)

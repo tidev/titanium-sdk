@@ -4,9 +4,9 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-#ifdef USE_TI_UIIPAD
-
 #import "TiProxy.h"
+
+#ifdef USE_TI_UIIPAD
 
 // if we use a split window, we need to include the ipad popover
 #ifdef USE_TI_UIIPADSPLITWINDOW

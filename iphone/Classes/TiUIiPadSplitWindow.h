@@ -6,6 +6,12 @@
  */
 #ifdef USE_TI_UIIPADSPLITWINDOW
 
+// if we use a split window, we need to include the ipad popover
+#ifndef USE_TI_UIIPADPOPOVER
+#define USE_TI_UIIPADPOPOVER
+#endif
+
+
 #import "TiUIView.h"
 
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
