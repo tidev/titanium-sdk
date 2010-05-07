@@ -75,14 +75,19 @@
 		}
 		else
 		{
+			CGRect rect;
+			view = [proxy view];
 			id obj = [args objectForKey:@"rect"];
 			if (obj!=nil)
 			{
-				CGRect rect = [TiUtils rectValue:obj];
-				[actionSheet showFromRect:rect inView:[proxy view] animated:animated];
-				return;
+				rect = [TiUtils rectValue:obj];
 			}
-			view = [proxy view];
+			else
+			{
+				rect = [view bounds];
+			}
+			[actionSheet showFromRect:rect inView:view animated:animated];
+			return;
 		}
 	}
 	[actionSheet showInView:view];
