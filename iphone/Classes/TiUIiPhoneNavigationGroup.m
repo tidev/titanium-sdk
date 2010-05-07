@@ -31,8 +31,8 @@
 		controller = [[UINavigationController alloc] initWithRootViewController:rootController];
 		[controller setDelegate:self];
 		windowProxy.navController = controller;
-		[windowProxy view];
 		[self addSubview:controller.view];
+       [controller.view addSubview:[windowProxy view]];
 		[windowProxy setupWindowDecorations];
 		current = windowProxy;
 		root = windowProxy;
@@ -62,7 +62,7 @@
 	current = window;
 	opening = YES;
 	[controller pushViewController:viewController animated:animated];
-	[window setupWindowDecorations];
+    [window setupWindowDecorations];
 }
 
 -(void)close:(TiWindowProxy*)window withObject:(NSDictionary*)properties
@@ -74,6 +74,11 @@
 
 #pragma mark Delegate 
 
+- (void)navigationController:(UINavigationController *)navigationController willShowViewController:(UIViewController *)viewController animated:(BOOL)animated
+{
+    TiWindowProxy *newWindow = [(TiWindowViewController*)viewController proxy];
+    [newWindow setupWindowDecorations];
+}
 - (void)navigationController:(UINavigationController *)navigationController didShowViewController:(UIViewController *)viewController animated:(BOOL)animated
 {
 	TiWindowViewController *wincontroller = (TiWindowViewController*)viewController;
