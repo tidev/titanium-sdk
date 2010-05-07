@@ -4,6 +4,7 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
+#ifdef USE_TI_UIIPAD
 
 #import "TiUIiPadProxy.h"
 #import "TiUtils.h"
@@ -55,5 +56,7 @@ MAKE_SYSTEM_PROP_IPAD(POPOVER_ARROW_DIRECTION_UNKNOWN,UIPopoverArrowDirectionUnk
 #endif
 
 @end
+
+#endif
 
 #endif

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?><ti:app xmlns:ti="http://ti.appcelerator.org">
-<id>com.nolanwright.kitchensink2</id>
+<id>com.appcelerator.titanium</id>
 <name>KitchenSink</name>
 <version>1.0</version>
 <publisher>nwright</publisher>

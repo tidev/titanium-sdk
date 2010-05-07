@@ -4,9 +4,13 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
+#import "TiBase.h"
+
+#ifdef USE_TI_UI
 
 #import "UIModule.h"
 #import "TiProxy.h"
+
 #ifdef USE_TI_UI2DMATRIX
 	#import "Ti2DMatrix.h"
 #endif
@@ -16,8 +20,12 @@
 #ifdef USE_TI_UIANIMATION
 	#import "TiAnimation.h"
 #endif
-#import "TiUIiPhoneProxy.h"
-#import "TiUIiPadProxy.h"
+#ifdef USE_TI_UIIPHONE
+	#import "TiUIiPhoneProxy.h"
+#endif
+#ifdef USE_TI_UIIPAD
+	#import "TiUIiPadProxy.h"
+#endif
 #import "TitaniumApp.h"
 #import "ImageLoader.h"
 #import "Webcolor.h"
@@ -26,8 +34,12 @@
 
 -(void)dealloc
 {
+#ifdef USE_TI_UIIPAD
 	RELEASE_TO_NIL(ipad);
+#endif
+#ifdef USE_TI_UIIPHONE
 	RELEASE_TO_NIL(iphone);
+#endif
 	[super dealloc];
 }
 
@@ -217,33 +229,33 @@ MAKE_SYSTEM_PROP(FACE_DOWN,UIDeviceOrientationFaceDown);
 
 #pragma mark iPhone namespace
 
+#ifdef USE_TI_UIIPHONE
 -(id)iPhone
 {
 	if (iphone==nil)
 	{
 		// cache it since it's used alot
-#ifdef USE_TI_UIIPHONE		
 		iphone = [[TiUIiPhoneProxy alloc] _initWithPageContext:[self pageContext]];
-#endif
 	}
 	return iphone;
 }
+#endif
 
+#ifdef USE_TI_UIIPAD
 -(id)iPad
 {
 	if (ipad==nil)
 	{
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
-#ifdef USE_TI_UIIPAD
 		if ([TiUtils isIPad])
 		{
 			ipad = [[TiUIiPadProxy alloc] _initWithPageContext:[self pageContext]];
 		}
 #endif
-#endif
 	}
 	return ipad;
 }
+#endif
 
 #pragma mark Internal Memory Management
 
@@ -254,3 +266,5 @@ MAKE_SYSTEM_PROP(FACE_DOWN,UIDeviceOrientationFaceDown);
 }
 
 @end
+
+#endif
