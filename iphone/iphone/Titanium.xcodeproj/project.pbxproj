@@ -4761,7 +4761,10 @@
 					"$(inherited)",
 					"\"$(SRCROOT)/../lib\"",
 				);
-				OTHER_CFLAGS = "-DIPAD=1";
+				OTHER_CFLAGS = (
+					"-DIPAD=1",
+					"-DTI_POST_1_2",
+				);
 				PRODUCT_NAME = "Titanium-iPad";
 				SDKROOT = iphonesimulator3.2;
 				TARGETED_DEVICE_FAMILY = 2;
@@ -4784,7 +4787,10 @@
 					"$(inherited)",
 					"\"$(SRCROOT)/../lib\"",
 				);
-				OTHER_CFLAGS = "-DIPAD=1";
+				OTHER_CFLAGS = (
+					"-DIPAD=1",
+					"-DTI_POST_1_2",
+				);
 				PRODUCT_NAME = "Titanium-iPad";
 				SDKROOT = iphonesimulator3.2;
 				TARGETED_DEVICE_FAMILY = 2;
@@ -4806,6 +4812,7 @@
 					"$(inherited)",
 					"\"$(SRCROOT)/../lib\"",
 				);
+				OTHER_CFLAGS = "-DTI_POST_1_2";
 				PRODUCT_NAME = Titanium;
 			};
 			name = Debug;
@@ -4822,6 +4829,7 @@
 					"$(inherited)",
 					"\"$(SRCROOT)/../lib\"",
 				);
+				OTHER_CFLAGS = "-DTI_POST_1_2";
 				PRODUCT_NAME = Titanium;
 				VALIDATE_PRODUCT = YES;
 			};
@@ -4890,7 +4898,10 @@
 					"$(inherited)",
 					"\"$(SRCROOT)/../lib\"",
 				);
-				OTHER_CFLAGS = "-DIPAD=1";
+				OTHER_CFLAGS = (
+					"-DIPAD=1",
+					"-DTI_POST_1_2",
+				);
 				PRODUCT_NAME = "Titanium-iPad";
 				SDKROOT = iphonesimulator3.2;
 				TARGETED_DEVICE_FAMILY = 2;
@@ -4913,7 +4924,10 @@
 					"$(inherited)",
 					"\"$(SRCROOT)/../lib\"",
 				);
-				OTHER_CFLAGS = "-DIPAD=1";
+				OTHER_CFLAGS = (
+					"-DIPAD=1",
+					"-DTI_POST_1_2",
+				);
 				PRODUCT_NAME = "Titanium-iPad";
 				SDKROOT = iphonesimulator3.2;
 				TARGETED_DEVICE_FAMILY = 2;
