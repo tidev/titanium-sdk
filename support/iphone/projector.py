@@ -20,7 +20,7 @@ exclusions = ['TiCore']
 class Projector(object):
 	
 	def make_self(self,s):
-		r = re.compile('[0-9a-zA-Z_]')
+		r = re.compile('[0-9a-zA-Z_-]')
 		buf = ''
 		for i in s:
 			if r.match(i)!=None:
