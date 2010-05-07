@@ -59,10 +59,17 @@ return w([resultDict objectForKey:attr]!=nil);\
 	FILEATTR(NSFileTypeSymbolicLink,NO,NUMBOOL);
 }
 
--(id)writable
+-(id)writeable
 {
 	return NUMBOOL(![self readonly]);
 }
+
+-(id)writable
+{
+	NSLog(@"[WARN] The File.writable method is deprecated and should no longer be used. Use writeable instead.");
+	return [self writeable];
+}
+
 
 #define FILENOOP(name) \
 -(id)name\

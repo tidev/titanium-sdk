@@ -4,7 +4,7 @@
 # Project Compiler
 #
 
-import os, sys, re, shutil, random, time, base64
+import os, sys, re, shutil, time, base64
 
 template_dir = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
 sys.path.append(os.path.join(template_dir,'../'))
@@ -45,13 +45,6 @@ FOOTER ="""
 @end
 """
 
-random.seed(time.time())
-
-def dequote(s):
-	if s[0:1] == '"':
-		return s[1:-1]
-	return s
-	
 #
 # TODO/FIXME
 #
@@ -146,8 +139,11 @@ class Compiler(object):
 		if os.path.exists(project_module_dir):
 			self.copy_resources([project_module_dir],app_dir,False)
 		
+		# we have to copy these even in simulator given the path difference
+		self.copy_resources([iphone_resources_dir],app_dir,False)
+		
 		if deploytype!='development':
-			self.copy_resources([iphone_resources_dir,resources_dir],app_dir)
+			self.copy_resources([resources_dir],app_dir)
 
 			defines_header = open(os.path.join(self.classes_dir,'defines.h'),'w')
 			defines_header.write("// Warning: this is generated file. Do not modify!\n\n")
