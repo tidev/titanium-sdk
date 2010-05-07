@@ -39,24 +39,30 @@ var b2 = Titanium.UI.createButton({
 	right:10,
 	top:55
 });
-var bgi = false;
+var bgi = 0;
 b2.addEventListener('click', function()
 {
+	switch (bgi) {
+		case 0:
+			Ti.API.info('No cap');
+			tf1.backgroundLeftCap = 0;
+			tf1.backgroundTopCap = 0;
+			tf1.backgroundImage = '../images/chat.png';
+			bgi++;
+			break;
+		case 1:
+			Ti.API.info('Capped');
+			tf1.backgroundLeftCap = 12;
+			tf1.backgroundTopCap = 9;
+			bgi++;
+			break;
+		case 2:
+			tf1.backgroundImage = null;
+			tf1.borderStyle = Titanium.UI.INPUT_BORDERSTYLE_ROUNDED;
+			bgi=0;
+			break;
+	}
 	Ti.API.info('backgroundImage ' + tf1.backgroundImage);
-	if (!bgi)
-	{
-		// Uncomment to see 'bad' capping behavior
-		tf1.backgroundLeftCap = 9;
-		tf1.backgroundTopCap = 10;
-		tf1.backgroundImage = '../images/chat.png';
-		bgi=true;
-	}
-	else
-	{
-		tf1.backgroundImage = null;
-		tf1.borderStyle = Titanium.UI.INPUT_BORDERSTYLE_ROUNDED;
-		bgi=false;
-	}
 });
 win.add(b2);
 
