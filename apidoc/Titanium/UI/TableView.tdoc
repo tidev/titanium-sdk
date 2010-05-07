@@ -45,7 +45,7 @@ minRowHeight[float]: min row height for table view rows
 maxRowHeight[float]: max row height for table view rows
 data[array]: the data array of objects to be used for the rows of the table view
 style[int]: iPhone only. the style of the table view. constant from [Titanium.UI.iPhone.TableViewStyle](Titanium.UI.iPhone.TableViewStyle)
-
+allowsSelection[boolean]: true if the rows can be selected
 
 - methods
 
@@ -57,6 +57,17 @@ insertRowAfter: insert a row before another row, optionally with animation
 insertRowBefore: insert a row after another row, optionally with animation
 scrollToIndex: scroll to a specific row index and ensure that that row is on screen
 scrollToTop: scroll the table to a specific top position where 0 is the topmost y position in the table view
+selectRow: programmatically select a row
+deselectRow: programmatically deselect a row
+
+- method : selectRow
+
+row[int]: row index to select
+
+- method : deselectRow
+
+row[int]: row index to deselect
+
 
 - method : scrollToTop
 

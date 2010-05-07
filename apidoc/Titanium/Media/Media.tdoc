@@ -170,6 +170,18 @@ VIDEO_FINISH_REASON_PLAYBACK_ENDED[int]: the video playback ended normally
 VIDEO_FINISH_REASON_PLAYBACK_ERROR[int]: the video playback ended abnormally
 VIDEO_FINISH_REASON_USER_EXITED[int]: the video playback ended by user action (such as clicking the `Done` button)
 
+AUDIO_SESSION_MODE_AMBIENT[int]: For long-duration sounds such as rain, car engine noise, and so on. It is also for 'play along' style applications, such a virtual piano that a user plays over iPod audio.
+When you use this category, audio from built-in applications, such as the iPod, mixes with your audio. Your audio is silenced when the Ring/Silent switch is set to silent or when the screen locks.
+
+AUDIO_SESSION_MODE_SOLO_AMBIENT[int]: The solo ambient sound category is for long-duration sounds such as rain, car engine noise, and so on. When you use this category, audio from built-in applications, such as the iPod, is silenced. Your audio is silenced when the Ring/Silent switch is set to `silent` or when the screen locks.
+
+AUDIO_SESSION_MODE_PLAYBACK[int]: For playing recorded music or other sounds that are central to the successful use of your application. When using this mode, your application audio continues with the Ring/Silent switch set to silent or when the screen locks. This property normally disallows iPod audio to mix with application audio
+
+AUDIO_SESSION_MODE_RECORD[int]: For recording audio; it silences playback audio.
+
+AUDIO_SESSION_MODE_PLAY_AND_RECORD[int]: Allows recording (input) and playback (output) of audio, such as for a VOIP (voice over IP) application. This category is appropriate for simultaneous recording and playback, and also for applications that record and play back but not simultaneously. If you want to ensure that sounds such as Messages alerts do not play while your application is recording, use  [[Titanium.Media.AUDIO_SESSION_MODE_RECORD]] instead. This category normally disallows iPod audio to mix with application audio.
+
+defaultAudioSessionMode[int]: a constant for the default audio session mode to be used. One of [[Titanium.Media.AUDIO_SESSION_MODE_AMBIENT]], [[Titanium.Media.AUDIO_SESSION_MODE_SOLO_AMBIENT]],[[Titanium.Media.AUDIO_SESSION_MODE_PLAYBACK]],[[Titanium.Media.AUDIO_SESSION_MODE_RECORD]], [[Titanium.Media.AUDIO_SESSION_MODE_PLAY_AND_RECORD]].
 
 - events
 

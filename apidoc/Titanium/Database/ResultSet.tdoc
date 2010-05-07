@@ -27,6 +27,11 @@ field: retrieve a row value by field index
 fieldByName: retrieve a row value by field name
 fieldCount: return the number of columns in the result set
 isValidRow: return true if the row is a valid row
+fieldName: return the field name for field index
+
+- method : fieldName, string
+
+index[int]: field name column index (which is zero based)
 
 - method : next, boolean
 

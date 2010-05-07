@@ -31,6 +31,8 @@ highlightedColor[string]: the color of the label when in the highlighted state
 textAlign[string,int]: the alignment constant or string value such as `left`, `center` or `right` 
 shadowColor[string]: the text shadow color
 shadowOffset[object]: the shadow offset as a dictionary with the properties `x` and `y`
+minimumFontSize[int]: the minimum font size if the label is auto-adjusting based on its contents
+backgroundImage[string]: background image for the label
 
 - methods
 

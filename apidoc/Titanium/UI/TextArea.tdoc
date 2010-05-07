@@ -31,6 +31,7 @@ value[string]: value of the field
 keyboardToolbar[array]: array of toolbar button objects to be used when the keyboard is displayed
 keyboardToolbarColor[string]: the color of the keyboard toolbar 
 keyboardToolbarHeight[float]: the height of the keyboard toolbar
+suppressReturn[boolean]: boolean to indicate if the return key should be suppressed during entry
 
 - methods
 
