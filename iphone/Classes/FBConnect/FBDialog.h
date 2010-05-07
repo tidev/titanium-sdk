@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
 */
+#ifdef USE_TI_FACEBOOK
 
 #import "FBConnectGlobal.h"
 
@@ -135,3 +136,5 @@
 - (BOOL)dialog:(FBDialog*)dialog shouldOpenURLInExternalBrowser:(NSURL*)url;
 
 @end
+
+#endif

@@ -4,6 +4,8 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
+#ifdef USE_TI_UIIMAGEVIEW
+
 #import "TiUIImageViewProxy.h"
 #import "TiUIImageView.h"
 #import "OperationQueue.h"
@@ -92,3 +94,5 @@ USE_VIEW_FOR_AUTO_WIDTH
 USE_VIEW_FOR_AUTO_HEIGHT
 
 @end
+
+#endif

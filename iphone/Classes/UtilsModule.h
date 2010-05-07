@@ -8,6 +8,7 @@
 
 #ifdef USE_TI_UTILS
 
+
 @interface UtilsModule : TiModule {
 
 @private

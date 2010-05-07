@@ -27,6 +27,7 @@ android, iphone, ipad
 
 tabs[array]: array of tab objects that are managed by the tab group
 activeTab[object]: the active tab
+barColor[string]: the bar color 
 
 - methods
 

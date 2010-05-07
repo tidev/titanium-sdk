@@ -12,6 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#if defined(USE_TI_XML) || defined(USE_TI_NETWORK)
 
 #define GDATAXMLNODE_DEFINE_GLOBALS 1
 #import "GDataXMLNode.h"
@@ -1834,3 +1835,5 @@ static CFHashCode StringCacheKeyHashCallBack(const void *str) {
 	}
 	return hash;
 }
+
+#endif

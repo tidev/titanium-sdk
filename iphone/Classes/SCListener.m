@@ -5,6 +5,7 @@
 // (c) 2009-* Stephen Celis, <stephen@stephencelis.com>.
 // Released under the MIT License.
 //
+#ifdef USE_TI_MEDIA
 
 #import "SCListener.h"
 
@@ -192,3 +193,5 @@ static void listeningCallback(void *inUserData, AudioQueueRef inAQ, AudioQueueBu
 }
 
 @end
+
+#endif

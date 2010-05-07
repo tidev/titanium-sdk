@@ -4,38 +4,92 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
+#ifdef USE_TI_UIIPHONE
+
 #import "TiProxy.h"
 
 @interface TiUIiPhoneProxy : TiProxy {
 @private
+#ifdef USE_TI_UIIPHONEANIMATIONSTYLE
 	TiProxy *animationStyle;
+#endif
+#ifdef USE_TI_UIIPHONESTATUSBAR
 	TiProxy *statusBar;
+#endif
+#ifdef USE_TI_UIIPHONEROWANIMATIONSTYLE	
 	TiProxy *rowAnimationStyle;
+#endif
+#ifdef USE_TI_UIIPHONESYSTEMBUTTONSTYLE	
 	TiProxy *systemButtonStyle;
+#endif
+#ifdef USE_TI_UIIPHONESYSTEMBUTTON
 	TiProxy *systemButton;
+#endif
+#ifdef USE_TI_UIIPHONEPROGRESSBARSTYLE
 	TiProxy *progressBarStyle;
+#endif
+#ifdef USE_TI_UIIPHONEACTIVITYINDICATORSTYLE
 	TiProxy *activityIndicatorStyle;
+#endif
+#ifdef USE_TI_UIIPHONESYSTEMICON
 	TiProxy *systemIcon;
+#endif
+#ifdef USE_TI_UIIPHONESCROLLINDICATORSTYLE
 	TiProxy *scrollIndicatorStyle;
+#endif
+#ifdef USE_TI_UIIPHONETABLEVIEWSTYLE
 	TiProxy *tableViewStyle;
+#endif
+#ifdef USE_TI_UIIPHONETABLEVIEWSEPARATORSTYLE
 	TiProxy *tableViewSeparatorStyle;
+#endif
+#ifdef USE_TI_UIIPHONETABLEVIEWSCROLLPOSITION
 	TiProxy *tableViewScrollPosition;
+#endif
+#ifdef USE_TI_UIIPHONETABLEVIEWCELLSELECTIONSTYLE
 	TiProxy *tableViewCellSelectionStyle;
+#endif
 }
 
-@property(nonatomic,readonly) TiProxy* AnimationStyle;
-@property(nonatomic,readonly) TiProxy* StatusBar;
+#ifdef USE_TI_UIIPHONEANIMATIONSTYLE
+	@property(nonatomic,readonly) TiProxy* AnimationStyle;
+#endif
+#ifdef USE_TI_UIIPHONESTATUSBAR
+	@property(nonatomic,readonly) TiProxy* StatusBar;
+#endif
+#ifdef USE_TI_UIIPHONEROWANIMATIONSTYLE
 @property(nonatomic,readonly) TiProxy* RowAnimationStyle;
+#endif
+#ifdef USE_TI_UIIPHONESYSTEMBUTTONSTYLE
 @property(nonatomic,readonly) TiProxy* SystemButtonStyle;
+#endif
+#ifdef USE_TI_UIIPHONESYSTEMBUTTON
 @property(nonatomic,readonly) TiProxy* SystemButton;
+#endif
+#ifdef USE_TI_UIIPHONEPROGRESSBARSTYLE
 @property(nonatomic,readonly) TiProxy* ProgressBarStyle;
+#endif
+#ifdef USE_TI_UIIPHONEACTIVITYINDICATORSTYLE
 @property(nonatomic,readonly) TiProxy* ActivityIndicatorStyle;
+#endif
+#ifdef USE_TI_UIIPHONESYSTEMICON
 @property(nonatomic,readonly) TiProxy* SystemIcon;
+#endif
+#ifdef USE_TI_UIIPHONESCROLLINDICATORSTYLE
 @property(nonatomic,readonly) TiProxy* ScrollIndicatorStyle;
+#endif
+#ifdef USE_TI_UIIPHONETABLEVIEWSTYLE
 @property(nonatomic,readonly) TiProxy* TableViewStyle;
+#endif
+#ifdef USE_TI_UIIPHONETABLEVIEWSEPARATORSTYLE
 @property(nonatomic,readonly) TiProxy* TableViewSeparatorStyle;
+#endif
+#ifdef USE_TI_UIIPHONETABLEVIEWSCROLLPOSITION
 @property(nonatomic,readonly) TiProxy* TableViewScrollPosition;
+#endif
+#ifdef USE_TI_UIIPHONETABLEVIEWCELLSELECTIONSTYLE
 @property(nonatomic,readonly) TiProxy* TableViewCellSelectionStyle;
+#endif
 
 
 @property(nonatomic,readwrite,assign)	NSNumber *statusBarHidden;
@@ -62,7 +116,11 @@
 -(void)hideStatusBar:(id)args;
 -(void)showStatusBar:(id)args;
 
+#ifdef USE_TI_UIIPHONENAVIGATIONGROUP
 -(id)createNavigationGroup:(id)args;
+#endif
 
 
 @end
+
+#endif

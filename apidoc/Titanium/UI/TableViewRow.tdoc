@@ -39,6 +39,8 @@ hasCheck[boolean]: render a system provided check mark in the right image area o
 hasDetail[boolean]: render a system provided blue indicator icon in the right image area of the row cell
 indentionLevel[int]: the indention level for the cell (defaults to 0)
 selectionStyle[int]: a selection style constant to control the selection color. For iPhone, use the constants from Titanium.UI.iPhone.TableViewCellSelectionStyle
+selectedColor[string]: color of the row during selection
+color[string]: default color of the row when not selected
 
 - events
 

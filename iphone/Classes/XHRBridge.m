@@ -4,6 +4,8 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
+#ifdef USE_TI_UIWEBVIEW
+
 #import "TiBase.h"
 #import "XHRBridge.h"
 #import "TiHost.h"
@@ -204,3 +206,5 @@ static XHRBridge *xhrBridge = nil;
 }
 
 @end
+
+#endif

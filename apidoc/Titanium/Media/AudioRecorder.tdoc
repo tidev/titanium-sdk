@@ -22,12 +22,20 @@ The AudioRecorder object is returned by [[Titanium.Media.createAudioRecorder]] a
 
 iphone, ipad
 
+- properties
 
+recording[boolean]: readonly property to indicate if recording
+stopped[boolean]: readonly property to indicate if stopped
+paused[boolean]: readonly property to indicate if paused
+compression[int]: audio compression constant to be used for the recording
+format[int]: audio format constant for used for the recording
 
+audioSessionMode[int]: the default audio session mode to be used for this recorder. One of [[Titanium.Media.AUDIO_SESSION_MODE_AMBIENT]], [[Titanium.Media.AUDIO_SESSION_MODE_SOLO_AMBIENT]],[[Titanium.Media.AUDIO_SESSION_MODE_PLAYBACK]],[[Titanium.Media.AUDIO_SESSION_MODE_RECORD]], [[Titanium.Media.AUDIO_SESSION_MODE_PLAY_AND_RECORD]].
 
+- methods
 
-
-
-
-
+start: called to start recording audio
+stop: called to stop recording audio
+pause: called to temporarily pause recording
+resume: called to resume audio recording
 

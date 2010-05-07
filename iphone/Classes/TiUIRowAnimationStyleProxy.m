@@ -4,6 +4,7 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
+#ifdef USE_TI_UIIPHONEROWANIMATIONSTYLE
 
 #import "TiUIRowAnimationStyleProxy.h"
 
@@ -22,3 +23,5 @@ MAKE_SYSTEM_PROP(UP,UITableViewRowAnimationTop);
 MAKE_SYSTEM_PROP(DOWN,UITableViewRowAnimationBottom);
 
 @end
+
+#endif

@@ -4,9 +4,9 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-#ifdef USE_TI_UI
-
 #import "TiModule.h"
+
+#ifdef USE_TI_UI
 
 // because alert is linked in Kroll and the user can use that
 // in their code instead of the full API, we need to create
@@ -16,8 +16,12 @@
 @interface UIModule : TiModule {
 
 @private
+#ifdef USE_TI_UIIPHONE
 	TiProxy *iphone;
+#endif
+#ifdef USE_TI_UIIPAD
 	TiProxy *ipad;
+#endif
 }
 
 //TODO: review these, maybe they need to go on iPhone Animation Style - however, they are platform generic
@@ -117,13 +121,25 @@
 @property(nonatomic,readonly) NSNumber *BLEND_MODE_PLUS_DARKER;
 @property(nonatomic,readonly) NSNumber *BLEND_MODE_PLUS_LIGHTER;
 
-
+#ifdef USE_TI_UI2DMATRIX
 -(id)create2DMatrix:(id)args;
--(id)create3DMatrix:(id)args;
--(id)createAnimation:(id)args;
+#endif
 
+#ifdef USE_TI_UI3DMATRIX
+-(id)create3DMatrix:(id)args;
+#endif
+
+#ifdef USE_TI_UIANIMATION
+-(id)createAnimation:(id)args;
+#endif
+
+#ifdef USE_TI_UIIPHONE
 @property(nonatomic,readonly)			TiProxy* iPhone;
+#endif
+
+#ifdef USE_TI_UIIPAD
 @property(nonatomic,readonly)			TiProxy* iPad;
+#endif
 
 @end
 

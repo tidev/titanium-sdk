@@ -12,8 +12,8 @@
 #import "TiEvaluator.h"
 #import "SBJSON.h"
 #import <sys/utsname.h>
+#import "NSData+Additions.h"
 
-const NSString *kGeolocationURL = @"http://api.appcelerator.net/p/v1/geo";
 extern NSString * const TI_APPLICATION_GUID;
 extern BOOL const TI_APPLICATION_ANALYTICS;
 
@@ -46,8 +46,11 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 
 -(void)start:(NSDictionary*)params
 {
+	// http://api.appcelerator.net/p/v1/geo
+	NSString *kGeolocationURL = stringWithHexString(@"687474703a2f2f6170692e61707063656c657261746f722e6e65742f702f76312f67656f");
+	
 	NSMutableString *url = [[[NSMutableString alloc] init] autorelease];
-	[url appendString:(NSString*)kGeolocationURL];
+	[url appendString:kGeolocationURL];
 	[url appendString:@"?"];
 	for (id key in params)
 	{

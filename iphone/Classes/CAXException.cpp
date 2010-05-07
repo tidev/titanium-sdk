@@ -46,8 +46,11 @@ Copyright (C) 2009 Apple Inc. All Rights Reserved.
 
  
 */
+#ifdef USE_TI_MEDIA
 
 
 #include "CAXException.h"
 
 CAXException::WarningHandler CAXException::sWarningHandler = NULL;
+
+#endif

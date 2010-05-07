@@ -4,6 +4,8 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
+#ifdef USE_TI_UIWINDOW
+
 #import "TiUIView.h"
 #import "TiWindowProxy.h"
 #import "KrollBridge.h"
@@ -22,3 +24,5 @@
 -(void)_refreshBackButton;
 
 @end
+
+#endif

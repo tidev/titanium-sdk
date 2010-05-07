@@ -4,14 +4,28 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
+#import "TiBase.h"
+
+#ifdef USE_TI_UI
 
 #import "UIModule.h"
 #import "TiProxy.h"
-#import "Ti2DMatrix.h"
-#import "Ti3DMatrix.h"
-#import "TiAnimation.h"
-#import "TiUIiPhoneProxy.h"
-#import "TiUIiPadProxy.h"
+
+#ifdef USE_TI_UI2DMATRIX
+	#import "Ti2DMatrix.h"
+#endif
+#ifdef USE_TI_UI3DMATRIX
+	#import "Ti3DMatrix.h"
+#endif
+#ifdef USE_TI_UIANIMATION
+	#import "TiAnimation.h"
+#endif
+#ifdef USE_TI_UIIPHONE
+	#import "TiUIiPhoneProxy.h"
+#endif
+#ifdef USE_TI_UIIPAD
+	#import "TiUIiPadProxy.h"
+#endif
 #import "TitaniumApp.h"
 #import "ImageLoader.h"
 #import "Webcolor.h"
@@ -20,8 +34,12 @@
 
 -(void)dealloc
 {
+#ifdef USE_TI_UIIPAD
 	RELEASE_TO_NIL(ipad);
+#endif
+#ifdef USE_TI_UIIPHONE
 	RELEASE_TO_NIL(iphone);
+#endif
 	[super dealloc];
 }
 
@@ -135,6 +153,7 @@ MAKE_SYSTEM_PROP(BLEND_MODE_PLUS_LIGHTER,kCGBlendModePlusLighter);
 
 #pragma mark Factory methods 
 
+#ifdef USE_TI_UI2DMATRIX
 -(id)create2DMatrix:(id)args
 {
 	if (args==nil || [args count] == 0)
@@ -145,7 +164,9 @@ MAKE_SYSTEM_PROP(BLEND_MODE_PLUS_LIGHTER,kCGBlendModePlusLighter);
 	Ti2DMatrix *matrix = [[Ti2DMatrix alloc] initWithProperties:args];
 	return [matrix autorelease];
 }
+#endif
 
+#ifdef USE_TI_UI3DMATRIX
 -(id)create3DMatrix:(id)args
 {
 	if (args==nil || [args count] == 0)
@@ -156,7 +177,9 @@ MAKE_SYSTEM_PROP(BLEND_MODE_PLUS_LIGHTER,kCGBlendModePlusLighter);
 	Ti3DMatrix *matrix = [[Ti3DMatrix alloc] initWithProperties:args];
 	return [matrix autorelease];
 }
+#endif
 
+#ifdef USE_TI_UIANIMATION
 -(id)createAnimation:(id)args
 {
 	if (args!=nil && [args isKindOfClass:[NSArray class]])
@@ -172,6 +195,7 @@ MAKE_SYSTEM_PROP(BLEND_MODE_PLUS_LIGHTER,kCGBlendModePlusLighter);
 	}
 	return [[[TiAnimation alloc] _initWithPageContext:[self pageContext]] autorelease];
 }
+#endif
 
 -(void)setOrientation:(id)mode
 {
@@ -205,6 +229,7 @@ MAKE_SYSTEM_PROP(FACE_DOWN,UIDeviceOrientationFaceDown);
 
 #pragma mark iPhone namespace
 
+#ifdef USE_TI_UIIPHONE
 -(id)iPhone
 {
 	if (iphone==nil)
@@ -214,7 +239,9 @@ MAKE_SYSTEM_PROP(FACE_DOWN,UIDeviceOrientationFaceDown);
 	}
 	return iphone;
 }
+#endif
 
+#ifdef USE_TI_UIIPAD
 -(id)iPad
 {
 	if (ipad==nil)
@@ -228,6 +255,7 @@ MAKE_SYSTEM_PROP(FACE_DOWN,UIDeviceOrientationFaceDown);
 	}
 	return ipad;
 }
+#endif
 
 #pragma mark Internal Memory Management
 
@@ -238,3 +266,5 @@ MAKE_SYSTEM_PROP(FACE_DOWN,UIDeviceOrientationFaceDown);
 }
 
 @end
+
+#endif

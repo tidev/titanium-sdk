@@ -11,8 +11,12 @@
 #import "TiRect.h"
 #import "TiUtils.h"
 #import "ImageLoader.h"
-#import "Ti2DMatrix.h"
-#import "Ti3DMatrix.h"
+#ifdef USE_TI_UI2DMATRIX	
+	#import "Ti2DMatrix.h"
+#endif
+#ifdef USE_TI_UI3DMATRIX	
+	#import "Ti3DMatrix.h"
+#endif
 #import "TiViewProxy.h"
 #import "TitaniumApp.h"
 
@@ -464,18 +468,21 @@ DEFINE_EXCEPTIONS
 
 -(void)updateTransform
 {
+#ifdef USE_TI_UI2DMATRIX	
 	if ([transformMatrix isKindOfClass:[Ti2DMatrix class]])
 	{
 		self.transform = CGAffineTransformConcat(virtualParentTransform, [(Ti2DMatrix*)transformMatrix matrix]);
+		return;
 	}
-	else if ([transformMatrix isKindOfClass:[Ti3DMatrix class]])
+#endif
+#ifdef USE_TI_UI3DMATRIX	
+	if ([transformMatrix isKindOfClass:[Ti3DMatrix class]])
 	{
 		self.layer.transform = CATransform3DConcat(CATransform3DMakeAffineTransform(virtualParentTransform),[(Ti3DMatrix*)transformMatrix matrix]);
+		return;
 	}
-	else
-	{
-		self.transform = virtualParentTransform;
-	}
+#endif
+	self.transform = virtualParentTransform;
 }
 
 

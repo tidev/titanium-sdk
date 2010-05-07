@@ -11,11 +11,11 @@
 #import "Webcolor.h"
 #import "TiBase.h"
 #import "TitaniumErrorController.h"
+#import "NSData+Additions.h"
 #import <QuartzCore/QuartzCore.h>
 
 TitaniumApp* sharedApp;
 
-NSString * const kTitaniumUserAgentPrefix = @"Appcelerator Titanium"; 
 extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 
 //
@@ -174,11 +174,15 @@ void MyUncaughtExceptionHandler(NSException *exception)
 	sessionId = [[TiUtils createUUID] retain];
 	
 	kjsBridge = [[KrollBridge alloc] initWithHost:self];
+#ifdef USE_TI_UIWEBVIEW
 	xhrBridge = [[XHRBridge alloc] initWithHost:self];
+#endif
 	
 	[kjsBridge boot:self url:nil preload:nil];
+#ifdef USE_TI_UIWEBVIEW
 	[xhrBridge boot:self url:nil preload:nil];
-
+#endif
+	
 	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardDidHide:) name:UIKeyboardDidHideNotification object:nil];
 	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardDidShow:) name:UIKeyboardDidShowNotification object:nil];
 }
@@ -195,7 +199,7 @@ void MyUncaughtExceptionHandler(NSException *exception)
 - (void)applicationDidFinishLaunching:(UIApplication *)application 
 {
 	NSSetUncaughtExceptionHandler(&MyUncaughtExceptionHandler);
-    [self loadSplash];
+	[self loadSplash];
 	[self boot];
 }
 
@@ -203,7 +207,7 @@ void MyUncaughtExceptionHandler(NSException *exception)
 {
 	started = [NSDate timeIntervalSinceReferenceDate];
 	NSSetUncaughtExceptionHandler(&MyUncaughtExceptionHandler);
-    [self loadSplash];
+	[self loadSplash];
 	
 	// get the current remote device UUID if we have one
 	NSString *curKey = [[NSUserDefaults standardUserDefaults] stringForKey:@"APNSRemoteDeviceUUID"];
@@ -244,9 +248,11 @@ void MyUncaughtExceptionHandler(NSException *exception)
 	[[NSNotificationCenter defaultCenter] postNotificationName:kTitaniumShutdownNotification object:self];
 	
 	[kjsBridge shutdown];
-	[xhrBridge shutdown];
 	RELEASE_TO_NIL(kjsBridge);
+#ifdef USE_TI_UIWEBVIEW
+	[xhrBridge shutdown];
 	RELEASE_TO_NIL(xhrBridge);
+#endif	
 	RELEASE_TO_NIL(remoteNotification);
 	RELEASE_TO_NIL(sessionId);
 }
@@ -255,7 +261,9 @@ void MyUncaughtExceptionHandler(NSException *exception)
 {
 	//FIXME: UIColorFlushCache();
 	[kjsBridge gc];
+#ifdef USE_TI_UIWEBVIEW
 	[xhrBridge gc];
+#endif
 }
 
 -(id)remoteNotification
@@ -376,7 +384,9 @@ void MyUncaughtExceptionHandler(NSException *exception)
 	[[NSNotificationCenter defaultCenter] removeObserver:self name:UIKeyboardDidHideNotification object:nil];
 	[[NSNotificationCenter defaultCenter] removeObserver:self name:UIKeyboardDidShowNotification object:nil];
 	RELEASE_TO_NIL(kjsBridge);
+#ifdef USE_TI_UIWEBVIEW
 	RELEASE_TO_NIL(xhrBridge);
+#endif	
 	RELEASE_TO_NIL(loadView);
 	RELEASE_TO_NIL(window);
 	RELEASE_TO_NIL(launchOptions);
@@ -385,7 +395,7 @@ void MyUncaughtExceptionHandler(NSException *exception)
 	RELEASE_TO_NIL(userAgent);
 	RELEASE_TO_NIL(remoteDeviceUUID);
 	RELEASE_TO_NIL(remoteNotification);
-    [super dealloc];
+	[super dealloc];
 }
 
 - (NSString*)userAgent
@@ -395,6 +405,7 @@ void MyUncaughtExceptionHandler(NSException *exception)
 		UIDevice *currentDevice = [UIDevice currentDevice];
 		NSString *currentLocaleIdentifier = [[NSLocale currentLocale] localeIdentifier];
 		NSString *currentDeviceInfo = [NSString stringWithFormat:@"%@/%@; %@; %@;",[currentDevice model],[currentDevice systemVersion],[currentDevice systemName],currentLocaleIdentifier];
+		NSString *kTitaniumUserAgentPrefix = [NSString stringWithFormat:@"%s%s%s %s%s","Appc","eler","ator","Tita","nium"];
 		userAgent = [[NSString stringWithFormat:@"%@/%s (%@)",kTitaniumUserAgentPrefix,TI_VERSION_STR,currentDeviceInfo] retain];
 	}
 	return userAgent;

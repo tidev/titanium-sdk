@@ -53,5 +53,16 @@ MODAL_PRESENTATION_CURRENT_CONTEXT[int]: The view is presented using the same st
 hideStatusBar: convenience method to hide the status bar
 showStatusBar: convenience method to show the status bar
 
+- method : hideStatusBar
+
+animated[boolean]: boolean to indicate if the action should be animated
+animationStyle[int]: the animation style
+
+- method : showStatusBar
+
+animated[boolean]: boolean to indicate if the action should be animated
+animationStyle[int]: the animation style
+
+
 
 

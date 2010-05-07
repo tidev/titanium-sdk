@@ -11,6 +11,7 @@
 #import "ASIHTTPRequest.h"
 #import "SBJSON.h"
 #import <sys/utsname.h>
+#import "NSData+Additions.h"
 
 //TODO:
 //
@@ -29,10 +30,6 @@ extern NSString * const TI_APPLICATION_GUID;
 #define TI_DB_WARN_ON_ATTEMPT_COUNT 5
 #define TI_DB_RETRY_INTERVAL_IN_SEC 15
 #define TI_DB_FLUSH_INTERVAL_IN_SEC 5
-
-#ifndef TI_ANALYTICS_URL
-#define TI_ANALYTICS_URL "https://api.appcelerator.net/p/v2/mobile-track"
-#endif
 
 // version of our analytics DB
 NSString * const TI_DB_VERSION = @"1";
@@ -147,7 +144,9 @@ NSString * const TI_DB_VERSION = @"1";
 	
 	if (url == nil)
 	{
-		url = [[NSURL URLWithString:[NSString stringWithCString:TI_ANALYTICS_URL encoding:NSUTF8StringEncoding]] retain];
+		//https://api.appcelerator.net/p/v2/mobile-track
+		NSString * kTiAnalyticsUrl = stringWithHexString(@"68747470733a2f2f6170692e61707063656c657261746f722e6e65742f702f76322f6d6f62696c652d747261636b");
+		url = [[NSURL URLWithString:kTiAnalyticsUrl] retain];
 	}
 	
 	ASIHTTPRequest *request = [ASIHTTPRequest requestWithURL:url];

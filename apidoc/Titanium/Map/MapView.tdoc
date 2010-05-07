@@ -31,6 +31,7 @@ addAnnotation: add a new annotation to the map
 addAnnotations: add one or more new annotation to the map
 removeAnnotation: remove an existing annotation from the map
 removeAnnotations: remove one or more existing annotations from the map
+removeAllAnnotations: removes all annotations added to the map
 
 - method : addAnnotation
 
@@ -95,6 +96,7 @@ clicksource: the source of either `annotation`, `leftButton` or `rightButton` to
 annotation: the announce source object
 index: the annotation index
 title: the annotation title
+map: the map view instance
 
 
 - notes

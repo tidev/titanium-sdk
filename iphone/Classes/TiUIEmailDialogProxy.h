@@ -4,6 +4,8 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
+#ifdef USE_TI_UIEMAILDIALOG
+
 #import "TiProxy.h"
 #import <MessageUI/MessageUI.h>
 
@@ -23,3 +25,5 @@
 @property(nonatomic,readonly)	NSNumber *FAILED;
 
 @end
+
+#endif

@@ -1,0 +1,4 @@
+TI_VERSION=1.3.0
+TI_SDK_DIR=/Library/Application Support/Titanium/mobilesdk/osx/$(TI_VERSION)/iphone
+TI_PROJECT_DIR=/Users/jhaynie/work/titanium_mobile/demos/KitchenSink
+TI_APPID=com.appcelerator.titanium

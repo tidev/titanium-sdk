@@ -4,8 +4,9 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
+#ifdef USE_TI_UIWEBVIEW
+
 #import "TiUIView.h"
-#import "AppModule.h"
 #import "TiEvaluator.h"
 
 @interface TiUIWebView : TiUIView<UIWebViewDelegate,TiEvaluator> {
@@ -14,7 +15,6 @@
 	UIActivityIndicatorView *spinner;
 	NSURL *url;
 	NSMutableDictionary *listeners;
-	AppModule *appModule;
 	NSString *pageToken;
 	BOOL scalingOverride;
 	NSString *basicCredentials;
@@ -29,3 +29,5 @@
 
 
 @end
+
+#endif

@@ -27,6 +27,12 @@ android, iphone, ipad
 value[string]: the value of the search bar
 showCancel[boolean]: boolean indicates whether the cancel button is displayed
 barColor[string]: the bar color of the search bar view
+hintText[string]: the text to show when the search bar field is not focused
+keyboardType[int]: the keyboard type constant to use when the field is focused
+prompt[string]: a single line of text displayed at the top of the search bar
+autocorrect[boolean]: boolean to indicate if the text in the field should be autocorrected as typed
+autocapitalization[boolean]: boolean to indicate if the text in the field should be autocapitalized as typed
+
 
 - methods
 

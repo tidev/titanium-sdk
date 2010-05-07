@@ -4,6 +4,8 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
+#ifdef USE_TI_UIEMAILDIALOG
+
 #import "TiBase.h"
 #import "TiUIEmailDialogProxy.h"
 #import "TiUtils.h"
@@ -156,3 +158,5 @@ MAKE_SYSTEM_PROP(FAILED,MFMailComposeResultFailed);
 }
 
 @end
+
+#endif

@@ -4,6 +4,8 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
+#ifdef USE_TI_UIPICKER
+
 #import "TiUIView.h"
 
 @class TiUIPickerItemProxy;
@@ -20,3 +22,4 @@
 -(void)selectRow:(NSArray*)array;
 
 @end
+#endif

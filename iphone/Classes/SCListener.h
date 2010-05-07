@@ -5,6 +5,7 @@
 // (c) 2009-* Stephen Celis, <stephen@stephencelis.com>.
 // Released under the MIT License.
 //
+#ifdef USE_TI_MEDIA
 
 #import <Foundation/Foundation.h>
 #import <AudioToolbox/AudioQueue.h>
@@ -30,3 +31,5 @@
 - (AudioQueueLevelMeterState *)levels;
 
 @end
+
+#endif

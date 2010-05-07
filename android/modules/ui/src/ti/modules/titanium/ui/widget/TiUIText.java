@@ -171,7 +171,7 @@ public class TiUIText extends TiUIView
 				autocorrect = d.getBoolean("autocorrect");
 			}
 
-			handleKeyboardType(TiConvert.toInt(newValue), autocorrect);
+			handleKeyboardType(TiConvert.toInt(d, "keyboardType"), autocorrect);
 		} else if (key.equals("returnKeyType")) {
 			handleReturnKeyType(TiConvert.toInt(newValue));
 		} else if (key.equals("font")) {
@@ -279,8 +279,8 @@ public class TiUIText extends TiUIView
 				tv.setRawInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_NORMAL);
 				break;
 			case KEYBOARD_NUMBERS_PUNCTUATION :
-				tv.setKeyListener(DigitsKeyListener.getInstance());
-				tv.setRawInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_NORMAL);
+				tv.setInputType(InputType.TYPE_CLASS_NUMBER);
+				//tv.setKeyListener(DigitsKeyListener.getInstance());
 				break;
 			case KEYBOARD_URL :
 				//tv.setKeyListener(TextKeyListener.getInstance(autocorrect, Capitalize.NONE));

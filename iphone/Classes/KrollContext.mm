@@ -170,9 +170,9 @@ static TiValueRef SetTimeoutCallback (TiContextRef jsContext, TiObjectRef jsFunc
 	{
 		id excm = [KrollObject toID:context value:exception];
 		NSLog(@"[ERROR] Script Error = %@",[TiUtils exceptionMessage:excm]);
+		fflush(stderr);
 	}
 	
-	fflush(stderr);
 	TiStringRelease(js);
 }
 

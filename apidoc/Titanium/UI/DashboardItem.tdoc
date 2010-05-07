@@ -1,0 +1,53 @@
+- namespace
+
+Titanium.UI.DashboardItem
+
+- type
+
+object
+
+- subtype
+
+proxy
+
+- description
+
+An item that represents a visual icon in the [[Titanium.UI.DashboardView]]. The Dashboard Item is created by the method `Titanium.UI.createDashboardItem`.
+
+- since
+
+1.2
+
+- platforms
+
+iphone, ipad
+
+- properties
+
+badge[int]: the badge value or `0` to remove the badge
+image[string]: the URL to the image
+selectedImage[string]: the URL to the image to display when the item is depressed (clicked)
+canDelete[boolean]: a boolean to indicate if this item can be deleted when it edit mode
+
+- events
+
+click: fired when a [[Titanium.UI.DashboardItem]] is clicked
+move: fired when a  [[Titanium.UI.DashboardItem]] is moved during editing
+delete: fired when a  [[Titanium.UI.DashboardItem]] is deleted during editings
+
+- event : click
+
+item: the [[Titanium.UI.DashboardItem]] that was clicked
+location: the location object with the properties `x` and `y` of where in the parent view the click was
+
+- event : move
+
+item: the [[Titanium.UI.DashboardItem]] that was moved
+items: the pending data array in the new order (uncommitted)
+
+- event : delete
+
+item: the [[Titanium.UI.DashboardItem]] that was deleted
+
+
+

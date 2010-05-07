@@ -25,15 +25,14 @@ Titanium writes native code so you don't have to. :)
 - Native apps built using web technologies
 - Apps are compiled and run locally (offline available)
 - Full support for HTML5 and CSS3
-- Ability to mix and match native UI controls with HTML controls (hybrid UIs)
 - Support for all native platform UI controls
 - Third-party JavaScript support such as jQuery, Dojo, etc.
 - Support for in-application SQL database
 - Support for Geolocation (compass, geolocation, forward/reverse lookup)
 - Support for Camera (taking Photos, playing and recording Video)
 - Support for Photo Album (reading and writing)
-- Support for Contacts Database
-- Support for Streaming Audio
+- Support for Contacts Database / Address Book
+- Support for Streaming Audio and Recording Audio, Audio Input Levels, Mic etc
 - Support for Vibration
 - Support for Social APIs such as Facebook Connect, Twitter, etc
 - Support for Yahoo YQL
@@ -56,20 +55,14 @@ Getting Help
 
 There are a number of ways to get help with Titanium.
 
-### Documentation Wiki
+### Developer Community 
 
-[Codestrong.com](http://www.codestrong.com) is our developer documentation wiki.  
+[Appcelerator Developer](http://developer.appcelerator.com) is our developer community.  
 
 ### Video Tutorials
 
 [Appcelerator Videos](http://www.vimeo.com/appcelerator) is our main video channel
 for video tutorials on Titanium.
-
-### Community Support Forums
-
-[Community Support Forums](http://support.appcelerator.net) are availabel for
-get help from Appcelerator and the community or to share information about
-Titanium development.
 
 ### IRC 
 
@@ -82,7 +75,8 @@ team for updates.
 
 ### Blog
 
-The Appcelerator blog is called [Appcelerant](http://www.appcelerant.com). 
+The Appcelerator corporate blog is called [Appcelerant](http://www.appcelerant.com). 
+The Appcelerator developer blog is located at (http://developer.appcelerator.com/blog).
 
 ### Commercial Support, Licensing
 

@@ -4,6 +4,7 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
+#ifdef USE_TI_UISWITCH
 
 #import "TiUISwitchProxy.h"
 
@@ -18,3 +19,5 @@ USE_VIEW_FOR_VERIFY_HEIGHT
 USE_VIEW_FOR_VERIFY_WIDTH
 
 @end
+
+#endif

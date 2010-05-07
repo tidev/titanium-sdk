@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
 */
+#ifdef USE_TI_FACEBOOK
 
 #import "FBConnectGlobal.h"
 
@@ -33,3 +34,5 @@ NSMutableArray* FBCreateNonRetainingArray() {
   callbacks.release = ReleaseNoOp;
   return (NSMutableArray*)CFArrayCreateMutable(nil, 0, &callbacks);
 }
+
+#endif

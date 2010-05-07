@@ -188,7 +188,7 @@ class TiAppXML(object):
 		f = codecs.open(file,'w+','utf-8','replace')
 		f.write(plist)
 		f.close()
-
+		
 		return icon
 
 
