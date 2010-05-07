@@ -78,7 +78,7 @@ def copy_module_resources(source, target, copy_all=False, force=False):
 				shutil.copyfile(from_, to_)
 
 def make_appname(s):
-	r = re.compile('[0-9a-zA-Z_]')
+	r = re.compile('[0-9a-zA-Z_-]')
 	buf = ''
 	for i in s:
 		if r.match(i)!=None:
@@ -240,6 +240,14 @@ def main(args):
 		print "[INFO] Titanium SDK version: %s" % sdk_version
 		print "[INFO] iPhone Device family: %s" % devicefamily
 		print "[INFO] iPhone SDK version: %s" % iphone_version
+		
+		# TEMP HACK FOR UI module resources
+		img_dir = os.path.join(template_dir,'modules','ui','images')
+		dest_img_dir = os.path.join(app_dir,'modules','ui','images')
+		if not os.path.exists(dest_img_dir):
+			os.makedirs(dest_img_dir)
+		copy_module_resources(img_dir,dest_img_dir)
+		
 		
 		if devicefamily!=None:
 			xib = 'MainWindow_%s.xib' % devicefamily
