@@ -1387,16 +1387,6 @@
 		B4F97C5A111BAD4700E2F72C /* TiUIScrollIndicatorStyleProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = B4F97C57111BAD4700E2F72C /* TiUIScrollIndicatorStyleProxy.m */; };
 /* End PBXBuildFile section */
 
-/* Begin PBXContainerItemProxy section */
-		24C3B1EF1151E87F0053BAC7 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 29B97313FDCFA39411CA2CEA /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 2461CE231151D856007A4CC9;
-			remoteInfo = "Titanium-KitchenSink-iPad";
-		};
-/* End PBXContainerItemProxy section */
-
 /* Begin PBXFileReference section */
 		1D30AB110D05D00D00671497 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		1D6058910D05DD3D006BFB54 /* Titanium.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Titanium.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -3372,7 +3362,6 @@
 			buildRules = (
 			);
 			dependencies = (
-				24C3B1F01151E87F0053BAC7 /* PBXTargetDependency */,
 			);
 			name = "Titanium-Terrordom";
 			productName = Titanium;
@@ -4695,14 +4684,6 @@
 		};
 /* End PBXSourcesBuildPhase section */
 
-/* Begin PBXTargetDependency section */
-		24C3B1F01151E87F0053BAC7 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 2461CE231151D856007A4CC9 /* Titanium-KitchenSink-iPad */;
-			targetProxy = 24C3B1EF1151E87F0053BAC7 /* PBXContainerItemProxy */;
-		};
-/* End PBXTargetDependency section */
-
 /* Begin XCBuildConfiguration section */
 		1D6058940D05DD3E006BFB54 /* Debug */ = {
 			isa = XCBuildConfiguration;
@@ -4761,7 +4742,10 @@
 					"$(inherited)",
 					"\"$(SRCROOT)/../lib\"",
 				);
-				OTHER_CFLAGS = "-DIPAD=1";
+				OTHER_CFLAGS = (
+					"-DTI_POST_1_2",
+					"-DIPAD=1",
+				);
 				PRODUCT_NAME = "Titanium-iPad";
 				SDKROOT = iphonesimulator3.2;
 				TARGETED_DEVICE_FAMILY = 2;
@@ -4784,7 +4768,10 @@
 					"$(inherited)",
 					"\"$(SRCROOT)/../lib\"",
 				);
-				OTHER_CFLAGS = "-DIPAD=1";
+				OTHER_CFLAGS = (
+					"-DTI_POST_1_2",
+					"-DIPAD=1",
+				);
 				PRODUCT_NAME = "Titanium-iPad";
 				SDKROOT = iphonesimulator3.2;
 				TARGETED_DEVICE_FAMILY = 2;
@@ -4890,7 +4877,10 @@
 					"$(inherited)",
 					"\"$(SRCROOT)/../lib\"",
 				);
-				OTHER_CFLAGS = "-DIPAD=1";
+				OTHER_CFLAGS = (
+					"-DTI_POST_1_2",
+					"-DIPAD=1",
+				);
 				PRODUCT_NAME = "Titanium-iPad";
 				SDKROOT = iphonesimulator3.2;
 				TARGETED_DEVICE_FAMILY = 2;
@@ -4913,7 +4903,10 @@
 					"$(inherited)",
 					"\"$(SRCROOT)/../lib\"",
 				);
-				OTHER_CFLAGS = "-DIPAD=1";
+				OTHER_CFLAGS = (
+					"-DTI_POST_1_2",
+					"-DIPAD=1",
+				);
 				PRODUCT_NAME = "Titanium-iPad";
 				SDKROOT = iphonesimulator3.2;
 				TARGETED_DEVICE_FAMILY = 2;
