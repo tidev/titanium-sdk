@@ -35,9 +35,11 @@
 
 -(void)stop:(id)args
 {
+//Don't put this in UIThread, because it doesn't need to go in UIThread.
+//Furthermore, by the time this is run, if this stop was called by a destroy
+//Bad things(tm) happen.
 	if ([self viewAttached])
 	{
-		ENSURE_UI_THREAD(stop,args);
 		TiUIImageView *iv= (TiUIImageView*)[self view];
 		[iv stop];
 	}
