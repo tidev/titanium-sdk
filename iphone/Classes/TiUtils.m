@@ -20,7 +20,7 @@
 
 #import "UIImage+Resize.h"
 
-#ifdef DEBUG
+#ifdef TARGET_IPHONE_SIMULATOR
 extern NSString * const TI_APPLICATION_RESOURCE_DIR;
 #endif
 

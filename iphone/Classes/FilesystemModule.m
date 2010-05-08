@@ -9,7 +9,7 @@
 #import "FilesystemModule.h"
 #import "TiFilesystemFileProxy.h"
 
-#ifdef DEBUG 
+#ifdef TARGET_IPHONE_SIMULATOR 
 extern NSString * TI_APPLICATION_RESOURCE_DIR;
 #endif
 
