@@ -82,7 +82,8 @@ For more information on the Markdown syntax, refer to this documentation at:
 TEST HARNESS EXAMPLE FOR YOUR MODULE
 ------------------------------------
 
-TODO
+The `example` directory contains a skeleton application test harness that can be 
+used for testing and providing an example of usage to the users of your module.
 
 
 INSTALL YOUR MODULE
