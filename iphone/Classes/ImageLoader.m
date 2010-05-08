@@ -547,6 +547,8 @@ DEFINE_EXCEPTIONS
 
 -(void)queueRequestDidFinish:(ASIHTTPRequest*)request
 {
+	ENSURE_UI_THREAD_1_ARG(request);
+
 	// hold while we're working with it (release below)
 	[request retain];
 	
