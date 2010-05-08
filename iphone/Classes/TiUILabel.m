@@ -19,6 +19,7 @@
 {
     if (self = [super init]) {
         padding = CGRectZero;
+		initialLabelFrame = CGRectZero;
     }
     return self;
 }
@@ -58,6 +59,7 @@
 
 -(void)padLabel
 {
+	[label setFrame:initialLabelFrame];
     if (repad &&
         backgroundView != nil && 
         !CGRectEqualToRect(label.frame, CGRectZero)) 
@@ -86,6 +88,7 @@
 -(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
 {
 	[label setFrame:bounds];
+	initialLabelFrame = [label frame];
     
     repad = YES;
     [self padLabel];
@@ -126,7 +129,7 @@
 	{
 		[(TiViewProxy *)[self proxy] setNeedsRepositionIfAutoSized];
 	}
-
+	
 }
 
 -(void)setColor_:(id)color
@@ -180,6 +183,7 @@
             
             [label removeFromSuperview];
             [backgroundView addSubview:label];
+			[backgroundView setFrame:[label frame]];
             [self addSubview:backgroundView];
             
             repad = YES;
@@ -195,6 +199,7 @@
     }
     else {
         if (backgroundView) {
+			[label setFrame:initialLabelFrame];
             [label removeFromSuperview];
             [backgroundView removeFromSuperview];
             [self addSubview:label];
