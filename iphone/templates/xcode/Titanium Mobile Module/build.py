@@ -37,7 +37,7 @@ def validate_manifest():
 		if module_defaults.has_key(key):
 			defvalue = module_defaults[key]
 			curvalue = manifest[key]
-			#if curvalue==defvalue: die("please update the manifest key: '%s' to a non-default value" % key)
+			if curvalue==defvalue: die("please update the manifest key: '%s' to a non-default value" % key)
 	return manifest,path
 
 ignoreDirs = ['.DS_Store','.svn','.git','.gitignore','libTitanium.a','titanium.jar']
@@ -89,6 +89,7 @@ def package_module(manifest,mf):
 	if os.path.exists('assets'):
 		zip_dir(zf,'assets','%s/assets' % modulepath)
 	zf.write('LICENSE','%s/LICENSE' % modulepath)
+	zf.write('module.xcconfig','%s/module.xcconfig' % modulepath)
 	zf.close()
 	
 
