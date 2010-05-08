@@ -250,7 +250,12 @@ def main(args):
 				if not os.path.exists(dest_img_dir):
 					os.makedirs(dest_img_dir)
 				copy_module_resources(img_dir,dest_img_dir)
-		
+			
+			# when in simulator since we point to the resources directory, we need
+			# to explicitly copy over any files
+			ird = os.path.join(project_dir,'Resources','iphone')
+			if os.path.exists(ird): copy_module_resources(ird,app_dir)
+			
 		
 		if devicefamily!=None:
 			xib = 'MainWindow_%s.xib' % devicefamily
@@ -270,19 +275,25 @@ def main(args):
 			version = "%s.%d" % (version,time.time())
 			ti.properties['version']=version
 		
+		applogo = None
+		
 		# check to see if the appid is different (or not specified) - we need to re-generate
 		# the Info.plist before we actually invoke the compiler in this case
 		if read_project_appid(project_xcconfig)!=appid or not infoplist_has_appid(infoplist,appid):
 			# write out the updated Info.plist
 			infoplist_tmpl = os.path.join(iphone_dir,'Info.plist.template')
 			if devicefamily!=None:
-				ti.generate_infoplist(infoplist,infoplist_tmpl,appid,devicefamily)
+				applogo = ti.generate_infoplist(infoplist,infoplist_tmpl,appid,devicefamily)
 			else:
-				ti.generate_infoplist(infoplist,infoplist_tmpl,appid,'iphone')
+				applogo = ti.generate_infoplist(infoplist,infoplist_tmpl,appid,'iphone')
 		
 		new_lib_hash = None
 		lib_hash = None	
-		
+
+		# copy over the appicon
+		if applogo ==None and ti.properties.has_key('icon'):
+			applogo = ti.properties['icon']
+			
 		if os.path.exists(app_dir):
 			if os.path.exists(version_file):
 				line = open(version_file).read().strip()
