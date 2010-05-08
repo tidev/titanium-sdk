@@ -13,9 +13,6 @@
 
 @interface TiUIiPadPopover : TiUIView<UIPopoverControllerDelegate> {
 @private
-	UIPopoverController *controller;
-	TiViewController *viewController;
-	CGSize size;
 }
 
 @end
