@@ -77,6 +77,30 @@ b2.addEventListener('click', function()
 });
 win.add(b2);
 
+var b3 = Titanium.UI.createButton({
+	title:'Label 1 background',
+	height:40,
+	width:200,
+	top:330
+});
+var bg = false;
+b3.addEventListener('click', function()
+{
+	if (!bg) {
+		l1.backgroundPaddingLeft = 10;
+		l1.backgroundPaddingRight = 10;
+		l1.backgroundPaddingTop = 10;
+		l1.backgroundPaddingBottom = 10;
+		l1.backgroundImage = '../images/chat.png';
+		bg = true;
+	}
+	else {
+		l1.backgroundImage = null;
+		bg = false;
+	}
+});
+win.add(b3);
+
 var size = Ti.UI.createLabel({
 	height:30,
 	width:300,
