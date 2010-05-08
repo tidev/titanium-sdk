@@ -48,7 +48,7 @@ class Projector(object):
 		target = target.replace('TitaniumModule','%s$Module'%self.namespace)
 		target = target.replace('TitaniumViewController','%s$ViewController'%self.namespace)
 		for symbol in symbolicMap:
-			target = target.replace(symbol,self.name)
+			target = target.replace(symbol,self.namespace)
 		target = target.replace('%sme'%self.namespace,'Time')
 		target = target.replace(' ','_')
 		return os.path.join(dirname,target)
