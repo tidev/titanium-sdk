@@ -78,9 +78,12 @@ def copy_module_resources(source, target, copy_all=False, force=False):
 				shutil.copyfile(from_, to_)
 
 def make_appname(s):
-	r = re.compile('[0-9a-zA-Z_-]')
+	r = re.compile('[0-9a-zA-Z_]')
 	buf = ''
 	for i in s:
+		if i=='-':
+			buf+='_'
+			continue
 		if r.match(i)!=None:
 			buf+=i
 	# if name starts with number, we simply append a k to it
@@ -149,6 +152,7 @@ def main(args):
 		project_dir = os.path.expanduser(dequote(args[3].decode("utf-8")))
 		appid = dequote(args[4].decode("utf-8"))
 		name = dequote(args[5].decode("utf-8"))
+		app_name = make_appname(name)
 		iphone_dir = os.path.abspath(os.path.join(project_dir,'build','iphone'))
 		project_xcconfig = os.path.join(iphone_dir,'project.xcconfig')
 		tiapp_xml = os.path.join(project_dir,'tiapp.xml')
@@ -182,8 +186,8 @@ def main(args):
 		
 		build_out_dir = os.path.abspath(os.path.join(iphone_dir,'build'))
 		build_dir = os.path.abspath(os.path.join(build_out_dir,'%s-iphone%s'%(target,ostype)))
-		app_dir = os.path.abspath(os.path.join(build_dir,name+'.app'))
-		binary = os.path.join(app_dir,name)
+		app_dir = os.path.abspath(os.path.join(build_dir,app_name+'.app'))
+		binary = os.path.join(app_dir,app_name)
 		sdk_version = os.path.basename(os.path.abspath(os.path.join(template_dir,'../')))
 		iphone_resources_dir = os.path.join(iphone_dir,'Resources')
 		version_file = os.path.join(iphone_resources_dir,'.simulator')
@@ -241,13 +245,21 @@ def main(args):
 		print "[INFO] iPhone Device family: %s" % devicefamily
 		print "[INFO] iPhone SDK version: %s" % iphone_version
 		
-		# TEMP HACK FOR UI module resources
-		img_dir = os.path.join(template_dir,'modules','ui','images')
-		dest_img_dir = os.path.join(app_dir,'modules','ui','images')
-		if not os.path.exists(dest_img_dir):
-			os.makedirs(dest_img_dir)
-		copy_module_resources(img_dir,dest_img_dir)
-		
+		if simulator:
+			# during simulator we need to copy in standard built-in module files
+			# since we might not run the compiler on subsequent launches
+			for module_name in ('facebook','ui'):
+				img_dir = os.path.join(template_dir,'modules',module_name,'images')
+				dest_img_dir = os.path.join(app_dir,'modules',module_name,'images')
+				if not os.path.exists(dest_img_dir):
+					os.makedirs(dest_img_dir)
+				copy_module_resources(img_dir,dest_img_dir)
+			
+			# when in simulator since we point to the resources directory, we need
+			# to explicitly copy over any files
+			ird = os.path.join(project_dir,'Resources','iphone')
+			if os.path.exists(ird): copy_module_resources(ird,app_dir)
+			
 		
 		if devicefamily!=None:
 			xib = 'MainWindow_%s.xib' % devicefamily
@@ -256,7 +268,7 @@ def main(args):
 		s = os.path.join(template_dir,xib)
 		t = os.path.join(iphone_resources_dir,'MainWindow.xib')
 		xib_out = open(s).read()
-		xib_out = xib_out.replace('Titanium',make_appname(name))
+		xib_out = xib_out.replace('Titanium',app_name)
 		xib_f = open(t,'w')
 		xib_f.write(xib_out)
 		xib_f.close()
@@ -267,19 +279,25 @@ def main(args):
 			version = "%s.%d" % (version,time.time())
 			ti.properties['version']=version
 		
+		applogo = None
+		
 		# check to see if the appid is different (or not specified) - we need to re-generate
 		# the Info.plist before we actually invoke the compiler in this case
 		if read_project_appid(project_xcconfig)!=appid or not infoplist_has_appid(infoplist,appid):
 			# write out the updated Info.plist
 			infoplist_tmpl = os.path.join(iphone_dir,'Info.plist.template')
 			if devicefamily!=None:
-				ti.generate_infoplist(infoplist,infoplist_tmpl,appid,devicefamily)
+				applogo = ti.generate_infoplist(infoplist,infoplist_tmpl,appid,devicefamily)
 			else:
-				ti.generate_infoplist(infoplist,infoplist_tmpl,appid,'iphone')
+				applogo = ti.generate_infoplist(infoplist,infoplist_tmpl,appid,'iphone')
 		
 		new_lib_hash = None
 		lib_hash = None	
-		
+
+		# copy over the appicon
+		if applogo ==None and ti.properties.has_key('icon'):
+			applogo = ti.properties['icon']
+			
 		if os.path.exists(app_dir):
 			if os.path.exists(version_file):
 				line = open(version_file).read().strip()
@@ -370,7 +388,7 @@ def main(args):
 			os.chdir(iphone_dir)
 			
 			deploy_target = "IPHONEOS_DEPLOYMENT_TARGET=3.1"
-			device_target = 'TARGETED_DEVICE_FAMILY=iPhone'  # this is non-sensical, but you can't pass empty string
+			device_target = 'TARGETED_DEVICE_FAMILY=1'  # this is non-sensical, but you can't pass empty string
 
 			# write out the build log, useful for debugging
 			if not os.path.exists(build_out_dir): os.makedirs(build_out_dir)
@@ -378,7 +396,7 @@ def main(args):
 
 			if devicefamily!=None:
 				if devicefamily == 'ipad':
-					device_target=" TARGETED_DEVICE_FAMILY=iPad"
+					device_target="TARGETED_DEVICE_FAMILY=2"
 					deploy_target = "IPHONEOS_DEPLOYMENT_TARGET=3.2"
 			
 			def is_adhoc(uuid):
@@ -391,7 +409,11 @@ def main(args):
 	
 			def execute_xcode(sdk,extras,print_output=True):
 				
-				args = ["xcodebuild","-configuration",target,"-sdk",sdk]
+				config = app_name
+				if devicefamily=='ipad':
+					config = "%s-iPad" % config
+					
+				args = ["xcodebuild","-target",config,"-configuration",target,"-sdk",sdk]
 				args += extras
 				args += [deploy_target,device_target]
 				
@@ -428,8 +450,14 @@ def main(args):
 							sys.exit(1)
 			
 				# look for build error
-				if output.find("** BUILD FAILED **")!=-1 or output.find("ld returned 1")!=-1 or output.find("The following build commands failed:")!=-1 or not os.path.exists(binary):
+				if output.find("** BUILD FAILED **")!=-1 or output.find("ld returned 1")!=-1 or output.find("The following build commands failed:")!=-1:
 					print "[ERROR] Build Failed. Please see output for more details"
+					sys.stdout.flush()
+					sys.exit(1)
+					
+				# make sure binary exists
+				if not os.path.exists(binary):
+					print "[ERROR] Build Failed (Missing app at %s). Please see output for more details" % binary
 					sys.stdout.flush()
 					sys.exit(1)
 					
@@ -577,7 +605,7 @@ def main(args):
 				o.write(output)
 
 				# for install, launch itunes with the app
-				ipa = os.path.join(os.path.dirname(app_dir),"%s.ipa" % name)
+				ipa = os.path.join(os.path.dirname(app_dir),"%s.ipa" % app_name)
 				cmd = "open -b com.apple.itunes \"%s\"" % ipa
 				os.system(cmd)
 				
@@ -621,11 +649,11 @@ def main(args):
 				# switch to app_bundle for zip
 				os.chdir(build_dir)
 
-				outfile = os.path.join(output_dir,"%s.zip"%name)
+				outfile = os.path.join(output_dir,"%s.zip"%app_name)
 				if os.path.exists(outfile): os.remove(outfile)
 				
 				# you *must* use ditto here or it won't upload to appstore
-				os.system('ditto -ck --keepParent --sequesterRsrc "%s.app" "%s"' % (name,outfile))
+				os.system('ditto -ck --keepParent --sequesterRsrc "%s.app" "%s"' % (app_name,outfile))
 				
 				sys.exit(0)
 				

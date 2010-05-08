@@ -6,7 +6,11 @@
     #import <Foundation/Foundation.h>
     #import <UIKit/UIKit.h>
 #endif
+<<<<<<< HEAD:demos/KitchenSink-iPad/build/iphone/KitchenSink-iPad_Prefix.pch
 
+=======
+ 
+>>>>>>> 015d51b463ee6682f18692705e6fd6420e7dd7f0:demos/KitchenSink-iPad/build/iphone/KitchenSink-iPad_Prefix.pch
 
 // this was defined in 1.3+  
 // to allow us to include this define in the PCH

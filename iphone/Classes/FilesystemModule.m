@@ -9,6 +9,10 @@
 #import "FilesystemModule.h"
 #import "TiFilesystemFileProxy.h"
 
+#ifdef DEBUG 
+extern NSString * TI_APPLICATION_RESOURCE_DIR;
+#endif
+
 @implementation FilesystemModule
 
 
@@ -44,6 +48,12 @@
 
 -(NSString*)resourcesDirectory
 {
+#ifdef DEBUG 
+	if (TI_APPLICATION_RESOURCE_DIR!=nil && [TI_APPLICATION_RESOURCE_DIR isEqualToString:@""]==NO)
+	{
+		return TI_APPLICATION_RESOURCE_DIR;
+	}
+#endif
 	return [[NSBundle mainBundle] resourcePath];
 }
 

@@ -1387,16 +1387,6 @@
 		B4F97C5A111BAD4700E2F72C /* TiUIScrollIndicatorStyleProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = B4F97C57111BAD4700E2F72C /* TiUIScrollIndicatorStyleProxy.m */; };
 /* End PBXBuildFile section */
 
-/* Begin PBXContainerItemProxy section */
-		24C3B1EF1151E87F0053BAC7 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 29B97313FDCFA39411CA2CEA /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 2461CE231151D856007A4CC9;
-			remoteInfo = "Titanium-KitchenSink-iPad";
-		};
-/* End PBXContainerItemProxy section */
-
 /* Begin PBXFileReference section */
 		1D30AB110D05D00D00671497 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		1D6058910D05DD3D006BFB54 /* Titanium.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Titanium.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -3372,7 +3362,6 @@
 			buildRules = (
 			);
 			dependencies = (
-				24C3B1F01151E87F0053BAC7 /* PBXTargetDependency */,
 			);
 			name = "Titanium-Terrordom";
 			productName = Titanium;
@@ -3555,7 +3544,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "cp -Rf \"$PROJECT_DIR/../../demos/KitchenSink_iPad/Resources/.\" \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app\" \nmkdir -p \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/modules/facebook/images\"\nmkdir -p \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/modules/ui/images\"\ncp -Rf \"$PROJECT_DIR/../Resources/modules/facebook/.\" \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/modules/facebook/images\"\ncp -Rf \"$PROJECT_DIR/../Resources/modules/ui/.\" \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/modules/ui/images\"\n\n";
+			shellScript = "cp -Rf \"$PROJECT_DIR/../../demos/KitchenSink-iPad/Resources/.\" \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app\" \nmkdir -p \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/modules/facebook/images\"\nmkdir -p \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/modules/ui/images\"\ncp -Rf \"$PROJECT_DIR/../Resources/modules/facebook/.\" \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/modules/facebook/images\"\ncp -Rf \"$PROJECT_DIR/../Resources/modules/ui/.\" \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/modules/ui/images\"\n\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -4695,17 +4684,10 @@
 		};
 /* End PBXSourcesBuildPhase section */
 
-/* Begin PBXTargetDependency section */
-		24C3B1F01151E87F0053BAC7 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 2461CE231151D856007A4CC9 /* Titanium-KitchenSink-iPad */;
-			targetProxy = 24C3B1EF1151E87F0053BAC7 /* PBXContainerItemProxy */;
-		};
-/* End PBXTargetDependency section */
-
 /* Begin XCBuildConfiguration section */
 		1D6058940D05DD3E006BFB54 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 241EAEC5118E2BA90081A5BE /* project.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				COPY_PHASE_STRIP = NO;
@@ -4726,6 +4708,7 @@
 		};
 		1D6058950D05DD3E006BFB54 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 241EAEC5118E2BA90081A5BE /* project.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				COPY_PHASE_STRIP = YES;
@@ -4745,6 +4728,7 @@
 		};
 		2461CF0C1151D856007A4CC9 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 241EAEC5118E2BA90081A5BE /* project.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				"ARCHS[sdk=iphoneos*]" = armv7;
@@ -4761,7 +4745,11 @@
 					"$(inherited)",
 					"\"$(SRCROOT)/../lib\"",
 				);
-				OTHER_CFLAGS = "-DIPAD=1";
+				OTHER_CFLAGS = (
+					"-DDEBUG",
+					"-DTI_POST_1_2",
+					"-DIPAD=1",
+				);
 				PRODUCT_NAME = "Titanium-iPad";
 				SDKROOT = iphonesimulator3.2;
 				TARGETED_DEVICE_FAMILY = 2;
@@ -4770,6 +4758,7 @@
 		};
 		2461CF0D1151D856007A4CC9 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 241EAEC5118E2BA90081A5BE /* project.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				"ARCHS[sdk=iphoneos*]" = armv7;
@@ -4784,7 +4773,10 @@
 					"$(inherited)",
 					"\"$(SRCROOT)/../lib\"",
 				);
-				OTHER_CFLAGS = "-DIPAD=1";
+				OTHER_CFLAGS = (
+					"-DTI_POST_1_2",
+					"-DIPAD=1",
+				);
 				PRODUCT_NAME = "Titanium-iPad";
 				SDKROOT = iphonesimulator3.2;
 				TARGETED_DEVICE_FAMILY = 2;
@@ -4794,6 +4786,7 @@
 		};
 		24CA903F11116C490084E2DE /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 241EAEC5118E2BA90081A5BE /* project.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				COPY_PHASE_STRIP = NO;
@@ -4806,12 +4799,17 @@
 					"$(inherited)",
 					"\"$(SRCROOT)/../lib\"",
 				);
+				OTHER_CFLAGS = (
+					"-DDEBUG",
+					"-DTI_POST_1_2",
+				);
 				PRODUCT_NAME = Titanium;
 			};
 			name = Debug;
 		};
 		24CA904011116C490084E2DE /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 241EAEC5118E2BA90081A5BE /* project.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				COPY_PHASE_STRIP = YES;
@@ -4822,6 +4820,7 @@
 					"$(inherited)",
 					"\"$(SRCROOT)/../lib\"",
 				);
+				OTHER_CFLAGS = "-DTI_POST_1_2";
 				PRODUCT_NAME = Titanium;
 				VALIDATE_PRODUCT = YES;
 			};
@@ -4874,6 +4873,7 @@
 		};
 		24DD031D11686DE8006FD6E1 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 241EAEC5118E2BA90081A5BE /* project.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				"ARCHS[sdk=iphoneos*]" = armv7;
@@ -4890,7 +4890,11 @@
 					"$(inherited)",
 					"\"$(SRCROOT)/../lib\"",
 				);
-				OTHER_CFLAGS = "-DIPAD=1";
+				OTHER_CFLAGS = (
+					"-DDEBUG",
+					"-DIPAD=1",
+					"-DTI_POST_1_2",
+				);
 				PRODUCT_NAME = "Titanium-iPad";
 				SDKROOT = iphonesimulator3.2;
 				TARGETED_DEVICE_FAMILY = 2;
@@ -4899,6 +4903,7 @@
 		};
 		24DD031E11686DE8006FD6E1 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 241EAEC5118E2BA90081A5BE /* project.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				"ARCHS[sdk=iphoneos*]" = armv7;
@@ -4913,7 +4918,10 @@
 					"$(inherited)",
 					"\"$(SRCROOT)/../lib\"",
 				);
-				OTHER_CFLAGS = "-DIPAD=1";
+				OTHER_CFLAGS = (
+					"-DTI_POST_1_2",
+					"-DIPAD=1",
+				);
 				PRODUCT_NAME = "Titanium-iPad";
 				SDKROOT = iphonesimulator3.2;
 				TARGETED_DEVICE_FAMILY = 2;
@@ -4944,7 +4952,10 @@
 					../headers,
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 3.1;
-				OTHER_CFLAGS = "-DTI_POST_1_2";
+				OTHER_CFLAGS = (
+					"-DDEBUG",
+					"-DTI_POST_1_2",
+				);
 				OTHER_LDFLAGS = "-ObjC";
 				PREBINDING = NO;
 				PROVISIONING_PROFILE = "";

@@ -126,7 +126,7 @@ class Compiler(object):
 			appicon = ti.generate_infoplist(infoplist,infoplist_tmpl,appid,devicefamily)
 		else:
 			appicon = ti.generate_infoplist(infoplist,infoplist_tmpl,appid,'iphone')
-			
+		
 		# copy the app icon to the build resources
 		appicon_path = os.path.join(iphone_resources_dir,appicon)
 		if not os.path.exists(appicon_path):
@@ -141,6 +141,16 @@ class Compiler(object):
 		
 		# we have to copy these even in simulator given the path difference
 		self.copy_resources([iphone_resources_dir],app_dir,False)
+		
+		# deploy any module image files 
+		for module in self.modules:
+			img_dir = os.path.join(template_dir,'modules',module.lower(),'images')
+			if not os.path.exists(img_dir): continue
+			dest_img_dir = os.path.join(app_dir,'modules','ui','images')
+			if not os.path.exists(dest_img_dir):
+				os.makedirs(dest_img_dir)
+			self.copy_resources([img_dir],dest_img_dir,False)
+		
 		
 		if deploytype!='development':
 			self.copy_resources([resources_dir],app_dir)
@@ -158,7 +168,12 @@ class Compiler(object):
 	def add_symbol(self,api):
 		print "[DEBUG] detected symbol: %s" % api
 		curtoken = ''
-		for token in api.split("."):
+		tokens = api.split(".")
+		try:
+			self.modules.index(tokens[0])
+		except:
+			self.modules.append(tokens[0])
+		for token in tokens:
 			curtoken+=token+"."
 			symbol = 'USE_TI_%s' % (curtoken.replace('.create','').replace('.','').upper())
 			try:

@@ -4,9 +4,9 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-#include <Foundation/Foundation.h>
-#include <UIKit/UIKit.h>
-#include "defines.h"
+#import <Foundation/Foundation.h>
+#import <UIKit/UIKit.h>
+#import "defines.h"
 
 #define MEMORY_DEBUG 0
 

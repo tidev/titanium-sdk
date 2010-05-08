@@ -20,7 +20,6 @@ BOOL const TI_APPLICATION_ANALYTICS = true;
 
 #ifdef DEBUG
 NSString * const TI_APPLICATION_RESOURCE_DIR = @"/Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink/build/iphone/build/Debug-iphonesimulator/KitchenSink.app";
-#endif
 
 int main(int argc, char *argv[]) {
     NSAutoreleasePool * pool = [[NSAutoreleasePool alloc] init];

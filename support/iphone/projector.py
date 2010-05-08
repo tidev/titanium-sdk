@@ -20,9 +20,12 @@ exclusions = ['TiCore']
 class Projector(object):
 	
 	def make_self(self,s):
-		r = re.compile('[0-9a-zA-Z_-]')
+		r = re.compile('[0-9a-zA-Z_]')
 		buf = ''
 		for i in s:
+			if i=='-':
+				buf+='_'
+				continue
 			if r.match(i)!=None:
 				buf+=i
 		# if name starts with number, we simply append a k to it
@@ -35,6 +38,7 @@ class Projector(object):
 		self.sdk_root = os.path.abspath(sdk_root)
 		self.project_root = os.path.abspath(project_root)
 		self.project_id = appid
+		self.name = name
 		self.namespace = self.make_self(name)
 		self.namespace_upper = self.namespace.upper()+'_'
 
@@ -44,8 +48,9 @@ class Projector(object):
 		target = target.replace('TitaniumModule','%s$Module'%self.namespace)
 		target = target.replace('TitaniumViewController','%s$ViewController'%self.namespace)
 		for symbol in symbolicMap:
-			target = target.replace(symbol,self.namespace)
+			target = target.replace(symbol,self.name)
 		target = target.replace('%sme'%self.namespace,'Time')
+		target = target.replace(' ','_')
 		return os.path.join(dirname,target)
 				
 	def process_file(self,source,target,cb=None):
@@ -165,7 +170,10 @@ class Projector(object):
 		content = content.replace('../headers','headers')
 		content = content.replace('../lib','lib')
 		content = content.replace('-KitchenSink','')
+		content = content.replace('Resources-iPad','Resources')
 		content = content.replace('Titanium-iPad','%s-iPad'%self.namespace)
+		content = content.replace('PRODUCT_NAME = %s-iPad'%self.namespace,'PRODUCT_NAME = "%s"'%self.namespace)
+		content = content.replace('PRODUCT_NAME = "%s-iPad"'%self.namespace,'PRODUCT_NAME = "%s"'%self.namespace)
 		content = content.replace('%s.plist'%self.namespace,'Info.plist')
 		content = self.remove_xcode_products(content)
 		content = self.fix_xcode_targets(content)
@@ -190,7 +198,7 @@ class Projector(object):
 		copyfile(os.path.join(in_dir,'iphone','Titanium_Prefix.pch'),os.path.join(out_dir,'%s_Prefix.pch'%self.namespace))
 		copyfile(os.path.join(in_dir,'iphone','Titanium.plist'),os.path.join(out_dir,'%s.plist'%self.namespace))
 		
-		xcode_dir = os.path.join(out_dir,'%s.xcodeproj'%self.namespace)	
+		xcode_dir = os.path.join(out_dir,'%s.xcodeproj'%self.name)	
 		if not os.path.exists(xcode_dir):
 			os.makedirs(xcode_dir)
 		xcode_proj = os.path.join(xcode_dir,'project.pbxproj')
@@ -212,6 +220,7 @@ class Projector(object):
 		xcconfig.write("TI_PROJECT_DIR=%s\n" % self.project_root)
 		xcconfig.write("TI_APPID=%s\n" % self.project_id)
 		xcconfig.close()
+		
 		
 def usage(args):
 	print "%s <name> <in> <out>" % (os.path.basename(args[0]))
