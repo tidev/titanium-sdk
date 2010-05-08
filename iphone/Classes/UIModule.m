@@ -261,7 +261,12 @@ MAKE_SYSTEM_PROP(FACE_DOWN,UIDeviceOrientationFaceDown);
 
 -(void)didReceiveMemoryWarning:(NSNotification*)notification
 {
+#ifdef USE_TI_UIIPHONE
 	RELEASE_TO_NIL(iphone);
+#endif
+#ifdef USE_TI_UIIPAD
+	RELEASE_TO_NIL(ipad);
+#endif
 	[super didReceiveMemoryWarning:notification];
 }
 

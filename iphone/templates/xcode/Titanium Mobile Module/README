@@ -56,6 +56,29 @@ GET STARTED
 4. Edit the titanium.xcconfig and make sure you're building for the right Titanium version.
 5. Code and build.
 
+BUILD TIME COMPILER CONFIG
+--------------------------
+
+You can edit the file `module.xcconfig` to include any build time settings that should be
+set during application compilation that your module requires.  This file will automatically
+get `#include` in the main application project.  
+
+For more information about this file, please see the Apple documentation at:
+
+<http://developer.apple.com/mac/library/documentation/DeveloperTools/Conceptual/XcodeBuildSystem/400-Build_Configurations/build_configs.html>
+
+
+DOCUMENTATION FOR YOUR MODULE
+-----------------------------
+
+You should provide at least minimal documentation for your module in `documentation` folder
+using the Markdown syntax.
+
+For more information on the Markdown syntax, refer to this documentation at:
+
+<http://daringfireball.net/projects/markdown/>
+
+
 INSTALL YOUR MODULE
 --------------------
 
