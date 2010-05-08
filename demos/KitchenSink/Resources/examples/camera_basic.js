@@ -1,5 +1,5 @@
 var win = Titanium.UI.currentWindow;
-
+Ti.UI.createAlertDialog({title:'Camera2',message:Titanium.Media.isCameraSupported}).show();
 Titanium.Media.showCamera({
 
 	success:function(event)
