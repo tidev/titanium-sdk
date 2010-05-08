@@ -911,7 +911,7 @@ extern NSString * const TI_APPLICATION_RESOURCE_DIR;
 			had_splash_removed = YES;
 			appurlstr = [appurlstr substringFromIndex:1];
 		}
-#ifdef DEBUG
+#ifdef TARGET_IPHONE_SIMULATOR
 		if (app==YES && had_splash_removed)
 		{
 			// on simulator we want to keep slash since it's coming from file
