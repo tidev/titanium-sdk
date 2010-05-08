@@ -283,21 +283,22 @@ def main(args):
 		
 		# check to see if the appid is different (or not specified) - we need to re-generate
 		# the Info.plist before we actually invoke the compiler in this case
-		if read_project_appid(project_xcconfig)!=appid or not infoplist_has_appid(infoplist,appid):
-			# write out the updated Info.plist
-			infoplist_tmpl = os.path.join(iphone_dir,'Info.plist.template')
-			if devicefamily!=None:
-				applogo = ti.generate_infoplist(infoplist,infoplist_tmpl,appid,devicefamily)
-			else:
-				applogo = ti.generate_infoplist(infoplist,infoplist_tmpl,appid,'iphone')
+		# if read_project_appid(project_xcconfig)!=appid or not infoplist_has_appid(infoplist,appid):
+
+		# write out the updated Info.plist
+		infoplist_tmpl = os.path.join(iphone_dir,'Info.plist.template')
+		if devicefamily!=None:
+			applogo = ti.generate_infoplist(infoplist,infoplist_tmpl,appid,devicefamily)
+		else:
+			applogo = ti.generate_infoplist(infoplist,infoplist_tmpl,appid,'iphone')
 		
 		new_lib_hash = None
 		lib_hash = None	
-
+		
 		# copy over the appicon
 		if applogo ==None and ti.properties.has_key('icon'):
 			applogo = ti.properties['icon']
-			
+		
 		if os.path.exists(app_dir):
 			if os.path.exists(version_file):
 				line = open(version_file).read().strip()
@@ -317,6 +318,19 @@ def main(args):
 						log_id = None
 			else:
 				force_rebuild = True
+				
+			# copy Default.png and appicon each time so if they're 
+			# changed they'll stick get picked up	
+			app_icon_path = os.path.join(project_dir,'Resources','iphone',applogo)
+			if not os.path.exists(app_icon_path):
+				app_icon_path = os.path.join(project_dir,'Resources',applogo)
+			if os.path.exists(app_icon_path):
+				shutil.copy(app_icon_path,app_dir)
+			defaultpng_path = os.path.join(project_dir,'Resources','iphone','Default.png')
+			if not os.path.exists(defaultpng_path):
+				defaultpng_path = os.path.join(project_dir,'Resources','Default.png')
+			if os.path.exists(defaultpng_path):
+				shutil.copy(defaultpng_path,app_dir)
 		else:
 			force_rebuild = True
 

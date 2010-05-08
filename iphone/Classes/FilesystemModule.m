@@ -48,7 +48,7 @@ extern NSString * TI_APPLICATION_RESOURCE_DIR;
 
 -(NSString*)resourcesDirectory
 {
-#ifdef DEBUG 
+#ifdef TARGET_IPHONE_SIMULATOR 
 	if (TI_APPLICATION_RESOURCE_DIR!=nil && [TI_APPLICATION_RESOURCE_DIR isEqualToString:@""]==NO)
 	{
 		return TI_APPLICATION_RESOURCE_DIR;
