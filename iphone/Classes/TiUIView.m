@@ -896,18 +896,17 @@ DEFINE_EXCEPTIONS
         // but DO invoke the touch delegate at the end.
 		if ([touch tapCount] == 1 && [proxy _hasListeners:@"click"])
 		{
-			[proxy fireEvent:@"click" withObject:evt propagate:(touchDelegate==nil)];
-            clickEvent = YES;
+			if (touchDelegate == nil) {
+				[proxy fireEvent:@"click" withObject:evt propagate:(touchDelegate==nil)];
+			}
+			else {
+				[touchDelegate touchesBegan:touches withEvent:event];
+			}
 		}
 		else if ([touch tapCount] == 2 && [proxy _hasListeners:@"dblclick"])
 		{
 			[proxy fireEvent:@"dblclick" withObject:evt propagate:YES];
 		}
-	}
-	
-	if (touchDelegate!=nil && clickEvent)
-	{
-		[touchDelegate touchesBegan:touches withEvent:event];
 	}
 }
 
