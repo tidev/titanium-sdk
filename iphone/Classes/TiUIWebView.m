@@ -164,8 +164,9 @@ NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._listeners={
 -(NSString*)titaniumInjection
 {
 	NSMutableString *html = [[[NSMutableString alloc] init] autorelease];
-	[html appendString:@"<script id='titanium_injection'>"];
-	[html appendFormat:@"window.Titanium={};window.Ti=Titanium;Ti.pageToken=%@;Ti.appId='%@';",pageToken,TI_APPLICATION_ID];
+	[html appendString:@"<script id='__ti_injection'>"];
+	NSString *ti = [NSString stringWithFormat:@"%@%s",@"Ti","anium"];
+	[html appendFormat:@"window.%@={};window.Ti=%@;Ti.pageToken=%@;Ti.appId='%@';",ti,ti,pageToken,TI_APPLICATION_ID];
 	[html appendString:kTitaniumJavascript];
 	[html appendString:@"</script>"];
 	return html;

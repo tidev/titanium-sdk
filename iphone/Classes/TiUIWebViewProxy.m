@@ -27,10 +27,10 @@ USE_VIEW_FOR_AUTO_WIDTH
 - (NSString*)html
 {
 	NSString *html = [self evalJS:@"document.documentElement.outerHTML"];
-	// strip out the titanium injection - nobody wants that - and if 
+	// strip out the ti injection - nobody wants that - and if 
 	// you're saving off the HTML, we don't want to save that off since 
 	// it's dynamically injected and can't be preserved
-	NSRange range = [html rangeOfString:@"<script id=\"titanium"];
+	NSRange range = [html rangeOfString:@"<script id=\"__ti_injection"];
 	if (range.location!=NSNotFound)
 	{
 		NSRange nextRange = [html rangeOfString:@"</script" options:0 range:NSMakeRange(range.location, [html length]-range.location) locale:nil];
