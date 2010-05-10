@@ -1,11 +1,5 @@
 MainTests = {};
 
-Ti.include('popover.js','video.js','option_dialog.js');
-
-Popover.init();
-Video.init();
-OptionDialog.init();
-
 // WINDOWS
 MainTests.masterWindow = Ti.UI.createWindow({
 	barColor:'#111',
@@ -37,7 +31,6 @@ MainTests.splitView = Titanium.UI.iPad.createSplitWindow({
 // SPLIT VIEW EVENT LISTENER
 MainTests.splitView.addEventListener('visible',function(e)
 {
-	Ti.API.info('HERE ' + e.view  + ' button ' + e.button)
 	// show master list when in detail mode via left nav button
 	if (e.view == 'detail')
 	{
@@ -54,9 +47,9 @@ MainTests.splitView.addEventListener('visible',function(e)
 
 // MASTER TABLE VIEW
 MainTests.tableVewData = [
-	{title:'Popovers', v:Popover.view},
-	{title:'Option Dialogs', v:OptionDialog.view},
-	{title:'Embedded Video', v:Video.view},
+	{title:'Popovers', test:'popover.js',title:'Popovers'},
+	{title:'Option Dialogs', test:'option_dialog.js', title:'Option Dialogs'},
+	{title:'Embedded Video', test:'video.js', title:'Embedded Video'},
 ];
 
 MainTests.tableView = Ti.UI.createTableView({
@@ -65,7 +58,13 @@ MainTests.tableView = Ti.UI.createTableView({
 
 MainTests.tableView.addEventListener('click', function(e)
 {
-	MainTests.detailWindow.animate({view:e.rowData.v,transition:Ti.UI.iPhone.AnimationStyle.CURL_UP});
+	var w = Ti.UI.createWindow({
+		url:e.test,
+		title:e.title,
+		backgroundColor:'#fff',
+		leftNavButton:null,
+	});
+	MainTests.detailNav.open(w,{animated:true})
 });
 
 MainTests.masterWindow.add(MainTests.tableView);
