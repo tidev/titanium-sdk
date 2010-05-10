@@ -1,4 +1,4 @@
-Ti.include('main_tests.js', 'nav_controller.js', 'split_view_plain.js', 'split_view_nav.js');
+Ti.include( 'split_view_nav.js','split_view_plain.js', 'nav_controller.js','main_tests.js' );
 
 var win = Ti.UI.createWindow();
 

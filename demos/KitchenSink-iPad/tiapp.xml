@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ti:app xmlns:ti="http://ti.appcelerator.org">
-    <id>com.nolanwright.kitchensinkipad</id>
-    <name>KitchenSink-iPad</name>
-    <version>1.0</version>
-    <publisher>not specified</publisher>
-    <url>not specified</url>
-    <description>not specified</description>
-    <copyright>not specified</copyright>
-    <icon>appicon.png</icon>
+<id>com.nolanwright.kitchensinkipad</id>
+<name>KitchenSink-iPad</name>
+<version>1.0</version>
+<publisher>nwright</publisher>
+<url>appcelerator.com</url>
+<description>No description provided</description>
+<copyright>2010 by nwright</copyright>
+<icon>default_app_logo.png</icon>
     <persistent-wifi>false</persistent-wifi>
     <prerendered-icon>false</prerendered-icon>
     <statusbar-style>default</statusbar-style>

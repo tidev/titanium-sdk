@@ -1,6 +1,6 @@
 var win = Titanium.UI.currentWindow;
 
-var f = Ti.Filesystem.getFile(Titanium.Filesystem.resourcesDirectory,'images/appcelerator_small.png');
+var f = Ti.Filesystem.getFile(Titanium.Filesystem.resourcesDirectory,'images/apple_logo.jpg');
 
 var imageView = Titanium.UI.createImageView({
 	image:f,

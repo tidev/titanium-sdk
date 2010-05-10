@@ -63,5 +63,6 @@ SplitViewNav.detailWindow.add(SplitViewNav.detailButton);
 
 SplitViewNav.open = function()
 {
+	Ti.API.info('in open for split view nav')
 	SplitViewNav.splitView.open();	
 };

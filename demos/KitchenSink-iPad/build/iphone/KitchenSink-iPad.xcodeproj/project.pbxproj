@@ -958,7 +958,6 @@
 		24F5AEB3111F9DE9005C9199 /* TiFile.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiFile.m; sourceTree = "<group>"; };
 		24F5B144111FDFE8005C9199 /* ListenerEntry.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ListenerEntry.h; sourceTree = "<group>"; };
 		24F5B145111FDFE8005C9199 /* ListenerEntry.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ListenerEntry.m; sourceTree = "<group>"; };
-		24F615161195E4DF00EEAD3C /* KitchenSink_iPad.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = KitchenSink_iPad.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		24FB4EDB115C81A7001AAF99 /* TiUIiPadSplitWindowProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUIiPadSplitWindowProxy.h; sourceTree = "<group>"; };
 		24FB4EDC115C81A7001AAF99 /* TiUIiPadSplitWindowProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIiPadSplitWindowProxy.m; sourceTree = "<group>"; };
 		24FB4EED115C81C5001AAF99 /* TiUIiPadPopoverProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUIiPadPopoverProxy.h; sourceTree = "<group>"; };
@@ -980,6 +979,7 @@
 		24FBE5AB11293DD1005C8D48 /* CAStreamBasicDescription.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CAStreamBasicDescription.h; path = Classes/CAStreamBasicDescription.h; sourceTree = SOURCE_ROOT; };
 		24FBE5AC11293DD1005C8D48 /* CAXException.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CAXException.cpp; path = Classes/CAXException.cpp; sourceTree = SOURCE_ROOT; };
 		24FBE5AD11293DD1005C8D48 /* CAXException.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CAXException.h; path = Classes/CAXException.h; sourceTree = SOURCE_ROOT; };
+		25331CF41196330300FAA2EE /* KitchenSink_iPad.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = KitchenSink_iPad.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		288765FC0DF74451002DB57D /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
 		28AD733E0D9D9553002E5188 /* MainWindow.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = MainWindow.xib; sourceTree = "<group>"; };
 		29B97316FDCFA39411CA2CEA /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
@@ -1066,7 +1066,7 @@
 			children = (
 				1D6058910D05DD3D006BFB54 /* KitchenSink_iPad.app */,
 				24DD031F11686DE8006FD6E1 /* KitchenSink_iPad-iPad.app */,
-				24F615161195E4DF00EEAD3C /* KitchenSink_iPad.app */,
+				25331CF41196330300FAA2EE /* KitchenSink_iPad.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -2185,7 +2185,7 @@
 			);
 			name = "KitchenSink_iPad-iPad";
 			productName = KitchenSink_iPad;
-			productReference = 24F615161195E4DF00EEAD3C /* KitchenSink_iPad.app */;
+			productReference = 25331CF41196330300FAA2EE /* KitchenSink_iPad.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -2240,7 +2240,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"/Library/Application Support/Titanium/mobilesdk/osx/1.3.0/iphone/builder.py\" xcode \"/Users/jhaynie/work/titanium_mobile/demos/KitchenSink-iPad\"\nexit $?";
+			shellScript = "\"/Library/Application Support/Titanium/mobilesdk/osx/1.3.0/iphone/builder.py\" xcode \"/Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink-iPad\"\nexit $?";
 		};
 		241EAF38118E304C0081A5BE /* Pre-Compile */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -2254,7 +2254,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"/Library/Application Support/Titanium/mobilesdk/osx/1.3.0/iphone/builder.py\" xcode \"/Users/jhaynie/work/titanium_mobile/demos/KitchenSink-iPad\"\nexit $?";
+			shellScript = "\"/Library/Application Support/Titanium/mobilesdk/osx/1.3.0/iphone/builder.py\" xcode \"/Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink-iPad\"\nexit $?";
 		};
 		2461CF0A1151D856007A4CC9 /* Post-Compile */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -2865,16 +2865,17 @@
 					"${SDKROOT}/usr/include/libxml2",
 					headers,
 				);
-				IPHONEOS_DEPLOYMENT_TARGET = 3.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 3.2;
 				OTHER_CFLAGS = (
-					"-DDEBUG",
 					"-DTI_POST_1_2",
+					"-DIPAD=1",
 				);
 				OTHER_LDFLAGS = "-ObjC";
 				PREBINDING = NO;
 				PROVISIONING_PROFILE = "";
 				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
 				SDKROOT = iphoneos3.1.3;
+				TARGETED_DEVICE_FAMILY = 2;
 				USER_HEADER_SEARCH_PATHS = "";
 			};
 			name = Debug;
@@ -2901,13 +2902,17 @@
 					"${SDKROOT}/usr/include/libxml2",
 					headers,
 				);
-				IPHONEOS_DEPLOYMENT_TARGET = 3.1;
-				OTHER_CFLAGS = "-DTI_POST_1_2";
+				IPHONEOS_DEPLOYMENT_TARGET = 3.2;
+				OTHER_CFLAGS = (
+					"-DTI_POST_1_2",
+					"-DIPAD=1",
+				);
 				OTHER_LDFLAGS = "-ObjC";
 				PREBINDING = NO;
 				PROVISIONING_PROFILE = "";
 				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
 				SDKROOT = iphoneos3.1.3;
+				TARGETED_DEVICE_FAMILY = 2;
 				USER_HEADER_SEARCH_PATHS = "";
 			};
 			name = Release;

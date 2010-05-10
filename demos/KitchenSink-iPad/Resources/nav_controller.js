@@ -48,5 +48,6 @@ NavController.win.add(NavController.closeButton);
 
 NavController.open = function()
 {
+	Ti.API.info('IN OPEN')
 	NavController.mainWindow.open();	
 };

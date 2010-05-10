@@ -180,11 +180,43 @@
 	return nil;
 }
 
+-(void)reloadDataFromCount:(int)oldCount toCount:(int)newCount animation:(UITableViewRowAnimation)animation
+{
+	UITableView *table = [self tableView];
+
+	if ((animation == UITableViewRowAnimationNone) && ![tableview isEditing])
+	{
+		[tableview reloadData];
+		return;
+	}
+
+	int commonality = MIN(oldCount,newCount);
+	oldCount -= commonality;
+	newCount -= commonality;
+	
+	[tableview beginUpdates];
+	if (commonality > 0)
+	{
+		[table reloadSections:[NSIndexSet indexSetWithIndexesInRange:NSMakeRange(0, commonality)]
+				withRowAnimation:animation];
+	}
+	if (oldCount > 0)
+	{
+		[table deleteSections:[NSIndexSet indexSetWithIndexesInRange:NSMakeRange(commonality,oldCount)]
+				withRowAnimation:animation];
+	}
+	if (newCount > 0)
+	{
+		[table insertSections:[NSIndexSet indexSetWithIndexesInRange:NSMakeRange(commonality,newCount)]
+				withRowAnimation:animation];
+	}
+	[tableview endUpdates];
+}
+
 -(void)replaceData:(UITableViewRowAnimation)animation
 {
 //Technically, we should assert that sections is non-nil, but this code
 //won't have any problems in the case that it is actually nil.	
-	UITableView *table = [self tableView];
 	TiProxy * ourProxy = [self proxy];
 	
 	int oldCount = [sections count];
@@ -219,34 +251,8 @@
 		}
 	}
 
-	if ((animation == UITableViewRowAnimationNone) && ![tableview isEditing])
-	{
-		[tableview reloadData];
-		return;
-	}
+	[self reloadDataFromCount:oldCount toCount:newCount animation:animation];
 
-
-	int commonality = MIN(oldCount,newCount);
-	oldCount -= commonality;
-	newCount -= commonality;
-	
-	[tableview beginUpdates];
-	if (commonality > 0)
-	{
-		[table reloadSections:[NSIndexSet indexSetWithIndexesInRange:NSMakeRange(0, commonality)]
-				withRowAnimation:animation];
-	}
-	if (oldCount > 0)
-	{
-		[table deleteSections:[NSIndexSet indexSetWithIndexesInRange:NSMakeRange(commonality,oldCount)]
-				withRowAnimation:animation];
-	}
-	if (newCount > 0)
-	{
-		[table insertSections:[NSIndexSet indexSetWithIndexesInRange:NSMakeRange(commonality,newCount)]
-				withRowAnimation:animation];
-	}
-	[tableview endUpdates];
 }
 
 -(void)updateRow:(TiUITableViewRowProxy*)row
@@ -637,6 +643,8 @@
 			[tableview setContentOffset:CGPointMake(0,0)];
 		}
 	}
+	int sectionCount = [sections count];
+	[self reloadDataFromCount:sectionCount toCount:sectionCount animation:UITableViewRowAnimationNone];
 }
 
 #pragma mark Searchbar-related IBActions

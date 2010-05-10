@@ -1,5 +1,4 @@
 var win = Titanium.UI.currentWindow;
-
 Titanium.Media.showCamera({
 
 	success:function(event)
@@ -32,5 +31,5 @@ Titanium.Media.showCamera({
 		// show alert
 		a.show();
 	},
-	allowImageEditing:false
+	allowImageEditing:true
 });
