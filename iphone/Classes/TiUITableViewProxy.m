@@ -357,6 +357,7 @@
             
             newSection.section = [sections count];
             newSection.table = table;
+			newSection.parent = [table proxy];
 
             [sections addObject:newSection];
             
