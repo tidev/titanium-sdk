@@ -34,7 +34,7 @@ var view2 = Ti.UI.createView({
 	backgroundColor:'blue'
 });
 var l2 = Ti.UI.createLabel({
-	text:'View 2',
+	text:'Click Me (View 2 - see log)',
 	color:'#fff',
 	width:'auto',
 	height:'auto'
@@ -83,7 +83,14 @@ scrollView.addEventListener('scroll', function(e)
 	i = e.currentPage;
 	Titanium.API.info("scroll called - current index " + i + ' active view ' + activeView);
 });
-
+scrollView.addEventListener('click', function(e)
+{
+	Ti.API.info('ScrollView received click event, source = ' + e.source);
+});
+scrollView.addEventListener('touchend', function(e)
+{
+	Ti.API.info('ScrollView received touchend event, source = ' + e.source);
+});
 
 // add button to dynamically add a view
 var add = Titanium.UI.createButton({
