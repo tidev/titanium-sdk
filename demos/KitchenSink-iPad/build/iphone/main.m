@@ -18,12 +18,8 @@ NSString * const TI_APPLICATION_COPYRIGHT = @"2010 by nwright";
 NSString * const TI_APPLICATION_GUID = @"1000da51-9909-4a9e-a82f-52de59746d37";
 BOOL const TI_APPLICATION_ANALYTICS = true;
 
-#ifdef DEBUG
-<<<<<<< HEAD:demos/KitchenSink-iPad/build/iphone/main.m
+#ifdef TARGET_IPHONE_SIMULATOR
 NSString * const TI_APPLICATION_RESOURCE_DIR = @"/Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink-iPad/Resources";
-=======
-NSString * const TI_APPLICATION_RESOURCE_DIR = @"/Users/jhaynie/work/titanium_mobile/demos/KitchenSink-iPad/Resources";
->>>>>>> 015d51b463ee6682f18692705e6fd6420e7dd7f0:demos/KitchenSink-iPad/build/iphone/main.m
 #endif
 
 int main(int argc, char *argv[]) {

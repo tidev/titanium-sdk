@@ -26,6 +26,10 @@
 	<true/>
 	<key>NSMainNibFile</key>
 	<string>MainWindow</string>
+        <key>UIDeviceFamily</key>
+        <array>
+        <integer>2</integer>
+        </array>
         <key>UIStatusBarStyle</key>
         <string>UIStatusBarStyleDefault</string>
 </dict>

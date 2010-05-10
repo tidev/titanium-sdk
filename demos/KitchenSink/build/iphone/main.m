@@ -18,7 +18,7 @@ NSString * const TI_APPLICATION_COPYRIGHT = @"2010 by nwright";
 NSString * const TI_APPLICATION_GUID = @"6fe33f33fd1f4e95a06d2d217170866d";
 BOOL const TI_APPLICATION_ANALYTICS = true;
 
-#ifdef DEBUG
+#ifdef TARGET_IPHONE_SIMULATOR
 NSString * const TI_APPLICATION_RESOURCE_DIR = @"/Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink/Resources";
 #endif
 

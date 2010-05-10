@@ -32,6 +32,7 @@ win.add(ta1);
 
 
 
+
 //
 // Focus text area
 //

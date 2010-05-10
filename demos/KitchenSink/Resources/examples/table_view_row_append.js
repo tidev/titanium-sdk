@@ -19,6 +19,7 @@ var newSectionCount = 1;
 // create table view event listener
 tableview.addEventListener('click', function(e)
 {
+	Ti.API.info('clicked received for row ' + e.index)
 	// event data
 	var index = e.index;
 	var section = e.section;
