@@ -10,10 +10,9 @@
 		1D60589B0D05DD56006BFB54 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 29B97316FDCFA39411CA2CEA /* main.m */; };
 		1D60589F0D05DD5A006BFB54 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1D30AB110D05D00D00671497 /* Foundation.framework */; };
 		1DF5F4E00D08C38300B7A737 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1DF5F4DF0D08C38300B7A737 /* UIKit.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
-		2412F466115C296300454E5B /* TiMediaVideoPlayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 2412F465115C296300454E5B /* TiMediaVideoPlayer.m */; };
+		2405E8B5119A1B0C0023BD23 /* StoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2405E8B4119A1B0C0023BD23 /* StoreKit.framework */; };
 		2412F467115C296300454E5B /* TiMediaVideoPlayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 2412F465115C296300454E5B /* TiMediaVideoPlayer.m */; };
 		2412F4F6115C44B000454E5B /* MainWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = 28AD733E0D9D9553002E5188 /* MainWindow.xib */; };
-		2412F531115C62AF00454E5B /* MainWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2461CF111151D858007A4CC9 /* MainWindow.xib */; };
 		243ECCAA1126981C00639DF4 /* TiUITableViewSectionProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 243EC5EA112617F900639DF4 /* TiUITableViewSectionProxy.m */; };
 		243ECCAB1126981C00639DF4 /* TiUITableViewStyleProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 243EC9691126632700639DF4 /* TiUITableViewStyleProxy.m */; };
 		243ECCAC1126981C00639DF4 /* TiUITableViewSeparatorStyleProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 243ECB2411267CC100639DF4 /* TiUITableViewSeparatorStyleProxy.m */; };
@@ -23,238 +22,16 @@
 		243ECCB91126989700639DF4 /* TiUITextWidget.m in Sources */ = {isa = PBXBuildFile; fileRef = B4D5829611264FF500A6B66C /* TiUITextWidget.m */; };
 		243ECCBE112698AA00639DF4 /* TiUITextWidgetProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = B4D5829011264FD000A6B66C /* TiUITextWidgetProxy.m */; };
 		243ED8EF11288B4300639DF4 /* TiUITableViewScrollPositionProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 243ED8EC11288B4300639DF4 /* TiUITableViewScrollPositionProxy.m */; };
-		24596693118E70D300519F79 /* ApplicationRouting.m in Sources */ = {isa = PBXBuildFile; fileRef = 24596692118E70D300519F79 /* ApplicationRouting.m */; };
 		24596694118E70D300519F79 /* ApplicationRouting.m in Sources */ = {isa = PBXBuildFile; fileRef = 24596692118E70D300519F79 /* ApplicationRouting.m */; };
+		24596695118E70D300519F79 /* ApplicationRouting.m in Sources */ = {isa = PBXBuildFile; fileRef = 24596692118E70D300519F79 /* ApplicationRouting.m */; };
 		24597035118FF66300519F79 /* StoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 24597034118FF66300519F79 /* StoreKit.framework */; };
 		245972C611921D0D00519F79 /* TiUIiPadSplitWindow.m in Sources */ = {isa = PBXBuildFile; fileRef = 245972C511921D0D00519F79 /* TiUIiPadSplitWindow.m */; };
-		245972C711921D0D00519F79 /* TiUIiPadSplitWindow.m in Sources */ = {isa = PBXBuildFile; fileRef = 245972C511921D0D00519F79 /* TiUIiPadSplitWindow.m */; };
+		245972C811921D0D00519F79 /* TiUIiPadSplitWindow.m in Sources */ = {isa = PBXBuildFile; fileRef = 245972C511921D0D00519F79 /* TiUIiPadSplitWindow.m */; };
 		245B3C3D11375A6600CE7530 /* UtilsModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 245B3C3911375A6600CE7530 /* UtilsModule.m */; };
 		245B45641139B41800CE7530 /* TiUITableViewCellSelectionStyleProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 245B45601139B41800CE7530 /* TiUITableViewCellSelectionStyleProxy.m */; };
-		2461CE261151D856007A4CC9 /* Default.png in Resources */ = {isa = PBXBuildFile; fileRef = 24CA9182111170820084E2DE /* Default.png */; };
-		2461CE291151D856007A4CC9 /* TiUITableViewAction.m in Sources */ = {isa = PBXBuildFile; fileRef = 243EC7D6112634AF00639DF4 /* TiUITableViewAction.m */; };
-		2461CE2A1151D856007A4CC9 /* TiFile.m in Sources */ = {isa = PBXBuildFile; fileRef = 24F5AEB3111F9DE9005C9199 /* TiFile.m */; };
-		2461CE2B1151D856007A4CC9 /* TiMapPinAnnotationView.m in Sources */ = {isa = PBXBuildFile; fileRef = 24EB0BA9111F7959001DC2D1 /* TiMapPinAnnotationView.m */; };
-		2461CE2C1151D856007A4CC9 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 29B97316FDCFA39411CA2CEA /* main.m */; };
-		2461CE2D1151D856007A4CC9 /* AFItemView.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA890B111161050084E2DE /* AFItemView.m */; };
-		2461CE2E1151D856007A4CC9 /* AFOpenFlowView.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA890E111161050084E2DE /* AFOpenFlowView.m */; };
-		2461CE2F1151D856007A4CC9 /* AFUIImageReflection.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8910111161050084E2DE /* AFUIImageReflection.m */; };
-		2461CE301151D856007A4CC9 /* ASIAuthenticationDialog.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8913111161050084E2DE /* ASIAuthenticationDialog.m */; };
-		2461CE311151D856007A4CC9 /* ASIFormDataRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8915111161050084E2DE /* ASIFormDataRequest.m */; };
-		2461CE321151D856007A4CC9 /* ASIHTTPRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8917111161050084E2DE /* ASIHTTPRequest.m */; };
-		2461CE331151D856007A4CC9 /* TiUIScrollIndicatorStyleProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = B4F97C57111BAD4700E2F72C /* TiUIScrollIndicatorStyleProxy.m */; };
-		2461CE341151D856007A4CC9 /* ASIInputStream.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA891A111161050084E2DE /* ASIInputStream.m */; };
-		2461CE351151D856007A4CC9 /* ASINetworkQueue.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA891C111161050084E2DE /* ASINetworkQueue.m */; };
-		2461CE361151D856007A4CC9 /* TiUITextWidgetProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = B4D5829011264FD000A6B66C /* TiUITextWidgetProxy.m */; };
-		2461CE371151D856007A4CC9 /* ASINSStringAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA891E111161050084E2DE /* ASINSStringAdditions.m */; };
-		2461CE381151D856007A4CC9 /* TiUITableViewSectionProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 243EC5EA112617F900639DF4 /* TiUITableViewSectionProxy.m */; };
-		2461CE391151D856007A4CC9 /* TiUITableViewStyleProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 243EC9691126632700639DF4 /* TiUITableViewStyleProxy.m */; };
-		2461CE3A1151D856007A4CC9 /* TiUITableViewSeparatorStyleProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 243ECB2411267CC100639DF4 /* TiUITableViewSeparatorStyleProxy.m */; };
-		2461CE3E1151D856007A4CC9 /* Reachability.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8926111161050084E2DE /* Reachability.m */; };
-		2461CE3F1151D856007A4CC9 /* AudioStreamer.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8929111161050084E2DE /* AudioStreamer.m */; };
-		2461CE401151D856007A4CC9 /* Base64Transcoder.c in Sources */ = {isa = PBXBuildFile; fileRef = 24CA892A111161050084E2DE /* Base64Transcoder.c */; };
-		2461CE411151D856007A4CC9 /* TiUITextWidget.m in Sources */ = {isa = PBXBuildFile; fileRef = B4D5829611264FF500A6B66C /* TiUITextWidget.m */; };
-		2461CE421151D856007A4CC9 /* FBConnectGlobal.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA892F111161050084E2DE /* FBConnectGlobal.m */; };
-		2461CE431151D856007A4CC9 /* FBDialog.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8931111161050084E2DE /* FBDialog.m */; };
-		2461CE441151D856007A4CC9 /* FBFeedDialog.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8933111161050084E2DE /* FBFeedDialog.m */; };
-		2461CE451151D856007A4CC9 /* FBLoginButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8935111161050084E2DE /* FBLoginButton.m */; };
-		2461CE461151D856007A4CC9 /* FBLoginDialog.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8937111161050084E2DE /* FBLoginDialog.m */; };
-		2461CE471151D856007A4CC9 /* FBPermissionDialog.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8939111161050084E2DE /* FBPermissionDialog.m */; };
-		2461CE481151D856007A4CC9 /* FBRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA893B111161050084E2DE /* FBRequest.m */; };
-		2461CE491151D856007A4CC9 /* FBSession.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA893D111161050084E2DE /* FBSession.m */; };
-		2461CE4A1151D856007A4CC9 /* FBStreamDialog.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA893F111161050084E2DE /* FBStreamDialog.m */; };
-		2461CE4B1151D856007A4CC9 /* FBXMLHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8941111161050084E2DE /* FBXMLHandler.m */; };
-		2461CE4D1151D856007A4CC9 /* PlausibleDatabase.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA894F111161050084E2DE /* PlausibleDatabase.m */; };
-		2461CE4E1151D856007A4CC9 /* PLSqliteDatabase.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8954111161050084E2DE /* PLSqliteDatabase.m */; };
-		2461CE4F1151D856007A4CC9 /* PLSqlitePreparedStatement.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8956111161050084E2DE /* PLSqlitePreparedStatement.m */; };
-		2461CE501151D856007A4CC9 /* PLSqliteResultSet.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8958111161050084E2DE /* PLSqliteResultSet.m */; };
-		2461CE511151D856007A4CC9 /* SBJSON.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA895A111161050084E2DE /* SBJSON.m */; };
-		2461CE521151D856007A4CC9 /* KrollBridge.mm in Sources */ = {isa = PBXBuildFile; fileRef = 24CA89A91111615D0084E2DE /* KrollBridge.mm */; };
-		2461CE531151D856007A4CC9 /* KrollCallback.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA89AB1111615D0084E2DE /* KrollCallback.m */; };
-		2461CE541151D856007A4CC9 /* KrollContext.mm in Sources */ = {isa = PBXBuildFile; fileRef = 24CA89AD1111615D0084E2DE /* KrollContext.mm */; };
-		2461CE551151D856007A4CC9 /* KrollMethod.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA89AF1111615D0084E2DE /* KrollMethod.m */; };
-		2461CE561151D856007A4CC9 /* KrollMethodDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA89B11111615D0084E2DE /* KrollMethodDelegate.m */; };
-		2461CE571151D856007A4CC9 /* KrollObject.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA89B31111615D0084E2DE /* KrollObject.m */; };
-		2461CE581151D856007A4CC9 /* KrollPropertyDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA89B51111615D0084E2DE /* KrollPropertyDelegate.m */; };
-		2461CE591151D856007A4CC9 /* KrollTimer.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA89B71111615D0084E2DE /* KrollTimer.m */; };
-		2461CE5A1151D856007A4CC9 /* YahooModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A0C111161FD0084E2DE /* YahooModule.m */; };
-		2461CE5B1151D856007A4CC9 /* XHRBridge.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A0E111161FD0084E2DE /* XHRBridge.m */; };
-		2461CE5C1151D856007A4CC9 /* WebFont.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A10111161FD0084E2DE /* WebFont.m */; };
-		2461CE5D1151D856007A4CC9 /* Webcolor.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A12111161FD0084E2DE /* Webcolor.m */; };
-		2461CE5E1151D856007A4CC9 /* UIModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A14111161FD0084E2DE /* UIModule.m */; };
-		2461CE5F1151D856007A4CC9 /* TiWindowProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A16111161FD0084E2DE /* TiWindowProxy.m */; };
-		2461CE601151D856007A4CC9 /* TiViewProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A18111161FD0084E2DE /* TiViewProxy.m */; };
-		2461CE611151D856007A4CC9 /* TiViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A1A111161FD0084E2DE /* TiViewController.m */; };
-		2461CE621151D856007A4CC9 /* TiUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A20111161FD0084E2DE /* TiUtils.m */; };
-		2461CE631151D856007A4CC9 /* TiUIWindowProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A22111161FD0084E2DE /* TiUIWindowProxy.m */; };
-		2461CE641151D856007A4CC9 /* TiUIWindow.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A24111161FD0084E2DE /* TiUIWindow.m */; };
-		2461CE661151D856007A4CC9 /* TiUIWebViewProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A28111161FD0084E2DE /* TiUIWebViewProxy.m */; };
-		2461CE671151D856007A4CC9 /* TiUIViewProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A2A111161FD0084E2DE /* TiUIViewProxy.m */; };
-		2461CE681151D856007A4CC9 /* TiUIView.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A2C111161FD0084E2DE /* TiUIView.m */; };
-		2461CE691151D856007A4CC9 /* TiUIToolbarProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A2E111161FD0084E2DE /* TiUIToolbarProxy.m */; };
-		2461CE6A1151D856007A4CC9 /* TiUIToolbar.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A30111161FD0084E2DE /* TiUIToolbar.m */; };
-		2461CE6B1151D856007A4CC9 /* TiUITextFieldProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A32111161FD0084E2DE /* TiUITextFieldProxy.m */; };
-		2461CE6C1151D856007A4CC9 /* TiUITextField.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A34111161FD0084E2DE /* TiUITextField.m */; };
-		2461CE6D1151D856007A4CC9 /* TiUITextAreaProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A36111161FD0084E2DE /* TiUITextAreaProxy.m */; };
-		2461CE6E1151D856007A4CC9 /* TiUITextArea.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A38111161FD0084E2DE /* TiUITextArea.m */; };
-		2461CE6F1151D856007A4CC9 /* TiUITabProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A3A111161FD0084E2DE /* TiUITabProxy.m */; };
-		2461CE701151D856007A4CC9 /* TiUITableViewProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A40111161FD0084E2DE /* TiUITableViewProxy.m */; };
-		2461CE711151D856007A4CC9 /* TiUITableView.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A48111161FD0084E2DE /* TiUITableView.m */; };
-		2461CE721151D856007A4CC9 /* TiUITabGroupProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A4A111161FD0084E2DE /* TiUITabGroupProxy.m */; };
-		2461CE731151D856007A4CC9 /* TiUITabGroup.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A4C111161FD0084E2DE /* TiUITabGroup.m */; };
-		2461CE741151D856007A4CC9 /* TiUITabController.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A4E111161FD0084E2DE /* TiUITabController.m */; };
-		2461CE751151D856007A4CC9 /* TiUITabbedBarProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A50111161FD0084E2DE /* TiUITabbedBarProxy.m */; };
-		2461CE761151D856007A4CC9 /* TiUISystemIconProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A52111161FD0084E2DE /* TiUISystemIconProxy.m */; };
-		2461CE771151D856007A4CC9 /* TiUISystemButtonStyleProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A54111161FD0084E2DE /* TiUISystemButtonStyleProxy.m */; };
-		2461CE781151D856007A4CC9 /* TiUISystemButtonProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A56111161FD0084E2DE /* TiUISystemButtonProxy.m */; };
-		2461CE791151D856007A4CC9 /* TiUISwitchProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A58111161FD0084E2DE /* TiUISwitchProxy.m */; };
-		2461CE7A1151D856007A4CC9 /* TiUISwitch.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A5A111161FD0084E2DE /* TiUISwitch.m */; };
-		2461CE7B1151D856007A4CC9 /* TiUIStatusBarProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A5C111161FD0084E2DE /* TiUIStatusBarProxy.m */; };
-		2461CE7C1151D856007A4CC9 /* TiUISliderProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A5E111161FD0084E2DE /* TiUISliderProxy.m */; };
-		2461CE7D1151D856007A4CC9 /* TiUISlider.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A60111161FD0084E2DE /* TiUISlider.m */; };
-		2461CE7E1151D856007A4CC9 /* TiUISearchBarProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A62111161FD0084E2DE /* TiUISearchBarProxy.m */; };
-		2461CE7F1151D856007A4CC9 /* TiUISearchBar.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A64111161FD0084E2DE /* TiUISearchBar.m */; };
-		2461CE801151D856007A4CC9 /* TiUIRowAnimationStyleProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A66111161FD0084E2DE /* TiUIRowAnimationStyleProxy.m */; };
-		2461CE811151D856007A4CC9 /* TiUIProgressBarStyleProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A68111161FD0084E2DE /* TiUIProgressBarStyleProxy.m */; };
-		2461CE821151D856007A4CC9 /* TiUIProgressBarProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A6A111161FD0084E2DE /* TiUIProgressBarProxy.m */; };
-		2461CE831151D856007A4CC9 /* TiUIProgressBar.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A6C111161FD0084E2DE /* TiUIProgressBar.m */; };
-		2461CE841151D856007A4CC9 /* TiUIOptionDialogProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A6E111161FD0084E2DE /* TiUIOptionDialogProxy.m */; };
-		2461CE851151D856007A4CC9 /* TiUINavBarButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A70111161FD0084E2DE /* TiUINavBarButton.m */; };
-		2461CE861151D856007A4CC9 /* TiUILabelProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A72111161FD0084E2DE /* TiUILabelProxy.m */; };
-		2461CE871151D856007A4CC9 /* TiUILabel.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A74111161FD0084E2DE /* TiUILabel.m */; };
-		2461CE881151D856007A4CC9 /* TiUIiPhoneProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A76111161FD0084E2DE /* TiUIiPhoneProxy.m */; };
-		2461CE891151D856007A4CC9 /* TiUIImageViewProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A78111161FD0084E2DE /* TiUIImageViewProxy.m */; };
-		2461CE8A1151D856007A4CC9 /* TiUIImageView.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A7A111161FD0084E2DE /* TiUIImageView.m */; };
-		2461CE8B1151D856007A4CC9 /* TiUIEmailDialogProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A82111161FD0084E2DE /* TiUIEmailDialogProxy.m */; };
-		2461CE8C1151D856007A4CC9 /* TiUICoverFlowViewProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A86111161FD0084E2DE /* TiUICoverFlowViewProxy.m */; };
-		2461CE8D1151D856007A4CC9 /* TiUICoverFlowView.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A88111161FD0084E2DE /* TiUICoverFlowView.m */; };
-		2461CE8E1151D856007A4CC9 /* TiUICanvasViewProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A8A111161FD0084E2DE /* TiUICanvasViewProxy.m */; };
-		2461CE8F1151D856007A4CC9 /* TiUICanvasView.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A8C111161FD0084E2DE /* TiUICanvasView.m */; };
-		2461CE901151D856007A4CC9 /* TiUIButtonProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A8E111161FD0084E2DE /* TiUIButtonProxy.m */; };
-		2461CE911151D856007A4CC9 /* TiUIButtonBarProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A90111161FD0084E2DE /* TiUIButtonBarProxy.m */; };
-		2461CE921151D856007A4CC9 /* TiUIButtonBar.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A92111161FD0084E2DE /* TiUIButtonBar.m */; };
-		2461CE931151D856007A4CC9 /* TiUIButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A94111161FD0084E2DE /* TiUIButton.m */; };
-		2461CE941151D856007A4CC9 /* TiUIAnimationStyleProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A96111161FD0084E2DE /* TiUIAnimationStyleProxy.m */; };
-		2461CE951151D856007A4CC9 /* TiUIAlertDialogProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A98111161FD0084E2DE /* TiUIAlertDialogProxy.m */; };
-		2461CE961151D856007A4CC9 /* TiUIActivityIndicatorStyleProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A9A111161FD0084E2DE /* TiUIActivityIndicatorStyleProxy.m */; };
-		2461CE971151D856007A4CC9 /* TiUIActivityIndicatorProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A9C111161FD0084E2DE /* TiUIActivityIndicatorProxy.m */; };
-		2461CE981151D856007A4CC9 /* TiUIActivityIndicator.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A9E111161FD0084E2DE /* TiUIActivityIndicator.m */; };
-		2461CE9A1151D856007A4CC9 /* KitchenSink_iPad$ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8AA2111161FD0084E2DE /* KitchenSink_iPad$ViewController.m */; };
-		2461CE9B1151D856007A4CC9 /* KitchenSink_iPad$Module.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8AA4111161FD0084E2DE /* KitchenSink_iPad$Module.m */; };
-		2461CE9C1151D856007A4CC9 /* KitchenSink_iPadErrorController.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8AA6111161FD0084E2DE /* KitchenSink_iPadErrorController.m */; };
-		2461CE9D1151D856007A4CC9 /* KitchenSink_iPadApp.mm in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8AA8111161FD0084E2DE /* KitchenSink_iPadApp.mm */; };
-		2461CE9E1151D856007A4CC9 /* TiRect.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8AAC111161FD0084E2DE /* TiRect.m */; };
-		2461CE9F1151D856007A4CC9 /* TiRange.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8AAE111161FD0084E2DE /* TiRange.m */; };
-		2461CEA01151D856007A4CC9 /* TiProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8AB0111161FD0084E2DE /* TiProxy.m */; };
-		2461CEA11151D856007A4CC9 /* TiPoint.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8AB2111161FD0084E2DE /* TiPoint.m */; };
-		2461CEA21151D856007A4CC9 /* TiNetworkHTTPClientResultProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8AB4111161FD0084E2DE /* TiNetworkHTTPClientResultProxy.m */; };
-		2461CEA31151D856007A4CC9 /* TiNetworkHTTPClientProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8AB6111161FD0084E2DE /* TiNetworkHTTPClientProxy.m */; };
-		2461CEA41151D856007A4CC9 /* TiModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8AB8111161FD0084E2DE /* TiModule.m */; };
-		2461CEA51151D856007A4CC9 /* TiMediaVideoPlayerProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8ABA111161FD0084E2DE /* TiMediaVideoPlayerProxy.m */; };
-		2461CEA61151D856007A4CC9 /* TiMediaSoundProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8ABC111161FD0084E2DE /* TiMediaSoundProxy.m */; };
-		2461CEA71151D856007A4CC9 /* TiMediaAudioPlayerProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8ABE111161FD0084E2DE /* TiMediaAudioPlayerProxy.m */; };
-		2461CEA81151D856007A4CC9 /* TiMapViewProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8AC0111161FD0084E2DE /* TiMapViewProxy.m */; };
-		2461CEA91151D856007A4CC9 /* TiMapView.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8AC2111161FD0084E2DE /* TiMapView.m */; };
-		2461CEAA1151D856007A4CC9 /* TiMapAnnotationProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8AC4111161FD0084E2DE /* TiMapAnnotationProxy.m */; };
-		2461CEAB1151D856007A4CC9 /* TiHost.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8AC6111161FD0084E2DE /* TiHost.m */; };
-		2461CEAC1151D856007A4CC9 /* TiFilesystemFileProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8AC8111161FD0084E2DE /* TiFilesystemFileProxy.m */; };
-		2461CEAD1151D856007A4CC9 /* TiFacebookLoginButtonProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8ACC111161FD0084E2DE /* TiFacebookLoginButtonProxy.m */; };
-		2461CEAE1151D856007A4CC9 /* TiFacebookLoginButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8ACE111161FD0084E2DE /* TiFacebookLoginButton.m */; };
-		2461CEAF1151D856007A4CC9 /* TiDimension.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8AD1111161FD0084E2DE /* TiDimension.m */; };
-		2461CEB01151D856007A4CC9 /* TiDatabaseResultSetProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8AD3111161FD0084E2DE /* TiDatabaseResultSetProxy.m */; };
-		2461CEB11151D856007A4CC9 /* TiDatabaseProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8AD5111161FD0084E2DE /* TiDatabaseProxy.m */; };
-		2461CEB21151D856007A4CC9 /* TiContactsContactProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8AD8111161FD0084E2DE /* TiContactsContactProxy.m */; };
-		2461CEB31151D856007A4CC9 /* TiComplexValue.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8ADA111161FE0084E2DE /* TiComplexValue.m */; };
-		2461CEB41151D856007A4CC9 /* TiColor.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8ADC111161FE0084E2DE /* TiColor.m */; };
-		2461CEB51151D856007A4CC9 /* TiButtonUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8ADE111161FE0084E2DE /* TiButtonUtil.m */; };
-		2461CEB61151D856007A4CC9 /* TiBlob.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8AE0111161FE0084E2DE /* TiBlob.m */; };
-		2461CEB71151D856007A4CC9 /* TiBase.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8AE2111161FE0084E2DE /* TiBase.m */; };
-		2461CEB81151D856007A4CC9 /* TiAppPropertiesProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8AE4111161FE0084E2DE /* TiAppPropertiesProxy.m */; };
-		2461CEB91151D856007A4CC9 /* TiAnimation.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8AE6111161FE0084E2DE /* TiAnimation.m */; };
-		2461CEBA1151D856007A4CC9 /* TiAction.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8AE8111161FE0084E2DE /* TiAction.m */; };
-		2461CEBB1151D856007A4CC9 /* Ti3DMatrix.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8AEA111161FE0084E2DE /* Ti3DMatrix.m */; };
-		2461CEBC1151D856007A4CC9 /* Ti2DMatrix.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8AEC111161FE0084E2DE /* Ti2DMatrix.m */; };
-		2461CEBD1151D856007A4CC9 /* PlatformModuleDisplayCapsProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8AFA111161FE0084E2DE /* PlatformModuleDisplayCapsProxy.m */; };
-		2461CEBE1151D856007A4CC9 /* PlatformModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8AFC111161FE0084E2DE /* PlatformModule.m */; };
-		2461CEBF1151D856007A4CC9 /* OperationQueue.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8AFE111161FE0084E2DE /* OperationQueue.m */; };
-		2461CEC01151D856007A4CC9 /* NetworkModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8B00111161FE0084E2DE /* NetworkModule.m */; };
-		2461CEC11151D856007A4CC9 /* Mimetypes.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8B02111161FE0084E2DE /* Mimetypes.m */; };
-		2461CEC21151D856007A4CC9 /* MediaModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8B04111161FE0084E2DE /* MediaModule.m */; };
-		2461CEC31151D856007A4CC9 /* MapModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8B06111161FE0084E2DE /* MapModule.m */; };
-		2461CEC41151D856007A4CC9 /* LayoutConstraint.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8B0A111161FE0084E2DE /* LayoutConstraint.m */; };
-		2461CEC51151D856007A4CC9 /* ImageLoader.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8B0C111161FE0084E2DE /* ImageLoader.m */; };
-		2461CEC61151D856007A4CC9 /* GestureModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8B0E111161FE0084E2DE /* GestureModule.m */; };
-		2461CEC71151D856007A4CC9 /* GeolocationModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8B10111161FE0084E2DE /* GeolocationModule.m */; };
-		2461CEC81151D856007A4CC9 /* FilesystemModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8B12111161FE0084E2DE /* FilesystemModule.m */; };
-		2461CEC91151D856007A4CC9 /* FacebookModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8B33111161FE0084E2DE /* FacebookModule.m */; };
-		2461CECA1151D856007A4CC9 /* DatabaseModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8B35111161FE0084E2DE /* DatabaseModule.m */; };
-		2461CECB1151D856007A4CC9 /* ContactsModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8B37111161FE0084E2DE /* ContactsModule.m */; };
-		2461CECC1151D856007A4CC9 /* TiUITableViewRowProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8B39111161FE0084E2DE /* TiUITableViewRowProxy.m */; };
-		2461CECD1151D856007A4CC9 /* Bridge.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8B3B111161FE0084E2DE /* Bridge.m */; };
-		2461CECE1151D856007A4CC9 /* AppModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8B56111161FE0084E2DE /* AppModule.m */; };
-		2461CECF1151D856007A4CC9 /* APIModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8B58111161FE0084E2DE /* APIModule.m */; };
-		2461CED01151D856007A4CC9 /* AnalyticsModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8B5A111161FE0084E2DE /* AnalyticsModule.m */; };
-		2461CED11151D856007A4CC9 /* AccelerometerModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8B64111161FE0084E2DE /* AccelerometerModule.m */; };
-		2461CED21151D856007A4CC9 /* TiUIScrollableViewProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = B421C4111113AA9300DBCB42 /* TiUIScrollableViewProxy.m */; };
-		2461CED31151D856007A4CC9 /* TiUIScrollableView.m in Sources */ = {isa = PBXBuildFile; fileRef = B421C4151113AAA900DBCB42 /* TiUIScrollableView.m */; };
-		2461CED41151D856007A4CC9 /* TiUIScrollViewProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = B4F97B6E111A41B600E2F72C /* TiUIScrollViewProxy.m */; };
-		2461CED51151D856007A4CC9 /* TiUIScrollView.m in Sources */ = {isa = PBXBuildFile; fileRef = B4F97B72111A41C800E2F72C /* TiUIScrollView.m */; };
-		2461CED61151D856007A4CC9 /* TiUIWebView.m in Sources */ = {isa = PBXBuildFile; fileRef = 24EB02C0111BF827001DC2D1 /* TiUIWebView.m */; };
-		2461CED71151D856007A4CC9 /* TiDOMDocumentProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24EB07D3111D4264001DC2D1 /* TiDOMDocumentProxy.m */; };
-		2461CED81151D856007A4CC9 /* GDataXMLNode.m in Sources */ = {isa = PBXBuildFile; fileRef = 24EB07DF111D43AE001DC2D1 /* GDataXMLNode.m */; };
-		2461CED91151D856007A4CC9 /* TiDOMNodeProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24EB0808111D4654001DC2D1 /* TiDOMNodeProxy.m */; };
-		2461CEDA1151D856007A4CC9 /* TiDOMElementProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24EB080E111D46C0001DC2D1 /* TiDOMElementProxy.m */; };
-		2461CEDB1151D856007A4CC9 /* TiDOMNamedNodeMapProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24EB0828111D4BEB001DC2D1 /* TiDOMNamedNodeMapProxy.m */; };
-		2461CEDC1151D856007A4CC9 /* TiDOMNodeListProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24EB0842111D500E001DC2D1 /* TiDOMNodeListProxy.m */; };
-		2461CEDD1151D856007A4CC9 /* TiDOMAttrProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24EB085C111D51D9001DC2D1 /* TiDOMAttrProxy.m */; };
-		2461CEDE1151D856007A4CC9 /* NSData+Additions.m in Sources */ = {isa = PBXBuildFile; fileRef = 24EB0B73111E7EE8001DC2D1 /* NSData+Additions.m */; };
-		2461CEDF1151D856007A4CC9 /* ListenerEntry.m in Sources */ = {isa = PBXBuildFile; fileRef = 24F5B145111FDFE8005C9199 /* ListenerEntry.m */; };
-		2461CEE01151D856007A4CC9 /* XMLModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 24DEDAC4112371A500398D86 /* XMLModule.m */; };
-		2461CEE11151D856007A4CC9 /* TiUITableViewScrollPositionProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 243ED8EC11288B4300639DF4 /* TiUITableViewScrollPositionProxy.m */; };
-		2461CEE21151D856007A4CC9 /* TiMediaAudioRecorderProxy.mm in Sources */ = {isa = PBXBuildFile; fileRef = 24FBE58211293D06005C8D48 /* TiMediaAudioRecorderProxy.mm */; };
-		2461CEE31151D856007A4CC9 /* CADebugMacros.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 24FBE5A711293DD1005C8D48 /* CADebugMacros.cpp */; };
-		2461CEE41151D856007A4CC9 /* CAStreamBasicDescription.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 24FBE5AA11293DD1005C8D48 /* CAStreamBasicDescription.cpp */; };
-		2461CEE51151D856007A4CC9 /* CAXException.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 24FBE5AC11293DD1005C8D48 /* CAXException.cpp */; };
-		2461CEE61151D856007A4CC9 /* AQRecorder.mm in Sources */ = {isa = PBXBuildFile; fileRef = 24E25CC0112A698C0083D43D /* AQRecorder.mm */; };
-		2461CEE71151D856007A4CC9 /* SCListener.m in Sources */ = {isa = PBXBuildFile; fileRef = 24E25CC2112A698C0083D43D /* SCListener.m */; };
-		2461CEE81151D856007A4CC9 /* TiMediaAudioSession.m in Sources */ = {isa = PBXBuildFile; fileRef = 24A1E516112D33AF003DA834 /* TiMediaAudioSession.m */; };
-		2461CEE91151D856007A4CC9 /* TiUIPickerProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24A1E874112DF80B003DA834 /* TiUIPickerProxy.m */; };
-		2461CEEA1151D856007A4CC9 /* TiUIPicker.m in Sources */ = {isa = PBXBuildFile; fileRef = 24A1E87A112DF83E003DA834 /* TiUIPicker.m */; };
-		2461CEEB1151D856007A4CC9 /* TiUIPickerRowProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24A1E8A7112DFACA003DA834 /* TiUIPickerRowProxy.m */; };
-		2461CEEC1151D856007A4CC9 /* TiUIPickerColumnProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24A1E991112E1363003DA834 /* TiUIPickerColumnProxy.m */; };
-		2461CEED1151D856007A4CC9 /* UIImage+Alpha.m in Sources */ = {isa = PBXBuildFile; fileRef = 24A1EAF1112F4C02003DA834 /* UIImage+Alpha.m */; };
-		2461CEEE1151D856007A4CC9 /* UIImage+Resize.m in Sources */ = {isa = PBXBuildFile; fileRef = 24A1EAF3112F4C02003DA834 /* UIImage+Resize.m */; };
-		2461CEEF1151D856007A4CC9 /* UIImage+RoundedCorner.m in Sources */ = {isa = PBXBuildFile; fileRef = 24A1EAF5112F4C02003DA834 /* UIImage+RoundedCorner.m */; };
-		2461CEF01151D856007A4CC9 /* UtilsModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 245B3C3911375A6600CE7530 /* UtilsModule.m */; };
-		2461CEF11151D856007A4CC9 /* TiUITableViewCellSelectionStyleProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 245B45601139B41800CE7530 /* TiUITableViewCellSelectionStyleProxy.m */; };
-		2461CEF21151D856007A4CC9 /* TiUIMaskedImageProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24C012881140D30B00A94CE2 /* TiUIMaskedImageProxy.m */; };
-		2461CEF31151D856007A4CC9 /* TiUIMaskedImage.m in Sources */ = {isa = PBXBuildFile; fileRef = 24C0128E1140D31C00A94CE2 /* TiUIMaskedImage.m */; };
-		2461CEF51151D856007A4CC9 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1D30AB110D05D00D00671497 /* Foundation.framework */; };
-		2461CEF61151D856007A4CC9 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1DF5F4DF0D08C38300B7A737 /* UIKit.framework */; };
-		2461CEF71151D856007A4CC9 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 288765FC0DF74451002DB57D /* CoreGraphics.framework */; };
-		2461CEF81151D856007A4CC9 /* libTiCore.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 24CA8C73111167780084E2DE /* libTiCore.a */; };
-		2461CEF91151D856007A4CC9 /* AddressBook.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 24CA8C75111167B60084E2DE /* AddressBook.framework */; };
-		2461CEFA1151D856007A4CC9 /* AddressBookUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 24CA8C77111167B60084E2DE /* AddressBookUI.framework */; };
-		2461CEFB1151D856007A4CC9 /* CFNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 24CA8C7B111167B60084E2DE /* CFNetwork.framework */; };
-		2461CEFC1151D856007A4CC9 /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 24CA8C7D111167B60084E2DE /* CoreLocation.framework */; };
-		2461CEFD1151D856007A4CC9 /* MapKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 24CA8C7F111167B60084E2DE /* MapKit.framework */; };
-		2461CEFE1151D856007A4CC9 /* MessageUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 24CA8C81111167B60084E2DE /* MessageUI.framework */; };
-		2461CEFF1151D856007A4CC9 /* MobileCoreServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 24CA8C83111167B60084E2DE /* MobileCoreServices.framework */; };
-		2461CF001151D856007A4CC9 /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 24CA8C85111167B60084E2DE /* OpenGLES.framework */; };
-		2461CF011151D856007A4CC9 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 24CA8C87111167B60084E2DE /* QuartzCore.framework */; };
-		2461CF021151D856007A4CC9 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 24CA8C89111167B60084E2DE /* SystemConfiguration.framework */; };
-		2461CF041151D856007A4CC9 /* libsqlite3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 24CA8C8D111167B60084E2DE /* libsqlite3.dylib */; };
-		2461CF051151D856007A4CC9 /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 24CA8C8F111167B60084E2DE /* libz.dylib */; };
-		2461CF061151D856007A4CC9 /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 24CA8CEC1111689B0084E2DE /* AudioToolbox.framework */; };
-		2461CF071151D856007A4CC9 /* MediaPlayer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 24CA8CF3111168AE0084E2DE /* MediaPlayer.framework */; };
-		2461CF081151D856007A4CC9 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 24CA8CFA111168C30084E2DE /* AVFoundation.framework */; };
-		2461CF091151D856007A4CC9 /* libxml2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 24EB0A57111E1BAE001DC2D1 /* libxml2.dylib */; };
 		248133A7115761DE00E3A9BA /* TiNetworkBonjourBrowserProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 248133A2115761DE00E3A9BA /* TiNetworkBonjourBrowserProxy.m */; };
 		248133A8115761DE00E3A9BA /* TiNetworkBonjourServiceProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 248133A4115761DE00E3A9BA /* TiNetworkBonjourServiceProxy.m */; };
 		248133A9115761DE00E3A9BA /* TiNetworkTCPSocketProxy.mm in Sources */ = {isa = PBXBuildFile; fileRef = 248133A6115761DE00E3A9BA /* TiNetworkTCPSocketProxy.mm */; };
-		248133B3115761DE00E3A9BA /* TiNetworkBonjourBrowserProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 248133A2115761DE00E3A9BA /* TiNetworkBonjourBrowserProxy.m */; };
-		248133B4115761DE00E3A9BA /* TiNetworkBonjourServiceProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 248133A4115761DE00E3A9BA /* TiNetworkBonjourServiceProxy.m */; };
-		248133B5115761DE00E3A9BA /* TiNetworkTCPSocketProxy.mm in Sources */ = {isa = PBXBuildFile; fileRef = 248133A6115761DE00E3A9BA /* TiNetworkTCPSocketProxy.mm */; };
-		24813713115A852800E3A9BA /* TiDOMTextNodeProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24813712115A852800E3A9BA /* TiDOMTextNodeProxy.m */; };
 		24813714115A852800E3A9BA /* TiDOMTextNodeProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24813712115A852800E3A9BA /* TiDOMTextNodeProxy.m */; };
 		24A1E519112D33AF003DA834 /* TiMediaAudioSession.m in Sources */ = {isa = PBXBuildFile; fileRef = 24A1E516112D33AF003DA834 /* TiMediaAudioSession.m */; };
 		24A1E875112DF80B003DA834 /* TiUIPickerProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24A1E874112DF80B003DA834 /* TiUIPickerProxy.m */; };
@@ -363,10 +140,6 @@
 		24CA8BAD111161FE0084E2DE /* TiUIActivityIndicatorStyleProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A9A111161FD0084E2DE /* TiUIActivityIndicatorStyleProxy.m */; };
 		24CA8BAE111161FE0084E2DE /* TiUIActivityIndicatorProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A9C111161FD0084E2DE /* TiUIActivityIndicatorProxy.m */; };
 		24CA8BAF111161FE0084E2DE /* TiUIActivityIndicator.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A9E111161FD0084E2DE /* TiUIActivityIndicator.m */; };
-		24CA8BB1111161FE0084E2DE /* KitchenSink_iPad$ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8AA2111161FD0084E2DE /* KitchenSink_iPad$ViewController.m */; };
-		24CA8BB2111161FE0084E2DE /* KitchenSink_iPad$Module.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8AA4111161FD0084E2DE /* KitchenSink_iPad$Module.m */; };
-		24CA8BB3111161FE0084E2DE /* KitchenSink_iPadErrorController.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8AA6111161FD0084E2DE /* KitchenSink_iPadErrorController.m */; };
-		24CA8BB4111161FE0084E2DE /* KitchenSink_iPadApp.mm in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8AA8111161FD0084E2DE /* KitchenSink_iPadApp.mm */; };
 		24CA8BB5111161FE0084E2DE /* TiRect.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8AAC111161FD0084E2DE /* TiRect.m */; };
 		24CA8BB6111161FE0084E2DE /* TiRange.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8AAE111161FD0084E2DE /* TiRange.m */; };
 		24CA8BB7111161FE0084E2DE /* TiProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8AB0111161FD0084E2DE /* TiProxy.m */; };
@@ -436,26 +209,252 @@
 		24CA8CF4111168AE0084E2DE /* MediaPlayer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 24CA8CF3111168AE0084E2DE /* MediaPlayer.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		24CA8CFB111168C30084E2DE /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 24CA8CFA111168C30084E2DE /* AVFoundation.framework */; };
 		24CA9183111170820084E2DE /* Default.png in Resources */ = {isa = PBXBuildFile; fileRef = 24CA9182111170820084E2DE /* Default.png */; };
+		24DD022511686DE8006FD6E1 /* MainWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2461CF111151D858007A4CC9 /* MainWindow.xib */; };
+		24DD022611686DE8006FD6E1 /* Default.png in Resources */ = {isa = PBXBuildFile; fileRef = 24CA9182111170820084E2DE /* Default.png */; };
+		24DD022811686DE8006FD6E1 /* TiUITableViewAction.m in Sources */ = {isa = PBXBuildFile; fileRef = 243EC7D6112634AF00639DF4 /* TiUITableViewAction.m */; };
+		24DD022911686DE8006FD6E1 /* TiFile.m in Sources */ = {isa = PBXBuildFile; fileRef = 24F5AEB3111F9DE9005C9199 /* TiFile.m */; };
+		24DD022A11686DE8006FD6E1 /* TiMapPinAnnotationView.m in Sources */ = {isa = PBXBuildFile; fileRef = 24EB0BA9111F7959001DC2D1 /* TiMapPinAnnotationView.m */; };
+		24DD022B11686DE8006FD6E1 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 29B97316FDCFA39411CA2CEA /* main.m */; };
+		24DD022C11686DE8006FD6E1 /* AFItemView.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA890B111161050084E2DE /* AFItemView.m */; };
+		24DD022D11686DE8006FD6E1 /* AFOpenFlowView.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA890E111161050084E2DE /* AFOpenFlowView.m */; };
+		24DD022E11686DE8006FD6E1 /* AFUIImageReflection.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8910111161050084E2DE /* AFUIImageReflection.m */; };
+		24DD022F11686DE8006FD6E1 /* ASIAuthenticationDialog.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8913111161050084E2DE /* ASIAuthenticationDialog.m */; };
+		24DD023011686DE8006FD6E1 /* ASIFormDataRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8915111161050084E2DE /* ASIFormDataRequest.m */; };
+		24DD023111686DE8006FD6E1 /* ASIHTTPRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8917111161050084E2DE /* ASIHTTPRequest.m */; };
+		24DD023211686DE8006FD6E1 /* TiUIScrollIndicatorStyleProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = B4F97C57111BAD4700E2F72C /* TiUIScrollIndicatorStyleProxy.m */; };
+		24DD023311686DE8006FD6E1 /* ASIInputStream.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA891A111161050084E2DE /* ASIInputStream.m */; };
+		24DD023411686DE8006FD6E1 /* ASINetworkQueue.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA891C111161050084E2DE /* ASINetworkQueue.m */; };
+		24DD023511686DE8006FD6E1 /* TiUITextWidgetProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = B4D5829011264FD000A6B66C /* TiUITextWidgetProxy.m */; };
+		24DD023611686DE8006FD6E1 /* ASINSStringAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA891E111161050084E2DE /* ASINSStringAdditions.m */; };
+		24DD023711686DE8006FD6E1 /* TiUITableViewSectionProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 243EC5EA112617F900639DF4 /* TiUITableViewSectionProxy.m */; };
+		24DD023811686DE8006FD6E1 /* TiUITableViewStyleProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 243EC9691126632700639DF4 /* TiUITableViewStyleProxy.m */; };
+		24DD023911686DE8006FD6E1 /* TiUITableViewSeparatorStyleProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 243ECB2411267CC100639DF4 /* TiUITableViewSeparatorStyleProxy.m */; };
+		24DD023D11686DE8006FD6E1 /* Reachability.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8926111161050084E2DE /* Reachability.m */; };
+		24DD023E11686DE8006FD6E1 /* AudioStreamer.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8929111161050084E2DE /* AudioStreamer.m */; };
+		24DD023F11686DE8006FD6E1 /* Base64Transcoder.c in Sources */ = {isa = PBXBuildFile; fileRef = 24CA892A111161050084E2DE /* Base64Transcoder.c */; };
+		24DD024011686DE8006FD6E1 /* TiUITextWidget.m in Sources */ = {isa = PBXBuildFile; fileRef = B4D5829611264FF500A6B66C /* TiUITextWidget.m */; };
+		24DD024111686DE8006FD6E1 /* FBConnectGlobal.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA892F111161050084E2DE /* FBConnectGlobal.m */; };
+		24DD024211686DE8006FD6E1 /* FBDialog.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8931111161050084E2DE /* FBDialog.m */; };
+		24DD024311686DE8006FD6E1 /* FBFeedDialog.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8933111161050084E2DE /* FBFeedDialog.m */; };
+		24DD024411686DE8006FD6E1 /* FBLoginButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8935111161050084E2DE /* FBLoginButton.m */; };
+		24DD024511686DE8006FD6E1 /* FBLoginDialog.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8937111161050084E2DE /* FBLoginDialog.m */; };
+		24DD024611686DE8006FD6E1 /* FBPermissionDialog.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8939111161050084E2DE /* FBPermissionDialog.m */; };
+		24DD024711686DE8006FD6E1 /* FBRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA893B111161050084E2DE /* FBRequest.m */; };
+		24DD024811686DE8006FD6E1 /* FBSession.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA893D111161050084E2DE /* FBSession.m */; };
+		24DD024911686DE8006FD6E1 /* FBStreamDialog.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA893F111161050084E2DE /* FBStreamDialog.m */; };
+		24DD024A11686DE8006FD6E1 /* FBXMLHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8941111161050084E2DE /* FBXMLHandler.m */; };
+		24DD024B11686DE8006FD6E1 /* PlausibleDatabase.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA894F111161050084E2DE /* PlausibleDatabase.m */; };
+		24DD024C11686DE8006FD6E1 /* PLSqliteDatabase.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8954111161050084E2DE /* PLSqliteDatabase.m */; };
+		24DD024D11686DE8006FD6E1 /* PLSqlitePreparedStatement.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8956111161050084E2DE /* PLSqlitePreparedStatement.m */; };
+		24DD024E11686DE8006FD6E1 /* PLSqliteResultSet.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8958111161050084E2DE /* PLSqliteResultSet.m */; };
+		24DD024F11686DE8006FD6E1 /* SBJSON.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA895A111161050084E2DE /* SBJSON.m */; };
+		24DD025011686DE8006FD6E1 /* KrollBridge.mm in Sources */ = {isa = PBXBuildFile; fileRef = 24CA89A91111615D0084E2DE /* KrollBridge.mm */; };
+		24DD025111686DE8006FD6E1 /* KrollCallback.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA89AB1111615D0084E2DE /* KrollCallback.m */; };
+		24DD025211686DE8006FD6E1 /* KrollContext.mm in Sources */ = {isa = PBXBuildFile; fileRef = 24CA89AD1111615D0084E2DE /* KrollContext.mm */; };
+		24DD025311686DE8006FD6E1 /* KrollMethod.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA89AF1111615D0084E2DE /* KrollMethod.m */; };
+		24DD025411686DE8006FD6E1 /* KrollMethodDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA89B11111615D0084E2DE /* KrollMethodDelegate.m */; };
+		24DD025511686DE8006FD6E1 /* KrollObject.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA89B31111615D0084E2DE /* KrollObject.m */; };
+		24DD025611686DE8006FD6E1 /* KrollPropertyDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA89B51111615D0084E2DE /* KrollPropertyDelegate.m */; };
+		24DD025711686DE8006FD6E1 /* KrollTimer.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA89B71111615D0084E2DE /* KrollTimer.m */; };
+		24DD025811686DE8006FD6E1 /* YahooModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A0C111161FD0084E2DE /* YahooModule.m */; };
+		24DD025911686DE8006FD6E1 /* XHRBridge.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A0E111161FD0084E2DE /* XHRBridge.m */; };
+		24DD025A11686DE8006FD6E1 /* WebFont.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A10111161FD0084E2DE /* WebFont.m */; };
+		24DD025B11686DE8006FD6E1 /* Webcolor.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A12111161FD0084E2DE /* Webcolor.m */; };
+		24DD025C11686DE8006FD6E1 /* UIModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A14111161FD0084E2DE /* UIModule.m */; };
+		24DD025D11686DE8006FD6E1 /* TiWindowProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A16111161FD0084E2DE /* TiWindowProxy.m */; };
+		24DD025E11686DE8006FD6E1 /* TiViewProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A18111161FD0084E2DE /* TiViewProxy.m */; };
+		24DD025F11686DE8006FD6E1 /* TiViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A1A111161FD0084E2DE /* TiViewController.m */; };
+		24DD026011686DE8006FD6E1 /* TiUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A20111161FD0084E2DE /* TiUtils.m */; };
+		24DD026111686DE8006FD6E1 /* TiUIWindowProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A22111161FD0084E2DE /* TiUIWindowProxy.m */; };
+		24DD026211686DE8006FD6E1 /* TiUIWindow.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A24111161FD0084E2DE /* TiUIWindow.m */; };
+		24DD026411686DE8006FD6E1 /* TiUIWebViewProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A28111161FD0084E2DE /* TiUIWebViewProxy.m */; };
+		24DD026511686DE8006FD6E1 /* TiUIViewProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A2A111161FD0084E2DE /* TiUIViewProxy.m */; };
+		24DD026611686DE8006FD6E1 /* TiUIView.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A2C111161FD0084E2DE /* TiUIView.m */; };
+		24DD026711686DE8006FD6E1 /* TiUIToolbarProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A2E111161FD0084E2DE /* TiUIToolbarProxy.m */; };
+		24DD026811686DE8006FD6E1 /* TiUIToolbar.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A30111161FD0084E2DE /* TiUIToolbar.m */; };
+		24DD026911686DE8006FD6E1 /* TiUITextFieldProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A32111161FD0084E2DE /* TiUITextFieldProxy.m */; };
+		24DD026A11686DE8006FD6E1 /* TiUITextField.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A34111161FD0084E2DE /* TiUITextField.m */; };
+		24DD026B11686DE8006FD6E1 /* TiUITextAreaProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A36111161FD0084E2DE /* TiUITextAreaProxy.m */; };
+		24DD026C11686DE8006FD6E1 /* TiUITextArea.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A38111161FD0084E2DE /* TiUITextArea.m */; };
+		24DD026D11686DE8006FD6E1 /* TiUITabProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A3A111161FD0084E2DE /* TiUITabProxy.m */; };
+		24DD026E11686DE8006FD6E1 /* TiUITableViewProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A40111161FD0084E2DE /* TiUITableViewProxy.m */; };
+		24DD026F11686DE8006FD6E1 /* TiUITableView.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A48111161FD0084E2DE /* TiUITableView.m */; };
+		24DD027011686DE8006FD6E1 /* TiUITabGroupProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A4A111161FD0084E2DE /* TiUITabGroupProxy.m */; };
+		24DD027111686DE8006FD6E1 /* TiUITabGroup.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A4C111161FD0084E2DE /* TiUITabGroup.m */; };
+		24DD027211686DE8006FD6E1 /* TiUITabController.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A4E111161FD0084E2DE /* TiUITabController.m */; };
+		24DD027311686DE8006FD6E1 /* TiUITabbedBarProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A50111161FD0084E2DE /* TiUITabbedBarProxy.m */; };
+		24DD027411686DE8006FD6E1 /* TiUISystemIconProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A52111161FD0084E2DE /* TiUISystemIconProxy.m */; };
+		24DD027511686DE8006FD6E1 /* TiUISystemButtonStyleProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A54111161FD0084E2DE /* TiUISystemButtonStyleProxy.m */; };
+		24DD027611686DE8006FD6E1 /* TiUISystemButtonProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A56111161FD0084E2DE /* TiUISystemButtonProxy.m */; };
+		24DD027711686DE8006FD6E1 /* TiUISwitchProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A58111161FD0084E2DE /* TiUISwitchProxy.m */; };
+		24DD027811686DE8006FD6E1 /* TiUISwitch.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A5A111161FD0084E2DE /* TiUISwitch.m */; };
+		24DD027911686DE8006FD6E1 /* TiUIStatusBarProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A5C111161FD0084E2DE /* TiUIStatusBarProxy.m */; };
+		24DD027A11686DE8006FD6E1 /* TiUISliderProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A5E111161FD0084E2DE /* TiUISliderProxy.m */; };
+		24DD027B11686DE8006FD6E1 /* TiUISlider.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A60111161FD0084E2DE /* TiUISlider.m */; };
+		24DD027C11686DE8006FD6E1 /* TiUISearchBarProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A62111161FD0084E2DE /* TiUISearchBarProxy.m */; };
+		24DD027D11686DE8006FD6E1 /* TiUISearchBar.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A64111161FD0084E2DE /* TiUISearchBar.m */; };
+		24DD027E11686DE8006FD6E1 /* TiUIRowAnimationStyleProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A66111161FD0084E2DE /* TiUIRowAnimationStyleProxy.m */; };
+		24DD027F11686DE8006FD6E1 /* TiUIProgressBarStyleProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A68111161FD0084E2DE /* TiUIProgressBarStyleProxy.m */; };
+		24DD028011686DE8006FD6E1 /* TiUIProgressBarProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A6A111161FD0084E2DE /* TiUIProgressBarProxy.m */; };
+		24DD028111686DE8006FD6E1 /* TiUIProgressBar.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A6C111161FD0084E2DE /* TiUIProgressBar.m */; };
+		24DD028211686DE8006FD6E1 /* TiUIOptionDialogProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A6E111161FD0084E2DE /* TiUIOptionDialogProxy.m */; };
+		24DD028311686DE8006FD6E1 /* TiUINavBarButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A70111161FD0084E2DE /* TiUINavBarButton.m */; };
+		24DD028411686DE8006FD6E1 /* TiUILabelProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A72111161FD0084E2DE /* TiUILabelProxy.m */; };
+		24DD028511686DE8006FD6E1 /* TiUILabel.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A74111161FD0084E2DE /* TiUILabel.m */; };
+		24DD028611686DE8006FD6E1 /* TiUIiPhoneProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A76111161FD0084E2DE /* TiUIiPhoneProxy.m */; };
+		24DD028711686DE8006FD6E1 /* TiUIImageViewProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A78111161FD0084E2DE /* TiUIImageViewProxy.m */; };
+		24DD028811686DE8006FD6E1 /* TiUIImageView.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A7A111161FD0084E2DE /* TiUIImageView.m */; };
+		24DD028911686DE8006FD6E1 /* TiUIEmailDialogProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A82111161FD0084E2DE /* TiUIEmailDialogProxy.m */; };
+		24DD028A11686DE8006FD6E1 /* TiUICoverFlowViewProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A86111161FD0084E2DE /* TiUICoverFlowViewProxy.m */; };
+		24DD028B11686DE8006FD6E1 /* TiUICoverFlowView.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A88111161FD0084E2DE /* TiUICoverFlowView.m */; };
+		24DD028C11686DE8006FD6E1 /* TiUICanvasViewProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A8A111161FD0084E2DE /* TiUICanvasViewProxy.m */; };
+		24DD028D11686DE8006FD6E1 /* TiUICanvasView.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A8C111161FD0084E2DE /* TiUICanvasView.m */; };
+		24DD028E11686DE8006FD6E1 /* TiUIButtonProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A8E111161FD0084E2DE /* TiUIButtonProxy.m */; };
+		24DD028F11686DE8006FD6E1 /* TiUIButtonBarProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A90111161FD0084E2DE /* TiUIButtonBarProxy.m */; };
+		24DD029011686DE8006FD6E1 /* TiUIButtonBar.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A92111161FD0084E2DE /* TiUIButtonBar.m */; };
+		24DD029111686DE8006FD6E1 /* TiUIButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A94111161FD0084E2DE /* TiUIButton.m */; };
+		24DD029211686DE8006FD6E1 /* TiUIAnimationStyleProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A96111161FD0084E2DE /* TiUIAnimationStyleProxy.m */; };
+		24DD029311686DE8006FD6E1 /* TiUIAlertDialogProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A98111161FD0084E2DE /* TiUIAlertDialogProxy.m */; };
+		24DD029411686DE8006FD6E1 /* TiUIActivityIndicatorStyleProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A9A111161FD0084E2DE /* TiUIActivityIndicatorStyleProxy.m */; };
+		24DD029511686DE8006FD6E1 /* TiUIActivityIndicatorProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A9C111161FD0084E2DE /* TiUIActivityIndicatorProxy.m */; };
+		24DD029611686DE8006FD6E1 /* TiUIActivityIndicator.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A9E111161FD0084E2DE /* TiUIActivityIndicator.m */; };
+		24DD029C11686DE8006FD6E1 /* TiRect.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8AAC111161FD0084E2DE /* TiRect.m */; };
+		24DD029D11686DE8006FD6E1 /* TiRange.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8AAE111161FD0084E2DE /* TiRange.m */; };
+		24DD029E11686DE8006FD6E1 /* TiProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8AB0111161FD0084E2DE /* TiProxy.m */; };
+		24DD029F11686DE8006FD6E1 /* TiPoint.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8AB2111161FD0084E2DE /* TiPoint.m */; };
+		24DD02A011686DE8006FD6E1 /* TiNetworkHTTPClientResultProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8AB4111161FD0084E2DE /* TiNetworkHTTPClientResultProxy.m */; };
+		24DD02A111686DE8006FD6E1 /* TiNetworkHTTPClientProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8AB6111161FD0084E2DE /* TiNetworkHTTPClientProxy.m */; };
+		24DD02A211686DE8006FD6E1 /* TiModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8AB8111161FD0084E2DE /* TiModule.m */; };
+		24DD02A311686DE8006FD6E1 /* TiMediaVideoPlayerProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8ABA111161FD0084E2DE /* TiMediaVideoPlayerProxy.m */; };
+		24DD02A411686DE8006FD6E1 /* TiMediaSoundProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8ABC111161FD0084E2DE /* TiMediaSoundProxy.m */; };
+		24DD02A511686DE8006FD6E1 /* TiMediaAudioPlayerProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8ABE111161FD0084E2DE /* TiMediaAudioPlayerProxy.m */; };
+		24DD02A611686DE8006FD6E1 /* TiMapViewProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8AC0111161FD0084E2DE /* TiMapViewProxy.m */; };
+		24DD02A711686DE8006FD6E1 /* TiMapView.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8AC2111161FD0084E2DE /* TiMapView.m */; };
+		24DD02A811686DE8006FD6E1 /* TiMapAnnotationProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8AC4111161FD0084E2DE /* TiMapAnnotationProxy.m */; };
+		24DD02A911686DE8006FD6E1 /* TiHost.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8AC6111161FD0084E2DE /* TiHost.m */; };
+		24DD02AA11686DE8006FD6E1 /* TiFilesystemFileProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8AC8111161FD0084E2DE /* TiFilesystemFileProxy.m */; };
+		24DD02AB11686DE8006FD6E1 /* TiFacebookLoginButtonProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8ACC111161FD0084E2DE /* TiFacebookLoginButtonProxy.m */; };
+		24DD02AC11686DE8006FD6E1 /* TiFacebookLoginButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8ACE111161FD0084E2DE /* TiFacebookLoginButton.m */; };
+		24DD02AD11686DE8006FD6E1 /* TiDimension.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8AD1111161FD0084E2DE /* TiDimension.m */; };
+		24DD02AE11686DE8006FD6E1 /* TiDatabaseResultSetProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8AD3111161FD0084E2DE /* TiDatabaseResultSetProxy.m */; };
+		24DD02AF11686DE8006FD6E1 /* TiDatabaseProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8AD5111161FD0084E2DE /* TiDatabaseProxy.m */; };
+		24DD02B011686DE8006FD6E1 /* TiContactsContactProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8AD8111161FD0084E2DE /* TiContactsContactProxy.m */; };
+		24DD02B111686DE8006FD6E1 /* TiComplexValue.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8ADA111161FE0084E2DE /* TiComplexValue.m */; };
+		24DD02B211686DE8006FD6E1 /* TiColor.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8ADC111161FE0084E2DE /* TiColor.m */; };
+		24DD02B311686DE8006FD6E1 /* TiButtonUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8ADE111161FE0084E2DE /* TiButtonUtil.m */; };
+		24DD02B411686DE8006FD6E1 /* TiBlob.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8AE0111161FE0084E2DE /* TiBlob.m */; };
+		24DD02B511686DE8006FD6E1 /* TiBase.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8AE2111161FE0084E2DE /* TiBase.m */; };
+		24DD02B611686DE8006FD6E1 /* TiAppPropertiesProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8AE4111161FE0084E2DE /* TiAppPropertiesProxy.m */; };
+		24DD02B711686DE8006FD6E1 /* TiAnimation.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8AE6111161FE0084E2DE /* TiAnimation.m */; };
+		24DD02B811686DE8006FD6E1 /* TiAction.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8AE8111161FE0084E2DE /* TiAction.m */; };
+		24DD02B911686DE8006FD6E1 /* Ti3DMatrix.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8AEA111161FE0084E2DE /* Ti3DMatrix.m */; };
+		24DD02BA11686DE8006FD6E1 /* Ti2DMatrix.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8AEC111161FE0084E2DE /* Ti2DMatrix.m */; };
+		24DD02BB11686DE8006FD6E1 /* PlatformModuleDisplayCapsProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8AFA111161FE0084E2DE /* PlatformModuleDisplayCapsProxy.m */; };
+		24DD02BC11686DE8006FD6E1 /* PlatformModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8AFC111161FE0084E2DE /* PlatformModule.m */; };
+		24DD02BD11686DE8006FD6E1 /* OperationQueue.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8AFE111161FE0084E2DE /* OperationQueue.m */; };
+		24DD02BE11686DE8006FD6E1 /* NetworkModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8B00111161FE0084E2DE /* NetworkModule.m */; };
+		24DD02BF11686DE8006FD6E1 /* Mimetypes.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8B02111161FE0084E2DE /* Mimetypes.m */; };
+		24DD02C011686DE8006FD6E1 /* MediaModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8B04111161FE0084E2DE /* MediaModule.m */; };
+		24DD02C111686DE8006FD6E1 /* MapModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8B06111161FE0084E2DE /* MapModule.m */; };
+		24DD02C211686DE8006FD6E1 /* LayoutConstraint.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8B0A111161FE0084E2DE /* LayoutConstraint.m */; };
+		24DD02C311686DE8006FD6E1 /* ImageLoader.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8B0C111161FE0084E2DE /* ImageLoader.m */; };
+		24DD02C411686DE8006FD6E1 /* GestureModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8B0E111161FE0084E2DE /* GestureModule.m */; };
+		24DD02C511686DE8006FD6E1 /* GeolocationModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8B10111161FE0084E2DE /* GeolocationModule.m */; };
+		24DD02C611686DE8006FD6E1 /* FilesystemModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8B12111161FE0084E2DE /* FilesystemModule.m */; };
+		24DD02C711686DE8006FD6E1 /* FacebookModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8B33111161FE0084E2DE /* FacebookModule.m */; };
+		24DD02C811686DE8006FD6E1 /* DatabaseModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8B35111161FE0084E2DE /* DatabaseModule.m */; };
+		24DD02C911686DE8006FD6E1 /* ContactsModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8B37111161FE0084E2DE /* ContactsModule.m */; };
+		24DD02CA11686DE8006FD6E1 /* TiUITableViewRowProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8B39111161FE0084E2DE /* TiUITableViewRowProxy.m */; };
+		24DD02CB11686DE8006FD6E1 /* Bridge.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8B3B111161FE0084E2DE /* Bridge.m */; };
+		24DD02CC11686DE8006FD6E1 /* AppModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8B56111161FE0084E2DE /* AppModule.m */; };
+		24DD02CD11686DE8006FD6E1 /* APIModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8B58111161FE0084E2DE /* APIModule.m */; };
+		24DD02CE11686DE8006FD6E1 /* AnalyticsModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8B5A111161FE0084E2DE /* AnalyticsModule.m */; };
+		24DD02CF11686DE8006FD6E1 /* AccelerometerModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8B64111161FE0084E2DE /* AccelerometerModule.m */; };
+		24DD02D011686DE8006FD6E1 /* TiUIScrollableViewProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = B421C4111113AA9300DBCB42 /* TiUIScrollableViewProxy.m */; };
+		24DD02D111686DE8006FD6E1 /* TiUIScrollableView.m in Sources */ = {isa = PBXBuildFile; fileRef = B421C4151113AAA900DBCB42 /* TiUIScrollableView.m */; };
+		24DD02D211686DE8006FD6E1 /* TiUIScrollViewProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = B4F97B6E111A41B600E2F72C /* TiUIScrollViewProxy.m */; };
+		24DD02D311686DE8006FD6E1 /* TiUIScrollView.m in Sources */ = {isa = PBXBuildFile; fileRef = B4F97B72111A41C800E2F72C /* TiUIScrollView.m */; };
+		24DD02D411686DE8006FD6E1 /* TiUIWebView.m in Sources */ = {isa = PBXBuildFile; fileRef = 24EB02C0111BF827001DC2D1 /* TiUIWebView.m */; };
+		24DD02D511686DE8006FD6E1 /* TiDOMDocumentProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24EB07D3111D4264001DC2D1 /* TiDOMDocumentProxy.m */; };
+		24DD02D611686DE8006FD6E1 /* GDataXMLNode.m in Sources */ = {isa = PBXBuildFile; fileRef = 24EB07DF111D43AE001DC2D1 /* GDataXMLNode.m */; };
+		24DD02D711686DE8006FD6E1 /* TiDOMNodeProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24EB0808111D4654001DC2D1 /* TiDOMNodeProxy.m */; };
+		24DD02D811686DE8006FD6E1 /* TiDOMElementProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24EB080E111D46C0001DC2D1 /* TiDOMElementProxy.m */; };
+		24DD02D911686DE8006FD6E1 /* TiDOMNamedNodeMapProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24EB0828111D4BEB001DC2D1 /* TiDOMNamedNodeMapProxy.m */; };
+		24DD02DA11686DE8006FD6E1 /* TiDOMNodeListProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24EB0842111D500E001DC2D1 /* TiDOMNodeListProxy.m */; };
+		24DD02DB11686DE8006FD6E1 /* TiDOMAttrProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24EB085C111D51D9001DC2D1 /* TiDOMAttrProxy.m */; };
+		24DD02DC11686DE8006FD6E1 /* NSData+Additions.m in Sources */ = {isa = PBXBuildFile; fileRef = 24EB0B73111E7EE8001DC2D1 /* NSData+Additions.m */; };
+		24DD02DD11686DE8006FD6E1 /* ListenerEntry.m in Sources */ = {isa = PBXBuildFile; fileRef = 24F5B145111FDFE8005C9199 /* ListenerEntry.m */; };
+		24DD02DE11686DE8006FD6E1 /* XMLModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 24DEDAC4112371A500398D86 /* XMLModule.m */; };
+		24DD02DF11686DE8006FD6E1 /* TiUITableViewScrollPositionProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 243ED8EC11288B4300639DF4 /* TiUITableViewScrollPositionProxy.m */; };
+		24DD02E011686DE8006FD6E1 /* TiMediaAudioRecorderProxy.mm in Sources */ = {isa = PBXBuildFile; fileRef = 24FBE58211293D06005C8D48 /* TiMediaAudioRecorderProxy.mm */; };
+		24DD02E111686DE8006FD6E1 /* CADebugMacros.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 24FBE5A711293DD1005C8D48 /* CADebugMacros.cpp */; };
+		24DD02E211686DE8006FD6E1 /* CAStreamBasicDescription.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 24FBE5AA11293DD1005C8D48 /* CAStreamBasicDescription.cpp */; };
+		24DD02E311686DE8006FD6E1 /* CAXException.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 24FBE5AC11293DD1005C8D48 /* CAXException.cpp */; };
+		24DD02E411686DE8006FD6E1 /* AQRecorder.mm in Sources */ = {isa = PBXBuildFile; fileRef = 24E25CC0112A698C0083D43D /* AQRecorder.mm */; };
+		24DD02E511686DE8006FD6E1 /* SCListener.m in Sources */ = {isa = PBXBuildFile; fileRef = 24E25CC2112A698C0083D43D /* SCListener.m */; };
+		24DD02E611686DE8006FD6E1 /* TiMediaAudioSession.m in Sources */ = {isa = PBXBuildFile; fileRef = 24A1E516112D33AF003DA834 /* TiMediaAudioSession.m */; };
+		24DD02E711686DE8006FD6E1 /* TiUIPickerProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24A1E874112DF80B003DA834 /* TiUIPickerProxy.m */; };
+		24DD02E811686DE8006FD6E1 /* TiUIPicker.m in Sources */ = {isa = PBXBuildFile; fileRef = 24A1E87A112DF83E003DA834 /* TiUIPicker.m */; };
+		24DD02E911686DE8006FD6E1 /* TiUIPickerRowProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24A1E8A7112DFACA003DA834 /* TiUIPickerRowProxy.m */; };
+		24DD02EA11686DE8006FD6E1 /* TiUIPickerColumnProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24A1E991112E1363003DA834 /* TiUIPickerColumnProxy.m */; };
+		24DD02EB11686DE8006FD6E1 /* UIImage+Alpha.m in Sources */ = {isa = PBXBuildFile; fileRef = 24A1EAF1112F4C02003DA834 /* UIImage+Alpha.m */; };
+		24DD02EC11686DE8006FD6E1 /* UIImage+Resize.m in Sources */ = {isa = PBXBuildFile; fileRef = 24A1EAF3112F4C02003DA834 /* UIImage+Resize.m */; };
+		24DD02ED11686DE8006FD6E1 /* UIImage+RoundedCorner.m in Sources */ = {isa = PBXBuildFile; fileRef = 24A1EAF5112F4C02003DA834 /* UIImage+RoundedCorner.m */; };
+		24DD02EE11686DE8006FD6E1 /* UtilsModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 245B3C3911375A6600CE7530 /* UtilsModule.m */; };
+		24DD02EF11686DE8006FD6E1 /* TiUITableViewCellSelectionStyleProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 245B45601139B41800CE7530 /* TiUITableViewCellSelectionStyleProxy.m */; };
+		24DD02F011686DE8006FD6E1 /* TiUIMaskedImageProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24C012881140D30B00A94CE2 /* TiUIMaskedImageProxy.m */; };
+		24DD02F111686DE8006FD6E1 /* TiUIMaskedImage.m in Sources */ = {isa = PBXBuildFile; fileRef = 24C0128E1140D31C00A94CE2 /* TiUIMaskedImage.m */; };
+		24DD02F211686DE8006FD6E1 /* TiNetworkBonjourBrowserProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 248133A2115761DE00E3A9BA /* TiNetworkBonjourBrowserProxy.m */; };
+		24DD02F311686DE8006FD6E1 /* TiNetworkBonjourServiceProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 248133A4115761DE00E3A9BA /* TiNetworkBonjourServiceProxy.m */; };
+		24DD02F411686DE8006FD6E1 /* TiNetworkTCPSocketProxy.mm in Sources */ = {isa = PBXBuildFile; fileRef = 248133A6115761DE00E3A9BA /* TiNetworkTCPSocketProxy.mm */; };
+		24DD02F511686DE8006FD6E1 /* TiDOMTextNodeProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24813712115A852800E3A9BA /* TiDOMTextNodeProxy.m */; };
+		24DD02F611686DE8006FD6E1 /* TiMediaVideoPlayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 2412F465115C296300454E5B /* TiMediaVideoPlayer.m */; };
+		24DD02F711686DE8006FD6E1 /* TiUIiPadSplitWindowProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24FB4EDC115C81A7001AAF99 /* TiUIiPadSplitWindowProxy.m */; };
+		24DD02F911686DE8006FD6E1 /* TiUIiPadPopoverProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24FB4EEE115C81C5001AAF99 /* TiUIiPadPopoverProxy.m */; };
+		24DD02FA11686DE8006FD6E1 /* TiUIiPadPopover.m in Sources */ = {isa = PBXBuildFile; fileRef = 24FB4EF7115C81DD001AAF99 /* TiUIiPadPopover.m */; };
+		24DD02FB11686DE8006FD6E1 /* TiUIiPadProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24FB4F41115C8C4E001AAF99 /* TiUIiPadProxy.m */; };
+		24DD02FC11686DE8006FD6E1 /* TiUIiPhoneNavigationGroupProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24FB5DD511600456001AAF99 /* TiUIiPhoneNavigationGroupProxy.m */; };
+		24DD02FD11686DE8006FD6E1 /* TiUIiPhoneNavigationGroup.m in Sources */ = {isa = PBXBuildFile; fileRef = 24FB5DDE11600480001AAF99 /* TiUIiPhoneNavigationGroup.m */; };
+		24DD02FE11686DE8006FD6E1 /* TiUIiPadSplitWindowButtonProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24E50CF31160569B00AF54AF /* TiUIiPadSplitWindowButtonProxy.m */; };
+		24DD02FF11686DE8006FD6E1 /* LauncherButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 24E50E061160666300AF54AF /* LauncherButton.m */; };
+		24DD030011686DE8006FD6E1 /* LauncherItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 24E50E081160666300AF54AF /* LauncherItem.m */; };
+		24DD030111686DE8006FD6E1 /* LauncherView.m in Sources */ = {isa = PBXBuildFile; fileRef = 24E50E0A1160666300AF54AF /* LauncherView.m */; };
+		24DD030211686DE8006FD6E1 /* TiUIDashboardViewProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24E50E21116066A800AF54AF /* TiUIDashboardViewProxy.m */; };
+		24DD030311686DE8006FD6E1 /* TiUIDashboardView.m in Sources */ = {isa = PBXBuildFile; fileRef = 24E50E2A116066B400AF54AF /* TiUIDashboardView.m */; };
+		24DD030411686DE8006FD6E1 /* TiUIDashboardItemProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24E50F8B1160792D00AF54AF /* TiUIDashboardItemProxy.m */; };
+		24DD030511686DE8006FD6E1 /* TiUIiPadDocumentViewerProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24DDF65E11646D51006FD6E1 /* TiUIiPadDocumentViewerProxy.m */; };
+		24DD030711686DE8006FD6E1 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1D30AB110D05D00D00671497 /* Foundation.framework */; };
+		24DD030811686DE8006FD6E1 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1DF5F4DF0D08C38300B7A737 /* UIKit.framework */; };
+		24DD030911686DE8006FD6E1 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 288765FC0DF74451002DB57D /* CoreGraphics.framework */; };
+		24DD030A11686DE8006FD6E1 /* libTiCore.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 24CA8C73111167780084E2DE /* libTiCore.a */; };
+		24DD030B11686DE8006FD6E1 /* AddressBook.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 24CA8C75111167B60084E2DE /* AddressBook.framework */; };
+		24DD030C11686DE8006FD6E1 /* AddressBookUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 24CA8C77111167B60084E2DE /* AddressBookUI.framework */; };
+		24DD030D11686DE8006FD6E1 /* CFNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 24CA8C7B111167B60084E2DE /* CFNetwork.framework */; };
+		24DD030E11686DE8006FD6E1 /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 24CA8C7D111167B60084E2DE /* CoreLocation.framework */; };
+		24DD030F11686DE8006FD6E1 /* MapKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 24CA8C7F111167B60084E2DE /* MapKit.framework */; };
+		24DD031011686DE8006FD6E1 /* MessageUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 24CA8C81111167B60084E2DE /* MessageUI.framework */; };
+		24DD031111686DE8006FD6E1 /* MobileCoreServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 24CA8C83111167B60084E2DE /* MobileCoreServices.framework */; };
+		24DD031211686DE8006FD6E1 /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 24CA8C85111167B60084E2DE /* OpenGLES.framework */; };
+		24DD031311686DE8006FD6E1 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 24CA8C87111167B60084E2DE /* QuartzCore.framework */; };
+		24DD031411686DE8006FD6E1 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 24CA8C89111167B60084E2DE /* SystemConfiguration.framework */; };
+		24DD031511686DE8006FD6E1 /* libsqlite3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 24CA8C8D111167B60084E2DE /* libsqlite3.dylib */; };
+		24DD031611686DE8006FD6E1 /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 24CA8C8F111167B60084E2DE /* libz.dylib */; };
+		24DD031711686DE8006FD6E1 /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 24CA8CEC1111689B0084E2DE /* AudioToolbox.framework */; };
+		24DD031811686DE8006FD6E1 /* MediaPlayer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 24CA8CF3111168AE0084E2DE /* MediaPlayer.framework */; };
+		24DD031911686DE8006FD6E1 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 24CA8CFA111168C30084E2DE /* AVFoundation.framework */; };
+		24DD031A11686DE8006FD6E1 /* libxml2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 24EB0A57111E1BAE001DC2D1 /* libxml2.dylib */; };
 		24DD042D116A6C58006FD6E1 /* TiToolbar.m in Sources */ = {isa = PBXBuildFile; fileRef = 24DD042B116A6C58006FD6E1 /* TiToolbar.m */; };
-		24DD042E116A6C58006FD6E1 /* TiToolbar.m in Sources */ = {isa = PBXBuildFile; fileRef = 24DD042B116A6C58006FD6E1 /* TiToolbar.m */; };
+		24DD0431116A6C58006FD6E1 /* TiToolbar.m in Sources */ = {isa = PBXBuildFile; fileRef = 24DD042B116A6C58006FD6E1 /* TiToolbar.m */; };
 		24DDF66011646D51006FD6E1 /* TiUIiPadDocumentViewerProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24DDF65E11646D51006FD6E1 /* TiUIiPadDocumentViewerProxy.m */; };
-		24DDF66111646D51006FD6E1 /* TiUIiPadDocumentViewerProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24DDF65E11646D51006FD6E1 /* TiUIiPadDocumentViewerProxy.m */; };
 		24DEDAC7112371A500398D86 /* XMLModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 24DEDAC4112371A500398D86 /* XMLModule.m */; };
 		24E25CC3112A698C0083D43D /* AQRecorder.mm in Sources */ = {isa = PBXBuildFile; fileRef = 24E25CC0112A698C0083D43D /* AQRecorder.mm */; };
 		24E25CC4112A698C0083D43D /* SCListener.m in Sources */ = {isa = PBXBuildFile; fileRef = 24E25CC2112A698C0083D43D /* SCListener.m */; };
-		24E50CF61160569B00AF54AF /* TiUIiPadSplitWindowButtonProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24E50CF31160569B00AF54AF /* TiUIiPadSplitWindowButtonProxy.m */; };
 		24E50CF91160569B00AF54AF /* TiUIiPadSplitWindowButtonProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24E50CF31160569B00AF54AF /* TiUIiPadSplitWindowButtonProxy.m */; };
-		24E50E111160666300AF54AF /* LauncherButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 24E50E061160666300AF54AF /* LauncherButton.m */; };
-		24E50E121160666300AF54AF /* LauncherItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 24E50E081160666300AF54AF /* LauncherItem.m */; };
-		24E50E131160666300AF54AF /* LauncherView.m in Sources */ = {isa = PBXBuildFile; fileRef = 24E50E0A1160666300AF54AF /* LauncherView.m */; };
 		24E50E1A1160666300AF54AF /* LauncherButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 24E50E061160666300AF54AF /* LauncherButton.m */; };
 		24E50E1B1160666300AF54AF /* LauncherItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 24E50E081160666300AF54AF /* LauncherItem.m */; };
 		24E50E1C1160666300AF54AF /* LauncherView.m in Sources */ = {isa = PBXBuildFile; fileRef = 24E50E0A1160666300AF54AF /* LauncherView.m */; };
-		24E50E24116066A800AF54AF /* TiUIDashboardViewProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24E50E21116066A800AF54AF /* TiUIDashboardViewProxy.m */; };
 		24E50E27116066A800AF54AF /* TiUIDashboardViewProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24E50E21116066A800AF54AF /* TiUIDashboardViewProxy.m */; };
-		24E50E2D116066B400AF54AF /* TiUIDashboardView.m in Sources */ = {isa = PBXBuildFile; fileRef = 24E50E2A116066B400AF54AF /* TiUIDashboardView.m */; };
 		24E50E30116066B400AF54AF /* TiUIDashboardView.m in Sources */ = {isa = PBXBuildFile; fileRef = 24E50E2A116066B400AF54AF /* TiUIDashboardView.m */; };
-		24E50F8E1160792D00AF54AF /* TiUIDashboardItemProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24E50F8B1160792D00AF54AF /* TiUIDashboardItemProxy.m */; };
 		24E50F911160792D00AF54AF /* TiUIDashboardItemProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24E50F8B1160792D00AF54AF /* TiUIDashboardItemProxy.m */; };
 		24EB02C2111BF827001DC2D1 /* TiUIWebView.m in Sources */ = {isa = PBXBuildFile; fileRef = 24EB02C0111BF827001DC2D1 /* TiUIWebView.m */; };
 		24EB07D4111D4264001DC2D1 /* TiDOMDocumentProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24EB07D3111D4264001DC2D1 /* TiDOMDocumentProxy.m */; };
@@ -469,17 +468,19 @@
 		24EB0B74111E7EE8001DC2D1 /* NSData+Additions.m in Sources */ = {isa = PBXBuildFile; fileRef = 24EB0B73111E7EE8001DC2D1 /* NSData+Additions.m */; };
 		24F5ACF9111F7B8A005C9199 /* TiMapPinAnnotationView.m in Sources */ = {isa = PBXBuildFile; fileRef = 24EB0BA9111F7959001DC2D1 /* TiMapPinAnnotationView.m */; };
 		24F5B146111FDFE8005C9199 /* ListenerEntry.m in Sources */ = {isa = PBXBuildFile; fileRef = 24F5B145111FDFE8005C9199 /* ListenerEntry.m */; };
-		24FB4EE0115C81A7001AAF99 /* TiUIiPadSplitWindowProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24FB4EDC115C81A7001AAF99 /* TiUIiPadSplitWindowProxy.m */; };
+		24F6204F1199F1F400EEAD3C /* TopTiModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 24F6204E1199F1F400EEAD3C /* TopTiModule.m */; };
+		24F620501199F1F400EEAD3C /* TopTiModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 24F6204E1199F1F400EEAD3C /* TopTiModule.m */; };
+		24F620541199F26500EEAD3C /* TiApp.mm in Sources */ = {isa = PBXBuildFile; fileRef = 24F620531199F26500EEAD3C /* TiApp.mm */; };
+		24F620551199F26500EEAD3C /* TiApp.mm in Sources */ = {isa = PBXBuildFile; fileRef = 24F620531199F26500EEAD3C /* TiApp.mm */; };
+		24F6205A1199F27700EEAD3C /* TiErrorController.m in Sources */ = {isa = PBXBuildFile; fileRef = 24F620571199F27700EEAD3C /* TiErrorController.m */; };
+		24F6205B1199F27700EEAD3C /* TiRootViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 24F620591199F27700EEAD3C /* TiRootViewController.m */; };
+		24F6205C1199F27700EEAD3C /* TiErrorController.m in Sources */ = {isa = PBXBuildFile; fileRef = 24F620571199F27700EEAD3C /* TiErrorController.m */; };
+		24F6205D1199F27700EEAD3C /* TiRootViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 24F620591199F27700EEAD3C /* TiRootViewController.m */; };
 		24FB4EE3115C81A7001AAF99 /* TiUIiPadSplitWindowProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24FB4EDC115C81A7001AAF99 /* TiUIiPadSplitWindowProxy.m */; };
-		24FB4EF3115C81C5001AAF99 /* TiUIiPadPopoverProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24FB4EEE115C81C5001AAF99 /* TiUIiPadPopoverProxy.m */; };
 		24FB4EF4115C81C5001AAF99 /* TiUIiPadPopoverProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24FB4EEE115C81C5001AAF99 /* TiUIiPadPopoverProxy.m */; };
-		24FB4EFB115C81DD001AAF99 /* TiUIiPadPopover.m in Sources */ = {isa = PBXBuildFile; fileRef = 24FB4EF7115C81DD001AAF99 /* TiUIiPadPopover.m */; };
 		24FB4EFC115C81DD001AAF99 /* TiUIiPadPopover.m in Sources */ = {isa = PBXBuildFile; fileRef = 24FB4EF7115C81DD001AAF99 /* TiUIiPadPopover.m */; };
 		24FB4F42115C8C4E001AAF99 /* TiUIiPadProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24FB4F41115C8C4E001AAF99 /* TiUIiPadProxy.m */; };
-		24FB4F45115C8C4E001AAF99 /* TiUIiPadProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24FB4F41115C8C4E001AAF99 /* TiUIiPadProxy.m */; };
 		24FB5DD611600456001AAF99 /* TiUIiPhoneNavigationGroupProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24FB5DD511600456001AAF99 /* TiUIiPhoneNavigationGroupProxy.m */; };
-		24FB5DD911600456001AAF99 /* TiUIiPhoneNavigationGroupProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24FB5DD511600456001AAF99 /* TiUIiPhoneNavigationGroupProxy.m */; };
-		24FB5DE211600480001AAF99 /* TiUIiPhoneNavigationGroup.m in Sources */ = {isa = PBXBuildFile; fileRef = 24FB5DDE11600480001AAF99 /* TiUIiPhoneNavigationGroup.m */; };
 		24FB5DE511600480001AAF99 /* TiUIiPhoneNavigationGroup.m in Sources */ = {isa = PBXBuildFile; fileRef = 24FB5DDE11600480001AAF99 /* TiUIiPhoneNavigationGroup.m */; };
 		24FBE58311293D06005C8D48 /* TiMediaAudioRecorderProxy.mm in Sources */ = {isa = PBXBuildFile; fileRef = 24FBE58211293D06005C8D48 /* TiMediaAudioRecorderProxy.mm */; };
 		24FBE5AE11293DD1005C8D48 /* CADebugMacros.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 24FBE5A711293DD1005C8D48 /* CADebugMacros.cpp */; };
@@ -489,15 +490,16 @@
 		B421C4121113AA9300DBCB42 /* TiUIScrollableViewProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = B421C4111113AA9300DBCB42 /* TiUIScrollableViewProxy.m */; };
 		B421C4161113AAA900DBCB42 /* TiUIScrollableView.m in Sources */ = {isa = PBXBuildFile; fileRef = B421C4151113AAA900DBCB42 /* TiUIScrollableView.m */; };
 		B4DE7E4E11823E990006DDE1 /* TiGradient.m in Sources */ = {isa = PBXBuildFile; fileRef = B4DE7E4D11823E990006DDE1 /* TiGradient.m */; };
-		B4DE7E5311823E990006DDE1 /* TiGradient.m in Sources */ = {isa = PBXBuildFile; fileRef = B4DE7E4D11823E990006DDE1 /* TiGradient.m */; };
+		B4DE7E4F11823E990006DDE1 /* TiGradient.m in Sources */ = {isa = PBXBuildFile; fileRef = B4DE7E4D11823E990006DDE1 /* TiGradient.m */; };
 		B4F97B6F111A41B600E2F72C /* TiUIScrollViewProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = B4F97B6E111A41B600E2F72C /* TiUIScrollViewProxy.m */; };
 		B4F97B73111A41C800E2F72C /* TiUIScrollView.m in Sources */ = {isa = PBXBuildFile; fileRef = B4F97B72111A41C800E2F72C /* TiUIScrollView.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		1D30AB110D05D00D00671497 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
-		1D6058910D05DD3D006BFB54 /* KitchenSink_iPad.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = KitchenSink_iPad.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		1D6058910D05DD3D006BFB54 /* KitchenSink-iPad.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "KitchenSink-iPad.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		1DF5F4DF0D08C38300B7A737 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
+		2405E8B4119A1B0C0023BD23 /* StoreKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = StoreKit.framework; path = System/Library/Frameworks/StoreKit.framework; sourceTree = SDKROOT; };
 		2412F464115C296300454E5B /* TiMediaVideoPlayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiMediaVideoPlayer.h; sourceTree = "<group>"; };
 		2412F465115C296300454E5B /* TiMediaVideoPlayer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiMediaVideoPlayer.m; sourceTree = "<group>"; };
 		241EAA21118AB3BB0081A5BE /* defines.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = defines.h; path = Classes/defines.h; sourceTree = SOURCE_ROOT; };
@@ -772,14 +774,6 @@
 		24CA8A9D111161FD0084E2DE /* TiUIActivityIndicatorProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TiUIActivityIndicatorProxy.h; path = Classes/TiUIActivityIndicatorProxy.h; sourceTree = SOURCE_ROOT; };
 		24CA8A9E111161FD0084E2DE /* TiUIActivityIndicator.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TiUIActivityIndicator.m; path = Classes/TiUIActivityIndicator.m; sourceTree = SOURCE_ROOT; };
 		24CA8A9F111161FD0084E2DE /* TiUIActivityIndicator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TiUIActivityIndicator.h; path = Classes/TiUIActivityIndicator.h; sourceTree = SOURCE_ROOT; };
-		24CA8AA2111161FD0084E2DE /* KitchenSink_iPad$ViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = KitchenSink_iPad$ViewController.m; path = Classes/KitchenSink_iPad$ViewController.m; sourceTree = SOURCE_ROOT; };
-		24CA8AA3111161FD0084E2DE /* KitchenSink_iPad$ViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = KitchenSink_iPad$ViewController.h; path = Classes/KitchenSink_iPad$ViewController.h; sourceTree = SOURCE_ROOT; };
-		24CA8AA4111161FD0084E2DE /* KitchenSink_iPad$Module.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = KitchenSink_iPad$Module.m; path = Classes/KitchenSink_iPad$Module.m; sourceTree = SOURCE_ROOT; };
-		24CA8AA5111161FD0084E2DE /* KitchenSink_iPad$Module.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = KitchenSink_iPad$Module.h; path = Classes/KitchenSink_iPad$Module.h; sourceTree = SOURCE_ROOT; };
-		24CA8AA6111161FD0084E2DE /* KitchenSink_iPadErrorController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = KitchenSink_iPadErrorController.m; path = Classes/KitchenSink_iPadErrorController.m; sourceTree = SOURCE_ROOT; };
-		24CA8AA7111161FD0084E2DE /* KitchenSink_iPadErrorController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = KitchenSink_iPadErrorController.h; path = Classes/KitchenSink_iPadErrorController.h; sourceTree = SOURCE_ROOT; };
-		24CA8AA8111161FD0084E2DE /* KitchenSink_iPadApp.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = KitchenSink_iPadApp.mm; path = Classes/KitchenSink_iPadApp.mm; sourceTree = SOURCE_ROOT; };
-		24CA8AA9111161FD0084E2DE /* KitchenSink_iPadApp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = KitchenSink_iPadApp.h; path = Classes/KitchenSink_iPadApp.h; sourceTree = SOURCE_ROOT; };
 		24CA8AAB111161FD0084E2DE /* TiTab.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TiTab.h; path = Classes/TiTab.h; sourceTree = SOURCE_ROOT; };
 		24CA8AAC111161FD0084E2DE /* TiRect.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TiRect.m; path = Classes/TiRect.m; sourceTree = SOURCE_ROOT; };
 		24CA8AAD111161FD0084E2DE /* TiRect.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TiRect.h; path = Classes/TiRect.h; sourceTree = SOURCE_ROOT; };
@@ -905,7 +899,7 @@
 		24CA8CFA111168C30084E2DE /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
 		24CA916411116F870084E2DE /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		24CA9182111170820084E2DE /* Default.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Default.png; path = Resources/Default.png; sourceTree = SOURCE_ROOT; };
-		24DD031F11686DE8006FD6E1 /* KitchenSink_iPad-iPad.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "KitchenSink_iPad-iPad.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		24DD031F11686DE8006FD6E1 /* KitchenSink-iPad.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "KitchenSink-iPad.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		24DD042A116A6C58006FD6E1 /* TiToolbar.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiToolbar.h; sourceTree = "<group>"; };
 		24DD042B116A6C58006FD6E1 /* TiToolbar.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiToolbar.m; sourceTree = "<group>"; };
 		24DD0455116A6F02006FD6E1 /* TiTabGroup.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiTabGroup.h; sourceTree = "<group>"; };
@@ -958,6 +952,14 @@
 		24F5AEB3111F9DE9005C9199 /* TiFile.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiFile.m; sourceTree = "<group>"; };
 		24F5B144111FDFE8005C9199 /* ListenerEntry.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ListenerEntry.h; sourceTree = "<group>"; };
 		24F5B145111FDFE8005C9199 /* ListenerEntry.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ListenerEntry.m; sourceTree = "<group>"; };
+		24F6204D1199F1F400EEAD3C /* TopTiModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TopTiModule.h; sourceTree = "<group>"; };
+		24F6204E1199F1F400EEAD3C /* TopTiModule.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TopTiModule.m; sourceTree = "<group>"; };
+		24F620521199F26500EEAD3C /* TiApp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiApp.h; sourceTree = "<group>"; };
+		24F620531199F26500EEAD3C /* TiApp.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = TiApp.mm; sourceTree = "<group>"; };
+		24F620571199F27700EEAD3C /* TiErrorController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiErrorController.m; sourceTree = "<group>"; };
+		24F620581199F27700EEAD3C /* TiRootViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiRootViewController.h; sourceTree = "<group>"; };
+		24F620591199F27700EEAD3C /* TiRootViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiRootViewController.m; sourceTree = "<group>"; };
+		24F620601199F28600EEAD3C /* TiErrorController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiErrorController.h; sourceTree = "<group>"; };
 		24FB4EDB115C81A7001AAF99 /* TiUIiPadSplitWindowProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUIiPadSplitWindowProxy.h; sourceTree = "<group>"; };
 		24FB4EDC115C81A7001AAF99 /* TiUIiPadSplitWindowProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIiPadSplitWindowProxy.m; sourceTree = "<group>"; };
 		24FB4EED115C81C5001AAF99 /* TiUIiPadPopoverProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUIiPadPopoverProxy.h; sourceTree = "<group>"; };
@@ -979,11 +981,10 @@
 		24FBE5AB11293DD1005C8D48 /* CAStreamBasicDescription.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CAStreamBasicDescription.h; path = Classes/CAStreamBasicDescription.h; sourceTree = SOURCE_ROOT; };
 		24FBE5AC11293DD1005C8D48 /* CAXException.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CAXException.cpp; path = Classes/CAXException.cpp; sourceTree = SOURCE_ROOT; };
 		24FBE5AD11293DD1005C8D48 /* CAXException.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CAXException.h; path = Classes/CAXException.h; sourceTree = SOURCE_ROOT; };
-		25331CF41196330300FAA2EE /* KitchenSink_iPad.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = KitchenSink_iPad.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		288765FC0DF74451002DB57D /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
 		28AD733E0D9D9553002E5188 /* MainWindow.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = MainWindow.xib; sourceTree = "<group>"; };
 		29B97316FDCFA39411CA2CEA /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
-		32CA4F630368D1EE00C91783 /* KitchenSink_iPad_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KitchenSink_iPad_Prefix.pch; sourceTree = "<group>"; };
+		32CA4F630368D1EE00C91783 /* KitchenSink-iPad_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "KitchenSink-iPad_Prefix.pch"; sourceTree = "<group>"; };
 		B421C4101113AA9300DBCB42 /* TiUIScrollableViewProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUIScrollableViewProxy.h; sourceTree = "<group>"; };
 		B421C4111113AA9300DBCB42 /* TiUIScrollableViewProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIScrollableViewProxy.m; sourceTree = "<group>"; };
 		B421C4141113AAA900DBCB42 /* TiUIScrollableView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUIScrollableView.h; sourceTree = "<group>"; };
@@ -1031,30 +1032,31 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		2461CEF41151D856007A4CC9 /* Frameworks */ = {
+		24DD030611686DE8006FD6E1 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				2461CEF51151D856007A4CC9 /* Foundation.framework in Frameworks */,
-				2461CEF61151D856007A4CC9 /* UIKit.framework in Frameworks */,
-				2461CEF71151D856007A4CC9 /* CoreGraphics.framework in Frameworks */,
-				2461CEF81151D856007A4CC9 /* libTiCore.a in Frameworks */,
-				2461CEF91151D856007A4CC9 /* AddressBook.framework in Frameworks */,
-				2461CEFA1151D856007A4CC9 /* AddressBookUI.framework in Frameworks */,
-				2461CEFB1151D856007A4CC9 /* CFNetwork.framework in Frameworks */,
-				2461CEFC1151D856007A4CC9 /* CoreLocation.framework in Frameworks */,
-				2461CEFD1151D856007A4CC9 /* MapKit.framework in Frameworks */,
-				2461CEFE1151D856007A4CC9 /* MessageUI.framework in Frameworks */,
-				2461CEFF1151D856007A4CC9 /* MobileCoreServices.framework in Frameworks */,
-				2461CF001151D856007A4CC9 /* OpenGLES.framework in Frameworks */,
-				2461CF011151D856007A4CC9 /* QuartzCore.framework in Frameworks */,
-				2461CF021151D856007A4CC9 /* SystemConfiguration.framework in Frameworks */,
-				2461CF041151D856007A4CC9 /* libsqlite3.dylib in Frameworks */,
-				2461CF051151D856007A4CC9 /* libz.dylib in Frameworks */,
-				2461CF061151D856007A4CC9 /* AudioToolbox.framework in Frameworks */,
-				2461CF071151D856007A4CC9 /* MediaPlayer.framework in Frameworks */,
-				2461CF081151D856007A4CC9 /* AVFoundation.framework in Frameworks */,
-				2461CF091151D856007A4CC9 /* libxml2.dylib in Frameworks */,
+				24DD030711686DE8006FD6E1 /* Foundation.framework in Frameworks */,
+				24DD030811686DE8006FD6E1 /* UIKit.framework in Frameworks */,
+				24DD030911686DE8006FD6E1 /* CoreGraphics.framework in Frameworks */,
+				24DD030A11686DE8006FD6E1 /* libTiCore.a in Frameworks */,
+				24DD030B11686DE8006FD6E1 /* AddressBook.framework in Frameworks */,
+				24DD030C11686DE8006FD6E1 /* AddressBookUI.framework in Frameworks */,
+				24DD030D11686DE8006FD6E1 /* CFNetwork.framework in Frameworks */,
+				24DD030E11686DE8006FD6E1 /* CoreLocation.framework in Frameworks */,
+				24DD030F11686DE8006FD6E1 /* MapKit.framework in Frameworks */,
+				24DD031011686DE8006FD6E1 /* MessageUI.framework in Frameworks */,
+				24DD031111686DE8006FD6E1 /* MobileCoreServices.framework in Frameworks */,
+				24DD031211686DE8006FD6E1 /* OpenGLES.framework in Frameworks */,
+				24DD031311686DE8006FD6E1 /* QuartzCore.framework in Frameworks */,
+				24DD031411686DE8006FD6E1 /* SystemConfiguration.framework in Frameworks */,
+				24DD031511686DE8006FD6E1 /* libsqlite3.dylib in Frameworks */,
+				24DD031611686DE8006FD6E1 /* libz.dylib in Frameworks */,
+				24DD031711686DE8006FD6E1 /* AudioToolbox.framework in Frameworks */,
+				24DD031811686DE8006FD6E1 /* MediaPlayer.framework in Frameworks */,
+				24DD031911686DE8006FD6E1 /* AVFoundation.framework in Frameworks */,
+				24DD031A11686DE8006FD6E1 /* libxml2.dylib in Frameworks */,
+				2405E8B5119A1B0C0023BD23 /* StoreKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1064,9 +1066,8 @@
 		19C28FACFE9D520D11CA2CBB /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				1D6058910D05DD3D006BFB54 /* KitchenSink_iPad.app */,
-				24DD031F11686DE8006FD6E1 /* KitchenSink_iPad-iPad.app */,
-				25331CF41196330300FAA2EE /* KitchenSink_iPad.app */,
+				1D6058910D05DD3D006BFB54 /* KitchenSink-iPad.app */,
+				24DD031F11686DE8006FD6E1 /* KitchenSink-iPad.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -1308,10 +1309,10 @@
 		24CA8A09111161D60084E2DE /* Modules */ = {
 			isa = PBXGroup;
 			children = (
+				24F6204D1199F1F400EEAD3C /* TopTiModule.h */,
+				24F6204E1199F1F400EEAD3C /* TopTiModule.m */,
 				245B3C3011375A4D00CE7530 /* Utils */,
 				24DEDAC21123719700398D86 /* XML */,
-				24CA8AA4111161FD0084E2DE /* KitchenSink_iPad$Module.m */,
-				24CA8AA5111161FD0084E2DE /* KitchenSink_iPad$Module.h */,
 				24CA8C58111165180084E2DE /* Accelerometer */,
 				24CA8C10111163BB0084E2DE /* API */,
 				24CA8C0F111163B50084E2DE /* App */,
@@ -1378,6 +1379,12 @@
 		24CA8A0B111161E10084E2DE /* API */ = {
 			isa = PBXGroup;
 			children = (
+				24F620601199F28600EEAD3C /* TiErrorController.h */,
+				24F620571199F27700EEAD3C /* TiErrorController.m */,
+				24F620581199F27700EEAD3C /* TiRootViewController.h */,
+				24F620591199F27700EEAD3C /* TiRootViewController.m */,
+				24F620521199F26500EEAD3C /* TiApp.h */,
+				24F620531199F26500EEAD3C /* TiApp.mm */,
 				24F5AEB2111F9DE9005C9199 /* TiFile.h */,
 				24F5AEB3111F9DE9005C9199 /* TiFile.m */,
 				24CA8A2C111161FD0084E2DE /* TiUIView.m */,
@@ -1392,14 +1399,8 @@
 				24CA8A17111161FD0084E2DE /* TiWindowProxy.h */,
 				24CA8A1A111161FD0084E2DE /* TiViewController.m */,
 				24CA8A1B111161FD0084E2DE /* TiViewController.h */,
-				24CA8AA2111161FD0084E2DE /* KitchenSink_iPad$ViewController.m */,
-				24CA8AA3111161FD0084E2DE /* KitchenSink_iPad$ViewController.h */,
 				24CA8AB0111161FD0084E2DE /* TiProxy.m */,
 				24CA8AB1111161FD0084E2DE /* TiProxy.h */,
-				24CA8AA6111161FD0084E2DE /* KitchenSink_iPadErrorController.m */,
-				24CA8AA7111161FD0084E2DE /* KitchenSink_iPadErrorController.h */,
-				24CA8AA8111161FD0084E2DE /* KitchenSink_iPadApp.mm */,
-				24CA8AA9111161FD0084E2DE /* KitchenSink_iPadApp.h */,
 				24CA8AAB111161FD0084E2DE /* TiTab.h */,
 				24CA8AD0111161FD0084E2DE /* TiEvaluator.h */,
 				24CA8AE0111161FE0084E2DE /* TiBlob.m */,
@@ -2059,6 +2060,7 @@
 				2461CF101151D856007A4CC9 /* Resources */,
 				29B97323FDCFA39411CA2CEA /* Frameworks */,
 				19C28FACFE9D520D11CA2CBB /* Products */,
+				2405E8B4119A1B0C0023BD23 /* StoreKit.framework */,
 			);
 			name = CustomTemplate;
 			sourceTree = "<group>";
@@ -2066,7 +2068,7 @@
 		29B97315FDCFA39411CA2CEA /* Other Sources */ = {
 			isa = PBXGroup;
 			children = (
-				32CA4F630368D1EE00C91783 /* KitchenSink_iPad_Prefix.pch */,
+				32CA4F630368D1EE00C91783 /* KitchenSink-iPad_Prefix.pch */,
 				29B97316FDCFA39411CA2CEA /* main.m */,
 				241EAA21118AB3BB0081A5BE /* defines.h */,
 				241EAEC5118E2BA90081A5BE /* project.xcconfig */,
@@ -2150,9 +2152,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		1D6058900D05DD3D006BFB54 /* KitchenSink_iPad */ = {
+		1D6058900D05DD3D006BFB54 /* KitchenSink-iPad */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 1D6058960D05DD3E006BFB54 /* Build configuration list for PBXNativeTarget "KitchenSink_iPad" */;
+			buildConfigurationList = 1D6058960D05DD3E006BFB54 /* Build configuration list for PBXNativeTarget "KitchenSink-iPad" */;
 			buildPhases = (
 				1D60588D0D05DD3D006BFB54 /* Resources */,
 				241EAF36118E30260081A5BE /* Pre-Compile */,
@@ -2164,28 +2166,28 @@
 			);
 			dependencies = (
 			);
-			name = KitchenSink_iPad;
-			productName = KitchenSink_iPad;
-			productReference = 1D6058910D05DD3D006BFB54 /* KitchenSink_iPad.app */;
+			name = "KitchenSink-iPad";
+			productName = "KitchenSink-iPad";
+			productReference = 1D6058910D05DD3D006BFB54 /* KitchenSink-iPad.app */;
 			productType = "com.apple.product-type.application";
 		};
-		2461CE231151D856007A4CC9 /* KitchenSink_iPad-iPad */ = {
+		24DD022311686DE8006FD6E1 /* KitchenSink-iPad-iPad */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 2461CF0B1151D856007A4CC9 /* Build configuration list for PBXNativeTarget "KitchenSink_iPad-iPad" */;
+			buildConfigurationList = 24DD031C11686DE8006FD6E1 /* Build configuration list for PBXNativeTarget "KitchenSink-iPad-iPad" */;
 			buildPhases = (
-				2461CE241151D856007A4CC9 /* Resources */,
-				241EAF38118E304C0081A5BE /* Pre-Compile */,
-				2461CE281151D856007A4CC9 /* Sources */,
-				2461CEF41151D856007A4CC9 /* Frameworks */,
-				2461CF0A1151D856007A4CC9 /* Post-Compile */,
+				24DD022411686DE8006FD6E1 /* Resources */,
+				2405E8B9119A1B1E0023BD23 /* Pre-Compile */,
+				24DD022711686DE8006FD6E1 /* Sources */,
+				24DD030611686DE8006FD6E1 /* Frameworks */,
+				2405E8BB119A1B2D0023BD23 /* Post-Compile */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 			);
-			name = "KitchenSink_iPad-iPad";
-			productName = KitchenSink_iPad;
-			productReference = 25331CF41196330300FAA2EE /* KitchenSink_iPad.app */;
+			name = "KitchenSink-iPad-iPad";
+			productName = "KitchenSink-iPad";
+			productReference = 24DD031F11686DE8006FD6E1 /* KitchenSink-iPad.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -2200,8 +2202,8 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				1D6058900D05DD3D006BFB54 /* KitchenSink_iPad */,
-				2461CE231151D856007A4CC9 /* KitchenSink_iPad-iPad */,
+				1D6058900D05DD3D006BFB54 /* KitchenSink-iPad */,
+				24DD022311686DE8006FD6E1 /* KitchenSink-iPad-iPad */,
 			);
 		};
 /* End PBXProject section */
@@ -2216,19 +2218,19 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		2461CE241151D856007A4CC9 /* Resources */ = {
+		24DD022411686DE8006FD6E1 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				2412F531115C62AF00454E5B /* MainWindow.xib in Resources */,
-				2461CE261151D856007A4CC9 /* Default.png in Resources */,
+				24DD022511686DE8006FD6E1 /* MainWindow.xib in Resources */,
+				24DD022611686DE8006FD6E1 /* Default.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		241EAF36118E30260081A5BE /* Pre-Compile */ = {
+		2405E8B9119A1B1E0023BD23 /* Pre-Compile */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -2240,23 +2242,9 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"/Library/Application Support/Titanium/mobilesdk/osx/1.3.0/iphone/builder.py\" xcode \"/Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink-iPad\"\nexit $?";
+			shellScript = "\"/Library/Application Support/Titanium/mobilesdk/osx/1.3.0/iphone/builder.py\" xcode\nexit $?";
 		};
-		241EAF38118E304C0081A5BE /* Pre-Compile */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "Pre-Compile";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"/Library/Application Support/Titanium/mobilesdk/osx/1.3.0/iphone/builder.py\" xcode \"/Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink-iPad\"\nexit $?";
-		};
-		2461CF0A1151D856007A4CC9 /* Post-Compile */ = {
+		2405E8BB119A1B2D0023BD23 /* Post-Compile */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -2269,6 +2257,20 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "echo 'post-compile'";
+		};
+		241EAF36118E30260081A5BE /* Pre-Compile */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Pre-Compile";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"/Library/Application Support/Titanium/mobilesdk/osx/1.3.0/iphone/builder.py\" xcode\nexit $?";
 		};
 		24CA8D03111169070084E2DE /* Post-Compile */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -2398,10 +2400,6 @@
 				24CA8BAD111161FE0084E2DE /* TiUIActivityIndicatorStyleProxy.m in Sources */,
 				24CA8BAE111161FE0084E2DE /* TiUIActivityIndicatorProxy.m in Sources */,
 				24CA8BAF111161FE0084E2DE /* TiUIActivityIndicator.m in Sources */,
-				24CA8BB1111161FE0084E2DE /* KitchenSink_iPad$ViewController.m in Sources */,
-				24CA8BB2111161FE0084E2DE /* KitchenSink_iPad$Module.m in Sources */,
-				24CA8BB3111161FE0084E2DE /* KitchenSink_iPadErrorController.m in Sources */,
-				24CA8BB4111161FE0084E2DE /* KitchenSink_iPadApp.mm in Sources */,
 				24CA8BB5111161FE0084E2DE /* TiRect.m in Sources */,
 				24CA8BB6111161FE0084E2DE /* TiRange.m in Sources */,
 				24CA8BB7111161FE0084E2DE /* TiProxy.m in Sources */,
@@ -2511,233 +2509,237 @@
 				B4DE7E4E11823E990006DDE1 /* TiGradient.m in Sources */,
 				24596694118E70D300519F79 /* ApplicationRouting.m in Sources */,
 				245972C611921D0D00519F79 /* TiUIiPadSplitWindow.m in Sources */,
+				24F6204F1199F1F400EEAD3C /* TopTiModule.m in Sources */,
+				24F620541199F26500EEAD3C /* TiApp.mm in Sources */,
+				24F6205A1199F27700EEAD3C /* TiErrorController.m in Sources */,
+				24F6205B1199F27700EEAD3C /* TiRootViewController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		2461CE281151D856007A4CC9 /* Sources */ = {
+		24DD022711686DE8006FD6E1 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				2461CE291151D856007A4CC9 /* TiUITableViewAction.m in Sources */,
-				2461CE2A1151D856007A4CC9 /* TiFile.m in Sources */,
-				2461CE2B1151D856007A4CC9 /* TiMapPinAnnotationView.m in Sources */,
-				2461CE2C1151D856007A4CC9 /* main.m in Sources */,
-				2461CE2D1151D856007A4CC9 /* AFItemView.m in Sources */,
-				2461CE2E1151D856007A4CC9 /* AFOpenFlowView.m in Sources */,
-				2461CE2F1151D856007A4CC9 /* AFUIImageReflection.m in Sources */,
-				2461CE301151D856007A4CC9 /* ASIAuthenticationDialog.m in Sources */,
-				2461CE311151D856007A4CC9 /* ASIFormDataRequest.m in Sources */,
-				2461CE321151D856007A4CC9 /* ASIHTTPRequest.m in Sources */,
-				2461CE331151D856007A4CC9 /* TiUIScrollIndicatorStyleProxy.m in Sources */,
-				2461CE341151D856007A4CC9 /* ASIInputStream.m in Sources */,
-				2461CE351151D856007A4CC9 /* ASINetworkQueue.m in Sources */,
-				2461CE361151D856007A4CC9 /* TiUITextWidgetProxy.m in Sources */,
-				2461CE371151D856007A4CC9 /* ASINSStringAdditions.m in Sources */,
-				2461CE381151D856007A4CC9 /* TiUITableViewSectionProxy.m in Sources */,
-				2461CE391151D856007A4CC9 /* TiUITableViewStyleProxy.m in Sources */,
-				2461CE3A1151D856007A4CC9 /* TiUITableViewSeparatorStyleProxy.m in Sources */,
-				2461CE3E1151D856007A4CC9 /* Reachability.m in Sources */,
-				2461CE3F1151D856007A4CC9 /* AudioStreamer.m in Sources */,
-				2461CE401151D856007A4CC9 /* Base64Transcoder.c in Sources */,
-				2461CE411151D856007A4CC9 /* TiUITextWidget.m in Sources */,
-				2461CE421151D856007A4CC9 /* FBConnectGlobal.m in Sources */,
-				2461CE431151D856007A4CC9 /* FBDialog.m in Sources */,
-				2461CE441151D856007A4CC9 /* FBFeedDialog.m in Sources */,
-				2461CE451151D856007A4CC9 /* FBLoginButton.m in Sources */,
-				2461CE461151D856007A4CC9 /* FBLoginDialog.m in Sources */,
-				2461CE471151D856007A4CC9 /* FBPermissionDialog.m in Sources */,
-				2461CE481151D856007A4CC9 /* FBRequest.m in Sources */,
-				2461CE491151D856007A4CC9 /* FBSession.m in Sources */,
-				2461CE4A1151D856007A4CC9 /* FBStreamDialog.m in Sources */,
-				2461CE4B1151D856007A4CC9 /* FBXMLHandler.m in Sources */,
-				2461CE4D1151D856007A4CC9 /* PlausibleDatabase.m in Sources */,
-				2461CE4E1151D856007A4CC9 /* PLSqliteDatabase.m in Sources */,
-				2461CE4F1151D856007A4CC9 /* PLSqlitePreparedStatement.m in Sources */,
-				2461CE501151D856007A4CC9 /* PLSqliteResultSet.m in Sources */,
-				2461CE511151D856007A4CC9 /* SBJSON.m in Sources */,
-				2461CE521151D856007A4CC9 /* KrollBridge.mm in Sources */,
-				2461CE531151D856007A4CC9 /* KrollCallback.m in Sources */,
-				2461CE541151D856007A4CC9 /* KrollContext.mm in Sources */,
-				2461CE551151D856007A4CC9 /* KrollMethod.m in Sources */,
-				2461CE561151D856007A4CC9 /* KrollMethodDelegate.m in Sources */,
-				2461CE571151D856007A4CC9 /* KrollObject.m in Sources */,
-				2461CE581151D856007A4CC9 /* KrollPropertyDelegate.m in Sources */,
-				2461CE591151D856007A4CC9 /* KrollTimer.m in Sources */,
-				2461CE5A1151D856007A4CC9 /* YahooModule.m in Sources */,
-				2461CE5B1151D856007A4CC9 /* XHRBridge.m in Sources */,
-				2461CE5C1151D856007A4CC9 /* WebFont.m in Sources */,
-				2461CE5D1151D856007A4CC9 /* Webcolor.m in Sources */,
-				2461CE5E1151D856007A4CC9 /* UIModule.m in Sources */,
-				2461CE5F1151D856007A4CC9 /* TiWindowProxy.m in Sources */,
-				2461CE601151D856007A4CC9 /* TiViewProxy.m in Sources */,
-				2461CE611151D856007A4CC9 /* TiViewController.m in Sources */,
-				2461CE621151D856007A4CC9 /* TiUtils.m in Sources */,
-				2461CE631151D856007A4CC9 /* TiUIWindowProxy.m in Sources */,
-				2461CE641151D856007A4CC9 /* TiUIWindow.m in Sources */,
-				2461CE661151D856007A4CC9 /* TiUIWebViewProxy.m in Sources */,
-				2461CE671151D856007A4CC9 /* TiUIViewProxy.m in Sources */,
-				2461CE681151D856007A4CC9 /* TiUIView.m in Sources */,
-				2461CE691151D856007A4CC9 /* TiUIToolbarProxy.m in Sources */,
-				2461CE6A1151D856007A4CC9 /* TiUIToolbar.m in Sources */,
-				2461CE6B1151D856007A4CC9 /* TiUITextFieldProxy.m in Sources */,
-				2461CE6C1151D856007A4CC9 /* TiUITextField.m in Sources */,
-				2461CE6D1151D856007A4CC9 /* TiUITextAreaProxy.m in Sources */,
-				2461CE6E1151D856007A4CC9 /* TiUITextArea.m in Sources */,
-				2461CE6F1151D856007A4CC9 /* TiUITabProxy.m in Sources */,
-				2461CE701151D856007A4CC9 /* TiUITableViewProxy.m in Sources */,
-				2461CE711151D856007A4CC9 /* TiUITableView.m in Sources */,
-				2461CE721151D856007A4CC9 /* TiUITabGroupProxy.m in Sources */,
-				2461CE731151D856007A4CC9 /* TiUITabGroup.m in Sources */,
-				2461CE741151D856007A4CC9 /* TiUITabController.m in Sources */,
-				2461CE751151D856007A4CC9 /* TiUITabbedBarProxy.m in Sources */,
-				2461CE761151D856007A4CC9 /* TiUISystemIconProxy.m in Sources */,
-				2461CE771151D856007A4CC9 /* TiUISystemButtonStyleProxy.m in Sources */,
-				2461CE781151D856007A4CC9 /* TiUISystemButtonProxy.m in Sources */,
-				2461CE791151D856007A4CC9 /* TiUISwitchProxy.m in Sources */,
-				2461CE7A1151D856007A4CC9 /* TiUISwitch.m in Sources */,
-				2461CE7B1151D856007A4CC9 /* TiUIStatusBarProxy.m in Sources */,
-				2461CE7C1151D856007A4CC9 /* TiUISliderProxy.m in Sources */,
-				2461CE7D1151D856007A4CC9 /* TiUISlider.m in Sources */,
-				2461CE7E1151D856007A4CC9 /* TiUISearchBarProxy.m in Sources */,
-				2461CE7F1151D856007A4CC9 /* TiUISearchBar.m in Sources */,
-				2461CE801151D856007A4CC9 /* TiUIRowAnimationStyleProxy.m in Sources */,
-				2461CE811151D856007A4CC9 /* TiUIProgressBarStyleProxy.m in Sources */,
-				2461CE821151D856007A4CC9 /* TiUIProgressBarProxy.m in Sources */,
-				2461CE831151D856007A4CC9 /* TiUIProgressBar.m in Sources */,
-				2461CE841151D856007A4CC9 /* TiUIOptionDialogProxy.m in Sources */,
-				2461CE851151D856007A4CC9 /* TiUINavBarButton.m in Sources */,
-				2461CE861151D856007A4CC9 /* TiUILabelProxy.m in Sources */,
-				2461CE871151D856007A4CC9 /* TiUILabel.m in Sources */,
-				2461CE881151D856007A4CC9 /* TiUIiPhoneProxy.m in Sources */,
-				2461CE891151D856007A4CC9 /* TiUIImageViewProxy.m in Sources */,
-				2461CE8A1151D856007A4CC9 /* TiUIImageView.m in Sources */,
-				2461CE8B1151D856007A4CC9 /* TiUIEmailDialogProxy.m in Sources */,
-				2461CE8C1151D856007A4CC9 /* TiUICoverFlowViewProxy.m in Sources */,
-				2461CE8D1151D856007A4CC9 /* TiUICoverFlowView.m in Sources */,
-				2461CE8E1151D856007A4CC9 /* TiUICanvasViewProxy.m in Sources */,
-				2461CE8F1151D856007A4CC9 /* TiUICanvasView.m in Sources */,
-				2461CE901151D856007A4CC9 /* TiUIButtonProxy.m in Sources */,
-				2461CE911151D856007A4CC9 /* TiUIButtonBarProxy.m in Sources */,
-				2461CE921151D856007A4CC9 /* TiUIButtonBar.m in Sources */,
-				2461CE931151D856007A4CC9 /* TiUIButton.m in Sources */,
-				2461CE941151D856007A4CC9 /* TiUIAnimationStyleProxy.m in Sources */,
-				2461CE951151D856007A4CC9 /* TiUIAlertDialogProxy.m in Sources */,
-				2461CE961151D856007A4CC9 /* TiUIActivityIndicatorStyleProxy.m in Sources */,
-				2461CE971151D856007A4CC9 /* TiUIActivityIndicatorProxy.m in Sources */,
-				2461CE981151D856007A4CC9 /* TiUIActivityIndicator.m in Sources */,
-				2461CE9A1151D856007A4CC9 /* KitchenSink_iPad$ViewController.m in Sources */,
-				2461CE9B1151D856007A4CC9 /* KitchenSink_iPad$Module.m in Sources */,
-				2461CE9C1151D856007A4CC9 /* KitchenSink_iPadErrorController.m in Sources */,
-				2461CE9D1151D856007A4CC9 /* KitchenSink_iPadApp.mm in Sources */,
-				2461CE9E1151D856007A4CC9 /* TiRect.m in Sources */,
-				2461CE9F1151D856007A4CC9 /* TiRange.m in Sources */,
-				2461CEA01151D856007A4CC9 /* TiProxy.m in Sources */,
-				2461CEA11151D856007A4CC9 /* TiPoint.m in Sources */,
-				2461CEA21151D856007A4CC9 /* TiNetworkHTTPClientResultProxy.m in Sources */,
-				2461CEA31151D856007A4CC9 /* TiNetworkHTTPClientProxy.m in Sources */,
-				2461CEA41151D856007A4CC9 /* TiModule.m in Sources */,
-				2461CEA51151D856007A4CC9 /* TiMediaVideoPlayerProxy.m in Sources */,
-				2461CEA61151D856007A4CC9 /* TiMediaSoundProxy.m in Sources */,
-				2461CEA71151D856007A4CC9 /* TiMediaAudioPlayerProxy.m in Sources */,
-				2461CEA81151D856007A4CC9 /* TiMapViewProxy.m in Sources */,
-				2461CEA91151D856007A4CC9 /* TiMapView.m in Sources */,
-				2461CEAA1151D856007A4CC9 /* TiMapAnnotationProxy.m in Sources */,
-				2461CEAB1151D856007A4CC9 /* TiHost.m in Sources */,
-				2461CEAC1151D856007A4CC9 /* TiFilesystemFileProxy.m in Sources */,
-				2461CEAD1151D856007A4CC9 /* TiFacebookLoginButtonProxy.m in Sources */,
-				2461CEAE1151D856007A4CC9 /* TiFacebookLoginButton.m in Sources */,
-				2461CEAF1151D856007A4CC9 /* TiDimension.m in Sources */,
-				2461CEB01151D856007A4CC9 /* TiDatabaseResultSetProxy.m in Sources */,
-				2461CEB11151D856007A4CC9 /* TiDatabaseProxy.m in Sources */,
-				2461CEB21151D856007A4CC9 /* TiContactsContactProxy.m in Sources */,
-				2461CEB31151D856007A4CC9 /* TiComplexValue.m in Sources */,
-				2461CEB41151D856007A4CC9 /* TiColor.m in Sources */,
-				2461CEB51151D856007A4CC9 /* TiButtonUtil.m in Sources */,
-				2461CEB61151D856007A4CC9 /* TiBlob.m in Sources */,
-				2461CEB71151D856007A4CC9 /* TiBase.m in Sources */,
-				2461CEB81151D856007A4CC9 /* TiAppPropertiesProxy.m in Sources */,
-				2461CEB91151D856007A4CC9 /* TiAnimation.m in Sources */,
-				2461CEBA1151D856007A4CC9 /* TiAction.m in Sources */,
-				2461CEBB1151D856007A4CC9 /* Ti3DMatrix.m in Sources */,
-				2461CEBC1151D856007A4CC9 /* Ti2DMatrix.m in Sources */,
-				2461CEBD1151D856007A4CC9 /* PlatformModuleDisplayCapsProxy.m in Sources */,
-				2461CEBE1151D856007A4CC9 /* PlatformModule.m in Sources */,
-				2461CEBF1151D856007A4CC9 /* OperationQueue.m in Sources */,
-				2461CEC01151D856007A4CC9 /* NetworkModule.m in Sources */,
-				2461CEC11151D856007A4CC9 /* Mimetypes.m in Sources */,
-				2461CEC21151D856007A4CC9 /* MediaModule.m in Sources */,
-				2461CEC31151D856007A4CC9 /* MapModule.m in Sources */,
-				2461CEC41151D856007A4CC9 /* LayoutConstraint.m in Sources */,
-				2461CEC51151D856007A4CC9 /* ImageLoader.m in Sources */,
-				2461CEC61151D856007A4CC9 /* GestureModule.m in Sources */,
-				2461CEC71151D856007A4CC9 /* GeolocationModule.m in Sources */,
-				2461CEC81151D856007A4CC9 /* FilesystemModule.m in Sources */,
-				2461CEC91151D856007A4CC9 /* FacebookModule.m in Sources */,
-				2461CECA1151D856007A4CC9 /* DatabaseModule.m in Sources */,
-				2461CECB1151D856007A4CC9 /* ContactsModule.m in Sources */,
-				2461CECC1151D856007A4CC9 /* TiUITableViewRowProxy.m in Sources */,
-				2461CECD1151D856007A4CC9 /* Bridge.m in Sources */,
-				2461CECE1151D856007A4CC9 /* AppModule.m in Sources */,
-				2461CECF1151D856007A4CC9 /* APIModule.m in Sources */,
-				2461CED01151D856007A4CC9 /* AnalyticsModule.m in Sources */,
-				2461CED11151D856007A4CC9 /* AccelerometerModule.m in Sources */,
-				2461CED21151D856007A4CC9 /* TiUIScrollableViewProxy.m in Sources */,
-				2461CED31151D856007A4CC9 /* TiUIScrollableView.m in Sources */,
-				2461CED41151D856007A4CC9 /* TiUIScrollViewProxy.m in Sources */,
-				2461CED51151D856007A4CC9 /* TiUIScrollView.m in Sources */,
-				2461CED61151D856007A4CC9 /* TiUIWebView.m in Sources */,
-				2461CED71151D856007A4CC9 /* TiDOMDocumentProxy.m in Sources */,
-				2461CED81151D856007A4CC9 /* GDataXMLNode.m in Sources */,
-				2461CED91151D856007A4CC9 /* TiDOMNodeProxy.m in Sources */,
-				2461CEDA1151D856007A4CC9 /* TiDOMElementProxy.m in Sources */,
-				2461CEDB1151D856007A4CC9 /* TiDOMNamedNodeMapProxy.m in Sources */,
-				2461CEDC1151D856007A4CC9 /* TiDOMNodeListProxy.m in Sources */,
-				2461CEDD1151D856007A4CC9 /* TiDOMAttrProxy.m in Sources */,
-				2461CEDE1151D856007A4CC9 /* NSData+Additions.m in Sources */,
-				2461CEDF1151D856007A4CC9 /* ListenerEntry.m in Sources */,
-				2461CEE01151D856007A4CC9 /* XMLModule.m in Sources */,
-				2461CEE11151D856007A4CC9 /* TiUITableViewScrollPositionProxy.m in Sources */,
-				2461CEE21151D856007A4CC9 /* TiMediaAudioRecorderProxy.mm in Sources */,
-				2461CEE31151D856007A4CC9 /* CADebugMacros.cpp in Sources */,
-				2461CEE41151D856007A4CC9 /* CAStreamBasicDescription.cpp in Sources */,
-				2461CEE51151D856007A4CC9 /* CAXException.cpp in Sources */,
-				2461CEE61151D856007A4CC9 /* AQRecorder.mm in Sources */,
-				2461CEE71151D856007A4CC9 /* SCListener.m in Sources */,
-				2461CEE81151D856007A4CC9 /* TiMediaAudioSession.m in Sources */,
-				2461CEE91151D856007A4CC9 /* TiUIPickerProxy.m in Sources */,
-				2461CEEA1151D856007A4CC9 /* TiUIPicker.m in Sources */,
-				2461CEEB1151D856007A4CC9 /* TiUIPickerRowProxy.m in Sources */,
-				2461CEEC1151D856007A4CC9 /* TiUIPickerColumnProxy.m in Sources */,
-				2461CEED1151D856007A4CC9 /* UIImage+Alpha.m in Sources */,
-				2461CEEE1151D856007A4CC9 /* UIImage+Resize.m in Sources */,
-				2461CEEF1151D856007A4CC9 /* UIImage+RoundedCorner.m in Sources */,
-				2461CEF01151D856007A4CC9 /* UtilsModule.m in Sources */,
-				2461CEF11151D856007A4CC9 /* TiUITableViewCellSelectionStyleProxy.m in Sources */,
-				2461CEF21151D856007A4CC9 /* TiUIMaskedImageProxy.m in Sources */,
-				2461CEF31151D856007A4CC9 /* TiUIMaskedImage.m in Sources */,
-				248133B3115761DE00E3A9BA /* TiNetworkBonjourBrowserProxy.m in Sources */,
-				248133B4115761DE00E3A9BA /* TiNetworkBonjourServiceProxy.m in Sources */,
-				248133B5115761DE00E3A9BA /* TiNetworkTCPSocketProxy.mm in Sources */,
-				24813713115A852800E3A9BA /* TiDOMTextNodeProxy.m in Sources */,
-				2412F466115C296300454E5B /* TiMediaVideoPlayer.m in Sources */,
-				24FB4EE0115C81A7001AAF99 /* TiUIiPadSplitWindowProxy.m in Sources */,
-				24FB4EF3115C81C5001AAF99 /* TiUIiPadPopoverProxy.m in Sources */,
-				24FB4EFB115C81DD001AAF99 /* TiUIiPadPopover.m in Sources */,
-				24FB4F45115C8C4E001AAF99 /* TiUIiPadProxy.m in Sources */,
-				24FB5DD911600456001AAF99 /* TiUIiPhoneNavigationGroupProxy.m in Sources */,
-				24FB5DE211600480001AAF99 /* TiUIiPhoneNavigationGroup.m in Sources */,
-				24E50CF61160569B00AF54AF /* TiUIiPadSplitWindowButtonProxy.m in Sources */,
-				24E50E111160666300AF54AF /* LauncherButton.m in Sources */,
-				24E50E121160666300AF54AF /* LauncherItem.m in Sources */,
-				24E50E131160666300AF54AF /* LauncherView.m in Sources */,
-				24E50E24116066A800AF54AF /* TiUIDashboardViewProxy.m in Sources */,
-				24E50E2D116066B400AF54AF /* TiUIDashboardView.m in Sources */,
-				24E50F8E1160792D00AF54AF /* TiUIDashboardItemProxy.m in Sources */,
-				24DDF66111646D51006FD6E1 /* TiUIiPadDocumentViewerProxy.m in Sources */,
-				24DD042E116A6C58006FD6E1 /* TiToolbar.m in Sources */,
-				B4DE7E5311823E990006DDE1 /* TiGradient.m in Sources */,
-				24596693118E70D300519F79 /* ApplicationRouting.m in Sources */,
-				245972C711921D0D00519F79 /* TiUIiPadSplitWindow.m in Sources */,
+				24DD022811686DE8006FD6E1 /* TiUITableViewAction.m in Sources */,
+				24DD022911686DE8006FD6E1 /* TiFile.m in Sources */,
+				24DD022A11686DE8006FD6E1 /* TiMapPinAnnotationView.m in Sources */,
+				24DD022B11686DE8006FD6E1 /* main.m in Sources */,
+				24DD022C11686DE8006FD6E1 /* AFItemView.m in Sources */,
+				24DD022D11686DE8006FD6E1 /* AFOpenFlowView.m in Sources */,
+				24DD022E11686DE8006FD6E1 /* AFUIImageReflection.m in Sources */,
+				24DD022F11686DE8006FD6E1 /* ASIAuthenticationDialog.m in Sources */,
+				24DD023011686DE8006FD6E1 /* ASIFormDataRequest.m in Sources */,
+				24DD023111686DE8006FD6E1 /* ASIHTTPRequest.m in Sources */,
+				24DD023211686DE8006FD6E1 /* TiUIScrollIndicatorStyleProxy.m in Sources */,
+				24DD023311686DE8006FD6E1 /* ASIInputStream.m in Sources */,
+				24DD023411686DE8006FD6E1 /* ASINetworkQueue.m in Sources */,
+				24DD023511686DE8006FD6E1 /* TiUITextWidgetProxy.m in Sources */,
+				24DD023611686DE8006FD6E1 /* ASINSStringAdditions.m in Sources */,
+				24DD023711686DE8006FD6E1 /* TiUITableViewSectionProxy.m in Sources */,
+				24DD023811686DE8006FD6E1 /* TiUITableViewStyleProxy.m in Sources */,
+				24DD023911686DE8006FD6E1 /* TiUITableViewSeparatorStyleProxy.m in Sources */,
+				24DD023D11686DE8006FD6E1 /* Reachability.m in Sources */,
+				24DD023E11686DE8006FD6E1 /* AudioStreamer.m in Sources */,
+				24DD023F11686DE8006FD6E1 /* Base64Transcoder.c in Sources */,
+				24DD024011686DE8006FD6E1 /* TiUITextWidget.m in Sources */,
+				24DD024111686DE8006FD6E1 /* FBConnectGlobal.m in Sources */,
+				24DD024211686DE8006FD6E1 /* FBDialog.m in Sources */,
+				24DD024311686DE8006FD6E1 /* FBFeedDialog.m in Sources */,
+				24DD024411686DE8006FD6E1 /* FBLoginButton.m in Sources */,
+				24DD024511686DE8006FD6E1 /* FBLoginDialog.m in Sources */,
+				24DD024611686DE8006FD6E1 /* FBPermissionDialog.m in Sources */,
+				24DD024711686DE8006FD6E1 /* FBRequest.m in Sources */,
+				24DD024811686DE8006FD6E1 /* FBSession.m in Sources */,
+				24DD024911686DE8006FD6E1 /* FBStreamDialog.m in Sources */,
+				24DD024A11686DE8006FD6E1 /* FBXMLHandler.m in Sources */,
+				24DD024B11686DE8006FD6E1 /* PlausibleDatabase.m in Sources */,
+				24DD024C11686DE8006FD6E1 /* PLSqliteDatabase.m in Sources */,
+				24DD024D11686DE8006FD6E1 /* PLSqlitePreparedStatement.m in Sources */,
+				24DD024E11686DE8006FD6E1 /* PLSqliteResultSet.m in Sources */,
+				24DD024F11686DE8006FD6E1 /* SBJSON.m in Sources */,
+				24DD025011686DE8006FD6E1 /* KrollBridge.mm in Sources */,
+				24DD025111686DE8006FD6E1 /* KrollCallback.m in Sources */,
+				24DD025211686DE8006FD6E1 /* KrollContext.mm in Sources */,
+				24DD025311686DE8006FD6E1 /* KrollMethod.m in Sources */,
+				24DD025411686DE8006FD6E1 /* KrollMethodDelegate.m in Sources */,
+				24DD025511686DE8006FD6E1 /* KrollObject.m in Sources */,
+				24DD025611686DE8006FD6E1 /* KrollPropertyDelegate.m in Sources */,
+				24DD025711686DE8006FD6E1 /* KrollTimer.m in Sources */,
+				24DD025811686DE8006FD6E1 /* YahooModule.m in Sources */,
+				24DD025911686DE8006FD6E1 /* XHRBridge.m in Sources */,
+				24DD025A11686DE8006FD6E1 /* WebFont.m in Sources */,
+				24DD025B11686DE8006FD6E1 /* Webcolor.m in Sources */,
+				24DD025C11686DE8006FD6E1 /* UIModule.m in Sources */,
+				24DD025D11686DE8006FD6E1 /* TiWindowProxy.m in Sources */,
+				24DD025E11686DE8006FD6E1 /* TiViewProxy.m in Sources */,
+				24DD025F11686DE8006FD6E1 /* TiViewController.m in Sources */,
+				24DD026011686DE8006FD6E1 /* TiUtils.m in Sources */,
+				24DD026111686DE8006FD6E1 /* TiUIWindowProxy.m in Sources */,
+				24DD026211686DE8006FD6E1 /* TiUIWindow.m in Sources */,
+				24DD026411686DE8006FD6E1 /* TiUIWebViewProxy.m in Sources */,
+				24DD026511686DE8006FD6E1 /* TiUIViewProxy.m in Sources */,
+				24DD026611686DE8006FD6E1 /* TiUIView.m in Sources */,
+				24DD026711686DE8006FD6E1 /* TiUIToolbarProxy.m in Sources */,
+				24DD026811686DE8006FD6E1 /* TiUIToolbar.m in Sources */,
+				24DD026911686DE8006FD6E1 /* TiUITextFieldProxy.m in Sources */,
+				24DD026A11686DE8006FD6E1 /* TiUITextField.m in Sources */,
+				24DD026B11686DE8006FD6E1 /* TiUITextAreaProxy.m in Sources */,
+				24DD026C11686DE8006FD6E1 /* TiUITextArea.m in Sources */,
+				24DD026D11686DE8006FD6E1 /* TiUITabProxy.m in Sources */,
+				24DD026E11686DE8006FD6E1 /* TiUITableViewProxy.m in Sources */,
+				24DD026F11686DE8006FD6E1 /* TiUITableView.m in Sources */,
+				24DD027011686DE8006FD6E1 /* TiUITabGroupProxy.m in Sources */,
+				24DD027111686DE8006FD6E1 /* TiUITabGroup.m in Sources */,
+				24DD027211686DE8006FD6E1 /* TiUITabController.m in Sources */,
+				24DD027311686DE8006FD6E1 /* TiUITabbedBarProxy.m in Sources */,
+				24DD027411686DE8006FD6E1 /* TiUISystemIconProxy.m in Sources */,
+				24DD027511686DE8006FD6E1 /* TiUISystemButtonStyleProxy.m in Sources */,
+				24DD027611686DE8006FD6E1 /* TiUISystemButtonProxy.m in Sources */,
+				24DD027711686DE8006FD6E1 /* TiUISwitchProxy.m in Sources */,
+				24DD027811686DE8006FD6E1 /* TiUISwitch.m in Sources */,
+				24DD027911686DE8006FD6E1 /* TiUIStatusBarProxy.m in Sources */,
+				24DD027A11686DE8006FD6E1 /* TiUISliderProxy.m in Sources */,
+				24DD027B11686DE8006FD6E1 /* TiUISlider.m in Sources */,
+				24DD027C11686DE8006FD6E1 /* TiUISearchBarProxy.m in Sources */,
+				24DD027D11686DE8006FD6E1 /* TiUISearchBar.m in Sources */,
+				24DD027E11686DE8006FD6E1 /* TiUIRowAnimationStyleProxy.m in Sources */,
+				24DD027F11686DE8006FD6E1 /* TiUIProgressBarStyleProxy.m in Sources */,
+				24DD028011686DE8006FD6E1 /* TiUIProgressBarProxy.m in Sources */,
+				24DD028111686DE8006FD6E1 /* TiUIProgressBar.m in Sources */,
+				24DD028211686DE8006FD6E1 /* TiUIOptionDialogProxy.m in Sources */,
+				24DD028311686DE8006FD6E1 /* TiUINavBarButton.m in Sources */,
+				24DD028411686DE8006FD6E1 /* TiUILabelProxy.m in Sources */,
+				24DD028511686DE8006FD6E1 /* TiUILabel.m in Sources */,
+				24DD028611686DE8006FD6E1 /* TiUIiPhoneProxy.m in Sources */,
+				24DD028711686DE8006FD6E1 /* TiUIImageViewProxy.m in Sources */,
+				24DD028811686DE8006FD6E1 /* TiUIImageView.m in Sources */,
+				24DD028911686DE8006FD6E1 /* TiUIEmailDialogProxy.m in Sources */,
+				24DD028A11686DE8006FD6E1 /* TiUICoverFlowViewProxy.m in Sources */,
+				24DD028B11686DE8006FD6E1 /* TiUICoverFlowView.m in Sources */,
+				24DD028C11686DE8006FD6E1 /* TiUICanvasViewProxy.m in Sources */,
+				24DD028D11686DE8006FD6E1 /* TiUICanvasView.m in Sources */,
+				24DD028E11686DE8006FD6E1 /* TiUIButtonProxy.m in Sources */,
+				24DD028F11686DE8006FD6E1 /* TiUIButtonBarProxy.m in Sources */,
+				24DD029011686DE8006FD6E1 /* TiUIButtonBar.m in Sources */,
+				24DD029111686DE8006FD6E1 /* TiUIButton.m in Sources */,
+				24DD029211686DE8006FD6E1 /* TiUIAnimationStyleProxy.m in Sources */,
+				24DD029311686DE8006FD6E1 /* TiUIAlertDialogProxy.m in Sources */,
+				24DD029411686DE8006FD6E1 /* TiUIActivityIndicatorStyleProxy.m in Sources */,
+				24DD029511686DE8006FD6E1 /* TiUIActivityIndicatorProxy.m in Sources */,
+				24DD029611686DE8006FD6E1 /* TiUIActivityIndicator.m in Sources */,
+				24DD029C11686DE8006FD6E1 /* TiRect.m in Sources */,
+				24DD029D11686DE8006FD6E1 /* TiRange.m in Sources */,
+				24DD029E11686DE8006FD6E1 /* TiProxy.m in Sources */,
+				24DD029F11686DE8006FD6E1 /* TiPoint.m in Sources */,
+				24DD02A011686DE8006FD6E1 /* TiNetworkHTTPClientResultProxy.m in Sources */,
+				24DD02A111686DE8006FD6E1 /* TiNetworkHTTPClientProxy.m in Sources */,
+				24DD02A211686DE8006FD6E1 /* TiModule.m in Sources */,
+				24DD02A311686DE8006FD6E1 /* TiMediaVideoPlayerProxy.m in Sources */,
+				24DD02A411686DE8006FD6E1 /* TiMediaSoundProxy.m in Sources */,
+				24DD02A511686DE8006FD6E1 /* TiMediaAudioPlayerProxy.m in Sources */,
+				24DD02A611686DE8006FD6E1 /* TiMapViewProxy.m in Sources */,
+				24DD02A711686DE8006FD6E1 /* TiMapView.m in Sources */,
+				24DD02A811686DE8006FD6E1 /* TiMapAnnotationProxy.m in Sources */,
+				24DD02A911686DE8006FD6E1 /* TiHost.m in Sources */,
+				24DD02AA11686DE8006FD6E1 /* TiFilesystemFileProxy.m in Sources */,
+				24DD02AB11686DE8006FD6E1 /* TiFacebookLoginButtonProxy.m in Sources */,
+				24DD02AC11686DE8006FD6E1 /* TiFacebookLoginButton.m in Sources */,
+				24DD02AD11686DE8006FD6E1 /* TiDimension.m in Sources */,
+				24DD02AE11686DE8006FD6E1 /* TiDatabaseResultSetProxy.m in Sources */,
+				24DD02AF11686DE8006FD6E1 /* TiDatabaseProxy.m in Sources */,
+				24DD02B011686DE8006FD6E1 /* TiContactsContactProxy.m in Sources */,
+				24DD02B111686DE8006FD6E1 /* TiComplexValue.m in Sources */,
+				24DD02B211686DE8006FD6E1 /* TiColor.m in Sources */,
+				24DD02B311686DE8006FD6E1 /* TiButtonUtil.m in Sources */,
+				24DD02B411686DE8006FD6E1 /* TiBlob.m in Sources */,
+				24DD02B511686DE8006FD6E1 /* TiBase.m in Sources */,
+				24DD02B611686DE8006FD6E1 /* TiAppPropertiesProxy.m in Sources */,
+				24DD02B711686DE8006FD6E1 /* TiAnimation.m in Sources */,
+				24DD02B811686DE8006FD6E1 /* TiAction.m in Sources */,
+				24DD02B911686DE8006FD6E1 /* Ti3DMatrix.m in Sources */,
+				24DD02BA11686DE8006FD6E1 /* Ti2DMatrix.m in Sources */,
+				24DD02BB11686DE8006FD6E1 /* PlatformModuleDisplayCapsProxy.m in Sources */,
+				24DD02BC11686DE8006FD6E1 /* PlatformModule.m in Sources */,
+				24DD02BD11686DE8006FD6E1 /* OperationQueue.m in Sources */,
+				24DD02BE11686DE8006FD6E1 /* NetworkModule.m in Sources */,
+				24DD02BF11686DE8006FD6E1 /* Mimetypes.m in Sources */,
+				24DD02C011686DE8006FD6E1 /* MediaModule.m in Sources */,
+				24DD02C111686DE8006FD6E1 /* MapModule.m in Sources */,
+				24DD02C211686DE8006FD6E1 /* LayoutConstraint.m in Sources */,
+				24DD02C311686DE8006FD6E1 /* ImageLoader.m in Sources */,
+				24DD02C411686DE8006FD6E1 /* GestureModule.m in Sources */,
+				24DD02C511686DE8006FD6E1 /* GeolocationModule.m in Sources */,
+				24DD02C611686DE8006FD6E1 /* FilesystemModule.m in Sources */,
+				24DD02C711686DE8006FD6E1 /* FacebookModule.m in Sources */,
+				24DD02C811686DE8006FD6E1 /* DatabaseModule.m in Sources */,
+				24DD02C911686DE8006FD6E1 /* ContactsModule.m in Sources */,
+				24DD02CA11686DE8006FD6E1 /* TiUITableViewRowProxy.m in Sources */,
+				24DD02CB11686DE8006FD6E1 /* Bridge.m in Sources */,
+				24DD02CC11686DE8006FD6E1 /* AppModule.m in Sources */,
+				24DD02CD11686DE8006FD6E1 /* APIModule.m in Sources */,
+				24DD02CE11686DE8006FD6E1 /* AnalyticsModule.m in Sources */,
+				24DD02CF11686DE8006FD6E1 /* AccelerometerModule.m in Sources */,
+				24DD02D011686DE8006FD6E1 /* TiUIScrollableViewProxy.m in Sources */,
+				24DD02D111686DE8006FD6E1 /* TiUIScrollableView.m in Sources */,
+				24DD02D211686DE8006FD6E1 /* TiUIScrollViewProxy.m in Sources */,
+				24DD02D311686DE8006FD6E1 /* TiUIScrollView.m in Sources */,
+				24DD02D411686DE8006FD6E1 /* TiUIWebView.m in Sources */,
+				24DD02D511686DE8006FD6E1 /* TiDOMDocumentProxy.m in Sources */,
+				24DD02D611686DE8006FD6E1 /* GDataXMLNode.m in Sources */,
+				24DD02D711686DE8006FD6E1 /* TiDOMNodeProxy.m in Sources */,
+				24DD02D811686DE8006FD6E1 /* TiDOMElementProxy.m in Sources */,
+				24DD02D911686DE8006FD6E1 /* TiDOMNamedNodeMapProxy.m in Sources */,
+				24DD02DA11686DE8006FD6E1 /* TiDOMNodeListProxy.m in Sources */,
+				24DD02DB11686DE8006FD6E1 /* TiDOMAttrProxy.m in Sources */,
+				24DD02DC11686DE8006FD6E1 /* NSData+Additions.m in Sources */,
+				24DD02DD11686DE8006FD6E1 /* ListenerEntry.m in Sources */,
+				24DD02DE11686DE8006FD6E1 /* XMLModule.m in Sources */,
+				24DD02DF11686DE8006FD6E1 /* TiUITableViewScrollPositionProxy.m in Sources */,
+				24DD02E011686DE8006FD6E1 /* TiMediaAudioRecorderProxy.mm in Sources */,
+				24DD02E111686DE8006FD6E1 /* CADebugMacros.cpp in Sources */,
+				24DD02E211686DE8006FD6E1 /* CAStreamBasicDescription.cpp in Sources */,
+				24DD02E311686DE8006FD6E1 /* CAXException.cpp in Sources */,
+				24DD02E411686DE8006FD6E1 /* AQRecorder.mm in Sources */,
+				24DD02E511686DE8006FD6E1 /* SCListener.m in Sources */,
+				24DD02E611686DE8006FD6E1 /* TiMediaAudioSession.m in Sources */,
+				24DD02E711686DE8006FD6E1 /* TiUIPickerProxy.m in Sources */,
+				24DD02E811686DE8006FD6E1 /* TiUIPicker.m in Sources */,
+				24DD02E911686DE8006FD6E1 /* TiUIPickerRowProxy.m in Sources */,
+				24DD02EA11686DE8006FD6E1 /* TiUIPickerColumnProxy.m in Sources */,
+				24DD02EB11686DE8006FD6E1 /* UIImage+Alpha.m in Sources */,
+				24DD02EC11686DE8006FD6E1 /* UIImage+Resize.m in Sources */,
+				24DD02ED11686DE8006FD6E1 /* UIImage+RoundedCorner.m in Sources */,
+				24DD02EE11686DE8006FD6E1 /* UtilsModule.m in Sources */,
+				24DD02EF11686DE8006FD6E1 /* TiUITableViewCellSelectionStyleProxy.m in Sources */,
+				24DD02F011686DE8006FD6E1 /* TiUIMaskedImageProxy.m in Sources */,
+				24DD02F111686DE8006FD6E1 /* TiUIMaskedImage.m in Sources */,
+				24DD02F211686DE8006FD6E1 /* TiNetworkBonjourBrowserProxy.m in Sources */,
+				24DD02F311686DE8006FD6E1 /* TiNetworkBonjourServiceProxy.m in Sources */,
+				24DD02F411686DE8006FD6E1 /* TiNetworkTCPSocketProxy.mm in Sources */,
+				24DD02F511686DE8006FD6E1 /* TiDOMTextNodeProxy.m in Sources */,
+				24DD02F611686DE8006FD6E1 /* TiMediaVideoPlayer.m in Sources */,
+				24DD02F711686DE8006FD6E1 /* TiUIiPadSplitWindowProxy.m in Sources */,
+				24DD02F911686DE8006FD6E1 /* TiUIiPadPopoverProxy.m in Sources */,
+				24DD02FA11686DE8006FD6E1 /* TiUIiPadPopover.m in Sources */,
+				24DD02FB11686DE8006FD6E1 /* TiUIiPadProxy.m in Sources */,
+				24DD02FC11686DE8006FD6E1 /* TiUIiPhoneNavigationGroupProxy.m in Sources */,
+				24DD02FD11686DE8006FD6E1 /* TiUIiPhoneNavigationGroup.m in Sources */,
+				24DD02FE11686DE8006FD6E1 /* TiUIiPadSplitWindowButtonProxy.m in Sources */,
+				24DD02FF11686DE8006FD6E1 /* LauncherButton.m in Sources */,
+				24DD030011686DE8006FD6E1 /* LauncherItem.m in Sources */,
+				24DD030111686DE8006FD6E1 /* LauncherView.m in Sources */,
+				24DD030211686DE8006FD6E1 /* TiUIDashboardViewProxy.m in Sources */,
+				24DD030311686DE8006FD6E1 /* TiUIDashboardView.m in Sources */,
+				24DD030411686DE8006FD6E1 /* TiUIDashboardItemProxy.m in Sources */,
+				24DD030511686DE8006FD6E1 /* TiUIiPadDocumentViewerProxy.m in Sources */,
+				24DD0431116A6C58006FD6E1 /* TiToolbar.m in Sources */,
+				B4DE7E4F11823E990006DDE1 /* TiGradient.m in Sources */,
+				24596695118E70D300519F79 /* ApplicationRouting.m in Sources */,
+				245972C811921D0D00519F79 /* TiUIiPadSplitWindow.m in Sources */,
+				24F620501199F1F400EEAD3C /* TopTiModule.m in Sources */,
+				24F620551199F26500EEAD3C /* TiApp.mm in Sources */,
+				24F6205C1199F27700EEAD3C /* TiErrorController.m in Sources */,
+				24F6205D1199F27700EEAD3C /* TiRootViewController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2753,13 +2755,13 @@
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = KitchenSink_iPad_Prefix.pch;
+				GCC_PREFIX_HEADER = "KitchenSink-iPad_Prefix.pch";
 				INFOPLIST_FILE = Info.plist;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/lib\"",
 				);
-				PRODUCT_NAME = KitchenSink_iPad;
+				PRODUCT_NAME = "KitchenSink-iPad";
 				SDKROOT = iphonesimulator3.2;
 				TARGETED_DEVICE_FAMILY = 1;
 			};
@@ -2772,20 +2774,20 @@
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				COPY_PHASE_STRIP = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = KitchenSink_iPad_Prefix.pch;
+				GCC_PREFIX_HEADER = "KitchenSink-iPad_Prefix.pch";
 				INFOPLIST_FILE = Info.plist;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/lib\"",
 				);
-				PRODUCT_NAME = KitchenSink_iPad;
+				PRODUCT_NAME = "KitchenSink-iPad";
 				SDKROOT = iphonesimulator3.2;
 				TARGETED_DEVICE_FAMILY = 1;
 				VALIDATE_PRODUCT = YES;
 			};
 			name = Release;
 		};
-		2461CF0C1151D856007A4CC9 /* Debug */ = {
+		24DD031D11686DE8006FD6E1 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 241EAEC5118E2BA90081A5BE /* project.xcconfig */;
 			buildSettings = {
@@ -2796,7 +2798,7 @@
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = KitchenSink_iPad_Prefix.pch;
+				GCC_PREFIX_HEADER = "KitchenSink-iPad_Prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = "IPAD=1";
 				INFOPLIST_FILE = Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 3.2;
@@ -2806,16 +2808,16 @@
 				);
 				OTHER_CFLAGS = (
 					"-DDEBUG",
-					"-DTI_POST_1_2",
 					"-DIPAD=1",
+					"-DTI_POST_1_2",
 				);
-				PRODUCT_NAME = KitchenSink_iPad;
+				PRODUCT_NAME = "KitchenSink-iPad";
 				SDKROOT = iphonesimulator3.2;
 				TARGETED_DEVICE_FAMILY = 2;
 			};
 			name = Debug;
 		};
-		2461CF0D1151D856007A4CC9 /* Release */ = {
+		24DD031E11686DE8006FD6E1 /* Release */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 241EAEC5118E2BA90081A5BE /* project.xcconfig */;
 			buildSettings = {
@@ -2824,7 +2826,7 @@
 				"ARCHS[sdk=iphonesimulator*]" = i386;
 				COPY_PHASE_STRIP = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = KitchenSink_iPad_Prefix.pch;
+				GCC_PREFIX_HEADER = "KitchenSink-iPad_Prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = "IPAD=1";
 				INFOPLIST_FILE = Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 3.2;
@@ -2836,7 +2838,7 @@
 					"-DTI_POST_1_2",
 					"-DIPAD=1",
 				);
-				PRODUCT_NAME = KitchenSink_iPad;
+				PRODUCT_NAME = "KitchenSink-iPad";
 				SDKROOT = iphonesimulator3.2;
 				TARGETED_DEVICE_FAMILY = 2;
 				VALIDATE_PRODUCT = YES;
@@ -2865,17 +2867,16 @@
 					"${SDKROOT}/usr/include/libxml2",
 					headers,
 				);
-				IPHONEOS_DEPLOYMENT_TARGET = 3.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 3.1;
 				OTHER_CFLAGS = (
+					"-DDEBUG",
 					"-DTI_POST_1_2",
-					"-DIPAD=1",
 				);
 				OTHER_LDFLAGS = "-ObjC";
 				PREBINDING = NO;
 				PROVISIONING_PROFILE = "";
 				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
 				SDKROOT = iphoneos3.1.3;
-				TARGETED_DEVICE_FAMILY = 2;
 				USER_HEADER_SEARCH_PATHS = "";
 			};
 			name = Debug;
@@ -2902,17 +2903,13 @@
 					"${SDKROOT}/usr/include/libxml2",
 					headers,
 				);
-				IPHONEOS_DEPLOYMENT_TARGET = 3.2;
-				OTHER_CFLAGS = (
-					"-DTI_POST_1_2",
-					"-DIPAD=1",
-				);
+				IPHONEOS_DEPLOYMENT_TARGET = 3.1;
+				OTHER_CFLAGS = "-DTI_POST_1_2";
 				OTHER_LDFLAGS = "-ObjC";
 				PREBINDING = NO;
 				PROVISIONING_PROFILE = "";
 				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
 				SDKROOT = iphoneos3.1.3;
-				TARGETED_DEVICE_FAMILY = 2;
 				USER_HEADER_SEARCH_PATHS = "";
 			};
 			name = Release;
@@ -2920,7 +2917,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		1D6058960D05DD3E006BFB54 /* Build configuration list for PBXNativeTarget "KitchenSink_iPad" */ = {
+		1D6058960D05DD3E006BFB54 /* Build configuration list for PBXNativeTarget "KitchenSink-iPad" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				1D6058940D05DD3E006BFB54 /* Debug */,
@@ -2929,11 +2926,11 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		2461CF0B1151D856007A4CC9 /* Build configuration list for PBXNativeTarget "KitchenSink_iPad-iPad" */ = {
+		24DD031C11686DE8006FD6E1 /* Build configuration list for PBXNativeTarget "KitchenSink-iPad-iPad" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				2461CF0C1151D856007A4CC9 /* Debug */,
-				2461CF0D1151D856007A4CC9 /* Release */,
+				24DD031D11686DE8006FD6E1 /* Debug */,
+				24DD031E11686DE8006FD6E1 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

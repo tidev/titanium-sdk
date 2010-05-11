@@ -50,7 +50,7 @@
 		//We do not retain the Class, but simply assign them.
 	}
 
-	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(shutdown:) name:kTitaniumShutdownNotification object:nil];
+	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(shutdown:) name:kTiShutdownNotification object:nil];
 }
 
 -(void)_configure

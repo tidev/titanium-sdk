@@ -6,7 +6,7 @@
  */
 
 #import "TiViewController.h"
-#import "TitaniumApp.h"
+#import "TiApp.h"
 
 @implementation TiViewController
 
@@ -43,7 +43,7 @@
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation
 {
 	//Since the AppController will be the deciding factor, and it compensates for iPad, let it do the work.
-	return [[[TitaniumApp app] controller] shouldAutorotateToInterfaceOrientation:interfaceOrientation];
+	return [[[TiApp app] controller] shouldAutorotateToInterfaceOrientation:interfaceOrientation];
 }
 
 @end

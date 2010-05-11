@@ -8,7 +8,7 @@
 
 #import "GeolocationModule.h"
 #import "ASIFormDataRequest.h"
-#import "TitaniumApp.h"
+#import "TiApp.h"
 #import "TiEvaluator.h"
 #import "SBJSON.h"
 #import <sys/utsname.h>
@@ -59,7 +59,7 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 	}
 	ASIFormDataRequest *request = [ASIFormDataRequest requestWithURL:[NSURL URLWithString:url]];	
 	[request setDelegate:self];
-	[request addRequestHeader:@"User-Agent" value:[[TitaniumApp app] userAgent]];
+	[request addRequestHeader:@"User-Agent" value:[[TiApp app] userAgent]];
 	[request setRequestMethod:@"GET"];
 	[request setDefaultResponseEncoding:NSUTF8StringEncoding];
 	[request setAllowCompressedResponse:YES];
@@ -78,7 +78,7 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 
 -(void)requestFinished:(ASIHTTPRequest *)request
 {
-	[[TitaniumApp app] stopNetwork];
+	[[TiApp app] stopNetwork];
 
 	if (request!=nil && [request error]==nil)
 	{
@@ -95,7 +95,7 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 
 -(void)requestFailed:(ASIHTTPRequest *)request
 {
-	[[TitaniumApp app] stopNetwork];
+	[[TiApp app] stopNetwork];
 	[self requestError:[[request error] description]];
 	[self autorelease];
 }
@@ -383,10 +383,10 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 
 -(void)performGeo:(NSString*)direction address:(NSString*)address callback:(GeolocationCallback*)callback
 {
-	[[TitaniumApp app] startNetwork];
+	[[TiApp app] startNetwork];
 	
 	id aguid = TI_APPLICATION_GUID;
-	id sid = [[TitaniumApp app] sessionId];
+	id sid = [[TiApp app] sessionId];
 	
 	NSDictionary *params = [NSDictionary dictionaryWithObjectsAndKeys:
 							direction, @"d",
@@ -631,7 +631,7 @@ MAKE_SYSTEM_PROP_DBL(ACCURACY_THREE_KILOMETERS,kCLLocationAccuracyThreeKilometer
 	{
 		NSDictionary *data = [NSDictionary dictionaryWithObjectsAndKeys:todict,@"to",[self locationDictionary:oldLocation],@"from",nil];
 		NSDictionary *geo = [NSDictionary dictionaryWithObjectsAndKeys:data,@"data",@"ti.geo",@"name",@"ti.geo",@"type",nil];
-		[[NSNotificationCenter defaultCenter] postNotificationName:kTitaniumAnalyticsNotification object:nil userInfo:geo]; 
+		[[NSNotificationCenter defaultCenter] postNotificationName:kTiAnalyticsNotification object:nil userInfo:geo]; 
 	}
 	
 	if ([self _hasListeners:@"location"])

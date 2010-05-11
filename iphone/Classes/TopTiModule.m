@@ -5,12 +5,12 @@
  * Please see the LICENSE included with this distribution for details.
  */
 #import "TiBase.h"
-#import "TitaniumModule.h"
+#import "TopTiModule.h"
 #import "KrollBridge.h"
-#import "TitaniumApp.h"
+#import "TiApp.h"
 #import "TiUtils.h"
 
-@implementation TitaniumModule
+@implementation TopTiModule
 
 -(id)version
 {
@@ -19,7 +19,7 @@
 
 -(id)userAgent
 {
-	return [[TitaniumApp app] userAgent];
+	return [[TiApp app] userAgent];
 }
 
 -(void)include:(NSArray*)jsfiles

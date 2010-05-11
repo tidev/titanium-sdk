@@ -11,7 +11,7 @@
 #import "TiUIViewProxy.h"
 #import "ImageLoader.h"
 #import "TiComplexValue.h"
-#import "TitaniumApp.h"
+#import "TiApp.h"
 #import "TiTabController.h"
 
 @implementation TiUIWindowProxy
@@ -165,7 +165,7 @@
 -(void)setOrientationModes:(id)value
 {
 	[self replaceValue:value forKey:@"orientationModes" notification:YES];
-	[[[TitaniumApp app] controller] performSelectorOnMainThread:@selector(refreshOrientationModesIfNeeded:) withObject:self waitUntilDone:NO];
+	[[[TiApp app] controller] performSelectorOnMainThread:@selector(refreshOrientationModesIfNeeded:) withObject:self waitUntilDone:NO];
 }
 
 -(void)setRightNavButton:(id)proxy withObject:(id)properties

@@ -8,7 +8,7 @@
 
 #import "TiUIiPhoneProxy.h"
 #import "TiUtils.h"
-#import "TitaniumApp.h"
+#import "TiApp.h"
 
 
 #ifdef USE_TI_UIIPHONEANIMATIONSTYLE
@@ -173,7 +173,7 @@
 	[[UIApplication sharedApplication] setStatusBarHidden:YES withAnimation:style];
 #endif
 	
-	[[[TitaniumApp app] controller] resizeView];
+	[[[TiApp app] controller] resizeView];
 }
 
 -(void)showStatusBar:(id)args
@@ -191,7 +191,7 @@
 	[[UIApplication sharedApplication] setStatusBarHidden:NO withAnimation:style];
 #endif
 
-	[[[TitaniumApp app] controller] resizeView];
+	[[[TiApp app] controller] resizeView];
 }
 
 -(void)setStatusBarHidden:(id)hidden
@@ -207,7 +207,7 @@
 	[[UIApplication sharedApplication] setStatusBarHidden:value withAnimation:UIStatusBarAnimationNone];
 #endif
 
-	[[[TitaniumApp app] controller] resizeView];
+	[[[TiApp app] controller] resizeView];
 }
 
 BEGIN_UI_THREAD_PROTECTED_VALUE(statusBarHidden,NSNumber)

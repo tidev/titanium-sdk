@@ -9,7 +9,7 @@
 #import "OperationQueue.h"
 #import "TiUtils.h"
 #import "ASIHTTPRequest.h"
-#import "TitaniumApp.h"
+#import "TiApp.h"
 #import "UIImage+Resize.h"
 
 #ifdef VERBOSE
@@ -394,10 +394,10 @@ DEFINE_EXCEPTIONS
 	}
 	
 	ASIHTTPRequest *req = [ASIHTTPRequest requestWithURL:url];
-	[req addRequestHeader:@"User-Agent" value:[[TitaniumApp app] userAgent]];
-	[[TitaniumApp app] startNetwork];
+	[req addRequestHeader:@"User-Agent" value:[[TiApp app] userAgent]];
+	[[TiApp app] startNetwork];
 	[req start];
-	[[TitaniumApp app] stopNetwork];
+	[[TiApp app] stopNetwork];
 	
 	if (req!=nil && [req error]==nil)
 	{
@@ -469,11 +469,11 @@ DEFINE_EXCEPTIONS
 	ASIHTTPRequest *req = [ASIHTTPRequest requestWithURL:url];
 	[req setUserInfo:dict];
 	[req setRequestMethod:@"GET"];
-	[req addRequestHeader:@"User-Agent" value:[[TitaniumApp app] userAgent]];
+	[req addRequestHeader:@"User-Agent" value:[[TiApp app] userAgent]];
 	[req setTimeOutSeconds:20];
 	[request setRequest:req];
 	
-	[[TitaniumApp app] startNetwork];
+	[[TiApp app] startNetwork];
 	
 	[queue addOperation:req];
 }
@@ -552,7 +552,7 @@ DEFINE_EXCEPTIONS
 	// hold while we're working with it (release below)
 	[request retain];
 	
-	[[TitaniumApp app] stopNetwork];
+	[[TiApp app] stopNetwork];
 	ImageLoaderRequest *req = [[request userInfo] objectForKey:@"request"];
 	if ([req cancelled]==NO)
 	{
@@ -612,7 +612,7 @@ DEFINE_EXCEPTIONS
 
 -(void)queueRequestDidFail:(ASIHTTPRequest*)request
 {
-	[[TitaniumApp app] stopNetwork];
+	[[TiApp app] stopNetwork];
 	ImageLoaderRequest *req = [[request userInfo] objectForKey:@"request"];
 	NSError *error = [request error];
 	if ([error code] == ASIRequestCancelledErrorType && [error domain] == NetworkRequestErrorDomain)

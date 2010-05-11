@@ -5,23 +5,23 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
-#import "TitaniumViewController.h"
+#import "TiRootViewController.h"
 #import "TiUtils.h"
 #import "TiViewProxy.h"
 #import "TiWindowProxy.h"
 #import "TiTab.h"
 #import <MessageUI/MessageUI.h>
 
-@interface TitaniumRootView : UIView
+@interface TiRootView : UIView
 @end
 
-@implementation TitaniumRootView
+@implementation TiRootView
 
 - (void)motionEnded:(UIEventSubtype)motion withEvent:(UIEvent *)event
 {
 	if (event.type == UIEventTypeMotion && event.subtype == UIEventSubtypeMotionShake) 
 	{
-        [[NSNotificationCenter defaultCenter] postNotificationName:@"titanium.gesture.shake" object:event];
+        [[NSNotificationCenter defaultCenter] postNotificationName:kTiGestureShakeNotification object:event];
     }
 }
 
@@ -34,7 +34,7 @@
 
 
 
-@implementation TitaniumViewController
+@implementation TiRootViewController
 @synthesize backgroundColor, backgroundImage;
 
 -(void)dealloc
@@ -102,7 +102,7 @@
 
 -(void)loadView
 {
-	TitaniumRootView *rootView = [[TitaniumRootView alloc] init];
+	TiRootView *rootView = [[TiRootView alloc] init];
 	[rootView setAutoresizingMask:UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight];
 	self.view = rootView;
 	[self updateBackground];

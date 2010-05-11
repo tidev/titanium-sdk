@@ -9,7 +9,7 @@
 #import <AddressBookUI/AddressBookUI.h>
 #import "ContactsModule.h"
 #import "TiContactsContactProxy.h"
-#import "TitaniumApp.h"
+#import "TiApp.h"
 
 @implementation ContactsModule
 
@@ -162,7 +162,7 @@ MAKE_SYSTEM_STR(ADDRESS_COUNTRY_CODE,@"countryCode");
 		[picker setDisplayedProperties:pickerFields];
 	}
 
-	TitaniumApp * tiApp = [TitaniumApp app];
+	TiApp * tiApp = [TiApp app];
 	//TODO: Make sure we only do this on iPhone, not iPad.
 	[[tiApp controller] manuallyRotateToOrientation:UIInterfaceOrientationPortrait];
 	[tiApp showModalController:picker animated:pickerAnimated];
@@ -170,7 +170,7 @@ MAKE_SYSTEM_STR(ADDRESS_COUNTRY_CODE,@"countryCode");
 
 -(void)dismissPickerWithEvent:(KrollCallback*)callback event:(id)event type:(NSString*)type
 {
-	[[TitaniumApp app] hideModalController:picker animated:pickerAnimated];
+	[[TiApp app] hideModalController:picker animated:pickerAnimated];
 	
 	if (callback!=nil)
 	{

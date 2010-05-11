@@ -11,7 +11,7 @@
 #import "TiUtils.h"
 #import "TiBlob.h"
 #import "TiColor.h"
-#import "TitaniumApp.h"
+#import "TiApp.h"
 #import "TiFile.h"
 #import "Mimetypes.h"
 
@@ -125,7 +125,7 @@
 	}
 	
 	BOOL animated = [TiUtils boolValue:[self valueForKey:@"animated"] def:YES];
-	[[TitaniumApp app] showModalController:composer animated:animated];
+	[[TiApp app] showModalController:composer animated:animated];
 }
 
 MAKE_SYSTEM_PROP(SENT,MFMailComposeResultSent);
@@ -144,7 +144,7 @@ MAKE_SYSTEM_PROP(FAILED,MFMailComposeResultFailed);
 	
 	BOOL animated = [TiUtils boolValue:[self valueForKey:@"animated"] def:YES];
 
-	[[TitaniumApp app] hideModalController:composer animated:animated];
+	[[TiApp app] hideModalController:composer animated:animated];
 	[composer autorelease];
 
 	if ([self _hasListeners:@"complete"])
