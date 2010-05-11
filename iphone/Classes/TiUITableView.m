@@ -664,13 +664,11 @@
 	[searchTableView removeFromSuperview];
 	[tableview setScrollEnabled:YES];
 	[self.proxy replaceValue:NUMBOOL(YES) forKey:@"searchHidden" notification:NO];
-
+	[searchController setActive:NO animated:YES];
 	if (sender==nil)
 	{
 		[UIView beginAnimations:@"searchy" context:nil];
 	}
-//	[searchScreenView setEnabled:NO];
-//	[searchScreenView setAlpha:0.0];
 	if (searchHidden)
 	{
 		[tableview setContentOffset:CGPointMake(0,MAX(TI_NAVBAR_HEIGHT,searchField.view.frame.size.height)) animated:NO];
@@ -1284,10 +1282,14 @@ if(ourTableView != tableview)	\
 
 - (NSArray *)sectionIndexTitlesForTableView:(UITableView *)ourTableView
 {
+	VerboseLog(@"Wanting section Index...");
+	RETURN_IF_SEARCH_TABLE_VIEW(nil);
 	if (sectionIndex!=nil && editing==NO)
 	{
+		VerboseLog(@"Returning section Index.");
 		return sectionIndex;
 	}
+	VerboseLog(@"Returning nil.");
 	return nil;
 }
 
