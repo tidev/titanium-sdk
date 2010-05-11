@@ -25,6 +25,7 @@ if (Titanium.Platform.name == 'iPhone OS')
 	data.push({title:'Mixing Views', hasChild:true, test:'../examples/mixing_views_1.js'});
 //	data.push({title:'Web View Repaint', hasChild:true, test:'../examples/webview_repaint.js'});
 	data.push({title:'Gradient', hasChild:true, test:'../examples/gradient.js'});
+	data.push({title:'Hide/Show', hasChild:true, test:'../examples/view_hide_show.js'});
 
 }
 
