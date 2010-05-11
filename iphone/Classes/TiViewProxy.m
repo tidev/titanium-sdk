@@ -237,7 +237,8 @@
 	[self setVisible:YES];
 #else
 	[self setValue:[NSNumber numberWithBool:YES] forKey:@"visible"];
-	[parent childWillResize:self];
+	//TODO: There was a child will resize here, but it was messing things up.
+	//The layout engine needs an overhaul.
 #endif
 }
  
