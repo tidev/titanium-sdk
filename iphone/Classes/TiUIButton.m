@@ -54,10 +54,26 @@ const UIControlEvents unHighlightingTouches = UIControlEventTouchCancel|UIContro
 	[ourProxy unlockChildren];
 }
 
+-(void)handleControlEvents:(UIControlEvents)events
+{
+	eventAlreadyTriggered = YES;
+	if (events & highlightingTouches) {
+		[button setHighlighted:YES];
+		[self setHighlighting:YES];
+	}
+	else if (events & unHighlightingTouches) {
+		[button setHighlighted:NO];
+		[self setHighlighting:NO];
+	}
+	eventAlreadyTriggered = NO;
+	
+	[super handleControlEvents:events];
+}
+
 -(IBAction)highlightOn:(id)sender
 {
 	[self setHighlighting:YES];
-	if ([self.proxy _hasListeners:@"touchstart"])
+	if (!eventAlreadyTriggered && [self.proxy _hasListeners:@"touchstart"])
 	{
 		[self.proxy fireEvent:@"touchstart" withObject:nil];
 	}
@@ -66,7 +82,7 @@ const UIControlEvents unHighlightingTouches = UIControlEventTouchCancel|UIContro
 -(IBAction)highlightOff:(id)sender
 {
 	[self setHighlighting:NO];
-	if ([self.proxy _hasListeners:@"touchend"])
+	if (!eventAlreadyTriggered && [self.proxy _hasListeners:@"touchend"])
 	{
 		[self.proxy fireEvent:@"touchend" withObject:nil];
 	}
@@ -248,11 +264,6 @@ const UIControlEvents unHighlightingTouches = UIControlEventTouchCancel|UIContro
 -(CGFloat)autoHeightForWidth:(CGFloat)value
 {
 	return [[self button] sizeThatFits:CGSizeMake(value, 0)].height;
-}
-
--(void)touchesBegan:(NSSet*)touches withEvent:(UIEvent*)event
-{
-	NSLog(@"Button touches...");
 }
 
 @end
