@@ -7,11 +7,13 @@ for (var x=0;x<2;x++)
 {
 	for (var c=0;c<labels.length;c++)
 	{
-		data.push(Titanium.UI.createDashboardItem({
+		var item = Titanium.UI.createDashboardItem({
 			image:'../images/dashboard/'+labels[c]+'_off.png',
 			selectedImage:'../images/dashboard/'+labels[c]+'_on.png',
 			label:labels[c]
-		}));
+		});
+		if (c==0) item.badge = 10;
+		data.push(item);
 	}
 }
 
