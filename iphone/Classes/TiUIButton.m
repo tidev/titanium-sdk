@@ -57,11 +57,19 @@ const UIControlEvents unHighlightingTouches = UIControlEventTouchCancel|UIContro
 -(IBAction)highlightOn:(id)sender
 {
 	[self setHighlighting:YES];
+	if ([self.proxy _hasListeners:@"touchstart"])
+	{
+		[self.proxy fireEvent:@"touchstart" withObject:nil];
+	}
 }
 
 -(IBAction)highlightOff:(id)sender
 {
 	[self setHighlighting:NO];
+	if ([self.proxy _hasListeners:@"touchend"])
+	{
+		[self.proxy fireEvent:@"touchend" withObject:nil];
+	}
 }
 
 -(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
@@ -240,6 +248,11 @@ const UIControlEvents unHighlightingTouches = UIControlEventTouchCancel|UIContro
 -(CGFloat)autoHeightForWidth:(CGFloat)value
 {
 	return [[self button] sizeThatFits:CGSizeMake(value, 0)].height;
+}
+
+-(void)touchesBegan:(NSSet*)touches withEvent:(UIEvent*)event
+{
+	NSLog(@"Button touches...");
 }
 
 @end
