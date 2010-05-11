@@ -851,11 +851,13 @@ DEFINE_EXCEPTIONS
     return [super hitTest:point withEvent:event];
 }
 
-// TODO: Revisit this design decision in post-1.3.0.
+// TODO: Revisit this design decision in post-1.3.0
 -(void)handleControlEvents:(UIControlEvents)events
 {
-	// For subclasses (esp. buttons) to override when they have event handlers which override touchesBegan:.
-	[[parent view] handleControlEvents:events];
+	// For subclasses (esp. buttons) to override when they have event handlers.
+	if ([parent viewAttached] && [parent canHaveControllerParent]) {
+		[[parent view] handleControlEvents:events];
+	}
 }
 
 // TODO: Take a very close look at event handling.  Make sure that parent controls get the right messages.

@@ -333,6 +333,11 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 	return rowContainerView != nil;
 }
 
+-(BOOL)canHaveControllerParent
+{
+	return NO;
+}
+
 -(void)redelegateViews:(TiViewProxy *)proxy toView:(UIView *)touchDelegate;
 {
 	[[proxy view] setTouchDelegate:touchDelegate];
