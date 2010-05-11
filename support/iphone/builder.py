@@ -120,7 +120,8 @@ def main(args):
 	
 	if command == 'xcode':
 		xcode_build = True
-		project_dir = os.path.expanduser(dequote(args[2].decode("utf-8")))
+		src_root = os.environ['SOURCE_ROOT']
+		project_dir = os.path.abspath(os.path.join(src_root,'../','../'))
 		name = os.environ['PROJECT_NAME']
 		target = os.environ['CONFIGURATION']
 		appid = os.environ['TI_APPID']
@@ -357,7 +358,6 @@ def main(args):
 			xcconfig = open(project_xcconfig,'w')
 			xcconfig.write("TI_VERSION=%s\n"% sdk_version)
 			xcconfig.write("TI_SDK_DIR=%s\n" % template_dir.replace(sdk_version,'$(TI_VERSION)'))
-			xcconfig.write("TI_PROJECT_DIR=%s\n" % project_dir)
 			xcconfig.write("TI_APPID=%s\n" % appid)
 			xcconfig.close()
 			
