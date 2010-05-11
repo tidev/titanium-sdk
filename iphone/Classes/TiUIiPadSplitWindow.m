@@ -66,7 +66,7 @@
 -(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
 {
 	self.frame = CGRectIntegral(self.frame);
-	[TiUtils setView:[[self controller] view] positionRect:bounds];
+	[[[self controller] view] setFrame:bounds];
 }	
 
 //FIXME - probably should remove this ... not sure...

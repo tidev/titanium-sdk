@@ -44,6 +44,5 @@ OptionDialog.init = function()
 	{
 		dialog2.show({view:b2,animated:true});
 	});
-	
-};
 
+};

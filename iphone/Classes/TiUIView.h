@@ -110,6 +110,8 @@ CGFloat AutoHeightForView(UIView * superView,CGFloat suggestedWidth,BOOL isVerti
 -(BOOL)interactionDefault; 
 -(BOOL)hasTouchableListener;
 
+-(void)handleControlEvents:(UIControlEvents)events;
+
 -(void)setVisible_:(id)visible;
 
 @end

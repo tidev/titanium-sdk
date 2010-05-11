@@ -851,13 +851,19 @@ DEFINE_EXCEPTIONS
     return [super hitTest:point withEvent:event];
 }
 
-// TODO: Take a very close look at event handling.
+// TODO: Revisit this design decision in post-1.3.0.
+-(void)handleControlEvents:(UIControlEvents)events
+{
+	// For subclasses (esp. buttons) to override when they have event handlers which override touchesBegan:.
+	[[parent view] handleControlEvents:events];
+}
+
+// TODO: Take a very close look at event handling.  Make sure that parent controls get the right messages.
 // It's kind of broken for tables right now, but there are a couple
 // hacks to get around it.
 - (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event 
 {
 	UITouch *touch = [touches anyObject];
-    BOOL clickEvent = NO;
 	
 	if (handlesSwipes)
 	{
@@ -890,14 +896,16 @@ DEFINE_EXCEPTIONS
 		if ([proxy _hasListeners:@"touchstart"])
 		{
 			[proxy fireEvent:@"touchstart" withObject:evt propagate:YES];
+			[self handleControlEvents:UIControlEventTouchDown];
 		}
         
         // Click handling is special; don't propagate if we have a delegate,
-        // but DO invoke the touch delegate at the end.
+        // but DO invoke the touch delegate.
+		// clicks should also be handled by any control the view is embedded in.
 		if ([touch tapCount] == 1 && [proxy _hasListeners:@"click"])
 		{
 			if (touchDelegate == nil) {
-				[proxy fireEvent:@"click" withObject:evt propagate:(touchDelegate==nil)];
+				[proxy fireEvent:@"click" withObject:evt propagate:YES];
 			}
 			else {
 				[touchDelegate touchesBegan:touches withEvent:event];
@@ -1035,6 +1043,7 @@ DEFINE_EXCEPTIONS
 		if ([proxy _hasListeners:@"touchend"])
 		{
 			[proxy fireEvent:@"touchend" withObject:evt propagate:YES];
+			[self handleControlEvents:UIControlEventTouchCancel];
 		}
 	}
 	if (handlesSwipes)

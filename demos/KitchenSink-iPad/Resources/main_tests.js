@@ -44,7 +44,7 @@ MainTests.splitView.addEventListener('visible',function(e)
 		e.button.title = "Show List";
 		MainTests.detailWindow.leftNavButton = e.button;
 	}
-	
+
 	// hide it
 	else if (e.view == 'master')
 	{

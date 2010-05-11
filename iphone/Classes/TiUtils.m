@@ -944,6 +944,10 @@ extern NSString * const TI_APPLICATION_RESOURCE_DIR;
 		if (AppRouter!=nil)
 		{
 			appurlstr = [appurlstr stringByReplacingOccurrencesOfString:@"." withString:@"_"];
+			if ([appurlstr characterAtIndex:0]=='/')
+			{
+				appurlstr = [appurlstr substringFromIndex:1];
+			}
 #ifdef DEBUG			
 			NSLog(@"[DEBUG] loading: %@, resource: %@",urlstring,appurlstr);
 #endif			
