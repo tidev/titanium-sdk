@@ -1282,14 +1282,11 @@ if(ourTableView != tableview)	\
 
 - (NSArray *)sectionIndexTitlesForTableView:(UITableView *)ourTableView
 {
-	VerboseLog(@"Wanting section Index...");
 	RETURN_IF_SEARCH_TABLE_VIEW(nil);
 	if (sectionIndex!=nil && editing==NO)
 	{
-		VerboseLog(@"Returning section Index.");
 		return sectionIndex;
 	}
-	VerboseLog(@"Returning nil.");
 	return nil;
 }
 
