@@ -105,6 +105,15 @@
 	[self layoutChild:arg]; 
 }
 
+#pragma mark Misc
+
+// TODO: Re-evaluate this along with the other controller propagation mechanisms, post 1.3.0.
+// Returns YES for anything that can have a UIController object in its parent view
+-(BOOL)canHaveControllerParent
+{
+	return YES;
+}
+
 #pragma mark Public
 
 #if USE_VISIBLE_BOOL

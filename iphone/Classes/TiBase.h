@@ -46,9 +46,11 @@ CGPoint midpointBetweenPoints(CGPoint a, CGPoint b);
 
 #define NULL_IF_NIL(x)	({ id xx = (x); (xx==nil)?[NSNull null]:xx; })
 
+#define WAIT_UNTIL_DONE_ON_UI_THREAD	NO
+
 #define ENSURE_UI_THREAD_1_ARG(x)	\
 if (![NSThread isMainThread]) { \
-[self performSelectorOnMainThread:_cmd withObject:x waitUntilDone:NO modes:[NSArray arrayWithObject:NSRunLoopCommonModes]]; \
+[self performSelectorOnMainThread:_cmd withObject:x waitUntilDone:WAIT_UNTIL_DONE_ON_UI_THREAD modes:[NSArray arrayWithObject:NSRunLoopCommonModes]]; \
 return; \
 } \
 
@@ -61,14 +63,14 @@ return; \
 
 #define ENSURE_UI_THREAD(x,y) \
 if (![NSThread isMainThread]) { \
-[self performSelectorOnMainThread:@selector(x:) withObject:y waitUntilDone:NO]; \
+[self performSelectorOnMainThread:@selector(x:) withObject:y waitUntilDone:WAIT_UNTIL_DONE_ON_UI_THREAD]; \
 return; \
 } \
 
 #define ENSURE_UI_THREAD_WITH_OBJS(x,...)	\
 if (![NSThread isMainThread]) { \
 id o = [NSArray arrayWithObjects:@"" #x, ##__VA_ARGS__, nil];\
-[self performSelectorOnMainThread:@selector(_dispatchWithObjectOnUIThread:) withObject:o waitUntilDone:NO]; \
+[self performSelectorOnMainThread:@selector(_dispatchWithObjectOnUIThread:) withObject:o waitUntilDone:WAIT_UNTIL_DONE_ON_UI_THREAD]; \
 return; \
 } \
 

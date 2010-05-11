@@ -54,14 +54,38 @@ const UIControlEvents unHighlightingTouches = UIControlEventTouchCancel|UIContro
 	[ourProxy unlockChildren];
 }
 
+-(void)handleControlEvents:(UIControlEvents)events
+{
+	eventAlreadyTriggered = YES;
+	if (events & highlightingTouches) {
+		[button setHighlighted:YES];
+		[self setHighlighting:YES];
+	}
+	else if (events & unHighlightingTouches) {
+		[button setHighlighted:NO];
+		[self setHighlighting:NO];
+	}
+	eventAlreadyTriggered = NO;
+	
+	[super handleControlEvents:events];
+}
+
 -(IBAction)highlightOn:(id)sender
 {
 	[self setHighlighting:YES];
+	if (!eventAlreadyTriggered && [self.proxy _hasListeners:@"touchstart"])
+	{
+		[self.proxy fireEvent:@"touchstart" withObject:nil];
+	}
 }
 
 -(IBAction)highlightOff:(id)sender
 {
 	[self setHighlighting:NO];
+	if (!eventAlreadyTriggered && [self.proxy _hasListeners:@"touchend"])
+	{
+		[self.proxy fireEvent:@"touchend" withObject:nil];
+	}
 }
 
 -(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds

@@ -12,6 +12,8 @@
 @private
 	UIButton *button;
 	int style;
+	
+	BOOL eventAlreadyTriggered;
 }
 
 -(UIButton*)button;

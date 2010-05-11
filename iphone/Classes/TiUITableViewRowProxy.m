@@ -333,6 +333,11 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 	return rowContainerView != nil;
 }
 
+-(BOOL)canHaveControllerParent
+{
+	return NO;
+}
+
 -(void)redelegateViews:(TiViewProxy *)proxy toView:(UIView *)touchDelegate;
 {
 	[[proxy view] setTouchDelegate:touchDelegate];
@@ -350,13 +355,18 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 	[self lockChildrenForReading];
 	if (self.children!=nil)
 	{
+//		CGRect cellFrame = [cell frame];
+//		CGFloat rowHeight = [self rowHeight:cellFrame];
+//		cellFrame.size.height = rowHeight;
+//		[cell setFrame:cellFrame];
+	
 		UIView *contentView = cell.contentView;
-		CGRect rect = [contentView bounds];
+		CGRect rect = [contentView frame];
 		CGFloat rowHeight = [self rowHeight:rect];
 		if (rect.size.height < rowHeight)
 		{
 			rect.size.height = rowHeight;
-			contentView.bounds = rect;
+			contentView.frame = rect;
 		}
 		[rowContainerView release];
 		rowContainerView = [[TiUITableViewRowContainer alloc] initWithFrame:rect];

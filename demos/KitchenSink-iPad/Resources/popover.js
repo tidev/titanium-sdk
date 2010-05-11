@@ -87,7 +87,6 @@ Popover.init = function()
 		picker.selectionIndicator = true;
 
 		popover.add(picker)
-
 		popover.show({
 			view:b2,
 			rect:{x:0,y:0,width:300,height:50},

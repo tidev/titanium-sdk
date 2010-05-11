@@ -126,11 +126,11 @@ var b5ImageView = Ti.UI.createImageView({
 b5.add(b5ImageView);
 b5.addEventListener('touchstart', function()
 {
-	b5.color = 'white';
+	b5Label.color = 'red';
 });
 b5.addEventListener('touchend', function()
 {
-	b5.color = '#336699';
+	b5Label.color = '#336699';
 });
 win.add(b1);
 win.add(b3);

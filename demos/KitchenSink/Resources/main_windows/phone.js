@@ -5,7 +5,6 @@ var data = [
 	{title:'Geolocation', hasChild:true, test:'../examples/geolocation.js'},
 	{title:'Accelerometer', hasChild:true, test:'../examples/accelerometer.js'},
 	{title:'Sound', hasChild:true, test:'../examples/sound.js'},
- //{title:'Contacts', hasChild:true, test:'../examples/contacts.js'},
 	{title:'Photo Gallery', hasChild:true, test:'../examples/photo_gallery.js'}
 ];
 
@@ -19,7 +18,7 @@ if (Titanium.Platform.osname!='ipad')
 // add iphone specific tests
 if (Titanium.Platform.name == 'iPhone OS')
 {
-    data.push({title:'Contacts', hasChild:true, test:'../examples/contacts.js'});
+ //   data.push({title:'Contacts', hasChild:true, test:'../examples/contacts.js'});
 	data.push({title:'Screenshot', hasChild:true, test:'../examples/screenshot.js'});
 	data.push({title:'Save to Gallery', hasChild:true, test:'../examples/photo_gallery_save.js'});
 	data.push({title:'Shake', hasChild:true, test:'../examples/shake.js'});

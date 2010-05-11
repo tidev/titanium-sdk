@@ -29,7 +29,7 @@ USE_VIEW_FOR_AUTO_WIDTH
 	}
 	CGSize maxSize = CGSizeMake(suggestedWidth, 1E100);
 	CGSize size = [value sizeWithFont:font constrainedToSize:maxSize lineBreakMode:UILineBreakModeTailTruncation];
-	return size.height;
+	return [self verifyHeight:size.height]; //Todo: We need to verifyHeight elsewhere as well.
 }
 
 -(CGFloat) verifyWidth:(CGFloat)suggestedWidth

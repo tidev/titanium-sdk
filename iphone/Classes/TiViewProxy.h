@@ -112,6 +112,8 @@
 -(BOOL)willBeRelaying;
 -(void)childWillResize:(TiViewProxy *)child;
 
+-(BOOL)canHaveControllerParent;
+
 @end
 
 #define USE_VIEW_FOR_METHOD(resultType,methodname,inputType)	\
