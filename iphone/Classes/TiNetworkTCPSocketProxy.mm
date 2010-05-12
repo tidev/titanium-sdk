@@ -459,7 +459,7 @@ const CFOptionFlags writeStreamEventFlags =
     
             CFRelease(addressData);
             
-            [self throwException:[NSString stringWithFormat:@"Failed to connect to %@:%d: %d", hostName, port, errno]
+            [self throwException:[NSString stringWithFormat:@"Failed to listen on %@:%d: %d", hostName, port, errno]
                        subreason:nil
                         location:CODELOCATION];
             break;
