@@ -16,6 +16,74 @@
 
 #define DEFAULT_SECTION_HEADERFOOTER_HEIGHT 20.0
 
+@implementation TiUITableViewCell
+
+#pragma mark Touch event handling
+
+// TODO: Replace callback cells with blocks by changing fireEvent: to take special-case
+// code which will allow better interactions with UIControl elements (such as buttons)
+// and table rows/cells.
+-(id)initWithStyle:(UITableViewCellStyle)style_ reuseIdentifier:(NSString *)reuseIdentifier_ row:(TiUITableViewRowProxy *)row_
+{
+	if (self = [super initWithStyle:style_ reuseIdentifier:reuseIdentifier_]) {
+		row = [row_ retain];
+		[row setCallbackCell:self];
+	}
+	
+	return self;
+}
+
+-(id)initWithFrame:(CGRect)frame_ reuseIdentifier:(NSString *)reuseIdentifier_ row:(TiUITableViewRowProxy *)row_
+{
+	if (self = [super initWithFrame:frame_ reuseIdentifier:reuseIdentifier_]) {
+		row = [row_ retain];
+		[row setCallbackCell:self];
+	}
+	
+	return self;
+}
+
+-(void)dealloc
+{
+	RELEASE_TO_NIL(row);
+	[super dealloc];
+}
+
+-(void)setHighlighted:(BOOL)yn
+{
+	[self setHighlighted:yn animated:NO];
+}
+
+-(void)setHighlighted:(BOOL)yn animated:(BOOL)animated
+{
+	[super setHighlighted:yn animated:animated];
+	if (yn) 
+	{
+		if ([row _hasListeners:@"touchstart"])
+		{
+			[row fireEvent:@"touchstart" withObject:[row createEventObject:nil] propagate:YES];
+		}
+	}
+	else
+	{
+		if ([row _hasListeners:@"touchend"]) {
+			[row fireEvent:@"touchend" withObject:[row createEventObject:nil] propagate:YES];
+		}
+	}
+}
+
+-(void)handleEvent:(NSString*)type
+{
+	if ([type isEqual:@"touchstart"]) {
+		[super setHighlighted:YES animated:NO];
+	}
+	else if ([type isEqual:@"touchend"]) {
+		[super setHighlighted:NO animated:YES];
+	}
+}
+
+@end
+
 @implementation TiUITableView
 
 #pragma mark Internal 
@@ -1097,11 +1165,11 @@ if(ourTableView != tableview)	\
 	if(ourTableView != tableview)
 	{
 		UITableViewCell * result = [ourTableView dequeueReusableCellWithIdentifier:@"__search__"];
+		TiUITableViewRowProxy *row = [self rowForIndexPath:[self indexPathFromSearchIndex:[indexPath row]]];
 		if(result==nil)
 		{
-			result = [[[UITableViewCell alloc] initWithFrame:CGRectZero reuseIdentifier:@"__search__"] autorelease];
+			result = [[[TiUITableViewCell alloc] initWithFrame:CGRectZero reuseIdentifier:@"__search__" row:row] autorelease];
 		}
-		TiUITableViewRowProxy *row = [self rowForIndexPath:[self indexPathFromSearchIndex:[indexPath row]]];
 		NSString *searchFilterField = filterAttribute;
 		if (searchFilterField==nil)
 		{
@@ -1119,7 +1187,7 @@ if(ourTableView != tableview)	\
 	UITableViewCell *cell = [ourTableView dequeueReusableCellWithIdentifier:row.tableClass];
 	if (cell == nil)
 	{
-		cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:row.tableClass] autorelease];
+		cell = [[[TiUITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:row.tableClass row:row] autorelease];
 		[row initializeTableViewCell:cell];
 	}
 	else
