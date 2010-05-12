@@ -125,7 +125,13 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 	opened = YES;
 	opening = NO;
 	
-	[self attachViewToTopLevelWindow];
+	if (!navWindow) {
+		[self attachViewToTopLevelWindow];
+	}
+	else
+	{
+		[self layoutChildren];
+	}
 	
 	if ([self _hasListeners:@"open"])
 	{
@@ -299,6 +305,7 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 		opening = YES;
 	}
 	
+	navWindow = NO;
 	BOOL rootViewAttached = [self isRootViewAttached];
 	
 	// ensure on open that we've created our view before we start to use it
@@ -391,6 +398,30 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 		{
 			[self windowReady];
 		}
+	}
+}
+
+// We can't open properly in nav views since they handle all of the view
+// goofiness, and need to perform the prepatory steps that open: usually does.
+-(void)prepareForNavView:(UINavigationController*)navController_
+{
+	ENSURE_UI_THREAD(prepareForNavView, navController_);
+	
+	if (opened) {
+		return;
+	}
+	
+	if (!opening) {
+		opening = YES;
+	}
+	
+	self.navController = navController_;
+	navWindow = YES;
+	[self view];
+	[self setupWindowDecorations];
+	if ([self _handleOpen:nil])
+	{
+		[self windowReady];
 	}
 }
 
