@@ -18,7 +18,7 @@
 	#import "Ti3DMatrix.h"
 #endif
 #import "TiViewProxy.h"
-#import "TitaniumApp.h"
+#import "TiApp.h"
 
 
 void ModifyScrollViewForKeyboardHeightAndContentHeightWithResponderRect(UIScrollView * scrollView,CGFloat keyboardTop,CGFloat minimumContentHeight,CGRect responderRect)
@@ -761,7 +761,7 @@ DEFINE_EXCEPTIONS
 
 -(void)makeRootViewFirstResponder
 {
-	[[[TitaniumApp app] controller].view becomeFirstResponder];
+	[[[TiApp app] controller].view becomeFirstResponder];
 }
 
 #pragma mark Touch Events

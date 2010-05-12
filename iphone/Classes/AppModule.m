@@ -10,7 +10,7 @@
 #import "TiHost.h"
 #import "SBJSON.h"
 #import "ListenerEntry.h"
-#import "TitaniumApp.h"
+#import "TiApp.h"
 
 extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 extern NSString * const TI_APPLICATION_ID;
@@ -244,7 +244,7 @@ extern NSString * const TI_APPLICATION_GUID;
 
 -(id)arguments:(id)args
 {
-	return [[TitaniumApp app] launchOptions];
+	return [[TiApp app] launchOptions];
 }
 
 -(id)iD

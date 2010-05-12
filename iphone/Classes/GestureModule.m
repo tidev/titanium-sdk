@@ -37,7 +37,7 @@
 {
 	if (count == 1 && [type isEqualToString:@"shake"])
 	{
-		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(shakeEvent:) name:@"titanium.gesture.shake" object:nil];
+		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(shakeEvent:) name:kTiGestureShakeNotification object:nil];
 	}
 	else if (count == 1 && [type isEqualToString:@"orientationchange"])
 	{
@@ -52,7 +52,7 @@
 {
 	if (count == 0 && [type isEqualToString:@"shake"])
 	{
-		[[NSNotificationCenter defaultCenter] removeObserver:self name:@"titanium.gesture.shake" object:nil];
+		[[NSNotificationCenter defaultCenter] removeObserver:self name:kTiGestureShakeNotification object:nil];
 	}
 	else if (count == 0 && [type isEqualToString:@"orientationchange"])
 	{

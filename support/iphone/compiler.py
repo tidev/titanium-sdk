@@ -146,7 +146,7 @@ class Compiler(object):
 		for module in self.modules:
 			img_dir = os.path.join(template_dir,'modules',module.lower(),'images')
 			if not os.path.exists(img_dir): continue
-			dest_img_dir = os.path.join(app_dir,'modules','ui','images')
+			dest_img_dir = os.path.join(app_dir,'modules',module.lower(),'images')
 			if not os.path.exists(dest_img_dir):
 				os.makedirs(dest_img_dir)
 			self.copy_resources([img_dir],dest_img_dir,False)

@@ -8,7 +8,7 @@
 
 #import "TiUIOptionDialogProxy.h"
 #import "TiUtils.h"
-#import "TitaniumApp.h"
+#import "TiApp.h"
 #import "TiToolbar.h"
 #import "TiToolbarButton.h"
 #import	"TiTab.h"
@@ -47,7 +47,7 @@
 	TiViewProxy *proxy = [args objectForKey:@"view"];
 	if (proxy==nil)
 	{
-		view = [[TitaniumApp app] controller].view;
+		view = [[TiApp app] controller].view;
 	}
 	else 
 	{
@@ -92,7 +92,7 @@
 	}
 	[actionSheet showInView:view];
 #else
-	[actionSheet showInView:[[TitaniumApp app] window]];
+	[actionSheet showInView:[[TiApp app] window]];
 #endif
 }
 

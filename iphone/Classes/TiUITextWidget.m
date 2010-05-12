@@ -9,7 +9,7 @@
 #import "TiUITextWidget.h"
 
 #import "TiViewProxy.h"
-#import "TitaniumApp.h"
+#import "TiApp.h"
 #import "TiUtils.h"
 
 @implementation TiUITextWidget

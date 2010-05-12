@@ -7,7 +7,7 @@
 
 #import "TiViewProxy.h"
 #import "LayoutConstraint.h"
-#import "TitaniumApp.h"
+#import "TiApp.h"
 #import "TiBlob.h"
 #import "TiRect.h"
 #import <QuartzCore/QuartzCore.h>

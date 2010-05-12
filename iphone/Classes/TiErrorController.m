@@ -6,13 +6,13 @@
  */
 
 #import <QuartzCore/QuartzCore.h>
-#import "TitaniumErrorController.h"
-#import "TitaniumApp.h"
+#import "TiErrorController.h"
+#import "TiApp.h"
 #import "TiBase.h"
 #import "TiUtils.h"
 
 
-@implementation TitaniumErrorController
+@implementation TiErrorController
 
 -(id)initWithError:(NSString*)error_
 {
@@ -46,7 +46,7 @@
 
 -(void)dismiss:(id)sender
 {
-	[[TitaniumApp app] hideModalController:self animated:YES];
+	[[TiApp app] hideModalController:self animated:YES];
 }
 
 - (void)loadView 

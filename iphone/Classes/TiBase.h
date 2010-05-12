@@ -415,9 +415,10 @@ typedef enum {
 
 
 extern NSString * const kKrollShutdownNotification;
-extern NSString * const kTitaniumShutdownNotification;
-extern NSString * const kTitaniumAnalyticsNotification;
-extern NSString * const kTitaniumRemoteDeviceUUIDNotification;
+extern NSString * const kTiShutdownNotification;
+extern NSString * const kTiAnalyticsNotification;
+extern NSString * const kTiRemoteDeviceUUIDNotification;
+extern NSString * const kTiGestureShakeNotification;
 
 
 #ifndef __IPHONE_3_2

@@ -12,9 +12,9 @@
 #ifdef USE_TI_UIWEBVIEW
 	#import "XHRBridge.h"
 #endif
-#import "TitaniumViewController.h"
+#import "TiRootViewController.h"
 
-@interface TitaniumApp : TiHost <UIApplicationDelegate> 
+@interface TiApp : TiHost <UIApplicationDelegate> 
 {
 	UIWindow *window;
 	UIImageView *loadView;
@@ -32,7 +32,7 @@
 	NSLock *networkActivity;
 	int networkActivityCount;
 	
-	TitaniumViewController *controller;
+	TiRootViewController *controller;
 	NSString *userAgent;
 	NSString *remoteDeviceUUID;
 	
@@ -47,7 +47,7 @@
 @property (nonatomic, assign) id remoteNotificationDelegate;
 @property (nonatomic, readonly) NSDictionary* remoteNotification;
 
-+(TitaniumApp*)app;
++(TiApp*)app;
 
 -(BOOL)isSplashVisible;
 -(void)hideSplash:(id)event;
@@ -59,7 +59,7 @@
 -(void)startNetwork;
 -(void)stopNetwork;
 
--(TitaniumViewController*)controller;
+-(TiRootViewController*)controller;
 -(void)showModalError:(NSString*)message;
 
 -(void)showModalController:(UIViewController*)controller animated:(BOOL)animated;

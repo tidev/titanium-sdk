@@ -5,11 +5,10 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
-@interface TitaniumErrorController : UIViewController {
-	
-	NSString *error;
-}
+#import "TiModule.h"
 
--(id)initWithError:(NSString*)error_;
+@interface TopTiModule : TiModule {
+
+}
 
 @end

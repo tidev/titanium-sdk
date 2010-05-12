@@ -7,7 +7,7 @@
 #ifdef USE_TI_PLATFORM
 
 #import "PlatformModule.h"
-#import "TitaniumApp.h"
+#import "TiApp.h"
 
 #import <sys/sysctl.h>  
 #import <mach/mach.h>

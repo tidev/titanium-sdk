@@ -10,7 +10,7 @@
 #import "TiUIImageView.h"
 #import "OperationQueue.h"
 #import "ASIHTTPRequest.h"
-#import "TitaniumApp.h"
+#import "TiApp.h"
 #import "ImageLoader.h"
 #import "TiBlob.h"
 

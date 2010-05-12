@@ -6,7 +6,7 @@
  */
 
 #import "TiWindowProxy.h"
-#import "TitaniumApp.h"
+#import "TiApp.h"
 #import "TiUtils.h"
 #import "TiAnimation.h"
 #import "TiAction.h"
@@ -42,7 +42,7 @@
 - (BOOL) shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation
 {
 	//Since the AppController will be the deciding factor, and it compensates for iPad, let it do the work.
-	return [[[TitaniumApp app] controller] shouldAutorotateToInterfaceOrientation:toInterfaceOrientation];
+	return [[[TiApp app] controller] shouldAutorotateToInterfaceOrientation:toInterfaceOrientation];
 }
 
 - (void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
@@ -117,7 +117,7 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 
 -(UIWindow*)_window
 {
-	return [[TitaniumApp app] window];
+	return [[TiApp app] window];
 }
 
 -(void)windowReady
@@ -147,7 +147,7 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 	
 	if (reattachWindows!=nil)
 	{
-		UIView *rootView = [[TitaniumApp app] controller].view;
+		UIView *rootView = [[TiApp app] controller].view;
 		for (UIView *aview in reattachWindows)
 		{
 			[rootView addSubview:aview];
@@ -218,7 +218,7 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 -(void)_tabFocus
 {
 	focused = YES;
-	[[[TitaniumApp app] controller] windowFocused:[self controller]];
+	[[[TiApp app] controller] windowFocused:[self controller]];
 }
 
 -(void)_tabBlur
@@ -285,7 +285,7 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 
 -(BOOL)isRootViewAttached
 {
-	return ([[[[TitaniumApp app] controller] view] superview]!=nil);
+	return ([[[[TiApp app] controller] view] superview]!=nil);
 }
 
 -(void)open:(id)args
@@ -325,7 +325,7 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 			if ([animation isTransitionAnimation])
 			{
 				transitionAnimation = [[animation transition] intValue];
-				splashTransitionAnimation = [[TitaniumApp app] isSplashVisible];
+				splashTransitionAnimation = [[TiApp app] isSplashVisible];
 			}
 			animation.delegate = self;
 			[animation animate:self];
@@ -335,7 +335,7 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 			fullscreen = YES;
 			restoreFullscreen = [UIApplication sharedApplication].statusBarHidden;
 			[[UIApplication sharedApplication] setStatusBarHidden:YES];
-			[self view].frame = [[[TitaniumApp app] controller] resizeView];
+			[self view].frame = [[[TiApp app] controller] resizeView];
 		}
 		else if (modal)
 		{
@@ -386,11 +386,11 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 			{
 				if (nc!=nil)
 				{
-					[[TitaniumApp app] showModalController:nc animated:animated];
+					[[TiApp app] showModalController:nc animated:animated];
 				}
 				else 
 				{
-					[[TitaniumApp app] showModalController:wc animated:animated];
+					[[TiApp app] showModalController:wc animated:animated];
 				}
 			}
 		}
@@ -429,7 +429,7 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 {
 	//TEMP hack until split view is fixed
 	[tempController.view removeFromSuperview];
-	[[[[TitaniumApp app] controller] view] removeFromSuperview];
+	[[[[TiApp app] controller] view] removeFromSuperview];
 	RELEASE_TO_NIL(tempController);
 }
 
@@ -463,12 +463,12 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 	{
 		UIViewController *vc = [self controller];
 		
-		[[[TitaniumApp app] controller] windowClosed:vc];
+		[[[TiApp app] controller] windowClosed:vc];
 
 		if (modal)
 		{
 			BOOL animated = args!=nil && [args isKindOfClass:[NSDictionary class]] ? [TiUtils boolValue:@"animated" properties:[args objectAtIndex:0] def:YES] : YES;
-			[[TitaniumApp app] hideModalController:vc animated:animated];
+			[[TiApp app] hideModalController:vc animated:animated];
 			if (animated)
 			{
 				// if animated, we don't want to immediately remove our view but instead need
@@ -508,12 +508,12 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 		{
 			if ([animation isTransitionAnimation])
 			{
-				UIView *rootView = [[TitaniumApp app] controller].view;
+				UIView *rootView = [[TiApp app] controller].view;
 				transitionAnimation = [[animation transition] intValue];
 				splashTransitionAnimation = [[rootView subviews] count]<=1 && modal==NO;
 				if (splashTransitionAnimation)
 				{
-					[[TitaniumApp app] attachSplash];
+					[[TiApp app] attachSplash];
 				}
 				else
 				{
@@ -541,7 +541,7 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 		if (fullscreen)
 		{
 			[[UIApplication sharedApplication] setStatusBarHidden:restoreFullscreen];
-			self.view.frame = [[[TitaniumApp app] controller] resizeView];
+			self.view.frame = [[[TiApp app] controller] resizeView];
 		}
 		
 		if (animation==nil)
@@ -559,7 +559,7 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 	}
 	attached = YES;
 	
-	UIView *rootView = [[TitaniumApp app] controller].view;
+	UIView *rootView = [[TiApp app] controller].view;
 	
 	TiUIView *view = [self view];
 	
@@ -573,7 +573,7 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 			[[self _window] addSubview:rootView];
 		}
 		[rootView addSubview:view];
-		[[[TitaniumApp app] controller] windowFocused:[self controller]];
+		[[[TiApp app] controller] windowFocused:[self controller]];
 	}
 
 	[self layoutChildren];
@@ -581,7 +581,7 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 	[rootView bringSubviewToFront:view];
 
 	// make sure the splash is gone
-	[[TitaniumApp app] hideSplash:nil];
+	[[TiApp app] hideSplash:nil];
 }
 
 -(NSNumber*)focused
@@ -606,7 +606,7 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 
 -(BOOL)animationShouldTransition:(id)sender
 {
-	UIView *rootView = [[TitaniumApp app] controller].view;
+	UIView *rootView = [[TiApp app] controller].view;
 	[UIView setAnimationTransition:transitionAnimation
 						   forView:rootView
 							 cache:NO];
@@ -616,7 +616,7 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 		if (splashTransitionAnimation)
 		{
 			splashTransitionAnimation=NO;
-			UIView *splashView = [[TitaniumApp app] splash];
+			UIView *splashView = [[TiApp app] splash];
 			[splashView removeFromSuperview];
 		}
 		else
@@ -659,9 +659,9 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 	{
 		if (splashTransitionAnimation==NO)
 		{
-			if ([[TitaniumApp app] isSplashVisible])
+			if ([[TiApp app] isSplashVisible])
 			{
-				[[TitaniumApp app] splash].alpha = 0;
+				[[TiApp app] splash].alpha = 0;
 			}	
 			[self attachViewToTopLevelWindow];
 		}

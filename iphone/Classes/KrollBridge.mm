@@ -9,9 +9,9 @@
 #import "KrollCallback.h"
 #import "KrollObject.h"
 #import "TiHost.h"
-#import "TitaniumModule.h"
+#import "TopTiModule.h"
 #import "TiUtils.h"
-#import "TitaniumApp.h"
+#import "TiApp.h"
 
 extern BOOL const TI_APPLICATION_ANALYTICS;
 
@@ -19,7 +19,7 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 
 -(id)initWithContext:(KrollContext*)context_ host:(TiHost*)host_ context:(id<TiEvaluator>)pageContext_ baseURL:(NSURL*)baseURL_
 {
-	TitaniumModule *module = [[[TitaniumModule alloc] _initWithPageContext:pageContext_] autorelease];
+	TopTiModule *module = [[[TopTiModule alloc] _initWithPageContext:pageContext_] autorelease];
 	[module setHost:host_];
 	[module _setBaseURL:baseURL_];
 	
@@ -221,7 +221,7 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 
 - (void)scriptError:(NSString*)message
 {
-	[[TitaniumApp app] showModalError:message];
+	[[TiApp app] showModalError:message];
 }
 
 - (void)evalFileOnThread:(NSString*)path context:(KrollContext*)context_ 

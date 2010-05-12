@@ -11,7 +11,7 @@
 #include <CommonCrypto/CommonHMAC.h>
 #include "Base64Transcoder.h"
 #import "SBJSON.h"
-#import "TitaniumApp.h"
+#import "TiApp.h"
 
 #ifdef YQL_OAUTH
 const NSString *apiEndpoint = @"http://query.yahooapis.com/v1/yql?format=json";
@@ -42,7 +42,7 @@ const NSString *apiEndpoint = @"http://query.yahooapis.com/v1/public/yql?format=
 
 - (void)requestFinished:(ASIHTTPRequest *)request
 {
-	[[TitaniumApp app] stopNetwork];
+	[[TiApp app] stopNetwork];
 	
 	NSString *responseString = [request responseString];
 	SBJSON *json = [[[SBJSON alloc] init] autorelease];
@@ -65,7 +65,7 @@ const NSString *apiEndpoint = @"http://query.yahooapis.com/v1/public/yql?format=
 
 - (void)requestFailed:(ASIHTTPRequest *)request
 {
-	[[TitaniumApp app] stopNetwork];
+	[[TiApp app] stopNetwork];
 	
 	NSError *error = [request error];
 	NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:NUMBOOL(NO),@"success",[error description],@"message",nil];
@@ -174,8 +174,8 @@ const NSString *apiEndpoint = @"http://query.yahooapis.com/v1/public/yql?format=
 	
 	YQLCallback *job = [[YQLCallback alloc] initWithCallback:callback module:self];
 	ASIHTTPRequest *req = [ASIHTTPRequest requestWithURL:[NSURL URLWithString:theurl]];
-	[req addRequestHeader:@"User-Agent" value:[[TitaniumApp app] userAgent]];
-	[[TitaniumApp app] startNetwork];
+	[req addRequestHeader:@"User-Agent" value:[[TiApp app] userAgent]];
+	[[TiApp app] startNetwork];
 	[req setDelegate:job];
 	[req startAsynchronous];
 }
