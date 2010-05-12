@@ -9,7 +9,7 @@
 #import "TiUITabGroupProxy.h"
 #import "TiUITabProxy.h"
 #import "TiUITabGroup.h"
-#import "TitaniumApp.h"
+#import "TiApp.h"
 
 @implementation TiUITabGroupProxy
 

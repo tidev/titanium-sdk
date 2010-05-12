@@ -10,7 +10,7 @@
 
 #define MAX_ORIENTATIONS	7
 
-@interface TitaniumViewController : UIViewController<UIApplicationDelegate> {
+@interface TiRootViewController : UIViewController<UIApplicationDelegate> {
 @private
 	NSMutableArray *windowViewControllers;	
 	TiWindowProxy *currentWindow;	//NOT RETAINED

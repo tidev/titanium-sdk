@@ -12,7 +12,7 @@
 #import "TiUtils.h"
 #import "TiRange.h"
 #import "TiViewProxy.h"
-#import "TitaniumApp.h"
+#import "TiApp.h"
 
 @implementation TiTextField
 

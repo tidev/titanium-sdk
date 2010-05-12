@@ -7,7 +7,7 @@
 #import "TiBase.h"
 #import "AnalyticsModule.h"
 #import "TiHost.h"
-#import "TitaniumApp.h"
+#import "TiApp.h"
 #import "ASIHTTPRequest.h"
 #import "SBJSON.h"
 #import <sys/utsname.h>
@@ -152,7 +152,7 @@ NSString * const TI_DB_VERSION = @"1";
 	ASIHTTPRequest *request = [ASIHTTPRequest requestWithURL:url];
 	[request setRequestMethod:@"POST"];
 	[request addRequestHeader:@"Content-Type" value:@"text/json"];
-	[request addRequestHeader:@"User-Agent" value:[[TitaniumApp app] userAgent]];
+	[request addRequestHeader:@"User-Agent" value:[[TiApp app] userAgent]];
 	//TODO: need to update backend to accept compressed bodies. When done, use [request setShouldCompressRequestBody:YES]
 	[request setTimeOutSeconds:5];
 	[request setShouldPresentAuthenticationDialog:NO];
@@ -224,7 +224,7 @@ NSString * const TI_DB_VERSION = @"1";
 	[dict setObject:TI_APPLICATION_DEPLOYTYPE forKey:@"deploytype"];
 	[dict setObject:name forKey:@"event"];
 	[dict setObject:type forKey:@"type"];
-	[dict setObject:[[TitaniumApp app] sessionId] forKey:@"sid"];
+	[dict setObject:[[TiApp app] sessionId] forKey:@"sid"];
 	if (data==nil)
 	{
 		[dict setObject:[NSNull null] forKey:@"data"];
@@ -233,7 +233,7 @@ NSString * const TI_DB_VERSION = @"1";
 	{
 		[dict setObject:data forKey:@"data"];
 	}
-	NSString *remoteDeviceUUID = [[TitaniumApp app] remoteDeviceUUID];
+	NSString *remoteDeviceUUID = [[TiApp app] remoteDeviceUUID];
 	if (remoteDeviceUUID==nil)
 	{
 		[dict setObject:[NSNull null] forKey:@"rdu"];
@@ -419,8 +419,8 @@ NSString * const TI_DB_VERSION = @"1";
 
 	AnalyticsStarted = YES;
 	
-	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(analyticsEvent:) name:kTitaniumAnalyticsNotification object:nil];
-	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(remoteDeviceUUIDChanged:) name:kTitaniumRemoteDeviceUUIDNotification object:nil];
+	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(analyticsEvent:) name:kTiAnalyticsNotification object:nil];
+	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(remoteDeviceUUIDChanged:) name:kTiRemoteDeviceUUIDNotification object:nil];
 	
 	[self begin];
 	[super startup];
@@ -432,8 +432,8 @@ NSString * const TI_DB_VERSION = @"1";
 	{
 		[self queueEvent:@"ti.end" name:@"ti.end" data:nil immediate:YES];
 		[database close];
-		[[NSNotificationCenter defaultCenter] removeObserver:self name:kTitaniumAnalyticsNotification object:nil];
-		[[NSNotificationCenter defaultCenter] removeObserver:self name:kTitaniumRemoteDeviceUUIDNotification object:nil];
+		[[NSNotificationCenter defaultCenter] removeObserver:self name:kTiAnalyticsNotification object:nil];
+		[[NSNotificationCenter defaultCenter] removeObserver:self name:kTiRemoteDeviceUUIDNotification object:nil];
 	}
 }
 

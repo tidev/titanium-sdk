@@ -7,7 +7,7 @@
 
 #import "TiViewProxy.h"
 #import "LayoutConstraint.h"
-#import "TitaniumApp.h"
+#import "TiApp.h"
 #import "TiBlob.h"
 #import "TiRect.h"
 #import <QuartzCore/QuartzCore.h>
@@ -237,7 +237,8 @@
 	[self setVisible:YES];
 #else
 	[self setValue:[NSNumber numberWithBool:YES] forKey:@"visible"];
-	[parent childWillResize:self];
+	//TODO: There was a child will resize here, but it was messing things up.
+	//The layout engine needs an overhaul.
 #endif
 }
  

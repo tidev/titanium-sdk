@@ -10,7 +10,7 @@
 #import "TiUtils.h"
 #import "TiBlob.h"
 #import "TiFile.h"
-#import "TitaniumApp.h"
+#import "TiApp.h"
 #import "Mimetypes.h"
 #import "TiViewProxy.h"
 #import "Ti2DMatrix.h"
@@ -254,7 +254,7 @@ enum
 			picker.cameraViewTransform = CGAffineTransformScale(picker.cameraViewTransform, CAMERA_TRANSFORM_X, CAMERA_TRANSFORM_Y);
 		}
 	}
-	TitaniumApp * tiApp = [TitaniumApp app];
+	TiApp * tiApp = [TiApp app];
 	if ([TiUtils isIPad]==NO)
 	{
 		[[tiApp controller] manuallyRotateToOrientation:UIInterfaceOrientationPortrait];
@@ -551,7 +551,7 @@ MAKE_SYSTEM_PROP(VIDEO_FINISH_REASON_USER_EXITED,MPMovieFinishReasonUserExited);
 	ENSURE_UI_THREAD(hideCamera,args);
 	if (picker!=nil)
 	{
-		[[TitaniumApp app] hideModalController:picker animated:animatedPicker];
+		[[TiApp app] hideModalController:picker animated:animatedPicker];
 		[self destroyPicker];
 	}
 }
@@ -580,7 +580,7 @@ MAKE_SYSTEM_PROP(VIDEO_FINISH_REASON_USER_EXITED,MPMovieFinishReasonUserExited);
 		else
 		{
 #endif
-			[[TitaniumApp app] hideModalController:picker animated:animatedPicker];
+			[[TiApp app] hideModalController:picker animated:animatedPicker];
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
 		}
 #endif		
@@ -682,7 +682,7 @@ MAKE_SYSTEM_PROP(VIDEO_FINISH_REASON_USER_EXITED,MPMovieFinishReasonUserExited);
 
 - (void)imagePickerControllerDidCancel:(UIImagePickerController *)picker_
 {
-	[[TitaniumApp app] hideModalController:picker animated:animatedPicker];
+	[[TiApp app] hideModalController:picker animated:animatedPicker];
 	[self sendPickerCancel];
 }
 

@@ -43,15 +43,7 @@ class Projector(object):
 		self.namespace_upper = self.namespace.upper()+'_'
 
 	def form_target_filename(self,fn):
-		dirname = os.path.dirname(fn)
-		target = os.path.basename(fn)
-		target = target.replace('TitaniumModule','%s$Module'%self.namespace)
-		target = target.replace('TitaniumViewController','%s$ViewController'%self.namespace)
-		for symbol in symbolicMap:
-			target = target.replace(symbol,self.namespace)
-		target = target.replace('%sme'%self.namespace,'Time')
-		target = target.replace(' ','_')
-		return os.path.join(dirname,target)
+		return fn
 				
 	def process_file(self,source,target,cb=None):
 	
@@ -127,13 +119,6 @@ class Projector(object):
 					print "[DEBUG] copying: %s => %s" % (from_,to_)
 				 	copyfile(from_, to_)
 
-	def remove_xcode_products(self,content):
-		# remove all products except for the main iphone/ipad app
-		content = content.replace('24CB0C9A111A96EE00A813AD /* lib%s.a */,\n' % self.namespace,'')
-		content = content.replace('24CA904111116C490084E2DE /* %s.app */,\n' % self.namespace,'')
-		content = content.replace('2461CF0E1151D856007A4CC9 /* %s-iPad.app */,\n' % self.namespace,'')
-		return content
-		
 	def fix_xcode_script(self,content,script_name,script_contents):
 		# fix up xcode compile scripts in build phase
 		start = 0
@@ -151,36 +136,24 @@ class Projector(object):
 						start = begin
 		return content
 	
-	def fix_xcode_resources(self,content):
-		content = content.replace('24CA8D1C111169A00084E2DE /* %s-Terrordom-Info.plist */,\n'%self.namespace,'')
-		return content
-				
-	def fix_xcode_targets(self,content):
-		a = content.find('targets = ')
-		b = content.find(');',a+9)
-		before = content[0:a]
-		after = content[b+2:]
-		middle = 'targets = (\n                                1D6058900D05DD3D006BFB54 /* %s */,\n                                2461CE231151D856007A4CC9 /* %s-iPad */,\n                        );' % (self.namespace,self.namespace)
-		return before + middle + after
-		
 	def process_xcode(self,content):
 		content = content.replace('../Classes','Classes')
 		content = content.replace('../Resources','Resources')
 		content = content.replace('../headers/%sCore'%self.namespace,'headers/TiCore')
 		content = content.replace('../headers','headers')
 		content = content.replace('../lib','lib')
-		content = content.replace('-KitchenSink','')
+		
+		content = content.replace('Titanium.plist','Info.plist')
+
+		content = content.replace('Titanium-KitchenSink',self.name)
+		
+		content = content.replace('Titanium',self.name)
+		content = content.replace('PRODUCT_NAME = %s-iPad'%self.name,'PRODUCT_NAME = "%s"'%self.name)
+		content = content.replace('PRODUCT_NAME = "%s-iPad"'%self.name,'PRODUCT_NAME = "%s"'%self.name)
 		content = content.replace('Resources-iPad','Resources')
-		content = content.replace('Titanium-iPad','%s-iPad'%self.namespace)
-		content = content.replace('PRODUCT_NAME = %s-iPad'%self.namespace,'PRODUCT_NAME = "%s"'%self.namespace)
-		content = content.replace('PRODUCT_NAME = "%s-iPad"'%self.namespace,'PRODUCT_NAME = "%s"'%self.namespace)
-		content = content.replace('%s.plist'%self.namespace,'Info.plist')
-		content = self.remove_xcode_products(content)
-		content = self.fix_xcode_targets(content)
-		content = self.fix_xcode_resources(content)
 		
 		builder_py = os.path.abspath(os.path.join(self.sdk_root,"builder.py"))
-		pre_compile_script = "\\\"%s\\\" xcode \\\"%s\\\"\\nexit $?" % (builder_py,self.project_root)
+		pre_compile_script = "\\\"%s\\\" xcode\\nexit $?" % (builder_py)
 		
 		content = self.fix_xcode_script(content,"Pre-Compile",pre_compile_script)
 		content = self.fix_xcode_script(content,"Post-Compile","echo 'post-compile'")
@@ -195,20 +168,25 @@ class Projector(object):
 			to_ = os.path.join(out_dir,dir_)
 			self.copy_module_resources(from_,to_)
 		
-		copyfile(os.path.join(in_dir,'iphone','Titanium_Prefix.pch'),os.path.join(out_dir,'%s_Prefix.pch'%self.namespace))
-		copyfile(os.path.join(in_dir,'iphone','Titanium.plist'),os.path.join(out_dir,'%s.plist'%self.namespace))
+		copyfile(os.path.join(in_dir,'iphone','Titanium_Prefix.pch'),os.path.join(out_dir,'%s_Prefix.pch'%self.name))
+		copyfile(os.path.join(in_dir,'iphone','Titanium.plist'),os.path.join(out_dir,'Info.plist'))
 		
 		xcode_dir = os.path.join(out_dir,'%s.xcodeproj'%self.name)	
 		if not os.path.exists(xcode_dir):
 			os.makedirs(xcode_dir)
 		xcode_proj = os.path.join(xcode_dir,'project.pbxproj')
 		src_xcode_proj = os.path.join(in_dir,'iphone','Titanium.xcodeproj','project.pbxproj')
-		self.process_file(src_xcode_proj,xcode_proj,self.process_xcode)
+		# we do special processing here
+		c = open(src_xcode_proj).read()
+		c = self.process_xcode(c)
+		f = open(os.path.join(out_dir,'%s.xcodeproj'%self.name,'project.pbxproj'),'w')
+		f.write(c)
+		f.close()
 		
 		xib = os.path.join(out_dir,'MainWindow.xib')
 		xib_file = open(xib,'w')
 		xib_content = open(os.path.join(in_dir,'iphone','MainWindow.xib')).read()
-		xib_content = xib_content.replace('Titanium',self.namespace)
+		xib_content = xib_content.replace('Titanium',self.name)
 		xib_content = xib_content.replace('../Classes','Classes')
 		xib_file.write(xib_content)
 		xib_file.close()
@@ -217,7 +195,6 @@ class Projector(object):
 		xcconfig = open(xcconfig,'w')
 		xcconfig.write("TI_VERSION=%s\n" % self.sdk_version)
 		xcconfig.write("TI_SDK_DIR=%s\n" % self.sdk_root.replace(self.sdk_version,'$(TI_VERSION)'))
-		xcconfig.write("TI_PROJECT_DIR=%s\n" % self.project_root)
 		xcconfig.write("TI_APPID=%s\n" % self.project_id)
 		xcconfig.close()
 		
@@ -248,7 +225,7 @@ def main(args):
 
 if __name__ == "__main__":
 	#main(sys.argv)
-	main([sys.argv[0],"Foo Bar","1.3.0","/Users/jhaynie/work/titanium_mobile/iphone","/Users/jhaynie/tmp/one_three"])
+	main([sys.argv[0],"KitchenSink-iPad","1.3.0","/Library/Application Support/Titanium/mobilesdk/osx/1.3.0/iphone","/Users/jhaynie/tmp/one_three"])
 
 
 

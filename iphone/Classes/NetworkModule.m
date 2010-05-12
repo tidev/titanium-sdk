@@ -8,7 +8,7 @@
 
 #import "NetworkModule.h"
 #import "Reachability.h"
-#import "TitaniumApp.h"
+#import "TiApp.h"
 #import "SBJSON.h"
 
 NSString* const INADDR_ANY_token = @"INADDR_ANY";
@@ -192,7 +192,7 @@ MAKE_SYSTEM_PROP(NOTIFICATION_TYPE_SOUND,3);
 
 - (NSString*) remoteDeviceUUID
 {
-	return [[TitaniumApp app] remoteDeviceUUID];
+	return [[TiApp app] remoteDeviceUUID];
 }
 
 - (NSNumber*)remoteNotificationsEnabled
@@ -263,12 +263,12 @@ MAKE_SYSTEM_PROP(NOTIFICATION_TYPE_SOUND,3);
 		}
 	}
 	
-	[[TitaniumApp app] setRemoteNotificationDelegate:self];
+	[[TiApp app] setRemoteNotificationDelegate:self];
 	[app registerForRemoteNotificationTypes:ourNotifications];
 	
 	// check to see upon registration if we were started with a push 
 	// notification and if so, go ahead and trigger our callback
-	id currentNotification = [[TitaniumApp app] remoteNotification];
+	id currentNotification = [[TiApp app] remoteNotification];
 	if (currentNotification!=nil && pushNotificationCallback!=nil)
 	{
 		id event = [NSDictionary dictionaryWithObject:currentNotification forKey:@"data"];
@@ -286,10 +286,10 @@ MAKE_SYSTEM_PROP(NOTIFICATION_TYPE_SOUND,3);
 
 -(void)application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken
 {
-	// called by TitaniumApp
+	// called by TiApp
 	if (pushNotificationSuccess!=nil)
 	{
-		NSString *token = [[TitaniumApp app] remoteDeviceUUID];
+		NSString *token = [[TiApp app] remoteDeviceUUID];
 		NSDictionary *event = [NSDictionary dictionaryWithObject:token forKey:@"deviceToken"];
 		[self _fireEventToListener:@"remote" withObject:event listener:pushNotificationSuccess thisObject:nil];
 	}
@@ -297,7 +297,7 @@ MAKE_SYSTEM_PROP(NOTIFICATION_TYPE_SOUND,3);
 
 - (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo
 {
-	// called by TitaniumApp
+	// called by TiApp
 	if (pushNotificationCallback!=nil)
 	{
 		id event = [NSDictionary dictionaryWithObject:userInfo forKey:@"data"];
@@ -307,7 +307,7 @@ MAKE_SYSTEM_PROP(NOTIFICATION_TYPE_SOUND,3);
 
 - (void)application:(UIApplication *)application didFailToRegisterForRemoteNotificationsWithError:(NSError *)error
 {
-	// called by TitaniumApp
+	// called by TiApp
 	if (pushNotificationError!=nil)
 	{
 		NSDictionary *event = [NSDictionary dictionaryWithObject:[error description] forKey:@"error"];

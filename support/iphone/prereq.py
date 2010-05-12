@@ -20,7 +20,7 @@ def sdk_found(apiversion):
 def get_sdks():
 	found = []
 	ipad = False
-	output = run.run(["xcodebuild","-showsdks"])
+	output = run.run(["xcodebuild","-showsdks"],False,False)
 	#print output
 	for line in output.split("\n"):
 		if line[0:1] == '\t':
@@ -65,7 +65,7 @@ def check_iphone3():
 		sys.exit(1)
 
 def check_itunes_version(props):
-	ver = run.run(['osascript',os.path.join(template_dir,'itunes_ver.scpt')]).strip()
+	ver = run.run(['osascript',os.path.join(template_dir,'itunes_ver.scpt')],False,False).strip()
 	props['itunes_version']=ver
 	props['itunes']=False
 	props['itunes_message']=None
@@ -119,7 +119,7 @@ def check_certs(props):
 	props['iphone_dev']=False
 	props['iphone_dist_message'] = 'Missing iPhone Distribution Certificate'
 	props['iphone_dev_message'] = 'Missing iPhone Developer Certificate'
-	output = run.run(['security','dump-keychain'])
+	output = run.run(['security','dump-keychain'],False,False)
 # FOR TESTING ONLY
 #	output = open(os.path.expanduser("~/Downloads/distribution_only_out.txt")).read()
 	for i in output.split('\n'):

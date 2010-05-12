@@ -9,7 +9,7 @@
 #import "TiUIiPadSplitWindow.h"
 #import "TiUtils.h"
 #import "TiViewController.h"
-#import "TitaniumApp.h"
+#import "TiApp.h"
 #import "TiUIiPadPopoverProxy.h"
 
 #ifdef USE_TI_UIIPADSPLITWINDOWBUTTON
@@ -22,7 +22,7 @@
 
 -(void)dealloc
 {
-	[[[TitaniumApp app] controller] windowClosed:controller];
+	[[[TiApp app] controller] windowClosed:controller];
 	RELEASE_TO_NIL(popoverProxy);
 	RELEASE_TO_NIL(controller);
 	[super dealloc];
@@ -50,10 +50,10 @@
 		
 		//		[self addSubview:controller.view];
 		
-		//		[[[TitaniumApp app] controller] windowFocused:controller];
+		//		[[[TiApp app] controller] windowFocused:controller];
 
-		UIWindow *window = [TitaniumApp app].window;
-		TitaniumViewController *viewController = [[TitaniumApp app] controller];
+		UIWindow *window = [TiApp app].window;
+		TiRootViewController *viewController = [[TiApp app] controller];
 		[[viewController view] removeFromSuperview];
 		[window addSubview:[controller view]];
 				

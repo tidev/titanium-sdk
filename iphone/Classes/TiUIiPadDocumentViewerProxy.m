@@ -9,7 +9,7 @@
 #import "TiUIiPadDocumentViewerProxy.h"
 #import "TiUtils.h"
 #import "TiBlob.h"
-#import "TitaniumApp.h"
+#import "TiApp.h"
 #import "TiViewProxy.h"
 
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
@@ -119,7 +119,7 @@
 
 - (UIViewController *)documentInteractionControllerViewControllerForPreview:(UIDocumentInteractionController *)controller
 {
-	UIViewController *ac = [[TitaniumApp app] controller];
+	UIViewController *ac = [[TiApp app] controller];
 	return ac;
 }
  

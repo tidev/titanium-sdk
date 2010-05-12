@@ -10,7 +10,7 @@
 #import "TiNetworkHTTPClientProxy.h"
 #import "TiNetworkHTTPClientResultProxy.h"
 #import "TiUtils.h"
-#import "TitaniumApp.h"
+#import "TiApp.h"
 #import "TiDOMDocumentProxy.h"
 #import "Mimetypes.h"
 
@@ -228,7 +228,7 @@ extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 	if (request!=nil && connected)
 	{
 		connected = NO;
-		[[TitaniumApp app] stopNetwork];
+		[[TiApp app] stopNetwork];
 		[request cancel];
 	}
 }
@@ -265,7 +265,7 @@ extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 		[request setDownloadProgressDelegate:self];
 	}
 	
-	[request addRequestHeader:@"User-Agent" value:[[TitaniumApp app] userAgent]];
+	[request addRequestHeader:@"User-Agent" value:[[TiApp app] userAgent]];
 	
 	// twitter specifically disallows X-Requested-With so we only add this normal
 	// XHR header if not going to twitter. however, other services generally expect
@@ -357,7 +357,7 @@ extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 	connected = YES;
 	downloadProgress = -1;
 	uploadProgress = -1;
-	[[TitaniumApp app] startNetwork];
+	[[TiApp app] startNetwork];
 	[self _fireReadyStateChange:NetworkClientStateLoading];
 	[request setAllowCompressedResponse:YES];
 	
@@ -370,9 +370,9 @@ extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 	}
 	else
 	{
-		[[TitaniumApp app] startNetwork];
+		[[TiApp app] startNetwork];
 		[request start];
-		[[TitaniumApp app] stopNetwork];
+		[[TiApp app] stopNetwork];
 	}
 }
 
@@ -395,7 +395,7 @@ extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 	if (connected)
 	{
 		connected = NO;
-		[[TitaniumApp app] stopNetwork];
+		[[TiApp app] stopNetwork];
 	}
 }
 
@@ -403,7 +403,7 @@ extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 {
 	if (connected)
 	{
-		[[TitaniumApp app] stopNetwork];
+		[[TiApp app] stopNetwork];
 		connected=NO;
 	}
 	

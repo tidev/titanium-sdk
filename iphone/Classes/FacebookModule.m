@@ -7,7 +7,7 @@
 #ifdef USE_TI_FACEBOOK
 
 #import "TiBase.h"
-#import "TitaniumApp.h"
+#import "TiApp.h"
 #import "FacebookModule.h"
 #import "TiFacebookLoginButtonProxy.h"
 #import "SBJSON.h"
@@ -131,12 +131,12 @@
 
 - (void)requestLoading:(FBRequest*)request
 {
-	[[TitaniumApp app] startNetwork];
+	[[TiApp app] startNetwork];
 }
 
 - (void)requestWasCancelled:(FBRequest*)request
 {
-	[[TitaniumApp app] stopNetwork];
+	[[TiApp app] stopNetwork];
 }
 
 - (void)request:(FBRequest*)request didLoad:(id)result
@@ -155,7 +155,7 @@
 	NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:result,@"data",[NSNumber numberWithBool:true],@"success",nil];
 	[module _fireEventToListener:@"query" withObject:event listener:callback thisObject:nil];
 	[self autorelease];
-	[[TitaniumApp app] stopNetwork];
+	[[TiApp app] stopNetwork];
 }
 
 - (void)request:(FBRequest*)request didFailWithError:(NSError*)error
@@ -164,7 +164,7 @@
 	NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:[error description],@"error",[NSNumber numberWithBool:false],@"success",nil];
 	[module _fireEventToListener:@"query" withObject:event listener:callback thisObject:nil];
 	[self autorelease];
-	[[TitaniumApp app] stopNetwork];
+	[[TiApp app] stopNetwork];
 }
 
 @end

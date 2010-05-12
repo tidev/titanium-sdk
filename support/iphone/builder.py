@@ -77,20 +77,6 @@ def copy_module_resources(source, target, copy_all=False, force=False):
 				if os.path.exists(to_): os.remove(to_)
 				shutil.copyfile(from_, to_)
 
-def make_appname(s):
-	r = re.compile('[0-9a-zA-Z_]')
-	buf = ''
-	for i in s:
-		if i=='-':
-			buf+='_'
-			continue
-		if r.match(i)!=None:
-			buf+=i
-	# if name starts with number, we simply append a k to it
-	if re.match('^[0-9]+',buf):
-		buf = 'k%s' % buf
-	return buf
-				
 def main(args):
 	argc = len(args)
 	if argc == 2 and (args[1]=='--help' or args[1]=='-h'):
@@ -120,7 +106,8 @@ def main(args):
 	
 	if command == 'xcode':
 		xcode_build = True
-		project_dir = os.path.expanduser(dequote(args[2].decode("utf-8")))
+		src_root = os.environ['SOURCE_ROOT']
+		project_dir = os.path.abspath(os.path.join(src_root,'../','../'))
 		name = os.environ['PROJECT_NAME']
 		target = os.environ['CONFIGURATION']
 		appid = os.environ['TI_APPID']
@@ -152,7 +139,7 @@ def main(args):
 		project_dir = os.path.expanduser(dequote(args[3].decode("utf-8")))
 		appid = dequote(args[4].decode("utf-8"))
 		name = dequote(args[5].decode("utf-8"))
-		app_name = make_appname(name)
+		app_name = name
 		iphone_dir = os.path.abspath(os.path.join(project_dir,'build','iphone'))
 		project_xcconfig = os.path.join(iphone_dir,'project.xcconfig')
 		tiapp_xml = os.path.join(project_dir,'tiapp.xml')
@@ -280,25 +267,17 @@ def main(args):
 			ti.properties['version']=version
 		
 		applogo = None
+		clean_build = False
 		
 		# check to see if the appid is different (or not specified) - we need to re-generate
-		# the Info.plist before we actually invoke the compiler in this case
-		# if read_project_appid(project_xcconfig)!=appid or not infoplist_has_appid(infoplist,appid):
+		if read_project_appid(project_xcconfig)!=appid or not infoplist_has_appid(infoplist,appid):
+			clean_build = True
+			force_xcode = True
 
-		# write out the updated Info.plist
-		infoplist_tmpl = os.path.join(iphone_dir,'Info.plist.template')
-		if devicefamily!=None:
-			applogo = ti.generate_infoplist(infoplist,infoplist_tmpl,appid,devicefamily)
-		else:
-			applogo = ti.generate_infoplist(infoplist,infoplist_tmpl,appid,'iphone')
 		
 		new_lib_hash = None
 		lib_hash = None	
-		
-		# copy over the appicon
-		if applogo ==None and ti.properties.has_key('icon'):
-			applogo = ti.properties['icon']
-		
+
 		if os.path.exists(app_dir):
 			if os.path.exists(version_file):
 				line = open(version_file).read().strip()
@@ -319,18 +298,6 @@ def main(args):
 			else:
 				force_rebuild = True
 				
-			# copy Default.png and appicon each time so if they're 
-			# changed they'll stick get picked up	
-			app_icon_path = os.path.join(project_dir,'Resources','iphone',applogo)
-			if not os.path.exists(app_icon_path):
-				app_icon_path = os.path.join(project_dir,'Resources',applogo)
-			if os.path.exists(app_icon_path):
-				shutil.copy(app_icon_path,app_dir)
-			defaultpng_path = os.path.join(project_dir,'Resources','iphone','Default.png')
-			if not os.path.exists(defaultpng_path):
-				defaultpng_path = os.path.join(project_dir,'Resources','Default.png')
-			if os.path.exists(defaultpng_path):
-				shutil.copy(defaultpng_path,app_dir)
 		else:
 			force_rebuild = True
 
@@ -357,7 +324,6 @@ def main(args):
 			xcconfig = open(project_xcconfig,'w')
 			xcconfig.write("TI_VERSION=%s\n"% sdk_version)
 			xcconfig.write("TI_SDK_DIR=%s\n" % template_dir.replace(sdk_version,'$(TI_VERSION)'))
-			xcconfig.write("TI_PROJECT_DIR=%s\n" % project_dir)
 			xcconfig.write("TI_APPID=%s\n" % appid)
 			xcconfig.close()
 			
@@ -395,6 +361,17 @@ def main(args):
 			os.symlink(libticore,"libTiCore.a")
 			os.chdir(cwd)
 		
+		# write out the updated Info.plist
+		infoplist_tmpl = os.path.join(iphone_dir,'Info.plist.template')
+		if devicefamily!=None:
+			applogo = ti.generate_infoplist(infoplist,infoplist_tmpl,appid,devicefamily)
+		else:
+			applogo = ti.generate_infoplist(infoplist,infoplist_tmpl,appid,'iphone')
+
+		# copy over the appicon
+		if applogo ==None and ti.properties.has_key('icon'):
+			applogo = ti.properties['icon']
+
 		def optimize_build():
 			return run.run(["/Developer/Platforms/iPhoneOS.platform/Developer/usr/bin/iphoneos-optimize",app_dir])
 		
@@ -404,9 +381,29 @@ def main(args):
 			deploy_target = "IPHONEOS_DEPLOYMENT_TARGET=3.1"
 			device_target = 'TARGETED_DEVICE_FAMILY=1'  # this is non-sensical, but you can't pass empty string
 
+			# clean means we need to nuke the build 
+			if clean_build and os.path.exists(build_out_dir): 
+				print "[INFO] Performing clean build"
+				shutil.rmtree(build_out_dir)
+			
 			# write out the build log, useful for debugging
 			if not os.path.exists(build_out_dir): os.makedirs(build_out_dir)
 			o = open(os.path.join(build_out_dir,'build.log'),'w')
+
+			if not os.path.exists(app_dir): os.makedirs(app_dir)
+
+			# copy Default.png and appicon each time so if they're 
+			# changed they'll stick get picked up	
+			app_icon_path = os.path.join(project_dir,'Resources','iphone',applogo)
+			if not os.path.exists(app_icon_path):
+				app_icon_path = os.path.join(project_dir,'Resources',applogo)
+			if os.path.exists(app_icon_path):
+				shutil.copy(app_icon_path,app_dir)
+			defaultpng_path = os.path.join(project_dir,'Resources','iphone','Default.png')
+			if not os.path.exists(defaultpng_path):
+				defaultpng_path = os.path.join(project_dir,'Resources','Default.png')
+			if os.path.exists(defaultpng_path):
+				shutil.copy(defaultpng_path,app_dir)
 
 			if devicefamily!=None:
 				if devicefamily == 'ipad':
@@ -433,6 +430,7 @@ def main(args):
 				
 				o.write("Starting Xcode compile with the following arguments:\n\n")
 				for arg in args: o.write("    %s\n" % arg)
+				o.write("\napp_id = %s\n" % appid)
 				o.write("\n\n")
 				o.flush()
 				

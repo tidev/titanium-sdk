@@ -7,14 +7,14 @@
 #include <stdio.h>
 #include <execinfo.h>
 
-#import "TitaniumApp.h"
+#import "TiApp.h"
 #import "Webcolor.h"
 #import "TiBase.h"
-#import "TitaniumErrorController.h"
+#import "TiErrorController.h"
 #import "NSData+Additions.h"
 #import <QuartzCore/QuartzCore.h>
 
-TitaniumApp* sharedApp;
+TiApp* sharedApp;
 
 extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 
@@ -70,11 +70,11 @@ void MyUncaughtExceptionHandler(NSException *exception)
 	insideException=NO;
 }
 
-@implementation TitaniumApp
+@implementation TiApp
 
 @synthesize window, remoteNotificationDelegate;
 
-+ (TitaniumApp*)app
++ (TiApp*)app
 {
 	return sharedApp;
 }
@@ -134,7 +134,7 @@ void MyUncaughtExceptionHandler(NSException *exception)
 	networkActivityCount = 0;
 	
 	// attach our main view controller
-	controller = [[TitaniumViewController alloc] init];
+	controller = [[TiRootViewController alloc] init];
 	[window addSubview:controller.view];
 	controller.view.backgroundColor = [UIColor clearColor];
 	
@@ -245,7 +245,7 @@ void MyUncaughtExceptionHandler(NSException *exception)
 
 - (void)applicationWillTerminate:(UIApplication *)application
 {
-	[[NSNotificationCenter defaultCenter] postNotificationName:kTitaniumShutdownNotification object:self];
+	[[NSNotificationCenter defaultCenter] postNotificationName:kTiShutdownNotification object:self];
 	
 	[kjsBridge shutdown];
 	RELEASE_TO_NIL(kjsBridge);
@@ -303,7 +303,7 @@ void MyUncaughtExceptionHandler(NSException *exception)
 		// new registered device to enable this device to receive notifications from the cloud
 		[[NSUserDefaults standardUserDefaults] setObject:remoteDeviceUUID forKey:@"APNSRemoteDeviceUUID"];
 		NSDictionary *userInfo = [NSDictionary dictionaryWithObject:remoteDeviceUUID forKey:@"deviceid"];
-		[[NSNotificationCenter defaultCenter] postNotificationName:kTitaniumRemoteDeviceUUIDNotification object:self userInfo:userInfo];
+		[[NSNotificationCenter defaultCenter] postNotificationName:kTiRemoteDeviceUUIDNotification object:self userInfo:userInfo];
 		NSLog(@"[DEBUG] registered new device ready for remote push notifications: %@",remoteDeviceUUID);
 	}
 	
@@ -322,7 +322,7 @@ void MyUncaughtExceptionHandler(NSException *exception)
 }
 
 
--(TitaniumViewController*)controller
+-(TiRootViewController*)controller
 {
 	return controller;
 }
@@ -336,7 +336,7 @@ void MyUncaughtExceptionHandler(NSException *exception)
 		return;
 	}
 	ENSURE_UI_THREAD(showModalError,message);
-	TitaniumErrorController *error = [[[TitaniumErrorController alloc] initWithError:message] autorelease];
+	TiErrorController *error = [[[TiErrorController alloc] initWithError:message] autorelease];
 	[controller presentModalViewController:error animated:YES];
 }
 

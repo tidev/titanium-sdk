@@ -59,7 +59,7 @@ extern NSString * const TI_APPLICATION_RESOURCE_DIR;
 						   VAL_OR_NSNULL(name),@"name",
 						   VAL_OR_NSNULL(data),@"data",
 						   nil];
-	[[NSNotificationCenter defaultCenter] postNotificationName:kTitaniumAnalyticsNotification object:nil userInfo:event];
+	[[NSNotificationCenter defaultCenter] postNotificationName:kTiAnalyticsNotification object:nil userInfo:event];
 }
 
 +(NSString *)UTCDateForDate:(NSDate*)data

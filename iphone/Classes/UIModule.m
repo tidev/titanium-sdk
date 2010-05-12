@@ -26,7 +26,7 @@
 #ifdef USE_TI_UIIPAD
 	#import "TiUIiPadProxy.h"
 #endif
-#import "TitaniumApp.h"
+#import "TiApp.h"
 #import "ImageLoader.h"
 #import "Webcolor.h"
 
@@ -135,13 +135,13 @@ MAKE_SYSTEM_PROP(BLEND_MODE_PLUS_LIGHTER,kCGBlendModePlusLighter);
 
 -(void)setBackgroundColor:(id)color
 {
-	TitaniumViewController *controller = [[TitaniumApp app] controller];
+	TiRootViewController *controller = [[TiApp app] controller];
 	[controller setBackgroundColor:UIColorWebColorNamed(color)];
 }
 
 -(void)setBackgroundImage:(id)image
 {
-	TitaniumViewController *controller = [[TitaniumApp app] controller];
+	TiRootViewController *controller = [[TiApp app] controller];
 	UIImage *resultImage = [[ImageLoader sharedLoader] loadImmediateStretchableImage:[TiUtils toURL:image proxy:self]];
 	if (resultImage==nil && [image isEqualToString:@"Default.png"])
 	{
@@ -201,7 +201,7 @@ MAKE_SYSTEM_PROP(BLEND_MODE_PLUS_LIGHTER,kCGBlendModePlusLighter);
 {
 	ENSURE_UI_THREAD(setOrientation,mode);
 	UIInterfaceOrientation orientation = [TiUtils orientationValue:mode def:UIInterfaceOrientationPortrait];
-	[[[TitaniumApp app] controller] manuallyRotateToOrientation:orientation];
+	[[[TiApp app] controller] manuallyRotateToOrientation:orientation];
 }
 
 MAKE_SYSTEM_PROP(PORTRAIT,UIInterfaceOrientationPortrait);
