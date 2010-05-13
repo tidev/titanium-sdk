@@ -77,6 +77,20 @@ def copy_module_resources(source, target, copy_all=False, force=False):
 				if os.path.exists(to_): os.remove(to_)
 				shutil.copyfile(from_, to_)
 
+def make_app_name(s):
+	r = re.compile('[0-9a-zA-Z_]')
+	buf = ''
+	for i in s:
+		if i=='-':
+			buf+='_'
+			continue
+		if r.match(i)!=None:
+			buf+=i
+	# if name starts with number, we simply append a k to it
+	if re.match('^[0-9]+',buf):
+		buf = 'k%s' % buf
+	return buf
+
 def main(args):
 	argc = len(args)
 	if argc == 2 and (args[1]=='--help' or args[1]=='-h'):
@@ -139,7 +153,7 @@ def main(args):
 		project_dir = os.path.expanduser(dequote(args[3].decode("utf-8")))
 		appid = dequote(args[4].decode("utf-8"))
 		name = dequote(args[5].decode("utf-8"))
-		app_name = name
+		app_name = make_app_name(name)
 		iphone_dir = os.path.abspath(os.path.join(project_dir,'build','iphone'))
 		project_xcconfig = os.path.join(iphone_dir,'project.xcconfig')
 		tiapp_xml = os.path.join(project_dir,'tiapp.xml')
@@ -173,8 +187,8 @@ def main(args):
 		
 		build_out_dir = os.path.abspath(os.path.join(iphone_dir,'build'))
 		build_dir = os.path.abspath(os.path.join(build_out_dir,'%s-iphone%s'%(target,ostype)))
-		app_dir = os.path.abspath(os.path.join(build_dir,app_name+'.app'))
-		binary = os.path.join(app_dir,app_name)
+		app_dir = os.path.abspath(os.path.join(build_dir,name+'.app'))
+		binary = os.path.join(app_dir,name)
 		sdk_version = os.path.basename(os.path.abspath(os.path.join(template_dir,'../')))
 		iphone_resources_dir = os.path.join(iphone_dir,'Resources')
 		version_file = os.path.join(iphone_resources_dir,'.simulator')
@@ -426,7 +440,7 @@ def main(args):
 	
 			def execute_xcode(sdk,extras,print_output=True):
 				
-				config = app_name
+				config = name
 				if devicefamily=='ipad':
 					config = "%s-iPad" % config
 					
@@ -462,7 +476,7 @@ def main(args):
 				if idx > 0:
 					endidx = output.find("\n",idx)
 					if endidx > 0:
-						target_build_dir = output[idx+17:endidx].strip()
+						target_build_dir = dequote(output[idx+17:endidx].strip())
 						if target_build_dir!=build_dir:
 							print "[ERROR] Your TARGET_BUILD_DIR is incorrectly set. Most likely you have configured in Xcode a customized build location. Titanium does not currently support this configuration."
 							print "[ERROR] Expected dir %s, was: %s" % (build_dir,target_build_dir)
@@ -660,11 +674,11 @@ def main(args):
 				# switch to app_bundle for zip
 				os.chdir(build_dir)
 
-				outfile = os.path.join(output_dir,"%s.zip"%app_name)
+				outfile = os.path.join(output_dir,"%s.app.zip"%name)
 				if os.path.exists(outfile): os.remove(outfile)
 				
 				# you *must* use ditto here or it won't upload to appstore
-				os.system('ditto -ck --keepParent --sequesterRsrc "%s.app" "%s"' % (app_name,outfile))
+				os.system('ditto -ck --keepParent --sequesterRsrc "%s.app" "%s"' % (name,outfile))
 				
 				sys.exit(0)
 				
