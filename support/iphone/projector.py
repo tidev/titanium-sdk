@@ -147,10 +147,13 @@ class Projector(object):
 
 		content = content.replace('Titanium-KitchenSink',self.name)
 		
-		content = content.replace('Titanium',self.name)
-		content = content.replace('PRODUCT_NAME = %s-iPad'%self.name,'PRODUCT_NAME = "%s"'%self.name)
-		content = content.replace('PRODUCT_NAME = "%s-iPad"'%self.name,'PRODUCT_NAME = "%s"'%self.name)
+		content = content.replace('Titanium',self.namespace)
+		content = content.replace('path = %s.app;' % self.namespace, 'path = "%s.app";'%self.name)
+		content = content.replace('PRODUCT_NAME = %s'%self.namespace,'PRODUCT_NAME = "%s"'%self.name)
+		content = content.replace('PRODUCT_NAME = %s-iPad'%self.namespace,'PRODUCT_NAME = "%s"'%self.name)
+		content = content.replace('PRODUCT_NAME = "%s-iPad"'%self.namespace,'PRODUCT_NAME = "%s"'%self.name)
 		content = content.replace('Resources-iPad','Resources')
+		content = content.replace('%s.app'%self.namespace,'%s.app'%self.name)
 		
 		builder_py = os.path.abspath(os.path.join(self.sdk_root,"builder.py"))
 		pre_compile_script = "\\\"%s\\\" xcode\\nexit $?" % (builder_py)
@@ -168,7 +171,7 @@ class Projector(object):
 			to_ = os.path.join(out_dir,dir_)
 			self.copy_module_resources(from_,to_)
 		
-		copyfile(os.path.join(in_dir,'iphone','Titanium_Prefix.pch'),os.path.join(out_dir,'%s_Prefix.pch'%self.name))
+		copyfile(os.path.join(in_dir,'iphone','Titanium_Prefix.pch'),os.path.join(out_dir,'%s_Prefix.pch'%self.namespace))
 		copyfile(os.path.join(in_dir,'iphone','Titanium.plist'),os.path.join(out_dir,'Info.plist'))
 		
 		xcode_dir = os.path.join(out_dir,'%s.xcodeproj'%self.name)	
