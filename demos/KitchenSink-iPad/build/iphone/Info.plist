@@ -26,10 +26,21 @@
 	<true/>
 	<key>NSMainNibFile</key>
 	<string>MainWindow</string>
-        <key>UIDeviceFamily</key>
-        <array>
-        <integer>2</integer>
-        </array>
+	<key>NSMainNibFile~ipad</key>
+	<string>MainWindow_ipad</string>
+	<key>UISupportedInterfaceOrientations</key>
+	<array>
+		<string>UIInterfaceOrientationPortrait</string>
+		<string>UIInterfaceOrientationLandscapeRight</string>
+		<string>UIInterfaceOrientationLandscapeLeft</string>
+	</array>
+	<key>UISupportedInterfaceOrientations~ipad</key>
+	<array>
+		<string>UIInterfaceOrientationPortrait</string>
+		<string>UIInterfaceOrientationPortraitUpsideDown</string>
+		<string>UIInterfaceOrientationLandscapeLeft</string>
+		<string>UIInterfaceOrientationLandscapeRight</string>
+	</array>
         <key>UIStatusBarStyle</key>
         <string>UIStatusBarStyleDefault</string>
 </dict>
