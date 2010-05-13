@@ -247,18 +247,11 @@ def main(args):
 			ird = os.path.join(project_dir,'Resources','iphone')
 			if os.path.exists(ird): copy_module_resources(ird,app_dir)
 			
-		
-		if devicefamily!=None:
-			xib = 'MainWindow_%s.xib' % devicefamily
-		else:
-			xib = 'MainWindow_iphone.xib'
-		s = os.path.join(template_dir,xib)
-		t = os.path.join(iphone_resources_dir,'MainWindow.xib')
-		xib_out = open(s).read()
-		xib_out = xib_out.replace('Titanium',app_name)
-		xib_f = open(t,'w')
-		xib_f.write(xib_out)
-		xib_f.close()
+		# copy XIBs	
+		for xib in ['ipad','iphone']:
+			# copy README to iphone directory
+			name = 'MainWindow_%s' % xib		
+			shutil.copy(os.path.join(template_dir,'Resources',name),iphone_resources_dir)
 		
 		if not simulator:
 			version = ti.properties['version']
@@ -372,9 +365,6 @@ def main(args):
 		if applogo ==None and ti.properties.has_key('icon'):
 			applogo = ti.properties['icon']
 
-		def optimize_build():
-			return run.run(["/Developer/Platforms/iPhoneOS.platform/Developer/usr/bin/iphoneos-optimize",app_dir])
-		
 		try:		
 			os.chdir(iphone_dir)
 			
@@ -405,10 +395,16 @@ def main(args):
 			if os.path.exists(defaultpng_path):
 				shutil.copy(defaultpng_path,app_dir)
 
+			extra_args = None
+			
 			if devicefamily!=None:
 				if devicefamily == 'ipad':
 					device_target="TARGETED_DEVICE_FAMILY=2"
 					deploy_target = "IPHONEOS_DEPLOYMENT_TARGET=3.2"
+					# NOTE: this is very important to run on device -- i dunno why
+					# xcode warns that 3.2 needs only armv7, but if we don't pass in 
+					# armv6 we get crashes on device
+					extra_args = ["VALID_ARCHS=armv6 armv7 i386"]
 			
 			def is_adhoc(uuid):
 				path = "~/Library/MobileDevice/Provisioning Profiles/%s.mobileprovision" % uuid
@@ -427,6 +423,8 @@ def main(args):
 				args = ["xcodebuild","-target",config,"-configuration",target,"-sdk",sdk]
 				args += extras
 				args += [deploy_target,device_target]
+				if extra_args!=None:
+					args += extra_args
 				
 				o.write("Starting Xcode compile with the following arguments:\n\n")
 				for arg in args: o.write("    %s\n" % arg)
@@ -612,10 +610,6 @@ def main(args):
 				output = run.run(["/Developer/Platforms/iPhoneOS.platform/Developer/usr/bin/PackageApplication",app_dir,"-v"])
 				o.write(output)
 				
-				# optimize the build
-				output = optimize_build()
-				o.write(output)
-
 				# for install, launch itunes with the app
 				ipa = os.path.join(os.path.dirname(app_dir),"%s.ipa" % app_name)
 				cmd = "open -b com.apple.itunes \"%s\"" % ipa
@@ -652,11 +646,6 @@ def main(args):
 					"CODE_SIGN_IDENTITY[sdk=iphoneos*]=iPhone Distribution: %s" % dist_name
 				]
 				execute_xcode("iphoneos%s" % iphone_version,args,False)
-
-				# optimize the build
-				output = optimize_build()
-				o.write(output)
-				o.close()
 
 				# switch to app_bundle for zip
 				os.chdir(build_dir)
