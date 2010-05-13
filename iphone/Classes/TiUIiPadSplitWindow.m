@@ -12,6 +12,10 @@
 #import "TiApp.h"
 #import "TiUIiPadPopoverProxy.h"
 
+#ifndef USE_TI_UIIPADSPLITWINDOWBUTTON
+#define USE_TI_UIIPADSPLITWINDOWBUTTON
+#endif
+
 #ifdef USE_TI_UIIPADSPLITWINDOWBUTTON
 #import "TiUIiPadSplitWindowButtonProxy.h"
 #endif
