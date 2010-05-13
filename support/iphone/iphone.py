@@ -65,7 +65,6 @@ class IPhone(object):
 		gitignore.write("build\n")
 		gitignore.write("headers\n")
 		gitignore.write("lib\n")
-		gitignore.write("MainWindow.xib\n")
 		gitignore.close()
 
 		gitignore = open(os.path.join(iphone_dir,'%s.xcodeproj'%self.name,'.gitignore'),'w')
@@ -96,7 +95,12 @@ class IPhone(object):
 					
 		# copy README to iphone directory		
 		shutil.copy(os.path.join(template_dir,'README'),os.path.join(iphone_dir,'README'))
-		
+
+		for p in ['ipad','iphone']:
+			# copy README to iphone directory
+			xib = 'MainWindow_%s.xib' % p		
+			shutil.copy(os.path.join(template_dir,'Resources',xib),iphone_resources_dir)
+
 		# symlink 
 		libticore = os.path.join(template_dir,'libTiCore.a')
 		cwd = os.getcwd()

@@ -147,9 +147,6 @@ class TiAppXML(object):
 				else:	
 					status_bar_style = '<string>UIStatusBarStyleDefault</string>'
 				self.infoplist_properties['UIStatusBarStyle']=status_bar_style
-
-		if family=='ipad':
-			self.infoplist_properties['UIDeviceFamily']='<array>\n        <integer>2</integer>\n        </array>'
 			
 		plist = codecs.open(template,'r','utf-8','replace').read()
 		plist = plist.replace('appicon.png',icon)

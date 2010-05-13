@@ -116,23 +116,23 @@ class Compiler(object):
 		resources_dir = os.path.join(project_dir,'Resources')
 		iphone_resources_dir = os.path.join(resources_dir,'iphone')
 	
-		xib_file = os.path.join(app_dir,'MainWindow.xib')
-		if os.path.exists(xib_file): os.remove(xib_file)
+		# xib_file = os.path.join(app_dir,'MainWindow.xib')
+		# if os.path.exists(xib_file): os.remove(xib_file)
 		
-		# write out the updated Info.plist
-		infoplist_tmpl = os.path.join(self.iphone_dir,'Info.plist.template')
-		infoplist = os.path.join(self.iphone_dir,'Info.plist')
-		if devicefamily!=None:
-			appicon = ti.generate_infoplist(infoplist,infoplist_tmpl,appid,devicefamily)
-		else:
-			appicon = ti.generate_infoplist(infoplist,infoplist_tmpl,appid,'iphone')
+		# # write out the updated Info.plist
+		# infoplist_tmpl = os.path.join(self.iphone_dir,'Info.plist.template')
+		# infoplist = os.path.join(self.iphone_dir,'Info.plist')
+		# if devicefamily!=None:
+		# 	appicon = ti.generate_infoplist(infoplist,infoplist_tmpl,appid,devicefamily)
+		# else:
+		# 	appicon = ti.generate_infoplist(infoplist,infoplist_tmpl,appid,'iphone')
 		
-		# copy the app icon to the build resources
-		appicon_path = os.path.join(iphone_resources_dir,appicon)
-		if not os.path.exists(appicon_path):
-			appicon_path = os.path.join(resources_dir,appicon)
-		if os.path.exists(appicon_path):
-			shutil.copy(appicon_path, app_dir)
+		# # copy the app icon to the build resources
+		# appicon_path = os.path.join(iphone_resources_dir,appicon)
+		# if not os.path.exists(appicon_path):
+		# 	appicon_path = os.path.join(resources_dir,appicon)
+		# if os.path.exists(appicon_path):
+		# 	shutil.copy(appicon_path, app_dir)
 					
 		# copy in any resources in our module like icons
 		project_module_dir = os.path.join(project_dir,'modules','iphone')
@@ -141,16 +141,6 @@ class Compiler(object):
 		
 		# we have to copy these even in simulator given the path difference
 		self.copy_resources([iphone_resources_dir],app_dir,False)
-		
-		# deploy any module image files 
-		for module in self.modules:
-			img_dir = os.path.join(template_dir,'modules',module.lower(),'images')
-			if not os.path.exists(img_dir): continue
-			dest_img_dir = os.path.join(app_dir,'modules',module.lower(),'images')
-			if not os.path.exists(dest_img_dir):
-				os.makedirs(dest_img_dir)
-			self.copy_resources([img_dir],dest_img_dir,False)
-		
 		
 		if deploytype!='development':
 			self.copy_resources([resources_dir],app_dir)
@@ -161,6 +151,16 @@ class Compiler(object):
 			for sym in self.defines:
 				defines_header.write("#define %s 1\n"%sym)
 			defines_header.flush()
+
+			# deploy any module image files 
+			for module in self.modules:
+				img_dir = os.path.join(template_dir,'modules',module.lower(),'images')
+				print "[DEBUG] module image = %s" % img_dir
+				if not os.path.exists(img_dir): continue
+				dest_img_dir = os.path.join(app_dir,'modules',module.lower(),'images')
+				if not os.path.exists(dest_img_dir):
+					os.makedirs(dest_img_dir)
+				self.copy_resources([img_dir],dest_img_dir,False)
 			
 		else:
 			print "[INFO] Skipping JS compile, running from simulator"
