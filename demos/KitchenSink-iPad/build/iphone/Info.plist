@@ -11,7 +11,7 @@
 	<key>CFBundleIconFile</key>
 	<string>default_app_logo.png</string>
 	<key>CFBundleIdentifier</key>
-	<string>com.appcelerator.KitchenSink-iPad</string>
+	<string>com.nolanwright.kitchensinkipad</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
@@ -21,7 +21,7 @@
 	<key>CFBundleSignature</key>
 	<string>????</string>
 	<key>CFBundleVersion</key>
-	<string>1.0.1273626755</string>
+	<string>1.0</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSMainNibFile</key>
