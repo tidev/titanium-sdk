@@ -9,9 +9,9 @@
 	<key>CFBundleExecutable</key>
 	<string>${EXECUTABLE_NAME}</string>
 	<key>CFBundleIconFile</key>
-	<string>appicon.png</string>
+	<string>default_app_logo.png</string>
 	<key>CFBundleIdentifier</key>
-	<string>com.appcelerator.KitchenSink-iPad</string>
+	<string>com.nolanwright.kitchensinkipad</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
@@ -21,11 +21,11 @@
 	<key>CFBundleSignature</key>
 	<string>????</string>
 	<key>CFBundleVersion</key>
-	<string>1.0.1273733359</string>
+	<string>1.0</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSMainNibFile</key>
-	<string>MainWindow_iphone</string>
+	<string>MainWindow</string>
 	<key>NSMainNibFile~ipad</key>
 	<string>MainWindow_ipad</string>
 	<key>UISupportedInterfaceOrientations</key>

@@ -22,6 +22,8 @@ android, iphone, ipad
 - methods
 
 createHTTPClient : returns an HttpClient instance
+createBonjourBrowser : returns a BonjourBrowser instance
+createBonjourService : returns a BonjourService instance
 registerForPushNotifications: register for push notifications with the Apple Push Notification Service. Only available on iPhone.
 encodeURIComponent: encode a URI component part using URI encoding
 decodeURIComponent: decode a URI component part using URI encoding
@@ -46,6 +48,17 @@ value[string]: input value to be decoded
 
 - method : createHTTPClient, object
 
+- method : createBonjourBrowser, object
+
+serviceType[string]: service to search for, must include the protocol type suffix (._tcp)
+domain[string]: the Bonjour service domain to conduct the search in.  Default value is 'local.'
+
+- method : createBonjourService, object
+
+name[string]: the name of the service.  Must be a unique identifier for this service type and domain.
+type[string]: the type of service.  Must include the protocol identifier (._tcp)
+domain[string]: the domain to publish the service in.  Default value is 'local.'
+
 - method : registerForPushNotifications
 
 config[object]: dictionary of the following: `types` is an array of type constants that the application would like to receive, `success` is a callback function that is called when the push registration is successfully completed, `error` is a callback function that is called when an error is received during registration and `callback` is a callback function that is invoked upon receiving a new push notification. This method should be called at application startup.
@@ -62,6 +75,10 @@ NOTIFICATION_TYPE_BADGE[int]: constant value for the push notification badge typ
 NOTIFICATION_TYPE_ALERT[int]: constant value for the push notification alert type
 NOTIFICATION_TYPE_SOUND[int]: constant value for the push notification sound type
 
+READ_MODE[int]: constant value specifying read-only mode for sockets
+WRITE_MODE[int]: constant value specifying write-only mode for sockets
+READ_WRITE_MODE[int]: constant value specifying read-write mode for sockets
+INADDR_ANY[string]: constant value representing the ability for sockets to listen on any locally available network device
 
 online[boolean]: readonly boolean value that indicates if the network is reachable to the Internet either via WIFI or Carrier network
 networkTypeName[string]: the network type name constant. Returns one of `NONE`, `WIFI`, `LAN` or `MOBILE`.
