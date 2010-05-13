@@ -45,10 +45,6 @@ class IPhone(object):
 		out_plist.write(plist)
 		out_plist.close()
 
-		out_plist = open(os.path.join(iphone_dir,'Info.plist.template'),'w')
-		out_plist.write(plist)
-		out_plist.close()
-		
 		# create the iphone resources	
 		iphone_resources_dir = os.path.join(iphone_dir,'Resources')
 		if not os.path.exists(iphone_resources_dir):

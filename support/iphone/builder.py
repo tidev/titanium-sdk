@@ -347,10 +347,10 @@ def main(args):
 			if path.find(sdk_version) > 0:
 				make_link = False
 		if make_link:
-			if os.path.exists("libTiCore.a"): os.unlink("libTiCore.a")
 			libdir = os.path.join(iphone_dir,'lib')
 			if not os.path.exists(libdir): os.makedirs(libdir)
 			os.chdir(libdir)
+			if os.path.exists("libTiCore.a"): os.unlink("libTiCore.a")
 			os.symlink(libticore,"libTiCore.a")
 			os.chdir(cwd)
 		
