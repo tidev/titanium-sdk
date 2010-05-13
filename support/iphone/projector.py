@@ -183,14 +183,6 @@ class Projector(object):
 		f.write(c)
 		f.close()
 		
-		xib = os.path.join(out_dir,'MainWindow.xib')
-		xib_file = open(xib,'w')
-		xib_content = open(os.path.join(in_dir,'iphone','MainWindow.xib')).read()
-		xib_content = xib_content.replace('Titanium',self.name)
-		xib_content = xib_content.replace('../Classes','Classes')
-		xib_file.write(xib_content)
-		xib_file.close()
-		
 		xcconfig = os.path.join(out_dir,"project.xcconfig")
 		xcconfig = open(xcconfig,'w')
 		xcconfig.write("TI_VERSION=%s\n" % self.sdk_version)

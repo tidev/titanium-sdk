@@ -115,6 +115,10 @@ def zip_iphone_ipad(zf,basepath,platform,version):
 	zip_dir(zf,os.path.join(top_dir,'iphone','headers'),basepath+'/iphone/headers',subs)
 	zip_dir(zf,os.path.join(top_dir,'iphone','iphone'),basepath+'/iphone/iphone',subs)
 	
+	for xib in ('iphone','ipad'):
+		xib_name = 'MainWindow_%s.xib' % xib
+		zf.write(os.path.join(top_dir,'iphone','Resources',xib_name),'%s/%s/Resources/%s'%(basepath,platform,xib_name))
+	
 	ticore_lib = os.path.join(top_dir,'iphone','lib')
 	zf.write(os.path.join(ticore_lib,'libTiCore.a'),'%s/%s/libTiCore.a'%(basepath,platform))
 	
