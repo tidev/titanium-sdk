@@ -635,7 +635,7 @@ def main(args):
 				o.write(output)
 				
 				# for install, launch itunes with the app
-				ipa = os.path.join(os.path.dirname(app_dir),"%s.ipa" % app_name)
+				ipa = os.path.join(os.path.dirname(app_dir),"%s.ipa" % name)
 				cmd = "open -b com.apple.itunes \"%s\"" % ipa
 				os.system(cmd)
 				
