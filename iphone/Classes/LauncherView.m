@@ -629,6 +629,8 @@ static const NSTimeInterval kLauncherViewFastTransitionDuration = 0.2;
 	
 	[UIView commitAnimations];
 	
+	NSInteger curIndex = self.currentPageIndex;
+	
 	for (NSInteger i = 0; i < pages.count; ++i) 
 	{
 		NSArray* page = [pages objectAtIndex:i];
@@ -641,6 +643,8 @@ static const NSTimeInterval kLauncherViewFastTransitionDuration = 0.2;
 	}
 	
 	[self layoutButtons];
+	
+	[pager setCurrentPage:curIndex];
 	
 	if ([delegate respondsToSelector:@selector(launcherViewDidEndEditing:)]) 
 	{
