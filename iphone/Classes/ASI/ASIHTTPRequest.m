@@ -859,13 +859,15 @@ static BOOL isiPhoneOS2;
 		
 		// See if we need to timeout
 		if (lastActivityTime && timeOutSeconds > 0 && [lastActivityTime timeIntervalSinceNow] < -timeOutSeconds) {
-			NSLog(@"Last activity time: %f timeout: %f",[lastActivityTime timeIntervalSinceNow],timeOutSeconds);
+#ifdef DEBUG
+			NSLog(@"[DEBUG] Last activity time: %f timeout: %f",[lastActivityTime timeIntervalSinceNow],timeOutSeconds);
+
 			// Prevent timeouts before 128KB* has been sent when the size of data to upload is greater than 128KB* (*32KB on iPhone 3.0 SDK)
 			// This is to workaround the fact that kCFStreamPropertyHTTPRequestBytesWrittenCount is the amount written to the buffer, not the amount actually sent
 			// This workaround prevents erroneous timeouts in low bandwidth situations (eg iPhone)
 			
-			NSLog(@"Total bytes sent: %d, postLength: %d, uploadBufferSize: %d",totalBytesSent,postLength,uploadBufferSize);
-			
+			NSLog(@"[DEBUG] Total bytes sent: %d, postLength: %d, uploadBufferSize: %d",totalBytesSent,postLength,uploadBufferSize);
+#endif			
 			
 			if (((totalBytesSent == 0) && (uploadBufferSize == 0)) ||
 					totalBytesSent || (postLength <= uploadBufferSize) ||
