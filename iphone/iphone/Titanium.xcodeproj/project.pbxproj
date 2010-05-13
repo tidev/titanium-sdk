@@ -29,7 +29,6 @@
 		248133A8115761DE00E3A9BA /* TiNetworkBonjourServiceProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 248133A4115761DE00E3A9BA /* TiNetworkBonjourServiceProxy.m */; };
 		248133A9115761DE00E3A9BA /* TiNetworkTCPSocketProxy.mm in Sources */ = {isa = PBXBuildFile; fileRef = 248133A6115761DE00E3A9BA /* TiNetworkTCPSocketProxy.mm */; };
 		24813714115A852800E3A9BA /* TiDOMTextNodeProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24813712115A852800E3A9BA /* TiDOMTextNodeProxy.m */; };
-		2494D2C8119BADDC00D5DEDB /* MainWindow_iphone.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2494D2C7119BADD600D5DEDB /* MainWindow_iphone.xib */; };
 		2494D2C9119BADE000D5DEDB /* MainWindow_ipad.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2494D2C6119BADD600D5DEDB /* MainWindow_ipad.xib */; };
 		24A1E519112D33AF003DA834 /* TiMediaAudioSession.m in Sources */ = {isa = PBXBuildFile; fileRef = 24A1E516112D33AF003DA834 /* TiMediaAudioSession.m */; };
 		24A1E875112DF80B003DA834 /* TiUIPickerProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24A1E874112DF80B003DA834 /* TiUIPickerProxy.m */; };
@@ -471,6 +470,7 @@
 		24EB085D111D51D9001DC2D1 /* TiDOMAttrProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24EB085C111D51D9001DC2D1 /* TiDOMAttrProxy.m */; };
 		24EB0A58111E1BAE001DC2D1 /* libxml2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 24EB0A57111E1BAE001DC2D1 /* libxml2.dylib */; };
 		24EB0B74111E7EE8001DC2D1 /* NSData+Additions.m in Sources */ = {isa = PBXBuildFile; fileRef = 24EB0B73111E7EE8001DC2D1 /* NSData+Additions.m */; };
+		24F048C4119C716A00F1D822 /* MainWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = 24F048C3119C716A00F1D822 /* MainWindow.xib */; };
 		24F5ACF9111F7B8A005C9199 /* TiMapPinAnnotationView.m in Sources */ = {isa = PBXBuildFile; fileRef = 24EB0BA9111F7959001DC2D1 /* TiMapPinAnnotationView.m */; };
 		24F5B146111FDFE8005C9199 /* ListenerEntry.m in Sources */ = {isa = PBXBuildFile; fileRef = 24F5B145111FDFE8005C9199 /* ListenerEntry.m */; };
 		24F6204F1199F1F400EEAD3C /* TopTiModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 24F6204E1199F1F400EEAD3C /* TopTiModule.m */; };
@@ -532,7 +532,6 @@
 		24813711115A852800E3A9BA /* TiDOMTextNodeProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiDOMTextNodeProxy.h; sourceTree = "<group>"; };
 		24813712115A852800E3A9BA /* TiDOMTextNodeProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiDOMTextNodeProxy.m; sourceTree = "<group>"; };
 		2494D2C6119BADD600D5DEDB /* MainWindow_ipad.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = MainWindow_ipad.xib; path = ../Resources/MainWindow_ipad.xib; sourceTree = SOURCE_ROOT; };
-		2494D2C7119BADD600D5DEDB /* MainWindow_iphone.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = MainWindow_iphone.xib; path = ../Resources/MainWindow_iphone.xib; sourceTree = SOURCE_ROOT; };
 		24A1E515112D33AF003DA834 /* TiMediaAudioSession.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiMediaAudioSession.h; sourceTree = "<group>"; };
 		24A1E516112D33AF003DA834 /* TiMediaAudioSession.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiMediaAudioSession.m; sourceTree = "<group>"; };
 		24A1E873112DF80B003DA834 /* TiUIPickerProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUIPickerProxy.h; sourceTree = "<group>"; };
@@ -948,6 +947,7 @@
 		24EB0B73111E7EE8001DC2D1 /* NSData+Additions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "NSData+Additions.m"; path = "../Classes/NSData+Additions.m"; sourceTree = SOURCE_ROOT; };
 		24EB0BA8111F7959001DC2D1 /* TiMapPinAnnotationView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiMapPinAnnotationView.h; sourceTree = "<group>"; };
 		24EB0BA9111F7959001DC2D1 /* TiMapPinAnnotationView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiMapPinAnnotationView.m; sourceTree = "<group>"; };
+		24F048C3119C716A00F1D822 /* MainWindow.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = MainWindow.xib; path = ../Resources/MainWindow.xib; sourceTree = SOURCE_ROOT; };
 		24F5AEB2111F9DE9005C9199 /* TiFile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiFile.h; sourceTree = "<group>"; };
 		24F5AEB3111F9DE9005C9199 /* TiFile.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiFile.m; sourceTree = "<group>"; };
 		24F5B144111FDFE8005C9199 /* ListenerEntry.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ListenerEntry.h; sourceTree = "<group>"; };
@@ -2071,9 +2071,9 @@
 		29B97317FDCFA39411CA2CEA /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				24F048C3119C716A00F1D822 /* MainWindow.xib */,
 				24CA9182111170820084E2DE /* Default.png */,
 				2494D2C6119BADD600D5DEDB /* MainWindow_ipad.xib */,
-				2494D2C7119BADD600D5DEDB /* MainWindow_iphone.xib */,
 				24CA916411116F870084E2DE /* Titanium.plist */,
 			);
 			name = Resources;
@@ -2204,8 +2204,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				2494D2C8119BADDC00D5DEDB /* MainWindow_iphone.xib in Resources */,
 				24CA9183111170820084E2DE /* Default.png in Resources */,
+				24F048C4119C716A00F1D822 /* MainWindow.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
