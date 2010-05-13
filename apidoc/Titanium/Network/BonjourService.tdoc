@@ -24,13 +24,13 @@ socket[object]: the TCPSocket object that is used to connect to the service
 name[string]: the name of the service
 type[string]: the type of the service
 domain[string]: the domain of the service
+isLocal[boolean]: whether or not the service is local to the device
 
 - methods
 
 publish: Publish a Bonjour service to the network.  Only works if isLocal is TRUE
 resolve: Resolve a Bonjour service from the network.  Must be done before attempting to access the service's socket information, if a remote service.  You cannot resolve a locally published service.
 stop: Halts publication of a service.
-isLocal: whether or not the service is local to the device
 
 - method : publish
 

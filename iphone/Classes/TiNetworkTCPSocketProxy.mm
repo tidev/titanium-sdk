@@ -51,7 +51,7 @@ const CFOptionFlags writeStreamEventFlags =
 
 #pragma mark Macros
 
-#define VALID (socket!=NULL) && [[self isValid:nil] boolValue]
+#define VALID (socket!=NULL) && [[self isValid] boolValue]
 
 #pragma mark Private
 
@@ -399,7 +399,7 @@ const CFOptionFlags writeStreamEventFlags =
     port = [port_ intValue];
 }
 
--(NSNumber*)isValid:(id)unused
+-(NSNumber*)isValid
 {
     if (socket!=NULL) {
         return [NSNumber numberWithBool:CFSocketIsValid(socket)];

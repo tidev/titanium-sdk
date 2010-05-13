@@ -27,10 +27,10 @@
 
 -(void)search:(id)unused;
 -(void)stopSearch:(id)unused;
--(NSNumber*)isSearching:(id)unused;
 
 @property(readonly, nonatomic) NSString* serviceType;
 @property(readonly, nonatomic) NSString* domain;
+@property(readonly, nonatomic, getter=isSearching) NSNumber* searching;
 
 @end
 

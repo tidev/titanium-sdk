@@ -24,6 +24,7 @@ iphone, ipad
 hostName[string]: the host name to connect to.  Must be INADDR_ANY or an identifier for the local device in order to listen
 port[int]: the port to connect/listen on
 mode[int]: the socket's mode
+isValid[boolean]: whether or not the socket is valid
 
 - methods
 
@@ -31,7 +32,6 @@ listen: set up the socket to receive connections
 connect: connect the scocket to a TCP server
 close: close the socket
 write: write data to the socket, if the mode is WRITE_MODE or READ_WRITE_MODE
-isValid: whether or not the socket is valid
 
 - method : write
 
