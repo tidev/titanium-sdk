@@ -45,6 +45,8 @@ class IPhone(object):
 		out_plist.write(plist)
 		out_plist.close()
 
+		# NOTE: right now we leave this in since the pre-1.3 releases required it
+		# and only wrote on project create
 		out_plist = open(os.path.join(iphone_dir,'Info.plist.template'),'w')
 		out_plist.write(plist)
 		out_plist.close()
@@ -96,10 +98,9 @@ class IPhone(object):
 		# copy README to iphone directory		
 		shutil.copy(os.path.join(template_dir,'README'),os.path.join(iphone_dir,'README'))
 
-		for p in ['ipad','iphone']:
-			# copy README to iphone directory
-			xib = 'MainWindow_%s.xib' % p		
-			shutil.copy(os.path.join(template_dir,'Resources',xib),iphone_resources_dir)
+		# copy XIB
+		shutil.copy(os.path.join(template_dir,'Resources','MainWindow.xib'),iphone_resources_dir)
+		shutil.copy(os.path.join(template_dir,'Resources','MainWindow_ipad.xib'),iphone_resources_dir)
 
 		# symlink 
 		libticore = os.path.join(template_dir,'libTiCore.a')

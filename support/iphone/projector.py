@@ -147,10 +147,16 @@ class Projector(object):
 
 		content = content.replace('Titanium-KitchenSink',self.name)
 		
-		content = content.replace('Titanium',self.name)
-		content = content.replace('PRODUCT_NAME = %s-iPad'%self.name,'PRODUCT_NAME = "%s"'%self.name)
-		content = content.replace('PRODUCT_NAME = "%s-iPad"'%self.name,'PRODUCT_NAME = "%s"'%self.name)
+		content = content.replace('Titanium',self.namespace)
+		content = content.replace('path = %s.app;' % self.namespace, 'path = "%s.app";'%self.name)
+		content = content.replace('PRODUCT_NAME = %s'%self.namespace,'PRODUCT_NAME = "%s"'%self.name)
+		content = content.replace('PRODUCT_NAME = %s-iPad'%self.namespace,'PRODUCT_NAME = "%s"'%self.name)
+		content = content.replace('PRODUCT_NAME = "%s-iPad"'%self.namespace,'PRODUCT_NAME = "%s"'%self.name)
 		content = content.replace('Resources-iPad','Resources')
+		content = content.replace('%s.app'%self.namespace,'%s.app'%self.name)
+		content = content.replace('path = %s_Prefix.pch;'%self.namespace,'path = "%s_Prefix.pch";'%self.name)
+		content = content.replace('%s_Prefix.pch'%self.namespace,'%s_Prefix.pch'%self.name)
+		content = content.replace('GCC_PREFIX_HEADER = %s_Prefix.pch;'%self.name,'GCC_PREFIX_HEADER = "%s_Prefix.pch";'%self.name)
 		
 		builder_py = os.path.abspath(os.path.join(self.sdk_root,"builder.py"))
 		pre_compile_script = "\\\"%s\\\" xcode\\nexit $?" % (builder_py)

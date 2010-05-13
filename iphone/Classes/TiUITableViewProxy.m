@@ -6,6 +6,10 @@
  */
 #ifdef USE_TI_UITABLEVIEW
 
+#ifndef USE_TI_UISEARCHBAR
+#define USE_TI_UISEARCHBAR
+#endif
+
 #import "TiUITableViewProxy.h"
 #import "TiUITableView.h"
 #import "TiUITableViewRowProxy.h"
