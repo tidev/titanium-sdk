@@ -9,7 +9,7 @@
 	<key>CFBundleExecutable</key>
 	<string>${EXECUTABLE_NAME}</string>
 	<key>CFBundleIconFile</key>
-	<string>default_app_logo.png</string>
+	<string>appicon.png</string>
 	<key>CFBundleIdentifier</key>
 	<string>com.appcelerator.KitchenSink-iPad</string>
 	<key>CFBundleInfoDictionaryVersion</key>
@@ -21,15 +21,11 @@
 	<key>CFBundleSignature</key>
 	<string>????</string>
 	<key>CFBundleVersion</key>
-	<string>1.0</string>
+	<string>1.0.1273730476</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSMainNibFile</key>
 	<string>MainWindow</string>
-        <key>UIDeviceFamily</key>
-        <array>
-        <integer>2</integer>
-        </array>
         <key>UIStatusBarStyle</key>
         <string>UIStatusBarStyleDefault</string>
 </dict>

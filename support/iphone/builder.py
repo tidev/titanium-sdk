@@ -354,8 +354,20 @@ def main(args):
 			os.symlink(libticore,"libTiCore.a")
 			os.chdir(cwd)
 		
-		# write out the updated Info.plist
-		infoplist_tmpl = os.path.join(iphone_dir,'Info.plist.template')
+		# if the user has a custom.plist, we'll use it instead of copying
+		# over on top
+		infoplist_tmpl = os.path.join(iphone_dir,'custom.plist')
+		# we allow a custom.plist to indicate that we should use it for
+		# our template
+		if not os.path.exists(infoplist_tmpl):
+			infoplist_tmpl = os.path.join(template_dir,'Info.plist')
+			plist = open(os.path.join(template_dir,'Info.plist'),'r').read()
+			plist = plist.replace('__PROJECT_NAME__',name)
+			plist = plist.replace('__PROJECT_ID__',appid)
+			pf = open(infoplist_tmpl,'w+')
+			pf.write(plist)
+			pf.close()
+			
 		if devicefamily!=None:
 			applogo = ti.generate_infoplist(infoplist,infoplist_tmpl,appid,devicefamily)
 		else:
