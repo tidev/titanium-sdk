@@ -248,10 +248,10 @@ def main(args):
 			if os.path.exists(ird): copy_module_resources(ird,app_dir)
 			
 		# copy XIBs	
-		for xib in ['ipad','iphone']:
+		for p in ['ipad','iphone']:
 			# copy README to iphone directory
-			name = 'MainWindow_%s' % xib		
-			shutil.copy(os.path.join(template_dir,'Resources',name),iphone_resources_dir)
+			xib = 'MainWindow_%s.xib' % p		
+			shutil.copy(os.path.join(template_dir,'Resources',xib),iphone_resources_dir)
 		
 		if not simulator:
 			version = ti.properties['version']
