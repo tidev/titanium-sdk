@@ -5,7 +5,7 @@
 import os,platform,sys,urllib,gzip
 from progressbar import ProgressBar
 
-ticore_version = '6'
+ticore_version = '5'
 
 # NOTE: this is simply a pre-built version of the source at http://github.com/appcelerator/tijscore
 # since this is so freaking complicated to setup and build in an stable environment, and since 
