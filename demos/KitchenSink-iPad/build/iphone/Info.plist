@@ -9,7 +9,7 @@
 	<key>CFBundleExecutable</key>
 	<string>${EXECUTABLE_NAME}</string>
 	<key>CFBundleIconFile</key>
-	<string>appicon.png</string>
+	<string>default_app_logo.png</string>
 	<key>CFBundleIdentifier</key>
 	<string>com.nolanwright.kitchensinkipad</string>
 	<key>CFBundleInfoDictionaryVersion</key>
@@ -21,30 +21,15 @@
 	<key>CFBundleSignature</key>
 	<string>????</string>
 	<key>CFBundleVersion</key>
-<<<<<<< HEAD:demos/KitchenSink-iPad/build/iphone/Info.plist
 	<string>1.0</string>
-=======
-	<string>1.0.1273733359</string>
->>>>>>> 87453b402acd46154a1ed8b393bbb6f941148c63:demos/KitchenSink-iPad/build/iphone/Info.plist
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSMainNibFile</key>
-	<string>MainWindow_iphone</string>
-	<key>NSMainNibFile~ipad</key>
-	<string>MainWindow_ipad</string>
-	<key>UISupportedInterfaceOrientations</key>
-	<array>
-		<string>UIInterfaceOrientationPortrait</string>
-		<string>UIInterfaceOrientationLandscapeRight</string>
-		<string>UIInterfaceOrientationLandscapeLeft</string>
-	</array>
-	<key>UISupportedInterfaceOrientations~ipad</key>
-	<array>
-		<string>UIInterfaceOrientationPortrait</string>
-		<string>UIInterfaceOrientationPortraitUpsideDown</string>
-		<string>UIInterfaceOrientationLandscapeLeft</string>
-		<string>UIInterfaceOrientationLandscapeRight</string>
-	</array>
+	<string>MainWindow</string>
+        <key>UIDeviceFamily</key>
+        <array>
+        <integer>2</integer>
+        </array>
         <key>UIStatusBarStyle</key>
         <string>UIStatusBarStyleDefault</string>
 </dict>
