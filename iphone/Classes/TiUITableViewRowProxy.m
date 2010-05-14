@@ -15,6 +15,8 @@
 #import "Webcolor.h"
 #import "ImageLoader.h"
 
+NSString * const defaultRowTableClass = @"_default_";
+
 // used as a marker interface
 
 @interface TiUITableViewRowContainer : UIView
@@ -122,7 +124,7 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 		id value = [self valueForUndefinedKey:@"className"];
 		if (value==nil)
 		{
-			value = @"_default_";
+			value = defaultRowTableClass;
 		}
 		tableClass = [value retain];
 	}
@@ -527,7 +529,23 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 	[self configureBackground:cell];
 	[self configureIndentionLevel:cell];
 	[self configureSelectionStyle:cell];
-	[self updateChildren:cell];
+
+	if([[cell reuseIdentifier] isEqual:defaultRowTableClass])
+	{
+		//We can make no assumptions when a class is not specified.
+		for (UIView * oldView in [[cell contentView] subviews])
+		{
+			if ([oldView isKindOfClass:[TiUITableViewRowContainer class]])
+			{
+				[oldView removeFromSuperview];
+			}
+		}
+		[self initializeTableViewCell:cell];
+	}
+	else
+	{
+		[self updateChildren:cell];
+	}
 	modifyingRow = NO;
 }
 

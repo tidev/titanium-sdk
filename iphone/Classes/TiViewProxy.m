@@ -370,6 +370,7 @@
 			[child windowDidClose];
 		}
 	[self unlockChildren];
+	[self detachView];
 }
 
 -(void)windowWillClose
@@ -380,7 +381,6 @@
 			[child windowWillClose];
 		}
 	[self unlockChildren];
-	[self detachView];
 }
 
 -(void)viewWillAttach
