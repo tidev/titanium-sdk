@@ -1,14 +1,147 @@
-Titanium Mobile 1.3.0 - 5/6/2010
+Titanium Mobile 1.3.0 - 5/13/2010
 =================================
 
 This release includes general bug fixes and enhancements for Android and iPhone.  
 Please see the updated [Titanium Mobile Reference Documentation for 1.3](/apidoc/mobile/1.3).
 
-### Bug Fixes
+### Bug Fixes / Fixes
 
-### Enhancements
+You can also [view the details](https://appcelerator.lighthouseapp.com/projects/32238/milestones/68346-release-130) for the 1.3 milestone.
 
-### New Features
+#### Android
+
+- [#618] HTML WebView with Unicode Fails
+- [#858] Tableview Layout 2 Test, click reports null for every item
+- [#680] TableViewRow's get reordered on change of orientation
+- [#869] Missing separatorColor on TableView
+- [#867] TextField and TextArea do not support enabled property
+- [#859] KS WebView Local URL has ? box
+- [#852] Regression, Click button fails on Open (Nav Bar Covered) and Fullscreen KS Test android defect regression  
+- [#682] Implement VerticalLayout for Android android layout vertical
+- [#730] Header View should not be selectable.
+- [#723] Initial copy of project resources to /sdcard sometimes fails
+- [#865] always returns success from Ant build android build defect
+- [#856] 'Change' in Scrollable view test crashes, and 'Add' does nothing android defect regression
+- [#840] Creating Project without android-4 platform causes grey screen for emulator
+- [#681] Improve SDK detection and reporting.
+- [#741] Build not overlaying platform dependent resources. 
+- [#696] Validate appid and Title as valid Java identifiers 
+- [#821] Port EmailDialog to Android android feature
+- [#740] Copy android-specific resources to the root during sdcard copy
+- [#857] KS: Table view row delete test crashes (IndexOutOfBoundsException)
+- [#728] KS video player controls don't show up
+- [#609] Event propagation does not fully work
+- [#789] Missing get/set time on Ti.Media.Sound
+- [#721] JSON.parse doesn't accept arrays / non-Objects
+- [#705] Implement AudioPlayer android feature
+- [#854] Regression: ImageView Animation fails to Animate if Stopped android defect regression
+- [#712] parent may not be set on row items
+- [#758] Document canScale android apidoc
+- [#667] Document Ti.UI.Android module android feature
+- [#814] Twitter status doesn't display properly.
+- [#729] KS auth error in twitter / mashup example
+- [#736] Document Titanium.UI.Android APIs
+- [#774] ImageView doesn't honor repeatCount when animating
+- [#776] click/tap on on view with custom background fires two clicks
+- [#546] .gitignore files not being generated on project creation
+- [#777] TiActivity does not handle finishRoot
+- [#783] Ti.UI.CoverflowView doc implies works for Android apidoc defect
+- [#610] Event Interaction Doesn't fully work
+- [#791] Allow background Audio android feature
+- [#726] KS green button doesn't show in Controls: Button
+- [#731] Create Project Fails
+- [#747] Check that files are copied to sdcard in builder.py android launch
+- [#756] External event listeners for window "close" event aren't executed
+- [#757] HTML select doesn't work in Android WebView
+- [#760] views in scrollable view are lost 
+- [#778] Launch VideoView for known video types in WebView 
+- [#795] JSON to TiDict conversion isn't recursive
+- [#803] API.include/log/debug only accept strings android log
+- [#804] WebView doesn't change it's "url" dynamic property in Android
+- [#853] KS Events Interaction - Label click fails to fire.
+- [#864] File.write doesn't accept other Files android file
+- [#866] KS Platform Set Interval never stops
+- [#828] D-Pad Press doesn't activate click event
+- [#834] Button not respecting font
+- [#847] Setting background color on heavyweight window crashes
+- [#855] vibration permission error in Traditional Modal and Phone-Orientation-Open a Window tests 
+- [#848] Add enableZoomControls property to ImageView
+- [#875] Phone Contacts test runtime error
+- [#849] ImageView fails to draw
+- [#861] Text Keyboard Types
+- [#870] JSON.parse of null throws NPE
+- [#871] exitOnClose for Window creation
+- [#884] TiConfig.LOGD forced true
+- [#888] ImageView Filled from Remote Source Cycles through multiples
+
+#### iPhone
+
+- [#703] allow audio to play even when phone is locked/sleeping 
+- [#799] setTimeout on XHR varies based on send w/data or without 
+- [#773] map problems (annotation zIndex + zoom out crash) 
+- [#738] opening a window in app.js is animated, while no animation is set since 1.2.0 animation
+- [#810] table view touchstart and touchend events do not fire for rows 
+- [#750] Custom events lock up windows 
+- [#820] textarea height is not being respected (iPad) 
+- [#812] crash with table view with images + refresh 
+- [#744] table view headerView not respecting height auto 
+- [#495] setting active tab does not work on app startup iphone tabgroup
+- [#690] add support for adjustsFontSizeToFitWidth to text field 
+- [#746] buttons in toolbar and nav bar don't support background color 
+- [#498] Support Label Object on Toolbar/Navbar iphone labels
+- [#535] headerTitle on a tableView doesn't wrap properly bug
+- [#578] image view (stretchable image with left cap) 
+- [#759] crash on special characters using JS toUpperCase 
+- [#764] web view height:'auto' does not work - nothing is displayed 
+- [#770] table view row text is blurry 
+- [#765] Table View crash on second load 
+- [#539] Text anti-aliasing on tableView labels after scrolling back on to the screen defect iphone label tableview text
+- [#670] toolbar loses translucency after opening modal 
+- [#647] add subnet and external ip to platform API 
+- [#769] searchBar issues 
+- [#813] appendRow on table view does not support headers 
+- [#815] table view updates and animation no tags
+- [#502] Setting both 'moving' & 'editing' on a tableView doesn't work bug
+- [#501] add support for fontStyle:'italic' on Labels font
+- [#782] Text still anti-aliasing 
+- [#362] Layout lost when filtering table view bug feature
+- [#713]  two tab groups, closing one causes crash 
+- [#716] table view event issues 
+- [#709] size.height and size.width properties are 0 when height or width auto is used 
+- [#707] modal crashes after 2-3 opens 
+- [#766] calling setUrl on existing movie causes crash
+- [#743] searchBar needs to support text field properties 
+- [#722] height/width auto on a label = blurry text 
+- [#643] table view + filter + search bar = UI issues 
+- [#724] tableview.data.length returns -1 on device 
+- [#727] Fix focus/blur events for windows and text fields
+- [#784] zIndex on views not working 
+- [#761] support custom labels on switch no tags
+- [#529] allow bar color of "more" tab windows to be configurable
+- [#504] auto focus textarea on window open has slight up/down motion after focus iphone textarea
+- [#678] ipad orientation bug 
+- [#825] case insensitive search broken (using JS search function) 
+- [#569] implement fieldName(index) in database API database
+- [#807] support gradient backgrounds 
+- [#811] dynamic height on web view 
+- [#710] support horizontal layout 
+- [#397] setInterval bug 
+- [#665] allow buttons to support views 
+- [#714] load event does not fire for image view with url
+- [#748] duplicate symbol _main in iPhone project launch
+- [#749] Problem changing url of video after play iphone video
+- [#733] headerView height doesn't change 
+- [#751] ScrollableView has extra spacing when using paging Control on iphone
+- [#732] Properties.setList doesn't handle Object data
+- [#752] Search Bar in TableView doesn't correctly show cancel button
+- [#737] allow delete button text to be customized on editing mode of a table view 
+- [#797] TableView row subview events aren't being propagated to the table / row 
+- [#838] App crashes after repeated open/close of window 
+
+#### Platform
+
+- [#885] Changes in the API module aren't causing rebuilds in the UI module
+
 
 ### API Changes
 
@@ -22,6 +155,10 @@ Please see the updated [Titanium Mobile Reference Documentation for 1.3](/apidoc
 - 'default' is an allowable color 
 
 ### Known Issues
+
+If you downgrade from a 1.3 project to an earlier version (iPad only), you'll have a problem with the 
+Info.plist file.  You'll need to manually rename the MainWindow_ipad to MainWindow in the file.
+
 
 #### iPhone
 
@@ -54,7 +191,4 @@ As of the 1.3 release, this means you can directly build from within XCode (once
 When building from XCode, make sure you set the proper configuration and target when doing a final build for release since Titanium does this for you when you run from inside Titanium Developer.  When building for release, make sure you set the appropriate SDK version, iPhone Device target and the `Release` configuration.
 
 If you're using a third-party Titanium module, you should not have to do anything different in 1.3 than you did before.  Once you set the `<module>` configuration in your `tiapp.xml` file, Titanium will appropriately reconfigure your XCode project with the appropriate library and library path - whether you initiate your build from inside XCode or Titanium Developer.
-
-
-#### Android
 
