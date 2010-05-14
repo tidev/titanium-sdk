@@ -112,7 +112,7 @@
     [services removeAllObjects];
 }
 
--(NSNumber*)isSearching:(id)unused
+-(NSNumber*)isSearching
 {
     return [NSNumber numberWithBool:searching];
 }

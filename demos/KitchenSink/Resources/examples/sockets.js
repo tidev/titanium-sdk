@@ -71,7 +71,7 @@ var validButton = Titanium.UI.createButton({
 win.add(validButton);
 validButton.addEventListener('click', function() {
 	// Display this value somewhere
-	var valid = socket.isValid();
+	var valid = socket.isValid;
 	messageLabel.text = 'Valid? '+valid;
     });
 
@@ -95,8 +95,8 @@ writeButton.addEventListener('click', function() {
 });
 
 // Cleanup
-win.addEventListener('blur', function(e) {
-	if (socket.isValid()) {
+win.addEventListener('close', function(e) {
+	if (socket.isValid) {
 		socket.close();
 	}
 });

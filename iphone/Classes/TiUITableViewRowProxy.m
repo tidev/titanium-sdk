@@ -15,6 +15,8 @@
 #import "Webcolor.h"
 #import "ImageLoader.h"
 
+NSString * const defaultRowTableClass = @"_default_";
+
 // used as a marker interface
 
 @interface TiUITableViewRowContainer : UIView
@@ -99,7 +101,7 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 
 @implementation TiUITableViewRowProxy
 
-@synthesize tableClass, table, section, row;
+@synthesize tableClass, table, section, row, callbackCell;
 
 -(void)_destroy
 {
@@ -122,7 +124,7 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 		id value = [self valueForUndefinedKey:@"className"];
 		if (value==nil)
 		{
-			value = @"_default_";
+			value = defaultRowTableClass;
 		}
 		tableClass = [value retain];
 	}
@@ -527,7 +529,23 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 	[self configureBackground:cell];
 	[self configureIndentionLevel:cell];
 	[self configureSelectionStyle:cell];
-	[self updateChildren:cell];
+
+	if([[cell reuseIdentifier] isEqual:defaultRowTableClass])
+	{
+		//We can make no assumptions when a class is not specified.
+		for (UIView * oldView in [[cell contentView] subviews])
+		{
+			if ([oldView isKindOfClass:[TiUITableViewRowContainer class]])
+			{
+				[oldView removeFromSuperview];
+			}
+		}
+		[self initializeTableViewCell:cell];
+	}
+	else
+	{
+		[self updateChildren:cell];
+	}
 	modifyingRow = NO;
 }
 
@@ -576,30 +594,36 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 	return self;
 }
 
+-(id)createEventObject:(id)initialObject
+{
+	NSMutableDictionary *dict = nil;
+	if (initialObject == nil)
+	{
+		dict = [NSMutableDictionary dictionary];
+	}
+	else
+	{
+		dict = [NSMutableDictionary dictionaryWithDictionary:initialObject];
+	}
+	NSInteger index = [table indexForRow:self];
+	[dict setObject:NUMINT(index) forKey:@"index"];
+	[dict setObject:section forKey:@"section"];
+	[dict setObject:self forKey:@"row"];
+	[dict setObject:self forKey:@"rowData"];
+	[dict setObject:NUMBOOL(NO) forKey:@"detail"];
+	[dict setObject:NUMBOOL(NO) forKey:@"searchMode"];
+	
+	return dict;
+}
 
 -(void)fireEvent:(NSString *)type withObject:(id)obj withSource:(id)source propagate:(BOOL)propagate
 {
 	// merge in any row level properties for the event
 	if (source!=self)
 	{
-		NSMutableDictionary *dict = nil;
-		if (obj == nil)
-		{
-			dict = [NSMutableDictionary dictionary];
-		}
-		else
-		{
-			dict = [NSMutableDictionary dictionaryWithDictionary:obj];
-		}
-		NSInteger index = [table indexForRow:self];
-		[dict setObject:NUMINT(index) forKey:@"index"];
-		[dict setObject:section forKey:@"section"];
-		[dict setObject:self forKey:@"row"];
-		[dict setObject:self forKey:@"rowData"];
-		[dict setObject:NUMBOOL(NO) forKey:@"detail"];
-		[dict setObject:NUMBOOL(NO) forKey:@"searchMode"];
-		obj = dict;
+		obj = [self createEventObject:obj];
 	}
+	[callbackCell handleEvent:type];
 	[super fireEvent:type withObject:obj withSource:source propagate:propagate];
 }
 

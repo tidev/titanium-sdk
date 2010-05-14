@@ -16,14 +16,17 @@ bonjourSocket.addEventListener('read', function(e) {
 			title:'Unknown listener message...',
 			message:dataStr
 		}).show();
+		
 		// WARNING: There's some weird issue here where data events may or may
 		// not interact with UI update events (including logging) and this
 		// may result in some very ugly undefined behavior... that hasn't been
 		// detected before because only UI elements have fired events in the
 		// past.
+		//
 		// Unfortunately, Bonjour is completely asynchronous and requires event
 		// firing: Sockets require it as well to reliably deliver information
 		// about when new data is available.
+		//
 		// In particular if UI elements are updated 'out of order' with socket
 		// data (especially modal elements, like dialogs, from inside the callback)
 		// there may be some very bad results.  Like... crashes.
@@ -101,7 +104,7 @@ serviceBrowser.addEventListener('updatedServices', updateUI);
 
 // Cleanup
 Titanium.UI.currentWindow.addEventListener('close', function(e) {
-	if (serviceBrowser.isSearching()) {
+	if (serviceBrowser.isSearching) {
 		serviceBrowser.stopSearch();
 	}
 	Titanium.API.info('Stopped search...');

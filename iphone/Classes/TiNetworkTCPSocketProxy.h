@@ -29,12 +29,12 @@
 -(void)connect:(id)unused;
 -(void)close:(id)unused;
 
--(NSNumber*)isValid:(id)unused;
 -(void)write:(id)arg;
 
 @property(readonly, nonatomic) NSString* hostName;
 @property(readonly, nonatomic) NSNumber* port;
 @property(readonly, nonatomic) NSNumber* mode;
+@property(readonly, nonatomic, getter=isValid) NSNumber* valid;
 
 @end
 
