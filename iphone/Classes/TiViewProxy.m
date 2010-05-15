@@ -692,12 +692,19 @@
 #pragma mark Memory Management
 
 -(void)_destroy
-{//TODO: What's the difference between _destroy and dealloc? Or rather, when do you call destroy and not release?
+{
+	// _destroy is called during a JS context shutdown, to inform the object to 
+	// release all its memory and references.  this will then cause dealloc 
+	// on objects that it contains (assuming we don't have circular references)
+	// since some of these objects are registered in the context and thus still
+	// reachable, we need _destroy to help us start the unreferencing part
+	
 	RELEASE_TO_NIL(barButtonItem);
 	if (view!=nil)
 	{
 		view.proxy = nil;
-		[view removeFromSuperview];
+		// must be on main thread
+		[view performSelectorOnMainThread:@selector(removeFromSuperview) withObject:nil waitUntilDone:NO];
 		RELEASE_TO_NIL(view);
 	}
 	
