@@ -7,6 +7,8 @@
 package ti.modules.titanium.network;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FilterOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -35,10 +37,11 @@ import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.HttpResponseException;
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.entity.mime.MultipartEntity;
 import org.apache.http.entity.mime.content.ContentBody;
-import org.apache.http.entity.mime.content.InputStreamBody;
+import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.impl.DefaultHttpRequestFactory;
 import org.apache.http.impl.client.DefaultHttpClient;
@@ -596,12 +599,18 @@ public class TiHTTPClient
 		try {
 			if (value instanceof TiBaseFile) {
 				TiBaseFile baseFile = (TiBaseFile) value;
-				InputStreamBody body = new InputStreamBody(baseFile.getInputStream(), name);
+				FileBody body = new FileBody(baseFile.getNativeFile(), TiMimeTypeHelper.getMimeType(baseFile.nativePath()));
 				parts.put(name, body);
 				return (int)baseFile.getNativeFile().length();
 			} else if (value instanceof TiBlob) {
 				TiBlob blob = (TiBlob) value;
-				InputStreamBody body = new InputStreamBody(blob.getInputStream(), name);
+				String mimeType = blob.getMimeType();
+				File tmpFile = File.createTempFile("tixhr", TiMimeTypeHelper.getFileExtensionFromMimeType(mimeType, ".txt"));
+				FileOutputStream fos = new FileOutputStream(tmpFile);
+				fos.write(blob.getBytes());
+				fos.close();
+				
+				FileBody body = new FileBody(tmpFile, mimeType);
 				parts.put(name, body);
 				return blob.getLength();
 			} else {
@@ -631,7 +640,7 @@ public class TiHTTPClient
 				for (String key : data.keySet()) {
 					Object value = data.get(key);
 
-					if (method.equals("POST")) {
+					if (method.equals("POST") || method.equals("PUT")) {
 						if (value instanceof TiBaseFile || value instanceof TiBlob) {
 							totalLength += addTitaniumFileAsPostData(key, value);
 						} else {
@@ -698,6 +707,7 @@ public class TiHTTPClient
 						if(parts.size() > 0) {
 							mpe = new MultipartEntity();
 							for(String name : parts.keySet()) {
+								Log.d(LCAT, "adding part " + name + ", part type: " + parts.get(name).getMimeType() + ", len: " + parts.get(name).getContentLength());
 								mpe.addPart(name, parts.get(name));
 							}
 							if (form != null) {
