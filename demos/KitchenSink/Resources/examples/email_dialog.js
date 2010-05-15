@@ -18,8 +18,9 @@ Titanium.Media.openPhotoGallery({
         emailDialog.setToRecipients(['foo@yahoo.com']);
         emailDialog.setCcRecipients(['bar@yahoo.com']);
         emailDialog.setBccRecipients(['blah@yahoo.com']);
+		
         if (Ti.Platform.name == 'iPhone OS') {
-            emailDialog.setMessageBody('<b>Appcelerator Titanium Rocks!</b>');
+            emailDialog.setMessageBody('<b>Appcelerator Titanium Rocks!</b>å');
             emailDialog.setHtml(true);
             emailDialog.setBarColor('#336699');
         } else {

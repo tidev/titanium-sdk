@@ -7,19 +7,19 @@
 #define _QUOTEME(x) #x
 #define STRING(x) _QUOTEME(x)
 
-NSString * const TI_APPLICATION_DEPLOYTYPE = @"production";
-NSString * const TI_APPLICATION_ID = @"com.appcelerator.titanium";
+NSString * const TI_APPLICATION_DEPLOYTYPE = @"development";
+NSString * const TI_APPLICATION_ID = @"com.nolanwright.kitchensink";
 NSString * const TI_APPLICATION_PUBLISHER = @"nwright";
 NSString * const TI_APPLICATION_URL = @"appcelerator.com";
 NSString * const TI_APPLICATION_NAME = @"KitchenSink";
 NSString * const TI_APPLICATION_VERSION = @"1.0";
 NSString * const TI_APPLICATION_DESCRIPTION = @"No description provided";
-NSString * const TI_APPLICATION_COPYRIGHT = @"2010 by nwright";
+NSString * const TI_APPLICATION_COPYRIGHT = @"2009 by nwright";
 NSString * const TI_APPLICATION_GUID = @"6fe33f33fd1f4e95a06d2d217170866d";
 BOOL const TI_APPLICATION_ANALYTICS = true;
 
 #ifdef TARGET_IPHONE_SIMULATOR
-NSString * const TI_APPLICATION_RESOURCE_DIR = @"";
+NSString * const TI_APPLICATION_RESOURCE_DIR = @"/Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink/Resources";
 #endif
 
 int main(int argc, char *argv[]) {

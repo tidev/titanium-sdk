@@ -13,6 +13,17 @@
 #import "TiUISearchBarProxy.h"
 #import "TiDimension.h"
 
+// Overloads hilighting to send touchbegin/touchend events
+@interface TiUITableViewCell : UITableViewCell
+{
+	TiUITableViewRowProxy* row;
+}
+
+-(id)initWithFrame:(CGRect)frame_ reuseIdentifier:(NSString *)reuseIdentifier_ row:(TiUITableViewRowProxy*)row_;
+-(id)initWithStyle:(UITableViewCellStyle)style_ reuseIdentifier:(NSString *)reuseIdentifier_ row:(TiUITableViewRowProxy*)row_;
+
+@end
+
 @interface TiUITableView : TiUIView<UISearchDisplayDelegate,UIScrollViewDelegate,UITableViewDelegate,UITableViewDataSource,UISearchBarDelegate,TiUIScrollView> {
 @private
 	UITableView *tableview;

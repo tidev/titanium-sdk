@@ -244,6 +244,8 @@ static const NSTimeInterval kLauncherViewFastTransitionDuration = 0.2;
 {
 	[self layoutIfNeeded];
 	
+	NSInteger curIndex = self.currentPageIndex;
+	
 	for (UIView *view in [scrollView subviews])
 	{
 		[view removeFromSuperview];
@@ -264,6 +266,8 @@ static const NSTimeInterval kLauncherViewFastTransitionDuration = 0.2;
 	}
     
 	[self layoutButtons];
+	
+	[pager setCurrentPage:curIndex];
 }
 
 - (void)scrollToItem:(LauncherItem*)item animated:(BOOL)animated 
@@ -299,7 +303,6 @@ static const NSTimeInterval kLauncherViewFastTransitionDuration = 0.2;
 		[self recreateButtons];
 	}
 	
-	[self scrollToItem:item animated:animated];
 }
 
 
@@ -626,6 +629,8 @@ static const NSTimeInterval kLauncherViewFastTransitionDuration = 0.2;
 	
 	[UIView commitAnimations];
 	
+	NSInteger curIndex = self.currentPageIndex;
+	
 	for (NSInteger i = 0; i < pages.count; ++i) 
 	{
 		NSArray* page = [pages objectAtIndex:i];
@@ -638,6 +643,8 @@ static const NSTimeInterval kLauncherViewFastTransitionDuration = 0.2;
 	}
 	
 	[self layoutButtons];
+	
+	[pager setCurrentPage:curIndex];
 	
 	if ([delegate respondsToSelector:@selector(launcherViewDidEndEditing:)]) 
 	{

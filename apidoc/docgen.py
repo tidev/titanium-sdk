@@ -154,8 +154,8 @@ class API(object):
 			# these are common properties that all views inherit
 			self.add_property('backgroundColor','string','the background color of the view')
 			self.add_property('backgroundGradient','object','a background gradient for the view with the properties: type,startPoint,endPoint,startRadius,endRadius,backfillStart,backfillEnd,colors.')
-			self.add_property('backgroundLeftCap','End caps specify the portion of an image that should not be resized when an image is stretched. This technique is used to implement buttons and other resizable image-based interface elements. When a button with end caps is resized, the resizing occurs only in the middle of the button, in the region between the end caps. The end caps themselves keep their original size and appearance. This property specifies the size of the left end cap. The middle (stretchable) portion is assumed to be 1 pixel wide. The right end cap is therefore computed by adding the size of the left end cap and the middle portion together and then subtracting that value from the width of the image')
-			self.add_property('backgroundTopCap','End caps specify the portion of an image that should not be resized when an image is stretched. This technique is used to implement buttons and other resizable image-based interface elements. When a button with end caps is resized, the resizing occurs only in the middle of the button, in the region between the end caps. The end caps themselves keep their original size and appearance. This property specifies the size of the top end cap. The middle (stretchable) portion is assumed to be 1 pixel wide. The bottom end cap is therefore computed by adding the size of the top end cap and the middle portion together and then subtracting that value from the height of the image')
+			self.add_property('backgroundLeftCap','float','End caps specify the portion of an image that should not be resized when an image is stretched. This technique is used to implement buttons and other resizable image-based interface elements. When a button with end caps is resized, the resizing occurs only in the middle of the button, in the region between the end caps. The end caps themselves keep their original size and appearance. This property specifies the size of the left end cap. The middle (stretchable) portion is assumed to be 1 pixel wide. The right end cap is therefore computed by adding the size of the left end cap and the middle portion together and then subtracting that value from the width of the image')
+			self.add_property('backgroundTopCap','float','End caps specify the portion of an image that should not be resized when an image is stretched. This technique is used to implement buttons and other resizable image-based interface elements. When a button with end caps is resized, the resizing occurs only in the middle of the button, in the region between the end caps. The end caps themselves keep their original size and appearance. This property specifies the size of the top end cap. The middle (stretchable) portion is assumed to be 1 pixel wide. The bottom end cap is therefore computed by adding the size of the top end cap and the middle portion together and then subtracting that value from the height of the image')
 			self.add_property('animatedCenterPoint','object','read-only object with x and y properties of where the view is during animation')
 			self.add_property('borderColor','string','the border color of the view')
 			self.add_property('borderWidth','float','the border width of the view')
@@ -550,6 +550,7 @@ for root, dirs, files in os.walk(template_dir):
 			continue
 		from_ = join(root, file)
 		current_file = from_
+		print "Processing: %s" % file
 		content = open(from_).readlines()
 		buffer = ''
 		current_line = 0
@@ -819,6 +820,6 @@ if __name__ == "__main__":
 #	main(sys.argv)
 #	main([sys.argv[0],'json','output=~/tmp/doc'])	
 #	main([sys.argv[0],'devhtml','output=~/work/appcelerator_network/new/public/devcenter/application/apidoc/mobile/1.0.0'])
-	main([sys.argv[0],'devhtml','version=1.2','output=~/work/appcelerator_network/new/public/devcenter/application/apidoc/mobile/1.2'])
+	main([sys.argv[0],'devhtml','version=1.3','output=~/work/appcelerator_network/new/public/devcenter/application/apidoc/mobile/1.3'])
 #	main([sys.argv[0],'devhtml','colorize','css=page.css','output=~/work/titanium_mobile/demos/KitchenSink_iPad/Resources/apidoc'])
 	

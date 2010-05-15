@@ -23,8 +23,6 @@ import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUIHelper;
 
-import sun.awt.geom.AreaOp.AddOp;
-
 public class TitaniumModule
 	extends TiModule
 {

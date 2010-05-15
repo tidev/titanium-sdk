@@ -32,7 +32,14 @@
 	// nothing to do, in the future we might show and hide indicator on a context load 
 	// but for now, nothing...
 	contextReady = YES;
-	[self open:nil];
+	
+	if (!navWindow) 
+	{
+		[self open:nil];
+	}
+	else {
+		[self prepareForNavView:[self navController]];
+	}
 }
 
 #pragma mark Public

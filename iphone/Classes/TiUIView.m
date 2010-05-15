@@ -832,13 +832,7 @@ DEFINE_EXCEPTIONS
 - (UIView *)hitTest:(CGPoint) point withEvent:(UIEvent *)event 
 {
 	BOOL hasTouchListeners = [self hasTouchableListener];
-	
-	// delegate to our touch delegate if we're hit but it's not for us
-	if (hasTouchListeners==NO && touchDelegate!=nil)
-	{
-		return touchDelegate;
-	}
-	
+
 	// if we don't have any touch listeners, see if interaction should
 	// be handled at all.. NOTE: we don't turn off the views interactionEnabled
 	// property since we need special handling ourselves and if we turn it off
@@ -846,6 +840,12 @@ DEFINE_EXCEPTIONS
 	if (hasTouchListeners == NO && [self interactionEnabled]==NO)
 	{
 		return nil;
+	}
+	
+	// delegate to our touch delegate if we're hit but it's not for us
+	if (hasTouchListeners==NO && touchDelegate!=nil)
+	{
+		return touchDelegate;
 	}
 	
     return [super hitTest:point withEvent:event];

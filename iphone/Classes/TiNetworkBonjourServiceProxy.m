@@ -72,7 +72,7 @@ const NSString* socketKey = @"socket";
 {
 	[self stop:nil];
 	
-	if (socket!=nil && [[socket isValid:nil] boolValue])
+	if (socket!=nil && [[socket isValid] boolValue])
 	{
 		[socket close:nil];
 	}

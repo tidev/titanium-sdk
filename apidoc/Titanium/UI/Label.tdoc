@@ -34,7 +34,7 @@ shadowOffset[object]: the shadow offset as a dictionary with the properties `x` 
 minimumFontSize[int]: the minimum font size if the label is auto-adjusting based on its contents
 backgroundImage[string]: background image for the label
 backgroundPaddingLeft[int]: the number of pixels to extend the background image past the label on the left
-backgroundPaddingRight[int]: the number of pixels to extend the background image past the label on the right`
+backgroundPaddingRight[int]: the number of pixels to extend the background image past the label on the right
 backgroundPaddingTop[int]: the number of pixels to extend the background image past the label on the top
 backgroundPaddingBottom[int]: the number of pixels to extend the background image past the label on the bottom
 
