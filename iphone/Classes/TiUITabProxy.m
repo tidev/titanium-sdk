@@ -149,7 +149,7 @@
 {
 	if ([self _hasListeners:@"blur"])
 	{
-		[self fireEvent:@"blur" withObject:event];
+		[self fireEvent:@"blur" withObject:event propagate:NO];
 	}
 	TiWindowProxy *currentWindow = [current window];
 	[currentWindow _tabBlur];
@@ -165,7 +165,7 @@
 {
 	if ([self _hasListeners:@"focus"])
 	{
-		[self fireEvent:@"focus" withObject:event];
+		[self fireEvent:@"focus" withObject:event propagate:NO];
 	}
 	TiWindowProxy *currentWindow = [current window];
 	[currentWindow _tabFocus];

@@ -115,7 +115,7 @@
 	//No need to setValue, because it's already been set.
 	if ([self.proxy _hasListeners:@"focus"])
 	{
-		[self.proxy fireEvent:@"focus" withObject:[NSDictionary dictionaryWithObject:text forKey:@"value"]];
+		[self.proxy fireEvent:@"focus" withObject:[NSDictionary dictionaryWithObject:text forKey:@"value"] propagate:NO];
 	}
 	
 	if (delegate!=nil && [delegate respondsToSelector:@selector(searchBarTextDidBeginEditing:)])
@@ -133,7 +133,7 @@
 	//No need to setValue, because it's already been set.
 	if ([self.proxy _hasListeners:@"blur"])
 	{
-		[self.proxy fireEvent:@"blur" withObject:[NSDictionary dictionaryWithObject:text forKey:@"value"]];
+		[self.proxy fireEvent:@"blur" withObject:[NSDictionary dictionaryWithObject:text forKey:@"value"] propagate:NO];
 	}
 
 	if (delegate!=nil && [delegate respondsToSelector:@selector(searchBarTextDidEndEditing:)])

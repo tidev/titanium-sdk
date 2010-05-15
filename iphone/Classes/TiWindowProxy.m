@@ -600,7 +600,7 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 	}
 #endif
 
-	[self fireEvent: newFocused?@"focus":@"blur" ];
+	[self fireEvent:newFocused?@"focus":@"blur" withObject:nil propagate:NO];
 	focused = newFocused;
 }
 
