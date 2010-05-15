@@ -195,15 +195,14 @@ class API(object):
 			self.add_event('click','fired when the device detects a click (longer than touch) against the view')
 			self.add_event('dblclick','fired when the device detects a double click against the view')
 			self.add_event('touchstart','fired as soon as the device detects a gesture')
-			self.add_event('touchmove','fired as soon as the device detects movement of a touch.  Event coordinates are always relative to the view in which the initial touch occurred')
+			self.add_event('touchmove','fired as soon as the device detects a movement of a touch')
 			self.add_event('touchcancel','fired when a touch event is interrupted by the device. this happens in circumenstances such as an incoming call to allow the UI to clean up state.')
 			self.add_event('touchend','fired when a touch event is completed')
 			# common event properties
 			self.add_event_property('swipe','direction','direction of the swipe - either left or right');
 			for x in self.events:
-				self.add_event_property(x['name'],'x','the x point of the event in receiving view coordiantes')
-				self.add_event_property(x['name'],'y','the y point of the event, in receiving view coordinates')
-				self.add_event_property(x['name'],'globalPoint','a dictionary with properties x and y describing the point of the event in screen coordinates')
+				self.add_event_property(x['name'],'x','the x point of the event')
+				self.add_event_property(x['name'],'y','the y point of the event')
 			
 	def set_returns(self,returns):
 		self.returns = returns

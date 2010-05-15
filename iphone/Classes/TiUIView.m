@@ -768,14 +768,18 @@ DEFINE_EXCEPTIONS
 
 - (void)handleSwipeLeft
 {
-	NSMutableDictionary *evt = [NSMutableDictionary dictionaryWithDictionary:[TiUtils pointToDictionary:touchLocation]];
+	NSMutableDictionary *evt = 
+		[NSMutableDictionary dictionaryWithDictionary:[TiUtils pointToDictionary:[self convertPoint:touchLocation fromView:nil]]];
+	[evt setValue:[TiUtils pointToDictionary:touchLocation] forKey:@"globalPoint"];
 	[evt setValue:@"left" forKey:@"direction"];
 	[proxy fireEvent:@"swipe" withObject:evt];
 }
 
 - (void)handleSwipeRight
 {
-	NSMutableDictionary *evt = [NSMutableDictionary dictionaryWithDictionary:[TiUtils pointToDictionary:touchLocation]];
+	NSMutableDictionary *evt = 
+		[NSMutableDictionary dictionaryWithDictionary:[TiUtils pointToDictionary:[self convertPoint:touchLocation fromView:nil]]];
+	[evt setValue:[TiUtils pointToDictionary:touchLocation] forKey:@"globalPoint"];
 	[evt setValue:@"right" forKey:@"direction"];
 	[proxy fireEvent:@"swipe" withObject:evt];
 }
@@ -784,7 +788,8 @@ DEFINE_EXCEPTIONS
 {
 	if ([proxy _hasListeners:@"singletap"])
 	{
-		NSDictionary *evt = [TiUtils pointToDictionary:tapLocation];
+		NSMutableDictionary *evt = [NSMutableDictionary dictionaryWithDictionary:[TiUtils pointToDictionary:tapLocation]];
+		[evt setValue:[TiUtils pointToDictionary:[self convertPoint:tapLocation toView:nil]] forKey:@"globalPoint"];
 		[proxy fireEvent:@"singletap" withObject:evt];
 	}
 }
@@ -793,7 +798,8 @@ DEFINE_EXCEPTIONS
 {
 	if ([proxy _hasListeners:@"doubletap"])
 	{
-		NSDictionary *evt = [TiUtils pointToDictionary:tapLocation];
+		NSMutableDictionary *evt = [NSMutableDictionary dictionaryWithDictionary:[TiUtils pointToDictionary:tapLocation]];
+		[evt setValue:[TiUtils pointToDictionary:[self convertPoint:tapLocation toView:nil]] forKey:@"globalPoint"];
 		[proxy fireEvent:@"doubletap" withObject:evt];
 	}
 }	
@@ -802,7 +808,8 @@ DEFINE_EXCEPTIONS
 {
 	if ([proxy _hasListeners:@"twofingertap"])
 	{
-		NSDictionary *evt = [TiUtils pointToDictionary:tapLocation];
+		NSDictionary *evt = [NSMutableDictionary dictionaryWithDictionary:[TiUtils pointToDictionary:tapLocation]];
+		[evt setValue:[TiUtils pointToDictionary:[self convertPoint:tapLocation toView:nil]] forKey:@"globalPoint"];
 		[proxy fireEvent:@"twofingertap" withObject:evt];
 	}
 }
@@ -869,7 +876,7 @@ DEFINE_EXCEPTIONS
 	
 	if (handlesSwipes)
 	{
-		touchLocation = [touch locationInView:self];
+		touchLocation = [touch locationInView:nil];
 	}
 	
 	if (handlesTaps)
@@ -892,8 +899,8 @@ DEFINE_EXCEPTIONS
 	
 	if (handlesTouches)
 	{
-		CGPoint point = [touch locationInView:[self superview]];
-		NSDictionary *evt = [TiUtils pointToDictionary:point];
+		NSMutableDictionary *evt = [NSMutableDictionary dictionaryWithDictionary:[TiUtils pointToDictionary:[touch locationInView:self]]];
+		[evt setValue:[TiUtils pointToDictionary:[touch locationInView:nil]] forKey:@"globalPoint"];
 		
 		if ([proxy _hasListeners:@"touchstart"])
 		{
@@ -925,8 +932,8 @@ DEFINE_EXCEPTIONS
 	UITouch *touch = [touches anyObject];
 	if (handlesTouches)
 	{
-		CGPoint point = [touch locationInView:[self superview]];
-		NSDictionary *evt = [TiUtils pointToDictionary:point];
+		NSMutableDictionary *evt = [NSMutableDictionary dictionaryWithDictionary:[TiUtils pointToDictionary:[touch locationInView:self]]];
+		[evt setValue:[TiUtils pointToDictionary:[touch locationInView:nil]] forKey:@"globalPoint"];
 		if ([proxy _hasListeners:@"touchmove"])
 		{
 			[proxy fireEvent:@"touchmove" withObject:evt propagate:YES];
@@ -934,7 +941,7 @@ DEFINE_EXCEPTIONS
 	}
 	if (handlesSwipes)
 	{
-		CGPoint point = [touch locationInView:self];
+		CGPoint point = [touch locationInView:nil];
 		// To be a swipe, direction of touch must be horizontal and long enough.
 		if (fabsf(touchLocation.x - point.x) >= HORIZ_SWIPE_DRAG_MIN &&
 			fabsf(touchLocation.y - point.y) <= VERT_SWIPE_DRAG_MAX)
@@ -1040,8 +1047,8 @@ DEFINE_EXCEPTIONS
 	if (handlesTouches)
 	{
 		UITouch *touch = [touches anyObject];
-		CGPoint point = [touch locationInView:[self superview]];
-		NSDictionary *evt = [TiUtils pointToDictionary:point];
+		NSMutableDictionary *evt = [NSMutableDictionary dictionaryWithDictionary:[TiUtils pointToDictionary:[touch locationInView:self]]];
+		[evt setValue:[TiUtils pointToDictionary:[touch locationInView:nil]] forKey:@"globalPoint"];
 		if ([proxy _hasListeners:@"touchend"])
 		{
 			[proxy fireEvent:@"touchend" withObject:evt propagate:YES];
@@ -1069,7 +1076,7 @@ DEFINE_EXCEPTIONS
 	if (handlesTouches)
 	{
 		UITouch *touch = [touches anyObject];
-		CGPoint point = [touch locationInView:[self superview]];
+		CGPoint point = [touch locationInView:self];
 		NSDictionary *evt = [TiUtils pointToDictionary:point];
 		if ([proxy _hasListeners:@"touchcancel"])
 		{
