@@ -76,7 +76,7 @@ public class GeolocationModule
 		return constants;
 	}
 
-	public boolean locationServicesEnabled() {
+	public boolean getLocationServicesEnabled() {
 		return tiLocation.isLocationEnabled();
 	}
 
