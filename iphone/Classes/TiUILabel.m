@@ -88,6 +88,7 @@
 -(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
 {
 	[label setFrame:bounds];
+	[backgroundView setFrame:bounds];
 	initialLabelFrame = [label frame];
     
     repad = YES;
