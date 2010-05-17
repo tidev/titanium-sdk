@@ -386,17 +386,6 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 	TiStringRelease(prop);
 	TiStringRelease(prop2);	
 	
-	// this is so that the compiled namespace will also get compiled in and linked
-	// during compile this will be replaced with the project name and won't match above
-	// but in xcode (not the project version) it'll be the same and we can ignore
-	NSString *compiledNS = @"Titanium";
-	if (![compiledNS isEqualToString:titaniumNS])
-	{
-		TiStringRef prop3 = TiStringCreateWithUTF8CString([compiledNS UTF8String]);
-		TiObjectSetProperty(jsContext, globalRef, prop3, tiRef, NULL, NULL);
-		TiStringRelease(prop3);	
-	}
-	
 	//if we have a preload dictionary, register those static key/values into our UI namespace
 	//in the future we may support another top-level module but for now UI is only needed
 	if (preload!=nil)
