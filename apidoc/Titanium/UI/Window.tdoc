@@ -35,6 +35,7 @@ titlePrompt[string]: title prompt for the window. only available in iPhone.
 titleImage[string]: url to a image that show in the title area. only available in iPhone.
 titleControl[object]: view to show in the title area. only available in iPhone.
 barColor[string]: web named color or hex value for the color of the nav bar. only available in iPhone.
+barImage[string]: url to a local image to place as the background of the nav bar. only available in iPhone.
 translucent[boolean]: boolean to indicate if the nav bar is translucent. only available in iPhone.
 leftNavButton[object]: view to show in the left nav bar area. only available in iPhone.
 rightNavButton[object]: view to show in the right nav bar area. only available in iPhone.
