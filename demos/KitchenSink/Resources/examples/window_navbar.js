@@ -348,3 +348,24 @@ b13.addEventListener('click', function()
 	win.rightNavButton = l;
 });
 win.add(b13);
+
+var b14 = Titanium.UI.createButton({
+	title:'Set Bar Image',
+	height:40,
+	width:145,
+	top:310,
+	right:10
+});
+
+b14.addEventListener('click', function()
+{
+	if(win.barImage)
+	{
+		win.barImage = null;
+	}
+	else
+	{
+		win.barImage = '../images/corkboard.jpg';
+	}
+});
+win.add(b14);
