@@ -657,7 +657,7 @@ public class KrollObject extends ScriptableObject
 			o = Context.getCurrentContext().newObject(kroll.getScope(), "Date", new Object[] { date.getTime() });
 		} else if (value.getClass().isArray()) {
 			int length = Array.getLength(value);
-			Object[] jsArray = new Object[Array.getLength(value)];
+			Object[] jsArray = new Object[length];
 			for (int i = 0; i < length; i++) {
 				jsArray[i] = fromNative(Array.get(value, i), kroll);
 			}
