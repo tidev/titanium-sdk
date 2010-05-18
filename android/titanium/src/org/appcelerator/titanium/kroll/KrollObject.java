@@ -588,7 +588,7 @@ public class KrollObject extends ScriptableObject
 		}
 		return a;
 	}
-
+	
 	@SuppressWarnings("serial")
 	public static Object fromNative(Object value, KrollContext kroll)
 	{
@@ -662,6 +662,17 @@ public class KrollObject extends ScriptableObject
 			}
 
 			o = Context.getCurrentContext().newObject(kroll.getScope(), "Array", jsArray);
+		} else if (value.getClass().isArray()) {
+			// TODO we need to support ALL primitive array types
+			if (value.getClass().getComponentType() == double.class) {
+				double[] array = (double[])value;
+				Object[] jsArray = new Object[array.length];
+				for (int i = 0; i < array.length; i++) {
+					jsArray[i] = fromNative(array[i], kroll);
+				}
+
+				o = Context.getCurrentContext().newObject(kroll.getScope(), "Array", jsArray);
+			}
 		} else {
 			o = new KrollObject(kroll, value);
 		}
