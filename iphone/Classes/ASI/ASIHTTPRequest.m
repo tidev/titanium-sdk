@@ -267,7 +267,14 @@ static BOOL isiPhoneOS2;
 	if (!requestHeaders) {
 		[self setRequestHeaders:[NSMutableDictionary dictionaryWithCapacity:1]];
 	}
-	[requestHeaders setObject:value forKey:header];
+	if (value == nil)
+	{
+		[requestHeaders removeObjectForKey:header];
+	}
+	else
+	{
+		[requestHeaders setObject:value forKey:header];
+	}
 }
 
 // This function will be called either just before a request starts, or when postLength is needed, whichever comes first
