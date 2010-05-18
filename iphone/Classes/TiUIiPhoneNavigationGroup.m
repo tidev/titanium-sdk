@@ -66,6 +66,7 @@
 
 -(void)close:(TiWindowProxy*)window withObject:(NSDictionary*)properties
 {
+	
 	[window retain];
 	[window close:nil];
 	[window autorelease];

@@ -9,16 +9,24 @@
 #import "TiModule.h"
 #import "KrollCallback.h"
 #import "TiMediaAudioSession.h"
+#import "MediaPlayer/MediaPlayer.h"
 
-@interface MediaModule : TiModule<UINavigationControllerDelegate,UIImagePickerControllerDelegate> {
+@interface MediaModule : TiModule<UINavigationControllerDelegate,UIImagePickerControllerDelegate, MPMediaPickerControllerDelegate> {
 @private
+	// Camera picker
 	UIImagePickerController *picker;
-	BOOL animatedPicker;
-	BOOL saveToRoll;
 	BOOL autoHidePicker;
+	BOOL saveToRoll;
+
+	// iPod picker
+	MPMediaPickerController* iPodPicker;
+	
+	// Shared picker bits; OK, since they're modal (and we can perform sanity checks for the necessary bits)
+	BOOL animatedPicker;
 	KrollCallback *pickerSuccessCallback;
 	KrollCallback *pickerErrorCallback;
 	KrollCallback *pickerCancelCallback;
+	
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
 	id popover;
 #endif
@@ -36,6 +44,7 @@
 @property(nonatomic,readonly) NSNumber* DEVICE_BUSY;
 @property(nonatomic,readonly) NSNumber* NO_CAMERA;
 @property(nonatomic,readonly) NSNumber* NO_VIDEO;
+@property(nonatomic,readonly) NSNumber* NO_IPOD;
 
 // these have been deprecated in 3.2 but we map them to their new values
 @property(nonatomic,readonly) NSNumber* VIDEO_CONTROL_DEFAULT;
@@ -92,6 +101,12 @@
 @property(nonatomic,readonly) NSNumber* AUDIO_SESSION_MODE_PLAYBACK;
 @property(nonatomic,readonly) NSNumber* AUDIO_SESSION_MODE_RECORD;
 @property(nonatomic,readonly) NSNumber* AUDIO_SESSION_MODE_PLAY_AND_RECORD;
+
+@property(nonatomic,readonly) NSNumber* IPOD_MEDIA_TYPE_MUSIC;
+@property(nonatomic,readonly) NSNumber* IPOD_MEDIA_TYPE_PODCAST;
+@property(nonatomic,readonly) NSNumber* IPOD_MEDIA_TYPE_AUDIOBOOK;
+@property(nonatomic,readonly) NSNumber* IPOD_MEDIA_TYPE_ANY_AUDIO;
+@property(nonatomic,readonly) NSNumber* IPOD_MEDIA_TYPE_ALL;
 
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
 

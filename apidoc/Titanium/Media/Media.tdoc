@@ -35,6 +35,8 @@ beep: play a device beep notification
 vibrate: play a device vibration
 takePicture: use the device camera to capture a photo. this must be called after calling `showCamera` and only when `autohide` is set to false. this method will cause the media capture device to capture a photo and call the `success` callback.
 hideCamera: hide the device camera UI. this must be called after calling `showCamera` and only when `autohide` is set to false. this method will cause the media capture device be hidden.
+showiPodLibrary: show the iPod library.  iPhone and iPad only.
+hideiPodLibrary: hide the iPod library.  This must be called after calling `showiPodLibrary` and only when `autohide` is set to false.  iPhone and iPad only.
 startMicrophoneMonitor: start the monitoring of microphone sound level
 stopMicrophoneMonitor: stop the monitoring of microphone sound level
 
@@ -64,7 +66,11 @@ callback[function] : function that will be called upon capture. the event proper
 
 media[object]: save the media passed to the cameras photo roll/media gallery. must be one of Blob object or File object or an error will be generated.
 
+- method : showiPodLibrary
 
+- method : showCamera
+
+options[object]: pass a dictionary with the following supported keys: `success` a function that will be called when the camera is completed, `error` a function that will be called upon receiving an error, `cancel` a function that will be called if the user presses the cancel button, `autohide` boolean if the library listing should auto hide after selection is completed (defaults to true), `animated` boolean if the dialog should be animated (defaults to true) upon showing and hiding, `mediaTypes` an array of media type constants defining selectable media (see IPOD_MEDIA_TYPE_* properties below) as either an array or a bitwise-or single value, `allowMultipleSelections` boolean whether or not more than one media selection is allowed
 
 - properties
 
@@ -130,10 +136,29 @@ availableCameraMediaTypes[array]: return an array of media type constants suppor
 availablePhotoMediaTypes[array]: return an array of media type constants supported for the photo
 availablePhotoGalleryMediaTypes[array]: return an array of media type constants supported for saving to the photo gallery
 
+IPOD_MEDIA_TYPE_MUSIC[int]: media containing music content
+IPOD_MEDIA_TYPE_PODCAST[int]: media containing podcast content
+IPOD_MEDIA_TYPE_AUDIOBOOK[int]: media containing audiobook content
+IPOD_MEDIA_TYPE_ANY_AUDIO[int]: media containing any audio content
+IPOD_MEDIA_TYPE_ALL[int]: media containing any content
 
 peakMicrophonePower[float]: return the current microphone level peak power in dB or -1 if microphone monitoring is disabled
 
 averageMicrophonePower[float]: return the current average microphone level in dB or -1 if microphone monitoring is disabled
+
+AUDIO_SESSION_MODE_AMBIENT[int]: For long-duration sounds such as rain, car engine noise, and so on. It is also for 'play along' style applications, such a virtual piano that a user plays over iPod audio.
+When you use this category, audio from built-in applications, such as the iPod, mixes with your audio. Your audio is silenced when the Ring/Silent switch is set to silent or when the screen locks.
+
+AUDIO_SESSION_MODE_SOLO_AMBIENT[int]: The solo ambient sound category is for long-duration sounds such as rain, car engine noise, and so on. When you use this category, audio from built-in applications, such as the iPod, is silenced. Your audio is silenced when the Ring/Silent switch is set to `silent` or when the screen locks.
+
+AUDIO_SESSION_MODE_PLAYBACK[int]: For playing recorded music or other sounds that are central to the successful use of your application. When using this mode, your application audio continues with the Ring/Silent switch set to silent or when the screen locks. This property normally disallows iPod audio to mix with application audio
+
+AUDIO_SESSION_MODE_RECORD[int]: For recording audio; it silences playback audio.
+
+AUDIO_SESSION_MODE_PLAY_AND_RECORD[int]: Allows recording (input) and playback (output) of audio, such as for a VOIP (voice over IP) application. This category is appropriate for simultaneous recording and playback, and also for applications that record and play back but not simultaneously. If you want to ensure that sounds such as Messages alerts do not play while your application is recording, use  [[Titanium.Media.AUDIO_SESSION_MODE_RECORD]] instead. This category normally disallows iPod audio to mix with application audio.
+
+defaultAudioSessionMode[int]: a constant for the default audio session mode to be used. One of [[Titanium.Media.AUDIO_SESSION_MODE_AMBIENT]], [[Titanium.Media.AUDIO_SESSION_MODE_SOLO_AMBIENT]],[[Titanium.Media.AUDIO_SESSION_MODE_PLAYBACK]],[[Titanium.Media.AUDIO_SESSION_MODE_RECORD]], [[Titanium.Media.AUDIO_SESSION_MODE_PLAY_AND_RECORD]].
+
 
 # NOTE: these are introduced in 3.2
 VIDEO_CONTROL_NONE[int]: No controls. Used in conjunction with movieControlStyle property of [[Titanium.Media.VideoPlayer]] in iPhone 3.2+
@@ -169,19 +194,6 @@ VIDEO_TIME_OPTION_EXACT[int]: use the exact time
 VIDEO_FINISH_REASON_PLAYBACK_ENDED[int]: the video playback ended normally
 VIDEO_FINISH_REASON_PLAYBACK_ERROR[int]: the video playback ended abnormally
 VIDEO_FINISH_REASON_USER_EXITED[int]: the video playback ended by user action (such as clicking the `Done` button)
-
-AUDIO_SESSION_MODE_AMBIENT[int]: For long-duration sounds such as rain, car engine noise, and so on. It is also for 'play along' style applications, such a virtual piano that a user plays over iPod audio.
-When you use this category, audio from built-in applications, such as the iPod, mixes with your audio. Your audio is silenced when the Ring/Silent switch is set to silent or when the screen locks.
-
-AUDIO_SESSION_MODE_SOLO_AMBIENT[int]: The solo ambient sound category is for long-duration sounds such as rain, car engine noise, and so on. When you use this category, audio from built-in applications, such as the iPod, is silenced. Your audio is silenced when the Ring/Silent switch is set to `silent` or when the screen locks.
-
-AUDIO_SESSION_MODE_PLAYBACK[int]: For playing recorded music or other sounds that are central to the successful use of your application. When using this mode, your application audio continues with the Ring/Silent switch set to silent or when the screen locks. This property normally disallows iPod audio to mix with application audio
-
-AUDIO_SESSION_MODE_RECORD[int]: For recording audio; it silences playback audio.
-
-AUDIO_SESSION_MODE_PLAY_AND_RECORD[int]: Allows recording (input) and playback (output) of audio, such as for a VOIP (voice over IP) application. This category is appropriate for simultaneous recording and playback, and also for applications that record and play back but not simultaneously. If you want to ensure that sounds such as Messages alerts do not play while your application is recording, use  [[Titanium.Media.AUDIO_SESSION_MODE_RECORD]] instead. This category normally disallows iPod audio to mix with application audio.
-
-defaultAudioSessionMode[int]: a constant for the default audio session mode to be used. One of [[Titanium.Media.AUDIO_SESSION_MODE_AMBIENT]], [[Titanium.Media.AUDIO_SESSION_MODE_SOLO_AMBIENT]],[[Titanium.Media.AUDIO_SESSION_MODE_PLAYBACK]],[[Titanium.Media.AUDIO_SESSION_MODE_RECORD]], [[Titanium.Media.AUDIO_SESSION_MODE_PLAY_AND_RECORD]].
 
 - events
 
