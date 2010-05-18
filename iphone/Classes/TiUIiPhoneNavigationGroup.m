@@ -66,6 +66,12 @@
 
 -(void)close:(TiWindowProxy*)window withObject:(NSDictionary*)properties
 {
+	UIViewController* windowController = [window controller];
+	NSMutableArray* newControllers = [NSMutableArray arrayWithArray:controller.viewControllers];
+	BOOL animated = (windowController == [newControllers lastObject]);
+	[newControllers removeObject:windowController];
+	[controller setViewControllers:newControllers animated:animated];
+	
 	[window retain];
 	[window close:nil];
 	[window autorelease];
