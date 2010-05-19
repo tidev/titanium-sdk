@@ -11,10 +11,11 @@
 #import "TiProxy.h"
 #import "TiMediaItem.h"
 
-@interface TiMediaMusicPlayerProxy : TiProxy {
+@interface TiMediaMusicPlayer : TiProxy {
 	MPMusicPlayerController* player;
-	BOOL configured; // Prevent changing the player
 }
+
+-(id)_initWithPageContext:(id<TiEvaluator>)context player:(MPMusicPlayerController*)player_;
 
 -(void)play:(id)unused;
 -(void)pause:(id)unused;

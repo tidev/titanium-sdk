@@ -16,6 +16,26 @@
 {
 	if (self = [super _initWithPageContext:context]) {
 		item = [item_ retain];
+		itemProperties = 
+			[[NSDictionary alloc] initWithObjectsAndKeys:MPMediaItemPropertyMediaType, @"mediaType",
+																MPMediaItemPropertyTitle, @"title",
+																MPMediaItemPropertyAlbumTitle, @"albumTitle",
+																MPMediaItemPropertyArtist, @"artist",
+																MPMediaItemPropertyAlbumArtist, @"albumArtist",
+																MPMediaItemPropertyGenre, @"genre",
+																MPMediaItemPropertyComposer, @"composer",
+																MPMediaItemPropertyPlaybackDuration, @"playbackDuration",
+																MPMediaItemPropertyAlbumTrackNumber, @"albumTrackNumber",
+																MPMediaItemPropertyAlbumTrackCount, @"albumTrackCount",
+																MPMediaItemPropertyDiscNumber, @"discNumber",
+																MPMediaItemPropertyDiscCount, @"discCount",
+																MPMediaItemPropertyLyrics, @"lyrics",
+																MPMediaItemPropertyIsCompilation, @"isCompilation",
+																MPMediaItemPropertyPodcastTitle, @"podcastTitle",
+																MPMediaItemPropertyPlayCount, @"playCount",
+																MPMediaItemPropertySkipCount, @"skipCount",
+																MPMediaItemPropertyRating, @"rating",
+																nil	];
 	}
 	return self;
 }
@@ -23,6 +43,7 @@
 -(void)dealloc
 {
 	RELEASE_TO_NIL(item);
+	RELEASE_TO_NIL(itemProperties);
 	[super dealloc];
 }
 
@@ -43,13 +64,13 @@
 }
 
 // This is a sleazy way of getting properties so that I don't have to write 15 functions.
--(void)forwardInvocation:(NSInvocation *)anInvocation
+-(id)valueForUndefinedKey:(NSString *)key
 {
-	NSString* selectorName = NSStringFromSelector([anInvocation selector]);
-	NSString* propertyName = [NSString stringWithFormat:@"MPMediaItemProperty%@%@", [[selectorName substringToIndex:1] uppercaseString], [selectorName substringFromIndex:1]];
-	[anInvocation setSelector:@selector(valueForProperty:)];
-	[anInvocation setArgument:propertyName atIndex:2];
-	[anInvocation invokeWithTarget:item];
+	id propertyName = [itemProperties objectForKey:key];
+	if (propertyName == nil) {
+		return [super valueForUndefinedKey:key];
+	}
+	return [item valueForProperty:propertyName];
 }
 
 @end

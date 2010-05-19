@@ -5,12 +5,46 @@
  * Please see the LICENSE included with this distribution for details.
  */
 #ifdef USE_TI_MEDIA
-#import "TiMediaMusicPlayerProxy.h"
+#import "TiMediaMusicPlayer.h"
 #import "MediaModule.h"
 
-@implementation TiMediaMusicPlayerProxy
+@implementation TiMediaMusicPlayer
 
 #pragma mark Internal
+
+// Has to happen on main thread or notifications screw up
+-(void)initializePlayer
+{
+	NSNotificationCenter* nc = [NSNotificationCenter defaultCenter];
+	[nc addObserver:self selector:@selector(stateDidChange:) name:MPMusicPlayerControllerPlaybackStateDidChangeNotification object:player];
+	[nc addObserver:self selector:@selector(playingDidChange:) name:MPMusicPlayerControllerNowPlayingItemDidChangeNotification object:player];
+	[nc addObserver:self selector:@selector(volumeDidChange:) name:MPMusicPlayerControllerVolumeDidChangeNotification object:player];
+	
+	[player beginGeneratingPlaybackNotifications];	
+}
+
+-(id)_initWithPageContext:(id<TiEvaluator>)context player:(MPMusicPlayerController*)player_
+{
+	if (self = [super _initWithPageContext:context]) {
+		player = player_;
+		NSNotificationCenter* nc = [NSNotificationCenter defaultCenter];
+		[nc addObserver:self selector:@selector(stateDidChange:) name:MPMusicPlayerControllerPlaybackStateDidChangeNotification object:player];
+		[nc addObserver:self selector:@selector(playingDidChange:) name:MPMusicPlayerControllerNowPlayingItemDidChangeNotification object:player];
+		[nc addObserver:self selector:@selector(volumeDidChange:) name:MPMusicPlayerControllerVolumeDidChangeNotification object:player];
+		
+		[player beginGeneratingPlaybackNotifications];	
+
+		/*
+		if (![NSThread isMainThread]) {
+			[self performSelectorOnMainThread:@selector(initializePlayer) withObject:nil waitUntilDone:YES];
+		}
+		else {
+			[self initializePlayer];
+		}
+		 */
+	}
+	return self;
+}
 
 -(void)dealloc
 {
@@ -22,43 +56,6 @@
 	[player endGeneratingPlaybackNotifications];
 	
 	[super dealloc];
-}
-
--(void)setType:(id)type
-{
-#if TARGET_IPHONE_SIMULATOR
-	[self throwException:@"No music player"
-			   subreason:nil
-				location:CODELOCATION];
-	return;
-#endif
-	
-	if (configured) {
-		[self throwException:@"Cannot reset player type"
-				   subreason:nil 
-					location:CODELOCATION];
-	}
-	
-	if ([type isEqual:@"system"]) {
-		player = [MPMusicPlayerController iPodMusicPlayer];
-	}
-	else if ([type isEqual:@"app"]) {
-		player = [MPMusicPlayerController applicationMusicPlayer];
-	}
-	else {
-		[self throwException:[NSString stringWithFormat:@"Invalid music player type %@",type]
-				   subreason:nil
-					location:CODELOCATION];
-	}
-	
-	NSNotificationCenter* nc = [NSNotificationCenter defaultCenter];
-	[nc addObserver:self selector:@selector(stateDidChange:) name:MPMusicPlayerControllerPlaybackStateDidChangeNotification object:player];
-	[nc addObserver:self selector:@selector(playingDidChange:) name:MPMusicPlayerControllerNowPlayingItemDidChangeNotification object:player];
-	[nc addObserver:self selector:@selector(volumeDidChange:) name:MPMusicPlayerControllerVolumeDidChangeNotification object:player];
-	
-	[player beginGeneratingPlaybackNotifications];
-	
-	configured = YES;
 }
 
 #pragma mark Queue management

@@ -10,6 +10,7 @@
 #import "KrollCallback.h"
 #import "TiMediaAudioSession.h"
 #import "MediaPlayer/MediaPlayer.h"
+#import "TiMediaMusicPlayer.h"
 
 @interface MediaModule : TiModule<UINavigationControllerDelegate,UIImagePickerControllerDelegate, MPMediaPickerControllerDelegate> {
 @private
@@ -20,6 +21,10 @@
 
 	// Music picker
 	MPMediaPickerController* musicPicker;
+	
+	// Music players
+	TiMediaMusicPlayer* systemMusicPlayer;
+	TiMediaMusicPlayer* appMusicPlayer;
 	
 	// Shared picker bits; OK, since they're modal (and we can perform sanity checks for the necessary bits)
 	BOOL animatedPicker;
@@ -37,8 +42,9 @@
 @property(nonatomic,readonly) CGFloat averageMicrophonePower;
 @property(nonatomic,readonly) NSInteger audioLineType;
 @property(nonatomic,readonly) BOOL audioPlaying;
-@property(nonatomic, assign) NSNumber* defaultAudioSessionMode;
-
+@property(nonatomic,assign) NSNumber* defaultAudioSessionMode;
+@property(nonatomic,readonly) TiMediaMusicPlayer* systemMusicPlayer;
+@property(nonatomic,readonly) TiMediaMusicPlayer* appMusicPlayer;
 
 @property(nonatomic,readonly) NSNumber* UNKNOWN_ERROR;
 @property(nonatomic,readonly) NSNumber* DEVICE_BUSY;
@@ -108,9 +114,6 @@
 @property(nonatomic,readonly) NSNumber* MUSIC_MEDIA_TYPE_ANY_AUDIO;
 @property(nonatomic,readonly) NSNumber* MUSIC_MEDIA_TYPE_ALL;
 
-@property(nonatomic,readonly) NSString* MUSIC_PLAYER_TYPE_SYSTEM;
-@property(nonatomic,readonly) NSString* MUSIC_PLAYER_TYPE_APP;
-
 @property(nonatomic,readonly) NSNumber* MUSIC_PLAYER_STATE_STOPPED;
 @property(nonatomic,readonly) NSNumber* MUSIC_PLAYER_STATE_PLAYING;
 @property(nonatomic,readonly) NSNumber* MUSIC_PLAYER_STATE_PAUSED;
@@ -127,7 +130,6 @@
 @property(nonatomic,readonly) NSNumber* MUSIC_PLAYER_SHUFFLE_NONE;
 @property(nonatomic,readonly) NSNumber* MUSIC_PLAYER_SHUFFLE_SONGS;
 @property(nonatomic,readonly) NSNumber* MUSIC_PLAYER_SHUFFLE_ALBUMS;
-
 
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
 

@@ -134,14 +134,14 @@ availableCameraMediaTypes[array]: return an array of media type constants suppor
 availablePhotoMediaTypes[array]: return an array of media type constants supported for the photo
 availablePhotoGalleryMediaTypes[array]: return an array of media type constants supported for saving to the photo gallery
 
+systemMusicPlayer[object]: an instance of `Titanium.Media.MusicPlayer` representing the system-wide music player.  iPhone/iPad only
+appMusicPlayer[object]: an instance of `Titanium.Media.MusicPlayer` representing the app-specific music player.  iPhone/iPad only
+
 MUSIC_MEDIA_TYPE_MUSIC[int]: media containing music content
 MUSIC_MEDIA_TYPE_PODCAST[int]: media containing podcast content
 MUSIC_MEDIA_TYPE_AUDIOBOOK[int]: media containing audiobook content
 MUSIC_MEDIA_TYPE_ANY_AUDIO[int]: media containing any audio content
 MUSIC_MEDIA_TYPE_ALL[int]: media containing any content
-
-MUSIC_PLAYER_TYPE_SYSTEM[string]: constant representing the device-wide music player
-MUSIC_PLAYER_TYPE_APP[string]: cosntant representing the local application music player
 
 MUSIC_PLAYER_STATE_STOPPED[int]: constant for stopped state
 MUSIC_PLAYER_STATE_PLAYING[int]: constant for playing state

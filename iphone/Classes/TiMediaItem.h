@@ -15,12 +15,13 @@
 // generated internally only for the media player.
 @interface TiMediaItem : TiProxy {
 	MPMediaItem* item;
+	NSDictionary* itemProperties;
 }
 
 #pragma mark Properties
 
 /*
- These are all handled by forwardInvocation: but for artwork.  Documented here for posterity.
+ These are all handled by key management but for artwork (it's special!).  Documented here for posterity.
  
 @property(nonatomic,readonly) NSNumber* mediaType;
 @property(nonatomic,readonly) NSString* title;
@@ -36,10 +37,10 @@
 @property(nonatomic,readonly) NSNumber* discCount;
 @property(nonatomic,readonly) NSString* lyrics;
 @property(nonatomic,readonly) NSNumber* isCompilation;
-@property(nonatomic,readonly) NSString* releaseDate;
-@property(nonatomic,readonly) NSNumber* beatsPerMinute;
-@property(nonatomic,readonly) NSString* comments;
-@property(nonatomic,readonly) NSString* assetURL;
+@property(nonatomic,readonly) NSString* podcastTitle;
+@property(nonatomic,readonly) NSNumber* playCount;
+@property(nonatomic,readonly) NSNumber* skipCount;
+@property(nonatomic,readonly) NSNumber* rating;
  */
 
 @property(nonatomic,readonly) TiBlob* artwork;

@@ -16,7 +16,7 @@
 #import "Ti2DMatrix.h"
 #import "SCListener.h"
 #import "TiMediaAudioSession.h"
-#import "TiMediaMusicPlayerProxy.h"
+#import "TiMediaMusicPlayer.h"
 #import "TiMediaItem.h"
 
 #import <AudioToolbox/AudioToolbox.h>
@@ -59,6 +59,8 @@ enum
 -(void)dealloc
 {
 	[self destroyPicker];
+	RELEASE_TO_NIL(systemMusicPlayer);
+	RELEASE_TO_NIL(appMusicPlayer);
 	[super dealloc];
 }
 
@@ -673,6 +675,30 @@ MAKE_SYSTEM_PROP(VIDEO_FINISH_REASON_USER_EXITED,MPMovieFinishReasonUserExited);
 		[[TiApp app] hideModalController:musicPicker animated:animatedPicker];
 		[self destroyPicker];
 	}
+}
+
+-(TiMediaMusicPlayer*)systemMusicPlayer
+{
+	if (systemMusicPlayer == nil) {
+		if (![NSThread isMainThread]) {
+			[self performSelectorOnMainThread:@selector(systemMusicPlayer) withObject:nil waitUntilDone:YES];
+			return systemMusicPlayer;
+		}
+		systemMusicPlayer = [[TiMediaMusicPlayer alloc] _initWithPageContext:[self pageContext] player:[MPMusicPlayerController iPodMusicPlayer]];
+	}
+	return systemMusicPlayer;
+}
+
+-(TiMediaMusicPlayer*)appMusicPlayer
+{
+	if (appMusicPlayer == nil) {
+		if (![NSThread isMainThread]) {
+			[self performSelectorOnMainThread:@selector(appMusicPlayer) withObject:nil waitUntilDone:YES];
+			return appMusicPlayer;
+		}
+		appMusicPlayer = [[TiMediaMusicPlayer alloc] _initWithPageContext:[self pageContext] player:[MPMusicPlayerController applicationMusicPlayer]];
+	}
+	return appMusicPlayer;
 }
 
 -(void)setDefaultAudioSessionMode:(NSNumber*)mode
