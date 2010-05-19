@@ -12,6 +12,18 @@ var data = [
 
 picker.add(data);
 
+setTimeout(function()
+{
+	Ti.API.info('in timeout ' + picker.data)
+	var data2 = [
+		{title:'Bananas',custom_item:'b',fontSize:18},
+	];
+
+//	picker.remove(data);
+	win.remove(picker);
+	picker.add(data2);
+	win.add(picker)
+},2000)
 // turn on the selection indicator (off by default)
 picker.selectionIndicator = true;
 
