@@ -16,6 +16,7 @@ if (isIPhone3_2_Plus())
 if (Titanium.Platform.name == 'iPhone OS')
 {
 	data.push({title:'Remote Streaming', hasChild:true, test:'../examples/movie_remote.js'});
+	data.push({title:'Remote Streaming 2', hasChild:true, test:'../examples/movie_remote2.js'});
 }
 
 // create table view

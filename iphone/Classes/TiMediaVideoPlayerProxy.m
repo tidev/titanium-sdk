@@ -515,14 +515,15 @@
 
 -(void)play:(id)args
 {
-	if ((url == nil) && (movie == nil))
+	ENSURE_UI_THREAD(play,args);
+	
+	if (url == nil)
 	{
 		[self throwException:TiExceptionInvalidType
 				subreason:@"Tried to play movie player without a valid url, media, or contentURL property"
 				location:CODELOCATION];
 	}
 
-	ENSURE_UI_THREAD(play,args);
 	
 	// indicate we're going to start playing
 	//[[TiMediaAudioSession sharedSession] playback];
