@@ -35,8 +35,8 @@ beep: play a device beep notification
 vibrate: play a device vibration
 takePicture: use the device camera to capture a photo. this must be called after calling `showCamera` and only when `autohide` is set to false. this method will cause the media capture device to capture a photo and call the `success` callback.
 hideCamera: hide the device camera UI. this must be called after calling `showCamera` and only when `autohide` is set to false. this method will cause the media capture device be hidden.
-showiPodLibrary: show the iPod library.  iPhone and iPad only.
-hideiPodLibrary: hide the iPod library.  This must be called after calling `showiPodLibrary` and only when `autohide` is set to false.  iPhone and iPad only.
+showMusicLibrary: show the music library.  iPhone and iPad only.
+hideMusicLibrary: hide the music library.  This must be called after calling `showMusicLibrary` and only when `autohide` is set to false.  iPhone and iPad only.
 startMicrophoneMonitor: start the monitoring of microphone sound level
 stopMicrophoneMonitor: stop the monitoring of microphone sound level
 
@@ -66,11 +66,9 @@ callback[function] : function that will be called upon capture. the event proper
 
 media[object]: save the media passed to the cameras photo roll/media gallery. must be one of Blob object or File object or an error will be generated.
 
-- method : showiPodLibrary
+- method : showMusicLibrary
 
-- method : showCamera
-
-options[object]: pass a dictionary with the following supported keys: `success` a function that will be called when the camera is completed, `error` a function that will be called upon receiving an error, `cancel` a function that will be called if the user presses the cancel button, `autohide` boolean if the library listing should auto hide after selection is completed (defaults to true), `animated` boolean if the dialog should be animated (defaults to true) upon showing and hiding, `mediaTypes` an array of media type constants defining selectable media (see IPOD_MEDIA_TYPE_* properties below) as either an array or a bitwise-or single value, `allowMultipleSelections` boolean whether or not more than one media selection is allowed
+options[object]: pass a dictionary with the following supported keys: `success` a function that will be called when the camera is completed, `error` a function that will be called upon receiving an error, `cancel` a function that will be called if the user presses the cancel button, `autohide` boolean if the library listing should auto hide after selection is completed (defaults to true), `animated` boolean if the dialog should be animated (defaults to true) upon showing and hiding, `mediaTypes` an array of media type constants defining selectable media (see MUSIC_MEDIA_TYPE_* properties below) as either an array or a bitwise-or single value, `allowMultipleSelections` boolean whether or not more than one media selection is allowed
 
 - properties
 
@@ -136,11 +134,31 @@ availableCameraMediaTypes[array]: return an array of media type constants suppor
 availablePhotoMediaTypes[array]: return an array of media type constants supported for the photo
 availablePhotoGalleryMediaTypes[array]: return an array of media type constants supported for saving to the photo gallery
 
-IPOD_MEDIA_TYPE_MUSIC[int]: media containing music content
-IPOD_MEDIA_TYPE_PODCAST[int]: media containing podcast content
-IPOD_MEDIA_TYPE_AUDIOBOOK[int]: media containing audiobook content
-IPOD_MEDIA_TYPE_ANY_AUDIO[int]: media containing any audio content
-IPOD_MEDIA_TYPE_ALL[int]: media containing any content
+MUSIC_MEDIA_TYPE_MUSIC[int]: media containing music content
+MUSIC_MEDIA_TYPE_PODCAST[int]: media containing podcast content
+MUSIC_MEDIA_TYPE_AUDIOBOOK[int]: media containing audiobook content
+MUSIC_MEDIA_TYPE_ANY_AUDIO[int]: media containing any audio content
+MUSIC_MEDIA_TYPE_ALL[int]: media containing any content
+
+MUSIC_PLAYER_TYPE_SYSTEM[string]: constant representing the device-wide music player
+MUSIC_PLAYER_TYPE_APP[string]: cosntant representing the local application music player
+
+MUSIC_PLAYER_STATE_STOPPED[int]: constant for stopped state
+MUSIC_PLAYER_STATE_PLAYING[int]: constant for playing state
+MUSIC_PLAYER_STATE_PAUSED[int]: constant for paused state
+MUSIC_PLAYER_STATE_INTERRUPTED[int]: constant for interrupted state
+MUSIC_PLAYER_STATE_SKEEK_FORWARD[int]: constant for forward seek state
+MUSIC_PLAYER_STATE_SEEK_BACKWARD[int]: constant for backward seek state
+
+MUSIC_PLAYER_REPEAT_DEFAULT[int]: constant for user default repeat setting
+MUSIC_PLAYER_REPEAT_NONE[int]: constant for no repeat setting
+MUSIC_PLAYER_REPEAT_ONE[int]: constant for repeating one item setting
+MUSIC_PLAYER_REPEAT_ALL[int]: constant for repeating all setting
+
+MUSIC_PLAYER_SHUFFLE_DEFAULT[int]: constant for user default shuffle setting
+MUSIC_PLAYER_SHUFFLE_NONE[int]: constant for no shuffle setting
+MUSIC_PLAYER_SHUFFLE_SONGS[int]: constant for shuffling songs setting
+MUSIC_PLAYER_SHUFFLE_ALBUMS[int]: constant for shuffling complete albums setting
 
 peakMicrophonePower[float]: return the current microphone level peak power in dB or -1 if microphone monitoring is disabled
 

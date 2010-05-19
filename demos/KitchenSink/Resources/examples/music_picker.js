@@ -1,20 +1,22 @@
-var win = Ti.UI.currentWindow;
+var settingsWindow = Ti.UI.createWindow({
+	modal:true
+});
 
 var settings = {
 	success:function(success)
 	{
-		if (settings.autohide) {
+		if (!settings.autohide) {
 			Ti.API.log("You didn't autohide me!");
-			Ti.Media.hideiPodLibrary();
+			Ti.Media.hideMusicLibrary();
 		}
-	}
+	},
 	error:function(error)
 	{
 		// create alert
-		var a = Titanium.UI.createAlertDialog({title:'iPod Picker'});
+		var a = Titanium.UI.createAlertDialog({title:'Music Picker'});
 
 		// set message
-		if (error.code == Titanium.Media.NO_IPOD)
+		if (error.code == Titanium.Media.NO_MUSIC_PLAYER)
 		{
 			a.setMessage('Please run this test on device');
 		}
@@ -26,7 +28,7 @@ var settings = {
 		// show alert
 		a.show();
 	},
-	mediaTypes:Ti.Media.IPOD_MEDIA_TYPE_ALL
+	mediaTypes:Ti.Media.MUSIC_MEDIA_TYPE_ALL
 };
 
 var modify = function(e) {
@@ -54,7 +56,7 @@ var s1 = Ti.UI.createSwitch({
 s1.addEventListener('change', modify);
 v1.add(l1);
 v1.add(s1);
-win.add(v1);
+settingsWindow.add(v1);
 
 var v2 = Ti.UI.createView({
 	top:45,
@@ -76,7 +78,7 @@ var s2 = Ti.UI.createSwitch({
 s2.addEventListener('change', modify);
 v2.add(l2);
 v2.add(s2);
-win.add(v2);
+settingsWindow.add(v2);
 
 var v3 = Ti.UI.createView({
 	top:80,
@@ -98,7 +100,7 @@ var s3 = Ti.UI.createSwitch({
 s3.addEventListener('change', modify);
 v3.add(l3);
 v3.add(s3);
-win.add(v3);
+settingsWindow.add(v3);
 
 var switches = [];
 for (var i=0; i < 5; i++) {
@@ -115,23 +117,23 @@ for (var i=0; i < 5; i++) {
 	switch (i) {
 		case 0:
 			text = 'Music:';
-			type = Ti.Media.IPOD_MEDIA_TYPE_MUSIC;
+			type = Ti.Media.MUSIC_MEDIA_TYPE_MUSIC;
 			break;
 		case 1:
 			text = 'Podcasts:';
-			type = Ti.Media.IPOD_MEDIA_TYPE_PODCAST;
+			type = Ti.Media.MUSIC_MEDIA_TYPE_PODCAST;
 			break;
 		case 2:
 			text = 'Audiobooks:';
-			type = Ti.Media.IPOD_MEDIA_TYPE_AUDIOBOOK;
+			type = Ti.Media.MUSIC_MEDIA_TYPE_AUDIOBOOK;
 			break;
 		case 3:
 			text = 'Any audio:';
-			type = Ti.Media.IPOD_MEDIA_TYPE_ANY_AUDIO;
+			type = Ti.Media.MUSIC_MEDIA_TYPE_ANY_AUDIO;
 			break;
 		case 4:
 			text = 'All:';
-			type = Ti.Media.IPOD_MEDIA_TYPE_ALL;
+			type = Ti.Media.MUSIC_MEDIA_TYPE_ALL;
 			break;
 	}
 	
@@ -173,7 +175,7 @@ for (var i=0; i < 5; i++) {
 	
 	v.add(l);
 	v.add(s);
-	win.add(v);
+	settingsWindow.add(v);
 }
 
 var showButton = Ti.UI.createButton({
@@ -182,8 +184,8 @@ var showButton = Ti.UI.createButton({
 	height:40,
 	bottom:10
 });
-win.add(showButton);
+settingsWindow.add(showButton);
 
 showButton.addEventListener('click', function() {
-	Ti.Media.openiPodLibrary(settings);
+	Ti.Media.openMusicLibrary(settings);
 });

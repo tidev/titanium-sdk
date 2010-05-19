@@ -1,5 +1,6 @@
 var data = [
-	{title:'iPod picker', hasChild:true, test:'ipod_picker.js'}
+	{title:'Music picker', hasChild:true, test:'music_picker.js'},
+	{title:'Music player', hasChild:true, test:'music_player.js'},
 ];
 
 var tableView = Titanium.UI.createTableView({
