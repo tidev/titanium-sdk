@@ -19,6 +19,7 @@
 -(void)_destroy
 {
 	RELEASE_TO_NIL(context);
+	RELEASE_TO_NIL(barImageView);
 	if (context!=nil)
 	{
 		[context shutdown];
@@ -156,6 +157,41 @@
 		UINavigationController * ourNC = [controller navigationController];
 		[TiUtils applyColor:newColor toNavigationController:ourNC];
 		[self performSelector:@selector(_refreshBackButton) withObject:nil afterDelay:0.0];
+	}
+}
+
+-(void)setBarImage:(id)value
+{
+	ENSURE_UI_THREAD_1_ARG(value);
+	[self replaceValue:value forKey:@"barImage" notification:NO];
+	if (controller!=nil)
+	{
+		UINavigationBar * ourNB = [[controller navigationController] navigationBar];
+		CGRect barFrame = [ourNB bounds];
+		UIImage * newImage = [TiUtils toImage:value proxy:self size:barFrame.size];
+
+		if (newImage == nil)
+		{
+			[barImageView removeFromSuperview];
+			RELEASE_TO_NIL(barImageView);
+			return;
+		}
+		
+		if (barImageView == nil)
+		{
+			barImageView = [[UIImageView alloc]initWithImage:newImage];
+		}
+		else
+		{
+			[barImageView setImage:newImage];
+		}
+		
+		[barImageView setFrame:barFrame];
+		
+		if ([barImageView superview] != ourNB)
+		{
+			[ourNB insertSubview:barImageView atIndex:0];
+		}
 	}
 }
 
@@ -527,6 +563,7 @@ else{\
 	// we must do this before the tab is loaded for it to repaint correctly
 	// we also must do it in tabFocus below so that it reverts when we push off the stack
 	SETPROP(@"barColor",setBarColor);
+	SETPROP(@"barImage",setBarImage);
 	[super viewDidAttach];
 }
 
@@ -541,6 +578,7 @@ else{\
 	SETPROP(@"titlePrompt",setTitlePrompt);
 	[self updateTitleView];
 	SETPROP(@"barColor",setBarColor);
+	SETPROP(@"barImage",setBarImage);
 	SETPROP(@"translucent",setTranslucent);
 
 	SETPROP(@"tabBarHidden",setTabBarHidden);
@@ -597,6 +635,7 @@ else{\
 	if (focused)
 	{
 		[self fireFocus:NO];
+		[barImageView removeFromSuperview];
 	}
 	[super _tabBlur];
 }

@@ -7,6 +7,7 @@
 package org.appcelerator.titanium.kroll;
 
 import java.lang.ref.WeakReference;
+import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -588,7 +589,7 @@ public class KrollObject extends ScriptableObject
 		}
 		return a;
 	}
-
+	
 	@SuppressWarnings("serial")
 	public static Object fromNative(Object value, KrollContext kroll)
 	{
@@ -654,11 +655,11 @@ public class KrollObject extends ScriptableObject
 		} else if (value instanceof Date) {
 			Date date = (Date) value;
 			o = Context.getCurrentContext().newObject(kroll.getScope(), "Date", new Object[] { date.getTime() });
-		} else if (value instanceof Object[]) {
-			Object[] array = (Object[]) value;
-			Object[] jsArray = new Object[array.length];
-			for (int i = 0; i < array.length; i++) {
-				jsArray[i] = fromNative(array[i], kroll);
+		} else if (value.getClass().isArray()) {
+			int length = Array.getLength(value);
+			Object[] jsArray = new Object[length];
+			for (int i = 0; i < length; i++) {
+				jsArray[i] = fromNative(Array.get(value, i), kroll);
 			}
 
 			o = Context.getCurrentContext().newObject(kroll.getScope(), "Array", jsArray);

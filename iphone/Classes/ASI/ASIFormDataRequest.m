@@ -239,8 +239,11 @@
 	
 	NSString *charset = (NSString *)CFStringConvertEncodingToIANACharSetName(CFStringConvertNSStringEncodingToEncoding([self stringEncoding]));
 
-	[self addRequestHeader:@"Content-Type" value:[NSString stringWithFormat:@"application/x-www-form-urlencoded; charset=%@",charset]];
-
+	//JGH: only override if not already set
+	if ([[self requestHeaders] objectForKey:@"Content-Type"]==nil)
+	{
+		[self addRequestHeader:@"Content-Type" value:[NSString stringWithFormat:@"application/x-www-form-urlencoded; charset=%@",charset]];
+	}
 	
 	NSEnumerator *e = [[self postData] keyEnumerator];
 	NSString *key;

@@ -29,6 +29,7 @@
 @property(nonatomic,readonly) CGFloat averageMicrophonePower;
 @property(nonatomic,readonly) NSInteger audioLineType;
 @property(nonatomic,readonly) BOOL audioPlaying;
+@property(nonatomic,readonly) BOOL isCameraSupported;
 @property(nonatomic, assign) NSNumber* defaultAudioSessionMode;
 
 
