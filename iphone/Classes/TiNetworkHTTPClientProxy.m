@@ -290,7 +290,24 @@ extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 	
 	NSString *key = [TiUtils stringValue:[args objectAtIndex:0]];
 	NSString *value = [TiUtils stringValue:[args objectAtIndex:1]];
-	[request addRequestHeader:key value:value];
+	
+	// allow setting of cookies - even though the XHR spec specifically
+	// disallows this from a security standpoint, we're going to allow
+	// it since we assume that the app is "trusted" (thus, cross domain ,etc)
+	if ([key isEqualToString:@"Cookie"])
+	{
+		NSArray *tok = [value componentsSeparatedByString:@"="];
+		if ([tok count]!=2)
+		{
+			[self throwException:@"invalid arguments for setting cookie. value should be in the format 'name=value'" subreason:nil location:CODELOCATION];
+		}
+		NSHTTPCookie *cookie = [NSHTTPCookie cookieWithProperties:[NSDictionary dictionaryWithObjectsAndKeys:[tok objectAtIndex:0],NSHTTPCookieName,[tok objectAtIndex:1],NSHTTPCookieValue,@"/",NSHTTPCookiePath,[url host],NSHTTPCookieDomain,url,NSHTTPCookieOriginURL,nil]];
+		[[request requestCookies] addObject:cookie];
+	}
+	else 
+	{
+		[request addRequestHeader:key value:value];
+	}
 }
 
 -(void)send:(id)args
