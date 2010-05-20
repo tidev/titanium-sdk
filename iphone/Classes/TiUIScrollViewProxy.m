@@ -17,6 +17,7 @@
 {
 	// set the initial scale to 1.0 which is the default
 	[self replaceValue:NUMFLOAT(1.0) forKey:@"scale" notification:NO];
+	[self replaceValue:NUMBOOL(YES) forKey:@"canCancelEvents" notification:NO];
 	[super _initWithProperties:properties];
 }
 

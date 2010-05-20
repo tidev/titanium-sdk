@@ -26,7 +26,6 @@ android, iphone, ipad
 - methods
 
 isMediaTypeSupported: return boolean to indicate if the media type is supported
-isCameraSupported: return boolean to indicate if the device has camera support
 showCamera: show the camera
 openPhotoGallery: open the photo gallery picker
 takeScreenshot: take a screen shot of the visible UI on the device
@@ -45,9 +44,6 @@ stopMicrophoneMonitor: stop the monitoring of microphone sound level
 
 media[string]: media type as a string of either `camera`, `photo` or `photogallery`.
 type[string]: the type of media to check
-
-
-- method : isCameraSupported, boolean
 
 - method : showCamera
 
@@ -133,6 +129,7 @@ audioLineType[int]: returns the line type constant for the current line type
 availableCameraMediaTypes[array]: return an array of media type constants supported for the camera
 availablePhotoMediaTypes[array]: return an array of media type constants supported for the photo
 availablePhotoGalleryMediaTypes[array]: return an array of media type constants supported for saving to the photo gallery
+isCameraSupported[boolean]: returns true if the device has camera support
 
 systemMusicPlayer[object]: an instance of `Titanium.Media.MusicPlayer` representing the system-wide music player.  iPhone/iPad only
 appMusicPlayer[object]: an instance of `Titanium.Media.MusicPlayer` representing the app-specific music player.  iPhone/iPad only

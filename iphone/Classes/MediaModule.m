@@ -500,9 +500,9 @@ MAKE_SYSTEM_PROP(VIDEO_FINISH_REASON_USER_EXITED,MPMovieFinishReasonUserExited);
 	return NUMBOOL(NO);
 }
 
--(id)isCameraSupported:(id)arg
+-(BOOL)isCameraSupported;
 {
-	return NUMBOOL([UIImagePickerController isSourceTypeAvailable:UIImagePickerControllerSourceTypeCamera]);
+	return [UIImagePickerController isSourceTypeAvailable:UIImagePickerControllerSourceTypeCamera];
 }
 
 -(void)showCamera:(id)args

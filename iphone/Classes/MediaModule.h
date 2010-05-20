@@ -42,7 +42,8 @@
 @property(nonatomic,readonly) CGFloat averageMicrophonePower;
 @property(nonatomic,readonly) NSInteger audioLineType;
 @property(nonatomic,readonly) BOOL audioPlaying;
-@property(nonatomic,assign) NSNumber* defaultAudioSessionMode;
+@property(nonatomic,readonly) BOOL isCameraSupported;
+@property(nonatomic, assign) NSNumber* defaultAudioSessionMode;
 @property(nonatomic,readonly) TiMediaMusicPlayer* systemMusicPlayer;
 @property(nonatomic,readonly) TiMediaMusicPlayer* appMusicPlayer;
 

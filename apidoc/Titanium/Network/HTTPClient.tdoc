@@ -45,7 +45,7 @@ name[string]: the header name
 - method : setRequestHeader
 
 name[string]: name of the header
-value[string]: value of the header
+value[string]: value of the header. May be null to clearing out a property, such as X-Requested-With
 
 - method : setTimeout
 

@@ -6,7 +6,8 @@ var data = [
 	{title:'XML Data', hasChild:true, test:'../examples/xhr_xml.js'},
 	{title:'XML Properties', hasChild:true, test:'../examples/xhr_properties.js'},
 	{title:'File Download', hasChild:true, test:'../examples/xhr_filedownload.js'},
-	{title:'UTF-8 + GET/POST', hasChild:true, test:'../examples/xhr_utf8.js'}
+	{title:'UTF-8 + GET/POST', hasChild:true, test:'../examples/xhr_utf8.js'},
+	{title:'Cookies', hasChild:true, test:'../examples/xhr_cookie.js'}
 ];
 // add iphone specific tests
 if (Titanium.Platform.name == 'iPhone OS')

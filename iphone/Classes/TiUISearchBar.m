@@ -5,7 +5,9 @@
  * Please see the LICENSE included with this distribution for details.
  */
 #ifdef USE_TI_UITABLEVIEW
+#ifndef USE_TI_UISEARCHBAR
 #define USE_TI_UISEARCHBAR
+#endif
 #endif
 
 #ifdef USE_TI_UISEARCHBAR

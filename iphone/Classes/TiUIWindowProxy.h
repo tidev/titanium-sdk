@@ -19,6 +19,7 @@
 	KrollBridge *context;
 	BOOL hasToolbar;
 	BOOL contextReady;
+	UIImageView *barImageView;
 }
 
 -(void)_refreshBackButton;
