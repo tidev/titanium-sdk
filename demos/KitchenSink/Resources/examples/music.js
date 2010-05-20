@@ -4,26 +4,34 @@ var player = null;
 
 var info = Ti.UI.createLabel({
 	text:'',
-	height:30,
-	width:200,
+	height:'auto',
+	width:'auto',
 	top:200
 });
 win.add(info);
 var title = Ti.UI.createLabel({
 	text:'',
-	height:30,
-	width:200,
-	top:240
+	height:'auto',
+	width:'auto',
+	top:220
 });
 win.add(title);
 var timeBar = Ti.UI.createProgressBar({
 	min:0,
 	value:0,
-	max:0,
 	width:200,
-	top:280
+	height:40,
+	top:240,
+	color:'#888',
+	style:Titanium.UI.iPhone.ProgressBarStyle.PLAIN,
 });
 win.add(timeBar);
+
+var playback = null;
+var barUpdate = function () {
+	timeBar.value = player.currentPlaybackTime;
+	Ti.API.log('Playback time: '+player.currentPlaybackTime);
+};
 
 try {
 	player = Titanium.Media.appMusicPlayer;
@@ -32,21 +40,33 @@ try {
 		if (player.playbackState == Titanium.Media.MUSIC_PLAYER_STATE_STOPPED) {
 			title.text = '';
 			info.text = '';
-			timeBar.value = 0;
+			timeBar.hide();
 			timeBar.max = 0;
+			timeBar.value = 0;
+			clearInterval(playback);
+			playback = null;
 		}
 		if (player.playbackState == Titanium.Media.MUSIC_PLAYER_STATE_PLAYING) {
-			info.text = player.nowPlaying.artist + ':' + player.nowPlaying.albumTitle;
+			info.text = player.nowPlaying.artist + ' : ' + player.nowPlaying.albumTitle;
 			title.text = player.nowPlaying.title;
+			timeBar.show();
 			timeBar.max = player.nowPlaying.playbackDuration;
 			timeBar.value = player.currentPlaybackTime;
+			if (playback == null) {
+				playback = setInterval(barUpdate, 500);
+			}
 		}
 	});
 	player.addEventListener('playingChange', function() {
 		if (player.playbackState == Titanium.Media.MUSIC_PLAYER_STATE_PLAYING) {
-			info.text = player.nowPlaying.artist + ':' + player.nowPlaying.albumTitle;
+			info.text = player.nowPlaying.artist + ' : ' + player.nowPlaying.albumTitle;
 			title.text = player.nowPlaying.title;
+			timeBar.show();
 			timeBar.max = player.nowPlaying.playbackDuration;
+			timeBar.value = 0;
+			if (playback == null) {
+				playback = setInterval(barUpdate, 500);
+			}
 		}
 	});
 	player.addEventListener('volumeChange', function() {
@@ -363,9 +383,10 @@ settingsWindow.setLeftNavButton(back);
 
 var b10 = Ti.UI.createButton({
 	title:'Picker settings',
-	width:200,
+	width:120,
 	height:40,
-	bottom:70
+	bottom:20,
+	left:20,
 });
 b10.addEventListener('click', function() {
 	settingsWindow.open({modal:true});
@@ -374,20 +395,19 @@ win.add(b10);
 
 var b11 = Ti.UI.createButton({
 	title:'Display library',
-	width:200,
+	width:120,
 	height:40,
-	bottom:20
+	bottom:20,
+	right:20
 });
 b11.addEventListener('click', function() {
 	Ti.Media.openMusicLibrary(settings);
 });
 win.add(b11);
 
-var playback = setInterval(function() {
-	timeBar.value = player.currentPlaybackTime;
-}, 500);
-
 win.addEventListener('close', function() {
 	player.stop();
-	clearInterval(playback);
+	if (playback != null) {
+		clearInterval(playback);
+	}
 });
