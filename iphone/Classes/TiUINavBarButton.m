@@ -10,6 +10,7 @@
 #import "TiUtils.h"
 #import "ImageLoader.h"
 #import "TiUIButtonProxy.h"
+#import "TiUIButton.h"
 #import "TiButtonUtil.h"
 #import "TiUIView.h"
 
@@ -95,6 +96,7 @@
            self = [super initWithCustomView:[proxy_ view]];
            self.target = self;
            self.action = @selector(clicked:);
+
            if ([[proxy_ view] isKindOfClass:[UIControl class]])
            { 
                [(UIControl*)[proxy_ view] addTarget:self action:@selector(clicked:) forControlEvents:UIControlEventTouchUpInside];
@@ -144,8 +146,20 @@
 
 -(void)setEnabled_:(id)value
 {
-	BOOL enabled = [TiUtils boolValue:value];
-	[self setEnabled:enabled];
+	UIView * buttonView = [self customView];
+
+	if ([buttonView isKindOfClass:[TiUIButton class]])
+	{
+		//TODO: when using a TiUIButton, for some reason the setEnabled doesn't work.
+		//So we're just going to let it do all the work of updating.
+		[(TiUIButton *)buttonView setEnabled_:value];
+	}
+	else
+	{
+		BOOL enabled = [TiUtils boolValue:value];
+		[super setEnabled:enabled];
+	}
+
 }
 
 -(void)propertyChanged:(NSString*)key oldValue:(id)oldValue newValue:(id)newValue proxy:(TiProxy*)proxy_
