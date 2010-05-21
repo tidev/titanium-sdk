@@ -114,6 +114,16 @@
 	return toolbar!=nil;
 }
 
+-(void)fireEvent:(NSString *)type withObject:(id)obj withSource:(id)source propagate:(BOOL)propagate
+{
+	if ([![TiUtils boolValue:[self valueForKey:@"enabled"] def:YES])
+	{
+		//Rogue event. We're supposed to be disabled!
+		return;
+	}
+	[super fireEvent:type withObject:obj withSource:source propagate:propagate];
+}
+
 
 @end
 
