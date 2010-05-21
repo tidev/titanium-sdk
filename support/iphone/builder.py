@@ -501,6 +501,8 @@ def main(args):
 					print "[ERROR] Code sign error: %s" % error[0].strip()
 					sys.stdout.flush()
 					sys.exit(1)
+					
+				sys.exit(0)	
 		
 			if command == 'simulator':
 				
