@@ -24,6 +24,7 @@ android, iphone, ipad
 createHTTPClient : returns an HttpClient instance
 createBonjourBrowser : returns a BonjourBrowser instance
 createBonjourService : returns a BonjourService instance
+createTCPSocket : returns a TPCPSocket instance
 registerForPushNotifications: register for push notifications with the Apple Push Notification Service. Only available on iPhone.
 encodeURIComponent: encode a URI component part using URI encoding
 decodeURIComponent: decode a URI component part using URI encoding
@@ -58,6 +59,12 @@ domain[string]: the Bonjour service domain to conduct the search in.  Default va
 name[string]: the name of the service.  Must be a unique identifier for this service type and domain.
 type[string]: the type of service.  Must include the protocol identifier (._tcp)
 domain[string]: the domain to publish the service in.  Default value is 'local.'
+
+- method : createTCPSocket, object
+
+hostName[string]: the host name to connect to/listen on
+port[int]: the port for the socket
+mode[int]: the socket's mode; one of `Titanium.Network.READ_MODE`, `Titanium.Network.WRITE_MODE`, `Titanium.Network.READ_WRITE_MODE`
 
 - method : registerForPushNotifications
 

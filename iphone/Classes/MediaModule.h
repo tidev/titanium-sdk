@@ -9,16 +9,29 @@
 #import "TiModule.h"
 #import "KrollCallback.h"
 #import "TiMediaAudioSession.h"
+#import "MediaPlayer/MediaPlayer.h"
+#import "TiMediaMusicPlayer.h"
 
-@interface MediaModule : TiModule<UINavigationControllerDelegate,UIImagePickerControllerDelegate> {
+@interface MediaModule : TiModule<UINavigationControllerDelegate,UIImagePickerControllerDelegate, MPMediaPickerControllerDelegate> {
 @private
+	// Camera picker
 	UIImagePickerController *picker;
-	BOOL animatedPicker;
-	BOOL saveToRoll;
 	BOOL autoHidePicker;
+	BOOL saveToRoll;
+
+	// Music picker
+	MPMediaPickerController* musicPicker;
+	
+	// Music players
+	TiMediaMusicPlayer* systemMusicPlayer;
+	TiMediaMusicPlayer* appMusicPlayer;
+	
+	// Shared picker bits; OK, since they're modal (and we can perform sanity checks for the necessary bits)
+	BOOL animatedPicker;
 	KrollCallback *pickerSuccessCallback;
 	KrollCallback *pickerErrorCallback;
 	KrollCallback *pickerCancelCallback;
+	
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
 	id popover;
 #endif
@@ -31,12 +44,14 @@
 @property(nonatomic,readonly) BOOL audioPlaying;
 @property(nonatomic,readonly) BOOL isCameraSupported;
 @property(nonatomic, assign) NSNumber* defaultAudioSessionMode;
-
+@property(nonatomic,readonly) TiMediaMusicPlayer* systemMusicPlayer;
+@property(nonatomic,readonly) TiMediaMusicPlayer* appMusicPlayer;
 
 @property(nonatomic,readonly) NSNumber* UNKNOWN_ERROR;
 @property(nonatomic,readonly) NSNumber* DEVICE_BUSY;
 @property(nonatomic,readonly) NSNumber* NO_CAMERA;
 @property(nonatomic,readonly) NSNumber* NO_VIDEO;
+@property(nonatomic,readonly) NSNumber* NO_MUSIC_PLAYER;
 
 // these have been deprecated in 3.2 but we map them to their new values
 @property(nonatomic,readonly) NSNumber* VIDEO_CONTROL_DEFAULT;
@@ -93,6 +108,29 @@
 @property(nonatomic,readonly) NSNumber* AUDIO_SESSION_MODE_PLAYBACK;
 @property(nonatomic,readonly) NSNumber* AUDIO_SESSION_MODE_RECORD;
 @property(nonatomic,readonly) NSNumber* AUDIO_SESSION_MODE_PLAY_AND_RECORD;
+
+@property(nonatomic,readonly) NSNumber* MUSIC_MEDIA_TYPE_MUSIC;
+@property(nonatomic,readonly) NSNumber* MUSIC_MEDIA_TYPE_PODCAST;
+@property(nonatomic,readonly) NSNumber* MUSIC_MEDIA_TYPE_AUDIOBOOK;
+@property(nonatomic,readonly) NSNumber* MUSIC_MEDIA_TYPE_ANY_AUDIO;
+@property(nonatomic,readonly) NSNumber* MUSIC_MEDIA_TYPE_ALL;
+
+@property(nonatomic,readonly) NSNumber* MUSIC_PLAYER_STATE_STOPPED;
+@property(nonatomic,readonly) NSNumber* MUSIC_PLAYER_STATE_PLAYING;
+@property(nonatomic,readonly) NSNumber* MUSIC_PLAYER_STATE_PAUSED;
+@property(nonatomic,readonly) NSNumber* MUSIC_PLAYER_STATE_INTERRUPTED;
+@property(nonatomic,readonly) NSNumber* MUSIC_PLAYER_STATE_SKEEK_FORWARD;
+@property(nonatomic,readonly) NSNumber* MUSIC_PLAYER_STATE_SEEK_BACKWARD;
+
+@property(nonatomic,readonly) NSNumber* MUSIC_PLAYER_REPEAT_DEFAULT;
+@property(nonatomic,readonly) NSNumber* MUSIC_PLAYER_REPEAT_NONE;
+@property(nonatomic,readonly) NSNumber* MUSIC_PLAYER_REPEAT_ONE;
+@property(nonatomic,readonly) NSNumber* MUSIC_PLAYER_REPEAT_ALL;
+
+@property(nonatomic,readonly) NSNumber* MUSIC_PLAYER_SHUFFLE_DEFAULT;
+@property(nonatomic,readonly) NSNumber* MUSIC_PLAYER_SHUFFLE_NONE;
+@property(nonatomic,readonly) NSNumber* MUSIC_PLAYER_SHUFFLE_SONGS;
+@property(nonatomic,readonly) NSNumber* MUSIC_PLAYER_SHUFFLE_ALBUMS;
 
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
 
