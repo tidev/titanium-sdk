@@ -24,6 +24,7 @@ android, iphone, ipad
 
 - properties
 
+exitOnClose[boolean]: (Android only.) Boolean indicates if the application should exit when the Android back button is pressed while the window is being shown.  You can only set this as a createWindow({...}) option.  Setting it after window creation will no effect.
 fullscreen[boolean]: boolean indicates if the window is fullscreen (no device chrome)
 modal[boolean]: boolean to indicate if the window should be opened modal in front of other windows
 url[string]: url to a JavaScript file with the windows instructions. this window will create a new JavaScript sub-context that will run in its own thread and global variable space.
@@ -220,6 +221,17 @@ window.open({
 })
 ~~~
 
+### Android "root" Windows
 
+In Android, you may wish to specify that a window which you create (such as the first window) should be considered the root window and that the application should exit when the back button is pressed from that window.  This is particularly useful if your application is not using a Tab Group and therefore the splash screen window is appearing whenever you press the back button from your lowest window on the stack.
+
+To indicate that a particular window should cause an application to exit when the back button is pressed, pass `exitOnClose: true` as one of the creation arguments, as shown here:
+
+~~~
+var win = Titanium.UI.createWindow({
+	title: 'My Root Window',
+	exitOnClose: true
+});
+~~~
 
 
