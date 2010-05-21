@@ -16,6 +16,8 @@
 #import "Ti2DMatrix.h"
 #import "SCListener.h"
 #import "TiMediaAudioSession.h"
+#import "TiMediaMusicPlayer.h"
+#import "TiMediaItem.h"
 
 #import <AudioToolbox/AudioToolbox.h>
 #import <AVFoundation/AVAudioPlayer.h>
@@ -32,36 +34,34 @@
 enum  
 {
 	MediaModuleErrorUnknown,
-	MediaModuleErrorImagePickerBusy,
+	MediaModuleErrorBusy,
 	MediaModuleErrorNoCamera,
-	MediaModuleErrorNoVideo
+	MediaModuleErrorNoVideo,
+	MediaModuleErrorNoMusicPlayer
 };
 
 @implementation MediaModule
 
 #pragma mark Internal
 
--(void)dealloc
-{
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
-	RELEASE_TO_NIL(popover);
-#endif
-	RELEASE_TO_NIL(picker);
-	RELEASE_TO_NIL(pickerSuccessCallback);
-	RELEASE_TO_NIL(pickerErrorCallback);
-	RELEASE_TO_NIL(pickerCancelCallback);
-	[super dealloc];
-}
-
 -(void)destroyPicker
 {
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
 	RELEASE_TO_NIL(popover);
 #endif
+	RELEASE_TO_NIL(musicPicker);
 	RELEASE_TO_NIL(picker);
 	RELEASE_TO_NIL(pickerSuccessCallback);
 	RELEASE_TO_NIL(pickerErrorCallback);
 	RELEASE_TO_NIL(pickerCancelCallback);
+}
+
+-(void)dealloc
+{
+	[self destroyPicker];
+	RELEASE_TO_NIL(systemMusicPlayer);
+	RELEASE_TO_NIL(appMusicPlayer);
+	[super dealloc];
 }
 
 -(void)dispatchCallback:(NSArray*)args
@@ -113,22 +113,9 @@ enum
 	}
 }
 
--(void)showPicker:(NSDictionary*)args isCamera:(BOOL)isCamera
+-(void)commonPickerSetup:(NSDictionary*)args
 {
-	if (picker!=nil)
-	{
-		[self sendPickerError:MediaModuleErrorImagePickerBusy];
-		return;
-	}
-	
-	picker = [[UIImagePickerController alloc] init];
-	[picker setDelegate:self];
-	
-	animatedPicker = YES;
-	saveToRoll = NO;
-	
-	if (args!=nil)
-	{
+	if (args!=nil) {
 		pickerSuccessCallback = [args objectForKey:@"success"];
 		ENSURE_TYPE_OR_NIL(pickerSuccessCallback,KrollCallback);
 		[pickerSuccessCallback retain];
@@ -144,9 +131,71 @@ enum
 		// we use this to determine if we should hide the camera after taking 
 		// a picture/video -- you can programmatically take multiple pictures
 		// and use your own controls so this allows you to control that
+		// (similarly for ipod library picking)
 		autoHidePicker = [TiUtils boolValue:@"autohide" properties:args def:YES];
-
+		
 		animatedPicker = [TiUtils boolValue:@"animated" properties:args def:YES];
+	}
+}
+
+-(void)displayModalPicker:(UIViewController*)picker_ settings:(NSDictionary*)args
+{
+	TiApp * tiApp = [TiApp app];
+	if ([TiUtils isIPad]==NO)
+	{
+		[[tiApp controller] manuallyRotateToOrientation:UIInterfaceOrientationPortrait];
+		[tiApp showModalController:picker_ animated:animatedPicker];
+	}
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
+	else
+	{
+		RELEASE_TO_NIL(popover);
+		UIView *poView = [tiApp controller].view;
+		TiViewProxy* popoverViewProxy = [args objectForKey:@"popoverView"];
+		if (popoverViewProxy!=nil)
+		{
+			poView = [popoverViewProxy view];
+		}
+		UIPopoverArrowDirection arrow = [TiUtils intValue:@"arrowDirection" properties:args def:UIPopoverArrowDirectionAny];
+		popover = [[UIPopoverController alloc] initWithContentViewController:picker_];
+		[popover presentPopoverFromRect:poView.frame inView:poView permittedArrowDirections:arrow animated:animatedPicker];
+	}
+#endif
+}
+
+-(void)closeModalPicker:(UIViewController*)picker_
+{
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
+	if ([TiUtils isIPad]==YES)
+	{
+		[(UIPopoverController*)popover dismissPopoverAnimated:animatedPicker];
+	}
+	else
+	{
+#endif
+		[[TiApp app] hideModalController:picker_ animated:animatedPicker];
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
+	}
+#endif	
+}
+
+-(void)showPicker:(NSDictionary*)args isCamera:(BOOL)isCamera
+{
+	if (picker!=nil)
+	{
+		[self sendPickerError:MediaModuleErrorBusy];
+		return;
+	}
+	
+	picker = [[UIImagePickerController alloc] init];
+	[picker setDelegate:self];
+	
+	animatedPicker = YES;
+	saveToRoll = NO;
+	
+	if (args!=nil)
+	{
+		[self commonPickerSetup:args];
 		
 		NSNumber * imageEditingObject = [args objectForKey:@"allowImageEditing"];  //backwards compatible
 		saveToRoll = [TiUtils boolValue:@"saveToPhotoGallery" properties:args def:NO];
@@ -254,35 +303,17 @@ enum
 			picker.cameraViewTransform = CGAffineTransformScale(picker.cameraViewTransform, CAMERA_TRANSFORM_X, CAMERA_TRANSFORM_Y);
 		}
 	}
-	TiApp * tiApp = [TiApp app];
-	if ([TiUtils isIPad]==NO)
-	{
-		[[tiApp controller] manuallyRotateToOrientation:UIInterfaceOrientationPortrait];
-		[tiApp showModalController:picker animated:animatedPicker];
-	}
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
-	else
-	{
-		RELEASE_TO_NIL(popover);
-		TiViewProxy *popoverViewProxy = [args objectForKey:@"popoverView"];
-		UIView *poView = [tiApp controller].view;
-		if (popoverViewProxy!=nil)
-		{
-			poView = [popoverViewProxy view];
-		}
-		UIPopoverArrowDirection arrow = [TiUtils intValue:@"arrowDirection" properties:args def:UIPopoverArrowDirectionAny];
-		popover = [[UIPopoverController alloc] initWithContentViewController:picker];
-		[popover presentPopoverFromRect:poView.frame inView:poView permittedArrowDirections:arrow animated:animatedPicker];
-	}
-#endif
+	
+	[self displayModalPicker:picker settings:args];
 }
 
 #pragma mark Public APIs
 
 MAKE_SYSTEM_PROP(UNKNOWN_ERROR,MediaModuleErrorUnknown);
-MAKE_SYSTEM_PROP(DEVICE_BUSY,MediaModuleErrorImagePickerBusy);
+MAKE_SYSTEM_PROP(DEVICE_BUSY,MediaModuleErrorBusy);
 MAKE_SYSTEM_PROP(NO_CAMERA,MediaModuleErrorNoCamera);
 MAKE_SYSTEM_PROP(NO_VIDEO,MediaModuleErrorNoVideo);
+MAKE_SYSTEM_PROP(NO_MUSIC_PLAYER,MediaModuleErrorNoMusicPlayer);
 
 // these have been deprecated in 3.2 but we need them for older devices
 MAKE_SYSTEM_PROP(VIDEO_CONTROL_DEFAULT,MPMovieControlModeDefault);
@@ -336,6 +367,31 @@ MAKE_SYSTEM_UINT(AUDIO_SESSION_MODE_PLAYBACK, kAudioSessionCategory_MediaPlaybac
 MAKE_SYSTEM_UINT(AUDIO_SESSION_MODE_RECORD, kAudioSessionCategory_RecordAudio);
 MAKE_SYSTEM_UINT(AUDIO_SESSION_MODE_PLAY_AND_RECORD, kAudioSessionCategory_PlayAndRecord);
 
+MAKE_SYSTEM_PROP(MUSIC_MEDIA_TYPE_MUSIC, MPMediaTypeMusic);
+MAKE_SYSTEM_PROP(MUSIC_MEDIA_TYPE_PODCAST, MPMediaTypePodcast);
+MAKE_SYSTEM_PROP(MUSIC_MEDIA_TYPE_AUDIOBOOK, MPMediaTypeAudioBook);
+MAKE_SYSTEM_PROP(MUSIC_MEDIA_TYPE_ANY_AUDIO, MPMediaTypeAnyAudio);
+MAKE_SYSTEM_PROP(MUSIC_MEDIA_TYPE_ALL, MPMediaTypeAny);
+
+MAKE_SYSTEM_STR(MUSIC_PLAYER_TYPE_SYSTEM, @"system");
+MAKE_SYSTEM_STR(MUSIC_PLAYER_TYPE_APP, @"app");
+
+MAKE_SYSTEM_PROP(MUSIC_PLAYER_STATE_STOPPED, MPMusicPlaybackStateStopped);
+MAKE_SYSTEM_PROP(MUSIC_PLAYER_STATE_PLAYING, MPMusicPlaybackStatePlaying);
+MAKE_SYSTEM_PROP(MUSIC_PLAYER_STATE_PAUSED, MPMusicPlaybackStatePaused);
+MAKE_SYSTEM_PROP(MUSIC_PLAYER_STATE_INTERRUPTED, MPMusicPlaybackStateInterrupted);
+MAKE_SYSTEM_PROP(MUSIC_PLAYER_STATE_SKEEK_FORWARD, MPMusicPlaybackStateSeekingForward);
+MAKE_SYSTEM_PROP(MUSIC_PLAYER_STATE_SEEK_BACKWARD, MPMusicPlaybackStateSeekingBackward);
+
+MAKE_SYSTEM_PROP(MUSIC_PLAYER_REPEAT_DEFAULT, MPMusicRepeatModeDefault);
+MAKE_SYSTEM_PROP(MUSIC_PLAYER_REPEAT_NONE, MPMusicRepeatModeNone);
+MAKE_SYSTEM_PROP(MUSIC_PLAYER_REPEAT_ONE, MPMusicRepeatModeOne);
+MAKE_SYSTEM_PROP(MUSIC_PLAYER_REPEAT_ALL, MPMusicRepeatModeAll);
+
+MAKE_SYSTEM_PROP(MUSIC_PLAYER_SHUFFLE_DEFAULT, MPMusicShuffleModeDefault);
+MAKE_SYSTEM_PROP(MUSIC_PLAYER_SHUFFLE_NONE, MPMusicShuffleModeOff);
+MAKE_SYSTEM_PROP(MUSIC_PLAYER_SHUFFLE_SONGS, MPMusicShuffleModeSongs);
+MAKE_SYSTEM_PROP(MUSIC_PLAYER_SHUFFLE_ALBUMS, MPMusicShuffleModeAlbums);
 
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
 // these are new in 3.2
@@ -556,6 +612,95 @@ MAKE_SYSTEM_PROP(VIDEO_FINISH_REASON_USER_EXITED,MPMovieFinishReasonUserExited);
 	}
 }
 
+
+-(void)openMusicLibrary:(id)args
+{	
+	ENSURE_UI_THREAD(openMusicLibrary,args);
+	ENSURE_SINGLE_ARG_OR_NIL(args,NSDictionary);
+
+	if (musicPicker != nil) {
+		[self sendPickerError:MediaModuleErrorBusy];
+		return;
+	}
+	
+	animatedPicker = YES;
+	
+	// Have to perform setup & manual check for simulator; otherwise things
+	// fail less than gracefully.
+	[self commonPickerSetup:args];
+	
+	// iPod not available on simulator
+#if TARGET_IPHONE_SIMULATOR
+	[self sendPickerError:MediaModuleErrorNoMusicPlayer];
+	return;
+#endif
+	
+	if (args != nil)
+	{
+		MPMediaType mediaTypes = 0;
+		id mediaList = [args objectForKey:@"mediaTypes"];
+		
+		if (mediaList!=nil) {
+			if ([mediaList isKindOfClass:[NSArray class]]) {
+				for (NSNumber* type in mediaList) {
+					mediaTypes |= [type integerValue];
+				}
+			}
+			else {
+				ENSURE_TYPE(mediaList, NSNumber);
+				mediaTypes = [mediaList integerValue];
+			}
+		}
+		
+		if (mediaTypes == 0) {
+			mediaTypes = MPMediaTypeAny;
+		}
+		
+		musicPicker = [[MPMediaPickerController alloc] initWithMediaTypes:mediaTypes];
+		musicPicker.allowsPickingMultipleItems = [TiUtils boolValue:[args objectForKey:@"allowMultipleSelections"] def:NO];
+	}
+	else {
+		musicPicker = [[MPMediaPickerController alloc] init];
+	}
+	[musicPicker setDelegate:self];
+	
+	[self displayModalPicker:musicPicker settings:args];
+}
+
+-(void)hideMusicLibrary:(id)args
+{
+	ENSURE_UI_THREAD(hideMusicLibrary,args);
+	if (musicPicker != nil)
+	{
+		[[TiApp app] hideModalController:musicPicker animated:animatedPicker];
+		[self destroyPicker];
+	}
+}
+
+-(TiMediaMusicPlayer*)systemMusicPlayer
+{
+	if (systemMusicPlayer == nil) {
+		if (![NSThread isMainThread]) {
+			[self performSelectorOnMainThread:@selector(systemMusicPlayer) withObject:nil waitUntilDone:YES];
+			return systemMusicPlayer;
+		}
+		systemMusicPlayer = [[TiMediaMusicPlayer alloc] _initWithPageContext:[self pageContext] player:[MPMusicPlayerController iPodMusicPlayer]];
+	}
+	return systemMusicPlayer;
+}
+
+-(TiMediaMusicPlayer*)appMusicPlayer
+{
+	if (appMusicPlayer == nil) {
+		if (![NSThread isMainThread]) {
+			[self performSelectorOnMainThread:@selector(appMusicPlayer) withObject:nil waitUntilDone:YES];
+			return appMusicPlayer;
+		}
+		appMusicPlayer = [[TiMediaMusicPlayer alloc] _initWithPageContext:[self pageContext] player:[MPMusicPlayerController applicationMusicPlayer]];
+	}
+	return appMusicPlayer;
+}
+
 -(void)setDefaultAudioSessionMode:(NSNumber*)mode
 {
     [[TiMediaAudioSession sharedSession] setDefaultSessionMode:[mode unsignedIntValue]];
@@ -572,18 +717,7 @@ MAKE_SYSTEM_PROP(VIDEO_FINISH_REASON_USER_EXITED,MPMovieFinishReasonUserExited);
 {
 	if (autoHidePicker)
 	{
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
-		if ([TiUtils isIPad]==YES)
-		{
-			[(UIPopoverController*)popover dismissPopoverAnimated:animatedPicker];
-		}
-		else
-		{
-#endif
-			[[TiApp app] hideModalController:picker animated:animatedPicker];
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
-		}
-#endif		
+		[self closeModalPicker:picker];
 	}
 	
 	NSMutableDictionary *dictionary = [NSMutableDictionary dictionary];
@@ -682,7 +816,33 @@ MAKE_SYSTEM_PROP(VIDEO_FINISH_REASON_USER_EXITED,MPMovieFinishReasonUserExited);
 
 - (void)imagePickerControllerDidCancel:(UIImagePickerController *)picker_
 {
-	[[TiApp app] hideModalController:picker animated:animatedPicker];
+	[self closeModalPicker:picker];
+	[self sendPickerCancel];
+}
+
+- (void)mediaPicker:(MPMediaPickerController*)mediaPicker_ didPickMediaItems:(MPMediaItemCollection*)collection
+{
+	if (autoHidePicker) {
+		[self closeModalPicker:musicPicker];
+	}
+	
+	TiMediaItem* representative = [[[TiMediaItem alloc] _initWithPageContext:[self pageContext] item:[collection representativeItem]] autorelease];
+	NSNumber* mediaTypes = [NSNumber numberWithUnsignedInteger:[collection mediaTypes]];
+	NSMutableArray* items = [NSMutableArray array];
+	
+	for (MPMediaItem* item in [collection items]) {
+		TiMediaItem* newItem = [[[TiMediaItem alloc] _initWithPageContext:[self pageContext] item:item] autorelease];
+		[items addObject:newItem];
+	}
+	
+	NSDictionary* picked = [NSDictionary dictionaryWithObjectsAndKeys:representative,@"representative",mediaTypes,@"types",items,@"items",nil];
+	
+	[self sendPickerSuccess:picked];
+}
+
+- (void)mediaPickerDidCancel:(MPMediaPickerController *)mediaPicker_
+{
+	[self closeModalPicker:musicPicker];
 	[self sendPickerCancel];
 }
 

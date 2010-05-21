@@ -320,7 +320,6 @@
 	}
 
 	[self reloadDataFromCount:oldCount toCount:newCount animation:animation];
-
 }
 
 -(void)updateRow:(TiUITableViewRowProxy*)row
