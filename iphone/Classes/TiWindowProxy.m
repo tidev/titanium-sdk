@@ -495,16 +495,15 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 	
 	// notify our child that his window is closing
 	[self lockChildrenForReading];
-		for (TiViewProxy *child in self.children)
-		{
-			[child windowWillClose];
-		}
+	for (TiViewProxy *child in self.children)
+	{
+		[child windowWillClose];
+	}
 	[self unlockChildren];
 
 	if ([self _handleClose:args])
 	{
 		TiAnimation *animation = [TiAnimation animationFromArg:args context:[self pageContext] create:NO];
-		BOOL animated = args!=nil && [args count]>0 ? [TiUtils boolValue:@"animate" properties:[args objectAtIndex:0] def:YES] : YES;
 
 		if (animation!=nil)
 		{
@@ -546,7 +545,7 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 			self.view.frame = [[[TiApp app] controller] resizeView];
 		}
 		
-		if ((animation==nil) && !animated)
+		if (animation==nil)
 		{
 			[self windowClosed];
 		}

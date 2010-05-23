@@ -25,6 +25,7 @@
 		[context shutdown];
 		RELEASE_TO_NIL(context);
 	}
+	RELEASE_TO_NIL(oldBaseURL);
 	[super _destroy];
 }
 
@@ -70,8 +71,9 @@
 			// since this function is recursive, only do this if we haven't already created the context
 			if (context==nil)
 			{
-				//TODO: add activity indicator until booted
 				RELEASE_TO_NIL(context);
+				// remember our base url so we can restore on close
+				oldBaseURL = [[self _baseURL] retain];
 				// set our new base
 				[self _setBaseURL:url];
 				contextReady=NO;
@@ -104,7 +106,7 @@
 {
 	if (tab!=nil)
 	{
-		BOOL animate = args!=nil && [args count]>0 ? [TiUtils boolValue:@"animate" properties:[args objectAtIndex:0] def:YES] : YES;
+		BOOL animate = args!=nil && [args count]>0 ? [TiUtils boolValue:@"animated" properties:[args objectAtIndex:0] def:YES] : YES;
 		[tab windowClosing:self animated:animate];
 	}
 	else
@@ -113,6 +115,13 @@
 		// events ourselves
 		[self fireFocus:NO];
 	}
+	// on close, reset our old base URL so that any subsequent
+	// re-opens will be correct
+	if (oldBaseURL!=nil)
+	{
+		[self _setBaseURL:oldBaseURL];
+	}
+	RELEASE_TO_NIL(oldBaseURL);
 	return YES;
 }
 
@@ -525,6 +534,7 @@
 		[self replaceValue:[[[TiComplexValue alloc] initWithValue:items properties:properties] autorelease] forKey:@"toolbar" notification:NO];
 	}
 }
+
 
 #define SETPROP(m,x) \
 {\
