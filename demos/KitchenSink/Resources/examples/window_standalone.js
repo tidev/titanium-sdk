@@ -381,11 +381,53 @@ if (Titanium.Platform.name == 'iPhone OS')
 	win.add(b4);
 	win.add(b5);
 	var flexSpace = Titanium.UI.createButton({
-		style:Titanium.UI.iPhone.SystemButtonStyle.FLEXIBLE_SPACE
+		systemButton:Titanium.UI.iPhone.SystemButton.FLEXIBLE_SPACE
 	});
 	
-	win.setToolbar([flexSpace],{translucent:true});
 
+	var b8 = Titanium.UI.createButton({
+		title:'Open Tab Animation',
+		style:Titanium.UI.iPhone.SystemButtonStyle.BORDERED
+	});
+
+	var b9 = Titanium.UI.createButton({
+		title:'Open Tab w/o Animation',
+		style:Titanium.UI.iPhone.SystemButtonStyle.BORDERED
+	});
+
+	b8.addEventListener('click', function()
+	{
+		var w = Ti.UI.createWindow({backgroundColor:"red"});
+		var b = Ti.UI.createButton({
+			title:"Close with Animation",
+			width:180,
+			height:40
+		});
+		Titanium.UI.currentTab.open(w);
+		w.add(b);
+		b.addEventListener('click',function()
+		{
+			w.close({animated:true});
+		});
+	});
+
+	b9.addEventListener('click', function()
+	{
+		var w = Ti.UI.createWindow({backgroundColor:"red"});
+		var b = Ti.UI.createButton({
+			title:"Close w/o Animation",
+			width:180,
+			height:40
+		});
+		Titanium.UI.currentTab.open(w);
+		w.add(b);
+		b.addEventListener('click',function()
+		{
+			w.close({animated:false});
+		});
+	});
+
+	win.setToolbar([flexSpace,b8,flexSpace,b9,flexSpace],{translucent:true});
 }
 else
 {
@@ -394,7 +436,6 @@ else
 	navButton.height = 40;
 //	win.add(navButton);
 }
-
 
 
 

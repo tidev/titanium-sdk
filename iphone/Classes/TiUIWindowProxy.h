@@ -20,6 +20,7 @@
 	BOOL hasToolbar;
 	BOOL contextReady;
 	UIImageView *barImageView;
+	NSURL *oldBaseURL;
 }
 
 -(void)_refreshBackButton;
