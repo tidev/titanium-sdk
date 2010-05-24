@@ -15,6 +15,7 @@
 }
 
 +(NSString *)UTCDateForDate:(NSDate*)data;
++(NSDate *)dateForUTCDate:(NSString*)date;
 
 +(NSString *)UTCDate;
 

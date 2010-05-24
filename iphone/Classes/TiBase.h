@@ -54,6 +54,7 @@ if (![NSThread isMainThread]) { \
 return; \
 } \
 
+// TODO: This is wrong for functions which do not take any argument.
 #define ENSURE_UI_THREAD_0_ARGS		ENSURE_UI_THREAD_1_ARG(nil)
 
 //TODO: Is there any time where @selector(x:) is not _sel (IE, the called method for 1 arg?

@@ -116,7 +116,7 @@
 
 -(void)fireEvent:(NSString *)type withObject:(id)obj withSource:(id)source propagate:(BOOL)propagate
 {
-	if ([![TiUtils boolValue:[self valueForKey:@"enabled"] def:YES])
+	if (![TiUtils boolValue:[self valueForKey:@"enabled"] def:YES])
 	{
 		//Rogue event. We're supposed to be disabled!
 		return;
