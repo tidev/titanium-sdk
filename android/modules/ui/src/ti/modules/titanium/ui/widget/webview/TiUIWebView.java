@@ -130,9 +130,23 @@ public class TiUIWebView extends TiUIView {
 		return getWebView().getUrl();
 	}
 
+	private static final char escapeChars[] = new char[]{ '%', '#', '\'', '?'};
+	private String escapeContent(String content)
+	{
+		// The Android WebView has a known bug 
+		// where it forgets to escape certain characters
+		// when it creates a data:// URL in the loadData() method
+		// http://code.google.com/p/android/issues/detail?id=1733
+		for (char escapeChar : escapeChars) {
+			String regex = "\\"+escapeChar;
+			content = content.replaceAll(regex, "%"+Integer.toHexString(escapeChar));
+		}
+		return content;
+	}
+	
 	public void setHtml(String html)
 	{
-		getWebView().loadData(html, "text/html", "utf-8");
+		getWebView().loadData(escapeContent(html), "text/html", "utf-8");
 	}
 
 	public void setData(TiBlob blob)
@@ -144,7 +158,7 @@ public class TiUIWebView extends TiUIView {
 		if (TiMimeTypeHelper.isBinaryMimeType(mimeType)) {
 			getWebView().loadData(blob.toBase64(), mimeType, "base64");
 		} else {
-			getWebView().loadData(new String(blob.getBytes()), mimeType, "utf-8");
+			getWebView().loadData(escapeContent(new String(blob.getBytes())), mimeType, "utf-8");
 		}
 	}
 

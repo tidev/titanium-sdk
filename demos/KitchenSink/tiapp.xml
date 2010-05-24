@@ -14,5 +14,7 @@
 <guid>6fe33f33fd1f4e95a06d2d217170866d</guid>
 <property name="ti.android.debug" type="bool">false</property>
 <!-- this will only work with our dev keystore and not on a production device! -->
-<property name="ti.android.google.map.api.key">0ZnKXkWA2dIAu2EM-OV4ZD2lJY3sEWE5TSgjJNg</property>
+<property name="ti.android.google.map.api.key.development">0ZnKXkWA2dIAu2EM-OV4ZD2lJY3sEWE5TSgjJNg</property>
+<!-- get yours at http://code.google.com/android/maps-api-signup.html -->
+<property name="ti.android.google.map.api.key.production">GET_ME_FROM_GOOGLE</property>
 </ti:app>

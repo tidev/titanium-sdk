@@ -25,6 +25,7 @@
 		[context shutdown];
 		RELEASE_TO_NIL(context);
 	}
+	RELEASE_TO_NIL(oldBaseURL);
 	[super _destroy];
 }
 
@@ -70,8 +71,9 @@
 			// since this function is recursive, only do this if we haven't already created the context
 			if (context==nil)
 			{
-				//TODO: add activity indicator until booted
 				RELEASE_TO_NIL(context);
+				// remember our base url so we can restore on close
+				oldBaseURL = [[self _baseURL] retain];
 				// set our new base
 				[self _setBaseURL:url];
 				contextReady=NO;
@@ -104,7 +106,7 @@
 {
 	if (tab!=nil)
 	{
-		BOOL animate = args!=nil && [args count]>0 ? [TiUtils boolValue:@"animate" properties:[args objectAtIndex:0] def:YES] : YES;
+		BOOL animate = args!=nil && [args count]>0 ? [TiUtils boolValue:@"animated" properties:[args objectAtIndex:0] def:YES] : YES;
 		[tab windowClosing:self animated:animate];
 	}
 	else
@@ -113,6 +115,13 @@
 		// events ourselves
 		[self fireFocus:NO];
 	}
+	// on close, reset our old base URL so that any subsequent
+	// re-opens will be correct
+	if (oldBaseURL!=nil)
+	{
+		[self _setBaseURL:oldBaseURL];
+	}
+	RELEASE_TO_NIL(oldBaseURL);
 	return YES;
 }
 
@@ -160,38 +169,43 @@
 	}
 }
 
+-(void)updateBarImage
+{
+	UINavigationBar * ourNB = [[controller navigationController] navigationBar];
+	CGRect barFrame = [ourNB bounds];
+	UIImage * newImage = [TiUtils toImage:[self valueForUndefinedKey:@"barImage"]
+			proxy:self size:barFrame.size];
+
+	if (newImage == nil)
+	{
+		[barImageView removeFromSuperview];
+		RELEASE_TO_NIL(barImageView);
+		return;
+	}
+	
+	if (barImageView == nil)
+	{
+		barImageView = [[UIImageView alloc]initWithImage:newImage];
+	}
+	else
+	{
+		[barImageView setImage:newImage];
+	}
+	
+	[barImageView setFrame:barFrame];
+	
+	if ([[ourNB subviews] indexOfObject:barImageView] != 0)
+	{
+		[ourNB insertSubview:barImageView atIndex:0];
+	}
+}
+
 -(void)setBarImage:(id)value
 {
-	ENSURE_UI_THREAD_1_ARG(value);
-	[self replaceValue:value forKey:@"barImage" notification:NO];
+	[self replaceValue:[self sanitizeURL:value] forKey:@"barImage" notification:NO];
 	if (controller!=nil)
 	{
-		UINavigationBar * ourNB = [[controller navigationController] navigationBar];
-		CGRect barFrame = [ourNB bounds];
-		UIImage * newImage = [TiUtils toImage:value proxy:self size:barFrame.size];
-
-		if (newImage == nil)
-		{
-			[barImageView removeFromSuperview];
-			RELEASE_TO_NIL(barImageView);
-			return;
-		}
-		
-		if (barImageView == nil)
-		{
-			barImageView = [[UIImageView alloc]initWithImage:newImage];
-		}
-		else
-		{
-			[barImageView setImage:newImage];
-		}
-		
-		[barImageView setFrame:barFrame];
-		
-		if ([barImageView superview] != ourNB)
-		{
-			[ourNB insertSubview:barImageView atIndex:0];
-		}
+		[self performSelectorOnMainThread:@selector(updateBarImage) withObject:nil waitUntilDone:NO];
 	}
 }
 
@@ -238,6 +252,7 @@
 				// add the new one
 				BOOL animated = [TiUtils boolValue:@"animated" properties:properties def:YES];
 				[controller.navigationItem setRightBarButtonItem:[proxy barButtonItem] animated:animated];
+				[self updateBarImage];
 			}
 			else 
 			{
@@ -283,6 +298,7 @@
 				// add the new one
 				BOOL animated = [TiUtils boolValue:@"animated" properties:properties def:YES];
 				[controller.navigationItem setLeftBarButtonItem:[proxy barButtonItem] animated:animated];
+				[self updateBarImage];
 			}
 			else 
 			{
@@ -526,6 +542,7 @@
 	}
 }
 
+
 #define SETPROP(m,x) \
 {\
   id value = [self valueForKey:m]; \
@@ -578,7 +595,6 @@ else{\
 	SETPROP(@"titlePrompt",setTitlePrompt);
 	[self updateTitleView];
 	SETPROP(@"barColor",setBarColor);
-	SETPROP(@"barImage",setBarImage);
 	SETPROP(@"translucent",setTranslucent);
 
 	SETPROP(@"tabBarHidden",setTabBarHidden);
@@ -586,6 +602,7 @@ else{\
 	SETPROPOBJ(@"leftNavButton",setLeftNavButton);
 	SETPROPOBJ(@"rightNavButton",setRightNavButton);
 	SETPROPOBJ(@"toolbar",setToolbar);
+	SETPROP(@"barImage",setBarImage);
 	[self _refreshBackButton];
 	
 	id navBarHidden = [self valueForKey:@"navBarHidden"];

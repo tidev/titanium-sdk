@@ -502,7 +502,6 @@ def main(args):
 					sys.stdout.flush()
 					sys.exit(1)
 					
-				sys.exit(0)	
 		
 			if command == 'simulator':
 				
@@ -638,6 +637,14 @@ def main(args):
 				
 				# for install, launch itunes with the app
 				ipa = os.path.join(os.path.dirname(app_dir),"%s.ipa" % name)
+
+				# it appears that sometimes this command above fails on certain installs
+				# or is missing. let's just open if we have it otherwise, open the app 
+				# directory
+				if not os.path.exists(ipa):
+					# just open the app dir itself
+					ipa = app_dir
+					
 				cmd = "open -b com.apple.itunes \"%s\"" % ipa
 				os.system(cmd)
 				
