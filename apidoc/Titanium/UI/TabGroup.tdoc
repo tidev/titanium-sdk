@@ -35,6 +35,11 @@ addTab: add a tab to the tab group
 removeTab: remove a tab from the tab group
 open: open the tab group and make it visible
 close: close the tab group and remove it from the UI
+setActiveTab: select the currently active tab in a tab group
+
+- method : setActiveTab
+
+indexOrObject[object]: an int representing the desired tab index or a reference to the tab object you'd like to switch to
 
 - events
 
