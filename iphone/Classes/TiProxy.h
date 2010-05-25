@@ -120,6 +120,9 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 
 -(NSDictionary*)allProperties;
 -(void)replaceValue:(id)value forKey:(NSString*)key notification:(BOOL)notify;
+
+-(id)sanitizeURL:(id)value;
+
 -(void)setExecutionContext:(id<TiEvaluator>)context;
 
 @end
