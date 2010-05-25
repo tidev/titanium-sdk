@@ -20,7 +20,8 @@ function addRow(addTextArea)
 			top:10,
 			left:10,
 			width:250,
-			borderStyle:Titanium.UI.INPUT_BORDERSTYLE_ROUNDED
+			hintText:'hint',
+			borderStyle:Titanium.UI.INPUT_BORDERSTYLE_NONE
 		});	
 		
 	}

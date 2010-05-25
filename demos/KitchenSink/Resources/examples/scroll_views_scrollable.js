@@ -1,5 +1,5 @@
 var win = Titanium.UI.currentWindow;
-win.backgroundColor = 'black';
+win.backgroundColor = '#ccc';
 
 // initialize to all modes
 win.orientationModes = [
@@ -69,7 +69,7 @@ var scrollView = Titanium.UI.createScrollableView({
 	showPagingControl:true,
 	pagingControlHeight:30,
 	maxZoomScale:2.0,
-	currentPage:1
+	currentPage:1,
 });
 
 win.add(scrollView);
