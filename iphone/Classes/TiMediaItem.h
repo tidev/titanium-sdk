@@ -15,7 +15,6 @@
 // generated internally only for the media player.
 @interface TiMediaItem : TiProxy {
 	MPMediaItem* item;
-	NSDictionary* itemProperties;
 }
 
 #pragma mark Properties

@@ -207,8 +207,12 @@ void MyUncaughtExceptionHandler(NSException *exception)
 {
 	started = [NSDate timeIntervalSinceReferenceDate];
 	NSSetUncaughtExceptionHandler(&MyUncaughtExceptionHandler);
+
+	// nibless window
+	window = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
+
 	[self loadSplash];
-	
+
 	// get the current remote device UUID if we have one
 	NSString *curKey = [[NSUserDefaults standardUserDefaults] stringForKey:@"APNSRemoteDeviceUUID"];
 	if (curKey!=nil)

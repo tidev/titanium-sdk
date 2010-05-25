@@ -33,7 +33,7 @@ int main(int argc, char *argv[]) {
 	fprintf(stderr,"[INFO] Application started\n");
 #endif
 
-    int retVal = UIApplicationMain(argc, argv, nil, nil);
+	int retVal = UIApplicationMain(argc, argv, nil, @"TiApp");
     [pool release];
     return retVal;
 }

@@ -169,38 +169,43 @@
 	}
 }
 
+-(void)updateBarImage
+{
+	UINavigationBar * ourNB = [[controller navigationController] navigationBar];
+	CGRect barFrame = [ourNB bounds];
+	UIImage * newImage = [TiUtils toImage:[self valueForUndefinedKey:@"barImage"]
+			proxy:self size:barFrame.size];
+
+	if (newImage == nil)
+	{
+		[barImageView removeFromSuperview];
+		RELEASE_TO_NIL(barImageView);
+		return;
+	}
+	
+	if (barImageView == nil)
+	{
+		barImageView = [[UIImageView alloc]initWithImage:newImage];
+	}
+	else
+	{
+		[barImageView setImage:newImage];
+	}
+	
+	[barImageView setFrame:barFrame];
+	
+	if ([[ourNB subviews] indexOfObject:barImageView] != 0)
+	{
+		[ourNB insertSubview:barImageView atIndex:0];
+	}
+}
+
 -(void)setBarImage:(id)value
 {
-	ENSURE_UI_THREAD_1_ARG(value);
-	[self replaceValue:value forKey:@"barImage" notification:NO];
+	[self replaceValue:[self sanitizeURL:value] forKey:@"barImage" notification:NO];
 	if (controller!=nil)
 	{
-		UINavigationBar * ourNB = [[controller navigationController] navigationBar];
-		CGRect barFrame = [ourNB bounds];
-		UIImage * newImage = [TiUtils toImage:value proxy:self size:barFrame.size];
-
-		if (newImage == nil)
-		{
-			[barImageView removeFromSuperview];
-			RELEASE_TO_NIL(barImageView);
-			return;
-		}
-		
-		if (barImageView == nil)
-		{
-			barImageView = [[UIImageView alloc]initWithImage:newImage];
-		}
-		else
-		{
-			[barImageView setImage:newImage];
-		}
-		
-		[barImageView setFrame:barFrame];
-		
-		if ([barImageView superview] != ourNB)
-		{
-			[ourNB insertSubview:barImageView atIndex:0];
-		}
+		[self performSelectorOnMainThread:@selector(updateBarImage) withObject:nil waitUntilDone:NO];
 	}
 }
 
@@ -247,6 +252,7 @@
 				// add the new one
 				BOOL animated = [TiUtils boolValue:@"animated" properties:properties def:YES];
 				[controller.navigationItem setRightBarButtonItem:[proxy barButtonItem] animated:animated];
+				[self updateBarImage];
 			}
 			else 
 			{
@@ -292,6 +298,7 @@
 				// add the new one
 				BOOL animated = [TiUtils boolValue:@"animated" properties:properties def:YES];
 				[controller.navigationItem setLeftBarButtonItem:[proxy barButtonItem] animated:animated];
+				[self updateBarImage];
 			}
 			else 
 			{
@@ -588,7 +595,6 @@ else{\
 	SETPROP(@"titlePrompt",setTitlePrompt);
 	[self updateTitleView];
 	SETPROP(@"barColor",setBarColor);
-	SETPROP(@"barImage",setBarImage);
 	SETPROP(@"translucent",setTranslucent);
 
 	SETPROP(@"tabBarHidden",setTabBarHidden);
@@ -596,6 +602,7 @@ else{\
 	SETPROPOBJ(@"leftNavButton",setLeftNavButton);
 	SETPROPOBJ(@"rightNavButton",setRightNavButton);
 	SETPROPOBJ(@"toolbar",setToolbar);
+	SETPROP(@"barImage",setBarImage);
 	[self _refreshBackButton];
 	
 	id navBarHidden = [self valueForKey:@"navBarHidden"];

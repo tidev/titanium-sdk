@@ -25,7 +25,7 @@ NSString * const TI_APPLICATION_RESOURCE_DIR = nil;
 int main(int argc, char *argv[]) {
     
     NSAutoreleasePool * pool = [[NSAutoreleasePool alloc] init];
-    int retVal = UIApplicationMain(argc, argv, nil, nil);
+    int retVal = UIApplicationMain(argc, argv, nil, @"TiApp");
     [pool release];
     return retVal;
 }

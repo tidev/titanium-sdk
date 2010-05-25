@@ -13,34 +13,23 @@
 
 #import "KrollCallback.h"
 
-
 @interface ContactsModule : TiModule<ABPeoplePickerNavigationControllerDelegate> {
 @private
 	ABAddressBookRef addressBook;
-	ABPeoplePickerNavigationController *picker;
-	BOOL pickerAnimated;
-	KrollCallback *pickerSuccessCallback;
-	KrollCallback *pickerCancelCallback;
-	KrollCallback *pickerErrorCallback;
-	NSMutableArray *pickerFields;
+	ABPeoplePickerNavigationController* picker;
+	
+	BOOL animated;
+	KrollCallback* cancelCallback;
+	KrollCallback* selectedPersonCallback;
+	KrollCallback* selectedPropertyCallback;
 }
 
-@property(nonatomic,readonly) NSString *ADDRESS_STREET_1;
-@property(nonatomic,readonly) NSString *ADDRESS_STREET_2;
-@property(nonatomic,readonly) NSString *ADDRESS_CITY;
-@property(nonatomic,readonly) NSString *ADDRESS_STATE;
-@property(nonatomic,readonly) NSString *ADDRESS_PROVINCE;
-@property(nonatomic,readonly) NSString *ADDRESS_SECONDARY_REGION;
-@property(nonatomic,readonly) NSString *ADDRESS_ZIP;
-@property(nonatomic,readonly) NSString *ADDRESS_POSTAL_CODE;
-@property(nonatomic,readonly) NSString *ADDRESS_COUNTRY;
-@property(nonatomic,readonly) NSString *ADDRESS_COUNTRY_CODE;
+-(ABAddressBookRef)addressBook;
 
--(id)saveContact:(id)arg;
--(id)removeContact:(id)arg;
+-(void)showContacts:(id)args;
 
-#pragma mark Framework
--(ABRecordRef)recordForId:(ABRecordID)rec;
+-(void)save:(id)unused;
+-(void)revert:(id)unused;
 
 @end
 

@@ -834,6 +834,22 @@ DEFINE_EXCEPTIONS
 	return [[dynprops copy] autorelease];
 }
 
+-(id)sanitizeURL:(id)value
+{
+	if (value == [NSNull null])
+	{
+		return nil;
+	}
+
+	NSURL * result = [TiUtils toURL:value proxy:self];
+	if (result == nil)
+	{
+		return value;
+	}
+	
+	return result;
+}
+
 #pragma mark Memory Management
 
 -(void)didReceiveMemoryWarning:(NSNotification*)notification

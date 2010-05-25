@@ -157,7 +157,7 @@
 		24CA8BC7111161FE0084E2DE /* TiDimension.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8AD1111161FD0084E2DE /* TiDimension.m */; };
 		24CA8BC8111161FE0084E2DE /* TiDatabaseResultSetProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8AD3111161FD0084E2DE /* TiDatabaseResultSetProxy.m */; };
 		24CA8BC9111161FE0084E2DE /* TiDatabaseProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8AD5111161FD0084E2DE /* TiDatabaseProxy.m */; };
-		24CA8BCA111161FE0084E2DE /* TiContactsContactProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8AD8111161FD0084E2DE /* TiContactsContactProxy.m */; };
+		24CA8BCA111161FE0084E2DE /* TiContactsPerson.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8AD8111161FD0084E2DE /* TiContactsPerson.m */; };
 		24CA8BCB111161FE0084E2DE /* TiComplexValue.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8ADA111161FE0084E2DE /* TiComplexValue.m */; };
 		24CA8BCC111161FE0084E2DE /* TiColor.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8ADC111161FE0084E2DE /* TiColor.m */; };
 		24CA8BCD111161FE0084E2DE /* TiButtonUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8ADE111161FE0084E2DE /* TiButtonUtil.m */; };
@@ -334,7 +334,7 @@
 		24D8E437119B9D8A00F8CAA6 /* TiDimension.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8AD1111161FD0084E2DE /* TiDimension.m */; };
 		24D8E438119B9D8A00F8CAA6 /* TiDatabaseResultSetProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8AD3111161FD0084E2DE /* TiDatabaseResultSetProxy.m */; };
 		24D8E439119B9D8A00F8CAA6 /* TiDatabaseProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8AD5111161FD0084E2DE /* TiDatabaseProxy.m */; };
-		24D8E43A119B9D8A00F8CAA6 /* TiContactsContactProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8AD8111161FD0084E2DE /* TiContactsContactProxy.m */; };
+		24D8E43A119B9D8A00F8CAA6 /* TiContactsPerson.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8AD8111161FD0084E2DE /* TiContactsPerson.m */; };
 		24D8E43B119B9D8A00F8CAA6 /* TiComplexValue.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8ADA111161FE0084E2DE /* TiComplexValue.m */; };
 		24D8E43C119B9D8A00F8CAA6 /* TiColor.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8ADC111161FE0084E2DE /* TiColor.m */; };
 		24D8E43D119B9D8A00F8CAA6 /* TiButtonUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8ADE111161FE0084E2DE /* TiButtonUtil.m */; };
@@ -820,8 +820,8 @@
 		24CA8AD5111161FD0084E2DE /* TiDatabaseProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TiDatabaseProxy.m; path = ../Classes/TiDatabaseProxy.m; sourceTree = SOURCE_ROOT; };
 		24CA8AD6111161FD0084E2DE /* TiDatabaseProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TiDatabaseProxy.h; path = ../Classes/TiDatabaseProxy.h; sourceTree = SOURCE_ROOT; };
 		24CA8AD7111161FD0084E2DE /* TiController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TiController.h; path = ../Classes/TiController.h; sourceTree = SOURCE_ROOT; };
-		24CA8AD8111161FD0084E2DE /* TiContactsContactProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TiContactsContactProxy.m; path = ../Classes/TiContactsContactProxy.m; sourceTree = SOURCE_ROOT; };
-		24CA8AD9111161FD0084E2DE /* TiContactsContactProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TiContactsContactProxy.h; path = ../Classes/TiContactsContactProxy.h; sourceTree = SOURCE_ROOT; };
+		24CA8AD8111161FD0084E2DE /* TiContactsPerson.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiContactsPerson.m; sourceTree = "<group>"; };
+		24CA8AD9111161FD0084E2DE /* TiContactsPerson.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiContactsPerson.h; sourceTree = "<group>"; };
 		24CA8ADA111161FE0084E2DE /* TiComplexValue.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TiComplexValue.m; path = ../Classes/TiComplexValue.m; sourceTree = SOURCE_ROOT; };
 		24CA8ADB111161FE0084E2DE /* TiComplexValue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TiComplexValue.h; path = ../Classes/TiComplexValue.h; sourceTree = SOURCE_ROOT; };
 		24CA8ADC111161FE0084E2DE /* TiColor.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TiColor.m; path = ../Classes/TiColor.m; sourceTree = SOURCE_ROOT; };
@@ -1614,8 +1614,8 @@
 			children = (
 				24CA8B37111161FE0084E2DE /* ContactsModule.m */,
 				24CA8B38111161FE0084E2DE /* ContactsModule.h */,
-				24CA8AD8111161FD0084E2DE /* TiContactsContactProxy.m */,
-				24CA8AD9111161FD0084E2DE /* TiContactsContactProxy.h */,
+				24CA8AD8111161FD0084E2DE /* TiContactsPerson.m */,
+				24CA8AD9111161FD0084E2DE /* TiContactsPerson.h */,
 			);
 			name = Contacts;
 			sourceTree = "<group>";
@@ -2423,7 +2423,7 @@
 				24CA8BC7111161FE0084E2DE /* TiDimension.m in Sources */,
 				24CA8BC8111161FE0084E2DE /* TiDatabaseResultSetProxy.m in Sources */,
 				24CA8BC9111161FE0084E2DE /* TiDatabaseProxy.m in Sources */,
-				24CA8BCA111161FE0084E2DE /* TiContactsContactProxy.m in Sources */,
+				24CA8BCA111161FE0084E2DE /* TiContactsPerson.m in Sources */,
 				24CA8BCB111161FE0084E2DE /* TiComplexValue.m in Sources */,
 				24CA8BCC111161FE0084E2DE /* TiColor.m in Sources */,
 				24CA8BCD111161FE0084E2DE /* TiButtonUtil.m in Sources */,
@@ -2652,7 +2652,7 @@
 				24D8E437119B9D8A00F8CAA6 /* TiDimension.m in Sources */,
 				24D8E438119B9D8A00F8CAA6 /* TiDatabaseResultSetProxy.m in Sources */,
 				24D8E439119B9D8A00F8CAA6 /* TiDatabaseProxy.m in Sources */,
-				24D8E43A119B9D8A00F8CAA6 /* TiContactsContactProxy.m in Sources */,
+				24D8E43A119B9D8A00F8CAA6 /* TiContactsPerson.m in Sources */,
 				24D8E43B119B9D8A00F8CAA6 /* TiComplexValue.m in Sources */,
 				24D8E43C119B9D8A00F8CAA6 /* TiColor.m in Sources */,
 				24D8E43D119B9D8A00F8CAA6 /* TiButtonUtil.m in Sources */,

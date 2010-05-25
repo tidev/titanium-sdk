@@ -8,223 +8,169 @@
 
 #import <AddressBookUI/AddressBookUI.h>
 #import "ContactsModule.h"
-#import "TiContactsContactProxy.h"
+#import "TiContactsPerson.h"
 #import "TiApp.h"
 
 @implementation ContactsModule
 
-#pragma mark Internal
-
--(void)dealloc
-{
-	CFRelease(addressBook);
-	addressBook = nil;
-	RELEASE_TO_NIL(pickerSuccessCallback);
-	RELEASE_TO_NIL(pickerErrorCallback);
-	RELEASE_TO_NIL(pickerCancelCallback);
-	RELEASE_TO_NIL(pickerFields);
-	RELEASE_TO_NIL(picker);
-	[super dealloc];
-}
-
+// We'll force the address book to only be accessed on the main thread, for consistency.  Otherwise
+// we could run into cross-thread memory issues.
 -(ABAddressBookRef)addressBook
 {
-	if (addressBook==nil)
-	{
-		addressBook = ABAddressBookCreate();
+	if (![NSThread isMainThread]) {
+		return NULL;
 	}
 	
+	if (addressBook == NULL) {
+		addressBook = ABAddressBookCreate();
+	}
 	return addressBook;
 }
 
-// caller is responsible for releasing
--(ABRecordRef)recordForId:(ABRecordID)rec
+-(void)releaseAddressBook
 {
-	return ABAddressBookGetPersonWithRecordID([self addressBook], rec);
-}
-
-#pragma mark Public APIs
-
-MAKE_SYSTEM_STR(ADDRESS_STREET_1,@"street1");
-MAKE_SYSTEM_STR(ADDRESS_STREET_2,@"street2");
-MAKE_SYSTEM_STR(ADDRESS_CITY,@"city");
-MAKE_SYSTEM_STR(ADDRESS_STATE,@"region1");
-MAKE_SYSTEM_STR(ADDRESS_PROVINCE,@"region1");
-MAKE_SYSTEM_STR(ADDRESS_SECONDARY_REGION,@"region2");
-MAKE_SYSTEM_STR(ADDRESS_ZIP,@"postalCode");
-MAKE_SYSTEM_STR(ADDRESS_POSTAL_CODE,@"postalCode");
-MAKE_SYSTEM_STR(ADDRESS_COUNTRY,@"country");
-MAKE_SYSTEM_STR(ADDRESS_COUNTRY_CODE,@"countryCode");
-
-
--(id)getAllContacts:(id)arg
-{
-	CFArrayRef contacts = ABAddressBookCopyArrayOfAllPeople([self addressBook]);
-	int count = CFArrayGetCount(contacts);
-	NSMutableArray *results = nil;
-	if (count > 0)
-	{
-		results = [NSMutableArray arrayWithCapacity:count];
-		for (int c=0;c<count;c++)
-		{
-			ABRecordRef contactRec = CFArrayGetValueAtIndex(contacts, c);
-			TiContactsContactProxy *proxy = [[TiContactsContactProxy alloc] initWithPageContext:[self pageContext] contact:contactRec newRecord:NO];
-			proxy.delegate = self;
-			[results addObject:proxy];
-			[proxy release];
-		}
+	if (![NSThread isMainThread]) {
+		[self performSelectorOnMainThread:@selector(releaseAddressBook) withObject:nil waitUntilDone:YES];
+		return;
 	}
-	CFRelease(contacts);
-	return results == nil ? [NSDictionary dictionary] : results;
+	CFRelease(addressBook);
 }
 
--(id)createContact:(id)arg
+-(void)dealloc
 {
-	ABRecordRef contactRec = ABPersonCreate();
-	TiContactsContactProxy *proxy = [[TiContactsContactProxy alloc] initWithPageContext:[self pageContext] contact:contactRec newRecord:YES];
-	proxy.delegate = self;
-	CFRelease(contactRec);
-	return [proxy autorelease];
+	RELEASE_TO_NIL(picker)
+	RELEASE_TO_NIL(cancelCallback)
+	RELEASE_TO_NIL(selectedPersonCallback)
+	RELEASE_TO_NIL(selectedPropertyCallback)
+	[super dealloc];
 }
 
--(id)addContact:(id)arg
-{
-	if ([arg isKindOfClass:[NSDictionary class]])
-	{
-		TiContactsContactProxy *proxy = [self createContact:arg];
-		[proxy updateFromDict:arg];
-		[proxy save:nil];
-		return proxy;
-	}
-	else if ([arg isKindOfClass:[TiContactsContactProxy class]])
-	{
-		return [self saveContact:arg];
-	}
-	return nil;
-}
+#pragma mark Public API
 
--(id)saveContact:(id)arg
+-(void)showContacts:(id)args
 {
-	ENSURE_TYPE(arg,TiContactsContactProxy);
-	if ([arg isNewRecord])
-	{
-		ABAddressBookAddRecord([self addressBook], [arg record], NULL);
-	}
-	ABAddressBookSave([self addressBook], NULL);
-	return arg;
-}
-
--(id)removeContact:(id)arg
-{
-	ENSURE_TYPE(arg,TiContactsContactProxy);
-	if (![arg isNewRecord])
-	{
-		ABAddressBookRemoveRecord([self addressBook], [arg record], NULL);
-		ABAddressBookSave([self addressBook], NULL);
-	}
-	return arg;
-}
-
--(void)showContactPicker:(id)arg
-{
-	ENSURE_UI_THREAD(showContactPicker,arg);
+	ENSURE_UI_THREAD(showContacts, args);
+	ENSURE_SINGLE_ARG(args, NSDictionary)
 	
-	ENSURE_SINGLE_ARG(arg,NSDictionary);
+	RELEASE_TO_NIL(cancelCallback)
+	RELEASE_TO_NIL(selectedPersonCallback)
+	RELEASE_TO_NIL(selectedPropertyCallback)
+	RELEASE_TO_NIL(picker)
 	
-	RELEASE_TO_NIL(pickerSuccessCallback);
-	RELEASE_TO_NIL(pickerErrorCallback);
-	RELEASE_TO_NIL(pickerCancelCallback);
-	RELEASE_TO_NIL(picker);
+	cancelCallback = [[args objectForKey:@"cancel"] retain];
+	selectedPersonCallback = [[args objectForKey:@"selectedPerson"] retain];
+	selectedPropertyCallback = [[args objectForKey:@"selectedProperty"] retain];
 	
-	pickerSuccessCallback = [[arg objectForKey:@"success"] retain];
-	pickerErrorCallback = [[arg objectForKey:@"error"] retain];
-	pickerCancelCallback = [[arg objectForKey:@"cancel"] retain];
-
 	picker = [[ABPeoplePickerNavigationController alloc] init];
 	[picker setPeoplePickerDelegate:self];
-
-	pickerAnimated = [TiUtils boolValue:@"animated" properties:arg def:YES];
 	
-	NSArray* details = [arg objectForKey:@"details"];
-	ENSURE_TYPE_OR_NIL(details,NSArray);
+	animated = [TiUtils boolValue:@"animated" properties:args def:YES];
 	
-	if (details!=nil)
-	{
-		pickerFields = [[NSMutableArray arrayWithCapacity:[details count]] retain];
-		for (NSString * key in details) 
-		{
-			ABPropertyID propertyId = [TiContactsContactProxy propertyForKey:key];
-			if (propertyId!=kABPropertyInvalidID)
-			{
-				[pickerFields addObject:[NSNumber numberWithInt:propertyId]];
+	NSArray* fields = [args objectForKey:@"fields"];
+	ENSURE_TYPE_OR_NIL(fields, NSArray)
+	
+	if (fields != nil) {
+		NSMutableArray* pickerFields = [NSMutableArray arrayWithCapacity:[fields count]];
+		for (id field in fields) {
+			id property = nil;
+			if ((property = [[TiContactsPerson contactProperties] objectForKey:field]) ||
+				(property = [[TiContactsPerson multiValueProperties] objectForKey:field]))  {
+				[pickerFields addObject:property];
 			}
 		}
 		[picker setDisplayedProperties:pickerFields];
 	}
-
-	TiApp * tiApp = [TiApp app];
-	//TODO: Make sure we only do this on iPhone, not iPad.
-	[[tiApp controller] manuallyRotateToOrientation:UIInterfaceOrientationPortrait];
-	[tiApp showModalController:picker animated:pickerAnimated];
-}
-
--(void)dismissPickerWithEvent:(KrollCallback*)callback event:(id)event type:(NSString*)type
-{
-	[[TiApp app] hideModalController:picker animated:pickerAnimated];
 	
-	if (callback!=nil)
-	{
-		[self _fireEventToListener:type withObject:event listener:callback thisObject:nil];
+	[[TiApp app] showModalController:picker animated:animated];
+}
+
+-(void)save:(id)unused
+{
+	ENSURE_UI_THREAD(save, unused)
+	if (ABAddressBookHasUnsavedChanges([self addressBook])) {
+		CFErrorRef error;
+		if (!ABAddressBookSave([self addressBook], &error)) {
+			CFStringRef errorStr = CFErrorCopyDescription(error);
+			NSString* str = [NSString stringWithString:(NSString*)errorStr];
+			CFRelease(errorStr);
+			
+			[self throwException:[NSString stringWithFormat:@"Unable to save address book: %@",str]
+					   subreason:nil
+						location:CODELOCATION];
+		}
 	}
-
-	RELEASE_TO_NIL(pickerSuccessCallback);
-	RELEASE_TO_NIL(pickerErrorCallback);
-	RELEASE_TO_NIL(pickerCancelCallback);
-	RELEASE_TO_NIL(pickerFields);
-	RELEASE_TO_NIL(picker);
 }
 
-#pragma mark Delegates
-
-// Called after the user has pressed cancel
-// The delegate is responsible for dismissing the peoplePicker
-- (void)peoplePickerNavigationControllerDidCancel:(ABPeoplePickerNavigationController *)peoplePicker
+-(void)revert:(id)unused
 {
-	[self dismissPickerWithEvent:pickerCancelCallback event:nil type:@"cancel"];
-}
-
-// Called after a person has been selected by the user.
-// Return YES if you want the person to be displayed.
-// Return NO  to do nothing (the delegate is responsible for dismissing the peoplePicker).
-- (BOOL)peoplePickerNavigationController:(ABPeoplePickerNavigationController *)peoplePicker shouldContinueAfterSelectingPerson:(ABRecordRef)person
-{
-	if (pickerFields!=nil)
-	{
-		return YES;
+	ENSURE_UI_THREAD(revert, unused)
+	if (ABAddressBookHasUnsavedChanges([self addressBook])) {
+		ABAddressBookRevert([self addressBook]);
 	}
-	ABRecordID recordId = ABRecordGetRecordID(person);
-	TiContactsContactProxy *proxy = [[TiContactsContactProxy alloc] initWithPageContext:[self pageContext] record:recordId];
-	proxy.delegate = self;
-	NSDictionary *event = [NSDictionary dictionaryWithObject:proxy forKey:@"contact"];
-	[proxy release];
-	[self dismissPickerWithEvent:pickerSuccessCallback event:event type:@"success"];
-	return NO;
 }
 
-// Called after a value has been selected by the user.
-// Return YES if you want default action to be performed.
-// Return NO to do nothing (the delegate is responsible for dismissing the peoplePicker).
-- (BOOL)peoplePickerNavigationController:(ABPeoplePickerNavigationController *)peoplePicker shouldContinueAfterSelectingPerson:(ABRecordRef)person property:(ABPropertyID)property identifier:(ABMultiValueIdentifier)identifier
+#pragma mark Picker delegate functions
+
+-(void)peoplePickerNavigationControllerDidCancel:(ABPeoplePickerNavigationController *)peoplePicker
 {
-	ABRecordID recordId = ABRecordGetRecordID(person);
-	TiContactsContactProxy *proxy = [[TiContactsContactProxy alloc] initWithPageContext:[self pageContext] record:recordId];
-	proxy.delegate = self;
-	NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:proxy,@"contact",[TiContactsContactProxy stringForPropertyId:property],@"key",identifier,@"index",nil];
-	[proxy release];
-	[self dismissPickerWithEvent:pickerSuccessCallback event:event type:@"success"];
-	return NO;
+	[[TiApp app] hideModalController:picker animated:animated];
+	if (cancelCallback) {
+		[self _fireEventToListener:@"cancel" withObject:nil listener:cancelCallback thisObject:nil];
+	}
 }
 
+-(BOOL)peoplePickerNavigationController:(ABPeoplePickerNavigationController *)peoplePicker shouldContinueAfterSelectingPerson:(ABRecordRef)person
+{
+	if (selectedPersonCallback) {
+		ABRecordID id_ = ABRecordGetRecordID(person);
+		TiContactsPerson* person = [[TiContactsPerson alloc] _initWithPageContext:[self pageContext] recordId:id_ module:self];
+		[self _fireEventToListener:@"selectedPerson"
+						withObject:[NSDictionary dictionaryWithObject:person forKey:@"person"] 
+						listener:selectedPersonCallback 
+						thisObject:nil];
+		[[TiApp app] hideModalController:picker animated:animated];
+		return NO;
+	}
+	return YES;
+}
+
+-(BOOL)peoplePickerNavigationController:(ABPeoplePickerNavigationController *)peoplePicker shouldContinueAfterSelectingPerson:(ABRecordRef)person property:(ABPropertyID)property identifier:(ABMultiValueIdentifier)identifier
+{
+	if (selectedPropertyCallback) {
+		ABRecordID id_ = ABRecordGetRecordID(person);
+		TiContactsPerson* personObject = [[TiContactsPerson alloc] _initWithPageContext:[self pageContext] recordId:id_ module:self];
+		NSString* propertyName = nil;
+		id value = nil;
+		id label = [NSNull null];
+		if (identifier == kABMultiValueInvalidIdentifier) { 
+			propertyName = [[[TiContactsPerson contactProperties] allKeysForObject:[NSNumber numberWithInt:property]] objectAtIndex:0];
+			CFTypeRef val = ABRecordCopyValue(person, property);
+			value = [[(id)val retain] autorelease]; // Force toll-free bridging & autorelease
+			CFRelease(val);
+		}
+		else {
+			propertyName = [[[TiContactsPerson multiValueProperties] allKeysForObject:[NSNumber numberWithInt:property]] objectAtIndex:0];
+			ABMultiValueRef multival = ABRecordCopyValue(person, property);
+			CFIndex index = ABMultiValueGetIndexForIdentifier(multival, identifier);
+
+			CFTypeRef val = ABMultiValueCopyValueAtIndex(multival, index);
+			value = [[(id)val retain] autorelease]; // Force toll-free bridging & autorelease
+			CFRelease(val);
+			
+			CFTypeRef CFlabel = ABMultiValueCopyLabelAtIndex(multival, index);
+			label = [[(id)CFlabel retain] autorelease];
+			CFRelease(CFlabel);
+			
+			CFRelease(multival);
+		}
+		
+		NSDictionary* dict = [NSDictionary dictionaryWithObjectsAndKeys:personObject,@"person",propertyName,@"property",value,@"value",label,@"label",nil];
+		[self _fireEventToListener:@"selectedProperty" withObject:dict listener:selectedPropertyCallback thisObject:nil];
+		[[TiApp app] hideModalController:picker animated:animated];
+		return NO;
+	}
+	return YES;
+}
 
 @end
 

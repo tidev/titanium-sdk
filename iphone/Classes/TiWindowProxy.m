@@ -159,6 +159,8 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 
 -(void)windowClosed
 {
+	ENSURE_UI_THREAD_0_ARGS
+	
 	if (opened==NO)
 	{
 		return;
@@ -504,7 +506,7 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 	if ([self _handleClose:args])
 	{
 		TiAnimation *animation = [TiAnimation animationFromArg:args context:[self pageContext] create:NO];
-		BOOL animated = args!=nil && [args count]>0 ? [TiUtils boolValue:@"animated" properties:[args objectAtIndex:0] def:YES] : YES;
+		BOOL animated = animation==nil && args!=nil && [args count]>0 ? [TiUtils boolValue:@"animated" properties:[args objectAtIndex:0] def:YES] : YES;
 
 		if (animation!=nil)
 		{
@@ -546,14 +548,15 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 			self.view.frame = [[[TiApp app] controller] resizeView];
 		}
 		
-		if (animation==nil && animated==NO)
+		if (([self _isChildOfTab] && animated) || animation!=nil)
+		{
+			[self performSelector:@selector(windowClosed) withObject:nil afterDelay:0.8];
+		}
+		else 
 		{
 			[self windowClosed];
 		}
-		else
-		{
-			[self performSelector:@selector(windowClosed) withObject:nil afterDelay:800];
-		}
+
 	}	 
 }
 

@@ -78,6 +78,20 @@ extern NSString * const TI_APPLICATION_RESOURCE_DIR;
 	return [dateFormatter stringFromDate:data];
 }
 
++(NSDate *)dateForUTCDate:(NSString*)date
+{
+	NSDateFormatter *dateFormatter = [[[NSDateFormatter alloc] init] autorelease];
+	NSTimeZone* timeZone = [NSTimeZone timeZoneWithName:@"UTC"];
+	[dateFormatter setTimeZone:timeZone];
+	
+	NSLocale* USLocale = [[NSLocale alloc] initWithLocaleIdentifier:@"en_US"];
+	[dateFormatter setLocale:USLocale];
+	[USLocale release];
+	
+	[dateFormatter setDateFormat:@"yyyy-MM-dd'T'HH:mm:ss'.'SSS+0000"];
+	return [dateFormatter dateFromString:date];
+}
+
 +(NSString *)UTCDate
 {
 	return [TiUtils UTCDateForDate:[NSDate date]];
