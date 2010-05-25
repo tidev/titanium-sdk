@@ -98,10 +98,6 @@ class IPhone(object):
 		# copy README to iphone directory		
 		shutil.copy(os.path.join(template_dir,'README'),os.path.join(iphone_dir,'README'))
 
-		# copy XIB
-		shutil.copy(os.path.join(template_dir,'Resources','MainWindow.xib'),iphone_resources_dir)
-		shutil.copy(os.path.join(template_dir,'Resources','MainWindow_ipad.xib'),iphone_resources_dir)
-
 		# symlink 
 		libticore = os.path.join(template_dir,'libTiCore.a')
 		cwd = os.getcwd()

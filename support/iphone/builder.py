@@ -261,10 +261,7 @@ def main(args):
 			ird = os.path.join(project_dir,'Resources','iphone')
 			if os.path.exists(ird): copy_module_resources(ird,app_dir)
 			
-		# copy XIBs	
-		shutil.copy(os.path.join(template_dir,'Resources','MainWindow.xib'),iphone_resources_dir)
-		shutil.copy(os.path.join(template_dir,'Resources','MainWindow_ipad.xib'),iphone_resources_dir)
-		
+	
 		if not simulator:
 			version = ti.properties['version']
 			# we want to make sure in debug mode the version always changes
