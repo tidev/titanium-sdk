@@ -147,6 +147,20 @@ class Compiler(object):
 		else:
 			print "[INFO] Skipping JS compile, running from simulator"
 	
+		# generate the includes for all compiled modules
+		xcconfig = os.path.join(self.iphone_dir,"module.xcconfig")
+		xcconfig = open(xcconfig,'w')
+		xcconfig.write("// this is a generated file - DO NOT EDIT\n\n")
+		module_root = os.path.abspath(os.path.join(template_dir,"..","..","..","..","modules","iphone"))
+		if os.path.exists(module_root):
+			for module in ti.properties['modules']:
+				tp_name = module['name'].lower()
+				tp_version = module['version']
+				xcfile = os.path.join(module_root,tp_name,tp_version,"module.xcconfig")
+				if os.path.exists(xcfile):
+					xcconfig.write("#include \"%s\"\n" % xcfile.replace('.xcconfig',''))
+		xcconfig.close()
+	
 	def add_symbol(self,api):
 		print "[DEBUG] detected symbol: %s" % api
 		curtoken = ''
