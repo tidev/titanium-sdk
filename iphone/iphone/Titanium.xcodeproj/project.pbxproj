@@ -25,6 +25,8 @@
 		245972C611921D0D00519F79 /* TiUIiPadSplitWindow.m in Sources */ = {isa = PBXBuildFile; fileRef = 245972C511921D0D00519F79 /* TiUIiPadSplitWindow.m */; };
 		245B3C3D11375A6600CE7530 /* UtilsModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 245B3C3911375A6600CE7530 /* UtilsModule.m */; };
 		245B45641139B41800CE7530 /* TiUITableViewCellSelectionStyleProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 245B45601139B41800CE7530 /* TiUITableViewCellSelectionStyleProxy.m */; };
+		2464F96311AB996C001C035A /* module.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 2464F96211AB996C001C035A /* module.xcconfig */; };
+		2464F96411AB996C001C035A /* module.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 2464F96211AB996C001C035A /* module.xcconfig */; };
 		248133A7115761DE00E3A9BA /* TiNetworkBonjourBrowserProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 248133A2115761DE00E3A9BA /* TiNetworkBonjourBrowserProxy.m */; };
 		248133A8115761DE00E3A9BA /* TiNetworkBonjourServiceProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 248133A4115761DE00E3A9BA /* TiNetworkBonjourServiceProxy.m */; };
 		248133A9115761DE00E3A9BA /* TiNetworkTCPSocketProxy.mm in Sources */ = {isa = PBXBuildFile; fileRef = 248133A6115761DE00E3A9BA /* TiNetworkTCPSocketProxy.mm */; };
@@ -527,6 +529,7 @@
 		245B3C3911375A6600CE7530 /* UtilsModule.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = UtilsModule.m; sourceTree = "<group>"; };
 		245B455F1139B41800CE7530 /* TiUITableViewCellSelectionStyleProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUITableViewCellSelectionStyleProxy.h; sourceTree = "<group>"; };
 		245B45601139B41800CE7530 /* TiUITableViewCellSelectionStyleProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUITableViewCellSelectionStyleProxy.m; sourceTree = "<group>"; };
+		2464F96211AB996C001C035A /* module.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = module.xcconfig; sourceTree = "<group>"; };
 		248133A1115761DE00E3A9BA /* TiNetworkBonjourBrowserProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiNetworkBonjourBrowserProxy.h; sourceTree = "<group>"; };
 		248133A2115761DE00E3A9BA /* TiNetworkBonjourBrowserProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiNetworkBonjourBrowserProxy.m; sourceTree = "<group>"; };
 		248133A3115761DE00E3A9BA /* TiNetworkBonjourServiceProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiNetworkBonjourServiceProxy.h; sourceTree = "<group>"; };
@@ -2076,6 +2079,7 @@
 				241EAEC5118E2BA90081A5BE /* project.xcconfig */,
 				24596691118E70D300519F79 /* ApplicationRouting.h */,
 				24596692118E70D300519F79 /* ApplicationRouting.m */,
+				2464F96211AB996C001C035A /* module.xcconfig */,
 			);
 			name = "Other Sources";
 			sourceTree = "<group>";
@@ -2218,6 +2222,7 @@
 			files = (
 				24CA9183111170820084E2DE /* Default.png in Resources */,
 				24F048C4119C716A00F1D822 /* MainWindow.xib in Resources */,
+				2464F96311AB996C001C035A /* module.xcconfig in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2227,6 +2232,7 @@
 			files = (
 				2494D2C9119BADE000D5DEDB /* MainWindow_ipad.xib in Resources */,
 				24D8E3B7119B9D8A00F8CAA6 /* Default.png in Resources */,
+				2464F96411AB996C001C035A /* module.xcconfig in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
