@@ -12,6 +12,7 @@
 #import <AddressBookUI/AddressBookUI.h>
 
 #import "KrollCallback.h"
+#import "TiContactsPerson.h"
 
 @interface ContactsModule : TiModule<ABPeoplePickerNavigationControllerDelegate> {
 @private
