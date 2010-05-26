@@ -36,16 +36,51 @@
 	CFRelease(addressBook);
 }
 
+-(void)startup
+{
+	[super startup];
+	addressBook = NULL;
+	returnCache = [[NSMutableDictionary alloc] init];
+}
+
 -(void)dealloc
 {
 	RELEASE_TO_NIL(picker)
 	RELEASE_TO_NIL(cancelCallback)
 	RELEASE_TO_NIL(selectedPersonCallback)
 	RELEASE_TO_NIL(selectedPropertyCallback)
+	RELEASE_TO_NIL(returnCache);
+	
+	[self releaseAddressBook];
 	[super dealloc];
 }
 
 #pragma mark Public API
+
+-(void)save:(id)unused
+{
+	ENSURE_UI_THREAD(save, unused)
+	if (ABAddressBookHasUnsavedChanges([self addressBook])) {
+		CFErrorRef error;
+		if (!ABAddressBookSave([self addressBook], &error)) {
+			CFStringRef errorStr = CFErrorCopyDescription(error);
+			NSString* str = [NSString stringWithString:(NSString*)errorStr];
+			CFRelease(errorStr);
+			
+			[self throwException:[NSString stringWithFormat:@"Unable to save address book: %@",str]
+					   subreason:nil
+						location:CODELOCATION];
+		}
+	}
+}
+
+-(void)revert:(id)unused
+{
+	ENSURE_UI_THREAD(revert, unused)
+	if (ABAddressBookHasUnsavedChanges([self addressBook])) {
+		ABAddressBookRevert([self addressBook]);
+	}
+}
 
 -(void)showContacts:(id)args
 {
@@ -84,28 +119,100 @@
 	[[TiApp app] showModalController:picker animated:animated];
 }
 
--(void)save:(id)unused
+// OK to do outside main thread
+-(TiContactsPerson*)getPersonByID:(id)arg
 {
-	ENSURE_UI_THREAD(save, unused)
-	if (ABAddressBookHasUnsavedChanges([self addressBook])) {
-		CFErrorRef error;
-		if (!ABAddressBookSave([self addressBook], &error)) {
-			CFStringRef errorStr = CFErrorCopyDescription(error);
-			NSString* str = [NSString stringWithString:(NSString*)errorStr];
-			CFRelease(errorStr);
-			
-			[self throwException:[NSString stringWithFormat:@"Unable to save address book: %@",str]
-					   subreason:nil
-						location:CODELOCATION];
-		}
-	}
+	ENSURE_SINGLE_ARG(arg,NSNumber)                    
+	return [[[TiContactsPerson alloc] _initWithPageContext:[self executionContext] recordId:[arg intValue] module:self] autorelease];
 }
 
--(void)revert:(id)unused
+-(NSArray*)getPeopleWithName:(id)arg
 {
-	ENSURE_UI_THREAD(revert, unused)
-	if (ABAddressBookHasUnsavedChanges([self addressBook])) {
-		ABAddressBookRevert([self addressBook]);
+	ENSURE_SINGLE_ARG(arg,NSString)
+	
+	if (![NSThread isMainThread]) {
+		[self performSelectorOnMainThread:@selector(getPeopleWithName:) withObject:arg waitUntilDone:YES];
+		return [returnCache objectForKey:@"peopleWithName"];
+	}
+	
+	CFArrayRef peopleRefs = ABAddressBookCopyPeopleWithName([self addressBook], (CFStringRef)arg);
+	CFIndex count = CFArrayGetCount(peopleRefs);
+	NSMutableArray* people = [NSMutableArray arrayWithCapacity:count];
+	for (CFIndex i=0; i < count; i++) {
+		ABRecordRef ref = CFArrayGetValueAtIndex(peopleRefs, i);
+		ABRecordID id_ = ABRecordGetRecordID(ref);
+		TiContactsPerson* person = [[[TiContactsPerson alloc] _initWithPageContext:[self executionContext] recordId:id_ module:self] autorelease];
+		[people addObject:person];
+	}	
+	CFRelease(peopleRefs);
+	
+	[returnCache setObject:people forKey:@"peopleWithName"];
+	return people;
+}
+
+-(NSArray*)getAllPeople:(id)unused
+{
+	if (![NSThread isMainThread]) {
+		[self performSelectorOnMainThread:@selector(getAllPeople:) withObject:unused waitUntilDone:YES];
+		return [returnCache objectForKey:@"allPeople"];
+	}
+	
+	CFArrayRef peopleRefs = ABAddressBookCopyArrayOfAllPeople([self addressBook]);
+	CFIndex count = CFArrayGetCount(peopleRefs);
+	NSMutableArray* people = [NSMutableArray arrayWithCapacity:count];
+	for (CFIndex i=0; i < count; i++) {
+		ABRecordRef ref = CFArrayGetValueAtIndex(peopleRefs, i);
+		ABRecordID id_ = ABRecordGetRecordID(ref);
+		TiContactsPerson* person = [[[TiContactsPerson alloc] _initWithPageContext:[self executionContext] recordId:id_ module:self] autorelease];
+		[people addObject:person];
+	}	
+	CFRelease(peopleRefs);
+	
+	[returnCache setObject:people forKey:@"allPeople"];
+	return people;
+}
+
+-(TiContactsPerson*)createPerson:(id)arg
+{
+	if (![NSThread isMainThread]) {
+		[self performSelectorOnMainThread:@selector(createPerson:) withObject:arg waitUntilDone:YES];
+		return [returnCache objectForKey:@"newPerson"];
+	}
+	
+	ABRecordRef record = ABPersonCreate();
+	CFErrorRef error;
+	if (!ABAddressBookAddRecord([self addressBook], record, &error)) {
+		CFStringRef errorStr = CFErrorCopyDescription(error);
+		NSString* str = [NSString stringWithString:(NSString*)errorStr];
+		CFRelease(errorStr);
+		
+		[self throwException:[NSString stringWithFormat:@"Failed to add person: %@",str]
+				   subreason:nil
+					location:CODELOCATION];
+	}
+	[self save:nil];
+	
+	ABRecordID id_ = ABRecordGetRecordID(record);
+	TiContactsPerson* newPerson = [[[TiContactsPerson alloc] _initWithPageContext:[self executionContext] recordId:id_ module:self] autorelease];
+	
+	[returnCache setObject:newPerson forKey:@"newPerson"];
+	return newPerson;
+}
+
+-(void)removePerson:(id)arg
+{
+	ENSURE_UI_THREAD(removePerson,arg)
+	ENSURE_SINGLE_ARG(arg,TiContactsPerson)
+	
+	CFErrorRef error;
+	if (!ABAddressBookRemoveRecord([self addressBook], [arg record], &error)) {
+		CFStringRef errorStr = CFErrorCopyDescription(error);
+		NSString* str = [NSString stringWithString:(NSString*)errorStr];
+		CFRelease(errorStr);
+		
+		[self throwException:[NSString stringWithFormat:@"Failed to remove person: %@",str]
+				   subreason:nil
+					location:CODELOCATION];
 	}
 }
 
@@ -123,7 +230,7 @@
 {
 	if (selectedPersonCallback) {
 		ABRecordID id_ = ABRecordGetRecordID(person);
-		TiContactsPerson* person = [[TiContactsPerson alloc] _initWithPageContext:[self pageContext] recordId:id_ module:self];
+		TiContactsPerson* person = [[TiContactsPerson alloc] _initWithPageContext:[self executionContext] recordId:id_ module:self];
 		[self _fireEventToListener:@"selectedPerson"
 						withObject:[NSDictionary dictionaryWithObject:person forKey:@"person"] 
 						listener:selectedPersonCallback 
@@ -138,7 +245,7 @@
 {
 	if (selectedPropertyCallback) {
 		ABRecordID id_ = ABRecordGetRecordID(person);
-		TiContactsPerson* personObject = [[TiContactsPerson alloc] _initWithPageContext:[self pageContext] recordId:id_ module:self];
+		TiContactsPerson* personObject = [[TiContactsPerson alloc] _initWithPageContext:[self executionContext] recordId:id_ module:self];
 		NSString* propertyName = nil;
 		id value = nil;
 		id label = [NSNull null];
@@ -157,8 +264,8 @@
 			value = [[(id)val retain] autorelease]; // Force toll-free bridging & autorelease
 			CFRelease(val);
 			
-			CFTypeRef CFlabel = ABMultiValueCopyLabelAtIndex(multival, index);
-			label = [[(id)CFlabel retain] autorelease];
+			CFStringRef CFlabel = ABMultiValueCopyLabelAtIndex(multival, index);
+			label = [NSString stringWithString:[[[TiContactsPerson multiValueLabels] allKeysForObject:(NSString*)CFlabel] objectAtIndex:0]];
 			CFRelease(CFlabel);
 			
 			CFRelease(multival);

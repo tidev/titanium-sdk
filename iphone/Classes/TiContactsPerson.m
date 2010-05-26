@@ -31,22 +31,8 @@ static NSDictionary* multiValueLabels;
 		if (recordId != kABRecordInvalidID) {
 			record = ABAddressBookGetPersonWithRecordID([module addressBook], recordId);
 		}
-		else {
-			record = ABPersonCreate();
-		}
 	}
 	return record;
-}
-
--(void)releaseRecord
-{
-	if (![NSThread isMainThread]) {
-		[self performSelectorOnMainThread:@selector(releaseRecord) withObject:nil waitUntilDone:YES];
-		return;
-	}
-	
-	CFRelease(record);
-	record = NULL;
 }
 
 -(id)_initWithPageContext:(id<TiEvaluator>)context recordId:(ABRecordID)id_ module:(ContactsModule*)module_
@@ -63,19 +49,7 @@ static NSDictionary* multiValueLabels;
 -(void)dealloc
 {
 	RELEASE_TO_NIL(returnCache)
-	[self releaseRecord];
 	[super dealloc];
-}
-
--(void)wasCommitted
-{
-	if (![NSThread isMainThread]) {
-		[self performSelectorOnMainThread:@selector(wasCommitted) withObject:nil waitUntilDone:YES];
-		return;
-	}
-	
-	recordId = ABRecordGetRecordID(record);
-	[self releaseRecord];
 }
 
 #pragma mark Property dictionaries
@@ -110,12 +84,12 @@ static NSDictionary* multiValueLabels;
 {
 	if (multiValueProperties == nil) {
 		multiValueProperties = 
-		[[NSDictionary alloc] initWithObjectsAndKeys:NUMINT	(kABPersonEmailProperty),@"email",
-		 NUMINT(kABPersonAddressProperty),@"address",
-		 NUMINT(kABPersonPhoneProperty),@"phone",
-		 NUMINT(kABPersonInstantMessageProperty),@"instantMessage",
-		 NUMINT(kABPersonRelatedNamesProperty),@"relatedNames",
-		 nil];
+			[[NSDictionary alloc] initWithObjectsAndKeys:NUMINT	(kABPersonEmailProperty),@"email",
+			 NUMINT(kABPersonAddressProperty),@"address",
+			 NUMINT(kABPersonPhoneProperty),@"phone",
+			 NUMINT(kABPersonInstantMessageProperty),@"instantMessage",
+			 NUMINT(kABPersonRelatedNamesProperty),@"relatedNames",
+			 nil];
 	}
 	return multiValueProperties;
 }
@@ -124,14 +98,48 @@ static NSDictionary* multiValueLabels;
 {
 	if (multiValueTypes == nil) {
 		multiValueTypes =
-		[[NSDictionary alloc] initWithObjectsAndKeys:NUMINT(kABMultiStringPropertyType),NUMINT(kABPersonEmailProperty),
-		 NUMINT(kABMultiDictionaryPropertyType),NUMINT(kABPersonAddressProperty),
-		 NUMINT(kABMultiStringPropertyType),NUMINT(kABPersonPhoneProperty),
-		 NUMINT(kABMultiDictionaryPropertyType),NUMINT(kABPersonInstantMessageProperty),
-		 NUMINT(kABMultiStringPropertyType),NUMINT(kABPersonRelatedNamesProperty),
-		 nil];
+			[[NSDictionary alloc] initWithObjectsAndKeys:NUMINT(kABMultiStringPropertyType),NUMINT(kABPersonEmailProperty),
+			 NUMINT(kABMultiDictionaryPropertyType),NUMINT(kABPersonAddressProperty),
+			 NUMINT(kABMultiStringPropertyType),NUMINT(kABPersonPhoneProperty),
+			 NUMINT(kABMultiDictionaryPropertyType),NUMINT(kABPersonInstantMessageProperty),
+			 NUMINT(kABMultiStringPropertyType),NUMINT(kABPersonRelatedNamesProperty),
+			 nil];
 	}
 	return multiValueTypes;
+}
+
++(NSDictionary*)multiValueLabels
+{
+	if (multiValueLabels == nil) {
+		multiValueLabels = 
+			[[NSDictionary alloc] initWithObjectsAndKeys:(NSString*)kABHomeLabel,@"home", // Generic labels
+			 kABWorkLabel,@"work",
+			 kABOtherLabel,@"other",
+			 kABPersonPhoneMobileLabel,@"mobile", // Phone labels
+			 kABPersonPhonePagerLabel,@"pager",
+			 kABPersonPhoneWorkFAXLabel,@"workFax",
+			 kABPersonPhoneMainLabel,@"main",
+			 kABPersonPhoneIPhoneLabel,@"iPhone",
+			 kABPersonPhoneHomeFAXLabel,@"homeFax",
+			 kABPersonInstantMessageServiceAIM,@"aim", // IM labels
+			 kABPersonInstantMessageServiceICQ,@"icq",
+			 kABPersonInstantMessageServiceJabber,@"jabber",
+			 kABPersonInstantMessageServiceMSN,@"msn",
+			 kABPersonInstantMessageServiceYahoo,@"yahoo",
+			 kABPersonMotherLabel,@"mother", // Relation labels
+			 kABPersonFatherLabel,@"father",
+			 kABPersonParentLabel,@"parent",
+			 kABPersonSisterLabel,@"sister",
+			 kABPersonBrotherLabel,@"brother",
+			 kABPersonChildLabel,@"child",
+			 kABPersonFriendLabel,@"friend",
+			 kABPersonSpouseLabel,@"spouse",
+			 kABPersonPartnerLabel,@"partner",
+			 kABPersonManagerLabel,@"manager",
+			 kABPersonAssistantLabel,@"assistant",
+			 nil];
+	}
+	return multiValueLabels;
 }
 
 #pragma mark Multi-value property management
@@ -143,13 +151,14 @@ static NSDictionary* multiValueLabels;
 	CFIndex count = ABMultiValueGetCount(multiValue);
 	for (CFIndex i = 0; i < count; i++) {
 		CFStringRef label = ABMultiValueCopyLabelAtIndex(multiValue, i);
-		CFStringRef value = ABMultiValueCopyValueAtIndex(multiValue, i);
+		CFTypeRef value = ABMultiValueCopyValueAtIndex(multiValue, i);
 		
-		if ([dict valueForKey:(NSString*)label] == nil) {
-			[dict setValue:[NSMutableArray array] forKey:(NSString*)label];
+		NSString* readableLabel = [[[TiContactsPerson multiValueLabels] allKeysForObject:(NSString*)label] objectAtIndex:0];
+		if ([dict valueForKey:readableLabel] == nil) {
+			[dict setValue:[NSMutableArray array] forKey:readableLabel];
 		}
 		// This works as long as 'value' is toll-free bridged, which is (currently) true for all AB property types
-		[[dict valueForKey:(NSString*)label] addObject:(id)value];
+		[[dict valueForKey:readableLabel] addObject:(id)value];
 		
 		CFRelease(label);
 		CFRelease(value);
@@ -163,8 +172,9 @@ static NSDictionary* multiValueLabels;
 	ABMutableMultiValueRef multiValue = ABMultiValueCreateMutable(type);
 	
 	for (NSString* key in [dict allKeys]) {
+		NSString* label = [[TiContactsPerson multiValueLabels] valueForKey:key];
 		for (id value in [dict objectForKey:key]) {
-			ABMultiValueAddValueAndLabel(multiValue, (CFTypeRef)value, (CFStringRef)key, NULL);
+			ABMultiValueAddValueAndLabel(multiValue, (CFTypeRef)value, (CFStringRef)label, NULL);
 		}
 	}
 	
@@ -186,8 +196,11 @@ static NSDictionary* multiValueLabels;
 	}
 	
 	CFStringRef name = ABRecordCopyCompositeName([self record]);
-	NSString* nameStr = [NSString stringWithString:(NSString*)name];
-	CFRelease(name);
+	NSString* nameStr = @"No name";
+	if (name != NULL) {
+		nameStr = [NSString stringWithString:(NSString*)name];		
+		CFRelease(name);
+	}
 	
 	[returnCache setObject:nameStr forKey:@"fullName"];
 	return nameStr;
@@ -212,15 +225,17 @@ static NSDictionary* multiValueLabels;
 	if (property = [[TiContactsPerson contactProperties] valueForKey:key]) {
 		// Okay, we have to do the bridging ourselves so that the result is autoreleased.
 		CFTypeRef CFresult = ABRecordCopyValue([self record], [property intValue]);
-		id result = nil;
-		if (CFGetTypeID(CFresult) == CFStringGetTypeID()) {
-			result = [NSString stringWithString:(NSString*)result];
+		id result = [NSNull null];
+		if (CFresult != NULL) {
+			if (CFGetTypeID(CFresult) == CFStringGetTypeID()) {
+				result = [NSString stringWithString:(NSString*)CFresult];
+			}
+			if (CFGetTypeID(CFresult) == CFDateGetTypeID()) {
+				// TODO: Need better date handling based on locale
+				result = [TiUtils UTCDateForDate:(NSDate*)CFresult];
+			}
+			CFRelease(CFresult);
 		}
-		if (CFGetTypeID(CFresult) == CFDateGetTypeID()) {
-			// TODO: Need better date handling based on locale
-			result = [TiUtils UTCDateForDate:(NSDate*)CFresult];
-		}
-		CFRelease(CFresult);
 		
 		[returnCache setObject:result forKey:key];
 		return result;
@@ -229,11 +244,13 @@ static NSDictionary* multiValueLabels;
 	else if (property = [[TiContactsPerson multiValueProperties] valueForKey:key]) {
 		ABPropertyID propertyID = [property intValue];
 		ABMultiValueRef multiVal = ABRecordCopyValue([self record], propertyID);
-		NSDictionary* dict = [self dictionaryFromMultiValue:multiVal];
-		CFRelease(multiVal);
-		
-		[returnCache setObject:dict forKey:key];
-		return dict;
+		id value = [NSNull null];
+		if (multiVal != NULL) {
+			value = [self dictionaryFromMultiValue:multiVal];
+			CFRelease(multiVal);
+		}
+		[returnCache setObject:value forKey:key];
+		return value;
 	}
 	// Something else
 	else {
@@ -294,6 +311,7 @@ static NSDictionary* multiValueLabels;
 {
 	if (![NSThread isMainThread]) {
 		[self performSelectorOnMainThread:@selector(setValueImpl:) withObject:[NSArray arrayWithObjects:value,key,nil] waitUntilDone:YES];
+		return;
 	}
 	[self setValueImpl:[NSArray arrayWithObjects:value,key,nil]];
 }
