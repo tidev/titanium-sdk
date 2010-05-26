@@ -1,6 +1,9 @@
 // create table view data object
 var data = [
 	{title:'Contacts picker', hasChild:true, test:'../examples/contacts_picker.js'},
+	{title:'Display people', hasChild:true, test:'../examples/contacts_db.js'},
+	{title:'Add contact',hasChild:true, test:'../examples/contacts_add.js'},
+	{title:'Remove contact',hasChild:true, test:'../examples/contacts_remove.js'}
 ];
 
 // create table view
