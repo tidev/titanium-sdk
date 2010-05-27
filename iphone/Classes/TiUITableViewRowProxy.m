@@ -370,6 +370,7 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 			rect.size.height = rowHeight;
 			contentView.frame = rect;
 		}
+		rect.origin = CGPointZero;
 		[rowContainerView release];
 		rowContainerView = [[TiUITableViewRowContainer alloc] initWithFrame:rect];
 		[rowContainerView setBackgroundColor:[UIColor clearColor]];

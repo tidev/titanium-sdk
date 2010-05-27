@@ -59,6 +59,15 @@
 
 - (void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
 {
+	[self lockChildrenForReading];
+	for (TiViewProxy * thisProxy in [self children])
+	{
+		if ([thisProxy respondsToSelector:@selector(willAnimateRotationToInterfaceOrientation:duration:)])
+		{
+			[(id)thisProxy willAnimateRotationToInterfaceOrientation:toInterfaceOrientation duration:duration];
+		}
+	}
+	[self unlockChildren];
 	//This is in place for TabController (Or any others) to subclass.
 }
 

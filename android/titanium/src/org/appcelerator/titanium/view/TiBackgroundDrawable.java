@@ -9,6 +9,7 @@ package org.appcelerator.titanium.view;
 import java.io.IOException;
 import java.util.Arrays;
 
+import org.appcelerator.titanium.util.Log;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
@@ -102,11 +103,14 @@ public class TiBackgroundDrawable extends StateListDrawable {
 		boolean changed = super.onStateChange(stateSet);
 		boolean drawableChanged = false;
 		if (background != null) {
-			//Log.d("TiBackground", "background="+background.getClass().getSimpleName()+",state.len="+stateSet.length+",state[0]="+stateSet[0]);
+//			Log.e("TiBackground", "background="+background.getClass().getSimpleName()+",state.len="+stateSet.length);
+//			for (int i = 0; i < stateSet.length; i++) {
+//				Log.e("TiBackground", "    state[" + i + "]=" + stateSet[i]);
+//			}
 			drawableChanged = background.setState(stateSet);
-			/*if (drawableChanged) {
-				background.invalidateSelf();
-			}*/
+//			if (drawableChanged) {
+//				background.invalidateSelf();
+//			}
 		}
 
 		return changed || drawableChanged;
@@ -145,7 +149,7 @@ public class TiBackgroundDrawable extends StateListDrawable {
 			background.inflate(r, parser, attrs);
 		}
 	}
-	
+
 	public void releaseDelegate() {
 		if (background != null) {
 			if (background instanceof BitmapDrawable) {
@@ -199,18 +203,22 @@ public class TiBackgroundDrawable extends StateListDrawable {
 
 	public void setBackgroundColor(int backgroundColor) {
 		//this.background = new ColorDrawable(backgroundColor);
+		releaseDelegate();
 		this.background = new PaintDrawable(backgroundColor);
 	}
 
 	public void setBackgroundImage(Bitmap backgroundImage) {
+		releaseDelegate();
 		this.background = new BitmapDrawable(backgroundImage);
 	}
 
 	public void setBackgroundDrawable(Drawable drawable) {
+		releaseDelegate();
 		this.background = drawable;
+		onStateChange(getState());
 	}
 
-	public Drawable getBackgroundDrawable() {
-		return background;
-	}
+//	public Drawable getBackgroundDrawable() {
+//		return background;
+//	}
 }
