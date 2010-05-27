@@ -7,13 +7,15 @@ var activeMovie = Titanium.Media.createVideoPlayer({
 	scalingMode:Titanium.Media.VIDEO_SCALING_MODE_FILL
 });
 
-if (Titanium.Platform.osname == "ipad")
+if (parseFloat(Titanium.Platform.version) >= 3.2)
 {
 	activeMovie.movieControlStyle = Titanium.Media.VIDEO_CONTROL_EMBEDDED;
 //	activeMovie.movieControlStyle = Titanium.Media.VIDEO_CONTROL_FULLSCREEN;
 //	activeMovie.movieControlStyle = Titanium.Media.VIDEO_CONTROL_NONE;
-	activeMovie.width = 400;
-	activeMovie.height = 300;
+	if (Titanium.Platform.osname == "ipad") {
+		activeMovie.width = 400;
+		activeMovie.height = 300;
+	}
 	win.add(activeMovie);
 }
 
