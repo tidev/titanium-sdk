@@ -979,7 +979,9 @@ extern NSString * const TI_APPLICATION_RESOURCE_DIR;
 +(UIColor *)barColorForColor:(TiColor *)color
 {
 	UIColor * result = [color _color];
-	if ((result == [UIColor clearColor]) || (result == [UIColor blackColor]))
+	// TODO: Return nil for the appropriate colors once Apple fixes how the 'cancel' button
+	// is displayed on nil-color bars.
+	if ((result == [UIColor clearColor]))
 	{
 		return nil;
 	}
@@ -989,7 +991,9 @@ extern NSString * const TI_APPLICATION_RESOURCE_DIR;
 +(UIBarStyle)barStyleForColor:(TiColor *)color
 {
 	UIColor * result = [color _color];
-	if ((result == [UIColor clearColor]) || (result == [UIColor blackColor]))
+	// TODO: Return UIBarStyleBlack for the appropriate colors once Apple fixes how the 'cancel' button
+	// is displayed on nil-color bars.
+	if ((result == [UIColor clearColor]))
 	{
 		return UIBarStyleBlack;
 	}

@@ -97,6 +97,10 @@
 		[condition waitUntilDate:date];
 		[condition unlock];
 
+		// Always break if stopped; it means we were cancelled.  Even if started and then immediately
+		// stopped, this is the behavior we want.
+		if (stopped) break;
+		
 		// calculate the next interval before execution so we exclude it's time
 		date = [NSDate dateWithTimeIntervalSinceNow:duration/1000];
 		
@@ -106,10 +110,8 @@
 		[invokeCond lockWhenCondition:1];
 		[invokeCond unlockWithCondition:0];
 
-		// if we're on time (a timer), just stop
-		// we always check for stopped after the timer fires just in
-		// case it's started and stopped immediately but ready to go
-		if (onetime || stopped) break;
+		// if we only fire once, stop now; otherwise, we keep looping through until cancelled.
+		if (onetime) break;
 	}
 	
 	[invokeCond release];

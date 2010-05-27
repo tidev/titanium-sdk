@@ -194,6 +194,12 @@ class Projector(object):
 		xcconfig.write("TI_VERSION=%s\n" % self.sdk_version)
 		xcconfig.write("TI_SDK_DIR=%s\n" % self.sdk_root.replace(self.sdk_version,'$(TI_VERSION)'))
 		xcconfig.write("TI_APPID=%s\n" % self.project_id)
+		xcconfig.write("#include \"module.xcconfig\"\n")
+		xcconfig.close()
+
+		xcconfig = os.path.join(out_dir,"module.xcconfig")
+		xcconfig = open(xcconfig,'w')
+		xcconfig.write("// this is a generated file - DO NOT EDIT\n\n")
 		xcconfig.close()
 		
 		

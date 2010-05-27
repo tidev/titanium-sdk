@@ -302,8 +302,8 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 	
 	if (opening==NO)
 	{
-		modal = [self isModal:args];
-		fullscreen = [self isFullscreen:args];
+		modalFlag = [self isModal:args];
+		fullscreenFlag = [self isFullscreen:args];
 		opening = YES;
 	}
 	
@@ -332,16 +332,16 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 			animation.delegate = self;
 			[animation animate:self];
 		}
-		if (fullscreen)
+		if (fullscreenFlag)
 		{
-			fullscreen = YES;
+			fullscreenFlag = YES;
 			restoreFullscreen = [UIApplication sharedApplication].statusBarHidden;
 			[[UIApplication sharedApplication] setStatusBarHidden:YES];
 			[self view].frame = [[[TiApp app] controller] resizeView];
 		}
-		else if (modal)
+		else if (modalFlag)
 		{
-			modal = YES;
+			modalFlag = YES;
 			attached = YES;
 			TiWindowViewController *wc = [[[TiWindowViewController alloc] initWithWindow:self] autorelease];
 			UINavigationController *nc = nil;
@@ -467,7 +467,7 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 		
 		[[[TiApp app] controller] windowClosed:vc];
 
-		if (modal)
+		if (modalFlag)
 		{
 			BOOL animated = args!=nil && [args isKindOfClass:[NSDictionary class]] ? [TiUtils boolValue:@"animated" properties:[args objectAtIndex:0] def:YES] : YES;
 			[[TiApp app] hideModalController:vc animated:animated];
@@ -476,7 +476,7 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 				// if animated, we don't want to immediately remove our view but instead need
 				// to wait until the modal dialog is dismissed before we remove our view 
 				// otherwise, you'll see the view popup as the window is lowering
-				modal = NO;
+				modalFlag = NO;
 				[self performSelector:@selector(close:) withObject:nil afterDelay:0.3];
 				return;
 			}
@@ -514,7 +514,7 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 			{
 				UIView *rootView = [[TiApp app] controller].view;
 				transitionAnimation = [[animation transition] intValue];
-				splashTransitionAnimation = [[rootView subviews] count]<=1 && modal==NO;
+				splashTransitionAnimation = [[rootView subviews] count]<=1 && modalFlag==NO;
 				if (splashTransitionAnimation)
 				{
 					[[TiApp app] attachSplash];
@@ -542,7 +542,7 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 			[animation animate:self];
 		}
 		
-		if (fullscreen)
+		if (fullscreenFlag)
 		{
 			[[UIApplication sharedApplication] setStatusBarHidden:restoreFullscreen];
 			self.view.frame = [[[TiApp app] controller] resizeView];
