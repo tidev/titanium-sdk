@@ -270,6 +270,16 @@ void MyUncaughtExceptionHandler(NSException *exception)
 #endif
 }
 
+-(void)applicationWillResignActive:(UIApplication *)application
+{
+	[[NSNotificationCenter defaultCenter] postNotificationName:kTiSuspendNotification object:self];
+}
+
+-(void)applicationWillEnterForeground:(UIApplication *)application
+{
+	[[NSNotificationCenter defaultCenter] postNotificationName:kTiResumeNotification object:self];
+}
+
 -(id)remoteNotification
 {
 	return remoteNotification;

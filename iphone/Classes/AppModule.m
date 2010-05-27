@@ -24,20 +24,8 @@ extern NSString * const TI_APPLICATION_GUID;
 
 @implementation AppModule
 
--(id)init
-{
-	if (self = [super init])
-	{
-		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(applicationWillResignActive:) name:UIApplicationWillResignActiveNotification object:nil];
-		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(applicationDidBecomeActive:) name:UIApplicationDidBecomeActiveNotification object:nil];
-	}
-	return self;
-}
-
 -(void)dealloc
 {
-	[[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationWillResignActiveNotification object:nil];
-	[[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationDidBecomeActiveNotification object:nil];
 	[appListeners removeAllObjects];
 	RELEASE_TO_NIL(appListeners);
 	RELEASE_TO_NIL(properties);
@@ -219,6 +207,22 @@ extern NSString * const TI_APPLICATION_GUID;
 	[super shutdown:sender];
 }
 
+-(void)suspend:(id)sender
+{
+	if ([self _hasListeners:@"pause"])
+	{
+		[self fireEvent:@"pause" withObject:nil];
+	}
+}
+
+-(void)resume:(id)sender
+{
+	if ([self _hasListeners:@"resume"])
+	{
+		[self fireEvent:@"resume" withObject:nil];
+	}
+}
+
 #pragma mark Delegate stuff
 
 -(void)proximityDetectionChanged:(NSNotification*)note
@@ -300,25 +304,6 @@ extern NSString * const TI_APPLICATION_GUID;
 -(id)guid
 {
 	return TI_APPLICATION_GUID;
-}
-
-
-#pragma mark Delegates
-
--(void)applicationWillResignActive:(NSNotification*)note
-{
-	if ([self _hasListeners:@"pause"])
-	{
-		[self fireEvent:@"pause" withObject:nil];
-	}
-}
-
--(void)applicationDidBecomeActive:(NSNotification*)note
-{
-	if ([self _hasListeners:@"resume"])
-	{
-		[self fireEvent:@"resume" withObject:nil];
-	}
 }
 
 @end

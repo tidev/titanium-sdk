@@ -417,6 +417,8 @@ typedef enum {
 
 extern NSString * const kKrollShutdownNotification;
 extern NSString * const kTiShutdownNotification;
+extern NSString * const kTiSuspendNotification;
+extern NSString * const kTiResumeNotification;
 extern NSString * const kTiAnalyticsNotification;
 extern NSString * const kTiRemoteDeviceUUIDNotification;
 extern NSString * const kTiGestureShakeNotification;
