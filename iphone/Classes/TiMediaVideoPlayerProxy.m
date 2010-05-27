@@ -19,7 +19,6 @@
 #import "TiBlob.h"
 #import "TiMediaAudioSession.h"
 
-
 /** 
  * Design Notes:
  *
@@ -326,7 +325,7 @@
 		{
 			[movie stop];
 		}
-		[movie autorelease];
+		[[movie retain] autorelease];
 		movie = nil;
 
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
@@ -510,6 +509,8 @@
 	{
 		[movie stop];
 	}
+	[[movie retain] autorelease];
+	movie = nil;
 	playing = NO;
 }
 
