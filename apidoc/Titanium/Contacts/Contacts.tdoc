@@ -20,11 +20,33 @@ The top level Contacts module.  The Contacts module is used accessing the device
 
 - platforms
 
-android, iphone
-
+iphone, ipad
 
 - methods
 
-- properties
+getAllPeople: Returns an array of `Titanium.Contacts.Person` objects in the contacts database
+getPeopleWithName: Returns an array of `Titanium.Contacts.Person` objects who have a name (first, last, middle, composite) which matches the given name
+getPersonByID: Returns a `Titanium.Contacts.Person` object with the given ID
+createPerson: Creates a new `Titanium.Contacts.Person` object AND forces a save to the database
+removePerson: Removes a person from the contacts database.  DOES NOT force a save
+save: Saves all changes to contacts to the database
+revert: Reverts all changes made to the previous save of the database
 
-- events
+- method : getPeopleWithName, array
+
+name[string]: The name to match in the database
+
+- method : getPersonByID, object
+
+id[int]: The database ID of the person to retrieve
+
+- method : removePerson
+
+person[object]: The Person object to remove from the database.
+
+~~
+~~
+
+- notes
+
+`Titanium.Contacts.Person` objects which have been removed from the database are invalidated after a save operation, whether from creating a new contact or explicitly calling `Titanium.Contacts.save()`.  Using them may result in unpredictable beavhior, including crashes.
