@@ -1,14 +1,14 @@
 - namespace
 
+Titanium.Contacts.Person
+
 - type
 
 object
 
-- subtype
-
-proxy
-
 - description
+
+An object which represents a person in the contacts database.
 
 - since
 
@@ -16,22 +16,36 @@ proxy
 
 - platforms
 
-android, iphone, ipad
+iphone, ipad
 
 - properties
 
-
-- methods
-
-- events
-
-- example : description
+fullName[string]: The localized full name of the person.  Single value, read-only
+birthday[string]: The birthday of the person.  Single value, format is "yyyy-MM-dd'T'HH:mm:ss'.'SSS+0000"
+firstName[string]: The first name of the person.  Single value
+lastName[string]: The last name of the person.  Single value
+middleName[string]: The middle name of the person.  Single value
+prefix[string]: The prefix for the person.  Single value
+suffix[string]: The suffix for the person.  Single value
+nickname[string]: The nickname of the person.  Single value
+firstPhonetic[string]: The phonetic first name of the person.  Single value
+lastPhonetic[string]: The phonetic last name of the person.  Single value
+middlePhonetic[string]: The phonetic middle name of the person.  Single value
+organization[string]: The organization the person belongs to.  Single value
+jobTitle[string]: The job title of the person.  Single value
+department[string]: The department of the person.  Single value
+note[string]: Notes for the person.  Single value
+created[string]: The date the person was created in the database.  Single value, format is "yyyy-MM-dd'T'HH:mm:ss'.'SSS+0000", read-only
+modified[string]: The most recent date the person was modified.  Single value, format is "yyyy-MM-dd'T'HH:mm:ss'.'SSS+0000", read-only
+email[object]: The email addresses for the person.  Multi-value, valid labels are: `home`, `work`, `other`.  Values are strings.
+phone[object]: The phone numbers for the person.  Multi-value, valid labels are: `home`, `work`, `other`, `mobile`, `pager`, `workFax`, `homeFax`, `main`, `iPhone`.  Values are strings.
+instantMessage[object]: The instant messenger names for the person.  Multi-value, valid labels are: `aim`, `icq`, `jabber`, `msn`, `yahoo`.  Values are dictionaries.
+relatedNames[object]: The names of people the person is related to.  Multi-value, valid labels are: `mother`, `father`, `parent`, `sister`, `brother`, `child`, `friend`, `spouse`, `partner`, `manager`, `assistant`.  Values are strings.
+address[object]: The addresses for the person.  Multi-value, valid labels are: `home`, `work`, `other`.  Values are dictionaries.
 
 ~~~
 ~~~
 
 - notes
 
-
-
-
+There are two kinds of properties: single value and multivalue.  Single value properties are returned as a direct value, while mutlivalue properties are returned as dictionary objects with keys which represent labels of the property, with values that are arrays of all values in the property which correspond to that label (e.g. {"home" : [address1, address2]})

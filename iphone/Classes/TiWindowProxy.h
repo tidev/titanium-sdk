@@ -25,8 +25,8 @@
 @protected
 	BOOL opened;
 	BOOL focused;
-	BOOL fullscreen;
-	BOOL modal;
+	BOOL fullscreenFlag;
+	BOOL modalFlag;
 	BOOL restoreFullscreen;
 	BOOL navWindow;
 	TiViewProxy<TiTab> *tab;

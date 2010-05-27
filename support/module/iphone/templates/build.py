@@ -86,7 +86,7 @@ def package_module(manifest,mf):
 	zf.write(mf,'%s/manifest' % modulepath)
 	libname = 'lib%s.a' % name
 	zf.write('build/%s' % libname, '%s/%s' % (modulepath,libname))
-  for dn in ('assets','documentation','example'):
+	for dn in ('assets','documentation','example'):
 	  if os.path.exists(dn):
 		  zip_dir(zf,dn,'%s/%s' % (modulepath,dn))
 	zf.write('LICENSE','%s/LICENSE' % modulepath)

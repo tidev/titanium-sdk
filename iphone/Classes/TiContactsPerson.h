@@ -14,6 +14,7 @@
 
 @interface TiContactsPerson : TiProxy {
 @private
+	ABAddressBookRef addressBook;
 	ABRecordRef record;
 	ABRecordID recordId;
 	
@@ -24,9 +25,11 @@
 }
 
 @property(readonly,nonatomic) NSNumber* recordId;
+@property(readonly,nonatomic) ABRecordRef record;
 
 +(NSDictionary*)contactProperties;
 +(NSDictionary*)multiValueProperties;
++(NSDictionary*)multiValueLabels;
 
 -(id)_initWithPageContext:(id<TiEvaluator>)context recordId:(ABRecordID)id_ module:(ContactsModule*)module_;
 

@@ -54,11 +54,16 @@ var l2 = Ti.UI.createLabel({
 	left:0,
 });
 var s2 = Ti.UI.createSwitch({
-	value:true,
+	value:false,
 	right:10,
 });
 s2.addEventListener('change', function() {
-	values.fields = ['address'];
+	if (s2.value) {
+		values.fields = ['address'];
+	}
+	else {
+		delete values.fields;
+	}
 });
 v2.add(l2);
 v2.add(s2);
@@ -74,15 +79,21 @@ var l3 = Ti.UI.createLabel({
 	left:0
 });
 var s3 = Ti.UI.createSwitch({
-	value:true,
+	value:false,
 	right:10
 });
 s3.addEventListener('change', function() {
-/*
-	values.selectedPerson = function(e) {
-		info.text = e.person.fullName;
+	if (s3.value) {
+		values.selectedPerson = function(e) {
+			info.text = e.person.fullName;
+		}
+		if (s4.value) {
+			s4.value = false;
+		}
 	}
-*/
+	else {
+		delete values.selectedPerson;
+	}
 });
 v3.add(l3);
 v3.add(s3);
@@ -98,12 +109,26 @@ var l4 = Ti.UI.createLabel({
 	left:0
 });
 var s4 = Ti.UI.createSwitch({
-	value:true,
+	value:false,
 	right:10
 });
 s4.addEventListener('change', function() {
-	values.selectedProperty = function(e) {
-		info.text = e.label + ':' + e.value.Street;
+	if (s4.value) {
+		values.selectedProperty = function(e) {
+			if (e.property == 'address') {
+				Ti.API.log(e.value);
+				info.text = e.value.Street
+			}
+			else {
+				info.text = e.value;
+			}
+		}
+		if (s3.value) {
+			s3.value = false;
+		}
+	}
+	else {
+		delete values.selectedProperty;
 	}
 });
 v4.add(l4);

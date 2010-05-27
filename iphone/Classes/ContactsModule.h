@@ -12,6 +12,7 @@
 #import <AddressBookUI/AddressBookUI.h>
 
 #import "KrollCallback.h"
+#import "TiContactsPerson.h"
 
 @interface ContactsModule : TiModule<ABPeoplePickerNavigationControllerDelegate> {
 @private
@@ -22,14 +23,22 @@
 	KrollCallback* cancelCallback;
 	KrollCallback* selectedPersonCallback;
 	KrollCallback* selectedPropertyCallback;
+	
+	// Everything has to happen on the main thread for memory access reasons, so
+	// for functions which return a value we need a cache.
+	NSMutableDictionary* returnCache;
 }
 
 -(ABAddressBookRef)addressBook;
 
--(void)showContacts:(id)args;
-
--(void)save:(id)unused;
+-(void)save:(id)unusued;
 -(void)revert:(id)unused;
+-(void)showContacts:(id)args;
+-(TiContactsPerson*)getPersonByID:(id)arg;
+-(NSArray*)getPeopleWithName:(id)arg;
+-(NSArray*)getAllPeople:(id)unused;
+-(TiContactsPerson*)createPerson:(id)arg;
+-(void)removePerson:(id)arg;
 
 @end
 
