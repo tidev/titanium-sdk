@@ -242,13 +242,22 @@ public abstract class TiUIView
 				Integer bgColor = TiConvert.toColor(d, "backgroundColor", "opacity");
 				background.setBackgroundColor(bgColor);
 				//nativeView.setBackgroundDrawable(new ColorDrawable(bgColor));
+				if (nativeView != null){					
+					nativeView.postInvalidate();
+				}				
 			} else {
 				Log.w(LCAT, "Unable to set opacity w/o background color");
 			}
 		} else if (key.equals("backgroundImage")) {
 			handleBackgroundImage(proxy.getDynamicProperties());
+			if (nativeView != null) {
+				nativeView.postInvalidate();
+			}
 		} else if (key.startsWith("border")) {
 			handleBorderProperty(key, newValue);
+			if (nativeView != null) {
+				nativeView.postInvalidate();
+			}
 		} else {
 			if (DBG) {
 				Log.i(LCAT, "Unhandled property key: " + key);
