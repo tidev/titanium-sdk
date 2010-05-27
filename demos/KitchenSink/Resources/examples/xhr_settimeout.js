@@ -38,11 +38,12 @@ button1.addEventListener('click', function()
 		    label1.text = 'Received the response.';
 		};
 
-		xhr.onerror = function()
+		xhr.onerror = function(e)
 		{
 		    var now = new Date();
 		    var time = (((now - start) / 1000) | 0);
 		    label1.text = 'Registered error: time passed = ' + (now-start) + ' seconds';
+			Ti.API.info('error ' + e.error)
 		};
 
 		// use any ip address that is not on the network
@@ -70,11 +71,13 @@ button1.addEventListener('click', function()
 		    label1.text = 'Received the response.';
 		};
 
-		xhr.onerror = function()
+		xhr.onerror = function(e)
 		{
 		    var now = new Date();
 		    var time = (((now - start) / 1000) | 0);
 		    label1.text = 'Registered error: time passed = ' + (now-start) + ' seconds';
+			Ti.API.info('error ' + e.error)
+		
 		};
 
 		// use any ip address that is not on the network

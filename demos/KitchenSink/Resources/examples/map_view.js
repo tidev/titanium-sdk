@@ -36,7 +36,7 @@ var atlantaParams = {
 		latitude:33.74511,
 		longitude:-84.38993,
 		title:"Atlanta, GA",
-		subtitle:'Atlanta Braves Stadium',
+		subtitle:'Atlanta Braves Stadium\nfoo',
 		animate:true,
 		leftButton:'../images/atlanta.jpg',
 		rightButton: Titanium.UI.iPhone.SystemButton.DISCLOSURE,
@@ -105,6 +105,8 @@ if (!isAndroid) {
 } else {
 	atl = Titanium.UI.Android.OptionMenu.createMenuItem({title : 'ATL'});
 }
+// activate annotation
+mapview.selectAnnotation(mapview.annotations[1].title,true);
 
 atl.addEventListener('click', function()
 {
