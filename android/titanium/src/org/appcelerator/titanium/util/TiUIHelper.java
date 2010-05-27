@@ -226,10 +226,9 @@ public class TiUIHelper
 	}
 
 	public static StateListDrawable buildBackgroundDrawable(Context context,
-			String color,
-			String selectedColor,
 			String image,
 			String selectedImage,
+			String disabledImage,
 			String focusedImage)
 	{
 		StateListDrawable sld = null;
@@ -237,42 +236,44 @@ public class TiUIHelper
 		Drawable bgDrawable = null;
 		Drawable bgSelectedDrawable = null;
 		Drawable bgFocusedDrawable = null;
+		Drawable bgDisabledDrawable = null;
 
 		TiFileHelper tfh = new TiFileHelper(context);
 
 		if (image != null) {
 			bgDrawable = tfh.loadDrawable(image, false, true);
-		} else if (color != null) {
-			Bitmap b = Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888);
-			int c = TiConvert.toColor(color);
-			b.eraseColor(c);
-			bgDrawable = new BitmapDrawable(b);
 		}
 
 		if (selectedImage != null) {
 			bgSelectedDrawable = tfh.loadDrawable(selectedImage, false, true);
-		} else if (selectedColor != null) {
-			Bitmap b = Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888);
-			int c = TiConvert.toColor(selectedColor);
-			b.eraseColor(c);
-			bgSelectedDrawable = new BitmapDrawable(b);
 		}
 
 		if (focusedImage != null) {
 			bgFocusedDrawable = tfh.loadDrawable(focusedImage, false, true);
 		} else {
-			if (selectedImage != null) {
-				bgFocusedDrawable = tfh.loadDrawable(selectedImage, false, true);
-			} else if (selectedColor != null) {
-				Bitmap b = Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888);
-				int c = TiConvert.toColor(selectedColor);
-				b.eraseColor(c);
-				bgFocusedDrawable = new BitmapDrawable(b);
+			if (image != null) {
+				bgFocusedDrawable = tfh.loadDrawable(image, false, true);
 			}
 		}
 
-		if (bgDrawable != null || bgSelectedDrawable != null || bgFocusedDrawable != null) {
+		if (disabledImage != null) {
+			bgDisabledDrawable = tfh.loadDrawable(disabledImage, false, true);
+		} else {
+			if (image != null) {
+				bgDisabledDrawable = tfh.loadDrawable(image, false, true);
+			}
+		}
+
+		if (bgDrawable != null || bgSelectedDrawable != null || bgFocusedDrawable != null || bgDisabledDrawable != null) {
 			sld = new StateListDrawable();
+
+			if (bgDisabledDrawable != null) {
+				int[] stateSet = {
+					-android.R.attr.state_focused,
+					-android.R.attr.state_enabled
+				};
+				sld.addState(stateSet, bgDisabledDrawable);
+			}
 
 			if (bgFocusedDrawable != null) {
 				int[] ss = {
@@ -284,22 +285,32 @@ public class TiUIHelper
 			}
 
 			if (bgSelectedDrawable != null) {
-				int[] ss = { android.R.attr.state_pressed };
+				int[] ss = {
+					android.R.attr.state_window_focused,
+					android.R.attr.state_enabled,
+					android.R.attr.state_pressed
+				};
 				sld.addState(ss, bgSelectedDrawable);
+
 				int[] ss1 = {
-						android.R.attr.state_focused,
-						android.R.attr.state_window_focused,
-						android.R.attr.state_enabled,
-						android.R.attr.state_pressed
+					android.R.attr.state_focused,
+					android.R.attr.state_window_focused,
+					android.R.attr.state_enabled,
+					android.R.attr.state_pressed
 				};
 				sld.addState(ss1, bgSelectedDrawable);
-				int[] ss2 = { android.R.attr.state_selected };
-				sld.addState(ss2, bgSelectedDrawable);
+//				int[] ss2 = { android.R.attr.state_selected };
+//				sld.addState(ss2, bgSelectedDrawable);
 			}
 
 			if (bgDrawable != null) {
-				int[] stateSet = { android.R.attr.state_enabled };
-				sld.addState(stateSet, bgDrawable);
+				int[] ss1 = {
+					android.R.attr.state_window_focused,
+					android.R.attr.state_enabled
+				};
+				sld.addState(ss1, bgDrawable);
+				int[] ss2 = { android.R.attr.state_enabled };
+				sld.addState(ss2, bgDrawable);
 			}
 		}
 
