@@ -66,6 +66,9 @@
 -(void)dispatchAction:(TiUITableViewAction*)action;
 -(void)scrollToIndex:(NSInteger)index position:(UITableViewScrollPosition)position animated:(BOOL)animated;
 -(void)scrollToTop:(NSInteger)top animated:(BOOL)animated;
+-(NSIndexPath*)indexPathFromSearchIndex:(int)index;
+-(IBAction)hideSearchScreen:(id)sender;
+-(UITableView*)searchTableView;
 
 @end
 
