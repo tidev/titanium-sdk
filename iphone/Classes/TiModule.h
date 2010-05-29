@@ -22,5 +22,7 @@
 -(id)createProxy:(NSArray*)args forName:(NSString*)name context:(id<TiEvaluator>)evaluator;
 -(void)startup;
 -(void)shutdown:(id)sender;
+-(void)suspend:(id)sender;
+-(void)resume:(id)sender;
 
 @end

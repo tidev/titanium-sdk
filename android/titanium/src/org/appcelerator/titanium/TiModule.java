@@ -7,6 +7,11 @@
 package org.appcelerator.titanium;
 
 import java.lang.reflect.Constructor;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Properties;
+import java.util.HashMap;
+import java.lang.ref.WeakReference;
 
 import org.appcelerator.titanium.TiContext.OnLifecycleEvent;
 import org.appcelerator.titanium.util.Log;
@@ -16,12 +21,54 @@ public abstract class TiModule
 	implements OnLifecycleEvent, TiProxyListener
 {
 	private static final String LCAT = "TiModule";
+	
+	// keep a map of module name to module reference so we can retrieve them
+	// and since modules *should* be singletons
+	private static final HashMap<String,WeakReference<TiModule>> modules = new HashMap<String,WeakReference<TiModule>>();
+
+	private String buildVersion;
 
 	public TiModule(TiContext tiContext)
 	{
 		super(tiContext);
 		tiContext.addOnLifecycleEventListener(this);
 		modelListener = this;
+		
+		// register our module but keep a weak reference to it so it 
+		// can get cleaned up as needed
+		String moduleName = getClass().getSimpleName();
+		moduleName = moduleName.substring(0,moduleName.length()-6);
+		modules.put(moduleName,new WeakReference<TiModule>(this));
+	}
+	
+	public static TiModule getModule(String name)
+	{
+		WeakReference<TiModule> m = modules.get(name);
+		return m == null ? null : m.get();
+	}
+	
+	/**
+	 * return the compiled-in Titanium build version (not the version of the module
+	 * build the Titanium SDK that this module was compiled with).  This is only
+	 * guaranteed to be valid for internal Titanium modules.
+	 */
+	public String getBuildVersion()
+	{
+		if (buildVersion==null)
+		{
+			// read the Titanium build version
+			InputStream versionStream = getClass().getClassLoader().getResourceAsStream("org/appcelerator/titanium/build.properties");
+			if (versionStream != null) {
+				Properties properties = new Properties();
+				try {
+					properties.load(versionStream);
+					if (properties.containsKey("build.version")) {
+						buildVersion = properties.getProperty("build.version");
+					}
+				} catch (IOException e) {}
+			}
+		}
+		return buildVersion;
 	}
 
 	public void postCreate() {}

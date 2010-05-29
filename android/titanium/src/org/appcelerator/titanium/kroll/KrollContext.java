@@ -154,7 +154,7 @@ public class KrollContext extends HandlerThread implements Handler.Callback
 		try {
 			String[] parts = { filename };
 			TiBaseFile tbf = TiFileFactory.createTitaniumFile(tiContext, parts, false);
-			br = new BufferedReader(new InputStreamReader(tbf.getInputStream()));
+			br = new BufferedReader(new InputStreamReader(tbf.getInputStream()),4000);
 			result = ctx.evaluateReader(jsScope, br, filename, 0, null);
 		} catch (EcmaError e) {
 			Log.e(LCAT, "ECMA Error evaluating source: " + e.getMessage(), e);

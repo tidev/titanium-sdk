@@ -327,6 +327,7 @@ def main(args):
 			xcconfig.write("TI_VERSION=%s\n"% sdk_version)
 			xcconfig.write("TI_SDK_DIR=%s\n" % template_dir.replace(sdk_version,'$(TI_VERSION)'))
 			xcconfig.write("TI_APPID=%s\n" % appid)
+			xcconfig.write("#include \"module\"\n")
 			xcconfig.close()
 			
 		# write out any modules into the xcode project

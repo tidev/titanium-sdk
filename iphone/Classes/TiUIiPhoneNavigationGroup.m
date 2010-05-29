@@ -77,6 +77,12 @@
 	[window autorelease];
 }
 
+- (void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
+{
+	[controller willAnimateRotationToInterfaceOrientation:toInterfaceOrientation duration:duration];
+}
+
+
 #pragma mark Delegate 
 
 - (void)navigationController:(UINavigationController *)navigationController willShowViewController:(UIViewController *)viewController animated:(BOOL)animated

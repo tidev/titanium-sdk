@@ -25,6 +25,7 @@
 			classpathref="android"
 			includes="**/*"
 			source="1.5"
+      debug="true"
 			includeantruntime="false">
 
 			<src path="titanium/src"/>
@@ -61,6 +62,7 @@
 		<build-module name="app"/>
 		<build-module name="api"/>
 		<build-module name="database"/>
+		<build-module name="facebook"/>
 		<build-module name="filesystem"/>
 		<build-module name="geolocation"/>
 		<build-module name="json"/>
@@ -106,6 +108,7 @@
 				destdir="${classesdir}/@{name}"
 				includes="**/*"
 				source="1.5"
+				debug="true"
 				includeantruntime="false">
 
 				<extra-classpath/>

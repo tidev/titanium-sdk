@@ -16,7 +16,7 @@ import android.view.Display;
 
 public class DisplayCapsProxy extends TiProxy
 {
-	private DisplayMetrics dm;
+	private final DisplayMetrics dm;
 	private SoftReference<Display> softDisplay;
 
 	public DisplayCapsProxy(TiContext tiContext)

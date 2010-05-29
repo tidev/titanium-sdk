@@ -388,7 +388,7 @@ class Builder(object):
 	<uses-library android:name="com.google.android.maps" />"""
 
 		FACEBOOK_ACTIVITY = """<activity 
-		android:name="org.appcelerator.titanium.module.facebook.FBActivity"
+		android:name="ti.modules.titanium.facebook.FBActivity"
 		android:theme="@android:style/Theme.Translucent.NoTitleBar"
     />"""
 		

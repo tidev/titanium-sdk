@@ -183,8 +183,15 @@ public class TiUIWindow extends TiUIView
 						String[] right = path.split("/");
 						String[] left = null;
 						if (baseUrl.contains("://")) {
-							String[] tmp = baseUrl.split("://");
-							left = tmp[1].split("/");
+							if (baseUrl.equals("app://"))
+							{
+								left = new String[] {};
+							}
+							else
+							{
+								int idx = baseUrl.indexOf("://");
+								left = baseUrl.substring(idx+3).split("/");
+							}
 						} else {
 							left = baseUrl.split("/");
 						}
@@ -333,7 +340,14 @@ public class TiUIWindow extends TiUIView
 				return true;
 			}
 			case MSG_POST_OPEN : {
-				handlePostOpen();
+				try
+				{
+					handlePostOpen();
+				}
+				catch(Exception ex)
+				{
+					Log.e(LCAT,"Exception in handlePostOpen: "+ex,ex);
+				}
 				return true;
 			}
 			case MSG_BOOTED :

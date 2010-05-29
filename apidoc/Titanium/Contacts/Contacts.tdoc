@@ -27,8 +27,8 @@ iphone, ipad
 getAllPeople: Returns an array of `Titanium.Contacts.Person` objects in the contacts database
 getPeopleWithName: Returns an array of `Titanium.Contacts.Person` objects who have a name (first, last, middle, composite) which matches the given name
 getPersonByID: Returns a `Titanium.Contacts.Person` object with the given ID
-createPerson: Creates a new `Titanium.Contacts.Person` object AND forces a save to the database
-removePerson: Removes a person from the contacts database.  DOES NOT force a save
+createPerson: Creates a new `Titanium.Contacts.Person` object.  There must not be any unsaved changes to the database when this function is called
+removePerson: Removes a person from the contacts database
 save: Saves all changes to contacts to the database
 revert: Reverts all changes made to the previous save of the database
 

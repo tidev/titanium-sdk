@@ -11,7 +11,7 @@ var activeMovie = Titanium.Media.createVideoPlayer({
 	scalingMode:Titanium.Media.VIDEO_SCALING_MODE_FILL
 });
 
-if (Titanium.Platform.osname == "ipad")
+if (parseFloat(Titanium.Platform.version) >= 3.2)
 {
 	win.add(activeMovie);
 }
@@ -23,3 +23,7 @@ activeMovie.addEventListener('complete',function()
 });
 
 activeMovie.play();
+
+win.addEventListener('close', function() {
+	activeMovie.stop();
+});

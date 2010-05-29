@@ -1,6 +1,6 @@
 // create table view data object
 var data = [
-	{title:'Camera Basic', hasChild:true, test:'../examples/camera_basic.js'}
+        	{title:'Camera Basic', hasChild:true, test:'../examples/camera_basic.js'}
 ];
 
 if (Ti.Platform.osname == "iphone") {
