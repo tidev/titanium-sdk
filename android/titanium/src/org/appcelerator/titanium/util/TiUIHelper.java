@@ -43,7 +43,7 @@ public class TiUIHelper
 	private static final String LCAT = "TitaniumUIHelper";
 	private static final boolean DBG = TiConfig.LOGD;
 
-	public static Pattern SIZED_VALUE = Pattern.compile("([0-9]*\\.?[0-9]+)\\W*(px|dp|dip|sp|sip|mm|pt|in)?");
+	public static final Pattern SIZED_VALUE = Pattern.compile("([0-9]*\\.?[0-9]+)\\W*(px|dp|dip|sp|sip|mm|pt|in)?");
 
 	public static OnClickListener createDoNothingListener() {
 		return new OnClickListener() {

@@ -1,0 +1,2 @@
+// this can be ignored in xcode and is replaced dynamically upon build
+// but we need it here so that the .xcodeproj file will reference it

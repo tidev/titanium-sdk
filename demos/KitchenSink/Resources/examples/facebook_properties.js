@@ -52,6 +52,8 @@ win.add(permissions);
 
 b1.addEventListener('click', function()
 {
+	Ti.API.info("click called, logged in = "+Titanium.Facebook.isLoggedIn());
+	
 	if (Titanium.Facebook.isLoggedIn()==false)
 	{
 		Ti.UI.createAlertDialog({title:'Facebook', message:'Login before accessing properties'}).show();
@@ -60,7 +62,7 @@ b1.addEventListener('click', function()
 	loggedIn.text = "Logged In = " + Ti.Facebook.loggedIn;
 	userId.text = "User Id = " + Ti.Facebook.userId;
 	Ti.API.info('permissions = ' + Ti.Facebook.permissions);
-	if (Ti.Facebook.permission!=null)
+	if (Ti.Facebook.permissions!=null)
 	{
 		for (v in Ti.Facebook.permissions)
 		{

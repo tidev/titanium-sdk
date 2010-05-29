@@ -37,6 +37,23 @@ public class TiWebChromeClient extends WebChromeClient {
 		this.isWindow = isWindow;
 		this.showProgress = showProgress;
 	}
+	
+	/** TODO: this is at API level 8 - until then...
+	@Override
+	public boolean onConsoleMessage(ConsoleMessage message)
+	{
+		switch(message.messageLevel())
+		{
+			case ConsoleMessage.MessageLevel.DEBUG:
+				Log.d(LCAT,message.message+" ("+message.lineNumber()+":"+message.sourceId()+")");
+				break;
+			case ConsoleMessage.MessageLevel.INFO:
+				Log.i(LCAT,message.message+" ("+message.lineNumber()+":"+message.sourceId()+")");
+				break;
+		}
+		return true;
+	}
+	*/
 
     @Override
 	public void onProgressChanged(WebView view, final int newProgress)

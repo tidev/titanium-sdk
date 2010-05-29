@@ -7,6 +7,8 @@
 package org.appcelerator.titanium.util;
 
 import java.util.Date;
+import java.util.Map;
+import java.util.Iterator;
 
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiDict;
@@ -94,6 +96,16 @@ public class TiConvert
             d.put(key, value);
         } else if (value instanceof KrollCallback) {
             d.put(key, value);
+		} else if (value instanceof Map) {
+			TiDict dict = new TiDict();
+			Map map = (Map)value;
+			Iterator iter = map.keySet().iterator();
+			while(iter.hasNext())
+			{
+				String k = (String)iter.next();
+				putInTiDict(dict,k,map.get(k));
+			}
+			d.put(key,dict);
         } else {
             throw new IllegalArgumentException("Unsupported property type " + value.getClass().getName());
         }

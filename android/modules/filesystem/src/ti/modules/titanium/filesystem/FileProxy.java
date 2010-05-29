@@ -14,7 +14,7 @@ import java.util.List;
 
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiContext;
-import org.appcelerator.titanium.TiProxy;
+import org.appcelerator.titanium.TiFile;
 import org.appcelerator.titanium.io.TiBaseFile;
 import org.appcelerator.titanium.io.TiFileFactory;
 import org.appcelerator.titanium.util.TiConvert;
@@ -22,7 +22,7 @@ import org.appcelerator.titanium.util.TiFileHelper2;
 
 import android.net.Uri;
 
-public class FileProxy extends TiProxy
+public class FileProxy extends TiFile
 {
 
 	String path;

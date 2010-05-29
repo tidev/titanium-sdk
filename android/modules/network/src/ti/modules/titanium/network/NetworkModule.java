@@ -27,7 +27,7 @@ public class NetworkModule extends TiModule {
 	private static final boolean DBG = TiConfig.LOGD;
 
 	public static final String EVENT_CONNECTIVITY = "change";
-	public static final String NETWORK_USER_AGENT = "Mozilla/5.0 (Linux; U; Android 1.1; en-us; generic) AppleWebKit/525.10+ (KHTML, like Gecko) Version/3.0.4 Mobile Safari/523.12.2";
+	public static final String NETWORK_USER_AGENT = System.getProperties().getProperty("http.agent") ;
 
 	public static final int NETWORK_NONE = 0;
 	public static final int NETWORK_WIFI = 1;
@@ -114,8 +114,8 @@ public class NetworkModule extends TiModule {
 
 		this.lastNetInfo = new NetInfo();
 		this.isListeningForConnectivity = false;
-		//TODO set titanium version
-		setDynamicValue("userAgent", NETWORK_USER_AGENT + " Titanium/0.9.0");
+
+		setDynamicValue("userAgent", NETWORK_USER_AGENT + " Titanium/"+getBuildVersion());
 
 		tiContext.addOnLifecycleEventListener(this);
 		tiContext.addOnEventChangeListener(this);

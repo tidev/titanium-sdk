@@ -1512,8 +1512,8 @@
 				24CA8B34111161FE0084E2DE /* FacebookModule.h */,
 				24CA8ACC111161FD0084E2DE /* TiFacebookLoginButtonProxy.m */,
 				24CA8ACD111161FD0084E2DE /* TiFacebookLoginButtonProxy.h */,
-				24CA8ACE111161FD0084E2DE /* TiFacebookLoginButton.m */,
 				24CA8ACF111161FD0084E2DE /* TiFacebookLoginButton.h */,
+				24CA8ACE111161FD0084E2DE /* TiFacebookLoginButton.m */,
 			);
 			name = Facebook;
 			sourceTree = "<group>";
