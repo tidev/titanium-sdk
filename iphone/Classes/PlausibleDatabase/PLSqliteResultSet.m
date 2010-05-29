@@ -155,7 +155,7 @@
         return YES;
     
     /* An error occurred. Log it and throw an exceptions. */
-    NSString *error = [NSString stringWithFormat: @"Error occurred calling next on a PLSqliteResultSet. SQLite error #%d", ret];
+    NSString *error = [NSString stringWithFormat: @"Error occurred calling next on a PLSqliteResultSet. SQLite error: '%s' for '%s'", sqlite3_errmsg(sqlite3_db_handle(_sqlite_stmt)), sqlite3_sql(_sqlite_stmt)];
     NSLog(@"[ERROR] %@", error);
 
     [NSException raise: PLSqliteException format: @"%@", error];

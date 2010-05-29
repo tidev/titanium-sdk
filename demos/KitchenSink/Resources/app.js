@@ -5,7 +5,8 @@ Titanium.UI.setBackgroundColor('#000');
 // create tab group
 var tabGroup = Titanium.UI.createTabGroup(
 {
-	barColor:'#336699'
+	barColor:'#000000'
+//	barColor:'#336699'
 });
 
 
@@ -20,7 +21,8 @@ var win1 = Titanium.UI.createWindow({
 
 var tab1 = Titanium.UI.createTab({
     icon:'images/tabs/KS_nav_views.png',
-    title:'Base UI',
+    title:'My Base UI',
+//    title:'Base UI',
     window:win1
 });
 

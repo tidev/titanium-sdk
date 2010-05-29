@@ -202,6 +202,28 @@ FILENOOP(setHidden:(id)x);
 	return [[[TiBlob alloc] initWithFile:path] autorelease];
 }
 
+-(id)append:(id)args
+{
+	ENSURE_TYPE(args,NSArray);
+	id arg = [args objectAtIndex:0];
+	if ([arg isKindOfClass:[TiBlob class]]) {
+            TiBlob *blob = (TiBlob*)arg;
+            NSFileHandle *file = [[NSFileHandle fileHandleForUpdatingAtPath:path] retain];
+            if (file) {
+                [file seekToEndOfFile];
+                [file writeData:[blob data]];
+                [file closeFile];
+                [file release];
+                return NUMBOOL(YES);
+            } else {
+                NSLog(@"[ERROR] Can't open file for appending");
+            }
+	} else {
+            NSLog(@"[ERROR] Can only append blobs");
+        }
+        return NUMBOOL(NO);
+}            
+
 -(id)write:(id)args
 {
 	ENSURE_TYPE(args,NSArray);

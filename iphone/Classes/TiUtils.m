@@ -26,23 +26,6 @@ extern NSString * const TI_APPLICATION_RESOURCE_DIR;
 
 @implementation TiUtils
 
-+(BOOL)isDevice_Pre_3_2
-{
-	static BOOL checked = NO;
-	static BOOL is_pre_3_2 = NO;
-	
-	if (checked==NO)
-	{
-		NSString *version = [UIDevice currentDevice].systemVersion;
-		NSArray *tokens = [version componentsSeparatedByString:@"."];
-		NSInteger major = [TiUtils intValue:[tokens objectAtIndex:0]];
-		NSInteger minor = [TiUtils intValue:[tokens objectAtIndex:1]];
-		is_pre_3_2 = (major==3 && minor < 2);
-		checked = YES;
-	}
-	return is_pre_3_2;
-}
-
 +(BOOL)isIPad
 {
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
@@ -979,7 +962,9 @@ extern NSString * const TI_APPLICATION_RESOURCE_DIR;
 +(UIColor *)barColorForColor:(TiColor *)color
 {
 	UIColor * result = [color _color];
-	if ((result == [UIColor clearColor]) || (result == [UIColor blackColor]))
+	// TODO: Return nil for the appropriate colors once Apple fixes how the 'cancel' button
+	// is displayed on nil-color bars.
+	if ((result == [UIColor clearColor]))
 	{
 		return nil;
 	}
@@ -989,7 +974,9 @@ extern NSString * const TI_APPLICATION_RESOURCE_DIR;
 +(UIBarStyle)barStyleForColor:(TiColor *)color
 {
 	UIColor * result = [color _color];
-	if ((result == [UIColor clearColor]) || (result == [UIColor blackColor]))
+	// TODO: Return UIBarStyleBlack for the appropriate colors once Apple fixes how the 'cancel' button
+	// is displayed on nil-color bars.
+	if ((result == [UIColor clearColor]))
 	{
 		return UIBarStyleBlack;
 	}

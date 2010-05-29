@@ -7,28 +7,22 @@
 package org.appcelerator.titanium.view;
 
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiDict;
 import org.appcelerator.titanium.TiProxy;
 import org.appcelerator.titanium.TiProxyListener;
-import org.appcelerator.titanium.io.TiBaseFile;
-import org.appcelerator.titanium.io.TiFileFactory;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiAnimationBuilder;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiConvert;
-import org.appcelerator.titanium.util.TiFileHelper;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiCompositeLayout.LayoutParams;
 
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
@@ -57,7 +51,6 @@ public abstract class TiUIView
 	protected int zIndex;
 	protected TiAnimationBuilder animBuilder;
 	protected TiBackgroundDrawable background;
-	protected boolean usingCustomBackground = false;
 
 	public TiUIView(TiViewProxy proxy)
 	{
@@ -67,7 +60,6 @@ public abstract class TiUIView
 
 		this.proxy = proxy;
 		this.layoutParams = new TiCompositeLayout.LayoutParams();
-		this.background = new TiBackgroundDrawable();
 	}
 
 	public void add(TiUIView child)
@@ -236,19 +228,62 @@ public abstract class TiUIView
 			}
 		} else if (key.equals("visible")) {
 			nativeView.setVisibility(TiConvert.toBoolean(newValue) ? View.VISIBLE : View.INVISIBLE);
-		} else if (key.equals("opacity") || key.equals("backgroundColor")) {
+		} else if (key.equals("opacity") || key.equals("backgroundColor") || key.equals("backgroundImage") || key.startsWith("border")) {
 			TiDict d = proxy.getDynamicProperties();
-			if (proxy.getDynamicValue("backgroundColor") != null) {
+
+			boolean hasBorder = d.get("borderColor") != null || d.get("borderRadius") != null || d.get("borderWidth") != null;
+			boolean hasImage = d.get("backgroundImage") != null || d.get("backgroundSelectedImage") != null || d.get("backgroundDisabledImage") != null;
+			boolean requiresCustomBackground = hasImage || hasBorder;
+				;
+
+			if (!requiresCustomBackground) {
+				if (background != null) {
+					background.releaseDelegate();
+					background.setCallback(null);
+					background = null;
+				}
+
 				Integer bgColor = TiConvert.toColor(d, "backgroundColor", "opacity");
-				background.setBackgroundColor(bgColor);
-				//nativeView.setBackgroundDrawable(new ColorDrawable(bgColor));
+				if (nativeView != null){
+					nativeView.setBackgroundColor(bgColor);
+					nativeView.postInvalidate();
+				}
+
 			} else {
-				Log.w(LCAT, "Unable to set opacity w/o background color");
+				boolean newBackground = background == null;
+				if (newBackground) {
+					background = new TiBackgroundDrawable();
+				}
+
+				Integer bgColor = null;
+
+				if (d.get("backgroundColor") != null) {
+					bgColor = TiConvert.toColor(d, "backgroundColor", "opacity");
+					if (newBackground || (key.equals("opacity") || key.equals("backgroundColor"))) {
+						background.setBackgroundColor(bgColor);
+					}
+				}
+
+				if (hasImage) {
+					if (newBackground || key.equals("backgroundImage") || key.equals("backgroundSelectedImage") || key.equals("backgroundDisabledImage")) {
+						handleBackgroundImage(d);
+					}
+				}
+
+				if (hasBorder) {
+					if (newBackground) {
+						initializeBorder(d, bgColor);
+					} else if (key.startsWith("border")) {
+						handleBorderProperty(key, newValue);
+					}
+				}
+
+				applyCustomBackground();
+				if (nativeView != null) {
+					nativeView.postInvalidate();
+				}
 			}
-		} else if (key.equals("backgroundImage")) {
-			handleBackgroundImage(proxy.getDynamicProperties());
-		} else if (key.startsWith("border")) {
-			handleBorderProperty(key, newValue);
+
 		} else {
 			if (DBG) {
 				Log.i(LCAT, "Unhandled property key: " + key);
@@ -301,15 +336,24 @@ public abstract class TiUIView
 	}
 
 	private void applyCustomBackground(boolean reuseCurrentDrawable) {
-		if (nativeView != null && !usingCustomBackground) {
+		if (nativeView != null && background == null) {
 			nativeView.setClickable(true);
 
+			background = new TiBackgroundDrawable();
+
 			Drawable currentDrawable = nativeView.getBackground();
-			if (currentDrawable != null && reuseCurrentDrawable) {
-				background.setBackgroundDrawable(currentDrawable);
+			if (currentDrawable != null) {
+				if (reuseCurrentDrawable) {
+					background.setBackgroundDrawable(currentDrawable);
+				} else {
+					nativeView.setBackgroundDrawable(null);
+					currentDrawable.setCallback(null);
+					if (currentDrawable instanceof TiBackgroundDrawable) {
+						((TiBackgroundDrawable) currentDrawable).releaseDelegate();
+					}
+				}
 			}
 			nativeView.setBackgroundDrawable(background);
-			usingCustomBackground = true;
 		}
 	}
 
@@ -401,42 +445,72 @@ public abstract class TiUIView
 	// TODO implement other background states.
 	private void handleBackgroundImage(TiDict d)
 	{
-		String path = TiConvert.toString(d, "backgroundImage");
-		if (path.endsWith(".9.png")) {
-			TiFileHelper helper = new TiFileHelper(getProxy().getTiContext().getActivity());
-			Drawable drawable = helper.loadDrawable(path, false, true);
-			if (drawable !=  null) {
-				background.setBackgroundDrawable(drawable);
+		String bg = d.getString("backgroundImage");
+		String bgSelected = d.getString("backgroundSelectedImage");
+		String bgFocused = d.getString("backgroundFocusedImage");
+		String bgDisabled = d.getString("backgroundDisabledImage");
+
+		TiContext tiContext = getProxy().getTiContext();
+		if (bg != null) {
+			bg = tiContext.resolveUrl(null, bg);
+		}
+		if (bgSelected != null) {
+			bgSelected = tiContext.resolveUrl(null, bgSelected);
+		}
+		if (bgFocused != null) {
+			bgFocused = tiContext.resolveUrl(null, bgFocused);
+		}
+		if (bgDisabled != null) {
+			bgDisabled = tiContext.resolveUrl(null, bgDisabled);
+		}
+
+		if (bg != null || bgSelected != null || bgFocused != null || bgDisabled != null) {
+			if (background == null) {
 				applyCustomBackground(false);
 			}
-		} else {
-			String url = getProxy().getTiContext().resolveUrl(null, path);
-			TiBaseFile file = TiFileFactory.createTitaniumFile(getProxy().getTiContext(), new String[] { url }, false);
-			InputStream is = null;
-			try {
-				is = file.getInputStream();
-				Bitmap b = TiUIHelper.createBitmap(is);
-				if (b != null) {
-					background.setBackgroundImage(b);
-					applyCustomBackground(false);
-				}
-			} catch (IOException e) {
-				Log.e(LCAT, "Error creating background image from path: " + path.toString(), e);
-			} finally {
-				if (is != null) {
-					try {
-						is.close();
-					} catch (IOException ig) {
-						// Ignore
-					}
-				}
-			}
+
+			Drawable bgDrawable = TiUIHelper.buildBackgroundDrawable(tiContext.getActivity().getApplicationContext(), bg, bgSelected, bgDisabled, bgFocused);
+			background.setBackgroundDrawable(bgDrawable);
 		}
+//		String path = TiConvert.toString(d, "backgroundImage");
+//		if (path.endsWith(".9.png")) {
+//			TiFileHelper helper = new TiFileHelper(getProxy().getTiContext().getActivity());
+//			Drawable drawable = helper.loadDrawable(path, false, true);
+//			if (drawable !=  null) {
+//				applyCustomBackground(false);
+//				background.setBackgroundDrawable(drawable);
+//			}
+//		} else {
+//			String url = getProxy().getTiContext().resolveUrl(null, path);
+//			TiBaseFile file = TiFileFactory.createTitaniumFile(getProxy().getTiContext(), new String[] { url }, false);
+//			InputStream is = null;
+//			try {
+//				is = file.getInputStream();
+//				Bitmap b = TiUIHelper.createBitmap(is);
+//				if (b != null) {
+//					applyCustomBackground(false);
+//					background.setBackgroundImage(b);
+//				}
+//			} catch (IOException e) {
+//				Log.e(LCAT, "Error creating background image from path: " + path.toString(), e);
+//			} finally {
+//				if (is != null) {
+//					try {
+//						is.close();
+//					} catch (IOException ig) {
+//						// Ignore
+//					}
+//				}
+//			}
+//		}
 	}
 
 	private void initializeBorder(TiDict d, Integer bgColor)
 	{
 		if (d.containsKey("borderRadius") || d.containsKey("borderColor") || d.containsKey("borderWidth")) {
+			if (background == null) {
+				applyCustomBackground();
+			}
 
 			if (background.getBorder() == null) {
 				background.setBorder(new TiBackgroundDrawable.Border());
@@ -445,10 +519,7 @@ public abstract class TiUIView
 			TiBackgroundDrawable.Border border = background.getBorder();
 
 			if (d.containsKey("borderRadius")) {
-
-				if (d.containsKey("borderRadius")) {
-					border.setRadius(TiConvert.toFloat(d, "borderRadius"));
-				}
+				border.setRadius(TiConvert.toFloat(d, "borderRadius"));
 			}
 			if (d.containsKey("borderColor") || d.containsKey("borderWidth")) {
 				if (d.containsKey("borderColor")) {
@@ -462,7 +533,7 @@ public abstract class TiUIView
 					border.setWidth(TiConvert.toFloat(d, "borderWidth"));
 				}
 			}
-			applyCustomBackground();
+			//applyCustomBackground();
 		}
 	}
 

@@ -179,6 +179,12 @@
 		return [returnCache objectForKey:@"newPerson"];
 	}
 	
+	if (ABAddressBookHasUnsavedChanges([self addressBook])) {
+		[self throwException:@"Cannot create a new entry with unsaved changes"
+				   subreason:nil
+					location:CODELOCATION];
+	}
+	
 	ABRecordRef record = ABPersonCreate();
 	CFErrorRef error;
 	if (!ABAddressBookAddRecord([self addressBook], record, &error)) {

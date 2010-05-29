@@ -8,7 +8,7 @@ Titanium.Media.showCamera({
 
 		// set image view
 		var imageView = Ti.UI.createImageView({top:100,image:event.media});
-		win.add(imageView);
+		win.add(imageView);  
 	},
 	cancel:function()
 	{
@@ -31,5 +31,6 @@ Titanium.Media.showCamera({
 		// show alert
 		a.show();
 	},
+	saveToPhotoGallery:true,
 	allowImageEditing:true
 });
