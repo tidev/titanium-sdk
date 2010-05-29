@@ -1088,6 +1088,12 @@
 	moveable = [TiUtils boolValue:args];
 }
 
+-(void)setScrollable_:(id)args
+{
+	UITableView *table = [self tableView];
+	[table setScrollEnabled:[TiUtils boolValue:args]];
+}
+
 -(void)setEditing_:(id)args withObject:(id)properties
 {
 	[self changeEditing:[TiUtils boolValue:args]];
