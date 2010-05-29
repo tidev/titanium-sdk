@@ -27,7 +27,6 @@ var tableView = Titanium.UI.createTableView({data:data});
 
 tableView.addEventListener('click', function(e)
 {
-	Titanium.UI.createAlertDialog({title:'Row Click', message:'You clicked ' + e.rowData.title}).show();
 	
 	switch(e.rowData.title)
 	{
