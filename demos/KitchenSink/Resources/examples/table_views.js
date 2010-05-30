@@ -62,6 +62,7 @@ if (Titanium.Platform.name == 'iPhone OS')
 	data.push({title:'Touch Events', hasChild:true, test:'../examples/table_view_touch.js'});
 	data.push({title:'Edit and Move', hasChild:true, test:'../examples/table_view_edit_and_move.js'});
 	data.push({title:'No Scrolling', hasChild:true, test:'../examples/table_view_noscroll.js'});
+	data.push({title:'Pull to Refresh', hasChild:true, test:'../examples/table_view_pull_to_refresh.js'});
 
 }
 // create table view

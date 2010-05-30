@@ -127,6 +127,10 @@
 
 +(NSDictionary*)rectToDictionary:(CGRect)rect;
 
++(NSDictionary*)sizeToDictionary:(CGSize)size;
+
++(UIEdgeInsets)contentInsets:(id)value;
+
 +(CGRect)contentFrame:(BOOL)window;
 
 +(CGFloat)sizeValue:(id)value;

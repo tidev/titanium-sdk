@@ -178,6 +178,20 @@ extern NSString * const TI_APPLICATION_RESOURCE_DIR;
 	return 0;
 }
 
++(UIEdgeInsets)contentInsets:(id)value
+{
+	if ([value isKindOfClass:[NSDictionary class]])
+	{
+		NSDictionary *dict = (NSDictionary*)value;
+		CGFloat t = [TiUtils floatValue:@"top" properties:dict def:0];
+		CGFloat l = [TiUtils floatValue:@"left" properties:dict def:0];
+		CGFloat b = [TiUtils floatValue:@"bottom" properties:dict def:0];
+		CGFloat r = [TiUtils floatValue:@"right" properties:dict def:0];
+		return UIEdgeInsetsMake(t, l, b, r);
+	}
+	return UIEdgeInsetsMake(0,0,0,0);
+}
+
 +(CGRect)rectValue:(id)value
 {
 	if ([value isKindOfClass:[NSDictionary class]])
@@ -669,6 +683,14 @@ extern NSString * const TI_APPLICATION_RESOURCE_DIR;
 			[NSNumber numberWithDouble:rect.origin.y],@"y",
 			[NSNumber numberWithDouble:rect.size.width],@"width",
 			[NSNumber numberWithDouble:rect.size.height],@"height",
+			nil];
+}
+
++(NSDictionary*)sizeToDictionary:(CGSize)size
+{
+	return [NSDictionary dictionaryWithObjectsAndKeys:
+			[NSNumber numberWithDouble:size.width],@"width",
+			[NSNumber numberWithDouble:size.height],@"height",
 			nil];
 }
 
