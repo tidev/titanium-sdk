@@ -1681,6 +1681,7 @@ if(ourTableView != tableview)	\
 			NSMutableDictionary *event = [NSMutableDictionary dictionary];
 			[event setObject:[TiUtils pointToDictionary:scrollView.contentOffset] forKey:@"contentOffset"];
 			[event setObject:[TiUtils sizeToDictionary:scrollView.contentSize] forKey:@"contentSize"];
+			[event setObject:[TiUtils sizeToDictionary:tableview.bounds.size] forKey:@"size"];
 			[self.proxy fireEvent:@"scroll" withObject:event];
 		}
 	}
@@ -1711,6 +1712,7 @@ if(ourTableView != tableview)	\
 		NSMutableDictionary *event = [NSMutableDictionary dictionary];
 		[event setObject:[TiUtils pointToDictionary:scrollView.contentOffset] forKey:@"contentOffset"];
 		[event setObject:[TiUtils sizeToDictionary:scrollView.contentSize] forKey:@"contentSize"];
+		[event setObject:[TiUtils sizeToDictionary:tableview.bounds.size] forKey:@"size"];
 		[self.proxy fireEvent:@"scrollEnd" withObject:event];
 	}
 }

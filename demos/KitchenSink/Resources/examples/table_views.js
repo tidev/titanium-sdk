@@ -63,7 +63,7 @@ if (Titanium.Platform.name == 'iPhone OS')
 	data.push({title:'Edit and Move', hasChild:true, test:'../examples/table_view_edit_and_move.js'});
 	data.push({title:'No Scrolling', hasChild:true, test:'../examples/table_view_noscroll.js'});
 	data.push({title:'Pull to Refresh', hasChild:true, test:'../examples/table_view_pull_to_refresh.js'});
-
+	data.push({title:'Dynamic Scrolling', hasChild:true, test:'../examples/table_view_dynamic_scroll.js'});
 }
 // create table view
 var tableViewOptions = {
