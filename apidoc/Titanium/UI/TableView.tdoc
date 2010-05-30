@@ -118,6 +118,8 @@ properties[object]: animation properties. `position` property controls the posit
 delete: fired when a table row is delete by the user
 move: fired when a table row is moved by the user
 click: fired when a table row is clicked
+scroll: fired when the table view is scrolled (currently, iphone only)
+scrollEnd: fired when the table view stops scrolling (currently, iphone only)
 
 - event : delete
 
@@ -145,6 +147,18 @@ row: table view row object
 detail: boolean to indicate if the right area was clicked
 searchMode: boolean to indicate if the table is in search mode
 rowData: table view row data object
+
+- event : scroll
+
+contentOffset: dictionary with `x` and `y` properties containing the content offset
+contentSize: dictionary with `width` and `height` properties containing the size of the content (regardless of the display size in the case of scrolling)
+size: dictionary with `width` and `height` properties containing the size of the visible table view
+
+- event : scrollEnd
+
+contentOffset: dictionary with `x` and `y` properties containing the content offset
+contentSize: dictionary with `width` and `height` properties containing the size of the content (regardless of the display size in the case of scrolling)
+size: dictionary with `width` and `height` properties containing the size of the visible table view
 
 - example : Simple Table View with basic rows
 
