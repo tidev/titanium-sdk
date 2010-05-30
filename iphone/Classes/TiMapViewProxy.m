@@ -11,14 +11,20 @@
 
 @implementation TiMapViewProxy
 
-USE_VIEW_FOR_UI_METHOD(zoom)
-USE_VIEW_FOR_UI_METHOD(selectAnnotation)
-USE_VIEW_FOR_UI_METHOD(deselectAnnotation)
-USE_VIEW_FOR_UI_METHOD(addAnnotation)
-USE_VIEW_FOR_UI_METHOD(addAnnotations)
-USE_VIEW_FOR_UI_METHOD(removeAnnotation)
-USE_VIEW_FOR_UI_METHOD(removeAnnotations)
-USE_VIEW_FOR_UI_METHOD(removeAllAnnotations)
+#define CREATE_VIEW_FOR_UI_METHOD(methodname) \
+-(void)methodname:(id)args \
+{\
+	[[self view] performSelectorOnMainThread:@selector(methodname:) withObject:args waitUntilDone:NO];\
+}
+
+CREATE_VIEW_FOR_UI_METHOD(zoom)
+CREATE_VIEW_FOR_UI_METHOD(selectAnnotation)
+CREATE_VIEW_FOR_UI_METHOD(deselectAnnotation)
+CREATE_VIEW_FOR_UI_METHOD(addAnnotation)
+CREATE_VIEW_FOR_UI_METHOD(addAnnotations)
+CREATE_VIEW_FOR_UI_METHOD(removeAnnotation)
+CREATE_VIEW_FOR_UI_METHOD(removeAnnotations)
+CREATE_VIEW_FOR_UI_METHOD(removeAllAnnotations)
 
 @end
 

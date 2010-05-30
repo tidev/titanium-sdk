@@ -101,5 +101,5 @@ map: the map view instance
 
 - notes
 
-For Android, you will need to <a href="http://code.google.com/android/maps-api-signup.html">obtain a map key from Google</a> to use maps in your application.
+For Android, you will need to <a href="http://code.google.com/android/maps-api-signup.html">obtain a map key from Google</a> to use maps in your application.  On iPhone, you cannot call any methods on a map view until it has been added to a view.
 
