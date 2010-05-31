@@ -283,6 +283,14 @@ def main(args):
 		infoplist_tmpl = os.path.join(project_dir,'Info.plist')
 		if os.path.exists(infoplist_tmpl):
 			shutil.copy(infoplist_tmpl,infoplist)
+		elif not os.path.exists(infoplist):
+			infoplist_tmpl = os.path.join(template_dir,'Info.plist')
+			plist = open(os.path.join(template_dir,'Info.plist'),'r').read()
+			plist = plist.replace('__PROJECT_NAME__',name)
+			plist = plist.replace('__PROJECT_ID__',appid)
+			pf = open(infoplist_tmpl,'w+')
+			pf.write(plist)
+			pf.close()			
 			
 		applogo = None
 		clean_build = False
@@ -381,9 +389,9 @@ def main(args):
 			os.chdir(cwd)
 		
 		if devicefamily!=None:
-			applogo = ti.generate_infoplist(infoplist,infoplist_tmpl,appid,devicefamily)
+			applogo = ti.generate_infoplist(infoplist,appid,devicefamily)
 		else:
-			applogo = ti.generate_infoplist(infoplist,infoplist_tmpl,appid,'iphone')
+			applogo = ti.generate_infoplist(infoplist,appid,'iphone')
 
 		# copy over the appicon
 		if applogo ==None and ti.properties.has_key('icon'):
