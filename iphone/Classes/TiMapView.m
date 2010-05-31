@@ -569,7 +569,7 @@
 		static NSString *identifier = @"timap";
 		MKPinAnnotationView *annView = nil;
 		
-		if (![(TiMapAnnotationProxy *)annotation needsRefreshingWithSelection])
+		if (![ann needsRefreshingWithSelection])
 		{
 			annView = (MKPinAnnotationView*) [mapView dequeueReusableAnnotationViewWithIdentifier:identifier];
 		}
