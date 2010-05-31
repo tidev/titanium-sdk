@@ -163,6 +163,16 @@ def main(args):
 		version_file = None
 		log_id = None
 		
+		# starting in 1.4, you don't need to actually keep the build/iphone directory
+		# if we don't find it, we'll just simply re-generate it
+		if not os.path.exists(iphone_dir):
+			from iphone import IPhone
+			print "[INFO] Detected missing project but that's OK. re-creating it..."
+			iphone_creator = IPhone(name,appid)
+			iphone_creator.create(iphone_dir)
+			sys.stdout.flush()
+			
+		
 		if command == 'distribute':
 			appuuid = dequote(args[6].decode("utf-8"))
 			dist_name = dequote(args[7].decode("utf-8"))
@@ -267,7 +277,13 @@ def main(args):
 			# we want to make sure in debug mode the version always changes
 			version = "%s.%d" % (version,time.time())
 			ti.properties['version']=version
-		
+
+		# if the user has a Info.plist in their project directory, consider
+		# that a custom override
+		infoplist_tmpl = os.path.join(project_dir,'Info.plist')
+		if os.path.exists(infoplist_tmpl):
+			shutil.copy(infoplist_tmpl,infoplist)
+			
 		applogo = None
 		clean_build = False
 		
@@ -364,20 +380,6 @@ def main(args):
 			os.symlink(libticore,"libTiCore.a")
 			os.chdir(cwd)
 		
-		# if the user has a custom.plist, we'll use it instead of copying
-		# over on top
-		infoplist_tmpl = os.path.join(iphone_dir,'custom.plist')
-		# we allow a custom.plist to indicate that we should use it for
-		# our template
-		if not os.path.exists(infoplist_tmpl):
-			infoplist_tmpl = os.path.join(template_dir,'Info.plist')
-			plist = open(os.path.join(template_dir,'Info.plist'),'r').read()
-			plist = plist.replace('__PROJECT_NAME__',name)
-			plist = plist.replace('__PROJECT_ID__',appid)
-			pf = open(infoplist_tmpl,'w+')
-			pf.write(plist)
-			pf.close()
-			
 		if devicefamily!=None:
 			applogo = ti.generate_infoplist(infoplist,infoplist_tmpl,appid,devicefamily)
 		else:
@@ -630,7 +632,7 @@ def main(args):
 				print "[INFO] Installing application in iTunes ... one moment"
 				sys.stdout.flush()
 				
-				output = run.run(["/Developer/Platforms/iPhoneOS.platform/Developer/usr/bin/PackageApplication",app_dir,"-v"])
+				output = run.run(["/Developer/Platforms/iPhoneOS.platform/Developer/usr/bin/PackageApplication",app_dir])
 				o.write(output)
 				
 				# for install, launch itunes with the app

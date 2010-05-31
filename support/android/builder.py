@@ -78,6 +78,17 @@ class Builder(object):
 		self.app_id = app_id
 		self.support_dir = support_dir
 		self.compiled_files = []
+		self.force_rebuild = False
+		
+		# start in 1.4, you no longer need the build/android directory
+		# if missing, we'll create it on the fly
+		if not os.path.exists(self.project_dir):
+			print "[INFO] Detected missing project but that's OK. re-creating it..."
+			android_creator = Android(name,app_id,self.sdk,None)
+			android_creator.create(os.path.join(project_dir,'..'))
+			self.force_rebuild = True
+			sys.stdout.flush()
+		
 		
 		# we place some files in the users home
 		if platform.system() == "Windows":
@@ -300,7 +311,7 @@ class Builder(object):
 		self.project_deltas = self.project_deltafy.scan()
 		tiapp_delta = self.project_deltafy.scan_single_file(self.project_tiappxml)
 		self.tiapp_changed = tiapp_delta is not None
-		if self.tiapp_changed:
+		if self.tiapp_changed or self.force_rebuild:
 			info("Detected tiapp.xml change, forcing full re-build...")
 			# force a clean scan/copy when the tiapp.xml has changed
 			self.project_deltafy.clear_state()
