@@ -15,7 +15,7 @@ var mountainView = Titanium.Map.createAnnotation({
 	longitude:-122.081651,
 	title:"Appcelerator Headquarters",
 	subtitle:'Mountain View, CA',
-	pincolor:Titanium.Map.ANNOTATION_RED,
+	pincolor: isAndroid ? "orange" : Titanium.Map.ANNOTATION_RED,
 	animate:true,
 	leftButton: '../images/appcelerator_small.png',
 	myid:1 // CUSTOM ATTRIBUTE THAT IS PASSED INTO EVENT OBJECTS
