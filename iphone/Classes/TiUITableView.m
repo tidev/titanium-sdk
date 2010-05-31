@@ -719,8 +719,14 @@
 			[tableview setContentOffset:CGPointMake(0,0)];
 		}
 	}
-	int sectionCount = [sections count];
-	[self reloadDataFromCount:sectionCount toCount:sectionCount animation:UITableViewRowAnimationNone];
+	// if the first frame size change, don't reload - otherwise, we'll reload
+	// the entire table twice each time - which is a killer on big tables
+	if (frameChanges++ > 0)
+	{
+		int sectionCount = [sections count];
+		[self reloadDataFromCount:sectionCount toCount:sectionCount animation:UITableViewRowAnimationNone];
+	}
+	[super frameSizeChanged:frame bounds:bounds];
 }
 
 #pragma mark Searchbar-related IBActions

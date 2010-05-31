@@ -56,6 +56,7 @@
 	UISearchDisplayController *searchController;
 	BOOL searchHiddenSet;
 	BOOL headerPulling;
+	NSInteger frameChanges;
 }
 
 #pragma mark Framework
