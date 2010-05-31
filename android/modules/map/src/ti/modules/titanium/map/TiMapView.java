@@ -193,6 +193,7 @@ public class TiMapView extends TiUIView
 					
 					try {
 						if (value instanceof String) {
+							
 							// Supported strings: Supported formats are: 
 							//     #RRGGBB #AARRGGBB 'red', 'blue', 'green', 'black', 'white', 'gray', 'cyan', 'magenta', 'yellow', 'lightgray', 'darkgray'
 							int markerColor = TiConvert.toColor((String) value);
