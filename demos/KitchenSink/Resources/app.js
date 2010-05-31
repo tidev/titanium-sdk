@@ -21,8 +21,7 @@ var win1 = Titanium.UI.createWindow({
 
 var tab1 = Titanium.UI.createTab({
     icon:'images/tabs/KS_nav_views.png',
-    title:'My Base UI',
-//    title:'Base UI',
+    title:'Base UI',
     window:win1
 });
 

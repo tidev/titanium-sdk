@@ -60,26 +60,28 @@
 -(void)save:(id)unused
 {
 	ENSURE_UI_THREAD(save, unused)
-	if (ABAddressBookHasUnsavedChanges([self addressBook])) {
-		CFErrorRef error;
-		if (!ABAddressBookSave([self addressBook], &error)) {
-			CFStringRef errorStr = CFErrorCopyDescription(error);
-			NSString* str = [NSString stringWithString:(NSString*)errorStr];
-			CFRelease(errorStr);
-			
-			[self throwException:[NSString stringWithFormat:@"Unable to save address book: %@",str]
-					   subreason:nil
-						location:CODELOCATION];
-		}
+	// ABAddressBookHasUnsavedChanges is broken in pre-3.2
+	//if (ABAddressBookHasUnsavedChanges([self addressBook])) {
+	CFErrorRef error;
+	if (!ABAddressBookSave([self addressBook], &error)) {
+		CFStringRef errorStr = CFErrorCopyDescription(error);
+		NSString* str = [NSString stringWithString:(NSString*)errorStr];
+		CFRelease(errorStr);
+		
+		[self throwException:[NSString stringWithFormat:@"Unable to save address book: %@",str]
+				   subreason:nil
+					location:CODELOCATION];
 	}
+	//}
 }
 
 -(void)revert:(id)unused
 {
 	ENSURE_UI_THREAD(revert, unused)
-	if (ABAddressBookHasUnsavedChanges([self addressBook])) {
-		ABAddressBookRevert([self addressBook]);
-	}
+	// ABAddressBookHasUnsavedChanges is broken in pre-3.2
+	//if (ABAddressBookHasUnsavedChanges([self addressBook])) {
+	ABAddressBookRevert([self addressBook]);
+	//}
 }
 
 -(void)showContacts:(id)args

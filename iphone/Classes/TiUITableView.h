@@ -44,6 +44,7 @@
 	TiDimension maxRowHeight;
 	TiUISearchBarProxy * searchField;
 	UIView * tableHeaderView;
+	UIView * tableHeaderPullView;
 	UIButton * searchScreenView;
 	UITableView *searchTableView;
 	NSString * filterAttribute;
@@ -54,6 +55,8 @@
 	UITableViewController *tableController;
 	UISearchDisplayController *searchController;
 	BOOL searchHiddenSet;
+	BOOL headerPulling;
+	NSInteger frameChanges;
 }
 
 #pragma mark Framework

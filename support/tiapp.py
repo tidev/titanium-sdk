@@ -123,7 +123,7 @@ class TiAppXML(object):
 			
 		self.dom.writexml(codecs.open(self.file, 'w+','utf-8','replace'), encoding="UTF-8")
 
-	def generate_infoplist(self,file,template,appid,family):
+	def generate_infoplist(self,file,appid,family):
 		icon = 'appicon.png'
 		if self.properties.has_key('icon'):
 			icon = self.properties['icon']
@@ -148,7 +148,7 @@ class TiAppXML(object):
 					status_bar_style = '<string>UIStatusBarStyleDefault</string>'
 				self.infoplist_properties['UIStatusBarStyle']=status_bar_style
 			
-		plist = codecs.open(template,'r','utf-8','replace').read()
+		plist = codecs.open(file,'r','utf-8','replace').read()
 		plist = plist.replace('appicon.png',icon)
 
 		# replace the bundle id with the app id 

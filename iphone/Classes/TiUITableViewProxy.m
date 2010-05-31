@@ -383,7 +383,7 @@
 
 -(void)setData:(id)args withObject:(id)properties
 {
-	ENSURE_ARRAY(args);
+	ENSURE_TYPE_OR_NIL(args,NSArray);
 	ENSURE_UI_THREAD_WITH_OBJ(setData,args,properties);
 	
 	// this is on the non-UI thread. let's do the work here before we pass
@@ -460,6 +460,24 @@
 {
 	// if you pass in no args, it's a non animation set
 	[self setData:args withObject:[NSDictionary dictionaryWithObject:NUMINT(UITableViewRowAnimationNone) forKey:@"animationStyle"]];
+}
+
+-(void)setContentInsets:(id)args
+{
+	ENSURE_UI_THREAD(setContentInsets,args);
+	id arg1;
+	id arg2;
+	if ([args isKindOfClass:[NSDictionary class]])
+	{
+		arg1 = args;
+		arg2 = [NSDictionary dictionary];
+	}
+	else
+	{
+		arg1 = [args objectAtIndex:0];
+		arg2 = [args count] > 1 ? [args objectAtIndex:1] : [NSDictionary dictionary];
+	}
+	[[self view] performSelector:@selector(setContentInsets_:withObject:) withObject:arg1 withObject:arg2];
 }
 
 @end 

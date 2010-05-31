@@ -118,6 +118,7 @@
 	RELEASE_TO_NIL(filterAttribute);
 	RELEASE_TO_NIL(searchResultIndexes);
 	RELEASE_TO_NIL(initialSelection);
+	RELEASE_TO_NIL(tableHeaderPullView);
 	[super dealloc];
 }
 
@@ -718,8 +719,14 @@
 			[tableview setContentOffset:CGPointMake(0,0)];
 		}
 	}
-	int sectionCount = [sections count];
-	[self reloadDataFromCount:sectionCount toCount:sectionCount animation:UITableViewRowAnimationNone];
+	// if the first frame size change, don't reload - otherwise, we'll reload
+	// the entire table twice each time - which is a killer on big tables
+	if (frameChanges++ > 0)
+	{
+		int sectionCount = [sections count];
+		[self reloadDataFromCount:sectionCount toCount:sectionCount animation:UITableViewRowAnimationNone];
+	}
+	[super frameSizeChanged:frame bounds:bounds];
 }
 
 #pragma mark Searchbar-related IBActions
@@ -1144,6 +1151,46 @@
 -(void)setMaxRowHeight_:(id)height
 {
 	maxRowHeight = [TiUtils dimensionValue:height];
+}
+
+-(void)setHeaderPullView_:(id)value
+{
+	ENSURE_TYPE_OR_NIL(value,TiViewProxy);
+	if (value==nil)
+	{
+		[tableHeaderPullView removeFromSuperview];
+		RELEASE_TO_NIL(tableHeaderPullView);
+	}
+	else 
+	{
+		tableHeaderPullView = [[UIView alloc] initWithFrame:CGRectMake(0.0f, 0.0f - self.tableView.bounds.size.height, 320.0f, self.tableView.bounds.size.height)];
+		tableHeaderPullView.backgroundColor = [UIColor lightGrayColor];
+		UIView *view = [value view];
+		[[self tableView] addSubview:tableHeaderPullView];
+		[tableHeaderPullView addSubview:view];
+		[TiUtils setView:view positionRect:[tableHeaderPullView bounds]];
+		CGRect bounds = view.bounds;
+		bounds.origin.x = 0;
+		bounds.origin.y = self.tableView.bounds.size.height - view.bounds.size.height;
+		view.bounds = bounds;
+	}
+}
+
+-(void)setContentInsets_:(id)value withObject:(id)props
+{
+	UIEdgeInsets insets = [TiUtils contentInsets:value];
+	BOOL animated = [TiUtils boolValue:@"animated" properties:props def:NO];
+	if (animated)
+	{
+		[UIView beginAnimations:nil context:nil];
+		double duration = [TiUtils doubleValue:@"duration" properties:props def:300]/1000;
+		[UIView setAnimationDuration:duration];
+	}
+	[[self tableView] setContentInset:insets];
+	if (animated)
+	{
+		[UIView commitAnimations];
+	}
 }
 
 #pragma mark Datasource 
@@ -1631,6 +1678,22 @@ if(ourTableView != tableview)	\
 	return YES;
 }
 
+- (void)scrollViewDidScroll:(UIScrollView *)scrollView
+{	
+	if (scrollView.isDragging) 
+	{
+		if ([self.proxy _hasListeners:@"scroll"])
+		{
+			NSMutableDictionary *event = [NSMutableDictionary dictionary];
+			[event setObject:[TiUtils pointToDictionary:scrollView.contentOffset] forKey:@"contentOffset"];
+			[event setObject:[TiUtils sizeToDictionary:scrollView.contentSize] forKey:@"contentSize"];
+			[event setObject:[TiUtils sizeToDictionary:tableview.bounds.size] forKey:@"size"];
+			[self.proxy fireEvent:@"scroll" withObject:event];
+		}
+	}
+}
+
+
 - (void)scrollViewDidScrollToTop:(UIScrollView *)scrollView 
 {
 	// resume image loader when we're done scrolling
@@ -1649,6 +1712,14 @@ if(ourTableView != tableview)	\
 	{
 		// resume image loader when we're done scrolling
 		[[ImageLoader sharedLoader] resume];
+	}
+	if ([self.proxy _hasListeners:@"scrollEnd"])
+	{
+		NSMutableDictionary *event = [NSMutableDictionary dictionary];
+		[event setObject:[TiUtils pointToDictionary:scrollView.contentOffset] forKey:@"contentOffset"];
+		[event setObject:[TiUtils sizeToDictionary:scrollView.contentSize] forKey:@"contentSize"];
+		[event setObject:[TiUtils sizeToDictionary:tableview.bounds.size] forKey:@"size"];
+		[self.proxy fireEvent:@"scrollEnd" withObject:event];
 	}
 }
 
