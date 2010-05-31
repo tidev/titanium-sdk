@@ -23,6 +23,7 @@ var data = [
 	{title:'Insert Row', hasChild:true, test:'../examples/table_view_row_insert.js'},
 	{title:'Update Row', hasChild:true, test:'../examples/table_view_row_update.js'},
 	{title:'Set Row Data', hasChild:true, test:'../examples/table_view_set.js'},
+	{title:'Remove all rows', hasChild:true, test:'../examples/table_view_removeall.js'},
 	{title:'Empty Table View', hasChild:true, test:'../examples/table_view_empty.js'},
 	{title:'Table Auto Height', hasChild:true, test:'../examples/table_view_api_auto_height.js'},
 	{title:'Refresh Table View', hasChild:true, test:'../examples/table_view_refresh.js'},

@@ -63,6 +63,13 @@ def main(args,argc):
 	resources_dir = os.path.join(project_dir,'Resources')
 	if not os.path.exists(resources_dir):
 		os.makedirs(resources_dir)
+		
+	# write out our gitignore
+	gitignore = open(os.path.join(project_dir,'.gitignore'),'w')
+	# start in 1.4, we can safely exclude build folder from git
+	gitignore.write("build\n")
+	gitignore.write("tmp\n")
+	gitignore.close()
 					
 	if iphone:
 		iphone_resources = os.path.join(resources_dir,'iphone')

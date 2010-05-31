@@ -34,7 +34,7 @@ ACCURACY_HUNDRED_METERS[int]: accuracy constant
 ACCURACY_KILOMETER[int]: accuracy constant
 ACCURACY_THREE_KILOMETERS[int]: accuracy constant
 
-locationServicesEnabled[boolean]: returns true if the user has enabled or disable location services for the device (not the application).  This is an iPhone only property.
+locationServicesEnabled[boolean]: returns true if the user has enabled or disable location services for the device (not the application). 
 showCalibration[boolean]: returns true if the calibration UI can show
 
 
