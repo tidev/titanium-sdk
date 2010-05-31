@@ -383,7 +383,7 @@
 
 -(void)setData:(id)args withObject:(id)properties
 {
-	ENSURE_ARRAY(args);
+	ENSURE_TYPE_OR_NIL(args,NSArray);
 	ENSURE_UI_THREAD_WITH_OBJ(setData,args,properties);
 	
 	// this is on the non-UI thread. let's do the work here before we pass
