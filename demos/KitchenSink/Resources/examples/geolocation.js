@@ -363,10 +363,11 @@ else
 
 	
 }
-var addr = "444 Castro Street, Mountain View, CA 94041";
+var addr = "2065 Hamilton Avenue San Jose, California 95125";
 
 Titanium.Geolocation.forwardGeocoder(addr,function(evt)
 {
+	Ti.API.info('in forward ')
 	forwardGeo.text = "lat:"+evt.latitude+", long:"+evt.longitude;
 	Titanium.Geolocation.reverseGeocoder(evt.latitude,evt.longitude,function(evt)
 	{
