@@ -126,7 +126,7 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 	else 
 	{
 		//TODO: better error handling
-		event = [NSDictionary dictionaryWithObjectsAndKeys:NUMBOOL(NO),@"success","error obtaining geolocation",@"error",nil];
+		event = [NSDictionary dictionaryWithObjectsAndKeys:NUMBOOL(NO),@"success",@"error obtaining geolocation",@"error",nil];
 	}	
 	
 	[context fireEvent:callback withObject:event remove:NO thisObject:nil];
