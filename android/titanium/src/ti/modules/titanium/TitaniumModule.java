@@ -8,7 +8,6 @@ package ti.modules.titanium;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayDeque;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Properties;
