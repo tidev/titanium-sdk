@@ -8,9 +8,11 @@ package ti.modules.titanium;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayDeque;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Properties;
+import java.util.Stack;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -18,7 +20,6 @@ import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiDict;
 import org.appcelerator.titanium.TiModule;
 import org.appcelerator.titanium.kroll.KrollCallback;
-import org.appcelerator.titanium.kroll.KrollContext;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUIHelper;
@@ -30,6 +31,7 @@ public class TitaniumModule
 	private static TiDict constants;
 	private static String buildVersion;
 	private static String buildTimestamp;
+	private Stack<String> basePath;
 
 	static {
 		buildVersion = "1.0";
@@ -51,6 +53,9 @@ public class TitaniumModule
 
 	public TitaniumModule(TiContext tiContext) {
 		super(tiContext);
+		basePath = new Stack<String>();
+		basePath.push(tiContext.getBaseUrl());
+		
 		tiContext.addOnLifecycleEventListener(this);
 	}
 
@@ -70,7 +75,11 @@ public class TitaniumModule
 	public void include(Object[] files) {
 		for(Object filename : files) {
 			try {
-				getTiContext().evalFile(getTiContext().resolveUrl(null, TiConvert.toString(filename)));
+				// we need to make sure paths included from sub-js files are actually relative
+				String resolved = getTiContext().resolveUrl(null, TiConvert.toString(filename), basePath.peek());
+				basePath.push(resolved.substring(0, resolved.lastIndexOf('/')+1));
+				getTiContext().evalFile(resolved);
+				basePath.pop();
 			} catch (IOException e) {
 				Log.e(LCAT, "Error while evaluating: " + filename, e);
 			}
