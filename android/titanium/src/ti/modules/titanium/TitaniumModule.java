@@ -57,7 +57,7 @@ public class TitaniumModule
 		
 		tiContext.addOnLifecycleEventListener(this);
 	}
-
+	
 	@Override
 	public TiDict getConstants()
 	{
@@ -71,14 +71,23 @@ public class TitaniumModule
 		return constants;
 	}
 
-	public void include(Object[] files) {
+	public void include(TiContext tiContext, Object[] files) {
 		for(Object filename : files) {
 			try {
 				// we need to make sure paths included from sub-js files are actually relative
-				String resolved = getTiContext().resolveUrl(null, TiConvert.toString(filename), basePath.peek());
+				boolean popContext = false;
+				if (!basePath.contains(tiContext.getBaseUrl())) {
+					basePath.push(tiContext.getBaseUrl());
+					popContext = true;
+				}
+				String resolved = tiContext.resolveUrl(null, TiConvert.toString(filename), basePath.peek());
 				basePath.push(resolved.substring(0, resolved.lastIndexOf('/')+1));
-				getTiContext().evalFile(resolved);
+				tiContext.evalFile(resolved);
 				basePath.pop();
+				
+				if (popContext) {
+					basePath.pop();
+				}
 			} catch (IOException e) {
 				Log.e(LCAT, "Error while evaluating: " + filename, e);
 			}
