@@ -99,12 +99,18 @@ CGSize SizeConstraintViewWithSizeAddingResizing(LayoutConstraint * constraint, N
 			}
 			break;
 	}
-
+	
 	if ([autoSizer respondsToSelector:@selector(verifyHeight:)])
 	{
 		height = [autoSizer verifyHeight:height];
 	}
 
+	// when you use negative top, you get into a situation where you get smaller
+	// then intended sizes when using auto.  this allows you to set a floor for
+	// the height/width so that it won't be smaller than specified - defaults to 0
+	height = MAX(constraint->minimumHeight,height);
+	width = MAX(constraint->minimumWidth,width);
+	
 	if ((resultResizing != NULL) && [autoSizer respondsToSelector:@selector(verifyAutoresizing:)])
 	{
 		*resultResizing = [autoSizer verifyAutoresizing:*resultResizing];
@@ -241,30 +247,6 @@ void ApplyConstraintToViewWithinViewWithBounds(LayoutConstraint * constraint, Ti
 	{
 		[superView addSubview:subView];
 	}
-}
-
-#define READ_CONSTRAINT(key,value)	\
-constraint->value = TiDimensionFromObject([inputDict objectForKey:key]);
-
-void ReadConstraintFromDictionary(LayoutConstraint * constraint, NSDictionary * inputDict)
-{
-	if (constraint == NULL)
-	{
-		return;
-	}
-	//If the inputdict is null, this flows through properly.
-	constraint->layout = TiLayoutRuleFromObject([inputDict objectForKey:@"layout"]);
-
-	READ_CONSTRAINT(@"left",left);
-	READ_CONSTRAINT(@"right",right);
-	READ_CONSTRAINT(@"width",width);
-	READ_CONSTRAINT(@"top",top);
-	READ_CONSTRAINT(@"bottom",bottom);
-	READ_CONSTRAINT(@"height",height);
-	inputDict = [inputDict objectForKey:@"center"];
-	READ_CONSTRAINT(@"x",centerY);
-	READ_CONSTRAINT(@"y",centerX);
-	
 }
 
 CGFloat WidthFromConstraintGivenWidth(LayoutConstraint * constraint, CGFloat viewWidth)
