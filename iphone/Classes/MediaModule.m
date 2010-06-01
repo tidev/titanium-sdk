@@ -315,8 +315,14 @@ MAKE_SYSTEM_PROP(NO_CAMERA,MediaModuleErrorNoCamera);
 MAKE_SYSTEM_PROP(NO_VIDEO,MediaModuleErrorNoVideo);
 MAKE_SYSTEM_PROP(NO_MUSIC_PLAYER,MediaModuleErrorNoMusicPlayer);
 
-// these have been deprecated in 3.2 but we need them for older devices
+
+// >=3.2 dependent value; this one isn't deprecated
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
+MAKE_SYSTEM_PROP(VIDEO_CONTROL_DEFAULT,MPMovieControlStyleDefault);
+#else
 MAKE_SYSTEM_PROP(VIDEO_CONTROL_DEFAULT,MPMovieControlModeDefault);
+#endif
+// these have been deprecated in 3.2 but we need them for older devices
 MAKE_SYSTEM_PROP(VIDEO_CONTROL_VOLUME_ONLY,MPMovieControlModeVolumeOnly);
 MAKE_SYSTEM_PROP(VIDEO_CONTROL_HIDDEN,MPMovieControlModeHidden);
 
@@ -372,9 +378,6 @@ MAKE_SYSTEM_PROP(MUSIC_MEDIA_TYPE_PODCAST, MPMediaTypePodcast);
 MAKE_SYSTEM_PROP(MUSIC_MEDIA_TYPE_AUDIOBOOK, MPMediaTypeAudioBook);
 MAKE_SYSTEM_PROP(MUSIC_MEDIA_TYPE_ANY_AUDIO, MPMediaTypeAnyAudio);
 MAKE_SYSTEM_PROP(MUSIC_MEDIA_TYPE_ALL, MPMediaTypeAny);
-
-MAKE_SYSTEM_STR(MUSIC_PLAYER_TYPE_SYSTEM, @"system");
-MAKE_SYSTEM_STR(MUSIC_PLAYER_TYPE_APP, @"app");
 
 MAKE_SYSTEM_PROP(MUSIC_PLAYER_STATE_STOPPED, MPMusicPlaybackStateStopped);
 MAKE_SYSTEM_PROP(MUSIC_PLAYER_STATE_PLAYING, MPMusicPlaybackStatePlaying);

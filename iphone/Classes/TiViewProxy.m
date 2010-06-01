@@ -14,6 +14,8 @@
 #import <libkern/OSAtomic.h>
 #import <pthread.h>
 
+#import "TiLayoutQueue.h"
+
 @implementation TiViewProxy
 
 @synthesize children, parent;
@@ -975,7 +977,8 @@
 		BOOL alreadySet = OSAtomicTestAndSetBarrier(NEEDS_LAYOUT_CHILDREN, &dirtyflags);
 		if (!alreadySet)
 		{
-			[self performSelectorOnMainThread:@selector(layoutChildrenIfNeeded) withObject:nil waitUntilDone:NO modes:[NSArray arrayWithObject:NSRunLoopCommonModes]];
+			[TiLayoutQueue addViewProxy:self];
+//			[self performSelectorOnMainThread:@selector(layoutChildrenIfNeeded) withObject:nil waitUntilDone:NO modes:[NSArray arrayWithObject:NSRunLoopCommonModes]];
 		}
 	}
 }
@@ -1027,7 +1030,8 @@
 	}
 
 	[parent childWillResize:self];
-	[self performSelectorOnMainThread:@selector(repositionIfNeeded) withObject:nil waitUntilDone:NO modes:[NSArray arrayWithObject:NSRunLoopCommonModes]];
+//	[self performSelectorOnMainThread:@selector(repositionIfNeeded) withObject:nil waitUntilDone:NO modes:[NSArray arrayWithObject:NSRunLoopCommonModes]];
+	[TiLayoutQueue addViewProxy:self];
 }
 
 -(void)clearNeedsReposition
@@ -1062,6 +1066,9 @@ LAYOUTPROPERTIES_SETTER(setWidth,width,TiDimensionFromObject)
 LAYOUTPROPERTIES_SETTER(setHeight,height,TiDimensionFromObject)
 
 LAYOUTPROPERTIES_SETTER(setLayout,layout,TiLayoutRuleFromObject)
+
+LAYOUTPROPERTIES_SETTER(setMinWidth,minimumWidth,TiFixedValueRuleFromObject)
+LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject)
 
 -(void)setCenter:(id)value
 {

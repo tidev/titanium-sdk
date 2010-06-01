@@ -15,38 +15,22 @@
 @private
 	NSURL *url;
 	MPMoviePlayerController *movie;
-	TiColor *backgroundColor;
-	MPMovieScalingMode scalingMode;
-	MPMovieControlMode movieControlMode;
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
-	MPMovieControlStyle movieControlStyle;
-#endif
-	NSTimeInterval initialPlaybackTime;
+	TiColor* backgroundColor;
 	BOOL playing;
 	NSMutableArray *views;
 	TiFile *tempFile;
 	KrollCallback *thumbnailCallback;
 	UIView *oldparent;
+	
+	NSMutableDictionary* loadProperties; // Used to set properties when the player is created
 }
 
 @property(nonatomic,readwrite,assign) id url;
 @property(nonatomic,readwrite,assign) TiColor* backgroundColor;
-@property(nonatomic,readwrite,assign) NSNumber* scalingMode;
-@property(nonatomic,readwrite,assign) NSNumber* initialPlaybackTime;
 @property(nonatomic,readonly) NSNumber* playing;
 
 -(void)add:(id)proxy;
 -(void)remove:(id)proxy;
-
-
-// this was deprecated in 3.2 but kept around for older devices
-@property(nonatomic,readwrite,assign) NSNumber* movieControlMode;
-
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
-// introduced in 3.2
-@property(nonatomic,readwrite,assign) NSNumber* movieControlStyle;
-#endif
-
 
 @end
 
