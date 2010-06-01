@@ -6,6 +6,8 @@
  */
 package ti.modules.titanium.ui.widget;
 
+import java.util.Map;
+
 import org.appcelerator.titanium.TiDict;
 import org.appcelerator.titanium.TiProxy;
 import org.appcelerator.titanium.proxy.TiViewProxy;
@@ -40,7 +42,15 @@ public class TiUINotification extends TiUIView
 	@Override
 	public void propertyChanged(String key, Object oldValue, Object newValue, TiProxy proxy)
 	{
-		// we don't need any properties.
+		// Not super efficient but better code reuse
+		TiDict d = new TiDict();
+		d.put(key, newValue);
+		processProperties(d);
+		
+		if (DBG) {
+			Log.d(LCAT, "PropertyChanged - Property '" + key + "' changed to '" + newValue + "' from '" + oldValue + "'");
+		}
+		
 	}
 
 	public void show(TiDict options) {
