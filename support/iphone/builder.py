@@ -5,7 +5,7 @@
 # the application on the device via iTunes
 #
 
-import os, sys, uuid, subprocess, shutil, signal, time, re, run, glob, codecs, hashlib
+import os, sys, uuid, subprocess, shutil, signal, time, re, run, glob, codecs, hashlib, datetime
 from compiler import Compiler
 from projector import Projector
 from pbxproj import PBXProj
@@ -411,6 +411,9 @@ def main(args):
 			# write out the build log, useful for debugging
 			if not os.path.exists(build_out_dir): os.makedirs(build_out_dir)
 			o = open(os.path.join(build_out_dir,'build.log'),'w')
+			
+			buildtime = datetime.datetime.now()
+			o.write("Starting build at %s\n\n" % buildtime.strftime("%m/%d/%y %H:%M"))
 
 			if not os.path.exists(app_dir): os.makedirs(app_dir)
 
@@ -486,6 +489,7 @@ def main(args):
 					if endidx > 0:
 						target_build_dir = dequote(output[idx+17:endidx].strip())
 						if target_build_dir!=build_dir:
+							o.write("+ TARGET_BUILD_DIR = %s\n" % target_build_dir)
 							print "[ERROR] Your TARGET_BUILD_DIR is incorrectly set. Most likely you have configured in Xcode a customized build location. Titanium does not currently support this configuration."
 							print "[ERROR] Expected dir %s, was: %s" % (build_dir,target_build_dir)
 							sys.stdout.flush()
@@ -493,12 +497,16 @@ def main(args):
 			
 				# look for build error
 				if output.find("** BUILD FAILED **")!=-1 or output.find("ld returned 1")!=-1 or output.find("The following build commands failed:")!=-1:
+					o.write("+ Detected build failure\n")
 					print "[ERROR] Build Failed. Please see output for more details"
 					sys.stdout.flush()
 					sys.exit(1)
+
+				o.write("+ Looking for application binary at %s\n" % binary)
 					
 				# make sure binary exists
 				if not os.path.exists(binary):
+					o.write("+ Missing application binary at %s\n" % binary)
 					print "[ERROR] Build Failed (Missing app at %s). Please see output for more details" % binary
 					sys.stdout.flush()
 					sys.exit(1)
@@ -506,6 +514,7 @@ def main(args):
 				# look for a code signing error
 				error = re.findall(r'Code Sign error:(.*)',output)
 				if len(error) > 0:
+					o.write("+ Detected code sign error: %s\n" % error[0])
 					print "[ERROR] Code sign error: %s" % error[0].strip()
 					sys.stdout.flush()
 					sys.exit(1)
@@ -528,6 +537,7 @@ def main(args):
 				# first make sure it's not running
 				kill_simulator()
 				
+				o.write("Finishing build\n")
 				o.close()
 
 				# sometimes the simulator doesn't remove old log files
@@ -640,30 +650,41 @@ def main(args):
 				print "[INFO] Installing application in iTunes ... one moment"
 				sys.stdout.flush()
 				
-				output = run.run(["/Developer/Platforms/iPhoneOS.platform/Developer/usr/bin/PackageApplication",app_dir])
-				o.write(output)
+				if os.path.exists("/Developer/Platforms/iPhoneOS.platform/Developer/usr/bin/PackageApplication"):
+					o.write("+ Preparing to run /Developer/Platforms/iPhoneOS.platform/Developer/usr/bin/PackageApplication\n")
+					output = run.run(["/Developer/Platforms/iPhoneOS.platform/Developer/usr/bin/PackageApplication",app_dir],True)
+					o.write("+ Finished running /Developer/Platforms/iPhoneOS.platform/Developer/usr/bin/PackageApplication\n")
+					o.write(output)
 				
 				# for install, launch itunes with the app
 				ipa = os.path.join(os.path.dirname(app_dir),"%s.ipa" % name)
+				o.write("+ IPA file should be at %s\n" % ipa);
 
 				# it appears that sometimes this command above fails on certain installs
 				# or is missing. let's just open if we have it otherwise, open the app 
 				# directory
 				if not os.path.exists(ipa):
 					# just open the app dir itself
+					o.write("+ IPA didn't exist at %s\n" % ipa)
+					o.write("+ Will try and open %s\n" % app_dir)
 					ipa = app_dir
 					
 				cmd = "open -b com.apple.itunes \"%s\"" % ipa
+				o.write("+ Executing the command: %s\n" % cmd)
 				os.system(cmd)
+				o.write("+ After executing the command: %s\n" % cmd)
 				
 				# now run our applescript to tell itunes to sync to get
 				# the application on the phone
 				ass = os.path.join(template_dir,'itunes_sync.scpt')
 				cmd = "osascript \"%s\"" % ass
+				o.write("+ Executing the command: %s\n" % cmd)
 				os.system(cmd)
+				o.write("+ After executing the command: %s\n" % cmd)
 				
 				print "[INFO] iTunes sync initiated"
 
+				o.write("Finishing build\n")
 				o.close()
 				sys.stdout.flush()
 				sys.exit(0)
@@ -693,10 +714,13 @@ def main(args):
 
 				outfile = os.path.join(output_dir,"%s.app.zip"%name)
 				if os.path.exists(outfile): os.remove(outfile)
+				o.write("Writing build distribution to %s\n"%outfile)
 				
 				# you *must* use ditto here or it won't upload to appstore
 				os.system('ditto -ck --keepParent --sequesterRsrc "%s.app" "%s"' % (name,outfile))
 				
+				o.write("Finishing build\n")
+				o.close()
 				sys.exit(0)
 				
 		finally:

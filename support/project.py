@@ -67,7 +67,6 @@ def main(args,argc):
 	# write out our gitignore
 	gitignore = open(os.path.join(project_dir,'.gitignore'),'w')
 	# start in 1.4, we can safely exclude build folder from git
-	gitignore.write("build\n")
 	gitignore.write("tmp\n")
 	gitignore.close()
 					

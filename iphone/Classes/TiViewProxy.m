@@ -1063,6 +1063,9 @@ LAYOUTPROPERTIES_SETTER(setHeight,height,TiDimensionFromObject)
 
 LAYOUTPROPERTIES_SETTER(setLayout,layout,TiLayoutRuleFromObject)
 
+LAYOUTPROPERTIES_SETTER(setMinWidth,minimumWidth,TiFixedValueRuleFromObject)
+LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject)
+
 -(void)setCenter:(id)value
 {
 	if (![value isKindOfClass:[NSDictionary class]])

@@ -27,6 +27,7 @@
 {
 	static int mapTags = 0;
 	tag = mapTags++;
+	needsRefreshingWithSelection = YES;
 }
 
 -(UIView*)makeButton:(id)button tag:(int)buttonTag
