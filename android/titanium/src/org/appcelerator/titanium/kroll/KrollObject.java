@@ -266,7 +266,7 @@ public class KrollObject extends ScriptableObject
 					args[0] = value;
 
 					try {
-						setMethod.invoke(target, argsForMethod(setMethod, args));
+						setMethod.invoke(target, argsForMethod(setMethod, args, getKrollContext().getTiContext()));
 					} catch (InvocationTargetException e) {
 						Log.e(LCAT, "Error setting property: " + e.getMessage(), e);
 						Context.throwAsScriptRuntimeEx(e);
@@ -347,7 +347,7 @@ public class KrollObject extends ScriptableObject
 			args[1] = value;
 
 			try {
-				setMethod.invoke(target, argsForMethod(setMethod, args));
+				setMethod.invoke(target, argsForMethod(setMethod, args, getKrollContext().getTiContext()));
 			} catch (InvocationTargetException e) {
 				Log.e(LCAT, "Error setting property: " + e.getMessage(), e);
 				Context.throwAsScriptRuntimeEx(e);
@@ -472,7 +472,7 @@ public class KrollObject extends ScriptableObject
 		Object o = null;
 		TiApplication tiApp = weakApplication.get();
 		if(tiApp != null) {
-				o = tiApp.methodFor(source, name);
+			o = tiApp.methodFor(source, name);
 		}
 
 		return o;
@@ -490,22 +490,30 @@ public class KrollObject extends ScriptableObject
 
 	// Type Conversion support
 
-	protected Object[] argsForMethod(Method method, Object[] args) {
+	protected Object[] argsForMethod(Method method, Object[] args, TiContext context) {
 		Class<?>[] types = method.getParameterTypes();
 		Object []newArgs = null;
 		Object []varArgs = null;
 		boolean varargs = false;
-
+		boolean needContext = false;
+		int start = 0;
+		
 		if (DBG) {
 			Log.d(LCAT, "Method: " + method.getName() + " Types: " + types.length + " Args: " + (args != null ? args.length : 0) + " varargs: " + varargs);
 		}
 
-		if (args != null && types.length != 0 && args.length >= types.length) {
+		if (args != null && types.length != 0 && args.length >= types.length-1) {
+			// we want to pass along context for methods that need it
+			if (types[0].equals(TiContext.class)) {
+				start = 1;
+				needContext = true;
+			}
+			
 			if (types[types.length - 1].isArray()) {
-				Object o = args[types.length-1];
+				Object o = args[types.length-(start+1)];
 				if (!(o instanceof Scriptable) || (o instanceof Scriptable && !isArrayLike((Scriptable) o))) {
 					varargs = true;
-					varArgs = new Object[args.length - types.length + 1];
+					varArgs = new Object[args.length - types.length + start + 1];
 				}
 			}
 		}
@@ -513,26 +521,30 @@ public class KrollObject extends ScriptableObject
 		if (DBG) {
 			Log.d(LCAT, "Method: " + method.getName() + " varargs: " + varargs);
 		}
-
+		
 		newArgs = new Object[types.length];
-
+		
+		if (needContext) {
+			newArgs[0] = context;
+		}
+		
 		if (varargs) {
 			int len = types.length - 1;
-			for (int i = 0; i < len; i++) {
+			for (int i = start; i < len; i++) {
 				newArgs[i] = toNative(args[i], types[i]);
 			}
 			newArgs[len] = varArgs;
-			for (int i = len; i < args.length; i++) {
-				varArgs[i-len] = toNative(args[i], Object.class);
+			for (int i = len; i < args.length+start; i++) {
+				varArgs[i-len] = toNative(args[i-start], Object.class);
 			}
 		} else {
-			for (int i = 0; i < types.length; i++) {
+			for (int i = start; i < types.length; i++) {
 				//TODO type coercion based on method requirements.
 
-				if (i < args.length) {
-					newArgs[i] = toNative(args[i], types[i]);
+				if (i-start < args.length) {
+					newArgs[i] = toNative(args[i-start], types[i]);
 					if (DBG) {
-						Log.d(LCAT, "Source type: " + (args[i] != null ? args[i].getClass().getName() : "null") + " Dest : " + types[i].getName());
+						Log.d(LCAT, "Source type: " + (args[i-start] != null ? args[i-start].getClass().getName() : "null") + " Dest : " + types[i].getName());
 					}
 				} else {
 					newArgs[i] = null;
@@ -577,7 +589,12 @@ public class KrollObject extends ScriptableObject
 
 				Scriptable so = (Scriptable) value;
 				for(Object key : so.getIds()) {
-					Object v = so.get((String) key, so);
+					Object v;
+					if (key instanceof String) {
+						v = so.get((String)key, so);
+					} else {
+						v = so.get((Integer)key, so);
+					}
 					v = toNative(v, Object.class);
 //					if (v instanceof Scriptable && isArrayLike((Scriptable) v)) {
 //						v = toArray((Scriptable) v);
@@ -585,7 +602,7 @@ public class KrollObject extends ScriptableObject
 					if (DBG) {
 						Log.i(LCAT, "Key: " + key + " value: " + v + " type: " + v.getClass().getName());
 					}
-					args.put((String) key, v);
+					args.put(key.toString(), v);
 				}
 				//Log.w(LCAT, "Unhandled type conversion of Scriptable: value: " + value.toString() + " type: " + value.getClass().getName());
 			}

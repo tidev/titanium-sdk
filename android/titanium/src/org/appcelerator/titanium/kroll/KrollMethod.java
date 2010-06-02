@@ -75,7 +75,7 @@ public class KrollMethod extends KrollObject implements Function
 
 		try {
 			if (method != null) {
-				newArgs = argsForMethod(method, args);
+				newArgs = argsForMethod(method, args, getKrollContext().getTiContext());
 
 				if (method.getReturnType() == java.lang.Void.TYPE) {
 					method.invoke(target, newArgs);
