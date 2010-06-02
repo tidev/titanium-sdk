@@ -589,7 +589,12 @@ public class KrollObject extends ScriptableObject
 
 				Scriptable so = (Scriptable) value;
 				for(Object key : so.getIds()) {
-					Object v = so.get((String) key, so);
+					Object v;
+					if (key instanceof String) {
+						v = so.get((String)key, so);
+					} else {
+						v = so.get((Integer)key, so);
+					}
 					v = toNative(v, Object.class);
 //					if (v instanceof Scriptable && isArrayLike((Scriptable) v)) {
 //						v = toArray((Scriptable) v);
@@ -597,7 +602,7 @@ public class KrollObject extends ScriptableObject
 					if (DBG) {
 						Log.i(LCAT, "Key: " + key + " value: " + v + " type: " + v.getClass().getName());
 					}
-					args.put((String) key, v);
+					args.put(key.toString(), v);
 				}
 				//Log.w(LCAT, "Unhandled type conversion of Scriptable: value: " + value.toString() + " type: " + value.getClass().getName());
 			}
