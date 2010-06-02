@@ -9,7 +9,7 @@
 #import "TiLayoutQueue.h"
 #import "TiViewProxy.h"
 #import <CoreFoundation/CoreFoundation.h>
-
+#import <pthread.h>
 
 #define LAYOUT_TIMER_INTERVAL	0.05
 
@@ -27,7 +27,21 @@ void performLayoutRefresh(CFRunLoopTimerRef timer, void *info)
 		[thisProxy repositionIfNeeded];
 		[thisProxy layoutChildrenIfNeeded];
 	}
-	[layoutArray removeAllObjects];
+	if ([layoutArray count]==0)
+	{
+		//Might as well stop the timer for now.
+		RELEASE_TO_NIL(layoutArray);
+		if (layoutTimer != NULL)
+		{
+			CFRunLoopTimerInvalidate(layoutTimer);
+			layoutTimer = NULL;
+		}
+	}
+	else
+	{
+		[layoutArray removeAllObjects];
+	}
+
 	pthread_mutex_unlock(&layoutMutex);
 }
 
@@ -43,6 +57,7 @@ void performLayoutRefresh(CFRunLoopTimerRef timer, void *info)
 +(void)addViewProxy:(TiViewProxy*)newViewProxy
 {
 	pthread_mutex_lock(&layoutMutex);
+
 	if (layoutArray == nil)
 	{
 		layoutArray = [[NSMutableArray alloc] initWithObjects:newViewProxy,nil];
