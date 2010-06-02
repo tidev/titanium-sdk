@@ -42,9 +42,16 @@
 			 orientation == UIDeviceOrientationUnknown);
 }
 
+-(BOOL)isUIPortrait
+{
+	UIInterfaceOrientation orientation = [[UIApplication sharedApplication] statusBarOrientation];
+	return  UIInterfaceOrientationIsPortrait(orientation);
+}
+
+
 - (NSNumber*) platformWidth
 {
-	if ([self isDevicePortrait])
+	if ([self isUIPortrait])
 	{
 		return [NSNumber numberWithFloat:[[UIScreen mainScreen] bounds].size.width];	
 	}
@@ -56,7 +63,7 @@
 
 - (NSNumber*) platformHeight
 {
-	if ([self isDevicePortrait] == NO)
+	if ([self isUIPortrait] == NO)
 	{
 		return [NSNumber numberWithFloat:[[UIScreen mainScreen] bounds].size.width];	
 	}
