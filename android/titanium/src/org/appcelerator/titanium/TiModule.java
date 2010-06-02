@@ -77,7 +77,7 @@ public abstract class TiModule
 		return getTiContext().dispatchEvent(eventName, data, this);
 	}
 
-	public Object createProxy(Object[] args, String name)
+	public Object createProxy(TiContext tiContext, Object[] args, String name)
 	{
 		Object o = null;
 		String pname = buildProxyName(name);
@@ -91,7 +91,7 @@ public abstract class TiModule
 				};
 				Constructor<?> ctor = c.getConstructor(types);
 				if (ctor != null) {
-					o = ctor.newInstance(getTiContext(), args);
+					o = ctor.newInstance(tiContext, args);
 				} else {
 					Log.e(LCAT, "No valid constructor found");
 				}

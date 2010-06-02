@@ -18,6 +18,9 @@ b1.addEventListener('click', function()
 		enabled:false
 	});
 	b.enabled = false;
+	b.addEventListener('click', function() {
+		Ti.API.info('Clicked left button!');
+	});
 	win.setToolbar([b]);
 });
 win.add(b1);
@@ -39,6 +42,9 @@ b2.addEventListener('click', function()
 	});
 	var flexSpace = Titanium.UI.createButton({
 		systemButton:Titanium.UI.iPhone.SystemButton.FLEXIBLE_SPACE
+	});
+	b.addEventListener('click', function() {
+		Ti.API.info('Clicked right button!');
 	});
 	win.setToolbar([flexSpace,b]);
 });

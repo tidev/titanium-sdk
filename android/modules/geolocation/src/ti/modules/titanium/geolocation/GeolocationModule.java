@@ -238,7 +238,7 @@ public class GeolocationModule
 	private TiDict buildForwardResponse(JSONObject r)
 		throws JSONException
 	{
-		TiDict response = null;
+		TiDict response = new TiDict();
 		JSONArray places = r.getJSONArray("places");
 		if (places.length() > 0) {
 			response = placeToAddress(places.getJSONObject(0));
@@ -289,16 +289,25 @@ public class GeolocationModule
 									} else {
 										event = buildForwardResponse(r);
 									}
+								} else {
+									event = new TiDict();
+									TiDict err = new TiDict();
+									String errorCode = r.getString("errorcode");
+									err.put("message", "Unable to resolve message: Code (" + errorCode + ")");
+									err.put("code", errorCode);
+									event.put("error", err);
 								}
 							} catch (JSONException e) {
 								Log.e(LCAT,
-										"Error converting reverse geo response to JSONObject: "
+										"Error converting geo response to JSONObject: "
 												+ e.getMessage(), e);
 							}
 						}
 
-						event.put("source", this);
-						callback.callWithProperties(event);
+						if (event != null) {
+							event.put("source", this);
+							callback.callWithProperties(event);
+						}
 					} catch (Throwable t) {
 						Log.e(LCAT, "Error retrieving geocode information: "
 								+ t.getMessage(), t);
