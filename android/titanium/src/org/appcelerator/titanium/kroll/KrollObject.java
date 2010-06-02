@@ -502,13 +502,15 @@ public class KrollObject extends ScriptableObject
 			Log.d(LCAT, "Method: " + method.getName() + " Types: " + types.length + " Args: " + (args != null ? args.length : 0) + " varargs: " + varargs);
 		}
 
-		if (args != null && types.length != 0 && args.length >= types.length-1) {
+		if (args != null && types.length > 0) {
 			// we want to pass along context for methods that need it
 			if (types[0].equals(TiContext.class)) {
 				start = 1;
 				needContext = true;
 			}
-			
+		}
+		
+		if (args != null && types.length != 0 && args.length >= types.length-start) {
 			if (types[types.length - 1].isArray()) {
 				Object o = args[types.length-(start+1)];
 				if (!(o instanceof Scriptable) || (o instanceof Scriptable && !isArrayLike((Scriptable) o))) {
