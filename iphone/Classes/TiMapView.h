@@ -19,8 +19,6 @@
 	BOOL loaded;
 	MKCoordinateRegion region;
 	
-	NSMutableArray * pendingAnnotationAdditions;
-	NSMutableArray * pendingAnnotationRemovals;
 	TiMapAnnotationProxy * pendingAnnotationSelection;
 }
 

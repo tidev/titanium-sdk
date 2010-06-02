@@ -25,8 +25,8 @@ android, iphone, ipad
 - methods
 
 zoom: zoom in or out of the map
-selectAnnotation: cause the annotation to be selected (shown).  On iPhone/iPad, can only be called when the annotation is visible on the map
-deselectAnnotation: cause the annotation to be deselected (hidden).  On iPhone/iPad, can only be called when the annotation is visible on the map
+selectAnnotation: cause the annotation to be selected (shown).
+deselectAnnotation: cause the annotation to be deselected (hidden).
 addAnnotation: add a new annotation to the map
 addAnnotations: add one or more new annotation to the map
 removeAnnotation: remove an existing annotation from the map
