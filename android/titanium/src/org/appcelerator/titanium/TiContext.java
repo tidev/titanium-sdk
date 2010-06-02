@@ -207,7 +207,14 @@ public class TiContext implements TiEvaluator, ITiMenuDispatcherListener, ErrorR
 					String[] left = null;
 					if (baseUrl.contains("://")) {
 						String[] tmp = baseUrl.split("://");
-						left = tmp[1].split("/");
+						if (tmp.length > 1)
+						{
+							left = tmp[1].split("/");
+						}
+						else
+						{
+							left = new String[] {};
+						}
 					} else {
 						left = baseUrl.split("/");
 					}
