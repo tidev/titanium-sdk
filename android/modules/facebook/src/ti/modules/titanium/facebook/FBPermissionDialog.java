@@ -6,56 +6,49 @@
  */
 package ti.modules.titanium.facebook;
 
-
 import java.net.MalformedURLException;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.appcelerator.titanium.util.Log;
-
 import android.app.Activity;
 
-/**
- * Dialog for handling permissions
- *
- */
-public class FBPermissionDialog extends FBDialog
-{
-    private static final String LOG = FBPermissionDialog.class.getSimpleName();
-    private static final String FB_PERMISSION_URL = "http://www.facebook.com/connect/prompt_permission.php";
+public class FBPermissionDialog extends FBDialog {
 
+    private static final String PERMISSION_URL = "http://www.facebook.com/connect/prompt_permissions.php";
 
-    private final String permission;
+    private String[] mPermissions;
 
+    public FBPermissionDialog(Activity context, FBSession session, String[] permissions) {
+        super(context, session);
+        mPermissions = permissions;
+    }
 
-    /**
-     * @param context
-     * @param session
-     */
-    public FBPermissionDialog(Activity context, FBSession session, FacebookModule tb, String permission)
-    {
-        super(context, session, tb);
-        this.permission = permission;
+    private void loadExtendedPermissionPage() {
+        Map<String, String> params = new HashMap<String, String>();
+        params.put("fbconnect", "1");
+        params.put("connect_display", "touch");
+        params.put("api_key", mSession.getApiKey());
+        params.put("next", "fbconnect://success");
+        params.put("cancel", "fbconnect://cancel");
+
+        // Building the comma separated list of permissions
+        String permissionList = "";
+        int permissionLength = mPermissions.length;
+        for (int i = 0; i < permissionLength; i++) {
+            permissionList += mPermissions[i] + ((i == (permissionLength - 1)) ? "" : ",");
+        }
+
+        params.put("ext_perm", permissionList);
+
+        try {
+            loadURL(PERMISSION_URL, "GET", params, null);
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
-    protected void load()
-    {
-        Map<String, String> params = new HashMap<String, String>();
-        params.put("display", "touch");
-        params.put("api_key", session.getApiKey());
-        params.put("session_key", session.getSessionKey());
-        params.put("next", "fbconnect:success");
-        params.put("cancel", "fbconnect:cancel");
-        params.put("ext_perm", permission);
-
-        try
-        {
-            loadURL(FB_PERMISSION_URL, "GET", params, null);
-        }
-        catch (MalformedURLException e)
-        {
-            Log.e(LOG,"Error loading URL: "+FB_PERMISSION_URL,e);
-        }
+    protected void load() {
+        loadExtendedPermissionPage();
     }
 }

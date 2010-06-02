@@ -9,79 +9,91 @@ package ti.modules.titanium.facebook;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.appcelerator.titanium.util.TiConfig;
+import ti.modules.titanium.facebook.FBDialog.FBDialogDelegate;
 
 import android.app.Activity;
-import android.content.Intent;
 import android.os.Bundle;
 import android.view.WindowManager;
 
-public class FBActivity extends Activity
-{
-	private static final String LOG = FBActivity.class.getSimpleName();
-	private static final boolean DBG = TiConfig.LOGD;
+public class FBActivity extends Activity {
+	private static final Map<String, FBActivityDelegate> activities = new HashMap<String, FBActivityDelegate>();
 
-    private static final Map<String,FBActivityDelegate> activities = new HashMap<String,FBActivityDelegate>();
+	private FBDialog dialog;
 
-	 private FBDialog dialog;
+	public static void registerActivity(String identifier,
+			FBActivityDelegate activity) {
+		activities.put(identifier, activity);
+	}
 
-    public static void registerActivity(String identifier, FBActivityDelegate activity)
-    {
-        activities.put(identifier, activity);
-    }
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		getWindow().setSoftInputMode(
+				WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState)
-    {
-        super.onCreate(savedInstanceState);
-		getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
+		String action = getIntent().getAction();
+		FBActivityDelegate delegate = activities.get(action);
+		dialog = delegate.onCreate(action, this, savedInstanceState);
+		dialog.setDelegate(new ActivityDialogDelegate());
+	}
 
-        String action = getIntent().getAction();
-        FBActivityDelegate delegate = activities.get(action);
-        dialog = delegate.onCreate(action,this,savedInstanceState);
+    private class ActivityDialogDelegate extends FBDialogDelegate {
+
+        @Override
+        public void dialogDidSucceed(FBDialog dialog) {
+            super.dialogDidSucceed(dialog);
+            setResult(Activity.RESULT_OK);
+        }
+
+        @Override
+        public void dialogDidCancel(FBDialog dialog) {
+            super.dialogDidCancel(dialog);
+            setResult(Activity.RESULT_CANCELED);
+        }
+
+        @Override
+        public void dialogDidFailWithError(FBDialog dialog, Throwable error) {
+            super.dialogDidFailWithError(dialog, error);
+            setResult(-1);
+        }
+
     }
 
 	@Override
-	protected void onStart()
-	{
+	protected void onStart() {
 		super.onStart();
 		dialog.onStart();
 	}
 
- 	 @Override
-	 protected void onRestart()
- 	 {
-			super.onRestart();
-			dialog.onRestart();
- 	 }
-
- 	 @Override
-	 protected void onResume()
- 	 {
-		super.onResume();
-		dialog.onResume();
- 	 }
+	@Override
+	protected void onRestart() {
+		super.onRestart();
+		dialog.onRestart();
+	}
 
 	@Override
-	protected void onPause()
- 	 {
+	protected void onResume() {
+		super.onResume();
+		dialog.onResume();
+	}
+
+	@Override
+	protected void onPause() {
 		super.onPause();
 		dialog.onPause();
- 	 }
+	}
 
-	 @Override
-    protected void onStop()
- 	 {
+	@Override
+	protected void onStop() {
 		super.onStop();
 		dialog.onStop();
- 	 }
+	}
 
-	 @Override
-    protected void onDestroy()
- 	 {
+	@Override
+	protected void onDestroy() {
 		super.onDestroy();
 		dialog.onDestroy();
 		dialog = null;
- 	 }
+	}
 
 }
