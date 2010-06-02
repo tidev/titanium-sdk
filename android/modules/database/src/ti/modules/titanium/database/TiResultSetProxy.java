@@ -56,10 +56,9 @@ public class TiResultSetProxy extends TiProxy
 		String result = null;
 		try {
 			result = rs.getString(index);
-		} catch (IllegalStateException e) {
-			String msg = "Invalid access field " + index + ". msg=" + e.getMessage();
+		} catch (Exception e) {
+			String msg = "No field at index " + index + ". msg=" + e.getMessage();
 			Log.e(LCAT, msg, e);
-			//TODO throw Exception
 		}
 
 		return result;
@@ -70,32 +69,40 @@ public class TiResultSetProxy extends TiProxy
 	}
 
 	public String getFieldByName(String fieldName) {
-		int index = -1;
-		String result = null;
+		int index = 0;
+		String result = "0";
 		try {
 			Integer ndx = columnNames.get(fieldName.toLowerCase());
-			if (ndx == null) {
-				throw new IllegalArgumentException("column not found");
+			if (ndx != null) {
+				index = ndx;
+				result = rs.getString(index);
 			}
-			index = ndx;
-			result = rs.getString(index);
-		} catch (IllegalArgumentException e) {
+		} catch (Exception e) {
 			String msg = "Field name " + fieldName + " not found. msg=" + e.getMessage();
 			Log.e(LCAT, msg);
-			//TODO throw exception
 		}
 		return result;
 	}
 
 	public int getFieldCount() {
-		return rs.getColumnCount();
+		try {
+			return rs.getColumnCount();
+		} catch (Exception e) {
+			Log.e(LCAT, "No fields");
+			return 0;
+		}
 	}
 
 	public String fieldName(int index) {
 		return getFieldName(index);
 	}
 	public String getFieldName(int index) {
-		return rs.getColumnName(index);
+		try {
+			return rs.getColumnName(index);
+		} catch (Exception e) {
+			Log.e(LCAT, "No column at index: " + index);
+			return null;
+		}
 	}
 
 	public int getRowCount() {
