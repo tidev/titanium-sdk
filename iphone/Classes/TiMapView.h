@@ -16,10 +16,12 @@
 	MKMapView *map;
 	BOOL regionFits;
 	BOOL animate;
+	BOOL loaded;
 	MKCoordinateRegion region;
 	
 	NSMutableArray * pendingAnnotationAdditions;
 	NSMutableArray * pendingAnnotationRemovals;
+	TiMapAnnotationProxy * pendingAnnotationSelection;
 }
 
 #pragma mark Public APIs
@@ -27,6 +29,7 @@
 -(void)addAnnotations:(id)args;
 -(void)removeAnnotation:(id)args;
 -(void)removeAnnotations:(id)args;
+-(void)removeAllAnnotations:(id)args;
 -(void)selectAnnotation:(id)args;
 -(void)deselectAnnotation:(id)args;
 -(void)zoom:(id)args;

@@ -25,6 +25,7 @@
 	}
 	RELEASE_TO_NIL(pendingAnnotationRemovals);
 	RELEASE_TO_NIL(pendingAnnotationAdditions);
+	RELEASE_TO_NIL(pendingAnnotationSelection);
 	[super dealloc];
 }
 
@@ -168,7 +169,7 @@
 -(void)addAnnotations:(id)args
 {
 	ENSURE_UI_THREAD(addAnnotations,args);
-	ENSURE_SINGLE_ARG(args,NSObject);
+	ENSURE_TYPE(args,NSArray);
 
 	[self setNeedsUpdateAnnotations];
 	
@@ -235,7 +236,6 @@
 -(void)removeAnnotations:(id)args
 {
 	ENSURE_UI_THREAD(removeAnnotations,args);
-	ENSURE_SINGLE_ARG(args,NSObject);
 	ENSURE_TYPE(args,NSArray); // assumes an array of TiMapAnnotationProxy classes
 	[[self map] removeAnnotations:args];
 }
@@ -290,14 +290,25 @@
 		{
 			if ([title isEqualToString:an.title])
 			{
-				[[self map] selectAnnotation:an animated:animate];
+				// TODO: Slide the view over to the selected annotation, and/or zoom so it's with all other selected.
+				if (loaded) {
+					[[self map] selectAnnotation:an animated:animate];
+				}
+				else {
+					pendingAnnotationSelection = [an retain];
+				}
 				break;
 			}
 		}
 	}
 	else if ([args isKindOfClass:[TiMapAnnotationProxy class]])
 	{
-		[[self map] selectAnnotation:args animated:animate];
+		if (loaded) {
+			[[self map] selectAnnotation:args animated:animate];
+		}
+		else {
+			pendingAnnotationSelection = [args retain];
+		}
 	}
 }
 
@@ -313,14 +324,24 @@
 		{
 			if ([title isEqualToString:an.title])
 			{
-				[[self map] deselectAnnotation:an animated:animate];
+				if (loaded) {
+					[[self map] deselectAnnotation:an animated:animate];
+				}
+				else {
+					RELEASE_TO_NIL(pendingAnnotationSelection);
+				}
 				break;
 			}
 		}
 	}
 	else if ([args isKindOfClass:[TiMapAnnotationProxy class]])
 	{
-		[[self map] deselectAnnotation:args animated:animate];
+		if (loaded) {
+			[[self map] deselectAnnotation:args animated:animate];
+		}
+		else {
+			RELEASE_TO_NIL(pendingAnnotationSelection);
+		}
 	}
 }
 
@@ -329,7 +350,12 @@
 	ENSURE_UI_THREAD(zoom,args);
 	ENSURE_SINGLE_ARG(args,NSObject);
 	double v = [TiUtils doubleValue:args];
+	// TODO: Find a good delta tolerance value to deal with floating point goofs
+	if (v == 0.0) {
+		return;
+	}
 	MKCoordinateRegion _region = [[self map] region];
+	// TODO: Adjust zoom factor based on v
 	if (v > 0)
 	{
 		_region.span.latitudeDelta = _region.span.latitudeDelta / 2.0002;
@@ -482,6 +508,7 @@
 
 - (void)mapViewWillStartLoadingMap:(MKMapView *)mapView
 {
+	loaded = NO;
 	if ([self.proxy _hasListeners:@"loading"])
 	{
 		[self.proxy fireEvent:@"loading" withObject:nil];
@@ -490,6 +517,11 @@
 
 - (void)mapViewDidFinishLoadingMap:(MKMapView *)mapView
 {
+	loaded = YES;
+	if (pendingAnnotationSelection != nil) {
+		[[self map] selectAnnotation:pendingAnnotationSelection animated:animate];
+		RELEASE_TO_NIL(pendingAnnotationSelection);
+	}
 	if ([self.proxy _hasListeners:@"complete"])
 	{
 		[self.proxy fireEvent:@"complete" withObject:nil];
