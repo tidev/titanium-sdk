@@ -182,7 +182,7 @@
 		RELEASE_TO_NIL(barImageView);
 		return;
 	}
-
+	
 	if (barImageView == nil)
 	{
 		barImageView = [[UIImageView alloc]initWithImage:newImage];
@@ -631,9 +631,7 @@ else{\
 
 -(void)_tabBeforeBlur
 {
-	if (barImageView != nil) {
-		[barImageView removeFromSuperview];
-	}
+	[barImageView removeFromSuperview];
 	[super _tabBeforeBlur];
 }
 
@@ -655,6 +653,7 @@ else{\
 	if (focused)
 	{
 		[self fireFocus:NO];
+		[barImageView removeFromSuperview];
 	}
 	[super _tabBlur];
 }
