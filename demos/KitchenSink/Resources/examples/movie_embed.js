@@ -6,7 +6,7 @@ var activeMovie = Titanium.Media.createVideoPlayer({
 	movieControlStyle: Titanium.Media.VIDEO_CONTROL_EMBEDDED,
 	scalingMode:Titanium.Media.VIDEO_SCALING_MODE_FILL,
 	width:100,
-	height:100
+	height:100,
 });
 
 win.add(activeMovie);
@@ -45,5 +45,13 @@ activeMovie.addEventListener('complete',function()
 	Titanium.UI.createAlertDialog({title:'Movie', message:'Completed!'}).show();
 	win.close();
 });
+
+var thumbnailImage = activeMovie.thumbnailImageAtTime(4.0, Titanium.Media.VIDEO_TIME_OPTION_EXACT);
+win.add(Titanium.UI.createImageView({
+	image:thumbnailImage,
+	bottom:10,
+	width:100,
+	height:100
+}));
 
 activeMovie.play();
