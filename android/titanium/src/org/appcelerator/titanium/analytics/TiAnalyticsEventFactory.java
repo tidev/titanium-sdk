@@ -114,7 +114,7 @@ public class TiAnalyticsEventFactory
 			json.put("deploytype", deployType);
 			json.put("os", TiPlatformHelper.getModel());
 			json.put("osver", TiPlatformHelper.getVersion());
-			json.put("version", application.getSystemProperties().getString("ti.version", "0.0.0"));
+			json.put("version", application.getTiBuildVersion());
 			json.put("un", TiPlatformHelper.getUsername());
 			json.put("app_version", application.getAppInfo().getVersion());
 			json.put("nettype", TiPlatformHelper.getNetworkTypeName());
