@@ -20,7 +20,7 @@ var picker = Ti.UI.createPicker({
 	type:Ti.UI.PICKER_TYPE_DATE,
 	minDate:minDate,
 	maxDate:maxDate,
-	value:value
+	value:value,
 });
 
 // turn on the selection indicator (off by default)
@@ -42,3 +42,22 @@ picker.addEventListener('change',function(e)
 {
 	label.text = e.value;
 });
+
+var locale = false
+var localebutton = Ti.UI.createButton({
+	title:'Change locale',
+	bottom:20,
+	width:200,
+	height:40
+});
+localebutton.addEventListener('click', function() {
+	if (!locale) {
+		picker.setLocale('ru');
+		locale = true;
+	}
+	else {
+		locale = false;
+		picker.setLocale(Titanium.Platform.locale);
+	}
+});
+win.add(localebutton);
