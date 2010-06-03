@@ -327,6 +327,10 @@ def tickerize(line):
 	if idx == -1:
 		return line
 	idx2 = line.find('`',idx+1)
+	# Prevent infinite loops of doooooooom.
+	if idx2 < idx:
+		print("Malformed doc file! Missing a second backtick in: %s" % line)
+		sys.exit(1)
 	token = line[idx+1:idx2]
 	if token.startswith("Titanium."):
 		content = "<a href=\"%s.html\">%s</a>" % (find_filename(token),token)

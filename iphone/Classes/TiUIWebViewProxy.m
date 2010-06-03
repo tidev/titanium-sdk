@@ -13,6 +13,13 @@
 
 @implementation TiUIWebViewProxy
 
+-(void)_initWithProperties:(NSDictionary *)properties
+{
+	[self replaceValue:[NSArray arrayWithObject:NUMINT(UIDataDetectorTypePhoneNumber)] forKey:@"autoDetect" notification:NO];
+	[super _initWithProperties:properties];
+}
+
+
 - (NSString*)evalJS:(id)code
 {
 	ENSURE_SINGLE_ARG(code,NSString);
@@ -46,21 +53,25 @@ USE_VIEW_FOR_AUTO_WIDTH
 
 -(void)goBack:(id)args
 {
+//Todo: We should probably replace this with using USE_VIEW_FOR_UI_METHOD, but it ain't broke currently.
 	[[self view] performSelectorOnMainThread:@selector(goBack:) withObject:args waitUntilDone:NO];
 }
 
 -(void)goForward:(id)args
 {
+//Todo: We should probably replace this with using USE_VIEW_FOR_UI_METHOD, but it ain't broke currently.
 	[[self view] performSelectorOnMainThread:@selector(goForward:) withObject:args waitUntilDone:NO];
 }
 
 -(void)stopLoading:(id)args
 {
+//Todo: We should probably replace this with using USE_VIEW_FOR_UI_METHOD, but it ain't broke currently.
 	[[self view] performSelectorOnMainThread:@selector(stopLoading:) withObject:args waitUntilDone:NO];
 }
 
 -(void)reload:(id)args
 {
+//Todo: We should probably replace this with using USE_VIEW_FOR_UI_METHOD, but it ain't broke currently.
 	[[self view] performSelectorOnMainThread:@selector(reload:) withObject:args waitUntilDone:NO];
 }
 

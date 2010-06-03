@@ -121,6 +121,13 @@
 @property(nonatomic,readonly) NSNumber *BLEND_MODE_PLUS_DARKER;
 @property(nonatomic,readonly) NSNumber *BLEND_MODE_PLUS_LIGHTER;
 
+@property(nonatomic,readonly) NSNumber *AUTODETECT_NONE;
+@property(nonatomic,readonly) NSNumber *AUTODETECT_ALL;
+@property(nonatomic,readonly) NSNumber *AUTODETECT_PHONE;
+@property(nonatomic,readonly) NSNumber *AUTODETECT_LINK;
+
+
+
 #ifdef USE_TI_UI2DMATRIX
 -(id)create2DMatrix:(id)args;
 #endif
