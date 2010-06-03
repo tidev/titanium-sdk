@@ -583,7 +583,7 @@ return temp ? temp : default;
 		[[self player] setFullscreen:fs];
 	}
 	else {
-		RETURN_FROM_LOAD_PROPERTIES(@"fullscreen",NUMBOOL(NO));
+		[loadProperties setValue:value forKey:@"fullscreen"];
 	}
 }
 #endif
