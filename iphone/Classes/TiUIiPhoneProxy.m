@@ -169,15 +169,20 @@
 	
 	BOOL animated = [TiUtils boolValue:@"animated" properties:args def:YES];
 	
+	BOOL repositionViews = NO;
 	if (RESPONDS_TO_3_2_STATUSBAR_SELECTOR) {
 		int style = (animated==NO) ? UIStatusBarAnimationNone : [TiUtils intValue:@"animationStyle" properties:args def:UIStatusBarAnimationSlide];
 		[[UIApplication sharedApplication] setStatusBarHidden:YES withAnimation:style];
 	}
 	else {
 		[[UIApplication sharedApplication] setStatusBarHidden:YES];
+		repositionViews = YES;
 	}
 	
 	[[[TiApp app] controller] resizeView];
+	if (repositionViews) {
+		[[[TiApp app] controller] repositionSubviews];
+	}
 }
 
 -(void)showStatusBar:(id)args
@@ -187,15 +192,20 @@
 	
 	BOOL animated = [TiUtils boolValue:@"animated" properties:args def:YES];
 
+	BOOL repositionViews = NO;
 	if (RESPONDS_TO_3_2_STATUSBAR_SELECTOR) {
 		int style = (animated==NO) ? UIStatusBarAnimationNone : [TiUtils intValue:@"animationStyle" properties:args def:UIStatusBarAnimationSlide];
 		[[UIApplication sharedApplication] setStatusBarHidden:NO withAnimation:style];
 	}
 	else {
 		[[UIApplication sharedApplication] setStatusBarHidden:NO];		
+		repositionViews = YES;
 	}
 
 	[[[TiApp app] controller] resizeView];
+	if (repositionViews) {
+		[[[TiApp app] controller] repositionSubviews];
+	}
 }
 
 -(void)setStatusBarHidden:(id)hidden
@@ -205,14 +215,19 @@
 	
 	BOOL value = [TiUtils boolValue:hidden];
 	
+	BOOL repositionViews = NO;
 	if (RESPONDS_TO_3_2_STATUSBAR_SELECTOR) {
 		[[UIApplication sharedApplication] setStatusBarHidden:value withAnimation:UIStatusBarAnimationNone];
 	}
 	else {
 		[[UIApplication sharedApplication] setStatusBarHidden:value];
+		repositionViews = YES;
 	}
 
 	[[[TiApp app] controller] resizeView];
+	if (repositionViews) {
+		[[[TiApp app] controller] repositionSubviews];
+	}
 }
 
 BEGIN_UI_THREAD_PROTECTED_VALUE(statusBarHidden,NSNumber)

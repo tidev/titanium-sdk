@@ -33,6 +33,7 @@
 -(void)windowClosed:(UIViewController *)closedViewController;
 
 -(CGRect)resizeView;
+-(void)repositionSubviews;
 
 -(void) manuallyRotateToOrientation:(UIInterfaceOrientation)orientation;
 -(void)manuallyRotateToOrientation:(UIInterfaceOrientation)newOrientation duration:(NSTimeInterval)duration;
