@@ -45,61 +45,6 @@ return temp ? temp : default;
 
 -(void)_initWithProperties:(NSDictionary *)properties
 {	
-	NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
-	
-	[nc addObserver:self selector:@selector(handlePlayerNotification:) 
-			   name:MPMoviePlayerPlaybackDidFinishNotification
-			 object:nil];
-	
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
-	[nc addObserver:self selector:@selector(handleThumbnailImageRequestFinishNotification:) 
-			   name:MPMoviePlayerThumbnailImageRequestDidFinishNotification
-			 object:nil];
-	
-	[nc addObserver:self selector:@selector(handleFullscreenEnterNotification:) 
-			   name:MPMoviePlayerWillEnterFullscreenNotification
-			 object:nil];
-	
-	[nc addObserver:self selector:@selector(handleFullscreenExitNotification:)
-			   name:MPMoviePlayerWillExitFullscreenNotification
-			 object:nil];
-	
-	[nc addObserver:self selector:@selector(handleSourceTypeNotification:) 
-			   name:MPMovieSourceTypeAvailableNotification
-			 object:nil];
-	
-	[nc addObserver:self selector:@selector(handleDurationAvailableNotification:) 
-			   name:MPMovieDurationAvailableNotification 
-			 object:nil];
-	
-	[nc addObserver:self selector:@selector(handleMediaTypesNotification:) 
-			   name:MPMovieMediaTypesAvailableNotification 
-			 object:nil];
-	
-	[nc addObserver:self selector:@selector(handleNaturalSizeAvailableNotification:)
-			   name:MPMovieNaturalSizeAvailableNotification 
-			 object:nil];
-	
-	[nc addObserver:self selector:@selector(handleLoadStateChangeNotification:)
-			   name:MPMoviePlayerLoadStateDidChangeNotification 
-			 object:nil];
-	
-	[nc addObserver:self selector:@selector(handleNowPlayingNotification:)
-			   name:MPMoviePlayerNowPlayingMovieDidChangeNotification 
-			 object:nil];
-	
-	[nc addObserver:self selector:@selector(handlePlaybackStateChangeNotification:)
-			   name:MPMoviePlayerPlaybackStateDidChangeNotification 
-			 object:nil];
-	
-	//FIXME add to replace preload for 3.2
-	//MPMediaPlaybackIsPreparedToPlayDidChangeNotification
-#else	
-		[nc addObserver:self selector:@selector(handleKeyWindowChanged:) 
-				   name:UIWindowDidBecomeKeyNotification
-				 object:nil];
-#endif
-	
 	loadProperties = [[NSMutableDictionary alloc] init];
 	[super _initWithProperties:properties];
 }
@@ -110,22 +55,7 @@ return temp ? temp : default;
 	[movie stop];
 	
 	NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
-	[nc removeObserver:self name:MPMoviePlayerPlaybackDidFinishNotification object:nil];
-
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
-	[nc removeObserver:self name:MPMoviePlayerThumbnailImageRequestDidFinishNotification object:nil];
-	[nc removeObserver:self name:MPMoviePlayerPlaybackStateDidChangeNotification object:nil];
-	[nc removeObserver:self name:MPMoviePlayerNowPlayingMovieDidChangeNotification object:nil];
-	[nc removeObserver:self name:MPMoviePlayerLoadStateDidChangeNotification object:nil];
-	[nc removeObserver:self name:MPMovieNaturalSizeAvailableNotification object:nil];
-	[nc removeObserver:self name:MPMovieMediaTypesAvailableNotification object:nil];
-	[nc removeObserver:self name:MPMovieDurationAvailableNotification object:nil];
-	[nc removeObserver:self name:MPMovieSourceTypeAvailableNotification object:nil];
-	[nc removeObserver:self name:MPMoviePlayerWillExitFullscreenNotification object:nil];
-	[nc removeObserver:self name:MPMoviePlayerWillEnterFullscreenNotification object:nil];
-#else
-	[nc removeObserver:self name:UIWindowDidBecomeKeyNotification object:nil];
-#endif
+	[nc removeObserver:self];
 
 	RELEASE_TO_NIL(thumbnailCallback);
 	RELEASE_TO_NIL(tempFile);
@@ -133,6 +63,64 @@ return temp ? temp : default;
 	RELEASE_TO_NIL(url);
 	RELEASE_TO_NIL(loadProperties);
 	[super _destroy];
+}
+
+-(void)configureNotifications
+{
+	NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
+	
+	[nc addObserver:self selector:@selector(handlePlayerNotification:) 
+			   name:MPMoviePlayerPlaybackDidFinishNotification
+			 object:movie];
+	
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
+	[nc addObserver:self selector:@selector(handleThumbnailImageRequestFinishNotification:) 
+			   name:MPMoviePlayerThumbnailImageRequestDidFinishNotification
+			 object:movie];
+	
+	[nc addObserver:self selector:@selector(handleFullscreenEnterNotification:) 
+			   name:MPMoviePlayerWillEnterFullscreenNotification
+			 object:movie];
+	
+	[nc addObserver:self selector:@selector(handleFullscreenExitNotification:)
+			   name:MPMoviePlayerWillExitFullscreenNotification
+			 object:movie];
+	
+	[nc addObserver:self selector:@selector(handleSourceTypeNotification:) 
+			   name:MPMovieSourceTypeAvailableNotification
+			 object:movie];
+	
+	[nc addObserver:self selector:@selector(handleDurationAvailableNotification:) 
+			   name:MPMovieDurationAvailableNotification 
+			 object:movie];
+	
+	[nc addObserver:self selector:@selector(handleMediaTypesNotification:) 
+			   name:MPMovieMediaTypesAvailableNotification 
+			 object:movie];
+	
+	[nc addObserver:self selector:@selector(handleNaturalSizeAvailableNotification:)
+			   name:MPMovieNaturalSizeAvailableNotification 
+			 object:movie];
+	
+	[nc addObserver:self selector:@selector(handleLoadStateChangeNotification:)
+			   name:MPMoviePlayerLoadStateDidChangeNotification 
+			 object:movie];
+	
+	[nc addObserver:self selector:@selector(handleNowPlayingNotification:)
+			   name:MPMoviePlayerNowPlayingMovieDidChangeNotification 
+			 object:movie];
+	
+	[nc addObserver:self selector:@selector(handlePlaybackStateChangeNotification:)
+			   name:MPMoviePlayerPlaybackStateDidChangeNotification 
+			 object:movie];
+	
+	//FIXME: add to replace preload for 3.2
+	//MPMediaPlaybackIsPreparedToPlayDidChangeNotification
+#else	
+	[nc addObserver:self selector:@selector(handleKeyWindowChanged:) 
+			   name:UIWindowDidBecomeKeyNotification
+			 object:movie];
+#endif
 }
 
 -(MPMoviePlayerController*)player
@@ -145,6 +133,7 @@ return temp ? temp : default;
 			return nil;
 		}
 		movie = [[MPMoviePlayerController alloc] initWithContentURL:url];
+		[self configureNotifications];
 		[self setValuesForKeysWithDictionary:loadProperties];
 	}
 	return movie;
@@ -646,11 +635,11 @@ return temp ? temp : default;
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
 -(void)viewDidAttach
 {
-	if (views!=nil && [TiUtils isIPad])
+	if (views!=nil)
 	{
 		for (TiViewProxy *p in views)
 		{
-			[[self view] addSubview:[p view]];
+			[super add:p];
 		}
 	}
 }
@@ -664,18 +653,12 @@ return temp ? temp : default;
 		views = TiCreateNonRetainingArray();
 	}
 	[views addObject:viewProxy];
-
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2	
-	if ([self viewAttached])
-	{
-		[[self view] addSubview:[viewProxy view]];
-	}
-#endif
 }
 
 -(void)remove:(id)viewProxy
 {
 	ENSURE_SINGLE_ARG(viewProxy,TiViewProxy);
+#if __IPHONE_OS_VERSION_MAX_ALLOWED < __IPHONE_3_2
 	if (views!=nil)
 	{
 		[views removeObject:viewProxy];
@@ -687,6 +670,12 @@ return temp ? temp : default;
 			RELEASE_TO_NIL(views);
 		}
 	}
+#else
+	[views removeObject:viewProxy];
+	if ([self viewAttached]) {
+		[super remove:viewProxy];
+	}
+#endif
 }
 
 #pragma mark Delegate Callbacks
@@ -748,6 +737,7 @@ return temp ? temp : default;
 		{
 			[self fireEvent:@"load" withObject:nil];
 		}
+#if __IPHONE_OS_VERSION_MAX_ALLOWED < __IPHONE_3_2
 		if (views!=nil && [views count]>0)
 		{
 			UIWindow *window = [note object];
@@ -765,6 +755,7 @@ return temp ? temp : default;
 				[view insertIntoView:subview bounds:bounds];
 			}
 		}
+#endif
 	}
 }
 
@@ -802,8 +793,8 @@ return temp ? temp : default;
 	{
 		NSDictionary *userinfo = [note userInfo];
 		NSMutableDictionary *event = [NSMutableDictionary dictionary];
-		// using string right now since seems like with b5 symbol isn't there
-		[event setObject:[userinfo valueForKey:@"MPMoviePlayerFullscreenAnimationCurveUserInfoKey"] forKey:@"curve"];
+		// not present in 4b4
+		//[event setObject:[userinfo valueForKey:MPMoviePlayerFullscreenAnimationCurveUserInfoKey] forKey:@"curve"];
 		[event setObject:[userinfo valueForKey:MPMoviePlayerFullscreenAnimationDurationUserInfoKey] forKey:@"duration"];
 		[event setObject:NUMBOOL(YES) forKey:@"entering"];
 		[self fireEvent:@"fullscreen" withObject:event];
@@ -816,8 +807,8 @@ return temp ? temp : default;
 	{
 		NSDictionary *userinfo = [note userInfo];
 		NSMutableDictionary *event = [NSMutableDictionary dictionary];
-		// using string right now since seems like with b5 symbol isn't there
-		[event setObject:[userinfo valueForKey:@"MPMoviePlayerFullscreenAnimationCurveUserInfoKey"] forKey:@"curve"];
+		// not present in 4b4
+		//[event setObject:[userinfo valueForKey:MPMoviePlayerFullscreenAnimationCurveUserInfoKey] forKey:@"curve"];
 		[event setObject:[userinfo valueForKey:MPMoviePlayerFullscreenAnimationDurationUserInfoKey] forKey:@"duration"];
 		[event setObject:NUMBOOL(NO) forKey:@"entering"];
 		[self fireEvent:@"fullscreen" withObject:event];
