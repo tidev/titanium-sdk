@@ -101,6 +101,13 @@
 	[self replaceValue:tabs forKey:@"tabs" notification:YES];
 }
 
+// Used to set the tab array without replacing values in the controller.
+-(void)_resetTabArray:(NSArray*)newTabOrder
+{
+	RELEASE_TO_NIL(tabs);
+	tabs = [newTabOrder mutableCopy];
+}
+
 
 -(BOOL)handleFocusEvents
 {

@@ -16,7 +16,7 @@
 }
 
 -(UITabBar*)tabbar;
-
+-(void)_resetTabArray:(NSArray*)newTabOrder; // Used in tab reordering 
 @end
 
 #endif

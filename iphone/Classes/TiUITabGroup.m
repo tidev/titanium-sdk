@@ -12,6 +12,7 @@
 #import "TiColor.h"
 #import "TiUITabController.h"
 #import "TiWindowProxy.h"
+#import "TiUITabGroupProxy.h"
 
 @implementation TiUITabGroup
 
@@ -223,9 +224,23 @@ DEFINE_EXCEPTIONS
 }
 
 
-- (void)tabBarController:(UITabBarController *)tabBarController willEndCustomizingViewControllers:(NSArray *)viewControllers changed:(BOOL)changed
+- (void)tabBarController:(UITabBarController *)tabBarController didEndCustomizingViewControllers:(NSArray *)viewControllers changed:(BOOL)changed
 {
-	//TODO
+	if (changed) {
+		NSMutableArray* tabProxies = [NSMutableArray arrayWithCapacity:[viewControllers count]];
+		for (UINavigationController* controller_ in viewControllers) {
+			id delegate = [controller_ delegate];
+			if ([delegate isKindOfClass:[TiUITabProxy class]]) {
+				TiUITabProxy* tabProxy = (TiUITabProxy*)delegate;
+				[tabProxies addObject:tabProxy];
+			}
+		}
+		
+		// We do it this way to reset the 'tabs' array on the proxy without changing the active
+		// controller.  The SDK documentation actually conflicts itself on whether or not the 'more' tab
+		// can be manually reselected anyway.
+		[(TiUITabGroupProxy*)[self proxy] _resetTabArray:tabProxies];
+	}
 }
 
 
