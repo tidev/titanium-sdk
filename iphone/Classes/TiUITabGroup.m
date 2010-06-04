@@ -293,6 +293,17 @@ DEFINE_EXCEPTIONS
 	[self tabBarController:[self tabController] didSelectViewController:active];
 }
 
+-(void)setAllowUserCustomization_:(id)value
+{
+	allowConfiguration = [TiUtils boolValue:value def:YES];
+	if (allowConfiguration) {
+		[self tabController].customizableViewControllers = [self tabController].viewControllers;
+	}
+	else {
+		[self tabController].customizableViewControllers = nil;
+	}
+}
+
 -(void)setTabs_:(id)tabs
 {
 	ENSURE_TYPE_OR_NIL(tabs,NSArray);
@@ -327,8 +338,8 @@ DEFINE_EXCEPTIONS
 	}
 
 	[self.proxy	replaceValue:focused forKey:@"activeTab" notification:YES];
+	[self setAllowUserCustomization_:[NSNumber numberWithBool:allowConfiguration]];
 }
-
 
 -(void)open:(id)args
 {

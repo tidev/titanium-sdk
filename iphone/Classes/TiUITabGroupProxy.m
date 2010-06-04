@@ -28,6 +28,12 @@
 	[super dealloc];
 }
 
+-(void)_initWithProperties:(NSDictionary *)properties
+{
+	[self setValue:[NSNumber numberWithBool:YES] forKey:@"allowUserCustomization"];
+	[super _initWithProperties:properties];
+}
+
 -(void)_destroy
 {
 	RELEASE_TO_NIL(tabs);
