@@ -18,7 +18,6 @@
 
 #pragma mark Internal
 
-
 -(void)_configure
 {
 	[self replaceValue:NUMBOOL(NO) forKey:@"animating" notification:NO];

@@ -378,14 +378,6 @@ DEFINE_EXCEPTIONS
 
 -(void)loadUrl:(id)img
 {
-	NSLog(@"seturl %@",img);
-	
-	// wait until the view is completely sent properties before we do this
-	if ([self viewConfigured]==NO)
-	{
-		return;
-	}
-	
 	// cancel a pending request if we have one pending
 	if (urlRequest!=nil)
 	{

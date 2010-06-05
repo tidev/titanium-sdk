@@ -158,7 +158,6 @@ static TiValueRef SetTimeoutCallback (TiContextRef jsContext, TiObjectRef jsFunc
 }
 -(void)invoke:(KrollContext*)context
 {
-	// evaluate our code in the Global Context
 	TiStringRef js = TiStringCreateWithUTF8CString([code UTF8String]); 
 	TiObjectRef global = TiContextGetGlobalObject([context context]);
 	
@@ -455,6 +454,14 @@ static TiValueRef SetTimeoutCallback (TiContextRef jsContext, TiObjectRef jsFunc
 {
 	// don't worry about locking, not that important
 	gcrequest = YES;
+	
+	// signal the waiting thread to wake up - since this
+	// is called on a possible low memory condition, we 
+	// need to immediately force the thread to wake up
+	// and collect garbage asap
+	[condition lock];
+	[condition signal];
+	[condition unlock];
 }
 
 -(void)main
@@ -616,7 +623,9 @@ static TiValueRef SetTimeoutCallback (TiContextRef jsContext, TiObjectRef jsFunc
 		[lock unlock];
 		if (queue_count == 0)
 		{
-			[condition wait];		
+			// wait only 10 seconds and then loop, this will allow us to garbage
+			// collect every so often
+			[condition waitUntilDate:[NSDate dateWithTimeIntervalSinceNow:10]];		
 		}
 		[condition unlock]; 
 		

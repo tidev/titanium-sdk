@@ -14,7 +14,7 @@ void KrollFinalizer(TiObjectRef ref);
 void KrollInitializer(TiContextRef ctx, TiObjectRef object);
 TiValueRef KrollGetProperty(TiContextRef jsContext, TiObjectRef obj, TiStringRef prop, TiValueRef* exception);
 bool KrollSetProperty(TiContextRef jsContext, TiObjectRef obj, TiStringRef prop, TiValueRef value, TiValueRef* exception);
-
+bool KrollDeleteProperty(TiContextRef ctx, TiObjectRef object, TiStringRef propertyName, TiValueRef* exception);
 
 // this is simply a marker interface that we can use 
 // to determine if a object is undefined
@@ -43,6 +43,7 @@ bool KrollSetProperty(TiContextRef jsContext, TiObjectRef obj, TiStringRef prop,
 
 
 -(id)valueForKey:(NSString *)key;
+-(void)deleteKey:(NSString *)key;
 -(void)setValue:(id)value forKey:(NSString *)key;
 -(void)setStaticValue:(id)value forKey:(NSString*)key;
 -(KrollContext*)context;

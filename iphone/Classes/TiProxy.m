@@ -775,6 +775,14 @@ DEFINE_EXCEPTIONS
 	}
 }
 
+- (void) deleteKey:(NSString*)key
+{
+	if (dynprops!=nil)
+	{
+		[dynprops removeObjectForKey:key];
+	}
+}
+
 - (void) setValue:(id)value forUndefinedKey: (NSString *) key
 {
 	id current = nil;
