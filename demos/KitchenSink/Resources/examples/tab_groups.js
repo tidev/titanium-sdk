@@ -115,6 +115,29 @@ setActiveTabObjectButton.addEventListener('click', function(e)
 	tabGroup.setActiveTab(tabGroup.tabs[1]);
 });
 
+//
+// CUSTOMIZATION SWITCH
+//
+var customizationButton = Titanium.UI.createButton({
+	title:'Switch customization off',
+	top:260,
+	height:40,
+	width:200
+});
+customizationButton.addEventListener('click', function(e)
+{
+	var text = 'Switch customization ';
+	if (tabGroup.allowUserCustomization) {
+		tabGroup.allowUserCustomization = false;
+		text += 'on';
+	}
+	else {
+		tabGroup.allowUserCustomization = true;
+		text += 'off';
+	}
+	customizationButton.title = text;
+});
+
 
 //
 // CURRENT TAB GROUP
@@ -127,7 +150,7 @@ var openLabel = Titanium.UI.createLabel({
 		fontSize:15
 	},
 	textAlign:'center',
-	top:260,
+	top:310,
 	width:'auto',
 	height:'auto'
 });
@@ -138,6 +161,7 @@ if (Titanium.Platform.name == 'iPhone OS')
 	win.add(addTabButton);
 	win.add(animateTabButton);
 	win.add(closeTabGroupButton);
+	win.add(customizationButton);
 }
 
 win.add(setActiveTabButton);

@@ -37,6 +37,7 @@
 -(void)setTitle:(id)title;
 -(void)setIcon:(id)title;
 -(void)setBadge:(id)title;
+-(void)setActive:(id)value;
 
 - (void)handleWillBlur;
 - (void)handleDidBlur:(NSDictionary *)event;

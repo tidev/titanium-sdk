@@ -7,10 +7,8 @@
 package ti.modules.titanium;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Properties;
 import java.util.Stack;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -28,27 +26,7 @@ public class TitaniumModule
 {
 	private static final String LCAT = "TitaniumModule";
 	private static TiDict constants;
-	private static String buildVersion;
-	private static String buildTimestamp;
 	private Stack<String> basePath;
-
-	static {
-		buildVersion = "1.0";
-		buildTimestamp = "N/A";
-		InputStream versionStream = TitaniumModule.class.getClassLoader().getResourceAsStream("org/appcelerator/titanium/build.properties");
-		if (versionStream != null) {
-			Properties properties = new Properties();
-			try {
-				properties.load(versionStream);
-				if (properties.containsKey("build.version")) {
-					buildVersion = properties.getProperty("build.version");
-				}
-				if (properties.containsKey("build.timestamp")) {
-					buildTimestamp = properties.getProperty("build.timestamp");
-				}
-			} catch (IOException e) {}
-		}
-	}
 
 	public TitaniumModule(TiContext tiContext) {
 		super(tiContext);
@@ -64,8 +42,8 @@ public class TitaniumModule
 		if (constants == null) {
 			constants = new TiDict();
 
-			constants.put("version", buildVersion);
-			constants.put("buildTimestamp", buildTimestamp);
+			constants.put("version", getTiContext().getTiApp().getTiBuildVersion());
+			constants.put("buildTimestamp", getTiContext().getTiApp().getTiBuildTimestamp());
 		}
 
 		return constants;

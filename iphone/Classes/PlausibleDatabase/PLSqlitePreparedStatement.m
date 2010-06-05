@@ -449,6 +449,11 @@
 		value = [value data];
 	}
 	
+	/* Image handling */
+	if ([value isKindOfClass:[UIImage class]]) {
+		value = UIImageJPEGRepresentation(value, 1.0);
+	}
+	
     /* Data */
 	if ([value isKindOfClass: [NSData class]]) {
         return sqlite3_bind_blob(_sqlite_stmt, parameterIndex, [value bytes], [value length], SQLITE_TRANSIENT);

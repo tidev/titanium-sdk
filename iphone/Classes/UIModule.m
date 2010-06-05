@@ -131,7 +131,13 @@ MAKE_SYSTEM_PROP(BLEND_MODE_DESTINATION_ATOP,kCGBlendModeDestinationAtop);
 MAKE_SYSTEM_PROP(BLEND_MODE_XOR,kCGBlendModeXOR);
 MAKE_SYSTEM_PROP(BLEND_MODE_PLUS_DARKER,kCGBlendModePlusDarker);
 MAKE_SYSTEM_PROP(BLEND_MODE_PLUS_LIGHTER,kCGBlendModePlusLighter);
-				 
+
+MAKE_SYSTEM_PROP(AUTODETECT_NONE,UIDataDetectorTypeNone);
+MAKE_SYSTEM_PROP(AUTODETECT_ALL,UIDataDetectorTypeAll);
+MAKE_SYSTEM_PROP(AUTODETECT_PHONE,UIDataDetectorTypePhoneNumber);
+MAKE_SYSTEM_PROP(AUTODETECT_LINK,UIDataDetectorTypeLink);
+
+
 
 -(void)setBackgroundColor:(id)color
 {
@@ -246,12 +252,10 @@ MAKE_SYSTEM_PROP(FACE_DOWN,UIDeviceOrientationFaceDown);
 {
 	if (ipad==nil)
 	{
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
-		if ([TiUtils isIPad])
+		if ([TiUtils isiPhoneOS3_2OrGreater] && [TiUtils isIPad])
 		{
 			ipad = [[TiUIiPadProxy alloc] _initWithPageContext:[self pageContext]];
 		}
-#endif
 	}
 	return ipad;
 }

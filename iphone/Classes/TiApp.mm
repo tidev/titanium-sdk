@@ -249,12 +249,27 @@ void MyUncaughtExceptionHandler(NSException *exception)
 
 - (void)applicationWillTerminate:(UIApplication *)application
 {
-	[[NSNotificationCenter defaultCenter] postNotificationName:kTiShutdownNotification object:self];
-	
+	NSNotificationCenter * theNotificationCenter = [NSNotificationCenter defaultCenter];
+
+//This will send out the 'close' message.
+	[theNotificationCenter postNotificationName:kTiWillShutdownNotification object:self];
+
+//These shutdowns return immediately, yes, but the main will still run the close that's in their queue.	
 	[kjsBridge shutdown];
-	RELEASE_TO_NIL(kjsBridge);
 #ifdef USE_TI_UIWEBVIEW
 	[xhrBridge shutdown];
+#endif	
+
+	while ([kjsBridge krollContext] != nil)
+	{
+		[NSThread sleepForTimeInterval:0.05];
+	}
+
+//This will shut down the modules.
+	[theNotificationCenter postNotificationName:kTiShutdownNotification object:self];
+
+	RELEASE_TO_NIL(kjsBridge);
+#ifdef USE_TI_UIWEBVIEW
 	RELEASE_TO_NIL(xhrBridge);
 #endif	
 	RELEASE_TO_NIL(remoteNotification);

@@ -297,6 +297,16 @@ NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._listeners={
 	[[self webview] setBackgroundColor:c];
 }
 
+-(void)setAutoDetect_:(NSArray*)values
+{
+	UIDataDetectorTypes result = UIDataDetectorTypeNone;
+	for (NSNumber * thisNumber in values)
+	{
+		result |= [TiUtils intValue:thisNumber];
+	}
+	[[self webview] setDataDetectorTypes:result];
+}
+
 -(void)setHtml_:(NSString*)content
 {
 	[self loadHTML:content encoding:NSUTF8StringEncoding textEncodingName:@"utf-8" mimeType:@"text/html"];

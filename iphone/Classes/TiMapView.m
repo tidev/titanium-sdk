@@ -23,8 +23,7 @@
 		map.delegate = nil;
 		RELEASE_TO_NIL(map);
 	}
-	RELEASE_TO_NIL(pendingAnnotationRemovals);
-	RELEASE_TO_NIL(pendingAnnotationAdditions);
+	RELEASE_TO_NIL(pendingAnnotationSelection);
 	[super dealloc];
 }
 
@@ -114,32 +113,6 @@
 	}
 }
 
--(void)updateAnnotations
-{
-	//Because the pending annotations are always touched on the main thread only, there's no need for locking.
-	if ([pendingAnnotationRemovals count] != 0)
-	{
-		[[self map] removeAnnotations:pendingAnnotationRemovals];
-		RELEASE_TO_NIL(pendingAnnotationRemovals);
-	}
-
-	if ([pendingAnnotationAdditions count] != 0)
-	{
-		[[self map] addAnnotations:pendingAnnotationAdditions];
-		RELEASE_TO_NIL(pendingAnnotationAdditions);
-	}
-}
-
--(void)setNeedsUpdateAnnotations
-{
-	//Because the pending annotations are always touched on the main thread only, there's no need for locking.
-	//However, since we check the state of the additions, this MUST be called before changing the annotations.
-	if (([pendingAnnotationAdditions count]==0) && ([pendingAnnotationRemovals count]==0))
-	{
-		[self performSelector:@selector(updateAnnotations) withObject:nil afterDelay:0.1];
-	}
-}
-
 #pragma mark Public APIs
 
 
@@ -147,44 +120,16 @@
 {
 	ENSURE_UI_THREAD(addAnnotation,args);
 	ENSURE_SINGLE_ARG(args,NSObject);
-
-	[self setNeedsUpdateAnnotations];
 	
-	TiMapAnnotationProxy * newAnnotation = [self annotationFromArg:args];
-	
-	if (pendingAnnotationAdditions == nil)
-	{
-		pendingAnnotationAdditions = [[NSMutableArray alloc] initWithObjects:newAnnotation,nil];
-	}
-	else
-	{
-		[pendingAnnotationAdditions addObject:newAnnotation];
-	}
-	
-	//If the annotations were already scheduled for removal, let's not remove them.
-	[pendingAnnotationRemovals removeObject:newAnnotation];
+	[[self map] addAnnotation:[self annotationFromArg:args]];
 }
 
 -(void)addAnnotations:(id)args
 {
 	ENSURE_UI_THREAD(addAnnotations,args);
-	ENSURE_SINGLE_ARG(args,NSObject);
+	ENSURE_TYPE(args,NSArray);
 
-	[self setNeedsUpdateAnnotations];
-	
-	NSArray * newAnnotations = [self annotationsFromArgs:args];
-	
-	if (pendingAnnotationAdditions == nil)
-	{
-		pendingAnnotationAdditions = [newAnnotations mutableCopy];
-	}
-	else
-	{
-		[pendingAnnotationAdditions addObjectsFromArray:newAnnotations];
-	}
-	
-	//If these annotations were already scheduled for removal, let's not remove them.
-	[pendingAnnotationRemovals removeObjectsInArray:newAnnotations];
+	[[self map] addAnnotations:[self annotationsFromArgs:args]];
 }
 
 -(void)removeAnnotation:(id)args
@@ -211,70 +156,30 @@
 	{
 		doomedAnnotation = args;
 	}
-
-	if (doomedAnnotation == nil) //Nothing to see here, move along, move along.
-	{
-		return;
-	}
 	
-	[self setNeedsUpdateAnnotations];
-	
-	if (pendingAnnotationRemovals == nil)
-	{
-		pendingAnnotationRemovals = [[NSMutableArray alloc] initWithObjects:doomedAnnotation,nil];
-	}
-	else
-	{
-		[pendingAnnotationRemovals addObject:doomedAnnotation];
-	}
-	
-	//If the annotations were already scheduled for removal, let's not remove them.
-	[pendingAnnotationAdditions removeObject:doomedAnnotation];
+	[[self map] removeAnnotation:doomedAnnotation];
 }
 
 -(void)removeAnnotations:(id)args
 {
 	ENSURE_UI_THREAD(removeAnnotations,args);
-	ENSURE_SINGLE_ARG(args,NSObject);
 	ENSURE_TYPE(args,NSArray); // assumes an array of TiMapAnnotationProxy classes
 	[[self map] removeAnnotations:args];
 }
 
 -(void)removeAllAnnotations:(id)args
 {
-	[self setNeedsUpdateAnnotations];
-	//Wipe the board.
-	RELEASE_TO_NIL(pendingAnnotationAdditions);
-	RELEASE_TO_NIL(pendingAnnotationRemovals);
-	pendingAnnotationRemovals = [[[self map] annotations] mutableCopy];
+	ENSURE_UI_THREAD(removeAllAnnotations,args);
+	[[self map] removeAnnotations:[[self map] annotations]];
 }
 
 -(void)setAnnotations_:(id)value
 {
+	ENSURE_UI_THREAD(setAnnotations_,value)
 	ENSURE_TYPE_OR_NIL(value,NSArray);
-	[self setNeedsUpdateAnnotations];
-	//Wipe the board.
-	RELEASE_TO_NIL(pendingAnnotationAdditions);
-	RELEASE_TO_NIL(pendingAnnotationRemovals);
-	pendingAnnotationRemovals = [[[self map] annotations] mutableCopy];
-
-	int valueCount = [value count];
-
-	if (valueCount > 0)
-	{
-		pendingAnnotationAdditions = [[NSMutableArray alloc] initWithCapacity:valueCount];
-		for (id arg in value)
-		{
-			TiMapAnnotationProxy * newAnnotation = [self annotationFromArg:arg];
-			if ([pendingAnnotationRemovals containsObject:newAnnotation])
-			{
-				[pendingAnnotationRemovals removeObject:newAnnotation];
-			}
-			else
-			{
-				[pendingAnnotationAdditions addObject:newAnnotation];
-			}
-		}
+	[[self map] removeAnnotations:[[self map] annotations]];
+	if (value != nil) {
+		[[self map] addAnnotations:[self annotationsFromArgs:value]];
 	}
 }
 
@@ -290,14 +195,25 @@
 		{
 			if ([title isEqualToString:an.title])
 			{
-				[[self map] selectAnnotation:an animated:animate];
+				// TODO: Slide the view over to the selected annotation, and/or zoom so it's with all other selected.
+				if (loaded) {
+					[[self map] selectAnnotation:an animated:animate];
+				}
+				else {
+					pendingAnnotationSelection = [an retain];
+				}
 				break;
 			}
 		}
 	}
 	else if ([args isKindOfClass:[TiMapAnnotationProxy class]])
 	{
-		[[self map] selectAnnotation:args animated:animate];
+		if (loaded) {
+			[[self map] selectAnnotation:args animated:animate];
+		}
+		else {
+			pendingAnnotationSelection = [args retain];
+		}
 	}
 }
 
@@ -313,14 +229,24 @@
 		{
 			if ([title isEqualToString:an.title])
 			{
-				[[self map] deselectAnnotation:an animated:animate];
+				if (loaded) {
+					[[self map] deselectAnnotation:an animated:animate];
+				}
+				else {
+					RELEASE_TO_NIL(pendingAnnotationSelection);
+				}
 				break;
 			}
 		}
 	}
 	else if ([args isKindOfClass:[TiMapAnnotationProxy class]])
 	{
-		[[self map] deselectAnnotation:args animated:animate];
+		if (loaded) {
+			[[self map] deselectAnnotation:args animated:animate];
+		}
+		else {
+			RELEASE_TO_NIL(pendingAnnotationSelection);
+		}
 	}
 }
 
@@ -329,7 +255,12 @@
 	ENSURE_UI_THREAD(zoom,args);
 	ENSURE_SINGLE_ARG(args,NSObject);
 	double v = [TiUtils doubleValue:args];
+	// TODO: Find a good delta tolerance value to deal with floating point goofs
+	if (v == 0.0) {
+		return;
+	}
 	MKCoordinateRegion _region = [[self map] region];
+	// TODO: Adjust zoom factor based on v
 	if (v > 0)
 	{
 		_region.span.latitudeDelta = _region.span.latitudeDelta / 2.0002;
@@ -482,6 +413,7 @@
 
 - (void)mapViewWillStartLoadingMap:(MKMapView *)mapView
 {
+	loaded = NO;
 	if ([self.proxy _hasListeners:@"loading"])
 	{
 		[self.proxy fireEvent:@"loading" withObject:nil];
@@ -490,6 +422,11 @@
 
 - (void)mapViewDidFinishLoadingMap:(MKMapView *)mapView
 {
+	loaded = YES;
+	if (pendingAnnotationSelection != nil) {
+		[[self map] selectAnnotation:pendingAnnotationSelection animated:animate];
+		RELEASE_TO_NIL(pendingAnnotationSelection);
+	}
 	if ([self.proxy _hasListeners:@"complete"])
 	{
 		[self.proxy fireEvent:@"complete" withObject:nil];

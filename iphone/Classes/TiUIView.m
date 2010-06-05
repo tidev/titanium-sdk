@@ -25,6 +25,11 @@ void ModifyScrollViewForKeyboardHeightAndContentHeightWithResponderRect(UIScroll
 {
 	CGRect scrollVisibleRect;
 	scrollVisibleRect = [scrollView convertRect:[scrollView bounds] toView:nil];
+	if (UIInterfaceOrientationIsLandscape([[UIApplication sharedApplication] statusBarOrientation]))
+	{
+		scrollVisibleRect.origin = CGPointMake(scrollVisibleRect.origin.y, scrollVisibleRect.origin.x);
+		scrollVisibleRect.size = CGSizeMake(scrollVisibleRect.size.height, scrollVisibleRect.size.width);
+	}
 	//First, find out how much we have to compensate.
 
 	CGFloat obscuredHeight = scrollVisibleRect.origin.y + scrollVisibleRect.size.height - keyboardTop;	

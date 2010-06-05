@@ -1,6 +1,6 @@
 - namespace
 
-Titanium.Filesystem
+Titanium.Filesystem.File
 
 - type
 
