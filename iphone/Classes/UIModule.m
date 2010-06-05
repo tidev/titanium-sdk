@@ -252,10 +252,12 @@ MAKE_SYSTEM_PROP(FACE_DOWN,UIDeviceOrientationFaceDown);
 {
 	if (ipad==nil)
 	{
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
 		if ([TiUtils isiPhoneOS3_2OrGreater] && [TiUtils isIPad])
 		{
 			ipad = [[TiUIiPadProxy alloc] _initWithPageContext:[self pageContext]];
 		}
+#endif
 	}
 	return ipad;
 }

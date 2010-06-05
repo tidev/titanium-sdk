@@ -80,6 +80,7 @@ if (![TiUtils isiPhoneOS3_2OrGreater]) {\
 			   name:MPMoviePlayerPlaybackDidFinishNotification
 			 object:movie];
 	
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
 	if ([TiUtils isiPhoneOS3_2OrGreater]) {
 		[nc addObserver:self selector:@selector(handleThumbnailImageRequestFinishNotification:) 
 				   name:MPMoviePlayerThumbnailImageRequestDidFinishNotification
@@ -125,10 +126,13 @@ if (![TiUtils isiPhoneOS3_2OrGreater]) {\
 		//MPMediaPlaybackIsPreparedToPlayDidChangeNotification
 	}
 	else {
+#endif
 		[nc addObserver:self selector:@selector(handleKeyWindowChanged:) 
 				   name:UIWindowDidBecomeKeyNotification
 				 object:movie];
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
 	}
+#endif	
 }
 
 -(MPMoviePlayerController*)player
@@ -149,13 +153,17 @@ if (![TiUtils isiPhoneOS3_2OrGreater]) {\
 
 -(TiUIView*)newView
 {
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
 	if ([TiUtils isiPhoneOS3_2OrGreater]) {
 		// override since we're constructing ourselfs
 		return [[TiMediaVideoPlayer alloc] initWithPlayer:[self player]];
 	}
 	else {
+#endif
 		return [super newView];
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
 	}
+#endif
 }
 
 #pragma mark Public APIs
@@ -248,8 +256,10 @@ if (![TiUtils isiPhoneOS3_2OrGreater]) {\
 		}
 	}
 	else {
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
 		// Turn this into a synonym for setMovieControlStyle
 		[self setMovieControlStyle:value];
+#endif
 	}
 }
 
@@ -264,8 +274,10 @@ if (![TiUtils isiPhoneOS3_2OrGreater]) {\
 		}
 	}
 	else {
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
 		// Turn into a synonym for movieControlStyle
 		return [self movieControlStyle];
+#endif
 	}
 }
 
@@ -775,6 +787,7 @@ if (![TiUtils isiPhoneOS3_2OrGreater]) {\
 		if ([self _hasListeners:@"complete"])
 		{
 			NSMutableDictionary *event = [NSMutableDictionary dictionary];
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
 			if ([TiUtils isiPhoneOS3_2OrGreater]) {
 				NSNumber *reason = [[notification userInfo] objectForKey:MPMoviePlayerPlaybackDidFinishReasonUserInfoKey];
 				if (reason!=nil)
@@ -782,6 +795,7 @@ if (![TiUtils isiPhoneOS3_2OrGreater]) {\
 					[event setObject:reason forKey:@"reason"];
 				}
 			}
+#endif			
 			[self fireEvent:@"complete" withObject:event];
 		}
 		// release memory!

@@ -28,15 +28,21 @@ extern NSString * const TI_APPLICATION_RESOURCE_DIR;
 
 +(BOOL)isiPhoneOS3_2OrGreater
 {
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
 	// Here's a cheap way to test for 3.2; does it respond to a selector that was introduced with that version?
 	return [[UIApplication sharedApplication] respondsToSelector:@selector(setStatusBarHidden:withAnimation:)];
+#else
+	return NO;
+#endif
 }
 
 +(BOOL)isIPad
 {
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
 	if ([TiUtils isiPhoneOS3_2OrGreater]) {
 		return UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad;
 	}
+#endif
 	return NO;
 }
 
