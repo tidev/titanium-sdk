@@ -346,6 +346,9 @@ def main(args):
 			project.create(template_dir,iphone_dir)	
 			force_xcode = True
 			if os.path.exists(build_out_dir): shutil.rmtree(build_out_dir)
+			# we have to re-copy if we have a custom version
+			if os.path.exists(infoplist_tmpl):
+				shutil.copy(infoplist_tmpl,infoplist)
 		else:
 			xcconfig = open(project_xcconfig,'w')
 			xcconfig.write("TI_VERSION=%s\n"% sdk_version)

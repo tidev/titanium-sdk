@@ -9,13 +9,15 @@
 #import "UtilsModule.h"
 #import "TiUtils.h"
 #import "Base64Transcoder.h"
+#import "TiBlob.h"
+#import "TiFile.h"
 #import <CommonCrypto/CommonDigest.h>
 
 @implementation UtilsModule
 
 #pragma mark Public API
 
--(NSString*)base64encode:(id)args
+-(TiBlob*)base64encode:(id)args
 {
 	ENSURE_SINGLE_ARG(args,NSString);
 
@@ -31,13 +33,13 @@
 	{
 		NSData *theData = [NSData dataWithBytes:base64Result length:theResultLength];
 		free(base64Result);
-		return [[[NSString alloc] initWithData:theData encoding:NSUTF8StringEncoding] autorelease];
+		return [[[TiBlob alloc] initWithData:theData mimetype:@"application/octet-stream"] autorelease];
 	}    
 	free(base64Result);
 	return nil;
 }
 
--(NSString*)base64decode:(id)args
+-(TiBlob*)base64decode:(id)args
 {
 	ENSURE_SINGLE_ARG(args,NSString);
 	
@@ -53,7 +55,7 @@
 	{
 		NSData *theData = [NSData dataWithBytes:base64Result length:theResultLength];
 		free(base64Result);
-		return [[[NSString alloc] initWithData:theData encoding:NSUTF8StringEncoding] autorelease];
+		return [[[TiBlob alloc] initWithData:theData mimetype:@"application/octet-stream"] autorelease];
 	}    
 	free(base64Result);
 	return nil;
@@ -72,6 +74,7 @@
 			result[8], result[9], result[10], result[11], result[12], result[13], result[14], result[15]
 			];
 }
+
 @end
 
 #endif
