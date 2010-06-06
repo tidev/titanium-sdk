@@ -56,9 +56,11 @@
 			BOOL animated = [TiUtils boolValue:@"animated" properties:args def:YES];
 			if ([proxy supportsNavBarPositioning] && [proxy isUsingBarButtonItem])
 			{
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2				
 				UIBarButtonItem *button = [proxy barButtonItem];
 				[actionSheet showFromBarButtonItem:button animated:animated];
 				return;
+#endif				
 			}
 			else if ([proxy isKindOfClass:[TiToolbar class]])
 			{
@@ -86,8 +88,10 @@
 				{
 					rect = [view bounds];
 				}
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2				
 				[actionSheet showFromRect:rect inView:view animated:animated];
 				return;
+#endif				
 			}
 		}
 		[actionSheet showInView:view];
