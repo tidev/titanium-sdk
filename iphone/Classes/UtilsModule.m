@@ -9,6 +9,8 @@
 #import "UtilsModule.h"
 #import "TiUtils.h"
 #import "Base64Transcoder.h"
+#import "TiBlob.h"
+#import "TiFile.h"
 #import <CommonCrypto/CommonDigest.h>
 
 @implementation UtilsModule
@@ -18,7 +20,7 @@
 -(NSString*)base64encode:(id)args
 {
 	ENSURE_SINGLE_ARG(args,NSString);
-
+	
 	const char *data = [args UTF8String];
 	size_t len = [args length];
 	
@@ -52,8 +54,13 @@
 	if (result)
 	{
 		NSData *theData = [NSData dataWithBytes:base64Result length:theResultLength];
-		free(base64Result);
-		return [[[NSString alloc] initWithData:theData encoding:NSUTF8StringEncoding] autorelease];
+		//free(base64Result);
+		NSString *foo = [[[NSString alloc] initWithData:theData encoding:NSASCIIStringEncoding] autorelease];
+		//NSString *foo = [NSString stringWithCString:base64Result length:theResultLength];
+		//NSString *foo = [NSString stringWithCharacters:base64Result length:theResultLength];
+		NSLog(@"image  %@",foo);
+		return foo;
+		
 	}    
 	free(base64Result);
 	return nil;
@@ -72,6 +79,25 @@
 			result[8], result[9], result[10], result[11], result[12], result[13], result[14], result[15]
 			];
 }
+
+-(TiBlob*)toBlob:(id)args
+{
+	id arg = [args objectAtIndex:0];
+	if ([arg isKindOfClass:[NSString class]])
+	{
+		ENSURE_STRING(arg);
+		NSString* ct = [args objectAtIndex:1];
+		NSData *data = [arg dataUsingEncoding:NSUTF8StringEncoding];
+		return [[[TiBlob alloc] initWithData:data mimetype:ct] autorelease];
+	}
+	else if ([arg isKindOfClass:[TiFile class]])
+	{
+		TiFile *file = (TiFile*)arg;
+		return [[[TiBlob alloc] initWithFile:[file path]] autorelease];
+	}
+	[self throwException:@"invalid blob input type" subreason:nil location:CODELOCATION];
+}
+
 @end
 
 #endif
