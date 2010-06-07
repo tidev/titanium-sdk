@@ -1032,7 +1032,7 @@
 
 -(void)clearNeedsReposition
 {
-	BOOL wasSet = OSAtomicTestAndClearBarrier(NEEDS_REPOSITION, &dirtyflags);
+	OSAtomicTestAndClearBarrier(NEEDS_REPOSITION, &dirtyflags);
 }
 
 -(void)setNeedsRepositionIfAutoSized

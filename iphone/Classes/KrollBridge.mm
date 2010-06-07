@@ -13,6 +13,11 @@
 #import "TiUtils.h"
 #import "TiApp.h"
 
+#ifdef DEBUGGER_ENABLED
+	#import "TiDebuggerContext.h"
+	#import "TiDebugger.h"
+#endif
+
 extern BOOL const TI_APPLICATION_ANALYTICS;
 
 @implementation TitaniumObject
@@ -272,9 +277,11 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 		}
 		return;
 	}
+	
+	const char *urlCString = [[url_ absoluteString] UTF8String];
 
 	TiStringRef jsCode = TiStringCreateWithUTF8CString([jcode UTF8String]);
-	TiStringRef jsURL = TiStringCreateWithUTF8CString([[url_ absoluteString] UTF8String]);
+	TiStringRef jsURL = TiStringCreateWithUTF8CString(urlCString);
 
 	// validate script
 	// TODO: we do not need to do this in production app
@@ -288,8 +295,22 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 	// only continue if we don't have any exceptions from above
 	if (exception == NULL)
 	{
+#ifdef DEBUGGER_ENABLED
+		Ti::TiDebuggerContext* debugger = static_cast<Ti::TiDebuggerContext*>([context_ debugger]);
+		if (debugger!=NULL)
+		{
+			debugger->beginScriptEval(urlCString);
+		}
+#endif
+		
 		TiEvalScript(jsContext, jsCode, NULL, jsURL, 1, &exception);
 		
+#ifdef DEBUGGER_ENABLED		
+		if (debugger!=NULL)
+		{
+			debugger->endScriptEval();
+		}
+#endif		
 		if (exception!=NULL)
 		{
 			id excm = [KrollObject toID:context value:exception];

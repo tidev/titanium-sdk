@@ -12,6 +12,7 @@
 #import "TiBase.h"
 #import "TiErrorController.h"
 #import "NSData+Additions.h"
+#import "TiDebugger.h"
 #import <QuartzCore/QuartzCore.h>
 
 TiApp* sharedApp;
@@ -172,6 +173,10 @@ void MyUncaughtExceptionHandler(NSException *exception)
 - (void)boot
 {
 	sessionId = [[TiUtils createUUID] retain];
+
+#ifdef DEBUGGER_ENABLED
+	[[TiDebugger sharedDebugger] start];
+#endif
 	
 	kjsBridge = [[KrollBridge alloc] initWithHost:self];
 #ifdef USE_TI_UIWEBVIEW
@@ -424,6 +429,9 @@ void MyUncaughtExceptionHandler(NSException *exception)
 	RELEASE_TO_NIL(userAgent);
 	RELEASE_TO_NIL(remoteDeviceUUID);
 	RELEASE_TO_NIL(remoteNotification);
+#ifdef DEBUGGER_ENABLED
+	[[TiDebugger sharedDebugger] stop];
+#endif
 	[super dealloc];
 }
 
@@ -465,6 +473,11 @@ void MyUncaughtExceptionHandler(NSException *exception)
 - (void)keyboardDidShow:(NSNotification*)notification
 {
 	keyboardShowing = YES;
+}
+
+-(KrollBridge*)krollBridge
+{
+	return kjsBridge;
 }
 
 @end
