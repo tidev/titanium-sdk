@@ -58,7 +58,6 @@ if (![TiUtils isiPhoneOS3_2OrGreater]) {\
 
 -(void)_destroy
 {
-	playing = NO;
 	[movie stop];
 	
 	NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
@@ -522,10 +521,22 @@ if (![TiUtils isiPhoneOS3_2OrGreater]) {\
 
 -(NSNumber*)duration
 {
-	ONLY_IN_3_2_OR_GREATER(playableDuration)
+	ONLY_IN_3_2_OR_GREATER(duration)
 	
 	if (movie != nil) {
 		return NUMDOUBLE([[self player] duration]);
+	}
+	else {
+		return NUMINT(0);
+	}
+}
+
+-(NSNumber*)currentPlaybackTime
+{
+	ONLY_IN_3_2_OR_GREATER(currentPlaybackTime)
+	
+	if (movie != nil) {
+		return NUMDOUBLE([[self player] currentPlaybackTime]);
 	}
 	else {
 		return NUMINT(0);
@@ -714,6 +725,18 @@ if (![TiUtils isiPhoneOS3_2OrGreater]) {\
 	playing = YES;
 	
 	[[self player] play];
+}
+
+-(void)pause:(id)args
+{
+	ENSURE_UI_THREAD(pause,args)
+
+	if (!playing) {
+		return;
+	}
+	
+	// For the purposes of cleanup, we're still playing, so don't toggle that.
+	[[self player] pause];
 }
 
 -(void)release:(id)args
