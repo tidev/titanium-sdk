@@ -196,7 +196,6 @@ DEFINE_EXCEPTIONS
 	[self.proxy fireEvent:@"load" withObject:event];
 }
 
-
 -(UIImage*)scaleImageIfRequired:(UIImage*)theimage
 {
 	// attempt to scale the image
@@ -363,7 +362,6 @@ DEFINE_EXCEPTIONS
 	return imageView;
 }
 
-
 -(void)removeAllImagesFromContainer
 {
 	// remove any existing images
@@ -387,14 +385,7 @@ DEFINE_EXCEPTIONS
 	
 	if (img!=nil)
 	{
-		// remove current subview
-		for (UIView *view in [self subviews])
-		{
-			if ([view isKindOfClass:[UIImageView class]])
-			{
-				[view removeFromSuperview];
-			}
-		}
+		[self removeAllImagesFromContainer];
 		
 		NSURL *url_ = [TiUtils toURL:img proxy:self.proxy];
 		CGSize imageSize = CGSizeMake(width, height);
@@ -424,14 +415,6 @@ DEFINE_EXCEPTIONS
 		if (image!=nil)
 		{
 			[self setImage_:image];
-			
-			if (width == 0 || height == 0)
-			{
-				autoWidth = image.size.width;
-				autoHeight = image.size.height;
-				[(TiViewProxy *)[self proxy] setNeedsReposition];
-			}
-			
 			[self fireLoadEventWithState:@"url"];
 		}
 		else 
@@ -593,7 +576,6 @@ DEFINE_EXCEPTIONS
 	{
 		[self.proxy replaceValue:arg forKey:@"image" notification:NO];
 	}
-	[(TiViewProxy *)[self proxy] setNeedsReposition];
 }
 
 -(void)setImages_:(id)args
