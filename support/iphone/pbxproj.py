@@ -30,6 +30,7 @@ class PBXProj(object):
 		framework_markers = []
 		group_markers = []
 		target_libs = []
+
 		for lib in self.static_libs:
 			if contents.find(lib[0])==-1:
 				target_libs.append(lib)
@@ -54,8 +55,7 @@ class PBXProj(object):
 			if group_uuid==None:
 				m = re.search(r'fileRef = ([0-9a-zA-Z]+) ',fm)
 				group_uuid = m.group(1).strip()
-			new_uuid = self.gen_uuid()
-			file_markers_to_file_refs[uuid]=new_uuid
+			file_markers_to_file_refs[uuid]=self.gen_uuid()
 		for lib in target_libs:
 			libname = lib[0]
 			libpath = lib[1]
@@ -68,7 +68,8 @@ class PBXProj(object):
 				line = line.replace('libTiCore.a',libname)
 				line = line.replace(group_uuid,new_group_uuid)
 				m = re.search(r'([0-9a-zA-Z]+) /*',fm)
-				new_uuid = file_markers_to_file_refs[m.group(1)]
+				new_uuid = self.gen_uuid()
+				file_markers_to_file_refs[m.group(1)]=new_uuid
 				line = line.replace(m.group(1),new_uuid)
 				contents = contents[0:end] + '\n' + line + '\n' + contents[end+1:]
 			for rm in ref_markers:
@@ -113,8 +114,9 @@ class PBXProj(object):
 
 if __name__ == "__main__":
 	proj = PBXProj()
-	f = "~/tmp/a.pbxproj"
-	proj.add_static_library('libflurry.a','/Library/Application Support/Titanium/modules/iphone/flurry/0.1')
+	f = "~/work/payswipe/build/iphone/payswipe.xcodeproj/project.pbxproj"
+	proj.add_static_library('libmagtek.a','/Library/Application Support/Titanium/modules/iphone/magtek/1.0')
+	proj.add_static_library('libpaint.a','/Library/Application Support/Titanium/modules/iphone/paint/1.0')
 	out = proj.parse(f)		
 	o = open(os.path.expanduser("~/tmp/foo.pbxproj"),'w')
 	o.write(out)

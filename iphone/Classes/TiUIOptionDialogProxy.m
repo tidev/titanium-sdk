@@ -42,58 +42,63 @@
 
 	[self retain];
 	
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
-	UIView *view = nil;
-	TiViewProxy *proxy = [args objectForKey:@"view"];
-	if (proxy==nil)
-	{
-		view = [[TiApp app] controller].view;
-	}
-	else 
-	{
-		//TODO: need to deal with button in a Toolbar which will have a nil view
-		
-		BOOL animated = [TiUtils boolValue:@"animated" properties:args def:YES];
-		if ([proxy supportsNavBarPositioning] && [proxy isUsingBarButtonItem])
+	if ([TiUtils isiPhoneOS3_2OrGreater]) {
+		UIView *view = nil;
+		TiViewProxy *proxy = [args objectForKey:@"view"];
+		if (proxy==nil)
 		{
-			UIBarButtonItem *button = [proxy barButtonItem];
-			[actionSheet showFromBarButtonItem:button animated:animated];
-			return;
+			view = [[TiApp app] controller].view;
 		}
-		else if ([proxy isKindOfClass:[TiToolbar class]])
+		else 
 		{
-			UIToolbar *toolbar = [(TiToolbar*)proxy toolbar];
-			[actionSheet showFromToolbar:toolbar];
-			return;
-		}
-		else if ([proxy conformsToProtocol:@protocol(TiTab)])
-		{
-			id<TiTab> tab = (id<TiTab>)proxy;
-			UITabBar *tabbar = [[tab tabGroup] tabbar];
-			[actionSheet showFromTabBar:tabbar];
-			return;
-		}
-		else
-		{
-			CGRect rect;
-			view = [proxy view];
-			id obj = [args objectForKey:@"rect"];
-			if (obj!=nil)
+			//TODO: need to deal with button in a Toolbar which will have a nil view
+			
+			BOOL animated = [TiUtils boolValue:@"animated" properties:args def:YES];
+			if ([proxy supportsNavBarPositioning] && [proxy isUsingBarButtonItem])
 			{
-				rect = [TiUtils rectValue:obj];
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2				
+				UIBarButtonItem *button = [proxy barButtonItem];
+				[actionSheet showFromBarButtonItem:button animated:animated];
+				return;
+#endif				
+			}
+			else if ([proxy isKindOfClass:[TiToolbar class]])
+			{
+				UIToolbar *toolbar = [(TiToolbar*)proxy toolbar];
+				[actionSheet showFromToolbar:toolbar];
+				return;
+			}
+			else if ([proxy conformsToProtocol:@protocol(TiTab)])
+			{
+				id<TiTab> tab = (id<TiTab>)proxy;
+				UITabBar *tabbar = [[tab tabGroup] tabbar];
+				[actionSheet showFromTabBar:tabbar];
+				return;
 			}
 			else
 			{
-				rect = [view bounds];
+				CGRect rect;
+				view = [proxy view];
+				id obj = [args objectForKey:@"rect"];
+				if (obj!=nil)
+				{
+					rect = [TiUtils rectValue:obj];
+				}
+				else
+				{
+					rect = [view bounds];
+				}
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2				
+				[actionSheet showFromRect:rect inView:view animated:animated];
+				return;
+#endif				
 			}
-			[actionSheet showFromRect:rect inView:view animated:animated];
-			return;
 		}
+		[actionSheet showInView:view];
 	}
-	[actionSheet showInView:view];
-#else
-	[actionSheet showInView:[[TiApp app] window]];
-#endif
+	else {
+		[actionSheet showInView:[[TiApp app] window]];
+	}
 }
 
 #pragma mark AlertView Delegate

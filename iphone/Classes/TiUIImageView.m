@@ -353,28 +353,106 @@ DEFINE_EXCEPTIONS
 	}
 }
 
--(UIImageView *)imageView
+-(UIImageView *)newImageView
 {
-	UIImageView * imageView = nil;
-
-	if (imageView == nil)
-	{
-		imageView = [[UIImageView alloc] initWithFrame:[self bounds]];
-		[imageView setAutoresizingMask:UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight];
-		[imageView setContentMode:UIViewContentModeCenter];
-	}
-	if ([imageView superview] != self)
-	{
-		[self addSubview:imageView];
-	}
-	
+	UIImageView * imageView = [[UIImageView alloc] initWithFrame:[self bounds]];
+	[imageView setAutoresizingMask:UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight];
+	[imageView setContentMode:UIViewContentModeCenter];
+	[self addSubview:imageView];
 	[imageView autorelease];
-	
 	return imageView;
 }
 
 
+-(void)removeAllImagesFromContainer
+{
+	// remove any existing images
+	if (container!=nil)
+	{
+		for (UIView *view in [container subviews])
+		{
+			[view removeFromSuperview];
+		}
+	}
+}
 
+-(void)loadUrl:(id)img
+{
+	// cancel a pending request if we have one pending
+	if (urlRequest!=nil)
+	{
+		[urlRequest cancel];
+		RELEASE_TO_NIL(urlRequest);
+	}
+	
+	if (img!=nil)
+	{
+		// remove current subview
+		for (UIView *view in [self subviews])
+		{
+			if ([view isKindOfClass:[UIImageView class]])
+			{
+				[view removeFromSuperview];
+			}
+		}
+		
+		NSURL *url_ = [TiUtils toURL:img proxy:self.proxy];
+		CGSize imageSize = CGSizeMake(width, height);
+		
+		UIImage *image = [[ImageLoader sharedLoader] loadImmediateImage:url_ withSize:imageSize];
+		if (image==nil)
+		{
+			// use a placeholder image - which the dev can specify with the
+			// defaultImage property or we'll provide the Titanium stock one
+			// if not specified
+			NSURL *defURL = [TiUtils toURL:[self.proxy valueForKey:@"defaultImage"] proxy:self.proxy];
+			
+			if ((defURL == nil) && ![TiUtils boolValue:[self.proxy valueForKey:@"preventDefaultImage"] def:NO])
+			{
+				NSString * filePath = [[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"modules/ui/images/photoDefault.png"];
+				defURL = [NSURL fileURLWithPath:filePath];
+			}
+			if (defURL!=nil)
+			{
+				UIImage *poster = [[ImageLoader sharedLoader] loadImmediateImage:defURL withSize:imageSize];
+				[self setImage_:poster];
+			}
+			placeholderLoading = YES;
+			urlRequest = [[[ImageLoader sharedLoader] loadImage:url_ delegate:self userInfo:nil] retain];
+			return;
+		}
+		if (image!=nil)
+		{
+			[self setImage_:image];
+			
+			if (width == 0 || height == 0)
+			{
+				autoWidth = image.size.width;
+				autoHeight = image.size.height;
+				[(TiViewProxy *)[self proxy] setNeedsReposition];
+			}
+			
+			[self fireLoadEventWithState:@"url"];
+		}
+		else 
+		{
+			NSLog(@"[ERROR] couldn't find image for ImageView at: %@",img);
+		}
+	}
+}
+
+
+-(UIView*)container
+{
+	if (container==nil)
+	{
+		// we use a separate container view so we can both have an image
+		// and a set of images
+		container = [[UIView alloc] initWithFrame:self.bounds];
+		[self addSubview:container];
+	}
+	return container;
+}
 
 #pragma mark Public APIs
 
@@ -468,32 +546,54 @@ DEFINE_EXCEPTIONS
 
 -(void)setImage_:(id)arg
 {
+	[self removeAllImagesFromContainer];
+	
+	if (arg==nil)
+	{
+		return;
+	}
+	
+	BOOL replaceProperty = YES;
+	UIImage *image = nil;
+	
 	if ([arg isKindOfClass:[TiBlob class]])
 	{
 		TiBlob *blob = (TiBlob*)arg;
-		UIImage *image = [self scaleImageIfRequired:[blob image]];
-		[[self imageView] setImage:image];
-
-		autoHeight = image.size.height;
-		autoWidth = image.size.width;
-		[self.proxy replaceValue:arg forKey:@"image" notification:NO];
+		image = [self scaleImageIfRequired:[blob image]];
 	}
 	else if ([arg isKindOfClass:[TiFile class]])
 	{
 		TiFile *file = (TiFile*)arg;
 		NSURL * fileUrl = [NSURL fileURLWithPath:[file path]];		
-		UIImage *image = [[ImageLoader sharedLoader] loadImmediateImage:fileUrl withSize:CGSizeMake(width, height)];
-
-		autoHeight = image.size.height;
-		autoWidth = image.size.width;
-		[[self imageView] setImage:image];
-
-		[self.proxy replaceValue:arg forKey:@"image" notification:NO];
+		image = [[ImageLoader sharedLoader] loadImmediateImage:fileUrl withSize:CGSizeMake(width, height)];
+	}
+	else if ([arg isKindOfClass:[UIImage class]])
+	{
+		// called within this class
+		image = (UIImage*)arg;
+		replaceProperty = NO;
+	}
+	else if ([arg isKindOfClass:[NSString class]])
+	{
+		[self loadUrl:arg];
+		return;
 	}
 	else
 	{
 		[self throwException:@"invalid image type" subreason:[NSString stringWithFormat:@"expected either TiBlob or TiFile, was: %@",[arg class]] location:CODELOCATION];
+		return;
 	}
+
+	autoHeight = image.size.height;
+	autoWidth = image.size.width;
+	UIImageView *imageview = [self newImageView];
+	[imageview setImage:image];
+	[[self container] addSubview:imageview];
+	if (replaceProperty)
+	{
+		[self.proxy replaceValue:arg forKey:@"image" notification:NO];
+	}
+	[(TiViewProxy *)[self proxy] setNeedsReposition];
 }
 
 -(void)setImages_:(id)args
@@ -503,26 +603,14 @@ DEFINE_EXCEPTIONS
 	[self stop];
 	
 	// remove any existing images
-	if (container!=nil)
-	{
-		for (UIView *view in [container subviews])
-		{
-			[view removeFromSuperview];
-		}
-	}
+	[self removeAllImagesFromContainer];
 	
 	RELEASE_TO_NIL(images);
 	ENSURE_TYPE_OR_NIL(args,NSArray);
 
 	if (args!=nil)
 	{
-		if (container==nil)
-		{
-			// we use a separate container view so we can both have an image
-			// and a set of images
-			container = [[UIView alloc] initWithFrame:self.bounds];
-			[self addSubview:container];
-		}
+		[self container];
 		images = [[NSMutableArray alloc] initWithCapacity:[args count]];
 		loadTotal = [args count];
 		for (size_t c = 0; c < [args count]; c++)
@@ -542,80 +630,15 @@ DEFINE_EXCEPTIONS
 	}
 }
 
+// we can't have dualing properties that do the same thing or we get into big
+// trouble in tableview repaints
 -(void)setUrl_:(id)img
 {
-	// wait until the view is completely sent properties before we do this
-	if ([self viewConfigured]==NO)
-	{
-		return;
-	}
-	
-	// cancel a pending request if we have one pending
-	if (urlRequest!=nil)
-	{
-		[urlRequest cancel];
-		RELEASE_TO_NIL(urlRequest);
-	}
-	
-	if (img!=nil)
-	{
-		// remove current subview
-		for (UIView *view in [self subviews])
-		{
-			if ([view isKindOfClass:[UIImageView class]])
-			{
-				[view removeFromSuperview];
-			}
-		}
-		
-		NSURL *url_ = [TiUtils toURL:img proxy:self.proxy];
-		CGSize imageSize = CGSizeMake(width, height);
-
-		UIImage *image = [[ImageLoader sharedLoader] loadImmediateImage:url_ withSize:imageSize];
-		if (image==nil)
-		{
-			// use a placeholder image - which the dev can specify with the
-			// defaultImage property or we'll provide the Titanium stock one
-			// if not specified
-			NSURL *defURL = [TiUtils toURL:[self.proxy valueForKey:@"defaultImage"] proxy:self.proxy];
-
-			if ((defURL == nil) && ![TiUtils boolValue:[self.proxy valueForKey:@"preventDefaultImage"] def:NO])
-			{
-				NSString * filePath = [[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"modules/ui/images/photoDefault.png"];
-				defURL = [NSURL fileURLWithPath:filePath];
-			}
-			if (defURL!=nil)
-			{
-				UIImage *poster = [[ImageLoader sharedLoader] loadImmediateImage:defURL withSize:imageSize];
-				autoWidth = poster.size.width;
-				autoHeight = poster.size.height;
-				[[self imageView] setImage:poster];
-
-			}
-			placeholderLoading = YES;
-			urlRequest = [[[ImageLoader sharedLoader] loadImage:url_ delegate:self userInfo:nil] retain];
-			return;
-		}
-		if (image!=nil)
-		{
-			[[self imageView] setImage:image];
-
-			
-			if (width == 0 || height == 0)
-			{
-				autoWidth = image.size.width;
-				autoHeight = image.size.height;
-				[(TiViewProxy *)[self proxy] setNeedsReposition];
-			}
-			
-			[self fireLoadEventWithState:@"url"];
-		}
-		else 
-		{
-			NSLog(@"[ERROR] couldn't find image for ImageView at: %@",img);
-		}
-	}
+	NSLog(@"[WARN] the 'url' property on ImageView has been deprecated. Please use 'image' instead");
+	[self loadUrl:img];
+	return;
 }
+
 
 -(void)setDuration_:(id)duration
 {
@@ -637,14 +660,7 @@ DEFINE_EXCEPTIONS
 	// this is internally called when we cancelled this image load to force
 	// the url to be reloaded - otherwise the tableview cell will think we 
 	// have the same url and not call us to re-render
-	[self setUrl_:[self.proxy valueForKey:@"url"]];
-}
-
-#pragma mark Configuration 
-
--(void)configurationSet
-{
-	[self setUrl_:[self.proxy valueForKey:@"url"]];
+	[self loadUrl:[self.proxy valueForKey:@"url"]];
 }
 
 

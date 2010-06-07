@@ -191,7 +191,9 @@ NSString * const TI_DB_VERSION = @"1";
 		NSLog(@"[ERROR] error sending analytics. %@",e);
 		[database rollbackTransaction];
 	}
+	[json release];
 	[pool release];
+	pool = nil;
 }
 
 -(void)startFlushTimer

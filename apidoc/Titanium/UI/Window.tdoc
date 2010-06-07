@@ -12,7 +12,7 @@ view
 
 - description
 
-The Window is an empty drawing surface or container. The Window is created by the method `Titanium.UI.createWindow`. Unlike [Views](Titanium.UI.View), Windows can be opened and closed and can have special display properties such as `fullscreen` or `modal`.
+The Window is an empty drawing surface or container. The Window is created by the method `Titanium.UI.createWindow`. Unlike [Views](Titanium.UI.View-object), Windows can be opened and closed and can have special display properties such as `fullscreen` or `modal`.
 
 - since
 

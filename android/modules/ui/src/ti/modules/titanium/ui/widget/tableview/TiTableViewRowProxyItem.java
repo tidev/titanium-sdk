@@ -15,6 +15,7 @@ import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.titanium.view.TiUIView;
+import org.appcelerator.titanium.util.Log;
 
 import ti.modules.titanium.ui.TableViewRowProxy;
 import ti.modules.titanium.ui.widget.TiUILabel;
@@ -140,6 +141,21 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 				height = TiConvert.toInt(props, "height");
 			}
 		}
+		
+		TiDict dp = rp.getParent().getDynamicProperties();
+		if (dp.containsKey("minRowHeight"))
+		{
+			int minRowHeight = TiConvert.toInt(dp,"minRowHeight");
+			if (height < 0)
+			{
+				height = minRowHeight;
+			}
+			else
+			{
+				height = Math.max(minRowHeight,height);
+			}
+		}
+		
 
 		if (rp.hasControls()) {
 			ArrayList<TiViewProxy> proxies = rp.getControls();
@@ -233,7 +249,7 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 			}
 			measureChild(content, MeasureSpec.makeMeasureSpec(adjustedWidth, wMode), MeasureSpec.makeMeasureSpec(h, MeasureSpec.EXACTLY));
 		}
-
+		
 		setMeasuredDimension(w, Math.max(h, Math.max(leftImageHeight, rightImageHeight)));
 	}
 

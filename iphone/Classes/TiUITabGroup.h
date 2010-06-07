@@ -14,6 +14,7 @@
 @private
 	UITabBarController *controller;
 	TiUITabProxy *focused;
+	BOOL allowConfiguration;
 	
 	TiColor *barColor;
 }

@@ -334,6 +334,10 @@ public class TiConvert
 
     public static JSONObject toJSON(TiDict data)
     {
+    	if (data == null)
+    	{
+    		return null;
+    	}
     	JSONObject json = new JSONObject();
 
     	for (String key : data.keySet()) {

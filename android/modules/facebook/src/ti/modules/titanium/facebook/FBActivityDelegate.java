@@ -12,7 +12,7 @@ import android.os.Bundle;
 /**
  * Generic activity handler
  */
-public interface FBActivityDelegate
-{
-    public FBDialog onCreate(String action, Activity activity, Bundle savedInstanceState);
+public interface FBActivityDelegate {
+	public FBDialog onCreate(String action, Activity activity,
+			Bundle savedInstanceState);
 }

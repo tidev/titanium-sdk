@@ -17,7 +17,7 @@
 
 #pragma mark Public API
 
--(NSString*)base64encode:(id)args
+-(TiBlob*)base64encode:(id)args
 {
 	ENSURE_SINGLE_ARG(args,NSString);
 	
@@ -33,13 +33,13 @@
 	{
 		NSData *theData = [NSData dataWithBytes:base64Result length:theResultLength];
 		free(base64Result);
-		return [[[NSString alloc] initWithData:theData encoding:NSUTF8StringEncoding] autorelease];
+		return [[[TiBlob alloc] initWithData:theData mimetype:@"application/octet-stream"] autorelease];
 	}    
 	free(base64Result);
 	return nil;
 }
 
--(NSString*)base64decode:(id)args
+-(TiBlob*)base64decode:(id)args
 {
 	ENSURE_SINGLE_ARG(args,NSString);
 	
@@ -54,13 +54,8 @@
 	if (result)
 	{
 		NSData *theData = [NSData dataWithBytes:base64Result length:theResultLength];
-		//free(base64Result);
-		NSString *foo = [[[NSString alloc] initWithData:theData encoding:NSASCIIStringEncoding] autorelease];
-		//NSString *foo = [NSString stringWithCString:base64Result length:theResultLength];
-		//NSString *foo = [NSString stringWithCharacters:base64Result length:theResultLength];
-		NSLog(@"image  %@",foo);
-		return foo;
-		
+		free(base64Result);
+		return [[[TiBlob alloc] initWithData:theData mimetype:@"application/octet-stream"] autorelease];
 	}    
 	free(base64Result);
 	return nil;
@@ -80,6 +75,7 @@
 			];
 }
 
+<<<<<<< HEAD:iphone/Classes/UtilsModule.m
 -(TiBlob*)toBlob:(id)args
 {
 	id arg = [args objectAtIndex:0];
@@ -98,6 +94,8 @@
 	[self throwException:@"invalid blob input type" subreason:nil location:CODELOCATION];
 }
 
+=======
+>>>>>>> 36c41458c3f3b27eddec05aa886587b22d1dd88a:iphone/Classes/UtilsModule.m
 @end
 
 #endif

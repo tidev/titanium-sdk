@@ -98,7 +98,6 @@
 	return self;
 }
 
-
 -(void)dealloc
 {
 	if (searchField!=nil)
@@ -1481,10 +1480,8 @@ if(ourTableView != tableview)	\
 			color = [self.proxy valueForKey:@"backgroundColor"];
 		}
 	}
-	if (color!=nil)
-	{
-		cell.backgroundColor = UIColorWebColorNamed(color);
-	}
+	UIColor * cellColor = UIColorWebColorNamed(color);
+	cell.backgroundColor = (cellColor != nil)?cellColor:[UIColor whiteColor];
 	
 	if (tableview == ourTableView) {
 		TiUITableViewSectionProxy *section = [sections objectAtIndex:[indexPath section]];

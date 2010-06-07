@@ -45,6 +45,9 @@
 -(void)stop;
 -(void)pause;
 
+-(void)setImage_:(id)arg;
+
+
 @end
 
 #endif

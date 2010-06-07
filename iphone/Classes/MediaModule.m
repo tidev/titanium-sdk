@@ -317,11 +317,20 @@ MAKE_SYSTEM_PROP(NO_MUSIC_PLAYER,MediaModuleErrorNoMusicPlayer);
 
 
 // >=3.2 dependent value; this one isn't deprecated
+-(NSNumber*)VIDEO_CONTROL_DEFAULT
+{
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
-MAKE_SYSTEM_PROP(VIDEO_CONTROL_DEFAULT,MPMovieControlStyleDefault);
-#else
-MAKE_SYSTEM_PROP(VIDEO_CONTROL_DEFAULT,MPMovieControlModeDefault);
+	if ([TiUtils isiPhoneOS3_2OrGreater]) {
+		return NUMINT(MPMovieControlStyleDefault);
+	}
+	else {
 #endif
+		return NUMINT(MPMovieControlModeDefault);
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
+	}
+#endif
+}
+
 // these have been deprecated in 3.2 but we need them for older devices
 MAKE_SYSTEM_PROP(VIDEO_CONTROL_VOLUME_ONLY,MPMovieControlModeVolumeOnly);
 MAKE_SYSTEM_PROP(VIDEO_CONTROL_HIDDEN,MPMovieControlModeHidden);

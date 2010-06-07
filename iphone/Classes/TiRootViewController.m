@@ -155,6 +155,17 @@
     [super viewDidDisappear:animated];
 }
 
+-(void)repositionSubviews
+{
+	for (UIView * subView in [[self view] subviews])
+	{
+		if ([subView respondsToSelector:@selector(proxy)])
+		{
+			[(TiViewProxy *)[(TiUIView *)subView proxy] reposition];
+		}
+	}
+}
+
 -(void)manuallyRotateToOrientation:(UIInterfaceOrientation)newOrientation duration:(NSTimeInterval)duration
 {
 	UIApplication * ourApp = [UIApplication sharedApplication];
@@ -213,14 +224,8 @@
 	[self resizeView];
 
 	//Propigate this to everyone else. This has to be done INSIDE the animation.
-	for (UIView * subView in [[self view] subviews])
-	{
-		if ([subView respondsToSelector:@selector(proxy)])
-		{
-			[(TiViewProxy *)[(TiUIView *)subView proxy] reposition];
-		}
-	}
-
+	[self repositionSubviews];
+	
 	if (duration > 0.0)
 	{
 		[UIView commitAnimations];

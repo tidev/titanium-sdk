@@ -100,7 +100,7 @@ extern NSString * const TI_APPLICATION_GUID;
 	id type = [args objectAtIndex:0];
 	id obj = [args count] > 1 ? [args objectAtIndex:1] : nil;
 	
-#ifdef DEBUG	
+#ifdef DEBUG
 	NSLog(@"[DEBUG] fire app event: %@ with %@",type,obj);
 #endif
 	
@@ -194,14 +194,23 @@ extern NSString * const TI_APPLICATION_GUID;
 	[super didReceiveMemoryWarning:notification];
 }
 
--(void)shutdown:(id)sender
+-(void)willShutdown:(id)sender;
 {
 	// fire the application close event when shutting down
 	if ([self _hasListeners:@"close"])
 	{
 		[self fireEvent:@"close" withObject:nil];
 	}
-	
+}
+
+-(void)startup
+{
+	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(willShutdown:) name:kTiWillShutdownNotification object:nil];
+	[super startup];
+}
+
+-(void)shutdown:(id)sender
+{
 	// make sure we force any changes made on shutdown
 	[[NSUserDefaults standardUserDefaults] synchronize];
 	[super shutdown:sender];

@@ -7,6 +7,8 @@
 package org.appcelerator.titanium;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.lang.Thread.UncaughtExceptionHandler;
 import java.lang.ref.SoftReference;
 import java.lang.reflect.Method;
@@ -16,6 +18,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Properties;
 
 import org.appcelerator.titanium.analytics.TiAnalyticsEvent;
 import org.appcelerator.titanium.analytics.TiAnalyticsEventFactory;
@@ -25,6 +28,8 @@ import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiPlatformHelper;
 import org.appcelerator.titanium.view.ITiWindowHandler;
+
+import ti.modules.titanium.TitaniumModule;
 
 import android.app.Application;
 import android.content.Intent;
@@ -56,12 +61,32 @@ public class TiApplication extends Application
 	protected TiAnalyticsModel analyticsModel;
 	protected Intent analyticsIntent;
 	private static long lastAnalyticsTriggered = 0;
-
+	private String buildVersion, buildTimestamp;
+	
 	public TiApplication() {
 		Log.checkpoint("checkpoint, app created.");
 
 		needsEnrollEvent = false; // test is after DB is available
 		needsStartEvent = true;
+		getBuildVersion();
+	}
+	
+	private void getBuildVersion() {
+		buildVersion = "1.0";
+		buildTimestamp = "N/A";
+		InputStream versionStream = getClass().getClassLoader().getResourceAsStream("org/appcelerator/titanium/build.properties");
+		if (versionStream != null) {
+			Properties properties = new Properties();
+			try {
+				properties.load(versionStream);
+				if (properties.containsKey("build.version")) {
+					buildVersion = properties.getProperty("build.version");
+				}
+				if (properties.containsKey("build.timestamp")) {
+					buildTimestamp = properties.getProperty("build.timestamp");
+				}
+			} catch (IOException e) {}
+		}
 	}
 
 	@Override
@@ -94,6 +119,7 @@ public class TiApplication extends Application
 
 		appProperties = new TiProperties(getApplicationContext(), "titanium", false);
 		systemProperties = new TiProperties(getApplicationContext(), "system", true);
+		systemProperties.setString("ti.version", buildVersion);
 
 		TiConfig.LOGD = systemProperties.getBool("ti.android.debug", false);
 	}
@@ -336,5 +362,13 @@ public class TiApplication extends Application
 	public String getDeployType()
 	{
 		return getSystemProperties().getString(PROPERTY_DEPLOY_TYPE, DEPLOY_TYPE_DEVELOPMENT);
+	}
+	
+	public String getTiBuildVersion() {
+		return buildVersion;
+	}
+	
+	public String getTiBuildTimestamp() {
+		return buildTimestamp;
 	}
 }

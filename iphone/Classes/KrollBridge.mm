@@ -273,10 +273,7 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 		return;
 	}
 
-	NSMutableString *code = [[NSMutableString alloc] init];
-	[code appendString:jcode];
-
-	TiStringRef jsCode = TiStringCreateWithUTF8CString([code UTF8String]);
+	TiStringRef jsCode = TiStringCreateWithUTF8CString([jcode UTF8String]);
 	TiStringRef jsURL = TiStringCreateWithUTF8CString([[url_ absoluteString] UTF8String]);
 
 	// validate script
@@ -301,7 +298,6 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 		}
 	}
 
-	[code release];
 	TiStringRelease(jsCode);
 	TiStringRelease(jsURL);
 }

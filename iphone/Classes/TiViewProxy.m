@@ -14,6 +14,8 @@
 #import <libkern/OSAtomic.h>
 #import <pthread.h>
 
+#import "TiLayoutQueue.h"
+
 @implementation TiViewProxy
 
 @synthesize children, parent;
@@ -659,15 +661,13 @@
 		return;
 	}
 	OSAtomicTestAndSetBarrier(NEEDS_LAYOUT_CHILDREN, &dirtyflags);
-
 	[self lockChildrenForReading];
 		for (id child in self.children)
 		{
 			[self layoutChild:child];
 		}
-	[self unlockChildren];
-
 	OSAtomicTestAndClearBarrier(NEEDS_LAYOUT_CHILDREN, &dirtyflags);
+	[self unlockChildren];
 }
 
 -(CGRect)appFrame
@@ -949,7 +949,7 @@
 {
 	[self repositionIfNeeded];
 
-	BOOL wasSet=NEEDS_LAYOUT_CHILDREN & dirtyflags;
+	BOOL wasSet=OSAtomicTestAndClearBarrier(NEEDS_LAYOUT_CHILDREN, &dirtyflags);
 	if (wasSet && [self viewAttached])
 	{
 		[self layoutChildren];
@@ -970,12 +970,12 @@
 	ENSURE_VALUE_CONSISTENCY(containsChild,YES);
 	[self setNeedsRepositionIfAutoSized];
 
-	if (TiLayoutRuleIsVertical(layoutProperties.layout))
+	if (!TiLayoutRuleIsAbsolute(layoutProperties.layout))
 	{
 		BOOL alreadySet = OSAtomicTestAndSetBarrier(NEEDS_LAYOUT_CHILDREN, &dirtyflags);
 		if (!alreadySet)
 		{
-			[self performSelectorOnMainThread:@selector(layoutChildrenIfNeeded) withObject:nil waitUntilDone:NO modes:[NSArray arrayWithObject:NSRunLoopCommonModes]];
+			[TiLayoutQueue addViewProxy:self];
 		}
 	}
 }
@@ -1027,7 +1027,7 @@
 	}
 
 	[parent childWillResize:self];
-	[self performSelectorOnMainThread:@selector(repositionIfNeeded) withObject:nil waitUntilDone:NO modes:[NSArray arrayWithObject:NSRunLoopCommonModes]];
+	[TiLayoutQueue addViewProxy:self];
 }
 
 -(void)clearNeedsReposition

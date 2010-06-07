@@ -72,6 +72,7 @@
 -(NSIndexPath*)indexPathFromSearchIndex:(int)index;
 -(IBAction)hideSearchScreen:(id)sender;
 -(UITableView*)searchTableView;
+-(UITableView*)tableView;
 
 @end
 
