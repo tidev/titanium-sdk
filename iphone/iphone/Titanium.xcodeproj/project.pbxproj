@@ -22,6 +22,7 @@
 		242E967A11BAD2F20046A0D0 /* AsyncUdpSocket.m in Sources */ = {isa = PBXBuildFile; fileRef = 242E967611BAD2F20046A0D0 /* AsyncUdpSocket.m */; };
 		242E989A11BAF7DB0046A0D0 /* TiDebuggerCallFrame.mm in Sources */ = {isa = PBXBuildFile; fileRef = 242E989911BAF7DB0046A0D0 /* TiDebuggerCallFrame.mm */; };
 		242E989B11BAF7DB0046A0D0 /* TiDebuggerCallFrame.mm in Sources */ = {isa = PBXBuildFile; fileRef = 242E989911BAF7DB0046A0D0 /* TiDebuggerCallFrame.mm */; };
+		242EA11611BD956F0046A0D0 /* ExternalAccessory.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 242EA11511BD956F0046A0D0 /* ExternalAccessory.framework */; };
 		243ECCAA1126981C00639DF4 /* TiUITableViewSectionProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 243EC5EA112617F900639DF4 /* TiUITableViewSectionProxy.m */; };
 		243ECCAB1126981C00639DF4 /* TiUITableViewStyleProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 243EC9691126632700639DF4 /* TiUITableViewStyleProxy.m */; };
 		243ECCAC1126981C00639DF4 /* TiUITableViewSeparatorStyleProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 243ECB2411267CC100639DF4 /* TiUITableViewSeparatorStyleProxy.m */; };
@@ -528,6 +529,7 @@
 		242E967611BAD2F20046A0D0 /* AsyncUdpSocket.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AsyncUdpSocket.m; path = ../Classes/AsyncUdpSocket.m; sourceTree = SOURCE_ROOT; };
 		242E989811BAF7DB0046A0D0 /* TiDebuggerCallFrame.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TiDebuggerCallFrame.h; path = ../Classes/TiDebuggerCallFrame.h; sourceTree = SOURCE_ROOT; };
 		242E989911BAF7DB0046A0D0 /* TiDebuggerCallFrame.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = TiDebuggerCallFrame.mm; path = ../Classes/TiDebuggerCallFrame.mm; sourceTree = SOURCE_ROOT; };
+		242EA11511BD956F0046A0D0 /* ExternalAccessory.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ExternalAccessory.framework; path = System/Library/Frameworks/ExternalAccessory.framework; sourceTree = SDKROOT; };
 		243EC5E9112617F900639DF4 /* TiUITableViewSectionProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUITableViewSectionProxy.h; sourceTree = "<group>"; };
 		243EC5EA112617F900639DF4 /* TiUITableViewSectionProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUITableViewSectionProxy.m; sourceTree = "<group>"; };
 		243EC7D5112634AF00639DF4 /* TiUITableViewAction.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUITableViewAction.h; sourceTree = "<group>"; };
@@ -1057,6 +1059,7 @@
 				24EB0A58111E1BAE001DC2D1 /* libxml2.dylib in Frameworks */,
 				24597035118FF66300519F79 /* StoreKit.framework in Frameworks */,
 				242E8E3111BA39FD0046A0D0 /* libTiCore.a in Frameworks */,
+				242EA11611BD956F0046A0D0 /* ExternalAccessory.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2163,6 +2166,7 @@
 				24CA8CFA111168C30084E2DE /* AVFoundation.framework */,
 				24EB0A57111E1BAE001DC2D1 /* libxml2.dylib */,
 				24597034118FF66300519F79 /* StoreKit.framework */,
+				242EA11511BD956F0046A0D0 /* ExternalAccessory.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
