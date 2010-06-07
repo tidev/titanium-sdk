@@ -452,6 +452,14 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 -(void)configureSelectionStyle:(UITableViewCell*)cell
 {
 	id value = [self valueForKey:@"selectionStyle"];
+	if (value == nil)
+	{
+		if (table!=nil)
+		{
+			// look at the tableview if not on the row
+			value = [[table proxy] valueForUndefinedKey:@"selectionStyle"];
+		}
+	}
 	if (value!=nil)
 	{
 		cell.selectionStyle = [TiUtils intValue:value];
@@ -644,11 +652,11 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 {
 	modifyingRow = YES;
 	[self configureTitle:cell];
+	[self configureSelectionStyle:cell];
 	[self configureLeftSide:cell];
 	[self configureRightSide:cell];
 	[self configureBackground:cell];
 	[self configureIndentionLevel:cell];
-	[self configureSelectionStyle:cell];
 	[self configureChildren:cell];
 	modifyingRow = NO;
 }
@@ -657,11 +665,11 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 {
 	modifyingRow = YES;
 	[self configureTitle:cell];
+	[self configureSelectionStyle:cell];
 	[self configureLeftSide:cell];
 	[self configureRightSide:cell];
 	[self configureBackground:cell];
 	[self configureIndentionLevel:cell];
-	[self configureSelectionStyle:cell];
 
 	if([[cell reuseIdentifier] isEqual:defaultRowTableClass])
 	{

@@ -73,7 +73,8 @@ var tableViewOptions = {
 		headerTitle:'TableView examples and test cases',
 		footerTitle:"Wow. That was cool!",
 		backgroundColor:'transparent',
-		rowBackgroundColor:'white'
+		rowBackgroundColor:'white',
+		selectionStyle:Ti.UI.iPhone.TableViewCellSelectionStyle.GRAY
 	};
 
 
