@@ -80,7 +80,10 @@
 		VIEW_METHOD_ON_UI_THREAD(selectAnnotation,arg)
 	}
 	else {
-		selectedAnnotation = [arg retain];
+		if (selectedAnnotation != arg) {
+			RELEASE_TO_NIL(selectedAnnotation);
+			selectedAnnotation = [arg retain];
+		}
 	}
 }
 
