@@ -663,13 +663,6 @@ DEFINE_EXCEPTIONS
 	[self loadUrl:[self.proxy valueForKey:@"url"]];
 }
 
-#pragma mark Configuration 
-
--(void)configurationSet
-{
-	[self loadUrl:[self.proxy valueForKey:@"url"]];
-}
-
 
 #pragma mark ImageLoader delegates
 
