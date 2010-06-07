@@ -29,6 +29,7 @@ tabs[array]: array of tab objects that are managed by the tab group
 activeTab[object]: the active tab
 barColor[string]: the bar color 
 allowUserCustomization[boolean]: whether or not the user can configure the tab group via the 'More' tab's edit functionality.  iPhone/iPad only
+editButtonTitle[string]: the title for the 'More' tab edit button.  iPhone/iPad only
 
 - methods
 

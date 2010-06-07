@@ -47,7 +47,7 @@ keyboardToolbar[array]: array of toolbar button objects to be used when the keyb
 keyboardToolbarColor[string]: the color of the keyboard toolbar 
 keyboardToolbarHeight[float]: the height of the keyboard toolbar
 suppressReturn[boolean]: boolean to indicate if the return key should be suppressed during entry
-minimumFontSize[int]: the minimum size of the font when the font is sized based on the contents
+minimumFontSize[int]: the minimum size of the font when the font is sized based on the contents.  Enables font scaling to fit
 
 - methods
 

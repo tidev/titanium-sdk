@@ -116,6 +116,22 @@ DEFINE_EXCEPTIONS
 	[TiUtils applyColor:barColor toNavigationController:moreController];
 }
 
+-(void)setEditButton:(UINavigationController*)moreController
+{
+	NSString* editTitle = [[self proxy] valueForUndefinedKey:@"editButtonTitle"];
+	if ([[moreController viewControllers] count] == 1) {
+		UINavigationBar* navBar = [moreController navigationBar];
+		UINavigationItem* navItem = [navBar topItem];
+		UIBarButtonItem* editButton = [navItem rightBarButtonItem];
+		if (editTitle != nil) {
+			editButton.title = editTitle;
+		}
+		else {
+			editButton.title = @"Edit";
+		}
+	}
+}
+
 -(void)navigationController:(UINavigationController *)navigationController willShowViewController:(UIViewController *)viewController animated:(BOOL)animated	
 {
 	NSArray * moreViewControllerStack = [navigationController viewControllers];
@@ -132,6 +148,7 @@ DEFINE_EXCEPTIONS
 	{
 		[self handleWillShowTab:nil];
 		[self updateMoreBar:navigationController];
+		[self setEditButton:navigationController];
 	}
 }
 
