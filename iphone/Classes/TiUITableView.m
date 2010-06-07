@@ -98,7 +98,6 @@
 	return self;
 }
 
-
 -(void)dealloc
 {
 	if (searchField!=nil)

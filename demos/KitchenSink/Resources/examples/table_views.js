@@ -29,7 +29,8 @@ var data = [
 	{title:'Refresh Table View', hasChild:true, test:'../examples/table_view_refresh.js'},
 	{title:'Composite (Partial Size)', hasChild:true, test:'../examples/table_view_composite.js'},
 	{title:'Table View (Layout)', hasChild:true, test:'../examples/table_view_layout.js'},
-	{title:'Table View (Layout 2)', hasChild:true, test:'../examples/table_view_layout_2.js'}
+	{title:'Table View (Layout 2)', hasChild:true, test:'../examples/table_view_layout_2.js'},
+	{title:'Table View (Transparency)', hasChild:true, test:'../examples/table_view_layout_trans.js'}
 ];
 
 // add iphone specific tests

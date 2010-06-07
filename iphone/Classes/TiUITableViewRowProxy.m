@@ -17,6 +17,108 @@
 
 NSString * const defaultRowTableClass = @"_default_";
 
+@interface TiSelectedCellBackgroundView : UIView 
+{
+    TiCellBackgroundViewPosition position;
+	UIColor *fillColor;
+}
+@property(nonatomic) TiCellBackgroundViewPosition position;
+@property(nonatomic,retain) UIColor *fillColor;
+@end
+
+#define ROUND_SIZE 10
+
+
+@implementation TiSelectedCellBackgroundView
+@synthesize position,fillColor;
+
+-(void)dealloc
+{
+	RELEASE_TO_NIL(fillColor);
+	[super dealloc];
+}
+
+-(BOOL)isOpaque 
+{
+    return NO;
+}
+
+-(void)drawRect:(CGRect)rect 
+{
+    CGContextRef ctx = UIGraphicsGetCurrentContext();
+	
+	CGContextSetFillColorWithColor(ctx, [fillColor CGColor]);
+    CGContextSetStrokeColorWithColor(ctx, [fillColor CGColor]);
+    CGContextSetLineWidth(ctx, 2);
+	
+    if (position == TiCellBackgroundViewPositionTop) 
+	{
+        CGFloat minx = CGRectGetMinX(rect), midx = CGRectGetMidX(rect), maxx = CGRectGetMaxX(rect) ;
+        CGFloat miny = CGRectGetMinY(rect), maxy = CGRectGetMaxY(rect);
+        minx = minx + 1;
+        miny = miny + 1;
+        maxx = maxx - 1;
+		
+        CGContextMoveToPoint(ctx, minx, maxy);
+        CGContextAddArcToPoint(ctx, minx, miny, midx, miny, ROUND_SIZE);
+        CGContextAddArcToPoint(ctx, maxx, miny, maxx, maxy, ROUND_SIZE);
+        CGContextAddLineToPoint(ctx, maxx, maxy);
+		
+        // Close the path
+        CGContextClosePath(ctx);
+		CGContextSaveGState(ctx);
+		CGContextDrawPath(ctx, kCGPathFill);
+        return;
+    } 
+	else if (position == TiCellBackgroundViewPositionBottom) 
+	{
+        CGFloat minx = CGRectGetMinX(rect) , midx = CGRectGetMidX(rect), maxx = CGRectGetMaxX(rect) ;
+        CGFloat miny = CGRectGetMinY(rect) , maxy = CGRectGetMaxY(rect) ;
+        minx = minx + 1;
+        miny = miny + 1;
+        maxx = maxx - 1;
+        maxy = maxy - 1;
+		
+        CGContextMoveToPoint(ctx, minx, miny);
+        CGContextAddArcToPoint(ctx, minx, maxy, midx, maxy, ROUND_SIZE);
+        CGContextAddArcToPoint(ctx, maxx, maxy, maxx, miny, ROUND_SIZE);
+        CGContextAddLineToPoint(ctx, maxx, miny);
+        CGContextClosePath(ctx);
+		CGContextSaveGState(ctx);
+		CGContextDrawPath(ctx, kCGPathFill);
+        return;
+    } 
+	else if (position == TiCellBackgroundViewPositionMiddle) 
+	{
+        CGFloat minx = CGRectGetMinX(rect), maxx = CGRectGetMaxX(rect);
+        CGFloat miny = CGRectGetMinY(rect), maxy = CGRectGetMaxY(rect);
+        minx = minx + 1;
+        miny = miny + 1;
+        maxx = maxx - 1;
+        CGContextMoveToPoint(ctx, minx, miny);
+        CGContextAddLineToPoint(ctx, maxx, miny);
+        CGContextAddLineToPoint(ctx, maxx, maxy);
+        CGContextAddLineToPoint(ctx, minx, maxy);
+        CGContextClosePath(ctx);
+		CGContextSaveGState(ctx);
+		CGContextDrawPath(ctx, kCGPathFill);
+        return;
+    }
+	[super drawRect:rect];
+}
+
+-(void)setPosition:(TiCellBackgroundViewPosition)inPosition
+{
+	if(position != inPosition)
+	{
+		position = inPosition;
+		[self setNeedsDisplay];
+	}
+}
+
+@end
+
+
 // used as a marker interface
 
 @interface TiUITableViewRowContainer : UIView
@@ -238,6 +340,8 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 -(void)configureBackground:(UITableViewCell*)cell
 {
 	id bgImage = [self valueForKey:@"backgroundImage"];
+	id selBgColor = [self valueForKey:@"selectedBackgroundColor"];
+
 	if (bgImage!=nil)
 	{
 		NSURL *url = [TiUtils toURL:bgImage proxy:(TiProxy*)table.proxy];
@@ -272,16 +376,49 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 			((UIImageView*)cell.selectedBackgroundView).image = image;
 		}
 	}
-	else if (cell.selectedBackgroundView!=nil && [cell.selectedBackgroundView isKindOfClass:[UIImageView class]] && ((UIImageView*)cell.selectedBackgroundView).image!=nil)
+	else if (selBgColor==nil && cell.selectedBackgroundView!=nil && [cell.selectedBackgroundView isKindOfClass:[UIImageView class]] && ((UIImageView*)cell.selectedBackgroundView).image!=nil)
 	{
 		cell.selectedBackgroundView = nil;
 	}
 	
-	id selBgColor = [self valueForKey:@"selectedBackgroundColor"];
-	if (selBgColor!=nil)
+	if (selBgColor!=nil || [[table tableView]style]==UITableViewStyleGrouped)
 	{
-		cell.selectedBackgroundView = [[[UIImageView alloc] initWithFrame:CGRectZero] autorelease];
-		cell.selectedBackgroundView.backgroundColor = UIColorWebColorNamed(selBgColor);
+		if (selBgColor==nil)
+		{
+			// if we have a grouped view with no selected background color, we 
+			// need to setup a cell and force the color otherwise you'll get
+			// square corners on a rounded row
+			if ([cell selectionStyle]==UITableViewCellSelectionStyleBlue)
+			{
+				selBgColor = @"#0272ed";
+			}
+			else if ([cell selectionStyle]==UITableViewCellSelectionStyleGray)
+			{
+				selBgColor = @"#bbb";
+			}
+			else 
+			{
+				selBgColor = @"#fff";
+			}
+		}
+		if (cell.selectedBackgroundView == nil || [cell.selectedBackgroundView isKindOfClass:[TiSelectedCellBackgroundView class]]==NO)
+		{								
+			cell.selectedBackgroundView = [[[TiSelectedCellBackgroundView alloc] initWithFrame:CGRectZero] autorelease];
+		}
+		TiSelectedCellBackgroundView *sv = (TiSelectedCellBackgroundView*)cell.selectedBackgroundView;
+		if (row == 0)
+		{
+			sv.position = TiCellBackgroundViewPositionTop;
+		}
+		else if (row == [section rowCount]-1)
+		{
+			sv.position = TiCellBackgroundViewPositionBottom;
+		}
+		else 
+		{
+			sv.position = TiCellBackgroundViewPositionMiddle;
+		}
+		sv.fillColor = UIColorWebColorNamed(selBgColor);	
 	}
 	else if (cell.selectedBackgroundView!=nil)
 	{
@@ -357,11 +494,6 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 	[self lockChildrenForReading];
 	if (self.children!=nil)
 	{
-//		CGRect cellFrame = [cell frame];
-//		CGFloat rowHeight = [self rowHeight:cellFrame];
-//		cellFrame.size.height = rowHeight;
-//		[cell setFrame:cellFrame];
-	
 		UIView *contentView = cell.contentView;
 		CGRect rect = [contentView frame];
 		CGFloat rowHeight = [self rowHeight:rect];
