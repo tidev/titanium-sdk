@@ -10,12 +10,15 @@
 #import <Foundation/Foundation.h>
 #import "TiRootController.h"
 #import "TiRootViewController.h"
+#import "TiViewController.h"
 
 @interface TiSplitViewController : UISplitViewController<TiRootController> {
 	TiRootViewController* titaniumRoot; // Need to hold onto this so we can handle orientations properly
+	TiViewController* master;
+	TiViewController* detail;
 }
 
--(id)initWithRootController:(TiRootViewController*)controller;
+-(id)initWithRootController:(TiRootViewController*)rootController masterProxy:(TiViewProxy*)master_ detailProxy:(TiViewProxy*)detail_;
 
 @end
 
