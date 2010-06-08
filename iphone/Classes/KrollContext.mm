@@ -11,6 +11,11 @@
 #import "KrollCallback.h"
 #import "TiUtils.h"
 
+#ifdef DEBUGGER_ENABLED
+	#import "TiDebuggerContext.h"
+	#import "TiDebugger.h"
+#endif
+
 static unsigned short KrollContextIdCounter = 0;
 static unsigned short KrollContextCount = 0;
 
@@ -158,7 +163,6 @@ static TiValueRef SetTimeoutCallback (TiContextRef jsContext, TiObjectRef jsFunc
 }
 -(void)invoke:(KrollContext*)context
 {
-	// evaluate our code in the Global Context
 	TiStringRef js = TiStringCreateWithUTF8CString([code UTF8String]); 
 	TiObjectRef global = TiContextGetGlobalObject([context context]);
 	
@@ -342,6 +346,16 @@ static TiValueRef SetTimeoutCallback (TiContextRef jsContext, TiObjectRef jsFunc
 	{
 		[condition lock];
 		stopped = YES;
+#ifdef DEBUGGER_ENABLED
+		if (debugger!=NULL)
+		{
+			TiObjectRef globalRef = TiContextGetGlobalObject(context);
+			static_cast<Ti::TiDebuggerContext*>(debugger)->detach((TI::TiGlobalObject*)globalRef);
+			[[TiDebugger sharedDebugger] detach:self];
+			delete static_cast<Ti::TiDebuggerContext*>(debugger);
+			debugger = NULL;
+		}
+#endif
 		[condition signal];
 		[condition unlock];
 	}
@@ -455,6 +469,14 @@ static TiValueRef SetTimeoutCallback (TiContextRef jsContext, TiObjectRef jsFunc
 {
 	// don't worry about locking, not that important
 	gcrequest = YES;
+	
+	// signal the waiting thread to wake up - since this
+	// is called on a possible low memory condition, we 
+	// need to immediately force the thread to wake up
+	// and collect garbage asap
+	[condition lock];
+	[condition signal];
+	[condition unlock];
 }
 
 -(void)main
@@ -466,6 +488,12 @@ static TiValueRef SetTimeoutCallback (TiContextRef jsContext, TiObjectRef jsFunc
 	TiObjectRef globalRef = TiContextGetGlobalObject(context);
 		
 	TiGlobalContextRetain(context);
+
+#ifdef DEBUGGER_ENABLED
+	debugger = new Ti::TiDebuggerContext(self);
+	[[TiDebugger sharedDebugger] attach:self];
+	static_cast<Ti::TiDebuggerContext*>(debugger)->attach((TI::TiGlobalObject*)globalRef);
+#endif
 	
 	// we register an empty kroll string that allows us to pluck out this instance
 	KrollObject *kroll = [[KrollObject alloc] initWithTarget:nil context:self];
@@ -616,7 +644,9 @@ static TiValueRef SetTimeoutCallback (TiContextRef jsContext, TiObjectRef jsFunc
 		[lock unlock];
 		if (queue_count == 0)
 		{
-			[condition wait];		
+			// wait only 10 seconds and then loop, this will allow us to garbage
+			// collect every so often
+			[condition waitUntilDate:[NSDate dateWithTimeIntervalSinceNow:10]];		
 		}
 		[condition unlock]; 
 		
@@ -665,5 +695,12 @@ static TiValueRef SetTimeoutCallback (TiContextRef jsContext, TiObjectRef jsFunc
 	[kroll autorelease];
 	[pool release];
 }
+
+#ifdef DEBUGGER_ENABLED
+-(void*)debugger
+{
+	return debugger;
+}
+#endif
 
 @end

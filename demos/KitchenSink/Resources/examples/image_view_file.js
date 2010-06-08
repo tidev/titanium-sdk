@@ -12,7 +12,7 @@ var imageView = Titanium.UI.createImageView({
 win.add(imageView);
 
 var l = Titanium.UI.createLabel({
-	text:'Click Image of Appcelerator Logo',
+	text:'Click Image of Apple Logo',
 	bottom:20,
 	width:'auto',
 	height:'auto',

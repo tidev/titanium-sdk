@@ -12,6 +12,7 @@
 #import "TiColor.h"
 #import "TiUITabController.h"
 #import "TiWindowProxy.h"
+#import "TiUITabGroupProxy.h"
 
 @implementation TiUITabGroup
 
@@ -115,6 +116,22 @@ DEFINE_EXCEPTIONS
 	[TiUtils applyColor:barColor toNavigationController:moreController];
 }
 
+-(void)setEditButton:(UINavigationController*)moreController
+{
+	NSString* editTitle = [[self proxy] valueForUndefinedKey:@"editButtonTitle"];
+	if ([[moreController viewControllers] count] == 1) {
+		UINavigationBar* navBar = [moreController navigationBar];
+		UINavigationItem* navItem = [navBar topItem];
+		UIBarButtonItem* editButton = [navItem rightBarButtonItem];
+		if (editTitle != nil) {
+			editButton.title = editTitle;
+		}
+		else {
+			editButton.title = @"Edit";
+		}
+	}
+}
+
 -(void)navigationController:(UINavigationController *)navigationController willShowViewController:(UIViewController *)viewController animated:(BOOL)animated	
 {
 	NSArray * moreViewControllerStack = [navigationController viewControllers];
@@ -131,6 +148,7 @@ DEFINE_EXCEPTIONS
 	{
 		[self handleWillShowTab:nil];
 		[self updateMoreBar:navigationController];
+		[self setEditButton:navigationController];
 	}
 }
 
@@ -223,9 +241,23 @@ DEFINE_EXCEPTIONS
 }
 
 
-- (void)tabBarController:(UITabBarController *)tabBarController willEndCustomizingViewControllers:(NSArray *)viewControllers changed:(BOOL)changed
+- (void)tabBarController:(UITabBarController *)tabBarController didEndCustomizingViewControllers:(NSArray *)viewControllers changed:(BOOL)changed
 {
-	//TODO
+	if (changed) {
+		NSMutableArray* tabProxies = [NSMutableArray arrayWithCapacity:[viewControllers count]];
+		for (UINavigationController* controller_ in viewControllers) {
+			id delegate = [controller_ delegate];
+			if ([delegate isKindOfClass:[TiUITabProxy class]]) {
+				TiUITabProxy* tabProxy = (TiUITabProxy*)delegate;
+				[tabProxies addObject:tabProxy];
+			}
+		}
+		
+		// We do it this way to reset the 'tabs' array on the proxy without changing the active
+		// controller.  The SDK documentation actually conflicts itself on whether or not the 'more' tab
+		// can be manually reselected anyway.
+		[(TiUITabGroupProxy*)[self proxy] _resetTabArray:tabProxies];
+	}
 }
 
 
@@ -278,6 +310,17 @@ DEFINE_EXCEPTIONS
 	[self tabBarController:[self tabController] didSelectViewController:active];
 }
 
+-(void)setAllowUserCustomization_:(id)value
+{
+	allowConfiguration = [TiUtils boolValue:value def:YES];
+	if (allowConfiguration) {
+		[self tabController].customizableViewControllers = [self tabController].viewControllers;
+	}
+	else {
+		[self tabController].customizableViewControllers = nil;
+	}
+}
+
 -(void)setTabs_:(id)tabs
 {
 	ENSURE_TYPE_OR_NIL(tabs,NSArray);
@@ -312,8 +355,8 @@ DEFINE_EXCEPTIONS
 	}
 
 	[self.proxy	replaceValue:focused forKey:@"activeTab" notification:YES];
+	[self setAllowUserCustomization_:[NSNumber numberWithBool:allowConfiguration]];
 }
-
 
 -(void)open:(id)args
 {

@@ -30,7 +30,7 @@ preventDefaultImage[boolean]: boolean to indicate if the default image should be
 duration[float]: amount of time in milliseconds to animate one cycle
 repeatCount[int]: number of times to repeat the image animation
 reverse[boolean]: boolean to indicate if the animation should happen in reverse (from last to first)
-url[string]: url to the image to display
+url[string]: url to the image to display (NOTE: this property is deprecated. use image instead)
 images[array]: array of images (either as string url, Blob or File) to display in an animation
 image[object]: image to display either as string url, Blob or File
 width[float]: width of the image display

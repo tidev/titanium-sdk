@@ -118,24 +118,24 @@
 
 -(void)addAnnotation:(id)args
 {
-	ENSURE_UI_THREAD(addAnnotation,args);
 	ENSURE_SINGLE_ARG(args,NSObject);
+	ENSURE_UI_THREAD(addAnnotation,args);
 	
 	[[self map] addAnnotation:[self annotationFromArg:args]];
 }
 
 -(void)addAnnotations:(id)args
 {
-	ENSURE_UI_THREAD(addAnnotations,args);
 	ENSURE_TYPE(args,NSArray);
+	ENSURE_UI_THREAD(addAnnotations,args);
 
 	[[self map] addAnnotations:[self annotationsFromArgs:args]];
 }
 
 -(void)removeAnnotation:(id)args
 {
-	ENSURE_UI_THREAD(removeAnnotation,args);
 	ENSURE_SINGLE_ARG(args,NSObject);
+	ENSURE_UI_THREAD(removeAnnotation,args);
 
 	id<MKAnnotation> doomedAnnotation = nil;
 	
@@ -162,8 +162,8 @@
 
 -(void)removeAnnotations:(id)args
 {
-	ENSURE_UI_THREAD(removeAnnotations,args);
 	ENSURE_TYPE(args,NSArray); // assumes an array of TiMapAnnotationProxy classes
+	ENSURE_UI_THREAD(removeAnnotations,args);
 	[[self map] removeAnnotations:args];
 }
 
@@ -175,8 +175,8 @@
 
 -(void)setAnnotations_:(id)value
 {
-	ENSURE_UI_THREAD(setAnnotations_,value)
 	ENSURE_TYPE_OR_NIL(value,NSArray);
+	ENSURE_UI_THREAD(setAnnotations_,value)
 	[[self map] removeAnnotations:[[self map] annotations]];
 	if (value != nil) {
 		[[self map] addAnnotations:[self annotationsFromArgs:value]];
@@ -185,8 +185,16 @@
 
 -(void)selectAnnotation:(id)args
 {
+	ENSURE_SINGLE_ARG_OR_NIL(args,NSObject);
 	ENSURE_UI_THREAD(selectAnnotation,args);
-	ENSURE_SINGLE_ARG(args,NSObject);
+	
+	if (args == nil) {
+		for (id<MKAnnotation> annotation in [[self map] selectedAnnotations]) {
+			[[self map] deselectAnnotation:annotation animated:animate];
+		}
+		return;
+	}
+	
 	if ([args isKindOfClass:[NSString class]])
 	{
 		// for pre 0.9, we supporting selecting by passing the annotation title
@@ -219,8 +227,9 @@
 
 -(void)deselectAnnotation:(id)args
 {
-	ENSURE_UI_THREAD(deselectAnnotation,args);
 	ENSURE_SINGLE_ARG(args,NSObject);
+	ENSURE_UI_THREAD(deselectAnnotation,args);
+
 	if ([args isKindOfClass:[NSString class]])
 	{
 		// for pre 0.9, we supporting selecting by passing the annotation title
@@ -252,8 +261,9 @@
 
 -(void)zoom:(id)args
 {
-	ENSURE_UI_THREAD(zoom,args);
 	ENSURE_SINGLE_ARG(args,NSObject);
+	ENSURE_UI_THREAD(zoom,args);
+
 	double v = [TiUtils doubleValue:args];
 	// TODO: Find a good delta tolerance value to deal with floating point goofs
 	if (v == 0.0) {

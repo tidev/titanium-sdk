@@ -39,6 +39,29 @@ NSStringEncoding ExtractEncodingFromData(NSData * inputData)
 	else unsearchableSize = 8; // So that there's no chance of overrunning the buffer with 'charset='
 	const char * data = [inputData bytes];
 	
+	// XML provides its own encoding format as part of the definition,
+	// we need to use this if it looks like a XML document
+	int prefix = CaselessCompare(data,"<?xml",5);
+	if (prefix==0)
+	{
+		char *enc = strstr(data, "encoding=");
+		if (enc)
+		{
+			enc += 10;
+			data = enc;
+			TRYENCODING("windows-1252",12,NSWindowsCP1252StringEncoding);
+			TRYENCODING("iso-8859-1",10,NSISOLatin1StringEncoding);
+			TRYENCODING("utf-8",5,NSUTF8StringEncoding);
+			TRYENCODING("shift-jis",9,NSShiftJISStringEncoding);
+			TRYENCODING("x-euc",5,NSJapaneseEUCStringEncoding);
+			TRYENCODING("windows-1250",12,NSWindowsCP1251StringEncoding);
+			TRYENCODING("windows-1251",12,NSWindowsCP1252StringEncoding);
+			TRYENCODING("windows-1253",12,NSWindowsCP1253StringEncoding);
+			TRYENCODING("windows-1254",12,NSWindowsCP1254StringEncoding);
+			return NSUTF8StringEncoding;
+		}
+	}
+	
 	while(remainingSize > unsearchableSize)
 	{
 		int compareOffset = CaselessCompare(data, "charset=", 8);

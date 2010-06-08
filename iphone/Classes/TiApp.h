@@ -70,5 +70,7 @@
 
 -(BOOL)isKeyboardShowing;
 
+-(KrollBridge*)krollBridge;
+
 @end
 

@@ -159,8 +159,12 @@
 	DEFINE_SUBPROXY(TableViewCellSelectionStyle,tableViewCellSelectionStyle);
 #endif
 
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
 #define RESPONDS_TO_3_2_STATUSBAR_SELECTOR \
 [[UIApplication sharedApplication] respondsToSelector:@selector(setStatusBarHidden:withAnimation:)]
+#else
+#define RESPONDS_TO_3_2_STATUSBAR_SELECTOR NO
+#endif
 
 -(void)hideStatusBar:(id)args
 {
@@ -170,14 +174,18 @@
 	BOOL animated = [TiUtils boolValue:@"animated" properties:args def:YES];
 	
 	BOOL repositionViews = NO;
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
 	if (RESPONDS_TO_3_2_STATUSBAR_SELECTOR) {
 		int style = (animated==NO) ? UIStatusBarAnimationNone : [TiUtils intValue:@"animationStyle" properties:args def:UIStatusBarAnimationSlide];
 		[[UIApplication sharedApplication] setStatusBarHidden:YES withAnimation:style];
 	}
 	else {
+#endif		
 		[[UIApplication sharedApplication] setStatusBarHidden:YES];
 		repositionViews = YES;
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
 	}
+#endif	
 	
 	[[[TiApp app] controller] resizeView];
 	if (repositionViews) {
@@ -193,15 +201,19 @@
 	BOOL animated = [TiUtils boolValue:@"animated" properties:args def:YES];
 
 	BOOL repositionViews = NO;
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
 	if (RESPONDS_TO_3_2_STATUSBAR_SELECTOR) {
 		int style = (animated==NO) ? UIStatusBarAnimationNone : [TiUtils intValue:@"animationStyle" properties:args def:UIStatusBarAnimationSlide];
 		[[UIApplication sharedApplication] setStatusBarHidden:NO withAnimation:style];
 	}
 	else {
+#endif
 		[[UIApplication sharedApplication] setStatusBarHidden:NO];		
 		repositionViews = YES;
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
 	}
-
+#endif
+	
 	[[[TiApp app] controller] resizeView];
 	if (repositionViews) {
 		[[[TiApp app] controller] repositionSubviews];
@@ -216,14 +228,18 @@
 	BOOL value = [TiUtils boolValue:hidden];
 	
 	BOOL repositionViews = NO;
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
 	if (RESPONDS_TO_3_2_STATUSBAR_SELECTOR) {
 		[[UIApplication sharedApplication] setStatusBarHidden:value withAnimation:UIStatusBarAnimationNone];
 	}
 	else {
+#endif		
 		[[UIApplication sharedApplication] setStatusBarHidden:value];
 		repositionViews = YES;
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
 	}
-
+#endif
+	
 	[[[TiApp app] controller] resizeView];
 	if (repositionViews) {
 		[[[TiApp app] controller] repositionSubviews];

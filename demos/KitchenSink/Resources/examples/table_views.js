@@ -29,7 +29,7 @@ var data = [
 	{title:'Refresh Table View', hasChild:true, test:'../examples/table_view_refresh.js'},
 	{title:'Composite (Partial Size)', hasChild:true, test:'../examples/table_view_composite.js'},
 	{title:'Table View (Layout)', hasChild:true, test:'../examples/table_view_layout.js'},
-	{title:'Table View (Layout 2)', hasChild:true, test:'../examples/table_view_layout_2.js'}
+	{title:'Table View (Layout 2)', hasChild:true, test:'../examples/table_view_layout_2.js'},
 ];
 
 // add iphone specific tests
@@ -73,7 +73,8 @@ var tableViewOptions = {
 		headerTitle:'TableView examples and test cases',
 		footerTitle:"Wow. That was cool!",
 		backgroundColor:'transparent',
-		rowBackgroundColor:'white'
+		rowBackgroundColor:'white',
+		selectionStyle:Ti.UI.iPhone.TableViewCellSelectionStyle.GRAY
 	};
 
 
