@@ -20,7 +20,7 @@
 -(TiBlob*)base64encode:(id)args
 {
 	ENSURE_SINGLE_ARG(args,NSString);
-	
+
 	const char *data = [args UTF8String];
 	size_t len = [args length];
 	
@@ -75,27 +75,6 @@
 			];
 }
 
-<<<<<<< HEAD:iphone/Classes/UtilsModule.m
--(TiBlob*)toBlob:(id)args
-{
-	id arg = [args objectAtIndex:0];
-	if ([arg isKindOfClass:[NSString class]])
-	{
-		ENSURE_STRING(arg);
-		NSString* ct = [args objectAtIndex:1];
-		NSData *data = [arg dataUsingEncoding:NSUTF8StringEncoding];
-		return [[[TiBlob alloc] initWithData:data mimetype:ct] autorelease];
-	}
-	else if ([arg isKindOfClass:[TiFile class]])
-	{
-		TiFile *file = (TiFile*)arg;
-		return [[[TiBlob alloc] initWithFile:[file path]] autorelease];
-	}
-	[self throwException:@"invalid blob input type" subreason:nil location:CODELOCATION];
-}
-
-=======
->>>>>>> 36c41458c3f3b27eddec05aa886587b22d1dd88a:iphone/Classes/UtilsModule.m
 @end
 
 #endif
