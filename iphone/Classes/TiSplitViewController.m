@@ -63,13 +63,10 @@
 	return rect;
 }
 
-/*
 -(void)repositionSubviews
 {
-	[[master proxy] reposition];
-	[[detail proxy] reposition];
+	// No-op
 }
-*/
 
 -(void)setBackgroundColor:(UIColor*)color
 {
