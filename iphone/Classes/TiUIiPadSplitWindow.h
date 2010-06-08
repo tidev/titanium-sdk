@@ -11,10 +11,9 @@
 #define USE_TI_UIIPADPOPOVER
 #endif
 
-
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
 #import "TiUIView.h"
 #import "TiSplitViewController.h"
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
 
 @class TiUIiPadPopoverProxy;
 
@@ -22,8 +21,6 @@
 
 @private
 	TiSplitViewController *controller;
-	TiViewProxy *masterProxy; // don't retain
-	TiViewProxy *detailProxy; // don't retain
 	TiUIiPadPopoverProxy *popoverProxy;
 	UIPopoverController *popover;
 }

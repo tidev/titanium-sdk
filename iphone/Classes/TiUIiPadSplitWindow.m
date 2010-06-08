@@ -5,7 +5,11 @@
  * Please see the LICENSE included with this distribution for details.
  */
 #ifdef USE_TI_UIIPADSPLITWINDOW
+#ifndef USE_TI_UIIPADSPLITWINDOWBUTTON
+#define USE_TI_UIIPADSPLITWINDOWBUTTON
+#endif
 
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
 #import "TiUIiPadSplitWindow.h"
 #import "TiUtils.h"
 #import "TiViewController.h"
@@ -13,15 +17,10 @@
 #import "TiUIiPadPopoverProxy.h"
 #import "TiSplitViewController.h"
 
-#ifndef USE_TI_UIIPADSPLITWINDOWBUTTON
-#define USE_TI_UIIPADSPLITWINDOWBUTTON
-#endif
-
 #ifdef USE_TI_UIIPADSPLITWINDOWBUTTON
 #import "TiUIiPadSplitWindowButtonProxy.h"
 #endif
 
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
 
 @implementation TiUIiPadSplitWindow
 
@@ -37,34 +36,20 @@
 {
 	if (controller==nil)
 	{
-		masterProxy = [self.proxy valueForUndefinedKey:@"masterView"];
-		detailProxy = [self.proxy valueForUndefinedKey:@"detailView"];
+		TiViewProxy* masterProxy = [self.proxy valueForUndefinedKey:@"masterView"];
+		TiViewProxy* detailProxy = [self.proxy valueForUndefinedKey:@"detailView"];
 
-		TiViewController *mc = [[TiViewController alloc] initWithViewProxy:masterProxy];
-		TiViewController *dc = [[TiViewController alloc] initWithViewProxy:detailProxy];
-
-		UINavigationController *leftNav = [[UINavigationController alloc] initWithRootViewController:mc];
-		UINavigationController *rightNav = [[UINavigationController alloc] initWithRootViewController:dc];
-		
-		leftNav.navigationBarHidden = YES;
-		rightNav.navigationBarHidden = YES;
-
-		controller = [[TiSplitViewController alloc] initWithRootController:(TiRootViewController*)[[TiApp app] controller]];
-		controller.viewControllers = [NSArray arrayWithObjects:leftNav,rightNav,nil];
+		controller = [[TiSplitViewController alloc] initWithRootController:(TiRootViewController*)[[TiApp app] controller] masterProxy:masterProxy detailProxy:detailProxy];
 		controller.delegate = self;
 		
-		//		[self addSubview:controller.view];
-		
-		//		[[[TiApp app] controller] windowFocused:controller];
-
 		UIWindow *window = [TiApp app].window;
 		UIViewController<TiRootController> *viewController = [[TiApp app] controller];
 		[[viewController view] removeFromSuperview];
 		[[TiApp app] setController:controller];
 		[window addSubview:[controller view]];
-				
-		[mc release];
-		[dc release];
+		[window setFrame:[[UIScreen mainScreen] applicationFrame]];
+		[controller resizeView];
+		[controller repositionSubviews];
 	}
 	return controller;
 }
