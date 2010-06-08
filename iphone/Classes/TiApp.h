@@ -32,7 +32,8 @@
 	NSLock *networkActivity;
 	int networkActivityCount;
 	
-	TiRootViewController *controller;
+	// TODO: Create a specialized SplitView controller if necessary
+	UIViewController<TiRootController> *controller;
 	NSString *userAgent;
 	NSString *remoteDeviceUUID;
 	
@@ -46,6 +47,7 @@
 @property (nonatomic, retain) IBOutlet UIWindow *window;
 @property (nonatomic, assign) id remoteNotificationDelegate;
 @property (nonatomic, readonly) NSDictionary* remoteNotification;
+@property (nonatomic, retain) UIViewController<TiRootController>* controller;
 
 +(TiApp*)app;
 
@@ -59,7 +61,6 @@
 -(void)startNetwork;
 -(void)stopNetwork;
 
--(TiRootViewController*)controller;
 -(void)showModalError:(NSString*)message;
 
 -(void)showModalController:(UIViewController*)controller animated:(BOOL)animated;

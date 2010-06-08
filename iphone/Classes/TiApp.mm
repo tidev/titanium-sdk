@@ -73,7 +73,7 @@ void MyUncaughtExceptionHandler(NSException *exception)
 
 @implementation TiApp
 
-@synthesize window, remoteNotificationDelegate;
+@synthesize window, remoteNotificationDelegate, controller;
 
 + (TiApp*)app
 {
@@ -353,12 +353,6 @@ void MyUncaughtExceptionHandler(NSException *exception)
 	{
 		[remoteNotificationDelegate performSelector:@selector(application:didFailToRegisterForRemoteNotificationsWithError:) withObject:application withObject:error];
 	}
-}
-
-
--(TiRootViewController*)controller
-{
-	return controller;
 }
 
 //TODO: this should be compiled out in production mode
