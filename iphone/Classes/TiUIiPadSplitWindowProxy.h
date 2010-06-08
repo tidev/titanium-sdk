@@ -4,12 +4,12 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-#ifdef USE_TI_UIIPADSPLITWINDOW
+#import "TiBase.h"
 
+#ifdef USE_TI_UIIPADSPLITWINDOW
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
 #import "TiViewProxy.h"
 #import "TiUIWindowProxy.h"
-
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
 
 @interface TiUIiPadSplitWindowProxy : TiUIWindowProxy {
 
@@ -19,7 +19,5 @@
 
 @end
 
-
 #endif
-
 #endif
