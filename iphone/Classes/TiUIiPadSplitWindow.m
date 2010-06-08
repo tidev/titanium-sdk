@@ -4,12 +4,16 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
+#import "TiBase.h"
+
 #ifdef USE_TI_UIIPADSPLITWINDOW
 #ifndef USE_TI_UIIPADSPLITWINDOWBUTTON
 #define USE_TI_UIIPADSPLITWINDOWBUTTON
 #endif
 
+
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
+
 #import "TiUIiPadSplitWindow.h"
 #import "TiUtils.h"
 #import "TiViewController.h"
