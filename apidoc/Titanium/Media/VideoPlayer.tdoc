@@ -184,7 +184,7 @@ playbackState: playbackState
 
 - notes
 
-Starting in iPhone 3.2 SDK, the video player can be embedded in any normal view.  Prior to 3.2, only fullscreen views were available on iPhone.
+Starting in iPhone 3.2 SDK, the video player can be embedded in any normal view.  However, if you create multiple video players at one time, only the last one to have its URL set will display video content or behave as if it is a view for a video player.  Prior to 3.2, only fullscreen views were available on iPhone.
 
 
 

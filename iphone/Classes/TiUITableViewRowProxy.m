@@ -452,6 +452,14 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 -(void)configureSelectionStyle:(UITableViewCell*)cell
 {
 	id value = [self valueForKey:@"selectionStyle"];
+	if (value == nil)
+	{
+		if (table!=nil)
+		{
+			// look at the tableview if not on the row
+			value = [[table proxy] valueForUndefinedKey:@"selectionStyle"];
+		}
+	}
 	if (value!=nil)
 	{
 		cell.selectionStyle = [TiUtils intValue:value];
@@ -526,6 +534,8 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 				parent:(TiViewProxy*)newParent
 		 touchDelegate:(id)touchDelegate
 {
+	TiViewProxy * oldProxy = [uiview proxy];
+
 	[uiview transferProxy:proxy];
 	
 	// because proxies can have children, we need to recursively do this
@@ -533,21 +543,34 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 	NSArray *children_ = proxy.children;
 	if (children_!=nil && [children_ count]>0)
 	{
-		NSArray *subviews = [uiview subviews];
-		if ([subviews count] != [children_ count])
+		[oldProxy lockChildrenForReading];
+		NSArray * oldProxyChildren = [oldProxy children];
+
+		if ([oldProxyChildren count] != [children_ count])
 		{
 			NSLog(@"[WARN] looks like we have a different table cell layout than expected.  Make sure you set the 'className' property of the table row when you have different cell layouts");
 			NSLog(@"[WARN] if you don't fix this, your tableview will suffer performance issues and also will not render properly");
+			[oldProxy unlockChildren];
 			[proxy unlockChildren];
 			return;
 		}
 		int c = 0;
+		NSEnumerator * oldChildrenEnumator = [oldProxyChildren objectEnumerator];
 		for (TiViewProxy* child in children_)
 		{
+			TiViewProxy * oldChild = [oldChildrenEnumator nextObject];
+			if (![oldChild viewAttached])
+			{
+				NSLog(@"[WARN] Orphaned child found during proxy transfer!");
+			}
+			//Todo: We should probably be doing this only if the view is attached,
+			//And something else entirely if the view wasn't attached.
 			[self reproxyChildren:child 
-							 view:[subviews objectAtIndex:c++]  
+							 view:[oldChild view]
 						   parent:proxy touchDelegate:nil];
+
 		}
+		[oldProxy unlockChildren];
 	}
 	[proxy unlockChildren];
 }
@@ -644,11 +667,11 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 {
 	modifyingRow = YES;
 	[self configureTitle:cell];
+	[self configureSelectionStyle:cell];
 	[self configureLeftSide:cell];
 	[self configureRightSide:cell];
 	[self configureBackground:cell];
 	[self configureIndentionLevel:cell];
-	[self configureSelectionStyle:cell];
 	[self configureChildren:cell];
 	modifyingRow = NO;
 }
@@ -657,13 +680,15 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 {
 	modifyingRow = YES;
 	[self configureTitle:cell];
+	[self configureSelectionStyle:cell];
 	[self configureLeftSide:cell];
 	[self configureRightSide:cell];
 	[self configureBackground:cell];
 	[self configureIndentionLevel:cell];
-	[self configureSelectionStyle:cell];
 
-	if([[cell reuseIdentifier] isEqual:defaultRowTableClass])
+	NSString * cellReuseIdent = [cell reuseIdentifier];
+
+	if([cellReuseIdent isEqual:defaultRowTableClass])
 	{
 		//We can make no assumptions when a class is not specified.
 		for (UIView * oldView in [[cell contentView] subviews])
@@ -673,7 +698,7 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 				[oldView removeFromSuperview];
 			}
 		}
-		[self initializeTableViewCell:cell];
+		[self configureChildren:cell];
 	}
 	else
 	{

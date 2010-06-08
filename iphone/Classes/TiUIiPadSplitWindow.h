@@ -13,7 +13,7 @@
 
 
 #import "TiUIView.h"
-
+#import "TiSplitViewController.h"
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
 
 @class TiUIiPadPopoverProxy;
@@ -21,7 +21,7 @@
 @interface TiUIiPadSplitWindow : TiUIView<UISplitViewControllerDelegate> {
 
 @private
-	UISplitViewController *controller;
+	TiSplitViewController *controller;
 	TiViewProxy *masterProxy; // don't retain
 	TiViewProxy *detailProxy; // don't retain
 	TiUIiPadPopoverProxy *popoverProxy;

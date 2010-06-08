@@ -37,6 +37,9 @@
 	TiGlobalContextRef context;
 	NSMutableDictionary *timers;
 	NSRecursiveLock *timerLock;
+#ifdef DEBUGGER_ENABLED	
+	void *debugger;
+#endif
 }
 
 @property(nonatomic,readwrite,assign) id<KrollDelegate> delegate;
@@ -46,8 +49,10 @@
 -(void)stop;
 -(BOOL)running;
 -(void)gc;
-- (TiGlobalContextRef)context;
-
+-(TiGlobalContextRef)context;
+#ifdef DEBUGGER_ENABLED
+-(void*)debugger;
+#endif
 
 #ifdef DEBUG
 // used during debugging only

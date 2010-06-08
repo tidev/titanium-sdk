@@ -11,6 +11,7 @@
 #import "TiViewController.h"
 #import "TiApp.h"
 #import "TiUIiPadPopoverProxy.h"
+#import "TiSplitViewController.h"
 
 #ifndef USE_TI_UIIPADSPLITWINDOWBUTTON
 #define USE_TI_UIIPADSPLITWINDOWBUTTON
@@ -48,7 +49,7 @@
 		leftNav.navigationBarHidden = YES;
 		rightNav.navigationBarHidden = YES;
 
-		controller = [[UISplitViewController alloc] init];
+		controller = [[TiSplitViewController alloc] initWithRootController:(TiRootViewController*)[[TiApp app] controller]];
 		controller.viewControllers = [NSArray arrayWithObjects:leftNav,rightNav,nil];
 		controller.delegate = self;
 		
@@ -57,8 +58,9 @@
 		//		[[[TiApp app] controller] windowFocused:controller];
 
 		UIWindow *window = [TiApp app].window;
-		TiRootViewController *viewController = [[TiApp app] controller];
+		UIViewController<TiRootController> *viewController = [[TiApp app] controller];
 		[[viewController view] removeFromSuperview];
+		[[TiApp app] setController:controller];
 		[window addSubview:[controller view]];
 				
 		[mc release];

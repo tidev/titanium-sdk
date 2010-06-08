@@ -5,12 +5,14 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
+#import "TiRootController.h"
+
 @class TiProxy;
 @class TiWindowProxy;
 
 #define MAX_ORIENTATIONS	7
 
-@interface TiRootViewController : UIViewController<UIApplicationDelegate> {
+@interface TiRootViewController : UIViewController<UIApplicationDelegate,TiRootController> {
 @private
 	NSMutableArray *windowViewControllers;	
 	TiWindowProxy *currentWindow;	//NOT RETAINED
@@ -35,7 +37,7 @@
 -(CGRect)resizeView;
 -(void)repositionSubviews;
 
--(void) manuallyRotateToOrientation:(UIInterfaceOrientation)orientation;
+-(void)manuallyRotateToOrientation:(UIInterfaceOrientation)orientation;
 -(void)manuallyRotateToOrientation:(UIInterfaceOrientation)newOrientation duration:(NSTimeInterval)duration;
 
 -(void)refreshOrientationModesIfNeeded:(TiWindowProxy *)oldCurrentWindow;
