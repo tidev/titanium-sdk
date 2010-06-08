@@ -674,10 +674,6 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 	[self configureIndentionLevel:cell];
 	[self configureChildren:cell];
 	modifyingRow = NO;
-
-	NSString * cellReuseIdent = [cell reuseIdentifier];
-	NSLog(@"[WARN] Table row %X classNames: '%@' vs '%@'",cell,cellReuseIdent,[self tableClass]);
-
 }
 
 -(void)renderTableViewCell:(UITableViewCell*)cell
@@ -706,11 +702,6 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 	}
 	else
 	{
-//		if (![cellReuseIdent isEqualToString:[self tableClass]])
-		{
-			NSLog(@"[WARN] Table row %X classNames: '%@' vs '%@'",cell,cellReuseIdent,[self tableClass]);
-		}
-	
 		[self updateChildren:cell];
 	}
 	modifyingRow = NO;
