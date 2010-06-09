@@ -27,6 +27,7 @@ iphone, ipad
 getAllPeople: Returns an array of `Titanium.Contacts.Person` objects in the contacts database
 getPeopleWithName: Returns an array of `Titanium.Contacts.Person` objects who have a name (first, last, middle, composite) which matches the given name
 getPersonByID: Returns a `Titanium.Contacts.Person` object with the given ID
+showContacts: Displays the contact picker
 createPerson: Creates a new `Titanium.Contacts.Person` object.  There must not be any unsaved changes to the database when this function is called
 removePerson: Removes a person from the contacts database
 save: Saves all changes to contacts to the database
@@ -39,6 +40,14 @@ name[string]: The name to match in the database
 - method : getPersonByID, object
 
 id[int]: The database ID of the person to retrieve
+
+- method : showContacts
+
+cancel[function]: The function to call when selection is cancelled
+selectedPerson[function]: The function to call when a person is selected.  Mutually exclusive with `selectedProperty`
+selectedProperty[function]: The function to call when a property is selected.  Mutally exclusive with `selectedPerson`
+animated[boolean]: Whether or not to animate the show/hide of the contacts picker
+fields[array]: A list of field names to show when selecting properties, default is to show all available
 
 - method : removePerson
 
