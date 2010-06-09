@@ -62,7 +62,7 @@ public class TiApplication extends Application
 	protected Intent analyticsIntent;
 	private static long lastAnalyticsTriggered = 0;
 	private String buildVersion, buildTimestamp;
-	
+
 	public TiApplication() {
 		Log.checkpoint("checkpoint, app created.");
 
@@ -70,7 +70,7 @@ public class TiApplication extends Application
 		needsStartEvent = true;
 		getBuildVersion();
 	}
-	
+
 	private void getBuildVersion() {
 		buildVersion = "1.0";
 		buildTimestamp = "N/A";
@@ -104,9 +104,6 @@ public class TiApplication extends Application
 			}
 		});
 
-		//TODO read from tiapp.xml
-		//TiConfig.LOGD = true;
-
 		baseUrl = "file:///android_asset/Resources/";
 
 		File fullPath = new File(baseUrl, getStartFilename("app.js"));
@@ -120,11 +117,15 @@ public class TiApplication extends Application
 		appProperties = new TiProperties(getApplicationContext(), "titanium", false);
 		systemProperties = new TiProperties(getApplicationContext(), "system", true);
 		systemProperties.setString("ti.version", buildVersion);
-
-		TiConfig.LOGD = systemProperties.getBool("ti.android.debug", false);
 	}
 
-	public void setRootActivity(TiRootActivity rootActivity) {
+	public void setRootActivity(TiRootActivity rootActivity)
+	{
+		// Chicken and Egg problem. Set debugging here since I don't want to
+		// change the code generator query app info for properties.
+
+		TiConfig.LOGD = systemProperties.getBool("ti.android.debug", false);
+
 		//TODO consider weakRef
 		this.rootActivity = rootActivity;
 		this.windowHandler = rootActivity;
@@ -363,11 +364,11 @@ public class TiApplication extends Application
 	{
 		return getSystemProperties().getString(PROPERTY_DEPLOY_TYPE, DEPLOY_TYPE_DEVELOPMENT);
 	}
-	
+
 	public String getTiBuildVersion() {
 		return buildVersion;
 	}
-	
+
 	public String getTiBuildTimestamp() {
 		return buildTimestamp;
 	}
