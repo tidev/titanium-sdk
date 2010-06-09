@@ -252,7 +252,9 @@ if(attached==NO)return;
 	if (socket)
 	{
 		pendingRead = YES;
-		[socket writeData:data withTimeout:10 tag:0];
+		NSMutableData *dest = [NSMutableData dataWithData:data];
+		[dest appendData:[@"\r\n" dataUsingEncoding:NSUTF8StringEncoding]];
+		[socket writeData:dest withTimeout:10 tag:0];
 		NSMutableData *input = [[NSMutableData alloc] initWithCapacity:4096];
 		NSTimeInterval timeout = 60 * 5; // 5 minutes?
 		[socket readDataToData:[AsyncSocket CRLFData] withTimeout:timeout buffer:input bufferOffset:0 maxLength:4096 tag:0];
