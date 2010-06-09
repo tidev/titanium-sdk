@@ -25,6 +25,13 @@
 	{
 		sliderView = [[UISlider alloc] initWithFrame:[self bounds]];
 		[sliderView setAutoresizingMask:UIViewAutoresizingFlexibleWidth];
+		
+		// We have to do this to force the slider subviews to appear; apparently setting the value<=min registers
+		// as value==min, which for some dumb reason the slider does not consider a value change, which means it doesn't
+		// draw its subviews.
+		[sliderView setValue:0.1 animated:NO];
+		[sliderView setValue:0 animated:NO];
+		
 		[sliderView addTarget:self action:@selector(sliderChanged:) forControlEvents:UIControlEventValueChanged];
 		[self addSubview:sliderView];
 	}
@@ -149,7 +156,8 @@
 
 -(CGFloat)verifyHeight:(CGFloat)suggestedHeight
 {
-	return [[self sliderView] sizeThatFits:CGSizeZero].height;
+	CGSize fitSize = [[self sliderView] sizeThatFits:CGSizeZero];
+	return fitSize.height;
 }
 
 USE_PROXY_FOR_VERIFY_AUTORESIZING
