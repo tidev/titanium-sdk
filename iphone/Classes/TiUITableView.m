@@ -1162,7 +1162,7 @@
 	}
 	else 
 	{
-		tableHeaderPullView = [[UIView alloc] initWithFrame:CGRectMake(0.0f, 0.0f - self.tableView.bounds.size.height, 320.0f, self.tableView.bounds.size.height)];
+		tableHeaderPullView = [[UIView alloc] initWithFrame:CGRectMake(0.0f, 0.0f - self.tableView.bounds.size.height, self.tableView.bounds.size.width, self.tableView.bounds.size.height)];
 		tableHeaderPullView.backgroundColor = [UIColor lightGrayColor];
 		UIView *view = [value view];
 		[[self tableView] addSubview:tableHeaderPullView];
