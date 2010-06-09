@@ -15,6 +15,7 @@ import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiUIView;
 
+import android.text.InputType;
 import android.view.Gravity;
 import android.widget.TextView;
 
@@ -31,7 +32,7 @@ public class TiUILabel extends TiUIView
 		TextView tv = new TextView(getProxy().getContext());
 		tv.setGravity(Gravity.TOP | Gravity.LEFT);
 		tv.setPadding(0, 0, 0, 0);
-		tv.setSingleLine(false);
+		tv.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_MULTI_LINE);
 		setNativeView(tv);
 	}
 
