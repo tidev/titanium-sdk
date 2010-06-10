@@ -22,6 +22,8 @@ if (Titanium.Platform.name == 'iPhone OS')
 	data.push({title:'Inline HTML w/ Border', hasChild:true, innerHTML:'<html><body><div>Hello from inline HTML. You should see red border</div></body></html>', border: true});
 	data.push({title:'PDF URL', hasChild:true, url:'http://www.appcelerator.com/assets/The_iPad_App_Wave.pdf'});
 	data.push({title:'SVG URL', hasChild:true, url:'http://upload.wikimedia.org/wikipedia/commons/5/55/1st_Cavalry_Division_-_Shoulder_Sleeve_Insignia.svg'});
+	data.push({title:'Local image', hasChild:true, url:'../images/cloud.png'});
+	data.push({title:'Local SVG', hasChild:true, url:'../images/insignia.svg'});
 	data.push({title:'Local Pinch/Zoom', hasChild:true, url:'local_webview_pinchzoom.html', scale:true});
 	data.push({title:'Webview controls', hasChild:true, url:'http://www.google.com', controls:true});
 	// The result for this is going to be centered, because that's where layout puts it.

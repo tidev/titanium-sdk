@@ -10,6 +10,7 @@
 const NSString * htmlMimeType = @"text/html";
 const NSString * textMimeType = @"text/plain";
 const NSString * jpegMimeType = @"image/jpeg";
+const NSString * svgMimeType = @"image/svg+xml";
 
 static NSDictionary * mimeTypeFromExtensionDict = nil;
 
@@ -25,7 +26,8 @@ static NSDictionary * mimeTypeFromExtensionDict = nil;
 									 @"image/x-icon",@"ico",
 									 htmlMimeType,@"html",htmlMimeType,@"htm",
 									 textMimeType,@"text",textMimeType,@"txt",
-									 @"text/json",@"json",					 
+									 svgMimeType,@"svgz",svgMimeType,@"svg",
+									 @"text/json",@"json",
 									 @"text/javascript",@"js",
 									 @"text/x-javascript",@"js",
 									 @"application/x-javascript",@"js",

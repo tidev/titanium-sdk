@@ -185,46 +185,45 @@ NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._listeners={
 	   textEncodingName:(NSString*)textEncodingName
 	   mimeType:(NSString*)mimeType
 {
-	[self prepareInjection];
-	NSMutableString *html = [[NSMutableString alloc] initWithCapacity:[content length]+2000];
-	
 	// attempt to make well-formed HTML and inject in our Titanium bridge code
 	// However, we only do this if the content looks like HTML
 	NSRange range = [content rangeOfString:@"<html"];
 	if (range.location!=NSNotFound)
 	{
-		BOOL found = NO;
+		[self prepareInjection];
+		NSMutableString *html = [[NSMutableString alloc] initWithCapacity:[content length]+2000];
+
 		NSRange nextRange = [content rangeOfString:@">" options:0 range:NSMakeRange(range.location, [content length]-range.location) locale:nil];
 		if (nextRange.location!=NSNotFound)
 		{
 			[html appendString:[content substringToIndex:nextRange.location+1]];
 			[html appendString:[self titaniumInjection]];
 			[html appendString:[content substringFromIndex:nextRange.location+1]];
-			found = YES;
 		}
-		if (found==NO)
+		else
 		{
 			// oh well, just jack it in
 			[html appendString:[self titaniumInjection]];
 			[html appendString:content];
 		}
+		
+		content = [html autorelease];
 	}
 	
 	NSURL *relativeURL = [self fileURLToAppURL:url];
 	
 	if (url!=nil)
 	{
-		[[self webview] loadHTMLString:html baseURL:relativeURL];
+		[[self webview] loadHTMLString:content baseURL:relativeURL];
 	}
 	else
 	{
-		[[self webview] loadData:[html dataUsingEncoding:encoding] MIMEType:mimeType textEncodingName:textEncodingName baseURL:relativeURL];
+		[[self webview] loadData:[content dataUsingEncoding:encoding] MIMEType:mimeType textEncodingName:textEncodingName baseURL:relativeURL];
 	}
 	if (scalingOverride==NO)
 	{
 		[[self webview] setScalesPageToFit:NO];
 	}
-	[html release];
 }
 
 
@@ -459,8 +458,9 @@ NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._listeners={
 					NSLog(@"[WARN] I have no idea what the appropriate text encoding is for: %@. Please report this to Appcelerator support.",url);
 				}
 			}
-			if (error!=nil && [error code]==261)
-			{
+			if ((error!=nil && [error code]==261) || [mimeType isEqualToString:svgMimeType])
+			{//TODO: Shouldn't we be checking for an HTML mime type before trying to read? This is right now rather inefficient, but it
+			//Gets the job done, with minimal reliance on extensions.
 				// this is a different encoding than specified, just send it to the webview to load
 				NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url];
 				[self loadURLRequest:request];
