@@ -159,6 +159,10 @@
 	return [titaniumRoot shouldAutorotateToInterfaceOrientation:interfaceOrientation];
 }
 
+-(void)refreshOrientationModesIfNeeded:(TiWindowProxy *)oldCurrentWindow
+{
+	[titaniumRoot refreshOrientationModesIfNeeded:oldCurrentWindow];
+}
 
 -(void)windowFocused:(UIViewController*)focusedViewController
 {

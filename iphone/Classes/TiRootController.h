@@ -6,7 +6,7 @@
  */
 
 #import <UIKit/UIKit.h>
-
+#import "TiWindowProxy.h"
 
 @protocol TiRootController
 @required
@@ -20,4 +20,6 @@
 
 -(void)setBackgroundColor:(UIColor*)color;
 -(void)setBackgroundImage:(UIImage*) backgroundImage;
+
+-(void)refreshOrientationModesIfNeeded:(TiWindowProxy *)oldCurrentWindow;
 @end
