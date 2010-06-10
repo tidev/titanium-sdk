@@ -9,7 +9,9 @@
 #import <AddressBookUI/AddressBookUI.h>
 #import "ContactsModule.h"
 #import "TiContactsPerson.h"
+#import "TiContactsGroup.h"
 #import "TiApp.h"
+#import "TiBase.h"
 
 @implementation ContactsModule
 
@@ -53,6 +55,22 @@
 	
 	[self releaseAddressBook];
 	[super dealloc];
+}
+
+-(void)removeRecord:(ABRecordRef)record
+{
+	CFErrorRef error;
+	if (!ABAddressBookRemoveRecord([self addressBook], record, &error)) {
+		CFStringRef errorStr = CFErrorCopyDescription(error);
+		NSString* str = [NSString stringWithString:(NSString*)errorStr];
+		CFRelease(errorStr);
+		
+		NSString* kind = (ABRecordGetRecordType(record) == kABPersonType) ? @"person" : @"group";
+		
+		[self throwException:[NSString stringWithFormat:@"Failed to remove %@: %@",kind,str]
+				   subreason:nil
+					location:CODELOCATION];
+	}
 }
 
 #pragma mark Public API
@@ -128,6 +146,12 @@
 	return [[[TiContactsPerson alloc] _initWithPageContext:[self executionContext] recordId:[arg intValue] module:self] autorelease];
 }
 
+-(TiContactsGroup*)getGroupByID:(id)arg
+{
+	ENSURE_SINGLE_ARG(arg,NSNumber)
+	return [[[TiContactsGroup alloc] _initWithPageContext:[self executionContext] recordId:[arg intValue] module:self] autorelease];
+}
+
 -(NSArray*)getPeopleWithName:(id)arg
 {
 	ENSURE_SINGLE_ARG(arg,NSString)
@@ -138,6 +162,10 @@
 	}
 	
 	CFArrayRef peopleRefs = ABAddressBookCopyPeopleWithName([self addressBook], (CFStringRef)arg);
+	if (peopleRefs == NULL) {
+		[returnCache setObject:[NSNull null] forKey:@"peopleWithName"];
+		return nil;
+	}
 	CFIndex count = CFArrayGetCount(peopleRefs);
 	NSMutableArray* people = [NSMutableArray arrayWithCapacity:count];
 	for (CFIndex i=0; i < count; i++) {
@@ -160,6 +188,10 @@
 	}
 	
 	CFArrayRef peopleRefs = ABAddressBookCopyArrayOfAllPeople([self addressBook]);
+	if (peopleRefs == NULL) {
+		[returnCache setObject:[NSNull null] forKey:@"allPeople"];
+		return nil;
+	}
 	CFIndex count = CFArrayGetCount(peopleRefs);
 	NSMutableArray* people = [NSMutableArray arrayWithCapacity:count];
 	for (CFIndex i=0; i < count; i++) {
@@ -172,6 +204,32 @@
 	
 	[returnCache setObject:people forKey:@"allPeople"];
 	return people;
+}
+
+-(NSArray*)getAllGroups:(id)unused
+{
+	if (![NSThread isMainThread]) {
+		[self performSelectorOnMainThread:@selector(getAllGroups:) withObject:unused waitUntilDone:YES];
+		return [returnCache objectForKey:@"allGroups"];
+	}
+	
+	CFArrayRef groupRefs = ABAddressBookCopyArrayOfAllGroups([self addressBook]);
+	if (groupRefs == NULL) {
+		[returnCache setObject:[NSNull null] forKey:@"allGroups"];
+		return nil;
+	}
+	CFIndex count = CFArrayGetCount(groupRefs);
+	NSMutableArray* groups = [NSMutableArray arrayWithCapacity:count];
+	for (CFIndex i=0; i < count; i++) {
+		ABRecordRef ref = CFArrayGetValueAtIndex(groupRefs, i);
+		ABRecordID id_ = ABRecordGetRecordID(ref);
+		TiContactsGroup* group = [[[TiContactsGroup	alloc] _initWithPageContext:[self executionContext] recordId:id_ module:self] autorelease];
+		[groups addObject:group];
+	}
+	CFRelease(groupRefs);
+	
+	[returnCache setObject:groups forKey:@"allGroups"];
+	return groups;
 }
 
 -(TiContactsPerson*)createPerson:(id)arg
@@ -212,20 +270,57 @@
 	ENSURE_UI_THREAD(removePerson,arg)
 	ENSURE_SINGLE_ARG(arg,TiContactsPerson)
 	
+	[self removeRecord:[arg record]];
+}
+
+-(TiContactsGroup*)createGroup:(id)arg
+{
+	if (![NSThread isMainThread]) {
+		[self performSelectorOnMainThread:@selector(createGroup:) withObject:arg waitUntilDone:YES];
+		return [returnCache objectForKey:@"newGroup"];
+	}
+	
+	if (ABAddressBookHasUnsavedChanges([self addressBook])) {
+		[self throwException:@"Cannot create a new entry with unsaved changes"
+				   subreason:nil
+					location:CODELOCATION];
+	}
+	
+	ABRecordRef record = ABGroupCreate();
 	CFErrorRef error;
-	if (!ABAddressBookRemoveRecord([self addressBook], [arg record], &error)) {
+	if (!ABAddressBookAddRecord([self addressBook], record, &error)) {
 		CFStringRef errorStr = CFErrorCopyDescription(error);
 		NSString* str = [NSString stringWithString:(NSString*)errorStr];
 		CFRelease(errorStr);
 		
-		[self throwException:[NSString stringWithFormat:@"Failed to remove person: %@",str]
+		[self throwException:[NSString stringWithFormat:@"Failed to add group: %@",str]
 				   subreason:nil
 					location:CODELOCATION];
 	}
+	[self save:nil];
+	
+	ABRecordID id_ = ABRecordGetRecordID(record);
+	TiContactsGroup* newGroup = [[[TiContactsGroup alloc] _initWithPageContext:[self executionContext] recordId:id_ module:self] autorelease];
+	
+	[returnCache setObject:newGroup forKey:@"newGroup"];
+	return newGroup;
 }
+
+-(void)removeGroup:(id)arg
+{
+	ENSURE_UI_THREAD(removePerson,arg)
+	ENSURE_SINGLE_ARG(arg,TiContactsGroup)
+	
+	[self removeRecord:[arg record]];
+}
+
+#pragma mark Properties
 
 MAKE_SYSTEM_NUMBER(CONTACTS_KIND_PERSON,(NSNumber*)kABPersonKindPerson)
 MAKE_SYSTEM_NUMBER(CONTACTS_KIND_ORGANIZATION,(NSNumber*)kABPersonKindOrganization)
+
+MAKE_SYSTEM_PROP(CONTACTS_SORT_FIRST_NAME,kABPersonSortByFirstName);
+MAKE_SYSTEM_PROP(CONTACTS_SORT_LAST_NAME,kABPersonSortByLastName);
 
 #pragma mark Picker delegate functions
 

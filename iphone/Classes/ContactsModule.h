@@ -43,6 +43,9 @@
 @property (nonatomic,readonly) NSNumber* CONTACTS_KIND_PERSON;
 @property (nonatomic,readonly) NSNumber* CONTACTS_KIND_ORGANIZATION;
 
+@property (nonatomic,readonly) NSNumber* CONTACTS_SORT_FIRST_NAME;
+@property (nonatomic,readonly) NSNumber* CONTACTS_SORT_LAST_NAME;
+
 
 @end
 

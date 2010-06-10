@@ -4,7 +4,8 @@ var data = [
 	{title:'Display people', hasChild:true, test:'../examples/contacts_db.js'},
 	{title:'Add contact',hasChild:true, test:'../examples/contacts_add.js'},
 	{title:'Remove contact',hasChild:true, test:'../examples/contacts_remove.js'},
-	{title:'Contact images',hasChild:true, test:'../examples/contacts_image.js'}
+	{title:'Contact images',hasChild:true, test:'../examples/contacts_image.js'},
+	{title:'Groups',hasChild:true, test:'../examples/contacts_groups.js'}
 ];
 
 // create table view
