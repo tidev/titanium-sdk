@@ -276,6 +276,12 @@ return (NSString*)map;\
 return [NSNumber numberWithUnsignedInt:map];\
 }\
 
+#define MAKE_SYSTEM_NUMBER(name,map) \
+-(NSNumber*)name \
+{\
+return map;\
+}\
+
 #define NUMBOOL(x) \
 [NSNumber numberWithBool:x]\
 

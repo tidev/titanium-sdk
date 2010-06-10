@@ -224,6 +224,9 @@
 	}
 }
 
+MAKE_SYSTEM_NUMBER(CONTACTS_KIND_PERSON,(NSNumber*)kABPersonKindPerson)
+MAKE_SYSTEM_NUMBER(CONTACTS_KIND_ORGANIZATION,(NSNumber*)kABPersonKindOrganization)
+
 #pragma mark Picker delegate functions
 
 -(void)peoplePickerNavigationControllerDidCancel:(ABPeoplePickerNavigationController *)peoplePicker

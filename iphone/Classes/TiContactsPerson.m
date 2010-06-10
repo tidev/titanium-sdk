@@ -75,6 +75,7 @@ static NSDictionary* multiValueLabels;
 			 NUMINT(kABPersonBirthdayProperty), @"birthday",
 			 NUMINT(kABPersonCreationDateProperty), @"created",
 			 NUMINT(kABPersonModificationDateProperty), @"modified",
+			 NUMINT(kABPersonKindProperty),@"kind",
 			 nil];
 	}
 	return contactProperties;
@@ -89,6 +90,8 @@ static NSDictionary* multiValueLabels;
 			 NUMINT(kABPersonPhoneProperty),@"phone",
 			 NUMINT(kABPersonInstantMessageProperty),@"instantMessage",
 			 NUMINT(kABPersonRelatedNamesProperty),@"relatedNames",
+			 NUMINT(kABPersonDateProperty),@"date",
+			 NUMINT(kABPersonURLProperty),@"URL",
 			 nil];
 	}
 	return multiValueProperties;
@@ -103,6 +106,8 @@ static NSDictionary* multiValueLabels;
 			 NUMINT(kABMultiStringPropertyType),NUMINT(kABPersonPhoneProperty),
 			 NUMINT(kABMultiDictionaryPropertyType),NUMINT(kABPersonInstantMessageProperty),
 			 NUMINT(kABMultiStringPropertyType),NUMINT(kABPersonRelatedNamesProperty),
+			 NUMINT(kABMultiDateTimePropertyType),NUMINT(kABPersonDateProperty),
+			 NUMINT(kABMultiStringPropertyType),NUMINT(kABPersonURLProperty),
 			 nil];
 	}
 	return multiValueTypes;
@@ -137,6 +142,8 @@ static NSDictionary* multiValueLabels;
 			 kABPersonPartnerLabel,@"partner",
 			 kABPersonManagerLabel,@"manager",
 			 kABPersonAssistantLabel,@"assistant",
+			 kABPersonAnniversaryLabel,@"anniversary", // Date label
+			 kABPersonHomePageLabel,@"homepage", // URL label
 			 nil];
 	}
 	return multiValueLabels;
@@ -157,8 +164,14 @@ static NSDictionary* multiValueLabels;
 		if ([dict valueForKey:readableLabel] == nil) {
 			[dict setValue:[NSMutableArray array] forKey:readableLabel];
 		}
-		// This works as long as 'value' is toll-free bridged, which is (currently) true for all AB property types
-		[[dict valueForKey:readableLabel] addObject:(id)value];
+		if (CFGetTypeID(value) == CFDateGetTypeID()) {
+			// Dates still need special handling - we should make a TiDate object
+			[[dict valueForKey:readableLabel] addObject:[TiUtils UTCDateForDate:(NSDate*)value]];
+		}
+		else {
+			// This works as long as 'value' is toll-free bridged, which is (currently) true for all AB property types
+			[[dict valueForKey:readableLabel] addObject:(id)value];
+		}
 		
 		CFRelease(label);
 		CFRelease(value);
