@@ -508,6 +508,7 @@
 		DA285CE011BDC64100D20833 /* TiSplitViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = DA285CDE11BDC64100D20833 /* TiSplitViewController.m */; };
 		DA4E12D711C0A55F00A55BAB /* TiContactsGroup.m in Sources */ = {isa = PBXBuildFile; fileRef = DA4E12D611C0A55F00A55BAB /* TiContactsGroup.m */; };
 		DA864E3211A2314A00B9CD68 /* TiMediaMusicPlayer.m in Sources */ = {isa = PBXBuildFile; fileRef = DA864E3111A2314A00B9CD68 /* TiMediaMusicPlayer.m */; };
+		DAA17BE411C15A0000957ED1 /* TiContactsGroup.m in Sources */ = {isa = PBXBuildFile; fileRef = DA4E12D611C0A55F00A55BAB /* TiContactsGroup.m */; };
 		DAA905CE11A359F10030B119 /* TiMediaItem.m in Sources */ = {isa = PBXBuildFile; fileRef = DAA905CD11A359F10030B119 /* TiMediaItem.m */; };
 		DAA905CF11A35A010030B119 /* TiMediaMusicPlayer.m in Sources */ = {isa = PBXBuildFile; fileRef = DA864E3111A2314A00B9CD68 /* TiMediaMusicPlayer.m */; };
 		DAA905D011A35A010030B119 /* TiMediaItem.m in Sources */ = {isa = PBXBuildFile; fileRef = DAA905CD11A359F10030B119 /* TiMediaItem.m */; };
@@ -2825,6 +2826,7 @@
 				242E967A11BAD2F20046A0D0 /* AsyncUdpSocket.m in Sources */,
 				242E989B11BAF7DB0046A0D0 /* TiDebuggerCallFrame.mm in Sources */,
 				DA285CDF11BDC64100D20833 /* TiSplitViewController.m in Sources */,
+				DAA17BE411C15A0000957ED1 /* TiContactsGroup.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
