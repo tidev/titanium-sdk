@@ -264,7 +264,7 @@ class Compiler(object):
 			impf_buffer = ''
 		
 		if not os.path.exists(os.path.expanduser(target)):
-			os.mkdir(os.path.expanduser(target))
+			os.makedirs(os.path.expanduser(target))
 			
 		for source in sources:
 			print "[DEBUG] copy resources from %s to %s" % (source,target)
