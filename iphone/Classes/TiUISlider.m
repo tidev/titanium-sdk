@@ -26,9 +26,9 @@
 		sliderView = [[UISlider alloc] initWithFrame:[self bounds]];
 		[sliderView setAutoresizingMask:UIViewAutoresizingFlexibleWidth];
 		
-		// We have to do this to force the slider subviews to appear; apparently setting the value<=min registers
-		// as value==min, which for some dumb reason the slider does not consider a value change, which means it doesn't
-		// draw its subviews.
+		// We have to do this to force the slider subviews to appear, in the case where value<=min==0.
+		// If the slider doesn't register a value change (or already have its subviews drawn in a nib) then
+		// it will NEVER draw them.
 		[sliderView setValue:0.1 animated:NO];
 		[sliderView setValue:0 animated:NO];
 		
