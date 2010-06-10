@@ -53,7 +53,7 @@ FOOTER ="""
 	
 class Compiler(object):
 	
-	def __init__(self,project_dir,appid,name,deploytype,xcode,devicefamily,iphone_version):
+	def __init__(self,project_dir,appid,name,deploytype,xcode,devicefamily,iphone_version,silent=False):
 		self.project_dir = project_dir
 		self.project_name = name
 		self.appid = appid
@@ -98,9 +98,10 @@ class Compiler(object):
 		else:
 			main_template = main_template.replace('__APP_RESOURCE_DIR__','')
 
-		print "[INFO] Titanium SDK version: %s" % sdk_version
-		print "[INFO] iPhone Device family: %s" % devicefamily
-		print "[INFO] iPhone SDK version: %s" % iphone_version
+		if not silent:
+			print "[INFO] Titanium SDK version: %s" % sdk_version
+			print "[INFO] iPhone Device family: %s" % devicefamily
+			print "[INFO] iPhone SDK version: %s" % iphone_version
 		
 		main_template_out = os.path.join(self.iphone_dir,'main.m')	
 		main_file = open(main_template_out,'w')
@@ -122,10 +123,12 @@ class Compiler(object):
 			self.copy_resources([project_module_dir],app_dir,False)
 		
 		# we have to copy these even in simulator given the path difference
-		self.copy_resources([iphone_resources_dir],app_dir,False)
+		if os.path.exists(app_dir):
+			self.copy_resources([iphone_resources_dir],app_dir,False)
 		
 		if deploytype!='development':
-			self.copy_resources([resources_dir],app_dir)
+			if os.path.exists(app_dir):
+				self.copy_resources([resources_dir],app_dir)
 
 			defines_header = open(os.path.join(self.classes_dir,'defines.h'),'w')
 			defines_header.write("// Warning: this is generated file. Do not modify!\n\n")

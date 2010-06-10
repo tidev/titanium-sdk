@@ -349,6 +349,9 @@ def main(args):
 			# we have to re-copy if we have a custom version
 			if os.path.exists(infoplist_tmpl):
 				shutil.copy(infoplist_tmpl,infoplist)
+			# since compiler will generate the module dependencies, we need to 
+			# attempt to compile to get it correct for the first time.
+			compiler = Compiler(project_dir,appid,name,deploytype,xcode_build,devicefamily,iphone_version,True)
 		else:
 			xcconfig = open(project_xcconfig,'w')
 			xcconfig.write("TI_VERSION=%s\n"% sdk_version)
