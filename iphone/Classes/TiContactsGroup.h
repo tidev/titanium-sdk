@@ -7,13 +7,10 @@
 #import "TiProxy.h"
 
 #ifdef USE_TI_CONTACTS
-
 #import <AddressBook/AddressBook.h>
+#import "ContactsModule.h"
 
-@class ContactsModule;
-
-@interface TiContactsPerson : TiProxy {
-@private
+@interface TiContactsGroup : TiProxy {
 	ABRecordRef record;
 	ABRecordID recordId;
 	
@@ -26,14 +23,8 @@
 @property(readonly,nonatomic) NSNumber* recordId;
 @property(readonly,nonatomic) ABRecordRef record;
 
-+(NSDictionary*)contactProperties;
-+(NSDictionary*)multiValueProperties;
-+(NSDictionary*)multiValueLabels;
-
 -(id)_initWithPageContext:(id<TiEvaluator>)context recordId:(ABRecordID)id_ module:(ContactsModule*)module_;
 
--(NSString*)fullName;
 
 @end
-
 #endif

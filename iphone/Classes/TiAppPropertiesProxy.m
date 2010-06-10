@@ -71,6 +71,7 @@ NSString *key = [args objectAtIndex:0];\
 id value = [args count] > 1 ? [args objectAtIndex:1] : nil;\
 if (value==nil || value==[NSNull null]) {\
     [defaultsObject removeObjectForKey:key];\
+	[defaultsObject synchronize]; \
 	return;\
 }\
 
@@ -79,36 +80,42 @@ if (value==nil || value==[NSNull null]) {\
 {
 	SETPROP
 	[defaultsObject setBool:[TiUtils boolValue:value] forKey:key];
+	[defaultsObject synchronize];
 }
 
 -(void)setDouble:(id)args
 {
 	SETPROP
 	[defaultsObject setDouble:[TiUtils doubleValue:value] forKey:key];
+	[defaultsObject synchronize];	
 }
 
 -(void)setInt:(id)args
 {
 	SETPROP
 	[defaultsObject setInteger:[TiUtils intValue:value] forKey:key];
+	[defaultsObject synchronize];	
 }
 
 -(void)setString:(id)args
 {
 	SETPROP
 	[defaultsObject setObject:[TiUtils stringValue:value] forKey:key];
+	[defaultsObject synchronize];
 }
 
 -(void)setList:(id)args
 {
 	SETPROP
 	[defaultsObject setObject:value forKey:key];
+	[defaultsObject synchronize];
 }
 
 -(void)removeProperty:(id)args
 {
 	ENSURE_SINGLE_ARG(args,NSString);
 	[defaultsObject removeObjectForKey:[TiUtils stringValue:args]];
+	[defaultsObject synchronize];
 }
 
 -(id)hasProperty:(id)args

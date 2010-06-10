@@ -9,10 +9,10 @@ data[1]=Ti.UI.createPickerRow({title:'Strawberries',custom_item:'s'});
 data[2]=Ti.UI.createPickerRow({title:'Mangos',custom_item:'m'});
 data[3]=Ti.UI.createPickerRow({title:'Grapes',custom_item:'g'});
 
-picker.add(data);
-
 // turn on the selection indicator (off by default)
 picker.selectionIndicator = true;
+
+picker.add(data);
 
 win.add(picker);
 

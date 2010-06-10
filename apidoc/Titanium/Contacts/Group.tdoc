@@ -1,0 +1,42 @@
+- namespace
+
+Titanium.Contacts.Group
+
+- type
+
+object
+
+- description
+
+An object which represents a group in the contacts database.
+
+- since
+
+1.4.0
+
+- platforms
+
+iphone, ipad
+
+- properties
+
+name[string]: The name of the group
+
+- methods
+
+members: The complete list of members of the group
+sortedMembers: A list of sorted members
+add: Adds a person to the group
+remove: Removes a person from the group
+
+- sortedMembers : array
+
+sortBy[int]: Method for sorting.  Must be one of `Titanium.Contacts.CONTACTS_SORT_FIRST_NAME` or `Titanium.Contacts.CONTACTS_SORT_LAST_NAME`
+
+- method : add
+
+person[object]: `Titanium.Contacts.Person` object to remove from the group
+
+- method : remove
+
+person[object]: `Titanium.Contacts.Person` object to remove from the group

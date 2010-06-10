@@ -22,14 +22,26 @@ The top level Contacts module.  The Contacts module is used accessing the device
 
 iphone, ipad
 
+- properties
+
+CONTACTS_KIND_PERSON[int]: constant for 'person' kind property of Person object
+CONTACTS_KIND_ORGANIZATION[int]: constant for 'organization' kind property of Person object
+
+CONTACTS_SORT_FIRST_NAME[int]: constant for sorting group members by first name
+CONTACTS_SORT_LAST_NAME[int]: constant for sorting group members by last name
+
 - methods
 
-getAllPeople: Returns an array of `Titanium.Contacts.Person` objects in the contacts database
+getAllPeople: Returns an array of all `Titanium.Contacts.Person` objects in the contacts database
 getPeopleWithName: Returns an array of `Titanium.Contacts.Person` objects who have a name (first, last, middle, composite) which matches the given name
 getPersonByID: Returns a `Titanium.Contacts.Person` object with the given ID
 showContacts: Displays the contact picker
 createPerson: Creates a new `Titanium.Contacts.Person` object.  There must not be any unsaved changes to the database when this function is called
 removePerson: Removes a person from the contacts database
+getGroupByID: Returns a `Titanium.Contacts.Group` object with the given ID
+getAllGroups: Returns an of all `Titanium.Contacts.Group` objects in the contacts database
+createGroup: Creates a new `Titanium.Contacts.Group` object.  There must not be any unsaved changes to the database when this function is called
+removeGroup: Removes a group from the contacts database
 save: Saves all changes to contacts to the database
 revert: Reverts all changes made to the previous save of the database
 
@@ -41,6 +53,10 @@ name[string]: The name to match in the database
 
 id[int]: The database ID of the person to retrieve
 
+- method : getGroupByID, object
+
+id[int]: The database ID of the group to retrieve
+
 - method : showContacts
 
 cancel[function]: The function to call when selection is cancelled
@@ -51,7 +67,11 @@ fields[array]: A list of field names to show when selecting properties, default 
 
 - method : removePerson
 
-person[object]: The Person object to remove from the database.
+person[object]: The `Titanium.Contacts.Person` object to remove from the database.
+
+- method : removeGroup
+
+group[object]: The `Titanium.Contacts.Group` object to remove from the database.
 
 ~~
 ~~
