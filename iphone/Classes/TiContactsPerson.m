@@ -219,6 +219,58 @@ static NSDictionary* multiValueLabels;
 	return nameStr;
 }
 
+-(void)setImage:(id)value
+{
+	ENSURE_TYPE_OR_NIL(value,TiBlob);
+	ENSURE_UI_THREAD(setImage,value)
+	
+	if (value == nil) {
+		CFErrorRef error;
+		if (ABPersonHasImageData([self record]) && !ABPersonRemoveImageData([self record],&error)) {
+			CFStringRef errorStr = CFErrorCopyDescription(error);
+			NSString* str = [NSString stringWithString:(NSString*)errorStr];
+			CFRelease(errorStr);
+			
+			[self throwException:[NSString stringWithFormat:@"Failed to remove image: %@",str]
+					   subreason:nil
+						location:CODELOCATION];
+		}
+	}
+	else {
+		CFErrorRef error;		
+		if (!ABPersonSetImageData([self record], (CFDataRef)[value data], &error)) {
+			CFStringRef errorStr = CFErrorCopyDescription(error);
+			NSString* str = [NSString stringWithString:(NSString*)errorStr];
+			CFRelease(errorStr);
+			
+			[self throwException:[NSString stringWithFormat:@"Failed to set image: %@",str]
+					   subreason:nil
+						location:CODELOCATION];
+		}
+	}
+}
+
+-(TiBlob*)image
+{
+	if (![NSThread isMainThread]) {
+		[self performSelectorOnMainThread:@selector(image) withObject:nil waitUntilDone:YES];
+		return [returnCache objectForKey:@"image"];
+	}
+	CFDataRef imageData = ABPersonCopyImageData([self record]);
+	if (imageData != NULL)
+	{
+		TiBlob* imageBlob = [[[TiBlob alloc] initWithImage:[UIImage imageWithData:(NSData*)imageData]] autorelease];
+		CFRelease(imageData);
+		
+		[returnCache setObject:imageBlob forKey:@"image"];
+		return imageBlob;
+	}
+	else {
+		[returnCache setObject:[NSNull null] forKey:@"image"];
+		return nil;
+	}
+}
+
 // TODO: We need better date handling, this takes UTC dates only.
 -(void)setBirthday:(NSString*)date
 {
