@@ -534,7 +534,7 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 				parent:(TiViewProxy*)newParent
 		 touchDelegate:(id)touchDelegate
 {
-	TiViewProxy * oldProxy = [uiview proxy];
+	TiViewProxy * oldProxy = (TiViewProxy*)[uiview proxy];
 
 	[uiview transferProxy:proxy];
 	
