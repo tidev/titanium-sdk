@@ -73,6 +73,14 @@ USE_PROXY_FOR_VERIFY_AUTORESIZING
 	return type != -1;
 }
 
+-(void)didFirePropertyChanges
+{
+	if (!propertiesConfigured) {
+		propertiesConfigured = YES;
+		[(TiViewProxy*)[self proxy] firePropertyChanges];
+	}
+}
+
 #pragma mark Framework 
 
 -(void)reloadColumn:(id)column
@@ -136,9 +144,14 @@ USE_PROXY_FOR_VERIFY_AUTORESIZING
 	}
 }
 
+// We're order-dependent on type being set first, so we need to make sure that anything that relies
+// on whether or not this is a date picker needs to be set AFTER the initial configuration.
 -(void)setSelectionIndicator_:(id)value
 {
-	if ([self isDatePicker]==NO)
+	if (picker == nil) {
+		[[self proxy] replaceValue:value forKey:@"selectionIndicator" notification:NO];
+	}
+	else if ([self isDatePicker]==NO)
 	{
 		[(UIPickerView*)[self picker] setShowsSelectionIndicator:[TiUtils boolValue:value]];
 	}
@@ -147,7 +160,10 @@ USE_PROXY_FOR_VERIFY_AUTORESIZING
 -(void)setMinDate_:(id)date
 {
 	ENSURE_SINGLE_ARG_OR_NIL(date,NSDate);
-	if ([self isDatePicker])
+	if (picker == nil) {
+		[[self proxy] replaceValue:date forKey:@"minDate" notification:NO];
+	}
+	else if ([self isDatePicker])
 	{
 		[(UIDatePicker*)[self picker] setMinimumDate:date];
 	}
@@ -156,7 +172,10 @@ USE_PROXY_FOR_VERIFY_AUTORESIZING
 -(void)setMaxDate_:(id)date
 {
 	ENSURE_SINGLE_ARG_OR_NIL(date,NSDate);
-	if ([self isDatePicker])
+	if (picker == nil) {
+		[[self proxy] replaceValue:date forKey:@"maxDate" notification:NO];
+	}
+	else if ([self isDatePicker])
 	{
 		[(UIDatePicker*)[self picker] setMaximumDate:date];
 	}
@@ -167,7 +186,10 @@ USE_PROXY_FOR_VERIFY_AUTORESIZING
 -(void)setValue_:(id)date
 {
 	ENSURE_SINGLE_ARG_OR_NIL(date,NSDate);
-	if ([self isDatePicker] && date!=nil)
+	if (picker == nil) {
+		[[self proxy] replaceValue:date forKey:@"value" notification:NO];
+	}
+	else if ([self isDatePicker] && date!=nil)
 	{
 		[(UIDatePicker*)[self picker] setDate:date];
 	}
@@ -176,7 +198,10 @@ USE_PROXY_FOR_VERIFY_AUTORESIZING
 -(void)setLocale_:(id)value
 {
 	ENSURE_SINGLE_ARG_OR_NIL(value,NSString);
-	if ([self isDatePicker])
+	if (picker == nil) {
+		[[self proxy] replaceValue:value forKey:@"locale" notification:NO];
+	}
+	else if ([self isDatePicker])
 	{
 		if (value==nil)
 		{
@@ -195,7 +220,10 @@ USE_PROXY_FOR_VERIFY_AUTORESIZING
 -(void)setMinuteInterval_:(id)value
 {
 	ENSURE_SINGLE_ARG(value,NSObject);
-	if ([self isDatePicker])
+	if (picker == nil) {
+		[[self proxy] replaceValue:value forKey:@"minuteInterval" notification:NO];
+	}
+	else if ([self isDatePicker])
 	{
 		NSInteger interval = [TiUtils intValue:value];
 		[(UIDatePicker*)[self picker] setMinuteInterval:interval];
@@ -205,7 +233,10 @@ USE_PROXY_FOR_VERIFY_AUTORESIZING
 -(void)setCountDownDuration_:(id)value
 {
 	ENSURE_SINGLE_ARG(value,NSObject);
-	if ([self isDatePicker])
+	if (picker == nil) {
+		[[self proxy] replaceValue:value forKey:@"countDownDuration" notification:NO];
+	}
+	else if ([self isDatePicker])
 	{
 		double duration = [TiUtils doubleValue:value] / 1000;
 		[(UIDatePicker*)[self picker] setDatePickerMode:UIDatePickerModeCountDownTimer];

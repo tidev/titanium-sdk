@@ -17,6 +17,10 @@
 	TiRootViewController* titaniumRoot; // Need to hold onto this so we can handle orientations properly
 	TiViewController* master;
 	TiViewController* detail;
+	
+	BOOL	allowedOrientations[MAX_ORIENTATIONS];
+	NSTimeInterval	orientationRequestTimes[MAX_ORIENTATIONS];
+	UIInterfaceOrientation lastOrientation;
 }
 
 -(id)initWithRootController:(TiRootViewController*)rootController masterProxy:(TiViewProxy*)master_ detailProxy:(TiViewProxy*)detail_;

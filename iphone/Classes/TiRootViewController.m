@@ -246,11 +246,6 @@
 	[super willAnimateRotationToInterfaceOrientation:toInterfaceOrientation duration:duration];
 }
 
--(BOOL)isEmailViewControllerOnTop
-{
-	return [[windowViewControllers lastObject] isKindOfClass:[MFMailComposeViewController class]];
-}
-
 -(void)setOrientationModes:(NSArray *)newOrientationModes
 {
 	for (int i=0; i<MAX_ORIENTATIONS; i++)

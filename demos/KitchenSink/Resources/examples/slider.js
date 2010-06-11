@@ -4,7 +4,7 @@ var win = Titanium.UI.currentWindow;
 // BASIC SLIDER
 //
 var basicSliderLabel = Titanium.UI.createLabel({
-	text:'Basic Slider - value = 5' ,
+	text:'Basic Slider - value = 0' ,
 	color:'#999',
 	font:{
 		fontFamily:'Helvetica Neue',
@@ -19,7 +19,7 @@ var basicSliderLabel = Titanium.UI.createLabel({
 var basicSlider = Titanium.UI.createSlider({
 	min:0,
 	max:10,
-	value:5,
+	value:0,
 	width:100,
 	height:'auto',
 	top:30,

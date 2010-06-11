@@ -14,6 +14,8 @@
 @private
 	UIControl *picker;
 	int type;
+	
+	BOOL propertiesConfigured; // We're order-dependent on type being configured first, so have to re-configure after the initial setup.  What a pain!
 }
 
 -(void)reloadColumn:(id)column;
