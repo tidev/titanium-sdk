@@ -72,10 +72,10 @@ INPUT_BORDERSTYLE_LINE[int]: input border style constant
 INPUT_BORDERSTYLE_BEZEL[int]: input border style constant
 INPUT_BORDERSTYLE_ROUNDED[int]: input border style constant
 
-PORTRAIT[int]: orientation constant
-LANDSCAPE_LEFT[int]: orientation constant
-LANDSCAPE_RIGHT[int]: orientation constant
-UPSIDE_PORTRAIT[int]: orientation constant
+PORTRAIT[int]: orientation (home button on bottom) constant
+LANDSCAPE_LEFT[int]: orientation (home button on left) constant
+LANDSCAPE_RIGHT[int]: orientation (home button on right) constant
+UPSIDE_PORTRAIT[int]: orientation (home button on top) constant
 UNKNOWN[int]: orientation constant
 FACE_UP[int]: orientation constant
 FACE_DOWN[int]: orientation constant
