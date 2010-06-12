@@ -57,9 +57,14 @@
 	return [result intValue];
 }
 
--(id)toBlob
+-(id)blob
 {
 	return [[[TiBlob alloc] initWithFile:path] autorelease];
+}
+
+-(id)toBlob:(id)args
+{
+	return [self blob];
 }
 
 +(TiFile*)createTempFile:(NSString*)extension
