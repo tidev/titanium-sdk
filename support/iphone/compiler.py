@@ -4,7 +4,7 @@
 # Project Compiler
 #
 
-import os, sys, re, shutil, time, base64
+import os, sys, re, shutil, time, base64, run
 
 template_dir = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
 sys.path.append(os.path.join(template_dir,'../'))
@@ -147,6 +147,13 @@ class Compiler(object):
 					os.makedirs(dest_img_dir)
 				self.copy_resources([img_dir],dest_img_dir,False)
 			
+			
+			# optimize PNGs - since we don't include them in the Resources of the xcodeproj
+			# the ones we copy in won't get optimized so we need to run it manually
+			# we can skip this on the simulator but should do it on device
+			run.run(["/Developer/Platforms/iPhoneOS.platform/Developer/usr/bin/iphoneos-optimize",app_dir],False)
+
+			
 		else:
 			print "[INFO] Skipping JS compile, running from simulator"
 	
@@ -264,7 +271,7 @@ class Compiler(object):
 			impf_buffer = ''
 		
 		if not os.path.exists(os.path.expanduser(target)):
-			os.mkdir(os.path.expanduser(target))
+			os.makedirs(os.path.expanduser(target))
 			
 		for source in sources:
 			print "[DEBUG] copy resources from %s to %s" % (source,target)

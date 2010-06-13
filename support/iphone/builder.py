@@ -93,7 +93,7 @@ def make_app_name(s):
 
 def main(args):
 	argc = len(args)
-	if argc == 2 and (args[1]=='--help' or args[1]=='-h'):
+	if argc < 2 or argc==2 and (args[1]=='--help' or args[1]=='-h'):
 		print "%s <command> <version> <project_dir> <appid> <name> [options]" % os.path.basename(args[0])
 		print
 		print "available commands: "
@@ -102,6 +102,7 @@ def main(args):
 		print "  simulator     build and run on the iphone simulator"
 		print "  distribute    build final distribution bundle"
 		print "  xcode         build from within xcode"
+		print "  run           build and run app from project folder"
 	
 		sys.exit(1)
 
@@ -148,16 +149,34 @@ def main(args):
 				deploytype = 'production' 
 		compiler = Compiler(project_dir,appid,name,deploytype,xcode_build,devicefamily,iphone_version)
 	else:
-		iphone_version = dequote(args[2].decode("utf-8"))
-		iphonesim = os.path.abspath(os.path.join(template_dir,'iphonesim'))
-		project_dir = os.path.expanduser(dequote(args[3].decode("utf-8")))
-		appid = dequote(args[4].decode("utf-8"))
-		name = dequote(args[5].decode("utf-8"))
+		if command == 'run':
+			if argc < 3:
+				print "Usage: %s run <project_dir> [ios_version]" % os.path.basename(args[0])
+				sys.exit(1)
+			if argc == 3:
+				iphone_version = '3.1'
+			else:
+				iphone_version = dequote(args[3].decode("utf-8"))
+			project_dir = os.path.expanduser(dequote(args[2].decode("utf-8")))
+			iphonesim = os.path.abspath(os.path.join(template_dir,'iphonesim'))
+			iphone_dir = os.path.abspath(os.path.join(project_dir,'build','iphone'))
+			tiapp_xml = os.path.join(project_dir,'tiapp.xml')
+			ti = TiAppXML(tiapp_xml)
+			appid = ti.properties['id']
+			name = ti.properties['name']
+			command = 'simulator' # switch it so that the rest of the stuff works
+		else:
+			iphone_version = dequote(args[2].decode("utf-8"))
+			iphonesim = os.path.abspath(os.path.join(template_dir,'iphonesim'))
+			project_dir = os.path.expanduser(dequote(args[3].decode("utf-8")))
+			appid = dequote(args[4].decode("utf-8"))
+			name = dequote(args[5].decode("utf-8"))
+			tiapp_xml = os.path.join(project_dir,'tiapp.xml')
+			ti = TiAppXML(tiapp_xml)
+			
 		app_name = make_app_name(name)
 		iphone_dir = os.path.abspath(os.path.join(project_dir,'build','iphone'))
 		project_xcconfig = os.path.join(iphone_dir,'project.xcconfig')
-		tiapp_xml = os.path.join(project_dir,'tiapp.xml')
-		ti = TiAppXML(tiapp_xml)
 		target = 'Release'
 		ostype = 'os'
 		version_file = None
@@ -538,7 +557,7 @@ def main(args):
 				
 				if force_rebuild or force_xcode or not os.path.exists(binary):
 					shutil.copy(os.path.join(template_dir,'Classes','defines.h'),os.path.join(iphone_dir,'Classes','defines.h'))
-					execute_xcode("iphonesimulator%s" % iphone_version,["GCC_PREPROCESSOR_DEFINITIONS=__LOG__ID__=%s DEPLOYTYPE=development DEBUG=1 TI_VERSION=%s" % (log_id,sdk_version)])
+					execute_xcode("iphonesimulator%s" % iphone_version,["GCC_PREPROCESSOR_DEFINITIONS=__LOG__ID__=%s DEPLOYTYPE=development DEBUG=1 TI_VERSION=%s" % (log_id,sdk_version)],False)
 				
 				# first make sure it's not running
 				kill_simulator()
@@ -552,18 +571,15 @@ def main(args):
 				def cleanup_app_logfiles():
 					print "[DEBUG] finding old log files"
 					sys.stdout.flush()
-					def find_all_log_files(folder, fname):
-						results = []
-						for root, dirs, files in os.walk(os.path.expanduser(folder)):
-							for file in files:
-								if fname==file:
-									fullpath = os.path.join(root, file)
-									results.append(fullpath)
-						return results
-					for f in find_all_log_files("~/Library/Application Support/iPhone Simulator",'%s.log' % log_id):
-						print "[DEBUG] removing old log file: %s" % f
-						sys.stdout.flush()
-						os.remove(f)
+					# on OSX, we can use spotlight for faster searching of log files
+					results = run.run(['mdfind',
+							'-onlyin',
+							os.path.expanduser('~/Library/Application Support/iPhone Simulator/%s'%iphone_version),
+							'-name',
+							'%s.log'%log_id])
+					for i in results.splitlines(False):
+						print "[DEBUG] removing old log file: %s" % i
+						os.remove(i)	
 
 				cleanup_app_logfiles()
 

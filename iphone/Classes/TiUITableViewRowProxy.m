@@ -381,7 +381,7 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 		cell.selectedBackgroundView = nil;
 	}
 	
-	if (selBgColor!=nil || [[table tableView]style]==UITableViewStyleGrouped)
+	if (selBgImage==nil && (selBgColor!=nil || [[table tableView]style]==UITableViewStyleGrouped))
 	{
 		if (selBgColor==nil)
 		{
