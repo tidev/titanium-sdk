@@ -57,7 +57,7 @@ def infoplist_has_appid(f,appid):
 		
 def copy_module_resources(source, target, copy_all=False, force=False):
 	if not os.path.exists(os.path.expanduser(target)):
-		os.mkdirs(os.path.expanduser(target))
+		os.makedirs(os.path.expanduser(target))
 	for root, dirs, files in os.walk(source):
 		for name in ignoreDirs:
 			if name in dirs:
@@ -225,7 +225,8 @@ def main(args):
 		infoplist = os.path.join(iphone_dir,'Info.plist')
 
 		# find the module directory relative to the root of the SDK	
-		tp_module_dir = os.path.abspath(os.path.join(template_dir,'..','..','..','..','modules','iphone'))
+		titanium_dir = os.path.abspath(os.path.join(template_dir,'..','..','..','..'))
+		tp_module_dir = os.path.abspath(os.path.join(titanium_dir,'modules','iphone'))
 		tp_modules = []
 		tp_depends = []
 		
@@ -239,37 +240,58 @@ def main(args):
 							depends.index(entry)
 						except:
 							depends.append(entry)
-
+							
+		# check to see if we have any uninstalled modules
+		# if we detect any zips, unzip them
+		if ti.properties.has_key('modules'):
+			cwd = os.getcwd()
+			os.chdir(titanium_dir)
+			for entry in glob.glob('%s/*.zip' % titanium_dir):
+				print "[INFO] installing module: %s" % entry
+				run.run(['/usr/bin/unzip','-o',entry])
+				os.remove(entry)
+			os.chdir(cwd)
+			
 		tp_lib_search_path = []
 		for module in ti.properties['modules']:
 			tp_name = module['name'].lower()
 			tp_version = module['version']
-			tp_dir = os.path.join(tp_module_dir,tp_name,tp_version)
-			if not os.path.exists(tp_dir):
-				print "[ERROR] Third-party module: %s/%s detected in tiapp.xml but not found at %s" % (tp_name,tp_version,tp_dir)
-				sys.exit(1)
 			libname = 'lib%s.a' % tp_name
-			tp_module = os.path.join(tp_dir,libname)
-			if not os.path.exists(tp_module):
-				print "[ERROR] Third-party module: %s/%s missing library at %s" % (tp_name,tp_version,tp_module)
-				sys.exit(1)
-			tp_config = os.path.join(tp_dir,'manifest')
-			if not os.path.exists(tp_config):
-				print "[ERROR] Third-party module: %s/%s missing manifest at %s" % (tp_name,tp_version,tp_config)
-				sys.exit(1)
-			find_depends(tp_config,tp_depends)	
-			tp_modules.append(tp_module)
-			tp_lib_search_path.append([libname,os.path.abspath(tp_module)])	
-			print "[INFO] Detected third-party module: %s/%s" % (tp_name,tp_version)
+			# check first in the local project
+			local_tp = os.path.join(project_dir,'modules','iphone',libname)
+			local = False
+			if os.path.exists(local_tp):
+				tp_modules.append(local_tp)
+				tp_lib_search_path.append([libname,local_tp])
+				local = True	
+				print "[INFO] Detected third-party module: %s" % (local_tp)
+			else:
+				tp_dir = os.path.join(tp_module_dir,tp_name,tp_version)
+				if not os.path.exists(tp_dir):
+					print "[ERROR] Third-party module: %s/%s detected in tiapp.xml but not found at %s" % (tp_name,tp_version,tp_dir)
+					sys.exit(1)
+				tp_module = os.path.join(tp_dir,libname)
+				if not os.path.exists(tp_module):
+					print "[ERROR] Third-party module: %s/%s missing library at %s" % (tp_name,tp_version,tp_module)
+					sys.exit(1)
+				tp_config = os.path.join(tp_dir,'manifest')
+				if not os.path.exists(tp_config):
+					print "[ERROR] Third-party module: %s/%s missing manifest at %s" % (tp_name,tp_version,tp_config)
+					sys.exit(1)
+				find_depends(tp_config,tp_depends)	
+				tp_modules.append(tp_module)
+				tp_lib_search_path.append([libname,os.path.abspath(tp_module)])	
+				print "[INFO] Detected third-party module: %s/%s" % (tp_name,tp_version)
 			force_xcode = True
 		
-			# copy module resources
-			img_dir = os.path.join(tp_dir,'assets','images')
-			if os.path.exists(img_dir):
-				dest_img_dir = os.path.join(app_dir,'modules',tp_name,'images')
-				if not os.path.exists(dest_img_dir):
-					os.makedirs(dest_img_dir)
-				copy_module_resources(img_dir,dest_img_dir)
+			if not local:
+				# copy module resources
+				img_dir = os.path.join(tp_dir,'assets','images')
+				if os.path.exists(img_dir):
+					dest_img_dir = os.path.join(app_dir,'modules',tp_name,'images')
+					if not os.path.exists(dest_img_dir):
+						os.makedirs(dest_img_dir)
+					copy_module_resources(img_dir,dest_img_dir)
 		
 		print "[INFO] Titanium SDK version: %s" % sdk_version
 		print "[INFO] iPhone Device family: %s" % devicefamily
@@ -635,6 +657,7 @@ def main(args):
 				time.sleep(2)
 
 				logger = os.path.realpath(os.path.join(template_dir,'logger.py'))
+				proc = subprocess.Popen(args, stderr=subprocess.STDOUT, stdout=subprocess.PIPE)
 
 				# start the logger
 				log = subprocess.Popen([

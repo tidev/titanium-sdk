@@ -11,6 +11,14 @@
 
 @implementation ___PROJECTNAMEASIDENTIFIER___Module
 
+#pragma mark Internal
+
+// this is generated for your module, please do not change it
+-(id)moduleGUID
+{
+	return @"__GUID__";
+}
+
 #pragma mark Lifecycle
 
 -(void)startup

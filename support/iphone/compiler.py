@@ -194,7 +194,12 @@ class Compiler(object):
 				for module in modules:
 					tp_name = module['name'].lower()
 					tp_version = module['version']
-					tp_props = read_module_properties(os.path.join(module_root,tp_name,tp_version))
+					tp_dir = os.path.join(module_root,tp_name,tp_version)
+					if os.path.exists(tp_dir):
+						tp_props = read_module_properties(tp_dir)
+					else:
+						# must be a local module, just fudge
+						tp_props = {'name':tp_name,'moduleid':tp_name}
 					tp_module_name = tp_props['name']
 					tp_module_id = tp_props['moduleid']
 					tp_guid = ''
@@ -203,7 +208,7 @@ class Compiler(object):
 					xcfile = os.path.join(module_root,tp_name,tp_version,"module.xcconfig")
 					if os.path.exists(xcfile):
 						xcconfig.write("#include \"%s\"\n" % xcfile.replace('.xcconfig',''))
-					mods.write("	[modules addObject:[NSDictionary dictionaryWithObjectsAndKeys:@\"%s\",@\"name\",@\"%s\",@\"moduleid\",@\"%s\",@\"guid\",@\"%s\",@\"version\",nil]];\n" % (tp_module_name,tp_module_id,tp_guid,tp_version));
+					mods.write("	[modules addObject:[NSDictionary dictionaryWithObjectsAndKeys:@\"%s\",@\"name\",@\"%s\",@\"moduleid\",@\"%s\",@\"version\",nil]];\n" % (tp_module_name,tp_module_id,tp_version));
 				mods.write("	return modules;\n")	
 				mods.write("}\n")
 				mods.write(FOOTER)		

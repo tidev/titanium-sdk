@@ -9,17 +9,56 @@ import zipfile
 cwd = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
 required_module_keys = ['name','version','moduleid','description','copyright','license','copyright','platform','minsdk']
 module_defaults = {
-	'name':'___PROJECTNAMEASIDENTIFIER___',
-	'moduleid':'com.company.___PROJECTNAMEASIDENTIFIER___',
 	'description':'My module',
 	'author': 'Your Name',
 	'license' : 'Specify your license',
 	'copyright' : 'Copyright (c) 2010 by Your Company',
 }
 
+def replace_vars(config,token):
+	idx = token.find('$(')
+	while idx != -1:
+		idx2 = token.find(')',idx+2)
+		if idx2 == -1: break
+		key = token[idx+2:idx2]
+		if not config.has_key(key): break
+		token = token.replace('$(%s)' % key, config[key])
+		idx = token.find('$(')
+	return token
+		
+		
+def read_ti_xcconfig():
+	contents = open(os.path.join(cwd,'titanium.xcconfig')).read()
+	config = {}
+	for line in contents.splitlines(False):
+		line = line.strip()
+		if line[0:2]=='//': continue
+		idx = line.find('=')
+		if idx > 0:
+			key = line[0:idx].strip()
+			value = line[idx+1:].strip()
+			config[key] = replace_vars(config,value)
+	return config
+
+def generate_doc():
+	docfile = os.path.join(cwd,'documentation','index.md')
+	if not os.path.exists(docfile):
+		print "Couldn't find documentation file at: %s" % docfile
+		return None
+	config = read_ti_xcconfig()
+	sdk = config['TITANIUM_SDK']
+	support_dir = os.path.join(sdk,'module','support')
+	sys.path.append(support_dir)
+	import markdown2
+	html_md = open(docfile).read()
+	return markdown2.markdown(html_md)
+
 def die(msg):
 	print msg
 	sys.exit(1)
+
+def warn(msg):
+	print "[WARN] %s" % msg	
 	
 def validate_manifest():
 	path = os.path.join(cwd,'manifest')
@@ -37,10 +76,10 @@ def validate_manifest():
 		if module_defaults.has_key(key):
 			defvalue = module_defaults[key]
 			curvalue = manifest[key]
-			if curvalue==defvalue: die("please update the manifest key: '%s' to a non-default value" % key)
+			if curvalue==defvalue: warn("please update the manifest key: '%s' to a non-default value" % key)
 	return manifest,path
 
-ignoreDirs = ['.DS_Store','.svn','.git','.gitignore','libTitanium.a','titanium.jar']
+ignoreDirs = ['.DS_Store','.svn','.git','CVSROOT','.gitignore','libTitanium.a','titanium.jar']
 def zip_dir(zf,dir,basepath):
 	for root, dirs, files in os.walk(dir):
 		for name in ignoreDirs:
@@ -68,25 +107,29 @@ def build_module(manifest):
 	if rc != 0:
 		die("xcodebuild failed")
     # build the merged library using lipo
-	name = manifest['name'].lower()
+	moduleid = manifest['moduleid']
 	libpaths = ''
 	for libfile in glob_libfiles():
 		libpaths+='%s ' % libfile
 		
-	os.system("lipo %s -create -output build/lib%s.a" %(libpaths,name))
+	os.system("lipo %s -create -output build/lib%s.a" %(libpaths,moduleid))
 
 	
 def package_module(manifest,mf):
 	name = manifest['name'].lower()
+	moduleid = manifest['moduleid'].lower()
 	version = manifest['version']
-	modulezip = '%s-iphone-%s.zip' % (name,version)
+	modulezip = '%s-iphone-%s.zip' % (moduleid,version)
 	if os.path.exists(modulezip): os.remove(modulezip)
 	zf = zipfile.ZipFile(modulezip, 'w', zipfile.ZIP_DEFLATED)
-	modulepath = 'modules/iphone/%s/%s' % (name,version)
+	modulepath = 'modules/iphone/%s/%s' % (moduleid,version)
 	zf.write(mf,'%s/manifest' % modulepath)
-	libname = 'lib%s.a' % name
+	libname = 'lib%s.a' % moduleid
 	zf.write('build/%s' % libname, '%s/%s' % (modulepath,libname))
-	for dn in ('assets','documentation','example'):
+	html = generate_doc()
+	if html!=None:
+		zf.writestr('%s/documentation/index.html'%modulepath,html)
+	for dn in ('assets','example'):
 	  if os.path.exists(dn):
 		  zip_dir(zf,dn,'%s/%s' % (modulepath,dn))
 	zf.write('LICENSE','%s/LICENSE' % modulepath)
@@ -99,5 +142,4 @@ if __name__ == '__main__':
 	build_module(manifest)
 	package_module(manifest,mf)
 	sys.exit(0)
-
 

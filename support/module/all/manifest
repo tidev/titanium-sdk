@@ -2,12 +2,16 @@
 # this is your module manifest and used by Titanium
 # during compilation, packaging, distribution, etc.
 #
-name: ___PROJECTNAMEASIDENTIFIER___
-moduleid: com.company.___PROJECTNAMEASIDENTIFIER___
 version: 0.1
 description: My module
 author: Your Name
 license: Specify your license
 copyright: Copyright (c) 2010 by Your Company
+
+
+# these should not be edited
+name: ___PROJECTNAME___
+moduleid: __MODULE_ID__
+guid: __GUID__
 platform: __PLATFORM__
 minsdk: __VERSION__

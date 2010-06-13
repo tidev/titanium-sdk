@@ -4,16 +4,24 @@
 
 TODO: Enter your module description here
 
+## Accessing the ___PROJECTNAME___ Module
+
+To access this module from JavaScript, you would do the following:
+
+	var ___PROJECTNAME___ = TiPlus.require("__MODULE_ID__");
+
+The ___PROJECTNAME___ variable is a reference to the Module object.	
+
 ## Reference
 
 TODO: If your module has an API, you should document
 the reference here.
 
-### Titanium.___PROJECTNAMEASIDENTIFIER__.function
+### ___PROJECTNAMEASIDENTIFIER__.function
 
 TODO: This is an example of a module function.
 
-### Titanium.___PROJECTNAMEASIDENTIFIER__.property
+### ___PROJECTNAMEASIDENTIFIER__.property
 
 TODO: This is an example of a module property.
 
@@ -29,5 +37,3 @@ details you want to share here.
 ## License
 
 TODO: Enter your license/legal information here.
-
-
