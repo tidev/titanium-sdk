@@ -15,11 +15,13 @@
 	TiHost *host;
 @private
 	CFMutableDictionaryRef classNameLookup;
+	NSString *moduleName;
 }
-
+-(void)_setName:(NSString*)name;
 -(void)setPageContext:(id<TiEvaluator>)evaluator;
 -(void)setHost:(TiHost*)host;
 -(id)createProxy:(NSArray*)args forName:(NSString*)name context:(id<TiEvaluator>)evaluator;
+
 -(void)startup;
 -(void)shutdown:(id)sender;
 -(void)suspend:(id)sender;

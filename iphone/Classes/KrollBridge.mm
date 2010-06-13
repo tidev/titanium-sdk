@@ -10,8 +10,10 @@
 #import "KrollObject.h"
 #import "TiHost.h"
 #import "TopTiModule.h"
+#import "TopTiPlusModule.h"
 #import "TiUtils.h"
 #import "TiApp.h"
+#import "ApplicationMods.h"
 
 #ifdef DEBUGGER_ENABLED
 	#import "TiDebuggerContext.h"
@@ -19,6 +21,80 @@
 #endif
 
 extern BOOL const TI_APPLICATION_ANALYTICS;
+
+@implementation TiPlusObject
+
+-(id)initWithContext:(KrollContext*)context_ host:(TiHost*)host_ context:(id<TiEvaluator>)pageContext_ baseURL:(NSURL*)baseURL_
+{
+	TopTiPlusModule *module = [[[TopTiPlusModule alloc] _initWithPageContext:pageContext_] autorelease];
+	[module setHost:host_];
+	[module _setBaseURL:baseURL_];
+	
+	pageContext = pageContext_;
+	
+	if (self = [super initWithTarget:module context:context_])
+	{
+		// pre-load compiled in TiPlus modules
+		NSArray *mods = [ApplicationMods compiledMods];
+		if (mods!=nil)
+		{
+			NSMutableDictionary *modules = [NSMutableDictionary dictionary];
+			for (NSDictionary *mod in mods)
+			{
+				NSString *name = [mod objectForKey:@"name"];
+				NSString *moduleid = [mod objectForKey:@"moduleid"];
+				TiModule *module = [self addPlusModule:moduleid name:name context:pageContext_];
+				if (module!=nil)
+				{
+					[modules setObject:module forKey:moduleid];
+				}
+				else 
+				{
+					NSLog(@"[ERROR] couldn't register Plus Module: %@ (%@)",name,moduleid);
+				}
+			}
+			module.modules = modules;
+		}
+	}
+	
+	return self;
+}
+
+-(void)dealloc
+{
+	RELEASE_TO_NIL(plusModules);
+	[super dealloc];
+}
+
+-(TiModule*)addPlusModule:(NSString*)moduleid name:(NSString*)name context:(id<TiEvaluator>)context_
+{
+	NSArray *tokens = [moduleid componentsSeparatedByString:@"."];
+	NSMutableString *modulename = [NSMutableString string];
+	for (NSString *token in tokens)
+	{
+		[modulename appendFormat:@"%@%@",[[token substringToIndex:1] uppercaseString],[token substringFromIndex:1]];
+	}
+	[modulename appendString:@"Module"];
+	NSLog(@"[DEBUG] attempting to register: %@ (%@) => %@",name,moduleid,modulename);
+	if (plusModules==nil)
+	{
+		plusModules = [[NSMutableDictionary dictionary] retain];
+	}
+	id moduleClass = NSClassFromString(modulename);
+	if (moduleClass!=nil)
+	{
+		id m = [[moduleClass alloc] _initWithPageContext:context_];
+		[m setHost:host];
+		[m _setName:modulename];
+		[plusModules setObject:m forKey:name];
+		[m release];
+		return m;
+	}
+	return nil;
+}
+
+@end
+
 
 @implementation TitaniumObject
 
@@ -106,6 +182,7 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 {
 	return [modules objectForKey:name];
 }
+
 @end
 
 
@@ -188,6 +265,7 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 	RELEASE_TO_NIL(preload);
 	RELEASE_TO_NIL(context);
 	RELEASE_TO_NIL(titanium);
+	RELEASE_TO_NIL(tiplus);
 	[super dealloc];
 }
 
@@ -391,17 +469,23 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 	// create Titanium global object
 	NSString *basePath = (url==nil) ? [[NSBundle mainBundle] resourcePath] : [[url path] stringByDeletingLastPathComponent];
 	titanium = [[TitaniumObject alloc] initWithContext:kroll host:host context:self baseURL:[NSURL fileURLWithPath:basePath]];
+	tiplus = [[TiPlusObject alloc] initWithContext:kroll host:host context:self baseURL:[NSURL fileURLWithPath:basePath]];
+
 	TiContextRef jsContext = [kroll context];
 	TiValueRef tiRef = [KrollObject toValue:kroll value:titanium];
+	TiValueRef tiPlusRef = [KrollObject toValue:kroll value:tiplus];
 
 	NSString *titaniumNS = [NSString stringWithFormat:@"T%sanium","it"];
 	TiStringRef prop = TiStringCreateWithUTF8CString([titaniumNS UTF8String]);
 	TiStringRef prop2 = TiStringCreateWithUTF8CString([[NSString stringWithFormat:@"%si","T"] UTF8String]);
+	TiStringRef prop3 = TiStringCreateWithUTF8CString([[NSString stringWithFormat:@"%siPlus","T"] UTF8String]);
 	TiObjectRef globalRef = TiContextGetGlobalObject(jsContext);
 	TiObjectSetProperty(jsContext, globalRef, prop, tiRef, NULL, NULL);
 	TiObjectSetProperty(jsContext, globalRef, prop2, tiRef, NULL, NULL);
+	TiObjectSetProperty(jsContext, globalRef, prop3, tiPlusRef, NULL, NULL);
 	TiStringRelease(prop);
 	TiStringRelease(prop2);	
+	TiStringRelease(prop3);	
 	
 	//if we have a preload dictionary, register those static key/values into our UI namespace
 	//in the future we may support another top-level module but for now UI is only needed
@@ -445,6 +529,7 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 	RELEASE_TO_NIL(titanium);
 	RELEASE_TO_NIL(context);
 	RELEASE_TO_NIL(preload);
+	RELEASE_TO_NIL(tiplus);
 }
 
 - (void)registerProxy:(id)proxy 

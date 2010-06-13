@@ -45,6 +45,30 @@ FOOTER ="""
 @end
 """
 
+MODULE_IMPL_HEADER = """#import "ApplicationMods.h"
+
+@implementation ApplicationMods
+
++ (NSArray*) compiledMods
+{
+	NSMutableArray *modules = [NSMutableArray array];
+"""
+
+def read_module_properties(dir):
+	file = os.path.join(dir,'manifest')
+	print file
+	dict = {}
+	if os.path.exists(file):
+		contents = open(file).read()
+		for line in contents.splitlines(True):
+			if line[0:1]=='#': continue
+			idx = line.find(':')
+			if idx==-1: continue
+			k=line[0:idx]
+			v=line[idx+1:].strip()
+			dict[k]=v
+	return dict
+
 #
 # TODO/FIXME
 #
@@ -163,12 +187,27 @@ class Compiler(object):
 		xcconfig.write("// this is a generated file - DO NOT EDIT\n\n")
 		module_root = os.path.abspath(os.path.join(template_dir,"..","..","..","..","modules","iphone"))
 		if os.path.exists(module_root):
-			for module in ti.properties['modules']:
-				tp_name = module['name'].lower()
-				tp_version = module['version']
-				xcfile = os.path.join(module_root,tp_name,tp_version,"module.xcconfig")
-				if os.path.exists(xcfile):
-					xcconfig.write("#include \"%s\"\n" % xcfile.replace('.xcconfig',''))
+			modules = ti.properties['modules']
+			if len(modules) > 0:
+				mods = open(os.path.join(self.classes_dir,'ApplicationMods.m'),'w+')
+				mods.write(MODULE_IMPL_HEADER)
+				for module in modules:
+					tp_name = module['name'].lower()
+					tp_version = module['version']
+					tp_props = read_module_properties(os.path.join(module_root,tp_name,tp_version))
+					tp_module_name = tp_props['name']
+					tp_module_id = tp_props['moduleid']
+					tp_guid = ''
+					if tp_props.has_key('guid'):
+						tp_guid = tp_props['guid']
+					xcfile = os.path.join(module_root,tp_name,tp_version,"module.xcconfig")
+					if os.path.exists(xcfile):
+						xcconfig.write("#include \"%s\"\n" % xcfile.replace('.xcconfig',''))
+					mods.write("	[modules addObject:[NSDictionary dictionaryWithObjectsAndKeys:@\"%s\",@\"name\",@\"%s\",@\"moduleid\",@\"%s\",@\"guid\",@\"%s\",@\"version\",nil]];\n" % (tp_module_name,tp_module_id,tp_guid,tp_version));
+				mods.write("	return modules;\n")	
+				mods.write("}\n")
+				mods.write(FOOTER)		
+				mods.close()
 		xcconfig.close()
 	
 	def add_symbol(self,api):

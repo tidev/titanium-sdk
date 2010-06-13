@@ -19,6 +19,7 @@
 	{
 		CFRelease(classNameLookup);
 	}
+	RELEASE_TO_NIL(moduleName);
 	[super dealloc];
 }
 
@@ -69,6 +70,10 @@
 	[super _configure];
 }
 
+-(void)_setName:(NSString*)name_
+{
+	moduleName = [name_ retain];
+}
 
 //
 // we dynamically create proxies so we don't create an unnecessary
@@ -88,16 +93,23 @@
 		// this is a magic check to see if we're inside a compiled code or not
 		// and if so, drop the prefix
 		NSString *prefix = @"Ti";
-		if (![prefix isEqualToString:[NSString stringWithFormat:@"T%s","i"]])
+		NSString *moduleName_ = nil;
+		if (moduleName==nil)
 		{
+			moduleName_ = [NSString stringWithCString:class_getName([self class]) encoding:NSUTF8StringEncoding];
+		}
+		else 
+		{
+			// this is only set in the case of a Plus Module
+			moduleName_ = moduleName;
 			prefix = @"";
 		}
-		NSString *moduleName = [NSString stringWithCString:class_getName([self class]) encoding:NSUTF8StringEncoding];
-		moduleName = [moduleName stringByReplacingOccurrencesOfString:@"Module" withString:@""];
-		NSString *className = [NSString stringWithFormat:@"%@%@%@Proxy",prefix,moduleName,[name substringFromIndex:range.location+6]];	
+		moduleName_ = [moduleName_ stringByReplacingOccurrencesOfString:@"Module" withString:@""];
+		NSString *className = [NSString stringWithFormat:@"%@%@%@Proxy",prefix,moduleName_,[name substringFromIndex:range.location+6]];	
 		resultClass = NSClassFromString(className);
 		if (resultClass==nil)
 		{
+			NSLog(@"[WARN] attempted to load: %@",className);
 			@throw [NSException exceptionWithName:@"org.appcelerator.module" 
 										   reason:[NSString stringWithFormat:@"invalid method (%@) passed to %@",name,[self class]] 
 										 userInfo:nil];
