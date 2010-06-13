@@ -161,6 +161,7 @@ static TiValueRef SetTimeoutCallback (TiContextRef jsContext, TiObjectRef jsFunc
 	[code release];
 	[super dealloc];
 }
+
 -(void)invoke:(KrollContext*)context
 {
 	TiStringRef js = TiStringCreateWithUTF8CString([code UTF8String]); 
@@ -178,6 +179,29 @@ static TiValueRef SetTimeoutCallback (TiContextRef jsContext, TiObjectRef jsFunc
 	}
 	
 	TiStringRelease(js);
+}
+
+-(id)invokeWithResult:(KrollContext*)context
+{
+	TiStringRef js = TiStringCreateWithUTF8CString([code UTF8String]); 
+	TiObjectRef global = TiContextGetGlobalObject([context context]);
+	
+	TiValueRef exception = NULL;
+	
+	TiValueRef result = TiEvalScript([context context], js, global, NULL, 1, &exception);
+	
+	if (exception!=NULL)
+	{
+		id excm = [KrollObject toID:context value:exception];
+		NSLog(@"[ERROR] Script Error = %@",[TiUtils exceptionMessage:excm]);
+		fflush(stderr);
+		TiStringRelease(js);
+		throw excm;
+	}
+	
+	TiStringRelease(js);
+	
+	return [KrollObject toID:context value:result];
 }
 
 @end
@@ -414,11 +438,22 @@ static TiValueRef SetTimeoutCallback (TiContextRef jsContext, TiObjectRef jsFunc
 {
 	KrollEval *eval = [[[KrollEval alloc] initWithCode:code] autorelease];
 	if ([self isKJSThread])
-	{
+	{	
 		[eval invoke:self];
 		return;
 	}
 	[self enqueue:eval];
+}
+
+-(id)evalJSAndWait:(NSString*)code
+{
+	if (![self isKJSThread])
+	{
+		NSLog(@"[ERROR] attempted to evaluate JS and not on correct Thread! Aborting!");
+		@throw @"Invalid Thread Access";
+	}
+	KrollEval *eval = [[[KrollEval alloc] initWithCode:code] autorelease];
+	return [eval invokeWithResult:self];
 }
 
 -(void)invokeOnThread:(id)callback_ method:(SEL)method_ withObject:(id)obj condition:(NSCondition*)condition_

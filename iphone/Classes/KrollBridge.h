@@ -19,6 +19,7 @@
 	NSMutableDictionary *modules;
 	TiHost *host;
 	id<TiEvaluator> pageContext;
+	NSMutableDictionary *dynprops;
 }
 -(id)initWithContext:(KrollContext*)context_ host:(TiHost*)host_ context:(id<TiEvaluator>)context baseURL:(NSURL*)baseURL_;
 -(KrollObject*)addModule:(NSString*)name module:(TiModule*)module;
@@ -47,6 +48,7 @@
 }
 - (void)boot:(id)callback url:(NSURL*)url preload:(NSDictionary*)preload;
 - (void)evalJS:(NSString*)code;
+- (id)evalJSAndWait:(NSString*)code;
 
 - (void)fireEvent:(id)listener withObject:(id)obj remove:(BOOL)yn thisObject:(TiProxy*)thisObject;
 - (id)preloadForKey:(id)key;

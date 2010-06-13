@@ -16,8 +16,8 @@
 #import "ApplicationMods.h"
 
 #ifdef DEBUGGER_ENABLED
-	#import "TiDebuggerContext.h"
-	#import "TiDebugger.h"
+#import "TiDebuggerContext.h"
+#import "TiDebugger.h"
 #endif
 
 extern BOOL const TI_APPLICATION_ANALYTICS;
@@ -141,6 +141,7 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 {
 	RELEASE_TO_NIL(host);
 	RELEASE_TO_NIL(modules);
+	RELEASE_TO_NIL(dynprops);
 	[super dealloc];
 }
 
@@ -152,6 +153,20 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 
 -(id)valueForKey:(NSString *)key
 {
+	// allow dynprops to override built-in modules
+	// in case you want to re-define them
+	if (dynprops!=nil)
+	{
+		id result = [dynprops objectForKey:key];
+		if (result!=nil)
+		{
+			if (result == [NSNull null])
+			{
+				return nil;
+			}
+			return result;
+		}
+	}
 	id module = [modules objectForKey:key];
 	if (module!=nil)
 	{
@@ -168,7 +183,30 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 
 -(void)setValue:(id)value forKey:(NSString *)key
 {
-	// can't delete at the Titanium level so no-op
+	if (dynprops==nil)
+	{
+		dynprops = [[NSMutableDictionary dictionary] retain];
+	}
+	if (value == nil)
+	{
+		value = [NSNull null];
+	}
+	[dynprops setValue:value forKey:key];
+}
+
+- (id) valueForUndefinedKey: (NSString *) key
+{
+	if ([key isEqualToString:@"toString"] || [key isEqualToString:@"valueOf"])
+	{
+		return [self description];
+	}
+	if (dynprops != nil)
+	{
+		return [dynprops objectForKey:key];
+	}
+	//NOTE: we need to return nil here since in JS you can ask for properties
+	//that don't exist and it should return undefined, not an exception
+	return nil;
 }
 
 -(KrollObject*)addModule:(NSString*)name module:(TiModule*)module
@@ -302,6 +340,12 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 	[context evalJS:code];
 }
 
+// NOTE: this must only be called on the JS thread or an exception will be raised
+- (id)evalJSAndWait:(NSString*)code
+{
+	return [context evalJSAndWait:code];
+}
+
 - (void)scriptError:(NSString*)message
 {
 	[[TiApp app] showModalError:message];
@@ -313,14 +357,14 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 	TiValueRef exception = NULL;
 	
 	TiContextRef jsContext = [context_ context];
-	 
+	
 	NSURL *url_ = [path hasPrefix:@"file:"] ? [NSURL URLWithString:path] : [NSURL fileURLWithPath:path];
 	
 	if (![path hasPrefix:@"/"] && ![path hasPrefix:@"file:"])
 	{
 		url_ = [NSURL URLWithString:path relativeToURL:url];
 	}
-
+	
 	NSString *jcode = nil;
 	
 	if ([url_ isFileURL])
@@ -339,7 +383,7 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 	{
 		jcode = [NSString stringWithContentsOfURL:url_ encoding:NSUTF8StringEncoding error:&error];
 	}
-
+	
 	if (error!=nil)
 	{
 		NSLog(@"[ERROR] error loading path: %@, %@",path,error);
@@ -357,10 +401,10 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 	}
 	
 	const char *urlCString = [[url_ absoluteString] UTF8String];
-
+	
 	TiStringRef jsCode = TiStringCreateWithUTF8CString([jcode UTF8String]);
 	TiStringRef jsURL = TiStringCreateWithUTF8CString(urlCString);
-
+	
 	// validate script
 	// TODO: we do not need to do this in production app
 	if (!TiCheckScriptSyntax(jsContext,jsCode,jsURL,1,&exception))
@@ -396,7 +440,7 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 			[self scriptError:[TiUtils exceptionMessage:excm]];
 		}
 	}
-
+	
 	TiStringRelease(jsCode);
 	TiStringRelease(jsURL);
 }
@@ -421,7 +465,7 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 	{
 		NSLog(@"[ERROR] listener callback is of a non-supported type: %@",[listener class]);
 	}
-
+	
 }
 
 -(void)injectPatches
@@ -470,11 +514,11 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 	NSString *basePath = (url==nil) ? [[NSBundle mainBundle] resourcePath] : [[url path] stringByDeletingLastPathComponent];
 	titanium = [[TitaniumObject alloc] initWithContext:kroll host:host context:self baseURL:[NSURL fileURLWithPath:basePath]];
 	tiplus = [[TiPlusObject alloc] initWithContext:kroll host:host context:self baseURL:[NSURL fileURLWithPath:basePath]];
-
+	
 	TiContextRef jsContext = [kroll context];
 	TiValueRef tiRef = [KrollObject toValue:kroll value:titanium];
 	TiValueRef tiPlusRef = [KrollObject toValue:kroll value:tiplus];
-
+	
 	NSString *titaniumNS = [NSString stringWithFormat:@"T%sanium","it"];
 	TiStringRef prop = TiStringCreateWithUTF8CString([titaniumNS UTF8String]);
 	TiStringRef prop2 = TiStringCreateWithUTF8CString([[NSString stringWithFormat:@"%si","T"] UTF8String]);

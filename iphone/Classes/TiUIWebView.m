@@ -458,7 +458,7 @@ NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._listeners={
 					NSLog(@"[WARN] I have no idea what the appropriate text encoding is for: %@. Please report this to Appcelerator support.",url);
 				}
 			}
-			if ((error!=nil && [error code]==261) || [mimeType isEqualToString:svgMimeType])
+			if ((error!=nil && [error code]==261) || [mimeType isEqualToString:(NSString*)svgMimeType])
 			{//TODO: Shouldn't we be checking for an HTML mime type before trying to read? This is right now rather inefficient, but it
 			//Gets the job done, with minimal reliance on extensions.
 				// this is a different encoding than specified, just send it to the webview to load
@@ -548,6 +548,23 @@ NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._listeners={
 		TiBlob *blob = [args objectAtIndex:1];
 		[blob setData:[result dataUsingEncoding:NSUTF8StringEncoding]];
 	}
+}
+
+-(void)_evalJSOnThread:(NSArray*)args
+{
+	// this happens from evalJSAndWait to put us on the main thread
+	NSString *code = [args objectAtIndex:0];
+	NSMutableString *result = [args objectAtIndex:1];
+	NSString *r = [[self webview] stringByEvaluatingJavaScriptFromString:code];
+	[result appendString:r];
+}
+
+-(id)evalJSAndWait:(NSString *)code
+{
+	NSMutableString *result = [NSMutableString string];
+	NSArray *args = [NSArray arrayWithObjects:code,result,nil];
+	[self performSelectorOnMainThread:@selector(_evalJSOnThread:) withObject:args waitUntilDone:YES];
+	return result;
 }
 
 // Webview appears to have an interesting quirk where the web content is always scaled/sized to just barely

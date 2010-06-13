@@ -62,6 +62,7 @@
 -(void)invokeOnThread:(id)callback_ method:(SEL)method_ withObject:(id)obj condition:(NSCondition*)condition_;
 -(void)invokeOnThread:(id)callback_ method:(SEL)method_ withObject:(id)obj callback:(id)callback selector:(SEL)selector_;
 -(void)evalJS:(NSString*)code;
+-(id)evalJSAndWait:(NSString*)code;
 -(void)invokeEvent:(KrollCallback*)callback_ args:(NSArray*)args_ thisObject:(id)thisObject_;
 -(void)registerTimer:(id)timer timerId:(double)timerId;
 -(void)unregisterTimer:(double)timerId;
@@ -90,6 +91,7 @@
 }
 -(id)initWithCode:(NSString*)code;
 -(void)invoke:(KrollContext*)context;
+-(id)invokeWithResult:(KrollContext*)context;
 @end
 
 @interface KrollEvent : NSObject {
