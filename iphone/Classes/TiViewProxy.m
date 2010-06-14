@@ -721,6 +721,14 @@
 	[self _destroy];
 }
 
+-(void)didReceiveMemoryWarning:(NSNotification*)notification
+{
+	// Only release a view if it's not currently attached and we're the only living reference for it
+	if (![self viewAttached] && [[self view] retainCount] == 1) {
+		RELEASE_TO_NIL(view);
+	}
+}
+
 #pragma mark Listener Management
 
 -(BOOL)_hasListeners:(NSString *)type
