@@ -10,7 +10,6 @@
 #import "KrollObject.h"
 #import "TiHost.h"
 #import "TopTiModule.h"
-#import "TopTiPlusModule.h"
 #import "TiUtils.h"
 #import "TiApp.h"
 #import "ApplicationMods.h"
@@ -21,92 +20,6 @@
 #endif
 
 extern BOOL const TI_APPLICATION_ANALYTICS;
-
-@implementation TiPlusObject
-
--(id)initWithContext:(KrollContext*)context_ host:(TiHost*)host_ context:(id<TiEvaluator>)pageContext_ baseURL:(NSURL*)baseURL_
-{
-	TopTiPlusModule *module = [[[TopTiPlusModule alloc] _initWithPageContext:pageContext_] autorelease];
-	[module setHost:host_];
-	[module _setBaseURL:baseURL_];
-	
-	pageContext = pageContext_;
-	
-	if (self = [super initWithTarget:module context:context_])
-	{
-		// pre-load compiled in TiPlus modules
-		NSArray *mods = [ApplicationMods compiledMods];
-		if (mods!=nil)
-		{
-			NSMutableDictionary *modules = [NSMutableDictionary dictionary];
-			for (NSDictionary *mod in mods)
-			{
-				NSString *name = [mod objectForKey:@"name"];
-				NSString *moduleid = [mod objectForKey:@"moduleid"];
-				TiModule *module = [self addPlusModule:moduleid name:name context:pageContext_];
-				if (module!=nil)
-				{
-					[modules setObject:module forKey:moduleid];
-				}
-				else 
-				{
-					NSLog(@"[ERROR] couldn't register Plus Module: %@ (%@)",name,moduleid);
-				}
-			}
-			module.modules = modules;
-		}
-	}
-	
-	return self;
-}
-
--(void)dealloc
-{
-	RELEASE_TO_NIL(plusModules);
-	RELEASE_TO_NIL(plusModuleIds);
-	[super dealloc];
-}
-
--(TiModule*)addPlusModule:(NSString*)moduleid name:(NSString*)name context:(id<TiEvaluator>)context_
-{
-	NSArray *tokens = [moduleid componentsSeparatedByString:@"."];
-	NSMutableString *modulename = [NSMutableString string];
-	for (NSString *token in tokens)
-	{
-		[modulename appendFormat:@"%@%@",[[token substringToIndex:1] uppercaseString],[token substringFromIndex:1]];
-	}
-	[modulename appendString:@"Module"];
-	NSLog(@"[DEBUG] attempting to register: %@ (%@) => %@",name,moduleid,modulename);
-	if (plusModules==nil)
-	{
-		plusModules = [[NSMutableDictionary dictionary] retain];
-		plusModuleIds = [[NSMutableDictionary dictionary] retain];
-	}
-	id moduleClass = NSClassFromString(modulename);
-	if (moduleClass!=nil)
-	{
-		id m = [[moduleClass alloc] _initWithPageContext:context_];
-		[m setHost:host];
-		[m _setName:modulename];
-		[plusModules setObject:m forKey:name];
-		[plusModuleIds setObject:m forKey:moduleid];
-		[m release];
-		return m;
-	}
-	return nil;
-}
-
--(TiModule*)plusModuleWithId:(NSString*)moduleid
-{
-	if (plusModuleIds!=nil)
-	{
-		return [plusModuleIds objectForKey:moduleid];
-	}
-	return nil;
-}
-
-@end
-
 
 @implementation TitaniumObject
 
@@ -315,7 +228,6 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 	RELEASE_TO_NIL(preload);
 	RELEASE_TO_NIL(context);
 	RELEASE_TO_NIL(titanium);
-	RELEASE_TO_NIL(tiplus);
 	RELEASE_TO_NIL(modules);
 	[super dealloc];
 }
@@ -526,23 +438,18 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 	// create Titanium global object
 	NSString *basePath = (url==nil) ? [[NSBundle mainBundle] resourcePath] : [[url path] stringByDeletingLastPathComponent];
 	titanium = [[TitaniumObject alloc] initWithContext:kroll host:host context:self baseURL:[NSURL fileURLWithPath:basePath]];
-	tiplus = [[TiPlusObject alloc] initWithContext:kroll host:host context:self baseURL:[NSURL fileURLWithPath:basePath]];
 	
 	TiContextRef jsContext = [kroll context];
 	TiValueRef tiRef = [KrollObject toValue:kroll value:titanium];
-	TiValueRef tiPlusRef = [KrollObject toValue:kroll value:tiplus];
 	
 	NSString *titaniumNS = [NSString stringWithFormat:@"T%sanium","it"];
 	TiStringRef prop = TiStringCreateWithUTF8CString([titaniumNS UTF8String]);
 	TiStringRef prop2 = TiStringCreateWithUTF8CString([[NSString stringWithFormat:@"%si","T"] UTF8String]);
-	TiStringRef prop3 = TiStringCreateWithUTF8CString([[NSString stringWithFormat:@"%siPlus","T"] UTF8String]);
 	TiObjectRef globalRef = TiContextGetGlobalObject(jsContext);
 	TiObjectSetProperty(jsContext, globalRef, prop, tiRef, NULL, NULL);
 	TiObjectSetProperty(jsContext, globalRef, prop2, tiRef, NULL, NULL);
-	TiObjectSetProperty(jsContext, globalRef, prop3, tiPlusRef, NULL, NULL);
 	TiStringRelease(prop);
 	TiStringRelease(prop2);	
-	TiStringRelease(prop3);	
 	
 	//if we have a preload dictionary, register those static key/values into our UI namespace
 	//in the future we may support another top-level module but for now UI is only needed
@@ -586,7 +493,6 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 	RELEASE_TO_NIL(titanium);
 	RELEASE_TO_NIL(context);
 	RELEASE_TO_NIL(preload);
-	RELEASE_TO_NIL(tiplus);
 	RELEASE_TO_NIL(modules);
 }
 
@@ -624,7 +530,7 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 	[js appendString:@"})({})"];
 	
 	NSDictionary *result = [self evalJSAndWait:js];
-	TiProxy *proxy = [[[TiProxy alloc] _initWithPageContext:self] autorelease];
+	TiProxy *proxy = [[TiProxy alloc] _initWithPageContext:self];
 	for (id key in result)
 	{
 		[proxy setValue:[result objectForKey:key] forUndefinedKey:key];
@@ -633,26 +539,27 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 	// register it
 	[modules setObject:proxy forKey:path];
 	
-	return proxy;
+	return [proxy autorelease];
+}
+
+-(NSString*)pathToModuleClassName:(NSString*)path
+{
+	NSArray *tokens = [path componentsSeparatedByString:@"."];
+	NSMutableString *modulename = [NSMutableString string];
+	for (NSString *token in tokens)
+	{
+		[modulename appendFormat:@"%@%@",[[token substringToIndex:1] uppercaseString],[token substringFromIndex:1]];
+	}
+	[modulename appendString:@"Module"];
+	return modulename;
 }
 
 -(id)require:(KrollContext*)kroll path:(NSString*)path
 {
-	// require precedence:
-	//
-	// 1. look for a plus module
-	// 2. check for already loaded module
-	// 2. look for a bundled file
-	//
+	id module = nil;
 	
-	// 1. check for plus module
-	id module = [tiplus plusModuleWithId:path];
-	if (module!=nil)
-	{
-		return module;
-	}
-	
-	// 2. check to see if already loaded 
+	// first check to see if we've already loaded the module
+	// and if so, return it
 	if (modules!=nil)
 	{
 		module = [modules objectForKey:path];
@@ -662,19 +569,36 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 		}
 	}
 	
-	// 3. attempt to load from the application
-	NSString *filepath = [NSString stringWithFormat:@"%@.js",path];
-	NSURL *url_ = [TiHost resourceBasedURL:filepath baseURL:NULL];
-	NSData *data = [TiUtils loadAppResource:url_];
-	if (data==nil)
+	// now see if this is a plus module that we need to dynamically
+	// load and create
+	NSString *moduleClassName = [self pathToModuleClassName:path];
+	id moduleClass = NSClassFromString(moduleClassName);
+	if (moduleClass!=nil)
 	{
-		data = [NSData dataWithContentsOfURL:url_];
+		module = [[moduleClass alloc] _initWithPageContext:self];
+		[module setHost:host];
+		[module _setName:moduleClassName];
+		// register it
+		[modules setObject:module forKey:path];
+		[module release];
 	}
-	
-	// we found data, now create the common js module proxy
-	if (data!=nil)
+	else 
 	{
-		module = [self loadCommonJSModule:[[[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding] autorelease] withPath:path];
+		NSString *filepath = [NSString stringWithFormat:@"%@.js",path];
+		NSURL *url_ = [TiHost resourceBasedURL:filepath baseURL:NULL];
+		NSData *data = [TiUtils loadAppResource:url_];
+		if (data==nil)
+		{
+			data = [NSData dataWithContentsOfURL:url_];
+		}
+		
+		// we found data, now create the common js module proxy
+		if (data!=nil)
+		{
+			module = [self loadCommonJSModule:[[[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding] autorelease] withPath:path];
+			// uri is optional but we point it to where we loaded it
+			[module replaceValue:[NSString stringWithFormat:@"app://%@",filepath] forKey:@"uri" notification:NO];
+		}
 	}
 	
 	if (module!=nil)
@@ -682,8 +606,6 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 		// spec says you must have a read-only id property - we don't
 		// currently support readonly in kroll so this is probably OK for now
 		[module replaceValue:path forKey:@"id" notification:NO];
-		// uri is optional but we point it to where we loaded it
-		[module replaceValue:[NSString stringWithFormat:@"app://%@",filepath] forKey:@"uri" notification:NO];
 		return module;
 	}
 	

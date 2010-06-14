@@ -26,18 +26,6 @@
 -(TiModule*)moduleNamed:(NSString*)name context:(id<TiEvaluator>)context;
 @end
 
-@interface TiPlusObject : KrollObject {
-@private
-	NSMutableDictionary *plusModules;
-	NSMutableDictionary *plusModuleIds;
-	TiHost *host;
-	id<TiEvaluator> pageContext;
-}
--(id)initWithContext:(KrollContext*)context_ host:(TiHost*)host_ context:(id<TiEvaluator>)context baseURL:(NSURL*)baseURL_;
--(TiModule*)addPlusModule:(NSString*)moduleid name:(NSString*)name context:(id<TiEvaluator>)context;
--(TiModule*)plusModuleWithId:(NSString*)moduleid;
-@end
-
 
 @interface KrollBridge : Bridge<TiEvaluator,KrollDelegate> {
 @private
@@ -45,7 +33,6 @@
 	NSDictionary *preload;
 	NSMutableDictionary *modules;
 	TitaniumObject *titanium;
-	TiPlusObject *tiplus;
 	BOOL shutdown;
 	NSMutableArray *proxies;
 }
@@ -58,5 +45,4 @@
 - (KrollContext*)krollContext;
 
 @end
-
 
