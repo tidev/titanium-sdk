@@ -40,7 +40,7 @@ public class FBRequest {
 
     static final String API_VERSION = "1.0";
     static final String API_FORMAT = "JSON";
-    static final String USER_AGENT = "FacebookConnect";
+    static final String USER_AGENT = FacebookModule.USER_AGENT + " FacebookConnect";
     static final String STRING_BOUNDARY = "3i2ndDfv2rTHiSisAbouNdArYfORhtTPEefj3q2f";
     static final String ENCODING = "UTF-8";
 

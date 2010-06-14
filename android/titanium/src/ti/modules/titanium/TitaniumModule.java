@@ -50,7 +50,9 @@ public class TitaniumModule
 		if (constants == null) {
 			constants = new TiDict();
 
-			constants.put("version", getTiContext().getTiApp().getTiBuildVersion());
+			String version = getTiContext().getTiApp().getTiBuildVersion();
+			constants.put("userAgent",System.getProperties().getProperty("http.agent")+" Titanium/"+version);
+			constants.put("version", version);
 			constants.put("buildTimestamp", getTiContext().getTiApp().getTiBuildTimestamp());
 		}
 
