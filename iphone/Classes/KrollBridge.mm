@@ -679,6 +679,11 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 	
 	if (module!=nil)
 	{
+		// spec says you must have a read-only id property - we don't
+		// currently support readonly in kroll so this is probably OK for now
+		[module replaceValue:path forKey:@"id" notification:NO];
+		// uri is optional but we point it to where we loaded it
+		[module replaceValue:[NSString stringWithFormat:@"app://%@",filepath] forKey:@"uri" notification:NO];
 		return module;
 	}
 	

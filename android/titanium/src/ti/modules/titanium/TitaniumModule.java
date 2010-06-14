@@ -179,6 +179,11 @@ public class TitaniumModule
 						Scriptable propValue = (Scriptable)result.get(propName,result);
 						proxy.setDynamicValue(propName,propValue);
 					}
+					// spec says you must have a read-only id property - we don't
+					// currently support readonly in kroll so this is probably OK for now
+					proxy.setDynamicValue("id",path);
+					// uri is optional but we point it to where we loaded it
+					proxy.setDynamicValue("uri",fileUrl);
 					return proxy;
 				}
 			}

@@ -7,6 +7,7 @@ var tabGroup = Titanium.UI.createTabGroup(
 	barColor:'#336699'
 });
 
+
 //
 // create base UI tab and root window
 //
