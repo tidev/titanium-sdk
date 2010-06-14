@@ -23,6 +23,25 @@ extern NSString * const TI_APPLICATION_ID;
 
 @implementation TiHost
 
++(NSURL*)resourceBasedURL:(NSString*)fn baseURL:(NSString**)base
+{
+	NSString *path = [[NSBundle mainBundle] bundlePath];
+	const char *start = getenv("TI_STARTPAGE");
+#ifdef TARGET_IPHONE_SIMULATOR
+	if (TI_APPLICATION_RESOURCE_DIR!=nil && [TI_APPLICATION_RESOURCE_DIR isEqualToString:@""]==NO)
+	{
+		// we use our app resource directory
+		path = TI_APPLICATION_RESOURCE_DIR;
+	}
+#endif
+	NSString *fullpath = [NSString stringWithFormat:@"%@/%@",path,fn];
+	if (base!=NULL)
+	{
+		*base = [fullpath stringByDeletingLastPathComponent];
+	}
+	return [NSURL fileURLWithPath:fullpath];
+}
+
 -(id)init
 {
 	if (self = [super init])
@@ -37,20 +56,10 @@ extern NSString * const TI_APPLICATION_ID;
 		{
 			fn = [NSString stringWithCString:start encoding:NSUTF8StringEncoding];
 		}
-		else
-		{
-#ifdef TARGET_IPHONE_SIMULATOR
-			if (TI_APPLICATION_RESOURCE_DIR!=nil && [TI_APPLICATION_RESOURCE_DIR isEqualToString:@""]==NO)
-			{
-				// we use our app resource directory
-				path = TI_APPLICATION_RESOURCE_DIR;
-			}
-#endif
-		}
-		NSString *fullpath = [NSString stringWithFormat:@"%@/%@",path,fn];
-		NSString *dir = [fullpath stringByDeletingLastPathComponent];
-		startURL = [[NSURL fileURLWithPath:fullpath] retain];
-		baseURL = [[NSURL fileURLWithPath:dir] retain];
+		NSString *base;
+		NSURL *url = [TiHost resourceBasedURL:fn baseURL:&base];
+		startURL = [url retain];
+		baseURL = [[NSURL fileURLWithPath:base] retain];
 	}
 	return self;
 }

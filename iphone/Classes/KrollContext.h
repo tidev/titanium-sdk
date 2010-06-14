@@ -14,6 +14,9 @@
 
 @protocol KrollDelegate <NSObject>
 
+@required
+-(id)require:(KrollContext*)kroll path:(NSString*)path;
+
 @optional
 
 -(void)willStartNewContext:(KrollContext*)kroll;
@@ -110,12 +113,12 @@
 -(void)setExecutionContext:(id<KrollDelegate>)delegate;
 @end
 
-
 TI_INLINE KrollContext* GetKrollContext(TiContextRef context)
 {
+	static const char *krollNS = "Kroll";
 	TiGlobalContextRef globalContext = TiContextGetGlobalContext(context);
 	TiObjectRef global = TiContextGetGlobalObject(globalContext); 
-	TiStringRef string = TiStringCreateWithUTF8CString([@"Kroll" UTF8String]);
+	TiStringRef string = TiStringCreateWithUTF8CString(krollNS);
 	TiValueRef value = TiObjectGetProperty(globalContext, global, string, NULL);
 	KrollContext *ctx = (KrollContext*)TiObjectGetPrivate(TiValueToObject(globalContext, value, NULL));
 	TiStringRelease(string);

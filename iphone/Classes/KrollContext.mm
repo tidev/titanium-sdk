@@ -146,6 +146,21 @@ static TiValueRef SetTimeoutCallback (TiContextRef jsContext, TiObjectRef jsFunc
 	return MakeTimer(jsContext, jsFunction, fnRef, jsThis, durationRef, YES);
 }
 
+static TiValueRef CommonJSRequireCallback (TiContextRef jsContext, TiObjectRef jsFunction, TiObjectRef jsThis, size_t argCount,
+									  const TiValueRef args[], TiValueRef* exception)
+{
+	if (argCount!=1)
+	{
+		return ThrowException(jsContext, @"invalid number of arguments", exception);
+	}
+	
+	KrollContext *ctx = GetKrollContext(jsContext);
+	id path = [KrollObject toID:ctx value:args[0]];
+	id result = [ctx.delegate require:ctx path:path];
+	return [KrollObject toValue:ctx value:result];
+}	
+
+
 @implementation KrollEval
 
 -(id)initWithCode:(NSString*)code_
@@ -544,7 +559,8 @@ static TiValueRef SetTimeoutCallback (TiContextRef jsContext, TiObjectRef jsFunc
 	[self bindCallback:@"setInterval" callback:&SetIntervalCallback];
 	[self bindCallback:@"clearTimeout" callback:&ClearTimerCallback];
 	[self bindCallback:@"clearInterval" callback:&ClearTimerCallback];
-
+	[self bindCallback:@"require" callback:&CommonJSRequireCallback];
+	
 	if (delegate!=nil && [delegate respondsToSelector:@selector(willStartNewContext:)])
 	{
 		[delegate performSelector:@selector(willStartNewContext:) withObject:self];

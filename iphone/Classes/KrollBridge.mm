@@ -63,6 +63,7 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 -(void)dealloc
 {
 	RELEASE_TO_NIL(plusModules);
+	RELEASE_TO_NIL(plusModuleIds);
 	[super dealloc];
 }
 
@@ -79,6 +80,7 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 	if (plusModules==nil)
 	{
 		plusModules = [[NSMutableDictionary dictionary] retain];
+		plusModuleIds = [[NSMutableDictionary dictionary] retain];
 	}
 	id moduleClass = NSClassFromString(modulename);
 	if (moduleClass!=nil)
@@ -87,8 +89,18 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 		[m setHost:host];
 		[m _setName:modulename];
 		[plusModules setObject:m forKey:name];
+		[plusModuleIds setObject:m forKey:moduleid];
 		[m release];
 		return m;
+	}
+	return nil;
+}
+
+-(TiModule*)plusModuleWithId:(NSString*)moduleid
+{
+	if (plusModuleIds!=nil)
+	{
+		return [plusModuleIds objectForKey:moduleid];
 	}
 	return nil;
 }
@@ -304,6 +316,7 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 	RELEASE_TO_NIL(context);
 	RELEASE_TO_NIL(titanium);
 	RELEASE_TO_NIL(tiplus);
+	RELEASE_TO_NIL(modules);
 	[super dealloc];
 }
 
@@ -574,6 +587,7 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 	RELEASE_TO_NIL(context);
 	RELEASE_TO_NIL(preload);
 	RELEASE_TO_NIL(tiplus);
+	RELEASE_TO_NIL(modules);
 }
 
 - (void)registerProxy:(id)proxy 
@@ -600,5 +614,70 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 	}
 }
 
+-(id)loadCommonJSModule:(NSString*)code withPath:(NSString*)path
+{
+	NSMutableString *js = [NSMutableString string];
+	
+	[js appendString:@"(function(exports){"];
+	[js appendString:code];
+	[js appendString:@"return exports;"];
+	[js appendString:@"})({})"];
+	
+	NSDictionary *result = [self evalJSAndWait:js];
+	TiProxy *proxy = [[[TiProxy alloc] _initWithPageContext:self] autorelease];
+	for (id key in result)
+	{
+		[proxy setValue:[result objectForKey:key] forUndefinedKey:key];
+	}
+	
+	// register it
+	[modules setObject:proxy forKey:path];
+	
+	return proxy;
+}
+
+-(id)require:(KrollContext*)kroll path:(NSString*)path
+{
+	// require precedence:
+	//
+	// 1. look for a plus module
+	// 2. check for already loaded module
+	// 2. look for a bundled file
+	//
+	
+	// 1. check for plus module
+	id module = [tiplus plusModuleWithId:path];
+	if (module!=nil)
+	{
+		return module;
+	}
+	
+	// 2. check to see if already loaded 
+	if (modules!=nil)
+	{
+		module = [modules objectForKey:path];
+		if (module!=nil)
+		{
+			return module;
+		}
+	}
+	
+	// 3. attempt to load from the application
+	NSString *filepath = [NSString stringWithFormat:@"%@.js",path];
+	NSURL *url_ = [TiHost resourceBasedURL:filepath baseURL:NULL];
+	NSData *data = [TiUtils loadAppResource:url_];
+	if (data==nil)
+	{
+		data = [NSData dataWithContentsOfURL:url_];
+	}
+	
+	// we found data, now create the common js module proxy
+	if (data!=nil)
+	{
+		module = [self loadCommonJSModule:[[[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding] autorelease] withPath:path];
+	}
+	
+	return module;
+}
 
 @end

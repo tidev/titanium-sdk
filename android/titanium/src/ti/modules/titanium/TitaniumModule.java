@@ -13,9 +13,12 @@ import java.util.Stack;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import org.mozilla.javascript.Scriptable;
+
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiDict;
 import org.appcelerator.titanium.TiModule;
+import org.appcelerator.titanium.TiProxy;
 import org.appcelerator.titanium.kroll.KrollCallback;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConvert;
@@ -27,6 +30,7 @@ public class TitaniumModule
 	private static final String LCAT = "TitaniumModule";
 	private static TiDict constants;
 	private Stack<String> basePath;
+	private HashMap<String,TiProxy> modules;
 
 	public TitaniumModule(TiContext tiContext) {
 		super(tiContext);
@@ -131,6 +135,33 @@ public class TitaniumModule
 		String msg = (message == null? null : message.toString());
 		Log.i("ALERT", msg);
 		TiUIHelper.doOkDialog(getTiContext().getActivity(), "Alert", msg, null);
+	}
+	
+	public TiProxy require(String path) {
+		
+		// 1. look for a TiPlus module first
+		// 2. then look for a cached module
+		// 3. then attempt to load from resources
+		TiProxy proxy = new TiProxy(getTiContext());
+		
+		//TODO: right now, we're only supporting app 
+		//level modules until TiPlus is done for android
+		
+		// create the common js exporter
+		StringBuilder buf = new StringBuilder();
+		buf.append("(function(exports){");
+		buf.append("exports.echo=function(x){return x};");
+		buf.append("return exports;");
+		buf.append("})({})");
+		
+		Scriptable result = (Scriptable)getTiContext().evalJS(buf.toString());
+		for (Object key : result.getIds())
+		{
+			String propName = key.toString();
+			Scriptable propValue = (Scriptable)result.get(propName,result);
+			proxy.setDynamicValue(propName,propValue);
+		}
+		return proxy;
 	}
 	
 	@Override
