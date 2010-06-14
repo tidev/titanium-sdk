@@ -893,7 +893,12 @@ DEFINE_EXCEPTIONS
 {
 	if (krollDescription==nil) 
 	{ 
-		NSString *cn = [[self class] description];
+		// if we have a cached id, use it for our identifier
+		NSString *cn = [self valueForUndefinedKey:@"id"];
+		if (cn==nil)
+		{
+			cn = [[self class] description];
+		}
 		krollDescription = [[NSString stringWithFormat:@"[object %@]",[cn stringByReplacingOccurrencesOfString:@"Proxy" withString:@""]] retain];
 	}
 

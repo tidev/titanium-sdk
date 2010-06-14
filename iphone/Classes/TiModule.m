@@ -8,6 +8,8 @@
 
 #import "TiModule.h"
 #import "TiProxy.h"
+#import "TiUtils.h"
+#import "TiHost.h"
 
 @implementation TiModule
 
@@ -20,6 +22,7 @@
 		CFRelease(classNameLookup);
 	}
 	RELEASE_TO_NIL(moduleName);
+	RELEASE_TO_NIL(moduleAssets);
 	[super dealloc];
 }
 
@@ -55,7 +58,7 @@
 {
 	if (classNameLookup == NULL)
 	{
-		classNameLookup = CFDictionaryCreateMutable(kCFAllocatorDefault, 10, &kCFTypeDictionaryKeyCallBacks, NULL);
+		classNameLookup = CFDictionaryCreateMutable(kCFAllocatorDefault, 1, &kCFTypeDictionaryKeyCallBacks, NULL);
 		//We do not retain the Class, but simply assign them.
 	}
 
@@ -122,5 +125,50 @@
 }
 
 
+-(NSString*)moduleId
+{
+	// by default, base modules don't have a module id - but custom modules will
+	return nil;
+}
+
+-(NSData*)moduleJS
+{
+	NSString *moduleId = [self moduleId];
+	if (moduleId!=nil)
+	{
+		if (moduleAssets==nil)
+		{
+			NSString *moduleName_ = [NSString stringWithCString:class_getName([self class]) encoding:NSUTF8StringEncoding];
+			NSString *moduleAsset = [NSString stringWithFormat:@"%@Assets",moduleName_];
+			id cls = NSClassFromString(moduleAsset);
+			if (cls!=nil)
+			{
+				moduleAssets = [[cls alloc] init];
+			}
+		}
+		if (moduleAssets!=nil)
+		{
+			return [moduleAssets performSelector:@selector(moduleAsset)];
+		}
+	}
+	return nil;
+}
+
+-(BOOL)isJSModule
+{
+	NSString *moduleId = [self moduleId];
+	if (moduleId!=nil)
+	{
+		// if we have module js than we're a JS native module
+		return [self moduleJS]!=nil;	
+	}
+	return NO;
+}
+
+-(void)didReceiveMemoryWarning:(NSNotification *)notification
+{
+	[super didReceiveMemoryWarning:notification];
+	RELEASE_TO_NIL(moduleAssets);
+}
 
 @end

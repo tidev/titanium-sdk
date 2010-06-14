@@ -8,7 +8,7 @@ TODO: Enter your module description here
 
 To access this module from JavaScript, you would do the following:
 
-	var ___PROJECTNAME___ = TiPlus.require("__MODULE_ID__");
+	var ___PROJECTNAME___ = require("__MODULE_ID__");
 
 The ___PROJECTNAME___ variable is a reference to the Module object.	
 

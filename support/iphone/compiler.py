@@ -84,9 +84,10 @@ class Compiler(object):
 		self.iphone_dir = os.path.join(project_dir,'build','iphone')
 		self.classes_dir = os.path.join(self.iphone_dir,'Classes')
 		self.modules = []
+		self.modules_metadata = []
 		
 		# for now, these are required
-		self.defines = ['USE_TI_ANALYTICS','USE_TI_NETWORK','USE_TI_PLATFORM']
+		self.defines = ['USE_TI_ANALYTICS','USE_TI_NETWORK','USE_TI_PLATFORM','USE_TI_UI']
 
 		tiapp_xml = os.path.join(project_dir,'tiapp.xml')
 		ti = TiAppXML(tiapp_xml)
@@ -149,43 +150,12 @@ class Compiler(object):
 		# we have to copy these even in simulator given the path difference
 		if os.path.exists(app_dir):
 			self.copy_resources([iphone_resources_dir],app_dir,False)
-		
-		if deploytype!='development':
-			if os.path.exists(app_dir):
-				self.copy_resources([resources_dir],app_dir)
 
-			defines_header = open(os.path.join(self.classes_dir,'defines.h'),'w')
-			defines_header.write("// Warning: this is generated file. Do not modify!\n\n")
-			defines_header.write("#define TI_VERSION %s\n"%sdk_version)
-			for sym in self.defines:
-				defines_header.write("#define %s 1\n"%sym)
-			defines_header.flush()
-
-			# deploy any module image files 
-			for module in self.modules:
-				img_dir = os.path.join(template_dir,'modules',module.lower(),'images')
-				print "[DEBUG] module image = %s" % img_dir
-				if not os.path.exists(img_dir): continue
-				dest_img_dir = os.path.join(app_dir,'modules',module.lower(),'images')
-				if not os.path.exists(dest_img_dir):
-					os.makedirs(dest_img_dir)
-				self.copy_resources([img_dir],dest_img_dir,False)
-			
-			
-			# optimize PNGs - since we don't include them in the Resources of the xcodeproj
-			# the ones we copy in won't get optimized so we need to run it manually
-			# we can skip this on the simulator but should do it on device
-			run.run(["/Developer/Platforms/iPhoneOS.platform/Developer/usr/bin/iphoneos-optimize",app_dir],False)
-
-			
-		else:
-			print "[INFO] Skipping JS compile, running from simulator"
-	
 		# generate the includes for all compiled modules
-		xcconfig = os.path.join(self.iphone_dir,"module.xcconfig")
-		xcconfig = open(xcconfig,'w')
-		xcconfig.write("// this is a generated file - DO NOT EDIT\n\n")
+		xcconfig_c = "// this is a generated file - DO NOT EDIT\n\n"
 		module_root = os.path.abspath(os.path.join(template_dir,"..","..","..","..","modules","iphone"))
+		has_modules = False
+		
 		if os.path.exists(module_root):
 			modules = ti.properties['modules']
 			if len(modules) > 0:
@@ -205,15 +175,61 @@ class Compiler(object):
 					tp_guid = ''
 					if tp_props.has_key('guid'):
 						tp_guid = tp_props['guid']
+					self.modules_metadata.append({'guid':tp_guid,'name':tp_module_name,'id':tp_module_id,'dir':tp_dir,'version':tp_version})
 					xcfile = os.path.join(module_root,tp_name,tp_version,"module.xcconfig")
 					if os.path.exists(xcfile):
-						xcconfig.write("#include \"%s\"\n" % xcfile.replace('.xcconfig',''))
+						xcconfig_c+="#include \"%s\"\n" % xcfile.replace('.xcconfig','')
 					mods.write("	[modules addObject:[NSDictionary dictionaryWithObjectsAndKeys:@\"%s\",@\"name\",@\"%s\",@\"moduleid\",@\"%s\",@\"version\",nil]];\n" % (tp_module_name,tp_module_id,tp_version));
 				mods.write("	return modules;\n")	
 				mods.write("}\n")
 				mods.write(FOOTER)		
 				mods.close()
-		xcconfig.close()
+				has_modules = True
+				xcconfig = os.path.join(self.iphone_dir,"module.xcconfig")
+				make_xcc = True
+				if os.path.exists(xcconfig):
+					existing_xcc = open(xcconfig).read()
+					# only copy if different so we don't trigger re-compile in xcode
+					make_xcc = existing_xcc!=xcconfig_c
+				if make_xcc:		
+					xcconfig = open(xcconfig,'w')
+					xcconfig.write(xcconfig_c)
+					xcconfig.close()
+			
+		
+		if deploytype!='development' or has_modules:
+
+			if os.path.exists(app_dir):
+				self.copy_resources([resources_dir],app_dir)
+				
+			if deploytype!='development':	
+				defines_header = open(os.path.join(self.classes_dir,'defines.h'),'w')
+				defines_header.write("// Warning: this is generated file. Do not modify!\n\n")
+				defines_header.write("#define TI_VERSION %s\n"%sdk_version)
+				for sym in self.defines:
+					defines_header.write("#define %s 1\n"%sym)
+				defines_header.flush()
+
+			# deploy any module image files 
+			for module in self.modules:
+				img_dir = os.path.join(template_dir,'modules',module.lower(),'images')
+				print "[DEBUG] module image = %s" % img_dir
+				if not os.path.exists(img_dir): continue
+				dest_img_dir = os.path.join(app_dir,'modules',module.lower(),'images')
+				if not os.path.exists(dest_img_dir):
+					os.makedirs(dest_img_dir)
+				self.copy_resources([img_dir],dest_img_dir,False)
+			
+			
+			if deploytype!='development':
+				# optimize PNGs - since we don't include them in the Resources of the xcodeproj
+				# the ones we copy in won't get optimized so we need to run it manually
+				# we can skip this on the simulator but should do it on device
+				run.run(["/Developer/Platforms/iPhoneOS.platform/Developer/usr/bin/iphoneos-optimize",app_dir],False)
+			
+		else:
+			print "[INFO] Skipping JS compile, running from simulator"
+	
 	
 	def add_symbol(self,api):
 		print "[DEBUG] detected symbol: %s" % api
@@ -265,7 +281,8 @@ class Compiler(object):
 				for sym in self.extract_tokens(symbol,line):
 					self.add_symbol(sym)
 		
-	def make_function_from_file(self,path,file):
+	@classmethod	
+	def make_function_from_file(cls,path,file,instance=None):
 		fp = os.path.splitext(path)
 		basename = fp[0].replace(' ','_').replace('/','_').replace('-','_').replace('.','_').replace('+','_')
 		ext = fp[1][1:]
@@ -285,7 +302,7 @@ class Compiler(object):
 		# minimize javascript, css files
 		if ext == 'js':
 			file_contents = jspacker.jsmin(file_contents)
-			self.compile_js(file_contents)
+			if instance: instance.compile_js(file_contents)
 		elif ext == 'css':
 			packer = CSSPacker(file_contents)
 			file_contents = packer.pack()
@@ -317,7 +334,7 @@ class Compiler(object):
 		if not os.path.exists(os.path.expanduser(target)):
 			os.makedirs(os.path.expanduser(target))
 			
-		for source in sources:
+		def add_compiled_resources(source,target):
 			print "[DEBUG] copy resources from %s to %s" % (source,target)
 			for root, dirs, files in os.walk(source):
 				for name in ignoreDirs:
@@ -337,7 +354,7 @@ class Compiler(object):
 						path = prefix + os.sep + file
 						path = path[1:]
 						print "[DEBUG] compiling: %s" % from_
-						metadata = self.make_function_from_file(path,from_)
+						metadata = Compiler.make_function_from_file(path,from_,self)
 						method = metadata['method']
 						eq = path.replace('.','_')
 						impf.write('         [map setObject:%s forKey:@"%s"];\n' % (method,eq))
@@ -346,6 +363,17 @@ class Compiler(object):
 						if not os.path.exists(to_) or os.path.getsize(from_)!=os.path.getsize(to_):
 							print "[DEBUG] copying: %s to %s" % (from_,to_)
 							shutil.copyfile(from_, to_)	
+		
+		# copy in any module assets
+		for metadata in self.modules_metadata:
+			tp_dir = os.path.join(metadata['dir'],'assets')
+			if not os.path.exists(tp_dir): continue
+			tp_id = metadata['id']
+			t = '%s/modules/%s' %(target,tp_id)
+			add_compiled_resources(tp_dir,t)
+				
+		for source in sources:
+			add_compiled_resources(source,target)
 						
 		if write_routing:
 			impf.write("     }\n")

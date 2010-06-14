@@ -6,7 +6,10 @@ def run(args,ignore_error=False,debug=True):
 		sys.stdout.flush()
 	proc = subprocess.Popen(args, stderr=subprocess.STDOUT, stdout=subprocess.PIPE)
 	results = ''
-	while proc.poll()==None:
+	rc = None
+	while True:
+		rc = proc.poll()
+		if rc!=None: break
 		line = proc.stdout.readline()
 		if line:
 			if debug:
@@ -15,4 +18,6 @@ def run(args,ignore_error=False,debug=True):
 					print "[DEBUG] %s" % s
 					sys.stdout.flush()
 			results+=line
+	if rc!=0 and not ignore_error:
+		sys.exit(rc)
 	return results	

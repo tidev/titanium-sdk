@@ -19,6 +19,12 @@
 	return @"__GUID__";
 }
 
+// this is generated for your module, please do not change it
+-(NSString*)moduleId
+{
+	return @"__MODULE_ID__";
+}
+
 #pragma mark Lifecycle
 
 -(void)startup

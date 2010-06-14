@@ -645,20 +645,19 @@ def main(args):
 				ass = os.path.join(template_dir,'iphone_sim_activate.scpt')
 				cmd = "osascript \"%s\"" % ass
 				os.system(cmd)
-
+				
 				end_time = time.time()-start_time
-
+				
 				print "[INFO] Launched application in Simulator (%0.2f seconds)" % end_time
 				sys.stdout.flush()
 				sys.stderr.flush()
-
+				
 				# give the simulator a bit to get started and up and running before 
 				# starting the logger
 				time.sleep(2)
-
+				
 				logger = os.path.realpath(os.path.join(template_dir,'logger.py'))
-				proc = subprocess.Popen(args, stderr=subprocess.STDOUT, stdout=subprocess.PIPE)
-
+				
 				# start the logger
 				log = subprocess.Popen([
 				  	logger,

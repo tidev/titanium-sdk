@@ -11,5 +11,5 @@ import os,sys,shutil
 # script to complete the install
 # 
 class android(object):
-	def __init__(self,project_dir,config):
+	def __init__(self,project_dir,config,module):
 		pass

@@ -11,6 +11,11 @@ import os,sys,shutil
 # script to complete the install
 # 
 class iphone(object):
-	def __init__(self,project_dir,config):
-		pass
+	def __init__(self,project_dir,config,module):
+		
+		git = os.path.join(project_dir,'Classes','.gitignore')
+		git_file = open(git,'w')
+		git_file.write("%s.h\n" % module.module_name)
+		git_file.write("%s.m\n" % module.module_name)
+		git_file.close()
 		

@@ -54,7 +54,16 @@ class ModuleProject(object):
 		for token in name.split('.'):
 			modulename += token[0:1].upper() + token[1:]
 		return modulename
-				
+	
+	def generate_gitignore(self):
+		git = os.path.join(self.project_dir,'.gitignore')
+		git_file = open(git,'w')
+		git_file.write("tmp\n")
+		git_file.write("bin\n")
+		git_file.write("build\n")
+		git_file.write("*.zip\n")
+		git_file.close()
+					
 	def __init__(self,platform,project_dir,config):
 		self.project_short_name = config['name']
 		self.project_name = config['name'].lower()
@@ -63,17 +72,19 @@ class ModuleProject(object):
 		self.module_name = self.generate_module_name(self.module_id)
 		self.sdk_version = os.path.basename(os.path.abspath(os.path.join(template_dir,'../')))
 		self.guid = str(uuid.uuid4())
+		self.project_dir = project_dir
 		platform_dir = os.path.join(template_dir,platform.lower())
 		all_templates_dir = os.path.join(template_dir,'all')
 		if os.path.exists(all_templates_dir):
 			self.copy_template_files(project_dir,all_templates_dir)
+		self.generate_gitignore()
 		templates_dir = os.path.join(platform_dir,'templates')
 		if os.path.exists(templates_dir):
 			self.copy_template_files(project_dir,templates_dir)
 		sys.path.append(platform_dir)
 		exec "from %s import *" % platform.lower()
 		exec "cl = %s" % platform.lower()
-		m = cl(project_dir,config)
+		m = cl(project_dir,config,self)
 
 def usage(prop,required,optional=None):
   print "Couldn't find required '%s' argument" % prop

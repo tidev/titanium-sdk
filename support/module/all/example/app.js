@@ -10,7 +10,7 @@ var window = Ti.UI.createWindow({
 });
 window.open();
 
-// TODO: write your module stuff here
-var ___PROJECTNAME___ = TiPlus.require('__MODULE_ID__');
+// TODO: write your module tests here
+var ___PROJECTNAME___ = require('__MODULE_ID__');
 Ti.API.info("module is => "+___PROJECTNAME___);
 

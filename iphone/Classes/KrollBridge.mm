@@ -544,6 +544,8 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 
 -(NSString*)pathToModuleClassName:(NSString*)path
 {
+	//TODO: switch to use ApplicationMods
+	
 	NSArray *tokens = [path componentsSeparatedByString:@"."];
 	NSMutableString *modulename = [NSMutableString string];
 	for (NSString *token in tokens)
@@ -556,7 +558,9 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 
 -(id)require:(KrollContext*)kroll path:(NSString*)path
 {
-	id module = nil;
+	TiModule* module = nil;
+	NSData *data = nil;
+	NSString *filepath = nil;
 	
 	// first check to see if we've already loaded the module
 	// and if so, return it
@@ -576,26 +580,39 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 	if (moduleClass!=nil)
 	{
 		module = [[moduleClass alloc] _initWithPageContext:self];
-		[module setHost:host];
-		[module _setName:moduleClassName];
-		// register it
-		[modules setObject:module forKey:path];
+		// we might have a module that's simply a JS native module wrapper
+		// in which case we simply load it and don't register our native module
+		if ([module isJSModule])
+		{
+			data = [module moduleJS];
+		}
+		else
+		{
+			[module setHost:host];
+			[module _setName:moduleClassName];
+			// register it
+			[modules setObject:module forKey:path];
+		}
 		[module release];
 	}
-	else 
+	
+	if (data==nil)
 	{
-		NSString *filepath = [NSString stringWithFormat:@"%@.js",path];
+		filepath = [NSString stringWithFormat:@"%@.js",path];
 		NSURL *url_ = [TiHost resourceBasedURL:filepath baseURL:NULL];
-		NSData *data = [TiUtils loadAppResource:url_];
+		data = [TiUtils loadAppResource:url_];
 		if (data==nil)
 		{
 			data = [NSData dataWithContentsOfURL:url_];
 		}
-		
-		// we found data, now create the common js module proxy
-		if (data!=nil)
+	}
+	
+	// we found data, now create the common js module proxy
+	if (data!=nil)
+	{
+		module = [self loadCommonJSModule:[[[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding] autorelease] withPath:path];
+		if (filepath!=nil)
 		{
-			module = [self loadCommonJSModule:[[[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding] autorelease] withPath:path];
 			// uri is optional but we point it to where we loaded it
 			[module replaceValue:[NSString stringWithFormat:@"app://%@",filepath] forKey:@"uri" notification:NO];
 		}

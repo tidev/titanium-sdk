@@ -24,6 +24,8 @@
 /* Begin PBXBuildFile section */
 		24DD6CF91134B3F500162E58 /* ___PROJECTNAMEASIDENTIFIER___Module.h in Headers */ = {isa = PBXBuildFile; fileRef = 24DD6CF71134B3F500162E58 /* ___PROJECTNAMEASIDENTIFIER___Module.h */; };
 		24DD6CFA1134B3F500162E58 /* ___PROJECTNAMEASIDENTIFIER___Module.m in Sources */ = {isa = PBXBuildFile; fileRef = 24DD6CF81134B3F500162E58 /* ___PROJECTNAMEASIDENTIFIER___Module.m */; };
+    24DE9E1111C5FE74003F90F6 /* ___PROJECTNAMEASIDENTIFIER___ModuleAssets.h in Headers */ = {isa = PBXBuildFile; fileRef = 24DE9E0F11C5FE74003F90F6 /* ___PROJECTNAMEASIDENTIFIER___ModuleAssets.h */; };
+    24DE9E1211C5FE74003F90F6 /* ___PROJECTNAMEASIDENTIFIER___ModuleAssets.m in Sources */ = {isa = PBXBuildFile; fileRef = 24DE9E1011C5FE74003F90F6 /* ___PROJECTNAMEASIDENTIFIER___ModuleAssets.m */; };
 		AA747D9F0F9514B9006C5449 /* ___PROJECTNAMEASIDENTIFIER____Prefix.pch in Headers */ = {isa = PBXBuildFile; fileRef = AA747D9E0F9514B9006C5449 /* ___PROJECTNAMEASIDENTIFIER____Prefix.pch */; };
 		AACBBE4A0F95108600F1A2B1 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AACBBE490F95108600F1A2B1 /* Foundation.framework */; };
 /* End PBXBuildFile section */
@@ -42,6 +44,8 @@
 		24DD6CF71134B3F500162E58 /* ___PROJECTNAMEASIDENTIFIER___Module.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ___PROJECTNAMEASIDENTIFIER___Module.h; path = Classes/___PROJECTNAMEASIDENTIFIER___Module.h; sourceTree = "<group>"; };
 		24DD6CF81134B3F500162E58 /* ___PROJECTNAMEASIDENTIFIER___Module.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ___PROJECTNAMEASIDENTIFIER___Module.m; path = Classes/___PROJECTNAMEASIDENTIFIER___Module.m; sourceTree = "<group>"; };
 		24DD6D1B1134B66800162E58 /* titanium.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = titanium.xcconfig; sourceTree = "<group>"; };
+    24DE9E0F11C5FE74003F90F6 /* ___PROJECTNAMEASIDENTIFIER___ModuleAssets.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ___PROJECTNAMEASIDENTIFIER___ModuleAssets.h; path = Classes/___PROJECTNAMEASIDENTIFIER___ModuleAssets.h; sourceTree = "<group>"; };
+    24DE9E1011C5FE74003F90F6 /* ___PROJECTNAMEASIDENTIFIER___ModuleAssets.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ___PROJECTNAMEASIDENTIFIER___ModuleAssets.m; path = Classes/___PROJECTNAMEASIDENTIFIER___ModuleAssets.m; sourceTree = "<group>"; };
 		AA747D9E0F9514B9006C5449 /* ___PROJECTNAMEASIDENTIFIER____Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ___PROJECTNAMEASIDENTIFIER____Prefix.pch; sourceTree = SOURCE_ROOT; };
 		AACBBE490F95108600F1A2B1 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		D2AAC07E0554694100DB518D /* lib___PROJECTNAMEASIDENTIFIER___.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = lib___PROJECTNAMEASIDENTIFIER___.a; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -89,6 +93,8 @@
 		08FB77AEFE84172EC02AAC07 /* Classes */ = {
 			isa = PBXGroup;
 			children = (
+        24DE9E0F11C5FE74003F90F6 /* ___PROJECTNAMEASIDENTIFIER___ModuleAssets.h */,
+        24DE9E1011C5FE74003F90F6 /* ___PROJECTNAMEASIDENTIFIER___ModuleAssets.m */,
 				24DD6CF71134B3F500162E58 /* ___PROJECTNAMEASIDENTIFIER___Module.h */,
 				24DD6CF81134B3F500162E58 /* ___PROJECTNAMEASIDENTIFIER___Module.m */,
 			);
@@ -113,6 +119,7 @@
 			files = (
 				AA747D9F0F9514B9006C5449 /* ___PROJECTNAMEASIDENTIFIER____Prefix.pch in Headers */,
 				24DD6CF91134B3F500162E58 /* ___PROJECTNAMEASIDENTIFIER___Module.h in Headers */,
+        24DE9E1111C5FE74003F90F6 /* ___PROJECTNAMEASIDENTIFIER___ModuleAssets.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -177,6 +184,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				24DD6CFA1134B3F500162E58 /* ___PROJECTNAMEASIDENTIFIER___Module.m in Sources */,
+        24DE9E1211C5FE74003F90F6 /* ___PROJECTNAMEASIDENTIFIER___ModuleAssets.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
