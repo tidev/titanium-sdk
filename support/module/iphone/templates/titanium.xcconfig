@@ -10,8 +10,9 @@ TITANIUM_SDK_VERSION = __VERSION__
 // 
 // THESE SHOULD BE OK GENERALLY AS-IS
 //
-TITANIUM_BASE_SDK = "/Library/Application Support/Titanium/mobilesdk/osx/$(TITANIUM_SDK_VERSION)/iphone/include"
-TITANIUM_BASE_SDK2 = "/Library/Application Support/Titanium/mobilesdk/osx/$(TITANIUM_SDK_VERSION)/iphone/include/TiCore"
+TITANIUM_SDK = /Library/Application Support/Titanium/mobilesdk/osx/$(TITANIUM_SDK_VERSION)
+TITANIUM_BASE_SDK = "$(TITANIUM_SDK)/iphone/include"
+TITANIUM_BASE_SDK2 = "$(TITANIUM_SDK)/iphone/include/TiCore"
 HEADER_SEARCH_PATHS= $(TITANIUM_BASE_SDK) $(TITANIUM_BASE_SDK2)
 
 

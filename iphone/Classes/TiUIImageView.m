@@ -198,6 +198,7 @@ DEFINE_EXCEPTIONS
 
 -(UIImage*)scaleImageIfRequired:(UIImage*)theimage
 {
+	UIImage* newImage = theimage;
 	// attempt to scale the image
 	if (width > 0 || height > 0)
 	{
@@ -210,9 +211,9 @@ DEFINE_EXCEPTIONS
 			autoHeight = theimage.size.height;
 		}
 
-		theimage = [UIImageResize resizedImage:CGSizeMake(width, height) interpolationQuality:kCGInterpolationDefault image:theimage];
+		newImage = [UIImageResize resizedImage:CGSizeMake(width, height) interpolationQuality:kCGInterpolationDefault image:theimage];
 	}
-	return theimage;
+	return newImage;
 }
 
 -(void)setImageOnUIThread:(NSArray*)args
@@ -437,6 +438,34 @@ DEFINE_EXCEPTIONS
 	return container;
 }
 
+-(UIImage*)convertToUIImage:(id)arg
+{
+	UIImage *image = nil;
+	
+	if ([arg isKindOfClass:[TiBlob class]])
+	{
+		TiBlob *blob = (TiBlob*)arg;
+		image = [self scaleImageIfRequired:[blob image]];
+	}
+	else if ([arg isKindOfClass:[TiFile class]])
+	{
+		TiFile *file = (TiFile*)arg;
+		NSURL * fileUrl = [NSURL fileURLWithPath:[file path]];		
+		image = [[ImageLoader sharedLoader] loadImmediateImage:fileUrl withSize:CGSizeMake(width, height)];
+	}
+	else if ([arg isKindOfClass:[NSString class]]) {
+		NSURL *url_ = [TiUtils toURL:arg proxy:self.proxy];
+		image = [[ImageLoader sharedLoader] loadImmediateImage:url_ withSize:CGSizeMake(width, height)];
+	}
+	else if ([arg isKindOfClass:[UIImage class]])
+	{
+		// called within this class
+		image = (UIImage*)arg;
+	}
+	
+	return image;
+}
+
 #pragma mark Public APIs
 
 -(void)stop
@@ -520,11 +549,19 @@ DEFINE_EXCEPTIONS
 -(void)setWidth_:(id)width_
 {
 	width = [TiUtils floatValue:width_];
+	id image = [[self proxy] valueForUndefinedKey:@"image"];
+	if (image != nil) {
+		[self setImage_:[self scaleImageIfRequired:[self convertToUIImage:image]]];
+	}
 }
 
 -(void)setHeight_:(id)height_
 {
 	height = [TiUtils floatValue:height_];
+	id image = [[self proxy] valueForUndefinedKey:@"image"];
+	if (image != nil) {
+		[self setImage_:[self scaleImageIfRequired:[self convertToUIImage:image]]];
+	}
 }
 
 -(void)setImage_:(id)arg
@@ -539,32 +576,26 @@ DEFINE_EXCEPTIONS
 	BOOL replaceProperty = YES;
 	UIImage *image = nil;
 	
-	if ([arg isKindOfClass:[TiBlob class]])
-	{
-		TiBlob *blob = (TiBlob*)arg;
-		image = [self scaleImageIfRequired:[blob image]];
-	}
-	else if ([arg isKindOfClass:[TiFile class]])
-	{
-		TiFile *file = (TiFile*)arg;
-		NSURL * fileUrl = [NSURL fileURLWithPath:[file path]];		
-		image = [[ImageLoader sharedLoader] loadImmediateImage:fileUrl withSize:CGSizeMake(width, height)];
-	}
-	else if ([arg isKindOfClass:[UIImage class]])
-	{
+	if ([arg isKindOfClass:[UIImage class]]) {
 		// called within this class
 		image = (UIImage*)arg;
 		replaceProperty = NO;
 	}
-	else if ([arg isKindOfClass:[NSString class]])
-	{
-		[self loadUrl:arg];
-		return;
+	else {
+		image = [self convertToUIImage:arg];
 	}
-	else
-	{
-		[self throwException:@"invalid image type" subreason:[NSString stringWithFormat:@"expected either TiBlob or TiFile, was: %@",[arg class]] location:CODELOCATION];
-		return;
+	
+	if (image == nil) {
+		if ([arg isKindOfClass:[NSString class]])
+		{
+			[self loadUrl:arg];
+			return;
+		}
+		else
+		{
+			[self throwException:@"invalid image type" subreason:[NSString stringWithFormat:@"expected either TiBlob or TiFile, was: %@",[arg class]] location:CODELOCATION];
+			return;
+		}
 	}
 
 	autoHeight = image.size.height;
@@ -617,7 +648,7 @@ DEFINE_EXCEPTIONS
 -(void)setUrl_:(id)img
 {
 	NSLog(@"[WARN] the 'url' property on ImageView has been deprecated. Please use 'image' instead");
-	[self loadUrl:img];
+	[self.proxy replaceValue:img forKey:@"image" notification:YES];
 	return;
 }
 

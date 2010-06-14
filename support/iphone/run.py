@@ -4,8 +4,20 @@ def run(args,ignore_error=False,debug=True):
 	if debug:
 		print "[DEBUG] executing command: %s" % " ".join(args)
 		sys.stdout.flush()
-	(so,se) = subprocess.Popen(args, stderr=subprocess.PIPE, stdout=subprocess.PIPE).communicate()
-	if type(se)!=types.NoneType and len(se)>0:
-		if not ignore_error:
-			sys.stderr.write("[ERROR] %s" % str(se))
-	return so
+	proc = subprocess.Popen(args, stderr=subprocess.STDOUT, stdout=subprocess.PIPE)
+	results = ''
+	rc = None
+	while True:
+		rc = proc.poll()
+		if rc!=None: break
+		line = proc.stdout.readline()
+		if line:
+			if debug:
+				s = line.strip()
+				if s!='': 	
+					print "[DEBUG] %s" % s
+					sys.stdout.flush()
+			results+=line
+	if rc!=0 and not ignore_error:
+		sys.exit(rc)
+	return results	

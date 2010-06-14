@@ -381,7 +381,7 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 		cell.selectedBackgroundView = nil;
 	}
 	
-	if (selBgColor!=nil || [[table tableView]style]==UITableViewStyleGrouped)
+	if (selBgImage==nil && (selBgColor!=nil || [[table tableView]style]==UITableViewStyleGrouped))
 	{
 		if (selBgColor==nil)
 		{
@@ -534,7 +534,7 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 				parent:(TiViewProxy*)newParent
 		 touchDelegate:(id)touchDelegate
 {
-	TiViewProxy * oldProxy = [uiview proxy];
+	TiViewProxy * oldProxy = (TiViewProxy*)[uiview proxy];
 
 	[uiview transferProxy:proxy];
 	

@@ -2,6 +2,7 @@
 var data = [
 	{title:'XHR', hasChild:true, test:'../examples/xhr.js'},
 	{title:'Network', hasChild:true, test:'../examples/network.js'},
+	{title:'Common JS', hasChild:true, test:'../examples/commonjs.js'},
 	{title:'Logging', hasChild:true, test:'../examples/logging.js'},
 	{title:'Application Data', hasChild:true, test:'../examples/app_data.js'},
 	{title:'Application Events', hasChild:true, test:'../examples/app_events.js'},

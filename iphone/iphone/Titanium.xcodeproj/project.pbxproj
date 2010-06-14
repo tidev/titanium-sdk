@@ -38,6 +38,8 @@
 		245B3C3D11375A6600CE7530 /* UtilsModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 245B3C3911375A6600CE7530 /* UtilsModule.m */; };
 		245B45641139B41800CE7530 /* TiUITableViewCellSelectionStyleProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 245B45601139B41800CE7530 /* TiUITableViewCellSelectionStyleProxy.m */; };
 		2464F96411AB996C001C035A /* module.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 2464F96211AB996C001C035A /* module.xcconfig */; };
+		2478B2A511C447A4005814DF /* ApplicationMods.m in Sources */ = {isa = PBXBuildFile; fileRef = 2478B2A411C447A4005814DF /* ApplicationMods.m */; };
+		2478B2A611C447A4005814DF /* ApplicationMods.m in Sources */ = {isa = PBXBuildFile; fileRef = 2478B2A411C447A4005814DF /* ApplicationMods.m */; };
 		248133A7115761DE00E3A9BA /* TiNetworkBonjourBrowserProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 248133A2115761DE00E3A9BA /* TiNetworkBonjourBrowserProxy.m */; };
 		248133A8115761DE00E3A9BA /* TiNetworkBonjourServiceProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 248133A4115761DE00E3A9BA /* TiNetworkBonjourServiceProxy.m */; };
 		248133A9115761DE00E3A9BA /* TiNetworkTCPSocketProxy.mm in Sources */ = {isa = PBXBuildFile; fileRef = 248133A6115761DE00E3A9BA /* TiNetworkTCPSocketProxy.mm */; };
@@ -555,6 +557,8 @@
 		245B455F1139B41800CE7530 /* TiUITableViewCellSelectionStyleProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUITableViewCellSelectionStyleProxy.h; sourceTree = "<group>"; };
 		245B45601139B41800CE7530 /* TiUITableViewCellSelectionStyleProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUITableViewCellSelectionStyleProxy.m; sourceTree = "<group>"; };
 		2464F96211AB996C001C035A /* module.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = module.xcconfig; sourceTree = "<group>"; };
+		2478B2A311C447A4005814DF /* ApplicationMods.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ApplicationMods.h; path = ../Classes/ApplicationMods.h; sourceTree = SOURCE_ROOT; };
+		2478B2A411C447A4005814DF /* ApplicationMods.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ApplicationMods.m; path = ../Classes/ApplicationMods.m; sourceTree = SOURCE_ROOT; };
 		248133A1115761DE00E3A9BA /* TiNetworkBonjourBrowserProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiNetworkBonjourBrowserProxy.h; sourceTree = "<group>"; };
 		248133A2115761DE00E3A9BA /* TiNetworkBonjourBrowserProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiNetworkBonjourBrowserProxy.m; sourceTree = "<group>"; };
 		248133A3115761DE00E3A9BA /* TiNetworkBonjourServiceProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiNetworkBonjourServiceProxy.h; sourceTree = "<group>"; };
@@ -2143,6 +2147,8 @@
 				24596691118E70D300519F79 /* ApplicationRouting.h */,
 				24596692118E70D300519F79 /* ApplicationRouting.m */,
 				2464F96211AB996C001C035A /* module.xcconfig */,
+				2478B2A311C447A4005814DF /* ApplicationMods.h */,
+				2478B2A411C447A4005814DF /* ApplicationMods.m */,
 			);
 			name = "Other Sources";
 			sourceTree = "<group>";
@@ -2591,6 +2597,7 @@
 				242E989A11BAF7DB0046A0D0 /* TiDebuggerCallFrame.mm in Sources */,
 				DA285CE011BDC64100D20833 /* TiSplitViewController.m in Sources */,
 				DA4E12D711C0A55F00A55BAB /* TiContactsGroup.m in Sources */,
+				2478B2A611C447A4005814DF /* ApplicationMods.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2827,6 +2834,7 @@
 				242E989B11BAF7DB0046A0D0 /* TiDebuggerCallFrame.mm in Sources */,
 				DA285CDF11BDC64100D20833 /* TiSplitViewController.m in Sources */,
 				DAA17BE411C15A0000957ED1 /* TiContactsGroup.m in Sources */,
+				2478B2A511C447A4005814DF /* ApplicationMods.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

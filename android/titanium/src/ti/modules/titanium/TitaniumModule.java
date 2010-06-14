@@ -13,13 +13,20 @@ import java.util.Stack;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import org.mozilla.javascript.Context;
+import org.mozilla.javascript.Scriptable;
+
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiDict;
+import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiModule;
+import org.appcelerator.titanium.TiProxy;
 import org.appcelerator.titanium.kroll.KrollCallback;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUIHelper;
+import org.appcelerator.titanium.io.TiBaseFile;
+import org.appcelerator.titanium.io.TiFileFactory;
 
 public class TitaniumModule
 	extends TiModule
@@ -27,6 +34,7 @@ public class TitaniumModule
 	private static final String LCAT = "TitaniumModule";
 	private static TiDict constants;
 	private Stack<String> basePath;
+	private HashMap<String,TiProxy> modules;
 
 	public TitaniumModule(TiContext tiContext) {
 		super(tiContext);
@@ -42,7 +50,9 @@ public class TitaniumModule
 		if (constants == null) {
 			constants = new TiDict();
 
-			constants.put("version", getTiContext().getTiApp().getTiBuildVersion());
+			String version = getTiContext().getTiApp().getTiBuildVersion();
+			constants.put("userAgent",System.getProperties().getProperty("http.agent")+" Titanium/"+version);
+			constants.put("version", version);
 			constants.put("buildTimestamp", getTiContext().getTiApp().getTiBuildTimestamp());
 		}
 
@@ -131,6 +141,63 @@ public class TitaniumModule
 		String msg = (message == null? null : message.toString());
 		Log.i("ALERT", msg);
 		TiUIHelper.doOkDialog(getTiContext().getActivity(), "Alert", msg, null);
+	}
+	
+	public TiProxy require(String path) {
+		
+		// 1. look for a TiPlus module first
+		// 2. then look for a cached module
+		// 3. then attempt to load from resources
+		TiContext ctx = getTiContext();
+		TiProxy proxy = new TiProxy(ctx);
+		
+		//TODO: right now, we're only supporting app 
+		//level modules until TiPlus is done for android
+		
+		// NOTE: commonjs modules load absolute to root in Titanium
+		String fileUrl = "app://"+path+".js";
+		TiBaseFile tbf = TiFileFactory.createTitaniumFile(ctx, new String[]{ fileUrl }, false);
+		if (tbf!=null)
+		{
+			try
+			{
+				TiBlob blob = (TiBlob)tbf.read();
+				if (blob!=null)
+				{
+					// create the common js exporter
+					StringBuilder buf = new StringBuilder();
+					buf.append("(function(exports){");
+					buf.append(blob.getText());
+					buf.append("return exports;");
+					buf.append("})({})");
+					Scriptable result = (Scriptable)ctx.evalJS(buf.toString());
+					// common js modules export all functions/properties as 
+					// properties of the special export object provided
+					for (Object key : result.getIds())
+					{
+						String propName = key.toString();
+						Scriptable propValue = (Scriptable)result.get(propName,result);
+						proxy.setDynamicValue(propName,propValue);
+					}
+					// spec says you must have a read-only id property - we don't
+					// currently support readonly in kroll so this is probably OK for now
+					proxy.setDynamicValue("id",path);
+					// uri is optional but we point it to where we loaded it
+					proxy.setDynamicValue("uri",fileUrl);
+					return proxy;
+				}
+			}
+			catch(Exception ex)
+			{
+				Log.e(LCAT,"Error loading module named: "+path,ex);
+				Context.throwAsScriptRuntimeEx(ex);
+				return null;
+			}
+		}
+		
+		//the spec says we are required to through an exception
+		Context.reportError("couldn't find module: "+path);
+		return null;
 	}
 	
 	@Override

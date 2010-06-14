@@ -100,7 +100,7 @@ Register your module with your application by editing `tiapp.xml` and adding you
 Example:
 
 <modules>
-	<module version="0.1">mymodule</module>
+	<module version="0.1">__MODULE_ID__</module>
 </modules>
 
 When you run your project, the compiler will know automatically compile in your module

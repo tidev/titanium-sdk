@@ -10,6 +10,8 @@ import java.util.Date;
 import java.util.Map;
 import java.util.Iterator;
 
+import org.mozilla.javascript.Function;
+
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiDict;
 import org.appcelerator.titanium.TiDimension;
@@ -94,7 +96,7 @@ public class TiConvert
             d.put(key, null);
         } else if (value instanceof TiProxy) {
             d.put(key, value);
-        } else if (value instanceof KrollCallback) {
+        } else if (value instanceof KrollCallback || value instanceof Function) {
             d.put(key, value);
 		} else if (value instanceof Map) {
 			TiDict dict = new TiDict();

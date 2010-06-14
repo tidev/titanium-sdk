@@ -320,7 +320,12 @@ public class TiContext implements TiEvaluator, ITiMenuDispatcherListener, ErrorR
 	}
 
 	public Object evalJS(String src) {
-		return getJSContext().evalJS(src);
+		TiEvaluator evaluator = getJSContext();
+		if (evaluator == null)
+		{
+			Log.e(LCAT,"on evalJS, evaluator is null and shouldn't be");
+		}
+		return evaluator.evalJS(src);
 	}
 
 	public void fireEvent() {

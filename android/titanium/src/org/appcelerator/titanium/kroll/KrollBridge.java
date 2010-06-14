@@ -33,6 +33,9 @@ public class KrollBridge
 		kroll.put("clearInterval", (Scriptable) titanium.get("clearInterval", titanium));
 		kroll.put("alert", (Scriptable) titanium.get("alert", titanium));
 		kroll.put("JSON", (Scriptable) titanium.get("JSON", titanium));
+		kroll.put("require", (Scriptable) titanium.get("require", titanium));
+		
+		//TODO: userAgent and version
 
 		if (preload != null) {
 			Object p = titanium.loadModule("UI");

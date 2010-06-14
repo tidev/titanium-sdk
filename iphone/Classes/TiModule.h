@@ -15,11 +15,22 @@
 	TiHost *host;
 @private
 	CFMutableDictionaryRef classNameLookup;
+	NSString *moduleName;
+	id moduleAssets;
 }
 
+// internal
+-(void)_setName:(NSString*)name;
 -(void)setPageContext:(id<TiEvaluator>)evaluator;
 -(void)setHost:(TiHost*)host;
 -(id)createProxy:(NSArray*)args forName:(NSString*)name context:(id<TiEvaluator>)evaluator;
+
+// module related utilities
+-(NSString*)moduleId;
+-(BOOL)isJSModule;
+-(NSData*)moduleJS;
+
+// lifecycle
 -(void)startup;
 -(void)shutdown:(id)sender;
 -(void)suspend:(id)sender;

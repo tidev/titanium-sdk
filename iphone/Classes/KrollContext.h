@@ -14,6 +14,9 @@
 
 @protocol KrollDelegate <NSObject>
 
+@required
+-(id)require:(KrollContext*)kroll path:(NSString*)path;
+
 @optional
 
 -(void)willStartNewContext:(KrollContext*)kroll;
@@ -62,6 +65,7 @@
 -(void)invokeOnThread:(id)callback_ method:(SEL)method_ withObject:(id)obj condition:(NSCondition*)condition_;
 -(void)invokeOnThread:(id)callback_ method:(SEL)method_ withObject:(id)obj callback:(id)callback selector:(SEL)selector_;
 -(void)evalJS:(NSString*)code;
+-(id)evalJSAndWait:(NSString*)code;
 -(void)invokeEvent:(KrollCallback*)callback_ args:(NSArray*)args_ thisObject:(id)thisObject_;
 -(void)registerTimer:(id)timer timerId:(double)timerId;
 -(void)unregisterTimer:(double)timerId;
@@ -90,6 +94,7 @@
 }
 -(id)initWithCode:(NSString*)code;
 -(void)invoke:(KrollContext*)context;
+-(id)invokeWithResult:(KrollContext*)context;
 @end
 
 @interface KrollEvent : NSObject {
@@ -108,12 +113,12 @@
 -(void)setExecutionContext:(id<KrollDelegate>)delegate;
 @end
 
-
 TI_INLINE KrollContext* GetKrollContext(TiContextRef context)
 {
+	static const char *krollNS = "Kroll";
 	TiGlobalContextRef globalContext = TiContextGetGlobalContext(context);
 	TiObjectRef global = TiContextGetGlobalObject(globalContext); 
-	TiStringRef string = TiStringCreateWithUTF8CString([@"Kroll" UTF8String]);
+	TiStringRef string = TiStringCreateWithUTF8CString(krollNS);
 	TiValueRef value = TiObjectGetProperty(globalContext, global, string, NULL);
 	KrollContext *ctx = (KrollContext*)TiObjectGetPrivate(TiValueToObject(globalContext, value, NULL));
 	TiStringRelease(string);

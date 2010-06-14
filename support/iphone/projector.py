@@ -166,12 +166,14 @@ class Projector(object):
 		return content
 	
 	def create(self,in_dir,out_dir):
+
 		if not os.path.exists(out_dir):
 			os.makedirs(out_dir)
 	
 		for dir_ in ['Classes','lib','Resources','headers']:		
 			from_ = os.path.join(in_dir,dir_)
 			to_ = os.path.join(out_dir,dir_)
+			if not os.path.exists(to_): os.makedirs(to_)
 			self.copy_module_resources(from_,to_)
 		
 		copyfile(os.path.join(in_dir,'iphone','Titanium_Prefix.pch'),os.path.join(out_dir,'%s_Prefix.pch'%self.name))
@@ -201,6 +203,7 @@ class Projector(object):
 		xcconfig = open(xcconfig,'w')
 		xcconfig.write("// this is a generated file - DO NOT EDIT\n\n")
 		xcconfig.close()
+		
 		
 		
 def usage(args):

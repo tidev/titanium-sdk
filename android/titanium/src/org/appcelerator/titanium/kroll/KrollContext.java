@@ -152,6 +152,7 @@ public class KrollContext extends HandlerThread implements Handler.Callback
 
 		Context ctx = enter();
 		try {
+			Log.d(LCAT,"eval file: "+filename);
 			String[] parts = { filename };
 			TiBaseFile tbf = TiFileFactory.createTitaniumFile(tiContext, parts, false);
 			br = new BufferedReader(new InputStreamReader(tbf.getInputStream()),4000);

@@ -121,7 +121,7 @@ NSString* const INADDR_ANY_token = @"INADDR_ANY";
 	return [(NSString *)CFURLCreateStringByAddingPercentEscapes(NULL,
 								(CFStringRef)unencodedString,
 								NULL,
-								(CFStringRef)@"!*'();:@+$,/?%#[]=", 
+								(CFStringRef)@"!*'();:@+$,/?%#[]=&",
 								kCFStringEncodingUTF8) autorelease];
 }
 
