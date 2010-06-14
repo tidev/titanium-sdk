@@ -51,6 +51,7 @@ UIColor * UIColorWebColorNamed(NSString * colorName)
 					   [UIColor purpleColor],@"purple",
 					   [UIColor brownColor],@"brown",
 					   [UIColor clearColor],@"transparent",
+					   [UIColor groupTableViewBackgroundColor],@"stripped",
 					   
 					   // these are also defined by the W3C HTML spec so we support them
 					   UIColorForHex(@"#0ff"),@"aqua",
