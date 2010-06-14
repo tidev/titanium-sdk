@@ -677,7 +677,12 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 		module = [self loadCommonJSModule:[[[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding] autorelease] withPath:path];
 	}
 	
-	return module;
+	if (module!=nil)
+	{
+		return module;
+	}
+	
+	@throw [NSException exceptionWithName:@"org.appcelerator.kroll" reason:[NSString stringWithFormat:@"Couldn't find module: %@",path] userInfo:nil];
 }
 
 @end

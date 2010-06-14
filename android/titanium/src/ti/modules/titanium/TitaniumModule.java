@@ -13,16 +13,20 @@ import java.util.Stack;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Scriptable;
 
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiDict;
+import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiModule;
 import org.appcelerator.titanium.TiProxy;
 import org.appcelerator.titanium.kroll.KrollCallback;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUIHelper;
+import org.appcelerator.titanium.io.TiBaseFile;
+import org.appcelerator.titanium.io.TiFileFactory;
 
 public class TitaniumModule
 	extends TiModule
@@ -142,26 +146,51 @@ public class TitaniumModule
 		// 1. look for a TiPlus module first
 		// 2. then look for a cached module
 		// 3. then attempt to load from resources
-		TiProxy proxy = new TiProxy(getTiContext());
+		TiContext ctx = getTiContext();
+		TiProxy proxy = new TiProxy(ctx);
 		
 		//TODO: right now, we're only supporting app 
 		//level modules until TiPlus is done for android
 		
-		// create the common js exporter
-		StringBuilder buf = new StringBuilder();
-		buf.append("(function(exports){");
-		buf.append("exports.echo=function(x){return x};");
-		buf.append("return exports;");
-		buf.append("})({})");
-		
-		Scriptable result = (Scriptable)getTiContext().evalJS(buf.toString());
-		for (Object key : result.getIds())
+		// NOTE: commonjs modules load absolute to root in Titanium
+		String fileUrl = "app://"+path+".js";
+		TiBaseFile tbf = TiFileFactory.createTitaniumFile(ctx, new String[]{ fileUrl }, false);
+		if (tbf!=null)
 		{
-			String propName = key.toString();
-			Scriptable propValue = (Scriptable)result.get(propName,result);
-			proxy.setDynamicValue(propName,propValue);
+			try
+			{
+				TiBlob blob = (TiBlob)tbf.read();
+				if (blob!=null)
+				{
+					// create the common js exporter
+					StringBuilder buf = new StringBuilder();
+					buf.append("(function(exports){");
+					buf.append(blob.getText());
+					buf.append("return exports;");
+					buf.append("})({})");
+					Scriptable result = (Scriptable)ctx.evalJS(buf.toString());
+					// common js modules export all functions/properties as 
+					// properties of the special export object provided
+					for (Object key : result.getIds())
+					{
+						String propName = key.toString();
+						Scriptable propValue = (Scriptable)result.get(propName,result);
+						proxy.setDynamicValue(propName,propValue);
+					}
+					return proxy;
+				}
+			}
+			catch(Exception ex)
+			{
+				Log.e(LCAT,"Error loading module named: "+path,ex);
+				Context.throwAsScriptRuntimeEx(ex);
+				return null;
+			}
 		}
-		return proxy;
+		
+		//the spec says we are required to through an exception
+		Context.reportError("couldn't find module: "+path);
+		return null;
 	}
 	
 	@Override

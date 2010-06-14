@@ -1,14 +1,6 @@
 // this sets the background color of the master UIView (when there are no windows/tab groups on it)
 Titanium.UI.setBackgroundColor('#000');
 
-// example of a common JS module
-var echo = require('echo');
-Ti.API.info("this should say 'hello world' => "+echo.echo('hello world'));
-
-// now reference the modules function directly
-Ti.API.info("this should say 'boo ya' => "+require('echo').echo('boo ya'));
-
-
 // create tab group
 var tabGroup = Titanium.UI.createTabGroup(
 {

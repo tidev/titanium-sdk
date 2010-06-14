@@ -156,8 +156,15 @@ static TiValueRef CommonJSRequireCallback (TiContextRef jsContext, TiObjectRef j
 	
 	KrollContext *ctx = GetKrollContext(jsContext);
 	id path = [KrollObject toID:ctx value:args[0]];
-	id result = [ctx.delegate require:ctx path:path];
-	return [KrollObject toValue:ctx value:result];
+	@try 
+	{
+		id result = [ctx.delegate require:ctx path:path];
+		return [KrollObject toValue:ctx value:result];
+	}
+	@catch (NSException * e) 
+	{
+		return ThrowException(jsContext, [e reason], exception);
+	}
 }	
 
 
