@@ -25,7 +25,6 @@
 -(void)_destroy
 {
 	RELEASE_TO_NIL(button);
-	RELEASE_TO_NIL(splitView);
 	[super _destroy];
 }
 
