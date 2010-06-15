@@ -221,7 +221,7 @@ class Compiler(object):
 				self.copy_resources([img_dir],dest_img_dir,False)
 			
 			
-			if deploytype!='development':
+			if deploytype!='development' and os.path.exists(app_dir):
 				# optimize PNGs - since we don't include them in the Resources of the xcodeproj
 				# the ones we copy in won't get optimized so we need to run it manually
 				# we can skip this on the simulator but should do it on device
