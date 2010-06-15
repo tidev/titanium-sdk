@@ -460,8 +460,9 @@ def main(args):
 			o = open(os.path.join(build_out_dir,'build.log'),'w')
 			
 			buildtime = datetime.datetime.now()
-			o.write("Starting build at %s\n\n" % buildtime.strftime("%m/%d/%y %H:%M"))
-
+			o.write("Starting build at %s\n" % buildtime.strftime("%m/%d/%y %H:%M"))
+			o.write("Building from: %s\n\n" % template_dir)
+			
 			if not os.path.exists(app_dir): os.makedirs(app_dir)
 
 			# copy Default.png and appicon each time so if they're 
@@ -502,10 +503,12 @@ def main(args):
 				if devicefamily=='ipad':
 					config = "%s-iPad" % config
 					
+				o.write("SDK=[%s]\n"%sdk)	
 				args = ["xcodebuild","-target",config,"-configuration",target,"-sdk",sdk]
-				args += extras
+				if extras!=None and len(extras)>0: 
+					args += extras
 				args += [deploy_target,device_target]
-				if extra_args!=None:
+				if extra_args!=None and len(extra_args)>0:
 					args += extra_args
 				
 				o.write("Starting Xcode compile with the following arguments:\n\n")
@@ -519,7 +522,7 @@ def main(args):
 					print "[INFO] Executing XCode build..."
 					print "[BEGIN_VERBOSE] Executing XCode Compiler  <span>[toggle output]</span>"
 
-				output = run.run(args)
+				output = run.run(args,False,False,o)
 				
 				if print_output:
 					print output
@@ -745,8 +748,13 @@ def main(args):
 					deploytype = "production"
 
 				# build the final release distribution
-				args = [
-					adhoc_line,
+				args = []
+				
+				# can't append an empty arg or you'll get an error
+				if adhoc_line!="":
+					args+=[adhoc_line]
+					
+				args += [
 					"GCC_PREPROCESSOR_DEFINITIONS='DEPLOYTYPE=%s'" % deploytype,
 					"PROVISIONING_PROFILE[sdk=iphoneos*]=%s" % appuuid,
 					"CODE_SIGN_IDENTITY[sdk=iphoneos*]=iPhone Distribution: %s" % dist_name
