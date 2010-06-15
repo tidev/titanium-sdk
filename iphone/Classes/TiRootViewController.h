@@ -31,6 +31,8 @@
 @property(nonatomic,readwrite,retain)	UIColor * backgroundColor;
 @property(nonatomic,readwrite,retain)	UIImage * backgroundImage;
 
+-(UIViewController *)focusedViewController;
+
 -(void)windowFocused:(UIViewController*)focusedViewController;
 -(void)windowClosed:(UIViewController *)closedViewController;
 

@@ -326,7 +326,11 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 	// false to delay for some other action
 	if ([self _handleOpen:args])
 	{
-		TiAnimation *animation = [TiAnimation animationFromArg:args context:[self pageContext] create:NO];
+		TiAnimation *animation = nil;
+		if (!modalFlag)
+		{
+			animation = [TiAnimation animationFromArg:args context:[self pageContext] create:NO];
+		}
 		if (animation!=nil)
 		{
 			if (rootViewAttached)
