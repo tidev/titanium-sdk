@@ -43,6 +43,11 @@
 	return YES;
 }
 
+-(BOOL)isUsingBarButtonItem
+{
+	return YES;
+}
+
 @end
 
 #endif

@@ -444,5 +444,9 @@
 	
 }
 
+-(UIViewController *)focusedViewController
+{
+	return [windowViewControllers lastObject];
+}
 
 @end

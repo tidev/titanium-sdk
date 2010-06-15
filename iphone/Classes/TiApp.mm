@@ -368,23 +368,40 @@ void MyUncaughtExceptionHandler(NSException *exception)
 	[controller presentModalViewController:error animated:YES];
 }
 
+-(void)attachModal:(UIViewController*)modalController toController:(UIViewController*)presentingController animated:(BOOL)animated
+{
+	UIViewController * currentModalController = [presentingController modalViewController];
+	NSLog(@"Attaching %@ to %@, where %@ is already in place",modalController,presentingController,currentModalController);
+
+	if (currentModalController == modalController)
+	{
+		NSLog(@"[WARN] Trying to present a modal window that already is a modal window.");
+		return;
+	}
+	if (currentModalController == nil)
+	{
+		[presentingController presentModalViewController:modalController animated:animated];
+		return;
+	}
+	[self attachModal:modalController toController:currentModalController animated:animated];
+}
+
 -(void)showModalController:(UIViewController*)modalController animated:(BOOL)animated
 {
-	UINavigationController *navController = [controller navigationController];
+	UINavigationController *navController = [(TiRootViewController *)controller focusedViewController];
 	if (navController==nil)
 	{
-//TODO: Fix me!
-//		navController = [controller currentNavController];
+		navController = [controller navigationController];
 	}
 	// if we have a nav controller, use him, otherwise use our root controller
 	[controller windowFocused:modalController];
 	if (navController!=nil)
 	{
-		[navController presentModalViewController:modalController animated:animated];
+		[self attachModal:modalController toController:navController animated:animated];
 	}
 	else
 	{
-		[controller presentModalViewController:modalController animated:animated];
+		[self attachModal:modalController toController:controller animated:animated];
 	}
 }
 
