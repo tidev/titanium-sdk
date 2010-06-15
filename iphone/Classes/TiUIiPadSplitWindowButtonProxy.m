@@ -25,6 +25,7 @@
 -(void)_destroy
 {
 	RELEASE_TO_NIL(button);
+	RELEASE_TO_NIL(splitView);
 	[super _destroy];
 }
 
@@ -39,6 +40,11 @@
 }
 
 -(BOOL)supportsNavBarPositioning
+{
+	return YES;
+}
+
+-(BOOL)isUsingBarButtonItem
 {
 	return YES;
 }
