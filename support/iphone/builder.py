@@ -744,6 +744,7 @@ def main(args):
 				adhoc_line = ""
 				deploytype = "production_adhoc"
 				if not is_adhoc(appuuid):
+					shutil.copy(os.path.join(template_dir,"Entitlements.plist"),iphone_resources_dir)
 					adhoc_line="CODE_SIGN_ENTITLEMENTS = Resources/Entitlements.plist"
 					deploytype = "production"
 
