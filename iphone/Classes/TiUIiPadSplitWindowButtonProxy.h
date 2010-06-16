@@ -13,9 +13,7 @@
 @interface TiUIiPadSplitWindowButtonProxy : TiViewProxy {
 @private
 	UIBarButtonItem *button;
-	UIView* splitView;
 }
-@property (nonatomic,readonly) UIView* splitView;
 
 -(id)initWithButton:(UIBarButtonItem*)button pageContext:(id<TiEvaluator>)pageContext;
 
