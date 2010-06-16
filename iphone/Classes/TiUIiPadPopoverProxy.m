@@ -38,16 +38,37 @@
 	[ourItem setRightBarButtonItem:[[self valueForKey:@"rightNavButton"] barButtonItem]];
 }
 
+-(void)repositionWithBounds:(CGRect)bounds
+{
+	OSAtomicTestAndClearBarrier(NEEDS_REPOSITION, &dirtyflags);
+	[self layoutChildren];
+}
+
+
+-(CGSize)contentSize
+{
+	return SizeConstraintViewWithSizeAddingResizing([self layoutProperties], self, CGSizeZero, NULL);
+}
+
 -(UINavigationController *)navigationController
 {
-	UINavigationController * result = [[UINavigationController alloc] initWithRootViewController:[self viewController]];
-	return [result autorelease];
+	if (navigationController == nil)
+	{
+		navigationController = [[UINavigationController alloc] initWithRootViewController:[self viewController]];
+	}
+	return navigationController;
 }
 
 -(void)updateContentSize
 {
-	[[self viewController] setContentSizeForViewInPopover:
-			SizeConstraintViewWithSizeAddingResizing([self layoutProperties], self, CGSizeZero, NULL)];
+	CGSize newSize = [self contentSize];
+	BOOL animated = [[self popoverController] isPopoverVisible];
+	NSLog(@"Going From %fx%f",[popoverController popoverContentSize].width,[popoverController popoverContentSize].height);
+
+	NSLog(@"Going to set size to %fx%f with animated %d",newSize.width,newSize.height,animated);
+
+	[popoverController setPopoverContentSize:newSize animated:YES];
+	[self layoutChildren];
 }
 
 #pragma mark Accessors
@@ -56,6 +77,12 @@
 	if (viewController == nil)
 	{
 		viewController = [[TiViewController alloc] initWithViewProxy:self];
+/*
+ *	Yes, I know that [TiViewController view] will return [self view] anyways, but for some
+ *	strange reason, UIPopoverController doesn't like that. So we must explicitly set the view
+ *	variable so that the UIViewController mojo isn't thrown off for sizing.
+ */
+		[viewController setView:[self view]];
 	}
 	return viewController;
 }
@@ -71,10 +98,12 @@
 	[popoverController setDelegate:nil];
 	RELEASE_TO_NIL(popoverController);
 	popoverController = [newController retain];
+	RELEASE_TO_NIL(navigationController);
 	UIViewController * contentController = [popoverController contentViewController];
 
 	if ([contentController isKindOfClass:[UINavigationController class]])
 	{
+		navigationController = [contentController retain];
 		NSArray * viewControllersArray = [(UINavigationController *)contentController viewControllers];
 		if ([viewControllersArray count]>0)
 		{
@@ -101,6 +130,7 @@
 		popoverController = [[UIPopoverController alloc] initWithContentViewController:[self navigationController]];
 		[popoverController setDelegate:self];
 		[self refreshTitleBar];
+		[self updateContentSize];
 	}
 	return popoverController;
 }
@@ -130,7 +160,7 @@
 -(void)setWidth:(id)value
 {
 	[super setWidth:value];
-	if (viewController != nil)
+	if (popoverController != nil)
 	{
 		[self performSelectorOnMainThread:@selector(updateContentSize) withObject:nil waitUntilDone:NO];
 	}
@@ -139,7 +169,7 @@
 -(void)setHeight:(id)value
 {
 	[super setHeight:value];
-	if (viewController != nil)
+	if (popoverController != nil)
 	{
 		[self performSelectorOnMainThread:@selector(updateContentSize) withObject:nil waitUntilDone:NO];
 	}
@@ -153,25 +183,33 @@
 	
 	NSDictionary *rectProps = [args objectForKey:@"rect"];
 	BOOL animated = [TiUtils boolValue:@"animated" properties:args def:YES];
+	UIPopoverArrowDirection directions = [TiUtils intValue:[self valueForKey:@"arrowDirection"] def:UIPopoverArrowDirectionAny];
 	
 	TiViewProxy *proxy = [args objectForKey:@"view"];
-	UIView *view = [proxy view];
 
-	CGRect rect;
-	if (rectProps!=nil)
-	{
-		rect = [TiUtils rectValue:rectProps];
+
+	[self retain];
+	[self updateContentSize];
+
+	if ([proxy isUsingBarButtonItem]) {
+		[[self popoverController] presentPopoverFromBarButtonItem:[proxy barButtonItem] permittedArrowDirections:directions animated:animated];
 	}
 	else
 	{
-		rect = [view bounds];
+		UIView *view = [proxy view];
+		
+		CGRect rect;
+		if (rectProps!=nil)
+		{
+			rect = [TiUtils rectValue:rectProps];
+		}
+		else
+		{
+			rect = [view frame];
+		}
+		
+		[[self popoverController] presentPopoverFromRect:rect inView:[view superview] permittedArrowDirections:directions animated:animated];
 	}
-	
-	UIPopoverArrowDirection directions = [TiUtils intValue:[self valueForKey:@"arrowDirection"] def:UIPopoverArrowDirectionAny];
-	
-	[self retain];
-	[self updateContentSize];
-	[[self popoverController] presentPopoverFromRect:rect inView:view permittedArrowDirections:directions animated:animated];
 }
 
 -(void)hide:(id)args
