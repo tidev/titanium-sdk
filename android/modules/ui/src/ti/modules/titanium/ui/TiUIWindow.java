@@ -260,6 +260,11 @@ public class TiUIWindow extends TiUIView
 				public void run() {
 					try {
 						createdContext = new WeakReference<TiContext>(proxy.switchContext(ftiContext));
+						if (!lightWeight && windowActivity instanceof TiActivity) {
+							TiActivity tiActivity = (TiActivity)windowActivity;
+							tiActivity.setCreatedContext(createdContext.get());
+							tiActivity.setWindowProxy((TiWindowProxy)proxy);
+						}
 						Messenger m = new Messenger(handler);
 						ftiContext.evalFile(furl, m, MSG_BOOTED);
 					} catch (IOException e) {
@@ -269,6 +274,11 @@ public class TiUIWindow extends TiUIView
 		} else if (!lightWeight) {
 			TiContext tiContext = TiContext.createTiContext(windowActivity, new TiDict(), proxy.getTiContext().getBaseUrl());
 			createdContext = new WeakReference<TiContext>(proxy.switchContext(tiContext));
+			if (windowActivity instanceof TiActivity) {
+				TiActivity tiActivity = (TiActivity)windowActivity;
+				tiActivity.setCreatedContext(createdContext.get());
+				tiActivity.setWindowProxy((TiWindowProxy)proxy);
+			}
 			handleBooted();
 		} else {
 			handleBooted();
