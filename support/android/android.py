@@ -123,11 +123,12 @@ class Android(object):
 			if value == None: value = ""
 			self.app_properties[name] = {"type": type, "value": value}
 	
-	def create(self, dir, build_time=False):
+	def create(self, dir, build_time=False, project_dir=None):
 		template_dir = os.path.dirname(sys._getframe(0).f_code.co_filename)
 		
 		# Build up output directory tree
-		project_dir = self.newdir(dir, self.name)
+		if project_dir is None:
+			project_dir = self.newdir(dir, self.name)
 		
 		# Paths to Titanium assets that need to be linked into eclipse structure
 		self.config['ti_tiapp_xml'] = os.path.join(project_dir, 'tiapp.xml')
