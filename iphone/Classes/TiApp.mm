@@ -181,8 +181,6 @@ void MyUncaughtExceptionHandler(NSException *exception)
 	[window addSubview:controller.view];
 	controller.view.backgroundColor = [UIColor clearColor];
 	
-	[self attachSplash];
-
     [window makeKeyAndVisible];
 }
 

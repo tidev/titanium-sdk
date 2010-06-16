@@ -226,6 +226,11 @@
 	}
 	RELEASE_TO_NIL(views);
 	views = [args retain];
+	
+	// Reparent views
+	for (TiViewProxy* proxy in views) {
+		[proxy setParent:[self proxy]];
+	}
 
 	if (refresh)
 	{
