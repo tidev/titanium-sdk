@@ -158,7 +158,7 @@ NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._listeners={
 	{
 		path = [path substringFromIndex:1];
 	}
-	return [NSURL URLWithString:[NSString stringWithFormat:@"app://%@/%@",TI_APPLICATION_ID,path]];
+	return [NSURL URLWithString:[[NSString stringWithFormat:@"app://%@/%@",TI_APPLICATION_ID,path] stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
 }
 
 -(NSString*)titaniumInjection
