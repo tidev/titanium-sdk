@@ -17,12 +17,18 @@ def run(args,ignore_error=False,debug=True,out=None):
 				out.flush()
 			if debug:
 				s = line.strip()
-				if s!='': 	
-					print "[DEBUG] %s" % s
+				if s!='':
+					if s.startswith("["):
+						print s
+					else:		
+						print "[DEBUG] %s" % s
 					sys.stdout.flush()
 			results+=line
-	if rc!=0 and not ignore_error:
+	if rc!=0: 	
 		if out!=None: out.write("EXIT CODE WAS: %d\n" % rc)
-		if debug: print "[ERROR] exitcode was: %d" % rc
-		sys.exit(rc)
+		if not ignore_error:
+			if debug: print "[ERROR] exitcode was: %d" % rc
+			sys.exit(rc)
+		else:
+			return None
 	return results	

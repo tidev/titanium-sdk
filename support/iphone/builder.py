@@ -5,7 +5,8 @@
 # the application on the device via iTunes
 #
 
-import os, sys, uuid, subprocess, shutil, signal, time, re, run, glob, codecs, hashlib, datetime
+import os, sys, uuid, subprocess, shutil, signal
+import platform, time, re, run, glob, codecs, hashlib, datetime
 from compiler import Compiler
 from projector import Projector
 from pbxproj import PBXProj
@@ -461,7 +462,8 @@ def main(args):
 			
 			buildtime = datetime.datetime.now()
 			o.write("Starting build at %s\n" % buildtime.strftime("%m/%d/%y %H:%M"))
-			o.write("Building from: %s\n\n" % template_dir)
+			o.write("Building from: %s\n" % template_dir)
+			o.write("Platform: %s\n\n" % platform.version())
 			
 			if not os.path.exists(app_dir): os.makedirs(app_dir)
 
@@ -503,7 +505,6 @@ def main(args):
 				if devicefamily=='ipad':
 					config = "%s-iPad" % config
 					
-				o.write("SDK=[%s]\n"%sdk)	
 				args = ["xcodebuild","-target",config,"-configuration",target,"-sdk",sdk]
 				if extras!=None and len(extras)>0: 
 					args += extras
@@ -596,15 +597,29 @@ def main(args):
 				def cleanup_app_logfiles():
 					print "[DEBUG] finding old log files"
 					sys.stdout.flush()
-					# on OSX, we can use spotlight for faster searching of log files
+					# on OSX Snow Leopard, we can use spotlight for faster searching of log files
 					results = run.run(['mdfind',
 							'-onlyin',
 							os.path.expanduser('~/Library/Application Support/iPhone Simulator/%s'%iphone_version),
 							'-name',
-							'%s.log'%log_id])
-					for i in results.splitlines(False):
-						print "[DEBUG] removing old log file: %s" % i
-						os.remove(i)	
+							'%s.log'%log_id],True)
+					if results == None: # probably not Snow Leopard
+						def find_all_log_files(folder, fname):
+							results = []
+							for root, dirs, files in os.walk(os.path.expanduser(folder)):
+								for file in files:
+									if fname==file:
+										fullpath = os.path.join(root, file)
+										results.append(fullpath)
+							return results
+						for f in find_all_log_files("~/Library/Application Support/iPhone Simulator/%s"%iphone_version,'%s.log' % log_id):
+							print "[DEBUG] removing old log file: %s" % f
+							sys.stdout.flush()
+							os.remove(f)
+					else:
+						for i in results.splitlines(False):
+							print "[DEBUG] removing old log file: %s" % i
+							os.remove(i)	
 
 				cleanup_app_logfiles()
 
