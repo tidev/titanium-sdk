@@ -118,7 +118,6 @@
 		TiUIView *uiview = [viewproxy view];
 		[wrapper addSubview:uiview];
 		[viewproxy reposition];
-		[viewproxy layoutChildren];
 	}
 }
 
@@ -164,7 +163,7 @@
 			[view setShowsVerticalScrollIndicator:NO];
 			[view setShowsHorizontalScrollIndicator:NO];
 			[view setDelegate:view];
-			[view setAutoresizingMask:UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight];
+//			[view setAutoresizingMask:UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight];
 			[view setPagingEnabled:NO];
 			[view setBackgroundColor:[UIColor clearColor]];
 			[view setDelaysContentTouches:NO];
@@ -330,7 +329,15 @@
 {
 	ENSURE_SINGLE_ARG(viewproxy,TiProxy);
 	[viewproxy setParent:(TiViewProxy *)self.proxy];
-	[views addObject:viewproxy];
+	if (views != nil)
+	{
+		[views addObject:viewproxy];
+	}
+	else
+	{
+		views = [[NSMutableArray alloc] initWithObjects:viewproxy,nil];
+	}
+
 	[self refreshScrollView:[self bounds] readd:YES];
 }
 
