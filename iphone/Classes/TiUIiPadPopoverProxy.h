@@ -17,6 +17,7 @@
 @interface TiUIiPadPopoverProxy : TiViewProxy<UIPopoverControllerDelegate> {
 @private
 	UIPopoverController *popoverController;
+	UINavigationController *navigationController;
 	TiViewController *viewController;
 }
 
