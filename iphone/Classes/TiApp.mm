@@ -388,7 +388,7 @@ void MyUncaughtExceptionHandler(NSException *exception)
 
 -(void)showModalController:(UIViewController*)modalController animated:(BOOL)animated
 {
-	UINavigationController *navController = [(TiRootViewController *)controller focusedViewController];
+	UINavigationController *navController = nil; //[(TiRootViewController *)controller focusedViewController];
 	if (navController==nil)
 	{
 		navController = [controller navigationController];
