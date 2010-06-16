@@ -22,7 +22,7 @@ def run(args,ignore_error=False,debug=True,out=None):
 					sys.stdout.flush()
 			results+=line
 	if rc!=0 and not ignore_error:
-		if out!=None: o.write("EXIT CODE WAS: %d\n" % rc)
+		if out!=None: out.write("EXIT CODE WAS: %d\n" % rc)
 		if debug: print "[ERROR] exitcode was: %d" % rc
 		sys.exit(rc)
 	return results	
