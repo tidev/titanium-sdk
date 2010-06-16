@@ -13,10 +13,13 @@
 #import "TiUIButton.h"
 #import "TiButtonUtil.h"
 #import "TiUIView.h"
+#import "TiBlob.h"
 
 #define NAVBAR_MEMORY_DEBUG 0
 
 @implementation TiUINavBarButton
+
+DEFINE_EXCEPTIONS
 
 #if NAVBAR_MEMORY_DEBUG==1
 -(id)retain
@@ -138,6 +141,34 @@
 	}
 }
 
+-(void)setTitle_:(id)obj
+{
+	[super setTitle:[TiUtils stringValue:obj]];
+}
+
+-(void)setImage_:(id)obj
+{
+	if (obj == nil) {
+		[super setImage:nil];
+		return;
+	}
+	
+	if ([obj isKindOfClass:[TiBlob class]]) {
+		[super setImage:[(TiBlob*)obj image]];
+	}
+	else if ([obj isKindOfClass:[NSString class]]) {
+		[super setImage:[TiUtils image:obj proxy:proxy]];
+	}
+	else if ([obj isKindOfClass:[UIImage class]]) {
+		[super setImage:obj];
+	}
+	else {
+		[self throwException:[NSString stringWithFormat:@"Unexpected object of type %@ provided for image",[obj class]]
+				   subreason:nil
+					location:CODELOCATION];
+	}
+}
+
 -(void)setWidth_:(id)obj
 {
 	CGFloat width = [TiUtils floatValue:obj];
@@ -159,28 +190,28 @@
 		BOOL enabled = [TiUtils boolValue:value];
 		[super setEnabled:enabled];
 	}
-
 }
 
 -(void)propertyChanged:(NSString*)key oldValue:(id)oldValue newValue:(id)newValue proxy:(TiProxy*)proxy_
 {
+	// Take into account whether or not we're a custom view
+	id changeView = (self.customView != nil) ? (id)self.customView : (id)self;
+	
 	if ([key isEqualToString:@"title"])
 	{
-		[self performSelectorOnMainThread:@selector(setTitle:) withObject:newValue waitUntilDone:NO];
+		[changeView performSelectorOnMainThread:@selector(setTitle_:) withObject:newValue waitUntilDone:NO];
 	}
 	else if ([key isEqualToString:@"image"])
 	{
-		NSURL *url = [TiUtils toURL:newValue proxy:proxy_];
-		UIImage *theimage = [[ImageLoader sharedLoader] loadImmediateStretchableImage:url];
-		[self performSelectorOnMainThread:@selector(setImage:) withObject:theimage waitUntilDone:NO];
+		[changeView performSelectorOnMainThread:@selector(setImage_:) withObject:newValue waitUntilDone:NO];
 	}
 	else if ([key isEqualToString:@"width"])
 	{
-		[self performSelectorOnMainThread:@selector(setWidth_:) withObject:newValue waitUntilDone:NO];
+		[changeView performSelectorOnMainThread:@selector(setWidth_:) withObject:newValue waitUntilDone:NO];
 	}
 	else if ([key isEqualToString:@"enabled"])
 	{
-		[self performSelectorOnMainThread:@selector(setEnabled_:) withObject:newValue waitUntilDone:NO];
+		[changeView performSelectorOnMainThread:@selector(setEnabled_:) withObject:newValue waitUntilDone:NO];
 	}
 }
 

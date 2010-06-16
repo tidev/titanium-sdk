@@ -113,6 +113,48 @@ void MyUncaughtExceptionHandler(NSException *exception)
 	return launchOptions;
 }
 
+- (UIImage*)loadAppropriateSplash
+{
+	UIDeviceOrientation orientation = [[UIDevice currentDevice] orientation];
+	
+	if ([TiUtils isIPad]) {
+		UIImage* image = nil;
+		// Specific orientation check
+		switch (orientation) {
+			case UIDeviceOrientationPortrait:
+				image = [UIImage imageNamed:@"Default-Portrait.png"];
+				break;
+			case UIDeviceOrientationPortraitUpsideDown:
+				image = [UIImage imageNamed:@"Default-PortraitUpsideDown.png"];
+				break;
+			case UIDeviceOrientationLandscapeLeft:
+				image = [UIImage imageNamed:@"Default-LandscapeLeft.png"];
+				break;
+			case UIDeviceOrientationLandscapeRight:
+				image = [UIImage imageNamed:@"Default-LandscapeRight.png"];
+				break;
+		}
+		if (image != nil) {
+			return image;
+		}
+		
+		// Generic orientation check
+		if (UIDeviceOrientationIsPortrait(orientation)) {
+			image = [UIImage imageNamed:@"Default-Portrait.png"];
+		}
+		else if (UIDeviceOrientationIsLandscape(orientation)) {
+			image = [UIImage imageNamed:@"Default-Landscape.png"];
+		}
+		
+		if (image != nil) {
+			return image;
+		}
+	}
+	
+	// Default 
+	return [UIImage imageNamed:@"Default.png"];
+}
+
 - (UIView*)attachSplash
 {
 	CGFloat splashY = -TI_STATUSBAR_HEIGHT;
@@ -123,7 +165,7 @@ void MyUncaughtExceptionHandler(NSException *exception)
 	RELEASE_TO_NIL(loadView);
 	UIScreen *screen = [UIScreen mainScreen];
 	loadView = [[UIImageView alloc] initWithFrame:CGRectMake(0, splashY, screen.bounds.size.width, screen.bounds.size.height)];
-	loadView.image = [UIImage imageNamed:@"Default.png"];
+	loadView.image = [self loadAppropriateSplash];
 	[controller.view addSubview:loadView];
 	return loadView;
 }
@@ -139,10 +181,8 @@ void MyUncaughtExceptionHandler(NSException *exception)
 	[window addSubview:controller.view];
 	controller.view.backgroundColor = [UIColor clearColor];
 	
-	
-	// create our loading view
 	[self attachSplash];
-	
+
     [window makeKeyAndVisible];
 }
 
@@ -388,7 +428,7 @@ void MyUncaughtExceptionHandler(NSException *exception)
 
 -(void)showModalController:(UIViewController*)modalController animated:(BOOL)animated
 {
-	UINavigationController *navController = [(TiRootViewController *)controller focusedViewController];
+	UINavigationController *navController = nil; //[(TiRootViewController *)controller focusedViewController];
 	if (navController==nil)
 	{
 		navController = [controller navigationController];
