@@ -29,7 +29,15 @@ Titanium.Media.openPhotoGallery({
 		var image = event.media;
 		
 		// set image view
-		imageView.image = image;
+		Ti.API.debug('Our type was: '+event.mediaType);
+		if(event.mediaType == Ti.Media.MEDIA_TYPE_PHOTO)
+		{
+			imageView.image = image;
+		}
+		else
+		{
+			
+		}
 		
 		Titanium.API.info('PHOTO GALLERY SUCCESS cropRect.x ' + cropRect.x + ' cropRect.y ' + cropRect.y  + ' cropRect.height ' + cropRect.height + ' cropRect.width ' + cropRect.width);
 		
@@ -43,5 +51,6 @@ Titanium.Media.openPhotoGallery({
 	},
 	allowImageEditing:true,
 	popoverView:popoverView,
-	arrowDirection:arrowDirection
+	arrowDirection:arrowDirection,
+	mediaTypes:[Ti.Media.MEDIA_TYPE_VIDEO,Ti.Media.MEDIA_TYPE_PHOTO],
 });
