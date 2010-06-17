@@ -44,7 +44,8 @@ public class TiScrollableView extends TiCompositeLayout
 	private static final int PAGE_RIGHT = 201;
 
 	protected RelativeLayout pager;
-	protected View glass;
+	//protected View glass;
+	protected GestureDetector detector;
 	protected boolean showPagingControl;
 
 	protected ViewAnimator gallery;
@@ -158,7 +159,7 @@ public class TiScrollableView extends TiCompositeLayout
 		p.autoFillsWidth = true;
 		addView(pager, p);
 
-		final GestureDetector detector = new GestureDetector(new OnGestureListener(){
+		detector = new GestureDetector(new OnGestureListener(){
 
 			@Override
 			public boolean onDown(MotionEvent arg0) {
@@ -172,7 +173,9 @@ public class TiScrollableView extends TiCompositeLayout
 					return false; // Keep it relatively level
 				}
 
-				Log.e(LCAT, "FLING IT");
+				if (DBG) {
+					Log.e(LCAT, "FLING IT");
+				}
 
 				if (me1.getX() > me2.getX()) {
 					doMoveNext();
@@ -199,38 +202,31 @@ public class TiScrollableView extends TiCompositeLayout
 			@Override
 			public boolean onSingleTapUp(MotionEvent arg0) {
 				return false;
-			}});
-
-		glass = new View(getContext()) {
-
-			@Override
-			public boolean onTouchEvent(MotionEvent event) {
-				boolean handled = detector.onTouchEvent(event);
-
-				if (event.getAction() == MotionEvent.ACTION_DOWN && showPagingControl) {
-					if (pager.getVisibility() != View.VISIBLE) {
-						gallery.onTouchEvent(event);
-					}
-				}
-
-				if (!handled) {
-					handled = super.onTouchEvent(event);
-				}
-				return handled;
 			}
-
-			@Override
-			public boolean onTrackballEvent(MotionEvent event) {
-				Log.w(LCAT, "TRACKBALL");
-				return super.onTrackballEvent(event);
-			}
-		};
-		glass.setBackgroundColor(Color.argb(0, 0, 0, 255));
-		glass.setFocusable(false);
-		glass.setFocusableInTouchMode(false);
-
-		addView(glass);
+		});
 	}
+
+
+
+	@Override
+	public boolean onTouchEvent(MotionEvent event)
+	{
+		boolean handled = detector.onTouchEvent(event);
+
+		if (event.getAction() == MotionEvent.ACTION_DOWN && showPagingControl) {
+			if (pager.getVisibility() != View.VISIBLE) {
+				gallery.onTouchEvent(event);
+			}
+		}
+
+		if (!handled) {
+			handled = super.onTouchEvent(event);
+		}
+
+		return handled;
+	}
+
+
 
 	public int getSelectedItemPosition() {
 //		synchronized(gallery) {
