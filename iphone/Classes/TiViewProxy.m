@@ -763,6 +763,10 @@
 
 -(void)_listenerAdded:(NSString*)type count:(int)count
 {
+	if ([self viewAttached]) {
+		[[self view] updateTouchHandling];
+	}
+	
 	if (self.modelDelegate!=nil && [(NSObject*)self.modelDelegate respondsToSelector:@selector(listenerAdded:count:)])
 	{
 		[self.modelDelegate listenerAdded:type count:count];
@@ -771,6 +775,10 @@
 
 -(void)_listenerRemoved:(NSString*)type count:(int)count
 {
+	if ([self viewAttached]) {
+		[[self view] updateTouchHandling];
+	}
+	
 	if (self.modelDelegate!=nil && [(NSObject*)self.modelDelegate respondsToSelector:@selector(listenerRemoved:count:)])
 	{
 		[self.modelDelegate listenerRemoved:type count:count];

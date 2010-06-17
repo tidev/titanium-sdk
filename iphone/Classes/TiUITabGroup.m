@@ -148,7 +148,9 @@ DEFINE_EXCEPTIONS
 	{
 		[self handleWillShowTab:nil];
 		[self updateMoreBar:navigationController];
-		[self setEditButton:navigationController];
+		if (allowConfiguration) {
+			[self setEditButton:navigationController];
+		}
 	}
 }
 
