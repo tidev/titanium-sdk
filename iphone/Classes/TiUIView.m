@@ -223,19 +223,25 @@ DEFINE_EXCEPTIONS
 			[proxy _hasListeners:@"dblclick"];
 } 
 
+-(void)updateTouchHandling
+{
+	BOOL touchEventsSupported = [self viewSupportsBaseTouchEvents];
+	handlesTaps = touchEventsSupported && [self proxyHasTapListener];
+	handlesTouches = touchEventsSupported && [self proxyHasTouchListener];
+	handlesSwipes = touchEventsSupported && [proxy _hasListeners:@"swipe"];
+	
+	self.multipleTouchEnabled = handlesTaps;
+}
+
 -(void)initializeState
 {
 	virtualParentTransform = CGAffineTransformIdentity;
 	multipleTouches = NO;
 	twoFingerTapIsPossible = NO;
 	touchEnabled = YES;
-	BOOL touchEventsSupported = [self viewSupportsBaseTouchEvents];
-	handlesTaps = touchEventsSupported && [self proxyHasTapListener];
-	handlesTouches = touchEventsSupported && [self proxyHasTouchListener];
-	handlesSwipes = touchEventsSupported && [proxy _hasListeners:@"swipe"];
-	
 	self.userInteractionEnabled = YES;
-	self.multipleTouchEnabled = handlesTaps;	
+	
+	[self updateTouchHandling];
 	 
 	self.backgroundColor = [UIColor clearColor]; 
 	self.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;

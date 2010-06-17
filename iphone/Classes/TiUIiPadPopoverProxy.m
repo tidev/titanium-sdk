@@ -5,12 +5,13 @@
  * Please see the LICENSE included with this distribution for details.
  */
 #if defined(USE_TI_UIIPADPOPOVER) || defined(USE_TI_UIIPADSPLITWINDOW)
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
 
 #import "TiUIiPadPopoverProxy.h"
 #import "TiUIiPadPopover.h"
 #import "TiUtils.h"
+#import <libkern/OSAtomic.h>
 
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
 
 @implementation TiUIiPadPopoverProxy
 @synthesize viewController;
@@ -19,23 +20,30 @@
 -(void)dealloc
 {
 	RELEASE_TO_NIL(viewController);
+	RELEASE_TO_NIL(navigationController);
 	RELEASE_TO_NIL(popoverController);
 	[super dealloc];
 }
 
 #pragma mark Internal methods
--(void)refreshTitleBar
+-(void)refreshTitleBarWithObject:(id)properties
 {
 	if (viewController == nil)
 	{
 		return;
 	}
-	ENSURE_UI_THREAD_0_ARGS;
+	ENSURE_UI_THREAD_1_ARG(properties);
+	
+	BOOL animated = [TiUtils boolValue:@"animated" properties:properties def:YES];
+	
 	UINavigationItem * ourItem = [viewController navigationItem];
 
 	[ourItem setTitle:[TiUtils stringValue:[self valueForKey:@"title"]]];
-	[ourItem setLeftBarButtonItem:[[self valueForKey:@"leftNavButton"] barButtonItem]];
-	[ourItem setRightBarButtonItem:[[self valueForKey:@"rightNavButton"] barButtonItem]];
+	[ourItem setLeftBarButtonItem:[[self valueForKey:@"leftNavButton"] barButtonItem] animated:animated];
+	[ourItem setRightBarButtonItem:[[self valueForKey:@"rightNavButton"] barButtonItem] animated:animated];
+	
+	[[self navigationController] setNavigationBarHidden:[TiUtils boolValue:[self valueForKey:@"navBarHidden"]] animated:animated];
+
 }
 
 -(void)repositionWithBounds:(CGRect)bounds
@@ -120,7 +128,7 @@
 		[popoverController setContentViewController:[self navigationController]];
 	}
 	[popoverController setDelegate:self];
-	[self refreshTitleBar];
+	[self refreshTitleBarWithObject:nil];
 }
 
 -(UIPopoverController *)popoverController
@@ -129,7 +137,7 @@
 	{
 		popoverController = [[UIPopoverController alloc] initWithContentViewController:[self navigationController]];
 		[popoverController setDelegate:self];
-		[self refreshTitleBar];
+		[self refreshTitleBarWithObject:nil];
 		[self updateContentSize];
 	}
 	return popoverController;
@@ -137,24 +145,62 @@
 
 #pragma mark Public-facing accessors
 
--(void)setRightNavButton:(id)item
+-(void)setRightNavButton:(id)item withObject:(id)properties
 {
 	ENSURE_SINGLE_ARG_OR_NIL(item,TiViewProxy);
 	[self replaceValue:item forKey:@"rightNavButton" notification:NO];
-	[self refreshTitleBar];
+	[self refreshTitleBarWithObject:properties];
 }
 
--(void)setLeftNavButton:(id)item
+-(void)setLeftNavButton:(id)item withObject:(id)properties
 {
 	ENSURE_SINGLE_ARG_OR_NIL(item,TiViewProxy);
 	[self replaceValue:item forKey:@"rightNavButton" notification:NO];
-	[self refreshTitleBar];
+	[self refreshTitleBarWithObject:properties];
 }
+
+-(void)setNavBarHidden:(id)item withObject:(id)properties
+{
+	[self replaceValue:item forKey:@"navBarHidden" notification:NO];
+	[self refreshTitleBarWithObject:properties];
+}
+
+
+-(void)showNavBar:(NSArray*)args
+{
+	id properties;
+	if ([args count]>0)
+	{
+		properties = [args objectAtIndex:0];
+	}
+	else
+	{
+		properties = nil;
+	}
+
+	[self setNavBarHidden:[NSNumber numberWithBool:NO] withObject:properties];
+}
+
+-(void)hideNavBar:(NSArray*)args
+{
+	id properties;
+	if ([args count]>0)
+	{
+		properties = [args objectAtIndex:0];
+	}
+	else
+	{
+		properties = nil;
+	}
+
+	[self setNavBarHidden:[NSNumber numberWithBool:YES] withObject:properties];
+}
+
 
 -(void)setTitle:(id)item
 {
 	[self replaceValue:item forKey:@"title" notification:NO];
-	[self refreshTitleBar];
+	[self refreshTitleBarWithObject:nil];
 }
 
 -(void)setWidth:(id)value

@@ -804,7 +804,7 @@ class Builder(object):
 
 			if self.tiapp_changed or self.deploy_type == "production":
 				trace("Generating Java Classes")
-				self.android.create(os.path.abspath(os.path.join(self.top_dir,'..')),True)
+				self.android.create(os.path.abspath(os.path.join(self.top_dir,'..')), True, project_dir=self.top_dir)
 			else:
 				info("Tiapp.xml unchanged, skipping class generation")
 
