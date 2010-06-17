@@ -409,7 +409,6 @@ void MyUncaughtExceptionHandler(NSException *exception)
 -(void)attachModal:(UIViewController*)modalController toController:(UIViewController*)presentingController animated:(BOOL)animated
 {
 	UIViewController * currentModalController = [presentingController modalViewController];
-	NSLog(@"Attaching %@ to %@, where %@ is already in place",modalController,presentingController,currentModalController);
 
 	if (currentModalController == modalController)
 	{
