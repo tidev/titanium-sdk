@@ -227,8 +227,8 @@
 	views = [args retain];
 	
 	// Reparent views
-	for (TiViewProxy* proxy in views) {
-		[proxy setParent:[self proxy]];
+	for (TiViewProxy* proxy_ in views) {
+		[proxy_ setParent:[self proxy]];
 	}
 
 	if (refresh)

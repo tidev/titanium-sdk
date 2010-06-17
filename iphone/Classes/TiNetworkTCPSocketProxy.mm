@@ -261,7 +261,7 @@ const CFOptionFlags writeStreamEventFlags =
     // based on sockets, according to the CFReadStream it comes from.
     
     // NOTE: Without sentenels, this could result in some weird behavior (for example, if two images are transmitted back-to-back with no break).
-    NSMutableData* data = [[[NSMutableData init] alloc] autorelease];
+    NSMutableData* data = [[[NSMutableData alloc] init] autorelease];
     while ([input hasBytesAvailable]) {
         uint8_t* buffer = (uint8_t*)malloc(bufferSize * sizeof(uint8_t));
         NSInteger bytesRead = [input read:buffer maxLength:bufferSize];
