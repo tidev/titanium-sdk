@@ -625,7 +625,8 @@ public class KrollObject extends ScriptableObject
 	}
 
 	private boolean isArrayLike(Scriptable svalue) {
-		return svalue.has("length", svalue);
+		// some objects have length() methods, so just check the value?
+		return svalue.has("length", svalue) && svalue.get("length", svalue) instanceof Number;
 	}
 
 	private Object[] toArray(Scriptable svalue)
