@@ -163,8 +163,11 @@ void MyUncaughtExceptionHandler(NSException *exception)
 		splashY = 0;
 	}
 	RELEASE_TO_NIL(loadView);
-	UIScreen *screen = [UIScreen mainScreen];
-	loadView = [[UIImageView alloc] initWithFrame:CGRectMake(0, splashY, screen.bounds.size.width, screen.bounds.size.height)];
+	CGRect viewFrame = [[UIScreen mainScreen] bounds];
+	BOOL flipLandscape = ([TiUtils isIPad] && UIDeviceOrientationIsLandscape([[UIDevice currentDevice] orientation]));
+	loadView = [[UIImageView alloc] initWithFrame:CGRectMake(0, splashY, 
+															 flipLandscape ? viewFrame.size.height : viewFrame.size.width, 
+															 flipLandscape ? viewFrame.size.width : viewFrame.size.height)];
 	loadView.image = [self loadAppropriateSplash];
 	[controller.view addSubview:loadView];
 	return loadView;

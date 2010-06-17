@@ -109,7 +109,9 @@
 	{ //This is when the application first starts. statusBarOrientation lies at the beginning,
 	//And device orientation is 0 until this notification.
 		// FIRST!  We know the orientation now, so attach the splash!
-		[[TiApp app] attachSplash];
+		if (![[TiApp app] isSplashVisible]) {
+			[[TiApp app] attachSplash];
+		}
 		[self willAnimateRotationToInterfaceOrientation:newOrientation duration:0];
 		return;
 	}
