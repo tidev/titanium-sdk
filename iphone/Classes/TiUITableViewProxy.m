@@ -20,23 +20,22 @@
 #import "TiViewProxy.h"
 #import "TiComplexValue.h"
 
+
+NSArray * tableKeySequence;
+
 @implementation TiUITableViewProxy
 
-#pragma mark Internal 
+#pragma mark Internal
 
--(id<NSFastEnumeration>)allKeys
+
+-(NSArray *)keySequence
 {
-	NSArray * result = (NSArray *)[super allKeys];
-	if (![result containsObject:@"data"])
+	if (tableKeySequence == nil)
 	{
-		return result;
+		tableKeySequence = [[NSArray arrayWithObjects:@"style",@"data",nil] retain];
 	}
-	result = [NSMutableArray arrayWithArray:result];
-	[(NSMutableArray *)result removeObject:@"data"];
-	[(NSMutableArray *)result insertObject:@"data" atIndex:0];
-	return result;
+	return tableKeySequence;
 }
-
 
 -(TiUITableView*)tableView
 {
@@ -72,11 +71,16 @@
 
 -(NSMutableArray*)sections
 {
-	NSMutableArray *sections = [self valueForKey:@"data"];;
-	if (sections == nil)
+	NSMutableArray *sections;
+	@synchronized(self)
 	{
-		sections = [NSMutableArray array];
-		[self replaceValue:sections forKey:@"data" notification:YES];
+		sections = [self valueForKey:@"data"];
+		if (sections == nil)
+		{
+			sections = [NSMutableArray array];
+			[self replaceValue:sections forKey:@"data" notification:YES];
+		}
+		[[sections retain] autorelease];
 	}
 	return sections;
 }
@@ -392,9 +396,7 @@
 	Class dictionaryClass = [NSDictionary class];
 	Class sectionClass = [TiUITableViewSectionProxy class];
 	Class rowClass = [TiUITableViewRowProxy class];
-	
-	TiUITableView *table = [self tableView];
-	
+		
 	NSMutableArray *data = [NSMutableArray array];
 	
 	TiUITableViewSectionProxy *section = nil;
@@ -453,6 +455,8 @@
 	[self replaceValue:data forKey:@"data" notification:NO];
 
 	TiUITableViewAction *action = [[[TiUITableViewAction alloc] initWithRow:nil animation:properties section:0 type:TiUITableViewActionSetData] autorelease];
+
+	TiUITableView *table = [self tableView];
 	[table dispatchAction:action];
 }
 

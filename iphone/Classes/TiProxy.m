@@ -118,11 +118,49 @@ void DoProxyDispatchToSecondaryArg(UIView<TiProxyDelegate> * target, SEL sel, NS
 	}
 }
 
+void DoProxyDelegateReadKeyFromProxy(UIView<TiProxyDelegate> * target, NSString *key, TiProxy * proxy, NSNull * nullValue, BOOL useThisThread)
+{
+	// use valueForUndefined since this should really come from dynprops
+	// not against the real implementation
+	id value = [proxy valueForUndefinedKey:key];
+	if (value == nil)
+	{
+		return;
+	}
+	if (value == nullValue)
+	{
+		value = nil;
+	}
+
+	SEL sel = SetterWithObjectForKrollProperty(key);
+	if ([target respondsToSelector:sel])
+	{
+		DoProxyDispatchToSecondaryArg(target,sel,key,value,proxy);
+		return;
+	}
+	sel = SetterForKrollProperty(key);
+	if (![target respondsToSelector:sel])
+	{
+		return;
+	}
+	if (useThisThread)
+	{
+		[target performSelector:sel withObject:value];
+	}
+	else
+	{
+		[target performSelectorOnMainThread:sel withObject:value
+				waitUntilDone:NO modes:[NSArray arrayWithObject:NSRunLoopCommonModes]];
+	}
+}
+
 void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target, id<NSFastEnumeration> keys, TiProxy * proxy)
 {
 	BOOL isMainThread = [NSThread isMainThread];
 	NSNull * nullObject = [NSNull null];
 	BOOL viewAttached = YES;
+	
+	NSArray * keySequence = [proxy keySequence];
 	
 	// assume if we don't have a view that we can send on the 
 	// main thread to the proxy
@@ -131,38 +169,21 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 		viewAttached = [(TiViewProxy*)target viewAttached];
 	}
 	
+	BOOL useThisThread = isMainThread==YES || viewAttached==NO;
+
+	for (NSString * thisKey in keySequence)
+	{
+		DoProxyDelegateReadKeyFromProxy(target, thisKey, proxy, nullObject, useThisThread);
+	}
+
+	
 	for (NSString * thisKey in keys)
 	{
-		// use valueForUndefined since this should really come from dynprops
-		// not against the real implementation
-		id newValue = [proxy valueForUndefinedKey:thisKey];
-		if (newValue == nil)
+		if ([keySequence containsObject:thisKey])
 		{
 			continue;
 		}
-		if (newValue == nullObject)
-		{
-			newValue = nil;
-		}
-		SEL sel = SetterWithObjectForKrollProperty(thisKey);
-		if ([target respondsToSelector:sel])
-		{
-			DoProxyDispatchToSecondaryArg(target,sel,thisKey,newValue,proxy);
-			continue;
-		}
-		sel = SetterForKrollProperty(thisKey);
-		if (![target respondsToSelector:sel])
-		{
-			continue;
-		}
-		if (isMainThread==YES || viewAttached==NO)
-		{
-			[target performSelector:sel withObject:newValue];
-		}
-		else
-		{
-			[target performSelectorOnMainThread:sel withObject:newValue waitUntilDone:NO modes:[NSArray arrayWithObject:NSRunLoopCommonModes]];
-		}
+		DoProxyDelegateReadKeyFromProxy(target, thisKey, proxy, nullObject, useThisThread);
 	}
 }
 
@@ -515,6 +536,15 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 	return [dynprops allKeys];
 }
 
+/*
+ *	In views where the order in which keys are applied matter (I'm looking at you, TableView), this should be
+ *  an array of which keys go first, and in what order. Otherwise, this is nil.
+ */
+-(NSArray *)keySequence
+{
+	return nil;
+}
+
 -(void)addEventListener:(NSArray*)args
 {
 	NSString *type = [args objectAtIndex:0];
@@ -674,9 +704,11 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 	[destroyLock unlock];
 }
 
-- (void)setValuesForKeysWithDictionary:(NSDictionary *)keyedValues usingKeys:(id<NSFastEnumeration>)keys;
+- (void)setValuesForKeysWithDictionary:(NSDictionary *)keyedValues
 {
-	for (NSString * thisKey in keys)
+	NSArray * keySequence = [self keySequence];
+
+	for (NSString * thisKey in keySequence)
 	{
 		id thisValue = [keyedValues objectForKey:thisKey];
 		if (thisValue == nil) //Dictionary doesn't have this key. Skip.
@@ -689,6 +721,11 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 			thisValue = nil;
 		}
 		[self setValue:thisValue forKey:thisKey];
+	}
+
+	for (NSString * thisKey in keyedValues)
+	{
+		[self setValue:[keyedValues valueForKey:thisKey] forKey:thisKey];
 	}
 }
  
