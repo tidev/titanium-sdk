@@ -31,6 +31,9 @@
 		rightNav.navigationBarHidden = YES;
 		
 		self.viewControllers = [NSArray arrayWithObjects:leftNav,rightNav,nil];
+
+		[leftNav release];
+		[rightNav release];
 	}
 	return self;
 }
