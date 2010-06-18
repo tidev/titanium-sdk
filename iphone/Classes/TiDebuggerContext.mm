@@ -29,7 +29,6 @@ namespace Ti
 	}
 	void TiDebuggerContext::beginScriptEval(const char* url_)
 	{
-		printf("begin script eval = %s\n",url_);
 		inParse=true;
 		parseDepth=0;
 		url = [[NSString stringWithCString:url_ encoding:NSUTF8StringEncoding] retain];
@@ -49,37 +48,30 @@ namespace Ti
 	}
 	void TiDebuggerContext::exception(const DebuggerCallFrame& callFrame, intptr_t sourceID, int lineNumber)
 	{
-		printf("exception\n");
 		[[TiDebugger sharedDebugger] exception:callFrame sourceId:sourceID lineNumber:lineNumber context:context];
 	}
 	void TiDebuggerContext::atStatement(const DebuggerCallFrame& callFrame, intptr_t sourceID, int lineNumber)
 	{
-		printf("at statement\n");
 		[[TiDebugger sharedDebugger] atStatement:callFrame sourceId:sourceID lineNumber:lineNumber context:context];
 	}
 	void TiDebuggerContext::callEvent(const DebuggerCallFrame& callFrame, intptr_t sourceID, int lineNumber)
 	{
-		printf("call event\n");
 		[[TiDebugger sharedDebugger] callEvent:callFrame sourceId:sourceID lineNumber:lineNumber context:context];
 	}
 	void TiDebuggerContext::returnEvent(const DebuggerCallFrame& callFrame, intptr_t sourceID, int lineNumber)
 	{
-		printf("return event\n");
 		[[TiDebugger sharedDebugger] returnEvent:callFrame sourceId:sourceID lineNumber:lineNumber context:context];
 	}
 	void TiDebuggerContext::willExecuteProgram(const DebuggerCallFrame& callFrame, intptr_t sourceID, int lineNumber)
 	{
-		printf("will execute program\n");
 		[[TiDebugger sharedDebugger] willExecuteProgram:callFrame sourceId:sourceID lineNumber:lineNumber context:context];
 	}
 	void TiDebuggerContext::didExecuteProgram(const DebuggerCallFrame& callFrame, intptr_t sourceID, int lineNumber)
 	{
-		printf("did execute program\n");
 		[[TiDebugger sharedDebugger] didExecuteProgram:callFrame sourceId:sourceID lineNumber:lineNumber context:context];
 	}
 	void TiDebuggerContext::didReachBreakpoint(const DebuggerCallFrame& callFrame, intptr_t sourceID, int lineNumber)
 	{
-		printf("did reach breakpoint\n");
 		[[TiDebugger sharedDebugger] didReachBreakpoint:callFrame sourceId:sourceID lineNumber:lineNumber context:context];
 	}
 }

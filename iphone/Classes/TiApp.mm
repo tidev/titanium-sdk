@@ -170,6 +170,7 @@ void MyUncaughtExceptionHandler(NSException *exception)
 															 flipLandscape ? viewFrame.size.width : viewFrame.size.height)];
 	loadView.image = [self loadAppropriateSplash];
 	[controller.view addSubview:loadView];
+	splashAttached = YES;
 	return loadView;
 }
 
@@ -181,15 +182,15 @@ void MyUncaughtExceptionHandler(NSException *exception)
 	
 	// attach our main view controller
 	controller = [[TiRootViewController alloc] init];
+	[self attachSplash];
 	[window addSubview:controller.view];
-	controller.view.backgroundColor = [UIColor clearColor];
-	
+
     [window makeKeyAndVisible];
 }
 
 - (BOOL)isSplashVisible
 {
-	return splashDone==NO;
+	return splashAttached;
 }
 
 -(UIView*)splash
@@ -203,11 +204,28 @@ void MyUncaughtExceptionHandler(NSException *exception)
 	// and should only be done once (obviously) - the
 	// caller is responsible for setting up the animation
 	// context before calling this and committing it afterwards
-	if (loadView!=nil && splashDone==NO)
+	if (loadView!=nil && splashAttached)
 	{
-		splashDone = YES;
+		splashAttached = NO;
 		[loadView removeFromSuperview];
 		RELEASE_TO_NIL(loadView);
+	}
+}
+
+-(void)initController
+{
+	sharedApp = self;
+	networkActivity = [[NSLock alloc] init];
+	networkActivityCount = 0;
+	
+	// attach our main view controller
+	controller = [[TiRootViewController alloc] init];
+	
+	// Force view load
+	controller.view.backgroundColor = [UIColor clearColor];
+	
+	if (![TiUtils isiPhoneOS3_2OrGreater]) {
+		[self loadSplash];
 	}
 }
 
@@ -245,7 +263,7 @@ void MyUncaughtExceptionHandler(NSException *exception)
 - (void)applicationDidFinishLaunching:(UIApplication *)application 
 {
 	NSSetUncaughtExceptionHandler(&MyUncaughtExceptionHandler);
-	[self loadSplash];
+	[self initController];
 	[self boot];
 }
 
@@ -257,7 +275,7 @@ void MyUncaughtExceptionHandler(NSException *exception)
 	// nibless window
 	window = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
 
-	[self loadSplash];
+	[self initController];
 
 	// get the current remote device UUID if we have one
 	NSString *curKey = [[NSUserDefaults standardUserDefaults] stringForKey:@"APNSRemoteDeviceUUID"];

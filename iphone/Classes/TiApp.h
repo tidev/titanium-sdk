@@ -18,7 +18,7 @@
 {
 	UIWindow *window;
 	UIImageView *loadView;
-	BOOL splashDone;
+	BOOL splashAttached;
 	
 	KrollBridge *kjsBridge;
 
@@ -54,6 +54,7 @@
 -(BOOL)isSplashVisible;
 -(void)hideSplash:(id)event;
 -(UIView*)splash;
+-(void)loadSplash;
 -(UIView*)attachSplash;
 -(NSDictionary*)launchOptions;
 -(NSString*)remoteDeviceUUID;

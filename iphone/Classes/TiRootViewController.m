@@ -110,7 +110,7 @@
 	//And device orientation is 0 until this notification.
 		// FIRST!  We know the orientation now, so attach the splash!
 		if (![[TiApp app] isSplashVisible]) {
-			[[TiApp app] attachSplash];
+			[[TiApp app] loadSplash];
 		}
 		[self willAnimateRotationToInterfaceOrientation:newOrientation duration:0];
 		return;
