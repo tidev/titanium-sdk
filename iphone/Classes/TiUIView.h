@@ -98,6 +98,7 @@ CGFloat AutoHeightForView(UIView * superView,CGFloat suggestedWidth,BOOL isVerti
 -(void)transferProxy:(TiViewProxy*)newProxy;
 
 -(void)updateLayout:(LayoutConstraint*)layout withBounds:(CGRect)bounds;
+-(void)updateTouchHandling;
 -(void)relayout:(CGRect)bounds;
 -(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds;
 -(void)insertIntoView:(UIView*)view bounds:(CGRect)bounds;
