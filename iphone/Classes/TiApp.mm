@@ -182,9 +182,9 @@ void MyUncaughtExceptionHandler(NSException *exception)
 	
 	// attach our main view controller
 	controller = [[TiRootViewController alloc] init];
+	[self attachSplash];
 	[window addSubview:controller.view];
-	controller.view.backgroundColor = [UIColor clearColor];
-	
+
     [window makeKeyAndVisible];
 }
 
@@ -209,6 +209,23 @@ void MyUncaughtExceptionHandler(NSException *exception)
 		splashAttached = NO;
 		[loadView removeFromSuperview];
 		RELEASE_TO_NIL(loadView);
+	}
+}
+
+-(void)initController
+{
+	sharedApp = self;
+	networkActivity = [[NSLock alloc] init];
+	networkActivityCount = 0;
+	
+	// attach our main view controller
+	controller = [[TiRootViewController alloc] init];
+	
+	// Force view load
+	controller.view.backgroundColor = [UIColor clearColor];
+	
+	if (![TiUtils isiPhoneOS3_2OrGreater]) {
+		[self loadSplash];
 	}
 }
 
@@ -246,7 +263,7 @@ void MyUncaughtExceptionHandler(NSException *exception)
 - (void)applicationDidFinishLaunching:(UIApplication *)application 
 {
 	NSSetUncaughtExceptionHandler(&MyUncaughtExceptionHandler);
-	[self loadSplash];
+	[self initController];
 	[self boot];
 }
 
@@ -258,7 +275,7 @@ void MyUncaughtExceptionHandler(NSException *exception)
 	// nibless window
 	window = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
 
-	[self loadSplash];
+	[self initController];
 
 	// get the current remote device UUID if we have one
 	NSString *curKey = [[NSUserDefaults standardUserDefaults] stringForKey:@"APNSRemoteDeviceUUID"];
