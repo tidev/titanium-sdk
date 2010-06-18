@@ -170,6 +170,7 @@ void MyUncaughtExceptionHandler(NSException *exception)
 															 flipLandscape ? viewFrame.size.width : viewFrame.size.height)];
 	loadView.image = [self loadAppropriateSplash];
 	[controller.view addSubview:loadView];
+	splashAttached = YES;
 	return loadView;
 }
 
@@ -189,7 +190,7 @@ void MyUncaughtExceptionHandler(NSException *exception)
 
 - (BOOL)isSplashVisible
 {
-	return splashDone==NO;
+	return splashAttached;
 }
 
 -(UIView*)splash
@@ -203,9 +204,9 @@ void MyUncaughtExceptionHandler(NSException *exception)
 	// and should only be done once (obviously) - the
 	// caller is responsible for setting up the animation
 	// context before calling this and committing it afterwards
-	if (loadView!=nil && splashDone==NO)
+	if (loadView!=nil && splashAttached)
 	{
-		splashDone = YES;
+		splashAttached = NO;
 		[loadView removeFromSuperview];
 		RELEASE_TO_NIL(loadView);
 	}
