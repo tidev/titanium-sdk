@@ -156,7 +156,9 @@ NSString * const TI_DB_VERSION = @"1";
 	//TODO: need to update backend to accept compressed bodies. When done, use [request setShouldCompressRequestBody:YES]
 	[request setTimeOutSeconds:5];
 	[request setShouldPresentAuthenticationDialog:NO];
-	[request setUseSessionPersistance:NO];
+	[request setUseSessionPersistence:NO];
+	[request setUseCookiePersistence:YES];
+	[request setShouldRedirect:YES];
 	NSString * stringifiedData = [SBJSON stringify:data];
 	[request appendPostData:[stringifiedData dataUsingEncoding:NSUTF8StringEncoding]];
 	[request setDelegate:self];
