@@ -145,7 +145,15 @@
 {
 	if (tableview==nil)
 	{
-		UITableViewStyle style = [TiUtils intValue:[self.proxy valueForKey:@"style"] def:UITableViewStylePlain];
+		id styleObject = [self.proxy valueForKey:@"style"];
+		UITableViewStyle style = [TiUtils intValue:styleObject def:UITableViewStylePlain];
+#ifdef VERBOSE
+		NSLog(@"[DEBUG] Generating a new tableView, and style for %@ is %d",[self.proxy valueForKey:@"style"],style);
+		if(styleObject == nil)
+		{
+			NSLog(@"[WARN] No style object!");
+		}
+#endif
 		tableview = [[UITableView alloc] initWithFrame:CGRectMake(0, 0, [self bounds].size.width, [self bounds].size.height) style:style];
 		tableview.delegate = self;
 		tableview.dataSource = self;
@@ -1035,6 +1043,13 @@
 		searchHidden = YES;
 		[self.proxy replaceValue:NUMBOOL(YES) forKey:@"searchHidden" notification:NO];
 	}
+}
+
+-(void)setData_:(NSArray *)newData
+{
+	NSDictionary * properties = [NSDictionary dictionaryWithObject:NUMINT(UITableViewRowAnimationNone) forKey:@"animationStyle"];
+	TiUITableViewAction *action = [[[TiUITableViewAction alloc] initWithRow:nil animation:properties section:0 type:TiUITableViewActionSetData] autorelease];
+	[self dispatchAction:action];
 }
 
 -(void)setSearchHidden_:(id)hide

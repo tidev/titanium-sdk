@@ -703,11 +703,30 @@ DEFINE_EXCEPTIONS
 	DoProxyDelegateChangedValuesWithProxy(self, key, oldValue, newValue, proxy_);
 }
 
+
+//Todo: Generalize.
+-(void)setKrollValue:(id)value forKey:(NSString *)key withObject:(id)props
+{
+	SEL method = SetterWithObjectForKrollProperty(key);
+	if([self respondsToSelector:method])
+	{
+		[self performSelector:method withObject:value withObject:props];
+		return;
+	}		
+
+	method = SetterForKrollProperty(key);
+	if([self respondsToSelector:method])
+	{
+		[self performSelector:method withObject:value];
+	}	
+}
+
 -(void)transferProxy:(TiViewProxy*)newProxy
 {
 	TiViewProxy * oldProxy = (TiViewProxy *)[self proxy];
 	NSArray * oldProperties = (NSArray *)[oldProxy allKeys];
 	NSArray * newProperties = (NSArray *)[newProxy allKeys];
+	NSArray * keySequence = [newProxy keySequence];
 	[oldProxy retain];
 	[self retain];
 
@@ -715,28 +734,29 @@ DEFINE_EXCEPTIONS
 	[newProxy setView:self];
 	[self setProxy:[newProxy retain]];
 
+	//The important sequence first:
+	for (NSString * thisKey in keySequence)
+	{
+		id newValue = [newProxy valueForKey:thisKey];
+		[self setKrollValue:newValue forKey:thisKey withObject:nil];
+	}
+
 	for (NSString * thisKey in oldProperties)
 	{
-		if([newProperties containsObject:thisKey])
+		if([newProperties containsObject:thisKey] || [keySequence containsObject:thisKey])
 		{
 			continue;
 		}
-		SEL method = SetterForKrollProperty(thisKey);
-		if([self respondsToSelector:method])
-		{
-			[self performSelector:method withObject:nil];
-			continue;
-		}
-		
-		method = SetterWithObjectForKrollProperty(thisKey);
-		if([self respondsToSelector:method])
-		{
-			[self performSelector:method withObject:nil withObject:nil];
-		}		
+		[self setKrollValue:nil forKey:thisKey withObject:nil];
 	}
 
 	for (NSString * thisKey in newProperties)
 	{
+		if ([keySequence containsObject:thisKey])
+		{
+			continue;
+		}
+	
 		id newValue = [newProxy valueForKey:thisKey];
 		id oldValue = [oldProxy valueForKey:thisKey];
 		if([newValue isEqual:oldValue])
@@ -744,18 +764,7 @@ DEFINE_EXCEPTIONS
 			continue;
 		}
 		
-		SEL method = SetterForKrollProperty(thisKey);
-		if([self respondsToSelector:method])
-		{
-			[self performSelector:method withObject:newValue];
-			continue;
-		}
-		
-		method = SetterWithObjectForKrollProperty(thisKey);
-		if([self respondsToSelector:method])
-		{
-			[self performSelector:method withObject:newValue withObject:nil];
-		}		
+		[self setKrollValue:newValue forKey:thisKey withObject:nil];
 	}
 
 	[oldProxy release];
