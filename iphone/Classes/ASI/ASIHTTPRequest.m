@@ -597,7 +597,7 @@ static BOOL isiPhoneOS2;
 	
 	// Add cookies from the persistant (mac os global) store
 	if ([self useCookiePersistance] ) {
-		NSArray *cookies = [[NSHTTPCookieStorage sharedHTTPCookieStorage] cookiesForURL:[self url]];
+		NSArray *cookies = [[NSHTTPCookieStorage sharedHTTPCookieStorage] cookiesForURL:[[self url]absoluteURL]];
 		if (cookies) {
 			[[self requestCookies] addObjectsFromArray:cookies];
 		}

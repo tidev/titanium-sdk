@@ -303,6 +303,7 @@ extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 	// different URI and cause security compromises if we do 
 	[request setUseSessionPersistance:NO];
 	[request setUseKeychainPersistance:NO];
+	[request setUseCookiePersistance:YES];
 	[self _fireReadyStateChange:NetworkClientStateOpened];
 	[self _fireReadyStateChange:NetworkClientStateHeaders];
 }
