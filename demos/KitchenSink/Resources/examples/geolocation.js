@@ -289,6 +289,7 @@ else
 		if (e.error)
 		{
 			currentLocation.text = 'error: ' + JSON.stringify(e.error);
+			alert('error ' + JSON.stringify(e.error))
 			return;
 		}
 
