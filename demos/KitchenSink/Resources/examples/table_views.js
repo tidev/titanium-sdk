@@ -39,6 +39,7 @@ if (Titanium.Platform.name == 'iPhone OS')
 	
 	data.push({title:'Table View (Layout 3)', hasChild:true, test:'../examples/table_view_layout_3.js'});
 	data.push({title:'Table View (Layout 4)', hasChild:true, test:'../examples/table_view_layout_4.js'});
+	data.push({title:'Table View (Layout 5)', hasChild:true, test:'../examples/table_view_layout_5.js'});
 	data.push({title:'Table Custom Header', hasChild:true, test:'../examples/table_view_api_custom_header.js'});
 	data.push({title:'Table Custom Footer', hasChild:true, test:'../examples/table_view_api_custom_footer.js'});
 	data.push({title:'Table with Controls', hasChild:true, test:'../examples/table_view_api_controls.js'});
