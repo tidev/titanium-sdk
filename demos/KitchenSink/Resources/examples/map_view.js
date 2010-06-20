@@ -65,7 +65,7 @@ var mapview = Titanium.Map.createView({
 	animate:true,
 	regionFit:true,
 	userLocation:true,
-	annotations:[apple]
+	annotations:[atlanta,apple]
 });
 
 mapview.addAnnotation(atlanta);

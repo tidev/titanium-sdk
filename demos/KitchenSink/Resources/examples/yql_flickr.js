@@ -41,7 +41,7 @@ Titanium.Yahoo.yql('select * from flickr.photos.search where text="Cat" limit 10
 			font:{fontWeight:'bold',fontSize:18}
 		});
 		var image = Ti.UI.createImageView({
-			url : url,
+			image : url,
 			height:50,
 			width:50,
 			left:10,

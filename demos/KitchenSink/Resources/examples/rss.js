@@ -103,7 +103,7 @@ function displayItems(itemList){
 			// add the CNN logo on the left
 			// naturally this could be an image in the feed itself if it existed
 			var item_image = Ti.UI.createImageView({
-				url:'http://i.cdn.turner.com/cnn/.element/img/3.0/global/header/hdr-main.gif',
+				image:'http://i.cdn.turner.com/cnn/.element/img/3.0/global/header/hdr-main.gif',
 				left:3,
 				top:2,
 				width:50,
