@@ -23,8 +23,6 @@
 
 @private
 	TiSplitViewController *controller;
-	TiUIiPadPopoverProxy *popoverProxy;
-	UIPopoverController *popover;
 }
 
 -(UIViewController*)controller;

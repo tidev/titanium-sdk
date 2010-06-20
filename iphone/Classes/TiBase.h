@@ -8,6 +8,9 @@
 #import <UIKit/UIKit.h>
 #import "defines.h"
 
+#ifndef TI_BASE_H
+#define TI_BASE_H
+
 #define MEMORY_DEBUG 0
 
 #ifdef DEBUG
@@ -435,3 +438,17 @@ extern NSString * const kTiGestureShakeNotification;
 #define __IPHONE_3_2 30200
 #endif
 
+#ifndef __IPHONE_4_0
+#define __IPHONE_4_0 40000
+#endif
+
+
+#ifndef ASI_AUTOUPDATE_NETWORK_INDICATOR
+	#define ASI_AUTOUPDATE_NETWORK_INDICATOR 0
+#endif
+
+#ifndef ASI_AUTOUPDATE_NETWORK_INDICATOR
+	#define REACHABILITY_20_API 1
+#endif
+
+#endif

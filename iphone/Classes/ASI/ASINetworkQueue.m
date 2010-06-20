@@ -1,6 +1,6 @@
 //
 //  ASINetworkQueue.m
-//  asi-http-request
+//  Part of ASIHTTPRequest -> http://allseeing-i.com/ASIHTTPRequest
 //
 //  Created by Ben Copsey on 07/11/2008.
 //  Copyright 2008-2009 All-Seeing Interactive. All rights reserved.
@@ -8,9 +8,11 @@
 
 #import "ASINetworkQueue.h"
 #import "ASIHTTPRequest.h"
+#import "ASIHTTPRequestConfig.h"
 
 // Private stuff
 @interface ASINetworkQueue ()
+	- (void)resetProgressDelegate:(id)progressDelegate;
 	@property (assign) int requestsCount;
 @end
 
@@ -48,39 +50,39 @@
 
 - (void)updateNetworkActivityIndicator
 {
+#if defined(TARGET_OS_IPHONE) && ASI_AUTOUPDATE_NETWORK_INDICATOR==1
+	[[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:[self isNetworkActive]];
+#endif
 }
 
 - (void)setSuspended:(BOOL)suspend
 {
 	[super setSuspended:suspend];
-	
-	if (suspend == YES)
-	{
-		[[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:NO];
-	}
-	else
-	{
-		[[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:[self isNetworkActive]];
-	}
+	[self updateNetworkActivityIndicator];
+}
+
+- (void)reset
+{
+	[self cancelAllOperations];
+	[self setDelegate:nil];
+	[self setDownloadProgressDelegate:nil];
+	[self setUploadProgressDelegate:nil];
+	[self setRequestDidStartSelector:NULL];
+	[self setRequestDidReceiveResponseHeadersSelector:NULL];
+	[self setRequestDidFailSelector:NULL];
+	[self setRequestDidFinishSelector:NULL];
+	[self setQueueDidFinishSelector:NULL];
+	[self setSuspended:YES];
 }
 
 
 - (void)go
 {
-	if (![self showAccurateProgress]) {
-		if ([self downloadProgressDelegate]) {
-			[self incrementDownloadSizeBy:[self requestsCount]];
-		}
-		if ([self uploadProgressDelegate]) {
-			[self incrementUploadSizeBy:[self requestsCount]];
-		}		
-	}
 	[self setSuspended:NO];
 }
 
 - (void)cancelAllOperations
 {
-	[self setRequestsCount:0];
 	[self setBytesUploadedSoFar:0];
 	[self setTotalBytesToUpload:0];
 	[self setBytesDownloadedSoFar:0];
@@ -92,36 +94,35 @@
 - (void)setUploadProgressDelegate:(id)newDelegate
 {
 	uploadProgressDelegate = newDelegate;
+	[self resetProgressDelegate:newDelegate];
 
-#if !TARGET_OS_IPHONE
-	// If the uploadProgressDelegate is an NSProgressIndicator, we set it's MaxValue to 1.0 so we can treat it similarly to UIProgressViews
-	SEL selector = @selector(setMaxValue:);
-	if ([[self uploadProgressDelegate] respondsToSelector:selector]) {
-		double max = 1.0;
-		NSMethodSignature *signature = [[[self uploadProgressDelegate] class] instanceMethodSignatureForSelector:selector];
-		NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:signature];
-		[invocation setSelector:selector];
-		[invocation setArgument:&max atIndex:2];
-		[invocation invokeWithTarget:[self uploadProgressDelegate]];
-	}
-#endif
 }
-
 
 - (void)setDownloadProgressDelegate:(id)newDelegate
 {
 	downloadProgressDelegate = newDelegate;
+	[self resetProgressDelegate:newDelegate];
+}
 
+- (void)resetProgressDelegate:(id)progressDelegate
+{
 #if !TARGET_OS_IPHONE
-	// If the downloadProgressDelegate is an NSProgressIndicator, we set it's MaxValue to 1.0 so we can treat it similarly to UIProgressViews
+	// If the uploadProgressDelegate is an NSProgressIndicator, we set its MaxValue to 1.0 so we can treat it similarly to UIProgressViews
 	SEL selector = @selector(setMaxValue:);
-	if ([[self downloadProgressDelegate] respondsToSelector:selector]) {
+	if ([progressDelegate respondsToSelector:selector]) {
 		double max = 1.0;
-		NSMethodSignature *signature = [[[self downloadProgressDelegate] class] instanceMethodSignatureForSelector:selector];
-		NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:signature];
-		[invocation setSelector:@selector(setMaxValue:)];
-		[invocation setArgument:&max atIndex:2];
-		[invocation invokeWithTarget:[self downloadProgressDelegate]];
+		[ASIHTTPRequest performSelector:selector onTarget:progressDelegate withObject:nil amount:&max mainThread:shouldPerformCallbacksOnMainThread];
+	}
+	selector = @selector(setDoubleValue:);
+	if ([progressDelegate respondsToSelector:selector]) {
+		double value = 0.0;
+		[ASIHTTPRequest performSelector:selector onTarget:progressDelegate withObject:nil amount:&value mainThread:shouldPerformCallbacksOnMainThread];
+	}
+#else
+	SEL selector = @selector(setProgress:);
+	if ([progressDelegate respondsToSelector:selector]) {
+		float value = 0.0f;
+		[ASIHTTPRequest performSelector:selector onTarget:progressDelegate withObject:nil amount:&value mainThread:shouldPerformCallbacksOnMainThread];
 	}
 #endif
 }
@@ -154,27 +155,39 @@
 	
 	if ([self showAccurateProgress]) {
 		
+		// Force the request to build its body (this may change requestMethod)
+		[request buildPostBody];
+		
 		// If this is a GET request and we want accurate progress, perform a HEAD request first to get the content-length
 		// We'll only do this before the queue is started
 		// If requests are added after the queue is started they will probably move the overall progress backwards anyway, so there's no value performing the HEAD requests first
-		// Instead, they'll update the total progress if and when they recieve a content-length header
-		if ([[request requestMethod] isEqualToString:@"GET"] && [self isSuspended]) {
-			ASIHTTPRequest *HEADRequest = [request HEADRequest];
-			[self addHEADOperation:HEADRequest];
-			
-			//Tell the request not to reset the progress indicator when it gets a content-length, as we will get the length from the HEAD request
-			[request setShouldResetProgressIndicators:NO];
-			
-			[request addDependency:HEADRequest];
-		
-		// If we want to track uploading for this request accurately, we need to add the size of the post content to the total
-		} else if (uploadProgressDelegate) {
-			[request buildPostBody];
-			[self setTotalBytesToUpload:[self totalBytesToUpload]+[request postLength]];
+		// Instead, they'll update the total progress if and when they receive a content-length header
+		if ([[request requestMethod] isEqualToString:@"GET"]) {
+			if ([self isSuspended]) {
+				ASIHTTPRequest *HEADRequest = [request HEADRequest];
+				[self addHEADOperation:HEADRequest];
+				[request addDependency:HEADRequest];
+				if ([request shouldResetDownloadProgress]) {
+					[self resetProgressDelegate:[request downloadProgressDelegate]];
+					[request setShouldResetDownloadProgress:NO];
+				}
+			}
 		}
-	}
-	[request setShowAccurateProgress:[self showAccurateProgress]];
+		[request buildPostBody];
+		[self request:nil incrementUploadSizeBy:[request postLength]];
 
+
+	} else {
+		[self request:nil incrementDownloadSizeBy:1];
+		[self request:nil incrementUploadSizeBy:1];
+	}
+	// Tell the request not to increment the upload size when it starts, as we've already added its length
+	if ([request shouldResetUploadProgress]) {
+		[self resetProgressDelegate:[request uploadProgressDelegate]];
+		[request setShouldResetUploadProgress:NO];
+	}
+	
+	[request setShowAccurateProgress:[self showAccurateProgress]];
 	
 	[request setQueue:self];
 	[super addOperation:request];
@@ -182,31 +195,22 @@
 
 }
 
-- (void)requestDidStart:(ASIHTTPRequest *)request
+- (void)requestStarted:(ASIHTTPRequest *)request
 {
 	if ([self requestDidStartSelector]) {
 		[[self delegate] performSelector:[self requestDidStartSelector] withObject:request];
 	}
 }
 
-- (void)requestDidFail:(ASIHTTPRequest *)request
+- (void)requestReceivedResponseHeaders:(ASIHTTPRequest *)request
 {
-	[self setRequestsCount:[self requestsCount]-1];
-	[self updateNetworkActivityIndicator];
-	if ([self requestDidFailSelector]) {
-		[[self delegate] performSelector:[self requestDidFailSelector] withObject:request];
-	}
-	if ([self shouldCancelAllRequestsOnFailure] && [self requestsCount] > 0) {
-		[self cancelAllOperations];
-	}
-	if ([self requestsCount] == 0) {
-		if ([self queueDidFinishSelector]) {
-			[[self delegate] performSelector:[self queueDidFinishSelector] withObject:self];
-		}
-	}
+	if ([self requestDidReceiveResponseHeadersSelector]) {
+		[[self delegate] performSelector:[self requestDidReceiveResponseHeadersSelector] withObject:request];
+	}	
 }
 
-- (void)requestDidFinish:(ASIHTTPRequest *)request
+
+- (void)requestFinished:(ASIHTTPRequest *)request
 {
 	[self setRequestsCount:[self requestsCount]-1];
 	[self updateNetworkActivityIndicator];
@@ -220,85 +224,49 @@
 	}
 }
 
-
-- (void)setUploadBufferSize:(unsigned long long)bytes
+- (void)requestFailed:(ASIHTTPRequest *)request
 {
-	if (![self uploadProgressDelegate]) {
-		return;
+	[self setRequestsCount:[self requestsCount]-1];
+	[self updateNetworkActivityIndicator];
+	if ([self requestDidFailSelector]) {
+		[[self delegate] performSelector:[self requestDidFailSelector] withObject:request];
 	}
-	[self setTotalBytesToUpload:[self totalBytesToUpload] - bytes];
-	[self incrementUploadProgressBy:0];
-}
-
-- (void)incrementUploadSizeBy:(unsigned long long)bytes
-{
-	if (![self uploadProgressDelegate]) {
-		return;
+	if ([self requestsCount] == 0) {
+		if ([self queueDidFinishSelector]) {
+			[[self delegate] performSelector:[self queueDidFinishSelector] withObject:self];
+		}
 	}
-	[self setTotalBytesToUpload:[self totalBytesToUpload] + bytes];
-	[self incrementUploadProgressBy:0];
-}
-
-- (void)decrementUploadProgressBy:(unsigned long long)bytes
-{
-	if (![self uploadProgressDelegate] || [self totalBytesToUpload] == 0) {
-		return;
+	if ([self shouldCancelAllRequestsOnFailure] && [self requestsCount] > 0) {
+		[self cancelAllOperations];
 	}
-	[self setBytesUploadedSoFar:[self bytesUploadedSoFar] - bytes];
 	
-	double progress;
-	//Workaround for an issue with converting a long to a double on iPhone OS 2.2.1 with a base SDK >= 3.0
-	if ([ASIHTTPRequest isiPhoneOS2]) {
-		progress = [[NSNumber numberWithUnsignedLongLong:[self bytesUploadedSoFar]] doubleValue]/[[NSNumber numberWithUnsignedLongLong:[self totalBytesToUpload]] doubleValue]; 
-	} else {
-		progress = ([self bytesUploadedSoFar]*1.0)/([self totalBytesToUpload]*1.0);
-	}
-	[ASIHTTPRequest setProgress:progress forProgressIndicator:[self uploadProgressDelegate] upload:YES];
 }
 
 
-- (void)incrementUploadProgressBy:(unsigned long long)bytes
+- (void)request:(ASIHTTPRequest *)request didReceiveBytes:(long long)bytes
 {
-	if (![self uploadProgressDelegate] || [self totalBytesToUpload] == 0) {
-		return;
+	[self setBytesDownloadedSoFar:[self bytesDownloadedSoFar]+bytes];
+	if ([self downloadProgressDelegate]) {
+		[ASIHTTPRequest updateProgressIndicator:[self downloadProgressDelegate] withProgress:[self bytesDownloadedSoFar] ofTotal:[self totalBytesToDownload] mainThread:shouldPerformCallbacksOnMainThread];
 	}
-	[self setBytesUploadedSoFar:[self bytesUploadedSoFar] + bytes];
-	
-	double progress;
-	//Workaround for an issue with converting a long to a double on iPhone OS 2.2.1 with a base SDK >= 3.0
-	if ([ASIHTTPRequest isiPhoneOS2]) {
-		progress = [[NSNumber numberWithUnsignedLongLong:[self bytesUploadedSoFar]] doubleValue]/[[NSNumber numberWithUnsignedLongLong:[self totalBytesToUpload]] doubleValue]; 
-	} else {
-		progress = ([self bytesUploadedSoFar]*1.0)/([self totalBytesToUpload]*1.0);
-	}
-	[ASIHTTPRequest setProgress:progress forProgressIndicator:[self uploadProgressDelegate] upload:YES];
-
 }
 
-- (void)incrementDownloadSizeBy:(unsigned long long)bytes
+- (void)request:(ASIHTTPRequest *)request didSendBytes:(long long)bytes
 {
-	if (![self downloadProgressDelegate]) {
-		return;
+	[self setBytesUploadedSoFar:[self bytesUploadedSoFar]+bytes];
+	if ([self uploadProgressDelegate]) {
+		[ASIHTTPRequest updateProgressIndicator:[self uploadProgressDelegate] withProgress:[self bytesUploadedSoFar] ofTotal:[self totalBytesToUpload] mainThread:shouldPerformCallbacksOnMainThread];
 	}
-	[self setTotalBytesToDownload:[self totalBytesToDownload] + bytes];
-	[self incrementDownloadProgressBy:0];
 }
 
-- (void)incrementDownloadProgressBy:(unsigned long long)bytes
+- (void)request:(ASIHTTPRequest *)request incrementDownloadSizeBy:(long long)newLength
 {
-	if (![self downloadProgressDelegate] || [self totalBytesToDownload] == 0) {
-		return;
-	}
-	[self setBytesDownloadedSoFar:[self bytesDownloadedSoFar] + bytes];
-	
-	double progress;
-	//Workaround for an issue with converting a long to a double on iPhone OS 2.2.1 with a base SDK >= 3.0
-	if ([ASIHTTPRequest isiPhoneOS2]) {
-		progress = [[NSNumber numberWithUnsignedLongLong:[self bytesDownloadedSoFar]] doubleValue]/[[NSNumber numberWithUnsignedLongLong:[self totalBytesToDownload]] doubleValue]; 
-	} else {
-		progress = ([self bytesDownloadedSoFar]*1.0)/([self totalBytesToDownload]*1.0);
-	}
-	[ASIHTTPRequest setProgress:progress forProgressIndicator:[self downloadProgressDelegate] upload:NO];
+	[self setTotalBytesToDownload:[self totalBytesToDownload]+newLength];
+}
+
+- (void)request:(ASIHTTPRequest *)request incrementUploadSizeBy:(long long)newLength
+{
+	[self setTotalBytesToUpload:[self totalBytesToUpload]+newLength];
 }
 
 
@@ -334,6 +302,24 @@
 	return [super respondsToSelector:selector];
 }
 
+#pragma mark NSCopying
+
+- (id)copyWithZone:(NSZone *)zone
+{
+	ASINetworkQueue *newQueue = [[[self class] alloc] init];
+	[newQueue setDelegate:[self delegate]];
+	[newQueue setRequestDidStartSelector:[self requestDidStartSelector]];
+	[newQueue setRequestDidFinishSelector:[self requestDidFinishSelector]];
+	[newQueue setRequestDidFailSelector:[self requestDidFailSelector]];
+	[newQueue setQueueDidFinishSelector:[self queueDidFinishSelector]];
+	[newQueue setUploadProgressDelegate:[self uploadProgressDelegate]];
+	[newQueue setDownloadProgressDelegate:[self downloadProgressDelegate]];
+	[newQueue setShouldCancelAllRequestsOnFailure:[self shouldCancelAllRequestsOnFailure]];
+	[newQueue setShowAccurateProgress:[self showAccurateProgress]];
+	[newQueue setUserInfo:[[[self userInfo] copyWithZone:zone] autorelease]];
+	return newQueue;
+}
+
 
 @synthesize requestsCount;
 @synthesize bytesUploadedSoFar;
@@ -341,14 +327,15 @@
 @synthesize bytesDownloadedSoFar;
 @synthesize totalBytesToDownload;
 @synthesize shouldCancelAllRequestsOnFailure;
+@synthesize shouldPerformCallbacksOnMainThread;
 @synthesize uploadProgressDelegate;
 @synthesize downloadProgressDelegate;
 @synthesize requestDidStartSelector;
+@synthesize requestDidReceiveResponseHeadersSelector;
 @synthesize requestDidFinishSelector;
 @synthesize requestDidFailSelector;
 @synthesize queueDidFinishSelector;
 @synthesize delegate;
 @synthesize showAccurateProgress;
 @synthesize userInfo;
-
 @end

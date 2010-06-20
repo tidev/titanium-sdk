@@ -27,8 +27,8 @@ win.add(b1);
 var c = null;
 b1.addEventListener('click', function()
 {
+	ind.value = 0;
 	c = Titanium.Network.createHTTPClient();
-	
 	c.setTimeout(10000);
 	c.onload = function()
 	{
@@ -51,7 +51,7 @@ b1.addEventListener('click', function()
 		ind.value = e.progress ;
 		Ti.API.info('ONDATASTREAM1 - PROGRESS: ' + e.progress);
 	};
-	c.error = function(e)
+	c.onerror = function(e)
 	{
 		Ti.UI.createAlertDialog({title:'XHR', message:'Error: ' + e.error}).show();
 	};
@@ -78,6 +78,7 @@ var b2 = Titanium.UI.createButton({
 });
 b2.addEventListener('click', function()
 {
+	ind.value = 0;
 	c = Titanium.Network.createHTTPClient();
 
 	c.onload = function()
@@ -126,4 +127,34 @@ abort.addEventListener('click', function()
 	
 	c = Titanium.Network.createHTTPClient();
 	ind.value = 0;
+});
+
+var largeFile = Titanium.UI.createButton({
+	title:'Large File Download',
+	height:40,
+	width:200,
+	top:220
+});
+win.add(largeFile);
+largeFile.addEventListener('click', function()
+{
+	ind.value = 0;
+	c = Titanium.Network.createHTTPClient();
+	c.setTimeout(10000);
+	c.onload = function(e)
+	{
+		Ti.API.info("ONLOAD = "+e);
+	};
+	c.ondatastream = function(e)
+	{
+		ind.value = e.progress ;
+		Ti.API.info('ONDATASTREAM1 - PROGRESS: ' + e.progress);
+	};
+	c.onerror = function(e)
+	{
+		Ti.UI.createAlertDialog({title:'XHR', message:'Error: ' + e.error}).show();
+	};
+	
+	c.open('GET','http://www.appcelerator.com/download-win32');
+	c.send();
 });

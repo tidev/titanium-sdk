@@ -36,6 +36,7 @@ DEFINE_EXCEPTIONS
 	RELEASE_TO_NIL(container);
 	RELEASE_TO_NIL(previous);
 	RELEASE_TO_NIL(urlRequest);
+	RELEASE_TO_NIL(imageView);
 	[super dealloc];
 }
 
@@ -282,53 +283,34 @@ DEFINE_EXCEPTIONS
 	}
 }
 
+
+-(UIImageView *)imageView
+{
+	if (imageView==nil)
+	{
+		imageView = [[UIImageView alloc] initWithFrame:[self bounds]];
+		[imageView setAutoresizingMask:UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight];
+		[imageView setContentMode:UIViewContentModeCenter];
+		[self addSubview:imageView];
+	}
+	return imageView;
+}
+
 -(void)setURLImageOnUIThread:(UIImage*)image
 {
-	// don't stomp on the animations
+	UIImageView *iv = [self imageView];
+	iv.image = image;
 	if (placeholderLoading)
 	{
-		UIImageView *iv = [[UIImageView alloc] initWithImage:image];
-		iv.autoresizingMask = UIViewAutoresizingNone;
-		iv.contentMode = UIViewContentModeCenter;
-		iv.alpha = 0;
-		
-		autoWidth = image.size.width;
-		autoHeight = image.size.height;
-
-		[self addSubview:iv];
-		[TiUtils setView:iv positionRect:[self bounds]];
-		[self sendSubviewToBack:iv];
-		[iv release];
-		[(TiViewProxy *)[self proxy] setNeedsReposition];
-
-		// do a nice fade in animation to replace the new incoming image
-		// with our placeholder
-		[UIView beginAnimations:nil context:nil];
-		[UIView setAnimationDuration:0.5];
-		[UIView setAnimationDelegate:self];
-		[UIView setAnimationDidStopSelector:@selector(animationCompleted:finished:context:)];
-		
-		for (UIView *view in [self subviews])
-		{
-			if (view!=iv)
-			{	
-				[view setAlpha:0];
-			}
-		}
-		
-		iv.alpha = 1;
-		
-		[UIView commitAnimations];
+		placeholderLoading = NO;
+		[self fireLoadEventWithState:@"url"];
 	}
-	
-	placeholderLoading = NO;
 }
 
 -(void)loadURLImageInBackground:(NSURL*)url
 {
 	UIImage *image = [[ImageLoader sharedLoader] loadRemote:url];
 	image = [self scaleImageIfRequired:image];
-	[self fireLoadEventWithState:@"url"];
 	[self performSelectorOnMainThread:@selector(setURLImageOnUIThread:) withObject:image waitUntilDone:NO modes:[NSArray arrayWithObject:NSRunLoopCommonModes]];
 }
 
@@ -353,16 +335,6 @@ DEFINE_EXCEPTIONS
 	}
 }
 
--(UIImageView *)newImageView
-{
-	UIImageView * imageView = [[UIImageView alloc] initWithFrame:[self bounds]];
-	[imageView setAutoresizingMask:UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight];
-	[imageView setContentMode:UIViewContentModeCenter];
-	[self addSubview:imageView];
-	[imageView autorelease];
-	return imageView;
-}
-
 -(void)removeAllImagesFromContainer
 {
 	// remove any existing images
@@ -373,9 +345,13 @@ DEFINE_EXCEPTIONS
 			[view removeFromSuperview];
 		}
 	}
+	if (imageView!=nil)
+	{
+		imageView.image = nil;
+	}
 }
 
--(void)loadUrl:(id)img
+-(void)cancelPendingImageLoads
 {
 	// cancel a pending request if we have one pending
 	if (urlRequest!=nil)
@@ -383,6 +359,12 @@ DEFINE_EXCEPTIONS
 		[urlRequest cancel];
 		RELEASE_TO_NIL(urlRequest);
 	}
+	placeholderLoading = NO;
+}
+
+-(void)loadUrl:(id)img
+{
+	[self cancelPendingImageLoads];
 	
 	if (img!=nil)
 	{
@@ -407,7 +389,7 @@ DEFINE_EXCEPTIONS
 			if (defURL!=nil)
 			{
 				UIImage *poster = [[ImageLoader sharedLoader] loadImmediateImage:defURL withSize:imageSize];
-				[self setImage_:poster];
+				[self imageView].image = poster;
 			}
 			placeholderLoading = YES;
 			urlRequest = [[[ImageLoader sharedLoader] loadImage:url_ delegate:self userInfo:nil] retain];
@@ -415,7 +397,7 @@ DEFINE_EXCEPTIONS
 		}
 		if (image!=nil)
 		{
-			[self setImage_:image];
+			[self imageView].image = image;
 			[self fireLoadEventWithState:@"url"];
 		}
 		else 
@@ -549,26 +531,39 @@ DEFINE_EXCEPTIONS
 -(void)setWidth_:(id)width_
 {
 	width = [TiUtils floatValue:width_];
-	id image = [[self proxy] valueForUndefinedKey:@"image"];
-	if (image != nil) {
-		[self setImage_:[self scaleImageIfRequired:[self convertToUIImage:image]]];
+	if (imageView!=nil)
+	{
+		id image = [[self proxy] valueForUndefinedKey:@"image"];
+		if (image != nil) {
+			[self setImage_:[self scaleImageIfRequired:[self convertToUIImage:image]]];
+		}
 	}
 }
 
 -(void)setHeight_:(id)height_
 {
 	height = [TiUtils floatValue:height_];
-	id image = [[self proxy] valueForUndefinedKey:@"image"];
-	if (image != nil) {
-		[self setImage_:[self scaleImageIfRequired:[self convertToUIImage:image]]];
+	if (imageView!=nil)
+	{
+		id image = [[self proxy] valueForUndefinedKey:@"image"];
+		if (image != nil) {
+			[self setImage_:[self scaleImageIfRequired:[self convertToUIImage:image]]];
+		}
 	}
 }
 
 -(void)setImage_:(id)arg
 {
-	[self removeAllImagesFromContainer];
+	id currentImage = [self.proxy valueForUndefinedKey:@"image"];
 	
-	if (arg==nil)
+	UIImageView *imageview = [self imageView];
+	
+	[self removeAllImagesFromContainer];
+	[self cancelPendingImageLoads];
+	
+	[self.proxy replaceValue:arg forKey:@"image" notification:NO];
+	
+	if (arg==nil || arg==imageview.image)
 	{
 		return;
 	}
@@ -576,16 +571,18 @@ DEFINE_EXCEPTIONS
 	BOOL replaceProperty = YES;
 	UIImage *image = nil;
 	
-	if ([arg isKindOfClass:[UIImage class]]) {
+	if ([arg isKindOfClass:[UIImage class]]) 
+	{
 		// called within this class
 		image = (UIImage*)arg;
-		replaceProperty = NO;
 	}
-	else {
+	else 
+	{
 		image = [self convertToUIImage:arg];
 	}
 	
-	if (image == nil) {
+	if (image == nil) 
+	{
 		if ([arg isKindOfClass:[NSString class]])
 		{
 			[self loadUrl:arg];
@@ -600,12 +597,12 @@ DEFINE_EXCEPTIONS
 
 	autoHeight = image.size.height;
 	autoWidth = image.size.width;
-	UIImageView *imageview = [self newImageView];
+	
 	[imageview setImage:image];
-	[[self container] addSubview:imageview];
-	if (replaceProperty)
+	
+	if (currentImage!=image)
 	{
-		[self.proxy replaceValue:arg forKey:@"image" notification:NO];
+		[self fireLoadEventWithState:@"url"];
 	}
 }
 
@@ -614,6 +611,11 @@ DEFINE_EXCEPTIONS
 	BOOL running = (timer!=nil);
 	
 	[self stop];
+	
+	if (imageView!=nil)
+	{
+		imageView.image = nil;
+	}
 	
 	// remove any existing images
 	[self removeAllImagesFromContainer];
@@ -668,14 +670,6 @@ DEFINE_EXCEPTIONS
 	reverse = [TiUtils boolValue:value];
 }
 
--(void)setReload__:(id)value
-{
-	// this is internally called when we cancelled this image load to force
-	// the url to be reloaded - otherwise the tableview cell will think we 
-	// have the same url and not call us to re-render
-	[self loadUrl:[self.proxy valueForKey:@"url"]];
-}
-
 
 #pragma mark ImageLoader delegates
 
@@ -692,7 +686,6 @@ DEFINE_EXCEPTIONS
 		{
 			image = [self scaleImageIfRequired:image];
 		}
-		[self fireLoadEventWithState:@"url"];
 		[self performSelectorOnMainThread:@selector(setURLImageOnUIThread:) withObject:image waitUntilDone:NO modes:[NSArray arrayWithObject:NSRunLoopCommonModes]];
 		RELEASE_TO_NIL(urlRequest);
 	}
@@ -709,10 +702,6 @@ DEFINE_EXCEPTIONS
 
 -(void)imageLoadCancelled:(ImageLoaderRequest *)request
 {
-	// we place a value in the proxy to cause us to force a reload - since on a cancel
-	// the url will be the same and the table view won't call us unless the proxy value
-	// is different
-	[self.proxy replaceValue:NUMLONG([NSDate timeIntervalSinceReferenceDate]) forKey:@"reload_" notification:NO];	
 }
 
 

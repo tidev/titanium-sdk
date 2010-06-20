@@ -10,14 +10,17 @@ var l1 = Titanium.UI.createLabel({
 });
 win.add(l1);
 
-var l2 = Titanium.UI.createLabel({
-	text:'Waiting for response...',
+var l2 = Titanium.UI.createTextArea({
+	value:'Waiting for response...',
 	font:{fontSize:13},
 	top:40,
 	left:10,
 	width:300,
-	height:'auto',
-	color:'#888'
+	height:70,
+	color:'#888',
+	borderWidth:2,
+	borderColor:'#bbb',
+	borderRadius:5
 });
 win.add(l2);
 
@@ -31,15 +34,19 @@ var l3 = Titanium.UI.createLabel({
 });
 win.add(l3);
 
-var l4 = Titanium.UI.createLabel({
-	text:'Waiting for response...',
+var l4 = Titanium.UI.createTextArea({
+	value:'Waiting for response...',
 	font:{fontSize:13},
 	top:150,
 	left:10,
 	width:300,
-	height:'auto',
-	color:'#888'
+	height:70,
+	color:'#888',
+	borderWidth:2,
+	borderColor:'#bbb',
+	borderRadius:5
 });
+
 win.add(l4);
 
 var l5 = Titanium.UI.createLabel({
@@ -52,14 +59,17 @@ var l5 = Titanium.UI.createLabel({
 });
 win.add(l5);
 
-var l6 = Titanium.UI.createLabel({
-	text:'Waiting for response...',
+var l6 = Titanium.UI.createTextArea({
+	value:'Waiting for response...',
 	font:{fontSize:13},
 	top:260,
 	left:10,
 	width:300,
-	height:'auto',
-	color:'#888'
+	height:70,
+	color:'#888',
+	borderWidth:2,
+	borderColor:'#bbb',
+	borderRadius:5
 });
 win.add(l6);
 //
@@ -69,7 +79,7 @@ var xhr = Titanium.Network.createHTTPClient();
 xhr.onload = function()
 {
 	Ti.API.info('in utf-8 onload for GET');
-	l2.text = this.responseText;
+	l2.value = this.responseText;
 };
 xhr.onerror = function()
 {
@@ -85,7 +95,7 @@ var xhr2 = Titanium.Network.createHTTPClient();
 xhr2.onload = function()
 {
 	Ti.API.info('in utf-8 onload for POST');
-	l4.text = this.responseText;
+	l4.value = this.responseText;
 };
 xhr2.onerror = function()
 {
@@ -101,7 +111,7 @@ var xhr3 = Titanium.Network.createHTTPClient();
 xhr3.onload = function()
 {
 	Ti.API.info('in utf-8 onload for GET with QS');
-	l6.text = this.responseText;
+	l6.value = this.responseText;
 };
 xhr3.onerror = function(e)
 {

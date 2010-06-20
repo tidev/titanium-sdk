@@ -736,7 +736,10 @@ if (![TiUtils isiPhoneOS3_2OrGreater]) {\
 	}
 	
 	// For the purposes of cleanup, we're still playing, so don't toggle that.
-	[[self player] pause];
+	if ([[self player] respondsToSelector:@selector(pause)])
+	{
+		[[self player] performSelector:@selector(pause)];
+	}
 }
 
 -(void)release:(id)args

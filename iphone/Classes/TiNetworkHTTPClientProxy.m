@@ -6,7 +6,7 @@
  */
 #ifdef USE_TI_NETWORK
 
-
+#import "TiBase.h"
 #import "TiNetworkHTTPClientProxy.h"
 #import "TiNetworkHTTPClientResultProxy.h"
 #import "TiUtils.h"
@@ -301,8 +301,14 @@ extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 	[request setDefaultResponseEncoding:NSUTF8StringEncoding];
 	// don't cache credentials, session etc since each request might be to
 	// different URI and cause security compromises if we do 
-	[request setUseSessionPersistance:NO];
-	[request setUseKeychainPersistance:NO];
+	[request setUseSessionPersistence:NO];
+	[request setUseKeychainPersistence:NO];
+	[request setUseCookiePersistence:YES];
+	[request setShowAccurateProgress:YES];
+	[request setShouldUseRFC2616RedirectBehaviour:YES];
+	[request setShouldAttemptPersistentConnection:YES];
+	[request setShouldRedirect:YES];
+	[request setShouldPerformCallbacksOnMainThread:NO];
 	[self _fireReadyStateChange:NetworkClientStateOpened];
 	[self _fireReadyStateChange:NetworkClientStateHeaders];
 }
@@ -406,7 +412,7 @@ extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 	
 	if (async)
 	{
-		[request startAsynchronous];
+		[NSThread detachNewThreadSelector:@selector(startAsynchronous) toTarget:request withObject:nil];
 	}
 	else
 	{
@@ -459,37 +465,47 @@ extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 	}
 }
 
--(void)setProgress:(float)value upload:(BOOL)upload
+// Called when the request receives some data - bytes is the length of that data
+- (void)request:(ASIHTTPRequest *)request didReceiveBytes:(long long)bytes
 {
-	if (upload)
+	downloadProgress += bytes;
+	if (ondatastream)
 	{
-		if (uploadProgress==value)
-		{
-			return;
-		}
-		uploadProgress = value;
-	}
-	else
-	{
-		if (downloadProgress==value)
-		{
-			return;
-		}
-		downloadProgress = value;
-	}	
-	
-	TiNetworkHTTPClientResultProxy *thisPointer = [[[TiNetworkHTTPClientResultProxy alloc] initWithDelegate:self] autorelease];
-	
-	NSDictionary *event = [NSDictionary dictionaryWithObject:[NSNumber numberWithFloat:value] forKey:@"progress"];
-	
-	if (upload)
-	{
-		[self _fireEventToListener:@"sendstream" withObject:event listener:onsendstream thisObject:thisPointer];
-	}
-	else
-	{
+		CGFloat progress = (CGFloat)((CGFloat)downloadProgress/(CGFloat)downloadLength);
+		TiNetworkHTTPClientResultProxy *thisPointer = [[TiNetworkHTTPClientResultProxy alloc] initWithDelegate:self];
+		NSDictionary *event = [NSDictionary dictionaryWithObject:[NSNumber numberWithFloat:progress] forKey:@"progress"];
 		[self _fireEventToListener:@"datastream" withObject:event listener:ondatastream thisObject:thisPointer];
+		[thisPointer release];
 	}
+}
+
+// Called when the request sends some data
+// The first 32KB (128KB on older platforms) of data sent is not included in this amount because of limitations with the CFNetwork API
+// bytes may be less than zero if a request needs to remove upload progress (probably because the request needs to run again)
+- (void)request:(ASIHTTPRequest *)request didSendBytes:(long long)bytes
+{
+	uploadProgress += bytes;
+	if (onsendstream)
+	{
+		CGFloat progress = (CGFloat)((CGFloat)uploadProgress/(CGFloat)uploadLength);
+		TiNetworkHTTPClientResultProxy *thisPointer = [[TiNetworkHTTPClientResultProxy alloc] initWithDelegate:self];
+		NSDictionary *event = [NSDictionary dictionaryWithObject:[NSNumber numberWithFloat:progress] forKey:@"progress"];
+		[self _fireEventToListener:@"sendstream" withObject:event listener:onsendstream thisObject:thisPointer];
+		[thisPointer release];
+	}
+}
+
+// Called when a request needs to change the length of the content to download
+- (void)request:(ASIHTTPRequest *)request incrementDownloadSizeBy:(long long)newLength
+{
+	downloadLength = newLength;
+}
+
+// Called when a request needs to change the length of the content to upload
+// newLength may be less than zero when a request needs to remove the size of the internal buffer from progress tracking
+- (void)request:(ASIHTTPRequest *)request incrementUploadSizeBy:(long long)newLength
+{
+	uploadLength = newLength;
 }
 
 @end
