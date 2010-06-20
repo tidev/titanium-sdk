@@ -57,6 +57,7 @@
 
 -(void)loadView
 {
+	[[NSNotificationCenter defaultCenter] removeObserver:titaniumRoot name:UIDeviceOrientationDidChangeNotification object:nil];
 	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didOrientNotify:) name:UIDeviceOrientationDidChangeNotification object:nil];
 	[super loadView];
 }

@@ -181,7 +181,6 @@ void MyUncaughtExceptionHandler(NSException *exception)
 	networkActivityCount = 0;
 	
 	// attach our main view controller
-	controller = [[TiRootViewController alloc] init];
 	[self attachSplash];
 	[window addSubview:controller.view];
 
