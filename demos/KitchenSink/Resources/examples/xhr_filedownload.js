@@ -53,7 +53,7 @@ b1.addEventListener('click', function()
 	};
 	c.onerror = function(e)
 	{
-		Ti.UI.createAlertDialog({title:'XHR', message:'Error: ' + e.error}).show();
+		Ti.API.info('XHR Error ' + e.error)
 	};
 	
 	// open the client
@@ -122,9 +122,7 @@ win.add(abort);
 abort.addEventListener('click', function()
 {
 	c.abort();
-	
-	alert("request aborted");
-	
+		
 	c = Titanium.Network.createHTTPClient();
 	ind.value = 0;
 });

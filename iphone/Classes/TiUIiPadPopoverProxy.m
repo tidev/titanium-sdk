@@ -95,42 +95,6 @@
 	return viewController;
 }
 
--(void)setPopoverController:(UIPopoverController *)newController
-{
-	// this is only called when we are embedding the popup controller from a
-	// split view event where the split view created one for us we can use
-	if (popoverController == newController)
-	{
-		return;
-	}
-	[popoverController setDelegate:nil];
-	RELEASE_TO_NIL(popoverController);
-	popoverController = [newController retain];
-	RELEASE_TO_NIL(navigationController);
-	UIViewController * contentController = [popoverController contentViewController];
-
-	if ([contentController isKindOfClass:[UINavigationController class]])
-	{
-		navigationController = [contentController retain];
-		NSArray * viewControllersArray = [(UINavigationController *)contentController viewControllers];
-		if ([viewControllersArray count]>0)
-		{
-			[self setViewController:[viewControllersArray objectAtIndex:0]];
-		}
-		else
-		{
-			[self setViewController:nil];
-		}
-	}
-	else
-	{
-		[self setViewController:(TiViewController *)contentController];
-		[popoverController setContentViewController:[self navigationController]];
-	}
-	[popoverController setDelegate:self];
-	[self refreshTitleBarWithObject:nil];
-}
-
 -(UIPopoverController *)popoverController
 {
 	if (popoverController == nil)

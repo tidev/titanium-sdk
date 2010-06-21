@@ -70,7 +70,7 @@ for (c=0; c<10; c++)
 	// Kosso:
 	// using remote image array
 	var i = Ti.UI.createImageView({
-		url: images[c],
+		image: images[c],
 		top: 5,
 		left: 5,
 		width:60,

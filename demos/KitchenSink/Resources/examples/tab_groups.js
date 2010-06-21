@@ -116,7 +116,7 @@ setActiveTabObjectButton.addEventListener('click', function(e)
 });
 
 //
-// CUSTOMIZATION SWITCH
+// CUSTOMIZATION SWITCH - this allows or disables the ability for users to re-order tabs
 //
 var customizationButton = Titanium.UI.createButton({
 	title:'Switch customization off',

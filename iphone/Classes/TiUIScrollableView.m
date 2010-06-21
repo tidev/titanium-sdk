@@ -131,6 +131,16 @@
 	[self renderViewForIndex:currentPage+(forward?2:-2)];
 }
 
+-(void)listenerAdded:(NSString*)event count:(int)count
+{
+	[super listenerAdded:event count:count];
+	for (TiViewProxy* viewProxy in views) {
+		if ([viewProxy viewAttached]) {
+			[[viewProxy view] updateTouchHandling];
+		}
+	}
+}
+
 -(void)refreshScrollView:(CGRect)visibleBounds readd:(BOOL)readd
 {
 	CGRect viewBounds;

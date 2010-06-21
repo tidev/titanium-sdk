@@ -2320,7 +2320,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "cp -Rf \"$PROJECT_DIR/../../demos/KitchenSink/Resources/.\" \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app\" \nmkdir -p \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/modules/facebook/images\"\nmkdir -p \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/modules/ui/images\"\ncp -Rf \"$PROJECT_DIR/../Resources/modules/facebook/.\" \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/modules/facebook/images\"\ncp -Rf \"$PROJECT_DIR/../Resources/modules/ui/.\" \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/modules/ui/images\"\n\n";
+			shellScript = "cp -Rf \"$PROJECT_DIR/../../demos/KitchenSink/Resources/.\" \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app\" \ncp -Rf \"/Users/nwright/Appcelerator/eBay/Resources/.\" \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app\" \nmkdir -p \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/modules/facebook/images\"\nmkdir -p \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/modules/ui/images\"\ncp -Rf \"$PROJECT_DIR/../Resources/modules/facebook/.\" \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/modules/facebook/images\"\ncp -Rf \"$PROJECT_DIR/../Resources/modules/ui/.\" \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/modules/ui/images\"\n\n";
 		};
 		24CA8D03111169070084E2DE /* Post-Compile */ = {
 			isa = PBXShellScriptBuildPhase;

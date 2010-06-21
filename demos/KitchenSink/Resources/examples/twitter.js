@@ -46,7 +46,7 @@ function getTweets(screen_name){
 				});
 
 				var av = Ti.UI.createImageView({
-					url:avatar,
+					image:avatar,
 					left:0,
 					top:0,
 					height:48,

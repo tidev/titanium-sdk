@@ -31,7 +31,6 @@
 -(void)dealloc
 {
 	[[[TiApp app] controller] windowClosed:controller];
-	RELEASE_TO_NIL(popoverProxy);
 	RELEASE_TO_NIL(controller);
 	[super dealloc];
 }
@@ -101,25 +100,6 @@
 
 #pragma mark Delegate 
 
--(TiUIiPadPopoverProxy*)makePopoverProxy:(UIPopoverController*)pc
-{
-	// we can re-use a cached version
-	
-	if (pc == popover && popoverProxy!=nil)
-	{
-		return popoverProxy;
-	}
-	
-	RELEASE_TO_NIL(popoverProxy);
-	
-	popover = pc; // assign only
-	
-	popoverProxy = [[TiUIiPadPopoverProxy alloc] _initWithPageContext:[self.proxy pageContext]];
-	// we assign this as a special proxy property that the popover proxy can use
-	[popoverProxy replaceValue:pc forKey:@"popoverController" notification:NO];
-	return popoverProxy;
-}
-
 - (void)splitViewController:(UISplitViewController*)svc willHideViewController:(UIViewController *)aViewController withBarButtonItem:(UIBarButtonItem*)barButtonItem forPopoverController:(UIPopoverController*)pc
 {
 	if ([self.proxy _hasListeners:@"visible"])
@@ -130,7 +110,6 @@
 		[event setObject:button forKey:@"button"];
 		[button release];
 #endif		
-		[event setValue:[self makePopoverProxy:pc] forKey:@"popover"];
 		[self.proxy fireEvent:@"visible" withObject:event];
 	}
 }
@@ -149,7 +128,6 @@
 	if ([self.proxy _hasListeners:@"visible"])
 	{
 		NSMutableDictionary *event = [NSMutableDictionary dictionaryWithObject:@"popover" forKey:@"view"];
-		[event setValue:[self makePopoverProxy:pc] forKey:@"popover"];
 		[self.proxy fireEvent:@"visible" withObject:event];
 	}
 }

@@ -18,6 +18,7 @@ column2.addRow(Ti.UI.createPickerRow({title:'orange'}));
 // 2 columns as an array
 picker.add([column1,column2]);
 
+
 // turn on the selection indicator (off by default)
 picker.selectionIndicator = true;
 

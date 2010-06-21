@@ -30,7 +30,7 @@ xhr.onload = function()
 				});
 				row.add(label);
 				var img = Ti.UI.createImageView({
-					url:media,
+					image:media,
 					left:5,
 					height:60,
 					width:60

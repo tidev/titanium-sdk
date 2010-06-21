@@ -8,14 +8,14 @@
 #define STRING(x) _QUOTEME(x)
 
 NSString * const TI_APPLICATION_DEPLOYTYPE = @"production";
-NSString * const TI_APPLICATION_ID = @"com.nolanwright.kitchensinkipad";
+NSString * const TI_APPLICATION_ID = @"com.nolanwright.kitchensink";
 NSString * const TI_APPLICATION_PUBLISHER = @"nwright";
 NSString * const TI_APPLICATION_URL = @"appcelerator.com";
-NSString * const TI_APPLICATION_NAME = @"KitchenSink-iPad";
+NSString * const TI_APPLICATION_NAME = @"KitchenSink";
 NSString * const TI_APPLICATION_VERSION = @"1.0";
 NSString * const TI_APPLICATION_DESCRIPTION = @"No description provided";
-NSString * const TI_APPLICATION_COPYRIGHT = @"2010 by nwright";
-NSString * const TI_APPLICATION_GUID = @"1000da51-9909-4a9e-a82f-52de59746d37";
+NSString * const TI_APPLICATION_COPYRIGHT = @"2009 by nwright";
+NSString * const TI_APPLICATION_GUID = @"6fe33f33fd1f4e95a06d2d217170866d";
 BOOL const TI_APPLICATION_ANALYTICS = true;
 
 #ifdef TARGET_IPHONE_SIMULATOR
@@ -33,7 +33,7 @@ int main(int argc, char *argv[]) {
 	fprintf(stderr,"[INFO] Application started\n");
 #endif
 
-    int retVal = UIApplicationMain(argc, argv, nil, nil);
+	int retVal = UIApplicationMain(argc, argv, nil, @"TiApp");
     [pool release];
     return retVal;
 }

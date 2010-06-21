@@ -58,6 +58,7 @@
 -(void)loadView
 {
 	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didOrientNotify:) name:UIDeviceOrientationDidChangeNotification object:nil];
+	[[NSNotificationCenter defaultCenter] removeObserver:titaniumRoot name:UIDeviceOrientationDidChangeNotification object:nil];
 	[super loadView];
 }
 
@@ -122,9 +123,6 @@
 			transform = CGAffineTransformIdentity;
 			break;
 	}
-	
-	[[master navigationController] willAnimateRotationToInterfaceOrientation:newOrientation duration:duration];
-	[[detail navigationController] willAnimateRotationToInterfaceOrientation:newOrientation duration:duration];
 	
 	if (duration > 0.0)
 	{

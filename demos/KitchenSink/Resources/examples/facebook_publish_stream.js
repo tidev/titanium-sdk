@@ -90,7 +90,7 @@ b1.addEventListener('click', function()
 		}
 		else
 		{
-			Ti.UI.createAlertDialog({title:'Facebook', message:'Sorry. We encountered an error.'}).show();
+			Ti.UI.createAlertDialog({title:'Facebook', message:'Error: ' + r.error}).show();
 			
 		}
 	});

@@ -8,10 +8,12 @@ win.add(Ti.UI.createLabel({
 	text: "base64 encode " + data + " => " + encoded
 }));
 
+var encoded = Ti.Utils.base64decode(encoded.toString());
+
 win.add(Ti.UI.createLabel({
 	top: 75,
 	width: 'auto', height: 'auto',
-	text: "base64 decode " + encoded + " => " + data + ", should be true: " + (Ti.Utils.base64decode(encoded)==data)
+	text: "base64 decode " + encoded + " => " + data + ", decoded: " + encoded.toString()
 }));
 
 win.add(Ti.UI.createLabel({

@@ -66,3 +66,16 @@ SplitViewNav.open = function()
 	Ti.API.info('in open for split view nav')
 	SplitViewNav.splitView.open();	
 };
+
+SplitViewNav.splitView.addEventListener('visible', function(e) {
+	Ti.API.log('View: '+e.view);
+	if (e.view == 'detail') {
+		e.button.title = "Popover";
+		SplitViewNav.detailWindow.leftNavButton = e.button;
+		Ti.API.log('Set button');
+	}
+	else {
+		SplitViewNav.detailWindow.leftNavButton = null;
+		Ti.API.log('Removed button');
+	}
+});

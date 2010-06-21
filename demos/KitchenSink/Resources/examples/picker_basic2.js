@@ -12,6 +12,7 @@ var data = [
 
 picker.add(data);
 
+
 // turn on the selection indicator (off by default)
 picker.selectionIndicator = true;
 

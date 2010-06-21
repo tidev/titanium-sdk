@@ -180,9 +180,10 @@ void MyUncaughtExceptionHandler(NSException *exception)
 	networkActivity = [[NSLock alloc] init];
 	networkActivityCount = 0;
 	
-	// attach our main view controller
-	controller = [[TiRootViewController alloc] init];
-	[self attachSplash];
+	// attach our main view controller... IF we haven't already loaded the main window.
+	if (!loaded) {
+		[self attachSplash];
+	}
 	[window addSubview:controller.view];
 
     [window makeKeyAndVisible];
@@ -207,6 +208,7 @@ void MyUncaughtExceptionHandler(NSException *exception)
 	if (loadView!=nil && splashAttached)
 	{
 		splashAttached = NO;
+		loaded = YES;
 		[loadView removeFromSuperview];
 		RELEASE_TO_NIL(loadView);
 	}

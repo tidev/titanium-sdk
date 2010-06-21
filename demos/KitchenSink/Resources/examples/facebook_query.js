@@ -55,7 +55,7 @@ function runQuery()
 			});
 			
 			var imageView = Ti.UI.createImageView({
-				url:row.pic_square == null ? '../images/custom_tableview/user.png' : row.pic_square,
+				image:row.pic_square == null ? '../images/custom_tableview/user.png' : row.pic_square,
 				left:10,
 				width:50,
 				height:50
