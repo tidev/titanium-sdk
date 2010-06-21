@@ -1,0 +1,23 @@
+- namespace
+
+Titanium.UI.iOS
+
+- type
+
+module
+
+- returns
+
+object
+
+- description
+
+The Apple iOS specific UI capabilities.  All properties, methods and events in this namespace will only work on the Apple iOS related devices.
+
+- since
+
+1.4
+
+- platforms
+
+iphone, ipad

@@ -219,6 +219,12 @@
 		24CA8CF4111168AE0084E2DE /* MediaPlayer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 24CA8CF3111168AE0084E2DE /* MediaPlayer.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		24CA8CFB111168C30084E2DE /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 24CA8CFA111168C30084E2DE /* AVFoundation.framework */; };
 		24CA9183111170820084E2DE /* Default.png in Resources */ = {isa = PBXBuildFile; fileRef = 24CA9182111170820084E2DE /* Default.png */; };
+		24D06FE111D0211100F615D8 /* TiUIiOSAdViewProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24D06FE011D0211100F615D8 /* TiUIiOSAdViewProxy.m */; };
+		24D06FE211D0211200F615D8 /* TiUIiOSAdViewProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24D06FE011D0211100F615D8 /* TiUIiOSAdViewProxy.m */; };
+		24D06FE811D0219B00F615D8 /* TiUIiOSAdView.m in Sources */ = {isa = PBXBuildFile; fileRef = 24D06FE711D0219B00F615D8 /* TiUIiOSAdView.m */; };
+		24D06FE911D0219B00F615D8 /* TiUIiOSAdView.m in Sources */ = {isa = PBXBuildFile; fileRef = 24D06FE711D0219B00F615D8 /* TiUIiOSAdView.m */; };
+		24D0700611D0253D00F615D8 /* TiUIiOSProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24D0700511D0253D00F615D8 /* TiUIiOSProxy.m */; };
+		24D0700711D0253D00F615D8 /* TiUIiOSProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24D0700511D0253D00F615D8 /* TiUIiOSProxy.m */; };
 		24D8E3B7119B9D8A00F8CAA6 /* Default.png in Resources */ = {isa = PBXBuildFile; fileRef = 24CA9182111170820084E2DE /* Default.png */; };
 		24D8E3BB119B9D8A00F8CAA6 /* TiUITableViewAction.m in Sources */ = {isa = PBXBuildFile; fileRef = 243EC7D6112634AF00639DF4 /* TiUITableViewAction.m */; };
 		24D8E3BC119B9D8A00F8CAA6 /* TiFile.m in Sources */ = {isa = PBXBuildFile; fileRef = 24F5AEB3111F9DE9005C9199 /* TiFile.m */; };
@@ -934,6 +940,12 @@
 		24CA8CFA111168C30084E2DE /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
 		24CA916411116F870084E2DE /* Titanium.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Titanium.plist; sourceTree = "<group>"; };
 		24CA9182111170820084E2DE /* Default.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Default.png; path = ../Resources/Default.png; sourceTree = SOURCE_ROOT; };
+		24D06FDF11D0211100F615D8 /* TiUIiOSAdViewProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUIiOSAdViewProxy.h; sourceTree = "<group>"; };
+		24D06FE011D0211100F615D8 /* TiUIiOSAdViewProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIiOSAdViewProxy.m; sourceTree = "<group>"; };
+		24D06FE611D0219B00F615D8 /* TiUIiOSAdView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUIiOSAdView.h; sourceTree = "<group>"; };
+		24D06FE711D0219B00F615D8 /* TiUIiOSAdView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIiOSAdView.m; sourceTree = "<group>"; };
+		24D0700411D0253D00F615D8 /* TiUIiOSProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUIiOSProxy.h; sourceTree = "<group>"; };
+		24D0700511D0253D00F615D8 /* TiUIiOSProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIiOSProxy.m; sourceTree = "<group>"; };
 		24D8E4B1119B9D8A00F8CAA6 /* Titanium.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Titanium.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		24DD042A116A6C58006FD6E1 /* TiToolbar.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiToolbar.h; sourceTree = "<group>"; };
 		24DD042B116A6C58006FD6E1 /* TiToolbar.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiToolbar.m; sourceTree = "<group>"; };
@@ -1549,9 +1561,8 @@
 		24CA8C14111164040084E2DE /* UI */ = {
 			isa = PBXGroup;
 			children = (
+				24D06FDE11D020E600F615D8 /* iOS */,
 				24E50E031160661600AF54AF /* Dashboard */,
-				24CA8C5E1111655E0084E2DE /* iPhone */,
-				24FB4ECF115C8120001AAF99 /* iPad */,
 				B4F97B6C111A418700E2F72C /* Scroll View */,
 				B43663DA11138AB300782262 /* Scrollable View */,
 				24CA8A14111161FD0084E2DE /* UIModule.m */,
@@ -2017,6 +2028,29 @@
 				24CA8A75111161FD0084E2DE /* TiUILabel.h */,
 			);
 			name = Label;
+			sourceTree = "<group>";
+		};
+		24D06FDE11D020E600F615D8 /* iOS */ = {
+			isa = PBXGroup;
+			children = (
+				24D06FE311D0216100F615D8 /* iAd */,
+				24CA8C5E1111655E0084E2DE /* iPhone */,
+				24FB4ECF115C8120001AAF99 /* iPad */,
+				24D0700411D0253D00F615D8 /* TiUIiOSProxy.h */,
+				24D0700511D0253D00F615D8 /* TiUIiOSProxy.m */,
+			);
+			name = iOS;
+			sourceTree = "<group>";
+		};
+		24D06FE311D0216100F615D8 /* iAd */ = {
+			isa = PBXGroup;
+			children = (
+				24D06FDF11D0211100F615D8 /* TiUIiOSAdViewProxy.h */,
+				24D06FE011D0211100F615D8 /* TiUIiOSAdViewProxy.m */,
+				24D06FE611D0219B00F615D8 /* TiUIiOSAdView.h */,
+				24D06FE711D0219B00F615D8 /* TiUIiOSAdView.m */,
+			);
+			name = iAd;
 			sourceTree = "<group>";
 		};
 		24DDF65B11646D0F006FD6E1 /* Document View */ = {
@@ -2602,6 +2636,9 @@
 				DA285CE011BDC64100D20833 /* TiSplitViewController.m in Sources */,
 				DA4E12D711C0A55F00A55BAB /* TiContactsGroup.m in Sources */,
 				2478B2A611C447A4005814DF /* ApplicationMods.m in Sources */,
+				24D06FE111D0211100F615D8 /* TiUIiOSAdViewProxy.m in Sources */,
+				24D06FE811D0219B00F615D8 /* TiUIiOSAdView.m in Sources */,
+				24D0700611D0253D00F615D8 /* TiUIiOSProxy.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2839,6 +2876,9 @@
 				DA285CDF11BDC64100D20833 /* TiSplitViewController.m in Sources */,
 				DAA17BE411C15A0000957ED1 /* TiContactsGroup.m in Sources */,
 				2478B2A511C447A4005814DF /* ApplicationMods.m in Sources */,
+				24D06FE211D0211200F615D8 /* TiUIiOSAdViewProxy.m in Sources */,
+				24D06FE911D0219B00F615D8 /* TiUIiOSAdView.m in Sources */,
+				24D0700711D0253D00F615D8 /* TiUIiOSProxy.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
