@@ -22,7 +22,7 @@
 }
 
 //Because the Popover isn't meant to be placed in anywhere specific, 
-@property(nonatomic,readwrite,retain) UIPopoverController *popoverController;
+@property(nonatomic,readonly) UIPopoverController *popoverController;
 @property(nonatomic,readwrite,retain) TiViewController *viewController;
 
 @end

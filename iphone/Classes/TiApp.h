@@ -19,6 +19,7 @@
 	UIWindow *window;
 	UIImageView *loadView;
 	BOOL splashAttached;
+	BOOL loaded;
 	
 	KrollBridge *kjsBridge;
 
