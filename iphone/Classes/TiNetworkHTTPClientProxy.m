@@ -401,8 +401,8 @@ extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 	}
 	
 	connected = YES;
-	downloadProgress = -1;
-	uploadProgress = -1;
+	downloadProgress = 0;
+	uploadProgress = 0;
 	[[TiApp app] startNetwork];
 	[self _fireReadyStateChange:NetworkClientStateLoading];
 	[request setAllowCompressedResponse:YES];
@@ -498,14 +498,20 @@ extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 // Called when a request needs to change the length of the content to download
 - (void)request:(ASIHTTPRequest *)request incrementDownloadSizeBy:(long long)newLength
 {
-	downloadLength = newLength;
+	if (newLength>0)
+	{
+		downloadLength = newLength;
+	}
 }
 
 // Called when a request needs to change the length of the content to upload
 // newLength may be less than zero when a request needs to remove the size of the internal buffer from progress tracking
 - (void)request:(ASIHTTPRequest *)request incrementUploadSizeBy:(long long)newLength
 {
-	uploadLength = newLength;
+	if (newLength>0)
+	{
+		uploadLength = newLength;
+	}
 }
 
 @end
