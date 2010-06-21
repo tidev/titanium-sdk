@@ -1,30 +1,55 @@
 var win = Titanium.UI.currentWindow;
+var scrollView = Titanium.UI.createScrollView({
+	contentWidth:Ti.Platform.displayCaps.platformWidth,
+	contentHeight:'auto',
+	top:0,
+	showVerticalScrollIndicator:true,
+	showHorizontalScrollIndicator:true
+});
+win.add(scrollView);
 
 var data = "abcdefg";
 var encoded = Ti.Utils.base64encode(data);
-win.add(Ti.UI.createLabel({
+scrollView.add(Ti.UI.createLabel({
 	top: 5,
-	width: 'auto', height: 'auto',
+	textAlign:'left',
+	width: Ti.Platform.displayCaps.platformWidth, 
+	height: 'auto',
 	text: "base64 encode " + data + " => " + encoded
 }));
 
 var encoded = Ti.Utils.base64decode(encoded.toString());
 
-win.add(Ti.UI.createLabel({
+scrollView.add(Ti.UI.createLabel({
 	top: 75,
-	width: 'auto', height: 'auto',
+	textAlign:'left',
+	width: Ti.Platform.displayCaps.platformWidth, 
+	height: 'auto',
 	text: "base64 decode " + encoded + " => " + data + ", decoded: " + encoded.toString()
 }));
 
-win.add(Ti.UI.createLabel({
+scrollView.add(Ti.UI.createLabel({
 	top: 145,
-	width: 'auto', height: 'auto',
-	text: "md5 checksum " + data + " => " + Ti.Utils.md5HexDigest(data)
+	textAlign:'left',
+	width: Ti.Platform.displayCaps.platformWidth, 
+	height: 'auto',
+	text: "md5 checksum " + data + " => " + Ti.Utils.md5HexDigest(data)+", should be => 7ac66c0f148de9519b8bd264312c4d64"
 }));
 
 var s = " ♥Amanda22♥".toUpperCase();
-win.add(Ti.UI.createLabel({
-	top: 215,
-	width: 'auto', height: 'auto',
+scrollView.add(Ti.UI.createLabel({
+	top: 235,
+	textAlign:'left',
+	width: Ti.Platform.displayCaps.platformWidth, 
+	height: 'auto',
 	text: "toUpper test => " +s
+}));
+
+var sha1 = Ti.Utils.sha1("abc");
+scrollView.add(Ti.UI.createLabel({
+	top: 285,
+	textAlign:'left',
+	width: Ti.Platform.displayCaps.platformWidth, 
+	height: 'auto',
+	text: "sha1 test => " +sha1 +" should be => a9993e364706816aba3e25717850c26c9cd0d89d"
 }));

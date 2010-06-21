@@ -607,7 +607,7 @@ bool KrollSetProperty(TiContextRef jsContext, TiObjectRef object, TiStringRef pr
 		{
 			if ([key isEqualToString:@"toString"] || [key isEqualToString:@"valueOf"])
 			{
-				return [[[KrollMethod alloc] initWithTarget:target selector:@selector(description) argcount:0 type:KrollMethodInvoke name:nil context:[self context]] autorelease];
+				return [[[KrollMethod alloc] initWithTarget:target selector:@selector(toString:) argcount:0 type:KrollMethodInvoke name:nil context:[self context]] autorelease];
 			}
 			
 			SEL selector = NSSelectorFromString([NSString stringWithFormat:@"%@:",key]);

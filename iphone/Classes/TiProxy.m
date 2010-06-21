@@ -926,7 +926,7 @@ DEFINE_EXCEPTIONS
 
 #pragma mark Description for nice toString in JS
  
--(id)toString
+-(id)toString:(id)args
 {
 	if (krollDescription==nil) 
 	{ 

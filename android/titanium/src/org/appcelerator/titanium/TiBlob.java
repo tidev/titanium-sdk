@@ -216,6 +216,13 @@ public class TiBlob extends TiProxy
 
 	public String toString()
 	{
+		// blob should return the text value on toString 
+		// if it's not null
+		String text = getText();
+		if (text!=null)
+		{
+			return text;
+		}
 		return "[object TiBlob]";
 	}
 
