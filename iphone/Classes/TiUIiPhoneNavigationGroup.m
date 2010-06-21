@@ -55,6 +55,27 @@
 	[self controller];
 }
 
+-(void)close
+{
+	if (controller!=nil)
+	{
+		for (UIViewController *viewController in controller.viewControllers)
+		{
+			UIView *view = viewController.view;
+			if ([view isKindOfClass:[TiUIWindow class]])
+			{
+				TiWindowProxy *win =(TiWindowProxy*) ((TiUIWindow*)view).proxy;
+				[win retain];
+				[win close:nil];
+				[win autorelease];
+			}
+		}
+		controller.viewControllers = nil;
+		[controller resignFirstResponder];
+		RELEASE_TO_NIL(controller);
+	}
+}
+
 -(void)open:(TiWindowProxy*)window withObject:(NSDictionary*)properties
 {
 	BOOL animated = [TiUtils boolValue:@"animated" properties:properties def:YES];

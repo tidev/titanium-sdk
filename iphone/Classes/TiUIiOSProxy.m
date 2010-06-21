@@ -21,6 +21,7 @@
 
 @implementation TiUIiOSProxy
 
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0
 #ifdef USE_TI_UIIOSADVIEW
 
 -(id)createAdView:(id)args
@@ -29,7 +30,7 @@
 }
 
 #endif
-
+#endif
 
 @end
 
