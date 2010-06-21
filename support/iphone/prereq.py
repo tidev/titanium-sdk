@@ -20,22 +20,24 @@ def sdk_found(apiversion):
 def get_sdks():
 	found = []
 	ipad = False
-	output = run.run(["xcodebuild","-showsdks"],False,False)
+	output = run.run(["xcodebuild","-showsdks"],True,False)
 	#print output
-	for line in output.split("\n"):
-		if line[0:1] == '\t':
-			line = line.strip()
-			i = line.index('-sdk')
-			type = line[0:i]
-			cmd = line[i+5:]
-			if cmd.find("iphoneos")==0:
-				ver = cmd[8:]
-				major = int(ver[0])
-				if major>=3 and ver!='3.0':
-					found.append(ver)
-				# ipad is anything 3.2+
-				if major>3 or ver.startswith('3.2'):
-					ipad=True
+	if output:
+		for line in output.split("\n"):
+			if line[0:1] == '\t':
+				line = line.strip()
+				i = line.find('-sdk')
+				if i < 0: continue
+				type = line[0:i]
+				cmd = line[i+5:]
+				if cmd.find("iphoneos")==0:
+					ver = cmd[8:]
+					major = int(ver[0])
+					if major>=3 and ver!='3.0':
+						found.append(ver)
+					# ipad is anything 3.2+
+					if major>3 or ver.startswith('3.2'):
+						ipad=True
 	return (found,ipad)
 	
 def check_iphone3():
