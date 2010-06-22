@@ -593,7 +593,7 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 			// register it
 			[modules setObject:module forKey:path];
 		}
-		[module release];
+		[module autorelease];
 	}
 	
 	if (data==nil)
@@ -606,12 +606,12 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 			data = [NSData dataWithContentsOfURL:url_];
 		}
 	}
-	
+
 	// we found data, now create the common js module proxy
 	if (data!=nil)
 	{
 		module = [self loadCommonJSModule:[[[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding] autorelease] withPath:path];
-		if (filepath!=nil)
+		if (filepath!=nil && module!=nil)
 		{
 			// uri is optional but we point it to where we loaded it
 			[module replaceValue:[NSString stringWithFormat:@"app://%@",filepath] forKey:@"uri" notification:NO];

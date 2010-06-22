@@ -83,10 +83,9 @@ def main(args):
 			if platform == 'iphone' or platform == 'ipad' or platform == 'ios':
 				buildfile = os.path.join(project_dir,'build','lib%s.a' % moduleid)
 			
-			# build the module if its not already there
-			if not os.path.exists(buildfile):
-				script = os.path.join(project_dir,'build.py')
-				run([script])
+			# build the module
+			script = os.path.join(project_dir,'build.py')
+			run([script])
 			
 			module_dir = os.path.join(dir,name,'modules',platform)
 			os.makedirs(module_dir)
