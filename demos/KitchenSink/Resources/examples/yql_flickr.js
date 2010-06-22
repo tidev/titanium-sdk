@@ -40,13 +40,30 @@ Titanium.Yahoo.yql('select * from flickr.photos.search where text="Cat" limit 10
 			text:photo.title ? photo.title : "Untitled",
 			font:{fontWeight:'bold',fontSize:18}
 		});
-		var image = Ti.UI.createImageView({
-			image : url,
-			height:50,
-			width:50,
-			left:10,
-			defaultImage:'../modules/ui/images/photoDefault.png'
-		});
+		var image;
+		if (Titanium.Platform.name == 'android') 
+		{
+			// iphone moved to a single image property - android needs to do the same
+			image = Ti.UI.createImageView({
+				url : url,
+				height:50,
+				width:50,
+				left:10,
+				defaultImage:'../modules/ui/images/photoDefault.png'
+			});
+
+		}
+		else
+		{
+			image = Ti.UI.createImageView({
+				image : url,
+				height:50,
+				width:50,
+				left:10,
+				defaultImage:'../modules/ui/images/photoDefault.png'
+			});
+			
+		}
 		row.add(image);
 		row.add(title);
 		images[c] = row;

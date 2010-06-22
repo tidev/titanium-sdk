@@ -29,12 +29,28 @@ xhr.onload = function()
 					right:5				
 				});
 				row.add(label);
-				var img = Ti.UI.createImageView({
-					image:media,
-					left:5,
-					height:60,
-					width:60
-				});
+				var img;
+				if (Titanium.Platform.name == 'android') 
+				{
+					// iphone moved to a single image property - android needs to do the same
+					img = Ti.UI.createImageView({
+						url:media,
+						left:5,
+						height:60,
+						width:60
+					});
+
+				}
+				else
+				{
+					img = Ti.UI.createImageView({
+						image:media,
+						left:5,
+						height:60,
+						width:60
+					});
+					
+				}
 				row.add(img);
 				data[x++] = row;
 				row.url = item.getElementsByTagName("link").item(0).text;

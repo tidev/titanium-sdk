@@ -1,11 +1,25 @@
 var win = Titanium.UI.currentWindow;
 
-var imageView = Titanium.UI.createImageView({
-	image:'http://www.appcelerator.com/wp-content/uploads/2009/06/titanium_desk.png',
-	width:261,
-	height:178,
-	top:20
-});
+if (Titanium.Platform.name == 'android') {
+	// iphone moved to a single image property - android needs to do the same
+	var imageView = Titanium.UI.createImageView({
+		url:'http://www.appcelerator.com/wp-content/uploads/2009/06/titanium_desk.png',
+		width:261,
+		height:178,
+		top:20
+	});
+
+}
+else
+{
+	var imageView = Titanium.UI.createImageView({
+		image:'http://www.appcelerator.com/wp-content/uploads/2009/06/titanium_desk.png',
+		width:261,
+		height:178,
+		top:20
+	});
+	
+}
 
 imageView.addEventListener('load', function()
 {
