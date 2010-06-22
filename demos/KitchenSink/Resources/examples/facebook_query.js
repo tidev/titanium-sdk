@@ -53,13 +53,27 @@ function runQuery()
 				selectedBackgroundColor:'#fff',
 				backgroundColor:'#fff'
 			});
-			
-			var imageView = Ti.UI.createImageView({
-				image:row.pic_square == null ? '../images/custom_tableview/user.png' : row.pic_square,
-				left:10,
-				width:50,
-				height:50
-			});
+			var imageView;
+			if (Titanium.Platform.name == 'android') 
+			{
+				// iphone moved to a single image property - android needs to do the same
+				imageView = Ti.UI.createImageView({
+					url:row.pic_square == null ? '../images/custom_tableview/user.png' : row.pic_square,
+					left:10,
+					width:50,
+					height:50
+				});
+			}
+			else
+			{
+				imageView = Ti.UI.createImageView({
+					image:row.pic_square == null ? '../images/custom_tableview/user.png' : row.pic_square,
+					left:10,
+					width:50,
+					height:50
+				});
+				
+			}
 			tvRow.add(imageView);
 			
 			var userLabel = Ti.UI.createLabel({
@@ -77,7 +91,7 @@ function runQuery()
 				font:{fontSize:13},
 				left:70,
 				top:25,
-				width:280,
+				right:20,
 				height:'auto',
 				color:'#222',
 				text:(!row.status || !row.status.message ? 'No status message' : row.status.message)
