@@ -531,25 +531,11 @@ DEFINE_EXCEPTIONS
 -(void)setWidth_:(id)width_
 {
 	width = [TiUtils floatValue:width_];
-	if (imageView!=nil)
-	{
-		id image = [[self proxy] valueForUndefinedKey:@"image"];
-		if (image != nil) {
-			[self setImage_:[self scaleImageIfRequired:[self convertToUIImage:image]]];
-		}
-	}
 }
 
 -(void)setHeight_:(id)height_
 {
 	height = [TiUtils floatValue:height_];
-	if (imageView!=nil)
-	{
-		id image = [[self proxy] valueForUndefinedKey:@"image"];
-		if (image != nil) {
-			[self setImage_:[self scaleImageIfRequired:[self convertToUIImage:image]]];
-		}
-	}
 }
 
 -(void)setImage_:(id)arg

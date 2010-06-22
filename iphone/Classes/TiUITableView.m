@@ -1047,15 +1047,6 @@
 	}
 }
 
-/*
--(void)setData_:(NSArray *)newData
-{
-	NSDictionary * properties = [NSDictionary dictionaryWithObject:NUMINT(UITableViewRowAnimationNone) forKey:@"animationStyle"];
-	TiUITableViewAction *action = [[[TiUITableViewAction alloc] initWithRow:nil animation:properties section:0 type:TiUITableViewActionSetData] autorelease];
-	[self dispatchAction:action];
-}
-*/
-
 -(void)setSearchHidden_:(id)hide
 {
 	searchHiddenSet = YES;

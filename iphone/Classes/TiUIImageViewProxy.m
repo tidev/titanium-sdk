@@ -16,7 +16,18 @@
 
 @implementation TiUIImageViewProxy
 
+static NSArray* imageKeySequence;
+
 #pragma mark Internal
+
+-(NSArray *)keySequence
+{
+	if (imageKeySequence == nil)
+	{
+		imageKeySequence = [[NSArray arrayWithObjects:@"width",@"height",nil] retain];
+	}
+	return imageKeySequence;
+}
 
 -(void)_configure
 {
