@@ -34,6 +34,14 @@ table.addEventListener('click',function(e)
 	var w = Ti.UI.createWindow({
 		title:e.rowData.title
 	});
+	w.addEventListener('focus',function()
+	{
+		Ti.API.info("nav group window -- focus event");
+	});
+	w.addEventListener('blur',function()
+	{
+		Ti.API.info("nav group window -- blur event");
+	});
 	var b = Ti.UI.createButton({
 		title:"Close Nav",
 		width:120,
