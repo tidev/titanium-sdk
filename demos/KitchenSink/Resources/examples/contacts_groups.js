@@ -9,6 +9,16 @@ var infoLabel = Ti.UI.createLabel({
 });
 
 var groups = Titanium.Contacts.getAllGroups();
+
+// Create a test group IF we need it
+if (groups.length == 0) {
+	var testGroup = Titanium.Contacts.createGroup();
+	testGroup.name = '__KSTESTGROUP';
+	Titanium.Contacts.save();
+	
+	groups = Titanium.Contacts.getAllGroups();
+}
+
 var selectedGroup = groups[0];
 var data = [];
 var people = [];
@@ -84,6 +94,8 @@ win.add(removePerson);
 // Nasty thing to get around picker bug where we can't select before
 // drawing, and then also have to change the value to fire an event.
 win.addEventListener('open', function() {
-	groupPicker.setSelectedRow(0,1,false);
-	groupPicker.setSelectedRow(0,0,false);
+	if (data.length > 1) {
+		groupPicker.setSelectedRow(0,1,false);
+		groupPicker.setSelectedRow(0,0,false);
+	}
 });
