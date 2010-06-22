@@ -91,7 +91,7 @@ function runQuery()
 				font:{fontSize:13},
 				left:70,
 				top:25,
-				width:280,
+				right:20,
 				height:'auto',
 				color:'#222',
 				text:(!row.status || !row.status.message ? 'No status message' : row.status.message)
