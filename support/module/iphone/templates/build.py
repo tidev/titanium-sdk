@@ -14,6 +14,7 @@ module_defaults = {
 	'license' : 'Specify your license',
 	'copyright' : 'Copyright (c) 2010 by Your Company',
 }
+module_license_default = "TODO: place your license here and we'll include it in the module distribution"
 
 def replace_vars(config,token):
 	idx = token.find('$(')
@@ -89,7 +90,12 @@ def die(msg):
 
 def warn(msg):
 	print "[WARN] %s" % msg	
-	
+
+def validate_license():
+	c = open('LICENSE').read()
+	if c.find(module_license_default)!=1:
+		warn('please update the LICENSE file with your license text before distributing')
+			
 def validate_manifest():
 	path = os.path.join(cwd,'manifest')
 	f = open(path)
@@ -171,6 +177,7 @@ def package_module(manifest,mf,config):
 
 if __name__ == '__main__':
 	manifest,mf = validate_manifest()
+	validate_license()
 	config = read_ti_xcconfig()
 	compile_js(manifest,config)
 	build_module(manifest,config)

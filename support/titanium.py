@@ -19,7 +19,6 @@ def fork(args,quiet=False):
 		if line and not quiet:
 			print line.strip()
 			sys.stdout.flush()
-#	print proc.exitCode		
 
 def is_module_project(dir):
 	if os.path.exists(os.path.join(dir,'manifest')) and os.path.exists(os.path.join(dir,'titanium.xcconfig')):
