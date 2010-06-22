@@ -27,6 +27,7 @@ typedef enum
 	TiUITableView *table;
 	TiUITableViewSectionProxy *section;
 	TiDimension height;
+	CGFloat rowHeight;
 	
 	UIView * rowContainerView;
 	BOOL modifyingRow;

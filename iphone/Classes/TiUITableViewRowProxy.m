@@ -28,7 +28,6 @@ NSString * const defaultRowTableClass = @"_default_";
 
 #define ROUND_SIZE 10
 
-
 @implementation TiSelectedCellBackgroundView
 @synthesize position,fillColor;
 
@@ -200,6 +199,7 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 
 @end
 
+#define ACCESSORY_WIDTH 20
 
 @implementation TiUITableViewRowProxy
 
@@ -245,6 +245,13 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 	[self replaceValue:value forKey:@"layout" notification:YES];
 }
 
+-(BOOL)hasAccessory
+{
+	return ([TiUtils boolValue:[self valueForKey:@"hasChild"] def:NO] ||
+			[TiUtils boolValue:[self valueForKey:@"hasDetail"] def:NO] ||
+			[TiUtils boolValue:[self valueForKey:@"hasCheck"] def:NO]);
+}
+
 -(CGFloat)rowHeight:(CGRect)bounds
 {
 	if (TiDimensionIsPixels(height))
@@ -254,9 +261,29 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 	CGFloat result = 0;
 	if (TiDimensionIsAuto(height))
 	{
-		result = [self autoHeightForWidth:bounds.size.width];
+		CGFloat realWidth = bounds.size.width;
+		if ([self hasAccessory]) {
+			realWidth -= ACCESSORY_WIDTH;
+		}
+		
+		id rightImage = [self valueForKey:@"rightImage"];
+		if (rightImage != nil) {
+			NSURL *url = [TiUtils toURL:rightImage proxy:self];
+			UIImage *image = [[ImageLoader sharedLoader] loadImmediateImage:url];
+			realWidth -= [image size].width;
+		}
+		
+		id leftImage = [self valueForKey:@"leftImage"];
+		if (leftImage != nil) {
+			NSURL *url = [TiUtils toURL:leftImage proxy:self];
+			UIImage *image = [[ImageLoader sharedLoader] loadImmediateImage:url];
+			realWidth -= [image size].width;			
+		}
+		result = [self autoHeightForWidth:realWidth];
 	}
-	return result == 0 ? [table tableRowHeight:0] : result;
+	// Have to cache the value for later!
+	rowHeight = (result == 0) ? [table tableRowHeight:0] : result;
+	return rowHeight;
 }
 
 -(void)updateRow:(NSDictionary *)data withObject:(NSDictionary *)properties
@@ -504,7 +531,6 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 	{
 		UIView *contentView = cell.contentView;
 		CGRect rect = [contentView frame];
-		CGFloat rowHeight = [self rowHeight:rect];
 		if (rect.size.height < rowHeight)
 		{
 			rect.size.height = rowHeight;
