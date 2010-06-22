@@ -944,7 +944,7 @@ DEFINE_EXCEPTIONS
 
 -(id)description
 {
-	return [self toString];
+	return [self toString:nil];
 }
 
 -(id)toJSON
