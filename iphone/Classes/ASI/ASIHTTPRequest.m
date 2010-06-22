@@ -1140,7 +1140,10 @@ static BOOL isiPhoneOS2;
 		// ***Black magic warning***
 		// We have a body, but we've taken longer than timeOutSeconds to upload the first small chunk of data
 		// Since there's no reliable way to track upload progress for the first 32KB (iPhone) or 128KB (Mac) with CFNetwork, we'll be slightly more forgiving on the timeout, as there's a strong chance our connection is just very slow.
-		} else if (secondsSinceLastActivity > [self timeOutSeconds]*1.5) {
+
+		//Addendum: As per Nolan, the black magic isn't asked for. So instead of waiting an extra 50%, we should honor their request.
+		//This probably can be collapsed to simpler logic, but for now, the slight inefficiency is worth not changing logic elsewhere.
+		} else if (secondsSinceLastActivity > [self timeOutSeconds]){
 			return YES;
 		}
 	}
