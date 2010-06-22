@@ -19,6 +19,9 @@
 MAKE_SYSTEM_STR(SIZE_320x50,ADBannerContentSizeIdentifier320x50);
 MAKE_SYSTEM_STR(SIZE_480x32,ADBannerContentSizeIdentifier480x32);
 
+USE_VIEW_FOR_AUTO_HEIGHT
+USE_VIEW_FOR_AUTO_WIDTH
+
 -(void)cancelAction:(id)args
 {
 	[[self view] performSelectorOnMainThread:@selector(cancelAction:) withObject:args waitUntilDone:NO];

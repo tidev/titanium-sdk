@@ -18,8 +18,8 @@
 
 }
 
-@property(nonatomic,assign) NSString *SIZE_320x50;
-@property(nonatomic,assign) NSString *SIZE_480x32;
+@property(nonatomic,assign,readonly) NSString *SIZE_320x50;
+@property(nonatomic,assign,readonly) NSString *SIZE_480x32;
 
 @end
 
