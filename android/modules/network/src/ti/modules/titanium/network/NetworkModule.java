@@ -10,10 +10,10 @@ import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiDict;
 import org.appcelerator.titanium.TiModule;
 import org.appcelerator.titanium.TiProxy;
-import org.appcelerator.titanium.kroll.KrollCallback;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 
+import android.app.Activity;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -148,10 +148,17 @@ public class NetworkModule extends TiModule {
 	{
 		boolean result = false;
 
-		NetworkInfo ni = getConnectivityManager().getActiveNetworkInfo();
+		ConnectivityManager cm = getConnectivityManager();
+		if (cm != null) {
+			NetworkInfo ni = getConnectivityManager().getActiveNetworkInfo();
 
-		if(ni != null && ni.isAvailable() && ni.isConnected()) {
-			result = true;
+			if(ni != null && ni.isAvailable() && ni.isConnected()) {
+				result = true;
+			}
+		} else {
+			if (DBG) {
+				Log.w(LCAT, "ConnectivityManager was null");
+			}
 		}
 		return result;
 	}
@@ -179,8 +186,7 @@ public class NetworkModule extends TiModule {
 
 		// start event needs network type. So get it if we don't have it.
 		if (connectivityManager == null) {
-			connectivityManager = (ConnectivityManager)
-				getTiContext().getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
+			connectivityManager = getConnectivityManager();
 		}
 
 		try {
@@ -237,8 +243,20 @@ public class NetworkModule extends TiModule {
 		}
 	}
 
-	private ConnectivityManager getConnectivityManager() {
-		return (ConnectivityManager) getTiContext().getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
+	private ConnectivityManager getConnectivityManager()
+	{
+		ConnectivityManager cm = null;
+
+		Context a = getTiContext().getTiApp();
+		if (a != null) {
+			cm = (ConnectivityManager) a.getSystemService(Context.CONNECTIVITY_SERVICE);
+		} else {
+			if (DBG) {
+				Log.w(LCAT, "Activity is null when trying to retrieve the connectivity service");
+			}
+		}
+
+		return cm;
 	}
 
 	@Override
