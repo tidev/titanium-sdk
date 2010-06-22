@@ -12,6 +12,8 @@
 
 #ifdef USE_TI_UIIOSADVIEW
 
+#import <iAd/iAd.h>
+
 @implementation TiUIiOSAdViewProxy
 
 MAKE_SYSTEM_STR(SIZE_320x50,ADBannerContentSizeIdentifier320x50);

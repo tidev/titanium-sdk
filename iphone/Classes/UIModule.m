@@ -26,6 +26,9 @@
 #ifdef USE_TI_UIIPAD
 	#import "TiUIiPadProxy.h"
 #endif
+#ifdef USE_TI_UIIOS
+#import "TiUIiOSProxy.h"
+#endif
 #import "TiApp.h"
 #import "ImageLoader.h"
 #import "Webcolor.h"
@@ -263,6 +266,22 @@ MAKE_SYSTEM_PROP(FACE_DOWN,UIDeviceOrientationFaceDown);
 }
 #endif
 
+#ifdef USE_TI_UIIOS
+-(id)iOS
+{
+	if (ios==nil)
+	{
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
+		if ([TiUtils isiPhoneOS3_2OrGreater])
+		{
+			ios = [[TiUIiOSProxy alloc] _initWithPageContext:[self pageContext]];
+		}
+#endif
+	}
+	return ios;
+}
+#endif
+
 #pragma mark Internal Memory Management
 
 -(void)didReceiveMemoryWarning:(NSNotification*)notification
@@ -272,6 +291,9 @@ MAKE_SYSTEM_PROP(FACE_DOWN,UIDeviceOrientationFaceDown);
 #endif
 #ifdef USE_TI_UIIPAD
 	RELEASE_TO_NIL(ipad);
+#endif
+#ifdef USE_TI_UIIOS
+	RELEASE_TO_NIL(ios);
 #endif
 	[super didReceiveMemoryWarning:notification];
 }

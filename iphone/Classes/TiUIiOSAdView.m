@@ -12,6 +12,8 @@
 
 #ifdef USE_TI_UIIOSADVIEW
 
+extern NSString * const TI_APPLICATION_ANALYTICS;
+
 @implementation TiUIiOSAdView
 
 -(void)dealloc
@@ -20,7 +22,7 @@
 	[super dealloc];
 }
 
--(UIView*)adview
+-(ADBannerView*)adview
 {
 	if (adview == nil)
 	{
@@ -33,7 +35,6 @@
 
 -(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
 {
-	
 	if (!CGRectIsEmpty(bounds))
 	{
 		[TiUtils setView:[self adview] positionRect:bounds];
@@ -67,7 +68,8 @@
 {
 	if (TI_APPLICATION_ANALYTICS)
 	{
-		NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:data,@"data",@"ti.iad.load",@"name",@"ti.iad.load",@"type",[banner currentContentSizeIdentifier],@"size",nil];
+		NSDictionary *data = [NSDictionary dictionaryWithObjectsAndKeys:[banner currentContentSizeIdentifier],@"size",nil];
+		NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:data,@"data",@"ti.iad.load",@"name",@"ti.iad.load",@"type",nil];
 		[[NSNotificationCenter defaultCenter] postNotificationName:kTiAnalyticsNotification object:nil userInfo:event]; 
 	}
 	if ([self.proxy _hasListeners:@"load"])
@@ -81,7 +83,8 @@
 {
 	if (TI_APPLICATION_ANALYTICS)
 	{
-		NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:data,@"data",@"ti.iad.action",@"name",@"ti.iad.action",@"type",[banner currentContentSizeIdentifier],@"size",nil];
+		NSDictionary *data = [NSDictionary dictionaryWithObjectsAndKeys:[banner currentContentSizeIdentifier],@"size",nil];
+		NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:data,@"data",@"ti.iad.action",@"name",@"ti.iad.action",@"type",nil];
 		[[NSNotificationCenter defaultCenter] postNotificationName:kTiAnalyticsNotification object:nil userInfo:event]; 
 	}
 	if ([self.proxy _hasListeners:@"action"])

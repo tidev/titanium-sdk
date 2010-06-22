@@ -10,6 +10,8 @@
 
 #ifdef USE_TI_UIIOSADVIEW
 
+#import <iAd/iAd.h>
+
 @interface TiUIiOSAdView : TiUIView<ADBannerViewDelegate> {
 
 @private
