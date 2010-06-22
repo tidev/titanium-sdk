@@ -272,8 +272,16 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 			UIImage *image = [[ImageLoader sharedLoader] loadImmediateImage:url];
 			realWidth -= [image size].width;
 		}
+		
+		id leftImage = [self valueForKey:@"leftImage"];
+		if (leftImage != nil) {
+			NSURL *url = [TiUtils toURL:leftImage proxy:self];
+			UIImage *image = [[ImageLoader sharedLoader] loadImmediateImage:url];
+			realWidth -= [image size].width;			
+		}
 		result = [self autoHeightForWidth:realWidth];
 	}
+	// Have to cache the value for later!
 	rowHeight = (result == 0) ? [table tableRowHeight:0] : result;
 	return rowHeight;
 }
