@@ -62,6 +62,7 @@ public class TiContext implements TiEvaluator, ITiMenuDispatcherListener, ErrorR
 
 	private WeakReference<Activity> weakActivity;
 	private SoftReference<TiEvaluator>	softTiEvaluator;
+	private TiApplication tiApp;
 	private TiEvaluator strongTiEvaluator; // used to avoid temporary dereferencing before we execute app.js
 	private HashMap<String, HashMap<Integer, TiListener>> eventListeners;
 	private AtomicInteger listenerIdGenerator;
@@ -127,6 +128,7 @@ public class TiContext implements TiEvaluator, ITiMenuDispatcherListener, ErrorR
 	{
 		this.mainThreadId = Looper.getMainLooper().getThread().getId();
 
+		this.tiApp = (TiApplication) activity.getApplication();
 		this.weakActivity = new WeakReference<Activity>(activity);
 		this.listenerIdGenerator = new AtomicInteger(0);
 		this.eventListeners = new HashMap<String, HashMap<Integer,TiListener>>();
@@ -177,7 +179,7 @@ public class TiContext implements TiEvaluator, ITiMenuDispatcherListener, ErrorR
 	}
 
 	public TiApplication getTiApp() {
-		return (TiApplication) getActivity().getApplication();
+		return tiApp;
 	}
 
 	public TiRootActivity getRootActivity() {
@@ -254,7 +256,7 @@ public class TiContext implements TiEvaluator, ITiMenuDispatcherListener, ErrorR
 	{
 		return resolveUrl(scheme, path, getBaseUrl());
 	}
-	
+
 	public String resolveUrl(String scheme, String path, String relativeTo)
 	{
 		if (!TiFileFactory.isLocalScheme(path)) {
