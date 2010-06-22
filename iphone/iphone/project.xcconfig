@@ -1,2 +1,6 @@
 TI_VERSION=0.0.0
 
+
+OTHER_LDFLAGS[sdk=iphoneos4*]=$(inherited) -weak_framework iAd
+OTHER_LDFLAGS[sdk=iphonesimulator4*]=$(inherited) -weak_framework iAd
+

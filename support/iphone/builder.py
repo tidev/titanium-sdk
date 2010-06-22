@@ -399,6 +399,8 @@ def main(args):
 			xcconfig.write("TI_VERSION=%s\n"% sdk_version)
 			xcconfig.write("TI_SDK_DIR=%s\n" % template_dir.replace(sdk_version,'$(TI_VERSION)'))
 			xcconfig.write("TI_APPID=%s\n" % appid)
+			xcconfig.write("OTHER_LDFLAGS[sdk=iphoneos4*]=$(inherited) -weak_framework iAd\n")
+			xcconfig.write("OTHER_LDFLAGS[sdk=iphonesimulator4*]=$(inherited) -weak_framework iAd\n")
 			xcconfig.write("#include \"module\"\n")
 			xcconfig.close()
 			

@@ -27,10 +27,25 @@ extern NSString * const TI_APPLICATION_ANALYTICS;
 	if (adview == nil)
 	{
 		adview = [[ADBannerView alloc] initWithFrame:CGRectZero];
+		adview.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
 		adview.delegate = self;
 		[self addSubview:adview];
 	}
 	return adview;
+}
+
+-(CGFloat)autoHeightForWidth:(CGFloat)value
+{
+	ADBannerView *view = [self adview];
+	CGSize size = [ADBannerView sizeFromBannerContentSizeIdentifier:view.currentContentSizeIdentifier];
+	return size.height;
+}
+
+-(CGFloat)autoWidthForWidth:(CGFloat)value
+{
+	ADBannerView *view = [self adview];
+	CGSize size = [ADBannerView sizeFromBannerContentSizeIdentifier:view.currentContentSizeIdentifier];
+	return size.width;
 }
 
 -(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
