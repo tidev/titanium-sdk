@@ -11,18 +11,18 @@
 	<key>CFBundleIconFile</key>
 	<string>appicon.png</string>
 	<key>CFBundleURLTypes</key>
-    <array>
-       <dict>
-          <key>CFBundleURLName</key>
-             <string>com.appcelerator.kitchensink</string>
-           <key>CFBundleURLSchemes</key>
-            <array>
-              <string>kitchensink</string>
-            </array>
-        </dict>
-    </array>
+	<array>
+		<dict>
+			<key>CFBundleURLName</key>
+			<string>com.appcelerator.kitchensink</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>kitchensink</string>
+			</array>
+		</dict>
+	</array>
 	<key>CFBundleIdentifier</key>
-	<string>com.appcelerator.titanium</string>
+	<string>com.appcelerator.titanium.ks</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
