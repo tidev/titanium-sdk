@@ -113,7 +113,7 @@
 // Title and subtitle for use by selection UI.
 - (NSString *)title
 {
-	return [self valueForUndefinedKey:@"title"];
+	return [TiUtils stringValue:[self valueForUndefinedKey:@"title"]];
 }
 
 -(void)setTitle:(id)title
@@ -128,7 +128,7 @@
 
 - (NSString *)subtitle
 {
-	return [self valueForUndefinedKey:@"subtitle"];
+	return [TiUtils stringValue:[self valueForUndefinedKey:@"subtitle"]];
 }
 
 -(void)setSubtitle:(id)subtitle
