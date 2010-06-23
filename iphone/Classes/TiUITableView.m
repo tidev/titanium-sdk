@@ -1554,7 +1554,9 @@ if(ourTableView != tableview)	\
 	}
 	
 	TiUITableViewRowProxy *row = [self rowForIndexPath:index];
-	CGFloat height = [row rowHeight:tableview.bounds];
+	
+	CGFloat width = [row sizeWidthForDecorations:tableview.bounds.size.width forceResizing:YES];
+	CGFloat height = [row rowHeight:width];
 	height = [self tableRowHeight:height];
 	return height < 1 ? tableview.rowHeight : height;
 }
