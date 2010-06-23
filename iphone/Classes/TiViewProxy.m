@@ -351,6 +351,11 @@
 	self.modelDelegate = newView;
 }
 
+-(BOOL)shouldDetachViewOnUnload
+{
+	return YES;
+}
+
 -(void)detachView
 {
 	if (view!=nil)

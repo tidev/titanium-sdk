@@ -79,6 +79,7 @@
 
 -(void)animationCompleted:(TiAnimation*)animation;
 -(void)detachView;
+-(BOOL)shouldDetachViewForSpace;
 -(void)destroy;
 -(void)setParent:(TiProxy*)parent;
 
