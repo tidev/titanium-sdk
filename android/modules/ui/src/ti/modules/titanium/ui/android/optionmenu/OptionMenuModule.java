@@ -29,23 +29,21 @@ public class OptionMenuModule extends TiModule {
 	public void propertyChanged(String key, Object oldValue, Object newValue, TiProxy proxy)
 	{
 		if ("menu".equals(key)) {
-			setMenuListener();
+			setMenuListener((MenuProxy) newValue);
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}
 	}
 
-	private void setMenuListener()
+	private void setMenuListener(final MenuProxy menu)
 	{
-		final OptionMenuModule me = this;
-
-		getTiContext().setOnMenuEventListener(new TiContext.OnMenuEvent()
+		menu.getTiContext().setOnMenuEventListener(new TiContext.OnMenuEvent()
 		{
 
 			private HashMap<Integer, MenuItemProxy> itemMap;
 
 			private MenuProxy getMenuProxy() {
-				return (MenuProxy) me.getDynamicValue("menu");
+				return (MenuProxy) menu;
 			}
 
 			@Override
