@@ -16,6 +16,14 @@
 
 #pragma mark Internal
 
+-(NSArray *)keySequence
+{
+	return [NSArray arrayWithObjects:
+			@"animate",
+			@"location",
+			nil];
+}
+
 -(void)_configure
 {
 	annotationsToAdd = [[NSMutableArray alloc] init];
@@ -31,17 +39,20 @@
 
 -(void)viewDidAttach
 {
-	VIEW_METHOD_ON_UI_THREAD(addAnnotations,annotationsToAdd);
-	VIEW_METHOD_ON_UI_THREAD(removeAnnotations,annotationsToRemove);
-	VIEW_METHOD_ON_UI_THREAD(selectAnnotation,selectedAnnotation);
+	ENSURE_UI_THREAD_0_ARGS;
+	TiMapView * ourView = (TiMapView *)[self view];
+
+	[ourView addAnnotations:annotationsToAdd];
+	[ourView removeAnnotations:annotationsToRemove];
+	[ourView selectAnnotation:selectedAnnotation];
 	if (zoomCount > 0) {
 		for (int i=0; i < zoomCount; i++) {
-			VIEW_METHOD_ON_UI_THREAD(zoom,[NSNumber numberWithDouble:1.0]);
+			[ourView zoom:[NSNumber numberWithDouble:1.0]];
 		}
 	}
 	else {
 		for (int i=zoomCount;i < 0;i++) {
-			VIEW_METHOD_ON_UI_THREAD(zoom,[NSNumber numberWithDouble:-1.0]);
+			[ourView zoom:[NSNumber numberWithDouble:-1.0]];
 		}
 	}
 	

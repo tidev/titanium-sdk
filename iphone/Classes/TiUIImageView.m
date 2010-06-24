@@ -302,6 +302,34 @@ DEFINE_EXCEPTIONS
 	iv.image = image;
 	if (placeholderLoading)
 	{
+		iv.autoresizingMask = UIViewAutoresizingNone;
+		iv.contentMode = UIViewContentModeCenter;
+		iv.alpha = 0;
+		
+		autoWidth = image.size.width;
+		autoHeight = image.size.height;
+		
+		[(TiViewProxy *)[self proxy] setNeedsReposition];
+		
+		// do a nice fade in animation to replace the new incoming image
+		// with our placeholder
+		[UIView beginAnimations:nil context:nil];
+		[UIView setAnimationDuration:0.5];
+		[UIView setAnimationDelegate:self];
+		[UIView setAnimationDidStopSelector:@selector(animationCompleted:finished:context:)];
+		
+		for (UIView *view in [self subviews])
+		{
+			if (view!=iv)
+			{	
+				[view setAlpha:0];
+			}
+		}
+		
+		iv.alpha = 1;
+		
+		[UIView commitAnimations];
+		
 		placeholderLoading = NO;
 		[self fireLoadEventWithState:@"url"];
 	}
@@ -389,6 +417,8 @@ DEFINE_EXCEPTIONS
 			if (defURL!=nil)
 			{
 				UIImage *poster = [[ImageLoader sharedLoader] loadImmediateImage:defURL withSize:imageSize];
+				autoWidth = poster.size.width;
+				autoHeight = poster.size.height;
 				[self imageView].image = poster;
 			}
 			placeholderLoading = YES;

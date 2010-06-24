@@ -13,6 +13,11 @@
 
 @implementation TiUIWebViewProxy
 
+-(BOOL)shouldDetachViewForSpace
+{
+	return NO;
+}
+
 -(void)_initWithProperties:(NSDictionary *)properties
 {
 	[self replaceValue:[NSArray arrayWithObject:NUMINT(UIDataDetectorTypePhoneNumber)] forKey:@"autoDetect" notification:NO];
