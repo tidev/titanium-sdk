@@ -364,7 +364,7 @@ else
 
 	
 }
-var addr = "2065 Hamilton Avenue San Jose, California 95125";
+var addr = "2065 Hamilton Avenue San Jose California 95125";
 
 Titanium.Geolocation.forwardGeocoder(addr,function(evt)
 {
@@ -376,6 +376,7 @@ Titanium.Geolocation.forwardGeocoder(addr,function(evt)
 		for (var i = 0; i < evt.places.length; i++) {
 			text += "" + i + ") " + evt.places[i].displayAddress + "\n"; 
 		}
+		Ti.API.info('Reversed forward: '+text);
 	});
 });
 
