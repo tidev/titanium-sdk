@@ -13,7 +13,7 @@
 
 @implementation TiUIWebViewProxy
 
--(BOOL)shouldDetachViewForSpace
+-(BOOL)shouldDetachViewOnUnload
 {
 	return NO;
 }
