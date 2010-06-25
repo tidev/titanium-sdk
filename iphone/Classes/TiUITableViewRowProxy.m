@@ -20,6 +20,35 @@ NSString * const defaultRowTableClass = @"_default_";
 #define CHECK_ACCESSORY_WIDTH 20.0
 #define DETAIL_ACCESSORY_WIDTH 33.0
 
+static void addRoundedRectToPath(CGContextRef context, CGRect rect,
+								 float ovalWidth,float ovalHeight)
+
+{
+    float fw, fh;
+	
+    if (ovalWidth == 0 || ovalHeight == 0) {// 1
+        CGContextAddRect(context, rect);
+        return;
+    }
+	
+    CGContextSaveGState(context);// 2
+	
+    CGContextTranslateCTM (context, CGRectGetMinX(rect),// 3
+						   CGRectGetMinY(rect));
+    CGContextScaleCTM (context, ovalWidth, ovalHeight);// 4
+    fw = CGRectGetWidth (rect) / ovalWidth;// 5
+    fh = CGRectGetHeight (rect) / ovalHeight;// 6
+	
+    CGContextMoveToPoint(context, fw, fh/2); // 7
+    CGContextAddArcToPoint(context, fw, fh, fw/2, fh, 1);// 8
+    CGContextAddArcToPoint(context, 0, fh, 0, fh/2, 1);// 9
+    CGContextAddArcToPoint(context, 0, 0, fw/2, 0, 1);// 10
+    CGContextAddArcToPoint(context, fw, 0, fw, fh/2, 1); // 11
+    CGContextClosePath(context);// 12
+	
+    CGContextRestoreGState(context);// 13
+}
+
 @interface TiSelectedCellBackgroundView : UIView 
 {
     TiCellBackgroundViewPosition position;
@@ -106,6 +135,19 @@ NSString * const defaultRowTableClass = @"_default_";
 		CGContextDrawPath(ctx, kCGPathFill);
         return;
     }
+	else if (position == TiCellBackgroundViewPositionSingleLine)
+	{
+		CGContextBeginPath(ctx);
+		addRoundedRectToPath(ctx, rect, ROUND_SIZE*1.5, ROUND_SIZE*1.5);
+		CGContextFillPath(ctx);  
+		
+		CGContextSetLineWidth(ctx, 2);  
+		CGContextBeginPath(ctx);
+		addRoundedRectToPath(ctx, rect, ROUND_SIZE*1.5, ROUND_SIZE*1.5);  
+		CGContextStrokePath(ctx);   
+		
+		return;
+	}
 	[super drawRect:rect];
 }
 
@@ -209,6 +251,7 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 -(void)_destroy
 {
 	RELEASE_TO_NIL(tableClass);
+	RELEASE_TO_NIL(rowContainerView);
 	[super _destroy];
 }
 
@@ -439,17 +482,25 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 			cell.selectedBackgroundView = [[[TiSelectedCellBackgroundView alloc] initWithFrame:CGRectZero] autorelease];
 		}
 		TiSelectedCellBackgroundView *sv = (TiSelectedCellBackgroundView*)cell.selectedBackgroundView;
-		if (row == 0)
+		int count = [section rowCount];
+		if (count == 1)
 		{
-			sv.position = TiCellBackgroundViewPositionTop;
-		}
-		else if (row == [section rowCount]-1)
-		{
-			sv.position = TiCellBackgroundViewPositionBottom;
+			sv.position = TiCellBackgroundViewPositionSingleLine;
 		}
 		else 
 		{
-			sv.position = TiCellBackgroundViewPositionMiddle;
+			if (row == 0)
+			{
+				sv.position = TiCellBackgroundViewPositionTop;
+			}
+			else if (row == count-1)
+			{
+				sv.position = TiCellBackgroundViewPositionBottom;
+			}
+			else 
+			{
+				sv.position = TiCellBackgroundViewPositionMiddle;
+			}
 		}
 		sv.fillColor = UIColorWebColorNamed(selBgColor);	
 	}
@@ -539,6 +590,7 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 	// to be initialized. on subsequent repaints of a re-used
 	// table cell, the updateChildren below will be called instead
 	[self lockChildrenForReading];
+	configuredChildren = YES;
 	if (self.children!=nil)
 	{
 		UIView *contentView = cell.contentView;
@@ -709,7 +761,6 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 
 -(void)initializeTableViewCell:(UITableViewCell*)cell
 {
-	rowRendered = YES;
 	modifyingRow = YES;
 	[self configureTitle:cell];
 	[self configureSelectionStyle:cell];
@@ -766,7 +817,7 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 
 -(void)triggerRowUpdate
 {
-	if ([self isAttached] && !modifyingRow)
+	if ([self isAttached] && !modifyingRow && !attaching)
 	{
 		TiUITableViewAction *action = [[[TiUITableViewAction alloc] initWithRow:self animation:nil section:section.section type:TiUITableViewActionRowReload] autorelease];
 		[table dispatchAction:action];
