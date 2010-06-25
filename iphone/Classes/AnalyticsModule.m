@@ -36,13 +36,13 @@ NSString * const TI_DB_VERSION = @"1";
 
 @implementation AnalyticsModule
 
--(void)_destroy
+-(void)dealloc
 {
 	RELEASE_TO_NIL(database);
 	RELEASE_TO_NIL(retryTimer);
 	RELEASE_TO_NIL(flushTimer);
 	RELEASE_TO_NIL(url);
-	[super _destroy];
+	[super dealloc];
 }
 
 -(id)platform
