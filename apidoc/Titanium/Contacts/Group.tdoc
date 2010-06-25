@@ -29,9 +29,9 @@ sortedMembers: A list of sorted members
 add: Adds a person to the group
 remove: Removes a person from the group
 
-- sortedMembers : array
+- method : sortedMembers
 
-sortBy[int]: Method for sorting.  Must be one of `Titanium.Contacts.CONTACTS_SORT_FIRST_NAME` or `Titanium.Contacts.CONTACTS_SORT_LAST_NAME`
+sortBy[int]: Method for sorting.  Must be one of  `Titanium.Contacts.CONTACTS_SORT_FIRST_NAME` or `Titanium.Contacts.CONTACTS_SORT_LAST_NAME`
 
 - method : add
 

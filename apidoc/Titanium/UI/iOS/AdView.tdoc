@@ -31,8 +31,6 @@ SIZE_480x32[string]: constant for 480x32 ad sizes
 
 cancelAction: A banner view action can cover your application's user interface. However, your application continues to run, and receives events normally. If your application receives an event that requires the user's attention, it can programmatically cancel the action and uncover its interface by calling cancelAction. Canceling actions frequently can cause a loss of revenue for your application.
 
-- method: cancelAction
-
 - events
 
 load : called when a banner is loaded and displayed
