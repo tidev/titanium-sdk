@@ -45,6 +45,15 @@ if (![TiUtils isiPhoneOS3_2OrGreater]) {\
 		location:CODELOCATION]; \
 }
 
+@interface TiMediaVideoPlayerProxy ()
+
+@property(nonatomic,readwrite,copy)	NSNumber*	movieControlStyle;
+
+@end
+
+
+
+
 @implementation TiMediaVideoPlayerProxy
 
 #pragma mark Internal
@@ -128,7 +137,7 @@ if (![TiUtils isiPhoneOS3_2OrGreater]) {\
 #endif
 		[nc addObserver:self selector:@selector(handleKeyWindowChanged:) 
 				   name:UIWindowDidBecomeKeyNotification
-				 object:movie];
+				 object:nil];
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
 	}
 #endif	
