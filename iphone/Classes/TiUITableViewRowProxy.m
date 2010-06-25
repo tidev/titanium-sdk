@@ -16,6 +16,9 @@
 #import "ImageLoader.h"
 
 NSString * const defaultRowTableClass = @"_default_";
+#define CHILD_ACCESSORY_WIDTH 20.0
+#define CHECK_ACCESSORY_WIDTH 20.0
+#define DETAIL_ACCESSORY_WIDTH 33.0
 
 @interface TiSelectedCellBackgroundView : UIView 
 {
@@ -199,8 +202,6 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 
 @end
 
-#define ACCESSORY_WIDTH 20
-
 @implementation TiUITableViewRowProxy
 
 @synthesize tableClass, table, section, row, callbackCell;
@@ -245,14 +246,39 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 	[self replaceValue:value forKey:@"layout" notification:YES];
 }
 
--(BOOL)hasAccessory
+-(CGFloat)sizeWidthForDecorations:(CGFloat)oldWidth forceResizing:(BOOL)force
 {
-	return ([TiUtils boolValue:[self valueForKey:@"hasChild"] def:NO] ||
-			[TiUtils boolValue:[self valueForKey:@"hasDetail"] def:NO] ||
-			[TiUtils boolValue:[self valueForKey:@"hasCheck"] def:NO]);
+	CGFloat width = oldWidth;
+	if (force || !configuredChildren) {
+		if ([TiUtils boolValue:[self valueForKey:@"hasChild"] def:NO]) {
+			width -= CHILD_ACCESSORY_WIDTH;
+		}
+		else if ([TiUtils boolValue:[self valueForKey:@"hasDetail"] def:NO]) {
+			width -= DETAIL_ACCESSORY_WIDTH;
+		}
+		else if ([TiUtils boolValue:[self valueForKey:@"hasCheck"] def:NO]) {
+			width -= CHECK_ACCESSORY_WIDTH;
+		}
+		
+		id rightImage = [self valueForKey:@"rightImage"];
+		if (rightImage != nil) {
+			NSURL *url = [TiUtils toURL:rightImage proxy:self];
+			UIImage *image = [[ImageLoader sharedLoader] loadImmediateImage:url];
+			width -= [image size].width;
+		}
+		
+		id leftImage = [self valueForKey:@"leftImage"];
+		if (leftImage != nil) {
+			NSURL *url = [TiUtils toURL:leftImage proxy:self];
+			UIImage *image = [[ImageLoader sharedLoader] loadImmediateImage:url];
+			width -= [image size].width;			
+		}
+	}
+	
+	return width;
 }
 
--(CGFloat)rowHeight:(CGRect)bounds
+-(CGFloat)rowHeight:(CGFloat)width
 {
 	if (TiDimensionIsPixels(height))
 	{
@@ -261,29 +287,9 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 	CGFloat result = 0;
 	if (TiDimensionIsAuto(height))
 	{
-		CGFloat realWidth = bounds.size.width;
-		if ([self hasAccessory]) {
-			realWidth -= ACCESSORY_WIDTH;
-		}
-		
-		id rightImage = [self valueForKey:@"rightImage"];
-		if (rightImage != nil) {
-			NSURL *url = [TiUtils toURL:rightImage proxy:self];
-			UIImage *image = [[ImageLoader sharedLoader] loadImmediateImage:url];
-			realWidth -= [image size].width;
-		}
-		
-		id leftImage = [self valueForKey:@"leftImage"];
-		if (leftImage != nil) {
-			NSURL *url = [TiUtils toURL:leftImage proxy:self];
-			UIImage *image = [[ImageLoader sharedLoader] loadImmediateImage:url];
-			realWidth -= [image size].width;			
-		}
-		result = [self autoHeightForWidth:realWidth];
+		result = [self autoHeightForWidth:width];
 	}
-	// Have to cache the value for later!
-	rowHeight = (result == 0) ? [table tableRowHeight:0] : result;
-	return rowHeight;
+	return (result == 0) ? [table tableRowHeight:0] : result;
 }
 
 -(void)updateRow:(NSDictionary *)data withObject:(NSDictionary *)properties
@@ -537,9 +543,13 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 	{
 		UIView *contentView = cell.contentView;
 		CGRect rect = [contentView frame];
-		if (rect.size.height < rowHeight)
+		CGFloat rowWidth = [self sizeWidthForDecorations:rect.size.width forceResizing:NO];
+		CGFloat rowHeight = [self rowHeight:rowWidth];
+		rowHeight = [table tableRowHeight:rowHeight];
+		if (rect.size.height < rowHeight || rowWidth < rect.size.width)
 		{
 			rect.size.height = rowHeight;
+			rect.size.width = rowWidth;
 			contentView.frame = rect;
 		}
 		rect.origin = CGPointZero;
@@ -560,6 +570,7 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 		[contentView addSubview:rowContainerView];
 	}
 	[self unlockChildren];
+	configuredChildren = YES;
 }
 
 -(void)reproxyChildren:(TiViewProxy*)proxy 

@@ -39,7 +39,7 @@
 {
 	if (map==nil)
 	{
-		map = [[MKMapView alloc] initWithFrame:CGRectZero];
+		map = [[MKMapView alloc] initWithFrame:CGRectMake(0, 0, 100, 100)];
 		map.delegate = self;
 		map.userInteractionEnabled = YES;
 		map.showsUserLocation = YES; // defaults
@@ -332,7 +332,7 @@
 		{
 			MKCoordinateRegion fitRegion = [[self map] regionThatFits:region];
 			// this seems to happen sometimes where we get an invalid span back
-			if (fitRegion.span.latitudeDelta == 0 || fitRegion.span.longitudeDelta)
+			if (fitRegion.span.latitudeDelta == 0 || fitRegion.span.longitudeDelta == 0)
 			{
 				// this seems to happen when you try and call this with the same region
 				// which means we can ignore (otherwise you'll get an NSInvalidException

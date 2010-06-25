@@ -27,7 +27,7 @@ typedef enum
 	TiUITableView *table;
 	TiUITableViewSectionProxy *section;
 	TiDimension height;
-	CGFloat rowHeight;
+	BOOL configuredChildren;
 	
 	UIView * rowContainerView;
 	BOOL modifyingRow;
@@ -50,7 +50,8 @@ typedef enum
 
 -(void)initializeTableViewCell:(UITableViewCell*)cell;
 -(void)renderTableViewCell:(UITableViewCell*)cell;
--(CGFloat)rowHeight:(CGRect)bounds;
+-(CGFloat)sizeWidthForDecorations:(CGFloat)oldWidth forceResizing:(BOOL)force;
+-(CGFloat)rowHeight:(CGFloat)width;
 -(TiProxy *)touchedViewProxyInCell:(UITableViewCell *)targetCell;
 -(id)createEventObject:(id)initialObject;
 -(void)triggerAttach;

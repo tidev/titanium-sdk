@@ -156,7 +156,7 @@ var button7 = Titanium.UI.createButton({
 	title:'Show Indicator (Title)',
 	height:35,
 	width:200,
-	top:235
+	top:280
 });
 
 button7.addEventListener('click', function()

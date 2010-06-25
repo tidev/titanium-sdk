@@ -424,6 +424,11 @@
 	self.modelDelegate = newView;
 }
 
+-(BOOL)shouldDetachViewOnUnload
+{
+	return YES;
+}
+
 -(void)detachView
 {
 	if (view!=nil)
@@ -829,7 +834,8 @@
 		view.proxy = nil;
 		// must be on main thread
 		[view performSelectorOnMainThread:@selector(removeFromSuperview) withObject:nil waitUntilDone:NO];
-		RELEASE_TO_NIL(view);
+		[view performSelectorOnMainThread:@selector(release) withObject:nil waitUntilDone:NO];
+		view = nil;
 	}
 	
 	[self lockChildrenForWriting];

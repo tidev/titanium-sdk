@@ -119,13 +119,13 @@ public class TiUIWebView extends TiUIView {
 			getWebView().loadUrl(resolvedUrl);
 		}
 	}
-	
+
 	public void changeProxyUrl(String url) {
 		changingUrl = true;
 		getProxy().setDynamicValue("url", url);
 		changingUrl = false;
 	}
-	
+
 	public String getUrl() {
 		return getWebView().getUrl();
 	}
@@ -133,7 +133,7 @@ public class TiUIWebView extends TiUIView {
 	private static final char escapeChars[] = new char[]{ '%', '#', '\'', '?'};
 	private String escapeContent(String content)
 	{
-		// The Android WebView has a known bug 
+		// The Android WebView has a known bug
 		// where it forgets to escape certain characters
 		// when it creates a data:// URL in the loadData() method
 		// http://code.google.com/p/android/issues/detail?id=1733
@@ -143,10 +143,37 @@ public class TiUIWebView extends TiUIView {
 		}
 		return content;
 	}
-	
+
 	public void setHtml(String html)
 	{
-		getWebView().loadData(escapeContent(html), "text/html", "utf-8");
+		//getWebView().loadData(escapeContent(html), "text/html", "utf-8");
+		// Commented out the loadData solution. You can't access local assets without
+		// providing an acceptable base url to loadDataWithBaseURL. Using the contentEscaping
+		// breaks the document and munges the quotes causing images to fail. Images in local
+		// html should be absolute or relative to app:// if you want to use app url's, they
+		// need to be translated before setting html or setting a document change trigger.
+		// I've enclosed the code used in the old 0.X codebase for reference
+		//
+		// Use this code to post process your document to adjust URLs. May need updating it comes
+		// from ti.js in the old 0.X method.
+		//
+		// 		var imgs = document.getElementsByTagName('img');
+		// 		for(i=0; i < imgs.length;i++) {
+		// 			var s = imgs[i].src;
+		// 			//alert('BEFORE: ' + s);
+		// 			if (s.indexOf('file:///') === 0) {
+		// 				if (s.indexOf('file:///sdcard/') == -1 && s.indexOf('file:///android_asset') == -1) {
+		// 					imgs[i].src = s.substring(8);
+		// 				}
+		// 			} else if (s.indexOf('app://') === 0) {
+		// 				imgs[i].src = s.substring(6);
+		// 			}
+		//
+		// 			//alert('AFTER: ' + imgs[i].src);
+		// 		}
+
+
+		getWebView().loadDataWithBaseURL("file:///android_asset/Resources/", html, "text/html", "utf-8", null);
 	}
 
 	public void setData(TiBlob blob)

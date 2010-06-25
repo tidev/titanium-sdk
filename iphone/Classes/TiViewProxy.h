@@ -88,6 +88,7 @@
 
 -(void)animationCompleted:(TiAnimation*)animation;
 -(void)detachView;
+-(BOOL)shouldDetachViewOnUnload;
 -(void)destroy;
 -(void)setParent:(TiProxy*)parent;
 
