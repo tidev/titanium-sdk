@@ -12,6 +12,7 @@ var groups = Titanium.Contacts.getAllGroups();
 
 // Create a test group IF we need it
 if (groups.length == 0) {
+	Titanium.Contacts.save(); // Need to save before creating groups
 	var testGroup = Titanium.Contacts.createGroup();
 	testGroup.name = '__KSTESTGROUP';
 	Titanium.Contacts.save();
