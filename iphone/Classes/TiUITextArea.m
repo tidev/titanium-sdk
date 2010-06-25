@@ -12,6 +12,7 @@
 #import "TiUtils.h"
 #import "TiRange.h"
 #import "Webcolor.h"
+#import "TiApp.h"
 
 @implementation TiUITextArea
 
