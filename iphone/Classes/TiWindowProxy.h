@@ -35,6 +35,7 @@
 @private
 	BOOL opening;
 	BOOL attached;
+	BOOL closing;
 	BOOL splashTransitionAnimation;
 	int transitionAnimation;
 	NSMutableArray *reattachWindows;

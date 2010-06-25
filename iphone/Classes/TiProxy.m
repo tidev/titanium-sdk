@@ -725,6 +725,9 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 
 	for (NSString * thisKey in keyedValues)
 	{
+		// don't set if already set above
+		if ([keySequence containsObject:thisKey]) continue;
+		
 		id thisValue = [keyedValues objectForKey:thisKey];
 		if (thisValue == nil) //Dictionary doesn't have this key. Skip.
 		{

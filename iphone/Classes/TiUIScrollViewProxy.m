@@ -38,7 +38,7 @@
 	}
 }
 
--(void)layoutChildren
+-(void)layoutChildren:(BOOL)optimize
 {
 	if (![self viewAttached])
 	{
@@ -47,7 +47,7 @@
 
 	if (![(TiUIScrollView *)[self view] handleContentSizeIfNeeded])
 	{
-		[super layoutChildren];
+		[super layoutChildren:optimize];
 	}
 }
 

@@ -468,6 +468,9 @@
 	{
 		[self.proxy fireEvent:@"blur" withObject:[NSDictionary dictionaryWithObject:[tf text] forKey:@"value"] propagate:NO];
 	}
+	
+	// In order to capture gestures properly, we need to force the root view to become the first responder.
+	[[[[TiApp app] controller] view] becomeFirstResponder];
 }
 
 - (void)textFieldDidChange:(NSNotification *)notification

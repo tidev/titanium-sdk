@@ -49,7 +49,7 @@
 -(void)repositionWithBounds:(CGRect)bounds
 {
 	OSAtomicTestAndClearBarrier(NEEDS_REPOSITION, &dirtyflags);
-	[self layoutChildren];
+	[self layoutChildren:NO];
 }
 
 
@@ -76,7 +76,7 @@
 	NSLog(@"Going to set size to %fx%f with animated %d",newSize.width,newSize.height,animated);
 
 	[popoverController setPopoverContentSize:newSize animated:YES];
-	[self layoutChildren];
+	[self layoutChildren:NO];
 }
 
 #pragma mark Accessors

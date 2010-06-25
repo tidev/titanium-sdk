@@ -360,7 +360,7 @@ self.p = v;\
 		TiViewProxy * ourProxy = (TiViewProxy*)[view_ proxy];
 		LayoutConstraint *contraints = [ourProxy layoutProperties];
 		ApplyConstraintToViewWithinViewWithBounds(contraints, view_, transitionView, transitionView.bounds, NO);
-		[ourProxy layoutChildren];
+		[ourProxy layoutChildren:NO];
 	}
 	else
 	{

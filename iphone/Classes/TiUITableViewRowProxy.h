@@ -17,7 +17,8 @@ typedef enum
 {
     TiCellBackgroundViewPositionTop, 
     TiCellBackgroundViewPositionMiddle, 
-    TiCellBackgroundViewPositionBottom
+    TiCellBackgroundViewPositionBottom,
+	TiCellBackgroundViewPositionSingleLine
 } TiCellBackgroundViewPosition;
 
 @interface TiUITableViewRowProxy : TiViewProxy <TiProxyDelegate>
@@ -31,8 +32,8 @@ typedef enum
 	
 	UIView * rowContainerView;
 	BOOL modifyingRow;
+	BOOL attaching;
 	NSInteger row;
-	
 	TiUITableViewCell* callbackCell;
 }
 
@@ -53,7 +54,7 @@ typedef enum
 -(CGFloat)rowHeight:(CGFloat)width;
 -(TiProxy *)touchedViewProxyInCell:(UITableViewCell *)targetCell;
 -(id)createEventObject:(id)initialObject;
-
+-(void)triggerAttach;
 -(void)updateRow:(NSDictionary*)data withObject:(NSDictionary*)properties;
 
 @end

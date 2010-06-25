@@ -713,7 +713,6 @@ if (![TiUtils isiPhoneOS3_2OrGreater]) {\
 				location:CODELOCATION];
 	}
 
-	
 	// indicate we're going to start playing
 	//[[TiMediaAudioSession sharedSession] playback];
 	
@@ -750,25 +749,20 @@ if (![TiUtils isiPhoneOS3_2OrGreater]) {\
 	[self _destroy];
 }
 
--(void)viewDidAttach
-{
-	if ([TiUtils isiPhoneOS3_2OrGreater] && views!=nil)
-	{
-		for (TiViewProxy *p in views)
-		{
-			[super add:p];
-		}
-	}
-}
 
 -(void)add:(id)viewProxy
 {
+	ENSURE_UI_THREAD(add,viewProxy);
 	ENSURE_SINGLE_ARG(viewProxy,TiViewProxy);
 	if (views==nil)
 	{
 		views = TiCreateNonRetainingArray();
 	}
 	[views addObject:viewProxy];
+	if ([TiUtils isiPhoneOS3_2OrGreater])
+	{
+		[super add:viewProxy];
+	}
 }
 
 -(void)remove:(id)viewProxy
