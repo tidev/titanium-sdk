@@ -90,12 +90,12 @@
 	}
 	
 	[[(TiUITabController*)viewController window] _tabBeforeFocus];
+	[self handleDidShowViewController:viewController];
 }
 
 - (void)navigationController:(UINavigationController *)navigationController willShowViewController:(UIViewController *)viewController animated:(BOOL)animated
 {
 	[self handleWillShowViewController:viewController];
-
 }
 
 - (void)handleDidShowViewController:(UIViewController *)viewController
@@ -136,7 +136,6 @@
 
 - (void)navigationController:(UINavigationController *)navigationController didShowViewController:(UIViewController *)viewController animated:(BOOL)animated
 {
-	[self handleDidShowViewController:viewController];
 }
 
 - (void)handleWillBlur
@@ -181,8 +180,11 @@
 
 -(void)open:(NSArray*)args
 {
-	ENSURE_UI_THREAD(open,args);
-	
+	[self performSelectorOnMainThread:@selector(openOnUIThread:) withObject:args waitUntilDone:YES];
+}
+
+-(void)openOnUIThread:(NSArray*)args
+{
 	TiWindowProxy *window = [args objectAtIndex:0];
 	ENSURE_TYPE(window,TiWindowProxy);
 	// since the didShow notification above happens on both a push and pop, i need to keep a flag

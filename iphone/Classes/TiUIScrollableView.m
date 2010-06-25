@@ -110,11 +110,12 @@
 		return;
 	}
 
-	UIView *wrapper = [[sv subviews] objectAtIndex:index];
+	UIView *wrapper = [svSubviews objectAtIndex:index];
 	if ([[wrapper subviews] count]==0)
 	{
 		// we need to realize this view
 		TiViewProxy *viewproxy = [views objectAtIndex:index];
+		[viewproxy windowWillOpen];
 		TiUIView *uiview = [viewproxy view];
 		[wrapper addSubview:uiview];
 		[viewproxy reposition];
@@ -225,7 +226,7 @@
 
 -(void)setViews_:(id)args
 {
-	BOOL refresh = views!=nil;
+	BOOL refresh = (views!=nil);
 	if (views!=nil)
 	{
 		for (TiViewProxy *proxy in views)
@@ -236,11 +237,6 @@
 	RELEASE_TO_NIL(views);
 	views = [args retain];
 	
-	// Reparent views
-	for (TiViewProxy* proxy_ in views) {
-		[proxy_ setParent:[self proxy]];
-	}
-
 	if (refresh)
 	{
 		[self refreshScrollView:[self bounds] readd:YES];

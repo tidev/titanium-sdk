@@ -725,6 +725,7 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 
 	for (NSString * thisKey in keyedValues)
 	{
+		if ([keySequence containsObject:thisKey]) continue;
 		[self setValue:[keyedValues valueForKey:thisKey] forKey:thisKey];
 	}
 }

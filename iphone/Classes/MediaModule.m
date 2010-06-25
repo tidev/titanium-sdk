@@ -285,7 +285,7 @@ enum
 			ENSURE_TYPE(cameraView,TiViewProxy);
 			UIView *view = [cameraView view];
 			[TiUtils setView:view positionRect:[picker view].bounds];
-			[cameraView layoutChildren];
+			[cameraView layoutChildren:NO];
 			[picker setCameraOverlayView:view];
 			[picker setWantsFullScreenLayout:YES];
 		}

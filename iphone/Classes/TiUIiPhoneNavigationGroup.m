@@ -27,6 +27,7 @@
 		{
 			[self throwException:@"window property required" subreason:nil location:CODELOCATION];
 		}
+		[windowProxy windowWillOpen];
 		UIViewController *rootController = [windowProxy controller];	
 		controller = [[UINavigationController alloc] initWithRootViewController:rootController];
 		[controller setDelegate:self];
@@ -36,6 +37,7 @@
 		[windowProxy setupWindowDecorations];
 		current = windowProxy;
 		root = windowProxy;
+		[windowProxy windowDidOpen];
 	}
 	return controller;
 }

@@ -521,6 +521,12 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 	}
 }
 
+-(UIView*)view
+{
+	return nil;
+}
+
+
 -(void)configureChildren:(UITableViewCell*)cell
 {
 	// this method is called when the cell is initially created
@@ -544,12 +550,13 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 		
 		for (TiViewProxy *proxy in self.children)
 		{
+			[proxy windowWillOpen];
 			TiUIView *uiview = [proxy view];
 			uiview.parent = self;
 			[self redelegateViews:proxy toView:contentView];
 			[rowContainerView addSubview:uiview];
 		}
-		[self layoutChildren];
+		[self layoutChildren:NO];
 		[contentView addSubview:rowContainerView];
 	}
 	[self unlockChildren];
@@ -656,7 +663,7 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 					TiUIView *uiview = [subviews objectAtIndex:x];
 					[self reproxyChildren:proxy view:uiview parent:self touchDelegate:contentView];
 				}
-				[self layoutChildren];
+				[self layoutChildren:NO];
 			[self unlockChildren];
 			found = YES;
 			// once we find the container we can break
@@ -691,6 +698,7 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 
 -(void)initializeTableViewCell:(UITableViewCell*)cell
 {
+	rowRendered = YES;
 	modifyingRow = YES;
 	[self configureTitle:cell];
 	[self configureSelectionStyle:cell];
@@ -738,6 +746,13 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 	return (table!=nil) && ([self parent]!=nil);
 }
 
+-(void)triggerAttach
+{
+	attaching = YES;
+	[self windowWillOpen];
+	attaching = NO;
+}
+
 -(void)triggerRowUpdate
 {
 	if ([self isAttached] && !modifyingRow)
@@ -747,9 +762,19 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 	}
 }
 
+-(void)windowWillOpen
+{
+	attaching = YES;
+	[super windowWillOpen];
+	attaching = NO;
+}
+
 -(void)childAdded:(id)child
 {
-	[self triggerRowUpdate];
+	if (attaching==NO)
+	{
+		[self triggerRowUpdate];
+	}
 }
 
 -(void)childRemoved:(id)child

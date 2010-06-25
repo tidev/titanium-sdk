@@ -60,6 +60,8 @@
 
 -(void)add:(id)args
 {
+	ENSURE_UI_THREAD(add,args);
+	
 	id data = [args objectAtIndex:0];
 	
 	TiUIPicker *picker = [self picker];

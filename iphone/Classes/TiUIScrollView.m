@@ -120,7 +120,7 @@
 	[wrapperView setBounds:wrapperBounds];
 	[wrapperView setCenter:CGPointMake(newContentSize.width/2, newContentSize.height/2)];
 	needsHandleContentSize = NO;
-	[(TiViewProxy *)[self proxy] layoutChildren];
+	[(TiViewProxy *)[self proxy] layoutChildren:NO];
 }
 
 -(void)setContentWidth_:(id)value

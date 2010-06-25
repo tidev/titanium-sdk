@@ -23,6 +23,7 @@
 
 	LayoutConstraint layoutProperties;
 
+	BOOL windowOpened;
 	int dirtyflags;	//For atomic actions, best to be explicit about the 32 bitness.
 
 //From TiUIWidgetProxy
@@ -36,6 +37,8 @@
 	TiUIView *view;
 	TiViewProxy *parent;
 	BOOL viewInitialized;
+	NSMutableArray *pendingAdds;
+	
 #if USE_VISIBLE_BOOL
 	BOOL visible;
 #endif
@@ -73,9 +76,15 @@
 
 -(BOOL)viewAttached;
 -(BOOL)viewInitialized;
--(void)layoutChildren;
+-(void)layoutChildren:(BOOL)optimize;
 -(void)layoutChildrenIfNeeded;
--(void)layoutChild:(TiViewProxy*)child;
+-(void)layoutChild:(TiViewProxy*)child optimize:(BOOL)optimize;
+-(void)windowWillOpen;
+-(void)windowDidOpen;
+-(BOOL)windowOpened;
+
+-(void)setWidth:(id)value;
+-(void)setHeight:(id)value;
 
 -(void)animationCompleted:(TiAnimation*)animation;
 -(void)detachView;
@@ -111,7 +120,7 @@
 
 -(BOOL)willBeRelaying;
 -(void)childWillResize:(TiViewProxy *)child;
-
+-(BOOL)isAutoHeightOrWidth;
 -(BOOL)canHaveControllerParent;
 
 @end

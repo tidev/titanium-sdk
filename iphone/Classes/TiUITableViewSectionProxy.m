@@ -100,6 +100,11 @@
 	}
 }
 
+-(UIView*)view
+{
+	return nil;
+}
+
 -(NSString*)headerTitle
 {
 	return [super valueForUndefinedKey:@"headerTitle"];
@@ -125,7 +130,7 @@
 	}
 	
 	
-	if ([TableViewSectionProperties member:key]!=nil)
+	if ([TableViewSectionProperties member:key]!=nil && table!=nil)
 	{
 		[self triggerSectionUpdate];
 	}

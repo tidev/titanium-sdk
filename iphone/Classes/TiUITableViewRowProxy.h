@@ -31,8 +31,9 @@ typedef enum
 	
 	UIView * rowContainerView;
 	BOOL modifyingRow;
+	BOOL attaching;
 	NSInteger row;
-	
+	BOOL rowRendered;
 	TiUITableViewCell* callbackCell;
 }
 
@@ -52,7 +53,7 @@ typedef enum
 -(CGFloat)rowHeight:(CGRect)bounds;
 -(TiProxy *)touchedViewProxyInCell:(UITableViewCell *)targetCell;
 -(id)createEventObject:(id)initialObject;
-
+-(void)triggerAttach;
 -(void)updateRow:(NSDictionary*)data withObject:(NSDictionary*)properties;
 
 @end

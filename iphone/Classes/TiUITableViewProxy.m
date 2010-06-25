@@ -380,13 +380,19 @@ NSArray * tableKeySequence;
         
         // Have to do this after the action or else there's an update of a nonexistant section
         if (header != nil) {
-            [section setValue:header forUndefinedKey:@"headerTitle"];
+			[section replaceValue:header forKey:@"headerTitle" notification:NO];
         }
 	}	
 }
 
 -(void)setData:(id)args withObject:(id)properties
 {
+	if (windowOpened==NO)
+	{
+		RELEASE_TO_NIL(pendingData);
+		pendingData = [[NSArray arrayWithObjects:args,properties,nil] retain];
+		return;
+	}
 	ENSURE_TYPE_OR_NIL(args,NSArray);
 	ENSURE_UI_THREAD_WITH_OBJ(setData,args,properties);
 	
@@ -417,12 +423,12 @@ NSArray * tableKeySequence;
 			}
 			if (header!=nil)
 			{
-				[section setValue:header forUndefinedKey:@"headerTitle"];
+				[section replaceValue:header forKey:@"headerTitle" notification:NO];
 			}
 			NSString *footer = [dict objectForKey:@"footer"];
 			if (footer!=nil)
 			{
-				[section setValue:footer forUndefinedKey:@"footerTitle"];
+				[section replaceValue:footer forKey:@"footerTitle" notification:NO];
 			}
 			[section add:rowProxy];
 		}
@@ -440,13 +446,17 @@ NSArray * tableKeySequence;
 				section = [[[TiUITableViewSectionProxy alloc] _initWithPageContext:[self executionContext] args:nil] autorelease];
 				if (rowHeader!=nil)
 				{
-					[section setValue:rowHeader forUndefinedKey:@"headerTitle"];
+					[section replaceValue:rowHeader forKey:@"headerTitle" notification:NO];
 				}
+				section.section = [data count];
+				TiUITableView *table = [self tableView];
+				section.table = table;
+				section.parent = [table proxy];
 				[data addObject:section];
 			}
 			if (rowFooter!=nil)
 			{
-				[section setValue:rowFooter forUndefinedKey:@"footerTitle"];
+				[section replaceValue:rowFooter forKey:@"footerTitle" notification:NO];
 			}
 			[section add:row];
 		}
@@ -483,6 +493,19 @@ NSArray * tableKeySequence;
 	}
 	[[self view] performSelector:@selector(setContentInsets_:withObject:) withObject:arg1 withObject:arg2];
 }
+
+-(void)windowWillOpen
+{
+	[super windowWillOpen];
+	
+	if (pendingData!=nil)
+	{
+		id prop = [pendingData count]>1 ? [pendingData objectAtIndex:1] : nil;
+		[self setData:[pendingData objectAtIndex:0] withObject:prop];
+		RELEASE_TO_NIL(pendingData);
+	}
+}
+
 
 @end 
 
