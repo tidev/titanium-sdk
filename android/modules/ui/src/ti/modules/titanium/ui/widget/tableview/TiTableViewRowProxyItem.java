@@ -145,7 +145,7 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 		TiDict dp = rp.getParent().getDynamicProperties();
 		if (dp.containsKey("minRowHeight"))
 		{
-			int minRowHeight = TiConvert.toInt(dp,"minRowHeight");
+			int minRowHeight = TiConvert.toInt(dp, "minRowHeight");
 			if (height < 0)
 			{
 				height = minRowHeight;

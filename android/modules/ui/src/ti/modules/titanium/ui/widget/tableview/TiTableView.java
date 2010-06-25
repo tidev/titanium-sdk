@@ -159,8 +159,7 @@ public class TiTableView extends FrameLayout
 		}
 
 		public long getItemId(int position) {
-			// TODO Auto-generated method stub
-			return 0;
+			return position;
 		}
 
 		@Override
@@ -189,12 +188,21 @@ public class TiTableView extends FrameLayout
 		{
 			Item item = (Item) getItem(position);
 			TiBaseTableViewItem v = null;
-
+			
 			if (convertView != null) {
 				v = (TiBaseTableViewItem) convertView;
-				if (!v.getClassName().equals(item.className)) {
-					Log.w(LCAT, "Handed a view to convert with className " + v.getClassName() + " expected " + item.className);
-					v = null;
+				
+				// Default creates view for each Item
+				if (v.getClassName().equals(TableViewProxy.CLASSNAME_DEFAULT)) {
+					if (v.getRowData() != item) {
+						v = null;
+					}
+				} else {
+					// otherwise compare class names
+					if (!v.getClassName().equals(item.className)) {
+						Log.w(LCAT, "Handed a view to convert with className " + v.getClassName() + " expected " + item.className);
+						v = null;
+					}
 				}
 			}
 
