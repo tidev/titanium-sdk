@@ -247,6 +247,7 @@
 	ENSURE_UI_THREAD(setTitle,title);
 	if (rootController!=nil)
 	{
+		title = [TiUtils stringValue:title];
 		rootController.tabBarItem.title = title;
 		rootController.title = title;
 	}
