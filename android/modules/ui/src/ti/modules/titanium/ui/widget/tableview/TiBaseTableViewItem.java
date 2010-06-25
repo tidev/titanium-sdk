@@ -45,7 +45,8 @@ public abstract class TiBaseTableViewItem extends ViewGroup implements Handler.C
 	}
 
 	public abstract void setRowData(Item item);
-
+	public abstract Item getRowData();
+	
 	public boolean handleMessage(Message msg)
 	{
 		return false;

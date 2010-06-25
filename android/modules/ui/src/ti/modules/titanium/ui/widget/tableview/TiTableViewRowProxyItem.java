@@ -143,18 +143,8 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 		}
 		
 		if (rp.getParent() != null) {
-			TiDict dp = rp.getParent().getDynamicProperties();
-			if (dp.containsKey("minRowHeight"))
-			{
-				int minRowHeight = TiConvert.toInt(dp,"minRowHeight");
-				if (height < 0)
-				{
-					height = minRowHeight;
-				}
-				else
-				{
-					height = Math.max(minRowHeight,height);
-				}
+			if (rp.getParent().hasDynamicValue("minRowHeight")) {
+				height = Math.max(height, TiConvert.toInt(rp.getParent().getDynamicProperties(), "minRowHeight"));
 			}
 		}
 		
