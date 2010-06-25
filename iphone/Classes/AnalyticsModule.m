@@ -305,7 +305,8 @@ NSString * const TI_DB_VERSION = @"1";
 
 	NSString *currentVersion = nil;
 	PLSqliteResultSet *rs = (PLSqliteResultSet*)[database executeQuery:@"SELECT version from version"];
-	currentVersion = [rs objectForColumn:@"version"];
+	[rs next];
+	currentVersion = [TiUtils stringValue:[rs objectForColumn:@"version"]];
 	[rs close];
 	
 	BOOL migrate = NO;
@@ -315,7 +316,7 @@ NSString * const TI_DB_VERSION = @"1";
 		migrate = YES;
 		[database executeUpdate:[NSString stringWithFormat:@"INSERT INTO version VALUES('%@')",TI_DB_VERSION]];
 	}
-	else if (currentVersion!=TI_DB_VERSION)
+	else if (![currentVersion isEqualToString:TI_DB_VERSION])
 	{
 		migrate = YES;
 	}
