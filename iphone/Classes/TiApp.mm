@@ -313,6 +313,12 @@ void MyUncaughtExceptionHandler(NSException *exception)
 	return YES;
 }
 
+- (BOOL)application:(UIApplication *)application handleOpenURL:(NSURL *)url
+{
+	[launchOptions removeObjectForKey:UIApplicationLaunchOptionsURLKey];	
+	[launchOptions setObject:[url absoluteString] forKey:@"url"];
+}
+
 - (void)applicationWillTerminate:(UIApplication *)application
 {
 	NSNotificationCenter * theNotificationCenter = [NSNotificationCenter defaultCenter];
