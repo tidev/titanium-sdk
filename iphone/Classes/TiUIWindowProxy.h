@@ -21,9 +21,11 @@
 	BOOL contextReady;
 	UIImageView *barImageView;
 	NSURL *oldBaseURL;
+	id latch;
 }
 
 -(void)_refreshBackButton;
+-(void)boot:(BOOL)timeout;
 
 @end
 

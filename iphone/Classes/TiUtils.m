@@ -836,7 +836,8 @@ extern NSString * const TI_APPLICATION_RESOURCE_DIR;
 +(UIInterfaceOrientation)orientation 
 {
 	UIDeviceOrientation orient = [UIDevice currentDevice].orientation;
-	if (UIDeviceOrientationUnknown == 0) 
+//	TODO: A previous bug was DeviceOrientationUnknown == 0, which is always true. Uncomment this when pushing.
+	if (UIDeviceOrientationUnknown == orient) 
 	{
 		return UIDeviceOrientationPortrait;
 	} 

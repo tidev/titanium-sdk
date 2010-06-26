@@ -362,7 +362,7 @@ DEFINE_EXCEPTIONS
 		repositioning = YES;
 		if ([self superview] == nil)
 		{
-			[[(TiViewProxy *)proxy parent] layoutChild:(TiViewProxy *)proxy];
+			[[(TiViewProxy *)proxy parent] layoutChild:(TiViewProxy *)proxy optimize:NO];
 		}
 		ApplyConstraintToViewWithinViewWithBounds([(TiViewProxy *)proxy layoutProperties], self, [self superview], bounds, YES);
 		[(TiViewProxy *)[self proxy] clearNeedsReposition];
@@ -420,7 +420,7 @@ DEFINE_EXCEPTIONS
 	if (parent!=nil && [parent viewAttached])
 	{
 		[self removeFromSuperview];
-		[parent layoutChild:(TiViewProxy *)[self proxy]];
+		[parent layoutChild:(TiViewProxy *)[self proxy] optimize:NO];
 	}
 }
 
@@ -450,7 +450,7 @@ DEFINE_EXCEPTIONS
 		[self.proxy isKindOfClass:[TiViewProxy class]])
 	{
 		childrenInitialized=YES;
-		[(TiViewProxy*)self.proxy layoutChildren];
+		[(TiViewProxy*)self.proxy layoutChildren:NO];
 	}
 }
 
@@ -707,6 +707,11 @@ DEFINE_EXCEPTIONS
 //Todo: Generalize.
 -(void)setKrollValue:(id)value forKey:(NSString *)key withObject:(id)props
 {
+	if(value == [NSNull null])
+	{
+		value = nil;
+	}
+
 	SEL method = SetterWithObjectForKrollProperty(key);
 	if([self respondsToSelector:method])
 	{

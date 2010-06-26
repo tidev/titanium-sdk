@@ -21,12 +21,16 @@
 	UIView *right;
 	UIView *leftView;
 	UIView *rightView;
+	
+	BOOL becameResponder;
 }
 
 @property(nonatomic,readwrite,assign) CGFloat paddingLeft;
 @property(nonatomic,readwrite,assign) CGFloat paddingRight;
 @property(nonatomic,readwrite,assign) CGFloat leftButtonPadding;
 @property(nonatomic,readwrite,assign) CGFloat rightButtonPadding;
+
+@property(nonatomic,readonly) BOOL becameResponder;
 
 @end
 

@@ -129,19 +129,12 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 	return [[TiApp app] window];
 }
 
--(void)windowReady
+-(void)windowDidOpen
 {
-	opened = YES;
+	[super windowDidOpen];
+
 	opening = NO;
-	
-	if (!navWindow) {
-		[self attachViewToTopLevelWindow];
-	}
-	else
-	{
-		[self layoutChildren];
-	}
-	
+
 	if ([self _hasListeners:@"open"])
 	{
 		[self fireEvent:@"open" withObject:nil];
@@ -152,6 +145,21 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 	if (focused==NO && [self handleFocusEvents])
 	{
 		[self fireFocus:YES];
+	}
+}
+
+-(void)windowReady
+{
+	if (opened)
+	{
+		return;
+	}
+	
+	opened = YES;
+	
+	if (!navWindow) 
+	{
+		[self attachViewToTopLevelWindow];
 	}
 	
 	if (reattachWindows!=nil)
@@ -178,6 +186,7 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 	opened = NO;
 	attached = NO;
 	opening = NO;
+	closing = NO;
 	
 	[self detachView];
 	
@@ -319,13 +328,15 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 	navWindow = NO;
 	BOOL rootViewAttached = [self isRootViewAttached];
 	
-	// ensure on open that we've created our view before we start to use it
-	[self view];
-	
 	// give it to our subclass. he'll either return true to continue with open state and animation or 
 	// false to delay for some other action
 	if ([self _handleOpen:args])
 	{
+		// ensure on open that we've created our view before we start to use it
+		[self view];
+		[self windowWillOpen];
+		[self windowReady];
+		
 		TiAnimation *animation = nil;
 		if (!modalFlag)
 		{
@@ -411,7 +422,7 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 		}
 		if (animation==nil)
 		{
-			[self windowReady];
+			[self windowDidOpen];
 		}
 	}
 }
@@ -457,7 +468,9 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 	{
 		return;
 	}
-	
+
+	closing=YES;
+
 	//TEMP hack until we can figure out split view issue
 	if (tempController!=nil)
 	{
@@ -598,7 +611,7 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 		[[[TiApp app] controller] windowFocused:[self controller]];
 	}
 
-	[self layoutChildren];
+	[self layoutChildren:YES];
 
 	[rootView bringSubviewToFront:view];
 
@@ -701,9 +714,9 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 {
 	if (opening)
 	{
-		[self windowReady];
+		[self windowDidOpen];
 	}
-	else
+	else if (closing)
 	{
 		[self windowClosed];
 		[closeView autorelease];

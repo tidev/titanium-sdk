@@ -2,6 +2,10 @@ var win = Titanium.UI.currentWindow;
 
 var count = 0;
 
+// Need this so that any sound which is playing when we come in continues to
+// do so
+Titanium.Media.defaultAudioSessionMode = Ti.Media.AUDIO_SESSION_MODE_AMBIENT;
+
 var startAudio = Titanium.UI.createButton({
 	title:'Toggle Audio Session Mode',
 	top:10,
@@ -56,7 +60,7 @@ stopSound.addEventListener('click', function()
 });
 
 var l = Ti.UI.createLabel({
-	text:'Play sounds to toggle audio mode',
+	text:'Play sounds to toggle audio mode - try running this test when you have the iPod playing!',
 	top:210,
 	width:300,
 	height:30
@@ -69,14 +73,12 @@ win.add(stopSound);
 win.add(l);
 
 var modeArray = [
-	{mode:Ti.Media.AUDIO_SESSION_MODE_AMBIENT,desc:'Ambient Mode'},
 	{mode:Ti.Media.AUDIO_SESSION_MODE_SOLO_AMBIENT,desc:'Solo Ambient Mode'},
+	{mode:Ti.Media.AUDIO_SESSION_MODE_AMBIENT,desc:'Ambient Mode'},
 	{mode:Ti.Media.AUDIO_SESSION_MODE_PLAYBACK,desc:'Playback Mode'},
 	{mode:Ti.Media.AUDIO_SESSION_MODE_RECORD,desc:'Record Mode'},
 	{mode:Ti.Media.AUDIO_SESSION_MODE_PLAY_AND_RECORD,desc:'Play and Record Mode'}
 ];
-
-
 
 var audio = Ti.Media.createAudioPlayer({url:'http://202.6.74.107:8060/triplej.mp3'});
 var sound = Titanium.Media.createSound({url:'../cricket.wav'});

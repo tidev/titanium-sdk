@@ -74,7 +74,7 @@ SplitViewNav.splitView.addEventListener('visible', function(e) {
 		SplitViewNav.detailWindow.leftNavButton = e.button;
 		Ti.API.log('Set button');
 	}
-	else {
+	else if (e.view == 'master') {
 		SplitViewNav.detailWindow.leftNavButton = null;
 		Ti.API.log('Removed button');
 	}

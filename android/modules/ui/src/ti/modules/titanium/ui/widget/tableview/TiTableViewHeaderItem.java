@@ -29,6 +29,7 @@ public class TiTableViewHeaderItem extends TiBaseTableViewItem
 	class RowView extends RelativeLayout
 	{
 		private TextView textView;
+		private Item item;
 
 		public RowView(Context context) {
 			super(context);
@@ -55,11 +56,16 @@ public class TiTableViewHeaderItem extends TiBaseTableViewItem
 
 		public void setRowData(Item item)
 		{
+			this.item = item;
 			if (item.headerText != null) {
 				textView.setText(item.headerText, TextView.BufferType.NORMAL);
 			} else if (item.footerText != null) {
 				textView.setText(item.footerText, TextView.BufferType.NORMAL);
 			}
+		}
+		
+		public Item getRowData() {
+			return item;
 		}
 	}
 
@@ -78,7 +84,10 @@ public class TiTableViewHeaderItem extends TiBaseTableViewItem
 		rowView.setRowData(item);
 	}
 
-
+	public Item getRowData() {
+		return rowView.getRowData();
+	}
+	
 	@Override
 	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
 		measureChildren(widthMeasureSpec, heightMeasureSpec);

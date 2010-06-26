@@ -35,7 +35,7 @@ tableView.addEventListener('click',function(e)
 		case 1:
 		{
 			var row = tableView.getIndexByName('row2');
-			data = {title:'New Row2'};
+			data = {title:'New Row2',name:'row2'};
 			tableView.updateRow(row,data,{animationStyle:Titanium.UI.iPhone.RowAnimationStyle.RIGHT});
 
 			break;

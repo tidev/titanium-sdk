@@ -9,7 +9,7 @@ template_dir = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filena
 xcodedir = os.path.join("/Developer","Platforms","iPhoneOS.platform","Developer","Library","Xcode")
 
 file_dir = os.path.join(xcodedir,"File Templates","Appcelerator")
-project_dir = os.path.join(xcodedir,"Project Templates","Appcelerator")
+#project_dir = os.path.join(xcodedir,"Project Templates","Appcelerator")
 
 if os.path.exists(file_dir):
 	shutil.rmtree(file_dir)
@@ -22,8 +22,6 @@ if not os.path.exists(file_dir):
 if not os.path.exists(project_dir):
 	os.makedirs(project_dir)
 
-shutil.copytree(os.path.join(template_dir,'Titanium class'), os.path.join(file_dir,'Titanium class'))
-shutil.copytree(os.path.join(template_dir,'Titanium Mobile Module'), os.path.join(project_dir,'Titanium Mobile Module'))
-
+shutil.copytree(os.path.join(template_dir,'Titanium'), os.path.join(file_dir,'Titanium'))
 
 sys.exit(0)

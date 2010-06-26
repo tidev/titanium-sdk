@@ -119,14 +119,14 @@
 			}
 		}
 		
+		// indicate we're going to start recording
+		[[TiMediaAudioSession sharedSession] record:sessionMode];
+		
 		// set our audio file
 		recorder->SetupAudioFormat(comp);
 		
 		// create a temporary file
 		file = [[TiUtils createTempFile:extension] retain];
-		
-		// indicate we're going to start recording
-		[[TiMediaAudioSession sharedSession] record:sessionMode];
 		
 		// Start the recorder
 		recorder->StartRecord((CFStringRef)[file path], fmt);

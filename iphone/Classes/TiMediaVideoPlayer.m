@@ -30,6 +30,7 @@
 	}
 	RELEASE_TO_NIL(controller);
 	controller = [controller_ retain];
+	[TiUtils setView:[controller view] positionRect:self.bounds];
 	[self addSubview:[controller view]];
 	[self sendSubviewToBack:[controller view]];
 }

@@ -9,14 +9,6 @@ import json, run, tempfile, codecs
 
 template_dir = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
 
-def sdk_found(apiversion):
-	if not os.path.exists('/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS%s.sdk' % apiversion):
-		return False
-	if not os.path.exists('/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator%s.sdk' % apiversion):
-		return False
-	return True
-
-
 def get_sdks():
 	found = []
 	ipad = False

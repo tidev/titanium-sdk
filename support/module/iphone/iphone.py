@@ -4,6 +4,7 @@
 # iPhone Module Project Create Script
 #
 import os,sys,shutil
+template_dir = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
 
 #
 # this class is created after all template files (if any) in
@@ -18,4 +19,10 @@ class iphone(object):
 		git_file.write("%s.h\n" % module.module_name)
 		git_file.write("%s.m\n" % module.module_name)
 		git_file.close()
+		
+		# make sure we have our Xcode templates installed
+		install_script = os.path.join(template_dir,'xcode','install.py')
+		if os.path.exists(install_script):
+			os.system(install_script)
+			
 		
