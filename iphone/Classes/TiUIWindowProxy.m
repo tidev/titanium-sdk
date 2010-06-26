@@ -14,7 +14,7 @@
 #import "TiApp.h"
 #import "TiTabController.h"
 
-#define EXTERNAL_JS_WAIT_TIME 0.6
+#define EXTERNAL_JS_WAIT_TIME 0.25
 
 /** 
  * This class is a helper that will be used when we have an external
