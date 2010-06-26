@@ -34,7 +34,18 @@ var barUpdate = function () {
 };
 
 try {
-	player = Titanium.Media.appMusicPlayer;
+	player = Titanium.Media.systemMusicPlayer;
+	
+	if (player.playbackState == Titanium.Media.MUSIC_PLAYER_STATE_PLAYING) {
+		info.text = player.nowPlaying.artist + ' : ' + player.nowPlaying.albumTitle;
+		title.text = player.nowPlaying.title;
+		timeBar.show();
+		timeBar.max = player.nowPlaying.playbackDuration;
+		timeBar.value = player.currentPlaybackTime;
+		if (playback == null) {
+			playback = setInterval(barUpdate, 500);
+		}
+	}
 	
 	player.addEventListener('stateChange', function() {
 		if (player.playbackState == Titanium.Media.MUSIC_PLAYER_STATE_STOPPED) {
@@ -406,7 +417,6 @@ b11.addEventListener('click', function() {
 win.add(b11);
 
 win.addEventListener('close', function() {
-	player.stop();
 	if (playback != null) {
 		clearInterval(playback);
 	}
