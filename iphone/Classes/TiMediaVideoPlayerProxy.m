@@ -149,12 +149,22 @@ if (![TiUtils isiPhoneOS3_2OrGreater]) {\
 	{
 		if (url==nil)
 		{
-			NSLog(@"[ERROR] Tried to play movie player without a valid url, media, or contentURL property");
+			// this is OK - we just need to delay creation of the 
+			// player until after the url is set 
 			return nil;
 		}
 		movie = [[MPMoviePlayerController alloc] initWithContentURL:url];
 		[self configureNotifications];
 		[self setValuesForKeysWithDictionary:loadProperties];
+		// we need this code below since the player can be realized before loading
+		// properties in certain cases and when we go to create it again after setting
+		// url we will need to set the new controller to the already created view
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
+		if ([TiUtils isiPhoneOS3_2OrGreater]) {
+			TiMediaVideoPlayer *vp = (TiMediaVideoPlayer*)[self view];
+			[vp setMovie:movie];
+		}
+#endif
 	}
 	return movie;
 }
@@ -250,7 +260,9 @@ if (![TiUtils isiPhoneOS3_2OrGreater]) {\
 // < 3.2 functions for controls
 -(void)updateControlMode:(id)value
 {
+#if __IPHONE_OS_VERSION_MAX_ALLOWED < __IPHONE_3_2
 	[[self player] setMovieControlMode:[TiUtils intValue:value def:MPMovieControlModeDefault]];
+#endif
 }
 
 -(void)setMovieControlMode:(NSNumber *)value
@@ -275,7 +287,9 @@ if (![TiUtils isiPhoneOS3_2OrGreater]) {\
 {
 	if (![TiUtils isiPhoneOS3_2OrGreater]) {
 		if (movie != nil) {
+#if __IPHONE_OS_VERSION_MAX_ALLOWED < __IPHONE_3_2
 			return NUMINT([[self player] movieControlMode]);
+#endif
 		}
 		else {
 			RETURN_FROM_LOAD_PROPERTIES(@"movieControlMode",NUMINT(MPMovieControlModeDefault));
@@ -707,6 +721,7 @@ if (![TiUtils isiPhoneOS3_2OrGreater]) {\
 		[movie stop];
 	}
 	[[movie retain] autorelease];
+	[self detachView];
 	movie = nil;
 	playing = NO;
 }
@@ -830,6 +845,7 @@ if (![TiUtils isiPhoneOS3_2OrGreater]) {\
 		// release memory!
 		[self stop:nil];
 	}
+#if __IPHONE_OS_VERSION_MAX_ALLOWED < __IPHONE_3_2
 	else if ([name isEqualToString:MPMoviePlayerContentPreloadDidFinishNotification])
 	{
 		NSError *error = [[notification userInfo] objectForKey:@"error"];
@@ -845,6 +861,7 @@ if (![TiUtils isiPhoneOS3_2OrGreater]) {\
 			[self fireEvent:@"preload" withObject:event];
 		}
 	}
+#endif	
 	else if ([name isEqualToString:MPMoviePlayerScalingModeDidChangeNotification] && [self _hasListeners:@"resize"])
 	{
 		[self fireEvent:@"resize" withObject:nil];
