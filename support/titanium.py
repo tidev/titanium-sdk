@@ -3,7 +3,7 @@
 #
 # Titanium SDK script
 #
-import os, sys, subprocess, types
+import os, sys, subprocess, types, re
 from tiapp import *
 
 template_dir = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
@@ -12,6 +12,10 @@ def die(msg):
 	print msg
 	sys.exit(1)
 	
+def validate_project_name(name):
+	if re.match("^[A-Za-z]+[A-Za-z0-9_-]*",name)==None:
+		die("Invalid project name: %s" % name)
+		
 def fork(args,quiet=False):
 	proc = subprocess.Popen(args, stderr=subprocess.STDOUT, stdout=subprocess.PIPE)
 	while proc.poll()==None:
@@ -89,6 +93,7 @@ def is_ios(osname):
 def create_iphone_project(project_dir,osname,args):
 	script = os.path.join(template_dir,'project.py')
 	name = get_required(args,'name')
+	validate_project_name(name)
 	appid = get_required(args,'id')
 	args = [script,name,appid,project_dir,osname]
 	fork(args,True)
@@ -97,6 +102,7 @@ def create_iphone_project(project_dir,osname,args):
 def create_iphone_module(project_dir,osname,args):
 	script = os.path.join(template_dir,'module','module.py')
 	name = get_required(args,'name')
+	validate_project_name(name)
 	appid = get_required(args,'id')
 	args = [script,'--name',name,'--id',appid,'--directory',project_dir,'--platform',osname]
 	fork(args,False)
@@ -105,6 +111,7 @@ def create_iphone_module(project_dir,osname,args):
 def create_android_project(project_dir,osname,args):
 	script = os.path.join(template_dir,'project.py')
 	name = get_required(args,'name')
+	validate_project_name(name)
 	appid = get_required(args,'id')
 	android_sdk = get_required_dir(args,'android')
 	args = [script,name,appid,project_dir,osname,android_sdk]
@@ -114,6 +121,7 @@ def create_android_project(project_dir,osname,args):
 def create_android_module(project_dir,osname,args):
 	script = os.path.join(template_dir,'module','module.py')
 	name = get_required(args,'name')
+	validate_project_name(name)
 	appid = get_required(args,'id')
 	android_sdk = get_required_dir(args,'android')
 	args = [script,'--name',name,appid,'--directory',project_dir,'--platform',osname,'--sdk',android_sdk]

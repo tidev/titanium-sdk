@@ -56,7 +56,6 @@ MODULE_IMPL_HEADER = """#import "ApplicationMods.h"
 
 def read_module_properties(dir):
 	file = os.path.join(dir,'manifest')
-	print file
 	dict = {}
 	if os.path.exists(file):
 		contents = open(file).read()
