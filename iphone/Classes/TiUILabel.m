@@ -181,7 +181,6 @@
         if (backgroundView == nil) {
             backgroundView = [[UIImageView alloc] initWithImage:bgImage];
             backgroundView.userInteractionEnabled = NO;
-            backgroundView.contentMode = UIViewContentModeRedraw;
             
             [label removeFromSuperview];
             [backgroundView addSubview:label];
