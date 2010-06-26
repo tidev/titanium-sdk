@@ -104,7 +104,7 @@ NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._listeners={
 {
 	if (webview==nil)
 	{
-		webview = [[UIWebView alloc] initWithFrame:CGRectZero];
+		webview = [[UIWebView alloc] initWithFrame:CGRectMake(0, 0, 10, 1)];
 		webview.delegate = self;
 		webview.opaque = NO;
 		webview.backgroundColor = [UIColor whiteColor];
@@ -574,7 +574,7 @@ NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._listeners={
 -(CGFloat)autoHeightForWidth:(CGFloat)value
 {
 	CGRect oldBounds = [[self webview] bounds];
-	[webview setBounds:CGRectMake(0, 0, value, 0)];
+	[webview setBounds:CGRectMake(0, 0, MAX(value,10), 1)];
 	CGFloat result = [[webview stringByEvaluatingJavaScriptFromString:@"document.height"] floatValue];
 	[webview setBounds:oldBounds];
 	return result;
@@ -584,7 +584,7 @@ NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._listeners={
 {
     CGRect oldBounds = [[self webview] bounds];
     CGFloat currentHeight = [[webview stringByEvaluatingJavaScriptFromString:@"document.height"] floatValue];
-    [webview setBounds:CGRectMake(0, 0, 0, currentHeight)];
+    [webview setBounds:CGRectMake(0, 0, 10, currentHeight)];
     CGFloat realWidth = [[webview stringByEvaluatingJavaScriptFromString:@"document.width"] floatValue];
     [webview setBounds:oldBounds];
     return (value < realWidth) ? value : realWidth;
