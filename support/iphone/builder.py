@@ -9,6 +9,7 @@ import os, sys, uuid, subprocess, shutil, signal
 import platform, time, re, run, glob, codecs, hashlib, datetime
 from compiler import Compiler
 from projector import Projector
+from xml.dom.minidom import parseString
 from pbxproj import PBXProj
 from os.path import join, splitext, split, exists
 
@@ -92,6 +93,103 @@ def make_app_name(s):
 		buf = 'k%s' % buf
 	return buf
 
+	def getText(nodelist):
+	    rc = ""
+	    for node in nodelist:
+	        if node.nodeType == node.TEXT_NODE:
+	            rc = rc + node.data
+	    return rc
+
+def make_map(dict):
+	props = {}
+	curkey = None
+
+	for i in dict.childNodes:
+		if i.nodeType == 1:
+			if i.nodeName == 'key':
+				curkey = str(getText(i.childNodes)).strip()
+			elif i.nodeName == 'dict':
+				props[curkey] = make_map(i)
+				curkey = None
+			elif i.nodeName == 'array':
+				s = i.getElementsByTagName('string')
+				if len(s):
+					txt = ''
+					for t in s:
+						txt+=getText(t.childNodes)
+					props[curkey]=txt
+				else:
+					props[curkey]=None
+				curkey = None
+			else:
+				props[curkey] = getText(i.childNodes)
+				curkey = None
+
+	return props
+
+def get_app_prefix(f):
+	f = open(f,'rb').read()
+	b = f.index('<?xml')
+	e = f.index('</plist>')
+	xml_content = f[b:e+8]
+	dom = parseString(xml_content)
+	dict = dom.getElementsByTagName('dict')[0]
+	props = make_map(dict)
+	name = props['Name']
+	name = name.decode('string_escape').decode('utf-8')
+	# entitlements = props['Entitlements']
+	# appid = entitlements['application-identifier']
+	appid_prefix = props['ApplicationIdentifierPrefix']
+	return appid_prefix
+	
+def generate_customized_entitlements(appid,uuid,command,adhoc):
+	
+	# psuedo logic
+	#
+	# adhoc builds that are created for distribution cannot
+	# have get-task-allow
+	#
+	# local install builds must have get-task-allow
+	#
+	# production non-adhoc must have application-identifier
+	
+	get_task_allow = '<true/>'
+	
+	if command=='distribute' or adhoc:
+		get_task_allow = '<false/>'
+	
+	buffer = """<?xml version="1.0" encoding="UTF-8"?> 	
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+	<dict>
+"""		
+	
+	app_prefix = None
+	
+	if command=='distribute' and not adhoc:
+		f = os.path.expanduser("~/Library/MobileDevice/Provisioning Profiles/%s.mobileprovision" % uuid)
+		app_prefix = get_app_prefix(f)
+		buffer+="""
+		<key>application-identifier</key>
+		<string>%s.%s</string>
+		""" % (app_prefix,appid)
+	
+	buffer+="<key>get-task-allow</key>\n		%s" % get_task_allow
+	
+	if command=='distribute' and not adhoc:
+		buffer+="""
+		<key>keychain-access-groups</key>
+		<array>
+			<string>%s.%s</string>
+		</array>
+		""" % (app_prefix,appid)
+
+	buffer+="""
+	</dict>
+</plist>"""
+	
+	return buffer
+	
 def main(args):
 	argc = len(args)
 	if argc < 2 or argc==2 and (args[1]=='--help' or args[1]=='-h'):
@@ -571,7 +669,36 @@ def main(args):
 					print "[ERROR] Code sign error: %s" % error[0].strip()
 					sys.stdout.flush()
 					sys.exit(1)
-					
+			
+			# build the final release distribution
+			args = []
+			adhoc = False
+			
+			if command!='simulator':		
+				adhoc = is_adhoc(appuuid)
+				if adhoc:
+					o.write("This is an adhoc build\n\n")
+				else:
+					o.write("This is not an adhoc build\n\n")
+				# allow the project to have its own custom entitlements
+				entitlements = os.path.join(project_dir,"Entitlements.plist")
+				customize = False
+				if not os.path.exists(entitlements):
+					entitlements = os.path.join(template_dir,"Entitlements.plist")
+					customize = True
+				else:
+					x = open(entitlements).read()
+					o.write("Found custom entitlements: \n\n%s\n\n" % x)
+				shutil.copy(entitlements,iphone_resources_dir)
+				if customize:
+					# attempt to customize it by reading prov profile
+					x = generate_customized_entitlements(appid,appuuid,command,adhoc)
+					if x:
+						o.write("Generated the following entitlements:\n\n%s\n\n" % x)
+						f=open(entitlements,'w')
+						f.write(x)
+						f.close()
+				args+=["CODE_SIGN_ENTITLEMENTS = Resources/Entitlements.plist"]
 		
 			if command == 'simulator':
 				
@@ -704,7 +831,7 @@ def main(args):
 				
 			elif command == 'install':
 
-				args = [
+				args += [
 					"GCC_PREPROCESSOR_DEFINITIONS='DEPLOYTYPE=test'",
 					"PROVISIONING_PROFILE[sdk=iphoneos*]=%s" % appuuid,
 					"CODE_SIGN_IDENTITY[sdk=iphoneos*]=iPhone Developer: %s" % dist_name
@@ -758,19 +885,9 @@ def main(args):
 				# in this case, we have to do different things based on if it's
 				# an ad-hoc distribution cert or not - in the case of non-adhoc
 				# we don't use the entitlements file but in ad hoc we need to
-				adhoc_line = ""
 				deploytype = "production_adhoc"
-				if not is_adhoc(appuuid):
-					shutil.copy(os.path.join(template_dir,"Entitlements.plist"),iphone_resources_dir)
-					adhoc_line="CODE_SIGN_ENTITLEMENTS = Resources/Entitlements.plist"
+				if not adhoc:
 					deploytype = "production"
-
-				# build the final release distribution
-				args = []
-				
-				# can't append an empty arg or you'll get an error
-				if adhoc_line!="":
-					args+=[adhoc_line]
 					
 				args += [
 					"GCC_PREPROCESSOR_DEFINITIONS='DEPLOYTYPE=%s'" % deploytype,

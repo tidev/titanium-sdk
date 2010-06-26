@@ -214,8 +214,8 @@
 	{
 		if (children==nil)
 		{
-			children = [[NSMutableArray alloc] initWithObject:arg];
-		}
+			children = [[NSMutableArray alloc] initWithObjects:arg,nil];
+		
 		else 
 		{
 			[children addObject:arg];

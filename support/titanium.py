@@ -119,6 +119,7 @@ def create_android_project(project_dir,osname,args):
 	print "Created %s application project" % osname
 
 def create_android_module(project_dir,osname,args):
+	die("android modules aren't supported in this release")
 	script = os.path.join(template_dir,'module','module.py')
 	name = get_required(args,'name')
 	validate_project_name(name)
