@@ -33,6 +33,18 @@ removeAnnotation: remove an existing annotation from the map
 removeAnnotations: remove one or more existing annotations from the map
 removeAllAnnotations: removes all annotations added to the map
 
+# 1.4
+addRoute: add a route. currently only supported on iphone
+removeRoute: remove a previously added route. currently only supported on iphone
+
+- method : addRoute
+
+route[object]: dictionary with the properties: `name` route name, `points` dictionary of values with longitude and latitude keys, `color` for the line color and `width` for the line width.  
+
+- method : removeRoute
+
+route[object]: same route object used during addRoute
+
 - method : addAnnotation
 
 annotation[object]: either a dictionary of properties for the annotation or a [Titanium.Map.Annotation](Titanium.Map.Annotation) instance.
