@@ -5,7 +5,7 @@
 # the application on the device via iTunes
 #
 
-import os, sys, uuid, subprocess, shutil, signal
+import os, sys, uuid, subprocess, shutil, signal, string
 import platform, time, re, run, glob, codecs, hashlib, datetime
 from compiler import Compiler
 from projector import Projector
@@ -127,6 +127,30 @@ def make_map(dict):
 
 	return props
 
+def dump_resources_listing(rootdir,out):
+	out.write("\nFile listing for %s\n\n" % rootdir)
+	total = 0
+	for root, subFolders, files in os.walk(rootdir):
+		for file in files:
+			p = os.path.join(root,file)
+			s = os.path.getsize(p)
+			total+=s
+			s = "[%.0f]" % s
+			p = p[len(rootdir)+1:]
+			if p.startswith('build/android'): continue
+			out.write("  %s %s\n" % (string.ljust(p,120),string.ljust(s,8)))
+	out.write("-" * 130)
+	out.write("\nTotal files: %.1f MB\n" % ((total/1024)/1024))
+	out.write("\n")
+
+def dump_infoplist(infoplist,out):
+	plist = open(infoplist).read()
+	out.write("Contents of Info.plist\n\n")
+	out.write(plist)
+	out.write("\n")
+	out.write("=" * 130)
+	out.write("\n\n")
+		
 def get_app_prefix(f):
 	f = open(f,'rb').read()
 	b = f.index('<?xml')
@@ -135,14 +159,10 @@ def get_app_prefix(f):
 	dom = parseString(xml_content)
 	dict = dom.getElementsByTagName('dict')[0]
 	props = make_map(dict)
-	name = props['Name']
-	name = name.decode('string_escape').decode('utf-8')
-	# entitlements = props['Entitlements']
-	# appid = entitlements['application-identifier']
 	appid_prefix = props['ApplicationIdentifierPrefix']
-	return appid_prefix
+	return (appid_prefix,xml_content)
 	
-def generate_customized_entitlements(appid,uuid,command,adhoc):
+def generate_customized_entitlements(appid,uuid,command,adhoc,out):
 	
 	# psuedo logic
 	#
@@ -168,7 +188,8 @@ def generate_customized_entitlements(appid,uuid,command,adhoc):
 	
 	if command=='distribute' and not adhoc:
 		f = os.path.expanduser("~/Library/MobileDevice/Provisioning Profiles/%s.mobileprovision" % uuid)
-		app_prefix = get_app_prefix(f)
+		app_prefix,content = get_app_prefix(f)
+		out.write("Using app_prefix = %s\n\nContents of provisioning profile:\n\n%s\n\n" % (app_prefix,content))
 		buffer+="""
 		<key>application-identifier</key>
 		<string>%s.%s</string>
@@ -287,7 +308,7 @@ def main(args):
 			from iphone import IPhone
 			print "[INFO] Detected missing project but that's OK. re-creating it..."
 			iphone_creator = IPhone(name,appid)
-			iphone_creator.create(iphone_dir)
+			iphone_creator.create(iphone_dir,True)
 			sys.stdout.flush()
 			
 		
@@ -319,16 +340,41 @@ def main(args):
 		binary = os.path.join(app_dir,name)
 		sdk_version = os.path.basename(os.path.abspath(os.path.join(template_dir,'../')))
 		iphone_resources_dir = os.path.join(iphone_dir,'Resources')
-		version_file = os.path.join(iphone_resources_dir,'.simulator')
+		version_file = os.path.join(iphone_resources_dir,'.version')
 		force_rebuild = read_project_version(project_xcconfig)!=sdk_version or not os.path.exists(version_file)
 		infoplist = os.path.join(iphone_dir,'Info.plist')
+
+		# write out the build log, useful for debugging
+		if not os.path.exists(build_out_dir): os.makedirs(build_out_dir)
+		o = open(os.path.join(build_out_dir,'build.log'),'w')
+		buildtime = datetime.datetime.now()
+		o.write("%s\n" % ("="*80))
+		o.write("Appcelerator Titanium Diagnostics Build Log\n")
+		o.write("The contents of this file are useful to send to Appcelerator Support if\n")
+		o.write("reporting an issue to help us understand your environment, build settings\n")
+		o.write("and aid in debugging. Please attach this log to any issue that you report.\n")
+		o.write("%s\n\n" % ("="*80))
+		o.write("Starting build at %s\n\n" % buildtime.strftime("%m/%d/%y %H:%M"))
+		o.write("Script arguments:\n")
+		for arg in args:
+			o.write("   %s\n" % arg)
+		o.write("\n")
+		o.write("Building from: %s\n" % template_dir)
+		o.write("Platform: %s\n\n" % platform.version())
+		
+		# print out path to debug
+		xcode_path=run.run(["/usr/bin/xcode-select","-print-path"],True,False)
+		if xcode_path:
+			o.write("Xcode path is: %s\n" % xcode_path)
+		else:
+			o.write("Xcode path undetermined\n")
 
 		# find the module directory relative to the root of the SDK	
 		titanium_dir = os.path.abspath(os.path.join(template_dir,'..','..','..','..'))
 		tp_module_dir = os.path.abspath(os.path.join(titanium_dir,'modules','iphone'))
 		tp_modules = []
 		tp_depends = []
-		
+
 		def find_depends(config,depends):
 			for line in open(config).readlines():
 				if line.find(':')!=-1:
@@ -364,23 +410,31 @@ def main(args):
 				tp_lib_search_path.append([libname,local_tp])
 				local = True	
 				print "[INFO] Detected third-party module: %s" % (local_tp)
+				o.write("Detected third-party module: %s\n" % (local_tp))
 			else:
 				tp_dir = os.path.join(tp_module_dir,tp_name,tp_version)
 				if not os.path.exists(tp_dir):
 					print "[ERROR] Third-party module: %s/%s detected in tiapp.xml but not found at %s" % (tp_name,tp_version,tp_dir)
+					o.write("[ERROR] Third-party module: %s/%s detected in tiapp.xml but not found at %s\n" % (tp_name,tp_version,tp_dir))
+					o.close()
 					sys.exit(1)
 				tp_module = os.path.join(tp_dir,libname)
 				if not os.path.exists(tp_module):
 					print "[ERROR] Third-party module: %s/%s missing library at %s" % (tp_name,tp_version,tp_module)
+					o.write("[ERROR] Third-party module: %s/%s missing library at %s\n" % (tp_name,tp_version,tp_module))
+					o.close()
 					sys.exit(1)
 				tp_config = os.path.join(tp_dir,'manifest')
 				if not os.path.exists(tp_config):
 					print "[ERROR] Third-party module: %s/%s missing manifest at %s" % (tp_name,tp_version,tp_config)
+					o.write("[ERROR] Third-party module: %s/%s missing manifest at %s\n" % (tp_name,tp_version,tp_config))
+					o.close()
 					sys.exit(1)
 				find_depends(tp_config,tp_depends)	
 				tp_modules.append(tp_module)
 				tp_lib_search_path.append([libname,os.path.abspath(tp_module)])	
 				print "[INFO] Detected third-party module: %s/%s" % (tp_name,tp_version)
+				o.write("Detected third-party module: %s/%s\n" % (tp_name,tp_version))
 			force_xcode = True
 		
 			if not local:
@@ -411,26 +465,31 @@ def main(args):
 			ird = os.path.join(project_dir,'Resources','iphone')
 			if os.path.exists(ird): copy_module_resources(ird,app_dir)
 			
-	
 		if not simulator:
 			version = ti.properties['version']
 			# we want to make sure in debug mode the version always changes
 			version = "%s.%d" % (version,time.time())
 			ti.properties['version']=version
+			
+		def write_info_plist():
+			infoplist_tmpl = os.path.join(template_dir,'Info.plist')
+			plist = open(infoplist_tmpl).read()
+			plist = plist.replace('__PROJECT_NAME__',name)
+			plist = plist.replace('__PROJECT_ID__',appid)
+			plist = plist.replace('__URL__',appid)
+			urlscheme = name.replace('.','_').replace(' ','').lower()
+			plist = plist.replace('__URLSCHEME__',urlscheme)
+			pf = open(infoplist,'w')
+			pf.write(plist)
+			pf.close()			
 
 		# if the user has a Info.plist in their project directory, consider
 		# that a custom override
 		infoplist_tmpl = os.path.join(project_dir,'Info.plist')
 		if os.path.exists(infoplist_tmpl):
 			shutil.copy(infoplist_tmpl,infoplist)
-		elif not os.path.exists(infoplist):
-			infoplist_tmpl = os.path.join(template_dir,'Info.plist')
-			plist = open(os.path.join(template_dir,'Info.plist'),'r').read()
-			plist = plist.replace('__PROJECT_NAME__',name)
-			plist = plist.replace('__PROJECT_ID__',appid)
-			pf = open(infoplist_tmpl,'w+')
-			pf.write(plist)
-			pf.close()			
+		else:
+			write_info_plist()
 			
 		applogo = None
 		clean_build = False
@@ -476,31 +535,39 @@ def main(args):
 		
 		if new_lib_hash!=lib_hash:
 			force_rebuild=True
+			o.write("forcing rebuild since libhash (%s) not matching (%s)\n" % (lib_hash,new_lib_hash))
 		
 		lib_hash=new_lib_hash
 					
 		if force_rebuild:
+			o.write("Performing full rebuild\n")
 			print "[INFO] Performing full rebuild. This will take a little bit. Hold tight..."
 			sys.stdout.flush()
 			project = Projector(name,sdk_version,template_dir,project_dir,appid)
 			project.create(template_dir,iphone_dir)	
 			force_xcode = True
-			if os.path.exists(build_out_dir): shutil.rmtree(build_out_dir)
+			if os.path.exists(app_dir): shutil.rmtree(app_dir)
 			# we have to re-copy if we have a custom version
-			if os.path.exists(infoplist_tmpl):
-				shutil.copy(infoplist_tmpl,infoplist)
+			write_info_plist()
 			# since compiler will generate the module dependencies, we need to 
 			# attempt to compile to get it correct for the first time.
 			compiler = Compiler(project_dir,appid,name,deploytype,xcode_build,devicefamily,iphone_version,True)
 		else:
-			xcconfig = open(project_xcconfig,'w')
-			xcconfig.write("TI_VERSION=%s\n"% sdk_version)
-			xcconfig.write("TI_SDK_DIR=%s\n" % template_dir.replace(sdk_version,'$(TI_VERSION)'))
-			xcconfig.write("TI_APPID=%s\n" % appid)
-			xcconfig.write("OTHER_LDFLAGS[sdk=iphoneos4*]=$(inherited) -weak_framework iAd\n")
-			xcconfig.write("OTHER_LDFLAGS[sdk=iphonesimulator4*]=$(inherited) -weak_framework iAd\n")
-			xcconfig.write("#include \"module\"\n")
-			xcconfig.close()
+			contents="TI_VERSION=%s\n"% sdk_version
+			contents+="TI_SDK_DIR=%s\n" % template_dir.replace(sdk_version,'$(TI_VERSION)')
+			contents+="TI_APPID=%s\n" % appid
+			contents+="OTHER_LDFLAGS[sdk=iphoneos4*]=$(inherited) -weak_framework iAd\n"
+			contents+="OTHER_LDFLAGS[sdk=iphonesimulator4*]=$(inherited) -weak_framework iAd\n"
+			contents+="#include \"module\"\n"
+			xcconfig = open(project_xcconfig)
+			xccontents = xcconfig.read()
+			if contents!=xccontents:
+				o.write("writing contents of %s:\n\n%s\n" % (project_xcconfig,contents))
+				o.write("old contents\n\n%s\n" % (xccontents))
+				xcconfig.write(contents)
+				xcconfig.close()
+			else:
+				o.write("Skipping writing contents of xcconfig %s\n" % project_xcconfig)
 			
 		# write out any modules into the xcode project
 		# this must be done after project create above or this will be overriden
@@ -513,9 +580,9 @@ def main(args):
 			out = proj.parse(xcode_proj)
 			# since xcode changes can be destructive, only write as necessary (if changed)
 			if current_xcode!=out:
-				o = open(xcode_proj,'w')
-				o.write(out)
-				o.close()
+				xo = open(xcode_proj,'w')
+				xo.write(out)
+				xo.close()
 
 		cwd = os.getcwd()
 		
@@ -542,7 +609,7 @@ def main(args):
 			applogo = ti.generate_infoplist(infoplist,appid,'iphone')
 
 		# copy over the appicon
-		if applogo ==None and ti.properties.has_key('icon'):
+		if applogo==None and ti.properties.has_key('icon'):
 			applogo = ti.properties['icon']
 
 		try:		
@@ -551,21 +618,19 @@ def main(args):
 			deploy_target = "IPHONEOS_DEPLOYMENT_TARGET=3.1"
 			device_target = 'TARGETED_DEVICE_FAMILY=1'  # this is non-sensical, but you can't pass empty string
 
+
 			# clean means we need to nuke the build 
 			if clean_build and os.path.exists(build_out_dir): 
 				print "[INFO] Performing clean build"
+				o.write("Performing clean build...\n")
 				shutil.rmtree(build_out_dir)
 			
-			# write out the build log, useful for debugging
-			if not os.path.exists(build_out_dir): os.makedirs(build_out_dir)
-			o = open(os.path.join(build_out_dir,'build.log'),'w')
-			
-			buildtime = datetime.datetime.now()
-			o.write("Starting build at %s\n" % buildtime.strftime("%m/%d/%y %H:%M"))
-			o.write("Building from: %s\n" % template_dir)
-			o.write("Platform: %s\n\n" % platform.version())
-			
 			if not os.path.exists(app_dir): os.makedirs(app_dir)
+
+			# dump out project file info
+			if command!='simulator':
+				dump_resources_listing(project_dir,o)
+				dump_infoplist(infoplist,o)
 
 			# copy Default.png and appicon each time so if they're 
 			# changed they'll stick get picked up	
@@ -692,23 +757,23 @@ def main(args):
 				shutil.copy(entitlements,iphone_resources_dir)
 				if customize:
 					# attempt to customize it by reading prov profile
-					x = generate_customized_entitlements(appid,appuuid,command,adhoc)
+					x = generate_customized_entitlements(appid,appuuid,command,adhoc,o)
 					if x:
 						o.write("Generated the following entitlements:\n\n%s\n\n" % x)
 						f=open(entitlements,'w')
 						f.write(x)
 						f.close()
 				args+=["CODE_SIGN_ENTITLEMENTS = Resources/Entitlements.plist"]
+
+			# only build if force rebuild (different version) or 
+			# the app hasn't yet been built initially
+			if ti.properties['guid']!=log_id or force_xcode:
+				log_id = ti.properties['guid']
+				f = open(version_file,'w+')
+				f.write("%s,%s,%s,%s" % (template_dir,log_id,lib_hash,iphone_version))
+				f.close()
 		
 			if command == 'simulator':
-				
-				# only build if force rebuild (different version) or 
-				# the app hasn't yet been built initially
-				if ti.properties['guid']!=log_id or force_xcode:
-					log_id = ti.properties['guid']
-					f = open(version_file,'w+')
-					f.write("%s,%s,%s,%s" % (template_dir,log_id,lib_hash,iphone_version))
-					f.close()
 				
 				if force_rebuild or force_xcode or not os.path.exists(binary):
 					shutil.copy(os.path.join(template_dir,'Classes','defines.h'),os.path.join(iphone_dir,'Classes','defines.h'))

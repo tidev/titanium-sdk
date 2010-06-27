@@ -11,6 +11,12 @@
 
 @class TiMapAnnotationProxy;
 
+@protocol TiMapAnnotation
+@required
+-(NSString *)lastHitName;
+@end
+
+
 @interface TiMapView : TiUIView<MKMapViewDelegate> {
 @private
 	MKMapView *map;
@@ -20,6 +26,8 @@
 	MKCoordinateRegion region;
 	
 	TiMapAnnotationProxy * pendingAnnotationSelection;
+	NSMutableDictionary *routes;
+	NSMutableDictionary *routeViews;
 }
 
 #pragma mark Public APIs
@@ -31,11 +39,13 @@
 -(void)selectAnnotation:(id)args;
 -(void)deselectAnnotation:(id)args;
 -(void)zoom:(id)args;
+-(void)addRoute:(id)args;
+-(void)removeRoute:(id)args;
 
 #pragma mark Framework
 -(void)refreshAnnotation:(TiMapAnnotationProxy*)proxy readd:(BOOL)yn;
 
--(void)fireClickEvent:(MKPinAnnotationView *) pinview source:(NSString *)source;
+-(void)fireClickEvent:(MKAnnotationView *) pinview source:(NSString *)source;
 
 @end
 

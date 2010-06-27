@@ -18,13 +18,16 @@ class IPhone(object):
 		
 	def create(self,dir,release=False):
 		
-		project_dir = os.path.join(dir,self.name)
+		if release:
+			project_dir = dir
+			iphone_dir = dir
+		else:
+			project_dir = os.path.join(dir,self.name)
+			iphone_dir = os.path.join(project_dir,'build','iphone')	
 
 		if not os.path.exists(project_dir):
 			os.makedirs(project_dir)
 			
-		iphone_dir = os.path.join(project_dir,'build','iphone')	
-
 		if not os.path.exists(iphone_dir):
 			os.makedirs(iphone_dir)
 		
@@ -38,12 +41,17 @@ class IPhone(object):
 		shutil.copytree(os.path.join(template_dir,'resources'),iphone_project_resources)
 		
 		plist = open(os.path.join(template_dir,'Info.plist'),'r').read()
-		plist = plist.replace('__PROJECT_NAME__',self.name)
-		plist = plist.replace('__PROJECT_ID__',self.id)
 
-		out_plist = open(os.path.join(iphone_dir,'Info.plist'),'w')
-		out_plist.write(plist)
-		out_plist.close()
+		if not release:
+			plist = plist.replace('__PROJECT_NAME__',self.name)
+			plist = plist.replace('__PROJECT_ID__',self.id)
+			plist = plist.replace('__URL__',self.id)
+			urlscheme = self.name.replace('.','_').replace(' ','').lower()
+			plist = plist.replace('__URLSCHEME__',urlscheme)
+
+			out_plist = open(os.path.join(iphone_dir,'Info.plist'),'w')
+			out_plist.write(plist)
+			out_plist.close()
 
 		# NOTE: right now we leave this in since the pre-1.3 releases required it
 		# and only wrote on project create
@@ -93,7 +101,8 @@ class IPhone(object):
 		main_dest.close()
 
 		# copy over the entitlements for distribution
-		shutil.copy(os.path.join(template_dir,'Entitlements.plist'),iphone_resources_dir)
+		if not release:
+			shutil.copy(os.path.join(template_dir,'Entitlements.plist'),iphone_resources_dir)
 					
 		# copy README to iphone directory		
 		shutil.copy(os.path.join(template_dir,'README'),os.path.join(iphone_dir,'README'))

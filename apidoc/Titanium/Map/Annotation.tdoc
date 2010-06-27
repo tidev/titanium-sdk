@@ -33,4 +33,6 @@ rightButton[int,string]: the right button image on the annotation. must either b
 leftView[object]: a left view that is displayed on the annotation
 rightView[object]: a right view that is displayed on the annotation
 
+# 1.4
+image[string]: image view for the pin instead of default image.  currently only supported in iphone
 

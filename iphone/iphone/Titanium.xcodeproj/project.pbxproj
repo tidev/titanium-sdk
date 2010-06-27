@@ -488,6 +488,12 @@
 		24EB085D111D51D9001DC2D1 /* TiDOMAttrProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24EB085C111D51D9001DC2D1 /* TiDOMAttrProxy.m */; };
 		24EB0A58111E1BAE001DC2D1 /* libxml2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 24EB0A57111E1BAE001DC2D1 /* libxml2.dylib */; };
 		24EB0B74111E7EE8001DC2D1 /* NSData+Additions.m in Sources */ = {isa = PBXBuildFile; fileRef = 24EB0B73111E7EE8001DC2D1 /* NSData+Additions.m */; };
+		24F1584611D72A23000DD736 /* TiMapImageAnnotationView.m in Sources */ = {isa = PBXBuildFile; fileRef = 24F1584511D72A23000DD736 /* TiMapImageAnnotationView.m */; };
+		24F1584711D72A23000DD736 /* TiMapImageAnnotationView.m in Sources */ = {isa = PBXBuildFile; fileRef = 24F1584511D72A23000DD736 /* TiMapImageAnnotationView.m */; };
+		24F158E111D73330000DD736 /* TiMapRouteAnnotation.m in Sources */ = {isa = PBXBuildFile; fileRef = 24F158E011D73330000DD736 /* TiMapRouteAnnotation.m */; };
+		24F158E211D73330000DD736 /* TiMapRouteAnnotation.m in Sources */ = {isa = PBXBuildFile; fileRef = 24F158E011D73330000DD736 /* TiMapRouteAnnotation.m */; };
+		24F1591D11D7356D000DD736 /* TiMapRouteAnnotationView.m in Sources */ = {isa = PBXBuildFile; fileRef = 24F1591C11D7356D000DD736 /* TiMapRouteAnnotationView.m */; };
+		24F1591E11D7356D000DD736 /* TiMapRouteAnnotationView.m in Sources */ = {isa = PBXBuildFile; fileRef = 24F1591C11D7356D000DD736 /* TiMapRouteAnnotationView.m */; };
 		24F5ACF9111F7B8A005C9199 /* TiMapPinAnnotationView.m in Sources */ = {isa = PBXBuildFile; fileRef = 24EB0BA9111F7959001DC2D1 /* TiMapPinAnnotationView.m */; };
 		24F5B146111FDFE8005C9199 /* ListenerEntry.m in Sources */ = {isa = PBXBuildFile; fileRef = 24F5B145111FDFE8005C9199 /* ListenerEntry.m */; };
 		24F6204F1199F1F400EEAD3C /* TopTiModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 24F6204E1199F1F400EEAD3C /* TopTiModule.m */; };
@@ -995,6 +1001,12 @@
 		24EB0B73111E7EE8001DC2D1 /* NSData+Additions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "NSData+Additions.m"; path = "../Classes/NSData+Additions.m"; sourceTree = SOURCE_ROOT; };
 		24EB0BA8111F7959001DC2D1 /* TiMapPinAnnotationView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiMapPinAnnotationView.h; sourceTree = "<group>"; };
 		24EB0BA9111F7959001DC2D1 /* TiMapPinAnnotationView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiMapPinAnnotationView.m; sourceTree = "<group>"; };
+		24F1584411D72A23000DD736 /* TiMapImageAnnotationView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiMapImageAnnotationView.h; sourceTree = "<group>"; };
+		24F1584511D72A23000DD736 /* TiMapImageAnnotationView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiMapImageAnnotationView.m; sourceTree = "<group>"; };
+		24F158DF11D73330000DD736 /* TiMapRouteAnnotation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiMapRouteAnnotation.h; sourceTree = "<group>"; };
+		24F158E011D73330000DD736 /* TiMapRouteAnnotation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiMapRouteAnnotation.m; sourceTree = "<group>"; };
+		24F1591B11D7356D000DD736 /* TiMapRouteAnnotationView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiMapRouteAnnotationView.h; sourceTree = "<group>"; };
+		24F1591C11D7356D000DD736 /* TiMapRouteAnnotationView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiMapRouteAnnotationView.m; sourceTree = "<group>"; };
 		24F5AEB2111F9DE9005C9199 /* TiFile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiFile.h; sourceTree = "<group>"; };
 		24F5AEB3111F9DE9005C9199 /* TiFile.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiFile.m; sourceTree = "<group>"; };
 		24F5B144111FDFE8005C9199 /* ListenerEntry.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ListenerEntry.h; sourceTree = "<group>"; };
@@ -1675,6 +1687,12 @@
 				24CA8AC5111161FD0084E2DE /* TiMapAnnotationProxy.h */,
 				24EB0BA8111F7959001DC2D1 /* TiMapPinAnnotationView.h */,
 				24EB0BA9111F7959001DC2D1 /* TiMapPinAnnotationView.m */,
+				24F1584411D72A23000DD736 /* TiMapImageAnnotationView.h */,
+				24F1584511D72A23000DD736 /* TiMapImageAnnotationView.m */,
+				24F158DF11D73330000DD736 /* TiMapRouteAnnotation.h */,
+				24F158E011D73330000DD736 /* TiMapRouteAnnotation.m */,
+				24F1591B11D7356D000DD736 /* TiMapRouteAnnotationView.h */,
+				24F1591C11D7356D000DD736 /* TiMapRouteAnnotationView.m */,
 			);
 			name = Map;
 			sourceTree = "<group>";
@@ -2639,6 +2657,9 @@
 				24D06FE111D0211100F615D8 /* TiUIiOSAdViewProxy.m in Sources */,
 				24D06FE811D0219B00F615D8 /* TiUIiOSAdView.m in Sources */,
 				24D0700611D0253D00F615D8 /* TiUIiOSProxy.m in Sources */,
+				24F1584711D72A23000DD736 /* TiMapImageAnnotationView.m in Sources */,
+				24F158E211D73330000DD736 /* TiMapRouteAnnotation.m in Sources */,
+				24F1591E11D7356D000DD736 /* TiMapRouteAnnotationView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2879,6 +2900,9 @@
 				24D06FE211D0211200F615D8 /* TiUIiOSAdViewProxy.m in Sources */,
 				24D06FE911D0219B00F615D8 /* TiUIiOSAdView.m in Sources */,
 				24D0700711D0253D00F615D8 /* TiUIiOSProxy.m in Sources */,
+				24F1584611D72A23000DD736 /* TiMapImageAnnotationView.m in Sources */,
+				24F158E111D73330000DD736 /* TiMapRouteAnnotation.m in Sources */,
+				24F1591D11D7356D000DD736 /* TiMapRouteAnnotationView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
