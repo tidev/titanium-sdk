@@ -6,7 +6,7 @@
 <url>appcelerator.com</url>
 <copyright>2010 by nwright</copyright>
 <description>No description provided</description>
-<icon>default_app_logo.png</icon>
+<icon>appicon.png</icon>
 <persistent-wifi>false</persistent-wifi>
 <prerendered-icon>false</prerendered-icon>
 <statusbar-hidden>false</statusbar-hidden>
