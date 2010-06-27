@@ -235,6 +235,10 @@ class Compiler(object):
 				if path:
 					dev_path = path.strip()
 				run.run(["%s/Platforms/iPhoneOS.platform/Developer/usr/bin/iphoneos-optimize"%dev_path,app_dir],False)
+				
+				# remove empty directories
+				os.chdir(app_dir)
+				os.system("find . -type d -empty -delete")
 			
 		else:
 			print "[INFO] Skipping JS compile, running from simulator"
