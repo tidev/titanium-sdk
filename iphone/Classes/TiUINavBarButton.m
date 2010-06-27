@@ -188,7 +188,7 @@ DEFINE_EXCEPTIONS
 	else
 	{
 		BOOL enabled = [TiUtils boolValue:value];
-		[super setEnabled:enabled];
+		[self setEnabled:enabled];
 	}
 }
 
@@ -211,7 +211,7 @@ DEFINE_EXCEPTIONS
 	}
 	else if ([key isEqualToString:@"enabled"])
 	{
-		[changeView performSelectorOnMainThread:@selector(setEnabled_:) withObject:newValue waitUntilDone:NO];
+		[self performSelectorOnMainThread:@selector(setEnabled_:) withObject:newValue waitUntilDone:NO];
 	}
 }
 
