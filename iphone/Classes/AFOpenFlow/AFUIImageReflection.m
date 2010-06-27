@@ -76,6 +76,10 @@ UIImage* AddImageReflection(UIImage *image, CGFloat reflectionFraction)
 	
     // create an image by masking the bitmap of the mainView content with the gradient view
     // then release the  pre-masked content bitmap and the gradient bitmap
+	if((image.CGImage == NULL) || (gradientMaskImage == NULL))
+	{
+		return nil;
+	}
     CGImageRef reflectionImage = CGImageCreateWithMask(image.CGImage, gradientMaskImage);
     CGImageRelease(gradientMaskImage);
 	
