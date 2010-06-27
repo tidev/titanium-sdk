@@ -101,6 +101,10 @@
 // This method ignores the image's imageOrientation setting.
 + (UIImage *)croppedImage:(CGRect)bounds image:(UIImage*)image
 {
+	if(image == nil)
+	{
+		return nil;
+	}
     CGImageRef imageRef = CGImageCreateWithImageInRect(image.CGImage, bounds);
     UIImage *croppedImage = [UIImage imageWithCGImage:imageRef];
     CGImageRelease(imageRef);
