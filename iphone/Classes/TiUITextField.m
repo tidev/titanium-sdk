@@ -421,7 +421,7 @@
 
 - (void)textFieldDidBeginEditing:(UITextField *)tf
 {
-	if ([TiUtils isiPhoneOS3_2OrGreater] && ![(TiUITextField*)tf becameResponder]) {
+	if ([TiUtils isiPhoneOS3_2OrGreater] && ![(TiTextField*)tf becameResponder]) {
 		[(TiUITextWidgetProxy*)self.proxy fireShowNotification];
 	}
 

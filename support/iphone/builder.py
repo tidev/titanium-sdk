@@ -981,8 +981,11 @@ def main(args):
 		except:
 			if not script_ok:
 				o.write("\nException detected in script:\n")
+				o.close()
 				traceback.print_exc(file=o)
 				sys.exit(1)
+			else:
+				o.close()
 
 if __name__ == "__main__":
 	main(sys.argv)

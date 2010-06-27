@@ -165,7 +165,7 @@ static const NSTimeInterval kTimeoutInterval = 180.0;
       NSAssert([_dataParam isKindOfClass:[NSData class]], @"dataParam must be a UIImage or NSData");
 	  NSString *fn = _filename==nil ? @"data" : _filename;
       [self utfAppendBody:body
-                     data:[NSString stringWithFormat:[NSString stringWithFormat:@"Content-Disposition: form-data; filename=\"%@\"\r\n",fn]]];
+                     data:[NSString stringWithFormat:@"Content-Disposition: form-data; filename=\"%@\"\r\n",fn]];
       [self utfAppendBody:body
                      data:[NSString stringWithString:@"Content-Type: content/unknown\r\n\r\n"]];
       [body appendData:(NSData*)_dataParam];
