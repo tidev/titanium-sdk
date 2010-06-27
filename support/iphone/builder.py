@@ -95,11 +95,13 @@ def make_app_name(s):
 	return buf
 
 	def getText(nodelist):
-	    rc = ""
-	    for node in nodelist:
-	        if node.nodeType == node.TEXT_NODE:
-	            rc = rc + node.data
-	    return rc
+		rc = ""
+		for node in nodelist:
+			if node.nodeType == node.TEXT_NODE:
+				rc+=node.data
+			elif node.nodeType == node.ELEMENT_NODE:
+				rc+=getText(node.childNodes)
+		return rc
 
 def make_map(dict):
 	props = {}
@@ -123,7 +125,10 @@ def make_map(dict):
 					props[curkey]=None
 				curkey = None
 			else:
-				props[curkey] = getText(i.childNodes)
+				if i.childNodes.length > 0:
+					props[curkey] = getText(i.childNodes)
+				else:
+					props[curkey] = i.nodeName
 				curkey = None
 
 	return props
@@ -152,18 +157,29 @@ def dump_infoplist(infoplist,out):
 	out.write("=" * 130)
 	out.write("\n\n")
 		
-def get_app_prefix(f):
+def read_provisioning_profile(f,o):
 	f = open(f,'rb').read()
 	b = f.index('<?xml')
 	e = f.index('</plist>')
 	xml_content = f[b:e+8]
+	o.write("Reading provisioning profile:\n\n%s\n" % xml_content)
 	dom = parseString(xml_content)
 	dict = dom.getElementsByTagName('dict')[0]
 	props = make_map(dict)
-	appid_prefix = props['ApplicationIdentifierPrefix']
-	return (appid_prefix,xml_content)
+	return props
 	
-def generate_customized_entitlements(appid,uuid,command,adhoc,out):
+def get_task_allow(provisioning_profile):
+	entitlements = provisioning_profile['Entitlements']
+	return entitlements['get-task-allow']
+	
+def is_adhoc(provisioning_profile):
+	return get_task_allow(provisioning_profile)==u'true'
+			
+def get_app_prefix(provisioning_profile):
+	appid_prefix = provisioning_profile['ApplicationIdentifierPrefix']
+	return appid_prefix
+	
+def generate_customized_entitlements(provisioning_profile,appid,uuid,command,adhoc,out):
 	
 	# psuedo logic
 	#
@@ -174,10 +190,7 @@ def generate_customized_entitlements(appid,uuid,command,adhoc,out):
 	#
 	# production non-adhoc must have application-identifier
 	
-	get_task_allow = '<true/>'
-	
-	if command=='distribute' or adhoc:
-		get_task_allow = '<false/>'
+	get_task_value = get_task_allow(provisioning_profile)
 	
 	buffer = """<?xml version="1.0" encoding="UTF-8"?> 	
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
@@ -188,15 +201,14 @@ def generate_customized_entitlements(appid,uuid,command,adhoc,out):
 	app_prefix = None
 	
 	if command=='distribute' and not adhoc:
-		f = os.path.expanduser("~/Library/MobileDevice/Provisioning Profiles/%s.mobileprovision" % uuid)
-		app_prefix,content = get_app_prefix(f)
-		out.write("Using app_prefix = %s\n\nContents of provisioning profile:\n\n%s\n\n" % (app_prefix,content))
+		app_prefix = get_app_prefix(provisioning_profile)
+		out.write("Using app_prefix = %s\n\n" % (app_prefix))
 		buffer+="""
 		<key>application-identifier</key>
 		<string>%s.%s</string>
 		""" % (app_prefix,appid)
 	
-	buffer+="<key>get-task-allow</key>\n		%s" % get_task_allow
+	buffer+="<key>get-task-allow</key>\n		<%s/>" % get_task_value
 	
 	if command=='distribute' and not adhoc:
 		buffer+="""
@@ -305,6 +317,7 @@ def main(args):
 		ostype = 'os'
 		version_file = None
 		log_id = None
+		provisioning_profile = None
 		
 		# starting in 1.4, you don't need to actually keep the build/iphone directory
 		# if we don't find it, we'll just simply re-generate it
@@ -472,6 +485,9 @@ def main(args):
 				# we want to make sure in debug mode the version always changes
 				version = "%s.%d" % (version,time.time())
 				ti.properties['version']=version
+				pp = os.path.expanduser("~/Library/MobileDevice/Provisioning Profiles/%s.mobileprovision" % appuuid)
+				provisioning_profile = read_provisioning_profile(pp,o)
+				
 
 			def write_info_plist():
 				infoplist_tmpl = os.path.join(template_dir,'Info.plist')
@@ -620,12 +636,12 @@ def main(args):
 				deploy_target = "IPHONEOS_DEPLOYMENT_TARGET=3.1"
 				device_target = 'TARGETED_DEVICE_FAMILY=1'  # this is non-sensical, but you can't pass empty string
 
-
 				# clean means we need to nuke the build 
-				if clean_build and os.path.exists(build_out_dir): 
+				if clean_build: 
 					print "[INFO] Performing clean build"
 					o.write("Performing clean build...\n")
-					shutil.rmtree(app_dir)
+					if os.path.exists(app_dir):
+						shutil.rmtree(app_dir)
 
 				if not os.path.exists(app_dir): os.makedirs(app_dir)
 
@@ -657,14 +673,6 @@ def main(args):
 						# xcode warns that 3.2 needs only armv7, but if we don't pass in 
 						# armv6 we get crashes on device
 						extra_args = ["VALID_ARCHS=armv6 armv7 i386"]
-
-				def is_adhoc(uuid):
-					path = "~/Library/MobileDevice/Provisioning Profiles/%s.mobileprovision" % uuid
-					f = os.path.expanduser(path)
-					if os.path.exists(f):
-						c = codecs.open(f,'r','utf-8','replace').read()
-						return c.find("ProvisionedDevices")!=-1
-					return False	
 
 				def execute_xcode(sdk,extras,print_output=True):
 
@@ -742,7 +750,7 @@ def main(args):
 				adhoc = False
 
 				if command!='simulator':		
-					adhoc = is_adhoc(appuuid)
+					adhoc = is_adhoc(provisioning_profile)
 					if adhoc:
 						o.write("This is an adhoc build\n\n")
 					else:
@@ -759,10 +767,10 @@ def main(args):
 					shutil.copy(entitlements,iphone_resources_dir)
 					if customize:
 						# attempt to customize it by reading prov profile
-						x = generate_customized_entitlements(appid,appuuid,command,adhoc,o)
+						x = generate_customized_entitlements(provisioning_profile,appid,appuuid,command,adhoc,o)
 						if x:
 							o.write("Generated the following entitlements:\n\n%s\n\n" % x)
-							f=open(entitlements,'w')
+							f=open(entitlements,'w+')
 							f.write(x)
 							f.close()
 					args+=["CODE_SIGN_ENTITLEMENTS = Resources/Entitlements.plist"]
@@ -981,8 +989,8 @@ def main(args):
 		except:
 			if not script_ok:
 				o.write("\nException detected in script:\n")
-				o.close()
 				traceback.print_exc(file=o)
+				o.close()
 				sys.exit(1)
 			else:
 				o.close()

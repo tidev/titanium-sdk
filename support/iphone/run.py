@@ -8,8 +8,6 @@ def run(args,ignore_error=False,debug=True,out=None):
 	results = ''
 	rc = None
 	while True:
-		rc = proc.poll()
-		if rc!=None: break
 		line = proc.stdout.readline()
 		if line:
 			if out!=None:
@@ -24,6 +22,8 @@ def run(args,ignore_error=False,debug=True,out=None):
 						print "[DEBUG] %s" % s
 					sys.stdout.flush()
 			results+=line
+		rc = proc.poll()
+		if rc!=None: break
 	if rc!=0: 	
 		if out!=None: out.write("EXIT CODE WAS: %d\n" % rc)
 		if not ignore_error:
