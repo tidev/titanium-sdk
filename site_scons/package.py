@@ -3,7 +3,7 @@
 # zip up the titanium mobile SDKs into suitable distribution formats
 #
 import os, types, glob, shutil, sys, platform
-import zipfile
+import zipfile, datetime
 
 if platform.system() == 'Darwin':
 	import importresolver
@@ -15,6 +15,9 @@ all_dir = os.path.abspath(os.path.join(template_dir,'all'))
 android_dir = os.path.abspath(os.path.join(template_dir,'android'))
 iphone_dir = os.path.abspath(os.path.join(template_dir,'iphone'))
 osx_dir = os.path.abspath(os.path.join(template_dir,'osx'))
+
+buildtime = datetime.datetime.now()
+ts = buildtime.strftime("%m/%d/%y %H:%M")
 
 ignoreExtensions = ['.pbxuser','.perspectivev3','.pyc']
 ignoreDirs = ['.DS_Store','.git','.gitignore','libTitanium.a','titanium.jar','build','bridge.txt']
@@ -84,7 +87,7 @@ def make_symbol(fn):
 
 def zip_iphone_ipad(zf,basepath,platform,version):
 	  
-	zf.writestr('%s/iphone/imports.json'%basepath,resolve_source_imports(platform))
+#	zf.writestr('%s/iphone/imports.json'%basepath,resolve_source_imports(platform))
 	
 	# include our headers such that 3rd party modules can be compiled
 	headers_dir=os.path.join(top_dir,'iphone','Classes')
@@ -104,10 +107,11 @@ def zip_iphone_ipad(zf,basepath,platform,version):
 			 zf.write(os.path.join(tp_headers_dir,f),'%s/iphone/include/TiCore/%s' % (basepath,f))
 	
 	subs = {
-		"__VERSION__":version
+		"__VERSION__":version,
+		"__TIMESTAMP__":ts
 	}
-	xcode_templates_dir =  os.path.join(top_dir,'iphone','templates','xcode')
-	zip_dir(zf,xcode_templates_dir,basepath+'/iphone/xcode/templates',subs)
+	# xcode_templates_dir =  os.path.join(top_dir,'iphone','templates','xcode')
+	# zip_dir(zf,xcode_templates_dir,basepath+'/iphone/xcode/templates',subs)
 	
 	iphone_lib = os.path.join(top_dir,'iphone',platform,'build')
 	
