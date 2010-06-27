@@ -8,15 +8,16 @@ var data = [
 	{title:'Web Views', hasChild:true, test:'../examples/web_views.js'},
 	{title:'Alert Dialog', hasChild:true, test:'../examples/alert.js'},
 	{title:'Options Dialog', hasChild:true, test:'../examples/options_dialog.js'},
-	{title:'Map View', hasChild:true, test:'../examples/map_view.js'},
 	{title:'Remove Views', hasChild:true, test:'../examples/remove_views.js'},
 	{title:'zIndex', hasChild:true, test:'../examples/views_zindex.js'},
-    {title:'Email Dialog', hasChild:true, test:'../examples/email_dialog.js'}
+    {title:'Email Dialog', hasChild:true, test:'../examples/email_dialog.js'},
+	{title:'Map View', hasChild:true, test:'../examples/map_view.js'},
 
 ];
 
 if (Titanium.Platform.name == 'iPhone OS')
 {
+	data.push({title:'Map View with Routing', hasChild:true, test:'../examples/map_view2.js'});
 	data.push({title:'Events', hasChild:true, test:'../examples/view_events.js'});
 	data.push({title:'Events with Views', hasChild:true, test:'../examples/view_events_2.js'});
 	data.push({title:'Coverflow View', hasChild:true, test:'../examples/coverflow.js'});

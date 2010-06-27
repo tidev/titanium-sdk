@@ -1,15 +1,16 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2010 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
+#import "TiBase.h"
+
 #ifdef USE_TI_MAP
 
-#import "TiMapPinAnnotationView.h"
-#import "TiMapView.h"
+#import "TiMapImageAnnotationView.h"
 
-@implementation TiMapPinAnnotationView
+@implementation TiMapImageAnnotationView
 
 -(void)removeFromSuperview
 {
@@ -22,15 +23,18 @@
 	[super removeFromSuperview];
 }
 
--(id)initWithAnnotation:(id<MKAnnotation>)annotation reuseIdentifier:(NSString *)reuseIdentifier map:(TiMapView*)map_
+- (id)initWithAnnotation:(id <MKAnnotation>)annotation reuseIdentifier:(NSString *)reuseIdentifier map:(TiMapView*)map_  image:(UIImage*)image
 {
-	if (self = [self initWithAnnotation:annotation reuseIdentifier:reuseIdentifier])
+	if (self = [super initWithAnnotation:annotation reuseIdentifier:reuseIdentifier])
 	{
+		self.backgroundColor = [UIColor clearColor];
+		self.frame = CGRectMake(0, 0, image.size.width, image.size.height);
+		self.image = image;
 		map = map_;
 		[self addObserver:map
-				  forKeyPath:@"selected"
-					 options:NSKeyValueObservingOptionNew
-					 context:@"ANSELECTED"];
+			   forKeyPath:@"selected"
+				  options:NSKeyValueObservingOptionNew
+				  context:@"ANSELECTED"];
 		observing = YES;
 	}
 	return self;
