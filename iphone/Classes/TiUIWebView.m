@@ -184,6 +184,7 @@ NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._listeners={
 	   encoding:(NSStringEncoding)encoding 
 	   textEncodingName:(NSString*)textEncodingName
 	   mimeType:(NSString*)mimeType
+	   baseURL:(NSURL*)baseURL
 {
 	// attempt to make well-formed HTML and inject in our Titanium bridge code
 	// However, we only do this if the content looks like HTML
@@ -209,8 +210,8 @@ NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._listeners={
 		
 		content = [html autorelease];
 	}
-	
-	NSURL *relativeURL = [self fileURLToAppURL:url];
+	  
+	NSURL *relativeURL = baseURL == nil ? [self fileURLToAppURL:url] : baseURL;
 	
 	if (url!=nil)
 	{
@@ -308,7 +309,7 @@ NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._listeners={
 
 -(void)setHtml_:(NSString*)content
 {
-	[self loadHTML:content encoding:NSUTF8StringEncoding textEncodingName:@"utf-8" mimeType:@"text/html"];
+	[self loadHTML:content encoding:NSUTF8StringEncoding textEncodingName:@"utf-8" mimeType:@"text/html" baseURL:nil];
 }
 
 -(void)setData_:(id)args
@@ -399,6 +400,7 @@ NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._listeners={
 		NSString *textEncodingName = @"utf-8";
 		NSString *path = [url path];
 		NSError *error = nil;
+		NSURL *baseURL = [[url retain] autorelease];
 		
 		// first check to see if we're attempting to load a file from the 
 		// filesystem and if so, and it exists, use that 
@@ -489,7 +491,7 @@ NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._listeners={
 		}
 		if (html!=nil)
 		{
-			[self loadHTML:html encoding:encoding textEncodingName:textEncodingName mimeType:mimeType];
+			[self loadHTML:html encoding:encoding textEncodingName:textEncodingName mimeType:mimeType baseURL:baseURL];
 		}
 		else 
 		{
