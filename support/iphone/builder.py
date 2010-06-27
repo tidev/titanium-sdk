@@ -625,7 +625,7 @@ def main(args):
 				if clean_build and os.path.exists(build_out_dir): 
 					print "[INFO] Performing clean build"
 					o.write("Performing clean build...\n")
-					shutil.rmtree(build_out_dir)
+					shutil.rmtree(app_dir)
 
 				if not os.path.exists(app_dir): os.makedirs(app_dir)
 
@@ -981,8 +981,11 @@ def main(args):
 		except:
 			if not script_ok:
 				o.write("\nException detected in script:\n")
+				o.close()
 				traceback.print_exc(file=o)
 				sys.exit(1)
+			else:
+				o.close()
 
 if __name__ == "__main__":
 	main(sys.argv)

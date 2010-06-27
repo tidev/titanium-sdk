@@ -45,12 +45,11 @@ if (![TiUtils isiPhoneOS3_2OrGreater]) {\
 		location:CODELOCATION]; \
 }
 
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
 @interface TiMediaVideoPlayerProxy ()
-
 @property(nonatomic,readwrite,copy)	NSNumber*	movieControlStyle;
-
 @end
-
+#endif
 
 
 
