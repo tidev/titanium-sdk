@@ -128,7 +128,7 @@ class Compiler(object):
 			print "[INFO] iPhone SDK version: %s" % iphone_version
 		
 		main_template_out = os.path.join(self.iphone_dir,'main.m')	
-		main_file = open(main_template_out)
+		main_file = open(main_template_out,'w+')
 		main_file_contents = main_file.read()
 		if main_file_contents!=main_template:
 			main_file.write(main_template)
@@ -205,7 +205,7 @@ class Compiler(object):
 				
 			if deploytype!='development':	
 				defines_file = os.path.join(self.classes_dir,'defines.h')
-				defines_header = open(defines_file)
+				defines_header = open(defines_file,'w+')
 				defines_content = "// Warning: this is generated file. Do not modify!\n\n"
 				defines_content+= "#define TI_VERSION %s\n"%sdk_version
 				for sym in self.defines:
