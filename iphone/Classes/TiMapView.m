@@ -202,7 +202,7 @@
 	
 	if ([args isKindOfClass:[NSString class]])
 	{
-		// for pre 0.9, we supporting selecting by passing the annotation title
+		// for pre 0.9, we supported selecting by passing the annotation title
 		NSString *title = [TiUtils stringValue:args];
 		for (id<MKAnnotation>an in [NSArray arrayWithArray:[self map].annotations])
 		{
@@ -522,6 +522,7 @@
 
 - (void)mapViewDidFinishLoadingMap:(MKMapView *)mapView
 {
+	ignoreClicks = YES;
 	loaded = YES;
 	if (pendingAnnotationSelection != nil) {
 		[[self map] selectAnnotation:pendingAnnotationSelection animated:animate];
@@ -531,6 +532,7 @@
 	{
 		[self.proxy fireEvent:@"complete" withObject:nil];
 	}
+	ignoreClicks = NO;
 }
 
 - (void)mapViewDidFailLoadingMap:(MKMapView *)mapView withError:(NSError *)error
@@ -683,8 +685,13 @@
 
 - (void)fireClickEvent:(MKAnnotationView *) pinview source:(NSString *)source
 {
+	if(ignoreClicks || (source == nil))
+	{
+		return;
+	}
+
 	TiMapAnnotationProxy *viewProxy = [self proxyForAnnotation:pinview];
-	if ((viewProxy == nil) || (source == nil))
+	if (viewProxy == nil)
 	{
 		return;
 	}
@@ -709,7 +716,7 @@
 			source,@"clicksource",	viewProxy,@"annotation",	ourProxy,@"map",
 			title,@"title",			indexNumber,@"index",		nil];
 
-
+	NSLog(@"[INFO] Map generating click event %@ : %@",ourProxy,event);
 	if (parentWants)
 	{
 		[ourProxy fireEvent:@"click" withObject:event];

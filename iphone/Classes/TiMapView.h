@@ -23,6 +23,7 @@
 	BOOL regionFits;
 	BOOL animate;
 	BOOL loaded;
+	BOOL ignoreClicks;
 	MKCoordinateRegion region;
 	
 	TiMapAnnotationProxy * pendingAnnotationSelection;
