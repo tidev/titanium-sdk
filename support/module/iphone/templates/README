@@ -9,14 +9,10 @@ APIs into JavaScript.
 MODULE NAMING
 --------------
 
-Choose a unique name for your module to not cause conflict with other third-party
-modules.  Typically, we recommend prefixing your module with a token that identifies
-your organization.  In the future, we may provide the ability to register your own
-top level namespaces.  Currently, all modules will be available only via the
-Titanium namespace.  For example, if your module is named `MyFirstModule`, you would
-access module APIs via the API: `Titanium.Myfirst`.  The module in the name will 
-automatically be removed when resolving your module.  Also, all characters after the 
-first are always lower-cased.
+Choose a unique module id for your module.  This ID usually follows a namespace
+convention using DNS notation.  For example, com.appcelerator.module.test.  This
+ID can only be used once by all public modules in Titanium.
+
 
 COMPONENTS
 -----------
@@ -60,8 +56,7 @@ BUILD TIME COMPILER CONFIG
 --------------------------
 
 You can edit the file `module.xcconfig` to include any build time settings that should be
-set during application compilation that your module requires.  This file will automatically
-get `#include` in the main application project.  
+set during application compilation that your module requires.  This file will automatically get `#include` in the main application project.  
 
 For more information about this file, please see the Apple documentation at:
 
@@ -71,8 +66,7 @@ For more information about this file, please see the Apple documentation at:
 DOCUMENTATION FOR YOUR MODULE
 -----------------------------
 
-You should provide at least minimal documentation for your module in `documentation` folder
-using the Markdown syntax.
+You should provide at least minimal documentation for your module in `documentation` folder using the Markdown syntax.
 
 For more information on the Markdown syntax, refer to this documentation at:
 
@@ -91,7 +85,7 @@ INSTALL YOUR MODULE
 
 1. Run `build.py` which creates your distribution
 2. cd to `/Library/Application Support/Titanium`
-3. extract your zip into this folder
+3. copy this zip file into the folder of your Titanium SDK
 
 REGISTER YOUR MODULE
 ---------------------
@@ -106,10 +100,52 @@ Example:
 When you run your project, the compiler will know automatically compile in your module
 dependencies and copy appropriate image assets into the application.
 
+USING YOUR MODULE IN CODE
+-------------------------
+
+To use your module in code, you will need to require it. 
+
+For example,
+
+	var my_module = require('__MODULE_ID__');
+	my_module.foo();
+
+WRITING PURE JS NATIVE MODULES
+------------------------------
+
+You can write a pure JavaScript "natively compiled" module.  This is nice if you
+want to distribute a JS module pre-compiled.
+
+To create a module, create a file named __MODULE_ID__.js under the assets folder.
+This file must be in the Common JS format.  For example:
+
+	exports.echo = function(s)
+	{
+		return s;
+	};
+	
+Any functions and properties that are exported will be made available as part of your
+module.  All other code inside your JS will be private to your module.
+
+For pure JS module, you don't need to modify any of the Objective-C module code. You
+can leave it as-is and build.
+
+TESTING YOUR MODULE
+-------------------
+
+Run the `titanium.py` script to test your module or test from within XCode.
+To test with the script, execute:
+
+	titanium run --dir=YOURMODULEDIR
+	
+
+This will execute the app.js in the example folder as a Titanium application.
+
+
 DISTRIBUTING YOUR MODULE
 -------------------------
 
-Currently, you will need to manually distribution your module distribution zip file directly. However, in the near future, we will make module distribution and sharing built-in to Titanium Developer!
+Currently, you will need to manually distribution your module distribution zip file directly. However, in the near future, we will make module distribution and sharing built-in to Titanium Developer and in the Titanium Marketplace!
 
 
 Cheers!

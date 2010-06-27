@@ -3,7 +3,7 @@
 #
 # module builder script
 #
-import os,sys,shutil,tempfile,subprocess
+import os,sys,shutil,tempfile,subprocess,traceback
 from os.path import join, splitext, split, exists
 
 template_dir = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
@@ -21,13 +21,21 @@ def read_manifest(project_dir):
 	return manifest
 
 def run(args):
-	print args
 	proc = subprocess.Popen(args, stderr=subprocess.STDOUT, stdout=subprocess.PIPE)
-	while proc.poll()==None:
+	rc = None
+	while True:
 		line = proc.stdout.readline()
 		if line:
-			print line.strip()
-			sys.stdout.flush()
+			s = line.strip()
+			if s!='':
+				if s.startswith("["):
+					print s
+				else:		
+					print "[DEBUG] %s" % s
+				sys.stdout.flush()
+		rc = proc.poll()
+		if rc!=None: break
+	return rc
 
 ignoreFiles = ['.gitignore', '.cvsignore', '.DS_Store'];
 ignoreDirs = ['.git','.svn','_svn','CVS'];
@@ -59,6 +67,8 @@ def main(args):
 	
 	if command == 'run':
 		dir = tempfile.mkdtemp('ti','m')
+		dont_delete = True
+		error = False
 		try:
 			manifest = read_manifest(project_dir)
 			name = manifest['name']
@@ -79,8 +89,10 @@ def main(args):
 			tiappf.write(xml)
 			tiappf.close()
 			
+			ios = False
 			buildfile = None
 			if platform == 'iphone' or platform == 'ipad' or platform == 'ios':
+				ios = True
 				buildfile = os.path.join(project_dir,'build','lib%s.a' % moduleid)
 			
 			# build the module
@@ -96,14 +108,26 @@ def main(args):
 			script = os.path.abspath(os.path.join(template_dir,'..',platform,'builder.py'))
 			
 			# run the project
-			run([script,'run',os.path.join(dir,name)])
+			rc = run([script,'run',os.path.join(dir,name)])
+			if rc==1:
+				dont_delete = True
+				if ios:
+					error = os.path.join(dir,name,'build','iphone','build','build.log')
+					print "[ERROR] Build Failed. See: %s" % os.path.abspath(error)
+				else:
+					print "[ERROR] Build Failed."
 			
 		except:
-			print "Error: ", sys.exc_info()
+			dont_delete = True
+			traceback.print_exc(file=sys.stderr)
+			sys.exit(1)
 		finally:
-			shutil.rmtree(dir)
+			if not dont_delete: shutil.rmtree(dir)
 	
-	sys.exit(0)
+	if error:
+		sys.exit(1)
+	else:
+		sys.exit(0)
 
 if __name__ == "__main__":
   main(sys.argv)
