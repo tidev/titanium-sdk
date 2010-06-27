@@ -460,19 +460,23 @@
 	// pending array into our real children array
 	if (pendingAdds!=nil)
 	{
+		[self lockChildrenForWriting];
+		//Todo: Would it be safe to simply transfer ownership to children?
 		RELEASE_TO_NIL(children);
-		children = [[NSMutableArray arrayWithArray:pendingAdds] retain];
+		children = [pendingAdds mutableCopy];
 		RELEASE_TO_NIL(pendingAdds);
+		[self unlockChildren];
 		
 		// now we need to do the work that add would have normally done
 		// but in an optimized way
+		[self lockChildrenForReading];
 		for (TiViewProxy *proxy in children)
 		{
 			[proxy windowWillOpen];
 			[proxy setParent:self];
 			[self childAdded:proxy];
 		}
-		
+		[self unlockChildren];
 		[self layoutChildren:NO];
 	}
 }
