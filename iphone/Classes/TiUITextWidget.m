@@ -245,6 +245,12 @@ NSDictionary* keyboardUserInfo;
 
 #pragma mark Keyboard Delegates
 
+-(void)removeToolbar
+{
+	[toolbar removeFromSuperview];
+	toolbarVisible = NO;
+}
+
 - (void)keyboardWillShow:(NSNotification*)notification 
 {
 	if (![textWidgetView isFirstResponder] || (notification.userInfo == nil))
@@ -309,10 +315,7 @@ NSDictionary* keyboardUserInfo;
 
 - (void)keyboardDidHide:(NSNotification*)notification
 {
-	if (!toolbarVisible)
-	{
-		[toolbar removeFromSuperview];
-	}
+	[self removeToolbar];
 }
 
 - (void)keyboardWillHideForReal:(NSNotification*)notification 
@@ -363,6 +366,13 @@ NSDictionary* keyboardUserInfo;
 		else
 		{
 			newCenter.y = kbEndPoint.y - (kbBounds.size.height - height)/2;
+			
+			// We can't do this under iOS3.2/4 because otherwise it screws up due
+			// to the fact that we're in the wrong place in the responder chain.
+			if (![TiUtils isiPhoneOS3_2OrGreater]) {
+				[UIView setAnimationDelegate:self];
+				[UIView setAnimationDidStopSelector:@selector(removeToolbar)];
+			}
 		}
 
 		toolbar.center = newCenter;
