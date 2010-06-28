@@ -8,6 +8,7 @@
 #import "TiPoint.h"
 #import "TiColor.h"
 #import "ListenerEntry.h"
+#import "LayoutConstraint.h"
 #import <QuartzCore/QuartzCore.h>
 
 @class TiViewProxy;
@@ -55,6 +56,7 @@
 	NSObject<TiAnimationDelegate> *delegate;
 	
 	// for autoreverse
+	LayoutConstraint autoreverseLayout;
 	UIView *autoreverseView;
 	id transformMatrix;
 }
