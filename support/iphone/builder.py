@@ -392,6 +392,18 @@ def main(args):
 			tp_module_dir = os.path.abspath(os.path.join(titanium_dir,'modules','iphone'))
 			tp_modules = []
 			tp_depends = []
+			
+			build_type_file = os.path.join(build_out_dir,'.build')
+			force_destroy_build = True
+			if os.path.exists(build_type_file):
+				build_type = open(build_type_file).read()
+				if build_type == command:
+					force_destroy_build = False
+		
+			# cache our build type so we can be smart about incremental
+			build_type_f = open(build_type_file,'w')
+			build_type_f.write(command)
+			build_type_f.close()
 
 			def find_depends(config,depends):
 				for line in open(config).readlines():
@@ -577,7 +589,7 @@ def main(args):
 				contents+="OTHER_LDFLAGS[sdk=iphoneos4*]=$(inherited) -weak_framework iAd\n"
 				contents+="OTHER_LDFLAGS[sdk=iphonesimulator4*]=$(inherited) -weak_framework iAd\n"
 				contents+="#include \"module\"\n"
-				xcconfig = open(project_xcconfig)
+				xcconfig = open(project_xcconfig,'w+')
 				xccontents = xcconfig.read()
 				if contents!=xccontents:
 					o.write("writing contents of %s:\n\n%s\n" % (project_xcconfig,contents))
@@ -637,7 +649,7 @@ def main(args):
 				device_target = 'TARGETED_DEVICE_FAMILY=1'  # this is non-sensical, but you can't pass empty string
 
 				# clean means we need to nuke the build 
-				if clean_build: 
+				if clean_build or force_destroy_build: 
 					print "[INFO] Performing clean build"
 					o.write("Performing clean build...\n")
 					if os.path.exists(app_dir):
@@ -770,6 +782,7 @@ def main(args):
 						x = generate_customized_entitlements(provisioning_profile,appid,appuuid,command,adhoc,o)
 						if x:
 							o.write("Generated the following entitlements:\n\n%s\n\n" % x)
+							entitlements = os.path.join(project_dir,"Entitlements.plist")
 							f=open(entitlements,'w+')
 							f.write(x)
 							f.close()

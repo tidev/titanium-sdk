@@ -273,7 +273,8 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 		{
 			value = defaultRowTableClass;
 		}
-		tableClass = [value retain];
+		// tableClass must always be a string so we coerce it
+		tableClass = [[TiUtils stringValue:value] retain];
 	}
 	return tableClass;
 }

@@ -1,7 +1,7 @@
 var win = Titanium.UI.currentWindow;
 
 var stopped = false;
-
+var nextAnimation = null;
 //
 // create tip (window + view + label)
 //
@@ -50,13 +50,17 @@ button.addEventListener('click', function()
 	a2.bottom = 80;
 	a2.duration = 800;
 	
-	winContainer.animate(a1);
+	if (nextAnimation == null) {
+		nextAnimation = a1;
+	}
+	winContainer.animate(nextAnimation);
 	
 	a1.addEventListener('complete', function()
 	{
 		if (!stopped)
 		{
-			winContainer.animate(a2);
+			winContainer.animate(nextAnimation);
+			nextAnimation = a2;
 		}
 	});
 
@@ -64,7 +68,8 @@ button.addEventListener('click', function()
 	{
 		if (!stopped)
 		{
-			winContainer.animate(a1);
+			winContainer.animate(nextAnimation);
+			nextAnimation = a1;
 		}
 	});
 	
