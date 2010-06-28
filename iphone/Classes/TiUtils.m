@@ -32,6 +32,15 @@ extern NSString * const TI_APPLICATION_RESOURCE_DIR;
 
 @implementation TiUtils
 
++(BOOL)isIOS4OrGreater
+{
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0
+	return [UIView instancesRespondToSelector:@selector(contentScaleFactor)];
+#else
+	return NO;
+#endif
+}
+
 +(BOOL)isiPhoneOS3_2OrGreater
 {
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
