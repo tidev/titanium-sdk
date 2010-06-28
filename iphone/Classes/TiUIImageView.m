@@ -479,7 +479,7 @@ DEFINE_EXCEPTIONS
 	else if ([arg isKindOfClass:[UIImage class]])
 	{
 		// called within this class
-		image = (UIImage*)arg;
+		image = (UIImage*)arg; 
 	}
 	
 	return image;

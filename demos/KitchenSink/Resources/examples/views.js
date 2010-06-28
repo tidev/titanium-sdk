@@ -28,7 +28,14 @@ if (Titanium.Platform.name == 'iPhone OS')
 //	data.push({title:'Web View Repaint', hasChild:true, test:'../examples/webview_repaint.js'});
 	data.push({title:'Gradient', hasChild:true, test:'../examples/gradient.js'});
 	data.push({title:'Hide/Show', hasChild:true, test:'../examples/view_hide_show.js'});
+	
+	Ti.include("version.js");
 
+	if (isiOS4Plus())
+	{
+		data.push({title:'Hi-Res Image', wintitle:"Fence", hasChild:true, test:'../examples/hi_res_image.js'});
+		data.push({title:'Hi-Res Image 2', wintitle:"Dog", hasChild:true, test:'../examples/hi_res_image2.js'});
+	}
 }
 
 // create table view
@@ -43,27 +50,11 @@ tableview.addEventListener('click', function(e)
 	{
 		var win = Titanium.UI.createWindow({
 			url:e.rowData.test,
-			title:e.rowData.title
+			title:e.rowData.wintitle || e.rowData.title
 		});
 		Titanium.UI.currentTab.open(win,{animated:true});
 	}
 });
 
-
-// // create table view 
-// var tableview = Titanium.UI.createTableView();
-// 
-// // create table view event listener 
-// tableview.addEventListener('click', function(e) 
-// {
-// 
-// });
-
 // add table view to the window
 Titanium.UI.currentWindow.add(tableview);
-
-/// / It will crash because the table probably have no index 0 
-// var data = {title:'New Row'}; 
-// tableview.appendRow(data,{animationStyle:Titanium.UI.iPhone.RowAnimationStyle.LEFT}); 
-
-
