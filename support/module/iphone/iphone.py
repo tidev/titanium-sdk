@@ -23,6 +23,7 @@ class iphone(object):
 		# make sure we have our Xcode templates installed
 		install_script = os.path.join(template_dir,'xcode','install.py')
 		if os.path.exists(install_script):
-			os.system(install_script)
+			cmd = "\"%s\"" % install_script
+			os.system(cmd)
 			
 		

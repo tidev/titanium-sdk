@@ -17,6 +17,7 @@ def validate_project_name(name):
 		die("Invalid project name: %s" % name)
 		
 def fork(args,quiet=False):
+	print args
 	proc = subprocess.Popen(args, stderr=subprocess.STDOUT, stdout=subprocess.PIPE)
 	while proc.poll()==None:
 		line = proc.stdout.readline()
@@ -44,8 +45,10 @@ def detect_platforms(dir):
 		platforms.append('android')
 	return platforms
 	
-def check_valid_project(dir):
+def check_valid_project(dir,cwd):
 	if not is_valid_project(dir):
+		if is_valid_project(cwd):
+			return cwd
 		die("%s does not contain a valid project" % dir)
 	return dir
 		
@@ -181,38 +184,44 @@ def run_module_args(args,script,project_dir,platform):
 	return [script,"run",platform,project_dir]
 		
 def dyn_run(args,project_cb,module_cb):
-	project_dir = check_valid_project(args['dir'])
-	platform = None
-	atype = get_optional(args,'type',None)
-	is_module = is_module_project(project_dir) 
-	if is_module:
-		manifest = read_manifest(project_dir)
-		platform = manifest['platform']
-		atype = 'module'
-	if atype == None:
-		atype = 'project'
-	if platform == None:
-		if not has_config(args,'platform'):
-			platforms = detect_platforms(project_dir)
-			if len(platforms)==0 or len(platforms)>1:
-				get_required(args,'platform')
+	cwd = os.getcwd()
+	project_dir = check_valid_project(args['dir'],cwd)
+	try:
+		os.chdir(project_dir)
+		platform = None
+		atype = get_optional(args,'type',None)
+		is_module = is_module_project(project_dir) 
+		if is_module:
+			manifest = read_manifest(project_dir)
+			platform = manifest['platform']
+			atype = 'module'
+		if atype == None:
+			atype = 'project'
+		if platform == None:
+			if not has_config(args,'platform'):
+				platforms = detect_platforms(project_dir)
+				if len(platforms)==0 or len(platforms)>1:
+					get_required(args,'platform')
+				else:
+					platform = platforms[0]
 			else:
-				platform = platforms[0]
+				platform = get_required(args,'platform')
+		if atype == 'project':
+			script = os.path.join(template_dir,platform,'builder.py')
+			cmdline = project_cb(args,script,project_dir,platform)
+		elif atype == 'module':
+			script = os.path.join(template_dir,'module','builder.py')
+			cmdline = module_cb(args,script,project_dir,platform)
 		else:
-			platform = get_required(args,'platform')
-	if atype == 'project':
-		script = os.path.join(template_dir,platform,'builder.py')
-		cmdline = project_cb(args,script,project_dir,platform)
-	elif atype == 'module':
-		script = os.path.join(template_dir,'module','builder.py')
-		cmdline = module_cb(args,script,project_dir,platform)
-	else:
-		die("Unknown type: %s" % atype)
+			die("Unknown type: %s" % atype)
 		
-	if not os.path.exists(script):
-		die("Invalid platform type: %s" % platform)
+		if not os.path.exists(script):
+			die("Invalid platform type: %s" % platform)
 		
-	fork(cmdline,get_optional(args,'quiet',False))
+		fork(cmdline,get_optional(args,'quiet',False))
+		
+	finally:
+		os.chdir(cwd)
 			
 def run(args):
 	dyn_run(args,run_project_args,run_module_args)
@@ -222,7 +231,7 @@ def install_project_args(args,script,project_dir,platform):
 	ti = TiAppXML(tiapp_xml)
 	appid = ti.properties['id']
 	name = ti.properties['name']
-	version = get_optional(args,'ver','3.1')
+	version = get_optional(args,'ver','4.0')
 	return [script,"install",version,project_dir,appid,name]
 	
 def install_module_args(args,script,project_dir,platform):
@@ -236,7 +245,7 @@ def package_project_args(args,script,project_dir,platform):
 	ti = TiAppXML(tiapp_xml)
 	appid = ti.properties['id']
 	name = ti.properties['name']
-	version = get_optional(args,'ver','3.1')
+	version = get_optional(args,'ver','4.0')
 	return [script,"distribute",version,project_dir,appid,name]
 
 def package_module_args(args,script,project_dir,platform):
@@ -328,12 +337,10 @@ def main(args):
 		
 		# some config can be checked before hand
 		if not config.has_key('dir') or config['dir']==None:
-			print "Missing required --dir argument"
-			print
-			help([command],True)
-		
-		# expand the path
-		config['dir']=os.path.expanduser(config['dir'])
+			config['dir']=os.getcwd()
+		else:	
+			# expand the path
+			config['dir']=os.path.expanduser(config['dir'])
 		
 		# invoke the command
 		c(config)

@@ -290,7 +290,7 @@ def main(args):
 				print "Usage: %s run <project_dir> [ios_version]" % os.path.basename(args[0])
 				sys.exit(1)
 			if argc == 3:
-				iphone_version = '3.1'
+				iphone_version = '4.0'
 			else:
 				iphone_version = dequote(args[3].decode("utf-8"))
 			project_dir = os.path.expanduser(dequote(args[2].decode("utf-8")))
