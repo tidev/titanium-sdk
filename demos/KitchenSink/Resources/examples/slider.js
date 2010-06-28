@@ -19,7 +19,7 @@ var basicSliderLabel = Titanium.UI.createLabel({
 var basicSlider = Titanium.UI.createSlider({
 	min:0,
 	max:10,
-	value:0,
+	value:5,
 	width:100,
 	height:'auto',
 	top:30,
@@ -30,6 +30,7 @@ basicSlider.addEventListener('change',function(e)
 {
 	basicSliderLabel.text = 'Basic Slider - value = ' + Math.round(e.value) + ' act val ' + Math.round(basicSlider.value);
 });
+basicSlider.value = 0; // For regression test purposes
 
 //
 // CUSTOM SLIDER
