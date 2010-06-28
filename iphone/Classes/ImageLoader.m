@@ -387,7 +387,7 @@ DEFINE_EXCEPTIONS
 			NSString * path = [url path];
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0
 			BOOL scaleUp = NO;
-			if ([path rangeOfString:@"@2x"].location!=NSNotFound)
+			if ([TiUtils isIPhone4] && [path rangeOfString:@"@2x"].location!=NSNotFound)
 			{
 				scaleUp = YES;
 			}

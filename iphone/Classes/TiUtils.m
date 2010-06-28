@@ -18,6 +18,12 @@
 #import "TiFile.h"
 #import "TiBlob.h"
 
+
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0
+// for checking version
+#import <sys/utsname.h>
+#endif
+
 #import "UIImage+Resize.h"
 
 #ifdef TARGET_IPHONE_SIMULATOR
@@ -42,6 +48,32 @@ extern NSString * const TI_APPLICATION_RESOURCE_DIR;
 	if ([TiUtils isiPhoneOS3_2OrGreater]) {
 		return UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad;
 	}
+#endif
+	return NO;
+}
+
++(BOOL)isIPhone4
+{
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0
+	static bool iphone_checked = NO;
+	static bool iphone4 = NO;
+	if (iphone_checked==NO)
+	{
+		iphone_checked = YES;
+		// for now, this is all we know. we assume this
+		// will continue to increase with new models but
+		// for now we can't really assume
+		if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone)
+		{
+			struct utsname u;
+			uname(&u);
+			if (!strcmp(u.machine, "iPhone3,1"))
+			{
+				iphone4 = YES;
+			}
+		}
+	}
+	return iphone4;
 #endif
 	return NO;
 }
@@ -394,7 +426,7 @@ extern NSString * const TI_APPLICATION_RESOURCE_DIR;
 +(NSURL*)checkFor2XImage:(NSURL*)url
 {
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0
-	if ([url isFileURL])
+	if ([url isFileURL] && [TiUtils isIPhone4])
 	{
 		NSString *path = [url path];
 		if ([path hasSuffix:@".png"] || [path hasSuffix:@".jpg"])
