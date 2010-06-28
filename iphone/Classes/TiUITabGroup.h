@@ -15,6 +15,7 @@
 	UITabBarController *controller;
 	TiUITabProxy *focused;
 	BOOL allowConfiguration;
+	NSString* editTitle;
 	
 	TiColor *barColor;
 }
