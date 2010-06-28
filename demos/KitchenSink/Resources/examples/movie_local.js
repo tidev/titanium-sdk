@@ -55,3 +55,7 @@ activeMovie.addEventListener('complete',function()
 });
 
 activeMovie.play();
+
+win.addEventListener('close', function() {
+	activeMovie.stop();
+});
