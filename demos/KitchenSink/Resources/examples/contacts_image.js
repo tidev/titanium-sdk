@@ -52,6 +52,7 @@ removeDisplay.addEventListener('click', function() {
 		selectedPerson: function(e) {
 			e.person.image = null;
 			infoLabel.text = 'Removed image for '+e.person.fullName;
+			Titanium.Contacts.save();
 		}
 	});
 });
@@ -68,6 +69,7 @@ setDisplay.addEventListener('click', function() {
 		selectedPerson: function(e) {
 			e.person.image = sampleImage;
 			infoLabel.text = 'Set image for '+e.person.fullName;
+			Titanium.Contacts.save();
 		}
 	});
 });
