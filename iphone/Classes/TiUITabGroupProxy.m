@@ -134,7 +134,8 @@
 
 -(BOOL)_handleOpen:(id)args
 {
-	[(TiUITabGroup*)self.view open:args];
+	TiUITabGroup *tg = (TiUITabGroup*)self.view;
+	[tg open:args];
 	return YES;
 }
 

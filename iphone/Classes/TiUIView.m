@@ -182,9 +182,17 @@ DEFINE_EXCEPTIONS
 
 -(void)dealloc
 {
+	if (proxy!=nil && proxy.modelDelegate==self)
+	{
+		proxy.modelDelegate = nil;
+	}
 	RELEASE_TO_NIL(transformMatrix);
 	RELEASE_TO_NIL(animation);
     RELEASE_TO_NIL(backgroundImage);
+	RELEASE_TO_NIL(gradientLayer);
+	proxy = nil;
+	parent = nil;
+	touchDelegate = nil;
 	[super dealloc];
 }
 
@@ -1019,7 +1027,8 @@ DEFINE_EXCEPTIONS
 			if ([touches count] == 2 && allTouchesEnded) 
 			{
 				int i = 0; 
-				int tapCounts[2]; CGPoint tapLocations[2];
+				int tapCounts[2] = {0,0}; 
+				CGPoint tapLocations[2];
 				for (UITouch *touch in touches) {
 					tapCounts[i]    = [touch tapCount];
 					tapLocations[i] = [touch locationInView:self];

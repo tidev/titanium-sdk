@@ -55,7 +55,6 @@
 	UITableViewController *tableController;
 	UISearchDisplayController *searchController;
 	BOOL searchHiddenSet;
-	BOOL headerPulling;
 	NSInteger frameChanges;
 }
 

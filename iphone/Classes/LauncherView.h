@@ -45,7 +45,6 @@
 	NSMutableArray *buttons;
 	NSInteger columnCount;
 	NSInteger rowCount;
-	NSInteger currentPageIndex;
 	LauncherButton *dragButton;
 	NSTimer* editHoldTimer;
 	NSTimer* springLoadTimer;

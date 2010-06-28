@@ -18,6 +18,12 @@
 #import "TiFile.h"
 #import "TiBlob.h"
 
+
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0
+// for checking version
+#import <sys/utsname.h>
+#endif
+
 #import "UIImage+Resize.h"
 
 #ifdef TARGET_IPHONE_SIMULATOR
@@ -42,6 +48,32 @@ extern NSString * const TI_APPLICATION_RESOURCE_DIR;
 	if ([TiUtils isiPhoneOS3_2OrGreater]) {
 		return UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad;
 	}
+#endif
+	return NO;
+}
+
++(BOOL)isIPhone4
+{
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0
+	static bool iphone_checked = NO;
+	static bool iphone4 = NO;
+	if (iphone_checked==NO)
+	{
+		iphone_checked = YES;
+		// for now, this is all we know. we assume this
+		// will continue to increase with new models but
+		// for now we can't really assume
+		if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone)
+		{
+			struct utsname u;
+			uname(&u);
+			if (!strcmp(u.machine, "iPhone3,1"))
+			{
+				iphone4 = YES;
+			}
+		}
+	}
+	return iphone4;
 #endif
 	return NO;
 }
@@ -391,6 +423,44 @@ extern NSString * const TI_APPLICATION_RESOURCE_DIR;
 	//Note: If url is a nonimmediate image, this returns nil.
 }
 
++(NSURL*)checkFor2XImage:(NSURL*)url
+{
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0
+	if ([url isFileURL] && [TiUtils isIPhone4])
+	{
+		NSString *path = [url path];
+		if ([path hasSuffix:@".png"] || [path hasSuffix:@".jpg"])
+		{
+			//NOTE; I'm not sure the order here.. the docs don't necessarily 
+			//specify the exact order 
+			NSFileManager *fm = [NSFileManager defaultManager];
+			NSString *partial = [path substringToIndex:[path length]-4];
+			NSString *ext = [path substringFromIndex:[path length]-4];
+			NSString *os = [TiUtils isIPad] ? @"~ipad" : @"~iphone";
+			// first try 2x device specific
+			NSString *testpath = [NSString stringWithFormat:@"%@@2x%@%@",partial,os,ext];
+			if ([fm fileExistsAtPath:testpath])
+			{
+				return [NSURL fileURLWithPath:testpath];
+			}
+			// second try plain 2x
+			testpath = [NSString stringWithFormat:@"%@@2x%@",partial,ext];
+			if ([fm fileExistsAtPath:testpath])
+			{
+				return [NSURL fileURLWithPath:testpath];
+			}
+			// third try just device specific normal res
+			testpath = [NSString stringWithFormat:@"%@%@%@",partial,os,ext];
+			if ([fm fileExistsAtPath:testpath])
+			{
+				return [NSURL fileURLWithPath:testpath];
+			}
+		}
+	}
+#endif
+	return url;
+}
+
 +(NSURL*)toURL:(id)object proxy:(TiProxy*)proxy
 {
 	NSURL *url = nil;
@@ -416,15 +486,15 @@ extern NSString * const TI_APPLICATION_RESOURCE_DIR;
 			{
 				NSString *qs = [TiUtils encodeURIParameters:[object substringFromIndex:range.location+1]];
 				NSString *newurl = [NSString stringWithFormat:@"%@?%@",[object substringToIndex:range.location],qs];
-				return [NSURL URLWithString:newurl];
+				return [TiUtils checkFor2XImage:[NSURL URLWithString:newurl]];
 			}
 		}
 	}
 	else if ([object isKindOfClass:[NSURL class]])
 	{
-		return [NSURL URLWithString:[object absoluteString] relativeToURL:[proxy _baseURL]];
+		return [TiUtils checkFor2XImage:[NSURL URLWithString:[object absoluteString] relativeToURL:[proxy _baseURL]]];
 	}
-	return url;			  
+	return [TiUtils checkFor2XImage:url];			  
 }
 
 +(UIImage *)stretchableImage:(id)object proxy:(TiProxy*)proxy

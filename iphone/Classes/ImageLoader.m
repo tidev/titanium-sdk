@@ -117,7 +117,7 @@
     if (!TiDimensionEqual(leftCap, cap)) {
         leftCap = cap;
         recapStretchableImage = YES;
-    }
+    } 
 }
 
 -(void)setTopCap:(TiDimension)cap
@@ -134,7 +134,7 @@
         [stretchableImage release];
         
         CGSize imageSize = [fullImage size];
-        
+		
         NSInteger left = (TiDimensionIsAuto(leftCap) || TiDimensionIsUndefined(leftCap) || leftCap.value == 0) ?
                                 imageSize.width/2  : 
                                 TiDimensionCalculateValue(leftCap, imageSize.width);
@@ -384,7 +384,22 @@ DEFINE_EXCEPTIONS
 		if (result == nil)
 		{
 			//Well, let's make it for them!
-			UIImage * resultImage = [UIImage imageWithContentsOfFile:[url path]];
+			NSString * path = [url path];
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0
+			BOOL scaleUp = NO;
+			if ([TiUtils isIPhone4] && [path rangeOfString:@"@2x"].location!=NSNotFound)
+			{
+				scaleUp = YES;
+			}
+#endif
+			UIImage * resultImage = [UIImage imageWithContentsOfFile:path];
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0
+			if (scaleUp && [resultImage scale]==1.0)
+			{
+				// if we specified a 2x, we need to upscale it
+				resultImage = [UIImage imageWithCGImage:[resultImage CGImage] scale:2.0 orientation:[resultImage imageOrientation]];
+			}
+#endif
 			result = [self setImage:resultImage forKey:urlString];
 			[result setIsLocalImage:YES];
 		}

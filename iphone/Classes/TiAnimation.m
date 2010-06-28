@@ -254,11 +254,26 @@ self.p = v;\
 	
 	if (autoreverseView!=nil)
 	{
+#define REVERSE_LAYOUT_CHANGE(a) \
+{\
+if (!TiDimensionIsUndefined(autoreverseLayout.a)) {\
+		newLayout->a = autoreverseLayout.a;\
+}\
+}
 		if (transformMatrix==nil)
 		{
 			transformMatrix = [[Ti2DMatrix alloc] init];
 		}
 		[autoreverseView performSelector:@selector(setTransform_:) withObject:transformMatrix];
+		LayoutConstraint* newLayout = [(TiViewProxy *)[(TiUIView*)autoreverseView proxy] layoutProperties];
+		REVERSE_LAYOUT_CHANGE(left);
+		REVERSE_LAYOUT_CHANGE(right);
+		REVERSE_LAYOUT_CHANGE(width);
+		REVERSE_LAYOUT_CHANGE(height);
+		REVERSE_LAYOUT_CHANGE(top);
+		REVERSE_LAYOUT_CHANGE(bottom);
+		[(TiViewProxy*)[(TiUIView*)autoreverseView proxy] reposition];
+		
 		RELEASE_TO_NIL(transformMatrix);
 		RELEASE_TO_NIL(autoreverseView);
 	}
@@ -409,6 +424,10 @@ self.p = v;\
 	if (autoreverse!=nil)
 	{	
 		autoreverses = [autoreverse boolValue];
+		if (autoreverseView==nil)
+		{
+			autoreverseView = [view_ retain];
+		}
 		[UIView setAnimationRepeatAutoreverses:autoreverses];
 	}
 	
@@ -428,10 +447,6 @@ self.p = v;\
 	{
 		if (autoreverses)
 		{
-			if (autoreverseView==nil)
-			{
-				autoreverseView = [view_ retain];
-			}
 			transformMatrix = [[(TiUIView*)view_ transformMatrix] retain];
 		}
 		
@@ -442,15 +457,21 @@ self.p = v;\
 	{
 		TiUIView *uiview = (TiUIView*)view_;
 		LayoutConstraint *layout = [(TiViewProxy *)[uiview proxy] layoutProperties];
+		
+
 		BOOL doReposition = NO;
 		
 #define CHECK_LAYOUT_CHANGE(a) \
 if (a!=nil && layout!=NULL) \
 {\
+		autoreverseLayout.a = layout->a; \
 		layout->a = TiDimensionFromObject(a); \
 		doReposition = YES;\
 }\
-	
+else \
+{\
+		autoreverseLayout.a = TiDimensionUndefined; \
+}
 		CHECK_LAYOUT_CHANGE(left);
 		CHECK_LAYOUT_CHANGE(right);
 		CHECK_LAYOUT_CHANGE(width);

@@ -44,6 +44,11 @@ DEFINE_EXCEPTIONS
 	[super dealloc];
 }
 
+-(void)detachProxy
+{
+	proxy = nil;
+}
+
 -(UIBarButtonItemStyle)style:(TiUIButtonProxy*)proxy_
 {
 	id value = [proxy_ valueForKey:@"style"];

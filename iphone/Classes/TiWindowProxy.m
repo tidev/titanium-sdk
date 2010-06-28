@@ -132,7 +132,7 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 -(void)windowDidOpen
 {
 	[super windowDidOpen];
-
+	
 	opening = NO;
 
 	if ([self _hasListeners:@"open"])
@@ -174,6 +174,11 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 	}
 }
 
+-(BOOL)closing
+{
+	return closing;
+}
+
 -(void)windowClosed
 {
 	ENSURE_UI_THREAD_0_ARGS
@@ -182,7 +187,6 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 	{
 		return;
 	}
-	
 	opened = NO;
 	attached = NO;
 	opening = NO;
@@ -311,7 +315,7 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 -(void)open:(id)args
 {
 	ENSURE_UI_THREAD(open,args);
-	
+
 	// opening a window more than once does nothing
 	if (opened==YES)
 	{
@@ -332,6 +336,7 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 	// false to delay for some other action
 	if ([self _handleOpen:args])
 	{
+		
 		// ensure on open that we've created our view before we start to use it
 		[self view];
 		[self windowWillOpen];
@@ -573,16 +578,15 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 			[[UIApplication sharedApplication] setStatusBarHidden:restoreFullscreen];
 			self.view.frame = [[[TiApp app] controller] resizeView];
 		}
-		
+
 		if (([self _isChildOfTab] && animated) || animation!=nil)
 		{
-			[self performSelector:@selector(windowClosed) withObject:nil afterDelay:0.8];
+			[self performSelector:@selector(windowClosed) withObject:nil afterDelay:0.4];
 		}
 		else 
 		{
 			[self windowClosed];
 		}
-
 	}	 
 }
 

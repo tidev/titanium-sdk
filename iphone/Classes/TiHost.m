@@ -26,7 +26,6 @@ extern NSString * const TI_APPLICATION_ID;
 +(NSURL*)resourceBasedURL:(NSString*)fn baseURL:(NSString**)base
 {
 	NSString *path = [[NSBundle mainBundle] bundlePath];
-	const char *start = getenv("TI_STARTPAGE");
 #ifdef TARGET_IPHONE_SIMULATOR
 	if (TI_APPLICATION_RESOURCE_DIR!=nil && [TI_APPLICATION_RESOURCE_DIR isEqualToString:@""]==NO)
 	{
@@ -49,7 +48,6 @@ extern NSString * const TI_APPLICATION_ID;
 		modules = [[NSMutableDictionary alloc] init];
 		contexts = [[NSMutableDictionary alloc] init];
 		 
-		NSString *path = [[NSBundle mainBundle] bundlePath];
 		NSString *fn = @"app.js";
 		const char *start = getenv("TI_STARTPAGE");
 		if (start!=NULL)

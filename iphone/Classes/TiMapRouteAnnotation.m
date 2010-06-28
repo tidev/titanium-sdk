@@ -13,7 +13,7 @@
 
 @implementation TiMapRouteAnnotation
 
-@synthesize lineColor, points, routeID, region, width, coordinate = center;
+@synthesize lineColor, points, routeID, width, coordinate = center;
 
 -(id) initWithPoints:(NSArray*) points_
 {

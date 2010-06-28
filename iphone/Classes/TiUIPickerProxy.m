@@ -12,7 +12,18 @@
 #import "TiUIPicker.h"
 #import "TiUtils.h"
 
+NSArray* pickerKeySequence;
+
 @implementation TiUIPickerProxy
+
+-(NSArray *)keySequence
+{
+	if (pickerKeySequence == nil)
+	{
+		pickerKeySequence = [[NSArray arrayWithObjects:@"type",@"minDate",@"maxDate",nil] retain];
+	}
+	return pickerKeySequence;
+}
 
 -(void)_configure
 {

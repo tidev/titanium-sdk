@@ -11,8 +11,6 @@
 
 @interface YahooModule : TiModule {
 @private
-	NSString *key;
-	NSString *secret;
 }
 
 @end
