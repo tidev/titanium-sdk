@@ -46,7 +46,7 @@ tableview.addEventListener('click', function(e)
 });
 
 var hide = Titanium.UI.createButtonBar({
-	labels:['Hide', 'Scroll'],
+	labels:['Hide', 'Show'],
 	backgroundColor:'#336699',
 	height:25,
 	width:120

@@ -31,8 +31,13 @@ var nav = Ti.UI.iPhone.createNavigationGroup({
 
 table.addEventListener('click',function(e)
 {
+	var b = Titanium.UI.createButton({
+		title:'button',
+		style:Titanium.UI.iPhone.SystemButtonStyle.BORDERED
+	});
 	var w = Ti.UI.createWindow({
-		title:e.rowData.title
+		title:e.rowData.title,
+		rightNavButton:b
 	});
 	w.addEventListener('focus',function()
 	{
