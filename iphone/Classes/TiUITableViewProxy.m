@@ -42,7 +42,7 @@ NSArray * tableKeySequence;
 	return (TiUITableView*)[self view];
 }
 
--(TiUITableViewRowProxy*)newTableViewRowFromDict:(NSDictionary*)data
+-(TiUITableViewRowProxy*)makeTableViewRowFromDict:(NSDictionary*)data
 {
 	TiUITableViewRowProxy *proxy = [[[TiUITableViewRowProxy alloc] _initWithPageContext:[self executionContext]] autorelease];
 	[proxy _initWithProperties:data];
@@ -55,7 +55,7 @@ NSArray * tableKeySequence;
 	
 	if ([data isKindOfClass:[NSDictionary class]])
 	{
-		row = [self newTableViewRowFromDict:data];
+		row = [self makeTableViewRowFromDict:data];
 	}
 	else if ([data isKindOfClass:[TiUITableViewRowProxy class]])
 	{
@@ -252,7 +252,7 @@ NSArray * tableKeySequence;
 	
 	if ([sections count]==0)
 	{
-		[self throwException:@"no rows found" subreason:nil location:CODELOCATION];
+		NSLog(@"[WARN] no rows found in table, ignoring delete");
 		return;
 	}
 	
@@ -261,7 +261,7 @@ NSArray * tableKeySequence;
 	
 	if (section==nil || row == nil)
 	{
-		[self throwException:@"no row found for index" subreason:nil location:CODELOCATION];
+		NSLog(@"[WARN] no row found for index: %d",index);
 		return;
 	}
 	
@@ -412,7 +412,7 @@ NSArray * tableKeySequence;
 		if ([row isKindOfClass:dictionaryClass])
 		{
 			NSDictionary *dict = (NSDictionary*)row;
-			TiUITableViewRowProxy *rowProxy = [self newTableViewRowFromDict:dict];
+			TiUITableViewRowProxy *rowProxy = [self makeTableViewRowFromDict:dict];
 			NSString *header = [dict objectForKey:@"header"];
 			if (section == nil || header!=nil)
 			{

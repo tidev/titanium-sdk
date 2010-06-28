@@ -394,6 +394,7 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 		[dynPropsLock unlock];
 #endif
 	}
+	
 	RELEASE_TO_NIL(listeners);
 	RELEASE_TO_NIL(baseURL);
 	RELEASE_TO_NIL(krollDescription);
@@ -402,6 +403,15 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 	pageContext=nil;
 	modelDelegate=nil;
 	[destroyLock unlock];
+}
+
+-(BOOL)destroyed
+{
+	BOOL value;
+	[destroyLock lock];
+	value = destroyed;
+	[destroyLock unlock];
+	return value;
 }
 
 -(void)dealloc
@@ -502,8 +512,12 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 	[eventObject setObject:type forKey:@"type"];
 	[eventObject setObject:self forKey:@"source"];
 	
-	id<TiEvaluator> evaluator = (id<TiEvaluator>)[listener context].delegate;
-	[host fireEvent:listener withObject:eventObject remove:NO context:evaluator thisObject:thisObject_];
+	KrollContext* context = [listener context];
+	if (context!=nil)
+	{
+		id<TiEvaluator> evaluator = (id<TiEvaluator>)context.delegate;
+		[host fireEvent:listener withObject:eventObject remove:NO context:evaluator thisObject:thisObject_];
+	}
 	
 	[destroyLock unlock];
 }

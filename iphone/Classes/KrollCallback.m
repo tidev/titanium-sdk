@@ -7,8 +7,30 @@
 #import "KrollCallback.h"
 #import "KrollObject.h"
 
+static NSMutableArray * callbacks;
+static NSLock *callbackLock;
+
+@interface KrollCallback()
+@property(nonatomic,assign)KrollContext *context;
+@end
+
 
 @implementation KrollCallback
+
+@synthesize context;
+
++(void)shutdownContext:(KrollContext*)context
+{
+	[callbackLock lock];
+	for (KrollCallback *callback in callbacks)
+	{
+		if ([callback context]==context)
+		{
+			callback.context = nil;
+		}
+	}
+	[callbackLock unlock];
+}
 
 -(id)initWithCallback:(TiValueRef)function_ thisObject:(TiObjectRef)thisObject_ context:(KrollContext*)context_
 {
@@ -20,16 +42,27 @@
 		thisObj = thisObject_;
 		TiValueProtect(jsContext, function);
 		TiValueProtect(jsContext, thisObj);
+		if (callbacks==nil)
+		{
+			callbackLock = [[NSLock alloc] init];
+			callbacks = TiCreateNonRetainingArray();
+		}
+		[callbacks addObject:self];
 	}
 	return self;
 }
 
 -(void)dealloc
 {
+	[callbackLock lock];
+	[callbacks removeObject:self];
+	[callbackLock unlock];
+
 	TiValueUnprotect(jsContext, function);
 	TiValueUnprotect(jsContext, thisObj);
 	function = NULL;
 	thisObj = NULL;
+	context = NULL;
 	[super dealloc];
 }
 
@@ -54,6 +87,11 @@
 
 -(void)call:(NSArray*)args thisObject:(id)thisObject_
 {
+	if (context==nil)
+	{
+		return;
+	}
+	
 	[[context retain] autorelease];
 	
 	TiValueRef _args[[args count]];

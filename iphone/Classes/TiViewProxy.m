@@ -16,7 +16,7 @@
 
 #import "TiLayoutQueue.h"
 
-#define IGNORE_IF_NOT_OPENED if (!windowOpened) return;
+#define IGNORE_IF_NOT_OPENED if (!windowOpened||[self viewAttached]==NO) return;
 
 @implementation TiViewProxy
 
@@ -51,13 +51,12 @@
 
 -(void)dealloc
 {
-	if (view!=nil)
-	{
-		view.proxy = nil;
-	}
+	[self _destroy];
+	
 	RELEASE_TO_NIL(barButtonItem);
-	RELEASE_TO_NIL(view);
 	RELEASE_TO_NIL(pendingAdds);
+	
+	pthread_rwlock_destroy(&rwChildrenLock);
 	
 	//Dealing with children is in _destroy, which is called by super dealloc.
 	
@@ -380,7 +379,7 @@
 		[view setParent:parent_];
 	}
 	
-	if ([parent windowOpened])
+	if (parent_!=nil && [parent windowOpened])
 	{
 		[self windowWillOpen];
 	}
@@ -421,6 +420,11 @@
 {
 	[view release];
 	view = [newView retain];
+	if (self.modelDelegate!=nil && [self.modelDelegate respondsToSelector:@selector(detachProxy)])
+	{
+		[self.modelDelegate detachProxy];
+		self.modelDelegate=nil;
+	}
 	self.modelDelegate = newView;
 }
 
@@ -436,9 +440,13 @@
 		[self viewWillDetach];
 		view.proxy = nil;
 		[view removeFromSuperview];
-		[self viewDidDetach];
+		if (self.modelDelegate!=nil && [self.modelDelegate respondsToSelector:@selector(detachProxy)])
+		{
+			[self.modelDelegate detachProxy];
+		}
 		self.modelDelegate = nil;
 		RELEASE_TO_NIL(view);
+		[self viewDidDetach];
 	}
 }
 
@@ -460,8 +468,8 @@
 	// pending array into our real children array
 	if (pendingAdds!=nil)
 	{
-		[self lockChildrenForWriting];
 		//Todo: Would it be safe to simply transfer ownership to children?
+		[self lockChildrenForWriting];
 		RELEASE_TO_NIL(children);
 		children = [pendingAdds mutableCopy];
 		RELEASE_TO_NIL(pendingAdds);
@@ -477,6 +485,7 @@
 			[self childAdded:proxy];
 		}
 		[self unlockChildren];
+		
 		[self layoutChildren:NO];
 	}
 }
@@ -826,6 +835,12 @@
 
 -(void)_destroy
 {
+	if ([self destroyed])
+	{
+		// not safe to do multiple times given rwlock
+		return;
+	}
+	
 	// _destroy is called during a JS context shutdown, to inform the object to 
 	// release all its memory and references.  this will then cause dealloc 
 	// on objects that it contains (assuming we don't have circular references)
@@ -835,11 +850,14 @@
 	RELEASE_TO_NIL(barButtonItem);
 	if (view!=nil)
 	{
-		view.proxy = nil;
-		// must be on main thread
-		[view performSelectorOnMainThread:@selector(removeFromSuperview) withObject:nil waitUntilDone:NO];
-		[view performSelectorOnMainThread:@selector(release) withObject:nil waitUntilDone:NO];
-		view = nil;
+		if ([NSThread isMainThread])
+		{
+			[self detachView];
+		}
+		else
+		{
+			RELEASE_TO_NIL(view);
+		}
 	}
 	
 	[self lockChildrenForWriting];
@@ -1195,10 +1213,6 @@
 {
 	IGNORE_IF_NOT_OPENED
 	
-	if (![self viewAttached])
-	{
-		return;
-	}
 	BOOL alreadySet = OSAtomicTestAndSetBarrier(NEEDS_REPOSITION, &dirtyflags);
 	if (alreadySet || [parent willBeRelaying])
 	{
@@ -1206,7 +1220,7 @@
 	}
 
 	[parent childWillResize:self];
-	[TiLayoutQueue addViewProxy:self];
+	[TiLayoutQueue addViewProxy:self]; 
 }
 
 -(void)clearNeedsReposition

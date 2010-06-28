@@ -732,13 +732,13 @@ static TiValueRef CommonJSRequireCallback (TiContextRef jsContext, TiObjectRef j
 	}
 	[timerLock unlock]; 
 	
+	[KrollCallback shutdownContext:self];
 	
 	// now we can notify listeners we're done
 	if (delegate!=nil && [delegate respondsToSelector:@selector(didStopNewContext:)])
 	{
-		[delegate performSelector:@selector(didStopNewContext:) withObject:self];
+		[(NSObject*)delegate performSelectorOnMainThread:@selector(didStopNewContext:) withObject:self waitUntilDone:YES];
 	}
-
 
 #if CONTEXT_MEMORY_DEBUG==1
 	NSLog(@"SHUTDOWN: %@",self);

@@ -49,6 +49,7 @@
 
 @property(nonatomic,readonly)	NSNumber *opened;
 @property(nonatomic,readonly)	NSNumber *focused;
+@property(nonatomic,readonly)	BOOL closing;
 
 -(void)open:(id)args;
 -(void)close:(id)args;

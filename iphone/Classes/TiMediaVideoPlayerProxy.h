@@ -20,7 +20,6 @@
 	NSMutableArray *views;
 	TiFile *tempFile;
 	KrollCallback *thumbnailCallback;
-	UIView *oldparent;
 	
 	NSMutableDictionary* loadProperties; // Used to set properties when the player is created
 }

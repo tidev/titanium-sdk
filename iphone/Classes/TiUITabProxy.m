@@ -25,12 +25,12 @@
 
 @implementation TiUITabProxy
 
--(void)dealloc
+-(void)_destroy
 {
 	RELEASE_TO_NIL(tabGroup);
 	RELEASE_TO_NIL(rootController);
 	RELEASE_TO_NIL(current);
-	[super dealloc];
+	[super _destroy];
 }
 
 -(void)_configure
@@ -39,6 +39,7 @@
 	[self replaceValue:nil forKey:@"title" notification:NO];
 	[self replaceValue:nil forKey:@"icon" notification:NO];
 	[self replaceValue:nil forKey:@"badge" notification:NO];
+	[super _configure];
 }
 
 -(TiUITabController *)rootController
@@ -74,49 +75,23 @@
 {
 }
 
-#pragma mark Delegates
-
 - (void)handleWillShowViewController:(UIViewController *)viewController
 {
-	if (current==viewController)
-	{
-		return;
-	}
-
 	if (current!=nil)
 	{
 		TiWindowProxy *currentWindow = [current window];
+		
 		[currentWindow _tabBeforeBlur];
-	}
-	
-	[[(TiUITabController*)viewController window] _tabBeforeFocus];
-	[self handleDidShowViewController:viewController];
-}
-
-- (void)navigationController:(UINavigationController *)navigationController willShowViewController:(UIViewController *)viewController animated:(BOOL)animated
-{
-	[self handleWillShowViewController:viewController];
-}
-
-- (void)handleDidShowViewController:(UIViewController *)viewController
-{
-	if (current==viewController)
-	{
-		return;
-	}
-
-	if (current!=nil)
-	{
-		TiWindowProxy *currentWindow = [current window];
-		[currentWindow _tabBlur];
+		[[currentWindow retain] autorelease];
 		
 		// close the window if it's not our root window
 		// check to make sure that we're not actually push a window on the stack
-		if (opening==NO && [rootController window]!=currentWindow)
+		if (opening==NO && [rootController window]!=currentWindow && [TiUtils boolValue:currentWindow.opened] && currentWindow.closing==NO)
 		{
 			[self close:[NSArray arrayWithObject:currentWindow]];
 		}
 		
+		[currentWindow _tabBlur];
 		RELEASE_TO_NIL(current);
 	}
 	
@@ -124,18 +99,32 @@
 	
 	TiWindowProxy *newWindow = [current window];
 	
-	if (![TiUtils boolValue:newWindow.opened])
+	[newWindow _tabBeforeFocus];
+	
+	if (opening || [TiUtils boolValue:newWindow.opened]==NO)
 	{
 		[newWindow open:nil];
 	}
 	
 	[newWindow _tabFocus];
-
+	
 	opening = NO;
 }
 
-- (void)navigationController:(UINavigationController *)navigationController didShowViewController:(UIViewController *)viewController animated:(BOOL)animated
+- (void)handleDidShowViewController:(UIViewController *)viewController
 {
+}
+
+#pragma mark Delegates
+
+
+- (void)navigationController:(UINavigationController *)navigationController willShowViewController:(UIViewController *)viewController animated:(BOOL)animated
+{
+	if (current==viewController)
+	{
+		return;
+	}
+	[self handleWillShowViewController:viewController];
 }
 
 - (void)handleWillBlur

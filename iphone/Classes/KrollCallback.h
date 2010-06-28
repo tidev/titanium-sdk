@@ -26,4 +26,6 @@
 -(void)call:(NSArray*)args thisObject:(id)thisObject_;
 -(TiObjectRef)function;
 -(KrollContext*)context;
++(void)shutdownContext:(KrollContext*)context;
+
 @end

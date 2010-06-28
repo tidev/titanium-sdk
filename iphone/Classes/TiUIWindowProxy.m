@@ -91,6 +91,7 @@
 
 -(void)_destroy
 {
+	[self performSelectorOnMainThread:@selector(close:) withObject:nil waitUntilDone:YES];
 	RELEASE_TO_NIL(context);
 	RELEASE_TO_NIL(barImageView);
 	if (context!=nil)

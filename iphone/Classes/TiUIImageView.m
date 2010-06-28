@@ -298,6 +298,13 @@ DEFINE_EXCEPTIONS
 
 -(void)setURLImageOnUIThread:(UIImage*)image
 {
+	ENSURE_UI_THREAD(setURLImageOnUIThread,image);
+	if (self.proxy==nil)
+	{
+		// this can happen after receiving an async callback for loading the image
+		// but after we've detached our view.  In which case, we need to just ignore this
+		return;
+	}
 	UIImageView *iv = [self imageView];
 	iv.image = image;
 	if (placeholderLoading)

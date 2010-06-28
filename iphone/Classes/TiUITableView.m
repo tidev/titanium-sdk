@@ -389,8 +389,6 @@
 {
 	ENSURE_UI_THREAD(dispatchAction,action);
 	
-	UITableView *table = [self tableView];
-	
 	switch (action.type)
 	{
 		case TiUITableViewActionRowReload:
