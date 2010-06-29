@@ -28,6 +28,11 @@
 @property(nonatomic,readwrite,assign) NSNumber *headingFilter;
 @property(nonatomic,readonly) NSNumber *locationServicesEnabled;
 
+// the reason for using Location services - now required in 3.2+
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
+@property(nonatomic,readwrite,assign) NSString *purpose;
+#endif
+
 
 @property(nonatomic,readonly) NSNumber *ACCURACY_BEST;
 @property(nonatomic,readonly) NSNumber *ACCURACY_NEAREST_TEN_METERS;

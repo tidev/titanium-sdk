@@ -6,3 +6,19 @@ Please see the updated [Titanium Mobile Reference Documentation for 1.4](/apidoc
 
 
 TODO
+
+
+
+
+iPhone GPS/Location Changes
+---------------------------
+
+Starting in iPhone 4.0, you must set the `Titanium.Geolocation.purpose` property
+to the reason your application is requesting Location information before using
+Geolocation APIs.  If you don't set this field, GPS will not work and you will get
+an error in the application log.  This is an Apple requirement.
+
+
+
+
+

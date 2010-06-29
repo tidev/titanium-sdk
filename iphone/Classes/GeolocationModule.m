@@ -230,6 +230,17 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 		locationManager.distanceFilter = distance;
 		locationManager.headingFilter = heading;
 		
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0		
+		NSString *purpose = [self valueForUndefinedKey:@"purpose"];
+		if (purpose==nil)
+		{
+			NSLog(@"[ERROR] Starting in iOS 4.0, you must set the Ti.Geolocation.purpose property to indicate the purpose of using Location services for your application");
+		}
+		else
+		{
+			locationManager.purpose = purpose;
+		}
+#endif		
 		if (locationManager.locationServicesEnabled == NO) 
 		{
 			//NOTE: this is from Apple example from LocateMe and it works well. the developer can still check for the
@@ -615,6 +626,20 @@ MAKE_SYSTEM_PROP_DBL(ACCURACY_THREE_KILOMETERS,kCLLocationAccuracyThreeKilometer
 	}
 	return NO;
 }
+
+// the purpose for using Location services - now required in 3.2+
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0
+-(NSString*)purpose
+{
+	return [[self locationManager] purpose];
+}
+
+-(void)setPurpose:(NSString *)reason
+{
+	[[self locationManager] setPurpose:reason];
+}
+#endif
+
 
 #pragma mark Delegates
 

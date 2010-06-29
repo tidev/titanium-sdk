@@ -620,7 +620,7 @@ static TiValueRef CommonJSRequireCallback (TiContextRef jsContext, TiObjectRef j
 			if (suspended)
 			{
 				[condition wait];
-			}
+			} 
 			[condition unlock];
 		}
 		
