@@ -45,30 +45,13 @@ function getTweets(screen_name){
 					right:5,
 				});
 				
-				var av;
-				if (Titanium.Platform.name == 'android') 
-				{
-					// iphone moved to a single image property - android needs to do the same
-					av = Ti.UI.createImageView({
+				var av = Ti.UI.createImageView({
 						image:avatar,
 						left:0,
 						top:0,
 						height:48,
 						width:48
 					});
-
-				}
-				else
-				{
-					av = Ti.UI.createImageView({
-						image:avatar,
-						left:0,
-						top:0,
-						height:48,
-						width:48
-					});
-					
-				}
 				// Add the avatar image to the view
 				post_view.add(av);
 
