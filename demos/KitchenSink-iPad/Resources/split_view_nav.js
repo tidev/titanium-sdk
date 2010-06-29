@@ -36,6 +36,12 @@ SplitViewNav.masterButton.addEventListener('click', function()
 		textAlign:'center'
 	});
 	w.add(l)
+	w.addEventListener('blur', function() {
+		Titanium.UI.createAlertDialog({
+			title:'Master blur',
+			message:'You blurred the master window!'
+		}).show();
+	});
 	SplitViewNav.masterNav.open(w,{animated:true});
 });
 SplitViewNav.masterWindow.add(SplitViewNav.masterButton);
@@ -55,6 +61,12 @@ SplitViewNav.detailButton.addEventListener('click', function()
 		textAlign:'center'
 	});
 	w.add(l)
+	w.addEventListener('blur', function() {
+		Titanium.UI.createAlertDialog({
+			title:'Detail blur',
+			message:'You blurred the detail window!'
+		}).show();
+	});
 	SplitViewNav.detailNav.open(w,{animated:true});
 });
 SplitViewNav.detailWindow.add(SplitViewNav.detailButton);
