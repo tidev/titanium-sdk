@@ -473,6 +473,18 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 	{
 		return;
 	}
+	 
+	if ([self _isChildOfTab]) 
+	{
+		if (![args isKindOfClass:[NSArray class]] ||
+			([args isKindOfClass:[NSArray class]] &&
+			 [args count] > 0 && 
+			 ![TiUtils boolValue:@"closeByTab" properties:[args objectAtIndex:0] def:NO]))
+		{
+			[[self tab] close:[NSArray arrayWithObject:self]];
+			return;
+		}
+	}
 
 	closing=YES;
 
@@ -536,9 +548,9 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 
 	if ([self _handleClose:args])
 	{
-		TiAnimation *animation = [TiAnimation animationFromArg:args context:[self pageContext] create:NO];
+		TiAnimation *animation = [self _isChildOfTab] ? nil : [TiAnimation animationFromArg:args context:[self pageContext] create:NO];
 		BOOL animated = animation==nil && args!=nil && [args count]>0 ? [TiUtils boolValue:@"animated" properties:[args objectAtIndex:0] def:YES] : YES;
-
+		
 		if (animation!=nil)
 		{
 			if ([animation isTransitionAnimation])
@@ -580,7 +592,7 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 		} 
  
 		if (animation!=nil)
-		{ 
+		{
 			[self performSelector:@selector(windowClosed) withObject:nil afterDelay:0.8];
 		}
 		else 

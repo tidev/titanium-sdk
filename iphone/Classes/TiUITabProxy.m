@@ -5,7 +5,7 @@
  * Please see the LICENSE included with this distribution for details.
  */
 #ifdef USE_TI_UITAB
-
+ 
 #import "TiProxy.h"
 #import "TiUITabProxy.h"
 #import "TiUIViewProxy.h"
@@ -78,7 +78,7 @@
 - (void)handleWillShowViewController:(UIViewController *)viewController
 {
 	if (current!=nil)
-	{
+	{ 
 		TiWindowProxy *currentWindow = [current window];
 		
 		[currentWindow _tabBeforeBlur];
@@ -90,8 +90,6 @@
 		{
 			RELEASE_TO_NIL(closingWindow);
 			closingWindow = [currentWindow retain];
-			// the close actually happens after the tab animation to prevent
-			// any weird issues on close
 		}
 		
 		[currentWindow _tabBlur];
@@ -111,7 +109,7 @@
 	
 	[newWindow _tabFocus];
 	
-	opening = NO;
+	opening = NO; 
 }
 
 - (void)handleDidShowViewController:(UIViewController *)viewController
@@ -200,19 +198,28 @@
 	[root release];
 }
 
--(void)close:(NSArray*)args
+-(void)close:(id)window
 {
-	ENSURE_UI_THREAD(close,args);
+	ENSURE_UI_THREAD(close,window);
+	ENSURE_SINGLE_ARG(window,TiWindowProxy);
 	
-	TiWindowProxy *window = [args objectAtIndex:0];
+	if ([current window] == window)
+	{
+		[[rootController navigationController] popViewControllerAnimated:YES];
+		return;
+	}
+	
 	[window retain];
 	[window _tabBlur];
+	
+	// for this to work right, we need to sure that we always have the tab close the window
+	// and not let the window simply close by itself. this will ensure that we tell the 
+	// tab that we're doing that
+	[window close:[NSArray arrayWithObjects:[NSDictionary dictionaryWithObject:NUMBOOL(YES) forKey:@"closeByTab"],nil]];
 	if ([current window]==window)
 	{
 		RELEASE_TO_NIL(current);
 	}
-	[window close:nil];
-	RELEASE_TO_NIL(window);
 }
 
 -(void)windowClosing:(TiWindowProxy*)window animated:(BOOL)animated
