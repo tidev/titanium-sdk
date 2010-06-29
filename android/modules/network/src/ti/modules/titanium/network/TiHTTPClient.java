@@ -37,6 +37,11 @@ import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.HttpResponseException;
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.conn.scheme.PlainSocketFactory;
+import org.apache.http.conn.scheme.Scheme;
+import org.apache.http.conn.scheme.SchemeRegistry;
+import org.apache.http.conn.scheme.SocketFactory;
+import org.apache.http.conn.ssl.SSLSocketFactory;
 import org.apache.http.entity.AbstractHttpEntity;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.entity.mime.MultipartEntity;
@@ -45,11 +50,15 @@ import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.impl.DefaultHttpRequestFactory;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
 import org.apache.http.message.BasicHttpEntityEnclosingRequest;
 import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.params.BasicHttpParams;
+import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpProtocolParams;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.util.EntityUtils;
+import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiDict;
 import org.appcelerator.titanium.TiProxy;
@@ -378,6 +387,18 @@ public class TiHTTPClient
 		}
 	}
 
+	public boolean validatesSecureCertificate() {
+		if (proxy.hasDynamicValue("validatesSecureCertificate")) {
+			return TiConvert.toBoolean(proxy.getDynamicValue("validatesSecureCertificate"));
+		} else {
+			if (proxy.getTiContext().getTiApp().getDeployType().equals(
+					TiApplication.DEPLOY_TYPE_PRODUCTION)) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
 	public void setReadyState(int readyState) {
 		Log.d(LCAT, "Setting ready state to " + readyState);
 		this.readyState = readyState;
@@ -685,13 +706,12 @@ public class TiHTTPClient
 			Log.d(LCAT, "Leaving send()");
 		}
 	}
-
+	
 	private class ClientRunnable implements Runnable {
 		private double totalLength;
 		public ClientRunnable(double totalLength) {
 			this.totalLength = totalLength;
 		}
-		
 		public void run() {
 			try {
 				Thread.sleep(10);
@@ -706,14 +726,25 @@ public class TiHTTPClient
 				}
 				 */
 				handler = new LocalResponseHandler(TiHTTPClient.this);
-				client = new DefaultHttpClient();
+				SchemeRegistry registry = new SchemeRegistry();
+				registry.register(new Scheme("http", PlainSocketFactory.getSocketFactory(), 80));
+				SocketFactory sslFactory;
+				if (validatesSecureCertificate()) {
+					sslFactory = SSLSocketFactory.getSocketFactory();
+				} else {
+					sslFactory = new NonValidatingSSLSocketFactory();
+				}
+				registry.register(new Scheme("https", sslFactory, 443));
+				HttpParams params = new BasicHttpParams();
+				
+				ThreadSafeClientConnManager manager = new ThreadSafeClientConnManager(params, registry);
+				client = new DefaultHttpClient(manager, params);
 
 				if (credentials != null) {
 					client.getCredentialsProvider().setCredentials(
 							new AuthScope(null, -1), credentials);
 					credentials = null;
 				}
-
 				HttpProtocolParams.setUseExpectContinue(client.getParams(), false);
 				HttpProtocolParams.setVersion(client.getParams(), HttpVersion.HTTP_1_1);
 
