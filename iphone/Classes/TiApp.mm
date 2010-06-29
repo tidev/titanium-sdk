@@ -371,7 +371,6 @@ void MyUncaughtExceptionHandler(NSException *exception)
 	[[ImageLoader sharedLoader] cancel];
 	
 	[kjsBridge gc];
-	[kjsBridge suspend];
 	
 #ifdef USE_TI_UIWEBVIEW
 	[xhrBridge gc];
@@ -381,7 +380,6 @@ void MyUncaughtExceptionHandler(NSException *exception)
 -(void)applicationWillEnterForeground:(UIApplication *)application
 {
 	[[NSNotificationCenter defaultCenter] postNotificationName:kTiResumeNotification object:self];
-	[kjsBridge resume];
 }
 
 -(id)remoteNotification

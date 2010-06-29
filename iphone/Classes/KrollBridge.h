@@ -45,8 +45,5 @@
 - (id)preloadForKey:(id)key;
 - (KrollContext*)krollContext;
 
-- (void)suspend;
-- (void)resume;
-
 @end
 

@@ -279,6 +279,9 @@ static TiValueRef CommonJSRequireCallback (TiContextRef jsContext, TiObjectRef j
 		[lock setName:[NSString stringWithFormat:@"%@ Lock",[self threadName]]];
 		stopped = YES;
 		KrollContextCount++;
+		
+		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(suspend:) name:kTiSuspendNotification object:nil];
+		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(resume:) name:kTiResumeNotification object:nil];
 	}
 	return self;
 }
@@ -319,7 +322,7 @@ static TiValueRef CommonJSRequireCallback (TiContextRef jsContext, TiObjectRef j
 -(oneway void)release 
 {
 	NSLog(@"RELEASE: %@ (%d)",self,[self retainCount]-1);
-	[super release];
+	[super release]; 
 }
 #endif
 
@@ -328,6 +331,8 @@ static TiValueRef CommonJSRequireCallback (TiContextRef jsContext, TiObjectRef j
 #if CONTEXT_MEMORY_DEBUG==1
 	NSLog(@"DEALLOC: %@",self);
 #endif
+	[[NSNotificationCenter defaultCenter] removeObserver:self name:kTiSuspendNotification object:nil];
+	[[NSNotificationCenter defaultCenter] removeObserver:self name:kTiResumeNotification object:nil];
 	assert(!destroyed);
 	destroyed = YES;
 	[self destroy];
@@ -407,14 +412,14 @@ static TiValueRef CommonJSRequireCallback (TiContextRef jsContext, TiObjectRef j
 	}
 }
 
-- (void)suspend
+- (void)suspend:(id)note
 {
 	[condition lock];
 	suspended = YES;
 	[condition unlock];
 }
 
-- (void)resume
+- (void)resume:(id)note
 {
 	[condition lock];
 	suspended = NO;

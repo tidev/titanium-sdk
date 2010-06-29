@@ -123,10 +123,24 @@ class TiAppXML(object):
 			
 		self.dom.writexml(codecs.open(self.file, 'w+','utf-8','replace'), encoding="UTF-8")
 
-	def generate_infoplist(self,file,appid,family):
+	def generate_infoplist(self,file,appid,family,project_dir,iphone_version):
 		icon = 'appicon.png'
 		if self.properties.has_key('icon'):
 			icon = self.properties['icon']
+		
+		# start with 4.x, we support @2x files and we need to correctly
+		# set the Info.plist so that we can use the hi-res icon
+		if int(iphone_version[0:1]) > 3:
+			icon_path = os.path.join(project_dir,'Resources','iphone',icon)
+			if not os.path.exists(icon_path):
+				icon_path = os.path.join(project_dir,'Resources',icon)
+			ext = os.path.splitext(icon_path)
+			hires_icon_path = "%s@2x%s" % (ext[0],ext[1])
+			if os.path.exists(hires_icon_path):
+				ext = os.path.splitext(icon)
+				icon = "%s@2x%s" % (ext[0],ext[1])
+				print "[INFO] Detected hi-res appicon = %s" % icon
+
 			
 		self.infoplist_properties = {}	
 		for p in self.properties:

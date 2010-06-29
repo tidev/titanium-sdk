@@ -15,7 +15,10 @@
 
 -(void)dealloc
 {
-	[[NSNotificationCenter defaultCenter] removeObserver:self];
+	[[NSNotificationCenter defaultCenter] removeObserver:self name:kTiShutdownNotification object:nil];
+	[[NSNotificationCenter defaultCenter] removeObserver:self name:kTiSuspendNotification object:nil];
+	[[NSNotificationCenter defaultCenter] removeObserver:self name:kTiResumeNotification object:nil];
+	
 	RELEASE_TO_NIL(host);
 	if (classNameLookup != NULL)
 	{

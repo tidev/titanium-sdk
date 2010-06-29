@@ -260,16 +260,6 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 	[context start];
 }
 
-- (void)suspend
-{
-	[context suspend];
-}
-
-- (void)resume
-{
-	[context resume];
-}
-
 - (void)evalJS:(NSString*)code
 {
 	[context evalJS:code];
