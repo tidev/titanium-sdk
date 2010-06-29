@@ -11,8 +11,8 @@ template_dir = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filena
 
 # sort by the latest version first
 def version_sort(a,b):
-	x = float(a)
-	y = float(b)
+	x = float(a[0:2]) # ignore more than 2 places
+	y = float(b[0:2]) # ignore more than 2 places
 	if x > y:
 		return -1
 	if x < y:
