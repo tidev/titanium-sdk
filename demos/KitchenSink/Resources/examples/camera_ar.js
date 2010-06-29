@@ -20,7 +20,7 @@ var messageView = Titanium.UI.createView({
 
 var indView = Titanium.UI.createView({
 	height:60,
-	width:250,
+	width:270,
 	backgroundColor:'#000',
 	borderRadius:10,
 	opacity:0.7
@@ -33,7 +33,7 @@ var message = Titanium.UI.createLabel({
 	color:'#fff',
 	font:{fontSize:14,fontWeight:'bold',fontFamily:'Helvetica Neue'},
 	textAlign:'center',
-	width:'auto',
+	width:270,
 	height:'auto'
 });
 messageView.add(message);
@@ -48,7 +48,7 @@ button.addEventListener('click',function()
 });
 
 var heading;
-var gps='calculating';
+var gps='...';
 var address='calculating address';
 
 function refreshLabel()
@@ -59,6 +59,12 @@ function refreshLabel()
 		text+="\n"+address;
 	}
 	message.text = text;
+}
+
+Ti.include("version.js");
+if (isIPhone3_2_Plus())
+{
+	Titanium.Geolocation.purpose = "AR Demo";
 }
 
 Titanium.Geolocation.addEventListener('location',function(e)

@@ -335,7 +335,7 @@ if (![TiUtils isiPhoneOS3_2OrGreater]) {\
 		return [self movieControlMode];
 	}
 }
-#endif
+#endif 
 
 -(void)setMedia:(id)media_
 {

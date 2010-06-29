@@ -780,7 +780,7 @@ static TiValueRef CommonJSRequireCallback (TiContextRef jsContext, TiObjectRef j
 	NSLog(@"SHUTDOWN: %@",self);
 	NSLog(@"KROLL RETAIN COUNT: %d",[kroll retainCount]);
 #endif
-	
+	 
 	[self destroy];
 
 	// cause the global context to be released and all objects internally to be finalized
