@@ -581,7 +581,7 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
  
 		if (animation!=nil)
 		{ 
-			[self performSelector:@selector(windowClosed) withObject:nil afterDelay:0.4];
+			[self performSelector:@selector(windowClosed) withObject:nil afterDelay:0.8];
 		}
 		else 
 		{

@@ -57,17 +57,17 @@
 {
 	ENSURE_TYPE_OR_NIL(args,NSDictionary);
 	Class arrayClass = [NSArray class];
-	NSArray * toArray = [self valueForKey:@"toRecipients"];
+	NSArray * toArray = [self valueForUndefinedKey:@"toRecipients"];
 	ENSURE_CLASS_OR_NIL(toArray,arrayClass);
-	NSArray * bccArray = [self valueForKey:@"bccRecipients"];
+	NSArray * bccArray = [self valueForUndefinedKey:@"bccRecipients"];
 	ENSURE_CLASS_OR_NIL(bccArray,arrayClass);
-	NSArray * ccArray = [self valueForKey:@"ccRecipients"];
+	NSArray * ccArray = [self valueForUndefinedKey:@"ccRecipients"];
 	ENSURE_CLASS_OR_NIL(ccArray,arrayClass);
 
 	ENSURE_UI_THREAD(open,args);
 		
-	NSString * subject = [TiUtils stringValue:[self valueForKey:@"subject"]];
-	NSString * message = [TiUtils stringValue:[self valueForKey:@"messageBody"]];
+	NSString * subject = [TiUtils stringValue:[self valueForUndefinedKey:@"subject"]];
+	NSString * message = [TiUtils stringValue:[self valueForUndefinedKey:@"messageBody"]];
 
 	if (![MFMailComposeViewController canSendMail])
 	{
@@ -79,7 +79,7 @@
 		return;
 	}
 
-	UIColor * barColor = [[TiUtils colorValue:[self valueForKey:@"barColor"]] _color];
+	UIColor * barColor = [[TiUtils colorValue:[self valueForUndefinedKey:@"barColor"]] _color];
 	
 	MFMailComposeViewController * composer = [[MFMailComposeViewController alloc] init];
 	[composer setMailComposeDelegate:self];
@@ -92,7 +92,7 @@
 	[composer setToRecipients:toArray];
 	[composer setBccRecipients:bccArray];
 	[composer setCcRecipients:ccArray];
-	[composer setMessageBody:message isHTML:[TiUtils boolValue:[self valueForKey:@"html"] def:NO]];
+	[composer setMessageBody:message isHTML:[TiUtils boolValue:[self valueForUndefinedKey:@"html"] def:NO]];
 	
 	if (attachments != nil)
 	{
@@ -124,7 +124,7 @@
 		}
 	}
 	
-	BOOL animated = [TiUtils boolValue:[self valueForKey:@"animated"] def:YES];
+	BOOL animated = [TiUtils boolValue:@"animated" properties:args def:YES];
 	[self retain];
 	[[TiApp app] showModalController:composer animated:animated];
 }
@@ -143,12 +143,11 @@ MAKE_SYSTEM_PROP(FAILED,MFMailComposeResultFailed);
 		NSLog(@"[ERROR] Unexpected composing error: %@",error);
 	}
 	
-	BOOL animated = [TiUtils boolValue:[self valueForKey:@"animated"] def:YES];
+	BOOL animated = YES;
 
 	[[TiApp app] hideModalController:composer animated:animated];
 	[composer autorelease];
 	composer = nil;
-	[self autorelease];
 	if ([self _hasListeners:@"complete"])
 	{
 		NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:NUMINT(result),@"result",
@@ -157,6 +156,7 @@ MAKE_SYSTEM_PROP(FAILED,MFMailComposeResultFailed);
 							   nil];
 		[self fireEvent:@"complete" withObject:event];
 	}
+	[self autorelease];
 }
 
 @end
