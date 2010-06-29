@@ -218,6 +218,9 @@ extern NSString * const TI_APPLICATION_GUID;
 
 -(void)suspend:(id)sender
 {
+	// make sure we force any changes made on suspend in case we don't come back
+	[[NSUserDefaults standardUserDefaults] synchronize];
+	
 	if ([self _hasListeners:@"pause"])
 	{
 		[self fireEvent:@"pause" withObject:nil];

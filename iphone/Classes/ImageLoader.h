@@ -76,5 +76,6 @@ typedef enum {
 
 -(void)suspend;
 -(void)resume;
+-(void)cancel;
 
 @end
