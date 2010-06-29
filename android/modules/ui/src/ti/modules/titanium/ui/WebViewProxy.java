@@ -23,6 +23,11 @@ public class WebViewProxy extends ViewProxy
 	private static final int MSG_FIRST_ID = ViewProxy.MSG_LAST_ID + 1;
 
 	private static final int MSG_EVAL_JS = MSG_FIRST_ID + 100;
+	private static final int MSG_GO_BACK = MSG_FIRST_ID + 101;
+	private static final int MSG_GO_FORWARD = MSG_FIRST_ID + 102;
+	private static final int MSG_RELOAD = MSG_FIRST_ID + 103;
+	private static final int MSG_STOP_LOADING = MSG_FIRST_ID + 104;
+	
 	protected static final int MSG_LAST_ID = MSG_FIRST_ID + 999;
 
 	public WebViewProxy(TiContext context, Object[] args) {
@@ -60,6 +65,18 @@ public class WebViewProxy extends ViewProxy
 				String value = getWebView().getJSValue((String)result.getArg());
 				result.setResult(value);
 				return true;
+			case MSG_GO_BACK:
+				getWebView().goBack();
+				return true;
+			case MSG_GO_FORWARD:
+				getWebView().goForward();
+				return true;
+			case MSG_RELOAD:
+				getWebView().reload();
+				return true;
+			case MSG_STOP_LOADING:
+				getWebView().stopLoading();
+				return true;
 		}
 		return super.handleMessage(msg);
 	}
@@ -67,5 +84,30 @@ public class WebViewProxy extends ViewProxy
 	public void setBasicAuthentication(String username, String password)
 	{
 		getWebView().setBasicAuthentication(username, password);
+	}
+	
+	public boolean canGoBack() {
+		return getWebView().canGoBack();
+	}
+	
+	public boolean canGoForward() {
+		return getWebView().canGoForward();
+	}
+	
+	public void goBack() {
+		getUIHandler().sendEmptyMessage(MSG_GO_BACK);
+	}
+	
+	public void goForward() {
+		getUIHandler().sendEmptyMessage(MSG_GO_FORWARD);
+	}
+	
+	public void reload() {
+		getUIHandler().sendEmptyMessage(MSG_RELOAD);
+	}
+	
+	public void stopLoading() {
+		getUIHandler().sendEmptyMessage(MSG_STOP_LOADING);
+
 	}
 }
