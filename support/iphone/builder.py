@@ -393,17 +393,7 @@ def main(args):
 			tp_modules = []
 			tp_depends = []
 			
-			build_type_file = os.path.join(build_out_dir,'.build')
-			force_destroy_build = True
-			if os.path.exists(build_type_file):
-				build_type = open(build_type_file).read()
-				if build_type == command:
-					force_destroy_build = False
-		
-			# cache our build type so we can be smart about incremental
-			build_type_f = open(build_type_file,'w')
-			build_type_f.write(command)
-			build_type_f.close()
+			force_destroy_build = command!='simulator'
 
 			def find_depends(config,depends):
 				for line in open(config).readlines():
