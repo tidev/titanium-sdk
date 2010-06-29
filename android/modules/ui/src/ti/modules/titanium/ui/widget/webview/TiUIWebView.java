@@ -203,5 +203,27 @@ public class TiUIWebView extends TiUIView {
 		return false;
 	}
 
-
+	public boolean canGoBack() {
+		return getWebView().canGoBack();
+	}
+	
+	public boolean canGoForward() {
+		return getWebView().canGoForward();
+	}
+	
+	public void goBack() {
+		getWebView().goBack();
+	}
+	
+	public void goForward() {
+		getWebView().goForward();
+	}
+	
+	public void reload() {
+		getWebView().reload();
+	}
+	
+	public void stopLoading() {
+		getWebView().stopLoading();
+	}
 }
