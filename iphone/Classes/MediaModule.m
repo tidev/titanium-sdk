@@ -299,8 +299,10 @@ enum
 		}
 		else
 		{
+#if __IPHONE_OS_VERSION_MAX_ALLOWED < __IPHONE_4_0
 			// we use our own fullscreen transform if the developer didn't supply one
 			picker.cameraViewTransform = CGAffineTransformScale(picker.cameraViewTransform, CAMERA_TRANSFORM_X, CAMERA_TRANSFORM_Y);
+#endif
 		}
 	}
 	
