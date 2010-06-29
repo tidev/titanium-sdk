@@ -29,8 +29,7 @@ import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiPlatformHelper;
 import org.appcelerator.titanium.view.ITiWindowHandler;
 
-import ti.modules.titanium.TitaniumModule;
-
+import android.app.Activity;
 import android.app.Application;
 import android.content.Intent;
 
@@ -54,6 +53,7 @@ public class TiApplication extends Application
 	private TiProperties appProperties;
 	private TiProperties systemProperties;
 	private ITiWindowHandler windowHandler;
+	private Activity currentActivity;
 	protected ITiAppInfo appInfo;
 
 	private boolean needsStartEvent;
@@ -159,6 +159,19 @@ public class TiApplication extends Application
 
 	public ITiWindowHandler getWindowHandler() {
 		return windowHandler;
+	}
+
+	public Activity getCurrentActivity() {
+		return currentActivity;
+	}
+
+	public void setCurrentActivity(Activity callingActivity, Activity newValue)
+	{
+		synchronized (this) {
+			if (currentActivity == null || (callingActivity == currentActivity && newValue == null)) {
+				currentActivity = newValue;
+			}
+		}
 	}
 
 	public void setWindowHandler(ITiWindowHandler windowHandler) {

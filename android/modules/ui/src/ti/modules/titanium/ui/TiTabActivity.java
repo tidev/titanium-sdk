@@ -55,7 +55,7 @@ public class TiTabActivity extends ActivityGroup
         Messenger messenger = null;
         Integer messageId = null;
         boolean vertical = false;
-        
+
         if (intent != null) {
         	if (intent.hasExtra("fullscreen")) {
         		fullscreen = intent.getBooleanExtra("fullscreen", fullscreen);
@@ -163,12 +163,14 @@ public class TiTabActivity extends ActivityGroup
 	protected void onPause() {
 		super.onPause();
 		getTiApp().setWindowHandler(null);
+		((TiApplication) getApplication()).setCurrentActivity(this, null);
 	}
 
 	@Override
 	protected void onResume() {
 		super.onResume();
 		getTiApp().setWindowHandler(this);
+		((TiApplication) getApplication()).setCurrentActivity(this, this);
 	}
 
 }
