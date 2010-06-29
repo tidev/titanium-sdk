@@ -18,6 +18,9 @@
 	BOOL calibration;
 	NSMutableArray *singleHeading;
 	NSMutableArray *singleLocation;
+	NSString *purpose;
+	BOOL trackingHeading;
+	BOOL trackingLocation;
 }
 
 @property(nonatomic,readonly,getter=hasCompass) NSNumber *compass;

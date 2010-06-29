@@ -51,8 +51,6 @@
 -(NSString*)contextId;
 -(void)start;
 -(void)stop;
--(void)suspend;
--(void)resume;
 -(BOOL)running;
 -(void)gc;
 -(TiGlobalContextRef)context;

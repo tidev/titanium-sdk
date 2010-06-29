@@ -70,7 +70,11 @@ Titanium.Media.showCamera({
 		Ti.API.debug("picture was taken");
 		
 		// place our picture into our window
-		var imageView = Ti.UI.createImageView({image:event.media});
+		var imageView = Ti.UI.createImageView({
+			image:event.media,
+			width:win.width,
+			height:win.height
+		});
 		win.add(imageView);
 		
 		// programatically hide the camera
