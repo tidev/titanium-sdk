@@ -37,6 +37,9 @@ var l = Ti.UI.createLabel({
 	text:'scroll view: red on top, blue in the middle, pink below',
 	color:'#777',
 	width:300,
+	height:20,
+	top:50,
+	left:10,
 	font:{fontSize:12}
 });
 scrollView.add(l);

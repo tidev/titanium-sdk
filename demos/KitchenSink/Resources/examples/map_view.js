@@ -108,7 +108,7 @@ if (!isAndroid) {
 	atl = Titanium.UI.Android.OptionMenu.createMenuItem({title : 'ATL'});
 }
 // activate annotation
-mapview.selectAnnotation(mapview.annotations[1].title,true);
+mapview.selectAnnotation(mapview.annotations[0].title,true);
 
 atl.addEventListener('click', function()
 {
@@ -116,7 +116,7 @@ atl.addEventListener('click', function()
 	mapview.setLocation(regionAtlanta);
 
 	// activate annotation
-	mapview.selectAnnotation(mapview.annotations[1].title,true);
+	mapview.selectAnnotation(mapview.annotations[0].title,true);
 });
 
 // button to change to SV
@@ -137,7 +137,7 @@ sv.addEventListener('click', function()
 	mapview.setLocation(regionSV);
 
 	// activate annotation
-	mapview.selectAnnotation(mapview.annotations[0].title,true);
+	mapview.selectAnnotation(mapview.annotations[1].title,true);
 });
 mapview.addEventListener('complete', function()
 {
@@ -278,15 +278,18 @@ mapview.addEventListener('click',function(evt)
 		evt.annotation.leftButton = 'images/appcelerator_small.png';
 
 	}
-	if (myid == 2 && annotationAdded==false)
+	if (myid == 2)
 	{
-		mapview.addAnnotation(mountainView);
-		annotationAdded=true;
-	}
-	else
-	{
-		mapview.removeAnnotation(mountainView);
-		annotationAdded=false;
+		if(annotationAdded==false)
+		{
+			mapview.addAnnotation(mountainView);
+			annotationAdded=true;
+		}
+		else
+		{
+			mapview.removeAnnotation(mountainView);
+			annotationAdded=false;
+		}
 	}
 });
 

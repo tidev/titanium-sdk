@@ -51,6 +51,11 @@
 		map.showsUserLocation = YES; // defaults
 		map.autoresizingMask = UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight;
 		[self addSubview:map];
+
+		if (pendingAnnotationSelection != nil) {
+			[[self map] selectAnnotation:pendingAnnotationSelection animated:animate];
+			RELEASE_TO_NIL(pendingAnnotationSelection);
+		}
 	}
 	return map;
 }
@@ -189,6 +194,18 @@
 	}
 }
 
+-(void)selectOrSetPendingAnnotation:(id<MKAnnotation>)annotation
+{
+	if (map != nil) //loaded)
+	{
+		[[self map] selectAnnotation:annotation animated:animate];
+	}
+	else {
+		[pendingAnnotationSelection release];
+		pendingAnnotationSelection = [annotation retain];
+	}
+}
+
 -(void)selectAnnotation:(id)args
 {
 	ENSURE_SINGLE_ARG_OR_NIL(args,NSObject);
@@ -210,24 +227,14 @@
 			if ([title isEqualToString:an.title])
 			{
 				// TODO: Slide the view over to the selected annotation, and/or zoom so it's with all other selected.
-				if (loaded) {
-					[[self map] selectAnnotation:an animated:animate];
-				}
-				else {
-					pendingAnnotationSelection = [an retain];
-				}
+				[self selectOrSetPendingAnnotation:an];
 				break;
 			}
 		}
 	}
 	else if ([args isKindOfClass:[TiMapAnnotationProxy class]])
 	{
-		if (loaded) {
-			[[self map] selectAnnotation:args animated:animate];
-		}
-		else {
-			pendingAnnotationSelection = [args retain];
-		}
+		[self selectOrSetPendingAnnotation:args];
 	}
 }
 
@@ -717,7 +724,6 @@
 			source,@"clicksource",	viewProxy,@"annotation",	ourProxy,@"map",
 			title,@"title",			indexNumber,@"index",		nil];
 
-	NSLog(@"[INFO] Map generating click event %@ : %@",ourProxy,event);
 	if (parentWants)
 	{
 		[ourProxy fireEvent:@"click" withObject:event];

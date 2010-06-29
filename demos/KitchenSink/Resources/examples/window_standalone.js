@@ -419,7 +419,7 @@ if (Titanium.Platform.name == 'iPhone OS')
 			width:180,
 			height:40
 		});
-		Titanium.UI.currentTab.open(w);
+		Titanium.UI.currentTab.open(w,{animated:false});
 		w.add(b);
 		b.addEventListener('click',function()
 		{
