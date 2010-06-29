@@ -146,6 +146,17 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 	{
 		[self fireFocus:YES];
 	}
+
+	if (reattachWindows!=nil)
+	{
+		UIView *rootView = [[TiApp app] controller].view;
+		for (UIView *aview in reattachWindows)
+		{
+			[rootView addSubview:aview];
+			[rootView sendSubviewToBack:aview];
+		}
+		RELEASE_TO_NIL(reattachWindows);
+	}
 }
 
 -(void)windowReady
@@ -160,17 +171,6 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 	if (!navWindow) 
 	{
 		[self attachViewToTopLevelWindow];
-	}
-	
-	if (reattachWindows!=nil)
-	{
-		UIView *rootView = [[TiApp app] controller].view;
-		for (UIView *aview in reattachWindows)
-		{
-			[rootView addSubview:aview];
-			[rootView sendSubviewToBack:aview];
-		}
-		RELEASE_TO_NIL(reattachWindows);
 	}
 }
 
