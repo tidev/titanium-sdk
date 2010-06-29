@@ -341,7 +341,7 @@ void MyUncaughtExceptionHandler(NSException *exception)
 	[theNotificationCenter postNotificationName:kTiShutdownNotification object:self];
 
 	RELEASE_TO_NIL(kjsBridge);
-#ifdef USE_TI_UIWEBVIEW
+#ifdef USE_TI_UIWEBVIEW 
 	RELEASE_TO_NIL(xhrBridge);
 #endif	
 	RELEASE_TO_NIL(remoteNotification);
@@ -354,7 +354,7 @@ void MyUncaughtExceptionHandler(NSException *exception)
 	[kjsBridge gc];
 #ifdef USE_TI_UIWEBVIEW
 	[xhrBridge gc];
-#endif
+#endif 
 }
 
 -(void)applicationWillResignActive:(UIApplication *)application

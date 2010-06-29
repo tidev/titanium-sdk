@@ -572,15 +572,15 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 			closeView = [myview retain];
 			[animation animate:self];
 		}
-		
+		  
 		if (fullscreenFlag)
 		{
 			[[UIApplication sharedApplication] setStatusBarHidden:restoreFullscreen];
 			self.view.frame = [[[TiApp app] controller] resizeView];
-		}
-
-		if (([self _isChildOfTab] && animated) || animation!=nil)
-		{
+		} 
+ 
+		if (animation!=nil)
+		{ 
 			[self performSelector:@selector(windowClosed) withObject:nil afterDelay:0.4];
 		}
 		else 

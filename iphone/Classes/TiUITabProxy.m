@@ -88,7 +88,10 @@
 		// check to make sure that we're not actually push a window on the stack
 		if (opening==NO && [rootController window]!=currentWindow && [TiUtils boolValue:currentWindow.opened] && currentWindow.closing==NO)
 		{
-			[self close:[NSArray arrayWithObject:currentWindow]];
+			RELEASE_TO_NIL(closingWindow);
+			closingWindow = [currentWindow retain];
+			// the close actually happens after the tab animation to prevent
+			// any weird issues on close
 		}
 		
 		[currentWindow _tabBlur];
@@ -113,6 +116,11 @@
 
 - (void)handleDidShowViewController:(UIViewController *)viewController
 {
+	if (closingWindow!=nil)
+	{
+		[self close:[NSArray arrayWithObject:closingWindow]];
+		RELEASE_TO_NIL(closingWindow);
+	}
 }
 
 #pragma mark Delegates
@@ -125,6 +133,11 @@
 		return;
 	}
 	[self handleWillShowViewController:viewController];
+}
+
+- (void)navigationController:(UINavigationController *)navigationController didShowViewController:(UIViewController *)viewController animated:(BOOL)animated
+{
+	[self handleDidShowViewController:viewController];
 }
 
 - (void)handleWillBlur
