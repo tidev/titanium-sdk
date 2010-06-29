@@ -323,25 +323,36 @@ void MyUncaughtExceptionHandler(NSException *exception)
 {
 	NSNotificationCenter * theNotificationCenter = [NSNotificationCenter defaultCenter];
 
-//This will send out the 'close' message.
+	//This will send out the 'close' message.
 	[theNotificationCenter postNotificationName:kTiWillShutdownNotification object:self];
 
-//These shutdowns return immediately, yes, but the main will still run the close that's in their queue.	
+	//These shutdowns return immediately, yes, but the main will still run the close that's in their queue.	
 	[kjsBridge shutdown];
+	
 #ifdef USE_TI_UIWEBVIEW
 	[xhrBridge shutdown];
 #endif	
 
-	while ([kjsBridge krollContext] != nil)
+	// NOTE: on pre-iphone4, you must immediately stop and not wait since 
+	// it will send an immediate terminate to a suspended app (even though
+	// multi-tasking isn't really supported) and if you do this code below
+	// it will always crash on the 2nd restart of the same app
+	
+	if ([TiUtils isIPhone4])
 	{
-		[NSThread sleepForTimeInterval:0.05];
+		// JGH NOTE: why do we even need to wait here? we have retains
+		// internally so that should be OK
+		while ([kjsBridge krollContext] != nil)
+		{
+			[NSThread sleepForTimeInterval:0.05];
+		}
 	}
-
-//This will shut down the modules.
+	
+	//This will shut down the modules.
 	[theNotificationCenter postNotificationName:kTiShutdownNotification object:self];
 
 	RELEASE_TO_NIL(kjsBridge);
-#ifdef USE_TI_UIWEBVIEW
+#ifdef USE_TI_UIWEBVIEW 
 	RELEASE_TO_NIL(xhrBridge);
 #endif	
 	RELEASE_TO_NIL(remoteNotification);
@@ -354,12 +365,16 @@ void MyUncaughtExceptionHandler(NSException *exception)
 	[kjsBridge gc];
 #ifdef USE_TI_UIWEBVIEW
 	[xhrBridge gc];
-#endif
+#endif 
 }
 
 -(void)applicationWillResignActive:(UIApplication *)application
 {
 	[[NSNotificationCenter defaultCenter] postNotificationName:kTiSuspendNotification object:self];
+	[kjsBridge gc];
+#ifdef USE_TI_UIWEBVIEW
+	[xhrBridge gc];
+#endif 
 }
 
 -(void)applicationWillEnterForeground:(UIApplication *)application

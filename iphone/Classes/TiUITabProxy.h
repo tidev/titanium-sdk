@@ -20,6 +20,7 @@
 	
 	TiUITabGroupProxy *tabGroup;
 	TiUITabController *current;
+	TiWindowProxy *closingWindow;
 	BOOL opening;
 	BOOL systemTab;
 }

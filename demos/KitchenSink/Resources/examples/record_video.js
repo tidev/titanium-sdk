@@ -26,6 +26,11 @@ b.addEventListener('click', function()
 			movieFile.deleteFile();
 			b.title = 'Record Movie';
 		});
+		
+		if (parseFloat(Titanium.Platform.version) >= 3.2)
+		{
+			win.add(activeMovie);
+		}
 	}
 	else
 	{
