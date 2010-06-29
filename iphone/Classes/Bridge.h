@@ -22,7 +22,7 @@
 
 -(void)booted;
 
--(void)shutdown;
+-(void)shutdown:(NSCondition*)condition;
 
 -(void)gc;
 

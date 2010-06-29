@@ -34,7 +34,7 @@
 	return host;
 }
 
--(void)shutdown
+-(void)shutdown:(NSCondition*)condition
 {
 }
 

@@ -40,6 +40,7 @@
 -(void)_configure
 {
 	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(shutdown:) name:kTiShutdownNotification object:nil];
+	[super _configure];
 }
 
 -(NSString*)dbDir

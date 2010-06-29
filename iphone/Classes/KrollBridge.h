@@ -35,6 +35,7 @@
 	TitaniumObject *titanium;
 	BOOL shutdown;
 	NSMutableArray *proxies;
+	NSCondition *shutdownCondition;
 }
 - (void)boot:(id)callback url:(NSURL*)url preload:(NSDictionary*)preload;
 - (void)evalJS:(NSString*)code;
@@ -43,6 +44,9 @@
 - (void)fireEvent:(id)listener withObject:(id)obj remove:(BOOL)yn thisObject:(TiProxy*)thisObject;
 - (id)preloadForKey:(id)key;
 - (KrollContext*)krollContext;
+
+- (void)suspend;
+- (void)resume;
 
 @end
 

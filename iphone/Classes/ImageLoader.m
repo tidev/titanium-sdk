@@ -552,6 +552,18 @@ DEFINE_EXCEPTIONS
 	[lock unlock];
 }
 
+-(void)cancel
+{
+	//NOTE: this should only be called on suspend
+	//to cause the queue to be stopped
+	[lock lock];
+	if (queue!=nil)
+	{
+		[queue reset];
+	}
+	[lock unlock];
+}
+
 -(void)resume
 {
 	[lock lock];

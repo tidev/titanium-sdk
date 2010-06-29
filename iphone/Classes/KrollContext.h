@@ -37,6 +37,7 @@
 	BOOL stopped;
 	BOOL gcrequest;
 	BOOL destroyed;
+	BOOL suspended;
 	TiGlobalContextRef context;
 	NSMutableDictionary *timers;
 	NSRecursiveLock *timerLock;
@@ -50,6 +51,8 @@
 -(NSString*)contextId;
 -(void)start;
 -(void)stop;
+-(void)suspend;
+-(void)resume;
 -(BOOL)running;
 -(void)gc;
 -(TiGlobalContextRef)context;

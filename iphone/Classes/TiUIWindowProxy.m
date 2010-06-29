@@ -96,7 +96,7 @@
 	RELEASE_TO_NIL(barImageView);
 	if (context!=nil)
 	{
-		[context shutdown];
+		[context shutdown:nil];
 		RELEASE_TO_NIL(context);
 	}
 	RELEASE_TO_NIL(oldBaseURL);
@@ -184,7 +184,7 @@
 {
 	if (context!=nil)
 	{
-		[context shutdown];
+		[context shutdown:nil];
 		RELEASE_TO_NIL(context);
 	}
 	[super windowDidClose];
