@@ -51,11 +51,6 @@
 		map.showsUserLocation = YES; // defaults
 		map.autoresizingMask = UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight;
 		[self addSubview:map];
-
-		if (pendingAnnotationSelection != nil) {
-			[[self map] selectAnnotation:pendingAnnotationSelection animated:animate];
-			RELEASE_TO_NIL(pendingAnnotationSelection);
-		}
 	}
 	return map;
 }
@@ -196,7 +191,7 @@
 
 -(void)selectOrSetPendingAnnotation:(id<MKAnnotation>)annotation
 {
-	if (map != nil) //loaded)
+	if (loaded)
 	{
 		[[self map] selectAnnotation:annotation animated:animate];
 	}
@@ -495,6 +490,13 @@
 
 - (void)mapView:(MKMapView *)mapView regionDidChangeAnimated:(BOOL)animated
 {
+	if (pendingAnnotationSelection != nil) {
+		[[self map] selectAnnotation:pendingAnnotationSelection animated:animate];
+		if([map selectedAnnotations] != nil)
+		{
+			RELEASE_TO_NIL(pendingAnnotationSelection);
+		}
+	}
 	if (routeViews!=nil)
 	{
 		// re-enable and re-poosition the route display. 
