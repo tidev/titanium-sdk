@@ -404,7 +404,7 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 	[js release];
 }
 
--(void)shutdown
+-(void)shutdown:(NSCondition*)condition
 {
 #if KROLLBRIDGE_MEMORY_DEBUG==1
 	NSLog(@"DESTROY: %@",self);
@@ -412,12 +412,19 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 	
 	if (shutdown==NO)
 	{
+		shutdownCondition = [condition retain];
 		shutdown = YES;
 		// fire a notification event to our listeners
 		NSNotification *notification = [NSNotification notificationWithName:kKrollShutdownNotification object:self];
 		[[NSNotificationCenter defaultCenter] postNotification:notification];
 		
 		[context stop];
+	}
+	else
+	{
+		[condition lock];
+		[condition signal];
+		[condition unlock];
 	}
 }
 
@@ -485,6 +492,14 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 		[[NSNotificationCenter defaultCenter] postNotification:notification];
 	}
 	[titanium gc];
+	
+	if (shutdownCondition)
+	{
+		[shutdownCondition lock];
+		[shutdownCondition signal];
+		[shutdownCondition unlock];
+		RELEASE_TO_NIL(shutdownCondition);
+	}
 }
 
 -(void)didStopNewContext:(KrollContext*)kroll

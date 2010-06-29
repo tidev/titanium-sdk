@@ -37,6 +37,7 @@
 	BOOL stopped;
 	BOOL gcrequest;
 	BOOL destroyed;
+	BOOL suspended;
 	TiGlobalContextRef context;
 	NSMutableDictionary *timers;
 	NSRecursiveLock *timerLock;

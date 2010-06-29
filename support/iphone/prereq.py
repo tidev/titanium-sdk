@@ -9,6 +9,16 @@ import json, run, tempfile, codecs
 
 template_dir = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
 
+# sort by the latest version first
+def version_sort(a,b):
+	x = float(a[0:2]) # ignore more than 2 places
+	y = float(b[0:2]) # ignore more than 2 places
+	if x > y:
+		return -1
+	if x < y:
+		return 1
+	return 0
+	
 def get_sdks():
 	found = []
 	ipad = False
@@ -30,7 +40,8 @@ def get_sdks():
 					# ipad is anything 3.2+
 					if major>3 or ver.startswith('3.2'):
 						ipad=True
-	return (found,ipad)
+						
+	return (sorted(found,version_sort),ipad)
 	
 def check_iphone3():
 	try:

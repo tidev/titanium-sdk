@@ -1,6 +1,16 @@
 var win = Titanium.UI.currentWindow;
 win.backgroundColor = '#fff';
 
+Ti.include("version.js");
+
+if (isIPhone3_2_Plus())
+{
+	//NOTE: starting in 3.2+, you'll need to set the applications
+	//purpose property for using Location services on iPhone
+	Ti.Geolocation.purpose = "GPS demo";
+}
+
+
 var currentHeadingLabel = Titanium.UI.createLabel({
 	text:'Current Heading (One Shot)',
 	font:{fontSize:12, fontWeight:'bold'},

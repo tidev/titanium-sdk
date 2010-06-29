@@ -33,8 +33,10 @@ import ti.modules.titanium.filesystem.FileProxy;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Handler;
 import android.os.Message;
+import android.webkit.URLUtil;
 
 public class TiUIImageView extends TiUIView
 	implements OnLifecycleEvent, Handler.Callback
@@ -401,10 +403,9 @@ public class TiUIImageView extends TiUIView
 			}
 		}
 		else if (d.containsKey("url")) {
-			synchronized(imageTokenGenerator) {
-				token = imageTokenGenerator.incrementAndGet();
-				getView().setImageDrawable(null);
-				new BgImageLoader(getProxy().getTiContext(), null, null, token).load(TiConvert.toString(d, "url"));
+			Log.w(LCAT, "The url property of ImageView is deprecated, use image instead.");
+			if (!d.containsKey("image")) {
+				d.put("image", d.get("url"));
 			}
 		}
 		if (d.containsKey("canScale")) {
@@ -414,7 +415,16 @@ public class TiUIImageView extends TiUIView
 			view.setEnableZoomControls(TiConvert.toBoolean(d, "enableZoomControls"));
 		}
 		if (d.containsKey("image")) {
-			setImage(createBitmap(d.get("image")));
+			String imageURL = TiConvert.toString(d, "image");
+			if (URLUtil.isNetworkUrl(imageURL)) {
+				synchronized(imageTokenGenerator) {
+					token = imageTokenGenerator.incrementAndGet();
+					getView().setImageDrawable(null);
+					new BgImageLoader(getProxy().getTiContext(), null, null, token).load(imageURL);
+				}
+			} else {
+				setImage(createBitmap(imageURL));
+			}
 		} else {
 			getProxy().internalSetDynamicValue("image", null, false);
 		}

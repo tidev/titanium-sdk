@@ -15,7 +15,10 @@
 
 -(void)dealloc
 {
-	[[NSNotificationCenter defaultCenter] removeObserver:self];
+	[[NSNotificationCenter defaultCenter] removeObserver:self name:kTiShutdownNotification object:nil];
+	[[NSNotificationCenter defaultCenter] removeObserver:self name:kTiSuspendNotification object:nil];
+	[[NSNotificationCenter defaultCenter] removeObserver:self name:kTiResumeNotification object:nil];
+	
 	RELEASE_TO_NIL(host);
 	if (classNameLookup != NULL)
 	{
@@ -62,7 +65,7 @@
 		//We do not retain the Class, but simply assign them.
 	}
 
-	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(shutdown:) name:kTiWillShutdownNotification object:nil];
+	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(shutdown:) name:kTiShutdownNotification object:nil];
 	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(suspend:) name:kTiSuspendNotification object:nil];
 	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(resume:) name:kTiResumeNotification object:nil];
 }

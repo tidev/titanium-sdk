@@ -40,6 +40,10 @@ public class TableViewRowProxy extends TiViewProxy
 	public ArrayList<TiViewProxy> getControls() {
 		return controls;
 	}
+	
+	public TiViewProxy[] getChildren() {
+		return controls.toArray(new TiViewProxy[controls.size()]);
+	}
 
 	public boolean hasControls() {
 		return (controls != null && controls.size() > 0);

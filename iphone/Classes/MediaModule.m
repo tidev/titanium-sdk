@@ -29,7 +29,12 @@
 // by default, we want to make the camera fullscreen and 
 // these transform values will scale it when we have our own overlay
 #define CAMERA_TRANSFORM_X 1
+
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0
+#define CAMERA_TRANSFORM_Y 1.23
+#else
 #define CAMERA_TRANSFORM_Y 1.12412
+#endif
 
 enum  
 {
@@ -48,6 +53,12 @@ enum
 {
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
 	RELEASE_TO_NIL(popover);
+#endif
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0
+	RELEASE_TO_NIL(editor);
+	RELEASE_TO_NIL(editorSuccessCallback);
+	RELEASE_TO_NIL(editorErrorCallback);
+	RELEASE_TO_NIL(editorCancelCallback);
 #endif
 	RELEASE_TO_NIL(musicPicker);
 	RELEASE_TO_NIL(picker);
@@ -297,10 +308,12 @@ enum
 			ENSURE_TYPE(transform,Ti2DMatrix);
 			[picker setCameraViewTransform:[transform matrix]];
 		}
-		else
+		else if (cameraView!=nil)
 		{
+//#if __IPHONE_OS_VERSION_MAX_ALLOWED < __IPHONE_4_0
 			// we use our own fullscreen transform if the developer didn't supply one
 			picker.cameraViewTransform = CGAffineTransformScale(picker.cameraViewTransform, CAMERA_TRANSFORM_X, CAMERA_TRANSFORM_Y);
+//#endif
 		}
 	}
 	
@@ -334,7 +347,7 @@ MAKE_SYSTEM_PROP(NO_MUSIC_PLAYER,MediaModuleErrorNoMusicPlayer);
 // these have been deprecated in 3.2 but we need them for older devices
 MAKE_SYSTEM_PROP(VIDEO_CONTROL_VOLUME_ONLY,MPMovieControlModeVolumeOnly);
 MAKE_SYSTEM_PROP(VIDEO_CONTROL_HIDDEN,MPMovieControlModeHidden);
-
+ 
 MAKE_SYSTEM_PROP(VIDEO_SCALING_NONE,MPMovieScalingModeNone);
 MAKE_SYSTEM_PROP(VIDEO_SCALING_ASPECT_FIT,MPMovieScalingModeAspectFit);
 MAKE_SYSTEM_PROP(VIDEO_SCALING_ASPECT_FILL,MPMovieScalingModeAspectFill);
@@ -346,6 +359,20 @@ MAKE_SYSTEM_STR(MEDIA_TYPE_PHOTO,kUTTypeImage);
 MAKE_SYSTEM_PROP(QUALITY_HIGH,UIImagePickerControllerQualityTypeHigh);
 MAKE_SYSTEM_PROP(QUALITY_MEDIUM,UIImagePickerControllerQualityTypeMedium);
 MAKE_SYSTEM_PROP(QUALITY_LOW,UIImagePickerControllerQualityTypeLow);
+
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0
+MAKE_SYSTEM_PROP(QUALITY_640x480,UIImagePickerControllerQualityType640x480);
+#endif
+
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0
+MAKE_SYSTEM_PROP(CAMERA_FRONT,UIImagePickerControllerCameraDeviceRear);
+MAKE_SYSTEM_PROP(CAMERA_REAR,UIImagePickerControllerCameraDeviceFront);
+
+MAKE_SYSTEM_PROP(CAMERA_FLASH_OFF,UIImagePickerControllerCameraFlashModeOff);
+MAKE_SYSTEM_PROP(CAMERA_FLASH_AUTO,UIImagePickerControllerCameraFlashModeAuto);
+MAKE_SYSTEM_PROP(CAMERA_FLASH_ON,UIImagePickerControllerCameraFlashModeOn);
+
+#endif
 
 MAKE_SYSTEM_PROP(AUDIO_HEADPHONES,TiMediaAudioSessionInputHeadphones);
 MAKE_SYSTEM_PROP(AUDIO_HEADSET_INOUT,TiMediaAudioSessionInputHeadsetInOut);
@@ -477,6 +504,174 @@ MAKE_SYSTEM_PROP(VIDEO_FINISH_REASON_USER_EXITED,MPMovieFinishReasonUserExited);
 	NSArray* albumSourceTypes = [UIImagePickerController availableMediaTypesForSourceType: UIImagePickerControllerSourceTypeSavedPhotosAlbum];
 	return albumSourceTypes==nil ? [NSArray arrayWithObject:(NSString*)kUTTypeImage] : albumSourceTypes;
 }
+
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0
+-(NSArray*)availableCameras
+{
+	NSMutableArray* types = [NSMutableArray arrayWithCapacity:2];
+	if ([UIImagePickerController isCameraDeviceAvailable:UIImagePickerControllerCameraDeviceFront])
+	{
+		[types addObject:NUMINT(UIImagePickerControllerCameraDeviceFront)];
+	}
+	if ([UIImagePickerController isCameraDeviceAvailable:UIImagePickerControllerCameraDeviceRear])
+	{
+		[types addObject:NUMINT(UIImagePickerControllerCameraDeviceRear)];
+	}
+	return types;
+}
+
+-(NSArray*)availableCameraFlashModes
+{
+	NSMutableArray* modes = [NSMutableArray arrayWithCapacity:3];
+	if ([UIImagePickerController isFlashAvailableForCameraDevice:UIImagePickerControllerCameraFlashModeOff])
+	{
+		[modes addObject:NUMINT(UIImagePickerControllerCameraFlashModeOff)];
+	}
+	if ([UIImagePickerController isFlashAvailableForCameraDevice:UIImagePickerControllerCameraFlashModeAuto])
+	{
+		[modes addObject:NUMINT(UIImagePickerControllerCameraFlashModeAuto)];
+	}
+	if ([UIImagePickerController isFlashAvailableForCameraDevice:UIImagePickerControllerCameraFlashModeOn])
+	{
+		[modes addObject:NUMINT(UIImagePickerControllerCameraFlashModeOn)];
+	}
+	return modes;
+} 
+
+-(id)camera 
+{
+	if (picker!=nil)
+	{ 
+		return NUMINT([picker cameraDevice]);
+	}
+	return NUMINT(UIImagePickerControllerCameraDeviceFront);
+}
+
+-(id)cameraFlashMode
+{
+	if (picker!=nil)
+	{
+		return NUMINT([picker cameraFlashMode]);
+	}
+	return NUMINT(UIImagePickerControllerCameraFlashModeAuto);
+}
+
+-(void)setCameraFlashMode:(id)args
+{
+	ENSURE_UI_THREAD(setCameraFlashMode,args);
+	ENSURE_SINGLE_ARG(args,NSNumber);
+	
+	if (picker!=nil)
+	{
+		[picker setCameraFlashMode:[TiUtils intValue:args]];
+	}
+}
+
+-(void)switchCamera:(id)args
+{
+	ENSURE_UI_THREAD(switchCamera,args);
+	ENSURE_SINGLE_ARG(args,NSNumber);
+	
+	// must have a picker, doh
+	if (picker==nil)
+	{
+		[self throwException:@"invalid state" subreason:nil location:CODELOCATION];
+	}
+	[picker setCameraDevice:[TiUtils intValue:args]];
+}
+
+-(void)startVideoCapture:(id)args
+{ 
+	ENSURE_UI_THREAD(startVideoCapture,args);
+	// must have a picker, doh
+	if (picker==nil)
+	{
+		[self throwException:@"invalid state" subreason:nil location:CODELOCATION];
+	}
+	[picker startVideoCapture];
+}
+
+-(void)stopVideoCapture:(id)args
+{
+	ENSURE_UI_THREAD(stopVideoCapture,args);
+	// must have a picker, doh
+	if (picker!=nil)
+	{
+		[picker stopVideoCapture];
+	}
+}
+
+-(void)startVideoEditing:(id)args
+{
+	ENSURE_UI_THREAD(startVideoEditing,args);
+	ENSURE_SINGLE_ARG_OR_NIL(args,NSDictionary);
+
+	RELEASE_TO_NIL(editor); 
+	
+	BOOL animated = [TiUtils boolValue:@"animated" properties:args def:YES];
+	id media = [args objectForKey:@"media"];
+	
+	editorSuccessCallback = [args objectForKey:@"success"];
+	ENSURE_TYPE_OR_NIL(editorSuccessCallback,KrollCallback);
+	[editorSuccessCallback retain];
+	
+	editorErrorCallback = [args objectForKey:@"error"];
+	ENSURE_TYPE_OR_NIL(editorErrorCallback,KrollCallback);
+	[editorErrorCallback retain];
+	
+	editorCancelCallback = [args objectForKey:@"cancel"];
+	ENSURE_TYPE_OR_NIL(pickerCancelCallback,KrollCallback);
+	[editorCancelCallback retain];
+
+	//TODO: check canEditVideoAtPath
+	
+	UIViewController *root = [[TiApp app] controller];
+	editor = [[UIVideoEditorController alloc] init];
+	editor.delegate = self; 
+	editor.videoQuality = [TiUtils intValue:@"videoQuality" properties:args def:UIImagePickerControllerQualityTypeMedium];
+	editor.videoMaximumDuration = [TiUtils doubleValue:@"videoMaximumDuration" properties:args def:600];
+	
+	if ([media isKindOfClass:[NSString class]])
+	{
+		NSURL *url = [TiUtils toURL:media proxy:self];
+		editor.videoPath = [url path];
+	}
+	else if ([media isKindOfClass:[TiBlob class]])
+	{
+		TiBlob *blob = (TiBlob*)media;
+		editor.videoPath = [blob path];
+	}
+	else if ([media isKindOfClass:[TiFile class]])
+	{
+		TiFile *file = (TiFile*)media;
+		editor.videoPath = [file path];
+	}
+	else 
+	{
+		RELEASE_TO_NIL(editor);
+		NSLog(@"[ERROR] unsupported video media. %@",[media class]);
+		return;
+	}
+	
+	TiApp * tiApp = [TiApp app];
+	[[tiApp controller] manuallyRotateToOrientation:UIInterfaceOrientationPortrait];
+	[tiApp showModalController:editor animated:animated];
+}
+
+-(void)stopVideoEditing:(id)args
+{
+	ENSURE_UI_THREAD(stopVideoEditing,args);
+	ENSURE_SINGLE_ARG_OR_NIL(args,NSDictionary);
+	
+	if (editor!=nil)
+	{
+		BOOL animated = [TiUtils boolValue:@"animated" properties:args def:YES];
+		[[TiApp app] hideModalController:editor animated:animated];
+		RELEASE_TO_NIL(editor);
+	}
+}
+
+#endif
 
 -(id)isMediaTypeSupported:(id)args
 {
@@ -716,7 +911,7 @@ MAKE_SYSTEM_PROP(VIDEO_FINISH_REASON_USER_EXITED,MPMovieFinishReasonUserExited);
 -(void)setDefaultAudioSessionMode:(NSNumber*)mode
 {
     [[TiMediaAudioSession sharedSession] setDefaultSessionMode:[mode unsignedIntValue]];
-}
+} 
 
 -(NSNumber*)defaultAudioSessionMode
 {
@@ -932,6 +1127,51 @@ MAKE_SYSTEM_PROP(VIDEO_FINISH_REASON_USER_EXITED,MPMovieFinishReasonUserExited);
 		[[NSNotificationCenter defaultCenter] removeObserver:self name:kTiMediaAudioSessionVolumeChange object:[TiMediaAudioSession sharedSession]];
 	}
 }
+
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0
+
+- (void)videoEditorController:(UIVideoEditorController *)editor_ didSaveEditedVideoToPath:(NSString *)editedVideoPath
+{
+	id listener = [[editorSuccessCallback retain] autorelease];
+	[self closeModalPicker:editor_];
+	[self destroyPicker];
+
+	if (listener!=nil)
+	{
+		TiBlob *media = [[[TiBlob alloc]initWithFile:editedVideoPath] autorelease];
+		[media setMimeType:@"video/mpeg" type:TiBlobTypeFile];
+		NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:NUMBOOL(true),@"success",media,@"media",NUMBOOL(false),@"cancel",nil];
+		[NSThread detachNewThreadSelector:@selector(dispatchCallback:) toTarget:self withObject:[NSArray arrayWithObjects:@"error",event,listener,nil]];
+	}
+}
+
+- (void)videoEditorControllerDidCancel:(UIVideoEditorController *)editor_
+{ 
+	id listener = [[editorCancelCallback retain] autorelease];
+	[self closeModalPicker:editor_];
+	[self destroyPicker];
+
+	if (listener!=nil) 
+	{
+		NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:NUMBOOL(false),@"success",NUMBOOL(true),@"cancel",nil];
+		[NSThread detachNewThreadSelector:@selector(dispatchCallback:) toTarget:self withObject:[NSArray arrayWithObjects:@"error",event,listener,nil]];
+	}
+}
+
+- (void)videoEditorController:(UIVideoEditorController *)editor_ didFailWithError:(NSError *)error
+{
+	id listener = [[editorErrorCallback retain] autorelease];
+	[self closeModalPicker:editor_];
+	[self destroyPicker];
+
+	if (listener!=nil)
+	{
+		NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:NUMBOOL(false),@"success",NUMBOOL(false),@"cancel",[error description],@"error",nil];
+		[NSThread detachNewThreadSelector:@selector(dispatchCallback:) toTarget:self withObject:[NSArray arrayWithObjects:@"error",event,listener,nil]];
+	}
+}
+
+#endif
 
 @end
 

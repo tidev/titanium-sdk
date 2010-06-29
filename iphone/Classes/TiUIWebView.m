@@ -400,7 +400,6 @@ NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._listeners={
 		NSString *textEncodingName = @"utf-8";
 		NSString *path = [url path];
 		NSError *error = nil;
-		NSURL *baseURL = [[url retain] autorelease];
 		
 		// first check to see if we're attempting to load a file from the 
 		// filesystem and if so, and it exists, use that 
@@ -491,7 +490,8 @@ NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._listeners={
 		}
 		if (html!=nil)
 		{
-			[self loadHTML:html encoding:encoding textEncodingName:textEncodingName mimeType:mimeType baseURL:baseURL];
+			//Because local HTML may rely on JS that's stored in the app: schema, we must kee the url in the app: format.
+			[self loadHTML:html encoding:encoding textEncodingName:textEncodingName mimeType:mimeType baseURL:url];
 		}
 		else 
 		{

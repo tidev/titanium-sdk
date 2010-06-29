@@ -279,6 +279,9 @@ static TiValueRef CommonJSRequireCallback (TiContextRef jsContext, TiObjectRef j
 		[lock setName:[NSString stringWithFormat:@"%@ Lock",[self threadName]]];
 		stopped = YES;
 		KrollContextCount++;
+		
+		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(suspend:) name:kTiSuspendNotification object:nil];
+		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(resume:) name:kTiResumeNotification object:nil];
 	}
 	return self;
 }
@@ -319,7 +322,7 @@ static TiValueRef CommonJSRequireCallback (TiContextRef jsContext, TiObjectRef j
 -(oneway void)release 
 {
 	NSLog(@"RELEASE: %@ (%d)",self,[self retainCount]-1);
-	[super release];
+	[super release]; 
 }
 #endif
 
@@ -328,6 +331,8 @@ static TiValueRef CommonJSRequireCallback (TiContextRef jsContext, TiObjectRef j
 #if CONTEXT_MEMORY_DEBUG==1
 	NSLog(@"DEALLOC: %@",self);
 #endif
+	[[NSNotificationCenter defaultCenter] removeObserver:self name:kTiSuspendNotification object:nil];
+	[[NSNotificationCenter defaultCenter] removeObserver:self name:kTiResumeNotification object:nil];
 	assert(!destroyed);
 	destroyed = YES;
 	[self destroy];
@@ -407,6 +412,21 @@ static TiValueRef CommonJSRequireCallback (TiContextRef jsContext, TiObjectRef j
 	}
 }
 
+- (void)suspend:(id)note
+{
+	[condition lock];
+	suspended = YES;
+	[condition unlock];
+}
+
+- (void)resume:(id)note
+{
+	[condition lock];
+	suspended = NO;
+	[condition signal];
+	[condition unlock];
+}
+
 -(BOOL)running
 {
 	return stopped==NO;
@@ -438,22 +458,28 @@ static TiValueRef CommonJSRequireCallback (TiContextRef jsContext, TiObjectRef j
 
 -(void)enqueue:(id)obj
 {
-	BOOL mythread = [self isKJSThread];
-	
-	if (!mythread) 
+	[condition lock];
+
+	// while we're suspended, we squash all events
+	if (suspended==NO)
 	{
-		[lock lock];
+		BOOL mythread = [self isKJSThread];
+		
+		if (!mythread) 
+		{
+			[lock lock];
+		}
+		
+		[queue addObject:obj];
+		
+		if (!mythread)
+		{
+			[lock unlock];
+			[condition signal];
+		}
 	}
 	
-	[queue addObject:obj];
-	
-	if (!mythread)
-	{
-		[lock unlock];
-		[condition lock];
-		[condition signal];
-		[condition unlock];
-	}
+	[condition unlock];
 }
 
 -(void)evalJS:(NSString*)code
@@ -587,6 +613,17 @@ static TiValueRef CommonJSRequireCallback (TiContextRef jsContext, TiObjectRef j
 	{
 		loopCount++;
 		
+		// if we're suspended, we simply wait for resume
+		if (suspended)
+		{
+			[condition lock];
+			if (suspended)
+			{
+				[condition wait];
+			} 
+			[condition unlock];
+		}
+		
 		// we're stopped, we need to check to see if we have stuff that needs to
 		// be executed before we can exit.  if we have stuff in the queue, we 
 		// process just those events and then we immediately exit and clean up
@@ -698,7 +735,6 @@ static TiValueRef CommonJSRequireCallback (TiContextRef jsContext, TiObjectRef j
 		[condition lock];
 		[lock lock];
 		int queue_count = [queue count];
-
 		[lock unlock];
 		if (queue_count == 0)
 		{
@@ -744,7 +780,7 @@ static TiValueRef CommonJSRequireCallback (TiContextRef jsContext, TiObjectRef j
 	NSLog(@"SHUTDOWN: %@",self);
 	NSLog(@"KROLL RETAIN COUNT: %d",[kroll retainCount]);
 #endif
-	
+	 
 	[self destroy];
 
 	// cause the global context to be released and all objects internally to be finalized

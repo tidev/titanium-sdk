@@ -172,23 +172,11 @@ def get_task_allow(provisioning_profile):
 	entitlements = provisioning_profile['Entitlements']
 	return entitlements['get-task-allow']
 	
-def is_adhoc(provisioning_profile):
-	return get_task_allow(provisioning_profile)==u'true'
-			
 def get_app_prefix(provisioning_profile):
 	appid_prefix = provisioning_profile['ApplicationIdentifierPrefix']
 	return appid_prefix
 	
-def generate_customized_entitlements(provisioning_profile,appid,uuid,command,adhoc,out):
-	
-	# psuedo logic
-	#
-	# adhoc builds that are created for distribution cannot
-	# have get-task-allow
-	#
-	# local install builds must have get-task-allow
-	#
-	# production non-adhoc must have application-identifier
+def generate_customized_entitlements(provisioning_profile,appid,uuid,command,out):
 	
 	get_task_value = get_task_allow(provisioning_profile)
 	
@@ -200,7 +188,7 @@ def generate_customized_entitlements(provisioning_profile,appid,uuid,command,adh
 	
 	app_prefix = None
 	
-	if command=='distribute' and not adhoc:
+	if command=='distribute':
 		app_prefix = get_app_prefix(provisioning_profile)
 		out.write("Using app_prefix = %s\n\n" % (app_prefix))
 		buffer+="""
@@ -210,7 +198,7 @@ def generate_customized_entitlements(provisioning_profile,appid,uuid,command,adh
 	
 	buffer+="<key>get-task-allow</key>\n		<%s/>" % get_task_value
 	
-	if command=='distribute' and not adhoc:
+	if command=='distribute':
 		buffer+="""
 		<key>keychain-access-groups</key>
 		<array>
@@ -491,8 +479,7 @@ def main(args):
 				provisioning_profile = read_provisioning_profile(pp,o)
 				
 
-			def write_info_plist():
-				infoplist_tmpl = os.path.join(template_dir,'Info.plist')
+			def write_info_plist(infoplist_tmpl):
 				plist = open(infoplist_tmpl).read()
 				plist = plist.replace('__PROJECT_NAME__',name)
 				plist = plist.replace('__PROJECT_ID__',appid)
@@ -509,7 +496,8 @@ def main(args):
 			if os.path.exists(infoplist_tmpl):
 				shutil.copy(infoplist_tmpl,infoplist)
 			else:
-				write_info_plist()
+				infoplist_tmpl = os.path.join(template_dir,'Info.plist')
+				write_info_plist(infoplist_tmpl)
 
 			applogo = None
 			clean_build = False
@@ -568,7 +556,7 @@ def main(args):
 				force_xcode = True
 				if os.path.exists(app_dir): shutil.rmtree(app_dir)
 				# we have to re-copy if we have a custom version
-				write_info_plist()
+				write_info_plist(infoplist_tmpl)
 				# since compiler will generate the module dependencies, we need to 
 				# attempt to compile to get it correct for the first time.
 				compiler = Compiler(project_dir,appid,name,deploytype,xcode_build,devicefamily,iphone_version,True)
@@ -624,9 +612,9 @@ def main(args):
 				os.chdir(cwd)
 
 			if devicefamily!=None:
-				applogo = ti.generate_infoplist(infoplist,appid,devicefamily)
+				applogo = ti.generate_infoplist(infoplist,appid,devicefamily,project_dir,iphone_version)
 			else:
-				applogo = ti.generate_infoplist(infoplist,appid,'iphone')
+				applogo = ti.generate_infoplist(infoplist,appid,'iphone',project_dir,iphone_version)
 
 			# copy over the appicon
 			if applogo==None and ti.properties.has_key('icon'):
@@ -749,33 +737,21 @@ def main(args):
 
 				# build the final release distribution
 				args = []
-				adhoc = False
 
 				if command!='simulator':		
-					adhoc = is_adhoc(provisioning_profile)
-					if adhoc:
-						o.write("This is an adhoc build\n\n")
-					else:
-						o.write("This is not an adhoc build\n\n")
 					# allow the project to have its own custom entitlements
-					entitlements = os.path.join(project_dir,"Entitlements.plist")
-					customize = False
-					if not os.path.exists(entitlements):
-						entitlements = os.path.join(template_dir,"Entitlements.plist")
-						customize = True
+					custom_entitlements = os.path.join(project_dir,"Entitlements.plist")
+					entitlements_contents = None
+					if os.path.exists(custom_entitlements):
+						entitlements_contents = open(custom_entitlements).read()
+						o.write("Found custom entitlements: %s\n" % custom_entitlements)
 					else:
-						x = open(entitlements).read()
-						o.write("Found custom entitlements: \n\n%s\n\n" % x)
-					shutil.copy(entitlements,iphone_resources_dir)
-					if customize:
 						# attempt to customize it by reading prov profile
-						x = generate_customized_entitlements(provisioning_profile,appid,appuuid,command,adhoc,o)
-						if x:
-							o.write("Generated the following entitlements:\n\n%s\n\n" % x)
-							entitlements = os.path.join(project_dir,"Entitlements.plist")
-							f=open(entitlements,'w+')
-							f.write(x)
-							f.close()
+						entitlements_contents = generate_customized_entitlements(provisioning_profile,appid,appuuid,command,o)
+					o.write("Generated the following entitlements:\n\n%s\n\n" % entitlements_contents)
+					f=open(os.path.join(iphone_resources_dir,'Entitlements.plist'),'w+')
+					f.write(entitlements_contents)
+					f.close()
 					args+=["CODE_SIGN_ENTITLEMENTS = Resources/Entitlements.plist"]
 
 				# only build if force rebuild (different version) or 
@@ -960,12 +936,7 @@ def main(args):
 
 				elif command == 'distribute':
 
-					# in this case, we have to do different things based on if it's
-					# an ad-hoc distribution cert or not - in the case of non-adhoc
-					# we don't use the entitlements file but in ad hoc we need to
-					deploytype = "production_adhoc"
-					if not adhoc:
-						deploytype = "production"
+					deploytype = "production"
 
 					args += [
 						"GCC_PREPROCESSOR_DEFINITIONS='DEPLOYTYPE=%s'" % deploytype,

@@ -13,11 +13,14 @@
 #import "TiErrorController.h"
 #import "NSData+Additions.h"
 #import "TiDebugger.h"
+#import "ImageLoader.h"
 #import <QuartzCore/QuartzCore.h>
 
 TiApp* sharedApp;
 
 extern NSString * const TI_APPLICATION_DEPLOYTYPE;
+
+#define SHUTDOWN_TIMEOUT_IN_SEC	10
 
 //
 // thanks to: http://www.restoroot.com/Blog/2008/10/18/crash-reporter-for-iphone-applications/
@@ -325,32 +328,24 @@ void MyUncaughtExceptionHandler(NSException *exception)
 
 	//This will send out the 'close' message.
 	[theNotificationCenter postNotificationName:kTiWillShutdownNotification object:self];
-
-	//These shutdowns return immediately, yes, but the main will still run the close that's in their queue.	
-	[kjsBridge shutdown];
 	
+	NSCondition *condition = [[NSCondition alloc] init];
+
 #ifdef USE_TI_UIWEBVIEW
-	[xhrBridge shutdown];
+	[xhrBridge shutdown:nil];
 #endif	
 
-	// NOTE: on pre-iphone4, you must immediately stop and not wait since 
-	// it will send an immediate terminate to a suspended app (even though
-	// multi-tasking isn't really supported) and if you do this code below
-	// it will always crash on the 2nd restart of the same app
+	//These shutdowns return immediately, yes, but the main will still run the close that's in their queue.	
+	[kjsBridge shutdown:condition];
 	
-	if ([TiUtils isIPhone4])
-	{
-		// JGH NOTE: why do we even need to wait here? we have retains
-		// internally so that should be OK
-		while ([kjsBridge krollContext] != nil)
-		{
-			[NSThread sleepForTimeInterval:0.05];
-		}
-	}
+	[condition lock];
+	[condition waitUntilDate:[NSDate dateWithTimeIntervalSinceNow:SHUTDOWN_TIMEOUT_IN_SEC]];
+	[condition unlock];
 	
 	//This will shut down the modules.
 	[theNotificationCenter postNotificationName:kTiShutdownNotification object:self];
-
+	
+	RELEASE_TO_NIL(condition);
 	RELEASE_TO_NIL(kjsBridge);
 #ifdef USE_TI_UIWEBVIEW 
 	RELEASE_TO_NIL(xhrBridge);
@@ -371,7 +366,12 @@ void MyUncaughtExceptionHandler(NSException *exception)
 -(void)applicationWillResignActive:(UIApplication *)application
 {
 	[[NSNotificationCenter defaultCenter] postNotificationName:kTiSuspendNotification object:self];
+	
+	// cancel any pending requests
+	[[ImageLoader sharedLoader] cancel];
+	
 	[kjsBridge gc];
+	
 #ifdef USE_TI_UIWEBVIEW
 	[xhrBridge gc];
 #endif 
