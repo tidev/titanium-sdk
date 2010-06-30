@@ -14,4 +14,4 @@ while (rows.isValidRow())
 // close database
 rows.close();
 
-Titanium.UI.currentWindow.close();
+Ti.UI.currentWindow.addEventListener('click',function(e){Titanium.UI.currentWindow.close();});
