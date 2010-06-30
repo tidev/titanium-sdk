@@ -49,6 +49,7 @@ var gReader =
 	Username:null, 
 	Password:null,
 	Sid:null, 
+	Auth:null,
 	Token:null, 
 	getSid : function()
 	{
@@ -69,6 +70,9 @@ var gReader =
 					if (kv[0]=='SID')
 					{
 						gReader.Sid = kv[1];
+					}
+					if (kv[0]=='Auth') {
+						gReader.Auth = kv[1];
 					}
 				}
 				gReader.getToken(); //Get Token 
@@ -105,7 +109,9 @@ var gReader =
 			} 
 		};
 		var requestCookies = "SID=" + gReader.Sid; 
+		var authorization = "GoogleLogin auth=" + gReader.Auth;
 		tokenRequest.setRequestHeader("Cookie", requestCookies); 
+		tokenRequest.setRequestHeader("Authorization", authorization);
 		tokenRequest.send(); 
 	}, 
 	connect : function(username,password)
