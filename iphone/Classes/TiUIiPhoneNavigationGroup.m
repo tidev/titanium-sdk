@@ -12,9 +12,26 @@
 
 @implementation TiUIiPhoneNavigationGroup
 
+-(void)setVisibleProxy:(TiWindowProxy *) newVisibleProxy
+{
+	if (newVisibleProxy == visibleProxy)
+	{
+		return;
+	}
+	[visibleProxy _tabBeforeBlur];
+	[visibleProxy _tabBlur];
+	[visibleProxy autorelease];
+
+	visibleProxy = [newVisibleProxy retain];
+	[newVisibleProxy _tabBeforeFocus];
+	[newVisibleProxy _tabFocus];
+}
+
 -(void)dealloc
 {
 	RELEASE_TO_NIL(controller);
+	[self setVisibleProxy:nil];
+	//This is done this way so that proper methods are called as well.
 	[super dealloc];
 }
 
@@ -118,6 +135,7 @@
 {
 	TiWindowViewController *wincontroller = (TiWindowViewController*)viewController;
 	TiWindowProxy *newWindow = [wincontroller proxy];
+	[self setVisibleProxy:newWindow];
 	if (newWindow==current || newWindow==root)
 	{
 		return;
