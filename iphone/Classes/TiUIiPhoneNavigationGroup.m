@@ -47,14 +47,12 @@
 		UIViewController *rootController = [windowProxy controller];	
 		controller = [[UINavigationController alloc] initWithRootViewController:rootController];
 		[controller setDelegate:self];
-		[windowProxy windowWillOpen];
 		[self addSubview:controller.view];
 		[controller.view addSubview:[windowProxy view]];
 		[windowProxy prepareForNavView:controller];
 		[windowProxy setupWindowDecorations];
 		current = windowProxy;
 		root = windowProxy;
-		[windowProxy windowDidOpen];
 	}
 	return controller;
 }
@@ -130,6 +128,7 @@
     TiWindowProxy *newWindow = [(TiWindowViewController*)viewController proxy];
 	[newWindow prepareForNavView:controller];
 	[newWindow setupWindowDecorations];
+	[newWindow windowWillOpen];
 }
 - (void)navigationController:(UINavigationController *)navigationController didShowViewController:(UIViewController *)viewController animated:(BOOL)animated
 {
@@ -150,6 +149,7 @@
 		current = newWindow;
 	}
 	opening = NO;
+	[newWindow windowDidOpen];
 }
 
 

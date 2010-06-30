@@ -28,10 +28,8 @@
 	ENSURE_UI_THREAD(open,args);
 	TiWindowProxy *window = [args objectAtIndex:0];
 	ENSURE_TYPE(window,TiWindowProxy);
-	[window windowWillOpen];
 	NSDictionary *properties = [args count] > 1 ? [args objectAtIndex:1] : [NSDictionary dictionary];
 	[[self view] performSelector:@selector(open:withObject:) withObject:window withObject:properties];
-	[window windowDidOpen];
 }
 
 -(void)close:(NSArray*)args
