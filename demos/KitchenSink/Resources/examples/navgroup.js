@@ -1,6 +1,17 @@
 // by default the modal window has a nav bar
 // since we're embedding a navgroup inside the modal
 // window which also has a nav bar, we ask him to hide it
+
+var open = Ti.UI.createButton({
+	title:'Open nav group',
+	width:200,
+	height:40
+});
+open.addEventListener('click', function() {
+	modal.open({modal:true});
+});
+Ti.UI.currentWindow.add(open);
+
 var modal = Ti.UI.createWindow({
 	navBarHidden:true
 });

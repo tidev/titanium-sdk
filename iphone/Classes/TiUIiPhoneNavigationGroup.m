@@ -50,7 +50,7 @@
 		[self addSubview:controller.view];
 		[controller.view addSubview:[windowProxy view]];
 		[windowProxy prepareForNavView:controller];
-		[windowProxy setupWindowDecorations];
+		
 		current = windowProxy;
 		root = windowProxy;
 	}

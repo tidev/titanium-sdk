@@ -465,7 +465,6 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 	self.navController = navController_;
 	navWindow = YES;
 	[self view];
-	[self setupWindowDecorations];
 	if ([self _handleOpen:nil])
 	{
 		[self windowReady];

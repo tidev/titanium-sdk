@@ -323,7 +323,8 @@
         [self setValue:properties forKey:@"rightNavSettings"];
     }
 	
-	if (controller!=nil && [controller navigationController] != nil)
+	if (controller!=nil && 
+		[controller navigationController] != nil)
 	{
 		ENSURE_TYPE_OR_NIL(proxy,TiViewProxy);
 		[self replaceValue:proxy forKey:@"rightNavButton" notification:NO];
@@ -335,7 +336,6 @@
 			{
 				[(TiViewProxy*)item removeBarButtonView];
 			}
-			controller.navigationItem.rightBarButtonItem = nil;
 			if (proxy!=nil)
 			{
 				// add the new one
