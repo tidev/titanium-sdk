@@ -43,7 +43,7 @@ public class TiActivity extends Activity
 	protected TiCompositeLayout layout;
 	protected TiActivitySupportHelper supportHelper;
 	protected TiWindowProxy proxy;
-	
+
 	protected Handler handler;
 	protected ArrayList<WeakReference<TiContext>> contexts;
 	protected SoftReference<ITiMenuDispatcherListener> softMenuDispatcher;
@@ -68,7 +68,7 @@ public class TiActivity extends Activity
         Messenger messenger = null;
         Integer messageId = null;
         boolean vertical = false;
-        
+
         if (intent != null) {
         	if (intent.hasExtra("modal")) {
         		modal = intent.getBooleanExtra("modal", modal);
@@ -247,6 +247,7 @@ public class TiActivity extends Activity
 	protected void onPause() {
 		super.onPause();
 		((TiApplication) getApplication()).setWindowHandler(null);
+		((TiApplication) getApplication()).setCurrentActivity(this, null);
 
 		for (WeakReference<TiContext> contextRef : contexts) {
 			if (contextRef.get() != null) {
@@ -259,6 +260,7 @@ public class TiActivity extends Activity
 	protected void onResume() {
 		super.onResume();
 		((TiApplication) getApplication()).setWindowHandler(this);
+		((TiApplication) getApplication()).setCurrentActivity(this, this);
 		for (WeakReference<TiContext> contextRef : contexts) {
 			if (contextRef.get() != null) {
 				contextRef.get().dispatchOnResume();
@@ -309,7 +311,7 @@ public class TiActivity extends Activity
 				contextRef.get().dispatchEvent("close", data, proxy);
 			}
 		}
-		
+
 		if (createdContext != null && createdContext.get() != null) {
 			createdContext.get().dispatchEvent("close", data, proxy);
 		}
@@ -331,11 +333,11 @@ public class TiActivity extends Activity
 
 		super.finish();
 	}
-	
+
 	public void setCreatedContext(TiContext context) {
 		createdContext = new WeakReference<TiContext>(context);
 	}
-	
+
 	public void setWindowProxy(TiWindowProxy proxy) {
 		this.proxy = proxy;
 	}
