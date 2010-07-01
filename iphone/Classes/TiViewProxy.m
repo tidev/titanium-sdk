@@ -828,10 +828,15 @@
 
 -(void)didReceiveMemoryWarning:(NSNotification*)notification
 {
-	// Only release a view if it's not currently attached and we're the only living reference for it
-	if (![self viewAttached] && [[self view] retainCount] == 1) {
-		RELEASE_TO_NIL(view);
+	// Only release a view if we're the only living reference for it
+	// WARNING: do not call [self view] here as that will create the
+	// view if it doesn't yet exist (thus defeating the purpose of
+	// this method)
+	if (view!=nil && [view retainCount]==1)
+	{
+		[self detachView];
 	}
+	[super didReceiveMemoryWarning:notification];
 }
 
 #pragma mark Listener Management

@@ -136,7 +136,8 @@
 	self.view = rootView;
 	[self updateBackground];
 	[self resizeView];
-	for (TiWindowViewController * thisWindowController in windowViewControllers)
+	// we have to make a copy since this code can cause a mutation
+	for (TiWindowViewController * thisWindowController in [[windowViewControllers mutableCopy] autorelease])
 	{
 		if ([thisWindowController isKindOfClass:[TiWindowViewController class]])
 		{
@@ -162,9 +163,10 @@
 
 -(void)repositionSubviews
 {
+	SEL sel = @selector(proxy);
 	for (UIView * subView in [[self view] subviews])
 	{
-		if ([subView respondsToSelector:@selector(proxy)])
+		if ([subView respondsToSelector:sel])
 		{
 			[(TiViewProxy *)[(TiUIView *)subView proxy] reposition];
 		}

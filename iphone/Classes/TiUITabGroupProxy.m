@@ -149,6 +149,11 @@
 	return YES;
 }
 
+-(void)didReceiveMemoryWarning:(NSNotification*)notification
+{
+	// override but don't drop the tab group, causes problems
+}
+
 
 @end
 

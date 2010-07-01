@@ -203,6 +203,7 @@ enum
 	
 	animatedPicker = YES;
 	saveToRoll = NO;
+	BOOL editable = NO;
 	
 	if (args!=nil)
 	{
@@ -214,10 +215,11 @@ enum
 		if (imageEditingObject==nil)
 		{
 			imageEditingObject = [args objectForKey:@"allowEditing"];
+			editable = [TiUtils boolValue:imageEditingObject];
 		}
 		
 		// introduced in 3.1
-		[picker setAllowsEditing:[TiUtils boolValue:imageEditingObject]];
+		[picker setAllowsEditing:editable];
 		
 		NSArray *sourceTypes = [UIImagePickerController availableMediaTypesForSourceType:UIImagePickerControllerSourceTypeCamera];
 		id types = [args objectForKey:@"mediaTypes"];
@@ -295,6 +297,12 @@ enum
 		{
 			ENSURE_TYPE(cameraView,TiViewProxy);
 			UIView *view = [cameraView view];
+			if (editable)
+			{
+				// turn off touch enablement if image editing is enabled since it will
+				// interfere with editing
+				[view performSelector:@selector(setTouchEnabled_:) withObject:NUMBOOL(NO)];
+			}
 			[TiUtils setView:view positionRect:[picker view].bounds];
 			[cameraView layoutChildren:NO];
 			[picker setCameraOverlayView:view];
@@ -1172,6 +1180,7 @@ MAKE_SYSTEM_PROP(VIDEO_FINISH_REASON_USER_EXITED,MPMovieFinishReasonUserExited);
 }
 
 #endif
+
 
 @end
 
