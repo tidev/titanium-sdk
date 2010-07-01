@@ -14,7 +14,6 @@
 
 @interface TiUITableViewProxy : TiViewProxy
 {
-	id pendingData;
 }
 -(void)setData:(id)args withObject:(id)properties;
 

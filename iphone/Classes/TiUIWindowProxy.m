@@ -14,7 +14,12 @@
 #import "TiApp.h"
 #import "TiTabController.h"
 
-#define EXTERNAL_JS_WAIT_TIME 0.25
+// this is how long we should wait on the new JS context to be loaded
+// holding the UI thread before we return during an window open. we 
+// attempt to hold it for a small period of time to allow the window
+// to loaded before we return from the open such that the paint will be
+// much smoother on the new window during a tab transition
+#define EXTERNAL_JS_WAIT_TIME (150/1000)
 
 /** 
  * This class is a helper that will be used when we have an external
@@ -87,7 +92,6 @@
 			yn = YES;
 		}
 	}
-
 	[lock unlock];
 	return yn;
 }
@@ -176,7 +180,6 @@
 				{
 					return NO;
 				}
-
 			}
 		}
 		else 

@@ -387,14 +387,7 @@ NSArray * tableKeySequence;
 
 -(void)setData:(id)args withObject:(id)properties
 {
-	if (windowOpened==NO)
-	{
-		RELEASE_TO_NIL(pendingData);
-		pendingData = [[NSArray arrayWithObjects:args,properties,nil] retain];
-		return;
-	}
 	ENSURE_TYPE_OR_NIL(args,NSArray);
-	ENSURE_UI_THREAD_WITH_OBJ(setData,args,properties);
 	
 	// this is on the non-UI thread. let's do the work here before we pass
 	// it over to the view which will be on the UI thread
@@ -463,9 +456,8 @@ NSArray * tableKeySequence;
 	}
 	
 	[self replaceValue:data forKey:@"data" notification:NO];
-
+	
 	TiUITableViewAction *action = [[[TiUITableViewAction alloc] initWithRow:nil animation:properties section:0 type:TiUITableViewActionSetData] autorelease];
-
 	TiUITableView *table = [self tableView];
 	[table dispatchAction:action];
 }
@@ -492,18 +484,6 @@ NSArray * tableKeySequence;
 		arg2 = [args count] > 1 ? [args objectAtIndex:1] : [NSDictionary dictionary];
 	}
 	[[self view] performSelector:@selector(setContentInsets_:withObject:) withObject:arg1 withObject:arg2];
-}
-
--(void)windowWillOpen
-{
-	[super windowWillOpen];
-	
-	if (pendingData!=nil)
-	{
-		id prop = [pendingData count]>1 ? [pendingData objectAtIndex:1] : nil;
-		[self setData:[pendingData objectAtIndex:0] withObject:prop];
-		RELEASE_TO_NIL(pendingData);
-	}
 }
 
 
