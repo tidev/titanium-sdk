@@ -189,6 +189,17 @@
 	}
 }
 
+-(void)flushPendingAnnotation
+{
+	if (pendingAnnotationSelection != nil) {
+		[map selectAnnotation:pendingAnnotationSelection animated:animate];
+		if([map selectedAnnotations] != nil)
+		{
+			RELEASE_TO_NIL(pendingAnnotationSelection);
+		}
+	}
+}
+
 -(void)selectOrSetPendingAnnotation:(id<MKAnnotation>)annotation
 {
 	if (loaded)
@@ -490,13 +501,7 @@
 
 - (void)mapView:(MKMapView *)mapView regionDidChangeAnimated:(BOOL)animated
 {
-	if (pendingAnnotationSelection != nil) {
-		[[self map] selectAnnotation:pendingAnnotationSelection animated:animate];
-		if([map selectedAnnotations] != nil)
-		{
-			RELEASE_TO_NIL(pendingAnnotationSelection);
-		}
-	}
+	[self flushPendingAnnotation];
 	if (routeViews!=nil)
 	{
 		// re-enable and re-poosition the route display. 
@@ -534,10 +539,7 @@
 {
 	ignoreClicks = YES;
 	loaded = YES;
-	if (pendingAnnotationSelection != nil) {
-		[[self map] selectAnnotation:pendingAnnotationSelection animated:animate];
-		RELEASE_TO_NIL(pendingAnnotationSelection);
-	}
+	[self flushPendingAnnotation];
 	if ([self.proxy _hasListeners:@"complete"])
 	{
 		[self.proxy fireEvent:@"complete" withObject:nil];
@@ -615,6 +617,10 @@
 // For MapKit provided annotations (eg. MKUserLocation) return nil to use the MapKit provided annotation view.
 - (MKAnnotationView *)mapView:(MKMapView *)mapView viewForAnnotation:(id <MKAnnotation>)annotation
 {
+	if(annotation == pendingAnnotationSelection)
+	{
+		[self performSelector:@selector(flushPendingAnnotation) withObject:nil afterDelay:0.0];
+	}
 	if ([annotation isKindOfClass:[TiMapRouteAnnotation class]])
 	{
 		TiMapRouteAnnotation *ann = (TiMapRouteAnnotation*)annotation;

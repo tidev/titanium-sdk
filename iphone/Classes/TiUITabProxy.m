@@ -5,7 +5,7 @@
  * Please see the LICENSE included with this distribution for details.
  */
 #ifdef USE_TI_UITAB
-
+ 
 #import "TiProxy.h"
 #import "TiUITabProxy.h"
 #import "TiUIViewProxy.h"
@@ -73,12 +73,17 @@
 
 -(void)removeFromTabGroup
 {
+	if (current!=nil)
+	{
+		TiWindowProxy *currentWindow = [current window];
+		[self close:currentWindow];
+	}
 }
 
 - (void)handleWillShowViewController:(UIViewController *)viewController
 {
 	if (current!=nil)
-	{
+	{ 
 		TiWindowProxy *currentWindow = [current window];
 		
 		[currentWindow _tabBeforeBlur];
@@ -90,8 +95,6 @@
 		{
 			RELEASE_TO_NIL(closingWindow);
 			closingWindow = [currentWindow retain];
-			// the close actually happens after the tab animation to prevent
-			// any weird issues on close
 		}
 		
 		[currentWindow _tabBlur];
@@ -111,7 +114,7 @@
 	
 	[newWindow _tabFocus];
 	
-	opening = NO;
+	opening = NO; 
 }
 
 - (void)handleDidShowViewController:(UIViewController *)viewController
@@ -200,19 +203,28 @@
 	[root release];
 }
 
--(void)close:(NSArray*)args
+-(void)close:(id)window
 {
-	ENSURE_UI_THREAD(close,args);
+	ENSURE_UI_THREAD(close,window);
+	ENSURE_SINGLE_ARG(window,TiWindowProxy);
 	
-	TiWindowProxy *window = [args objectAtIndex:0];
+	if ([current window] == window)
+	{
+		[[rootController navigationController] popViewControllerAnimated:YES];
+		return;
+	}
+	
 	[window retain];
 	[window _tabBlur];
+	
+	// for this to work right, we need to sure that we always have the tab close the window
+	// and not let the window simply close by itself. this will ensure that we tell the 
+	// tab that we're doing that
+	[window close:[NSArray arrayWithObjects:[NSDictionary dictionaryWithObject:NUMBOOL(YES) forKey:@"closeByTab"],nil]];
 	if ([current window]==window)
 	{
 		RELEASE_TO_NIL(current);
 	}
-	[window close:nil];
-	RELEASE_TO_NIL(window);
 }
 
 -(void)windowClosing:(TiWindowProxy*)window animated:(BOOL)animated
@@ -245,74 +257,108 @@
 	}
 }
 
+-(void)updateTabBarItem
+{
+	if (rootController == nil)
+	{
+		return;
+	}
+	ENSURE_UI_THREAD_0_ARGS;
+	
+	id badgeValue = [TiUtils stringValue:[self valueForKey:@"badge"]];
+	id icon = [self valueForKey:@"icon"];
+	
+	if ([icon isKindOfClass:[NSNumber class]])
+	{
+		int value = [TiUtils intValue:icon];
+		UITabBarItem *newItem = [[UITabBarItem alloc] initWithTabBarSystemItem:value tag:value];
+		[newItem setBadgeValue:badgeValue];
+		[rootController setTabBarItem:newItem];
+		[newItem release];
+		systemTab = YES;
+		return;
+	}
+
+	NSString * title = [TiUtils stringValue:[self valueForKey:@"title"]];
+
+	UIImage *image;
+	if (icon == nil)
+	{
+		image = nil;
+	}
+	else
+	{
+		// we might be inside a different context than our tab group and if so, he takes precendence in
+		// url resolution
+		TiProxy* currentWindow = [self.executionContext preloadForKey:@"currentWindow"];
+		if (currentWindow==nil)
+		{
+			// check our current window's context that we are owned by
+			currentWindow = [self.pageContext preloadForKey:@"currentWindow"];
+		}
+		if (currentWindow==nil)
+		{
+			currentWindow = self;
+		}
+		image = [[ImageLoader sharedLoader] loadImmediateImage:[TiUtils toURL:icon proxy:currentWindow]];
+	}
+
+	[rootController setTitle:title];
+	UITabBarItem *ourItem = nil;
+
+	if (!systemTab)
+	{
+		ourItem = [rootController tabBarItem];
+		[ourItem setTitle:title];
+		[ourItem setImage:image];
+	}
+
+	if(ourItem == nil)
+	{
+		systemTab = NO;
+		ourItem = [[[UITabBarItem alloc] initWithTitle:title image:image tag:0] autorelease];
+		[rootController setTabBarItem:ourItem];
+	}
+
+	[ourItem setBadgeValue:badgeValue];
+}
+
 -(void)setTitle:(id)title
 {
 	[self replaceValue:title forKey:@"title" notification:NO];
-	ENSURE_UI_THREAD(setTitle,title);
-	if (rootController!=nil)
-	{
-		title = [TiUtils stringValue:title];
-		rootController.tabBarItem.title = title;
-		rootController.title = title;
-	}
+	[self updateTabBarItem];
 }
 
 -(void)setIcon:(id)icon
 {
-	[self replaceValue:icon forKey:@"icon" notification:NO];
-	ENSURE_UI_THREAD(setIcon,icon);
-	if (rootController!=nil)
+	if([icon isKindOfClass:[NSString class]])
 	{
-		// check to see if its a system defined icon
-		if ([icon isKindOfClass:[NSNumber class]])
+		// we might be inside a different context than our tab group and if so, he takes precendence in
+		// url resolution
+		TiProxy* currentWindow = [self.executionContext preloadForKey:@"currentWindow"];
+		if (currentWindow==nil)
 		{
-			// need to remember the badge in case there's one set
-			id badgeValue = rootController.tabBarItem.badgeValue;
-			int value = [TiUtils intValue:icon];
-			UITabBarItem *newItem = [[[UITabBarItem alloc] initWithTabBarSystemItem:value tag:value] autorelease];
-			rootController.tabBarItem = newItem;
-			rootController.tabBarItem.badgeValue = badgeValue;
-			systemTab = YES;
+			// check our current window's context that we are owned by
+			currentWindow = [self.pageContext preloadForKey:@"currentWindow"];
 		}
-		else
+		if (currentWindow==nil)
 		{
-			// we might be inside a different context than our tab group and if so, he takes precendence in
-			// url resolution
-			TiProxy* currentWindow = [self.executionContext preloadForKey:@"currentWindow"];
-			if (currentWindow==nil)
-			{
-				// check our current window's context that we are owned by
-				currentWindow = [self.pageContext preloadForKey:@"currentWindow"];
-			}
-			if (currentWindow==nil)
-			{
-				currentWindow = self;
-			}
-			UIImage *image = icon == nil ? nil : [[ImageLoader sharedLoader] loadImmediateImage:[TiUtils toURL:icon proxy:currentWindow]];
-			if (systemTab)
-			{
-				systemTab = NO;
-				id badgeValue = rootController.tabBarItem.badgeValue;
-				UITabBarItem *newItem = [[[UITabBarItem alloc] initWithTitle:[self valueForKey:@"title"] image:image tag:0] autorelease];
-				rootController.tabBarItem = newItem;
-				rootController.tabBarItem.badgeValue = badgeValue;
-			}
-			else
-			{
-				rootController.tabBarItem.image = image;
-			}
+			currentWindow = self;
 		}
+		
+		icon = [[TiUtils toURL:icon proxy:currentWindow] absoluteString];
 	}
+
+
+	[self replaceValue:icon forKey:@"icon" notification:NO];
+
+	[self updateTabBarItem];
 }
 
 -(void)setBadge:(id)badge
 {
 	[self replaceValue:badge forKey:@"badge" notification:NO];
-	ENSURE_UI_THREAD(setBadge,badge);
-	if (rootController!=nil)
-	{
-		rootController.tabBarItem.badgeValue = badge == nil ? nil : [TiUtils stringValue:badge];
-	}
+	[self updateTabBarItem];
 }
 
 

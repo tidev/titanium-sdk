@@ -51,6 +51,14 @@
 	[super willAnimateRotationToInterfaceOrientation:toInterfaceOrientation duration:duration];
 }
 
+-(UINavigationItem*)navigationItem
+{
+	if ([self navigationController] != nil) {
+		return [super navigationItem];
+	}
+	return nil;
+}
+
 @end
 
 
@@ -59,7 +67,6 @@
 
 - (void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
 {
-	[self lockChildrenForReading];
 	for (TiViewProxy * thisProxy in [self children])
 	{
 		if ([thisProxy respondsToSelector:@selector(willAnimateRotationToInterfaceOrientation:duration:)])
@@ -67,7 +74,6 @@
 			[(id)thisProxy willAnimateRotationToInterfaceOrientation:toInterfaceOrientation duration:duration];
 		}
 	}
-	[self unlockChildren];
 	//This is in place for TabController (Or any others) to subclass.
 }
 
@@ -79,6 +85,14 @@
 		controller = [[TiWindowViewController alloc] initWithWindow:self];
 	}
 	return controller;
+}
+
+-(void)replaceController
+{
+	if (controller != nil) {
+		RELEASE_TO_NIL(controller);
+		[self controller];
+	}
 }
 
 -(void)_destroy
@@ -195,12 +209,10 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 	[self detachView];
 	
 	// notify our child that his window is closing
-	[self lockChildrenForReading];
 	for (TiViewProxy *child in self.children)
 	{
 		[child windowDidClose];
 	}
-	[self unlockChildren];
 	
 	[self windowDidClose];
 
@@ -449,7 +461,6 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 	self.navController = navController_;
 	navWindow = YES;
 	[self view];
-	[self setupWindowDecorations];
 	if ([self _handleOpen:nil])
 	{
 		[self windowReady];
@@ -472,6 +483,18 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 	if (opened==NO)
 	{
 		return;
+	}
+	 
+	if ([self _isChildOfTab]) 
+	{
+		if (![args isKindOfClass:[NSArray class]] ||
+			([args isKindOfClass:[NSArray class]] &&
+			 [args count] > 0 && 
+			 ![TiUtils boolValue:@"closeByTab" properties:[args objectAtIndex:0] def:NO]))
+		{
+			[[self tab] close:[NSArray arrayWithObject:self]];
+			return;
+		}
 	}
 
 	closing=YES;
@@ -527,18 +550,15 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 	}
 	
 	// notify our child that his window is closing
-	[self lockChildrenForReading];
 	for (TiViewProxy *child in self.children)
 	{
 		[child windowWillClose];
 	}
-	[self unlockChildren];
 
 	if ([self _handleClose:args])
 	{
-		TiAnimation *animation = [TiAnimation animationFromArg:args context:[self pageContext] create:NO];
-		BOOL animated = animation==nil && args!=nil && [args count]>0 ? [TiUtils boolValue:@"animated" properties:[args objectAtIndex:0] def:YES] : YES;
-
+		TiAnimation *animation = [self _isChildOfTab] ? nil : [TiAnimation animationFromArg:args context:[self pageContext] create:NO];
+		
 		if (animation!=nil)
 		{
 			if ([animation isTransitionAnimation])
@@ -580,7 +600,7 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 		} 
  
 		if (animation!=nil)
-		{ 
+		{
 			[self performSelector:@selector(windowClosed) withObject:nil afterDelay:0.8];
 		}
 		else 

@@ -14,6 +14,7 @@
 	UINavigationController *controller;
 	TiWindowProxy *root;
 	TiWindowProxy *current;
+	TiWindowProxy *visibleProxy;
 	BOOL opening;
 }
 

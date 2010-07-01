@@ -377,6 +377,14 @@ void MyUncaughtExceptionHandler(NSException *exception)
 #endif 
 }
 
+- (void)applicationDidBecomeActive:(UIApplication *)application
+{
+	// you can get a resign when you have to show a system dialog or you get
+	// an incoming call, for example, and then you'll get this message afterwards
+	// this is slightly different than enter foreground
+	[[NSNotificationCenter defaultCenter] postNotificationName:kTiResumeNotification object:self];
+}
+
 -(void)applicationWillEnterForeground:(UIApplication *)application
 {
 	[[NSNotificationCenter defaultCenter] postNotificationName:kTiResumeNotification object:self];

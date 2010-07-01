@@ -41,17 +41,15 @@ const UIControlEvents unHighlightingTouches = UIControlEventTouchCancel|UIContro
 {
 	TiUIButtonProxy * ourProxy = (TiUIButtonProxy *)[self proxy];
 	
-	[ourProxy lockChildrenForReading];
-		NSArray * proxyChildren = [ourProxy children];
-		for (TiViewProxy * thisProxy in proxyChildren)
+	NSArray * proxyChildren = [ourProxy children];
+	for (TiViewProxy * thisProxy in proxyChildren)
+	{
+		TiUIView * thisView = [thisProxy view];
+		if ([thisView respondsToSelector:@selector(setHighlighted:)])
 		{
-			TiUIView * thisView = [thisProxy view];
-			if ([thisView respondsToSelector:@selector(setHighlighted:)])
-			{
-				[(id)thisView setHighlighted:isHiglighted];
-			}
+			[(id)thisView setHighlighted:isHiglighted];
 		}
-	[ourProxy unlockChildren];
+	}
 }
 
 -(void)handleControlEvents:(UIControlEvents)events
