@@ -59,7 +59,9 @@ public class TiBackgroundDrawable extends StateListDrawable {
 		}
 
 		//paint.setColor(backgroundColor);
-		background.setBounds((int)innerRect.left, (int)innerRect.top, (int)innerRect.right, (int)innerRect.bottom);
+		if (background != null) {
+			background.setBounds((int)innerRect.left, (int)innerRect.top, (int)innerRect.right, (int)innerRect.bottom);
+		}
 		canvas.save();
 		if (border != null && border.radius > 0) {
 			Path path = new Path();
@@ -75,7 +77,10 @@ public class TiBackgroundDrawable extends StateListDrawable {
 			canvas.clipRect(innerRect);
 		}
 
-		background.draw(canvas);
+		if (background != null) {
+			background.draw(canvas);
+		}
+		
 		canvas.restore();
 
 		/*if (backgroundImage != null && !backgroundImage.isRecycled()) {
