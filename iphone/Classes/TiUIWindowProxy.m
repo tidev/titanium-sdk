@@ -61,25 +61,33 @@
 	[lock lock];
 	completed = YES;
 	[lock signal];
-	[lock unlock];
 	if (timeout)
 	{
 		[window boot:YES];
 	}
+	[lock unlock];
 }
 
 -(BOOL)waitForBoot
 {
 	BOOL yn = NO;
 	[lock lock];
-	if ([lock waitUntilDate:[NSDate dateWithTimeIntervalSinceNow:EXTERNAL_JS_WAIT_TIME]]==NO)
-	{
-		timeout = YES;
-	}
-	else 
+	if(completed)
 	{
 		yn = YES;
 	}
+	else
+	{
+		if ([lock waitUntilDate:[NSDate dateWithTimeIntervalSinceNow:EXTERNAL_JS_WAIT_TIME]]==NO)
+		{
+			timeout = YES;
+		}
+		else 
+		{
+			yn = YES;
+		}
+	}
+
 	[lock unlock];
 	return yn;
 }
