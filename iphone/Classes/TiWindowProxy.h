@@ -67,6 +67,7 @@
 @property(nonatomic,readwrite,retain)	UIViewController *controller;
 @property(nonatomic,readwrite,retain)	UINavigationController *navController;
 
+-(void)replaceController;
 -(UIWindow*)_window;
 -(BOOL)_handleOpen:(id)args;
 -(BOOL)_handleClose:(id)args;

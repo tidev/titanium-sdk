@@ -51,6 +51,14 @@
 	[super willAnimateRotationToInterfaceOrientation:toInterfaceOrientation duration:duration];
 }
 
+-(UINavigationItem*)navigationItem
+{
+	if ([self navigationController] != nil) {
+		return [super navigationItem];
+	}
+	return nil;
+}
+
 @end
 
 
@@ -77,6 +85,14 @@
 		controller = [[TiWindowViewController alloc] initWithWindow:self];
 	}
 	return controller;
+}
+
+-(void)replaceController
+{
+	if (controller != nil) {
+		RELEASE_TO_NIL(controller);
+		[self controller];
+	}
 }
 
 -(void)_destroy
@@ -445,7 +461,6 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 	self.navController = navController_;
 	navWindow = YES;
 	[self view];
-	[self setupWindowDecorations];
 	if ([self _handleOpen:nil])
 	{
 		[self windowReady];
