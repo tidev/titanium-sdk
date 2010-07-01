@@ -17,7 +17,7 @@ def validate_project_name(name):
 		die("Invalid project name: %s" % name)
 		
 def fork(args,quiet=False):
-	print args
+#	print args
 	proc = subprocess.Popen(args, stderr=subprocess.STDOUT, stdout=subprocess.PIPE)
 	while proc.poll()==None:
 		line = proc.stdout.readline()
