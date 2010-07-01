@@ -30,6 +30,7 @@ import java.util.zip.ZipInputStream;
 import android.content.Context;
 import android.content.res.AssetManager;
 import android.content.res.Resources;
+import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.webkit.URLUtil;
@@ -43,10 +44,10 @@ public class TiFileHelper
 	public static final String TI_DIR_JS = "tijs";
 	private static final String MACOSX_PREFIX = "__MACOSX";
 	private static final String TI_RESOURCE_PREFIX = "ti:";
-	
+
 	public static final String RESOURCE_ROOT_ASSETS = "file:///android_asset/Resources";
 	public static final String SD_CARD_PREFIX = "/sdcard/Ti.debug";
-	
+
 	static HashMap<String, Integer> systemIcons;
 
 	private SoftReference<Context> softContext;
@@ -213,33 +214,37 @@ public class TiFileHelper
 //							} else {
 //								apath = "android/" + path.substring(0, path.lastIndexOf(".")) + ".9.png";
 //							}
-
-							if (apath.startsWith("/")) {
-								apath = "android" + apath;
-							} else {
-								apath = "android/" + apath;
-							}
-
-							try {
-								is = openInputStream(apath, false);
-								if (is != null) {
-									path = apath;
-								}
-							} catch (IOException e1) {
-								if (DBG) {
-									Log.d(LCAT, "path not found: " + apath);
-								}
-							}
+//
+//							if (apath.startsWith("/")) {
+//								apath = "android" + apath;
+//							} else {
+//								apath = "android/" + apath;
+//							}
+//
+//							try {
+//								is = openInputStream(apath, false);
+//								if (is != null) {
+//									path = apath;
+//								}
+//							} catch (IOException e1) {
+//								if (DBG) {
+//									Log.d(LCAT, "path not found: " + apath);
+//								}
+//							}
 						}
 					}
 				}
 				if (is == null) {
 					is = openInputStream(path, report);
 				}
-				d = nph.process(Drawable.createFromStream(is, path));
+				Bitmap b = TiUIHelper.createBitmap(is);
+				d = nph.process(b);
+				//d = nph.process(Drawable.createFromStream(is, path));
 			} else {
 				is = openInputStream(path, report);
-				d = Drawable.createFromStream(is, path);
+				Bitmap b = TiUIHelper.createBitmap(is);
+				d = new BitmapDrawable(b);
+				//d = Drawable.createFromStream(is, path);
 			}
 		} catch (IOException e) {
 			Log.i(LCAT, path + " not found.");

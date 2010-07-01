@@ -41,6 +41,22 @@ public class TiNinePatchHelper
 		return nd;
 	}
 
+	public Drawable process(Bitmap b)
+	{
+		Drawable nd = null;
+
+		if (b != null) {
+			if (isNinePatch(b)) {
+		        byte[] newChunk = createChunk(b);
+		        nd = new NinePatchDrawable(cropNinePatch(b), newChunk, new Rect(1,1,1,1), "");
+			} else {
+				nd = new BitmapDrawable(b);
+			}
+		}
+
+		return nd;
+	}
+
 	private boolean isNinePatch(Bitmap b) {
 		boolean result = true;
 

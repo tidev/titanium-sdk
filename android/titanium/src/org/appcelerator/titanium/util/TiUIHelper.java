@@ -378,7 +378,9 @@ public class TiUIHelper
 	{
 		Rect pad = new Rect();
 		BitmapFactory.Options opts = new BitmapFactory.Options();
-		opts.inScreenDensity = DisplayMetrics.DENSITY_HIGH;
+		opts.inPurgeable = true;
+		opts.inInputShareable = true;
+
 		Bitmap b = null;
 		try {
 			b = BitmapFactory.decodeResourceStream(null, null, stream, pad, opts);
