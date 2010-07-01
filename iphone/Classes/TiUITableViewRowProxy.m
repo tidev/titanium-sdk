@@ -591,7 +591,6 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 	// this method is called when the cell is initially created
 	// to be initialized. on subsequent repaints of a re-used
 	// table cell, the updateChildren below will be called instead
-	[self lockChildrenForReading];
 	configuredChildren = YES;
 	if (self.children!=nil)
 	{
@@ -623,7 +622,6 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 		[self layoutChildren:NO];
 		[contentView addSubview:rowContainerView];
 	}
-	[self unlockChildren];
 	configuredChildren = YES;
 }
 
@@ -637,19 +635,15 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 	[uiview transferProxy:proxy];
 	
 	// because proxies can have children, we need to recursively do this
-	[proxy lockChildrenForReading];
 	NSArray *children_ = proxy.children;
 	if (children_!=nil && [children_ count]>0)
 	{
-		[oldProxy lockChildrenForReading];
 		NSArray * oldProxyChildren = [oldProxy children];
 
 		if ([oldProxyChildren count] != [children_ count])
 		{
 			NSLog(@"[WARN] looks like we have a different table cell layout than expected.  Make sure you set the 'className' property of the table row when you have different cell layouts");
 			NSLog(@"[WARN] if you don't fix this, your tableview will suffer performance issues and also will not render properly");
-			[oldProxy unlockChildren];
-			[proxy unlockChildren];
 			return;
 		}
 		int c = 0;
@@ -668,9 +662,7 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 						   parent:proxy touchDelegate:nil];
 
 		}
-		[oldProxy unlockChildren];
 	}
-	[proxy unlockChildren];
 }
 
 -(void)updateChildren:(UITableViewCell*)cell
@@ -684,9 +676,7 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 	// cached cell (and resulting underlying UI component changes)
 	// and the proxy change ensures that the new row proxy gets the
 	// events now
-	[self lockChildrenForReading];
-		BOOL emptyChildren = [[self children] count] == 0;
-	[self unlockChildren];
+	BOOL emptyChildren = [[self children] count] == 0;
 	
 	if (emptyChildren)
 	{
@@ -721,15 +711,13 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 			}
 			[rowContainerView release];
 			rowContainerView = [aview retain];
-			[self lockChildrenForReading];
-				for (size_t x=0;x<[subviews count];x++)
-				{
-					TiViewProxy *proxy = [self.children objectAtIndex:x];
-					TiUIView *uiview = [subviews objectAtIndex:x];
-					[self reproxyChildren:proxy view:uiview parent:self touchDelegate:contentView];
-				}
-				[self layoutChildren:NO];
-			[self unlockChildren];
+			for (size_t x=0;x<[subviews count];x++)
+			{
+				TiViewProxy *proxy = [self.children objectAtIndex:x];
+				TiUIView *uiview = [subviews objectAtIndex:x];
+				[self reproxyChildren:proxy view:uiview parent:self touchDelegate:contentView];
+			}
+			[self layoutChildren:NO];
 			found = YES;
 			// once we find the container we can break
 			break;

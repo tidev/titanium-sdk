@@ -655,7 +655,7 @@ MAKE_SYSTEM_PROP_DBL(ACCURACY_THREE_KILOMETERS,kCLLocationAccuracyThreeKilometer
 		return YES;
 	}
 	return NO;
-}
+} 
 
 // the purpose for using Location services - now required in 3.2+
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0

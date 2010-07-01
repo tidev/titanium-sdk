@@ -59,7 +59,6 @@
 
 - (void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
 {
-	[self lockChildrenForReading];
 	for (TiViewProxy * thisProxy in [self children])
 	{
 		if ([thisProxy respondsToSelector:@selector(willAnimateRotationToInterfaceOrientation:duration:)])
@@ -67,7 +66,6 @@
 			[(id)thisProxy willAnimateRotationToInterfaceOrientation:toInterfaceOrientation duration:duration];
 		}
 	}
-	[self unlockChildren];
 	//This is in place for TabController (Or any others) to subclass.
 }
 
@@ -195,12 +193,10 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 	[self detachView];
 	
 	// notify our child that his window is closing
-	[self lockChildrenForReading];
 	for (TiViewProxy *child in self.children)
 	{
 		[child windowDidClose];
 	}
-	[self unlockChildren];
 	
 	[self windowDidClose];
 
@@ -539,17 +535,14 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 	}
 	
 	// notify our child that his window is closing
-	[self lockChildrenForReading];
 	for (TiViewProxy *child in self.children)
 	{
 		[child windowWillClose];
 	}
-	[self unlockChildren];
 
 	if ([self _handleClose:args])
 	{
 		TiAnimation *animation = [self _isChildOfTab] ? nil : [TiAnimation animationFromArg:args context:[self pageContext] create:NO];
-		BOOL animated = animation==nil && args!=nil && [args count]>0 ? [TiUtils boolValue:@"animated" properties:[args objectAtIndex:0] def:YES] : YES;
 		
 		if (animation!=nil)
 		{
