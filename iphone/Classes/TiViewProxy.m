@@ -832,10 +832,15 @@
 	// WARNING: do not call [self view] here as that will create the
 	// view if it doesn't yet exist (thus defeating the purpose of
 	// this method)
+	
+	//NOTE: for now, we're going to have to turn this off until post
+	//1.4 where we can figure out why the drawing is screwed up since
+	//the views aren't reattaching.  
+	/*
 	if (view!=nil && [view retainCount]==1)
 	{
 		[self detachView];
-	}
+	}*/
 	[super didReceiveMemoryWarning:notification];
 }
 
