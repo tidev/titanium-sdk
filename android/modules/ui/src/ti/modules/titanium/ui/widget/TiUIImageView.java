@@ -415,16 +415,22 @@ public class TiUIImageView extends TiUIView
 			view.setEnableZoomControls(TiConvert.toBoolean(d, "enableZoomControls"));
 		}
 		if (d.containsKey("image")) {
-			String imageURL = TiConvert.toString(d, "image");
-			if (URLUtil.isNetworkUrl(imageURL)) {
-				synchronized(imageTokenGenerator) {
-					token = imageTokenGenerator.incrementAndGet();
-					getView().setImageDrawable(null);
-					new BgImageLoader(getProxy().getTiContext(), null, null, token).load(imageURL);
+			Object image = d.get("image");
+			if (image instanceof String) {
+				String imageURL = TiConvert.toString(d, "image");
+				if (URLUtil.isNetworkUrl(imageURL)) {
+					synchronized(imageTokenGenerator) {
+						token = imageTokenGenerator.incrementAndGet();
+						getView().setImageDrawable(null);
+						new BgImageLoader(getProxy().getTiContext(), null, null, token).load(imageURL);
+					}
+				} else {
+					setImage(createBitmap(imageURL));
 				}
 			} else {
-				setImage(createBitmap(imageURL));
+				setImage(createBitmap(image));
 			}
+			
 		} else {
 			getProxy().internalSetDynamicValue("image", null, false);
 		}

@@ -73,6 +73,11 @@
 
 -(void)removeFromTabGroup
 {
+	if (current!=nil)
+	{
+		TiWindowProxy *currentWindow = [current window];
+		[self close:currentWindow];
+	}
 }
 
 - (void)handleWillShowViewController:(UIViewController *)viewController
