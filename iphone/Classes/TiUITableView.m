@@ -171,6 +171,12 @@
 	return tableview;
 }
 
+-(void)relayout:(CGRect)bounds
+{
+	[super relayout:bounds];
+	[self replaceData:UITableViewRowAnimationNone];
+}
+
 -(NSInteger)indexForRow:(TiUITableViewRowProxy*)row
 {
 	int index = 0;

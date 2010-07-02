@@ -696,14 +696,7 @@ else{\
 }
 
 -(void)setupWindowDecorations
-{
-	/*
-	if (opened) {
-		// Don't waste time redecorating after we open
-		return;
-	}
-	 */
-	
+{	
 	if (controller!=nil)
 	{
 		[[controller navigationController] setToolbarHidden:!hasToolbar animated:YES];
