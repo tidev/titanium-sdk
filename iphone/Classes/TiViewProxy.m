@@ -344,6 +344,16 @@
 	return rect;
 }
 
+-(id)width
+{
+	return [self size].width;
+}
+
+-(id)height
+{
+	return [self size].height;
+}
+
 -(void)setParent:(TiViewProxy*)parent_
 {
 	parent = parent_;
