@@ -30,6 +30,7 @@
 -(void)dealloc
 {
 	RELEASE_TO_NIL(controller);
+	
 	[self setVisibleProxy:nil];
 	//This is done this way so that proper methods are called as well.
 	[super dealloc];
@@ -83,11 +84,12 @@
 			{
 				TiWindowProxy *win =(TiWindowProxy*) ((TiUIWindow*)view).proxy;
 				[win retain];
+				[[win view] removeFromSuperview];
 				[win close:nil];
 				[win autorelease];
 			}
 		}
-		controller.viewControllers = nil;
+		[controller.view removeFromSuperview];
 		[controller resignFirstResponder];
 		RELEASE_TO_NIL(controller);
 	}
@@ -128,6 +130,7 @@
     TiWindowProxy *newWindow = [(TiWindowViewController*)viewController proxy];
 	[newWindow prepareForNavView:controller];
 	[newWindow setupWindowDecorations];
+	
 	[newWindow windowWillOpen];
 }
 - (void)navigationController:(UINavigationController *)navigationController didShowViewController:(UIViewController *)viewController animated:(BOOL)animated

@@ -1114,4 +1114,21 @@ extern NSString * const TI_APPLICATION_RESOURCE_DIR;
 	[toolBar setTintColor:barColor];
 }
 
++(NSString*)replaceString:(NSString *)string characters:(NSCharacterSet *)characterSet withString:(NSString *)replacementString
+{
+	if(string == nil)
+	{
+		return nil;
+	}
+
+	NSRange setRange = [string rangeOfCharacterFromSet:characterSet];
+
+	if(setRange.location == NSNotFound)
+	{
+		return string;
+	}
+
+	return [[string componentsSeparatedByCharactersInSet:characterSet] componentsJoinedByString:replacementString];
+}
+
 @end

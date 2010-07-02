@@ -76,6 +76,7 @@
 					{
 						lastHitName = [@"subtitle" retain];
 					}
+
 					return nil;
 				}
 			}

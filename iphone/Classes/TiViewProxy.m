@@ -459,6 +459,14 @@
 	
 	windowOpened = YES;
 	
+	// If the window was previously opened, it may need to have
+	// its existing children redrawn
+	if (children != nil) {
+		for (TiViewProxy* child in children) {
+			[self layoutChild:child optimize:NO];
+		}
+	}
+	
 	if (pendingAdds!=nil)
 	{
 		[self addChildrenOnUIThread:pendingAdds];

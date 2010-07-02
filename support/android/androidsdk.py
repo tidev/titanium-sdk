@@ -91,6 +91,9 @@ class AndroidSDK:
 	
 	def find_google_apis_dir(self):
 		self.google_apis_dir = self.find_dir(self.api_level, os.path.join('add-ons', 'google_apis-'))
+		if self.google_apis_dir is None:
+			self.google_apis_dir = self.find_dir(self.api_level, os.path.join('add-ons', 'addon_google_apis_google_inc_'))
+
 		
 	def get_maps_jar(self):
 		if self.google_apis_dir is not None:

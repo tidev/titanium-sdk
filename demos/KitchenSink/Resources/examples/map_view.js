@@ -308,7 +308,7 @@ apple.addEventListener('click', function(evt)
 	// get event properties
 	var annotation = evt.source;
 	var clicksource = evt.clicksource;
-	Ti.API.info('atlanta annotation click clicksource = ' + clicksource)
+	Ti.API.info('apple annotation click clicksource = ' + clicksource)
 
 
 });

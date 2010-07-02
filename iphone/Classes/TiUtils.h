@@ -40,6 +40,7 @@
 +(UIImage *)stretchableImage:(id)object proxy:(TiProxy*)proxy;
 
 +(NSString*)stringValue:(id)value;
++(NSString*)replaceString:(NSString *)string characters:(NSCharacterSet *)characterSet withString:(NSString *)replacementString;
 
 +(BOOL)boolValue:(id)value;
 
