@@ -39,13 +39,13 @@ USE_PROXY_FOR_VERIFY_AUTORESIZING
 	{
 		if (type == -1)
 		{
-			picker = [[UIPickerView alloc] initWithFrame:CGRectMake(0, 0, 2000, 228)];
+			picker = [[UIPickerView alloc] initWithFrame:CGRectMake(0, 0, 320, 228)];
 			((UIPickerView*)picker).delegate = self;
 			((UIPickerView*)picker).dataSource = self;
 		}
 		else 
 		{
-			picker = [[UIDatePicker alloc] initWithFrame:CGRectMake(0, 0, 2000, 228)];
+			picker = [[UIDatePicker alloc] initWithFrame:CGRectMake(0, 0, 320, 228)];
 			[(UIDatePicker*)picker setDatePickerMode:type];
 			[picker addTarget:self action:@selector(valueChanged:) forControlEvents:UIControlEventValueChanged];
 		}
@@ -58,13 +58,7 @@ USE_PROXY_FOR_VERIFY_AUTORESIZING
 {
 	if (picker!=nil && !CGRectIsEmpty(bounds))
 	{
-		// on ipad, the height is sent in invalid but on iphone, it's fixed
-		// so we need to compensate for that here so that it will be visible
-		if (bounds.size.height<6)
-		{
-			bounds.size.height = 228;
-		}
-		[TiUtils setView:picker positionRect:bounds];
+		[picker setFrame:bounds];
 	}
 }
 
@@ -258,8 +252,7 @@ USE_PROXY_FOR_VERIFY_AUTORESIZING
 	TiUIPickerColumnProxy *proxy = [[self columns] objectAtIndex:component];
 	return [proxy rowCount];
 }
-			 
-			 
+
 #pragma mark Delegates (only for UIPickerView) 
 
 
@@ -286,6 +279,7 @@ USE_PROXY_FOR_VERIFY_AUTORESIZING
 	{
 		return [TiUtils floatValue:height];
 	}
+
 	return DEFAULT_ROW_HEIGHT;
 }
 

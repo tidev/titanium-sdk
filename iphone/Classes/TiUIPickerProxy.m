@@ -89,9 +89,7 @@ NSArray* pickerKeySequence;
 	ENSURE_UI_THREAD(add,args);
 	
 	id data = [args objectAtIndex:0];
-	
-	TiUIPicker *picker = [self picker];
-	
+		
 	if ([data isKindOfClass:[TiUIPickerRowProxy class]])
 	{
 		TiUIPickerRowProxy *row = (TiUIPickerRowProxy*)data;
@@ -105,10 +103,12 @@ NSArray* pickerKeySequence;
 		
 		if ([self viewAttached])
 		{
+			TiUIPicker *picker = [self picker];
 			[picker performSelectorOnMainThread:@selector(reloadColumn:) withObject:column waitUntilDone:NO];
 		}
 		if ([TiUtils boolValue:[row valueForUndefinedKey:@"selected"] def:NO])
 		{
+			TiUIPicker *picker = [self picker];
 			[picker performSelectorOnMainThread:@selector(selectRow:) withObject:[NSArray arrayWithObjects:NUMINT(0),rowIndex,nil] waitUntilDone:NO];
 		}
 	}
@@ -129,6 +129,7 @@ NSArray* pickerKeySequence;
 		[columns addObject:column];
 		if ([self viewAttached])
 		{
+			TiUIPicker *picker = [self picker];
 			[picker performSelectorOnMainThread:@selector(reloadColumn:) withObject:data waitUntilDone:NO];
 		}
 	}
@@ -191,6 +192,7 @@ NSArray* pickerKeySequence;
 			}
 			if ([self viewAttached])
 			{
+				TiUIPicker *picker = [self picker];
 				[picker performSelectorOnMainThread:@selector(reloadColumn:) withObject:column waitUntilDone:NO];
 			}
 		}
