@@ -9,12 +9,12 @@ Titanium.Media.showCamera({
 		Ti.API.debug('Our type was: '+event.mediaType);
 		if(event.mediaType == Ti.Media.MEDIA_TYPE_PHOTO)
 		{
-			var imageView = Ti.UI.createImageView({top:100,image:event.media});
+			var imageView = Ti.UI.createImageView({width:win.width,height:win.height,image:event.media});
 			win.add(imageView);  
 		}
 		else
 		{
-			
+			alert("got the wrong type back ="+event.mediaType);
 		}
 	},
 	cancel:function()
