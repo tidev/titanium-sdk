@@ -19,6 +19,6 @@ if (parseFloat(Titanium.Platform.version) >= 3.2)
 activeMovie.play();
 
 
-win.addEventListener('blur', function() {
+win.addEventListener('close', function() {
 	activeMovie.stop();
 });
