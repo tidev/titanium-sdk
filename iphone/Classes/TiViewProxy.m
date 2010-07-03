@@ -213,9 +213,12 @@
 	ENSURE_UI_THREAD_1_ARG(arg);
 
 	BOOL viewIsInChildren = [children containsObject:arg];
+	if (viewIsInChildren==NO)
+	{
+		NSLog(@"[WARN] called remove for %@ on %@, but %@ isn't a child or has already been removed",arg,self,arg);
+		return;
+	}
 
-	ENSURE_VALUE_CONSISTENCY(viewIsInChildren,YES);
-	ENSURE_UI_THREAD_1_ARG(arg);
 	[self childRemoved:arg];
 
 	[children removeObject:arg];
