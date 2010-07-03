@@ -57,6 +57,6 @@ win.add(Titanium.UI.createImageView({
 
 activeMovie.play();
 
-win.addEventListener('blur', function() {
+win.addEventListener('close', function() {
 	activeMovie.stop();
 });

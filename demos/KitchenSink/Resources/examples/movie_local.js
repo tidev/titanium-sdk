@@ -56,6 +56,6 @@ activeMovie.addEventListener('complete',function()
 
 activeMovie.play();
 
-win.addEventListener('blur', function() {
+win.addEventListener('close', function() {
 	activeMovie.stop();
 });

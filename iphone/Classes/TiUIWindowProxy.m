@@ -195,7 +195,7 @@
 {
 	if (context!=nil)
 	{
-		[context shutdown:nil];
+		[context performSelector:@selector(shutdown:) withObject:nil afterDelay:1.0];
 		RELEASE_TO_NIL(context);
 	}
 	[super windowDidClose];
