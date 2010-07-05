@@ -179,7 +179,10 @@ class Compiler(object):
 					self.modules_metadata.append({'guid':tp_guid,'name':tp_module_name,'id':tp_module_id,'dir':tp_dir,'version':tp_version})
 					xcfile = os.path.join(module_root,tp_name,tp_version,"module.xcconfig")
 					if os.path.exists(xcfile):
-						xcconfig_c+="#include \"%s\"\n" % xcfile.replace('.xcconfig','')
+						xcconfig_c+="#include \"%s\"\n" % xcfile
+					xcfile = os.path.join(self.project_dir,'modules','iphone',"%s.xcconfig" % tp_name)
+					if os.path.exists(xcfile):
+						xcconfig_c+="#include \"%s\"\n" % xcfile
 					mods.write("	[modules addObject:[NSDictionary dictionaryWithObjectsAndKeys:@\"%s\",@\"name\",@\"%s\",@\"moduleid\",@\"%s\",@\"version\",nil]];\n" % (tp_module_name,tp_module_id,tp_version));
 				mods.write("	return modules;\n")	
 				mods.write("}\n")
