@@ -214,4 +214,14 @@ int toASCIIHexValue(unichar c) {return (c & 0xF) + (c < 'A' ? 0 : 9); }
 	RELEASE_TO_NIL(checkmarkColor);
 }
 
++(BOOL)isDarkColor:(UIColor*)color
+{
+	const CGFloat * components = CGColorGetComponents([color CGColor]);
+	CGFloat red = components[0];
+	CGFloat green = components[1];
+	CGFloat blue = components[2];
+	CGFloat formula = (red*299) + (green*587) + (blue*114) / 1000;
+	return formula < 125;
+}
+
 @end

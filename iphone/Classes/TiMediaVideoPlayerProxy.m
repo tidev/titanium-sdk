@@ -1020,6 +1020,8 @@ if (![TiUtils isiPhoneOS3_2OrGreater]) {\
 -(void)handleLoadStateChangeNotification:(NSNotification*)note
 {
 	MPMoviePlayerController *player = [self player];
+	
+	NSLog(@"load state: %d, %d",player.loadState,player.playbackState);
 		
 	if (((player.loadState & MPMovieLoadStatePlayable)==MPMovieLoadStatePlayable) || 
 		 ((player.loadState & MPMovieLoadStatePlaythroughOK)==MPMovieLoadStatePlaythroughOK)
@@ -1041,6 +1043,8 @@ if (![TiUtils isiPhoneOS3_2OrGreater]) {\
 
 -(void)handleNowPlayingNotification:(NSNotification*)note
 {
+	NSLog(@"now playing");
+	
 	if ([self _hasListeners:@"playing"])
 	{
 		NSDictionary *event = [NSDictionary dictionaryWithObject:[self url] forKey:@"url"];
@@ -1050,6 +1054,9 @@ if (![TiUtils isiPhoneOS3_2OrGreater]) {\
 
 -(void)handlePlaybackStateChangeNotification:(NSNotification*)note
 {
+	MPMoviePlayerController *player = [self player];
+	NSLog(@"playback state: %d", player.playbackState);
+	
 	if ([self _hasListeners:@"playbackState"])
 	{
 		NSDictionary *event = [NSDictionary dictionaryWithObject:[self playbackState] forKey:@"playbackState"];

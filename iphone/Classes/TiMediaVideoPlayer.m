@@ -8,6 +8,7 @@
 
 #import "TiMediaVideoPlayer.h"
 #import "TiUtils.h"
+#import "Webcolor.h"
 
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
 
@@ -67,7 +68,20 @@
 	// show a spinner while the movie is loading so that the user
 	// will know something is happening...
 	RELEASE_TO_NIL(spinner);
-	spinner = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleGray];
+	
+	TiColor *bgcolor = [TiUtils colorValue:[self.proxy valueForKey:@"backgroundColor"]];
+	UIActivityIndicatorViewStyle style = UIActivityIndicatorViewStyleGray;
+	if (bgcolor!=nil)
+	{
+		// check to see if the background is a dark color and if so, we want to 
+		// show the white indicator instead
+		if ([Webcolor isDarkColor:[bgcolor _color]])
+		{
+			style = UIActivityIndicatorViewStyleWhite;
+		} 
+	}
+	
+	spinner = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:style];
 	spinner.autoresizingMask = UIViewAutoresizingFlexibleTopMargin | UIViewAutoresizingFlexibleBottomMargin | UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleRightMargin;
 	[spinner sizeToFit];
 	[spinner setHidesWhenStopped:NO];

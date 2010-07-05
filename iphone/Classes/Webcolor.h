@@ -16,6 +16,7 @@
 +(UIColor*)colorForRGBFunction:(NSString*)functionString;
 +(UIColor*)colorForHex:(NSString*)hexCode;
 +(void)flushCache;
++(BOOL)isDarkColor:(UIColor*)color;
 
 @end
 
