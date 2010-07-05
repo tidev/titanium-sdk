@@ -259,7 +259,10 @@ void MyUncaughtExceptionHandler(NSException *exception)
 	
 	
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0
-	[[UIApplication sharedApplication] beginReceivingRemoteControlEvents];
+	if ([TiUtils isIOS4OrGreater])
+	{
+		[[UIApplication sharedApplication] beginReceivingRemoteControlEvents];
+	}
 #endif
 }
 
