@@ -81,7 +81,10 @@
 		resumeTime = 0;
 
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0		
-		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(remoteControlEvent:) name:kTiRemoteControlNotification object:nil];
+		if ([TiUtils isIOS4OrGreater])
+		{
+			[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(remoteControlEvent:) name:kTiRemoteControlNotification object:nil];
+		}
 #endif
 	}
 	return self;
@@ -91,7 +94,10 @@
 {
 	[[TiMediaAudioSession sharedSession] stopAudioSession];
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0	
-	[[NSNotificationCenter defaultCenter] removeObserver:self];
+	if ([TiUtils isIOS4OrGreater])
+	{
+		[[NSNotificationCenter defaultCenter] removeObserver:self];
+	}
 #endif	
 	[super dealloc];
 }
