@@ -28,12 +28,13 @@
 
 // by default, we want to make the camera fullscreen and 
 // these transform values will scale it when we have our own overlay
-#define CAMERA_TRANSFORM_X 1
 
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0
-#define CAMERA_TRANSFORM_Y 1.23
+	#define CAMERA_TRANSFORM_Y 1.23
+	#define CAMERA_TRANSFORM_X 1
 #else
-#define CAMERA_TRANSFORM_Y 1.12412
+	#define CAMERA_TRANSFORM_X 1.2
+	#define CAMERA_TRANSFORM_Y 1.12412
 #endif
 
 enum  
@@ -318,10 +319,8 @@ enum
 		}
 		else if (cameraView!=nil)
 		{
-//#if __IPHONE_OS_VERSION_MAX_ALLOWED < __IPHONE_4_0
 			// we use our own fullscreen transform if the developer didn't supply one
 			picker.cameraViewTransform = CGAffineTransformScale(picker.cameraViewTransform, CAMERA_TRANSFORM_X, CAMERA_TRANSFORM_Y);
-//#endif
 		}
 	}
 	
@@ -544,15 +543,15 @@ MAKE_SYSTEM_PROP(VIDEO_FINISH_REASON_USER_EXITED,MPMovieFinishReasonUserExited);
 		[modes addObject:NUMINT(UIImagePickerControllerCameraFlashModeOn)];
 	}
 	return modes;
-} 
+}
 
 -(id)camera 
 {
 	if (picker!=nil)
-	{ 
+	{
 		return NUMINT([picker cameraDevice]);
 	}
-	return NUMINT(UIImagePickerControllerCameraDeviceFront);
+	return NUMINT(UIImagePickerControllerCameraDeviceRear);
 }
 
 -(id)cameraFlashMode
