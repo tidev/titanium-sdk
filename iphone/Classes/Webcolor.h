@@ -7,12 +7,18 @@
 
 #import <UIKit/UIKit.h>
 
-UIColor * UIColorCheckmarkColor();
+@interface Webcolor : NSObject
+{
+}
 
-UIColor * UIColorWebColorNamed(NSString * colorName);
-UIColor * UIColorForRGBFunction(NSString * functionString);
-UIColor * UIColorForHex(NSString * hexCode);
-void UIColorFlushCache();
++(UIColor*)checkmarkColor;
++(UIColor*)webColorNamed:(NSString*)colorName;
++(UIColor*)colorForRGBFunction:(NSString*)functionString;
++(UIColor*)colorForHex:(NSString*)hexCode;
++(void)flushCache;
+
+@end
+
 
 #define RGBCOLOR(r,g,b) [UIColor colorWithRed:r/255.0 green:g/255.0 blue:b/255.0 alpha:1]
 #define RGBACOLOR(r,g,b,a) [UIColor colorWithRed:r/255.0 green:g/255.0 blue:b/255.0 alpha:a]

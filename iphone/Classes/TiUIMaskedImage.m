@@ -88,7 +88,7 @@
 -(void)setTint_:(id)tint_
 {
 	RELEASE_TO_NIL(tint);
-	tint = [UIColorWebColorNamed(tint_) retain];
+	tint = [[Webcolor webColorNamed:tint_] retain];
 	[self setNeedsDisplay];
 }
 

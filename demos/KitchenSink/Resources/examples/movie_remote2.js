@@ -20,5 +20,6 @@ activeMovie.play();
 
 
 win.addEventListener('close', function() {
+	alert("Window closed");
 	activeMovie.stop();
 });

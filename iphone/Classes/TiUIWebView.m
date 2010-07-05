@@ -108,7 +108,7 @@ NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._listeners={
 		webview.delegate = self;
 		webview.opaque = NO;
 		webview.backgroundColor = [UIColor whiteColor];
-       webview.contentMode = UIViewContentModeRedraw;
+		webview.contentMode = UIViewContentModeRedraw;
 		[self addSubview:webview];
 		
 		// only show the loading indicator if it's a remote URL
@@ -292,7 +292,7 @@ NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._listeners={
 
 -(void)setBackgroundColor_:(id)color
 {
-	UIColor *c = UIColorWebColorNamed(color);
+	UIColor *c = [Webcolor webColorNamed:color];
 	[self setBackgroundColor:c];
 	[[self webview] setBackgroundColor:c];
 }

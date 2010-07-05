@@ -37,6 +37,7 @@
 	{
 		[proxy detachView];
 	}
+	[super viewDidUnload];
 }
 
 - (void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration

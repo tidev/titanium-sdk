@@ -50,7 +50,7 @@ cameraFlash.addEventListener('click',function()
 
 var cameraType = Ti.UI.createButton({
 	color:'#fff',
-	title:"rear",
+	title:"front",
 	top:20,
 	right:20,
 	height:40,
@@ -71,12 +71,12 @@ for (var c=0;c<cameras.length;c++)
 		{
 			if (Ti.Media.camera == Ti.Media.CAMERA_FRONT)
 			{
-				cameraType.title = "rear";
+				cameraType.title = "front";
 				Ti.Media.switchCamera(Ti.Media.CAMERA_REAR);
 			}
 			else
 			{
-				cameraType.title = "front";
+				cameraType.title = "rear";
 				Ti.Media.switchCamera(Ti.Media.CAMERA_FRONT);
 			}
 		});

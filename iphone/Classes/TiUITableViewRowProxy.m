@@ -504,7 +504,7 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 				sv.position = TiCellBackgroundViewPositionMiddle;
 			}
 		}
-		sv.fillColor = UIColorWebColorNamed(selBgColor);	
+		sv.fillColor = [Webcolor webColorNamed:selBgColor];	
 	}
 	else if (cell.selectedBackgroundView!=nil)
 	{

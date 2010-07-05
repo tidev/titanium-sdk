@@ -87,6 +87,7 @@ static TiValueRef MakeTimer(TiContextRef context, TiObjectRef jsFunction, TiValu
 	static double kjsNextTimer = 0;
 	[timerIDLock lock];
 	double timerID = ++kjsNextTimer;
+	[timerIDLock unlock];
 	
 	KrollContext *ctx = GetKrollContext(context);
 	TiGlobalContextRef globalContext = TiContextGetGlobalContext(context);
@@ -100,7 +101,6 @@ static TiValueRef MakeTimer(TiContextRef context, TiObjectRef jsFunction, TiValu
 	[ctx registerTimer:timer timerId:timerID];
 	[timer start];
 	[timer release];
-	[timerIDLock unlock];
 	return TiValueMakeNumber(context, timerID);
 }
 
@@ -637,6 +637,10 @@ static TiValueRef CommonJSRequireCallback (TiContextRef jsContext, TiObjectRef j
 			queue_count = [queue count];
 			[lock unlock];
 
+#if CONTEXT_DEBUG == 1	
+			NSLog(@"CONTEXT<%@>: shutdown, queue_count = %d",self,queue_count);
+#endif
+			
 			// we're stopped, nothing in the queue, time to bail
 			if (queue_count==0)
 			{
@@ -748,6 +752,10 @@ static TiValueRef CommonJSRequireCallback (TiContextRef jsContext, TiObjectRef j
 		NSLog(@"CONTEXT<%@>: woke up for new event (count=%d)",self,KrollContextCount);
 #endif
 	}
+
+#if CONTEXT_DEBUG == 1	
+	NSLog(@"CONTEXT<%@>: is shutting down",self);
+#endif
 	
 	// call before we start the shutdown while context and timers are alive
 	if (delegate!=nil && [delegate respondsToSelector:@selector(willStopNewContext:)])

@@ -1531,7 +1531,7 @@ if(ourTableView != tableview)	\
 			color = [self.proxy valueForKey:@"backgroundColor"];
 		}
 	}
-	UIColor * cellColor = UIColorWebColorNamed(color);
+	UIColor * cellColor = [Webcolor webColorNamed:color];
 	cell.backgroundColor = (cellColor != nil)?cellColor:[UIColor whiteColor];
 	
 	if (tableview == ourTableView) {
