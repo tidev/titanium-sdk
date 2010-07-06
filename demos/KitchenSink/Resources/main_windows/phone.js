@@ -33,6 +33,10 @@ if (Titanium.Platform.name == 'iPhone OS')
 	data.push({title:'Push Notifications', hasChild:true, test:'../examples/push_notification.js'});
 }
 
+if (Titanium.Platform.name == 'android') {
+	data.push({title:'Notfications', hasChild:true, test:'../examples/notification.js'});
+}
+
 // create table view
 var tableview = Titanium.UI.createTableView({
 	data:data
