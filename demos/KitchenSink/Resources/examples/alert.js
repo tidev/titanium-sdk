@@ -111,3 +111,29 @@ button4.addEventListener('click', function()
 win.add(button4);
 
 
+//
+//  Cancellable alert
+//
+var button5 = Titanium.UI.createButton({
+	title:'Cancel Alert',
+	height:40,
+	width:200,
+	top:160
+});
+
+button5.addEventListener('click', function()
+{
+	var a = Titanium.UI.createAlertDialog({
+		title:'Alert Test',
+		message:'You should see and it should hide automatically in about 2 seconds or when you suspend.'
+	});
+	a.show();
+	setTimeout(function()
+	{
+		a.hide();
+	},2000);
+});
+
+win.add(button5);
+
+

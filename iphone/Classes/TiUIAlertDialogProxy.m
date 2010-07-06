@@ -13,6 +13,25 @@ static BOOL alertShowing = NO;
 
 @implementation TiUIAlertDialogProxy
 
+-(void)_destroy
+{
+	RELEASE_TO_NIL(alert);
+	[super _destroy];
+}
+
+-(void)hide:(id)args
+{
+	ENSURE_UI_THREAD_1_ARG(args);
+	ENSURE_SINGLE_ARG_OR_NIL(args,NSDictionary);
+	
+	if (alert!=nil)
+	{
+		BOOL animated = [TiUtils boolValue:@"animated" properties:args def:YES];
+		[alert dismissWithClickedButtonIndex:[alert cancelButtonIndex] animated:animated];
+		RELEASE_TO_NIL(alert);
+	}
+}
+
 -(void)show:(id)args
 {
 	if (alertCondition==nil)
@@ -36,6 +55,10 @@ static BOOL alertShowing = NO;
 	}
 	else
 	{
+		RELEASE_TO_NIL(alert);
+		
+		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(suspended:) name:kTiSuspendNotification object:nil];
+		
 		NSMutableArray *buttonNames = [self valueForKey:@"buttonNames"];
 		if (buttonNames==nil || (id)buttonNames == [NSNull null])
 		{
@@ -43,7 +66,7 @@ static BOOL alertShowing = NO;
 			[buttonNames addObject:NSLocalizedString(@"OK",@"Alert OK Button")];
 		}
 		
-		UIAlertView *alert = [[UIAlertView alloc] initWithTitle:[TiUtils stringValue:[self valueForKey:@"title"]]
+		alert = [[UIAlertView alloc] initWithTitle:[TiUtils stringValue:[self valueForKey:@"title"]]
 												message:[TiUtils stringValue:[self valueForKey:@"message"]] 
 												delegate:self cancelButtonTitle:nil otherButtonTitles:nil];
 		for (id btn in buttonNames)
@@ -56,9 +79,12 @@ static BOOL alertShowing = NO;
 		
 		[self retain];
 		[alert show];
-		
-		RELEASE_TO_NIL(alert);
 	}
+}
+
+-(void)suspended:(NSNotification*)note
+{
+	[self hide:[NSDictionary dictionaryWithObject:NUMBOOL(NO) forKey:@"animated"]];
 }
 
 #pragma mark AlertView Delegate
@@ -70,6 +96,8 @@ static BOOL alertShowing = NO;
 	[alertCondition broadcast];
 	[alertCondition unlock];
 	[self autorelease];
+	RELEASE_TO_NIL(alert);
+	[[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
 - (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex
