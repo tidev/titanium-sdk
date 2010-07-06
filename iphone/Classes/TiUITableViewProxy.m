@@ -362,7 +362,8 @@ NSArray * tableKeySequence;
         TiUITableViewActionType actionType = TiUITableViewActionAppendRow;
         if (header != nil) {
             TiUITableViewSectionProxy *newSection = [[[TiUITableViewSectionProxy alloc] _initWithPageContext:[self executionContext] args:nil] autorelease];
-            
+			[newSection replaceValue:header forKey:@"headerTitle" notification:NO];
+			
             newSection.section = [sections count];
             newSection.table = table;
 			newSection.parent = [table proxy];
