@@ -47,6 +47,11 @@ public abstract class TiModule
 		return m == null ? null : m.get();
 	}
 	
+	public static void clearModuleSingletons()
+	{
+		modules.clear();	
+	}
+	
 	/**
 	 * return the compiled-in Titanium build version (not the version of the module
 	 * build the Titanium SDK that this module was compiled with).  This is only

@@ -246,5 +246,6 @@ public class TiRootActivity extends ActivityGroup
 		super.onDestroy();
 
 		tiContext.dispatchOnDestroy();
+		TiModule.clearModuleSingletons();
 	}
 }
