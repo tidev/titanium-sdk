@@ -484,6 +484,11 @@ MAKE_SYSTEM_PROP(VIDEO_FINISH_REASON_USER_EXITED,MPMovieFinishReasonUserExited);
 	return [[TiMediaAudioSession sharedSession] volume];
 }
 
+-(NSNumber*)canRecord
+{
+	return NUMBOOL([[TiMediaAudioSession sharedSession] hasInput]);
+}
+
 -(BOOL)audioPlaying
 {
 	return [[TiMediaAudioSession sharedSession] isAudioPlaying];
@@ -1134,6 +1139,12 @@ if (![TiUtils isIOS4OrGreater]) { \
 	[self fireEvent:@"volume" withObject:event];
 }
 
+-(void)audioInputChanged:(NSNotification*)note
+{
+	NSDictionary* event = [NSDictionary dictionaryWithObject:[self canRecord] forKey:@"available"];
+	[self fireEvent:@"recordinginput" withObject:event];
+}
+
 #pragma mark Listener Management
 
 -(void)_listenerAdded:(NSString *)type count:(int)count
@@ -1148,6 +1159,11 @@ if (![TiUtils isIOS4OrGreater]) { \
 		[[TiMediaAudioSession sharedSession] startAudioSession];
 		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(audioVolumeChanged:) name:kTiMediaAudioSessionVolumeChange object:[TiMediaAudioSession sharedSession]];
 	}
+	else if (count == 1 && [type isEqualToString:@"recordinginput"])
+	{
+		[[TiMediaAudioSession sharedSession] startAudioSession];
+		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(audioInputChanged:) name:kTiMediaAudioSessionInputChange object:[TiMediaAudioSession sharedSession]];
+	}
 }
 
 -(void)_listenerRemoved:(NSString *)type count:(int)count
@@ -1161,6 +1177,11 @@ if (![TiUtils isIOS4OrGreater]) { \
 	{
 		[[TiMediaAudioSession sharedSession] stopAudioSession];
 		[[NSNotificationCenter defaultCenter] removeObserver:self name:kTiMediaAudioSessionVolumeChange object:[TiMediaAudioSession sharedSession]];
+	}
+	else if (count == 0 && [type isEqualToString:@"recordinginput"]) 
+	{
+		[[TiMediaAudioSession sharedSession] stopAudioSession];
+		[[NSNotificationCenter defaultCenter] removeObserver:self name:kTiMediaAudioSessionInputChange object:[TiMediaAudioSession sharedSession]];
 	}
 }
 
