@@ -12,6 +12,12 @@ var recording = Ti.Media.createAudioRecorder();
 recording.compression = Ti.Media.AUDIO_FORMAT_ULAW;
 recording.format = Ti.Media.AUDIO_FILEFORMAT_WAVE;
 
+Ti.Media.addEventListener('recordinginput', function(e) {
+	Ti.API.info('Input availability changed: '+e.available);
+	if (!e.available && recording.recording) {
+		b1.fireEvent('click', {});
+	}
+});
 
 var file;
 var timer;
@@ -117,6 +123,13 @@ b1.addEventListener('click', function()
 	}
 	else
 	{
+		if (!Ti.Media.canRecord) {
+			Ti.UI.createAlertDialog({
+				title:'Error!',
+				message:'No audio recording hardware is currently connected.'
+			}).show();
+			return;
+		}
 		b1.title = "Stop Recording";
 		recording.start();
 		b2.hide();
