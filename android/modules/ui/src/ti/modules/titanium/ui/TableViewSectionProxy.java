@@ -42,12 +42,18 @@ public class TableViewSectionProxy extends TiViewProxy
 	{
 		if (rowProxy != null) {
 			rows.add(rowProxy);
+			if (rowProxy.getParent() == null) {
+				rowProxy.setParent(this);
+			}
 		}
 	}
 
 	public void remove(TableViewRowProxy rowProxy) {
 		if (rowProxy != null) {
 			rows.remove(rowProxy);
+			if (rowProxy.getParent() == this) {
+				rowProxy.setParent(null);
+			}
 		}
 	}
 
