@@ -21,8 +21,10 @@ import android.text.InputType;
 import android.text.TextWatcher;
 import android.text.method.DialerKeyListener;
 import android.text.method.DigitsKeyListener;
+import android.text.method.KeyListener;
 import android.text.method.PasswordTransformationMethod;
 import android.text.method.TextKeyListener;
+import android.text.method.TransformationMethod;
 import android.text.method.TextKeyListener.Capitalize;
 import android.view.Gravity;
 import android.view.KeyEvent;
@@ -151,6 +153,12 @@ public class TiUIText extends TiUIView
 			tv.setText((String) newValue);
 		} else if (key.equals("color")) {
 			tv.setTextColor(TiConvert.toColor((String) newValue));
+		} else if (key.equals("passwordMask")) {
+			if (TiConvert.toBoolean(newValue) == true) {
+				tv.setTransformationMethod(PasswordTransformationMethod.getInstance());
+			} else {
+				tv.setTransformationMethod(null);
+			}
 		} else if (key.equals("hintText")) {
 			tv.setHint((String) newValue);
 		} else if (key.equals("textAlign") || key.equals("verticalAlign")) {
@@ -164,6 +172,14 @@ public class TiUIText extends TiUIView
 			}
 			handleTextAlign(textAlign, verticalAlign);
 		} else if (key.equals("autocapitalization")) {
+			// TODO Missing
+			if (TiConvert.toBoolean(newValue)==true) {
+				// TODO: This probably needs the capitalisation default to be set
+				tv.setKeyListener(TextKeyListener.getInstance(false,Capitalize.SENTENCES));				
+			} else {
+				// Reset it
+				tv.setKeyListener(TextKeyListener.getInstance());				
+			}
 		} else if (key.equals("keyboardType") || (key.equals("autocorrect"))) {
 			TiDict d = proxy.getDynamicProperties();
 			boolean autocorrect = true;
