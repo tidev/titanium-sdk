@@ -29,8 +29,12 @@ extern NSString * const TI_APPLICATION_ID;
 #ifdef TARGET_IPHONE_SIMULATOR
 	if (TI_APPLICATION_RESOURCE_DIR!=nil && [TI_APPLICATION_RESOURCE_DIR isEqualToString:@""]==NO)
 	{
-		// we use our app resource directory
-		path = TI_APPLICATION_RESOURCE_DIR;
+		// if the .local file exists and we're in the simulator, then force load from resources bundle
+		if (![[NSFileManager defaultManager] fileExistsAtPath:[NSString stringWithFormat:@"%@/.local",[[NSBundle mainBundle] resourcePath]]])
+		{
+			// we use our app resource directory
+			path = TI_APPLICATION_RESOURCE_DIR;
+		}
 	}
 #endif
 	NSString *fullpath = [NSString stringWithFormat:@"%@/%@",path,fn];
