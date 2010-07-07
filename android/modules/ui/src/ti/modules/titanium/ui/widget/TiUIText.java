@@ -121,7 +121,7 @@ public class TiUIText extends TiUIView
 				textAlign = d.getString("textAlign");
 			}
 			if (d.containsKey("verticalAlign")) {
-				textAlign = d.getString("verticalAlign");
+				verticalAlign = d.getString("verticalAlign");
 			}
 			handleTextAlign(textAlign, verticalAlign);
 		}
@@ -254,18 +254,36 @@ public class TiUIText extends TiUIView
 			} else {
 				Log.w(LCAT, "Unsupported alignment: " + textAlign);
 			}
+		} else {
+			// Nothing has been set - let's set if something was set previously
+			// You can do this with shortcut syntax - but long term maint of code is easier if it's explicit
+			Log.w(LCAT, "No alignment set - old horiz align was: " + (tv.getGravity() & Gravity.HORIZONTAL_GRAVITY_MASK));
+			
+			if ((tv.getGravity() & Gravity.HORIZONTAL_GRAVITY_MASK) != Gravity.NO_GRAVITY) {
+				// Something was set before - so let's use it
+				align = tv.getGravity() & Gravity.HORIZONTAL_GRAVITY_MASK;
+			}
 		}
 
 		if (verticalAlign != null) {
-			if ("top".equals(textAlign)) {
+			if ("top".equals(verticalAlign)) {
 				valign = Gravity.TOP;
-			} else if ("middle".equals(textAlign)) {
+			} else if ("middle".equals(verticalAlign)) {
 				valign = Gravity.CENTER_VERTICAL;
-			} else if ("bottom".equals(textAlign)) {
-				valign = Gravity.BOTTOM;
+			} else if ("bottom".equals(verticalAlign)) {
+				valign = Gravity.BOTTOM; 
 			} else {
 				Log.w(LCAT, "Unsupported alignment: " + verticalAlign);
 			}
+		} else {
+			// Nothing has been set - let's set if something was set previously
+			// You can do this with shortcut syntax - but long term maint of code is easier if it's explicit
+			Log.w(LCAT, "No alignment set - old vert align was: " + (tv.getGravity() & Gravity.VERTICAL_GRAVITY_MASK));
+			
+			if ((tv.getGravity() & Gravity.VERTICAL_GRAVITY_MASK) != Gravity.NO_GRAVITY) {
+				// Something was set before - so let's use it
+				valign = tv.getGravity() & Gravity.VERTICAL_GRAVITY_MASK;
+			}			
 		}
 
 		tv.setGravity(valign | align);
