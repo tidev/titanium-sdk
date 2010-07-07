@@ -369,6 +369,10 @@ NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._listeners={
 	[[self webview] setScalesPageToFit:scaling];
 }
 
+#ifndef USE_BASE_URL
+#define USE_BASE_URL	1
+#endif
+
 -(void)setUrl_:(id)args
 {
 	RELEASE_TO_NIL(url);
@@ -400,6 +404,9 @@ NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._listeners={
 		NSString *textEncodingName = @"utf-8";
 		NSString *path = [url path];
 		NSError *error = nil;
+#if USE_BASE_URL
+		NSURL *baseURL = [[url retain] autorelease];
+#endif
 		
 		// first check to see if we're attempting to load a file from the 
 		// filesystem and if so, and it exists, use that 
@@ -491,7 +498,11 @@ NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._listeners={
 		if (html!=nil)
 		{
 			//Because local HTML may rely on JS that's stored in the app: schema, we must kee the url in the app: format.
+#if USE_BASE_URL
+			[self loadHTML:html encoding:encoding textEncodingName:textEncodingName mimeType:mimeType baseURL:baseURL];
+#else
 			[self loadHTML:html encoding:encoding textEncodingName:textEncodingName mimeType:mimeType baseURL:url];
+#endif
 		}
 		else 
 		{
