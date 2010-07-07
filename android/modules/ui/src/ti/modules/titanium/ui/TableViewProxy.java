@@ -250,6 +250,7 @@ public class TableViewProxy extends TiViewProxy
 			} else if (o instanceof TableViewSectionProxy) {
 				currentSection = (TableViewSectionProxy) o;
 				sections.add(currentSection);
+				currentSection.setParent(this);
 			}
 		}
 	}
