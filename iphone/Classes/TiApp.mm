@@ -20,9 +20,13 @@
 TiApp* sharedApp;
 
 extern NSString * const TI_APPLICATION_DEPLOYTYPE;
+extern NSString * const TI_APPLICATION_NAME;
+extern NSString * const TI_APPLICATION_VERSION;
+
 extern void UIColorFlushCache();
 
 #define SHUTDOWN_TIMEOUT_IN_SEC	10
+#define TIV @"TiVerify"
 
 //
 // thanks to: http://www.restoroot.com/Blog/2008/10/18/crash-reporter-for-iphone-applications/
@@ -238,6 +242,8 @@ void MyUncaughtExceptionHandler(NSException *exception)
 
 - (void)boot
 {
+	NSLog(@"[INFO] %@/%@ (%s)",TI_APPLICATION_NAME,TI_APPLICATION_VERSION,TI_VERSION_STR);
+	
 	sessionId = [[TiUtils createUUID] retain];
 
 #ifdef DEBUGGER_ENABLED
@@ -253,7 +259,7 @@ void MyUncaughtExceptionHandler(NSException *exception)
 #ifdef USE_TI_UIWEBVIEW
 	[xhrBridge boot:self url:nil preload:nil];
 #endif
-	
+
 	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardDidHide:) name:UIKeyboardDidHideNotification object:nil];
 	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardDidShow:) name:UIKeyboardDidShowNotification object:nil];
 	
@@ -266,12 +272,19 @@ void MyUncaughtExceptionHandler(NSException *exception)
 #endif
 }
 
+- (void)validator
+{
+	[[[NSClassFromString(TIV) alloc] init] autorelease];
+}
+
 - (void)booted:(id)bridge
 {
 	if ([bridge isKindOfClass:[KrollBridge class]])
 	{
 		NSLog(@"[DEBUG] application booted in %f ms", ([NSDate timeIntervalSinceReferenceDate]-started) * 1000);
 		fflush(stderr);
+		
+		[self performSelectorOnMainThread:@selector(validator) withObject:nil waitUntilDone:YES];
 	}
 }
 
