@@ -358,6 +358,7 @@ def main(args):
 		version_file = os.path.join(iphone_resources_dir,'.version')
 		force_rebuild = read_project_version(project_xcconfig)!=sdk_version or not os.path.exists(version_file)
 		infoplist = os.path.join(iphone_dir,'Info.plist')
+		githash = None
 
 		# write out the build log, useful for debugging
 		if not os.path.exists(build_out_dir): os.makedirs(build_out_dir)
@@ -379,6 +380,9 @@ def main(args):
 				o.write("   %s=%s\n" % (key,versions_txt[key]))
 			o.write("\n\n")
 			
+			if versions_txt.has_key('githash'): 
+				githash = versions_txt['githash']
+				
 			o.write("Script arguments:\n")
 			for arg in args:
 				o.write("   %s\n" % arg)
@@ -777,7 +781,7 @@ def main(args):
 				if ti.properties['guid']!=log_id or force_xcode:
 					log_id = ti.properties['guid']
 					f = open(version_file,'w+')
-					f.write("%s,%s,%s,%s" % (template_dir,log_id,lib_hash,iphone_version))
+					f.write("%s,%s,%s,%s" % (template_dir,log_id,lib_hash,githash))
 					f.close()
 
 				if command == 'simulator':
