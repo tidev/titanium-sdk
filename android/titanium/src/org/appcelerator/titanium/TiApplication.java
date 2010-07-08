@@ -136,12 +136,12 @@ public class TiApplication extends Application
 			needsEnrollEvent = analyticsModel.needsEnrollEvent();
 
 			if (needsEnrollEvent()) {
-				String deployType = appProperties.getString("ti.deploytype", "unknown");
+				String deployType = systemProperties.getString("ti.deploytype", "unknown");
 				postAnalyticsEvent(TiAnalyticsEventFactory.createAppEnrollEvent(this,deployType));
 			}
 
 			if (needsStartEvent()) {
-				String deployType = appProperties.getString("ti.deploytype", "unknown");
+				String deployType = systemProperties.getString("ti.deploytype", "unknown");
 
 				postAnalyticsEvent(TiAnalyticsEventFactory.createAppStartEvent(this, deployType));
 			}

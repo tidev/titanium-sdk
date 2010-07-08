@@ -36,7 +36,17 @@ def write_project_property(f,prop,val):
 		fx = open(f,'w')
 		fx.write("%s=%s\n"%(prop,val))
 		fx.close()
-		
+	
+def read_config(f):
+	props = {}
+	if os.path.exists(f):
+		contents = open(f).read()
+		for line in contents.splitlines(False):
+			if line[0:1]=='#': continue
+			(k,v) = line.split("=")
+			props[k]=v
+	return props
+			
 def read_project_property(f,prop):
 	if os.path.exists(f):
 		contents = open(f).read()
@@ -348,6 +358,7 @@ def main(args):
 		version_file = os.path.join(iphone_resources_dir,'.version')
 		force_rebuild = read_project_version(project_xcconfig)!=sdk_version or not os.path.exists(version_file)
 		infoplist = os.path.join(iphone_dir,'Info.plist')
+		githash = None
 
 		# write out the build log, useful for debugging
 		if not os.path.exists(build_out_dir): os.makedirs(build_out_dir)
@@ -361,6 +372,17 @@ def main(args):
 			o.write("and aid in debugging. Please attach this log to any issue that you report.\n")
 			o.write("%s\n\n" % ("="*80))
 			o.write("Starting build at %s\n\n" % buildtime.strftime("%m/%d/%y %H:%M"))
+			
+			# write out the build versions info
+			versions_txt = read_config(os.path.join(template_dir,'..','version.txt'))
+			o.write("Build details:\n\n")
+			for key in versions_txt:
+				o.write("   %s=%s\n" % (key,versions_txt[key]))
+			o.write("\n\n")
+			
+			if versions_txt.has_key('githash'): 
+				githash = versions_txt['githash']
+				
 			o.write("Script arguments:\n")
 			for arg in args:
 				o.write("   %s\n" % arg)
@@ -759,7 +781,7 @@ def main(args):
 				if ti.properties['guid']!=log_id or force_xcode:
 					log_id = ti.properties['guid']
 					f = open(version_file,'w+')
-					f.write("%s,%s,%s,%s" % (template_dir,log_id,lib_hash,iphone_version))
+					f.write("%s,%s,%s,%s" % (template_dir,log_id,lib_hash,githash))
 					f.close()
 
 				if command == 'simulator':

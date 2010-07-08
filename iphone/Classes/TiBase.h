@@ -432,7 +432,7 @@ extern NSString * const kTiResumeNotification;
 extern NSString * const kTiAnalyticsNotification;
 extern NSString * const kTiRemoteDeviceUUIDNotification;
 extern NSString * const kTiGestureShakeNotification;
-
+extern NSString * const kTiRemoteControlNotification;
 
 #ifndef __IPHONE_3_2
 #define __IPHONE_3_2 30200

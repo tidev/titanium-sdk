@@ -36,8 +36,9 @@ public class TiResultSetProxy extends TiProxy
 		}
 	}
 
-	public void close() {
-		if (!rs.isClosed()) {
+	public void close() 
+	{
+		if (rs != null && !rs.isClosed()) {
 			if (DBG) {
 				Log.d(LCAT, "Closing database cursor");
 			}
@@ -48,68 +49,93 @@ public class TiResultSetProxy extends TiProxy
 
 	}
 
-	public String field(int index) {
+	public String field(int index) 
+	{
 		return getField(index);
 	}
 
-	public String getField(int index) {
+	public String getField(int index) 
+	{
 		String result = null;
-		try {
-			result = rs.getString(index);
-		} catch (Exception e) {
-			String msg = "No field at index " + index + ". msg=" + e.getMessage();
-			Log.e(LCAT, msg, e);
+		
+		if (rs != null) {
+			try {
+				result = rs.getString(index);
+			} catch (Exception e) {
+				String msg = "No field at index " + index + ". msg=" + e.getMessage();
+				Log.e(LCAT, msg, e);
+			}
 		}
 
 		return result;
 	}
 
-	public String fieldByName(String fieldName) {
+	public String fieldByName(String fieldName) 
+	{
 		return getFieldByName(fieldName);
 	}
 
-	public String getFieldByName(String fieldName) {
+	public String getFieldByName(String fieldName) 
+	{
 		int index = 0;
 		String result = "0";
-		try {
-			Integer ndx = columnNames.get(fieldName.toLowerCase());
-			if (ndx != null) {
-				index = ndx;
-				result = rs.getString(index);
+		if (rs != null) {
+			try {
+				Integer ndx = columnNames.get(fieldName.toLowerCase());
+				if (ndx != null) {
+					index = ndx;
+					result = rs.getString(index);
+				}
+			} catch (Exception e) {
+				String msg = "Field name " + fieldName + " not found. msg=" + e.getMessage();
+				Log.e(LCAT, msg);
 			}
-		} catch (Exception e) {
-			String msg = "Field name " + fieldName + " not found. msg=" + e.getMessage();
-			Log.e(LCAT, msg);
 		}
+		
 		return result;
 	}
 
-	public int getFieldCount() {
-		try {
-			return rs.getColumnCount();
-		} catch (Exception e) {
-			Log.e(LCAT, "No fields");
-			return 0;
+	public int getFieldCount() 
+	{
+		if (rs != null) {
+			try {
+				return rs.getColumnCount();
+			} catch (Exception e) {
+				Log.e(LCAT, "No fields");
+			}
 		}
+		
+		return 0;
+
 	}
 
-	public String fieldName(int index) {
+	public String fieldName(int index) 
+	{
 		return getFieldName(index);
 	}
-	public String getFieldName(int index) {
-		try {
-			return rs.getColumnName(index);
-		} catch (Exception e) {
-			Log.e(LCAT, "No column at index: " + index);
-			return null;
+	public String getFieldName(int index) 
+	{
+		if (rs != null) {
+			try {
+				return rs.getColumnName(index);
+			} catch (Exception e) {
+				Log.e(LCAT, "No column at index: " + index);
+			}
 		}
+		return null;
 	}
 
-	public int getRowCount() {
-		return rs.getCount();
+	public int getRowCount() 
+	{
+		if (rs != null) {
+			return rs.getCount();
+		}
+		
+		return 0;
 	}
 
-	public boolean isValidRow() {
+	public boolean isValidRow() 
+	{
 		boolean valid = false;
 		if (rs != null && !rs.isClosed() && !rs.isAfterLast()) {
 			valid = true;
@@ -117,7 +143,8 @@ public class TiResultSetProxy extends TiProxy
 		return valid;
 	}
 
-	public void next() {
+	public void next() 
+	{
 		if(isValidRow()) {
 			rs.moveToNext();
 		} else {

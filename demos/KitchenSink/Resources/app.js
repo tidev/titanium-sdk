@@ -115,7 +115,14 @@ var messageWin = Titanium.UI.createWindow({
 	width:250,
 	bottom:70,
 	borderRadius:10,
-	touchEnabled:false
+	touchEnabled:false,
+
+	orientationModes : [
+	Titanium.UI.PORTRAIT,
+	Titanium.UI.UPSIDE_PORTRAIT,
+	Titanium.UI.LANDSCAPE_LEFT,
+	Titanium.UI.LANDSCAPE_RIGHT,
+	]
 });
 var messageView = Titanium.UI.createView({
 	height:30,

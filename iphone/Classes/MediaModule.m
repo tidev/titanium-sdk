@@ -28,12 +28,13 @@
 
 // by default, we want to make the camera fullscreen and 
 // these transform values will scale it when we have our own overlay
-#define CAMERA_TRANSFORM_X 1
 
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0
-#define CAMERA_TRANSFORM_Y 1.23
+	#define CAMERA_TRANSFORM_Y 1.23
+	#define CAMERA_TRANSFORM_X 1
 #else
-#define CAMERA_TRANSFORM_Y 1.12412
+	#define CAMERA_TRANSFORM_X 1.2
+	#define CAMERA_TRANSFORM_Y 1.12412
 #endif
 
 enum  
@@ -318,10 +319,8 @@ enum
 		}
 		else if (cameraView!=nil)
 		{
-//#if __IPHONE_OS_VERSION_MAX_ALLOWED < __IPHONE_4_0
 			// we use our own fullscreen transform if the developer didn't supply one
 			picker.cameraViewTransform = CGAffineTransformScale(picker.cameraViewTransform, CAMERA_TRANSFORM_X, CAMERA_TRANSFORM_Y);
-//#endif
 		}
 	}
 	
@@ -485,6 +484,11 @@ MAKE_SYSTEM_PROP(VIDEO_FINISH_REASON_USER_EXITED,MPMovieFinishReasonUserExited);
 	return [[TiMediaAudioSession sharedSession] volume];
 }
 
+-(NSNumber*)canRecord
+{
+	return NUMBOOL([[TiMediaAudioSession sharedSession] hasInput]);
+}
+
 -(BOOL)audioPlaying
 {
 	return [[TiMediaAudioSession sharedSession] isAudioPlaying];
@@ -513,9 +517,17 @@ MAKE_SYSTEM_PROP(VIDEO_FINISH_REASON_USER_EXITED,MPMovieFinishReasonUserExited);
 	return albumSourceTypes==nil ? [NSArray arrayWithObject:(NSString*)kUTTypeImage] : albumSourceTypes;
 }
 
+#define ONLY_IN_IOS4_OR_GREATER(method,retval) \
+if (![TiUtils isIOS4OrGreater]) { \
+	NSLog(@"" #method " only available in iOS 4 and later");\
+	return retval;\
+}
+
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0
 -(NSArray*)availableCameras
 {
+	ONLY_IN_IOS4_OR_GREATER(availableCameras, nil)
+	
 	NSMutableArray* types = [NSMutableArray arrayWithCapacity:2];
 	if ([UIImagePickerController isCameraDeviceAvailable:UIImagePickerControllerCameraDeviceFront])
 	{
@@ -530,6 +542,8 @@ MAKE_SYSTEM_PROP(VIDEO_FINISH_REASON_USER_EXITED,MPMovieFinishReasonUserExited);
 
 -(NSArray*)availableCameraFlashModes
 {
+	ONLY_IN_IOS4_OR_GREATER(availableCameraFlashModes,nil)
+	
 	NSMutableArray* modes = [NSMutableArray arrayWithCapacity:3];
 	if ([UIImagePickerController isFlashAvailableForCameraDevice:UIImagePickerControllerCameraFlashModeOff])
 	{
@@ -544,19 +558,23 @@ MAKE_SYSTEM_PROP(VIDEO_FINISH_REASON_USER_EXITED,MPMovieFinishReasonUserExited);
 		[modes addObject:NUMINT(UIImagePickerControllerCameraFlashModeOn)];
 	}
 	return modes;
-} 
+}
 
 -(id)camera 
 {
+	ONLY_IN_IOS4_OR_GREATER(camera,nil)
+	
 	if (picker!=nil)
-	{ 
+	{
 		return NUMINT([picker cameraDevice]);
 	}
-	return NUMINT(UIImagePickerControllerCameraDeviceFront);
+	return NUMINT(UIImagePickerControllerCameraDeviceRear);
 }
 
 -(id)cameraFlashMode
 {
+	ONLY_IN_IOS4_OR_GREATER(camera,nil)
+	
 	if (picker!=nil)
 	{
 		return NUMINT([picker cameraFlashMode]);
@@ -566,6 +584,9 @@ MAKE_SYSTEM_PROP(VIDEO_FINISH_REASON_USER_EXITED,MPMovieFinishReasonUserExited);
 
 -(void)setCameraFlashMode:(id)args
 {
+	// Return nothing
+	ONLY_IN_IOS4_OR_GREATER(setCameraFlashMode, )
+	
 	ENSURE_UI_THREAD(setCameraFlashMode,args);
 	ENSURE_SINGLE_ARG(args,NSNumber);
 	
@@ -577,6 +598,9 @@ MAKE_SYSTEM_PROP(VIDEO_FINISH_REASON_USER_EXITED,MPMovieFinishReasonUserExited);
 
 -(void)switchCamera:(id)args
 {
+	// Return nothing
+	ONLY_IN_IOS4_OR_GREATER(switchCamera, )
+	
 	ENSURE_UI_THREAD(switchCamera,args);
 	ENSURE_SINGLE_ARG(args,NSNumber);
 	
@@ -590,6 +614,9 @@ MAKE_SYSTEM_PROP(VIDEO_FINISH_REASON_USER_EXITED,MPMovieFinishReasonUserExited);
 
 -(void)startVideoCapture:(id)args
 { 
+	// Return nothing
+	ONLY_IN_IOS4_OR_GREATER(startVideoCapture, )
+	
 	ENSURE_UI_THREAD(startVideoCapture,args);
 	// must have a picker, doh
 	if (picker==nil)
@@ -601,6 +628,8 @@ MAKE_SYSTEM_PROP(VIDEO_FINISH_REASON_USER_EXITED,MPMovieFinishReasonUserExited);
 
 -(void)stopVideoCapture:(id)args
 {
+	ONLY_IN_IOS4_OR_GREATER(stopVideoCapture, )
+	
 	ENSURE_UI_THREAD(stopVideoCapture,args);
 	// must have a picker, doh
 	if (picker!=nil)
@@ -611,6 +640,8 @@ MAKE_SYSTEM_PROP(VIDEO_FINISH_REASON_USER_EXITED,MPMovieFinishReasonUserExited);
 
 -(void)startVideoEditing:(id)args
 {
+	ONLY_IN_IOS4_OR_GREATER(startVideoEditing, )
+	
 	ENSURE_UI_THREAD(startVideoEditing,args);
 	ENSURE_SINGLE_ARG_OR_NIL(args,NSDictionary);
 
@@ -668,6 +699,8 @@ MAKE_SYSTEM_PROP(VIDEO_FINISH_REASON_USER_EXITED,MPMovieFinishReasonUserExited);
 
 -(void)stopVideoEditing:(id)args
 {
+	ONLY_IN_IOS4_OR_GREATER(stopVideoEditing, )
+	
 	ENSURE_UI_THREAD(stopVideoEditing,args);
 	ENSURE_SINGLE_ARG_OR_NIL(args,NSDictionary);
 	
@@ -912,7 +945,7 @@ MAKE_SYSTEM_PROP(VIDEO_FINISH_REASON_USER_EXITED,MPMovieFinishReasonUserExited);
 			return appMusicPlayer;
 		}
 		appMusicPlayer = [[TiMediaMusicPlayer alloc] _initWithPageContext:[self pageContext] player:[MPMusicPlayerController applicationMusicPlayer]];
-	}
+	} 
 	return appMusicPlayer;
 }
 
@@ -1106,6 +1139,12 @@ MAKE_SYSTEM_PROP(VIDEO_FINISH_REASON_USER_EXITED,MPMovieFinishReasonUserExited);
 	[self fireEvent:@"volume" withObject:event];
 }
 
+-(void)audioInputChanged:(NSNotification*)note
+{
+	NSDictionary* event = [NSDictionary dictionaryWithObject:[self canRecord] forKey:@"available"];
+	[self fireEvent:@"recordinginput" withObject:event];
+}
+
 #pragma mark Listener Management
 
 -(void)_listenerAdded:(NSString *)type count:(int)count
@@ -1119,6 +1158,11 @@ MAKE_SYSTEM_PROP(VIDEO_FINISH_REASON_USER_EXITED,MPMovieFinishReasonUserExited);
 	{
 		[[TiMediaAudioSession sharedSession] startAudioSession];
 		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(audioVolumeChanged:) name:kTiMediaAudioSessionVolumeChange object:[TiMediaAudioSession sharedSession]];
+	}
+	else if (count == 1 && [type isEqualToString:@"recordinginput"])
+	{
+		[[TiMediaAudioSession sharedSession] startAudioSession];
+		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(audioInputChanged:) name:kTiMediaAudioSessionInputChange object:[TiMediaAudioSession sharedSession]];
 	}
 }
 
@@ -1134,9 +1178,15 @@ MAKE_SYSTEM_PROP(VIDEO_FINISH_REASON_USER_EXITED,MPMovieFinishReasonUserExited);
 		[[TiMediaAudioSession sharedSession] stopAudioSession];
 		[[NSNotificationCenter defaultCenter] removeObserver:self name:kTiMediaAudioSessionVolumeChange object:[TiMediaAudioSession sharedSession]];
 	}
+	else if (count == 0 && [type isEqualToString:@"recordinginput"]) 
+	{
+		[[TiMediaAudioSession sharedSession] stopAudioSession];
+		[[NSNotificationCenter defaultCenter] removeObserver:self name:kTiMediaAudioSessionInputChange object:[TiMediaAudioSession sharedSession]];
+	}
 }
 
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0
+// Callbacks for iOS 4.0; will never be called in earlier iOSes so don't need the +[TiUtils isIOS4OrGreater] guard.
 
 - (void)videoEditorController:(UIVideoEditorController *)editor_ didSaveEditedVideoToPath:(NSString *)editedVideoPath
 {

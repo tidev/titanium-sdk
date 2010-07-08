@@ -12,7 +12,13 @@ if (Titanium.Platform.name == 'iPhone OS')
 {
 	data.push({title:'Record', hasChild:true, test:'../examples/sound_record.js'});
 	data.push({title:'Audio Session Mode', hasChild:true, test:'../examples/sound_session_mode.js'});
-
+	
+	Ti.include("version.js");
+	
+	if (isiOS4Plus())
+	{
+		data.push({title:'Background Audio', hasChild:true, test:'../examples/sound_bg.js'});
+	}
 }
 
 // create table view

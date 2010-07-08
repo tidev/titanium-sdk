@@ -425,13 +425,15 @@
 	if (view!=nil)
 	{
 		[self viewWillDetach];
+		// hold the view during detachment
+		[[view retain] autorelease];
 		view.proxy = nil;
-		[view removeFromSuperview];
 		if (self.modelDelegate!=nil && [self.modelDelegate respondsToSelector:@selector(detachProxy)])
 		{
 			[self.modelDelegate detachProxy];
 		}
 		self.modelDelegate = nil;
+		[view removeFromSuperview];
 		RELEASE_TO_NIL(view);
 		[self viewDidDetach];
 	}

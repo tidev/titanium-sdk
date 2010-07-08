@@ -16,14 +16,25 @@ if (parseFloat(Titanium.Platform.version) >= 3.2)
 	win.add(activeMovie);
 }
 
+var windowClosed = false;
+
 activeMovie.addEventListener('complete',function()
 {
-	Titanium.UI.createAlertDialog({title:'Movie', message:'Completed!'}).show();
+	if (!windowClosed)
+	{
+		Titanium.UI.createAlertDialog({title:'Movie', message:'Completed!'}).show();
+	}
 	win.close();
 });
 
 activeMovie.play();
 
-win.addEventListener('close', function() {
-	activeMovie.stop();
+win.addEventListener('close', function() 
+{
+	if (!windowClosed)
+	{
+		windowClosed = true;
+		alert("Window closed");
+		activeMovie.stop();
+	}
 });

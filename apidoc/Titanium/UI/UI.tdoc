@@ -115,6 +115,8 @@ BLEND_MODE_XOR[int]: image mode constant
 BLEND_MODE_PLUS_DARKER[int]: image mode constant
 BLEND_MODE_PLUS_LIGHTER[int]: image mode constant
 
+NOTIFICATION_DURATION_LONG[int]: Duration of the notification
+NOTIFICATION_DURATION_SHORT[int]: Duration of the notification
 
 - notes
 

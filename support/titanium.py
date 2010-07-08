@@ -3,7 +3,7 @@
 #
 # Titanium SDK script
 #
-import os, sys, subprocess, types, re
+import os, sys, subprocess, types, re, uuid
 from tiapp import *
 
 template_dir = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
@@ -101,6 +101,7 @@ def create_iphone_project(project_dir,osname,args):
 	args = [script,name,appid,project_dir,osname]
 	fork(args,True)
 	print "Created %s application project" % osname
+	return os.path.join(project_dir,name)
 	
 def create_iphone_module(project_dir,osname,args):
 	script = os.path.join(template_dir,'module','module.py')
@@ -110,6 +111,7 @@ def create_iphone_module(project_dir,osname,args):
 	args = [script,'--name',name,'--id',appid,'--directory',project_dir,'--platform',osname]
 	fork(args,False)
 	print "Created %s module project" % osname
+	return os.path.join(project_dir,name)
 
 def create_android_project(project_dir,osname,args):
 	script = os.path.join(template_dir,'project.py')
@@ -120,6 +122,7 @@ def create_android_project(project_dir,osname,args):
 	args = [script,name,appid,project_dir,osname,android_sdk]
 	fork(args,True)
 	print "Created %s application project" % osname
+	return os.path.join(project_dir,name)
 
 def create_android_module(project_dir,osname,args):
 	die("android modules aren't supported in this release")
@@ -131,20 +134,21 @@ def create_android_module(project_dir,osname,args):
 	args = [script,'--name',name,appid,'--directory',project_dir,'--platform',osname,'--sdk',android_sdk]
 	fork(args,True)
 	print "Created %s module project" % osname
+	return os.path.join(project_dir,name)
 
 def create_mobile_project(osname,project_dir,args):
 	if is_ios(osname):
-		create_iphone_project(project_dir,osname,args)
+		return create_iphone_project(project_dir,osname,args)
 	elif osname == 'android':
-		create_android_project(project_dir,osname,args)
+		return create_android_project(project_dir,osname,args)
 	else:
 		die("Unknown platform: %s" % osname)
 
 def create_module_project(osname,project_dir,args):
 	if is_ios(osname):
-		create_iphone_module(project_dir,osname,args)
+		return create_iphone_module(project_dir,osname,args)
 	elif osname == 'android':
-		create_android_module(project_dir,osname,args)
+		return create_android_module(project_dir,osname,args)
 	else:
 		die("Unknown platform: %s" % osname)
 	
@@ -157,21 +161,33 @@ def create(args):
 	project_dir = get_required(args,'dir')
 	platform = get_required(args,'platform')
 	atype = get_optional(args,'type','project')
+	dir = None
 	if type(platform)==types.ListType:
 		for osname in platform:
 			if atype == 'project':
-				create_mobile_project(osname,project_dir,args)
+				dir = create_mobile_project(osname,project_dir,args)
 			elif atype == 'module':
-				create_module_project(osname,project_dir,args)
+				dir = create_module_project(osname,project_dir,args)
 			else:
 				die("Unknown type: %s" % atype)
 	else:
 		if atype == 'project':
-			create_mobile_project(platform,project_dir,args)
+			dir = create_mobile_project(platform,project_dir,args)
 		elif atype == 'module':
-			create_module_project(platform,project_dir,args)
+			dir = create_module_project(platform,project_dir,args)
 		else:
 			die("Unknown type: %s" % atype)
+		
+		# we need to generate a GUID since Ti Developer does this currently
+		tiapp = os.path.join(dir,'tiapp.xml')
+		if os.path.exists(tiapp):
+			guid = str(uuid.uuid4())
+			xml = open(tiapp).read()
+			xml = xml.replace('<guid></guid>','<guid>%s</guid>' % guid)
+			fout = open(tiapp,'w')
+			fout.write(xml)
+			fout.close()
+			
 		
 def build(args):
 	print args
@@ -264,10 +280,10 @@ def help(args=[],suppress_banner=False):
 		print "commands:"
 		print
 		print "  create      - create a project"
-		print "  build       - build/compile project"
+#		print "  build       - build/compile project"
 		print "  run         - run an existing project"
-		print "  install     - install a project"
-		print "  package     - package a project for distribution"
+#		print "  install     - install a project"
+#		print "  package     - package a project for distribution"
 		print "  help        - get help"
 	else:
 		cmd = args[0]
@@ -275,7 +291,7 @@ def help(args=[],suppress_banner=False):
 			print "Usage: %s create [--platform=p] [--type=t] [--dir=d] [--name=n] [--id=i] [--ver=v]" % os.path.basename(sys.argv[0])
 			print 
 			print "  --platform=p1,p2    platform: iphone, ipad, android, blackberry, etc."
-			print "  --type=t            type of project: mobile, module, template"
+			print "  --type=t            type of project: project, module, template"
 			print "  --dir=d             directory to create the new project"
 			print "  --name=n            project name"
 			print "  --id=i              project id"

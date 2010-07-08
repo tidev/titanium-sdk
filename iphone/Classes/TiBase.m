@@ -39,6 +39,7 @@ NSString * const kTiResumeNotification = @"TiResume";
 NSString * const kTiAnalyticsNotification = @"TiAnalytics";
 NSString * const kTiRemoteDeviceUUIDNotification = @"TiDeviceUUID";
 NSString * const kTiGestureShakeNotification = @"TiGestureShake";
+NSString * const kTiRemoteControlNotification = @"TiRemoteControl";
 
 
 

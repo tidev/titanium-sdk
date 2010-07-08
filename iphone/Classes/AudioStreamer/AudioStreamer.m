@@ -824,10 +824,6 @@ cleanup:
 		pthread_mutex_destroy(&queueBuffersMutex);
 		pthread_cond_destroy(&queueBufferReadyCondition);
 
-#ifdef TARGET_OS_IPHONE			
-		AudioSessionSetActive(false);
-#endif
-
 		bytesFilled = 0;
 		packetsFilled = 0;
 		seekTime = 0;

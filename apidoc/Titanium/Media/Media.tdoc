@@ -39,7 +39,6 @@ hideMusicLibrary: hide the music library.  This must be called after calling `sh
 startMicrophoneMonitor: start the monitoring of microphone sound level
 stopMicrophoneMonitor: stop the monitoring of microphone sound level
 
-
 - method : isMediaTypeSupported, boolean
 
 media[string]: media type as a string of either `camera`, `photo` or `photogallery`.
@@ -125,6 +124,7 @@ AUDIO_FILEFORMAT_AMR[int]: audio file format AMR
 
 volume[float]: the current volume of the playback device
 audioPlaying[boolean]: returns true if the device is playing audio
+canRecord[boolean]: returns true if the device has recording input device available
 audioLineType[int]: returns the line type constant for the current line type
 availableCameraMediaTypes[array]: return an array of media type constants supported for the camera
 availablePhotoMediaTypes[array]: return an array of media type constants supported for the photo
@@ -214,12 +214,15 @@ VIDEO_FINISH_REASON_USER_EXITED[int]: the video playback ended by user action (s
 
 linechange: fired when a audio line type change is detected
 volume: fired when the volume output changes
+recordinginput: fired when availablity of recording input changes
 
 - event : volume
 
 volume: float of the new volume in dB
 
+- event : recordinginput
 
+available: bool indicating availability of recording device
 
 
 

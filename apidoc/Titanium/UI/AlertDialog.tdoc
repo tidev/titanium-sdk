@@ -32,6 +32,7 @@ cancel[int]: an index to indicate which button should be the cancel button.
 - methods
 
 show: cause the dialog to become visible
+hide: cause the dialog to become hidden
 
 - events
 
@@ -66,6 +67,7 @@ alert("this is a message");
 
 Note: you should be careful not to call alert more than once while a pending alert is visible.
 
+On iOS 4, alert dialogs will automatically be cancelled upon application suspend.
 
 
 

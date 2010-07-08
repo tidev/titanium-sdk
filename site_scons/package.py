@@ -3,7 +3,7 @@
 # zip up the titanium mobile SDKs into suitable distribution formats
 #
 import os, types, glob, shutil, sys, platform
-import zipfile, datetime
+import zipfile, datetime, subprocess
 
 if platform.system() == 'Darwin':
 	import importresolver
@@ -106,10 +106,24 @@ def zip_iphone_ipad(zf,basepath,platform,version):
 		if os.path.isfile(os.path.join(tp_headers_dir,f)) and os.path.splitext(f)[1]=='.h':
 			 zf.write(os.path.join(tp_headers_dir,f),'%s/iphone/include/TiCore/%s' % (basepath,f))
 	
+	# get the githash for the build so we can always pull this build from a specific
+	# commit
+	p = subprocess.Popen(["git","show","--abbrev-commit"],stderr=subprocess.PIPE, stdout=subprocess.PIPE)
+	githash = p.communicate()[0][8:].split('\n')[0]
+	
 	subs = {
 		"__VERSION__":version,
-		"__TIMESTAMP__":ts
+		"__TIMESTAMP__":ts,
+		"__GITHASH__": githash
 	}
+	
+	version_txt = """version=%s
+timestamp=%s
+githash=%s
+""" % (version,ts,githash)
+
+	zf.writestr('%s/version.txt' % basepath,version_txt)
+	
 	# xcode_templates_dir =  os.path.join(top_dir,'iphone','templates','xcode')
 	# zip_dir(zf,xcode_templates_dir,basepath+'/iphone/xcode/templates',subs)
 	

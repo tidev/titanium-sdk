@@ -87,6 +87,8 @@ public class TiDatabaseProxy extends TiProxy
 					if (rs.isValidRow()) {
 						rs.next(); // Position on first row if we have data.
 					}
+				} else {
+					rs = new TiResultSetProxy(getTiContext(), null); // because iPhone does it this way.
 				}
 			} else {
 				if (args != null) {

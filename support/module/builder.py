@@ -3,7 +3,7 @@
 #
 # module builder script
 #
-import os,sys,shutil,tempfile,subprocess,traceback
+import os,sys,shutil,tempfile,subprocess,traceback,uuid
 from os.path import join, splitext, split, exists
 
 template_dir = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
@@ -77,6 +77,7 @@ def main(args):
 			script = os.path.join(template_dir,'..','project.py')
 			# create a temporary proj
 			run([script,name,moduleid,dir,platform])
+
 			# copy in our example source
 			copy_resources(os.path.join(project_dir,'example'),os.path.join(dir,name,'Resources'))
 			
@@ -86,6 +87,9 @@ def main(args):
 			tiappf = open(tiapp,'w')
 			idx = xml.find('</guid>')
 			xml = xml.replace('</guid>','</guid>\n<modules>\n<module version="%s">%s</module>\n</modules>\n' % (version,moduleid))
+			# generate a guid since this is currently done by developer
+			guid = str(uuid.uuid4())
+			xml = xml.replace('<guid></guid>','<guid>%s</guid>' % guid)
 			tiappf.write(xml)
 			tiappf.close()
 			
@@ -94,13 +98,21 @@ def main(args):
 			if platform == 'iphone' or platform == 'ipad' or platform == 'ios':
 				ios = True
 				buildfile = os.path.join(project_dir,'build','lib%s.a' % moduleid)
+				# copy our custom module xcconfig
+				module_config = os.path.join(project_dir,'module.xcconfig')
+				module_config_dir = os.path.join(dir,name,'modules','iphone')
+				if not os.path.exists(module_config_dir):
+					os.makedirs(module_config_dir)
+				module_target = os.path.join(dir,name,'modules','iphone','%s.xcconfig' % moduleid)
+				shutil.copyfile(module_config,module_target)
 			
 			# build the module
 			script = os.path.join(project_dir,'build.py')
 			run([script])
 			
 			module_dir = os.path.join(dir,name,'modules',platform)
-			os.makedirs(module_dir)
+			if not os.path.exists(module_dir): os.makedirs(module_dir)
+			
 			
 			if buildfile:
 				shutil.copy(buildfile,module_dir)

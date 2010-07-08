@@ -15,10 +15,12 @@
 #import "TiDebugger.h"
 #import "ImageLoader.h"
 #import <QuartzCore/QuartzCore.h>
+#import <AVFoundation/AVFoundation.h>
 
 TiApp* sharedApp;
 
 extern NSString * const TI_APPLICATION_DEPLOYTYPE;
+extern void UIColorFlushCache();
 
 #define SHUTDOWN_TIMEOUT_IN_SEC	10
 
@@ -254,6 +256,14 @@ void MyUncaughtExceptionHandler(NSException *exception)
 	
 	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardDidHide:) name:UIKeyboardDidHideNotification object:nil];
 	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardDidShow:) name:UIKeyboardDidShowNotification object:nil];
+	
+	
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0
+	if ([TiUtils isIOS4OrGreater])
+	{
+		[[UIApplication sharedApplication] beginReceivingRemoteControlEvents];
+	}
+#endif
 }
 
 - (void)booted:(id)bridge
@@ -356,7 +366,7 @@ void MyUncaughtExceptionHandler(NSException *exception)
 
 - (void)applicationDidReceiveMemoryWarning:(UIApplication *)application
 {
-	//FIXME: UIColorFlushCache();
+	[Webcolor flushCache];
 	[kjsBridge gc];
 #ifdef USE_TI_UIWEBVIEW
 	[xhrBridge gc];
@@ -383,6 +393,10 @@ void MyUncaughtExceptionHandler(NSException *exception)
 	// an incoming call, for example, and then you'll get this message afterwards
 	// this is slightly different than enter foreground
 	[[NSNotificationCenter defaultCenter] postNotificationName:kTiResumeNotification object:self];
+}
+
+-(void)applicationDidEnterBackground:(UIApplication *)application
+{
 }
 
 -(void)applicationWillEnterForeground:(UIApplication *)application

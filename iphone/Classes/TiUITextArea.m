@@ -57,7 +57,7 @@
 
 -(void)setBackgroundColor_:(id)color
 {
-	[[self textWidgetView] setBackgroundColor:UIColorWebColorNamed(color)];
+	[[self textWidgetView] setBackgroundColor:[Webcolor webColorNamed:color]];
 }
 
 #pragma mark Public Method

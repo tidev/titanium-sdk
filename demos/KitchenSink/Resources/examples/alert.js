@@ -90,3 +90,50 @@ button3.addEventListener('click', function()
 win.add(button3);
 
 
+//
+//  Double alert
+//
+var button4 = Titanium.UI.createButton({
+	title:'Double Alert',
+	height:40,
+	width:200,
+	top:160
+});
+
+button4.addEventListener('click', function()
+{
+	// test firing 2 alerts in a row, should show the
+	// first and after you click OK, should then show the next
+	alert("You should see this first");
+	alert("Now you should see this one, assuming you dismissed the first alert");
+});
+
+win.add(button4);
+
+
+//
+//  Cancellable alert
+//
+var button5 = Titanium.UI.createButton({
+	title:'Cancel Alert',
+	height:40,
+	width:200,
+	top:160
+});
+
+button5.addEventListener('click', function()
+{
+	var a = Titanium.UI.createAlertDialog({
+		title:'Alert Test',
+		message:'You should see and it should hide automatically in about 2 seconds or when you suspend.'
+	});
+	a.show();
+	setTimeout(function()
+	{
+		a.hide();
+	},2000);
+});
+
+win.add(button5);
+
+

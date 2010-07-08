@@ -32,6 +32,19 @@ extern NSString * const TI_APPLICATION_RESOURCE_DIR;
 
 @implementation TiUtils
 
++(BOOL)isRetinaDisplay
+{
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0
+	if ([[UIScreen mainScreen] respondsToSelector:@selector(scale)] && 
+		[UIScreen mainScreen].scale > 1.0)
+	{
+		return YES;
+	}
+#endif	
+	return NO;
+}
+
+
 +(BOOL)isIOS4OrGreater
 {
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0
@@ -435,7 +448,7 @@ extern NSString * const TI_APPLICATION_RESOURCE_DIR;
 +(NSURL*)checkFor2XImage:(NSURL*)url
 {
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0
-	if ([url isFileURL] && [TiUtils isIPhone4])
+	if ([url isFileURL] && [TiUtils isRetinaDisplay])
 	{
 		NSString *path = [url path];
 		if ([path hasSuffix:@".png"] || [path hasSuffix:@".jpg"])

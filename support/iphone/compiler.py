@@ -4,7 +4,7 @@
 # Project Compiler
 #
 
-import os, sys, re, shutil, time, base64, run
+import os, sys, re, shutil, time, base64, run, sgmllib
 
 template_dir = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
 sys.path.append(os.path.join(template_dir,'../'))
@@ -53,6 +53,24 @@ MODULE_IMPL_HEADER = """#import "ApplicationMods.h"
 {
 	NSMutableArray *modules = [NSMutableArray array];
 """
+
+class HTMLParser(sgmllib.SGMLParser):
+
+    def parse(self, s):
+        self.feed(s)
+        self.close()
+
+    def __init__(self, verbose=0):
+        sgmllib.SGMLParser.__init__(self, verbose)
+        self.scripts = []
+
+    def start_script(self, attributes):
+        for name, value in attributes:
+            if name == "src":
+                self.scripts.append(value)
+
+    def get_scripts(self):
+        return self.scripts
 
 def read_module_properties(dir):
 	file = os.path.join(dir,'manifest')
@@ -179,7 +197,10 @@ class Compiler(object):
 					self.modules_metadata.append({'guid':tp_guid,'name':tp_module_name,'id':tp_module_id,'dir':tp_dir,'version':tp_version})
 					xcfile = os.path.join(module_root,tp_name,tp_version,"module.xcconfig")
 					if os.path.exists(xcfile):
-						xcconfig_c+="#include \"%s\"\n" % xcfile.replace('.xcconfig','')
+						xcconfig_c+="#include \"%s\"\n" % xcfile
+					xcfile = os.path.join(self.project_dir,'modules','iphone',"%s.xcconfig" % tp_name)
+					if os.path.exists(xcfile):
+						xcconfig_c+="#include \"%s\"\n" % xcfile
 					mods.write("	[modules addObject:[NSDictionary dictionaryWithObjectsAndKeys:@\"%s\",@\"name\",@\"%s\",@\"moduleid\",@\"%s\",@\"version\",nil]];\n" % (tp_module_name,tp_module_id,tp_version));
 				mods.write("	return modules;\n")	
 				mods.write("}\n")
@@ -293,33 +314,43 @@ class Compiler(object):
 			for symbol in ('Titanium','Ti'):
 				for sym in self.extract_tokens(symbol,line):
 					self.add_symbol(sym)
-		
+	
+	def process_html_files(self,data,source_root):
+		compile = []
+		if data.has_key('.js'):
+			for entry in data['.html']:
+				html_file = entry['from'] 
+				file_contents = open(os.path.expanduser(html_file)).read()
+				parser = HTMLParser()
+				parser.parse(file_contents)
+				# extract all our scripts that are dependencies and we 
+				# don't compile these
+				scripts = parser.get_scripts()
+				if len(scripts) > 0:
+					js_files = data['.js']
+					for script in scripts:
+						# if a remote script, ignore
+						if script.startswith('http:') or script.startswith('https:'):
+							continue
+						if script.startswith('app://'):
+							script = script[6:]
+						# build a file relative to the html file
+						fullpath = os.path.abspath(os.path.join(os.path.dirname(html_file),script))
+						# remove this script from being compiled
+						for f in js_files:
+							if f['from']==fullpath: 
+								# target it to be compiled
+								compile.append(f)
+								js_files.remove(f)
+								break
+		return compile
+				
 	@classmethod	
 	def make_function_from_file(cls,path,file,instance=None):
-		fp = os.path.splitext(path)
-		basename = fp[0].replace(' ','_').replace('/','_').replace('-','_').replace('.','_').replace('+','_')
-		ext = fp[1][1:]
-
-		filetype = ''
-		contents = ''
-
-		if ext=='html':
-			filetype = 'page'
-		elif ext=='css':
-			filetype = 'style'
-		elif ext=='js':
-			filetype = 'script'	
-
 		file_contents = open(os.path.expanduser(file)).read()
-
-		# minimize javascript, css files
-		if ext == 'js':
-			file_contents = jspacker.jsmin(file_contents)
-			if instance: instance.compile_js(file_contents)
-		elif ext == 'css':
-			packer = CSSPacker(file_contents)
-			file_contents = packer.pack()
-
+		file_contents = jspacker.jsmin(file_contents)
+		file_contents = file_contents.replace('Titanium.','Ti.')
+		if instance: instance.compile_js(file_contents)
 		data = str(file_contents).encode("hex")
 		method = "dataWithHexString(@\"%s\")" % data
 		return {'method':method,'path':path}
@@ -349,6 +380,7 @@ class Compiler(object):
 			
 		def add_compiled_resources(source,target):
 			print "[DEBUG] copy resources from %s to %s" % (source,target)
+			compiled_targets = {}
 			for root, dirs, files in os.walk(source):
 				for name in ignoreDirs:
 					if name in dirs:
@@ -363,19 +395,62 @@ class Compiler(object):
 					if not os.path.exists(to_directory):
 						os.makedirs(to_directory)
 					fp = os.path.splitext(file)
-					if len(fp)>1 and write_routing and fp[1] in ['.html','.js','.css']:
+					ext = fp[1]
+					if len(fp)>1 and write_routing and ext in ['.html','.js','.css']:
 						path = prefix + os.sep + file
 						path = path[1:]
-						print "[DEBUG] compiling: %s" % from_
-						metadata = Compiler.make_function_from_file(path,from_,self)
-						method = metadata['method']
-						eq = path.replace('.','_')
-						impf.write('         [map setObject:%s forKey:@"%s"];\n' % (method,eq))
+						entry = {'path':path,'from':from_,'to':to_}
+						if compiled_targets.has_key(ext):
+							compiled_targets[ext].append(entry)
+						else:
+							compiled_targets[ext]=[entry]
 					else:
 						# only copy if different filesize or doesn't exist
 						if not os.path.exists(to_) or os.path.getsize(from_)!=os.path.getsize(to_):
 							print "[DEBUG] copying: %s to %s" % (from_,to_)
 							shutil.copyfile(from_, to_)	
+		
+			if compiled_targets.has_key('.html'):
+				compiled = self.process_html_files(compiled_targets,source)
+				if len(compiled) > 0:
+					for c in compiled:
+						from_ = c['from']
+						to_ = c['to']
+						path = c['path']
+						print "[DEBUG] copying: %s to %s" % (from_,to_)
+						file_contents = open(from_).read()
+						file_contents = jspacker.jsmin(file_contents)
+						file_contents = file_contents.replace('Titanium.','Ti.')
+						to = open(to_,'w')
+						to.write(file_contents)
+						to.close()
+						
+			for ext in ('.css','.html'):
+				if compiled_targets.has_key(ext):
+					for css_file in compiled_targets[ext]:
+						from_ = css_file['from']
+						to_ = css_file['to']
+						print "[DEBUG] copying: %s to %s" % (from_,to_)
+						if path.endswith('.css'):
+							file_contents = open(from_).read()
+							packer = CSSPacker(file_contents)
+							file_contents = packer.pack()
+							to = open(to_,'w')
+							to.write(file_contents)
+							to.close()
+						else:
+							shutil.copyfile(from_, to_)	
+			
+			if compiled_targets.has_key('.js'):	
+				for js_file in compiled_targets['.js']:
+					path = js_file['path']
+					from_ = js_file['from']
+					to_ = js_file['to']
+					print "[DEBUG] compiling: %s" % from_
+					metadata = Compiler.make_function_from_file(path,from_,self)
+					method = metadata['method']
+					eq = path.replace('.','_')
+					impf.write('         [map setObject:%s forKey:@"%s"];\n' % (method,eq))
 		
 		# copy in any module assets
 		for metadata in self.modules_metadata:

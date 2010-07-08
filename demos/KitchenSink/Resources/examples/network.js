@@ -28,3 +28,4 @@ Titanium.Network.addEventListener('change', function(e)
 	var networkTypeName = e.networkTypeName;
 	label2.text = 'Change fired net type:' + type + ' online:' + online + ' name:'+networkTypeName;
 });
+
