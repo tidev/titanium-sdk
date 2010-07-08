@@ -135,6 +135,7 @@ githash=%s
 	
 	ticore_lib = os.path.join(top_dir,'iphone','lib')
 	zf.write(os.path.join(ticore_lib,'libTiCore.a'),'%s/%s/libTiCore.a'%(basepath,platform))
+	zf.write(os.path.join(ticore_lib,'libtiverify.a'),'%s/%s/libtiverify.a'%(basepath,platform))
 	
 	zip_dir(zf,osx_dir,basepath)
 	

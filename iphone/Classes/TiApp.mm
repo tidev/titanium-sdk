@@ -283,8 +283,9 @@ void MyUncaughtExceptionHandler(NSException *exception)
 	{
 		NSLog(@"[DEBUG] application booted in %f ms", ([NSDate timeIntervalSinceReferenceDate]-started) * 1000);
 		fflush(stderr);
-		
+#ifdef TI_USE_VALIDATE		
 		[self performSelectorOnMainThread:@selector(validator) withObject:nil waitUntilDone:YES];
+#endif		
 	}
 }
 
