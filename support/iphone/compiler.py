@@ -192,16 +192,19 @@ class Compiler(object):
 					tp_module_name = tp_props['name']
 					tp_module_id = tp_props['moduleid']
 					tp_guid = ''
+					tp_licensekey = ''
 					if tp_props.has_key('guid'):
 						tp_guid = tp_props['guid']
-					self.modules_metadata.append({'guid':tp_guid,'name':tp_module_name,'id':tp_module_id,'dir':tp_dir,'version':tp_version})
+					if tp_props.has_key('licensekey'):
+						tp_licensekey = tp_props['licensekey']
+					self.modules_metadata.append({'guid':tp_guid,'name':tp_module_name,'id':tp_module_id,'dir':tp_dir,'version':tp_version,'licensekey':tp_licensekey})
 					xcfile = os.path.join(module_root,tp_name,tp_version,"module.xcconfig")
 					if os.path.exists(xcfile):
 						xcconfig_c+="#include \"%s\"\n" % xcfile
 					xcfile = os.path.join(self.project_dir,'modules','iphone',"%s.xcconfig" % tp_name)
 					if os.path.exists(xcfile):
 						xcconfig_c+="#include \"%s\"\n" % xcfile
-					mods.write("	[modules addObject:[NSDictionary dictionaryWithObjectsAndKeys:@\"%s\",@\"name\",@\"%s\",@\"moduleid\",@\"%s\",@\"version\",nil]];\n" % (tp_module_name,tp_module_id,tp_version));
+					mods.write("	[modules addObject:[NSDictionary dictionaryWithObjectsAndKeys:@\"%s\",@\"name\",@\"%s\",@\"moduleid\",@\"%s\",@\"version\",@\"%s\",@\"guid\",@\"%s\",@\"licensekey\",nil]];\n" % (tp_module_name,tp_module_id,tp_version,tp_guid,tp_licensekey));
 				mods.write("	return modules;\n")	
 				mods.write("}\n")
 				mods.write(FOOTER)		

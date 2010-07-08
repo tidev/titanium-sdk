@@ -30,5 +30,5 @@ Titanium.Media.showCamera({
 		a.show();
 	},
 	saveToPhotoGallery:true,
-	allowImageEditing:true
+	allowEditing:true
 });
