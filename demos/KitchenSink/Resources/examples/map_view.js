@@ -68,7 +68,9 @@ var mapview = Titanium.Map.createView({
 	annotations:[atlanta,apple]
 });
 
-mapview.addAnnotation(atlanta);
+if (!isAndroid) {
+	mapview.addAnnotation(atlanta);
+}
 mapview.selectAnnotation(atlanta);
 win.add(mapview);
 
