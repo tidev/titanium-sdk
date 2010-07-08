@@ -53,4 +53,8 @@ if (Ti.Platform.name == 'android') {
 var l = Titanium.UI.createLabel({text:'Check Log for details', width:300, height:'auto', textAlign:'center'});
 win.add(l);
 
+// test to make sure we can still access compiled JS files
+var jsfile = Titanium.Filesystem.getFile(Titanium.Filesystem.resourcesDirectory,'app.js');
+Ti.API.info("app.js exists? " + f.exists())
+Ti.API.info("app.js size? " + f.size)
 
