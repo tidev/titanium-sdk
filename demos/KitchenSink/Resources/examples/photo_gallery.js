@@ -49,7 +49,7 @@ Titanium.Media.openPhotoGallery({
 	error:function(error)
 	{
 	},
-	allowImageEditing:true,
+	allowEditing:true,
 	popoverView:popoverView,
 	arrowDirection:arrowDirection,
 	mediaTypes:[Ti.Media.MEDIA_TYPE_VIDEO,Ti.Media.MEDIA_TYPE_PHOTO],

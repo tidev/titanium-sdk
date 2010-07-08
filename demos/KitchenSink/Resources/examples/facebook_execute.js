@@ -50,7 +50,7 @@ function uploadPhoto()
 		error:function(error)
 		{
 		},
-		allowImageEditing:true
+		allowEditing:true
 	});
 };
 
