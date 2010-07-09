@@ -541,7 +541,7 @@ def main(args):
 					log_id = lines[1]
 					if len(lines) > 2:
 						lib_hash = lines[2]
-						if iphone_version!=lines[3]:
+						if githash!=lines[3]:
 							force_rebuild = True
 					if lib_hash==None:
 						force_rebuild = True
@@ -565,7 +565,7 @@ def main(args):
 			
 			# if the lib doesn't exist, force a rebuild since it's a new build
 			if not os.path.exists(os.path.join(iphone_dir,'lib','libtiverify.a')):
-				force_rebuild=True
+				shutil.copy(os.path.join(template_dir,'libtiverify.a'),os.path.join(iphone_dir,'lib','libtiverify.a'))
 
 			if new_lib_hash!=lib_hash:
 				force_rebuild=True
