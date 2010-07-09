@@ -562,6 +562,10 @@ def main(args):
 			m.update(fd.read(1024)) # just read 1K, it's binary
 			new_lib_hash = m.hexdigest()
 			fd.close()
+			
+			# if the lib doesn't exist, force a rebuild since it's a new build
+			if not os.path.exists(os.path.join(iphone_dir,'lib','libtiverify.a')):
+				force_rebuild=True
 
 			if new_lib_hash!=lib_hash:
 				force_rebuild=True
