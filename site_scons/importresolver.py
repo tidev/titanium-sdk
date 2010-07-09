@@ -7,7 +7,8 @@
 # per file 
 #
 
-import os, sys, uuid, subprocess, shutil, re, json
+import simplejson as json
+import os, sys, uuid, subprocess, shutil, re 
 from os.path import join, splitext, split, exists
 
 
