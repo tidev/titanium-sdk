@@ -770,8 +770,8 @@ DEFINE_EXCEPTIONS
 			continue;
 		}
 	
-		id newValue = [newProxy valueForKey:thisKey];
-		id oldValue = [oldProxy valueForKey:thisKey];
+		id newValue = [newProxy valueForUndefinedKey:thisKey];
+		id oldValue = [oldProxy valueForUndefinedKey:thisKey];
 		if([newValue isEqual:oldValue])
 		{
 			continue;
