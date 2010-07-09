@@ -242,7 +242,7 @@ void MyUncaughtExceptionHandler(NSException *exception)
 
 - (void)boot
 {
-	NSLog(@"[INFO] %@/%@ (%s)",TI_APPLICATION_NAME,TI_APPLICATION_VERSION,TI_VERSION_STR);
+	NSLog(@"[INFO] %@/%@ (%s.__GITHASH__)",TI_APPLICATION_NAME,TI_APPLICATION_VERSION,TI_VERSION_STR);
 	
 	sessionId = [[TiUtils createUUID] retain];
 
@@ -283,9 +283,7 @@ void MyUncaughtExceptionHandler(NSException *exception)
 	{
 		NSLog(@"[DEBUG] application booted in %f ms", ([NSDate timeIntervalSinceReferenceDate]-started) * 1000);
 		fflush(stderr);
-#ifdef TI_USE_VALIDATE		
 		[self performSelectorOnMainThread:@selector(validator) withObject:nil waitUntilDone:YES];
-#endif		
 	}
 }
 
