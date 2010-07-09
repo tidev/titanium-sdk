@@ -35,8 +35,7 @@ activeMovie.add(movieLabel);
 // label click
 movieLabel.addEventListener('click',function()
 {
-	//movieLabel.text = "You clicked the video label. Sweet!";
-	activeMovie.stop();
+	movieLabel.text = "You clicked the video label. Sweet!";
 });
 
 activeMovie.addEventListener('load',function()
