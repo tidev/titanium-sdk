@@ -35,7 +35,8 @@ activeMovie.add(movieLabel);
 // label click
 movieLabel.addEventListener('click',function()
 {
-	movieLabel.text = "You clicked the video label. Sweet!";
+	//movieLabel.text = "You clicked the video label. Sweet!";
+	activeMovie.stop();
 });
 
 activeMovie.addEventListener('load',function()
@@ -57,8 +58,6 @@ activeMovie.addEventListener('complete',function()
 
 activeMovie.play();
 
-if (!android) {
-	win.addEventListener('close', function() {
-		activeMovie.stop();
-	});
-}
+win.addEventListener('close', function() {
+	activeMovie.stop();
+});
