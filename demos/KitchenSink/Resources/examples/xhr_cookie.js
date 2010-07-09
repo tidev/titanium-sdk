@@ -56,6 +56,11 @@ var gReader =
 		var requestUrl = 'https://www.google.com/accounts/ClientLogin?service=reader&Email=' + Username + '&Passwd=' + Password;
 		var MyRequest = Ti.Network.createHTTPClient(); 
 		MyRequest.open('GET', requestUrl);
+		MyRequest.onerror = function(e) {
+			Ti.API.info("Error: " + e.error);
+			label.text = "Error: " + e.error + "; (Http status " + this.status + ")";
+			navActInd.hide();
+		};
 		MyRequest.onload = function() 
 		{ 
 			try

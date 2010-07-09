@@ -1,4 +1,5 @@
 var win = Titanium.UI.currentWindow;
+var android = (Titanium.Platform.name == 'android');
 
 var activeMovie = Titanium.Media.createVideoPlayer({
 	contentURL:'../movie.mp4',
@@ -56,6 +57,8 @@ activeMovie.addEventListener('complete',function()
 
 activeMovie.play();
 
-win.addEventListener('close', function() {
-	activeMovie.stop();
-});
+if (!android) {
+	win.addEventListener('close', function() {
+		activeMovie.stop();
+	});
+}
