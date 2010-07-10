@@ -204,7 +204,6 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 #if PROXY_MEMORY_TRACK == 1
 		NSLog(@"INIT: %@ (%d)",self,[self hash]);
 #endif
-		modelDelegate = nil;
 		pageContext = nil;
 		executionContext = nil;
 		destroyLock = [[NSRecursiveLock alloc] init];
@@ -230,6 +229,12 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 		[self _configure];
 	}
 	return self;
+}
+
+-(void)setModelDelegate:(id <TiProxyDelegate>)md
+{
+	RELEASE_TO_NIL(modelDelegate);
+	modelDelegate = [md retain];
 }
 
 -(void)contextWasShutdown:(id<TiEvaluator>)context
@@ -400,8 +405,8 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 	RELEASE_TO_NIL(krollDescription);
 	RELEASE_TO_NIL(contextListeners);
 	RELEASE_TO_NIL(dynPropsLock);
+	RELEASE_TO_NIL(modelDelegate);
 	pageContext=nil;
-	modelDelegate=nil;
 	[destroyLock unlock];
 }
 
