@@ -57,8 +57,6 @@ activeMovie.addEventListener('complete',function()
 
 activeMovie.play();
 
-if (!android) {
-	win.addEventListener('close', function() {
-		activeMovie.stop();
-	});
-}
+win.addEventListener('close', function() {
+	activeMovie.stop();
+});

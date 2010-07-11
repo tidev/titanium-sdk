@@ -182,10 +182,6 @@ DEFINE_EXCEPTIONS
 
 -(void)dealloc
 {
-	if (proxy!=nil && proxy.modelDelegate==self)
-	{
-		proxy.modelDelegate = nil;
-	}
 	RELEASE_TO_NIL(transformMatrix);
 	RELEASE_TO_NIL(animation);
     RELEASE_TO_NIL(backgroundImage);
@@ -194,6 +190,18 @@ DEFINE_EXCEPTIONS
 	parent = nil;
 	touchDelegate = nil;
 	[super dealloc];
+}
+
+-(void)removeFromSuperview
+{
+	if ([NSThread isMainThread])
+	{
+		[super removeFromSuperview];
+	}
+	else 
+	{
+		[self performSelectorOnMainThread:@selector(removeFromSuperview) withObject:nil waitUntilDone:YES];
+	}
 }
 
 - (id) init
@@ -770,8 +778,8 @@ DEFINE_EXCEPTIONS
 			continue;
 		}
 	
-		id newValue = [newProxy valueForKey:thisKey];
-		id oldValue = [oldProxy valueForKey:thisKey];
+		id newValue = [newProxy valueForUndefinedKey:thisKey];
+		id oldValue = [oldProxy valueForUndefinedKey:thisKey];
 		if([newValue isEqual:oldValue])
 		{
 			continue;

@@ -80,7 +80,7 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 @property(readonly,nonatomic)			id<TiEvaluator> pageContext;
 @property(readonly,nonatomic)			id<TiEvaluator> executionContext;
 
-@property(nonatomic,assign,readwrite)	id<TiProxyDelegate> modelDelegate;
+@property(nonatomic,retain,readwrite)	id<TiProxyDelegate> modelDelegate;
 
 
 #pragma mark Private 

@@ -161,15 +161,22 @@ NSArray* pickerKeySequence;
 			for (id rowdata in data)
 			{
 				TiUIPickerRowProxy *row = [[TiUIPickerRowProxy alloc] _initWithPageContext:[self executionContext] args:[NSArray arrayWithObject:rowdata]];
+								
+				TiUIPickerColumnProxy *column = [self columnAt:0];
+				NSNumber* rowIndex = [column addRow:row];
 				
 				if (windowOpened) {
 					[row windowWillOpen];
 					[row windowDidOpen];
 				}
 				
-				TiUIPickerColumnProxy *column = [self columnAt:0];
-				NSNumber* rowIndex = [column addRow:row];
 				[row release];
+				
+				if ([self viewAttached])
+				{
+					TiUIPicker *picker = [self picker];
+					[picker performSelectorOnMainThread:@selector(reloadColumn:) withObject:column waitUntilDone:NO];
+				}
 				if ([TiUtils boolValue:[row valueForUndefinedKey:@"selected"] def:NO])
 				{
 					[[self view] performSelectorOnMainThread:@selector(selectRow:) withObject:[NSArray arrayWithObjects:NUMINT(0),rowIndex,nil] waitUntilDone:NO];

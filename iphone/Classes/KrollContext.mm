@@ -781,7 +781,7 @@ static TiValueRef CommonJSRequireCallback (TiContextRef jsContext, TiObjectRef j
 	// now we can notify listeners we're done
 	if (delegate!=nil && [delegate respondsToSelector:@selector(didStopNewContext:)])
 	{
-		[(NSObject*)delegate performSelectorOnMainThread:@selector(didStopNewContext:) withObject:self waitUntilDone:YES];
+		[(NSObject*)delegate performSelector:@selector(didStopNewContext:) withObject:self];
 	}
 
 #if CONTEXT_MEMORY_DEBUG==1
