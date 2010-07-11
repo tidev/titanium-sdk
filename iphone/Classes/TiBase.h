@@ -29,7 +29,24 @@
 	#define KMETHOD_DEBUG MEMORY_DEBUG
 #endif
 
+// in simulator we redefine to format for Titanium Developer console
+
+
 #define TI_INLINE static __inline__
+
+#define NSLog(...) {\
+const char *__s = [[NSString stringWithFormat:__VA_ARGS__] UTF8String];\
+if (__s[0]=='[')\
+{\
+fprintf(stderr,"%s\n", __s);\
+fflush(stderr);\
+}\
+else\
+{\
+fprintf(stderr,"[DEBUG] %s\n", __s);\
+fflush(stderr);\
+}\
+}
 
 // create a mutable array that doesn't retain internal references to objects
 NSMutableArray* TiCreateNonRetainingArray();
@@ -222,16 +239,20 @@ if ((__x<__minX) || (__x>__maxX)) \
 {\
 	NSString * exceptionName = [@"org.appcelerator." stringByAppendingString:NSStringFromClass([self class])];\
 	NSString * message = [NSString stringWithFormat:@"%@. %@ %@",reason,(subreason!=nil?subreason:@""),(location!=nil?location:@"")];\
-	NSLog(@"[WARN] %@",message);\
-	@throw [NSException exceptionWithName:exceptionName reason:message userInfo:nil];\
+	NSLog(@"[ERROR] %@",message);\
+	if ([NSThread isMainThread]==NO) {\
+		@throw [NSException exceptionWithName:exceptionName reason:message userInfo:nil];\
+	}\
 }\
 \
 + (void) throwException:(NSString *) reason subreason:(NSString*)subreason location:(NSString *)location\
 {\
-	NSString * exceptionName = [@"org.appcelerator." stringByAppendingString:NSStringFromClass([self class])];\
+	NSString * exceptionName = @"org.appcelerator";\
 	NSString * message = [NSString stringWithFormat:@"%@. %@ %@",reason,(subreason!=nil?subreason:@""),(location!=nil?location:@"")];\
-	NSLog(@"[WARN] %@",message);\
-	@throw [NSException exceptionWithName:exceptionName reason:message userInfo:nil];\
+	NSLog(@"[ERROR] %@",message);\
+	if ([NSThread isMainThread]==NO) {\
+		@throw [NSException exceptionWithName:exceptionName reason:message userInfo:nil];\
+	}\
 }\
 
 
@@ -377,21 +398,6 @@ return value;\
  
 #define TI_VERSION_STR STRING(TI_VERSION)
  
-// in simulator we redefine to format for Titanium Developer console
- 
-#define NSLog(...) {\
-	const char *__s = [[NSString stringWithFormat:__VA_ARGS__] UTF8String];\
-	if (__s[0]=='[')\
-	{\
-	    fprintf(stderr,"%s\n", __s);\
-		fflush(stderr);\
-	}\
-	else\
-	{\
-	    fprintf(stderr,"[DEBUG] %s\n", __s);\
-		fflush(stderr);\
-	}\
-}
 
 #ifdef VERBOSE
 
