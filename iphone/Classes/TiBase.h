@@ -81,13 +81,6 @@ return; \
 #define ENSURE_UI_THREAD_WITH_OBJ(x,y,z) \
 ENSURE_UI_THREAD_WITH_OBJS(x,NULL_IF_NIL(y),NULL_IF_NIL(z))
 
-//if (![NSThread isMainThread]) { \
-//id o = [NSArray arrayWithObjects:[NSString stringWithFormat:@"%s",#x],y==nil?[NSNull null]:y,z==nil?[NSNull null]:z,nil];\
-//[self performSelectorOnMainThread:@selector(_dispatchWithObjectOnUIThread:) withObject:o waitUntilDone:NO]; \
-//return; \
-//} \
-
-
 #define BEGIN_UI_THREAD_PROTECTED_VALUE(method,type) \
 -(id)_sync_##method:(NSMutableArray*)array_\
 {\
