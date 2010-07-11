@@ -54,17 +54,20 @@ USE_PROXY_FOR_VERIFY_AUTORESIZING
 	return picker;
 }
 
+-(BOOL)isDatePicker
+{
+	return type != -1;
+}
+
 -(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
 {
 	if (picker!=nil && !CGRectIsEmpty(bounds))
 	{
 		[picker setFrame:bounds];
+		if (![self isDatePicker]) {
+			[(UIPickerView*)picker reloadAllComponents];
+		}
 	}
-}
-
--(BOOL)isDatePicker
-{
-	return type != -1;
 }
 
 -(void)didFirePropertyChanges
@@ -268,7 +271,7 @@ USE_PROXY_FOR_VERIFY_AUTORESIZING
 	{
 		return [TiUtils floatValue:width];
 	}
-	return (self.frame.size.width - DEFAULT_COLUMN_PADDING) / [[self columns] count];
+	return (pickerView.frame.size.width - DEFAULT_COLUMN_PADDING) / [[self columns] count];
 }
 
 - (CGFloat)pickerView:(UIPickerView *)pickerView rowHeightForComponent:(NSInteger)component
