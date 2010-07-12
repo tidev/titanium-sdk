@@ -36,9 +36,12 @@ public abstract class TiModule
 		
 		// register our module but keep a weak reference to it so it 
 		// can get cleaned up as needed
-		String moduleName = getClass().getSimpleName();
-		moduleName = moduleName.substring(0,moduleName.length()-6);
-		modules.put(moduleName,new WeakReference<TiModule>(this));
+		// Addendum: only do it if it's not a "context-aware" module.
+		if (!getClass().isAnnotationPresent(ContextSpecific.class)) {
+			String moduleName = getClass().getSimpleName();
+			moduleName = moduleName.substring(0,moduleName.length()-6);
+			modules.put(moduleName,new WeakReference<TiModule>(this));
+		}
 	}
 	
 	public static TiModule getModule(String name)

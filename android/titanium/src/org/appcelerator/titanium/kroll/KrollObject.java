@@ -20,6 +20,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import org.appcelerator.titanium.ContextSpecific;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiDict;
@@ -424,7 +425,17 @@ public class KrollObject extends ScriptableObject
 	{
 		// first see if our module exists and if so, return it since
 		// modules should be singletons
-		Object p = TiModule.getModule(name);
+		
+		TiContext context = null;
+		Object p = null;
+		
+		p = TiModule.getModule(name);
+		
+		// Maybe it's a context-aware module
+		if (p == null) {
+			context = (TiContext) (weakKrollContext.get().getTiContext());
+			p = context.getModule(name);
+		}
 		
 		if (p!=null)
 		{
@@ -439,6 +450,9 @@ public class KrollObject extends ScriptableObject
 		try {
 			Class<?> c = Class.forName(moduleName);
 			if (c != null) {
+				if (context == null ) {
+					context = (TiContext) (weakKrollContext.get().getTiContext());
+				}
 
 				Constructor<?>[] ctors = c.getConstructors();
 				if (ctors.length == 1) {
@@ -447,9 +461,12 @@ public class KrollObject extends ScriptableObject
 					if (types.length == 0) {
 						p = ctor.newInstance();
 					} else if (types.length == 1) {
-						p = ctor.newInstance(weakKrollContext.get().getTiContext());
+						p = ctor.newInstance(context);
 					} else {
 						Log.e(LCAT, "No valid constructor found.");
+					}
+					if (p != null && p instanceof TiModule && c.isAnnotationPresent(ContextSpecific.class)) {
+						context.cacheModule(name, (TiModule)p);
 					}
 				} else {
 					Log.w(LCAT, "Modules currently requires only one contructor in a module.");
@@ -459,9 +476,6 @@ public class KrollObject extends ScriptableObject
 			Log.e(LCAT, "No Module for name " + name + " expected " + moduleName);
 		}
 
-		if (p != null && p instanceof TiModule) {
-			TiModule m = (TiModule)p;
-		}
 		return p;
 	}
 
