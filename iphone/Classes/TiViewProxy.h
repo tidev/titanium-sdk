@@ -26,12 +26,10 @@
 	BOOL windowOpened;
 	int dirtyflags;	//For atomic actions, best to be explicit about the 32 bitness.
 
-//From TiUIWidgetProxy
 	BOOL isUsingBarButtonItem;
 	UIBarButtonItem * barButtonItem;
 
 @private
-	//Cocoa doesn't have a readwrite lock, so we use pthreads.
 	NSRecursiveLock *childrenLock;
 	NSMutableArray *children;
 	TiUIView *view;
