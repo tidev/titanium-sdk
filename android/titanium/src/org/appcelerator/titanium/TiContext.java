@@ -70,6 +70,7 @@ public class TiContext implements TiEvaluator, ITiMenuDispatcherListener, ErrorR
 	private ArrayList<WeakReference<OnLifecycleEvent>> lifecycleListeners;
 	private OnMenuEvent menuEventListener;
 	private WeakReference<OnConfigurationChanged> weakConfigurationChangedListeners;
+	private HashMap<String,WeakReference<TiModule>> modules = new HashMap<String,WeakReference<TiModule>>();
 
 	public static interface OnLifecycleEvent
 	{
@@ -815,5 +816,14 @@ public class TiContext implements TiEvaluator, ITiMenuDispatcherListener, ErrorR
         }
 	}
 
-
+	public TiModule getModule(String name)
+	{
+		WeakReference<TiModule> m = modules.get(name);
+		return m == null ? null : m.get();
+	}
+	
+	public void cacheModule(String name, TiModule m)
+	{
+		modules.put(name, new WeakReference<TiModule>(m));
+	}
 }
