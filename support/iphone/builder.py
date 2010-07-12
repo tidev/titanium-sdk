@@ -582,10 +582,6 @@ def main(args):
 			new_lib_hash = m.hexdigest()
 			fd.close()
 			
-			# if the lib doesn't exist, force a rebuild since it's a new build
-			if not os.path.exists(os.path.join(iphone_dir,'lib','libtiverify.a')):
-				shutil.copy(os.path.join(template_dir,'libtiverify.a'),os.path.join(iphone_dir,'lib','libtiverify.a'))
-
 			if new_lib_hash!=lib_hash:
 				force_rebuild=True
 				o.write("forcing rebuild since libhash (%s) not matching (%s)\n" % (lib_hash,new_lib_hash))
@@ -655,6 +651,11 @@ def main(args):
 				if os.path.exists("libTiCore.a"): os.unlink("libTiCore.a")
 				os.symlink(libticore,"libTiCore.a")
 				os.chdir(cwd)
+
+			# if the lib doesn't exist, force a rebuild since it's a new build
+			if not os.path.exists(os.path.join(iphone_dir,'lib','libtiverify.a')):
+				shutil.copy(os.path.join(template_dir,'libtiverify.a'),os.path.join(iphone_dir,'lib','libtiverify.a'))
+
 
 			if devicefamily!=None:
 				applogo = ti.generate_infoplist(infoplist,appid,devicefamily,project_dir,iphone_version)
