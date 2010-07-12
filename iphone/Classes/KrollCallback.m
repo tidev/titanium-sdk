@@ -66,25 +66,6 @@ static NSLock *callbackLock;
 	[super dealloc];
 }
 
-- (BOOL)isEqual:(id)anObject
-{
-	if (anObject == self)
-	{
-		return YES;
-	}
-	if (anObject == nil)
-	{
-		return NO;
-	}
-	if (function!=NULL && [anObject isKindOfClass:[KrollCallback class]])
-	{
-		TiObjectRef ref1 = function;
-		TiObjectRef ref2 = [(KrollCallback*)anObject function];
-		return TiValueIsStrictEqual(jsContext,ref1,ref2);
-	}
-	return NO;
-}
-
 -(void)call:(NSArray*)args thisObject:(id)thisObject_
 {
 	if (context==nil)
