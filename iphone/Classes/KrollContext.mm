@@ -460,23 +460,19 @@ static TiValueRef CommonJSRequireCallback (TiContextRef jsContext, TiObjectRef j
 {
 	[condition lock];
 
-	// while we're suspended, we squash all events
-	if (suspended==NO)
+	BOOL mythread = [self isKJSThread];
+	
+	if (!mythread) 
 	{
-		BOOL mythread = [self isKJSThread];
-		
-		if (!mythread) 
-		{
-			[lock lock];
-		}
-		
-		[queue addObject:obj];
-		
-		if (!mythread)
-		{
-			[lock unlock];
-			[condition signal];
-		}
+		[lock lock];
+	}
+	
+	[queue addObject:obj];
+	
+	if (!mythread)
+	{
+		[lock unlock];
+		[condition signal];
 	}
 	
 	[condition unlock];

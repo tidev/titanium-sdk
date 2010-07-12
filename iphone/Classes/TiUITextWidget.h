@@ -17,6 +17,7 @@
 #pragma mark Public APIs
 
 -(BOOL)hasText;
+-(void)windowClosing;
 
 @end
 
@@ -49,5 +50,7 @@
 // FIXME: Every new OS, see if Apple's fixed this obnoxious bug.
 extern NSString* const TiKeyboardHideNotification;
 extern NSString* const TiKeyboardShowNotification;
+
+
 
 #endif

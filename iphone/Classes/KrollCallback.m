@@ -114,7 +114,12 @@ static NSLock *callbackLock;
 		TiValueProtect(jsContext,tp);
 		TiValueProtect(jsContext,top);
 	}
-	TiObjectCallAsFunction(jsContext,function,tp,[args count],_args,NULL);
+	TiValueRef exception = NULL;
+	TiObjectCallAsFunction(jsContext,function,tp,[args count],_args,&exception);
+	if (exception!=NULL)
+	{
+		NSLog(@"[WARN] Exception in event callback. %@",[KrollObject toID:context value:exception]);
+	}
 	if (top!=NULL)
 	{
 		TiValueUnprotect(jsContext,tp);
