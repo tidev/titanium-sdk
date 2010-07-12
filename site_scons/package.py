@@ -134,6 +134,19 @@ githash=%s
 	zip_dir(zf,os.path.join(top_dir,'iphone','iphone'),basepath+'/iphone/iphone',subs)
 	
 	ticore_lib = os.path.join(top_dir,'iphone','lib')
+	
+	# during 1.3.3, we added a new lib to a folder that had a .gitignore
+	# and we need to manually reset this
+	if not os.path.exists(os.path.join(ticore_lib,'libtiverify.a')):
+		os.system("git checkout iphone/lib")
+		if not os.path.exists(os.path.join(ticore_lib,'libtiverify.a')):
+			print "[ERROR] missing libtiverify.a!  make sure you checkout iphone/lib or edit your iphone/.gitignore and remove the lib entry"
+			sys.exit(1)
+		
+	if not os.path.exists(os.path.join(ticore_lib,'libTiCore.a')):
+		print "[ERROR] missing libTiCore.a!"
+		sys.exit(1)
+	
 	zf.write(os.path.join(ticore_lib,'libTiCore.a'),'%s/%s/libTiCore.a'%(basepath,platform))
 	zf.write(os.path.join(ticore_lib,'libtiverify.a'),'%s/%s/libtiverify.a'%(basepath,platform))
 	

@@ -621,15 +621,6 @@ bool KrollSetProperty(TiContextRef jsContext, TiObjectRef object, TiStringRef pr
 			{
 				return [target performSelector:selector];
 			}
-			// see if this is a create factory which we can do dynamically
-			if ([key hasPrefix:@"create"])
-			{
-				SEL selector = @selector(createProxy:forName:context:);
-				if ([target respondsToSelector:selector])
-				{
-					return [[[KrollMethod alloc] initWithTarget:target selector:selector argcount:2 type:KrollMethodFactory name:key context:[self context]] autorelease];
-				}
-			}
 			id result = [target valueForKey:key];
 			if (result!=nil)
 			{
@@ -644,6 +635,15 @@ bool KrollSetProperty(TiContextRef jsContext, TiObjectRef object, TiStringRef pr
 					return [[d target] performSelector:[d selector]];
 				}
 				return result;
+			}
+			// see if this is a create factory which we can do dynamically
+			if ([key hasPrefix:@"create"])
+			{
+				SEL selector = @selector(createProxy:forName:context:);
+				if ([target respondsToSelector:selector])
+				{
+					return [[[KrollMethod alloc] initWithTarget:target selector:selector argcount:2 type:KrollMethodFactory name:key context:[self context]] autorelease];
+				}
 			}
 		}
 		else 

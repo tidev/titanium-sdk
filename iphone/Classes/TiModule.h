@@ -29,6 +29,9 @@
 -(NSString*)moduleId;
 -(BOOL)isJSModule;
 -(NSData*)moduleJS;
+-(NSURL*)moduleResourceURL:(NSString*)name;
+-(id)bindCommonJSModule:(NSString*)code;
+-(id)bindCommonJSModuleForPath:(NSURL*)path;
 
 // lifecycle
 -(void)startup;
