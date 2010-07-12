@@ -168,6 +168,43 @@
 	return NO;
 }
 
+-(NSURL*)moduleResourceURL:(NSString*)name
+{
+	NSString *resourceurl = [[NSBundle mainBundle] resourcePath];
+	NSURL *path = [NSURL fileURLWithPath:[NSString stringWithFormat:@"%@/modules/%@/%@",resourceurl,[self moduleId],name]];
+	return path;
+}
+
+-(id)bindCommonJSModule:(NSString*)code
+{
+	NSMutableString *js = [NSMutableString string];
+	
+	[js appendString:@"(function(exports){"];
+	[js appendString:code];
+	[js appendString:@"return exports;"];
+	[js appendString:@"})({})"];
+	
+	id result = [[self pageContext] evalJSAndWait:js];
+	if ([result isKindOfClass:[NSDictionary class]])
+	{
+		for (id key in result)
+		{
+			[self replaceValue:[result objectForKey:key] forKey:key notification:NO];
+		}
+	}
+	return result;
+}
+
+-(id)bindCommonJSModuleForPath:(NSURL*)path
+{
+	NSString *code = [NSString stringWithContentsOfURL:path encoding:NSUTF8StringEncoding error:nil];
+	if (code!=nil)
+	{
+		return [self bindCommonJSModule:code];
+	}
+	return nil;
+}
+
 -(void)didReceiveMemoryWarning:(NSNotification *)notification
 {
 	[super didReceiveMemoryWarning:notification];
