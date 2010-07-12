@@ -278,7 +278,7 @@ class Compiler(object):
 			self.modules.append(tokens[0])
 		for token in tokens:
 			curtoken+=token+"."
-			symbol = 'USE_TI_%s' % (curtoken.replace('.create','').replace('.','').upper())
+			symbol = 'USE_TI_%s' % (curtoken.replace('.create','').replace('.','').replace('-','_').upper())
 			try:
 				self.defines.index(symbol)
 			except:
