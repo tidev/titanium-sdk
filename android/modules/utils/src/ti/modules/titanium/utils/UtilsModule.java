@@ -45,7 +45,7 @@ public class UtilsModule extends TiModule
 	{
 		try {
 			String data = TiConvert.toString(obj);
-			return TiBlob.blobFromString(getTiContext(),new String(Base64.decodeBase64(data.getBytes("UTF-8")), "UTF-8"));
+			return TiBlob.blobFromData(getTiContext(), Base64.decodeBase64(data.getBytes("UTF-8")));
 		} catch (UnsupportedEncodingException e) {
 			Log.e(LCAT, "UTF-8 is not a supported encoding type");
 		}

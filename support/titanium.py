@@ -280,10 +280,10 @@ def help(args=[],suppress_banner=False):
 		print "commands:"
 		print
 		print "  create      - create a project"
-		print "  build       - build/compile project"
+#		print "  build       - build/compile project"
 		print "  run         - run an existing project"
-		print "  install     - install a project"
-		print "  package     - package a project for distribution"
+#		print "  install     - install a project"
+#		print "  package     - package a project for distribution"
 		print "  help        - get help"
 	else:
 		cmd = args[0]

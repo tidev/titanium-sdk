@@ -181,6 +181,19 @@ public class VideoPlayerProxy extends TiProxy
 			}
 		}
 	}
+	
+	public void stop()
+	{
+		if (activityMessenger != null) {
+			try {
+				Message msg = Message.obtain();
+				msg.what = TiVideoActivity.MSG_STOP_PLAYBACK;
+				activityMessenger.send(msg);
+			} catch (RemoteException e) {
+				Log.w(LCAT, "Unable to send stop message: " + e.getMessage());
+			}
+		}
+	}
 
 	private Handler createControlHandler() {
 		return new Handler(new Handler.Callback(){

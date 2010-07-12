@@ -6,6 +6,7 @@
  */
 package ti.modules.titanium.gesture;
 
+import org.appcelerator.titanium.ContextSpecific;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiDict;
 import org.appcelerator.titanium.TiModule;
@@ -16,6 +17,7 @@ import ti.modules.titanium.ui.UIModule;
 
 import android.content.res.Configuration;
 
+@ContextSpecific
 public class GestureModule extends TiModule
 	implements OnConfigurationChanged
 {

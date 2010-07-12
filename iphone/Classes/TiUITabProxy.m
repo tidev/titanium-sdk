@@ -95,6 +95,7 @@
 		{
 			RELEASE_TO_NIL(closingWindow);
 			closingWindow = [currentWindow retain];
+			[closingWindow windowWillClose];
 		}
 		
 		[currentWindow _tabBlur];

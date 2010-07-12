@@ -1,4 +1,5 @@
 var win = Titanium.UI.currentWindow;
+var android = (Titanium.Platform.name == 'android');
 
 var activeMovie = Titanium.Media.createVideoPlayer({
 	contentURL:'../movie.mp4',

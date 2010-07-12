@@ -109,10 +109,14 @@ class IPhone(object):
 
 		# symlink 
 		libticore = os.path.join(template_dir,'libTiCore.a')
+		libtiverify = os.path.join(template_dir,'libtiverify.a')
 		cwd = os.getcwd()
 		os.chdir(os.path.join(iphone_dir,'lib'))
 		os.symlink(libticore,"libTiCore.a")
+		# small, just copy
+		shutil.copy(libtiverify,"libtiverify.a")
 		os.chdir(cwd)
+
 
 
 if __name__ == '__main__':

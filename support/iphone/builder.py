@@ -36,7 +36,17 @@ def write_project_property(f,prop,val):
 		fx = open(f,'w')
 		fx.write("%s=%s\n"%(prop,val))
 		fx.close()
-		
+	
+def read_config(f):
+	props = {}
+	if os.path.exists(f):
+		contents = open(f).read()
+		for line in contents.splitlines(False):
+			if line[0:1]=='#': continue
+			(k,v) = line.split("=")
+			props[k]=v
+	return props
+			
 def read_project_property(f,prop):
 	if os.path.exists(f):
 		contents = open(f).read()
@@ -348,9 +358,13 @@ def main(args):
 		version_file = os.path.join(iphone_resources_dir,'.version')
 		force_rebuild = read_project_version(project_xcconfig)!=sdk_version or not os.path.exists(version_file)
 		infoplist = os.path.join(iphone_dir,'Info.plist')
+		githash = None
 
+		if command!='simulator' and os.path.exists(build_out_dir):
+			shutil.rmtree(build_out_dir)
+		if not os.path.exists(build_out_dir): 
+			os.makedirs(build_out_dir)
 		# write out the build log, useful for debugging
-		if not os.path.exists(build_out_dir): os.makedirs(build_out_dir)
 		o = open(os.path.join(build_out_dir,'build.log'),'w')
 		try:
 			buildtime = datetime.datetime.now()
@@ -361,6 +375,17 @@ def main(args):
 			o.write("and aid in debugging. Please attach this log to any issue that you report.\n")
 			o.write("%s\n\n" % ("="*80))
 			o.write("Starting build at %s\n\n" % buildtime.strftime("%m/%d/%y %H:%M"))
+			
+			# write out the build versions info
+			versions_txt = read_config(os.path.join(template_dir,'..','version.txt'))
+			o.write("Build details:\n\n")
+			for key in versions_txt:
+				o.write("   %s=%s\n" % (key,versions_txt[key]))
+			o.write("\n\n")
+			
+			if versions_txt.has_key('githash'): 
+				githash = versions_txt['githash']
+				
 			o.write("Script arguments:\n")
 			for arg in args:
 				o.write("   %s\n" % arg)
@@ -406,6 +431,8 @@ def main(args):
 				os.chdir(cwd)
 
 			tp_lib_search_path = []
+			tp_module_asset_dirs = []
+			
 			for module in ti.properties['modules']:
 				tp_name = module['name'].lower()
 				tp_version = module['version']
@@ -413,6 +440,7 @@ def main(args):
 				# check first in the local project
 				local_tp = os.path.join(project_dir,'modules','iphone',libname)
 				local = False
+				tp_dir = None
 				if os.path.exists(local_tp):
 					tp_modules.append(local_tp)
 					tp_lib_search_path.append([libname,local_tp])
@@ -449,7 +477,14 @@ def main(args):
 						dest_img_dir = os.path.join(app_dir,'modules',tp_name,'images')
 						if not os.path.exists(dest_img_dir):
 							os.makedirs(dest_img_dir)
-						copy_module_resources(img_dir,dest_img_dir)
+						tp_module_asset_dirs.append([img_dir,dest_img_dir])
+
+					# copy in any module assets
+					tp_assets_dir = os.path.join(tp_dir,'assets')
+					if os.path.exists(tp_assets_dir): 
+						module_dir = os.path.join(app_dir,'modules',tp_name)
+						tp_module_asset_dirs.append([tp_assets_dir,module_dir])
+
 
 			print "[INFO] Titanium SDK version: %s" % sdk_version
 			print "[INFO] iPhone Device family: %s" % devicefamily
@@ -463,12 +498,13 @@ def main(args):
 					dest_img_dir = os.path.join(app_dir,'modules',module_name,'images')
 					if not os.path.exists(dest_img_dir):
 						os.makedirs(dest_img_dir)
-					copy_module_resources(img_dir,dest_img_dir)
+					tp_module_asset_dirs.append([img_dir,dest_img_dir])
 
 				# when in simulator since we point to the resources directory, we need
 				# to explicitly copy over any files
 				ird = os.path.join(project_dir,'Resources','iphone')
-				if os.path.exists(ird): copy_module_resources(ird,app_dir)
+				if os.path.exists(ird): 
+					tp_module_asset_dirs.append([ird,app_dir])
 
 			if not simulator:
 				version = ti.properties['version']
@@ -478,7 +514,7 @@ def main(args):
 				pp = os.path.expanduser("~/Library/MobileDevice/Provisioning Profiles/%s.mobileprovision" % appuuid)
 				provisioning_profile = read_provisioning_profile(pp,o)
 				
-
+				
 			def write_info_plist(infoplist_tmpl):
 				plist = open(infoplist_tmpl).read()
 				plist = plist.replace('__PROJECT_NAME__',name)
@@ -510,6 +546,7 @@ def main(args):
 
 			new_lib_hash = None
 			lib_hash = None	
+			existing_git_hash = None
 
 			if os.path.exists(app_dir):
 				if os.path.exists(version_file):
@@ -519,8 +556,7 @@ def main(args):
 					log_id = lines[1]
 					if len(lines) > 2:
 						lib_hash = lines[2]
-						if iphone_version!=lines[3]:
-							force_rebuild = True
+						existing_git_hash = lines[3]
 					if lib_hash==None:
 						force_rebuild = True
 					else:
@@ -534,13 +570,18 @@ def main(args):
 			else:
 				force_rebuild = True
 
+			o.write("\ngithash=%s, existing_git_hash=%s\n" %(githash,existing_git_hash))
+				
+			if githash!=existing_git_hash:
+				force_rebuild = True
+
 			source_lib=os.path.join(template_dir,'libTiCore.a')
 			fd = open(source_lib,'rb')
 			m = hashlib.md5()
 			m.update(fd.read(1024)) # just read 1K, it's binary
 			new_lib_hash = m.hexdigest()
 			fd.close()
-
+			
 			if new_lib_hash!=lib_hash:
 				force_rebuild=True
 				o.write("forcing rebuild since libhash (%s) not matching (%s)\n" % (lib_hash,new_lib_hash))
@@ -611,6 +652,11 @@ def main(args):
 				os.symlink(libticore,"libTiCore.a")
 				os.chdir(cwd)
 
+			# if the lib doesn't exist, force a rebuild since it's a new build
+			if not os.path.exists(os.path.join(iphone_dir,'lib','libtiverify.a')):
+				shutil.copy(os.path.join(template_dir,'libtiverify.a'),os.path.join(iphone_dir,'lib','libtiverify.a'))
+
+
 			if devicefamily!=None:
 				applogo = ti.generate_infoplist(infoplist,appid,devicefamily,project_dir,iphone_version)
 			else:
@@ -634,6 +680,11 @@ def main(args):
 						shutil.rmtree(app_dir)
 
 				if not os.path.exists(app_dir): os.makedirs(app_dir)
+				
+				# copy any module resources
+				if len(tp_module_asset_dirs)>0:
+					for e in tp_module_asset_dirs:
+						copy_module_resources(e[0],e[1],True)
 
 				# dump out project file info
 				if command!='simulator':
@@ -759,14 +810,14 @@ def main(args):
 				if ti.properties['guid']!=log_id or force_xcode:
 					log_id = ti.properties['guid']
 					f = open(version_file,'w+')
-					f.write("%s,%s,%s,%s" % (template_dir,log_id,lib_hash,iphone_version))
+					f.write("%s,%s,%s,%s" % (template_dir,log_id,lib_hash,githash))
 					f.close()
 
 				if command == 'simulator':
 
 					if force_rebuild or force_xcode or not os.path.exists(binary):
 						shutil.copy(os.path.join(template_dir,'Classes','defines.h'),os.path.join(iphone_dir,'Classes','defines.h'))
-						execute_xcode("iphonesimulator%s" % iphone_version,["GCC_PREPROCESSOR_DEFINITIONS=__LOG__ID__=%s DEPLOYTYPE=development DEBUG=1 TI_VERSION=%s" % (log_id,sdk_version)],False)
+						execute_xcode("iphonesimulator%s" % iphone_version,["GCC_PREPROCESSOR_DEFINITIONS=__LOG__ID__=%s DEPLOYTYPE=development TI_DEVELOPMENT=1 DEBUG=1 TI_VERSION=%s" % (log_id,sdk_version)],False)
 
 					# first make sure it's not running
 					kill_simulator()
@@ -887,7 +938,7 @@ def main(args):
 				elif command == 'install':
 
 					args += [
-						"GCC_PREPROCESSOR_DEFINITIONS='DEPLOYTYPE=test'",
+						"GCC_PREPROCESSOR_DEFINITIONS=DEPLOYTYPE=test TI_TEST=1",
 						"PROVISIONING_PROFILE[sdk=iphoneos*]=%s" % appuuid,
 						"CODE_SIGN_IDENTITY[sdk=iphoneos*]=iPhone Developer: %s" % dist_name
 					]
@@ -900,7 +951,7 @@ def main(args):
 						o.write("+ Preparing to run /Developer/Platforms/iPhoneOS.platform/Developer/usr/bin/PackageApplication\n")
 						output = run.run(["/Developer/Platforms/iPhoneOS.platform/Developer/usr/bin/PackageApplication",app_dir],True)
 						o.write("+ Finished running /Developer/Platforms/iPhoneOS.platform/Developer/usr/bin/PackageApplication\n")
-						o.write(output)
+						if output: o.write(output)
 
 					# for install, launch itunes with the app
 					ipa = os.path.join(os.path.dirname(app_dir),"%s.ipa" % name)
@@ -939,7 +990,7 @@ def main(args):
 					deploytype = "production"
 
 					args += [
-						"GCC_PREPROCESSOR_DEFINITIONS='DEPLOYTYPE=%s'" % deploytype,
+						"GCC_PREPROCESSOR_DEFINITIONS=DEPLOYTYPE=%s TI_PRODUCTION=1" % deploytype,
 						"PROVISIONING_PROFILE[sdk=iphoneos*]=%s" % appuuid,
 						"CODE_SIGN_IDENTITY[sdk=iphoneos*]=iPhone Distribution: %s" % dist_name
 					]

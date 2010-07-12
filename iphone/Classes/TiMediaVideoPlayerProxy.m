@@ -961,7 +961,6 @@ if (![TiUtils isiPhoneOS3_2OrGreater]) {\
 	{
 		NSDictionary *userinfo = [note userInfo];
 		NSMutableDictionary *event = [NSMutableDictionary dictionary];
-		[event setObject:[userinfo valueForKey:@"MPMoviePlayerFullscreenAnimationCurveUserInfoKey"] forKey:@"curve"];
 		[event setObject:[userinfo valueForKey:MPMoviePlayerFullscreenAnimationDurationUserInfoKey] forKey:@"duration"];
 		[event setObject:NUMBOOL(YES) forKey:@"entering"];
 		[self deliverEventOnBackgroundThread:@"fullscreen" withObject:event];
@@ -974,7 +973,6 @@ if (![TiUtils isiPhoneOS3_2OrGreater]) {\
 	{
 		NSDictionary *userinfo = [note userInfo];
 		NSMutableDictionary *event = [NSMutableDictionary dictionary];
-		[event setObject:[userinfo valueForKey:@"MPMoviePlayerFullscreenAnimationCurveUserInfoKey"] forKey:@"curve"];
 		[event setObject:[userinfo valueForKey:MPMoviePlayerFullscreenAnimationDurationUserInfoKey] forKey:@"duration"];
 		[event setObject:NUMBOOL(NO) forKey:@"entering"];
 		[self deliverEventOnBackgroundThread:@"fullscreen" withObject:event];

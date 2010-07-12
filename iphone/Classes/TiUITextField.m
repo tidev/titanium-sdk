@@ -168,6 +168,8 @@
 
 -(BOOL)resignFirstResponder
 {
+	becameResponder = NO;
+	
 	if ([super resignFirstResponder])
 	{
 		[self repaintMode];
@@ -178,12 +180,20 @@
 
 -(BOOL)becomeFirstResponder
 {
+	becameResponder = YES;
+	
 	if ([super becomeFirstResponder])
 	{
 		[self repaintMode];
 		return YES;
 	}
 	return NO;
+}
+
+-(BOOL)isFirstResponder
+{
+	if (becameResponder) return YES;
+	return [super isFirstResponder];
 }
 
 -(void)setLeftView:(UIView*)value
@@ -421,7 +431,7 @@
 
 - (void)textFieldDidBeginEditing:(UITextField *)tf
 {
-	if ([TiUtils isiPhoneOS3_2OrGreater] && ![(TiTextField*)tf becameResponder]) {
+	if ([TiUtils isiPhoneOS3_2OrGreater]) {
 		[(TiUITextWidgetProxy*)self.proxy fireShowNotification];
 	}
 

@@ -38,6 +38,7 @@ public class TiVideoActivity extends Activity
 
 	public static final int MSG_PLAY = 10000;
 	public static final int MSG_ADD_VIEW = 10001;
+	public static final int MSG_STOP_PLAYBACK = 10002;
 
 	private Handler handler;
 	private String contentUrl;
@@ -134,6 +135,15 @@ public class TiVideoActivity extends Activity
 					layout.addView(v, tiv.getLayoutParams());
 				}
 				return true;
+			}
+			
+			case MSG_STOP_PLAYBACK: {
+				if (videoView != null && started) {
+					videoView.stopPlayback();
+					started = false;
+					return true;
+				}
+				return false;
 			}
 		}
 		return false;

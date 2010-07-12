@@ -35,30 +35,17 @@
 	return self;
 }
 
--(void)childrenAsCopyUIThreadSafe:(NSMutableArray*)fill
-{
-	[fill addObjectsFromArray:children];
-}
-
 -(NSArray*)children
 {
-	if ([NSThread isMainThread])
+	[childrenLock lock];
+	if (windowOpened==NO && children==nil && pendingAdds!=nil)
 	{
-		[childrenLock lock];
-		if (windowOpened==NO && children==nil && pendingAdds!=nil)
-		{
-			NSArray *copy = [pendingAdds mutableCopy];
-			[childrenLock unlock];
-			return [copy autorelease];
-		}
+		NSArray *copy = [pendingAdds mutableCopy];
 		[childrenLock unlock];
-		return children;	
+		return [copy autorelease];
 	}
-	
-	// children accessed via non-UI thread must make a safe copy
-	NSMutableArray *arg = [NSMutableArray arrayWithCapacity:1];
-	[self performSelectorOnMainThread:@selector(childrenAsCopyUIThreadSafe:) withObject:arg waitUntilDone:YES];
-	return arg;
+	[childrenLock unlock];
+	return children;	
 }
 
 - (void) _initWithProperties:(NSDictionary *)properties
@@ -171,6 +158,7 @@
 	
 	if ([NSThread isMainThread])
 	{
+		[childrenLock lock];
 		if (children==nil)
 		{
 			children = [[NSMutableArray alloc] initWithObjects:arg,nil];
@@ -179,6 +167,7 @@
 		{
 			[children addObject:arg];
 		}
+		[childrenLock unlock];
 		[arg setParent:self];
 		[self childAdded:arg];
 		
@@ -190,8 +179,8 @@
 		[childrenLock lock];
 		if (windowOpened)
 		{
-			[self performSelectorOnMainThread:@selector(add:) withObject:arg waitUntilDone:NO];
 			[childrenLock unlock];
+			[self performSelectorOnMainThread:@selector(add:) withObject:arg waitUntilDone:NO];
 			return;
 		}
 		if (pendingAdds==nil)
@@ -212,9 +201,11 @@
 	ENSURE_SINGLE_ARG(arg,TiViewProxy);
 	ENSURE_UI_THREAD_1_ARG(arg);
 
+	[childrenLock lock];
 	BOOL viewIsInChildren = [children containsObject:arg];
 	if (viewIsInChildren==NO)
 	{
+		[childrenLock unlock];
 		NSLog(@"[WARN] called remove for %@ on %@, but %@ isn't a child or has already been removed",arg,self,arg);
 		return;
 	}
@@ -226,6 +217,7 @@
 	{
 		RELEASE_TO_NIL(children);
 	}
+	[childrenLock unlock];
 		
 	[arg setParent:nil];
 	
@@ -439,15 +431,6 @@
 	}
 }
 
--(void)addChildrenOnUIThread:(NSArray*)array
-{
-	ENSURE_UI_THREAD_1_ARG(array);
-	for (id child in array)
-	{
-		[self add:child];
-	}
-}
-
 -(void)windowWillOpen
 {
 	[childrenLock lock];
@@ -474,7 +457,10 @@
 	
 	if (pendingAdds!=nil)
 	{
-		[self addChildrenOnUIThread:pendingAdds];
+		for (id child in pendingAdds)
+		{
+			[self add:child];
+		}
 		RELEASE_TO_NIL(pendingAdds);
 	}
 	
@@ -487,20 +473,24 @@
 
 -(void)windowDidClose
 {
+	[childrenLock lock];
 	for (TiViewProxy *child in children)
 	{
 		[child windowDidClose];
 	}
 	[self detachView];
 	windowOpened=NO;
+	[childrenLock unlock];
 }
 
 -(void)windowWillClose
 {
+	[childrenLock lock];
 	for (TiViewProxy *child in children)
 	{
 		[child windowWillClose];
 	}
+	[childrenLock unlock];
 }
 
 -(void)viewWillAttach
@@ -605,12 +595,14 @@
 
 		[view configurationSet];
 
+		[childrenLock lock];
 		for (id child in self.children)
 		{
 			TiUIView *childView = [(TiViewProxy*)child view];
 			[view addSubview:childView];
 		}
 		[self viewDidAttach];
+		[childrenLock unlock];
 
 		// make sure we do a layout of ourselves
 
@@ -733,6 +725,7 @@
 			int insertPosition = 0;
 			CGFloat zIndex = [childView zIndex];
 			
+			[childrenLock lock];
 			int childProxyIndex = [children indexOfObject:child];
 
 			for (TiUIView * thisView in [ourView subviews])
@@ -761,6 +754,7 @@
 			
 			[ourView insertSubview:childView atIndex:insertPosition];
 			[self childWillResize:child];
+			[childrenLock unlock];
 		}
 	}
 	[[child view] updateLayout:NULL withBounds:bounds];
@@ -781,10 +775,12 @@
 	{
 		OSAtomicTestAndSetBarrier(NEEDS_LAYOUT_CHILDREN, &dirtyflags);
 	}
+	[childrenLock lock];
 	for (id child in self.children)
 	{
 		[self layoutChild:child optimize:optimize];
 	}
+	[childrenLock unlock];
 	if (optimize==NO)
 	{
 		OSAtomicTestAndClearBarrier(NEEDS_LAYOUT_CHILDREN, &dirtyflags);
@@ -819,6 +815,7 @@
 		// not safe to do multiple times given rwlock
 		return;
 	}
+	[childrenLock lock];
 	
 	// _destroy is called during a JS context shutdown, to inform the object to 
 	// release all its memory and references.  this will then cause dealloc 
@@ -840,6 +837,7 @@
 	}
 	
 	RELEASE_TO_NIL(children);
+	[childrenLock unlock];
 	[super _destroy];
 }
 
@@ -1013,6 +1011,7 @@
 	CGFloat widthLeft=width;
 	CGFloat currentRowHeight = 0.0;
 
+	[childrenLock lock];
 	NSArray* array = windowOpened ? children : pendingAdds;
 	
 	for (TiViewProxy * thisChildProxy in array)
@@ -1046,6 +1045,7 @@
 			}
 		}
 	}
+	[childrenLock unlock];
 	return result + currentRowHeight;
 }
 
@@ -1120,7 +1120,9 @@
 {
 	IGNORE_IF_NOT_OPENED
 	
+	[childrenLock lock];
 	BOOL containsChild = [children containsObject:child];
+	[childrenLock unlock];
 
 	ENSURE_VALUE_CONSISTENCY(containsChild,YES);
 	[self setNeedsRepositionIfAutoSized];

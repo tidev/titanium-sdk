@@ -66,25 +66,6 @@ static NSLock *callbackLock;
 	[super dealloc];
 }
 
-- (BOOL)isEqual:(id)anObject
-{
-	if (anObject == self)
-	{
-		return YES;
-	}
-	if (anObject == nil)
-	{
-		return NO;
-	}
-	if (function!=NULL && [anObject isKindOfClass:[KrollCallback class]])
-	{
-		TiObjectRef ref1 = function;
-		TiObjectRef ref2 = [(KrollCallback*)anObject function];
-		return TiValueIsStrictEqual(jsContext,ref1,ref2);
-	}
-	return NO;
-}
-
 -(void)call:(NSArray*)args thisObject:(id)thisObject_
 {
 	if (context==nil)
@@ -114,7 +95,12 @@ static NSLock *callbackLock;
 		TiValueProtect(jsContext,tp);
 		TiValueProtect(jsContext,top);
 	}
-	TiObjectCallAsFunction(jsContext,function,tp,[args count],_args,NULL);
+	TiValueRef exception = NULL;
+	TiObjectCallAsFunction(jsContext,function,tp,[args count],_args,&exception);
+	if (exception!=NULL)
+	{
+		NSLog(@"[WARN] Exception in event callback. %@",[KrollObject toID:context value:exception]);
+	}
 	if (top!=NULL)
 	{
 		TiValueUnprotect(jsContext,tp);

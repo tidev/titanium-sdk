@@ -220,9 +220,17 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 	RELEASE_TO_NIL(controller);
 }
 
+-(void)windowWillClose
+{
+	if (closing==NO)
+	{
+		closing = YES;
+		[super windowWillClose];
+	}
+}
+
 -(BOOL)_handleClose:(id)args
 {
-	[self windowWillClose];
 	return YES;
 }
 
@@ -497,7 +505,7 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 		}
 	}
 
-	closing=YES;
+	[self windowWillClose];
 
 	//TEMP hack until we can figure out split view issue
 	if (tempController!=nil)
@@ -549,12 +557,6 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 		[self fireEvent:@"close" withObject:nil];
 	}
 	
-	// notify our child that his window is closing
-	for (TiViewProxy *child in self.children)
-	{
-		[child windowWillClose];
-	}
-
 	if ([self _handleClose:args])
 	{
 		TiAnimation *animation = [self _isChildOfTab] ? nil : [TiAnimation animationFromArg:args context:[self pageContext] create:NO];

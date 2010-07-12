@@ -11,7 +11,7 @@ var a = Titanium.UI.createAlertDialog({
 var l = Titanium.UI.createLabel({
 	text:'I will tell you which alert buttons you clicked',
 	textAlign:'center',
-	bottom:100,
+	bottom:80,
 	color:'#336699',
 	font:{fontSize:13},
 	width:'auto',
@@ -118,7 +118,7 @@ var button5 = Titanium.UI.createButton({
 	title:'Cancel Alert',
 	height:40,
 	width:200,
-	top:160
+	top:210
 });
 
 button5.addEventListener('click', function()

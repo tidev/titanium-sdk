@@ -9,7 +9,7 @@ win.orientationModes = [
 
 
 Titanium.Media.openPhotoGallery({
-    allowImageEditing:true,
+    allowEditing:true,
 
     success: function(event)
     {
