@@ -136,12 +136,14 @@
 
 -(void)setColor_:(id)color
 {
-	[[self label] setTextColor:[[TiUtils colorValue:color] _color]];
+	UIColor * newColor = [[TiUtils colorValue:color] _color];
+	[[self label] setTextColor:(newColor != nil)?newColor:[UIColor darkTextColor]];
 }
 
 -(void)setHighlightedColor_:(id)color
 {
-	[[self label] setHighlightedTextColor:[[TiUtils colorValue:color] _color]];
+	UIColor * newColor = [[TiUtils colorValue:color] _color];
+	[[self label] setHighlightedTextColor:(newColor != nil)?newColor:[UIColor lightTextColor]];
 }
 
 -(void)setFont_:(id)font
