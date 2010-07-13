@@ -457,6 +457,17 @@ bool KrollSetProperty(TiContextRef jsContext, TiObjectRef object, TiStringRef pr
 	return jsobject;
 }
 
+- (BOOL)isEqual:(id)anObject
+{
+	if ([anObject isKindOfClass:[KrollObject class]])
+	{
+		TiObjectRef ref1 = jsobject;
+		TiObjectRef ref2 = [(KrollObject*)anObject jsobject];
+		return TiValueIsStrictEqual([context context],ref1,ref2);
+	}
+	return NO;
+}
+
 -(void)dealloc
 {
 #if KOBJECT_MEMORY_DEBUG == 1
@@ -473,6 +484,7 @@ bool KrollSetProperty(TiContextRef jsContext, TiObjectRef object, TiStringRef pr
 	return [NSString stringWithFormat:@"KrollObject[%@] held:%d",target,[target retainCount]];
 }
 #endif
+
 
 -(KrollContext*)context
 {
