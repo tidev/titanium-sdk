@@ -28,7 +28,7 @@
 		UINavigationController *rightNav = [[UINavigationController alloc] initWithRootViewController:detail];
 		
 		leftNav.navigationBarHidden = YES;
-		rightNav.navigationBarHidden = YES;
+		rightNav.navigationBarHidden = YES;  
 		
 		self.viewControllers = [NSArray arrayWithObjects:leftNav,rightNav,nil];
 

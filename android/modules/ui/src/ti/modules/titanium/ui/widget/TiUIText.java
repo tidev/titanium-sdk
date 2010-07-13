@@ -21,8 +21,10 @@ import android.text.InputType;
 import android.text.TextWatcher;
 import android.text.method.DialerKeyListener;
 import android.text.method.DigitsKeyListener;
+import android.text.method.KeyListener;
 import android.text.method.PasswordTransformationMethod;
 import android.text.method.TextKeyListener;
+import android.text.method.TransformationMethod;
 import android.text.method.TextKeyListener.Capitalize;
 import android.view.Gravity;
 import android.view.KeyEvent;
@@ -59,6 +61,7 @@ public class TiUIText extends TiUIView
 	private static final int KEYBOARD_EMAIL_ADDRESS = 5;
 	private static final int KEYBOARD_NAMEPHONE_PAD = 6;
 	private static final int KEYBOARD_DEFAULT = 7;
+	private static final int KEYBOARD_PASSWORD = 8; // Not a public constant
 
 	private boolean field;
 
@@ -103,11 +106,6 @@ public class TiUIText extends TiUIView
 		if (d.containsKey("color")) {
 			tv.setTextColor(TiConvert.toColor(d, "color"));
 		}
-		if (d.containsKey("passwordMask")) {
-			if (d.getBoolean("passwordMask")) {
-				tv.setTransformationMethod(PasswordTransformationMethod.getInstance());
-			}
-		}
 		if (d.containsKey("hintText")) {
 			tv.setHint(d.getString("hintText"));
 		}
@@ -136,6 +134,14 @@ public class TiUIText extends TiUIView
 			}
 			handleKeyboardType(d.getInt("keyboardType"), autocorrect);
 		}
+		if (d.containsKey("passwordMask")) {
+			if (d.getBoolean("passwordMask")) {
+				// Both setTransform & keyboard type are required
+				tv.setTransformationMethod(PasswordTransformationMethod.getInstance());
+				// We also need to set the keyboard type - otherwise the password mask won't be applied
+				handleKeyboardType(KEYBOARD_PASSWORD, false);
+			}
+		}		
 	}
 
 
@@ -151,6 +157,14 @@ public class TiUIText extends TiUIView
 			tv.setText((String) newValue);
 		} else if (key.equals("color")) {
 			tv.setTextColor(TiConvert.toColor((String) newValue));
+		} else if (key.equals("passwordMask")) {
+			if (TiConvert.toBoolean(newValue) == true) {
+				tv.setTransformationMethod(PasswordTransformationMethod.getInstance());
+				handleKeyboardType(KEYBOARD_PASSWORD, false);
+				//tv.setTransformationMethod(PasswordTransformationMethod.getInstance());
+			} else {
+				handleKeyboardType(KEYBOARD_DEFAULT, false);
+			}
 		} else if (key.equals("hintText")) {
 			tv.setHint((String) newValue);
 		} else if (key.equals("textAlign") || key.equals("verticalAlign")) {
@@ -164,6 +178,14 @@ public class TiUIText extends TiUIView
 			}
 			handleTextAlign(textAlign, verticalAlign);
 		} else if (key.equals("autocapitalization")) {
+			// TODO Missing
+			if (TiConvert.toBoolean(newValue)==true) {
+				// TODO: This probably needs the capitalisation default to be set
+				tv.setKeyListener(TextKeyListener.getInstance(false,Capitalize.SENTENCES));	
+			} else {
+				// Reset it
+				tv.setKeyListener(TextKeyListener.getInstance());				
+			}
 		} else if (key.equals("keyboardType") || (key.equals("autocorrect"))) {
 			TiDict d = proxy.getDynamicProperties();
 			boolean autocorrect = true;
@@ -319,6 +341,10 @@ public class TiUIText extends TiUIView
 			case KEYBOARD_DEFAULT :
 				tv.setKeyListener(TextKeyListener.getInstance(autocorrect, Capitalize.NONE));
 				tv.setRawInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_NORMAL);
+				break;
+			case KEYBOARD_PASSWORD:
+				tv.setKeyListener(TextKeyListener.getInstance(autocorrect, Capitalize.NONE));
+				tv.setRawInputType(InputType.TYPE_TEXT_VARIATION_PASSWORD);
 				break;
 		}
 	}
