@@ -269,7 +269,14 @@
 	
 	if ((animation == UITableViewRowAnimationNone) && ![tableview isEditing])
 	{
-		[tableview performSelectorOnMainThread:@selector(reloadData) withObject:nil waitUntilDone:YES];
+		if([NSThread isMainThread])
+		{
+			[tableview reloadData];
+		}
+		else
+		{
+			[tableview performSelectorOnMainThread:@selector(reloadData) withObject:nil waitUntilDone:NO];
+		}
 		return;
 	}
 
