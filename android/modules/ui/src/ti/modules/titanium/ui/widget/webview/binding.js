@@ -1,3 +1,5 @@
+if (!this.Ti) {
+
 var Ti = {
 	_event_listeners: [],
 	
@@ -57,6 +59,5 @@ var Ti = {
 		}
 	}
 };
-
 var Titanium = Ti;
-
+}

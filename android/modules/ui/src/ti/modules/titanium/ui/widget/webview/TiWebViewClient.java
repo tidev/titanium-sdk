@@ -14,6 +14,7 @@ import org.appcelerator.titanium.util.TiConfig;
 import ti.modules.titanium.media.TiVideoActivity;
 import ti.modules.titanium.ui.WebViewProxy;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.webkit.HttpAuthHandler;
 import android.webkit.MimeTypeMap;
@@ -48,6 +49,12 @@ public class TiWebViewClient extends WebViewClient
 
 	public TiWebViewBinding getBinding() {
 		return binding;
+	}
+
+	@Override
+	public void onPageStarted(WebView view, String url, Bitmap favicon) {
+		super.onPageStarted(view, url, favicon);
+		binding.insertApiBindings();
 	}
 
 	@Override
