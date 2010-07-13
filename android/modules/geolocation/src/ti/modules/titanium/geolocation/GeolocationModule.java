@@ -30,6 +30,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Message;
 
@@ -71,6 +72,9 @@ public class GeolocationModule
 			constants.put("ACCURACY_HUNDRED_METERS", TiLocation.ACCURACY_HUNDRED_METERS);
 			constants.put("ACCURACY_HUNDRED_METERS", TiLocation.ACCURACY_HUNDRED_METERS);
 			constants.put("ACCURACY_THREE_KILOMETERS", TiLocation.ACCURACY_THREE_KILOMETERS);
+			
+			constants.put("PROVIDER_GPS", LocationManager.GPS_PROVIDER);
+			constants.put("PROVIDER_NETWORK", LocationManager.NETWORK_PROVIDER);
 		}
 
 		return constants;
