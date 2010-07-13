@@ -391,7 +391,7 @@
 
 -(BOOL)viewAttached
 {
-	return view!=nil && windowOpened && [view superview]!=nil;
+	return view!=nil && windowOpened;
 }
 
 //CAUTION: TO BE USED ONLY WITH TABLEVIEW MAGIC

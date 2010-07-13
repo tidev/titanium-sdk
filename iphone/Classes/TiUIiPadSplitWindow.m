@@ -41,7 +41,7 @@
 	{
 		TiViewProxy* masterProxy = [self.proxy valueForUndefinedKey:@"masterView"];
 		TiViewProxy* detailProxy = [self.proxy valueForUndefinedKey:@"detailView"];
-
+		
 		controller = [[TiSplitViewController alloc] initWithRootController:(TiRootViewController*)[[TiApp app] controller] masterProxy:masterProxy detailProxy:detailProxy];
 		controller.delegate = self;
 		
@@ -50,8 +50,15 @@
 		[[viewController view] removeFromSuperview];
 		[[TiApp app] setController:controller];
 		[window addSubview:[controller view]];
+		
 		[controller resizeView];
 		[controller repositionSubviews];
+		
+		[masterProxy windowWillOpen];
+		[masterProxy windowDidOpen];
+		
+		[detailProxy windowWillOpen];
+		[detailProxy windowDidOpen];
 	}
 	return controller;
 }
