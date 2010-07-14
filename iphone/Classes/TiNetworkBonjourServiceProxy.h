@@ -13,7 +13,7 @@
 #import "TiNetworkTCPSocketProxy.h"
 
 // NSNetService Delegate
-@interface TiNetworkBonjourServiceProxy : TiProxy {
+@interface TiNetworkBonjourServiceProxy : TiProxy<NSNetServiceDelegate> {
     TiNetworkTCPSocketProxy* socket;
     NSNetService* service;
     

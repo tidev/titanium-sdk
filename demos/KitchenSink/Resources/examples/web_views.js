@@ -200,8 +200,7 @@ tableview.addEventListener('click', function(e)
 		w.add(webview);
 		
 
-		// hide toolbar for local web view
-		Ti.App.addEventListener('webview_hidetoolbar', function(e)
+		function hideToolbar(e)
 		{
 			Ti.API.info('received hidetoolbar event, foo = ' + e.foo);
 			if (Titanium.Platform.name == 'iPhone OS') {
@@ -211,6 +210,17 @@ tableview.addEventListener('click', function(e)
 					w.remove(toolbar);
 				}
 			}
+		}
+		// hide toolbar for local web view
+		Ti.App.addEventListener('webview_hidetoolbar', hideToolbar);
+		
+		w.addEventListener('close',function(e)
+		{
+			Ti.API.info("window was closed");
+			
+			// remove our global app event listener from this specific
+			// window instance when the window is closed
+			Ti.App.removeEventListener('webview_hidetoolbar',hideToolbar);
 		});
 		win.tab.open(w);		
 	}

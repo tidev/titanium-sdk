@@ -12,7 +12,7 @@
 #import "WebFont.h"
 #import "ImageLoader.h"
 #import "TiProxy.h"
-#import "TiUIViewProxy.h"
+#import "TiViewProxy.h"
 
 #define DEFAULT_SECTION_HEADERFOOTER_HEIGHT 20.0
 
@@ -26,16 +26,6 @@
 -(id)initWithStyle:(UITableViewCellStyle)style_ reuseIdentifier:(NSString *)reuseIdentifier_ row:(TiUITableViewRowProxy *)row_
 {
 	if (self = [super initWithStyle:style_ reuseIdentifier:reuseIdentifier_]) {
-		row = [row_ retain];
-		[row setCallbackCell:self];
-	}
-	
-	return self;
-}
-
--(id)initWithFrame:(CGRect)frame_ reuseIdentifier:(NSString *)reuseIdentifier_ row:(TiUITableViewRowProxy *)row_
-{
-	if (self = [super initWithFrame:frame_ reuseIdentifier:reuseIdentifier_]) {
 		row = [row_ retain];
 		[row setCallbackCell:self];
 	}
@@ -269,7 +259,14 @@
 	
 	if ((animation == UITableViewRowAnimationNone) && ![tableview isEditing])
 	{
-		[tableview performSelectorOnMainThread:@selector(reloadData) withObject:nil waitUntilDone:YES];
+		if([NSThread isMainThread])
+		{
+			[tableview reloadData];
+		}
+		else
+		{
+			[tableview performSelectorOnMainThread:@selector(reloadData) withObject:nil waitUntilDone:NO];
+		}
 		return;
 	}
 
@@ -556,14 +553,14 @@
     // for headers/footers when the frame changes.
     UIView* headerView = [[self tableView] tableHeaderView];
     if ([headerView isKindOfClass:[TiUIView class]]) {
-        [(TiUIViewProxy*)[(TiUIView*)headerView proxy] reposition];
+        [(TiViewProxy*)[(TiUIView*)headerView proxy] reposition];
         [[self tableView] setTableHeaderView:headerView];
     }
     
     // ... And we have to do the same thing for the footer.
     UIView* footerView = [[self tableView] tableFooterView];
     if ([footerView isKindOfClass:[TiUIView class]]) {
-        [(TiUIViewProxy*)[(TiUIView*)footerView proxy] reposition];
+        [(TiViewProxy*)[(TiUIView*)footerView proxy] reposition];
         [[self tableView] setTableFooterView:footerView];
     }
 	

@@ -49,7 +49,8 @@ extern NSString * const TI_APPLICATION_GUID;
 		[appListeners setObject:l forKey:type];
 		[l release];
 	}
-	ListenerEntry *entry = [[ListenerEntry alloc] initWithListener:listener context:[self executionContext] proxy:self type:type];
+	id<TiEvaluator> context = [self executionContext]==nil ? [self pageContext] : [self executionContext];
+	ListenerEntry *entry = [[ListenerEntry alloc] initWithListener:listener context:context proxy:self type:type];
 	[l addObject:entry];
 	[entry release];
 }
@@ -72,11 +73,16 @@ extern NSString * const TI_APPLICATION_GUID;
 			if ([listener isEqual:[entry listener]]) //NSNumber does the right thing with this too.
 			{
 				[l removeObject:entry];	//It's safe to modify the array as long as you break right after.
-				needsScanning = YES;
+				needsScanning = [l count]>0;
 				break;
 			}
 		}
 	} while (needsScanning);
+	
+	if ([appListeners count]==0)
+	{
+		RELEASE_TO_NIL(appListeners);
+	}
 	
 	[[self _host] removeListener:listener context:pageContext];
 } 
@@ -97,15 +103,15 @@ extern NSString * const TI_APPLICATION_GUID;
 
 -(void)fireEvent:(NSArray*)args
 {
-	id type = [args objectAtIndex:0];
-	id obj = [args count] > 1 ? [args objectAtIndex:1] : nil;
-	
-#ifdef DEBUG
-	NSLog(@"[DEBUG] fire app event: %@ with %@",type,obj);
-#endif
-	
-	if (appListeners!=nil && [appListeners count] > 0)
+	if (appListeners!=nil)
 	{
+		id type = [args objectAtIndex:0];
+		id obj = [args count] > 1 ? [args objectAtIndex:1] : nil;
+		
+#ifdef DEBUG
+		NSLog(@"[DEBUG] fire app event: %@ with %@",type,obj);
+#endif
+		
 		NSArray *array = [appListeners objectForKey:type];
 		
 		if (array!=nil && [array count] > 0)
