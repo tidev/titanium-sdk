@@ -46,6 +46,7 @@ USE_PROXY_FOR_VERIFY_AUTORESIZING
 		else 
 		{
 			picker = [[UIDatePicker alloc] initWithFrame:CGRectMake(0, 0, 320, 228)];
+			[(UIDatePicker*)picker setTimeZone:[NSTimeZone localTimeZone]];
 			[(UIDatePicker*)picker setDatePickerMode:type];
 			[picker addTarget:self action:@selector(valueChanged:) forControlEvents:UIControlEventValueChanged];
 		}
