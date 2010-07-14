@@ -13,7 +13,7 @@
 #import "TiProxy.h"
 
 // NSNetServiceBrowser delegate
-@interface TiNetworkBonjourBrowserProxy : TiProxy {
+@interface TiNetworkBonjourBrowserProxy : TiProxy<NSNetServiceBrowserDelegate> {
     NSNetServiceBrowser* browser;
     NSString* serviceType;
     NSString* domain;

@@ -76,10 +76,15 @@ static NSLock *callbackLock;
 	{
 		return NO;
 	}
-	if (function!=NULL && [anObject isKindOfClass:[KrollCallback class]])
+	if ([anObject isKindOfClass:[KrollCallback class]]==NO)
+	{
+		return NO;
+	}
+	KrollCallback *otherCallback = (KrollCallback*)anObject;
+	if (function!=NULL)
 	{
 		TiObjectRef ref1 = function;
-		TiObjectRef ref2 = [(KrollCallback*)anObject function];
+		TiObjectRef ref2 = [otherCallback function];
 		return TiValueIsStrictEqual(jsContext,ref1,ref2);
 	}
 	return NO;

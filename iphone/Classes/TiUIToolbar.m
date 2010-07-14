@@ -7,7 +7,7 @@
 #ifdef USE_TI_UITOOLBAR
 
 #import "TiUIToolbar.h"
-#import "TiUIViewProxy.h"
+#import "TiViewProxy.h"
 #import "TiUtils.h"
 #import "TiColor.h"
 #import "TiToolbarButton.h"
@@ -88,7 +88,7 @@
 	{
 		NSMutableArray * result = [NSMutableArray arrayWithCapacity:[value count]];
 		Class proxyClass = [TiViewProxy class];
-		for (TiUIViewProxy * thisProxy in value) {
+		for (TiViewProxy * thisProxy in value) {
 			ENSURE_CLASS(thisProxy,proxyClass);
 			if (![thisProxy supportsNavBarPositioning])
 			{

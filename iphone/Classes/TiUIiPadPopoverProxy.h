@@ -25,6 +25,8 @@
 @property(nonatomic,readonly) UIPopoverController *popoverController;
 @property(nonatomic,readwrite,retain) TiViewController *viewController;
 
+-(UINavigationController *)navigationController;
+
 @end
 
 #endif

@@ -7,9 +7,9 @@
 #ifdef USE_TI_UIWEBVIEW
 
 #import "TiUIView.h"
-#import "TiEvaluator.h"
 
-@interface TiUIWebView : TiUIView<UIWebViewDelegate,TiEvaluator> {
+
+@interface TiUIWebView : TiUIView<UIWebViewDelegate> {
 @private
 	UIWebView *webview;
 	UIActivityIndicatorView *spinner;
@@ -24,6 +24,9 @@
 @property(nonatomic,readonly) id loading;
 
 -(void)evalJS:(NSArray*)args;
+-(id)evalJSAndWait:(NSString *)code;
+-(void)fireEvent:(id)listener withObject:(id)obj remove:(BOOL)yn thisObject:(id)thisObject_;
+
 -(void)canGoBack:(NSMutableArray*)result;
 -(void)canGoForward:(NSMutableArray*)result;
 

@@ -38,7 +38,7 @@
 	NSCondition *shutdownCondition;
 }
 - (void)boot:(id)callback url:(NSURL*)url preload:(NSDictionary*)preload;
-- (void)evalJS:(NSString*)code;
+- (void)evalJSWithoutResult:(NSString*)code;
 - (id)evalJSAndWait:(NSString*)code;
 
 - (void)fireEvent:(id)listener withObject:(id)obj remove:(BOOL)yn thisObject:(TiProxy*)thisObject;
