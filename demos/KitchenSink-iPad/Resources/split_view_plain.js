@@ -14,14 +14,36 @@ SplitViewPlain.masterLabel = Ti.UI.createLabel({
 
 SplitViewPlain.masterWindow.add(SplitViewPlain.masterLabel);
 
-SplitViewPlain.detailLabel = Ti.UI.createLabel({
-	color:'#fff',
-	font:{fontSize:20},
-	text:'Detail Window',
-	textAlign:'center'
+SplitViewPlain.modalButton = Ti.UI.createButton({
+	title:'Show modal',
+	width:150,
+	height:40
 });
-
-SplitViewPlain.detailWindow.add(SplitViewPlain.detailLabel);
+SplitViewPlain.detailWindow.add(SplitViewPlain.modalButton);
+SplitViewPlain.modalButton.addEventListener('click', function() {
+    var modal = Titanium.UI.createWindow({ 
+        backgroundColor:'#336699',     
+        title:'Modal Window',
+        barColor:'black',
+        modal:true
+    });
+    
+    var flexSpace = Titanium.UI.createButton({
+        systemButton:Titanium.UI.iPhone.SystemButton.FLEXIBLE_SPACE
+    });
+    
+    var bb = Ti.UI.createButton({
+    	title:'Dismiss modal',
+    	width:150,
+    	height:40
+    });
+    bb.addEventListener('click', function() {
+    	modal.close();
+    });
+    
+    modal.add(bb);
+    modal.open();
+});
 
 // SPLIT VIEW
 SplitViewPlain.splitView = Titanium.UI.iPad.createSplitWindow({

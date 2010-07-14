@@ -31,7 +31,7 @@ CGPoint midpointBetweenPoints(CGPoint a, CGPoint b)
 }
 
 
-NSString * const kKrollShutdownNotification = @"KrollShutdown";
+NSString * const kTiContextShutdownNotification = @"TiContextShutdown";
 NSString * const kTiWillShutdownNotification = @"TiWillShutdown";
 NSString * const kTiShutdownNotification = @"TiShutdown";
 NSString * const kTiSuspendNotification = @"TiSuspend";

@@ -389,8 +389,8 @@ void MyUncaughtExceptionHandler(NSException *exception)
 {
 	[[NSNotificationCenter defaultCenter] postNotificationName:kTiSuspendNotification object:self];
 	
-	// cancel any pending requests
-	[[ImageLoader sharedLoader] cancel];
+	// suspend any image loading
+	[[ImageLoader sharedLoader] suspend];
 	
 	[kjsBridge gc];
 	
@@ -405,6 +405,9 @@ void MyUncaughtExceptionHandler(NSException *exception)
 	// an incoming call, for example, and then you'll get this message afterwards
 	// this is slightly different than enter foreground
 	[[NSNotificationCenter defaultCenter] postNotificationName:kTiResumeNotification object:self];
+	
+	// resume any image loading
+	[[ImageLoader sharedLoader] resume];
 }
 
 -(void)applicationDidEnterBackground:(UIApplication *)application

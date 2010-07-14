@@ -12,7 +12,7 @@
 #import "WebFont.h"
 #import "ImageLoader.h"
 #import "TiProxy.h"
-#import "TiUIViewProxy.h"
+#import "TiViewProxy.h"
 
 #define DEFAULT_SECTION_HEADERFOOTER_HEIGHT 20.0
 
@@ -26,16 +26,6 @@
 -(id)initWithStyle:(UITableViewCellStyle)style_ reuseIdentifier:(NSString *)reuseIdentifier_ row:(TiUITableViewRowProxy *)row_
 {
 	if (self = [super initWithStyle:style_ reuseIdentifier:reuseIdentifier_]) {
-		row = [row_ retain];
-		[row setCallbackCell:self];
-	}
-	
-	return self;
-}
-
--(id)initWithFrame:(CGRect)frame_ reuseIdentifier:(NSString *)reuseIdentifier_ row:(TiUITableViewRowProxy *)row_
-{
-	if (self = [super initWithFrame:frame_ reuseIdentifier:reuseIdentifier_]) {
 		row = [row_ retain];
 		[row setCallbackCell:self];
 	}
@@ -269,9 +259,20 @@
 	
 	if ((animation == UITableViewRowAnimationNone) && ![tableview isEditing])
 	{
-		[tableview performSelectorOnMainThread:@selector(reloadData) withObject:nil waitUntilDone:NO];
+		if([NSThread isMainThread])
+		{
+			[tableview reloadData];
+		}
+		else
+		{
+			[tableview performSelectorOnMainThread:@selector(reloadData) withObject:nil waitUntilDone:NO];
+		}
 		return;
 	}
+
+	//Table views hate having 0 sections, so we have to act like it has at least 1.
+	oldCount = MAX(1,oldCount);
+	newCount = MAX(1,newCount);
 
 	int commonality = MIN(oldCount,newCount);
 	oldCount -= commonality;
@@ -493,9 +494,22 @@
 	return containerView;
 }
 
+//Because UITableView does not like having 0 sections, we MUST maintain the facade of having at least one section,
+//albeit with 0 rows. Because of this, we might come across several times where this fictional first section will
+//be asked about. Because we don't want the sections array throwing range exceptions, sectionForIndex MUST be used
+//for this protection.
+-(TiUITableViewSectionProxy *)sectionForIndex:(NSInteger) index
+{
+	if(index >= [sections count])
+	{
+		return nil;
+	}
+	return [sections objectAtIndex:index];
+}
+
 -(TiUITableViewRowProxy*)rowForIndexPath:(NSIndexPath*)indexPath
 {
-	TiUITableViewSectionProxy *section = [sections objectAtIndex:[indexPath section]];
+	TiUITableViewSectionProxy *section = [self sectionForIndex:[indexPath section]];
 	return [section rowAtIndex:[indexPath row]];
 }
 
@@ -539,14 +553,14 @@
     // for headers/footers when the frame changes.
     UIView* headerView = [[self tableView] tableHeaderView];
     if ([headerView isKindOfClass:[TiUIView class]]) {
-        [(TiUIViewProxy*)[(TiUIView*)headerView proxy] reposition];
+        [(TiViewProxy*)[(TiUIView*)headerView proxy] reposition];
         [[self tableView] setTableHeaderView:headerView];
     }
     
     // ... And we have to do the same thing for the footer.
     UIView* footerView = [[self tableView] tableFooterView];
     if ([footerView isKindOfClass:[TiUIView class]]) {
-        [(TiUIViewProxy*)[(TiUIView*)footerView proxy] reposition];
+        [(TiViewProxy*)[(TiUIView*)footerView proxy] reposition];
         [[self tableView] setTableFooterView:footerView];
     }
 	
@@ -560,7 +574,7 @@
 		index = [self indexPathFromSearchIndex:[indexPath row]];
 	}
 	int sectionIdx = [index section];
-	TiUITableViewSectionProxy *section = [sections objectAtIndex:sectionIdx];
+	TiUITableViewSectionProxy *section = [self sectionForIndex:sectionIdx];
 	
 	int rowIndex = [index row];
 	int dataIndex = 0;
@@ -934,7 +948,8 @@
 
 -(TiUIView*)sectionView:(NSInteger)section forLocation:(NSString*)location section:(TiUITableViewSectionProxy**)sectionResult
 {
-	TiUITableViewSectionProxy *proxy = [sections objectAtIndex:section];
+	TiUITableViewSectionProxy *proxy = [self sectionForIndex:section];
+	//In the event that proxy is nil, this all flows out to returning nil safely anyways.
 	if (sectionResult!=nil)
 	{
 		*sectionResult = proxy;
@@ -1265,7 +1280,7 @@ if(ourTableView != tableview)	\
 	
 	if (sections!=nil)
 	{
-		TiUITableViewSectionProxy *sectionProxy = [sections objectAtIndex:section];
+		TiUITableViewSectionProxy *sectionProxy = [self sectionForIndex:section];
 		return sectionProxy.rowCount;
 	}
 	return 0;
@@ -1305,20 +1320,21 @@ if(ourTableView != tableview)	\
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)ourTableView
 {
 	RETURN_IF_SEARCH_TABLE_VIEW(1);
-	return sections!=nil ? [sections count] : 0;
+// One quirk of UITableView is that it really hates having 0 sections. Instead, supply 1 section, no rows.
+	return sections!=nil ? MAX(1,[sections count]) : 1;
 }
 
 - (NSString *)tableView:(UITableView *)ourTableView titleForHeaderInSection:(NSInteger)section
 {
 	RETURN_IF_SEARCH_TABLE_VIEW(nil);
-	TiUITableViewSectionProxy *sectionProxy = [sections objectAtIndex:section];
+	TiUITableViewSectionProxy *sectionProxy = [self sectionForIndex:section];
 	return [sectionProxy headerTitle];
 }
 
 - (NSString *)tableView:(UITableView *)ourTableView titleForFooterInSection:(NSInteger)section
 {
 	RETURN_IF_SEARCH_TABLE_VIEW(nil);
-	TiUITableViewSectionProxy *sectionProxy = [sections objectAtIndex:section];
+	TiUITableViewSectionProxy *sectionProxy = [self sectionForIndex:section];
 	return [sectionProxy footerTitle];
 }
 
@@ -1328,7 +1344,7 @@ if(ourTableView != tableview)	\
 	RETURN_IF_SEARCH_TABLE_VIEW();
 	if (editingStyle==UITableViewCellEditingStyleDelete)
 	{
-		TiUITableViewSectionProxy *section = [sections objectAtIndex:[indexPath section]];
+		TiUITableViewSectionProxy *section = [self sectionForIndex:[indexPath section]];
 		NSInteger index = [self indexForIndexPath:indexPath];
 		UITableView *table = [self tableView];
 		NSIndexPath *path = [self indexPathFromInt:index];
@@ -1421,8 +1437,8 @@ if(ourTableView != tableview)	\
 	int fromSectionIndex = [sourceIndexPath section];
 	int toSectionIndex = [destinationIndexPath section];
 	
-	TiUITableViewSectionProxy *fromSection = [sections objectAtIndex:fromSectionIndex];
-	TiUITableViewSectionProxy *toSection = fromSectionIndex!=toSectionIndex ? [sections objectAtIndex:toSectionIndex] : fromSection;
+	TiUITableViewSectionProxy *fromSection = [self sectionForIndex:fromSectionIndex];
+	TiUITableViewSectionProxy *toSection = fromSectionIndex!=toSectionIndex ? [self sectionForIndex:toSectionIndex] : fromSection;
 	
 	TiUITableViewRowProxy *fromRow = [fromSection rowAtIndex:[sourceIndexPath row]];
 	TiUITableViewRowProxy *toRow = [toSection rowAtIndex:[destinationIndexPath row]];
@@ -1535,7 +1551,7 @@ if(ourTableView != tableview)	\
 	cell.backgroundColor = (cellColor != nil)?cellColor:[UIColor whiteColor];
 	
 	if (tableview == ourTableView) {
-		TiUITableViewSectionProxy *section = [sections objectAtIndex:[indexPath section]];
+		TiUITableViewSectionProxy *section = [self sectionForIndex:[indexPath section]];
 		if (initiallyDisplayed==NO && [indexPath section]==[sections count]-1 && [indexPath row]==[section rowCount]-1)
 		{
 			// we need to track when we've initially rendered the last row

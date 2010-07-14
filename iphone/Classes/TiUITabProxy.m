@@ -204,14 +204,33 @@
 	[root release];
 }
 
--(void)close:(id)window
+-(void)close:(id)args
 {
-	ENSURE_UI_THREAD(close,window);
-	ENSURE_SINGLE_ARG(window,TiWindowProxy);
+	ENSURE_UI_THREAD(close,args);
+
+	// Don't use ENSURE_SINGLE_ARG because it will overwrite the original 'args' value if we
+	// ARE passing more than one arg
+	TiWindowProxy* window = nil;
+	if ([args isKindOfClass:[NSArray class]]) {
+		window = [args objectAtIndex:0];
+	}
+	else {
+		window = args;
+	}
+	if (![window isKindOfClass:[TiWindowProxy class]]) {
+		[self throwException:TiExceptionInvalidType 
+				   subreason:[NSString stringWithFormat:@"expected: %@, was: %@",[TiWindowProxy class],[window class]] 
+					location:CODELOCATION];
+	}
+	
+	NSDictionary* properties = (([args isKindOfClass:[NSArray class]]) &&
+								([args count] > 1) && 
+								([[args objectAtIndex:1] isKindOfClass:[NSDictionary class]])) ? [args objectAtIndex:1] : nil;
 	
 	if ([current window] == window)
 	{
-		[[rootController navigationController] popViewControllerAnimated:YES];
+		BOOL animated = [TiUtils boolValue:@"animated" properties:properties def:YES];
+		[[rootController navigationController] popViewControllerAnimated:animated];
 		return;
 	}
 	

@@ -56,11 +56,33 @@ SplitViewNav.detailButton = Ti.UI.createButton({
 SplitViewNav.detailButton.addEventListener('click', function()
 {
 	var w = Ti.UI.createWindow({backgroundColor:'#fff'});
-	var l = Ti.UI.createLabel({
-		text:'New Window',
-		textAlign:'center'
+	var b = Ti.UI.createButton({
+		title:'Show modal',
+		width:150,
+		height:40
 	});
-	w.add(l)
+	w.add(b);
+	b.addEventListener('click', function() {
+	    var modal = Titanium.UI.createWindow({ 
+	        backgroundColor:'#336699',     
+	        title:'Modal Window',
+	        barColor:'black',
+	        modal:true
+	    });
+	    
+	    var bb = Ti.UI.createButton({
+	    	title:'Dismiss modal',
+	    	width:150,
+	    	height:40
+	    });
+	    bb.addEventListener('click', function() {
+	    	modal.close();
+	    });
+	    
+	    modal.add(bb);
+	    modal.open();
+	});
+	
 	w.addEventListener('blur', function() {
 		Titanium.UI.createAlertDialog({
 			title:'Detail blur',

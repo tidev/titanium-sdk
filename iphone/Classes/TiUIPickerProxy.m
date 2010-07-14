@@ -32,6 +32,20 @@ NSArray* pickerKeySequence;
 	[super _configure];
 }
 
+-(void)_destroy
+{
+	RELEASE_TO_NIL(selectOnLoad);
+	[super _destroy];
+}
+
+-(void)viewDidAttach
+{
+	if (selectOnLoad != nil) {
+		[self setSelectedRow:selectOnLoad];
+		RELEASE_TO_NIL(selectOnLoad);
+	}
+}
+
 -(BOOL)supportsNavBarPositioning
 {
 	return NO;
@@ -231,6 +245,12 @@ NSArray* pickerKeySequence;
 		NSInteger row = [TiUtils intValue:[args objectAtIndex:1]];
 		BOOL animated = [args count]>2 ? [TiUtils boolValue:[args objectAtIndex:2]] : YES;
 		[(TiUIPicker*)[self view] selectRowForColumn:column row:row animated:animated];
+	}
+	else {
+		if (selectOnLoad != args) {
+			RELEASE_TO_NIL(selectOnLoad);
+			selectOnLoad = [args retain];
+		}
 	}
 }
 

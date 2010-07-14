@@ -73,7 +73,6 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 -(void)gc
 {
 	[modules removeAllObjects];
-	[properties removeAllObjects];
 }
 
 -(id)valueForKey:(NSString *)key
@@ -260,7 +259,7 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 	[context start];
 }
 
-- (void)evalJS:(NSString*)code
+- (void)evalJSWithoutResult:(NSString*)code
 {
 	[context evalJS:code];
 }
@@ -400,7 +399,7 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 	
 	NSMutableString *js = [[NSMutableString alloc] init];
 	[js appendString:@"function alert(msg) { Ti.UI.createAlertDialog({title:'Alert',message:msg}).show(); };"];
-	[self evalJS:js];
+	[self evalJSWithoutResult:js];
 	[js release];
 }
 
@@ -415,7 +414,7 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 		shutdownCondition = [condition retain];
 		shutdown = YES;
 		// fire a notification event to our listeners
-		NSNotification *notification = [NSNotification notificationWithName:kKrollShutdownNotification object:self];
+		NSNotification *notification = [NSNotification notificationWithName:kTiContextShutdownNotification object:self];
 		[[NSNotificationCenter defaultCenter] postNotification:notification];
 		
 		[context stop];
@@ -467,7 +466,7 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 		{
 			id target = [preload objectForKey:key];
 			KrollObject *ko = [[KrollObject alloc] initWithTarget:target context:context];
-			[ti setStaticValue:ko forKey:key];
+			[ti setStaticValue:ko forKey:key purgable:NO];
 			[ko release];
 		}
 		[self injectPatches];
@@ -488,7 +487,7 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 	{
 		shutdown = YES;
 		// fire a notification event to our listeners
-		NSNotification *notification = [NSNotification notificationWithName:kKrollShutdownNotification object:self];
+		NSNotification *notification = [NSNotification notificationWithName:kTiContextShutdownNotification object:self];
 		[[NSNotificationCenter defaultCenter] postNotification:notification];
 	}
 	[titanium gc];

@@ -16,6 +16,7 @@
 -(void)_initWithProperties:(NSDictionary *)properties
 {
 	// set the initial scale to 1.0 which is the default
+	// FIXME: Not going to do this right before release because it might break some things, but we should rename this property to zoomScale and tie it to the scroll view's value.
 	[self replaceValue:NUMFLOAT(1.0) forKey:@"scale" notification:NO];
 	[self replaceValue:NUMBOOL(YES) forKey:@"canCancelEvents" notification:NO];
 	[super _initWithProperties:properties];

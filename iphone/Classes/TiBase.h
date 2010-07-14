@@ -423,7 +423,7 @@ typedef enum {
 } TiNetworkConnectionState;
 
 
-extern NSString * const kKrollShutdownNotification;
+extern NSString * const kTiContextShutdownNotification;
 extern NSString * const kTiWillShutdownNotification;
 extern NSString * const kTiShutdownNotification;
 extern NSString * const kTiSuspendNotification;

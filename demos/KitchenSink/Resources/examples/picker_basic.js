@@ -45,3 +45,5 @@ picker.addEventListener('change',function(e)
 	Ti.API.info("You selected row: "+e.row+", column: "+e.column+", custom_item: "+e.row.custom_item);
 	label.text = "row index: "+e.rowIndex+", column index: "+e.columnIndex;
 });
+
+picker.setSelectedRow(0,1,false);
