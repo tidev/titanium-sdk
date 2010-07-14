@@ -71,7 +71,7 @@
 	
 	CGFloat x = toolFrame.origin.x;
 	CGFloat y = toolFrame.origin.y+toolFrame.size.height;
-	if ([self contentScaleFactor] > 1.0)
+	if ([TiUtils isIOS4OrGreater] && [self contentScaleFactor] > 1.0)
 	{ //Yes, this seems very hackish. Very low priority would be to use something more elegant.
 		y -= 0.5;
 	}
