@@ -61,7 +61,6 @@
 {
 	[self _destroy];
 	
-	RELEASE_TO_NIL(barButtonItem);
 	RELEASE_TO_NIL(pendingAdds);
 	
 	//Dealing with children is in _destroy, which is called by super dealloc.
@@ -823,7 +822,19 @@
 	// since some of these objects are registered in the context and thus still
 	// reachable, we need _destroy to help us start the unreferencing part
 	
-	RELEASE_TO_NIL(barButtonItem);
+	if (barButtonItem != nil)
+	{
+		if ([NSThread isMainThread])
+		{
+			RELEASE_TO_NIL(barButtonItem);
+		}
+		else
+		{
+			[barButtonItem performSelectorOnMainThread:@selector(release) withObject:nil waitUntilDone:NO];
+			barButtonItem = nil;
+		}
+	}
+
 	if (view!=nil)
 	{
 		if ([NSThread isMainThread])
@@ -832,7 +843,9 @@
 		}
 		else
 		{
-			RELEASE_TO_NIL(view);
+			view.proxy = nil;
+			[view performSelectorOnMainThread:@selector(release) withObject:nil waitUntilDone:NO];
+			view = nil;
 		}
 	}
 	
