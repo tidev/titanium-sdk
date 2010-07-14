@@ -257,6 +257,60 @@ NSDictionary* keyboardUserInfo;
 	toolbarVisible = NO;
 }
 
+-(void)extractKeyboardInfo:(NSDictionary *)userInfo fromRect:(CGRect *)startingFramePtr toRect:(CGRect *)endingFramePtr
+{
+	NSValue *v = nil;
+	CGRect endingFrame;
+	BOOL canUse32Constants = [TiUtils isiPhoneOS3_2OrGreater];
+
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
+	if (canUse32Constants)
+	{
+		v = [userInfo valueForKey:UIKeyboardFrameEndUserInfoKey];
+	}
+#endif
+	
+	if (v != nil)
+	{
+		endingFrame = [v CGRectValue];
+	}
+	else
+	{
+		v = [userInfo valueForKey:UIKeyboardBoundsUserInfoKey];
+		endingFrame = [v CGRectValue];
+		v = [userInfo valueForKey:UIKeyboardCenterEndUserInfoKey];
+		CGPoint endingCenter = [v CGPointValue];
+		endingFrame.origin.x = endingCenter.x - endingFrame.size.width/2.0;
+		endingFrame.origin.y = endingCenter.y - endingFrame.size.height/2.0;
+	}
+
+	CGRect startingFrame;
+	v = nil;
+	
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
+	if (canUse32Constants)
+	{
+		v = [userInfo valueForKey:UIKeyboardFrameBeginUserInfoKey];
+	}
+#endif
+
+	if (v != nil)
+	{
+		startingFrame = [v CGRectValue];
+	}
+	else
+	{
+		startingFrame.size = endingFrame.size;
+		v = [userInfo valueForKey:UIKeyboardCenterBeginUserInfoKey];
+		CGPoint startingCenter = [v CGPointValue];
+		startingFrame.origin.x = startingCenter.x - startingFrame.size.width/2.0;
+		startingFrame.origin.y = startingCenter.y - startingFrame.size.height/2.0;
+	}
+
+	*startingFramePtr = startingFrame;
+	*endingFramePtr = endingFrame;
+}
+
 - (void)keyboardWillShow:(NSNotification*)notification 
 {
 	if (![textWidgetView isFirstResponder] || (notification.userInfo == nil))
@@ -265,62 +319,29 @@ NSDictionary* keyboardUserInfo;
 	}
 	
 	self.keyboardUserInfo = notification.userInfo;
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0
-	NSValue *v = [keyboardUserInfo valueForKey:UIKeyboardFrameEndUserInfoKey];
-#else
-	NSValue *v = [keyboardUserInfo valueForKey:UIKeyboardBoundsUserInfoKey];
-#endif
-	CGRect kbBounds = [v CGRectValue];
-
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0
-	NSValue *v2 = [keyboardUserInfo valueForKey:UIKeyboardFrameEndUserInfoKey];
-	CGPoint kbEndPoint = [v2 CGRectValue].origin;
-#else
-	NSValue *v2 = [keyboardUserInfo valueForKey:UIKeyboardCenterEndUserInfoKey];
-	CGPoint kbEndPoint = [v2 CGPointValue];
-#endif
 	
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0
-	NSValue *v3 = [keyboardUserInfo valueForKey:UIKeyboardFrameBeginUserInfoKey];
-	CGPoint kbStartPoint = [v3 CGRectValue].origin;
-#else
-	NSValue *v3 = [keyboardUserInfo valueForKey:UIKeyboardCenterBeginUserInfoKey];
-	CGPoint kbStartPoint = [v3 CGPointValue];
-#endif
-	CGFloat kbEndTop = kbEndPoint.y - (kbBounds.size.height / 2);
-	
+	CGRect startingFrame;
+	CGRect endingFrame;
+	[self extractKeyboardInfo:keyboardUserInfo fromRect:&startingFrame toRect:&endingFrame];
 
 	if ((toolbar!=nil) && !toolbarVisible)
 	{
 		CGFloat height = MAX(toolbarHeight,40);
+		endingFrame.origin.y -= height;	//So that the effective keyboard top is accounted for below.
 
-#if __IPHONE_OS_VERSION_MAX_ALLOWED < __IPHONE_4_0
-		kbEndTop -= height;	//This also affects tweaking the scroll view.
-		toolbar.bounds = CGRectMake(0, 0, kbBounds.size.width, height);
-#else
-		toolbar.frame = CGRectMake(kbStartPoint.x, kbStartPoint.y, kbBounds.size.width, height);
-#endif
+		toolbar.frame = CGRectMake(startingFrame.origin.x, startingFrame.origin.y, startingFrame.size.width, height);
 		
 		[[self window] addSubview:toolbar];
 
 		[toolbar setHidden:NO];
 
-		
-		// start at the top
-#if __IPHONE_OS_VERSION_MAX_ALLOWED < __IPHONE_4_0
-		toolbar.center = CGPointMake(kbStartPoint.x, kbStartPoint.y - (kbBounds.size.height - height)/2);
-#endif
 		[self attachKeyboardToolbar];
 		
 		// now animate with the keyboard as it moves up
 		[UIView beginAnimations:nil context:nil];
 		[UIView setAnimationCurve:[[keyboardUserInfo valueForKey:UIKeyboardAnimationCurveUserInfoKey] intValue]];
 		[UIView setAnimationDuration:[[keyboardUserInfo valueForKey:UIKeyboardAnimationDurationUserInfoKey] floatValue]];
-#if __IPHONE_OS_VERSION_MAX_ALLOWED < __IPHONE_4_0
-		toolbar.center = CGPointMake(kbEndPoint.x, kbEndPoint.y - (kbBounds.size.height + height)/2);
-#else
-		toolbar.frame = CGRectMake(kbEndPoint.x, kbEndPoint.y-height, kbBounds.size.width, height);
-#endif
+		toolbar.frame = CGRectMake(endingFrame.origin.x, endingFrame.origin.y, endingFrame.size.width, height);
 		[UIView commitAnimations];
 
 		toolbarVisible = YES;
@@ -339,7 +360,7 @@ NSDictionary* keyboardUserInfo;
 			possibleScrollView = [possibleScrollView superview];
 		}
 		
-		[parentScrollView keyboardDidShowAtHeight:kbEndTop forView:self];
+		[parentScrollView keyboardDidShowAtHeight:endingFrame.origin.y forView:self];
 	}
 }
 
@@ -380,20 +401,10 @@ NSDictionary* keyboardUserInfo;
 		}
 		
 		NSDictionary *userInfo = notification.userInfo;
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0
-		NSValue *v = [userInfo valueForKey:UIKeyboardFrameBeginUserInfoKey];
-#else
-		NSValue *v = [userInfo valueForKey:UIKeyboardBoundsUserInfoKey];
-#endif
-		CGRect kbBounds = [v CGRectValue];
 
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0
-		NSValue *v2 = [userInfo valueForKey:UIKeyboardFrameEndUserInfoKey];
-		CGPoint kbEndPoint = [v2 CGRectValue].origin;
-#else
-		NSValue *v2 = [userInfo valueForKey:UIKeyboardCenterEndUserInfoKey];
-		CGPoint kbEndPoint = [v2 CGPointValue];
-#endif
+		CGRect startingFrame;
+		CGRect endingFrame;
+		[self extractKeyboardInfo:userInfo fromRect:&startingFrame toRect:&endingFrame];
 
 		[UIView beginAnimations:nil context:nil];
 		[UIView setAnimationCurve:[[userInfo valueForKey:UIKeyboardAnimationCurveUserInfoKey] intValue]];
@@ -401,37 +412,17 @@ NSDictionary* keyboardUserInfo;
 		
 		CGFloat height = [toolbar bounds].size.height;
 		
-		CGPoint newCenter;
-		newCenter.x = kbEndPoint.x;
-
 		if (stillIsResponder)
 		{
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0
-			NSValue *v3 = [userInfo valueForKey:UIKeyboardFrameBeginUserInfoKey];
-			CGPoint kbStartPoint = [v3 CGRectValue].origin;
-#else
-			NSValue *v3 = [userInfo valueForKey:UIKeyboardCenterBeginUserInfoKey];
-			CGPoint kbStartPoint = [v3 CGPointValue];
-#endif
-			newCenter.y = kbStartPoint.y - (kbBounds.size.height + height)/2;
+			endingFrame.origin.y = startingFrame.origin.y;
 		}
-		else
+		else if (![TiUtils isiPhoneOS3_2OrGreater])
 		{
-			newCenter.y = kbEndPoint.y - (kbBounds.size.height - height)/2;
-			
-			// We can't do this under iOS3.2/4 because otherwise it screws up due
-			// to the fact that we're in the wrong place in the responder chain.
-			if (![TiUtils isiPhoneOS3_2OrGreater]) {
-				[UIView setAnimationDelegate:self];
-				[UIView setAnimationDidStopSelector:@selector(removeToolbar)];
-			}
+			[UIView setAnimationDelegate:self];
+			[UIView setAnimationDidStopSelector:@selector(removeToolbar)];
 		}
 
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0
-		toolbar.frame = CGRectMake(kbEndPoint.x, kbEndPoint.y, kbBounds.size.width, height);
-#else
-		toolbar.center = newCenter;
-#endif
+		toolbar.frame = CGRectMake(endingFrame.origin.x,endingFrame.origin.y,endingFrame.size.width,height);
 		[UIView commitAnimations];
 
 		toolbarVisible = stillIsResponder;
