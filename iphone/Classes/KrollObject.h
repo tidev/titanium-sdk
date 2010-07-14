@@ -28,11 +28,14 @@ bool KrollDeleteProperty(TiContextRef ctx, TiObjectRef object, TiStringRef prope
 // in JS land. 
 //
 @interface KrollObject : NSObject {
+@private
+	NSMutableDictionary *properties;
+	NSMutableDictionary *statics;
+	TiObjectRef jsobject;
+	BOOL targetable;
 @protected
 	id target;
 	KrollContext *context;
-	NSMutableDictionary *properties;
-	TiObjectRef jsobject;
 }
 -(id)initWithTarget:(id)target_ context:(KrollContext*)context_;
 
@@ -45,7 +48,7 @@ bool KrollDeleteProperty(TiContextRef ctx, TiObjectRef object, TiStringRef prope
 -(id)valueForKey:(NSString *)key;
 -(void)deleteKey:(NSString *)key;
 -(void)setValue:(id)value forKey:(NSString *)key;
--(void)setStaticValue:(id)value forKey:(NSString*)key;
+-(void)setStaticValue:(id)value forKey:(NSString*)key purgable:(BOOL)purgable;
 -(KrollContext*)context;
 -(id)target;
 
