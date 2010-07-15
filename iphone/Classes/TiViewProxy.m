@@ -340,11 +340,15 @@
 
 -(id)width
 {
+	CGFloat value = [TiUtils floatValue:[self valueForUndefinedKey:@"width"] def:0];
+	if (value!=0) return NUMFLOAT(value);
 	return [self size].width;
 }
 
 -(id)height
 {
+	CGFloat value = [TiUtils floatValue:[self valueForUndefinedKey:@"height"] def:0];
+	if (value!=0) return NUMFLOAT(value);
 	return [self size].height;
 }
 
