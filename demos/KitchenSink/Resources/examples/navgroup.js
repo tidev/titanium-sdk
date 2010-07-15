@@ -4,6 +4,7 @@
 
 var open = Ti.UI.createButton({
 	title:'Open nav group',
+	top:150,
 	width:200,
 	height:40
 });

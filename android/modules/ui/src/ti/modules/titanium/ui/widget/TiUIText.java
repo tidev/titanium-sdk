@@ -62,6 +62,12 @@ public class TiUIText extends TiUIView
 	private static final int KEYBOARD_NAMEPHONE_PAD = 6;
 	private static final int KEYBOARD_DEFAULT = 7;
 	private static final int KEYBOARD_PASSWORD = 8; // Not a public constant
+	
+	// UIModule also has these as values - there's a chance they won't stay in sync if somebody changes one without changing these
+	private static final int TEXT_AUTOCAPITALIZATION_NONE = 0;
+	private static final int TEXT_AUTOCAPITALIZATION_SENTENCES = 1;
+	private static final int TEXT_AUTOCAPITALIZATION_WORDS = 2;
+	private static final int TEXT_AUTOCAPITALIZATION_ALL = 3;
 
 	private boolean field;
 
@@ -134,8 +140,42 @@ public class TiUIText extends TiUIView
 			}
 			handleKeyboardType(d.getInt("keyboardType"), autocorrect);
 		}
+		
+		if (d.containsKey("autocapitalization")) {
+			
+			Capitalize autoCapValue = null;
+			
+			switch (d.getInt("autocapitalization")) {
+				case TEXT_AUTOCAPITALIZATION_NONE:
+					autoCapValue = Capitalize.NONE;
+				break;
+				
+				case TEXT_AUTOCAPITALIZATION_ALL:
+					autoCapValue = Capitalize.CHARACTERS;
+				break;
+				
+				case TEXT_AUTOCAPITALIZATION_SENTENCES:
+					autoCapValue = Capitalize.SENTENCES;
+				break;
+				
+				case TEXT_AUTOCAPITALIZATION_WORDS:
+					autoCapValue = Capitalize.WORDS;
+				break;
+	
+				default:
+					Log.w(LCAT, "Unknown AutoCapitalization Value ["+d.getString("autocapitalization")+"]");
+				break;
+			}
+			
+			if (null != autoCapValue) {
+				tv.setKeyListener(TextKeyListener.getInstance(false,autoCapValue));					
+			}
+		}
+		
 		if (d.containsKey("passwordMask")) {
-			if (d.getBoolean("passwordMask")) {
+			if (TiConvert.toBoolean(d.get("passwordMask"))) {
+				// This shouldn't be needed but it's belts & braces
+				tv.setKeyListener(TextKeyListener.getInstance(false, Capitalize.NONE));
 				// Both setTransform & keyboard type are required
 				tv.setTransformationMethod(PasswordTransformationMethod.getInstance());
 				// We also need to set the keyboard type - otherwise the password mask won't be applied
@@ -178,14 +218,36 @@ public class TiUIText extends TiUIView
 			}
 			handleTextAlign(textAlign, verticalAlign);
 		} else if (key.equals("autocapitalization")) {
+			
 			// TODO Missing
-			if (TiConvert.toBoolean(newValue)==true) {
-				// TODO: This probably needs the capitalisation default to be set
-				tv.setKeyListener(TextKeyListener.getInstance(false,Capitalize.SENTENCES));	
-			} else {
-				// Reset it
-				tv.setKeyListener(TextKeyListener.getInstance());				
+			Capitalize autoCapValue = null;
+			
+			switch (TiConvert.toInt(newValue)) {
+				case TEXT_AUTOCAPITALIZATION_NONE:
+					autoCapValue = Capitalize.NONE;
+				break;
+				
+				case TEXT_AUTOCAPITALIZATION_ALL:
+					autoCapValue = Capitalize.CHARACTERS;
+				break;
+				
+				case TEXT_AUTOCAPITALIZATION_SENTENCES:
+					autoCapValue = Capitalize.SENTENCES;
+				break;
+				
+				case TEXT_AUTOCAPITALIZATION_WORDS:
+					autoCapValue = Capitalize.WORDS;
+				break;
+	
+				default:
+					Log.w(LCAT, "Unknown AutoCapitalization Value ["+TiConvert.toString(newValue)+"]");
+				break;
 			}
+			
+			if (null != autoCapValue) {
+				tv.setKeyListener(TextKeyListener.getInstance(false,autoCapValue));					
+			}			
+
 		} else if (key.equals("keyboardType") || (key.equals("autocorrect"))) {
 			TiDict d = proxy.getDynamicProperties();
 			boolean autocorrect = true;

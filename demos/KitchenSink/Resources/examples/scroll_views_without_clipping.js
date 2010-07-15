@@ -10,7 +10,9 @@ var cover = Titanium.UI.createView({
 	zIndex:5
 });
 win.add(cover);
+win.addEventListener('open',function(E){
 cover.animate({opacity:0,duration:2000});
+});
 
 
 

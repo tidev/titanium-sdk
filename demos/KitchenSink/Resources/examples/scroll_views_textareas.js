@@ -1,7 +1,7 @@
 var win = Ti.UI.currentWindow;
 
 var scrollView = Ti.UI.createScrollView({
-	contentHeight:500,
+	contentHeight:'auto',
 	contentWidth:'auto'
 });
 

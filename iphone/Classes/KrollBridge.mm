@@ -73,7 +73,6 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 -(void)gc
 {
 	[modules removeAllObjects];
-	[properties removeAllObjects];
 }
 
 -(id)valueForKey:(NSString *)key
@@ -467,7 +466,7 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 		{
 			id target = [preload objectForKey:key];
 			KrollObject *ko = [[KrollObject alloc] initWithTarget:target context:context];
-			[ti setStaticValue:ko forKey:key];
+			[ti setStaticValue:ko forKey:key purgable:NO];
 			[ko release];
 		}
 		[self injectPatches];
