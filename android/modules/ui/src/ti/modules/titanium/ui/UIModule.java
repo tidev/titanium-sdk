@@ -15,6 +15,7 @@ import org.appcelerator.titanium.util.TiConvert;
 import android.app.Activity;
 import android.content.pm.ActivityInfo;
 import android.graphics.drawable.ColorDrawable;
+import android.text.method.TextKeyListener.Capitalize;
 import android.view.Window;
 import android.widget.Toast;
 
@@ -97,6 +98,12 @@ public class UIModule extends TiModule
 			
 			constants.put("NOTIFICATION_DURATION_LONG", Toast.LENGTH_LONG);
 			constants.put("NOTIFICATION_DURATION_SHORT", Toast.LENGTH_SHORT);
+			
+			constants.put("TEXT_AUTOCAPITALIZATION_NONE", 0);
+			constants.put("TEXT_AUTOCAPITALIZATION_SENTENCES", 1);
+			constants.put("TEXT_AUTOCAPITALIZATION_WORDS", 2);
+			constants.put("TEXT_AUTOCAPITALIZATION_ALL", 3);
+			
 		}
 
 		return constants;

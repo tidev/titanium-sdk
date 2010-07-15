@@ -272,6 +272,8 @@ else
 	else
 	{
 		Titanium.API.info("No Compass on device");
+		currentHeading.text = 'No compass available';
+		updatedHeading.text = 'No compass available';
 	}
 
 	//
