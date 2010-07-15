@@ -200,7 +200,7 @@ DEFINE_EXCEPTIONS
 	}
 	else 
 	{
-		[self performSelectorOnMainThread:@selector(removeFromSuperview) withObject:nil waitUntilDone:YES];
+		[self performSelectorOnMainThread:@selector(removeFromSuperview) withObject:nil waitUntilDone:NO];
 	}
 }
 
