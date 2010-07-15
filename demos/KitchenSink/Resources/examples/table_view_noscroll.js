@@ -1,6 +1,12 @@
 var w = Ti.UI.currentWindow;
+var search = Titanium.UI.createSearchBar({
+	showCancel:false,
+	hintText:'search'
+});
+
 var tv = Ti.UI.createTableView({
-	scrollable:false
+	scrollable:false,
+	search:search
 });
 w.add(tv);
 
