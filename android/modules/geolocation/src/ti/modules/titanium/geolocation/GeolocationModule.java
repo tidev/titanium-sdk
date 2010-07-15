@@ -18,6 +18,7 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
+import org.appcelerator.titanium.ContextSpecific;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiDict;
 import org.appcelerator.titanium.TiModule;
@@ -34,6 +35,7 @@ import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Message;
 
+@ContextSpecific
 public class GeolocationModule
 	extends TiModule
 {
@@ -335,6 +337,8 @@ public class GeolocationModule
 
 	@Override
 	public void onResume() {
+		Log.i(LCAT, "onResume");
+		
 		super.onResume();
 
 		tiLocation.onResume();
@@ -343,6 +347,7 @@ public class GeolocationModule
 
 	@Override
 	public void onPause() {
+		Log.i(LCAT, "onPause");
 		super.onPause();
 
 		tiLocation.onPause();

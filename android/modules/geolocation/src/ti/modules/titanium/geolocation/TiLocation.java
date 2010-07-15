@@ -77,6 +77,8 @@ public class TiLocation
 	//							lastEventTimestamp = location.getTime();
 	//						}
 					}
+				} else {
+					Log.i(LCAT, "onLocationChanged - Location Manager null");					
 				}
 			}
 
@@ -126,9 +128,11 @@ public class TiLocation
 			if (location != null) {
 				listener.callWithProperties(locationToTiDict(location, locationManager.getProvider(provider)));
 			} else {
+				Log.i(LCAT, "getCurrentPosition - location is null");
 				listener.callWithProperties(TiConvert.toErrorObject(ERR_POSITION_UNAVAILABLE, "location is currently unavailable."));
 			}
 		} else {
+			Log.i(LCAT, "getCurrentPosition - listener or locationManager null");
 			listener.callWithProperties(TiConvert.toErrorObject(ERR_POSITION_UNAVAILABLE, "location is currently unavailable."));
 		}
 	}
@@ -312,13 +316,19 @@ public class TiLocation
 					}					
 				}
 				enabled = true;
+			} else {
+				Log.i(LCAT, "No available providers");
 			}
+		} else {
+			Log.i(LCAT, "Location Manager null");
 		}
 
 		return enabled;
 	}
 
 	public void onResume() {
+		
+		Log.i(LCAT, "onResume");
 
 		locationManager = (LocationManager) proxy.getTiContext().getActivity().getSystemService(Context.LOCATION_SERVICE);
 
@@ -328,6 +338,8 @@ public class TiLocation
 	}
 
 	public void onPause() {
+
+		Log.i(LCAT, "onPause");
 
 		if (listeningForGeo) {
 			manageLocationListener(false);
