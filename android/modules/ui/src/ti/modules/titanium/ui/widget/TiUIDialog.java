@@ -14,6 +14,7 @@ import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiUIView;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
 import android.content.DialogInterface;
@@ -45,7 +46,11 @@ public class TiUIDialog extends TiUIView
 			Log.d(LCAT, "Creating a dialog");
 		}
 
-		this.builder = new AlertDialog.Builder(proxy.getContext());
+		Activity currentActivity = proxy.getTiContext().getTiApp().getCurrentActivity();
+		if (currentActivity == null) {
+			currentActivity = proxy.getTiContext().getActivity();
+		}
+		this.builder = new AlertDialog.Builder(currentActivity);
 		this.builder.setCancelable(true);
 	}
 
