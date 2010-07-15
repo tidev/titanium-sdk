@@ -814,13 +814,21 @@
 		// not safe to do multiple times given rwlock
 		return;
 	}
-	[childrenLock lock];
-	
 	// _destroy is called during a JS context shutdown, to inform the object to 
 	// release all its memory and references.  this will then cause dealloc 
 	// on objects that it contains (assuming we don't have circular references)
 	// since some of these objects are registered in the context and thus still
 	// reachable, we need _destroy to help us start the unreferencing part
+
+
+	[childrenLock lock];
+	RELEASE_TO_NIL(children);
+	[childrenLock unlock];
+	[super _destroy];
+
+	//Part of super's _destroy is to release the modelDelegate, which in our case is ALSO the view.
+	//As such, we need to have the super happen before we release the view, so that we can insure that the
+	//release that triggers the dealloc happens on the main thread.
 	
 	if (barButtonItem != nil)
 	{
@@ -848,10 +856,6 @@
 			view = nil;
 		}
 	}
-	
-	RELEASE_TO_NIL(children);
-	[childrenLock unlock];
-	[super _destroy];
 }
 
 -(void)destroy
