@@ -31,6 +31,7 @@ var l1 = Ti.UI.createLabel({
 var s1 = Ti.UI.createSwitch({
 	value:true,
 	right:10,
+	top:5
 });
 s1.addEventListener('change', function() {
 	if (s1.value) {
@@ -56,6 +57,7 @@ var l2 = Ti.UI.createLabel({
 var s2 = Ti.UI.createSwitch({
 	value:false,
 	right:10,
+	top:5
 });
 s2.addEventListener('change', function() {
 	if (s2.value) {
@@ -80,7 +82,8 @@ var l3 = Ti.UI.createLabel({
 });
 var s3 = Ti.UI.createSwitch({
 	value:false,
-	right:10
+	right:10,
+	top:5
 });
 s3.addEventListener('change', function() {
 	if (s3.value) {
@@ -110,7 +113,8 @@ var l4 = Ti.UI.createLabel({
 });
 var s4 = Ti.UI.createSwitch({
 	value:false,
-	right:10
+	right:10,
+	top:5
 });
 s4.addEventListener('change', function() {
 	if (s4.value) {
