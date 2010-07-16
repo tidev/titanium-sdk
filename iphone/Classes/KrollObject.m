@@ -446,9 +446,6 @@ bool KrollSetProperty(TiContextRef jsContext, TiObjectRef object, TiStringRef pr
 			classDef.deleteProperty = KrollDeleteProperty;
 			KrollObjectClassRef = TiClassCreate(&classDef);
 		}
-		if (cacheLock == nil) {
-			cacheLock = [[NSLock alloc] init];
-		}
 		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveMemoryWarning:) name:UIApplicationDidReceiveMemoryWarningNotification object:nil];
 	}
 	return self;
@@ -574,6 +571,10 @@ bool KrollSetProperty(TiContextRef jsContext, TiObjectRef object, TiStringRef pr
 
 -(void)cacheSelector:(SEL)sel forKey:(NSString*)key
 {
+	if (cacheLock == nil) {
+		cacheLock = [[NSLock alloc] init];
+	}
+	
 	[cacheLock lock];
 	if (selectorProperties==nil)
 	{
@@ -592,6 +593,11 @@ bool KrollSetProperty(TiContextRef jsContext, TiObjectRef object, TiStringRef pr
 	NSString *cacheKey = [self makeCacheSelectorKey:key];
 
 	// use a cached selector if we can
+	// Don't create the lock until necessary
+	if (cacheLock == nil) {
+		cacheLock = [[NSLock alloc] init];
+	}
+	
 	[cacheLock lock];
 	if (selectorProperties!=nil)
 	{
