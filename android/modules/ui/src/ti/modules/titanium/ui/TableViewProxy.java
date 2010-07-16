@@ -50,6 +50,7 @@ public class TableViewProxy extends TiViewProxy
 		Object o = getDynamicValue("data");
 		if (o != null) {
 			processData((Object[]) o);
+			getDynamicProperties().remove("data"); // don't hide getData
 		}
 	}
 
@@ -256,18 +257,20 @@ public class TableViewProxy extends TiViewProxy
 	}
 
 	public void setData(Object[] data, TiDict options) {
-		processData(data);
-		getTableView().setModelDirty();
-		updateView();
+		if (data != null) {
+			processData(data);
+			getTableView().setModelDirty();
+			updateView();
+		}
 	}
 	
 	public Object[] getData() {
-		ArrayList<TableViewRowProxy> rows = new ArrayList<TableViewRowProxy>();
 		ArrayList<TableViewSectionProxy> sections = getSections();
-		for (int i = 0; i < sections.size(); i++) {
-			rows.addAll(Arrays.asList(sections.get(i).getRows()));
+		if (sections != null) {
+			return sections.toArray();
 		}
-		return rows.toArray();
+		
+		return new Object[0];		
 	}
 
 	private TableViewRowProxy rowProxyFor(Object row) {
