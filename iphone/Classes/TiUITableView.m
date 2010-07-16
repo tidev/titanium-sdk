@@ -111,6 +111,11 @@
 	[super dealloc];
 }
 
+-(BOOL)isScrollable
+{
+	return [TiUtils boolValue:[self.proxy valueForUndefinedKey:@"scrollable"] def:YES];
+}
+
 -(CGFloat)tableRowHeight:(CGFloat)height
 {
 	if (TiDimensionIsPixels(rowHeight))
@@ -804,7 +809,7 @@
 	[[searchField view] resignFirstResponder];
 	[self makeRootViewFirstResponder];
 	[searchTableView removeFromSuperview];
-	[tableview setScrollEnabled:YES];
+	[tableview setScrollEnabled:[self isScrollable]];
 	[self.proxy replaceValue:NUMBOOL(YES) forKey:@"searchHidden" notification:NO];
 	[searchController setActive:NO animated:YES];
 	
