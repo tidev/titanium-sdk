@@ -246,7 +246,9 @@ public class KrollObject extends ScriptableObject
 						Context.throwAsScriptRuntimeEx(e);
 					}
 				} else {
-					o = km;
+					if (name.startsWith("get")) {
+						o = km;
+					}
 				}
 			}
 
@@ -259,7 +261,9 @@ public class KrollObject extends ScriptableObject
 				km = new KrollMethod(this, target, setMethod, KrollMethodType.KrollMethodSetter);
 				put(buildMethodName("set", pname), this, km);
 				if (!getRetrieved) {
-					o = km;
+					if (name.startsWith("set")) {
+						o = km;
+					}
 				}
 				// pass value through to native
 				if (!retrieveValue) {

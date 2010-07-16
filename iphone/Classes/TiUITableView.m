@@ -1367,8 +1367,17 @@ if(ourTableView != tableview)	\
 
 		[table beginUpdates];
         [table deleteRowsAtIndexPaths:[NSArray arrayWithObject:path] withRowAnimation:UITableViewRowAnimationFade];
-        if (emptySection) {
-            [table deleteSections:[NSIndexSet indexSetWithIndex:[indexPath section]] withRowAnimation:UITableViewRowAnimationFade];
+        if (emptySection)
+		{
+			NSIndexSet * thisSectionSet = [NSIndexSet indexSetWithIndex:[indexPath section]];
+			if([sections count] > 0)) {
+				[table deleteSections:thisSectionSet withRowAnimation:UITableViewRowAnimationFade];
+			}
+			else	//There always must be at least one section. So instead, we have it reload to clear out the header and footer, etc.
+			{
+				[table reloadSections:thisSectionSet withRowAnimation:UITableViewRowAnimationFade];
+			}
+
         }
 		[table endUpdates];
 	}
