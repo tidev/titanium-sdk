@@ -417,6 +417,7 @@
 
 -(void)detachView
 {
+	[destroyLock lock];
 	if (view!=nil)
 	{
 		[self viewWillDetach];
@@ -432,6 +433,7 @@
 		RELEASE_TO_NIL(view);
 		[self viewDidDetach];
 	}
+	[destroyLock unlock];
 }
 
 -(void)windowWillOpen
