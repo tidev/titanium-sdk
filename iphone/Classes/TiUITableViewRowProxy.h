@@ -46,7 +46,7 @@ typedef enum
 @property(nonatomic,readwrite,retain) TiUITableView *table;
 @property(nonatomic,readwrite,assign) TiUITableViewSectionProxy *section;
 @property(nonatomic,readwrite,assign) NSInteger row;
-@property(nonatomic,readwrite,assign) TiUITableViewCell* callbackCell;
+@property(nonatomic,readwrite,retain) TiUITableViewCell* callbackCell;
 
 -(void)initializeTableViewCell:(UITableViewCell*)cell;
 -(void)renderTableViewCell:(UITableViewCell*)cell;
