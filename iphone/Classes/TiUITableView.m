@@ -882,7 +882,7 @@
 	}
 	
 	UIView * searchView = [searchField view];
-	
+
 	if (tableHeaderView == nil)
 	{
 		CGRect wrapperFrame = CGRectMake(0, 0, [tableview bounds].size.width, TI_NAVBAR_HEIGHT);
@@ -1075,6 +1075,8 @@
 		searchController.searchResultsDelegate = self;
 		searchController.delegate = self;
 		
+		[self updateSearchView];
+
 		if (searchHiddenSet==NO)
 		{
 			return;
@@ -1092,6 +1094,7 @@
 	{
 		searchHidden = YES;
 		[self.proxy replaceValue:NUMBOOL(NO) forKey:@"searchHidden" notification:NO];
+		[self updateSearchView];
 	}
 }
 
@@ -1370,7 +1373,8 @@ if(ourTableView != tableview)	\
         if (emptySection)
 		{
 			NSIndexSet * thisSectionSet = [NSIndexSet indexSetWithIndex:[indexPath section]];
-			if([sections count] > 0)) {
+			if([sections count] > 0)
+			{
 				[table deleteSections:thisSectionSet withRowAnimation:UITableViewRowAnimationFade];
 			}
 			else	//There always must be at least one section. So instead, we have it reload to clear out the header and footer, etc.
