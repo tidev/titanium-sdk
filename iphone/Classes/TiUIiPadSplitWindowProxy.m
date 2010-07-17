@@ -27,6 +27,7 @@
 	}
 	TiUIiPadSplitWindow *view = (TiUIiPadSplitWindow*)[self view];
 	UIViewController *c = [view controller];
+	[c setProxy:self];
 	self.controller = c;
 	return c;
 }

@@ -15,6 +15,7 @@
 #import "TiViewProxy.h"
 
 @implementation TiSplitViewController
+@synthesize proxy;
 
 -(id)initWithRootController:(TiRootViewController *)rootController masterProxy:(TiViewProxy*)master_ detailProxy:(TiViewProxy*)detail_
 {
@@ -153,6 +154,11 @@
 	VerboseLog(@"Rotating to %d (Landscape? %d)",toInterfaceOrientation,UIInterfaceOrientationIsLandscape(toInterfaceOrientation));
 	[self manuallyRotateToOrientation:toInterfaceOrientation duration:duration];
 	[super willAnimateRotationToInterfaceOrientation:toInterfaceOrientation duration:duration];
+}
+
+-(void)setOrientationModes:(NSArray*)modes
+{
+	[titaniumRoot setOrientationModes:modes];
 }
 
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation 
