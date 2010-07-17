@@ -66,6 +66,7 @@
 -(void)viewDidLoad
 {
 	[self willAnimateRotationToInterfaceOrientation:[[UIDevice currentDevice] orientation] duration:0];
+	[super viewDidLoad];
 }
 
 -(void)didOrientNotify:(NSNotification *)notification

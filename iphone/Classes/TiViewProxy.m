@@ -1179,8 +1179,11 @@
 	}
 	if ([NSThread isMainThread])
 	{	//NOTE: This will cause problems with ScrollableView, or is a new wrapper needed?
-		[parent childWillResize:self];
-		[self repositionWithBounds:[[self view] superview].bounds];
+		UIView* superview = [[self view] superview];
+		if (superview != nil) {
+			[parent childWillResize:self];
+			[self repositionWithBounds:[[self view] superview].bounds];
+		}
 	}
 	else 
 	{

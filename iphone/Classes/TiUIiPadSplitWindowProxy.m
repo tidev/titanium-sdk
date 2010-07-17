@@ -11,6 +11,7 @@
 #import "TiUIiPadSplitWindowProxy.h"
 #import "TiUIiPadSplitWindow.h"
 #import "TiUtils.h"
+#import "TiApp.h"
 
 @implementation TiUIiPadSplitWindowProxy
 
