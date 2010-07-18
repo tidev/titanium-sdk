@@ -149,7 +149,7 @@ if (![TiUtils isiPhoneOS3_2OrGreater]) {\
 
 -(MPMoviePlayerController*)player
 {
-	if (movie==nil)
+	if (movieConfigured)
 	{
 		if (url==nil)
 		{
@@ -169,6 +169,7 @@ if (![TiUtils isiPhoneOS3_2OrGreater]) {\
 			[vp setMovie:movie];
 		}
 #endif
+		movieConfigured = YES;
 	}
 	return movie;
 }
