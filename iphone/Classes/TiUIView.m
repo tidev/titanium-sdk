@@ -1144,32 +1144,75 @@ DEFINE_EXCEPTIONS
 
 #pragma mark Listener management
 
+-(void)handleListenerAddedWithEvent:(NSString *)event
+{
+	ENSURE_UI_THREAD_1_ARG(event);
+	if ([self proxyHasTouchListener])
+	{
+		handlesTouches = YES;
+	}
+	if ([event hasSuffix:@"tap"])
+	{
+		handlesTaps = YES;
+	}
+	if ([event isEqualToString:@"swipe"])
+	{
+		handlesSwipes = YES;
+	}
+	
+	if (handlesTouches || handlesTaps || handlesSwipes)
+	{
+		self.userInteractionEnabled = YES;
+	}
+	
+	if (handlesTaps)
+	{
+		self.multipleTouchEnabled = YES;
+	}
+}
+
+-(void)handleListenerRemovedWithEvent:(NSString *)event
+{
+	ENSURE_UI_THREAD_1_ARG(event);
+	// unfortunately on a remove, we have to check all of them
+	// since we might be removing one but we still have others
+	
+	if (handlesTouches && 
+		[self.proxy _hasListeners:@"touchstart"]==NO &&
+		[self.proxy _hasListeners:@"touchmove"]==NO &&
+		[self.proxy _hasListeners:@"touchcancel"]==NO &&
+		[self.proxy _hasListeners:@"touchend"]==NO &&
+		[self.proxy _hasListeners:@"click"]==NO &&
+		[self.proxy _hasListeners:@"dblclick"]==NO)
+	{
+		handlesTouches = NO;
+	}
+	if (handlesTaps &&
+		[self.proxy _hasListeners:@"singletap"]==NO &&
+		[self.proxy _hasListeners:@"doubletap"]==NO &&
+		[self.proxy _hasListeners:@"twofingertap"]==NO)
+	{
+		handlesTaps = NO;
+	}
+	if (handlesSwipes &&
+		[event isEqualToString:@"swipe"])
+	{
+		handlesSwipes = NO;
+	}
+	
+	if (handlesTaps == NO && handlesTouches == NO)
+	{
+		self.userInteractionEnabled = NO;
+		self.multipleTouchEnabled = NO;
+	}
+}
+
+
 -(void)listenerAdded:(NSString*)event count:(int)count
 {
 	if (count == 1 && [self viewSupportsBaseTouchEvents])
 	{
-		if ([self proxyHasTouchListener])
-		{
-			handlesTouches = YES;
-		}
-		if ([event hasSuffix:@"tap"])
-		{
-			handlesTaps = YES;
-		}
-		if ([event isEqualToString:@"swipe"])
-		{
-			handlesSwipes = YES;
-		}
-		
-		if (handlesTouches || handlesTaps || handlesSwipes)
-		{
-			self.userInteractionEnabled = YES;
-		}
-		
-		if (handlesTaps)
-		{
-			self.multipleTouchEnabled = YES;
-		}
+		[self handleListenerAddedWithEvent:event];
 	}
 }
 
@@ -1177,37 +1220,7 @@ DEFINE_EXCEPTIONS
 {
 	if (count == 0)
 	{
-		// unfortunately on a remove, we have to check all of them
-		// since we might be removing one but we still have others
-		
-		if (handlesTouches && 
-			[self.proxy _hasListeners:@"touchstart"]==NO &&
-			[self.proxy _hasListeners:@"touchmove"]==NO &&
-			[self.proxy _hasListeners:@"touchcancel"]==NO &&
-			[self.proxy _hasListeners:@"touchend"]==NO &&
-			[self.proxy _hasListeners:@"click"]==NO &&
-			[self.proxy _hasListeners:@"dblclick"]==NO)
-		{
-			handlesTouches = NO;
-		}
-		if (handlesTaps &&
-			[self.proxy _hasListeners:@"singletap"]==NO &&
-			[self.proxy _hasListeners:@"doubletap"]==NO &&
-			[self.proxy _hasListeners:@"twofingertap"]==NO)
-		{
-			handlesTaps = NO;
-		}
-		if (handlesSwipes &&
-			[event isEqualToString:@"swipe"])
-		{
-			handlesSwipes = NO;
-		}
-		
-		if (handlesTaps == NO && handlesTouches == NO)
-		{
-			self.userInteractionEnabled = NO;
-			self.multipleTouchEnabled = NO;
-		}
+		[self handleListenerRemovedWithEvent:event];
 	}
 }
 
