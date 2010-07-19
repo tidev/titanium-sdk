@@ -25,6 +25,8 @@
 	CGRect popoverRect;
 	BOOL animated;
 	UIPopoverArrowDirection directions;
+	
+	BOOL isShowing;
 }
 
 //Because the Popover isn't meant to be placed in anywhere specific, 

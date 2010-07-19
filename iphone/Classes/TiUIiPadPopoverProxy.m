@@ -206,6 +206,7 @@
 		popoverRect = CGRectZero;
 	}
 
+	isShowing = YES;
 	[self retain];
 	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(updatePopover:) name:UIApplicationWillChangeStatusBarOrientationNotification object:nil];
 	[self updatePopoverNow];
@@ -250,11 +251,22 @@
 	ENSURE_UI_THREAD_1_ARG(args);
 	BOOL animated = [TiUtils boolValue:@"animated" properties:args def:YES];
 	[[self popoverController] dismissPopoverAnimated:animated];
+
+//As of iPhone OS 3.2, calling dismissPopoverAnimated does NOT call didDismissPopover. So we have to do it ourselves...
+	[self popoverControllerDidDismissPopover:popoverController];
 }
 
 #pragma mark Delegate methods
 - (void)popoverControllerDidDismissPopover:(UIPopoverController *)popoverController
 {
+//As of iPhone OS 3.2, calling dismissPopoverAnimated does NOT call didDismissPopover. So we have to do it ourselves.
+//HOWEVER, in the event that this IS fixed, we don't want this called one too many times, thus isShowing is to protect
+//against that.
+	if (!isShowing)
+	{
+		return;
+	}
+	isShowing = NO;
 	[self fireEvent:@"hide" withObject:nil]; //Checking for listeners are done by fireEvent anyways.
 	[[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationWillChangeStatusBarOrientationNotification object:nil];
 	[self performSelector:@selector(release) withObject:nil afterDelay:0.5];
