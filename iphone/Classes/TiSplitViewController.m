@@ -69,7 +69,6 @@
 
 -(void)loadView
 {
-	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didOrientNotify:) name:UIDeviceOrientationDidChangeNotification object:nil];
 	[[NSNotificationCenter defaultCenter] removeObserver:titaniumRoot name:UIDeviceOrientationDidChangeNotification object:nil];
 	[super loadView];
 }
@@ -78,24 +77,6 @@
 {
 	[self willAnimateRotationToInterfaceOrientation:[[UIDevice currentDevice] orientation] duration:0];
 	[super viewDidLoad];
-}
-
--(void)didOrientNotify:(NSNotification *)notification
-{
-	UIInterfaceOrientation newOrientation = [[UIDevice currentDevice] orientation];
-	if (lastOrientation == 0)
-	{ //This is when the application first starts. statusBarOrientation lies at the beginning,
-		//And device orientation is 0 until this notification.
-		[self willAnimateRotationToInterfaceOrientation:newOrientation duration:0];
-		return;
-	}
-	
-	if ((lastOrientation!=newOrientation) && [self shouldAutorotateToInterfaceOrientation:newOrientation])
-	{ //This is for when we've forced an orientation that was not what the device was, and
-		//Now we want to return to it. Because newOrientation and windowOrientation are identical
-		//The iPhone OS wouldn't send this method.
-		[self willAnimateRotationToInterfaceOrientation:newOrientation duration:[[UIApplication sharedApplication] statusBarOrientationAnimationDuration]];
-	}
 }
 
 -(void)repositionSubviews

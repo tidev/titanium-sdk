@@ -53,6 +53,7 @@
 		[[viewController view] removeFromSuperview];
 		[[TiApp app] setController:controller];
 		[window addSubview:[controller view]];
+		[window bringSubviewToFront:[controller view]];
 		
 		[controller resizeView];
 		[controller repositionSubviews];
