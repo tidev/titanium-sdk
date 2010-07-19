@@ -35,7 +35,11 @@
 		leftNav.navigationBarHidden = YES;
 		rightNav.navigationBarHidden = YES;  
 		
-		[self enforceOrientationModesFromWindow:split_];
+		// In order for the split view to render correctly, we have to enforce the window's orientation modes
+		// before setting up the view controllers.  Very finnicky about when the containing mystery views
+		// are positioned!
+		lastOrientation = [[UIDevice currentDevice] orientation];
+		[self enforceOrientationModesFromWindow:(TiWindowProxy*)split_];
 		
 		self.viewControllers = [NSArray arrayWithObjects:leftNav,rightNav,nil];
 
