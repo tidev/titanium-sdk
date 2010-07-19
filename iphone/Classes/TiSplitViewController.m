@@ -25,6 +25,7 @@
 {
 	if (self = [super init]) {
 		titaniumRoot = [rootController retain];
+		proxy = split_;
 		
 		master = [[TiViewController alloc] initWithViewProxy:master_];
 		detail = [[TiViewController alloc] initWithViewProxy:detail_];
@@ -39,9 +40,9 @@
 		// before setting up the view controllers.  Very finnicky about when the containing mystery views
 		// are positioned!
 		lastOrientation = [[UIDevice currentDevice] orientation];
-		[self enforceOrientationModesFromWindow:(TiWindowProxy*)split_];
+		[self enforceOrientationModesFromWindow:(TiWindowProxy*)split_ rotate:NO];
 		
-		self.viewControllers = [NSArray arrayWithObjects:leftNav,rightNav,nil];
+		self.viewControllers = [NSArray arrayWithObjects:leftNav, rightNav ,nil];
 
 		[leftNav release];
 		[rightNav release];
@@ -220,7 +221,7 @@
 	[titaniumRoot refreshOrientationModesIfNeeded:oldCurrentWindow];
 }
 
--(void)enforceOrientationModesFromWindow:(TiWindowProxy *) newCurrentWindow
+-(void)enforceOrientationModesFromWindow:(TiWindowProxy *) newCurrentWindow rotate:(BOOL)yn
 {	
 	Class arrayClass = [NSArray class];
 	Class windowClass = [TiWindowProxy class];
@@ -234,19 +235,20 @@
 	{
 		return; //Nothing to enforce.
 	}
-	
-	UIInterfaceOrientation requestedOrientation = [[UIApplication sharedApplication] statusBarOrientation];
-	NSTimeInterval latestRequest = 0.0;
-	for (int i=0; i<MAX_ORIENTATIONS; i++)
-	{
-		if (allowedOrientations[i] && (orientationRequestTimes[i]>latestRequest))
+
+	if (yn) {
+		UIInterfaceOrientation requestedOrientation = [[UIApplication sharedApplication] statusBarOrientation];
+		NSTimeInterval latestRequest = 0.0;
+		for (int i=0; i<MAX_ORIENTATIONS; i++)
 		{
-			requestedOrientation = i;
-			latestRequest = orientationRequestTimes[i];
+			if (allowedOrientations[i] && (orientationRequestTimes[i]>latestRequest))
+			{
+				requestedOrientation = i;
+				latestRequest = orientationRequestTimes[i];
+			}
+			[self manuallyRotateToOrientation:requestedOrientation];
 		}
 	}
-	
-	[self manuallyRotateToOrientation:requestedOrientation];
 }
 
 -(void)windowFocused:(UIViewController*)focusedViewController
@@ -266,7 +268,7 @@
 		focusedProxy = (TiWindowProxy *)[(id)focusedViewController proxy];
 	}
 	
-	[self enforceOrientationModesFromWindow:(id)focusedProxy];	
+	[self enforceOrientationModesFromWindow:(id)focusedProxy rotate:YES];	
 }
 
 -(void)windowClosed:(UIViewController *)closedViewController

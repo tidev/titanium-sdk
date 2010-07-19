@@ -38,7 +38,7 @@
 
 // Internal
 
--(void)enforceOrientationModesFromWindow:(TiWindowProxy *)newCurrentWindow;
+-(void)enforceOrientationModesFromWindow:(TiWindowProxy *)newCurrentWindow rotate:(BOOL)yn;
 
 @end
 
