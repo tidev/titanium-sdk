@@ -23,6 +23,8 @@
 	
 	NSMutableDictionary* loadProperties; // Used to set properties when the player is created
 	NSMutableDictionary* returnCache; // Return values from UI thread functions
+	
+	BOOL movieConfigured;
 }
 
 @property(nonatomic,readwrite,assign) id url;

@@ -285,7 +285,7 @@ DEFINE_EXCEPTIONS
 -(void)setProxy:(TiProxy *)p
 {
 	proxy = p;
-	proxy.modelDelegate = self;
+	[proxy setModelDelegate:self];
 }
 
 -(void)setParent:(TiViewProxy *)p
@@ -523,6 +523,12 @@ DEFINE_EXCEPTIONS
 {
 	CGRect r = [self bounds];
 	[rect setRect:r];
+}
+
+-(void)didMoveToSuperview
+{
+	[[[TiApp app] controller] repositionSubviews];
+	[super didMoveToSuperview];
 }
 
 #pragma mark Public APIs

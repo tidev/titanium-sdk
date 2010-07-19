@@ -13,10 +13,15 @@
 
 #import "TiSplitViewController.h"
 #import "TiViewProxy.h"
+#import <MessageUI/MessageUI.h>
 
 @implementation TiSplitViewController
+@synthesize proxy, master, detail;
 
--(id)initWithRootController:(TiRootViewController *)rootController masterProxy:(TiViewProxy*)master_ detailProxy:(TiViewProxy*)detail_
+-(id)initWithRootController:(TiRootViewController *)rootController 
+				masterProxy:(TiViewProxy*)master_ 
+				detailProxy:(TiViewProxy*)detail_ 
+				 splitProxy:(TiUIiPadSplitWindowProxy*)split_
 {
 	if (self = [super init]) {
 		titaniumRoot = [rootController retain];
@@ -29,6 +34,12 @@
 		
 		leftNav.navigationBarHidden = YES;
 		rightNav.navigationBarHidden = YES;  
+		
+		// In order for the split view to render correctly, we have to enforce the window's orientation modes
+		// before setting up the view controllers.  Very finnicky about when the containing mystery views
+		// are positioned!
+		lastOrientation = [[UIDevice currentDevice] orientation];
+		[self enforceOrientationModesFromWindow:(TiWindowProxy*)split_];
 		
 		self.viewControllers = [NSArray arrayWithObjects:leftNav,rightNav,nil];
 
@@ -65,6 +76,7 @@
 -(void)viewDidLoad
 {
 	[self willAnimateRotationToInterfaceOrientation:[[UIDevice currentDevice] orientation] duration:0];
+	[super viewDidLoad];
 }
 
 -(void)didOrientNotify:(NSNotification *)notification
@@ -83,7 +95,6 @@
 		//The iPhone OS wouldn't send this method.
 		[self willAnimateRotationToInterfaceOrientation:newOrientation duration:[[UIApplication sharedApplication] statusBarOrientationAnimationDuration]];
 	}
-	
 }
 
 -(void)repositionSubviews
@@ -155,9 +166,53 @@
 	[super willAnimateRotationToInterfaceOrientation:toInterfaceOrientation duration:duration];
 }
 
+
+-(void)setOrientationModes:(NSArray *)newOrientationModes
+{
+	for (int i=0; i<MAX_ORIENTATIONS; i++)
+	{
+		allowedOrientations[i] = NO;
+	}
+	
+	BOOL noOrientations = YES;
+	if (newOrientationModes != nil && ![newOrientationModes isKindOfClass:[NSNull class]]) {
+		for (id mode in newOrientationModes)
+		{
+			UIInterfaceOrientation orientation = [TiUtils orientationValue:mode def:-1];
+			switch (orientation)
+			{
+				case UIDeviceOrientationPortrait:
+				case UIDeviceOrientationPortraitUpsideDown:
+				case UIDeviceOrientationLandscapeLeft:
+				case UIDeviceOrientationLandscapeRight:
+					allowedOrientations[orientation] = YES;
+					noOrientations = NO;
+					break;
+				case -1:
+					break;
+				default:
+					NSLog(@"[WARN] An invalid orientation was requested. Ignoring.");
+					break;
+			}
+		}
+	}
+	
+	if (noOrientations)
+	{
+		allowedOrientations[UIInterfaceOrientationPortrait] = YES;
+		if ([TiUtils isIPad])
+		{
+			allowedOrientations[UIInterfaceOrientationPortraitUpsideDown] = YES;
+			allowedOrientations[UIInterfaceOrientationLandscapeLeft] = YES;
+			allowedOrientations[UIInterfaceOrientationLandscapeRight] = YES;
+		}
+	}
+}
+
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation 
 {
-	return [titaniumRoot shouldAutorotateToInterfaceOrientation:interfaceOrientation];
+	orientationRequestTimes[interfaceOrientation] = [NSDate timeIntervalSinceReferenceDate];
+	return allowedOrientations[interfaceOrientation];
 }
 
 -(void)refreshOrientationModesIfNeeded:(TiWindowProxy *)oldCurrentWindow
@@ -165,9 +220,53 @@
 	[titaniumRoot refreshOrientationModesIfNeeded:oldCurrentWindow];
 }
 
+-(void)enforceOrientationModesFromWindow:(TiWindowProxy *) newCurrentWindow
+{	
+	Class arrayClass = [NSArray class];
+	Class windowClass = [TiWindowProxy class];
+	SEL proxySel = @selector(proxy);
+	
+	NSArray * candidateOrientationModes = [newCurrentWindow valueForKey:@"orientationModes"];
+
+	[self setOrientationModes:candidateOrientationModes];
+	
+	if(allowedOrientations[lastOrientation] || (lastOrientation == 0))
+	{
+		return; //Nothing to enforce.
+	}
+	
+	UIInterfaceOrientation requestedOrientation = [[UIApplication sharedApplication] statusBarOrientation];
+	NSTimeInterval latestRequest = 0.0;
+	for (int i=0; i<MAX_ORIENTATIONS; i++)
+	{
+		if (allowedOrientations[i] && (orientationRequestTimes[i]>latestRequest))
+		{
+			requestedOrientation = i;
+			latestRequest = orientationRequestTimes[i];
+		}
+	}
+	
+	[self manuallyRotateToOrientation:requestedOrientation];
+}
+
 -(void)windowFocused:(UIViewController*)focusedViewController
 {
-	// No-op on split views
+	if ([focusedViewController isKindOfClass:[UINavigationController class]] && ![focusedViewController isKindOfClass:[MFMailComposeViewController class]])
+	{
+		UIViewController * topViewController = [(UINavigationController *)focusedViewController topViewController];
+		if (topViewController != nil)
+		{
+			focusedViewController = topViewController;
+		}
+	}
+	
+	TiWindowProxy * focusedProxy = nil;
+	if ([focusedViewController respondsToSelector:@selector(proxy)])
+	{
+		focusedProxy = (TiWindowProxy *)[(id)focusedViewController proxy];
+	}
+	
+	[self enforceOrientationModesFromWindow:(id)focusedProxy];	
 }
 
 -(void)windowClosed:(UIViewController *)closedViewController

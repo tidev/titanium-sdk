@@ -13,17 +13,32 @@
 #import "TiRootViewController.h"
 #import "TiViewController.h"
 
+@class TiUIiPadSplitWindowProxy;
+
 @interface TiSplitViewController : UISplitViewController<TiRootController> {
 	TiRootViewController* titaniumRoot; // Need to hold onto this so we can handle orientations properly
 	TiViewController* master;
 	TiViewController* detail;
 	
+	TiUIiPadSplitWindowProxy* proxy;
+	
 	BOOL	allowedOrientations[MAX_ORIENTATIONS];
 	NSTimeInterval	orientationRequestTimes[MAX_ORIENTATIONS];
 	UIInterfaceOrientation lastOrientation;
 }
+@property(nonatomic,assign) TiUIiPadSplitWindowProxy* proxy;
+@property(nonatomic,readonly) TiViewController* master;
+@property(nonatomic,readonly) TiViewController* detail;
 
--(id)initWithRootController:(TiRootViewController*)rootController masterProxy:(TiViewProxy*)master_ detailProxy:(TiViewProxy*)detail_;
+-(id)initWithRootController:(TiRootViewController*)rootController 
+				masterProxy:(TiViewProxy*)master_ 
+				detailProxy:(TiViewProxy*)detail_ 
+				 splitProxy:(TiUIiPadSplitWindowProxy*)split_;
+-(void)setOrientationModes:(NSArray*)modes;
+
+// Internal
+
+-(void)enforceOrientationModesFromWindow:(TiWindowProxy *)newCurrentWindow;
 
 @end
 

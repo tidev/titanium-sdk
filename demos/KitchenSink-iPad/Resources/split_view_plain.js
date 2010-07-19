@@ -51,11 +51,7 @@ SplitViewPlain.splitView = Titanium.UI.iPad.createSplitWindow({
 	detailView:SplitViewPlain.detailWindow,
 });
 
-SplitViewPlain.masterWindow.orientationModes = [
-	Titanium.UI.LANDSCAPE_LEFT,
-	Titanium.UI.LANDSCAPE_RIGHT,
-];
-SplitViewPlain.detailWindow.orientationModes = [
+SplitViewPlain.splitView.orientationModes = [
 	Titanium.UI.LANDSCAPE_LEFT,
 	Titanium.UI.LANDSCAPE_RIGHT,
 ];
