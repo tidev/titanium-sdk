@@ -27,10 +27,20 @@
 		return controller;
 	}
 	TiUIiPadSplitWindow *view = (TiUIiPadSplitWindow*)[self view];
+	[view setProxy:self];
 	UIViewController *c = [view controller];
-	[c setProxy:self];
 	self.controller = c;
 	return c;
+}
+
+-(void)windowDidOpen 
+{
+	[super windowDidOpen];
+
+	TiSplitViewController* splitController = (TiSplitViewController*)[self controller];
+	
+	[splitController resizeView];
+	[splitController repositionSubviews];	
 }
 
 -(void)windowDidClose
