@@ -14,7 +14,7 @@
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
 
 @implementation TiUIiPadPopoverProxy
-@synthesize viewController;
+@synthesize viewController, popoverView;
 
 #pragma mark Setup
 -(void)dealloc
@@ -22,6 +22,7 @@
 	RELEASE_TO_NIL(viewController);
 	RELEASE_TO_NIL(navigationController);
 	RELEASE_TO_NIL(popoverController);
+	RELEASE_TO_NIL(popoverView);
 	[super dealloc];
 }
 
@@ -192,35 +193,55 @@
 	ENSURE_UI_THREAD_1_ARG(args);
 	
 	NSDictionary *rectProps = [args objectForKey:@"rect"];
-	BOOL animated = [TiUtils boolValue:@"animated" properties:args def:YES];
-	UIPopoverArrowDirection directions = [TiUtils intValue:[self valueForKey:@"arrowDirection"] def:UIPopoverArrowDirectionAny];
-	
-	TiViewProxy *proxy = [args objectForKey:@"view"];
+	animated = [TiUtils boolValue:@"animated" properties:args def:YES];
+	directions = [TiUtils intValue:[self valueForKey:@"arrowDirection"] def:UIPopoverArrowDirectionAny];
+	[self setPopoverView:[args objectForKey:@"view"]];
 
-
-	[self retain];
-	[self updateContentSize];
-
-	if ([proxy isUsingBarButtonItem]) {
-		[[self popoverController] presentPopoverFromBarButtonItem:[proxy barButtonItem] permittedArrowDirections:directions animated:animated];
+	if (rectProps!=nil)
+	{
+		popoverRect = [TiUtils rectValue:rectProps];
 	}
 	else
 	{
-		UIView *view = [proxy view];
+		popoverRect = CGRectZero;
+	}
+
+	[self retain];
+	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(updatePopover:) name:UIApplicationWillChangeStatusBarOrientationNotification object:nil];
+	[self updatePopoverNow];
+}
+
+-(void)updatePopover:(NSNotification *)notification;
+{
+	[self performSelector:@selector(updatePopoverNow) withObject:nil afterDelay:[[UIApplication sharedApplication] statusBarOrientationAnimationDuration]];
+}
+
+-(void)updatePopoverNow
+{
+	[self updateContentSize];
+
+	if ([popoverView isUsingBarButtonItem])
+	{
+		[[self popoverController] presentPopoverFromBarButtonItem:[popoverView barButtonItem] permittedArrowDirections:directions animated:animated];
+	}
+	else
+	{
+		UIView *view = [popoverView view];
 		
 		CGRect rect;
-		if (rectProps!=nil)
+		if (CGRectIsEmpty(popoverRect))
 		{
-			rect = [TiUtils rectValue:rectProps];
+			rect = [view bounds];
 		}
 		else
 		{
-			rect = [view frame];
+			rect = popoverRect;
 		}
 		
-		[[self popoverController] presentPopoverFromRect:rect inView:[view superview] permittedArrowDirections:directions animated:animated];
+		[[self popoverController] presentPopoverFromRect:rect inView:view permittedArrowDirections:directions animated:animated];
 	}
 }
+
 
 -(void)hide:(id)args
 {
@@ -235,6 +256,7 @@
 - (void)popoverControllerDidDismissPopover:(UIPopoverController *)popoverController
 {
 	[self fireEvent:@"hide" withObject:nil]; //Checking for listeners are done by fireEvent anyways.
+	[[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationWillChangeStatusBarOrientationNotification object:nil];
 	[self performSelector:@selector(release) withObject:nil afterDelay:0.5];
 }
 

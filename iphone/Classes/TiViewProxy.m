@@ -1173,14 +1173,15 @@
 {
 	IGNORE_IF_NOT_OPENED
 	
-	if (![self viewAttached] || view.hidden)
+	UIView* superview = [[self view] superview];
+	if (![self viewAttached] || view.hidden || superview == nil)
 	{
 		return;
 	}
 	if ([NSThread isMainThread])
 	{	//NOTE: This will cause problems with ScrollableView, or is a new wrapper needed?
 		[parent childWillResize:self];
-		[self repositionWithBounds:[[self view] superview].bounds];
+		[self repositionWithBounds:superview.bounds];
 	}
 	else 
 	{

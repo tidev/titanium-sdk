@@ -11,6 +11,7 @@
 #import "TiUIiPadSplitWindowProxy.h"
 #import "TiUIiPadSplitWindow.h"
 #import "TiUtils.h"
+#import "TiApp.h"
 
 @implementation TiUIiPadSplitWindowProxy
 
@@ -26,9 +27,20 @@
 		return controller;
 	}
 	TiUIiPadSplitWindow *view = (TiUIiPadSplitWindow*)[self view];
+	[view setProxy:self];
 	UIViewController *c = [view controller];
 	self.controller = c;
 	return c;
+}
+
+-(void)windowDidOpen 
+{
+	[super windowDidOpen];
+
+	TiSplitViewController* splitController = (TiSplitViewController*)[self controller];
+	
+	[splitController resizeView];
+	[splitController repositionSubviews];	
 }
 
 -(void)windowDidClose

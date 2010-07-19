@@ -15,10 +15,15 @@
 
 TiClassRef KrollObjectClassRef = NULL;
 TiClassRef JSObjectClassRef = NULL;
+
+// FIXME: selectorSetter1/selectorSetter2 are not ref'd anywhere
 NSMutableDictionary *selectorSetter1 = nil;
 NSMutableDictionary *selectorSetter2 = nil;
 NSMutableDictionary *valueSetter = nil;
 NSMutableDictionary *selectorProperties = nil;
+
+// TODO: Make a R/W lock?
+NSLock* cacheLock = nil;
 
 id TiValueToId(KrollContext* context, TiValueRef v);
 
@@ -483,6 +488,7 @@ bool KrollSetProperty(TiContextRef jsContext, TiObjectRef object, TiStringRef pr
 	RELEASE_TO_NIL(target);
 	RELEASE_TO_NIL(statics);
 	RELEASE_TO_NIL(selectorProperties);
+	RELEASE_TO_NIL(cacheLock);
 	[[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationDidReceiveMemoryWarningNotification object:nil];
 	[super dealloc];
 }
@@ -565,11 +571,17 @@ bool KrollSetProperty(TiContextRef jsContext, TiObjectRef object, TiStringRef pr
 
 -(void)cacheSelector:(SEL)sel forKey:(NSString*)key
 {
+	if (cacheLock == nil) {
+		cacheLock = [[NSLock alloc] init];
+	}
+	
+	[cacheLock lock];
 	if (selectorProperties==nil)
 	{
 		selectorProperties = [[NSMutableDictionary alloc] init];
 	}
 	[selectorProperties setObject:[NSValue valueWithPointer:sel] forKey:key];
+	[cacheLock unlock];
 }
 
 -(id)_valueForKey:(NSString *)key
@@ -581,14 +593,22 @@ bool KrollSetProperty(TiContextRef jsContext, TiObjectRef object, TiStringRef pr
 	NSString *cacheKey = [self makeCacheSelectorKey:key];
 
 	// use a cached selector if we can
+	// Don't create the lock until necessary
+	if (cacheLock == nil) {
+		cacheLock = [[NSLock alloc] init];
+	}
+	
+	[cacheLock lock];
 	if (selectorProperties!=nil)
 	{
 		NSValue *v = [selectorProperties objectForKey:cacheKey];
 		if (v!=nil)
 		{
+			[cacheLock unlock];
 			return [target performSelector:(SEL)[v pointerValue]];
 		}
 	}
+	[cacheLock unlock];
 	
 	if ([key hasPrefix:@"set"])
 	{
