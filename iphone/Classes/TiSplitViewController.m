@@ -90,12 +90,6 @@
 	[super loadView];
 }
 
--(void)viewDidLoad
-{
-	[self willAnimateRotationToInterfaceOrientation:[[UIDevice currentDevice] orientation] duration:0];
-	[super viewDidLoad];
-}
-
 -(void)repositionSubviews
 {
 	[[master proxy] reposition];
@@ -157,14 +151,6 @@
 {
 	[self manuallyRotateToOrientation:newOrientation duration:[[UIApplication sharedApplication] statusBarOrientationAnimationDuration]];
 }
-
-- (void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
-{
-	VerboseLog(@"Rotating to %d (Landscape? %d)",toInterfaceOrientation,UIInterfaceOrientationIsLandscape(toInterfaceOrientation));
-	[self manuallyRotateToOrientation:toInterfaceOrientation duration:duration];
-	[super willAnimateRotationToInterfaceOrientation:toInterfaceOrientation duration:duration];
-}
-
 
 -(void)setOrientationModes:(NSArray *)newOrientationModes
 {
