@@ -134,6 +134,7 @@ public class TiLocation
 				}
 			} else {
 				Log.i(LCAT, "getCurrentPosition - no providers are available");
+				listener.callWithProperties(TiConvert.toErrorObject(ERR_POSITION_UNAVAILABLE, "no providers are available."));
 			}
 		} else {
 			Log.i(LCAT, "getCurrentPosition - listener or locationManager null");
