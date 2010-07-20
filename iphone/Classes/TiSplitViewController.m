@@ -13,6 +13,7 @@
 
 #import "TiSplitViewController.h"
 #import "TiViewProxy.h"
+#import "TiUIiPhoneNavigationGroupProxy.h"
 #import <MessageUI/MessageUI.h>
 
 @implementation TiSplitViewController
@@ -27,20 +28,36 @@
 		titaniumRoot = [rootController retain];
 		proxy = split_;
 		
-		master = [[TiViewController alloc] initWithViewProxy:master_];
-		detail = [[TiViewController alloc] initWithViewProxy:detail_];
-		
-		UINavigationController *leftNav = [[UINavigationController alloc] initWithRootViewController:master];
-		UINavigationController *rightNav = [[UINavigationController alloc] initWithRootViewController:detail];
-		
-		leftNav.navigationBarHidden = YES;
-		rightNav.navigationBarHidden = YES;  
-		
 		// In order for the split view to render correctly, we have to enforce the window's orientation modes
 		// before setting up the view controllers.  Very finnicky about when the containing mystery views
 		// are positioned!
 		lastOrientation = [[UIDevice currentDevice] orientation];
 		[self enforceOrientationModesFromWindow:(TiWindowProxy*)split_ rotate:NO];
+		
+		// Split view throws a hissyfit unless its detail and master are nav groups, apparently!
+		UINavigationController* leftNav;
+		UINavigationController* rightNav;
+
+		// Quick hack; OK to do this even if we're stashing nav group proxies, because we're just
+		// using these to resposition (and create the nav controller if necessary)
+		master = [[TiViewController alloc] initWithViewProxy:master_];
+		detail = [[TiViewController alloc] initWithViewProxy:detail_];
+		
+		if ([master_ isKindOfClass:[TiUIiPhoneNavigationGroupProxy class]]) {
+			leftNav = [[(TiUIiPhoneNavigationGroupProxy*)master_ controller] retain];
+		}
+		else {
+			leftNav = [[UINavigationController alloc] initWithRootViewController:master];		
+			leftNav.navigationBarHidden = YES;
+		}
+		
+		if ([detail_ isKindOfClass:[TiUIiPhoneNavigationGroupProxy class]]) {
+			rightNav = [[(TiUIiPhoneNavigationGroupProxy*)detail_ controller] retain];
+		}
+		else {
+			rightNav = [[UINavigationController alloc] initWithRootViewController:detail];
+			rightNav.navigationBarHidden = YES;  
+		}
 		
 		self.viewControllers = [NSArray arrayWithObjects:leftNav, rightNav ,nil];
 
@@ -71,12 +88,6 @@
 {
 	[[NSNotificationCenter defaultCenter] removeObserver:titaniumRoot name:UIDeviceOrientationDidChangeNotification object:nil];
 	[super loadView];
-}
-
--(void)viewDidLoad
-{
-	[self willAnimateRotationToInterfaceOrientation:[[UIDevice currentDevice] orientation] duration:0];
-	[super viewDidLoad];
 }
 
 -(void)repositionSubviews
@@ -140,14 +151,6 @@
 {
 	[self manuallyRotateToOrientation:newOrientation duration:[[UIApplication sharedApplication] statusBarOrientationAnimationDuration]];
 }
-
-- (void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
-{
-	VerboseLog(@"Rotating to %d (Landscape? %d)",toInterfaceOrientation,UIInterfaceOrientationIsLandscape(toInterfaceOrientation));
-	[self manuallyRotateToOrientation:toInterfaceOrientation duration:duration];
-	[super willAnimateRotationToInterfaceOrientation:toInterfaceOrientation duration:duration];
-}
-
 
 -(void)setOrientationModes:(NSArray *)newOrientationModes
 {
