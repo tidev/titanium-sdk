@@ -871,6 +871,7 @@
 		return;
 	}
 	
+	ENSURE_UI_THREAD_0_ARGS;
 	if (searchField == nil)
 	{
 		[tableview setTableHeaderView:nil];
