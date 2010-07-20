@@ -221,4 +221,15 @@ public class FileProxy extends TiFile
 	{
 		tbf.writeLine(data);
 	}
+	
+	public double createTimestamp() 
+	{
+		return tbf.createTimestamp();
+	}
+	
+	public double modificationTimestamp() 
+	{
+		return tbf.modificationTimestamp();
+	}
+	
 }
