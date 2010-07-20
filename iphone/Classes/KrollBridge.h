@@ -36,6 +36,7 @@
 	BOOL shutdown;
 	NSMutableArray *proxies;
 	NSCondition *shutdownCondition;
+	NSLock *proxyLock;
 }
 - (void)boot:(id)callback url:(NSURL*)url preload:(NSDictionary*)preload;
 - (void)evalJSWithoutResult:(NSString*)code;

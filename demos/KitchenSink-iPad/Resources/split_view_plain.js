@@ -8,7 +8,7 @@ SplitViewPlain.detailWindow = Ti.UI.createWindow({backgroundColor:'#336699'});
 SplitViewPlain.masterLabel = Ti.UI.createLabel({
 	color:'#777',
 	font:{fontSize:20},
-	text:'Master Window',
+	text:'Master Window (Landscape Only)',
 	textAlign:'center'
 });
 
@@ -50,6 +50,11 @@ SplitViewPlain.splitView = Titanium.UI.iPad.createSplitWindow({
 	masterView:SplitViewPlain.masterWindow,
 	detailView:SplitViewPlain.detailWindow,
 });
+
+SplitViewPlain.splitView.orientationModes = [
+	Titanium.UI.LANDSCAPE_LEFT,
+	Titanium.UI.LANDSCAPE_RIGHT,
+];
 
 SplitViewPlain.open = function()
 {

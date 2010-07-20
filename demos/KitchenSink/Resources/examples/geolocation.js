@@ -313,7 +313,7 @@ else
 		var speed = e.coords.speed;
 		var timestamp = e.coords.timestamp;
 		var altitudeAccuracy = e.coords.altitudeAccuracy;
-
+		Ti.API.info('speed ' + speed)
 		currentLocation.text = 'long:' + longitude + ' lat: ' + latitude;
 		
 		Titanium.API.info('geo - current location: ' + new Date(timestamp) + ' long ' + longitude + ' lat ' + latitude + ' accuracy ' + accuracy);

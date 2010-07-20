@@ -145,6 +145,10 @@ public class TiProperties
 
 	}
 
+	public boolean hasListProperty(String key) {
+		return hasProperty(key+".0");
+	}
+	
 	public boolean hasProperty(String key)
 	{
 		return preferences.contains(key);

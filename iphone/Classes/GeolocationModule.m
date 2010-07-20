@@ -247,7 +247,7 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 			}
 			else
 			{
-				locationManager.purpose = purpose;
+				[locationManager setPurpose:purpose];
 			}
 		}
 

@@ -123,13 +123,17 @@ public class TiLocation
 			// Prefer the user selected provider
 			String provider = fetchProvider();
 			
-			// We should really query all active providers - one may have a more accurate fix
-			Location location = locationManager.getLastKnownLocation(provider);
-			if (location != null) {
-				listener.callWithProperties(locationToTiDict(location, locationManager.getProvider(provider)));
+			if (provider != null) {
+				// We should really query all active providers - one may have a more accurate fix
+				Location location = locationManager.getLastKnownLocation(provider);
+				if (location != null) {
+					listener.callWithProperties(locationToTiDict(location, locationManager.getProvider(provider)));
+				} else {
+					Log.i(LCAT, "getCurrentPosition - location is null");
+					listener.callWithProperties(TiConvert.toErrorObject(ERR_POSITION_UNAVAILABLE, "location is currently unavailable."));
+				}
 			} else {
-				Log.i(LCAT, "getCurrentPosition - location is null");
-				listener.callWithProperties(TiConvert.toErrorObject(ERR_POSITION_UNAVAILABLE, "location is currently unavailable."));
+				Log.i(LCAT, "getCurrentPosition - no providers are available");
 			}
 		} else {
 			Log.i(LCAT, "getCurrentPosition - listener or locationManager null");

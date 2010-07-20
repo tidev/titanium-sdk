@@ -540,26 +540,6 @@ if (![TiUtils isIOS4OrGreater]) { \
 	return types;
 }
 
--(NSArray*)availableCameraFlashModes
-{
-	ONLY_IN_IOS4_OR_GREATER(availableCameraFlashModes,nil)
-	
-	NSMutableArray* modes = [NSMutableArray arrayWithCapacity:3];
-	if ([UIImagePickerController isFlashAvailableForCameraDevice:UIImagePickerControllerCameraFlashModeOff])
-	{
-		[modes addObject:NUMINT(UIImagePickerControllerCameraFlashModeOff)];
-	}
-	if ([UIImagePickerController isFlashAvailableForCameraDevice:UIImagePickerControllerCameraFlashModeAuto])
-	{
-		[modes addObject:NUMINT(UIImagePickerControllerCameraFlashModeAuto)];
-	}
-	if ([UIImagePickerController isFlashAvailableForCameraDevice:UIImagePickerControllerCameraFlashModeOn])
-	{
-		[modes addObject:NUMINT(UIImagePickerControllerCameraFlashModeOn)];
-	}
-	return modes;
-}
-
 -(id)camera 
 {
 	ONLY_IN_IOS4_OR_GREATER(camera,nil)
@@ -573,7 +553,7 @@ if (![TiUtils isIOS4OrGreater]) { \
 
 -(id)cameraFlashMode
 {
-	ONLY_IN_IOS4_OR_GREATER(camera,nil)
+	ONLY_IN_IOS4_OR_GREATER(cameraFlashMode,nil)
 	
 	if (picker!=nil)
 	{

@@ -13,20 +13,21 @@ import java.util.Stack;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import org.mozilla.javascript.Context;
-import org.mozilla.javascript.Scriptable;
-
+import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiDict;
-import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiModule;
 import org.appcelerator.titanium.TiProxy;
+import org.appcelerator.titanium.io.TiBaseFile;
+import org.appcelerator.titanium.io.TiFileFactory;
 import org.appcelerator.titanium.kroll.KrollCallback;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUIHelper;
-import org.appcelerator.titanium.io.TiBaseFile;
-import org.appcelerator.titanium.io.TiFileFactory;
+import org.mozilla.javascript.Context;
+import org.mozilla.javascript.Scriptable;
+
+import android.app.Activity;
 
 public class TitaniumModule
 	extends TiModule
@@ -140,7 +141,11 @@ public class TitaniumModule
 	public void alert(Object message) {
 		String msg = (message == null? null : message.toString());
 		Log.i("ALERT", msg);
-		TiUIHelper.doOkDialog(getTiContext().getActivity(), "Alert", msg, null);
+		Activity currentActivity = getTiContext().getTiApp().getCurrentActivity();
+		if (currentActivity == null) {
+		  currentActivity = getTiContext().getActivity();
+		}
+		TiUIHelper.doOkDialog(currentActivity, "Alert", msg, null);
 	}
 	
 	public TiProxy require(String path) {

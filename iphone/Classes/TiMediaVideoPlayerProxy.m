@@ -54,17 +54,25 @@ if (![TiUtils isiPhoneOS3_2OrGreater]) {\
 @end
 #endif
 
-
+NSArray* moviePlayerKeys = nil;
 
 @implementation TiMediaVideoPlayerProxy
 
 #pragma mark Internal
 
+-(NSArray*)keySequence
+{
+	if (moviePlayerKeys == nil) {
+		moviePlayerKeys = [[NSArray alloc] initWithObjects:@"url",@"contentURL",nil];
+	}
+	return moviePlayerKeys;
+}
 
 -(void)_initWithProperties:(NSDictionary *)properties
 {	
 	loadProperties = [[NSMutableDictionary alloc] init];
 	returnCache = [[NSMutableDictionary alloc] init];
+	playerLock = [[NSRecursiveLock alloc] init];
 	[super _initWithProperties:properties];
 }
 
@@ -81,6 +89,7 @@ if (![TiUtils isiPhoneOS3_2OrGreater]) {\
 	RELEASE_TO_NIL(url);
 	RELEASE_TO_NIL(loadProperties);
 	RELEASE_TO_NIL(returnCache);
+	RELEASE_TO_NIL(playerLock);
 	[super _destroy];
 }
 
@@ -149,10 +158,12 @@ if (![TiUtils isiPhoneOS3_2OrGreater]) {\
 
 -(MPMoviePlayerController*)player
 {
-	if (movie==nil)
+	[playerLock lock];
+	if (movie == nil)
 	{
 		if (url==nil)
 		{
+			[playerLock unlock];
 			// this is OK - we just need to delay creation of the 
 			// player until after the url is set 
 			return nil;
@@ -170,6 +181,7 @@ if (![TiUtils isiPhoneOS3_2OrGreater]) {\
 		}
 #endif
 	}
+	[playerLock unlock];
 	return movie;
 }
 

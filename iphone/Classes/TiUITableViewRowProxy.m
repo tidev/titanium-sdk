@@ -253,6 +253,7 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 	RELEASE_TO_NIL(table);
 	RELEASE_TO_NIL(tableClass);
 	RELEASE_TO_NIL(rowContainerView);
+	RELEASE_TO_NIL(callbackCell);
 	[super _destroy];
 }
 

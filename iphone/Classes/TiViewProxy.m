@@ -340,11 +340,15 @@
 
 -(id)width
 {
+	CGFloat value = [TiUtils floatValue:[self valueForUndefinedKey:@"width"] def:0];
+	if (value!=0) return NUMFLOAT(value);
 	return [self size].width;
 }
 
 -(id)height
 {
+	CGFloat value = [TiUtils floatValue:[self valueForUndefinedKey:@"height"] def:0];
+	if (value!=0) return NUMFLOAT(value);
 	return [self size].height;
 }
 
@@ -413,6 +417,7 @@
 
 -(void)detachView
 {
+	[destroyLock lock];
 	if (view!=nil)
 	{
 		[self viewWillDetach];
@@ -428,6 +433,7 @@
 		RELEASE_TO_NIL(view);
 		[self viewDidDetach];
 	}
+	[destroyLock unlock];
 }
 
 -(void)windowWillOpen
@@ -814,13 +820,21 @@
 		// not safe to do multiple times given rwlock
 		return;
 	}
-	[childrenLock lock];
-	
 	// _destroy is called during a JS context shutdown, to inform the object to 
 	// release all its memory and references.  this will then cause dealloc 
 	// on objects that it contains (assuming we don't have circular references)
 	// since some of these objects are registered in the context and thus still
 	// reachable, we need _destroy to help us start the unreferencing part
+
+
+	[childrenLock lock];
+	RELEASE_TO_NIL(children);
+	[childrenLock unlock];
+	[super _destroy];
+
+	//Part of super's _destroy is to release the modelDelegate, which in our case is ALSO the view.
+	//As such, we need to have the super happen before we release the view, so that we can insure that the
+	//release that triggers the dealloc happens on the main thread.
 	
 	if (barButtonItem != nil)
 	{
@@ -848,10 +862,6 @@
 			view = nil;
 		}
 	}
-	
-	RELEASE_TO_NIL(children);
-	[childrenLock unlock];
-	[super _destroy];
 }
 
 -(void)destroy
@@ -1163,14 +1173,15 @@
 {
 	IGNORE_IF_NOT_OPENED
 	
-	if (![self viewAttached] || view.hidden)
+	UIView* superview = [[self view] superview];
+	if (![self viewAttached] || view.hidden || superview == nil)
 	{
 		return;
 	}
 	if ([NSThread isMainThread])
 	{	//NOTE: This will cause problems with ScrollableView, or is a new wrapper needed?
 		[parent childWillResize:self];
-		[self repositionWithBounds:[[self view] superview].bounds];
+		[self repositionWithBounds:superview.bounds];
 	}
 	else 
 	{

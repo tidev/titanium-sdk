@@ -30,7 +30,7 @@ public class TiUILabel extends TiUIView
 			Log.d(LCAT, "Creating a text label");
 		}
 		TextView tv = new TextView(getProxy().getContext());
-		tv.setGravity(Gravity.TOP | Gravity.LEFT);
+		tv.setGravity(Gravity.CENTER_VERTICAL | Gravity.LEFT);
 		tv.setPadding(0, 0, 0, 0);
 		tv.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_MULTI_LINE);
 		setNativeView(tv);
@@ -67,11 +67,11 @@ public class TiUILabel extends TiUIView
 
 	private void setAlignment(TextView tv, String textAlign) {
 		if ("left".equals(textAlign)) {
-			tv.setGravity(Gravity.TOP | Gravity.LEFT);
+			tv.setGravity(Gravity.CENTER_VERTICAL | Gravity.LEFT);
 		} else if ("center".equals(textAlign)) {
-			tv.setGravity(Gravity.TOP | Gravity.CENTER_HORIZONTAL);
+			tv.setGravity(Gravity.CENTER_VERTICAL | Gravity.CENTER_HORIZONTAL);
 		} else if ("right".equals(textAlign)) {
-			tv.setGravity(Gravity.TOP | Gravity.RIGHT);
+			tv.setGravity(Gravity.CENTER_VERTICAL | Gravity.RIGHT);
 		} else {
 			Log.w(LCAT, "Unsupported alignment: " + textAlign);
 		}
@@ -92,7 +92,7 @@ public class TiUILabel extends TiUIView
 		} else if (key.equals("highlightedColor")) {
 			tv.setHighlightColor(TiConvert.toColor((String) newValue));
 		} else if (key.equals("textAlign")) {
-			setAlignment(tv, (String) newValue);
+			setAlignment(tv, TiConvert.toString(newValue));
 			tv.requestLayout();
 		} else if (key.equals("font")) {
 			TiUIHelper.styleText(tv, (TiDict) newValue);

@@ -161,6 +161,8 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 												 selector:@selector(didReceiveMemoryWarning:)
 													 name:UIApplicationDidReceiveMemoryWarningNotification  
 												   object:nil]; 
+		
+		proxyLock = [[NSRecursiveLock alloc] init];
 	}
 	return self;
 }
@@ -197,21 +199,20 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 
 -(void)removeProxies
 {
+	[proxyLock lock];
 	if (proxies!=nil)
 	{
 		SEL sel = @selector(contextShutdown:);
-		while ([proxies count] > 0)
+		// we have to make a copy since shutdown will possibly remove
+		for (id proxy in [NSArray arrayWithArray:proxies])
 		{
-			id proxy = [proxies objectAtIndex:0];
-			[proxy retain]; // hold while we work
-			[proxies removeObjectAtIndex:0];
 			if ([proxy respondsToSelector:sel])
 			{
 				[proxy contextShutdown:self];
 			}
-			[proxy release];
 		}
 	}
+	[proxyLock unlock];
 	RELEASE_TO_NIL(proxies);
 }
 
@@ -228,6 +229,7 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 	RELEASE_TO_NIL(context);
 	RELEASE_TO_NIL(titanium);
 	RELEASE_TO_NIL(modules);
+	RELEASE_TO_NIL(proxyLock);
 	[super dealloc];
 }
 
@@ -512,18 +514,18 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 
 - (void)registerProxy:(id)proxy 
 {
+	[proxyLock lock];
 	if (proxies==nil)
 	{ 
-		CFArrayCallBacks callbacks = kCFTypeArrayCallBacks;
-		callbacks.retain = NULL;
-		callbacks.release = NULL; 
-		proxies = (NSMutableArray*)CFArrayCreateMutable(nil, 50, &callbacks);
+		proxies = [[NSMutableArray alloc] initWithCapacity:50];
 	}
 	[proxies addObject:proxy];
+	[proxyLock unlock];
 }
 
 - (void)unregisterProxy:(id)proxy
 {
+	[proxyLock lock];
 	if (proxies!=nil)
 	{
 		[proxies removeObject:proxy];
@@ -532,6 +534,7 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 			RELEASE_TO_NIL(proxies);
 		}
 	}
+	[proxyLock unlock];
 }
 
 -(id)loadCommonJSModule:(NSString*)code withPath:(NSString*)path

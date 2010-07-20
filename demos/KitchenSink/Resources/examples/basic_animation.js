@@ -27,7 +27,8 @@ circle.addEventListener('touchmove', function(e)
 	Ti.API.debug('Our event tells us the center is ' + e.x + ', ' + e.y ); 
 	var newX = e.x + circle.animatedCenter.x - circle.width/2; 
 	var newY = e.y + circle.animatedCenter.y - circle.height/2; 
-	circle.animate({center:{x:newX,y:newY}, duration:1}); });
+	circle.animate({center:{x:newX,y:newY}, duration:1}); 
+});
 
 var mode = 0;
 circle.addEventListener('click', function()
