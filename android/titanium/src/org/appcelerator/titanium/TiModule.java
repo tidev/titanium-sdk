@@ -13,6 +13,7 @@ import java.util.Properties;
 import java.util.HashMap;
 import java.lang.ref.WeakReference;
 
+import org.appcelerator.kroll.annotations.KrollProxy;
 import org.appcelerator.titanium.TiContext.OnLifecycleEvent;
 import org.appcelerator.titanium.util.Log;
 
@@ -37,7 +38,7 @@ public abstract class TiModule
 		// register our module but keep a weak reference to it so it 
 		// can get cleaned up as needed
 		// Addendum: only do it if it's not a "context-aware" module.
-		if (!getClass().isAnnotationPresent(ContextSpecific.class)) {
+		if (!getClass().isAnnotationPresent(KrollProxy.class)) {
 			String moduleName = getClass().getSimpleName();
 			moduleName = moduleName.substring(0,moduleName.length()-6);
 			modules.put(moduleName,new WeakReference<TiModule>(this));

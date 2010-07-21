@@ -8,5 +8,6 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry exported="true" kind="var" path="ANDROID_PLATFORM/android.jar"/>
 	<classpathentry exported="true" kind="var" path="GOOGLE_APIS/libs/maps.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/kroll"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
