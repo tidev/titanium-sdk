@@ -7,8 +7,10 @@
 package ti.modules.titanium.xml;
 
 import org.appcelerator.titanium.TiContext;
+import org.w3c.dom.CDATASection;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Element;
+import org.w3c.dom.Entity;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.Text;
@@ -24,16 +26,27 @@ public class ElementProxy extends NodeProxy {
 	
 	public String getText() {
 		StringBuilder sb = new StringBuilder();
-		NodeList children = element.getChildNodes();
+		getTextImpl(element, sb);
+		return sb.toString();
+	}
+	
+	private void getTextImpl(Node node, StringBuilder builder)
+	{
+		NodeList children = node.getChildNodes();
 		for (int i = 0; i < children.getLength(); i++)
 		{
 			Node child = children.item(i);
-			if (child.getNodeType() == Node.TEXT_NODE) {
-				sb.append(((Text)child).getNodeValue());
+			switch (child.getNodeType()) {
+				case Node.TEXT_NODE:
+					builder.append(((Text)child).getNodeValue()); break;
+				case Node.CDATA_SECTION_NODE:
+					builder.append(((CDATASection)child).getData()); break;
+				case Node.ENTITY_NODE:
+				case Node.ELEMENT_NODE:
+					getTextImpl(child, builder); break;
+				default: break;
 			}
 		}
-		
-		return sb.toString();
 	}
 	
 	public String getAttribute(String name) {
