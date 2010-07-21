@@ -225,8 +225,8 @@
 				requestedOrientation = i;
 				latestRequest = orientationRequestTimes[i];
 			}
-			[self manuallyRotateToOrientation:requestedOrientation duration:0.0];
 		}
+		[self manuallyRotateToOrientation:requestedOrientation duration:0.0];
 	}
 }
 

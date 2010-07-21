@@ -199,9 +199,12 @@ public class TiUIText extends TiUIView
 			tv.setTextColor(TiConvert.toColor((String) newValue));
 		} else if (key.equals("passwordMask")) {
 			if (TiConvert.toBoolean(newValue) == true) {
+				// This shouldn't be needed but it's belts & braces
+				tv.setKeyListener(TextKeyListener.getInstance(false, Capitalize.NONE));
+				// Both setTransform & keyboard type are required
 				tv.setTransformationMethod(PasswordTransformationMethod.getInstance());
+				// We also need to set the keyboard type - otherwise the password mask won't be applied
 				handleKeyboardType(KEYBOARD_PASSWORD, false);
-				//tv.setTransformationMethod(PasswordTransformationMethod.getInstance());
 			} else {
 				handleKeyboardType(KEYBOARD_DEFAULT, false);
 			}
@@ -250,7 +253,7 @@ public class TiUIText extends TiUIView
 
 		} else if (key.equals("keyboardType") || (key.equals("autocorrect"))) {
 			TiDict d = proxy.getDynamicProperties();
-			boolean autocorrect = true;
+			boolean autocorrect = false;
 			if (d.containsKey("autocorrect")) {
 				autocorrect = d.getBoolean("autocorrect");
 			}
@@ -375,26 +378,34 @@ public class TiUIText extends TiUIView
 
 	public void handleKeyboardType(int type, boolean autocorrect)
 	{
+		// Switched the keyboard handler to use the inputType rather than the rawInputType
+		// This is kinda brute-force but more effective for most use-cases
 		switch(type) {
 			case KEYBOARD_ASCII :
 				tv.setKeyListener(TextKeyListener.getInstance(autocorrect, Capitalize.NONE));
-				tv.setRawInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_NORMAL);
+				tv.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_NORMAL);
+				//tv.setRawInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_NORMAL);
 				break;
 			case KEYBOARD_NUMBERS_PUNCTUATION :
 				tv.setInputType(InputType.TYPE_CLASS_NUMBER);
 				//tv.setKeyListener(DigitsKeyListener.getInstance());
 				break;
 			case KEYBOARD_URL :
+				Log.i(LCAT, "Setting keyboard type URL-3");
 				//tv.setKeyListener(TextKeyListener.getInstance(autocorrect, Capitalize.NONE));
+				tv.setImeOptions(EditorInfo.IME_ACTION_GO);
+				//tv.setRawInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_URI);
 				tv.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_URI);
 				break;
 			case KEYBOARD_NUMBER_PAD :
 				tv.setKeyListener(DigitsKeyListener.getInstance(true,true));
-				tv.setRawInputType(InputType.TYPE_CLASS_NUMBER);
+				//tv.setRawInputType(InputType.TYPE_CLASS_NUMBER);
+				tv.setInputType(InputType.TYPE_CLASS_NUMBER );
 				break;
 			case KEYBOARD_PHONE_PAD :
 				tv.setKeyListener(DialerKeyListener.getInstance());
-				tv.setRawInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_CLASS_PHONE);
+				//tv.setRawInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_CLASS_PHONE);
+				tv.setInputType(InputType.TYPE_CLASS_PHONE);
 				break;
 			case KEYBOARD_EMAIL_ADDRESS :
 				//tv.setKeyListener(TextKeyListener.getInstance(autocorrect, Capitalize.NONE));
@@ -402,11 +413,13 @@ public class TiUIText extends TiUIView
 				break;
 			case KEYBOARD_DEFAULT :
 				tv.setKeyListener(TextKeyListener.getInstance(autocorrect, Capitalize.NONE));
-				tv.setRawInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_NORMAL);
+				//tv.setRawInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_NORMAL);
+				tv.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_NORMAL);
 				break;
 			case KEYBOARD_PASSWORD:
-				tv.setKeyListener(TextKeyListener.getInstance(autocorrect, Capitalize.NONE));
-				tv.setRawInputType(InputType.TYPE_TEXT_VARIATION_PASSWORD);
+				tv.setKeyListener(TextKeyListener.getInstance(false, Capitalize.NONE));
+				//tv.setRawInputType(InputType.TYPE_TEXT_VARIATION_PASSWORD);
+				tv.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
 				break;
 		}
 	}
