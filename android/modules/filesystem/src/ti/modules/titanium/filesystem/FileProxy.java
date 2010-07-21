@@ -43,6 +43,10 @@ public class FileProxy extends TiFile
 	}
 
 	public FileProxy(TiContext tiContext, String[] parts) {
+		this(tiContext, parts, true);
+	}
+	
+	public FileProxy(TiContext tiContext, String[] parts, boolean resolve) {
 		super(tiContext);
 
 		//String path = getTiContext().resolveUrl(join(Arrays.asList(parts), "/"));
@@ -68,7 +72,10 @@ public class FileProxy extends TiFile
 		} else {
 			path = TiFileHelper2.joinSegments(parts);
 		}
-		path = getTiContext().resolveUrl(scheme, path);
+		
+		if (resolve) {
+			path = getTiContext().resolveUrl(scheme, path);
+		}
 		tbf = TiFileFactory.createTitaniumFile(tiContext, new String[] { path }, false);
 	}
 
