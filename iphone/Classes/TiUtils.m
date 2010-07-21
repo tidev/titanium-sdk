@@ -503,7 +503,10 @@ extern NSString * const TI_APPLICATION_RESOURCE_DIR;
 		{
 			return [NSURL URLWithString:object];
 		}
-		url = [NSURL URLWithString:object relativeToURL:[proxy _baseURL]];
+		
+		// TODO: Handle other encodings?
+		url = [NSURL URLWithString:[object stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]
+					 relativeToURL:[proxy _baseURL]];
 		if (url==nil)
 		{
 			//encoding problem - fail fast and make sure we re-escape

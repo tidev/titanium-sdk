@@ -50,9 +50,9 @@ public class FilesystemModule extends TiModule
 	public FileProxy createTempFile()
 	{
 		try {
-			File f = File.createTempFile("ti", "tmp");
+			File f = File.createTempFile("tifile", "tmp");
 			String[] parts = { f.getAbsolutePath() };
-			return new FileProxy(getTiContext(), parts);
+			return new FileProxy(getTiContext(), parts, false);
 		} catch (IOException e) {
 			Log.e(LCAT, "Unable to create tmp file: " + e.getMessage(), e);
 			return null;

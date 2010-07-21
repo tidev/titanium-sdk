@@ -160,10 +160,19 @@ static NSDictionary* multiValueLabels;
 		CFStringRef label = ABMultiValueCopyLabelAtIndex(multiValue, i);
 		CFTypeRef value = ABMultiValueCopyValueAtIndex(multiValue, i);
 		
-		NSString* readableLabel = [[[TiContactsPerson multiValueLabels] allKeysForObject:(NSString*)label] objectAtIndex:0];
+		NSString* readableLabel = nil;
+		NSArray* labelKeys = [[TiContactsPerson multiValueLabels] allKeysForObject:(NSString*)label];
+		if (labelKeys != nil && ([labelKeys count] > 0)) {
+			readableLabel = [labelKeys objectAtIndex:0];
+		}
+		else {
+			readableLabel = (NSString*)label;
+		}
+
 		if ([dict valueForKey:readableLabel] == nil) {
 			[dict setValue:[NSMutableArray array] forKey:readableLabel];
 		}
+		
 		if (CFGetTypeID(value) == CFDateGetTypeID()) {
 			// Dates still need special handling - we should make a TiDate object
 			[[dict valueForKey:readableLabel] addObject:[TiUtils UTCDateForDate:(NSDate*)value]];
