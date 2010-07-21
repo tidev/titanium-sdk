@@ -31,8 +31,8 @@
 		// In order for the split view to render correctly, we have to enforce the window's orientation modes
 		// before setting up the view controllers.  Very finnicky about when the containing mystery views
 		// are positioned!
-		lastOrientation = [[UIDevice currentDevice] orientation];
-		[self enforceOrientationModesFromWindow:(TiWindowProxy*)split_ rotate:NO];
+		//lastOrientation = [[UIDevice currentDevice] orientation];
+		[self enforceOrientationModesFromWindow:(TiWindowProxy*)split_ rotate:YES];
 		
 		// Split view throws a hissyfit unless its detail and master are nav groups, apparently!
 		UINavigationController* leftNav;
@@ -214,11 +214,6 @@
 	NSArray * candidateOrientationModes = [newCurrentWindow valueForKey:@"orientationModes"];
 
 	[self setOrientationModes:candidateOrientationModes];
-	
-	if(allowedOrientations[lastOrientation] || (lastOrientation == 0))
-	{
-		return; //Nothing to enforce.
-	}
 
 	if (yn) {
 		UIInterfaceOrientation requestedOrientation = [[UIApplication sharedApplication] statusBarOrientation];
@@ -230,8 +225,8 @@
 				requestedOrientation = i;
 				latestRequest = orientationRequestTimes[i];
 			}
-			[self manuallyRotateToOrientation:requestedOrientation];
 		}
+		[self manuallyRotateToOrientation:requestedOrientation duration:0.0];
 	}
 }
 
