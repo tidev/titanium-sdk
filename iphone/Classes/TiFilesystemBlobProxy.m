@@ -128,7 +128,7 @@ FILENOOP(setHidden:(id)x);
 
 -(id)read:(id)args
 {
-	NSString *mimetype = [Mimetypes mimeTypeForExtension:[url lastPathComponent]];
+	NSString *mimetype = [Mimetypes mimeTypeForExtension:[[url path]lastPathComponent]];
 	return [[[TiBlob alloc] initWithData:data mimetype:mimetype] autorelease];
 }
 
