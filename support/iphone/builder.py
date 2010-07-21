@@ -1033,6 +1033,11 @@ def main(args):
 					o.write("%s\n\n" % archive_metadata)
 					plistlib.writePlist(archive_metadata,archive_plist)
 					os.remove(os.path.join(archive_dir,'Info.xml.plist'))
+
+					# open xcode + organizer after packaging
+					ass = os.path.join(template_dir,'xcode_organizer.scpt')
+					cmd = "osascript \"%s\"" % ass
+					os.system(cmd)
 					
 					o.write("Finishing build\n")
 					script_ok = True
