@@ -1,4 +1,15 @@
-import os,subprocess,types,sys
+import os,subprocess,types,sys, re
+
+def check_output_for_error(output, match,error_in_first_match):
+	success = re.findall(match, output)
+	if len(success) > 0:
+		if (error_in_first_match):
+			error(success[0])
+			sys.exit(1)
+		else:
+			return True
+	else:
+		return False
 
 def run(args,ignore_error=False,debug=True, ignore_output=False):
 	if debug:
