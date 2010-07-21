@@ -37,7 +37,7 @@ if (Ti.Platform.name == 'iPhone OS') {
 	refresh.top = 5;
 	refresh.title = "Refresh";
 	refresh.width = 200;
-	tv.top = 40;
+	tv.top = 60;
 	win.add(refresh);
 }
 
