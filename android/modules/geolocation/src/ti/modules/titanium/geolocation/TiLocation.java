@@ -6,6 +6,7 @@
  */
 package ti.modules.titanium.geolocation;
 
+import java.util.Iterator;
 import java.util.List;
 
 import org.appcelerator.titanium.TiDict;
@@ -26,7 +27,7 @@ import android.os.Bundle;
 public class TiLocation
 {
 	private static final String LCAT = "TiLocation";
-	private static final Boolean DBG = TiConfig.LOGD;
+	private static final Boolean DBG = true; //TiConfig.LOGD;
 
 	public static final int ERR_UNKNOWN_ERROR = 0;
 	public static final int ERR_PERMISSION_DENIED = 1;
@@ -76,6 +77,8 @@ public class TiLocation
 	//							lastEventTimestamp = location.getTime();
 	//						}
 					}
+				} else {
+					Log.i(LCAT, "onLocationChanged - Location Manager null");					
 				}
 			}
 
@@ -92,16 +95,19 @@ public class TiLocation
 			public void onStatusChanged(String provider, int status, Bundle extras) {
 				Log.d(LCAT, "Status changed, provider = " + provider + " status=" + status);
 				switch (status) {
-				case LocationProvider.OUT_OF_SERVICE :
-					fproxy.fireEvent(EVENT_LOCATION, TiConvert.toErrorObject(ERR_POSITION_UNAVAILABLE, provider + " is out of service."));
+					case LocationProvider.OUT_OF_SERVICE :
+						fproxy.fireEvent(EVENT_LOCATION, TiConvert.toErrorObject(ERR_POSITION_UNAVAILABLE, provider + " is out of service."));
 					break;
-				case LocationProvider.TEMPORARILY_UNAVAILABLE:
-					fproxy.fireEvent(EVENT_LOCATION, TiConvert.toErrorObject(ERR_POSITION_UNAVAILABLE, provider + " is currently unavailable."));
+					case LocationProvider.TEMPORARILY_UNAVAILABLE:
+						fproxy.fireEvent(EVENT_LOCATION, TiConvert.toErrorObject(ERR_POSITION_UNAVAILABLE, provider + " is currently unavailable."));
 					break;
-				case LocationProvider.AVAILABLE :
-					if (DBG) {
-						Log.i(LCAT, provider + " is available.");
-					}
+					case LocationProvider.AVAILABLE :
+						if (DBG) {
+							Log.i(LCAT, provider + " is available.");
+						}
+					break;
+					default:
+						Log.w(LCAT, "Unknown status update from ["+provider+"] - passed code: "+status);
 					break;
 				}
 			}
@@ -114,26 +120,88 @@ public class TiLocation
 	public void getCurrentPosition(KrollCallback listener)
 	{
 		if (listener != null && locationManager != null) {
-			Criteria criteria = createCriteria();
-			String provider = locationManager.getBestProvider(criteria, true);
-			Location location = locationManager.getLastKnownLocation(provider);
-			if (location != null) {
-				listener.callWithProperties(locationToTiDict(location, locationManager.getProvider(provider)));
+			// Prefer the user selected provider
+			String provider = fetchProvider();
+			
+			if (provider != null) {
+				// We should really query all active providers - one may have a more accurate fix
+				Location location = locationManager.getLastKnownLocation(provider);
+				if (location != null) {
+					listener.callWithProperties(locationToTiDict(location, locationManager.getProvider(provider)));
+				} else {
+					Log.i(LCAT, "getCurrentPosition - location is null");
+					listener.callWithProperties(TiConvert.toErrorObject(ERR_POSITION_UNAVAILABLE, "location is currently unavailable."));
+				}
 			} else {
-				listener.callWithProperties(TiConvert.toErrorObject(ERR_POSITION_UNAVAILABLE, "location is currently unavailable."));
+				Log.i(LCAT, "getCurrentPosition - no providers are available");
+				listener.callWithProperties(TiConvert.toErrorObject(ERR_POSITION_UNAVAILABLE, "no providers are available."));
 			}
 		} else {
+			Log.i(LCAT, "getCurrentPosition - listener or locationManager null");
 			listener.callWithProperties(TiConvert.toErrorObject(ERR_POSITION_UNAVAILABLE, "location is currently unavailable."));
 		}
 	}
+	
+	protected boolean isLocationProviderEnabled(String name) {
+		if (null != locationManager){
+			try {
+				return locationManager.isProviderEnabled(name);				
+			} catch (Exception e) {
+				// Ignore - it's expected
+				e = null;
+			}
+		}
+		return false;
+	}
 
+	protected boolean isValidProvider(String name) {
+		
+		boolean enabled = (name.equals(LocationManager.GPS_PROVIDER) || name.equals(LocationManager.NETWORK_PROVIDER));
+		
+		if (enabled) {
+			// So far we have a valid name but let's check to see if the provider is enabled on this device
+			enabled = false;
+			try{
+				enabled = isLocationProviderEnabled(name);
+			} catch(Exception ex){
+				ex = null;
+			} finally {
+				if (!enabled) {
+					Log.w(LCAT, "Preferred provider ["+name+"] isn't enabled on this device.  Will default to auto-select of GPS provider.");					
+				}
+			}
+		}
+		
+		return enabled;		
+	}
+	
+	protected String fetchProvider() {
+		// Refactored for reuse
+		String preferredProvider = TiConvert.toString(proxy.getDynamicValue("preferredProvider"));
+		String provider;
+		
+		if (!(null == preferredProvider) && isValidProvider(preferredProvider)) {
+			provider = preferredProvider;
+		} else {
+			Criteria criteria = createCriteria();
+			provider = locationManager.getBestProvider(criteria, true);
+		}		
+		
+		return provider;
+	}
+	
+	
 	protected void manageLocationListener(boolean register)
 	{
 		if (locationManager != null) {
 			if (register) {
+				
+				String provider = fetchProvider();
 
-				Criteria criteria = createCriteria();
-				String provider = locationManager.getBestProvider(criteria, true);
+				if (DBG) {
+					Log.i(LCAT,"Location Provider ["+provider+"] selected.");					
+				}
+				
 				if (provider != null) {
 
 					// Compute update parameters
@@ -245,15 +313,27 @@ public class TiLocation
 			if (providers != null && providers.size() > 0) {
 				if (DBG) {
 					Log.i(LCAT, "Enabled location provider count: " + providers.size());
+					// Extra debugging
+					for (Iterator iter = providers.iterator(); iter
+							.hasNext();) {
+						String name = (String) iter.next();
+						Log.i(LCAT, "Location ["+name+"] Service available ");
+					}					
 				}
 				enabled = true;
+			} else {
+				Log.i(LCAT, "No available providers");
 			}
+		} else {
+			Log.i(LCAT, "Location Manager null");
 		}
 
 		return enabled;
 	}
 
 	public void onResume() {
+		
+		Log.i(LCAT, "onResume");
 
 		locationManager = (LocationManager) proxy.getTiContext().getActivity().getSystemService(Context.LOCATION_SERVICE);
 
@@ -263,6 +343,8 @@ public class TiLocation
 	}
 
 	public void onPause() {
+
+		Log.i(LCAT, "onPause");
 
 		if (listeningForGeo) {
 			manageLocationListener(false);

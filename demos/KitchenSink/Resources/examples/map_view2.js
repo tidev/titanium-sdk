@@ -6,6 +6,7 @@ var annotation = Titanium.Map.createAnnotation({
 	title:"Boston College",
 	subtitle:'Newton Campus, Chestnut Hill, MA',
 	animate:true,
+	leftButton:'../images/atlanta.jpg',
 	image:"../images/boston_college.png"
 });
 
@@ -58,4 +59,11 @@ win.add(mapview);
 annotation.addEventListener('click',function()
 {
 	mapview.removeRoute(route);
+});
+
+// map view click event listener
+mapview.addEventListener('click',function(evt)
+{
+	var clickSource = evt.clicksource;
+	Ti.API.info('mapview click clicksource = ' + clickSource)
 });

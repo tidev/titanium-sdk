@@ -13,6 +13,14 @@
 #import "TiToolbarButton.h"
 #import "TiToolbar.h"
 
+#if __IPHONE_OS_VERSION_MAX_ALLOWED < __IPHONE_4_0
+
+@interface TiUIToolbar (laterMethods)
+@property(nonatomic) CGFloat           contentScaleFactor;
+@end
+
+#endif
+
 @implementation TiUIToolbar
 
 -(void)dealloc
@@ -71,7 +79,7 @@
 	
 	CGFloat x = toolFrame.origin.x;
 	CGFloat y = toolFrame.origin.y+toolFrame.size.height;
-	if ([TiUtils isIOS4OrGreater] && [self contentScaleFactor] > 1.0)
+	if ([self respondsToSelector:@selector(contentScaleFactor)] && [self contentScaleFactor] > 1.0)
 	{ //Yes, this seems very hackish. Very low priority would be to use something more elegant.
 		y -= 0.5;
 	}

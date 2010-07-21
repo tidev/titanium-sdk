@@ -16,6 +16,8 @@ picker.add(data);
 
 win.add(picker);
 
+picker.setSelectedRow(0,1,true);
+
 var label = Ti.UI.createLabel({
 	text:'Make a move',
 	top:6,

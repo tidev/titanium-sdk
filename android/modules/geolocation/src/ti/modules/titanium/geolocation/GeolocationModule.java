@@ -18,6 +18,7 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
+import org.appcelerator.titanium.ContextSpecific;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiDict;
 import org.appcelerator.titanium.TiModule;
@@ -30,9 +31,11 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Message;
 
+@ContextSpecific
 public class GeolocationModule
 	extends TiModule
 {
@@ -71,6 +74,9 @@ public class GeolocationModule
 			constants.put("ACCURACY_HUNDRED_METERS", TiLocation.ACCURACY_HUNDRED_METERS);
 			constants.put("ACCURACY_HUNDRED_METERS", TiLocation.ACCURACY_HUNDRED_METERS);
 			constants.put("ACCURACY_THREE_KILOMETERS", TiLocation.ACCURACY_THREE_KILOMETERS);
+			
+			constants.put("PROVIDER_GPS", LocationManager.GPS_PROVIDER);
+			constants.put("PROVIDER_NETWORK", LocationManager.NETWORK_PROVIDER);
 		}
 
 		return constants;
@@ -331,6 +337,8 @@ public class GeolocationModule
 
 	@Override
 	public void onResume() {
+		Log.i(LCAT, "onResume");
+		
 		super.onResume();
 
 		tiLocation.onResume();
@@ -339,6 +347,7 @@ public class GeolocationModule
 
 	@Override
 	public void onPause() {
+		Log.i(LCAT, "onPause");
 		super.onPause();
 
 		tiLocation.onPause();

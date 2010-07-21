@@ -638,6 +638,8 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 			[[self _window] addSubview:rootView];
 		}
 		[rootView addSubview:view];
+		
+		[self controller];
 		[[[TiApp app] controller] windowFocused:[self controller]];
 	}
 

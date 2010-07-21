@@ -18,7 +18,6 @@ if (parseFloat(Titanium.Platform.version) >= 3.2)
 
 activeMovie.play();
 
-
 win.addEventListener('close', function() {
 	alert("Window closed");
 	activeMovie.stop();

@@ -16,6 +16,16 @@
 #ifdef USE_TI_FACEBOOK
 
 #import "FBConnectGlobal.h"
+#import <Foundation/NSXMLParser.h>
+
+#if !defined(__IPHONE_4_0) || (__IPHONE_OS_VERSION_MAX_ALLOWED < __IPHONE_4_0)
+//Prior to 4.0, All the delegate protocol didn't exist. Instead, the methods
+//were a category on NSObject. So to make this compile for 3.x, we make an empty protocol.
+@protocol NSXMLParserDelegate <NSObject>
+@end
+
+#endif
+
 
 @interface FBXMLHandler : NSObject<NSXMLParserDelegate> {
   NSMutableArray* _stack;

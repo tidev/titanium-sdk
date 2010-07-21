@@ -16,7 +16,7 @@
 #import "TiComplexValue.h"
 #import "TiViewProxy.h"
 
-#define TI_USE_PROPERTY_LOCK 0
+#define TI_USE_PROPERTY_LOCK 1
 
 
 //Common exceptions to throw when the function call was improper

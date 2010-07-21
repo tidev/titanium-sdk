@@ -19,13 +19,29 @@
 	UIPopoverController *popoverController;
 	UINavigationController *navigationController;
 	TiViewController *viewController;
+	
+//We need to hold onto this information for whenever the status bar rotates.
+	TiViewProxy *popoverView;
+	CGRect popoverRect;
+	BOOL animated;
+	UIPopoverArrowDirection directions;
+	
+	BOOL isShowing;
 }
 
 //Because the Popover isn't meant to be placed in anywhere specific, 
 @property(nonatomic,readonly) UIPopoverController *popoverController;
 @property(nonatomic,readwrite,retain) TiViewController *viewController;
 
+
+@property(nonatomic,readwrite,retain) TiViewProxy *popoverView;
+
+
 -(UINavigationController *)navigationController;
+
+-(void)updatePopover:(NSNotification *)notification;
+-(void)updatePopoverNow;
+
 
 @end
 

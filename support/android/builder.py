@@ -20,6 +20,7 @@ from deltafy import Deltafy, Delta
 
 ignoreFiles = ['.gitignore', '.cvsignore', '.DS_Store'];
 ignoreDirs = ['.git','.svn','_svn', 'CVS'];
+android_avd_hw = [['hw.camera', 'yes'],['hw.gps','yes']]
 
 def dequote(s):
 	if s[0:1] == '"':
@@ -113,12 +114,30 @@ class Builder(object):
 				home_jarsigner = os.path.join(os.environ["JAVA_HOME"], "bin", "jarsigner.exe")
 				home_javac = os.path.join(os.environ["JAVA_HOME"], "bin", "javac.exe")
 				home_java = os.path.join(os.environ["JAVA_HOME"], "bin", "java.exe")
+				found = True
+				# TODO Document this path and test properly under windows
 				if os.path.exists(home_jarsigner):
 					self.jarsigner = home_jarsigner
+				else:
+					# Expected but not found
+					found = False
+					error("Required jarsigner not found")
+					
 				if os.path.exists(home_javac):
 					self.javac = home_javac
+				else:
+					error("Required javac not found")
+					found = False
+					
 				if os.path.exists(home_java):
 					self.java = home_java
+				else:
+					error("Required java not found")
+					found = False
+					
+				if found == False:
+					error("One or more required files not found - please check your JAVA_HOME environment variable")
+					sys.exit(1)
 			else:
 				found = False
 				for path in os.environ['PATH'].split(os.pathsep):
@@ -171,7 +190,7 @@ class Builder(object):
 				extra_message = "you may need to close the emulator and try again"
 			else:
 				device = "device"
-				extra_message = "you may try reconnecting the USB chord"
+				extra_message = "you may try reconnecting the USB cable"
 			error("Timed out waiting for %s to be ready, %s" % (device, extra_message))
 			if no_devices:
 				sys.exit(1)
@@ -203,7 +222,10 @@ class Builder(object):
 			inifilec = open(inifile,'r').read()
 			inifiledata = open(inifile,'w')
 			inifiledata.write(inifilec)
-			inifiledata.write("hw.camera=yes\n")
+			# TODO - Document options
+			for hw_options in android_avd_hw:
+				initfiledata.write("{0[0]}={0[1]}".format(hw_options))
+			#inifiledata.write("hw.camera=yes\n")
 			inifiledata.close()
 			
 		return name
@@ -328,16 +350,29 @@ class Builder(object):
 			if prefix is not None:
 				return os.path.join(prefix, relative_path)
 			return relative_path
-		
+
 		for delta in self.project_deltas:
+			path = delta.get_path()
+			if delta.get_status() == Delta.DELETED and path.startswith(android_resources_dir):
+				shared_path = path.replace(android_resources_dir, resources_dir, 1)
+				if os.path.exists(shared_path):
+					dest = make_relative(shared_path, resources_dir, self.assets_resources_dir)
+					trace("COPYING FILE: %s => %s (platform-specific file was removed)" % (shared_path, dest))
+					shutil.copy(shared_path, dest)
+
+
 			if delta.get_status() != Delta.DELETED:
-				path = delta.get_path()
 				if path.startswith(android_resources_dir):
 					dest = make_relative(path, android_resources_dir, self.assets_resources_dir)
 				else:
+					# don't copy it if there is an android-specific file
+					if os.path.exists(path.replace(resources_dir, android_resources_dir, 1)):
+						continue
 					dest = make_relative(path, resources_dir, self.assets_resources_dir)
 				# check to see if this is a compiled file and if so, don't copy
 				#if dest in self.compiled_files: continue
+				if path.startswith(os.path.join(resources_dir, "iphone")) or path.startswith(os.path.join(resources_dir, "blackberry")):
+					continue
 				parent = os.path.dirname(dest)
 				if not os.path.exists(parent):
 					os.makedirs(parent)
@@ -636,18 +671,25 @@ class Builder(object):
 			app_apk = os.path.join(self.project_dir, 'bin', 'app.apk')	
 
 		output = run.run([self.jarsigner, '-storepass', self.keystore_pass, '-keystore', self.keystore, '-signedjar', app_apk, unsigned_apk, self.keystore_alias])
-		success = re.findall(r'RuntimeException: (.*)', output)
-		if len(success) > 0:
-			error(success[0])
-			sys.exit(1)
+		run.check_output_for_error(output, r'RuntimeException: (.*)', True)
+		# TODO Document Exit message
+		#success = re.findall(r'RuntimeException: (.*)', output)
+		#if len(success) > 0:
+		#	error(success[0])
+		#	sys.exit(1)
 		
 		# zipalign to align byte boundaries
 		zipalign = self.sdk.get_zipalign()
 		if os.path.exists(app_apk+'z'):
 			os.remove(app_apk+'z')
-		run.run([zipalign, '-v', '4', app_apk, app_apk+'z'])
-		os.unlink(app_apk)
-		os.rename(app_apk+'z',app_apk)
+		output = run.run([zipalign, '-v', '4', app_apk, app_apk+'z'])
+		# TODO - Document Exit message
+		if output == None:
+			error("System Error while compiling Android classes.dex")
+			sys.exit(1)
+		else:
+			os.unlink(app_apk)
+			os.rename(app_apk+'z',app_apk)
 
 		if self.dist_dir:
 			sys.exit(0)
@@ -665,11 +707,14 @@ class Builder(object):
 				if self.install:
 					self.wait_for_device('d')
 					info("Installing application on emulator")
-					cmd += ['-d', 'install', '-r', app_apk]
+					cmd += ['-d']
+					#cmd += ['-d', 'install', '-r', app_apk]
 				else:
 					self.wait_for_device('e')
 					info("Installing application on device")
-					cmd += ['-e', 'install', '-r', app_apk]
+					cmd += ['-e']
+					#cmd += ['-e', 'install', '-r', app_apk]
+				cmd += ['install', '-r', app_apk]
 				output = run.run(cmd)
 				if output == None:
 					launch_failed = True
@@ -847,16 +892,21 @@ class Builder(object):
 				if platform.system() == 'Windows':
 					dex_args = [self.java, '-Xmx512M', '-Djava.ext.dirs=%s' % self.sdk.get_platform_tools_dir(), '-jar', self.sdk.get_dx_jar()]
 				else:
-					dex_args = [dx, '-JXmx768M']
+					dex_args = [dx, '-JXmx896M', '-JXX:-UseGCOverheadLimit']
 				dex_args += ['--dex', '--output='+self.classes_dex, self.classes_dir]
 				dex_args += self.android_jars
 				dex_args += self.android_module_jars
 		
 				info("Compiling Android Resources... This could take some time")
 				sys.stdout.flush()
-				
-				run.run(dex_args)
-				dex_built = True
+				# TODO - Document Exit message
+				run_result = run.run(dex_args)
+				if (run_result == None):
+					dex_built = False
+					error("System Error while compiling Android classes.dex")
+					sys.exit(1)
+				else:
+					dex_built = True
 			
 			if self.sdcard_copy and \
 				(not self.resources_installed or not self.app_installed) and \

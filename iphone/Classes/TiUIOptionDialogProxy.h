@@ -7,10 +7,22 @@
 #ifdef USE_TI_UIOPTIONDIALOG
 
 #import "TiProxy.h"
+@class TiViewProxy;
 
 @interface TiUIOptionDialogProxy : TiProxy<UIActionSheetDelegate> {
-	
+
+	UIActionSheet *actionSheet;
+//We need to hold onto this information for whenever the status bar rotates.
+	TiViewProxy *dialogView;
+	CGRect dialogRect;
+	BOOL animated;
+
 }
+
+@property(nonatomic,retain,readwrite)	TiViewProxy *dialogView;
+
+-(void)updateOptionDialog:(NSNotification *)notification;
+-(void)updateOptionDialogNow;
 
 @end
 

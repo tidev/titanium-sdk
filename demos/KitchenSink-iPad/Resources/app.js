@@ -61,4 +61,23 @@ b4.addEventListener('click', function()
 	NavController.open();
 });
 win.add(b4);
+
+var b5= Ti.UI.createButton({
+	title:'Fixed Orientation',
+	width:300,
+	height:50,
+	top:310
+});
+b5.addEventListener('click', function()
+{
+	var w = Ti.UI.createWindow({backgroundColor:'#fff'});
+	var l = Ti.UI.createLabel({text:'I should only be in Landscape'});
+	w.add(l);
+	w.orientationModes = [
+		Titanium.UI.LANDSCAPE_LEFT,
+		Titanium.UI.LANDSCAPE_RIGHT,
+	];
+	w.open();
+});
+win.add(b5);
 win.open();

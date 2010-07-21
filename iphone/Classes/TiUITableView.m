@@ -111,6 +111,11 @@
 	[super dealloc];
 }
 
+-(BOOL)isScrollable
+{
+	return [TiUtils boolValue:[self.proxy valueForUndefinedKey:@"scrollable"] def:YES];
+}
+
 -(CGFloat)tableRowHeight:(CGFloat)height
 {
 	if (TiDimensionIsPixels(rowHeight))
@@ -804,7 +809,7 @@
 	[[searchField view] resignFirstResponder];
 	[self makeRootViewFirstResponder];
 	[searchTableView removeFromSuperview];
-	[tableview setScrollEnabled:YES];
+	[tableview setScrollEnabled:[self isScrollable]];
 	[self.proxy replaceValue:NUMBOOL(YES) forKey:@"searchHidden" notification:NO];
 	[searchController setActive:NO animated:YES];
 	
@@ -866,6 +871,7 @@
 		return;
 	}
 	
+	ENSURE_UI_THREAD_0_ARGS;
 	if (searchField == nil)
 	{
 		[tableview setTableHeaderView:nil];
@@ -877,7 +883,7 @@
 	}
 	
 	UIView * searchView = [searchField view];
-	
+
 	if (tableHeaderView == nil)
 	{
 		CGRect wrapperFrame = CGRectMake(0, 0, [tableview bounds].size.width, TI_NAVBAR_HEIGHT);
@@ -1070,6 +1076,8 @@
 		searchController.searchResultsDelegate = self;
 		searchController.delegate = self;
 		
+		[self updateSearchView];
+
 		if (searchHiddenSet==NO)
 		{
 			return;
@@ -1087,6 +1095,7 @@
 	{
 		searchHidden = YES;
 		[self.proxy replaceValue:NUMBOOL(NO) forKey:@"searchHidden" notification:NO];
+		[self updateSearchView];
 	}
 }
 
@@ -1361,10 +1370,24 @@ if(ourTableView != tableview)	\
         }
 
 		[table beginUpdates];
-        [table deleteRowsAtIndexPaths:[NSArray arrayWithObject:path] withRowAnimation:UITableViewRowAnimationFade];
-        if (emptySection) {
-            [table deleteSections:[NSIndexSet indexSetWithIndex:[indexPath section]] withRowAnimation:UITableViewRowAnimationFade];
+        if (emptySection)
+		{
+			NSIndexSet * thisSectionSet = [NSIndexSet indexSetWithIndex:[indexPath section]];
+			if([sections count] > 0)
+			{
+				[table deleteSections:thisSectionSet withRowAnimation:UITableViewRowAnimationFade];
+			}
+			else	//There always must be at least one section. So instead, we have it reload to clear out the header and footer, etc.
+			{
+				[table reloadSections:thisSectionSet withRowAnimation:UITableViewRowAnimationFade];
+			}
+
         }
+		else
+		{
+			[table deleteRowsAtIndexPaths:[NSArray arrayWithObject:path] withRowAnimation:UITableViewRowAnimationFade];
+		}
+
 		[table endUpdates];
 	}
 }

@@ -55,7 +55,7 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 
 		this.content = new TiCompositeLayout(tiContext.getActivity(), false);
 		content.setMinimumHeight(48);
-		addView(content, new LayoutParams(LayoutParams.WRAP_CONTENT,LayoutParams.WRAP_CONTENT));
+		addView(content, new LayoutParams(LayoutParams.FILL_PARENT,LayoutParams.WRAP_CONTENT));
 
 		this.rightImage = new ImageView(tiContext.getActivity());
 		rightImage.setVisibility(GONE);
@@ -192,6 +192,7 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 				TiCompositeLayout.LayoutParams params = (TiCompositeLayout.LayoutParams) t.getLayoutParams();
 				params.optionLeft = 5;
 				params.optionRight = 5;
+				params.autoFillsWidth = true;
 				content.addView(v, params);
 			}
 		}
