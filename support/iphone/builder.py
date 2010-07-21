@@ -6,7 +6,7 @@
 # 
 
 import os, sys, uuid, subprocess, shutil, signal, string, traceback
-import platform, time, re, run, glob, codecs, hashlib, datetime
+import platform, time, re, run, glob, codecs, hashlib, datetime, plistlib
 from compiler import Compiler
 from projector import Projector
 from xml.dom.minidom import parseString
@@ -104,14 +104,14 @@ def make_app_name(s):
 		buf = 'k%s' % buf
 	return buf
 
-	def getText(nodelist):
-		rc = ""
-		for node in nodelist:
-			if node.nodeType == node.TEXT_NODE:
-				rc+=node.data
-			elif node.nodeType == node.ELEMENT_NODE:
-				rc+=getText(node.childNodes)
-		return rc
+def getText(nodelist):
+	rc = ""
+	for node in nodelist:
+		if node.nodeType == node.TEXT_NODE:
+			rc+=node.data
+		elif node.nodeType == node.ELEMENT_NODE:
+			rc+=getText(node.childNodes)
+	return rc
 
 def make_map(dict):
 	props = {}
@@ -185,6 +185,9 @@ def get_task_allow(provisioning_profile):
 def get_app_prefix(provisioning_profile):
 	appid_prefix = provisioning_profile['ApplicationIdentifierPrefix']
 	return appid_prefix
+	
+def get_profile_uuid(provisioning_profile):
+	return provisioning_profile['UUID']
 	
 def generate_customized_entitlements(provisioning_profile,appid,uuid,command,out):
 	
@@ -940,7 +943,8 @@ def main(args):
 					args += [
 						"GCC_PREPROCESSOR_DEFINITIONS=DEPLOYTYPE=test TI_TEST=1",
 						"PROVISIONING_PROFILE[sdk=iphoneos*]=%s" % appuuid,
-						"CODE_SIGN_IDENTITY[sdk=iphoneos*]=iPhone Developer: %s" % dist_name
+						"CODE_SIGN_IDENTITY[sdk=iphoneos*]=iPhone Developer: %s" % dist_name,
+						"DEPLOYMENT_POSTPROCESSING=YES"
 					]
 					execute_xcode("iphoneos%s" % iphone_version,args,False)
 
@@ -992,20 +996,51 @@ def main(args):
 					args += [
 						"GCC_PREPROCESSOR_DEFINITIONS=DEPLOYTYPE=%s TI_PRODUCTION=1" % deploytype,
 						"PROVISIONING_PROFILE[sdk=iphoneos*]=%s" % appuuid,
-						"CODE_SIGN_IDENTITY[sdk=iphoneos*]=iPhone Distribution: %s" % dist_name
+						"CODE_SIGN_IDENTITY[sdk=iphoneos*]=iPhone Distribution: %s" % dist_name,
+						"DEPLOYMENT_POSTPROCESSING=YES"
 					]
 					execute_xcode("iphoneos%s" % iphone_version,args,False)
 
 					# switch to app_bundle for zip
 					os.chdir(build_dir)
 
-					outfile = os.path.join(output_dir,"%s.app.zip"%name)
-					if os.path.exists(outfile): os.remove(outfile)
-					o.write("Writing build distribution to %s\n"%outfile)
+					# starting in 4.0, apple now requires submission through XCode
+					archive_uuid = str(uuid.uuid4()).upper()
+					archive_dir = os.path.join(os.path.expanduser("~/Library/MobileDevice/Archived Applications"),archive_uuid)
+					archive_app_dir = os.path.join(archive_dir,"%s.app" % name)
+					archive_appdsym_dir = os.path.join(archive_dir,"%s.app.dSYM" % name)
+					os.makedirs(archive_app_dir)
+					os.makedirs(archive_appdsym_dir)
+	
+					os.system('ditto "%s.app" "%s"' % (name,archive_app_dir))
+					os.system('ditto "%s.app.dSYM" "%s"' % (name,archive_appdsym_dir))
+					
+					archive_plist = os.path.join(archive_dir,'ArchiveInfo.plist')
+					o.write("Writing archive plist to: %s\n\n" % archive_plist)
+					
+					profile_uuid = get_profile_uuid(provisioning_profile)
 
-					# you *must* use ditto here or it won't upload to appstore
-					os.system('ditto -ck --keepParent --sequesterRsrc "%s.app" "%s"' % (name,outfile))
+					os.system("/usr/bin/plutil -convert xml1 -o \"%s\" \"%s\"" % (os.path.join(archive_dir,'Info.xml.plist'),os.path.join(archive_app_dir,'Info.plist')))
+					p = plistlib.readPlist(os.path.join(archive_dir,'Info.xml.plist'))
+					archive_metadata = {
+						'CFBundleIdentifier':p['CFBundleIdentifier'],
+						'CFBundleVersion':p['CFBundleVersion'],
+						'XCApplicationFilename':'%s.app' %name,
+						'XCApplicationName':name,
+						'XCArchivedDate': time.time() - 978307200.0,
+						'XCArchiveUUID':archive_uuid,
+						'XCInfoPlist' : p,
+						'XCProfileUUID': profile_uuid
+					}
+					o.write("%s\n\n" % archive_metadata)
+					plistlib.writePlist(archive_metadata,archive_plist)
+					os.remove(os.path.join(archive_dir,'Info.xml.plist'))
 
+					# open xcode + organizer after packaging
+					ass = os.path.join(template_dir,'xcode_organizer.scpt')
+					cmd = "osascript \"%s\"" % ass
+					os.system(cmd)
+					
 					o.write("Finishing build\n")
 					script_ok = True
 
