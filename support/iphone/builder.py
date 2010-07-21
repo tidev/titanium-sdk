@@ -995,7 +995,8 @@ def main(args):
 					args += [
 						"GCC_PREPROCESSOR_DEFINITIONS=DEPLOYTYPE=%s TI_PRODUCTION=1" % deploytype,
 						"PROVISIONING_PROFILE[sdk=iphoneos*]=%s" % appuuid,
-						"CODE_SIGN_IDENTITY[sdk=iphoneos*]=iPhone Distribution: %s" % dist_name
+						"CODE_SIGN_IDENTITY[sdk=iphoneos*]=iPhone Distribution: %s" % dist_name,
+						"DEPLOYMENT_POSTPROCESSING=YES"
 					]
 					execute_xcode("iphoneos%s" % iphone_version,args,False)
 
