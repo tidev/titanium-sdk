@@ -34,14 +34,18 @@ extern NSString * const TI_APPLICATION_RESOURCE_DIR;
 
 +(BOOL)isRetinaDisplay
 {
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0
-	if ([[UIScreen mainScreen] respondsToSelector:@selector(scale)] && 
-		[UIScreen mainScreen].scale > 1.0)
+	// since we call this alot, cache it
+	static CGFloat scale = 0.0;
+	if (scale == 0.0)
 	{
-		return YES;
-	}
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0
+		if ([[UIScreen mainScreen] respondsToSelector:@selector(scale)])
+		{
+			scale = [UIScreen mainScreen].scale;
+		}
 #endif	
-	return NO;
+	}
+	return scale > 1.0;
 }
 
 
