@@ -328,13 +328,24 @@ class Builder(object):
 			if prefix is not None:
 				return os.path.join(prefix, relative_path)
 			return relative_path
-		
+
 		for delta in self.project_deltas:
+			path = delta.get_path()
+			if delta.get_status() == Delta.DELETED and path.startswith(android_resources_dir):
+				shared_path = path.replace(android_resources_dir, resources_dir, 1)
+				if os.path.exists(shared_path):
+					dest = make_relative(shared_path, resources_dir, self.assets_resources_dir)
+					trace("COPYING FILE: %s => %s (platform-specific file was removed)" % (shared_path, dest))
+					shutil.copy(shared_path, dest)
+
+
 			if delta.get_status() != Delta.DELETED:
-				path = delta.get_path()
 				if path.startswith(android_resources_dir):
 					dest = make_relative(path, android_resources_dir, self.assets_resources_dir)
 				else:
+					# don't copy it if there is an android-specific file
+					if os.path.exists(path.replace(resources_dir, android_resources_dir, 1)):
+						continue
 					dest = make_relative(path, resources_dir, self.assets_resources_dir)
 				# check to see if this is a compiled file and if so, don't copy
 				#if dest in self.compiled_files: continue
