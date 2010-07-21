@@ -9,7 +9,12 @@
 	<key>CFBundleExecutable</key>
 	<string>${EXECUTABLE_NAME}</string>
 	<key>CFBundleIconFile</key>
-	<string>appicon.png</string>
+	<string>__APPICON__.png</string>
+	<key>CFBundleIconFiles</key>
+	<array>
+		<string>__APPICON__.png</string>
+		<string>__APPICON__@2x.png</string>
+	</array>
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict>
