@@ -61,6 +61,14 @@ public class TableViewRowProxy extends TiViewProxy
 		this.tableViewItem = item;
 	}
 	
+	public TableViewProxy getTable() {
+		TiViewProxy parent = getParent();
+		while (!(parent instanceof TableViewProxy) && parent != null) {
+			parent = parent.getParent();
+		}
+		return (TableViewProxy)parent;
+	}
+	
 	@Override
 	public void setDynamicValue(String key, Object value) {
 		super.setDynamicValue(key, value);
@@ -88,7 +96,7 @@ public class TableViewRowProxy extends TiViewProxy
 	public boolean fireEvent(String eventName, TiDict data) {
 		if (eventName.equals("click")) {
 			// inject row click data for events coming from row children
-			TableViewProxy table = (TableViewProxy)getParent();
+			TableViewProxy table = getTable();
 			Item item = tableViewItem.getRowData();
 			if (table != null && item != null) {
 				TableViewModel model = table.getTableView().getModel();
