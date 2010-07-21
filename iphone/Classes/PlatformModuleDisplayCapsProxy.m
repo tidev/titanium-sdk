@@ -38,7 +38,7 @@
 	{
 		return [NSNumber numberWithInt:130];
 	}
-	else if ([TiUtils isRetinaDisplay]) {
+	else if ([TiUtils isRetinaDisplay])
 	{
 		return [NSNumber numberWithInt:320];
 	}
