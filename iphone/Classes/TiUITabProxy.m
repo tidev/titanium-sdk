@@ -226,13 +226,19 @@
 	NSDictionary* properties = (([args isKindOfClass:[NSArray class]]) &&
 								([args count] > 1) && 
 								([[args objectAtIndex:1] isKindOfClass:[NSDictionary class]])) ? [args objectAtIndex:1] : nil;
-	
+
+	BOOL animated = [TiUtils boolValue:@"animated" properties:properties def:YES];
 	if ([current window] == window)
 	{
-		BOOL animated = [TiUtils boolValue:@"animated" properties:properties def:YES];
 		[[rootController navigationController] popViewControllerAnimated:animated];
 		return;
 	}
+	
+	// Manage the navigation controller stack
+	UINavigationController* navController = [rootController navigationController];
+	NSMutableArray* controllerStack = [NSMutableArray arrayWithArray:[navController viewControllers]];
+	[controllerStack removeObject:[window controller]];
+	[navController setViewControllers:controllerStack animated:animated];
 	
 	[window retain];
 	[window _tabBlur];
