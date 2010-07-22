@@ -6,6 +6,8 @@
 import os, sys, subprocess, types, re, uuid
 from tiapp import *
 
+isDebug=False
+
 template_dir = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
 
 def die(msg):
@@ -125,14 +127,20 @@ def create_android_project(project_dir,osname,args):
 	return os.path.join(project_dir,name)
 
 def create_android_module(project_dir,osname,args):
-	die("android modules aren't supported in this release")
 	script = os.path.join(template_dir,'module','module.py')
+	
+	if isDebug:
+		print "Script %s" % script
+		
 	name = get_required(args,'name')
 	validate_project_name(name)
 	appid = get_required(args,'id')
 	android_sdk = get_required_dir(args,'android')
-	args = [script,'--name',name,appid,'--directory',project_dir,'--platform',osname,'--sdk',android_sdk]
-	fork(args,True)
+	args = [script,'--name',name,'--id',appid,'--directory',project_dir,'--platform',osname,'--sdk',android_sdk]
+	
+	if isDebug:
+		print "Calling with '{0[0]} {0[1]} {0[2]} {0[3]} {0[4]} {0[5]} {0[6]} {0[7]} {0[8]} {0[9]} {0[10]}'".format(args)
+	fork(args,False)
 	print "Created %s module project" % osname
 	return os.path.join(project_dir,name)
 
@@ -290,12 +298,13 @@ def help(args=[],suppress_banner=False):
 		if cmd == 'create':
 			print "Usage: %s create [--platform=p] [--type=t] [--dir=d] [--name=n] [--id=i] [--ver=v]" % os.path.basename(sys.argv[0])
 			print 
-			print "  --platform=p1,p2    platform: iphone, ipad, android, blackberry, etc."
-			print "  --type=t            type of project: project, module, template"
-			print "  --dir=d             directory to create the new project"
-			print "  --name=n            project name"
-			print "  --id=i              project id"
-			print "  --ver=i             platform version"
+			print "  --platform=p1,p2    	platform: iphone, ipad, android, blackberry, etc."
+			print "  --type=t            	type of project: project, module, template"
+			print "  --dir=d             	directory to create the new project"
+			print "  --name=n            	project name"
+			print "  --id=i              	project id (ie com.companyName.project"
+			print "  --ver=i             	platform version"
+			print "  --android=sdk_folder	For android module - the Android SDK folder"
 		elif cmd == 'build':
 			print "Usage: %s build [--dir=d]" % os.path.basename(sys.argv[0])
 			print 

@@ -26,8 +26,10 @@
 			<include name="**/*.jar" />
 		</fileset>
 		<pathelement location="classes" />
-		<pathelement path="${android.platform}/android.jar" />
-		<pathelement path="${google.apis}/libs/maps.jar" />
+    <pathelement path="${titanium.platform}/js.jar" />
+    <pathelement path="${titanium.platform}/titanium.jar" />
+    <pathelement path="${android.platform}/android.jar" />
+    <pathelement path="${google.apis}/libs/maps.jar" />
 	</path>
 
 	<target name="init">
@@ -55,7 +57,7 @@
 				<compilerarg value="-verbose" />
 				<compilerarg value="-processor" />
 				<compilerarg value="org.appcelerator.titanium.annotations.processor.ModuleRefGenerator" />
-				<!-- <compilerarg value="-AprojectName=${ant.project.name}" /> -->
+				<compilerarg value="-AprojectName=${ant.project.name}" /> 
 				<compilerarg value="-proc:only" />
 				<classpath refid="base.path" />
 		</javac>
