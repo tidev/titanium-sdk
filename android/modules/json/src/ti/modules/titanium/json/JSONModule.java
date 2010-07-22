@@ -9,11 +9,11 @@ package ti.modules.titanium.json;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiDict;
 import org.appcelerator.titanium.TiModule;
+import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConvert;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.json.JSONStringer;
 import org.json.JSONTokener;
 
 public class JSONModule extends TiModule {
@@ -37,31 +37,37 @@ public class JSONModule extends TiModule {
 			}
 			sb.append("]");
 			return sb.toString();
-		} else return data.toString();
+		} else {
+			return TiConvert.toString(data);
+		}
 	}
 
 	public Object parse(String json)
 		throws JSONException
 	{
-		if (json == null) {
-			return null;
-		}
+		Object parsed = null;
 
+		if (json == null) {
+			return parsed;
+		}
+		
 		String trimmed = json.trim();
 		char firstChar = trimmed.charAt(0);
 
 		if (firstChar == '{') {
-			return new TiDict(new JSONObject(json));
+			parsed = new TiDict(new JSONObject(json));
 		} else if (firstChar == '[') {
 			JSONArray array = new JSONArray(json);
 			Object result[] = new Object[array.length()];
 			for (int i = 0; i < array.length(); i++) {
 				result[i] = TiDict.fromJSON(array.get(i));
 			}
-			return result;
+			parsed = result;
 		} else {
-			return new JSONTokener(json).nextValue();
+			parsed = new JSONTokener(json).nextValue();
 		}
+		
+		return parsed;
 	}
 
 }

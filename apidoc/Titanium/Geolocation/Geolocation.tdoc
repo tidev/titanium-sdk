@@ -33,10 +33,12 @@ ACCURACY_NEAREST_TEN_METERS[int]: accuracy constant
 ACCURACY_HUNDRED_METERS[int]: accuracy constant
 ACCURACY_KILOMETER[int]: accuracy constant
 ACCURACY_THREE_KILOMETERS[int]: accuracy constant
+PROVIDER_GPS[string]: The GPS location provider
+PROVIDER_NETWORK[string]: The Network location provider
 
 locationServicesEnabled[boolean]: returns true if the user has enabled or disable location services for the device (not the application). 
 showCalibration[boolean]: returns true if the calibration UI can show
-
+preferredProvider[string]: allows setting of the preferred location provider.  Returns undefined when the preferred provider is auto-detected
 
 - events
 

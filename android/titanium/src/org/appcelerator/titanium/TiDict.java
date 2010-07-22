@@ -29,8 +29,9 @@ public class TiDict
 	public TiDict(JSONObject object) throws JSONException {
 		for (Iterator<String> iter = object.keys(); iter.hasNext();) {
 			String key = iter.next();
-			Object value = object.get(key);
-			put(key, fromJSON(value));
+			Object value = object.get(key);			
+			Object json = fromJSON(value);
+			put(key, json);
 		}
 	}
 	

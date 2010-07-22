@@ -16,7 +16,7 @@ import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiConvert;
 
-public class Ti__PROJECT_SHORT_NAME__cha
+public class Ti__PROJECT_SHORT_NAME__
 {
 	// Standard Debugging variables
 	private static final String LCAT = "Ti__PROJECT_SHORT_NAME__";
