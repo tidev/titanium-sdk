@@ -105,6 +105,7 @@ public class KrollMethod extends KrollObject implements Function
 		}
 		if (DBG) {
 			Log.d(LCAT, "RESULT: " + ((result == null) ? "<null>" : result.toString()));
+			Log.d(LCAT, "RESULT TYPE: " + ((result == null) ? "<null>" : result.getClass().getName()));
 		}
 		return result;
 	}
