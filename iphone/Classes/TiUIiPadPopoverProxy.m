@@ -120,7 +120,7 @@
 -(void)setLeftNavButton:(id)item withObject:(id)properties
 {
 	ENSURE_SINGLE_ARG_OR_NIL(item,TiViewProxy);
-	[self replaceValue:item forKey:@"rightNavButton" notification:NO];
+	[self replaceValue:item forKey:@"leftNavButton" notification:NO];
 	[self refreshTitleBarWithObject:properties];
 }
 
