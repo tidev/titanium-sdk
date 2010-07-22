@@ -745,12 +745,12 @@ public class KrollObject extends ScriptableObject
 							} else if (o instanceof Number) {
 								sb.append(o);
 							} else if (o instanceof ScriptableObject) {
-								sb.append( " {").append(o).append("} ");
+								sb.append(o);
 							} else {
 								sb.append(o);
 							}
 
-							sb.append("sep");
+							sb.append(sep);
 							sep = ",";
 						}
 					}
@@ -764,7 +764,8 @@ public class KrollObject extends ScriptableObject
 			{
 				TiDict d = (TiDict) value;
 				for(String key : d.keySet()) {
-					so.put(key, so, fromNative(d.get(key), kroll));
+					Object localValue = d.get(key);
+					so.put(key, so, fromNative(localValue, kroll));
 				}
 			}
 			else
