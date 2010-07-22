@@ -412,11 +412,13 @@ void MyUncaughtExceptionHandler(NSException *exception)
 
 -(void)applicationDidEnterBackground:(UIApplication *)application
 {
+	[TiUtils queueAnalytics:@"ti.background" name:@"ti.background" data:nil];
 }
 
 -(void)applicationWillEnterForeground:(UIApplication *)application
 {
 	[[NSNotificationCenter defaultCenter] postNotificationName:kTiResumeNotification object:self];
+	[TiUtils queueAnalytics:@"ti.foreground" name:@"ti.foreground" data:nil];
 }
 
 -(id)remoteNotification
