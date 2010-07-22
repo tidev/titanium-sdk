@@ -411,8 +411,13 @@ DEFINE_EXCEPTIONS
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0
 			if (scaleUp && [self imageScale:resultImage]==1.0)
 			{
-				// if we specified a 2x, we need to upscale it
-				resultImage = [UIImage imageWithCGImage:[resultImage CGImage] scale:2.0 orientation:[resultImage imageOrientation]];
+				// on the ipad running iphone app in emulation mode, this won't exist when
+				// do click 2x to scale it up so we have to check for this method
+				if ([UIImage instancesRespondToSelector:@selector(imageWithCGImage:scale:orientation:)])
+				{
+					// if we specified a 2x, we need to upscale it
+					resultImage = [UIImage imageWithCGImage:[resultImage CGImage] scale:2.0 orientation:[resultImage imageOrientation]];
+				}
 			}
 #endif
 			result = [self setImage:resultImage forKey:urlString];

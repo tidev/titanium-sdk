@@ -17,6 +17,17 @@ import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.TiProxy;
 import org.appcelerator.titanium.util.TiConfig;
 
+import org.appcelerator.titanium.annotations.manifest.Ti;
+import org.appcelerator.titanium.annotations.manifest.Ti.version;
+import org.appcelerator.titanium.annotations.manifest.Ti.manifest.activity.configChangesTypes;
+import org.appcelerator.titanium.annotations.manifest.Ti.manifest.activity.launchModeTypes;
+
+@Ti.module(
+		name = "__PROJECT_SHORT_NAME__", 
+		version = @version(buildVersion=0, minorVersion=0, majorVersion=1),
+		dependsUponTitanium = @version(minorVersion=3, majorVersion=1)
+)
+
 public class __PROJECT_SHORT_NAME__Module extends TiModule
 {
 
