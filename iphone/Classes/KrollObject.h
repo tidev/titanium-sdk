@@ -6,6 +6,7 @@
  */
 #import <Foundation/Foundation.h>
 #import "TiCore.h"
+#import "TiBase.h"
 
 @class KrollContext;
 extern TiClassRef KrollObjectClassRef;

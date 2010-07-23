@@ -12,10 +12,9 @@
 	id<TiEvaluator> context;
 	id listener;
 	TiProxy *proxy;
-	NSString *type;	
 	BOOL removed;
 }
--(id)initWithListener:(id)listener_ context:(id<TiEvaluator>)context_ proxy:(TiProxy*)proxy type:(NSString*)type;
+-(id)initWithListener:(id)listener_ context:(id<TiEvaluator>)context_ proxy:(TiProxy*)proxy;
 -(id<TiEvaluator>)context;
 -(id)listener;
 @end

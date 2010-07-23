@@ -24,6 +24,7 @@
 	LayoutConstraint layoutProperties;
 
 	BOOL windowOpened;
+	BOOL windowOpening;
 	int dirtyflags;	//For atomic actions, best to be explicit about the 32 bitness.
 
 	BOOL isUsingBarButtonItem;
@@ -73,7 +74,8 @@
 -(void)layoutChild:(TiViewProxy*)child optimize:(BOOL)optimize;
 -(void)windowWillOpen;
 -(void)windowDidOpen;
--(BOOL)windowOpened;
+-(BOOL)windowHasOpened;
+-(BOOL)windowIsOpening;
 
 -(void)setWidth:(id)value;
 -(void)setHeight:(id)value;

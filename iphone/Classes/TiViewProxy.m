@@ -25,15 +25,6 @@
 @synthesize barButtonItem;
 
 #pragma mark Internal
-- (id) init
-{
-	self = [super init];
-	if (self != nil)
-	{
-		childrenLock = [[NSRecursiveLock alloc] init];
-	}
-	return self;
-}
 
 -(NSArray*)children
 {
@@ -45,17 +36,8 @@
 		return [copy autorelease];
 	}
 	[childrenLock unlock];
-	return children;	
+	return children;
 }
-
-- (void) _initWithProperties:(NSDictionary *)properties
-{
-#if USE_VISIBLE_BOOL
-	visible = YES;
-#endif
-	[super _initWithProperties:properties];
-}
-
 
 -(void)dealloc
 {
@@ -68,7 +50,7 @@
 	[super dealloc];
 }
 
--(BOOL)windowOpened
+-(BOOL)windowHasOpened
 {
 	return windowOpened;
 }
@@ -145,6 +127,11 @@
 
 -(void)add:(id)arg
 {
+	if (childrenLock==nil)
+	{
+		childrenLock = [[NSRecursiveLock alloc] init];
+	}
+
 	// allow either an array of arrays or an array of single proxy
 	if ([arg isKindOfClass:[NSArray class]])
 	{
@@ -361,7 +348,7 @@
 		[view setParent:parent_];
 	}
 	
-	if (parent_!=nil && [parent windowOpened])
+	if (parent_!=nil && [parent windowHasOpened])
 	{
 		[self windowWillOpen];
 	}
@@ -451,6 +438,7 @@
 	}
 	
 	windowOpened = YES;
+	windowOpening = YES;
 	
 	// If the window was previously opened, it may need to have
 	// its existing children redrawn
@@ -474,6 +462,7 @@
 
 -(void)windowDidOpen
 {
+	windowOpening = NO;
 }
 
 -(void)windowDidClose
@@ -534,6 +523,11 @@
 	{
 		[view performSelector:@selector(didFirePropertyChanges)];
 	}
+}
+
+-(BOOL)windowIsOpening
+{
+	return windowOpening;
 }
 
 -(BOOL)viewReady
