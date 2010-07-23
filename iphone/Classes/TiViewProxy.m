@@ -604,8 +604,15 @@
 		[childrenLock unlock];
 
 		// make sure we do a layout of ourselves
+		if([NSThread isMainThread])
+		{
+			[view updateLayout:NULL withBounds:view.bounds];
+		}
+		else
+		{
+			[self setNeedsReposition];
+		}
 
-		[view updateLayout:NULL withBounds:view.bounds];
 		
 		viewInitialized = YES;
 	}
