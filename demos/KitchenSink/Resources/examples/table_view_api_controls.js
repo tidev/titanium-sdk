@@ -1,5 +1,6 @@
 // create table view data object
 var data = [];
+var ts1 = new Date().getTime();
 
 for (var c=0;c<10;c++)
 {
@@ -61,3 +62,68 @@ tableview.addEventListener('click', function(e)
 
 // add table view to the window
 Titanium.UI.currentWindow.add(tableview);
+
+var ts2 = new Date().getTime();
+
+// this is simply a little window we show 
+// that displays the time it took to build the table and show it
+
+var messageWin = Titanium.UI.createWindow({
+	height:30,
+	width:200,
+	bottom:70,
+	borderRadius:10,
+	touchEnabled:false,
+	opacity:0,
+
+	orientationModes : [
+	Titanium.UI.PORTRAIT,
+	Titanium.UI.UPSIDE_PORTRAIT,
+	Titanium.UI.LANDSCAPE_LEFT,
+	Titanium.UI.LANDSCAPE_RIGHT,
+	]
+});
+
+var messageView = Titanium.UI.createView({
+	height:30,
+	width:200,
+	borderRadius:10,
+	backgroundColor:'#000',
+	opacity:0.7,
+	touchEnabled:false
+});
+
+var messageLabel = Titanium.UI.createLabel({
+	text:(ts2-ts1)+' ms',
+	color:'#fff',
+	width:200,
+	height:'auto',
+	font:{
+		fontFamily:'Helvetica Neue',
+		fontSize:13
+	},
+	textAlign:'center'
+});
+messageWin.add(messageView);
+messageWin.add(messageLabel);
+messageWin.open();
+messageWin.animate({opacity:1,duration:800});
+
+// close timer window after 4 seconds
+setTimeout(function()
+{
+	messageWin.animate({opacity:0,duration:800},function()
+	{
+		messageWin.close();
+		messageWin=null;
+	});
+},4000);
+
+// make sure to close window if this window is closed
+Ti.UI.currentWindow.addEventListener('close',function()
+{
+	if (messageWin)
+	{
+		messageWin.close();
+	}
+});
