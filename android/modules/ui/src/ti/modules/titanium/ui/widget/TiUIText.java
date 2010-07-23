@@ -317,7 +317,12 @@ public class TiUIText extends TiUIView
 		data.put("value", value);
 
 		proxy.internalSetDynamicValue("value", value, false);
-		proxy.fireEvent("return", data);
+		if (DBG) {
+			Log.e(LCAT, "ActionID: " + actionId + " KeyEvent: " + (keyEvent != null ? keyEvent.getKeyCode() : null));
+		}
+		if (actionId != EditorInfo.IME_ACTION_GO) {
+			proxy.fireEvent("return", data);
+		}
 
 		Boolean enableReturnKey = (Boolean) proxy.getDynamicValue("enableReturnKey");
 		if (enableReturnKey != null && enableReturnKey && v.getText().length() == 0) {
