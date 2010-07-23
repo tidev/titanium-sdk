@@ -166,10 +166,10 @@
 	return tableview;
 }
 
-/*-(void)relayout:(CGRect)bounds
+-(void)relayout:(CGRect)bounds
 {
-	NSLog(@"%@, tableview=%@, initiallyDisplayed=%d",CODELOCATION,tableview,initiallyDisplayed);
 	[super relayout:bounds];
+	
 	if (tableview!=nil && 
 		!CGRectIsEmpty(self.bounds) && 
 		[tableview superview]!=nil && 
@@ -177,7 +177,7 @@
 	{
 		[self replaceData:UITableViewRowAnimationNone];
 	}
-}*/
+}
 
 -(NSInteger)indexForRow:(TiUITableViewRowProxy*)row
 {
