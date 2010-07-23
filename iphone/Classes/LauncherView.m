@@ -600,7 +600,17 @@ static const NSTimeInterval kLauncherViewFastTransitionDuration = 0.2;
 	[buttons addObject:[NSMutableArray array]];
 	[self updateContentSize:pages.count];
 	
-	[self wobble];
+	BOOL shouldWobble = YES;
+	
+	if ([delegate respondsToSelector:@selector(launcherViewShouldWobble:)])
+	{
+		shouldWobble = [delegate launcherViewShouldWobble:self];
+	}
+	
+	if (shouldWobble)
+	{
+		[self wobble];
+	}
 	
 	if ([delegate respondsToSelector:@selector(launcherViewDidBeginEditing:)]) 
 	{

@@ -154,6 +154,12 @@
 	}
 }
 
+- (BOOL)launcherViewShouldWobble:(LauncherView *)launcher_
+{
+	// all the wobble effect to be turned off if required by Apple
+	return [TiUtils boolValue:[self.proxy valueForUndefinedKey:@"wobble"] def:YES];
+}
+
 
 @end
 
