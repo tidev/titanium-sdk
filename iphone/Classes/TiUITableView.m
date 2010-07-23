@@ -169,7 +169,14 @@
 -(void)relayout:(CGRect)bounds
 {
 	[super relayout:bounds];
-	[self replaceData:UITableViewRowAnimationNone];
+	
+	if (tableview!=nil && 
+		!CGRectIsEmpty(self.bounds) && 
+		[tableview superview]!=nil && 
+		![(TiViewProxy*)self.proxy windowIsOpening])
+	{
+		[self replaceData:UITableViewRowAnimationNone];
+	}
 }
 
 -(NSInteger)indexForRow:(TiUITableViewRowProxy*)row
@@ -303,13 +310,13 @@
 }
 
 -(void)replaceData:(UITableViewRowAnimation)animation
-{
-//Technically, we should assert that sections is non-nil, but this code
-//won't have any problems in the case that it is actually nil.	
+{ 
+	//Technically, we should assert that sections is non-nil, but this code
+	//won't have any problems in the case that it is actually nil.	
 	TiProxy * ourProxy = [self proxy];
-	
-	int oldCount = [sections count];
 
+	int oldCount = [sections count];
+	
 	for (TiUITableViewSectionProxy *section in sections)
 	{
 		if ([section parent] == ourProxy)
@@ -551,6 +558,11 @@
 -(void)setBounds:(CGRect)bounds
 {
     [super setBounds:bounds];
+
+	if (tableview==nil || CGRectIsEmpty(bounds))
+	{
+		return;
+	}
     
     // Since the header proxy is not properly attached to a view proxy in the titanium
     // system, we have to reposition it here.  Resetting the table header view
@@ -569,7 +581,7 @@
         [[self tableView] setTableFooterView:footerView];
     }
 	
-	[tableview reloadData];
+//	[tableview reloadData];
 }
 
 - (void)triggerActionForIndexPath:(NSIndexPath *)indexPath fromPath:(NSIndexPath*)fromPath tableView:(UITableView*)ourTableView wasAccessory: (BOOL)accessoryTapped search:(BOOL)viaSearch name:(NSString*)name

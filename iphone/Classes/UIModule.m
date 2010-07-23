@@ -298,6 +298,8 @@ MAKE_SYSTEM_PROP(FACE_DOWN,UIDeviceOrientationFaceDown);
 	[super didReceiveMemoryWarning:notification];
 }
 
+DEFINE_FACTORY(UI,View)
+
 @end
 
 #endif

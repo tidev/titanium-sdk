@@ -16,7 +16,7 @@
 #import "TiComplexValue.h"
 #import "TiViewProxy.h"
 
-#define TI_USE_PROPERTY_LOCK 1
+#define TI_USE_PROPERTY_LOCK 0
 
 
 //Common exceptions to throw when the function call was improper
@@ -216,15 +216,7 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 	if (self = [self init])
 	{   
 		pageContext = (id)context; // do not retain 
-
-		contextListeners = [[NSMutableDictionary alloc] init];
-		if (context!=nil)
-		{
-			[contextListeners setObject:pageContext forKey:[pageContext description]];
-		}
-		
 		[pageContext registerProxy:self];
-		
 		// allow subclasses to configure themselves
 		[self _configure];
 	}
@@ -244,34 +236,24 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 -(void)contextShutdown:(id)sender
 {
 	id<TiEvaluator> context = (id<TiEvaluator>)sender;
-	if (contextListeners!=nil)
+	// remove any listeners that match this context being destroyed that we have registered
+	if (listeners!=nil)
 	{
-		id key = [context description];
-		id value = [contextListeners objectForKey:key];
-		if (value!=nil)
+		for (id type in [NSDictionary dictionaryWithDictionary:listeners])
 		{
-			[contextListeners removeObjectForKey:key];
-			
-			// remove any listeners that match this context being destroyed that we have registered
-			if (listeners!=nil)
+			NSArray *a = [listeners objectForKey:type];
+			for (KrollCallback *callback in [NSArray arrayWithArray:a])
 			{
-				for (id type in [NSDictionary dictionaryWithDictionary:listeners])
+				if ([context krollContext] == [callback context])
 				{
-					NSArray *a = [listeners objectForKey:type];
-					for (KrollCallback *callback in [NSArray arrayWithArray:a])
-					{
-						if ([context krollContext] == [callback context])
-						{
-							[self removeEventListener:[NSArray arrayWithObjects:type,callback,nil]];
-						}
-					}
+					[self removeEventListener:[NSArray arrayWithObjects:type,callback,nil]];
 				}
 			}
-			
-			[self _destroy];
-			[self _contextDestroyed];
 		}
 	}
+	
+	[self _destroy];
+	[self _contextDestroyed];
 	[self contextWasShutdown:context];
 }
 
@@ -403,7 +385,6 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 	RELEASE_TO_NIL(listeners);
 	RELEASE_TO_NIL(baseURL);
 	RELEASE_TO_NIL(krollDescription);
-	RELEASE_TO_NIL(contextListeners);
 	RELEASE_TO_NIL(dynPropsLock);
 	RELEASE_TO_NIL(modelDelegate);
 	pageContext=nil;
@@ -582,9 +563,10 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 		[listeners setObject:l forKey:type];
 		[l release];
 	}
-	ListenerEntry *entry = [[[ListenerEntry alloc] initWithListener:listener context:[self executionContext] proxy:self type:type] autorelease];
+	ListenerEntry *entry = [[ListenerEntry alloc] initWithListener:listener context:[self executionContext] proxy:self];
 	[l addObject:entry];
 	[self _listenerAdded:type count:[l count]];
+	[entry release];
 }
 	  
 -(void)removeEventListener:(NSArray*)args
@@ -593,7 +575,7 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 	KrollCallback *listener = [args objectAtIndex:1];
 	
 	// hold during event
-	[[listener retain] autorelease];
+	[listener retain];
 
 	int count = 0;
 	
@@ -627,6 +609,7 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 	id<TiEvaluator> ctx = (id<TiEvaluator>)[listener context];
 	[[self _host] removeListener:listener context:ctx];
 	[self _listenerRemoved:type count:count];
+	[listener release];
 }
 
 -(void)fireEvent:(id)args
@@ -751,7 +734,7 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 		if (thisValue == nil) //Dictionary doesn't have this key. Skip.
 		{
 			continue;
-		}
+		} 
 		if (thisValue == [NSNull null]) 
 		{ 
 			//When a null, we want to write a nil.

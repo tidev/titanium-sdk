@@ -50,7 +50,7 @@ extern NSString * const TI_APPLICATION_GUID;
 		[l release];
 	}
 	id<TiEvaluator> context = [self executionContext]==nil ? [self pageContext] : [self executionContext];
-	ListenerEntry *entry = [[ListenerEntry alloc] initWithListener:listener context:context proxy:self type:type];
+	ListenerEntry *entry = [[ListenerEntry alloc] initWithListener:listener context:context proxy:self];
 	[l addObject:entry];
 	[entry release];
 }

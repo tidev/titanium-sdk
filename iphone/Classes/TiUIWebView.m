@@ -8,7 +8,7 @@
 
 #import "TiUIWebView.h"
 #import "TiUIWebViewProxy.h"
-
+#import "TiApp.h"
 #import "TiUtils.h" 
 #import "TiProxy.h"
 #import "SBJSON.h"
@@ -95,6 +95,9 @@ NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._listeners={
 {
 	if (webview==nil)
 	{
+		// we attach the XHR bridge the first time we need a webview
+		[[TiApp app] attachXHRBridgeIfRequired];
+		
 		webview = [[UIWebView alloc] initWithFrame:CGRectMake(0, 0, 10, 1)];
 		webview.delegate = self;
 		webview.opaque = NO;
@@ -679,10 +682,14 @@ NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._listeners={
 
 - (void)fireEvent:(id)listener withObject:(id)obj remove:(BOOL)yn thisObject:(id)thisObject_
 {
-	NSDictionary *event = (NSDictionary*)obj;
-	NSString *name = [event objectForKey:@"type"];
-	NSString *js = [NSString stringWithFormat:@"Ti.App._dispatchEvent('%@',%@,%@);",name,listener,[SBJSON stringify:event]];
-	[[self webview] performSelectorOnMainThread:@selector(stringByEvaluatingJavaScriptFromString:) withObject:js waitUntilDone:NO];
+	// don't bother firing an app event to the webview if we don't have a webview yet created
+	if (webview!=nil)
+	{
+		NSDictionary *event = (NSDictionary*)obj;
+		NSString *name = [event objectForKey:@"type"];
+		NSString *js = [NSString stringWithFormat:@"Ti.App._dispatchEvent('%@',%@,%@);",name,listener,[SBJSON stringify:event]];
+		[webview performSelectorOnMainThread:@selector(stringByEvaluatingJavaScriptFromString:) withObject:js waitUntilDone:NO];
+	}
 }
 
 @end

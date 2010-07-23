@@ -84,7 +84,7 @@
 -(void)add:(id)proxy
 {
 	ENSURE_SINGLE_ARG(proxy,TiUITableViewRowProxy);
-	if (rows==nil)
+	if (rows==nil) 
 	{
 		rows = [[NSMutableArray array] retain];
 	}

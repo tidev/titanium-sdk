@@ -524,8 +524,9 @@ static TiValueRef CommonJSRequireCallback (TiContextRef jsContext, TiObjectRef j
 
 -(void)invokeEvent:(KrollCallback*)callback_ args:(NSArray*)args_ thisObject:(id)thisObject_
 {
-	KrollEvent *event = [[[KrollEvent alloc] initWithCallback:callback_ args:args_ thisObject:thisObject_] autorelease];
+	KrollEvent *event = [[KrollEvent alloc] initWithCallback:callback_ args:args_ thisObject:thisObject_];
 	[self enqueue:event];
+	[event release];
 }
 
 - (void)bindCallback:(NSString*)name callback:(TiObjectCallAsFunctionCallback)fn
@@ -644,7 +645,6 @@ static TiValueRef CommonJSRequireCallback (TiContextRef jsContext, TiObjectRef j
 			}
 		}
 		
-		NSAutoreleasePool *pool_ = [[NSAutoreleasePool alloc] init];
 		
 		// we have a pending GC request to try and reclaim memory
 		if (gcrequest)
@@ -687,7 +687,9 @@ static TiValueRef CommonJSRequireCallback (TiContextRef jsContext, TiObjectRef j
 #if CONTEXT_DEBUG == 1	
 					NSLog(@"CONTEXT<%@>: before action event invoke: %@, queue size: %d",self,entry,queueSize-1);
 #endif
+					NSAutoreleasePool *pool_ = [[NSAutoreleasePool alloc] init];
 					[self invoke:entry];
+					[pool_ drain];
 #if CONTEXT_DEBUG == 1	
 					NSLog(@"CONTEXT<%@>: after action event invoke: %@",self,entry);
 #endif
@@ -718,8 +720,6 @@ static TiValueRef CommonJSRequireCallback (TiContextRef jsContext, TiObjectRef j
 			loopCount = 0;
 		}
 		
-		[pool_ drain];
-
 		// check to see if we're already stopped and in the flush queue state, in which case,
 		// we can now immediately exit
 		if (exit_after_flush)
@@ -740,7 +740,8 @@ static TiValueRef CommonJSRequireCallback (TiContextRef jsContext, TiObjectRef j
 		{
 			// wait only 10 seconds and then loop, this will allow us to garbage
 			// collect every so often
-			[condition waitUntilDate:[NSDate dateWithTimeIntervalSinceNow:10]];		
+			//[condition waitUntilDate:[NSDate dateWithTimeIntervalSinceNow:60]];		
+			[condition wait];
 		}
 		[condition unlock]; 
 		
