@@ -15,6 +15,8 @@
 @private
 	MPMoviePlayerController *controller;
 	UIActivityIndicatorView *spinner;
+	
+	BOOL loaded;
 }
 
 -(id)initWithPlayer:(MPMoviePlayerController*)controller proxy:(TiProxy*)proxy;

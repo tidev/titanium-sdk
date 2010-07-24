@@ -13,11 +13,11 @@
 	<key>CFBundleExecutable</key>
 	<string>${EXECUTABLE_NAME}</string>
 	<key>CFBundleIconFile</key>
-	<string>app_logo.png</string>
+	<string>appicon.png</string>
 	<key>CFBundleIconFiles</key>
 	<array>
-		<string>app_logo.png</string>
-		<string>app_logo@2x.png</string>
+		<string>appicon.png</string>
+		<string>appicon@2x.png</string>
 	</array>
 	<key>CFBundleURLTypes</key>
 	<array>

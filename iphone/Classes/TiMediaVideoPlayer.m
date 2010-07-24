@@ -45,6 +45,8 @@
 		[spinner setAlpha:0];
 		[UIView commitAnimations];
 	}
+	
+	loaded = YES;
 }
 
 -(void)setMovie:(MPMoviePlayerController*)controller_
@@ -80,22 +82,24 @@
 	// show a spinner while the movie is loading so that the user
 	// will know something is happening...
 
-	if (spinner == nil)
-	{
-		spinner = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:style];
-		spinner.autoresizingMask = UIViewAutoresizingFlexibleTopMargin | UIViewAutoresizingFlexibleBottomMargin | UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleRightMargin;
-		[spinner sizeToFit];
-		[spinner setHidesWhenStopped:NO];
+	if (!loaded) {
+		if (spinner == nil)
+		{
+			spinner = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:style];
+			spinner.autoresizingMask = UIViewAutoresizingFlexibleTopMargin | UIViewAutoresizingFlexibleBottomMargin | UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleRightMargin;
+			[spinner sizeToFit];
+			[spinner setHidesWhenStopped:NO];
+			
+			[spinner startAnimating];
+			spinner.center = [[controller view] center];
+			[[controller view] addSubview:spinner];
+		}
+		else if ([spinner activityIndicatorViewStyle] != style)
+		{
+			[spinner setActivityIndicatorViewStyle:style];
+			[spinner sizeToFit];
+		}
 	}
-	else if ([spinner activityIndicatorViewStyle] != style)
-	{
-		[spinner setActivityIndicatorViewStyle:style];
-		[spinner sizeToFit];
-	}
-
-	[spinner startAnimating];
-	spinner.center = [[controller view] center];
-	[[controller view] addSubview:spinner];
 }
 
 -(void)dealloc

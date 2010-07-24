@@ -10,6 +10,7 @@
 
 #import "UIModule.h"
 #import "TiProxy.h"
+#import "TiUIViewProxy.h"
 
 #ifdef USE_TI_UI2DMATRIX
 	#import "Ti2DMatrix.h"

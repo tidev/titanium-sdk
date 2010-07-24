@@ -183,7 +183,8 @@ public class TiBlob extends TiProxy
 		switch(type) {
 			case TYPE_STRING :
 				result = (String) data;
-			case TYPE_DATA :
+			case TYPE_DATA:
+			case TYPE_FILE:
 				try {
 					result = new String(getBytes(), "utf-8");
 				} catch (UnsupportedEncodingException e) {
