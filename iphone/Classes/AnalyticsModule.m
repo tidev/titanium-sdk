@@ -47,6 +47,17 @@ NSString * const TI_DB_VERSION = @"1";
 
 -(void)dealloc
 {
+	if (database!=nil)
+	{
+		@try 
+		{
+			[database close];
+		}
+		@catch (NSException * e) 
+		{
+			NSLog(@"[WARN] database error on shutdown: %@",e);
+		}
+	}
 	RELEASE_TO_NIL(database);
 	RELEASE_TO_NIL(retryTimer);
 	RELEASE_TO_NIL(flushTimer);
@@ -456,17 +467,7 @@ NSString * const TI_DB_VERSION = @"1";
 {
 	if (TI_APPLICATION_ANALYTICS)
 	{
-		[lock lock];
 		[self queueEvent:@"ti.end" name:@"ti.end" data:nil immediate:YES];
-		@try 
-		{
-			[database close];
-		}
-		@catch (NSException * e) 
-		{
-			NSLog(@"[WARN] database error on shutdown: %@",e);
-		}
-		[lock unlock];
 		[[NSNotificationCenter defaultCenter] removeObserver:self name:kTiAnalyticsNotification object:nil];
 		[[NSNotificationCenter defaultCenter] removeObserver:self name:kTiRemoteDeviceUUIDNotification object:nil];
 	}
