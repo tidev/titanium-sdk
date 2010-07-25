@@ -36,12 +36,22 @@ NSString * const TI_DB_VERSION = @"1";
 
 @implementation AnalyticsModule
 
+-(id)init
+{
+	if ((self = [super init]))
+	{
+		lock = [[NSRecursiveLock alloc] init];
+	}
+	return self;
+}
+
 -(void)dealloc
 {
 	RELEASE_TO_NIL(database);
 	RELEASE_TO_NIL(retryTimer);
 	RELEASE_TO_NIL(flushTimer);
 	RELEASE_TO_NIL(url);
+	RELEASE_TO_NIL(lock);
 	[super dealloc];
 }
 
@@ -66,6 +76,7 @@ NSString * const TI_DB_VERSION = @"1";
 -(void)flushEventQueue
 {
 	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+	[lock lock];
 	
 	id online = [[self network] valueForKey:@"online"];
 	
@@ -194,6 +205,8 @@ NSString * const TI_DB_VERSION = @"1";
 		[database rollbackTransaction];
 	}
 	[json release];
+	
+	[lock unlock];
 	[pool release];
 	pool = nil;
 }
@@ -209,9 +222,12 @@ NSString * const TI_DB_VERSION = @"1";
 
 -(void)queueEvent:(NSString*)type name:(NSString*)name data:(NSDictionary*)data immediate:(BOOL)immediate
 {
+	[lock lock];
+	
 	if (database==nil)
 	{
 		// doh, no database???
+		[lock unlock];
 		return;
 	}
 	
@@ -261,6 +277,8 @@ NSString * const TI_DB_VERSION = @"1";
 	
 	[statement close];
 	
+	[lock unlock];
+	
 	if (immediate)
 	{	
 		// if immediate we send right now
@@ -287,6 +305,7 @@ NSString * const TI_DB_VERSION = @"1";
 
 -(void)loadDB:(NSString*)path create:(BOOL)create
 {
+	[lock lock];
 	// make sure SQLite can run from multiple threads
 	sqlite3_enable_shared_cache(TRUE);
 
@@ -297,6 +316,7 @@ NSString * const TI_DB_VERSION = @"1";
 	{
 		NSLog(@"[ERROR] couldn't open analytics database");
 		RELEASE_TO_NIL(database);
+		[lock unlock];
 		return;
 	}
 	
@@ -330,6 +350,7 @@ NSString * const TI_DB_VERSION = @"1";
 	}
 	
 	[database commitTransaction];
+	[lock unlock];
 }
 
 -(void)enroll
@@ -435,8 +456,17 @@ NSString * const TI_DB_VERSION = @"1";
 {
 	if (TI_APPLICATION_ANALYTICS)
 	{
+		[lock lock];
 		[self queueEvent:@"ti.end" name:@"ti.end" data:nil immediate:YES];
-		[database close];
+		@try 
+		{
+			[database close];
+		}
+		@catch (NSException * e) 
+		{
+			NSLog(@"[WARN] database error on shutdown: %@",e);
+		}
+		[lock unlock];
 		[[NSNotificationCenter defaultCenter] removeObserver:self name:kTiAnalyticsNotification object:nil];
 		[[NSNotificationCenter defaultCenter] removeObserver:self name:kTiRemoteDeviceUUIDNotification object:nil];
 	}
