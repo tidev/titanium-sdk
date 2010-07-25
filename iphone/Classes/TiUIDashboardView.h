@@ -12,7 +12,6 @@
 @interface TiUIDashboardView : TiUIView<LauncherViewDelegate> {
 
 @private
-	UIView *wrapper;
 	LauncherView *launcher;
 
 }

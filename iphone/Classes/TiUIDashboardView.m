@@ -19,22 +19,18 @@
 
 -(void)dealloc
 {
+	launcher.delegate = nil;
 	RELEASE_TO_NIL(launcher);
 	[super dealloc];
 }
 
 -(LauncherView*)launcher
 {
-	if (wrapper==nil)
-	{
-		wrapper = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 320, 480)];
-		[self addSubview:wrapper];
-	}
 	if (launcher==nil)
 	{
 		launcher = [[LauncherView alloc] initWithFrame:CGRectMake(0, 0, 320, 400)];
 		launcher.delegate = self;
-		[wrapper addSubview:launcher];
+		[self addSubview:launcher];
 	}
 	return launcher;
 }
@@ -43,7 +39,7 @@
 {
 	if (!CGRectIsEmpty(bounds))
 	{
-		[TiUtils setView:wrapper positionRect:bounds];
+		[TiUtils setView:launcher positionRect:bounds];
 	}
 }
 

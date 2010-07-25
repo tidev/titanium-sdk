@@ -35,15 +35,15 @@
 	}
 	ENSURE_UI_THREAD_1_ARG(properties);
 	
-	BOOL animated = [TiUtils boolValue:@"animated" properties:properties def:YES];
+	BOOL animated_ = [TiUtils boolValue:@"animated" properties:properties def:YES];
 	
 	UINavigationItem * ourItem = [viewController navigationItem];
 
 	[ourItem setTitle:[TiUtils stringValue:[self valueForKey:@"title"]]];
-	[ourItem setLeftBarButtonItem:[[self valueForKey:@"leftNavButton"] barButtonItem] animated:animated];
-	[ourItem setRightBarButtonItem:[[self valueForKey:@"rightNavButton"] barButtonItem] animated:animated];
+	[ourItem setLeftBarButtonItem:[[self valueForKey:@"leftNavButton"] barButtonItem] animated:animated_];
+	[ourItem setRightBarButtonItem:[[self valueForKey:@"rightNavButton"] barButtonItem] animated:animated_];
 	
-	[[self navigationController] setNavigationBarHidden:[TiUtils boolValue:[self valueForKey:@"navBarHidden"]] animated:animated];
+	[[self navigationController] setNavigationBarHidden:[TiUtils boolValue:[self valueForKey:@"navBarHidden"]] animated:animated_];
 
 }
 

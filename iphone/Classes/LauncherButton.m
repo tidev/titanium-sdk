@@ -32,6 +32,8 @@
 #import <QuartzCore/QuartzCore.h>
 #import "LauncherButton.h"
 #import "LauncherItem.h"
+#import "TiUtils.h"
+#import "TiUIView.h"
 
 
 @implementation LauncherButton
@@ -56,6 +58,15 @@
 	[super dealloc];
 }
 
+-(void)setFrame:(CGRect)frame
+{
+	[super setFrame:frame];
+	if (item.view!=nil)
+	{
+		[(TiUIView*)item.view relayout:self.bounds];
+	}
+}
+
 -(void)setItem:(LauncherItem *)item_
 {
 	if (item!=nil)
@@ -69,10 +80,19 @@
 	{
 		item = [item_ retain];
 		item.button = self;
-		[self setImage:item.image forState:UIControlStateNormal];
-		if (item.selectedImage!=nil)
+		
+		if (item.view!=nil)
 		{
-			[self setImage:item.selectedImage forState:UIControlStateHighlighted];
+			item.view.userInteractionEnabled = NO;
+			[self addSubview:item.view];
+		}
+		else
+		{
+			[self setImage:item.image forState:UIControlStateNormal];
+			if (item.selectedImage!=nil)
+			{
+				[self setImage:item.selectedImage forState:UIControlStateHighlighted];
+			}
 		}
 	}
 	[self setNeedsLayout];

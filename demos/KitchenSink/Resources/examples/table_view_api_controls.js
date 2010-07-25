@@ -23,7 +23,7 @@ for (var c=0;c<10;c++)
 		{
 			Ti.API.info("button click on row. index = "+e.index+", row = "+e.source.row+", section = "+e.source.section+",rightButton = "+rightButton);
 		});
-		var row = Ti.UI.createTableViewRow({height:'auto'});
+		var row = Ti.UI.createTableViewRow({height:'auto',className:'row'});
 		row.add(label);
 		row.add(rightButton);
 		data[c].add(row);

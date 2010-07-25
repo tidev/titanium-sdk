@@ -6,15 +6,10 @@
  */
 #ifdef USE_TI_UIDASHBOARDVIEW
 
-#import "TiViewProxy.h"
-#import "LauncherItem.h"
+#import "TiUIDashboardItem.h"
+#import "TiUtils.h"
 
-@interface TiUIDashboardItemProxy : TiViewProxy {
-@private
-	LauncherItem *item;
-}
-
-@property(nonatomic,readwrite,retain) LauncherItem *item;
+@implementation TiUIDashboardItem
 
 @end
 
