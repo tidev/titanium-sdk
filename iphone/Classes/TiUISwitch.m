@@ -45,10 +45,19 @@
 
 -(void)setValue_:(id)value
 {
+	// need to check if we're in a reproxy when this is set
+	// so we don't artifically trigger a change event or 
+	// animate the change -- this happens on the tableview
+	// reproxy as we scroll
+	BOOL reproxying = [self.proxy inReproxy];
 	BOOL newValue = [TiUtils boolValue:value];
+	BOOL animated = !reproxying;
 	UISwitch * ourSwitch = [self switchView];
-	[ourSwitch setOn:newValue animated:YES];
-	[self switchChanged:ourSwitch];
+	[ourSwitch setOn:newValue animated:animated];
+	if (reproxying==NO)
+	{
+		[self switchChanged:ourSwitch];
+	}
 }
 
 - (IBAction)switchChanged:(id)sender

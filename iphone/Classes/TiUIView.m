@@ -380,15 +380,26 @@ DEFINE_EXCEPTIONS
 		{
 			[[(TiViewProxy *)proxy parent] layoutChild:(TiViewProxy *)proxy optimize:NO];
 		}
+		oldSize = CGSizeZero;
 		ApplyConstraintToViewWithinViewWithBounds([(TiViewProxy *)proxy layoutProperties], self, [self superview], bounds, YES);
 		[(TiViewProxy *)[self proxy] clearNeedsReposition];
 		repositioning = NO;
 	}
 }
 
+-(void)relayoutOnUIThread:(NSValue*)value
+{
+	CGRect bounds = [value CGRectValue];
+	[self relayout:bounds];
+}
 
 -(void)updateLayout:(LayoutConstraint*)layout_ withBounds:(CGRect)bounds
 {
+	if ([NSThread isMainThread]==NO)
+	{
+		[self performSelectorOnMainThread:@selector(relayoutOnUIThread:) withObject:[NSValue valueWithCGRect:bounds] waitUntilDone:NO];
+		return;
+	}
 	if (animating)
 	{
 #ifdef DEBUG		
@@ -422,6 +433,10 @@ DEFINE_EXCEPTIONS
 		[child retain];
 		[child removeFromSuperview];
 		[self addSubview:child];
+		if ([child isKindOfClass:[TiUIView class]])
+		{
+			[child repositionZIndexIfNeeded];
+		}
 		[child release];
 	}
 }
@@ -431,13 +446,17 @@ DEFINE_EXCEPTIONS
 	return zIndex;
 }
 
+-(void)repositionZIndexIfNeeded
+{
+	if ([(TiViewProxy*)proxy needsZIndexRepositioning])
+	{
+		[self repositionZIndex];
+	}
+}
+
 -(void)repositionZIndex
 {
-	if (parent!=nil && [parent viewAttached])
-	{
-		[self removeFromSuperview];
-		[parent layoutChild:(TiViewProxy *)[self proxy] optimize:NO];
-	}
+	[(TiViewProxy*)self.proxy setNeedsZIndexRepositioning];
 }
 
 -(BOOL)animationFromArgument:(id)args
@@ -756,6 +775,8 @@ DEFINE_EXCEPTIONS
 	NSArray * keySequence = [newProxy keySequence];
 	[oldProxy retain];
 	[self retain];
+	
+	[newProxy setReproxying:YES];
 
 	[oldProxy setView:nil];
 	[newProxy setView:self];
@@ -795,6 +816,8 @@ DEFINE_EXCEPTIONS
 	}
 
 	[oldProxy release];
+
+	[newProxy setReproxying:NO];
 	[self release];
 }
 

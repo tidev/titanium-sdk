@@ -112,7 +112,7 @@ self.p = v;\
 
 		if (context_!=nil)
 		{
-			callback = [[ListenerEntry alloc] initWithListener:callback_ context:context_ proxy:self type:nil];
+			callback = [[ListenerEntry alloc] initWithListener:callback_ context:context_ proxy:self];
 		}
 	}
 	return self;

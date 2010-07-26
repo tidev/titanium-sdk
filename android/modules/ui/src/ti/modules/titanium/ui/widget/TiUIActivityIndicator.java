@@ -16,6 +16,7 @@ import org.appcelerator.titanium.view.TiUIView;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.os.Handler;
 import android.os.Message;
 
@@ -172,7 +173,11 @@ public class TiUIActivityIndicator extends TiUIView
 		} else if (location == DIALOG) {
 			incrementFactor = 1;
 			if (progressDialog == null) {
-				progressDialog = new ProgressDialog(proxy.getContext());
+				Context a = proxy.getTiContext().getTiApp().getCurrentActivity();
+				if (a == null) {
+					a = proxy.getContext();
+				}
+				progressDialog = new ProgressDialog(a);
 			}
 
 			progressDialog.setMessage(message);

@@ -10,7 +10,7 @@ var data = [];
 
 for (var i=0;i<50;i++)
 {
-	var row = Ti.UI.createTableViewRow({height:'auto'});
+	var row = Ti.UI.createTableViewRow({height:'auto',className:"row"});
 	
 	var textView = Ti.UI.createView({
 		height:'auto',

@@ -30,6 +30,9 @@ typedef enum KrollMethodType {
 	int argcount;
 	KrollMethodType type;
 	id name;
+	NSInvocation *invoker;
+	IMP imp;
+	BOOL returnsObject;
 }
 
 -(id)initWithTarget:(id)target_ selector:(SEL)selector_ argcount:(int)argcount_ type:(KrollMethodType)type_ name:(id)name_ context:(KrollContext*)context_;

@@ -55,7 +55,7 @@
 
 -(UINavigationController*)controller
 {
-	return [[self view] controller];
+	return [(TiUIiPhoneNavigationGroup*)[self view] controller];
 }
 
 - (void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration

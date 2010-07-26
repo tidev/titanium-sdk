@@ -455,7 +455,21 @@ public class TiUIImageView extends TiUIView
 				new BgImageLoader(getProxy().getTiContext(), null, null, token).load(TiConvert.toString(newValue));
 			}
 		} else if (key.equals("image")) {
-			setImage(createBitmap(newValue));
+			Object image = newValue;
+			if (image instanceof String) {
+				String imageURL = TiConvert.toString(newValue);
+				if (URLUtil.isNetworkUrl(imageURL)) {
+					synchronized(imageTokenGenerator) {
+						token = imageTokenGenerator.incrementAndGet();
+						getView().setImageDrawable(null);
+						new BgImageLoader(getProxy().getTiContext(), null, null, token).load(imageURL);
+					}
+				} else {
+					setImage(createBitmap(imageURL));
+				}
+			} else {
+				setImage(createBitmap(image));
+			}
 		} else if (key.equals("images")) {
 			if (newValue instanceof Object[]) {
 				setImages((Object[])newValue);
