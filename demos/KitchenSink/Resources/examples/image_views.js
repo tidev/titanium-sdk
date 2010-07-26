@@ -5,7 +5,8 @@ var data = [
 	{title:'Image File', hasChild:true, test:'../examples/image_view_file.js'},
 	{title:'Remote Image', hasChild:true, test:'../examples/image_view_remote.js'},
 	{title:'Image Scaling', hasChild:true, test:'../examples/image_view_scaling.js'},
-	{title:'Image View Positioning', hasChild:true, test:'../examples/image_view_positioning.js'}
+	{title:'Image View Positioning', hasChild:true, test:'../examples/image_view_positioning.js'},
+	{title:'Image View Encoding', hasChild:true, test:'../examples/image_view_encoding.js'}
 
 ];
 

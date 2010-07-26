@@ -40,14 +40,16 @@
 	NSInteger badgeValue;
 	BOOL canDelete;
 	LauncherButton *button;
-	
+	UIView *view;
 	id userData;
 }
 
 @property(nonatomic,readwrite,retain) NSString *title;
 @property(nonatomic,readwrite,retain) UIImage *image;
 @property(nonatomic,readwrite,retain) UIImage *selectedImage;
+@property(nonatomic,readwrite,retain) UIView *view;
 @property(nonatomic,assign) LauncherButton *button;
+
 
 @property(nonatomic,readwrite,retain) id userData;
 

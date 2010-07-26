@@ -114,6 +114,7 @@ class Builder(object):
 				home_jarsigner = os.path.join(os.environ["JAVA_HOME"], "bin", "jarsigner.exe")
 				home_javac = os.path.join(os.environ["JAVA_HOME"], "bin", "javac.exe")
 				home_java = os.path.join(os.environ["JAVA_HOME"], "bin", "java.exe")
+				found = True
 				# TODO Document this path and test properly under windows
 				if os.path.exists(home_jarsigner):
 					self.jarsigner = home_jarsigner

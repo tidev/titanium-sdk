@@ -4,16 +4,24 @@
 # Module Project Create Script
 #
 
-import os,sys,shutil,string,uuid
+import os,sys,shutil,string,uuid,re
+from string import capitalize
+
 template_dir = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
 
 ignoreFiles = ['.gitignore', '.cvsignore', '.DS_Store'];
 ignoreDirs = ['.git','.svn','_svn','CVS'];
-nonFilterFiles = ['.png','.gif','.jpg','.zip','.a','.o']
+nonFilterFiles = ['.png','.gif','.jpg','.zip','.a','.o', '.jar']
+
+isDebug=False
 
 class ModuleProject(object):
 	
 	def copy_template_files(self,project_dir,template_dir):
+		if isDebug:
+			print "Module Name [%s] Project Name [%s] SDK Version [%s] Platform [%s]" % (self.module_name, self.project_name, self.sdk_version, self.platform)
+			print "ModuleID [%s] SDK [%s]" % (self.module_id, self.sdk)
+			
 		for root, dirs, files in os.walk(template_dir):
 			for name in ignoreDirs:
 				if name in dirs:
@@ -27,6 +35,7 @@ class ModuleProject(object):
 				to_ = to_.replace('___PROJECTNAMEASIDENTIFIER___',self.module_name)
 				to_ = to_.replace('___PROJECTNAME___',self.project_name)
 				to_ = to_.replace('__MODULE_ID__',self.module_id)
+				to_ = to_.replace('__PROJECT_SHORT_NAME__',self.project_short_name)
 				to_directory = os.path.expanduser(os.path.split(to_)[0])
 				if not os.path.exists(to_directory):
 					os.makedirs(to_directory)
@@ -38,10 +47,13 @@ class ModuleProject(object):
 				if os.path.exists(to_): os.remove(to_)
 				shutil.copy(from_,to_)
 				if filter:
+					if isDebug:
+						print "Processing contents of %s and writing %s" % (from_, to_)
 					contents = open(from_).read()
 					tof = open(to_,'w')
 					contents = contents.replace('___PROJECTNAMEASIDENTIFIER___',self.module_name)
 					contents = contents.replace('___PROJECTNAME___',self.project_name)
+					contents = contents.replace('__PROJECT_SHORT_NAME__',self.project_short_name)
 					contents = contents.replace('__VERSION__',self.sdk_version)
 					contents = contents.replace('__PLATFORM__',self.platform)
 					contents = contents.replace('__MODULE_ID__',self.module_id)
@@ -73,6 +85,10 @@ class ModuleProject(object):
 		self.sdk_version = os.path.basename(os.path.abspath(os.path.join(template_dir,'../')))
 		self.guid = str(uuid.uuid4())
 		self.project_dir = project_dir
+		self.module_name_camel = camelcase(self.project_name)
+		if config['sdk']:
+		  self.sdk = config['sdk']
+		  
 		platform_dir = os.path.join(template_dir,platform.lower())
 		all_templates_dir = os.path.join(template_dir,'all')
 		if os.path.exists(all_templates_dir):
@@ -120,6 +136,9 @@ def sysargs_to_dict(args,required=None,optional=None):
 		usage(key,required,optional)
   return props
 
+def camelcase(value):
+    return "".join([capitalize(w) for w in re.split(re.compile("[\W_]*"), value)])
+
 def main(args):
   required_opts = {
 	'name':'the name of the module',
@@ -134,6 +153,9 @@ def main(args):
 
   module_name = config['name']
   project_dir = os.path.join(os.path.abspath(os.path.expanduser(config['directory'])),module_name)
+
+  if isDebug:
+   print "Project Folder: %s" % project_dir
 
   if os.path.exists(project_dir):
 	print "Error. Directory already exists: %s" % project_dir

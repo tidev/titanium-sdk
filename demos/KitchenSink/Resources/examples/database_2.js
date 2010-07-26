@@ -16,6 +16,6 @@ while (rows.isValidRow())
 	rows.next();
 }
 rows.close();
-
+db.close();  // close db when you're done to save resources
 
 Ti.UI.currentWindow.addEventListener('click',function(e){Titanium.UI.currentWindow.close();});

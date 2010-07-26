@@ -181,6 +181,7 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 			}
 		}
 	}
+	[self gc];
 }
 
 

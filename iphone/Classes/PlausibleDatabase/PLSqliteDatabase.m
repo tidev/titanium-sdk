@@ -197,7 +197,7 @@ NSString *PLSqliteException = @"PLSqliteException";
 
 /* from PLDatabase */
 - (NSObject<PLPreparedStatement> *) prepareStatement: (NSString *) statement error: (NSError **) outError {
-    return [self prepareStatement: statement error: outError closeAtCheckin: NO];
+    return [self prepareStatement: statement error: outError closeAtCheckin: YES];
 }
 
 /**

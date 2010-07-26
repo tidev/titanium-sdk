@@ -1,0 +1,91 @@
+<project name="__PROJECT_SHORT_NAME__" default="dist" basedir=".">
+	<description>
+		simple build file for a Ti Android Module
+    </description>
+	<property file="build.properties"/>
+	<!-- set global properties for this build -->
+	<property name="src" location="src" />
+	<property name="build" location="build" />
+	<property name="dist" location="dist" />
+	<property name="classesdir" value="${dist}/classes" />
+	<property name="build.version" value="1.0.0"/>
+
+	<path id="android">
+		<pathelement path="${android.platform}/android.jar" />
+		<pathelement path="${google.apis}/libs/maps.jar" />
+	</path>
+
+	<path id="titanium_includes">
+		<pathelement path="${classesdir}/titanium" />
+		<fileset dir="lib" includes="**/*.jar" />
+	</path>
+
+	<path id="base.path">
+		<pathelement path="${classesdir}" />
+		<fileset dir="lib">
+			<include name="**/*.jar" />
+		</fileset>
+		<pathelement location="classes" />
+    <pathelement path="${titanium.platform}/js.jar" />
+    <pathelement path="${titanium.platform}/titanium.jar" />
+    <pathelement path="${android.platform}/android.jar" />
+    <pathelement path="${google.apis}/libs/maps.jar" />
+	</path>
+
+	<target name="init">
+		<!-- Create the time stamp -->
+		<tstamp />
+		<!-- Create the build directory structure used by compile -->
+		<mkdir dir="${build}" />
+	</target>
+	<!--
+		Manual usage
+			javac 
+				-processor org.appcelerator.titanium.annotations.processor.ModuleRefGenerator
+				[Optional: -processorpath <ti-sdk-folder containing titanium.jar>]
+				-proc:only
+				-classpath lib/js.jar:lib/titanium.jar:/opt/android-sdk/platforms/android-1.6/android.jar
+				src/ti/modules/titanium/urbanairship/*.java  
+	-->
+	<target name="generate-module-def" depends="init"
+		description="Generate the class ModuleDef">
+		<javac 
+			srcdir="${src}" 
+			destdir="${build}"
+			debug="true"
+			includeantruntime="false">
+				<compilerarg value="-verbose" />
+				<compilerarg value="-processor" />
+				<compilerarg value="org.appcelerator.titanium.annotations.processor.ModuleRefGenerator" />
+				<compilerarg value="-AprojectName=${ant.project.name}" /> 
+				<compilerarg value="-proc:only" />
+				<classpath refid="base.path" />
+		</javac>
+	</target>
+
+	<target name="compile" depends="generate-module-def"
+		description="compile the source ">
+		<!-- Compile the java code from ${src} into ${build} -->
+		<javac 
+			srcdir="${src}" 
+			destdir="${build}"
+			debug="true"
+			includeantruntime="false">
+			<classpath refid="base.path" />
+		</javac>
+	</target>
+
+	<target name="dist" depends="compile" description="generate the distribution">
+		<!-- Create the distribution directory -->
+		<mkdir dir="${dist}" />
+		<jar jarfile="${dist}/${ant.project.name}.jar" basedir="${build}" />
+		<zip destfile="${dist}/${ant.project.name}.zip" basedir="${dist}" includes="*.jar" />
+	</target>
+	
+
+	<target name="clean" description="clean up">
+		<!-- Delete the ${build} and ${dist} directory trees -->
+		<delete dir="${build}" />
+		<delete dir="${dist}" />
+	</target>
+</project>

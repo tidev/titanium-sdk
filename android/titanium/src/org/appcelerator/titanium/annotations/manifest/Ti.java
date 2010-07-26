@@ -1,12 +1,10 @@
 package org.appcelerator.titanium.annotations.manifest;
 
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import java.lang.annotation.ElementType;
-import java.text.Annotation;
-
-import org.appcelerator.titanium.annotations.manifest.Ti.manifest.action;
 
 /**
  * Currently icon/theme type elements are simple string elements rather than their own annotation type
@@ -16,10 +14,17 @@ import org.appcelerator.titanium.annotations.manifest.Ti.manifest.action;
  * 
  */
 
+@Documented
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.ANNOTATION_TYPE, ElementType.METHOD, ElementType.PACKAGE,  ElementType.TYPE})
 public @interface Ti {
 	
+	/**
+	 * The module annotation is an internal interface that allows Ti to load the module
+	 * 
+	 * This will need expanding a little more to allow namespace mapping 
+	 * - so that module don't need to be in the ti.modules.titanium package
+	 */
 	public @interface module {
 		String name();
 		version version();

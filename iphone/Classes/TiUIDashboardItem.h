@@ -7,16 +7,12 @@
 #ifdef USE_TI_UIDASHBOARDVIEW
 
 #import "TiUIView.h"
-#import "LauncherView.h"
 
-@interface TiUIDashboardView : TiUIView<LauncherViewDelegate> {
+@interface TiUIDashboardItem : TiUIView {
 
 @private
-	LauncherView *launcher;
 
 }
-
--(LauncherView*)launcher;
 
 @end
 

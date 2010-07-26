@@ -169,7 +169,14 @@
 -(void)relayout:(CGRect)bounds
 {
 	[super relayout:bounds];
-	[self replaceData:UITableViewRowAnimationNone];
+	
+	if (tableview!=nil && 
+		!CGRectIsEmpty(self.bounds) && 
+		[tableview superview]!=nil && 
+		![(TiViewProxy*)self.proxy windowIsOpening])
+	{
+		[self replaceData:UITableViewRowAnimationNone];
+	}
 }
 
 -(NSInteger)indexForRow:(TiUITableViewRowProxy*)row
@@ -303,13 +310,13 @@
 }
 
 -(void)replaceData:(UITableViewRowAnimation)animation
-{
-//Technically, we should assert that sections is non-nil, but this code
-//won't have any problems in the case that it is actually nil.	
+{ 
+	//Technically, we should assert that sections is non-nil, but this code
+	//won't have any problems in the case that it is actually nil.	
 	TiProxy * ourProxy = [self proxy];
-	
-	int oldCount = [sections count];
 
+	int oldCount = [sections count];
+	
 	for (TiUITableViewSectionProxy *section in sections)
 	{
 		if ([section parent] == ourProxy)
@@ -551,25 +558,6 @@
 -(void)setBounds:(CGRect)bounds
 {
     [super setBounds:bounds];
-    
-    // Since the header proxy is not properly attached to a view proxy in the titanium
-    // system, we have to reposition it here.  Resetting the table header view
-    // is because there's a charming bug in UITableView that doesn't respect redisplay
-    // for headers/footers when the frame changes.
-    UIView* headerView = [[self tableView] tableHeaderView];
-    if ([headerView isKindOfClass:[TiUIView class]]) {
-        [(TiViewProxy*)[(TiUIView*)headerView proxy] reposition];
-        [[self tableView] setTableHeaderView:headerView];
-    }
-    
-    // ... And we have to do the same thing for the footer.
-    UIView* footerView = [[self tableView] tableFooterView];
-    if ([footerView isKindOfClass:[TiUIView class]]) {
-        [(TiViewProxy*)[(TiUIView*)footerView proxy] reposition];
-        [[self tableView] setTableFooterView:footerView];
-    }
-	
-	[tableview reloadData];
 }
 
 - (void)triggerActionForIndexPath:(NSIndexPath *)indexPath fromPath:(NSIndexPath*)fromPath tableView:(UITableView*)ourTableView wasAccessory: (BOOL)accessoryTapped search:(BOOL)viaSearch name:(NSString*)name
@@ -754,11 +742,9 @@
 	}
 	// if the first frame size change, don't reload - otherwise, we'll reload
 	// the entire table twice each time - which is a killer on big tables
-	if (frameChanges++ > 1)
-	{
-		int sectionCount = [sections count];
-		[self reloadDataFromCount:sectionCount toCount:sectionCount animation:UITableViewRowAnimationNone];
-	}
+	int sectionCount = [self numberOfSectionsInTableView:tableview]-1;
+	[self reloadDataFromCount:sectionCount toCount:sectionCount animation:UITableViewRowAnimationNone];
+
 	[super frameSizeChanged:frame bounds:bounds];
 	
 	if (tableHeaderPullView!=nil)
@@ -792,6 +778,22 @@
 		}
 	}
 	
+    // Since the header proxy is not properly attached to a view proxy in the titanium
+    // system, we have to reposition it here.  Resetting the table header view
+    // is because there's a charming bug in UITableView that doesn't respect redisplay
+    // for headers/footers when the frame changes.
+    UIView* headerView = [[self tableView] tableHeaderView];
+    if ([headerView isKindOfClass:[TiUIView class]]) {
+        [(TiViewProxy*)[(TiUIView*)headerView proxy] reposition];
+        [[self tableView] setTableHeaderView:headerView];
+    }
+    
+    // ... And we have to do the same thing for the footer.
+    UIView* footerView = [[self tableView] tableFooterView];
+    if ([footerView isKindOfClass:[TiUIView class]]) {
+        [(TiViewProxy*)[(TiUIView*)footerView proxy] reposition];
+        [[self tableView] setTableFooterView:footerView];
+    }
 }
 
 #pragma mark Searchbar-related IBActions
@@ -1162,7 +1164,9 @@
 		[sectionIndexMap setObject:[NSNumber numberWithInt:[TiUtils intValue:theindex]] forKey:title];
 	}
     
-    [[self tableView] reloadData]; // HACK - Should just reload section indexes when reloadSelectionIndexTitles functions properly.
+	int sectionCount = [self numberOfSectionsInTableView:tableview]-1;
+	[self reloadDataFromCount:sectionCount toCount:sectionCount animation:UITableViewRowAnimationNone];
+	// HACK - Should just reload section indexes when reloadSelectionIndexTitles functions properly.
     //[[self tableView] reloadSectionIndexTitles];  THIS DOESN'T WORK.
 }
 

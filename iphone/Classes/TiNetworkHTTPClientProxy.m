@@ -426,6 +426,7 @@ extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 					[request appendPostData:data];
 				}
 			}
+			//TODO: support TiFile post 1.4
 		}
 	}
 	

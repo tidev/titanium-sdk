@@ -25,6 +25,7 @@ iphone, ipad
 - properties
 
 data[array]: an array of [[Titanium.UI.DashboardItem]] objects to display in the view
+wobble[boolean]: true (default) to wobble during edit, false to disable wobble effect
 
 - methods
 
