@@ -237,8 +237,17 @@ extern NSString * const TI_APPLICATION_GUID;
 			{
 				if ([entry context] == context)
 				{
-					[found addObject:[NSArray
-									   arrayWithObjects:[entry type],[entry listener],nil]];
+					id listener = [entry listener];
+					if ([listener isKindOfClass:[KrollCallback class]])
+					{
+						[found addObject:[NSArray
+										  arrayWithObjects:((KrollCallback*)listener).type,listener,nil]];
+					}
+					else 
+					{
+						[found addObject:[NSArray
+									   arrayWithObjects:[entry type],listener,nil]];
+					}
 				}
 			}
 		}

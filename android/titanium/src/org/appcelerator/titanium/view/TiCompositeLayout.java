@@ -286,22 +286,34 @@ public class TiCompositeLayout extends ViewGroup
 				(TiCompositeLayout.LayoutParams) child.getLayoutParams();
 			if (child.getVisibility() != View.GONE) {
 				// Dimension is required from Measure. Positioning is determined here.
-
-				computePosition(params.optionLeft, params.optionRight, child.getMeasuredWidth(), left, right, horizontal);
+				int childMeasuredWidth = child.getMeasuredWidth();
+				int childMeasuredHeight = child.getMeasuredHeight();
+				
+				computePosition(params.optionLeft, params.optionRight, childMeasuredWidth, left, right, horizontal);
 
 				if (this.vertical) {
-					computeVerticalLayoutPosition(currentHeight, params.optionTop, params.optionBottom, child.getMeasuredHeight(), top, bottom, vertical);
+					computeVerticalLayoutPosition(currentHeight, params.optionTop, params.optionBottom, childMeasuredHeight, top, bottom, vertical);
 				} else {
-					computePosition(params.optionTop, params.optionBottom, child.getMeasuredHeight(), top, bottom, vertical);
+					computePosition(params.optionTop, params.optionBottom, childMeasuredHeight, top, bottom, vertical);
 				}
 
 				if (DBG) {
 					Log.d("LAYOUT", child.getClass().getSimpleName() + " {" + horizontal[0] + "," + vertical[0] + "," + horizontal[1] + "," + vertical[1] + "}");
 				}
 
+				int newWidth = horizontal[1] - horizontal[0];
+				int newHeight = vertical[1] - vertical[0];
+				if (newWidth > childMeasuredWidth
+					|| newHeight > childMeasuredHeight) {
+					
+					int newWidthSpec = MeasureSpec.makeMeasureSpec(newWidth, MeasureSpec.EXACTLY);
+					int newHeightSpec = MeasureSpec.makeMeasureSpec(newHeight, MeasureSpec.EXACTLY);
+					child.measure(newWidthSpec, newHeightSpec);
+				}
+				
 				child.layout(horizontal[0], vertical[0], horizontal[1], vertical[1]);
 
-				currentHeight += vertical[1] - vertical[0];
+				currentHeight += newHeight;
 				if (params.optionTop != NOT_SET) {
 					currentHeight += params.optionTop;
 				}
