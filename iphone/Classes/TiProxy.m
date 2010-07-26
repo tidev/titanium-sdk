@@ -239,13 +239,12 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 	// remove any listeners that match this context being destroyed that we have registered
 	if (listeners!=nil)
 	{
-		NSDictionary *copy = [NSDictionary dictionaryWithDictionary:listeners];
-		for (id type in copy)
+		for (id type in listeners)
 		{
 			NSArray *a = [listeners objectForKey:type];
 			for (KrollCallback *callback in a)
 			{
-				[self removeEventListener:[NSArray arrayWithObjects:type,callback,nil]];
+				[self removeEventListener:[NSArray arrayWithObjects:type,callback,type,nil]];
 			}
 		}
 	}
@@ -567,40 +566,52 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 	NSString *type = [args objectAtIndex:0];
 	KrollCallback *listener = [args objectAtIndex:1];
 	
-	// hold during event
-	[listener retain];
-
+	// if we pass a third-arg, that means we shouldn't
+	// mutate the array and we're in a destroy
+	BOOL inDestroy = [args count] > 2;
 	int count = 0;
 	
-	pthread_rwlock_wrlock(&listenerLock);
-	
-	NSMutableArray *l = [listeners objectForKey:type];
-
-	if (l!=nil && [l count]>0)
+	if (inDestroy==NO)
 	{
-		[l removeObject:listener];
-		
-		count = [l count];
-		
-		// once empty, remove the object
-		if (count==0)
-		{
-			[listeners removeObjectForKey:type];
-		}
-		
-		// once we have no more listeners, release memory!
-		if ([listeners count]==0)
-		{
-			[listeners autorelease];
-			listeners = nil;
-		}
-	}
-	pthread_rwlock_unlock(&listenerLock);
+		// hold during event
+		[listener retain];
 
+		pthread_rwlock_wrlock(&listenerLock);
+		
+		NSMutableArray *l = [listeners objectForKey:type];
+
+		if (l!=nil && [l count]>0)
+		{
+			[l removeObject:listener];
+			
+			count = [l count];
+			
+			// once empty, remove the object
+			if (count==0)
+			{
+				[listeners removeObjectForKey:type];
+			}
+			
+			// once we have no more listeners, release memory!
+			if ([listeners count]==0)
+			{
+				[listeners autorelease];
+				listeners = nil;
+			}
+		}
+		pthread_rwlock_unlock(&listenerLock);
+
+	}
+	
 	id<TiEvaluator> ctx = (id<TiEvaluator>)[listener context];
 	[[self _host] removeListener:listener context:ctx];
 	[self _listenerRemoved:type count:count];
-	[listener release];
+	
+	
+	if (inDestroy==NO)
+	{
+		[listener release];
+	}
 }
 
 -(void)fireEvent:(id)args

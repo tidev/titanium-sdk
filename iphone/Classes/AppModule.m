@@ -35,14 +35,26 @@ extern NSString * const TI_APPLICATION_GUID;
 -(void)addEventListener:(NSArray*)args
 {
 	NSString *type = [args objectAtIndex:0];
-	KrollCallback* listener = [args objectAtIndex:1];
+	id listener = [args objectAtIndex:1];
 	
 	if (appListeners==nil)
 	{
 		appListeners = [[NSMutableDictionary alloc] init];
 	}
 	
-	listener.type = type;
+	id<TiEvaluator> context = [self executionContext]==nil ? [self pageContext] : [self executionContext];
+	ListenerEntry *entry = [[ListenerEntry alloc] initWithListener:listener context:context proxy:self];
+
+	
+	if ([listener isKindOfClass:[KrollCallback class]])
+	{
+		((KrollCallback*)listener).type = type;
+	}
+	else 
+	{
+		entry.type = type;
+	}
+
 	
 	NSMutableArray *l = [appListeners objectForKey:type];
 	if (l==nil)
@@ -51,8 +63,6 @@ extern NSString * const TI_APPLICATION_GUID;
 		[appListeners setObject:l forKey:type];
 		[l release];
 	}
-	id<TiEvaluator> context = [self executionContext]==nil ? [self pageContext] : [self executionContext];
-	ListenerEntry *entry = [[ListenerEntry alloc] initWithListener:listener context:context proxy:self];
 	[l addObject:entry];
 	[entry release];
 }
@@ -227,15 +237,25 @@ extern NSString * const TI_APPLICATION_GUID;
 			{
 				if ([entry context] == context)
 				{
-					[found addObject:[entry listener]];
+					id listener = [entry listener];
+					if ([listener isKindOfClass:[KrollCallback class]])
+					{
+						[found addObject:[NSArray
+										  arrayWithObjects:((KrollCallback*)listener).type,listener,nil]];
+					}
+					else 
+					{
+						[found addObject:[NSArray
+									   arrayWithObjects:[entry type],listener,nil]];
+					}
 				}
 			}
 		}
 		if ([found count]>0)
 		{
-			for (KrollCallback *callback in found)
+			for (NSArray *a in found)
 			{
-				[self removeEventListener:[NSArray arrayWithObjects:callback.type,callback,nil]];
+				[self removeEventListener:a];
 			}
 		}
 	}
