@@ -13,6 +13,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiDict;
 import org.appcelerator.titanium.proxy.TiViewProxy;
+import org.appcelerator.titanium.util.AsyncResult;
 import org.appcelerator.titanium.util.TiEventHelper;
 import org.appcelerator.titanium.view.TiUIView;
 
@@ -92,16 +93,24 @@ public class ScrollableViewProxy extends TiViewProxy
 				getView().doSetCurrentPage(msg.obj);
 				handled = true;
 				break;
-			case MSG_SET_VIEWS:
-				getView().setViews(msg.obj);
+			case MSG_SET_VIEWS: {
+				AsyncResult holder = (AsyncResult) msg.obj; 
+				Object views = holder.getArg(); 
+				getView().setViews(views);
+				holder.setResult(null); // signal complete.				
 				handled = true;
 				break;
-			case MSG_ADD_VIEW:
-				if (msg.obj instanceof TiViewProxy) {
-					getView().addView((TiViewProxy)msg.obj);
+			}
+			case MSG_ADD_VIEW: {
+				AsyncResult holder = (AsyncResult) msg.obj; 
+				Object view = holder.getArg(); 
+				if (view instanceof TiViewProxy) {
+					getView().addView((TiViewProxy) view);
 					handled = true;
 				}
+				holder.setResult(null); // signal complete.
 				break;
+			}
 			default :
 				handled = super.handleMessage(msg);
 		}
@@ -109,7 +118,7 @@ public class ScrollableViewProxy extends TiViewProxy
 		return handled;
 	}
 
-	public TiViewProxy[] getViews()
+	public Object getViews()
 	{
 		List<TiViewProxy> list = new ArrayList<TiViewProxy>();
 		return getView().getViews().toArray(new TiViewProxy[list.size()]);
@@ -117,14 +126,18 @@ public class ScrollableViewProxy extends TiViewProxy
 
 	public void setViews(Object viewsObject) {
 		Message msg = getUIHandler().obtainMessage(MSG_SET_VIEWS);
-		msg.obj = viewsObject;
+		AsyncResult result = new AsyncResult(viewsObject);
+		msg.obj = result;
 		msg.sendToTarget();
+		result.getResult(); // Wait for it
 	}
 
 	public void addView(Object viewObject) {
 		Message msg = getUIHandler().obtainMessage(MSG_ADD_VIEW);
-		msg.obj = viewObject;
+		AsyncResult result = new AsyncResult(viewObject);
+		msg.obj = result;
 		msg.sendToTarget();
+		result.getResult(); // Wait for it 
 	}
 
 	public void scrollToView(Object view) {
