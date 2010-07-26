@@ -586,7 +586,6 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 	return nil;
 }
 
-
 -(void)configureChildren:(UITableViewCell*)cell
 {
 	// this method is called when the cell is initially created
@@ -615,10 +614,12 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 		for (TiViewProxy *proxy in self.children)
 		{
 			[proxy windowWillOpen];
+			[proxy setReproxying:YES];
 			TiUIView *uiview = [proxy view];
 			uiview.parent = self;
 			[self redelegateViews:proxy toView:contentView];
 			[rowContainerView addSubview:uiview];
+			[proxy setReproxying:NO];
 		}
 		[self layoutChildren:NO];
 		[contentView addSubview:rowContainerView];

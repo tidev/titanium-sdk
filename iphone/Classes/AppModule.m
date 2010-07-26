@@ -35,12 +35,14 @@ extern NSString * const TI_APPLICATION_GUID;
 -(void)addEventListener:(NSArray*)args
 {
 	NSString *type = [args objectAtIndex:0];
-	id listener = [args objectAtIndex:1];
+	KrollCallback* listener = [args objectAtIndex:1];
 	
 	if (appListeners==nil)
 	{
 		appListeners = [[NSMutableDictionary alloc] init];
 	}
+	
+	listener.type = type;
 	
 	NSMutableArray *l = [appListeners objectForKey:type];
 	if (l==nil)
@@ -209,9 +211,40 @@ extern NSString * const TI_APPLICATION_GUID;
 	}
 }
 
+-(void)willShutdownContext:(NSNotification*)note
+{
+	// we have to check and see if this context has any listeners
+	// that are registered at the global scope and that haven't been
+	// removed and if so, we need to remove them since their context
+	// is toast.
+	if (appListeners!=nil)
+	{
+		NSMutableArray *found = [NSMutableArray array];
+		id context = [note object];
+		for (NSString *type in appListeners)
+		{
+			for (ListenerEntry *entry in [appListeners objectForKey:type])
+			{
+				if ([entry context] == context)
+				{
+					[found addObject:[entry listener]];
+				}
+			}
+		}
+		if ([found count]>0)
+		{
+			for (KrollCallback *callback in found)
+			{
+				[self removeEventListener:[NSArray arrayWithObjects:callback.type,callback,nil]];
+			}
+		}
+	}
+}
+
 -(void)startup
 {
 	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(willShutdown:) name:kTiWillShutdownNotification object:nil];
+	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(willShutdownContext:) name:kTiContextShutdownNotification object:nil];
 	[super startup];
 }
 
@@ -219,6 +252,7 @@ extern NSString * const TI_APPLICATION_GUID;
 {
 	// make sure we force any changes made on shutdown
 	[[NSUserDefaults standardUserDefaults] synchronize];
+	[[NSNotificationCenter defaultCenter] removeObserver:self];
 	[super shutdown:sender];
 }
 

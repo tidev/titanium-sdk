@@ -17,7 +17,7 @@ static NSLock *callbackLock;
 
 @implementation KrollCallback
 
-@synthesize context;
+@synthesize context, type;
 
 +(void)shutdownContext:(KrollContext*)context
 {
@@ -58,6 +58,7 @@ static NSLock *callbackLock;
 	[callbacks removeObject:self];
 	[callbackLock unlock];
 
+	[type release];
 	TiValueUnprotect(jsContext, function);
 	TiValueUnprotect(jsContext, thisObj);
 	function = NULL;

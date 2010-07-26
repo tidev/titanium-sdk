@@ -16,6 +16,8 @@
 
 }
 
+-(LauncherView*)launcher;
+
 @end
 
 #endif

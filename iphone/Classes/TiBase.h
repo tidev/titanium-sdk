@@ -412,12 +412,6 @@ return value;\
 #define VAL_OR_NSNULL(foo)	(((foo) != nil)?((id)foo):[NSNull null])
 
 
-#define DEFINE_FACTORY(ns,name) \
--(id)create##name:(NSArray*)args {\
-return [[[Ti##ns##name##Proxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];\
-return nil;\
-}\
-
 
 NSData * dataWithHexString (NSString * hexString);
 NSString * hexString (NSData * thedata);

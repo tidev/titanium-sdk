@@ -34,6 +34,7 @@
 #import "LauncherItem.h"
 #import "TiUtils.h"
 #import "TiUIView.h"
+#import "TiViewProxy.h"
 
 
 @implementation LauncherButton
@@ -61,9 +62,15 @@
 -(void)setFrame:(CGRect)frame
 {
 	[super setFrame:frame];
+	
 	if (item.view!=nil)
 	{
-		[(TiUIView*)item.view relayout:self.bounds];
+		TiUIView *v = (TiUIView*)item.view;
+		TiViewProxy *p =(TiViewProxy*) v.proxy;
+		[p windowWillOpen];
+		[p windowDidOpen];
+		[p reposition];
+		[p layoutChildren:NO];
 	}
 }
 
@@ -249,6 +256,7 @@
 			closeButton.frame = CGRectMake(4, 2, closeButton.frame.size.width, closeButton.frame.size.height);
 		}
 	}
+
 }
 
 @end
