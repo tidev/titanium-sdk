@@ -10,6 +10,8 @@ import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiDict;
 import org.appcelerator.titanium.TiModule;
 
+import android.content.Intent;
+
 public class AndroidModule extends TiModule
 {
 	private static final String LCAT = "TiAndroid";
@@ -28,6 +30,7 @@ public class AndroidModule extends TiModule
 		if (constants == null) {
 			constants = new TiDict();
 
+			constants.put("ACTION_DIAL", Intent.ACTION_DIAL);
 		}
 
 		return constants;

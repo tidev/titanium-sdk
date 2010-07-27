@@ -28,5 +28,22 @@ public class ActivityProxy extends TiProxy
 			}
 		}
 		
-	}		
+	}
+	
+	public void start(Object[] args) 
+	{
+		if (args == null || args.length == 0) {
+			Log.w(LCAT, "Ignoring start request. missing Intent");
+			return;
+		}
+		
+		if (args[0] instanceof IntentProxy) {
+			IntentProxy ip = (IntentProxy) args[0];
+			Intent intent = ip.getIntent();
+			
+			this.getTiContext().getActivity().startActivity(intent);
+		} else {
+			Log.e(LCAT, "Expected IntentProxy. Received " + args[0].getClass().getCanonicalName());
+		}
+	}
 }

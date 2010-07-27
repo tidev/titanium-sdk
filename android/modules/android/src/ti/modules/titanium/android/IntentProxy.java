@@ -10,6 +10,7 @@ import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 
 import android.content.Intent;
+import android.net.Uri;
 
 public class IntentProxy extends TiProxy 
 {
@@ -50,6 +51,7 @@ public class IntentProxy extends TiProxy
 				if (DBG) {
 					Log.d(LCAT, "Setting data uri: " + data);
 				}
+				intent.setData(Uri.parse(data));
 			}
 			
 			if (classname != null) {
