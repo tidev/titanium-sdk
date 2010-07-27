@@ -13,6 +13,7 @@ TiClassRef KrollMethodClassRef = NULL;
 
 TiValueRef KrollCallAsFunction(TiContextRef jsContext, TiObjectRef func, TiObjectRef thisObj, size_t argCount, const TiValueRef arguments[], TiValueRef* exception)
 {
+	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 	KrollMethod* o = (KrollMethod*) TiObjectGetPrivate(func);
 	@try
 	{
@@ -35,8 +36,7 @@ TiValueRef KrollCallAsFunction(TiContextRef jsContext, TiObjectRef func, TiObjec
 		double elapsed = [[NSDate date] timeIntervalSinceDate:reftime];
 		NSLog(@"Invoked %@ with result: %@ [took: %f]",o,result,elapsed);
 #endif
-		if (args!=nil) [args release];
-		if (result==nil) return TiValueMakeNull(jsContext);
+		[args release];
 		return [KrollObject toValue:[o context] value:result];
 	}
 	@catch (NSException *ex) 
@@ -45,6 +45,11 @@ TiValueRef KrollCallAsFunction(TiContextRef jsContext, TiObjectRef func, TiObjec
 		NSLog(@"[ERROR] method invoked exception: %@",ex);
 #endif	
 		*exception = [KrollObject toValue:[o context] value:ex];
+	}
+	@finally 
+	{
+		[pool release];
+		pool = nil;
 	}
 	return TiValueMakeUndefined(jsContext);
 }
@@ -92,7 +97,7 @@ TiValueRef KrollCallAsFunction(TiContextRef jsContext, TiObjectRef func, TiObjec
 -(void)dealloc
 {
 	[name release];
-	[invoker release];
+	name = nil;
 	[super dealloc];
 }
 
@@ -114,35 +119,37 @@ TiValueRef KrollCallAsFunction(TiContextRef jsContext, TiObjectRef func, TiObjec
 	// special generic factory for creating proxy objects for modules
 	if (type == KrollMethodFactory)
 	{
-		if (imp==nil)
+		NSMethodSignature *methodSignature = [target methodSignatureForSelector:selector];
+		NSInvocation *invoker = [NSInvocation invocationWithMethodSignature:methodSignature];
+		id delegate = context.delegate;
+		[invoker setSelector:selector];
+		[invoker setTarget:target];
+		[invoker setArgument:&args atIndex:2];
+		[invoker setArgument:&name atIndex:3];
+		[invoker setArgument:&delegate atIndex:4];
+		[invoker invoke];
+		id result = nil;
+		if ([methodSignature methodReturnLength] == sizeof(id)) 
 		{
-			imp = [target methodForSelector:selector];
+			[invoker getReturnValue:&result];
 		}
-		return imp(target,selector,args,name,context.delegate);
+		return result;
 	}
 	
 	
 	// create proxy method invocation
 	NSMethodSignature *methodSignature = [target methodSignatureForSelector:selector];
-	
-	if (invoker==nil)
+	if (methodSignature==nil)
 	{
-		if (methodSignature==nil)
-		{
-			@throw [NSException exceptionWithName:@"org.appcelerator.kroll" reason:[NSString stringWithFormat:@"invalid method '%@'",NSStringFromSelector(selector)] userInfo:nil];
-		}
-		invoker = [NSInvocation invocationWithMethodSignature:methodSignature];
-		[invoker setSelector:selector];
-		[invoker setTarget:target];
-		[invoker retain];
+		@throw [NSException exceptionWithName:@"org.appcelerator.kroll" reason:[NSString stringWithFormat:@"invalid method '%@'",NSStringFromSelector(selector)] userInfo:nil];
 	}
+	NSInvocation *invoker = [NSInvocation invocationWithMethodSignature:methodSignature];
 	
-	
-	BOOL executionSet = NO;
+	[invoker setSelector:selector];
+	[invoker setTarget:target];
 	
 	if ([target conformsToProtocol:@protocol(KrollTargetable)])
 	{
-		executionSet = YES;
 		[target setExecutionContext:context.delegate];
 	}
 	
@@ -174,19 +181,10 @@ TiValueRef KrollCallAsFunction(TiContextRef jsContext, TiObjectRef func, TiObjec
 				args = [KrollObject nonNull:args];
 				[invoker setArgument:&args atIndex:2];
 			}
-			else if (args==nil)
-			{
-				[invoker setArgument:[NSNull null] atIndex:2];
-			}
 		}
 	}
 	
 	[invoker invoke];
-	
-	if (executionSet)
-	{
-		[target setExecutionContext:nil];
-	}
 	
 	void* result = nil;
 	
