@@ -9,6 +9,8 @@
 
 @implementation ListenerEntry
 
+@synthesize type;
+
 -(id)initWithListener:(id)listener_ context:(id<TiEvaluator>)context_ proxy:(TiProxy*)proxy_
 {
 	if (self = [super init])
@@ -24,6 +26,7 @@
 -(void)dealloc
 {
 	RELEASE_TO_NIL(listener);
+	RELEASE_TO_NIL(type);
 	[super dealloc];
 }
 

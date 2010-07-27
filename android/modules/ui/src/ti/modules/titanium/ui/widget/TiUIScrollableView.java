@@ -9,6 +9,7 @@ package ti.modules.titanium.ui.widget;
 import java.util.ArrayList;
 
 import org.appcelerator.titanium.TiDict;
+import org.appcelerator.titanium.TiProxy;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiCompositeLayout;
@@ -38,10 +39,25 @@ public class TiUIScrollableView extends TiUIView
 	public void processProperties(TiDict d) {
 		if (d.containsKey("views")) {
 			getView().setViews(d.get("views"));
-		} else if (d.containsKey("showPagingControls")) {
+			proxy.getDynamicProperties().remove("views"); // Don't store
+		} 
+		if (d.containsKey("showPagingControls")) {
 			getView().setShowPagingControl(TiConvert.toBoolean(d, "showPagingControls"));
+		} 
+		if (d.containsKey("currentPage")) {
+			setCurrentPage(TiConvert.toInt(d, "currentPage"));
 		}
 		super.processProperties(d);
+	}
+
+	
+	@Override
+	public void propertyChanged(String key, Object oldValue, Object newValue, TiProxy proxy) {
+		if("currentPage".equals(key)) {
+			setCurrentPage(TiConvert.toInt(newValue));
+		} else {
+			super.propertyChanged(key, oldValue, newValue, proxy);
+		}
 	}
 
 	public ArrayList<TiViewProxy> getViews() {
@@ -50,6 +66,9 @@ public class TiUIScrollableView extends TiUIView
 
 	public void setViews(Object viewsObject) {
 		getView().setViews(viewsObject);
+		if (proxy.hasDynamicValue("currentPage")) {
+			setCurrentPage(TiConvert.toInt(proxy.getDynamicValue("currentPage")));
+		}
 	}
 
 	public void addView(TiViewProxy proxy) {

@@ -6,6 +6,7 @@
  */
 #import "TiProxy.h"
 #import "TiUIView.h"
+#import <pthread.h>
 
 #define NEEDS_REPOSITION	0 
 #define NEEDS_LAYOUT_CHILDREN	1
@@ -17,6 +18,7 @@
 @interface TiViewProxy : TiProxy<LayoutAutosizing> 
 {
 @protected
+	NSRecursiveLock *destroyLock;
 	CGFloat verticalLayoutBoundary;
 	CGFloat horizontalLayoutBoundary;
 	CGFloat horizontalLayoutRowHeight;	//Note, this has nothing to do with table views.
@@ -31,12 +33,13 @@
 	UIBarButtonItem * barButtonItem;
 
 @private
-	NSRecursiveLock *childrenLock;
+	pthread_rwlock_t childrenLock;
 	NSMutableArray *children;
 	TiUIView *view;
 	TiViewProxy *parent;
 	BOOL viewInitialized;
 	NSMutableArray *pendingAdds;
+	BOOL needsZIndexRepositioning;
 	
 #if USE_VISIBLE_BOOL
 	BOOL visible;
@@ -112,6 +115,8 @@
 -(void)setNeedsReposition;
 -(void)clearNeedsReposition;
 -(void)setNeedsRepositionIfAutoSized;
+-(void)setNeedsZIndexRepositioning;
+-(BOOL)needsZIndexRepositioning;
 
 -(BOOL)willBeRelaying;
 -(void)childWillResize:(TiViewProxy *)child;

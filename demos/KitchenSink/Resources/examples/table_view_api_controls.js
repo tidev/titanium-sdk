@@ -2,6 +2,22 @@
 var data = [];
 var ts1 = new Date().getTime();
 
+function rightButtonClickHandler(e)
+{
+	Ti.API.info("button click on row. index = "+e.index+", row = "+e.source.row+", section = "+e.source.section+",rightButton = "+rightButton);
+};
+
+function rowClickHandler(e)
+{
+	Ti.API.info("row click on row. index = "+e.index+", row = "+e.row+", section = "+e.section+", source="+e.source);
+}
+
+function sectionClickHandler(e)
+{
+	Ti.API.info("row click on section. index = "+e.index+", row = "+e.row+", section = "+e.section+", source="+e.source);
+});
+
+
 for (var c=0;c<10;c++)
 {
 	data[c] = Ti.UI.createTableViewSection({headerTitle:'Group '+(c+1)});
@@ -19,24 +35,16 @@ for (var c=0;c<10;c++)
 			row:x,
 			section:c
 		});
-		rightButton.addEventListener('click',function(e)
-		{
-			Ti.API.info("button click on row. index = "+e.index+", row = "+e.source.row+", section = "+e.source.section+",rightButton = "+rightButton);
-		});
-		var row = Ti.UI.createTableViewRow({height:'auto'});
+		rightButton.addEventListener('click',rightButtonClickHandler);
+		var row = Ti.UI.createTableViewRow({height:'auto',className:'row'});
 		row.add(label);
 		row.add(rightButton);
 		data[c].add(row);
-		row.addEventListener('click',function(e)
-		{
-			Ti.API.info("row click on row. index = "+e.index+", row = "+e.row+", section = "+e.section+", source="+e.source);
-		});
+		row.addEventListener('click',rowClickHandler);
 	}
-	data[c].addEventListener('click',function(e)
-	{
-		Ti.API.info("row click on section. index = "+e.index+", row = "+e.row+", section = "+e.section+", source="+e.source);
-	});
+	data[c].addEventListener('click',sectionClickHandler);
 }
+var ts2 = new Date().getTime();
 
 // create table view
 var tableview = Titanium.UI.createTableView({
@@ -63,7 +71,6 @@ tableview.addEventListener('click', function(e)
 // add table view to the window
 Titanium.UI.currentWindow.add(tableview);
 
-var ts2 = new Date().getTime();
 
 // this is simply a little window we show 
 // that displays the time it took to build the table and show it

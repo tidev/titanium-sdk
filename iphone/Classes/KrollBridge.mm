@@ -72,7 +72,6 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 
 -(void)gc
 {
-	[modules removeAllObjects];
 }
 
 -(id)valueForKey:(NSString *)key

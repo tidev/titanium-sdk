@@ -85,7 +85,6 @@
 	[super setCenter:CGPointMake(floorf(newCenter.x), floorf(newCenter.y))];
 }
 
-
 -(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
 {
 	[label setFrame:bounds];

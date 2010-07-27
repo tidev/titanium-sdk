@@ -35,15 +35,15 @@
 	}
 	ENSURE_UI_THREAD_1_ARG(properties);
 	
-	BOOL animated = [TiUtils boolValue:@"animated" properties:properties def:YES];
+	BOOL animated_ = [TiUtils boolValue:@"animated" properties:properties def:YES];
 	
 	UINavigationItem * ourItem = [viewController navigationItem];
 
 	[ourItem setTitle:[TiUtils stringValue:[self valueForKey:@"title"]]];
-	[ourItem setLeftBarButtonItem:[[self valueForKey:@"leftNavButton"] barButtonItem] animated:animated];
-	[ourItem setRightBarButtonItem:[[self valueForKey:@"rightNavButton"] barButtonItem] animated:animated];
+	[ourItem setLeftBarButtonItem:[[self valueForKey:@"leftNavButton"] barButtonItem] animated:animated_];
+	[ourItem setRightBarButtonItem:[[self valueForKey:@"rightNavButton"] barButtonItem] animated:animated_];
 	
-	[[self navigationController] setNavigationBarHidden:[TiUtils boolValue:[self valueForKey:@"navBarHidden"]] animated:animated];
+	[[self navigationController] setNavigationBarHidden:[TiUtils boolValue:[self valueForKey:@"navBarHidden"]] animated:animated_];
 
 }
 
@@ -71,12 +71,13 @@
 -(void)updateContentSize
 {
 	CGSize newSize = [self contentSize];
-	BOOL animated = [[self popoverController] isPopoverVisible];
+	BOOL animated_ = [[self popoverController] isPopoverVisible];
+#ifdef DEBUG	
 	NSLog(@"Going From %fx%f",[popoverController popoverContentSize].width,[popoverController popoverContentSize].height);
 
-	NSLog(@"Going to set size to %fx%f with animated %d",newSize.width,newSize.height,animated);
-
-	[popoverController setPopoverContentSize:newSize animated:YES];
+	NSLog(@"Going to set size to %fx%f with animated %d",newSize.width,newSize.height,animated_);
+#endif
+	[popoverController setPopoverContentSize:newSize animated:animated_];
 	[self layoutChildren:NO];
 }
 
@@ -249,8 +250,8 @@
 	ENSURE_SINGLE_ARG_OR_NIL(args,NSDictionary);
 
 	ENSURE_UI_THREAD_1_ARG(args);
-	BOOL animated = [TiUtils boolValue:@"animated" properties:args def:YES];
-	[[self popoverController] dismissPopoverAnimated:animated];
+	BOOL animated_ = [TiUtils boolValue:@"animated" properties:args def:YES];
+	[[self popoverController] dismissPopoverAnimated:animated_];
 
 //As of iPhone OS 3.2, calling dismissPopoverAnimated does NOT call didDismissPopover. So we have to do it ourselves...
 	[self popoverControllerDidDismissPopover:popoverController];

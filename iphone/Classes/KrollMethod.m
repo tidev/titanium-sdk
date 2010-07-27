@@ -174,6 +174,10 @@ TiValueRef KrollCallAsFunction(TiContextRef jsContext, TiObjectRef func, TiObjec
 				args = [KrollObject nonNull:args];
 				[invoker setArgument:&args atIndex:2];
 			}
+			else if (args==nil)
+			{
+				[invoker setArgument:&args atIndex:2];
+			}
 		}
 	}
 	
