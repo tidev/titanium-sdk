@@ -176,7 +176,7 @@ TiValueRef KrollCallAsFunction(TiContextRef jsContext, TiObjectRef func, TiObjec
 			}
 			else if (args==nil)
 			{
-				[invoker setArgument:&args atIndex:2];
+				[invoker setArgument:[NSNull null] atIndex:2];
 			}
 		}
 	}

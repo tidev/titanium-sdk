@@ -1,4 +1,4 @@
-Titanium Mobile 1.4.0 - 6/28/2010
+Titanium Mobile 1.4.0 - 7/26/2010
 =================================
 
 This release includes general bug fixes and enhancements for Android and iPhone.  
@@ -17,6 +17,32 @@ Starting in iPhone 4.0, you must set the `Titanium.Geolocation.purpose` property
 to the reason your application is requesting Location information before using
 Geolocation APIs.  If you don't set this field, GPS will not work and you will get
 an error in the application log.  This is an Apple requirement.
+
+
+iPhone Packaging Changes
+------------------------
+
+As of July 22, 2010, Apple now requires applications be submitted either through
+XCode or through the iPhone Packager application.  The Titanium build for distribution
+step has been modified to comply with these new build mechanisms.  Titanium will no
+longer generate a zip file for distribution.  Instead, Titanium will automatically
+build your application using the "Build and Archive" xcode build stage and your application will show up in the XCode organizer.  You can validate your application
+passes Apple tests prior to submission.  You can also submit your application directly
+to iTunes from Organizer.  You can optionally use the Application Loader to submit
+your application to iTunes. 
+
+http://itunesconnect.apple.com/apploader/ApplicationLoader_1.3.dmg
+
+
+
+
+
+
+http://help.appmakr.com/entries/218997-how-to-upload-your-app-to-itunes-connect-using-application-loader
+
+
+
+
 
 
 
