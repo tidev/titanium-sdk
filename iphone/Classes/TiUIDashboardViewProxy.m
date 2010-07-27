@@ -15,6 +15,12 @@
 
 @implementation TiUIDashboardViewProxy
 
+-(void)_destroy
+{
+	[self performSelector:@selector(stopEditing:) withObject:nil];
+	[super _destroy];
+}
+
 -(void)startEditing:(id)args
 {
 	[[self view] performSelectorOnMainThread:@selector(startEditing) withObject:nil waitUntilDone:NO];
@@ -24,6 +30,7 @@
 {
 	[[self view] performSelectorOnMainThread:@selector(stopEditing) withObject:nil waitUntilDone:NO];
 }
+
 
 -(void)fireEvent:(NSString *)type withObject:(id)obj withSource:(id)source propagate:(BOOL)propagate
 {
