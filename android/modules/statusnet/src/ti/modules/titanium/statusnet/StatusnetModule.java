@@ -49,8 +49,9 @@ public class StatusnetModule extends TiModule {
      * @param object map dictionary of node names to functions, which will have the child element passed to them.
      * @access private
      */
-    public void mapOverElements(NodeProxy parent, TiDict map) {
-        NodeList list = parent.getNode().getChildNodes();
+    public void mapOverElements(Object parent, TiDict map) {
+        // System.out.println("ELEMENT IS: " + parent.getClass().getName());
+        NodeList list = ((NodeProxy)parent).getNode().getChildNodes();
         int last = list.getLength();
         for (int i = 0; i < last; i++) {
             Node el = list.item(i);
@@ -58,7 +59,8 @@ public class StatusnetModule extends TiModule {
                 Object target = map.get(el.getNodeName());
                 if (target != null) {
                     KrollCallback callback = (KrollCallback)target;
-                    callback.call(new Object[]{el});
+                    NodeProxy proxy = NodeProxy.getNodeProxy(getTiContext(), el);
+                    callback.call(new Object[]{proxy});
                 }
             }
         }
