@@ -519,9 +519,9 @@ void MyUncaughtExceptionHandler(NSException *exception)
 		navController = [controller navigationController];
 	}
 	// if we have a nav controller, use him, otherwise use our root controller
-	[controller windowFocused:modalController];
 	if (navController!=nil)
 	{
+		[controller windowFocused:modalController];
 		[self attachModal:modalController toController:navController animated:animated];
 	}
 	else
