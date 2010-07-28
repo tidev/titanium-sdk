@@ -69,7 +69,6 @@
 		<build-module name="map"/>
 		<build-module name="platform"/>
 		<build-module name="utils"/>
-		<build-module name="statusnet"/>
 		<build-module name="xml"/>
 		<build-module name="yahoo"/>
 		
@@ -89,6 +88,10 @@
 		</build-module>
 
 		<build-module name="network">
+			<classpath path="${classesdir}/xml"/>
+		</build-module>
+
+		<build-module name="statusnet">
 			<classpath path="${classesdir}/xml"/>
 		</build-module>
 	</target>

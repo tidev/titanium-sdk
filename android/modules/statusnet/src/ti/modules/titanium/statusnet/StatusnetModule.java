@@ -27,6 +27,7 @@ import org.appcelerator.titanium.TiDict;
 import org.appcelerator.titanium.TiModule;
 import org.appcelerator.titanium.kroll.KrollCallback;
 
+import ti.modules.titanium.xml.NodeProxy;
 
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -48,8 +49,8 @@ public class StatusnetModule extends TiModule {
      * @param object map dictionary of node names to functions, which will have the child element passed to them.
      * @access private
      */
-    public void mapOverElements(Node parent, TiDict map) {
-        NodeList list = parent.getChildNodes();
+    public void mapOverElements(NodeProxy parent, TiDict map) {
+        NodeList list = parent.getNode().getChildNodes();
         int last = list.getLength();
         for (int i = 0; i < last; i++) {
             Node el = list.item(i);
