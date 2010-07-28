@@ -4,10 +4,36 @@ Titanium Mobile 1.4.0 - 7/26/2010
 This release includes general bug fixes and enhancements for Android and iPhone.  
 Please see the updated [Titanium Mobile Reference Documentation for 1.4](/apidoc/mobile/1.4).
 
+We have [fixed](https://appcelerator.lighthouseapp.com/projects/32238-titanium-mobile/tickets?q=milestone%3A%22Release+1.4.0%22+state%3Aclosed) 200+ reported (and unreported) issues since 1.3.  Thanks for everyone's reported issues and patience as we have worked a little longer on this release than we had original anticipated. 
 
-TODO
+We encountered many differences between the latest version of iOS 4 and the previous version we supported (3.1.3) and many differences between the various devices than we have never experienced before with iPhone OS.
 
 
+iPhone Version Support
+----------------------
+
+We have tested this release with iPhone OS 3.1.3 and iOS 4.0.1.  We recommend that you build your applications using iOS 4.0.1.  If you build with 4.0.1, your application will continue to work on older versions of iPhone OS back to 3.1.  
+
+We have tested this release on iPhone OS 3.2 for iPad.  
+
+We have tested this release on 1G, 2G, 3G, 3GS and 4G including (iPhone and iPod Touch) and iPad.
+
+iOS4
+-----
+
+In this release, we have added support for the following iOS4 capabilities:
+
+- Fast application switching
+- Retina display
+- Hi-res icons
+- Background audio
+
+In the next release, we will add additional support for background location and backgroudn processing of your application (so you can run your application logic while the application is in the background), and local notifications.
+
+Custom Info.plist changes
+--------------------------
+
+If you have used a custom Info.plist.template in the past, you will now need to make a slight change to the location and name of the template.  To better support custom template and version migrations, we now look for the Info.plist file in the root folder of your project directory.  If you place a final Info.plist in this directory, we will use this file as-is.
 
 
 iPhone GPS/Location Changes
@@ -16,7 +42,7 @@ iPhone GPS/Location Changes
 Starting in iPhone 4.0, you must set the `Titanium.Geolocation.purpose` property
 to the reason your application is requesting Location information before using
 Geolocation APIs.  If you don't set this field, GPS will not work and you will get
-an error in the application log.  This is an Apple requirement.
+a warning in the application log.  This is an Apple requirement.
 
 
 iPhone Packaging Changes
@@ -27,8 +53,37 @@ XCode or through the iPhone Application Loader application.  The Titanium build 
 build your application using the "Build and Archive" xcode build stage and your application will show up in the XCode organizer.  You can validate your application
 passes Apple tests prior to submission.  You can also submit your application directly
 to iTunes from Organizer.  You can optionally use the Application Loader to submit
-your application to iTunes. 
+your application to iTunes. If you're on iOS 4, you'll have the Application Loader pre-installed on your system under `/Developer/Applications/Utilities`.  If you're on a previous version, you will need to download the application from [iTunes Connect](http://itunesconnect.apple.com/apploader/ApplicationLoader_1.3.dmg).
 
-http://itunesconnect.apple.com/apploader/ApplicationLoader_1.3.dmg
+We have found that the current version XCode Organizer provides no visual feedback when you perform tasks such as Validate Application, etc. We have also found that no error indication is provided if you attempt to Validate or Submit your application to iTunes and you do not have a previously created application in iTunes Connect.  These buttons will simply do nothing.  You will first need to create an application in the portal before using these functions.
 
+Android Changes
+---------------
+
+This release is required if you've recently installed the Android SDK Tools version 6 or have added new platforms using the version 6 tools. Google changed the naming scheme again. 
+
+We have made a number of improvements in Android and fixed a lot of bugs.  Some major issues:
+
+- General Tableview improvements in sections, getData and more.
+- Improved Ti.UI.Notification with more control over placement and look-n-feel of Toast notifications
+- Geolocation: preferredProvider support
+- Android Module SDK
+
+
+Android Module SDK
+-------------------
+
+This version formally introduces the Android Module SDK for extending Titanium with native module code for Android.  A separate module documentation is being developed that should be available soon.
+
+
+Continuous Builds from Git available
+-----------------------------------
+
+We are now performing continuous builds of Titanium from the git master. You can find more
+details about this release from our [documentation site](http://developer.appcelerator.com/doc/mobile/get_continuous_builds)
+
+Please note that we do not offer any support for running from master (unless directed by Appcelerator Premium Support).  Git is where we do _active_ development and the master branch is not stable.  We tag our repo with stable tags if you'd like to build an older
+version of Titanium from a stable release.  We appreciate everyone's desire to help us 
+test and run through issues as they're being developed!  However, please remember that 
+master means unstable until officially released.  Please use with caution!
 
