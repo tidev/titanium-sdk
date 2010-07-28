@@ -50,7 +50,7 @@ public class StatusnetModule extends TiModule {
      * @access private
      */
     public void mapOverElements(Object parent, TiDict map) {
-        // System.out.println("ELEMENT IS: " + parent.getClass().getName());
+        System.out.println("PPP - ELEMENT IS: " + parent.getClass().getName());
         NodeList list = ((NodeProxy)parent).getNode().getChildNodes();
         int last = list.getLength();
         for (int i = 0; i < last; i++) {
@@ -58,12 +58,20 @@ public class StatusnetModule extends TiModule {
             if (el.getNodeType() == Node.ELEMENT_NODE) {
                 Object target = map.get(el.getNodeName());
                 if (target != null) {
+                    System.out.println("PPP - callback for " + el.getNodeName());
                     KrollCallback callback = (KrollCallback)target;
                     NodeProxy proxy = NodeProxy.getNodeProxy(getTiContext(), el);
+                    System.out.println("PPP - calling with proxy: " + proxy);
                     callback.call(new Object[]{proxy});
+                    System.out.println("PPP - called.");
+                } else {
+                    System.out.println("PPP - no callback for " + el.getNodeName());
                 }
+            } else {
+                System.out.println("PPP - skipped non-element.");
             }
         }
+        System.out.println("PPP - done.");
     }
 
 }
