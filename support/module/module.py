@@ -86,7 +86,7 @@ class ModuleProject(object):
 		self.guid = str(uuid.uuid4())
 		self.project_dir = project_dir
 		self.module_name_camel = camelcase(self.project_name)
-		if config['sdk']:
+		if config.has_key('sdk'):
 		  self.sdk = config['sdk']
 		  
 		platform_dir = os.path.join(template_dir,platform.lower())

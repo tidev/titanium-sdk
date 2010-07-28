@@ -40,6 +40,8 @@ locationServicesEnabled[boolean]: returns true if the user has enabled or disabl
 showCalibration[boolean]: returns true if the calibration UI can show
 preferredProvider[string]: allows setting of the preferred location provider.  Returns undefined when the preferred provider is auto-detected
 
+purpose[string]: (iOS only). This property informs the end-user why location services are being requested by the application.  This string will be display in the permission dialog. This property is REQUIRED starting in 4.0.
+
 - events
 
 calibration: fired only on iPhone/iPad when the device detects interface and requires calibration. when this event is fired, the calibration UI is being displayed to the end user.

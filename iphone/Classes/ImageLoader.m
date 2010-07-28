@@ -493,6 +493,19 @@ DEFINE_EXCEPTIONS
 	return [image stretchableImage];    
 }
 
+-(CGSize)fullImageSize:(NSURL *)url
+{
+	ImageCacheEntry* image = [self entryForKey:url];
+	if (image!=nil) 
+	{
+		return [[image fullImage] size];
+	}
+	else
+	{
+		return CGSizeZero;
+	}
+}
+
 -(void)notifyImageCompleted:(NSArray*)args
 {
 	if ([args count]==2)
