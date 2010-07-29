@@ -392,7 +392,7 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 		{
 			modalFlag = YES;
 			attached = YES;
-			TiWindowViewController *wc = [[[TiWindowViewController alloc] initWithWindow:self] autorelease];
+			TiWindowViewController *wc = (TiWindowViewController*)[self controller];
 			UINavigationController *nc = nil;
 			
 			if ([self argOrWindowProperty:@"navBarHidden" args:args]==NO)

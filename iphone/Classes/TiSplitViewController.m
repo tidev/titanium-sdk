@@ -226,6 +226,7 @@
 				latestRequest = orientationRequestTimes[i];
 			}
 		}
+		[super willRotateToInterfaceOrientation:requestedOrientation duration:0.0];
 		[self manuallyRotateToOrientation:requestedOrientation duration:0.0];
 	}
 }
@@ -247,12 +248,45 @@
 		focusedProxy = (TiWindowProxy *)[(id)focusedViewController proxy];
 	}
 	
+	if (windowViewControllers==nil)
+	{
+		windowViewControllers = [[NSMutableArray alloc] initWithObjects:focusedViewController,nil];
+	}
+	else
+	{
+		[windowViewControllers addObject:focusedViewController];
+	}
+	
 	[self enforceOrientationModesFromWindow:(id)focusedProxy rotate:YES];	
 }
 
 -(void)windowClosed:(UIViewController *)closedViewController
 {
-	// No-op on split views
+	if ([closedViewController isKindOfClass:[UINavigationController class]] && ![closedViewController isKindOfClass:[MFMailComposeViewController class]])
+	{
+		UIViewController * topViewController = [(UINavigationController *)closedViewController topViewController];
+		if (topViewController != nil)
+		{
+			closedViewController = topViewController;
+		}
+	}
+	
+	BOOL focusChanged = [windowViewControllers lastObject] == closedViewController;
+	[[closedViewController retain] autorelease];
+	[windowViewControllers removeObject:closedViewController];
+	if (!focusChanged)
+	{
+		closedViewController=nil;
+		return; //Exit early. We're done here.
+	}
+	
+	UIViewController * newTopWindow = [windowViewControllers lastObject];
+	
+	if ([newTopWindow respondsToSelector:@selector(proxy)])
+	{
+		TiWindowProxy* windowProxy = (TiWindowProxy*)[(TiViewController*)newTopWindow proxy];
+		[self enforceOrientationModesFromWindow:windowProxy rotate:YES];
+	}
 }
 
 -(void)setBackgroundImage:(UIImage*)image
