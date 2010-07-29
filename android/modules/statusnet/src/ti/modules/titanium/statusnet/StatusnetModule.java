@@ -29,6 +29,7 @@ import org.appcelerator.titanium.TiDict;
 import org.appcelerator.titanium.TiModule;
 import org.appcelerator.titanium.kroll.KrollCallback;
 
+import ti.modules.titanium.xml.ElementProxy;
 import ti.modules.titanium.xml.NodeProxy;
 
 import org.w3c.dom.Element;
@@ -42,50 +43,17 @@ public class StatusnetModule extends TiModule {
     }
 
     /**
-     * Iterate over all direct children of the given DOM node, calling functions from a map
-     * based on the element's node name. This is used because doing a bunch of individual selector
-     * lookups for every element we need is hella slow on mobile; iterating directly over the
-     * element set has a lot less overhead.
+     * Helper for StatusNet.AtomParser.mapOverElements()
      *
-     * @param DOMNode parent
-     * @param object map dictionary of node names to functions, which will have the child element passed to them.
-     * @access private
-     */
-    public void mapOverElements(Object parent, TiDict map) {
-        System.out.println("PPP - ELEMENT IS: " + parent.getClass().getName());
-        NodeList list = ((NodeProxy)parent).getNode().getChildNodes();
-        int last = list.getLength();
-        for (int i = 0; i < last; i++) {
-            Node el = list.item(i);
-            if (el.getNodeType() == Node.ELEMENT_NODE) {
-                Object target = map.get(el.getNodeName());
-                if (target != null) {
-                    System.out.println("PPP - callback for " + el.getNodeName());
-                    KrollCallback callback = (KrollCallback)target;
-                    NodeProxy proxy = NodeProxy.getNodeProxy(getTiContext(), el);
-                    System.out.println("PPP - calling with proxy: " + proxy);
-                    callback.call(new Object[]{proxy});
-                    System.out.println("PPP - called.");
-                } else {
-                    System.out.println("PPP - no callback for " + el.getNodeName());
-                }
-            } else {
-                System.out.println("PPP - skipped non-element.");
-            }
-        }
-        System.out.println("PPP - done.");
-    }
-
-    /**
      * Transitioning between Java and JS code appears to be insanely
      * inefficient, so we're going to try to minimize it here...
      * We can't call the callbacks directly, since they'd get called
      * asynchronously. Instead, we build a list of output items!
      *
      * Return value should look something like:
-     * [{node: el1, target: callback1},
-     *  {node: el2, target: callback2}
-     *  {node: el3, target: callback1}]
+     * [{node: el1, name: "link", text: ""},
+     *  {node: el2, name: "author", text: "Foo Bar"},
+     *  {node: el3, name: "link", text: ""}]
      *
      * Caller can then iterate over that list and make direct calls
      * within the JS context.
@@ -98,13 +66,14 @@ public class StatusnetModule extends TiModule {
         for (int i = 0; i < last; i++) {
             Node el = list.item(i);
             if (el.getNodeType() == Node.ELEMENT_NODE) {
-                Object target = map.get(el.getNodeName());
+                String name = el.getNodeName();
+                Object target = map.get(name);
                 if (target != null) {
                     TiDict dict = new TiDict();
-                    NodeProxy proxy = NodeProxy.getNodeProxy(getTiContext(), el);
+                    ElementProxy proxy = (ElementProxy)NodeProxy.getNodeProxy(getTiContext(), el);
                     dict.put("node", proxy);
-                    dict.put("target", target); // for some reason these end up non-callable
-                    dict.put("name", el.getNodeName());
+                    dict.put("name", name);
+                    dict.put("text", proxy.getText());
                     matches.add(dict);
                 }
             }
