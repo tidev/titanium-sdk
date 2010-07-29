@@ -1,0 +1,101 @@
+/**
+ * Appcelerator Titanium Mobile
+ * Copyright (c) 2010 by Appcelerator, Inc. All Rights Reserved.
+ * Licensed under the terms of the Apache Public License
+ * Please see the LICENSE included with this distribution for details.
+ */
+package ${packageName};
+
+import org.appcelerator.kroll.KrollProxy;
+import org.appcelerator.kroll.KrollConverter;
+import org.appcelerator.kroll.KrollInvocation;
+import org.appcelerator.kroll.KrollMethod;
+import org.appcelerator.kroll.KrollProxyBinding;
+import org.appcelerator.kroll.KrollProxyBindings;
+
+import org.mozilla.javascript.Scriptable;
+
+import ${packageName}.${proxyClassName};
+
+<#function countRequiredArguments method>
+	<#local count = 0>
+	<#list method["args"] as arg>
+		<#if arg?keys?seq_contains("optional")>
+			<#if !arg["optional"]>
+				<#local count = count + 1>
+			</#if>
+		<#else>
+			<#local count = count + 1>
+		</#if>
+	</#list>
+	<#return count>
+</#function>
+
+/* WARNING: this code is generated for binding methods in Android */
+public class ${genClassName} implements KrollProxyBinding
+{
+	public void bind(final Scriptable scope, final KrollProxy rootObject, final KrollProxy p) {
+		
+		final ${proxyClassName} proxy = (${proxyClassName}) p;
+		<#if proxyAnnotation.annotationType == "org.appcelerator.kroll.annotations.Kroll.module">
+		<#assign moduleName = proxyClassName?substring(0, proxyClassName?index_of("Module"))>
+		try {
+			rootObject.set(scope, "${moduleName}", p);
+		} catch (NoSuchFieldException e) {}
+		</#if>
+		
+		<#list methods?keys as methodName>
+			<#assign method = methods[methodName]>
+			final ${method.converter.name} __converter = ${method.converter.name}.getInstance();
+		KrollMethod ${methodName}_method = new KrollMethod("${methodName}") {
+			public Object invoke(KrollInvocation invocation, Object[] args) throws Exception
+			{
+				<#assign requiredArgs = countRequiredArguments(method)>
+				<#if requiredArgs &gt; 0>
+				if (args == null) { throw new IllegalArgumentException("Expected ${requiredArgs} arguments for ${methodName}, got 0"); }
+				else if (args.length < ${requiredArgs}) { throw new IllegalArgumentException("Expected ${requiredArgs} arguments for ${methodName}, got " + args.length); }
+				</#if>
+				
+				<#list method.args as arg>
+					// ${arg["type"]} ${arg["name"]}
+					${arg["type"]} ${arg["name"]};
+					<#assign optional = arg?keys?seq_contains("optional") && arg["optional"]>
+					<#assign converter = arg["converter"].name>
+					<#if optional>
+					if (args.length >= ${arg_index+1}) {
+					</#if>
+						${arg["name"]} = (${arg["type"]})
+							${converter}.getInstance().convertScriptable(args[${arg_index}]);
+					<#if optional>
+					} else {
+						${arg["name"]} = ${arg["defaultValueProvider"]}.getInstance().getDefaultValue(
+							${arg["type"]}.class);
+					}
+					</#if>
+				</#list>
+				<#if method.returnType != "void">
+				${method.returnType} __retVal =
+				</#if>
+					proxy.${methodName}(invocation<#list method.args as arg>, ${arg.name}</#list>);
+				<#if method.returnType != "void">
+				Object __converted = __converter.convertNative(invocation, __retVal);
+				
+				
+				<#if method.annotation.annotationType == "org.appcelerator.kroll.annotations.Kroll.createMethod">
+				// TODO: also check that __retVal is a proxy
+				__retVal.bind(scope, rootObject);
+				</#if>
+				return __converted;
+				<#else>
+				;
+				return KrollProxy.UNDEFINED;
+				</#if>
+			}
+		};
+		
+		try {
+			proxy.set(scope, "${methodName}", ${methodName}_method);
+		} catch (NoSuchFieldException ex) {/* there shouldn't be a dynamic field here */}
+		</#list>
+	}
+}

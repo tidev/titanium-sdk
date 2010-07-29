@@ -6,8 +6,6 @@
  */
 package org.appcelerator.kroll;
 
-import org.mozilla.javascript.Scriptable;
-
 public interface KrollNativeConverter {
-	public Scriptable convertNative(KrollInvocation invocation, Object o); 
+	public Object convertNative(KrollInvocation invocation, Object o); 
 }

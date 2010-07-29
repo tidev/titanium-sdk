@@ -1,0 +1,33 @@
+/**
+ * Appcelerator Titanium Mobile
+ * Copyright (c) 2010 by Appcelerator, Inc. All Rights Reserved.
+ * Licensed under the terms of the Apache Public License
+ * Please see the LICENSE included with this distribution for details.
+ */
+
+package org.appcelerator.kroll;
+
+import java.util.HashMap;
+
+import org.appcelerator.kroll.KrollProxy;
+import org.appcelerator.kroll.KrollProxyBinding;
+
+public class KrollProxyBindings
+{
+	protected static HashMap<Class<? extends KrollProxy>, KrollProxyBinding> bindings =
+		new HashMap<Class<? extends KrollProxy>, KrollProxyBinding>();
+	
+	public static void initBindings() {
+		<#list proxies as proxy>
+		bindings.put(${proxy}.class, new ${proxy}Binding());
+		</#list>
+	}
+	
+	public static KrollProxyBinding getBinding(Class<? extends KrollProxy> proxyClass) {
+		return bindings.get(proxyClass);
+	}
+	
+	public static KrollProxyBinding getBinding(KrollProxy proxy) {
+		return getBinding(proxy.getClass());
+	}
+ }

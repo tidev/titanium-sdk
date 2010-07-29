@@ -18,12 +18,12 @@ public class KrollInvocation {
 	protected Scriptable scope;
 	protected Activity activity;
 	protected String name;
+	protected KrollProxy proxy;
 	protected boolean isFieldGet, isFieldSet, isMethod;
-	protected Field field;
-	protected Method method;
+	protected KrollMethod method;
 	protected KrollInvocation() {}
 	
-	public static KrollInvocation createMethodInvocation(Scriptable scope, Activity activity, String name, Method method)
+	public static KrollInvocation createMethodInvocation(Scriptable scope, Activity activity, String name, KrollMethod method, KrollProxy proxy)
 	{
 		KrollInvocation invocation = new KrollInvocation();
 		invocation.scope = scope;
@@ -31,28 +31,29 @@ public class KrollInvocation {
 		invocation.name = name;
 		invocation.method = method;
 		invocation.isMethod = true;
+		invocation.proxy = proxy;
 		return invocation;
 	}
 	
-	public static KrollInvocation createFieldGetInvocation(Scriptable scope, Activity activity, String name, Field field)
+	public static KrollInvocation createFieldGetInvocation(Scriptable scope, Activity activity, String name, KrollProxy proxy)
 	{
 		KrollInvocation invocation = new KrollInvocation();
 		invocation.scope = scope;
 		invocation.activity = activity;
 		invocation.name = name;
-		invocation.field = field;
 		invocation.isFieldGet = true;
+		invocation.proxy = proxy;
 		return invocation;
 	}
 	
-	public static KrollInvocation createFieldSetInvocation(Scriptable scope, Activity activity, String name, Field field)
+	public static KrollInvocation createFieldSetInvocation(Scriptable scope, Activity activity, String name, KrollProxy proxy)
 	{
 		KrollInvocation invocation = new KrollInvocation();
 		invocation.scope = scope;
 		invocation.activity = activity;
 		invocation.name = name;
-		invocation.field = field;
 		invocation.isFieldSet = true;
+		invocation.proxy = proxy;
 		return invocation;
 	}
 
@@ -80,11 +81,11 @@ public class KrollInvocation {
 		return isMethod;
 	}
 	
-	public Method getMethod() {
+	public KrollMethod getMethod() {
 		return method;
 	}
 	
-	public Field getField() {
-		return field;
+	public KrollProxy getProxy() {
+		return proxy;
 	}
 }
