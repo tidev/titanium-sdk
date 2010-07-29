@@ -22,6 +22,8 @@
 
 package ti.modules.titanium.statusnet;
 
+import java.util.ArrayList;
+
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiDict;
 import org.appcelerator.titanium.TiModule;
@@ -74,4 +76,39 @@ public class StatusnetModule extends TiModule {
         System.out.println("PPP - done.");
     }
 
+    /**
+     * Transitioning between Java and JS code appears to be insanely
+     * inefficient, so we're going to try to minimize it here...
+     * We can't call the callbacks directly, since they'd get called
+     * asynchronously. Instead, we build a list of output items!
+     *
+     * Return value should look something like:
+     * [{node: el1, target: callback1},
+     *  {node: el2, target: callback2}
+     *  {node: el3, target: callback1}]
+     *
+     * Caller can then iterate over that list and make direct calls
+     * within the JS context.
+     */
+    public Object[] mapOverElementsHelper(Object parent, TiDict map) {
+        ArrayList<TiDict> matches = new ArrayList<TiDict>();
+
+        NodeList list = ((NodeProxy)parent).getNode().getChildNodes();
+        int last = list.getLength();
+        for (int i = 0; i < last; i++) {
+            Node el = list.item(i);
+            if (el.getNodeType() == Node.ELEMENT_NODE) {
+                Object target = map.get(el.getNodeName());
+                if (target != null) {
+                    TiDict dict = new TiDict();
+                    NodeProxy proxy = NodeProxy.getNodeProxy(getTiContext(), el);
+                    dict.put("node", proxy);
+                    dict.put("target", target); // for some reason these end up non-callable
+                    dict.put("name", el.getNodeName());
+                    matches.add(dict);
+                }
+            }
+        }
+        return matches.toArray();
+    }
 }
