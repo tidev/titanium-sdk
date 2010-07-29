@@ -511,7 +511,7 @@ extern NSString * const TI_APPLICATION_RESOURCE_DIR;
 			NSRange range = [urlString rangeOfString:@"/" options:0 range:NSMakeRange(7, [urlString length]-7)];
 			if (range.location!=NSNotFound)
 			{
-				NSString *path = [(NSString *)CFURLCreateStringByAddingPercentEscapes(kCFAllocatorDefault, (CFStringRef)[urlString substringFromIndex:range.location], NULL, CFSTR(":[]@!$ '()*+,;\"<>%{}|\\^~`"), CFStringConvertNSStringEncodingToEncoding(NSUTF8StringEncoding)) autorelease];
+				NSString *path = [(NSString *)CFURLCreateStringByAddingPercentEscapes(kCFAllocatorDefault, (CFStringRef)[urlString substringFromIndex:range.location], NULL, NULL, CFStringConvertNSStringEncodingToEncoding(NSUTF8StringEncoding)) autorelease];
 				urlString = [NSString stringWithFormat:@"%@%@",[urlString substringToIndex:range.location],path];
 			}
 		}
