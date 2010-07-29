@@ -33,6 +33,7 @@ import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Function;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
+import org.mozilla.javascript.Undefined;
 
 public class KrollObject extends ScriptableObject
 {
@@ -659,6 +660,14 @@ public class KrollObject extends ScriptableObject
 			a[i] = toNative(v, Object.class);
 		}
 		return a;
+	}
+	
+	public static Object asJSUndefined(KrollContext kroll) {
+		return Context.javaToJS(Undefined.instance, kroll.getScope());
+	}
+	
+	public static Object asUndefined() {
+		return Undefined.instance;
 	}
 	
 	@SuppressWarnings("serial")
