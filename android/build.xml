@@ -90,6 +90,10 @@
 		<build-module name="network">
 			<classpath path="${classesdir}/xml"/>
 		</build-module>
+
+		<build-module name="statusnet">
+			<classpath path="${classesdir}/xml"/>
+		</build-module>
 	</target>
 
 	<target name="clean" if="distdir-available">
