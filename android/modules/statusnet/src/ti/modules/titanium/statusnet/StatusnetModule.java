@@ -33,6 +33,7 @@ import ti.modules.titanium.xml.ElementProxy;
 import ti.modules.titanium.xml.NodeProxy;
 
 import org.w3c.dom.Element;
+import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
@@ -70,10 +71,22 @@ public class StatusnetModule extends TiModule {
                 Object target = map.get(name);
                 if (target != null) {
                     TiDict dict = new TiDict();
+
                     ElementProxy proxy = (ElementProxy)NodeProxy.getNodeProxy(getTiContext(), el);
-                    dict.put("node", proxy);
+
+                    TiDict attribsDict = new TiDict();
+                    NamedNodeMap attributes = el.getAttributes();
+                    int numAttribs = attributes.getLength();
+                    for (int j = 0; j < numAttribs; j++) {
+                        Node attrib = attributes.item(j);
+                        attribsDict.put(attrib.getNodeName(), attrib.getNodeValue());
+                    }
+
                     dict.put("name", name);
+                    dict.put("node", proxy);
                     dict.put("text", proxy.getText());
+                    dict.put("attributes", attribsDict);
+
                     matches.add(dict);
                 }
             }
