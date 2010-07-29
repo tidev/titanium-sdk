@@ -937,15 +937,21 @@
 
 -(void)fireEvent:(NSString*)type withObject:(id)obj withSource:(id)source propagate:(BOOL)propagate
 {
-	[super fireEvent:type withObject:obj withSource:source propagate:YES];
+	TiUIView* proxyView = [self view];
 	
-	// views support event propagation. we need to check our
-	// parent and if he has the same named listener, we fire
-	// an event and set the source of the event to ourself
-    
-	if (parent!=nil && propagate==YES)
-	{
-		[parent fireEvent:type withObject:obj withSource:source];
+	// Have to handle the situation in which the proxy's view might be nil... like, for example,
+	// with table rows.  Automagically assume any nil view we're firing an event for is A-OK.
+	if (proxyView == nil || [proxyView interactionEnabled]) {
+		[super fireEvent:type withObject:obj withSource:source propagate:YES];
+		
+		// views support event propagation. we need to check our
+		// parent and if he has the same named listener, we fire
+		// an event and set the source of the event to ourself
+		
+		if (parent!=nil && propagate==YES)
+		{
+			[parent fireEvent:type withObject:obj withSource:source];
+		}
 	}
 }
 
@@ -955,6 +961,9 @@
 	{
 		[self.modelDelegate listenerAdded:type count:count];
 	}
+	else {
+		[self.view listenerAdded:type count:count];
+	}
 }
 
 -(void)_listenerRemoved:(NSString*)type count:(int)count
@@ -962,6 +971,9 @@
 	if (self.modelDelegate!=nil && [(NSObject*)self.modelDelegate respondsToSelector:@selector(listenerRemoved:count:)])
 	{
 		[self.modelDelegate listenerRemoved:type count:count];
+	}
+	else {
+		[self.view listenerRemoved:type count:count];
 	}
 }
 

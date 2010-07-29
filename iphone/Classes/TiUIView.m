@@ -254,13 +254,17 @@ DEFINE_EXCEPTIONS
 	virtualParentTransform = CGAffineTransformIdentity;
 	multipleTouches = NO;
 	twoFingerTapIsPossible = NO;
-	touchEnabled = YES;
-	self.userInteractionEnabled = YES;
 	
 	[self updateTouchHandling];
 	 
 	self.backgroundColor = [UIColor clearColor]; 
 	self.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+    
+    // If a user has not explicitly set whether or not the view interacts, base it on whether or
+    // not it handles events, and if not, set it to the interaction default.
+    if (!changedInteraction) {
+        self.userInteractionEnabled = (handlesTouches || handlesTaps || handlesSwipes) || [self interactionDefault];
+    }
 }
 
 -(void)willSendConfiguration
@@ -658,7 +662,8 @@ DEFINE_EXCEPTIONS
 
 -(void)setTouchEnabled_:(id)arg
 {
-	touchEnabled = [TiUtils boolValue:arg];
+	self.userInteractionEnabled = [TiUtils boolValue:arg];
+    changedInteraction = YES;
 }
 
 -(void)setBackgroundGradient_:(id)arg
@@ -891,14 +896,7 @@ DEFINE_EXCEPTIONS
 
 - (BOOL)interactionEnabled
 {
-	if (touchEnabled)
-	{
-		// we allow the developer to turn off touch with this property but make the default the
-		// result of the internal method interactionDefault. some components (like labels) by default
-		// don't want or need interaction if not explicitly enabled through an addEventListener
-		return [self interactionDefault];
-	}
-	return NO;
+	return self.userInteractionEnabled;
 }
 
 - (BOOL)hasTouchableListener
