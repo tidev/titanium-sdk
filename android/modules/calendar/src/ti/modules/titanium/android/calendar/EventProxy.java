@@ -1,17 +1,17 @@
 package ti.modules.titanium.android.calendar;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiProxy;
+import org.appcelerator.titanium.util.Log;
 
 import android.content.ContentResolver;
 import android.content.ContentUris;
+import android.content.ContentValues;
 import android.database.Cursor;
 import android.net.Uri;
-import android.text.format.DateUtils;
 
 // Columns and value constants taken from android.provider.Calendar in the android source base
 public class EventProxy extends TiProxy {
@@ -64,6 +64,25 @@ public class EventProxy extends TiProxy {
 			events.add(event);
 		}
 		return events;
+	}
+	
+	public static EventProxy createEvent(TiContext context, CalendarProxy calendar, String title, String description, Date begin, Date end, boolean allDay) {
+		ContentResolver contentResolver = context.getActivity().getContentResolver();
+		ContentValues eventValues = new ContentValues();
+		
+		eventValues.put("title", title);
+		eventValues.put("description", description);
+		eventValues.put("dtstart", begin.getTime());
+		eventValues.put("dtend", end.getTime());
+		eventValues.put("calendar_id", calendar.getId());
+		
+		if (allDay) {
+			eventValues.put("allDay", 1);
+		}
+		
+		Uri eventUri = contentResolver.insert(Uri.parse(CalendarProxy.getBaseCalendarUri()+"/events"), eventValues);
+		Log.d("TiEvents", "created event with uri: " + eventUri);
+		return null;
 	}
 	
 	public static ArrayList<EventProxy> queryEventsBetweenDates(TiContext context, long date1, long date2, CalendarProxy calendar) {

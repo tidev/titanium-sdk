@@ -39,4 +39,15 @@ public class CalendarModule extends TiModule {
 			"Calendars.selected = ? AND Calendars.hidden = ?", new String[] { "1", "0" });
 		return calendars.toArray(new CalendarProxy[calendars.size()]);
 	}
+	
+	public CalendarProxy getCalendarById(int id) {
+		ArrayList<CalendarProxy> calendars = CalendarProxy.queryCalendars(getTiContext(),
+			"Calendars._id = ?", new String[] { ""+id });
+		
+		if (calendars.size() > 0) {
+			return calendars.get(0);
+		} else {
+			return null;
+		}
+	}
 }
