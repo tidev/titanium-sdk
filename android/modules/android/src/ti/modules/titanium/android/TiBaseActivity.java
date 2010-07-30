@@ -12,9 +12,11 @@ import org.appcelerator.titanium.kroll.KrollBridge;
 import org.appcelerator.titanium.kroll.KrollContext;
 import org.appcelerator.titanium.kroll.KrollObject;
 import org.appcelerator.titanium.kroll.TitaniumObject;
+import org.appcelerator.titanium.proxy.TiActivityWindowProxy;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.view.TiCompositeLayout;
+import org.appcelerator.titanium.view.TiUIActivityWindow;
 import org.mozilla.javascript.Scriptable;
 
 import android.app.Activity;
@@ -30,6 +32,7 @@ public abstract class TiBaseActivity extends Activity
 	protected TiCompositeLayout layout;
 	protected ActivityProxy currentActivity;
 	protected IntentProxy currentIntent;
+	protected TiActivityWindowProxy currentWindow;
 	
 	private CountDownLatch jsLoadedLatch;
 
@@ -54,6 +57,7 @@ public abstract class TiBaseActivity extends Activity
 		tiContext = TiContext.createTiContext(this, null, null); // TODO baseurl
 		currentActivity = new ActivityProxy(tiContext, new Object[]{ this });
 		currentIntent = new IntentProxy(tiContext, new Object[] {getIntent()});
+		currentWindow = new TiActivityWindowProxy(tiContext, new Object[]{});
 		
 		//Bootstrap Android Module
 		KrollBridge krollBridge = (KrollBridge) tiContext.getJSContext();
@@ -65,15 +69,20 @@ public abstract class TiBaseActivity extends Activity
 		titanium.put("Android", titanium, android);
 		android.superPut("currentActivity", android, new KrollObject(android, currentActivity));
 		android.superPut("currentIntent", android, new KrollObject(android, currentIntent));
-		layout = new TiCompositeLayout(this, false);
 
-		//TODO currentWindow, consider allowing accessors for title, status
+		// currentWindow
+		m = titanium.loadModule("UI");
+		KrollObject ui = new KrollObject((KrollObject) titanium, m);
+		titanium.put("UI", titanium, ui);
+		ui.superPut("currentWindow", ui, new KrollObject(ui, currentWindow));
 		
 		//TODO Activity L&F 
-		
+
+		layout = new TiCompositeLayout(this, false);
+
 		setContentView(layout);
-		
-		
+			
+		TiUIActivityWindow win = new TiUIActivityWindow(currentWindow, this, layout);
 		// Load "app.js"
 		jsLoadedLatch = new CountDownLatch(1);
 		new Thread(new Runnable(){
@@ -94,6 +103,19 @@ public abstract class TiBaseActivity extends Activity
 				}
 			}
 		}).start();
+		
+		try {
+			Log.i(LCAT, "About to wait for JS to load");
+			jsLoadedLatch.await();
+		} catch (InterruptedException e) {
+			Log.w(LCAT, "Wait for JS Load interrupted.");
+		}
+
+		if (currentActivity.hasListeners("create")) {
+			currentActivity.fireEvent("create", null);
+		}
+
+		win.open();
 	}
 
 	
