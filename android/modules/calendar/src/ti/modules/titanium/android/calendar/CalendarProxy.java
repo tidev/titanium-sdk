@@ -11,6 +11,7 @@ import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Build;
 import android.text.format.DateUtils;
 
 public class CalendarProxy extends TiProxy {
@@ -26,30 +27,41 @@ public class CalendarProxy extends TiProxy {
 		this.selected = selected;
 		this.hidden = hidden;
 	}
+
+	public static String getBaseCalendarUri() {
+		if (Build.VERSION.RELEASE.contains("2.2")) {
+			return "content://com.android.calendar";
+		}
+		
+		return "content://calendar";
+	}
+
+	public static ArrayList<CalendarProxy> queryCalendars(TiContext context, String query, String[] queryArgs) {
+		ArrayList<CalendarProxy> calendars = new ArrayList<CalendarProxy>();
+		ContentResolver contentResolver = context.getActivity().getContentResolver();
+		
+		Cursor cursor = contentResolver.query(Uri.parse(getBaseCalendarUri() + "/calendars"),
+			new String[] { "_id", "displayName", "selected", "hidden" }, query, queryArgs, null);
+		
+		while (cursor.moveToNext()) {
+			String id = cursor.getString(0);
+			String name = cursor.getString(1);
+			boolean selected = !cursor.getString(2).equals("0");
+			boolean hidden = !cursor.getString(3).equals("0");
+			
+			calendars.add(new CalendarProxy(context, id, name, selected, hidden));
+		}
+		
+		return calendars;
+	}
 	
 	public EventProxy[] getEventsInYear(int year) {
-		ContentResolver contentResolver = getTiContext().getActivity().getContentResolver();
-		ArrayList<EventProxy> events = new ArrayList<EventProxy>();
-		Uri.Builder builder = Uri.parse(CalendarModule.getBaseCalendarUri()+"/instances/when").buildUpon();
 		Calendar jan1 = Calendar.getInstance();
 		jan1.set(year, 0, 1);
 		
-		long jan1Time = jan1.getTimeInMillis();
-		ContentUris.appendId(builder, jan1Time);
-		ContentUris.appendId(builder, jan1Time + DateUtils.YEAR_IN_MILLIS);
-		 
-		Cursor eventCursor = contentResolver.query(builder.build(),
-				new String[] { "title", "begin", "end", "allDay"}, "Calendars._id=" + id,
-				null, "startDay ASC, startMinute ASC");
-		 
-		while (eventCursor.moveToNext()) {
-			String title = eventCursor.getString(0);
-			Date begin = new Date(eventCursor.getLong(1));
-			Date end = new Date(eventCursor.getLong(2));
-			boolean allDay = !eventCursor.getString(3).equals("0");
-			events.add(new EventProxy(getTiContext(), title, begin, end, allDay));
-		}
-		
+		long date1 = jan1.getTimeInMillis();
+		long date2 = date1 + DateUtils.YEAR_IN_MILLIS;
+		ArrayList<EventProxy> events = EventProxy.queryEventsBetweenDates(getTiContext(), date1, date2, this);
 		return events.toArray(new EventProxy[events.size()]);
 	}
 	
