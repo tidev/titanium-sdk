@@ -55,12 +55,18 @@ public class IntentProxy extends TiProxy
 			}
 			
 			if (classname != null) {
-				throw new IllegalArgumentException("className not supported yet.");
+				try {
+					Class c = getClass().getClassLoader().loadClass(classname);
+					intent.setClass(tiContext.getActivity().getApplicationContext(), c);
+				} catch (ClassNotFoundException e) {
+					Log.e(LCAT, "Unable to locate class for name: " + classname);
+					throw new IllegalStateException("Missing class for name: " + classname, e);
+				}
 			}
 		}
 	}	
 	
-	protected Intent getIntent() {
+	protected Intent getIntent() { 
 		return intent;
 	}
 }
