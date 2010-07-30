@@ -399,6 +399,16 @@ const CFOptionFlags writeStreamEventFlags =
     port = [port_ intValue];
 }
 
+-(void)setStripTerminator:(NSNumber *)stripTerminator_
+{
+    stripTerminator = [TiUtils boolValue:stripTerminator_ def:NO];
+}
+
+-(NSNumber*)stripTerminator
+{
+    return NUMBOOL(stripTerminator);
+}
+
 -(NSNumber*)isValid
 {
     if (socket!=NULL) {
@@ -596,7 +606,8 @@ const CFOptionFlags writeStreamEventFlags =
         data = [arg data];
     }
     else if ([arg isKindOfClass:[NSString class]]) {
-        data = [NSData dataWithBytes:[arg UTF8String] length:[arg length]+1];
+        NSUInteger length = (stripTerminator) ? [arg length] : [arg length] + 1;
+        data = [NSData dataWithBytes:[arg UTF8String] length:length];
     }
     else {
         NSString* errorStr = [NSString stringWithFormat:@"expected: %@ or %@, was: %@", [TiBlob class], [NSString class], [arg class]];
