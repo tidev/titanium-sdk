@@ -4,8 +4,10 @@ import java.util.ArrayList;
 import java.util.Date;
 
 import org.appcelerator.titanium.TiContext;
+import org.appcelerator.titanium.TiDict;
 import org.appcelerator.titanium.TiProxy;
 import org.appcelerator.titanium.util.Log;
+import org.appcelerator.titanium.util.TiConvert;
 
 import android.content.ContentResolver;
 import android.content.ContentUris;
@@ -82,7 +84,17 @@ public class EventProxy extends TiProxy {
 		
 		Uri eventUri = contentResolver.insert(Uri.parse(CalendarProxy.getBaseCalendarUri()+"/events"), eventValues);
 		Log.d("TiEvents", "created event with uri: " + eventUri);
-		return null;
+		
+		String eventId = eventUri.getLastPathSegment();
+		EventProxy event = new EventProxy(context);
+		event.id = eventId;
+		event.title = title;
+		event.description = description;
+		event.begin = begin;
+		event.end = end;
+		event.allDay = allDay;
+		
+		return event;
 	}
 	
 	public static ArrayList<EventProxy> queryEventsBetweenDates(TiContext context, long date1, long date2, CalendarProxy calendar) {
@@ -92,6 +104,16 @@ public class EventProxy extends TiProxy {
 	public ReminderProxy[] getReminders() {
 		ArrayList<ReminderProxy> reminders = ReminderProxy.getRemindersForEvent(getTiContext(), this);
 		return reminders.toArray(new ReminderProxy[reminders.size()]);
+	}
+	
+	public ReminderProxy createReminder(TiDict data) {
+		int minutes = TiConvert.toInt(data, "minutes");
+		int method = ReminderProxy.METHOD_DEFAULT;
+		if (data.containsKey("method")) {
+			method = TiConvert.toInt(data, "method");
+		}
+		
+		return ReminderProxy.createReminder(getTiContext(), this, minutes, method);
 	}
 	
 	public String getId() {
