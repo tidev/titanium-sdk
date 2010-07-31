@@ -20,10 +20,16 @@ public class CalendarModule extends TiModule {
 			constants.put("STATUS_TENTATIVE", EventProxy.STATUS_TENTATIVE);
 			constants.put("STATUS_CONFIRMED", EventProxy.STATUS_CONFIRMED);
 			constants.put("STATUS_CANCELED", EventProxy.STATUS_CANCELED);
+			
 			constants.put("VISIBILITY_DEFAULT", EventProxy.VISIBILITY_DEFAULT);
 			constants.put("VISIBILITY_CONFIDENTIAL", EventProxy.VISIBILITY_CONFIDENTIAL);
 			constants.put("VISIBILITY_PRIVATE", EventProxy.VISIBILITY_PRIVATE);
 			constants.put("VISIBILITY_PUBLIC", EventProxy.VISIBILITY_PUBLIC);
+			
+			constants.put("METHOD_ALERT", ReminderProxy.METHOD_ALERT);
+			constants.put("METHOD_DEFAULT", ReminderProxy.METHOD_DEFAULT);
+			constants.put("METHOD_EMAIL", ReminderProxy.METHOD_EMAIL);
+			constants.put("METHOD_SMS", ReminderProxy.METHOD_SMS);
 		}
 		return constants;
 	}
