@@ -140,11 +140,11 @@ b1.addEventListener('click', function() {
 	address.State = f5.value;
 	address.ZIP = f6.value;
 
-	var contact = Titanium.Contacts.createPerson();
-	contact.firstName = f1.value;
-	contact.lastName = f2.value;
-	contact.address = {"home":[address]};
-	Titanium.Contacts.save();
+	var contact = Titanium.Contacts.createPerson({
+		firstName:f1.value,
+		lastName:f2.value,
+		address:{"home":[address]}
+	});
 });
 
 win.add(v1);
