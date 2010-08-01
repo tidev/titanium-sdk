@@ -8,7 +8,6 @@
 package ti.modules.titanium.ui;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiDict;
@@ -16,13 +15,16 @@ import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.AsyncResult;
 import org.appcelerator.titanium.view.TiUIView;
 
+import ti.modules.titanium.ui.widget.TiUIDatePicker;
 import ti.modules.titanium.ui.widget.TiUIPicker;
+import ti.modules.titanium.ui.widget.TiUITimePicker;
 import android.app.Activity;
 import android.os.Message;
 import android.util.Log;
 
 public class PickerProxy extends TiViewProxy 
 {
+	private int type = UIModule.PICKER_TYPE_PLAIN;
 	private ArrayList<PickerColumnProxy>columns = new ArrayList<PickerColumnProxy>();
 	private ArrayList<Integer> preselectedRows = new ArrayList<Integer>();
 	private static final String LCAT = "PickerProxy";
@@ -35,12 +37,36 @@ public class PickerProxy extends TiViewProxy
 	public PickerProxy(TiContext tiContext, Object[] args)
 	{
 		super(tiContext, args);
+		if (hasDynamicValue("type")) {
+			type = getDynamicProperties().getInt("type");
+		}
 	}
 	
 	@Override
 	public TiUIView createView(Activity activity) 
 	{
-		TiUIPicker picker = new TiUIPicker(this, activity);
+		if (type == UIModule.PICKER_TYPE_COUNT_DOWN_TIMER ) {
+			Log.w(LCAT, "Countdown timer not supported in Titanium for Android");
+			return null;
+		} else if (type == UIModule.PICKER_TYPE_DATE_AND_TIME) {
+			Log.w(LCAT, "Countdown timer not supported in Titanium for Android");
+			return null;
+		} else if (type == UIModule.PICKER_TYPE_PLAIN ) {
+			return createPlainPicker(activity);
+		} else if (type == UIModule.PICKER_TYPE_DATE ) {
+			return createDatePicker(activity);
+		} else if (type == UIModule.PICKER_TYPE_TIME) {
+			return createTimePicker(activity);
+		} else {
+			Log.w(LCAT, "Unknown picker type");
+			return null;
+		}
+		
+	}
+	
+	private TiUIView createPlainPicker(Activity activity)
+	{
+		TiUIPicker picker = new TiUIPicker(this);
 		if (columns != null && columns.size() > 0) {
 			picker.addColumns( getColumnsAsListOfLists() );
 			if (preselectedRows != null && preselectedRows.size() > 0) {
@@ -50,6 +76,36 @@ public class PickerProxy extends TiViewProxy
 		
 		return picker;
 	}
+	
+	private TiUIView createDatePicker(Activity activity)
+	{
+		return new TiUIDatePicker(this);
+	}
+	
+	private TiUIView createTimePicker(Activity activity)
+	{
+		return new TiUITimePicker(this);
+	}
+	
+	public int getType()
+	{
+		return type;
+	}
+	
+	public void setType(int type)
+	{
+		if (peekView() != null) {
+			Log.e(LCAT, "Attempt to change picker type after view has been created.");
+			throw new IllegalStateException("You cannot change the picker type after it has been rendered.");
+		}
+		this.type = type;
+	}
+	
+	private boolean isPlainPicker()
+	{
+		return (type == UIModule.PICKER_TYPE_PLAIN);
+	}
+	
 	
 	private ArrayList<ArrayList<PickerRowProxy>> getColumnsAsListOfLists()
 	{
@@ -70,7 +126,11 @@ public class PickerProxy extends TiViewProxy
 	}
 	
 	public void add(Object child) 
-	{ 
+	{
+		if (!isPlainPicker()) {
+			Log.w(LCAT, "Attempt to add to date/time or countdown picker ignored.");
+			return;
+		}
 		boolean firstColumnExists = (columns != null && columns.size() > 0);
 		boolean columnAdded = false;
 		if (child instanceof PickerRowProxy) {
@@ -133,6 +193,10 @@ public class PickerProxy extends TiViewProxy
 	
 	public void setSelectedRow(int column, int row, boolean animated)
 	{
+		if (!isPlainPicker()) {
+			Log.w(LCAT, "Selecting row in date/time or countdown picker is not supported.");
+			return;
+		}
 		TiUIView view = peekView();
 		if (view == null) {
 			// assign it to be selected after view creation
@@ -167,6 +231,10 @@ public class PickerProxy extends TiViewProxy
 	
 	public PickerRowProxy getSelectedRow(int columnIndex)
 	{
+		if (!isPlainPicker()) {
+			Log.w(LCAT, "Cannot get selected row in date/time or countdown picker.");
+			return null;
+		}
 		if (peekView() == null) {
 			return null;
 		}
@@ -176,6 +244,10 @@ public class PickerProxy extends TiViewProxy
 	
 	public PickerColumnProxy[] getColumns()
 	{
+		if (!isPlainPicker()) {
+			Log.w(LCAT, "Cannot get columns from date/time or countdown picker.");
+			return null;
+		}
 		if (columns == null) {
 			return new PickerColumnProxy[]{};
 		} else {
@@ -185,6 +257,10 @@ public class PickerProxy extends TiViewProxy
 	
 	public void setColumns(Object[] rawcolumns)
 	{
+		if (!isPlainPicker()) {
+			Log.w(LCAT, "Cannot set columns in date/time or countdown picker.");
+			return;
+		}
 		if (rawcolumns == null || rawcolumns.length == 0) {
 			this.columns = new ArrayList<PickerColumnProxy>();
 		} else {
