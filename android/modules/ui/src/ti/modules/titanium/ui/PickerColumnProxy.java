@@ -3,13 +3,13 @@ package ti.modules.titanium.ui;
 import java.util.ArrayList;
 
 import org.appcelerator.titanium.TiContext;
+import org.appcelerator.titanium.TiDict;
 import org.appcelerator.titanium.TiProxy;
 
 import android.util.Log;
 
 public class PickerColumnProxy extends TiProxy
 {
-	private PickerColumnChangeListener changeListener;
 	private ArrayList<PickerRowProxy> rows = new ArrayList<PickerRowProxy>();
 	private static final String LCAT = "PickerColumnProxy";
 	
@@ -18,28 +18,32 @@ public class PickerColumnProxy extends TiProxy
 		super(tiContext);
 	}
 	
-	public void setPickerColumnChangeListener(PickerColumnChangeListener listener)
+	public PickerColumnProxy(TiContext tiContext, Object[] args)
 	{
-		this.changeListener = listener;
+		super(tiContext);
+		if (args != null && args.length > 0) {
+			setProperties((TiDict) args[0]);
+		}
 	}
 	
-	interface PickerColumnChangeListener
+	// Put in warnings for add() and remove().  Docs say we support them,
+	// but this is not really a view.
+	public void add(Object o) 
 	{
-		void rowAdded(PickerColumnProxy column, PickerRowProxy row);
-		void rowsAdded(PickerColumnProxy column, ArrayList<PickerRowProxy> rows);
+		Log.w(LCAT, "add() not supported. Use addRow() to add a row.");
+	}
+	public void remove(Object o)
+	{
+		Log.w(LCAT, "remove() not supported.  Use removeRow() to remove a row.");
 	}
 	
-	protected void addRow(PickerRowProxy row)
+	public void addRow(PickerRowProxy row)
 	{
 		addRow(row, true);
 	}
-	
 	protected void addRow(PickerRowProxy row, boolean notifyListeners) 
 	{
 		rows.add(row);
-		if (notifyListeners && changeListener != null) {
-			changeListener.rowAdded(this, row);
-		}
 	}
 	
 	protected void addRows(Object[] rows) 
@@ -63,13 +67,34 @@ public class PickerColumnProxy extends TiProxy
 	{
 		if (newRows != null && newRows.size() > 0) {
 			rows.addAll(newRows);
-			if (changeListener != null) {
-				changeListener.rowsAdded(this, newRows);
-			}
 		}
 	}
 	
-	protected ArrayList<PickerRowProxy> getRows()
+	public void removeRow(PickerRowProxy row) 
+	{
+		if (rows != null) {
+			rows.remove(row);
+		}
+	}
+	
+	public PickerRowProxy[] getRows()
+	{
+		if (rows == null || rows.size() == 0) {
+			return null;
+		}
+		return rows.toArray(new PickerRowProxy[]{});
+	}
+	
+	public int getRowCount()
+	{
+		if (rows == null) {
+			return 0;
+		} else {
+			return rows.size();
+		}
+	}
+	
+	protected ArrayList<PickerRowProxy> getRowArrayList()
 	{
 		return rows;
 	}
