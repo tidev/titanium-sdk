@@ -30,6 +30,12 @@ public class UIModule extends TiModule
 	public static final int FACE_UP = 5;
 	public static final int FACE_DOWN = 6;
 	public static final int UNKNOWN = 7;
+	
+	public static final int PICKER_TYPE_PLAIN = -1;
+	public static final int PICKER_TYPE_TIME = 0;
+	public static final int PICKER_TYPE_DATE = 1;
+	public static final int PICKER_TYPE_DATE_AND_TIME = 2;
+	public static final int PICKER_TYPE_COUNT_DOWN_TIMER = 3;
 
 	public UIModule(TiContext tiContext)
 	{
@@ -103,6 +109,13 @@ public class UIModule extends TiModule
 			constants.put("TEXT_AUTOCAPITALIZATION_SENTENCES", 1);
 			constants.put("TEXT_AUTOCAPITALIZATION_WORDS", 2);
 			constants.put("TEXT_AUTOCAPITALIZATION_ALL", 3);
+			
+			constants.put("PICKER_TYPE_PLAIN", PICKER_TYPE_PLAIN);
+			constants.put("PICKER_TYPE_TIME", PICKER_TYPE_TIME);
+			constants.put("PICKER_TYPE_DATE", PICKER_TYPE_DATE);
+			constants.put("PICKER_TYPE_DATE_AND_TIME", PICKER_TYPE_DATE_AND_TIME);
+			constants.put("PICKER_TYPE_COUNT_DOWN_TIMER", PICKER_TYPE_COUNT_DOWN_TIMER);
+
 			
 		}
 

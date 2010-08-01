@@ -14,7 +14,6 @@ import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.ui.PickerRowProxy;
-import android.app.Activity;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -31,7 +30,7 @@ public class TiUIPicker extends TiUIView
 	// don't support it yet (and may never).
 	private ArrayList<ArrayList<PickerRowProxy>> columns;
 
-	public TiUIPicker(TiViewProxy proxy, Activity activity) 
+	public TiUIPicker(TiViewProxy proxy) 
 	{
 		super(proxy);
 		Spinner spinner = new Spinner(proxy.getContext());

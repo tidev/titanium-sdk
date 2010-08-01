@@ -16,27 +16,29 @@ import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.view.TiUIView;
 
-import android.widget.DatePicker;
-import android.widget.DatePicker.OnDateChangedListener;
+import android.widget.TimePicker;
+import android.widget.TimePicker.OnTimeChangedListener;
 
-public class TiUIDatePicker extends TiUIView
-	implements OnDateChangedListener
+public class TiUITimePicker extends TiUIView
+	implements OnTimeChangedListener
 {
-	private boolean suppressChangeEvent = false;
-	private static final String LCAT = "TiUIDatePicker";
+	private static final String LCAT = "TiUITimePicker";
 	private static final boolean DBG = TiConfig.LOGD;
+	private boolean suppressChangeEvent = false;
 	
 	protected Date minDate, maxDate;
 	protected int minuteInterval;
 	
-	public TiUIDatePicker(TiViewProxy proxy)
+	public TiUITimePicker(TiViewProxy proxy)
 	{
 		super(proxy);
 		if (DBG) {
-			Log.d(LCAT, "Creating a date picker");
+			Log.d(LCAT, "Creating a time picker");
 		}
 		
-		DatePicker picker = new DatePicker(proxy.getContext());
+		TimePicker picker = new TimePicker(proxy.getContext());
+		picker.setIs24HourView(false);
+		picker.setOnTimeChangedListener(this);
 		setNativeView(picker);
 	}
 	
@@ -45,10 +47,9 @@ public class TiUIDatePicker extends TiUIView
 		super.processProperties(d);
 		
 		boolean valueExistsInProxy = false;
-		
 		Calendar calendar = Calendar.getInstance();
 	    
-        DatePicker picker = (DatePicker) getNativeView();
+        TimePicker picker = (TimePicker) getNativeView();
         if (d.containsKey("value")) {
             calendar.setTime((Date)d.get("value"));
             valueExistsInProxy = true;
@@ -65,10 +66,15 @@ public class TiUIDatePicker extends TiUIView
                 this.minuteInterval = mi; 
             }   
         }   
-        suppressChangeEvent = true;
-        picker.init(calendar.get(Calendar.YEAR),
-            calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH), this);
-        suppressChangeEvent = false;
+        
+        // Undocumented but maybe useful for Android
+        boolean is24HourFormat = false;
+        if (d.containsKey("24HourFormat")) {
+        	is24HourFormat = d.getBoolean("24HourFormat");
+        }
+    	picker.setIs24HourView(is24HourFormat);
+        
+        setValue(calendar.getTimeInMillis() , true);
         
         if (!valueExistsInProxy) {
         	proxy.internalSetDynamicValue("value", calendar.getTime(), false);
@@ -96,18 +102,6 @@ public class TiUIDatePicker extends TiUIView
 		super.propertyChanged(key, oldValue, newValue, proxy);
 	}
 	
-	public void onDateChanged(DatePicker picker, int year, int monthOfYear, int dayOfMonth)
-	{
-		Calendar calendar = Calendar.getInstance();
-		calendar.set(year, monthOfYear, dayOfMonth);
-		if (!suppressChangeEvent) {
-			TiDict data = new TiDict();
-			data.put("value", calendar.getTime());
-			proxy.fireEvent("change", data);
-		}
-		proxy.internalSetDynamicValue("value", calendar.getTime(), false);
-	}
-	
 	public void setValue(long value)
 	{
 		setValue(value, false);
@@ -115,12 +109,30 @@ public class TiUIDatePicker extends TiUIView
 	
 	public void setValue(long value, boolean suppressEvent)
 	{
-		DatePicker picker = (DatePicker) getNativeView();
+		TimePicker picker = (TimePicker) getNativeView();
 		Calendar calendar = Calendar.getInstance();
 		calendar.setTimeInMillis(value);
+		
+		// This causes two events to fire.
+		suppressChangeEvent = true;
+		picker.setCurrentHour(calendar.get(Calendar.HOUR_OF_DAY));
 		suppressChangeEvent = suppressEvent;
-		picker.updateDate(calendar.get(Calendar.YEAR), calendar
-				.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH));
+		picker.setCurrentMinute(calendar.get(Calendar.MINUTE));
 		suppressChangeEvent = false;
+	}
+
+	@Override
+	public void onTimeChanged(TimePicker view, int hourOfDay, int minute)
+	{
+		Calendar calendar = Calendar.getInstance();
+		calendar.set(Calendar.HOUR_OF_DAY, hourOfDay);
+		calendar.set(Calendar.MINUTE, minute);
+		if (!suppressChangeEvent) {
+			TiDict data = new TiDict();
+			data.put("value", calendar.getTime());
+			proxy.fireEvent("change", data);		
+		}
+		// Make sure .value is readable by user
+		proxy.internalSetDynamicValue("value", calendar.getTime(), false);
 	}
 }
