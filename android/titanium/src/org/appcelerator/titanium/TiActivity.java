@@ -16,6 +16,7 @@ import org.appcelerator.titanium.util.TiActivityResultHandler;
 import org.appcelerator.titanium.util.TiActivitySupport;
 import org.appcelerator.titanium.util.TiActivitySupportHelper;
 import org.appcelerator.titanium.util.TiConfig;
+import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.ITiWindowHandler;
 import org.appcelerator.titanium.view.TiCompositeLayout;
 
@@ -271,6 +272,8 @@ public class TiActivity extends Activity
 	@Override
 	protected void onStart() {
 		super.onStart();
+		updateTitle();
+
 		for (WeakReference<TiContext> contextRef : contexts) {
 			if (contextRef.get() != null) {
 				contextRef.get().dispatchOnStart();
@@ -340,5 +343,31 @@ public class TiActivity extends Activity
 
 	public void setWindowProxy(TiWindowProxy proxy) {
 		this.proxy = proxy;
+		updateTitle();
+	}
+	
+	protected void updateTitle() {
+		if (proxy != null) {
+			if (proxy.hasDynamicValue("title")) {
+				String oldTitle = (String) getTitle();
+				String newTitle = TiConvert.toString(proxy.getDynamicValue("title"));
+				if (oldTitle == null) {
+					oldTitle = "";
+				}
+				if (newTitle == null) {
+					newTitle = "";
+				}
+				if (!newTitle.equals(oldTitle)) {
+					final String fnewTitle = newTitle;
+					runOnUiThread(new Runnable(){
+
+						@Override
+						public void run() {
+							setTitle(fnewTitle);							
+						}
+					});
+				}
+			}
+		}		
 	}
 }
