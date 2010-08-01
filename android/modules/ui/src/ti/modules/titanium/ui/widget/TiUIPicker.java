@@ -8,16 +8,21 @@ package ti.modules.titanium.ui.widget;
 
 import java.util.ArrayList;
 
+import org.appcelerator.titanium.TiDict;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.ui.PickerRowProxy;
 import android.app.Activity;
+import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
+import android.widget.AdapterView.OnItemSelectedListener;
 
 public class TiUIPicker extends TiUIView 
+		implements OnItemSelectedListener
 {
 	private static final String LCAT = "TiUIPicker";
 	
@@ -29,8 +34,49 @@ public class TiUIPicker extends TiUIView
 	public TiUIPicker(TiViewProxy proxy, Activity activity) 
 	{
 		super(proxy);
-		setNativeView(new Spinner(proxy.getContext()));
+		Spinner spinner = new Spinner(proxy.getContext());
+		spinner.setOnItemSelectedListener(this) ;
+		setNativeView(spinner);
 		refreshNativeView();
+	}
+	
+	public void selectRow(int columnIndex, int rowIndex, boolean animated)
+	{
+		// At the moment we only support one column.
+		if (columnIndex != 0) {
+			Log.w(LCAT, "Only one column is supported. Ignoring request to set selected row of column " + columnIndex);
+		}
+		
+		((Spinner)getNativeView()).setSelection(rowIndex, animated);
+	}
+	
+	public void selectRows(ArrayList<Integer> selectionIndexes)
+	{
+		// Only support one column for now, so only pay attention to first element.
+		if (selectionIndexes == null || selectionIndexes.size() == 0) {
+			return;
+		}
+		Integer row = selectionIndexes.get(0);
+		if (row == null) {
+			return;
+		}
+		if (columns == null || columns.size() == 0 || columns.get(0).size() < (row.intValue() + 1)) {
+			return;
+		}
+		selectRow(0, row.intValue(), true);
+	}
+	
+	public PickerRowProxy getSelectedRow(int columnIndex)
+	{
+		// we only support one column, so ignore anything over 0.
+		if (columnIndex > 0) {
+			Log.w(LCAT, "Picker supports only one column.  Ignoring request for column " + columnIndex);
+			return null;
+		}
+		
+		int index = ((Spinner)getNativeView()).getSelectedItemPosition();
+		return columns.get(0).get(index);
+			
 	}
 	
 	public void addColumn(ArrayList<PickerRowProxy> column)
@@ -48,6 +94,7 @@ public class TiUIPicker extends TiUIView
 		}
 		columns.add(column);
 		if (refreshView) {
+			// Caller responsible for making sure this occurs on ui thread.
 			refreshNativeView();
 		}
 	}
@@ -66,7 +113,14 @@ public class TiUIPicker extends TiUIView
 			addColumn(column, false);
 		}
 		
+		// Caller responsible for making sure this occurs on ui thread.
 		refreshNativeView();
+	}
+	
+	public void replaceColumns(ArrayList<ArrayList<PickerRowProxy>> newColumns)
+	{
+		columns = null;
+		addColumns(newColumns);
 	}
 	
 	private void refreshNativeView() 
@@ -92,4 +146,23 @@ public class TiUIPicker extends TiUIView
 		spinner.setAdapter(adapter);
 	}
 
+	@Override
+	public void onItemSelected(AdapterView<?> parent, View view, int position,
+			long itemId)
+	{
+		TiDict d = new TiDict();
+		d.put("rowIndex", position);
+		d.put("columnIndex", 0);
+		d.put("row", columns.get(0).get(position));
+		d.put("column", columns.get(0));
+		d.put("selectedValue", columns.get(0).get(position).toString());
+		proxy.fireEvent("change", d);
+	}
+
+	@Override
+	public void onNothingSelected(AdapterView<?> arg0)
+	{
+		
+	}
+	
 }
