@@ -38,17 +38,33 @@ public class EventProxy extends TiProxy {
 	public EventProxy(TiContext context) {
 		super(context);
 	}
-
+	
+	public static String getEventsUri() {
+		return CalendarProxy.getBaseCalendarUri() + "/events";
+	}
+	
+	public static String getInstancesWhenUri() {
+		return CalendarProxy.getBaseCalendarUri() + "/instances/when";
+	}
+	
+	public static ArrayList<EventProxy> queryEvents(TiContext context, String query, String[] queryArgs) {
+		return queryEvents(context, Uri.parse(getEventsUri()), query, queryArgs, "dtstart ASC");
+	}
+	
 	public static ArrayList<EventProxy> queryEventsBetweenDates(TiContext context, long date1, long date2, String query, String[] queryArgs) {
-		ArrayList<EventProxy> events = new ArrayList<EventProxy>();
-		ContentResolver contentResolver = context.getActivity().getContentResolver();
-		Uri.Builder builder = Uri.parse(CalendarProxy.getBaseCalendarUri()+"/instances/when").buildUpon();
+		Uri.Builder builder = Uri.parse(getInstancesWhenUri()).buildUpon();
 		ContentUris.appendId(builder, date1);
 		ContentUris.appendId(builder, date2);
 		 
-		Cursor eventCursor = contentResolver.query(builder.build(),
-			new String[] { "_id", "title", "description", "eventLocation", "begin", "end", "allDay", "hasAlarm", "eventStatus", "visibility"},
-			query, queryArgs, "startDay ASC, startMinute ASC");
+		return queryEvents(context, builder.build(), query, queryArgs, "startDay ASC, startMinute ASC");
+	}
+	
+	public static ArrayList<EventProxy> queryEvents(TiContext context, Uri uri, String query, String[] queryArgs, String orderBy) {
+		ArrayList<EventProxy> events = new ArrayList<EventProxy>();
+		ContentResolver contentResolver = context.getActivity().getContentResolver();
+		Cursor eventCursor = contentResolver.query(uri,
+			new String[] { "_id", "title", "description", "eventLocation", "dtstart", "dtend", "allDay", "hasAlarm", "eventStatus", "visibility"},
+			query, queryArgs, orderBy);
 		
 		while (eventCursor.moveToNext()) {
 			EventProxy event = new EventProxy(context);
