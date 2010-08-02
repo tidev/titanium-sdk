@@ -426,7 +426,7 @@ public class KrollObject extends ScriptableObject
 		return sb.toString();
 	}
 
-	protected Object loadModule(String name)
+	public Object loadModule(String name)
 	{
 		// first see if our module exists and if so, return it since
 		// modules should be singletons
