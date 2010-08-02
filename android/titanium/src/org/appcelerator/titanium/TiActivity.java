@@ -48,6 +48,7 @@ public class TiActivity extends Activity
 	protected Handler handler;
 	protected ArrayList<WeakReference<TiContext>> contexts;
 	protected SoftReference<ITiMenuDispatcherListener> softMenuDispatcher;
+	protected boolean mustFireInitialFocus;
 
 	public TiActivity() {
 		super();
@@ -273,6 +274,12 @@ public class TiActivity extends Activity
 	protected void onStart() {
 		super.onStart();
 		updateTitle();
+		
+		if (proxy != null) {
+			proxy.fireEvent("focus", null);
+		} else {
+			mustFireInitialFocus = true;
+		}
 
 		for (WeakReference<TiContext> contextRef : contexts) {
 			if (contextRef.get() != null) {
@@ -284,6 +291,11 @@ public class TiActivity extends Activity
 	@Override
 	protected void onStop() {
 		super.onStop();
+
+		if (proxy != null) {
+			proxy.fireEvent("blur", null);
+		}
+
 		for (WeakReference<TiContext> contextRef : contexts) {
 			if (contextRef.get() != null) {
 				contextRef.get().dispatchOnStop();
@@ -344,6 +356,13 @@ public class TiActivity extends Activity
 	public void setWindowProxy(TiWindowProxy proxy) {
 		this.proxy = proxy;
 		updateTitle();
+	}
+
+	public void fireInitialFocus() {
+		if (mustFireInitialFocus && proxy != null) {
+			mustFireInitialFocus = false;
+			proxy.fireEvent("focus", null);
+		}
 	}
 	
 	protected void updateTitle() {
