@@ -16,6 +16,7 @@ import org.appcelerator.titanium.util.TiActivityResultHandler;
 import org.appcelerator.titanium.util.TiActivitySupport;
 import org.appcelerator.titanium.util.TiActivitySupportHelper;
 import org.appcelerator.titanium.util.TiConfig;
+import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.ITiWindowHandler;
 import org.appcelerator.titanium.view.TiCompositeLayout;
 
@@ -47,6 +48,7 @@ public class TiActivity extends Activity
 	protected Handler handler;
 	protected ArrayList<WeakReference<TiContext>> contexts;
 	protected SoftReference<ITiMenuDispatcherListener> softMenuDispatcher;
+	protected boolean mustFireInitialFocus;
 
 	public TiActivity() {
 		super();
@@ -271,6 +273,14 @@ public class TiActivity extends Activity
 	@Override
 	protected void onStart() {
 		super.onStart();
+		updateTitle();
+		
+		if (proxy != null) {
+			proxy.fireEvent("focus", null);
+		} else {
+			mustFireInitialFocus = true;
+		}
+
 		for (WeakReference<TiContext> contextRef : contexts) {
 			if (contextRef.get() != null) {
 				contextRef.get().dispatchOnStart();
@@ -281,6 +291,11 @@ public class TiActivity extends Activity
 	@Override
 	protected void onStop() {
 		super.onStop();
+
+		if (proxy != null) {
+			proxy.fireEvent("blur", null);
+		}
+
 		for (WeakReference<TiContext> contextRef : contexts) {
 			if (contextRef.get() != null) {
 				contextRef.get().dispatchOnStop();
@@ -340,5 +355,38 @@ public class TiActivity extends Activity
 
 	public void setWindowProxy(TiWindowProxy proxy) {
 		this.proxy = proxy;
+		updateTitle();
+	}
+
+	public void fireInitialFocus() {
+		if (mustFireInitialFocus && proxy != null) {
+			mustFireInitialFocus = false;
+			proxy.fireEvent("focus", null);
+		}
+	}
+	
+	protected void updateTitle() {
+		if (proxy != null) {
+			if (proxy.hasDynamicValue("title")) {
+				String oldTitle = (String) getTitle();
+				String newTitle = TiConvert.toString(proxy.getDynamicValue("title"));
+				if (oldTitle == null) {
+					oldTitle = "";
+				}
+				if (newTitle == null) {
+					newTitle = "";
+				}
+				if (!newTitle.equals(oldTitle)) {
+					final String fnewTitle = newTitle;
+					runOnUiThread(new Runnable(){
+
+						@Override
+						public void run() {
+							setTitle(fnewTitle);							
+						}
+					});
+				}
+			}
+		}		
 	}
 }
