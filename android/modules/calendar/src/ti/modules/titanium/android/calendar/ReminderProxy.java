@@ -1,7 +1,6 @@
 package ti.modules.titanium.android.calendar;
 
 import java.util.ArrayList;
-import java.util.Date;
 
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiProxy;
@@ -26,10 +25,14 @@ public class ReminderProxy extends TiProxy {
 		super(context);
 	}
 	
+	public static String getRemindersUri() {
+		return CalendarProxy.getBaseCalendarUri() + "/reminders";
+	}
+	
 	public static ArrayList<ReminderProxy> getRemindersForEvent(TiContext context, EventProxy event) {
 		ArrayList<ReminderProxy> reminders = new ArrayList<ReminderProxy>();
 		ContentResolver contentResolver = context.getActivity().getContentResolver();
-		Uri uri = Uri.parse(CalendarProxy.getBaseCalendarUri()+"/reminders");
+		Uri uri = Uri.parse(getRemindersUri());
 		 
 		Cursor reminderCursor = contentResolver.query(uri,
 			new String[] { "_id", "minutes", "method" },
@@ -54,8 +57,8 @@ public class ReminderProxy extends TiProxy {
 		eventValues.put("method", method);
 		eventValues.put("event_id", event.getId());
 		
-		Uri reminderUri = contentResolver.insert(Uri.parse(CalendarProxy.getBaseCalendarUri()+"/reminders"), eventValues);
-		Log.d("TiEvents", "created reminder with uri: " + reminderUri);
+		Uri reminderUri = contentResolver.insert(Uri.parse(getRemindersUri()), eventValues);
+		Log.d("TiEvents", "created reminder with uri: " + reminderUri + ", minutes: " + minutes + ", method: " + method + ", event_id: " + event.getId());
 		
 		String eventId = reminderUri.getLastPathSegment();
 		ReminderProxy reminder = new ReminderProxy(context);

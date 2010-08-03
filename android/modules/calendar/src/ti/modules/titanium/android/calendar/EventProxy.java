@@ -1,7 +1,9 @@
 package ti.modules.titanium.android.calendar;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.TimeZone;
 
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiDict;
@@ -38,17 +40,33 @@ public class EventProxy extends TiProxy {
 	public EventProxy(TiContext context) {
 		super(context);
 	}
-
+	
+	public static String getEventsUri() {
+		return CalendarProxy.getBaseCalendarUri() + "/events";
+	}
+	
+	public static String getInstancesWhenUri() {
+		return CalendarProxy.getBaseCalendarUri() + "/instances/when";
+	}
+	
+	public static ArrayList<EventProxy> queryEvents(TiContext context, String query, String[] queryArgs) {
+		return queryEvents(context, Uri.parse(getEventsUri()), query, queryArgs, "dtstart ASC");
+	}
+	
 	public static ArrayList<EventProxy> queryEventsBetweenDates(TiContext context, long date1, long date2, String query, String[] queryArgs) {
-		ArrayList<EventProxy> events = new ArrayList<EventProxy>();
-		ContentResolver contentResolver = context.getActivity().getContentResolver();
-		Uri.Builder builder = Uri.parse(CalendarProxy.getBaseCalendarUri()+"/instances/when").buildUpon();
+		Uri.Builder builder = Uri.parse(getInstancesWhenUri()).buildUpon();
 		ContentUris.appendId(builder, date1);
 		ContentUris.appendId(builder, date2);
 		 
-		Cursor eventCursor = contentResolver.query(builder.build(),
-			new String[] { "_id", "title", "description", "eventLocation", "begin", "end", "allDay", "hasAlarm", "eventStatus", "visibility"},
-			query, queryArgs, "startDay ASC, startMinute ASC");
+		return queryEvents(context, builder.build(), query, queryArgs, "startDay ASC, startMinute ASC");
+	}
+	
+	public static ArrayList<EventProxy> queryEvents(TiContext context, Uri uri, String query, String[] queryArgs, String orderBy) {
+		ArrayList<EventProxy> events = new ArrayList<EventProxy>();
+		ContentResolver contentResolver = context.getActivity().getContentResolver();
+		Cursor eventCursor = contentResolver.query(uri,
+			new String[] { "_id", "title", "description", "eventLocation", "dtstart", "dtend", "allDay", "hasAlarm", "eventStatus", "visibility"},
+			query, queryArgs, orderBy);
 		
 		while (eventCursor.moveToNext()) {
 			EventProxy event = new EventProxy(context);
@@ -114,6 +132,22 @@ public class EventProxy extends TiProxy {
 		}
 		
 		return ReminderProxy.createReminder(getTiContext(), this, minutes, method);
+	}
+	
+	public AlertProxy[] getAlerts() {
+		ArrayList<AlertProxy> alerts = AlertProxy.getAlertsForEvent(getTiContext(), this);
+		return alerts.toArray(new AlertProxy[alerts.size()]);
+	}
+	
+	public AlertProxy createAlert(TiDict data) {
+		int minutes = TiConvert.toInt(data, "minutes");
+		
+		Calendar alarmTime = Calendar.getInstance();
+		alarmTime.setTime(begin);
+		alarmTime.add(Calendar.MINUTE, minutes);
+		//alarmTime.setTimeZone(TimeZone.getTimeZone("UTC"));
+		
+		return AlertProxy.createAlert(getTiContext(), this, begin, end, alarmTime.getTime(), minutes);
 	}
 	
 	public String getId() {

@@ -104,6 +104,13 @@ public class CalendarProxy extends TiProxy {
 		return events.toArray(new EventProxy[events.size()]);
 	}
 	
+	public EventProxy getEventById(int id) {
+		ArrayList<EventProxy> events = EventProxy.queryEvents(getTiContext(), "Events._id = ?", new String[] { ""+id });
+		if (events.size() > 0) {
+			return events.get(0);
+		} else return null;
+	}
+	
 	public EventProxy createEvent(TiDict data) {
 		String title = TiConvert.toString(data, "title");
 		String description = null;
