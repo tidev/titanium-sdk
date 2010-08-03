@@ -8,19 +8,29 @@
 package ti.modules.titanium.ui;
 
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiDict;
+import org.appcelerator.titanium.kroll.KrollCallback;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.AsyncResult;
+import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.ui.widget.TiUIDatePicker;
 import ti.modules.titanium.ui.widget.TiUIPicker;
 import ti.modules.titanium.ui.widget.TiUITimePicker;
 import android.app.Activity;
+import android.app.DatePickerDialog;
+import android.app.TimePickerDialog;
+import android.content.DialogInterface;
 import android.os.Message;
 import android.util.Log;
+import android.widget.DatePicker;
+import android.widget.TimePicker;
 
 public class PickerProxy extends TiViewProxy 
 {
@@ -355,6 +365,200 @@ public class PickerProxy extends TiViewProxy
 		columns.add(column);
 		if (peekView() != null) {
 			((TiUIPicker)view).addColumn(column.getRowArrayList());
+		}
+	}
+	
+	// This is meant to be a kind of "static" method, in the sense that
+	// it doesn't use any state except for context.  It's a quick hit way
+	// of getting a date dialog up, in other words.
+	public void showDatePickerDialog(Object[] args)
+	{
+		TiDict settings = new TiDict();
+		final AtomicInteger callbackCount = new AtomicInteger(0); // just a flag to be sure dismiss doesn't fire callback if ondateset did already.
+		
+		if (args.length > 0) {
+			settings = (TiDict) args[0];
+		}
+		
+		Calendar calendar = Calendar.getInstance();
+		if (settings.containsKey("value")) {
+			calendar.setTime(TiConvert.toDate(settings, "value"));
+		}
+		
+		final KrollCallback callback;
+		if (settings.containsKey("callback")) {
+			Object typeTest = settings.get("callback");
+			if (typeTest instanceof KrollCallback) {
+				callback = (KrollCallback) typeTest; 
+			} else {
+				callback = null;
+			}
+		} else {
+			callback = null;
+		}
+		
+		DatePickerDialog.OnDateSetListener dateSetListener = null;
+		DialogInterface.OnDismissListener dismissListener = null;
+		
+		if (callback != null) {
+			dateSetListener = new DatePickerDialog.OnDateSetListener()
+			{
+				
+				@Override
+				public void onDateSet(DatePicker picker, int year, int monthOfYear, int dayOfMonth)
+				{
+					if (callback != null) {
+						callbackCount.incrementAndGet();
+						Calendar calendar = Calendar.getInstance();
+						calendar.set(Calendar.YEAR, year);
+						calendar.set(Calendar.MONTH, monthOfYear);
+						calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+						Date value = calendar.getTime();
+						TiDict data = new TiDict();
+						data.put("cancel", false);
+						data.put("value", value);
+						callback.call(new Object[]{ data });
+					}
+					
+				}
+			};
+
+			dismissListener = new DialogInterface.OnDismissListener()
+			{
+				
+				@Override
+				public void onDismiss(DialogInterface dialog)
+				{
+					if (callbackCount.get() == 0 && callback != null) {
+						callbackCount.incrementAndGet();
+						TiDict data = new TiDict();
+						data.put("cancel", true);
+						data.put("value", null);
+						callback.call(new Object[]{ data });
+					}
+				}
+			};
+						
+		}
+		
+		DatePickerDialog dialog = new DatePickerDialog(
+					getTiContext().getActivity(),
+					dateSetListener,
+					calendar.get(Calendar.YEAR),
+					calendar.get(Calendar.MONTH),
+					calendar.get(Calendar.DAY_OF_MONTH));
+			
+		dialog.setCancelable(true);
+		if (dismissListener != null) {
+			dialog.setOnDismissListener(dismissListener);
+		}
+		
+		if (settings.containsKey("title")) {
+			dialog.setTitle(TiConvert.toString(settings, "title"));
+		}
+		
+		dialog.show();
+		
+		if (settings.containsKey("okButtonTitle")) {
+			dialog.getButton(DatePickerDialog.BUTTON_POSITIVE).setText(TiConvert.toString(settings, "okButtonTitle"));
+		}
+	}
+	
+	// This is meant to be a kind of "static" method, in the sense that
+	// it doesn't use any state except for context.  It's a quick hit way
+	// of getting a date dialog up, in other words.
+	public void showTimePickerDialog(Object[] args)
+	{
+		TiDict settings = new TiDict();
+		boolean is24HourView = false;
+		final AtomicInteger callbackCount = new AtomicInteger(0); // just a flag to be sure dismiss doesn't fire callback if ondateset did already.
+		
+		if (args.length > 0) {
+			settings = (TiDict) args[0];
+		}
+		
+		if (settings.containsKey("format24")) {
+			is24HourView = TiConvert.toBoolean(settings, "format24");
+		}
+		
+		Calendar calendar = Calendar.getInstance();
+		if (settings.containsKey("value")) {
+			calendar.setTime(TiConvert.toDate(settings, "value"));
+		}
+		
+		final KrollCallback callback;
+		if (settings.containsKey("callback")) {
+			Object typeTest = settings.get("callback");
+			if (typeTest instanceof KrollCallback) {
+				callback = (KrollCallback) typeTest; 
+			} else {
+				callback = null;
+			}
+		} else {
+			callback = null;
+		}
+		
+		TimePickerDialog.OnTimeSetListener timeSetListener = null;
+		DialogInterface.OnDismissListener dismissListener = null;
+		
+		if (callback != null) {
+			timeSetListener = new TimePickerDialog.OnTimeSetListener()
+			{
+				@Override
+				public void onTimeSet(TimePicker field, int hourOfDay, int minute)
+				{
+					if (callback != null) {
+						callbackCount.incrementAndGet();
+						Calendar calendar = Calendar.getInstance();
+						calendar.set(Calendar.HOUR_OF_DAY, hourOfDay);
+						calendar.set(Calendar.MINUTE, minute);
+						Date value = calendar.getTime();
+						TiDict data = new TiDict();
+						data.put("cancel", false);
+						data.put("value", value);
+						callback.call(new Object[]{ data });
+					}
+					
+				}
+			};
+
+			dismissListener = new DialogInterface.OnDismissListener()
+			{
+				@Override
+				public void onDismiss(DialogInterface dialog)
+				{
+					if (callbackCount.get() == 0 && callback != null) {
+						callbackCount.incrementAndGet();
+						TiDict data = new TiDict();
+						data.put("cancel", true);
+						data.put("value", null);
+						callback.call(new Object[]{ data });
+					}
+				}
+			};
+						
+		}
+		
+		TimePickerDialog dialog = new TimePickerDialog(
+					getTiContext().getActivity(),
+					timeSetListener,
+					calendar.get(Calendar.HOUR_OF_DAY),
+					calendar.get(Calendar.MINUTE),
+					is24HourView);
+			
+		dialog.setCancelable(true);
+		if (dismissListener != null) {
+			dialog.setOnDismissListener(dismissListener);
+		}
+		
+		if (settings.containsKey("title")) {
+			dialog.setTitle(TiConvert.toString(settings, "title"));
+		}
+		
+		dialog.show();
+		
+		if (settings.containsKey("okButtonTitle")) {
+			dialog.getButton(TimePickerDialog.BUTTON_POSITIVE).setText(TiConvert.toString(settings, "okButtonTitle"));
 		}
 	}
 
