@@ -14,6 +14,7 @@ import org.appcelerator.titanium.TiProxy;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
+import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiUIView;
 
 import android.widget.TimePicker;
@@ -69,8 +70,8 @@ public class TiUITimePicker extends TiUIView
         
         // Undocumented but maybe useful for Android
         boolean is24HourFormat = false;
-        if (d.containsKey("24HourFormat")) {
-        	is24HourFormat = d.getBoolean("24HourFormat");
+        if (d.containsKey("format24")) {
+        	is24HourFormat = d.getBoolean("format24");
         }
     	picker.setIs24HourView(is24HourFormat);
         
@@ -94,10 +95,11 @@ public class TiUITimePicker extends TiUIView
 	public void propertyChanged(String key, Object oldValue, Object newValue,
 			TiProxy proxy)
 	{
-		if (key.equals("value"))
-		{
+		if (key.equals("value")) {
 			Date date = (Date)newValue;
 			setValue(date.getTime());
+		} else if (key.equals("format24")) {
+			((TimePicker)getNativeView()).setIs24HourView(TiConvert.toBoolean(newValue));
 		}
 		super.propertyChanged(key, oldValue, newValue, proxy);
 	}

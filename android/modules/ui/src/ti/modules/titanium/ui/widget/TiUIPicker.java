@@ -154,7 +154,7 @@ public class TiUIPicker extends TiUIView
 		d.put("columnIndex", 0);
 		d.put("row", columns.get(0).get(position));
 		d.put("column", columns.get(0));
-		d.put("selectedValue", columns.get(0).get(position).toString());
+		d.put("selectedValue", new Object[]{columns.get(0).get(position).toString()});
 		proxy.fireEvent("change", d);
 	}
 

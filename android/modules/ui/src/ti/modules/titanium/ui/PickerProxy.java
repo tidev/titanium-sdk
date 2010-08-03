@@ -67,6 +67,20 @@ public class PickerProxy extends TiViewProxy
 	private TiUIView createPlainPicker(Activity activity)
 	{
 		TiUIPicker picker = new TiUIPicker(this);
+		if ((columns == null || columns.size() == 0) && hasDynamicValue("columns") ) {
+			Object columnsAtCreation = getDynamicValue("columns");
+			if (columnsAtCreation.getClass().isArray()) {
+				Object[] columnsArray = (Object[]) columnsAtCreation;
+				if (this.columns == null) {
+					this.columns = new ArrayList<PickerColumnProxy>();
+				}
+				for (Object column : columnsArray) {
+					if (column instanceof PickerColumnProxy) {
+						this.columns.add((PickerColumnProxy) column);
+					}
+				}
+			}
+		}
 		if (columns != null && columns.size() > 0) {
 			picker.addColumns( getColumnsAsListOfLists() );
 			if (preselectedRows != null && preselectedRows.size() > 0) {

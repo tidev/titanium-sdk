@@ -31,6 +31,13 @@ public class PickerColumnProxy extends TiProxy
 		if (args != null && args.length > 0) {
 			setProperties((TiDict) args[0]);
 		}
+		if (hasDynamicValue("rows")) {
+			Object rowsAtCreation = getDynamicValue("rows");
+			if (rowsAtCreation.getClass().isArray()) {
+				Object[] rowsArray = (Object[]) rowsAtCreation;
+				addRows(rowsArray);
+			}
+		}
 	}
 	
 	// Put in warnings for add() and remove().  Docs say we support them,
