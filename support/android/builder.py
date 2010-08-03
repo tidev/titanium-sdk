@@ -418,6 +418,12 @@ class Builder(object):
 			'Contacts.addContact' : CONTACTS_PERMISSION,
 			'Contacts.getAllContacts' : CONTACTS_PERMISSION,
 			'Contacts.showContactPicker' : CONTACTS_PERMISSION,
+			'Contacts.showContacts' : CONTACTS_PERMISSION,
+			'Contacts.getPersonByID' : CONTACTS_PERMISSION,
+			'Contacts.getPeopleWithName' : CONTACTS_PERMISSION,
+			'Contacts.getAllPeople' : CONTACTS_PERMISSION,
+			'Contacts.getAllGroups' : CONTACTS_PERMISSION,
+			'Contacts.getGroupByID' : CONTACTS_PERMISSION,
 		}
 		
 		VIDEO_ACTIVITY = """<activity

@@ -11,20 +11,21 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.appcelerator.titanium.ContextSpecific;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiDict;
 import org.appcelerator.titanium.TiModule;
 import org.appcelerator.titanium.kroll.KrollCallback;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiActivityResultHandler;
+import org.appcelerator.titanium.util.TiActivitySupport;
 import org.appcelerator.titanium.util.TiConfig;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.database.Cursor;
-import android.net.Uri;
 import android.provider.Contacts;
 
+@ContextSpecific
 public class ContactsModule extends TiModule
 		implements TiActivityResultHandler
 {
@@ -101,7 +102,9 @@ public class ContactsModule extends TiModule
 			}
 		}
 		
-		getTiContext().getRootActivity().launchActivityForResult(intent, requestCode, this);
+		TiActivitySupport activitySupport = (TiActivitySupport) getTiContext().getActivity();
+		
+		activitySupport.launchActivityForResult(intent, requestCode, this);
 	}
 
 	@Override
