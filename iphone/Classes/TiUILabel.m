@@ -62,16 +62,12 @@
 	[label setFrame:initialLabelFrame];
     if (repad &&
         backgroundView != nil && 
-        !CGRectEqualToRect(label.frame, CGRectZero)) 
+        !CGRectIsEmpty(initialLabelFrame))
     {
-        [backgroundView setFrame:CGRectMake(backgroundView.frame.origin.x - padding.origin.x,
-                                            backgroundView.frame.origin.y - padding.origin.y,
-                                            backgroundView.frame.size.width + padding.origin.x + padding.size.width,
-                                            backgroundView.frame.size.height + padding.origin.y + padding.size.height)];
-        [label setFrame:CGRectMake(label.frame.origin.x + padding.origin.x,
-                                   label.frame.origin.y + padding.origin.y,
-                                   label.frame.size.width,
-                                   label.frame.size.height)];
+        [backgroundView setFrame:CGRectMake(initialLabelFrame.origin.x - padding.origin.x,
+                                            initialLabelFrame.origin.y - padding.origin.y,
+                                            initialLabelFrame.size.width + padding.origin.x + padding.size.width,
+                                            initialLabelFrame.size.height + padding.origin.y + padding.size.height)];
         repad = NO;
     }
 	return;
@@ -87,9 +83,7 @@
 
 -(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
 {
-	[label setFrame:bounds];
-	[backgroundView setFrame:bounds];
-	initialLabelFrame = [label frame];
+	initialLabelFrame = bounds;
     
     repad = YES;
     [self padLabel];
@@ -182,12 +176,7 @@
         if (backgroundView == nil) {
             backgroundView = [[UIImageView alloc] initWithImage:bgImage];
             backgroundView.userInteractionEnabled = NO;
-            
-            [label removeFromSuperview];
-            [backgroundView addSubview:label];
-			[backgroundView setFrame:[label frame]];
-            [self addSubview:backgroundView];
-            
+            [self insertSubview:backgroundView atIndex:0];
             repad = YES;
             [self padLabel];
         }
@@ -201,10 +190,7 @@
     }
     else {
         if (backgroundView) {
-			[label setFrame:initialLabelFrame];
-            [label removeFromSuperview];
             [backgroundView removeFromSuperview];
-            [self addSubview:label];
             RELEASE_TO_NIL(backgroundView);
         }
     }
