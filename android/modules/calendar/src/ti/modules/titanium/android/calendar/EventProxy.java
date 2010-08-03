@@ -1,7 +1,9 @@
 package ti.modules.titanium.android.calendar;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.TimeZone;
 
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiDict;
@@ -130,6 +132,22 @@ public class EventProxy extends TiProxy {
 		}
 		
 		return ReminderProxy.createReminder(getTiContext(), this, minutes, method);
+	}
+	
+	public AlertProxy[] getAlerts() {
+		ArrayList<AlertProxy> alerts = AlertProxy.getAlertsForEvent(getTiContext(), this);
+		return alerts.toArray(new AlertProxy[alerts.size()]);
+	}
+	
+	public AlertProxy createAlert(TiDict data) {
+		int minutes = TiConvert.toInt(data, "minutes");
+		
+		Calendar alarmTime = Calendar.getInstance();
+		alarmTime.setTime(begin);
+		alarmTime.add(Calendar.MINUTE, minutes);
+		//alarmTime.setTimeZone(TimeZone.getTimeZone("UTC"));
+		
+		return AlertProxy.createAlert(getTiContext(), this, begin, end, alarmTime.getTime(), minutes);
 	}
 	
 	public String getId() {
