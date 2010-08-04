@@ -315,6 +315,10 @@ public class TiActivity extends Activity
 			Log.e(LCAT, "Layout cleanup.");
 			layout.removeAllViews();
 		}
+		
+		if (proxy != null) {
+			proxy.closeFromActivity();
+		}
 	}
 
 	@Override
