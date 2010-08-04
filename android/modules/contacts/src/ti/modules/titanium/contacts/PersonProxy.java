@@ -66,7 +66,7 @@ public class PersonProxy extends TiProxy
 			all.add(fromCursor(tiContext, cursor));
 		}
 		cursor.close();
-		return all.toArray(new PersonProxy[]{});
+		return all.toArray(new PersonProxy[all.size()]);
 	}
 	
 	public static PersonProxy[] getPeopleWithName(TiContext tiContext, String name)
@@ -82,7 +82,7 @@ public class PersonProxy extends TiProxy
 			all.add(fromCursor(tiContext, cursor));
 		}
 		cursor.close();
-		return all.toArray(new PersonProxy[]{});
+		return all.toArray(new PersonProxy[all.size()]);
 	}
 	
 	public static PersonProxy fromId(TiContext tiContext, long id)
