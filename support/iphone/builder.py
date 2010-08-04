@@ -832,7 +832,6 @@ def main(args):
 				if command == 'simulator':
 
 					if force_rebuild or force_xcode or not os.path.exists(binary):
-						shutil.copy(os.path.join(template_dir,'Classes','defines.h'),os.path.join(iphone_dir,'Classes','defines.h'))
 						execute_xcode("iphonesimulator%s" % iphone_version,["GCC_PREPROCESSOR_DEFINITIONS=__LOG__ID__=%s DEPLOYTYPE=development TI_DEVELOPMENT=1 DEBUG=1 TI_VERSION=%s" % (log_id,sdk_version)],False)
 
 					# first make sure it's not running
