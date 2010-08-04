@@ -12,6 +12,8 @@
 #import "TiRect.h"
 #import "TiLayoutQueue.h"
 
+#import "TiAction.h"
+
 #import <QuartzCore/QuartzCore.h>
 #import <libkern/OSAtomic.h>
 #import <pthread.h>
@@ -586,6 +588,13 @@
 {
 	if (view == nil)
 	{
+		WARN_IF_BACKGROUND_THREAD
+#ifdef DEBUG
+		if(![NSThread isMainThread])
+		{
+			NSLog(@"[WARN] Break here");
+		}
+#endif
 		[self viewWillAttach];
 		
 		// on open we need to create a new view
@@ -1317,5 +1326,35 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject)
 	[self setNeedsReposition];
 }
 
+-(void)makeViewPerformAction:(TiAction *)action
+{
+	[[self view] performSelector:[action selector] withObject:[action arg]];
+}
+
+-(void)makeViewPerformSelector:(SEL)selector withObject:(id)object createIfNeeded:(BOOL)create waitUntilDone:(BOOL)wait
+{
+	BOOL isAttached = [self viewAttached];
+	
+	if(!isAttached && !create)
+	{
+		return;
+	}
+
+	if([NSThread isMainThread])
+	{
+		[[self view] performSelector:selector withObject:object];
+		return;
+	}
+
+	if(isAttached)
+	{
+		[[self view] performSelectorOnMainThread:selector withObject:object waitUntilDone:wait];
+		return;
+	}
+
+	TiAction * ourAction = [[TiAction alloc] initWithTarget:nil selector:selector arg:object];
+	[self performSelectorOnMainThread:@selector(makeViewPerformAction:) withObject:ourAction waitUntilDone:wait];
+	[ourAction release];
+}
 
 @end

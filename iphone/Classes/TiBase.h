@@ -366,9 +366,19 @@ enum {
 #ifdef DEBUG
 #define FRAME_DEBUG(f) \
 NSLog(@"FRAME -- size=%fx%f, origin=%f,%f",f.size.width,f.size.height,f.origin.x,f.origin.y);
+
+#define WARN_IF_BACKGROUND_THREAD	\
+if(![NSThread isMainThread])	\
+{	\
+	NSLog(@"[WARN] %@%@ was not running on the main thread.",NSStringFromClass([self class]),CODELOCATION);	\
+}	\
+
 #else
 #define FRAME_DEBUG(f) 
+
+#define CHECK_MAIN_THREAD	
 #endif
+
 
 
 #define DEFINE_DEF_PROP(name,defval)\
