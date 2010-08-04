@@ -54,10 +54,12 @@ public class TiUIImageView extends TiUIView
 	private Animator animator;
 	private Object[] images;
 	private Loader loader;
+	private Thread loaderThread;
 	private AtomicBoolean animating = new AtomicBoolean(false);
 	private boolean reverse = false;
 	private boolean paused = false;
 	private int token;
+	private boolean firedLoad;
 
 	private class BgImageLoader extends TiBackgroundImageLoadTask
 	{
@@ -225,7 +227,7 @@ public class TiUIImageView extends TiUIView
 		{
 			repeatIndex = 0;
 			animating.set(true);
-			boolean firedLoad = false;
+			firedLoad = false;
 			topLoop: while(isRepeating()) {
 				long time = System.currentTimeMillis();
 				for (int j = getStart(); isNotFinalFrame(j); j+=getCounter()) {
@@ -233,11 +235,15 @@ public class TiUIImageView extends TiUIView
 						fireLoad("images");
 						firedLoad = true;
 					}
-					while (paused) {
+					if (paused && !Thread.currentThread().isInterrupted()) {
 						try {
-							Thread.sleep(200L);
+							Log.i(LCAT, "Pausing");
+							synchronized(loader) {
+								loader.wait();
+							}
+							Log.i(LCAT, "Waking from pause.");
 						} catch (InterruptedException e) {
-							e.printStackTrace();
+							Log.w(LCAT, "Interrupted from paused state.");
 						}
 					}
 					if (!animating.get()) {
@@ -270,12 +276,16 @@ public class TiUIImageView extends TiUIView
 		if (images == null) return;
 
 		TiUIImageView.this.images = images;
-		loader = new Loader();
-		Thread loaderThread = new Thread(loader);
-		if (DBG) {
-			Log.d(LCAT, "STARTING LOADER THREAD "+loaderThread +" for "+this);
+		if (loader == null) {
+			paused = false;
+			firedLoad = false;
+			loader = new Loader();
+			Thread loaderThread = new Thread(loader);
+			if (DBG) {
+				Log.d(LCAT, "STARTING LOADER THREAD "+loaderThread +" for "+this);
+			}
+			loaderThread.start();
 		}
-		loaderThread.start();
 	}
 
 	public double getDuration()
@@ -357,6 +367,16 @@ public class TiUIImageView extends TiUIView
 	{
 		if (animator == null) {
 			timer = new Timer();
+			
+			if (loader == null) {
+				loader = new Loader();
+				loaderThread = new Thread(loader);
+				if (DBG) {
+					Log.d(LCAT, "STARTING LOADER THREAD "+loaderThread +" for "+this);
+				}
+			}
+//			loaderThread.start();
+
 			animator = new Animator(loader);
 			if (!animating.get()) {
 				new Thread(loader).start();
@@ -377,6 +397,11 @@ public class TiUIImageView extends TiUIView
 	public void resume()
 	{
 		paused = false;
+		if (loader != null) {
+			synchronized(loader) {
+				loader.notify();
+			}
+		}
 	}
 
 	public void stop()
@@ -384,9 +409,16 @@ public class TiUIImageView extends TiUIView
 		if (timer != null) {
 			timer.cancel();
 		}
+		animating.set(false);
+
+		if (loaderThread != null) {
+			loaderThread.interrupt();
+			loaderThread = null;
+		}
+		loader = null;
 		timer = null;
 		animator = null;
-		animating.set(false);
+		paused = false;
 
 		fireStop();
 	}
