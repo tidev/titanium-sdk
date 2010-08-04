@@ -58,6 +58,7 @@ public class CalendarProxy extends TiProxy {
 	
 	public EventProxy[] getEventsInYear(int year) {
 		Calendar jan1 = Calendar.getInstance();
+		jan1.clear();
 		jan1.set(year, 0, 1);
 		
 		long date1 = jan1.getTimeInMillis();
@@ -105,7 +106,7 @@ public class CalendarProxy extends TiProxy {
 	}
 	
 	public EventProxy getEventById(int id) {
-		ArrayList<EventProxy> events = EventProxy.queryEvents(getTiContext(), "Events._id = ?", new String[] { ""+id });
+		ArrayList<EventProxy> events = EventProxy.queryEvents(getTiContext(), "_id = ?", new String[] { ""+id });
 		if (events.size() > 0) {
 			return events.get(0);
 		} else return null;

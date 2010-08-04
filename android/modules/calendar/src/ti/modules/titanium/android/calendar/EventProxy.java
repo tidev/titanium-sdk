@@ -1,9 +1,8 @@
 package ti.modules.titanium.android.calendar;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
-import java.util.TimeZone;
+import java.util.HashMap;
 
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiDict;
@@ -31,8 +30,9 @@ public class EventProxy extends TiProxy {
 	
 	protected String id, title, description, location;
 	protected Date begin, end;
-	protected boolean allDay, hasAlarm;
+	protected boolean allDay, hasAlarm, hasExtendedProperties;
 	protected int status, visibility;
+	protected TiDict extendedProperties = new TiDict();
 	
 	protected String recurrenceRule, recurrenceDate, recurrenceExceptionRule, recurrenceExceptionDate;
 	protected Date lastDate;
@@ -54,19 +54,16 @@ public class EventProxy extends TiProxy {
 	}
 	
 	public static ArrayList<EventProxy> queryEventsBetweenDates(TiContext context, long date1, long date2, String query, String[] queryArgs) {
+		ArrayList<EventProxy> events = new ArrayList<EventProxy>();
+		ContentResolver contentResolver = context.getActivity().getContentResolver();
+		
 		Uri.Builder builder = Uri.parse(getInstancesWhenUri()).buildUpon();
 		ContentUris.appendId(builder, date1);
 		ContentUris.appendId(builder, date2);
-		 
-		return queryEvents(context, builder.build(), query, queryArgs, "startDay ASC, startMinute ASC");
-	}
-	
-	public static ArrayList<EventProxy> queryEvents(TiContext context, Uri uri, String query, String[] queryArgs, String orderBy) {
-		ArrayList<EventProxy> events = new ArrayList<EventProxy>();
-		ContentResolver contentResolver = context.getActivity().getContentResolver();
-		Cursor eventCursor = contentResolver.query(uri,
-			new String[] { "_id", "title", "description", "eventLocation", "dtstart", "dtend", "allDay", "hasAlarm", "eventStatus", "visibility"},
-			query, queryArgs, orderBy);
+		
+		Cursor eventCursor = contentResolver.query(builder.build(),
+			new String[] { "event_id", "title", "description", "eventLocation", "begin", "end", "allDay", "hasAlarm", "eventStatus", "visibility"},
+			query, queryArgs, "startDay ASC, startMinute ASC");
 		
 		while (eventCursor.moveToNext()) {
 			EventProxy event = new EventProxy(context);
@@ -86,6 +83,43 @@ public class EventProxy extends TiProxy {
 		return events;
 	}
 	
+	public static ArrayList<EventProxy> queryEvents(TiContext context, Uri uri, String query, String[] queryArgs, String orderBy) {
+		ArrayList<EventProxy> events = new ArrayList<EventProxy>();
+		ContentResolver contentResolver = context.getActivity().getContentResolver();
+		Cursor eventCursor = contentResolver.query(uri,
+			new String[] { "_id", "title", "description", "eventLocation", "dtstart", "dtend", "allDay", "hasAlarm", "eventStatus", "visibility", "hasExtendedProperties"},
+			query, queryArgs, orderBy);
+		
+		while (eventCursor.moveToNext()) {
+			EventProxy event = new EventProxy(context);
+			event.id = eventCursor.getString(0);
+			event.title = eventCursor.getString(1);
+			event.description = eventCursor.getString(2);
+			event.location = eventCursor.getString(3);
+			event.begin = new Date(eventCursor.getLong(4));
+			event.end = new Date(eventCursor.getLong(5));
+			event.allDay = !eventCursor.getString(6).equals("0");
+			event.hasAlarm = !eventCursor.getString(7).equals("0");
+			event.status = eventCursor.getInt(8);
+			event.visibility = eventCursor.getInt(9);
+			event.hasExtendedProperties = !eventCursor.getString(10).equals("0");
+			if (event.hasExtendedProperties) {
+				Cursor extPropsCursor = contentResolver.query(
+					Uri.parse(CalendarProxy.getBaseCalendarUri() + " /extendedproperties"),
+					new String[] { "name", "value" }, "event_id = ?", new String[] { event.id }, null);
+				
+				while (extPropsCursor.moveToNext()) {
+					String name = extPropsCursor.getString(0);
+					String value = extPropsCursor.getString(1);
+					event.extendedProperties.put(name, value);
+				}
+			}
+			
+			events.add(event);
+		}
+		return events;
+	}
+	
 	public static EventProxy createEvent(TiContext context, CalendarProxy calendar, String title, String description, Date begin, Date end, boolean allDay) {
 		ContentResolver contentResolver = context.getActivity().getContentResolver();
 		ContentValues eventValues = new ContentValues();
@@ -95,6 +129,7 @@ public class EventProxy extends TiProxy {
 		eventValues.put("dtstart", begin.getTime());
 		eventValues.put("dtend", end.getTime());
 		eventValues.put("calendar_id", calendar.getId());
+		eventValues.put("hasAlarm", 1);
 		
 		if (allDay) {
 			eventValues.put("allDay", 1);
@@ -141,13 +176,7 @@ public class EventProxy extends TiProxy {
 	
 	public AlertProxy createAlert(TiDict data) {
 		int minutes = TiConvert.toInt(data, "minutes");
-		
-		Calendar alarmTime = Calendar.getInstance();
-		alarmTime.setTime(begin);
-		alarmTime.add(Calendar.MINUTE, minutes);
-		//alarmTime.setTimeZone(TimeZone.getTimeZone("UTC"));
-		
-		return AlertProxy.createAlert(getTiContext(), this, begin, end, alarmTime.getTime(), minutes);
+		return AlertProxy.createAlert(getTiContext(), this, minutes);
 	}
 	
 	public String getId() {
@@ -181,7 +210,12 @@ public class EventProxy extends TiProxy {
 	public boolean getHasAlarm() {
 		return hasAlarm;
 	}
-
+	
+	public boolean getHasExtendedProperties() {
+		return hasExtendedProperties;
+	}
+	
+	
 	public int getStatus() {
 		return status;
 	}
@@ -208,5 +242,9 @@ public class EventProxy extends TiProxy {
 
 	public Date getLastDate() {
 		return lastDate;
+	}
+	
+	public TiDict getExtendedProperties() {
+		return extendedProperties;
 	}
 }

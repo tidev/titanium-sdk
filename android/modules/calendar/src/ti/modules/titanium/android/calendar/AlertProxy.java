@@ -1,13 +1,19 @@
 package ti.modules.titanium.android.calendar;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiProxy;
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.content.ContentResolver;
+import android.content.ContentUris;
 import android.content.ContentValues;
+import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 
@@ -17,9 +23,9 @@ public class AlertProxy extends TiProxy {
 	public static final int STATE_FIRED = 1;
 	public static final int STATE_DISMISSED = 2;
 	
-	protected String id;
+	protected String id, eventId;
 	protected Date begin, end;
-	protected Date alarmTime, creationTime, receivedTime, notifyTime;
+	protected Date alarmTime;
 	protected int state, minutes;
 	
 	public AlertProxy(TiContext context) {
@@ -39,20 +45,18 @@ public class AlertProxy extends TiProxy {
 		ContentResolver contentResolver = context.getActivity().getContentResolver();
 		
 		Cursor cursor = contentResolver.query(Uri.parse(getAlertsUri()),
-			new String[] { "_id", "begin", "end", "alarmTime", "creationTime", "receivedTime", "notifyTime", "state", "minutes"},
+			new String[] { "_id", "event_id", "begin", "end", "alarmTime", "state", "minutes"},
 			query, queryArgs, orderBy);
 		
 		while (cursor.moveToNext()) {
 			AlertProxy alert = new AlertProxy(context);
 			alert.id = cursor.getString(0);
-			alert.begin = new Date(cursor.getLong(1));
-			alert.end = new Date(cursor.getLong(2));
-			alert.alarmTime = new Date(cursor.getLong(3));
-			alert.creationTime = new Date(cursor.getLong(4));
-			alert.receivedTime = new Date(cursor.getLong(5));
-			alert.notifyTime = new Date(cursor.getLong(6));
-			alert.state = cursor.getInt(7);
-			alert.minutes = cursor.getInt(8);
+			alert.eventId = cursor.getString(1);
+			alert.begin = new Date(cursor.getLong(2));
+			alert.end = new Date(cursor.getLong(3));
+			alert.alarmTime = new Date(cursor.getLong(4));
+			alert.state = cursor.getInt(5);
+			alert.minutes = cursor.getInt(6);
 			alerts.add(alert);
 		}
 		
@@ -60,43 +64,65 @@ public class AlertProxy extends TiProxy {
 	}
 	
 	public static ArrayList<AlertProxy> getAlertsForEvent(TiContext context, EventProxy event) {
-		return queryAlerts(context, "Events._id = ?", new String[] { event.getId() }, "alarmTime ASC,begin ASC,title ASC");
+		return queryAlerts(context, "event_id = ?", new String[] { event.getId() }, "alarmTime ASC,begin ASC,title ASC");
 	}
 	
-	public static AlertProxy createAlert(TiContext context, EventProxy event, Date begin, Date end, Date alarmTime, int minutes) {
+	public static AlertProxy createAlert(TiContext context, EventProxy event, int minutes) {
 		ContentResolver contentResolver = context.getActivity().getContentResolver();
 		ContentValues values = new ContentValues();
-		values.put("event_id", event.getId());
-		values.put("begin", begin.getTime());
-		values.put("end", end.getTime());
-		values.put("alarmTime", alarmTime.getTime());
 		
-		long creationTime = System.currentTimeMillis();
-		values.put("creationTime", creationTime);
-		values.put("receivedTime", 0);
-		values.put("notifyTime", 0);
+		Calendar alarmTime = Calendar.getInstance();
+		alarmTime.setTime(event.getBegin());
+		alarmTime.add(Calendar.MINUTE, -minutes);
+		
+		values.put("event_id", event.getId());
+		values.put("begin", event.getBegin().getTime());
+		values.put("end", event.getEnd().getTime());
+		values.put("alarmTime", alarmTime.getTimeInMillis());
 		values.put("state", STATE_SCHEDULED);
 		values.put("minutes", minutes);
+		values.put("creationTime", System.currentTimeMillis());
+		values.put("receivedTime", 0);
+		values.put("notifyTime", 0);
 		
 		Uri alertUri = contentResolver.insert(Uri.parse(getAlertsUri()), values);
 		String alertId = alertUri.getLastPathSegment();
 		
 		AlertProxy alert = new AlertProxy(context);
 		alert.id = alertId;
-		alert.begin = begin;
-		alert.end = end;
-		alert.alarmTime = alarmTime;
-		alert.minutes = minutes;
-		alert.creationTime = new Date(creationTime);
+		alert.begin = event.getBegin();
+		alert.end = event.getEnd();
+		alert.alarmTime = alarmTime.getTime();
 		alert.state = STATE_SCHEDULED;
-		
+		alert.minutes = minutes;
+		alert.registerAlertIntent();
 		return alert;
+	}
+	
+	protected static final String EVENT_REMINDER_ACTION = "android.intent.action.EVENT_REMINDER";
+	protected void registerAlertIntent() {
+		Uri uri = ContentUris.withAppendedId(Uri.parse(getAlertsUri()), Long.parseLong(id));
+		Intent intent = new Intent(EVENT_REMINDER_ACTION);
+		intent.setData(uri);
+		intent.putExtra("beginTime", begin.getTime());
+		intent.putExtra("endTime", end.getTime());
+		PendingIntent sender = PendingIntent.getBroadcast(getTiContext().getActivity(), 0, intent,
+				PendingIntent.FLAG_CANCEL_CURRENT);
+		
+		AlarmManager manager = (AlarmManager) 
+			getTiContext().getActivity().getSystemService(Context.ALARM_SERVICE);
+		
+		manager.set(AlarmManager.RTC_WAKEUP, alarmTime.getTime(), sender);
 	}
 
 	public String getId() {
 		return id;
 	}
 
+	public String getEventId() {
+		return eventId;
+	}
+	
 	public Date getBegin() {
 		return begin;
 	}
@@ -107,18 +133,6 @@ public class AlertProxy extends TiProxy {
 
 	public Date getAlarmTime() {
 		return alarmTime;
-	}
-
-	public Date getCreationTime() {
-		return creationTime;
-	}
-
-	public Date getReceivedTime() {
-		return receivedTime;
-	}
-
-	public Date getNotifyTime() {
-		return notifyTime;
 	}
 
 	public int getState() {

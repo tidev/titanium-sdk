@@ -30,6 +30,10 @@ public class CalendarModule extends TiModule {
 			constants.put("METHOD_DEFAULT", ReminderProxy.METHOD_DEFAULT);
 			constants.put("METHOD_EMAIL", ReminderProxy.METHOD_EMAIL);
 			constants.put("METHOD_SMS", ReminderProxy.METHOD_SMS);
+			
+			constants.put("STATE_DISMISSED", AlertProxy.STATE_DISMISSED);
+			constants.put("STATE_FIERD", AlertProxy.STATE_FIRED);
+			constants.put("STATE_SCHEDULED", AlertProxy.STATE_SCHEDULED);
 		}
 		return constants;
 	}
@@ -55,5 +59,10 @@ public class CalendarModule extends TiModule {
 		} else {
 			return null;
 		}
+	}
+	
+	public AlertProxy[] getAllAlerts() {
+		ArrayList<AlertProxy> alerts = AlertProxy.queryAlerts(getTiContext(), null, null, null);
+		return alerts.toArray(new AlertProxy[alerts.size()]);
 	}
 }
