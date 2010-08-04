@@ -123,7 +123,10 @@
 -(BOOL)isAutoHeightOrWidth;
 -(BOOL)canHaveControllerParent;
 
+-(void)makeViewPerformSelector:(SEL)selector withObject:(id)object createIfNeeded:(BOOL)create waitUntilDone:(BOOL)wait;
+
 @end
+
 
 #define USE_VIEW_FOR_METHOD(resultType,methodname,inputType)	\
 -(resultType) methodname: (inputType)value	\
@@ -139,6 +142,7 @@
 		[[self view] performSelectorOnMainThread:@selector(methodname:) withObject:args waitUntilDone:NO];	\
 	}	\
 }
+
 
 
 #define USE_VIEW_FOR_VERIFY_WIDTH	USE_VIEW_FOR_METHOD(CGFloat,verifyWidth,CGFloat)
