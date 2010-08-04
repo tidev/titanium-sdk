@@ -142,6 +142,10 @@ Log.i(LCAT, "JSLOADED!!!!");
 		if (currentActivity.hasListeners("destroy")) {
 			currentActivity.fireEvent("destroy", null);
 		}
+		if (currentActivity != null) {
+			currentActivity.release();
+			currentActivity = null;
+		}
 	}
 
 	@Override
