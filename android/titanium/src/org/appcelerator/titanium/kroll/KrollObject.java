@@ -12,13 +12,8 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Date;
-import java.util.Map;
-import java.util.HashMap;
 import java.util.Iterator;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
+import java.util.Map;
 
 import org.appcelerator.titanium.ContextSpecific;
 import org.appcelerator.titanium.TiApplication;
@@ -29,8 +24,12 @@ import org.appcelerator.titanium.TiProxy;
 import org.appcelerator.titanium.kroll.KrollMethod.KrollMethodType;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Function;
+import org.mozilla.javascript.NativeJavaObject;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
 import org.mozilla.javascript.Undefined;
@@ -604,6 +603,13 @@ public class KrollObject extends ScriptableObject
 			} else if (svalue.getClassName().equals("Date")) {
 				double time = (Double) ScriptableObject.callMethod(svalue, "getTime", new Object[0]);
 				o = new Date((long)time);
+			} else if (svalue.getClassName().equals("Error")) {
+				if (svalue.has("javaException", svalue)) {
+					NativeJavaObject exception = (NativeJavaObject) svalue.get("javaException", svalue);
+					o = exception.unwrap();
+				} else {
+					o = svalue.get("message", svalue);
+				}
 			} else {
 				TiDict args = new TiDict();
 				o = args;
