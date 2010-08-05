@@ -228,6 +228,8 @@ public abstract class TiUIView
 			}
 		} else if (key.equals("visible")) {
 			nativeView.setVisibility(TiConvert.toBoolean(newValue) ? View.VISIBLE : View.INVISIBLE);
+		} else if (key.equals("enabled")) {
+			nativeView.setEnabled(TiConvert.toBoolean(newValue));
 		} else if (key.equals("opacity") || key.equals("backgroundColor") || key.equals("backgroundImage") || key.startsWith("border")) {
 			TiDict d = proxy.getDynamicProperties();
 
@@ -319,6 +321,9 @@ public abstract class TiUIView
 		}
 		if (d.containsKey("visible")) {
 			nativeView.setVisibility(TiConvert.toBoolean(d, "visible") ? View.VISIBLE : View.INVISIBLE);
+		}
+		if (d.containsKey("enabled")) {
+			nativeView.setEnabled(TiConvert.toBoolean(d, "enabled"));
 		}
 
 		initializeBorder(d, bgColor);

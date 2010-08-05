@@ -11,6 +11,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Date;
 
+import org.appcelerator.titanium.ContextSpecific;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiDict;
@@ -39,6 +40,7 @@ import android.provider.MediaStore;
 import android.provider.MediaStore.Images;
 import android.view.Window;
 
+@ContextSpecific
 public class MediaModule extends TiModule
 {
 	private static final String LCAT = "TiMedia";

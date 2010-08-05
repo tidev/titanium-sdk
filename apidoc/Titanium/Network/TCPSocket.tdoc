@@ -21,10 +21,11 @@ iphone, ipad
 
 - properties
 
-hostName[string]: the host name to connect to.  Must be INADDR_ANY or an identifier for the local device in order to listen
+hostName[string]: the host name to connect to.  Must be `Titanium.Network.INADDR_ANY` or an identifier for the local device in order to listen
 port[int]: the port to connect/listen on
 mode[int]: the socket's mode
 isValid[boolean]: whether or not the socket is valid
+stripTerminator[boolean]: strip terminating null character when sending string data; default is false
 
 - methods
 

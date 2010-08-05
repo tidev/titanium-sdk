@@ -131,6 +131,10 @@ public abstract class TiWindowProxy extends TiViewProxy
 		result.getResult(); // Don't care about result, just synchronizing.
 	}
 
+	public void closeFromActivity() {
+		opened = false;
+	}
+	
 	public void setTabProxy(TiViewProxy tabProxy) {
 		this.tab = tabProxy;
 	}

@@ -305,6 +305,8 @@ public class TiUIWindow extends TiUIView
 				windowHandler.addWindow(liteWindow, params);
 			}
 			handler.obtainMessage(MSG_ANIMATE).sendToTarget();
+		} else if (windowActivity != null && windowActivity instanceof TiActivity) {
+			((TiActivity) windowActivity).fireInitialFocus(); 
 		}
 	}
 	public void close() {

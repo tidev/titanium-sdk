@@ -251,6 +251,7 @@ win.addEventListener('focus', function()
 	var date = formatTime();
 	Titanium.App.Properties.setString('window_focus_event', date);
 	focusLabel.text = 'Focus fired ' + date;
+	Ti.API.info('FOCUS fired in window');
 });
 win.addEventListener('blur', function()
 {

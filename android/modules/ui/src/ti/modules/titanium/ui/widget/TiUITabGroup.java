@@ -51,9 +51,15 @@ public class TiUITabGroup extends TiUIView
 		tabWidget = new TabWidget(proxy.getContext());
 		tabWidget.setId(android.R.id.tabs); // Required by contract w/ host
 
-		tabContent = new FrameLayout(proxy.getContext());
+		tabContent = new FrameLayout(proxy.getContext()) {
+
+			@Override
+			protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+				tabContent.setPadding(0, tabWidget.getMeasuredHeight(), 0, 0);
+				super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+			}			
+		};
 		tabContent.setId(android.R.id.tabcontent);
-		tabContent.setPadding(0, 68, 0, 0); //TODO, user control?
 
 		tabHost.addView(tabWidget, new LinearLayout.LayoutParams(
                   LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT));
@@ -61,7 +67,6 @@ public class TiUITabGroup extends TiUIView
                   LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
 		//tabHost.setup(proxy.getTiContext().getRootActivity().getLocalActivityManager());
 		tabHost.setup(activity.getLocalActivityManager());
-
 
         tabHost.setBackgroundDrawable(new ColorDrawable(TiConvert.toColor("#ff1a1a1a")));
 

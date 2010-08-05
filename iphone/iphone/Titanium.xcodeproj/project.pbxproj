@@ -519,6 +519,12 @@
 		288765FD0DF74451002DB57D /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 288765FC0DF74451002DB57D /* CoreGraphics.framework */; };
 		B421C4121113AA9300DBCB42 /* TiUIScrollableViewProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = B421C4111113AA9300DBCB42 /* TiUIScrollableViewProxy.m */; };
 		B421C4161113AAA900DBCB42 /* TiUIScrollableView.m in Sources */ = {isa = PBXBuildFile; fileRef = B421C4151113AAA900DBCB42 /* TiUIScrollableView.m */; };
+		B440EF7E1209DC400045FEAE /* MGSplitCornersView.m in Sources */ = {isa = PBXBuildFile; fileRef = B440EF791209DC400045FEAE /* MGSplitCornersView.m */; };
+		B440EF7F1209DC400045FEAE /* MGSplitDividerView.m in Sources */ = {isa = PBXBuildFile; fileRef = B440EF7B1209DC400045FEAE /* MGSplitDividerView.m */; };
+		B440EF801209DC400045FEAE /* MGSplitViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B440EF7D1209DC400045FEAE /* MGSplitViewController.m */; };
+		B440EF811209DC400045FEAE /* MGSplitCornersView.m in Sources */ = {isa = PBXBuildFile; fileRef = B440EF791209DC400045FEAE /* MGSplitCornersView.m */; };
+		B440EF821209DC400045FEAE /* MGSplitDividerView.m in Sources */ = {isa = PBXBuildFile; fileRef = B440EF7B1209DC400045FEAE /* MGSplitDividerView.m */; };
+		B440EF831209DC400045FEAE /* MGSplitViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B440EF7D1209DC400045FEAE /* MGSplitViewController.m */; };
 		B468B4F111B5816F007D1C1E /* TiLayoutQueue.m in Sources */ = {isa = PBXBuildFile; fileRef = B468B4F011B5816F007D1C1E /* TiLayoutQueue.m */; };
 		B468B4F211B5816F007D1C1E /* TiLayoutQueue.m in Sources */ = {isa = PBXBuildFile; fileRef = B468B4F011B5816F007D1C1E /* TiLayoutQueue.m */; };
 		B4DE7E4E11823E990006DDE1 /* TiGradient.m in Sources */ = {isa = PBXBuildFile; fileRef = B4DE7E4D11823E990006DDE1 /* TiGradient.m */; };
@@ -1058,6 +1064,12 @@
 		B421C4111113AA9300DBCB42 /* TiUIScrollableViewProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIScrollableViewProxy.m; sourceTree = "<group>"; };
 		B421C4141113AAA900DBCB42 /* TiUIScrollableView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUIScrollableView.h; sourceTree = "<group>"; };
 		B421C4151113AAA900DBCB42 /* TiUIScrollableView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIScrollableView.m; sourceTree = "<group>"; };
+		B440EF781209DC400045FEAE /* MGSplitCornersView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MGSplitCornersView.h; sourceTree = "<group>"; };
+		B440EF791209DC400045FEAE /* MGSplitCornersView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MGSplitCornersView.m; sourceTree = "<group>"; };
+		B440EF7A1209DC400045FEAE /* MGSplitDividerView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MGSplitDividerView.h; sourceTree = "<group>"; };
+		B440EF7B1209DC400045FEAE /* MGSplitDividerView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MGSplitDividerView.m; sourceTree = "<group>"; };
+		B440EF7C1209DC400045FEAE /* MGSplitViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MGSplitViewController.h; sourceTree = "<group>"; };
+		B440EF7D1209DC400045FEAE /* MGSplitViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MGSplitViewController.m; sourceTree = "<group>"; };
 		B468B4EF11B5816F007D1C1E /* TiLayoutQueue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiLayoutQueue.h; sourceTree = "<group>"; };
 		B468B4F011B5816F007D1C1E /* TiLayoutQueue.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiLayoutQueue.m; sourceTree = "<group>"; };
 		B4D5828F11264FD000A6B66C /* TiUITextWidgetProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUITextWidgetProxy.h; sourceTree = "<group>"; };
@@ -1218,6 +1230,7 @@
 		24CA8903111160C30084E2DE /* Thirdparty */ = {
 			isa = PBXGroup;
 			children = (
+				B440EF771209DC400045FEAE /* MGSplitView */,
 				242E967211BAD2E30046A0D0 /* AsyncSocket */,
 				242E95C211BAC8070046A0D0 /* Debugger */,
 				24CA89F31111618F0084E2DE /* TiCore */,
@@ -2276,6 +2289,20 @@
 			name = "Scrollable View";
 			sourceTree = "<group>";
 		};
+		B440EF771209DC400045FEAE /* MGSplitView */ = {
+			isa = PBXGroup;
+			children = (
+				B440EF781209DC400045FEAE /* MGSplitCornersView.h */,
+				B440EF791209DC400045FEAE /* MGSplitCornersView.m */,
+				B440EF7A1209DC400045FEAE /* MGSplitDividerView.h */,
+				B440EF7B1209DC400045FEAE /* MGSplitDividerView.m */,
+				B440EF7C1209DC400045FEAE /* MGSplitViewController.h */,
+				B440EF7D1209DC400045FEAE /* MGSplitViewController.m */,
+			);
+			name = MGSplitView;
+			path = ../Classes/MGSplitView;
+			sourceTree = SOURCE_ROOT;
+		};
 		B4D5828E11264F8600A6B66C /* Textarea */ = {
 			isa = PBXGroup;
 			children = (
@@ -2346,7 +2373,14 @@
 			isa = PBXProject;
 			buildConfigurationList = C01FCF4E08A954540054247B /* Build configuration list for PBXProject "Titanium" */;
 			compatibilityVersion = "Xcode 3.1";
+			developmentRegion = English;
 			hasScannedForEncodings = 1;
+			knownRegions = (
+				English,
+				Japanese,
+				French,
+				German,
+			);
 			mainGroup = 29B97314FDCFA39411CA2CEA /* CustomTemplate */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -2680,6 +2714,9 @@
 				2467310811E2549300D39AF7 /* Webcolor.m in Sources */,
 				2465592411E5862F0059BBF4 /* TiFilesystemBlobProxy.m in Sources */,
 				243AAFB511FCE62600E37D8B /* TiUIDashboardItem.m in Sources */,
+				B440EF7E1209DC400045FEAE /* MGSplitCornersView.m in Sources */,
+				B440EF7F1209DC400045FEAE /* MGSplitDividerView.m in Sources */,
+				B440EF801209DC400045FEAE /* MGSplitViewController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2925,6 +2962,9 @@
 				2467310711E2549300D39AF7 /* Webcolor.m in Sources */,
 				2465592511E5862F0059BBF4 /* TiFilesystemBlobProxy.m in Sources */,
 				243AAFB611FCE62600E37D8B /* TiUIDashboardItem.m in Sources */,
+				B440EF811209DC400045FEAE /* MGSplitCornersView.m in Sources */,
+				B440EF821209DC400045FEAE /* MGSplitDividerView.m in Sources */,
+				B440EF831209DC400045FEAE /* MGSplitViewController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

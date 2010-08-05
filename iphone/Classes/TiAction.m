@@ -9,6 +9,7 @@
 
 
 @implementation TiAction
+@synthesize target,selector,arg;
 
 -(id)initWithTarget:(id)target_ selector:(SEL)selector_ arg:(id)arg_
 {

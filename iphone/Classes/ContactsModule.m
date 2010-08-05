@@ -234,6 +234,8 @@
 
 -(TiContactsPerson*)createPerson:(id)arg
 {
+    ENSURE_SINGLE_ARG_OR_NIL(arg, NSDictionary)
+    
 	if (![NSThread isMainThread]) {
 		[self performSelectorOnMainThread:@selector(createPerson:) withObject:arg waitUntilDone:YES];
 		return [returnCache objectForKey:@"newPerson"];
@@ -262,6 +264,13 @@
 	ABRecordID id_ = ABRecordGetRecordID(record);
 	TiContactsPerson* newPerson = [[[TiContactsPerson alloc] _initWithPageContext:[self executionContext] recordId:id_ module:self] autorelease];
 	
+    [newPerson setValuesForKeysWithDictionary:arg];
+    
+    if (arg != nil) {
+        // Have to save initially so properties can be set; have to save again to commit changes
+        [self save:nil];
+    }
+    
 	[returnCache setObject:newPerson forKey:@"newPerson"];
 	return newPerson;
 }
@@ -276,6 +285,8 @@
 
 -(TiContactsGroup*)createGroup:(id)arg
 {
+    ENSURE_SINGLE_ARG_OR_NIL(arg, NSDictionary)
+    
 	if (![NSThread isMainThread]) {
 		[self performSelectorOnMainThread:@selector(createGroup:) withObject:arg waitUntilDone:YES];
 		return [returnCache objectForKey:@"newGroup"];
@@ -304,6 +315,13 @@
 	ABRecordID id_ = ABRecordGetRecordID(record);
 	TiContactsGroup* newGroup = [[[TiContactsGroup alloc] _initWithPageContext:[self executionContext] recordId:id_ module:self] autorelease];
 	
+    [newGroup setValuesForKeysWithDictionary:arg];
+    
+    if (arg != nil) {
+        // Have to save initially so properties can be set; have to save again to commit changes
+        [self save:nil];
+    }
+    
 	[returnCache setObject:newGroup forKey:@"newGroup"];
 	return newGroup;
 }

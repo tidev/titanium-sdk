@@ -269,7 +269,6 @@ public class TiUIHelper
 
 			if (bgDisabledDrawable != null) {
 				int[] stateSet = {
-					-android.R.attr.state_focused,
 					-android.R.attr.state_enabled
 				};
 				sld.addState(stateSet, bgDisabledDrawable);
@@ -286,11 +285,12 @@ public class TiUIHelper
 
 			if (bgSelectedDrawable != null) {
 				int[] ss = {
-					android.R.attr.state_window_focused,
-					android.R.attr.state_enabled,
-					android.R.attr.state_pressed
-				};
+						android.R.attr.state_window_focused,
+						android.R.attr.state_enabled,
+						android.R.attr.state_pressed
+					};
 				sld.addState(ss, bgSelectedDrawable);
+
 
 				int[] ss1 = {
 					android.R.attr.state_focused,
@@ -299,6 +299,7 @@ public class TiUIHelper
 					android.R.attr.state_pressed
 				};
 				sld.addState(ss1, bgSelectedDrawable);
+				
 //				int[] ss2 = { android.R.attr.state_selected };
 //				sld.addState(ss2, bgSelectedDrawable);
 			}

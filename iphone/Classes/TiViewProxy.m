@@ -12,6 +12,8 @@
 #import "TiRect.h"
 #import "TiLayoutQueue.h"
 
+#import "TiAction.h"
+
 #import <QuartzCore/QuartzCore.h>
 #import <libkern/OSAtomic.h>
 #import <pthread.h>
@@ -586,6 +588,13 @@
 {
 	if (view == nil)
 	{
+		WARN_IF_BACKGROUND_THREAD
+#ifdef DEBUG
+		if(![NSThread isMainThread])
+		{
+			NSLog(@"[WARN] Break here");
+		}
+#endif
 		[self viewWillAttach];
 		
 		// on open we need to create a new view
@@ -937,15 +946,21 @@
 
 -(void)fireEvent:(NSString*)type withObject:(id)obj withSource:(id)source propagate:(BOOL)propagate
 {
-	[super fireEvent:type withObject:obj withSource:source propagate:YES];
+	TiUIView* proxyView = [self view];
 	
-	// views support event propagation. we need to check our
-	// parent and if he has the same named listener, we fire
-	// an event and set the source of the event to ourself
-    
-	if (parent!=nil && propagate==YES)
-	{
-		[parent fireEvent:type withObject:obj withSource:source];
+	// Have to handle the situation in which the proxy's view might be nil... like, for example,
+	// with table rows.  Automagically assume any nil view we're firing an event for is A-OK.
+	if (proxyView == nil || [proxyView interactionEnabled]) {
+		[super fireEvent:type withObject:obj withSource:source propagate:YES];
+		
+		// views support event propagation. we need to check our
+		// parent and if he has the same named listener, we fire
+		// an event and set the source of the event to ourself
+		
+		if (parent!=nil && propagate==YES)
+		{
+			[parent fireEvent:type withObject:obj withSource:source];
+		}
 	}
 }
 
@@ -955,6 +970,9 @@
 	{
 		[self.modelDelegate listenerAdded:type count:count];
 	}
+	else {
+		[self.view listenerAdded:type count:count];
+	}
 }
 
 -(void)_listenerRemoved:(NSString*)type count:(int)count
@@ -962,6 +980,9 @@
 	if (self.modelDelegate!=nil && [(NSObject*)self.modelDelegate respondsToSelector:@selector(listenerRemoved:count:)])
 	{
 		[self.modelDelegate listenerRemoved:type count:count];
+	}
+	else {
+		[self.view listenerRemoved:type count:count];
 	}
 }
 
@@ -1305,5 +1326,35 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject)
 	[self setNeedsReposition];
 }
 
+-(void)makeViewPerformAction:(TiAction *)action
+{
+	[[self view] performSelector:[action selector] withObject:[action arg]];
+}
+
+-(void)makeViewPerformSelector:(SEL)selector withObject:(id)object createIfNeeded:(BOOL)create waitUntilDone:(BOOL)wait
+{
+	BOOL isAttached = [self viewAttached];
+	
+	if(!isAttached && !create)
+	{
+		return;
+	}
+
+	if([NSThread isMainThread])
+	{
+		[[self view] performSelector:selector withObject:object];
+		return;
+	}
+
+	if(isAttached)
+	{
+		[[self view] performSelectorOnMainThread:selector withObject:object waitUntilDone:wait];
+		return;
+	}
+
+	TiAction * ourAction = [[TiAction alloc] initWithTarget:nil selector:selector arg:object];
+	[self performSelectorOnMainThread:@selector(makeViewPerformAction:) withObject:ourAction waitUntilDone:wait];
+	[ourAction release];
+}
 
 @end
