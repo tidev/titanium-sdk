@@ -30,6 +30,11 @@
 	node = [node_ retain];
 }
 
+-(NSString *)XMLString
+{
+	return [node XMLString];
+}
+
 +(id)makeNode:(id)child context:(id<TiEvaluator>)context
 {
 	// if already a proxy, just return it.
