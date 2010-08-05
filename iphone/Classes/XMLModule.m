@@ -8,6 +8,7 @@
 
 #import "XMLModule.h"
 #import "TiDOMDocumentProxy.h"
+#import "TiDOMNodeProxy.h"
 
 @implementation XMLModule
 
@@ -18,6 +19,14 @@
 	TiDOMDocumentProxy *proxy = [[[TiDOMDocumentProxy alloc] _initWithPageContext:[self executionContext]] autorelease];
 	[proxy parseString:arg];
 	return proxy;
+}
+
+-(id)serializeToString:(id)arg
+{
+	ENSURE_SINGLE_ARG(arg,TiDOMNodeProxy);
+	
+	TiDOMNodeProxy *proxy = (TiDOMNodeProxy *)arg;
+	return [proxy XMLString];
 }
 
 @end
