@@ -28,14 +28,12 @@ import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.graphics.Bitmap.CompressFormat;
 import android.graphics.Bitmap.Config;
-import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.StateListDrawable;
 import android.os.Process;
-import android.util.DisplayMetrics;
 import android.util.TypedValue;
+import android.view.Gravity;
 import android.view.View;
-import android.view.Window;
 import android.widget.TextView;
 
 public class TiUIHelper
@@ -224,6 +222,56 @@ public class TiUIHelper
 
 		return style;
 	}
+
+	public static void setAlignment(TextView tv, String textAlign, String verticalAlign) 
+	{
+		int gravity = Gravity.NO_GRAVITY;
+		
+		if (textAlign != null) {
+			if ("left".equals(textAlign)) {
+				 gravity |= Gravity.LEFT;
+			} else if ("center".equals(textAlign)) {
+				gravity |=  Gravity.CENTER_HORIZONTAL;
+			} else if ("right".equals(textAlign)) {
+				gravity |=  Gravity.RIGHT;
+			} else {
+				Log.w(LCAT, "Unsupported horizontal alignment: " + textAlign);
+			}
+		} else {
+			// Nothing has been set - let's set if something was set previously
+			// You can do this with shortcut syntax - but long term maint of code is easier if it's explicit
+			Log.w(LCAT, "No alignment set - old horiz align was: " + (tv.getGravity() & Gravity.HORIZONTAL_GRAVITY_MASK));
+			
+			if ((tv.getGravity() & Gravity.HORIZONTAL_GRAVITY_MASK) != Gravity.NO_GRAVITY) {
+				// Something was set before - so let's use it
+				gravity |= tv.getGravity() & Gravity.HORIZONTAL_GRAVITY_MASK;
+			}
+		}
+		
+		if (verticalAlign != null) {
+			if ("top".equals(verticalAlign)) {
+				gravity |= Gravity.TOP;
+			} else if ("middle".equals(verticalAlign)) {
+				gravity |= Gravity.CENTER_VERTICAL;			
+			} else if ("bottom".equals(verticalAlign)) {
+				gravity |= Gravity.BOTTOM;			
+			} else {
+				Log.w(LCAT, "Unsupported vertical alignment: " + verticalAlign);			
+			}
+		} else {
+			// Nothing has been set - let's set if something was set previously
+			// You can do this with shortcut syntax - but long term maint of code is easier if it's explicit
+			Log.w(LCAT, "No alignment set - old vert align was: " + (tv.getGravity() & Gravity.VERTICAL_GRAVITY_MASK));
+			
+			if ((tv.getGravity() & Gravity.VERTICAL_GRAVITY_MASK) != Gravity.NO_GRAVITY) {
+				// Something was set before - so let's use it
+				gravity |= tv.getGravity() & Gravity.VERTICAL_GRAVITY_MASK;
+			}			
+		}
+		
+		tv.setGravity(gravity);
+	}
+
 
 	public static StateListDrawable buildBackgroundDrawable(Context context,
 			String image,

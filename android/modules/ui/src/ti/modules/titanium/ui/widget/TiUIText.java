@@ -333,52 +333,13 @@ public class TiUIText extends TiUIView
 
 	public void handleTextAlign(String textAlign, String verticalAlign)
 	{
-		int valign = field ? Gravity.CENTER_VERTICAL : Gravity.TOP;
-		int align = Gravity.LEFT;
-
-		if (textAlign != null) {
-			if ("left".equals(textAlign)) {
-				align = Gravity.LEFT;
-			} else if ("center".equals(textAlign)) {
-				align = Gravity.CENTER_HORIZONTAL;
-			} else if ("right".equals(textAlign)) {
-				align = Gravity.RIGHT;
-			} else {
-				Log.w(LCAT, "Unsupported alignment: " + textAlign);
-			}
-		} else {
-			// Nothing has been set - let's set if something was set previously
-			// You can do this with shortcut syntax - but long term maint of code is easier if it's explicit
-			Log.w(LCAT, "No alignment set - old horiz align was: " + (tv.getGravity() & Gravity.HORIZONTAL_GRAVITY_MASK));
-			
-			if ((tv.getGravity() & Gravity.HORIZONTAL_GRAVITY_MASK) != Gravity.NO_GRAVITY) {
-				// Something was set before - so let's use it
-				align = tv.getGravity() & Gravity.HORIZONTAL_GRAVITY_MASK;
-			}
+		if (verticalAlign == null) {
+			verticalAlign = field ? "middle" : "top";
 		}
-
-		if (verticalAlign != null) {
-			if ("top".equals(verticalAlign)) {
-				valign = Gravity.TOP;
-			} else if ("middle".equals(verticalAlign)) {
-				valign = Gravity.CENTER_VERTICAL;
-			} else if ("bottom".equals(verticalAlign)) {
-				valign = Gravity.BOTTOM; 
-			} else {
-				Log.w(LCAT, "Unsupported alignment: " + verticalAlign);
-			}
-		} else {
-			// Nothing has been set - let's set if something was set previously
-			// You can do this with shortcut syntax - but long term maint of code is easier if it's explicit
-			Log.w(LCAT, "No alignment set - old vert align was: " + (tv.getGravity() & Gravity.VERTICAL_GRAVITY_MASK));
-			
-			if ((tv.getGravity() & Gravity.VERTICAL_GRAVITY_MASK) != Gravity.NO_GRAVITY) {
-				// Something was set before - so let's use it
-				valign = tv.getGravity() & Gravity.VERTICAL_GRAVITY_MASK;
-			}			
+		if (textAlign == null) {
+			textAlign = "left";
 		}
-
-		tv.setGravity(valign | align);
+		TiUIHelper.setAlignment(tv, textAlign, verticalAlign);
 	}
 
 	public void handleKeyboardType(int type, boolean autocorrect)
