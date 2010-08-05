@@ -657,8 +657,16 @@ def main(args):
 				libdir = os.path.join(iphone_dir,'lib')
 				if not os.path.exists(libdir): os.makedirs(libdir)
 				os.chdir(libdir)
-				if os.path.exists("libTiCore.a"): os.unlink("libTiCore.a")
-				os.symlink(libticore,"libTiCore.a")
+				# a broken link will not return true on os.path.exists
+				# so we need to use brute force
+				try:
+					os.unlink("libTiCore.a")
+				except:
+					pass
+				try:
+					os.symlink(libticore,"libTiCore.a")
+				except:
+					pass
 				os.chdir(cwd)
 
 			# if the lib doesn't exist, force a rebuild since it's a new build

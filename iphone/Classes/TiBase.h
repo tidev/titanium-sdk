@@ -375,7 +375,7 @@ if(![NSThread isMainThread])	\
 
 #else
 #define FRAME_DEBUG(f) 
-
+#define WARN_IF_BACKGROUND_THREAD
 #define CHECK_MAIN_THREAD	
 #endif
 
