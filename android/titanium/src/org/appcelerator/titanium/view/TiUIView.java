@@ -129,15 +129,11 @@ public abstract class TiUIView
 	{
 		TiAnimationBuilder builder = proxy.getPendingAnimation();
 		if (builder != null && nativeView != null) {
-
-			// Capture dimension
-			int w = nativeView.getMeasuredWidth();
-			int h = nativeView.getMeasuredHeight();
-
-			AnimationSet as = builder.render(w, h);
+			AnimationSet as = builder.render(nativeView);
+			
 			Log.d(LCAT, "starting animation: "+as);
 			nativeView.startAnimation(as);
-
+			
 			// Clean up proxy
 			proxy.clearAnimation();
 		}
