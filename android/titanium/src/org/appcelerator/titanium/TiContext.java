@@ -156,7 +156,7 @@ public class TiContext implements TiEvaluator, ITiMenuDispatcherListener, ErrorR
 		return Thread.currentThread().getId() == mainThreadId;
 	}
 
-	private TiEvaluator getJSContext() {
+	public TiEvaluator getJSContext() {
 		return tiEvaluator;
 	}
 

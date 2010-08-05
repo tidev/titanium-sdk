@@ -25,6 +25,7 @@
 	[[self view] performSelectorOnMainThread:@selector(stopEditing) withObject:nil waitUntilDone:NO];
 }
 
+
 -(void)fireEvent:(NSString *)type withObject:(id)obj withSource:(id)source propagate:(BOOL)propagate
 {
 	if ([type isEqual:@"click"])

@@ -22,6 +22,8 @@
 	
 	TiUIiPadSplitWindowProxy* proxy;
 	
+	NSMutableArray* windowViewControllers;
+	
 	BOOL	allowedOrientations[MAX_ORIENTATIONS];
 	NSTimeInterval	orientationRequestTimes[MAX_ORIENTATIONS];
 	UIInterfaceOrientation lastOrientation;

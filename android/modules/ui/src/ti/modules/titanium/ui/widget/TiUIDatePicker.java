@@ -22,6 +22,7 @@ import android.widget.DatePicker.OnDateChangedListener;
 public class TiUIDatePicker extends TiUIView
 	implements OnDateChangedListener
 {
+	private boolean suppressChangeEvent = false;
 	private static final String LCAT = "TiUIDatePicker";
 	private static final boolean DBG = TiConfig.LOGD;
 	
@@ -43,11 +44,14 @@ public class TiUIDatePicker extends TiUIView
 	public void processProperties(TiDict d) {
 		super.processProperties(d);
 		
+		boolean valueExistsInProxy = false;
+		
 		Calendar calendar = Calendar.getInstance();
 	    
         DatePicker picker = (DatePicker) getNativeView();
         if (d.containsKey("value")) {
             calendar.setTime((Date)d.get("value"));
+            valueExistsInProxy = true;
         }   
         if (d.containsKey("minDate")) {
             this.minDate = (Date) d.get("minDate");
@@ -61,9 +65,15 @@ public class TiUIDatePicker extends TiUIView
                 this.minuteInterval = mi; 
             }   
         }   
+        suppressChangeEvent = true;
         picker.init(calendar.get(Calendar.YEAR),
             calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH), this);
-
+        suppressChangeEvent = false;
+        
+        if (!valueExistsInProxy) {
+        	proxy.internalSetDynamicValue("value", calendar.getTime(), false);
+        }
+        
         //iPhone ignores both values if max <= min
         if (minDate != null && maxDate != null) {
             if (maxDate.compareTo(minDate) <= 0) {
@@ -88,16 +98,29 @@ public class TiUIDatePicker extends TiUIView
 	
 	public void onDateChanged(DatePicker picker, int year, int monthOfYear, int dayOfMonth)
 	{
-		
+		Calendar calendar = Calendar.getInstance();
+		calendar.set(year, monthOfYear, dayOfMonth);
+		if (!suppressChangeEvent) {
+			TiDict data = new TiDict();
+			data.put("value", calendar.getTime());
+			proxy.fireEvent("change", data);
+		}
+		proxy.internalSetDynamicValue("value", calendar.getTime(), false);
 	}
 	
 	public void setValue(long value)
 	{
+		setValue(value, false);
+	}
+	
+	public void setValue(long value, boolean suppressEvent)
+	{
 		DatePicker picker = (DatePicker) getNativeView();
 		Calendar calendar = Calendar.getInstance();
 		calendar.setTimeInMillis(value);
-
+		suppressChangeEvent = suppressEvent;
 		picker.updateDate(calendar.get(Calendar.YEAR), calendar
 				.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH));
+		suppressChangeEvent = false;
 	}
 }

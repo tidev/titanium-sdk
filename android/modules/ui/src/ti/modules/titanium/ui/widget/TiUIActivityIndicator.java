@@ -175,7 +175,7 @@ public class TiUIActivityIndicator extends TiUIView
 			if (progressDialog == null) {
 				Context a = proxy.getTiContext().getTiApp().getCurrentActivity();
 				if (a == null) {
-					a = proxy.getContext();
+					a = proxy.getTiContext().getRootActivity();
 				}
 				progressDialog = new ProgressDialog(a);
 			}

@@ -77,5 +77,9 @@ public class KrollBridge
 	}
 
 	public void fireEvent() {
+	}	
+	
+	public KrollContext getKrollContext() {
+		return kroll;
 	}
 }

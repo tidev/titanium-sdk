@@ -392,7 +392,7 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 		{
 			modalFlag = YES;
 			attached = YES;
-			TiWindowViewController *wc = [[[TiWindowViewController alloc] initWithWindow:self] autorelease];
+			TiWindowViewController *wc = (TiWindowViewController*)[self controller];
 			UINavigationController *nc = nil;
 			
 			if ([self argOrWindowProperty:@"navBarHidden" args:args]==NO)
@@ -405,6 +405,7 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 			if (style!=-1)
 			{
 				[wc setModalTransitionStyle:style];
+				[nc setModalTransitionStyle:style];
 			}
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
 			style = [TiUtils intValue:@"modalStyle" properties:dict def:-1];
@@ -415,6 +416,7 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 				if ([wc modalTransitionStyle]!=UIModalTransitionStylePartialCurl)
 				{
 					[wc setModalPresentationStyle:style];
+					[nc setModalPresentationStyle:style];
 				}
 			}
 #endif			

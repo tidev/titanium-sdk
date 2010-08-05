@@ -19,6 +19,10 @@
 
 -(void)dealloc
 {
+	if (launcher.editing)
+	{
+		[launcher endEditing];
+	}
 	launcher.delegate = nil;
 	RELEASE_TO_NIL(launcher);
 	[super dealloc];

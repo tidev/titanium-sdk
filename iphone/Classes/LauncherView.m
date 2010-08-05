@@ -96,6 +96,10 @@ static const NSTimeInterval kLauncherViewFastTransitionDuration = 0.2;
 
 - (void)dealloc 
 {
+	if (editing)
+	{
+		[self endEditing];
+	}
 	[pager release];
 	[buttons release];
 	[scrollView release];
