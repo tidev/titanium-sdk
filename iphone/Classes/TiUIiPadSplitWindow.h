@@ -24,7 +24,7 @@
 @interface TiUIiPadSplitWindow : TiUIView<UISplitViewControllerDelegate,MGSplitViewControllerDelegate> {
 
 @private
-	TiSplitViewController *controller;
+	MGSplitViewController *controller;
 }
 
 -(UIViewController*)controller;

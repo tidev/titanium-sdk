@@ -210,7 +210,9 @@
 	isShowing = YES;
 	[self retain];
 	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(updatePopover:) name:UIApplicationWillChangeStatusBarOrientationNotification object:nil];
+	[self windowWillOpen];
 	[self updatePopoverNow];
+	[self windowDidOpen];
 }
 
 -(void)updatePopover:(NSNotification *)notification;
@@ -267,9 +269,11 @@
 	{
 		return;
 	}
+	[self windowWillClose];
 	isShowing = NO;
 	[self fireEvent:@"hide" withObject:nil]; //Checking for listeners are done by fireEvent anyways.
 	[[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationWillChangeStatusBarOrientationNotification object:nil];
+	[self windowDidClose];
 	[self performSelector:@selector(release) withObject:nil afterDelay:0.5];
 }
 
