@@ -8,6 +8,8 @@ package ti.modules.titanium.ui;
 
 import java.io.IOException;
 import java.lang.ref.WeakReference;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -32,6 +34,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
 import android.os.Messenger;
@@ -95,15 +98,42 @@ public class TiUIWindow extends TiUIView
 		}
 
 		boolean vertical = isVerticalLayout(resolver);
-		resolver.release();
-		resolver = null;
 
 		if (newActivity)
 		{
 			lightWeight = false;
 			Activity activity = proxy.getTiContext().getActivity();
 			Intent intent = createIntent(activity, options);
-			activity.startActivity(intent);
+			TiDict d = resolver.findProperty("animate");
+			boolean animate = false;
+			Method overridePendingTransition = null;
+			if (d != null) {
+				if (d.containsKey("animate")) {
+					animate = TiConvert.toBoolean(d, "animate");
+					if (!animate) {
+						if (Build.VERSION.SDK_INT > Build.VERSION_CODES.DONUT) {
+							try {
+								overridePendingTransition = Activity.class.getMethod("overridePendingTransition", Integer.TYPE, Integer.TYPE);
+							} catch (NoSuchMethodException e) {
+								Log.w(LCAT, "Activity.overridePendingTransition() not found");
+							}
+						}
+					}
+				}
+			}
+			if (overridePendingTransition != null) {
+				try {
+					intent.addFlags(65536); // Intent.FLAG_ACTIVITY_NO_ANIMATION not available in API 4
+					activity.startActivity(intent);
+					overridePendingTransition.invoke(activity, new Object[]{-1,-1});
+				} catch (InvocationTargetException e) {
+					Log.e(LCAT, "Called incorrectly: " + e.getMessage());
+				} catch (IllegalAccessException e) {
+					Log.e(LCAT, "Illegal access: " + e.getMessage());
+				}
+			} else {
+				activity.startActivity(intent);
+			}
 		} else {
 			lightWeight = true;
 			liteWindow = new TiCompositeLayout(proxy.getContext(), vertical);
@@ -114,6 +144,9 @@ public class TiUIWindow extends TiUIView
 			proxy.setModelListener(this);
 			handlePostOpen();
 		}
+		
+		resolver.release();
+		resolver = null;
 	}
 
 	public TiUIWindow(TiViewProxy proxy, Activity activity)
