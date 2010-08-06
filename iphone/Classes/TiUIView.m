@@ -548,12 +548,6 @@ DEFINE_EXCEPTIONS
 	[rect setRect:r];
 }
 
--(void)didMoveToSuperview
-{
-	[[[TiApp app] controller] repositionSubviews];
-	[super didMoveToSuperview];
-}
-
 #pragma mark Public APIs
 
 -(void)setBorderColor_:(id)color
