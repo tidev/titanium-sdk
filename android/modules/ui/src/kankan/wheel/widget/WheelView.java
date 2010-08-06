@@ -61,13 +61,15 @@ public class WheelView extends View {
 			0x00AAAAAA, 0x00AAAAAA };
 
 	/** Additional items height (is added to standard text item height) */
-	private static final int ADDITIONAL_ITEM_HEIGHT = 15;
+	//private static final int ADDITIONAL_ITEM_HEIGHT = 15;
+	
 
 	/** Text size */
-	private static final int TEXT_SIZE = 24;
+	//private static final int TEXT_SIZE = 24;
+	private int textSize = 24; // default
 
 	/** Top and bottom items offset (to hide that) */
-	private static final int ITEM_OFFSET = TEXT_SIZE / 5;
+	//private static final int ITEM_OFFSET = TEXT_SIZE / 5;
 
 	/** Additional width for items layout */
 	private static final int ADDITIONAL_ITEMS_SPACE = 10;
@@ -113,6 +115,8 @@ public class WheelView extends View {
 	private float lastYTouch;
 	
 	private WheelView.OnItemSelectedListener itemSelectedListener;
+	
+	private boolean measured = false;
 
 	/**
 	 * Constructor
@@ -229,14 +233,14 @@ public class WheelView extends View {
 			itemsPaint = new TextPaint(Paint.ANTI_ALIAS_FLAG
 					| Paint.FAKE_BOLD_TEXT_FLAG);
 			//itemsPaint.density = getResources().getDisplayMetrics().density;
-			itemsPaint.setTextSize(TEXT_SIZE);
+			itemsPaint.setTextSize(textSize);
 		}
 
 		if (valuePaint == null) {
 			valuePaint = new TextPaint(Paint.ANTI_ALIAS_FLAG
 					| Paint.FAKE_BOLD_TEXT_FLAG | Paint.DITHER_FLAG);
 			//valuePaint.density = getResources().getDisplayMetrics().density;
-			valuePaint.setTextSize(TEXT_SIZE);
+			valuePaint.setTextSize(textSize);
 			valuePaint.setShadowLayer(0.5f, 0, 0.5f, 0xFFFFFFFF);
 		}
 
@@ -307,8 +311,8 @@ public class WheelView extends View {
 		}
 
 		int linecount = layout.getLineCount();
-		int desired = layout.getLineTop(linecount) - ITEM_OFFSET * 2
-				- ADDITIONAL_ITEM_HEIGHT;
+		int desired = layout.getLineTop(linecount) - getItemOffset() * 2
+				- getAdditionalItemHeight();
 
 		// Check against our minimum height
 		desired = Math.max(desired, getSuggestedMinimumHeight());
@@ -455,7 +459,7 @@ public class WheelView extends View {
 		if (itemsLayout == null || itemsLayout.getWidth() > widthItems) {
 			itemsLayout = new StaticLayout(buildText(), itemsPaint, widthItems,
 					widthLabel > 0 ? Layout.Alignment.ALIGN_OPPOSITE : Layout.Alignment.ALIGN_CENTER,
-					1, ADDITIONAL_ITEM_HEIGHT, false);
+					1, getAdditionalItemHeight(), false);
 		} else {
 			itemsLayout.increaseWidthTo(widthItems);
 		}
@@ -465,7 +469,7 @@ public class WheelView extends View {
 			valueLayout = new StaticLayout(text != null ? text : "",
 					valuePaint, widthItems, widthLabel > 0 ?
 							Layout.Alignment.ALIGN_OPPOSITE : Layout.Alignment.ALIGN_CENTER,
-							1, ADDITIONAL_ITEM_HEIGHT, false);
+							1, getAdditionalItemHeight(), false);
 		} else {
 			valueLayout.increaseWidthTo(widthItems);
 		}
@@ -474,7 +478,7 @@ public class WheelView extends View {
 			if (labelLayout == null || labelLayout.getWidth() > widthLabel) {
 				labelLayout = new StaticLayout(label, valuePaint,
 						widthLabel, Layout.Alignment.ALIGN_NORMAL, 1,
-						ADDITIONAL_ITEM_HEIGHT, false);
+						getAdditionalItemHeight(), false);
 			} else {
 				labelLayout.increaseWidthTo(widthLabel);
 			}
@@ -483,6 +487,7 @@ public class WheelView extends View {
 
 	@Override
 	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+		measured = true;
 		int widthMode = MeasureSpec.getMode(widthMeasureSpec);
 		int heightMode = MeasureSpec.getMode(heightMeasureSpec);
 		int widthSize = MeasureSpec.getSize(widthMeasureSpec);
@@ -521,7 +526,7 @@ public class WheelView extends View {
 		if (itemsWidth > 0) {
 			canvas.save();
 			// Skip padding space and hide a part of top and bottom items
-			canvas.translate(PADDING, -ITEM_OFFSET);
+			canvas.translate(PADDING, -getItemOffset());
 			drawItems(canvas);
 			drawValue(canvas);
 			canvas.restore();
@@ -627,6 +632,29 @@ public class WheelView extends View {
 	public void setItemSelectedListener(OnItemSelectedListener listener)
 	{
 		this.itemSelectedListener = listener;
+	}
+	
+	private int getAdditionalItemHeight()
+	{
+		return (int) (textSize * 0.625);
+	}
+	
+	private int getItemOffset()
+	{
+		return (int) (textSize / 5);
+	}
+	
+	public void setTextSize(int size)
+	{
+		if (measured) {
+			throw new IllegalStateException("Cannot change text size after view has been measured.");
+		}
+		textSize= size;
+	}
+	
+	public int getTextSize()
+	{
+		return textSize;
 	}
 }
 
