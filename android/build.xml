@@ -61,6 +61,7 @@
 		<build-module name="analytics"/>
 		<build-module name="app"/>
 		<build-module name="api"/>
+		<build-module name="bump"/>
 		<build-module name="database"/>
 		<build-module name="facebook"/>
 		<build-module name="filesystem"/>
