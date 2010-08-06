@@ -646,6 +646,11 @@ DEFINE_EXCEPTIONS
 -(void)setVisible_:(id)visible
 {
 	self.hidden = ![TiUtils boolValue:visible];
+    
+    // Redraw ourselves if changing from invisible to visible, to handle any changes made
+    if (!self.hidden) {
+        [(TiViewProxy*)[self proxy] reposition];
+    }
 }
 
 -(void)setZIndex_:(id)z

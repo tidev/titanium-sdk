@@ -60,21 +60,13 @@ public class TiUILabel extends TiUIView
 		}
 		if (d.containsKey("textAlign")) {
 			String textAlign = d.getString("textAlign");
-			setAlignment(tv, textAlign);
+			TiUIHelper.setAlignment(tv, textAlign, null);
+		}
+		if (d.containsKey("verticalAlign")) {
+			String verticalAlign = d.getString("verticalAlign");
+			TiUIHelper.setAlignment(tv, null, verticalAlign);
 		}
 		tv.invalidate();
-	}
-
-	private void setAlignment(TextView tv, String textAlign) {
-		if ("left".equals(textAlign)) {
-			tv.setGravity(Gravity.CENTER_VERTICAL | Gravity.LEFT);
-		} else if ("center".equals(textAlign)) {
-			tv.setGravity(Gravity.CENTER_VERTICAL | Gravity.CENTER_HORIZONTAL);
-		} else if ("right".equals(textAlign)) {
-			tv.setGravity(Gravity.CENTER_VERTICAL | Gravity.RIGHT);
-		} else {
-			Log.w(LCAT, "Unsupported alignment: " + textAlign);
-		}
 	}
 
 	@Override
@@ -92,7 +84,10 @@ public class TiUILabel extends TiUIView
 		} else if (key.equals("highlightedColor")) {
 			tv.setHighlightColor(TiConvert.toColor((String) newValue));
 		} else if (key.equals("textAlign")) {
-			setAlignment(tv, TiConvert.toString(newValue));
+			TiUIHelper.setAlignment(tv, TiConvert.toString(newValue), null);
+			tv.requestLayout();
+		} else if (key.equals("verticalAlign")) {
+			TiUIHelper.setAlignment(tv, null, TiConvert.toString(newValue));
 			tv.requestLayout();
 		} else if (key.equals("font")) {
 			TiUIHelper.styleText(tv, (TiDict) newValue);

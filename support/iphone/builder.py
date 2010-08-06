@@ -657,8 +657,16 @@ def main(args):
 				libdir = os.path.join(iphone_dir,'lib')
 				if not os.path.exists(libdir): os.makedirs(libdir)
 				os.chdir(libdir)
-				if os.path.exists("libTiCore.a"): os.unlink("libTiCore.a")
-				os.symlink(libticore,"libTiCore.a")
+				# a broken link will not return true on os.path.exists
+				# so we need to use brute force
+				try:
+					os.unlink("libTiCore.a")
+				except:
+					pass
+				try:
+					os.symlink(libticore,"libTiCore.a")
+				except:
+					pass
 				os.chdir(cwd)
 
 			# if the lib doesn't exist, force a rebuild since it's a new build
@@ -832,7 +840,6 @@ def main(args):
 				if command == 'simulator':
 
 					if force_rebuild or force_xcode or not os.path.exists(binary):
-						shutil.copy(os.path.join(template_dir,'Classes','defines.h'),os.path.join(iphone_dir,'Classes','defines.h'))
 						execute_xcode("iphonesimulator%s" % iphone_version,["GCC_PREPROCESSOR_DEFINITIONS=__LOG__ID__=%s DEPLOYTYPE=development TI_DEVELOPMENT=1 DEBUG=1 TI_VERSION=%s" % (log_id,sdk_version)],False)
 
 					# first make sure it's not running
