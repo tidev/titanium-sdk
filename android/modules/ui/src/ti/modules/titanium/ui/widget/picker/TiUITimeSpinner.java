@@ -44,6 +44,8 @@ public class TiUITimeSpinner extends TiUIView
 		FormatNumericWheelAdapter minutes = new FormatNumericWheelAdapter(0, 59, formatter, 8);
 		hoursWheel = new WheelView(proxy.getContext());
 		minutesWheel = new WheelView(proxy.getContext());
+		hoursWheel.setTextSize(20);
+		minutesWheel.setTextSize(hoursWheel.getTextSize());
 		hoursWheel.setAdapter(hours);
 		minutesWheel.setAdapter(minutes);
 		
