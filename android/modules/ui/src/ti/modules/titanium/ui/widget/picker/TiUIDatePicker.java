@@ -4,7 +4,7 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-package ti.modules.titanium.ui.widget;
+package ti.modules.titanium.ui.widget.picker;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -14,32 +14,29 @@ import org.appcelerator.titanium.TiProxy;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
-import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiUIView;
 
-import android.widget.TimePicker;
-import android.widget.TimePicker.OnTimeChangedListener;
+import android.widget.DatePicker;
+import android.widget.DatePicker.OnDateChangedListener;
 
-public class TiUITimePicker extends TiUIView
-	implements OnTimeChangedListener
+public class TiUIDatePicker extends TiUIView
+	implements OnDateChangedListener
 {
-	private static final String LCAT = "TiUITimePicker";
-	private static final boolean DBG = TiConfig.LOGD;
 	private boolean suppressChangeEvent = false;
+	private static final String LCAT = "TiUIDatePicker";
+	private static final boolean DBG = TiConfig.LOGD;
 	
 	protected Date minDate, maxDate;
 	protected int minuteInterval;
 	
-	public TiUITimePicker(TiViewProxy proxy)
+	public TiUIDatePicker(TiViewProxy proxy)
 	{
 		super(proxy);
 		if (DBG) {
-			Log.d(LCAT, "Creating a time picker");
+			Log.d(LCAT, "Creating a date picker");
 		}
 		
-		TimePicker picker = new TimePicker(proxy.getContext());
-		picker.setIs24HourView(false);
-		picker.setOnTimeChangedListener(this);
+		DatePicker picker = new DatePicker(proxy.getContext());
 		setNativeView(picker);
 	}
 	
@@ -48,9 +45,10 @@ public class TiUITimePicker extends TiUIView
 		super.processProperties(d);
 		
 		boolean valueExistsInProxy = false;
+		
 		Calendar calendar = Calendar.getInstance();
 	    
-        TimePicker picker = (TimePicker) getNativeView();
+        DatePicker picker = (DatePicker) getNativeView();
         if (d.containsKey("value")) {
             calendar.setTime((Date)d.get("value"));
             valueExistsInProxy = true;
@@ -67,15 +65,10 @@ public class TiUITimePicker extends TiUIView
                 this.minuteInterval = mi; 
             }   
         }   
-        
-        // Undocumented but maybe useful for Android
-        boolean is24HourFormat = false;
-        if (d.containsKey("format24")) {
-        	is24HourFormat = d.getBoolean("format24");
-        }
-    	picker.setIs24HourView(is24HourFormat);
-        
-        setValue(calendar.getTimeInMillis() , true);
+        suppressChangeEvent = true;
+        picker.init(calendar.get(Calendar.YEAR),
+            calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH), this);
+        suppressChangeEvent = false;
         
         if (!valueExistsInProxy) {
         	proxy.internalSetDynamicValue("value", calendar.getTime(), false);
@@ -95,13 +88,24 @@ public class TiUITimePicker extends TiUIView
 	public void propertyChanged(String key, Object oldValue, Object newValue,
 			TiProxy proxy)
 	{
-		if (key.equals("value")) {
+		if (key.equals("value"))
+		{
 			Date date = (Date)newValue;
 			setValue(date.getTime());
-		} else if (key.equals("format24")) {
-			((TimePicker)getNativeView()).setIs24HourView(TiConvert.toBoolean(newValue));
 		}
 		super.propertyChanged(key, oldValue, newValue, proxy);
+	}
+	
+	public void onDateChanged(DatePicker picker, int year, int monthOfYear, int dayOfMonth)
+	{
+		Calendar calendar = Calendar.getInstance();
+		calendar.set(year, monthOfYear, dayOfMonth);
+		if (!suppressChangeEvent) {
+			TiDict data = new TiDict();
+			data.put("value", calendar.getTime());
+			proxy.fireEvent("change", data);
+		}
+		proxy.internalSetDynamicValue("value", calendar.getTime(), false);
 	}
 	
 	public void setValue(long value)
@@ -111,30 +115,12 @@ public class TiUITimePicker extends TiUIView
 	
 	public void setValue(long value, boolean suppressEvent)
 	{
-		TimePicker picker = (TimePicker) getNativeView();
+		DatePicker picker = (DatePicker) getNativeView();
 		Calendar calendar = Calendar.getInstance();
 		calendar.setTimeInMillis(value);
-		
-		// This causes two events to fire.
-		suppressChangeEvent = true;
-		picker.setCurrentHour(calendar.get(Calendar.HOUR_OF_DAY));
 		suppressChangeEvent = suppressEvent;
-		picker.setCurrentMinute(calendar.get(Calendar.MINUTE));
+		picker.updateDate(calendar.get(Calendar.YEAR), calendar
+				.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH));
 		suppressChangeEvent = false;
-	}
-
-	@Override
-	public void onTimeChanged(TimePicker view, int hourOfDay, int minute)
-	{
-		Calendar calendar = Calendar.getInstance();
-		calendar.set(Calendar.HOUR_OF_DAY, hourOfDay);
-		calendar.set(Calendar.MINUTE, minute);
-		if (!suppressChangeEvent) {
-			TiDict data = new TiDict();
-			data.put("value", calendar.getTime());
-			proxy.fireEvent("change", data);		
-		}
-		// Make sure .value is readable by user
-		proxy.internalSetDynamicValue("value", calendar.getTime(), false);
 	}
 }
