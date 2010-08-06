@@ -5,20 +5,17 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
-package ti.modules.titanium.ui.widget;
+package ti.modules.titanium.ui.widget.picker;
 
 import java.text.DecimalFormat;
-import java.text.NumberFormat;
 import java.util.Calendar;
 import java.util.Date;
 
-import kankan.wheel.widget.NumericWheelAdapter;
 import kankan.wheel.widget.WheelView;
 
 import org.appcelerator.titanium.TiDict;
 import org.appcelerator.titanium.TiProxy;
 import org.appcelerator.titanium.proxy.TiViewProxy;
-import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.view.TiUIView;
 
 import android.widget.LinearLayout;
@@ -26,8 +23,6 @@ import android.widget.LinearLayout;
 public class TiUITimeSpinner extends TiUIView
 		implements WheelView.OnItemSelectedListener
 {
-	public static final String LCAT = "TiUITimeSpinner";
-	public static final boolean DBG = TiConfig.LOGD;
 	private WheelView hoursWheel;
 	private WheelView minutesWheel;
 	private boolean suppressChangeEvent = false;
@@ -44,10 +39,9 @@ public class TiUITimeSpinner extends TiUIView
 	
 	private void createNativeView()
 	{
-		FormatNumericWheelAdapter hours = new FormatNumericWheelAdapter(0, 23);
-		FormatNumericWheelAdapter minutes = new FormatNumericWheelAdapter(0, 59);
-		hours.setFormatter(new DecimalFormat("00"));
-		minutes.setFormatter(new DecimalFormat("00"));
+		DecimalFormat formatter = new DecimalFormat("00");
+		FormatNumericWheelAdapter hours = new FormatNumericWheelAdapter(0, 23, formatter, 8);
+		FormatNumericWheelAdapter minutes = new FormatNumericWheelAdapter(0, 59, formatter, 8);
 		hoursWheel = new WheelView(proxy.getContext());
 		minutesWheel = new WheelView(proxy.getContext());
 		hoursWheel.setAdapter(hours);
@@ -121,34 +115,6 @@ public class TiUITimeSpinner extends TiUIView
 		suppressChangeEvent = false;
 	}
 	
-	class FormatNumericWheelAdapter extends NumericWheelAdapter
-	{
-		private NumberFormat formatter;
-		public FormatNumericWheelAdapter(int minValue, int maxValue)
-		{
-			super(minValue, maxValue);
-		}
-		public void setFormatter(NumberFormat formatter) {
-			this.formatter = formatter;
-		}
-		@Override
-		public String getItem(int index)
-		{
-			if (formatter == null) {
-				return Integer.toString(getMinValue() + index);
-			} else {
-				return formatter.format(getMinValue() + index);
-			}
-		}
-		@Override
-		public int getMaximumLength()
-		{
-			// HACK just because we want wider columns
-			return 8;
-		}
-		
-	}
-
 	@Override
 	public void onItemSelected(WheelView view, int index)
 	{
