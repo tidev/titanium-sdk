@@ -2,7 +2,6 @@ package ti.modules.titanium.android.calendar;
 
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiDict;
@@ -18,6 +17,7 @@ import android.net.Uri;
 
 // Columns and value constants taken from android.provider.Calendar in the android source base
 public class EventProxy extends TiProxy {
+	public static final String TAG = "TiEvent";
 	
 	public static final int STATUS_TENTATIVE = 0;
 	public static final int STATUS_CONFIRMED = 1;
@@ -30,7 +30,7 @@ public class EventProxy extends TiProxy {
 	
 	protected String id, title, description, location;
 	protected Date begin, end;
-	protected boolean allDay, hasAlarm, hasExtendedProperties;
+	protected boolean allDay, hasAlarm = true, hasExtendedProperties = true;
 	protected int status, visibility;
 	protected TiDict extendedProperties = new TiDict();
 	
@@ -47,6 +47,10 @@ public class EventProxy extends TiProxy {
 	
 	public static String getInstancesWhenUri() {
 		return CalendarProxy.getBaseCalendarUri() + "/instances/when";
+	}
+	
+	public static String getExtendedPropertiesUri() {
+		return CalendarProxy.getBaseCalendarUri() + "/extendedproperties";
 	}
 	
 	public static ArrayList<EventProxy> queryEvents(TiContext context, String query, String[] queryArgs) {
@@ -103,49 +107,65 @@ public class EventProxy extends TiProxy {
 			event.status = eventCursor.getInt(8);
 			event.visibility = eventCursor.getInt(9);
 			event.hasExtendedProperties = !eventCursor.getString(10).equals("0");
-			if (event.hasExtendedProperties) {
-				Cursor extPropsCursor = contentResolver.query(
-					Uri.parse(CalendarProxy.getBaseCalendarUri() + " /extendedproperties"),
-					new String[] { "name", "value" }, "event_id = ?", new String[] { event.id }, null);
-				
-				while (extPropsCursor.moveToNext()) {
-					String name = extPropsCursor.getString(0);
-					String value = extPropsCursor.getString(1);
-					event.extendedProperties.put(name, value);
-				}
-			}
 			
 			events.add(event);
 		}
 		return events;
 	}
 	
-	public static EventProxy createEvent(TiContext context, CalendarProxy calendar, String title, String description, Date begin, Date end, boolean allDay) {
+	public static EventProxy createEvent(TiContext context, CalendarProxy calendar, TiDict data) {
 		ContentResolver contentResolver = context.getActivity().getContentResolver();
+		EventProxy event = new EventProxy(context);
+		
 		ContentValues eventValues = new ContentValues();
-		
-		eventValues.put("title", title);
-		eventValues.put("description", description);
-		eventValues.put("dtstart", begin.getTime());
-		eventValues.put("dtend", end.getTime());
-		eventValues.put("calendar_id", calendar.getId());
 		eventValues.put("hasAlarm", 1);
+		eventValues.put("hasExtendedProperties", 1);
 		
-		if (allDay) {
-			eventValues.put("allDay", 1);
+		if (!data.containsKey("title")) {
+			Log.e(TAG, "No title found for event, so it wasn't created");
+			return null;
+		}
+		
+		event.title = TiConvert.toString(data, "title");
+		eventValues.put("title", event.title);
+		eventValues.put("calendar_id", calendar.getId());
+		
+		if (data.containsKey("description")) {
+			event.description = TiConvert.toString(data, "description");
+			eventValues.put("description", event.description);
+		}
+		if (data.containsKey("begin")) {
+			event.begin = TiConvert.toDate(data, "begin");
+			if (event.begin !=  null) {
+				eventValues.put("dtstart", event.begin.getTime());
+			}
+		}
+		if (data.containsKey("end")) {
+			event.end = TiConvert.toDate(data, "end");
+			if (event.end !=  null) {
+				eventValues.put("dtend", event.end.getTime());
+			}
+		}
+		if (data.containsKey("allDay")) {
+			event.allDay = TiConvert.toBoolean(data, "allDay");
+			eventValues.put("allDay", event.allDay ? 1 : 0);
+		}
+		
+		if (data.containsKey("hasExtendedProperties")) {
+			event.hasExtendedProperties = TiConvert.toBoolean(data, "hasExtendedProperties");
+			eventValues.put("hasExtendedProperties", event.hasExtendedProperties ? 1 : 0);
+		}
+		
+		if (data.containsKey("hasAlarm")) {
+			event.hasAlarm = TiConvert.toBoolean(data, "hasAlarm");
+			eventValues.put("hasAlarm", event.hasAlarm ? 1 : 0);
 		}
 		
 		Uri eventUri = contentResolver.insert(Uri.parse(CalendarProxy.getBaseCalendarUri()+"/events"), eventValues);
 		Log.d("TiEvents", "created event with uri: " + eventUri);
 		
 		String eventId = eventUri.getLastPathSegment();
-		EventProxy event = new EventProxy(context);
 		event.id = eventId;
-		event.title = title;
-		event.description = description;
-		event.begin = begin;
-		event.end = end;
-		event.allDay = allDay;
 		
 		return event;
 	}
@@ -245,6 +265,65 @@ public class EventProxy extends TiProxy {
 	}
 	
 	public TiDict getExtendedProperties() {
+		TiDict extendedProperties = new TiDict();
+		ContentResolver contentResolver = getTiContext().getActivity().getContentResolver();
+		Cursor extPropsCursor = contentResolver.query(
+			Uri.parse(getExtendedPropertiesUri()),
+			new String[] { "name", "value" }, "event_id = ?", new String[] { getId() }, null);
+		
+		while (extPropsCursor.moveToNext()) {
+			String name = extPropsCursor.getString(0);
+			String value = extPropsCursor.getString(1);
+			extendedProperties.put(name, value);
+		}
 		return extendedProperties;
+	}
+	
+	public String getExtendedProperty(String name) {
+		ContentResolver contentResolver = getTiContext().getActivity().getContentResolver();
+		Cursor extPropsCursor = contentResolver.query(
+			Uri.parse(getExtendedPropertiesUri()),
+			new String[] { "value" }, "event_id = ? and name = ?", new String[] { getId(), name }, null);
+		
+		if (extPropsCursor != null && extPropsCursor.getCount() > 0) {
+			extPropsCursor.moveToNext();
+			String value = extPropsCursor.getString(0);
+			extPropsCursor.close();
+			return value;
+		}
+	
+		return null;
+	}
+	
+	public void setExtendedProperty(String name, String value) {
+		if (!hasExtendedProperties) {
+			hasExtendedProperties = true;
+		}
+		Log.d("TiEvent", "set extended property: " + name + " = " + value);
+		
+		// we need to update the DB
+		ContentResolver contentResolver = getTiContext().getActivity().getContentResolver();
+		/*ContentValues eventValues = new ContentValues();
+		eventValues.put("hasExtendedProperties", hasExtendedProperties);
+		contentResolver.update(Uri.parse(getEventsUri()), eventValues, "_id = ?", new String[] { getId() });*/
+		
+		Uri extPropsUri = Uri.parse(getExtendedPropertiesUri()); 
+		Cursor results = contentResolver.query(
+			extPropsUri, new String[] { "name" }, "name = ? AND event_id = ?", new String[] { name, getId() }, null);
+		
+		ContentValues values =  new ContentValues();
+		values.put("name", name);
+		values.put("value", value);
+		int count = results.getCount();
+		results.close();
+		
+		if (count == 1) {
+			// android won't let us update, so we have to delete+insert
+			contentResolver.delete(extPropsUri, "name = ? and event_id = ?", new String[] { name, getId() });
+		}
+		
+		// insert the record
+		values.put("event_id", getId());
+		contentResolver.insert(extPropsUri, values);
 	}
 }

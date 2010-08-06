@@ -8,6 +8,7 @@ import org.appcelerator.titanium.TiDict;
 import org.appcelerator.titanium.TiProxy;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
+import org.appcelerator.titanium.util.TiConvert;
 
 import android.content.Intent;
 import android.net.Uri;
@@ -65,6 +66,22 @@ public class IntentProxy extends TiProxy
 			}
 		}
 	}	
+	
+	public void putExtra(String key, Object value) 
+	{
+		if (value instanceof String) {
+			intent.putExtra(key, (String) value);
+		} else if (value instanceof Boolean) {
+			intent.putExtra(key, (Boolean) value);
+		} else if (value instanceof Double) {
+			intent.putExtra(key, (Double) value);
+		} else if (value instanceof Integer) {
+			intent.putExtra(key, (Integer) value);
+		} else {
+			Log.w(LCAT, "Warning unimplemented put conversion for " + value.getClass().getCanonicalName() + " trying String");
+			intent.putExtra(key, TiConvert.toString(value));
+		}
+	}
 	
 	protected Intent getIntent() { 
 		return intent;

@@ -35,7 +35,7 @@
 
 UIImage* AddImageReflection(UIImage *image, CGFloat reflectionFraction) 
 {
-	int reflectionHeight = image.size.height * reflectionFraction;
+	int reflectionHeight = ceilf(image.size.height * reflectionFraction);
 	
     // create a 2 bit CGImage containing a gradient that will be used for masking the 
     // main view content to create the 'fade' of the reflection.  The CGImageCreateWithMask

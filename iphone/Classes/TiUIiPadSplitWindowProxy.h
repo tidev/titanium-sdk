@@ -8,10 +8,9 @@
 
 #ifdef USE_TI_UIIPADSPLITWINDOW
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
-#import "TiViewProxy.h"
-#import "TiUIWindowProxy.h"
+#import "TiWindowProxy.h"
 
-@interface TiUIiPadSplitWindowProxy : TiUIWindowProxy {
+@interface TiUIiPadSplitWindowProxy : TiWindowProxy {
 
 @private
 

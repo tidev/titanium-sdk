@@ -7,7 +7,6 @@ import java.util.Date;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiDict;
 import org.appcelerator.titanium.TiProxy;
-import org.appcelerator.titanium.util.TiConvert;
 
 import android.content.ContentResolver;
 import android.database.Cursor;
@@ -113,26 +112,7 @@ public class CalendarProxy extends TiProxy {
 	}
 	
 	public EventProxy createEvent(TiDict data) {
-		String title = TiConvert.toString(data, "title");
-		String description = null;
-		Date begin = null, end = null;
-		boolean allDay = false;
-		
-		if (data.containsKey("description")) {
-			description = TiConvert.toString(data, "description");
-		}
-		if (data.containsKey("begin")) {
-			begin = TiConvert.toDate(data, "begin");
-		}
-		if (data.containsKey("end")) {
-			end = TiConvert.toDate(data, "end");
-		}
-		if (data.containsKey("allDay")) {
-			allDay = TiConvert.toBoolean(data, "allDay");
-		}
-		
-		return EventProxy.createEvent(getTiContext(), this,
-			title, description, begin, end, allDay);
+		return EventProxy.createEvent(getTiContext(), this, data);
 	}
 	
 	public String getName() {
