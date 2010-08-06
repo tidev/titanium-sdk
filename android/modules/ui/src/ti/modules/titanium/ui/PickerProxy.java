@@ -20,10 +20,11 @@ import org.appcelerator.titanium.util.AsyncResult;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiUIView;
 
-import ti.modules.titanium.ui.widget.TiUIDatePicker;
-import ti.modules.titanium.ui.widget.TiUIPicker;
-import ti.modules.titanium.ui.widget.TiUITimePicker;
-import ti.modules.titanium.ui.widget.TiUITimeSpinner;
+import ti.modules.titanium.ui.widget.picker.TiUIDatePicker;
+import ti.modules.titanium.ui.widget.picker.TiUIDateSpinner;
+import ti.modules.titanium.ui.widget.picker.TiUIPicker;
+import ti.modules.titanium.ui.widget.picker.TiUITimePicker;
+import ti.modules.titanium.ui.widget.picker.TiUITimeSpinner;
 import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
@@ -56,6 +57,10 @@ public class PickerProxy extends TiViewProxy
 	@Override
 	public TiUIView createView(Activity activity) 
 	{
+		boolean useSpinner = false;
+		if (hasDynamicValue("useSpinner")) {
+			useSpinner = (TiConvert.toBoolean(getDynamicValue("useSpinner")));
+		}
 		if (type == UIModule.PICKER_TYPE_COUNT_DOWN_TIMER ) {
 			Log.w(LCAT, "Countdown timer not supported in Titanium for Android");
 			return null;
@@ -65,12 +70,12 @@ public class PickerProxy extends TiViewProxy
 		} else if (type == UIModule.PICKER_TYPE_PLAIN ) {
 			return createPlainPicker(activity);
 		} else if (type == UIModule.PICKER_TYPE_DATE ) {
-			return createDatePicker(activity);
-		} else if (type == UIModule.PICKER_TYPE_TIME) {
-			boolean useSpinner = false;
-			if (hasDynamicValue("useSpinner")) {
-				useSpinner= (TiConvert.toBoolean(getDynamicValue("useSpinner")));
+			if (useSpinner) {
+				return createDateSpinner(activity);
+			} else {
+				return createDatePicker(activity);
 			}
+		} else if (type == UIModule.PICKER_TYPE_TIME) {
 			if (useSpinner) {
 				return createTimeSpinner(activity);
 			} else {
@@ -123,6 +128,11 @@ public class PickerProxy extends TiViewProxy
 	private TiUIView createTimeSpinner(Activity activity)
 	{
 		return new TiUITimeSpinner(this);
+	}
+	
+	private TiUIView createDateSpinner(Activity activity)
+	{
+		return new TiUIDateSpinner(this);
 	}
 	
 	public int getType()

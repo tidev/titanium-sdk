@@ -4,7 +4,7 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-package ti.modules.titanium.ui.widget;
+package ti.modules.titanium.ui.widget.picker;
 
 import java.util.ArrayList;
 
