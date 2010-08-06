@@ -84,6 +84,9 @@ public class EventProxy extends TiProxy {
 			
 			events.add(event);
 		}
+		
+		eventCursor.close();
+		
 		return events;
 	}
 	
@@ -110,6 +113,7 @@ public class EventProxy extends TiProxy {
 			
 			events.add(event);
 		}
+		eventCursor.close();
 		return events;
 	}
 	
@@ -276,6 +280,7 @@ public class EventProxy extends TiProxy {
 			String value = extPropsCursor.getString(1);
 			extendedProperties.put(name, value);
 		}
+		extPropsCursor.close();
 		return extendedProperties;
 	}
 	
