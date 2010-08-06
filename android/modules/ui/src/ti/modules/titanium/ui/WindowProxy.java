@@ -102,7 +102,7 @@ public class WindowProxy extends TiWindowProxy
 		fireEvent("close", null);
 
 		if (view != null) {
-			((TiUIWindow) view).close();
+			((TiUIWindow) view).close(options);
 		}
 		opened = false;
 	}
