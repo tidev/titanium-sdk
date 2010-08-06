@@ -49,8 +49,8 @@ public class TiUIDateSpinner extends TiUIView
 		defaultMinYear = calendar.get(Calendar.YEAR) - 100; 
 		DecimalFormat formatter = new DecimalFormat("00");
 		// TODO minDate/maxDate
-		FormatNumericWheelAdapter months = new FormatNumericWheelAdapter(1, 12, formatter, 2);
-		FormatNumericWheelAdapter days = new FormatNumericWheelAdapter(1, 31, formatter, 2);
+		FormatNumericWheelAdapter months = new FormatNumericWheelAdapter(1, 12, formatter, 4);
+		FormatNumericWheelAdapter days = new FormatNumericWheelAdapter(1, 31, formatter, 4);
 		FormatNumericWheelAdapter years = new FormatNumericWheelAdapter(
 				defaultMinYear, defaultMaxYear,	new DecimalFormat("0000"), 4);
 		monthWheel = new WheelView(proxy.getContext());
