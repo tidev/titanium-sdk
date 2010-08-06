@@ -105,21 +105,20 @@
 -(void)didOrientNotify:(NSNotification *)notification
 {
 	UIInterfaceOrientation newOrientation = [[UIDevice currentDevice] orientation];
-	UIInterfaceOrientation oldOrientation = [[UIApplication sharedApplication] statusBarOrientation];
 	if (lastOrientation == 0)
 	{ //This is when the application first starts. statusBarOrientation lies at the beginning,
 	//And device orientation is 0 until this notification.
 		// FIRST!  We know the orientation now, so attach the splash!
+		UIInterfaceOrientation oldOrientation = [[UIApplication sharedApplication] statusBarOrientation];
 		if (![[TiApp app] isSplashVisible]) {
 			[[TiApp app] loadSplash];
 		}
 		[self willAnimateRotationToInterfaceOrientation:newOrientation duration:0];
-//		windowOrientation = oldOrientation;
+		windowOrientation = oldOrientation;
 		return;
 	}
 
-	if (((newOrientation==windowOrientation) || (0==windowOrientation))&&(
-			lastOrientation!=newOrientation) &&
+	if ((newOrientation==windowOrientation)&&(lastOrientation!=newOrientation) &&
 			[self shouldAutorotateToInterfaceOrientation:newOrientation])
 	{ //This is for when we've forced an orientation that was not what the device was, and
 	//Now we want to return to it. Because newOrientation and windowOrientation are identical
