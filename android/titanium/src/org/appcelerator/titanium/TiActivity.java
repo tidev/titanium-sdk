@@ -24,6 +24,7 @@ import org.appcelerator.titanium.view.TiCompositeLayout;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -60,7 +61,7 @@ public class TiActivity extends Activity
     @Override
     public void onCreate(Bundle savedInstanceState)
     {
-        super.onCreate(savedInstanceState);
+//        super.onCreate(savedInstanceState);
         handler = new Handler();
 
         Intent intent = getIntent();
@@ -94,7 +95,7 @@ public class TiActivity extends Activity
         layout = new TiCompositeLayout(this, vertical);
 
         if (modal) {
-        	setTheme(android.R.style.Theme_Translucent_NoTitleBar_Fullscreen);
+        	setTheme(android.R.style.Theme_Dialog);
         } else {
 	        if (fullscreen) {
 	        	getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
@@ -110,6 +111,7 @@ public class TiActivity extends Activity
 	           	this.requestWindowFeature(Window.FEATURE_NO_TITLE);
 	        }
         }
+        super.onCreate(savedInstanceState);
 
         setContentView(layout);
 
