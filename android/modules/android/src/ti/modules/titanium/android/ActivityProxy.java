@@ -6,13 +6,16 @@ package ti.modules.titanium.android;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiDict;
 import org.appcelerator.titanium.TiProxy;
+import org.appcelerator.titanium.TiProxyListener;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 
 import android.content.Context;
 import android.content.Intent;
 
-public class ActivityProxy extends TiProxy 
+public class ActivityProxy 
+	extends TiProxy
+	implements TiProxyListener
 {
 	private static final String LCAT = "TiActivity";
 	private static boolean DBG = TiConfig.LOGD;
@@ -23,6 +26,7 @@ public class ActivityProxy extends TiProxy
 	public ActivityProxy(TiContext tiContext, Object[] args) 
 	{
 		super(tiContext);
+		modelListener = this;
 
 		TiDict d = null;
 		
@@ -73,4 +77,23 @@ public class ActivityProxy extends TiProxy
 	protected void release() {
 		activity = null;
 	}
+
+	@Override
+	public void listenerAdded(String type, int count, TiProxy proxy) {
+	}
+
+	@Override
+	public void listenerRemoved(String type, int count, TiProxy proxy) {
+	}
+
+	@Override
+	public void processProperties(TiDict d) {
+	}
+
+	@Override
+	public void propertyChanged(String key, Object oldValue, Object newValue, TiProxy proxy) {
+		Log.e(LCAT, "Property Change: " + key);
+	}
+
+	
 }

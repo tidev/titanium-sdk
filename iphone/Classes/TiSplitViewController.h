@@ -13,9 +13,11 @@
 #import "TiRootViewController.h"
 #import "TiViewController.h"
 
+#import "MGSplitViewController.h"
+
 @class TiUIiPadSplitWindowProxy;
 
-@interface TiSplitViewController : UISplitViewController<TiRootController> {
+@interface TiSplitViewController : MGSplitViewController<TiRootController> {
 	TiRootViewController* titaniumRoot; // Need to hold onto this so we can handle orientations properly
 	TiViewController* master;
 	TiViewController* detail;

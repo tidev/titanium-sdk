@@ -23,6 +23,7 @@ import org.appcelerator.titanium.view.TiUIView;
 import ti.modules.titanium.ui.widget.TiUIDatePicker;
 import ti.modules.titanium.ui.widget.TiUIPicker;
 import ti.modules.titanium.ui.widget.TiUITimePicker;
+import ti.modules.titanium.ui.widget.TiUITimeSpinner;
 import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
@@ -66,7 +67,15 @@ public class PickerProxy extends TiViewProxy
 		} else if (type == UIModule.PICKER_TYPE_DATE ) {
 			return createDatePicker(activity);
 		} else if (type == UIModule.PICKER_TYPE_TIME) {
-			return createTimePicker(activity);
+			boolean useSpinner = false;
+			if (hasDynamicValue("useSpinner")) {
+				useSpinner= (TiConvert.toBoolean(getDynamicValue("useSpinner")));
+			}
+			if (useSpinner) {
+				return createTimeSpinner(activity);
+			} else {
+				return createTimePicker(activity);
+			}
 		} else {
 			Log.w(LCAT, "Unknown picker type");
 			return null;
@@ -109,6 +118,11 @@ public class PickerProxy extends TiViewProxy
 	private TiUIView createTimePicker(Activity activity)
 	{
 		return new TiUITimePicker(this);
+	}
+	
+	private TiUIView createTimeSpinner(Activity activity)
+	{
+		return new TiUITimeSpinner(this);
 	}
 	
 	public int getType()
