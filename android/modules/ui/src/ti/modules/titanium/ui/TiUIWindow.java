@@ -26,6 +26,7 @@ import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiFileHelper;
 import org.appcelerator.titanium.util.TiFileHelper2;
 import org.appcelerator.titanium.util.TiPropertyResolver;
+import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.ITiWindowHandler;
 import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.titanium.view.TiUIView;
@@ -64,6 +65,7 @@ public class TiUIWindow extends TiUIView
 	protected TiCompositeLayout liteWindow;
 
 	protected boolean lightWeight;
+	protected boolean animate;
 	protected Handler handler;
 
 	protected Messenger messenger;
@@ -79,6 +81,8 @@ public class TiUIWindow extends TiUIView
 	{
 		super(proxy);
 
+		animate = true;
+		
 		//proxy.setModelListener(this);
 		if (idGenerator == null) {
 			idGenerator = new AtomicInteger(0);
@@ -104,33 +108,17 @@ public class TiUIWindow extends TiUIView
 			lightWeight = false;
 			Activity activity = proxy.getTiContext().getActivity();
 			Intent intent = createIntent(activity, options);
-			TiDict d = resolver.findProperty("animate");
-			boolean animate = false;
-			Method overridePendingTransition = null;
+			TiDict d = resolver.findProperty("animated");
 			if (d != null) {
-				if (d.containsKey("animate")) {
-					animate = TiConvert.toBoolean(d, "animate");
-					if (!animate) {
-						if (Build.VERSION.SDK_INT > Build.VERSION_CODES.DONUT) {
-							try {
-								overridePendingTransition = Activity.class.getMethod("overridePendingTransition", Integer.TYPE, Integer.TYPE);
-							} catch (NoSuchMethodException e) {
-								Log.w(LCAT, "Activity.overridePendingTransition() not found");
-							}
-						}
-					}
+				if (d.containsKey("animated")) {
+					animate = TiConvert.toBoolean(d, "animated");
 				}
 			}
-			if (overridePendingTransition != null) {
-				try {
-					intent.addFlags(65536); // Intent.FLAG_ACTIVITY_NO_ANIMATION not available in API 4
-					activity.startActivity(intent);
-					overridePendingTransition.invoke(activity, new Object[]{-1,-1});
-				} catch (InvocationTargetException e) {
-					Log.e(LCAT, "Called incorrectly: " + e.getMessage());
-				} catch (IllegalAccessException e) {
-					Log.e(LCAT, "Illegal access: " + e.getMessage());
-				}
+			if (!animate) {
+				intent.addFlags(65536); // Intent.FLAG_ACTIVITY_NO_ANIMATION not available in API 4
+				intent.putExtra("animate", false);
+				activity.startActivity(intent);
+				TiUIHelper.overridePendingTransition(activity);
 			} else {
 				activity.startActivity(intent);
 			}
@@ -169,7 +157,6 @@ public class TiUIWindow extends TiUIView
 		//TODO unique key per window, params for intent
 		activityKey = "window$" + idGenerator.incrementAndGet();
 		TiDict props = proxy.getDynamicProperties();
-
 
 		getLayout().setClickable(true);
 		registerForTouch(getLayout());
@@ -342,10 +329,19 @@ public class TiUIWindow extends TiUIView
 			((TiActivity) windowActivity).fireInitialFocus(); 
 		}
 	}
-	public void close() {
+	public void close(TiDict options) 
+	{
 		TiDict data = new TiDict();
 		data.put("source", proxy);
 		proxy.fireEvent("close", data);
+
+		TiDict props = proxy.getDynamicProperties();
+		TiPropertyResolver resolver = new TiPropertyResolver(options, props);
+		props = resolver.findProperty("animated");
+		boolean animateOnClose = animate;
+		if (props != null && props.containsKey("animated")) {
+			animateOnClose = props.getBoolean("animated");
+		}
 
 		if (createdContext != null && createdContext.get() != null) {
 			createdContext.get().dispatchEvent("close", data, proxy);
@@ -353,7 +349,12 @@ public class TiUIWindow extends TiUIView
 		}
 		if (!lightWeight) {
 			if (windowActivity != null) {
-				windowActivity.finish();
+				if (!animateOnClose) {
+					windowActivity.finish();
+					TiUIHelper.overridePendingTransition(windowActivity);
+				} else {
+					windowActivity.finish();					
+				}
 				windowActivity = null;
 			}
 		} else {

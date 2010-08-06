@@ -17,6 +17,7 @@ import org.appcelerator.titanium.util.TiActivitySupport;
 import org.appcelerator.titanium.util.TiActivitySupportHelper;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiConvert;
+import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.ITiWindowHandler;
 import org.appcelerator.titanium.view.TiCompositeLayout;
 
@@ -335,7 +336,9 @@ public class TiActivity extends Activity
 			createdContext.get().dispatchEvent("close", data, proxy);
 		}
 
+		boolean animate = true;
 		Intent intent = getIntent();
+
 		if (intent != null) {
 			if (intent.getBooleanExtra("finishRoot", false)) {
 				if (getApplication() != null) {
@@ -348,9 +351,14 @@ public class TiActivity extends Activity
 					}
 				}
 			}
+			animate = intent.getBooleanExtra("animate", animate);
 		}
 
+
 		super.finish();
+		if (!animate) {
+			TiUIHelper.overridePendingTransition(this);
+		}
 	}
 
 	public void setCreatedContext(TiContext context) {
