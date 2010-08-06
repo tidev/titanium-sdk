@@ -34,6 +34,8 @@ UIViewController * ControllerForProxy(TiViewProxy * proxy)
 	//	return [(TiWindowProxy *)proxy controller];
 	}
 
+	[[proxy view] setAutoresizingMask:UIViewAutoresizingNone];
+
 	return [[[TiViewController alloc] initWithViewProxy:proxy] autorelease];
 }
 
@@ -82,9 +84,9 @@ UIViewController * ControllerForProxy(TiViewProxy * proxy)
 		[controllerView setFrame:[self bounds]];
 		[self addSubview:controllerView];
 
-		[controller willAnimateRotationToInterfaceOrientation:[[UIApplication sharedApplication] statusBarOrientation] duration:0.0];
-
 		[controller viewWillAppear:NO];
+
+		[controller willAnimateRotationToInterfaceOrientation:[[UIApplication sharedApplication] statusBarOrientation] duration:0.0];
 
 
 		[masterProxy windowWillOpen];
