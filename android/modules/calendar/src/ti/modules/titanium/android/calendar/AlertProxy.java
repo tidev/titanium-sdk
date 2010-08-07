@@ -110,21 +110,20 @@ public class AlertProxy extends TiProxy {
 //		Uri uri = ContentUris.withAppendedId(Uri.parse(getAlertsUri()), Long.parseLong(id));
 //		Intent intent = new Intent(EVENT_REMINDER_ACTION);
 		Intent intent = new Intent(context.getActivity(), AlarmReceiver.class);
-		intent.setAction("" + Math.random());
+//		intent.setAction("" + Math.random());
 		// intent.setData(uri);
-		intent.putExtra("beginTime", begin.getTime());
-		intent.putExtra("endTime", end.getTime());
+		// intent.putExtra("beginTime", begin.getTime());
+		// intent.putExtra("endTime", end.getTime());
 		PendingIntent sender = PendingIntent.getBroadcast(context.getActivity(), 0, intent,
 			PendingIntent.FLAG_CANCEL_CURRENT);
 		// PendingIntent sender = PendingIntent.getActivity(context.getActivity(), 0, intent,
 		// 		PendingIntent.FLAG_CANCEL_CURRENT);
-		
+
 		AlarmManager manager = (AlarmManager) 
 			getTiContext().getActivity().getSystemService(Context.ALARM_SERVICE);
 		
-		manager.set(AlarmManager.RTC_WAKEUP, alarmTime.getTime(), sender);
-		
-		 Toast.makeText(context.getActivity(), "Alarm set", Toast.LENGTH_LONG).show();
+//		manager.set(AlarmManager.RTC_WAKEUP, alarmTime.getTime()+2000, sender);
+		manager.set(AlarmManager.RTC_WAKEUP,System.currentTimeMillis(),sender);
 	}
 
 	public String getId() {
