@@ -40,7 +40,7 @@ public class TiAnimationBuilder
 	protected TiAnimation animationProxy;
 
 	protected KrollCallback callback;
-	protected boolean relayoutChild = false;
+	protected boolean relayoutChild = false, applyOpacity = false;
 	protected TiDict options;
 	protected View view;
 	
@@ -141,10 +141,13 @@ public class TiAnimationBuilder
 		float anchorPointY = (float)((h * anchorY));
 		this.view = view;
 		AnimationSet as = new AnimationSet(false);
-
+		AnimationListener listener = new AnimationListener();
+		
 		if (toOpacity != null) {
 			Animation a = new AlphaAnimation(fromOpacity.floatValue(), toOpacity.floatValue());
+			applyOpacity = true;
 			addAnimation(as,a);
+			a.setAnimationListener(listener);
 		}
 
 		if (tdm != null) {
@@ -177,7 +180,6 @@ public class TiAnimationBuilder
 			as.setStartOffset(delay.longValue());
 		}
 		
-		AnimationListener listener = new AnimationListener();
 		if (top != null || bottom != null || left != null || right != null) {
 			int optionTop = TiCompositeLayout.NOT_SET, optionBottom = TiCompositeLayout.NOT_SET;
 			int optionLeft = TiCompositeLayout.NOT_SET, optionRight = TiCompositeLayout.NOT_SET;
@@ -229,12 +231,6 @@ public class TiAnimationBuilder
 		@Override
 		public void onAnimationEnd(Animation a)
 		{
-			if (callback != null) {
-				callback.call();
-			}
-			if (animationProxy != null) {
-				animationProxy.fireEvent("complete", null);
-			}
 			if (relayoutChild) {
 				LayoutParams params = (LayoutParams) view.getLayoutParams();
 				TiConvert.fillLayout(options, params);
@@ -242,7 +238,27 @@ public class TiAnimationBuilder
 				view.clearAnimation();
 				relayoutChild = false;
 			}
-			view = null;
+			if (applyOpacity) {
+				if (toOpacity.floatValue() == 0) {
+					view.setVisibility(View. INVISIBLE);
+				} else if (toOpacity.floatValue() == 1) {
+					view.setVisibility(View.VISIBLE);
+				} else {
+					// this is apparently the only way to apply an opacity to the entire view and have it stick
+					AlphaAnimation aa = new AlphaAnimation(toOpacity.floatValue(), toOpacity.floatValue());
+					aa.setDuration(1);
+					aa.setFillAfter(true);
+					aa.setFillEnabled(true);
+					view.startAnimation(aa);
+				}
+				applyOpacity = false;
+			}
+			if (callback != null) {
+				callback.call();
+			}
+			if (animationProxy != null) {
+				animationProxy.fireEvent("complete", null);
+			}
 		}
 
 		@Override
