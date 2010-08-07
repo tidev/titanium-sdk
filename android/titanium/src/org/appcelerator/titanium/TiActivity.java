@@ -95,8 +95,9 @@ public class TiActivity extends Activity
         layout = new TiCompositeLayout(this, vertical);
 
         if (modal) {
-        	setTheme(android.R.style.Theme_Dialog);
-        } else {
+        	setTheme(android.R.style.Theme_Translucent_NoTitleBar);
+        	layout.setBackgroundColor(Color.argb(200, 64, 64, 64));
+         } else {
 	        if (fullscreen) {
 	        	getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
 	                    WindowManager.LayoutParams.FLAG_FULLSCREEN);
