@@ -86,4 +86,12 @@ public class NumericWheelAdapter implements WheelAdapter {
 	public int getMaxValue() {
 		return maxValue;
 	}
+	
+	public int getValue(int index) {
+		return minValue + index;
+	}
+	
+	public int getIndex(int value) {
+		return value - minValue;
+	}
 }
