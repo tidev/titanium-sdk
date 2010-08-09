@@ -12,6 +12,7 @@ import org.appcelerator.titanium.TiModule;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiActivityResultHandler;
 import org.appcelerator.titanium.util.TiActivitySupport;
+import org.appcelerator.titanium.util.TiConvert;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -27,22 +28,43 @@ import com.bumptech.bumpapi.BumpResources;
 public class BumpModule extends TiModule implements TiActivityResultHandler, BumpAPIListener {
 	
 	private static final String LCAT = "BumpModule";
-	private static final boolean DBG = false;
+	private static final boolean DBG = true;
 	
 	private BumpConnection conn;
+	
+	private String apiKey = null;
+	private String username = null;
+	private String bumpMessage = null;
+
 	// This shouldn't be required - but it's belts & braces to try and get around their null ptr exception
 	private TiActivityResultHandler handler;
 	private final Handler baseHandler = new Handler();
 
 	public BumpModule(TiContext context) {
-		super(context);		
+		super(context);
+		// Setup ourselves as the listener for the result of the Activity
 		setActivityResultHandler(this);
 	}
 	
-	public void connect(String apiKey) {
-		if (DBG) {
-			Log.d(LCAT, "Bump Connect Called-1");
+	protected void sendMessage(String message) {
+		if (null != this.conn) {
+			
+			try {
+				byte[] chunk = message.getBytes("UTF-8");
+				this.conn.send(chunk);
+			} catch (Exception e) {
+				Log.e(LCAT, "Error Sending data to other party. "+e.getMessage());
+			}
+		} else {
+			TiDict eventArgs = new TiDict();
+			eventArgs.put("message", "Not Connected");
+			this.fireEvent("error", eventArgs);
+			
+			Log.i(LCAT, "Not connected");
 		}
+	}
+	
+	protected void connectBump() {
 		
 		Activity activity = getTiContext().getActivity();
 		TiActivitySupport activitySupport = (TiActivitySupport) activity;
@@ -51,33 +73,78 @@ public class BumpModule extends TiModule implements TiActivityResultHandler, Bum
 		try {
 			// Work around for the way they implement resource management
 			BumpResources bp = new BumpResources(this.getTiContext());
+			
 			if (DBG) {
-				// Test debug code
-//				int id = BumpResources.getResources().getIdentifier("bump_again", "string", "com.crucialdivide.pushTest");
-//				int id2 = BumpResources.getResources().getIdentifier("com.crucialdivide.pushTest:string/bump_again", null, null);
-//				Log.i(LCAT, "--- ID: "+id);
-//				Log.i(LCAT, "--- ID2: "+id2);
-//				
-				Log.d(LCAT, "Bump Connect Called-2");
+				Log.d(LCAT, "Bump Connect Called - setting up Intent");
 			}
 			
 			Intent bump  = new Intent(activity, BumpAPI.class);
 			bump.putExtra(BumpAPI.EXTRA_API_KEY, apiKey);
-			// Causes one of the crashes with bump currently
-			//bump.putExtra(BumpAPI.EXTRA_USER_NAME, "Bump API User");
+			
+			// Set some extra args if they are defined			
+			if (null != username) {
+				Log.d(LCAT, "Setting Bump Username: "+username);
+				bump.putExtra(BumpAPI.EXTRA_USER_NAME, username);
+			}
+			
+			if (null != bumpMessage) {	
+				Log.d(LCAT, "Setting Bump message: "+bumpMessage);
+				bump.putExtra(BumpAPI.EXTRA_ACTION_MSG, bumpMessage);				
+			}
+			
 			activitySupport.launchActivityForResult(bump, resultCode, handler);	
 			
 			if (DBG) {
-				Log.d(LCAT, "Bump Connect Called-4");				
+				Log.d(LCAT, "Launched Bump Activity");				
 			}
 			
 			// Bubble up the event
 			TiDict eventData = new TiDict();			
 			this.fireEvent("ready", eventData);
-			
+		
 		} catch (Exception e) {
-			Log.i(LCAT, "--- Exception: "+e.toString());
+			Log.e(LCAT, "--- Exception: "+e.toString());
 		}
+	}
+	
+	public void connect(TiDict props) {
+
+		// Process the args to the method
+		if (props.containsKey("apikey")) {
+			apiKey = TiConvert.toString(props.getString("apikey"));
+		} else {
+			Log.e(LCAT, "Invalid argument - apikey is required");
+		}
+		
+		if (props.containsKey("username")) {
+			username = TiConvert.toString(props.getString("username"));
+		} 
+		
+		if (props.containsKey("message")) {
+			bumpMessage = TiConvert.toString(props.getString("message"));
+		}
+		
+		// A little extra debugging
+		if (DBG) {
+			Log.d(LCAT, "Bump Connect arguments:");
+			Log.d(LCAT, "apikey: "+apiKey);
+			
+			if (null != username) {
+				Log.d(LCAT, "username: "+username);
+			} else {
+				Log.d(LCAT, "username not passed");
+			}
+			
+			if (null != bumpMessage) {
+				Log.d(LCAT, "message: "+bumpMessage);
+			} else {
+				Log.d(LCAT, "No bump message passed");
+			}
+			
+		}
+		
+		// Call the master connect
+		this.connectBump();
 		
 	}
 
@@ -87,8 +154,9 @@ public class BumpModule extends TiModule implements TiActivityResultHandler, Bum
 
 	@Override
 	public void onResult(Activity activity, int requestCode, int resultCode, Intent data) {
+		
 		if (DBG) {
-			Log.d(LCAT, "onResult");
+			Log.d(LCAT, "Activity onResult with Result: "+resultCode);
 		}
 
 		if (resultCode == Activity.RESULT_OK) {
@@ -118,6 +186,12 @@ public class BumpModule extends TiModule implements TiActivityResultHandler, Bum
 
 			try {
 				BumpConnectFailedReason reason = (BumpConnectFailedReason) data.getSerializableExtra(BumpAPI.EXTRA_REASON);
+				
+				// Notify the app about the failure
+				TiDict eventData = new TiDict();
+				eventData.put("message", reason.toString());
+				this.fireEvent("error", eventData);
+				
 				Log.e(LCAT, "--- Failed to connect (" + reason.toString() + ")---");				
 			} catch (Exception e) {
 				// TODO: handle exception
@@ -128,36 +202,55 @@ public class BumpModule extends TiModule implements TiActivityResultHandler, Bum
 	
 	@Override
 	public void onStop() {
-		Log.i(LCAT, "--- onStop ");
-		if (conn != null)
+		
+		if (conn != null) {
 			conn.disconnect();
+			conn = null;
+		}
 
 		super.onStop();
+		
+		if (DBG) {
+			Log.i(LCAT, "--- onStop ");			
+		}
+		
 	}	
 		
 	
 	@Override
 	public void onResume() {
 		super.onResume();
-		Log.i(LCAT, "--- onResume ");
+		
+		if (DBG) {
+			Log.i(LCAT, "--- onResume ");
+		}
 	}
 
 	@Override
 	public void onPause() {
-		// Swallowing this for now
-//		super.onPause();
-//		Log.i(LCAT, "--- onPause ");
+		//super.onPause();
+		
+		if (DBG) {
+			Log.i(LCAT, "--- onPause ");
+		}
 	}
 
 	@Override
 	public void onError(Activity activity, int requestCode, Exception e) {
-		Log.i(LCAT, "--- onError "+e.getMessage());		
+		if (DBG) {
+			Log.e(LCAT, "--- onError "+e.getMessage());
+		}
 	}	
 	
 	@Override
 	public void bumpDataReceived(byte[] chunk) {
 		try {
 			String data = new String(chunk, "UTF-8");
+			
+			if (DBG) {
+				Log.d(LCAT,"Received Data from other party: "+data);
+			}
+			
 			if (DBG) {
 				dataReceived(conn.getOtherUserName() + " said: " + data);				
 			} else {
@@ -165,30 +258,40 @@ public class BumpModule extends TiModule implements TiActivityResultHandler, Bum
 			}
 		} catch (Exception e) {
 			Log.e(LCAT, "Failed to parse incoming data");
-			e.printStackTrace();
 		}
 	}
 
 	@Override
 	public void bumpDisconnect(BumpDisconnectReason reason) {
+		String disconnectDueTo = null;
+		
 		switch (reason) {
 		case END_OTHER_USER_QUIT:
+			disconnectDueTo = "END_OTHER_USER_QUIT";
 			if (DBG) {
 				dataReceived("--- " + conn.getOtherUserName() + " QUIT ---");
 			}
-			break;
+		break;
 		case END_OTHER_USER_LOST:
+			disconnectDueTo = "END_OTHER_USER_LOST";
 			if (DBG) {
 				dataReceived("--- " + conn.getOtherUserName() + " LOST ---");
 			}
-			break;
+		break;
+		default:
+			disconnectDueTo = "UNKNOWN";
+		break;
 		}
+		
+		// Float the event to the app
 		TiDict eventData = new TiDict();
+		eventData.put("message", disconnectDueTo);
 		this.fireEvent("disconnect", eventData);
+		
 	}
 	
 	public String dataReceived(String data) {
-		
+		// Float up the event to the app
 		TiDict eventData = new TiDict();
 		eventData.put("data", data);
 		this.fireEvent("data",eventData);
