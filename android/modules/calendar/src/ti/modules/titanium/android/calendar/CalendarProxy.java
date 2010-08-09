@@ -43,13 +43,17 @@ public class CalendarProxy extends TiProxy {
 		Cursor cursor = contentResolver.query(Uri.parse(getBaseCalendarUri() + "/calendars"),
 			new String[] { "_id", "displayName", "selected", "hidden" }, query, queryArgs, null);
 		
-		while (cursor.moveToNext()) {
-			String id = cursor.getString(0);
-			String name = cursor.getString(1);
-			boolean selected = !cursor.getString(2).equals("0");
-			boolean hidden = !cursor.getString(3).equals("0");
-			
-			calendars.add(new CalendarProxy(context, id, name, selected, hidden));
+		// calendars can be null
+		if (cursor!=null)
+		{
+			while (cursor.moveToNext()) {
+				String id = cursor.getString(0);
+				String name = cursor.getString(1);
+				boolean selected = !cursor.getString(2).equals("0");
+				boolean hidden = !cursor.getString(3).equals("0");
+
+				calendars.add(new CalendarProxy(context, id, name, selected, hidden));
+			}
 		}
 		
 		return calendars;

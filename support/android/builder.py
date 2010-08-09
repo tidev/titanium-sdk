@@ -549,6 +549,8 @@ class Builder(object):
 		# off
 		is_custom = False
 		android_custom_manifest = os.path.join(self.project_dir, 'AndroidManifest.custom.xml')
+		if not os.path.exists(android_custom_manifest):
+			android_custom_manifest = os.path.join(self.top_dir, 'AndroidManifest.xml')
 		if os.path.exists(android_custom_manifest):
 			android_manifest_to_read = android_custom_manifest
 			is_custom = True

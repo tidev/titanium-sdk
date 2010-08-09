@@ -16,6 +16,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
+import android.widget.Toast;
 
 public class AlertProxy extends TiProxy {
 
@@ -48,16 +49,21 @@ public class AlertProxy extends TiProxy {
 			new String[] { "_id", "event_id", "begin", "end", "alarmTime", "state", "minutes"},
 			query, queryArgs, orderBy);
 		
-		while (cursor.moveToNext()) {
-			AlertProxy alert = new AlertProxy(context);
-			alert.id = cursor.getString(0);
-			alert.eventId = cursor.getString(1);
-			alert.begin = new Date(cursor.getLong(2));
-			alert.end = new Date(cursor.getLong(3));
-			alert.alarmTime = new Date(cursor.getLong(4));
-			alert.state = cursor.getInt(5);
-			alert.minutes = cursor.getInt(6);
-			alerts.add(alert);
+		if (cursor!=null)
+		{
+			while (cursor.moveToNext()) {
+				AlertProxy alert = new AlertProxy(context);
+				alert.id = cursor.getString(0);
+				alert.eventId = cursor.getString(1);
+				alert.begin = new Date(cursor.getLong(2));
+				alert.end = new Date(cursor.getLong(3));
+				alert.alarmTime = new Date(cursor.getLong(4));
+				alert.state = cursor.getInt(5);
+				alert.minutes = cursor.getInt(6);
+				alerts.add(alert);
+			}
+
+			cursor.close();
 		}
 		
 		return alerts;
@@ -95,24 +101,29 @@ public class AlertProxy extends TiProxy {
 		alert.alarmTime = alarmTime.getTime();
 		alert.state = STATE_SCHEDULED;
 		alert.minutes = minutes;
-		alert.registerAlertIntent();
+		alert.registerAlertIntent(context);
 		return alert;
 	}
 	
 	protected static final String EVENT_REMINDER_ACTION = "android.intent.action.EVENT_REMINDER";
-	protected void registerAlertIntent() {
-		Uri uri = ContentUris.withAppendedId(Uri.parse(getAlertsUri()), Long.parseLong(id));
-		Intent intent = new Intent(EVENT_REMINDER_ACTION);
-		intent.setData(uri);
-		intent.putExtra("beginTime", begin.getTime());
-		intent.putExtra("endTime", end.getTime());
-		PendingIntent sender = PendingIntent.getBroadcast(getTiContext().getActivity(), 0, intent,
-				PendingIntent.FLAG_CANCEL_CURRENT);
-		
+	protected void registerAlertIntent(TiContext context) {
+//		Uri uri = ContentUris.withAppendedId(Uri.parse(getAlertsUri()), Long.parseLong(id));
+//		Intent intent = new Intent(EVENT_REMINDER_ACTION);
+		Intent intent = new Intent(context.getActivity(), AlarmReceiver.class);
+//		intent.setAction("" + Math.random());
+		// intent.setData(uri);
+		// intent.putExtra("beginTime", begin.getTime());
+		// intent.putExtra("endTime", end.getTime());
+		PendingIntent sender = PendingIntent.getBroadcast(context.getActivity(), 0, intent,
+			PendingIntent.FLAG_CANCEL_CURRENT);
+		// PendingIntent sender = PendingIntent.getActivity(context.getActivity(), 0, intent,
+		// 		PendingIntent.FLAG_CANCEL_CURRENT);
+
 		AlarmManager manager = (AlarmManager) 
 			getTiContext().getActivity().getSystemService(Context.ALARM_SERVICE);
 		
-		manager.set(AlarmManager.RTC_WAKEUP, alarmTime.getTime(), sender);
+//		manager.set(AlarmManager.RTC_WAKEUP, alarmTime.getTime()+2000, sender);
+		manager.set(AlarmManager.RTC_WAKEUP,System.currentTimeMillis(),sender);
 	}
 
 	public String getId() {

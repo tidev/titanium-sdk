@@ -9,6 +9,8 @@ package org.appcelerator.titanium.util;
 
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -30,6 +32,7 @@ import android.graphics.Bitmap.CompressFormat;
 import android.graphics.Bitmap.Config;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.StateListDrawable;
+import android.os.Build;
 import android.os.Process;
 import android.util.TypedValue;
 import android.view.Gravity;
@@ -43,6 +46,8 @@ public class TiUIHelper
 
 	public static final Pattern SIZED_VALUE = Pattern.compile("([0-9]*\\.?[0-9]+)\\W*(px|dp|dip|sp|sip|mm|pt|in)?");
 
+	private static Method overridePendingTransition;
+	
 	public static OnClickListener createDoNothingListener() {
 		return new OnClickListener() {
 			public void onClick(DialogInterface dialog, int which) {
@@ -437,5 +442,31 @@ public class TiUIHelper
 			Log.e(LCAT, "Unable to load bitmap. Not enough memory: " + e.getMessage());
 		}
 		return b;
+	}
+	
+	public static void overridePendingTransition(Activity activity) 
+	{
+		if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.DONUT) {
+			return;
+		}
+		
+		if (overridePendingTransition == null) {
+			try {
+				overridePendingTransition = Activity.class.getMethod("overridePendingTransition", Integer.TYPE, Integer.TYPE);
+			} catch (NoSuchMethodException e) {
+				Log.w(LCAT, "Activity.overridePendingTransition() not found");
+			}
+			
+		}
+		
+		if (overridePendingTransition != null) {
+			try {
+				overridePendingTransition.invoke(activity, new Object[]{0,0});
+			} catch (InvocationTargetException e) {
+				Log.e(LCAT, "Called incorrectly: " + e.getMessage());
+			} catch (IllegalAccessException e) {
+				Log.e(LCAT, "Illegal access: " + e.getMessage());
+			}
+		}
 	}
 }
