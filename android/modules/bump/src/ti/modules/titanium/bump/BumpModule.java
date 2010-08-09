@@ -258,30 +258,40 @@ public class BumpModule extends TiModule implements TiActivityResultHandler, Bum
 			}
 		} catch (Exception e) {
 			Log.e(LCAT, "Failed to parse incoming data");
-			e.printStackTrace();
 		}
 	}
 
 	@Override
 	public void bumpDisconnect(BumpDisconnectReason reason) {
+		String disconnectDueTo = null;
+		
 		switch (reason) {
 		case END_OTHER_USER_QUIT:
+			disconnectDueTo = "END_OTHER_USER_QUIT";
 			if (DBG) {
 				dataReceived("--- " + conn.getOtherUserName() + " QUIT ---");
 			}
-			break;
+		break;
 		case END_OTHER_USER_LOST:
+			disconnectDueTo = "END_OTHER_USER_LOST";
 			if (DBG) {
 				dataReceived("--- " + conn.getOtherUserName() + " LOST ---");
 			}
-			break;
+		break;
+		default:
+			disconnectDueTo = "UNKNOWN";
+		break;
 		}
+		
+		// Float the event to the app
 		TiDict eventData = new TiDict();
+		eventData.put("message", disconnectDueTo);
 		this.fireEvent("disconnect", eventData);
+		
 	}
 	
 	public String dataReceived(String data) {
-		
+		// Float up the event to the app
 		TiDict eventData = new TiDict();
 		eventData.put("data", data);
 		this.fireEvent("data",eventData);
