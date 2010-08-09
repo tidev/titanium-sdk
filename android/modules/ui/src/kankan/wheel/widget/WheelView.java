@@ -153,6 +153,8 @@ public class WheelView extends View {
 	 */
 	public void setAdapter(WheelAdapter adapter) {
 		this.adapter = adapter;
+		itemsLayout = null;
+		valueLayout = null;
 		invalidate();
 	}
 	
