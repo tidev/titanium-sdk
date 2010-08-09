@@ -6,13 +6,13 @@ import android.content.res.Resources;
 
 public final class BumpResources
 {
-    private static String APP_PACKAGE_NAME = "com.crucialdivide.pushTest";
+    private static String APP_PACKAGE_NAME = "";
     
     protected static TiContext context;
     
     public BumpResources(TiContext tiContext) {
     	BumpResources.context = tiContext;
-    	//BumpResources.APP_PACKAGE_NAME = tiContext.getTiApp().getPackageName();
+    	BumpResources.APP_PACKAGE_NAME = tiContext.getTiApp().getPackageName();
     }
 
     public final static Resources getResources() {
