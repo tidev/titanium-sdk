@@ -6,13 +6,13 @@ import android.content.res.Resources;
 
 public final class BumpResources
 {
-    private static String APP_PACKAGE_NAME = "";
+    private static String APP_PACKAGE_NAME = "com.crucialdivide.pushTest";
     
     protected static TiContext context;
     
     public BumpResources(TiContext tiContext) {
     	BumpResources.context = tiContext;
-    	BumpResources.APP_PACKAGE_NAME = tiContext.getTiApp().getPackageName();
+    	//BumpResources.APP_PACKAGE_NAME = tiContext.getTiApp().getPackageName();
     }
 
     public final static Resources getResources() {
@@ -65,7 +65,7 @@ public final class BumpResources
         public static final int bump_hand_left = getResources().getIdentifier("bump_hand_left", "id", APP_PACKAGE_NAME);
         public static final int bump_hand_right =getResources().getIdentifier("bump_hand_right", "id", APP_PACKAGE_NAME) ;
         public static final int bump_icon = getResources().getIdentifier("bump_icon", "id", APP_PACKAGE_NAME);
-        public static final int bump_logo = getResources().getIdentifier("R.id.bump_logo", "id", APP_PACKAGE_NAME);
+        public static final int bump_logo = getResources().getIdentifier("bump_logo", "id", APP_PACKAGE_NAME);
         public static final int bump_signal = getResources().getIdentifier("bump_signal", "id", APP_PACKAGE_NAME);
         public static final int bump_signal4 = getResources().getIdentifier("bump_signal4", "id", APP_PACKAGE_NAME);
         public static final int close_window = getResources().getIdentifier("close_window", "id", APP_PACKAGE_NAME);
