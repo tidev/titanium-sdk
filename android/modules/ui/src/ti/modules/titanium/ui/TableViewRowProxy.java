@@ -10,8 +10,6 @@ import java.util.ArrayList;
 
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiDict;
-import org.appcelerator.titanium.TiProxy;
-import org.appcelerator.titanium.bridge.OnEventListenerChange;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.view.TiUIView;
 
@@ -40,13 +38,14 @@ public class TableViewRowProxy extends TiViewProxy
 	public ArrayList<TiViewProxy> getControls() {
 		return controls;
 	}
-	
-	public TiViewProxy[] getChildren() {
-		return controls.toArray(new TiViewProxy[controls.size()]);
-	}
 
 	public boolean hasControls() {
 		return (controls != null && controls.size() > 0);
+	}
+	
+	@Override
+	public TiViewProxy[] getChildren() {
+		return controls.toArray(new TiViewProxy[controls.size()]);
 	}
 
 	public void add(TiViewProxy control) {
