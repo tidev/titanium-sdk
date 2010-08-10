@@ -31,6 +31,7 @@ import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.filesystem.FileProxy;
 import android.graphics.Bitmap;
+import android.graphics.ColorFilter;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
@@ -551,5 +552,17 @@ public class TiUIImageView extends TiUIView
 		}
 
 		return null;
+	}
+	
+	@Override
+	public void setOpacity(float opacity) {
+		getView().setColorFilter(TiUIHelper.createColorFilterForOpacity(opacity));
+		super.setOpacity(opacity);
+	}
+	
+	@Override
+	public void clearOpacity() {
+		super.clearOpacity();
+		getView().setColorFilter(null);
 	}
 }

@@ -26,4 +26,13 @@ public class ViewProxy extends TiViewProxy
 		view.getLayoutParams().autoFillsWidth = true;
 		return view;
 	}
+	
+	@Override
+	public void realizeViews(Activity activity, TiUIView view) {
+		super.realizeViews(activity, view);
+		
+		/*if (pendingAnimation != null) {
+			handlePendingAnimation();
+		}*/
+	}
 }

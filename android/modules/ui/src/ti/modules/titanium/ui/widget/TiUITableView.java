@@ -11,7 +11,6 @@ import java.util.concurrent.Semaphore;
 import org.appcelerator.titanium.TiDict;
 import org.appcelerator.titanium.TiProxy;
 import org.appcelerator.titanium.proxy.TiViewProxy;
-import org.appcelerator.titanium.util.AsyncResult;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiConvert;
@@ -19,14 +18,14 @@ import org.appcelerator.titanium.view.TiUIView;
 import org.json.JSONObject;
 
 import ti.modules.titanium.ui.TableViewProxy;
-import ti.modules.titanium.ui.ViewProxy;
 import ti.modules.titanium.ui.widget.searchbar.TiUISearchBar;
 import ti.modules.titanium.ui.widget.tableview.TableViewModel;
 import ti.modules.titanium.ui.widget.tableview.TiTableView;
 import ti.modules.titanium.ui.widget.tableview.TiTableView.OnItemClickedListener;
+import android.graphics.ColorFilter;
 import android.os.Handler;
-import android.os.Message;
 import android.view.Gravity;
+import android.widget.ListView;
 import android.widget.RelativeLayout;
 
 public class TiUITableView extends TiUIView
@@ -293,7 +292,7 @@ public class TiUITableView extends TiUIView
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}
 	}
-
+	
 	private void acquireModifySemaphore() {
 		try {
 			modifySemaphore.acquire();
