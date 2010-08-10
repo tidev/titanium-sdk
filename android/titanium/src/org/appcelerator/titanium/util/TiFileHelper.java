@@ -21,6 +21,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -52,11 +53,16 @@ public class TiFileHelper
 
 	private SoftReference<Context> softContext;
 	private TiNinePatchHelper nph;
+	
+	private static HashMap<String, HashSet<String>> resourcePathCache;
 
 	public TiFileHelper(Context context)
 	{
 		softContext = new SoftReference<Context>(context);
 		this.nph = new TiNinePatchHelper();
+		if (resourcePathCache == null) {
+			resourcePathCache = new HashMap<String, HashSet<String>>();
+		}
 
 		synchronized(TI_DIR) {
 			if (systemIcons == null) {
@@ -163,7 +169,23 @@ public class TiFileHelper
 			} else if (path.startsWith(RESOURCE_ROOT_ASSETS)) {
 				int len = "file:///android_asset/".length();
 				path = path.substring(len);
-				is = context.getAssets().open(path);
+				String base = path.substring(0, path.lastIndexOf("/"));
+				String name = path.substring(path.lastIndexOf("/")+1);
+				
+				synchronized(resourcePathCache) {
+					if (!resourcePathCache.containsKey(base)) {
+						String[] paths = context.getAssets().list(base);
+						HashSet<String> names = new HashSet(paths.length);
+						for(int i = 0; i < paths.length; i++) {
+							names.add(paths[i]);
+						}
+						resourcePathCache.put(base, names);
+					}
+				}
+				HashSet<String> names = resourcePathCache.get(base);
+				if (names.contains(name)) {
+					is = context.getAssets().open(path);
+				}
 			} else if (path.startsWith(SD_CARD_PREFIX)) {
 				is = new FileInputStream(new File(path));
 			} else if (URLUtil.isFileUrl(path)) {
