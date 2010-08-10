@@ -26,10 +26,15 @@ import android.content.DialogInterface.OnClickListener;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.graphics.ColorFilter;
+import android.graphics.ColorMatrix;
+import android.graphics.ColorMatrixColorFilter;
+import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.graphics.Bitmap.CompressFormat;
 import android.graphics.Bitmap.Config;
+import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.StateListDrawable;
 import android.os.Build;
@@ -468,5 +473,31 @@ public class TiUIHelper
 				Log.e(LCAT, "Illegal access: " + e.getMessage());
 			}
 		}
+	}
+	
+	
+	public static ColorFilter createColorFilterForOpacity(float opacity) {
+		// 5x4 identity color matrix + fade the alpha to achieve opacity
+		float[] matrix = {
+			1, 0, 0, 0, 0,
+			0, 1, 0, 0, 0,
+			0, 0, 1, 0, 0,
+			0, 0, 0, opacity, 0
+		};
+		
+		return new ColorMatrixColorFilter(new ColorMatrix(matrix));
+	}
+	
+	public static void setDrawableOpacity(Drawable drawable, float opacity) {
+		if (drawable instanceof ColorDrawable) {
+			ColorDrawable colorDrawable = (ColorDrawable) drawable;
+			colorDrawable.setAlpha(Math.round(opacity * 255));
+		} else {
+			drawable.setColorFilter(createColorFilterForOpacity(opacity));
+		}
+	}
+	
+	public static void setPaintOpacity(Paint paint, float opacity) {
+		paint.setColorFilter(createColorFilterForOpacity(opacity));
 	}
 }

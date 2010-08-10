@@ -826,6 +826,7 @@ class Builder(object):
 
 			resources_dir = os.path.join(self.top_dir,'Resources')
 			self.assets_dir = os.path.join(self.project_dir,'bin','assets')
+			self.res_dir = os.path.join(self.project_dir,'res')
 			self.assets_resources_dir = os.path.join(self.assets_dir,'Resources')
 			
 			if not os.path.exists(self.assets_dir):
@@ -875,7 +876,21 @@ class Builder(object):
 					my_avd = avd_props
 					self.google_apis_supported = (my_avd['name'].find('Google')!=-1 or my_avd['name'].find('APIs')!=-1)
 					break
-					
+			
+			special_resources_dir = os.path.join(self.top_dir,'platform','android')
+			if os.path.exists(special_resources_dir):
+				info("found special resources dir = %s" % special_resources_dir)
+				for root, dirs, files in os.walk(special_resources_dir):
+					for name in ignoreDirs:
+						if name in dirs: dirs.remove(name)
+					for file in files:
+						if file in ignoreFiles : continue
+						from_ = os.path.join(root, file)           
+						to_ = from_.replace(special_resources_dir, self.project_dir, 1)
+						to_directory = os.path.split(to_)[0]
+						if not os.path.exists(to_directory):
+							os.makedirs(to_directory)
+						shutil.copyfile(from_, to_)
 			
 			generated_classes_built = False
 			if manifest_changed or self.tiapp_changed or self.deploy_type == "production":

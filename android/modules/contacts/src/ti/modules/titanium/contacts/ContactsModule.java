@@ -59,9 +59,18 @@ public class ContactsModule extends TiModule
 		return constants;
 	}
 	
-	public Object[] getAllPeople()
+	public Object[] getAllPeople(Object [] args)
 	{
-		return PersonProxy.getAllPersons(getTiContext());
+		//TODO: right now, this is needed to be able to constrain
+		//temporarily for a specific app.. we need to rethink this entire API
+		int length = Integer.MAX_VALUE;
+		if (args!=null && args.length > 0)
+		{
+			TiDict d = (TiDict) args[0];
+			Double maxObj = (Double)d.get("max");
+			length = maxObj.intValue();
+		}
+		return PersonProxy.getAllPersons(getTiContext(),length);
 	}
 	
 	public Object[] getPeopleWithName(String name)

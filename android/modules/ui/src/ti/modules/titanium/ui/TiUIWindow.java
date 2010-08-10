@@ -432,7 +432,7 @@ public class TiUIWindow extends TiUIView
 	private void handleBackgroundColor(TiDict d)
 	{
 		if (proxy.getDynamicValue("backgroundColor") != null) {
-			Integer bgColor = TiConvert.toColor(d, "backgroundColor", "opacity");
+			Integer bgColor = TiConvert.toColor(d, "backgroundColor");
 			Drawable cd = new ColorDrawable(bgColor);
 			if (lightWeight) {
 				nativeView.setBackgroundDrawable(cd);
@@ -461,7 +461,7 @@ public class TiUIWindow extends TiUIView
 				}
 			}
 		} else if (d.containsKey("backgroundColor")) {
-			ColorDrawable bgColor = TiConvert.toColorDrawable(d, "backgroundColor", "opacity");
+			ColorDrawable bgColor = TiConvert.toColorDrawable(d, "backgroundColor");
 			if (!lightWeight) {
 				windowActivity.getWindow().setBackgroundDrawable(bgColor);
 			} else {
@@ -497,7 +497,7 @@ public class TiUIWindow extends TiUIView
 			} else {
 				handleBackgroundColor(proxy.getDynamicProperties());
 			}
-		} else if (key.equals("opacity") || key.equals("backgroundColor")) {
+		} else if (key.equals("backgroundColor")) {
 			TiDict d = proxy.getDynamicProperties();
 			handleBackgroundColor(d);
 		} else if (key.equals("width") || key.equals("height")) {

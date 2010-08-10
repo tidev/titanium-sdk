@@ -20,6 +20,7 @@ import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiUIView;
 
 import android.graphics.Bitmap;
+import android.graphics.ColorFilter;
 import android.graphics.drawable.BitmapDrawable;
 import android.view.Gravity;
 import android.view.KeyEvent;
@@ -117,5 +118,17 @@ public class TiUIButton extends TiUIView
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}
+	}
+	
+	@Override
+	public void setOpacity(float opacity) {
+		TiUIHelper.setPaintOpacity(((Button)getNativeView()).getPaint(), opacity);
+		super.setOpacity(opacity);
+	}
+	
+	@Override
+	public void clearOpacity() {
+		super.clearOpacity();
+		((Button)getNativeView()).getPaint().setColorFilter(null);
 	}
 }

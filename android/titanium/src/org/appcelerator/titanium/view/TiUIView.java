@@ -8,6 +8,7 @@ package org.appcelerator.titanium.view;
 
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.appcelerator.titanium.TiContext;
@@ -23,6 +24,9 @@ import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiCompositeLayout.LayoutParams;
 
 import android.content.Context;
+import android.graphics.ColorFilter;
+import android.graphics.ColorMatrix;
+import android.graphics.ColorMatrixColorFilter;
 import android.graphics.drawable.Drawable;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
@@ -31,6 +35,7 @@ import android.view.ViewGroup;
 import android.view.GestureDetector.SimpleOnGestureListener;
 import android.view.View.OnFocusChangeListener;
 import android.view.View.OnTouchListener;
+import android.view.animation.AlphaAnimation;
 import android.view.animation.AnimationSet;
 import android.view.inputmethod.InputMethodManager;
 
@@ -129,7 +134,7 @@ public abstract class TiUIView
 	{
 		TiAnimationBuilder builder = proxy.getPendingAnimation();
 		if (builder != null && nativeView != null) {
-			AnimationSet as = builder.render(nativeView);
+			AnimationSet as = builder.render(proxy, nativeView);
 			
 			Log.d(LCAT, "starting animation: "+as);
 			nativeView.startAnimation(as);
@@ -226,7 +231,7 @@ public abstract class TiUIView
 			nativeView.setVisibility(TiConvert.toBoolean(newValue) ? View.VISIBLE : View.INVISIBLE);
 		} else if (key.equals("enabled")) {
 			nativeView.setEnabled(TiConvert.toBoolean(newValue));
-		} else if (key.equals("opacity") || key.equals("backgroundColor") || key.equals("backgroundImage") || key.startsWith("border")) {
+		} else if (key.equals("backgroundColor") || key.equals("backgroundImage") || key.startsWith("border")) {
 			TiDict d = proxy.getDynamicProperties();
 
 			boolean hasBorder = d.get("borderColor") != null || d.get("borderRadius") != null || d.get("borderWidth") != null;
@@ -241,7 +246,7 @@ public abstract class TiUIView
 					background = null;
 				}
 
-				Integer bgColor = TiConvert.toColor(d, "backgroundColor", "opacity");
+				Integer bgColor = TiConvert.toColor(d, "backgroundColor");
 				if (nativeView != null){
 					nativeView.setBackgroundColor(bgColor);
 					nativeView.postInvalidate();
@@ -256,8 +261,8 @@ public abstract class TiUIView
 				Integer bgColor = null;
 
 				if (d.get("backgroundColor") != null) {
-					bgColor = TiConvert.toColor(d, "backgroundColor", "opacity");
-					if (newBackground || (key.equals("opacity") || key.equals("backgroundColor"))) {
+					bgColor = TiConvert.toColor(d, "backgroundColor");
+					if (newBackground || key.equals("backgroundColor")) {
 						background.setBackgroundColor(bgColor);
 					}
 				}
@@ -281,7 +286,8 @@ public abstract class TiUIView
 					nativeView.postInvalidate();
 				}
 			}
-
+		} else if (key.equals("opacity")) {
+			setOpacity(TiConvert.toFloat(newValue));
 		} else {
 			if (DBG) {
 				Log.i(LCAT, "Unhandled property key: " + key);
@@ -312,9 +318,13 @@ public abstract class TiUIView
 		if (d.containsKey("backgroundImage")) {
 			handleBackgroundImage(d);
 		} else if (d.containsKey("backgroundColor")) {
-			bgColor = TiConvert.toColor(d, "backgroundColor", "opacity");
+			bgColor = TiConvert.toColor(d, "backgroundColor");
 			nativeView.setBackgroundColor(bgColor);
 		}
+		if (d.containsKey("opacity")) {
+			setOpacity(TiConvert.toFloat(d, "opacity"));
+		}
+		
 		if (d.containsKey("visible")) {
 			nativeView.setVisibility(TiConvert.toBoolean(d, "visible") ? View.VISIBLE : View.INVISIBLE);
 		}
@@ -327,7 +337,7 @@ public abstract class TiUIView
 		if (d.containsKey("transform")) {
 			animBuilder = new TiAnimationBuilder();
 			animBuilder.applyOptions(d);
-			AnimationSet as = animBuilder.render(nativeView);
+			AnimationSet as = animBuilder.render(proxy, nativeView);
 			nativeView.startAnimation(as);
 		}
 	}
@@ -524,7 +534,7 @@ public abstract class TiUIView
 			}
 			if (d.containsKey("borderColor") || d.containsKey("borderWidth")) {
 				if (d.containsKey("borderColor")) {
-					border.setColor(TiConvert.toColor(d, "borderColor", "opacity"));
+					border.setColor(TiConvert.toColor(d, "borderColor"));
 				} else {
 					if (bgColor != null) {
 						border.setColor(bgColor);
@@ -613,6 +623,18 @@ public abstract class TiUIView
 			}
 		});
 
+	}
+	
+	public void setOpacity(float opacity) {
+		TiUIHelper.setDrawableOpacity(nativeView.getBackground(), opacity);
+		if (opacity == 1) {
+			clearOpacity();
+		}
+		nativeView.invalidate();
+	}
+	
+	public void clearOpacity() {
+		nativeView.getBackground().clearColorFilter();
 	}
 
 	public TiDict toImage() {
