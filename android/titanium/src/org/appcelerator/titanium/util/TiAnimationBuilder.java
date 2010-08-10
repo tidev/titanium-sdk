@@ -216,7 +216,7 @@ public class TiAnimationBuilder
 			a.setAnimationListener(listener);
 			as.addAnimation(a);
 			
-			Log.d("ANIMATE", "animate from (" + x + ", " + y + ") to (" + horizontal[0] + ", " + vertical[0] + ")");
+			Log.d("ANIMATE", "animate from (" + x + ", " + y + ") to (" + horizontal[1] + ", " + vertical[1] + ")");
 			relayoutChild = true;
 		}
 
