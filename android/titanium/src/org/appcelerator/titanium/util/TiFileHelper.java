@@ -54,14 +54,18 @@ public class TiFileHelper
 	private SoftReference<Context> softContext;
 	private TiNinePatchHelper nph;
 	
-	private static HashMap<String, HashSet<String>> resourcePathCache;
-
+	private static HashSet<String> resourcePathCache;
+	private static HashSet<String> foundResourcePathCache;
+	private static HashSet<String> notFoundResourcePathCache;
+	
 	public TiFileHelper(Context context)
 	{
 		softContext = new SoftReference<Context>(context);
 		this.nph = new TiNinePatchHelper();
 		if (resourcePathCache == null) {
-			resourcePathCache = new HashMap<String, HashSet<String>>();
+			resourcePathCache = new HashSet<String>();
+			foundResourcePathCache = new HashSet<String>();
+			notFoundResourcePathCache = new HashSet<String>();
 		}
 
 		synchronized(TI_DIR) {
@@ -169,21 +173,30 @@ public class TiFileHelper
 			} else if (path.startsWith(RESOURCE_ROOT_ASSETS)) {
 				int len = "file:///android_asset/".length();
 				path = path.substring(len);
-				String base = path.substring(0, path.lastIndexOf("/"));
-				String name = path.substring(path.lastIndexOf("/")+1);
+				boolean found = false;
 				
-				synchronized(resourcePathCache) {
-					if (!resourcePathCache.containsKey(base)) {
-						String[] paths = context.getAssets().list(base);
-						HashSet<String> names = new HashSet(paths.length);
-						for(int i = 0; i < paths.length; i++) {
-							names.add(paths[i]);
+				if (foundResourcePathCache.contains(path)) {
+					found = true;
+				} else if (!notFoundResourcePathCache.contains(path)) {
+					String base = path.substring(0, path.lastIndexOf("/"));
+					
+					synchronized(resourcePathCache) {
+						if (!resourcePathCache.contains(base)) {
+							String[] paths = context.getAssets().list(base);
+							for(int i = 0; i < paths.length; i++) {
+								foundResourcePathCache.add(base + '/' + paths[i]);
+							}
+							resourcePathCache.add(base);
+							if (foundResourcePathCache.contains(path)) {
+								found = true;
+							}
 						}
-						resourcePathCache.put(base, names);
+						if (!found) {
+							notFoundResourcePathCache.add(path);
+						}
 					}
 				}
-				HashSet<String> names = resourcePathCache.get(base);
-				if (names.contains(name)) {
+				if (found) {
 					is = context.getAssets().open(path);
 				}
 			} else if (path.startsWith(SD_CARD_PREFIX)) {
