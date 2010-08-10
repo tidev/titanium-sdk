@@ -134,7 +134,6 @@ public abstract class TiUIView
 	{
 		TiAnimationBuilder builder = proxy.getPendingAnimation();
 		if (builder != null && nativeView != null) {
-			setOpacity(1);
 			AnimationSet as = builder.render(proxy, nativeView);
 			
 			Log.d(LCAT, "starting animation: "+as);
