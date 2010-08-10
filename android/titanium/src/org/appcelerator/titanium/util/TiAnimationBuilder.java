@@ -8,9 +8,11 @@ package org.appcelerator.titanium.util;
 
 import org.appcelerator.titanium.TiDict;
 import org.appcelerator.titanium.kroll.KrollCallback;
+import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.view.Ti2DMatrix;
 import org.appcelerator.titanium.view.TiAnimation;
 import org.appcelerator.titanium.view.TiCompositeLayout;
+import org.appcelerator.titanium.view.TiUIView;
 import org.appcelerator.titanium.view.TiCompositeLayout.LayoutParams;
 
 import android.view.View;
@@ -40,9 +42,10 @@ public class TiAnimationBuilder
 	protected TiAnimation animationProxy;
 
 	protected KrollCallback callback;
-	protected boolean relayoutChild = false;
+	protected boolean relayoutChild = false, applyOpacity = false;
 	protected TiDict options;
 	protected View view;
+	protected TiViewProxy viewProxy;
 	
 	public TiAnimationBuilder()
 	{
@@ -74,7 +77,6 @@ public class TiAnimationBuilder
 		}
 		if (options.containsKey("opacity")) {
 			toOpacity = TiConvert.toDouble(options, "opacity");
-			fromOpacity = 1.0 - toOpacity;
 		}
 		if (options.containsKey("repeat")) {
 			repeat = TiConvert.toDouble(options, "repeat");
@@ -107,7 +109,7 @@ public class TiAnimationBuilder
 		this.callback = callback;
 	}
 
-	public AnimationSet render(View view)
+	public AnimationSet render(TiViewProxy viewProxy, View view)
 	{
 		ViewParent parent = view.getParent();
 		int parentWidth = 0, parentHeight = 0;
@@ -116,7 +118,7 @@ public class TiAnimationBuilder
 			parentHeight = group.getMeasuredHeight();
 			parentWidth = group.getMeasuredWidth();
 		}
-		return render(view, view.getLeft(), view.getTop(), view.getMeasuredWidth(), view.getMeasuredHeight(), parentWidth, parentHeight);
+		return render(viewProxy, view, view.getLeft(), view.getTop(), view.getMeasuredWidth(), view.getMeasuredHeight(), parentWidth, parentHeight);
 	}
 
 	private void addAnimation(AnimationSet as, Animation a)
@@ -135,16 +137,34 @@ public class TiAnimationBuilder
 		as.addAnimation(a);
 	}
 
-	public AnimationSet render(View view, int x, int y, int w, int h, int parentWidth, int parentHeight)
+	public AnimationSet render(TiViewProxy viewProxy, View view, int x, int y, int w, int h, int parentWidth, int parentHeight)
 	{
 		float anchorPointX = (float)((w * anchorX));
 		float anchorPointY = (float)((h * anchorY));
 		this.view = view;
+		this.viewProxy = viewProxy;
+		
 		AnimationSet as = new AnimationSet(false);
-
+		AnimationListener listener = new AnimationListener();
+		
 		if (toOpacity != null) {
+			if (viewProxy.hasDynamicValue("opacity")) {
+				fromOpacity = TiConvert.toDouble(viewProxy.getDynamicValue("opacity"));
+			} else {
+				fromOpacity = 1.0 - toOpacity;
+			}
+			
 			Animation a = new AlphaAnimation(fromOpacity.floatValue(), toOpacity.floatValue());
+			applyOpacity = true;
 			addAnimation(as,a);
+			a.setAnimationListener(listener);
+			
+			if (viewProxy.hasDynamicValue("opacity") && fromOpacity != null && toOpacity != null) {
+				if (fromOpacity > 0 && fromOpacity < 1) {
+					TiUIView uiView = viewProxy.getView(null);
+					uiView.setOpacity(1);
+				}
+			}
 		}
 
 		if (tdm != null) {
@@ -177,7 +197,6 @@ public class TiAnimationBuilder
 			as.setStartOffset(delay.longValue());
 		}
 		
-		AnimationListener listener = new AnimationListener();
 		if (top != null || bottom != null || left != null || right != null) {
 			int optionTop = TiCompositeLayout.NOT_SET, optionBottom = TiCompositeLayout.NOT_SET;
 			int optionLeft = TiCompositeLayout.NOT_SET, optionRight = TiCompositeLayout.NOT_SET;
@@ -214,7 +233,7 @@ public class TiAnimationBuilder
 			a.setAnimationListener(listener);
 			as.addAnimation(a);
 			
-			Log.d("ANIMATE", "animate from (" + x + ", " + y + ") to (" + horizontal[0] + ", " + vertical[0] + ")");
+			Log.d("ANIMATE", "animate from (" + x + ", " + y + ") to (" + horizontal[1] + ", " + vertical[1] + ")");
 			relayoutChild = true;
 		}
 
@@ -229,12 +248,6 @@ public class TiAnimationBuilder
 		@Override
 		public void onAnimationEnd(Animation a)
 		{
-			if (callback != null) {
-				callback.call();
-			}
-			if (animationProxy != null) {
-				animationProxy.fireEvent("complete", null);
-			}
 			if (relayoutChild) {
 				LayoutParams params = (LayoutParams) view.getLayoutParams();
 				TiConvert.fillLayout(options, params);
@@ -242,7 +255,27 @@ public class TiAnimationBuilder
 				view.clearAnimation();
 				relayoutChild = false;
 			}
-			view = null;
+			if (applyOpacity) {
+				if (toOpacity.floatValue() == 0) {
+					view.setVisibility(View. INVISIBLE);
+				} else if (toOpacity.floatValue() == 1) {
+					view.setVisibility(View.VISIBLE);
+				} else {
+					// this is apparently the only way to apply an opacity to the entire view and have it stick
+					AlphaAnimation aa = new AlphaAnimation(toOpacity.floatValue(), toOpacity.floatValue());
+					aa.setDuration(1);
+					aa.setFillAfter(true);
+					aa.setFillEnabled(true);
+					view.startAnimation(aa);
+				}
+				applyOpacity = false;
+			}
+			if (callback != null) {
+				callback.call();
+			}
+			if (animationProxy != null) {
+				animationProxy.fireEvent("complete", null);
+			}
 		}
 
 		@Override

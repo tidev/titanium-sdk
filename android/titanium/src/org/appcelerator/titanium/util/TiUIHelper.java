@@ -9,6 +9,8 @@ package org.appcelerator.titanium.util;
 
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -24,12 +26,18 @@ import android.content.DialogInterface.OnClickListener;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.graphics.ColorFilter;
+import android.graphics.ColorMatrix;
+import android.graphics.ColorMatrixColorFilter;
+import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.graphics.Bitmap.CompressFormat;
 import android.graphics.Bitmap.Config;
+import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.StateListDrawable;
+import android.os.Build;
 import android.os.Process;
 import android.util.TypedValue;
 import android.view.Gravity;
@@ -43,6 +51,8 @@ public class TiUIHelper
 
 	public static final Pattern SIZED_VALUE = Pattern.compile("([0-9]*\\.?[0-9]+)\\W*(px|dp|dip|sp|sip|mm|pt|in)?");
 
+	private static Method overridePendingTransition;
+	
 	public static OnClickListener createDoNothingListener() {
 		return new OnClickListener() {
 			public void onClick(DialogInterface dialog, int which) {
@@ -437,5 +447,57 @@ public class TiUIHelper
 			Log.e(LCAT, "Unable to load bitmap. Not enough memory: " + e.getMessage());
 		}
 		return b;
+	}
+	
+	public static void overridePendingTransition(Activity activity) 
+	{
+		if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.DONUT) {
+			return;
+		}
+		
+		if (overridePendingTransition == null) {
+			try {
+				overridePendingTransition = Activity.class.getMethod("overridePendingTransition", Integer.TYPE, Integer.TYPE);
+			} catch (NoSuchMethodException e) {
+				Log.w(LCAT, "Activity.overridePendingTransition() not found");
+			}
+			
+		}
+		
+		if (overridePendingTransition != null) {
+			try {
+				overridePendingTransition.invoke(activity, new Object[]{0,0});
+			} catch (InvocationTargetException e) {
+				Log.e(LCAT, "Called incorrectly: " + e.getMessage());
+			} catch (IllegalAccessException e) {
+				Log.e(LCAT, "Illegal access: " + e.getMessage());
+			}
+		}
+	}
+	
+	
+	public static ColorFilter createColorFilterForOpacity(float opacity) {
+		// 5x4 identity color matrix + fade the alpha to achieve opacity
+		float[] matrix = {
+			1, 0, 0, 0, 0,
+			0, 1, 0, 0, 0,
+			0, 0, 1, 0, 0,
+			0, 0, 0, opacity, 0
+		};
+		
+		return new ColorMatrixColorFilter(new ColorMatrix(matrix));
+	}
+	
+	public static void setDrawableOpacity(Drawable drawable, float opacity) {
+		if (drawable instanceof ColorDrawable) {
+			ColorDrawable colorDrawable = (ColorDrawable) drawable;
+			colorDrawable.setAlpha(Math.round(opacity * 255));
+		} else {
+			drawable.setColorFilter(createColorFilterForOpacity(opacity));
+		}
+	}
+	
+	public static void setPaintOpacity(Paint paint, float opacity) {
+		paint.setColorFilter(createColorFilterForOpacity(opacity));
 	}
 }

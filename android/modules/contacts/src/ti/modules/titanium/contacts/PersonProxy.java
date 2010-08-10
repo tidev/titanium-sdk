@@ -53,7 +53,7 @@ public class PersonProxy extends TiProxy
 		super(tiContext);
 	}
 	
-	public static PersonProxy[] getAllPersons(TiContext tiContext)
+	public static PersonProxy[] getAllPersons(TiContext tiContext, int limit)
 	{
 		ArrayList<PersonProxy> all = new ArrayList<PersonProxy>();
 		Cursor cursor = tiContext.getActivity().managedQuery(
@@ -62,8 +62,13 @@ public class PersonProxy extends TiProxy
 				null, 
 				null,
 				null);
+		int count = 0;
 		while (cursor.moveToNext()) {
 			all.add(fromCursor(tiContext, cursor));
+			if (++count == limit)
+			{
+				break;
+			}
 		}
 		cursor.close();
 		return all.toArray(new PersonProxy[all.size()]);

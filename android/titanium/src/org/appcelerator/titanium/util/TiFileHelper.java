@@ -21,6 +21,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -52,11 +53,20 @@ public class TiFileHelper
 
 	private SoftReference<Context> softContext;
 	private TiNinePatchHelper nph;
-
+	
+	private static HashSet<String> resourcePathCache;
+	private static HashSet<String> foundResourcePathCache;
+	private static HashSet<String> notFoundResourcePathCache;
+	
 	public TiFileHelper(Context context)
 	{
 		softContext = new SoftReference<Context>(context);
 		this.nph = new TiNinePatchHelper();
+		if (resourcePathCache == null) {
+			resourcePathCache = new HashSet<String>();
+			foundResourcePathCache = new HashSet<String>();
+			notFoundResourcePathCache = new HashSet<String>();
+		}
 
 		synchronized(TI_DIR) {
 			if (systemIcons == null) {
@@ -163,7 +173,32 @@ public class TiFileHelper
 			} else if (path.startsWith(RESOURCE_ROOT_ASSETS)) {
 				int len = "file:///android_asset/".length();
 				path = path.substring(len);
-				is = context.getAssets().open(path);
+				boolean found = false;
+				
+				if (foundResourcePathCache.contains(path)) {
+					found = true;
+				} else if (!notFoundResourcePathCache.contains(path)) {
+					String base = path.substring(0, path.lastIndexOf("/"));
+					
+					synchronized(resourcePathCache) {
+						if (!resourcePathCache.contains(base)) {
+							String[] paths = context.getAssets().list(base);
+							for(int i = 0; i < paths.length; i++) {
+								foundResourcePathCache.add(base + '/' + paths[i]);
+							}
+							resourcePathCache.add(base);
+							if (foundResourcePathCache.contains(path)) {
+								found = true;
+							}
+						}
+						if (!found) {
+							notFoundResourcePathCache.add(path);
+						}
+					}
+				}
+				if (found) {
+					is = context.getAssets().open(path);
+				}
 			} else if (path.startsWith(SD_CARD_PREFIX)) {
 				is = new FileInputStream(new File(path));
 			} else if (URLUtil.isFileUrl(path)) {

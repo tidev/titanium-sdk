@@ -46,6 +46,9 @@ public class ReminderProxy extends TiProxy {
 			
 			reminders.add(reminder);
 		}
+		
+		reminderCursor.close();
+		
 		return reminders;
 	}
 	

@@ -8,9 +8,7 @@ import org.appcelerator.titanium.TiDict;
 import org.appcelerator.titanium.TiProxy;
 import org.appcelerator.titanium.util.TiConfig;
 
-import android.app.Activity;
 import android.app.PendingIntent;
-import android.content.Intent;
 
 /**
  * @author dthorp

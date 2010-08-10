@@ -10,6 +10,7 @@ import java.lang.ref.WeakReference;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.List;
 
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiDict;
@@ -373,13 +374,17 @@ public abstract class TiViewProxy extends TiProxy implements Handler.Callback
 			} else {
 				throw new IllegalArgumentException("Unhandled argument to animate: " + args[0].getClass().getSimpleName());
 			}
+			handlePendingAnimation();
+		}
+	}
 
-			if (pendingAnimation != null) {
-				if (getTiContext().isUIThread()) {
-					handleAnimate();
-				} else {
-					getUIHandler().obtainMessage(MSG_ANIMATE).sendToTarget();
-				}
+	protected void handlePendingAnimation() {
+		if (pendingAnimation != null) {
+			if (getTiContext().isUIThread()) {
+				handleAnimate();
+			} else {
+				Message msg = getUIHandler().obtainMessage(MSG_ANIMATE);
+				msg.sendToTarget();
 			}
 		}
 	}
@@ -522,5 +527,11 @@ public abstract class TiViewProxy extends TiProxy implements Handler.Callback
 			}
 		}
 		return oldContext;
+	}
+	
+	public TiViewProxy[] getChildren() {
+		if (children == null) return new TiViewProxy[0];
+		
+		return children.toArray(new TiViewProxy[children.size()]);
 	}
 }
