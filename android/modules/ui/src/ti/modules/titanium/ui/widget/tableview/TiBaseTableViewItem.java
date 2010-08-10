@@ -100,8 +100,11 @@ public abstract class TiBaseTableViewItem extends ViewGroup implements Handler.C
 		if (props.containsKey("backgroundImage")) {
 			setBackgroundImageProperty(props, "backgroundImage");
 		} else if (props.containsKey("backgroundColor")) {
-			Integer bgColor = TiConvert.toColor(props, "backgroundColor", "opacity");
+			Integer bgColor = TiConvert.toColor(props, "backgroundColor");
 			setBackgroundColor(bgColor);
+		}
+		if (props.containsKey("opacity")) {
+			TiUIHelper.setDrawableOpacity(getBackground(), TiConvert.toFloat(props, "opacity"));
 		}
 	}
 }

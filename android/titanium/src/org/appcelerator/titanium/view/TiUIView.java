@@ -247,7 +247,7 @@ public abstract class TiUIView
 					background = null;
 				}
 
-				Integer bgColor = TiConvert.toColor(d, "backgroundColor", "opacityx");
+				Integer bgColor = TiConvert.toColor(d, "backgroundColor");
 				if (nativeView != null){
 					nativeView.setBackgroundColor(bgColor);
 					nativeView.postInvalidate();
@@ -262,7 +262,7 @@ public abstract class TiUIView
 				Integer bgColor = null;
 
 				if (d.get("backgroundColor") != null) {
-					bgColor = TiConvert.toColor(d, "backgroundColor", "opacityx");
+					bgColor = TiConvert.toColor(d, "backgroundColor");
 					if (newBackground || key.equals("backgroundColor")) {
 						background.setBackgroundColor(bgColor);
 					}
@@ -319,7 +319,7 @@ public abstract class TiUIView
 		if (d.containsKey("backgroundImage")) {
 			handleBackgroundImage(d);
 		} else if (d.containsKey("backgroundColor")) {
-			bgColor = TiConvert.toColor(d, "backgroundColor", "opacityx");
+			bgColor = TiConvert.toColor(d, "backgroundColor");
 			nativeView.setBackgroundColor(bgColor);
 		}
 		if (d.containsKey("opacity")) {
@@ -535,7 +535,7 @@ public abstract class TiUIView
 			}
 			if (d.containsKey("borderColor") || d.containsKey("borderWidth")) {
 				if (d.containsKey("borderColor")) {
-					border.setColor(TiConvert.toColor(d, "borderColor", "opacityx"));
+					border.setColor(TiConvert.toColor(d, "borderColor"));
 				} else {
 					if (bgColor != null) {
 						border.setColor(bgColor);
