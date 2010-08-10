@@ -20,6 +20,7 @@
 	UIImageView *loadView;
 	BOOL splashAttached;
 	BOOL loaded;
+	BOOL handledModal;
 	
 	KrollBridge *kjsBridge;
 
