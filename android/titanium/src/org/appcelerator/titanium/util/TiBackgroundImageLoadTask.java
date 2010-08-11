@@ -44,12 +44,19 @@ public abstract class TiBackgroundImageLoadTask
 	protected Drawable doInBackground(String... arg) {
 
 		Drawable d = null;
-		url = softTiContext.get().resolveUrl(null, arg[0]);
+		TiContext context = softTiContext.get();
+		if (context == null) {
+			if (DBG) {
+				Log.d(LCAT, "doInBackground exiting early because context already gc'd");
+			}
+			return null;
+		}
+		url = context.resolveUrl(null, arg[0]);
 
 		boolean retry = true;
 		int retryCount = 3;
 
-		TiFileHelper tfh = new TiFileHelper(softTiContext.get().getTiApp());
+		TiFileHelper tfh = new TiFileHelper(context.getTiApp());
 
 		while(retry) {
 			retry = false;
