@@ -513,6 +513,16 @@ void MyUncaughtExceptionHandler(NSException *exception)
 
 -(void)showModalController:(UIViewController*)modalController animated:(BOOL)animated
 {
+	if(!handledModal)
+	{
+		handledModal = YES;
+		UIView * rootView = [controller view];
+		UIView * windowView = [rootView superview];
+		[rootView removeFromSuperview];
+		[windowView addSubview:rootView];
+	}
+
+
 	UINavigationController *navController = nil; //[(TiRootViewController *)controller focusedViewController];
 	if (navController==nil)
 	{

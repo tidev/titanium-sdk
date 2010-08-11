@@ -17,12 +17,14 @@ import org.appcelerator.titanium.util.TiActivitySupport;
 import org.appcelerator.titanium.util.TiActivitySupportHelper;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiConvert;
+import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.ITiWindowHandler;
 import org.appcelerator.titanium.view.TiCompositeLayout;
 
 import android.app.Activity;
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -59,7 +61,7 @@ public class TiActivity extends Activity
     @Override
     public void onCreate(Bundle savedInstanceState)
     {
-        super.onCreate(savedInstanceState);
+//        super.onCreate(savedInstanceState);
         handler = new Handler();
 
         Intent intent = getIntent();
@@ -93,8 +95,9 @@ public class TiActivity extends Activity
         layout = new TiCompositeLayout(this, vertical);
 
         if (modal) {
-        	setTheme(android.R.style.Theme_Translucent_NoTitleBar_Fullscreen);
-        } else {
+        	setTheme(android.R.style.Theme_Translucent_NoTitleBar);
+        	layout.setBackgroundColor(Color.argb(200, 64, 64, 64));
+         } else {
 	        if (fullscreen) {
 	        	getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
 	                    WindowManager.LayoutParams.FLAG_FULLSCREEN);
@@ -109,6 +112,7 @@ public class TiActivity extends Activity
 	           	this.requestWindowFeature(Window.FEATURE_NO_TITLE);
 	        }
         }
+        super.onCreate(savedInstanceState);
 
         setContentView(layout);
 
@@ -335,7 +339,9 @@ public class TiActivity extends Activity
 			createdContext.get().dispatchEvent("close", data, proxy);
 		}
 
+		boolean animate = true;
 		Intent intent = getIntent();
+
 		if (intent != null) {
 			if (intent.getBooleanExtra("finishRoot", false)) {
 				if (getApplication() != null) {
@@ -348,9 +354,14 @@ public class TiActivity extends Activity
 					}
 				}
 			}
+			animate = intent.getBooleanExtra("animate", animate);
 		}
 
+
 		super.finish();
+		if (!animate) {
+			TiUIHelper.overridePendingTransition(this);
+		}
 	}
 
 	public void setCreatedContext(TiContext context) {

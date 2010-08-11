@@ -21,8 +21,10 @@ import org.appcelerator.titanium.view.TiUIView;
 
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
+import android.view.Gravity;
 import android.view.KeyEvent;
 import android.widget.Button;
+import android.widget.TextView;
 
 public class TiUIButton extends TiUIView
 {
@@ -49,6 +51,7 @@ public class TiUIButton extends TiUIView
 			}
 		};
 		btn.setPadding(8, 0, 8, 0);
+		btn.setGravity(Gravity.CENTER);
 		setNativeView(btn);
 	}
 
@@ -81,9 +84,16 @@ public class TiUIButton extends TiUIView
 		if (d.containsKey("font")) {
 			TiUIHelper.styleText(btn, d.getTiDict("font"));
 		}
-
+		if (d.containsKey("textAlign")) {
+			String textAlign = d.getString("textAlign");
+			TiUIHelper.setAlignment(btn, textAlign, null);
+		}
+		if (d.containsKey("verticalAlign")) {
+			String verticalAlign = d.getString("verticalAlign");
+			TiUIHelper.setAlignment(btn, null, verticalAlign);
+		}
+		btn.invalidate();
 	}
-
 
 	@Override
 	public void propertyChanged(String key, Object oldValue, Object newValue, TiProxy proxy)
@@ -98,10 +108,14 @@ public class TiUIButton extends TiUIView
 			btn.setTextColor(TiConvert.toColor(TiConvert.toString(newValue)));
 		} else if (key.equals("font")) {
 			TiUIHelper.styleText(btn, (TiDict) newValue);
+		} else if (key.equals("textAlign")) {
+			TiUIHelper.setAlignment(btn, TiConvert.toString(newValue), null);
+			btn.requestLayout();
+		} else if (key.equals("verticalAlign")) {
+			TiUIHelper.setAlignment(btn, null, TiConvert.toString(newValue));
+			btn.requestLayout();
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}
 	}
-
-
 }
