@@ -454,6 +454,7 @@
 	if (children != nil) {
 		for (TiViewProxy* child in children) {
 			[self layoutChild:child optimize:NO];
+			[child windowWillOpen];
 		}
 	}
 	
