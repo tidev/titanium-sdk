@@ -12,7 +12,9 @@ import java.lang.ref.WeakReference;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
@@ -67,7 +69,7 @@ public class TiContext implements TiEvaluator, ITiMenuDispatcherListener, ErrorR
 	private AtomicInteger listenerIdGenerator;
 
 	private ArrayList<WeakReference<OnEventListenerChange>> eventChangeListeners;
-	private ArrayList<WeakReference<OnLifecycleEvent>> lifecycleListeners;
+	private List<WeakReference<OnLifecycleEvent>> lifecycleListeners;
 	private OnMenuEvent menuEventListener;
 	private WeakReference<OnConfigurationChanged> weakConfigurationChangedListeners;
 	private HashMap<String,WeakReference<TiModule>> modules = new HashMap<String,WeakReference<TiModule>>();
@@ -133,7 +135,8 @@ public class TiContext implements TiEvaluator, ITiMenuDispatcherListener, ErrorR
 		this.listenerIdGenerator = new AtomicInteger(0);
 		this.eventListeners = new HashMap<String, HashMap<Integer,TiListener>>();
 		eventChangeListeners = new ArrayList<WeakReference<OnEventListenerChange>>();
-		lifecycleListeners = new ArrayList<WeakReference<OnLifecycleEvent>>();
+		//lifecycleListeners = new ArrayList<WeakReference<OnLifecycleEvent>>();
+		lifecycleListeners = Collections.synchronizedList(new ArrayList<WeakReference<OnLifecycleEvent>>());
 		if (baseUrl == null) {
 			this.baseUrl = "app://";
 		} else {
@@ -550,12 +553,14 @@ public class TiContext implements TiEvaluator, ITiMenuDispatcherListener, ErrorR
 
 	public void removeOnLifecycleEventListener(OnLifecycleEvent listener)
 	{
-		for (WeakReference<OnLifecycleEvent> ref : lifecycleListeners) {
-			OnLifecycleEvent l = ref.get();
-			if (l != null) {
-				if (l.equals(listener)) {
-					eventChangeListeners.remove(ref);
-					break;
+		synchronized(lifecycleListeners) {
+			for (WeakReference<OnLifecycleEvent> ref : lifecycleListeners) {
+				OnLifecycleEvent l = ref.get();
+				if (l != null) {
+					if (l.equals(listener)) {
+						eventChangeListeners.remove(ref);
+						break;
+					}
 				}
 			}
 		}
@@ -623,76 +628,86 @@ public class TiContext implements TiEvaluator, ITiMenuDispatcherListener, ErrorR
 
 	public void dispatchOnStart()
 	{
-		for(WeakReference<OnLifecycleEvent> ref : lifecycleListeners) {
-			OnLifecycleEvent listener = ref.get();
-			if (listener != null) {
-				try {
-					listener.onStart();
-				} catch (Throwable t) {
-					Log.e(LCAT, "Error dispatching onStart  event: " + t.getMessage(), t);
+		synchronized(lifecycleListeners) {
+			for(WeakReference<OnLifecycleEvent> ref : lifecycleListeners) {
+				OnLifecycleEvent listener = ref.get();
+				if (listener != null) {
+					try {
+						listener.onStart();
+					} catch (Throwable t) {
+						Log.e(LCAT, "Error dispatching onStart  event: " + t.getMessage(), t);
+					}
+				} else {
+					Log.w(LCAT, "lifecycleListener has been garbage collected");
 				}
-			} else {
-				Log.w(LCAT, "lifecycleListener has been garbage collected");
 			}
 		}
 	}
 
 	public void dispatchOnResume() {
-		for(WeakReference<OnLifecycleEvent> ref : lifecycleListeners) {
-			OnLifecycleEvent listener = ref.get();
-			if (listener != null) {
-				try {
-					listener.onResume();
-				} catch (Throwable t) {
-					Log.e(LCAT, "Error dispatching onResume  event: " + t.getMessage(), t);
+		synchronized(lifecycleListeners) {
+			for(WeakReference<OnLifecycleEvent> ref : lifecycleListeners) {
+				OnLifecycleEvent listener = ref.get();
+				if (listener != null) {
+					try {
+						listener.onResume();
+					} catch (Throwable t) {
+						Log.e(LCAT, "Error dispatching onResume  event: " + t.getMessage(), t);
+					}
+				} else {
+					Log.w(LCAT, "lifecycleListener has been garbage collected");
 				}
-			} else {
-				Log.w(LCAT, "lifecycleListener has been garbage collected");
 			}
 		}
 	}
 
 	public void dispatchOnPause() {
-		for(WeakReference<OnLifecycleEvent> ref : lifecycleListeners) {
-			OnLifecycleEvent listener = ref.get();
-			if (listener != null) {
-				try {
-					listener.onPause();
-				} catch (Throwable t) {
-					Log.e(LCAT, "Error dispatching onPause  event: " + t.getMessage(), t);
+		synchronized (lifecycleListeners) {
+			for(WeakReference<OnLifecycleEvent> ref : lifecycleListeners) {
+				OnLifecycleEvent listener = ref.get();
+				if (listener != null) {
+					try {
+						listener.onPause();
+					} catch (Throwable t) {
+						Log.e(LCAT, "Error dispatching onPause  event: " + t.getMessage(), t);
+					}
+				} else {
+					Log.w(LCAT, "lifecycleListener has been garbage collected");
 				}
-			} else {
-				Log.w(LCAT, "lifecycleListener has been garbage collected");
 			}
 		}
 	}
 
 	public void dispatchOnStop() {
-		for(WeakReference<OnLifecycleEvent> ref : lifecycleListeners) {
-			OnLifecycleEvent listener = ref.get();
-			if (listener != null) {
-				try {
-					listener.onStop();
-				} catch (Throwable t) {
-					Log.e(LCAT, "Error dispatching onStop  event: " + t.getMessage(), t);
+		synchronized(lifecycleListeners) {
+			for(WeakReference<OnLifecycleEvent> ref : lifecycleListeners) {
+				OnLifecycleEvent listener = ref.get();
+				if (listener != null) {
+					try {
+						listener.onStop();
+					} catch (Throwable t) {
+						Log.e(LCAT, "Error dispatching onStop  event: " + t.getMessage(), t);
+					}
+				} else {
+					Log.w(LCAT, "lifecycleListener has been garbage collected");
 				}
-			} else {
-				Log.w(LCAT, "lifecycleListener has been garbage collected");
 			}
 		}
 	}
 
 	public void dispatchOnDestroy() {
-		for(WeakReference<OnLifecycleEvent> ref : lifecycleListeners) {
-			OnLifecycleEvent listener = ref.get();
-			if (listener != null) {
-				try {
-					listener.onDestroy();
-				} catch (Throwable t) {
-					Log.e(LCAT, "Error dispatching onDestroy  event: " + t.getMessage(), t);
+		synchronized(lifecycleListeners) {
+			for(WeakReference<OnLifecycleEvent> ref : lifecycleListeners) {
+				OnLifecycleEvent listener = ref.get();
+				if (listener != null) {
+					try {
+						listener.onDestroy();
+					} catch (Throwable t) {
+						Log.e(LCAT, "Error dispatching onDestroy  event: " + t.getMessage(), t);
+					}
+				} else {
+					Log.w(LCAT, "lifecycleListener has been garbage collected");
 				}
-			} else {
-				Log.w(LCAT, "lifecycleListener has been garbage collected");
 			}
 		}
 	}
