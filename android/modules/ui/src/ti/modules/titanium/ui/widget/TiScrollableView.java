@@ -374,6 +374,21 @@ public class TiScrollableView extends TiCompositeLayout
 			//gallery.addView(proxy.getView(null).getNativeView());
 		}
 	}
+	
+	public void removeView(TiViewProxy proxy)
+	{
+		if (proxy != null) {
+			int index = this.views.indexOf(proxy);
+			this.views.remove(proxy);
+			if (index == -1) {
+				if (DBG) {
+					Log.d(LCAT, "removeView -- view not located.");
+				}
+			} else {
+				gallery.removeViewAt(index);
+			}
+		}
+	}
 
 	public void setShowPagingControl(boolean showPagingControl) {
 		this.showPagingControl = showPagingControl;

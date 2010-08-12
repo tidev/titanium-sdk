@@ -68,6 +68,12 @@ public class TiFileHelper
 			notFoundResourcePathCache = new HashSet<String>();
 		}
 
+		if (resourcePathCache == null) {
+			resourcePathCache = new HashSet<String>();
+			foundResourcePathCache = new HashSet<String>();
+			notFoundResourcePathCache = new HashSet<String>();
+		}
+
 		synchronized(TI_DIR) {
 			if (systemIcons == null) {
 				systemIcons = new HashMap<String, Integer>();
