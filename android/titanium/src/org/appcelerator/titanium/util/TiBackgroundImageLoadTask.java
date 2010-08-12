@@ -65,19 +65,27 @@ public abstract class TiBackgroundImageLoadTask
 				d = tfh.loadDrawable(url, false);
 				if (d != null) {
 					BitmapDrawable bd = (BitmapDrawable) d;
-					int w = bd.getBitmap().getWidth();
-					int h = bd.getBitmap().getHeight();
-
-					if (imageHeight != null || imageWidth != null) {
-						if (imageWidth != null) {
-							w = imageWidth;
+					Bitmap bitmap = bd.getBitmap();
+					if (bitmap != null) {
+						int w = bitmap.getWidth();
+						int h = bitmap.getHeight();
+	
+						if (imageHeight != null || imageWidth != null) {
+							if (imageWidth != null) {
+								w = imageWidth;
+							}
+							if (imageHeight != null) {
+								h = imageHeight;
+							}
+							Bitmap scaledBitmap = Bitmap.createScaledBitmap(bitmap, w, h, true);
+							bitmap.recycle();
+							d = new BitmapDrawable(scaledBitmap);
 						}
-						if (imageHeight != null) {
-							h = imageHeight;
+					} else {
+						if (DBG) {
+							Log.d(LCAT, "BitmapDrawable.getBitmap() (url '" + url + "') returned null");
 						}
-						Bitmap b = Bitmap.createScaledBitmap(bd.getBitmap(), w, h, true);
-						bd.getBitmap().recycle();
-						d = new BitmapDrawable(b);
+						return null;
 					}
 
 				} else {
