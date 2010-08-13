@@ -508,7 +508,18 @@ DEFINE_EXCEPTIONS
 	}
 	else if ([arg isKindOfClass:[NSString class]]) {
 		NSURL *url_ = [TiUtils toURL:arg proxy:self.proxy];
-		
+
+//	TODO: Move this over into ImageLoader or some other way to more intellegently cache large files.
+		UIImage * testImage = [UIImage imageWithContentsOfFile:[url_ path]];
+		if (testImage != nil)
+		{
+			CGSize fullSize = [testImage size];
+			autoHeight = fullSize.height;
+			autoWidth = fullSize.width;
+			return testImage;
+		}
+//	END TODO
+
 		CGSize fullSize = [[ImageLoader sharedLoader] fullImageSize:url_];
 		autoHeight = fullSize.height;
 		autoWidth = fullSize.width;
