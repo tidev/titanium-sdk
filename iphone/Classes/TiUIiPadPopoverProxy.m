@@ -72,12 +72,7 @@
 {
 	CGSize newSize = [self contentSize];
 	BOOL animated_ = [[self popoverController] isPopoverVisible];
-#ifdef DEBUG	
-	NSLog(@"Going From %fx%f",[popoverController popoverContentSize].width,[popoverController popoverContentSize].height);
-
-	NSLog(@"Going to set size to %fx%f with animated %d",newSize.width,newSize.height,animated_);
-#endif
-	[popoverController setPopoverContentSize:newSize animated:animated_];
+	[[self viewController] setContentSizeForViewInPopover:newSize];
 	[self layoutChildren:NO];
 }
 
