@@ -72,12 +72,7 @@
 {
 	CGSize newSize = [self contentSize];
 	BOOL animated_ = [[self popoverController] isPopoverVisible];
-#ifdef DEBUG	
-	NSLog(@"Going From %fx%f",[popoverController popoverContentSize].width,[popoverController popoverContentSize].height);
-
-	NSLog(@"Going to set size to %fx%f with animated %d",newSize.width,newSize.height,animated_);
-#endif
-	[popoverController setPopoverContentSize:newSize animated:animated_];
+	[[self viewController] setContentSizeForViewInPopover:newSize];
 	[self layoutChildren:NO];
 }
 
@@ -211,6 +206,7 @@
 	[self retain];
 	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(updatePopover:) name:UIApplicationWillChangeStatusBarOrientationNotification object:nil];
 	[self windowWillOpen];
+	[self reposition];
 	[self updatePopoverNow];
 	[self windowDidOpen];
 }
@@ -256,11 +252,11 @@
 	[[self popoverController] dismissPopoverAnimated:animated_];
 
 //As of iPhone OS 3.2, calling dismissPopoverAnimated does NOT call didDismissPopover. So we have to do it ourselves...
-	[self popoverControllerDidDismissPopover:popoverController];
+	[self performSelector:@selector(popoverControllerDidDismissPopover:) withObject:popoverController afterDelay:0.5];
 }
 
 #pragma mark Delegate methods
-- (void)popoverControllerDidDismissPopover:(UIPopoverController *)popoverController
+- (void)popoverControllerDidDismissPopover:(UIPopoverController *)thisPopoverController
 {
 //As of iPhone OS 3.2, calling dismissPopoverAnimated does NOT call didDismissPopover. So we have to do it ourselves.
 //HOWEVER, in the event that this IS fixed, we don't want this called one too many times, thus isShowing is to protect
@@ -274,6 +270,9 @@
 	[self fireEvent:@"hide" withObject:nil]; //Checking for listeners are done by fireEvent anyways.
 	[[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationWillChangeStatusBarOrientationNotification object:nil];
 	[self windowDidClose];
+	RELEASE_TO_NIL(viewController);
+	RELEASE_TO_NIL_AUTORELEASE(popoverController);
+	RELEASE_TO_NIL(navigationController);
 	[self performSelector:@selector(release) withObject:nil afterDelay:0.5];
 }
 

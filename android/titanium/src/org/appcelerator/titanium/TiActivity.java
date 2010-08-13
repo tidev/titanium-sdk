@@ -62,6 +62,9 @@ public class TiActivity extends Activity
     public void onCreate(Bundle savedInstanceState)
     {
 //        super.onCreate(savedInstanceState);
+    	if (DBG) {
+    		Log.d(LCAT, "Activity onCreate");
+    	}
         handler = new Handler();
 
         Intent intent = getIntent();
@@ -252,6 +255,9 @@ public class TiActivity extends Activity
 	@Override
 	protected void onPause() {
 		super.onPause();
+		if (DBG) {
+			Log.d(LCAT, "Activity onPause");
+		}
 		((TiApplication) getApplication()).setWindowHandler(null);
 		((TiApplication) getApplication()).setCurrentActivity(this, null);
 
@@ -265,6 +271,9 @@ public class TiActivity extends Activity
 	@Override
 	protected void onResume() {
 		super.onResume();
+		if (DBG) {
+			Log.d(LCAT, "Activity onResume");
+		}
 		((TiApplication) getApplication()).setWindowHandler(this);
 		((TiApplication) getApplication()).setCurrentActivity(this, this);
 		for (WeakReference<TiContext> contextRef : contexts) {
@@ -277,6 +286,9 @@ public class TiActivity extends Activity
 	@Override
 	protected void onStart() {
 		super.onStart();
+		if (DBG) {
+			Log.d(LCAT, "Activity onStart");
+		}
 		updateTitle();
 		
 		if (proxy != null) {
@@ -295,7 +307,9 @@ public class TiActivity extends Activity
 	@Override
 	protected void onStop() {
 		super.onStop();
-
+		if (DBG) {
+			Log.d(LCAT, "Activity onStop");
+		}
 		if (proxy != null) {
 			proxy.fireEvent("blur", null);
 		}
