@@ -8,22 +8,32 @@ package org.appcelerator.titanium;
 
 import java.io.IOException;
 import java.lang.ref.SoftReference;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiActivityResultHandler;
 import org.appcelerator.titanium.util.TiActivitySupport;
 import org.appcelerator.titanium.util.TiActivitySupportHelper;
+import org.appcelerator.titanium.util.TiColorHelper;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.view.ITiWindowHandler;
 import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.titanium.view.TiCompositeLayout.LayoutParams;
 
+import android.R.color;
 import android.app.Activity;
 import android.app.ActivityGroup;
+import android.app.AlarmManager;
+import android.app.AlertDialog;
 import android.app.LocalActivityManager;
+import android.app.PendingIntent;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.DialogInterface.OnClickListener;
+import android.graphics.Color;
 import android.os.Bundle;
+import android.os.Process;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -42,6 +52,8 @@ public class TiRootActivity extends ActivityGroup
 	protected TiActivitySupportHelper supportHelper;
 	protected TiCompositeLayout rootLayout;
 	protected SoftReference<ITiMenuDispatcherListener> softMenuDispatcher;
+	
+	private AlertDialog b2373Alert;
 
 	public static class TiActivityRef
 	{
@@ -58,7 +70,34 @@ public class TiRootActivity extends ActivityGroup
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		Log.checkpoint("checkpoint, on root activity create.");
-
+		if (DBG) {
+			Log.e(LCAT, "Instance Count: " + getInstanceCount());
+		}
+		
+		Intent intent = getIntent();
+		if (intent != null) {
+			String action = intent.getAction();
+			if (action != null && action.equals(Intent.ACTION_MAIN)) {
+				Set<String> categories = intent.getCategories();
+				boolean b2373Detected = true; //Absence of LAUNCHER is the problem.
+				if (categories != null) {
+					for(String category : categories) {
+						if (category.equals(Intent.CATEGORY_LAUNCHER)) {
+							b2373Detected = false;
+							break;
+						}
+					}
+				}
+				
+				if(b2373Detected) {
+					Log.e(LCAT, "Android issue 2373 detected, restarting app. Instances: " + getInstanceCount());
+					rootLayout = new TiCompositeLayout(this, false);
+					setContentView(rootLayout);
+					return;
+				}
+			}
+		}
+		
 		TiApplication host = getTiApp();
 		host.setRootActivity(this);
 		tiContext = TiContext.createTiContext(this, null, null);
@@ -217,35 +256,92 @@ public class TiRootActivity extends ActivityGroup
 	protected void onStart() {
 		super.onStart();
 
-		tiContext.dispatchOnStart();
+		if (tiContext != null) {
+			tiContext.dispatchOnStart();
+		}
 	}
 
 	@Override
 	protected void onResume() {
 		super.onResume();
 		Log.checkpoint("checkpoint, on root activity resume.");
-		tiContext.dispatchOnResume();
+		if (tiContext != null) {
+			tiContext.dispatchOnResume();
+		} else {
+			// No context, we have a launch problem.
+
+//			properties.setString("ti.android.bug2373.title", "Restart Required");
+//			properties.setString("ti.android.bug2373.backgroundColor", "rgb(255,0,0)");
+//			properties.setString("ti.android.bug2373.buttonText", "Continue");
+//			properties.setString("ti.android.bug2373.message", "An application restart is required. Please press continue");
+			
+			TiProperties systemProperties = getTiApp().getSystemProperties();
+			String backgroundColor = systemProperties.getString("ti.android.bug2373.backgroundColor", "black");
+			rootLayout.setBackgroundColor(TiColorHelper.parseColor(backgroundColor));
+			
+			final Intent relaunch = new Intent(getApplicationContext(), getClass());
+			relaunch.setAction(Intent.ACTION_MAIN);
+			relaunch.addCategory(Intent.CATEGORY_LAUNCHER);
+			
+			OnClickListener restartListener = new OnClickListener() {	
+				@Override
+				public void onClick(DialogInterface arg0, int arg1) {
+					AlarmManager am = (AlarmManager) getSystemService(ALARM_SERVICE);
+					if (am != null) {
+						PendingIntent pi = PendingIntent.getActivity(getApplicationContext(), 0, relaunch, PendingIntent.FLAG_ONE_SHOT);
+						am.set(AlarmManager.RTC, System.currentTimeMillis() + 500, pi);
+					}
+					finish();				
+				}
+			};
+			
+			String title = systemProperties.getString("ti.android.bug2373.title", "Restart Required");
+			String message = systemProperties.getString("ti.android.bug2373.message", "An application restart is required");
+			String buttonText = systemProperties.getString("ti.android.bug2373.buttonText", "Continue");
+			
+			b2373Alert = new AlertDialog.Builder(this)
+	        .setTitle(title)
+	        .setMessage(message)
+	        .setPositiveButton(buttonText, restartListener)
+	        .setCancelable(false)
+ 	        .create();
+			
+			b2373Alert.show();
+		}
 	}
 
 	@Override
 	protected void onPause() {
 		super.onPause();
 
-		tiContext.dispatchOnPause();
+		if (tiContext != null) {
+			tiContext.dispatchOnPause();
+		} else {
+			// Not in a good state. Let's get out.
+			if (b2373Alert != null && b2373Alert.isShowing()) {
+				b2373Alert.cancel();
+				b2373Alert = null;
+			}
+			finish();
+		}
 	}
 
 	@Override
 	protected void onStop() {
 		super.onStop();
 
-		tiContext.dispatchOnStop();
+		if (tiContext != null) {
+			tiContext.dispatchOnStop();
+		}
 	}
 
 	@Override
 	protected void onDestroy() {
 		super.onDestroy();
 
-		tiContext.dispatchOnDestroy();
-		TiModule.clearModuleSingletons();
+		if (tiContext != null) {
+			tiContext.dispatchOnDestroy();
+			TiModule.clearModuleSingletons();
+		}
 	}
 }
