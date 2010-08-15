@@ -270,11 +270,6 @@ public class TiRootActivity extends ActivityGroup
 		} else {
 			// No context, we have a launch problem.
 
-//			properties.setString("ti.android.bug2373.title", "Restart Required");
-//			properties.setString("ti.android.bug2373.backgroundColor", "rgb(255,0,0)");
-//			properties.setString("ti.android.bug2373.buttonText", "Continue");
-//			properties.setString("ti.android.bug2373.message", "An application restart is required. Please press continue");
-			
 			TiProperties systemProperties = getTiApp().getSystemProperties();
 			String backgroundColor = systemProperties.getString("ti.android.bug2373.backgroundColor", "black");
 			rootLayout.setBackgroundColor(TiColorHelper.parseColor(backgroundColor));
