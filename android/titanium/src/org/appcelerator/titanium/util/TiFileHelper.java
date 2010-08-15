@@ -28,6 +28,8 @@ import java.util.TreeSet;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+import org.apache.http.entity.FileEntity;
+
 import android.content.Context;
 import android.content.res.AssetManager;
 import android.content.res.Resources;
@@ -556,6 +558,9 @@ public class TiFileHelper
 		File result = null;
 		Context context = softContext.get();
 		if (context != null) {
+			if ( ! dir.exists() ) {
+				Log.w(LCAT, "getTempFile: Directory '" + dir.getAbsolutePath() + "' does not exist. Call to File.createTempFile() will fail." );
+			}
 			result = File.createTempFile("tia", suffix, dir);
 		}
 		return result;
