@@ -418,6 +418,9 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 
 -(void)configureBackground:(UITableViewCell*)cell
 {
+	[(TiUITableViewCell *)cell setBackgroundGradient_:[self valueForKey:@"backgroundGradient"]];
+	[(TiUITableViewCell *)cell setSelectedBackgroundGradient_:[self valueForKey:@"selectedBackgroundGradient"]];
+
 	id bgImage = [self valueForKey:@"backgroundImage"];
 	id selBgColor = [self valueForKey:@"selectedBackgroundColor"];
 
@@ -484,28 +487,28 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 		{								
 			cell.selectedBackgroundView = [[[TiSelectedCellBackgroundView alloc] initWithFrame:CGRectZero] autorelease];
 		}
-		TiSelectedCellBackgroundView *sv = (TiSelectedCellBackgroundView*)cell.selectedBackgroundView;
+		TiSelectedCellBackgroundView *selectedBGView = (TiSelectedCellBackgroundView*)cell.selectedBackgroundView;
 		int count = [section rowCount];
 		if (count == 1)
 		{
-			sv.position = TiCellBackgroundViewPositionSingleLine;
+			selectedBGView.position = TiCellBackgroundViewPositionSingleLine;
 		}
 		else 
 		{
 			if (row == 0)
 			{
-				sv.position = TiCellBackgroundViewPositionTop;
+				selectedBGView.position = TiCellBackgroundViewPositionTop;
 			}
 			else if (row == count-1)
 			{
-				sv.position = TiCellBackgroundViewPositionBottom;
+				selectedBGView.position = TiCellBackgroundViewPositionBottom;
 			}
 			else 
 			{
-				sv.position = TiCellBackgroundViewPositionMiddle;
+				selectedBGView.position = TiCellBackgroundViewPositionMiddle;
 			}
 		}
-		sv.fillColor = [Webcolor webColorNamed:selBgColor];	
+		selectedBGView.fillColor = [Webcolor webColorNamed:selBgColor];	
 	}
 	else if (cell.selectedBackgroundView!=nil)
 	{
@@ -892,6 +895,23 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 
 
 #pragma mark Delegate
+-(void) setBackgroundGradient:(id)arg
+{
+	TiGradient * newGradient = [TiGradient gradientFromObject:arg proxy:self];
+	[self replaceValue:newGradient forKey:@"backgroundGradient" notification:NO];
+	
+	[callbackCell performSelectorOnMainThread:@selector(setBackgroundGradient_:)
+			withObject:newGradient waitUntilDone:NO];
+}
+
+-(void) setSelectedBackgroundGradient:(id)arg
+{
+	TiGradient * newGradient = [TiGradient gradientFromObject:arg proxy:self];
+	[self replaceValue:newGradient forKey:@"selectedBackgroundGradient" notification:NO];
+	
+	[callbackCell performSelectorOnMainThread:@selector(setSelectedBackgroundGradient_:)
+			withObject:newGradient waitUntilDone:NO];
+}
 
 
 -(void)propertyChanged:(NSString*)key oldValue:(id)oldValue newValue:(id)newValue proxy:(TiProxy*)proxy

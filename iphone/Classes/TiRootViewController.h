@@ -26,6 +26,9 @@
 	
 	UIInterfaceOrientation windowOrientation;
 
+
+	NSMutableArray * viewControllerStack;
+	BOOL isCurrentlyVisible;
 }
 
 @property(nonatomic,readwrite,retain)	UIColor * backgroundColor;
@@ -46,5 +49,11 @@
 -(void)enforceOrientationModesFromWindow:(TiWindowProxy *) newCurrentWindow;
 
 -(void)setOrientationModes:(NSArray *)newOrientationModes;
+
+
+- (void)willHideViewController:(UIViewController *)focusedViewController animated:(BOOL)animated
+- (void)didHideViewController:(UIViewController *)focusedViewController animated:(BOOL)animated
+- (void)willShowViewController:(UIViewController *)focusedViewController animated:(BOOL)animated
+- (void)didShowViewController:(UIViewController *)focusedViewController animated:(BOOL)animated
 
 @end
