@@ -51,6 +51,39 @@
 	[super willAnimateRotationToInterfaceOrientation:toInterfaceOrientation duration:duration];
 }
 
+- (void)viewWillAppear:(BOOL)animated;    // Called when the view is about to made visible. Default does nothing
+{
+	if ([proxy respondsToSelector:@selector(viewWillAppear:)])
+	{
+		[proxy viewWillAppear:animated];
+	}
+	VerboseLog(@"%@:%@%@",self,proxy,CODELOCATION);
+}
+- (void)viewDidAppear:(BOOL)animated;     // Called when the view has been fully transitioned onto the screen. Default does nothing
+{
+	if ([proxy respondsToSelector:@selector(viewDidAppear:)])
+	{
+		[proxy viewDidAppear:animated];
+	}
+	VerboseLog(@"%@:%@%@",self,proxy,CODELOCATION);
+}
+- (void)viewWillDisappear:(BOOL)animated; // Called when the view is dismissed, covered or otherwise hidden. Default does nothing
+{
+	if ([proxy respondsToSelector:@selector(viewWillDisappear:)])
+	{
+		[proxy viewWillDisappear:animated];
+	}
+	VerboseLog(@"%@:%@%@",self,proxy,CODELOCATION);
+}
+- (void)viewDidDisappear:(BOOL)animated;  // Called after the view was dismissed, covered or otherwise hidden. Default does nothing
+{
+	if ([proxy respondsToSelector:@selector(viewDidDisappear:)])
+	{
+		[proxy viewDidDisappear:animated];
+	}
+	VerboseLog(@"%@:%@%@",self,proxy,CODELOCATION);
+}
+
 -(UINavigationItem*)navigationItem
 {
 	if ([self navigationController] != nil) {
@@ -201,6 +234,9 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 	{
 		return;
 	}
+	VerboseLog(@"%@ (modal:%d)%@",self,modalFlag,CODELOCATION);
+	[[[TiApp app] controller] didHideViewController:controller animated:YES];
+
 	opened = NO;
 	attached = NO;
 	opening = NO;
@@ -371,7 +407,9 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 		{
 			if (rootViewAttached)
 			{
+				[[[TiApp app] controller] willShowViewController:[self controller] animated:(animation != nil)];
 				[self attachViewToTopLevelWindow];
+				[[[TiApp app] controller] didShowViewController:[self controller] animated:animation!=nil];
 			}
 			if ([animation isTransitionAnimation])
 			{
@@ -511,6 +549,7 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 		}
 	}
 
+	VerboseLog(@"%@ (modal:%d)%@",self,modalFlag,CODELOCATION);
 	[self windowWillClose];
 
 	//TEMP hack until we can figure out split view issue
@@ -563,6 +602,8 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 		[self fireEvent:@"close" withObject:nil];
 	}
 	
+	[[[TiApp app] controller] willHideViewController:controller animated:YES];
+	VerboseLog(@"%@ (modal:%d)%@",self,modalFlag,CODELOCATION);
 	if ([self _handleClose:args])
 	{
 		TiAnimation *animation = [self _isChildOfTab] ? nil : [TiAnimation animationFromArg:args context:[self pageContext] create:NO];

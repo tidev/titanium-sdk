@@ -19,7 +19,6 @@
 #import "TiViewController.h"
 #import "TiApp.h"
 #import "TiUIiPadPopoverProxy.h"
-#import "TiSplitViewController.h"
 
 #ifdef USE_TI_UIIPADSPLITWINDOWBUTTON
 #import "TiUIiPadSplitWindowButtonProxy.h"
@@ -44,7 +43,6 @@ UIViewController * ControllerForProxy(TiViewProxy * proxy)
 
 -(void)dealloc
 {
-//	[[[TiApp app] controller] windowClosed:controller];
 	RELEASE_TO_NIL(controller);
 	[super dealloc];
 }
@@ -56,30 +54,13 @@ UIViewController * ControllerForProxy(TiViewProxy * proxy)
 		TiViewProxy* masterProxy = [self.proxy valueForUndefinedKey:@"masterView"];
 		TiViewProxy* detailProxy = [self.proxy valueForUndefinedKey:@"detailView"];
 		
-//		controller = [[TiSplitViewController alloc] initWithRootController:(TiRootViewController*)[[TiApp app] controller] 
-//															   masterProxy:masterProxy 
-//															   detailProxy:detailProxy
-//																splitProxy:(TiUIiPadSplitWindowProxy*)self.proxy];
-		controller = [[MGSplitViewController alloc] init];
-		
+		controller = [[MGSplitViewController alloc] init];		
 		[controller setViewControllers:[NSArray arrayWithObjects:
 				ControllerForProxy(masterProxy),ControllerForProxy(detailProxy),nil]];
 
 		controller.delegate = self;
-/*		
-		UIWindow *window = [TiApp app].window;
-		UIViewController<TiRootController> *viewController = [[TiApp app] controller];
-		[[viewController view] removeFromSuperview];
-		[[TiApp app] setController:controller];
-		[window addSubview:[controller view]];
-		[window bringSubviewToFront:[controller view]];
-		
-		[controller resizeView];
-		[controller repositionSubviews];
-*/		
 
 		UIView * controllerView = [controller view];
-		[controllerView setBackgroundColor:[UIColor greenColor]];
 		
 		[controllerView setFrame:[self bounds]];
 		[self addSubview:controllerView];

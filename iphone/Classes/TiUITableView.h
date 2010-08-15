@@ -13,15 +13,23 @@
 #import "TiUISearchBarProxy.h"
 #import "TiDimension.h"
 
+@class TiGradientLayer;
+
 // Overloads hilighting to send touchbegin/touchend events
 @interface TiUITableViewCell : UITableViewCell
 {
-	TiUITableViewRowProxy* row;
+	TiUITableViewRowProxy* proxy;
+	TiGradientLayer * gradientLayer;
+	TiGradient * backgroundGradient;
+	TiGradient * selectedBackgroundGradient;
 }
 
 -(id)initWithStyle:(UITableViewCellStyle)style_ reuseIdentifier:(NSString *)reuseIdentifier_ row:(TiUITableViewRowProxy*)row_;
 
 -(void)handleEvent:(NSString*)type;
+
+-(void) setBackgroundGradient_:(TiGradient *)newGradient;
+-(void) setSelectedBackgroundGradient_:(TiGradient *)newGradient;
 
 @end
 

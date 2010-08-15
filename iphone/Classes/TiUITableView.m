@@ -26,8 +26,8 @@
 -(id)initWithStyle:(UITableViewCellStyle)style_ reuseIdentifier:(NSString *)reuseIdentifier_ row:(TiUITableViewRowProxy *)row_
 {
 	if (self = [super initWithStyle:style_ reuseIdentifier:reuseIdentifier_]) {
-		row = [row_ retain];
-		[row setCallbackCell:self];
+		proxy = [row_ retain];
+		[proxy setCallbackCell:self];
 	}
 	
 	return self;
@@ -35,13 +35,11 @@
 
 -(void)dealloc
 {
-	RELEASE_TO_NIL(row);
+	RELEASE_TO_NIL(proxy);
+	RELEASE_TO_NIL(gradientLayer);
+	RELEASE_TO_NIL(backgroundGradient);
+	RELEASE_TO_NIL(selectedBackgroundGradient);
 	[super dealloc];
-}
-
--(void)setHighlighted:(BOOL)yn
-{
-	[self setHighlighted:yn animated:NO];
 }
 
 -(void)setHighlighted:(BOOL)yn animated:(BOOL)animated
@@ -49,17 +47,18 @@
 	[super setHighlighted:yn animated:animated];
 	if (yn) 
 	{
-		if ([row _hasListeners:@"touchstart"])
+		if ([proxy _hasListeners:@"touchstart"])
 		{
-			[row fireEvent:@"touchstart" withObject:[row createEventObject:nil] propagate:YES];
+			[proxy fireEvent:@"touchstart" withObject:[proxy createEventObject:nil] propagate:YES];
 		}
 	}
 	else
 	{
-		if ([row _hasListeners:@"touchend"]) {
-			[row fireEvent:@"touchend" withObject:[row createEventObject:nil] propagate:YES];
+		if ([proxy _hasListeners:@"touchend"]) {
+			[proxy fireEvent:@"touchend" withObject:[proxy createEventObject:nil] propagate:YES];
 		}
 	}
+	[self updateGradientLayer:yn|[self isSelected]];
 }
 
 -(void)handleEvent:(NSString*)type
@@ -71,6 +70,89 @@
 		[super setHighlighted:NO animated:YES];
 	}
 }
+
+-(void)layoutSubviews
+{
+	[super layoutSubviews];
+	[gradientLayer setFrame:[self bounds]];
+}
+
+-(BOOL) selectedOrHighlighted
+{
+	return [self isSelected] || [self isHighlighted];
+}
+
+
+-(void) updateGradientLayer:(BOOL)useSelected
+{
+	TiGradient * currentGradient = useSelected?selectedBackgroundGradient:backgroundGradient;
+
+	if(currentGradient == nil)
+	{
+		[gradientLayer removeFromSuperlayer];
+		//Because there's the chance that the other state still has the gradient, let's keep it around.
+		return;
+	}
+	
+	CALayer * ourLayer = [self layer];
+	
+	if(gradientLayer == nil)
+	{
+		gradientLayer = [[TiGradientLayer alloc] init];
+		[gradientLayer setNeedsDisplayOnBoundsChange:YES];
+		[gradientLayer setFrame:[self bounds]];
+	}
+
+	[gradientLayer setGradient:currentGradient];
+	if([gradientLayer superlayer] != ourLayer)
+	{
+		[ourLayer insertSublayer:gradientLayer below:[[self contentView] layer]];
+	}
+	[gradientLayer setNeedsDisplay];
+}
+
+-(void)setHighlighted:(BOOL)yn
+{
+	[self setHighlighted:yn animated:NO];
+}
+
+-(void)setSelected:(BOOL)yn
+{
+	[super setHighlighted:yn];
+	[self updateGradientLayer:yn|[self isHighlighted]];
+}
+
+-(void) setBackgroundGradient_:(TiGradient *)newGradient
+{
+	if(newGradient == backgroundGradient)
+	{
+		return;
+	}
+	[backgroundGradient release];
+	backgroundGradient = [newGradient retain];
+	
+	if(![self selectedOrHighlighted])
+	{
+		[self updateGradientLayer:NO];
+	}
+}
+
+-(void) setSelectedBackgroundGradient_:(TiGradient *)newGradient
+{
+	if(newGradient == selectedBackgroundGradient)
+	{
+		return;
+	}
+	[selectedBackgroundGradient release];
+	selectedBackgroundGradient = [newGradient retain];
+	
+	if([self selectedOrHighlighted])
+	{
+		[self updateGradientLayer:YES];
+	}
+}
+
+
 
 @end
 
