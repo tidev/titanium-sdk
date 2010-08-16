@@ -261,6 +261,18 @@ public class TiRootActivity extends ActivityGroup
 		}
 	}
 
+	
+	@Override
+	protected void onRestart() {
+		super.onRestart();
+		TiProperties systemProperties = getTiApp().getSystemProperties();
+		boolean restart = systemProperties.getBool("ti.android.root.reappears.restart", false);
+		if (restart) {
+			Log.w(LCAT, "Tasks may have been destroyed by Android OS for inactivity. Restarting.");
+			restartApp(buildLaunchIntent(), 250);
+		}
+	}
+
 	@Override
 	protected void onResume() {
 		super.onResume();
@@ -274,19 +286,12 @@ public class TiRootActivity extends ActivityGroup
 			String backgroundColor = systemProperties.getString("ti.android.bug2373.backgroundColor", "black");
 			rootLayout.setBackgroundColor(TiColorHelper.parseColor(backgroundColor));
 			
-			final Intent relaunch = new Intent(getApplicationContext(), getClass());
-			relaunch.setAction(Intent.ACTION_MAIN);
-			relaunch.addCategory(Intent.CATEGORY_LAUNCHER);
+			final Intent relaunch = buildLaunchIntent();
 			
 			OnClickListener restartListener = new OnClickListener() {	
 				@Override
 				public void onClick(DialogInterface arg0, int arg1) {
-					AlarmManager am = (AlarmManager) getSystemService(ALARM_SERVICE);
-					if (am != null) {
-						PendingIntent pi = PendingIntent.getActivity(getApplicationContext(), 0, relaunch, PendingIntent.FLAG_ONE_SHOT);
-						am.set(AlarmManager.RTC, System.currentTimeMillis() + 500, pi);
-					}
-					finish();				
+					restartApp(relaunch, 500);
 				}
 			};
 			
@@ -304,7 +309,25 @@ public class TiRootActivity extends ActivityGroup
 			b2373Alert.show();
 		}
 	}
+	
+	private Intent buildLaunchIntent() 
+	{
+		Intent intent = new Intent(getApplicationContext(), getClass());
+		intent.setAction(Intent.ACTION_MAIN);
+		intent.addCategory(Intent.CATEGORY_LAUNCHER);
+		
+		return intent;
+	}
 
+	private void restartApp(Intent relaunch, int delay) {
+		AlarmManager am = (AlarmManager) getSystemService(ALARM_SERVICE);
+		if (am != null) {
+			PendingIntent pi = PendingIntent.getActivity(getApplicationContext(), 0, relaunch, PendingIntent.FLAG_ONE_SHOT);
+			am.set(AlarmManager.RTC, System.currentTimeMillis() + delay, pi);
+		}
+		finish();						
+	}
+	
 	@Override
 	protected void onPause() {
 		super.onPause();
