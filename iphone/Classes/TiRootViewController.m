@@ -166,13 +166,13 @@
 
 - (void)viewWillAppear:(BOOL)animated;    // Called when the view is about to made visible. Default does nothing
 {
-	NSLog(@"%@%@",self,CODELOCATION);
+	VerboseLog(@"%@%@",self,CODELOCATION);
 	isCurrentlyVisible = YES;
 	[[viewControllerStack lastObject] viewWillAppear:animated];
 }
 - (void)viewWillDisappear:(BOOL)animated; // Called when the view is dismissed, covered or otherwise hidden. Default does nothing
 {
-	NSLog(@"%@%@",self,CODELOCATION);
+	VerboseLog(@"%@%@",self,CODELOCATION);
 	[[viewControllerStack lastObject] viewWillDisappear:animated];
 }
 
@@ -180,7 +180,7 @@
 {
 	[self.view becomeFirstResponder];
     [super viewDidAppear:animated];
-	NSLog(@"%@%@",self,CODELOCATION);
+	VerboseLog(@"%@%@",self,CODELOCATION);
 	[[viewControllerStack lastObject] viewDidAppear:animated];
 }
 
@@ -189,7 +189,7 @@
 	isCurrentlyVisible = NO;
 	[self.view resignFirstResponder];
     [super viewDidDisappear:animated];
-	NSLog(@"%@%@",self,CODELOCATION);
+	VerboseLog(@"%@%@",self,CODELOCATION);
 	[[viewControllerStack lastObject] viewDidDisappear:animated];
 }
 
