@@ -20,6 +20,8 @@
 	TiColor *barColor;
 }
 
+-(UITabBarController*)tabController;
+
 -(void)open:(id)args;
 -(void)close:(id)args;
 

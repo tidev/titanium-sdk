@@ -17,6 +17,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.appcelerator.titanium.TiActivity;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiDict;
+import org.appcelerator.titanium.TiModalActivity;
 import org.appcelerator.titanium.TiProxy;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.proxy.TiWindowProxy;
@@ -58,7 +59,7 @@ public class TiUIWindow extends TiUIView
 
 	private static final int MSG_ANIMATE = 100;
 
-	private static final String[] NEW_ACTIVITY_REQUIRED_KEYS = { "fullscreen", "navBarHidden", "modal"};
+	private static final String[] NEW_ACTIVITY_REQUIRED_KEYS = { "fullscreen", "navBarHidden", "modal", "windowSoftInputMode"};
 
 	protected String activityKey;
 	protected Activity windowActivity;
@@ -575,6 +576,7 @@ public class TiUIWindow extends TiUIView
 		}
 		props = resolver.findProperty("modal");
 		if (props != null && props.containsKey("modal")) {
+			intent.setClass(activity, TiModalActivity.class);
 			intent.putExtra("modal", TiConvert.toBoolean(props, "modal"));
 		}
 		props = resolver.findProperty("url");
@@ -584,6 +586,10 @@ public class TiUIWindow extends TiUIView
 		props = resolver.findProperty("layout");
 		if (props != null && props.containsKey("layout")) {
 			intent.putExtra("vertical", TiConvert.toString(props, "layout").equals("vertical"));
+		}
+		props = resolver.findProperty("windowSoftInputMode");
+		if (props != null && props.containsKey("windowSoftInputMode")) {
+			intent.putExtra("windowSoftInputMode", TiConvert.toInt(props, "windowSoftInputMode"));
 		}
 
 		boolean finishRoot = false;

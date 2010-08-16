@@ -4,7 +4,6 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-#import <QuartzCore/QuartzCore.h>
 #import "TiBase.h"
 #import "TiUIView.h"
 #import "TiColor.h"
@@ -139,31 +138,6 @@ NSInteger zindexSort(TiUIView* view1, TiUIView* view2, void *reverse)
 	
 	return result;
 }
-
-
-@interface TiGradientLayer : CALayer
-{
-	TiGradient * gradient;
-}
-@property(nonatomic,readwrite,retain) TiGradient * gradient;
-@end
-
-@implementation TiGradientLayer
-@synthesize gradient;
-
-- (void) dealloc
-{
-	[gradient release];
-	[super dealloc];
-}
-
--(void)drawInContext:(CGContextRef)ctx
-{
-	[gradient paintContext:ctx bounds:[self bounds]];
-}
-
-@end
-
 
 
 
@@ -665,6 +639,11 @@ DEFINE_EXCEPTIONS
     changedInteraction = YES;
 }
 
+-(UIView *)gradientWrapperView
+{
+	return self;
+}
+
 -(void)setBackgroundGradient_:(id)arg
 {
 	if (arg == nil)
@@ -677,11 +656,9 @@ DEFINE_EXCEPTIONS
 		gradientLayer = [[TiGradientLayer alloc] init];
 		[(TiGradientLayer *)gradientLayer setGradient:arg];
 		[gradientLayer setNeedsDisplayOnBoundsChange:YES];
-//		[gradientLayer setDelegate:self];
 		[gradientLayer setFrame:[self bounds]];
 		[gradientLayer setNeedsDisplay];
-//		[[self layer] addSublayer:gradientLayer];
-		[[self layer] insertSublayer:gradientLayer atIndex:0];
+		[[[self gradientWrapperView] layer] insertSublayer:gradientLayer atIndex:0];
 	}
 	else
 	{

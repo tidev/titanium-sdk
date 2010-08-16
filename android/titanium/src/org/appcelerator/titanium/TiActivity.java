@@ -62,6 +62,9 @@ public class TiActivity extends Activity
     public void onCreate(Bundle savedInstanceState)
     {
 //        super.onCreate(savedInstanceState);
+    	if (DBG) {
+    		Log.d(LCAT, "Activity onCreate");
+    	}
         handler = new Handler();
 
         Intent intent = getIntent();
@@ -72,6 +75,8 @@ public class TiActivity extends Activity
         Messenger messenger = null;
         Integer messageId = null;
         boolean vertical = false;
+        boolean hasSoftInputMode = false;
+        int softInputMode = -1;
 
         if (intent != null) {
         	if (intent.hasExtra("modal")) {
@@ -90,19 +95,22 @@ public class TiActivity extends Activity
         	if (intent.hasExtra("vertical")) {
         		vertical = intent.getBooleanExtra("vertical", vertical);
         	}
+        	if (intent.hasExtra("windowSoftInputMode")) {
+        		hasSoftInputMode = true;
+        		softInputMode = intent.getIntExtra("windowSoftInputMode", WindowManager.LayoutParams.SOFT_INPUT_ADJUST_UNSPECIFIED);
+        	}
         }
 
         layout = new TiCompositeLayout(this, vertical);
 
-        if (modal) {
-        	setTheme(android.R.style.Theme_Translucent_NoTitleBar);
-        	layout.setBackgroundColor(Color.argb(200, 64, 64, 64));
-         } else {
+        super.onCreate(savedInstanceState);
+            
+        if (!modal) {
 	        if (fullscreen) {
 	        	getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
 	                    WindowManager.LayoutParams.FLAG_FULLSCREEN);
 	        }
-
+	        
 	        if (navbar) {
 	        	this.requestWindowFeature(Window.FEATURE_LEFT_ICON); // TODO Keep?
 		        this.requestWindowFeature(Window.FEATURE_RIGHT_ICON);
@@ -111,8 +119,18 @@ public class TiActivity extends Activity
 	        } else {
 	           	this.requestWindowFeature(Window.FEATURE_NO_TITLE);
 	        }
+        } else {
+        	int flags = WindowManager.LayoutParams.FLAG_BLUR_BEHIND;
+        	getWindow().setFlags(flags,flags);
         }
-        super.onCreate(savedInstanceState);
+        
+        if (hasSoftInputMode) {
+        	if (DBG) {
+        		Log.d(LCAT, "windowSoftInputMode: " + softInputMode);
+        	}
+        	getWindow().setSoftInputMode(softInputMode);
+        }
+        
 
         setContentView(layout);
 
@@ -252,6 +270,9 @@ public class TiActivity extends Activity
 	@Override
 	protected void onPause() {
 		super.onPause();
+		if (DBG) {
+			Log.d(LCAT, "Activity onPause");
+		}
 		((TiApplication) getApplication()).setWindowHandler(null);
 		((TiApplication) getApplication()).setCurrentActivity(this, null);
 
@@ -265,6 +286,9 @@ public class TiActivity extends Activity
 	@Override
 	protected void onResume() {
 		super.onResume();
+		if (DBG) {
+			Log.d(LCAT, "Activity onResume");
+		}
 		((TiApplication) getApplication()).setWindowHandler(this);
 		((TiApplication) getApplication()).setCurrentActivity(this, this);
 		for (WeakReference<TiContext> contextRef : contexts) {
@@ -277,6 +301,9 @@ public class TiActivity extends Activity
 	@Override
 	protected void onStart() {
 		super.onStart();
+		if (DBG) {
+			Log.d(LCAT, "Activity onStart");
+		}
 		updateTitle();
 		
 		if (proxy != null) {
@@ -295,7 +322,9 @@ public class TiActivity extends Activity
 	@Override
 	protected void onStop() {
 		super.onStop();
-
+		if (DBG) {
+			Log.d(LCAT, "Activity onStop");
+		}
 		if (proxy != null) {
 			proxy.fireEvent("blur", null);
 		}

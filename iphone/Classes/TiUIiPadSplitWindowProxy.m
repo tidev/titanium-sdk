@@ -37,10 +37,6 @@
 {
 	[super windowDidOpen];
 	[self reposition];
-//	TiSplitViewController* splitController = (TiSplitViewController*)[self controller];
-	
-//	[splitController resizeView];
-//	[splitController repositionSubviews];	
 }
 
 -(void)windowDidClose
