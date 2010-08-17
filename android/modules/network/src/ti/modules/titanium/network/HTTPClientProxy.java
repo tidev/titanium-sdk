@@ -90,6 +90,10 @@ public class HTTPClientProxy extends TiProxy {
 		client.setRequestHeader(header, value);
 	}
 	
+	public void setTimeout(int millis) {
+		client.setTimeout(millis);
+	}
+	
 	public String getLocation() {
 		return client.getLocation();
 	}
