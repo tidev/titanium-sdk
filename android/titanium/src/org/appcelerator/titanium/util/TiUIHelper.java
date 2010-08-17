@@ -17,6 +17,8 @@ import java.util.regex.Pattern;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiDict;
+import org.appcelerator.titanium.TiProxy;
+import org.appcelerator.titanium.view.TiUIView;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -37,6 +39,7 @@ import android.os.Process;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.TextView;
 
 public class TiUIHelper
@@ -466,6 +469,36 @@ public class TiUIHelper
 				Log.e(LCAT, "Called incorrectly: " + e.getMessage());
 			} catch (IllegalAccessException e) {
 				Log.e(LCAT, "Illegal access: " + e.getMessage());
+			}
+		}
+	}
+	
+	public static void requestSoftInputChange(TiProxy proxy, View view) 
+	{
+		int focusState = TiUIView.SOFT_KEYBOARD_DEFAULT_ON_FOCUS;
+		
+		if (proxy.hasDynamicValue("softKeyboardOnFocus")) {
+			focusState = TiConvert.toInt(proxy.getDynamicValue("softKeyboardOnFocus"));
+		}
+
+		if (focusState > TiUIView.SOFT_KEYBOARD_DEFAULT_ON_FOCUS) {
+			InputMethodManager imm = (InputMethodManager) view.getContext().getSystemService(Activity.INPUT_METHOD_SERVICE);
+			if (imm != null) {
+				boolean useForce = (Build.VERSION.SDK_INT <= Build.VERSION_CODES.DONUT) ? true : false;
+				String model = TiPlatformHelper.getModel(); 
+				if (model != null && model.toLowerCase().equals("droid")) {
+					useForce = true;
+				}
+				if (DBG) {
+					Log.i(LCAT, "soft input change request: flag: " + focusState + " useForce: " + useForce);
+				}
+				if (focusState == TiUIView.SOFT_KEYBOARD_SHOW_ON_FOCUS) {
+					imm.showSoftInput(view, useForce ? InputMethodManager.SHOW_FORCED : InputMethodManager.SHOW_IMPLICIT);
+				} else if (focusState == TiUIView.SOFT_KEYBOARD_HIDE_ON_FOCUS) {
+					imm.hideSoftInputFromWindow(view.getWindowToken(), useForce ? 0 : InputMethodManager.HIDE_IMPLICIT_ONLY);
+				} else {
+					Log.w(LCAT, "Unknown onFocus state: " + focusState);
+				}
 			}
 		}
 	}

@@ -54,6 +54,8 @@ import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
 import org.apache.http.message.BasicHttpEntityEnclosingRequest;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.params.BasicHttpParams;
+import org.apache.http.params.HttpConnectionParamBean;
+import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpProtocolParams;
 import org.apache.http.protocol.HTTP;
@@ -119,7 +121,8 @@ public class TiHTTPClient
 	
 	Thread clientThread;
 	private boolean aborted;
-
+	private int timeout = -1;
+	
 	class LocalResponseHandler implements ResponseHandler<String>
 	{
 		public WeakReference<TiHTTPClient> client;
@@ -698,7 +701,7 @@ public class TiHTTPClient
 		for (String header : headers.keySet()) {
 			request.setHeader(header, headers.get(header));
 		}
-
+		
 		clientThread = new Thread(new ClientRunnable(totalLength), "TiHttpClient-" + httpClientThreadCounter.incrementAndGet());
 		clientThread.setPriority(Thread.MIN_PRIORITY);
 		clientThread.start();
@@ -737,9 +740,14 @@ public class TiHTTPClient
 				registry.register(new Scheme("https", sslFactory, 443));
 				HttpParams params = new BasicHttpParams();
 				
+				if (timeout != -1) {
+					HttpConnectionParams.setConnectionTimeout(params, timeout);
+				}
+				
+				
 				ThreadSafeClientConnManager manager = new ThreadSafeClientConnManager(params, registry);
 				client = new DefaultHttpClient(manager, params);
-
+				
 				if (credentials != null) {
 					client.getCredentialsProvider().setCredentials(
 							new AuthScope(null, -1), credentials);
@@ -858,5 +866,9 @@ public class TiHTTPClient
 
 	public boolean isConnected() {
 		return connected;
+	}
+	
+	public void setTimeout(int millis) {
+		timeout = millis;
 	}
 }
