@@ -580,7 +580,7 @@
 	if (view == nil)
 	{
 		WARN_IF_BACKGROUND_THREAD
-#ifdef DEBUG
+#ifdef VERBOSE
 		if(![NSThread isMainThread])
 		{
 			NSLog(@"[WARN] Break here");
