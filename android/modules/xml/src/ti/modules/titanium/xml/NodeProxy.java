@@ -66,8 +66,9 @@ public class NodeProxy extends TiProxy {
 	// We cache node proxies so we're not constructing new ones on every single call
 	// on node finalize we have to go back through and remove each proxy
 	public static NodeProxy getNodeProxy(TiContext context, Node node) {
-		NodeProxy proxy = proxyCache.get(node);
-		if (proxy == null) {
+		//NodeProxy proxy = proxyCache.get(node);
+		NodeProxy proxy;
+		//if (proxy == null) {
 			switch (node.getNodeType()) {
 				case Node.ATTRIBUTE_NODE:
 					proxy = new AttrProxy(context, (Attr)node);
@@ -109,8 +110,8 @@ public class NodeProxy extends TiProxy {
 					proxy = new NodeProxy(context, node);
 					break;
 			}
-			proxyCache.put(node, proxy);
-		}
+			//proxyCache.put(node, proxy);
+		//}
 		return proxy;
 	}
 	
