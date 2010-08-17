@@ -1302,6 +1302,14 @@ LAYOUTPROPERTIES_SETTER(setLayout,layout,TiLayoutRuleFromObject)
 LAYOUTPROPERTIES_SETTER(setMinWidth,minimumWidth,TiFixedValueRuleFromObject)
 LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject)
 
+-(void)setSize:(id)value
+{
+	ENSURE_DICT(value);
+	layoutProperties.width = TiDimensionFromObject([value objectForKey:@"width"]);
+ 	layoutProperties.height = TiDimensionFromObject([value objectForKey:@"height"]);
+	[self setNeedsReposition];
+}
+
 -(void)setCenter:(id)value
 {
 	if (![value isKindOfClass:[NSDictionary class]])

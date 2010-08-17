@@ -191,6 +191,14 @@ public abstract class TiUIView
 			if (nativeView != null) {
 				nativeView.requestLayout();
 			}
+		} else if (key.equals("size")) {
+			if (newValue instanceof TiDict) {
+				TiDict d = (TiDict)newValue;
+				propertyChanged("width",oldValue,d.get("width"),proxy);
+				propertyChanged("height",oldValue,d.get("height"),proxy);
+			}else if (newValue != null){
+				Log.w(LCAT, "Unsupported property type ("+(newValue.getClass().getSimpleName())+") for key: " + key+". Must be an object/dictionary");
+			}
 		} else if (key.equals("height")) {
 			if (newValue != null) {
 				if (!newValue.equals("auto")) {
