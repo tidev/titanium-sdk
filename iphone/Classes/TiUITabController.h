@@ -10,7 +10,7 @@
 #import "TiUITabProxy.h"
 #import "TiTabController.h"
 
-@interface TiUITabController : TiWindowViewController<TiTabController> {
+@interface TiUITabController : TiViewController<TiTabController> {
 @private
 //Window is now the superclass's proxy.
 	TiUITabProxy *tab;

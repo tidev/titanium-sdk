@@ -22,12 +22,12 @@
 
 -(TiWindowProxy *)window;
 {
-	return [self proxy];
+	return (TiWindowProxy *)[self proxy];
 }
 
 -(id)initWithProxy:(TiWindowProxy*)window_ tab:(TiUITabProxy*)tab_
 {
-	if (self = [self initWithWindow:window_])
+	if (self = [self initWithViewProxy:window_])
 	{
 		tab = [tab_ retain];
 		[window_ _associateTab:self navBar:self.navigationController tab:tab];
@@ -38,13 +38,13 @@
 -(void)loadView
 {
 	// link our window to the tab
-	[[self proxy] _associateTab:self navBar:self.navigationController tab:tab];
+	[(TiWindowProxy *)[self proxy] _associateTab:self navBar:self.navigationController tab:tab];
 	[super loadView];
 }
 
 -(void)viewDidUnload
 {
-	[[self proxy] _associateTab:nil navBar:nil tab:nil];
+	[(TiWindowProxy *)[self proxy] _associateTab:nil navBar:nil tab:nil];
 }
 
 @end
