@@ -92,7 +92,7 @@ properties[object]: animation properties
 
 - method : deleteRow
 
-row[object]: row to delete
+row[int]: index of row to delete
 properties[object]: animation properties
 
 - method : insertRowAfter

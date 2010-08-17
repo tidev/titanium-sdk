@@ -159,6 +159,9 @@ public class MediaModule extends TiModule
 					imageDir = new File(PHOTO_DCIM_CAMERA, name);
 					if (!imageDir.exists()) {
 						imageDir.mkdirs();
+						if (!imageDir.exists()) {
+							Log.w(LCAT, "Attempt to create '" + imageDir.getAbsolutePath() +  "' failed silently.");
+						}
 					}
 				} else {
 					imageDir = tfh.getDataDirectory(false);

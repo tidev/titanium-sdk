@@ -127,7 +127,7 @@
 
 - (void)navigationController:(UINavigationController *)navigationController willShowViewController:(UIViewController *)viewController animated:(BOOL)animated
 {
-    TiWindowProxy *newWindow = [(TiWindowViewController*)viewController proxy];
+    TiWindowProxy *newWindow = (TiWindowProxy *)[(TiViewController*)viewController proxy];
 	[newWindow prepareForNavView:controller];
 	[newWindow setupWindowDecorations];
 	
@@ -135,8 +135,8 @@
 }
 - (void)navigationController:(UINavigationController *)navigationController didShowViewController:(UIViewController *)viewController animated:(BOOL)animated
 {
-	TiWindowViewController *wincontroller = (TiWindowViewController*)viewController;
-	TiWindowProxy *newWindow = [wincontroller proxy];
+	TiViewController *wincontroller = (TiViewController*)viewController;
+	TiWindowProxy *newWindow = (TiWindowProxy *)[wincontroller proxy];
 	[self setVisibleProxy:newWindow];
 	
 	if (newWindow!=current)
