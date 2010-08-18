@@ -57,6 +57,7 @@ def main(args):
         		# have the patch installed
         		print "[INFO] Found %s patch installed" % v
         		path = "~/Library/Application Support/iPhone Simulator/%s" % v
+        		break
 
 	logfile_dir = os.path.expanduser(path)
 
