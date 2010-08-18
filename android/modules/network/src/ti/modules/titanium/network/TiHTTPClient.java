@@ -589,7 +589,22 @@ public class TiHTTPClient
 		}
 
 		this.method = method;
-		uri = Uri.parse(url);
+		
+		String cleanUrl = url;
+		if (url.startsWith("http")) {
+			int beginQ = url.indexOf('?');
+			if (beginQ > 7 && url.length() > beginQ) {
+				String left = url.substring(0, beginQ);
+				String right = url.substring(beginQ + 1);
+				// first decoding below, in case it's partially encoded already.
+				cleanUrl = Uri.encode(Uri.decode(left), ":/") + "?" + Uri.encode(Uri.decode(right), "&=#");
+			} else {
+				cleanUrl = Uri.encode(Uri.decode(url), ":/#");
+			}
+		}
+
+		uri = Uri.parse(cleanUrl);
+		
 		host = new HttpHost(uri.getHost(), uri.getPort(), uri.getScheme());
 		if (uri.getUserInfo() != null) {
 			credentials = new UsernamePasswordCredentials(uri.getUserInfo());
