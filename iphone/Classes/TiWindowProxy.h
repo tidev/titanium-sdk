@@ -9,23 +9,7 @@
 #import "TiTab.h"
 #import "TiUIWindow.h"
 #import "TiUIView.h"
-
-@protocol TiUIViewController
-
-@optional
-- (void)viewWillAppear:(BOOL)animated;    // Called when the view is about to made visible. Default does nothing
-- (void)viewDidAppear:(BOOL)animated;     // Called when the view has been fully transitioned onto the screen. Default does nothing
-- (void)viewWillDisappear:(BOOL)animated; // Called when the view is dismissed, covered or otherwise hidden. Default does nothing
-- (void)viewDidDisappear:(BOOL)animated;  // Called after the view was dismissed, covered or otherwise hidden. Default does nothing
-@end
-
-@interface TiWindowViewController : UIViewController
-{
-	TiWindowProxy *proxy;
-}
--(id)initWithWindow:(TiWindowProxy*)window;
-@property(nonatomic,readonly)	TiWindowProxy *proxy;
-@end
+#import "TiViewController.h"
 
 // specialization for TiViews that act like top level 
 // windows when opened, closed, etc.
@@ -89,6 +73,5 @@
 -(void)_tabBeforeBlur;
 
 -(void)setupWindowDecorations;
-- (void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration;
 
 @end

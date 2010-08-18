@@ -15,7 +15,7 @@ function rowClickHandler(e)
 function sectionClickHandler(e)
 {
 	Ti.API.info("row click on section. index = "+e.index+", row = "+e.row+", section = "+e.section+", source="+e.source);
-});
+}
 
 
 for (var c=0;c<10;c++)

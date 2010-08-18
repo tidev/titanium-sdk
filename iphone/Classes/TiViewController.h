@@ -5,14 +5,24 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
-#import "TiController.h"
 #import "TiViewProxy.h"
 
+@protocol TiUIViewController
 
-@interface TiViewController : UIViewController<TiController> 
+@optional
+- (void)viewWillAppear:(BOOL)animated;    // Called when the view is about to made visible. Default does nothing
+- (void)viewDidAppear:(BOOL)animated;     // Called when the view has been fully transitioned onto the screen. Default does nothing
+- (void)viewWillDisappear:(BOOL)animated; // Called when the view is dismissed, covered or otherwise hidden. Default does nothing
+- (void)viewDidDisappear:(BOOL)animated;  // Called after the view was dismissed, covered or otherwise hidden. Default does nothing
+
+- (void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration;
+@end
+
+
+@interface TiViewController : UIViewController
 {
-@private
-	TiViewProxy *proxy;
+	TiViewProxy<TiUIViewController> *proxy;
 }
--(id)initWithViewProxy:(TiViewProxy*)proxy_;
+-(id)initWithViewProxy:(TiViewProxy<TiUIViewController>*)window;
+@property(nonatomic,readonly)	TiViewProxy<TiUIViewController> *proxy;
 @end

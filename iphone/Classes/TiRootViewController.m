@@ -152,9 +152,9 @@
 	[self updateBackground];
 	[self resizeView];
 	// we have to make a copy since this code can cause a mutation
-	for (TiWindowViewController * thisWindowController in [[windowViewControllers mutableCopy] autorelease])
+	for (TiViewController * thisWindowController in [[windowViewControllers mutableCopy] autorelease])
 	{
-		if ([thisWindowController isKindOfClass:[TiWindowViewController class]])
+		if ([thisWindowController isKindOfClass:[TiViewController class]])
 		{
 			UIView * thisView = [thisWindowController view];
 			[rootView addSubview:thisView];

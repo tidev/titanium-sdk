@@ -9,6 +9,7 @@ package ti.modules.titanium.ui.android;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiDict;
 import org.appcelerator.titanium.TiModule;
+import org.appcelerator.titanium.view.TiUIView;
 
 import android.view.WindowManager;
 
@@ -42,6 +43,11 @@ public class AndroidModule extends TiModule
 			constants.put("SOFT_INPUT_STATE_HIDDEN", WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
 			constants.put("SOFT_INPUT_STATE_UNSPECIFIED", WindowManager.LayoutParams.SOFT_INPUT_STATE_UNSPECIFIED);
 			constants.put("SOFT_INPUT_STATE_VISIBLE", WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
+			
+			constants.put("SOFT_KEYBOARD_DEFAULT_ON_FOCUS", TiUIView.SOFT_KEYBOARD_DEFAULT_ON_FOCUS);
+			constants.put("SOFT_KEYBOARD_HIDE_ON_FOCUS", TiUIView.SOFT_KEYBOARD_HIDE_ON_FOCUS);
+			constants.put("SOFT_KEYBOARD_SHOW_ON_FOCUS", TiUIView.SOFT_KEYBOARD_SHOW_ON_FOCUS);
+
 		}
 		
 		return constants;
