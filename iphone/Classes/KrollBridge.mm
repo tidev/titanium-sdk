@@ -72,7 +72,6 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 
 -(void)gc
 {
-	[modules removeAllObjects];
 }
 
 -(id)valueForKey:(NSString *)key
@@ -181,6 +180,7 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 			}
 		}
 	}
+	[self gc];
 }
 
 

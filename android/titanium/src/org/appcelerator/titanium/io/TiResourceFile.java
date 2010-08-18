@@ -26,6 +26,7 @@ import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiFileHelper;
 import org.appcelerator.titanium.util.TiFileHelper2;
+import org.appcelerator.titanium.util.TiMimeTypeHelper;
 
 import android.content.Context;
 
@@ -143,7 +144,7 @@ public class TiResourceFile extends TiBaseFile
 			}
 		}
 
-		return TiBlob.blobFromData(getTiContext(), baos.toByteArray());
+		return TiBlob.blobFromData(getTiContext(), baos.toByteArray(), TiMimeTypeHelper.getMimeType(toURL()));
 	}
 
 	@Override

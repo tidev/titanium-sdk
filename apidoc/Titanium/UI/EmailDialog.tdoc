@@ -31,7 +31,7 @@ messageBody[string]: the email message body
 toRecipients[array]: array of email recipients
 bccRecipients[array]: array of email BCC: recipients
 ccRecipients[array]: array of email CC: recipients
-html[boolean]: boolean to indicate whether the email messageBody should be sent as HTML content type. defaults to false
+html[boolean]: boolean to indicate whether the email messageBody should be sent as HTML content type. defaults to false. (Android note: you should not use html messages in 1.6: after that is okay.)
 barColor[string]: the bar color of the email dialog window when opened
 SENT[int]: constant for the SENT status result
 SAVED[int]: constant for the SAVED status result

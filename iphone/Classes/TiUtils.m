@@ -34,14 +34,18 @@ extern NSString * const TI_APPLICATION_RESOURCE_DIR;
 
 +(BOOL)isRetinaDisplay
 {
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0
-	if ([[UIScreen mainScreen] respondsToSelector:@selector(scale)] && 
-		[UIScreen mainScreen].scale > 1.0)
+	// since we call this alot, cache it
+	static CGFloat scale = 0.0;
+	if (scale == 0.0)
 	{
-		return YES;
-	}
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0
+		if ([[UIScreen mainScreen] respondsToSelector:@selector(scale)])
+		{
+			scale = [UIScreen mainScreen].scale;
+		}
 #endif	
-	return NO;
+	}
+	return scale > 1.0;
 }
 
 
@@ -499,7 +503,21 @@ extern NSString * const TI_APPLICATION_RESOURCE_DIR;
 		{
 			return [NSURL URLWithString:object];
 		}
-		url = [NSURL URLWithString:object relativeToURL:[proxy _baseURL]];
+		
+		// don't bother if we don't at least have a path and it's not remote
+		NSString *urlString = [TiUtils stringValue:object];
+		if ([urlString hasPrefix:@"http"])
+		{
+			NSRange range = [urlString rangeOfString:@"/" options:0 range:NSMakeRange(7, [urlString length]-7)];
+			if (range.location!=NSNotFound)
+			{
+				NSString *path = [(NSString *)CFURLCreateStringByAddingPercentEscapes(kCFAllocatorDefault, (CFStringRef)[urlString substringFromIndex:range.location], CFSTR(":[]@!$ '()*+,;\"<>%{}|\\^~`"), NULL, CFStringConvertNSStringEncodingToEncoding(NSUTF8StringEncoding)) autorelease];
+				urlString = [NSString stringWithFormat:@"%@%@",[urlString substringToIndex:range.location],path];
+			}
+		}
+		
+		url = [NSURL URLWithString:urlString relativeToURL:[proxy _baseURL]];
+		
 		if (url==nil)
 		{
 			//encoding problem - fail fast and make sure we re-escape

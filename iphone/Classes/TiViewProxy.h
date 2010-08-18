@@ -6,6 +6,7 @@
  */
 #import "TiProxy.h"
 #import "TiUIView.h"
+#import <pthread.h>
 
 #define NEEDS_REPOSITION	0 
 #define NEEDS_LAYOUT_CHILDREN	1
@@ -17,6 +18,7 @@
 @interface TiViewProxy : TiProxy<LayoutAutosizing> 
 {
 @protected
+	NSRecursiveLock *destroyLock;
 	CGFloat verticalLayoutBoundary;
 	CGFloat horizontalLayoutBoundary;
 	CGFloat horizontalLayoutRowHeight;	//Note, this has nothing to do with table views.
@@ -24,18 +26,20 @@
 	LayoutConstraint layoutProperties;
 
 	BOOL windowOpened;
+	BOOL windowOpening;
 	int dirtyflags;	//For atomic actions, best to be explicit about the 32 bitness.
 
 	BOOL isUsingBarButtonItem;
 	UIBarButtonItem * barButtonItem;
 
 @private
-	NSRecursiveLock *childrenLock;
+	pthread_rwlock_t childrenLock;
 	NSMutableArray *children;
 	TiUIView *view;
 	TiViewProxy *parent;
 	BOOL viewInitialized;
 	NSMutableArray *pendingAdds;
+	BOOL needsZIndexRepositioning;
 	
 #if USE_VISIBLE_BOOL
 	BOOL visible;
@@ -73,7 +77,8 @@
 -(void)layoutChild:(TiViewProxy*)child optimize:(BOOL)optimize;
 -(void)windowWillOpen;
 -(void)windowDidOpen;
--(BOOL)windowOpened;
+-(BOOL)windowHasOpened;
+-(BOOL)windowIsOpening;
 
 -(void)setWidth:(id)value;
 -(void)setHeight:(id)value;
@@ -110,13 +115,18 @@
 -(void)setNeedsReposition;
 -(void)clearNeedsReposition;
 -(void)setNeedsRepositionIfAutoSized;
+-(void)setNeedsZIndexRepositioning;
+-(BOOL)needsZIndexRepositioning;
 
 -(BOOL)willBeRelaying;
 -(void)childWillResize:(TiViewProxy *)child;
 -(BOOL)isAutoHeightOrWidth;
 -(BOOL)canHaveControllerParent;
 
+-(void)makeViewPerformSelector:(SEL)selector withObject:(id)object createIfNeeded:(BOOL)create waitUntilDone:(BOOL)wait;
+
 @end
+
 
 #define USE_VIEW_FOR_METHOD(resultType,methodname,inputType)	\
 -(resultType) methodname: (inputType)value	\
@@ -132,6 +142,7 @@
 		[[self view] performSelectorOnMainThread:@selector(methodname:) withObject:args waitUntilDone:NO];	\
 	}	\
 }
+
 
 
 #define USE_VIEW_FOR_VERIFY_WIDTH	USE_VIEW_FOR_METHOD(CGFloat,verifyWidth,CGFloat)

@@ -93,6 +93,9 @@ public class TiApplication extends Application
 	public void onCreate()
 	{
 		super.onCreate();
+		if (DBG) {
+			Log.d(LCAT, "Application onCreate");
+		}
 
 		final UncaughtExceptionHandler defaultHandler = Thread.getDefaultUncaughtExceptionHandler();
 		Thread.setDefaultUncaughtExceptionHandler(new UncaughtExceptionHandler() {
@@ -239,7 +242,10 @@ public class TiApplication extends Application
 	private ArrayList<TiProxy> appEventProxies = new ArrayList<TiProxy>();
 	public void addAppEventProxy(TiProxy appEventProxy)
 	{
-		appEventProxies.add(appEventProxy);
+		Log.e(LCAT, "APP PROXY: " + appEventProxy);
+		if (appEventProxy != null && !appEventProxies.contains(appEventProxy)) {
+			appEventProxies.add(appEventProxy);
+		}
 	}
 
 	public void removeAppEventProxy(TiProxy appEventProxy)

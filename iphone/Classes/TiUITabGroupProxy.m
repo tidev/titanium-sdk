@@ -154,6 +154,43 @@
 	// override but don't drop the tab group, causes problems
 }
 
+- (void)viewWillAppear:(BOOL)animated;    // Called when the view is about to made visible. Default does nothing
+{
+	if ([self viewAttached])
+	{
+		UITabBarController * tabController = [(TiUITabGroup *)[self view] tabController];
+		[tabController viewWillAppear:animated];
+	}
+}
+
+- (void)viewDidAppear:(BOOL)animated;     // Called when the view has been fully transitioned onto the screen. Default does nothing
+{
+	if ([self viewAttached])
+	{
+		UITabBarController * tabController = [(TiUITabGroup *)[self view] tabController];
+		[tabController viewDidAppear:animated];
+	}
+}
+
+- (void)viewWillDisappear:(BOOL)animated; // Called when the view is dismissed, covered or otherwise hidden. Default does nothing
+{
+	if ([self viewAttached])
+	{
+		UITabBarController * tabController = [(TiUITabGroup *)[self view] tabController];
+		[tabController viewWillDisappear:animated];
+	}
+}
+
+- (void)viewDidDisappear:(BOOL)animated;  // Called after the view was dismissed, covered or otherwise hidden. Default does nothing
+{
+	if ([self viewAttached])
+	{
+		UITabBarController * tabController = [(TiUITabGroup *)[self view] tabController];
+		[tabController viewDidDisappear:animated];
+	}
+}
+
+
 
 @end
 

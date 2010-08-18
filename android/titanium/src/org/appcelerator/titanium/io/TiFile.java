@@ -294,47 +294,7 @@ public class TiFile extends TiBaseFile
 	@Override
 	public TiBlob read() throws IOException
 	{
-		TiBlob result = null;
-
-		if (file.exists()) {
-			if (!stream) {
-				StringBuilder builder=new StringBuilder();
-				try
-				{
-					open(MODE_READ, false);
-
-					char buffer [] = new char[4096];
-					int count = 0;
-					while((count = inreader.read(buffer)) != -1)
-					{
-						builder.append(buffer, 0, count);
-					}
-				}
-				finally
-				{
-					close();
-				}
-				result = TiBlob.blobFromString(getTiContext(), builder.toString());
-			} else {
-				if (!opened) {
-					throw new IOException("File must be opened before reading");
-				}
-
-				if (binary) {
-					byte buffer[] = new byte[4096];
-					int count = 0;
-					count = instream.read(buffer);
-					if (count != -1) {
-						result = TiBlob.blobFromData(getTiContext(), buffer, "");
-						//result = new String(buffer, "utf-8");
-					}
-				} else {
-					result = TiBlob.blobFromString(getTiContext(), inreader.readLine());
-				}
-			}
-		}
-
-		return result;
+		return TiBlob.blobFromFile(getTiContext(), this);
 	}
 
 	@Override

@@ -20,6 +20,7 @@
 	UIImageView *loadView;
 	BOOL splashAttached;
 	BOOL loaded;
+	BOOL handledModal;
 	
 	KrollBridge *kjsBridge;
 
@@ -51,6 +52,8 @@
 @property (nonatomic, retain) UIViewController<TiRootController>* controller;
 
 +(TiApp*)app;
+
+-(void)attachXHRBridgeIfRequired;
 
 -(BOOL)isSplashVisible;
 -(void)hideSplash:(id)event;

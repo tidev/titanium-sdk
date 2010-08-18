@@ -87,24 +87,30 @@ public class KrollMethod extends KrollObject implements Function
 				result = KrollObject.fromNative(target, getKrollContext());
 			}
 		} catch (InvocationTargetException e) {
-			for (int i = 0; i < newArgs.length; i++) {
-				Log.e(LCAT, "Arg: " + i + " Type: " + (newArgs[i] != null ? newArgs[i].getClass().getName() : "null"));
+			if (DBG) {
+				Log.e(LCAT, "Exception thrown invoking method " + method.getName(), e);
+				for (int i = 0; i < newArgs.length; i++) {
+					Log.e(LCAT, "Arg: " + i + " Type: " + (newArgs[i] != null ? newArgs[i].getClass().getName() : "null"));
+				}
 			}
-			Context.throwAsScriptRuntimeEx(e);
+			Context.throwAsScriptRuntimeEx(e.getCause());
 		} catch (IllegalAccessException e) {
 			Context.throwAsScriptRuntimeEx(e);
 		} catch (IllegalArgumentException e) {
-			Log.e(LCAT, e.getMessage() + " for " + method.getName());
-			for(Class<?> t : method.getParameterTypes()) {
-				Log.e(LCAT, "Expected Type: " + t.getSimpleName());
-			}
-			for(Object o : newArgs) {
-				Log.e(LCAT, "Presented Type: " + (o == null ? null : o.getClass().getSimpleName()));
+			if (DBG) {
+				Log.e(LCAT, e.getMessage() + " for " + method.getName());
+				for(Class<?> t : method.getParameterTypes()) {
+					Log.e(LCAT, "Expected Type: " + t.getSimpleName());
+				}
+				for(Object o : newArgs) {
+					Log.e(LCAT, "Presented Type: " + (o == null ? null : o.getClass().getSimpleName()));
+				}
 			}
 			Context.throwAsScriptRuntimeEx(e);
 		}
 		if (DBG) {
 			Log.d(LCAT, "RESULT: " + ((result == null) ? "<null>" : result.toString()));
+			Log.d(LCAT, "RESULT TYPE: " + ((result == null) ? "<null>" : result.getClass().getName()));
 		}
 		return result;
 	}

@@ -27,112 +27,118 @@ public class PropertiesModule extends TiModule {
 		
 	}
 
-	public Object getBool(Object[] args) {
+	public Boolean getBool(Object[] args) {
 		
 		if (null != args && args.length>0) {
 			// We have some args to work with
 			String key = TiConvert.toString(args[0]);
 			
-			boolean defaultValue = false;
-			if (!appProperties.hasProperty(key)) {
+			if (appProperties.hasProperty(key)) {
 				// Without being forced to pass in a default - we need to handle the case where there isn't one passed
 				// This means we either have to return null or throw something
-				return null;
-			} else if (args.length > 1) {
+				return appProperties.getBool(key, false);
+			} 
+			
+			if (args.length > 1) {
 				// grab the default that's been passed
-				defaultValue = TiConvert.toBoolean(args[1]);
+				return TiConvert.toBoolean(args[1]);
 			}			
-			return appProperties.getBool(key, defaultValue);
-		} else {
-			// Should throw something - as we always expect at least a key
-			return null;
 		}
+		
+		// TODO: Explore again returning native undefined, rather than: 
+		//  - null, org.mozilla.javascript.Undefined@44e89068 (proxy) or org.mozilla.javascript.Undefined (none of which allow '=== undefined' comparison) 
+		//		KrollBridge kb = (KrollBridge)this.getTiContext().getJSContext();
+		//		KrollContext kc = kb.getKrollContext();
+		//		return KrollObject.fromNative(Undefined.instance, kb.getKrollContext());
+		
+		return null;
 	}
 	
-	public Object getDouble(Object[] args) {
+	public Double getDouble(Object[] args) {
 		
 		if (null != args && args.length>0) {
 			// We have some args to work with
 			String key = TiConvert.toString(args[0]);
 			
-			double defaultValue = 0.00f;
-			if (!appProperties.hasProperty(key)) {
+			if (appProperties.hasProperty(key)) {
 				// Without being forced to pass in a default - we need to handle the case where there isn't one passed
 				// This means we either have to return null or throw something
-				return null;
-			} else if (args.length > 1) {
+				return appProperties.getDouble(key, 0.0f);
+			} 
+			
+			if (args.length > 1) {
 				// grab the default that's been passed
-				defaultValue = TiConvert.toDouble(args[1]);
+				return TiConvert.toDouble(args[1]);
 			}			
-			return appProperties.getDouble(key, defaultValue);
-		} else {
-			// Should throw something - as we always expect at least a key
-			return null;
 		}
+		
+		// Should throw something - as we always expect at least a key
+		return null;
 	}
 	
-	public Object getInt(Object[] args) {
+	public Integer getInt(Object[] args) {
 		
 		if (null != args && args.length>0) {
 			// We have some args to work with
 			String key = TiConvert.toString(args[0]);
 			
-			int defaultValue = 0;
-			if (!appProperties.hasProperty(key)) {
-				// Without being forced to pass in a default - we need to handle the case where there isn't one passed
-				// This means we either have to return null or throw something
-				return null;
-			} else if (args.length > 1) {
+			if (appProperties.hasProperty(key)) {
+				// It has the property - so the default isn't needed really
+				return appProperties.getInt(key, 0);
+			} 
+			
+			// So the property doesn't exist
+			
+			if (args.length > 1) {
 				// grab the default that's been passed
-				defaultValue = TiConvert.toInt(args[1]);
-			}			
-			return appProperties.getInt(key, defaultValue);
-		} else {
-			// Should throw something - as we always expect at least a key
-			return null;
-		}
+				return TiConvert.toInt(args[1]);
+			}	
+			
+		} 
+		
+		return null;
 	}	
 	
 	public Object getString(Object[] args) {
 		
 		if (null != args && args.length>0) {
-			// We have some args to work with
 			String key = TiConvert.toString(args[0]);
 			
-			String defaultValue = "";
-			if (!appProperties.hasProperty(key)) {
+			if (appProperties.hasProperty(key)) {
 				// Without being forced to pass in a default - we need to handle the case where there isn't one passed
 				// This means we either have to return null or throw something
-				return null;
-			} else if (args.length > 1) {
+				return appProperties.getString(key, "");
+			} 
+			
+			if (args.length > 1) {
 				// grab the default that's been passed
-				defaultValue = TiConvert.toString(args[1]);
+				return TiConvert.toString(args[1]);
 			}			
-			return appProperties.getString(key, defaultValue);
-		} else {
-			// Should throw something - as we always expect at least a key
-			return null;
 		}
+		
+		return null;
 	}	
 	
-	public Object[] getList(Object[] args) {
+	public Object getList(Object[] args) {
 		
 		if (null != args && args.length>0) {
 			// We have some args to work with
 			String key = TiConvert.toString(args[0]);
 			
-			String[] defaultValue = new String[0];
-			if (!appProperties.hasListProperty(key)) {
-				// Without being forced to pass in a default - we need to handle the case where there isn't one passed
-				// This means we either have to return null or throw something
-				return defaultValue;
-			} else if (args.length > 1) {
-				// grab the default that's been passed
-				defaultValue = TiConvert.toStringArray((String[])args[1]);
+			String[] values = new String[0];
+			if (appProperties.hasListProperty(key)) {			
+				//auto transform JSON data into objects 
+				values = appProperties.getList(key, values);
+			} else {
+				if (args.length > 1) {
+					// grab the default that's been passed
+					Object t = args[1];
+					values = TiConvert.toStringArray((Object[])args[1]);
+				} else {
+					return null;
+				}
 			}
-			
-			//auto transform JSON data into objects
-			String values[] = appProperties.getList(key, defaultValue);
+			// Now we should process values - we want the default process to happen with both stored & default values
 			
 			Object list[] = new Object[values.length];
 			for (int i = 0; i < values.length; i++) {
@@ -148,10 +154,8 @@ public class PropertiesModule extends TiModule {
 				}
 			}
 			return list;
-		} else {
-			// Should throw something - as we always expect at least a key
-			return null;
-		}		
+		}
+		return null;
 	}
 
 	public boolean hasProperty(String key) {

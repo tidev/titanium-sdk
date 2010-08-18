@@ -31,8 +31,8 @@
 	BOOL reverse;
 	BOOL paused;
 	BOOL placeholderLoading;
-	CGFloat width;
-	CGFloat height;
+	TiDimension width;
+	TiDimension height;
 	CGFloat autoHeight;
 	CGFloat autoWidth;
 	NSInteger loadCount;

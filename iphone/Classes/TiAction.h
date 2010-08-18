@@ -21,4 +21,9 @@
 -(id)initWithTarget:(id)target_ selector:(SEL)selector_ arg:(id)arg_;
 -(void)execute;
 
+@property(nonatomic,readonly)	id target;
+@property(nonatomic,readonly)	SEL selector;
+@property(nonatomic,readonly)	id arg;
+
+
 @end

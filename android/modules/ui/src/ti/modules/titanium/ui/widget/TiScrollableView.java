@@ -38,7 +38,7 @@ public class TiScrollableView extends TiCompositeLayout
 {
 	private static final String LCAT = "TiUIScrollableView";
 	private static final boolean DBG = TiConfig.LOGD;
-	private static final int ANIM_DURATION = 500;
+	private static final int ANIM_DURATION = 250;
 
 	private static final int PAGE_LEFT = 200;
 	private static final int PAGE_RIGHT = 201;
@@ -168,7 +168,6 @@ public class TiScrollableView extends TiCompositeLayout
 
 			@Override
 			public boolean onFling(MotionEvent me1, MotionEvent me2, float velocityX, float velocityY) {
-
 				if(Math.abs(me2.getY() - me1.getY()) > 100) {
 					return false; // Keep it relatively level
 				}
@@ -375,6 +374,21 @@ public class TiScrollableView extends TiCompositeLayout
 			//gallery.addView(proxy.getView(null).getNativeView());
 		}
 	}
+	
+	public void removeView(TiViewProxy proxy)
+	{
+		if (proxy != null) {
+			int index = this.views.indexOf(proxy);
+			this.views.remove(proxy);
+			if (index == -1) {
+				if (DBG) {
+					Log.d(LCAT, "removeView -- view not located.");
+				}
+			} else {
+				gallery.removeViewAt(index);
+			}
+		}
+	}
 
 	public void setShowPagingControl(boolean showPagingControl) {
 		this.showPagingControl = showPagingControl;
@@ -412,7 +426,10 @@ public class TiScrollableView extends TiCompositeLayout
 				gallery.setInAnimation(null);
 				gallery.setOutAnimation(null);
 				gallery.setDisplayedChild(position);
-				if (fromWrapper != null) {
+				proxy.internalSetDynamicValue("currentPage", position, false);
+				proxy.fireScroll(position);
+
+				if (fromWrapper != null && (fromWrapper != toWrapper)) {
 					fromWrapper.doDetachView();
 				}
 			}
@@ -485,6 +502,7 @@ public class TiScrollableView extends TiCompositeLayout
 		if (v != null) {
 			v.setVisibility(hasNext() ? View.VISIBLE : View.INVISIBLE);
 		}
+		proxy.internalSetDynamicValue("currentPage", to, false);
 	}
 
 	public void onNothingSelected(AdapterView<?> view)

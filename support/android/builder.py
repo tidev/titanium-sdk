@@ -83,7 +83,7 @@ class Builder(object):
 		
 		# start in 1.4, you no longer need the build/android directory
 		# if missing, we'll create it on the fly
-		if not os.path.exists(self.project_dir):
+		if not os.path.exists(self.project_dir) or not os.path.exists(os.path.join(self.project_dir,'AndroidManifest.xml')):
 			print "[INFO] Detected missing project but that's OK. re-creating it..."
 			android_creator = Android(name,app_id,self.sdk,None)
 			android_creator.create(os.path.join(project_dir,'..'))
@@ -114,6 +114,7 @@ class Builder(object):
 				home_jarsigner = os.path.join(os.environ["JAVA_HOME"], "bin", "jarsigner.exe")
 				home_javac = os.path.join(os.environ["JAVA_HOME"], "bin", "javac.exe")
 				home_java = os.path.join(os.environ["JAVA_HOME"], "bin", "java.exe")
+				found = True
 				# TODO Document this path and test properly under windows
 				if os.path.exists(home_jarsigner):
 					self.jarsigner = home_jarsigner

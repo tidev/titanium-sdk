@@ -221,6 +221,9 @@ class Compiler(object):
 					xcconfig.write(xcconfig_c)
 					xcconfig.close()
 			
+
+		if deploytype=='simulator':
+			shutil.copy(os.path.join(template_dir,'Classes','defines.h'),os.path.join(self.classes_dir,'defines.h'))
 		
 		if deploytype!='development' or has_modules:
 

@@ -12,27 +12,25 @@
 #import "Webcolor.h"
 
 @implementation TiUITabController
-@synthesize window,tab;
+@synthesize tab;
 
 -(void)dealloc
 {
-	RELEASE_TO_NIL(window);
 	RELEASE_TO_NIL(tab);
 	[super dealloc];
 }
 
--(TiWindowProxy *)proxy;
+-(TiWindowProxy *)window;
 {
-	return window;
+	return (TiWindowProxy *)[self proxy];
 }
 
 -(id)initWithProxy:(TiWindowProxy*)window_ tab:(TiUITabProxy*)tab_
 {
-	if (self = [self init])
+	if (self = [self initWithViewProxy:window_])
 	{
-		window = [window_ retain];
 		tab = [tab_ retain];
-		[window _associateTab:self navBar:self.navigationController tab:tab];		
+		[window_ _associateTab:self navBar:self.navigationController tab:tab];
 	}
 	return self;
 }
@@ -40,18 +38,13 @@
 -(void)loadView
 {
 	// link our window to the tab
-	[window _associateTab:self navBar:self.navigationController tab:tab];
-	self.view = [window view];
+	[(TiWindowProxy *)[self proxy] _associateTab:self navBar:self.navigationController tab:tab];
+	[super loadView];
 }
 
 -(void)viewDidUnload
 {
-	[window _associateTab:nil navBar:nil tab:nil];
-}
-
-- (void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
-{
-	[super willAnimateRotationToInterfaceOrientation:toInterfaceOrientation duration:duration];
+	[(TiWindowProxy *)[self proxy] _associateTab:nil navBar:nil tab:nil];
 }
 
 @end

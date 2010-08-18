@@ -36,7 +36,7 @@ var label1 = Ti.UI.createLabel({
 
 win.add(label1);
 
-
+var testResult = true;
 var xmlstr2 = "<?xml version=\"1.0\" encoding=\"utf-8\"?>"+
 "<FooBarResponse>"+
 "<FooBarResult>"+
@@ -54,26 +54,28 @@ var xmlstr2 = "<?xml version=\"1.0\" encoding=\"utf-8\"?>"+
 var xml2 = Ti.XML.parseString(xmlstr2);
 
 fooBarList = xml2.documentElement.getElementsByTagName("FooBar");
-result = fooBarList!=null && fooBarList.length == 1 && fooBarList.item(0).text=="true";
-result = result && fooBarList.item(0).nodeName=="FooBar";
+testResult = fooBarList!=null && fooBarList.length == 1 && fooBarList.item(0).text=="true";
+testResult = testResult && fooBarList.item(0).nodeName=="FooBar";
 
 //TODO: remove when XPath is supported in android
 if (xml2.evaluate) {
 	// test XPath against Document
 	result2 = xml2.evaluate("//FooBar/text()");
-	result = result && result2.item(0).nodeValue == "true";
+	testResult = testResult && result2.item(0).nodeValue == "true";
 	
 	// test XPath against Element
 	result2 = xml2.documentElement.evaluate("//FooBar/text()");
-	result = result && result2.item(0).text == "true";
+	testResult = testResult && result2.item(0).text == "true";
 	
 	// test XPath against Element
 	result2 = fooBarList.item(0).evaluate("text()");
-	result = result && result2.item(0).text == "true";
+	testResult = testResult && result2.item(0).text == "true";
 } 
 
+Ti.API.info('>>>>>>> XML Test 2 Result: '+testResult);
+result = result && testResult;
 
-
+testResult = true;
 var xmlstr3 = '<?xml version="1.0" encoding="UTF-8"?>\n'+
 '<response>'+
 '        <nodes id="nodes">'+
@@ -105,27 +107,30 @@ var doc = Ti.XML.parseString(xmlstr3);
 var nodes = doc.getElementsByTagName("nodes");
 
 var elements = nodes.item(0).getElementsByTagName("node");
-result = result && (elements!=null && elements.length==13);
+testResult = testResult && (elements!=null && elements.length==13);
 
 elements = nodes.item(0).childNodes;
-result = result && (elements!=null && elements.length==3);
+testResult = testResult && (elements!=null && elements.length==3);
 
-result = result && (typeof elements == 'object');
-result = result && (typeof elements.item == 'function');
-result = result && (elements.item(0).nodeName=='node');
+testResult = testResult && (typeof elements == 'object');
+testResult = testResult && (typeof elements.item == 'function');
+testResult = testResult && (elements.item(0).nodeName=='node');
 
 
 elements = doc.firstChild.childNodes;
-result = result && (elements!=null && elements.length==3);
+testResult = testResult && (elements!=null && elements.length==3);
 
-result = result && (doc.firstChild.nodeName=="nodes");
-result = result && (doc.nodeName=="response");
+testResult = testResult && (doc.firstChild.nodeName=="nodes");
+testResult = testResult && (doc.nodeName=="response");
 
-result = result && doc.firstChild.getAttribute("id")=="nodes";
-result = result && doc.firstChild.firstChild.getAttribute("id")=="node 1";
-result = result && doc.firstChild.firstChild.firstChild.getAttribute("id")=="node 2";
+testResult = testResult && doc.firstChild.getAttribute("id")=="nodes";
+testResult = testResult && doc.firstChild.firstChild.getAttribute("id")=="node 1";
+testResult = testResult && doc.firstChild.firstChild.firstChild.getAttribute("id")=="node 2";
 
+Ti.API.info('>>>>>>> XML Test 3 Result: '+testResult);
+result = result && testResult;
 
+testResult = true;
 var xmlstr4 = "<?xml version=\"1.0\" encoding=\"utf-8\"?>"+
 "<root>"+
 " <one>**"+
@@ -145,16 +150,17 @@ xml = Ti.XML.parseString(xmlstr4);
 var oneList = xml.documentElement.getElementsByTagName("one");
 var twoList = oneList.item(0).getElementsByTagName("two");
 var threeList = oneList.item(0).getElementsByTagName("three");
+nodes = xml.getElementsByTagName("root");
 
-result = result && oneList.length==1;
-result = result && twoList.length==2;
-result = result && threeList.length==4;
+testResult = testResult && oneList.length==1;
+testResult = testResult && twoList.length==2;
+testResult = testResult && threeList.length==4;
 
-result = result && xml.documentElement.firstChild.nodeName == "one";
+testResult = testResult && xml.documentElement.firstChild.nodeName == "one";
 
-result = result && xml.documentElement.firstChild.nextSibling.getAttribute("id")=="bar";
+testResult = testResult && xml.documentElement.firstChild.nextSibling.getAttribute("id")=="bar";
 
-result = result && xml.documentElement.firstChild.ownerDocument.documentElement.nodeName == xml.documentElement.ownerDocument.documentElement.nodeName;
+testResult = testResult && xml.documentElement.firstChild.ownerDocument.documentElement.nodeName == xml.documentElement.ownerDocument.documentElement.nodeName;
 
 
 var nodeCount = 0;
@@ -165,7 +171,7 @@ function nodewalker(node)
 	{
 		if (i==0) 
 		{
-			nodewalker(node.firstChild)
+			nodewalker(node.firstChild);
 		} 
 		else 
 		{
@@ -179,8 +185,111 @@ function nodewalker(node)
 	}
 };
 nodewalker(nodes.item(0));
-result = result && nodeCount==14;
+testResult = testResult && nodeCount==8;
+Ti.API.info('>>>>>>> Test 4 NodeCount: '+nodeCount);
 
+Ti.API.info('>>>>>>> XML Test 4 Result: '+testResult);
+result = result && testResult;
+
+testResult = true;
+var xmlstr5 = "<?xml version=\"1.0\" encoding=\"utf-8\"?>"+
+"<root>"+
+"<script>"+
+"<![CDATA["+
+"function matchwo(a,b)"+
+"{"+
+"if (a < b && a < 0) then"+
+"  {"+
+"  return 1;"+
+"  }"+
+"else"+
+"  {"+
+"  return 0;"+
+"  }"+
+"}"+
+"]]>"+
+"</script>" +
+"</root>";
+
+xml = Ti.XML.parseString(xmlstr5);
+var rootList = xml.documentElement.getElementsByTagName("root");
+var scriptList = xml.documentElement.getElementsByTagName("script");
+
+Ti.API.info("Script is: "+JSON.stringify(scriptList));
+
+testResult = testResult && scriptList.length==1;
+testResult = testResult && xml.documentElement.firstChild.nodeName == "root";
+
+var nodeCount = 0;
+function nodewalker(node) 
+{
+	nodeCount++;
+	for (var i=0;i<node.childNodes.length;i++) 
+	{
+		if (i==0) 
+		{
+			nodewalker(node.firstChild);
+		} 
+		else 
+		{
+			var n = node.firstChild;
+			for (var x=0;x<i;x++) 
+			{
+				n = n.nextSibling;
+			}
+			nodewalker(n);
+		}
+	}
+};
+nodewalker(rootList.item(0));
+testResult = testResult && nodeCount==1;
+Ti.API.info('>>>>>>> Test 5 NodeCount: '+nodeCount);
+
+Ti.API.info('>>>>>>> XML Test 5 Result: '+testResult);
+result = result && testResult;
+
+testResult = true;
+var xmlstr6 = "<?xml version=\"1.0\" encoding=\"utf-8\"?>"+
+"<data>"+
+"<subdata>1 2 3 4 <element>5 <subelement>6</subelement></element> <![CDATA[7 8]]> 9 10 &amp; &lt; &gt;</subdata>"+
+"</data>";
+
+xml = Ti.XML.parseString(xmlstr6);
+var dataList = xml.documentElement.getElementsByTagName("data");
+var subdataList = xml.documentElement.getElementsByTagName("subdata");
+
+Ti.API.info("Script is: "+JSON.stringify(subdataList));
+
+testResult = testResult && dataList.length==3;
+testResult = testResult && xml.documentElement.firstChild.nodeName == "data";
+
+var nodeCount = 0;
+function nodewalker(node) 
+{
+	nodeCount++;
+	for (var i=0;i<node.childNodes.length;i++) 
+	{
+		if (i==0) 
+		{
+			nodewalker(node.firstChild);
+		} 
+		else 
+		{
+			var n = node.firstChild;
+			for (var x=0;x<i;x++) 
+			{
+				n = n.nextSibling;
+			}
+			nodewalker(n);
+		}
+	}
+};
+nodewalker(subdataList.item(0));
+testResult = testResult && nodeCount==4;
+Ti.API.info('>>>>>>> Test 6 NodeCount: '+nodeCount);
+
+Ti.API.info('>>>>>>> XML Test 6 Result: '+testResult);
+result = result && testResult;
 
 var label2 = Ti.UI.createLabel({
 	top:150,

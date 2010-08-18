@@ -20,7 +20,10 @@
 	TiObjectRef thisObj;
 	TiObjectRef function;
 	KrollContext *context;
+	NSString *type;
 }
+
+@property(nonatomic,readwrite,retain) NSString *type;
 
 -(id)initWithCallback:(TiValueRef)function_ thisObject:(TiObjectRef)thisObject_ context:(KrollContext*)context_;
 -(void)call:(NSArray*)args thisObject:(id)thisObject_;

@@ -1,11 +1,9 @@
-//
-//  TiLayoutQueue.h
-//  Titanium
-//
-//  Created by Blain Hamon on 6/1/10.
-//  Copyright 2010 __MyCompanyName__. All rights reserved.
-//
-
+/**
+ * Appcelerator Titanium Mobile
+ * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Licensed under the terms of the Apache Public License
+ * Please see the LICENSE included with this distribution for details.
+ */
 #import <Foundation/Foundation.h>
 
 @class TiViewProxy;

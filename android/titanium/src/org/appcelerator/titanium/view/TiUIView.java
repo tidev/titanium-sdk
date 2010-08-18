@@ -42,6 +42,10 @@ public abstract class TiUIView
 
 	private static AtomicInteger idGenerator;
 
+	public static final int SOFT_KEYBOARD_DEFAULT_ON_FOCUS = 0;
+	public static final int SOFT_KEYBOARD_HIDE_ON_FOCUS = 1;
+	public static final int SOFT_KEYBOARD_SHOW_ON_FOCUS = 2;
+	
 	protected View nativeView; // Native View object
 
 	protected TiViewProxy proxy;
@@ -187,6 +191,14 @@ public abstract class TiUIView
 			if (nativeView != null) {
 				nativeView.requestLayout();
 			}
+		} else if (key.equals("size")) {
+			if (newValue instanceof TiDict) {
+				TiDict d = (TiDict)newValue;
+				propertyChanged("width",oldValue,d.get("width"),proxy);
+				propertyChanged("height",oldValue,d.get("height"),proxy);
+			}else if (newValue != null){
+				Log.w(LCAT, "Unsupported property type ("+(newValue.getClass().getSimpleName())+") for key: " + key+". Must be an object/dictionary");
+			}
 		} else if (key.equals("height")) {
 			if (newValue != null) {
 				if (!newValue.equals("auto")) {
@@ -228,6 +240,8 @@ public abstract class TiUIView
 			}
 		} else if (key.equals("visible")) {
 			nativeView.setVisibility(TiConvert.toBoolean(newValue) ? View.VISIBLE : View.INVISIBLE);
+		} else if (key.equals("enabled")) {
+			nativeView.setEnabled(TiConvert.toBoolean(newValue));
 		} else if (key.equals("opacity") || key.equals("backgroundColor") || key.equals("backgroundImage") || key.startsWith("border")) {
 			TiDict d = proxy.getDynamicProperties();
 
@@ -248,7 +262,8 @@ public abstract class TiUIView
 					nativeView.setBackgroundColor(bgColor);
 					nativeView.postInvalidate();
 				}
-
+			} else if (key.equals("softKeyboardOnFocus")) {
+				Log.w(LCAT, "Focus state changed to " + TiConvert.toString(newValue) + " not honored until next focus event.");
 			} else {
 				boolean newBackground = background == null;
 				if (newBackground) {
@@ -320,6 +335,9 @@ public abstract class TiUIView
 		if (d.containsKey("visible")) {
 			nativeView.setVisibility(TiConvert.toBoolean(d, "visible") ? View.VISIBLE : View.INVISIBLE);
 		}
+		if (d.containsKey("enabled")) {
+			nativeView.setEnabled(TiConvert.toBoolean(d, "enabled"));
+		}
 
 		initializeBorder(d, bgColor);
 
@@ -360,6 +378,7 @@ public abstract class TiUIView
 	public void onFocusChange(View v, boolean hasFocus)
 	{
 		if (hasFocus) {
+			TiUIHelper.requestSoftInputChange(proxy, v);
 			proxy.fireEvent("focus", getFocusEventObject(hasFocus));
 		} else {
 			proxy.fireEvent("blur", getFocusEventObject(hasFocus));

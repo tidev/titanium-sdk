@@ -4,7 +4,6 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-#import <QuartzCore/QuartzCore.h>
 #import "TiBase.h"
 #import "TiUIView.h"
 #import "TiColor.h"
@@ -141,31 +140,6 @@ NSInteger zindexSort(TiUIView* view1, TiUIView* view2, void *reverse)
 }
 
 
-@interface TiGradientLayer : CALayer
-{
-	TiGradient * gradient;
-}
-@property(nonatomic,readwrite,retain) TiGradient * gradient;
-@end
-
-@implementation TiGradientLayer
-@synthesize gradient;
-
-- (void) dealloc
-{
-	[gradient release];
-	[super dealloc];
-}
-
--(void)drawInContext:(CGContextRef)ctx
-{
-	[gradient paintContext:ctx bounds:[self bounds]];
-}
-
-@end
-
-
-
 
 
 #define DOUBLE_TAP_DELAY		0.35
@@ -254,13 +228,17 @@ DEFINE_EXCEPTIONS
 	virtualParentTransform = CGAffineTransformIdentity;
 	multipleTouches = NO;
 	twoFingerTapIsPossible = NO;
-	touchEnabled = YES;
-	self.userInteractionEnabled = YES;
 	
 	[self updateTouchHandling];
 	 
 	self.backgroundColor = [UIColor clearColor]; 
 	self.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+    
+    // If a user has not explicitly set whether or not the view interacts, base it on whether or
+    // not it handles events, and if not, set it to the interaction default.
+    if (!changedInteraction) {
+        self.userInteractionEnabled = (handlesTouches || handlesTaps || handlesSwipes) || [self interactionDefault];
+    }
 }
 
 -(void)willSendConfiguration
@@ -380,15 +358,26 @@ DEFINE_EXCEPTIONS
 		{
 			[[(TiViewProxy *)proxy parent] layoutChild:(TiViewProxy *)proxy optimize:NO];
 		}
+		oldSize = CGSizeZero;
 		ApplyConstraintToViewWithinViewWithBounds([(TiViewProxy *)proxy layoutProperties], self, [self superview], bounds, YES);
 		[(TiViewProxy *)[self proxy] clearNeedsReposition];
 		repositioning = NO;
 	}
 }
 
+-(void)relayoutOnUIThread:(NSValue*)value
+{
+	CGRect bounds = [value CGRectValue];
+	[self relayout:bounds];
+}
 
 -(void)updateLayout:(LayoutConstraint*)layout_ withBounds:(CGRect)bounds
 {
+	if ([NSThread isMainThread]==NO)
+	{
+		[self performSelectorOnMainThread:@selector(relayoutOnUIThread:) withObject:[NSValue valueWithCGRect:bounds] waitUntilDone:NO];
+		return;
+	}
 	if (animating)
 	{
 #ifdef DEBUG		
@@ -422,6 +411,10 @@ DEFINE_EXCEPTIONS
 		[child retain];
 		[child removeFromSuperview];
 		[self addSubview:child];
+		if ([child isKindOfClass:[TiUIView class]])
+		{
+			[child repositionZIndexIfNeeded];
+		}
 		[child release];
 	}
 }
@@ -431,13 +424,17 @@ DEFINE_EXCEPTIONS
 	return zIndex;
 }
 
+-(void)repositionZIndexIfNeeded
+{
+	if ([(TiViewProxy*)proxy needsZIndexRepositioning])
+	{
+		[self repositionZIndex];
+	}
+}
+
 -(void)repositionZIndex
 {
-	if (parent!=nil && [parent viewAttached])
-	{
-		[self removeFromSuperview];
-		[parent layoutChild:(TiViewProxy *)[self proxy] optimize:NO];
-	}
+	[(TiViewProxy*)self.proxy setNeedsZIndexRepositioning];
 }
 
 -(BOOL)animationFromArgument:(id)args
@@ -523,12 +520,6 @@ DEFINE_EXCEPTIONS
 {
 	CGRect r = [self bounds];
 	[rect setRect:r];
-}
-
--(void)didMoveToSuperview
-{
-	[[[TiApp app] controller] repositionSubviews];
-	[super didMoveToSuperview];
 }
 
 #pragma mark Public APIs
@@ -623,6 +614,11 @@ DEFINE_EXCEPTIONS
 -(void)setVisible_:(id)visible
 {
 	self.hidden = ![TiUtils boolValue:visible];
+    
+    // Redraw ourselves if changing from invisible to visible, to handle any changes made
+    if (!self.hidden) {
+        [(TiViewProxy*)[self proxy] reposition];
+    }
 }
 
 -(void)setZIndex_:(id)z
@@ -639,7 +635,13 @@ DEFINE_EXCEPTIONS
 
 -(void)setTouchEnabled_:(id)arg
 {
-	touchEnabled = [TiUtils boolValue:arg];
+	self.userInteractionEnabled = [TiUtils boolValue:arg];
+    changedInteraction = YES;
+}
+
+-(UIView *)gradientWrapperView
+{
+	return self;
 }
 
 -(void)setBackgroundGradient_:(id)arg
@@ -654,11 +656,9 @@ DEFINE_EXCEPTIONS
 		gradientLayer = [[TiGradientLayer alloc] init];
 		[(TiGradientLayer *)gradientLayer setGradient:arg];
 		[gradientLayer setNeedsDisplayOnBoundsChange:YES];
-//		[gradientLayer setDelegate:self];
 		[gradientLayer setFrame:[self bounds]];
 		[gradientLayer setNeedsDisplay];
-//		[[self layer] addSublayer:gradientLayer];
-		[[self layer] insertSublayer:gradientLayer atIndex:0];
+		[[[self gradientWrapperView] layer] insertSublayer:gradientLayer atIndex:0];
 	}
 	else
 	{
@@ -756,6 +756,8 @@ DEFINE_EXCEPTIONS
 	NSArray * keySequence = [newProxy keySequence];
 	[oldProxy retain];
 	[self retain];
+	
+	[newProxy setReproxying:YES];
 
 	[oldProxy setView:nil];
 	[newProxy setView:self];
@@ -795,6 +797,8 @@ DEFINE_EXCEPTIONS
 	}
 
 	[oldProxy release];
+
+	[newProxy setReproxying:NO];
 	[self release];
 }
 
@@ -868,14 +872,7 @@ DEFINE_EXCEPTIONS
 
 - (BOOL)interactionEnabled
 {
-	if (touchEnabled)
-	{
-		// we allow the developer to turn off touch with this property but make the default the
-		// result of the internal method interactionDefault. some components (like labels) by default
-		// don't want or need interaction if not explicitly enabled through an addEventListener
-		return [self interactionDefault];
-	}
-	return NO;
+	return self.userInteractionEnabled;
 }
 
 - (BOOL)hasTouchableListener

@@ -64,6 +64,22 @@
 	[[self ensureItem] setCanDelete:canDelete];
 }
 
+#pragma mark internal
+
+-(void)add:(id)child
+{
+	[super add:child];
+	
+	// called when we have a child, which means we want to use ourself
+	// as the view
+	LauncherItem *item_ = [self  ensureItem];
+	if (item_.view==nil)
+	{
+		[item_ setView:[self view]];
+	}
+}
+
+
 @end
 
 #endif

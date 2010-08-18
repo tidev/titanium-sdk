@@ -366,9 +366,13 @@ enum {
 #ifdef DEBUG
 #define FRAME_DEBUG(f) \
 NSLog(@"FRAME -- size=%fx%f, origin=%f,%f",f.size.width,f.size.height,f.origin.x,f.origin.y);
+
 #else
 #define FRAME_DEBUG(f) 
+#define WARN_IF_BACKGROUND_THREAD
+#define CHECK_MAIN_THREAD	
 #endif
+
 
 
 #define DEFINE_DEF_PROP(name,defval)\
@@ -403,13 +407,22 @@ return value;\
 
 #define VerboseLog(...)	{NSLog(__VA_ARGS__);}
 
+#define WARN_IF_BACKGROUND_THREAD	\
+if(![NSThread isMainThread])	\
+{	\
+	NSLog(@"[WARN] %@%@ was not running on the main thread.",NSStringFromClass([self class]),CODELOCATION);	\
+}	\
+
 #else
 
 #define VerboseLog(...)	{}
+#define WARN_IF_BACKGROUND_THREAD	{}
 
 #endif
 
 #define VAL_OR_NSNULL(foo)	(((foo) != nil)?((id)foo):[NSNull null])
+
+
 
 NSData * dataWithHexString (NSString * hexString);
 NSString * hexString (NSData * thedata);
@@ -449,5 +462,6 @@ extern NSString * const kTiRemoteControlNotification;
 #ifndef ASI_AUTOUPDATE_NETWORK_INDICATOR
 	#define REACHABILITY_20_API 1
 #endif
+
 
 #endif

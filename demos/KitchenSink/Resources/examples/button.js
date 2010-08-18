@@ -143,4 +143,75 @@ if (Titanium.Platform.name == 'iPhone OS')
 	win.add(b5);
 }
 
+var bhleft = Titanium.UI.createButton({
+	title : 'H-Left',
+	width : 50,
+	height: 40,
+	top : 300,
+	left : 60,
+});
+bhleft.addEventListener('click', function() {
+	b1.textAlign = Titanium.UI.TEXT_ALIGNMENT_LEFT;
+});
 
+var bhcenter = Titanium.UI.createButton({
+	title : 'H-Center',
+	width : 50,
+	height: 40,
+	top : 300,
+	left : 120
+});
+bhcenter.addEventListener('click', function() {
+	b1.textAlign = Titanium.UI.TEXT_ALIGNMENT_CENTER;
+});
+
+var bhright = Titanium.UI.createButton({
+	title : 'H-Right',
+	width : 50,
+	height: 40,
+	top : 300,
+	left : 180
+});
+bhright.addEventListener('click', function() {
+	b1.textAlign = Titanium.UI.TEXT_ALIGNMENT_RIGHT;
+});
+
+var bvtop = Titanium.UI.createButton({
+	title : 'V-Top',
+	width : 50,
+	height: 40,
+	top : 350,
+	left : 60
+});
+bvtop.addEventListener('click', function() {
+	b1.verticalAlign = Titanium.UI.TEXT_VERTICAL_ALIGNMENT_TOP;
+});
+
+var bvcenter = Titanium.UI.createButton({
+	title : 'V-Center',
+	width : 50,
+	height: 40,
+	top : 350,
+	left : 120
+});
+bvcenter.addEventListener('click', function() {
+	b1.verticalAlign = Titanium.UI.TEXT_VERTICAL_ALIGNMENT_CENTER;
+});
+
+var bvbottom = Titanium.UI.createButton({
+	title : 'V-Bottom',
+	width : 50,
+	height: 40,
+	top : 350,
+	left : 180
+});
+bvbottom.addEventListener('click', function() {
+	b1.verticalAlign = Titanium.UI.TEXT_VERTICAL_ALIGNMENT_BOTTOM;
+});
+
+win.add(bhleft);
+win.add(bhcenter);
+win.add(bhright);
+win.add(bvtop);
+win.add(bvcenter);
+win.add(bvbottom);

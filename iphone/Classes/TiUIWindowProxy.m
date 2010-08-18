@@ -103,7 +103,10 @@
 
 -(void)_destroy
 {
-	[self performSelectorOnMainThread:@selector(close:) withObject:nil waitUntilDone:YES];
+    if (![self closing]) {
+        [self performSelectorOnMainThread:@selector(close:) withObject:nil waitUntilDone:YES];
+    }
+    
 	RELEASE_TO_NIL(barImageView);
 	if (context!=nil)
 	{
@@ -192,11 +195,10 @@
 
 -(void)windowDidClose
 {
-	if (context!=nil)
-	{
-		[context performSelector:@selector(shutdown:) withObject:nil afterDelay:1.0];
-		RELEASE_TO_NIL(context);
-	}
+    // Because other windows or proxies we have open and wish to continue functioning might be relying
+    // on our created context, we CANNOT explicitly shut down here.  Instead we should memory-manage
+    // contexts better so they stop when they're no longer in use.
+    RELEASE_TO_NIL(context);
 	[super windowDidClose];
 }
 

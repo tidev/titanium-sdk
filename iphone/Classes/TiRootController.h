@@ -22,4 +22,11 @@
 -(void)setBackgroundImage:(UIImage*) backgroundImage;
 
 -(void)refreshOrientationModesIfNeeded:(TiWindowProxy *)oldCurrentWindow;
+
+- (void)willHideViewController:(UIViewController *)focusedViewController animated:(BOOL)animated;
+- (void)didHideViewController:(UIViewController *)focusedViewController animated:(BOOL)animated;
+- (void)willShowViewController:(UIViewController *)focusedViewController animated:(BOOL)animated;
+- (void)didShowViewController:(UIViewController *)focusedViewController animated:(BOOL)animated;
+
+
 @end

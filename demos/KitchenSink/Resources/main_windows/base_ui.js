@@ -26,6 +26,7 @@ if (Titanium.Platform.name == 'iPhone OS')
 	if (isIPhone3_2_Plus())
 	{
 		data.push({title:'Modal Windows', hasChild:true, test:'../examples/modal_windows.js'});
+		data.push({title:'Custom Fonts', hasChild:true, test:'../examples/custom_fonts.js'});
 	}
 }
 

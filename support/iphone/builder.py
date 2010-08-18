@@ -362,6 +362,7 @@ def main(args):
 		force_rebuild = read_project_version(project_xcconfig)!=sdk_version or not os.path.exists(version_file)
 		infoplist = os.path.join(iphone_dir,'Info.plist')
 		githash = None
+		custom_fonts = []
 
 		if command!='simulator' and os.path.exists(build_out_dir):
 			shutil.rmtree(build_out_dir)
@@ -508,6 +509,11 @@ def main(args):
 				ird = os.path.join(project_dir,'Resources','iphone')
 				if os.path.exists(ird): 
 					tp_module_asset_dirs.append([ird,app_dir])
+				
+				for ext in ('ttf','otf'):
+					for f in glob.glob('%s/*.%s' % (os.path.join(project_dir,'Resources'),ext)):
+						custom_fonts.append(f)
+					
 
 			if not simulator:
 				version = ti.properties['version']
@@ -651,8 +657,16 @@ def main(args):
 				libdir = os.path.join(iphone_dir,'lib')
 				if not os.path.exists(libdir): os.makedirs(libdir)
 				os.chdir(libdir)
-				if os.path.exists("libTiCore.a"): os.unlink("libTiCore.a")
-				os.symlink(libticore,"libTiCore.a")
+				# a broken link will not return true on os.path.exists
+				# so we need to use brute force
+				try:
+					os.unlink("libTiCore.a")
+				except:
+					pass
+				try:
+					os.symlink(libticore,"libTiCore.a")
+				except:
+					pass
 				os.chdir(cwd)
 
 			# if the lib doesn't exist, force a rebuild since it's a new build
@@ -688,6 +702,13 @@ def main(args):
 				if len(tp_module_asset_dirs)>0:
 					for e in tp_module_asset_dirs:
 						copy_module_resources(e[0],e[1],True)
+				
+				# copy any custom fonts in (only runs in simulator)
+				# since we need to make them live in the bundle in simulator
+				if len(custom_fonts)>0:
+					for f in custom_fonts:
+						print "[INFO] Detected custom font: %s" % os.path.basename(f)
+						shutil.copy(f,app_dir)
 
 				# dump out project file info
 				if command!='simulator':
@@ -819,7 +840,6 @@ def main(args):
 				if command == 'simulator':
 
 					if force_rebuild or force_xcode or not os.path.exists(binary):
-						shutil.copy(os.path.join(template_dir,'Classes','defines.h'),os.path.join(iphone_dir,'Classes','defines.h'))
 						execute_xcode("iphonesimulator%s" % iphone_version,["GCC_PREPROCESSOR_DEFINITIONS=__LOG__ID__=%s DEPLOYTYPE=development TI_DEVELOPMENT=1 DEBUG=1 TI_VERSION=%s" % (log_id,sdk_version)],False)
 
 					# first make sure it's not running
@@ -943,7 +963,8 @@ def main(args):
 					args += [
 						"GCC_PREPROCESSOR_DEFINITIONS=DEPLOYTYPE=test TI_TEST=1",
 						"PROVISIONING_PROFILE[sdk=iphoneos*]=%s" % appuuid,
-						"CODE_SIGN_IDENTITY[sdk=iphoneos*]=iPhone Developer: %s" % dist_name
+						"CODE_SIGN_IDENTITY[sdk=iphoneos*]=iPhone Developer: %s" % dist_name,
+						"DEPLOYMENT_POSTPROCESSING=YES"
 					]
 					execute_xcode("iphoneos%s" % iphone_version,args,False)
 
@@ -995,7 +1016,8 @@ def main(args):
 					args += [
 						"GCC_PREPROCESSOR_DEFINITIONS=DEPLOYTYPE=%s TI_PRODUCTION=1" % deploytype,
 						"PROVISIONING_PROFILE[sdk=iphoneos*]=%s" % appuuid,
-						"CODE_SIGN_IDENTITY[sdk=iphoneos*]=iPhone Distribution: %s" % dist_name
+						"CODE_SIGN_IDENTITY[sdk=iphoneos*]=iPhone Distribution: %s" % dist_name,
+						"DEPLOYMENT_POSTPROCESSING=YES"
 					]
 					execute_xcode("iphoneos%s" % iphone_version,args,False)
 

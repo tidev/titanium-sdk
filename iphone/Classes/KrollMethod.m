@@ -148,11 +148,8 @@ TiValueRef KrollCallAsFunction(TiContextRef jsContext, TiObjectRef func, TiObjec
 	[invoker setSelector:selector];
 	[invoker setTarget:target];
 	
-	BOOL executionSet = NO;
-	
 	if ([target conformsToProtocol:@protocol(KrollTargetable)])
 	{
-		executionSet = YES;
 		[target setExecutionContext:context.delegate];
 	}
 	
@@ -188,14 +185,9 @@ TiValueRef KrollCallAsFunction(TiContextRef jsContext, TiObjectRef func, TiObjec
 	}
 	
 	[invoker invoke];
-
-	if (executionSet)
-	{
-		[target setExecutionContext:nil];
-	}
-
+	
 	void* result = nil;
-	 
+	
 	if ([methodSignature methodReturnLength] == sizeof(id)) 
 	{
 		[invoker getReturnValue:&result];
@@ -258,7 +250,7 @@ TiValueRef KrollCallAsFunction(TiContextRef jsContext, TiObjectRef func, TiObjec
 			}
 		}
 	}
- 
+	
 	return nil; 
 }
 

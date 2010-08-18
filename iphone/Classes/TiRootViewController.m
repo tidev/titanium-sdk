@@ -43,8 +43,20 @@
 	RELEASE_TO_NIL(windowViewControllers);
 	RELEASE_TO_NIL(backgroundColor);
 	RELEASE_TO_NIL(backgroundImage);
+	RELEASE_TO_NIL(viewControllerStack);
 	[super dealloc];
 }
+
+- (id) init
+{
+	self = [super init];
+	if (self != nil)
+	{
+		viewControllerStack = [[NSMutableArray alloc] init];
+	}
+	return self;
+}
+
 
 -(CGRect)resizeView
 {
@@ -109,14 +121,17 @@
 	{ //This is when the application first starts. statusBarOrientation lies at the beginning,
 	//And device orientation is 0 until this notification.
 		// FIRST!  We know the orientation now, so attach the splash!
+		UIInterfaceOrientation oldOrientation = [[UIApplication sharedApplication] statusBarOrientation];
 		if (![[TiApp app] isSplashVisible]) {
 			[[TiApp app] loadSplash];
 		}
 		[self willAnimateRotationToInterfaceOrientation:newOrientation duration:0];
+		windowOrientation = oldOrientation;
 		return;
 	}
 
-	if ((newOrientation==windowOrientation)&&(lastOrientation!=newOrientation) && [self shouldAutorotateToInterfaceOrientation:newOrientation])
+	if ((newOrientation==windowOrientation)&&(lastOrientation!=newOrientation) &&
+			[self shouldAutorotateToInterfaceOrientation:newOrientation])
 	{ //This is for when we've forced an orientation that was not what the device was, and
 	//Now we want to return to it. Because newOrientation and windowOrientation are identical
 	//The iPhone OS wouldn't send this method.
@@ -137,9 +152,9 @@
 	[self updateBackground];
 	[self resizeView];
 	// we have to make a copy since this code can cause a mutation
-	for (TiWindowViewController * thisWindowController in [[windowViewControllers mutableCopy] autorelease])
+	for (TiViewController * thisWindowController in [[windowViewControllers mutableCopy] autorelease])
 	{
-		if ([thisWindowController isKindOfClass:[TiWindowViewController class]])
+		if ([thisWindowController isKindOfClass:[TiViewController class]])
 		{
 			UIView * thisView = [thisWindowController view];
 			[rootView addSubview:thisView];
@@ -149,16 +164,33 @@
 	[rootView release];
 }
 
+- (void)viewWillAppear:(BOOL)animated;    // Called when the view is about to made visible. Default does nothing
+{
+	VerboseLog(@"%@%@",self,CODELOCATION);
+	isCurrentlyVisible = YES;
+	[[viewControllerStack lastObject] viewWillAppear:animated];
+}
+- (void)viewWillDisappear:(BOOL)animated; // Called when the view is dismissed, covered or otherwise hidden. Default does nothing
+{
+	VerboseLog(@"%@%@",self,CODELOCATION);
+	[[viewControllerStack lastObject] viewWillDisappear:animated];
+}
+
 - (void) viewDidAppear:(BOOL)animated
 {
 	[self.view becomeFirstResponder];
     [super viewDidAppear:animated];
+	VerboseLog(@"%@%@",self,CODELOCATION);
+	[[viewControllerStack lastObject] viewDidAppear:animated];
 }
 
 - (void) viewDidDisappear:(BOOL)animated
 {
+	isCurrentlyVisible = NO;
 	[self.view resignFirstResponder];
     [super viewDidDisappear:animated];
+	VerboseLog(@"%@%@",self,CODELOCATION);
+	[[viewControllerStack lastObject] viewDidDisappear:animated];
 }
 
 -(void)repositionSubviews
@@ -374,6 +406,73 @@
 {
 	orientationRequestTimes[interfaceOrientation] = [NSDate timeIntervalSinceReferenceDate];
 	return allowedOrientations[interfaceOrientation];
+}
+
+
+/*
+Okay, Blain's sit and think about this. This is only concerning the top level of things.
+That is, this is only a stack of open windows, and does not concern beyond that.
+What this does mean is that any 
+
+
+
+
+
+
+
+
+*/
+
+- (void)willHideViewController:(UIViewController *)focusedViewController animated:(BOOL)animated
+{
+	if (!isCurrentlyVisible || (focusedViewController != [viewControllerStack lastObject]))
+	{
+		return;
+	}
+	
+	[focusedViewController viewWillDisappear:animated];
+	
+	int previousIndex = [viewControllerStack count] - 2;	
+	if (previousIndex > 0)
+	{
+		[[viewControllerStack objectAtIndex:previousIndex] viewWillAppear:animated];
+	}
+}
+
+- (void)didHideViewController:(UIViewController *)focusedViewController animated:(BOOL)animated
+{
+	if (!isCurrentlyVisible || (focusedViewController != [viewControllerStack lastObject]))
+	{
+		return;
+	}
+	
+	[focusedViewController viewDidDisappear:animated];
+	[viewControllerStack removeLastObject];
+	
+	[[viewControllerStack lastObject] viewDidAppear:animated];
+}
+
+- (void)willShowViewController:(UIViewController *)focusedViewController animated:(BOOL)animated
+{
+	if (!isCurrentlyVisible || [viewControllerStack containsObject:focusedViewController])
+	{
+		return;
+	}
+	
+	[[viewControllerStack lastObject] viewWillDisappear:animated];
+	[focusedViewController viewWillAppear:animated];
+}
+
+- (void)didShowViewController:(UIViewController *)focusedViewController animated:(BOOL)animated
+{
+	if (!isCurrentlyVisible || [viewControllerStack containsObject:focusedViewController])
+	{
+		return;
+	}
+	
+	[[viewControllerStack lastObject] viewDidDisappear:animated];
+	[viewControllerStack addObject:focusedViewController];
+	[focusedViewController viewDidAppear:animated];
 }
 
 

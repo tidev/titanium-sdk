@@ -9,43 +9,24 @@
 
 @implementation ListenerEntry
 
--(void)contextShutdown:(NSNotification*)note
-{
-	[[NSNotificationCenter defaultCenter] removeObserver:self name:kTiContextShutdownNotification object:context];
-	removed=YES;
-	if (type!=nil)
-	{
-		[proxy removeEventListener:[NSArray arrayWithObjects:type,listener,nil]];
-	}
-	[context autorelease];
-	context = nil;
-}
+@synthesize type;
 
--(id)initWithListener:(id)listener_ context:(id<TiEvaluator>)context_ proxy:(TiProxy*)proxy_ type:(NSString*)type_
+-(id)initWithListener:(id)listener_ context:(id<TiEvaluator>)context_ proxy:(TiProxy*)proxy_
 {
 	if (self = [super init])
 	{
 		NSAssert(context_,@"context was nil");
 		listener = [listener_ retain];
-		context = [context_ retain];
-		proxy = [proxy_ retain];
-		type = [type_ retain];
-		// since a context can get shutdown while we're holding him.. we listener for shutdown events so we can automatically remove ourselves
-		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(contextShutdown:) name:kTiContextShutdownNotification object:context];
+		context = context_;	// since the context is held by proxy, we don't need to hold
+		proxy = proxy_;	// this object is already held by proxy so don't hold twice
 	}
 	return self;
 }
 
 -(void)dealloc
 {
-	if (context!=nil)
-	{
-		[[NSNotificationCenter defaultCenter] removeObserver:self name:kTiContextShutdownNotification object:context];
-	}
 	RELEASE_TO_NIL(listener);
 	RELEASE_TO_NIL(type);
-	RELEASE_TO_NIL(context);
-	RELEASE_TO_NIL(proxy);
 	[super dealloc];
 }
 
