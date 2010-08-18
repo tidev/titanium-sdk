@@ -11,6 +11,28 @@
 #define NEEDS_REPOSITION	0 
 #define NEEDS_LAYOUT_CHILDREN	1
 
+enum
+{
+	TiRefreshViewPosition = 2,
+	TiRefreshViewChildrenPosition,
+	TiRefreshViewZIndex,
+	TiRefreshViewSize,
+};
+
+enum
+{
+	TiRefreshAlways,
+	TiRefreshIfWidthIsNonabsolute,
+	TiRefreshIfHeightIsNonabsolute,
+	TiRefreshIfWidthOrHeightIsNonabsolute,
+	TiRefreshIfWidthIsAuto,
+	TiRefreshIfHeightIsAuto,
+	TiRefreshIfWidthOrHeightIsAuto,
+	TiRefreshIfPositionIsNonabsolute,
+	TiRefreshIfLayoutIsNonabsolute,
+};
+
+
 #define USE_VISIBLE_BOOL 0
 #define DONTSHOWHIDDEN 0 
 
@@ -40,6 +62,16 @@
 	BOOL viewInitialized;
 	NSMutableArray *pendingAdds;
 	BOOL needsZIndexRepositioning;
+	
+	
+	
+	CGPoint positionCache;
+	CGRect sizeCache;
+	
+	
+	
+	
+	
 	
 #if USE_VISIBLE_BOOL
 	BOOL visible;
@@ -124,6 +156,14 @@
 -(BOOL)canHaveControllerParent;
 
 -(void)makeViewPerformSelector:(SEL)selector withObject:(id)object createIfNeeded:(BOOL)create waitUntilDone:(BOOL)wait;
+
+-(void)refreshView:(TiUIView *)transferView;
+-(void)refreshZIndex;
+-(void)refreshPosition;
+-(void)refreshSize;
+
+-(void)setNeedsRefresh:(int)flagBit onCondition:(int)condition;
+
 
 @end
 
