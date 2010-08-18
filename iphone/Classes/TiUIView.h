@@ -119,6 +119,8 @@ CGFloat AutoHeightForView(UIView * superView,CGFloat suggestedWidth,BOOL isVerti
 
 -(void)setVisible_:(id)visible;
 
+-(UIView *)gradientWrapperView;
+
 @end
 
 #pragma mark TO REMOVE, used only during transition.

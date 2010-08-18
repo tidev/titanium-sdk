@@ -7,15 +7,21 @@
 
 package ti.modules.titanium.ui.widget.picker;
 
+import java.text.DateFormatSymbols;
 import java.text.DecimalFormat;
+import java.text.FieldPosition;
+import java.text.NumberFormat;
+import java.text.ParsePosition;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
 
 import kankan.wheel.widget.WheelView;
 
 import org.appcelerator.titanium.TiDict;
 import org.appcelerator.titanium.TiProxy;
 import org.appcelerator.titanium.proxy.TiViewProxy;
+import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiUIView;
 
@@ -24,6 +30,7 @@ import android.widget.LinearLayout;
 public class TiUIDateSpinner extends TiUIView
 		implements WheelView.OnItemSelectedListener
 {
+	private static final String LCAT = "TiUIDateSpinner";
 	private WheelView monthWheel;
 	private WheelView dayWheel;
 	private WheelView yearWheel;
@@ -36,6 +43,9 @@ public class TiUIDateSpinner extends TiUIView
 	private boolean ignoreItemSelection = false;
 
 	private Date maxDate, minDate;
+	private Locale locale = Locale.getDefault();
+	private boolean dayBeforeMonth = false;
+	private boolean numericMonths = false;
 	
 	private Calendar calendar = Calendar.getInstance();
 	
@@ -47,7 +57,6 @@ public class TiUIDateSpinner extends TiUIView
 	
 	private void createNativeView()
 	{
-
 		// defaults
 		maxDate = new Date(calendar.get(Calendar.YEAR) + 100, 11, 31);
 		minDate = new Date(calendar.get(Calendar.YEAR) - 100, 0, 31);
@@ -67,8 +76,18 @@ public class TiUIDateSpinner extends TiUIView
 		LinearLayout layout = new LinearLayout(proxy.getContext());
 		layout.setOrientation(LinearLayout.HORIZONTAL);
 		
-		layout.addView(dayWheel);
-		layout.addView(monthWheel);
+		if (proxy.hasDynamicValue("dayBeforeMonth")) {
+			dayBeforeMonth = TiConvert.toBoolean(proxy.getDynamicProperties(), "dayBeforeMonth");
+		}
+		
+		if (dayBeforeMonth) {
+			layout.addView(dayWheel);
+			layout.addView(monthWheel);
+		} else {
+			layout.addView(monthWheel);
+			layout.addView(dayWheel);
+		}
+		
 		layout.addView(yearWheel);
 		setNativeView(layout);
 		
@@ -97,6 +116,18 @@ public class TiUIDateSpinner extends TiUIView
         	c.setTime(maxDate);
         } 
         
+        if (d.containsKey("locale")) {
+        	setLocale(TiConvert.toString(d, "locale"));
+        }
+        
+        if (d.containsKey("dayBeforeMonth")) {
+        	dayBeforeMonth = TiConvert.toBoolean(d, "dayBeforeMonth");
+        }
+        
+        if (d.containsKey("numericMonths")) {
+        	numericMonths = TiConvert.toBoolean(d, "numericMonths");
+        }
+        
         if (maxDate.before(minDate)) {
         	maxDate = minDate;
         }
@@ -115,6 +146,20 @@ public class TiUIDateSpinner extends TiUIView
         }
       
 	}
+	
+	@Override
+	public void propertyChanged(String key, Object oldValue, Object newValue,
+			TiProxy proxy)
+	{
+		if ("value".equals(key)) {
+			Date date = (Date)newValue;
+			setValue(date.getTime());
+		} else if ("locale".equals(key)) {
+			setLocale(TiConvert.toString(newValue));
+		}
+		super.propertyChanged(key, oldValue, newValue, proxy);
+	}
+	
 	
 	private void setAdapters()
 	{
@@ -140,6 +185,11 @@ public class TiUIDateSpinner extends TiUIView
 	
 	private void setMonthAdapter()
 	{
+		setMonthAdapter(false);
+	}
+	
+	private void setMonthAdapter(boolean forceUpdate)
+	{
 		int setMinMonth = 1;
 		int setMaxMonth = 12;
 		
@@ -161,8 +211,16 @@ public class TiUIDateSpinner extends TiUIView
 			setMinMonth = minDate.getMonth() + 1;
 		}
 		
-		if (currentMin != setMinMonth || currentMax != setMaxMonth) {
-			monthAdapter = new FormatNumericWheelAdapter(setMinMonth, setMaxMonth, new DecimalFormat("00"), 4);
+		if (currentMin != setMinMonth || currentMax != setMaxMonth || forceUpdate) {
+			NumberFormat format;
+			int width = 4;
+			if (numericMonths) {
+				format = new DecimalFormat("00");
+			} else {
+				format = new MonthFormat(this.locale);
+				width = ((MonthFormat)format).getLongestMonthName();
+			}
+			monthAdapter = new FormatNumericWheelAdapter(setMinMonth, setMaxMonth, format, width);
 			ignoreItemSelection = true;
 			monthWheel.setAdapter(monthAdapter);
 			ignoreItemSelection = false;
@@ -211,17 +269,6 @@ public class TiUIDateSpinner extends TiUIView
 		monthWheel.setCurrentItem(monthAdapter.getIndex(calendar.get(Calendar.MONTH) + 1));
 		dayWheel.setCurrentItem(dayAdapter.getIndex(calendar.get(Calendar.DAY_OF_MONTH)));
 		ignoreItemSelection = false;
-	}
-	
-	@Override
-	public void propertyChanged(String key, Object oldValue, Object newValue,
-			TiProxy proxy)
-	{
-		if (key.equals("value")) {
-			Date date = (Date)newValue;
-			setValue(date.getTime());
-		} 
-		super.propertyChanged(key, oldValue, newValue, proxy);
 	}
 	
 	public void setValue(long value)
@@ -277,6 +324,33 @@ public class TiUIDateSpinner extends TiUIView
 		setValue(getSelectedDate());
 	}
 	
+	private void setLocale(String localeString) 
+	{
+		Locale locale = Locale.getDefault();
+		if (localeString != null && localeString.length() > 1) {
+			String stripped = localeString.replaceAll("-", "").replaceAll("_", "");
+			if (stripped.length() == 2) {
+				locale = new Locale(stripped);
+			} else if (stripped.length() >= 4) {
+				String language = stripped.substring(0, 2);
+				String country = stripped.substring(2, 4);
+				if (stripped.length() > 4) {
+					locale = new Locale(language, country, stripped.substring(4));
+				} else {
+					locale = new Locale(language, country);
+				}
+			} else {
+				Log.w(LCAT, "Locale string '" + localeString + "' not understood.  Using default locale.");
+			}
+		}
+
+		if (!this.locale.equals(locale)) {
+			this.locale = locale;
+			setMonthAdapter(true);
+			syncWheels();
+		}
+	}
+	
 	private void setCalendar(long millis)
 	{
 		calendar.setTimeInMillis(millis);
@@ -314,6 +388,60 @@ public class TiUIDateSpinner extends TiUIView
 			return;
 		}
 		setValue();
+		
+	}
+	
+	class MonthFormat extends NumberFormat
+	{
+		private static final long serialVersionUID = 1L;
+		private DateFormatSymbols symbols = new DateFormatSymbols(Locale.getDefault());
+		
+		public MonthFormat(Locale locale)
+		{
+			super();
+			setLocale(locale);
+		}
+		
+		@Override
+		public StringBuffer format(double value, StringBuffer buffer,
+				FieldPosition position)
+		{
+			return format((long) value, buffer, position);
+		}
+
+		@Override
+		public StringBuffer format(long value, StringBuffer buffer,
+				FieldPosition position)
+		{
+			buffer.append(symbols.getMonths()[((int)value) - 1]);
+			return buffer;
+		}
+
+		@Override
+		public Number parse(String value, ParsePosition position)
+		{
+			String[] months = symbols.getMonths();
+			for (int i = 0; i < months.length; i++) {
+				if (months[i].equals(value)) {
+					return new Long(i + 1);
+				}
+			}
+			return null;
+		}
+		
+		public void setLocale(Locale locale)
+		{
+			symbols = new DateFormatSymbols(locale);
+		}
+		
+		public int getLongestMonthName()
+		{
+			int max = 0;
+			for (String month : symbols.getMonths()) {
+				max = (month.length() > max) ? month.length() : max;
+			}
+			return max;
+		}
 		
 	}
 

@@ -93,6 +93,9 @@ public class TiApplication extends Application
 	public void onCreate()
 	{
 		super.onCreate();
+		if (DBG) {
+			Log.d(LCAT, "Application onCreate");
+		}
 
 		final UncaughtExceptionHandler defaultHandler = Thread.getDefaultUncaughtExceptionHandler();
 		Thread.setDefaultUncaughtExceptionHandler(new UncaughtExceptionHandler() {

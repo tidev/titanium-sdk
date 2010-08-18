@@ -530,8 +530,6 @@
 		B4DE7E4E11823E990006DDE1 /* TiGradient.m in Sources */ = {isa = PBXBuildFile; fileRef = B4DE7E4D11823E990006DDE1 /* TiGradient.m */; };
 		B4F97B6F111A41B600E2F72C /* TiUIScrollViewProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = B4F97B6E111A41B600E2F72C /* TiUIScrollViewProxy.m */; };
 		B4F97B73111A41C800E2F72C /* TiUIScrollView.m in Sources */ = {isa = PBXBuildFile; fileRef = B4F97B72111A41C800E2F72C /* TiUIScrollView.m */; };
-		DA285CDF11BDC64100D20833 /* TiSplitViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = DA285CDE11BDC64100D20833 /* TiSplitViewController.m */; };
-		DA285CE011BDC64100D20833 /* TiSplitViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = DA285CDE11BDC64100D20833 /* TiSplitViewController.m */; };
 		DA4E12D711C0A55F00A55BAB /* TiContactsGroup.m in Sources */ = {isa = PBXBuildFile; fileRef = DA4E12D611C0A55F00A55BAB /* TiContactsGroup.m */; };
 		DA864E3211A2314A00B9CD68 /* TiMediaMusicPlayer.m in Sources */ = {isa = PBXBuildFile; fileRef = DA864E3111A2314A00B9CD68 /* TiMediaMusicPlayer.m */; };
 		DAA17BE411C15A0000957ED1 /* TiContactsGroup.m in Sources */ = {isa = PBXBuildFile; fileRef = DA4E12D611C0A55F00A55BAB /* TiContactsGroup.m */; };
@@ -1085,8 +1083,6 @@
 		B4F97C56111BAD4700E2F72C /* TiUIScrollIndicatorStyleProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUIScrollIndicatorStyleProxy.h; sourceTree = "<group>"; };
 		B4F97C57111BAD4700E2F72C /* TiUIScrollIndicatorStyleProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIScrollIndicatorStyleProxy.m; sourceTree = "<group>"; };
 		DA285CA411BDBE0A00D20833 /* TiRootController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiRootController.h; sourceTree = "<group>"; };
-		DA285CDD11BDC64100D20833 /* TiSplitViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiSplitViewController.h; sourceTree = "<group>"; };
-		DA285CDE11BDC64100D20833 /* TiSplitViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiSplitViewController.m; sourceTree = "<group>"; };
 		DA4E12D511C0A55F00A55BAB /* TiContactsGroup.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiContactsGroup.h; sourceTree = "<group>"; };
 		DA4E12D611C0A55F00A55BAB /* TiContactsGroup.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiContactsGroup.m; sourceTree = "<group>"; };
 		DA864E3011A2314A00B9CD68 /* TiMediaMusicPlayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiMediaMusicPlayer.h; sourceTree = "<group>"; };
@@ -2193,8 +2189,6 @@
 				24FB4EDC115C81A7001AAF99 /* TiUIiPadSplitWindowProxy.m */,
 				24E50CF21160569B00AF54AF /* TiUIiPadSplitWindowButtonProxy.h */,
 				24E50CF31160569B00AF54AF /* TiUIiPadSplitWindowButtonProxy.m */,
-				DA285CDD11BDC64100D20833 /* TiSplitViewController.h */,
-				DA285CDE11BDC64100D20833 /* TiSplitViewController.m */,
 			);
 			name = "Split View";
 			sourceTree = "<group>";
@@ -2701,7 +2695,6 @@
 				242E967711BAD2F20046A0D0 /* AsyncSocket.m in Sources */,
 				242E967811BAD2F20046A0D0 /* AsyncUdpSocket.m in Sources */,
 				242E989A11BAF7DB0046A0D0 /* TiDebuggerCallFrame.mm in Sources */,
-				DA285CE011BDC64100D20833 /* TiSplitViewController.m in Sources */,
 				DA4E12D711C0A55F00A55BAB /* TiContactsGroup.m in Sources */,
 				2478B2A611C447A4005814DF /* ApplicationMods.m in Sources */,
 				24D06FE111D0211100F615D8 /* TiUIiOSAdViewProxy.m in Sources */,
@@ -2949,7 +2942,6 @@
 				242E967911BAD2F20046A0D0 /* AsyncSocket.m in Sources */,
 				242E967A11BAD2F20046A0D0 /* AsyncUdpSocket.m in Sources */,
 				242E989B11BAF7DB0046A0D0 /* TiDebuggerCallFrame.mm in Sources */,
-				DA285CDF11BDC64100D20833 /* TiSplitViewController.m in Sources */,
 				DAA17BE411C15A0000957ED1 /* TiContactsGroup.m in Sources */,
 				2478B2A511C447A4005814DF /* ApplicationMods.m in Sources */,
 				24D06FE211D0211200F615D8 /* TiUIiOSAdViewProxy.m in Sources */,
