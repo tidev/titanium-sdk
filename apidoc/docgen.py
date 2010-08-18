@@ -175,6 +175,7 @@ class API(object):
 			self.add_property('left','float,string','property for the view left position. this position is relative to the views parent. can be either a float value or a string of the width.')
 			self.add_property('right','float,string','property for the view right position. this position is relative to the views parent. can be either a float value or a string of the width.')
 			self.add_property('bottom','float,string','property for the view bottom position. this position is relative to the views parent. can be either a float value or a string of the width.')
+			self.add_property('softKeyboardOnFocus','int','One of Titanium.UI.Android.SOFT_KEYBOARD_DEFAULT_ON_FOCUS, Titanium.UI.Android.SOFT_KEYBOARD_HIDE_ON_FOCUS, or Titanium.UI.Android.SOFT_KEYBOARD_SHOW_ON_FOCUS. (Android only)')
 			# these are common methods
 			self.add_method('add','add a child to the view hierarchy')
 			self.add_method_property('add','view','object','the view to add to this views hiearchy')

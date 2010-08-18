@@ -24,7 +24,9 @@ android
 
 - properties
 
-None
+SOFT_KEYBOARD_DEFAULT_ON_FOCUS[int]: Use Android default soft keyboard handling. Same as not specifying a value.
+SOFT_KEYBOARD_HIDE_ON_FOCUS[int]: Request hide soft keyboard on focus. Note: OS can override request.
+SOFT_KEYBOARD_SHOW_ON_FOCUS[int]: Request show soft keyboard on focus. Note: OS can override request.
 
 - methods
 
