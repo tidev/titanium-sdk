@@ -49,11 +49,14 @@ def main(args):
 	if major > 3 or major == 3 and minor > 2 or major == 3 and minor == 2 and build >= 2:
 		path = "~/Library/Application Support/iPhone Simulator/%s/Applications" % iphone_version
 
-	if iphone_version == '4.0' and os.path.exists(os.path.expanduser("~/Library/Application Support/iPhone Simulator/4.0.1")):
-		# Apple broke version in 4.0.1 where they return 4.0 instead so we need to try and see if they 
-		# have the patch installed
-		print "[INFO] Found 4.0.1 patch installed"
-		path = "~/Library/Application Support/iPhone Simulator/4.0.1"
+	if iphone_version == '4.0':
+	    # i dunno, how many of these will they do?
+	    for v in ('4.0.3','4.0.2','4.0.1'):
+	        if os.path.exists(os.path.expanduser("~/Library/Application Support/iPhone Simulator/%s"%v)):
+        		# Apple broke version in 4.0.x where they return 4.0 instead so we need to try and see if they 
+        		# have the patch installed
+        		print "[INFO] Found %s patch installed" % v
+        		path = "~/Library/Application Support/iPhone Simulator/%s" % v
 
 	logfile_dir = os.path.expanduser(path)
 
