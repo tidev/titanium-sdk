@@ -385,11 +385,11 @@ public class TiConvert
 			} else {
 				Log.w(LCAT, "Unsupported type " + o.getClass());
 			}
-		}
-		return ja;
-	}
-
-	public static Date toDate(Object value) {
+    	}
+    	return ja;
+    }
+    
+    public static Date toDate(Object value) {
 		if (value instanceof Date) {
 			return (Date)value;
 		} else if (value instanceof Number) {
@@ -398,8 +398,8 @@ public class TiConvert
 		}
 		return null;
 	}
-	
-	public static Date toDate(TiDict d, String key) {
+
+    public static Date toDate(TiDict d, String key) {
 		return toDate(d.get(key));
 	}
 }
