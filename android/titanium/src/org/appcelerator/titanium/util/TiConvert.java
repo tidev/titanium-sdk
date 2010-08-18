@@ -413,4 +413,18 @@ public class TiConvert
     	}
     	return ja;
     }
+    
+    public static Date toDate(Object value) {
+		if (value instanceof Date) {
+			return (Date)value;
+		} else if (value instanceof Number) {
+			long millis = ((Number)value).longValue();
+			return new Date(millis);
+		}
+		return null;
+	}
+
+	public static Date toDate(TiDict d, String key) {
+		return toDate(d.get(key));
+	}
 }

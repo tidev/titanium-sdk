@@ -10,7 +10,7 @@ import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.view.TiUIView;
 
-import ti.modules.titanium.ui.widget.TiUIDatePicker;
+import ti.modules.titanium.ui.widget.picker.TiUIDatePicker;
 import android.app.Activity;
 
 public class DatePickerProxy extends TiViewProxy
