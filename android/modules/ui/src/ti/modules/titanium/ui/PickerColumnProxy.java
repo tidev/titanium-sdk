@@ -89,7 +89,7 @@ public class PickerColumnProxy extends TiProxy
 		if (rows == null || rows.size() == 0) {
 			return null;
 		}
-		return rows.toArray(new PickerRowProxy[]{});
+		return rows.toArray(new PickerRowProxy[rows.size()]);
 	}
 	
 	public int getRowCount()
