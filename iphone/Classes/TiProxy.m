@@ -73,7 +73,7 @@ void DoProxyDelegateChangedValuesWithProxy(UIView<TiProxyDelegate> * target, NSS
 				key = [NSString stringWithFormat:@"set%@%@_", [[key substringToIndex:1] uppercaseString], [key substringFromIndex:1]];
 			}
 			NSArray *arg = [NSArray arrayWithObjects:key,firstarg,secondarg,target,nil];
-			[proxy performSelectorOnMainThread:@selector(_dispatchWithObjectOnUIThread:) withObject:arg waitUntilDone:NO];
+			[proxy performSelectorOnMainThread:@selector(_dispatchWithObjectOnUIThread:) withObject:arg waitUntilDone:YES];
 		}
 		return;
 	}
@@ -87,7 +87,7 @@ void DoProxyDelegateChangedValuesWithProxy(UIView<TiProxyDelegate> * target, NSS
 		}
 		else
 		{
-			[target performSelectorOnMainThread:sel withObject:newValue waitUntilDone:NO modes:[NSArray arrayWithObject:NSRunLoopCommonModes]];
+			[target performSelectorOnMainThread:sel withObject:newValue waitUntilDone:YES modes:[NSArray arrayWithObject:NSRunLoopCommonModes]];
 		}
 	}
 }
@@ -114,7 +114,7 @@ void DoProxyDispatchToSecondaryArg(UIView<TiProxyDelegate> * target, SEL sel, NS
 			key = [NSString stringWithFormat:@"set%@%@_", [[key substringToIndex:1] uppercaseString], [key substringFromIndex:1]];
 		}
 		NSArray *arg = [NSArray arrayWithObjects:key,firstarg,secondarg,target,nil];
-		[proxy performSelectorOnMainThread:@selector(_dispatchWithObjectOnUIThread:) withObject:arg waitUntilDone:NO];
+		[proxy performSelectorOnMainThread:@selector(_dispatchWithObjectOnUIThread:) withObject:arg waitUntilDone:YES];
 	}
 }
 
