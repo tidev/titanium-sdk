@@ -13,23 +13,23 @@ import java.io.StringWriter;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.transform.OutputKeys;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
 
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiModule;
 import org.appcelerator.titanium.util.Log;
 import org.xml.sax.SAXException;
 
+import org.w3c.dom.Document;
+import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+
+import org.xmlpull.v1.XmlSerializer;
+import android.util.Xml;
+
 public class XMLModule extends TiModule {
 
 	private static DocumentBuilder builder;
-	private static Transformer transformer;
 	private static final String LCAT = "XMLModule";
 	
 	static {
@@ -37,12 +37,6 @@ public class XMLModule extends TiModule {
 			builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
 		} catch (ParserConfigurationException e) {
 			Log.e(LCAT, "Error finding DOM implementation", e);
-		}
-		try {
-			transformer = TransformerFactory.newInstance().newTransformer();
-			transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
-		} catch (javax.xml.transform.TransformerConfigurationException e) {
-			Log.e(LCAT, "Error finding DOM transformer implementation", e);
 		}
 	}
 	
@@ -71,15 +65,87 @@ public class XMLModule extends TiModule {
 	
 	public String serializeToString(NodeProxy node)
 	{
-		if (transformer != null) {
-			try {
-				StringWriter writer = new StringWriter();
-				transformer.transform(new DOMSource(node.getNode()), new StreamResult(writer));
-				return writer.toString();
-			} catch (TransformerException e) {
-				Log.e(LCAT, "Error serializing XML", e);
-			}
+		StringWriter writer = new StringWriter();
+		XmlSerializer out = Xml.newSerializer();
+		try {
+			out.setOutput(writer);
+			serializeNode(out, node.getNode());
+			out.endDocument();
+			return writer.toString();
+		} catch (Exception e) {
+			Log.e(LCAT, "Error serializing XML", e);
+			return null;
 		}
-		return null;
 	}
+	
+	private void serializeNode(XmlSerializer out, Node node) throws IOException
+	{
+		switch (node.getNodeType()) {
+			case Node.ATTRIBUTE_NODE:
+				out.attribute(namespaceFor(node), nameFor(node), node.getNodeValue());
+				break;
+			case Node.CDATA_SECTION_NODE:
+				out.cdsect(node.getNodeValue());
+				break;
+			case Node.COMMENT_NODE:
+				out.comment(node.getNodeValue());
+				break;
+			case Node.DOCUMENT_NODE:
+				serializeNode(out, ((Document)node).getDocumentElement());
+				break;
+			case Node.ELEMENT_NODE:
+				String ns = namespaceFor(node);
+				String name = nameFor(node);
+				out.startTag(ns, name);
+
+				NamedNodeMap attribs = node.getAttributes();
+				if (attribs != null) {
+					int length = attribs.getLength();
+					for (int i = 0; i < length; i++) {
+						serializeNode(out, attribs.item(i));
+					}
+				}
+
+				NodeList children = node.getChildNodes();
+				int length = children.getLength();
+				for (int i = 0; i < length; i++) {
+					serializeNode(out, children.item(i));
+				}
+
+				out.endTag(ns, name);
+				break;
+			case Node.ENTITY_REFERENCE_NODE:
+				out.entityRef(node.getNodeName());
+				break;
+			case Node.PROCESSING_INSTRUCTION_NODE:
+				out.processingInstruction(node.getNodeValue());
+				break;
+			case Node.TEXT_NODE:
+				out.text(node.getNodeValue());
+				break;
+			default:
+				Log.e(LCAT, "Skipping unrecognized node of type " + node.getNodeType());
+				break;
+		}
+	}
+
+	private String namespaceFor(Node node)
+	{
+		String ns = node.getNamespaceURI();
+		if (ns == null) {
+			return "";
+		} else {
+			return ns;
+		}
+	}
+	
+	private String nameFor(Node node)
+	{
+		if (node.getNamespaceURI() == null) {
+			return node.getNodeName();
+		} else {
+			return node.getLocalName();
+		}
+	}
+
 }
