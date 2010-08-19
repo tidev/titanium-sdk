@@ -54,7 +54,6 @@ import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
 import org.apache.http.message.BasicHttpEntityEnclosingRequest;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.params.BasicHttpParams;
-import org.apache.http.params.HttpConnectionParamBean;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpProtocolParams;
@@ -582,6 +581,18 @@ public class TiHTTPClient
 		return result;
 	}
 
+	private Uri getCleanUri(String uri)
+    {
+    	Uri base = Uri.parse(uri);
+    	
+    	Uri.Builder builder = base.buildUpon();
+    	builder.encodedQuery(Uri.encode(Uri.decode(base.getQuery()), "&="));
+    	builder.encodedAuthority(Uri.encode(Uri.decode(base.getAuthority()),"/:@"));
+    	builder.encodedPath(Uri.encode(Uri.decode(base.getPath()), "/"));
+    	
+    	return builder.build();
+    }
+	
 	public void open(String method, String url)
 	{
 		if (DBG) {
@@ -589,21 +600,8 @@ public class TiHTTPClient
 		}
 
 		this.method = method;
-		
-		String cleanUrl = url;
-		if (url.startsWith("http")) {
-			int beginQ = url.indexOf('?');
-			if (beginQ > 7 && url.length() > beginQ) {
-				String left = url.substring(0, beginQ);
-				String right = url.substring(beginQ + 1);
-				// first decoding below, in case it's partially encoded already.
-				cleanUrl = Uri.encode(Uri.decode(left), ":/") + "?" + Uri.encode(Uri.decode(right), "&=#");
-			} else {
-				cleanUrl = Uri.encode(Uri.decode(url), ":/#");
-			}
-		}
 
-		uri = Uri.parse(cleanUrl);
+		uri = getCleanUri(url);
 		
 		host = new HttpHost(uri.getHost(), uri.getPort(), uri.getScheme());
 		if (uri.getUserInfo() != null) {
@@ -757,6 +755,7 @@ public class TiHTTPClient
 				
 				if (timeout != -1) {
 					HttpConnectionParams.setConnectionTimeout(params, timeout);
+					HttpConnectionParams.setSoTimeout(params, timeout);
 				}
 				
 				
@@ -834,9 +833,9 @@ public class TiHTTPClient
 				connected = false;
 				setResponseText(result);
 				setReadyState(READY_STATE_DONE);
-			} catch(Exception e) {
-				Log.e(LCAT, "HTTP Error: " + e.getMessage(), e);
-				sendError(e.getMessage());
+			} catch(Throwable t) {
+				Log.e(LCAT, "HTTP Error (" + t.getClass().getName() + "): " + t.getMessage(), t);
+				sendError(t.getMessage());
 			}
 		}
 	}

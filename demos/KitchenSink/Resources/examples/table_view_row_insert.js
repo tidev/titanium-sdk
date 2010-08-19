@@ -9,12 +9,12 @@ var data = [
 	{title:'Row5'},
 	{title:'Row6'},
 	{title:'Insert Row Below - 2', name:'7'},
-	{title:'Row8',header:'Section 1'},
+	{title:'Insert Row Above - Header - 1', name:'8', header:'Section 1'},
 	{title:'Row9'},
-	{title:'Row10'},
+	{title:'Insert Row Above - Header - 2', name:'10'},
 	{title:'Row11'},
 	{title:'Row12'},
-	{title:'Row13'},
+	{title:'Insert Row Below - Header', name:'13'},
 	{title:'Row14'},
 	{title:'Row15'},
 	{title:'Insert Row w/o animation (below)'}
@@ -53,7 +53,28 @@ tableView.addEventListener('click', function(e)
 
 			break;
 		}
-		
+		case 'Insert Row Above - Header - 1':
+		{
+			var row = tableView.getIndexByName('8');
+			data = {title:'New row before row 8', header:'Before header (1)'};
+			tableView.insertRowBefore(row,data,{animationStyle:Titanium.UI.iPhone.RowAnimationStyle.DOWN});
+			break;
+		}
+		case 'Insert Row Above - Header - 2':
+		{
+			var row = tableView.getIndexByName('10');
+			data = {title:'New row before row 10', header:'Before header (2)'};
+			tableView.insertRowBefore(row,data,{animationStyle:Titanium.UI.iPhone.RowAnimationStyle.DOWN});
+			tableView.scrollToIndex(10,{position:Titanium.UI.iPhone.TableViewScrollPosition.MIDDLE,animated:true});
+			break;
+		}
+		case 'Insert Row Below - Header':
+		{
+			var row = tableView.getIndexByName('13');
+			data = {title:'New row after row 13', header:'After header'};
+			tableView.insertRowAfter(row,data,{animationStyle:Titanium.UI.iPhone.RowAnimationStyle.DOWN});
+			break;
+		}
 		case 'Insert Row w/o animation (below)':
 		{
 			var row = tableView.getIndexByName('3');
