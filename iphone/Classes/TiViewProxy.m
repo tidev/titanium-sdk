@@ -125,17 +125,7 @@
 
 -(void)setBackgroundGradient:(id)arg
 {
-	TiGradient * newGradient;
-	if ([arg isKindOfClass:[NSDictionary class]])
-	{
-		newGradient = [[[TiGradient alloc] _initWithPageContext:[self executionContext]] autorelease];
-		[newGradient _initWithProperties:arg];
-	}
-	else
-	{
-		newGradient = arg;
-	}
-	ENSURE_TYPE_OR_NIL(newGradient,TiGradient);
+	TiGradient * newGradient = [TiGradient gradientFromObject:arg proxy:self];
 	[self replaceValue:newGradient forKey:@"backgroundGradient" notification:YES];
 }
 
@@ -454,6 +444,7 @@
 	if (children != nil) {
 		for (TiViewProxy* child in children) {
 			[self layoutChild:child optimize:NO];
+			[child windowWillOpen];
 		}
 	}
 	
@@ -589,7 +580,7 @@
 	if (view == nil)
 	{
 		WARN_IF_BACKGROUND_THREAD
-#ifdef DEBUG
+#ifdef VERBOSE
 		if(![NSThread isMainThread])
 		{
 			NSLog(@"[WARN] Break here");
@@ -1310,6 +1301,14 @@ LAYOUTPROPERTIES_SETTER(setLayout,layout,TiLayoutRuleFromObject)
 
 LAYOUTPROPERTIES_SETTER(setMinWidth,minimumWidth,TiFixedValueRuleFromObject)
 LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject)
+
+-(void)setSize:(id)value
+{
+	ENSURE_DICT(value);
+	layoutProperties.width = TiDimensionFromObject([value objectForKey:@"width"]);
+ 	layoutProperties.height = TiDimensionFromObject([value objectForKey:@"height"]);
+	[self setNeedsReposition];
+}
 
 -(void)setCenter:(id)value
 {

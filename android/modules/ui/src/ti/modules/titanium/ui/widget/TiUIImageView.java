@@ -76,6 +76,17 @@ public class TiUIImageView extends TiUIView
 
 			if (d != null) {
 				setImageDrawable(d, token);
+			} else {
+				if (DBG) {
+					String traceMsg = "Background image load returned null";
+					if (proxy.hasDynamicValue("image")) {
+						Object image = proxy.getDynamicValue("image");
+						if (image instanceof String) {
+							traceMsg += " (" + TiConvert.toString(image) + ")";
+						}
+					}
+					Log.d(LCAT, traceMsg);
+				}
 			}
 		}
 	}

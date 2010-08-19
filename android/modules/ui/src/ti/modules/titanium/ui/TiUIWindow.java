@@ -8,6 +8,8 @@ package ti.modules.titanium.ui;
 
 import java.io.IOException;
 import java.lang.ref.WeakReference;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -15,6 +17,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.appcelerator.titanium.TiActivity;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiDict;
+import org.appcelerator.titanium.TiModalActivity;
 import org.appcelerator.titanium.TiProxy;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.proxy.TiWindowProxy;
@@ -24,6 +27,7 @@ import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiFileHelper;
 import org.appcelerator.titanium.util.TiFileHelper2;
 import org.appcelerator.titanium.util.TiPropertyResolver;
+import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.ITiWindowHandler;
 import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.titanium.view.TiUIView;
@@ -32,6 +36,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
 import android.os.Messenger;
@@ -54,13 +59,14 @@ public class TiUIWindow extends TiUIView
 
 	private static final int MSG_ANIMATE = 100;
 
-	private static final String[] NEW_ACTIVITY_REQUIRED_KEYS = { "fullscreen", "navBarHidden", "modal"};
+	private static final String[] NEW_ACTIVITY_REQUIRED_KEYS = { "fullscreen", "navBarHidden", "modal", "windowSoftInputMode"};
 
 	protected String activityKey;
 	protected Activity windowActivity;
 	protected TiCompositeLayout liteWindow;
 
 	protected boolean lightWeight;
+	protected boolean animate;
 	protected Handler handler;
 
 	protected Messenger messenger;
@@ -76,6 +82,8 @@ public class TiUIWindow extends TiUIView
 	{
 		super(proxy);
 
+		animate = true;
+		
 		//proxy.setModelListener(this);
 		if (idGenerator == null) {
 			idGenerator = new AtomicInteger(0);
@@ -95,15 +103,26 @@ public class TiUIWindow extends TiUIView
 		}
 
 		boolean vertical = isVerticalLayout(resolver);
-		resolver.release();
-		resolver = null;
 
 		if (newActivity)
 		{
 			lightWeight = false;
 			Activity activity = proxy.getTiContext().getActivity();
 			Intent intent = createIntent(activity, options);
-			activity.startActivity(intent);
+			TiDict d = resolver.findProperty("animated");
+			if (d != null) {
+				if (d.containsKey("animated")) {
+					animate = TiConvert.toBoolean(d, "animated");
+				}
+			}
+			if (!animate) {
+				intent.addFlags(65536); // Intent.FLAG_ACTIVITY_NO_ANIMATION not available in API 4
+				intent.putExtra("animate", false);
+				activity.startActivity(intent);
+				TiUIHelper.overridePendingTransition(activity);
+			} else {
+				activity.startActivity(intent);
+			}
 		} else {
 			lightWeight = true;
 			liteWindow = new TiCompositeLayout(proxy.getContext(), vertical);
@@ -114,6 +133,9 @@ public class TiUIWindow extends TiUIView
 			proxy.setModelListener(this);
 			handlePostOpen();
 		}
+		
+		resolver.release();
+		resolver = null;
 	}
 
 	public TiUIWindow(TiViewProxy proxy, Activity activity)
@@ -136,7 +158,6 @@ public class TiUIWindow extends TiUIView
 		//TODO unique key per window, params for intent
 		activityKey = "window$" + idGenerator.incrementAndGet();
 		TiDict props = proxy.getDynamicProperties();
-
 
 		getLayout().setClickable(true);
 		registerForTouch(getLayout());
@@ -309,10 +330,19 @@ public class TiUIWindow extends TiUIView
 			((TiActivity) windowActivity).fireInitialFocus(); 
 		}
 	}
-	public void close() {
+	public void close(TiDict options) 
+	{
 		TiDict data = new TiDict();
 		data.put("source", proxy);
 		proxy.fireEvent("close", data);
+
+		TiDict props = proxy.getDynamicProperties();
+		TiPropertyResolver resolver = new TiPropertyResolver(options, props);
+		props = resolver.findProperty("animated");
+		boolean animateOnClose = animate;
+		if (props != null && props.containsKey("animated")) {
+			animateOnClose = props.getBoolean("animated");
+		}
 
 		if (createdContext != null && createdContext.get() != null) {
 			createdContext.get().dispatchEvent("close", data, proxy);
@@ -320,7 +350,12 @@ public class TiUIWindow extends TiUIView
 		}
 		if (!lightWeight) {
 			if (windowActivity != null) {
-				windowActivity.finish();
+				if (!animateOnClose) {
+					windowActivity.finish();
+					TiUIHelper.overridePendingTransition(windowActivity);
+				} else {
+					windowActivity.finish();					
+				}
 				windowActivity = null;
 			}
 		} else {
@@ -541,6 +576,7 @@ public class TiUIWindow extends TiUIView
 		}
 		props = resolver.findProperty("modal");
 		if (props != null && props.containsKey("modal")) {
+			intent.setClass(activity, TiModalActivity.class);
 			intent.putExtra("modal", TiConvert.toBoolean(props, "modal"));
 		}
 		props = resolver.findProperty("url");
@@ -550,6 +586,10 @@ public class TiUIWindow extends TiUIView
 		props = resolver.findProperty("layout");
 		if (props != null && props.containsKey("layout")) {
 			intent.putExtra("vertical", TiConvert.toString(props, "layout").equals("vertical"));
+		}
+		props = resolver.findProperty("windowSoftInputMode");
+		if (props != null && props.containsKey("windowSoftInputMode")) {
+			intent.putExtra("windowSoftInputMode", TiConvert.toInt(props, "windowSoftInputMode"));
 		}
 
 		boolean finishRoot = false;

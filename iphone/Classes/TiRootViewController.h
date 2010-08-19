@@ -26,6 +26,9 @@
 	
 	UIInterfaceOrientation windowOrientation;
 
+
+	NSMutableArray * viewControllerStack;
+	BOOL isCurrentlyVisible;
 }
 
 @property(nonatomic,readwrite,retain)	UIColor * backgroundColor;

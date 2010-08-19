@@ -9,19 +9,12 @@
 #import "TiTab.h"
 #import "TiUIWindow.h"
 #import "TiUIView.h"
-
-@interface TiWindowViewController : UIViewController
-{
-	TiWindowProxy *proxy;
-}
--(id)initWithWindow:(TiWindowProxy*)window;
-@property(nonatomic,readonly)	TiWindowProxy *proxy;
-@end
+#import "TiViewController.h"
 
 // specialization for TiViews that act like top level 
 // windows when opened, closed, etc.
 //
-@interface TiWindowProxy : TiViewProxy<TiAnimationDelegate> {
+@interface TiWindowProxy : TiViewProxy<TiAnimationDelegate,TiUIViewController> {
 @protected
 	BOOL opened;
 	BOOL focused;
@@ -80,6 +73,5 @@
 -(void)_tabBeforeBlur;
 
 -(void)setupWindowDecorations;
-- (void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration;
 
 @end

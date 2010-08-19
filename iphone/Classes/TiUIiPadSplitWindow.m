@@ -19,18 +19,30 @@
 #import "TiViewController.h"
 #import "TiApp.h"
 #import "TiUIiPadPopoverProxy.h"
-#import "TiSplitViewController.h"
 
 #ifdef USE_TI_UIIPADSPLITWINDOWBUTTON
 #import "TiUIiPadSplitWindowButtonProxy.h"
 #endif
+
+UIViewController * ControllerForProxy(TiViewProxy * proxy);
+
+UIViewController * ControllerForProxy(TiViewProxy * proxy)
+{
+	if([proxy respondsToSelector:@selector(controller)])
+	{
+	//	return [(TiWindowProxy *)proxy controller];
+	}
+
+	[[proxy view] setAutoresizingMask:UIViewAutoresizingNone];
+
+	return [[[TiViewController alloc] initWithViewProxy:proxy] autorelease];
+}
 
 
 @implementation TiUIiPadSplitWindow
 
 -(void)dealloc
 {
-	[[[TiApp app] controller] windowClosed:controller];
 	RELEASE_TO_NIL(controller);
 	[super dealloc];
 }
@@ -42,36 +54,37 @@
 		TiViewProxy* masterProxy = [self.proxy valueForUndefinedKey:@"masterView"];
 		TiViewProxy* detailProxy = [self.proxy valueForUndefinedKey:@"detailView"];
 		
-		controller = [[TiSplitViewController alloc] initWithRootController:(TiRootViewController*)[[TiApp app] controller] 
-															   masterProxy:masterProxy 
-															   detailProxy:detailProxy
-																splitProxy:(TiUIiPadSplitWindowProxy*)self.proxy];
+		controller = [[MGSplitViewController alloc] init];		
+		[controller setViewControllers:[NSArray arrayWithObjects:
+				ControllerForProxy(masterProxy),ControllerForProxy(detailProxy),nil]];
+
 		controller.delegate = self;
+
+		UIView * controllerView = [controller view];
 		
-		UIWindow *window = [TiApp app].window;
-		UIViewController<TiRootController> *viewController = [[TiApp app] controller];
-		[[viewController view] removeFromSuperview];
-		[[TiApp app] setController:controller];
-		[window addSubview:[controller view]];
-		[window bringSubviewToFront:[controller view]];
-		
-		[controller resizeView];
-		[controller repositionSubviews];
-		
+		[controllerView setFrame:[self bounds]];
+		[self addSubview:controllerView];
+
+		[controller viewWillAppear:NO];
+
+		[controller willAnimateRotationToInterfaceOrientation:[[UIApplication sharedApplication] statusBarOrientation] duration:0.0];
+
+
 		[masterProxy windowWillOpen];
 		[masterProxy windowDidOpen];
 		
 		[detailProxy windowWillOpen];
 		[detailProxy windowDidOpen];
+
+		[controller viewDidAppear:NO];
 	}
 	return controller;
 }
 
 -(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
 {
-	self.frame = CGRectIntegral(self.frame);
 	[[[self controller] view] setFrame:bounds];
-}	
+}
 
 //FIXME - probably should remove this ... not sure...
 

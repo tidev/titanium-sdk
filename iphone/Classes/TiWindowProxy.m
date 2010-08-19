@@ -12,56 +12,6 @@
 #import "TiAction.h"
 
 
-@implementation TiWindowViewController
-
--(id)initWithWindow:(TiWindowProxy*)window_
-{
-	if (self = [super init])
-	{
-		proxy = [window_ retain];
-	}
-	return self;
-}
-
--(void)dealloc
-{
-    RELEASE_TO_NIL(proxy);
-    [super dealloc];
-}
-
--(void)loadView
-{
-	self.view = [proxy view];
-}
-
--(id)proxy
-{
-	return proxy;
-}
-
-- (BOOL) shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation
-{
-	//Since the AppController will be the deciding factor, and it compensates for iPad, let it do the work.
-	return [[[TiApp app] controller] shouldAutorotateToInterfaceOrientation:toInterfaceOrientation];
-}
-
-- (void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
-{
-	[proxy willAnimateRotationToInterfaceOrientation:toInterfaceOrientation duration:duration];
-	[super willAnimateRotationToInterfaceOrientation:toInterfaceOrientation duration:duration];
-}
-
--(UINavigationItem*)navigationItem
-{
-	if ([self navigationController] != nil) {
-		return [super navigationItem];
-	}
-	return nil;
-}
-
-@end
-
-
 @implementation TiWindowProxy
 @synthesize navController, controller;
 
@@ -82,7 +32,7 @@
 {
 	if (controller == nil)
 	{
-		controller = [[TiWindowViewController alloc] initWithWindow:self];
+		controller = [[TiViewController alloc] initWithViewProxy:self];
 	}
 	return controller;
 }
@@ -201,6 +151,9 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 	{
 		return;
 	}
+	VerboseLog(@"%@ (modal:%d)%@",self,modalFlag,CODELOCATION);
+	[[[TiApp app] controller] didHideViewController:controller animated:YES];
+
 	opened = NO;
 	attached = NO;
 	opening = NO;
@@ -371,7 +324,9 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 		{
 			if (rootViewAttached)
 			{
+				[[[TiApp app] controller] willShowViewController:[self controller] animated:(animation != nil)];
 				[self attachViewToTopLevelWindow];
+				[[[TiApp app] controller] didShowViewController:[self controller] animated:animation!=nil];
 			}
 			if ([animation isTransitionAnimation])
 			{
@@ -392,7 +347,7 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 		{
 			modalFlag = YES;
 			attached = YES;
-			TiWindowViewController *wc = (TiWindowViewController*)[self controller];
+			TiViewController *wc = (TiViewController*)[self controller];
 			UINavigationController *nc = nil;
 			
 			if ([self argOrWindowProperty:@"navBarHidden" args:args]==NO)
@@ -511,6 +466,7 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 		}
 	}
 
+	VerboseLog(@"%@ (modal:%d)%@",self,modalFlag,CODELOCATION);
 	[self windowWillClose];
 
 	//TEMP hack until we can figure out split view issue
@@ -563,6 +519,8 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 		[self fireEvent:@"close" withObject:nil];
 	}
 	
+	[[[TiApp app] controller] willHideViewController:controller animated:YES];
+	VerboseLog(@"%@ (modal:%d)%@",self,modalFlag,CODELOCATION);
 	if ([self _handleClose:args])
 	{
 		TiAnimation *animation = [self _isChildOfTab] ? nil : [TiAnimation animationFromArg:args context:[self pageContext] create:NO];
