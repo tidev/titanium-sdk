@@ -7,6 +7,7 @@
 //
 //	License and code at http://github.com/mattgemmell/MGSplitViewController/
 #import "TiBase.h"
+#import "TiApp.h"
 
 #ifdef USE_TI_UIIPADSPLITWINDOW
 
@@ -169,7 +170,8 @@
 
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation
 {
-    return YES;
+	return [[[TiApp app] controller] shouldAutorotateToInterfaceOrientation:interfaceOrientation];
+//    return YES;
 }
 
 

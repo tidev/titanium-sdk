@@ -582,6 +582,18 @@ public class TiHTTPClient
 		return result;
 	}
 
+	private Uri getCleanUri(String uri)
+    {
+    	Uri base = Uri.parse(uri);
+    	
+    	Uri.Builder builder = base.buildUpon();
+    	builder.encodedQuery(Uri.encode(Uri.decode(base.getQuery()), "&="));
+    	builder.encodedAuthority(Uri.encode(Uri.decode(base.getAuthority()),"/:@"));
+    	builder.encodedPath(Uri.encode(Uri.decode(base.getPath()), "/"));
+    	
+    	return builder.build();
+    }
+	
 	public void open(String method, String url)
 	{
 		if (DBG) {
@@ -589,7 +601,9 @@ public class TiHTTPClient
 		}
 
 		this.method = method;
-		uri = Uri.parse(url);
+
+		uri = getCleanUri(url);
+		
 		host = new HttpHost(uri.getHost(), uri.getPort(), uri.getScheme());
 		if (uri.getUserInfo() != null) {
 			credentials = new UsernamePasswordCredentials(uri.getUserInfo());

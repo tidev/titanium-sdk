@@ -146,7 +146,14 @@ public class TiConvert
     // Layout
     public static boolean fillLayout(TiDict d, LayoutParams layoutParams) {
         boolean dirty = false;
+        Object width = null;
+        Object height = null;
 
+        if (d.containsKey("size")) {
+            TiDict size = (TiDict)d.get("size");
+            width = size.get("width");
+            height = size.get("height");
+        }
         if (d.containsKey("left")) {
             layoutParams.optionLeft = toTiDimension(d, "left").getIntValue();
             dirty = true;
@@ -163,24 +170,30 @@ public class TiConvert
             layoutParams.optionBottom = toTiDimension(d, "bottom").getIntValue();
             dirty = true;
         }
-        if (d.containsKey("width")) {
-            Object width = d.get("width");
+        if (width!=null || d.containsKey("width")) {
+            if (width==null)
+            {
+                width = d.get("width");
+            }
             if (width == null || width.equals("auto")) {
                 layoutParams.optionWidth = TiCompositeLayout.NOT_SET;
                 layoutParams.autoWidth = true;
             } else {
-                layoutParams.optionWidth = toTiDimension(d, "width").getIntValue();
+                layoutParams.optionWidth = toTiDimension(width).getIntValue();
                 layoutParams.autoWidth = false;
             }
             dirty = true;
         }
-        if (d.containsKey("height")) {
-            Object height = d.get("height");
+        if (height!=null || d.containsKey("height")) {
+            if (height==null)
+            {
+                height = d.get("height");
+            }
             if (height == null || height.equals("auto")) {
                 layoutParams.optionHeight = TiCompositeLayout.NOT_SET;
                 layoutParams.autoHeight = true;
             } else {
-                layoutParams.optionHeight = toTiDimension(d, "height").getIntValue();
+                layoutParams.optionHeight = toTiDimension(height).getIntValue();
                 layoutParams.autoHeight = false;
             }
             dirty = true;
@@ -281,14 +294,16 @@ public class TiConvert
     public static TiDimension toTiDimension(String value) {
         return new TiDimension(value);
     }
-
-    public static TiDimension toTiDimension(TiDict d, String key) {
-        Object value = d.get(key);
-        if (value instanceof Integer || value instanceof Double || value instanceof Float) {
+    
+    public static TiDimension toTiDimension(Object value) {
+        if (value instanceof Number) {
             value = value.toString() + "px";
         }
-
         return toTiDimension((String) value);
+    }
+
+    public static TiDimension toTiDimension(TiDict d, String key) {
+        return toTiDimension(d.get(key));
     }
 
     // URL
@@ -398,4 +413,18 @@ public class TiConvert
     	}
     	return ja;
     }
+    
+    public static Date toDate(Object value) {
+		if (value instanceof Date) {
+			return (Date)value;
+		} else if (value instanceof Number) {
+			long millis = ((Number)value).longValue();
+			return new Date(millis);
+		}
+		return null;
+	}
+
+	public static Date toDate(TiDict d, String key) {
+		return toDate(d.get(key));
+	}
 }

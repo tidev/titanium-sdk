@@ -1046,6 +1046,7 @@
 	BOOL isHorizontal = TiLayoutRuleIsHorizontal(layoutProperties.layout);
 	CGFloat result = 0.0;
 	
+	pthread_rwlock_rdlock(&childrenLock);
 	for (TiViewProxy * thisChildProxy in self.children)
 	{
 		CGFloat thisWidth = [thisChildProxy minimumParentWidthForWidth:suggestedWidth];
@@ -1057,6 +1058,12 @@
 		{
 			result = thisWidth;
 		}
+	}
+	pthread_rwlock_unlock(&childrenLock);
+
+	if (result == 0)
+	{
+		NSLog(@"[WARN] %@ has an auto width value of 0, meaning this view may not be visible.",self);
 	}
 	if (suggestedWidth == 0.0)
 	{
@@ -1110,7 +1117,12 @@
 		}
 	}
 	pthread_rwlock_unlock(&childrenLock);
-	return result + currentRowHeight;
+	result += currentRowHeight;
+	if (result == 0)
+	{
+		NSLog(@"[WARN] %@ has an auto height value of 0, meaning this view may not be visible.",self);
+	}
+	return result;
 }
 
 -(CGFloat)minimumParentWidthForWidth:(CGFloat)suggestedWidth
@@ -1302,6 +1314,14 @@ LAYOUTPROPERTIES_SETTER(setLayout,layout,TiLayoutRuleFromObject)
 LAYOUTPROPERTIES_SETTER(setMinWidth,minimumWidth,TiFixedValueRuleFromObject)
 LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject)
 
+-(void)setSize:(id)value
+{
+	ENSURE_DICT(value);
+	layoutProperties.width = TiDimensionFromObject([value objectForKey:@"width"]);
+ 	layoutProperties.height = TiDimensionFromObject([value objectForKey:@"height"]);
+	[self setNeedsReposition];
+}
+
 -(void)setCenter:(id)value
 {
 	if (![value isKindOfClass:[NSDictionary class]])
@@ -1347,5 +1367,122 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject)
 	[self performSelectorOnMainThread:@selector(makeViewPerformAction:) withObject:ourAction waitUntilDone:wait];
 	[ourAction release];
 }
+
+
+-(void)refreshView:(TiUIView *)transferView
+{
+	WARN_IF_BACKGROUND_THREAD;
+
+//TODO: Reliable way to know when to skip.
+
+	if(OSAtomicTestAndClearBarrier(TiRefreshViewSize, &dirtyflags))
+	{
+		[self refreshSize];
+	}
+	else if(transferView != nil)
+	{
+		[transferView setBounds:sizeCache];
+	}
+
+	if(OSAtomicTestAndClearBarrier(TiRefreshViewPosition, &dirtyflags))
+	{
+		[self refreshPosition];
+	}
+	else if(transferView != nil)
+	{
+		[transferView setCenter:positionCache];
+	}
+
+//We should only recurse if we're a non-absolute layout. Otherwise, the views can take care of themselves.
+	if((transferView == nil) && OSAtomicTestAndClearBarrier(TiRefreshViewPosition, &dirtyflags))
+	//If transferView is non-nil, this will be managed by the table row.
+	{
+		
+	}
+
+	if(OSAtomicTestAndClearBarrier(TiRefreshViewZIndex, &dirtyflags) || (transferView != nil))
+	{
+		[self refreshZIndex];
+	}
+	
+	
+
+}
+
+-(void)refreshZIndex
+{
+	OSAtomicTestAndClearBarrier(TiRefreshViewZIndex, &dirtyflags);
+
+}
+
+-(void)refreshPosition
+{
+	OSAtomicTestAndClearBarrier(TiRefreshViewPosition, &dirtyflags);
+
+}
+
+-(void)refreshSize
+{
+	OSAtomicTestAndClearBarrier(TiRefreshViewSize, &dirtyflags);
+
+
+}
+
+-(void)setNeedsRefresh:(int)flagBit onCondition:(int)condition
+{
+	BOOL skip = NO;
+	switch (condition)
+	{
+		case TiRefreshIfWidthIsNonabsolute:
+			skip = TiDimensionIsPixels(layoutProperties.width);
+			break;
+		case TiRefreshIfHeightIsNonabsolute:
+			skip = TiDimensionIsPixels(layoutProperties.height);
+			break;
+		case TiRefreshIfWidthOrHeightIsNonabsolute:
+			skip = TiDimensionIsPixels(layoutProperties.width) && TiDimensionIsPixels(layoutProperties.height);
+			break;
+		case TiRefreshIfWidthIsAuto:
+			skip = !TiDimensionIsAuto(layoutProperties.width);
+			break;
+		case TiRefreshIfHeightIsAuto:
+			skip = !TiDimensionIsAuto(layoutProperties.height);
+			break;
+		case TiRefreshIfWidthOrHeightIsAuto:
+			skip = !TiDimensionIsAuto(layoutProperties.width) && !TiDimensionIsAuto(layoutProperties.height);
+			break;
+		case TiRefreshIfPositionIsNonabsolute:
+			skip = TiDimensionIsPixels(layoutProperties.centerX) && TiDimensionIsPixels(layoutProperties.height);
+			break;
+		case TiRefreshIfLayoutIsNonabsolute:
+			skip = TiLayoutRuleIsAbsolute(layoutProperties.layout);
+			break;
+	}
+	if(skip)
+	{
+		return;
+	}
+	
+	BOOL alreadySet = OSAtomicTestAndSetBarrier(flagBit, &dirtyflags);
+	
+	if(alreadySet)
+	{
+		return;
+	}
+	
+	switch (flagBit)
+	{
+		case TiRefreshViewSize:
+			[parent setNeedsRefresh:TiRefreshViewSize onCondition:TiRefreshIfWidthOrHeightIsAuto];
+			[parent setNeedsRefresh:TiRefreshViewChildrenPosition onCondition:TiRefreshIfLayoutIsNonabsolute];
+			//Todo: Foreach on children to refreshViewSize 
+			break;
+		default:
+			break;
+	}
+	
+	
+}
+
 
 @end
