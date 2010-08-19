@@ -437,7 +437,7 @@ class Builder(object):
 						continue
 					dest = make_relative(path, resources_dir, self.assets_resources_dir)
 				# check to see if this is a compiled file and if so, don't copy
-				#if dest in self.compiled_files: continue
+				if dest in self.compiled_files: continue
 				if path.startswith(os.path.join(resources_dir, "iphone")) or path.startswith(os.path.join(resources_dir, "blackberry")):
 					continue
 				parent = os.path.dirname(dest)
@@ -926,7 +926,7 @@ class Builder(object):
 			
 			# compile resources
 			full_resource_dir = os.path.join(self.project_dir,self.assets_resources_dir)
-			compiler = Compiler(self.app_id,full_resource_dir,self.java,self.classes_dir)
+			compiler = Compiler(self.name,self.app_id,full_resource_dir,self.java,self.classes_dir,self.project_dir)
 			compiler.compile()
 			self.compiled_files = compiler.compiled_files
 

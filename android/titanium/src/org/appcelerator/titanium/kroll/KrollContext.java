@@ -20,6 +20,7 @@ import org.appcelerator.titanium.util.AsyncResult;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiFileHelper2;
+import org.appcelerator.titanium.util.TiResourceHelper;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.EcmaError;
 import org.mozilla.javascript.EvaluatorException;
@@ -147,16 +148,26 @@ public class KrollContext extends HandlerThread implements Handler.Callback
 	public Object handleEvalFile(String filename)
 	{
 		requireInitialized();
-		BufferedReader br = null;
+		BufferedReader br = null;   //TODO: remove once new resource code is in
 		Object result = null;
 
 		Context ctx = enter();
 		try {
 			Log.d(LCAT,"eval file: "+filename);
+			
 			String[] parts = { filename };
 			TiBaseFile tbf = TiFileFactory.createTitaniumFile(tiContext, parts, false);
 			br = new BufferedReader(new InputStreamReader(tbf.getInputStream()),4000);
 			result = ctx.evaluateReader(jsScope, br, filename, 0, null);
+			
+			/* TODO: re-enable
+			String srcPath = "a$"+filename.replace("app://","").replace("file:///android_asset/Resources/","").replace(".js","").replace("/","_").replace(" ","_").replace(".","_");
+            Log.d(LCAT,"eval file srcPath: "+srcPath);
+			int res = TiResourceHelper.getString(srcPath);
+			String src = tiContext.getActivity().getString(res);
+			Log.d(LCAT,"src = "+src);
+			result = ctx.evaluateString(jsScope, src, filename, 0, null);*/
+			
 		} catch (EcmaError e) {
 			Log.e(LCAT, "ECMA Error evaluating source: " + e.getMessage(), e);
 			Context.reportRuntimeError(e.getMessage(), e.sourceName(), e.lineNumber(), e.lineSource(), e.columnNumber());
@@ -167,13 +178,13 @@ public class KrollContext extends HandlerThread implements Handler.Callback
 			Log.e(LCAT, "Error: " + e.getMessage(), e);
 			Context.throwAsScriptRuntimeEx(e);
 		} finally {
-			if (br != null) {
-				try {
-					br.close();
-				} catch(IOException e) {
-					// Ignore
-				}
-			}
+            if (br != null) {
+             try {
+                 br.close();
+             } catch(IOException e) {
+                 // Ignore
+             }
+            }
 			exit();
 		}
 

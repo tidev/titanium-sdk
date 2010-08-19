@@ -5,7 +5,7 @@
 import org.appcelerator.titanium.api.ITitaniumUserData;
 import org.appcelerator.titanium.api.ITitaniumProperties;
 
-public class AppUserData implements ITitaniumUserData 
+public final class AppUserData implements ITitaniumUserData 
 {
 	public AppUserData()
 	{

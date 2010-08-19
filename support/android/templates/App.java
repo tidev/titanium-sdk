@@ -2,7 +2,7 @@ package ${config['appid']};
 
 import org.appcelerator.titanium.TiApplication;
 
-public class ${config['classname']}Application extends TiApplication {
+public final class ${config['classname']}Application extends TiApplication {
 
 	@Override
 	public void onCreate() {
