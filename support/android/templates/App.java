@@ -9,5 +9,6 @@ public class ${config['classname']}Application extends TiApplication {
 		super.onCreate();
 		
 		appInfo = new ${config['classname']}AppInfo(this);
+		onAfterCreate();
 	}
 }

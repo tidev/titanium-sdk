@@ -164,7 +164,7 @@ class Compiler(object):
 						else:
 							self.js_files[package] = [fullpath]
 					self.make_function_from_file(fullpath, pack=pack)
-		self.compile_into_bytecode(self.js_files)
+#		self.compile_into_bytecode(self.js_files)
 					
 					
 if __name__ == "__main__":

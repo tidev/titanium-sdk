@@ -27,6 +27,7 @@ import org.appcelerator.titanium.analytics.TiAnalyticsService;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiPlatformHelper;
+import org.appcelerator.titanium.util.TiResourceHelper;
 import org.appcelerator.titanium.view.ITiWindowHandler;
 
 import android.app.Activity;
@@ -116,12 +117,20 @@ public class TiApplication extends Application
 		proxyMap = new HashMap<String, SoftReference<TiProxy>>(5);
 
 		TiPlatformHelper.initialize(this);
-
+		
 		appProperties = new TiProperties(getApplicationContext(), "titanium", false);
 		systemProperties = new TiProperties(getApplicationContext(), "system", true);
 		systemProperties.setString("ti.version", buildVersion);
 	}
-
+	
+	protected void onAfterCreate()
+	{
+	    // this is called from the applications onCreate (subclass)
+	    // once the appInfo has been set since this method has a dependency
+	    // on it
+    	TiResourceHelper.initialize(this);
+	}
+	
 	public void setRootActivity(TiRootActivity rootActivity)
 	{
 		// Chicken and Egg problem. Set debugging here since I don't want to
