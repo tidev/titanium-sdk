@@ -91,7 +91,7 @@ static NSLock *callbackLock;
 	return NO;
 }
 
--(void)call:(NSArray*)args thisObject:(id)thisObject_
+-(id)call:(NSArray*)args thisObject:(id)thisObject_
 {
 	if (context==nil)
 	{
@@ -121,7 +121,7 @@ static NSLock *callbackLock;
 		TiValueProtect(jsContext,top);
 	}
 	TiValueRef exception = NULL;
-	TiObjectCallAsFunction(jsContext,function,tp,[args count],_args,&exception);
+	TiValueRef retVal = TiObjectCallAsFunction(jsContext,function,tp,[args count],_args,&exception);
 	if (exception!=NULL)
 	{
 		NSLog(@"[WARN] Exception in event callback. %@",[KrollObject toID:context value:exception]);
@@ -131,6 +131,8 @@ static NSLock *callbackLock;
 		TiValueUnprotect(jsContext,tp);
 		TiValueUnprotect(jsContext,top);
 	}
+	
+	return [KrollObject toID:context value:retVal];
 }
 
 -(TiObjectRef)function
