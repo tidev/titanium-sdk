@@ -61,11 +61,12 @@
 
 - (void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
 {
+	[super willAnimateRotationToInterfaceOrientation:toInterfaceOrientation duration:duration];
 	if ([proxy respondsToSelector:@selector(willAnimateRotationToInterfaceOrientation:duration:)])
 	{
 		[proxy willAnimateRotationToInterfaceOrientation:toInterfaceOrientation duration:duration];
 	}
-	[super willAnimateRotationToInterfaceOrientation:toInterfaceOrientation duration:duration];
+	[[proxy childViewController] willAnimateRotationToInterfaceOrientation:toInterfaceOrientation duration:duration];
 }
 
 - (void)viewWillAppear:(BOOL)animated;    // Called when the view is about to made visible. Default does nothing
@@ -74,6 +75,7 @@
 	{
 		[proxy viewWillAppear:animated];
 	}
+	[[proxy childViewController] viewWillAppear:animated];
 	VerboseLog(@"%@:%@%@",self,proxy,CODELOCATION);
 }
 - (void)viewDidAppear:(BOOL)animated;     // Called when the view has been fully transitioned onto the screen. Default does nothing
@@ -82,6 +84,7 @@
 	{
 		[proxy viewDidAppear:animated];
 	}
+	[[proxy childViewController] viewDidAppear:animated];
 	VerboseLog(@"%@:%@%@",self,proxy,CODELOCATION);
 }
 - (void)viewWillDisappear:(BOOL)animated; // Called when the view is dismissed, covered or otherwise hidden. Default does nothing
@@ -90,6 +93,7 @@
 	{
 		[proxy viewWillDisappear:animated];
 	}
+	[[proxy childViewController] viewWillDisappear:animated];
 	VerboseLog(@"%@:%@%@",self,proxy,CODELOCATION);
 }
 - (void)viewDidDisappear:(BOOL)animated;  // Called after the view was dismissed, covered or otherwise hidden. Default does nothing
@@ -98,6 +102,8 @@
 	{
 		[proxy viewDidDisappear:animated];
 	}
+	[[proxy childViewController] viewDidDisappear:animated];
+
 	VerboseLog(@"%@:%@%@",self,proxy,CODELOCATION);
 }
 

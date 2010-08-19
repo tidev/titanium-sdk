@@ -573,7 +573,7 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 		{
 			[self windowClosed];
 		}
-	}	 
+	}
 }
 
 -(void)attachViewToTopLevelWindow
@@ -716,5 +716,10 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 	}
 }
 
+
+- (UIViewController *)childViewController
+{
+	return nil;
+}
 
 @end

@@ -20,17 +20,9 @@
 	return [[TiUIiPadSplitWindow alloc] init];
 }
 
--(UIViewController *)controller
+- (UIViewController *)childViewController
 {
-	if ([controller isKindOfClass:[UISplitViewController class]])
-	{
-		return controller;
-	}
-	TiUIiPadSplitWindow *view = (TiUIiPadSplitWindow*)[self view];
-	[view setProxy:self];
-	UIViewController *c = [view controller];
-	self.controller = c;
-	return c;
+	return [(TiUIiPadSplitWindow*)[self view] controller];
 }
 
 -(void)windowDidOpen 
@@ -50,6 +42,13 @@
 	ENSURE_UI_THREAD_WITH_OBJ(setToolbar,items,properties);
 	[(TiUIiPadSplitWindow*)[self view] setToolbar:items withObject:properties];
 }
+
+//-(id)orientationModes;
+//{
+//	TiWindowProxy * detailProxy = [self valueForUndefinedKey:@"detailView"];
+//	id orientation = [detailProxy valueForKey:@"orientationModes"];
+//	return orientation;
+//}
 
 @end
 
