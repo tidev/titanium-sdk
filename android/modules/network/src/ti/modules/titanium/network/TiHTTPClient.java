@@ -54,7 +54,6 @@ import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
 import org.apache.http.message.BasicHttpEntityEnclosingRequest;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.params.BasicHttpParams;
-import org.apache.http.params.HttpConnectionParamBean;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpProtocolParams;
@@ -833,9 +832,9 @@ public class TiHTTPClient
 				connected = false;
 				setResponseText(result);
 				setReadyState(READY_STATE_DONE);
-			} catch(Exception e) {
-				Log.e(LCAT, "HTTP Error: " + e.getMessage(), e);
-				sendError(e.getMessage());
+			} catch(Throwable t) {
+				Log.e(LCAT, "HTTP Error (" + t.getClass().getName() + "): " + t.getMessage(), t);
+				sendError(t.getMessage());
 			}
 		}
 	}
