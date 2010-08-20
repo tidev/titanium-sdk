@@ -696,6 +696,11 @@ public class TiContext implements TiEvaluator, ITiMenuDispatcherListener, ErrorR
 	}
 
 	public void dispatchOnDestroy() {
+		if (tiEvaluator != null && tiEvaluator instanceof KrollBridge)
+		{
+			((KrollBridge)tiEvaluator).release();
+			tiEvaluator = null;
+		}
 		synchronized(lifecycleListeners) {
 			for(WeakReference<OnLifecycleEvent> ref : lifecycleListeners) {
 				OnLifecycleEvent listener = ref.get();
