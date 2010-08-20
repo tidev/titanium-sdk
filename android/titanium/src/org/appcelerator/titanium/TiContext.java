@@ -696,11 +696,6 @@ public class TiContext implements TiEvaluator, ITiMenuDispatcherListener, ErrorR
 	}
 
 	public void dispatchOnDestroy() {
-		if (tiEvaluator != null && tiEvaluator instanceof KrollBridge)
-		{
-			((KrollBridge)tiEvaluator).release();
-			tiEvaluator = null;
-		}
 		synchronized(lifecycleListeners) {
 			for(WeakReference<OnLifecycleEvent> ref : lifecycleListeners) {
 				OnLifecycleEvent listener = ref.get();
@@ -845,5 +840,14 @@ public class TiContext implements TiEvaluator, ITiMenuDispatcherListener, ErrorR
 	public void cacheModule(String name, TiModule m)
 	{
 		modules.put(name, new WeakReference<TiModule>(m));
+	}
+	
+	public void releaseKroll()
+	{
+		if (tiEvaluator != null && tiEvaluator instanceof KrollBridge)
+		{
+			((KrollBridge)tiEvaluator).release();
+			tiEvaluator = null;
+		}
 	}
 }
