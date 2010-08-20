@@ -481,8 +481,7 @@
 {
 	NSAssert(sections!=nil,@"sections was nil");
 	row.table = self;
-	TiUITableViewSectionProxy *section = [sections lastObject];
-	row.section = section;
+	TiUITableViewSectionProxy *section = row.section;
     [section add:row];
 	[row.section reorderRows];
 }
@@ -521,6 +520,63 @@
 			[tableview insertRowsAtIndexPaths:[NSArray arrayWithObject:path] withRowAnimation:action.animation];
 			break;
 		}
+        case TiUITableViewActionInsertSectionBefore:
+        {
+            int newSectionIndex = [action section];
+            int rowIndex = action.row.row;
+            action.row.row = 0;
+            TiUITableViewSectionProxy* newSection = action.row.section;
+            
+            // Haven't inserted the new section yet
+            TiUITableViewSectionProxy* nextSection = [sections objectAtIndex:newSectionIndex];
+            
+            // ONLY shift rows around if we're not being inserted before the first row with a header.
+            NSMutableArray* addRows = [NSMutableArray array];
+            if (!(rowIndex == 0 && ([nextSection valueForUndefinedKey:@"headerTitle"] != nil))) {
+                // If it's the first row, we need to NOT remove the rows, but rather the secton;
+                // although we still have to move them.
+                BOOL isFirstRow = (rowIndex == 0);
+                NSMutableArray* removeRows = [NSMutableArray array];
+                int numrows = [[nextSection rows] count];
+                for (int i=rowIndex+1; i < numrows; i++) {
+                    TiUITableViewRowProxy* moveRow = [[[nextSection rows] objectAtIndex:rowIndex+1] retain];
+                    
+                    if (!isFirstRow) {
+                        [removeRows addObject:[NSIndexPath indexPathForRow:i inSection:newSectionIndex]];
+                        [self deleteRow:moveRow];
+                    }
+                    
+                    moveRow.section = newSection;
+                    moveRow.row = (i-(rowIndex+1))+1;
+                    moveRow.parent = newSection;
+                    
+                    [addRows addObject:moveRow];
+                    [moveRow release];
+                }
+                
+                // Remove the stuff that needs to go
+                if (isFirstRow) {
+                    [tableview deleteSections:[NSIndexSet indexSetWithIndex:newSectionIndex] withRowAnimation:UITableViewRowAnimationNone];
+                    [sections removeObjectAtIndex:newSectionIndex];
+                }
+                else {
+                    [tableview deleteRowsAtIndexPaths:removeRows withRowAnimation:UITableViewRowAnimationNone];    
+                    // And, we also need to place the section after the current section - so that it appears in the right spot.
+                    newSectionIndex++;
+                    newSection.section = newSectionIndex;
+                }
+            }
+            
+            // 2nd (sometimes) stage of update: Add in those shiny new rows and update the section.
+            [sections insertObject:newSection atIndex:newSectionIndex];
+            [self appendRow:action.row];
+            for (TiUITableViewRowProxy* moveRow in addRows) {
+                [self appendRow:moveRow];
+            }
+            [tableview insertSections:[NSIndexSet indexSetWithIndex:newSectionIndex] withRowAnimation:action.animation];
+            
+            break;
+        }
 		case TiUITableViewActionInsertRowAfter:
 		{
 			int index = action.row.row-1;
@@ -534,6 +590,45 @@
 			[tableview insertRowsAtIndexPaths:[NSArray arrayWithObject:path] withRowAnimation:action.animation];
 			break;
 		}
+        case TiUITableViewActionInsertSectionAfter:
+        {
+            int newSectionIndex = [action section];
+            int rowIndex = action.row.row; // Get the index of rows which will come after the new row
+            action.row.row = 0; // Reset the row index to the right place
+            TiUITableViewSectionProxy* newSection = action.row.section;
+            
+            // Move ALL of the rows after the row we're inserting after to the new section
+            TiUITableViewSectionProxy* previousSection = [sections objectAtIndex:newSectionIndex-1];
+            int numRows = [[previousSection rows] count];
+            
+            NSMutableArray* removeRows = [NSMutableArray array];
+            NSMutableArray* addRows = [NSMutableArray array];
+            for (int i=rowIndex; i < numRows; i++) {
+                // Have to hold onto the row while we're moving it
+                TiUITableViewRowProxy* moveRow = [[[previousSection rows] objectAtIndex:rowIndex] retain];
+                [removeRows addObject:[NSIndexPath indexPathForRow:i inSection:newSectionIndex-1]];
+                [self deleteRow:moveRow];
+                
+                moveRow.section = newSection;
+                moveRow.row = (i-rowIndex)+1;
+                moveRow.parent = newSection;
+                
+                [addRows addObject:moveRow];
+                [moveRow release];
+            }
+            // 1st stage of update: Remove all those nasty old rows.
+            [tableview deleteRowsAtIndexPaths:removeRows withRowAnimation:UITableViewRowAnimationNone];
+            
+            // 2nd stage of update: Add in those shiny new rows and update the section.
+            [sections insertObject:newSection atIndex:newSectionIndex];
+            [self appendRow:action.row];
+            for (TiUITableViewRowProxy* moveRow in addRows) {
+                [self appendRow:moveRow];
+            }
+            [tableview insertSections:[NSIndexSet indexSetWithIndex:newSectionIndex] withRowAnimation:action.animation];
+            
+            break;
+        }
 		case TiUITableViewActionDeleteRow:
 		{
 			[self deleteRow:action.row];
