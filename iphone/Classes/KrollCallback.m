@@ -95,7 +95,7 @@ static NSLock *callbackLock;
 {
 	if (context==nil)
 	{
-		return;
+		return nil;
 	}
 	
 	[[context retain] autorelease];
