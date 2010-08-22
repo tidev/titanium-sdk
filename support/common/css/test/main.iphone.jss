@@ -1,5 +1,0 @@
-
-
-button {
-	width:110;
-}
