@@ -1,0 +1,5 @@
+
+
+button {
+	width:110;
+}

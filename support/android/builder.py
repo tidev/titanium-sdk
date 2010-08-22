@@ -13,10 +13,13 @@ from shutil import copyfile
 
 template_dir = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
 sys.path.append(os.path.join(template_dir,'..'))
+sys.path.append(os.path.join(template_dir,'../common'))
+
 from tiapp import *
 from android import Android
 from androidsdk import AndroidSDK
 from deltafy import Deltafy, Delta
+from css import csscompiler
 
 ignoreFiles = ['.gitignore', '.cvsignore', '.DS_Store'];
 ignoreDirs = ['.git','.svn','_svn', 'CVS'];
@@ -671,10 +674,24 @@ class Builder(object):
 			
 		return manifest_changed
 
+	def generate_stylesheet(self):
+		srcdir = os.path.join(self.project_dir,'src')
+		cssc = csscompiler.CSSCompiler(os.path.join(self.top_dir,'Resources'),'android',self.app_id)
+		app_sdir = os.path.join(srcdir,self.app_id.replace('.','/'))
+		if not os.path.exists(app_sdir): os.makedirs(app_sdir)
+		app_stylesheet = os.path.join(app_sdir,'ApplicationStylesheet.java')
+		print "[DEBUG] app stylesheet => %s" % app_stylesheet
+		sys.stdout.flush()
+		asf = codecs.open(app_stylesheet,'w','utf-8')
+		asf.write(cssc.code)
+		asf.close()
+			
 	def build_generated_classes(self):
 		srclist = []
 		jarlist = []
-		for root, dirs, files in os.walk(os.path.join(self.project_dir,'src')):
+		srcdir = os.path.join(self.project_dir,'src')
+		
+		for root, dirs, files in os.walk(srcdir):
 			# Strip out directories we shouldn't traverse
 			for name in ignoreDirs:
 				if name in dirs:
@@ -965,6 +982,8 @@ class Builder(object):
 						if not os.path.exists(to_directory):
 							os.makedirs(to_directory)
 						shutil.copyfile(from_, to_)
+			
+			self.generate_stylesheet()
 			
 			generated_classes_built = False
 			if manifest_changed or self.tiapp_changed or self.deploy_type == "production":

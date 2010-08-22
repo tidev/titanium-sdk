@@ -11,8 +11,8 @@
 #import "TiBlob.h"
 #import "TiRect.h"
 #import "TiLayoutQueue.h"
-
 #import "TiAction.h"
+#import "TiStylesheet.h"
 
 #import <QuartzCore/QuartzCore.h>
 #import <libkern/OSAtomic.h>
@@ -37,6 +37,32 @@
 	}
 	return self;
 }
+
+-(void)_initWithProperties:(NSDictionary*)properties
+{
+	if (properties!=nil)
+	{
+		NSString *objectId = [properties objectForKey:@"id"];
+		if (objectId!=nil)
+		{
+			TiStylesheet *stylesheet = [[[self pageContext] host] stylesheet];
+			NSString *density = [TiUtils isRetinaDisplay] ? @"high" : @"medium";
+			NSString *basename = [[self pageContext] basename];
+			NSString *type = [NSStringFromClass([self class]) stringByReplacingOccurrencesOfString:@"TiUI" withString:@""];
+			type = [[type stringByReplacingOccurrencesOfString:@"Proxy" withString:@""] lowercaseString];
+			NSDictionary *merge = [stylesheet stylesheet:objectId type:type density:density basename:basename];
+			if (merge!=nil)
+			{
+				// incoming keys take precendence over existing stylesheet keys
+				NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithDictionary:merge];
+				[dict addEntriesFromDictionary:properties];
+				properties = dict;
+			}
+		}
+	}
+	[super _initWithProperties:properties];
+}
+
 
 -(NSArray*)children
 {

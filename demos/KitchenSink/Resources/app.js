@@ -2,23 +2,16 @@
 Titanium.UI.setBackgroundColor('#000');
 
 // create tab group
-var tabGroup = Titanium.UI.createTabGroup(
-{
-	barColor:'#336699'
-});
+var tabGroup = Titanium.UI.createTabGroup({id:'tabGroup1'});
 
 
 //
 // create base UI tab and root window
 //
-var win1 = Titanium.UI.createWindow({
-    url:'main_windows/base_ui.js',
-    titleImage:'images/appcelerator_small.png'
-});
+var win1 = Titanium.UI.createWindow({id:'win1'});
 
 var tab1 = Titanium.UI.createTab({
-    icon:'images/tabs/KS_nav_views.png',
-    title:'Base UI',
+	id:'tab1',
     window:win1
 });
 
@@ -125,6 +118,7 @@ var messageWin = Titanium.UI.createWindow({
 	]
 });
 var messageView = Titanium.UI.createView({
+	id:'messageview',
 	height:30,
 	width:250,
 	borderRadius:10,
@@ -134,6 +128,7 @@ var messageView = Titanium.UI.createView({
 });
 
 var messageLabel = Titanium.UI.createLabel({
+	id:'messagelabel',
 	text:'',
 	color:'#fff',
 	width:250,

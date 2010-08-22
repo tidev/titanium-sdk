@@ -20,6 +20,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Properties;
 
+import org.appcelerator.titanium.ITiStylesheet;
 import org.appcelerator.titanium.analytics.TiAnalyticsEvent;
 import org.appcelerator.titanium.analytics.TiAnalyticsEventFactory;
 import org.appcelerator.titanium.analytics.TiAnalyticsModel;
@@ -33,6 +34,7 @@ import org.appcelerator.titanium.view.ITiWindowHandler;
 import android.app.Activity;
 import android.app.Application;
 import android.content.Intent;
+import android.util.DisplayMetrics;
 
 // Naming TiHost to more closely match other implementations
 public class TiApplication extends Application
@@ -56,6 +58,8 @@ public class TiApplication extends Application
 	private ITiWindowHandler windowHandler;
 	private Activity currentActivity;
 	protected ITiAppInfo appInfo;
+	protected ITiStylesheet stylesheet;
+	private String density;
 
 	private boolean needsStartEvent;
 	private boolean needsEnrollEvent;
@@ -121,6 +125,7 @@ public class TiApplication extends Application
 		appProperties = new TiProperties(getApplicationContext(), "titanium", false);
 		systemProperties = new TiProperties(getApplicationContext(), "system", true);
 		systemProperties.setString("ti.version", buildVersion);
+		
 	}
 	
 	protected void onAfterCreate()
@@ -141,6 +146,28 @@ public class TiApplication extends Application
 		//TODO consider weakRef
 		this.rootActivity = rootActivity;
 		this.windowHandler = rootActivity;
+
+        // calculate the display density
+		DisplayMetrics dm = new DisplayMetrics();
+		rootActivity.getWindowManager().getDefaultDisplay().getMetrics(dm);
+		switch(dm.densityDpi)
+		{
+		    case DisplayMetrics.DENSITY_HIGH:
+		    {
+		        density = "high";
+		        break;
+		    }
+		    case DisplayMetrics.DENSITY_MEDIUM:
+		    {
+		        density = "medium";
+		        break;
+		    }
+		    case DisplayMetrics.DENSITY_LOW:
+		    {
+		        density = "low";
+		        break;
+		    }
+		}
 
 		if (collectAnalytics()) {
 			analyticsIntent = new Intent(this, TiAnalyticsService.class);
@@ -285,6 +312,13 @@ public class TiApplication extends Application
 
 	public ITiAppInfo getAppInfo() {
 		return appInfo;
+	}
+	
+	public TiDict getStylesheet(String basename, String type, String objectId) {
+	    if (stylesheet!=null) {
+        	return new TiDict(stylesheet.getStylesheet(objectId,type,density,basename));
+	    }
+	    return new TiDict();
 	}
 
 	public void registerProxy(TiProxy proxy) {

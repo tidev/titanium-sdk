@@ -171,6 +171,7 @@ class Compiler(object):
 				for f in files:
 					fp = os.path.splitext(f)
 					if len(fp)!=2: continue
+					if fp[1] == '.jss': continue
 					if not fp[1] in ['.html','.js','.css']: continue
 					if f in ignoreFiles: continue
 					fullpath = os.path.join(root,f)

@@ -9,6 +9,8 @@ public final class ${config['classname']}Application extends TiApplication {
 		super.onCreate();
 		
 		appInfo = new ${config['classname']}AppInfo(this);
+		stylesheet = new ApplicationStylesheet();
+		
 		onAfterCreate();
 	}
 }
