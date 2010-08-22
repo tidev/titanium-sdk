@@ -300,7 +300,7 @@ Ti.API.info(String.format("%s%s",L("welcome_message","default_not_set"),Titanium
 Ti.API.debug(String.format("%s %s",L("user_agent_message","default_not_set"),Titanium.userAgent));
 
 
-// Ti.API.info("should be en, was = "+Ti.Locale.currentLanguage);
+Ti.API.info("should be en, was = "+Ti.Locale.currentLanguage);
 Ti.API.info("welcome_message = "+Ti.Locale.getString("welcome_message"));
 Ti.API.info("should be def, was = "+Ti.Locale.getString("welcome_message2","def"));
 Ti.API.info("welcome_message = "+L("welcome_message"));

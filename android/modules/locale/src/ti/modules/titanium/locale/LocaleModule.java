@@ -6,6 +6,8 @@
  */
 package ti.modules.titanium.locale;
 
+import java.util.Locale;
+
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiModule;
 import org.appcelerator.titanium.util.Log;
@@ -18,6 +20,16 @@ public class LocaleModule extends TiModule
 	public LocaleModule(TiContext tiContext)
 	{
 		super(tiContext);
+	}
+	
+	public String getCurrentLanguage()
+	{
+	    return Locale.getDefault().getLanguage();
+	}
+	
+	public void setLanguage(String language) 
+	{
+	    Log.w(LCAT,"Locale.setLanguage not supported for Android.");
 	}
 
     public String getString(TiContext tiContext, Object args[])
