@@ -12,6 +12,7 @@ import java.util.HashMap;
 import java.util.Stack;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.lang.reflect.Method;
 
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiContext;
@@ -24,6 +25,7 @@ import org.appcelerator.titanium.kroll.KrollCallback;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUIHelper;
+import org.appcelerator.titanium.util.TiResourceHelper;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Scriptable;
 
@@ -146,6 +148,42 @@ public class TitaniumModule
 		  currentActivity = getTiContext().getActivity();
 		}
 		TiUIHelper.doOkDialog(currentActivity, "Alert", msg, null);
+	}
+	
+	public String stringFormat(TiContext tiContext, Object args[])
+	{
+	    try
+	    {
+	        Method method = String.class.getMethod("format",new Class[]{String.class,Object[].class});
+	        String format  = (String)args[0];
+	        // clean up formats for integers into doubles since thats how JS rolls
+	        format = format.replaceAll("%d","%1.0f");
+	        // in case someone passes an iphone formatter symbol, convert
+	        format = format.replaceAll("%@","%s");
+	        Object vargs [] = new Object[args.length-1];
+	        System.arraycopy(args,1,vargs,0,vargs.length);
+	        return (String)method.invoke(null,new Object[]{format,vargs});
+        }
+        catch (Exception ex)
+        {
+            Log.e(LCAT,"Error in string format",ex);
+            return null;
+        }
+	}
+	
+	public String localize(TiContext tiContext, Object args[])
+	{
+	    String key = (String)args[0];
+	    int value = TiResourceHelper.getString(key);
+	    if (value==0)
+	    {
+	        if (args.length > 1)
+	        {
+    	        return (String)args[1];
+	        }
+	        return null;
+	    }
+	    return tiContext.getActivity().getString(value);
 	}
 	
 	public TiProxy require(String path) {

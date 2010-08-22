@@ -504,6 +504,10 @@
 		24F29E2F12209C920099351D /* TiStylesheet.m in Sources */ = {isa = PBXBuildFile; fileRef = 24F29E2D12209C920099351D /* TiStylesheet.m */; };
 		24F29E3712209E6F0099351D /* stylesheet.plist in Resources */ = {isa = PBXBuildFile; fileRef = 24F29E3612209E6F0099351D /* stylesheet.plist */; };
 		24F29E3812209E6F0099351D /* stylesheet.plist in Resources */ = {isa = PBXBuildFile; fileRef = 24F29E3612209E6F0099351D /* stylesheet.plist */; };
+		24F29E701220CE0A0099351D /* TiLocale.m in Sources */ = {isa = PBXBuildFile; fileRef = 24F29E6F1220CE0A0099351D /* TiLocale.m */; };
+		24F29E711220CE0A0099351D /* TiLocale.m in Sources */ = {isa = PBXBuildFile; fileRef = 24F29E6F1220CE0A0099351D /* TiLocale.m */; };
+		24F29F82122105C70099351D /* LocaleModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 24F29F80122105C70099351D /* LocaleModule.m */; };
+		24F29F83122105C70099351D /* LocaleModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 24F29F80122105C70099351D /* LocaleModule.m */; };
 		24F5ACF9111F7B8A005C9199 /* TiMapPinAnnotationView.m in Sources */ = {isa = PBXBuildFile; fileRef = 24EB0BA9111F7959001DC2D1 /* TiMapPinAnnotationView.m */; };
 		24F5B146111FDFE8005C9199 /* ListenerEntry.m in Sources */ = {isa = PBXBuildFile; fileRef = 24F5B145111FDFE8005C9199 /* ListenerEntry.m */; };
 		24F6204F1199F1F400EEAD3C /* TopTiModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 24F6204E1199F1F400EEAD3C /* TopTiModule.m */; };
@@ -1029,6 +1033,10 @@
 		24F29E2C12209C920099351D /* TiStylesheet.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiStylesheet.h; sourceTree = "<group>"; };
 		24F29E2D12209C920099351D /* TiStylesheet.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiStylesheet.m; sourceTree = "<group>"; };
 		24F29E3612209E6F0099351D /* stylesheet.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = stylesheet.plist; path = ../Resources/stylesheet.plist; sourceTree = SOURCE_ROOT; };
+		24F29E6E1220CE0A0099351D /* TiLocale.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiLocale.h; sourceTree = "<group>"; };
+		24F29E6F1220CE0A0099351D /* TiLocale.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiLocale.m; sourceTree = "<group>"; };
+		24F29F80122105C70099351D /* LocaleModule.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LocaleModule.m; sourceTree = "<group>"; };
+		24F29F81122105C70099351D /* LocaleModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LocaleModule.h; sourceTree = "<group>"; };
 		24F5AEB2111F9DE9005C9199 /* TiFile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiFile.h; sourceTree = "<group>"; };
 		24F5AEB3111F9DE9005C9199 /* TiFile.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiFile.m; sourceTree = "<group>"; };
 		24F5B144111FDFE8005C9199 /* ListenerEntry.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ListenerEntry.h; sourceTree = "<group>"; };
@@ -1449,6 +1457,7 @@
 				24CA8C11111163C30084E2DE /* Platform */,
 				24CA8C16111164150084E2DE /* Yahoo */,
 				24CA8C14111164040084E2DE /* UI */,
+				24F29E781220D0DB0099351D /* Locale */,
 			);
 			name = Modules;
 			sourceTree = "<group>";
@@ -1548,6 +1557,8 @@
 				DA285CA411BDBE0A00D20833 /* TiRootController.h */,
 				24F29E2C12209C920099351D /* TiStylesheet.h */,
 				24F29E2D12209C920099351D /* TiStylesheet.m */,
+				24F29E6E1220CE0A0099351D /* TiLocale.h */,
+				24F29E6F1220CE0A0099351D /* TiLocale.m */,
 			);
 			name = API;
 			sourceTree = "<group>";
@@ -2177,6 +2188,15 @@
 			name = DOM;
 			sourceTree = "<group>";
 		};
+		24F29E781220D0DB0099351D /* Locale */ = {
+			isa = PBXGroup;
+			children = (
+				24F29F80122105C70099351D /* LocaleModule.m */,
+				24F29F81122105C70099351D /* LocaleModule.h */,
+			);
+			name = Locale;
+			sourceTree = "<group>";
+		};
 		24FB4ECF115C8120001AAF99 /* iPad */ = {
 			isa = PBXGroup;
 			children = (
@@ -2722,6 +2742,8 @@
 				B440EF7F1209DC400045FEAE /* MGSplitDividerView.m in Sources */,
 				B440EF801209DC400045FEAE /* MGSplitViewController.m in Sources */,
 				24F29E2F12209C920099351D /* TiStylesheet.m in Sources */,
+				24F29E711220CE0A0099351D /* TiLocale.m in Sources */,
+				24F29F83122105C70099351D /* LocaleModule.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2970,6 +2992,8 @@
 				B440EF821209DC400045FEAE /* MGSplitDividerView.m in Sources */,
 				B440EF831209DC400045FEAE /* MGSplitViewController.m in Sources */,
 				24F29E2E12209C920099351D /* TiStylesheet.m in Sources */,
+				24F29E701220CE0A0099351D /* TiLocale.m in Sources */,
+				24F29F82122105C70099351D /* LocaleModule.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

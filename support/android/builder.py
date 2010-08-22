@@ -20,6 +20,7 @@ from android import Android
 from androidsdk import AndroidSDK
 from deltafy import Deltafy, Delta
 from css import csscompiler
+import localecompiler
 
 ignoreFiles = ['.gitignore', '.cvsignore', '.DS_Store'];
 ignoreDirs = ['.git','.svn','_svn', 'CVS'];
@@ -459,6 +460,8 @@ class Builder(object):
 					run.run(cmd)
 		
 	def generate_android_manifest(self,compiler):
+
+		self.generate_localizations()
 		
 		# NOTE: these are built-in permissions we need -- we probably need to refine when these are needed too
 		permissions_required = ['INTERNET','ACCESS_WIFI_STATE','ACCESS_NETWORK_STATE', 'WRITE_EXTERNAL_STORAGE']
@@ -685,6 +688,10 @@ class Builder(object):
 		asf = codecs.open(app_stylesheet,'w','utf-8')
 		asf.write(cssc.code)
 		asf.close()
+		
+	def generate_localizations(self):
+		# compile localization files
+		localecompiler.LocaleCompiler(self.name,self.top_dir,'android',sys.argv[1]).compile()
 			
 	def build_generated_classes(self):
 		srclist = []
@@ -957,7 +964,7 @@ class Builder(object):
 				os.makedirs(self.assets_dir)
 
 			manifest_changed = self.generate_android_manifest(compiler)
-				
+
 			my_avd = None	
 			self.google_apis_supported = False
 				
@@ -985,12 +992,8 @@ class Builder(object):
 			
 			self.generate_stylesheet()
 			
-			generated_classes_built = False
-			if manifest_changed or self.tiapp_changed or self.deploy_type == "production":
-				self.build_generated_classes()
-				generated_classes_built = True
-			else:
-				info("Manifest unchanged, skipping Java build")
+			self.build_generated_classes()
+			generated_classes_built = True
 			
 			self.classes_dex = os.path.join(self.project_dir, 'bin', 'classes.dex')
 			self.android_module_jars = glob.glob(os.path.join(self.support_dir, 'modules', '*.jar'))

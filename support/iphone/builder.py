@@ -20,6 +20,7 @@ script_ok = False
 
 from tiapp import *
 from css import csscompiler
+import localecompiler
 
 ignoreFiles = ['.gitignore', '.cvsignore']
 ignoreDirs = ['.git','.svn', 'CVS']
@@ -713,6 +714,9 @@ def main(args):
 						shutil.rmtree(app_dir)
 
 				if not os.path.exists(app_dir): os.makedirs(app_dir)
+
+				# compile localization files
+				localecompiler.LocaleCompiler(app_name,project_dir,devicefamily,command).compile()
 				
 				# copy any module resources
 				if len(tp_module_asset_dirs)>0:

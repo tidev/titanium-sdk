@@ -9,6 +9,8 @@
 import css, csslex, cssyacc, ply
 import os,codecs,time,types,sys
 
+ignoreFiles = ['.gitignore', '.cvsignore']
+ignoreDirs = ['.git','.svn', 'CVS']
 
 
 ANDROID_CLASS_TEMPLATE = """/**
@@ -96,8 +98,12 @@ class CSSCompiler(object):
 		self.appid = appid
 		self.files = {}
 		
-		for dirname,x,files in os.walk(dir):
+		for dirname,dirs,files in os.walk(dir):
+			for name in ignoreDirs:
+				if name in dirs:
+					dirs.remove(name)	# don't visit ignored directories			  
 			for f in files:
+				if f in ignoreFiles: continue
 				if not f.endswith('.jss'): continue
 				tok = f[0:-4].split('.')
 				count = len(tok)
