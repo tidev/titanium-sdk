@@ -126,8 +126,8 @@
 
 -(id)previousSibling
 {
-	xmlNodePtr p = xmlPreviousElementSibling([node XMLNode]);
-	if (p==nil) 
+	xmlNodePtr p = [node XMLNode]->prev;
+	if (p==NULL) 
 	{
 		return nil;
 	}
@@ -137,8 +137,8 @@
 
 -(id)nextSibling
 {
-	xmlNodePtr p = xmlNextElementSibling([node XMLNode]);
-	if (p==nil) 
+	xmlNodePtr p = [node XMLNode]->next;
+	if (p==NULL) 
 	{
 		return nil;
 	}

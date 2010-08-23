@@ -78,4 +78,11 @@ public class KrollBridge
 
 	public void fireEvent() {
 	}
+	
+	public void release() {
+		if (kroll != null) {
+			kroll.release();
+			kroll = null;
+		}
+	}
 }

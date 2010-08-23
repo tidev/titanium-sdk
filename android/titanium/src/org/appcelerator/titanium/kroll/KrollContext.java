@@ -267,4 +267,11 @@ public class KrollContext extends HandlerThread implements Handler.Callback
 		kc.requireInitialized();
 		return kc;
 	}
+	
+	public void release()
+	{
+		if (getLooper() != null) {
+			getLooper().quit();
+		}
+	}
 }

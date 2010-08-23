@@ -359,6 +359,7 @@ public class TiRootActivity extends ActivityGroup
 
 		if (tiContext != null) {
 			tiContext.dispatchOnDestroy();
+			tiContext.release();
 			TiModule.clearModuleSingletons();
 		}
 	}
