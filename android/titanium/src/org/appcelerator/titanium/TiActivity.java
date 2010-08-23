@@ -343,7 +343,7 @@ public class TiActivity extends Activity
 			TiContext ctx = contextRef.get();
 			if (ctx != null) {
 				ctx.dispatchOnDestroy();
-				ctx.releaseKroll();
+				ctx.release();
 			}
 		}
 		if (layout != null) {

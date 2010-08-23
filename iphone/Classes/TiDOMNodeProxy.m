@@ -30,6 +30,11 @@
 	node = [node_ retain];
 }
 
+-(NSString *)XMLString
+{
+	return [node XMLString];
+}
+
 +(id)makeNode:(id)child context:(id<TiEvaluator>)context
 {
 	// if already a proxy, just return it.
@@ -121,8 +126,8 @@
 
 -(id)previousSibling
 {
-	xmlNodePtr p = xmlPreviousElementSibling([node XMLNode]);
-	if (p==nil) 
+	xmlNodePtr p = [node XMLNode]->prev;
+	if (p==NULL) 
 	{
 		return nil;
 	}
@@ -132,8 +137,8 @@
 
 -(id)nextSibling
 {
-	xmlNodePtr p = xmlNextElementSibling([node XMLNode]);
-	if (p==nil) 
+	xmlNodePtr p = [node XMLNode]->next;
+	if (p==NULL) 
 	{
 		return nil;
 	}
