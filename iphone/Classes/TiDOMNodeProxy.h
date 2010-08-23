@@ -15,6 +15,7 @@
 }
 
 -(void)setNode:(GDataXMLNode*)node_;
+-(NSString *)XMLString;
 +(id)makeNode:(id)child context:(id<TiEvaluator>)context;
 
 @property(nonatomic,readonly) id nodeName;

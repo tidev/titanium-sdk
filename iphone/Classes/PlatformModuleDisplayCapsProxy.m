@@ -13,8 +13,8 @@
 
 
 
-// NOTE: device capabilities currently are hardcoded since all current iphone
-// devices are the same (until the iTablet!)
+// NOTE: device capabilities currently are hardcoded for iPad, while high/low
+// display density is now detected for iPhone / iPod Touch under iOS 4.
 
 - (id)density
 {
@@ -22,7 +22,14 @@
 	{
 		return @"high";
 	}
-	return @"low";
+	else if ([TiUtils isRetinaDisplay])
+	{
+		return @"high";
+	}
+	else
+	{
+		return @"low";
+	}
 }
 
 - (id)dpi
@@ -31,7 +38,14 @@
 	{
 		return [NSNumber numberWithInt:130];
 	}
-	return [NSNumber numberWithInt:160];
+	else if ([TiUtils isRetinaDisplay])
+	{
+		return [NSNumber numberWithInt:320];
+	}
+	else
+	{
+		return [NSNumber numberWithInt:160];
+	}
 }
 
 - (BOOL)isDevicePortrait
