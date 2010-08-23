@@ -132,6 +132,10 @@ public abstract class TiWindowProxy extends TiViewProxy
 	}
 
 	public void closeFromActivity() {
+		if (!opened) {
+			return;
+		}
+		releaseViews();
 		opened = false;
 	}
 	
