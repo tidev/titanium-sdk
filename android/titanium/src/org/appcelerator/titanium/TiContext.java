@@ -841,4 +841,13 @@ public class TiContext implements TiEvaluator, ITiMenuDispatcherListener, ErrorR
 	{
 		modules.put(name, new WeakReference<TiModule>(m));
 	}
+	
+	public void releaseKroll()
+	{
+		if (tiEvaluator != null && tiEvaluator instanceof KrollBridge)
+		{
+			((KrollBridge)tiEvaluator).release();
+			tiEvaluator = null;
+		}
+	}
 }

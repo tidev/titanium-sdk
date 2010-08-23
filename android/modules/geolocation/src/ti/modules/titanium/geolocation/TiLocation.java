@@ -11,9 +11,11 @@ import java.util.List;
 
 import org.appcelerator.titanium.TiDict;
 import org.appcelerator.titanium.TiModule;
+import org.appcelerator.titanium.TiProxy;
+import org.appcelerator.titanium.analytics.TiAnalyticsEvent;
+import org.appcelerator.titanium.analytics.TiAnalyticsEventFactory;
 import org.appcelerator.titanium.kroll.KrollCallback;
 import org.appcelerator.titanium.util.Log;
-import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiConvert;
 
 import android.content.Context;
@@ -40,7 +42,7 @@ public class TiLocation
 	public static final int ACCURACY_KILOMETER = 3;
 	public static final int ACCURACY_THREE_KILOMETERS = 4;
 
-	public static final long MAX_GEO_ANALYTICS_FREQUENCY = 60000L;
+	public static final long MAX_GEO_ANALYTICS_FREQUENCY = TiAnalyticsEventFactory.MAX_GEO_ANALYTICS_FREQUENCY;
 
 	public static final String EVENT_LOCATION = "location";
 
@@ -68,15 +70,7 @@ public class TiLocation
 				if (locationManager != null) {
 					LocationProvider provider = locationManager.getProvider(location.getProvider());
 					fproxy.fireEvent(EVENT_LOCATION, locationToTiDict(location, provider));
-					if (location.getTime() - lastEventTimestamp > MAX_GEO_ANALYTICS_FREQUENCY) {
-						// Null is returned if it's too early to send another event.
-						// TODO Analytics
-	//						TitaniumAnalyticsEvent event = TitaniumAnalyticsEventFactory.createAppGeoEvent(location);
-	//						if (event != null) {
-	//							app.postAnalyticsEvent(event);
-	//							lastEventTimestamp = location.getTime();
-	//						}
-					}
+					doAnalytics(fproxy, location);
 				} else {
 					Log.i(LCAT, "onLocationChanged - Location Manager null");					
 				}
@@ -128,6 +122,7 @@ public class TiLocation
 				Location location = locationManager.getLastKnownLocation(provider);
 				if (location != null) {
 					listener.callWithProperties(locationToTiDict(location, locationManager.getProvider(provider)));
+					doAnalytics(proxy, location);
 				} else {
 					Log.i(LCAT, "getCurrentPosition - location is null");
 					listener.callWithProperties(TiConvert.toErrorObject(ERR_POSITION_UNAVAILABLE, "location is currently unavailable."));
@@ -139,6 +134,17 @@ public class TiLocation
 		} else {
 			Log.i(LCAT, "getCurrentPosition - listener or locationManager null");
 			listener.callWithProperties(TiConvert.toErrorObject(ERR_POSITION_UNAVAILABLE, "location is currently unavailable."));
+		}
+	}
+	
+	private void doAnalytics(TiProxy proxy, Location location) {
+		if (location.getTime() - lastEventTimestamp > MAX_GEO_ANALYTICS_FREQUENCY) {
+			// Null is returned if it's too early to send another event.
+			TiAnalyticsEvent event = TiAnalyticsEventFactory.createAppGeoEvent(location);
+			if (event != null) {
+				proxy.getTiContext().getTiApp().postAnalyticsEvent(event);
+				lastEventTimestamp = location.getTime();
+			}
 		}
 	}
 	

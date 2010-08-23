@@ -342,11 +342,8 @@ static NSDictionary* multiValueLabels;
 	id property = nil;
 	// Single-value property
 	if (property = [[TiContactsPerson contactProperties] valueForKey:key]) {
-		// Again, taking advantage of the fact we only work with CFStringRefs; this could get
-		// more complicated if contacts is expanded.
-		NSString* stringVal = [TiUtils stringValue:value];
 		CFErrorRef error;
-		if(!ABRecordSetValue([self record], [property intValue], (CFStringRef)stringVal, &error)) {
+		if(!ABRecordSetValue([self record], [property intValue], (CFTypeRef)value, &error)) {
 			CFStringRef reason = CFErrorCopyDescription(error);
 			NSString* str = [NSString stringWithString:(NSString*)reason];
 			CFRelease(reason);

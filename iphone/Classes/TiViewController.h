@@ -9,6 +9,10 @@
 
 @protocol TiUIViewController
 
+@required
+
+- (UIViewController *)childViewController;
+
 @optional
 - (void)viewWillAppear:(BOOL)animated;    // Called when the view is about to made visible. Default does nothing
 - (void)viewDidAppear:(BOOL)animated;     // Called when the view has been fully transitioned onto the screen. Default does nothing

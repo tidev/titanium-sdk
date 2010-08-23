@@ -340,8 +340,10 @@ public class TiActivity extends Activity
 	protected void onDestroy() {
 		super.onDestroy();
 		for (WeakReference<TiContext> contextRef : contexts) {
-			if (contextRef.get() != null) {
-				contextRef.get().dispatchOnDestroy();
+			TiContext ctx = contextRef.get();
+			if (ctx != null) {
+				ctx.dispatchOnDestroy();
+				ctx.releaseKroll();
 			}
 		}
 		if (layout != null) {

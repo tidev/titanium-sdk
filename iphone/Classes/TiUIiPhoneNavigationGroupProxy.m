@@ -66,6 +66,10 @@
 	}
 }
 
+-(UIViewController *)childViewController
+{
+	return nil;
+}
 @end
 
 #endif

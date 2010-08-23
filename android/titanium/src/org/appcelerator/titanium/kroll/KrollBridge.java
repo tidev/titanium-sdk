@@ -92,4 +92,11 @@ public class KrollBridge
 	public KrollContext getKrollContext() {
 		return kroll;
 	}
+	
+	public void release() {
+		if (kroll != null) {
+			kroll.release();
+			kroll = null;
+		}
+	}
 }
