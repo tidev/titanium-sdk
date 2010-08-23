@@ -26,6 +26,8 @@ public class TiAnalyticsEventFactory
 	public static final String EVENT_ERROR = "ti.crash";
 	public static final String EVENT_APP_GEO = "ti.geo";
 
+	public static final long MAX_GEO_ANALYTICS_FREQUENCY = 60000L;
+
 	protected static Location lastLocation;
 
 //	1. Application Enrollment
@@ -224,29 +226,29 @@ public class TiAnalyticsEventFactory
 //	- speed                 -- the speed (double)
 //	- timestamp             -- timestamp reference (long)
 
-//	public static TiAnalyticsEvent createAppGeoEvent(Location location)
-//	{
-//		TiAnalyticsEvent result = null;
-//		if (lastLocation == null || (location.getTime() - lastLocation.getTime() > TitaniumGeolocation.MAX_GEO_ANALYTICS_FREQUENCY))
-//		{
-//			try {
-//				JSONObject wrapper = new JSONObject();
-//
-//				wrapper.put("to", locationToJSONObject(location));
-//				if (lastLocation != null) {
-//					wrapper.put("from", locationToJSONObject(lastLocation));
-//				} else {
-//					wrapper.put("from", null);
-//				}
-//
-//				result = new TiAnalyticsEvent(EVENT_APP_GEO, EVENT_APP_GEO, wrapper);
-//				lastLocation = location;
-//			} catch (JSONException e) {
-//				Log.e(LCAT, "Error building ti.geo event", e);
-//			}
-//		}
-//		return result;
-//	}
+	public static TiAnalyticsEvent createAppGeoEvent(Location location)
+	{
+		TiAnalyticsEvent result = null;
+		if (lastLocation == null || (location.getTime() - lastLocation.getTime() > MAX_GEO_ANALYTICS_FREQUENCY))
+		{
+			try {
+				JSONObject wrapper = new JSONObject();
+
+				wrapper.put("to", locationToJSONObject(location));
+				if (lastLocation != null) {
+					wrapper.put("from", locationToJSONObject(lastLocation));
+				} else {
+					wrapper.put("from", null);
+				}
+
+				result = new TiAnalyticsEvent(EVENT_APP_GEO, EVENT_APP_GEO, wrapper);
+				lastLocation = location;
+			} catch (JSONException e) {
+				Log.e(LCAT, "Error building ti.geo event", e);
+			}
+		}
+		return result;
+	}
 
 	protected static JSONObject locationToJSONObject(Location loc) throws JSONException
 	{
