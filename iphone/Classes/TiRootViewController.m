@@ -40,9 +40,12 @@
 
 -(void)dealloc
 {
-	RELEASE_TO_NIL(windowViewControllers);
 	RELEASE_TO_NIL(backgroundColor);
 	RELEASE_TO_NIL(backgroundImage);
+
+	RELEASE_TO_NIL(windowProxies);
+
+	RELEASE_TO_NIL(windowViewControllers);
 	RELEASE_TO_NIL(viewControllerStack);
 	[super dealloc];
 }
@@ -52,6 +55,7 @@
 	self = [super init];
 	if (self != nil)
 	{
+		windowProxies = [[NSMutableArray alloc] init];
 		viewControllerStack = [[NSMutableArray alloc] init];
 	}
 	return self;
@@ -113,6 +117,15 @@
 	}
 }
 
+-(void)pokeAtViews
+{
+	UIView * ourView = [self view];
+	UIView * parent = [ourView superview];
+	int index = [[parent subviews] indexOfObject:ourView];
+	[ourView removeFromSuperview];
+	[parent insertSubview:ourView atIndex:index];
+}
+
 
 -(void)didOrientNotify:(NSNotification *)notification
 {
@@ -127,6 +140,7 @@
 		}
 		[self willAnimateRotationToInterfaceOrientation:newOrientation duration:0];
 		windowOrientation = oldOrientation;
+		[self performSelector:@selector(pokeAtViews) withObject:nil afterDelay:0.1];
 		return;
 	}
 
@@ -287,12 +301,8 @@
 
 -(void)setOrientationModes:(NSArray *)newOrientationModes
 {
-	for (int i=0; i<MAX_ORIENTATIONS; i++)
-	{
-		allowedOrientations[i] = NO;
-	}
+	allowedOrientations = TiOrientationNone;
 
-	BOOL noOrientations = YES;
 	for (id mode in newOrientationModes)
 	{
 		UIInterfaceOrientation orientation = [TiUtils orientationValue:mode def:-1];
@@ -302,8 +312,7 @@
 			case UIDeviceOrientationPortraitUpsideDown:
 			case UIDeviceOrientationLandscapeLeft:
 			case UIDeviceOrientationLandscapeRight:
-				allowedOrientations[orientation] = YES;
-				noOrientations = NO;
+				TI_ORIENTATION_SET(allowedOrientations,orientation);
 				break;
 			case -1:
 				break;
@@ -313,15 +322,17 @@
 		}
 	}
 	
-	if (noOrientations)
+	if (allowedOrientations == TiOrientationNone)
 	{
-		allowedOrientations[UIInterfaceOrientationPortrait] = YES;
 		if ([TiUtils isIPad])
 		{
-			allowedOrientations[UIInterfaceOrientationPortraitUpsideDown] = YES;
-			allowedOrientations[UIInterfaceOrientationLandscapeLeft] = YES;
-			allowedOrientations[UIInterfaceOrientationLandscapeRight] = YES;
+			allowedOrientations = TiOrientationAny;
 		}
+		else
+		{
+			allowedOrientations = TiOrientationPortrait;
+		}
+
 	}
 }
 
@@ -335,8 +346,25 @@
 	[self enforceOrientationModesFromWindow:currentWindow];
 }
 
+-(UIInterfaceOrientation)mostRecentlyAllowedOrientation
+{
+	UIInterfaceOrientation requestedOrientation = [[UIApplication sharedApplication] statusBarOrientation];
+	NSTimeInterval latestRequest = 0.0;
+	for (int i=0; i<MAX_ORIENTATIONS; i++)
+	{
+		if (TI_ORIENTATION_ALLOWED(allowedOrientations,i) && (orientationRequestTimes[i]>latestRequest))
+		{
+			requestedOrientation = i;
+			latestRequest = orientationRequestTimes[i];
+		}
+	}
+	return requestedOrientation;
+}
+
 -(void)enforceOrientationModesFromWindow:(TiWindowProxy *) newCurrentWindow
 {	
+	return;
+
 	currentWindow = newCurrentWindow;
 
 	Class arrayClass = [NSArray class];
@@ -382,30 +410,19 @@
 		[self setOrientationModes:nil];
 	}
 
-	if(allowedOrientations[lastOrientation] || (lastOrientation == 0))
+	if(TI_ORIENTATION_ALLOWED(allowedOrientations,lastOrientation) || (lastOrientation == 0))
 	{
 		return; //Nothing to enforce.
 	}
-
-	UIInterfaceOrientation requestedOrientation = [[UIApplication sharedApplication] statusBarOrientation];
-	NSTimeInterval latestRequest = 0.0;
-	for (int i=0; i<MAX_ORIENTATIONS; i++)
-	{
-		if (allowedOrientations[i] && (orientationRequestTimes[i]>latestRequest))
-		{
-			requestedOrientation = i;
-			latestRequest = orientationRequestTimes[i];
-		}
-	}
 	
-	[self manuallyRotateToOrientation:requestedOrientation];
+	[self manuallyRotateToOrientation:[self mostRecentlyAllowedOrientation]];
 }
 
 
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation 
 {
 	orientationRequestTimes[interfaceOrientation] = [NSDate timeIntervalSinceReferenceDate];
-	return allowedOrientations[interfaceOrientation];
+	return TI_ORIENTATION_ALLOWED(allowedOrientations,interfaceOrientation);
 }
 
 
@@ -563,5 +580,98 @@ What this does mean is that any
 	[[NSNotificationCenter defaultCenter] postNotificationName:kTiRemoteControlNotification object:self userInfo:[NSDictionary dictionaryWithObject:event forKey:@"event"]];
 }
 #endif
+
+#pragma mark TiOrientationFlags management.
+- (void)openWindow:(TiWindowProxy *)window withObject:(id)args
+{
+	if ([windowProxies lastObject] == window)
+	{
+		return;
+	}
+
+	if ([windowProxies containsObject:window])
+	{
+		[[window retain] autorelease];
+		[windowProxies removeObject:window];
+	}
+
+	[window setParentOrientationController:self];
+	[windowProxies addObject:window];
+	//Todo: Move all the root-attaching logic here.
+
+	[self childOrientationControllerChangedFlags:window];
+}
+
+- (void)closeWindow:(TiWindowProxy *)window withObject:(id)args
+{
+	if (![windowProxies containsObject:window])
+	{
+		return;
+	}
+	
+	BOOL wasTopWindow = [windowProxies lastObject] == window;
+
+	//Todo: Move all the root-detaching logic here.
+
+	[window setParentOrientationController:nil];
+	[windowProxies removeObject:window];
+
+	if(wasTopWindow)
+	{
+		[self childOrientationControllerChangedFlags:[windowProxies lastObject]];
+	}
+}
+
+-(void)childOrientationControllerChangedFlags:(id<TiOrientationController>) orientationController;
+{
+	//Because a modal window might not introduce new 
+
+	TiOrientationFlags newFlags = [self orientationFlags];
+	if (newFlags == allowedOrientations)
+	{
+		//No change. Nothing to update. Skip.
+		return;
+	}
+
+	allowedOrientations = newFlags;
+	if (TI_ORIENTATION_ALLOWED(allowedOrientations,lastOrientation))
+	{
+		//We're still good. No need to rotate. Skip.
+		return;
+	}
+
+	//Force a rotate to accomodate.
+	[self manuallyRotateToOrientation:[self mostRecentlyAllowedOrientation]];
+}
+
+-(void)setParentOrientationController:(id <TiOrientationController>)newParent
+{
+	//Blank method since we never have a parent.
+}
+
+-(id)parentOrientationController
+{
+	//Blank method since we never have a parent.
+	return nil;
+}
+
+-(TiOrientationFlags) orientationFlags
+{
+	for (TiWindowProxy * thisWindow in [windowProxies reverseObjectEnumerator])
+	{
+		TiOrientationFlags result = [thisWindow orientationFlags];
+		if (result != TiOrientationNone)
+		{
+			return result;
+		}
+	}
+	
+	if ([TiUtils isIPad])
+	{
+		return TiOrientationAny;
+	}
+	return TiOrientationPortrait;
+}
+
 
 @end

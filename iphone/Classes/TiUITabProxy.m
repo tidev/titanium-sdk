@@ -47,6 +47,7 @@
 	if (rootController == nil)
 	{
 		TiWindowProxy *window = [self valueForKey:@"window"];
+		[window setParentOrientationController:self];
 		rootController = [[TiUITabController alloc] initWithProxy:window tab:self];
 	}
 	return rootController;
@@ -114,7 +115,8 @@
 	}
 	
 	[newWindow _tabFocus];
-	
+	[self childOrientationControllerChangedFlags:newWindow];
+
 	opening = NO; 
 }
 
@@ -198,6 +200,7 @@
 	opening = YES;
 	BOOL animated = args!=nil && [args count] > 1 ? [TiUtils boolValue:@"animated" properties:[args objectAtIndex:1] def:YES] : YES;
 	TiUITabController *root = [[TiUITabController alloc] initWithProxy:window tab:self];
+	[window setParentOrientationController:self];
 
 	[self controller];
 	[[rootController navigationController] pushViewController:root animated:animated];
@@ -242,6 +245,7 @@
 	
 	[window retain];
 	[window _tabBlur];
+	[window setParentOrientationController:nil];
 	
 	// for this to work right, we need to sure that we always have the tab close the window
 	// and not let the window simply close by itself. this will ensure that we tell the 
@@ -251,6 +255,7 @@
 	{
 		RELEASE_TO_NIL(current);
 	}
+	[window autorelease];
 }
 
 -(void)windowClosing:(TiWindowProxy*)window animated:(BOOL)animated
@@ -387,6 +392,81 @@
 	[self updateTabBarItem];
 }
 
+
+
+- (void)viewWillAppear:(BOOL)animated;    // Called when the view is about to made visible. Default does nothing
+{
+	if ([self viewAttached])
+	{
+//		UITabBarController * tabController = [(TiUITabGroup *)[self view] tabController];
+//		[tabController viewWillAppear:animated];
+	}
+//	[super viewWillAppear:animated];
+}
+
+- (void)viewDidAppear:(BOOL)animated;     // Called when the view has been fully transitioned onto the screen. Default does nothing
+{
+	if ([self viewAttached])
+	{
+//		UITabBarController * tabController = [(TiUITabGroup *)[self view] tabController];
+//		[tabController viewDidAppear:animated];
+	}
+//	[super viewDidAppear:animated];
+}
+
+- (void)viewWillDisappear:(BOOL)animated; // Called when the view is dismissed, covered or otherwise hidden. Default does nothing
+{
+	if ([self viewAttached])
+	{
+//		UITabBarController * tabController = [(TiUITabGroup *)[self view] tabController];
+//		[tabController viewWillDisappear:animated];
+	}
+//	[super viewWillDisappear:animated];
+}
+
+- (void)viewDidDisappear:(BOOL)animated;  // Called after the view was dismissed, covered or otherwise hidden. Default does nothing
+{
+	if ([self viewAttached])
+	{
+//		UITabBarController * tabController = [(TiUITabGroup *)[self view] tabController];
+//		[tabController viewDidDisappear:animated];
+	}
+//	[super viewDidDisappear:animated];
+}
+
+@synthesize parentOrientationController;
+
+-(TiOrientationFlags)orientationFlags
+{
+	UIViewController * modalController = [controller modalViewController];
+	if ([modalController conformsToProtocol:@protocol(TiOrientationController)])
+	{
+		return [(id<TiOrientationController>)modalController orientationFlags];
+	}
+	
+	for (id thisController in [[controller viewControllers] reverseObjectEnumerator])
+	{
+		if (![thisController isKindOfClass:[TiViewController class]])
+		{
+			continue;
+		}
+		TiWindowProxy * thisProxy = [(TiViewController *)thisController proxy];
+		if ([thisProxy conformsToProtocol:@protocol(TiOrientationController)])
+		{
+			TiOrientationFlags result = [thisProxy orientationFlags];
+			if (result != TiOrientationNone)
+			{
+				return result;
+			}
+		}
+	}
+	return TiOrientationNone;
+}
+
+-(void)childOrientationControllerChangedFlags:(id<TiOrientationController>) orientationController
+{
+	[parentOrientationController childOrientationControllerChangedFlags:self];
+}
 
 @end
 
