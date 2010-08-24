@@ -786,7 +786,7 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 		return;
 	}
 	orientationFlags = newFlags;
-	[parentOrientationController childOrientationControllerChangedFlags:self];
+	[parentOrientationController performSelectorOnMainThread:@selector(childOrientationControllerChangedFlags:) withObject:self waitUntilDone:NO];
 }
 
 
