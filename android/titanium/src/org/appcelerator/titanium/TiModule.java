@@ -47,6 +47,7 @@ public abstract class TiModule
 	public static TiModule getModule(String name)
 	{
 		WeakReference<TiModule> m = modules.get(name);
+	    Log.d(LCAT,"trying to retrieve module: "+name+", result: "+m);
 		return m == null ? null : m.get();
 	}
 	

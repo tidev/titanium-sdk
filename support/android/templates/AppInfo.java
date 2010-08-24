@@ -9,7 +9,7 @@ import org.appcelerator.titanium.util.Log;
  * Warning - this class was generated from your application's tiapp.xml
  * Any changes you make here will be overwritten
  */
-public class ${config['classname']}AppInfo implements ITiAppInfo
+public final class ${config['classname']}AppInfo implements ITiAppInfo
 {
 	private static final String LCAT = "AppInfo";
 	

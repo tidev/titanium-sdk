@@ -447,9 +447,7 @@ public class KrollObject extends ScriptableObject
 		}
 
 		String moduleName = createModuleName(name);
-		if (DBG) {
-			Log.d(LCAT, "Module: " + moduleName);
-		}
+		Log.d(LCAT, "Loading Module: " + moduleName+" ("+name+")");
 
 		try {
 			Class<?> c = Class.forName(moduleName);

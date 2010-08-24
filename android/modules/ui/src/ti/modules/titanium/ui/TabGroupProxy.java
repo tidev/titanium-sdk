@@ -233,7 +233,7 @@ public class TabGroupProxy extends TiWindowProxy
 		int i = 0;
 		for(TabProxy t : tabs) {
 			String title = (String) t.getDynamicValue("title");
-			if (title.equals(id)) {
+			if (title!=null && title.equals(id)) {
 				index = i;
 				break;
 			}

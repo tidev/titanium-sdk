@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+	<string name="welcome_message">Bienvenido a Kitchen Sink for Titanium/</string>
+	<string name="user_agent_message">agente de usuario establecido en</string>
+	<string name="format_test">Su nombre es %s</string>
+</resources>

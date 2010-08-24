@@ -6,8 +6,9 @@
 # Resource to Android Page Compiler
 # Handles JS, CSS and HTML files only
 #
-import os, sys, re, shutil, tempfile, run
+import os, sys, re, shutil, tempfile, run, codecs, traceback, types
 import jspacker 
+from xml.sax.saxutils import escape
 from sgmllib import SGMLParser
 from csspacker import CSSPacker
 from deltafy import Deltafy
@@ -29,11 +30,13 @@ class ScriptProcessor(SGMLParser):
 
 class Compiler(object):
 	
-	def __init__(self,appid,project_dir,java,classes_dir):
+	def __init__(self,name,appid,project_dir,java,classes_dir,root_dir):
 		self.java = java
+		self.appname = name
 		self.classes_dir = classes_dir
 		self.template_dir = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
 		self.appid = appid
+		self.root_dir = root_dir
 		self.project_dir = os.path.abspath(os.path.expanduser(project_dir))
 		# these modules are always required 
 		# TODO: review these
@@ -86,17 +89,33 @@ class Compiler(object):
 			self.extract_and_combine_modules('Ti',line)
 	
 	def compile_into_bytecode(self,paths):
-		jar_path = os.path.join(self.template_dir,"js.jar")
-		for package in paths:
-			args = [self.java,"-cp",jar_path,"org.mozilla.javascript.tools.jsc.Main","-opt","9","-nosource","-package",package,"-d",self.classes_dir]
-			count = 0
-			for path in paths[package]:
-				# skip any JS found inside HTML <script>
-				if path in self.html_scripts: continue
-				args.append(path)
-				count+=1
-				self.compiled_files.append(path)
-			if count > 0: run.run(args)
+		res_dir = os.path.join(self.root_dir,'res','values')
+		if not os.path.exists(res_dir):
+			os.makedirs(res_dir)
+
+		f = os.path.join(res_dir,"app.xml")
+		ff = codecs.open( f, "w", encoding="utf-8" )
+		ff.write(u'<?xml version="1.0" encoding="utf-8"?>\n')
+		ff.write(u'<resources>\n')
+		
+		for fullpath in paths:
+			# skip any JS found inside HTML <script>
+			if fullpath in self.html_scripts: continue
+			
+			path, contents = paths[fullpath]
+			contents = contents.replace('Titanium.','Ti.')
+			contents = contents.replace("\"","\\\"")
+			contents = contents.replace("'","\\'")
+			contents = escape(contents)
+
+			ff.write(u'<string name="a$%s">' % path)
+			ff.write(contents)
+			ff.write(u'</string>\n')
+			
+			self.compiled_files.append(fullpath)
+			
+		ff.write(u'</resources>\n')
+		ff.close()
 		
 	def get_ext(self, path):
 		fp = os.path.splitext(path)
@@ -105,12 +124,16 @@ class Compiler(object):
 	def make_function_from_file(self, path, pack=True):
 		ext = self.get_ext(path)
 		path = os.path.expanduser(path)
-		file_contents = open(path).read()
+		file_contents = codecs.open(path,'r',encoding='utf-8').read()
 			
-		if pack: self.pack(path, ext, file_contents)
+		if pack: 
+			file_contents = self.pack(path, ext, file_contents)
+			
 		if ext == 'js':
 			# determine which modules this file is using
 			self.extract_modules(file_contents)
+			
+		return file_contents
 		
 	def pack(self, path, ext, file_contents):
 		def jspack(c): return jspacker.jsmin(c)
@@ -119,13 +142,13 @@ class Compiler(object):
 		packers = {'js': jspack, 'css': csspack }
 		if ext in packers:
 			file_contents = packers[ext](file_contents)
-			of = open(path,'w')
+			of = codecs.open(path,'w',encoding='utf-8')
 			of.write(file_contents)
 			of.close()
-			print "[DEBUG] packed: %s" % path
+		return file_contents
 	
 	def extra_source_inclusions(self,path):
-		content = open(path).read()
+		content = codecs.open(path,'r',encoding='utf-8').read()
 		p = ScriptProcessor()
 		p.feed(content)
 		p.close()
@@ -137,6 +160,8 @@ class Compiler(object):
 			self.html_scripts.append(p)
 			
 	def compile(self):
+		print "[INFO] Compiling Javascript resources ..."
+		sys.stdout.flush()
 		for root, dirs, files in os.walk(self.project_dir):
 			for dir in dirs:
 				if dir in ignoreDirs:
@@ -146,24 +171,21 @@ class Compiler(object):
 				for f in files:
 					fp = os.path.splitext(f)
 					if len(fp)!=2: continue
+					if fp[1] == '.jss': continue
 					if not fp[1] in ['.html','.js','.css']: continue
 					if f in ignoreFiles: continue
 					fullpath = os.path.join(root,f)
-					#pack = deltas.has_path(fullpath)
-					pack = False # ?
 					if fp[1] == '.html':
 						self.extra_source_inclusions(fullpath)
 					if fp[1] == '.js':
 						relative = prefix[1:]
-						package = "org.appcelerator.generated"
-						if len(relative)>0:
-							relative = relative.replace('/','.').replace('\\','.')
-							package += ".%s" % relative
-						if self.js_files.has_key(package):
-							self.js_files[package].append(fullpath)
+						js_contents = self.make_function_from_file(fullpath, pack=False)
+						if relative!='':
+							key = "%s_%s" % (relative,f)
 						else:
-							self.js_files[package] = [fullpath]
-					self.make_function_from_file(fullpath, pack=pack)
+							key = f
+						key = key.replace('.js','').replace('/','_').replace(' ','_').replace('.','_')
+						self.js_files[fullpath] = (key, js_contents)
 		self.compile_into_bytecode(self.js_files)
 					
 					

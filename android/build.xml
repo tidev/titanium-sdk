@@ -75,6 +75,7 @@
 		<build-module name="android"/>
 		<build-module name="contacts"/>
 		<build-module name="calendar"/>
+		<build-module name="locale"/>
 		
 		<build-module name="media">
 			<classpath path="${classesdir}/filesystem"/>

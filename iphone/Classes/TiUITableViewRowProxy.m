@@ -873,7 +873,10 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 	}
 	NSInteger index = [table indexForRow:self];
 	[dict setObject:NUMINT(index) forKey:@"index"];
-	[dict setObject:section forKey:@"section"];
+    // TODO: We really need to ensure that a row's section is set upon creation - even if this means changing how tables work.
+    if (section != nil) {
+        [dict setObject:section forKey:@"section"];
+    }
 	[dict setObject:self forKey:@"row"];
 	[dict setObject:self forKey:@"rowData"];
 	[dict setObject:NUMBOOL(NO) forKey:@"detail"];

@@ -71,7 +71,37 @@ public abstract class TiViewProxy extends TiProxy implements Handler.Callback
 	{
 		super(tiContext);
 		if (args.length > 0) {
-			setProperties((TiDict) args[0]);
+		    
+		    TiDict options = (TiDict) args[0];
+		    
+		    // check to see if we have an idea and if so, we're going to 
+		    // use that ID to lookup a stylesheet
+		    if (options.containsKey("id"))
+		    {
+		        String key = (String)options.get("id");
+		        String type = getClass().getSimpleName().replace("Proxy","").toLowerCase();
+		        String base = tiContext.getBaseUrl();
+		        if (base.equals("app://"))
+		        {
+		            base = "/app.js";
+		        }
+		        int idx = base.lastIndexOf("/");
+		        if (idx != -1)
+		        {
+		            base = base.substring(idx+1).replace(".js","");
+		        }
+		        TiDict dict = tiContext.getTiApp().getStylesheet(base,type,key);
+		        Log.d(LCAT,"trying to get stylesheet for base:"+base+",type:"+type+",key:"+key+",dict:"+dict);
+		        if (dict!=null)
+		        {
+		            // merge in our stylesheet details to the passed in dictionary
+		            // our passed in dictionary takes precedence over the stylesheet
+		            dict.putAll(options);
+		            options = dict;
+		        }
+		    }
+		    
+			setProperties(options);
 		}
 	}
 
