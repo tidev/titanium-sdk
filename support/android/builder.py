@@ -74,9 +74,10 @@ def parse_r(fn):
             cur = None
         else:
             idx = line.find('final int ')
-            res = line[idx+10:-1]
-            k,v = res.split("=")
-            map[cur][k]=v
+            if idx != -1:
+                res = line[idx+10:-1]
+                k,v = res.split("=")
+                map[cur][k]=v
     return package,map
 
 def generate_appc_r(package,map):
