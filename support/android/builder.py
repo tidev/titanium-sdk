@@ -394,7 +394,60 @@ class Builder(object):
 		if not isfile and os.path.basename(path) in ignoreDirs: return False
 		elif isfile and os.path.basename(path) in ignoreFiles: return False
 		return True
-	
+
+	def copy_density_images(self):
+
+		def density_from_path(path):
+			normalized = path.replace("\\", "/")
+			density = 'm'
+			matches = re.search("/android/images/(?P<density>high|medium|low)/", normalized)
+			if matches and matches.groupdict() and 'density' in matches.groupdict():
+				density = matches.groupdict()['density'][0]
+			else:
+				trace('density_from_path did not find density for %s' % orig) # should be impossible
+			return density
+
+
+		def make_density_image_filename(orig):
+			normalized = orig.replace("\\", "/")
+			matches = re.search("/android/images/(high|medium|low)/(?P<chopped>.*$)", normalized)
+			if matches and matches.groupdict() and 'chopped' in matches.groupdict():
+				return matches.groupdict()['chopped'].replace("/", "_").lower()
+			else:
+				trace("Regexp for density image file %s failed" % orig)
+				return None
+
+		def delete_density_image(orig):
+			density = density_from_path(orig)
+			res_file = os.path.join(self.res_dir, 'drawable-%sdpi' % density, make_density_image_filename(orig))
+			if os.path.exists(res_file):
+				try:
+					os.remove(res_file)
+				except:
+					warn('Unable to delete %s: %s. Execution will continue.' % (res_file, sys.exc_info()[0]))
+
+		def copy_density_image(delta):
+			orig = delta.get_path()
+			density = density_from_path(orig)
+			dest_folder = os.path.join(self.res_dir, 'drawable-%sdpi' % density)
+			dest_filename = make_density_image_filename(orig)
+			if dest_filename is None:
+				return
+			dest = os.path.join(dest_folder, dest_filename)
+			if not os.path.exists(dest_folder):
+				os.makedirs(dest_folder)
+			trace("COPYING %s FILE: %s => %s" % (delta.get_status_str(), orig, dest))
+			shutil.copy(orig, dest)
+
+		if self.project_deltas:
+			for delta in self.project_deltas:
+				path = delta.get_path()
+				if re.search("android/images/(high|medium|low)/", path.replace("\\", "/")):
+					if delta.get_status() == Delta.DELETED:
+						delete_density_image(path)
+					else:
+						copy_density_image(delta)
+
 	def copy_project_resources(self):
 		info("Copying project resources..")
 		sys.stdout.flush()
@@ -423,58 +476,11 @@ class Builder(object):
 				return os.path.join(prefix, relative_path)
 			return relative_path
 
-		def density_from_path(path):
-			normalized = path.replace("\\", "/")
-			density = 'm'
-			matches = re.search("/android/images/(?P<density>high|medium|low)/", normalized)
-			if matches and matches.groupdict() and 'density' in matches.groupdict():
-				density = matches.groupdict()['density'][0]
-			else:
-				trace('density_from_path did not find density for %s' % orig) # should be impossible
-			return density
-
-
-		def make_density_image_filename(orig):
-			normalized = orig.replace("\\", "/")
-			matches = re.search("/android/images/(high|medium|low)/(?P<chopped>.*$)", normalized)
-			if matches and matches.groupdict() and 'chopped' in matches.groupdict():
-				return matches.groupdict()['chopped'].replace("/", "_")
-			else:
-				trace("Regexp for density image file %s failed" % orig)
-				return None
-
-		def delete_density_image(orig):
-			density = density_from_path(orig)
-			res_file = os.path.join(self.res_dir, 'drawable-%sdpi' % density, make_density_image_filename(orig))
-			if os.path.exists(res_file):
-				try:
-					os.remove(res_file)
-				except:
-					warn('Unable to delete %s: %s. Execution will continue.' % (res_file, sys.exc_info()[0]))
-
-
-
-		def copy_density_image(delta):
-			orig = delta.get_path()
-			density = density_from_path(orig)
-			dest_folder = os.path.join(self.res_dir, 'drawable-%sdpi' % density)
-			dest_filename = make_density_image_filename(orig)
-			if dest_filename is None:
-				return
-			dest = os.path.join(dest_folder, dest_filename)
-			if not os.path.exists(dest_folder):
-				os.makedirs(dest_folder)
-			trace("COPYING %s FILE: %s => %s" % (delta.get_status_str(), orig, dest))
-			shutil.copy(orig, dest)
-
 		for delta in self.project_deltas:
 			path = delta.get_path()
 			if re.search("android/images/(high|medium|low)/", path.replace("\\", "/")):
-				if delta.get_status() == Delta.DELETED:
-					delete_density_image(path)
-				else:
-					copy_density_image(delta)
-				continue
+				continue # density images are handled later
+
 			if delta.get_status() == Delta.DELETED and path.startswith(android_resources_dir):
 				shared_path = path.replace(android_resources_dir, resources_dir, 1)
 				if os.path.exists(shared_path):
@@ -1013,6 +1019,8 @@ class Builder(object):
 
 			if not os.path.exists(self.assets_dir):
 				os.makedirs(self.assets_dir)
+
+			self.copy_density_images()
 
 			manifest_changed = self.generate_android_manifest(compiler)
 
