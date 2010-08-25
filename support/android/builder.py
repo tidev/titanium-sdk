@@ -412,16 +412,21 @@ class Builder(object):
 			normalized = orig.replace("\\", "/")
 			matches = re.search("/android/images/(high|medium|low)/(?P<chopped>.*$)", normalized)
 			if matches and matches.groupdict() and 'chopped' in matches.groupdict():
-				chopped = matches.groupdict()['chopped']
-				cleaned = re.sub(r'[^a-z0-9\._]', '_', chopped.lower())
+				chopped = matches.groupdict()['chopped'].lower()
 				extension = ""
-				without_extension = cleaned
-				if re.search("\\..*$", cleaned):
-					extension = cleaned.split(".")[-1]
-					without_extension = cleaned[:-(len(extension)+1)]
-				result = without_extension.lower()[:80] + "_" + hashlib.md5(chopped).hexdigest()[:10]
+				without_extension = chopped
+				if re.search("\\..*$", chopped):
+					if chopped.endswith('.9.png'):
+						extension = '9.png'
+						without_extension = chopped[:-6]
+					else:
+						extension = chopped.split(".")[-1]
+						without_extension = chopped[:-(len(extension)+1)]
+				cleaned_without_extension = re.sub(r'[^a-z0-9_]', '_', without_extension)
+				cleaned_extension = re.sub(r'[^a-z0-9\._]', '_', extension)
+				result = cleaned_without_extension[:80] + "_" + hashlib.md5(chopped).hexdigest()[:10]
 				if extension:
-					result += "." + extension.lower()
+					result += "." + extension
 				return result
 			else:
 				trace("Regexp for density image file %s failed" % orig)
