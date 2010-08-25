@@ -431,17 +431,17 @@ public abstract class TiUIView
 				}
 				vg.removeAllViews();
 			}
-		}
-
-		Drawable d = nv.getBackground();
-		if (d != null) {
-			nv.setBackgroundDrawable(null);
-			d.setCallback(null);
-			if (d instanceof TiBackgroundDrawable) {
-				((TiBackgroundDrawable)d).releaseDelegate();
+			Drawable d = nv.getBackground();
+			if (d != null) {
+				nv.setBackgroundDrawable(null);
+				d.setCallback(null);
+				if (d instanceof TiBackgroundDrawable) {
+					((TiBackgroundDrawable)d).releaseDelegate();
+				}
+				d = null;
 			}
-			d = null;
 		}
+		
 	}
 
 	public void show()

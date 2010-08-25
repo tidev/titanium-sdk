@@ -61,6 +61,7 @@ CGPoint midpointBetweenPoints(CGPoint a, CGPoint b);
 
 #define RELEASE_TO_NIL(x) { if (x!=nil) { [x release]; x = nil; } }
 #define RELEASE_TO_NIL_AUTORELEASE(x) { if (x!=nil) { [x autorelease]; x = nil; } }
+#define RELEASE_AND_REPLACE(x,y) { [x release]; x = [y retain]; }
 
 #define CODELOCATION	[NSString stringWithFormat:@" in %s (%@:%d)",__FUNCTION__,[[NSString stringWithFormat:@"%s",__FILE__] lastPathComponent],__LINE__]
 

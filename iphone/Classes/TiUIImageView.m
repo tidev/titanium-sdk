@@ -531,6 +531,7 @@ DEFINE_EXCEPTIONS
 	{
 		// called within this class
 		image = (UIImage*)arg; 
+		image = [self scaleImageIfRequired:image];
 	}
 	
 	return image;
@@ -655,6 +656,7 @@ DEFINE_EXCEPTIONS
 	{
 		// called within this class
 		image = (UIImage*)arg;
+		image = [self scaleImageIfRequired:image];
 	}
 	else 
 	{
@@ -727,7 +729,8 @@ DEFINE_EXCEPTIONS
 -(void)setUrl_:(id)img
 {
 	NSLog(@"[WARN] the 'url' property on ImageView has been deprecated. Please use 'image' instead");
-	[self.proxy replaceValue:img forKey:@"image" notification:YES];
+	// setImage_ does the property replacement for us; no need to do it twice.
+	[self setImage_:img];
 	return;
 }
 

@@ -43,12 +43,24 @@
 	[(TiUIiPadSplitWindow*)[self view] setToolbar:items withObject:properties];
 }
 
-//-(id)orientationModes;
-//{
-//	TiWindowProxy * detailProxy = [self valueForUndefinedKey:@"detailView"];
-//	id orientation = [detailProxy valueForKey:@"orientationModes"];
-//	return orientation;
-//}
+
+-(void)setDetailView:(id<TiOrientationController>)newDetailView
+{
+	ENSURE_UI_THREAD_1_ARG(newDetailView);
+	if (newDetailView == detailView)
+	{
+		return;
+	}
+	[detailView setParentOrientationController:nil];
+	[newDetailView setParentOrientationController:self];
+	RELEASE_AND_REPLACE(detailView,newDetailView);
+	[self replaceValue:newDetailView forKey:@"detailView" notification:YES];
+}
+
+-(TiOrientationFlags)orientationFlags
+{
+	return [detailView orientationFlags];
+}
 
 @end
 

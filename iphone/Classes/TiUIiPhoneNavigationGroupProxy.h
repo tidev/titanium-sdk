@@ -7,8 +7,9 @@
 #ifdef USE_TI_UIIPHONENAVIGATIONGROUP
 
 #import "TiViewProxy.h"
+#import "TiWindowProxy.h"
 
-@interface TiUIiPhoneNavigationGroupProxy : TiViewProxy {
+@interface TiUIiPhoneNavigationGroupProxy : TiViewProxy<TiOrientationController> {
 @private
 }
 

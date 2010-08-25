@@ -276,6 +276,11 @@
 	[self performSelector:@selector(release) withObject:nil afterDelay:0.5];
 }
 
+- (UIViewController *)childViewController;
+{
+	return nil;
+}
+
 
 @end
 #endif
