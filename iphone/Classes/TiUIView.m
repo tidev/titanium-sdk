@@ -786,13 +786,10 @@ DEFINE_EXCEPTIONS
 			continue;
 		}
 	
+		// Always set the new value, even if 'equal' - some view setters (as in UIImageView)
+		// use internal voodoo to determine what to display.
+		// TODO: We may be able to take this out once the imageView.url property is taken out, and change it back to an equality test.
 		id newValue = [newProxy valueForUndefinedKey:thisKey];
-		id oldValue = [oldProxy valueForUndefinedKey:thisKey];
-		if([newValue isEqual:oldValue])
-		{
-			continue;
-		}
-		
 		[self setKrollValue:newValue forKey:thisKey withObject:nil];
 	}
 

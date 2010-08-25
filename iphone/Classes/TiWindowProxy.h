@@ -11,10 +11,38 @@
 #import "TiUIView.h"
 #import "TiViewController.h"
 
+typedef enum
+{
+	TiOrientationNone = 0,
+	TiOrientationAny = 0xFFFF,
+	
+	TiOrientationPortrait			= 1 << UIInterfaceOrientationPortrait,
+	TiOrientationPortraitUpsideDown	= 1 << UIInterfaceOrientationPortraitUpsideDown,
+	TiOrientationLandscapeLeft		= 1 << UIInterfaceOrientationLandscapeLeft,
+	TiOrientationLandscapeRight		= 1 << UIInterfaceOrientationLandscapeRight,
+
+	TiOrientationLandscapeOnly		= TiOrientationLandscapeLeft | TiOrientationLandscapeRight,
+	TiOrientationPortraitOnly		= TiOrientationPortrait | TiOrientationPortraitUpsideDown,
+	
+} TiOrientationFlags;
+
+#define TI_ORIENTATION_ALLOWED(flag,bit)	(flag & (1<<bit))
+#define TI_ORIENTATION_SET(flag,bit)		(flag |= (1<<bit))
+
+@protocol TiOrientationController
+
+@property(nonatomic,readwrite,assign)	id<TiOrientationController> parentOrientationController;
+@property(nonatomic,readonly,assign)	TiOrientationFlags orientationFlags;
+-(void)childOrientationControllerChangedFlags:(id<TiOrientationController>) orientationController;
+
+@end
+
+TiOrientationFlags TiOrientationFlagsFromObject(id args);
+
 // specialization for TiViews that act like top level 
 // windows when opened, closed, etc.
 //
-@interface TiWindowProxy : TiViewProxy<TiAnimationDelegate,TiUIViewController> {
+@interface TiWindowProxy : TiViewProxy<TiAnimationDelegate,TiUIViewController,TiOrientationController> {
 @protected
 	BOOL opened;
 	BOOL focused;
@@ -34,7 +62,13 @@
 	NSMutableArray *reattachWindows;
 	UIView *closeView;
 	UIViewController *tempController;
+
+	id<TiOrientationController> parentOrientationController;
+	TiOrientationFlags orientationFlags;
 }
+
+@property(nonatomic,readwrite,assign)	id<TiOrientationController> parentOrientationController;
+@property(nonatomic,readonly,assign)	TiOrientationFlags orientationFlags;
 
 -(void)fireFocus:(BOOL)newFocused;
 

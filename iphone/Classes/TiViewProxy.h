@@ -190,4 +190,8 @@ enum
 #define USE_VIEW_FOR_AUTO_WIDTH		USE_VIEW_FOR_METHOD(CGFloat,autoWidthForWidth,CGFloat)
 #define USE_VIEW_FOR_AUTO_HEIGHT	USE_VIEW_FOR_METHOD(CGFloat,autoHeightForWidth,CGFloat)
 
-
+#define DECLARE_VIEW_CLASS_FOR_NEWVIEW(viewClass)	\
+-(TiUIView*)newView	\
+{	\
+	return [[viewClass alloc] init];	\
+}

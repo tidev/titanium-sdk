@@ -13,7 +13,7 @@
 @interface TiUIiPadSplitWindowProxy : TiWindowProxy {
 
 @private
-
+	id<TiOrientationController> detailView;
 }
 
 @end

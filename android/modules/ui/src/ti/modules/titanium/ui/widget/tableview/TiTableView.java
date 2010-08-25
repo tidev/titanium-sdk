@@ -482,6 +482,7 @@ public class TiTableView extends FrameLayout
 		if (adapter != null) {
 			tiContext.getActivity().runOnUiThread(new Runnable() {
 				public void run() {
+					Log.d(LCAT, "*************  weird thing ********");
 					dataSetChanged();
 				}
 			});
@@ -495,6 +496,22 @@ public class TiTableView extends FrameLayout
 
 	public void setFilterCaseInsensitive(boolean filterCaseInsensitive) {
 		this.filterCaseInsensitive  = filterCaseInsensitive;
+	}
+	
+	public void release() 
+	{
+		adapter = null;
+		
+		if (listView != null) {
+			listView.setAdapter(null);
+		}
+		listView = null;
+		if (viewModel != null) {
+			viewModel.release();
+		}
+		viewModel = null;
+		itemClickListener = null;
+		tiContext = null;
 	}
 
 //	public void setData(Object[] rows) {

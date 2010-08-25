@@ -285,6 +285,20 @@ public class TiUITableView extends TiUIView
 
 
 	@Override
+	public void release()
+	{
+		if (tableView != null) {
+			tableView.release();
+			tableView  = null;
+		}
+		nativeView  = null;
+		handler = null;
+		modifySemaphore = null;
+		searchBar = null;
+		super.release();
+	}
+
+	@Override
 	public void propertyChanged(String key, Object oldValue, Object newValue,
 			TiProxy proxy) {
 		if (DBG) {
