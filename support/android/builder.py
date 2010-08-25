@@ -4,7 +4,7 @@
 # Android Simulator for building a project and launching
 # the Android Emulator or on the device
 #
-import os, sys, subprocess, shutil, time, signal, string, platform, re, glob
+import os, sys, subprocess, shutil, time, signal, string, platform, re, glob, hashlib
 import run, avd, prereq
 from os.path import splitext
 from compiler import Compiler
@@ -412,7 +412,17 @@ class Builder(object):
 			normalized = orig.replace("\\", "/")
 			matches = re.search("/android/images/(high|medium|low)/(?P<chopped>.*$)", normalized)
 			if matches and matches.groupdict() and 'chopped' in matches.groupdict():
-				return matches.groupdict()['chopped'].replace("/", "_").lower()
+				chopped = matches.groupdict()['chopped']
+				cleaned = re.sub(r'[^a-z0-9\._]', '_', chopped.lower())
+				extension = ""
+				without_extension = cleaned
+				if re.search("\\..*$", cleaned):
+					extension = cleaned.split(".")[-1]
+					without_extension = cleaned[:-(len(extension)+1)]
+				result = without_extension.lower()[:80] + "_" + hashlib.md5(chopped).hexdigest()[:10]
+				if extension:
+					result += "." + extension.lower()
+				return result
 			else:
 				trace("Regexp for density image file %s failed" % orig)
 				return None
