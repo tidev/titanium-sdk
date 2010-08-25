@@ -79,14 +79,16 @@ updateUI = function(e) {
 			service:service
 		});
 		
-		service.resolve();
-		service.socket.addEventListener('read', function(x) {
-			Titanium.UI.createAlertDialog({
-				title:'Bonjour message!',
-				message:x['data'].text
-			}).show();
-		});
-		service.socket.connect();
+		if (service.socket == null || !service.socket.isValid) {
+			service.resolve();
+			service.socket.addEventListener('read', function(x) {
+				Titanium.UI.createAlertDialog({
+					title:'Bonjour message!',
+					message:x['data'].text
+				}).show();
+			});
+			service.socket.connect();
+		}
 		
 		data.push(row);
 	}
@@ -110,13 +112,13 @@ Titanium.UI.currentWindow.addEventListener('close', function(e) {
 	Titanium.API.info('Stopped search...');
 	localService.stop();
 	Titanium.API.info('Stopped service...');
-	if (bonjourSocket.isValid()) {
+	if (bonjourSocket.isValid) {
 		bonjourSocket.close();
 	}
 	Titanium.API.info('Closed socket...');
 	for (var i=0; i < services.length; i++) {
 		var service = services[i];
-		if (service.socket.isValid()) {
+		if (service.socket.isValid) {
 			service.socket.close();
 		}
 		Titanium.API.info('Closed socket to service '+service.name+"...");
