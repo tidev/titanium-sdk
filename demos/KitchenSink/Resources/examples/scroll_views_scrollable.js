@@ -1,3 +1,5 @@
+Ti.include('../examples/orientation.js'); // needed for getOrientation()
+
 var win = Titanium.UI.currentWindow;
 win.backgroundColor = '#ccc';
 
