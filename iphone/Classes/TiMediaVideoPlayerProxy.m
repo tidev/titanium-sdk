@@ -737,7 +737,9 @@ NSArray* moviePlayerKeys = nil;
 	// Movie players are picky.  You can't set the fullscreen value until
 	// the movie's size has been determined, so we always have to cache the value - just in case
 	// it's set before then.
-	[loadProperties setValue:value forKey:@"fullscreen"];
+	if (!sizeDetermined || movie == nil) {
+		[loadProperties setValue:value forKey:@"fullscreen"];
+	}
 }
 #endif
 
@@ -1042,6 +1044,7 @@ NSArray* moviePlayerKeys = nil;
 		NSDictionary *event = [NSDictionary dictionaryWithObject:[self naturalSize] forKey:@"naturalSize"];
 		[self deliverEventOnBackgroundThread:@"naturalSizeAvailable" withObject:event];
 	}
+	sizeDetermined = YES;
 }
 
 -(void)handleLoadStateChangeNotification:(NSNotification*)note
