@@ -18,9 +18,6 @@ public final class ${config['classname']}Application extends TiApplication {
 	public final Integer getDrawableID(String key) { return RA.getDrawable(key); }
 	
 	@Override
-	public final Integer getStringID(String key) { return RA.getString(key); }
-	
-	@Override
 	public final Integer getAttrID(String key) { return RA.getAttr(key); }
 	
 }
