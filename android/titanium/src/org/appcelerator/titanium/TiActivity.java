@@ -226,63 +226,62 @@ public class TiActivity extends Activity
 	public boolean dispatchKeyEvent(KeyEvent event) 
 	{
 		boolean handled = false;
-		Log.e(LCAT, "Key: " + event.getKeyCode());
-			switch(event.getKeyCode()) {
-				case KeyEvent.KEYCODE_BACK : {
-					if (proxy.hasListeners("android:back")) {
-						if (event.getAction() == KeyEvent.ACTION_UP) {
-							proxy.fireEvent("android:back", null);
-						}
-						handled = true;
+		switch(event.getKeyCode()) {
+			case KeyEvent.KEYCODE_BACK : {
+				if (proxy.hasListeners("android:back")) {
+					if (event.getAction() == KeyEvent.ACTION_UP) {
+						proxy.fireEvent("android:back", null);
 					}
-					break;
+					handled = true;
 				}
-				case KeyEvent.KEYCODE_CAMERA : {
-					if (proxy.hasListeners("android:camera")) {
-						if (event.getAction() == KeyEvent.ACTION_UP) {
-							proxy.fireEvent("android:camera", null);
-						}
-						handled = true;
-					}										
-					break;
-				}
-				case KeyEvent.KEYCODE_FOCUS : {
-					if (proxy.hasListeners("android:focus")) {
-						if (event.getAction() == KeyEvent.ACTION_UP) {
-							proxy.fireEvent("android:focus", null);
-						}
-						handled = true;
-					}										
-					break;
-				}
-				case KeyEvent.KEYCODE_SEARCH : {
-					if (proxy.hasListeners("android:search")) {
-						if (event.getAction() == KeyEvent.ACTION_UP) {
-							proxy.fireEvent("android:search", null);
-						}
-						handled = true;
-					}										
-					break;
-				}
-				case KeyEvent.KEYCODE_VOLUME_UP : {
-					if (proxy.hasListeners("android:volup")) {
-						if (event.getAction() == KeyEvent.ACTION_UP) {
-							proxy.fireEvent("android:volup", null);
-						}
-						handled = true;
-					}										
-					break;
-				}
-				case KeyEvent.KEYCODE_VOLUME_DOWN : {
-					if (proxy.hasListeners("android:voldown")) {
-						if (event.getAction() == KeyEvent.ACTION_UP) {
-							proxy.fireEvent("android:voldown", null);
-						}
-						handled = true;
-					}										
-					break;
-				}
+				break;
 			}
+			case KeyEvent.KEYCODE_CAMERA : {
+				if (proxy.hasListeners("android:camera")) {
+					if (event.getAction() == KeyEvent.ACTION_UP) {
+						proxy.fireEvent("android:camera", null);
+					}
+					handled = true;
+				}										
+				break;
+			}
+			case KeyEvent.KEYCODE_FOCUS : {
+				if (proxy.hasListeners("android:focus")) {
+					if (event.getAction() == KeyEvent.ACTION_UP) {
+						proxy.fireEvent("android:focus", null);
+					}
+					handled = true;
+				}										
+				break;
+			}
+			case KeyEvent.KEYCODE_SEARCH : {
+				if (proxy.hasListeners("android:search")) {
+					if (event.getAction() == KeyEvent.ACTION_UP) {
+						proxy.fireEvent("android:search", null);
+					}
+					handled = true;
+				}										
+				break;
+			}
+			case KeyEvent.KEYCODE_VOLUME_UP : {
+				if (proxy.hasListeners("android:volup")) {
+					if (event.getAction() == KeyEvent.ACTION_UP) {
+						proxy.fireEvent("android:volup", null);
+					}
+					handled = true;
+				}										
+				break;
+			}
+			case KeyEvent.KEYCODE_VOLUME_DOWN : {
+				if (proxy.hasListeners("android:voldown")) {
+					if (event.getAction() == KeyEvent.ACTION_UP) {
+						proxy.fireEvent("android:voldown", null);
+					}
+					handled = true;
+				}										
+				break;
+			}
+		}
 			
 		if (!handled) {
 			handled = super.dispatchKeyEvent(event);

@@ -108,17 +108,17 @@ public class FileProxy extends TiFile
 		return tbf.copy(destination);
 	}
 
-	public void createDirectory(Object arg) {
+	public boolean createDirectory(Object arg) {
 		boolean recursive = true;
 
 		if (arg != null) {
 			recursive = TiConvert.toBoolean(arg);
 		}
-		tbf.createDirectory(recursive);
+		return tbf.createDirectory(recursive);
 	}
 
 	public boolean deleteDirectory(Object arg) {
-		boolean recursive = true;
+		boolean recursive = false;
 
 		if (arg != null) {
 			recursive = TiConvert.toBoolean(arg);

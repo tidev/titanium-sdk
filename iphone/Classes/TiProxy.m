@@ -16,9 +16,6 @@
 #import "TiComplexValue.h"
 #import "TiViewProxy.h"
 
-#define TI_USE_PROPERTY_LOCK 0
-
-
 //Common exceptions to throw when the function call was improper
 NSString * const TiExceptionInvalidType = @"Invalid type passed to function";
 NSString * const TiExceptionNotEnoughArguments = @"Invalid number of arguments to function";
@@ -207,6 +204,7 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 		pageContext = nil;
 		executionContext = nil;
 		pthread_rwlock_init(&listenerLock, NULL);
+		pthread_rwlock_init(&dynpropsLock, NULL);
 	}
 	return self;
 }
@@ -346,7 +344,7 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 	}
 	
 	// remove all listeners JS side proxy
-	pthread_rwlock_rdlock(&listenerLock);
+	pthread_rwlock_wrlock(&listenerLock);
 	if (listeners!=nil)
 	{
 		if (pageContext!=nil)
@@ -367,21 +365,14 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 		RELEASE_TO_NIL(listeners);
 	}
 	pthread_rwlock_unlock(&listenerLock);
-	if (dynprops!=nil)
-	{
-#if TI_USE_PROPERTY_LOCK == 1		
-		[dynPropsLock lock];
-#endif		
-		RELEASE_TO_NIL(dynprops);
-#if TI_USE_PROPERTY_LOCK == 1		
-		[dynPropsLock unlock];
-#endif
-	}
+	
+	pthread_rwlock_wrlock(&dynpropsLock);
+	RELEASE_TO_NIL(dynprops);
+	pthread_rwlock_unlock(&dynpropsLock);
 	
 	RELEASE_TO_NIL(listeners);
 	RELEASE_TO_NIL(baseURL);
 	RELEASE_TO_NIL(krollDescription);
-	RELEASE_TO_NIL(dynPropsLock);
 	RELEASE_TO_NIL(modelDelegate);
 	pageContext=nil;
 }
@@ -398,6 +389,7 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 #endif
 	[self _destroy];
 	pthread_rwlock_destroy(&listenerLock);
+	pthread_rwlock_destroy(&dynpropsLock);
 	[super dealloc];
 }
 
@@ -519,7 +511,11 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 
 -(id<NSFastEnumeration>)allKeys
 {
-	return [dynprops allKeys];
+	pthread_rwlock_rdlock(&dynpropsLock);
+	id<NSFastEnumeration> keys = [dynprops allKeys];
+	pthread_rwlock_unlock(&dynpropsLock);
+	
+	return keys;
 }
 
 /*
@@ -741,13 +737,10 @@ DEFINE_EXCEPTIONS
 	}
 	if (dynprops != nil)
 	{
-#if TI_USE_PROPERTY_LOCK == 1		
-		[dynPropsLock lock];
-#endif
+		pthread_rwlock_rdlock(&dynpropsLock);
 		id result = [dynprops objectForKey:key];
-#if TI_USE_PROPERTY_LOCK == 1		
-		[dynPropsLock unlock];
-#endif		
+		pthread_rwlock_unlock(&dynpropsLock);
+		
 		// if we have a stored value as complex, just unwrap 
 		// it and return the internal value
 		if ([result isKindOfClass:[TiComplexValue class]])
@@ -772,13 +765,7 @@ DEFINE_EXCEPTIONS
 	id current = nil;
 	if (!ignoreValueChanged)
 	{
-#if TI_USE_PROPERTY_LOCK == 1		
-		if (dynPropsLock==nil)
-		{
-			dynPropsLock = [[NSRecursiveLock alloc] init];
-		}
-		[dynPropsLock lock];
-#endif
+		pthread_rwlock_wrlock(&dynpropsLock);
 		if (dynprops==nil)
 		{
 			dynprops = [[NSMutableDictionary alloc] init];
@@ -796,9 +783,7 @@ DEFINE_EXCEPTIONS
 		{
 			[dynprops setValue:value forKey:key];
 		}
-#if TI_USE_PROPERTY_LOCK == 1		
-		[dynPropsLock unlock];
-#endif
+		pthread_rwlock_unlock(&dynpropsLock);
 	}
 	
 	if (notify && self.modelDelegate!=nil)
@@ -809,22 +794,18 @@ DEFINE_EXCEPTIONS
 
 - (void) deleteKey:(NSString*)key
 {
+	pthread_rwlock_wrlock(&dynpropsLock);
 	if (dynprops!=nil)
 	{
 		[dynprops removeObjectForKey:key];
 	}
+	pthread_rwlock_unlock(&dynpropsLock);
 }
 
 - (void) setValue:(id)value forUndefinedKey: (NSString *) key
 {
 	id current = nil;
-#if TI_USE_PROPERTY_LOCK == 1		
-	if (dynPropsLock==nil)
-	{
-		dynPropsLock = [[NSRecursiveLock alloc] init];
-	}
-	[dynPropsLock lock];
-#endif
+	pthread_rwlock_wrlock(&dynpropsLock);
 	if (dynprops!=nil)
 	{
 		// hold it for this invocation since set may cause it to be deleted
@@ -854,9 +835,7 @@ DEFINE_EXCEPTIONS
 	if (current!=value)
 	{
 		[dynprops setValue:propvalue forKey:key];
-#if TI_USE_PROPERTY_LOCK == 1		
-		[dynPropsLock unlock];
-#endif
+		pthread_rwlock_unlock(&dynpropsLock);
 		if (self.modelDelegate!=nil)
 		{
 			[[(NSObject*)self.modelDelegate retain] autorelease];
@@ -864,14 +843,16 @@ DEFINE_EXCEPTIONS
 		}
 		return; // so we don't unlock twice
 	}
-#if TI_USE_PROPERTY_LOCK == 1		
-	[dynPropsLock unlock];
-#endif
+	pthread_rwlock_unlock(&dynpropsLock);
 }
 
 -(NSDictionary*)allProperties
 {
-	return [[dynprops copy] autorelease];
+	pthread_rwlock_rdlock(&dynpropsLock);
+	NSDictionary* props = [[dynprops copy] autorelease];
+	pthread_rwlock_unlock(&dynpropsLock);
+
+	return props;
 }
 
 -(id)sanitizeURL:(id)value

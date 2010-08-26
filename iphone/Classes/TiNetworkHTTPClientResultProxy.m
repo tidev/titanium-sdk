@@ -13,17 +13,27 @@
 
 @implementation TiNetworkHTTPClientResultProxy
 
+// NOTE: When we use dynprops here, we must respect the rwlock.
+
 -(void)makeMethod:(SEL)selector args:(BOOL)args key:(NSString*)key
 {
 	KrollMethodDelegate *method = [[KrollMethodDelegate alloc] initWithTarget:delegate selector:selector args:args];
+	
+	pthread_rwlock_wrlock(&dynpropsLock);
 	[dynprops setObject:method forKey:key];
+	pthread_rwlock_unlock(&dynpropsLock);
+	
 	[method release];
 }
 
 -(void)makeDynamicProperty:(SEL)selector key:(NSString*)key
 {
 	KrollPropertyDelegate *prop = [[KrollPropertyDelegate alloc] initWithTarget:delegate selector:selector];
+	
+	pthread_rwlock_wrlock(&dynpropsLock);
 	[dynprops setObject:prop forKey:key];
+	pthread_rwlock_unlock(&dynpropsLock);
+	
 	[prop release];
 }
 
@@ -35,6 +45,8 @@
 		// set the immutable properties we want to be set when this result is proxied
 		// back as a this pointer in JS land ... all others will be delegated directly
 		// to our delegate
+		
+		pthread_rwlock_wrlock(&dynpropsLock);
 		dynprops = [[NSMutableDictionary alloc] init];
 		[dynprops setObject:NUMINT([delegate readyState]) forKey:@"readyState"];
 		[dynprops setObject:NUMINT([delegate status]) forKey:@"status"];
@@ -54,20 +66,27 @@
 		[self makeDynamicProperty:@selector(responseText) key:@"responseText"];
 		[self makeDynamicProperty:@selector(responseXML) key:@"responseXML"];
 		[self makeDynamicProperty:@selector(responseData) key:@"responseData"];
+		pthread_rwlock_unlock(&dynpropsLock);
 	}
 	return self;
 }
 
 -(void)dealloc
 {
+	pthread_rwlock_wrlock(&dynpropsLock);
 	[dynprops removeAllObjects];
+	pthread_rwlock_unlock(&dynpropsLock);
+	
 	RELEASE_TO_NIL(delegate);
 	[super dealloc];
 }
 
 - (id) valueForUndefinedKey: (NSString *) key
 {
+	pthread_rwlock_rdlock(&dynpropsLock);
 	id value = [dynprops objectForKey:key];
+	pthread_rwlock_unlock(&dynpropsLock);
+	
 	if (value!=nil)
 	{
 		return value;
