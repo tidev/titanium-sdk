@@ -287,7 +287,7 @@ public class TiUIHelper
 	}
 
 
-	public static StateListDrawable buildBackgroundDrawable(Context context,
+	public static StateListDrawable buildBackgroundDrawable(TiContext tiContext,
 			String image,
 			String selectedImage,
 			String disabledImage,
@@ -299,30 +299,32 @@ public class TiUIHelper
 		Drawable bgSelectedDrawable = null;
 		Drawable bgFocusedDrawable = null;
 		Drawable bgDisabledDrawable = null;
+		
+		Context appContext = tiContext.getActivity().getApplicationContext();
 
-		TiFileHelper tfh = new TiFileHelper(context);
+		TiFileHelper tfh = new TiFileHelper(appContext);
 
 		if (image != null) {
-			bgDrawable = tfh.loadDrawable(image, false, true);
+			bgDrawable = tfh.loadDrawable(tiContext, image, false, true);
 		}
 
 		if (selectedImage != null) {
-			bgSelectedDrawable = tfh.loadDrawable(selectedImage, false, true);
+			bgSelectedDrawable = tfh.loadDrawable(tiContext, selectedImage, false, true);
 		}
 
 		if (focusedImage != null) {
-			bgFocusedDrawable = tfh.loadDrawable(focusedImage, false, true);
+			bgFocusedDrawable = tfh.loadDrawable(tiContext, focusedImage, false, true);
 		} else {
 			if (image != null) {
-				bgFocusedDrawable = tfh.loadDrawable(image, false, true);
+				bgFocusedDrawable = tfh.loadDrawable(tiContext, image, false, true);
 			}
 		}
 
 		if (disabledImage != null) {
-			bgDisabledDrawable = tfh.loadDrawable(disabledImage, false, true);
+			bgDisabledDrawable = tfh.loadDrawable(tiContext, disabledImage, false, true);
 		} else {
 			if (image != null) {
-				bgDisabledDrawable = tfh.loadDrawable(image, false, true);
+				bgDisabledDrawable = tfh.loadDrawable(tiContext, image, false, true);
 			}
 		}
 

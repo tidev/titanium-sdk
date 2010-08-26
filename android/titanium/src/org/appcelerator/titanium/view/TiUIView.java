@@ -494,7 +494,7 @@ public abstract class TiUIView
 				applyCustomBackground(false);
 			}
 
-			Drawable bgDrawable = TiUIHelper.buildBackgroundDrawable(tiContext.getActivity().getApplicationContext(), bg, bgSelected, bgDisabled, bgFocused);
+			Drawable bgDrawable = TiUIHelper.buildBackgroundDrawable(tiContext, bg, bgSelected, bgDisabled, bgFocused);
 			background.setBackgroundDrawable(bgDrawable);
 		}
 //		String path = TiConvert.toString(d, "backgroundImage");

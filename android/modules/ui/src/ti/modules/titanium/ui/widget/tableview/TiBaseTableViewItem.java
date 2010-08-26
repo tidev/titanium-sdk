@@ -90,7 +90,7 @@ public abstract class TiBaseTableViewItem extends ViewGroup implements Handler.C
 		if (tfh == null) {
 			tfh = new TiFileHelper(tiContext.getActivity());
 		}
-		return tfh.loadDrawable(url, false);
+		return tfh.loadDrawable(tiContext, url, false);
 	}
 
 	public String getClassName() {

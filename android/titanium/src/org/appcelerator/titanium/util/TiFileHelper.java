@@ -29,6 +29,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 import org.apache.http.entity.FileEntity;
+import org.appcelerator.titanium.TiContext;
 
 import android.content.Context;
 import android.content.res.AssetManager;
@@ -223,6 +224,20 @@ public class TiFileHelper
 
 	public Drawable loadDrawable(String path, boolean report) {
 		return loadDrawable(path, report, false);
+	}
+	
+	public Drawable loadDrawable(TiContext tiContext, String path, boolean report) {
+		return loadDrawable(tiContext, path, report, false);
+	}
+	
+	public Drawable loadDrawable(TiContext context, String path, boolean report, boolean checkForNinePatch)
+	{
+		Bitmap b = TiUIHelper.getResourceBitmap(context, path);
+		if (b != null) {
+			return new BitmapDrawable(b);			
+		} else {
+			return loadDrawable(path, report, checkForNinePatch);
+		}
 	}
 
 	public Drawable loadDrawable(String path, boolean report, boolean checkForNinePatch)
