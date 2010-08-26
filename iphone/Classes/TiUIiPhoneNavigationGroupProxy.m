@@ -98,6 +98,7 @@
 
 -(void)childOrientationControllerChangedFlags:(id <TiOrientationController>)orientationController
 {
+	WARN_IF_BACKGROUND_THREAD;
 	[parentOrientationController childOrientationControllerChangedFlags:self];
 }
 
