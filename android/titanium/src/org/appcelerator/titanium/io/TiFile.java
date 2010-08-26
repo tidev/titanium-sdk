@@ -77,22 +77,23 @@ public class TiFile extends TiBaseFile
 	}
 
 	@Override
-	public void createDirectory(boolean recursive)
+	public boolean createDirectory(boolean recursive)
 	{
 		if (recursive)
 		{
-			file.mkdirs();
+			return file.mkdirs();
 		}
 		else
 		{
-			file.mkdir();
+			return file.mkdir();
 		}
 	}
 
 	private boolean deleteTree(File d) {
-		boolean deleted = false;
+		boolean deleted = true;
 
 		File[] files = d.listFiles();
+		
 		for (File f : files) {
 			if (f.isFile()) {
 				deleted = f.delete();

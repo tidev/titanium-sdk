@@ -101,7 +101,6 @@
 	{
 		[element addAttribute: [GDataXMLNode attributeWithName: name stringValue: val]];
 	}
-	return nil;
 }
 
 -(void)removeAttribute:(id)args

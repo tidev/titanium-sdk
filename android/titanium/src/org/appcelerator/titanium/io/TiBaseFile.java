@@ -167,8 +167,9 @@ public abstract class TiBaseFile
 		return copied;
 	}
 
-	public void createDirectory(boolean recursive) {
+	public boolean createDirectory(boolean recursive) {
 		logNotSupported("createDirectory");
+		return false;
 	}
 
 	public boolean createShortcut() {		// TODO Auto-generated method stub

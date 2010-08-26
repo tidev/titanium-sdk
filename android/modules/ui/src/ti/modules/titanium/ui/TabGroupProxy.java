@@ -117,6 +117,23 @@ public class TabGroupProxy extends TiWindowProxy
 
 	private void handleAddTab(TabProxy tab)
 	{
+		String tag = TiConvert.toString(tab.getDynamicValue("tag"));
+		if (tag == null) {
+			String title = TiConvert.toString(tab.getDynamicValue("title"));
+			if (title == null) {
+				String icon = TiConvert.toString(tab.getDynamicValue("icon"));
+				if (icon == null) {
+					tag = tab.toString();					
+				} else {
+					tag = icon;
+				}
+			} else {
+				tag = title;
+			}
+			
+			tab.internalSetDynamicValue("tag", tag, false); // store in proxy
+		}
+		
 		tabs.add(tab);
 
 		if (peekView() != null) {
@@ -129,13 +146,19 @@ public class TabGroupProxy extends TiWindowProxy
 	{
 		String title = (String) tab.getDynamicValue("title");
 		String icon = (String) tab.getDynamicValue("icon");
+		String tag = (String) tab.getDynamicValue("tag");
+
+		if (title == null) {
+			title = "";
+		}
+		
 		tab.setTabGroup(this);
 		final WindowProxy vp = (WindowProxy) tab.getDynamicValue("window");
 		vp.setTabGroupProxy(this);
 		vp.setTabProxy(tab);
 
-		if (title != null && vp != null) {
-			TabSpec tspec = tg.newTab(title);
+		if (tag != null && vp != null) {
+			TabSpec tspec = tg.newTab(tag);
 			if (icon == null) {
 				tspec.setIndicator(title);
 			} else {
@@ -232,8 +255,8 @@ public class TabGroupProxy extends TiWindowProxy
 
 		int i = 0;
 		for(TabProxy t : tabs) {
-			String title = (String) t.getDynamicValue("title");
-			if (title.equals(id)) {
+			String tag = (String) t.getDynamicValue("tag");
+			if (tag.equals(id)) {
 				index = i;
 				break;
 			}
