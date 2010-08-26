@@ -232,6 +232,10 @@ public class TiFileHelper
 	
 	public Drawable loadDrawable(TiContext context, String path, boolean report, boolean checkForNinePatch)
 	{
+		if (context == null) {
+			return loadDrawable(path, report, checkForNinePatch);
+		}
+		
 		Bitmap b = TiUIHelper.getResourceBitmap(context, path);
 		if (b != null) {
 			return new BitmapDrawable(b);			
