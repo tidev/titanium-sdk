@@ -14,6 +14,7 @@ import java.lang.reflect.Method;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.codec.digest.DigestUtils;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiDict;
@@ -450,6 +451,60 @@ public class TiUIHelper
 			Log.e(LCAT, "Unable to load bitmap. Not enough memory: " + e.getMessage());
 		}
 		return b;
+	}
+	
+	private static String getRAKeyForImage(String url)
+	{
+		Pattern pattern = Pattern.compile("^.*/Resources/images/(.*$)");
+		Matcher matcher = pattern.matcher(url);
+		if (!matcher.matches()) {
+			return null;
+		}
+		
+		String chopped = matcher.group(1);
+		if (chopped == null) {
+			return null;
+		}
+		
+		chopped = chopped.toLowerCase();
+		String withoutExtension = chopped;
+		
+		if (chopped.matches("^.*\\..*$")) {
+			if (chopped.endsWith(".9.png")) {
+				withoutExtension = chopped.substring(0, chopped.lastIndexOf(".9.png"));
+			} else {
+				withoutExtension = chopped.substring(0, chopped.lastIndexOf('.'));
+			}
+		}
+		
+		String cleanedWithoutExtension = withoutExtension.replaceAll("[^a-z0-9_]", "_");
+		StringBuilder result = new StringBuilder(100);
+		result.append(cleanedWithoutExtension.substring(0, Math.min(cleanedWithoutExtension.length(), 80))) ;
+		result.append("_");
+		result.append(DigestUtils.md5Hex(chopped).substring(0, 10));
+		
+		return result.toString();
+	}
+	
+	public static Bitmap getResourceBitmap(TiContext context, String url)
+	{
+		// fail fast, before regex fanciness
+		if (!url.contains("Resources/images/")) {
+			return null;
+		}
+		
+		String key = getRAKeyForImage(url);
+		if (key == null) {
+			return null;
+		}
+		
+		Integer id = context.getTiApp().getDrawableID(key);
+		if (id == null) {
+			return null;
+		}
+		
+		Bitmap bitmap = BitmapFactory.decodeResource(context.getTiApp().getResources(), id.intValue());
+		return bitmap;
 	}
 	
 	public static void overridePendingTransition(Activity activity) 

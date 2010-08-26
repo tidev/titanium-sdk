@@ -434,4 +434,8 @@ public class TiApplication extends Application
 	public String getTiBuildTimestamp() {
 		return buildTimestamp;
 	}
+	
+	public Integer getDrawableID(String key) { return null; }
+	public Integer getStringID(String key) { return null; }
+	public Integer getAttrID(String key) { return null; }
 }

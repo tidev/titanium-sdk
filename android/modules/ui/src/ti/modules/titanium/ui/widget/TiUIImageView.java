@@ -135,6 +135,10 @@ public class TiUIImageView extends TiUIView
 			}
 		} else if (image instanceof String) {
 			String url = proxy.getTiContext().resolveUrl(null, (String)image);
+			Bitmap b = TiUIHelper.getResourceBitmap(proxy.getTiContext(), url);
+			if (b != null) {
+				return b;
+			}
 			TiBaseFile file = TiFileFactory.createTitaniumFile(proxy.getTiContext(), new String[] { url }, false);
 			try {
 				return TiUIHelper.createBitmap(file.getInputStream());
