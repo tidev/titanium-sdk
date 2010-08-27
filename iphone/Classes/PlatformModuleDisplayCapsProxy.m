@@ -20,7 +20,7 @@
 {
 	if ([TiUtils isIPad])
 	{
-		return @"high";
+		return @"low";
 	}
 	else if ([TiUtils isRetinaDisplay])
 	{
@@ -28,7 +28,7 @@
 	}
 	else
 	{
-		return @"low";
+		return @"medium";
 	}
 }
 
