@@ -81,4 +81,9 @@ public class KrollCallback implements IKrollCallable
 		KrollCallback kb = (KrollCallback) obj;
 		return method.equals(kb.method);
 	}
+	
+	protected Object toJSFunction() {
+		return Context.javaToJS(method, kroll.getScope());
+	}
+	
 }
