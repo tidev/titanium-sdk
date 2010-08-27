@@ -138,9 +138,8 @@
 		if (![[TiApp app] isSplashVisible]) {
 			[[TiApp app] loadSplash];
 		}
-		[self willAnimateRotationToInterfaceOrientation:newOrientation duration:0];
 		windowOrientation = oldOrientation;
-		[self performSelector:@selector(pokeAtViews) withObject:nil afterDelay:0.1];
+		[self manuallyRotateToOrientation:newOrientation duration:0];
 		return;
 	}
 
@@ -161,7 +160,6 @@
 	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didOrientNotify:) name:UIDeviceOrientationDidChangeNotification object:nil];
 
 	TiRootView *rootView = [[TiRootView alloc] init];
-	[rootView setAutoresizingMask:UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight];
 	self.view = rootView;
 	[self updateBackground];
 	[self resizeView];
@@ -209,13 +207,9 @@
 
 -(void)repositionSubviews
 {
-	SEL sel = @selector(proxy);
-	for (UIView * subView in [[self view] subviews])
+	for (TiWindowProxy * thisProxy in windowProxies)
 	{
-		if ([subView respondsToSelector:sel])
-		{
-			[(TiViewProxy *)[(TiUIView *)subView proxy] reposition];
-		}
+		[thisProxy reposition];
 	}
 }
 
@@ -274,6 +268,7 @@
 	}
 
 	[[self view] setTransform:transform];
+	lastOrientation = newOrientation;
 	[self resizeView];
 
 	//Propigate this to everyone else. This has to be done INSIDE the animation.
@@ -283,7 +278,6 @@
 	{
 		[UIView commitAnimations];
 	}
-	lastOrientation = newOrientation;
 }
 
 -(void)manuallyRotateToOrientation:(UIInterfaceOrientation) newOrientation
@@ -624,6 +618,7 @@ What this does mean is that any
 
 -(void)childOrientationControllerChangedFlags:(id<TiOrientationController>) orientationController;
 {
+	WARN_IF_BACKGROUND_THREAD;
 	//Because a modal window might not introduce new 
 
 	TiOrientationFlags newFlags = [self orientationFlags];

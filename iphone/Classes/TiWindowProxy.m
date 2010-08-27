@@ -633,7 +633,6 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 	
 	if (![self _isChildOfTab])
 	{
-		[(TiRootViewController *)[[TiApp app] controller] openWindow:self withObject:nil];
 		//TEMP hack for splitview until we can get things worked out
 		if (rootView.superview==nil && tempController==nil)
 		{
@@ -644,6 +643,8 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 		[rootView addSubview:view];
 		
 		[self controller];
+
+		[(TiRootViewController *)[[TiApp app] controller] openWindow:self withObject:nil];
 		[[[TiApp app] controller] windowFocused:[self controller]];
 	}
 
@@ -793,6 +794,7 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 @synthesize parentOrientationController, orientationFlags;
 -(void)childOrientationControllerChangedFlags:(id <TiOrientationController>)orientationController
 {
+	WARN_IF_BACKGROUND_THREAD;
 	[parentOrientationController childOrientationControllerChangedFlags:self];
 }
 
