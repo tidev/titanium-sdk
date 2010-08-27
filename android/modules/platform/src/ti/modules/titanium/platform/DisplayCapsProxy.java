@@ -40,10 +40,19 @@ public class DisplayCapsProxy extends TiProxy
 		return getDisplay().getHeight();
 	}
 
-	public float getDensity() {
+	public String getDensity() {
 		synchronized(dm) {
 			getDisplay().getMetrics(dm);
-			return dm.density;
+			switch(dm.densityDpi) {
+			case DisplayMetrics.DENSITY_HIGH :
+				return "high";
+			case DisplayMetrics.DENSITY_MEDIUM :
+				return "medium";
+			case DisplayMetrics.DENSITY_LOW :
+				return "low";
+			default :
+				return "medium";
+			}
 		}
 	}
 
