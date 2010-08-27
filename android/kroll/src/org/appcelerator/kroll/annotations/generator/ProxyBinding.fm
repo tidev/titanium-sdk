@@ -11,7 +11,9 @@ import org.appcelerator.kroll.KrollConverter;
 import org.appcelerator.kroll.KrollInvocation;
 import org.appcelerator.kroll.KrollMethod;
 import org.appcelerator.kroll.KrollProxyBinding;
-import org.appcelerator.kroll.KrollProxyBindings;
+import org.appcelerator.kroll.KrollProperty;
+import org.appcelerator.kroll.KrollReflectionProperty;
+import org.appcelerator.kroll.util.KrollReflectionUtils;
 
 import org.mozilla.javascript.Scriptable;
 
@@ -44,11 +46,68 @@ public class ${genClassName} implements KrollProxyBinding
 		} catch (NoSuchFieldException e) {}
 		</#if>
 		
+		//// Constants
+		<#if constants?keys?size &gt; 0>
+		try {
+		</#if>
+		<#list constants?keys as constantName>
+			<#assign constant = constants[constantName]>
+			proxy.set(scope, "${constantName}", ${proxyClassName}.${constant.proxyName});
+		</#list>
+		<#if constants?keys?size &gt; 0>
+		} catch (NoSuchFieldException e) {
+			e.printStackTrace();
+		}
+		</#if>
+		
+		<#if properties?keys?size &gt; 0>
+		//// Properties ("static binding")
+		try {
+		</#if>
+		<#list properties?keys as propertyName>
+			<#assign property = properties[propertyName]>
+			proxy.set(scope, "${propertyName}", new KrollProperty(p, "${propertyName}", ${property.get?string}, ${property.set?string}, "${property.proxyName}"));
+		</#list>
+		<#if properties?keys?size &gt; 0>
+		} catch (NoSuchFieldException e) {
+			e.printStackTrace();
+		}
+		</#if>
+		
+		<#if dynamicProperties?keys?size &gt; 0>
+		//// Dynamic Properties
+		try {
+		</#if>
+		<#list dynamicProperties?keys as propertyName>
+			<#assign dynamicProperty = dynamicProperties[propertyName]>
+			proxy.set(scope, "${propertyName}", new KrollReflectionProperty(p, "${propertyName}",
+				${dynamicProperty.get?string}, ${dynamicProperty.set?string},
+				<#if dynamicProperty.get>
+				"${dynamicProperty.getMethodName}",
+				<#else>
+				null,
+				</#if>
+				<#if dynamicProperty.set>
+				"${dynamicProperty.setMethodName}"
+				<#else>
+				null
+				</#if>
+			));
+		</#list>
+		<#if dynamicProperties?keys?size &gt; 0>
+		} catch (NoSuchFieldException e) {
+			e.printStackTrace();
+		}
+		</#if>
+		
+		//// Methods
 		<#list methods?keys as methodName>
 			<#assign method = methods[methodName]>
-			final ${method.converter.name} __converter = ${method.converter.name}.getInstance();
+			<#if method.returnType != "void">
+			final ${method.converter.name} __${methodName}_converter = ${method.converter.name}.getInstance();
+			</#if>
 		KrollMethod ${methodName}_method = new KrollMethod("${methodName}") {
-			public Object invoke(KrollInvocation invocation, Object[] args) throws Exception
+			public Object invoke(KrollInvocation invocation, Object[] args)
 			{
 				<#assign requiredArgs = countRequiredArguments(method)>
 				<#if requiredArgs &gt; 0>
@@ -78,14 +137,14 @@ public class ${genClassName} implements KrollProxyBinding
 				</#if>
 					proxy.${methodName}(invocation<#list method.args as arg>, ${arg.name}</#list>);
 				<#if method.returnType != "void">
-				Object __converted = __converter.convertNative(invocation, __retVal);
+				Object __${methodName}_converted = __${methodName}_converter.convertNative(invocation, __retVal);
 				
 				
 				<#if method.annotation.annotationType == "org.appcelerator.kroll.annotations.Kroll.createMethod">
 				// TODO: also check that __retVal is a proxy
 				__retVal.bind(scope, rootObject);
 				</#if>
-				return __converted;
+				return __${methodName}_converted;
 				<#else>
 				;
 				return KrollProxy.UNDEFINED;

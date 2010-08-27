@@ -4,21 +4,19 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 
+import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.titanium.TiContext;
-import org.appcelerator.titanium.TiProxy;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.ContentResolver;
-import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
-import android.widget.Toast;
 
-public class AlertProxy extends TiProxy {
+public class AlertProxy extends KrollProxy {
 
 	public static final int STATE_SCHEDULED = 0;
 	public static final int STATE_FIRED = 1;

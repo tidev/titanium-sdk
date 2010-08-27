@@ -11,9 +11,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.titanium.TiContext;
-import org.appcelerator.titanium.TiDict;
-import org.appcelerator.titanium.TiProxy;
 import org.appcelerator.titanium.util.Log;
 
 import android.app.Activity;
@@ -22,14 +22,14 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.provider.Contacts;
 
-public class PersonProxy extends TiProxy
+public class PersonProxy extends KrollProxy
 {
 	private static final String LCAT = "PersonProxy";
 	private String lastName, firstName, fullName, middleName, firstPhonetic, lastPhonetic, middlePhonetic, department;
 	private String jobTitle, nickname, note, organization, prefix, suffix;
 	private String birthday, created, modified;
 	private int kind;
-	private TiDict email, phone, address;
+	private KrollDict email, phone, address;
 	private long id;
 	
 	protected static final String[] PEOPLE_PROJECTION = new String[] {
@@ -405,18 +405,18 @@ public class PersonProxy extends TiProxy
 		this.suffix = suffix;
 	}
 	
-	public TiDict getEmail()
+	public KrollDict getEmail()
 	{
 		return email;
 	}
-	public void setEmail(TiDict email)
+	public void setEmail(KrollDict email)
 	{
 		this.email = email;
 	}
 	
-	private TiDict contactMethodMapToDict(Map<String, ArrayList<String>> map)
+	private KrollDict contactMethodMapToDict(Map<String, ArrayList<String>> map)
 	{
-		TiDict result = new TiDict();
+		KrollDict result = new KrollDict();
 		for (String key : map.keySet()) {
 			ArrayList<String> values = map.get(key);
 			result.put(key, values.toArray());
@@ -439,34 +439,34 @@ public class PersonProxy extends TiProxy
 		// We're supposed to support "Street", "CountryCode", "State", etc.
 		// But Android 1.6 does not have structured addresses so we're just put
 		// everything in Street.
-		address = new TiDict();
+		address = new KrollDict();
 		for (String key: map.keySet()) {
 			ArrayList<String> values = map.get(key);
-			TiDict[] dictValues = new TiDict[values.size()];
+			KrollDict[] dictValues = new KrollDict[values.size()];
 			for (int i = 0; i < dictValues.length; i++) {
-				dictValues[i] = new TiDict();
+				dictValues[i] = new KrollDict();
 				dictValues[i].put("Street", values.get(i));
 			}
 			address.put(key, dictValues);
 		}
 	}
 
-	public void setPhone(TiDict phone)
+	public void setPhone(KrollDict phone)
 	{
 		this.phone = phone;
 	}
 
-	public TiDict getPhone()
+	public KrollDict getPhone()
 	{
 		return phone;
 	}
 	
-	public TiDict getAddress()
+	public KrollDict getAddress()
 	{
 		return address;
 	}
 
-	public void setAddress(TiDict address)
+	public void setAddress(KrollDict address)
 	{
 		this.address = address;
 	}

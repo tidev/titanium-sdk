@@ -6,8 +6,8 @@
  */
 package ti.modules.titanium.ui.widget;
 
-import org.appcelerator.titanium.TiDict;
-import org.appcelerator.titanium.TiProxy;
+import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
@@ -21,10 +21,8 @@ import android.text.InputType;
 import android.text.TextWatcher;
 import android.text.method.DialerKeyListener;
 import android.text.method.DigitsKeyListener;
-import android.text.method.KeyListener;
 import android.text.method.PasswordTransformationMethod;
 import android.text.method.TextKeyListener;
-import android.text.method.TransformationMethod;
 import android.text.method.TextKeyListener.Capitalize;
 import android.view.Gravity;
 import android.view.KeyEvent;
@@ -99,7 +97,7 @@ public class TiUIText extends TiUIView
 
 
 	@Override
-	public void processProperties(TiDict d)
+	public void processProperties(KrollDict d)
 	{
 		super.processProperties(d);
 
@@ -116,7 +114,7 @@ public class TiUIText extends TiUIView
 			tv.setHint(d.getString("hintText"));
 		}
 		if (d.containsKey("font")) {
-			TiUIHelper.styleText(tv, d.getTiDict("font"));
+			TiUIHelper.styleText(tv, d.getKrollDict("font"));
 		}
 		if (d.containsKey("textAlign") || d.containsKey("verticalAlign")) {
 			String textAlign = null;
@@ -186,7 +184,7 @@ public class TiUIText extends TiUIView
 
 
 	@Override
-	public void propertyChanged(String key, Object oldValue, Object newValue, TiProxy proxy)
+	public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy proxy)
 	{
 		if (DBG) {
 			Log.d(LCAT, "Property: " + key + " old: " + oldValue + " new: " + newValue);
@@ -252,7 +250,7 @@ public class TiUIText extends TiUIView
 			}			
 
 		} else if (key.equals("keyboardType") || (key.equals("autocorrect"))) {
-			TiDict d = proxy.getDynamicProperties();
+			KrollDict d = proxy.getDynamicProperties();
 			boolean autocorrect = false;
 			if (d.containsKey("autocorrect")) {
 				autocorrect = d.getBoolean("autocorrect");
@@ -262,7 +260,7 @@ public class TiUIText extends TiUIView
 		} else if (key.equals("returnKeyType")) {
 			handleReturnKeyType(TiConvert.toInt(newValue));
 		} else if (key.equals("font")) {
-			TiUIHelper.styleText(tv, (TiDict) newValue);
+			TiUIHelper.styleText(tv, (KrollDict) newValue);
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}
@@ -281,7 +279,7 @@ public class TiUIText extends TiUIView
 	public void onTextChanged(CharSequence s, int start, int before, int count)
 	{
 		String value = tv.getText().toString();
-		TiDict data = new TiDict();
+		KrollDict data = new KrollDict();
 		data.put("value", value);
 
 		proxy.internalSetDynamicValue("value", value, false);
@@ -303,9 +301,9 @@ public class TiUIText extends TiUIView
 	}
 
 	@Override
-	protected TiDict getFocusEventObject(boolean hasFocus)
+	protected KrollDict getFocusEventObject(boolean hasFocus)
 	{
-		TiDict event = new TiDict();
+		KrollDict event = new KrollDict();
 		event.put("value", tv.getText().toString());
 		return event;
 	}
@@ -313,7 +311,7 @@ public class TiUIText extends TiUIView
 	public boolean onEditorAction(TextView v, int actionId, KeyEvent keyEvent)
 	{
 		String value = tv.getText().toString();
-		TiDict data = new TiDict();
+		KrollDict data = new KrollDict();
 		data.put("value", value);
 
 		proxy.internalSetDynamicValue("value", value, false);

@@ -14,7 +14,6 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.appcelerator.titanium.TiContext;
-import org.appcelerator.titanium.TiModule;
 import org.appcelerator.titanium.util.Log;
 import org.xml.sax.SAXException;
 

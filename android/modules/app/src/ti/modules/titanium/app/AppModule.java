@@ -1,10 +1,8 @@
 package ti.modules.titanium.app;
 
+import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.titanium.ITiAppInfo;
 import org.appcelerator.titanium.TiContext;
-import org.appcelerator.titanium.TiDict;
-import org.appcelerator.titanium.TiModule;
-import org.appcelerator.titanium.kroll.IKrollCallable;
 
 public class AppModule extends TiModule
 {
@@ -36,7 +34,7 @@ public class AppModule extends TiModule
 		super.removeEventListener(event, listener);
 	}
 
-	public boolean fireEvent(String event, TiDict data)
+	public boolean fireEvent(String event, KrollDict data)
 	{
 		return getTiContext().getTiApp().fireAppEvent(event, data);
 	}

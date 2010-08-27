@@ -6,14 +6,13 @@
  */
 package ti.modules.titanium.ui.iphone.activityindicatorstyle;
 
+import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.titanium.TiContext;
-import org.appcelerator.titanium.TiDict;
-import org.appcelerator.titanium.TiModule;
 
 public class ActivityIndicatorStyleModule extends TiModule
 {
 
-	private static TiDict constants;
+	private static KrollDict constants;
 
 	public ActivityIndicatorStyleModule(TiContext tiContext)
 	{
@@ -21,9 +20,9 @@ public class ActivityIndicatorStyleModule extends TiModule
 	}
 
 	@Override
-	public TiDict getConstants() {
+	public KrollDict getConstants() {
 		if (constants == null) {
-			constants = new TiDict();
+			constants = new KrollDict();
 
 			constants.put("BIG", "iphone only");
 			constants.put("DARK", "iphone only");

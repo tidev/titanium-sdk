@@ -3,10 +3,10 @@
  */
 package ti.modules.titanium.android;
 
+import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollProxy;
+import org.appcelerator.titanium.KrollProxyListener;
 import org.appcelerator.titanium.TiContext;
-import org.appcelerator.titanium.TiDict;
-import org.appcelerator.titanium.TiProxy;
-import org.appcelerator.titanium.TiProxyListener;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 
@@ -14,8 +14,8 @@ import android.content.Context;
 import android.content.Intent;
 
 public class ActivityProxy 
-	extends TiProxy
-	implements TiProxyListener
+	extends KrollProxy
+	implements KrollProxyListener
 {
 	private static final String LCAT = "TiActivity";
 	private static boolean DBG = TiConfig.LOGD;
@@ -28,14 +28,14 @@ public class ActivityProxy
 		super(tiContext);
 		modelListener = this;
 
-		TiDict d = null;
+		KrollDict d = null;
 		
 		if (args != null && args.length >= 1) {
-			if (args[0] instanceof TiDict) {
+			if (args[0] instanceof KrollDict) {
 				if (DBG) {
 					Log.d("LCAT", "ActivityProxy created with dictionary");
 				}
-				d = (TiDict) args[0];
+				d = (KrollDict) args[0];
 			} else if (args[0] instanceof TiBaseActivity) {
 				if (DBG) {
 					Log.d(LCAT, "ActivityProxy created with existing Activity");
@@ -79,19 +79,19 @@ public class ActivityProxy
 	}
 
 	@Override
-	public void listenerAdded(String type, int count, TiProxy proxy) {
+	public void listenerAdded(String type, int count, KrollProxy proxy) {
 	}
 
 	@Override
-	public void listenerRemoved(String type, int count, TiProxy proxy) {
+	public void listenerRemoved(String type, int count, KrollProxy proxy) {
 	}
 
 	@Override
-	public void processProperties(TiDict d) {
+	public void processProperties(KrollDict d) {
 	}
 
 	@Override
-	public void propertyChanged(String key, Object oldValue, Object newValue, TiProxy proxy) {
+	public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy proxy) {
 		Log.e(LCAT, "Property Change: " + key);
 	}
 

@@ -8,13 +8,13 @@ package ti.modules.titanium.platform;
 
 import java.lang.ref.SoftReference;
 
+import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.titanium.TiContext;
-import org.appcelerator.titanium.TiProxy;
 
 import android.util.DisplayMetrics;
 import android.view.Display;
 
-public class DisplayCapsProxy extends TiProxy
+public class DisplayCapsProxy extends KrollProxy
 {
 	private final DisplayMetrics dm;
 	private SoftReference<Display> softDisplay;

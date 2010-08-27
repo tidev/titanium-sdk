@@ -6,8 +6,8 @@
  */
 package ti.modules.titanium.ui.widget;
 
-import org.appcelerator.titanium.TiDict;
-import org.appcelerator.titanium.TiProxy;
+import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
@@ -55,7 +55,7 @@ public class TiUIDialog extends TiUIView
 	}
 
 	@Override
-	public void processProperties(TiDict d)
+	public void processProperties(KrollDict d)
 	{
 		if (d.containsKey("title")) {
 			builder.setTitle(d.getString("title"));
@@ -112,7 +112,7 @@ public class TiUIDialog extends TiUIView
 
 
 	@Override
-	public void propertyChanged(String key, Object oldValue, Object newValue, TiProxy proxy)
+	public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy proxy)
 	{
 		if (DBG) {
 			Log.d(LCAT, "Property: " + key + " old: " + oldValue + " new: " + newValue);
@@ -145,7 +145,7 @@ public class TiUIDialog extends TiUIView
 		}
 	}
 
-	public void show(TiDict options)
+	public void show(KrollDict options)
 	{
 		if (dialog == null) {
 			processProperties(proxy.getDynamicProperties());
@@ -158,7 +158,7 @@ public class TiUIDialog extends TiUIView
 		}
 	}
 
-	public void hide(TiDict options)
+	public void hide(KrollDict options)
 	{
 		if (dialog != null) {
 			dialog.dismiss();
@@ -168,7 +168,7 @@ public class TiUIDialog extends TiUIView
 
 	public void handleEvent(int id)
 	{
-		TiDict data = new TiDict();
+		KrollDict data = new KrollDict();
 		data.put("index", id);
 		proxy.fireEvent("click", data);
 	}

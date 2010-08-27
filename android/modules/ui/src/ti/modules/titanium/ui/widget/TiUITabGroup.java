@@ -6,8 +6,8 @@
  */
 package ti.modules.titanium.ui.widget;
 
-import org.appcelerator.titanium.TiDict;
-import org.appcelerator.titanium.TiProxy;
+import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
@@ -38,7 +38,7 @@ public class TiUITabGroup extends TiUIView
 	private FrameLayout tabContent;
 
 	private String lastTabId;
-	private TiDict tabChangeEventData;
+	private KrollDict tabChangeEventData;
 
 	public TiUITabGroup(TiViewProxy proxy, TiTabActivity activity)
 	{
@@ -95,7 +95,7 @@ public class TiUITabGroup extends TiUIView
 	}
 
 	@Override
-	protected TiDict getFocusEventObject(boolean hasFocus) {
+	protected KrollDict getFocusEventObject(boolean hasFocus) {
 		if (tabChangeEventData == null) {
 			TabHost th = (TabHost) getNativeView();
 			return ((TabGroupProxy) proxy).buildFocusEvent(th.getCurrentTabTag(), lastTabId);
@@ -143,7 +143,7 @@ public class TiUITabGroup extends TiUIView
 	}
 
 	@Override
-	public void propertyChanged(String key, Object oldValue, Object newValue, TiProxy proxy)
+	public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy proxy)
 	{
 		if ("activeTab".equals(key)) {
 			changeActiveTab(newValue);

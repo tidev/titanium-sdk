@@ -6,10 +6,10 @@
  */
 package org.appcelerator.titanium.view;
 
+import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.titanium.TiContext;
-import org.appcelerator.titanium.TiProxy;
 
-public class TiAnimation extends TiProxy {
+public class TiAnimation extends KrollProxy {
 
 	public TiAnimation(TiContext tiContext) {
 		super(tiContext);

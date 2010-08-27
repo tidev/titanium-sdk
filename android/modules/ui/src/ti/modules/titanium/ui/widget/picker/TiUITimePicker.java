@@ -9,8 +9,8 @@ package ti.modules.titanium.ui.widget.picker;
 import java.util.Calendar;
 import java.util.Date;
 
-import org.appcelerator.titanium.TiDict;
-import org.appcelerator.titanium.TiProxy;
+import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
@@ -44,7 +44,7 @@ public class TiUITimePicker extends TiUIView
 	}
 	
 	@Override
-	public void processProperties(TiDict d) {
+	public void processProperties(KrollDict d) {
 		super.processProperties(d);
 		
 		boolean valueExistsInProxy = false;
@@ -93,7 +93,7 @@ public class TiUITimePicker extends TiUIView
 	
 	@Override
 	public void propertyChanged(String key, Object oldValue, Object newValue,
-			TiProxy proxy)
+			KrollProxy proxy)
 	{
 		if (key.equals("value")) {
 			Date date = (Date)newValue;
@@ -130,7 +130,7 @@ public class TiUITimePicker extends TiUIView
 		calendar.set(Calendar.HOUR_OF_DAY, hourOfDay);
 		calendar.set(Calendar.MINUTE, minute);
 		if (!suppressChangeEvent) {
-			TiDict data = new TiDict();
+			KrollDict data = new KrollDict();
 			data.put("value", calendar.getTime());
 			proxy.fireEvent("change", data);		
 		}

@@ -6,13 +6,12 @@
  */
 package ti.modules.titanium.ui;
 
+import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.titanium.TiContext;
-import org.appcelerator.titanium.TiProxy;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.ui.widget.TiUILabel;
-import ti.modules.titanium.ui.widget.tableview.TiTableViewRowProxyItem;
 import android.app.Activity;
 
 public class LabelProxy extends TiViewProxy
@@ -35,7 +34,7 @@ public class LabelProxy extends TiViewProxy
 	}
 	
 	@Override
-	public void eventListenerAdded(String eventName, int count, TiProxy proxy) {
+	public void eventListenerAdded(String eventName, int count, KrollProxy proxy) {
 		super.eventListenerAdded(eventName, count, proxy);
 		
 		if (eventName.equals("click")) {
@@ -44,7 +43,7 @@ public class LabelProxy extends TiViewProxy
 	}
 	
 	@Override
-	public void eventListenerRemoved(String eventName, int count, TiProxy proxy) {
+	public void eventListenerRemoved(String eventName, int count, KrollProxy proxy) {
 		super.eventListenerRemoved(eventName, count, proxy);
 		
 		if (eventName.equals("click") && count == 0) {

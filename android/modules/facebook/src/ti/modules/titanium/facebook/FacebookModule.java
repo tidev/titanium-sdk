@@ -11,9 +11,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
+import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.titanium.TiContext;
-import org.appcelerator.titanium.TiDict;
-import org.appcelerator.titanium.TiModule;
 import org.appcelerator.titanium.kroll.KrollCallback;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiActivityResultHandler;
@@ -39,7 +38,7 @@ public class FacebookModule extends TiModule implements FBActivityDelegate,
 	private static final String LCAT = "TiFacebook";
 	private static final boolean DBG = TiConfig.LOGD;
 
-	private static TiDict constants;
+	private static KrollDict constants;
 
 	private FBSession session;
 	private ProgressDialog progressDialog;
@@ -72,9 +71,9 @@ public class FacebookModule extends TiModule implements FBActivityDelegate,
 	}
 
 	@Override
-	public TiDict getConstants() {
+	public KrollDict getConstants() {
 		if (constants == null) {
-			constants = new TiDict();
+			constants = new KrollDict();
 
 			constants.put("LOGIN_BUTTON_STYLE_WIDE", "wide");
 			constants.put("LOGIN_BUTTON_STYLE_NORMAL", "normal");
@@ -203,7 +202,7 @@ public class FacebookModule extends TiModule implements FBActivityDelegate,
 		Log.d(LCAT, "request permission called for permission: " + permission);
 		if (hasPermission(permission)) {
 			Log.d(LCAT, "found cached permission: " + permission);
-			TiDict event = new TiDict();
+			KrollDict event = new KrollDict();
 			event.put("success", true);
 			event.put("permission", permission);
 			callback.callWithProperties(event);
@@ -222,7 +221,7 @@ public class FacebookModule extends TiModule implements FBActivityDelegate,
 		}
 	}
 
-	public void publishStream(String title, TiDict data, String target,
+	public void publishStream(String title, KrollDict data, String target,
 			KrollCallback callback) {
 		JSONObject json = TiConvert.toJSON(data);
 		Activity activity = getTiContext().getActivity();
@@ -273,7 +272,7 @@ public class FacebookModule extends TiModule implements FBActivityDelegate,
 			if (DBG)
 				Log.d(LCAT, "onResult callback = " + callback);
 			if (callback != null) {
-				TiDict event = new TiDict();
+				KrollDict event = new KrollDict();
 				event.put("success", resultCode == Activity.RESULT_OK);
 				event.put("cancel", resultCode == Activity.RESULT_CANCELED);
 				String permission = data.getStringExtra("permission");
@@ -291,14 +290,14 @@ public class FacebookModule extends TiModule implements FBActivityDelegate,
 	// -------------------------------------------------------------------------------------------------------------//
 
 	public void triggerLogIn() {
-		TiDict event = new TiDict();
+		KrollDict event = new KrollDict();
 		event.put("success", true);
 		event.put("state", "login");
 		event.put("uid", getUserId());
 		triggerLogIn(event);
 	}
 
-	private void triggerLogIn(TiDict event) {
+	private void triggerLogIn(KrollDict event) {
 		Log.d(LCAT, "++trigger login");
 		
 		if (session.hasUnsetPermissions())
@@ -309,7 +308,7 @@ public class FacebookModule extends TiModule implements FBActivityDelegate,
 		internalSetDynamicValue("loggedIn", isLoggedIn(), false);
 		internalSetDynamicValue("userId", getUserId(), false);
 
-		TiDict sessionDict = new TiDict();
+		KrollDict sessionDict = new KrollDict();
 		if (isLoggedIn()) {
 			sessionDict.put("user", getUserId());
 			sessionDict.put("session_key", session.getSessionKey());
@@ -332,13 +331,13 @@ public class FacebookModule extends TiModule implements FBActivityDelegate,
 
 		Log.d(LCAT, "++trigger logout");
 		
-		TiDict event = new TiDict();
+		KrollDict event = new KrollDict();
 		event.put("success", true);
 		event.put("state", "logout");
 
 		internalSetDynamicValue("loggedIn", false, false);
 		internalSetDynamicValue("userId", 0, false);
-		internalSetDynamicValue("session", new TiDict(), false);
+		internalSetDynamicValue("session", new KrollDict(), false);
 
 		if (logoutCallback != null) {
 			logoutCallback.callWithProperties(event);
@@ -486,7 +485,7 @@ public class FacebookModule extends TiModule implements FBActivityDelegate,
 		@Override
         public void requestDidFailWithError(FBRequest request, Throwable error) {
 			Log.e(LCAT, "FBLoginRequest failed", error);
-			TiDict event = new TiDict();
+			KrollDict event = new KrollDict();
 			event.put("success", false);
 			event.put("message", error.getMessage());
 			event.put("state", "login");
@@ -508,7 +507,7 @@ public class FacebookModule extends TiModule implements FBActivityDelegate,
 
 		@Override
         public void requestDidLoad(FBRequest request, String contentType, Object result) {
-			TiDict event = new TiDict();
+			KrollDict event = new KrollDict();
 			event.put("success", true);
 			event.put("data", result);
 			callback.callWithProperties(event);
@@ -516,7 +515,7 @@ public class FacebookModule extends TiModule implements FBActivityDelegate,
 
 		@Override
         public void requestDidFailWithError(FBRequest request, Throwable error) {
-			TiDict event = new TiDict();
+			KrollDict event = new KrollDict();
 			event.put("success", false);
 			event.put("message", error.getMessage());
 			callback.callWithProperties(event);

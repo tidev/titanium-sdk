@@ -6,17 +6,16 @@
  */
 package ti.modules.titanium.ui.widget;
 
-import org.appcelerator.titanium.TiDict;
+import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConvert;
-import org.appcelerator.titanium.view.TiUIView;
 import org.appcelerator.titanium.view.TiCompositeLayout;
+import org.appcelerator.titanium.view.TiUIView;
 
 import android.content.Context;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.View.MeasureSpec;
 import android.widget.FrameLayout;
 import android.widget.HorizontalScrollView;
 import android.widget.ScrollView;
@@ -191,7 +190,7 @@ public class TiUIScrollView extends TiUIView {
 		protected void onScrollChanged(int l, int t, int oldl, int oldt) {
 			super.onScrollChanged(l, t, oldl, oldt);
 
-			TiDict data = new TiDict();
+			KrollDict data = new KrollDict();
 			data.put("x", l);
 			data.put("y", t);
 			getProxy().fireEvent("scroll", data);
@@ -227,7 +226,7 @@ public class TiUIScrollView extends TiUIView {
 		protected void onScrollChanged(int l, int t, int oldl, int oldt) {
 			super.onScrollChanged(l, t, oldl, oldt);
 
-			TiDict data = new TiDict();
+			KrollDict data = new KrollDict();
 			data.put("x", l);
 			data.put("y", t);
 			getProxy().fireEvent("scroll", data);
@@ -243,7 +242,7 @@ public class TiUIScrollView extends TiUIView {
 	}
 
 	@Override
-	public void processProperties(TiDict d)
+	public void processProperties(KrollDict d)
 	{
 		boolean showHorizontalScrollBar = false;
 		boolean showVerticalScrollBar = false;

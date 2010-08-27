@@ -8,10 +8,9 @@ package ti.modules.titanium.platform;
 
 import java.util.concurrent.Semaphore;
 
+import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.titanium.TiContext;
-import org.appcelerator.titanium.TiDict;
-import org.appcelerator.titanium.TiModule;
-import org.appcelerator.titanium.TiProxy;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiPlatformHelper;
@@ -35,7 +34,7 @@ public class PlatformModule extends TiModule
 	public static int BATTERY_STATE_CHARGING = 2;
 	public static int BATTERY_STATE_FULL = 3;
 
-	private static TiDict constants;
+	private static KrollDict constants;
 
 	protected DisplayCapsProxy displayCaps;
 
@@ -55,10 +54,10 @@ public class PlatformModule extends TiModule
 	}
 
 	@Override
-	public TiDict getConstants()
+	public KrollDict getConstants()
 	{
 		if (constants == null) {
-			constants = new TiDict();
+			constants = new KrollDict();
 
 			constants.put("BATTERY_STATE_UNKNOWN", BATTERY_STATE_UNKNOWN);
 			constants.put("BATTERY_STATE_UNPLUGGED", BATTERY_STATE_UNPLUGGED);
@@ -172,7 +171,7 @@ public class PlatformModule extends TiModule
 
 
 	@Override
-	public void listenerAdded(String type, int count, final TiProxy proxy)
+	public void listenerAdded(String type, int count, final KrollProxy proxy)
 	{
 		if ("battery".equals(type) && batteryStateReceiver == null) {
 
@@ -185,7 +184,7 @@ public class PlatformModule extends TiModule
 	                int scale = intent.getIntExtra("scale", -1);
 	                int status = intent.getIntExtra("status", -1);
 
-	                TiDict event = new TiDict();
+	                KrollDict event = new KrollDict();
 	                event.put("level", convertBatteryLevel(level, scale));
 	                event.put("state", convertBatteryStatus(status));
 
@@ -198,7 +197,7 @@ public class PlatformModule extends TiModule
 	}
 
 	@Override
-	public void listenerRemoved(String type, int count, TiProxy proxy)
+	public void listenerRemoved(String type, int count, KrollProxy proxy)
 	{
 		if ("battery".equals(type) && count == 0 && batteryStateReceiver != null) {
 			getTiContext().getActivity().unregisterReceiver(batteryStateReceiver);

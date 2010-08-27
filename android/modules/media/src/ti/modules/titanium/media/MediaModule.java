@@ -11,11 +11,10 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Date;
 
+import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.titanium.ContextSpecific;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiContext;
-import org.appcelerator.titanium.TiDict;
-import org.appcelerator.titanium.TiModule;
 import org.appcelerator.titanium.io.TiBaseFile;
 import org.appcelerator.titanium.io.TiFileFactory;
 import org.appcelerator.titanium.kroll.KrollCallback;
@@ -54,7 +53,7 @@ public class MediaModule extends TiModule
 	protected static final int NO_CAMERA = 2;
 	protected static final int NO_VIDEO = 3;
 
-	protected static TiDict constants;
+	protected static KrollDict constants;
 
 	public MediaModule(TiContext tiContext)
 	{
@@ -62,10 +61,10 @@ public class MediaModule extends TiModule
 	}
 
 	@Override
-	public TiDict getConstants()
+	public KrollDict getConstants()
 	{
 		if (constants == null) {
-			constants = new TiDict();
+			constants = new KrollDict();
 
 			constants.put("UNKNOWN_ERROR", UNKNOWN_ERROR);
 			constants.put("DEVICE_BUSY", DEVICE_BUSY);
@@ -94,7 +93,7 @@ public class MediaModule extends TiModule
 
 	public void showCamera(Object[] args)
 	{
-		TiDict options = (TiDict) args[0];
+		KrollDict options = (KrollDict) args[0];
 
 		KrollCallback successCallback = null;
 		KrollCallback cancelCallback = null;
@@ -244,7 +243,7 @@ public class MediaModule extends TiModule
 
 	public void openPhotoGallery(Object[] args)
 	{
-		TiDict options = (TiDict) args[0];
+		KrollDict options = (KrollDict) args[0];
 
 		KrollCallback successCallback = null;
 		KrollCallback cancelCallback = null;
@@ -320,8 +319,8 @@ public class MediaModule extends TiModule
 		Log.w(LCAT, "saveToPhotoGallery not yet implemented in Android");
 	}
 
-	TiDict createDictForImage(String path, String mimeType) {
-		TiDict d = new TiDict();
+	KrollDict createDictForImage(String path, String mimeType) {
+		KrollDict d = new KrollDict();
 
 		int width = -1;
 		int height = -1;
@@ -343,7 +342,7 @@ public class MediaModule extends TiModule
 		d.put("width", width);
 		d.put("height", height);
 
-		TiDict cropRect = new TiDict();
+		KrollDict cropRect = new KrollDict();
 		cropRect.put("x", 0);
 		cropRect.put("y", 0);
 		cropRect.put("width", width);
@@ -356,15 +355,15 @@ public class MediaModule extends TiModule
 		return d;
 	}
 
-	TiDict createDictForImage(int width, int height, byte[] data) {
-		TiDict d = new TiDict();
+	KrollDict createDictForImage(int width, int height, byte[] data) {
+		KrollDict d = new KrollDict();
 
 		d.put("x", 0);
 		d.put("y", 0);
 		d.put("width", width);
 		d.put("height", height);
 
-		TiDict cropRect = new TiDict();
+		KrollDict cropRect = new KrollDict();
 		cropRect.put("x", 0);
 		cropRect.put("y", 0);
 		cropRect.put("width", width);
@@ -382,7 +381,7 @@ public class MediaModule extends TiModule
 			Log.d(LCAT, "previewImage");
 		}
 
-		TiDict options = (TiDict) args[0];
+		KrollDict options = (KrollDict) args[0];
 
 		KrollCallback successCallback = null;
 		KrollCallback errorCallback = null;
@@ -458,7 +457,7 @@ public class MediaModule extends TiModule
 			w = w.getContainer();
 		}
 
-		TiDict image = TiUIHelper.viewToImage(getTiContext(), w.getDecorView());
+		KrollDict image = TiUIHelper.viewToImage(getTiContext(), w.getDecorView());
 		if (callback != null && image != null) {
 			callback.call(new Object[] { image });
 		}

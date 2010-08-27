@@ -8,13 +8,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.concurrent.CountDownLatch;
 
+import org.appcelerator.kroll.KrollObject;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiRootActivity;
 import org.appcelerator.titanium.kroll.KrollBridge;
 import org.appcelerator.titanium.kroll.KrollContext;
-import org.appcelerator.titanium.kroll.KrollObject;
-import org.appcelerator.titanium.kroll.TitaniumObject;
 import org.appcelerator.titanium.proxy.TiActivityWindowProxy;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;

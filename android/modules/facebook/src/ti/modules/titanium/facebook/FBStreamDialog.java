@@ -9,8 +9,9 @@ package ti.modules.titanium.facebook;
 import java.util.HashMap;
 import java.util.Map;
 
-import android.app.Activity;
 import org.appcelerator.titanium.util.Log;
+
+import android.app.Activity;
 
 /**
  * Dialog for handling stream posts

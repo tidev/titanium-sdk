@@ -7,7 +7,6 @@
 package ti.modules.titanium.ui.widget.tableview;
 
 import org.appcelerator.titanium.TiContext;
-import org.appcelerator.titanium.TiDict;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiUIHelper;
 

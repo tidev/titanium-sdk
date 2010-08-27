@@ -7,10 +7,9 @@
 
 package ti.modules.titanium.accelerometer;
 
+import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.titanium.TiContext;
-import org.appcelerator.titanium.TiDict;
-import org.appcelerator.titanium.TiModule;
-import org.appcelerator.titanium.TiProxy;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiSensorHelper;
 
@@ -54,7 +53,7 @@ public class AccelerometerModule
 	}
 
 	@Override
-	public TiDict getConstants() {
+	public KrollDict getConstants() {
 		return null;
 	}
 
@@ -76,7 +75,7 @@ public class AccelerometerModule
 					float y = event.values[SensorManager.DATA_Y];
 					float z = event.values[SensorManager.DATA_Z];
 
-					TiDict data = new TiDict();
+					KrollDict data = new KrollDict();
 					data.put("type", EVENT_UPDATE);
 					data.put("timestamp", lastEventInUpdate);
 					data.put("x", x);
@@ -89,7 +88,7 @@ public class AccelerometerModule
 	}
 
 	@Override
-	public void listenerAdded(String eventName, int count, TiProxy proxy) {
+	public void listenerAdded(String eventName, int count, KrollProxy proxy) {
 		super.listenerAdded(eventName, count, proxy);
 
 		if (eventName != null && eventName.equals(EVENT_UPDATE)) {
@@ -104,7 +103,7 @@ public class AccelerometerModule
 	}
 
 	@Override
-	public void listenerRemoved(String eventName, int count, TiProxy proxy) {
+	public void listenerRemoved(String eventName, int count, KrollProxy proxy) {
 		super.listenerRemoved(eventName, count, proxy);
 		if (eventName != null && eventName.equals(EVENT_UPDATE)) {
 			if (proxy != null && proxy.equals(this)) {

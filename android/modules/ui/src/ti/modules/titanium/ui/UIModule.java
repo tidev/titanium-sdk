@@ -6,22 +6,20 @@
  */
 package ti.modules.titanium.ui;
 
+import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.titanium.TiContext;
-import org.appcelerator.titanium.TiDict;
-import org.appcelerator.titanium.TiModule;
-import org.appcelerator.titanium.TiProxy;
 import org.appcelerator.titanium.util.TiConvert;
 
 import android.app.Activity;
 import android.content.pm.ActivityInfo;
 import android.graphics.drawable.ColorDrawable;
-import android.text.method.TextKeyListener.Capitalize;
 import android.view.Window;
 import android.widget.Toast;
 
 public class UIModule extends TiModule
 {
-	private static TiDict constants;
+	private static KrollDict constants;
 
 	public static final int PORTRAIT = 1;
 	public static final int UPSIDE_PORTRAIT = 2;
@@ -43,11 +41,11 @@ public class UIModule extends TiModule
 	}
 
 	@Override
-	public TiDict getConstants()
+	public KrollDict getConstants()
 	{
 		if (constants == null)
 		{
-			constants = new TiDict();
+			constants = new KrollDict();
 
 			constants.put("RETURNKEY_GO", 0);
 			constants.put("RETURNKEY_GOOGLE", 1);
@@ -126,7 +124,7 @@ public class UIModule extends TiModule
 	}
 
 	@Override
-	public void propertyChanged(String key, Object oldValue, Object newValue, TiProxy proxy)
+	public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy proxy)
 	{
 		if ("backgroundColor".equals(key)) {
 			Window w = getTiContext().getRootActivity().getWindow();

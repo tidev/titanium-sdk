@@ -6,10 +6,8 @@
  */
 package ti.modules.titanium.json;
 
+import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.titanium.TiContext;
-import org.appcelerator.titanium.TiDict;
-import org.appcelerator.titanium.TiModule;
-import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConvert;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -23,8 +21,8 @@ public class JSONModule extends TiModule {
 	}
 
 	public String stringify(Object data) {
-		if (data instanceof TiDict) {
-			return TiConvert.toJSON((TiDict)data).toString();
+		if (data instanceof KrollDict) {
+			return TiConvert.toJSON((KrollDict)data).toString();
 		} else if (data instanceof Object[]) {
 			Object[] objects = (Object[])data;
 			StringBuilder sb = new StringBuilder();
@@ -55,12 +53,12 @@ public class JSONModule extends TiModule {
 		char firstChar = trimmed.charAt(0);
 
 		if (firstChar == '{') {
-			parsed = new TiDict(new JSONObject(json));
+			parsed = new KrollDict(new JSONObject(json));
 		} else if (firstChar == '[') {
 			JSONArray array = new JSONArray(json);
 			Object result[] = new Object[array.length()];
 			for (int i = 0; i < array.length(); i++) {
-				result[i] = TiDict.fromJSON(array.get(i));
+				result[i] = KrollDict.fromJSON(array.get(i));
 			}
 			parsed = result;
 		} else {

@@ -13,11 +13,11 @@ import java.util.Stack;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import org.appcelerator.kroll.KrollInvocation;
+import org.appcelerator.kroll.KrollProxy;
+import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiContext;
-import org.appcelerator.titanium.TiDict;
-import org.appcelerator.titanium.TiModule;
-import org.appcelerator.titanium.TiProxy;
 import org.appcelerator.titanium.io.TiBaseFile;
 import org.appcelerator.titanium.io.TiFileFactory;
 import org.appcelerator.titanium.kroll.KrollCallback;
@@ -29,13 +29,12 @@ import org.mozilla.javascript.Scriptable;
 
 import android.app.Activity;
 
+@Kroll.module
 public class TitaniumModule
-	extends TiModule
+	extends KrollProxy implements TiContext.OnLifecycleEvent
 {
 	private static final String LCAT = "TitaniumModule";
-	private static TiDict constants;
 	private Stack<String> basePath;
-	private HashMap<String,TiProxy> modules;
 
 	public TitaniumModule(TiContext tiContext) {
 		super(tiContext);
@@ -45,22 +44,24 @@ public class TitaniumModule
 		tiContext.addOnLifecycleEventListener(this);
 	}
 	
-	@Override
-	public TiDict getConstants()
-	{
-		if (constants == null) {
-			constants = new TiDict();
-
-			String version = getTiContext().getTiApp().getTiBuildVersion();
-			constants.put("userAgent",System.getProperties().getProperty("http.agent")+" Titanium/"+version);
-			constants.put("version", version);
-			constants.put("buildTimestamp", getTiContext().getTiApp().getTiBuildTimestamp());
-		}
-
-		return constants;
+	@Kroll.getProperty
+	public String getUserAgent(KrollInvocation invocation) {
+		return System.getProperties().getProperty("http.agent")+" Titanium/"+getVersion(invocation);
+	}
+	
+	@Kroll.getProperty
+	public String getVersion(KrollInvocation invocation) {
+		return getTiContext().getTiApp().getTiBuildVersion();
+	}
+	
+	@Kroll.getProperty
+	public String getBuildTimestamp(KrollInvocation invocation) {
+		return getTiContext().getTiApp().getTiBuildTimestamp();
 	}
 
-	public void include(TiContext tiContext, Object[] files) {
+	@Kroll.method
+	public void include(KrollInvocation invocation, Object[] files) {
+		TiContext tiContext = invocation.getTiContext();
 		for(Object filename : files) {
 			try {
 				// we need to make sure paths included from sub-js files are actually relative
@@ -115,30 +116,35 @@ public class TitaniumModule
 		else throw new IllegalArgumentException("Don't know how to call callback of type: " + fn.getClass().getName());
 	}
 
-	public int setTimeout(Object fn, long timeout, final Object[] args)
+	@Kroll.method
+	public int setTimeout(KrollInvocation invocation, Object fn, long timeout, final Object[] args)
 		throws IllegalArgumentException
 	{
 		return createTimer(fn, timeout, args, false);
 	}
 
-	public void clearTimeout(int timerId) {
+	@Kroll.method
+	public void clearTimeout(KrollInvocation invocation, int timerId) {
 		if (timers.containsKey(timerId)) {
 			Timer timer = timers.remove(timerId);
 			timer.cancel();
 		}
 	}
 
-	public int setInterval(Object fn, long timeout, final Object[] args)
+	@Kroll.method
+	public int setInterval(KrollInvocation invocation, Object fn, long timeout, final Object[] args)
 		throws IllegalArgumentException
 	{
 		return createTimer(fn, timeout, args, true);
 	}
 
-	public void clearInterval(int timerId) {
-		clearTimeout(timerId);
+	@Kroll.method
+	public void clearInterval(KrollInvocation invocation, int timerId) {
+		clearTimeout(invocation, timerId);
 	}
 
-	public void alert(Object message) {
+	@Kroll.method
+	public void alert(KrollInvocation invocation, Object message) {
 		String msg = (message == null? null : message.toString());
 		Log.i("ALERT", msg);
 		Activity currentActivity = getTiContext().getTiApp().getCurrentActivity();
@@ -148,13 +154,23 @@ public class TitaniumModule
 		TiUIHelper.doOkDialog(currentActivity, "Alert", msg, null);
 	}
 	
-	public TiProxy require(String path) {
+	public void cancelTimers() {
+		for (Timer timer: timers.values()) {
+			if (timer != null) {
+				timer.cancel();
+			}
+		}
+		timers.clear();
+	}
+	
+	@Kroll.method
+	public KrollProxy require(KrollInvocation invocation, String path) {
 		
 		// 1. look for a TiPlus module first
 		// 2. then look for a cached module
 		// 3. then attempt to load from resources
 		TiContext ctx = getTiContext();
-		TiProxy proxy = new TiProxy(ctx);
+		KrollProxy proxy = new KrollProxy(ctx);
 		
 		//TODO: right now, we're only supporting app 
 		//level modules until TiPlus is done for android
@@ -182,13 +198,13 @@ public class TitaniumModule
 					{
 						String propName = key.toString();
 						Scriptable propValue = (Scriptable)result.get(propName,result);
-						proxy.setDynamicValue(propName,propValue);
+						proxy.setProperty(propName, propValue);
 					}
 					// spec says you must have a read-only id property - we don't
 					// currently support readonly in kroll so this is probably OK for now
-					proxy.setDynamicValue("id",path);
+					proxy.setProperty("id", path);
 					// uri is optional but we point it to where we loaded it
-					proxy.setDynamicValue("uri",fileUrl);
+					proxy.setProperty("uri",fileUrl);
 					return proxy;
 				}
 			}
@@ -208,22 +224,22 @@ public class TitaniumModule
 	@Override
 	public void onDestroy() {
 		cancelTimers();
-		super.onDestroy();
 	}
 	
 	@Override
 	public void onStop() {
 		cancelTimers();
-		super.onStop();
 	}
 	
-	public void cancelTimers() {
-		for (Timer timer: timers.values()) {
-			if (timer != null) {
-				timer.cancel();
-			}
-		}
-		timers.clear();
+	@Override
+	public void onStart() {
 	}
 	
+	@Override
+	public void onPause() {	
+	}
+	
+	@Override
+	public void onResume() {
+	}
 }

@@ -6,22 +6,17 @@
  */
 package org.appcelerator.kroll;
 
-import java.util.HashMap;
-
 import org.mozilla.javascript.Scriptable;
 
 public class KrollProxy {
 
 	public static final Object UNDEFINED = new Object();
 	
-	protected HashMap<String, Object> properties = new HashMap<String, Object>();
+	protected KrollDict properties = new KrollDict();
+	public static KrollBindings bindings;
 	
 	public String getAPIClassName() {
 		return getClass().getSimpleName();
-	}
-	
-	public void bind(Scriptable scope, KrollProxy rootObject) {
-		KrollProxyBindings.getBinding(this).bind(scope, rootObject, this);
 	}
 	
 	public boolean has(Scriptable scope, String name) {
@@ -30,6 +25,12 @@ public class KrollProxy {
 			return true;
 		} catch (NoSuchFieldException e) {
 			return false;
+		}
+	}
+	
+	public void bind(Scriptable scope, KrollProxy rootObject) {
+		if (bindings != null) {
+			bindings.getBinding(getClass()).bind(scope, rootObject, this);
 		}
 	}
 	
@@ -91,5 +92,22 @@ public class KrollProxy {
 			throw new NoSuchFieldException("dynamic property \""+name+"\" of proxy \""+
 				getAPIClassName()+"\" doesn't have write support");
 		}
+	}
+	
+	// direct-access accessors (these circumvent programmatic accessors and go straight to the internal map)
+	public KrollDict getProperties() {
+		return properties;
+	}
+	
+	public boolean hasProperty(String name) {
+		return properties.containsKey(name);
+	}
+	
+	public Object getProperty(String name) {
+		return properties.get(name);
+	}
+	
+	public void setProperty(String name, Object value) {
+		properties.put(name, value);
 	}
 }

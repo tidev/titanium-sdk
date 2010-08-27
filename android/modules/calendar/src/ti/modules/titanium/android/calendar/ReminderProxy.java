@@ -2,8 +2,8 @@ package ti.modules.titanium.android.calendar;
 
 import java.util.ArrayList;
 
+import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.titanium.TiContext;
-import org.appcelerator.titanium.TiProxy;
 import org.appcelerator.titanium.util.Log;
 
 import android.content.ContentResolver;
@@ -11,7 +11,7 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.net.Uri;
 
-public class ReminderProxy extends TiProxy {
+public class ReminderProxy extends KrollProxy {
 
 	public static final int METHOD_DEFAULT = 0;
 	public static final int METHOD_ALERT = 1;

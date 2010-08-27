@@ -6,8 +6,8 @@
  */
 package ti.modules.titanium.ui.widget.searchbar;
 
-import org.appcelerator.titanium.TiDict;
-import org.appcelerator.titanium.TiProxy;
+import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
 
@@ -85,7 +85,7 @@ public class TiUISearchBar extends TiUIText
 	}
 
 	@Override
-	public void processProperties(TiDict d)
+	public void processProperties(KrollDict d)
 	{
 		super.processProperties(d);
 
@@ -98,7 +98,7 @@ public class TiUISearchBar extends TiUIText
 	}
 
 	@Override
-	public void propertyChanged(String key, Object oldValue, Object newValue, TiProxy proxy)
+	public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy proxy)
 	{
 		if (key.equals("showCancel")) {
 			boolean showCancel = TiConvert.toBoolean(newValue);

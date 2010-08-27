@@ -8,13 +8,12 @@ package org.appcelerator.titanium.view;
 
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollProxy;
+import org.appcelerator.kroll.KrollProxyListener;
 import org.appcelerator.titanium.TiContext;
-import org.appcelerator.titanium.TiDict;
-import org.appcelerator.titanium.TiProxy;
-import org.appcelerator.titanium.TiProxyListener;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiAnimationBuilder;
@@ -24,9 +23,6 @@ import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiCompositeLayout.LayoutParams;
 
 import android.content.Context;
-import android.graphics.ColorFilter;
-import android.graphics.ColorMatrix;
-import android.graphics.ColorMatrixColorFilter;
 import android.graphics.drawable.Drawable;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
@@ -35,12 +31,11 @@ import android.view.ViewGroup;
 import android.view.GestureDetector.SimpleOnGestureListener;
 import android.view.View.OnFocusChangeListener;
 import android.view.View.OnTouchListener;
-import android.view.animation.AlphaAnimation;
 import android.view.animation.AnimationSet;
 import android.view.inputmethod.InputMethodManager;
 
 public abstract class TiUIView
-	implements TiProxyListener, OnFocusChangeListener
+	implements KrollProxyListener, OnFocusChangeListener
 {
 	private static final String LCAT = "TiUIView";
 	private static final boolean DBG = TiConfig.LOGD;
@@ -144,13 +139,13 @@ public abstract class TiUIView
 		}
 	}
 
-	public void listenerAdded(String type, int count, TiProxy proxy) {
+	public void listenerAdded(String type, int count, KrollProxy proxy) {
 	}
 
-	public void listenerRemoved(String type, int count, TiProxy proxy) {
+	public void listenerRemoved(String type, int count, KrollProxy proxy) {
 	}
 
-	public void propertyChanged(String key, Object oldValue, Object newValue, TiProxy proxy)
+	public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy proxy)
 	{
 		if (key.equals("left")) {
 			if (newValue != null) {
@@ -232,7 +227,7 @@ public abstract class TiUIView
 		} else if (key.equals("enabled")) {
 			nativeView.setEnabled(TiConvert.toBoolean(newValue));
 		} else if (key.equals("backgroundColor") || key.equals("backgroundImage") || key.startsWith("border")) {
-			TiDict d = proxy.getDynamicProperties();
+			KrollDict d = proxy.getProperties();
 
 			boolean hasBorder = d.get("borderColor") != null || d.get("borderRadius") != null || d.get("borderWidth") != null;
 			boolean hasImage = d.get("backgroundImage") != null || d.get("backgroundSelectedImage") != null || d.get("backgroundDisabledImage") != null;
@@ -295,7 +290,7 @@ public abstract class TiUIView
 		}
 	}
 
-	public void processProperties(TiDict d)
+	public void processProperties(KrollDict d)
 	{
 		if (d.containsKey("layout")) {
 			String layout = TiConvert.toString(d, "layout");
@@ -377,7 +372,7 @@ public abstract class TiUIView
 		}
 	}
 
-	protected TiDict getFocusEventObject(boolean hasFocus) {
+	protected KrollDict getFocusEventObject(boolean hasFocus) {
 		return null;
 	}
 
@@ -454,7 +449,7 @@ public abstract class TiUIView
 
 	// Initial implementation.
 	// TODO implement other background states.
-	private void handleBackgroundImage(TiDict d)
+	private void handleBackgroundImage(KrollDict d)
 	{
 		String bg = d.getString("backgroundImage");
 		String bgSelected = d.getString("backgroundSelectedImage");
@@ -516,7 +511,7 @@ public abstract class TiUIView
 //		}
 	}
 
-	private void initializeBorder(TiDict d, Integer bgColor)
+	private void initializeBorder(KrollDict d, Integer bgColor)
 	{
 		if (d.containsKey("borderRadius") || d.containsKey("borderColor") || d.containsKey("borderWidth")) {
 			if (background == null) {
@@ -573,8 +568,8 @@ public abstract class TiUIView
 		motionEvents.put(MotionEvent.ACTION_CANCEL, "touchcancel");
 	}
 
-	private TiDict dictFromEvent(MotionEvent e) {
-		TiDict data = new TiDict();
+	private KrollDict dictFromEvent(MotionEvent e) {
+		KrollDict data = new KrollDict();
 		data.put("x", (double)e.getX());
 		data.put("y", (double)e.getY());
 		data.put("source", proxy);
@@ -637,7 +632,7 @@ public abstract class TiUIView
 		nativeView.getBackground().clearColorFilter();
 	}
 
-	public TiDict toImage() {
+	public KrollDict toImage() {
 		return TiUIHelper.viewToImage(proxy.getTiContext(), getNativeView());
 	}
 }

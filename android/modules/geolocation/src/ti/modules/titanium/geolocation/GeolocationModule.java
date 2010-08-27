@@ -18,11 +18,10 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
+import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.titanium.ContextSpecific;
 import org.appcelerator.titanium.TiContext;
-import org.appcelerator.titanium.TiDict;
-import org.appcelerator.titanium.TiModule;
-import org.appcelerator.titanium.TiProxy;
 import org.appcelerator.titanium.kroll.KrollCallback;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
@@ -43,11 +42,11 @@ public class GeolocationModule
 	private static final boolean DBG = TiConfig.LOGD;
 	private static final String BASE_GEO_URL = "http://api.appcelerator.net/p/v1/geo?";
 
-	private static final int MSG_FIRST_ID = TiProxy.MSG_LAST_ID + 1;
+	private static final int MSG_FIRST_ID = KrollProxy.MSG_LAST_ID + 1;
 	private static final int MSG_LOOKUP = MSG_FIRST_ID + 100;
 	protected static final int MSG_LAST_ID = MSG_FIRST_ID + 999;
 
-	private static TiDict constants;
+	private static KrollDict constants;
 
 	private TiLocation tiLocation;
 	private TiCompass tiCompass;
@@ -64,10 +63,10 @@ public class GeolocationModule
 	}
 
 	@Override
-	public TiDict getConstants()
+	public KrollDict getConstants()
 	{
 		if (constants == null) {
-			constants = new TiDict();
+			constants = new KrollDict();
 
 			constants.put("ACCURACY_BEST", TiLocation.ACCURACY_BEST);
 			constants.put("ACCURACY_NEAREST_TEN_METERS", TiLocation.ACCURACY_NEAREST_TEN_METERS);
@@ -105,7 +104,7 @@ public class GeolocationModule
 	}
 
 	@Override
-	public void listenerAdded(String eventName, int count, TiProxy proxy) {
+	public void listenerAdded(String eventName, int count, KrollProxy proxy) {
 		super.listenerAdded(eventName, count, proxy);
 
 		if (proxy != null && proxy.equals(this)) {
@@ -120,7 +119,7 @@ public class GeolocationModule
 	}
 
 	@Override
-	public void listenerRemoved(String eventName, int count, TiProxy proxy) {
+	public void listenerRemoved(String eventName, int count, KrollProxy proxy) {
 		super.listenerRemoved(eventName, count, proxy);
 
 		if (proxy != null && proxy.equals(this)) {
@@ -204,9 +203,9 @@ public class GeolocationModule
 	}
 
 
-	private TiDict placeToAddress(JSONObject place)
+	private KrollDict placeToAddress(JSONObject place)
 	{
-		TiDict address = new TiDict();
+		KrollDict address = new KrollDict();
 		address.put("street1", place.optString("street", ""));
 		address.put("street", place.optString("street", ""));
 		address.put("city", place.optString("city", ""));
@@ -224,14 +223,14 @@ public class GeolocationModule
 		return address;
 	}
 
-	private TiDict buildReverseResponse(JSONObject r)
+	private KrollDict buildReverseResponse(JSONObject r)
 		throws JSONException
 	{
-		TiDict response = new TiDict();
+		KrollDict response = new KrollDict();
 		JSONArray places = r.getJSONArray("places");
 
 		int count = places.length();
-		TiDict[] newPlaces = new TiDict[count];
+		KrollDict[] newPlaces = new KrollDict[count];
 		for (int i = 0; i < count; i++) {
 			newPlaces[i] = placeToAddress(places.getJSONObject(i));
 		}
@@ -241,10 +240,10 @@ public class GeolocationModule
 		return response;
 	}
 
-	private TiDict buildForwardResponse(JSONObject r)
+	private KrollDict buildForwardResponse(JSONObject r)
 		throws JSONException
 	{
-		TiDict response = new TiDict();
+		KrollDict response = new KrollDict();
 		JSONArray places = r.getJSONArray("places");
 		if (places.length() > 0) {
 			response = placeToAddress(places.getJSONObject(0));
@@ -285,7 +284,7 @@ public class GeolocationModule
 						if (DBG) {
 							Log.i(LCAT, "Received Geo: " + response);
 						}
-						TiDict event = null;
+						KrollDict event = null;
 						if (response != null) {
 							try {
 								JSONObject r = new JSONObject(response);
@@ -296,8 +295,8 @@ public class GeolocationModule
 										event = buildForwardResponse(r);
 									}
 								} else {
-									event = new TiDict();
-									TiDict err = new TiDict();
+									event = new KrollDict();
+									KrollDict err = new KrollDict();
 									String errorCode = r.getString("errorcode");
 									err.put("message", "Unable to resolve message: Code (" + errorCode + ")");
 									err.put("code", errorCode);

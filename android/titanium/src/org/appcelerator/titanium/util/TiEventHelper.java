@@ -10,7 +10,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.appcelerator.titanium.TiDict;
+import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 
 public class TiEventHelper {
@@ -21,7 +21,7 @@ public class TiEventHelper {
 	
 	public static void fireViewEvent(TiViewProxy view, String type, Map<String,Object> extraProperties)
 	{
-		TiDict event = new TiDict();
+		KrollDict event = new KrollDict();
 		event.put("source", view);
 		event.put("type", type);
 		

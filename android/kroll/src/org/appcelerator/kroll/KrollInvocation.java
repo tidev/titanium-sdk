@@ -6,9 +6,6 @@
  */
 package org.appcelerator.kroll;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-
 import org.mozilla.javascript.Scriptable;
 
 import android.app.Activity;

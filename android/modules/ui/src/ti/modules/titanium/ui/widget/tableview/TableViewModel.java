@@ -8,10 +8,9 @@ package ti.modules.titanium.ui.widget.tableview;
 
 import java.util.ArrayList;
 
+import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.titanium.TiContext;
-import org.appcelerator.titanium.TiDict;
 import org.appcelerator.titanium.proxy.TiViewProxy;
-import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConvert;
 
 import ti.modules.titanium.ui.TableViewProxy;
@@ -75,7 +74,7 @@ public class TableViewModel
         Item newItem = new Item(index);
         TableViewRowProxy rowProxy = null;
 
-        if (data instanceof TiDict) {
+        if (data instanceof KrollDict) {
             Object[] args = { data };
             rowProxy = new TableViewRowProxy(tiContext, args);
             rowProxy.setDynamicValue("className", TableViewProxy.CLASSNAME_NORMAL);

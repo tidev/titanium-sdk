@@ -12,18 +12,14 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.concurrent.Semaphore;
 
-import org.appcelerator.titanium.TiActivity;
+import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.titanium.TiContext;
-import org.appcelerator.titanium.TiDict;
-import org.appcelerator.titanium.TiContext.OnLifecycleEvent;
-import org.appcelerator.titanium.kroll.IKrollCallable;
 import org.appcelerator.titanium.util.Log;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import ti.modules.titanium.api.APIModule;
 import ti.modules.titanium.app.AppModule;
-import android.app.Activity;
 import android.webkit.WebView;
 
 public class TiWebViewBinding {
@@ -113,7 +109,7 @@ public class TiWebViewBinding {
 		public void call() {}
 		public void call(Object[] args) {}
 		
-		public void callWithProperties(TiDict data) {
+		public void callWithProperties(KrollDict data) {
 			String code = "Ti.executeListener("+id+", "+data.toString()+");";
 			evalJS(code);
 		}
@@ -166,9 +162,9 @@ public class TiWebViewBinding {
 		public void fireEvent(String event, String json)
 		{
 			try {
-				TiDict dict = new TiDict();
+				KrollDict dict = new KrollDict();
 				if (json != null && !json.equals("undefined")) {
-					dict = new TiDict(new JSONObject(json));
+					dict = new KrollDict(new JSONObject(json));
 				}
 				module.fireEvent(event, dict);
 			} catch (JSONException e) {

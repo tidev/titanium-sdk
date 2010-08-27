@@ -6,25 +6,24 @@
  */
 package ti.modules.titanium.ui.activityindicator;
 
+import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.titanium.TiContext;
-import org.appcelerator.titanium.TiDict;
-import org.appcelerator.titanium.TiModule;
 
 import ti.modules.titanium.ui.widget.TiUIActivityIndicator;
 
 public class ActivityIndicatorModule extends TiModule
 {
-	private static TiDict constants;
+	private static KrollDict constants;
 
 	public ActivityIndicatorModule(TiContext tiContext) {
 		super(tiContext);
 	}
 
 	@Override
-	public TiDict getConstants()
+	public KrollDict getConstants()
 	{
 		if (constants == null) {
-			constants = new TiDict();
+			constants = new KrollDict();
 
 			constants.put("STATUS_BAR", TiUIActivityIndicator.STATUS_BAR);
 			constants.put("DIALOG", TiUIActivityIndicator.DIALOG);

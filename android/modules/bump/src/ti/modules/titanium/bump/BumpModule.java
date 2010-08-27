@@ -6,9 +6,8 @@
  */
 package ti.modules.titanium.bump;
 
+import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.titanium.TiContext;
-import org.appcelerator.titanium.TiDict;
-import org.appcelerator.titanium.TiModule;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiActivityResultHandler;
 import org.appcelerator.titanium.util.TiActivitySupport;
@@ -56,7 +55,7 @@ public class BumpModule extends TiModule implements TiActivityResultHandler, Bum
 				Log.e(LCAT, "Error Sending data to other party. "+e.getMessage());
 			}
 		} else {
-			TiDict eventArgs = new TiDict();
+			KrollDict eventArgs = new KrollDict();
 			eventArgs.put("message", "Not Connected");
 			this.fireEvent("error", eventArgs);
 			
@@ -99,7 +98,7 @@ public class BumpModule extends TiModule implements TiActivityResultHandler, Bum
 			}
 			
 			// Bubble up the event
-			TiDict eventData = new TiDict();			
+			KrollDict eventData = new KrollDict();			
 			this.fireEvent("ready", eventData);
 		
 		} catch (Exception e) {
@@ -107,7 +106,7 @@ public class BumpModule extends TiModule implements TiActivityResultHandler, Bum
 		}
 	}
 	
-	public void connect(TiDict props) {
+	public void connect(KrollDict props) {
 
 		// Process the args to the method
 		if (props.containsKey("apikey")) {
@@ -166,7 +165,7 @@ public class BumpModule extends TiModule implements TiActivityResultHandler, Bum
 				conn.setListener(this, baseHandler);
 				
 				// Fan out the event to the app
-				TiDict eventData = new TiDict();
+				KrollDict eventData = new KrollDict();
 				eventData.put("username", conn.getOtherUserName());
 				this.fireEvent("connected", eventData);
 				
@@ -188,7 +187,7 @@ public class BumpModule extends TiModule implements TiActivityResultHandler, Bum
 				BumpConnectFailedReason reason = (BumpConnectFailedReason) data.getSerializableExtra(BumpAPI.EXTRA_REASON);
 				
 				// Notify the app about the failure
-				TiDict eventData = new TiDict();
+				KrollDict eventData = new KrollDict();
 				eventData.put("message", reason.toString());
 				this.fireEvent("error", eventData);
 				
@@ -284,7 +283,7 @@ public class BumpModule extends TiModule implements TiActivityResultHandler, Bum
 		}
 		
 		// Float the event to the app
-		TiDict eventData = new TiDict();
+		KrollDict eventData = new KrollDict();
 		eventData.put("message", disconnectDueTo);
 		this.fireEvent("disconnect", eventData);
 		
@@ -292,7 +291,7 @@ public class BumpModule extends TiModule implements TiActivityResultHandler, Bum
 	
 	public String dataReceived(String data) {
 		// Float up the event to the app
-		TiDict eventData = new TiDict();
+		KrollDict eventData = new KrollDict();
 		eventData.put("data", data);
 		this.fireEvent("data",eventData);
 		

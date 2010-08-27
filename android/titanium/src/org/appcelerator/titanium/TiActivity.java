@@ -10,6 +10,8 @@ import java.lang.ref.SoftReference;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 
+import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollInvocation;
 import org.appcelerator.titanium.proxy.TiWindowProxy;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiActivityResultHandler;
@@ -328,7 +330,7 @@ public class TiActivity extends Activity
 	@Override
 	public void finish()
 	{
-		TiDict data = new TiDict();
+		KrollDict data = new KrollDict();
 		for (WeakReference<TiContext> contextRef : contexts) {
 			if (contextRef.get() != null) {
 				contextRef.get().dispatchEvent("close", data, proxy);
@@ -382,9 +384,9 @@ public class TiActivity extends Activity
 	
 	protected void updateTitle() {
 		if (proxy != null) {
-			if (proxy.hasDynamicValue("title")) {
+			if (proxy.hasProperty("title")) {
 				String oldTitle = (String) getTitle();
-				String newTitle = TiConvert.toString(proxy.getDynamicValue("title"));
+				String newTitle = TiConvert.toString(proxy.getProperty("title"));
 				if (oldTitle == null) {
 					oldTitle = "";
 				}
@@ -397,7 +399,7 @@ public class TiActivity extends Activity
 
 						@Override
 						public void run() {
-							setTitle(fnewTitle);							
+							setTitle(fnewTitle);
 						}
 					});
 				}

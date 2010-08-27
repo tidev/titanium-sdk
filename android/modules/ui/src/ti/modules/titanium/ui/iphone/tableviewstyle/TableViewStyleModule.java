@@ -6,13 +6,12 @@
  */
 package ti.modules.titanium.ui.iphone.tableviewstyle;
 
+import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.titanium.TiContext;
-import org.appcelerator.titanium.TiDict;
-import org.appcelerator.titanium.TiModule;
 
 public class TableViewStyleModule extends TiModule
 {
-	private static TiDict constants;
+	private static KrollDict constants;
 
 	public TableViewStyleModule(TiContext tiContext)
 	{
@@ -20,9 +19,9 @@ public class TableViewStyleModule extends TiModule
 	}
 
 	@Override
-	public TiDict getConstants() {
+	public KrollDict getConstants() {
 		if (constants == null) {
-			constants = new TiDict();
+			constants = new KrollDict();
 
 			constants.put("GROUPED", "iphone only");
 			constants.put("PLAIN", "iphone only");

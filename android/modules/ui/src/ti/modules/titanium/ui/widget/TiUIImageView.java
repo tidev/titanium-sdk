@@ -13,10 +13,10 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiContext;
-import org.appcelerator.titanium.TiDict;
-import org.appcelerator.titanium.TiProxy;
 import org.appcelerator.titanium.TiContext.OnLifecycleEvent;
 import org.appcelerator.titanium.io.TiBaseFile;
 import org.appcelerator.titanium.io.TiFileFactory;
@@ -31,10 +31,8 @@ import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.filesystem.FileProxy;
 import android.graphics.Bitmap;
-import android.graphics.ColorFilter;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
-import android.net.Uri;
 import android.os.Handler;
 import android.os.Message;
 import android.webkit.URLUtil;
@@ -130,8 +128,8 @@ public class TiUIImageView extends TiUIView
 			} catch (IOException e) {
 				Log.e(LCAT, "Error creating drawable from path: " + image.toString(), e);
 			}
-		} else if (image instanceof TiDict) {
-			TiBlob blob = TiUIHelper.getImageFromDict((TiDict)image);
+		} else if (image instanceof KrollDict) {
+			TiBlob blob = TiUIHelper.getImageFromDict((KrollDict)image);
 			if (blob != null) {
 				return TiUIHelper.createBitmap(blob.getInputStream());
 			} else {
@@ -303,27 +301,27 @@ public class TiUIImageView extends TiUIView
 
 	private void fireLoad(String state)
 	{
-		TiDict data = new TiDict();
+		KrollDict data = new KrollDict();
 		data.put("state", state);
 		proxy.fireEvent("load", data);
 	}
 
 	private void fireStart()
 	{
-		TiDict data = new TiDict();
+		KrollDict data = new KrollDict();
 		proxy.fireEvent("start", data);
 	}
 
 	private void fireChange(int index)
 	{
-		TiDict data = new TiDict();
+		KrollDict data = new KrollDict();
 		data.put("index", index);
 		proxy.fireEvent("change", data);
 	}
 
 	private void fireStop()
 	{
-		TiDict data = new TiDict();
+		KrollDict data = new KrollDict();
 		proxy.fireEvent("stop", data);
 	}
 
@@ -425,7 +423,7 @@ public class TiUIImageView extends TiUIView
 	}
 
 	@Override
-	public void processProperties(TiDict d)
+	public void processProperties(KrollDict d)
 	{
 		TiImageView view = getView();
 
@@ -472,7 +470,7 @@ public class TiUIImageView extends TiUIView
 	}
 
 	@Override
-	public void propertyChanged(String key, Object oldValue, Object newValue, TiProxy proxy)
+	public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy proxy)
 	{
 		TiImageView view = getView();
 

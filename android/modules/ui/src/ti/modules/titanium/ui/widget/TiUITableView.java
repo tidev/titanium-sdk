@@ -8,8 +8,8 @@ package ti.modules.titanium.ui.widget;
 
 import java.util.concurrent.Semaphore;
 
-import org.appcelerator.titanium.TiDict;
-import org.appcelerator.titanium.TiProxy;
+import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
@@ -22,10 +22,8 @@ import ti.modules.titanium.ui.widget.searchbar.TiUISearchBar;
 import ti.modules.titanium.ui.widget.tableview.TableViewModel;
 import ti.modules.titanium.ui.widget.tableview.TiTableView;
 import ti.modules.titanium.ui.widget.tableview.TiTableView.OnItemClickedListener;
-import android.graphics.ColorFilter;
 import android.os.Handler;
 import android.view.Gravity;
-import android.widget.ListView;
 import android.widget.RelativeLayout;
 
 public class TiUITableView extends TiUIView
@@ -68,7 +66,7 @@ public class TiUITableView extends TiUIView
 	}
 
 	@Override
-	public void onClick(TiDict data) {
+	public void onClick(KrollDict data) {
 		proxy.fireEvent(EVENT_CLICK, data);
 	}
 	
@@ -89,7 +87,7 @@ public class TiUITableView extends TiUIView
 	}
 
 	@Override
-	public void processProperties(TiDict d)
+	public void processProperties(KrollDict d)
 	{
 		tableView = new TiTableView(proxy.getTiContext(), (TableViewProxy) proxy);
 		tableView.setOnItemClickListener(this);
@@ -282,7 +280,7 @@ public class TiUITableView extends TiUIView
 
 	@Override
 	public void propertyChanged(String key, Object oldValue, Object newValue,
-			TiProxy proxy) {
+			KrollProxy proxy) {
 		if (DBG) {
 			Log.d(LCAT, "Property: " + key + " old: " + oldValue + " new: " + newValue);
 		}

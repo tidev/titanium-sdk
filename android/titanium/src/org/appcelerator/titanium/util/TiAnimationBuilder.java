@@ -6,7 +6,8 @@
  */
 package org.appcelerator.titanium.util;
 
-import org.appcelerator.titanium.TiDict;
+import org.appcelerator.kroll.KrollConverter;
+import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.titanium.kroll.KrollCallback;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.view.Ti2DMatrix;
@@ -43,7 +44,7 @@ public class TiAnimationBuilder
 
 	protected KrollCallback callback;
 	protected boolean relayoutChild = false, applyOpacity = false;
-	protected TiDict options;
+	protected KrollDict options;
 	protected View view;
 	protected TiViewProxy viewProxy;
 	
@@ -54,47 +55,47 @@ public class TiAnimationBuilder
 		anchorY = 0.5;
 	}
 
-	public void applyOptions(TiDict options)
+	public void applyOptions(KrollDict options)
 	{
 		if (options == null) {
 			return;
 		}
 
 		if (options.containsKey("anchorPoint")) {
-			TiDict point = (TiDict) options.get("anchorPoint");
-			anchorX = TiConvert.toDouble(point, "x");
-			anchorY = TiConvert.toDouble(point, "y");
+			KrollDict point = (KrollDict) options.get("anchorPoint");
+			anchorX = KrollConverter.toDouble(point, "x");
+			anchorY = KrollConverter.toDouble(point, "y");
 		}
 
 		if (options.containsKey("transform")) {
 			tdm = (Ti2DMatrix) options.get("transform");
 		}
 		if (options.containsKey("delay")) {
-			delay = TiConvert.toDouble(options, "delay");
+			delay = KrollConverter.toDouble(options, "delay");
 		}
 		if (options.containsKey("duration")) {
-			duration = TiConvert.toDouble(options, "duration");
+			duration = KrollConverter.toDouble(options, "duration");
 		}
 		if (options.containsKey("opacity")) {
-			toOpacity = TiConvert.toDouble(options, "opacity");
+			toOpacity = KrollConverter.toDouble(options, "opacity");
 		}
 		if (options.containsKey("repeat")) {
-			repeat = TiConvert.toDouble(options, "repeat");
+			repeat = KrollConverter.toDouble(options, "repeat");
 		}
 		if (options.containsKey("autoreverse")) {
-			autoreverse = TiConvert.toBoolean(options, "autoreverse");
+			autoreverse = KrollConverter.toBoolean(options, "autoreverse");
 		}
 		if (options.containsKey("top")) {
-			top = TiConvert.toInt(options, "top");
+			top = KrollConverter.toInt(options, "top");
 		}
 		if (options.containsKey("bottom")) {
-			bottom = TiConvert.toInt(options, "bottom");
+			bottom = KrollConverter.toInt(options, "bottom");
 		}
 		if (options.containsKey("left")) {
-			left = TiConvert.toInt(options, "left");
+			left = KrollConverter.toInt(options, "left");
 		}
 		if (options.containsKey("right")) {
-			right = TiConvert.toInt(options, "right");
+			right = KrollConverter.toInt(options, "right");
 		}
 		
 		this.options = options;
@@ -102,7 +103,7 @@ public class TiAnimationBuilder
 
 	public void applyAnimation(TiAnimation anim) {
 		this.animationProxy = anim;
-		applyOptions(anim.getDynamicProperties());
+		applyOptions(anim.getProperties());
 	}
 
 	public void setCallback(KrollCallback callback) {
@@ -148,8 +149,8 @@ public class TiAnimationBuilder
 		AnimationListener listener = new AnimationListener();
 		
 		if (toOpacity != null) {
-			if (viewProxy.hasDynamicValue("opacity")) {
-				fromOpacity = TiConvert.toDouble(viewProxy.getDynamicValue("opacity"));
+			if (viewProxy.hasProperty("opacity")) {
+				fromOpacity = TiConvert.toDouble(viewProxy.getProperty("opacity"));
 			} else {
 				fromOpacity = 1.0 - toOpacity;
 			}
@@ -159,7 +160,7 @@ public class TiAnimationBuilder
 			addAnimation(as,a);
 			a.setAnimationListener(listener);
 			
-			if (viewProxy.hasDynamicValue("opacity") && fromOpacity != null && toOpacity != null) {
+			if (viewProxy.hasProperty("opacity") && fromOpacity != null && toOpacity != null) {
 				if (fromOpacity > 0 && fromOpacity < 1) {
 					TiUIView uiView = viewProxy.getView(null);
 					uiView.setOpacity(1);

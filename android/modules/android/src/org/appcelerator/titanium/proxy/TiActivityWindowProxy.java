@@ -3,8 +3,8 @@
  */
 package org.appcelerator.titanium.proxy;
 
+import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.titanium.TiContext;
-import org.appcelerator.titanium.TiDict;
 import org.appcelerator.titanium.view.TiUIView;
 
 public class TiActivityWindowProxy extends TiWindowProxy 
@@ -20,12 +20,12 @@ public class TiActivityWindowProxy extends TiWindowProxy
 	}
 	
 	@Override
-	protected void handleClose(TiDict options) 
+	protected void handleClose(KrollDict options) 
 	{
 	}
 
 	@Override
-	protected void handleOpen(TiDict options) 
+	protected void handleOpen(KrollDict options) 
 	{
 	}
 }

@@ -26,9 +26,6 @@ import org.mozilla.javascript.EvaluatorException;
 import org.mozilla.javascript.Scriptable;
 
 import android.app.Activity;
-import android.app.AlertDialog;
-import android.content.DialogInterface;
-import android.content.DialogInterface.OnClickListener;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Message;

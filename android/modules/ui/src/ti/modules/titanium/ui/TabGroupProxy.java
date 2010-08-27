@@ -10,9 +10,9 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.titanium.TiActivity;
 import org.appcelerator.titanium.TiContext;
-import org.appcelerator.titanium.TiDict;
 import org.appcelerator.titanium.proxy.TiWindowProxy;
 import org.appcelerator.titanium.util.AsyncResult;
 import org.appcelerator.titanium.util.Log;
@@ -166,7 +166,7 @@ public class TabGroupProxy extends TiWindowProxy
 	}
 
 	@Override
-	protected void handleOpen(TiDict options)
+	protected void handleOpen(KrollDict options)
 	{
 		//TODO skip multiple opens?
 		Log.i(LCAT, "handleOpen");
@@ -191,7 +191,7 @@ public class TabGroupProxy extends TiWindowProxy
 	}
 
 	@Override
-	protected void handleClose(TiDict options) {
+	protected void handleClose(KrollDict options) {
 		Log.i(LCAT, "handleClose");
 		modelListener = null;
 		getTiContext().getRootActivity().closeWindow(windowId);
@@ -202,12 +202,12 @@ public class TabGroupProxy extends TiWindowProxy
 		opened = false;
 	}
 
-	public TiDict buildFocusEvent(String to, String from)
+	public KrollDict buildFocusEvent(String to, String from)
 	{
 		int toIndex = indexForId(to);
 		int fromIndex = indexForId(from);
 
-		TiDict e = new TiDict();
+		KrollDict e = new KrollDict();
 
 		e.put("index", toIndex);
 		e.put("previousIndex", fromIndex);
@@ -215,7 +215,7 @@ public class TabGroupProxy extends TiWindowProxy
 		if (fromIndex != -1) {
 			e.put("previousTab", tabs.get(fromIndex));
 		} else {
-			TiDict fakeTab = new TiDict();
+			KrollDict fakeTab = new KrollDict();
 			fakeTab.put("title", "no tab");
 			e.put("previousTab", fakeTab);
 		}
@@ -245,7 +245,7 @@ public class TabGroupProxy extends TiWindowProxy
 
 	private void fillIntent(Activity activity, Intent intent)
 	{
-		TiDict props = getDynamicProperties();
+		KrollDict props = getDynamicProperties();
 
 		if (props != null) {
 			if (props.containsKey("fullscreen")) {
@@ -262,7 +262,7 @@ public class TabGroupProxy extends TiWindowProxy
 	}
 	
 	@Override
-	public TiDict handleToImage() {
+	public KrollDict handleToImage() {
 		return TiUIHelper.viewToImage(getTiContext(), getTiContext().getActivity().getWindow().getDecorView());
 	}
 }

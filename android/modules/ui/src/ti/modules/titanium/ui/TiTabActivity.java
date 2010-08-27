@@ -6,11 +6,7 @@
  */
 package ti.modules.titanium.ui;
 
-import java.lang.ref.WeakReference;
-import java.util.ArrayList;
-
 import org.appcelerator.titanium.TiApplication;
-import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiRootActivity;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;

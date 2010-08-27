@@ -15,7 +15,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 import org.appcelerator.titanium.TiContext;
-import org.appcelerator.titanium.TiModule;
 import org.appcelerator.titanium.io.TiBaseFile;
 import org.appcelerator.titanium.io.TiFileFactory;
 import org.appcelerator.titanium.util.Log;

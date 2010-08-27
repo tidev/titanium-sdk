@@ -9,13 +9,12 @@ package ti.modules.titanium.ui;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 
+import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.titanium.TiContext;
-import org.appcelerator.titanium.TiDict;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.proxy.TiWindowProxy;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
-import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiUIView;
 import org.json.JSONObject;
 
@@ -77,7 +76,7 @@ public class WindowProxy extends TiWindowProxy
 	}
 
 	@Override
-	protected void handleOpen(TiDict options)
+	protected void handleOpen(KrollDict options)
 	{
 		if (DBG) {
 			Log.i(LCAT, "handleOpen");
@@ -94,7 +93,7 @@ public class WindowProxy extends TiWindowProxy
 	}
 
 	@Override
-	protected void handleClose(TiDict options)
+	protected void handleClose(KrollDict options)
 	{
 		if (DBG) {
 			Log.i(LCAT, "handleClose");

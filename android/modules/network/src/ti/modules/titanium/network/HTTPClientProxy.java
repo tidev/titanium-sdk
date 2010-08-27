@@ -7,16 +7,16 @@
 package ti.modules.titanium.network;
 
 import org.apache.http.MethodNotSupportedException;
+import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiContext;
-import org.appcelerator.titanium.TiDict;
-import org.appcelerator.titanium.TiProxy;
 
 import ti.modules.titanium.xml.DocumentProxy;
 
-public class HTTPClientProxy extends TiProxy {
+public class HTTPClientProxy extends KrollProxy {
 	
-	public static TiDict constants;
+	public static KrollDict constants;
 	
 	private TiHTTPClient client;
 	public HTTPClientProxy(TiContext context, Object[] args)
@@ -27,9 +27,9 @@ public class HTTPClientProxy extends TiProxy {
 	}
 	
 	@Override
-	public TiDict getConstants() {
+	public KrollDict getConstants() {
 		if (constants == null) {
-			constants = new TiDict();
+			constants = new KrollDict();
 			constants.put("UNSENT", TiHTTPClient.READY_STATE_UNSENT);
 			constants.put("OPENED", TiHTTPClient.READY_STATE_OPENED);
 			constants.put("HEADERS_RECEIVED", TiHTTPClient.READY_STATE_HEADERS_RECEIVED);

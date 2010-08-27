@@ -6,23 +6,22 @@
  */
 package ti.modules.titanium.ui.iphone.statusbar;
 
+import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.titanium.TiContext;
-import org.appcelerator.titanium.TiDict;
-import org.appcelerator.titanium.TiModule;
 
 public class StatusBarModule extends TiModule
 {
 
-	private static TiDict constants;
+	private static KrollDict constants;
 
 	public StatusBarModule(TiContext tiContext) {
 		super(tiContext);
 	}
 
 	@Override
-	public TiDict getConstants() {
+	public KrollDict getConstants() {
 		if (constants == null) {
-			constants = new TiDict();
+			constants = new KrollDict();
 
 			constants.put("DEFAULT", "iphone only");
 			constants.put("GRAY", "iphone only");

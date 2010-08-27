@@ -10,8 +10,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.titanium.TiContext;
-import org.appcelerator.titanium.TiDict;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.AsyncResult;
 import org.appcelerator.titanium.util.TiEventHelper;
@@ -175,7 +175,7 @@ public class ScrollableViewProxy extends TiViewProxy
 	public void fireScroll(int to)
 	{
 		if (hasListeners(EVENT_SCROLL)) {
-			TiDict options = new TiDict();
+			KrollDict options = new KrollDict();
 			options.put("index", to);
 			options.put("view", this);
 			options.put("currentPage", getView().getCurrentPage());

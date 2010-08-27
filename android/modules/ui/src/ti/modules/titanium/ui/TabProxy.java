@@ -6,11 +6,10 @@
  */
 package ti.modules.titanium.ui;
 
+import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.titanium.TiContext;
-import org.appcelerator.titanium.TiDict;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.proxy.TiWindowProxy;
-import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.view.TiUIView;
 
@@ -33,10 +32,10 @@ public class TabProxy extends TiViewProxy
 		return null;
 	}
 
-	public void open(TiWindowProxy win, TiDict options) {
+	public void open(TiWindowProxy win, KrollDict options) {
 		if (win != null) {
 			if (options == null) {
-				options = new TiDict();
+				options = new KrollDict();
 			}
 
 			this.win = win;
@@ -47,7 +46,7 @@ public class TabProxy extends TiViewProxy
 		}
 	}
 
-	public void close(TiDict options) {
+	public void close(KrollDict options) {
 		if (win != null) {
 			win.close(options);
 			win = null;

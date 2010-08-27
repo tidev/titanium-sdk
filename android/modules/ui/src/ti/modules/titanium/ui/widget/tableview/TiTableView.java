@@ -11,8 +11,8 @@ import java.util.HashMap;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.titanium.TiContext;
-import org.appcelerator.titanium.TiDict;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiColorHelper;
@@ -52,7 +52,7 @@ public class TiTableView extends FrameLayout
 	private ListView listView;
 	private TiTableViewItemOptions defaults;
 	private TTVListAdapter adapter;
-	private TiDict rowTemplate;
+	private KrollDict rowTemplate;
 	private OnItemClickedListener itemClickListener;
 
 	private HashMap<String, Integer> rowTypes;
@@ -66,7 +66,7 @@ public class TiTableView extends FrameLayout
 	private boolean filterCaseInsensitive = true;
 
 	public interface OnItemClickedListener {
-		public void onClick(TiDict item);
+		public void onClick(KrollDict item);
 	}
 
 	class TTVListAdapter extends BaseAdapter
@@ -364,7 +364,7 @@ public class TiTableView extends FrameLayout
 					TiBaseTableViewItem v = (TiBaseTableViewItem) view;
 					String viewClicked = v.getLastClickedViewName();
 					Item item = viewModel.getViewModel().get(adapter.index.get(position));
-					TiDict event = new TiDict();
+					KrollDict event = new KrollDict();
 
 					event.put("rowData", item.rowData);
 					event.put("section", viewModel.getSection(item.sectionIndex));
@@ -384,7 +384,7 @@ public class TiTableView extends FrameLayout
 		});
 		listView.setOnItemSelectedListener(new OnItemSelectedListener() {
 			private TiBaseTableViewItem lastSelected = null;
-			private TiDict lastSelectedProperties = null;
+			private KrollDict lastSelectedProperties = null;
 
 			public void onItemSelected(AdapterView<?> parent, View view,
 					int position, long id) {
@@ -396,7 +396,7 @@ public class TiTableView extends FrameLayout
 					position -= 1;
 				}
 				TiBaseTableViewItem v = (TiBaseTableViewItem) view;
-				TiDict viewProperties = null;
+				KrollDict viewProperties = null;
 				Item item = viewModel.getViewModel().get(adapter.index.get(position));
 				if (item.proxy != null) {
 					viewProperties = item.proxy.getDynamicProperties();

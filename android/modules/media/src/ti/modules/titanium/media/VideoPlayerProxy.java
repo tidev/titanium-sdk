@@ -8,9 +8,9 @@ package ti.modules.titanium.media;
 
 import java.util.concurrent.CountDownLatch;
 
+import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.titanium.TiContext;
-import org.appcelerator.titanium.TiDict;
-import org.appcelerator.titanium.TiProxy;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
@@ -25,7 +25,7 @@ import android.os.Messenger;
 import android.os.RemoteException;
 import android.os.ResultReceiver;
 
-public class VideoPlayerProxy extends TiProxy
+public class VideoPlayerProxy extends KrollProxy
 {
 	private static final String LCAT = "VideoPlayerProxy";
 	private static final boolean DBG = TiConfig.LOGD;
@@ -43,7 +43,7 @@ public class VideoPlayerProxy extends TiProxy
 
 		//views = new ArrayList<TiViewProxy>();
 
-		TiDict options = (TiDict) args[0];
+		KrollDict options = (KrollDict) args[0];
 		final Intent intent = new Intent(tiContext.getActivity(), TiVideoActivity.class);
 
 		if (options.containsKey("contentURL")) {

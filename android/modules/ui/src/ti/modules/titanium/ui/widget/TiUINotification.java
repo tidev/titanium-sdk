@@ -6,10 +6,8 @@
  */
 package ti.modules.titanium.ui.widget;
 
-import java.util.Map;
-
-import org.appcelerator.titanium.TiDict;
-import org.appcelerator.titanium.TiProxy;
+import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
@@ -34,7 +32,7 @@ public class TiUINotification extends TiUIView
 	}
 
 	@Override
-	public void processProperties(TiDict d)
+	public void processProperties(KrollDict d)
 	{
 		
 		float horizontalMargin = toast.getHorizontalMargin();
@@ -81,10 +79,10 @@ public class TiUINotification extends TiUIView
 
 
 	@Override
-	public void propertyChanged(String key, Object oldValue, Object newValue, TiProxy proxy)
+	public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy proxy)
 	{
 		// Not super efficient but better code reuse
-		TiDict d = new TiDict();
+		KrollDict d = new KrollDict();
 		d.put(key, newValue);
 		processProperties(d);
 
@@ -94,13 +92,13 @@ public class TiUINotification extends TiUIView
 
 	}
 
-	public void show(TiDict options) {
+	public void show(KrollDict options) {
 
 		toast.setText((String) proxy.getDynamicValue("message"));
 		toast.show();
 	}
 
-	public void hide(TiDict options) {
+	public void hide(KrollDict options) {
 		toast.cancel();
 	}
 }

@@ -6,8 +6,8 @@
  */
 package ti.modules.titanium.ui;
 
+import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.titanium.TiContext;
-import org.appcelerator.titanium.TiDict;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.view.TiUIView;
 
@@ -28,7 +28,7 @@ public class AlertDialogProxy extends TiViewProxy
 	}
 
 	@Override
-	protected void handleShow(TiDict options) {
+	protected void handleShow(KrollDict options) {
 		super.handleShow(options);
 
 		TiUIDialog d = (TiUIDialog) getView(getTiContext().getActivity());
@@ -36,7 +36,7 @@ public class AlertDialogProxy extends TiViewProxy
 	}
 
 	@Override
-	protected void handleHide(TiDict options) {
+	protected void handleHide(KrollDict options) {
 		super.handleHide(options);
 
 		TiUIDialog d = (TiUIDialog) getView(getTiContext().getActivity());

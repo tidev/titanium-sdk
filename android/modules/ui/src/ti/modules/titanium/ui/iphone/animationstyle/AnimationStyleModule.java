@@ -6,23 +6,22 @@
  */
 package ti.modules.titanium.ui.iphone.animationstyle;
 
+import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.titanium.TiContext;
-import org.appcelerator.titanium.TiDict;
-import org.appcelerator.titanium.TiModule;
 
 public class AnimationStyleModule extends TiModule
 {
 
-	private static TiDict constants;
+	private static KrollDict constants;
 
 	public AnimationStyleModule(TiContext tiContext) {
 		super(tiContext);
 	}
 
 	@Override
-	public TiDict getConstants() {
+	public KrollDict getConstants() {
 		if (constants == null) {
-			constants = new TiDict();
+			constants = new KrollDict();
 
 			constants.put("CURL_DOWN", "iphone only");
 			constants.put("CURL_UP", "iphone only");

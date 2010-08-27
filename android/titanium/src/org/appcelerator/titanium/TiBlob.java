@@ -13,6 +13,7 @@ import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 
 import org.apache.commons.codec.binary.Base64;
+import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.titanium.io.TiBaseFile;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
@@ -22,7 +23,7 @@ import android.graphics.Bitmap;
 import android.graphics.Bitmap.CompressFormat;
 
 
-public class TiBlob extends TiProxy
+public class TiBlob extends KrollProxy
 {
 	private static final String LCAT = "TiBlob";
 	private static final boolean DBG = TiConfig.LOGD;

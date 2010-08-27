@@ -14,9 +14,9 @@ import java.lang.reflect.Method;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiContext;
-import org.appcelerator.titanium.TiDict;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -171,7 +171,7 @@ public class TiUIHelper
 		return value;
 	}
 
-	public static void styleText(TextView tv, TiDict d) {
+	public static void styleText(TextView tv, KrollDict d) {
 		String fontSize = null;
 		String fontWeight = null;
 		String fontFamily = null;
@@ -376,15 +376,15 @@ public class TiUIHelper
 		return sld;
 	}
 
-	public static TiDict createDictForImage(TiContext context, int width, int height, byte[] data)
+	public static KrollDict createDictForImage(TiContext context, int width, int height, byte[] data)
 	{
-		TiDict d = new TiDict();
+		KrollDict d = new KrollDict();
 		d.put("x", 0);
 		d.put("y", 0);
 		d.put("width", width);
 		d.put("height", height);
 
-		TiDict cropRect = new TiDict();
+		KrollDict cropRect = new KrollDict();
 		cropRect.put("x", 0);
 		cropRect.put("y", 0);
 		cropRect.put("width", width);
@@ -395,7 +395,7 @@ public class TiUIHelper
 		return d;
 	}
 
-	public static TiBlob getImageFromDict(TiDict dict)
+	public static TiBlob getImageFromDict(KrollDict dict)
 	{
 		if (dict != null) {
 			if (dict.containsKey("media")) {
@@ -408,10 +408,10 @@ public class TiUIHelper
 		return null;
 	}
 
-	public static TiDict viewToImage(TiContext context, View view)
+	public static KrollDict viewToImage(TiContext context, View view)
 	{
 		Activity a = null;
-		TiDict image = new TiDict();
+		KrollDict image = new KrollDict();
 
 		if (view != null) {
 			int width = view.getWidth();

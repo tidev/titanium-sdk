@@ -7,12 +7,11 @@
 
 package ti.modules.titanium.ui.widget.webview;
 
-import org.appcelerator.titanium.TiDict;
+import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 
 import ti.modules.titanium.media.TiVideoActivity;
-import ti.modules.titanium.ui.WebViewProxy;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
@@ -42,7 +41,7 @@ public class TiWebViewClient extends WebViewClient
 		super.onPageFinished(view, url);
 
 		webView.changeProxyUrl(url);
-		TiDict data = new TiDict();
+		KrollDict data = new KrollDict();
 		data.put("url", url);
 		webView.getProxy().fireEvent("load", data);
 	}

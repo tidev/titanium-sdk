@@ -3,9 +3,9 @@
  */
 package ti.modules.titanium.android;
 
+import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.titanium.TiContext;
-import org.appcelerator.titanium.TiDict;
-import org.appcelerator.titanium.TiProxy;
 import org.appcelerator.titanium.util.TiConfig;
 
 import android.app.PendingIntent;
@@ -14,7 +14,7 @@ import android.app.PendingIntent;
  * @author dthorp
  *
  */
-public class PendingIntentProxy extends TiProxy 
+public class PendingIntentProxy extends KrollProxy 
 {
 	private static final String LCAT = "PendingIntentProxy";
 	private static boolean DBG = TiConfig.LOGD;
@@ -25,11 +25,11 @@ public class PendingIntentProxy extends TiProxy
 	{
 		super(tiContext);
 
-		TiDict d = null;
+		KrollDict d = null;
 		
 		if (args != null && args.length >= 1) {
-			if (args[0] instanceof TiDict) {
-				d = (TiDict) args[0];
+			if (args[0] instanceof KrollDict) {
+				d = (KrollDict) args[0];
 			}
 		}
 

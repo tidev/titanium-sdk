@@ -6,51 +6,36 @@
  */
 package ti.modules.titanium.api;
 
-import java.io.UnsupportedEncodingException;
-import java.nio.charset.Charset;
-
+import org.appcelerator.kroll.KrollInvocation;
+import org.appcelerator.kroll.KrollProxy;
+import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiContext;
-import org.appcelerator.titanium.TiDict;
-import org.appcelerator.titanium.TiModule;
 import org.appcelerator.titanium.util.Log;
 
-public class APIModule extends TiModule
+@Kroll.module
+public class APIModule extends KrollProxy
 {
 	private static final String LCAT = "TiAPI";
-
-	private static TiDict constants;
-
+	
+	@Kroll.constant
 	public static final int TRACE = 1;
+	@Kroll.constant
 	public static final int DEBUG = 2;
+	@Kroll.constant
 	public static final int INFO = 3;
+	@Kroll.constant
 	public static final int NOTICE = 4;
+	@Kroll.constant
 	public static final int WARN = 5;
+	@Kroll.constant
 	public static final int ERROR = 6;
+	@Kroll.constant
 	public static final int CRITICAL = 7;
+	@Kroll.constant
 	public static final int FATAL = 8;
 
 	public APIModule(TiContext tiContext) {
 		super(tiContext);
-	}
-
-
-	@Override
-	public TiDict getConstants()
-	{
-		if (constants == null) {
-			constants = new TiDict();
-
-			constants.put("TRACE", TRACE);
-			constants.put("DEBUG", DEBUG);
-			constants.put("INFO", INFO);
-			constants.put("NOTICE", NOTICE);
-			constants.put("WARN", WARN);
-			constants.put("ERROR", ERROR);
-			constants.put("CRITICAL", CRITICAL);
-			constants.put("FATAL", FATAL);
-		}
-
-		return constants;
 	}
 
 	private String toString(Object msg) {
@@ -60,39 +45,48 @@ public class APIModule extends TiModule
 		return msg.toString();
 	}
 	
-	public void debug(Object msg) {
+	@Kroll.method
+	public void debug(KrollInvocation invocation, Object msg) {
 		Log.d(LCAT, toString(msg));
 	}
 
-	public void info(Object msg) {
+	@Kroll.method
+	public void info(KrollInvocation invocation, Object msg) {
 		Log.i(LCAT, toString(msg));
 	}
 
-	public void warn(Object msg) {
+	@Kroll.method
+	public void warn(KrollInvocation invocation, Object msg) {
 		Log.w(LCAT, toString(msg));
 	}
 
-	public void error(Object msg) {
+	@Kroll.method
+	public void error(KrollInvocation invocation, Object msg) {
 		Log.e(LCAT, toString(msg));
 	}
 
-	public void trace(Object msg) {
+	@Kroll.method
+	public void trace(KrollInvocation invocation, Object msg) {
 		Log.d(LCAT, toString(msg));
 	}
 
-	public void notice(Object msg) {
+	@Kroll.method
+	public void notice(KrollInvocation invocation, Object msg) {
 		Log.i(LCAT, toString(msg));
 	}
 
-	public void critical(Object msg) {
+	@Kroll.method
+	public void critical(KrollInvocation invocation, Object msg) {
 		Log.e(LCAT, toString(msg));
 	}
 
-	public void fatal(Object msg) {
+	@Kroll.method
+	public void fatal(KrollInvocation invocation, Object msg) {
 		Log.e(LCAT, toString(msg));
 	}
 
-	public void log(String level, Object msg)
+	@Kroll.method
+	public void log(KrollInvocation invocation, String level, Object msg)
 	{
 		String ulevel = level.toUpperCase();
 		int severity = INFO;

@@ -6,8 +6,7 @@
  */
 package ti.modules.titanium.geolocation;
 
-import org.appcelerator.titanium.TiDict;
-import org.appcelerator.titanium.TiModule;
+import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.titanium.kroll.KrollCallback;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
@@ -93,7 +92,7 @@ public class TiCompass
 							lastHeading = event.values[0];
 						}
 
-						proxy.fireEvent(EVENT_HEADING, eventToTiDict(event, ts));
+						proxy.fireEvent(EVENT_HEADING, eventToKrollDict(event, ts));
 					}
 				}
 			}
@@ -115,7 +114,7 @@ public class TiCompass
 
 				if (type == Sensor.TYPE_ORIENTATION) {
 					long ts = event.timestamp / 1000000; // nanos to millis
-					listener.callWithProperties(eventToTiDict(event, ts));
+					listener.callWithProperties(eventToKrollDict(event, ts));
 
 					sensorHelper.unregisterListener(SENSORS, this);
 					manageUpdateListener(false, this);
@@ -165,13 +164,13 @@ public class TiCompass
 		}
 	}
 
-	protected TiDict eventToTiDict(SensorEvent event, long ts)
+	protected KrollDict eventToKrollDict(SensorEvent event, long ts)
 	{
 		float x = event.values[0];
 		float y = event.values[1];
 		float z = event.values[2];
 
-		TiDict heading = new TiDict();
+		KrollDict heading = new KrollDict();
 		heading.put("type", EVENT_HEADING);
 		heading.put("timestamp", ts);
 		heading.put("x", x);
@@ -205,7 +204,7 @@ public class TiCompass
 
 			heading.put("trueHeading", trueHeading);
 		}
-		TiDict data = new TiDict();
+		KrollDict data = new KrollDict();
 		data.put("heading", heading);
 
 		return data;

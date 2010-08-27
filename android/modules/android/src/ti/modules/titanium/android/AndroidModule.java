@@ -6,9 +6,8 @@
  */
 package ti.modules.titanium.android;
 
+import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.titanium.TiContext;
-import org.appcelerator.titanium.TiDict;
-import org.appcelerator.titanium.TiModule;
 
 import android.app.Activity;
 import android.app.AlarmManager;
@@ -23,7 +22,7 @@ public class AndroidModule extends TiModule
 	protected static final int PENDING_INTENT_FOR_BROADCAST = 2;
 	protected static final int PENDING_INTENT_MAX_VALUE = PENDING_INTENT_FOR_SERVICE;
 	
-	private static TiDict constants;
+	private static KrollDict constants;
 
 
 	public AndroidModule(TiContext tiContext) {
@@ -32,10 +31,10 @@ public class AndroidModule extends TiModule
 
 
 	@Override
-	public TiDict getConstants()
+	public KrollDict getConstants()
 	{
 		if (constants == null) {
-			constants = new TiDict();
+			constants = new KrollDict();
 
 			constants.put("ACTION_AIRPLANE_MODE_CHANGED", Intent.ACTION_AIRPLANE_MODE_CHANGED);
 			constants.put("ACTION_ALL_APPS", Intent.ACTION_ALL_APPS);

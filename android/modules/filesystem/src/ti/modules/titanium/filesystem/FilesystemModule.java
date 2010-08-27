@@ -9,9 +9,8 @@ package ti.modules.titanium.filesystem;
 import java.io.File;
 import java.io.IOException;
 
+import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.titanium.TiContext;
-import org.appcelerator.titanium.TiDict;
-import org.appcelerator.titanium.TiModule;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiConvert;
@@ -26,17 +25,17 @@ public class FilesystemModule extends TiModule
 	public static int MODE_APPEND = 2;
 
 	private static String[] RESOURCES_DIR = { "app://" };
-	private static TiDict constants;
+	private static KrollDict constants;
 
 	public FilesystemModule(TiContext tiContext) {
 		super(tiContext);
 	}
 
 	@Override
-	public TiDict getConstants()
+	public KrollDict getConstants()
 	{
 		if (constants == null) {
-			constants = new TiDict();
+			constants = new KrollDict();
 
 			constants.put("MODE_READ", MODE_READ);
 			constants.put("MODE_WRITE", MODE_WRITE);

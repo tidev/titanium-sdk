@@ -6,13 +6,12 @@
  */
 package ti.modules.titanium.ui.iphone.systemicon;
 
+import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.titanium.TiContext;
-import org.appcelerator.titanium.TiDict;
-import org.appcelerator.titanium.TiModule;
 
 public class SystemIconModule extends TiModule
 {
-	private static TiDict constants;
+	private static KrollDict constants;
 
 	public SystemIconModule(TiContext tiContext)
 	{
@@ -20,9 +19,9 @@ public class SystemIconModule extends TiModule
 	}
 
 	@Override
-	public TiDict getConstants() {
+	public KrollDict getConstants() {
 		if (constants == null) {
-			constants = new TiDict();
+			constants = new KrollDict();
 
 			constants.put("BOOKMARKS", "iphone only");
 			constants.put("CONTACTS", "iphone only");

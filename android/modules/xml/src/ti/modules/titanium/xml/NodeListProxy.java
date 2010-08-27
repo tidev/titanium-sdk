@@ -6,11 +6,11 @@
  */
 package ti.modules.titanium.xml;
 
+import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.titanium.TiContext;
-import org.appcelerator.titanium.TiProxy;
 import org.w3c.dom.NodeList;
 
-public class NodeListProxy extends TiProxy {
+public class NodeListProxy extends KrollProxy {
 
 	private NodeList list;
 	public NodeListProxy(TiContext context, NodeList list)

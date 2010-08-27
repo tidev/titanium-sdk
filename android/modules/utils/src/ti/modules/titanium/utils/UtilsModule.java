@@ -7,19 +7,13 @@
 package ti.modules.titanium.utils;
 
 import java.io.UnsupportedEncodingException;
-import java.io.IOException;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.security.DigestInputStream;
-import java.security.DigestOutputStream;
-import java.security.NoSuchAlgorithmException;
 import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.digest.DigestUtils;
-import org.appcelerator.titanium.TiContext;
-import org.appcelerator.titanium.TiModule;
 import org.appcelerator.titanium.TiBlob;
+import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConvert;
 

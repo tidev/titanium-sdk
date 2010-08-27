@@ -33,6 +33,7 @@ public abstract class KrollMethod extends ScriptableObject implements Function {
 		// TODO Auto-generated method stub
 		return null;
 	}
-		
-	public abstract Object invoke(KrollInvocation invocation, Object[] args) throws Exception;
+	
+	public abstract Object invoke(KrollInvocation invocation, Object[] args);
+	
 }

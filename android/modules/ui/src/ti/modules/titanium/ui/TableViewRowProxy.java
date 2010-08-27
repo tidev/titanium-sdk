@@ -8,8 +8,8 @@ package ti.modules.titanium.ui;
 
 import java.util.ArrayList;
 
+import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.titanium.TiContext;
-import org.appcelerator.titanium.TiDict;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.view.TiUIView;
 
@@ -92,7 +92,7 @@ public class TableViewRowProxy extends TiViewProxy
 	}
 	
 	@Override
-	public boolean fireEvent(String eventName, TiDict data) {
+	public boolean fireEvent(String eventName, KrollDict data) {
 		if (eventName.equals("click")) {
 			// inject row click data for events coming from row children
 			TableViewProxy table = getTable();

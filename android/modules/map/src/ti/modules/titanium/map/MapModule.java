@@ -6,9 +6,8 @@
  */
 package ti.modules.titanium.map;
 
+import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.titanium.TiContext;
-import org.appcelerator.titanium.TiDict;
-import org.appcelerator.titanium.TiModule;
 import org.appcelerator.titanium.util.TiConfig;
 
 public class MapModule extends TiModule
@@ -16,7 +15,7 @@ public class MapModule extends TiModule
 	private static final String LCAT = "TiMap";
 	private static final boolean DBG = TiConfig.LOGD;
 
-	private static TiDict constants;
+	private static KrollDict constants;
 
 	public MapModule(TiContext tiContext)
 	{
@@ -24,9 +23,9 @@ public class MapModule extends TiModule
 	}
 
 	@Override
-	public TiDict getConstants() {
+	public KrollDict getConstants() {
 		if (constants == null) {
-			constants = new TiDict();
+			constants = new KrollDict();
 
 			constants.put("ANNOTATION_RED", 1);
 			constants.put("ANNOTATION_GREEN", 2);

@@ -1,5 +1,5 @@
 /**
- * Appcelerator Titanium Mobile
+   * Appcelerator Titanium Mobile
  * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -20,6 +20,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Properties;
 
+import org.appcelerator.kroll.KrollBindings;
+import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollInvocation;
+import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.titanium.analytics.TiAnalyticsEvent;
 import org.appcelerator.titanium.analytics.TiAnalyticsEventFactory;
 import org.appcelerator.titanium.analytics.TiAnalyticsModel;
@@ -48,7 +52,7 @@ public class TiApplication extends Application
 	private String baseUrl;
 	private String startUrl;
 	private HashMap<Class<?>, HashMap<String, Method>> methodMap;
-	private HashMap<String, SoftReference<TiProxy>> proxyMap;
+	private HashMap<String, SoftReference<KrollProxy>> proxyMap;
 	private TiRootActivity rootActivity;
 	private TiProperties appProperties;
 	private TiProperties systemProperties;
@@ -62,10 +66,12 @@ public class TiApplication extends Application
 	protected Intent analyticsIntent;
 	private static long lastAnalyticsTriggered = 0;
 	private String buildVersion, buildTimestamp;
+	protected KrollBindings bindings;
 
-	public TiApplication() {
+	public TiApplication(KrollBindings bindings) {
 		Log.checkpoint("checkpoint, app created.");
-
+		this.bindings = bindings;
+		
 		needsEnrollEvent = false; // test is after DB is available
 		needsStartEvent = true;
 		getBuildVersion();
@@ -110,7 +116,7 @@ public class TiApplication extends Application
 		baseUrl = fullPath.getParent();
 
 		methodMap = new HashMap<Class<?>, HashMap<String,Method>>(25);
-		proxyMap = new HashMap<String, SoftReference<TiProxy>>(5);
+		proxyMap = new HashMap<String, SoftReference<KrollProxy>>(5);
 
 		TiPlatformHelper.initialize(this);
 
@@ -236,8 +242,8 @@ public class TiApplication extends Application
 		return classMethods.get(name);
 	}
 
-	private ArrayList<TiProxy> appEventProxies = new ArrayList<TiProxy>();
-	public void addAppEventProxy(TiProxy appEventProxy)
+	private ArrayList<KrollProxy> appEventProxies = new ArrayList<KrollProxy>();
+	public void addAppEventProxy(KrollProxy appEventProxy)
 	{
 		Log.e(LCAT, "APP PROXY: " + appEventProxy);
 		if (appEventProxy != null && !appEventProxies.contains(appEventProxy)) {
@@ -245,17 +251,17 @@ public class TiApplication extends Application
 		}
 	}
 
-	public void removeAppEventProxy(TiProxy appEventProxy)
+	public void removeAppEventProxy(KrollProxy appEventProxy)
 	{
 		appEventProxies.remove(appEventProxy);
 	}
 
-	public boolean fireAppEvent(String eventName, TiDict data)
+	public boolean fireAppEvent(KrollInvocation invocation, String eventName, KrollDict data)
 	{
 		boolean handled = false;
-		for (TiProxy appEventProxy : appEventProxies)
+		for (KrollProxy appEventProxy : appEventProxies)
 		{
-			boolean proxyHandled = appEventProxy.getTiContext().dispatchEvent(eventName, data, appEventProxy);
+			boolean proxyHandled = appEventProxy.getTiContext().dispatchEvent(invocation, eventName, data, appEventProxy);
 			handled = handled || proxyHandled;
 		}
 		return handled;
@@ -275,17 +281,17 @@ public class TiApplication extends Application
 		return appInfo;
 	}
 
-	public void registerProxy(TiProxy proxy) {
-		String proxyId = proxy.proxyId;
+	public void registerProxy(KrollProxy proxy) {
+		String proxyId = proxy.getProxyId();
 		if (!proxyMap.containsKey(proxyId)) {
-			proxyMap.put(proxyId, new SoftReference<TiProxy>(proxy));
+			proxyMap.put(proxyId, new SoftReference<KrollProxy>(proxy));
 		}
 	}
 
-	public TiProxy unregisterProxy(String proxyId) {
-		TiProxy proxy = null;
+	public KrollProxy unregisterProxy(String proxyId) {
+		KrollProxy proxy = null;
 
-		SoftReference<TiProxy> ref = proxyMap.remove(proxyId);
+		SoftReference<KrollProxy> ref = proxyMap.remove(proxyId);
 		if (ref != null) {
 			proxy = ref.get();
 		}
@@ -387,5 +393,9 @@ public class TiApplication extends Application
 
 	public String getTiBuildTimestamp() {
 		return buildTimestamp;
+	}
+	
+	public KrollBindings getBindings() {
+		return bindings;
 	}
 }

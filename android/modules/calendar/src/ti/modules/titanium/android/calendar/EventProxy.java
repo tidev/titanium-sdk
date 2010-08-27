@@ -3,9 +3,9 @@ package ti.modules.titanium.android.calendar;
 import java.util.ArrayList;
 import java.util.Date;
 
+import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.titanium.TiContext;
-import org.appcelerator.titanium.TiDict;
-import org.appcelerator.titanium.TiProxy;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConvert;
 
@@ -16,7 +16,7 @@ import android.database.Cursor;
 import android.net.Uri;
 
 // Columns and value constants taken from android.provider.Calendar in the android source base
-public class EventProxy extends TiProxy {
+public class EventProxy extends KrollProxy {
 	public static final String TAG = "TiEvent";
 	
 	public static final int STATUS_TENTATIVE = 0;
@@ -32,7 +32,7 @@ public class EventProxy extends TiProxy {
 	protected Date begin, end;
 	protected boolean allDay, hasAlarm = true, hasExtendedProperties = true;
 	protected int status, visibility;
-	protected TiDict extendedProperties = new TiDict();
+	protected KrollDict extendedProperties = new KrollDict();
 	
 	protected String recurrenceRule, recurrenceDate, recurrenceExceptionRule, recurrenceExceptionDate;
 	protected Date lastDate;
@@ -117,7 +117,7 @@ public class EventProxy extends TiProxy {
 		return events;
 	}
 	
-	public static EventProxy createEvent(TiContext context, CalendarProxy calendar, TiDict data) {
+	public static EventProxy createEvent(TiContext context, CalendarProxy calendar, KrollDict data) {
 		ContentResolver contentResolver = context.getActivity().getContentResolver();
 		EventProxy event = new EventProxy(context);
 		
@@ -183,7 +183,7 @@ public class EventProxy extends TiProxy {
 		return reminders.toArray(new ReminderProxy[reminders.size()]);
 	}
 	
-	public ReminderProxy createReminder(TiDict data) {
+	public ReminderProxy createReminder(KrollDict data) {
 		int minutes = TiConvert.toInt(data, "minutes");
 		int method = ReminderProxy.METHOD_DEFAULT;
 		if (data.containsKey("method")) {
@@ -198,7 +198,7 @@ public class EventProxy extends TiProxy {
 		return alerts.toArray(new AlertProxy[alerts.size()]);
 	}
 	
-	public AlertProxy createAlert(TiDict data) {
+	public AlertProxy createAlert(KrollDict data) {
 		int minutes = TiConvert.toInt(data, "minutes");
 		return AlertProxy.createAlert(getTiContext(), this, minutes);
 	}
@@ -268,8 +268,8 @@ public class EventProxy extends TiProxy {
 		return lastDate;
 	}
 	
-	public TiDict getExtendedProperties() {
-		TiDict extendedProperties = new TiDict();
+	public KrollDict getExtendedProperties() {
+		KrollDict extendedProperties = new KrollDict();
 		ContentResolver contentResolver = getTiContext().getActivity().getContentResolver();
 		Cursor extPropsCursor = contentResolver.query(
 			Uri.parse(getExtendedPropertiesUri()),

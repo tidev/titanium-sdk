@@ -8,10 +8,10 @@ package ti.modules.titanium.android;
 
 import java.util.ArrayList;
 
+import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.titanium.TiContext;
-import org.appcelerator.titanium.TiProxy;
 
-public class MenuProxy extends TiProxy
+public class MenuProxy extends KrollProxy
 {
 	protected ArrayList<MenuItemProxy> menuItems;
 

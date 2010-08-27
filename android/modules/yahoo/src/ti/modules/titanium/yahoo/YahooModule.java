@@ -11,7 +11,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 
 import org.appcelerator.titanium.TiContext;
-import org.appcelerator.titanium.TiModule;
 import org.appcelerator.titanium.util.Log;
 
 public class YahooModule extends TiModule

@@ -9,13 +9,13 @@ package ti.modules.titanium.ui;
 
 import java.util.ArrayList;
 
+import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.titanium.TiContext;
-import org.appcelerator.titanium.TiDict;
-import org.appcelerator.titanium.TiProxy;
 
 import android.util.Log;
 
-public class PickerColumnProxy extends TiProxy
+public class PickerColumnProxy extends KrollProxy
 {
 	private ArrayList<PickerRowProxy> rows = new ArrayList<PickerRowProxy>();
 	private static final String LCAT = "PickerColumnProxy";
@@ -29,7 +29,7 @@ public class PickerColumnProxy extends TiProxy
 	{
 		super(tiContext);
 		if (args != null && args.length > 0) {
-			setProperties((TiDict) args[0]);
+			setProperties((KrollDict) args[0]);
 		}
 		if (hasDynamicValue("rows")) {
 			Object rowsAtCreation = getDynamicValue("rows");

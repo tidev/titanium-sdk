@@ -8,46 +8,59 @@ package org.appcelerator.titanium.kroll;
 
 import java.io.IOException;
 
-import org.appcelerator.titanium.TiDict;
+import org.appcelerator.kroll.KrollBindings;
+import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollObject;
+import org.appcelerator.kroll.KrollProxy;
+import org.appcelerator.kroll.KrollRootObject;
 import org.appcelerator.titanium.TiEvaluator;
 import org.mozilla.javascript.Scriptable;
 
-public class KrollBridge
-	implements TiEvaluator
+public class KrollBridge implements TiEvaluator
 {
-
 	private KrollContext kroll;
-	private TitaniumObject titanium;
-
-	public KrollBridge(KrollContext kroll, TiDict preload)
+	private KrollObject titanium;
+	private KrollBindings bindings;
+	
+	public KrollBridge(KrollContext kroll, KrollDict preload, KrollBindings bindings)
 	{
 		this.kroll = kroll;
+		this.bindings = bindings;
 
-		titanium = new TitaniumObject(kroll);
+		titanium = new KrollObject(new KrollRootObject(kroll.getTiContext()));
 		kroll.put("Titanium", titanium);
 		kroll.put("Ti", titanium);
 
-		kroll.put("setTimeout", (Scriptable) titanium.get("setTimeout", titanium));
+		/*kroll.put("setTimeout", (Scriptable) titanium.get("setTimeout", titanium));
 		kroll.put("clearTimeout", (Scriptable) titanium.get("clearTimeout", titanium));
 		kroll.put("setInterval", (Scriptable) titanium.get("setInterval", titanium));
 		kroll.put("clearInterval", (Scriptable) titanium.get("clearInterval", titanium));
 		kroll.put("alert", (Scriptable) titanium.get("alert", titanium));
 		kroll.put("JSON", (Scriptable) titanium.get("JSON", titanium));
-		kroll.put("require", (Scriptable) titanium.get("require", titanium));
+		kroll.put("require", (Scriptable) titanium.get("require", titanium));*/
+		bindings.initBindings(kroll.getTiContext(), kroll.getScope(), titanium.getProxy());
 		
 		//TODO: userAgent and version
 
 		if (preload != null) {
-			Object p = titanium.loadModule("UI");
+			KrollProxy uiModule;
+			try {
+				uiModule = (KrollProxy) titanium.getProxy().get(kroll.getScope(), "UI");
+				for(String key : preload.keySet()) {
+					/*KrollObject ko = new KrollObject(ui, preload.get(key));
+					ui.superPut(key, ui, ko);*/
+					uiModule.set(kroll.getScope(), key, preload.get(key));
+				}
+			} catch (NoSuchFieldException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+			
+			/*Object p = titanium.loadModule("UI");
 			Scriptable root = kroll.getScope();
 			Scriptable ti = (Scriptable) root.get("Ti", root);
 			KrollObject ui = new KrollObject((KrollObject) ti, p);
-			ti.put("UI", ti, ui);
-
-			for(String key : preload.keySet()) {
-				KrollObject ko = new KrollObject(ui, preload.get(key));
-				ui.superPut(key, ui, ko);
-			}
+			ti.put("UI", ti, ui);*/
 		}
 	}
 
@@ -81,5 +94,10 @@ public class KrollBridge
 	
 	public KrollContext getKrollContext() {
 		return kroll;
+	}
+	
+	@Override
+	public Scriptable getScope() {
+		return kroll.getScope();
 	}
 }

@@ -12,8 +12,8 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.titanium.TiContext;
-import org.appcelerator.titanium.TiDict;
 import org.appcelerator.titanium.kroll.KrollCallback;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.AsyncResult;
@@ -226,7 +226,7 @@ public class PickerProxy extends TiViewProxy
 			return true;
 		} else if (msg.what == MSG_SELECT_ROW) {
 			AsyncResult result = (AsyncResult)msg.obj;
-			handleSelectRow( (TiDict)result.getArg() );
+			handleSelectRow( (KrollDict)result.getArg() );
 			result.setResult(null);
 			return true;
 		} else if (msg.what == MSG_REPLACE_MODEL) {
@@ -265,7 +265,7 @@ public class PickerProxy extends TiViewProxy
 		if (getTiContext().isUIThread()) {
 			handleSelectRow(column, row, animated);			
 		} else {
-			TiDict dict = new TiDict();
+			KrollDict dict = new KrollDict();
 			dict.put("column", new Integer(column));
 			dict.put("row", new Integer(row));
 			dict.put("animated", new Boolean(animated));
@@ -343,7 +343,7 @@ public class PickerProxy extends TiViewProxy
 		picker.replaceColumns(getColumnsAsListOfLists());
 	}
 	
-	private void handleSelectRow(TiDict dict)
+	private void handleSelectRow(KrollDict dict)
 	{
 		handleSelectRow(dict.getInt("column"), dict.getInt("row"), dict.getBoolean("animated"));
 	}
@@ -397,11 +397,11 @@ public class PickerProxy extends TiViewProxy
 	// of getting a date dialog up, in other words.
 	public void showDatePickerDialog(Object[] args)
 	{
-		TiDict settings = new TiDict();
+		KrollDict settings = new KrollDict();
 		final AtomicInteger callbackCount = new AtomicInteger(0); // just a flag to be sure dismiss doesn't fire callback if ondateset did already.
 		
 		if (args.length > 0) {
-			settings = (TiDict) args[0];
+			settings = (KrollDict) args[0];
 		}
 		
 		Calendar calendar = Calendar.getInstance();
@@ -438,7 +438,7 @@ public class PickerProxy extends TiViewProxy
 						calendar.set(Calendar.MONTH, monthOfYear);
 						calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
 						Date value = calendar.getTime();
-						TiDict data = new TiDict();
+						KrollDict data = new KrollDict();
 						data.put("cancel", false);
 						data.put("value", value);
 						callback.call(new Object[]{ data });
@@ -455,7 +455,7 @@ public class PickerProxy extends TiViewProxy
 				{
 					if (callbackCount.get() == 0 && callback != null) {
 						callbackCount.incrementAndGet();
-						TiDict data = new TiDict();
+						KrollDict data = new KrollDict();
 						data.put("cancel", true);
 						data.put("value", null);
 						callback.call(new Object[]{ data });
@@ -493,12 +493,12 @@ public class PickerProxy extends TiViewProxy
 	// of getting a date dialog up, in other words.
 	public void showTimePickerDialog(Object[] args)
 	{
-		TiDict settings = new TiDict();
+		KrollDict settings = new KrollDict();
 		boolean is24HourView = false;
 		final AtomicInteger callbackCount = new AtomicInteger(0); // just a flag to be sure dismiss doesn't fire callback if ondateset did already.
 		
 		if (args.length > 0) {
-			settings = (TiDict) args[0];
+			settings = (KrollDict) args[0];
 		}
 		
 		if (settings.containsKey("format24")) {
@@ -537,7 +537,7 @@ public class PickerProxy extends TiViewProxy
 						calendar.set(Calendar.HOUR_OF_DAY, hourOfDay);
 						calendar.set(Calendar.MINUTE, minute);
 						Date value = calendar.getTime();
-						TiDict data = new TiDict();
+						KrollDict data = new KrollDict();
 						data.put("cancel", false);
 						data.put("value", value);
 						callback.call(new Object[]{ data });
@@ -553,7 +553,7 @@ public class PickerProxy extends TiViewProxy
 				{
 					if (callbackCount.get() == 0 && callback != null) {
 						callbackCount.incrementAndGet();
-						TiDict data = new TiDict();
+						KrollDict data = new KrollDict();
 						data.put("cancel", true);
 						data.put("value", null);
 						callback.call(new Object[]{ data });

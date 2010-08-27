@@ -4,9 +4,9 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 
+import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.titanium.TiContext;
-import org.appcelerator.titanium.TiDict;
-import org.appcelerator.titanium.TiProxy;
 
 import android.content.ContentResolver;
 import android.database.Cursor;
@@ -14,7 +14,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.text.format.DateUtils;
 
-public class CalendarProxy extends TiProxy {
+public class CalendarProxy extends KrollProxy {
 
 	protected String id, name;
 	protected boolean selected, hidden;
@@ -115,7 +115,7 @@ public class CalendarProxy extends TiProxy {
 		} else return null;
 	}
 	
-	public EventProxy createEvent(TiDict data) {
+	public EventProxy createEvent(KrollDict data) {
 		return EventProxy.createEvent(getTiContext(), this, data);
 	}
 	

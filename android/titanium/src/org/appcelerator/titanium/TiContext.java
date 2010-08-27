@@ -19,6 +19,10 @@ import java.util.Map.Entry;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.appcelerator.kroll.KrollBindings;
+import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollInvocation;
+import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.titanium.bridge.OnEventListenerChange;
 import org.appcelerator.titanium.io.TiBaseFile;
 import org.appcelerator.titanium.io.TiFileFactory;
@@ -31,6 +35,7 @@ import org.appcelerator.titanium.util.TiFileHelper;
 import org.appcelerator.titanium.util.TiFileHelper2;
 import org.mozilla.javascript.ErrorReporter;
 import org.mozilla.javascript.EvaluatorException;
+import org.mozilla.javascript.Scriptable;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -65,12 +70,12 @@ public class TiContext implements TiEvaluator, ITiMenuDispatcherListener, ErrorR
 	private TiApplication tiApp;
 	private HashMap<String, HashMap<Integer, TiListener>> eventListeners;
 	private AtomicInteger listenerIdGenerator;
-
+	protected KrollContext krollContext;
+	
 	private ArrayList<WeakReference<OnEventListenerChange>> eventChangeListeners;
 	private ArrayList<WeakReference<OnLifecycleEvent>> lifecycleListeners;
 	private OnMenuEvent menuEventListener;
 	private WeakReference<OnConfigurationChanged> weakConfigurationChangedListeners;
-	private HashMap<String,WeakReference<TiModule>> modules = new HashMap<String,WeakReference<TiModule>>();
 
 	public static interface OnLifecycleEvent
 	{
@@ -95,19 +100,19 @@ public class TiContext implements TiEvaluator, ITiMenuDispatcherListener, ErrorR
 
 	public static class TiListener
 	{
-		protected SoftReference<TiProxy> weakTiProxy;
+		protected SoftReference<KrollProxy> weakProxy;
 		protected Object listener;
 
-		public TiListener(TiProxy tiProxy, Object listener) {
-			this.weakTiProxy = new SoftReference<TiProxy>(tiProxy);
+		public TiListener(KrollProxy proxy, Object listener) {
+			this.weakProxy = new SoftReference<KrollProxy>(proxy);
 			this.listener = listener;
 		}
 
-		public boolean invoke(String eventName, TiDict data) {
+		public boolean invoke(KrollInvocation invocation, String eventName, KrollDict data) {
 			boolean invoked = false;
-			TiProxy p = weakTiProxy.get();
+			KrollProxy p = weakProxy.get();
 			if (p != null && listener != null) {
-				p.fireSingleEvent(eventName, listener, data);
+				p.fireSingleEvent(invocation, eventName, listener, data);
 				invoked = true;
 			} else {
 				if (DBG) {
@@ -118,8 +123,8 @@ public class TiContext implements TiEvaluator, ITiMenuDispatcherListener, ErrorR
 			return invoked;
 		}
 
-		public boolean isSameProxy(TiProxy p) {
-			TiProxy localProxy = weakTiProxy.get();
+		public boolean isSameProxy(KrollProxy p) {
+			KrollProxy localProxy = weakProxy.get();
 			return (p != null && localProxy != null && localProxy.equals(p));
 		}
 	}
@@ -332,6 +337,11 @@ public class TiContext implements TiEvaluator, ITiMenuDispatcherListener, ErrorR
 		getJSContext().bindToToplevel(topLevelName, objectName);
 	}
 
+	@Override
+	public Scriptable getScope() {
+		return getJSContext().getScope();
+	}
+	
 	// Event Management
 
 	public void addOnEventChangeListener(OnEventListenerChange listener) {
@@ -351,16 +361,16 @@ public class TiContext implements TiEvaluator, ITiMenuDispatcherListener, ErrorR
 		}
 	}
 
-	protected void dispatchOnEventChange(boolean added, String eventName, int count, TiProxy tiProxy)
+	protected void dispatchOnEventChange(boolean added, String eventName, int count, KrollProxy proxy)
 	{
 		for (WeakReference<OnEventListenerChange> ref : eventChangeListeners) {
 			OnEventListenerChange l = ref.get();
 			if (l != null) {
 				try {
 					if (added) {
-						l.eventListenerAdded(eventName, count, tiProxy);
+						l.eventListenerAdded(eventName, count, proxy);
 					} else {
-						l.eventListenerRemoved(eventName, count, tiProxy);
+						l.eventListenerRemoved(eventName, count, proxy);
 					}
 				} catch (Throwable t) {
 					Log.e(LCAT, "Error invoking OnEventChangeListener: " + t.getMessage(), t);
@@ -369,12 +379,12 @@ public class TiContext implements TiEvaluator, ITiMenuDispatcherListener, ErrorR
 		}
 	}
 
-	public int addEventListener(String eventName, TiProxy tiProxy, Object listener)
+	public int addEventListener(String eventName, KrollProxy proxy, Object listener)
 	{
 		int listenerId = -1;
 
 		if (eventName != null) {
-			if (tiProxy != null) {
+			if (proxy != null) {
 				if (listener != null) {
 					synchronized (eventListeners) {
 						HashMap<Integer, TiListener> listeners = eventListeners.get(eventName);
@@ -384,17 +394,17 @@ public class TiContext implements TiEvaluator, ITiMenuDispatcherListener, ErrorR
 						}
 
 						listenerId = listenerIdGenerator.incrementAndGet();
-						listeners.put(listenerId, new TiListener(tiProxy, listener));
+						listeners.put(listenerId, new TiListener(proxy, listener));
 						if (DBG) {
 							Log.d(LCAT, "Added for eventName '" + eventName + "' with id " + listenerId);
 						}
-						dispatchOnEventChange(true, eventName, listeners.size(), tiProxy);
+						dispatchOnEventChange(true, eventName, listeners.size(), proxy);
 					}
 				} else {
 					throw new IllegalStateException("addEventListener expects a non-null listener");
 				}
 			} else {
-				throw new IllegalStateException("addEventListener expects a non-null tiProxy");
+				throw new IllegalStateException("addEventListener expects a non-null KrollProxy");
 			}
 		} else {
 			throw new IllegalStateException("addEventListener expects a non-null eventName");
@@ -414,7 +424,7 @@ public class TiContext implements TiEvaluator, ITiMenuDispatcherListener, ErrorR
 						Log.w(LCAT, "listenerId " + listenerId + " not for eventName '" + eventName + "'");
 					}
 				} else {
-					dispatchOnEventChange(false, eventName, listeners.size(), listener.weakTiProxy.get());
+					dispatchOnEventChange(false, eventName, listeners.size(), listener.weakProxy.get());
 					if (DBG) {
 						Log.i(LCAT, "listener with id " + listenerId + " with eventName '" + eventName + "' was removed.");
 					}
@@ -442,7 +452,7 @@ public class TiContext implements TiEvaluator, ITiMenuDispatcherListener, ErrorR
 					if (l.equals(listener))
 					{
 						listeners.remove(entry.getKey());
-						dispatchOnEventChange(false, eventName, listeners.size(), entry.getValue().weakTiProxy.get());
+						dispatchOnEventChange(false, eventName, listeners.size(), entry.getValue().weakProxy.get());
 						removed = true;
 						break;
 					}
@@ -472,23 +482,23 @@ public class TiContext implements TiEvaluator, ITiMenuDispatcherListener, ErrorR
 		return result;
 	}
 
-	public boolean hasEventListener(String eventName, TiProxy tiProxy)
+	public boolean hasEventListener(String eventName, KrollProxy proxy)
 	{
 		boolean result = false;
 
 		if (eventName != null) {
-			if (tiProxy != null) {
+			if (proxy != null) {
 				HashMap<Integer, TiListener> listeners = eventListeners.get(eventName);
 				if (listeners != null && !listeners.isEmpty()) {
 					for (TiListener listener : listeners.values()) {
-						if (listener.isSameProxy(tiProxy)) {
+						if (listener.isSameProxy(proxy)) {
 							result = true;
 							break;
 						}
 					}
 				}
 			} else {
-				throw new IllegalStateException("addEventListener expects a non-null tiProxy");
+				throw new IllegalStateException("addEventListener expects a non-null KrollProxy");
 			}
 		} else {
 			throw new IllegalStateException("addEventListener expects a non-null eventName");
@@ -497,19 +507,33 @@ public class TiContext implements TiEvaluator, ITiMenuDispatcherListener, ErrorR
 		return result;
 	}
 
-	public boolean dispatchEvent(String eventName, TiDict data)
+	public boolean dispatchEvent(String eventName, KrollDict data)
 	{
-		return dispatchEvent(eventName, data, null);
+		KrollInvocation inv = KrollInvocation.createMethodInvocation(
+			this, getJSContext().getScope(), "event:"+eventName, null, null);
+		return dispatchEvent(inv, eventName, data);
+	}
+	
+	public boolean dispatchEvent(KrollInvocation invocation, String eventName, KrollDict data)
+	{
+		return dispatchEvent(invocation, eventName, data, null);
 	}
 
-	public boolean dispatchEvent(String eventName, TiDict data, TiProxy tiProxy)
+	public boolean dispatchEvent(String eventName, KrollDict data, KrollProxy proxy)
+	{
+		KrollInvocation inv = KrollInvocation.createMethodInvocation(
+			this, getJSContext().getScope(), "event:"+eventName, null, proxy);
+		return dispatchEvent(inv, eventName, data, proxy);
+	}
+	
+	public boolean dispatchEvent(KrollInvocation invocation, String eventName, KrollDict data, KrollProxy proxy)
 	{
 		boolean dispatched = false;
 		if (eventName != null) {
 			Map<Integer, TiListener> listeners = eventListeners.get(eventName);
 			if (listeners != null) {
 				if (data == null) {
-					data = new TiDict();
+					data = new KrollDict();
 				}
 				data.put("type", eventName);
 
@@ -517,14 +541,14 @@ public class TiContext implements TiEvaluator, ITiMenuDispatcherListener, ErrorR
 				synchronized(eventListeners) {
 					for(Entry<Integer, TiListener> entry : listenerSet) {
 						TiListener listener = entry.getValue();
-						if (tiProxy == null || (tiProxy != null && listener.isSameProxy(tiProxy))) {
+						if (proxy == null || (proxy != null && listener.isSameProxy(proxy))) {
 							boolean invoked = false;
 							try {
-								if (listener.weakTiProxy.get() != null) {
+								if (listener.weakProxy.get() != null) {
 									if (!data.containsKey("source")) {
-										data.put("source", listener.weakTiProxy.get());
+										data.put("source", listener.weakProxy.get());
 									}
-									invoked = listener.invoke(eventName, data);
+									invoked = listener.invoke(invocation, eventName, data);
 								}
 							} catch (Exception e) {
 								Log.e(LCAT, "Error invoking listener with id " + entry.getKey() + " on eventName '" + eventName + "'", e);
@@ -717,11 +741,12 @@ public class TiContext implements TiEvaluator, ITiMenuDispatcherListener, ErrorR
 		doRhinoDialog("Warning", message, sourceName, line, lineSource, lineOffset);
 	}
 
-	public static TiContext createTiContext(Activity activity, TiDict preload, String baseUrl)
+	public static TiContext createTiContext(Activity activity, KrollDict preload, String baseUrl, KrollBindings bindings)
 	{
 		TiContext tic = new TiContext(activity, baseUrl);
 		KrollContext kroll = KrollContext.createContext(tic);
-		KrollBridge krollBridge = new KrollBridge(kroll, preload);
+		tic.setKrollContext(kroll);
+		KrollBridge krollBridge = new KrollBridge(kroll, preload, bindings);
 		tic.setJSContext(krollBridge);
 		return tic;
 	}
@@ -815,15 +840,12 @@ public class TiContext implements TiEvaluator, ITiMenuDispatcherListener, ErrorR
         	// Ignore
         }
 	}
-
-	public TiModule getModule(String name)
-	{
-		WeakReference<TiModule> m = modules.get(name);
-		return m == null ? null : m.get();
+	
+	public KrollContext getKrollContext() {
+		return krollContext;
 	}
 	
-	public void cacheModule(String name, TiModule m)
-	{
-		modules.put(name, new WeakReference<TiModule>(m));
+	public void setKrollContext(KrollContext krollContext) {
+		this.krollContext = krollContext;
 	}
 }

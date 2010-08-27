@@ -6,13 +6,13 @@
  */
 package org.appcelerator.titanium.view;
 
+import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.titanium.TiContext;
-import org.appcelerator.titanium.TiDict;
-import org.appcelerator.titanium.TiProxy;
 
-public class Ti2DMatrix extends TiProxy
+public class Ti2DMatrix extends KrollProxy
 {
-	TiDict options;
+	KrollDict options;
 	Double translateX;
 	Double translateY;
 	Double scaleFactor;
@@ -22,7 +22,7 @@ public class Ti2DMatrix extends TiProxy
 	{
 		super(tiContext);
 		if (args.length > 0) {
-			options = (TiDict) args[0];
+			options = (KrollDict) args[0];
 		}
 	}
 

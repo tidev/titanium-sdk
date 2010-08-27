@@ -7,11 +7,10 @@
 package ti.modules.titanium.ui;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 
+import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.titanium.TiContext;
-import org.appcelerator.titanium.TiDict;
-import org.appcelerator.titanium.TiProxy;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.AsyncResult;
 import org.appcelerator.titanium.util.TiConfig;
@@ -63,7 +62,7 @@ public class TableViewProxy extends TiViewProxy
 		return (TiUITableView) getView(getTiContext().getActivity());
 	}
 	
-	public void updateRow(Object row, Object data, TiDict options) {
+	public void updateRow(Object row, Object data, KrollDict options) {
 		TableViewRowProxy rowProxy = null;
 		TableViewSectionProxy sectionProxy = null;
 		int rowIndex = -1;
@@ -97,7 +96,7 @@ public class TableViewProxy extends TiViewProxy
 		}
 	}
 
-	public void appendRow(Object row, TiDict options)
+	public void appendRow(Object row, KrollDict options)
 	{
 		TableViewRowProxy rowProxy = rowProxyFor(row);
 		
@@ -117,7 +116,7 @@ public class TableViewProxy extends TiViewProxy
 		updateView();
 	}
 
-	public void deleteRow(int index, TiDict options)
+	public void deleteRow(int index, KrollDict options)
 	{
 		RowResult rr = new RowResult();
 		if (locateIndex(index, rr)) {
@@ -151,7 +150,7 @@ public class TableViewProxy extends TiViewProxy
 		return index;
 	}
 
-	public void insertRowBefore(int index, Object data, TiDict options) {
+	public void insertRowBefore(int index, Object data, KrollDict options) {
 		if (getSections().size() > 0) {
 			if (index < 0) {
 				index = 0;
@@ -174,7 +173,7 @@ public class TableViewProxy extends TiViewProxy
 		updateView();
 	}
 
-	public void insertRowAfter(int index, Object data, TiDict options) {
+	public void insertRowAfter(int index, Object data, KrollDict options) {
 		RowResult rr = new RowResult();
 		if (locateIndex(index, rr)) {
 			// TODO check for section
@@ -188,7 +187,7 @@ public class TableViewProxy extends TiViewProxy
 		}
 	}
 
-	public void scrollToIndex(int index, TiDict options) {
+	public void scrollToIndex(int index, KrollDict options) {
 		getTableView().scrollToIndex(index);
 	}
 
@@ -212,8 +211,8 @@ public class TableViewProxy extends TiViewProxy
 		for (int i = 0; i < data.length; i++) {
 			Object o = data[i];
 
-			if (o instanceof TiDict) {
-				TiDict d = (TiDict) o;
+			if (o instanceof KrollDict) {
+				KrollDict d = (KrollDict) o;
 				Object[] args = { d };
 				TableViewRowProxy rowProxy = new TableViewRowProxy(getTiContext(), args);
 				rowProxy.setDynamicValue("className", CLASSNAME_NORMAL);
@@ -233,7 +232,7 @@ public class TableViewProxy extends TiViewProxy
 				currentSection.add(rowProxy);
 			} else if (o instanceof TableViewRowProxy) {
 				TableViewRowProxy rowProxy = (TableViewRowProxy) o;
-				TiDict d = rowProxy.getDynamicProperties();
+				KrollDict d = rowProxy.getDynamicProperties();
 				rowProxy.setParent(this);
 
 				if (currentSection == null || d.containsKey("header")) {
@@ -256,7 +255,7 @@ public class TableViewProxy extends TiViewProxy
 		}
 	}
 
-	public void setData(Object[] data, TiDict options) {
+	public void setData(Object[] data, KrollDict options) {
 		if (data != null) {
 			processData(data);
 			getTableView().setModelDirty();
@@ -275,8 +274,8 @@ public class TableViewProxy extends TiViewProxy
 
 	private TableViewRowProxy rowProxyFor(Object row) {
 		TableViewRowProxy rowProxy = null;
-		if (row instanceof TiDict) {
-			TiDict d = (TiDict) row;
+		if (row instanceof KrollDict) {
+			KrollDict d = (KrollDict) row;
 			Object[] args = { d };
 			rowProxy = new TableViewRowProxy(getTiContext(), args);
 			rowProxy.setDynamicValue("className", CLASSNAME_NORMAL);
@@ -345,7 +344,7 @@ public class TableViewProxy extends TiViewProxy
 	// labels only send out click events when they are explicitly told to do so.
 	// we need to tell each label child to enable clicks when a click listener is added
 	@Override
-	public void eventListenerAdded(String eventName, int count, TiProxy proxy) {
+	public void eventListenerAdded(String eventName, int count, KrollProxy proxy) {
 		super.eventListenerAdded(eventName, count, proxy);
 		if (eventName.equals("click") && proxy == this) {
 			for (TableViewSectionProxy section : getSections()) {
@@ -357,7 +356,7 @@ public class TableViewProxy extends TiViewProxy
 	}
 	
 	@Override
-	public void eventListenerRemoved(String eventName, int count, TiProxy proxy) {
+	public void eventListenerRemoved(String eventName, int count, KrollProxy proxy) {
 		super.eventListenerRemoved(eventName, count, proxy);
 		if (eventName.equals("click") && count == 0 && proxy == this) {
 			for (TableViewSectionProxy section : getSections()) {

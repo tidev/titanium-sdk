@@ -8,9 +8,9 @@ package ti.modules.titanium.xml;
 
 import java.util.HashMap;
 
+import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.titanium.TiContext;
-import org.appcelerator.titanium.TiDict;
-import org.appcelerator.titanium.TiProxy;
 import org.w3c.dom.Attr;
 import org.w3c.dom.CDATASection;
 import org.w3c.dom.Comment;
@@ -26,12 +26,12 @@ import org.w3c.dom.Notation;
 import org.w3c.dom.ProcessingInstruction;
 import org.w3c.dom.Text;
 
-public class NodeProxy extends TiProxy {
+public class NodeProxy extends KrollProxy {
 
 	private static HashMap<Node, NodeProxy> proxyCache = new HashMap<Node, NodeProxy>();
 	
 	private Node node;
-	private TiDict constants;
+	private KrollDict constants;
 	
 	public NodeProxy(TiContext context, Node node)
 	{
@@ -40,9 +40,9 @@ public class NodeProxy extends TiProxy {
 	}
 
 	@Override
-	public TiDict getConstants() {
+	public KrollDict getConstants() {
 		if (constants == null) {
-			constants = new TiDict();
+			constants = new KrollDict();
 			constants.put("ATTRIBUTE_NODE", Node.ATTRIBUTE_NODE);
 			constants.put("CDATA_SECTION_NODE", Node.CDATA_SECTION_NODE);
 			constants.put("COMMENT_NODE", Node.COMMENT_NODE);

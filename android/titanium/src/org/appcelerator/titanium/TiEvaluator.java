@@ -8,6 +8,8 @@ package org.appcelerator.titanium;
 
 import java.io.IOException;
 
+import org.mozilla.javascript.Scriptable;
+
 public interface TiEvaluator
 {
 	public Object evalJS(String src);
@@ -20,4 +22,6 @@ public interface TiEvaluator
 	 */
 	public void bindToToplevel(String topLevelName, String[] objectName);
 	public void fireEvent(); // dispatchInstead?
+	
+	public Scriptable getScope();
 }

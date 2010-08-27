@@ -11,9 +11,9 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiContext;
-import org.appcelerator.titanium.TiDict;
 import org.appcelerator.titanium.io.TiBaseFile;
 import org.appcelerator.titanium.io.TiFile;
 import org.appcelerator.titanium.proxy.TiViewProxy;
@@ -39,7 +39,7 @@ public class EmailDialogProxy extends TiViewProxy {
 	public static final int SENT = 2;
 	public static final int FAILED = 3;
 	
-	public static TiDict constants;
+	public static KrollDict constants;
 	
 	private ArrayList<Object> attachments;
 	
@@ -48,9 +48,9 @@ public class EmailDialogProxy extends TiViewProxy {
 	}
 	
 	@Override
-	public TiDict getConstants() {
+	public KrollDict getConstants() {
 		if (constants == null) {
-			constants = new TiDict();
+			constants = new KrollDict();
 			constants.put("CANCELLED", CANCELLED);
 			constants.put("SAVED", SAVED);
 			constants.put("SENT", SENT);
@@ -123,7 +123,7 @@ public class EmailDialogProxy extends TiViewProxy {
 					// ACTION_SEND does not set a result code (so the default of 0
 					// is always returned. We'll neither confirm nor deny -- assume SENT
 					// see http://code.google.com/p/android/issues/detail?id=5512
-					TiDict result = new TiDict();
+					KrollDict result = new KrollDict();
 					result.put("result", SENT); // TODO fix this when figure out above
 					result.put("success", true);
 					fireEvent("complete", result);					
@@ -131,7 +131,7 @@ public class EmailDialogProxy extends TiViewProxy {
 				
 				@Override
 				public void onError(Activity activity, int requestCode, Exception e) {
-					TiDict result = new TiDict();
+					KrollDict result = new KrollDict();
 					result.put("result", FAILED);
 					result.put("error", e.getMessage());
 					result.put("success", false);

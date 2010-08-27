@@ -10,7 +10,6 @@ import org.appcelerator.titanium.TiContext;
 import org.w3c.dom.CDATASection;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Element;
-import org.w3c.dom.Entity;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.Text;

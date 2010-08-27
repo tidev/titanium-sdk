@@ -6,23 +6,22 @@
  */
 package ti.modules.titanium.ui.iphone.rowanimationstyle;
 
+import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.titanium.TiContext;
-import org.appcelerator.titanium.TiDict;
-import org.appcelerator.titanium.TiModule;
 
 public class RowAnimationStyleModule extends TiModule
 {
 
-	private static TiDict constants;
+	private static KrollDict constants;
 
 	public RowAnimationStyleModule(TiContext tiContext) {
 		super(tiContext);
 	}
 
 	@Override
-	public TiDict getConstants() {
+	public KrollDict getConstants() {
 		if (constants == null) {
-			constants = new TiDict();
+			constants = new KrollDict();
 
 			constants.put("DOWN", "iphone only");
 			constants.put("LEFT", "iphone only");

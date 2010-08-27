@@ -3,9 +3,9 @@
  */
 package ti.modules.titanium.android;
 
+import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.titanium.TiContext;
-import org.appcelerator.titanium.TiDict;
-import org.appcelerator.titanium.TiProxy;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiConvert;
@@ -13,7 +13,7 @@ import org.appcelerator.titanium.util.TiConvert;
 import android.content.Intent;
 import android.net.Uri;
 
-public class IntentProxy extends TiProxy 
+public class IntentProxy extends KrollProxy 
 {
 	private static final String LCAT = "TiIntent";
 	private static boolean DBG = TiConfig.LOGD;
@@ -24,11 +24,11 @@ public class IntentProxy extends TiProxy
 	{
 		super(tiContext);
 
-		TiDict d = null;
+		KrollDict d = null;
 		
 		if (args != null && args.length >= 1) {
-			if (args[0] instanceof TiDict) {
-				d = (TiDict) args[0];
+			if (args[0] instanceof KrollDict) {
+				d = (KrollDict) args[0];
 			}
 		}
 		

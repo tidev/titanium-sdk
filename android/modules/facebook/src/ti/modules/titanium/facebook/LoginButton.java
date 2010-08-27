@@ -8,9 +8,8 @@ package ti.modules.titanium.facebook;
 
 import java.io.InputStream;
 
-import org.appcelerator.titanium.TiDict;
-import org.appcelerator.titanium.TiModule;
-import org.appcelerator.titanium.TiProxy;
+import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
@@ -84,7 +83,7 @@ public class LoginButton extends TiUIView {
 	}
 
 	@Override
-	public void processProperties(TiDict d) {
+	public void processProperties(KrollDict d) {
 		super.processProperties(d);
 
 		facebook = (FacebookModule) TiModule.getModule("Facebook");
@@ -96,7 +95,7 @@ public class LoginButton extends TiUIView {
 		String secret = TiConvert.toString(d, "secret");
 		String sessionProxy = TiConvert.toString(d, "sessionProxy");
 
-		final TiProxy proxy = getProxy();
+		final KrollProxy proxy = getProxy();
 		
 		session = facebook.getOrCreateSession(apiKey, secret, sessionProxy);
 		session.getDelegates().add(new FBSessionDelegate() 
@@ -106,7 +105,7 @@ public class LoginButton extends TiUIView {
 		    {
 				Log.d(LCAT,"SESSION DID LOGIN");
 				updateButtonImage(true, false);
-				TiDict event = new TiDict();
+				KrollDict event = new KrollDict();
 				event.put("success", true);
 				event.put("state", "login");
 				proxy.fireEvent("login",event);
@@ -121,7 +120,7 @@ public class LoginButton extends TiUIView {
 			public void sessionDidLogout(FBSession session)
 			{
 				Log.d(LCAT,"SESSION DID LOGOUT");
-				TiDict event = new TiDict();
+				KrollDict event = new KrollDict();
 				event.put("success", true);
 				event.put("state", "logout");
 				proxy.fireEvent("logout",event);
@@ -148,7 +147,7 @@ public class LoginButton extends TiUIView {
 
 	@Override
 	public void propertyChanged(String key, Object oldValue, Object newValue,
-			TiProxy proxy) {
+			KrollProxy proxy) {
 		if (DBG) {
 			Log.d(LCAT, "Property: " + key + " old: " + oldValue + " new: "
 					+ newValue);

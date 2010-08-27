@@ -7,24 +7,22 @@
 package org.appcelerator.titanium.util;
 
 import java.util.Date;
-import java.util.Map;
 import java.util.Iterator;
+import java.util.Map;
 
-import org.mozilla.javascript.Function;
-
+import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollObject;
+import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.titanium.TiBlob;
-import org.appcelerator.titanium.TiDict;
 import org.appcelerator.titanium.TiDimension;
-import org.appcelerator.titanium.TiProxy;
 import org.appcelerator.titanium.kroll.KrollCallback;
-import org.appcelerator.titanium.kroll.KrollObject;
 import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.titanium.view.TiCompositeLayout.LayoutParams;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.mozilla.javascript.Function;
 
-import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 
@@ -37,15 +35,15 @@ public class TiConvert
 
 	// Bundle
 
-	public static Object putInTiDict(TiDict d, String key, Object value)
+	public static Object putInKrollDict(KrollDict d, String key, Object value)
 	{
 		if (value instanceof String || value instanceof Number || value instanceof Boolean || value instanceof Date) {
 			d.put(key, value);
-		} else if (value instanceof TiDict) {
-			TiDict nd = new TiDict();
-			TiDict dict = (TiDict) value;
+		} else if (value instanceof KrollDict) {
+			KrollDict nd = new KrollDict();
+			KrollDict dict = (KrollDict) value;
 			for (String k : dict.keySet()) {
-				putInTiDict(nd, k, dict.get(k));
+				putInKrollDict(nd, k, dict.get(k));
 			}
 			d.put(key, nd);
 			value = nd;
@@ -74,10 +72,10 @@ public class TiConvert
 					}
 					d.put(key, da);
 				} else if (v != null && v instanceof KrollObject) {
-					TiProxy[] pa = new TiProxy[len];
+					KrollProxy[] pa = new KrollProxy[len];
 					for(int i = 0; i < len; i++) {
 						KrollObject ko = (KrollObject) a[i];
-						pa[i] = (TiProxy) ko.getTarget();
+						pa[i] = (KrollProxy) ko.getProxy();
 					}
 					d.put(key, pa);
 				} else {
@@ -94,18 +92,18 @@ public class TiConvert
 			}
 		} else if (value == null) {
 			d.put(key, null);
-		} else if (value instanceof TiProxy) {
+		} else if (value instanceof KrollProxy) {
 			d.put(key, value);
 		} else if (value instanceof KrollCallback || value instanceof Function) {
 			d.put(key, value);
 		} else if (value instanceof Map) {
-			TiDict dict = new TiDict();
+			KrollDict dict = new KrollDict();
 			Map map = (Map)value;
 			Iterator iter = map.keySet().iterator();
 			while(iter.hasNext())
 			{
 				String k = (String)iter.next();
-				putInTiDict(dict,k,map.get(k));
+				putInKrollDict(dict,k,map.get(k));
 			}
 			d.put(key,dict);
 		} else {
@@ -118,18 +116,18 @@ public class TiConvert
 	public static int toColor(String value) {
 		return TiColorHelper.parseColor(value);
 	}
-	public static int toColor(TiDict d, String key) {
+	public static int toColor(KrollDict d, String key) {
 		return toColor(d.getString(key));
 	}
 	public static ColorDrawable toColorDrawable(String value) {
 		return new ColorDrawable(toColor(value));
 	}
-	public static ColorDrawable toColorDrawable(TiDict d, String key) {
+	public static ColorDrawable toColorDrawable(KrollDict d, String key) {
 		return toColorDrawable(d.getString(key));
 	}
 
 	// Layout
-	public static boolean fillLayout(TiDict d, LayoutParams layoutParams) {
+	public static boolean fillLayout(KrollDict d, LayoutParams layoutParams) {
 		boolean dirty = false;
 
 		if (d.containsKey("left")) {
@@ -195,7 +193,7 @@ public class TiConvert
 			throw new IllegalArgumentException("Unable to convert " + value.getClass().getName() + " to boolean.");
 		}
 	}
-	public static boolean toBoolean(TiDict d, String key) {
+	public static boolean toBoolean(KrollDict d, String key) {
 		return toBoolean(d.get(key));
 	}
 
@@ -210,7 +208,7 @@ public class TiConvert
 			throw new NumberFormatException("Unable to convert " + value.getClass().getName());
 		}
 	}
-	public static int toInt(TiDict d, String key) {
+	public static int toInt(KrollDict d, String key) {
 		return toInt(d.get(key));
 	}
 
@@ -225,7 +223,7 @@ public class TiConvert
 			throw new NumberFormatException("Unable to convert " + value.getClass().getName());
 		}
 	}
-	public static float toFloat(TiDict d, String key) {
+	public static float toFloat(KrollDict d, String key) {
 		return toFloat(d.get(key));
 	}
 
@@ -240,14 +238,14 @@ public class TiConvert
 			throw new NumberFormatException("Unable to convert " + value.getClass().getName());
 		}
 	}
-	public static double toDouble(TiDict d, String key) {
+	public static double toDouble(KrollDict d, String key) {
 		return toDouble(d.get(key));
 	}
 
 	public static String toString(Object value) {
 		return value == null ? null : value.toString();
 	}
-	public static String toString(TiDict d, String key) {
+	public static String toString(KrollDict d, String key) {
 		return toString(d.get(key));
 	}
 
@@ -267,7 +265,7 @@ public class TiConvert
 		return new TiDimension(value);
 	}
 
-	public static TiDimension toTiDimension(TiDict d, String key) {
+	public static TiDimension toTiDimension(KrollDict d, String key) {
 		Object value = d.get(key);
 		if (value instanceof Integer || value instanceof Double || value instanceof Float) {
 			value = value.toString() + "px";
@@ -296,9 +294,9 @@ public class TiConvert
 	}
 
 	//Error
-	public static TiDict toErrorObject(int code, String msg) {
-		TiDict d = new TiDict(1);
-		TiDict e = new TiDict();
+	public static KrollDict toErrorObject(int code, String msg) {
+		KrollDict d = new KrollDict(1);
+		KrollDict e = new KrollDict();
 		e.put("code", code);
 		e.put("message", msg);
 
@@ -310,12 +308,12 @@ public class TiConvert
 		return (TiBlob) value;
 	}
 
-	public static TiBlob toBlob(TiDict object, String property) {
+	public static TiBlob toBlob(KrollDict object, String property) {
 		return toBlob(object.get(property));
 	}
 
 	// JSON
-	public static JSONObject toJSON(TiDict data) {
+	public static JSONObject toJSON(KrollDict data) {
 		if (data == null) {
 			return null;
 		}
@@ -332,8 +330,8 @@ public class TiConvert
 					json.put(key, (String) o);
 				} else if (o instanceof Boolean) {
 					json.put(key, (Boolean) o);
-				} else if (o instanceof TiDict) {
-					json.put(key, toJSON((TiDict) o));
+				} else if (o instanceof KrollDict) {
+					json.put(key, toJSON((KrollDict) o));
 				} else if (o.getClass().isArray()) {
 					json.put(key, toJSONArray((Object[]) o));
 				} else {
@@ -364,8 +362,8 @@ public class TiConvert
 				ja.put((String) o);
 			} else if (o instanceof Boolean) {
 				ja.put((Boolean) o);
-			} else if (o instanceof TiDict) {
-				ja.put(toJSON((TiDict) o));
+			} else if (o instanceof KrollDict) {
+				ja.put(toJSON((KrollDict) o));
 			} else if (o.getClass().isArray()) {
 				ja.put(toJSONArray((Object[]) o));
 			} else {
@@ -385,7 +383,7 @@ public class TiConvert
 		return null;
 	}
 	
-	public static Date toDate(TiDict d, String key) {
+	public static Date toDate(KrollDict d, String key) {
 		return toDate(d.get(key));
 	}
 }

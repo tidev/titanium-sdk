@@ -6,9 +6,8 @@
  */
 package ti.modules.titanium.app.properties;
 
+import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.titanium.TiContext;
-import org.appcelerator.titanium.TiDict;
-import org.appcelerator.titanium.TiModule;
 import org.appcelerator.titanium.TiProperties;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConvert;
@@ -145,9 +144,9 @@ public class PropertiesModule extends TiModule {
 				String value = values[i];
 				if (value.startsWith("{") && value.endsWith("}")) {
 					try {
-						list[i] = new TiDict(new JSONObject(value));
+						list[i] = new KrollDict(new JSONObject(value));
 					} catch (JSONException e) {
-						Log.e(LCAT, "Error converting JSON string to TiDict, property:" + key, e);
+						Log.e(LCAT, "Error converting JSON string to KrollDict, property:" + key, e);
 					}
 				} else {
 					list[i] = value;
@@ -189,8 +188,8 @@ public class PropertiesModule extends TiModule {
 		String[] valueList = new String[value.length];
 		for (int i = 0; i < value.length; i++) {
 			Object v = value[i];
-			if (v instanceof TiDict) {
-				valueList[i] = TiConvert.toJSON((TiDict)v).toString();
+			if (v instanceof KrollDict) {
+				valueList[i] = TiConvert.toJSON((KrollDict)v).toString();
 			} else if (v instanceof Object[]) {
 				valueList[i] = TiConvert.toJSONArray((Object[])v).toString();
 			} else {

@@ -10,9 +10,9 @@ import java.io.IOException;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import org.appcelerator.titanium.TiDict;
-import org.appcelerator.titanium.TiProxy;
-import org.appcelerator.titanium.TiProxyListener;
+import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollProxy;
+import org.appcelerator.titanium.KrollProxyListener;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiConvert;
@@ -24,7 +24,7 @@ import android.net.Uri;
 import android.webkit.URLUtil;
 
 public class TiSound
-	implements MediaPlayer.OnCompletionListener, MediaPlayer.OnErrorListener, TiProxyListener,
+	implements MediaPlayer.OnCompletionListener, MediaPlayer.OnErrorListener, KrollProxyListener,
 	MediaPlayer.OnBufferingUpdateListener, MediaPlayer.OnInfoListener
 {
 	private static final String LCAT = "TiSound";
@@ -62,14 +62,14 @@ public class TiSound
 	private boolean paused = false;
 	private boolean looping = false;
 
-	protected TiProxy proxy;
+	protected KrollProxy proxy;
 	protected MediaPlayer mp;
 	protected float volume;
 	protected boolean playOnResume;
 	protected boolean remote;
 	protected Timer progressTimer;
 
-	public TiSound(TiProxy proxy)
+	public TiSound(KrollProxy proxy)
 	{
 		this.proxy = proxy;
 		this.playOnResume = false;
@@ -350,7 +350,7 @@ public class TiSound
 			Log.d(LCAT, "Audio state changed: " + stateDescription);
 		}
 
-		TiDict data = new TiDict();
+		KrollDict data = new KrollDict();
 		data.put("state", state);
 		data.put("description", stateDescription);
 		proxy.fireEvent(EVENT_CHANGE, data);
@@ -414,7 +414,7 @@ public class TiSound
 				break;
 		}
 
-		TiDict data = new TiDict();
+		KrollDict data = new KrollDict();
 		data.put("code", 0);
 		data.put("message", msg);
 		proxy.fireEvent(EVENT_ERROR, data);
@@ -432,7 +432,7 @@ public class TiSound
 		}
 		release();
 
-		TiDict data = new TiDict();
+		KrollDict data = new KrollDict();
 		data.put("code", code);
 		data.put("message", msg);
 		proxy.fireEvent(EVENT_ERROR, data);
@@ -462,7 +462,7 @@ public class TiSound
 			public void run() {
 				if (mp != null && mp.isPlaying()) {
 					double position = mp.getCurrentPosition();
-					TiDict event = new TiDict();
+					KrollDict event = new KrollDict();
 					event.put("progress", position);
 					proxy.fireEvent(EVENT_PROGRESS, event);
 				}
@@ -506,15 +506,15 @@ public class TiSound
 	}
 
 	@Override
-	public void listenerAdded(String type, int count, TiProxy proxy) {
+	public void listenerAdded(String type, int count, KrollProxy proxy) {
 	}
 
 	@Override
-	public void listenerRemoved(String type, int count, TiProxy proxy) {
+	public void listenerRemoved(String type, int count, KrollProxy proxy) {
 	}
 
 	@Override
-	public void processProperties(TiDict d) {
+	public void processProperties(KrollDict d) {
 		if (d.containsKey("volume")) {
 			setVolume(TiConvert.toFloat(d, "volume"));
 		} else {
@@ -527,7 +527,7 @@ public class TiSound
 	}
 
 	@Override
-	public void propertyChanged(String key, Object oldValue, Object newValue, TiProxy proxy)
+	public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy proxy)
 	{
 		if ("volume".equals(key)) {
 			setVolume(TiConvert.toFloat(newValue));

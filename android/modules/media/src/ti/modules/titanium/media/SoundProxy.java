@@ -6,9 +6,9 @@
  */
 package ti.modules.titanium.media;
 
+import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.titanium.TiContext;
-import org.appcelerator.titanium.TiDict;
-import org.appcelerator.titanium.TiProxy;
 import org.appcelerator.titanium.TiContext.OnLifecycleEvent;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
@@ -16,7 +16,7 @@ import org.appcelerator.titanium.util.TiConvert;
 
 import ti.modules.titanium.filesystem.FileProxy;
 
-public class SoundProxy extends TiProxy
+public class SoundProxy extends KrollProxy
 	implements OnLifecycleEvent
 {
 	private static final String LCAT = "SoundProxy";
@@ -29,7 +29,7 @@ public class SoundProxy extends TiProxy
 		super(tiContext);
 
 		if (args != null && args.length > 0) {
-			TiDict options = (TiDict) args[0];
+			KrollDict options = (KrollDict) args[0];
 			if (options != null) {
 				if (options.containsKey("url")) {
 					internalSetDynamicValue("url", tiContext.resolveUrl(null, TiConvert.toString(options, "url")), false);

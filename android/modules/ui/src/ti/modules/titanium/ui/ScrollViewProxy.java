@@ -6,8 +6,8 @@
  */
 package ti.modules.titanium.ui;
 
+import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.titanium.TiContext;
-import org.appcelerator.titanium.TiProxy;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.AsyncResult;
 import org.appcelerator.titanium.view.TiUIView;
@@ -20,7 +20,7 @@ import android.os.Message;
 public class ScrollViewProxy extends TiViewProxy
 	implements Handler.Callback
 {
-	private static final int MSG_FIRST_ID = TiProxy.MSG_LAST_ID + 1;
+	private static final int MSG_FIRST_ID = KrollProxy.MSG_LAST_ID + 1;
 
 	private static final int MSG_SCROLL_TO = MSG_FIRST_ID + 100;
 	protected static final int MSG_LAST_ID = MSG_FIRST_ID + 999;

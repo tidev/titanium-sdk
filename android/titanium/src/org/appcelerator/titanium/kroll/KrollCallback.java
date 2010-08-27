@@ -6,14 +6,18 @@
  */
 package org.appcelerator.titanium.kroll;
 
-import org.appcelerator.titanium.TiDict;
+import org.appcelerator.kroll.KrollConverter;
+import org.appcelerator.kroll.KrollInvocation;
+import org.appcelerator.kroll.KrollMethod;
+import org.appcelerator.kroll.KrollObject;
+import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.titanium.util.Log;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.EcmaError;
 import org.mozilla.javascript.EvaluatorException;
 import org.mozilla.javascript.Function;
 
-public class KrollCallback implements IKrollCallable
+public class KrollCallback extends KrollMethod
 {
 	private static final String LCAT = "KrollCallback";
 
@@ -22,26 +26,24 @@ public class KrollCallback implements IKrollCallable
 	private Function method;
 
 	public KrollCallback(KrollContext kroll, KrollObject thisObj, Function method) {
+		super(null);
+		
 		this.kroll = kroll;
 		this.thisObj = thisObj;
 		this.method = method;
 	}
-
-	public void callWithProperties(TiDict data) {
-		if (data == null) {
-			data = new TiDict();
-		}
-
-		call(new Object[] { data });
+	
+	public void call() {
+		call(null);
 	}
 
-	public void call()
-	{
-		call(new Object[0]);
+	public void call(Object[] args) {
+		KrollInvocation inv = KrollInvocation.createMethodInvocation(kroll.getTiContext(), thisObj, null, this, thisObj.getProxy());
+		invoke(inv, args);
 	}
-
-	public void call(Object[] args)
-	{
+	
+	@Override
+	public Object invoke(final KrollInvocation invocation, Object[] args) {
 		if (args == null) args = new Object[0];
 		final Object[] fArgs = args;
 
@@ -52,7 +54,7 @@ public class KrollCallback implements IKrollCallable
 				try {
 					Object[] jsArgs = new Object[fArgs.length];
 					for (int i = 0; i < fArgs.length; i++) {
-						Object jsArg = KrollObject.fromNative(fArgs[i], kroll);
+						Object jsArg = KrollConverter.getInstance().convertNative(invocation, fArgs[i]);
 						jsArgs[i] = jsArg;
 					}
 					method.call(ctx, thisObj, thisObj, jsArgs);
@@ -73,6 +75,7 @@ public class KrollCallback implements IKrollCallable
 				}
 			}
 		});
+		return KrollProxy.UNDEFINED;
 	}
 
 	@Override

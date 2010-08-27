@@ -7,13 +7,13 @@
 
 package ti.modules.titanium.ui;
 
+import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.titanium.TiContext;
-import org.appcelerator.titanium.TiDict;
-import org.appcelerator.titanium.TiProxy;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConvert;
 
-public class PickerRowProxy extends TiProxy 
+public class PickerRowProxy extends KrollProxy 
 {
 	private static final String LCAT = "PickerRowProxy";
 
@@ -26,7 +26,7 @@ public class PickerRowProxy extends TiProxy
 	{
 		super(tiContext);
 		if (args != null && args.length > 0) {
-			setProperties((TiDict) args[0]);
+			setProperties((KrollDict) args[0]);
 		}
 	}
 

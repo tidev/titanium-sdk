@@ -8,8 +8,8 @@ package ti.modules.titanium.ui.widget;
 
 import java.util.ArrayList;
 
-import org.appcelerator.titanium.TiDict;
-import org.appcelerator.titanium.TiProxy;
+import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiCompositeLayout;
@@ -36,7 +36,7 @@ public class TiUIScrollableView extends TiUIView
 	}
 
 	@Override
-	public void processProperties(TiDict d) {
+	public void processProperties(KrollDict d) {
 		if (d.containsKey("views")) {
 			getView().setViews(d.get("views"));
 			proxy.getDynamicProperties().remove("views"); // Don't store
@@ -52,7 +52,7 @@ public class TiUIScrollableView extends TiUIView
 
 	
 	@Override
-	public void propertyChanged(String key, Object oldValue, Object newValue, TiProxy proxy) {
+	public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy proxy) {
 		if("currentPage".equals(key)) {
 			setCurrentPage(TiConvert.toInt(newValue));
 		} else {

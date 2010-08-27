@@ -6,8 +6,8 @@
  */
 package ti.modules.titanium.ui;
 
+import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.titanium.TiContext;
-import org.appcelerator.titanium.TiDict;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.view.TiUIView;
@@ -28,7 +28,7 @@ public class ToolbarProxy extends TiViewProxy
 		Log.e("Toolbar", "Not implemented on Android yet. Placeholder proxy.");
 		TiView v = new TiView(this);
 		v.getLayoutParams().autoFillsWidth = true;
-		TiDict options = new TiDict();
+		KrollDict options = new KrollDict();
 		options.put("backgroundColor", "red");
 		options.put("color", "white");
 		options.put("width", "auto");

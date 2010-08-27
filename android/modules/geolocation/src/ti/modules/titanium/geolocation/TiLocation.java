@@ -9,11 +9,9 @@ package ti.modules.titanium.geolocation;
 import java.util.Iterator;
 import java.util.List;
 
-import org.appcelerator.titanium.TiDict;
-import org.appcelerator.titanium.TiModule;
+import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.titanium.kroll.KrollCallback;
 import org.appcelerator.titanium.util.Log;
-import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiConvert;
 
 import android.content.Context;
@@ -67,7 +65,7 @@ public class TiLocation
 			public void onLocationChanged(Location location) {
 				if (locationManager != null) {
 					LocationProvider provider = locationManager.getProvider(location.getProvider());
-					fproxy.fireEvent(EVENT_LOCATION, locationToTiDict(location, provider));
+					fproxy.fireEvent(EVENT_LOCATION, locationToKrollDict(location, provider));
 					if (location.getTime() - lastEventTimestamp > MAX_GEO_ANALYTICS_FREQUENCY) {
 						// Null is returned if it's too early to send another event.
 						// TODO Analytics
@@ -127,7 +125,7 @@ public class TiLocation
 				// We should really query all active providers - one may have a more accurate fix
 				Location location = locationManager.getLastKnownLocation(provider);
 				if (location != null) {
-					listener.callWithProperties(locationToTiDict(location, locationManager.getProvider(provider)));
+					listener.callWithProperties(locationToKrollDict(location, locationManager.getProvider(provider)));
 				} else {
 					Log.i(LCAT, "getCurrentPosition - location is null");
 					listener.callWithProperties(TiConvert.toErrorObject(ERR_POSITION_UNAVAILABLE, "location is currently unavailable."));
@@ -277,9 +275,9 @@ public class TiLocation
 
 	// Helpers
 
-	protected TiDict locationToTiDict(Location loc, LocationProvider provider)
+	protected KrollDict locationToKrollDict(Location loc, LocationProvider provider)
 	{
-		TiDict coords = new TiDict();
+		KrollDict coords = new KrollDict();
 		coords.put("latitude", loc.getLatitude());
 		coords.put("longitude", loc.getLongitude());
 		coords.put("altitude", loc.getAltitude());
@@ -289,11 +287,11 @@ public class TiLocation
 		coords.put("speed", loc.getSpeed());
 		coords.put("timestamp", loc.getTime());
 
-		TiDict pos = new TiDict();
+		KrollDict pos = new KrollDict();
 		pos.put("coords", coords);
 
 		if (provider != null) {
-			TiDict p = new TiDict();
+			KrollDict p = new KrollDict();
 
 			p.put("name", provider.getName());
 			p.put("accuracy", provider.getAccuracy());

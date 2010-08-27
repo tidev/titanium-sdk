@@ -2,21 +2,20 @@ package ti.modules.titanium.android.calendar;
 
 import java.util.ArrayList;
 
+import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.titanium.TiContext;
-import org.appcelerator.titanium.TiDict;
-import org.appcelerator.titanium.TiModule;
 
 public class CalendarModule extends TiModule {
-	protected static TiDict constants;
+	protected static KrollDict constants;
 	
 	public CalendarModule(TiContext context) {
 		super(context);
 	}
 	
 	@Override
-	public TiDict getConstants() {
+	public KrollDict getConstants() {
 		if (constants == null) {
-			constants = new TiDict();
+			constants = new KrollDict();
 			constants.put("STATUS_TENTATIVE", EventProxy.STATUS_TENTATIVE);
 			constants.put("STATUS_CONFIRMED", EventProxy.STATUS_CONFIRMED);
 			constants.put("STATUS_CANCELED", EventProxy.STATUS_CANCELED);

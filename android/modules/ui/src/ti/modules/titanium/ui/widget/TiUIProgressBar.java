@@ -6,8 +6,8 @@
  */
 package ti.modules.titanium.ui.widget;
 
-import org.appcelerator.titanium.TiDict;
-import org.appcelerator.titanium.TiProxy;
+import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiUIView;
@@ -45,7 +45,7 @@ public class TiUIProgressBar extends TiUIView {
 	}
 	
 	@Override
-	public void processProperties(TiDict d) {
+	public void processProperties(KrollDict d) {
 		super.processProperties(d);
 		
 		if (d.containsKey("message")) {
@@ -56,7 +56,7 @@ public class TiUIProgressBar extends TiUIView {
 	
 	@Override
 	public void propertyChanged(String key, Object oldValue, Object newValue,
-			TiProxy proxy) {
+			KrollProxy proxy) {
 		super.propertyChanged(key, oldValue, newValue, proxy);
 		
 		if (key.equals("value") || key.equals("min") || key.equals("max")) {

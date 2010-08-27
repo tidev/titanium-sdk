@@ -8,14 +8,14 @@ package ti.modules.titanium.database;
 
 import java.util.HashMap;
 
+import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.titanium.TiContext;
-import org.appcelerator.titanium.TiProxy;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 
 import android.database.Cursor;
 
-public class TiResultSetProxy extends TiProxy
+public class TiResultSetProxy extends KrollProxy
 {
 	private static final String LCAT = "TiResultSet";
 	private static final boolean DBG = TiConfig.LOGD;

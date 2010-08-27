@@ -6,8 +6,8 @@
  */
 package ti.modules.titanium.database;
 
+import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.titanium.TiContext;
-import org.appcelerator.titanium.TiProxy;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiConvert;
@@ -18,7 +18,7 @@ import android.database.DatabaseUtils;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 
-public class TiDatabaseProxy extends TiProxy
+public class TiDatabaseProxy extends KrollProxy
 {
 	private static final String LCAT = "TiDB";
 	private static final boolean DBG = TiConfig.LOGD;

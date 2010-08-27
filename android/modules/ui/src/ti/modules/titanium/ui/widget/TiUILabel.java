@@ -6,8 +6,8 @@
  */
 package ti.modules.titanium.ui.widget;
 
-import org.appcelerator.titanium.TiDict;
-import org.appcelerator.titanium.TiProxy;
+import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
@@ -37,7 +37,7 @@ public class TiUILabel extends TiUIView
 	}
 
 	@Override
-	public void processProperties(TiDict d)
+	public void processProperties(KrollDict d)
 	{
 		super.processProperties(d);
 
@@ -56,7 +56,7 @@ public class TiUILabel extends TiUIView
 			tv.setHighlightColor(TiConvert.toColor(d, "highlightedColor"));
 		}
 		if (d.containsKey("font")) {
-			TiUIHelper.styleText(tv, d.getTiDict("font"));
+			TiUIHelper.styleText(tv, d.getKrollDict("font"));
 		}
 		if (d.containsKey("textAlign")) {
 			String textAlign = d.getString("textAlign");
@@ -70,7 +70,7 @@ public class TiUILabel extends TiUIView
 	}
 
 	@Override
-	public void propertyChanged(String key, Object oldValue, Object newValue, TiProxy proxy)
+	public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy proxy)
 	{
 		if (DBG) {
 			Log.d(LCAT, "Property: " + key + " old: " + oldValue + " new: " + newValue);
@@ -90,7 +90,7 @@ public class TiUILabel extends TiUIView
 			TiUIHelper.setAlignment(tv, null, TiConvert.toString(newValue));
 			tv.requestLayout();
 		} else if (key.equals("font")) {
-			TiUIHelper.styleText(tv, (TiDict) newValue);
+			TiUIHelper.styleText(tv, (KrollDict) newValue);
 			tv.requestLayout();
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);

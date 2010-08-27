@@ -6,22 +6,21 @@
  */
 package ti.modules.titanium.ui.iphone.systembuttonstyle;
 
+import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.titanium.TiContext;
-import org.appcelerator.titanium.TiDict;
-import org.appcelerator.titanium.TiModule;
 
 public class SystemButtonStyleModule extends TiModule
 {
-	private static TiDict constants;
+	private static KrollDict constants;
 
 	public SystemButtonStyleModule(TiContext tiContext) {
 		super(tiContext);
 	}
 
 	@Override
-	public TiDict getConstants() {
+	public KrollDict getConstants() {
 		if (constants == null) {
-			constants = new TiDict();
+			constants = new KrollDict();
 
 			constants.put("BORDERED", "iphone only");
 			constants.put("BAR", "iphone only");

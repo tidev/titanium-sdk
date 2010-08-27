@@ -14,6 +14,7 @@ from deltafy import Deltafy
 
 ignoreFiles = ['.gitignore', '.cvsignore', '.DS_Store'];
 ignoreDirs = ['.git','.svn','_svn', 'CVS'];
+template_dir = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
 
 # class for extracting javascripts
 class ScriptProcessor(SGMLParser):
@@ -164,14 +165,21 @@ class Compiler(object):
 						else:
 							self.js_files[package] = [fullpath]
 					self.make_function_from_file(fullpath, pack=pack)
-		self.compile_into_bytecode(self.js_files)
+		#self.compile_into_bytecode(self.js_files)
 					
 					
 if __name__ == "__main__":
-	project_dir = os.path.expanduser("~/work/titanium_mobile/demos/KitchenSink")
+	if len(sys.argv) == 1:
+		print "Usage: %s <destdir>" % sys.argv[0]
+		sys.exit(1)
+
+	destdir = sys.argv[1]
+	project_dir = os.path.abspath(os.path.join(template_dir, '..', '..', 'demos', 'KitchenSink'))
 	resources_dir = os.path.join(project_dir,"Resources")
-	c = Compiler("com.appcelerator.kitchensink",resources_dir,"java","/Users/jhaynie/Documents/workspace/RhinoFun/generated")
+	c = Compiler("com.appcelerator.kitchensink",resources_dir,"java",destdir)
 	project_deltafy = Deltafy(resources_dir)
 	project_deltas = project_deltafy.scan()
-	c.compile(project_deltas)
-	print c.html_scripts
+	#c.compile(project_deltas)
+	c.compile()
+	print c.modules
+	print c.module_methods

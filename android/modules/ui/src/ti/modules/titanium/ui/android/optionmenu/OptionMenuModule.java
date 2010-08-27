@@ -9,9 +9,8 @@ package ti.modules.titanium.ui.android.optionmenu;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.titanium.TiContext;
-import org.appcelerator.titanium.TiModule;
-import org.appcelerator.titanium.TiProxy;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiFileHelper;
 
@@ -26,7 +25,7 @@ public class OptionMenuModule extends TiModule {
 	}
 
 	@Override
-	public void propertyChanged(String key, Object oldValue, Object newValue, TiProxy proxy)
+	public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy proxy)
 	{
 		if ("menu".equals(key)) {
 			setMenuListener((MenuProxy) newValue);

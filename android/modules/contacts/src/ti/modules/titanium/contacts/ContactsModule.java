@@ -11,10 +11,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.titanium.ContextSpecific;
 import org.appcelerator.titanium.TiContext;
-import org.appcelerator.titanium.TiDict;
-import org.appcelerator.titanium.TiModule;
 import org.appcelerator.titanium.kroll.KrollCallback;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiActivityResultHandler;
@@ -29,7 +28,7 @@ import android.provider.Contacts;
 public class ContactsModule extends TiModule
 		implements TiActivityResultHandler
 {
-	private static TiDict constants;
+	private static KrollDict constants;
 	private static final String LCAT = "TiContacts";
 	private static final boolean DBG = TiConfig.LOGD;
 	
@@ -47,10 +46,10 @@ public class ContactsModule extends TiModule
 	}
 	
 	@Override
-	public TiDict getConstants()
+	public KrollDict getConstants()
 	{
 		if (constants == null) {
-			constants = new TiDict();
+			constants = new KrollDict();
 			constants.put("CONTACTS_KIND_ORGANIZATION", CONTACTS_KIND_ORGANIZATION);
 			constants.put("CONTACTS_KIND_PERSON", CONTACTS_KIND_PERSON);
 			constants.put("CONTACTS_SORT_FIRST_NAME", CONTACTS_SORT_FIRST_NAME);
@@ -66,7 +65,7 @@ public class ContactsModule extends TiModule
 		int length = Integer.MAX_VALUE;
 		if (args!=null && args.length > 0)
 		{
-			TiDict d = (TiDict) args[0];
+			KrollDict d = (KrollDict) args[0];
 			Double maxObj = (Double)d.get("max");
 			length = maxObj.intValue();
 		}
@@ -99,7 +98,7 @@ public class ContactsModule extends TiModule
 		requests.put(new Integer(requestCode), callbacks);
 		
 		if (args.length > 0) {
-			TiDict d = (TiDict) args[0];
+			KrollDict d = (KrollDict) args[0];
 			String[] callbacksToConsider = new String[]{"selectedPerson", "cancel"};
 			for (String callbackToConsider : callbacksToConsider) {
 				if (d.containsKey(callbackToConsider)) {

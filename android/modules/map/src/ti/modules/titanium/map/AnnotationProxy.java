@@ -6,13 +6,13 @@
  */
 package ti.modules.titanium.map;
 
+import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.titanium.TiContext;
-import org.appcelerator.titanium.TiDict;
-import org.appcelerator.titanium.TiProxy;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 
-public class AnnotationProxy extends TiProxy
+public class AnnotationProxy extends KrollProxy
 {
 	private static final String LCAT = "AnnotationProxy";
 	private static final boolean DBG = TiConfig.LOGD;
@@ -24,7 +24,7 @@ public class AnnotationProxy extends TiProxy
 			Log.d(LCAT, "Creating an Annotation");
 		}
 		if (args.length > 0) {
-			setProperties((TiDict) args[0]);
+			setProperties((KrollDict) args[0]);
 		}
 	}
 }

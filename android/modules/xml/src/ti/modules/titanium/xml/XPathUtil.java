@@ -9,8 +9,8 @@ package ti.modules.titanium.xml;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.titanium.TiContext;
-import org.appcelerator.titanium.TiProxy;
 import org.appcelerator.titanium.util.Log;
 import org.jaxen.JaxenException;
 import org.jaxen.XPath;
@@ -20,7 +20,7 @@ import org.w3c.dom.Node;
 public class XPathUtil {
 
 	private static final String LCAT = "XPath";
-	public static class XPathNodeListProxy extends TiProxy
+	public static class XPathNodeListProxy extends KrollProxy
 	{
 		private List nodeList;
 		public XPathNodeListProxy(TiContext context, List nodeList)

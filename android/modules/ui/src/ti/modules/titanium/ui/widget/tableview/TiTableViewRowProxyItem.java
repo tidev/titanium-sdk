@@ -8,14 +8,13 @@ package ti.modules.titanium.ui.widget.tableview;
 
 import java.util.ArrayList;
 
+import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.titanium.TiContext;
-import org.appcelerator.titanium.TiDict;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.titanium.view.TiUIView;
-import org.appcelerator.titanium.util.Log;
 
 import ti.modules.titanium.ui.TableViewRowProxy;
 import ti.modules.titanium.ui.widget.TiUILabel;
@@ -76,7 +75,7 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 
 	public void setRowData(TableViewRowProxy rp)
 	{
-		TiDict props = rp.getDynamicProperties();
+		KrollDict props = rp.getDynamicProperties();
 		hasControls = rp.hasControls();
 
 		setBackgroundFromProperties(props);
@@ -287,9 +286,9 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 	private static String[] filteredProperties = new String[]{
 		"backgroundImage", "backgroundColor"
 	};
-	private TiDict filterProperties(TiDict d)
+	private KrollDict filterProperties(KrollDict d)
 	{
-		TiDict filtered = new TiDict(d);
+		KrollDict filtered = new KrollDict(d);
 		for (int i = 0;i < filteredProperties.length; i++) {
 			if (filtered.containsKey(filteredProperties[i])) {
 				filtered.remove(filteredProperties[i]);
