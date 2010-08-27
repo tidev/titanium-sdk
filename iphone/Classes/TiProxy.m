@@ -21,6 +21,10 @@ NSString * const TiExceptionInvalidType = @"Invalid type passed to function";
 NSString * const TiExceptionNotEnoughArguments = @"Invalid number of arguments to function";
 NSString * const TiExceptionRangeError = @"Value passed to function exceeds allowed range";
 
+
+NSString * const TiExceptionOSError = @"The iOS reported an error";
+
+
 //Should be rare, but also useful if arguments are used improperly.
 NSString * const TiExceptionInternalInconsistency = @"Value was not the value expected";
 
