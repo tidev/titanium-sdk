@@ -1286,12 +1286,6 @@
 	}
 }
 
--(BOOL)isAutoHeightOrWidth
-{
-	return(TiDimensionIsAuto(layoutProperties.width) || TiDimensionIsAuto(layoutProperties.height));
-}
-
-
 #define LAYOUTPROPERTIES_SETTER(methodName,layoutName,converter)	\
 -(void)methodName:(id)value	\
 {	\
@@ -1428,61 +1422,113 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject)
 
 }
 
--(void)setNeedsRefresh:(int)flagBit onCondition:(int)condition
-{
-	BOOL skip = NO;
-	switch (condition)
-	{
-		case TiRefreshIfWidthIsNonabsolute:
-			skip = TiDimensionIsPixels(layoutProperties.width);
-			break;
-		case TiRefreshIfHeightIsNonabsolute:
-			skip = TiDimensionIsPixels(layoutProperties.height);
-			break;
-		case TiRefreshIfWidthOrHeightIsNonabsolute:
-			skip = TiDimensionIsPixels(layoutProperties.width) && TiDimensionIsPixels(layoutProperties.height);
-			break;
-		case TiRefreshIfWidthIsAuto:
-			skip = !TiDimensionIsAuto(layoutProperties.width);
-			break;
-		case TiRefreshIfHeightIsAuto:
-			skip = !TiDimensionIsAuto(layoutProperties.height);
-			break;
-		case TiRefreshIfWidthOrHeightIsAuto:
-			skip = !TiDimensionIsAuto(layoutProperties.width) && !TiDimensionIsAuto(layoutProperties.height);
-			break;
-		case TiRefreshIfPositionIsNonabsolute:
-			skip = TiDimensionIsPixels(layoutProperties.centerX) && TiDimensionIsPixels(layoutProperties.height);
-			break;
-		case TiRefreshIfLayoutIsNonabsolute:
-			skip = TiLayoutRuleIsAbsolute(layoutProperties.layout);
-			break;
-	}
-	if(skip)
-	{
-		return;
-	}
-	
-	BOOL alreadySet = OSAtomicTestAndSetBarrier(flagBit, &dirtyflags);
-	
-	if(alreadySet)
-	{
-		return;
-	}
-	
-	switch (flagBit)
-	{
-		case TiRefreshViewSize:
-			[parent setNeedsRefresh:TiRefreshViewSize onCondition:TiRefreshIfWidthOrHeightIsAuto];
-			[parent setNeedsRefresh:TiRefreshViewChildrenPosition onCondition:TiRefreshIfLayoutIsNonabsolute];
-			//Todo: Foreach on children to refreshViewSize 
-			break;
-		default:
-			break;
-	}
-	
-	
+
+#define SET_AND_PERFORM(flagBit,action)	\
+if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
+{	\
+	action;	\
 }
 
+-(void)willChangeSize
+{
+	SET_AND_PERFORM(TiRefreshViewSize,return);
+
+	if (!TiLayoutRuleIsAbsolute(layoutProperties.layout))
+	{
+		[self willChangeLayout];
+	}
+	if(TiDimensionIsUndefined(layoutProperties.centerX) ||
+			TiDimensionIsUndefined(layoutProperties.centerY))
+	{
+		[self willChangePosition];
+	}
+
+	[parent contentsWillChange];
+	pthread_rwlock_rdlock(&childrenLock);
+	for (TiViewProxy * thisChild in children)
+	{
+		[thisChild parentSizeWillChange];
+	}
+	pthread_rwlock_unlock(&childrenLock);
+}
+
+-(void)willChangePosition
+{
+	SET_AND_PERFORM(TiRefreshViewPosition,return);
+
+	if(TiDimensionIsUndefined(layoutProperties.width) || 
+			TiDimensionIsUndefined(layoutProperties.height))
+	{//The only time size can be changed by the margins is if the margins define the size.
+		[self willChangeSize];
+	}
+	[parent contentsWillChange];
+}
+
+-(void)willChangeZIndex
+{
+	SET_AND_PERFORM(TiRefreshViewZIndex,);
+	//Nothing cascades from here.
+}
+
+-(void)willChangeVisibility
+{
+	SET_AND_PERFORM(TiRefreshViewZIndex,);
+	[parent contentsWillChange];
+}
+
+-(void)willChangeLayout
+{
+	SET_AND_PERFORM(TiRefreshViewChildrenPosition,return);
+	pthread_rwlock_rdlock(&childrenLock);
+	for (TiViewProxy * thisChild in children)
+	{
+		[thisChild parentWillRelay];
+	}
+	pthread_rwlock_unlock(&childrenLock);
+}
+
+-(void)contentsWillChange
+{
+	if (TiDimensionIsAuto(layoutProperties.width) ||
+			TiDimensionIsAuto(layoutProperties.height))
+	{
+		[self willChangeSize];
+	}
+	else if (!TiLayoutRuleIsAbsolute(layoutProperties.layout))
+	{//Since changing size already does this, we only need to check
+	//Layout if the changeSize didn't
+		[self willChangeLayout];
+	}
+}
+
+-(void)parentSizeWillChange
+{
+//	if percent or undefined size, change size
+	if(TiDimensionIsUndefined(layoutProperties.width) ||
+			TiDimensionIsUndefined(layoutProperties.height) ||
+			TiDimensionIsPercent(layoutProperties.width) ||
+			TiDimensionIsPercent(layoutProperties.height))
+	{
+		[self willChangeSize];
+	}
+	if(!TiDimensionIsPixels(layoutProperties.centerX) ||
+			!TiDimensionIsPixels(layoutProperties.centerY))
+	{
+		[self willChangePosition];
+	}
+}
+
+-(void)parentWillRelay
+{
+//	if percent or undefined size, change size
+	if(TiDimensionIsUndefined(layoutProperties.width) ||
+			TiDimensionIsUndefined(layoutProperties.height) ||
+			TiDimensionIsPercent(layoutProperties.width) ||
+			TiDimensionIsPercent(layoutProperties.height))
+	{
+		[self willChangeSize];
+	}
+	[self willChangePosition];
+}
 
 @end

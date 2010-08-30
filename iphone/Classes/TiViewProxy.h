@@ -19,20 +19,6 @@ enum
 	TiRefreshViewSize,
 };
 
-enum
-{
-	TiRefreshAlways,
-	TiRefreshIfWidthIsNonabsolute,
-	TiRefreshIfHeightIsNonabsolute,
-	TiRefreshIfWidthOrHeightIsNonabsolute,
-	TiRefreshIfWidthIsAuto,
-	TiRefreshIfHeightIsAuto,
-	TiRefreshIfWidthOrHeightIsAuto,
-	TiRefreshIfPositionIsNonabsolute,
-	TiRefreshIfLayoutIsNonabsolute,
-};
-
-
 #define USE_VISIBLE_BOOL 0
 #define DONTSHOWHIDDEN 0 
 
@@ -49,6 +35,7 @@ enum
 
 	BOOL windowOpened;
 	BOOL windowOpening;
+
 	int dirtyflags;	//For atomic actions, best to be explicit about the 32 bitness.
 
 	BOOL isUsingBarButtonItem;
@@ -61,21 +48,13 @@ enum
 	TiViewProxy *parent;
 	BOOL viewInitialized;
 	NSMutableArray *pendingAdds;
-	BOOL needsZIndexRepositioning;
+	BOOL needsZIndexRepositioning;	//Todo: Replace
 	
 	
-	
-	CGPoint positionCache;
-	CGRect sizeCache;
-	
-	
-	
-	
-	
-	
-#if USE_VISIBLE_BOOL
-	BOOL visible;
-#endif
+	CGPoint positionCache;	//Recomputed and stored when position changes.
+	CGRect sizeCache;	//Recomputed and stored when size changes.
+	BOOL onscreen; //This in pseudocode, represents [self isVisible] && ([parent onscreen] || [self attachedToRootView])
+	//That is, will be true if and only if not hidden and the parent is onscreen or is the root controller.
 }
 
 @property(nonatomic,readwrite,assign) LayoutConstraint * layoutProperties;
@@ -85,10 +64,6 @@ enum
 @property(nonatomic,readonly) TiPoint *center;
 
 @property(nonatomic,retain) UIBarButtonItem * barButtonItem;
-
-#if USE_VISIBLE_BOOL
-@property(nonatomic,readwrite,assign) BOOL visible;
-#endif
 
 //NOTE: DO NOT SET VIEW UNLESS IN A TABLE VIEW, AND EVEN THEN.
 @property(nonatomic,readwrite,retain)TiUIView * view;
@@ -141,29 +116,38 @@ enum
 -(void)viewDidDetach;
 -(void)exchangeView:(TiUIView*)newview;
 
--(void)reposition;
--(void)repositionWithBounds:(CGRect)bounds;
--(void)repositionIfNeeded;
--(void)setNeedsReposition;
--(void)clearNeedsReposition;
--(void)setNeedsRepositionIfAutoSized;
--(void)setNeedsZIndexRepositioning;
--(BOOL)needsZIndexRepositioning;
+-(void)reposition;	//Todo: Replace
+-(void)repositionWithBounds:(CGRect)bounds;	//Todo: Replace
+-(void)repositionIfNeeded;	//Todo: Replace
+-(void)setNeedsReposition;	//Todo: Replace
+-(void)clearNeedsReposition;	//Todo: Replace
+-(void)setNeedsRepositionIfAutoSized;	//Todo: Replace
+-(void)setNeedsZIndexRepositioning;	//Todo: Replace
+-(BOOL)needsZIndexRepositioning;	//Todo: Replace
 
--(BOOL)willBeRelaying;
--(void)childWillResize:(TiViewProxy *)child;
--(BOOL)isAutoHeightOrWidth;
+-(BOOL)willBeRelaying;	//Todo: Replace
+-(void)childWillResize:(TiViewProxy *)child;	//Todo: Replace
 -(BOOL)canHaveControllerParent;
 
 -(void)makeViewPerformSelector:(SEL)selector withObject:(id)object createIfNeeded:(BOOL)create waitUntilDone:(BOOL)wait;
+
+@property(nonatomic,readwrite,assign) BOOL onscreen;
 
 -(void)refreshView:(TiUIView *)transferView;
 -(void)refreshZIndex;
 -(void)refreshPosition;
 -(void)refreshSize;
 
--(void)setNeedsRefresh:(int)flagBit onCondition:(int)condition;
+-(void)willChangeSize;
+-(void)willChangePosition;
+-(void)willChangeZIndex;
+-(void)willChangeVisibility;
+-(void)willChangeLayout;
 
+-(void)contentsWillChange;
+
+-(void)parentSizeWillChange;
+-(void)parentWillRelay;
 
 @end
 
