@@ -516,13 +516,24 @@ class Builder(object):
 			TITANIUM_THEME="""<?xml version="1.0" encoding="utf-8"?>
 <resources>
 <style name="Theme.Titanium" parent="android:Theme">
-    <item name="android:windowBackground">@drawable/background</item>
+    <item name="android:windowBackground">@drawable/backgroundbitmap</item>
 </style>
 </resources>
 """
 			resfile.write(TITANIUM_THEME)
 			resfile.close()
-		
+		# Use an indirect bitmap reference so we can set scaling options
+		bitmapfilepath = os.path.join('res','drawable','backgroundbitmap.xml')
+		if not os.path.exists(bitmapfilepath):
+			bitmapfile = open(bitmapfilepath,'w')
+			BACKGROUND_BITMAP="""<?xml version="1.0" encoding="utf-8"?>
+<bitmap
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	android:gravity="center"
+	android:src="@drawable/background"/>
+"""
+			bitmapfile.write(BACKGROUND_BITMAP)
+			bitmapfile.close()
 		# create our background image which acts as splash screen during load	
 		splashimage = os.path.join(self.assets_resources_dir,'default.png')
 		background_png = os.path.join('res','drawable','background.png')
