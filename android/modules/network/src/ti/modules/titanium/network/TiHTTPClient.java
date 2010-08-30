@@ -472,7 +472,12 @@ public class TiHTTPClient
 		}
 		if (responseXml == null && (responseData != null || responseText != null)) {
 			try {
-				responseXml = XMLModule.parse(proxy.getTiContext(), getResponseText());
+				String text = getResponseText();
+				if (charset != null && charset.length() > 0) {
+					responseXml = XMLModule.parse(proxy.getTiContext(), text, charset);
+				} else {
+					responseXml = XMLModule.parse(proxy.getTiContext(), text);
+				}
 			} catch (Exception e) {
 				Log.e(LCAT, "Error parsing XML", e);
 			}

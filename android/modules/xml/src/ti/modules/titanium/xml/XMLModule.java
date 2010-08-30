@@ -51,9 +51,14 @@ public class XMLModule extends TiModule {
 	
 	public static DocumentProxy parse(TiContext context, String xml)
 	{
+		return parse(context, xml, System.getProperty("file.encoding", "UTF-8"));
+	}
+	
+	public static DocumentProxy parse(TiContext context, String xml, String encoding)
+	{
 		if (builder != null) {
 			try {
-				return new DocumentProxy(context, builder.parse(new ByteArrayInputStream(xml.getBytes())));
+				return new DocumentProxy(context, builder.parse(new ByteArrayInputStream(xml.getBytes(encoding))));
 			} catch (SAXException e) {
 				Log.e(LCAT, "Error parsing XML", e);
 			} catch (IOException e) {
