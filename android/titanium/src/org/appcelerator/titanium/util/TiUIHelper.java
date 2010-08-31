@@ -469,6 +469,10 @@ public class TiUIHelper
 		}
 		
 		chopped = chopped.toLowerCase();
+		String forHash = chopped;
+		if (forHash.endsWith(".9.png")) {
+			forHash = forHash.replace(".9.png", ".png");
+		}
 		String withoutExtension = chopped;
 		
 		if (chopped.matches("^.*\\..*$")) {
@@ -483,7 +487,7 @@ public class TiUIHelper
 		StringBuilder result = new StringBuilder(100);
 		result.append(cleanedWithoutExtension.substring(0, Math.min(cleanedWithoutExtension.length(), 80))) ;
 		result.append("_");
-		result.append(DigestUtils.md5Hex(chopped).substring(0, 10));
+		result.append(DigestUtils.md5Hex(forHash).substring(0, 10));
 		
 		return result.toString();
 	}
@@ -507,6 +511,26 @@ public class TiUIHelper
 		
 		Bitmap bitmap = BitmapFactory.decodeResource(context.getTiApp().getResources(), id.intValue());
 		return bitmap;
+	}
+	
+	public static Drawable getResourceDrawable(TiContext context, String url)
+	{
+		// fail fast, before regex fanciness
+		if (!url.contains("Resources/images/")) {
+			return null;
+		}
+		
+		String key = getRAKeyForImage(url);
+		if (key == null) {
+			return null;
+		}
+		
+		Integer id = context.getTiApp().getDrawableID(key);
+		if (id == null) {
+			return null;
+		}
+		
+		return context.getTiApp().getResources().getDrawable(id.intValue());
 	}
 	
 	public static void overridePendingTransition(Activity activity) 

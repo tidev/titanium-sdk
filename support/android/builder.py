@@ -124,7 +124,7 @@ def generate_ra_getters(resources, path):
 		temp = None
 		os.remove(temppath)
 	except:
-		error("Error generating getters for RA: ", sys.exc_info()[0])
+		error("Error generating getters for RA: %s" % sys.exc_info()[0])
 		return
 	finally:
 		if not orig is None:
@@ -454,6 +454,9 @@ class Builder(object):
 			matches = re.search("/android/images/(high|medium|low)/(?P<chopped>.*$)", normalized)
 			if matches and matches.groupdict() and 'chopped' in matches.groupdict():
 				chopped = matches.groupdict()['chopped'].lower()
+				for_hash = chopped
+				if for_hash.endswith('.9.png'):
+					for_hash = for_hash[:-6] + '.png'
 				extension = ""
 				without_extension = chopped
 				if re.search("\\..*$", chopped):
@@ -465,7 +468,7 @@ class Builder(object):
 						without_extension = chopped[:-(len(extension)+1)]
 				cleaned_without_extension = re.sub(r'[^a-z0-9_]', '_', without_extension)
 				cleaned_extension = re.sub(r'[^a-z0-9\._]', '_', extension)
-				result = cleaned_without_extension[:80] + "_" + hashlib.md5(chopped).hexdigest()[:10]
+				result = cleaned_without_extension[:80] + "_" + hashlib.md5(for_hash).hexdigest()[:10]
 				if extension:
 					result += "." + extension
 				return result
