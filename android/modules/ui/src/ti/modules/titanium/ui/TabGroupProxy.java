@@ -48,10 +48,12 @@ public class TabGroupProxy extends TiWindowProxy
 	private TiTabActivity tta;
 	WeakReference<Activity> weakActivity;
 	String windowId;
+	Object initialActiveTab;
 
 	public TabGroupProxy(TiContext tiContext, Object[] args) {
 		super(tiContext, args);
 		idGenerator = new AtomicInteger(0);
+		initialActiveTab = null;
 	}
 
 	@Override
@@ -193,6 +195,10 @@ public class TabGroupProxy extends TiWindowProxy
 	{
 		//TODO skip multiple opens?
 		Log.i(LCAT, "handleOpen");
+		
+		if (hasDynamicValue("activeTab")) {
+			initialActiveTab = getDynamicValue("activeTab");
+		}
 
 		Activity activity = getTiContext().getActivity();
 		Intent intent = new Intent(activity, TiTabActivity.class);
@@ -209,6 +215,8 @@ public class TabGroupProxy extends TiWindowProxy
 				addTabToGroup(tg, tab);
 			}
 		}
+		tg.changeActiveTab(initialActiveTab);
+
 		getTiContext().getRootActivity().addWindow(windowId, view.getLayoutParams());
 		opened = true;
 	}
