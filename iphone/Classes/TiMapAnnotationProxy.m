@@ -17,6 +17,7 @@
 
 @synthesize delegate;
 @synthesize needsRefreshingWithSelection;
+@synthesize placed;
 
 #define LEFT_BUTTON  1
 #define RIGHT_BUTTON 2
