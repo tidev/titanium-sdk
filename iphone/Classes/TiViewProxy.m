@@ -69,7 +69,6 @@
 	return windowOpened;
 }
 
-
 #pragma mark Subclass Callbacks 
 
 -(void)childAdded:(id)child
@@ -386,14 +385,20 @@
 //CAUTION: TO BE USED ONLY WITH TABLEVIEW MAGIC
 -(void)setView:(TiUIView *)newView
 {
-	[view release];
-	view = [newView retain];
-	if (self.modelDelegate!=nil && [self.modelDelegate respondsToSelector:@selector(detachProxy)])
-	{
-		[self.modelDelegate detachProxy];
-		self.modelDelegate=nil;
+	if (view != newView) {
+		[view removeFromSuperview];
+		[view release];
+		view = [newView retain];
 	}
-	self.modelDelegate = newView;
+	
+	if (self.modelDelegate != newView) {
+		if (self.modelDelegate!=nil && [self.modelDelegate respondsToSelector:@selector(detachProxy)])
+		{
+			[self.modelDelegate detachProxy];
+			self.modelDelegate=nil;
+		}
+		self.modelDelegate = newView;
+	}
 }
 
 -(BOOL)shouldDetachViewOnUnload
@@ -559,20 +564,6 @@
 	[view readProxyValuesWithKeys:values];
 
 	[self didFirePropertyChanges];
-}
-
--(void)exchangeView:(TiUIView*)newview
-{
-	//NOTE: this is dangerous and should only be called
-	//when you know what the heck you intend to do.
-	//used by tableview currently for view swapping
-	if (view!=nil)
-	{
-		view.proxy = nil;
-		RELEASE_TO_NIL(view);
-	}
-	view = [newview retain];
-	view.proxy = self;
 }
 
 -(TiUIView*)view

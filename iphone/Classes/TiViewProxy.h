@@ -114,7 +114,6 @@ enum
 -(void)viewDidAttach;
 -(void)viewWillDetach;
 -(void)viewDidDetach;
--(void)exchangeView:(TiUIView*)newview;
 
 -(void)reposition;	//Todo: Replace
 -(void)repositionWithBounds:(CGRect)bounds;	//Todo: Replace

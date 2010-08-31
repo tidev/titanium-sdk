@@ -95,9 +95,11 @@
 
 -(void)setView:(UIView*)view_
 {
-	[view release];
-	view = [view_ retain];
-	[self repaint];
+	if (view != view_) {
+		[view release];
+		view = [view_ retain];
+		[self repaint];
+	}
 }
 
 
