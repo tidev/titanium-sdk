@@ -801,7 +801,7 @@ public class KrollObject extends ScriptableObject
 				jsArray[i] = fromNative(Array.get(value, i), kroll);
 			}
 
-			o = Context.getCurrentContext().newObject(kroll.getScope(), "Array", jsArray);
+			o = Context.getCurrentContext().newArray(kroll.getScope(), jsArray);
 		}
 		else if (value == JSONObject.NULL || value.getClass().equals(JSONObject.NULL.getClass()))
 		{
