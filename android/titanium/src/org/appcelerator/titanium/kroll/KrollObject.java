@@ -139,7 +139,9 @@ public class KrollObject extends ScriptableObject
 				put(name, this, o);
 				((TiModule) p).postCreate();
 			}
-		} else {
+		} 
+		
+		if (o.equals(NOT_FOUND)) {
 			if (DBG) {
 				Log.d(LCAT, "Start: " + start.getClassName() + " looking for method:" + name);
 			}
