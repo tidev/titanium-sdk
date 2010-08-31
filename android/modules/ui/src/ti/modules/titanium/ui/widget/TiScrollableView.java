@@ -205,7 +205,15 @@ public class TiScrollableView extends TiCompositeLayout
 		});
 	}
 
-
+	@Override
+	public boolean dispatchTouchEvent(MotionEvent ev) {
+		boolean handled = false;
+		handled = detector.onTouchEvent(ev);
+		if (!handled || (handled && ev.getAction() == MotionEvent.ACTION_DOWN)) {
+			handled = super.dispatchTouchEvent(ev);
+		}
+		return handled;
+	}
 
 	@Override
 	public boolean onTouchEvent(MotionEvent event)
