@@ -438,4 +438,5 @@ public class TiApplication extends Application
 	public Integer getDrawableID(String key) { return null; }
 	public Integer getStringID(String key) { return null; }
 	public Integer getAttrID(String key) { return null; }
+	public Integer getStyleID(String key) { return null; }
 }
