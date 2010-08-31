@@ -205,8 +205,6 @@ public class TiScrollableView extends TiCompositeLayout
 		});
 	}
 
-
-
 	@Override
 	public boolean dispatchTouchEvent(MotionEvent ev) {
 		boolean handled = false;
@@ -216,8 +214,6 @@ public class TiScrollableView extends TiCompositeLayout
 		}
 		return handled;
 	}
-
-
 
 	@Override
 	public boolean onTouchEvent(MotionEvent event)
