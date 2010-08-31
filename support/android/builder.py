@@ -97,7 +97,8 @@ def generate_appc_r(package,map):
 def generate_ra_getters(resources, path):
 	template = "\n\t@Override\n\tpublic final Integer get%sID(String key){return RA.get%s(key);}\n"
 	known = ['style', 'string', 'attr', 'drawable']
-	(h, temppath) = tempfile.mkstemp(prefix='tibuilder_', text=True)
+	(fd, temppath) = tempfile.mkstemp(prefix='tibuilder_', text=True)
+	os.close(fd)
 	temp = None
 	orig = None
 	try:
@@ -123,6 +124,12 @@ def generate_ra_getters(resources, path):
 		shutil.copyfile(temppath, path)
 		temp = None
 		os.remove(temppath)
+	except OSError, err:
+		error("OSError generating getters for RA: %s" % err)
+		return
+	except IOError, err:
+		error("IOError generating getters for RA: %s" % err)
+		return
 	except:
 		error("Error generating getters for RA: %s" % sys.exc_info()[0])
 		return
