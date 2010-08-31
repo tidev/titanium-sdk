@@ -76,6 +76,7 @@
 	if ([arg isKindOfClass:[TiMapAnnotationProxy class]])
 	{
 		[(TiMapAnnotationProxy*)arg setDelegate:self];
+		[arg setPlaced:NO];
 		return arg;
 	}
 	ENSURE_TYPE(arg,NSDictionary);
@@ -126,7 +127,6 @@
 {
 	ENSURE_SINGLE_ARG(args,NSObject);
 	ENSURE_UI_THREAD(addAnnotation,args);
-	
 	[[self map] addAnnotation:[self annotationFromArg:args]];
 }
 
@@ -668,7 +668,7 @@
 		{
 			MKPinAnnotationView *pinview = (MKPinAnnotationView*)annView;
 			pinview.pinColor = [ann pinColor];
-			pinview.animatesDrop = [ann animatesDrop] && ![(TiMapAnnotationProxy *)annotation needsRefreshingWithSelection];
+			pinview.animatesDrop = [ann animatesDrop] && ![(TiMapAnnotationProxy *)annotation placed];
 			annView.calloutOffset = CGPointMake(-5, 5);
 		}
 		annView.canShowCallout = YES;
@@ -695,6 +695,15 @@
 // Use the current positions of the annotation views as the destinations of the animation.
 - (void)mapView:(MKMapView *)mapView didAddAnnotationViews:(NSArray *)views
 {
+	for (MKAnnotationView<TiMapAnnotation> *thisView in views)
+	{
+		if(![thisView conformsToProtocol:@protocol(TiMapAnnotation)])
+		{
+			return;
+		}
+		TiMapAnnotationProxy * thisProxy = [self proxyForAnnotation:thisView];
+		[thisProxy setPlaced:YES];
+	}
 }
 
 #pragma mark Event generation
