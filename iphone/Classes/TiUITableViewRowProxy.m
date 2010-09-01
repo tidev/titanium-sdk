@@ -636,36 +636,38 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 		 touchDelegate:(id)touchDelegate
 {
 	TiViewProxy * oldProxy = (TiViewProxy*)[uiview proxy];
-
-	[uiview transferProxy:proxy];
 	
-	// because proxies can have children, we need to recursively do this
-	NSArray *children_ = proxy.children;
-	if (children_!=nil && [children_ count]>0)
-	{
-		NSArray * oldProxyChildren = [oldProxy children];
-
-		if ([oldProxyChildren count] != [children_ count])
+	// We ONLY have to transfer the proxy if we're not reusing the one that already belongs to us.
+	if (oldProxy != proxy) {
+		[uiview transferProxy:proxy];
+		
+		// because proxies can have children, we need to recursively do this
+		NSArray *children_ = proxy.children;
+		if (children_!=nil && [children_ count]>0)
 		{
-			NSLog(@"[WARN] looks like we have a different table cell layout than expected.  Make sure you set the 'className' property of the table row when you have different cell layouts");
-			NSLog(@"[WARN] if you don't fix this, your tableview will suffer performance issues and also will not render properly");
-			return;
-		}
-		int c = 0;
-		NSEnumerator * oldChildrenEnumator = [oldProxyChildren objectEnumerator];
-		for (TiViewProxy* child in children_)
-		{
-			TiViewProxy * oldChild = [oldChildrenEnumator nextObject];
-			if (![oldChild viewAttached])
+			NSArray * oldProxyChildren = [oldProxy children];
+			
+			if ([oldProxyChildren count] != [children_ count])
 			{
-				NSLog(@"[WARN] Orphaned child found during proxy transfer!");
+				NSLog(@"[WARN] looks like we have a different table cell layout than expected.  Make sure you set the 'className' property of the table row when you have different cell layouts");
+				NSLog(@"[WARN] if you don't fix this, your tableview will suffer performance issues and also will not render properly");
+				return;
 			}
-			//Todo: We should probably be doing this only if the view is attached,
-			//And something else entirely if the view wasn't attached.
-			[self reproxyChildren:child 
-							 view:[oldChild view]
-						   parent:proxy touchDelegate:nil];
-
+			int c = 0;
+			NSEnumerator * oldChildrenEnumator = [oldProxyChildren objectEnumerator];
+			for (TiViewProxy* child in children_)
+			{
+				TiViewProxy * oldChild = [oldChildrenEnumator nextObject];
+				if (![oldChild viewAttached])
+				{
+					NSLog(@"[WARN] Orphaned child found during proxy transfer!");
+				}
+				//Todo: We should probably be doing this only if the view is attached,
+				//And something else entirely if the view wasn't attached.
+				[self reproxyChildren:child 
+								 view:[oldChild view]
+							   parent:proxy touchDelegate:nil];
+			}
 		}
 	}
 }
@@ -714,8 +716,13 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 				[self configureChildren:cell];
 				return;
 			}
-			[rowContainerView release];
-			rowContainerView = [aview retain];
+			
+			UIView* oldContainerView = [rowContainerView retain];
+			if (rowContainerView != aview) {
+				[rowContainerView release];
+				rowContainerView = [aview retain];
+			}
+			
 			for (size_t x=0;x<[subviews count];x++)
 			{
 				TiViewProxy *proxy = [self.children objectAtIndex:x];

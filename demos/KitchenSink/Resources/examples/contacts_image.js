@@ -20,7 +20,9 @@ showDisplay.addEventListener('click', function() {
 		var image = e.person.image;
 		if (image == null) {
 			infoLabel.text = 'No image';
-			imageDisplay.image = null;
+			if (imageDisplay != null) {
+				imageDisplay.image = null;
+			}
 		}
 		else {
 			infoLabel.text = 'Image for '+e.person.fullName;

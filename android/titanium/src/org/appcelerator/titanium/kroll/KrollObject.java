@@ -139,7 +139,9 @@ public class KrollObject extends ScriptableObject
 				put(name, this, o);
 				((TiModule) p).postCreate();
 			}
-		} else {
+		} 
+		
+		if (o.equals(NOT_FOUND)) {
 			if (DBG) {
 				Log.d(LCAT, "Start: " + start.getClassName() + " looking for method:" + name);
 			}
@@ -801,7 +803,7 @@ public class KrollObject extends ScriptableObject
 				jsArray[i] = fromNative(Array.get(value, i), kroll);
 			}
 
-			o = Context.getCurrentContext().newObject(kroll.getScope(), "Array", jsArray);
+			o = Context.getCurrentContext().newArray(kroll.getScope(), jsArray);
 		}
 		else if (value == JSONObject.NULL || value.getClass().equals(JSONObject.NULL.getClass()))
 		{

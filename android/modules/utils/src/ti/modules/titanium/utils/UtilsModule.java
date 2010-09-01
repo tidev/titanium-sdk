@@ -10,6 +10,9 @@ import java.io.UnsupportedEncodingException;
 import java.io.IOException;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
+import java.nio.charset.Charset;
 import java.security.DigestInputStream;
 import java.security.DigestOutputStream;
 import java.security.NoSuchAlgorithmException;
@@ -84,6 +87,33 @@ public class UtilsModule extends TiModule
 			return result.toString();
 		} catch(NoSuchAlgorithmException e) {
 			Log.e(LCAT, "SHA1 is not a supported algorithm");
+		}
+		return null;
+	}
+	
+	public String transcodeString(String orig, String inEncoding, String outEncoding)
+	{
+		try {
+			
+			Charset charsetOut = Charset.forName(outEncoding);
+			Charset charsetIn = Charset.forName(inEncoding);
+
+			ByteBuffer bufferIn = ByteBuffer.wrap(orig.getBytes(charsetIn.name()) );
+			CharBuffer dataIn = charsetIn.decode(bufferIn);
+			bufferIn.clear();
+			bufferIn = null;
+
+			ByteBuffer bufferOut = charsetOut.encode(dataIn);
+			dataIn.clear();
+			dataIn = null;
+			byte[] dataOut = bufferOut.array();
+			bufferOut.clear();
+			bufferOut = null;
+			
+			return new String(dataOut, charsetOut.name());
+			
+		} catch (UnsupportedEncodingException e) {
+			Log.e(LCAT, "Unsupported encoding: " + e.getMessage(), e);
 		}
 		return null;
 	}

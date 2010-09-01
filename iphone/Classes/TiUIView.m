@@ -751,52 +751,56 @@ DEFINE_EXCEPTIONS
 -(void)transferProxy:(TiViewProxy*)newProxy
 {
 	TiViewProxy * oldProxy = (TiViewProxy *)[self proxy];
-	NSArray * oldProperties = (NSArray *)[oldProxy allKeys];
-	NSArray * newProperties = (NSArray *)[newProxy allKeys];
-	NSArray * keySequence = [newProxy keySequence];
-	[oldProxy retain];
-	[self retain];
 	
-	[newProxy setReproxying:YES];
-
-	[oldProxy setView:nil];
-	[newProxy setView:self];
-	[self setProxy:[newProxy retain]];
-
-	//The important sequence first:
-	for (NSString * thisKey in keySequence)
-	{
-		id newValue = [newProxy valueForKey:thisKey];
-		[self setKrollValue:newValue forKey:thisKey withObject:nil];
-	}
-
-	for (NSString * thisKey in oldProperties)
-	{
-		if([newProperties containsObject:thisKey] || [keySequence containsObject:thisKey])
+	// We can safely skip everything if we're transferring to ourself.
+	if (oldProxy != newProxy) {
+		NSArray * oldProperties = (NSArray *)[oldProxy allKeys];
+		NSArray * newProperties = (NSArray *)[newProxy allKeys];
+		NSArray * keySequence = [newProxy keySequence];
+		[oldProxy retain];
+		[self retain];
+		
+		[newProxy setReproxying:YES];
+		
+		[oldProxy setView:nil];
+		[newProxy setView:self];
+		[self setProxy:[newProxy retain]];
+		
+		//The important sequence first:
+		for (NSString * thisKey in keySequence)
 		{
-			continue;
+			id newValue = [newProxy valueForKey:thisKey];
+			[self setKrollValue:newValue forKey:thisKey withObject:nil];
 		}
-		[self setKrollValue:nil forKey:thisKey withObject:nil];
-	}
-
-	for (NSString * thisKey in newProperties)
-	{
-		if ([keySequence containsObject:thisKey])
+		
+		for (NSString * thisKey in oldProperties)
 		{
-			continue;
+			if([newProperties containsObject:thisKey] || [keySequence containsObject:thisKey])
+			{
+				continue;
+			}
+			[self setKrollValue:nil forKey:thisKey withObject:nil];
 		}
-	
-		// Always set the new value, even if 'equal' - some view setters (as in UIImageView)
-		// use internal voodoo to determine what to display.
-		// TODO: We may be able to take this out once the imageView.url property is taken out, and change it back to an equality test.
-		id newValue = [newProxy valueForUndefinedKey:thisKey];
-		[self setKrollValue:newValue forKey:thisKey withObject:nil];
+		
+		for (NSString * thisKey in newProperties)
+		{
+			if ([keySequence containsObject:thisKey])
+			{
+				continue;
+			}
+			
+			// Always set the new value, even if 'equal' - some view setters (as in UIImageView)
+			// use internal voodoo to determine what to display.
+			// TODO: We may be able to take this out once the imageView.url property is taken out, and change it back to an equality test.
+			id newValue = [newProxy valueForUndefinedKey:thisKey];
+			[self setKrollValue:newValue forKey:thisKey withObject:nil];
+		}
+		
+		[oldProxy release];
+		
+		[newProxy setReproxying:NO];
+		[self release];
 	}
-
-	[oldProxy release];
-
-	[newProxy setReproxying:NO];
-	[self release];
 }
 
 
@@ -903,8 +907,9 @@ DEFINE_EXCEPTIONS
 -(void)handleControlEvents:(UIControlEvents)events
 {
 	// For subclasses (esp. buttons) to override when they have event handlers.
-	if ([parent viewAttached] && [parent canHaveControllerParent]) {
-		[[parent view] handleControlEvents:events];
+	TiViewProxy* parentProxy = [(TiViewProxy*)proxy parent];
+	if ([parentProxy viewAttached] && [parentProxy canHaveControllerParent]) {
+		[[parentProxy view] handleControlEvents:events];
 	}
 }
 
