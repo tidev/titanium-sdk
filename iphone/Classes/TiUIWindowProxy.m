@@ -136,6 +136,11 @@
 	}
 }
 
+-(NSMutableDictionary*)langConversionTable
+{
+	return [NSMutableDictionary dictionaryWithObjectsAndKeys:@"title",@"titleid",@"titlePrompt",@"titlepromptid",nil];
+}
+
 #pragma mark Public
 
 -(BOOL)_handleOpen:(id)args

@@ -123,6 +123,8 @@
 -(BOOL)isAutoHeightOrWidth;
 -(BOOL)canHaveControllerParent;
 
+-(NSMutableDictionary*)langConversionTable;
+
 -(void)makeViewPerformSelector:(SEL)selector withObject:(id)object createIfNeeded:(BOOL)create waitUntilDone:(BOOL)wait;
 
 @end

@@ -30,6 +30,12 @@
 	needsRefreshingWithSelection = YES;
 }
 
+-(NSMutableDictionary*)langConversionTable
+{
+    return [NSMutableDictionary dictionaryWithObjectsAndKeys:@"title",@"titleid",@"subtitle",@"subtitleid",nil];
+}
+
+
 -(UIView*)makeButton:(id)button tag:(int)buttonTag
 {
 	UIView *view = nil;

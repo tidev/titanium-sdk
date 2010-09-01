@@ -1,55 +1,65 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
+	<dict>
+		<key>classes</key>
+		<dict>
+<key>app</key>
 <dict>
-  <key>ids_density</key>
-  <dict>
-  <key>app</key>
-  <dict>
+</dict>
+<key>common</key>
+<dict>
 </dict>
 </dict>
-  <key>classes_density</key>
-  <dict>
-  <key>app</key>
-  <dict>
+
+		<key>classes_density</key>
+		<dict>
+<key>app</key>
+<dict>
+</dict>
+<key>common</key>
+<dict>
 </dict>
 </dict>
-  <key>classes</key>
-  <dict>
-  <key>app</key>
-  <dict>
-  <key>tab1</key>
-  <dict>
-  <key>title</key>
-  <string>Base UI</string>
+
+		<key>ids</key>
+		<dict>
+<key>app</key>
+<dict>
+<key>tab1</key>
+<dict>
+<key>title</key>
+<string>Base UI</string>
+<key>icon</key>
+<string>images/tabs/KS_nav_views.png</string>
 </dict>
-  <key>win1</key>
-  <dict>
-  <key>titleImage</key>
-  <string>images/appcelerator_small.png</string>
+<key>win1</key>
+<dict>
+<key>url</key>
+<string>main_windows/base_ui.js</string>
+<key>titleImage</key>
+<string>images/appcelerator_small.png</string>
 </dict>
-</dict>
-</dict>
-  <key>ids</key>
-  <dict>
-  <key>app</key>
-  <dict>
-  <key>tab1</key>
-  <dict>
-  <key>icon</key>
-  <string>images/tabs/KS_nav_views.png</string>
-</dict>
-  <key>win1</key>
-  <dict>
-  <key>url</key>
-  <string>main_windows/base_ui.js</string>
-</dict>
-  <key>tabGroup1</key>
-  <dict>
-  <key>barColor</key>
-  <string>#336699</string>
+<key>tabGroup1</key>
+<dict>
+<key>barColor</key>
+<string>#336699</string>
 </dict>
 </dict>
+<key>common</key>
+<dict>
 </dict>
 </dict>
+
+		<key>ids_density</key>
+		<dict>
+<key>app</key>
+<dict>
+</dict>
+<key>common</key>
+<dict>
+</dict>
+</dict>
+
+	</dict>
 </plist>

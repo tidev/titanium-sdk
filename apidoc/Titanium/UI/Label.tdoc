@@ -38,6 +38,8 @@ backgroundPaddingRight[int]: the number of pixels to extend the background image
 backgroundPaddingTop[int]: the number of pixels to extend the background image past the label on the top
 backgroundPaddingBottom[int]: the number of pixels to extend the background image past the label on the bottom
 
+# 1.5
+textid[string]: the key in the locale file to use for the text property
 
 - methods
 
