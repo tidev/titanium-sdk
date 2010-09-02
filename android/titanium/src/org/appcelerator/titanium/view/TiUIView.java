@@ -153,6 +153,26 @@ public abstract class TiUIView
 	public void listenerRemoved(String type, int count, TiProxy proxy) {
 	}
 
+	private boolean hasImage(TiDict d) 
+	{
+		return d.containsKey("backgroundImage") 
+			|| d.containsKey("backgroundSelectedImage") 
+			|| d.containsKey("backgroundFocusedImage")
+			|| d.containsKey("backgroundDisabledImage");
+	}
+	
+	private boolean hasBorder(TiDict d) {
+		return d.containsKey("borderColor") 
+			|| d.containsKey("borderRadius")
+			|| d.containsKey("borderWidth");
+	}
+	
+	private boolean hasColorState(TiDict d) {
+		return d.containsKey("backgroundSelectedColor")
+			|| d.containsKey("backgroundFocusedColor")
+			|| d.containsKey("backgroundDisabledColor");
+	}
+	
 	public void propertyChanged(String key, Object oldValue, Object newValue, TiProxy proxy)
 	{
 		if (key.equals("left")) {
@@ -238,17 +258,20 @@ public abstract class TiUIView
 			if (nativeView != null) {
 				nativeView.requestLayout();
 			}
+		} else if (key.equals("focusable")) {
+			nativeView.setFocusable(TiConvert.toBoolean(newValue));
 		} else if (key.equals("visible")) {
 			nativeView.setVisibility(TiConvert.toBoolean(newValue) ? View.VISIBLE : View.INVISIBLE);
 		} else if (key.equals("enabled")) {
 			nativeView.setEnabled(TiConvert.toBoolean(newValue));
-		} else if (key.equals("opacity") || key.equals("backgroundColor") || key.equals("backgroundImage") || key.startsWith("border")) {
+		} else if (key.equals("opacity") || key.startsWith("background") || key.startsWith("border")) {
 			TiDict d = proxy.getDynamicProperties();
+			
+			boolean hasImage = hasImage(d);
+			boolean hasColorState = hasColorState(d);
+			boolean hasBorder = hasBorder(d);
 
-			boolean hasBorder = d.get("borderColor") != null || d.get("borderRadius") != null || d.get("borderWidth") != null;
-			boolean hasImage = d.get("backgroundImage") != null || d.get("backgroundSelectedImage") != null || d.get("backgroundDisabledImage") != null;
-			boolean requiresCustomBackground = hasImage || hasBorder;
-				;
+			boolean requiresCustomBackground = hasImage || hasColorState || hasBorder;
 
 			if (!requiresCustomBackground) {
 				if (background != null) {
@@ -272,15 +295,17 @@ public abstract class TiUIView
 
 				Integer bgColor = null;
 
-				if (d.get("backgroundColor") != null) {
-					bgColor = TiConvert.toColor(d, "backgroundColor", "opacity");
-					if (newBackground || (key.equals("opacity") || key.equals("backgroundColor"))) {
-						background.setBackgroundColor(bgColor);
+				if (!hasColorState) {
+					if (d.get("backgroundColor") != null) {
+						bgColor = TiConvert.toColor(d, "backgroundColor", "opacity");
+						if (newBackground || (key.equals("opacity") || key.equals("backgroundColor"))) {
+							background.setBackgroundColor(bgColor);
+						}
 					}
 				}
 
-				if (hasImage) {
-					if (newBackground || key.equals("backgroundImage") || key.equals("backgroundSelectedImage") || key.equals("backgroundDisabledImage")) {
+				if (hasImage || hasColorState) {
+					if (newBackground || key.startsWith("background")) {
 						handleBackgroundImage(d);
 					}
 				}
@@ -326,7 +351,7 @@ public abstract class TiUIView
 
 		// Default background processing.
 		// Prefer image to color.
-		if (d.containsKey("backgroundImage")) {
+		if (hasImage(d) || hasColorState(d) || hasBorder(d)) {
 			handleBackgroundImage(d);
 		} else if (d.containsKey("backgroundColor")) {
 			bgColor = TiConvert.toColor(d, "backgroundColor", "opacity");
@@ -337,6 +362,10 @@ public abstract class TiUIView
 		}
 		if (d.containsKey("enabled")) {
 			nativeView.setEnabled(TiConvert.toBoolean(d, "enabled"));
+		}
+
+		if (d.containsKey("focusable")) {
+			nativeView.setFocusable(TiConvert.toBoolean(d, "focusable"));
 		}
 
 		initializeBorder(d, bgColor);
@@ -460,14 +489,17 @@ public abstract class TiUIView
 		}
 	}
 
-	// Initial implementation.
-	// TODO implement other background states.
 	private void handleBackgroundImage(TiDict d)
 	{
 		String bg = d.getString("backgroundImage");
 		String bgSelected = d.getString("backgroundSelectedImage");
 		String bgFocused = d.getString("backgroundFocusedImage");
 		String bgDisabled = d.getString("backgroundDisabledImage");
+		
+		String bgColor = d.getString("backgroundColor");
+		String bgSelectedColor = d.getString("backgroundSelectedColor");
+		String bgFocusedColor = d.getString("backgroundFocusedColor");
+		String bgDisabledColor = d.getString("backgroundDisabledColor");
 
 		TiContext tiContext = getProxy().getTiContext();
 		if (bg != null) {
@@ -483,45 +515,16 @@ public abstract class TiUIView
 			bgDisabled = tiContext.resolveUrl(null, bgDisabled);
 		}
 
-		if (bg != null || bgSelected != null || bgFocused != null || bgDisabled != null) {
+		if (bg != null || bgSelected != null || bgFocused != null || bgDisabled != null ||
+				bgColor != null || bgSelectedColor != null || bgFocusedColor != null || bgDisabledColor != null) 
+		{
 			if (background == null) {
 				applyCustomBackground(false);
 			}
 
-			Drawable bgDrawable = TiUIHelper.buildBackgroundDrawable(tiContext.getActivity().getApplicationContext(), bg, bgSelected, bgDisabled, bgFocused);
+			Drawable bgDrawable = TiUIHelper.buildBackgroundDrawable(tiContext.getActivity().getApplicationContext(), bg, bgColor, bgSelected, bgSelectedColor, bgDisabled, bgDisabledColor, bgFocused, bgFocusedColor);
 			background.setBackgroundDrawable(bgDrawable);
 		}
-//		String path = TiConvert.toString(d, "backgroundImage");
-//		if (path.endsWith(".9.png")) {
-//			TiFileHelper helper = new TiFileHelper(getProxy().getTiContext().getActivity());
-//			Drawable drawable = helper.loadDrawable(path, false, true);
-//			if (drawable !=  null) {
-//				applyCustomBackground(false);
-//				background.setBackgroundDrawable(drawable);
-//			}
-//		} else {
-//			String url = getProxy().getTiContext().resolveUrl(null, path);
-//			TiBaseFile file = TiFileFactory.createTitaniumFile(getProxy().getTiContext(), new String[] { url }, false);
-//			InputStream is = null;
-//			try {
-//				is = file.getInputStream();
-//				Bitmap b = TiUIHelper.createBitmap(is);
-//				if (b != null) {
-//					applyCustomBackground(false);
-//					background.setBackgroundImage(b);
-//				}
-//			} catch (IOException e) {
-//				Log.e(LCAT, "Error creating background image from path: " + path.toString(), e);
-//			} finally {
-//				if (is != null) {
-//					try {
-//						is.close();
-//					} catch (IOException ig) {
-//						// Ignore
-//					}
-//				}
-//			}
-//		}
 	}
 
 	private void initializeBorder(TiDict d, Integer bgColor)
