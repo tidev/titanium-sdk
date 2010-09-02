@@ -42,6 +42,10 @@ public class TiTabActivity extends ActivityGroup
 	public TiTabActivity() {
 	}
 
+	public void setTabGroupProxy(TabGroupProxy proxy) {
+		this.proxy = proxy;
+	}
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
@@ -118,6 +122,7 @@ public class TiTabActivity extends ActivityGroup
 		        }
 			}
 		});
+		
 	}
 
     public TiApplication getTiApp() {
@@ -156,6 +161,7 @@ public class TiTabActivity extends ActivityGroup
 				}
 			}
 		}
+		
 		super.finish();
 	}
 
@@ -171,6 +177,24 @@ public class TiTabActivity extends ActivityGroup
 		super.onResume();
 		getTiApp().setWindowHandler(this);
 		((TiApplication) getApplication()).setCurrentActivity(this, this);
+	}
+
+
+
+	@Override
+	protected void onDestroy()
+	{
+		super.onDestroy();
+		if (layout != null) {
+			layout.removeAllViews();
+			layout = null;
+		}
+		if (proxy != null) {
+			proxy.closeFromActivity();
+			proxy = null;
+		}
+		
+		handler = null;
 	}
 
 }

@@ -104,7 +104,9 @@ public class TiProxy implements Handler.Callback, TiDynamicMethod, OnEventListen
 
 	public void setModelListener(TiProxyListener modelListener) {
 		this.modelListener = modelListener;
-		this.modelListener.processProperties(dynprops != null ? new TiDict(dynprops) : new TiDict());
+		if (modelListener != null) {
+			this.modelListener.processProperties(dynprops != null ? new TiDict(dynprops) : new TiDict());
+		}
 	}
 
 	public TiContext switchContext(TiContext tiContext) {
@@ -127,7 +129,7 @@ public class TiProxy implements Handler.Callback, TiDynamicMethod, OnEventListen
 		}
 		return uiHandler;
 	}
-
+	
 	public TiContext getTiContext() {
 		return tiContext;
 	}

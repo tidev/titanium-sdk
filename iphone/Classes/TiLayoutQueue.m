@@ -27,24 +27,24 @@ void performLayoutRefresh(CFRunLoopTimerRef timer, void *info)
 	pthread_mutex_lock(&layoutMutex);
 	localLayoutArray = layoutArray;
 	layoutArray = nil;
+
+	if ((layoutTimer != NULL) && ([localLayoutArray count]==0))
+	{
+		//Might as well stop the timer for now.
+		CFRunLoopTimerInvalidate(layoutTimer);
+		layoutTimer = NULL;
+	}
+
 	pthread_mutex_unlock(&layoutMutex);
 	
 	for (TiViewProxy *thisProxy in localLayoutArray)
 	{
 		[thisProxy repositionIfNeeded];
 		[thisProxy layoutChildrenIfNeeded];
+
+		[thisProxy refreshView:nil];
 	}
-	
-	if ([localLayoutArray count]==0)
-	{
-		//Might as well stop the timer for now.
-		if (layoutTimer != NULL)
-		{
-			CFRunLoopTimerInvalidate(layoutTimer);
-			layoutTimer = NULL;
-		}
-	}
-	
+		
 	RELEASE_TO_NIL(localLayoutArray);
 }
 
@@ -63,6 +63,11 @@ void performLayoutRefresh(CFRunLoopTimerRef timer, void *info)
 	if (layoutArray == nil)
 	{
 		layoutArray = [[NSMutableArray alloc] initWithObjects:newViewProxy,nil];
+	}
+	else if([layoutArray containsObject:newViewProxy])
+	{//Nothing to do here. Already added.
+		pthread_mutex_unlock(&layoutMutex);
+		return;
 	}
 	else if([layoutArray containsObject:[newViewProxy parent]])
 	{//For safety reasons, we do add this to the list. But since the parent's already here,
