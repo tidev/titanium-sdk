@@ -52,5 +52,9 @@ button.addEventListener('click', function()
 	var index = tableview.data.length-1;
 	Ti.API.info("deleting row "+index);
 	
-	tableview.deleteRow(index,{animationStyle:Titanium.UI.iPhone.RowAnimationStyle.UP});
+	try {
+		tableview.deleteRow(index,{animationStyle:Titanium.UI.iPhone.RowAnimationStyle.UP});
+	} catch (E) {
+		Ti.UI.createNotification({ message: E.message }).show();
+	}
 });
