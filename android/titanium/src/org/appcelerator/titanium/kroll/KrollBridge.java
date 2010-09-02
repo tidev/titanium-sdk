@@ -38,9 +38,13 @@ public class KrollBridge
 		kroll.put("JSON", (Scriptable) titanium.get("JSON", titanium));
 		kroll.put("require", (Scriptable) titanium.get("require", titanium));
 		
-		// add string formatter
+		// add string formatters
 		Scriptable stringScriptable = (Scriptable)root.get("String",root);
 		ScriptableObject.putProperty(stringScriptable, "format", (Scriptable) titanium.get("stringFormat", titanium));
+		ScriptableObject.putProperty(stringScriptable, "formatDate", (Scriptable) titanium.get("stringFormatDate", titanium));
+		ScriptableObject.putProperty(stringScriptable, "formatTime", (Scriptable) titanium.get("stringFormatTime", titanium));
+		ScriptableObject.putProperty(stringScriptable, "formatCurrency", (Scriptable) titanium.get("stringFormatCurrency", titanium));
+		ScriptableObject.putProperty(stringScriptable, "formatDecimal", (Scriptable) titanium.get("stringFormatDecimal", titanium));
     
         // add L short-cut macro
 	    kroll.put("L", (Scriptable) titanium.get("localize", titanium));

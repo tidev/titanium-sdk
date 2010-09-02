@@ -171,6 +171,30 @@ public class TitaniumModule
         }
 	}
 	
+	public String stringFormatDate(TiContext tiContext, Object args[])
+	{
+	    //FIXME: stub 
+	    return "";
+	}
+
+	public String stringFormatTime(TiContext tiContext, Object args[])
+	{
+	    //FIXME: stub 
+	    return "";
+	}
+
+	public String stringFormatCurrency(TiContext tiContext, Object args[])
+	{
+	    //FIXME: stub 
+	    return "";
+	}
+
+	public String stringFormatDecimal(TiContext tiContext, Object args[])
+	{
+	    //FIXME: stub 
+	    return "";
+	}
+	
 	public String localize(TiContext tiContext, Object args[])
 	{
 	    String key = (String)args[0];
