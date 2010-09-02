@@ -591,6 +591,7 @@ What this does mean is that any
 
 	[window setParentOrientationController:self];
 	[windowProxies addObject:window];
+	[window parentWillShow];
 	//Todo: Move all the root-attaching logic here.
 
 	[self childOrientationControllerChangedFlags:window];
@@ -608,6 +609,7 @@ What this does mean is that any
 	//Todo: Move all the root-detaching logic here.
 
 	[window setParentOrientationController:nil];
+	[window parentWillHide];
 	[windowProxies removeObject:window];
 
 	if(wasTopWindow)
