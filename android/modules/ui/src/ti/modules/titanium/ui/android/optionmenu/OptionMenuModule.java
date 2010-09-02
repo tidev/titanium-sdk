@@ -83,7 +83,7 @@ public class OptionMenuModule extends TiModule {
 							if (iconPath != null) {
 				     			Drawable d = null;
 								TiFileHelper tfh = new TiFileHelper(getTiContext().getActivity());
-								d = tfh.loadDrawable(iconPath, false);
+								d = tfh.loadDrawable(getTiContext(), iconPath, false);
 								if (d != null) {
 									mi.setIcon(d);
 								}

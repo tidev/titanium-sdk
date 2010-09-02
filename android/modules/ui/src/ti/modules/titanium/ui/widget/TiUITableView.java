@@ -130,6 +130,10 @@ public class TiUITableView extends TiUIView
 		
 		if (d.containsKey("filterAttribute")) {
 			tableView.setFilterAttribute(TiConvert.toString(d, "filterAttribute"));
+		} else {
+			// Default to title to match iPhone default.
+			proxy.internalSetDynamicValue("filterAttribute", "title", false);
+			tableView.setFilterAttribute("title");
 		}
 		
 		boolean filterCaseInsensitive = true;
@@ -279,6 +283,20 @@ public class TiUITableView extends TiUIView
 //		}
 //	}
 
+
+	@Override
+	public void release()
+	{
+		if (tableView != null) {
+			tableView.release();
+			tableView  = null;
+		}
+		nativeView  = null;
+		handler = null;
+		modifySemaphore = null;
+		searchBar = null;
+		super.release();
+	}
 
 	@Override
 	public void propertyChanged(String key, Object oldValue, Object newValue,

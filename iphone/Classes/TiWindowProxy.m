@@ -11,6 +11,47 @@
 #import "TiAnimation.h"
 #import "TiAction.h"
 
+TiOrientationFlags TiOrientationFlagsFromObject(id args)
+{
+	if (![args isKindOfClass:[NSArray class]])
+	{
+		return TiOrientationNone;
+	}
+
+	TiOrientationFlags result = TiOrientationNone;
+	for (id mode in args)
+	{
+		UIInterfaceOrientation orientation = [TiUtils orientationValue:mode def:-1];
+		switch (orientation)
+		{
+			case UIDeviceOrientationPortrait:
+			case UIDeviceOrientationPortraitUpsideDown:
+			case UIDeviceOrientationLandscapeLeft:
+			case UIDeviceOrientationLandscapeRight:
+				TI_ORIENTATION_SET(result,orientation);
+				break;
+#if DEBUG
+			case UIDeviceOrientationUnknown:
+				NSLog(@"[WARN] Orientation modes cannot use Ti.Gesture.UNKNOWN. Ignoring.");
+				break;
+			case UIDeviceOrientationFaceDown:
+				NSLog(@"[WARN] Orientation modes cannot use Ti.Gesture.FACE_DOWN. Ignoring.");
+				break;
+			case UIDeviceOrientationFaceUp:
+				NSLog(@"[WARN] Orientation modes cannot use Ti.Gesture.FACE_UP. Ignoring.");
+				break;
+#endif
+			default:
+#if DEBUG
+				NSLog(@"[WARN] An invalid orientation was requested. Ignoring.");
+#endif
+				break;
+		}
+	}
+	return result;
+}
+
+
 
 @implementation TiWindowProxy
 @synthesize navController, controller;
@@ -146,6 +187,8 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 -(void)windowClosed
 {
 	ENSURE_UI_THREAD_0_ARGS
+
+	[(TiRootViewController *)[[TiApp app] controller] closeWindow:self withObject:nil];
 	
 	if (opened==NO)
 	{
@@ -573,7 +616,7 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 		{
 			[self windowClosed];
 		}
-	}	 
+	}
 }
 
 -(void)attachViewToTopLevelWindow
@@ -600,6 +643,8 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 		[rootView addSubview:view];
 		
 		[self controller];
+
+		[(TiRootViewController *)[[TiApp app] controller] openWindow:self withObject:nil];
 		[[[TiApp app] controller] windowFocused:[self controller]];
 	}
 
@@ -630,6 +675,14 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 }
 
 #pragma mark Animation Delegates
+
+- (void)viewDidAppear:(BOOL)animated;    // Called when the view is about to made visible. Default does nothing
+{
+	[[self parentOrientationController]
+			childOrientationControllerChangedFlags:self];
+}
+
+
 
 -(BOOL)animationShouldTransition:(id)sender
 {
@@ -716,5 +769,33 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 	}
 }
 
+
+- (UIViewController *)childViewController
+{
+	return nil;
+}
+
+
+-(void)setOrientationModes:(id)value
+{
+	[self replaceValue:value forKey:@"orientationModes" notification:YES];
+	[[[TiApp app] controller] performSelectorOnMainThread:@selector(refreshOrientationModesIfNeeded:) withObject:self waitUntilDone:NO];
+	
+	TiOrientationFlags newFlags = TiOrientationFlagsFromObject(value);
+	if (newFlags == orientationFlags)
+	{
+		return;
+	}
+	orientationFlags = newFlags;
+	[parentOrientationController performSelectorOnMainThread:@selector(childOrientationControllerChangedFlags:) withObject:self waitUntilDone:NO];
+}
+
+
+@synthesize parentOrientationController, orientationFlags;
+-(void)childOrientationControllerChangedFlags:(id <TiOrientationController>)orientationController
+{
+	WARN_IF_BACKGROUND_THREAD;
+	[parentOrientationController childOrientationControllerChangedFlags:self];
+}
 
 @end

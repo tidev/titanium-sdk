@@ -313,7 +313,7 @@ def find_filename(namespace):
 	return namespace
 
 def split_keyvalue(line):
-	idx = line.find(":")
+	idx = line.find(": ")
 	if idx == -1:
 		return None,None
 	key = line[0:idx].strip()

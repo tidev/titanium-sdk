@@ -24,6 +24,10 @@
 
 -(void)dealloc
 {
+	for (id thisTab in tabs)
+	{
+		[thisTab setParentOrientationController:nil];
+	}
 	RELEASE_TO_NIL(tabs);
 	[super dealloc];
 }
@@ -60,6 +64,7 @@
 	{
 		tabs = [[NSMutableArray alloc] initWithCapacity:4];
 	}
+	[tabProxy setParentOrientationController:self];
 	[tabs addObject:tabProxy];
 	[tabProxy setTabGroup:self];
 	[self replaceValue:tabs forKey:@"tabs" notification:YES];
@@ -82,6 +87,7 @@
 		
 		//TODO: close all the tabs and fire events
 		
+		[tabProxy setParentOrientationController:nil];
 		[tabProxy setTabGroup:nil];
 		[tabs removeObject:tabProxy];
 		[self replaceValue:tabs forKey:@"tabs" notification:YES];
@@ -102,7 +108,15 @@
 	}
 
 	[tabs release];
+	for (id thisTab in tabs)
+	{
+		[thisTab setParentOrientationController:nil];
+	}
 	tabs = [newTabs mutableCopy];
+	for (id thisTab in tabs)
+	{
+		[thisTab setParentOrientationController:self];
+	}
 
 	[self replaceValue:tabs forKey:@"tabs" notification:YES];
 }
@@ -190,7 +204,16 @@
 	}
 }
 
-
+-(TiOrientationFlags)orientationFlags
+{
+	UITabBarController * tabController = [(TiUITabGroup *)[self view] tabController];
+	int blessedController = [tabController selectedIndex];
+	if (blessedController != NSNotFound)
+	{
+		return [[tabs objectAtIndex:blessedController] orientationFlags];
+	}
+	return [super orientationFlags];
+}
 
 @end
 

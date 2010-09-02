@@ -132,9 +132,9 @@ public class TiUITabGroup extends TiUIView
 				}
 			} else if (t instanceof TabProxy) {
 				TabProxy tab = (TabProxy) t;
-				String title = TiConvert.toString(tab.getDynamicValue("title"));
-				if (title != null) {
-					tabHost.setCurrentTabByTag(title);
+				String tag = TiConvert.toString(tab.getDynamicValue("tag"));
+				if (tag != null) {
+					tabHost.setCurrentTabByTag(tag);
 				}
 			} else {
 				Log.w(LCAT, "Attempt to set active tab using a non-supported argument. Ignoring");

@@ -431,17 +431,17 @@ public abstract class TiUIView
 				}
 				vg.removeAllViews();
 			}
-		}
-
-		Drawable d = nv.getBackground();
-		if (d != null) {
-			nv.setBackgroundDrawable(null);
-			d.setCallback(null);
-			if (d instanceof TiBackgroundDrawable) {
-				((TiBackgroundDrawable)d).releaseDelegate();
+			Drawable d = nv.getBackground();
+			if (d != null) {
+				nv.setBackgroundDrawable(null);
+				d.setCallback(null);
+				if (d instanceof TiBackgroundDrawable) {
+					((TiBackgroundDrawable)d).releaseDelegate();
+				}
+				d = null;
 			}
-			d = null;
 		}
+		
 	}
 
 	public void show()
@@ -494,7 +494,7 @@ public abstract class TiUIView
 				applyCustomBackground(false);
 			}
 
-			Drawable bgDrawable = TiUIHelper.buildBackgroundDrawable(tiContext.getActivity().getApplicationContext(), bg, bgSelected, bgDisabled, bgFocused);
+			Drawable bgDrawable = TiUIHelper.buildBackgroundDrawable(tiContext, bg, bgSelected, bgDisabled, bgFocused);
 			background.setBackgroundDrawable(bgDrawable);
 		}
 //		String path = TiConvert.toString(d, "backgroundImage");

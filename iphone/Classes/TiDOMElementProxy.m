@@ -89,7 +89,18 @@
 
 -(void)setAttribute:(id)args
 {
-	//TODO:
+	ENSURE_ARG_COUNT(args, 2);
+
+	NSString *name = [args objectAtIndex:0];
+	ENSURE_STRING_OR_NIL(name);
+
+	NSString *val = [args objectAtIndex:1];
+	ENSURE_STRING_OR_NIL(val);
+
+	if (name != nil && val != nil)
+	{
+		[element addAttribute: [GDataXMLNode attributeWithName: name stringValue: val]];
+	}
 }
 
 -(void)removeAttribute:(id)args

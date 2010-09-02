@@ -306,7 +306,7 @@ public class KrollObject extends ScriptableObject
 	{
 		// dynamic property
 		Object o = null;
-
+		
 		Method getMethod = (Method) loadMethod(target.getClass(), "getDynamicValue");
 		Method setMethod = (Method) loadMethod(target.getClass(), "setDynamicValue");
 		
@@ -649,7 +649,7 @@ public class KrollObject extends ScriptableObject
 
 	private boolean isArrayLike(Scriptable svalue) {
 		// some objects have length() methods, so just check the value?
-		return svalue.has("length", svalue) && svalue.get("length", svalue) instanceof Number;
+		return svalue.has("length", svalue) && svalue.get("length", svalue) instanceof Number && !(svalue instanceof KrollObject);
 	}
 
 	private Object[] toArray(Scriptable svalue)
@@ -799,12 +799,15 @@ public class KrollObject extends ScriptableObject
 				jsArray[i] = fromNative(Array.get(value, i), kroll);
 			}
 
-			o = Context.getCurrentContext().newObject(kroll.getScope(), "Array", jsArray);
+			o = Context.getCurrentContext().newArray(kroll.getScope(), jsArray);
 		}
 		else if (value == JSONObject.NULL || value.getClass().equals(JSONObject.NULL.getClass()))
 		{
 			return Context.javaToJS(null, kroll.getScope());
 		} 
+		else if (value instanceof KrollCallback) {
+			return ((KrollCallback)value).toJSFunction();
+		}
 		else {
 			o = new KrollObject(kroll, value);
 		}

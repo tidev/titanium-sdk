@@ -786,13 +786,10 @@ DEFINE_EXCEPTIONS
 			continue;
 		}
 	
+		// Always set the new value, even if 'equal' - some view setters (as in UIImageView)
+		// use internal voodoo to determine what to display.
+		// TODO: We may be able to take this out once the imageView.url property is taken out, and change it back to an equality test.
 		id newValue = [newProxy valueForUndefinedKey:thisKey];
-		id oldValue = [oldProxy valueForUndefinedKey:thisKey];
-		if([newValue isEqual:oldValue])
-		{
-			continue;
-		}
-		
 		[self setKrollValue:newValue forKey:thisKey withObject:nil];
 	}
 
@@ -985,13 +982,17 @@ DEFINE_EXCEPTIONS
 	}
 	if (handlesSwipes)
 	{
-		CGPoint point = [touch locationInView:nil];
+		// To take orientation into account, swipe calculations should be done in the root view,
+		// not in global device coords.
+		UIView* rootView = [[[TiApp app] controller] view];
+		CGPoint point = [touch locationInView:rootView];
+		CGPoint initialPoint = [rootView convertPoint:touchLocation fromView:nil];
 		// To be a swipe, direction of touch must be horizontal and long enough.
-		if (fabsf(touchLocation.x - point.x) >= HORIZ_SWIPE_DRAG_MIN &&
-			fabsf(touchLocation.y - point.y) <= VERT_SWIPE_DRAG_MAX)
+		if (fabsf(initialPoint.x - point.x) >= HORIZ_SWIPE_DRAG_MIN &&
+			fabsf(initialPoint.y - point.y) <= VERT_SWIPE_DRAG_MAX)
 		{
 			// It appears to be a swipe.
-			if (touchLocation.x < point.x)
+			if (initialPoint.x < point.x)
 			{
 				[self handleSwipeRight];
 			}

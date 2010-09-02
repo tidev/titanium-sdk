@@ -14,7 +14,7 @@
 #define DEBUG_EVENTS 0
 #endif
 
-#ifdef TARGET_IPHONE_SIMULATOR
+#if TARGET_IPHONE_SIMULATOR
 extern NSString * const TI_APPLICATION_RESOURCE_DIR;
 #endif
 
@@ -26,7 +26,7 @@ extern NSString * const TI_APPLICATION_ID;
 +(NSURL*)resourceBasedURL:(NSString*)fn baseURL:(NSString**)base
 {
 	NSString *path = [[NSBundle mainBundle] bundlePath];
-#ifdef TARGET_IPHONE_SIMULATOR
+#if TARGET_IPHONE_SIMULATOR
 	if (TI_APPLICATION_RESOURCE_DIR!=nil && [TI_APPLICATION_RESOURCE_DIR isEqualToString:@""]==NO)
 	{
 		// if the .local file exists and we're in the simulator, then force load from resources bundle

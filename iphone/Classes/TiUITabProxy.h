@@ -8,12 +8,13 @@
 
 #import "TiViewProxy.h"
 #import "TiTab.h"
+#import "TiWindowProxy.h"
 
 @class TiUITabGroupProxy;
 @class TiUITabController;
 @class TiWindowProxy;
 
-@interface TiUITabProxy : TiViewProxy<TiTab,UINavigationControllerDelegate> {
+@interface TiUITabProxy : TiViewProxy<TiTab,UINavigationControllerDelegate,TiOrientationController> {
 @private
 	UINavigationController *controller;
 	TiUITabController *rootController;
@@ -23,7 +24,12 @@
 	TiWindowProxy *closingWindow;
 	BOOL opening;
 	BOOL systemTab;
+	
+	id<TiOrientationController> parentOrientationController;
 }
+
+@property(nonatomic,readwrite,assign)	id<TiOrientationController> parentOrientationController;
+-(void)childOrientationControllerChangedFlags:(id<TiOrientationController>) orientationController;
 
 -(UINavigationController*)controller;
 -(void)setTabGroup:(TiUITabGroupProxy*)proxy;

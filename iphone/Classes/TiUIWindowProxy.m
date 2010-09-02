@@ -324,12 +324,6 @@
 	}
 }
 
--(void)setOrientationModes:(id)value
-{
-	[self replaceValue:value forKey:@"orientationModes" notification:YES];
-	[[[TiApp app] controller] performSelectorOnMainThread:@selector(refreshOrientationModesIfNeeded:) withObject:self waitUntilDone:NO];
-}
-
 -(void)setRightNavButton:(id)proxy withObject:(id)properties
 {
 	ENSURE_UI_THREAD_WITH_OBJ(setRightNavButton,proxy,properties);

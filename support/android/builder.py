@@ -4,8 +4,8 @@
 # Android Simulator for building a project and launching
 # the Android Emulator or on the device
 #
-import os, sys, subprocess, shutil, time, signal, string, platform, re, glob
-import run, avd, prereq
+import os, sys, subprocess, shutil, time, signal, string, platform, re, glob, hashlib
+import run, avd, prereq, tempfile
 from os.path import splitext
 from compiler import Compiler
 from os.path import join, splitext, split, exists
@@ -74,9 +74,10 @@ def parse_r(fn):
             cur = None
         else:
             idx = line.find('final int ')
-            res = line[idx+10:-1]
-            k,v = res.split("=")
-            map[cur][k]=v
+            if idx != -1:
+                res = line[idx+10:-1]
+                k,v = res.split("=")
+                map[cur][k]=v
     return package,map
 
 def generate_appc_r(package,map):
@@ -92,6 +93,54 @@ def generate_appc_r(package,map):
         for kk in values:
             content+="        _%s.put(\"%s\",%s);\n" % (k,kk,values[kk])
     return RA_TEMPLATE % (package,prefix,content,defines)  
+
+def generate_ra_getters(resources, path):
+	template = "\n\t@Override\n\tpublic final Integer get%sID(String key){return RA.get%s(key);}\n"
+	known = ['style', 'string', 'attr', 'drawable']
+	(fd, temppath) = tempfile.mkstemp(prefix='tibuilder_', text=True)
+	os.close(fd)
+	temp = None
+	orig = None
+	try:
+		temp = open(temppath, 'w')
+		orig = open(path, 'r')
+		lines = orig.readlines() # small file, so this is no big deal
+		orig.close()
+		orig = None
+		processing = False
+		for line in lines:
+			if not processing:
+				temp.write(line)
+			else:
+				if '* /RA getters' in line:
+					processing = False
+					temp.write(line)
+
+			if '* RA getters' in line:
+				processing = True
+				temp.write('\n'.join([template % (k.capitalize(), k.capitalize()) for k in known if k in resources]))
+		temp.close()
+		os.remove(path)
+		shutil.copyfile(temppath, path)
+		temp = None
+		os.remove(temppath)
+	except OSError, err:
+		error("OSError generating getters for RA: %s" % err)
+		return
+	except IOError, err:
+		error("IOError generating getters for RA: %s" % err)
+		return
+	except:
+		error("Error generating getters for RA: %s" % sys.exc_info()[0])
+		return
+	finally:
+		if not orig is None:
+			orig.close()
+			orig = None
+		if not temp is None:
+			temp.close()
+			os.remove(temppath)
+			temp = None
 
 def dequote(s):
 	if s[0:1] == '"':
@@ -393,7 +442,78 @@ class Builder(object):
 		if not isfile and os.path.basename(path) in ignoreDirs: return False
 		elif isfile and os.path.basename(path) in ignoreFiles: return False
 		return True
-	
+
+	def copy_density_images(self):
+
+		def density_from_path(path):
+			normalized = path.replace("\\", "/")
+			density = 'm'
+			matches = re.search("/android/images/(?P<density>high|medium|low)/", normalized)
+			if matches and matches.groupdict() and 'density' in matches.groupdict():
+				density = matches.groupdict()['density'][0]
+			else:
+				trace('density_from_path did not find density for %s' % orig) # should be impossible
+			return density
+
+
+		def make_density_image_filename(orig):
+			normalized = orig.replace("\\", "/")
+			matches = re.search("/android/images/(high|medium|low)/(?P<chopped>.*$)", normalized)
+			if matches and matches.groupdict() and 'chopped' in matches.groupdict():
+				chopped = matches.groupdict()['chopped'].lower()
+				for_hash = chopped
+				if for_hash.endswith('.9.png'):
+					for_hash = for_hash[:-6] + '.png'
+				extension = ""
+				without_extension = chopped
+				if re.search("\\..*$", chopped):
+					if chopped.endswith('.9.png'):
+						extension = '9.png'
+						without_extension = chopped[:-6]
+					else:
+						extension = chopped.split(".")[-1]
+						without_extension = chopped[:-(len(extension)+1)]
+				cleaned_without_extension = re.sub(r'[^a-z0-9_]', '_', without_extension)
+				cleaned_extension = re.sub(r'[^a-z0-9\._]', '_', extension)
+				result = cleaned_without_extension[:80] + "_" + hashlib.md5(for_hash).hexdigest()[:10]
+				if extension:
+					result += "." + extension
+				return result
+			else:
+				trace("Regexp for density image file %s failed" % orig)
+				return None
+
+		def delete_density_image(orig):
+			density = density_from_path(orig)
+			res_file = os.path.join(self.res_dir, 'drawable-%sdpi' % density, make_density_image_filename(orig))
+			if os.path.exists(res_file):
+				try:
+					os.remove(res_file)
+				except:
+					warn('Unable to delete %s: %s. Execution will continue.' % (res_file, sys.exc_info()[0]))
+
+		def copy_density_image(delta):
+			orig = delta.get_path()
+			density = density_from_path(orig)
+			dest_folder = os.path.join(self.res_dir, 'drawable-%sdpi' % density)
+			dest_filename = make_density_image_filename(orig)
+			if dest_filename is None:
+				return
+			dest = os.path.join(dest_folder, dest_filename)
+			if not os.path.exists(dest_folder):
+				os.makedirs(dest_folder)
+			trace("COPYING %s FILE: %s => %s" % (delta.get_status_str(), orig, dest))
+			shutil.copy(orig, dest)
+
+		if self.project_deltas:
+			for delta in self.project_deltas:
+				path = delta.get_path()
+				if re.search("android/images/(high|medium|low)/", path.replace("\\", "/")):
+					if delta.get_status() == Delta.DELETED:
+						delete_density_image(path)
+					else:
+						copy_density_image(delta)
+
 	def copy_project_resources(self):
 		info("Copying project resources..")
 		sys.stdout.flush()
@@ -424,6 +544,9 @@ class Builder(object):
 
 		for delta in self.project_deltas:
 			path = delta.get_path()
+			if re.search("android/images/(high|medium|low)/", path.replace("\\", "/")):
+				continue # density images are handled later
+
 			if delta.get_status() == Delta.DELETED and path.startswith(android_resources_dir):
 				shared_path = path.replace(android_resources_dir, resources_dir, 1)
 				if os.path.exists(shared_path):
@@ -674,6 +797,10 @@ class Builder(object):
 		ra_f = open(ra_file,'w')
 		ra_f.write(ra_out)
 		ra_f.close()
+
+		# Make getters for RA inside the application .java.
+		generate_ra_getters(map, os.path.join(self.project_dir, 'src', self.app_id.replace('.', os.sep), self.classname + "Application.java"))
+		
 			
 		return manifest_changed
 
@@ -962,6 +1089,8 @@ class Builder(object):
 
 			if not os.path.exists(self.assets_dir):
 				os.makedirs(self.assets_dir)
+
+			self.copy_density_images()
 
 			manifest_changed = self.generate_android_manifest(compiler)
 

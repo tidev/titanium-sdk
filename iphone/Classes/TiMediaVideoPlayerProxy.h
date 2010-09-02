@@ -25,6 +25,7 @@
 	NSMutableDictionary* returnCache; // Return values from UI thread functions
 	
 	NSRecursiveLock* playerLock;
+	BOOL sizeDetermined;
 }
 
 @property(nonatomic,readwrite,assign) id url;

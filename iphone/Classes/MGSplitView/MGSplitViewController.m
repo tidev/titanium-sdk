@@ -7,6 +7,7 @@
 //
 //	License and code at http://github.com/mattgemmell/MGSplitViewController/
 #import "TiBase.h"
+#import "TiApp.h"
 
 #ifdef USE_TI_UIIPADSPLITWINDOW
 
@@ -169,7 +170,8 @@
 
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation
 {
-    return YES;
+	return [[[TiApp app] controller] shouldAutorotateToInterfaceOrientation:interfaceOrientation];
+//    return YES;
 }
 
 
@@ -580,7 +582,10 @@
 		
 	} else if (!inPopover && _hiddenPopoverController && _barButtonItem) {
 		// I know this looks strange, but it fixes a bizarre issue with UIPopoverController leaving masterViewController's views in disarray.
-		[_hiddenPopoverController presentPopoverFromRect:CGRectZero inView:self.view permittedArrowDirections:UIPopoverArrowDirectionAny animated:NO];
+		if ([[self view] window] != nil)
+		{
+			[_hiddenPopoverController presentPopoverFromRect:CGRectZero inView:self.view permittedArrowDirections:UIPopoverArrowDirectionAny animated:NO];
+		}
 		
 		// Remove master from popover and destroy popover, if it exists.
 		[_hiddenPopoverController dismissPopoverAnimated:NO];

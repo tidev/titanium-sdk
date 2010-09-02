@@ -513,6 +513,10 @@ void MyUncaughtExceptionHandler(NSException *exception)
 
 -(void)showModalController:(UIViewController*)modalController animated:(BOOL)animated
 {
+//In the rare event that the iPad application started in landscape, has not been rotated,
+//And is presenting a modal for the first time, 
+		handledModal = YES;
+
 	if(!handledModal)
 	{
 		handledModal = YES;

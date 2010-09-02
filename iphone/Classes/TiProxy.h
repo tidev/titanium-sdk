@@ -18,6 +18,8 @@ extern NSString * const TiExceptionInvalidType;
 extern NSString * const TiExceptionNotEnoughArguments;
 extern NSString * const TiExceptionRangeError;
 
+extern NSString * const TiExceptionOSError;
+
 //This is when a normally allowed command is not allowed (Say, adding a row to a table when it already is added elsewhere)
 extern NSString * const TiExceptionInternalInconsistency;
 
@@ -72,8 +74,8 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 	BOOL reproxying;
 @protected
 	BOOL	ignoreValueChanged;	//This is done only at initialization where we know the dynprops were properly set by _initWithProperties.
-	NSMutableDictionary *dynprops;
-	NSRecursiveLock *dynPropsLock;
+	NSMutableDictionary *dynprops; 
+	pthread_rwlock_t dynpropsLock; // NOTE: You must respect the dynprops lock when accessing dynprops elsewhere!
 	id<TiEvaluator> pageContext;
 	id<TiEvaluator> executionContext;
 }

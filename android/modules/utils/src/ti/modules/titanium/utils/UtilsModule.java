@@ -32,8 +32,16 @@ public class UtilsModule extends TiModule
 	}
 
 	public TiBlob base64encode(Object obj) {
+		if (obj instanceof TiBlob) {
+			return TiBlob.blobFromString(getTiContext(), ((TiBlob)obj).toBase64());
+		}
+		String data;
 		try {
-			String data = TiConvert.toString(obj);
+			if (obj instanceof byte[]) {
+				data = new String((byte[])obj, "UTF-8");
+			} else {
+				data = TiConvert.toString(obj);
+			}
 			return TiBlob.blobFromString(getTiContext(),new String(Base64.encodeBase64(data.getBytes("UTF-8")), "UTF-8"));
 		} catch (UnsupportedEncodingException e) {
 			Log.e(LCAT, "UTF-8 is not a supported encoding type");

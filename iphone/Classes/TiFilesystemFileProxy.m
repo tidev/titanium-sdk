@@ -44,25 +44,49 @@
 	return NUMBOOL([fm fileExistsAtPath:path]);
 }
 
-#define FILEATTR(attr,x,w) \
-NSError *error = nil; \
-NSDictionary * resultDict = [fm attributesOfItemAtPath:path error:&error];\
-if (error!=nil && x) return NUMBOOL(NO);\
-return w([resultDict objectForKey:attr]!=nil);\
+#define FILEATTR(propName,attrKey,throwError) \
+-(id) propName	\
+{	\
+	NSError *error = nil; \
+	NSDictionary * resultDict = [fm attributesOfItemAtPath:path error:&error];\
+	if ((throwError) && error!=nil)	\
+	{	\
+		[self throwException:TiExceptionOSError subreason:[error localizedDescription] location:CODELOCATION];	\
+	}	\
+	return [resultDict objectForKey:attrKey];\
+}
 
--(id)readonly
+FILEATTR(readonly,NSFileImmutable,NO)
+FILEATTR(createTimestamp,NSFileCreationDate,YES);
+FILEATTR(modificationTimestamp,NSFileModificationDate,YES);
+
+//TODO: Should this be a method or a property? Until then, do both.
+-(id)createTimestamp:(id)args
 {
-	FILEATTR(NSFileImmutable,NO,NUMBOOL);
+	return [self createTimestamp];
+}
+
+-(id)modificationTimestamp:(id)args
+{
+	return [self modificationTimestamp];
 }
 
 -(id)symbolicLink
 {
-	FILEATTR(NSFileTypeSymbolicLink,NO,NUMBOOL);
+	NSError *error = nil;
+	NSDictionary * resultDict = [fm attributesOfItemAtPath:path error:&error];
+	if (error!=nil)
+	{
+		[self throwException:TiExceptionOSError subreason:[error localizedDescription] location:CODELOCATION];
+	}
+	NSString * fileType = [resultDict objectForKey:NSFileType];
+
+	return NUMBOOL([fileType isEqualToString:NSFileTypeSymbolicLink]);
 }
 
 -(id)writeable
 {
-	return NUMBOOL(![self readonly]);
+	return NUMBOOL(![[self readonly] boolValue]);
 }
 
 -(id)writable
@@ -83,16 +107,6 @@ FILENOOP(hidden);
 FILENOOP(setReadonly:(id)x);
 FILENOOP(setExecutable:(id)x);
 FILENOOP(setHidden:(id)x);
-
--(id)createTimestamp:(id)args
-{
-	FILEATTR(NSFileCreationDate,YES,NUMLONG);
-}
-
--(id)modificationTimestamp:(id)args
-{
-	FILEATTR(NSFileModificationDate,YES,NUMLONG);
-}
 
 -(id)getDirectoryListing:(id)args
 {

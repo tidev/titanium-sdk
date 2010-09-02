@@ -43,6 +43,10 @@
 	[super startup];
 	addressBook = NULL;
 	returnCache = [[NSMutableDictionary alloc] init];
+    
+    // Force address book creation so that our properties are properly initialized - they aren't
+    // defined until the address book is loaded, for some reason.
+    [self performSelectorOnMainThread:@selector(addressBook) withObject:nil waitUntilDone:YES];
 }
 
 -(void)dealloc
@@ -336,8 +340,8 @@
 
 #pragma mark Properties
 
-MAKE_SYSTEM_NUMBER(CONTACTS_KIND_PERSON,(NSNumber*)kABPersonKindPerson)
-MAKE_SYSTEM_NUMBER(CONTACTS_KIND_ORGANIZATION,(NSNumber*)kABPersonKindOrganization)
+MAKE_SYSTEM_NUMBER(CONTACTS_KIND_PERSON,[[(NSNumber*)kABPersonKindPerson retain] autorelease])
+MAKE_SYSTEM_NUMBER(CONTACTS_KIND_ORGANIZATION,[[(NSNumber*)kABPersonKindOrganization retain] autorelease])
 
 MAKE_SYSTEM_PROP(CONTACTS_SORT_FIRST_NAME,kABPersonSortByFirstName);
 MAKE_SYSTEM_PROP(CONTACTS_SORT_LAST_NAME,kABPersonSortByLastName);

@@ -61,6 +61,14 @@ public class TableViewModel
         viewModel = new ArrayList<Item>();
         dirty = true;
     }
+    
+    public void release()
+    {
+    	viewModel.clear();
+    	viewModel = null;
+    	tiContext = null;
+    	proxy = null;
+    }
 
     private String classNameForRow(TableViewRowProxy rowProxy) {
         String className = TiConvert.toString(rowProxy.getDynamicValue("className"));

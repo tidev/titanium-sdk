@@ -48,10 +48,12 @@ public class TabGroupProxy extends TiWindowProxy
 	private TiTabActivity tta;
 	WeakReference<Activity> weakActivity;
 	String windowId;
+	Object initialActiveTab;
 
 	public TabGroupProxy(TiContext tiContext, Object[] args) {
 		super(tiContext, args);
 		idGenerator = new AtomicInteger(0);
+		initialActiveTab = null;
 	}
 
 	@Override
@@ -117,6 +119,23 @@ public class TabGroupProxy extends TiWindowProxy
 
 	private void handleAddTab(TabProxy tab)
 	{
+		String tag = TiConvert.toString(tab.getDynamicValue("tag"));
+		if (tag == null) {
+			String title = TiConvert.toString(tab.getDynamicValue("title"));
+			if (title == null) {
+				String icon = TiConvert.toString(tab.getDynamicValue("icon"));
+				if (icon == null) {
+					tag = tab.toString();					
+				} else {
+					tag = icon;
+				}
+			} else {
+				tag = title;
+			}
+			
+			tab.internalSetDynamicValue("tag", tag, false); // store in proxy
+		}
+		
 		tabs.add(tab);
 
 		if (peekView() != null) {
@@ -129,19 +148,25 @@ public class TabGroupProxy extends TiWindowProxy
 	{
 		String title = (String) tab.getDynamicValue("title");
 		String icon = (String) tab.getDynamicValue("icon");
+		String tag = (String) tab.getDynamicValue("tag");
+
+		if (title == null) {
+			title = "";
+		}
+		
 		tab.setTabGroup(this);
 		final WindowProxy vp = (WindowProxy) tab.getDynamicValue("window");
 		vp.setTabGroupProxy(this);
 		vp.setTabProxy(tab);
 
-		if (title != null && vp != null) {
-			TabSpec tspec = tg.newTab(title);
+		if (tag != null && vp != null) {
+			TabSpec tspec = tg.newTab(tag);
 			if (icon == null) {
 				tspec.setIndicator(title);
 			} else {
 				String path = getTiContext().resolveUrl(null, icon);
 				TiFileHelper tfh = new TiFileHelper(getTiContext().getRootActivity());
-				Drawable d = tfh.loadDrawable(path, false);
+				Drawable d = tfh.loadDrawable(getTiContext(), path, false);
 				tspec.setIndicator(title, d);
 			}
 
@@ -170,6 +195,10 @@ public class TabGroupProxy extends TiWindowProxy
 	{
 		//TODO skip multiple opens?
 		Log.i(LCAT, "handleOpen");
+		
+		if (hasDynamicValue("activeTab")) {
+			initialActiveTab = getDynamicValue("activeTab");
+		}
 
 		Activity activity = getTiContext().getActivity();
 		Intent intent = new Intent(activity, TiTabActivity.class);
@@ -186,6 +215,8 @@ public class TabGroupProxy extends TiWindowProxy
 				addTabToGroup(tg, tab);
 			}
 		}
+		tg.changeActiveTab(initialActiveTab);
+
 		getTiContext().getRootActivity().addWindow(windowId, view.getLayoutParams());
 		opened = true;
 	}
@@ -232,8 +263,8 @@ public class TabGroupProxy extends TiWindowProxy
 
 		int i = 0;
 		for(TabProxy t : tabs) {
-			String title = (String) t.getDynamicValue("title");
-			if (title!=null && title.equals(id)) {
+			String tag = (String) t.getDynamicValue("tag");
+			if (tag.equals(id)) {
 				index = i;
 				break;
 			}

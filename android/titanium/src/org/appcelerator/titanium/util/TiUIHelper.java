@@ -14,6 +14,7 @@ import java.lang.reflect.Method;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.codec.digest.DigestUtils;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiDict;
@@ -286,7 +287,7 @@ public class TiUIHelper
 	}
 
 
-	public static StateListDrawable buildBackgroundDrawable(Context context,
+	public static StateListDrawable buildBackgroundDrawable(TiContext tiContext,
 			String image,
 			String selectedImage,
 			String disabledImage,
@@ -298,30 +299,32 @@ public class TiUIHelper
 		Drawable bgSelectedDrawable = null;
 		Drawable bgFocusedDrawable = null;
 		Drawable bgDisabledDrawable = null;
+		
+		Context appContext = tiContext.getActivity().getApplicationContext();
 
-		TiFileHelper tfh = new TiFileHelper(context);
+		TiFileHelper tfh = new TiFileHelper(appContext);
 
 		if (image != null) {
-			bgDrawable = tfh.loadDrawable(image, false, true);
+			bgDrawable = tfh.loadDrawable(tiContext, image, false, true);
 		}
 
 		if (selectedImage != null) {
-			bgSelectedDrawable = tfh.loadDrawable(selectedImage, false, true);
+			bgSelectedDrawable = tfh.loadDrawable(tiContext, selectedImage, false, true);
 		}
 
 		if (focusedImage != null) {
-			bgFocusedDrawable = tfh.loadDrawable(focusedImage, false, true);
+			bgFocusedDrawable = tfh.loadDrawable(tiContext, focusedImage, false, true);
 		} else {
 			if (image != null) {
-				bgFocusedDrawable = tfh.loadDrawable(image, false, true);
+				bgFocusedDrawable = tfh.loadDrawable(tiContext, image, false, true);
 			}
 		}
 
 		if (disabledImage != null) {
-			bgDisabledDrawable = tfh.loadDrawable(disabledImage, false, true);
+			bgDisabledDrawable = tfh.loadDrawable(tiContext, disabledImage, false, true);
 		} else {
 			if (image != null) {
-				bgDisabledDrawable = tfh.loadDrawable(image, false, true);
+				bgDisabledDrawable = tfh.loadDrawable(tiContext, image, false, true);
 			}
 		}
 
@@ -450,6 +453,84 @@ public class TiUIHelper
 			Log.e(LCAT, "Unable to load bitmap. Not enough memory: " + e.getMessage());
 		}
 		return b;
+	}
+	
+	private static String getRAKeyForImage(String url)
+	{
+		Pattern pattern = Pattern.compile("^.*/Resources/images/(.*$)");
+		Matcher matcher = pattern.matcher(url);
+		if (!matcher.matches()) {
+			return null;
+		}
+		
+		String chopped = matcher.group(1);
+		if (chopped == null) {
+			return null;
+		}
+		
+		chopped = chopped.toLowerCase();
+		String forHash = chopped;
+		if (forHash.endsWith(".9.png")) {
+			forHash = forHash.replace(".9.png", ".png");
+		}
+		String withoutExtension = chopped;
+		
+		if (chopped.matches("^.*\\..*$")) {
+			if (chopped.endsWith(".9.png")) {
+				withoutExtension = chopped.substring(0, chopped.lastIndexOf(".9.png"));
+			} else {
+				withoutExtension = chopped.substring(0, chopped.lastIndexOf('.'));
+			}
+		}
+		
+		String cleanedWithoutExtension = withoutExtension.replaceAll("[^a-z0-9_]", "_");
+		StringBuilder result = new StringBuilder(100);
+		result.append(cleanedWithoutExtension.substring(0, Math.min(cleanedWithoutExtension.length(), 80))) ;
+		result.append("_");
+		result.append(DigestUtils.md5Hex(forHash).substring(0, 10));
+		
+		return result.toString();
+	}
+	
+	public static Bitmap getResourceBitmap(TiContext context, String url)
+	{
+		// fail fast, before regex fanciness
+		if (!url.contains("Resources/images/")) {
+			return null;
+		}
+		
+		String key = getRAKeyForImage(url);
+		if (key == null) {
+			return null;
+		}
+		
+		Integer id = context.getTiApp().getDrawableID(key);
+		if (id == null) {
+			return null;
+		}
+		
+		Bitmap bitmap = BitmapFactory.decodeResource(context.getTiApp().getResources(), id.intValue());
+		return bitmap;
+	}
+	
+	public static Drawable getResourceDrawable(TiContext context, String url)
+	{
+		// fail fast, before regex fanciness
+		if (!url.contains("Resources/images/")) {
+			return null;
+		}
+		
+		String key = getRAKeyForImage(url);
+		if (key == null) {
+			return null;
+		}
+		
+		Integer id = context.getTiApp().getDrawableID(key);
+		if (id == null) {
+			return null;
+		}
+		
+		return context.getTiApp().getResources().getDrawable(id.intValue());
 	}
 	
 	public static void overridePendingTransition(Activity activity) 
