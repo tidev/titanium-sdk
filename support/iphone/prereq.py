@@ -70,13 +70,15 @@ def check_iphone3():
 		sys.exit(1)
 
 def check_itunes_version(props):
-	ver = run.run(['osascript',os.path.join(template_dir,'itunes_ver.scpt')],False,False).strip()
+	ver = run.run(['/usr/libexec/PlistBuddy','-c','Print :CFBundleVersion','/Applications/iTunes.app/Contents/version.plist'],True,False)
+	ver = ver.strip()
 	props['itunes_version']=ver
 	props['itunes']=False
 	props['itunes_message']=None
 	if ver:
-		major = int(ver[0])
-		minor = int(ver[2])
+		toks = ver.split('.')
+		major = toks[0]
+		minor = toks[1]
 		if (major == 8 and minor >= 2) or major > 8:
 			props['itunes']=True
 			return
