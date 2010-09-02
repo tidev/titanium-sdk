@@ -387,6 +387,9 @@ public class TiUIText extends TiUIView
 				tv.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
 				break;
 		}
+		if (!field) {
+			tv.setSingleLine(false);
+		}
 	}
 
 	public void handleReturnKeyType(int type)
