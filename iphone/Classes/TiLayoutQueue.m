@@ -61,6 +61,11 @@ void performLayoutRefresh(CFRunLoopTimerRef timer, void *info)
 	{
 		layoutArray = [[NSMutableArray alloc] initWithObjects:newViewProxy,nil];
 	}
+	else if([layoutArray containsObject:newViewProxy])
+	{//Nothing to do here. Already added.
+		pthread_mutex_unlock(&layoutMutex);
+		return;
+	}
 	else if([layoutArray containsObject:[newViewProxy parent]])
 	{//For safety reasons, we do add this to the list. But since the parent's already here,
 	//We add it to the last so that it's likely the parent already call the child before we need to.
