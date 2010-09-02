@@ -36,6 +36,10 @@ backgroundDisabledImage[string]: url to a button image that is drawn as the back
 style[int]: style constant for the type of button
 image[string]: the image to display on the button to the left of the title
 
+# 1.5
+titleid[string]: the key in the locale file to use for the title property
+
+
 - methods
 
 - events

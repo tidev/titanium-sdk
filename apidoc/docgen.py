@@ -199,6 +199,11 @@ class API(object):
 			self.add_event('touchmove','fired as soon as the device detects movement of a touch.  Event coordinates are always relative to the view in which the initial touch occurred')
 			self.add_event('touchcancel','fired when a touch event is interrupted by the device. this happens in circumenstances such as an incoming call to allow the UI to clean up state.')
 			self.add_event('touchend','fired when a touch event is completed')
+			# font specials
+			self.add_property('font-weight','string','the font weight, either normal or bold')
+			self.add_property('font-size','string','the font size')
+			self.add_property('font-style','string','the font style, either normal or italics')
+			self.add_property('font-family','string','the font family')
 			# common event properties
 			self.add_event_property('swipe','direction','direction of the swipe - either left or right');
 			for x in self.events:

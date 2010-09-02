@@ -33,6 +33,10 @@ prompt[string]: a single line of text displayed at the top of the search bar
 autocorrect[boolean]: boolean to indicate if the text in the field should be autocorrected as typed
 autocapitalization[boolean]: boolean to indicate if the text in the field should be autocapitalized as typed
 
+# 1.5
+promptid[string]: the key in the locale file to use for the prompt property
+hinttextid[string]: the key in the locale file to use for the hintText property
+
 
 - methods
 

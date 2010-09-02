@@ -11,6 +11,6 @@
 
 #tab1 {
 	icon:'images/tabs/KS_nav_views.png';
-	title:'Base UI';
+	titleid:'base_ui_title';
 }
 

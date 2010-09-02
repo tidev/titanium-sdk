@@ -3,4 +3,6 @@
 	<string name="welcome_message">Bienvenido a Kitchen Sink for Titanium/</string>
 	<string name="user_agent_message">agente de usuario establecido en</string>
 	<string name="format_test">Su nombre es %s</string>
+	<string name="base_ui_title">Base UI</string>
+	<string name="controls_win_title">Controls</string>    
 </resources>

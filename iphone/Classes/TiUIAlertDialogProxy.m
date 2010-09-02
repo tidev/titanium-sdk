@@ -19,6 +19,15 @@ static BOOL alertShowing = NO;
 	[super _destroy];
 }
 
+-(NSMutableDictionary*)langConversionTable
+{
+	return [NSMutableDictionary dictionaryWithObjectsAndKeys:
+			@"title",@"titleid",
+			@"ok",@"okid",
+			@"message",@"messageid",
+			nil];
+}
+
 -(void)hide:(id)args
 {
 	ENSURE_UI_THREAD_1_ARG(args);
@@ -63,7 +72,12 @@ static BOOL alertShowing = NO;
 		if (buttonNames==nil || (id)buttonNames == [NSNull null])
 		{
 			buttonNames = [[[NSMutableArray alloc] initWithCapacity:2] autorelease];
-			[buttonNames addObject:NSLocalizedString(@"OK",@"Alert OK Button")];
+			NSString *ok = [self valueForUndefinedKey:@"ok"];
+			if (ok==nil)
+			{
+				ok = @"OK";
+			}
+			[buttonNames addObject:ok];
 		}
 		
 		alert = [[UIAlertView alloc] initWithTitle:[TiUtils stringValue:[self valueForKey:@"title"]]

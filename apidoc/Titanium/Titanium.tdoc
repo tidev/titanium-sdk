@@ -45,16 +45,24 @@ Titanium has built-in support for one-shot and repeating timers with two main fu
 
 #### Alert
 
-Titanium has a built-in convenience function `alert` which can be used as a shortcut to [[Titanium.UI.createAlertDialog]] for creating a message box.  Note that unlike a web browser-based version of `alert`, the method is asynchronous.
+Titanium has a built-in convenience function `alert` which can be used as a shortcut to [[Titanium.UI.createAlertDialog]] for creating a message box.  Note that unlike a web browser-based version of `alert`, the method is asynchronous. However, only one alert dialog will be visible and modal at a time.
 
+#### Locale
 
+The macro `L` can also be used which aliases the method [[Titanium.Locale.getString]].
 
+#### String formatting
 
+The following are built-in functions available on the `String` class which are Titanium specific and will aid in formatting strings into a locale-specific string.
 
+`String.format`: format a generic string using the [IEEE printf specification](http://www.opengroup.org/onlinepubs/009695399/functions/printf.html).
 
+`String.formatDate`: format a date into a locale specific date format. Optionally pass a second argument (string) as either "short" (default), "medium" or "long" for controlling the date format.
 
+`String.formatTime`: format a date into a locale specific time format.
 
+`String.formatDecimal`: format a number into a locale specific decimal format.
 
-
+`String.formatCurrency`: format a number into a locale specific currency format.
 
 

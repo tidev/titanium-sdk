@@ -20,11 +20,11 @@ var tab1 = Titanium.UI.createTab({
 //
 var win2 = Titanium.UI.createWindow({
     url:'main_windows/controls.js',
-    title:'Controls'
+    titleid:'controls_win_title'
 });
 var tab2 = Titanium.UI.createTab({
     icon:'images/tabs/KS_nav_ui.png',
-    title:'Controls',
+    titleid:'controls_win_title',
     window:win2
 });
 
@@ -299,6 +299,13 @@ Ti.include("welcome.js");
 Ti.API.info(String.format("%s%s",L("welcome_message","default_not_set"),Titanium.version));
 Ti.API.debug(String.format("%s %s",L("user_agent_message","default_not_set"),Titanium.userAgent));
 
+Ti.API.debug(String.format("locale specific date is %s",String.formatDate(new Date))); // default is short
+Ti.API.debug(String.format("locale specific date (medium) is %s",String.formatDate(new Date,"medium")));
+Ti.API.debug(String.format("locale specific date (long) is %s",String.formatDate(new Date,"long")));
+Ti.API.debug(String.format("locale specific time is %s",String.formatTime(new Date)));
+Ti.API.debug(String.format("locale specific currency is %s",String.formatCurrency(12.99)));
+Ti.API.debug(String.format("locale specific decimal is %s",String.formatDecimal(12.99)));
+
 
 Ti.API.info("should be en, was = "+Ti.Locale.currentLanguage);
 Ti.API.info("welcome_message = "+Ti.Locale.getString("welcome_message"));
@@ -308,6 +315,5 @@ Ti.API.info("should be def, was = "+L("welcome_message2","def"));
 Ti.API.info("should be 1, was = "+String.format('%d',1));
 Ti.API.info("should be 1.0, was = "+String.format('%1.1f',1));
 Ti.API.info("should be hello, was = "+String.format('%s','hello'));
-
 
 

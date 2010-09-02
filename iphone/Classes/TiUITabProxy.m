@@ -33,6 +33,11 @@
 	[super _destroy];
 }
 
+-(NSMutableDictionary*)langConversionTable
+{
+    return [NSMutableDictionary dictionaryWithObject:@"title" forKey:@"titleid"];
+}
+
 -(void)_configure
 {
 	// since we're special proxy type instead of normal, we force in values

@@ -259,6 +259,134 @@ static TiValueRef StringFormatCallback (TiContextRef jsContext, TiObjectRef jsFu
 	}
 }	
 
+static TiValueRef StringFormatDateCallback (TiContextRef jsContext, TiObjectRef jsFunction, TiObjectRef jsThis, size_t argCount,
+										const TiValueRef args[], TiValueRef* exception)
+{
+	if (argCount<1)
+	{
+		return ThrowException(jsContext, @"invalid number of arguments", exception);
+	}
+	
+	KrollContext *ctx = GetKrollContext(jsContext);
+	NSDate* date = [KrollObject toID:ctx value:args[0]];
+	NSDateFormatterStyle style = NSDateFormatterShortStyle;
+	
+	if (argCount>1)
+	{
+		NSString *s = [KrollObject toID:ctx value:args[1]];
+		if ([s isEqualToString:@"short"])
+		{
+			// default
+		}
+		else if ([s isEqualToString:@"medium"])
+		{
+			style = NSDateFormatterMediumStyle;
+		}
+		else if ([s isEqualToString:@"long"])
+		{
+			style = NSDateFormatterLongStyle;
+		}
+	}
+	
+	@try 
+	{
+		NSString* result = [NSDateFormatter localizedStringFromDate:date dateStyle:style timeStyle:NSDateFormatterNoStyle];
+		TiValueRef value = [KrollObject toValue:ctx value:result];
+		return value;
+	}
+	@catch (NSException * e) 
+	{
+		return ThrowException(jsContext, [e reason], exception);
+	}
+}	
+
+static TiValueRef StringFormatTimeCallback (TiContextRef jsContext, TiObjectRef jsFunction, TiObjectRef jsThis, size_t argCount,
+											const TiValueRef args[], TiValueRef* exception)
+{
+	if (argCount<1)
+	{
+		return ThrowException(jsContext, @"invalid number of arguments", exception);
+	}
+	
+	KrollContext *ctx = GetKrollContext(jsContext);
+	NSDate* date = [KrollObject toID:ctx value:args[0]];
+	NSDateFormatterStyle style = NSDateFormatterShortStyle;
+	
+	if (argCount>1)
+	{
+		NSString *s = [KrollObject toID:ctx value:args[1]];
+		if ([s isEqualToString:@"short"])
+		{
+			// default
+		}
+		else if ([s isEqualToString:@"medium"])
+		{
+			style = NSDateFormatterMediumStyle;
+		}
+		else if ([s isEqualToString:@"long"])
+		{
+			style = NSDateFormatterLongStyle;
+		}
+	}
+	
+	@try 
+	{
+		NSString* result = [NSDateFormatter localizedStringFromDate:date dateStyle:NSDateFormatterNoStyle timeStyle:style];
+		TiValueRef value = [KrollObject toValue:ctx value:result];
+		return value;
+	}
+	@catch (NSException * e) 
+	{
+		return ThrowException(jsContext, [e reason], exception);
+	}
+}	
+
+static TiValueRef StringFormatCurrencyCallback (TiContextRef jsContext, TiObjectRef jsFunction, TiObjectRef jsThis, size_t argCount,
+											const TiValueRef args[], TiValueRef* exception)
+{
+	if (argCount<1)
+	{
+		return ThrowException(jsContext, @"invalid number of arguments", exception);
+	}
+	
+	KrollContext *ctx = GetKrollContext(jsContext);
+	NSNumber* number = [KrollObject toID:ctx value:args[0]];
+	
+	@try 
+	{
+		NSString* result = [NSNumberFormatter localizedStringFromNumber:number numberStyle:NSNumberFormatterCurrencyStyle];
+		TiValueRef value = [KrollObject toValue:ctx value:result];
+		return value;
+	}
+	@catch (NSException * e) 
+	{
+		return ThrowException(jsContext, [e reason], exception);
+	}
+}	
+
+static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectRef jsFunction, TiObjectRef jsThis, size_t argCount,
+												const TiValueRef args[], TiValueRef* exception)
+{
+	if (argCount<1)
+	{
+		return ThrowException(jsContext, @"invalid number of arguments", exception);
+	}
+	
+	KrollContext *ctx = GetKrollContext(jsContext);
+	NSNumber* number = [KrollObject toID:ctx value:args[0]];
+	
+	@try 
+	{
+		NSString* result = [NSNumberFormatter localizedStringFromNumber:number numberStyle:NSNumberFormatterDecimalStyle];
+		TiValueRef value = [KrollObject toValue:ctx value:result];
+		return value;
+	}
+	@catch (NSException * e) 
+	{
+		return ThrowException(jsContext, [e reason], exception);
+	}
+}	
+
 
 @implementation KrollEval
 
@@ -685,19 +813,65 @@ static TiValueRef StringFormatCallback (TiContextRef jsContext, TiObjectRef jsFu
 	[self bindCallback:@"require" callback:&CommonJSRequireCallback];
 	[self bindCallback:@"L" callback:&LCallback];
 
+	prop = TiStringCreateWithUTF8CString("String");
+
 	// create a special method -- String.format -- that will act as a string formatter
 	TiStringRef formatName = TiStringCreateWithUTF8CString([@"format" UTF8String]);
 	TiValueRef invoker = TiObjectMakeFunctionWithCallback(context, formatName, &StringFormatCallback);
-	prop = TiStringCreateWithUTF8CString("String");
 	TiValueRef stringValueRef=TiObjectGetProperty(context, globalRef, prop, NULL);
 	TiObjectRef stringRef = TiValueToObject(context, stringValueRef, NULL);
 	TiObjectSetProperty(context, stringRef,   
 						formatName, invoker,   
 						kTiPropertyAttributeReadOnly | kTiPropertyAttributeDontDelete,   
 						NULL); 
-	TiStringRelease(prop);
+	TiStringRelease(formatName);	
+
+	// create a special method -- String.formatDate -- that will act as a date formatter
+	formatName = TiStringCreateWithUTF8CString([@"formatDate" UTF8String]);
+	invoker = TiObjectMakeFunctionWithCallback(context, formatName, &StringFormatDateCallback);
+	stringValueRef=TiObjectGetProperty(context, globalRef, prop, NULL);
+	stringRef = TiValueToObject(context, stringValueRef, NULL);
+	TiObjectSetProperty(context, stringRef,   
+						formatName, invoker,   
+						kTiPropertyAttributeReadOnly | kTiPropertyAttributeDontDelete,   
+						NULL); 
+	TiStringRelease(formatName);	
+
+	// create a special method -- String.formatTime -- that will act as a time formatter
+	formatName = TiStringCreateWithUTF8CString([@"formatTime" UTF8String]);
+	invoker = TiObjectMakeFunctionWithCallback(context, formatName, &StringFormatTimeCallback);
+	stringValueRef=TiObjectGetProperty(context, globalRef, prop, NULL);
+	stringRef = TiValueToObject(context, stringValueRef, NULL);
+	TiObjectSetProperty(context, stringRef,   
+						formatName, invoker,   
+						kTiPropertyAttributeReadOnly | kTiPropertyAttributeDontDelete,   
+						NULL); 
 	TiStringRelease(formatName);	
 	
+	// create a special method -- String.formatDecimal -- that will act as a decimal formatter
+	formatName = TiStringCreateWithUTF8CString([@"formatDecimal" UTF8String]);
+	invoker = TiObjectMakeFunctionWithCallback(context, formatName, &StringFormatDecimalCallback);
+	stringValueRef=TiObjectGetProperty(context, globalRef, prop, NULL);
+	stringRef = TiValueToObject(context, stringValueRef, NULL);
+	TiObjectSetProperty(context, stringRef,   
+						formatName, invoker,   
+						kTiPropertyAttributeReadOnly | kTiPropertyAttributeDontDelete,   
+						NULL); 
+	TiStringRelease(formatName);	
+
+	// create a special method -- String.formatCurrency -- that will act as a currency formatter
+	formatName = TiStringCreateWithUTF8CString([@"formatCurrency" UTF8String]);
+	invoker = TiObjectMakeFunctionWithCallback(context, formatName, &StringFormatCurrencyCallback);
+	stringValueRef=TiObjectGetProperty(context, globalRef, prop, NULL);
+	stringRef = TiValueToObject(context, stringValueRef, NULL);
+	TiObjectSetProperty(context, stringRef,   
+						formatName, invoker,   
+						kTiPropertyAttributeReadOnly | kTiPropertyAttributeDontDelete,   
+						NULL); 
+	TiStringRelease(formatName);	
+	
+	
+	TiStringRelease(prop);
 	
 	if (delegate!=nil && [delegate respondsToSelector:@selector(willStartNewContext:)])
 	{

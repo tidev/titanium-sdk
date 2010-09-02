@@ -13,6 +13,7 @@
 #import "TiLayoutQueue.h"
 #import "TiAction.h"
 #import "TiStylesheet.h"
+#import "TiLocale.h"
 
 #import <QuartzCore/QuartzCore.h>
 #import <libkern/OSAtomic.h>
@@ -56,11 +57,75 @@
 				// incoming keys take precendence over existing stylesheet keys
 				NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithDictionary:merge];
 				[dict addEntriesFromDictionary:properties];
+                
 				properties = dict;
 			}
 		}
+		// do a translation of language driven keys to their converted counterparts
+		// for example titleid should look up the title in the Locale
+		NSMutableDictionary *table = [self langConversionTable];
+		if (table!=nil)
+		{
+			for (id key in table)
+			{
+				// determine which key in the lang table we need to use
+				// from the lang property conversion key
+				id langKey = [properties objectForKey:key];
+				if (langKey!=nil)
+				{
+					// eg. titleid -> title
+					id convertKey = [table objectForKey:key];
+					// check and make sure we don't already have that key
+					// since you can't override it if already present
+					if ([properties objectForKey:convertKey]==nil)
+					{
+						id newValue = [TiLocale getString:langKey comment:nil];
+						if (newValue!=nil)
+						{
+							[(NSMutableDictionary*)properties setObject:newValue forKey:convertKey];
+						}
+					}
+				}
+			}
+		}
+		// handle font conversions
+		id fontWeight = [properties valueForKey:@"font-weight"];
+		id fontFamily = [properties valueForKey:@"font-family"];
+		id fontSize = [properties valueForKey:@"font-size"];
+		id fontStyle = [properties valueForKey:@"font-style"];
+		if (fontWeight!=nil || fontFamily!=nil || fontSize!=nil || fontStyle!=nil)
+		{
+			NSMutableDictionary* font = [properties valueForKey:@"font"];
+			if (font==nil)
+			{
+				font = [NSMutableDictionary dictionary];
+			}
+			if (fontWeight!=nil)
+			{
+				[font setObject:fontWeight forKey:@"fontWeight"];
+			}
+			if (fontFamily!=nil)
+			{
+				//TODO: now to deal with comma-separated list?
+				[font setObject:fontFamily forKey:@"fontFamily"];
+			}
+			if (fontSize!=nil)
+			{
+				[font setObject:fontSize forKey:@"fontSize"];
+			}
+			if (fontStyle!=nil)
+			{
+				[font setObject:fontStyle forKey:@"fontStyle"];
+			}
+			[(NSMutableDictionary*)properties setObject:font forKey:@"font"];
+		}
 	}
 	[super _initWithProperties:properties];
+}
+
+-(NSMutableDictionary*)langConversionTable
+{
+    return nil;
 }
 
 
