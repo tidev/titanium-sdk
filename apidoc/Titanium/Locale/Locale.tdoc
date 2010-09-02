@@ -1,0 +1,39 @@
+- namespace
+
+Titanium.Locale
+
+- type
+
+module
+
+- description
+
+The top level Locale module.  The Locale module works with localization files to which are generated during compilation into the operating system specific localization formats. The Locale module provides locale-specific strings which can be referenced at runtime.
+
+- since
+
+1.5
+
+- platforms
+
+android, iphone, ipad
+
+
+- properties
+
+currentLanguage[string]: return the current language for the device based on the user's settings (readonly)
+
+- methods
+
+getString: return a localization string
+
+- method : getString, string
+
+key[string]: the key to use when mapping into the localization file
+hint[string]: the text to use if no key found in the localization file
+
+
+- notes
+
+The macro `L` can also be used which aliases the method [[Titanium.Locale.getString]].
+

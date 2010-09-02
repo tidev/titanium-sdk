@@ -12,6 +12,8 @@ import java.util.HashMap;
 import java.util.Stack;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.text.DateFormat;
+import java.text.NumberFormat;
 import java.lang.reflect.Method;
 
 import org.appcelerator.titanium.TiBlob;
@@ -173,26 +175,37 @@ public class TitaniumModule
 	
 	public String stringFormatDate(TiContext tiContext, Object args[])
 	{
-	    //FIXME: stub 
-	    return "";
+	    int style = DateFormat.SHORT;
+	    if (args.length > 1)
+	    {
+	        if (args[1].equals("medium"))
+	        {
+	            style = DateFormat.MEDIUM;
+	        }
+	        else if (args[1].equals("long"))
+	        {
+	            style = DateFormat.LONG;
+	        }
+	    }
+	    DateFormat fmt = DateFormat.getDateInstance(style);
+	    return fmt.format((Date)args[0]);
 	}
 
 	public String stringFormatTime(TiContext tiContext, Object args[])
 	{
-	    //FIXME: stub 
-	    return "";
+	    int style = DateFormat.SHORT;
+	    DateFormat fmt = DateFormat.getTimeInstance(style);
+	    return fmt.format((Date)args[0]);
 	}
 
 	public String stringFormatCurrency(TiContext tiContext, Object args[])
 	{
-	    //FIXME: stub 
-	    return "";
+	    return NumberFormat.getCurrencyInstance().format((Number)args[0]);
 	}
 
 	public String stringFormatDecimal(TiContext tiContext, Object args[])
 	{
-	    //FIXME: stub 
-	    return "";
+	    return NumberFormat.getNumberInstance().format((Number)args[0]);
 	}
 	
 	public String localize(TiContext tiContext, Object args[])
