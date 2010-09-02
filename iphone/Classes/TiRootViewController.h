@@ -48,9 +48,6 @@
 -(void)manuallyRotateToOrientation:(UIInterfaceOrientation)orientation;
 -(void)manuallyRotateToOrientation:(UIInterfaceOrientation)newOrientation duration:(NSTimeInterval)duration;
 
--(void)refreshOrientationModesIfNeeded:(TiWindowProxy *)oldCurrentWindow;
--(void)enforceOrientationModesFromWindow:(TiWindowProxy *) newCurrentWindow;
-
 -(void)setOrientationModes:(NSArray *)newOrientationModes;
 
 @end

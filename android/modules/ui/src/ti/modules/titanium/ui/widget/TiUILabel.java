@@ -15,8 +15,12 @@ import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiUIView;
 
+import android.text.Editable;
 import android.text.InputType;
+import android.text.method.KeyListener;
 import android.view.Gravity;
+import android.view.KeyEvent;
+import android.view.View;
 import android.widget.TextView;
 
 public class TiUILabel extends TiUIView
@@ -33,6 +37,8 @@ public class TiUILabel extends TiUIView
 		tv.setGravity(Gravity.CENTER_VERTICAL | Gravity.LEFT);
 		tv.setPadding(0, 0, 0, 0);
 		tv.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_MULTI_LINE);
+		tv.setKeyListener(null);
+		tv.setFocusable(false);
 		setNativeView(tv);
 	}
 
