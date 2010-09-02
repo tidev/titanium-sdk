@@ -41,7 +41,17 @@ extern NSString * const TI_APPLICATION_RESOURCE_DIR;
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0
 		if ([[UIScreen mainScreen] respondsToSelector:@selector(scale)])
 		{
-			scale = [UIScreen mainScreen].scale;
+			if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone &&
+				[[UIDevice currentDevice].model isEqualToString: @"iPad"])
+			{
+				// iPad in iPhone compatibility mode will return a scale factor of 2.0
+				// when in 2x zoom, which leads to false positives and bugs.
+				scale = 1.0;
+			}
+			else
+			{
+				scale = [UIScreen mainScreen].scale;
+			}
 		}
 #endif	
 	}
