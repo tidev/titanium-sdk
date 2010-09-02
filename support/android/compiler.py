@@ -184,7 +184,7 @@ class Compiler(object):
 							key = "%s_%s" % (relative,f)
 						else:
 							key = f
-						key = key.replace('.js','').replace('/','_').replace(' ','_').replace('.','_')
+						key = key.replace('.js','').replace('\\','_').replace('/','_').replace(' ','_').replace('.','_')
 						self.js_files[fullpath] = (key, js_contents)
 		self.compile_into_bytecode(self.js_files)
 					

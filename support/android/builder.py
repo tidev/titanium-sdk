@@ -1075,35 +1075,23 @@ class Builder(object):
 			# FIXME: remove compiled files so they don't get compiled into jar
 			self.copy_project_resources()
 			
-			# compile resources
-			full_resource_dir = os.path.join(self.project_dir,self.assets_resources_dir)
-			compiler = Compiler(self.name,self.app_id,full_resource_dir,self.java,self.classes_dir,self.project_dir)
-			compiler.compile()
-			self.compiled_files = compiler.compiled_files
-
 			if self.tiapp_changed or self.deploy_type == "production":
 				trace("Generating Java Classes")
 				self.android.create(os.path.abspath(os.path.join(self.top_dir,'..')), True, project_dir=self.top_dir)
 			else:
 				info("Tiapp.xml unchanged, skipping class generation")
 
+			# compile resources
+			full_resource_dir = os.path.join(self.project_dir,self.assets_resources_dir)
+			compiler = Compiler(self.name,self.app_id,full_resource_dir,self.java,self.classes_dir,self.project_dir)
+			compiler.compile()
+			self.compiled_files = compiler.compiled_files
+
 			if not os.path.exists(self.assets_dir):
 				os.makedirs(self.assets_dir)
 
 			self.copy_density_images()
 
-			manifest_changed = self.generate_android_manifest(compiler)
-
-			my_avd = None	
-			self.google_apis_supported = False
-				
-			# find the AVD we've selected and determine if we support Google APIs
-			for avd_props in avd.get_avds(self.sdk):
-				if avd_props['id'] == avd_id:
-					my_avd = avd_props
-					self.google_apis_supported = (my_avd['name'].find('Google')!=-1 or my_avd['name'].find('APIs')!=-1)
-					break
-			
 			special_resources_dir = os.path.join(self.top_dir,'platform','android')
 			if os.path.exists(special_resources_dir):
 				info("found special resources dir = %s" % special_resources_dir)
@@ -1120,6 +1108,19 @@ class Builder(object):
 						shutil.copyfile(from_, to_)
 			
 			self.generate_stylesheet()
+			
+			# The next line does localization and RA generation stuff
+			manifest_changed = self.generate_android_manifest(compiler)
+
+			my_avd = None	
+			self.google_apis_supported = False
+				
+			# find the AVD we've selected and determine if we support Google APIs
+			for avd_props in avd.get_avds(self.sdk):
+				if avd_props['id'] == avd_id:
+					my_avd = avd_props
+					self.google_apis_supported = (my_avd['name'].find('Google')!=-1 or my_avd['name'].find('APIs')!=-1)
+					break
 			
 			self.build_generated_classes()
 			generated_classes_built = True
