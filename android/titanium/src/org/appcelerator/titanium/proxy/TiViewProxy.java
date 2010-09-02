@@ -283,6 +283,7 @@ public abstract class TiViewProxy extends TiProxy implements Handler.Callback
 			view.release();
 			view = null;
 		}
+		setModelListener(null);
 	}
 
 	public abstract TiUIView createView(Activity activity);
