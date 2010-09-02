@@ -7,6 +7,7 @@
 package ti.modules.titanium.ui;
 
 import org.appcelerator.titanium.TiContext;
+import org.appcelerator.titanium.TiDict;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.view.TiUIView;
 
@@ -21,6 +22,15 @@ public class SearchBarProxy extends TiViewProxy
 	{
 		super(tiContext, args);
 	}
+	
+	@Override
+	protected TiDict getLangConverstionTable() {
+		TiDict table = new TiDict();
+		table.put("prompt","promptid");
+		table.put("hintText","hinttextid");
+		return table;
+	}
+	
 
 	@Override
 	public TiUIView createView(Activity activity) {

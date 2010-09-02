@@ -27,4 +27,5 @@ public class AnnotationProxy extends TiProxy
 			setProperties((TiDict) args[0]);
 		}
 	}
+	
 }

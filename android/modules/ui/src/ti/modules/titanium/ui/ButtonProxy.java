@@ -7,6 +7,7 @@
 package ti.modules.titanium.ui;
 
 import org.appcelerator.titanium.TiContext;
+import org.appcelerator.titanium.TiDict;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.view.TiUIView;
 
@@ -18,6 +19,13 @@ public class ButtonProxy extends TiViewProxy
 	public ButtonProxy(TiContext tiContext, Object[] args)
 	{
 		super(tiContext, args);
+	}
+
+	@Override
+	protected TiDict getLangConverstionTable() {
+		TiDict table = new TiDict();
+		table.put("title","titleid");
+		return table;
 	}
 
 	@Override

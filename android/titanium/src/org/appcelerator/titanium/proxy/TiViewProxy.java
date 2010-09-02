@@ -20,6 +20,7 @@ import org.appcelerator.titanium.util.AsyncResult;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiAnimationBuilder;
 import org.appcelerator.titanium.util.TiConfig;
+import org.appcelerator.titanium.util.TiResourceHelper;
 import org.appcelerator.titanium.view.TiAnimation;
 import org.appcelerator.titanium.view.TiUIView;
 
@@ -53,6 +54,8 @@ public abstract class TiViewProxy extends TiProxy implements Handler.Callback
 
 	protected ArrayList<TiViewProxy> children;
 	protected WeakReference<TiViewProxy> parent;
+
+	private static TiDict cssConversionTable;
 
 	private static class InvocationWrapper {
 		public String name;
@@ -101,8 +104,94 @@ public abstract class TiViewProxy extends TiProxy implements Handler.Callback
 		        }
 		    }
 		    
+		    //lang conversion table
+		    TiDict langTable = getLangConverstionTable();
+		    if (langTable!=null)
+		    {
+				Activity activity = tiContext.getActivity();
+		        for (String key : langTable.keySet())
+		        {
+					// if we have it already, ignore
+		            if (options.containsKey(key)==false)
+		            {
+						String convertKey = (String)langTable.get(key);
+						String langKey = (String)options.get(convertKey);
+						if (langKey!=null)
+						{
+							int value = TiResourceHelper.getString(langKey);
+							if (value!=0)
+							{
+								String convertValue = activity.getString(value);
+								options.put(key,convertValue);
+							}
+						}
+		            }
+		        }
+		    }
+		    
+		    // convert fonts
+		    Object fontWeight = options.get("font-weight");
+		    Object fontFamily = options.get("font-family");
+		    Object fontSize = options.get("font-size");
+		    Object fontStyle = options.get("font-style");
+		    if (fontWeight!=null || fontFamily!=null || fontSize!=null || fontStyle!=null)
+		    {
+		        TiDict font = (TiDict)options.get("font");
+		        if (font==null)
+		        {
+		            font = new TiDict();
+		        }
+		        if (fontWeight!=null)
+		        {
+		            font.put("fontWeight",fontWeight);
+		        }
+		        if (fontFamily!=null)
+		        {
+		            font.put("fontFamily",fontFamily);
+		        }
+		        if (fontSize!=null)
+		        {
+		            font.put("fontSize",fontSize);
+		        }
+		        if (fontStyle!=null)
+		        {
+		            font.put("fontStyle",fontStyle);
+		        }
+		        options.put("font",font);
+		    }
+		
+			// do css conversions
+			TiDict css = getCssConversionTable();
+			for (String key : css.keySet())
+			{
+				if (options.containsKey(key))
+				{
+					options.put((String)css.get(key),options.get(key));
+				}
+			}
+		    
 			setProperties(options);
 		}
+	}
+	
+	private TiDict getCssConversionTable() {
+		if (cssConversionTable==null)
+		{
+			cssConversionTable = new TiDict();
+			cssConversionTable.put("background-image","backgroundImage");
+			cssConversionTable.put("background-color","backgroundColor");
+			cssConversionTable.put("text-align","textAlign");
+			cssConversionTable.put("border-radius","borderRadius");
+			cssConversionTable.put("border-color","borderColor");
+			cssConversionTable.put("border-width","borderWidth");
+		}
+		return cssConversionTable;
+	}
+	
+	protected TiDict getLangConverstionTable() {
+	    // subclasses override to return a table mapping of langid keys to actual keys
+	    // used for specifying things like titleid vs. title so that you can localize them
+	    return null;
 	}
 
 	public TiAnimationBuilder getPendingAnimation() {

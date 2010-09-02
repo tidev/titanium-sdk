@@ -130,6 +130,7 @@ enum
 -(BOOL)canHaveControllerParent;
 
 -(NSMutableDictionary*)langConversionTable;
+-(NSDictionary*)cssConversionTable;
 
 -(void)makeViewPerformSelector:(SEL)selector withObject:(id)object createIfNeeded:(BOOL)create waitUntilDone:(BOOL)wait;
 

@@ -4,5 +4,6 @@
 	<string name="user_agent_message">user agent set to</string>
 	<string name="format_test">Your name is %s</string>
 	<string name="base_ui_title">Base UI</string>
-	<string name="controls_win_title">Controls</string>    
+	<string name="controls_win_title">Controls</string> 
+	<string name="label_test">You should see a bold 14px font</string>   
 </resources>

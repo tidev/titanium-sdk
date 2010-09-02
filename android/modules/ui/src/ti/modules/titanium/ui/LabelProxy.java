@@ -8,6 +8,7 @@ package ti.modules.titanium.ui;
 
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiProxy;
+import org.appcelerator.titanium.TiDict;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.view.TiUIView;
 
@@ -22,6 +23,13 @@ public class LabelProxy extends TiViewProxy
 	{
 		super(tiContext, args);
 		tiContext.addOnEventChangeListener(this);
+	}
+
+	@Override
+	protected TiDict getLangConverstionTable() {
+		TiDict table = new TiDict();
+		table.put("text","textid");
+		return table;
 	}
 
 	@Override

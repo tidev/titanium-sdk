@@ -119,8 +119,37 @@
 			}
 			[(NSMutableDictionary*)properties setObject:font forKey:@"font"];
 		}
+		
+		// do any css translations as needed
+		NSDictionary *css = [self cssConversionTable];
+		for (NSString *key in css)
+		{
+			NSString *value = [properties objectForKey:key];
+			if (value!=nil)
+			{
+				[(NSMutableDictionary*)properties setObject:value forKey:[css objectForKey:key]];
+			}
+		}
 	}
 	[super _initWithProperties:properties];
+}
+
+-(NSDictionary*)cssConversionTable
+{
+	static NSDictionary *cssConversions = nil;
+	if (cssConversions==nil)
+	{
+		// we need to map CSS property names to Ti property names
+		cssConversions = [[NSDictionary alloc] initWithObjectsAndKeys:
+						  @"backgroundImage",@"background-image",
+						  @"backgroundColor",@"background-color",
+						  @"textAlign",@"text-align",
+						  @"borderRadius",@"border-radius",
+						  @"borderColor",@"border-color",
+						  @"borderWidth",@"border-width",
+						  nil];
+	}
+	return cssConversions;
 }
 
 -(NSMutableDictionary*)langConversionTable
