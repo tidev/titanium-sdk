@@ -27,24 +27,24 @@ void performLayoutRefresh(CFRunLoopTimerRef timer, void *info)
 	pthread_mutex_lock(&layoutMutex);
 	localLayoutArray = layoutArray;
 	layoutArray = nil;
+
+	if ((layoutTimer != NULL) && ([localLayoutArray count]==0))
+	{
+		//Might as well stop the timer for now.
+		CFRunLoopTimerInvalidate(layoutTimer);
+		layoutTimer = NULL;
+	}
+
 	pthread_mutex_unlock(&layoutMutex);
 	
 	for (TiViewProxy *thisProxy in localLayoutArray)
 	{
 		[thisProxy repositionIfNeeded];
 		[thisProxy layoutChildrenIfNeeded];
+
+		[thisProxy refreshView:nil];
 	}
-	
-	if ([localLayoutArray count]==0)
-	{
-		//Might as well stop the timer for now.
-		if (layoutTimer != NULL)
-		{
-			CFRunLoopTimerInvalidate(layoutTimer);
-			layoutTimer = NULL;
-		}
-	}
-	
+		
 	RELEASE_TO_NIL(localLayoutArray);
 }
 
