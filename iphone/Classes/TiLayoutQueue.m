@@ -20,28 +20,32 @@ pthread_mutex_t layoutMutex;
 
 void performLayoutRefresh(CFRunLoopTimerRef timer, void *info)
 {
+	NSArray* localLayoutArray = nil;
+	
+	// This prevents deadlock if, while laying out, a relayout is requested
+	// (as in the case of redrawing text in a reproxy)
 	pthread_mutex_lock(&layoutMutex);
-	for (TiViewProxy *thisProxy in layoutArray)
+	localLayoutArray = layoutArray;
+	layoutArray = nil;
+	pthread_mutex_unlock(&layoutMutex);
+	
+	for (TiViewProxy *thisProxy in localLayoutArray)
 	{
 		[thisProxy repositionIfNeeded];
 		[thisProxy layoutChildrenIfNeeded];
 	}
-	if ([layoutArray count]==0)
+	
+	if ([localLayoutArray count]==0)
 	{
 		//Might as well stop the timer for now.
-		RELEASE_TO_NIL(layoutArray);
 		if (layoutTimer != NULL)
 		{
 			CFRunLoopTimerInvalidate(layoutTimer);
 			layoutTimer = NULL;
 		}
 	}
-	else
-	{
-		[layoutArray removeAllObjects];
-	}
-
-	pthread_mutex_unlock(&layoutMutex);
+	
+	RELEASE_TO_NIL(localLayoutArray);
 }
 
 
@@ -50,7 +54,6 @@ void performLayoutRefresh(CFRunLoopTimerRef timer, void *info)
 +(void)initialize
 {
 	pthread_mutex_init(&layoutMutex, NULL);
-	pthread_mutex_unlock(&layoutMutex);
 }
 
 +(void)addViewProxy:(TiViewProxy*)newViewProxy
