@@ -16,6 +16,7 @@ import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiUIView;
 
 import android.text.Editable;
+import android.text.Html;
 import android.text.InputType;
 import android.text.method.KeyListener;
 import android.view.Gravity;
@@ -49,7 +50,9 @@ public class TiUILabel extends TiUIView
 
 		TextView tv = (TextView) getNativeView();
 		// Only accept one, prefer text to title.
-		if (d.containsKey("text")) {
+		if (d.containsKey("html")) {
+			tv.setText(Html.fromHtml(TiConvert.toString(d, "html")), TextView.BufferType.SPANNABLE);
+		} else if (d.containsKey("text")) {
 			tv.setText(TiConvert.toString(d,"text"));
 		} else if (d.containsKey("title")) { //TODO this may not need to be supported.
 			tv.setText(TiConvert.toString(d,"title"));
@@ -82,7 +85,10 @@ public class TiUILabel extends TiUIView
 			Log.d(LCAT, "Property: " + key + " old: " + oldValue + " new: " + newValue);
 		}
 		TextView tv = (TextView) getNativeView();
-		if (key.equals("text")) {
+		if (key.equals("html")) {
+			tv.setText(Html.fromHtml(TiConvert.toString(newValue)), TextView.BufferType.SPANNABLE);
+			tv.requestLayout();
+		} else if (key.equals("text")) {
 			tv.setText(TiConvert.toString(newValue));
 			tv.requestLayout();
 		} else if (key.equals("color")) {
