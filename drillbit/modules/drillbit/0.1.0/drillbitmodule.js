@@ -70,10 +70,40 @@
 		if (Titanium.platform == "win32") {
 			adb += ".exe";
 		}
+		var drillbit_module = null;
+		var test_harness_running = false;
+		
+		var modules = Titanium.API.getApplication().getModules();
+		for (var i = 0; i < modules.length; i++)
+		{
+			if (modules[i].getName() == "drillbit") {
+				drillbit_module = modules[i]; 
+				break;
+			}
+		}
+				
+		this.getTestHarnessPID = function() {
+			var ps_process = Titanium.Process.createProcess([adb, '-e', 'shell', 'ps']);
+			var processes = ps_process().toString().split(/\r?\n/);
+			
+			for (var i = 0; i < processes.length; i++) {
+				var columns = processes[i].split(/\s/);
+				var pid = columns[1];
+				var id = columns[columns.length-1];
+				if (id == test_harness_id) {
+					return pid;
+				}
+			}
+			return null;
+		};
+		
+		this.isTestHarnessRunning = function() {
+			return this.getTestHarnessPID() != null;
+		};
 		
 		this.require = function(app_url) {
 			this.include(TA.appURLToPath(app_url));
-		}
+		};
 
 		this.include = function(path)
 		{
@@ -283,6 +313,7 @@
 				logcat_clear_process();
 				
 				android_emulator_process = Titanium.Process.createProcess([adb, '-e', 'logcat'])
+				test_harness_running = this.isTestHarnessRunning();
 			} else {
 				// launch the (si|e)mulator async
 				android_emulator_process = Titanium.Process.createProcess([python, android_builder_py,
@@ -292,7 +323,6 @@
 			android_emulator_process.setOnReadLine(function(data)
 			{
 				var i = data.indexOf('DRILLBIT_');
-				Titanium.API.debug("line: " + data);
 				if (i != -1)
 				{
 					var index = -1;
@@ -374,11 +404,10 @@
 			
 			if (!emulator_running) {
 				self.frontend_do('status', 'pre-building initial APK');
-				var initial_app_js = "var w = Ti.UI.createWindow({top:0,left:0,right:0,bottom:0,backgroundColor:'white'}); w.add(Ti.UI.createLabel({font:{fontSize:24},text:'Drillbit Test Holder',top:10,center:0,width:300,bottom:10})); w.open();";
-				var app_js = TFS.getFile(test_harness_resources_dir, 'app.js');
-				app_js.write(initial_app_js);
-			
-			
+				var app_js = TFS.getFile(resources_dir, 'app.js');
+				var test_app_js = TFS.getFile(test_harness_resources_dir, 'app.js');
+				test_app_js.write(app_js.read());
+
 				var prebuild_launch_process = Titanium.Process.createProcess([python, android_builder_py, "simulator", "test_harness", android_sdk, test_harness_dir, test_harness_id, '4', 'HVGA']);
 				prebuild_launch_process.setOnExit(function(e) {
 					Titanium.API.info("==> Finished waiting for android emualtor to boot");
@@ -394,7 +423,8 @@
 					var start_unlock_screen_process = Titanium.Process.createProcess(start_unlock_screen_args);
 					Titanium.API.debug(start_unlock_screen_args);
 					start_unlock_screen_process();
-			
+					
+					test_harness_running = true;
 					self.frontend_do('status', 'screen unlocked, ready to run tests');
 					self.frontend_do('setup_finished');	
 				});
@@ -530,21 +560,11 @@
 				tiapp.write(non_visual_ti);
 			}*/
 			
-			var modules = Titanium.API.getApplication().getModules();
-			var module = null;
-			for (var i = 0; i < modules.length; i++)
-			{
-				if (modules[i].getName() == "drillbit") {
-					module = modules[i]; 
-					break;
-				}
-			}
-			
-			var file = TFS.getFile(module.getPath(), "ejs.js");
-			var template = TFS.getFile(module.getPath(), "template.js").read().toString();
+			var file = TFS.getFile(drillbit_module.getPath(), "ejs.js");
+			var template = TFS.getFile(drillbit_module.getPath(), "template.js").read().toString();
 			
 			this.include(file.nativePath());
-			var app_js = TFS.getFile(test_harness_resources_dir, 'app.js');
+			//var app_js = TFS.getFile(test_harness_resources_dir, 'app.js');
 			var data = {entry: entry, Titanium: Titanium, excludes: excludes};
 			var test_script = null;
 			
@@ -555,8 +575,14 @@
 			}
 			
 			//TFS.getFile(module.getPath(),"template_out.js").write(user_script);
-			app_js.write(test_script);
-
+			
+			// copy the test to the sdcard
+			var test_js = TFS.createTempFile();
+			test_js.write(test_script);
+			var test_js_copy_process = Titanium.Process.createProcess([
+				adb, '-e', 'push', test_js.nativePath(), '/sdcard/'+test_harness_id+'/test.js']);
+			test_js_copy_process();
+			
 			var profile_path = TFS.getFile(this.results_dir,entry.name+'.prof');
 			var log_path = TFS.getFile(this.results_dir,entry.name+'.log');
 
@@ -573,8 +599,7 @@
 			}
 
 			args.push('--results-dir="' + this.results_dir + '"');*/
-			var process = Titanium.Process.createProcess([python, android_builder_py, "simulator", "test_harness", android_sdk, test_harness_dir, test_harness_id, '4', 'HVGA']);
-			Titanium.App.stdout("running: " + process);
+
 			current_passed = 0;
 			current_failed = 0;
 			///////////////////////////////////////////
@@ -584,6 +609,29 @@
 			var start_time = new Date().getTime();
 			var original_time = start_time;
 
+			if (!test_harness_running) {
+				var process = Titanium.Process.createProcess([python, android_builder_py, "simulator", "test_harness", android_sdk, test_harness_dir, test_harness_id, '4', 'HVGA']);
+				Titanium.App.stdout("running: " + process);
+				
+				process.setOnExit(function(e) {
+					test_harness_running = true;
+				});
+				process.launch();
+			} else {
+				// restart the app
+				var pid = this.getTestHarnessPID();
+				if (pid != null) {
+					var kill_process = Titanium.Process.createProcess([adb, '-e', 'shell', 'kill', pid]);
+					kill_process();
+				}
+				
+				var start_app_process = Titanium.Process.createProcess([adb, '-e', 'shell', 'am', 'start',
+					'-a', 'android.intent.action.MAIN',
+					'-c', 'android.intent.category.LAUNCHER',
+					'-n', test_harness_id + '/.Test_harnessActivity']);
+				start_app_process();
+			}
+			
 			// start a stuck process monitor in which we check the 
 			// size of the profile file -- if we're not doing anything
 			// we should have a file that hasn't changed in sometime
@@ -615,7 +663,6 @@
 					start_time = t;
 				},1000);*/
 			}
-			process.launch();
 		};
 	
 		this.run_next_test = function()

@@ -6,6 +6,7 @@
  */
 package ti.modules.titanium.ui;
 
+import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.AsyncResult;
 import org.appcelerator.titanium.view.TiUIView;
@@ -15,6 +16,7 @@ import android.app.Activity;
 import android.os.Handler;
 import android.os.Message;
 
+@Kroll.proxy(creatableInModule="UI")
 public class WebViewProxy extends ViewProxy
 	implements Handler.Callback
 {
@@ -29,8 +31,8 @@ public class WebViewProxy extends ViewProxy
 	
 	protected static final int MSG_LAST_ID = MSG_FIRST_ID + 999;
 
-	public WebViewProxy(TiContext context, Object[] args) {
-		super(context, args);
+	public WebViewProxy(TiContext context) {
+		super(context);
 	}
 
 	@Override
@@ -44,6 +46,7 @@ public class WebViewProxy extends ViewProxy
 		return (TiUIWebView)getView(getTiContext().getActivity());
 	}
 
+	@Kroll.method
 	public Object evalJS(String code) {
 		if (getTiContext().isUIThread()) {
 			return getWebView().getJSValue(code);
@@ -80,31 +83,39 @@ public class WebViewProxy extends ViewProxy
 		return super.handleMessage(msg);
 	}
 	
+	@Kroll.method
 	public void setBasicAuthentication(String username, String password)
 	{
 		getWebView().setBasicAuthentication(username, password);
 	}
 	
+	@Kroll.method
 	public boolean canGoBack() {
 		return getWebView().canGoBack();
 	}
 	
+	@Kroll.method
 	public boolean canGoForward() {
 		return getWebView().canGoForward();
 	}
 	
+	@Kroll.method
 	public void goBack() {
 		getUIHandler().sendEmptyMessage(MSG_GO_BACK);
 	}
 	
+	
+	@Kroll.method
 	public void goForward() {
 		getUIHandler().sendEmptyMessage(MSG_GO_FORWARD);
 	}
 	
+	@Kroll.method
 	public void reload() {
 		getUIHandler().sendEmptyMessage(MSG_RELOAD);
 	}
 	
+	@Kroll.method
 	public void stopLoading() {
 		getUIHandler().sendEmptyMessage(MSG_STOP_LOADING);
 

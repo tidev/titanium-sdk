@@ -19,9 +19,9 @@ import java.util.Map.Entry;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.appcelerator.kroll.KrollBindings;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollInvocation;
+import org.appcelerator.kroll.KrollObject;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.titanium.bridge.OnEventListenerChange;
 import org.appcelerator.titanium.io.TiBaseFile;
@@ -112,7 +112,7 @@ public class TiContext implements TiEvaluator, ITiMenuDispatcherListener, ErrorR
 			boolean invoked = false;
 			KrollProxy p = weakProxy.get();
 			if (p != null && listener != null) {
-				p.fireSingleEvent(invocation, eventName, listener, data);
+				p.fireSingleEvent(eventName, listener, data);
 				invoked = true;
 			} else {
 				if (DBG) {
@@ -507,23 +507,16 @@ public class TiContext implements TiEvaluator, ITiMenuDispatcherListener, ErrorR
 		return result;
 	}
 
-	public boolean dispatchEvent(String eventName, KrollDict data)
-	{
-		KrollInvocation inv = KrollInvocation.createMethodInvocation(
-			this, getJSContext().getScope(), "event:"+eventName, null, null);
-		return dispatchEvent(inv, eventName, data);
-	}
-	
-	public boolean dispatchEvent(KrollInvocation invocation, String eventName, KrollDict data)
-	{
-		return dispatchEvent(invocation, eventName, data, null);
-	}
-
 	public boolean dispatchEvent(String eventName, KrollDict data, KrollProxy proxy)
 	{
 		KrollInvocation inv = KrollInvocation.createMethodInvocation(
-			this, getJSContext().getScope(), "event:"+eventName, null, proxy);
+			this, getJSContext().getScope(), new KrollObject(proxy), "event:"+eventName, null, proxy);
 		return dispatchEvent(inv, eventName, data, proxy);
+	}
+
+	public boolean dispatchEvent(KrollInvocation invocation, String eventName, KrollDict data)
+	{
+		return dispatchEvent(invocation, eventName, data, null);
 	}
 	
 	public boolean dispatchEvent(KrollInvocation invocation, String eventName, KrollDict data, KrollProxy proxy)
@@ -741,12 +734,12 @@ public class TiContext implements TiEvaluator, ITiMenuDispatcherListener, ErrorR
 		doRhinoDialog("Warning", message, sourceName, line, lineSource, lineOffset);
 	}
 
-	public static TiContext createTiContext(Activity activity, KrollDict preload, String baseUrl, KrollBindings bindings)
+	public static TiContext createTiContext(Activity activity, KrollDict preload, String baseUrl)
 	{
 		TiContext tic = new TiContext(activity, baseUrl);
 		KrollContext kroll = KrollContext.createContext(tic);
 		tic.setKrollContext(kroll);
-		KrollBridge krollBridge = new KrollBridge(kroll, preload, bindings);
+		KrollBridge krollBridge = new KrollBridge(kroll, preload);
 		tic.setJSContext(krollBridge);
 		return tic;
 	}

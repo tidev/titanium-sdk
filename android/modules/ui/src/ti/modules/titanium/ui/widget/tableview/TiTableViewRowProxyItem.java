@@ -75,7 +75,7 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 
 	public void setRowData(TableViewRowProxy rp)
 	{
-		KrollDict props = rp.getDynamicProperties();
+		KrollDict props = rp.getProperties();
 		hasControls = rp.hasControls();
 
 		setBackgroundFromProperties(props);
@@ -142,8 +142,8 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 		}
 		
 		if (rp.getParent() != null) {
-			if (rp.getParent().hasDynamicValue("minRowHeight")) {
-				height = Math.max(height, TiConvert.toInt(rp.getParent().getDynamicProperties(), "minRowHeight"));
+			if (rp.getParent().hasProperty("minRowHeight")) {
+				height = Math.max(height, TiConvert.toInt(rp.getParent().getProperties(), "minRowHeight"));
 			}
 		}
 		
@@ -165,7 +165,7 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 					views[i] = view;
 				}
 				view.setProxy(proxy);
-				view.processProperties(proxy.getDynamicProperties());
+				view.processProperties(proxy.getProperties());
 				View v = view.getNativeView();
 				if (v.getParent() == null) {
 					content.addView(v, view.getLayoutParams());
@@ -173,8 +173,8 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 			}
 		} else {
 			String title = "Missing title";
-			if (rp.getDynamicValue("title") != null) {
-				title = TiConvert.toString(rp.getDynamicValue("title"));
+			if (rp.getProperty("title") != null) {
+				title = TiConvert.toString(rp.getProperty("title"));
 			}
 
 			if (views == null) {
@@ -183,7 +183,7 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 			}
 			TiUILabel t = (TiUILabel) views[0];
 			t.setProxy(rp);
-			t.processProperties(filterProperties(rp.getDynamicProperties()));
+			t.processProperties(filterProperties(rp.getProperties()));
 			View v = t.getNativeView();
 			if (v.getParent() == null) {
 				TextView tv = (TextView) v;

@@ -8,6 +8,7 @@ package org.appcelerator.titanium.proxy;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
+import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.AsyncResult;
 import org.appcelerator.titanium.util.TiConfig;
@@ -18,6 +19,7 @@ import org.appcelerator.titanium.view.TiUIView;
 import android.app.Activity;
 import android.os.Message;
 
+@Kroll.proxy
 public abstract class TiWindowProxy extends TiViewProxy
 {
 	private static final String LCAT = "TiWindowProxy";
@@ -40,9 +42,9 @@ public abstract class TiWindowProxy extends TiViewProxy
 	protected TiViewProxy tab;
 	protected boolean inTab;
 
-	public TiWindowProxy(TiContext tiContext, Object[] args)
+	public TiWindowProxy(TiContext tiContext)
 	{
-		super(tiContext, args);
+		super(tiContext);
 		inTab = false;
 	}
 
@@ -73,7 +75,8 @@ public abstract class TiWindowProxy extends TiViewProxy
 		}
 	}
 
-	public void open(Object arg)
+	@Kroll.method
+	public void open(@Kroll.argument(optional=true) Object arg)
 	{
 		if (opened) {
 			return;
@@ -102,7 +105,8 @@ public abstract class TiWindowProxy extends TiViewProxy
 		result.getResult(); // Don't care about result, just synchronizing.
 	}
 
-	public void close(Object arg)
+	@Kroll.method
+	public void close(@Kroll.argument(optional=true) Object arg)
 	{
 		if (!opened) {
 			return;
@@ -150,6 +154,7 @@ public abstract class TiWindowProxy extends TiViewProxy
 		return this.tabGroup;
 	}
 
+	@Kroll.method
 	public void hideTabBar() {
 		// iPhone only right now.
 	}

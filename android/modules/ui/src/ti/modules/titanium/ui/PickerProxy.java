@@ -13,6 +13,7 @@ import java.util.Date;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.kroll.KrollCallback;
 import org.appcelerator.titanium.proxy.TiViewProxy;
@@ -34,6 +35,7 @@ import android.util.Log;
 import android.widget.DatePicker;
 import android.widget.TimePicker;
 
+@Kroll.proxy(creatableInModule="UI")
 public class PickerProxy extends TiViewProxy 
 {
 	private int type = UIModule.PICKER_TYPE_PLAIN;
@@ -46,11 +48,16 @@ public class PickerProxy extends TiViewProxy
 	private static final int MSG_SELECT_ROW = MSG_FIRST_ID + 101;
 	private static final int MSG_REPLACE_MODEL = MSG_FIRST_ID + 102;
 	
-	public PickerProxy(TiContext tiContext, Object[] args)
+	public PickerProxy(TiContext tiContext)
 	{
-		super(tiContext, args);
-		if (hasDynamicValue("type")) {
-			type = getDynamicProperties().getInt("type");
+		super(tiContext);
+	}
+	
+	@Override
+	public void handleCreationDict(KrollDict dict) {
+		super.handleCreationDict(dict);
+		if (hasProperty("type")) {
+			type = getProperties().getInt("type");
 		}
 	}
 	
@@ -58,8 +65,8 @@ public class PickerProxy extends TiViewProxy
 	public TiUIView createView(Activity activity) 
 	{
 		boolean useSpinner = false;
-		if (hasDynamicValue("useSpinner")) {
-			useSpinner = (TiConvert.toBoolean(getDynamicValue("useSpinner")));
+		if (hasProperty("useSpinner")) {
+			useSpinner = (TiConvert.toBoolean(getProperty("useSpinner")));
 		}
 		if (type == UIModule.PICKER_TYPE_COUNT_DOWN_TIMER ) {
 			Log.w(LCAT, "Countdown timer not supported in Titanium for Android");
@@ -91,8 +98,8 @@ public class PickerProxy extends TiViewProxy
 	private TiUIView createPlainPicker(Activity activity)
 	{
 		TiUIPicker picker = new TiUIPicker(this);
-		if ((columns == null || columns.size() == 0) && hasDynamicValue("columns") ) {
-			Object columnsAtCreation = getDynamicValue("columns");
+		if ((columns == null || columns.size() == 0) && hasProperty("columns") ) {
+			Object columnsAtCreation = getProperty("columns");
 			if (columnsAtCreation.getClass().isArray()) {
 				Object[] columnsArray = (Object[]) columnsAtCreation;
 				if (this.columns == null) {
@@ -135,11 +142,13 @@ public class PickerProxy extends TiViewProxy
 		return new TiUIDateSpinner(this);
 	}
 	
+	@Kroll.getProperty @Kroll.method
 	public int getType()
 	{
 		return type;
 	}
 	
+	@Kroll.setProperty @Kroll.method
 	public void setType(int type)
 	{
 		if (peekView() != null) {
@@ -239,6 +248,7 @@ public class PickerProxy extends TiViewProxy
 		}
 	}
 	
+	@Kroll.method
 	public void setSelectedRow(int column, int row, boolean animated)
 	{
 		if (!isPlainPicker()) {
@@ -277,6 +287,7 @@ public class PickerProxy extends TiViewProxy
 		
 	}
 	
+	@Kroll.method
 	public PickerRowProxy getSelectedRow(int columnIndex)
 	{
 		if (!isPlainPicker()) {
@@ -290,6 +301,7 @@ public class PickerProxy extends TiViewProxy
 		return ((TiUIPicker)peekView()).getSelectedRow(columnIndex);
 	}
 	
+	@Kroll.getProperty @Kroll.method
 	public PickerColumnProxy[] getColumns()
 	{
 		if (!isPlainPicker()) {
@@ -303,6 +315,7 @@ public class PickerProxy extends TiViewProxy
 		}
 	}
 	
+	@Kroll.setProperty @Kroll.method
 	public void setColumns(Object[] rawcolumns)
 	{
 		if (!isPlainPicker()) {
@@ -395,6 +408,7 @@ public class PickerProxy extends TiViewProxy
 	// This is meant to be a kind of "static" method, in the sense that
 	// it doesn't use any state except for context.  It's a quick hit way
 	// of getting a date dialog up, in other words.
+	@Kroll.method
 	public void showDatePickerDialog(Object[] args)
 	{
 		KrollDict settings = new KrollDict();
@@ -491,6 +505,7 @@ public class PickerProxy extends TiViewProxy
 	// This is meant to be a kind of "static" method, in the sense that
 	// it doesn't use any state except for context.  It's a quick hit way
 	// of getting a date dialog up, in other words.
+	@Kroll.method
 	public void showTimePickerDialog(Object[] args)
 	{
 		KrollDict settings = new KrollDict();

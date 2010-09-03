@@ -210,7 +210,7 @@ public class TiHTTPClient
 								o.put("blob", blob);
 								o.put("progress", ((double)totalSize)/((double)contentLength));
 
-								cb.callWithProperties(o);
+								cb.call(o);
 							}
 							if (entity != null) {
 								try {
@@ -365,7 +365,7 @@ public class TiHTTPClient
 
 	public KrollCallback getCallback(String name)
 	{
-		Object value = proxy.getDynamicValue(name);
+		Object value = proxy.getProperty(name);
 		if (value != null && value instanceof KrollCallback)
 		{
 			return (KrollCallback) value;
@@ -388,8 +388,8 @@ public class TiHTTPClient
 	}
 
 	public boolean validatesSecureCertificate() {
-		if (proxy.hasDynamicValue("validatesSecureCertificate")) {
-			return TiConvert.toBoolean(proxy.getDynamicValue("validatesSecureCertificate"));
+		if (proxy.hasProperty("validatesSecureCertificate")) {
+			return TiConvert.toBoolean(proxy.getProperty("validatesSecureCertificate"));
 		} else {
 			if (proxy.getTiContext().getTiApp().getDeployType().equals(
 					TiApplication.DEPLOY_TYPE_PRODUCTION)) {
@@ -592,7 +592,7 @@ public class TiHTTPClient
 			credentials = new UsernamePasswordCredentials(uri.getUserInfo());
 		}
 		setReadyState(READY_STATE_OPENED);
-		setRequestHeader("User-Agent", (String) proxy.getDynamicValue("userAgent"));
+		setRequestHeader("User-Agent", (String) proxy.getProperty("userAgent"));
 		// Causes Auth to Fail with twitter and other size apparently block X- as well
 		// Ticket #729, ignore twitter for now
 		if (!uri.getHost().contains("twitter.com")) {

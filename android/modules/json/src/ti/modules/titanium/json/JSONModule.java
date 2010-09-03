@@ -7,6 +7,8 @@
 package ti.modules.titanium.json;
 
 import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollModule;
+import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.TiConvert;
 import org.json.JSONArray;
@@ -14,12 +16,14 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
-public class JSONModule extends TiModule {
+@Kroll.module
+public class JSONModule extends KrollModule {
 
 	public JSONModule(TiContext context) {
 		super(context);
 	}
 
+	@Kroll.method
 	public String stringify(Object data) {
 		if (data instanceof KrollDict) {
 			return TiConvert.toJSON((KrollDict)data).toString();
@@ -40,6 +44,7 @@ public class JSONModule extends TiModule {
 		}
 	}
 
+	@Kroll.method
 	public Object parse(String json)
 		throws JSONException
 	{

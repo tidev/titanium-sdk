@@ -38,7 +38,7 @@ import android.app.Application;
 import android.content.Intent;
 
 // Naming TiHost to more closely match other implementations
-public class TiApplication extends Application
+public abstract class TiApplication extends Application
 {
 	public static final String DEPLOY_TYPE_DEVELOPMENT = "development";
 	public static final String DEPLOY_TYPE_TEST = "test";
@@ -49,6 +49,8 @@ public class TiApplication extends Application
 	private static final boolean DBG = TiConfig.LOGD;
 	private static final long STATS_WAIT = 300000;
 
+	protected static TiApplication _instance = null;
+	
 	private String baseUrl;
 	private String startUrl;
 	private HashMap<Class<?>, HashMap<String, Method>> methodMap;
@@ -66,18 +68,23 @@ public class TiApplication extends Application
 	protected Intent analyticsIntent;
 	private static long lastAnalyticsTriggered = 0;
 	private String buildVersion, buildTimestamp;
-	protected KrollBindings bindings;
 
-	public TiApplication(KrollBindings bindings) {
+	public TiApplication() {
 		Log.checkpoint("checkpoint, app created.");
-		this.bindings = bindings;
+		_instance = this;
 		
 		needsEnrollEvent = false; // test is after DB is available
 		needsStartEvent = true;
-		getBuildVersion();
+		loadBuildProperties();
+	}
+	
+	public abstract void bootModules(TiContext context);
+	
+	public static TiApplication getInstance() {
+		return _instance;
 	}
 
-	private void getBuildVersion() {
+	protected void loadBuildProperties() {
 		buildVersion = "1.0";
 		buildTimestamp = "N/A";
 		InputStream versionStream = getClass().getClassLoader().getResourceAsStream("org/appcelerator/titanium/build.properties");
@@ -393,9 +400,5 @@ public class TiApplication extends Application
 
 	public String getTiBuildTimestamp() {
 		return buildTimestamp;
-	}
-	
-	public KrollBindings getBindings() {
-		return bindings;
 	}
 }

@@ -7,6 +7,7 @@
 package ti.modules.titanium.ui;
 
 import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.proxy.TiWindowProxy;
@@ -15,6 +16,7 @@ import org.appcelerator.titanium.view.TiUIView;
 
 import android.app.Activity;
 
+@Kroll.proxy(creatableInModule="UI")
 public class TabProxy extends TiViewProxy
 {
 	private static final String LCAT = "TabProxy";
@@ -23,8 +25,8 @@ public class TabProxy extends TiViewProxy
 	private TiWindowProxy win;
 	private TabGroupProxy tabGroupProxy;
 
-	public TabProxy(TiContext tiContext, Object[] args) {
-		super(tiContext, args);
+	public TabProxy(TiContext tiContext) {
+		super(tiContext);
 	}
 
 	@Override
@@ -32,7 +34,8 @@ public class TabProxy extends TiViewProxy
 		return null;
 	}
 
-	public void open(TiWindowProxy win, KrollDict options) {
+	@Kroll.method
+	public void open(TiWindowProxy win, @Kroll.argument(optional=true) KrollDict options) {
 		if (win != null) {
 			if (options == null) {
 				options = new KrollDict();
@@ -46,7 +49,8 @@ public class TabProxy extends TiViewProxy
 		}
 	}
 
-	public void close(KrollDict options) {
+	@Kroll.method
+	public void close(@Kroll.argument(optional=true) KrollDict options) {
 		if (win != null) {
 			win.close(options);
 			win = null;

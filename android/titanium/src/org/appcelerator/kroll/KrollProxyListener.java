@@ -8,6 +8,9 @@ package org.appcelerator.kroll;
 
 public interface KrollProxyListener
 {
+	public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy proxy);
+	public void processProperties(KrollDict d);
+	
 	public void listenerAdded(String type, int count, KrollProxy proxy);
 	public void listenerRemoved(String type, int count, KrollProxy proxy);
 }

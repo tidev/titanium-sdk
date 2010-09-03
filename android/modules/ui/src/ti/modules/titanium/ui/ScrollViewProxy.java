@@ -7,6 +7,7 @@
 package ti.modules.titanium.ui;
 
 import org.appcelerator.kroll.KrollProxy;
+import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.AsyncResult;
@@ -17,17 +18,19 @@ import android.app.Activity;
 import android.os.Handler;
 import android.os.Message;
 
+@Kroll.proxy(creatableInModule="UI")
 public class ScrollViewProxy extends TiViewProxy
 	implements Handler.Callback
 {
 	private static final int MSG_FIRST_ID = KrollProxy.MSG_LAST_ID + 1;
 
 	private static final int MSG_SCROLL_TO = MSG_FIRST_ID + 100;
+	private static final int MSG_SCROLL_TO_BOTTOM = MSG_FIRST_ID + 101;
 	protected static final int MSG_LAST_ID = MSG_FIRST_ID + 999;
 
-	public ScrollViewProxy(TiContext context, Object[] args)
+	public ScrollViewProxy(TiContext context)
 	{
-		super(context, args);
+		super(context);
 	}
 
 	@Override
@@ -39,6 +42,7 @@ public class ScrollViewProxy extends TiViewProxy
 		return (TiUIScrollView)getView(activity);
 	}
 
+	@Kroll.method
 	public void scrollTo(int x, int y) {
 		if (!getTiContext().isUIThread()) {
 			AsyncResult result = new AsyncResult(getTiContext().getActivity());
@@ -51,11 +55,28 @@ public class ScrollViewProxy extends TiViewProxy
 			handleScrollTo(x,y);
 		}
 	}
+	
+	@Kroll.method
+	public void scrollToBottom() {
+		if (!getTiContext().isUIThread()) {
+			AsyncResult result = new AsyncResult(getTiContext().getActivity());
+			Message msg = getUIHandler().obtainMessage(MSG_SCROLL_TO_BOTTOM, result);
+			msg.sendToTarget();
+			result.getResult(); // wait for scroll
+		} else {
+			handleScrollToBottom();
+		}
+	}
 
 	@Override
 	public boolean handleMessage(Message msg) {
 		if (msg.what == MSG_SCROLL_TO) {
 			handleScrollTo(msg.arg1, msg.arg2);
+			AsyncResult result = (AsyncResult) msg.obj;
+			result.setResult(null); // signal scrolled
+			return true;
+		} else if (msg.what == MSG_SCROLL_TO_BOTTOM) {
+			handleScrollToBottom();
 			AsyncResult result = (AsyncResult) msg.obj;
 			result.setResult(null); // signal scrolled
 			return true;
@@ -65,5 +86,9 @@ public class ScrollViewProxy extends TiViewProxy
 
 	public void handleScrollTo(int x, int y) {
 		getScrollView(getTiContext().getActivity()).scrollTo(x, y);
+	}
+	
+	public void handleScrollToBottom() {
+		getScrollView(getTiContext().getActivity()).scrollToBottom();
 	}
 }

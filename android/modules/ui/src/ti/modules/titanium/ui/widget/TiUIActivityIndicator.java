@@ -125,7 +125,7 @@ public class TiUIActivityIndicator extends TiUIView
 	}
 
 	protected void handleShow() {
-		KrollDict d = proxy.getDynamicProperties();
+		KrollDict d = proxy.getProperties();
 
 		String message = "";
 		if (d.containsKey("message")) {

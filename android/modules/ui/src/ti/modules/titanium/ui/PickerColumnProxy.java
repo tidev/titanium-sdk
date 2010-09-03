@@ -11,10 +11,12 @@ import java.util.ArrayList;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
+import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiContext;
 
 import android.util.Log;
 
+@Kroll.proxy(creatableInModule="UI")
 public class PickerColumnProxy extends KrollProxy
 {
 	private ArrayList<PickerRowProxy> rows = new ArrayList<PickerRowProxy>();
@@ -25,14 +27,12 @@ public class PickerColumnProxy extends KrollProxy
 		super(tiContext);
 	}
 	
-	public PickerColumnProxy(TiContext tiContext, Object[] args)
-	{
-		super(tiContext);
-		if (args != null && args.length > 0) {
-			setProperties((KrollDict) args[0]);
-		}
-		if (hasDynamicValue("rows")) {
-			Object rowsAtCreation = getDynamicValue("rows");
+	@Override
+	public void handleCreationDict(KrollDict dict) {
+		super.handleCreationDict(dict);
+
+		if (hasProperty("rows")) {
+			Object rowsAtCreation = getProperty("rows");
 			if (rowsAtCreation.getClass().isArray()) {
 				Object[] rowsArray = (Object[]) rowsAtCreation;
 				addRows(rowsArray);

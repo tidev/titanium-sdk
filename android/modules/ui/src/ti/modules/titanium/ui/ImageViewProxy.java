@@ -6,6 +6,7 @@
  */
 package ti.modules.titanium.ui;
 
+import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.view.TiUIView;
@@ -13,10 +14,11 @@ import org.appcelerator.titanium.view.TiUIView;
 import ti.modules.titanium.ui.widget.TiUIImageView;
 import android.app.Activity;
 
+@Kroll.proxy(creatableInModule="UI")
 public class ImageViewProxy extends ViewProxy {
 
-	public ImageViewProxy(TiContext tiContext, Object[] args) {
-		super(tiContext, args);
+	public ImageViewProxy(TiContext tiContext) {
+		super(tiContext);
 	}
 
 	@Override
@@ -28,34 +30,42 @@ public class ImageViewProxy extends ViewProxy {
 		return (TiUIImageView)getView(getTiContext().getActivity());
 	}
 	
+	@Kroll.method
 	public void start() {
 		getImageView().start();
 	}
 	
+	@Kroll.method
 	public void stop() {
 		getImageView().stop();
 	}
 	
+	@Kroll.method
 	public void pause() {
 		getImageView().pause();
 	}
 	
+	@Kroll.method
 	public void resume() {
 		getImageView().resume();
 	}
 	
+	@Kroll.getProperty @Kroll.method
 	public boolean getAnimating() {
 		return getImageView().isAnimating();
 	}
 	
+	@Kroll.getProperty @Kroll.method
 	public boolean getReverse() {
 		return getImageView().isReverse();
 	}
 	
+	@Kroll.setProperty @Kroll.method
 	public void setReverse(boolean reverse) {
 		getImageView().setReverse(reverse);
 	}
 	
+	@Kroll.method
 	public TiBlob toBlob() {
 		return getImageView().toBlob();
 	}

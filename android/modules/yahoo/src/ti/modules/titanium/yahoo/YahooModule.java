@@ -10,23 +10,21 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
+import org.appcelerator.kroll.KrollModule;
+import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.Log;
 
-public class YahooModule extends TiModule
+@Kroll.module
+public class YahooModule extends KrollModule
 {
 	private static final String LCAT = "YahooModule";
 
 	public YahooModule(TiContext tiContext)
 	{
 		super(tiContext);
-	}
-
-	@Override
-	public void postCreate() {
-//		super.postCreate();
+	
 		String src = null;
-
 		BufferedReader is = null;
 		try {
 			is = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream("yahoo.js")));

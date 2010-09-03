@@ -90,7 +90,7 @@ public class TiUISlider extends TiUIView
 		pos = seekBar.getProgress();
 		KrollDict data = new KrollDict();
 		data.put("value", scaledValue());
-		proxy.internalSetDynamicValue("value", scaledValue(), false);
+		proxy.setProperty("value", scaledValue());
 		proxy.fireEvent("change", data);
 	}
 

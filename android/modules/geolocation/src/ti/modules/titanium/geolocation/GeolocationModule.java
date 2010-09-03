@@ -19,7 +19,9 @@ import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.KrollProxy;
+import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.ContextSpecific;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.kroll.KrollCallback;
@@ -34,23 +36,28 @@ import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Message;
 
-@ContextSpecific
+@Kroll.module @ContextSpecific
 public class GeolocationModule
-	extends TiModule
+	extends KrollModule
 {
 	private static final String LCAT = "TiGeo";
 	private static final boolean DBG = TiConfig.LOGD;
 	private static final String BASE_GEO_URL = "http://api.appcelerator.net/p/v1/geo?";
 
+	@Kroll.constant public static final int ACCURACY_BEST = TiLocation.ACCURACY_BEST;
+	@Kroll.constant public static final int ACCURACY_NEAREST_TEN_METERS = TiLocation.ACCURACY_NEAREST_TEN_METERS;
+	@Kroll.constant public static final int ACCURACY_HUNDRED_METERS = TiLocation.ACCURACY_HUNDRED_METERS;
+	@Kroll.constant public static final int ACCURACY_THREE_KILOMETERS = TiLocation.ACCURACY_THREE_KILOMETERS;
+	
+	@Kroll.constant public static final String PROVIDER_GPS = LocationManager.GPS_PROVIDER;
+	@Kroll.constant public static final String PROVIDER_NETWORK = LocationManager.NETWORK_PROVIDER;
+	
 	private static final int MSG_FIRST_ID = KrollProxy.MSG_LAST_ID + 1;
 	private static final int MSG_LOOKUP = MSG_FIRST_ID + 100;
 	protected static final int MSG_LAST_ID = MSG_FIRST_ID + 999;
 
-	private static KrollDict constants;
-
 	private TiLocation tiLocation;
 	private TiCompass tiCompass;
-
 
 	public GeolocationModule(TiContext tiContext)
 	{
@@ -61,34 +68,18 @@ public class GeolocationModule
 
 		tiContext.addOnEventChangeListener(this);
 	}
-
-	@Override
-	public KrollDict getConstants()
-	{
-		if (constants == null) {
-			constants = new KrollDict();
-
-			constants.put("ACCURACY_BEST", TiLocation.ACCURACY_BEST);
-			constants.put("ACCURACY_NEAREST_TEN_METERS", TiLocation.ACCURACY_NEAREST_TEN_METERS);
-			constants.put("ACCURACY_HUNDRED_METERS", TiLocation.ACCURACY_HUNDRED_METERS);
-			constants.put("ACCURACY_HUNDRED_METERS", TiLocation.ACCURACY_HUNDRED_METERS);
-			constants.put("ACCURACY_THREE_KILOMETERS", TiLocation.ACCURACY_THREE_KILOMETERS);
-			
-			constants.put("PROVIDER_GPS", LocationManager.GPS_PROVIDER);
-			constants.put("PROVIDER_NETWORK", LocationManager.NETWORK_PROVIDER);
-		}
-
-		return constants;
-	}
-
+	
+	@Kroll.getProperty @Kroll.method
 	public boolean getLocationServicesEnabled() {
 		return tiLocation.isLocationEnabled();
 	}
 
+	@Kroll.method
 	public boolean hasCompass() {
 		return tiCompass.hasCompass();
 	}
 
+	@Kroll.method
 	public void getCurrentHeading(KrollCallback listener)
 	{
 		if(listener != null) {
@@ -96,6 +87,7 @@ public class GeolocationModule
 		}
 	}
 
+	@Kroll.method
 	public void getCurrentPosition(KrollCallback listener)
 	{
 		if (listener != null) {
@@ -162,7 +154,7 @@ public class GeolocationModule
 		return url;
 	}
 
-
+	@Kroll.method
 	public void forwardGeocoder(String address, KrollCallback listener) {
 		if (address != null) {
 			String mid = TiPlatformHelper.getMobileId();
@@ -184,6 +176,7 @@ public class GeolocationModule
 		}
 	}
 
+	@Kroll.method
 	public void reverseGeocoder(double latitude, double longitude, KrollCallback callback) {
 		String mid = TiPlatformHelper.getMobileId();
 		String aguid = getTiContext().getTiApp().getAppInfo().getGUID();
@@ -311,7 +304,7 @@ public class GeolocationModule
 
 						if (event != null) {
 							event.put("source", this);
-							callback.callWithProperties(event);
+							callback.call(event);
 						}
 					} catch (Throwable t) {
 						Log.e(LCAT, "Error retrieving geocode information: "

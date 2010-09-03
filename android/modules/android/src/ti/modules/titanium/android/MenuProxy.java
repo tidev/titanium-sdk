@@ -9,8 +9,10 @@ package ti.modules.titanium.android;
 import java.util.ArrayList;
 
 import org.appcelerator.kroll.KrollProxy;
+import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiContext;
 
+@Kroll.proxy
 public class MenuProxy extends KrollProxy
 {
 	protected ArrayList<MenuItemProxy> menuItems;
@@ -20,10 +22,12 @@ public class MenuProxy extends KrollProxy
 		menuItems = new ArrayList<MenuItemProxy>();
 	}
 
+	@Kroll.method
 	public void add(MenuItemProxy mip) {
 		menuItems.add(mip);
 	}
 
+	@Kroll.getProperty @Kroll.method
 	protected ArrayList<MenuItemProxy> getMenuItems() {
 		return menuItems;
 	}

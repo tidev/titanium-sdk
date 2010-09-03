@@ -10,6 +10,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.titanium.kroll.KrollCallback;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConvert;
@@ -44,7 +45,7 @@ public class TiLocation
 
 	protected static final String OPTION_HIGH_ACCURACY = "enableHighAccuracy";
 
-	private TiModule proxy;
+	private KrollModule proxy;
 
 	protected LocationManager locationManager;
 	protected LocationListener geoListener;
@@ -54,10 +55,10 @@ public class TiLocation
 	                                   // will arbitrate between other instances. Since only one activity
 									   // at a time can be active, there shouldn't be any contention.
 
-	public TiLocation(TiModule proxy)
+	public TiLocation(KrollModule proxy)
 	{
 		this.proxy = proxy;
-		final TiModule fproxy = proxy;
+		final KrollModule fproxy = proxy;
 		listeningForGeo = false;
 
 		geoListener = new LocationListener() {
@@ -125,25 +126,25 @@ public class TiLocation
 				// We should really query all active providers - one may have a more accurate fix
 				Location location = locationManager.getLastKnownLocation(provider);
 				if (location != null) {
-					listener.callWithProperties(locationToKrollDict(location, locationManager.getProvider(provider)));
+					listener.call(locationToKrollDict(location, locationManager.getProvider(provider)));
 				} else {
 					Log.i(LCAT, "getCurrentPosition - location is null");
-					listener.callWithProperties(TiConvert.toErrorObject(ERR_POSITION_UNAVAILABLE, "location is currently unavailable."));
+					listener.call(TiConvert.toErrorObject(ERR_POSITION_UNAVAILABLE, "location is currently unavailable."));
 				}
 			} else {
 				Log.i(LCAT, "getCurrentPosition - no providers are available");
-				listener.callWithProperties(TiConvert.toErrorObject(ERR_POSITION_UNAVAILABLE, "no providers are available."));
+				listener.call(TiConvert.toErrorObject(ERR_POSITION_UNAVAILABLE, "no providers are available."));
 			}
 		} else {
 			Log.i(LCAT, "getCurrentPosition - listener or locationManager null");
-			listener.callWithProperties(TiConvert.toErrorObject(ERR_POSITION_UNAVAILABLE, "location is currently unavailable."));
+			listener.call(TiConvert.toErrorObject(ERR_POSITION_UNAVAILABLE, "location is currently unavailable."));
 		}
 	}
 	
 	protected boolean isLocationProviderEnabled(String name) {
 		if (null != locationManager){
 			try {
-				return locationManager.isProviderEnabled(name);				
+				return locationManager.isProviderEnabled(name);
 			} catch (Exception e) {
 				// Ignore - it's expected
 				e = null;
@@ -175,7 +176,7 @@ public class TiLocation
 	
 	protected String fetchProvider() {
 		// Refactored for reuse
-		String preferredProvider = TiConvert.toString(proxy.getDynamicValue("preferredProvider"));
+		String preferredProvider = TiConvert.toString(proxy.getProperty("preferredProvider"));
 		String provider;
 		
 		if (!(null == preferredProvider) && isValidProvider(preferredProvider)) {
@@ -206,7 +207,7 @@ public class TiLocation
 					float updateDistance = 10;
 					int updateFrequency = 5000;
 
-					Object accuracy = proxy.getDynamicValue("accuracy");
+					Object accuracy = proxy.getProperty("accuracy");
 					if (accuracy != null) {
 						int value = TiConvert.toInt(accuracy);
 						switch(value) {
@@ -220,7 +221,7 @@ public class TiLocation
 						}
 					}
 
-					Object frequency = proxy.getDynamicValue("frequency");
+					Object frequency = proxy.getProperty("frequency");
 					if (frequency != null) {
 						int value = TiConvert.toInt(frequency); // in seconds
 						updateFrequency = value * 1000; // to millis
@@ -246,7 +247,7 @@ public class TiLocation
 		Criteria criteria = new Criteria();
 		criteria.setAccuracy(Criteria.NO_REQUIREMENT);
 
-		Object accuracy = proxy.getDynamicValue("accuracy");
+		Object accuracy = proxy.getProperty("accuracy");
 		if (accuracy != null) {
 			int value = TiConvert.toInt(accuracy);
 			switch(value) {

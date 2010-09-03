@@ -9,7 +9,9 @@ package ti.modules.titanium.platform;
 import java.util.concurrent.Semaphore;
 
 import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.KrollProxy;
+import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
@@ -24,17 +26,16 @@ import android.content.IntentFilter;
 import android.net.Uri;
 import android.os.BatteryManager;
 
-public class PlatformModule extends TiModule
+@Kroll.module
+public class PlatformModule extends KrollModule
 {
 	private static final String LCAT = "PlatformModule";
 	private static final boolean DBG = TiConfig.LOGD;
 
-	public static int BATTERY_STATE_UNKNOWN = 0;
-	public static int BATTERY_STATE_UNPLUGGED = 1;
-	public static int BATTERY_STATE_CHARGING = 2;
-	public static int BATTERY_STATE_FULL = 3;
-
-	private static KrollDict constants;
+	@Kroll.constant public static int BATTERY_STATE_UNKNOWN = 0;
+	@Kroll.constant public static int BATTERY_STATE_UNPLUGGED = 1;
+	@Kroll.constant public static int BATTERY_STATE_CHARGING = 2;
+	@Kroll.constant public static int BATTERY_STATE_FULL = 3;
 
 	protected DisplayCapsProxy displayCaps;
 
@@ -53,33 +54,22 @@ public class PlatformModule extends TiModule
 		batteryLevel = -1;
 	}
 
-	@Override
-	public KrollDict getConstants()
-	{
-		if (constants == null) {
-			constants = new KrollDict();
-
-			constants.put("BATTERY_STATE_UNKNOWN", BATTERY_STATE_UNKNOWN);
-			constants.put("BATTERY_STATE_UNPLUGGED", BATTERY_STATE_UNPLUGGED);
-			constants.put("BATTERY_STATE_CHARGING", BATTERY_STATE_CHARGING);
-			constants.put("BATTERY_STATE_FULL", BATTERY_STATE_FULL);
-		}
-
-		return constants;
-	}
-
+	@Kroll.getProperty @Kroll.method
 	public String getName() {
 		return TiPlatformHelper.getName();
 	}
 
+	@Kroll.getProperty @Kroll.method
 	public String getOsname() {
 		return TiPlatformHelper.getName();
 	}
 
+	@Kroll.getProperty @Kroll.method
 	public String getLocale() {
 		return TiPlatformHelper.getLocale();
 	}
 
+	@Kroll.getProperty @Kroll.method
 	public DisplayCapsProxy getDisplayCaps() {
 		if (displayCaps == null) {
 			displayCaps = new DisplayCapsProxy(getTiContext());
@@ -87,38 +77,47 @@ public class PlatformModule extends TiModule
 		return displayCaps;
 	}
 
+	@Kroll.getProperty @Kroll.method
 	public int getProcessorCount() {
 		return TiPlatformHelper.getProcessorCount();
 	}
 
+	@Kroll.getProperty @Kroll.method
 	public String getUsername() {
 		return TiPlatformHelper.getUsername();
 	}
 
+	@Kroll.getProperty @Kroll.method
 	public String getVersion() {
 		return TiPlatformHelper.getVersion();
 	}
-
+	
+	@Kroll.getProperty @Kroll.method
 	public double getAvailableMemory() {
 		return TiPlatformHelper.getAvailableMemory();
 	}
 
+	@Kroll.getProperty @Kroll.method
 	public String getModel() {
 		return TiPlatformHelper.getModel();
 	}
 
+	@Kroll.getProperty @Kroll.method
 	public String getOstype() {
 		return TiPlatformHelper.getOstype();
 	}
 
+	@Kroll.getProperty @Kroll.method
 	public String getArchitecture() {
 		return TiPlatformHelper.getArchitecture();
 	}
 
+	@Kroll.method
 	public String createUUID() {
 		return TiPlatformHelper.createUUID();
 	}
 
+	@Kroll.method
 	public boolean openURL(String url) {
 		if (DBG) {
 			Log.d(LCAT, "Launching viewer for: " + url);
@@ -134,14 +133,17 @@ public class PlatformModule extends TiModule
 		return false;
 	}
 
+	@Kroll.getProperty @Kroll.method
 	public String getMacaddress() {
 		return TiPlatformHelper.getMacaddress();
 	}
-
+	
+	@Kroll.getProperty @Kroll.method
 	public String getId() {
 		return TiPlatformHelper.getMobileId();
 	}
 
+	@Kroll.getProperty @Kroll.method
 	public int getBatteryState()
 	{
 		Semaphore lock = new Semaphore(0);
@@ -156,6 +158,7 @@ public class PlatformModule extends TiModule
 		return batteryState;
 	}
 
+	@Kroll.getProperty @Kroll.method
 	public double getBatteryLevel()
 	{
 		Semaphore lock = new Semaphore(0);

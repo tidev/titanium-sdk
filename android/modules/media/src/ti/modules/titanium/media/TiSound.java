@@ -12,7 +12,7 @@ import java.util.TimerTask;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
-import org.appcelerator.titanium.KrollProxyListener;
+import org.appcelerator.kroll.KrollProxyListener;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiConvert;
@@ -81,7 +81,7 @@ public class TiSound
 	{
 		try {
 			mp = new MediaPlayer();
-			String url = TiConvert.toString(proxy.getDynamicValue("url"));
+			String url = TiConvert.toString(proxy.getProperty("url"));
 			if (URLUtil.isAssetUrl(url)) {
 				Context context = proxy.getTiContext().getTiApp();
 				String path = url.substring(TiConvert.ASSET_URL.length());
@@ -118,8 +118,8 @@ public class TiSound
 			setState(STATE_INITIALIZED);
 
 			setVolume(volume);
-			if (proxy.hasDynamicValue("time")) {
-				setTime(TiConvert.toInt(proxy.getDynamicValue("time")));
+			if (proxy.hasProperty("time")) {
+				setTime(TiConvert.toInt(proxy.getProperty("time")));
 			}
 		} catch (Throwable t) {
 			Log.w(LCAT, "Issue while initializing : " , t);
@@ -261,7 +261,7 @@ public class TiSound
 				Log.w(LCAT, "Attempt to set volume less than 0.0. Volume set to 0.0");
 			} else if (volume > 1.0) {
 				this.volume = 1.0f;
-				proxy.internalSetDynamicValue("volume", volume, false);
+				proxy.setProperty("volume", volume);
 				Log.w(LCAT, "Attempt to set volume greater than 1.0. Volume set to 1.0");
 			} else {
 				this.volume = volume; // Store in 0.0 to 1.0, scale when setting hw
@@ -308,11 +308,11 @@ public class TiSound
 			mp.seekTo(position);
 		}
 
-		proxy.internalSetDynamicValue("time", position, false);
+		proxy.setProperty("time", position);
 	}
 
 	private void setState(int state) {
-		proxy.internalSetDynamicValue("state", state, false);
+		proxy.setProperty("state", state);
 		String stateDescription = "";
 
 		switch(state) {
@@ -345,7 +345,7 @@ public class TiSound
 				break;
 		}
 
-		proxy.internalSetDynamicValue("stateDescription", stateDescription, false);
+		proxy.setProperty("stateDescription", stateDescription);
 		if (DBG) {
 			Log.d(LCAT, "Audio state changed: " + stateDescription);
 		}

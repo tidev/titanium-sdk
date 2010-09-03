@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiActivity;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.proxy.TiWindowProxy;
@@ -30,6 +31,7 @@ import android.os.Message;
 import android.os.Messenger;
 import android.widget.TabHost.TabSpec;
 
+@Kroll.proxy(creatableInModule="UI")
 public class TabGroupProxy extends TiWindowProxy
 {
 	private static final String LCAT = "TabGroupProxy";
@@ -49,8 +51,8 @@ public class TabGroupProxy extends TiWindowProxy
 	WeakReference<Activity> weakActivity;
 	String windowId;
 
-	public TabGroupProxy(TiContext tiContext, Object[] args) {
-		super(tiContext, args);
+	public TabGroupProxy(TiContext tiContext) {
+		super(tiContext);
 		idGenerator = new AtomicInteger(0);
 	}
 
@@ -88,6 +90,7 @@ public class TabGroupProxy extends TiWindowProxy
 		}
 	}
 
+	@Kroll.getProperty @Kroll.method
 	public TabProxy[] getTabs() {
 		TabProxy[] tps = null;
 
@@ -98,6 +101,7 @@ public class TabGroupProxy extends TiWindowProxy
 		return tps;
 	}
 
+	@Kroll.method
 	public void addTab(TabProxy tab)
 	{
 		if (tabs == null) {
@@ -127,10 +131,10 @@ public class TabGroupProxy extends TiWindowProxy
 
 	private void addTabToGroup(TiUITabGroup tg, TabProxy tab)
 	{
-		String title = (String) tab.getDynamicValue("title");
-		String icon = (String) tab.getDynamicValue("icon");
+		String title = (String) tab.getProperty("title");
+		String icon = (String) tab.getProperty("icon");
 		tab.setTabGroup(this);
-		final WindowProxy vp = (WindowProxy) tab.getDynamicValue("window");
+		final WindowProxy vp = (WindowProxy) tab.getProperty("window");
 		vp.setTabGroupProxy(this);
 		vp.setTabProxy(tab);
 
@@ -156,6 +160,7 @@ public class TabGroupProxy extends TiWindowProxy
 
 	}
 
+	@Kroll.method
 	public void removeTab(TabProxy tab)
 	{
 
@@ -232,7 +237,7 @@ public class TabGroupProxy extends TiWindowProxy
 
 		int i = 0;
 		for(TabProxy t : tabs) {
-			String title = (String) t.getDynamicValue("title");
+			String title = (String) t.getProperty("title");
 			if (title.equals(id)) {
 				index = i;
 				break;
@@ -245,7 +250,7 @@ public class TabGroupProxy extends TiWindowProxy
 
 	private void fillIntent(Activity activity, Intent intent)
 	{
-		KrollDict props = getDynamicProperties();
+		KrollDict props = getProperties();
 
 		if (props != null) {
 			if (props.containsKey("fullscreen")) {

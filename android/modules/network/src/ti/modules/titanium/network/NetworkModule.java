@@ -7,7 +7,9 @@
 package ti.modules.titanium.network;
 
 import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.KrollProxy;
+import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
@@ -19,7 +21,8 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 
-public class NetworkModule extends TiModule {
+@Kroll.module
+public class NetworkModule extends KrollModule {
 
 	private static final String LCAT = "TiNetwork";
 	private static final boolean DBG = TiConfig.LOGD;
@@ -113,7 +116,7 @@ public class NetworkModule extends TiModule {
 		this.lastNetInfo = new NetInfo();
 		this.isListeningForConnectivity = false;
 
-		setDynamicValue("userAgent", NETWORK_USER_AGENT + " Titanium/"+getBuildVersion());
+		setProperty("userAgent", NETWORK_USER_AGENT + " Titanium/"+tiContext.getTiApp().getTiBuildVersion());
 
 		tiContext.addOnLifecycleEventListener(this);
 		tiContext.addOnEventChangeListener(this);
@@ -142,6 +145,7 @@ public class NetworkModule extends TiModule {
 		}
 	}
 
+	@Kroll.getProperty @Kroll.method
 	public boolean getOnline()
 	{
 		boolean result = false;
@@ -179,6 +183,7 @@ public class NetworkModule extends TiModule {
 		return type;
 	}
 
+	@Kroll.getProperty @Kroll.method
 	public int getNetworkType() {
 		int type = NETWORK_UNKNOWN;
 
@@ -200,6 +205,7 @@ public class NetworkModule extends TiModule {
 		return type;
 	}
 
+	@Kroll.getProperty @Kroll.method
 	public String getNetworkTypeName()
 	{
 		return networkTypeToTypeName(getNetworkType());

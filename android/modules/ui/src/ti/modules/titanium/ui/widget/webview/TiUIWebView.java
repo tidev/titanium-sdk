@@ -120,7 +120,7 @@ public class TiUIWebView extends TiUIView {
 
 	public void changeProxyUrl(String url) {
 		changingUrl = true;
-		getProxy().setDynamicValue("url", url);
+		getProxy().setProperty("url", url, true);
 		changingUrl = false;
 	}
 

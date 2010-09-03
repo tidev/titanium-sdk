@@ -50,7 +50,12 @@ public class TiUISearchBar extends TiUIText
 		{
 			public void onClick(View view)
 			{
-				proxy.internalSetDynamicValue("value", "", true);
+				try {
+					proxy.set(getProxy().getTiContext().getScope(), "value", "");
+				} catch (NoSuchFieldException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 				proxy.fireEvent("cancel", null);
 			}
 		});

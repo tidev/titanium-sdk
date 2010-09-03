@@ -65,7 +65,7 @@ public class TiUIProgressBar extends TiUIView {
 	}
 	
 	private double getMin() {
-		Object value = proxy.getDynamicValue("min");
+		Object value = proxy.getProperty("min");
 		if (value == null) {
 			return 0;
 		}
@@ -74,7 +74,7 @@ public class TiUIProgressBar extends TiUIView {
 	}
 	
 	private double getMax() {
-		Object value = proxy.getDynamicValue("max");
+		Object value = proxy.getProperty("max");
 		if (value == null) {
 			return 0;
 		}
@@ -83,7 +83,7 @@ public class TiUIProgressBar extends TiUIView {
 	}
 	
 	private double getValue() {
-		Object value = proxy.getDynamicValue("value");
+		Object value = proxy.getProperty("value");
 		if (value == null) {
 			return 0;
 		}

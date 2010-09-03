@@ -6,6 +6,7 @@
  */
 package ti.modules.titanium.xml;
 
+import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiContext;
 import org.w3c.dom.CDATASection;
 import org.w3c.dom.DOMException;
@@ -14,6 +15,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.Text;
 
+@Kroll.proxy
 public class ElementProxy extends NodeProxy {
 
 	private Element element;
@@ -23,6 +25,7 @@ public class ElementProxy extends NodeProxy {
 		this.element = element;
 	}
 	
+	@Kroll.getProperty @Kroll.method
 	public String getText() {
 		StringBuilder sb = new StringBuilder();
 		getTextImpl(element, sb);
@@ -48,71 +51,87 @@ public class ElementProxy extends NodeProxy {
 		}
 	}
 	
+	@Kroll.method
 	public String getAttribute(String name) {
 		return element.getAttribute(name);
 	}
 	
+	@Kroll.method
 	public AttrProxy getAttributeNode(String name) {
 		return getProxy(element.getAttributeNode(name));
 	}
 	
+	@Kroll.method
 	public AttrProxy getAttributeNodeNS(String namespaceURI, String localName)
 			throws DOMException {
 		return getProxy(element.getAttributeNodeNS(namespaceURI, localName));
 	}
 	
+	@Kroll.method
 	public String getAttributeNS(String namespaceURI, String localName)
 			throws DOMException {
 		return element.getAttributeNS(namespaceURI, localName);
 	}
 	
+	@Kroll.method
 	public NodeListProxy getElementsByTagName(String name) {
 		return new NodeListProxy(getTiContext(), element.getElementsByTagName(name));
 	}
 	
+	@Kroll.method
 	public NodeListProxy getElementsByTagNameNS(String namespaceURI, String localName)
 			throws DOMException {
 		return new NodeListProxy(getTiContext(), element.getElementsByTagNameNS(namespaceURI, localName));
 	}
 	
+	@Kroll.getProperty @Kroll.method
 	public String getTagName() {
 		return element.getTagName();
 	}
 	
+	@Kroll.method
 	public boolean hasAttribute(String name) {
 		return element.hasAttribute(name);
 	}
-	
+
+	@Kroll.method
 	public boolean hasAttributeNS(String namespaceURI, String localName)
 			throws DOMException {
 		return element.hasAttributeNS(namespaceURI, localName);
 	}
 	
+	@Kroll.method
 	public void removeAttribute(String name) throws DOMException {
 		element.removeAttribute(name);
 	}
 	
+	@Kroll.method
 	public AttrProxy removeAttributeNode(AttrProxy oldAttr) throws DOMException {
 		return getProxy(element.removeAttributeNode(oldAttr.getAttr()));
 	}
 	
+	@Kroll.method
 	public void removeAttributeNS(String namespaceURI, String localName)
 			throws DOMException {
 		element.removeAttributeNS(namespaceURI, localName);
 	}
 	
+	@Kroll.method
 	public void setAttribute(String name, String value) throws DOMException {
 		element.setAttribute(name, value);
 	}
 	
+	@Kroll.method
 	public AttrProxy setAttributeNode(AttrProxy newAttr) throws DOMException {
 		return getProxy(element.setAttributeNode(newAttr.getAttr()));
 	}
 	
+	@Kroll.method
 	public AttrProxy setAttributeNodeNS(AttrProxy newAttr) throws DOMException {
 		return getProxy(element.setAttributeNodeNS(newAttr.getAttr()));
 	}
 	
+	@Kroll.method
 	public void setAttributeNS(String namespaceURI, String qualifiedName,
 			String value) throws DOMException {
 		element.setAttributeNS(namespaceURI, qualifiedName, value);

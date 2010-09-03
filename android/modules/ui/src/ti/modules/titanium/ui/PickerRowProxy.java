@@ -7,12 +7,13 @@
 
 package ti.modules.titanium.ui;
 
-import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
+import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConvert;
 
+@Kroll.proxy(creatableInModule="UI")
 public class PickerRowProxy extends KrollProxy 
 {
 	private static final String LCAT = "PickerRowProxy";
@@ -21,21 +22,13 @@ public class PickerRowProxy extends KrollProxy
 	{
 		super(tiContext);
 	}
-	
-	public PickerRowProxy(TiContext tiContext, Object[] args)
-	{
-		super(tiContext);
-		if (args != null && args.length > 0) {
-			setProperties((KrollDict) args[0]);
-		}
-	}
 
 	@Override
 	public String toString()
 	{
 		String text = "[PickerRow]";
-		if (hasDynamicValue("title")) {
-			text = TiConvert.toString(getDynamicProperties(), "title");
+		if (hasProperty("title")) {
+			text = TiConvert.toString(getProperty("title"));
 		}
 		return text;
 	}
@@ -53,5 +46,4 @@ public class PickerRowProxy extends KrollProxy
 	{
 		Log.w(LCAT, "PickerRow does not support child controls");
 	}
-		
 }

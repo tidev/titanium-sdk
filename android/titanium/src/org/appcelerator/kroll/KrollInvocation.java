@@ -7,14 +7,11 @@
 package org.appcelerator.kroll;
 
 import org.appcelerator.titanium.TiContext;
-import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Scriptable;
-
-import android.app.Activity;
 
 public class KrollInvocation {
 
-	protected Scriptable scope;
+	protected Scriptable scope, thisObj;
 	protected String name;
 	protected boolean isPropertyGet, isPropertySet, isMethod;
 	protected KrollMethod method;
@@ -23,11 +20,12 @@ public class KrollInvocation {
 	protected KrollProxy proxy;
 	protected KrollInvocation() {}
 	
-	public static KrollInvocation createMethodInvocation(TiContext tiContext, Scriptable scope, String name, KrollMethod method, KrollProxy proxy)
+	public static KrollInvocation createMethodInvocation(TiContext tiContext, Scriptable scope, Scriptable thisObj, String name, KrollMethod method, KrollProxy proxy)
 	{
 		KrollInvocation invocation = new KrollInvocation();
 		invocation.tiContext = tiContext;
 		invocation.scope = scope;
+		invocation.thisObj = thisObj;
 		invocation.name = name;
 		invocation.method = method;
 		invocation.isMethod = true;
@@ -35,11 +33,12 @@ public class KrollInvocation {
 		return invocation;
 	}
 	
-	public static KrollInvocation createPropertyGetInvocation(TiContext tiContext, Scriptable scope, String name, KrollDynamicProperty property, KrollProxy proxy)
+	public static KrollInvocation createPropertyGetInvocation(TiContext tiContext, Scriptable scope, Scriptable thisObj, String name, KrollDynamicProperty property, KrollProxy proxy)
 	{
 		KrollInvocation invocation = new KrollInvocation();
 		invocation.tiContext = tiContext;
 		invocation.scope = scope;
+		invocation.thisObj = thisObj;
 		invocation.name = name;
 		invocation.isPropertyGet = true;
 		invocation.property = property;
@@ -47,11 +46,12 @@ public class KrollInvocation {
 		return invocation;
 	}
 	
-	public static KrollInvocation createPropertySetInvocation(TiContext tiContext, Scriptable scope, String name, KrollDynamicProperty property, KrollProxy proxy)
+	public static KrollInvocation createPropertySetInvocation(TiContext tiContext, Scriptable scope, Scriptable thisObj, String name, KrollDynamicProperty property, KrollProxy proxy)
 	{
 		KrollInvocation invocation = new KrollInvocation();
 		invocation.tiContext = tiContext;
 		invocation.scope = scope;
+		invocation.thisObj = thisObj;
 		invocation.name = name;
 		invocation.isPropertySet = true;
 		invocation.property = property;
@@ -61,6 +61,10 @@ public class KrollInvocation {
 
 	public Scriptable getScope() {
 		return scope;
+	}
+	
+	public Scriptable getThisObj() {
+		return thisObj;
 	}
 
 	public String getName() {

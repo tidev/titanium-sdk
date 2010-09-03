@@ -250,7 +250,7 @@ public class TiUIText extends TiUIView
 			}			
 
 		} else if (key.equals("keyboardType") || (key.equals("autocorrect"))) {
-			KrollDict d = proxy.getDynamicProperties();
+			KrollDict d = proxy.getProperties();
 			boolean autocorrect = false;
 			if (d.containsKey("autocorrect")) {
 				autocorrect = d.getBoolean("autocorrect");
@@ -282,14 +282,14 @@ public class TiUIText extends TiUIView
 		KrollDict data = new KrollDict();
 		data.put("value", value);
 
-		proxy.internalSetDynamicValue("value", value, false);
+		proxy.setProperty("value", value);
 		proxy.fireEvent("change", data);
 	}
 
 
 	public void onFocusChange(View v, boolean hasFocus) {
 		if (hasFocus) {
-			Boolean clearOnEdit = (Boolean) proxy.getDynamicValue("clearOnEdit");
+			Boolean clearOnEdit = (Boolean) proxy.getProperty("clearOnEdit");
 			if (clearOnEdit != null && clearOnEdit) {
 				((EditText) nativeView).setText("");
 			}
@@ -314,7 +314,7 @@ public class TiUIText extends TiUIView
 		KrollDict data = new KrollDict();
 		data.put("value", value);
 
-		proxy.internalSetDynamicValue("value", value, false);
+		proxy.setProperty("value", value);
 		if (DBG) {
 			Log.e(LCAT, "ActionID: " + actionId + " KeyEvent: " + (keyEvent != null ? keyEvent.getKeyCode() : null));
 		}
@@ -322,7 +322,7 @@ public class TiUIText extends TiUIView
 			proxy.fireEvent("return", data);
 		}
 
-		Boolean enableReturnKey = (Boolean) proxy.getDynamicValue("enableReturnKey");
+		Boolean enableReturnKey = (Boolean) proxy.getProperty("enableReturnKey");
 		if (enableReturnKey != null && enableReturnKey && v.getText().length() == 0) {
 			return true;
 		}

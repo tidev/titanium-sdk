@@ -4,6 +4,7 @@ import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Function;
 import org.mozilla.javascript.Scriptable;
 
+@SuppressWarnings("serial")
 public class KrollScriptableMethod extends KrollMethod {
 
 	protected Function function;
@@ -34,7 +35,7 @@ public class KrollScriptableMethod extends KrollMethod {
 		}
 		
 		Object result = function.call(context, invocation.scope, thisObject, convertedArgs);
-		return KrollConverter.getInstance().convertJavascript(invocation, result);
+		return KrollConverter.getInstance().convertJavascript(invocation, result, Object.class);
 	}
 
 }

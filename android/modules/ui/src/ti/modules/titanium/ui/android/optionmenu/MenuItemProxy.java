@@ -6,19 +6,14 @@
  */
 package ti.modules.titanium.ui.android.optionmenu;
 
-import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
+import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiContext;
 
+@Kroll.proxy(creatableInModule="UI.Android.OptionMenu")
 public class MenuItemProxy extends KrollProxy {
 
-	public MenuItemProxy(TiContext tiContext, Object[] args) {
+	public MenuItemProxy(TiContext tiContext) {
 		super(tiContext);
-
-		if (args != null && args.length > 0) {
-			KrollDict options = (KrollDict) args[0];
-
-			setProperties(options);
-		}
 	}
 }

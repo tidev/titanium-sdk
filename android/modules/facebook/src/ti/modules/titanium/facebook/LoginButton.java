@@ -10,6 +10,7 @@ import java.io.InputStream;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
+import org.appcelerator.titanium.kroll.KrollBridge;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
@@ -86,7 +87,12 @@ public class LoginButton extends TiUIView {
 	public void processProperties(KrollDict d) {
 		super.processProperties(d);
 
-		facebook = (FacebookModule) TiModule.getModule("Facebook");
+		KrollBridge bridge = (KrollBridge) getProxy().getTiContext().getJSContext();
+		try {
+			facebook = (FacebookModule) bridge.getRootObject().get(bridge.getScope(), "Facebook");
+		} catch (NoSuchFieldException e) {}
+		
+		//facebook = (FacebookModule) TiModule.getModule("Facebook");
 		if (facebook == null) {
 			facebook = new FacebookModule(getProxy().getTiContext());
 		}

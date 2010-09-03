@@ -110,8 +110,8 @@ public class TiTableView extends FrameLayout
 						rowTypes.put(item.className, rowTypeCounter.incrementAndGet());
 						classChange = true;
 					}
-					if (item.proxy.hasDynamicValue(filterAttribute)) {
-						String t = TiConvert.toString(item.proxy.getDynamicValue(filterAttribute));
+					if (item.proxy.hasProperty(filterAttribute)) {
+						String t = TiConvert.toString(item.proxy.getProperty(filterAttribute));
 						if (filterCaseInsensitive) {
 							t = t.toLowerCase();
 						}
@@ -331,19 +331,19 @@ public class TiTableView extends FrameLayout
 		listView.setBackgroundColor(Color.TRANSPARENT);
 		listView.setCacheColorHint(Color.TRANSPARENT);
 
-		if (proxy.getDynamicProperties().containsKey("separatorColor")) {
-			setSeparatorColor(TiConvert.toString(proxy.getDynamicValue("separatorColor")));
+		if (proxy.getProperties().containsKey("separatorColor")) {
+			setSeparatorColor(TiConvert.toString(proxy.getProperty("separatorColor")));
 
 		}
 
 		adapter = new TTVListAdapter(viewModel);
 
-		if (proxy.getDynamicProperties().containsKey("headerView")) {
-			TiViewProxy view = (TiViewProxy) proxy.getDynamicValue("headerView");
+		if (proxy.getProperties().containsKey("headerView")) {
+			TiViewProxy view = (TiViewProxy) proxy.getProperty("headerView");
 			listView.addHeaderView(layoutHeaderOrFooter(view), null, false);
 		}
-		if (proxy.getDynamicProperties().containsKey("footerView")) {
-			TiViewProxy view = (TiViewProxy) proxy.getDynamicValue("footerView");
+		if (proxy.getProperties().containsKey("footerView")) {
+			TiViewProxy view = (TiViewProxy) proxy.getProperty("footerView");
 			listView.addFooterView(layoutHeaderOrFooter(view), null, false);
 		}
 
@@ -358,7 +358,7 @@ public class TiTableView extends FrameLayout
 						return;
 					}
 
-					if (TiTableView.this.proxy.hasDynamicValue("headerView")) {
+					if (TiTableView.this.proxy.hasProperty("headerView")) {
 						position -= 1;
 					}
 					TiBaseTableViewItem v = (TiBaseTableViewItem) view;
@@ -392,14 +392,14 @@ public class TiTableView extends FrameLayout
 					return;
 				}
 
-				if (TiTableView.this.proxy.hasDynamicValue("headerView")) {
+				if (TiTableView.this.proxy.hasProperty("headerView")) {
 					position -= 1;
 				}
 				TiBaseTableViewItem v = (TiBaseTableViewItem) view;
 				KrollDict viewProperties = null;
 				Item item = viewModel.getViewModel().get(adapter.index.get(position));
 				if (item.proxy != null) {
-					viewProperties = item.proxy.getDynamicProperties();
+					viewProperties = item.proxy.getProperties();
 					if (viewProperties.containsKey("selectedBackgroundImage")) {
 						v.setBackgroundImageProperty(viewProperties, "selectedBackgroundImage");
 					} else if (viewProperties.containsKey("selectedBackgroundColor")) {

@@ -8,8 +8,12 @@
 package ti.modules.titanium.accelerometer;
 
 import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.KrollProxy;
+import org.appcelerator.kroll.KrollProxyListener;
+import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiContext;
+import org.appcelerator.titanium.TiContext.OnLifecycleEvent;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiSensorHelper;
 
@@ -18,8 +22,9 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 
-public class AccelerometerModule
-	extends TiModule
+@Kroll.module
+public class AccelerometerModule extends KrollModule
+	implements KrollProxyListener, OnLifecycleEvent
 {
 	private static final String LCAT = "TiAccelerometer";
 	private static final boolean DBG = TiConfig.LOGD;
@@ -42,7 +47,6 @@ public class AccelerometerModule
 	public AccelerometerModule(TiContext tiContext)
 	{
 		super(tiContext);
-
 		sensorHelper = new TiSensorHelper();
 		updateListener = createUpdateListener();
 
@@ -50,11 +54,6 @@ public class AccelerometerModule
 		listeningForUpdate = false;
 
 		tiContext.addOnEventChangeListener(this);
-	}
-
-	@Override
-	public KrollDict getConstants() {
-		return null;
 	}
 
 	protected SensorEventListener createUpdateListener() {
@@ -90,7 +89,6 @@ public class AccelerometerModule
 	@Override
 	public void listenerAdded(String eventName, int count, KrollProxy proxy) {
 		super.listenerAdded(eventName, count, proxy);
-
 		if (eventName != null && eventName.equals(EVENT_UPDATE)) {
 			if (proxy != null && proxy.equals(this)) {
 				if (!listeningForUpdate) {
@@ -138,7 +136,6 @@ public class AccelerometerModule
 	@Override
 	public void onResume() {
 		super.onResume();
-
 		sensorAttached = sensorHelper.attach(getTiContext().getActivity());
 
 		if (sensorAttached) {
@@ -151,7 +148,6 @@ public class AccelerometerModule
 	@Override
 	public void onPause() {
 		super.onPause();
-
 		if (sensorAttached) {
 			manageUpdateListener(false);
 

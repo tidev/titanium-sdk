@@ -6,6 +6,7 @@
  */
 package ti.modules.titanium.map;
 
+import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiContext.OnLifecycleEvent;
@@ -18,6 +19,7 @@ import android.app.LocalActivityManager;
 import android.content.Intent;
 import android.view.Window;
 
+@Kroll.proxy
 public class ViewProxy extends TiViewProxy
 	implements OnLifecycleEvent
 {
@@ -25,8 +27,8 @@ public class ViewProxy extends TiViewProxy
 	private static LocalActivityManager lam;
 	private static Window mapWindow;
 
-	public ViewProxy(TiContext tiContext, Object[] args) {
-		super(tiContext, args);
+	public ViewProxy(TiContext tiContext) {
+		super(tiContext);
 
 		tiContext.addOnEventChangeListener(this);
 		tiContext.addOnLifecycleEventListener(this);
@@ -51,6 +53,7 @@ public class ViewProxy extends TiViewProxy
 		return new TiMapView(this, mapWindow);
 	}
 
+	@Kroll.method
 	public void zoom(int delta) {
 		TiMapView mv = (TiMapView) view;
 		if (mv != null) {
@@ -58,6 +61,7 @@ public class ViewProxy extends TiViewProxy
 		}
 	}
 
+	@Kroll.method
 	public void removeAllAnnotations()
 	{
 		TiMapView mv = (TiMapView) view;
@@ -66,23 +70,21 @@ public class ViewProxy extends TiViewProxy
 		}
 	}
 
-	public void addAnnotation(Object arg)
+	@Kroll.method
+	public void addAnnotation(AnnotationProxy annotation)
 	{
-		if (arg != null) {
-			if (arg instanceof AnnotationProxy) {
-				TiMapView mv = (TiMapView) view;
-				mv.addAnnotation((AnnotationProxy) arg);
-			}
-		}
+		TiMapView mv = (TiMapView) view;
+		mv.addAnnotation(annotation);
 	}
 
+	@Kroll.method
 	public void removeAnnotation(Object arg)
 	{
 		String title = null;
 
 		if (arg != null) {
 			if (arg instanceof AnnotationProxy) {
-				title = TiConvert.toString(((AnnotationProxy) arg).getDynamicValue("title"));
+				title = TiConvert.toString(((AnnotationProxy) arg).getProperty("title"));
 			} else {
 				title = TiConvert.toString(arg);
 			}
@@ -96,13 +98,14 @@ public class ViewProxy extends TiViewProxy
 		}
 	}
 
+	@Kroll.method
 	public void selectAnnotation(Object[] args)
 	{
 		String title = null;
 
 		if (args.length > 0) {
 			if (args[0] instanceof AnnotationProxy) {
-				title = TiConvert.toString(((AnnotationProxy) args[0]).getDynamicValue("title"));
+				title = TiConvert.toString(((AnnotationProxy) args[0]).getProperty("title"));
 			} else if (args[0] instanceof String) {
 				title = TiConvert.toString(args[0]);
 			}

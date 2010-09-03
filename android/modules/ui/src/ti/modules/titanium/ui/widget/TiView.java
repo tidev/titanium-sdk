@@ -18,7 +18,7 @@ public class TiView extends TiUIView
 	public TiView(TiViewProxy proxy) {
 		super(proxy);
 
-		boolean vertical = proxy.hasDynamicValue("layout") && TiConvert.toString(proxy.getDynamicValue("layout")).equals("vertical");
+		boolean vertical = proxy.hasProperty("layout") && TiConvert.toString(proxy.getProperty("layout")).equals("vertical");
 		setNativeView(new TiCompositeLayout(proxy.getContext(), vertical));
 	}
 

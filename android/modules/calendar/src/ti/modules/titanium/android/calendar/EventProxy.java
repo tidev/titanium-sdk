@@ -5,6 +5,7 @@ import java.util.Date;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
+import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConvert;
@@ -16,6 +17,7 @@ import android.database.Cursor;
 import android.net.Uri;
 
 // Columns and value constants taken from android.provider.Calendar in the android source base
+@Kroll.proxy
 public class EventProxy extends KrollProxy {
 	public static final String TAG = "TiEvent";
 	
@@ -198,76 +200,93 @@ public class EventProxy extends KrollProxy {
 		return alerts.toArray(new AlertProxy[alerts.size()]);
 	}
 	
+	@Kroll.method
 	public AlertProxy createAlert(KrollDict data) {
 		int minutes = TiConvert.toInt(data, "minutes");
 		return AlertProxy.createAlert(getTiContext(), this, minutes);
 	}
 	
+	@Kroll.getProperty @Kroll.method
 	public String getId() {
 		return id;
 	}
 
+	@Kroll.getProperty @Kroll.method
 	public String getTitle() {
 		return title;
 	}
 
+	@Kroll.getProperty @Kroll.method
 	public String getDescription() {
 		return description;
 	}
 
+	@Kroll.getProperty @Kroll.method
 	public String getLocation() {
 		return location;
 	}
 
+	@Kroll.getProperty @Kroll.method
 	public Date getBegin() {
 		return begin;
 	}
 
+	@Kroll.getProperty @Kroll.method
 	public Date getEnd() {
 		return end;
 	}
 
+	@Kroll.getProperty @Kroll.method
 	public boolean getAllDay() {
 		return allDay;
 	}
 
+	@Kroll.getProperty @Kroll.method
 	public boolean getHasAlarm() {
 		return hasAlarm;
 	}
 	
+	@Kroll.getProperty @Kroll.method
 	public boolean getHasExtendedProperties() {
 		return hasExtendedProperties;
 	}
 	
-	
+	@Kroll.getProperty @Kroll.method
 	public int getStatus() {
 		return status;
 	}
 
+	@Kroll.getProperty @Kroll.method
 	public int getVisibility() {
 		return visibility;
 	}
 
+	@Kroll.getProperty @Kroll.method
 	public String getRecurrenceRule() {
 		return recurrenceRule;
 	}
 
+	@Kroll.getProperty @Kroll.method
 	public String getRecurrenceDate() {
 		return recurrenceDate;
 	}
 
+	@Kroll.getProperty @Kroll.method
 	public String getRecurrenceExceptionRule() {
 		return recurrenceExceptionRule;
 	}
 
+	@Kroll.getProperty @Kroll.method
 	public String getRecurrenceExceptionDate() {
 		return recurrenceExceptionDate;
 	}
 
+	@Kroll.getProperty @Kroll.method
 	public Date getLastDate() {
 		return lastDate;
 	}
 	
+	@Kroll.getProperty @Kroll.method
 	public KrollDict getExtendedProperties() {
 		KrollDict extendedProperties = new KrollDict();
 		ContentResolver contentResolver = getTiContext().getActivity().getContentResolver();
@@ -284,6 +303,7 @@ public class EventProxy extends KrollProxy {
 		return extendedProperties;
 	}
 	
+	@Kroll.method
 	public String getExtendedProperty(String name) {
 		ContentResolver contentResolver = getTiContext().getActivity().getContentResolver();
 		Cursor extPropsCursor = contentResolver.query(
@@ -300,6 +320,7 @@ public class EventProxy extends KrollProxy {
 		return null;
 	}
 	
+	@Kroll.method
 	public void setExtendedProperty(String name, String value) {
 		if (!hasExtendedProperties) {
 			hasExtendedProperties = true;

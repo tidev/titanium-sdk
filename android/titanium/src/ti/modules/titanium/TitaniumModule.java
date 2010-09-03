@@ -44,18 +44,18 @@ public class TitaniumModule
 		tiContext.addOnLifecycleEventListener(this);
 	}
 	
-	@Kroll.getProperty
-	public String getUserAgent(KrollInvocation invocation) {
-		return System.getProperties().getProperty("http.agent")+" Titanium/"+getVersion(invocation);
+	@Kroll.getProperty @Kroll.method
+	public String getUserAgent() {
+		return System.getProperties().getProperty("http.agent")+" Titanium/"+getVersion();
 	}
 	
-	@Kroll.getProperty
-	public String getVersion(KrollInvocation invocation) {
+	@Kroll.getProperty @Kroll.method
+	public String getVersion() {
 		return getTiContext().getTiApp().getTiBuildVersion();
 	}
 	
-	@Kroll.getProperty
-	public String getBuildTimestamp(KrollInvocation invocation) {
+	@Kroll.getProperty @Kroll.method
+	public String getBuildTimestamp() {
 		return getTiContext().getTiApp().getTiBuildTimestamp();
 	}
 
@@ -117,14 +117,14 @@ public class TitaniumModule
 	}
 
 	@Kroll.method
-	public int setTimeout(KrollInvocation invocation, Object fn, long timeout, final Object[] args)
+	public int setTimeout(Object fn, long timeout, final Object[] args)
 		throws IllegalArgumentException
 	{
 		return createTimer(fn, timeout, args, false);
 	}
 
 	@Kroll.method
-	public void clearTimeout(KrollInvocation invocation, int timerId) {
+	public void clearTimeout(int timerId) {
 		if (timers.containsKey(timerId)) {
 			Timer timer = timers.remove(timerId);
 			timer.cancel();
@@ -132,19 +132,19 @@ public class TitaniumModule
 	}
 
 	@Kroll.method
-	public int setInterval(KrollInvocation invocation, Object fn, long timeout, final Object[] args)
+	public int setInterval(Object fn, long timeout, final Object[] args)
 		throws IllegalArgumentException
 	{
 		return createTimer(fn, timeout, args, true);
 	}
 
 	@Kroll.method
-	public void clearInterval(KrollInvocation invocation, int timerId) {
-		clearTimeout(invocation, timerId);
+	public void clearInterval(int timerId) {
+		clearTimeout(timerId);
 	}
 
 	@Kroll.method
-	public void alert(KrollInvocation invocation, Object message) {
+	public void alert(Object message) {
 		String msg = (message == null? null : message.toString());
 		Log.i("ALERT", msg);
 		Activity currentActivity = getTiContext().getTiApp().getCurrentActivity();
@@ -164,7 +164,7 @@ public class TitaniumModule
 	}
 	
 	@Kroll.method
-	public KrollProxy require(KrollInvocation invocation, String path) {
+	public KrollProxy require(String path) {
 		
 		// 1. look for a TiPlus module first
 		// 2. then look for a cached module

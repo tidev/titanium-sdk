@@ -51,7 +51,7 @@ public class TiUIScrollView extends TiUIView {
 		}
 
 		private int getContentProperty(String property) {
-			Object value = getProxy().getDynamicValue(property);
+			Object value = getProxy().getProperty(property);
 			if (value != null) {
 				if (value.equals("auto")) {
 					return AUTO;
@@ -321,6 +321,17 @@ public class TiUIScrollView extends TiUIView {
 		getNativeView().scrollTo(x, y);
 		getNativeView().computeScroll();
 		//getLayout().scrollTo(x, y);
+	}
+	
+	public void scrollToBottom() {
+		View view = getNativeView();
+		if (view instanceof TiHorizontalScrollView) {
+			TiHorizontalScrollView scrollView = (TiHorizontalScrollView)view;
+			scrollView.fullScroll(View.FOCUS_RIGHT);
+		} else if (view instanceof TiVerticalScrollView) {
+			TiVerticalScrollView scrollView = (TiVerticalScrollView)view;
+			scrollView.fullScroll(View.FOCUS_DOWN);
+		}
 	}
 	
 	@Override

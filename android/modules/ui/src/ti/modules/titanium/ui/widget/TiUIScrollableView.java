@@ -39,7 +39,7 @@ public class TiUIScrollableView extends TiUIView
 	public void processProperties(KrollDict d) {
 		if (d.containsKey("views")) {
 			getView().setViews(d.get("views"));
-			proxy.getDynamicProperties().remove("views"); // Don't store
+			proxy.getProperties().remove("views"); // Don't store
 		} 
 		if (d.containsKey("showPagingControls")) {
 			getView().setShowPagingControl(TiConvert.toBoolean(d, "showPagingControls"));
@@ -66,8 +66,8 @@ public class TiUIScrollableView extends TiUIView
 
 	public void setViews(Object viewsObject) {
 		getView().setViews(viewsObject);
-		if (proxy.hasDynamicValue("currentPage")) {
-			setCurrentPage(TiConvert.toInt(proxy.getDynamicValue("currentPage")));
+		if (proxy.hasProperty("currentPage")) {
+			setCurrentPage(TiConvert.toInt(proxy.getProperty("currentPage")));
 		}
 	}
 
@@ -77,7 +77,7 @@ public class TiUIScrollableView extends TiUIView
 
 	public void showPager()
 	{
-		boolean showPagingControl = TiConvert.toBoolean(proxy.getDynamicValue("showPagingControl"));
+		boolean showPagingControl = TiConvert.toBoolean(proxy.getProperty("showPagingControl"));
 		if (showPagingControl) {
 			getView().showPager();
 		}

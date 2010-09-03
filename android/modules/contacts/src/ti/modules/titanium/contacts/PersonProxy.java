@@ -13,6 +13,7 @@ import java.util.Map;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
+import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.Log;
 
@@ -22,15 +23,18 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.provider.Contacts;
 
+@Kroll.proxy @SuppressWarnings("unused")
 public class PersonProxy extends KrollProxy
 {
 	private static final String LCAT = "PersonProxy";
-	private String lastName, firstName, fullName, middleName, firstPhonetic, lastPhonetic, middlePhonetic, department;
-	private String jobTitle, nickname, note, organization, prefix, suffix;
-	private String birthday, created, modified;
-	private int kind;
-	private KrollDict email, phone, address;
-	private long id;
+
+	@Kroll.property private String lastName, firstName, fullName, middleName, firstPhonetic, lastPhonetic, middlePhonetic, department;
+	@Kroll.property private String jobTitle, nickname, note, organization, prefix, suffix;
+	@Kroll.property private String birthday, created, modified;
+	
+	@Kroll.property private int kind;
+	@Kroll.property private KrollDict email, phone, address;
+	@Kroll.property private long id;
 	
 	protected static final String[] PEOPLE_PROJECTION = new String[] {
         Contacts.People._ID,
@@ -124,11 +128,11 @@ public class PersonProxy extends KrollProxy
 			cursor.moveToFirst();
 		}
 		PersonProxy person = new PersonProxy(tiContext);
-		person.setFullName(cursor.getString(cursor.getColumnIndex(Contacts.People.NAME)));
-		person.setKind(ContactsModule.CONTACTS_KIND_PERSON) ;
-		person.setNote(cursor.getString(cursor.getColumnIndex(Contacts.People.NOTES)));
+		person.fullName = cursor.getString(cursor.getColumnIndex(Contacts.People.NAME));
+		person.kind = ContactsModule.CONTACTS_KIND_PERSON;
+		person.note = cursor.getString(cursor.getColumnIndex(Contacts.People.NOTES));
 		long personId = cursor.getInt(cursor.getColumnIndex(Contacts.People._ID));
-		person.setId(personId);
+		person.id = personId;
 		
 		Cursor emailsCursor = tiContext.getActivity().managedQuery(Contacts.ContactMethods.CONTENT_URI, 
 				CONTACT_METHOD_PROJECTION, 
@@ -235,185 +239,6 @@ public class PersonProxy extends KrollProxy
 		return person;
 	}
 
-	public String getBirthday()
-	{
-		return birthday;
-	}
-
-	public void setBirthday(String birthday)
-	{
-		this.birthday = birthday;
-	}
-
-	public String getCreated()
-	{
-		return created;
-	}
-
-	public void setCreated(String created)
-	{
-		this.created = created;
-	}
-
-	public String getModified()
-	{
-		return modified;
-	}
-
-	public void setModified(String modified)
-	{
-		this.modified = modified;
-	}
-
-	public String getLastName()
-	{
-		return lastName;
-	}
-
-	public void setLastName(String lastName)
-	{
-		this.lastName = lastName;
-	}
-
-	public String getFirstName()
-	{
-		return firstName;
-	}
-
-	public void setFirstName(String firstName)
-	{
-		this.firstName = firstName;
-	}
-
-	public String getFullName()
-	{
-		return fullName;
-	}
-
-	public void setFullName(String fullName)
-	{
-		this.fullName = fullName;
-	}
-
-	public String getMiddleName()
-	{
-		return middleName;
-	}
-
-	public void setMiddleName(String middleName)
-	{
-		this.middleName = middleName;
-	}
-
-	public String getFirstPhonetic()
-	{
-		return firstPhonetic;
-	}
-
-	public void setFirstPhonetic(String firstPhonetic)
-	{
-		this.firstPhonetic = firstPhonetic;
-	}
-
-	public String getLastPhonetic()
-	{
-		return lastPhonetic;
-	}
-
-	public void setLastPhonetic(String lastPhonetic)
-	{
-		this.lastPhonetic = lastPhonetic;
-	}
-
-	public String getMiddlePhonetic()
-	{
-		return middlePhonetic;
-	}
-
-	public void setMiddlePhonetic(String middlePhonetic)
-	{
-		this.middlePhonetic = middlePhonetic;
-	}
-
-	public String getDepartment()
-	{
-		return department;
-	}
-
-	public void setDepartment(String department)
-	{
-		this.department = department;
-	}
-
-	public String getJobTitle()
-	{
-		return jobTitle;
-	}
-
-	public void setJobTitle(String jobTitle)
-	{
-		this.jobTitle = jobTitle;
-	}
-
-	public String getNickname()
-	{
-		return nickname;
-	}
-
-	public void setNickname(String nickname)
-	{
-		this.nickname = nickname;
-	}
-
-	public String getNote()
-	{
-		return note;
-	}
-
-	public void setNote(String note)
-	{
-		this.note = note;
-	}
-
-	public String getOrganization()
-	{
-		return organization;
-	}
-
-	public void setOrganization(String organization)
-	{
-		this.organization = organization;
-	}
-
-	public String getPrefix()
-	{
-		return prefix;
-	}
-
-	public void setPrefix(String prefix)
-	{
-		this.prefix = prefix;
-	}
-
-	public String getSuffix()
-	{
-		return suffix;
-	}
-
-	public void setSuffix(String suffix)
-	{
-		this.suffix = suffix;
-	}
-	
-	public KrollDict getEmail()
-	{
-		return email;
-	}
-	public void setEmail(KrollDict email)
-	{
-		this.email = email;
-	}
-	
 	private KrollDict contactMethodMapToDict(Map<String, ArrayList<String>> map)
 	{
 		KrollDict result = new KrollDict();
@@ -450,46 +275,4 @@ public class PersonProxy extends KrollProxy
 			address.put(key, dictValues);
 		}
 	}
-
-	public void setPhone(KrollDict phone)
-	{
-		this.phone = phone;
-	}
-
-	public KrollDict getPhone()
-	{
-		return phone;
-	}
-	
-	public KrollDict getAddress()
-	{
-		return address;
-	}
-
-	public void setAddress(KrollDict address)
-	{
-		this.address = address;
-	}
-
-	public void setKind(int kind)
-	{
-		this.kind = kind;
-	}
-
-	public int getKind()
-	{
-		return kind;
-	}
-
-	public void setId(long id)
-	{
-		this.id = id;
-	}
-
-	public long getId()
-	{
-		return id;
-	}
-
-	
 }

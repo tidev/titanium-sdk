@@ -71,7 +71,7 @@ public class TiUIDatePicker extends TiUIView
         suppressChangeEvent = false;
         
         if (!valueExistsInProxy) {
-        	proxy.internalSetDynamicValue("value", calendar.getTime(), false);
+        	proxy.setProperty("value", calendar.getTime());
         }
         
         //iPhone ignores both values if max <= min
@@ -105,7 +105,7 @@ public class TiUIDatePicker extends TiUIView
 			data.put("value", calendar.getTime());
 			proxy.fireEvent("change", data);
 		}
-		proxy.internalSetDynamicValue("value", calendar.getTime(), false);
+		proxy.setProperty("value", calendar.getTime());
 	}
 	
 	public void setValue(long value)

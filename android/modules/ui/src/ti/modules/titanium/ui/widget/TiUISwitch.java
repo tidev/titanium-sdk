@@ -66,7 +66,7 @@ public class TiUISwitch extends TiUIView
 		ToggleButton btn = (ToggleButton) v;
 		boolean isChecked = btn.isChecked();
 		data.put("value", isChecked);
-		proxy.internalSetDynamicValue("value", isChecked, false);
+		proxy.setProperty("value", isChecked);
 		proxy.fireEvent("change", data);
 	}
 }

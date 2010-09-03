@@ -12,6 +12,8 @@ import java.io.IOException;
 import java.util.Date;
 
 import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollModule;
+import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.ContextSpecific;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiContext;
@@ -39,8 +41,8 @@ import android.provider.MediaStore;
 import android.provider.MediaStore.Images;
 import android.view.Window;
 
-@ContextSpecific
-public class MediaModule extends TiModule
+@Kroll.module @ContextSpecific
+public class MediaModule extends KrollModule
 {
 	private static final String LCAT = "TiMedia";
 	private static final boolean DBG = TiConfig.LOGD;
@@ -48,41 +50,25 @@ public class MediaModule extends TiModule
 	private static final long[] DEFAULT_VIBRATE_PATTERN = { 100L,250L };
 	private static final String PHOTO_DCIM_CAMERA = "/sdcard/dcim/Camera";
 
-	protected static final int UNKNOWN_ERROR = 0;
-	protected static final int DEVICE_BUSY = 1;
-	protected static final int NO_CAMERA = 2;
-	protected static final int NO_VIDEO = 3;
+	@Kroll.constant public static final int UNKNOWN_ERROR = 0;
+	@Kroll.constant public static final int DEVICE_BUSY = 1;
+	@Kroll.constant public static final int NO_CAMERA = 2;
+	@Kroll.constant public static final int NO_VIDEO = 3;
 
-	protected static KrollDict constants;
+	@Kroll.constant public static final int VIDEO_SCALING_ASPECT_FILL = 0;
+	@Kroll.constant public static final int VIDEO_SCALING_MODE_FILL = 1;
 
+	@Kroll.constant public static final int VIDEO_CONTROL_DEFAULT = 0;
+	
 	public MediaModule(TiContext tiContext)
 	{
 		super(tiContext);
 	}
 
-	@Override
-	public KrollDict getConstants()
+	@Kroll.method
+	public void vibrate(@Kroll.argument(optional=true) long[] pattern)
 	{
-		if (constants == null) {
-			constants = new KrollDict();
-
-			constants.put("UNKNOWN_ERROR", UNKNOWN_ERROR);
-			constants.put("DEVICE_BUSY", DEVICE_BUSY);
-			constants.put("NO_CAMERA", NO_CAMERA);
-			constants.put("NO_VIDEO", NO_VIDEO);
-
-			constants.put("VIDEO_SCALING_ASPECT_FILL", 0);
-			constants.put("VIDEO_SCALING_MODE_FILL", 1);
-
-			constants.put("VIDEO_CONTROL_DEFAULT", 0);
-		}
-
-		return constants;
-	}
-
-	public void vibrate(long[] pattern)
-	{
-		if (pattern == null) {
+		if (pattern.length == 0) {
 			pattern = DEFAULT_VIBRATE_PATTERN;
 		}
 		Vibrator vibrator = (Vibrator) getTiContext().getTiApp().getSystemService(Context.VIBRATOR_SERVICE);
@@ -91,10 +77,9 @@ public class MediaModule extends TiModule
 		}
 	}
 
-	public void showCamera(Object[] args)
+	@Kroll.method
+	public void showCamera(KrollDict options)
 	{
-		KrollDict options = (KrollDict) args[0];
-
 		KrollCallback successCallback = null;
 		KrollCallback cancelCallback = null;
 		KrollCallback errorCallback = null;
@@ -128,7 +113,7 @@ public class MediaModule extends TiModule
 				camera.release();
 			}
 			if (errorCallback != null) {
-				errorCallback.callWithProperties(createErrorResponse(NO_CAMERA, "Camera not available."));
+				errorCallback.call(createErrorResponse(NO_CAMERA, "Camera not available."));
 			}
 			return;
 		}
@@ -168,7 +153,7 @@ public class MediaModule extends TiModule
 		} catch (IOException e) {
 			Log.e(LCAT, "Unable to create temp file", e);
 			if (errorCallback != null) {
-				errorCallback.callWithProperties(createErrorResponse(UNKNOWN_ERROR, e.getMessage()));
+				errorCallback.call(createErrorResponse(UNKNOWN_ERROR, e.getMessage()));
 			}
 			return;
 		}
@@ -195,7 +180,7 @@ public class MediaModule extends TiModule
 							finalImageFile.delete();
 						}
 						if (fCancelCallback != null) {
-							fCancelCallback.call(null);
+							fCancelCallback.call();
 						}
 					} else {
 						ContentValues values = new ContentValues(7);
@@ -216,13 +201,13 @@ public class MediaModule extends TiModule
 
 						try {
 							if (fSuccessCallback != null) {
-								fSuccessCallback.callWithProperties(createDictForImage(imageUri.toString(), "image/jpeg"));
+								fSuccessCallback.call(createDictForImage(imageUri.toString(), "image/jpeg"));
 							}
 						} catch (OutOfMemoryError e) {
 							String msg = "Not enough memory to get image: " + e.getMessage();
 							Log.e(LCAT, msg);
 							if (fErrorCallback != null) {
-								fErrorCallback.callWithProperties(createErrorResponse(UNKNOWN_ERROR, msg));
+								fErrorCallback.call(createErrorResponse(UNKNOWN_ERROR, msg));
 							}
 						}
 					}
@@ -235,16 +220,15 @@ public class MediaModule extends TiModule
 					String msg = "Camera problem: " + e.getMessage();
 					Log.e(LCAT, msg, e);
 					if (fErrorCallback != null) {
-						fErrorCallback.callWithProperties(createErrorResponse(UNKNOWN_ERROR, msg));
+						fErrorCallback.call(createErrorResponse(UNKNOWN_ERROR, msg));
 					}
 				}
 			});
 	}
 
-	public void openPhotoGallery(Object[] args)
+	@Kroll.method
+	public void openPhotoGallery(KrollDict options)
 	{
-		KrollDict options = (KrollDict) args[0];
-
 		KrollCallback successCallback = null;
 		KrollCallback cancelCallback = null;
 		KrollCallback errorCallback = null;
@@ -285,19 +269,19 @@ public class MediaModule extends TiModule
 					Log.e(LCAT, "OnResult called: " + resultCode);
 					if (resultCode == Activity.RESULT_CANCELED) {
 						if (fCancelCallback != null) {
-							fCancelCallback.call(null);
+							fCancelCallback.call();
 						}
 					} else {
 						String path = data.getDataString();
 						try {
 							if (fSuccessCallback != null) {
-								fSuccessCallback.callWithProperties(createDictForImage(path, "image/jpeg"));
+								fSuccessCallback.call(createDictForImage(path, "image/jpeg"));
 							}
 						} catch (OutOfMemoryError e) {
 							String msg = "Not enough memory to get image: " + e.getMessage();
 							Log.e(LCAT, msg);
 							if (fErrorCallback != null) {
-								fErrorCallback.callWithProperties(createErrorResponse(UNKNOWN_ERROR, msg));
+								fErrorCallback.call(createErrorResponse(UNKNOWN_ERROR, msg));
 							}
 						}
 					}
@@ -308,12 +292,13 @@ public class MediaModule extends TiModule
 					String msg = "Gallery problem: " + e.getMessage();
 					Log.e(LCAT, msg, e);
 					if (fErrorCallback != null) {
-						fErrorCallback.callWithProperties(createErrorResponse(UNKNOWN_ERROR, msg));
+						fErrorCallback.call(createErrorResponse(UNKNOWN_ERROR, msg));
 					}
 				}
 			});
 	}
 
+	@Kroll.method
 	public void saveToPhotoGallery(Object object)
 	{
 		Log.w(LCAT, "saveToPhotoGallery not yet implemented in Android");
@@ -375,13 +360,12 @@ public class MediaModule extends TiModule
 		return d;
 	}
 
-	public void previewImage(Object[] args)
+	@Kroll.method
+	public void previewImage(KrollDict options)
 	{
 		if (DBG) {
 			Log.d(LCAT, "previewImage");
 		}
-
-		KrollDict options = (KrollDict) args[0];
 
 		KrollCallback successCallback = null;
 		KrollCallback errorCallback = null;
@@ -399,7 +383,7 @@ public class MediaModule extends TiModule
 
 		if (image == null) {
 			if (errorCallback != null) {
-				errorCallback.callWithProperties(createErrorResponse(UNKNOWN_ERROR, "Missing image property"));
+				errorCallback.call(createErrorResponse(UNKNOWN_ERROR, "Missing image property"));
 			}
 		}
 
@@ -429,7 +413,7 @@ public class MediaModule extends TiModule
 				{
 					Log.e(LCAT, "OnResult called: " + resultCode);
 					if (fSuccessCallback != null) {
-						fSuccessCallback.call(null);
+						fSuccessCallback.call();
 					}
 				}
 
@@ -438,12 +422,13 @@ public class MediaModule extends TiModule
 					String msg = "Gallery problem: " + e.getMessage();
 					Log.e(LCAT, msg, e);
 					if (fErrorCallback != null) {
-						fErrorCallback.callWithProperties(createErrorResponse(UNKNOWN_ERROR, msg));
+						fErrorCallback.call(createErrorResponse(UNKNOWN_ERROR, msg));
 					}
 				}
 			});
 	}
 
+	@Kroll.method
 	public void takeScreenshot(KrollCallback callback)
 	{
 		Activity a = getTiContext().getActivity();

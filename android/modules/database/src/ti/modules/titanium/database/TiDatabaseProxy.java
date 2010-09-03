@@ -7,6 +7,7 @@
 package ti.modules.titanium.database;
 
 import org.appcelerator.kroll.KrollProxy;
+import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
@@ -18,6 +19,7 @@ import android.database.DatabaseUtils;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 
+@Kroll.proxy
 public class TiDatabaseProxy extends KrollProxy
 {
 	private static final String LCAT = "TiDB";
@@ -35,6 +37,7 @@ public class TiDatabaseProxy extends KrollProxy
 		statementLogging = false;
 	}
 
+	@Kroll.method
 	public void close() {
 		if (db.isOpen()) {
 			if (DBG) {
@@ -48,6 +51,7 @@ public class TiDatabaseProxy extends KrollProxy
 		}
 	}
 
+	@Kroll.method
 	public TiResultSetProxy execute(String sql, Object... args)
 	{
 		if(statementLogging) {
@@ -113,18 +117,22 @@ public class TiDatabaseProxy extends KrollProxy
 		return rs;
 	}
 
+	@Kroll.getProperty @Kroll.method
 	public String getName() {
 		return name;
 	}
 
+	@Kroll.getProperty @Kroll.method
 	public int getLastInsertRowId() {
 		return (int) DatabaseUtils.longForQuery(db, "select last_insert_rowid()", null);
 	}
 
+	@Kroll.getProperty @Kroll.method
 	public int getRowsAffected() {
 		return (int) DatabaseUtils.longForQuery(db, "select changes()", null);
 	}
 
+	@Kroll.method
 	public void remove() {
 		if (db.isOpen()) {
 			Log.w(LCAT, "Attempt to remove open database. Closing then removing " + name);

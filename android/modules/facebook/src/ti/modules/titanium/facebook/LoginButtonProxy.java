@@ -6,15 +6,17 @@
  */
 package ti.modules.titanium.facebook;
 
+import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.view.TiUIView;
 
 import android.app.Activity;
 
+@Kroll.proxy
 public class LoginButtonProxy extends TiViewProxy {
-	public LoginButtonProxy(TiContext tiContext, Object[] args) {
-		super(tiContext, args);
+	public LoginButtonProxy(TiContext tiContext) {
+		super(tiContext);
 	}
 
 	@Override

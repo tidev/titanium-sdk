@@ -31,6 +31,7 @@ var TitaniumTest =
 		});
 		//Titanium.App.stdout("DRILLBIT_PASS: "+name);
 		Titanium.API.debug("DRILLBIT_PASS: "+name);
+		appendMessage(name + ' passed');
 		TitaniumTest.run_next_test();
 	},
 	
@@ -46,6 +47,7 @@ var TitaniumTest =
 		
 		//Titanium.App.stdout("DRILLBIT_FAIL: "+name+","+e.line+" --- "+String(e).replace("\n","\\n"));
 		Titanium.API.debug("DRILLBIT_FAIL: "+name+","+e.line+" --- "+String(e).replace("\n","\\n"));
+		appendMessage(name + ' failed: line ' + e.line);
 		TitaniumTest.run_next_test();
 	},
 	

@@ -113,7 +113,7 @@ public class TiUITabGroup extends TiUIView
 
 		tabChangeEventData = ((TabGroupProxy) proxy).buildFocusEvent(id, lastTabId);
 		lastTabId = id;
-		proxy.internalSetDynamicValue("activeTab", tabHost.getCurrentTab(), false);
+		proxy.setProperty("activeTab", tabHost.getCurrentTab());
 	}
 
 	public void changeActiveTab(Object t) {
@@ -132,7 +132,7 @@ public class TiUITabGroup extends TiUIView
 				}
 			} else if (t instanceof TabProxy) {
 				TabProxy tab = (TabProxy) t;
-				String title = TiConvert.toString(tab.getDynamicValue("title"));
+				String title = TiConvert.toString(tab.getProperty("title"));
 				if (title != null) {
 					tabHost.setCurrentTabByTag(title);
 				}

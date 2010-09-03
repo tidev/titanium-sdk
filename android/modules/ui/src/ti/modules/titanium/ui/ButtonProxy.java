@@ -6,6 +6,7 @@
  */
 package ti.modules.titanium.ui;
 
+import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.view.TiUIView;
@@ -13,11 +14,12 @@ import org.appcelerator.titanium.view.TiUIView;
 import ti.modules.titanium.ui.widget.TiUIButton;
 import android.app.Activity;
 
+@Kroll.proxy(creatableInModule="UI")
 public class ButtonProxy extends TiViewProxy
 {
-	public ButtonProxy(TiContext tiContext, Object[] args)
+	public ButtonProxy(TiContext tiContext)
 	{
-		super(tiContext, args);
+		super(tiContext);
 	}
 
 	@Override

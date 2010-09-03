@@ -91,7 +91,7 @@ public class TiUIWindow extends TiUIView
 		this.lastWidth = LayoutParams.FILL_PARENT;
 		this.lastHeight = LayoutParams.FILL_PARENT;
 
-		KrollDict props = proxy.getDynamicProperties();
+		KrollDict props = proxy.getProperties();
 		TiPropertyResolver resolver = new TiPropertyResolver(options, props);
 		boolean newActivity = requiresNewActivity(resolver);
 		if (!newActivity && options != null && options.containsKey("tabOpen")) {
@@ -153,7 +153,7 @@ public class TiUIWindow extends TiUIView
 	protected void handlePostOpen() {
 		//TODO unique key per window, params for intent
 		activityKey = "window$" + idGenerator.incrementAndGet();
-		KrollDict props = proxy.getDynamicProperties();
+		KrollDict props = proxy.getProperties();
 
 		getLayout().setClickable(true);
 		registerForTouch(getLayout());
@@ -332,7 +332,7 @@ public class TiUIWindow extends TiUIView
 		data.put("source", proxy);
 		proxy.fireEvent("close", data);
 
-		KrollDict props = proxy.getDynamicProperties();
+		KrollDict props = proxy.getProperties();
 		TiPropertyResolver resolver = new TiPropertyResolver(options, props);
 		props = resolver.findProperty("animated");
 		boolean animateOnClose = animate;
@@ -428,7 +428,7 @@ public class TiUIWindow extends TiUIView
 
 	private void handleBackgroundColor(KrollDict d)
 	{
-		if (proxy.getDynamicValue("backgroundColor") != null) {
+		if (proxy.getProperty("backgroundColor") != null) {
 			Integer bgColor = TiConvert.toColor(d, "backgroundColor");
 			Drawable cd = new ColorDrawable(bgColor);
 			if (lightWeight) {
@@ -492,10 +492,10 @@ public class TiUIWindow extends TiUIView
 					}
 				}
 			} else {
-				handleBackgroundColor(proxy.getDynamicProperties());
+				handleBackgroundColor(proxy.getProperties());
 			}
 		} else if (key.equals("backgroundColor")) {
-			KrollDict d = proxy.getDynamicProperties();
+			KrollDict d = proxy.getProperties();
 			handleBackgroundColor(d);
 		} else if (key.equals("width") || key.equals("height")) {
 			Window w = proxy.getTiContext().getActivity().getWindow();
@@ -558,7 +558,7 @@ public class TiUIWindow extends TiUIView
 
 	protected Intent createIntent(Activity activity, KrollDict options)
 	{
-		TiPropertyResolver resolver = new TiPropertyResolver(options, proxy.getDynamicProperties());
+		TiPropertyResolver resolver = new TiPropertyResolver(options, proxy.getProperties());
 
 		Intent intent = new Intent(activity, TiActivity.class);
 

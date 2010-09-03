@@ -6,6 +6,7 @@
  */
 package ti.modules.titanium.ui;
 
+import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.view.TiUIView;
@@ -13,10 +14,11 @@ import org.appcelerator.titanium.view.TiUIView;
 import ti.modules.titanium.ui.widget.TiUIProgressBar;
 import android.app.Activity;
 
+@Kroll.proxy(creatableInModule="UI")
 public class ProgressBarProxy extends TiViewProxy {
 
-	public ProgressBarProxy(TiContext tiContext, Object[] args) {
-		super(tiContext, args);
+	public ProgressBarProxy(TiContext tiContext) {
+		super(tiContext);
 	}
 
 	@Override

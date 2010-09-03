@@ -14,6 +14,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import org.appcelerator.kroll.KrollModule;
+import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.io.TiBaseFile;
 import org.appcelerator.titanium.io.TiFileFactory;
@@ -24,7 +26,8 @@ import android.content.Context;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 
-public class DatabaseModule extends TiModule
+@Kroll.module
+public class DatabaseModule extends KrollModule
 {
 	private static final String LCAT = "TiDatabase";
 	private static final boolean DBG = TiConfig.LOGD;
@@ -33,6 +36,7 @@ public class DatabaseModule extends TiModule
 		super(tiContext);
 	}
 
+	@Kroll.method
 	public TiDatabaseProxy open(String name) {
 		TiDatabaseProxy dbp = null;
 
@@ -52,6 +56,7 @@ public class DatabaseModule extends TiModule
 		return dbp;
 	}
 
+	@Kroll.method
 	public TiDatabaseProxy install(String url, String name)
 	{
 		try {

@@ -6,32 +6,22 @@
  */
 package ti.modules.titanium.ui.activityindicator;
 
-import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollProxy;
+import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiContext;
 
 import ti.modules.titanium.ui.widget.TiUIActivityIndicator;
 
-public class ActivityIndicatorModule extends TiModule
+@Kroll.module(name="UI.ActivityIndicator")
+public class ActivityIndicatorModule extends KrollProxy
 {
-	private static KrollDict constants;
+	@Kroll.constant public static final int STATUS_BAR = TiUIActivityIndicator.STATUS_BAR;
+	@Kroll.constant public static final int DIALOG = TiUIActivityIndicator.DIALOG;
 
+	@Kroll.constant public static final int INDETERMINANT = TiUIActivityIndicator.INDETERMINANT;
+	@Kroll.constant public static final int DETERMINANT = TiUIActivityIndicator.DETERMINANT;
+	
 	public ActivityIndicatorModule(TiContext tiContext) {
 		super(tiContext);
-	}
-
-	@Override
-	public KrollDict getConstants()
-	{
-		if (constants == null) {
-			constants = new KrollDict();
-
-			constants.put("STATUS_BAR", TiUIActivityIndicator.STATUS_BAR);
-			constants.put("DIALOG", TiUIActivityIndicator.DIALOG);
-
-			constants.put("INDETERMINANT", TiUIActivityIndicator.INDETERMINANT);
-			constants.put("DETERMINANT", TiUIActivityIndicator.DETERMINANT);
-		}
-
-		return constants;
 	}
 }

@@ -8,7 +8,6 @@ package org.appcelerator.titanium.kroll;
 
 import java.io.IOException;
 
-import org.appcelerator.kroll.KrollBindings;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollObject;
 import org.appcelerator.kroll.KrollProxy;
@@ -20,16 +19,16 @@ public class KrollBridge implements TiEvaluator
 {
 	private KrollContext kroll;
 	private KrollObject titanium;
-	private KrollBindings bindings;
 	
-	public KrollBridge(KrollContext kroll, KrollDict preload, KrollBindings bindings)
+	public KrollBridge(KrollContext kroll, KrollDict preload)
 	{
 		this.kroll = kroll;
-		this.bindings = bindings;
 
+		kroll.getTiContext().setJSContext(this);
 		titanium = new KrollObject(new KrollRootObject(kroll.getTiContext()));
 		kroll.put("Titanium", titanium);
 		kroll.put("Ti", titanium);
+		kroll.getTiContext().getTiApp().bootModules(kroll.getTiContext());
 
 		/*kroll.put("setTimeout", (Scriptable) titanium.get("setTimeout", titanium));
 		kroll.put("clearTimeout", (Scriptable) titanium.get("clearTimeout", titanium));
@@ -38,7 +37,6 @@ public class KrollBridge implements TiEvaluator
 		kroll.put("alert", (Scriptable) titanium.get("alert", titanium));
 		kroll.put("JSON", (Scriptable) titanium.get("JSON", titanium));
 		kroll.put("require", (Scriptable) titanium.get("require", titanium));*/
-		bindings.initBindings(kroll.getTiContext(), kroll.getScope(), titanium.getProxy());
 		
 		//TODO: userAgent and version
 
@@ -99,5 +97,9 @@ public class KrollBridge implements TiEvaluator
 	@Override
 	public Scriptable getScope() {
 		return kroll.getScope();
+	}
+	
+	public KrollProxy getRootObject() {
+		return titanium.getProxy();
 	}
 }

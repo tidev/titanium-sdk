@@ -74,7 +74,7 @@ public class TiWebViewClient extends WebViewClient
 
 		if (URLUtil.isAssetUrl(url) || URLUtil.isContentUrl(url) || URLUtil.isFileUrl(url)) {
 			// go through the proxy to ensure we're on the UI thread
-			webView.getProxy().setDynamicValue("url", url);
+			webView.getProxy().setProperty("url", url, true);
 			return true;
 		} else if(url.startsWith(WebView.SCHEME_TEL)) {
 			Log.i(LCAT, "Launching dialer for " + url);

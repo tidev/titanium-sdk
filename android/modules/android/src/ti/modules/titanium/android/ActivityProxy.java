@@ -5,7 +5,8 @@ package ti.modules.titanium.android;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
-import org.appcelerator.titanium.KrollProxyListener;
+import org.appcelerator.kroll.KrollProxyListener;
+import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
@@ -13,6 +14,7 @@ import org.appcelerator.titanium.util.TiConfig;
 import android.content.Context;
 import android.content.Intent;
 
+@Kroll.proxy
 public class ActivityProxy 
 	extends KrollProxy
 	implements KrollProxyListener
@@ -46,21 +48,11 @@ public class ActivityProxy
 		
 	}
 	
-	public void start(Object[] args) 
+	@Kroll.method
+	public void start(IntentProxy intentProxy) 
 	{
-		if (args == null || args.length == 0) {
-			Log.w(LCAT, "Ignoring start request. missing Intent");
-			return;
-		}
-		
-		if (args[0] instanceof IntentProxy) {
-			IntentProxy ip = (IntentProxy) args[0];
-			Intent intent = ip.getIntent();
-			
-			this.getTiContext().getActivity().startActivity(intent);
-		} else {
-			Log.e(LCAT, "Expected IntentProxy. Received " + args[0].getClass().getCanonicalName());
-		}
+		Intent intent = intentProxy.getIntent();
+		this.getTiContext().getActivity().startActivity(intent);
 	}
 	
 	protected Context getContext() {
@@ -94,6 +86,4 @@ public class ActivityProxy
 	public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy proxy) {
 		Log.e(LCAT, "Property Change: " + key);
 	}
-
-	
 }

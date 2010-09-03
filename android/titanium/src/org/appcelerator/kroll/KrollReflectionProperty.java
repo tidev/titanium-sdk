@@ -13,12 +13,12 @@ import org.appcelerator.kroll.util.KrollReflectionUtils;
 
 public class KrollReflectionProperty implements KrollDynamicProperty {
 
-	protected boolean get, set;
+	protected boolean get, set, retain;
 	protected String name;
 	protected KrollProxy proxy;
 	protected Method getMethod, setMethod;
 	
-	public KrollReflectionProperty(KrollProxy proxy, String name, boolean get, boolean set, String getMethodName, String setMethodName) {
+	public KrollReflectionProperty(KrollProxy proxy, String name, boolean get, boolean set, String getMethodName, String setMethodName, boolean retain) {
 		this.name = name;
 		this.get = get;
 		this.set = set;
@@ -30,6 +30,7 @@ public class KrollReflectionProperty implements KrollDynamicProperty {
 		if (set && setMethodName != null) {
 			this.setMethod = KrollReflectionUtils.getMethod(proxy.getClass(), setMethodName);
 		}
+		this.retain = retain;
 	}
 	
 	@Override
@@ -54,6 +55,9 @@ public class KrollReflectionProperty implements KrollDynamicProperty {
 	@Override
 	public void set(KrollInvocation invocation, String name, Object value) {
 		if (supportsSet(name)) {
+			if (retain) {
+				proxy.setProperty(name, value);
+			}
 			try {
 				setMethod.invoke(proxy, invocation, value);
 			} catch (IllegalArgumentException e) {
@@ -78,5 +82,4 @@ public class KrollReflectionProperty implements KrollDynamicProperty {
 	public boolean supportsSet(String name) {
 		return set && setMethod != null;
 	}
-
 }

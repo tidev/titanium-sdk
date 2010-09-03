@@ -7,6 +7,8 @@
 package ti.modules.titanium.bump;
 
 import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollModule;
+import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiActivityResultHandler;
@@ -24,7 +26,8 @@ import com.bumptech.bumpapi.BumpConnection;
 import com.bumptech.bumpapi.BumpDisconnectReason;
 import com.bumptech.bumpapi.BumpResources;
 
-public class BumpModule extends TiModule implements TiActivityResultHandler, BumpAPIListener {
+@Kroll.module
+public class BumpModule extends KrollModule implements TiActivityResultHandler, BumpAPIListener {
 	
 	private static final String LCAT = "BumpModule";
 	private static final boolean DBG = true;
@@ -106,6 +109,7 @@ public class BumpModule extends TiModule implements TiActivityResultHandler, Bum
 		}
 	}
 	
+	@Kroll.method
 	public void connect(KrollDict props) {
 
 		// Process the args to the method

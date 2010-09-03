@@ -10,8 +10,10 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import org.appcelerator.kroll.KrollProxy;
+import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.io.TiBaseFile;
 
+@Kroll.proxy
 public abstract class TiFile extends KrollProxy
 {
 	public TiFile(TiContext tiContext)

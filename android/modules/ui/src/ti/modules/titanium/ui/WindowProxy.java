@@ -10,6 +10,7 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 
 import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.proxy.TiWindowProxy;
@@ -23,6 +24,7 @@ import android.content.Intent;
 import android.os.Message;
 import android.os.Messenger;
 
+@Kroll.proxy(creatableInModule="UI")
 public class WindowProxy extends TiWindowProxy
 {
 	private static final String LCAT = "WindowProxy";
@@ -39,9 +41,9 @@ public class WindowProxy extends TiWindowProxy
 	WeakReference<Activity> weakActivity;
 	String windowId;
 
-	public WindowProxy(TiContext tiContext, Object[] args)
+	public WindowProxy(TiContext tiContext)
 	{
-		super(tiContext, args);
+		super(tiContext);
 	}
 
 	@Override
@@ -135,11 +137,13 @@ public class WindowProxy extends TiWindowProxy
 
 	}
 
+	@Kroll.getProperty @Kroll.method
 	public TiViewProxy getTab()
 	{
 		return tab;
 	}
 
+	@Kroll.getProperty @Kroll.method
 	public TiViewProxy getTabGroup()
 	{
 		return tabGroup;

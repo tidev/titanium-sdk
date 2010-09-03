@@ -7,5 +7,5 @@
 package org.appcelerator.kroll;
 
 public interface KrollDefaultValueProvider {
-	public <T> T getDefaultValue(Class<T> clazz);
+	public Object getDefaultValue(Class<?> clazz);
 }

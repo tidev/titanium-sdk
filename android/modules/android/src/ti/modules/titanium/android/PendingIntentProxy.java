@@ -5,6 +5,7 @@ package ti.modules.titanium.android;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
+import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.TiConfig;
 
@@ -14,6 +15,7 @@ import android.app.PendingIntent;
  * @author dthorp
  *
  */
+@Kroll.proxy
 public class PendingIntentProxy extends KrollProxy 
 {
 	private static final String LCAT = "PendingIntentProxy";

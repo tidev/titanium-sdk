@@ -5,6 +5,7 @@ import java.util.Calendar;
 import java.util.Date;
 
 import org.appcelerator.kroll.KrollProxy;
+import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiContext;
 
 import android.app.AlarmManager;
@@ -16,6 +17,7 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 
+@Kroll.proxy
 public class AlertProxy extends KrollProxy {
 
 	public static final int STATE_SCHEDULED = 0;
@@ -124,33 +126,38 @@ public class AlertProxy extends KrollProxy {
 		manager.set(AlarmManager.RTC_WAKEUP,System.currentTimeMillis(),sender);
 	}
 
+	@Kroll.getProperty @Kroll.method
 	public String getId() {
 		return id;
 	}
-
+	
+	@Kroll.getProperty @Kroll.method
 	public String getEventId() {
 		return eventId;
 	}
 	
+	@Kroll.getProperty @Kroll.method
 	public Date getBegin() {
 		return begin;
 	}
 
+	@Kroll.getProperty @Kroll.method
 	public Date getEnd() {
 		return end;
 	}
 
+	@Kroll.getProperty @Kroll.method
 	public Date getAlarmTime() {
 		return alarmTime;
 	}
 
+	@Kroll.getProperty @Kroll.method
 	public int getState() {
 		return state;
 	}
 
+	@Kroll.getProperty @Kroll.method
 	public int getMinutes() {
 		return minutes;
 	}
-	
-	
 }

@@ -41,35 +41,35 @@ public class TiUINotification extends TiUIView
 		int offsetY = toast.getYOffset();		
 		int gravity = toast.getGravity();		
 		
-		if (proxy.hasDynamicValue("duration")) {
+		if (proxy.hasProperty("duration")) {
 			// Technically this should check if the duration is one of the 2 possible options
-			int duration = TiConvert.toInt(proxy.getDynamicValue("duration"));
+			int duration = TiConvert.toInt(proxy.getProperty("duration"));
 			toast.setDuration(duration);
 		}
 		
 		//float horizontalMargin, float verticalMargin
-		if (proxy.hasDynamicValue("horizontalMargin")) {
-			horizontalMargin = TiConvert.toFloat(proxy.getDynamicValue("horizontalMargin"));
+		if (proxy.hasProperty("horizontalMargin")) {
+			horizontalMargin = TiConvert.toFloat(proxy.getProperty("horizontalMargin"));
 		}
 		
-		if (proxy.hasDynamicValue("verticalMargin")) {
-			verticalMargin = TiConvert.toFloat(proxy.getDynamicValue("verticalMargin"));
+		if (proxy.hasProperty("verticalMargin")) {
+			verticalMargin = TiConvert.toFloat(proxy.getProperty("verticalMargin"));
 		}
 		
 		toast.setMargin(horizontalMargin, verticalMargin);		
 		
-		if (proxy.hasDynamicValue("offsetX")) {
-			offsetX = TiConvert.toInt(proxy.getDynamicValue("offsetX"));
+		if (proxy.hasProperty("offsetX")) {
+			offsetX = TiConvert.toInt(proxy.getProperty("offsetX"));
 		}
 
-		if (proxy.hasDynamicValue("offsetY")) {
-			offsetY = TiConvert.toInt(proxy.getDynamicValue("offsetY"));
+		if (proxy.hasProperty("offsetY")) {
+			offsetY = TiConvert.toInt(proxy.getProperty("offsetY"));
 		}
 
 		// Left gravity off from the docco - not sure what your general opinion is about specifying the gravity
 		// So for now this is a hidden property
-		if (proxy.hasDynamicValue("gravity")) {
-			gravity = TiConvert.toInt(proxy.getDynamicValue("gravity"));
+		if (proxy.hasProperty("gravity")) {
+			gravity = TiConvert.toInt(proxy.getProperty("gravity"));
 		}
 		
 		toast.setGravity(gravity, offsetX, offsetY);
@@ -94,7 +94,7 @@ public class TiUINotification extends TiUIView
 
 	public void show(KrollDict options) {
 
-		toast.setText((String) proxy.getDynamicValue("message"));
+		toast.setText((String) proxy.getProperty("message"));
 		toast.show();
 	}
 

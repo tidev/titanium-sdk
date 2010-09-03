@@ -10,6 +10,7 @@ import java.util.ArrayList;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
+import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.AsyncResult;
@@ -21,9 +22,10 @@ import ti.modules.titanium.ui.widget.TiUITableView;
 import android.app.Activity;
 import android.os.Message;
 
+@Kroll.proxy(creatableInModule="UI")
 public class TableViewProxy extends TiViewProxy
 {
-	private static final String LCAT = "TableViewProxyl";
+	private static final String LCAT = "TableViewProxy";
 	private static final boolean DBG = TiConfig.LOGD;
 
 	private static final int MSG_UPDATE_VIEW = TiViewProxy.MSG_LAST_ID + 5001;
@@ -42,15 +44,21 @@ public class TableViewProxy extends TiViewProxy
 
 	private ArrayList<TableViewSectionProxy> localSections;
 
-	public TableViewProxy(TiContext tiContext, Object[] args) {
-		super(tiContext, args);
+	public TableViewProxy(TiContext tiContext) {
+		super(tiContext);
 		
 		tiContext.addOnEventChangeListener(this);
-		Object o = getDynamicValue("data");
+	}
+	
+	@Override
+	public void handleCreationDict(KrollDict dict) {
+		Object o = dict.get("data");
 		if (o != null) {
 			processData((Object[]) o);
-			getDynamicProperties().remove("data"); // don't hide getData
+			dict.remove("data"); // don't override our data accessor
 		}
+		
+		super.handleCreationDict(dict);
 	}
 
 	@Override
@@ -62,7 +70,8 @@ public class TableViewProxy extends TiViewProxy
 		return (TiUITableView) getView(getTiContext().getActivity());
 	}
 	
-	public void updateRow(Object row, Object data, KrollDict options) {
+	@Kroll.method
+	public void updateRow(Object row, Object data, @Kroll.argument(optional=true) KrollDict options) {
 		TableViewRowProxy rowProxy = null;
 		TableViewSectionProxy sectionProxy = null;
 		int rowIndex = -1;
@@ -96,7 +105,8 @@ public class TableViewProxy extends TiViewProxy
 		}
 	}
 
-	public void appendRow(Object row, KrollDict options)
+	@Kroll.method
+	public void appendRow(Object row, @Kroll.argument(optional=true) KrollDict options)
 	{
 		TableViewRowProxy rowProxy = rowProxyFor(row);
 		
@@ -106,8 +116,8 @@ public class TableViewProxy extends TiViewProxy
 			processData(data);
 		} else {
 			TableViewSectionProxy lastSection = sections.get(sections.size() - 1);
-			rowProxy.setDynamicValue("section", lastSection);
-			rowProxy.setDynamicValue("parent", lastSection);
+			rowProxy.setProperty("section", lastSection);
+			rowProxy.setProperty("parent", lastSection);
 
 			lastSection.insertRowAt((int) lastSection.getRowCount(), rowProxy);
 			getTableView().setModelDirty();
@@ -116,7 +126,8 @@ public class TableViewProxy extends TiViewProxy
 		updateView();
 	}
 
-	public void deleteRow(int index, KrollDict options)
+	@Kroll.method
+	public void deleteRow(int index, @Kroll.argument(optional=true) KrollDict options)
 	{
 		RowResult rr = new RowResult();
 		if (locateIndex(index, rr)) {
@@ -135,7 +146,7 @@ public class TableViewProxy extends TiViewProxy
 		if (name != null) {
 			for (TableViewSectionProxy section : getSections()) {
 				for (TableViewRowProxy row : section.getRows()) {
-					String rname = TiConvert.toString(row.getDynamicValue("name"));
+					String rname = TiConvert.toString(row.getProperty("name"));
 					if (rname != null && name.equals(rname)) {
 						index = idx;
 						break;
@@ -150,7 +161,8 @@ public class TableViewProxy extends TiViewProxy
 		return index;
 	}
 
-	public void insertRowBefore(int index, Object data, KrollDict options) {
+	@Kroll.method
+	public void insertRowBefore(int index, Object data, @Kroll.argument(optional=true) KrollDict options) {
 		if (getSections().size() > 0) {
 			if (index < 0) {
 				index = 0;
@@ -173,7 +185,8 @@ public class TableViewProxy extends TiViewProxy
 		updateView();
 	}
 
-	public void insertRowAfter(int index, Object data, KrollDict options) {
+	@Kroll.method
+	public void insertRowAfter(int index, Object data, @Kroll.argument(optional=true) KrollDict options) {
 		RowResult rr = new RowResult();
 		if (locateIndex(index, rr)) {
 			// TODO check for section
@@ -187,11 +200,7 @@ public class TableViewProxy extends TiViewProxy
 		}
 	}
 
-	public void scrollToIndex(int index, KrollDict options) {
-		getTableView().scrollToIndex(index);
-	}
-
-	@SuppressWarnings("unchecked")
+	@Kroll.getProperty @Kroll.method
 	public ArrayList<TableViewSectionProxy> getSections()
 	{
 		ArrayList<TableViewSectionProxy> sections = localSections;
@@ -213,37 +222,37 @@ public class TableViewProxy extends TiViewProxy
 
 			if (o instanceof KrollDict) {
 				KrollDict d = (KrollDict) o;
-				Object[] args = { d };
-				TableViewRowProxy rowProxy = new TableViewRowProxy(getTiContext(), args);
-				rowProxy.setDynamicValue("className", CLASSNAME_NORMAL);
-				rowProxy.setDynamicValue("rowData", data);
+				TableViewRowProxy rowProxy = new TableViewRowProxy(getTiContext());
+				rowProxy.handleCreationDict(d);
+				rowProxy.setProperty("className", CLASSNAME_NORMAL);
+				rowProxy.setProperty("rowData", data);
 				rowProxy.setParent(this);
 
 				if (currentSection == null || d.containsKey("header")) {
-					currentSection = new TableViewSectionProxy(getTiContext(), new Object[0]);
+					currentSection = new TableViewSectionProxy(getTiContext());
 					sections.add(currentSection);
 				}
 				if (d.containsKey("header")) {
-					currentSection.setDynamicValue("headerTitle", d.get("header"));
+					currentSection.setProperty("headerTitle", d.get("header"));
 				}
 				if (d.containsKey("footer")) {
-					currentSection.setDynamicValue("footerTitle", d.get("footer"));
+					currentSection.setProperty("footerTitle", d.get("footer"));
 				}
 				currentSection.add(rowProxy);
 			} else if (o instanceof TableViewRowProxy) {
 				TableViewRowProxy rowProxy = (TableViewRowProxy) o;
-				KrollDict d = rowProxy.getDynamicProperties();
+				KrollDict d = rowProxy.getProperties();
 				rowProxy.setParent(this);
 
 				if (currentSection == null || d.containsKey("header")) {
-					currentSection = new TableViewSectionProxy(getTiContext(), new Object[0]);
+					currentSection = new TableViewSectionProxy(getTiContext());
 					sections.add(currentSection);
 				}
 				if (d.containsKey("header")) {
-					currentSection.setDynamicValue("headerTitle", d.get("header"));
+					currentSection.setProperty("headerTitle", d.get("header"));
 				}
 				if (d.containsKey("footer")) {
-					currentSection.setDynamicValue("footerTitle", d.get("footer"));
+					currentSection.setProperty("footerTitle", d.get("footer"));
 				}
 
 				currentSection.add((TableViewRowProxy) o);
@@ -255,7 +264,8 @@ public class TableViewProxy extends TiViewProxy
 		}
 	}
 
-	public void setData(Object[] data, KrollDict options) {
+	@Kroll.setProperty @Kroll.method
+	public void setData(Object[] data, @Kroll.argument(optional=true) KrollDict options) {
 		if (data != null) {
 			processData(data);
 			getTableView().setModelDirty();
@@ -263,6 +273,7 @@ public class TableViewProxy extends TiViewProxy
 		}
 	}
 	
+	@Kroll.getProperty @Kroll.method
 	public Object[] getData() {
 		ArrayList<TableViewSectionProxy> sections = getSections();
 		if (sections != null) {
@@ -276,10 +287,10 @@ public class TableViewProxy extends TiViewProxy
 		TableViewRowProxy rowProxy = null;
 		if (row instanceof KrollDict) {
 			KrollDict d = (KrollDict) row;
-			Object[] args = { d };
-			rowProxy = new TableViewRowProxy(getTiContext(), args);
-			rowProxy.setDynamicValue("className", CLASSNAME_NORMAL);
-			rowProxy.setDynamicValue("rowData", row);
+			rowProxy = new TableViewRowProxy(getTiContext());
+			rowProxy.handleCreationDict(d);
+			rowProxy.setProperty("className", CLASSNAME_NORMAL);
+			rowProxy.setProperty("rowData", row);
 		} else {
 			rowProxy = (TableViewRowProxy) row;
 		}
@@ -320,6 +331,7 @@ public class TableViewProxy extends TiViewProxy
 		result.getResult();
 	}
 
+	@Kroll.method
 	public void scrollToIndex(int index) {
 		Message msg = getUIHandler().obtainMessage(MSG_SCROLL_TO_INDEX);
 		msg.arg1 = index;

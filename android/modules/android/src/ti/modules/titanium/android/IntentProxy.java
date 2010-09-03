@@ -5,6 +5,7 @@ package ti.modules.titanium.android;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
+import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
@@ -13,6 +14,7 @@ import org.appcelerator.titanium.util.TiConvert;
 import android.content.Intent;
 import android.net.Uri;
 
+@Kroll.proxy
 public class IntentProxy extends KrollProxy 
 {
 	private static final String LCAT = "TiIntent";
@@ -67,6 +69,7 @@ public class IntentProxy extends KrollProxy
 		}
 	}	
 	
+	@Kroll.method
 	public void putExtra(String key, Object value) 
 	{
 		if (value instanceof String) {

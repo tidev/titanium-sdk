@@ -3,6 +3,7 @@ package ti.modules.titanium.android.calendar;
 import java.util.ArrayList;
 
 import org.appcelerator.kroll.KrollProxy;
+import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.Log;
 
@@ -11,6 +12,7 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.net.Uri;
 
+@Kroll.proxy
 public class ReminderProxy extends KrollProxy {
 
 	public static final int METHOD_DEFAULT = 0;
@@ -72,14 +74,17 @@ public class ReminderProxy extends KrollProxy {
 		return reminder;
 	}
 	
+	@Kroll.getProperty @Kroll.method
 	public String getId() {
 		return id;
 	}
 	
+	@Kroll.getProperty @Kroll.method
 	public int getMinutes() {
 		return minutes;
 	}
 	
+	@Kroll.getProperty @Kroll.method
 	public int getMethod() {
 		return method;
 	}

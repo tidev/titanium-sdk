@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.concurrent.CountDownLatch;
 
 import org.appcelerator.kroll.KrollObject;
+import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiRootActivity;
@@ -78,13 +79,15 @@ public abstract class TiBaseActivity extends Activity
 		tiContext = TiContext.createTiContext(this, null, null); // TODO baseurl
 		currentActivity = new ActivityProxy(tiContext, new Object[]{ this });
 		currentIntent = new IntentProxy(tiContext, new Object[] {getIntent()});
-		currentWindow = new TiActivityWindowProxy(tiContext, new Object[]{});
+		currentWindow = new TiActivityWindowProxy(tiContext);
 		
 		//Bootstrap Android Module
 		KrollBridge krollBridge = (KrollBridge) tiContext.getJSContext();
 		final KrollContext kroll = krollBridge.getKrollContext();
 		Scriptable root = kroll.getScope();
-		TitaniumObject titanium = (TitaniumObject) root.get("Titanium", root);
+		
+		KrollProxy titanium = krollBridge.getRootObject();
+		
 		Object m = titanium.loadModule("Android");
 		KrollObject android = new KrollObject((KrollObject) titanium, m);
 		titanium.put("Android", titanium, android);
@@ -275,7 +278,7 @@ Log.i(LCAT, "JSLOADED!!!!");
 	public boolean onCreateOptionsMenu(Menu menu)
 	{
 		super.onCreateOptionsMenu(menu);
-		return currentActivity.hasDynamicValue("menu");
+		return currentActivity.hasProperty("menu");
 	}
 
 	@Override
@@ -293,20 +296,20 @@ Log.i(LCAT, "JSLOADED!!!!");
 	public boolean onPrepareOptionsMenu(Menu menu) 
 	{
 		menu.clear();
-		MenuProxy mp = (MenuProxy) currentActivity.getDynamicValue("menu");
+		MenuProxy mp = (MenuProxy) currentActivity.getProperty("menu");
 		if (mp != null) {
 			ArrayList<MenuItemProxy> menuItems = mp.getMenuItems();
 			itemMap = new HashMap<Integer, MenuItemProxy>(menuItems.size());
 			int id = 0;
 
 			for (MenuItemProxy mip : menuItems) {
-				String title = TiConvert.toString(mip.getDynamicValue("title"));
+				String title = TiConvert.toString(mip.getProperty("title"));
 				if (title != null) {
 					MenuItem mi = menu.add(0, id, 0, title);
 					itemMap.put(id, mip);
 					id += 1;
 
-					String iconPath = TiConvert.toString(mip.getDynamicValue("icon"));
+					String iconPath = TiConvert.toString(mip.getProperty("icon"));
 					if (iconPath != null) {
 		     			Drawable d = null;
 						TiFileHelper tfh = new TiFileHelper(this);

@@ -6,6 +6,7 @@ import java.util.Date;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
+import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiContext;
 
 import android.content.ContentResolver;
@@ -14,6 +15,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.text.format.DateUtils;
 
+@Kroll.proxy
 public class CalendarProxy extends KrollProxy {
 
 	protected String id, name;
@@ -59,6 +61,7 @@ public class CalendarProxy extends KrollProxy {
 		return calendars;
 	}
 	
+	@Kroll.method
 	public EventProxy[] getEventsInYear(int year) {
 		Calendar jan1 = Calendar.getInstance();
 		jan1.clear();
@@ -70,6 +73,7 @@ public class CalendarProxy extends KrollProxy {
 		return events.toArray(new EventProxy[events.size()]);
 	}
 	
+	@Kroll.method
 	public EventProxy[] getEventsInMonth(int year, int month) {
 		Calendar firstOfTheMonth = Calendar.getInstance();
 		firstOfTheMonth.clear();
@@ -88,6 +92,7 @@ public class CalendarProxy extends KrollProxy {
 		return events.toArray(new EventProxy[events.size()]);
 	}
 	
+	@Kroll.method
 	public EventProxy[] getEventsInDate(int year, int month, int day) {
 		Calendar beginningOfDay = Calendar.getInstance();
 		beginningOfDay.clear();
@@ -103,11 +108,13 @@ public class CalendarProxy extends KrollProxy {
 		return events.toArray(new EventProxy[events.size()]);
 	}
 	
+	@Kroll.method	
 	public EventProxy[] getEventsBetweenDates(Date date1, Date date2) {
 		ArrayList<EventProxy> events = EventProxy.queryEventsBetweenDates(getTiContext(), date1.getTime(), date2.getTime(), this);
 		return events.toArray(new EventProxy[events.size()]);
 	}
 	
+	@Kroll.method
 	public EventProxy getEventById(int id) {
 		ArrayList<EventProxy> events = EventProxy.queryEvents(getTiContext(), "_id = ?", new String[] { ""+id });
 		if (events.size() > 0) {
@@ -115,22 +122,27 @@ public class CalendarProxy extends KrollProxy {
 		} else return null;
 	}
 	
+	@Kroll.method
 	public EventProxy createEvent(KrollDict data) {
 		return EventProxy.createEvent(getTiContext(), this, data);
 	}
 	
+	@Kroll.getProperty @Kroll.method
 	public String getName() {
 		return name;
 	}
 	
+	@Kroll.getProperty @Kroll.method
 	public String getId() {
 		return id;
 	}
 	
+	@Kroll.getProperty @Kroll.method
 	public boolean getSelected() {
 		return selected;
 	}
 	
+	@Kroll.getProperty @Kroll.method
 	public boolean getHidden() {
 		return hidden;
 	}

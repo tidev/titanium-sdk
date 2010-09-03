@@ -190,8 +190,8 @@ public class TiUIImageView extends TiUIView
 		}
 
 		private int getRepeatCount() {
-			if (proxy.hasDynamicValue("repeatCount")) {
-				return TiConvert.toInt(proxy.getDynamicValue("repeatCount"));
+			if (proxy.hasProperty("repeatCount")) {
+				return TiConvert.toInt(proxy.getProperty("repeatCount"));
 			}
 			return INFINITE;
 		}
@@ -289,8 +289,8 @@ public class TiUIImageView extends TiUIView
 
 	public double getDuration()
 	{
-		if (proxy.getDynamicValue("duration") != null) {
-			return TiConvert.toDouble(proxy.getDynamicValue("duration"));
+		if (proxy.getProperty("duration") != null) {
+			return TiConvert.toDouble(proxy.getProperty("duration"));
 		}
 
 		if (images != null) {
@@ -463,7 +463,7 @@ public class TiUIImageView extends TiUIView
 			}
 			
 		} else {
-			getProxy().internalSetDynamicValue("image", null, false);
+			getProxy().setProperty("image", null);
 		}
 
 		super.processProperties(d);

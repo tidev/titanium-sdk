@@ -7,6 +7,7 @@
 package ti.modules.titanium.geolocation;
 
 import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.titanium.kroll.KrollCallback;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
@@ -31,7 +32,7 @@ public class TiCompass
 	public static final String EVENT_HEADING = "heading";
 
 	private static final int[] SENSORS = {Sensor.TYPE_ORIENTATION};
-	private TiModule proxy;
+	private KrollModule proxy;
 	private TiSensorHelper sensorHelper;
 
 	protected SensorEventListener updateListener;
@@ -51,7 +52,7 @@ public class TiCompass
 	protected GeomagneticField geomagneticField;
 	protected float lastHeading = 0.0f;
 
-	public TiCompass(TiModule proxy)
+	public TiCompass(KrollModule proxy)
 	{
 		this.proxy = proxy;
 
@@ -81,7 +82,7 @@ public class TiCompass
 					if (ts - lastEventInUpdate > 250) {
 						lastEventInUpdate = ts;
 
-						Object filter = proxy.getDynamicValue("headingFilter");
+						Object filter = proxy.getProperty("headingFilter");
 						if (filter != null) {
 							float headingFilter = TiConvert.toFloat(filter);
 
@@ -114,7 +115,7 @@ public class TiCompass
 
 				if (type == Sensor.TYPE_ORIENTATION) {
 					long ts = event.timestamp / 1000000; // nanos to millis
-					listener.callWithProperties(eventToKrollDict(event, ts));
+					listener.call(eventToKrollDict(event, ts));
 
 					sensorHelper.unregisterListener(SENSORS, this);
 					manageUpdateListener(false, this);

@@ -1,6 +1,9 @@
 // WARNING: this is a generated Drillbit test suite
 // -- <%= entry.name %>
 
+var testName = "<%= entry.name %>";
+
+function runTests() {
 <%
 	var TFS = Titanium.Filesystem;
 	var TA = Titanium.App;
@@ -108,16 +111,17 @@ catch (e)
 <%	}
 } %>
 
-TitaniumTest.on_complete = function(){
-	try
-	{
-		<%= make_function(entry, 'after_all','TitaniumTest.gscope') %>;
-	}
-	catch (e)
-	{
-		Titanium.API.error('after_all caught error:'+e+' at line: '+e.line);
-	}
-	TitaniumTest.complete();
-};
+	TitaniumTest.on_complete = function(){
+		try
+		{
+			<%= make_function(entry, 'after_all','TitaniumTest.gscope') %>;
+		}
+		catch (e)
+		{
+			Titanium.API.error('after_all caught error:'+e+' at line: '+e.line);
+		}
+		TitaniumTest.complete();
+	};
 
-TitaniumTest.run_next_test();
+	TitaniumTest.run_next_test();
+}

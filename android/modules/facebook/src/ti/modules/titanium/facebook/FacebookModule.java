@@ -12,6 +12,8 @@ import java.util.Iterator;
 import java.util.Map;
 
 import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollModule;
+import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.kroll.KrollCallback;
 import org.appcelerator.titanium.util.Log;
@@ -33,13 +35,15 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.view.Window;
 
-public class FacebookModule extends TiModule implements FBActivityDelegate,
+@Kroll.module
+public class FacebookModule extends KrollModule implements FBActivityDelegate,
 		TiActivityResultHandler {
 	private static final String LCAT = "TiFacebook";
 	private static final boolean DBG = TiConfig.LOGD;
 
-	private static KrollDict constants;
-
+	@Kroll.constant public static final String LOGIN_BUTTON_STYLE_WIDE = "wide";
+	@Kroll.constant public static final String LOGIN_BUTTON_STYLE_NORMAL = "normal";
+	
 	private FBSession session;
 	private ProgressDialog progressDialog;
 	private final Handler handler;
@@ -66,20 +70,8 @@ public class FacebookModule extends TiModule implements FBActivityDelegate,
 
 		if (USER_AGENT==null)
 		{
-			USER_AGENT = NETWORK_USER_AGENT + " Titanium/" + this.getBuildVersion();
+			USER_AGENT = NETWORK_USER_AGENT + " Titanium/" + tiContext.getTiApp().getTiBuildVersion();
 		}
-	}
-
-	@Override
-	public KrollDict getConstants() {
-		if (constants == null) {
-			constants = new KrollDict();
-
-			constants.put("LOGIN_BUTTON_STYLE_WIDE", "wide");
-			constants.put("LOGIN_BUTTON_STYLE_NORMAL", "normal");
-		}
-
-		return constants;
 	}
 
 	FBSession getOrCreateSession(String key, String secret, String sessionProxy) {
@@ -102,6 +94,7 @@ public class FacebookModule extends TiModule implements FBActivityDelegate,
 		return session;
 	}
 
+	@Kroll.method
 	public boolean setup(String key, String secret, String sessionProxy,
 			KrollCallback callback) 
 	{
@@ -130,6 +123,7 @@ public class FacebookModule extends TiModule implements FBActivityDelegate,
 		return loggedIn;
 	}
 
+	@Kroll.getProperty @Kroll.method
 	public boolean isLoggedIn() {
 		if (session != null) {
 			return session.isConnected();
@@ -137,6 +131,7 @@ public class FacebookModule extends TiModule implements FBActivityDelegate,
 		return false;
 	}
 
+	@Kroll.getProperty @Kroll.method
 	public long getUserId() {
 		if (session != null && session.isConnected()) {
 			return session.getUid();
@@ -144,18 +139,27 @@ public class FacebookModule extends TiModule implements FBActivityDelegate,
 		return 0L;
 	}
 
+	@Kroll.method
 	public void query(String fql, KrollCallback callback) {
 		Map<String, String> params = Collections.singletonMap("query", fql);
 		FBRequest.requestWithDelegate(new FBQueryRequestDelegateImpl(callback))
 				.call("facebook.fql.query", params);
 	}
 
-	public void execute(String method, Map<String, String> params,
+	@Kroll.method
+	public void execute(String method, KrollDict params,
 			KrollCallback callback, Object dataObj) {
+		
+		HashMap<String, String> fbParams = new HashMap<String, String>();
+		for (String key : params.keySet()) {
+			fbParams.put(key, TiConvert.toString(params.get(key)));
+		}
+		
 		FBRequest.requestWithDelegate(new FBQueryRequestDelegateImpl(callback))
-				.callWithAnyData(method, params, dataObj);
+				.callWithAnyData(method, fbParams, dataObj);
 	}
 
+	@Kroll.method
 	public void login(KrollCallback callback) {
 		this.loginCallback = callback;
 		if (!isLoggedIn()) {
@@ -178,6 +182,7 @@ public class FacebookModule extends TiModule implements FBActivityDelegate,
 				(TiActivityResultHandler) this);
 	}
 
+	@Kroll.method
 	public void logout(KrollCallback callback) {
 		this.logoutCallback = callback;
 		if (isLoggedIn()) {
@@ -191,6 +196,7 @@ public class FacebookModule extends TiModule implements FBActivityDelegate,
 		session.logout(w.getContext());
 	}
 
+	@Kroll.method
 	public boolean hasPermission(String permission) {
 		if (session != null) {
 			return session.hasPermission(permission);
@@ -198,6 +204,7 @@ public class FacebookModule extends TiModule implements FBActivityDelegate,
 		return false;
 	}
 
+	@Kroll.method
 	public void requestPermission(String permission, KrollCallback callback) {
 		Log.d(LCAT, "request permission called for permission: " + permission);
 		if (hasPermission(permission)) {
@@ -205,7 +212,7 @@ public class FacebookModule extends TiModule implements FBActivityDelegate,
 			KrollDict event = new KrollDict();
 			event.put("success", true);
 			event.put("permission", permission);
-			callback.callWithProperties(event);
+			callback.call(event);
 		} else {
 			Log.d(LCAT, "making remote permission call for: " + permission);
 			Activity activity = getTiContext().getActivity();
@@ -221,6 +228,7 @@ public class FacebookModule extends TiModule implements FBActivityDelegate,
 		}
 	}
 
+	@Kroll.method
 	public void publishStream(String title, KrollDict data, String target,
 			KrollCallback callback) {
 		JSONObject json = TiConvert.toJSON(data);
@@ -242,6 +250,7 @@ public class FacebookModule extends TiModule implements FBActivityDelegate,
 				(TiActivityResultHandler) this);
 	}
 
+	@Kroll.method
 	public void publishFeed(long templateBundleId, String data, String body,
 			KrollCallback callback) {
 		Activity activity = getTiContext().getActivity();
@@ -279,7 +288,7 @@ public class FacebookModule extends TiModule implements FBActivityDelegate,
 				if (permission != null) {
 					event.put("permission", permission);
 				}
-				callback.callWithProperties(event);
+				callback.call(event);
 				Log.d(LCAT, "Calling post activity event = " + event + " to "
 						+ callback);
 			}
@@ -305,8 +314,8 @@ public class FacebookModule extends TiModule implements FBActivityDelegate,
 			triggerLoginChange(false);
 		}
 		
-		internalSetDynamicValue("loggedIn", isLoggedIn(), false);
-		internalSetDynamicValue("userId", getUserId(), false);
+		setProperty("loggedIn", isLoggedIn());
+		setProperty("userId", getUserId());
 
 		KrollDict sessionDict = new KrollDict();
 		if (isLoggedIn()) {
@@ -315,14 +324,14 @@ public class FacebookModule extends TiModule implements FBActivityDelegate,
 			sessionDict.put("ss", session.getSessionSecret());
 			sessionDict.put("expires", session.getExpirationDate());
 		}
-		internalSetDynamicValue("session", sessionDict, false);
+		setProperty("session", sessionDict);
 
 		if (loginCallback != null) {
-			loginCallback.callWithProperties(event);
+			loginCallback.call(event);
 			loginCallback = null; // one-shot
 		}
 		if (setupCallback != null)
-			setupCallback.callWithProperties(event);
+			setupCallback.call(event);
 		
 		fireEvent("login",sessionDict);
 	}
@@ -335,16 +344,16 @@ public class FacebookModule extends TiModule implements FBActivityDelegate,
 		event.put("success", true);
 		event.put("state", "logout");
 
-		internalSetDynamicValue("loggedIn", false, false);
-		internalSetDynamicValue("userId", 0, false);
-		internalSetDynamicValue("session", new KrollDict(), false);
+		setProperty("loggedIn", false);
+		setProperty("userId", 0);
+		setProperty("session", new KrollDict());
 
 		if (logoutCallback != null) {
-			logoutCallback.callWithProperties(event);
+			logoutCallback.call(event);
 			logoutCallback = null; // one-shot
 		}
 		if (setupCallback != null)
-			setupCallback.callWithProperties(event);
+			setupCallback.call(event);
 		
 		fireEvent("logout",event);
 	}
@@ -462,7 +471,7 @@ public class FacebookModule extends TiModule implements FBActivityDelegate,
 								String value = items.getString(key);
 								perms.put(key, value);
 							}
-							internalSetDynamicValue("permissions", perms, false);
+							setProperty("permissions", perms);
 							Window w = getTiContext().getRootActivity().getWindow();
 							session.setPermissions(w.getContext(),perms);
 							Log.d(LCAT, "PERMISSIONS = " + perms);
@@ -510,7 +519,7 @@ public class FacebookModule extends TiModule implements FBActivityDelegate,
 			KrollDict event = new KrollDict();
 			event.put("success", true);
 			event.put("data", result);
-			callback.callWithProperties(event);
+			callback.call(event);
 		}
 
 		@Override
@@ -518,7 +527,7 @@ public class FacebookModule extends TiModule implements FBActivityDelegate,
 			KrollDict event = new KrollDict();
 			event.put("success", false);
 			event.put("message", error.getMessage());
-			callback.callWithProperties(event);
+			callback.call(event);
 		}
 	}
 }

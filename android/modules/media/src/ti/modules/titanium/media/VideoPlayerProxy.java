@@ -10,6 +10,7 @@ import java.util.concurrent.CountDownLatch;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
+import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.Log;
@@ -25,6 +26,7 @@ import android.os.Messenger;
 import android.os.RemoteException;
 import android.os.ResultReceiver;
 
+@Kroll.proxy
 public class VideoPlayerProxy extends KrollProxy
 {
 	private static final String LCAT = "VideoPlayerProxy";
@@ -155,6 +157,7 @@ public class VideoPlayerProxy extends KrollProxy
 	}
 
 
+	@Kroll.method
 	public void add(TiViewProxy proxy)
 	{
 		if (activityMessenger != null) {
@@ -169,6 +172,7 @@ public class VideoPlayerProxy extends KrollProxy
 		}
 	}
 
+	@Kroll.method
 	public void play()
 	{
 		if (activityMessenger != null) {
@@ -182,6 +186,7 @@ public class VideoPlayerProxy extends KrollProxy
 		}
 	}
 	
+	@Kroll.method
 	public void stop()
 	{
 		if (activityMessenger != null) {

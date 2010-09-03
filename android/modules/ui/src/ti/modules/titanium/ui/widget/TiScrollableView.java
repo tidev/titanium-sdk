@@ -410,7 +410,7 @@ public class TiScrollableView extends TiCompositeLayout
 				gallery.setInAnimation(null);
 				gallery.setOutAnimation(null);
 				gallery.setDisplayedChild(position);
-				proxy.internalSetDynamicValue("currentPage", position, false);
+				proxy.setProperty("currentPage", position);
 				proxy.fireScroll(position);
 
 				if (fromWrapper != null && (fromWrapper != toWrapper)) {
@@ -486,7 +486,7 @@ public class TiScrollableView extends TiCompositeLayout
 		if (v != null) {
 			v.setVisibility(hasNext() ? View.VISIBLE : View.INVISIBLE);
 		}
-		proxy.internalSetDynamicValue("currentPage", to, false);
+		proxy.setProperty("currentPage", to);
 	}
 
 	public void onNothingSelected(AdapterView<?> view)

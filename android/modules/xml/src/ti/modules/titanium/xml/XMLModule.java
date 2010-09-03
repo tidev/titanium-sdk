@@ -13,11 +13,14 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.appcelerator.kroll.KrollModule;
+import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.Log;
 import org.xml.sax.SAXException;
 
-public class XMLModule extends TiModule {
+@Kroll.module
+public class XMLModule extends KrollModule {
 
 	private static DocumentBuilder builder;
 	private static final String LCAT = "XMLModule";
@@ -34,6 +37,7 @@ public class XMLModule extends TiModule {
 		super(context);
 	}
 	
+	@Kroll.method
 	public DocumentProxy parseString(String xml)
 	{
 		return parse(getTiContext(), xml);

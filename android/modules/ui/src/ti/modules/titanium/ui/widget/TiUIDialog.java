@@ -148,7 +148,7 @@ public class TiUIDialog extends TiUIView
 	public void show(KrollDict options)
 	{
 		if (dialog == null) {
-			processProperties(proxy.getDynamicProperties());
+			processProperties(proxy.getProperties());
 			dialog = builder.create();
 		}
 		try {

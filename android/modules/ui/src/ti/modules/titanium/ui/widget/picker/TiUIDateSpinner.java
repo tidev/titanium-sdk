@@ -111,7 +111,7 @@ public class TiUIDateSpinner extends TiUIView
         setValue(calendar.getTimeInMillis() , true);
         
         if (!valueExistsInProxy) {
-        	proxy.internalSetDynamicValue("value", calendar.getTime(), false);
+        	proxy.setProperty("value", calendar.getTime());
         }
       
 	}
@@ -249,7 +249,7 @@ public class TiUIDateSpinner extends TiUIView
 		setAdapters();
 		
 		syncWheels();
-		proxy.internalSetDynamicValue("value", newVal, false);
+		proxy.setProperty("value", newVal);
 		
 		if (isChanged && !suppressEvent) {
 			if (!suppressChangeEvent) {

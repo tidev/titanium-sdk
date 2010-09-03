@@ -173,7 +173,7 @@ public class TiMapView extends TiUIView
 			TiOverlayItem item = null;
 
 			AnnotationProxy p = annotations.get(i);
-			KrollDict a = p.getDynamicProperties();
+			KrollDict a = p.getProperties();
 			if (a.containsKey("latitude") && a.containsKey("longitude")) {
 				String title = a.optString("title", "");
 				String subtitle = a.optString("subtitle", "");
@@ -457,7 +457,7 @@ public class TiMapView extends TiUIView
 			doUserLocation(d.getBoolean("userLocation"));
 		}
 		if (d.containsKey("annotations")) {
-			proxy.internalSetDynamicValue("annotations", d.get("annotations"), false);
+			proxy.setProperty("annotations", d.get("annotations"));
 			Object [] annotations = (Object[]) d.get("annotations");
 			for(int i = 0; i < annotations.length; i++) {
 				AnnotationProxy ap = (AnnotationProxy) annotations[i];
@@ -477,7 +477,7 @@ public class TiMapView extends TiUIView
 			if (newValue != null) {
 				if (newValue instanceof AnnotationProxy) {
 					AnnotationProxy ap = (AnnotationProxy) newValue;
-					doSetLocation(ap.getDynamicProperties());
+					doSetLocation(ap.getProperties());
 				} else if (newValue instanceof KrollDict) {
 					doSetLocation((KrollDict) newValue);
 				}
@@ -591,7 +591,7 @@ public class TiMapView extends TiUIView
 		int len = annotations.size();
 		for(int i = 0; i < len; i++) {
 			AnnotationProxy a = annotations.get(i);
-			String t = (String) a.getDynamicValue("title");
+			String t = (String) a.getProperty("title");
 
 			if (t != null) {
 				if (title.equals(t)) {

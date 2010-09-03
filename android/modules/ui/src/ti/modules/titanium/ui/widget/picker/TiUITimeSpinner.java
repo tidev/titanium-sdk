@@ -81,7 +81,7 @@ public class TiUITimeSpinner extends TiUIView
         setValue(calendar.getTimeInMillis() , true);
         
         if (!valueExistsInProxy) {
-        	proxy.internalSetDynamicValue("value", calendar.getTime(), false);
+        	proxy.setProperty("value", calendar.getTime());
         }
       
 	}
@@ -126,7 +126,7 @@ public class TiUITimeSpinner extends TiUIView
 		calendar.set(Calendar.MINUTE, minutesWheel.getCurrentItem());
 		calendar.set(Calendar.HOUR_OF_DAY, hoursWheel.getCurrentItem());
 		Date dateval = calendar.getTime();
-		proxy.internalSetDynamicValue("value", dateval, false);
+		proxy.setProperty("value", dateval);
 		if (!suppressChangeEvent) {
 			KrollDict data = new KrollDict();
 			data.put("value", dateval);

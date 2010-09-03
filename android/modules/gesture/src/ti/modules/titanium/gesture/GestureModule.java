@@ -7,7 +7,9 @@
 package ti.modules.titanium.gesture;
 
 import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.KrollProxy;
+import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.ContextSpecific;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiContext.OnConfigurationChanged;
@@ -15,8 +17,8 @@ import org.appcelerator.titanium.TiContext.OnConfigurationChanged;
 import ti.modules.titanium.ui.UIModule;
 import android.content.res.Configuration;
 
-@ContextSpecific
-public class GestureModule extends TiModule
+@Kroll.module @ContextSpecific
+public class GestureModule extends KrollModule
 	implements OnConfigurationChanged
 {
 	public static final String EVENT_ONCONFIGCHANGE = "orientationchange";
@@ -67,14 +69,17 @@ public class GestureModule extends TiModule
 		return getTiContext().getActivity().getResources().getConfiguration();
 	}
 
+	@Kroll.getProperty @Kroll.method
 	public boolean isPortrait() {
 		return getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT;
 	}
 
+	@Kroll.getProperty @Kroll.method
 	public boolean isLandscape() {
 		return getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE;
 	}
 
+	@Kroll.getProperty @Kroll.method
 	public int getOrientation() {
 		return convertToTiOrientation(getConfiguration().orientation);
 	}
