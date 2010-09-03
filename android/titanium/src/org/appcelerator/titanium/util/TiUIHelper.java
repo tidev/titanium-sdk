@@ -510,7 +510,6 @@ public class TiUIHelper
 	
 	public static Bitmap getResourceBitmap(TiContext context, String url)
 	{
-		// fail fast, before regex fanciness
 		if (!url.contains("Resources/images/")) {
 			return null;
 		}
@@ -520,18 +519,17 @@ public class TiUIHelper
 			return null;
 		}
 		
-		Integer id = context.getTiApp().getDrawableID(key);
-		if (id == null) {
+		int id = TiResourceHelper.getDrawable(key);
+		if (id == 0) {
 			return null;
 		}
 		
-		Bitmap bitmap = BitmapFactory.decodeResource(context.getTiApp().getResources(), id.intValue());
+		Bitmap bitmap = BitmapFactory.decodeResource(context.getActivity().getResources(), id);
 		return bitmap;
 	}
 	
 	public static Drawable getResourceDrawable(TiContext context, String url)
 	{
-		// fail fast, before regex fanciness
 		if (!url.contains("Resources/images/")) {
 			return null;
 		}
@@ -541,12 +539,12 @@ public class TiUIHelper
 			return null;
 		}
 		
-		Integer id = context.getTiApp().getDrawableID(key);
-		if (id == null) {
+		int id = TiResourceHelper.getDrawable(key);
+		if (id == 0) {
 			return null;
 		}
 		
-		return context.getTiApp().getResources().getDrawable(id.intValue());
+		return context.getActivity().getResources().getDrawable(id);
 	}
 	
 	public static void overridePendingTransition(Activity activity) 

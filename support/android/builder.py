@@ -5,7 +5,7 @@
 # the Android Emulator or on the device
 #
 import os, sys, subprocess, shutil, time, signal, string, platform, re, glob, hashlib
-import run, avd, prereq, tempfile
+import run, avd, prereq
 from os.path import splitext
 from compiler import Compiler
 from os.path import join, splitext, split, exists
@@ -93,54 +93,6 @@ def generate_appc_r(package,map):
         for kk in values:
             content+="        _%s.put(\"%s\",%s);\n" % (k,kk,values[kk])
     return RA_TEMPLATE % (package,prefix,content,defines)  
-
-def generate_ra_getters(resources, path):
-	template = "\n\t@Override\n\tpublic final Integer get%sID(String key){return RA.get%s(key);}\n"
-	known = ['style', 'string', 'attr', 'drawable']
-	(fd, temppath) = tempfile.mkstemp(prefix='tibuilder_', text=True)
-	os.close(fd)
-	temp = None
-	orig = None
-	try:
-		temp = open(temppath, 'w')
-		orig = open(path, 'r')
-		lines = orig.readlines() # small file, so this is no big deal
-		orig.close()
-		orig = None
-		processing = False
-		for line in lines:
-			if not processing:
-				temp.write(line)
-			else:
-				if '* /RA getters' in line:
-					processing = False
-					temp.write(line)
-
-			if '* RA getters' in line:
-				processing = True
-				temp.write('\n'.join([template % (k.capitalize(), k.capitalize()) for k in known if k in resources]))
-		temp.close()
-		os.remove(path)
-		shutil.copyfile(temppath, path)
-		temp = None
-		os.remove(temppath)
-	except OSError, err:
-		error("OSError generating getters for RA: %s" % err)
-		return
-	except IOError, err:
-		error("IOError generating getters for RA: %s" % err)
-		return
-	except:
-		error("Error generating getters for RA: %s" % sys.exc_info()[0])
-		return
-	finally:
-		if not orig is None:
-			orig.close()
-			orig = None
-		if not temp is None:
-			temp.close()
-			os.remove(temppath)
-			temp = None
 
 def dequote(s):
 	if s[0:1] == '"':
@@ -798,10 +750,6 @@ class Builder(object):
 		ra_f.write(ra_out)
 		ra_f.close()
 
-		# Make getters for RA inside the application .java.
-		generate_ra_getters(map, os.path.join(self.project_dir, 'src', self.app_id.replace('.', os.sep), self.classname + "Application.java"))
-		
-			
 		return manifest_changed
 
 	def generate_stylesheet(self):
