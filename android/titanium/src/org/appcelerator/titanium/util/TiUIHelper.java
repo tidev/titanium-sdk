@@ -309,36 +309,36 @@ public class TiUIHelper
 		TiFileHelper tfh = new TiFileHelper(appContext);
 
 		if (image != null) {
-			bgDrawable = tfh.loadDrawable(image, false, true);
+			bgDrawable = tfh.loadDrawable(tiContext, image, false, true);
 		} else if (color != null) {
 			bgDrawable = new ColorDrawable(TiConvert.toColor(color));
 		}
 
 		if (selectedImage != null) {
-			bgSelectedDrawable = tfh.loadDrawable(selectedImage, false, true);
+			bgSelectedDrawable = tfh.loadDrawable(tiContext, selectedImage, false, true);
 		} else if (selectedColor != null) {
 			bgSelectedDrawable = new ColorDrawable(TiConvert.toColor(selectedColor));
 		}
 
 		if (focusedImage != null) {
-			bgFocusedDrawable = tfh.loadDrawable(focusedImage, false, true);
+			bgFocusedDrawable = tfh.loadDrawable(tiContext, focusedImage, false, true);
 		} else if (focusedColor != null) {
 			bgFocusedDrawable = new ColorDrawable(TiConvert.toColor(focusedColor));
 		} else {
 			if (image != null) {
-				bgFocusedDrawable = tfh.loadDrawable(image, false, true);
+				bgFocusedDrawable = tfh.loadDrawable(tiContext, image, false, true);
 			} else if (color != null) {
 				bgFocusedDrawable = new ColorDrawable(TiConvert.toColor(color));				
 			}
 		}
 
 		if (disabledImage != null) {
-			bgDisabledDrawable = tfh.loadDrawable(disabledImage, false, true);
+			bgDisabledDrawable = tfh.loadDrawable(tiContext, disabledImage, false, true);
 		} else if (disabledColor != null) {
 			bgDisabledDrawable = new ColorDrawable(TiConvert.toColor(disabledColor));
 		} else {
 			if (image != null) {
-				bgDisabledDrawable = tfh.loadDrawable(image, false, true);
+				bgDisabledDrawable = tfh.loadDrawable(tiContext, image, false, true);
 			} else if (color != null) {
 				bgDisabledDrawable = new ColorDrawable(TiConvert.toColor(color));				
 			}
