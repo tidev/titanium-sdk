@@ -155,7 +155,7 @@ class Builder(object):
 		
 		# start in 1.4, you no longer need the build/android directory
 		# if missing, we'll create it on the fly
-		if not os.path.exists(self.project_dir) or not os.path.exists(os.path.join(self.project_dir,'AndroidManifest.xml')):
+		if not os.path.exists(self.project_dir) or (not os.path.exists(os.path.join(self.top_dir, 'AndroidManifest.xml')) and not os.path.exists(os.path.join(self.project_dir,'AndroidManifest.xml'))):
 			print "[INFO] Detected missing project but that's OK. re-creating it..."
 			android_creator = Android(name,app_id,self.sdk,None)
 			android_creator.create(os.path.join(project_dir,'..'))
