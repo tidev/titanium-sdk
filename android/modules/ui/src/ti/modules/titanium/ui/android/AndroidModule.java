@@ -11,6 +11,7 @@ import org.appcelerator.titanium.TiDict;
 import org.appcelerator.titanium.TiModule;
 import org.appcelerator.titanium.view.TiUIView;
 
+import android.text.util.Linkify;
 import android.view.WindowManager;
 
 public class AndroidModule extends TiModule 
@@ -48,11 +49,11 @@ public class AndroidModule extends TiModule
 			constants.put("SOFT_KEYBOARD_HIDE_ON_FOCUS", TiUIView.SOFT_KEYBOARD_HIDE_ON_FOCUS);
 			constants.put("SOFT_KEYBOARD_SHOW_ON_FOCUS", TiUIView.SOFT_KEYBOARD_SHOW_ON_FOCUS);
 			
-			constants.put("LINKIFY_ALL", android.text.util.Linkify.ALL);
-			constants.put("LINKIFY_EMAIL_ADDRESSES", android.text.util.Linkify.EMAIL_ADDRESSES);
-			constants.put("LINKIFY_MAP_ADDRESSES", android.text.util.Linkify.MAP_ADDRESSES);
-			constants.put("LINKIFY_PHONE_NUMBERS", android.text.util.Linkify.PHONE_NUMBERS);
-			constants.put("LINKIFY_WEB_URLS", android.text.util.Linkify.WEB_URLS);
+			constants.put("LINKIFY_ALL", Linkify.ALL);
+			constants.put("LINKIFY_EMAIL_ADDRESSES", Linkify.EMAIL_ADDRESSES);
+			constants.put("LINKIFY_MAP_ADDRESSES", Linkify.MAP_ADDRESSES);
+			constants.put("LINKIFY_PHONE_NUMBERS", Linkify.PHONE_NUMBERS);
+			constants.put("LINKIFY_WEB_URLS", Linkify.WEB_URLS);
 
 		}
 		
