@@ -19,6 +19,7 @@ import android.text.Editable;
 import android.text.Html;
 import android.text.InputType;
 import android.text.method.KeyListener;
+import android.text.util.Linkify;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
@@ -74,6 +75,10 @@ public class TiUILabel extends TiUIView
 		if (d.containsKey("verticalAlign")) {
 			String verticalAlign = d.getString("verticalAlign");
 			TiUIHelper.setAlignment(tv, null, verticalAlign);
+		}
+		if (d.containsKey("autoLink")) {
+		    int autoLink = d.getInt("autoLink").intValue();
+		    Linkify.addLinks(tv,autoLink);
 		}
 		tv.invalidate();
 	}
