@@ -42,7 +42,7 @@ public class TiUIDateSpinner extends TiUIView
 	private boolean suppressChangeEvent = false;
 	private boolean ignoreItemSelection = false;
 
-	private Date maxDate, minDate;
+	private Calendar maxDate = Calendar.getInstance(), minDate = Calendar.getInstance();
 	private Locale locale = Locale.getDefault();
 	private boolean dayBeforeMonth = false;
 	private boolean numericMonths = false;
@@ -58,8 +58,9 @@ public class TiUIDateSpinner extends TiUIView
 	private void createNativeView()
 	{
 		// defaults
-		maxDate = new Date(calendar.get(Calendar.YEAR) + 100, 11, 31);
-		minDate = new Date(calendar.get(Calendar.YEAR) - 100, 0, 31);
+		maxDate.set(calendar.get(Calendar.YEAR) + 100, 11, 31);
+		minDate.set(calendar.get(Calendar.YEAR) - 100, 0, 1);
+		
 		
 		monthWheel = new WheelView(proxy.getContext());
 		dayWheel = new WheelView(proxy.getContext());
@@ -106,14 +107,14 @@ public class TiUIDateSpinner extends TiUIView
         
         if (d.containsKey("minDate")) {
         	Calendar c = Calendar.getInstance();
-        	minDate = TiConvert.toDate(d, "minDate");
-        	c.setTime(minDate);
+        	minDate.setTime(TiConvert.toDate(d, "minDate"));
+        	c.setTime(minDate.getTime());
         } 
         
         if (d.containsKey("maxDate")) {
         	Calendar c = Calendar.getInstance();
-        	maxDate = TiConvert.toDate(d, "maxDate");
-        	c.setTime(maxDate);
+        	maxDate.setTime(TiConvert.toDate(d, "maxDate"));
+        	c.setTime(maxDate.getTime());
         } 
         
         if (d.containsKey("locale")) {
@@ -129,14 +130,14 @@ public class TiUIDateSpinner extends TiUIView
         }
         
         if (maxDate.before(minDate)) {
-        	maxDate = minDate;
+        	maxDate.setTime(minDate.getTime());
         }
         
         // If initial value is out-of-bounds, set date to nearest bound
-        if (calendar.getTime().after(maxDate)) {
-        	calendar.setTime(maxDate);
-        } else if (calendar.getTime().before(minDate)) {
-        	calendar.setTime(minDate);
+        if (calendar.after(maxDate)) {
+        	calendar.setTime(maxDate.getTime());
+        } else if (calendar.before(minDate)) {
+        	calendar.setTime(minDate.getTime());
         }
         
         setValue(calendar.getTimeInMillis() , true);
@@ -171,8 +172,8 @@ public class TiUIDateSpinner extends TiUIView
 
 	private void setYearAdapter()
 	{
-		int minYear = minDate.getYear() + 1900;
-		int maxYear = maxDate.getYear() + 1900;
+		int minYear = minDate.get(Calendar.YEAR);
+		int maxYear = maxDate.get(Calendar.YEAR);
 		if (yearAdapter != null && yearAdapter.getMinValue() == minYear && yearAdapter.getMaxValue() == maxYear) {
 			return;
 		}
@@ -199,16 +200,16 @@ public class TiUIDateSpinner extends TiUIView
 			currentMax = monthAdapter.getMaxValue();
 		}
 
-		int maxYear = maxDate.getYear() + 1900;
-		int minYear = minDate.getYear() + 1900;
+		int maxYear = maxDate.get(Calendar.YEAR);
+		int minYear = minDate.get(Calendar.YEAR);
 		int selYear = getSelectedYear();
 		
 		if (selYear == maxYear) {
-			setMaxMonth = maxDate.getMonth() + 1;
+			setMaxMonth = maxDate.get(Calendar.MONTH) + 1;
 		}
 		
 		if (selYear == minYear) {
-			setMinMonth = minDate.getMonth() + 1;
+			setMinMonth = minDate.get(Calendar.MONTH) + 1;
 		}
 		
 		if (currentMin != setMinMonth || currentMax != setMaxMonth || forceUpdate) {
@@ -239,19 +240,19 @@ public class TiUIDateSpinner extends TiUIView
 			currentMax = dayAdapter.getMaxValue();
 		}
 
-		int maxYear = maxDate.getYear() + 1900;
-		int minYear = minDate.getYear() + 1900;
+		int maxYear = maxDate.get(Calendar.YEAR);
+		int minYear = minDate.get(Calendar.YEAR);
 		int selYear = getSelectedYear();
-		int maxMonth = maxDate.getMonth() + 1;
-		int minMonth = minDate.getMonth() + 1;
+		int maxMonth = maxDate.get(Calendar.MONTH) + 1;
+		int minMonth = minDate.get(Calendar.MONTH) + 1;
 		int selMonth = getSelectedMonth();
 		
 		if (selYear == maxYear && selMonth == maxMonth) {
-			setMaxDay = maxDate.getDate();
+			setMaxDay = maxDate.get(Calendar.DAY_OF_MONTH);
 		}
 		
 		if (selYear == minYear && selMonth == minMonth) {
-			setMinDay = minDate.getDate();
+			setMinDay = minDate.get(Calendar.DAY_OF_MONTH);
 		}
 		
 		if (currentMin != setMinDay || currentMax != setMaxDay) {
@@ -283,11 +284,11 @@ public class TiUIDateSpinner extends TiUIView
 		
 		setCalendar(value);
 		newVal = calendar.getTime();
-		if (newVal.after(maxDate)) {
-			newVal = maxDate;
+		if (newVal.after(maxDate.getTime())) {
+			newVal = maxDate.getTime();
 			setCalendar(newVal);
-		} else if (newVal.before(minDate)) {
-			newVal = minDate;
+		} else if (newVal.before(minDate.getTime())) {
+			newVal = minDate.getTime();
 			setCalendar(newVal);
 		}
 		
@@ -378,7 +379,12 @@ public class TiUIDateSpinner extends TiUIView
 	
 	private Date getSelectedDate()
 	{
-		return new Date(getSelectedYear() - 1900, getSelectedMonth() - 1, getSelectedDay());
+		int year = getSelectedYear();
+		int month = getSelectedMonth() - 1;
+		int day = getSelectedDay();
+		Calendar c = Calendar.getInstance();
+		c.set(year, month, day);
+		return c.getTime();
 	}
 	
 	@Override
