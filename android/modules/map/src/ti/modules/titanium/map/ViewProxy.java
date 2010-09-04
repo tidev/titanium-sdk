@@ -124,8 +124,8 @@ public class ViewProxy extends TiViewProxy
 	public void onDestroy() {
 		if (lam != null) {
 			lam.dispatchDestroy(true);
+			lam.destroyActivity("TIMAP", true);
 		}
-		lam.destroyActivity("TIMAP", true);
 		mapWindow = null;
 	}
 
