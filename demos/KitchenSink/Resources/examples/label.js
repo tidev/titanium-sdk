@@ -1,111 +1,31 @@
-var win = Titanium.UI.currentWindow;
+// create label view data object
+var data = [
+	{title:'Basic', hasChild:true, test:'../examples/label_basic.js'}
+];
 
-var l1 = Titanium.UI.createLabel({
-	text:'Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat',
-	width:200,
-	height:150,
-	top:10,
-	color:'#336699',
-	textAlign:'center'
-});
-
-win.add(l1);
-
-var l2 = Titanium.UI.createLabel({
-	text:'Appcelerator',
-	height:50,
-	width:'auto',
-	shadowColor:'#aaa',
-	shadowOffset:{x:5,y:5},
-	color:'#900',
-	font:{fontSize:48, fontStyle:'italic'},
-	top:170,
-	textAlign:'center'
-});
-
-win.add(l2);
-
-var b1 = Titanium.UI.createButton({
-	title:'Hide/Show',
-	height:40,
-	width:200,
-	top:230
-});
-var visible=true;
-b1.addEventListener('click', function()
+// add iphone specific tests
+if (Titanium.Platform.name == 'android')
 {
-	if (visible)
-	{
-		l1.hide();
-		l2.hide();
-		visible=false;
-	}
-	else
-	{
-		l1.show();
-		l2.show();
-		visible=true;
-	}
-});
-win.add(b1);
+data.push({title:'Auto Link', hasChild:true, test:'../examples/label_linkify.js'});
 
-var b2 = Titanium.UI.createButton({
-	title:'Change Label 2',
-	height:40,
-	width:200,
-	top:280
+}
+// create table view
+var tableview = Titanium.UI.createTableView({
+	data:data
 });
-var changed=false;
-b2.addEventListener('click', function()
+
+// create table view event listener
+tableview.addEventListener('click', function(e)
 {
-	if (!changed)
+	if (e.rowData.test)
 	{
-		l2.color = '#ff9900';
-		l2.shadowColor = '#336699';
-		l2.font = {fontSize:20};
-		changed=true;
-		size.text = l2.size.height + ' ' + l2.size.width
-	}
-	else
-	{
-		l2.color = '#900';
-		l2.shadowColor = '#aaa';
-		l2.font = {fontSize:48};
-		size.text = l2.size.height + ' ' + l2.size.width
-		changed=false;
+		var win = Titanium.UI.createWindow({
+			url:e.rowData.test,
+			title:e.rowData.title
+		});
+		Titanium.UI.currentTab.open(win,{animated:true});
 	}
 });
-win.add(b2);
 
-var b3 = Titanium.UI.createButton({
-	title:'Label 1 background',
-	height:40,
-	width:200,
-	top:330
-});
-var bg = false;
-b3.addEventListener('click', function()
-{
-	if (!bg) {
-		l1.backgroundPaddingLeft = 10;
-		l1.backgroundPaddingRight = 10;
-		l1.backgroundPaddingTop = 10;
-		l1.backgroundPaddingBottom = 10;
-		l1.backgroundImage = '../images/chat.png';
-		bg = true;
-	}
-	else {
-		l1.backgroundImage = null;
-		bg = false;
-	}
-});
-win.add(b3);
-
-var size = Ti.UI.createLabel({
-	height:30,
-	width:300,
-	font:{fontSize:14},
-	color:'#777',
-	bottom:10
-});
-win.add(size)
+// add table view to the window
+Titanium.UI.currentWindow.add(tableview);

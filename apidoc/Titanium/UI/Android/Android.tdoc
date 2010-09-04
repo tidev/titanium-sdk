@@ -33,6 +33,12 @@ LINKIFY_EMAIL_ADDRESSES[int]: Convert all e-mail addresses to clickable links
 LINKIFY_MAP_LINKS[int]: Convert all street addresses to clickable links
 LINKIFY_WEB_URLS[int]: Convert all web addresses to clickable links
 
+LINKIFY_ALL[int]: Auto link all supported types.
+LINKIFY_EMAIL_ADDRESSES[int]: Auto link email addresses.
+LINKIFY_MAP_ADDRESSES[int]: Auto link physical addresses.
+LINKIFY_PHONE_NUMBERS[int]: Auto link phone numbers.
+LINKIFY_WEB_URLS[int]: Auto link web urls.
+
 - methods
 
 None

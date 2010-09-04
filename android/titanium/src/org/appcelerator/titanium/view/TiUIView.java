@@ -38,6 +38,7 @@ import android.view.View.OnTouchListener;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.AnimationSet;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.AdapterView;
 
 public abstract class TiUIView
 	implements TiProxyListener, OnFocusChangeListener
@@ -458,7 +459,9 @@ public abstract class TiUIView
 				if (DBG) {
 					Log.d(LCAT, "Group has: " + vg.getChildCount());
 				}
-				vg.removeAllViews();
+				if (!(vg instanceof AdapterView<?>)) {
+					vg.removeAllViews();
+				}
 			}
 			Drawable d = nv.getBackground();
 			if (d != null) {
