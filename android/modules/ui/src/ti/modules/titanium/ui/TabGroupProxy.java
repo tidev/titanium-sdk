@@ -219,7 +219,6 @@ public class TabGroupProxy extends TiWindowProxy
 		}
 		tg.changeActiveTab(initialActiveTab);
 
-		getTiContext().getRootActivity().addWindow(windowId, view.getLayoutParams());
 		opened = true;
 	}
 
@@ -227,7 +226,7 @@ public class TabGroupProxy extends TiWindowProxy
 	protected void handleClose(TiDict options) {
 		Log.i(LCAT, "handleClose");
 		modelListener = null;
-		getTiContext().getRootActivity().closeWindow(windowId);
+		getTiContext().getActivity().finish();
 		releaseViews();
 		windowId = null;
 		view = null;
