@@ -19,6 +19,7 @@ import android.text.Editable;
 import android.text.Html;
 import android.text.InputType;
 import android.text.method.KeyListener;
+import android.text.util.Linkify;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
@@ -75,9 +76,19 @@ public class TiUILabel extends TiUIView
 			String verticalAlign = d.getString("verticalAlign");
 			TiUIHelper.setAlignment(tv, null, verticalAlign);
 		}
+		
+		// This needs to be the last operation.
+		linkifyIfEnabled(tv, d);
 		tv.invalidate();
 	}
 
+	private void linkifyIfEnabled(TextView tv, TiDict d)
+	{
+		if (d.containsKey("autoLink")) {
+		    Linkify.addLinks(tv,TiConvert.toInt(d, "autoLink"));
+		}
+	}
+	
 	@Override
 	public void propertyChanged(String key, Object oldValue, Object newValue, TiProxy proxy)
 	{
@@ -87,9 +98,11 @@ public class TiUILabel extends TiUIView
 		TextView tv = (TextView) getNativeView();
 		if (key.equals("html")) {
 			tv.setText(Html.fromHtml(TiConvert.toString(newValue)), TextView.BufferType.SPANNABLE);
+			linkifyIfEnabled(tv, proxy.getDynamicProperties());
 			tv.requestLayout();
-		} else if (key.equals("text")) {
+		} else if (key.equals("text") || key.equals("title")) {
 			tv.setText(TiConvert.toString(newValue));
+			linkifyIfEnabled(tv, proxy.getDynamicProperties());
 			tv.requestLayout();
 		} else if (key.equals("color")) {
 			tv.setTextColor(TiConvert.toColor((String) newValue));
@@ -104,6 +117,8 @@ public class TiUILabel extends TiUIView
 		} else if (key.equals("font")) {
 			TiUIHelper.styleText(tv, (TiDict) newValue);
 			tv.requestLayout();
+		} else if (key.equals("autoLink")) {
+			Linkify.addLinks(tv, TiConvert.toInt(newValue));
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}
