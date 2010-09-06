@@ -44,14 +44,14 @@ public class KrollProxy implements Handler.Callback, OnEventListenerChange {
 	protected String proxyId;
 	protected KrollProxyListener modelListener;
 	protected static HashMap<Class<? extends KrollProxy>, KrollProxyBinding> bindings = new HashMap<Class<? extends KrollProxy>, KrollProxyBinding>();
-	protected String name;
+	protected String apiName;
 	
 	@Kroll.inject
 	protected KrollInvocation currentInvocation;
 
 	public KrollProxy(TiContext context) {
 		this.context = context;
-		name = getClass().getSimpleName();
+		apiName = getClass().getSimpleName();
 		
 		if (DBG) {
 			Log.d(TAG, "New: " + getClass().getSimpleName());
@@ -107,18 +107,18 @@ public class KrollProxy implements Handler.Callback, OnEventListenerChange {
 			
 			List<String> filteredBindings = null;
 			if (this instanceof KrollModule) {
-				filteredBindings = getTiContext().getTiApp().getFilteredBindings(name);
+				filteredBindings = getTiContext().getTiApp().getFilteredBindings(apiName);
 			}
 			bindings.get(getClass()).bind(scope, rootObject, this, filteredBindings);
 		}
 	}
 
-	public String getName() {
-		return name;
+	public String getAPIName() {
+		return apiName;
 	}
 	
-	public void setName(String name) {
-		this.name = name;
+	public void setAPIName(String apiName) {
+		this.apiName = apiName;
 	}
 
 	public boolean has(Scriptable scope, String name) {
@@ -181,7 +181,7 @@ public class KrollProxy implements Handler.Callback, OnEventListenerChange {
 			return method.invoke(inv, args);
 		} else
 			throw new NoSuchMethodException("method \"" + name
-					+ "\" of proxy \"" + getName() + "\" wasn't found");
+					+ "\" of proxy \"" + getAPIName() + "\" wasn't found");
 	}
 
 	protected Object getDynamicProperty(Scriptable scope, String name,
@@ -192,7 +192,7 @@ public class KrollProxy implements Handler.Callback, OnEventListenerChange {
 			return dynprop.get(inv, name);
 		} else {
 			throw new NoSuchFieldException("dynamic property \"" + name
-					+ "\" of proxy \"" + getName()
+					+ "\" of proxy \"" + getAPIName()
 					+ "\" doesn't have read support");
 		}
 	}
@@ -206,7 +206,7 @@ public class KrollProxy implements Handler.Callback, OnEventListenerChange {
 			dynprop.set(inv, name, value);
 		} else {
 			throw new NoSuchFieldException("dynamic property \"" + name
-					+ "\" of proxy \"" + getName()
+					+ "\" of proxy \"" + getAPIName()
 					+ "\" doesn't have write support");
 		}
 	}
@@ -425,7 +425,7 @@ public class KrollProxy implements Handler.Callback, OnEventListenerChange {
 				getTiContext(),
 				getTiContext().getJSContext().getScope(),
 				new KrollObject(this),
-				getName() + ":event:" + eventName, null, this);
+				getAPIName() + ":event:" + eventName, null, this);
 		return inv;
 	}
 
@@ -474,6 +474,6 @@ public class KrollProxy implements Handler.Callback, OnEventListenerChange {
 	
 	@Kroll.method
 	public String toString() {
-		return "[Ti."+getName() + (this instanceof KrollModule ? " Module" : "") + "]";
+		return "[Ti."+getAPIName() + (this instanceof KrollModule ? " Module" : "") + "]";
 	}
 }

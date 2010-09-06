@@ -413,7 +413,7 @@
 					Titanium.API.info("==> Finished waiting for android emualtor to boot");
 			
 					self.frontend_do('status', 'unlocking android screen...');
-					var unlock_screen_apk = TFS.getFile(resources_dir, 'android', 'UnlockScreen', 'bin', 'UnlockScreen.apk');
+					var unlock_screen_apk = TFS.getFile(resources_dir, 'android', 'UnlockScreen', 'dist', 'UnlockScreen.apk');
 					var unlock_screen_args = [adb, '-e', 'install', '-r', unlock_screen_apk.nativePath()];
 					var unlock_screen_process = Titanium.Process.createProcess(unlock_screen_args);
 					Titanium.API.debug(unlock_screen_args)

@@ -70,7 +70,7 @@ public class ${genClassName} <#if superProxyBindingClassName??>extends ${superPr
 	public void bind(final Scriptable scope, final KrollProxy rootObject, final KrollProxy p, final List<String> filteredBindings) {
 		
 		final ${proxyClassName} __proxy = (${proxyClassName}) p;
-		__proxy.setName("${proxyAttrs.name}");
+		__proxy.setAPIName("${proxyAttrs.name}");
 		
 		<#if proxyAnnotation.annotationType == "org.appcelerator.kroll.annotations.Kroll.module">
 		try {

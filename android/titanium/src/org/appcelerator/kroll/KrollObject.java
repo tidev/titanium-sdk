@@ -20,7 +20,7 @@ public class KrollObject extends ScriptableObject {
 	
 	@Override
 	public String getClassName() {
-		return "Ti."+proxy.getName() + (proxy instanceof KrollModule ? "Module":"");
+		return "Ti."+proxy.getAPIName() + (proxy instanceof KrollModule ? "Module":"");
 	}
 	
 	@Override
