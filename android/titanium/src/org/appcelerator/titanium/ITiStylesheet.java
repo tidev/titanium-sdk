@@ -10,5 +10,5 @@ import java.util.HashMap;
 
 public interface ITiStylesheet 
 {
-	public HashMap<String,String> getStylesheet(String objectId, String type, String density, String basename);
+	public HashMap<String,Object> getStylesheet(String objectId, String type, String density, String basename);
 }

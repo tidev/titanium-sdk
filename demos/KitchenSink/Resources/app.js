@@ -34,11 +34,11 @@ var tab2 = Titanium.UI.createTab({
 //
 var win3 = Titanium.UI.createWindow({
     url:'main_windows/phone.js',
-    title:'Phone'
+    titleid:'phone_win_title'
 });
 var tab3 = Titanium.UI.createTab({
     icon:'images/tabs/KS_nav_phone.png',
-    title:'Phone',
+    titleid:'phone_win_title',
     window:win3
 });
 
@@ -48,11 +48,11 @@ var tab3 = Titanium.UI.createTab({
 //
 var win4 = Titanium.UI.createWindow({
     url:'main_windows/platform.js',
-    title:'Platform'
+    titleid:'platform_win_title'
 });
 var tab4 = Titanium.UI.createTab({
     icon:'images/tabs/KS_nav_platform.png',
-    title:'Platform',
+    titleid:'platform_win_title',
 	active:true,
     window:win4
 });
@@ -62,11 +62,11 @@ var tab4 = Titanium.UI.createTab({
 //
 var win5 = Titanium.UI.createWindow({
     url:'main_windows/mashups.js',
-    title:'Mashups'
+    titleid:'mashups_win_title'
 });
 var tab5 = Titanium.UI.createTab({
     icon:'images/tabs/KS_nav_mashup.png',
-    title:'Mashups',
+    titleid:'mashups_win_title',
     window:win5
 });
 

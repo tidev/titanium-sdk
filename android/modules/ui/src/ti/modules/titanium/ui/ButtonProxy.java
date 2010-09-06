@@ -22,7 +22,7 @@ public class ButtonProxy extends TiViewProxy
 	}
 
 	@Override
-	protected TiDict getLangConverstionTable() {
+	protected TiDict getLangConversionTable() {
 		TiDict table = new TiDict();
 		table.put("title","titleid");
 		return table;

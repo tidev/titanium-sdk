@@ -88,68 +88,8 @@
 				}
 			}
 		}
-		// handle font conversions
-		id fontWeight = [properties valueForKey:@"font-weight"];
-		id fontFamily = [properties valueForKey:@"font-family"];
-		id fontSize = [properties valueForKey:@"font-size"];
-		id fontStyle = [properties valueForKey:@"font-style"];
-		if (fontWeight!=nil || fontFamily!=nil || fontSize!=nil || fontStyle!=nil)
-		{
-			NSMutableDictionary* font = [properties valueForKey:@"font"];
-			if (font==nil)
-			{
-				font = [NSMutableDictionary dictionary];
-			}
-			if (fontWeight!=nil)
-			{
-				[font setObject:fontWeight forKey:@"fontWeight"];
-			}
-			if (fontFamily!=nil)
-			{
-				//TODO: now to deal with comma-separated list?
-				[font setObject:fontFamily forKey:@"fontFamily"];
-			}
-			if (fontSize!=nil)
-			{
-				[font setObject:fontSize forKey:@"fontSize"];
-			}
-			if (fontStyle!=nil)
-			{
-				[font setObject:fontStyle forKey:@"fontStyle"];
-			}
-			[(NSMutableDictionary*)properties setObject:font forKey:@"font"];
-		}
-		
-		// do any css translations as needed
-		NSDictionary *css = [self cssConversionTable];
-		for (NSString *key in css)
-		{
-			NSString *value = [properties objectForKey:key];
-			if (value!=nil)
-			{
-				[(NSMutableDictionary*)properties setObject:value forKey:[css objectForKey:key]];
-			}
-		}
 	}
 	[super _initWithProperties:properties];
-}
-
--(NSDictionary*)cssConversionTable
-{
-	static NSDictionary *cssConversions = nil;
-	if (cssConversions==nil)
-	{
-		// we need to map CSS property names to Ti property names
-		cssConversions = [[NSDictionary alloc] initWithObjectsAndKeys:
-						  @"backgroundImage",@"background-image",
-						  @"backgroundColor",@"background-color",
-						  @"textAlign",@"text-align",
-						  @"borderRadius",@"border-radius",
-						  @"borderColor",@"border-color",
-						  @"borderWidth",@"border-width",
-						  nil];
-	}
-	return cssConversions;
 }
 
 -(NSMutableDictionary*)langConversionTable

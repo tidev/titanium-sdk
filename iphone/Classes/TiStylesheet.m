@@ -21,6 +21,13 @@
 		classesDictByDensity = [[dictionary objectForKey:@"classes_density"] retain];
 		idsDict = [[dictionary objectForKey:@"ids"] retain];
 		idsDictByDensity = [[dictionary objectForKey:@"ids_density"] retain];
+		
+#ifdef DEBUG
+		NSLog(@"[DEBUG] classesDict = %@",classesDict);
+		NSLog(@"[DEBUG] classesDictByDensity = %@",classesDictByDensity);
+		NSLog(@"[DEBUG] idsDict = %@",idsDict);
+		NSLog(@"[DEBUG] idsDictByDensity = %@",idsDictByDensity);
+#endif
 		[dictionary release];
 	}
 	return self;
@@ -63,6 +70,9 @@
 		[result addEntriesFromDictionary:idsD];
 	}
 
+#ifdef DEBUG	
+	NSLog(@"[DEBUG] stylesheet -> %@",result);
+#endif
 	return result;
 }
 

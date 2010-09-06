@@ -5,5 +5,7 @@
 	<string name="format_test">Your name is %s</string>
 	<string name="base_ui_title">Base UI</string>
 	<string name="controls_win_title">Controls</string> 
-	<string name="label_test">You should see a bold 14px font</string>   
+	<string name="phone_win_title">Phone</string>
+	<string name="platform_win_title">Platform</string>
+	<string name="mashups_win_title">Mashups</string>
 </resources>

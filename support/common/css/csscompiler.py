@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 # 
 # Appcelerator Titanium
@@ -12,6 +13,11 @@ import os,codecs,time,types,sys
 ignoreFiles = ['.gitignore', '.cvsignore']
 ignoreDirs = ['.git','.svn', 'CVS']
 
+template_dir = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
+sys.path.append(os.path.join(template_dir,'../../'))
+sys.path.append(os.path.join(template_dir,'../'))
+
+from tiapp import *
 
 ANDROID_CLASS_TEMPLATE = """/**
  * Appcelerator Titanium
@@ -21,20 +27,21 @@ package %s;
 
 import java.util.HashMap;
 import org.appcelerator.titanium.ITiStylesheet;
+import org.appcelerator.titanium.TiDict;
 
-public class ApplicationStylesheet implements ITiStylesheet 
+public final class ApplicationStylesheet implements ITiStylesheet 
 {
-	private static HashMap<String,HashMap<String,HashMap<String,String>>> classesMap;
-	private static HashMap<String,HashMap<String,HashMap<String,String>>> idsMap;
-	private static HashMap<String,HashMap<String,HashMap<String,HashMap<String,String>>>> classesDensityMap;
-	private static HashMap<String,HashMap<String,HashMap<String,HashMap<String,String>>>> idsDensityMap;
+	private static final HashMap<String,HashMap<String,HashMap<String,Object>>> classesMap;
+	private static final HashMap<String,HashMap<String,HashMap<String,Object>>> idsMap;
+	private static final HashMap<String,HashMap<String,HashMap<String,HashMap<String,Object>>>> classesDensityMap;
+	private static final HashMap<String,HashMap<String,HashMap<String,HashMap<String,Object>>>> idsDensityMap;
 
-	public ApplicationStylesheet()
+	static
 	{
-		classesMap = new HashMap<String,HashMap<String,HashMap<String,String>>>();
-		idsMap = new HashMap<String,HashMap<String,HashMap<String,String>>>();
-		classesDensityMap = new HashMap<String,HashMap<String,HashMap<String,HashMap<String,String>>>>();
-		idsDensityMap = new HashMap<String,HashMap<String,HashMap<String,HashMap<String,String>>>>();
+		classesMap = new HashMap<String,HashMap<String,HashMap<String,Object>>>();
+		idsMap = new HashMap<String,HashMap<String,HashMap<String,Object>>>();
+		classesDensityMap = new HashMap<String,HashMap<String,HashMap<String,HashMap<String,Object>>>>();
+		idsDensityMap = new HashMap<String,HashMap<String,HashMap<String,HashMap<String,Object>>>>();
 		
 %s
 %s
@@ -42,34 +49,34 @@ public class ApplicationStylesheet implements ITiStylesheet
 %s
 	}
 
-	public HashMap<String,String> getStylesheet(String objectId, String type, String density, String basename)
+	public final HashMap<String,Object> getStylesheet(String objectId, String type, String density, String basename)
 	{
-		HashMap<String,String> result = new HashMap<String,String>();
+		HashMap<String,Object> result = new HashMap<String,Object>();
 		if (classesMap!=null && classesMap.containsKey(basename))
 		{
-			HashMap<String,String> r = classesMap.get(basename).get(type);
+			HashMap<String,Object> r = classesMap.get(basename).get(type);
 			if (r!=null) result.putAll(r);
 		}
 		if (classesDensityMap!=null && classesDensityMap.containsKey(basename))
 		{
-			HashMap<String,HashMap<String,String>> r = classesDensityMap.get(basename).get(density);
+			HashMap<String,HashMap<String,Object>> r = classesDensityMap.get(basename).get(density);
 			if (r!=null && r.containsKey(type)) 
 			{
-				HashMap<String,String> r2 = r.get(type);
+				HashMap<String,Object> r2 = r.get(type);
 				if (r2!=null) result.putAll(r2);
 			}
 		}
 		if (idsMap!=null && idsMap.containsKey(basename))
 		{
-			HashMap<String,String> r = idsMap.get(basename).get(objectId);
+			HashMap<String,Object> r = idsMap.get(basename).get(objectId);
 			if (r!=null) result.putAll(r);
 		}
 		if (idsDensityMap!=null && idsDensityMap.containsKey(basename))
 		{
-			HashMap<String,HashMap<String,String>> r = idsDensityMap.get(basename).get(density);
+			HashMap<String,HashMap<String,Object>> r = idsDensityMap.get(basename).get(density);
 			if (r!=null && r.containsKey(objectId)) 
 			{
-				HashMap<String,String> r2 = r.get(objectId);
+				HashMap<String,Object> r2 = r.get(objectId);
 				if (r2!=null) result.putAll(r2);
 			}
 		}
@@ -81,6 +88,15 @@ public class ApplicationStylesheet implements ITiStylesheet
 
 
 __all__ = ('CSSCompiler')
+
+CSS_MAPPINGS = {
+	u'background-image':u'backgroundImage',
+	u'background-url':u'backgroundImage',
+	u'text-align':u'textAlign',
+	u'border-radius':u'borderRadius',
+	u'border-color':u'borderColor',
+	u'border-width':u'borderWidth',
+}
 
 
 class CSSCompiler(object):
@@ -150,6 +166,8 @@ class CSSCompiler(object):
 			self.classes_density[filepath] = classes_density
 			self.ids_density[filepath] = ids_density
 		
+		self.transform_properties()
+		
 		if self.platform == 'iphone' or self.platform == 'ipad' or self.platform == 'ios':
 			self.code = self.generate_ios_code(self.classes,self.classes_density,self.ids,self.ids_density)
 		elif self.platform == 'android':
@@ -157,6 +175,34 @@ class CSSCompiler(object):
 		elif self.platform == 'blackberry':
 			self.code = self.generate_bb_code(self.classes,self.classes_density,self.ids,self.ids_density)
 		
+	def transform_fonts(self,dict):
+		newdict = {}
+		for key in dict:
+			newdict[key] = {}
+			for sel in dict[key]:
+				font = None
+				newdict[key][sel] = {}
+				for prop in dict[key][sel]:
+					value = dict[key][sel][prop]
+					if prop.startswith('font-'):
+						if newdict[key][sel].has_key('font'):
+							font = newdict[key][sel]['font']
+						else:
+							font = {}
+						toks = prop.split('-')
+						newprop = toks[0] + toks[1].capitalize()
+						font[newprop] = value
+						newdict[key][sel]['font'] = font
+					else:
+						newdict[key][sel][prop]=value
+		return newdict
+				
+	def transform_properties(self):
+		self.classes = self.transform_fonts(self.classes)
+		self.ids = self.transform_fonts(self.ids)
+		self.classes_density = self.transform_fonts(self.classes_density)
+		self.ids_density = self.transform_fonts(self.ids_density)
+			
 	def parse(self,data):
 		parser = cssyacc.yacc()
 		parser.lexer = csslex.lex()
@@ -171,7 +217,15 @@ class CSSCompiler(object):
 				str+='<key>%s</key>\n' % key
 				str+='<dict>\n'
 				for subkey in hash[classname][key]:
-					str+='<key>%s</key>\n<string>%s</string>\n' % (subkey,hash[classname][key][subkey])
+					value = hash[classname][key][subkey]
+					if type(value) == types.DictType:
+						str+='<key>%s</key>\n' % subkey
+						str+='<dict>\n'
+						for k in value:
+							str+='<key>%s</key>\n<string>%s</string>\n' % (k,value[k])
+						str+='</dict>\n'
+					else:
+						str+='<key>%s</key>\n<string>%s</string>\n' % (subkey,value)
 				str+='</dict>\n'
 			str+='</dict>\n'
 		str+='</dict>\n'
@@ -189,7 +243,15 @@ class CSSCompiler(object):
 					str+='<key>%s</key>\n' % classname
 					str+='<dict>\n'
 					for key in hash[pathname][density][classname]:
-						str+='<key>%s</key>\n<string>%s</string>\n' % (key,hash[pathname][density][classname][key])
+						value = hash[pathname][density][classname][key]
+						if type(value)==types.DictType:
+							str+='<key>%s</key>\n' % key
+							str+='<dict>\n'
+							for k in value:
+								str+='<key>%s</key>\n<string>%s</string>\n' % (k,value[k])
+							str+='</dict>\n'
+						else:
+							str+='<key>%s</key>\n<string>%s</string>\n' % (key,value)
 				str+='</dict>\n' 
 			str+='</dict>\n'
 		str+='</dict>\n'
@@ -226,33 +288,51 @@ class CSSCompiler(object):
 		str = ''
 		for pathname in hash:
 			mapname1 = self.generate_mapname()
-			str+='		HashMap<String,HashMap<String,String>> %s = new HashMap<String,HashMap<String,String>>();\n' % mapname1
+			xcount = 0
+			xstr='		HashMap<String,HashMap<String,Object>> %s = new HashMap<String,HashMap<String,Object>>();\n' % mapname1
 			for classname in hash[pathname]:
+				xcount+=1
 				mapname = self.generate_mapname()
-				str+='		HashMap<String,String> %s = new HashMap<String,String>();\n' % mapname
-				str+='		%s.put("%s",%s);\n' % (mapname1,classname,mapname)
+				xstr+='		HashMap<String,Object> %s = new HashMap<String,Object>();\n' % mapname
+				xstr+='		%s.put("%s",%s);\n' % (mapname1,classname,mapname)
 				for key in hash[pathname][classname]:
-					str+='		%s.put("%s","%s");\n' % (mapname,key,hash[pathname][classname][key])
-			str += '		%s.put("%s",%s);\n' % (varname,pathname,mapname1)
+					value = hash[pathname][classname][key]
+					if type(value) == types.DictType:
+						# NOTE: only one level right now which is OK since it's just font
+						dictname = self.generate_mapname()
+						xstr+='		TiDict %s = new TiDict();\n' % (dictname)
+						for k in value:
+							v = value[k]
+							xstr+='		%s.put("%s","%s");\n' % (dictname,k,v)
+						xstr+='		%s.put("%s",%s);\n' % (mapname,key,dictname)
+					else:
+						xstr+='		%s.put("%s","%s");\n' % (mapname,key,value)
+			if xcount > 0:			
+				str += xstr
+				str += '		%s.put("%s",%s);\n' % (varname,pathname,mapname1)
 		return str + '\n'
 
 	def create_android_density_dict(self,hash,varname):
 		str = ''
 		for pathname in hash:
 			mapname1 = self.generate_mapname()
-			str+='		HashMap<String,HashMap<String,String>> %s = new HashMap<String,HashMap<String,String>>();\n' % mapname1
+			xcount = 0
+			xstr='		HashMap<String,HashMap<String,String>> %s = new HashMap<String,HashMap<String,Object>>();\n' % mapname1
 			for density in hash[pathname]:
 				mapname2 = self.generate_mapname()
-				str+='		HashMap<String,HashMap<String,String>> %s = new HashMap<String,HashMap<String,String>>();\n' % mapname2
-				str+='		%s.put("%s",%s);\n' % (mapname2,classname,mapname1)
+				xstr+='		HashMap<String,HashMap<String,String>> %s = new HashMap<String,HashMap<String,Object>>();\n' % mapname2
+				xstr+='		%s.put("%s",%s);\n' % (mapname2,classname,mapname1)
 				for classname in hash[pathname][density]:
 					mapname = self.generate_mapname()
-					str+='		HashMap<String,String> %s = new HashMap<String,String>();\n' % mapname
-					str+='		%s.put("%s",%s);\n' % (mapname1,classname,mapname)
+					xcount+=1
+					xstr+='		HashMap<String,Object> %s = new HashMap<String,Object>();\n' % mapname
+					xstr+='		%s.put("%s",%s);\n' % (mapname1,classname,mapname)
 					for key in hash[pathname][density][classname]:
-						str+='		%s.put("%s","%s");\n' % (mapname,key,hash[pathname][density][classname][key])
-					str += '		%s.put("%s",%s);\n' % (varname,pathname,mapname)
-				str += '		%s.put("%s",%s);\n' % (varname,pathname,mapname1)
+						xstr+='		%s.put("%s","%s");\n' % (mapname,key,hash[pathname][density][classname][key])
+					xstr += '		%s.put("%s",%s);\n' % (varname,pathname,mapname)
+				xstr += '		%s.put("%s",%s);\n' % (varname,pathname,mapname1)
+			if xcount > 0:
+				str+=xstr
 		return str + '\n'
 				
 	def generate_android_code(self,classes,classes_density,ids,ids_density):
@@ -267,6 +347,11 @@ class CSSCompiler(object):
 			return value.value
 		return unicode(value)
 		
+	def translate_key(self,key):
+		if CSS_MAPPINGS.has_key(str(key)):
+			return CSS_MAPPINGS[str(key)]
+		return key 
+			
 	def fill_entries(self,filepath,classes={},ids={}):
 		contents = codecs.open(filepath,'r').read()
 		x = self.parse(contents)
@@ -279,9 +364,10 @@ class CSSCompiler(object):
 						if selector[0:1]=='#':
 							dest = ids
 							key = key[1:]
+						prop = self.translate_key(r.property)
 						if not dest.has_key(key):
 							dest[key] = {}
-						dest[key][unicode(r.property)]=self.translate_value(r.value)
+						dest[key][unicode(prop)]=self.translate_value(r.value)
 			elif isinstance(rule,css.Import):
 				p = os.path.join(self.dir,rule.source.url)
 				if not os.path.exists(p):
@@ -290,6 +376,63 @@ class CSSCompiler(object):
 					self.fill_entries(p,classes,ids)
 
 if __name__ == "__main__":
-	c = CSSCompiler("/Users/jhaynie/work/titanium_mobile/demos/KitchenSink/Resources","android","com.appcelerator.titanium")
-	print c.code
+	if len(sys.argv)==1 or len(sys.argv) < 3:
+		print "Appcelerator CSS Compiler"
+		print "Usage: %s <project_dir> <platform> [output]" % os.path.basename(sys.argv[0])
+		sys.exit(1)
+	
+	path = os.path.expanduser(sys.argv[1])
+	if not os.path.exists(path):
+		print "Project directory not found: %s" % path
+		sys.exit(1)
+	
+	tiapp_xml_path = os.path.join(path,'tiapp.xml')
+	if not os.path.exists(tiapp_xml_path):
+		print "Project directory doesn't look like a valid Titanium project: %s" % path
+		sys.exit(1)	
+		
+	resources_dir = os.path.join(path,'Resources')
+		
+	if not os.path.exists(resources_dir):
+		print "Project directory doesn't look like a valid Titanium project: %s" % path
+		sys.exit(1)	
+
+	platform = sys.argv[2]
+	tiapp = TiAppXML(tiapp_xml_path)
+	app_id = tiapp.properties['id']
+	output_dir = None
+	
+	if len(sys.argv) > 3:
+		output_dir = os.path.expanduser(sys.argv[3])
+	
+	c = CSSCompiler(resources_dir,platform,app_id)
+	
+	
+	if platform == 'android':
+		if output_dir==None:
+			srcdir = os.path.join(path,'build','android','src')
+			app_sdir = os.path.join(srcdir,app_id.replace('.','/'))
+		else:
+			app_sdir = output_dir
+		if not os.path.exists(app_sdir): os.makedirs(app_sdir)
+		app_stylesheet = os.path.join(app_sdir,'ApplicationStylesheet.java')
+		asf = codecs.open(app_stylesheet,'w','utf-8')
+		asf.write(c.code)
+		asf.close()
+		print "[INFO] wrote %s" % app_stylesheet
+	elif platform in ('iphone','ipad','ios'):
+		if output_dir==None:
+			iphone_dir = os.path.abspath(os.path.join(path,'build','iphone'))
+			app_stylesheet = os.path.join(iphone_dir,'Resources','stylesheet.plist')
+		else:
+			app_stylesheet = os.path.join(output_dir,'stylesheet.plist')
+		asf = codecs.open(app_stylesheet,'w','utf-8')
+		asf.write(c.code)
+		asf.close()
+		print "[INFO] wrote %s" % app_stylesheet
+	else:
+		print "Unknown or unsupported platform: %s" % platform
+		sys.exit(1)
+		
+	sys.exit(0)
 	

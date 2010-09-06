@@ -83,11 +83,7 @@ public abstract class TiViewProxy extends TiProxy implements Handler.Callback
 		    {
 		        String key = (String)options.get("id");
 		        String type = getClass().getSimpleName().replace("Proxy","").toLowerCase();
-		        String base = tiContext.getBaseUrl();
-		        if (base.equals("app://"))
-		        {
-		            base = "/app.js";
-		        }
+		        String base = tiContext.getCurrentUrl();
 		        int idx = base.lastIndexOf("/");
 		        if (idx != -1)
 		        {
@@ -105,7 +101,7 @@ public abstract class TiViewProxy extends TiProxy implements Handler.Callback
 		    }
 		    
 		    //lang conversion table
-		    TiDict langTable = getLangConverstionTable();
+		    TiDict langTable = getLangConversionTable();
 		    if (langTable!=null)
 		    {
 				Activity activity = tiContext.getActivity();
@@ -129,66 +125,11 @@ public abstract class TiViewProxy extends TiProxy implements Handler.Callback
 		        }
 		    }
 		    
-		    // convert fonts
-		    Object fontWeight = options.get("font-weight");
-		    Object fontFamily = options.get("font-family");
-		    Object fontSize = options.get("font-size");
-		    Object fontStyle = options.get("font-style");
-		    if (fontWeight!=null || fontFamily!=null || fontSize!=null || fontStyle!=null)
-		    {
-		        TiDict font = (TiDict)options.get("font");
-		        if (font==null)
-		        {
-		            font = new TiDict();
-		        }
-		        if (fontWeight!=null)
-		        {
-		            font.put("fontWeight",fontWeight);
-		        }
-		        if (fontFamily!=null)
-		        {
-		            font.put("fontFamily",fontFamily);
-		        }
-		        if (fontSize!=null)
-		        {
-		            font.put("fontSize",fontSize);
-		        }
-		        if (fontStyle!=null)
-		        {
-		            font.put("fontStyle",fontStyle);
-		        }
-		        options.put("font",font);
-		    }
-		
-			// do css conversions
-			TiDict css = getCssConversionTable();
-			for (String key : css.keySet())
-			{
-				if (options.containsKey(key))
-				{
-					options.put((String)css.get(key),options.get(key));
-				}
-			}
-		    
 			setProperties(options);
 		}
 	}
 	
-	private TiDict getCssConversionTable() {
-		if (cssConversionTable==null)
-		{
-			cssConversionTable = new TiDict();
-			cssConversionTable.put("background-image","backgroundImage");
-			cssConversionTable.put("background-color","backgroundColor");
-			cssConversionTable.put("text-align","textAlign");
-			cssConversionTable.put("border-radius","borderRadius");
-			cssConversionTable.put("border-color","borderColor");
-			cssConversionTable.put("border-width","borderWidth");
-		}
-		return cssConversionTable;
-	}
-	
-	protected TiDict getLangConverstionTable() {
+	protected TiDict getLangConversionTable() {
 	    // subclasses override to return a table mapping of langid keys to actual keys
 	    // used for specifying things like titleid vs. title so that you can localize them
 	    return null;

@@ -14,12 +14,3 @@
 	titleid:'base_ui_title';
 }
 
-#font_label_test {
-	textid: 'label_test';
-	font-size:'14px';
-	font-weight:'bold';
-	bottom:50;
-	width:'auto';
-	height:'20px';
-	text-align:'center';
-}
