@@ -85,4 +85,16 @@ public class TableViewSectionProxy extends TiViewProxy
 	public String toString() {
 		return "[object TiUITableViewSection]";
 	}
+
+	@Override
+	public void releaseViews()
+	{
+		super.releaseViews();
+		if (rows != null) {
+			for (TableViewRowProxy row : rows) {
+				row.releaseViews();
+			}
+		}
+		rows.clear();
+	}
 }

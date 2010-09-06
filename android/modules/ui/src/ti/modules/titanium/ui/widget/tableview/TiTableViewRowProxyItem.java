@@ -302,4 +302,29 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 	public boolean providesOwnSelector() {
 		return true;
 	}
+	
+	@Override
+	public void release()
+	{
+		super.release();
+		if (views != null) {
+			for (TiUIView view : views) {
+				view.release();
+			}
+			views = null;
+		}
+		if (content != null) {
+			content.removeAllViews();
+			content = null;
+		}
+		if (hasCheckDrawable != null) {
+			hasCheckDrawable.setCallback(null);
+			hasCheckDrawable = null;
+		}
+		if (hasChildDrawable != null) {
+			hasChildDrawable.setCallback(null);
+			hasChildDrawable = null;
+		}
+		
+	}
 }

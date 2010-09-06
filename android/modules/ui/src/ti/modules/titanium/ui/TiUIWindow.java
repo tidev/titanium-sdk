@@ -607,4 +607,17 @@ public class TiUIWindow extends TiUIView
 
 		return intent;
 	}
+
+	@Override
+	public void release()
+	{
+		super.release();
+		if (liteWindow != null) {
+			liteWindow.removeAllViews();
+			liteWindow = null;
+		}
+		messenger = null;
+		handler = null;
+		windowActivity = null;
+	}
 }
