@@ -169,14 +169,19 @@ class Compiler(object):
 					
 					
 if __name__ == "__main__":
-	if len(sys.argv) == 1:
-		print "Usage: %s <destdir>" % sys.argv[0]
+	if len(sys.argv) != 3:
+		print "Usage: %s <projectdir> <destdir>" % sys.argv[0]
 		sys.exit(1)
 
-	destdir = sys.argv[1]
-	project_dir = os.path.abspath(os.path.join(template_dir, '..', '..', 'demos', 'KitchenSink'))
-	resources_dir = os.path.join(project_dir,"Resources")
-	c = Compiler("com.appcelerator.kitchensink",resources_dir,"java",destdir)
+	destdir = sys.argv[2]
+	project_dir = os.path.expanduser(sys.argv[1])
+	#os.path.abspath(os.path.join(template_dir, '..', '..', 'demos', 'KitchenSink'))
+	resources_dir = os.path.join(project_dir, 'Resources')
+	sys.path.append("..")
+	import tiapp
+	xml = tiapp.TiAppXML(os.path.join(project_dir, 'tiapp.xml'))
+	
+	c = Compiler(xml.properties['id'], resources_dir, 'java', destdir)
 	project_deltafy = Deltafy(resources_dir)
 	project_deltas = project_deltafy.scan()
 	#c.compile(project_deltas)

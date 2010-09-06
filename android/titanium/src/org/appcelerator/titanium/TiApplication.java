@@ -79,6 +79,7 @@ public abstract class TiApplication extends Application
 	}
 	
 	public abstract void bootModules(TiContext context);
+	public abstract List<String> getFilteredBindings(String moduleName);
 	
 	public static TiApplication getInstance() {
 		return _instance;

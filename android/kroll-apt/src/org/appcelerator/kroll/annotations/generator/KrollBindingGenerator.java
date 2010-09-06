@@ -271,6 +271,12 @@ public class KrollBindingGenerator extends AbstractProcessor {
 				args.add(argParams);
 			}
 			
+			String methodName = element.getSimpleName().toString();
+			attrs.put("apiName", attrs.get("name"));
+			if (attrs.get("name").equals(DEFAULT_NAME)) {
+				attrs.put("apiName", methodName);
+			}
+			
 			attrs.put("annotation", annotation);
 			attrs.put("args", args);
 			attrs.put("returnType", element.getReturnType().toString());
@@ -278,7 +284,7 @@ public class KrollBindingGenerator extends AbstractProcessor {
 			utils.debugLog("method converter for " + utils.getName(element) + " => " + attrs.get("converter"));
 			//attrs.put("converter", KrollConverter.class);
 			
-			methods.put(element.getSimpleName().toString(), attrs);
+			methods.put(methodName, attrs);
 		}
 		
 		protected void visitProperty(AnnotationMirror annotation, VariableElement element) {

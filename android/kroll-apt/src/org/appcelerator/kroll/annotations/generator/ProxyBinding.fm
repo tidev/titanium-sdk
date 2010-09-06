@@ -20,6 +20,8 @@ import org.appcelerator.titanium.util.Log;
 
 import org.mozilla.javascript.Scriptable;
 
+import java.util.List;
+
 import ${packageName}.${proxyClassName};
 
 <#function countRequiredArguments method>
@@ -59,11 +61,17 @@ public class ${genClassName} <#if superProxyBindingClassName??>extends ${superPr
 {
 	private static final String TAG = "${genClassName}";
 	
+	protected boolean filter(String apiName, List<String> filteredBindings) {
+		if (filteredBindings == null || filteredBindings.size() == 0) return false;
+		return filteredBindings.contains(apiName);
+	}
+	
 	<#if superProxyBindingClassName??>@Override</#if>
-	public void bind(final Scriptable scope, final KrollProxy rootObject, final KrollProxy p) {
+	public void bind(final Scriptable scope, final KrollProxy rootObject, final KrollProxy p, final List<String> filteredBindings) {
 		
 		final ${proxyClassName} __proxy = (${proxyClassName}) p;
-		__proxy.setAPIClassName("Ti${proxyAttrs.name}");
+		__proxy.setName("${proxyAttrs.name}");
+		
 		<#if proxyAnnotation.annotationType == "org.appcelerator.kroll.annotations.Kroll.module">
 		try {
 			rootObject.set(scope, "${proxyAttrs.name}", p);
@@ -71,7 +79,8 @@ public class ${genClassName} <#if superProxyBindingClassName??>extends ${superPr
 		
 			<#if createProxies?keys?seq_contains(proxyAttrs.name)>
 				<#list createProxies[proxyAttrs.name] as createProxy>
-			try {
+			if (!filter("create${createProxy.name}", filteredBindings)) {
+				try {
 				__proxy.set(scope, "create${createProxy.name}", new KrollMethod(__proxy, "create${createProxy.name}") {
 					public Object invoke(KrollInvocation __invocation, Object[] __args) throws Exception
 					{
@@ -90,7 +99,8 @@ public class ${genClassName} <#if superProxyBindingClassName??>extends ${superPr
 						return KrollConverter.getInstance().convertNative(__invocation, __createdProxy);
 					}
 				});
-			} catch (Exception e) { Log.e(TAG, "Error binding create${proxyAttrs.name}", e); }
+				} catch (Exception e) { Log.e(TAG, "Error binding create${proxyAttrs.name}", e); }
+			}
 				</#list>
 			</#if>
 		</#if>
@@ -100,9 +110,11 @@ public class ${genClassName} <#if superProxyBindingClassName??>extends ${superPr
 		</#if>
 		<#list constants?keys as constantName>
 			<#assign constant = constants[constantName]>
-		try {
-			__proxy.set(scope, "${constantName}", ${proxyClassName}.${constant.proxyName});
-		} catch (Exception e) { Log.e(TAG, "Error binding constant: ${proxyClassName}:${constantName}", e); }
+		if (!filter("${constantName}", filteredBindings)) {
+			try {
+				__proxy.set(scope, "${constantName}", ${proxyClassName}.${constant.proxyName});
+			} catch (Exception e) { Log.e(TAG, "Error binding constant: ${proxyClassName}:${constantName}", e); }
+		}
 		</#list>
 		
 		<#if properties?keys?size &gt; 0>
@@ -110,9 +122,11 @@ public class ${genClassName} <#if superProxyBindingClassName??>extends ${superPr
 		</#if>
 		<#list properties?keys as propertyName>
 			<#assign property = properties[propertyName]>
-		try {
-			__proxy.set(scope, "${propertyName}", new KrollProperty(p, "${propertyName}", ${property.get?string}, ${property.set?string}, "${property.proxyName}"));
-		} catch (Exception e) { Log.e(TAG, "Error binding property ${proxyClassName}:${propertyName}", e); }
+		if (!filter("${propertyName}", filteredBindings)) {
+			try {
+				__proxy.set(scope, "${propertyName}", new KrollProperty(p, "${propertyName}", ${property.get?string}, ${property.set?string}, "${property.proxyName}"));
+			} catch (Exception e) { Log.e(TAG, "Error binding property ${proxyClassName}:${propertyName}", e); }
+		}
 		</#list>
 		
 		<#if dynamicProperties?keys?size &gt; 0>
@@ -120,95 +134,99 @@ public class ${genClassName} <#if superProxyBindingClassName??>extends ${superPr
 		</#if>
 		<#list dynamicProperties?keys as propertyName>
 			<#assign dynamicProperty = dynamicProperties[propertyName]>
-		try {
-			__proxy.set(scope, "${propertyName}", new KrollReflectionProperty(p, "${propertyName}",
-				${dynamicProperty.get?string}, ${dynamicProperty.set?string},
-				<#if dynamicProperty.get>
-				"${dynamicProperty.getMethodName}",
-				<#else>
-				null,
-				</#if>
-				<#if dynamicProperty.set>
-				"${dynamicProperty.setMethodName}",
-				${dynamicProperty.retain?string}
-				<#else>
-				null, false
-				</#if>
-			));
-		} catch (Exception e) { Log.e(TAG, "Error binding dynamic property ${proxyClassName}:${propertyName}", e); }
+		if (!filter("${propertyName}", filteredBindings)) {
+			try {
+				__proxy.set(scope, "${propertyName}", new KrollReflectionProperty(p, "${propertyName}",
+					${dynamicProperty.get?string}, ${dynamicProperty.set?string},
+					<#if dynamicProperty.get>
+					"${dynamicProperty.getMethodName}",
+					<#else>
+					null,
+					</#if>
+					<#if dynamicProperty.set>
+					"${dynamicProperty.setMethodName}",
+					${dynamicProperty.retain?string}
+					<#else>
+					null, false
+					</#if>
+				));
+			} catch (Exception e) { Log.e(TAG, "Error binding dynamic property ${proxyClassName}:${propertyName}", e); }
+		}
 		</#list>
 		
 		//// Methods
 		<#list methods?keys as methodName>
 			<#assign method = methods[methodName]>
+		if (!filter("${method.apiName}", filteredBindings)) {
 			<#if method.returnType != "void">
 			final ${method.converter} __${methodName}_converter = ${method.converter}.getInstance();
 			</#if>
-		KrollMethod ${methodName}_method = new KrollMethod(__proxy, "${methodName}") {
-			public Object invoke(KrollInvocation __invocation, Object[] __args) throws Exception
-			{
-				<#assign varArgsIndex = -1>
-				<#list method.args as arg>
-					<#if arg.type == "java.lang.Object[]">
-						<#assign varArgsIndex = arg_index>
-					</#if>
-				</#list>
-				<#assign requiredArgs = countRequiredArguments(method)>
-				<#if requiredArgs &gt; 0>
-				if (__args == null) { throw new IllegalArgumentException("Expected ${requiredArgs} arguments for ${methodName}, got 0"); }
-				else if (__args.length < ${requiredArgs}) { throw new IllegalArgumentException("Expected ${requiredArgs} arguments for ${methodName}, got " + __args.length); }
-				</#if>
-				
-				<#list method.args as arg>
-					${arg.type} ${arg.name};
-					<#if arg_index = varArgsIndex>
-						// varargs
-						${arg.name} = new Object[__args.length-${arg_index}];
-						for (int i = ${arg_index}; i < __args.length; i++) {
-							${arg.name}[i-${arg_index}] = ${arg.converter}.getInstance().convertJavascript(__invocation, __args[i], Object.class);
-						}
-					<#else>
-						<#assign optional = arg?keys?seq_contains("optional") && arg.optional>
-						<#assign castType = arg.type>
-						<#if primitiveBoxTypes?keys?seq_contains(arg.type)>
-							<#assign castType = primitiveBoxTypes[arg.type]>
-						</#if>
-						<#if optional>
-						if (__args.length >= ${arg_index+1}) {
-						</#if>
-							${arg.name} = (${castType})
-								${arg.converter}.getInstance().convertJavascript(__invocation, __args[${arg_index}], ${castType}.class);
-						<#if optional>
-						} else {
-							${arg.name} = (${castType})
-								${arg.defaultValueProvider}.getInstance().getDefaultValue(${arg.type}.class);
-						}
-						</#if>
-					</#if>
-				</#list>
-				
-				<@injectByType type="org.appcelerator.kroll.KrollInvocation" proxy="__proxy" value="__invocation"/>
-				
-				<#if method.returnType != "void">
-				${method.returnType} __retVal =
-				</#if>
-				
-				__proxy.${methodName}(<#if method.hasInvocation>__invocation,</#if>
+			KrollMethod ${methodName}_method = new KrollMethod(__proxy, "${method.apiName}") {
+				public Object invoke(KrollInvocation __invocation, Object[] __args) throws Exception
+				{
+					<#assign varArgsIndex = -1>
 					<#list method.args as arg>
-					${arg.name}<#if arg_has_next>,</#if>
-					</#list>);
-				<#if method.returnType != "void">
-				return __${methodName}_converter.convertNative(__invocation, __retVal);
-				<#else>
-				return KrollProxy.UNDEFINED;
-				</#if>
-			}
-		};
-		
-		try {
-			__proxy.set(scope, "${methodName}", ${methodName}_method);
-		} catch (Exception e) { Log.e(TAG, "Error binding method ${proxyClassName}:${methodName}", e); }
+						<#if arg.type == "java.lang.Object[]">
+							<#assign varArgsIndex = arg_index>
+						</#if>
+					</#list>
+					<#assign requiredArgs = countRequiredArguments(method)>
+					<#if requiredArgs &gt; 0>
+					if (__args == null) { throw new IllegalArgumentException("Expected ${requiredArgs} arguments for ${methodName}, got 0"); }
+					else if (__args.length < ${requiredArgs}) { throw new IllegalArgumentException("Expected ${requiredArgs} arguments for ${methodName}, got " + __args.length); }
+					</#if>
+					
+					<#list method.args as arg>
+						${arg.type} ${arg.name};
+						<#if arg_index = varArgsIndex>
+							// varargs
+							${arg.name} = new Object[__args.length-${arg_index}];
+							for (int i = ${arg_index}; i < __args.length; i++) {
+								${arg.name}[i-${arg_index}] = ${arg.converter}.getInstance().convertJavascript(__invocation, __args[i], Object.class);
+							}
+						<#else>
+							<#assign optional = arg?keys?seq_contains("optional") && arg.optional>
+							<#assign castType = arg.type>
+							<#if primitiveBoxTypes?keys?seq_contains(arg.type)>
+								<#assign castType = primitiveBoxTypes[arg.type]>
+							</#if>
+							<#if optional>
+							if (__args.length >= ${arg_index+1}) {
+							</#if>
+								${arg.name} = (${castType})
+									${arg.converter}.getInstance().convertJavascript(__invocation, __args[${arg_index}], ${castType}.class);
+							<#if optional>
+							} else {
+								${arg.name} = (${castType})
+									${arg.defaultValueProvider}.getInstance().getDefaultValue(${arg.type}.class);
+							}
+							</#if>
+						</#if>
+					</#list>
+					
+					<@injectByType type="org.appcelerator.kroll.KrollInvocation" proxy="__proxy" value="__invocation"/>
+					
+					<#if method.returnType != "void">
+					${method.returnType} __retVal =
+					</#if>
+					
+					__proxy.${methodName}(<#if method.hasInvocation>__invocation,</#if>
+						<#list method.args as arg>
+						${arg.name}<#if arg_has_next>,</#if>
+						</#list>);
+					<#if method.returnType != "void">
+					return __${methodName}_converter.convertNative(__invocation, __retVal);
+					<#else>
+					return KrollProxy.UNDEFINED;
+					</#if>
+				}
+			};
+			
+			try {
+				__proxy.set(scope, "${method.apiName}", ${methodName}_method);
+			} catch (Exception e) { Log.e(TAG, "Error binding method ${proxyClassName}:${method.apiName}", e); }
+		}
 		</#list>
-		<#if superProxyBindingClassName??>super.bind(scope, rootObject, p);</#if>
+		<#if superProxyBindingClassName??>super.bind(scope, rootObject, p, null);</#if>
 	}
 }

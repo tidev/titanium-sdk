@@ -32,8 +32,8 @@ public class AppModule extends KrollProxy
 		return appInfo.getId();
 	}
 
-	@Kroll.getProperty @Kroll.method
-	public String getName() {
+	@Kroll.getProperty(name="name") @Kroll.method(name="getName")
+	public String _getName() {
 		return appInfo.getName();
 	}
 

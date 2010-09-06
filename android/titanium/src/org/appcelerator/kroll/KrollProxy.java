@@ -7,6 +7,7 @@
 package org.appcelerator.kroll;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -26,7 +27,7 @@ public class KrollProxy implements Handler.Callback, OnEventListenerChange {
 
 	private static final String TAG = "KrollProxy";
 	private static final boolean DBG = TiConfig.LOGD;
-
+	
 	protected static final int MSG_MODEL_PROPERTY_CHANGE = 100;
 	protected static final int MSG_LISTENER_ADDED = 101;
 	protected static final int MSG_LISTENER_REMOVED = 102;
@@ -43,14 +44,14 @@ public class KrollProxy implements Handler.Callback, OnEventListenerChange {
 	protected String proxyId;
 	protected KrollProxyListener modelListener;
 	protected static HashMap<Class<? extends KrollProxy>, KrollProxyBinding> bindings = new HashMap<Class<? extends KrollProxy>, KrollProxyBinding>();
-	protected String apiName;
+	protected String name;
 	
 	@Kroll.inject
 	protected KrollInvocation currentInvocation;
 
 	public KrollProxy(TiContext context) {
 		this.context = context;
-		apiName = getClass().getSimpleName();
+		name = getClass().getSimpleName();
 		
 		if (DBG) {
 			Log.d(TAG, "New: " + getClass().getSimpleName());
@@ -103,16 +104,21 @@ public class KrollProxy implements Handler.Callback, OnEventListenerChange {
 				// chicken/egg problem, we can't get the root object from the bridge if this is the constructor of the root object
 				rootObject = bridge.getRootObject();
 			}
-			bindings.get(getClass()).bind(scope, rootObject, this);
+			
+			List<String> filteredBindings = null;
+			if (this instanceof KrollModule) {
+				filteredBindings = getTiContext().getTiApp().getFilteredBindings(name);
+			}
+			bindings.get(getClass()).bind(scope, rootObject, this, filteredBindings);
 		}
 	}
 
-	public String getAPIClassName() {
-		return apiName;
+	public String getName() {
+		return name;
 	}
 	
-	public void setAPIClassName(String apiName) {
-		this.apiName = apiName;
+	public void setName(String name) {
+		this.name = name;
 	}
 
 	public boolean has(Scriptable scope, String name) {
@@ -175,7 +181,7 @@ public class KrollProxy implements Handler.Callback, OnEventListenerChange {
 			return method.invoke(inv, args);
 		} else
 			throw new NoSuchMethodException("method \"" + name
-					+ "\" of proxy \"" + getAPIClassName() + "\" wasn't found");
+					+ "\" of proxy \"" + getName() + "\" wasn't found");
 	}
 
 	protected Object getDynamicProperty(Scriptable scope, String name,
@@ -186,7 +192,7 @@ public class KrollProxy implements Handler.Callback, OnEventListenerChange {
 			return dynprop.get(inv, name);
 		} else {
 			throw new NoSuchFieldException("dynamic property \"" + name
-					+ "\" of proxy \"" + getAPIClassName()
+					+ "\" of proxy \"" + getName()
 					+ "\" doesn't have read support");
 		}
 	}
@@ -200,7 +206,7 @@ public class KrollProxy implements Handler.Callback, OnEventListenerChange {
 			dynprop.set(inv, name, value);
 		} else {
 			throw new NoSuchFieldException("dynamic property \"" + name
-					+ "\" of proxy \"" + getAPIClassName()
+					+ "\" of proxy \"" + getName()
 					+ "\" doesn't have write support");
 		}
 	}
@@ -419,7 +425,7 @@ public class KrollProxy implements Handler.Callback, OnEventListenerChange {
 				getTiContext(),
 				getTiContext().getJSContext().getScope(),
 				new KrollObject(this),
-				getAPIClassName() + ":event:" + eventName, null, this);
+				getName() + ":event:" + eventName, null, this);
 		return inv;
 	}
 
@@ -468,6 +474,6 @@ public class KrollProxy implements Handler.Callback, OnEventListenerChange {
 	
 	@Kroll.method
 	public String toString() {
-		return "["+getAPIClassName()+"]";
+		return "[Ti."+getName() + (this instanceof KrollModule ? " Module" : "") + "]";
 	}
 }
