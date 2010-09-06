@@ -19,8 +19,4 @@ public final class ${config['classname']}Application extends TiApplication {
 		onAfterCreate();
 	}
 
-	/* RA getters */
-
-	/* /RA getters */
-	
 }

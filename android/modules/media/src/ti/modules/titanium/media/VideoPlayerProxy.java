@@ -56,6 +56,9 @@ public class VideoPlayerProxy extends TiProxy
 		if (options.containsKey("backgroundColor")) {
 			intent.putExtra("backgroundColor", TiConvert.toColor(options, "backgroundColor"));
 		}
+		if (options.containsKey("play")) {
+			intent.putExtra("play", TiConvert.toBoolean(options, "play"));
+		}
 
 		controlHandler = createControlHandler();
 		intent.putExtra("messenger", new Messenger(controlHandler));

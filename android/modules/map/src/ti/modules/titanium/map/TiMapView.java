@@ -182,9 +182,12 @@ public class TiMapView extends TiUIView
 				item = new TiOverlayItem(location, title, subtitle, p);
 
 				//prefer pinImage to pincolor.
-				if (a.containsKey("pinImage"))
+				if (a.containsKey("image") || a.containsKey("pinImage"))
 				{
-					String imagePath = a.getString("pinImage");
+					String imagePath = a.getString("image");
+					if (imagePath == null) {
+						imagePath = a.getString("pinImage");
+					}
 					Drawable marker = makeMarker(imagePath);
 					boundCenterBottom(marker);
 					item.setMarker(marker);

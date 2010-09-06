@@ -37,9 +37,13 @@ backgroundPaddingLeft[int]: the number of pixels to extend the background image 
 backgroundPaddingRight[int]: the number of pixels to extend the background image past the label on the right
 backgroundPaddingTop[int]: the number of pixels to extend the background image past the label on the top
 backgroundPaddingBottom[int]: the number of pixels to extend the background image past the label on the bottom
+<<<<<<< .merge_file_U26HbE
+autoLink[int]: whether or not to convert text within this label to clickable links.  See Ti.UI.Android for constants/options (Android only)
 
 # 1.5
 textid[string]: the key in the locale file to use for the text property
+html[string]: simple html formatting. (Android Only)
+autoLink[int]: One of Ti.UI.Android.LINKIFY constants. Automatically create clickable links for the specified type. (Android Only)
 
 - methods
 

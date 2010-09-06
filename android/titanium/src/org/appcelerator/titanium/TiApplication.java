@@ -316,7 +316,7 @@ public class TiApplication extends Application
 	
 	public TiDict getStylesheet(String basename, String type, String objectId) {
 	    if (stylesheet!=null) {
-        	return new TiDict(stylesheet.getStylesheet(objectId,type,density,basename));
+        	return stylesheet.getStylesheet(objectId,type,density,basename);
 	    }
 	    return new TiDict();
 	}
@@ -434,9 +434,4 @@ public class TiApplication extends Application
 	public String getTiBuildTimestamp() {
 		return buildTimestamp;
 	}
-	
-	public Integer getDrawableID(String key) { return null; }
-	public Integer getStringID(String key) { return null; }
-	public Integer getAttrID(String key) { return null; }
-	public Integer getStyleID(String key) { return null; }
 }

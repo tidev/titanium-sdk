@@ -27,6 +27,17 @@ android
 SOFT_KEYBOARD_DEFAULT_ON_FOCUS[int]: Use Android default soft keyboard handling. Same as not specifying a value.
 SOFT_KEYBOARD_HIDE_ON_FOCUS[int]: Request hide soft keyboard on focus. Note: OS can override request.
 SOFT_KEYBOARD_SHOW_ON_FOCUS[int]: Request show soft keyboard on focus. Note: OS can override request.
+LINKIFY_ALL[int]: Convert all linkable text in the label
+LINKIFY_PHONE_NUMBERS[int]: Convert all phone numbers to clickable links
+LINKIFY_EMAIL_ADDRESSES[int]: Convert all e-mail addresses to clickable links
+LINKIFY_MAP_LINKS[int]: Convert all street addresses to clickable links
+LINKIFY_WEB_URLS[int]: Convert all web addresses to clickable links
+
+LINKIFY_ALL[int]: Auto link all supported types.
+LINKIFY_EMAIL_ADDRESSES[int]: Auto link email addresses.
+LINKIFY_MAP_ADDRESSES[int]: Auto link physical addresses.
+LINKIFY_PHONE_NUMBERS[int]: Auto link phone numbers.
+LINKIFY_WEB_URLS[int]: Auto link web urls.
 
 - methods
 

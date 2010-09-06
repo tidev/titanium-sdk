@@ -6,9 +6,7 @@
  */
 package org.appcelerator.titanium;
 
-import java.util.HashMap;
-
 public interface ITiStylesheet 
 {
-	public HashMap<String,Object> getStylesheet(String objectId, String type, String density, String basename);
+	public TiDict getStylesheet(String objectId, String type, String density, String basename);
 }

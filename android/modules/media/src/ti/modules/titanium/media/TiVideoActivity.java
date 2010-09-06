@@ -66,9 +66,26 @@ public class TiVideoActivity extends Activity
 		Intent intent = getIntent();
 
 		contentUrl = intent.getStringExtra("contentURL");
+		boolean play = intent.getBooleanExtra("play", false);
+		videoView = new TiVideoView4(this);
+	
+		if (play) {
+			Thread t = new Thread(new Runnable(){
+
+				@Override
+				public void run() {
+					Log.i(LCAT, "Setting URI");
+					videoView.setVideoURI(Uri.parse(contentUrl));
+					videoView.start();
+					Log.i(LCAT, "URI Set, start called.");
+				}
+			});
+			t.setPriority(Thread.MAX_PRIORITY - 1);
+			t.start();
+		}
+
 		proxyMessenger = intent.getParcelableExtra("messenger");
 		messengerReceiver = intent.getParcelableExtra("messengerReceiver");
-		boolean play = intent.getBooleanExtra("play", false);
 		
 		if (intent.hasExtra("backgroundColor")) {
 			ColorDrawable d = new ColorDrawable(intent.getIntExtra("backgroundColor", Color.RED));
@@ -76,7 +93,6 @@ public class TiVideoActivity extends Activity
 		}
 
 		layout = new TiCompositeLayout(this, false);
-		videoView = new TiVideoView4(this);
 		videoView.setOnPreparedListener(new OnPreparedListener(){
 
 			@Override
@@ -96,10 +112,6 @@ public class TiVideoActivity extends Activity
 
 		videoView.setMediaController(new MediaController(this));
 		videoView.requestFocus();
-		if (play) {
-			videoView.setVideoURI(Uri.parse(contentUrl));
-			videoView.start();
-		}
 
 		TiCompositeLayout.LayoutParams params = new TiCompositeLayout.LayoutParams();
 //		params.autoFillsHeight = true;
@@ -109,7 +121,7 @@ public class TiVideoActivity extends Activity
 		layout.addView(videoView, params);
 
 		setContentView(layout);
-
+		Log.e(LCAT, "exiting onCreate");
 	}
 
 	@Override

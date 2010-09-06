@@ -289,9 +289,13 @@ public class TiUIHelper
 
 	public static StateListDrawable buildBackgroundDrawable(TiContext tiContext,
 			String image,
+			String color,
 			String selectedImage,
+			String selectedColor,
 			String disabledImage,
-			String focusedImage)
+			String disabledColor,
+			String focusedImage,
+			String focusedColor)
 	{
 		StateListDrawable sld = null;
 
@@ -306,25 +310,37 @@ public class TiUIHelper
 
 		if (image != null) {
 			bgDrawable = tfh.loadDrawable(tiContext, image, false, true);
+		} else if (color != null) {
+			bgDrawable = new ColorDrawable(TiConvert.toColor(color));
 		}
 
 		if (selectedImage != null) {
 			bgSelectedDrawable = tfh.loadDrawable(tiContext, selectedImage, false, true);
+		} else if (selectedColor != null) {
+			bgSelectedDrawable = new ColorDrawable(TiConvert.toColor(selectedColor));
 		}
 
 		if (focusedImage != null) {
 			bgFocusedDrawable = tfh.loadDrawable(tiContext, focusedImage, false, true);
+		} else if (focusedColor != null) {
+			bgFocusedDrawable = new ColorDrawable(TiConvert.toColor(focusedColor));
 		} else {
 			if (image != null) {
 				bgFocusedDrawable = tfh.loadDrawable(tiContext, image, false, true);
+			} else if (color != null) {
+				bgFocusedDrawable = new ColorDrawable(TiConvert.toColor(color));				
 			}
 		}
 
 		if (disabledImage != null) {
 			bgDisabledDrawable = tfh.loadDrawable(tiContext, disabledImage, false, true);
+		} else if (disabledColor != null) {
+			bgDisabledDrawable = new ColorDrawable(TiConvert.toColor(disabledColor));
 		} else {
 			if (image != null) {
 				bgDisabledDrawable = tfh.loadDrawable(tiContext, image, false, true);
+			} else if (color != null) {
+				bgDisabledDrawable = new ColorDrawable(TiConvert.toColor(color));				
 			}
 		}
 
@@ -494,7 +510,6 @@ public class TiUIHelper
 	
 	public static Bitmap getResourceBitmap(TiContext context, String url)
 	{
-		// fail fast, before regex fanciness
 		if (!url.contains("Resources/images/")) {
 			return null;
 		}
@@ -504,18 +519,17 @@ public class TiUIHelper
 			return null;
 		}
 		
-		Integer id = context.getTiApp().getDrawableID(key);
-		if (id == null) {
+		int id = TiResourceHelper.getDrawable(key);
+		if (id == 0) {
 			return null;
 		}
 		
-		Bitmap bitmap = BitmapFactory.decodeResource(context.getTiApp().getResources(), id.intValue());
+		Bitmap bitmap = BitmapFactory.decodeResource(context.getActivity().getResources(), id);
 		return bitmap;
 	}
 	
 	public static Drawable getResourceDrawable(TiContext context, String url)
 	{
-		// fail fast, before regex fanciness
 		if (!url.contains("Resources/images/")) {
 			return null;
 		}
@@ -525,12 +539,12 @@ public class TiUIHelper
 			return null;
 		}
 		
-		Integer id = context.getTiApp().getDrawableID(key);
-		if (id == null) {
+		int id = TiResourceHelper.getDrawable(key);
+		if (id == 0) {
 			return null;
 		}
 		
-		return context.getTiApp().getResources().getDrawable(id.intValue());
+		return context.getActivity().getResources().getDrawable(id);
 	}
 	
 	public static void overridePendingTransition(Activity activity) 

@@ -779,7 +779,6 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 -(void)setOrientationModes:(id)value
 {
 	[self replaceValue:value forKey:@"orientationModes" notification:YES];
-	[[[TiApp app] controller] performSelectorOnMainThread:@selector(refreshOrientationModesIfNeeded:) withObject:self waitUntilDone:NO];
 	
 	TiOrientationFlags newFlags = TiOrientationFlagsFromObject(value);
 	if (newFlags == orientationFlags)

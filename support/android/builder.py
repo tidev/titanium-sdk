@@ -5,7 +5,7 @@
 # the Android Emulator or on the device
 #
 import os, sys, subprocess, shutil, time, signal, string, platform, re, glob, hashlib
-import run, avd, prereq, tempfile
+import run, avd, prereq
 from os.path import splitext
 from compiler import Compiler
 from os.path import join, splitext, split, exists
@@ -94,54 +94,6 @@ def generate_appc_r(package,map):
             content+="        _%s.put(\"%s\",%s);\n" % (k,kk,values[kk])
     return RA_TEMPLATE % (package,prefix,content,defines)  
 
-def generate_ra_getters(resources, path):
-	template = "\n\t@Override\n\tpublic final Integer get%sID(String key){return RA.get%s(key);}\n"
-	known = ['style', 'string', 'attr', 'drawable']
-	(fd, temppath) = tempfile.mkstemp(prefix='tibuilder_', text=True)
-	os.close(fd)
-	temp = None
-	orig = None
-	try:
-		temp = open(temppath, 'w')
-		orig = open(path, 'r')
-		lines = orig.readlines() # small file, so this is no big deal
-		orig.close()
-		orig = None
-		processing = False
-		for line in lines:
-			if not processing:
-				temp.write(line)
-			else:
-				if '* /RA getters' in line:
-					processing = False
-					temp.write(line)
-
-			if '* RA getters' in line:
-				processing = True
-				temp.write('\n'.join([template % (k.capitalize(), k.capitalize()) for k in known if k in resources]))
-		temp.close()
-		os.remove(path)
-		shutil.copyfile(temppath, path)
-		temp = None
-		os.remove(temppath)
-	except OSError, err:
-		error("OSError generating getters for RA: %s" % err)
-		return
-	except IOError, err:
-		error("IOError generating getters for RA: %s" % err)
-		return
-	except:
-		error("Error generating getters for RA: %s" % sys.exc_info()[0])
-		return
-	finally:
-		if not orig is None:
-			orig.close()
-			orig = None
-		if not temp is None:
-			temp.close()
-			os.remove(temppath)
-			temp = None
-
 def dequote(s):
 	if s[0:1] == '"':
 		return s[1:-1]
@@ -203,7 +155,7 @@ class Builder(object):
 		
 		# start in 1.4, you no longer need the build/android directory
 		# if missing, we'll create it on the fly
-		if not os.path.exists(self.project_dir) or not os.path.exists(os.path.join(self.project_dir,'AndroidManifest.xml')):
+		if not os.path.exists(self.project_dir) or (not os.path.exists(os.path.join(self.top_dir, 'AndroidManifest.xml')) and not os.path.exists(os.path.join(self.project_dir,'AndroidManifest.xml'))):
 			print "[INFO] Detected missing project but that's OK. re-creating it..."
 			android_creator = Android(name,app_id,self.sdk,None)
 			android_creator.create(os.path.join(project_dir,'..'))
@@ -798,10 +750,6 @@ class Builder(object):
 		ra_f.write(ra_out)
 		ra_f.close()
 
-		# Make getters for RA inside the application .java.
-		generate_ra_getters(map, os.path.join(self.project_dir, 'src', self.app_id.replace('.', os.sep), self.classname + "Application.java"))
-		
-			
 		return manifest_changed
 
 	def generate_stylesheet(self):
@@ -1075,35 +1023,23 @@ class Builder(object):
 			# FIXME: remove compiled files so they don't get compiled into jar
 			self.copy_project_resources()
 			
-			# compile resources
-			full_resource_dir = os.path.join(self.project_dir,self.assets_resources_dir)
-			compiler = Compiler(self.name,self.app_id,full_resource_dir,self.java,self.classes_dir,self.project_dir)
-			compiler.compile()
-			self.compiled_files = compiler.compiled_files
-
 			if self.tiapp_changed or self.deploy_type == "production":
 				trace("Generating Java Classes")
 				self.android.create(os.path.abspath(os.path.join(self.top_dir,'..')), True, project_dir=self.top_dir)
 			else:
 				info("Tiapp.xml unchanged, skipping class generation")
 
+			# compile resources
+			full_resource_dir = os.path.join(self.project_dir,self.assets_resources_dir)
+			compiler = Compiler(self.name,self.app_id,full_resource_dir,self.java,self.classes_dir,self.project_dir)
+			compiler.compile()
+			self.compiled_files = compiler.compiled_files
+
 			if not os.path.exists(self.assets_dir):
 				os.makedirs(self.assets_dir)
 
 			self.copy_density_images()
 
-			manifest_changed = self.generate_android_manifest(compiler)
-
-			my_avd = None	
-			self.google_apis_supported = False
-				
-			# find the AVD we've selected and determine if we support Google APIs
-			for avd_props in avd.get_avds(self.sdk):
-				if avd_props['id'] == avd_id:
-					my_avd = avd_props
-					self.google_apis_supported = (my_avd['name'].find('Google')!=-1 or my_avd['name'].find('APIs')!=-1)
-					break
-			
 			special_resources_dir = os.path.join(self.top_dir,'platform','android')
 			if os.path.exists(special_resources_dir):
 				info("found special resources dir = %s" % special_resources_dir)
@@ -1120,6 +1056,19 @@ class Builder(object):
 						shutil.copyfile(from_, to_)
 			
 			self.generate_stylesheet()
+			
+			# The next line does localization and RA generation stuff
+			manifest_changed = self.generate_android_manifest(compiler)
+
+			my_avd = None	
+			self.google_apis_supported = False
+				
+			# find the AVD we've selected and determine if we support Google APIs
+			for avd_props in avd.get_avds(self.sdk):
+				if avd_props['id'] == avd_id:
+					my_avd = avd_props
+					self.google_apis_supported = (my_avd['name'].find('Google')!=-1 or my_avd['name'].find('APIs')!=-1)
+					break
 			
 			self.build_generated_classes()
 			generated_classes_built = True

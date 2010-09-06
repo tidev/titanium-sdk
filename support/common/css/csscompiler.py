@@ -31,17 +31,17 @@ import org.appcelerator.titanium.TiDict;
 
 public final class ApplicationStylesheet implements ITiStylesheet 
 {
-	private static final HashMap<String,HashMap<String,HashMap<String,Object>>> classesMap;
-	private static final HashMap<String,HashMap<String,HashMap<String,Object>>> idsMap;
-	private static final HashMap<String,HashMap<String,HashMap<String,HashMap<String,Object>>>> classesDensityMap;
-	private static final HashMap<String,HashMap<String,HashMap<String,HashMap<String,Object>>>> idsDensityMap;
+	private static final HashMap<String,HashMap<String,TiDict>> classesMap;
+	private static final HashMap<String,HashMap<String,TiDict>> idsMap;
+	private static final HashMap<String,HashMap<String,HashMap<String,TiDict>>> classesDensityMap;
+	private static final HashMap<String,HashMap<String,HashMap<String,TiDict>>> idsDensityMap;
 
 	static
 	{
-		classesMap = new HashMap<String,HashMap<String,HashMap<String,Object>>>();
-		idsMap = new HashMap<String,HashMap<String,HashMap<String,Object>>>();
-		classesDensityMap = new HashMap<String,HashMap<String,HashMap<String,HashMap<String,Object>>>>();
-		idsDensityMap = new HashMap<String,HashMap<String,HashMap<String,HashMap<String,Object>>>>();
+		classesMap = new HashMap<String,HashMap<String,TiDict>>();
+		idsMap = new HashMap<String,HashMap<String,TiDict>>();
+		classesDensityMap = new HashMap<String,HashMap<String,HashMap<String,TiDict>>>();
+		idsDensityMap = new HashMap<String,HashMap<String,HashMap<String,TiDict>>>();
 		
 %s
 %s
@@ -49,34 +49,34 @@ public final class ApplicationStylesheet implements ITiStylesheet
 %s
 	}
 
-	public final HashMap<String,Object> getStylesheet(String objectId, String type, String density, String basename)
+	public final TiDict getStylesheet(String objectId, String type, String density, String basename)
 	{
-		HashMap<String,Object> result = new HashMap<String,Object>();
+		TiDict result = new TiDict();
 		if (classesMap!=null && classesMap.containsKey(basename))
 		{
-			HashMap<String,Object> r = classesMap.get(basename).get(type);
+			TiDict r = classesMap.get(basename).get(type);
 			if (r!=null) result.putAll(r);
 		}
 		if (classesDensityMap!=null && classesDensityMap.containsKey(basename))
 		{
-			HashMap<String,HashMap<String,Object>> r = classesDensityMap.get(basename).get(density);
+			HashMap<String,TiDict> r = classesDensityMap.get(basename).get(density);
 			if (r!=null && r.containsKey(type)) 
 			{
-				HashMap<String,Object> r2 = r.get(type);
+				TiDict r2 = r.get(type);
 				if (r2!=null) result.putAll(r2);
 			}
 		}
 		if (idsMap!=null && idsMap.containsKey(basename))
 		{
-			HashMap<String,Object> r = idsMap.get(basename).get(objectId);
+			TiDict r = idsMap.get(basename).get(objectId);
 			if (r!=null) result.putAll(r);
 		}
 		if (idsDensityMap!=null && idsDensityMap.containsKey(basename))
 		{
-			HashMap<String,HashMap<String,Object>> r = idsDensityMap.get(basename).get(density);
+			HashMap<String,TiDict> r = idsDensityMap.get(basename).get(density);
 			if (r!=null && r.containsKey(objectId)) 
 			{
-				HashMap<String,Object> r2 = r.get(objectId);
+				TiDict r2 = r.get(objectId);
 				if (r2!=null) result.putAll(r2);
 			}
 		}
@@ -289,11 +289,11 @@ class CSSCompiler(object):
 		for pathname in hash:
 			mapname1 = self.generate_mapname()
 			xcount = 0
-			xstr='		HashMap<String,HashMap<String,Object>> %s = new HashMap<String,HashMap<String,Object>>();\n' % mapname1
+			xstr='		HashMap<String,TiDict> %s = new HashMap<String,TiDict>();\n' % mapname1
 			for classname in hash[pathname]:
 				xcount+=1
 				mapname = self.generate_mapname()
-				xstr+='		HashMap<String,Object> %s = new HashMap<String,Object>();\n' % mapname
+				xstr+='		TiDict %s = new TiDict();\n' % mapname
 				xstr+='		%s.put("%s",%s);\n' % (mapname1,classname,mapname)
 				for key in hash[pathname][classname]:
 					value = hash[pathname][classname][key]
@@ -310,22 +310,23 @@ class CSSCompiler(object):
 			if xcount > 0:			
 				str += xstr
 				str += '		%s.put("%s",%s);\n' % (varname,pathname,mapname1)
-		return str + '\n'
+				str += '\n'
+		return str 
 
 	def create_android_density_dict(self,hash,varname):
 		str = ''
 		for pathname in hash:
 			mapname1 = self.generate_mapname()
 			xcount = 0
-			xstr='		HashMap<String,HashMap<String,String>> %s = new HashMap<String,HashMap<String,Object>>();\n' % mapname1
+			xstr='		HashMap<String,TiDict> %s = new HashMap<String,TiDict>();\n' % mapname1
 			for density in hash[pathname]:
 				mapname2 = self.generate_mapname()
-				xstr+='		HashMap<String,HashMap<String,String>> %s = new HashMap<String,HashMap<String,Object>>();\n' % mapname2
+				xstr+='		HashMap<String,TiDict> %s = new HashMap<String,TiDict>();\n' % mapname2
 				xstr+='		%s.put("%s",%s);\n' % (mapname2,classname,mapname1)
 				for classname in hash[pathname][density]:
 					mapname = self.generate_mapname()
 					xcount+=1
-					xstr+='		HashMap<String,Object> %s = new HashMap<String,Object>();\n' % mapname
+					xstr+='		TiDict %s = new TiDict();\n' % mapname
 					xstr+='		%s.put("%s",%s);\n' % (mapname1,classname,mapname)
 					for key in hash[pathname][density][classname]:
 						xstr+='		%s.put("%s","%s");\n' % (mapname,key,hash[pathname][density][classname][key])
@@ -333,7 +334,8 @@ class CSSCompiler(object):
 				xstr += '		%s.put("%s",%s);\n' % (varname,pathname,mapname1)
 			if xcount > 0:
 				str+=xstr
-		return str + '\n'
+				str+='\n'
+		return str
 				
 	def generate_android_code(self,classes,classes_density,ids,ids_density):
 		return ANDROID_CLASS_TEMPLATE % (self.appid,

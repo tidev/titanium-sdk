@@ -117,16 +117,6 @@
 	}
 }
 
--(void)pokeAtViews
-{
-	UIView * ourView = [self view];
-	UIView * parent = [ourView superview];
-	int index = [[parent subviews] indexOfObject:ourView];
-	[ourView removeFromSuperview];
-	[parent insertSubview:ourView atIndex:index];
-}
-
-
 -(void)didOrientNotify:(NSNotification *)notification
 {
 	UIInterfaceOrientation newOrientation = [[UIDevice currentDevice] orientation];
@@ -330,16 +320,6 @@
 	}
 }
 
--(void)refreshOrientationModesIfNeeded:(TiWindowProxy *)oldCurrentWindow
-{
-	if (currentWindow != oldCurrentWindow)
-	{
-		return;
-	}
-
-	[self enforceOrientationModesFromWindow:currentWindow];
-}
-
 -(UIInterfaceOrientation)mostRecentlyAllowedOrientation
 {
 	UIInterfaceOrientation requestedOrientation = [[UIApplication sharedApplication] statusBarOrientation];
@@ -355,63 +335,6 @@
 	return requestedOrientation;
 }
 
--(void)enforceOrientationModesFromWindow:(TiWindowProxy *) newCurrentWindow
-{	
-	return;
-
-	currentWindow = newCurrentWindow;
-
-	Class arrayClass = [NSArray class];
-	Class windowClass = [TiWindowProxy class];
-	SEL proxySel = @selector(proxy);
-
-	BOOL noPrefrenceTab = NO;
-	
-	NSArray * candidateOrientationModes = [newCurrentWindow valueForKey:@"orientationModes"];
-	if (![candidateOrientationModes isKindOfClass:arrayClass])
-	{
-		UINavigationController * navCon = [newCurrentWindow navController];
-		NSEnumerator * viewControllerEnum = [[navCon viewControllers] reverseObjectEnumerator];
-
-		noPrefrenceTab = YES;
-
-		for (UIViewController * thisViewController in viewControllerEnum)
-		{
-			if (![thisViewController respondsToSelector:proxySel])
-			{
-				continue;
-			}
-			TiWindowProxy * thisProxy = (TiWindowProxy *)[(id)thisViewController proxy];
-			if (![thisProxy isKindOfClass:windowClass])
-			{
-				continue;
-			}
-			candidateOrientationModes = [thisProxy valueForKey:@"orientationModes"];
-			if ([candidateOrientationModes isKindOfClass:arrayClass])
-			{
-				noPrefrenceTab = NO;
-				break;
-			}
-		}
-	}
-
-	if ([candidateOrientationModes isKindOfClass:arrayClass])
-	{
-		[self setOrientationModes:candidateOrientationModes];
-	}
-	else if(noPrefrenceTab)
-	{
-		[self setOrientationModes:nil];
-	}
-
-	if(TI_ORIENTATION_ALLOWED(allowedOrientations,lastOrientation) || (lastOrientation == 0))
-	{
-		return; //Nothing to enforce.
-	}
-	
-	[self manuallyRotateToOrientation:[self mostRecentlyAllowedOrientation]];
-}
-
 
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation 
 {
@@ -424,13 +347,6 @@
 Okay, Blain's sit and think about this. This is only concerning the top level of things.
 That is, this is only a stack of open windows, and does not concern beyond that.
 What this does mean is that any 
-
-
-
-
-
-
-
 
 */
 
@@ -504,14 +420,11 @@ What this does mean is that any
 	{
 		focusedProxy = (TiWindowProxy *)[(id)focusedViewController proxy];
 	}
-
 	
 	UIViewController * oldTopWindow = [windowViewControllers lastObject];
 	[windowViewControllers removeObject:focusedViewController];
 	if ((focusedViewController==nil) || [(TiWindowProxy *)focusedProxy _isChildOfTab] || ([(TiWindowProxy *)focusedProxy parent]!=nil))
 	{
-		focusedViewController=nil;
-		[self enforceOrientationModesFromWindow:(id)focusedProxy];
 		return;
 	}
 	
@@ -528,8 +441,6 @@ What this does mean is that any
 	{
 		[(TiWindowProxy *)[(id)oldTopWindow proxy] _tabBlur];
 	}
-	
-	[self enforceOrientationModesFromWindow:(id)focusedProxy];
 }
 
 -(void)windowClosed:(UIViewController *)closedViewController
@@ -591,6 +502,7 @@ What this does mean is that any
 
 	[window setParentOrientationController:self];
 	[windowProxies addObject:window];
+	[window parentWillShow];
 	//Todo: Move all the root-attaching logic here.
 
 	[self childOrientationControllerChangedFlags:window];
@@ -608,6 +520,7 @@ What this does mean is that any
 	//Todo: Move all the root-detaching logic here.
 
 	[window setParentOrientationController:nil];
+	[window parentWillHide];
 	[windowProxies removeObject:window];
 
 	if(wasTopWindow)

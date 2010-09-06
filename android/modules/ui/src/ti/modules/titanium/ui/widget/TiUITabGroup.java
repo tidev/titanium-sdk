@@ -151,4 +151,13 @@ public class TiUITabGroup extends TiUIView
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}
 	}
+
+	/*@Override
+	public void release()
+	{
+		super.release();
+		tabHost = null;
+		nativeView = null;
+		
+	}*/
 }

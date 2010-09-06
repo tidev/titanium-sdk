@@ -131,8 +131,7 @@
 	else
 	{
 		[(TiViewProxy *)[self proxy] setNeedsRepositionIfAutoSized];
-	}
-	
+	}	
 }
 
 -(void)setColor_:(id)color
@@ -153,6 +152,10 @@
 	if (requiresLayout)
 	{
 		[(TiViewProxy *)[self proxy] setNeedsReposition];
+	}
+	else
+	{
+		[(TiViewProxy *)[self proxy] setNeedsRepositionIfAutoSized];
 	}
 }
 
