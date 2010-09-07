@@ -144,7 +144,9 @@ public class ContactsModule extends TiModule
 					KrollCallback callback = request.get("selectedPerson");
 					if (callback != null) {
 						PersonProxy person = PersonProxy.fromUri(getTiContext(), data.getData());
-						callback.call(new Object[]{person});
+						TiDict result = new TiDict();
+						result.put("person", person);
+						callback.call(new Object[]{result});
 					}
 				}
 			} else {
