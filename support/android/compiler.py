@@ -7,7 +7,7 @@
 # Handles JS, CSS and HTML files only
 #
 import os, sys, re, shutil, tempfile, run, codecs, traceback, types
-import jspacker 
+import jspacker, json
 from xml.sax.saxutils import escape
 from sgmllib import SGMLParser
 from csspacker import CSSPacker
@@ -38,13 +38,46 @@ class Compiler(object):
 		self.appid = appid
 		self.root_dir = root_dir
 		self.project_dir = os.path.abspath(os.path.expanduser(project_dir))
-		# these modules are always required 
-		# TODO: review these
-		self.modules = ['App','API','Platform','Analytics','Network']
+		self.modules = []
+		self.jar_libraries = []
+		
+		json_contents = open(os.path.join(self.template_dir,'dependency.json')).read()
+		self.depends_map = json.read(json_contents)
+		
+		# go ahead and slurp in any required modules
+		for required in self.depends_map['required']:
+			self.add_required_module(required)
+			
 		self.module_methods = []
 		self.js_files = {}
 		self.html_scripts = []
 		self.compiled_files = []
+
+
+	def add_required_module(self,name):
+		name = name.lower()
+		if name in ('buildhash','builddate'): return # ignore these
+		if not name in self.modules:
+			self.modules.append(name)
+			mf = os.path.join(self.template_dir, 'modules', 'titanium-%s.jar' % name)
+			if os.path.exists(mf):
+				print "[DEBUG] detected module = %s" % name
+				self.jar_libraries.append(mf)
+			else:
+				print "[INFO] unknown module = %s" % name
+				
+			if self.depends_map['libraries'].has_key(name):
+				for lib in self.depends_map['libraries'][name]:
+					lf = os.path.join(self.template_dir,lib)
+					if os.path.exists(lf):
+						if not lf in self.jar_libraries:
+							print "[DEBUG] adding required library: %s" % lib
+							self.jar_libraries.append(lf) 
+
+			if self.depends_map['dependencies'].has_key(name):
+				for depend in self.depends_map['dependencies'][name]:
+					self.add_required_module(depend)
+				
 
 	def extract_from_namespace(self,name,line):
 		modules = [] 
@@ -61,7 +94,7 @@ class Compiler(object):
 						methods.append(method_name)
 				# skip Titanium.version, Titanium.userAgent and Titanium.name since these
 				# properties are not modules
-				if sym == 'version' or sym == 'userAgent' or sym == 'name' or sym == '_JSON':
+				if sym in ('version','userAgent','name','_JSON','include','fireEvent','addEventListener','removeEventListener','buildhash','builddate'):
 					continue
 				try:
 					modules.index(sym)
@@ -73,10 +106,7 @@ class Compiler(object):
 		modules,methods = self.extract_from_namespace(name,line)
 		if len(modules) > 0:
 			for m in modules:
-				try:
-					self.modules.index(m)
-				except:
-					self.modules.append(m)
+				self.add_required_module(m)
 			for m in methods:
 				try:
 					self.module_methods.index(m)

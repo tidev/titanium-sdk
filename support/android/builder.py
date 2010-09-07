@@ -104,22 +104,6 @@ def pipe(args1,args2):
 	p2 = subprocess.Popen(args2, stdin=p1.stdout, stdout=subprocess.PIPE)
 	return p2.communicate()[0]
 
-def read_properties(propFile):
-	propDict = dict()
-	for propLine in propFile:
-		propDef = propLine.strip()
-		if len(propDef) == 0:
-			continue
-		if propDef[0] in ( '!', '#' ):
-			continue
-		punctuation= [ propDef.find(c) for c in ':= ' ] + [ len(propDef) ]
-		found= min( [ pos for pos in punctuation if pos != -1 ] )
-		name= propDef[:found].rstrip()
-		value= propDef[found:].lstrip(":= ").rstrip()
-		propDict[name]= value
-	propFile.close()
-	return propDict
-
 def info(msg):
 	print "[INFO] "+msg
 	sys.stdout.flush()
@@ -156,7 +140,7 @@ class Builder(object):
 		# start in 1.4, you no longer need the build/android directory
 		# if missing, we'll create it on the fly
 		if not os.path.exists(self.project_dir) or (not os.path.exists(os.path.join(self.top_dir, 'AndroidManifest.xml')) and not os.path.exists(os.path.join(self.project_dir,'AndroidManifest.xml'))):
-			print "[INFO] Detected missing project but that's OK. re-creating it..."
+			info("Detected missing project but that's OK. re-creating it...")
 			android_creator = Android(name,app_id,self.sdk,None)
 			android_creator.create(os.path.join(project_dir,'..'))
 			self.force_rebuild = True
@@ -297,7 +281,6 @@ class Builder(object):
 			# TODO - Document options
 			for hw_options in android_avd_hw:
 				initfiledata.write("{0[0]}={0[1]}".format(hw_options))
-			#inifiledata.write("hw.camera=yes\n")
 			inifiledata.close()
 			
 		return name
@@ -758,7 +741,7 @@ class Builder(object):
 		app_sdir = os.path.join(srcdir,self.app_id.replace('.','/'))
 		if not os.path.exists(app_sdir): os.makedirs(app_sdir)
 		app_stylesheet = os.path.join(app_sdir,'ApplicationStylesheet.java')
-		print "[DEBUG] app stylesheet => %s" % app_stylesheet
+		debug("app stylesheet => %s" % app_stylesheet)
 		sys.stdout.flush()
 		asf = codecs.open(app_stylesheet,'w','utf-8')
 		asf.write(cssc.code)
@@ -803,31 +786,8 @@ class Builder(object):
 							jarlist.append(path) 
 			
 	
-		# see if the user has app data and if so, compile in the user data
-		# such that it can be accessed automatically using Titanium.App.Properties.getString
-		# TODO - re-enable user data
-		# app_data_cfg = os.path.join(self.top_dir,"appdata.cfg")
-		# if os.path.exists(app_data_cfg):
-		# 	props = read_properties(open(app_data_cfg,"r"))
-		# 	module_data = ''
-		# 	for key in props.keys():
-		# 		data = props[key]
-		# 		module_data+="properties.setString(\"%s\",\"%s\");\n   " % (key,data)
-		# 		print("[DEBUG] detected user application data at = %s"% app_data_cfg)
-		# 		sys.stdout.flush()
-		# 		dtf = os.path.join(src_dir,"AppUserData.java")
-		# 		if os.path.exists(dtf):
-		# 			os.remove(dtf)
-		# 		ctf = open(dtf,"w")
-		# 		cf_template = open(os.path.join(template_dir,'templates','AppUserData.java'),'r').read()
-		# 		cf_template = cf_template.replace('__MODULE_BODY__',module_data)
-		# 		ctf.write(cf_template)
-		# 		ctf.close()
-		# 		srclist.append(dtf)
-
-		classpath = self.android_jar + os.pathsep + self.titanium_jar + os.pathsep.join(jarlist)
-		# TODO re-enable me
-		if self.use_maps: classpath += os.pathsep + self.titanium_map_jar
+		classpath = self.android_jar + os.pathsep + os.pathsep.join(self.android_jars)
+		debug("classpath = %s" % classpath)
 		
 		javac_command = [self.javac, '-classpath', classpath, '-d', self.classes_dir, '-sourcepath', self.src_dir]
 		javac_command += srclist
@@ -841,7 +801,7 @@ class Builder(object):
 	
 		unsigned_apk = os.path.join(self.project_dir, 'bin', 'app-unsigned.apk')
 		apk_build_cmd = [self.apkbuilder, unsigned_apk, '-u', '-z', ap_, '-f', self.classes_dex, '-rf', self.src_dir]
-		for jar in self.android_jars + self.android_module_jars:
+		for jar in self.android_jars:
 			apk_build_cmd += ['-rj', jar]
 		
 		run.run(apk_build_cmd)
@@ -889,12 +849,10 @@ class Builder(object):
 					self.wait_for_device('d')
 					info("Installing application on emulator")
 					cmd += ['-d']
-					#cmd += ['-d', 'install', '-r', app_apk]
 				else:
 					self.wait_for_device('e')
 					info("Installing application on device")
 					cmd += ['-e']
-					#cmd += ['-e', 'install', '-r', app_apk]
 				cmd += ['install', '-r', app_apk]
 				output = run.run(cmd)
 				if output == None:
@@ -982,8 +940,6 @@ class Builder(object):
 		self.keystore_pass = keystore_pass
 		self.keystore_alias = keystore_alias
 		curdir = os.getcwd()
-		self.android_jars = glob.glob(os.path.join(self.support_dir, '*.jar'))
-		self.titanium_map_jar = os.path.join(self.support_dir, 'modules', 'titanium-map.jar')
 		self.support_resources_dir = os.path.join(self.support_dir, 'resources')
 		
 		try:
@@ -993,9 +949,9 @@ class Builder(object):
 			if not os.path.exists('bin'):
 				os.makedirs('bin')
 			
-			if os.path.exists('lib'):
-				for jar in self.android_jars:
-					shutil.copy(jar, 'lib')
+			# if os.path.exists('lib'):
+			# 	for jar in self.android_jars:
+			# 		shutil.copy(jar, 'lib')
 
 			resources_dir = os.path.join(self.top_dir,'Resources')
 			self.assets_dir = os.path.join(self.project_dir,'bin','assets')
@@ -1020,7 +976,6 @@ class Builder(object):
 			if not os.path.exists(self.classes_dir):
 				os.makedirs(self.classes_dir)
 
-			# FIXME: remove compiled files so they don't get compiled into jar
 			self.copy_project_resources()
 			
 			if self.tiapp_changed or self.deploy_type == "production":
@@ -1034,7 +989,8 @@ class Builder(object):
 			compiler = Compiler(self.name,self.app_id,full_resource_dir,self.java,self.classes_dir,self.project_dir)
 			compiler.compile()
 			self.compiled_files = compiler.compiled_files
-
+			self.android_jars = compiler.jar_libraries
+			
 			if not os.path.exists(self.assets_dir):
 				os.makedirs(self.assets_dir)
 
@@ -1074,7 +1030,6 @@ class Builder(object):
 			generated_classes_built = True
 			
 			self.classes_dex = os.path.join(self.project_dir, 'bin', 'classes.dex')
-			self.android_module_jars = glob.glob(os.path.join(self.support_dir, 'modules', '*.jar'))
 			
 			def jar_includer(path, isfile):
 				if isfile and path.endswith(".jar"): return True
@@ -1092,7 +1047,6 @@ class Builder(object):
 					dex_args = [dx, '-JXmx896M', '-JXX:-UseGCOverheadLimit']
 				dex_args += ['--dex', '--output='+self.classes_dex, self.classes_dir]
 				dex_args += self.android_jars
-				dex_args += self.android_module_jars
 		
 				info("Compiling Android Resources... This could take some time")
 				sys.stdout.flush()
