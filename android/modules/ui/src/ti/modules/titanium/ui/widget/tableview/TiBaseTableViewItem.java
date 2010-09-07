@@ -122,4 +122,10 @@ public abstract class TiBaseTableViewItem extends ViewGroup implements Handler.C
 			setBackgroundColor(bgColor);
 		}
 	}
+	
+	public void release() 
+	{
+		handler = null;
+		tiContext = null;
+	}
 }

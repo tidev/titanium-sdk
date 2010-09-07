@@ -32,6 +32,7 @@ import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.graphics.Bitmap.CompressFormat;
 import android.graphics.Bitmap.Config;
+import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.StateListDrawable;
 import android.os.Build;
@@ -283,9 +284,13 @@ public class TiUIHelper
 
 	public static StateListDrawable buildBackgroundDrawable(Context context,
 			String image,
+			String color,
 			String selectedImage,
+			String selectedColor,
 			String disabledImage,
-			String focusedImage)
+			String disabledColor,
+			String focusedImage,
+			String focusedColor)
 	{
 		StateListDrawable sld = null;
 
@@ -298,25 +303,37 @@ public class TiUIHelper
 
 		if (image != null) {
 			bgDrawable = tfh.loadDrawable(image, false, true);
+		} else if (color != null) {
+			bgDrawable = new ColorDrawable(TiConvert.toColor(color));
 		}
 
 		if (selectedImage != null) {
 			bgSelectedDrawable = tfh.loadDrawable(selectedImage, false, true);
+		} else if (selectedColor != null) {
+			bgSelectedDrawable = new ColorDrawable(TiConvert.toColor(selectedColor));
 		}
 
 		if (focusedImage != null) {
 			bgFocusedDrawable = tfh.loadDrawable(focusedImage, false, true);
+		} else if (focusedColor != null) {
+			bgFocusedDrawable = new ColorDrawable(TiConvert.toColor(focusedColor));
 		} else {
 			if (image != null) {
 				bgFocusedDrawable = tfh.loadDrawable(image, false, true);
+			} else if (color != null) {
+				bgFocusedDrawable = new ColorDrawable(TiConvert.toColor(color));				
 			}
 		}
 
 		if (disabledImage != null) {
 			bgDisabledDrawable = tfh.loadDrawable(disabledImage, false, true);
+		} else if (disabledColor != null) {
+			bgDisabledDrawable = new ColorDrawable(TiConvert.toColor(disabledColor));
 		} else {
 			if (image != null) {
 				bgDisabledDrawable = tfh.loadDrawable(image, false, true);
+			} else if (color != null) {
+				bgDisabledDrawable = new ColorDrawable(TiConvert.toColor(color));				
 			}
 		}
 

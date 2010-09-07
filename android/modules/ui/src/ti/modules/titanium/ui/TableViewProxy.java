@@ -58,6 +58,11 @@ public class TableViewProxy extends TiViewProxy
 	public void releaseViews()
 	{
 		super.releaseViews();
+		if (localSections != null) {
+			for (TableViewSectionProxy section : localSections) {
+				section.releaseViews();
+			}
+		}
 		localSections.clear();
 	}
 

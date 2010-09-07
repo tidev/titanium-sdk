@@ -66,7 +66,8 @@ change: fired when the value of a picker row and/or column changes
 
 - event : change
 
-selectedValue: the array of selected values
+selectedValue: (plain picker only) the array of selected values, one element per column in the picker.
+value: (date/time pickers only) the selected date/time value.
 rowIndex: the selected row index
 columnIndex: the selected column index
 column: the column object

@@ -32,7 +32,7 @@ public class TableViewModel
         public boolean hasHeader() {
             return headerText != null;
         }
-
+        
         public int index;
         public int sectionIndex;
         public int indexInSection;
@@ -64,8 +64,10 @@ public class TableViewModel
     
     public void release()
     {
-    	viewModel.clear();
-    	viewModel = null;
+    	if (viewModel != null) {
+    		viewModel.clear();
+    		viewModel = null;
+    	}
     	tiContext = null;
     	proxy = null;
     }
