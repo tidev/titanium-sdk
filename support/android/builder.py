@@ -379,6 +379,7 @@ class Builder(object):
 		return True
 
 	def copy_density_images(self):
+		debug('Processing density-specific images')
 
 		def density_from_path(path):
 			normalized = path.replace("\\", "/")
@@ -427,8 +428,7 @@ class Builder(object):
 				except:
 					warn('Unable to delete %s: %s. Execution will continue.' % (res_file, sys.exc_info()[0]))
 
-		def copy_density_image(delta):
-			orig = delta.get_path()
+		def copy_density_image(orig):
 			density = density_from_path(orig)
 			dest_folder = os.path.join(self.res_dir, 'drawable-%sdpi' % density)
 			dest_filename = make_density_image_filename(orig)
@@ -437,17 +437,28 @@ class Builder(object):
 			dest = os.path.join(dest_folder, dest_filename)
 			if not os.path.exists(dest_folder):
 				os.makedirs(dest_folder)
-			trace("COPYING %s FILE: %s => %s" % (delta.get_status_str(), orig, dest))
+			trace("COPYING FILE: %s => %s" % (orig, dest))
 			shutil.copy(orig, dest)
+		
+		fileset = []
 
-		if self.project_deltas:
-			for delta in self.project_deltas:
-				path = delta.get_path()
-				if re.search("android/images/(high|medium|low)/", path.replace("\\", "/")):
-					if delta.get_status() == Delta.DELETED:
-						delete_density_image(path)
-					else:
-						copy_density_image(delta)
+		if self.force_rebuild or self.deploy_type == 'production':
+			for root, dirs, files in os.walk(os.path.join(self.top_dir, "Resources")):
+				for f in files:
+					path = os.path.join(root, f)
+					if re.search("android/images/(high|medium|low)/", path.replace("\\", "/")):
+						fileset.append(path)
+		else:
+			if self.project_deltas:
+				for delta in self.project_deltas:
+					path = delta.get_path()
+					if re.search("android/images/(high|medium|low)/", path.replace("\\", "/")):
+						if delta.get_status() == Delta.DELETED:
+							delete_density_image(path)
+						else:
+							fileset.append(path)
+		for f in fileset:
+			copy_density_image(f)
 
 	def copy_project_resources(self):
 		info("Copying project resources..")
