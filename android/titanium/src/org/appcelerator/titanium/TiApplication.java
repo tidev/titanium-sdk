@@ -7,8 +7,6 @@
 package org.appcelerator.titanium;
 
 import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
 import java.lang.Thread.UncaughtExceptionHandler;
 import java.lang.ref.SoftReference;
 import java.lang.reflect.Method;
@@ -18,7 +16,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Properties;
 
 import org.appcelerator.titanium.analytics.TiAnalyticsEvent;
 import org.appcelerator.titanium.analytics.TiAnalyticsEventFactory;
@@ -61,33 +58,30 @@ public class TiApplication extends Application
 	protected TiAnalyticsModel analyticsModel;
 	protected Intent analyticsIntent;
 	private static long lastAnalyticsTriggered = 0;
-	private String buildVersion, buildTimestamp;
 
 	public TiApplication() {
 		Log.checkpoint("checkpoint, app created.");
 
 		needsEnrollEvent = false; // test is after DB is available
 		needsStartEvent = true;
-		getBuildVersion();
 	}
 
-	private void getBuildVersion() {
-		buildVersion = "1.0";
-		buildTimestamp = "N/A";
-		InputStream versionStream = getClass().getClassLoader().getResourceAsStream("org/appcelerator/titanium/build.properties");
-		if (versionStream != null) {
-			Properties properties = new Properties();
-			try {
-				properties.load(versionStream);
-				if (properties.containsKey("build.version")) {
-					buildVersion = properties.getProperty("build.version");
-				}
-				if (properties.containsKey("build.timestamp")) {
-					buildTimestamp = properties.getProperty("build.timestamp");
-				}
-			} catch (IOException e) {}
-		}
-	}
+//	private void getBuildVersion() {
+		// This looks like dead code - AFAICT we don't generate any build.properties anywhere
+//		InputStream versionStream = getClass().getClassLoader().getResourceAsStream("org/appcelerator/titanium/build.properties");
+//		if (versionStream != null) {
+//			Properties properties = new Properties();
+//			try {
+//				properties.load(versionStream);
+//				if (properties.containsKey("build.version")) {
+//					buildVersion = properties.getProperty("build.version");
+//				}
+//				if (properties.containsKey("build.timestamp")) {
+//					buildTimestamp = properties.getProperty("build.timestamp");
+//				}
+//			} catch (IOException e) {}
+//		}
+//	}
 
 	@Override
 	public void onCreate()
@@ -119,7 +113,7 @@ public class TiApplication extends Application
 
 		appProperties = new TiProperties(getApplicationContext(), "titanium", false);
 		systemProperties = new TiProperties(getApplicationContext(), "system", true);
-		systemProperties.setString("ti.version", buildVersion);
+		//systemProperties.setString("ti.version", buildVersion); // was always setting "1.0"
 	}
 
 	public void setRootActivity(TiRootActivity rootActivity)
@@ -393,10 +387,14 @@ public class TiApplication extends Application
 	}
 
 	public String getTiBuildVersion() {
-		return buildVersion;
+		return systemProperties.getString("ti.build.version", "N/A");
 	}
 
 	public String getTiBuildTimestamp() {
-		return buildTimestamp;
+		return systemProperties.getString("ti.build.timestamp", "N/A");
+	}
+	
+	public String getTiBuildHash() {
+		return systemProperties.getString("ti.build.githash", "N/A");
 	}
 }

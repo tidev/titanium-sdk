@@ -35,7 +35,6 @@ public class TitaniumModule
 	private static final String LCAT = "TitaniumModule";
 	private static TiDict constants;
 	private Stack<String> basePath;
-	private HashMap<String,TiProxy> modules;
 
 	public TitaniumModule(TiContext tiContext) {
 		super(tiContext);
@@ -55,6 +54,8 @@ public class TitaniumModule
 			constants.put("userAgent",System.getProperties().getProperty("http.agent")+" Titanium/"+version);
 			constants.put("version", version);
 			constants.put("buildTimestamp", getTiContext().getTiApp().getTiBuildTimestamp());
+			constants.put("buildDate", getTiContext().getTiApp().getTiBuildTimestamp());
+			constants.put("buildHash", getTiContext().getTiApp().getTiBuildHash());
 		}
 
 		return constants;
