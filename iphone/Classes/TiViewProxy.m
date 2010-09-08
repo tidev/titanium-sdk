@@ -935,7 +935,8 @@
 	{
 		[self.modelDelegate listenerAdded:type count:count];
 	}
-	else {
+	else if(view!=nil)  // don't create the view if not already realized
+	{
 		[self.view listenerAdded:type count:count];
 	}
 }
@@ -946,7 +947,8 @@
 	{
 		[self.modelDelegate listenerRemoved:type count:count];
 	}
-	else {
+	else if(view!=nil) // don't create the view if not already realized
+	{
 		[self.view listenerRemoved:type count:count];
 	}
 }
