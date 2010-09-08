@@ -47,13 +47,6 @@
 
 }
 
--(void)repositionWithBounds:(CGRect)bounds
-{
-	OSAtomicTestAndClearBarrier(NEEDS_REPOSITION, &dirtyflags);
-	[self layoutChildren:NO];
-}
-
-
 -(CGSize)contentSize
 {
 	return SizeConstraintViewWithSizeAddingResizing([self layoutProperties], self, CGSizeZero, NULL);
@@ -279,6 +272,11 @@
 - (UIViewController *)childViewController;
 {
 	return nil;
+}
+
+-(BOOL)suppressesRelayout
+{
+	return YES;
 }
 
 

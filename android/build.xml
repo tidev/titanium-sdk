@@ -71,6 +71,7 @@
 		<build-module name="utils"/>
 		<build-module name="xml"/>
 		<build-module name="yahoo"/>
+		<build-module name="contacts"/>
 		
 		<build-module name="media">
 			<classpath path="${classesdir}/filesystem"/>

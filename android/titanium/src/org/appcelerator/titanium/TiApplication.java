@@ -263,6 +263,14 @@ public class TiApplication extends Application
 		}
 		return handled;
 	}
+	
+	public void removeEventListenersFromContext(TiContext listeningContext)
+	{
+		for (TiProxy appEventProxy : appEventProxies)
+		{
+			appEventProxy.removeEventListenersFromContext(listeningContext);
+		}
+	}
 
 	public TiProperties getAppProperties()
 	{
