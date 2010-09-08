@@ -758,8 +758,9 @@
 			}
 			
 			[ourView insertSubview:childView atIndex:insertPosition];
+			pthread_rwlock_unlock(&childrenLock); // must release before calling resize
+			
 			[self childWillResize:child];
-			pthread_rwlock_unlock(&childrenLock);
 		}
 	}
 	[[child view] updateLayout:NULL withBounds:bounds];
