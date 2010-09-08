@@ -7,6 +7,8 @@
 package org.appcelerator.titanium;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.lang.Thread.UncaughtExceptionHandler;
 import java.lang.ref.SoftReference;
 import java.lang.reflect.Method;
@@ -16,6 +18,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Properties;
 
 import org.appcelerator.titanium.analytics.TiAnalyticsEvent;
 import org.appcelerator.titanium.analytics.TiAnalyticsEventFactory;
@@ -58,30 +61,37 @@ public class TiApplication extends Application
 	protected TiAnalyticsModel analyticsModel;
 	protected Intent analyticsIntent;
 	private static long lastAnalyticsTriggered = 0;
+	private String buildVersion, buildTimestamp, buildHash;
 
 	public TiApplication() {
 		Log.checkpoint("checkpoint, app created.");
 
 		needsEnrollEvent = false; // test is after DB is available
 		needsStartEvent = true;
+		getBuildVersion();
 	}
 
-//	private void getBuildVersion() {
-		// This looks like dead code - AFAICT we don't generate any build.properties anywhere
-//		InputStream versionStream = getClass().getClassLoader().getResourceAsStream("org/appcelerator/titanium/build.properties");
-//		if (versionStream != null) {
-//			Properties properties = new Properties();
-//			try {
-//				properties.load(versionStream);
-//				if (properties.containsKey("build.version")) {
-//					buildVersion = properties.getProperty("build.version");
-//				}
-//				if (properties.containsKey("build.timestamp")) {
-//					buildTimestamp = properties.getProperty("build.timestamp");
-//				}
-//			} catch (IOException e) {}
-//		}
-//	}
+	private void getBuildVersion() {
+		buildVersion = "1.0";
+		buildTimestamp = "N/A";
+		buildHash = "N/A";
+		InputStream versionStream = getClass().getClassLoader().getResourceAsStream("org/appcelerator/titanium/build.properties");
+		if (versionStream != null) {
+			Properties properties = new Properties();
+			try {
+				properties.load(versionStream);
+				if (properties.containsKey("build.version")) {
+					buildVersion = properties.getProperty("build.version");
+				}
+				if (properties.containsKey("build.timestamp")) {
+					buildTimestamp = properties.getProperty("build.timestamp");
+				}
+				if (properties.containsKey("build.githash")) {
+					buildHash = properties.getProperty("build.githash");
+				}
+			} catch (IOException e) {}
+		}
+	}
 
 	@Override
 	public void onCreate()
@@ -387,14 +397,14 @@ public class TiApplication extends Application
 	}
 
 	public String getTiBuildVersion() {
-		return systemProperties.getString("ti.build.version", "N/A");
+		return buildVersion;
 	}
 
 	public String getTiBuildTimestamp() {
-		return systemProperties.getString("ti.build.timestamp", "N/A");
+		return buildTimestamp;
 	}
 	
 	public String getTiBuildHash() {
-		return systemProperties.getString("ti.build.githash", "N/A");
+		return buildHash;
 	}
 }
