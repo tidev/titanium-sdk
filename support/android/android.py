@@ -122,24 +122,7 @@ class Android(object):
 			if type == None: type = "string"
 			if value == None: value = ""
 			self.app_properties[name] = {"type": type, "value": value}
-
-	def parse_ti_version(self, version_file_path):
-		f = None
-		try:
-			f = open(version_file_path, 'r')
-			for line in f:
-				setting = line.split("=")
-				if len(setting)>1:
-					key = setting[0].strip()
-					value = "=".join(setting[1:]).strip()
-					if len(key) > 0:
-						self.app_properties['ti.build.' + key] = {"type": "string", "value": value}
-		except Exception, err:
-			print "[ERROR] Parsing titanium version info: %s" % err
-		finally:
-			if not f is None:
-				f.close()
-
+	
 	def create(self, dir, build_time=False, project_dir=None):
 		template_dir = os.path.dirname(sys._getframe(0).f_code.co_filename)
 		
@@ -176,12 +159,6 @@ class Android(object):
 		app_bin_assets_dir = self.newdir(app_bin_dir, 'assets')
 		
 		self.build_app_info(project_dir)
-		
-		# Insert build info into the app
-		ti_version_file = os.path.join(template_dir, '..', 'version.txt')
-		if os.path.exists(ti_version_file):
-			self.parse_ti_version(ti_version_file)
-
 		# Create android source
 		self.render(template_dir, 'AppInfo.java', app_package_dir, self.config['classname'] + 'AppInfo.java',
 			app_properties = self.app_properties, app_info = self.app_info)
