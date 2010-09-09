@@ -154,14 +154,11 @@
 	[self updateBackground];
 	[self resizeView];
 	// we have to make a copy since this code can cause a mutation
-	for (TiViewController * thisWindowController in [[windowViewControllers mutableCopy] autorelease])
+	for (TiWindowProxy * thisProxy in windowProxies)
 	{
-		if ([thisWindowController isKindOfClass:[TiViewController class]])
-		{
-			UIView * thisView = [thisWindowController view];
-			[rootView addSubview:thisView];
-			[[thisWindowController proxy] reposition];
-		}
+		UIView * thisView = [thisProxy view];
+		[rootView addSubview:thisView];
+		[thisProxy reposition];
 	}
 	[rootView release];
 }
@@ -235,19 +232,14 @@
 			break;
 	}
 
-	//Propagate this to everyone else. This has to be done outside the animation.
-	for (UIViewController * thisVC in windowViewControllers)
+	for (TiWindowProxy * thisProxy in windowProxies)
 	{
-		UINavigationController * thisNavCon = [thisVC navigationController];
-		if (thisNavCon != nil)
+		UIViewController * thisNavCon = [thisProxy navController];
+		if (thisNavCon == nil)
 		{
-			[thisNavCon willAnimateRotationToInterfaceOrientation:newOrientation duration:duration];
+			thisNavCon = [thisProxy controller];
 		}
-		else
-		{
-			[thisVC willAnimateRotationToInterfaceOrientation:newOrientation duration:duration];
-		}
-
+		[thisNavCon willAnimateRotationToInterfaceOrientation:newOrientation duration:duration];
 	}
 
 

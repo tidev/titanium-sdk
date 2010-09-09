@@ -6,6 +6,7 @@
  */
 package org.appcelerator.titanium.kroll;
 
+import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiDict;
 import org.appcelerator.titanium.util.Log;
 import org.mozilla.javascript.Context;
@@ -33,6 +34,17 @@ public class KrollCallback implements IKrollCallable
 		}
 
 		call(new Object[] { data });
+	}
+	
+	public boolean isWithinTiContext(TiContext context)
+	{
+		if (kroll != null) {
+			TiContext krollTiContext = kroll.getTiContext();
+			if (krollTiContext != null) {
+				return (krollTiContext.equals(context));
+			}
+		}
+		return false;
 	}
 
 	public void call()
