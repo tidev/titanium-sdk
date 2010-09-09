@@ -21,7 +21,9 @@ win.add(posLabel);
 var slider = Ti.UI.createSlider({
     value: 0,
     min: 0,
-    max: 100
+    max: 100,
+    left:10,
+    right:10
 });
 slider.addEventListener('change', function(e) {
 	minLabel.text = "Min: " + slider.min;

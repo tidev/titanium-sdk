@@ -302,9 +302,9 @@ public class TiProxy implements Handler.Callback, TiDynamicMethod, OnEventListen
 
 	public boolean hasListeners(String eventName)
 	{
-		boolean hasListeners = getTiContext().hasAnyEventListener(eventName);
+		boolean hasListeners = getTiContext().hasEventListener(eventName, this);
 		if (creatingContext != null) {
-			hasListeners = hasListeners || creatingContext.hasAnyEventListener(eventName);
+			hasListeners = hasListeners || creatingContext.hasEventListener(eventName, this);
 		}
 		return hasListeners;
 	}
