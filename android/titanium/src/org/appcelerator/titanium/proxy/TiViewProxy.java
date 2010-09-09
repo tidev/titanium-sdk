@@ -47,6 +47,7 @@ public abstract class TiViewProxy extends TiProxy implements Handler.Callback
 	private static final int MSG_ANIMATE = MSG_FIRST_ID + 109;
 	private static final int MSG_TOIMAGE = MSG_FIRST_ID + 110;
 	private static final int MSG_GETSIZE = MSG_FIRST_ID + 111;
+	private static final int MSG_GETCENTER = MSG_FIRST_ID + 112;
 
 	protected static final int MSG_LAST_ID = MSG_FIRST_ID + 999;
 
@@ -159,6 +160,26 @@ public abstract class TiViewProxy extends TiProxy implements Handler.Callback
 				result.setResult(d);
 				return true;
 			}
+			case MSG_GETCENTER : {
+				AsyncResult result = (AsyncResult) msg.obj;
+				TiDict d = null;
+				if (view != null) {
+					View v = view.getNativeView();
+					if (v != null) {
+						d = new TiDict();
+						d.put("x", (double)v.getLeft() + (double)v.getWidth() / 2);
+						d.put("y", (double)v.getTop() + (double)v.getHeight() / 2);
+					}
+				}
+				if (d == null) {
+					d = new TiDict();
+					d.put("x", 0);
+					d.put("y", 0);
+				}
+
+				result.setResult(d);
+				return true;
+			}
 		}
 		return super.handleMessage(msg);
 	}
@@ -181,6 +202,13 @@ public abstract class TiViewProxy extends TiProxy implements Handler.Callback
 	public TiDict getSize() {
 		AsyncResult result = new AsyncResult(getTiContext().getActivity());
 		Message msg = getUIHandler().obtainMessage(MSG_GETSIZE, result);
+		msg.sendToTarget();
+		return (TiDict) result.getResult();
+	}
+
+	public TiDict getCenter() {
+		AsyncResult result = new AsyncResult(getTiContext().getActivity());
+		Message msg = getUIHandler().obtainMessage(MSG_GETCENTER, result);
 		msg.sendToTarget();
 		return (TiDict) result.getResult();
 	}
