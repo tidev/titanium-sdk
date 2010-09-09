@@ -53,6 +53,8 @@ public @interface Kroll {
 	@Target(ElementType.TYPE)
 	public @interface module {
 		String name() default DEFAULT_NAME;
+		Class<?> parentModule() default DEFAULT.class;
+		public static final class DEFAULT {};
 	}
 	
 	@Retention(RetentionPolicy.SOURCE)
@@ -86,7 +88,8 @@ public @interface Kroll {
 	@Target(ElementType.TYPE)
 	public @interface proxy {
 		String name() default DEFAULT_NAME;
-		String creatableInModule() default DEFAULT_NAME;
+		Class<?> creatableInModule() default DEFAULT.class;
+		public static final class DEFAULT {};
 	}
 	
 	@Retention(RetentionPolicy.SOURCE)

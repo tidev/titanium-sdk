@@ -8,7 +8,9 @@ import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.view.TiUIView;
 
-@Kroll.proxy(creatableInModule="Android")
+import ti.modules.titanium.android.AndroidModule;
+
+@Kroll.proxy(creatableInModule=AndroidModule.class)
 public class TiActivityWindowProxy extends TiWindowProxy 
 {
 	public TiActivityWindowProxy(TiContext tiContext) 

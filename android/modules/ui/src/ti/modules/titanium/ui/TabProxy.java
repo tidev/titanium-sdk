@@ -16,7 +16,7 @@ import org.appcelerator.titanium.view.TiUIView;
 
 import android.app.Activity;
 
-@Kroll.proxy(creatableInModule="UI")
+@Kroll.proxy(creatableInModule=UIModule.class)
 public class TabProxy extends TiViewProxy
 {
 	private static final String LCAT = "TabProxy";

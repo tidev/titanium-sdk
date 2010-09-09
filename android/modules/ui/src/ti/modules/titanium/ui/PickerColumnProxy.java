@@ -16,7 +16,7 @@ import org.appcelerator.titanium.TiContext;
 
 import android.util.Log;
 
-@Kroll.proxy(creatableInModule="UI")
+@Kroll.proxy(creatableInModule=UIModule.class)
 public class PickerColumnProxy extends KrollProxy
 {
 	private ArrayList<PickerRowProxy> rows = new ArrayList<PickerRowProxy>();

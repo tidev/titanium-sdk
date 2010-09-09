@@ -65,8 +65,8 @@ public class ${genClassName} <#if superProxyBindingClassName??>extends ${superPr
 {
 	private static final String TAG = "${genClassName}";
 	
-	protected boolean filter(String apiName, List<String> filteredBindings) {
-		if (filteredBindings == null || filteredBindings.size() == 0) return false;
+	protected boolean include(String apiName, List<String> filteredBindings) {
+		if (filteredBindings == null || filteredBindings.size() == 0) return true;
 		return filteredBindings.contains(apiName);
 	}
 	
@@ -78,22 +78,14 @@ public class ${genClassName} <#if superProxyBindingClassName??>extends ${superPr
 		
 		<#if isModule>
 		try {
-			KrollProxy __parentModule = rootObject;
-			String __moduleName = "${proxyAttrs.name}";
-			<#list proxyAttrs.name?split(".") as subModule>
-			<#if subModule_has_next>
-			__parentModule = (KrollProxy) __parentModule.get(scope, "${subModule}");
-			<#else>
-			__moduleName = "${subModule}";
-			</#if>
-			</#list>
-			__parentModule.set(scope, __moduleName, p);
+			rootObject.set(scope, "${proxyAttrs.name}", p);
 		} catch (NoSuchFieldException e) {}
 		
 			<#list allModules?keys as module>
-				<#if module = proxyAttrs.name && allModules[module].createProxies??>
+				<#if module = packageName+"."+proxyClassName>
+				<#if allModules[module].createProxies??>
 					<#list allModules[module].createProxies as createProxy>
-			if (!filter("create${createProxy.name}", filteredBindings)) {
+			if (include("create${createProxy.name}", filteredBindings)) {
 				try {
 				__proxy.set(scope, "create${createProxy.name}", new KrollMethod(__proxy, "create${createProxy.name}") {
 					public Object invoke(KrollInvocation __invocation, Object[] __args) throws Exception
@@ -106,16 +98,23 @@ public class ${genClassName} <#if superProxyBindingClassName??>extends ${superPr
 								__invocation, __args[i], Object.class);
 						}
 						
-						if (__createArgs.length >= 1 && __createArgs[0] instanceof KrollDict) {
-							__createdProxy.handleCreationDict((KrollDict)__createArgs[0]);
-						}
-						
+						__createdProxy.handleCreationArgs(__createArgs);
 						return KrollConverter.getInstance().convertNative(__invocation, __createdProxy);
 					}
 				});
-				} catch (Exception e) { Log.e(TAG, "Error binding create${proxyAttrs.name}", e); }
+				} catch (Exception e) { Log.e(TAG, "Error binding create${createProxy.name}", e); }
 			}
 					</#list>
+				</#if>
+				<#if allModules[module].childModules??>
+					<#list allModules[module].childModules as childModule>
+					if (include("${childModule.name}", filteredBindings)) {
+						try {
+							new ${childModule.proxyClassName}(__proxy.getTiContext()).bind(scope, __proxy);
+						} catch (Exception e) { Log.e(TAG, "Error binding child module: ${childModule.name}", e); }
+					}
+					</#list>
+				</#if>
 				</#if>
 			</#list>
 		</#if>
@@ -126,7 +125,7 @@ public class ${genClassName} <#if superProxyBindingClassName??>extends ${superPr
 			</#if>
 			<#list constants?keys as constantName>
 				<#assign constant = constants[constantName]>
-		if (!filter("${constantName}", filteredBindings)) {
+		if (include("${constantName}", filteredBindings)) {
 			try {
 				__proxy.set(scope, "${constantName}", ${proxyClassName}.${constant.proxyName});
 			} catch (Exception e) { Log.e(TAG, "Error binding constant: ${proxyClassName}:${constantName}", e); }
@@ -140,7 +139,7 @@ public class ${genClassName} <#if superProxyBindingClassName??>extends ${superPr
 			</#if>
 			<#list properties?keys as propertyName>
 				<#assign property = properties[propertyName]>
-		if (!filter("${propertyName}", filteredBindings)) {
+		if (include("${propertyName}", filteredBindings)) {
 			try {
 				__proxy.set(scope, "${propertyName}", new KrollProperty(p, "${propertyName}", ${property.get?string}, ${property.set?string}, "${property.proxyName}"));
 			} catch (Exception e) { Log.e(TAG, "Error binding property ${proxyClassName}:${propertyName}", e); }
@@ -154,7 +153,7 @@ public class ${genClassName} <#if superProxyBindingClassName??>extends ${superPr
 			</#if>
 			<#list dynamicProperties?keys as propertyName>
 				<#assign dynamicProperty = dynamicProperties[propertyName]>
-		if (!filter("${propertyName}", filteredBindings)) {
+		if (include("${propertyName}", filteredBindings)) {
 			try {
 				KrollReflectionProperty __property = new KrollReflectionProperty(p, "${propertyName}",
 					${dynamicProperty.get?string}, ${dynamicProperty.set?string},
@@ -183,7 +182,7 @@ public class ${genClassName} <#if superProxyBindingClassName??>extends ${superPr
 		//// Methods
 			<#list methods?keys as methodName>
 				<#assign method = methods[methodName]>
-		if (!filter("${method.apiName}", filteredBindings)) {
+		if (include("${method.apiName}", filteredBindings)) {
 				<#if method.returnType != "void">
 			final ${method.converter} __${methodName}_converter = ${method.converter}.getInstance();
 				</#if>

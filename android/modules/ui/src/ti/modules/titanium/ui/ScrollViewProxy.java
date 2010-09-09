@@ -18,7 +18,7 @@ import android.app.Activity;
 import android.os.Handler;
 import android.os.Message;
 
-@Kroll.proxy(creatableInModule="UI")
+@Kroll.proxy(creatableInModule=UIModule.class)
 public class ScrollViewProxy extends TiViewProxy
 	implements Handler.Callback
 {

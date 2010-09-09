@@ -15,11 +15,12 @@ import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiFileHelper;
 
+import ti.modules.titanium.ui.android.AndroidModule;
 import android.graphics.drawable.Drawable;
 import android.view.Menu;
 import android.view.MenuItem;
 
-@Kroll.module(name="UI.Android.OptionMenu")
+@Kroll.module(parentModule=AndroidModule.class)
 public class OptionMenuModule extends KrollProxy {
 
 	public OptionMenuModule(TiContext tiContext) {

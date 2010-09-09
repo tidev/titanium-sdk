@@ -108,7 +108,9 @@
 				<exclude name="**/*.java"/>
 			</fileset>
 		</copy>
-		<jar destfile="${distdir}/titanium.jar" basedir="${classesdir}/titanium"/>
+		<jar destfile="${distdir}/titanium.jar" basedir="${classesdir}/titanium">
+			<zipfileset file="${gensrcdir}/titanium/org/appcelerator/titanium/gen/bindings.json" fullpath="org/appcelerator/titanium/bindings/titanium.json"/>
+		</jar>
 	</target>
 	
 	<target name="build" depends="build-titanium">
@@ -206,7 +208,9 @@
 					<exclude name="**/*.java"/>
 				</fileset>
 			</copy>
-			<jar destfile="${distdir}/titanium-@{name}.jar" basedir="${classesdir}/@{name}"/>
+			<jar destfile="${distdir}/titanium-@{name}.jar" basedir="${classesdir}/@{name}">
+				<zipfileset file="${gensrcdir}/@{name}/org/appcelerator/titanium/gen/bindings.json" fullpath="org/appcelerator/titanium/bindings/@{name}.json"/>
+			</jar>
 		</sequential>
 	</macrodef>
 </project>

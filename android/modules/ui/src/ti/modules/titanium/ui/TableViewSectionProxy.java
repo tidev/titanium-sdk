@@ -15,7 +15,7 @@ import org.appcelerator.titanium.view.TiUIView;
 
 import android.app.Activity;
 
-@Kroll.proxy(creatableInModule="UI")
+@Kroll.proxy(creatableInModule=UIModule.class)
 public class TableViewSectionProxy extends TiViewProxy
 {
 	ArrayList<TableViewRowProxy> rows;

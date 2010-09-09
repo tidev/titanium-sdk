@@ -22,7 +22,7 @@ import ti.modules.titanium.ui.widget.TiUITableView;
 import android.app.Activity;
 import android.os.Message;
 
-@Kroll.proxy(creatableInModule="UI")
+@Kroll.proxy(creatableInModule=UIModule.class)
 public class TableViewProxy extends TiViewProxy
 {
 	private static final String LCAT = "TableViewProxy";

@@ -24,7 +24,7 @@ import android.content.Intent;
 import android.os.Message;
 import android.os.Messenger;
 
-@Kroll.proxy(creatableInModule="UI")
+@Kroll.proxy(creatableInModule=UIModule.class)
 public class WindowProxy extends TiWindowProxy
 {
 	private static final String LCAT = "WindowProxy";

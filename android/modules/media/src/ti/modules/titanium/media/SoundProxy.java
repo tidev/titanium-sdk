@@ -17,7 +17,7 @@ import org.appcelerator.titanium.util.TiConvert;
 
 import ti.modules.titanium.filesystem.FileProxy;
 
-@Kroll.proxy
+@Kroll.proxy(creatableInModule=MediaModule.class)
 public class SoundProxy extends KrollProxy
 	implements OnLifecycleEvent
 {
@@ -26,32 +26,31 @@ public class SoundProxy extends KrollProxy
 
 	protected TiSound snd;
 
-	public SoundProxy(TiContext tiContext, Object[] args)
+	public SoundProxy(TiContext tiContext)
 	{
 		super(tiContext);
-
-		if (args != null && args.length > 0) {
-			KrollDict options = (KrollDict) args[0];
-			if (options != null) {
-				if (options.containsKey("url")) {
-					setProperty("url", tiContext.resolveUrl(null, TiConvert.toString(options, "url")));
-				} else if (options.containsKey("sound")) {
-					FileProxy fp = (FileProxy) options.get("sound");
-					if (fp != null) {
-						String url = fp.getNativePath();
-						setProperty("url", url);
-					}
-				}
-				if (options.containsKey("allowBackground")) {
-					setProperty("allowBackground", options.get("allowBackground"));
-				}
-				if (DBG) {
-					Log.i(LCAT, "Creating sound proxy for url: " + TiConvert.toString(getProperty("url")));
-				}
-			}
-		}
 		tiContext.addOnLifecycleEventListener(this);
 		setProperty("volume", 0.5, true);
+	}
+	
+	@Override
+	public void handleCreationDict(KrollDict options) {
+		super.handleCreationDict(options);
+		if (options.containsKey("url")) {
+			setProperty("url", getTiContext().resolveUrl(null, TiConvert.toString(options, "url")));
+		} else if (options.containsKey("sound")) {
+			FileProxy fp = (FileProxy) options.get("sound");
+			if (fp != null) {
+				String url = fp.getNativePath();
+				setProperty("url", url);
+			}
+		}
+		if (options.containsKey("allowBackground")) {
+			setProperty("allowBackground", options.get("allowBackground"));
+		}
+		if (DBG) {
+			Log.i(LCAT, "Creating sound proxy for url: " + TiConvert.toString(getProperty("url")));
+		}
 	}
 
 	public boolean isPlaying() {

@@ -52,11 +52,13 @@ public class KrollBindingGenerator extends AbstractProcessor {
 	protected static final String Kroll_constant = Kroll_annotation + ".constant";
 	protected static final String Kroll_getProperty = Kroll_annotation + ".getProperty";
 	protected static final String Kroll_inject = Kroll_annotation + ".inject";
-	protected static final String Kroll_inject_DEFAULT = Kroll_annotation + ".inject.DEFAULT";
+	protected static final String Kroll_inject_DEFAULT = Kroll_inject + ".DEFAULT";
 	protected static final String Kroll_method = Kroll_annotation + ".method";
 	protected static final String Kroll_module = Kroll_annotation + ".module";
+	protected static final String Kroll_module_DEFAULT = Kroll_module + ".DEFAULT";
 	protected static final String Kroll_property = Kroll_annotation + ".property";
 	protected static final String Kroll_proxy = Kroll_annotation + ".proxy";
+	protected static final String Kroll_proxy_DEFAULT = Kroll_proxy+ ".DEFAULT";
 	protected static final String Kroll_setProperty = Kroll_annotation + ".setProperty";
 	protected static final String Kroll_runOnUiThread = Kroll_annotation + ".runOnUiThread";
 	
@@ -125,11 +127,17 @@ public class KrollBindingGenerator extends AbstractProcessor {
 		utils.acceptAnnotations(element, new String[] { Kroll_proxy, Kroll_module },  new KrollVisitor<AnnotationMirror>(){
 			
 			protected Map getProxyProperties(String packageName, String proxyClassName) {
+				if (properties == null) {
+					properties = new HashMap();
+				}
 				return jsonUtils.getOrCreateMap(jsonUtils.getOrCreateMap(properties, "proxies"), packageName+"."+proxyClassName);
 			}
 			
-			protected Map getModule(String moduleName) {
-				return jsonUtils.getOrCreateMap(jsonUtils.getOrCreateMap(properties, "modules"), moduleName);
+			protected Map getModule(String moduleClassName) {
+				if (properties == null) {
+					properties = new HashMap();
+				}
+				return jsonUtils.getOrCreateMap(jsonUtils.getOrCreateMap(properties, "modules"), moduleClassName);
 			}
 			
 			@Override
@@ -158,13 +166,20 @@ public class KrollBindingGenerator extends AbstractProcessor {
 				
 				utils.debugLog("Found binding for " +
 					(utils.annotationTypeIs(annotation, Kroll_module) ? "module" : "proxy") + " " + apiName);
-				
+
+				proxyAttrs.put("proxyClassName", String.format("%s.%s", packageName, proxyClassName));
 				if (proxyAttrs.containsKey("creatableInModule")) {
-					String createInModule = (String) proxyAttrs.get("creatableInModule");
-					if (!createInModule.equals(DEFAULT_NAME)) {
-						proxyAttrs.put("proxyClassName", String.format("%s.%s", packageName, proxyClassName));
-						
-						jsonUtils.appendUnique(getModule(createInModule), "createProxies", proxyAttrs);
+					String createInModuleClass = (String) proxyAttrs.get("creatableInModule");
+					if (!createInModuleClass.equals(Kroll_proxy_DEFAULT)) {
+						jsonUtils.appendUnique(getModule(createInModuleClass), "createProxies", proxyAttrs);
+					}
+				}
+				
+				if (proxyAttrs.containsKey("parentModule")) {
+					String parentModuleClass = (String) proxyAttrs.get("parentModule");
+					if (!parentModuleClass.equals(Kroll_module_DEFAULT)) {
+						jsonUtils.appendUnique(getModule(parentModuleClass), "childModules", proxyAttrs);
+						proxyAttrs.remove("parentModule");
 					}
 				}
 				
@@ -185,7 +200,7 @@ public class KrollBindingGenerator extends AbstractProcessor {
 				proxyProperties.put("proxyAttrs", proxyAttrs);
 				
 				if (utils.annotationTypeIs(annotation, Kroll_module)) {
-					getModule(apiName).put("className", packageName+"."+proxyClassName);
+					getModule(packageName+"."+proxyClassName).put("apiName", apiName);
 				}
 				
 				BindingVisitor visitor = new BindingVisitor();

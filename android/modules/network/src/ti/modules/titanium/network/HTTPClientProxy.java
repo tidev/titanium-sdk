@@ -14,7 +14,7 @@ import org.appcelerator.titanium.TiContext;
 
 import ti.modules.titanium.xml.DocumentProxy;
 
-@Kroll.proxy
+@Kroll.proxy(creatableInModule=NetworkModule.class)
 public class HTTPClientProxy extends KrollProxy {
 	
 	@Kroll.constant public static final int UNSENT = TiHTTPClient.READY_STATE_UNSENT;
@@ -24,10 +24,9 @@ public class HTTPClientProxy extends KrollProxy {
 	@Kroll.constant public static final int DONE = TiHTTPClient.READY_STATE_DONE;
 	
 	private TiHTTPClient client;
-	public HTTPClientProxy(TiContext context, Object[] args)
+	public HTTPClientProxy(TiContext context)
 	{
 		super(context);
-		
 		this.client = new TiHTTPClient(this);
 	}
 	

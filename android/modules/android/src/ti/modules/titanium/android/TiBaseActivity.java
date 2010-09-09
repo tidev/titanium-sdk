@@ -77,8 +77,10 @@ public abstract class TiBaseActivity extends Activity
 		itemMap = new HashMap<Integer, MenuItemProxy>();
 		
 		tiContext = TiContext.createTiContext(this, null, null); // TODO baseurl
-		currentActivity = new ActivityProxy(tiContext, new Object[]{ this });
-		currentIntent = new IntentProxy(tiContext, new Object[] {getIntent()});
+		currentActivity = new ActivityProxy(tiContext);
+		currentActivity.handleCreationArgs(new Object[] { this });
+		currentIntent = new IntentProxy(tiContext);
+		currentIntent.handleCreationArgs(new Object[] { getIntent() });
 		currentWindow = new TiActivityWindowProxy(tiContext);
 		
 		//Bootstrap Android Module
@@ -86,19 +88,26 @@ public abstract class TiBaseActivity extends Activity
 		final KrollContext kroll = krollBridge.getKrollContext();
 		Scriptable root = kroll.getScope();
 		
-		KrollProxy titanium = krollBridge.getRootObject();
+		KrollObject titanium = new KrollObject(krollBridge.getRootObject());
+		KrollObject androidModule = (KrollObject) titanium.get("Android", titanium);
+		androidModule.put("currentActivity", androidModule, new KrollObject(currentActivity));
+		androidModule.put("currentIntent", androidModule, new KrollObject(currentIntent));
+		titanium.put("Android", titanium, androidModule);
 		
-		Object m = titanium.loadModule("Android");
-		KrollObject android = new KrollObject((KrollObject) titanium, m);
-		titanium.put("Android", titanium, android);
-		android.superPut("currentActivity", android, new KrollObject(android, currentActivity));
-		android.superPut("currentIntent", android, new KrollObject(android, currentIntent));
+		//Object m = titanium.loadModule("Android");
+		//KrollObject android = new KrollObject((KrollObject) titanium, m);
+		//titanium.put("Android", titanium, android);
+		//android.superPut("currentActivity", android, new KrollObject(android, currentActivity));
+		//android.superPut("currentIntent", android, new KrollObject(android, currentIntent));
 
 		// currentWindow
-		m = titanium.loadModule("UI");
-		KrollObject ui = new KrollObject((KrollObject) titanium, m);
-		titanium.put("UI", titanium, ui);
-		ui.superPut("currentWindow", ui, new KrollObject(ui, currentWindow));
+		KrollObject uiModule = (KrollObject) titanium.get("UI", titanium);
+		uiModule.put("currentWindow", uiModule, new KrollObject(currentWindow));
+		titanium.put("UI", titanium, uiModule);
+		//m = titanium.loadModule("UI");
+		//KrollObject ui = new KrollObject((KrollObject) titanium, m);
+		//titanium.put("UI", titanium, ui);
+		//ui.superPut("currentWindow", ui, new KrollObject(ui, currentWindow));
 		
         Intent intent = getIntent();
 

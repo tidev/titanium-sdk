@@ -10,7 +10,7 @@ import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.view.Ti2DMatrix;
 
-@Kroll.proxy(creatableInModule="UI", name="2DMatrix")
+@Kroll.proxy(creatableInModule=UIModule.class, name="2DMatrix")
 public class _2DMatrixProxy extends Ti2DMatrix
 {
 	public _2DMatrixProxy(TiContext tiContext)

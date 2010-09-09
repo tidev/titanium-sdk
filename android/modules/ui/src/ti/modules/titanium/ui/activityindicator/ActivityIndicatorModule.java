@@ -10,9 +10,10 @@ import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiContext;
 
+import ti.modules.titanium.ui.UIModule;
 import ti.modules.titanium.ui.widget.TiUIActivityIndicator;
 
-@Kroll.module(name="UI.ActivityIndicator")
+@Kroll.module(parentModule=UIModule.class)
 public class ActivityIndicatorModule extends KrollProxy
 {
 	@Kroll.constant public static final int STATUS_BAR = TiUIActivityIndicator.STATUS_BAR;

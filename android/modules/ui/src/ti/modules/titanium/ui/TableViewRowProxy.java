@@ -20,7 +20,7 @@ import ti.modules.titanium.ui.widget.tableview.TableViewModel.Item;
 import android.app.Activity;
 import android.os.Message;
 
-@Kroll.proxy(creatableInModule="UI")
+@Kroll.proxy(creatableInModule=UIModule.class)
 public class TableViewRowProxy extends TiViewProxy
 {
 	protected ArrayList<TiViewProxy> controls;

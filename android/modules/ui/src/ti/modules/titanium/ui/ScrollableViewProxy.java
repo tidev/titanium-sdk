@@ -24,7 +24,7 @@ import android.os.Message;
 import android.view.animation.Animation;
 import android.view.animation.Animation.AnimationListener;
 
-@Kroll.proxy(creatableInModule="UI")
+@Kroll.proxy(creatableInModule=UIModule.class)
 public class ScrollableViewProxy extends TiViewProxy
 	implements AnimationListener
 {

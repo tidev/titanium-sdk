@@ -14,7 +14,7 @@ import org.appcelerator.titanium.util.TiConvert;
 import android.content.Intent;
 import android.net.Uri;
 
-@Kroll.proxy
+@Kroll.proxy(creatableInModule=AndroidModule.class)
 public class IntentProxy extends KrollProxy 
 {
 	private static final String LCAT = "TiIntent";
@@ -22,49 +22,40 @@ public class IntentProxy extends KrollProxy
 	
 	protected Intent intent;
 	
-	public IntentProxy(TiContext tiContext, Object[] args) 
+	public IntentProxy(TiContext tiContext) 
 	{
 		super(tiContext);
-
-		KrollDict d = null;
-		
-		if (args != null && args.length >= 1) {
-			if (args[0] instanceof KrollDict) {
-				d = (KrollDict) args[0];
-			}
-		}
-		
+	}
+	
+	public void handleCreationDict(KrollDict dict) {
 		intent = new Intent();
 		
 		// See which set of options we have to work with.
+		String action = dict.getString("action");
+		String data = dict.getString("data");
+		String classname = dict.getString("className");
 
-		if (d != null) {
-			String action = d.getString("action");
-			String data = d.getString("data");
-			String classname = d.getString("className");
-
-			if (action != null) {
-				if (DBG) {
-					Log.d(LCAT, "Setting action: " + action);
-				}
-				intent.setAction(action);
+		if (action != null) {
+			if (DBG) {
+				Log.d(LCAT, "Setting action: " + action);
 			}
-			
-			if (data != null) {
-				if (DBG) {
-					Log.d(LCAT, "Setting data uri: " + data);
-				}
-				intent.setData(Uri.parse(data));
+			intent.setAction(action);
+		}
+		
+		if (data != null) {
+			if (DBG) {
+				Log.d(LCAT, "Setting data uri: " + data);
 			}
-			
-			if (classname != null) {
-				try {
-					Class c = getClass().getClassLoader().loadClass(classname);
-					intent.setClass(tiContext.getActivity().getApplicationContext(), c);
-				} catch (ClassNotFoundException e) {
-					Log.e(LCAT, "Unable to locate class for name: " + classname);
-					throw new IllegalStateException("Missing class for name: " + classname, e);
-				}
+			intent.setData(Uri.parse(data));
+		}
+		
+		if (classname != null) {
+			try {
+				Class<?> c = getClass().getClassLoader().loadClass(classname);
+				intent.setClass(getTiContext().getActivity().getApplicationContext(), c);
+			} catch (ClassNotFoundException e) {
+				Log.e(LCAT, "Unable to locate class for name: " + classname);
+				throw new IllegalStateException("Missing class for name: " + classname, e);
 			}
 		}
 	}	

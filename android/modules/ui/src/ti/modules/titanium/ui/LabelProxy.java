@@ -15,7 +15,7 @@ import org.appcelerator.titanium.view.TiUIView;
 import ti.modules.titanium.ui.widget.TiUILabel;
 import android.app.Activity;
 
-@Kroll.proxy(creatableInModule="UI")
+@Kroll.proxy(creatableInModule=UIModule.class)
 public class LabelProxy extends TiViewProxy
 {
 	private boolean clickable = false;

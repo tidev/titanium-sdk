@@ -109,8 +109,16 @@ public class KrollProxy implements Handler.Callback, OnEventListenerChange {
 			if (this instanceof KrollModule) {
 				filteredBindings = getTiContext().getTiApp().getFilteredBindings(apiName);
 			}
-			bindings.get(getClass()).bind(scope, rootObject, this, filteredBindings);
+			bind(scope, rootObject, filteredBindings);
 		}
+	}
+	
+	public void bind(Scriptable scope, KrollProxy parent) {
+		bind(scope, parent, null);
+	}
+	
+	public void bind(Scriptable scope, KrollProxy parent, List<String> filteredBindings) {
+		bindings.get(getClass()).bind(scope, parent, this, filteredBindings);
 	}
 
 	public String getAPIName() {
@@ -278,6 +286,12 @@ public class KrollProxy implements Handler.Callback, OnEventListenerChange {
 		}
 	}
 
+	public void handleCreationArgs(Object[] args) {
+		if (args.length >= 1 && args[0] instanceof KrollDict) {
+			handleCreationDict((KrollDict)args[0]);
+		}
+	}
+	
 	protected KrollDict creationDict = null;
 	public void handleCreationDict(KrollDict dict) {
 		if (dict != null) {

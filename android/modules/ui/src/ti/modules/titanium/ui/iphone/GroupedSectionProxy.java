@@ -13,7 +13,7 @@ import org.appcelerator.titanium.view.TiUIView;
 
 import android.app.Activity;
 
-@Kroll.proxy(creatableInModule="UI.iPhone")
+@Kroll.proxy(creatableInModule=iPhoneModule.class)
 public class GroupedSectionProxy extends TiViewProxy {
 
 	public GroupedSectionProxy(TiContext tiContext) {

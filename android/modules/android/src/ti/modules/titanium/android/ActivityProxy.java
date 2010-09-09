@@ -14,7 +14,7 @@ import org.appcelerator.titanium.util.TiConfig;
 import android.content.Context;
 import android.content.Intent;
 
-@Kroll.proxy
+@Kroll.proxy(creatableInModule=AndroidModule.class)
 public class ActivityProxy 
 	extends KrollProxy
 	implements KrollProxyListener
@@ -25,27 +25,23 @@ public class ActivityProxy
 	//TODO This may need to be a soft reference.
 	private TiBaseActivity activity;
 	
-	public ActivityProxy(TiContext tiContext, Object[] args) 
+	public ActivityProxy(TiContext tiContext) 
 	{
 		super(tiContext);
 		modelListener = this;
-
-		KrollDict d = null;
-		
+	}
+	
+	@Override
+	public void handleCreationArgs(Object[] args) {
+		super.handleCreationArgs(args);
 		if (args != null && args.length >= 1) {
-			if (args[0] instanceof KrollDict) {
-				if (DBG) {
-					Log.d("LCAT", "ActivityProxy created with dictionary");
-				}
-				d = (KrollDict) args[0];
-			} else if (args[0] instanceof TiBaseActivity) {
+			if (args[0] instanceof TiBaseActivity) {
 				if (DBG) {
 					Log.d(LCAT, "ActivityProxy created with existing Activity");
 				}
 				activity = (TiBaseActivity) args[0];
 			}
 		}
-		
 	}
 	
 	@Kroll.method

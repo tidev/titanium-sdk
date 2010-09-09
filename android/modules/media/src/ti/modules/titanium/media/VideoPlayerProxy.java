@@ -26,7 +26,7 @@ import android.os.Messenger;
 import android.os.RemoteException;
 import android.os.ResultReceiver;
 
-@Kroll.proxy
+@Kroll.proxy(creatableInModule=MediaModule.class)
 public class VideoPlayerProxy extends KrollProxy
 {
 	private static final String LCAT = "VideoPlayerProxy";
@@ -39,13 +39,13 @@ public class VideoPlayerProxy extends KrollProxy
 	private Messenger activityMessenger;
 	private CountDownLatch activityLatch;
 
-	public VideoPlayerProxy(final TiContext tiContext, Object[] args)
+	public VideoPlayerProxy(TiContext tiContext)
 	{
 		super(tiContext);
-
-		//views = new ArrayList<TiViewProxy>();
-
-		KrollDict options = (KrollDict) args[0];
+	}
+	
+	public void handleCreationDict(KrollDict options) {
+		final TiContext tiContext = getTiContext();
 		final Intent intent = new Intent(tiContext.getActivity(), TiVideoActivity.class);
 
 		if (options.containsKey("contentURL")) {

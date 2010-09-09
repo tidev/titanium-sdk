@@ -19,7 +19,7 @@ import android.app.LocalActivityManager;
 import android.content.Intent;
 import android.view.Window;
 
-@Kroll.proxy
+@Kroll.proxy(creatableInModule=MapModule.class)
 public class ViewProxy extends TiViewProxy
 	implements OnLifecycleEvent
 {

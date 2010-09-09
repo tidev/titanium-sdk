@@ -12,7 +12,9 @@ import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.Log;
 import org.mozilla.javascript.Scriptable;
 
-@Kroll.module(name="UI.iPhone")
+import ti.modules.titanium.ui.UIModule;
+
+@Kroll.module(parentModule=UIModule.class)
 public class iPhoneModule extends KrollProxy {
 
 	private static final String LCAT = "iPhone";

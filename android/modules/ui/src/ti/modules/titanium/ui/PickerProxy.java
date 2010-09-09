@@ -35,7 +35,7 @@ import android.util.Log;
 import android.widget.DatePicker;
 import android.widget.TimePicker;
 
-@Kroll.proxy(creatableInModule="UI")
+@Kroll.proxy(creatableInModule=UIModule.class)
 public class PickerProxy extends TiViewProxy 
 {
 	private int type = UIModule.PICKER_TYPE_PLAIN;

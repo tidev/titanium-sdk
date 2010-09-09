@@ -14,7 +14,7 @@ import org.appcelerator.titanium.view.TiUIView;
 import ti.modules.titanium.ui.widget.TiUIImageView;
 import android.app.Activity;
 
-@Kroll.proxy(creatableInModule="UI")
+@Kroll.proxy(creatableInModule=UIModule.class)
 public class ImageViewProxy extends ViewProxy {
 
 	public ImageViewProxy(TiContext tiContext) {

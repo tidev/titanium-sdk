@@ -10,7 +10,7 @@ import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.view.TiAnimation;
 
-@Kroll.proxy(creatableInModule="UI")
+@Kroll.proxy(creatableInModule=UIModule.class)
 public class AnimationProxy extends TiAnimation {
 
 	public AnimationProxy(TiContext tiContext) {

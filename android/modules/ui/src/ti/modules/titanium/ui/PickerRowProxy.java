@@ -13,7 +13,7 @@ import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConvert;
 
-@Kroll.proxy(creatableInModule="UI")
+@Kroll.proxy(creatableInModule=UIModule.class)
 public class PickerRowProxy extends KrollProxy 
 {
 	private static final String LCAT = "PickerRowProxy";

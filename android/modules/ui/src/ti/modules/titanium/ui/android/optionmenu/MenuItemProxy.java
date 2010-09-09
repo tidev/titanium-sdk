@@ -10,7 +10,7 @@ import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiContext;
 
-@Kroll.proxy(creatableInModule="UI.Android.OptionMenu")
+@Kroll.proxy(creatableInModule=OptionMenuModule.class)
 public class MenuItemProxy extends KrollProxy {
 
 	public MenuItemProxy(TiContext tiContext) {

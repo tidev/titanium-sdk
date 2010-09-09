@@ -31,7 +31,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
 
-@Kroll.proxy(creatableInModule="UI")
+@Kroll.proxy(creatableInModule=UIModule.class)
 public class EmailDialogProxy extends TiViewProxy {
 	
 	private static final String LCAT = "EmailDialogProxy";

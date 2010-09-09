@@ -15,7 +15,7 @@ import android.app.PendingIntent;
  * @author dthorp
  *
  */
-@Kroll.proxy
+@Kroll.proxy(creatableInModule=AndroidModule.class)
 public class PendingIntentProxy extends KrollProxy 
 {
 	private static final String LCAT = "PendingIntentProxy";
@@ -23,38 +23,37 @@ public class PendingIntentProxy extends KrollProxy
 	
 	private PendingIntent pendingIntent;
 	
-	public PendingIntentProxy(TiContext tiContext, Object[] args) 
+	public PendingIntentProxy(TiContext tiContext) 
 	{
 		super(tiContext);
-
-		KrollDict d = null;
-		
-		if (args != null && args.length >= 1) {
-			if (args[0] instanceof KrollDict) {
-				d = (KrollDict) args[0];
-			}
-		}
-
-		if (d == null) {
+	}
+	
+	@Override
+	public void handleCreationArgs(Object[] args) {
+		if (args.length == 0 || !(args[0] instanceof KrollDict)) {
 			throw new IllegalStateException("Missing creation arguments.");
 		}
 		
+		super.handleCreationArgs(args);
+	}
+	
+	public void handleCreationDict(KrollDict dict) {
 		ActivityProxy activity = null;
 		IntentProxy intent = null;
 		int pendingIntentType = -1;
 		int flags = Integer.MIN_VALUE;
 		
-		if (d.containsKey("activity")) {
-			activity = (ActivityProxy) d.get("activity");
+		if (dict.containsKey("activity")) {
+			activity = (ActivityProxy) dict.get("activity");
 		}
-		if (d.containsKey("intent")) {
-			intent = (IntentProxy) d.get("intent");
+		if (dict.containsKey("intent")) {
+			intent = (IntentProxy) dict.get("intent");
 		}
-		if (d.containsKey("type")) {
-			pendingIntentType = d.getInt("type");
+		if (dict.containsKey("type")) {
+			pendingIntentType = dict.getInt("type");
 		}
-		if (d.containsKey("flags")) {
-			flags = d.getInt("flags");
+		if (dict.containsKey("flags")) {
+			flags = dict.getInt("flags");
 		}
 		
 		if (activity == null || intent == null || flags == Integer.MIN_VALUE ||

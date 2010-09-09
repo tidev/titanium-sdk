@@ -17,7 +17,9 @@ import org.appcelerator.titanium.util.TiConvert;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-@Kroll.module(name="App.Properties")
+import ti.modules.titanium.app.AppModule;
+
+@Kroll.module(parentModule=AppModule.class)
 public class PropertiesModule extends KrollProxy {
 
 	private static final String LCAT = "PropertiesModule";

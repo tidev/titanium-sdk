@@ -15,7 +15,7 @@ import org.appcelerator.titanium.view.TiUIView;
 import ti.modules.titanium.ui.widget.TiUIDialog;
 import android.app.Activity;
 
-@Kroll.proxy(creatableInModule="UI")
+@Kroll.proxy(creatableInModule=UIModule.class)
 public class AlertDialogProxy extends TiViewProxy
 {
 	public AlertDialogProxy(TiContext tiContext)

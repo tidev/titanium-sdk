@@ -14,7 +14,7 @@ import org.appcelerator.titanium.view.TiUIView;
 
 import android.app.Activity;
 
-@Kroll.proxy(creatableInModule="UI.iPhone")
+@Kroll.proxy(creatableInModule=iPhoneModule.class)
 public class GroupedViewProxy extends TiViewProxy
 {
 	private static final String LCAT = "GroupedViewProxy";

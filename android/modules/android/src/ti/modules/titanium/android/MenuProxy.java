@@ -12,12 +12,12 @@ import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiContext;
 
-@Kroll.proxy
+@Kroll.proxy(creatableInModule=AndroidModule.class)
 public class MenuProxy extends KrollProxy
 {
 	protected ArrayList<MenuItemProxy> menuItems;
 
-	public MenuProxy(TiContext tiContext, Object[] args) {
+	public MenuProxy(TiContext tiContext) {
 		super(tiContext);
 		menuItems = new ArrayList<MenuItemProxy>();
 	}

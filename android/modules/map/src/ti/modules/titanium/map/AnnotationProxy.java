@@ -12,7 +12,7 @@ import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 
-@Kroll.proxy(creatableInModule="Map")
+@Kroll.proxy(creatableInModule=MapModule.class)
 public class AnnotationProxy extends KrollProxy
 {
 	private static final String LCAT = "AnnotationProxy";

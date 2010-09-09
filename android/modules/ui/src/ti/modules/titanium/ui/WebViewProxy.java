@@ -16,7 +16,7 @@ import android.app.Activity;
 import android.os.Handler;
 import android.os.Message;
 
-@Kroll.proxy(creatableInModule="UI")
+@Kroll.proxy(creatableInModule=UIModule.class)
 public class WebViewProxy extends ViewProxy
 	implements Handler.Callback
 {
