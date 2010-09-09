@@ -28,6 +28,7 @@ public class LabelProxy extends TiViewProxy
 	public TiUIView createView(Activity activity)
 	{
 		TiUILabel label = new TiUILabel(this);
+		clickable = hasListeners("click");
 		if (clickable) {
 			label.setClickable(true);
 		}
