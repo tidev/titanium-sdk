@@ -141,14 +141,4 @@ public class TiUITabGroup extends TiUIView
 			}
 		}
 	}
-
-	@Override
-	public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy proxy)
-	{
-		if ("activeTab".equals(key)) {
-			changeActiveTab(newValue);
-		} else {
-			super.propertyChanged(key, oldValue, newValue, proxy);
-		}
-	}
 }

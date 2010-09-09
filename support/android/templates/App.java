@@ -5,6 +5,7 @@ import org.appcelerator.titanium.TiContext;
 
 import java.util.List;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class ${config['classname']}Application extends TiApplication {
 

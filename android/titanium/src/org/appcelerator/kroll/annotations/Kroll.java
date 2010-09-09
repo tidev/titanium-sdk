@@ -19,7 +19,7 @@ import org.appcelerator.kroll.KrollJavascriptConverter;
 public @interface Kroll {
 	public static final String DEFAULT_NAME = "__default_name__";
 	
-	@Retention(RetentionPolicy.RUNTIME)
+	@Retention(RetentionPolicy.SOURCE)
 	@Target(ElementType.PARAMETER)
 	public @interface argument {
 		String name() default DEFAULT_NAME;
@@ -34,7 +34,7 @@ public @interface Kroll {
 		String name() default DEFAULT_NAME;
 	}
 	
-	@Retention(RetentionPolicy.RUNTIME)
+	@Retention(RetentionPolicy.SOURCE)
 	@Target({ElementType.METHOD, ElementType.FIELD})
 	public @interface inject {
 		String name() default DEFAULT_NAME;
@@ -42,33 +42,20 @@ public @interface Kroll {
 		public static final class DEFAULT {};
 	}
 	
-	@Retention(RetentionPolicy.RUNTIME)
+	@Retention(RetentionPolicy.SOURCE)
 	@Target(ElementType.METHOD)
 	public @interface method {
 		String name() default DEFAULT_NAME;
 		Class<? extends KrollNativeConverter> converter() default KrollConverter.class;
 	}
 	
-	@Retention(RetentionPolicy.RUNTIME)
-	@Target(ElementType.METHOD)
-	public @interface createMethod {
-		String name() default DEFAULT_NAME;
-		Class<? extends KrollNativeConverter> converter() default KrollConverter.class;
-	}
-	
-	@Retention(RetentionPolicy.RUNTIME)
+	@Retention(RetentionPolicy.SOURCE)
 	@Target(ElementType.TYPE)
 	public @interface module {
 		String name() default DEFAULT_NAME;
 	}
-
-	@Retention(RetentionPolicy.RUNTIME)
-	@Target(ElementType.TYPE)
-	public @interface nativeView {
-
-	}
 	
-	@Retention(RetentionPolicy.RUNTIME)
+	@Retention(RetentionPolicy.SOURCE)
 	@Target(ElementType.FIELD)
 	public @interface property {
 		boolean get() default true;
@@ -78,7 +65,7 @@ public @interface Kroll {
 		Class<? extends KrollJavascriptConverter> scriptableConverter() default KrollConverter.class;
 	}
 
-	@Retention(RetentionPolicy.RUNTIME)
+	@Retention(RetentionPolicy.SOURCE)
 	@Target(ElementType.METHOD)
 	public @interface getProperty {
 		String name() default DEFAULT_NAME;
@@ -86,7 +73,7 @@ public @interface Kroll {
 		Class<? extends KrollJavascriptConverter> scriptableConverter() default KrollConverter.class;
 	}
 	
-	@Retention(RetentionPolicy.RUNTIME)
+	@Retention(RetentionPolicy.SOURCE)
 	@Target(ElementType.METHOD)
 	public @interface setProperty {
 		String name() default DEFAULT_NAME;
@@ -95,10 +82,16 @@ public @interface Kroll {
 		boolean retain() default true;
 	}
 	
-	@Retention(RetentionPolicy.RUNTIME)
+	@Retention(RetentionPolicy.SOURCE)
 	@Target(ElementType.TYPE)
 	public @interface proxy {
 		String name() default DEFAULT_NAME;
 		String creatableInModule() default DEFAULT_NAME;
+	}
+	
+	@Retention(RetentionPolicy.SOURCE)
+	@Target(ElementType.METHOD)
+	public @interface runOnUiThread {
+		
 	}
 }

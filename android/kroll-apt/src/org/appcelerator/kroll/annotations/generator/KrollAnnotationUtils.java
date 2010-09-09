@@ -46,6 +46,11 @@ public class KrollAnnotationUtils {
 		debugLog(Diagnostic.Kind.NOTE, message);
 	}
 	
+	public void logException(Exception exception) {
+		debugLog(Diagnostic.Kind.ERROR, exception.getMessage());
+		exception.printStackTrace();
+	}
+	
 	public Object convertAnnotationValue(Object value) {
 		if (value instanceof DeclaredType) {
 			return ((DeclaredType)value).asElement().asType().toString();
@@ -109,24 +114,39 @@ public class KrollAnnotationUtils {
 		return params;
 	}
 	
-	public void acceptAnnotations(Element element, String annotationClass, KrollVisitor<AnnotationMirror> visitor) {
-		acceptAnnotations(element, new String[] { annotationClass }, visitor, null);
+	public boolean acceptAnnotations(Element element, String annotationClass, KrollVisitor<AnnotationMirror> visitor) {
+		return acceptAnnotations(element, new String[] { annotationClass }, visitor, null);
 	}
 	
-	public void acceptAnnotations(Element element, String annotationClass, KrollVisitor<AnnotationMirror> visitor, Object arg) {
-		acceptAnnotations(element, new String[] { annotationClass }, visitor, arg);
+	public boolean acceptAnnotations(Element element, String annotationClass, KrollVisitor<AnnotationMirror> visitor, Object arg) {
+		return acceptAnnotations(element, new String[] { annotationClass }, visitor, arg);
 	}
 	
-	public void acceptAnnotations(Element element, String annotationClasses[], KrollVisitor<AnnotationMirror> visitor) {
-		acceptAnnotations(element, annotationClasses, visitor, null);
+	public boolean acceptAnnotations(Element element, String annotationClasses[], KrollVisitor<AnnotationMirror> visitor) {
+		return acceptAnnotations(element, annotationClasses, visitor, null);
 	}
 	
-	public void acceptAnnotations(Element element, String annotationClasses[], KrollVisitor<AnnotationMirror> visitor, Object arg) {
+	public boolean acceptAnnotations(Element element, String annotationClasses[], KrollVisitor<AnnotationMirror> visitor, Object arg) {
 		for (AnnotationMirror ann : element.getAnnotationMirrors()) {
 			if (!annotationTypeIsOneOf(ann, annotationClasses)) continue;
 			if (!visitor.visit(ann, arg)) {
-				break;
+				return false;
 			}
 		}
+		return true;
+	}
+	
+	public boolean hasAnnotation(Element element, String annotationClass) {
+		for (AnnotationMirror ann : element.getAnnotationMirrors()) {
+			if (!annotationTypeIs(ann, annotationClass)) return true;
+		}
+		return false;
+	}
+	
+	public boolean hasAnyAnnotation(Element element, String... annotationClasses) {
+		for (AnnotationMirror ann : element.getAnnotationMirrors()) {
+			if (!annotationTypeIsOneOf(ann, annotationClasses)) return true;
+		}
+		return false;
 	}
 }

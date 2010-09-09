@@ -41,16 +41,20 @@ import ${packageName}.${proxyClassName};
 </#function>
 
 <#macro injectByType type proxy value>
-	<#list injectMethods as injectMethod>
-		<#if injectMethod.type = type>
+	<#if injectMethods??>
+		<#list injectMethods as injectMethod>
+			<#if injectMethod.type = type>
 			KrollInjector.injectValueIntoMethod(${proxy}, "${injectMethod.name}", ${value});
-		</#if>
-	</#list>
-	<#list injectFields as injectField>
-		<#if injectField.type = type>
+			</#if>
+		</#list>
+	</#if>
+	<#if injectFields??>
+		<#list injectFields as injectField>
+			<#if injectField.type = type>
 			KrollInjector.injectValueIntoField(${proxy}, "${injectField.name}", ${value});
-		</#if>
-	</#list>
+			</#if>
+		</#list>
+	</#if>
 </#macro>
 
 <#assign primitiveBoxTypes = {"int":"Integer", "double":"Double", "float":"Float", "long":"Long", "boolean":"Boolean", "short":"Short", "byte":"Byte"}>
@@ -72,13 +76,23 @@ public class ${genClassName} <#if superProxyBindingClassName??>extends ${superPr
 		final ${proxyClassName} __proxy = (${proxyClassName}) p;
 		__proxy.setAPIName("${proxyAttrs.name}");
 		
-		<#if proxyAnnotation.annotationType == "org.appcelerator.kroll.annotations.Kroll.module">
+		<#if isModule>
 		try {
-			rootObject.set(scope, "${proxyAttrs.name}", p);
+			KrollProxy __parentModule = rootObject;
+			String __moduleName = "${proxyAttrs.name}";
+			<#list proxyAttrs.name?split(".") as subModule>
+			<#if subModule_has_next>
+			__parentModule = (KrollProxy) __parentModule.get(scope, "${subModule}");
+			<#else>
+			__moduleName = "${subModule}";
+			</#if>
+			</#list>
+			__parentModule.set(scope, __moduleName, p);
 		} catch (NoSuchFieldException e) {}
 		
-			<#if createProxies?keys?seq_contains(proxyAttrs.name)>
-				<#list createProxies[proxyAttrs.name] as createProxy>
+			<#list allModules?keys as module>
+				<#if module = proxyAttrs.name && allModules[module].createProxies??>
+					<#list allModules[module].createProxies as createProxy>
 			if (!filter("create${createProxy.name}", filteredBindings)) {
 				try {
 				__proxy.set(scope, "create${createProxy.name}", new KrollMethod(__proxy, "create${createProxy.name}") {
@@ -101,42 +115,48 @@ public class ${genClassName} <#if superProxyBindingClassName??>extends ${superPr
 				});
 				} catch (Exception e) { Log.e(TAG, "Error binding create${proxyAttrs.name}", e); }
 			}
-				</#list>
-			</#if>
+					</#list>
+				</#if>
+			</#list>
 		</#if>
 		
-		<#if constants?keys?size &gt; 0>
+		<#if constants??>
+			<#if constants?keys?size &gt; 0>
 		//// Constants
-		</#if>
-		<#list constants?keys as constantName>
-			<#assign constant = constants[constantName]>
+			</#if>
+			<#list constants?keys as constantName>
+				<#assign constant = constants[constantName]>
 		if (!filter("${constantName}", filteredBindings)) {
 			try {
 				__proxy.set(scope, "${constantName}", ${proxyClassName}.${constant.proxyName});
 			} catch (Exception e) { Log.e(TAG, "Error binding constant: ${proxyClassName}:${constantName}", e); }
 		}
-		</#list>
-		
-		<#if properties?keys?size &gt; 0>
-		//// Properties ("static binding")
+			</#list>
 		</#if>
-		<#list properties?keys as propertyName>
-			<#assign property = properties[propertyName]>
+		
+		<#if properties??>
+			<#if properties?keys?size &gt; 0>
+		//// Properties ("static binding")
+			</#if>
+			<#list properties?keys as propertyName>
+				<#assign property = properties[propertyName]>
 		if (!filter("${propertyName}", filteredBindings)) {
 			try {
 				__proxy.set(scope, "${propertyName}", new KrollProperty(p, "${propertyName}", ${property.get?string}, ${property.set?string}, "${property.proxyName}"));
 			} catch (Exception e) { Log.e(TAG, "Error binding property ${proxyClassName}:${propertyName}", e); }
 		}
-		</#list>
-		
-		<#if dynamicProperties?keys?size &gt; 0>
-		//// Dynamic Properties
+			</#list>
 		</#if>
-		<#list dynamicProperties?keys as propertyName>
-			<#assign dynamicProperty = dynamicProperties[propertyName]>
+		
+		<#if dynamicProperties??>
+			<#if dynamicProperties?keys?size &gt; 0>
+		//// Dynamic Properties
+			</#if>
+			<#list dynamicProperties?keys as propertyName>
+				<#assign dynamicProperty = dynamicProperties[propertyName]>
 		if (!filter("${propertyName}", filteredBindings)) {
 			try {
-				__proxy.set(scope, "${propertyName}", new KrollReflectionProperty(p, "${propertyName}",
+				KrollReflectionProperty __property = new KrollReflectionProperty(p, "${propertyName}",
 					${dynamicProperty.get?string}, ${dynamicProperty.set?string},
 					<#if dynamicProperty.get>
 					"${dynamicProperty.getMethodName}",
@@ -149,18 +169,24 @@ public class ${genClassName} <#if superProxyBindingClassName??>extends ${superPr
 					<#else>
 					null, false
 					</#if>
-				));
+				);
+				<#if dynamicProperty.runOnUiThread>
+				__property.setRunOnUiThread(true);
+				</#if>
+				__proxy.set(scope, "${propertyName}", __property);
 			} catch (Exception e) { Log.e(TAG, "Error binding dynamic property ${proxyClassName}:${propertyName}", e); }
 		}
-		</#list>
+			</#list>
+		</#if>
 		
+		<#if methods??>
 		//// Methods
-		<#list methods?keys as methodName>
-			<#assign method = methods[methodName]>
+			<#list methods?keys as methodName>
+				<#assign method = methods[methodName]>
 		if (!filter("${method.apiName}", filteredBindings)) {
-			<#if method.returnType != "void">
+				<#if method.returnType != "void">
 			final ${method.converter} __${methodName}_converter = ${method.converter}.getInstance();
-			</#if>
+				</#if>
 			KrollMethod ${methodName}_method = new KrollMethod(__proxy, "${method.apiName}") {
 				public Object invoke(KrollInvocation __invocation, Object[] __args) throws Exception
 				{
@@ -221,12 +247,15 @@ public class ${genClassName} <#if superProxyBindingClassName??>extends ${superPr
 					</#if>
 				}
 			};
-			
+			<#if method.runOnUiThread>
+			${methodName}_method.setRunOnUiThread(true);
+			</#if>
 			try {
 				__proxy.set(scope, "${method.apiName}", ${methodName}_method);
 			} catch (Exception e) { Log.e(TAG, "Error binding method ${proxyClassName}:${method.apiName}", e); }
 		}
-		</#list>
+			</#list>
+		</#if>
 		<#if superProxyBindingClassName??>super.bind(scope, rootObject, p, null);</#if>
 	}
 }

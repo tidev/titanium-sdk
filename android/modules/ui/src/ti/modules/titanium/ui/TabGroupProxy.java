@@ -169,7 +169,15 @@ public class TabGroupProxy extends TiWindowProxy
 	public void handleRemoveTab(TabProxy tab) {
 
 	}
-
+	
+	@Kroll.setProperty @Kroll.method @Kroll.runOnUiThread
+	public void setActiveTab(Object tab) {
+		if (peekView() != null) {
+			TiUITabGroup tg = (TiUITabGroup) getView(getTiContext().getActivity());
+			tg.changeActiveTab(tab);
+		}
+	}
+	
 	@Override
 	protected void handleOpen(KrollDict options)
 	{

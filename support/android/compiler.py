@@ -61,6 +61,8 @@ class Compiler(object):
 				# properties are not modules
 				if sym == 'version' or sym == 'userAgent' or sym == 'name' or sym == '_JSON':
 					continue
+				elif sym[0:1].lower() == sym[0:1] and sym != 'iPhone': #lower case first character, just skip
+					continue
 				try:
 					modules.index(sym)
 				except:	

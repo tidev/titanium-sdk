@@ -10,13 +10,20 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 import org.appcelerator.kroll.util.KrollReflectionUtils;
+import org.appcelerator.titanium.util.AsyncResult;
+import org.appcelerator.titanium.util.Log;
+import org.mozilla.javascript.Context;
+
+import android.app.Activity;
 
 public class KrollReflectionProperty implements KrollDynamicProperty {
-
+	private static final String TAG = "KrollReflectionProperty";
+	
 	protected boolean get, set, retain;
 	protected String name;
 	protected KrollProxy proxy;
 	protected Method getMethod, setMethod;
+	protected boolean runOnUiThread = false;
 	
 	public KrollReflectionProperty(KrollProxy proxy, String name, boolean get, boolean set, String getMethodName, String setMethodName, boolean retain) {
 		this.name = name;
@@ -33,23 +40,53 @@ public class KrollReflectionProperty implements KrollDynamicProperty {
 		this.retain = retain;
 	}
 	
+	protected Object safeInvoke(KrollInvocation invocation, Method method, Object... args) {
+		try {
+			if (!runOnUiThread) {
+				return method.invoke(proxy, args);
+			} else {
+				Activity activity = invocation.getTiContext().getActivity();
+				if (invocation.getTiContext().isUIThread()) {
+					return method.invoke(proxy, args);
+				} else {
+					final KrollInvocation fInv = invocation;
+					final Object[] fArgs = args;
+					final Method fMethod = method;
+					final AsyncResult result = new AsyncResult();
+					
+					activity.runOnUiThread(new Runnable() {
+						public void run() {
+							try {
+								Object retVal = fMethod.invoke(proxy, fArgs);
+								result.setResult(retVal);
+							} catch (Exception e) {
+								result.setResult(e);
+							}
+						}
+					});
+					
+					Object retVal = result.getResult();
+					if (retVal instanceof Exception) {
+						throw (Exception)retVal;
+					} else {
+						return retVal;
+					}
+				}
+			}
+		} catch (Exception e) {
+			Log.e(TAG, "Exception getting/setting property: " + name, e);
+			Context.throwAsScriptRuntimeEx(e);
+			return KrollProxy.UNDEFINED;
+		}
+	}
+	
 	@Override
 	public Object get(KrollInvocation invocation, String name) {
 		if (supportsGet(name)) {
-			try {
-				return getMethod.invoke(proxy, invocation);
-			} catch (IllegalArgumentException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (IllegalAccessException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (InvocationTargetException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			return safeInvoke(invocation, getMethod, invocation);
 		}
-		return KrollProxy.UNDEFINED;
+		
+		return KrollConverter.getInstance().convertNative(invocation, proxy.getProperty(name));
 	}
 
 	@Override
@@ -58,18 +95,10 @@ public class KrollReflectionProperty implements KrollDynamicProperty {
 			if (retain) {
 				proxy.setProperty(name, value);
 			}
-			try {
-				setMethod.invoke(proxy, invocation, value);
-			} catch (IllegalArgumentException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (IllegalAccessException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (InvocationTargetException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			safeInvoke(invocation, setMethod, invocation, value);
+		} else {
+			Object convertedValue = KrollConverter.getInstance().convertJavascript(invocation, value, Object.class);
+			proxy.setProperty(name, convertedValue, true);
 		}
 	}
 
@@ -81,5 +110,9 @@ public class KrollReflectionProperty implements KrollDynamicProperty {
 	@Override
 	public boolean supportsSet(String name) {
 		return set && setMethod != null;
+	}
+
+	public void setRunOnUiThread(boolean runOnUiThread) {
+		this.runOnUiThread = runOnUiThread;
 	}
 }

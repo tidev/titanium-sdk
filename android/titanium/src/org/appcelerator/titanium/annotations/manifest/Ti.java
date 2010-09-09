@@ -35,7 +35,7 @@ public @interface Ti {
 	public @interface version {
 		int buildVersion() default 0;
 		int minorVersion() default 0;
-		int majorVersion() default 1;			
+		int majorVersion() default 1;
 	}
 	
 	public @interface manifest {

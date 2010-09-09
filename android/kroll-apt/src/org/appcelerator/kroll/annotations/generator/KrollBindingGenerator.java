@@ -12,6 +12,7 @@ import java.io.Writer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.annotation.processing.AbstractProcessor;
@@ -25,13 +26,12 @@ import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.util.SimpleElementVisitor6;
-import javax.lang.model.util.Types;
 import javax.tools.FileObject;
 import javax.tools.JavaFileObject;
 import javax.tools.StandardLocation;
 import javax.tools.Diagnostic.Kind;
 
-import org.json.JSONObject;
+import org.json.simple.JSONValue;
 
 import freemarker.template.Configuration;
 import freemarker.template.DefaultObjectWrapper;
@@ -42,13 +42,14 @@ import freemarker.template.TemplateException;
 	"org.appcelerator.kroll.annotations.Kroll.proxy",
 	"org.appcelerator.kroll.annotations.Kroll.module"})
 @SupportedSourceVersion(SourceVersion.RELEASE_6)
+@SuppressWarnings("unchecked")
 public class KrollBindingGenerator extends AbstractProcessor {
 
+	// define these here so we can avoid the titanium dependency chicken/egg problem
 	protected static final String Kroll_annotation = "org.appcelerator.kroll.annotations.Kroll";
 	
 	protected static final String Kroll_argument = Kroll_annotation + ".argument";
 	protected static final String Kroll_constant = Kroll_annotation + ".constant";
-	protected static final String Kroll_createMethod = Kroll_annotation + ".createMethod";
 	protected static final String Kroll_getProperty = Kroll_annotation + ".getProperty";
 	protected static final String Kroll_inject = Kroll_annotation + ".inject";
 	protected static final String Kroll_inject_DEFAULT = Kroll_annotation + ".inject.DEFAULT";
@@ -57,6 +58,7 @@ public class KrollBindingGenerator extends AbstractProcessor {
 	protected static final String Kroll_property = Kroll_annotation + ".property";
 	protected static final String Kroll_proxy = Kroll_annotation + ".proxy";
 	protected static final String Kroll_setProperty = Kroll_annotation + ".setProperty";
+	protected static final String Kroll_runOnUiThread = Kroll_annotation + ".runOnUiThread";
 	
 	protected static final String KrollInvocation = "org.appcelerator.kroll.KrollInvocation";
 	protected static final String KrollConverter = "org.appcelerator.kroll.KrollConverter";
@@ -64,14 +66,12 @@ public class KrollBindingGenerator extends AbstractProcessor {
 	// this needs to mirror Kroll.DEFAULT_NAME
 	protected static final String DEFAULT_NAME = "__default_name__";
 	
-	protected Template bindingTemplate, appBootTemplate;
-	protected HashMap<String, Object> proxyBindings = new HashMap<String, Object>();
-	protected HashMap<String, Object> bindingProperties = new HashMap<String, Object>();
-	protected ArrayList<String> proxies = new ArrayList<String>();
-	protected HashMap<String, Object> modules = new HashMap<String, Object>();
-	protected HashMap<String, Object> createProxies = new HashMap<String, Object>();
+	protected Template bindingTemplate;
+	protected Map properties = new HashMap();
+	protected Map proxyProperties = new HashMap();
 	protected Configuration fmConfig;
 	protected KrollAnnotationUtils utils;
+	protected JSONUtils jsonUtils;
 	
 	public KrollBindingGenerator() {
 		super();
@@ -83,44 +83,62 @@ public class KrollBindingGenerator extends AbstractProcessor {
 				getClass().getClassLoader().getResourceAsStream(
 					"org/appcelerator/kroll/annotations/generator/ProxyBinding.fm")),
 					fmConfig);
-			appBootTemplate = new Template("AppBoot.fm", new InputStreamReader(
-				getClass().getClassLoader().getResourceAsStream(
-					"org/appcelerator/kroll/annotations/generator/AppBoot.fm")),
-					fmConfig);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
 	
+	protected boolean initialized = false;
+	
 	@Override
 	public boolean process(Set<? extends TypeElement> annotations,
 			RoundEnvironment roundEnv) {
 		
-		utils = new KrollAnnotationUtils(processingEnv);
+		if (!initialized) {
+			utils = new KrollAnnotationUtils(processingEnv);
+			jsonUtils = new JSONUtils(utils);
+			
+			try {
+				FileObject bindingsFile = processingEnv.getFiler().getResource(StandardLocation.SOURCE_OUTPUT, "org.appcelerator.titanium.gen", "bindings.json");
+				properties = (Map) JSONValue.parseWithException(bindingsFile.openReader(true));
+			} catch (Exception e) {
+				// file doesn't exist, we'll just create it later
+			}
+			initialized = true;
+		}
 		
 		if (!roundEnv.processingOver()) {
 			for (Element element : roundEnv.getRootElements()) {
-				generateKrollProxy(element);
+				processKrollProxy(element);
 			}
 			
 		} else {
-			//generateAppBoot();
-			//writeJSON();
+			generateJSON();
+			generateProxies();
 		}
 		
 		return true;
 	}
 	
-	protected void generateKrollProxy(final Element element) {
-		utils.acceptAnnotations(element, new String[] { Kroll_proxy, Kroll_module }, new KrollVisitor<AnnotationMirror>(){
+	protected void processKrollProxy(final Element element) {
+		utils.acceptAnnotations(element, new String[] { Kroll_proxy, Kroll_module },  new KrollVisitor<AnnotationMirror>(){
+			
+			protected Map getProxyProperties(String packageName, String proxyClassName) {
+				return jsonUtils.getOrCreateMap(jsonUtils.getOrCreateMap(properties, "proxies"), packageName+"."+proxyClassName);
+			}
+			
+			protected Map getModule(String moduleName) {
+				return jsonUtils.getOrCreateMap(jsonUtils.getOrCreateMap(properties, "modules"), moduleName);
+			}
+			
 			@Override
 			public boolean visit(AnnotationMirror annotation, Object arg) {
-				utils.debugLog("visiting proxies/modules");
-				bindingProperties.clear();
 				
 				String packageName = utils.getPackage(element);
 				String proxyClassName = utils.getName(element);
+				proxyProperties = getProxyProperties(packageName, proxyClassName);
+				
 				String genClassName = proxyClassName + "BindingGen";
 				String sourceName = String.format("%s.%s", packageName, genClassName);
 				String apiName = proxyClassName;
@@ -138,17 +156,15 @@ public class KrollBindingGenerator extends AbstractProcessor {
 					apiName = (String)proxyAttrs.get("name");
 				}
 				
+				utils.debugLog("Found binding for " +
+					(utils.annotationTypeIs(annotation, Kroll_module) ? "module" : "proxy") + " " + apiName);
+				
 				if (proxyAttrs.containsKey("creatableInModule")) {
 					String createInModule = (String) proxyAttrs.get("creatableInModule");
 					if (!createInModule.equals(DEFAULT_NAME)) {
-						ArrayList<Object> createProxyList = (ArrayList<Object>) createProxies.get(createInModule);
-						if (createProxyList == null) {
-							createProxyList = new ArrayList<Object>();
-							createProxies.put(createInModule, createProxyList);
-						}
-						
 						proxyAttrs.put("proxyClassName", String.format("%s.%s", packageName, proxyClassName));
-						createProxyList.add(proxyAttrs);
+						
+						jsonUtils.appendUnique(getModule(createInModule), "createProxies", proxyAttrs);
 					}
 				}
 				
@@ -157,37 +173,25 @@ public class KrollBindingGenerator extends AbstractProcessor {
 				
 				String superTypeName = utils.getName(superType);
 				if (!superTypeName.equals("Object")) {
-					bindingProperties.put("superProxyBindingClassName", String.format("%s.%sBindingGen", utils.getPackage(superType), superTypeName));
+					proxyProperties.put(
+						"superProxyBindingClassName", String.format("%s.%sBindingGen", utils.getPackage(superType), superTypeName));
 				}
 				
-				bindingProperties.put("packageName", packageName);
-				bindingProperties.put("proxyClassName", proxyClassName);
-				bindingProperties.put("genClassName", genClassName);
-				bindingProperties.put("sourceName", sourceName);
-				bindingProperties.put("element", element);
-				bindingProperties.put("proxyAnnotation", annotation);
-				bindingProperties.put("proxyAttrs", proxyAttrs);
-				bindingProperties.put("createProxies", createProxies);
-				bindingProperties.put("methods", new HashMap<String, HashMap<String, Object>>());
-				bindingProperties.put("constants", new HashMap<String, HashMap<String, Object>>());
-				bindingProperties.put("properties", new HashMap<String, HashMap<String, Object>>());
-				bindingProperties.put("dynamicProperties", new HashMap<String, HashMap<String, Object>>());
-				bindingProperties.put("injectFields", new ArrayList<HashMap<String, Object>>());
-				bindingProperties.put("injectMethods", new ArrayList<HashMap<String, Object>>());
-				
-				proxies.add(packageName+"."+proxyClassName);
+				proxyProperties.put("isModule", utils.annotationTypeIs(annotation, Kroll_module));
+				proxyProperties.put("packageName", packageName);
+				proxyProperties.put("proxyClassName", proxyClassName);
+				proxyProperties.put("genClassName", genClassName);
+				proxyProperties.put("sourceName", sourceName);
+				proxyProperties.put("proxyAttrs", proxyAttrs);
 				
 				if (utils.annotationTypeIs(annotation, Kroll_module)) {
-					modules.put(apiName, packageName+"."+proxyClassName);
+					getModule(apiName).put("className", packageName+"."+proxyClassName);
 				}
 				
 				BindingVisitor visitor = new BindingVisitor();
 				for (Element e : element.getEnclosedElements()) {
 					e.accept(visitor, null);
 				}
-				
-				saveTypeTemplate(bindingTemplate, sourceName, bindingProperties);
-				proxyBindings.put(packageName+"."+proxyClassName, bindingProperties.clone());
 				
 				return true;
 			}
@@ -199,7 +203,7 @@ public class KrollBindingGenerator extends AbstractProcessor {
 		@Override
 		public String visitExecutable(ExecutableElement e, Object p) {
 			utils.acceptAnnotations(e, new String[] {
-				Kroll_method, Kroll_createMethod, Kroll_getProperty, Kroll_setProperty, Kroll_inject
+				Kroll_method, Kroll_getProperty, Kroll_setProperty, Kroll_inject
 			}, this, e);
 			return null;
 		}
@@ -233,30 +237,31 @@ public class KrollBindingGenerator extends AbstractProcessor {
 			return true;
 		}
 		
-		@SuppressWarnings("unchecked")
-		protected HashMap<String, HashMap<String, Object>> getBindingMap(String name) {
-			return (HashMap<String, HashMap<String, Object>>) bindingProperties.get(name);
-		}
-		
 		protected void visitMethod(AnnotationMirror annotation, ExecutableElement element) {
-			HashMap<String, HashMap<String, Object>> methods = getBindingMap("methods");
-			ArrayList<HashMap<String, Object>> args = new ArrayList<HashMap<String, Object>>();
-			HashMap<String, Object> attrs = utils.getAnnotationParams(annotation);
-			attrs.put("hasInvocation", false);
+			String methodName = element.getSimpleName().toString();
+			
+			Map methods = jsonUtils.getOrCreateMap(proxyProperties, "methods");
+			Map methodAttrs = jsonUtils.getOrCreateMap(methods, methodName);
+			List args = new ArrayList();
+			jsonUtils.updateObjectFromAnnotation(methodAttrs, annotation);
+			
+			//HashMap<String, Object> attrs = utils.getAnnotationParams(annotation);
+			methodAttrs.put("hasInvocation", false);
 			
 			for (VariableElement var: element.getParameters()) {
 				String paramType = utils.getType(var);
 				if (paramType.equals(KrollInvocation)) {
-					attrs.put("hasInvocation", true);
+					methodAttrs.put("hasInvocation", true);
 					continue;
 				}
 				
 				String paramName = utils.getName(var);
 				
-				HashMap<String, Object> argParams = new HashMap<String, Object>();
+				Map argParams = new HashMap();
 				argParams.put("sourceName", paramName);
 				argParams.put("type", paramType);
-				argParams.putAll(utils.getAnnotationParams(var, Kroll_argument));
+				jsonUtils.updateObjectFromAnnotationParams(argParams, utils.getAnnotationParams(var, Kroll_argument));
+				
 				String name = (String) argParams.get("name");
 				if (name == null || name.equals(DEFAULT_NAME)) {
 					argParams.put("name", paramName);
@@ -271,26 +276,20 @@ public class KrollBindingGenerator extends AbstractProcessor {
 				args.add(argParams);
 			}
 			
-			String methodName = element.getSimpleName().toString();
-			attrs.put("apiName", attrs.get("name"));
-			if (attrs.get("name").equals(DEFAULT_NAME)) {
-				attrs.put("apiName", methodName);
+			methodAttrs.put("apiName", methodAttrs.get("name"));
+			if (methodAttrs.get("name").equals(DEFAULT_NAME)) {
+				methodAttrs.put("apiName", methodName);
 			}
 			
-			attrs.put("annotation", annotation);
-			attrs.put("args", args);
-			attrs.put("returnType", element.getReturnType().toString());
-			
-			utils.debugLog("method converter for " + utils.getName(element) + " => " + attrs.get("converter"));
-			//attrs.put("converter", KrollConverter.class);
-			
-			methods.put(methodName, attrs);
+			methodAttrs.put("args", args);
+			methodAttrs.put("returnType", element.getReturnType().toString());
+			methodAttrs.put("runOnUiThread", utils.hasAnnotation(element, Kroll_runOnUiThread));
 		}
 		
 		protected void visitProperty(AnnotationMirror annotation, VariableElement element) {
 			boolean isConstant = utils.annotationTypeIs(annotation, Kroll_constant);
 			
-			HashMap<String, HashMap<String, Object>> propertyMap = getBindingMap(isConstant ? "constants" : "properties");
+			Map propertyMap = jsonUtils.getOrCreateMap(proxyProperties, isConstant ? "constants" : "properties");
 			HashMap<String, Object> property = utils.getAnnotationParams(annotation);
 			
 			String type = utils.getType(element);
@@ -304,16 +303,13 @@ public class KrollBindingGenerator extends AbstractProcessor {
 				name = defaultName;
 			}
 			
-			if (isConstant) {
-				utils.debugLog("constant => " + name);
-			}
 			propertyMap.put(name, property);
 		}
 		
 		protected void visitDynamicProperty(AnnotationMirror annotation, ExecutableElement element) {
-			HashMap<String, HashMap<String, Object>> dynamicProperties = getBindingMap("dynamicProperties");
+			Map dynamicProperties = jsonUtils.getOrCreateMap(proxyProperties, "dynamicProperties");
 			HashMap<String, Object> params = utils.getAnnotationParams(annotation);
-			HashMap<String, Object> dynamicProperty = params;
+			Map dynamicProperty = new HashMap(params);
 			
 			String methodName = utils.getName(element);
 			String defaultName = new String(methodName);
@@ -330,7 +326,7 @@ public class KrollBindingGenerator extends AbstractProcessor {
 			}
 			
 			if (dynamicProperties.containsKey(name)) {
-				dynamicProperty = dynamicProperties.get(name);
+				dynamicProperty = (Map) dynamicProperties.get(name);
 			} else {
 				// setup defaults
 				dynamicProperty.put("get", false);
@@ -346,13 +342,12 @@ public class KrollBindingGenerator extends AbstractProcessor {
 				dynamicProperty.put("retain", params.get("retain"));
 			}
 			
+			dynamicProperty.put("runOnUiThread", utils.hasAnnotation(element, Kroll_runOnUiThread));
 			dynamicProperties.put(name, dynamicProperty);
 		}
 		
 		protected void visitInject(AnnotationMirror annotation, Element element, boolean isMethod) {
-			ArrayList<HashMap<String, Object>> injectList =
-				(ArrayList<HashMap<String, Object>>) bindingProperties.get(isMethod ? "injectMethods" : "injectFields");
-			
+			List injectList = jsonUtils.getOrCreateList(proxyProperties, isMethod ? "injectMethods" : "injectFields");
 			HashMap<String, Object> attrs = utils.getAnnotationParams(annotation);
 			
 			String type = (String)attrs.get("type");
@@ -384,21 +379,7 @@ public class KrollBindingGenerator extends AbstractProcessor {
 		}
 	}
 	
-	protected void generateAppBoot() {
-		HashMap<String,Object> root = new HashMap<String,Object>();
-		//todo, this should come from the environment
-		String appName = "Test";
-		String appPackage = "com.appcelerator.kroll.test";
-		
-		root.put("proxies", proxies);
-		root.put("modules", modules);
-		root.put("appName", appName);
-		root.put("appPackage", appPackage);
-		
-		saveTypeTemplate(appBootTemplate, appPackage+"."+appName+"Boot", root);
-	}
-	
-	protected void saveTypeTemplate(Template template, String type, HashMap<String, Object> root) {
+	protected void saveTypeTemplate(Template template, String type, Map root) {
 		Writer writer = null;
 		try {
 			JavaFileObject jfo = processingEnv.getFiler().createSourceFile(type);
@@ -424,18 +405,29 @@ public class KrollBindingGenerator extends AbstractProcessor {
 		
 	}
 	
-	protected void writeJSON() {
+	protected void generateJSON() {
 		try {
-			JSONObject o = new JSONObject(proxyBindings);
 			FileObject file = processingEnv.getFiler().createResource(
-				StandardLocation.CLASS_OUTPUT, "org.appcelerator.titanium.gen", "bindings.json");
+				StandardLocation.SOURCE_OUTPUT, "org.appcelerator.titanium.gen", "bindings.json");
 			Writer writer = file.openWriter();
 			
-			writer.write(o.toString().toCharArray());
+			writer.write(JSONValue.toJSONString(properties));
 			writer.close();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+		}
+	}
+	
+	protected void generateProxies() {
+		Map<String,Object> proxies = (Map<String,Object>) properties.get("proxies");
+		
+		for (String proxyName : proxies.keySet()) {
+			Map proxy = (Map)proxies.get(proxyName);
+			HashMap root = new HashMap(proxy);
+			root.put("allModules", properties.get("modules"));
+			
+			saveTypeTemplate(bindingTemplate, proxy.get("packageName")+"."+proxy.get("genClassName"), root);
 		}
 	}
 }
