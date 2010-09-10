@@ -11,7 +11,6 @@
 #import "OperationQueue.h"
 #import "ASIHTTPRequest.h"
 #import "TiApp.h"
-#import "ImageLoader.h"
 #import "TiBlob.h"
 
 @implementation TiUIImageViewProxy
@@ -83,6 +82,13 @@ static NSArray* imageKeySequence;
 	[super _destroy];
 }
 
+- (void) dealloc
+{
+	RELEASE_TO_NIL(urlRequest);
+	[super dealloc];
+}
+
+
 -(id)toBlob:(id)args
 {
 	id url = [self valueForKey:@"url"];
@@ -107,6 +113,51 @@ static NSArray* imageKeySequence;
 USE_VIEW_FOR_AUTO_WIDTH
 
 USE_VIEW_FOR_AUTO_HEIGHT
+
+#pragma mark Handling ImageLoader
+-(void)startImageLoad:(NSURL *)url;
+{
+	[self cancelPendingImageLoads]; //Just in case we have a crusty old urlRequest.
+	urlRequest = [[[ImageLoader sharedLoader] loadImage:url delegate:self userInfo:nil] retain];
+}
+
+-(void)cancelPendingImageLoads
+{
+	// cancel a pending request if we have one pending
+	if (urlRequest!=nil)
+	{
+		[urlRequest cancel];
+		RELEASE_TO_NIL(urlRequest);
+	}
+}
+
+-(void)imageLoadSuccess:(ImageLoaderRequest*)request image:(UIImage*)image
+{
+	if (request != urlRequest)
+	{
+		return;
+	}
+	
+	if ([self viewAttached])
+	{
+		[(TiUIImageView *)[self view] imageLoadSuccess:request image:image];
+	}
+	RELEASE_TO_NIL(urlRequest);
+}
+
+-(void)imageLoadFailed:(ImageLoaderRequest*)request error:(NSError*)error
+{
+	if (request == urlRequest)
+	{
+		NSLog(@"[ERROR] Failed to load image: %@, Error: %@",[request url], error);
+		RELEASE_TO_NIL(urlRequest);
+	}
+}
+
+-(void)imageLoadCancelled:(ImageLoaderRequest *)request
+{
+}
+
 
 @end
 
