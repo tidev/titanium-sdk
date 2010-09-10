@@ -30,7 +30,8 @@ public class TiProxy implements Handler.Callback, TiDynamicMethod, OnEventListen
 
 	protected static final int MSG_LAST_ID = 999;
 
-	private TiContext tiContext, creatingContext;
+	private TiContext tiContext;
+	protected TiContext creatingContext;
 	private Handler uiHandler;
 	private CountDownLatch waitForHandler;
 
@@ -121,6 +122,13 @@ public class TiProxy implements Handler.Callback, TiDynamicMethod, OnEventListen
 		}
 		return oldContext;
 	}
+	
+	public void switchToCreatingContext() {
+		if (creatingContext != null && tiContext != null && !creatingContext.equals(tiContext)) {
+			switchContext(creatingContext);
+		}
+	}
+	
 	protected Handler getUIHandler() {
 		try {
 			waitForHandler.await();

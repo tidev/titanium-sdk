@@ -344,7 +344,9 @@ public class TiUIWindow extends TiUIView
 			animateOnClose = props.getBoolean("animated");
 		}
 
+		boolean revertToCreatedContext = false;
 		if (createdContext != null && createdContext.get() != null) {
+			revertToCreatedContext = true;
 			createdContext.get().dispatchEvent("close", data, proxy);
 			createdContext.clear();
 		}
@@ -366,6 +368,11 @@ public class TiUIWindow extends TiUIView
 				}
 				liteWindow.removeAllViews();
 				liteWindow = null;
+			}
+		}
+		if (revertToCreatedContext) {
+			if (proxy instanceof TiWindowProxy) {
+				((TiWindowProxy)proxy).switchToCreatingContext();
 			}
 		}
 	}
