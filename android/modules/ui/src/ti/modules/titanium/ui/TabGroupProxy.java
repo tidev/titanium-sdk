@@ -124,7 +124,7 @@ public class TabGroupProxy extends TiWindowProxy
 		tabs.add(tab);
 
 		if (peekView() != null) {
-			TiUITabGroup tg = (TiUITabGroup) getView(getTiContext().getActivity());
+			TiUITabGroup tg = (TiUITabGroup) peekView();
 			addTabToGroup(tg, tab);
 		}
 	}
@@ -173,7 +173,7 @@ public class TabGroupProxy extends TiWindowProxy
 	@Kroll.setProperty @Kroll.method @Kroll.runOnUiThread
 	public void setActiveTab(Object tab) {
 		if (peekView() != null) {
-			TiUITabGroup tg = (TiUITabGroup) getView(getTiContext().getActivity());
+			TiUITabGroup tg = (TiUITabGroup) peekView();
 			tg.changeActiveTab(tab);
 		}
 	}

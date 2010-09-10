@@ -16,6 +16,7 @@ import org.appcelerator.kroll.KrollReflectionProperty;
 import org.appcelerator.kroll.KrollInjector;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.util.KrollReflectionUtils;
+import org.appcelerator.titanium.kroll.KrollBridge;
 import org.appcelerator.titanium.util.Log;
 
 import org.mozilla.javascript.Scriptable;
@@ -79,12 +80,19 @@ public class ${genClassName} <#if superProxyBindingClassName??>extends ${superPr
 		<#if isModule>
 		try {
 			rootObject.set(scope, "${proxyAttrs.name}", p);
+			<#if proxyAttrs.isTopLevel>
+			KrollBridge __bridge = (KrollBridge) __proxy.getTiContext().getJSContext();
+				<#list proxyAttrs.topLevelNames as topLevelName>
+			__bridge.bindToTopLevel("${topLevelName}", __proxy);
+				</#list>
+			</#if>
 		} catch (NoSuchFieldException e) {}
 		
 			<#list allModules?keys as module>
 				<#if module = packageName+"."+proxyClassName>
 				<#if allModules[module].createProxies??>
 					<#list allModules[module].createProxies as createProxy>
+			<#if createProxy_index = 0>// create methods for proxies </#if>
 			if (include("create${createProxy.name}", filteredBindings)) {
 				try {
 				__proxy.set(scope, "create${createProxy.name}", new KrollMethod(__proxy, "create${createProxy.name}") {
@@ -108,11 +116,13 @@ public class ${genClassName} <#if superProxyBindingClassName??>extends ${superPr
 				</#if>
 				<#if allModules[module].childModules??>
 					<#list allModules[module].childModules as childModule>
-					if (include("${childModule.name}", filteredBindings)) {
-						try {
-							new ${childModule.proxyClassName}(__proxy.getTiContext()).bind(scope, __proxy);
-						} catch (Exception e) { Log.e(TAG, "Error binding child module: ${childModule.name}", e); }
-					}
+			<#if childModule_index = 0>// Child modules</#if>
+			if (include("${childModule.name}", filteredBindings)) {
+				try {
+					KrollProxy __childModule = new ${childModule.proxyClassName}(__proxy.getTiContext());
+					__childModule.bind(scope, __proxy);
+				} catch (Exception e) { Log.e(TAG, "Error binding child module: ${childModule.name}", e); }
+			}
 					</#list>
 				</#if>
 				</#if>
@@ -251,6 +261,13 @@ public class ${genClassName} <#if superProxyBindingClassName??>extends ${superPr
 			</#if>
 			try {
 				__proxy.set(scope, "${method.apiName}", ${methodName}_method);
+				<#if topLevelMethods??>
+					<#if topLevelMethods?keys?seq_contains(methodName)>
+						<#list topLevelMethods[methodName] as topLevelName>
+				__proxy.getKrollBridge().bindToTopLevel("${topLevelName}", ${methodName}_method);
+						</#list>
+					</#if>
+				</#if>
 			} catch (Exception e) { Log.e(TAG, "Error binding method ${proxyClassName}:${method.apiName}", e); }
 		}
 			</#list>

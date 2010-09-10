@@ -8,7 +8,7 @@ package ti.modules.titanium.app.properties;
 
 import org.appcelerator.kroll.KrollDefaultValueProvider;
 import org.appcelerator.kroll.KrollDict;
-import org.appcelerator.kroll.KrollProxy;
+import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiProperties;
@@ -20,7 +20,7 @@ import org.json.JSONObject;
 import ti.modules.titanium.app.AppModule;
 
 @Kroll.module(parentModule=AppModule.class)
-public class PropertiesModule extends KrollProxy {
+public class PropertiesModule extends KrollModule {
 
 	private static final String LCAT = "PropertiesModule";
 	private TiProperties appProperties;

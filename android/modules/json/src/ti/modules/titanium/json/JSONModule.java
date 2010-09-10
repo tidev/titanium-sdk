@@ -16,7 +16,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
-@Kroll.module
+@Kroll.module @Kroll.topLevel
 public class JSONModule extends KrollModule {
 
 	public JSONModule(TiContext context) {

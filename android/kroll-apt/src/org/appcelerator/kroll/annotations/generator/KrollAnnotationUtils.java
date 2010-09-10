@@ -1,6 +1,9 @@
 package org.appcelerator.kroll.annotations.generator;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
 
 import javax.annotation.processing.Messager;
@@ -51,9 +54,19 @@ public class KrollAnnotationUtils {
 		exception.printStackTrace();
 	}
 	
+	@SuppressWarnings("unchecked")
 	public Object convertAnnotationValue(Object value) {
 		if (value instanceof DeclaredType) {
 			return ((DeclaredType)value).asElement().asType().toString();
+		} else if (value instanceof List) {
+			ArrayList newList = new ArrayList();
+			List list = (List)value;
+			ListIterator iter = list.listIterator();
+			while (iter.hasNext()) {
+				AnnotationValue item = (AnnotationValue) iter.next();
+				newList.add(convertAnnotationValue(item.getValue()));
+			}
+			return newList;
 		}
 		return value;
 	}
@@ -138,14 +151,14 @@ public class KrollAnnotationUtils {
 	
 	public boolean hasAnnotation(Element element, String annotationClass) {
 		for (AnnotationMirror ann : element.getAnnotationMirrors()) {
-			if (!annotationTypeIs(ann, annotationClass)) return true;
+			if (annotationTypeIs(ann, annotationClass)) return true;
 		}
 		return false;
 	}
 	
 	public boolean hasAnyAnnotation(Element element, String... annotationClasses) {
 		for (AnnotationMirror ann : element.getAnnotationMirrors()) {
-			if (!annotationTypeIsOneOf(ann, annotationClasses)) return true;
+			if (annotationTypeIsOneOf(ann, annotationClasses)) return true;
 		}
 		return false;
 	}

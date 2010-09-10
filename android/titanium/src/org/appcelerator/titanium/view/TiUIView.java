@@ -619,19 +619,23 @@ public abstract class TiUIView
 		});
 
 	}
-	
-	public void setOpacity(float opacity) {
-		TiUIHelper.setDrawableOpacity(nativeView.getBackground(), opacity);
-		if (opacity == 1) {
-			clearOpacity();
-		}
-		nativeView.invalidate();
-	}
-	
-	public void clearOpacity() {
-		nativeView.getBackground().clearColorFilter();
-	}
 
+	public void setOpacity(float opacity) {
+		setOpacity(nativeView, opacity);
+	}
+	
+	protected void setOpacity(View view, float opacity) {
+		TiUIHelper.setDrawableOpacity(view.getBackground(), opacity);
+		if (opacity == 1) {
+			clearOpacity(view);
+		}
+		view.invalidate();
+	}
+	
+	public void clearOpacity(View view) {
+		view.getBackground().clearColorFilter();
+	}
+	
 	public KrollDict toImage() {
 		return TiUIHelper.viewToImage(proxy.getTiContext(), getNativeView());
 	}

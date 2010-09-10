@@ -8,14 +8,14 @@
 package ti.modules.titanium.analytics;
 
 import org.appcelerator.kroll.KrollDict;
-import org.appcelerator.kroll.KrollProxy;
+import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.analytics.TiAnalyticsEventFactory;
 import org.appcelerator.titanium.util.TiConvert;
 
 @Kroll.module
-public class AnalyticsModule extends KrollProxy {
+public class AnalyticsModule extends KrollModule {
 
 	public AnalyticsModule(TiContext tiContext) {
 		super(tiContext);

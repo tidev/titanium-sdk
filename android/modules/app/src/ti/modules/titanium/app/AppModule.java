@@ -1,13 +1,13 @@
 package ti.modules.titanium.app;
 
 import org.appcelerator.kroll.KrollDict;
-import org.appcelerator.kroll.KrollProxy;
+import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.ITiAppInfo;
 import org.appcelerator.titanium.TiContext;
 
 @Kroll.module
-public class AppModule extends KrollProxy
+public class AppModule extends KrollModule
 {
 	private ITiAppInfo appInfo;
 

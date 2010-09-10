@@ -12,6 +12,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.ref.WeakReference;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -39,9 +41,9 @@ public class KrollContext extends HandlerThread implements Handler.Callback
 
 	private static final int MSG_EVAL_STRING = 1000;
 	private static final int MSG_EVAL_FILE = 1001;
-
 	private static AtomicInteger instanceCounter;
-	protected static HashMap<WeakReference<Context>, WeakReference<KrollContext>> contextMap = new HashMap<WeakReference<Context>, WeakReference<KrollContext>>();
+	
+	public static final String CONTEXT_KEY = "krollContext";
 	
 	private TiContext tiContext;
 	private Scriptable jsScope;
@@ -240,28 +242,16 @@ public class KrollContext extends HandlerThread implements Handler.Callback
 		// FOR NOW (UNTIL WE CAN COMPILE IN PACKAGING) WE HAVE TO TURN OFF OPTIMIZATIONS
 		ctx.setOptimizationLevel(-1);
 		ctx.setErrorReporter(getTiContext());
-		contextMap.put(new WeakReference<Context>(ctx), new WeakReference<KrollContext>(this));
-		
+		ctx.putThreadLocal(CONTEXT_KEY, this);
 		return ctx;
 	}
 
 	public void exit() {
-		for (WeakReference<Context> ctx : contextMap.keySet()) {
-			if (ctx.get() != null && ctx.get() == Context.getCurrentContext()) {
-				contextMap.remove(ctx);
-			}
-		}
-		
 		Context.exit();
 	}
 	
 	public static KrollContext getKrollContext(Context context) {
-		for (WeakReference<Context> ctx : contextMap.keySet()) {
-			if (ctx.get() != null && ctx.get() == context) {
-				return contextMap.get(ctx).get();
-			}
-		}
-		return null;
+		return (KrollContext) context.getThreadLocal(CONTEXT_KEY);
 	}
 
 	private void requireInitialized() {

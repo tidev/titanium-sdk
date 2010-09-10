@@ -9,7 +9,7 @@ public class KrollModule extends KrollProxy
 	implements KrollProxyListener, OnLifecycleEvent
 {	
 	public KrollModule(TiContext context) {
-		super(context);
+		super(context, false);
 		context.addOnLifecycleEventListener(this);
 		modelListener = this;
 	}

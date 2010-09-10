@@ -9,7 +9,7 @@ package ti.modules.titanium.filesystem;
 import java.io.File;
 import java.io.IOException;
 
-import org.appcelerator.kroll.KrollProxy;
+import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.Log;
@@ -17,7 +17,7 @@ import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiConvert;
 
 @Kroll.module
-public class FilesystemModule extends KrollProxy
+public class FilesystemModule extends KrollModule
 {
 	private static final String LCAT = "TiFilesystem";
 	private static final boolean DBG = TiConfig.LOGD;

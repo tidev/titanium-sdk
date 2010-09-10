@@ -6,7 +6,7 @@
  */
 package ti.modules.titanium.ui.activityindicator;
 
-import org.appcelerator.kroll.KrollProxy;
+import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiContext;
 
@@ -14,7 +14,7 @@ import ti.modules.titanium.ui.UIModule;
 import ti.modules.titanium.ui.widget.TiUIActivityIndicator;
 
 @Kroll.module(parentModule=UIModule.class)
-public class ActivityIndicatorModule extends KrollProxy
+public class ActivityIndicatorModule extends KrollModule
 {
 	@Kroll.constant public static final int STATUS_BAR = TiUIActivityIndicator.STATUS_BAR;
 	@Kroll.constant public static final int DIALOG = TiUIActivityIndicator.DIALOG;

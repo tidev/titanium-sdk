@@ -7,7 +7,7 @@
 package ti.modules.titanium.ui;
 
 import org.appcelerator.kroll.KrollInvocation;
-import org.appcelerator.kroll.KrollProxy;
+import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.TiConvert;
@@ -19,7 +19,7 @@ import android.view.Window;
 import android.widget.Toast;
 
 @Kroll.module
-public class UIModule extends KrollProxy
+public class UIModule extends KrollModule
 {
 	@Kroll.constant public static final int RETURNKEY_GO = 0;
 	@Kroll.constant public static final int RETURNKEY_GOOGLE = 1;
@@ -95,7 +95,7 @@ public class UIModule extends KrollProxy
 	{
 		super(tiContext);
 	}
-
+	
 	@Kroll.setProperty @Kroll.method @Kroll.runOnUiThread
 	public void setBackgroundColor(String color)
 	{

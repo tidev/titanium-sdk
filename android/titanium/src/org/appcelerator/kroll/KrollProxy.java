@@ -19,6 +19,7 @@ import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 import org.mozilla.javascript.Scriptable;
 
+import ti.modules.titanium.TitaniumModule;
 import android.os.Handler;
 import android.os.Message;
 
@@ -50,6 +51,10 @@ public class KrollProxy implements Handler.Callback, OnEventListenerChange {
 	protected KrollInvocation currentInvocation;
 
 	public KrollProxy(TiContext context) {
+		this(context, true);
+	}
+	
+	public KrollProxy(TiContext context, boolean autoBind) {
 		this.context = context;
 		apiName = getClass().getSimpleName();
 		
@@ -57,7 +62,9 @@ public class KrollProxy implements Handler.Callback, OnEventListenerChange {
 			Log.d(TAG, "New: " + getClass().getSimpleName());
 		}
 		this.proxyId = "proxy$" + proxyCounter.incrementAndGet();
-		bind();
+		if (autoBind) {
+			bind(context.getScope(), null);
+		}
 
 		final KrollProxy me = this;
 		waitForHandler = new CountDownLatch(1);
@@ -78,7 +85,7 @@ public class KrollProxy implements Handler.Callback, OnEventListenerChange {
 		}
 	}
 	
-	protected void bind() {
+	public void bind(Scriptable scope, KrollProxy parentProxy) {
 		if (!bindings.containsKey(getClass())) {
 			String bindingClassName = getClass().getName();
 			bindingClassName += "BindingGen";
@@ -98,26 +105,23 @@ public class KrollProxy implements Handler.Callback, OnEventListenerChange {
 		if (bindings.containsKey(getClass())) {
 			KrollBridge bridge = (KrollBridge) getTiContext().getJSContext();
 			
-			Scriptable scope = bridge.getScope();
-			KrollProxy rootObject = this;
-			if (!(this instanceof KrollRootObject)) {
-				// chicken/egg problem, we can't get the root object from the bridge if this is the constructor of the root object
-				rootObject = bridge.getRootObject();
+			if (parentProxy == null) {
+				parentProxy = this;
+				if (!(this instanceof TitaniumModule)) {
+					// chicken/egg problem, we can't get the root object from the bridge if this is the constructor of the root object
+					parentProxy = bridge.getRootObject();
+				}
 			}
 			
 			List<String> filteredBindings = null;
 			if (this instanceof KrollModule) {
 				filteredBindings = getTiContext().getTiApp().getFilteredBindings(apiName);
 			}
-			bind(scope, rootObject, filteredBindings);
+			bind(scope, parentProxy, filteredBindings);
 		}
 	}
 	
-	public void bind(Scriptable scope, KrollProxy parent) {
-		bind(scope, parent, null);
-	}
-	
-	public void bind(Scriptable scope, KrollProxy parent, List<String> filteredBindings) {
+	protected void bind(Scriptable scope, KrollProxy parent, List<String> filteredBindings) {
 		bindings.get(getClass()).bind(scope, parent, this, filteredBindings);
 	}
 
@@ -167,8 +171,8 @@ public class KrollProxy implements Handler.Callback, OnEventListenerChange {
 			}
 		}
 
-		if (oldValue != value && modelListener != null) {
-			modelListener.propertyChanged(name, oldValue, value, this);
+		if (oldValue != value) {
+			firePropertyChanged(name, oldValue, value);
 		}
 		properties.put(name, value);
 	}
@@ -263,6 +267,20 @@ public class KrollProxy implements Handler.Callback, OnEventListenerChange {
 		}
 	}
 
+	protected void firePropertyChanged(String name, Object oldValue, Object newValue) {
+		if (modelListener != null) {
+			if (context.isUIThread()) {
+				modelListener.propertyChanged(name, oldValue, newValue,
+						this);
+			} else {
+				PropertyChangeHolder pch = new PropertyChangeHolder(
+						modelListener, name, oldValue, newValue, this);
+				getUIHandler().obtainMessage(MSG_MODEL_PROPERTY_CHANGE,
+						pch).sendToTarget();
+			}
+		}
+	}
+	
 	public void setProperty(String name, Object value, boolean fireChange) {
 		Object current = properties.get(name);
 		properties.put(name, value);
@@ -271,17 +289,7 @@ public class KrollProxy implements Handler.Callback, OnEventListenerChange {
 			if ((current == null && value != null)
 					|| (value == null && current != null)
 					|| (!current.equals(value))) {
-				if (modelListener != null) {
-					if (context.isUIThread()) {
-						modelListener.propertyChanged(name, current, value,
-								this);
-					} else {
-						PropertyChangeHolder pch = new PropertyChangeHolder(
-								modelListener, name, current, value, this);
-						getUIHandler().obtainMessage(MSG_MODEL_PROPERTY_CHANGE,
-								pch).sendToTarget();
-					}
-				}
+				firePropertyChanged(name, current, value);
 			}
 		}
 	}
@@ -368,6 +376,10 @@ public class KrollProxy implements Handler.Callback, OnEventListenerChange {
 		return context;
 	}
 
+	public KrollBridge getKrollBridge() {
+		return (KrollBridge) context.getJSContext();
+	}
+	
 	public String getProxyId() {
 		return proxyId;
 	}
@@ -419,14 +431,16 @@ public class KrollProxy implements Handler.Callback, OnEventListenerChange {
 
 	@Kroll.method
 	public boolean fireEvent(String eventName, KrollDict data) {
+		KrollInvocation invocation = currentInvocation == null ?
+				createEventInvocation(eventName) : currentInvocation;
 		TiContext ctx = getTiContext();
 		boolean handled = false;
 		if (ctx != null) {
-			handled = ctx.dispatchEvent(currentInvocation, eventName, data,
+			handled = ctx.dispatchEvent(invocation, eventName, data,
 					this);
 		}
 		if (creatingContext != null) {
-			handled = creatingContext.dispatchEvent(currentInvocation,
+			handled = creatingContext.dispatchEvent(invocation,
 					eventName, data, this)
 					|| handled;
 		}
@@ -447,13 +461,15 @@ public class KrollProxy implements Handler.Callback, OnEventListenerChange {
 	public void fireSingleEvent(String eventName, Object listener,
 			KrollDict data) {
 		if (listener != null) {
+			KrollInvocation invocation = currentInvocation == null ?
+				createEventInvocation(eventName) : currentInvocation;
 			KrollMethod method = (KrollMethod) listener;
 			if (data == null) {
 				data = new KrollDict();
 			}
 
 			try {
-				method.invoke(currentInvocation, new Object[] { data });
+				method.invoke(invocation, new Object[] { data });
 			} catch (Exception e) {
 				Log.e(TAG, e.getMessage(), e);
 			}

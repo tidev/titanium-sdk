@@ -61,7 +61,7 @@ public class TiRootActivity extends ActivityGroup
 
 		TiApplication host = getTiApp();
 		host.setRootActivity(this);
-		tiContext = TiContext.createTiContext(this, null, null);
+		tiContext = TiContext.createTiContext(this, null);
 
 		 if (host.getAppInfo().isFullscreen()) {
 			getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,

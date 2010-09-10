@@ -6,13 +6,13 @@
  */
 package ti.modules.titanium.api;
 
-import org.appcelerator.kroll.KrollProxy;
+import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.Log;
 
 @Kroll.module
-public class APIModule extends KrollProxy
+public class APIModule extends KrollModule
 {
 	private static final String LCAT = "TiAPI";
 	

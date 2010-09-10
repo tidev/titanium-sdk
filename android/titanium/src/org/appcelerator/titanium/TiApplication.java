@@ -20,9 +20,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Properties;
 
-import org.appcelerator.kroll.KrollBindings;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollInvocation;
+import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.titanium.analytics.TiAnalyticsEvent;
 import org.appcelerator.titanium.analytics.TiAnalyticsEventFactory;
@@ -78,7 +78,7 @@ public abstract class TiApplication extends Application
 		loadBuildProperties();
 	}
 	
-	public abstract void bootModules(TiContext context);
+	public abstract List<KrollModule> bootModules(TiContext context);
 	public abstract List<String> getFilteredBindings(String moduleName);
 	
 	public static TiApplication getInstance() {

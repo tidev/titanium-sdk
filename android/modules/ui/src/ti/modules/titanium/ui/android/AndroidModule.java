@@ -6,14 +6,14 @@
  */
 package ti.modules.titanium.ui.android;
 
-import org.appcelerator.kroll.KrollProxy;
+import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiContext;
 
 import ti.modules.titanium.ui.UIModule;
 
 @Kroll.module(parentModule=UIModule.class)
-public class AndroidModule extends KrollProxy {
+public class AndroidModule extends KrollModule {
 
 	public AndroidModule(TiContext tiContext) {
 		super(tiContext);

@@ -156,7 +156,7 @@ public class KrollConverter implements KrollNativeConverter,
 				jsArray[i] = convertNative(invocation, Array.get(value, i));
 			}
 
-			return Context.getCurrentContext().newObject(invocation.getScope(), "Array", jsArray);
+			return Context.getCurrentContext().newArray(invocation.getScope(), jsArray);
 		}
 		else if (value == JSONObject.NULL || value.getClass().equals(JSONObject.NULL.getClass()))
 		{
@@ -172,7 +172,10 @@ public class KrollConverter implements KrollNativeConverter,
 	
 	public boolean isArrayLike(Scriptable scriptable) {
 		// some objects have length() methods, so just check the value?
-		return scriptable.has("length", scriptable) && scriptable.get("length", scriptable) instanceof Number && !(scriptable instanceof KrollObject);
+		return scriptable.has("length", scriptable) &&
+			scriptable.get("length", scriptable) instanceof Number &&
+			!(scriptable instanceof KrollObject) &&
+			!(scriptable instanceof Function);
 	}
 
 	public Object[] toArray(KrollInvocation invocation, Scriptable scriptable)
@@ -204,6 +207,8 @@ public class KrollConverter implements KrollNativeConverter,
 			} else {
 				return scriptable.get("message", scriptable);
 			}
+		} else if (scriptable instanceof Function) {
+			return new KrollCallback(invocation.getTiContext().getKrollContext(), invocation.getScope(), invocation.getThisObj(), (Function) scriptable);
 		} else {
 			KrollDict args = new KrollDict();
 			for(Object key : scriptable.getIds()) {
@@ -229,12 +234,8 @@ public class KrollConverter implements KrollNativeConverter,
 			return convertScriptable(invocation, (Scriptable)value);
 		} else if (value instanceof String || value instanceof Number || value instanceof Boolean) {
 			return Context.jsToJava(value, target);
-		} else if (value instanceof Function) {
-			return new KrollCallback(invocation.getTiContext().getKrollContext(), invocation.getScope(), invocation.getThisObj(), (Function) value);
 		} else if (value == null) {
 			return null;
-		} else if (value instanceof Scriptable) {
-			
 		} else {
 			if (value.getClass().isArray()) {
 				Object[] values = (Object[]) value;

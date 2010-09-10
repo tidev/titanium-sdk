@@ -97,4 +97,10 @@ public @interface Kroll {
 	public @interface runOnUiThread {
 		
 	}
+	
+	@Retention(RetentionPolicy.SOURCE)
+	@Target({ElementType.METHOD, ElementType.TYPE})
+	public @interface topLevel {
+		String[] value() default DEFAULT_NAME;
+	}
 }

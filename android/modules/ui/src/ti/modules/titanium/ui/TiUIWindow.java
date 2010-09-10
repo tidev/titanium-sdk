@@ -16,6 +16,7 @@ import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.titanium.TiActivity;
 import org.appcelerator.titanium.TiContext;
+import org.appcelerator.titanium.kroll.KrollBridge;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.proxy.TiWindowProxy;
 import org.appcelerator.titanium.util.Log;
@@ -150,6 +151,16 @@ public class TiUIWindow extends TiUIView
 		handlePostOpen();
 	}
 
+	protected void bindContextSpecific(TiContext context) {
+		KrollBridge bridge = (KrollBridge) context.getJSContext();
+		bridge.bindContextSpecific("UI", "currentWindow", proxy);
+		
+		if (proxy instanceof TiWindowProxy && ((TiWindowProxy) proxy).getTabProxy() != null) {
+			bridge.bindContextSpecific("UI", "currentTabGroup", ((TiWindowProxy) proxy).getTabGroupProxy());
+			bridge.bindContextSpecific("UI", "currentTab", ((TiWindowProxy) proxy).getTabProxy());
+		}
+	}
+	
 	protected void handlePostOpen() {
 		//TODO unique key per window, params for intent
 		activityKey = "window$" + idGenerator.incrementAndGet();
@@ -252,21 +263,14 @@ public class TiUIWindow extends TiUIView
 			if (DBG) {
 				Log.i(LCAT, "Window has URL: " + url);
 			}
-
-			KrollDict preload = new KrollDict();
-			preload.put("currentWindow", proxy);
-
-			if (proxy instanceof TiWindowProxy && ((TiWindowProxy) proxy).getTabProxy() != null) {
-				preload.put("currentTabGroup", ((TiWindowProxy) proxy).getTabGroupProxy());
-				preload.put("currentTab", ((TiWindowProxy) proxy).getTabProxy());
-			}
-
+			
 			TiContext tiContext = null;
 			if (lightWeight) {
-				tiContext = TiContext.createTiContext(proxy.getTiContext().getActivity(), preload, baseUrl);
+				tiContext = TiContext.createTiContext(proxy.getTiContext().getActivity(), baseUrl);
 			} else {
-				tiContext = TiContext.createTiContext(windowActivity, preload, baseUrl);
+				tiContext = TiContext.createTiContext(windowActivity, baseUrl);
 			}
+			bindContextSpecific(tiContext);
 
 			final TiContext ftiContext = tiContext;
 			final String furl = url;
@@ -289,7 +293,7 @@ public class TiUIWindow extends TiUIView
 					}
 				}}).start();
 		} else if (!lightWeight) {
-			TiContext tiContext = TiContext.createTiContext(windowActivity, new KrollDict(), proxy.getTiContext().getBaseUrl());
+			TiContext tiContext = TiContext.createTiContext(windowActivity, proxy.getTiContext().getBaseUrl());
 			createdContext = new WeakReference<TiContext>(proxy.switchContext(tiContext));
 			if (windowActivity instanceof TiActivity) {
 				TiActivity tiActivity = (TiActivity)windowActivity;
@@ -597,5 +601,17 @@ public class TiUIWindow extends TiUIView
 		intent.putExtra("messageId", MSG_ACTIVITY_CREATED);
 
 		return intent;
+	}
+	
+	@Override
+	public void setOpacity(float opacity) {
+		View view = null;
+		if (!lightWeight) {
+			view = windowActivity.getWindow().getDecorView();
+		} else {
+			view = nativeView;
+		}
+		
+		super.setOpacity(view, opacity);
 	}
 }

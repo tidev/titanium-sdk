@@ -14,6 +14,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import org.appcelerator.kroll.KrollInvocation;
+import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiBlob;
@@ -29,9 +30,8 @@ import org.mozilla.javascript.Scriptable;
 
 import android.app.Activity;
 
-@Kroll.module
-public class TitaniumModule
-	extends KrollProxy implements TiContext.OnLifecycleEvent
+@Kroll.module @Kroll.topLevel({"Ti", "Titanium"})
+public class TitaniumModule extends KrollModule implements TiContext.OnLifecycleEvent
 {
 	private static final String LCAT = "TitaniumModule";
 	private Stack<String> basePath;
@@ -116,14 +116,14 @@ public class TitaniumModule
 		else throw new IllegalArgumentException("Don't know how to call callback of type: " + fn.getClass().getName());
 	}
 
-	@Kroll.method
+	@Kroll.method @Kroll.topLevel
 	public int setTimeout(Object fn, long timeout, final Object[] args)
 		throws IllegalArgumentException
 	{
 		return createTimer(fn, timeout, args, false);
 	}
 
-	@Kroll.method
+	@Kroll.method @Kroll.topLevel
 	public void clearTimeout(int timerId) {
 		if (timers.containsKey(timerId)) {
 			Timer timer = timers.remove(timerId);
@@ -131,19 +131,19 @@ public class TitaniumModule
 		}
 	}
 
-	@Kroll.method
+	@Kroll.method @Kroll.topLevel
 	public int setInterval(Object fn, long timeout, final Object[] args)
 		throws IllegalArgumentException
 	{
 		return createTimer(fn, timeout, args, true);
 	}
 
-	@Kroll.method
+	@Kroll.method @Kroll.topLevel
 	public void clearInterval(int timerId) {
 		clearTimeout(timerId);
 	}
 
-	@Kroll.method
+	@Kroll.method @Kroll.topLevel
 	public void alert(Object message) {
 		String msg = (message == null? null : message.toString());
 		Log.i("ALERT", msg);
@@ -163,7 +163,7 @@ public class TitaniumModule
 		timers.clear();
 	}
 	
-	@Kroll.method
+	@Kroll.method @Kroll.topLevel
 	public KrollProxy require(String path) {
 		
 		// 1. look for a TiPlus module first

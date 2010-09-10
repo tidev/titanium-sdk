@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Writer;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -61,6 +62,7 @@ public class KrollBindingGenerator extends AbstractProcessor {
 	protected static final String Kroll_proxy_DEFAULT = Kroll_proxy+ ".DEFAULT";
 	protected static final String Kroll_setProperty = Kroll_annotation + ".setProperty";
 	protected static final String Kroll_runOnUiThread = Kroll_annotation + ".runOnUiThread";
+	protected static final String Kroll_topLevel = Kroll_annotation + ".topLevel";
 	
 	protected static final String KrollInvocation = "org.appcelerator.kroll.KrollInvocation";
 	protected static final String KrollConverter = "org.appcelerator.kroll.KrollConverter";
@@ -183,6 +185,18 @@ public class KrollBindingGenerator extends AbstractProcessor {
 					}
 				}
 				
+				boolean isTopLevel = utils.hasAnnotation(element, Kroll_topLevel);
+				proxyAttrs.put("isTopLevel", isTopLevel);
+				if (isTopLevel) {
+					HashMap<String, Object> topLevelParams = utils.getAnnotationParams(element, Kroll_topLevel);
+					List topLevelNames = (List)topLevelParams.get("value");
+					if (topLevelNames.size() == 1 && topLevelNames.get(0).equals(DEFAULT_NAME)) {
+						topLevelNames = Arrays.asList(new String[] { apiName });
+					}
+					
+					proxyAttrs.put("topLevelNames", topLevelNames);
+				}
+				
 				TypeElement type = (TypeElement) element;
 				Element superType = processingEnv.getTypeUtils().asElement(type.getSuperclass());
 				
@@ -218,14 +232,14 @@ public class KrollBindingGenerator extends AbstractProcessor {
 		@Override
 		public String visitExecutable(ExecutableElement e, Object p) {
 			utils.acceptAnnotations(e, new String[] {
-				Kroll_method, Kroll_getProperty, Kroll_setProperty, Kroll_inject
-			}, this, e);
+				Kroll_method, Kroll_getProperty, Kroll_setProperty, Kroll_inject, Kroll_topLevel }, this, e);
 			return null;
 		}
 		
 		@Override
 		public Object visitVariable(VariableElement e, Object p) {
-			utils.acceptAnnotations(e, new String[] { Kroll_property, Kroll_constant, Kroll_inject }, this, e);
+			utils.acceptAnnotations(e, new String[] {
+				Kroll_property, Kroll_constant, Kroll_inject }, this, e);
 			return null;
 		}
 		
@@ -238,6 +252,8 @@ public class KrollBindingGenerator extends AbstractProcessor {
 					visitDynamicProperty(annotation, element);
 				} else if (utils.annotationTypeIs(annotation, Kroll_inject)) {
 					visitInject(annotation, element, true);
+				} else if (utils.annotationTypeIs(annotation, Kroll_topLevel)) {
+					visitTopLevel(annotation, element);
 				} else {
 					visitMethod(annotation, element);
 				}
@@ -391,6 +407,17 @@ public class KrollBindingGenerator extends AbstractProcessor {
 			}
 			
 			injectList.add(attrs);
+		}
+		
+		protected void visitTopLevel(AnnotationMirror annotation, Element element) {
+			Map topLevelMethods = jsonUtils.getOrCreateMap(proxyProperties, "topLevelMethods");
+			HashMap<String, Object> attrs = utils.getAnnotationParams(annotation);
+			List topLevelNames = (List)attrs.get("value");
+			if (topLevelNames.size() == 1 && topLevelNames.get(0).equals(DEFAULT_NAME)) {
+				topLevelNames = Arrays.asList(new String[] { utils.getName(element) });
+			}
+			
+			topLevelMethods.put(utils.getName(element), topLevelNames);
 		}
 	}
 	

@@ -35,6 +35,7 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.os.Message;
+import android.view.View;
 import android.webkit.URLUtil;
 
 public class TiUIImageView extends TiUIView
@@ -559,8 +560,8 @@ public class TiUIImageView extends TiUIView
 	}
 	
 	@Override
-	public void clearOpacity() {
-		super.clearOpacity();
+	public void clearOpacity(View view) {
+		super.clearOpacity(view);
 		getView().setColorFilter(null);
 	}
 }

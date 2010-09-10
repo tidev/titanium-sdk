@@ -12,7 +12,6 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 
 import org.appcelerator.kroll.KrollDict;
-import org.appcelerator.kroll.KrollInvocation;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiContext;
@@ -61,9 +60,6 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 		public Object target;
 		public Object[] args;
 	}
-
-	// Ti Properties force using accessors.
-	private Double zIndex;
 
 	protected TiUIView view;
 	protected TiAnimationBuilder pendingAnimation;
@@ -161,18 +157,6 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 	public Context getContext()
 	{
 		return getTiContext().getActivity();
-	}
-
-	@Kroll.getProperty @Kroll.method
-	public String getZIndex() {
-		return zIndex == null ? (String) null : String.valueOf(zIndex);
-	}
-
-	@Kroll.setProperty @Kroll.method
-	public void setZIndex(String value) {
-		if (value != null && value.trim().length() > 0) {
-			zIndex = new Double(value);
-		}
 	}
 
 	@Kroll.setProperty @Kroll.method

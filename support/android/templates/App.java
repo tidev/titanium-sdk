@@ -2,6 +2,7 @@ package ${config['appid']};
 
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiContext;
+import org.appcelerator.kroll.KrollModule;
 
 import java.util.List;
 import java.util.ArrayList;
@@ -19,7 +20,8 @@ public class ${config['classname']}Application extends TiApplication {
 	}
 	
 	@Override
-	public void bootModules(TiContext context) {
+	public List<KrollModule> bootModules(TiContext context) {
+		ArrayList<KrollModule> modules = new ArrayList<KrollModule>();
 		%for module in app_modules:
 			// ${module['api_name']} module
 			ArrayList<String> ${module['api_name']}_bindings = new ArrayList<String>();
@@ -27,9 +29,11 @@ public class ${config['classname']}Application extends TiApplication {
 			${module['api_name']}_bindings.add("${binding}");
 			%endfor
 			moduleBindings.put("${module['api_name']}", ${module['api_name']}_bindings);
-			new ${module['class_name']}(context);
-
+			${module['class_name']} ${module['api_name']}_module = new ${module['class_name']}(context);
+			${module['api_name']}_module.bind(context.getScope(), null);
+			modules.add(${module['api_name']}_module);
 		%endfor
+		return modules;
 	}
 	
 	@Override

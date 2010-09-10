@@ -23,6 +23,7 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.view.Gravity;
 import android.view.KeyEvent;
+import android.view.View;
 import android.widget.Button;
 
 public class TiUIButton extends TiUIView
@@ -125,8 +126,8 @@ public class TiUIButton extends TiUIView
 	}
 	
 	@Override
-	public void clearOpacity() {
-		super.clearOpacity();
+	public void clearOpacity(View view) {
+		super.clearOpacity(view);
 		((Button)getNativeView()).getPaint().setColorFilter(null);
 	}
 }

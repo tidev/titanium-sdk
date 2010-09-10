@@ -8,73 +8,76 @@ package org.appcelerator.titanium.kroll;
 
 import java.io.IOException;
 
-import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.KrollObject;
 import org.appcelerator.kroll.KrollProxy;
-import org.appcelerator.kroll.KrollRootObject;
 import org.appcelerator.titanium.TiEvaluator;
 import org.mozilla.javascript.Scriptable;
+
+import ti.modules.titanium.TitaniumModule;
 
 public class KrollBridge implements TiEvaluator
 {
 	private KrollContext kroll;
 	private KrollObject titanium;
 	
-	public KrollBridge(KrollContext kroll, KrollDict preload)
+	public KrollBridge(KrollContext kroll)
 	{
 		this.kroll = kroll;
 
 		kroll.getTiContext().setJSContext(this);
-		titanium = new KrollObject(new KrollRootObject(kroll.getTiContext()));
-		kroll.put("Titanium", titanium);
-		kroll.put("Ti", titanium);
-		kroll.getTiContext().getTiApp().bootModules(kroll.getTiContext());
-
-		/*kroll.put("setTimeout", (Scriptable) titanium.get("setTimeout", titanium));
-		kroll.put("clearTimeout", (Scriptable) titanium.get("clearTimeout", titanium));
-		kroll.put("setInterval", (Scriptable) titanium.get("setInterval", titanium));
-		kroll.put("clearInterval", (Scriptable) titanium.get("clearInterval", titanium));
-		kroll.put("alert", (Scriptable) titanium.get("alert", titanium));
-		kroll.put("JSON", (Scriptable) titanium.get("JSON", titanium));
-		kroll.put("require", (Scriptable) titanium.get("require", titanium));*/
+		TitaniumModule tiModule = new TitaniumModule(kroll.getTiContext());
+		titanium = new KrollObject(tiModule);
+		tiModule.bind(kroll.getScope(), null);
 		
-		//TODO: userAgent and version
-
-		if (preload != null) {
-			KrollProxy uiModule;
-			try {
-				uiModule = (KrollProxy) titanium.getProxy().get(kroll.getScope(), "UI");
-				for(String key : preload.keySet()) {
-					/*KrollObject ko = new KrollObject(ui, preload.get(key));
-					ui.superPut(key, ui, ko);*/
-					uiModule.set(kroll.getScope(), key, preload.get(key));
-				}
-			} catch (NoSuchFieldException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
-			
-			/*Object p = titanium.loadModule("UI");
-			Scriptable root = kroll.getScope();
-			Scriptable ti = (Scriptable) root.get("Ti", root);
-			KrollObject ui = new KrollObject((KrollObject) ti, p);
-			ti.put("UI", ti, ui);*/
-		}
+		kroll.getTiContext().getTiApp().bootModules(kroll.getTiContext());
 	}
 
-	// objectName should be relative to "Titanium"
-	public void bindToToplevel(String topLevelName, String[] objectName)
-	{
-		Scriptable o = titanium;
-		for (int i = 0; i < objectName.length; i++) {
-			o = (Scriptable) o.get(objectName[i], o);
-			if (o == Scriptable.NOT_FOUND) {
-				// this object doesn't exist
-				return;
+	public KrollObject getObject(String... objects) {
+		KrollObject object = titanium;
+		for (int i = 0; i < objects.length; i++) {
+			Object child = object.get(objects[i], object);
+			if (child instanceof KrollObject) {
+				object = (KrollObject)child;
+			} else {
+				return null;
 			}
 		}
-
-		kroll.put(topLevelName, o);
+		return object;
+	}
+	
+	public KrollObject getObject(String name) {
+		if (name == null) return titanium;
+		
+		return getObject(name.split("\\."));
+	}
+	
+	public void bindToTopLevel(String topLevelName, Object value) {
+		if (value instanceof KrollProxy) {
+			value = new KrollObject((KrollProxy)value);
+		}
+		
+		kroll.getScope().put(topLevelName, kroll.getScope(), value);
+	}
+	
+	public void bindToTopLevel(String topLevelName, String objectName) {
+		bindToTopLevel(topLevelName, getObject(objectName));
+	}
+	
+	public void bindContextSpecific(String objectName, String ctxSpecificName, Object value) {
+		KrollObject object = titanium;
+		if (objectName != null) {
+			object = getObject(objectName);
+		}
+		object.put(ctxSpecificName, object, value);
+	}
+	
+	public KrollModule getModule(String moduleName) {
+		KrollObject object = getObject(moduleName);
+		if (object != null) {
+			return (KrollModule) object.getProxy();
+		}
+		return null;
 	}
 
 	public Object evalFile(String filename)
@@ -86,9 +89,6 @@ public class KrollBridge implements TiEvaluator
 	public Object evalJS(String src) {
 		return kroll.eval(src);
 	}
-
-	public void fireEvent() {
-	}	
 	
 	public KrollContext getKrollContext() {
 		return kroll;

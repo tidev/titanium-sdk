@@ -6,6 +6,7 @@
  */
 package ti.modules.titanium.ui.iphone;
 
+import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiContext;
@@ -15,7 +16,7 @@ import org.mozilla.javascript.Scriptable;
 import ti.modules.titanium.ui.UIModule;
 
 @Kroll.module(parentModule=UIModule.class)
-public class iPhoneModule extends KrollProxy {
+public class iPhoneModule extends KrollModule {
 
 	private static final String LCAT = "iPhone";
 	
@@ -34,7 +35,7 @@ public class iPhoneModule extends KrollProxy {
 	protected class AnyProperty extends KrollProxy {
 		protected String name;
 		public AnyProperty(TiContext context, String name) {
-			super(context);
+			super(context, false);
 			this.name = name;
 		}
 		

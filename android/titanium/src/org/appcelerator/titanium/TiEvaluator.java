@@ -15,13 +15,5 @@ public interface TiEvaluator
 	public Object evalJS(String src);
 	public Object evalFile(String filename) throws IOException;
 	
-	/**
-	 * Bind an object into the top-level Javascript scope
-	 * @param topLevelName the name of the object at the top-level
-	 * @param objectName the path to the object relative to "Titanium", i.e. "setTimeout"
-	 */
-	public void bindToToplevel(String topLevelName, String[] objectName);
-	public void fireEvent(); // dispatchInstead?
-	
 	public Scriptable getScope();
 }

@@ -329,14 +329,6 @@ public class TiContext implements TiEvaluator, ITiMenuDispatcherListener, ErrorR
 		return evaluator.evalJS(src);
 	}
 
-	public void fireEvent() {
-		// TODO Auto-generated method stub
-	}
-
-	public void bindToToplevel(String topLevelName, String[] objectName) {
-		getJSContext().bindToToplevel(topLevelName, objectName);
-	}
-
 	@Override
 	public Scriptable getScope() {
 		return getJSContext().getScope();
@@ -734,12 +726,12 @@ public class TiContext implements TiEvaluator, ITiMenuDispatcherListener, ErrorR
 		doRhinoDialog("Warning", message, sourceName, line, lineSource, lineOffset);
 	}
 
-	public static TiContext createTiContext(Activity activity, KrollDict preload, String baseUrl)
+	public static TiContext createTiContext(Activity activity, String baseUrl)
 	{
 		TiContext tic = new TiContext(activity, baseUrl);
 		KrollContext kroll = KrollContext.createContext(tic);
 		tic.setKrollContext(kroll);
-		KrollBridge krollBridge = new KrollBridge(kroll, preload);
+		KrollBridge krollBridge = new KrollBridge(kroll);
 		tic.setJSContext(krollBridge);
 		return tic;
 	}

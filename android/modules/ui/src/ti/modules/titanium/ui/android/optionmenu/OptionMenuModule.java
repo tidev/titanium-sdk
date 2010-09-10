@@ -9,7 +9,7 @@ package ti.modules.titanium.ui.android.optionmenu;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import org.appcelerator.kroll.KrollProxy;
+import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.TiConvert;
@@ -21,7 +21,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 @Kroll.module(parentModule=AndroidModule.class)
-public class OptionMenuModule extends KrollProxy {
+public class OptionMenuModule extends KrollModule {
 
 	public OptionMenuModule(TiContext tiContext) {
 		super(tiContext);

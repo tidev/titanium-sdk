@@ -76,7 +76,7 @@ public abstract class TiBaseActivity extends Activity
 		
 		itemMap = new HashMap<Integer, MenuItemProxy>();
 		
-		tiContext = TiContext.createTiContext(this, null, null); // TODO baseurl
+		tiContext = TiContext.createTiContext(this, null); // TODO baseurl
 		currentActivity = new ActivityProxy(tiContext);
 		currentActivity.handleCreationArgs(new Object[] { this });
 		currentIntent = new IntentProxy(tiContext);
