@@ -61,6 +61,10 @@ public class TiDict
 		super(size);
 	}
 
+	public boolean containsKeyAndNotNull(String key) {
+		return containsKey(key) && get(key) != null;
+	}
+	
 	public boolean getBoolean(String key) {
 		return TiConvert.toBoolean(get(key));
 	}
