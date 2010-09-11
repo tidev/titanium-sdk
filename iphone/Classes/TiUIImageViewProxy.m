@@ -115,6 +115,16 @@ USE_VIEW_FOR_AUTO_WIDTH
 USE_VIEW_FOR_AUTO_HEIGHT
 
 #pragma mark Handling ImageLoader
+
+-(void)setImage:(id)newImage
+{
+	if ([newImage isEqual:@""])
+	{
+		newImage = nil;
+	}
+	[self replaceValue:[self sanitizeURL:newImage] forKey:@"image" notification:YES];
+}
+
 -(void)startImageLoad:(NSURL *)url;
 {
 	[self cancelPendingImageLoads]; //Just in case we have a crusty old urlRequest.

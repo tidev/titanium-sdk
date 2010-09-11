@@ -638,9 +638,7 @@ DEFINE_EXCEPTIONS
 	[self removeAllImagesFromContainer];
 	[self cancelPendingImageLoads];
 	
-	[self.proxy replaceValue:arg forKey:@"image" notification:NO];
-	
-	if (arg==nil || arg==imageview.image)
+	if (arg==nil || arg==imageview.image || [arg isEqual:@""])
 	{
 		return;
 	}
@@ -661,7 +659,7 @@ DEFINE_EXCEPTIONS
 	
 	if (image == nil) 
 	{
-		if ([arg isKindOfClass:[NSString class]])
+		if ([arg isKindOfClass:[NSString class]] || [arg isKindOfClass:[NSURL class]])
 		{
 			[self loadUrl:arg];
 			return;
