@@ -148,4 +148,9 @@ public class WindowProxy extends TiWindowProxy
 	{
 		return tabGroup;
 	}
+	
+	@Kroll.setProperty @Kroll.method
+	public void setLeftNavButton(ButtonProxy button) {
+		Log.w(LCAT, "setLeftNavButton not supported in Android");
+	}
 }

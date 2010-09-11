@@ -430,7 +430,7 @@ public class KrollProxy implements Handler.Callback, OnEventListenerChange {
 	}
 
 	@Kroll.method
-	public boolean fireEvent(String eventName, KrollDict data) {
+	public boolean fireEvent(String eventName, @Kroll.argument(optional=true) KrollDict data) {
 		KrollInvocation invocation = currentInvocation == null ?
 				createEventInvocation(eventName) : currentInvocation;
 		TiContext ctx = getTiContext();

@@ -303,7 +303,7 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 	}
 
 	@Kroll.method
-	public void show(KrollDict options)
+	public void show(@Kroll.argument(optional=true) KrollDict options)
 	{
 		if (getTiContext().isUIThread()) {
 			handleShow(options);
@@ -319,7 +319,7 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 	}
 
 	@Kroll.method
-	public void hide(KrollDict options) {
+	public void hide(@Kroll.argument(optional=true) KrollDict options) {
 		if (getTiContext().isUIThread()) {
 			handleHide(options);
 		} else {
