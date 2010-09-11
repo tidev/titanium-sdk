@@ -12,6 +12,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 import org.appcelerator.titanium.kroll.KrollCallback;
+import org.appcelerator.titanium.kroll.KrollContext;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 import org.json.JSONArray;
@@ -208,7 +209,11 @@ public class KrollConverter implements KrollNativeConverter,
 				return scriptable.get("message", scriptable);
 			}
 		} else if (scriptable instanceof Function) {
-			return new KrollCallback(invocation.getTiContext().getKrollContext(), invocation.getScope(), invocation.getThisObj(), (Function) scriptable);
+			KrollContext ctx = null;
+			if (invocation.getTiContext() != null) {
+				ctx = invocation.getTiContext().getKrollContext();
+			}
+			return new KrollCallback(ctx, invocation.getScope(), invocation.getThisObj(), (Function) scriptable);
 		} else {
 			KrollDict args = new KrollDict();
 			for(Object key : scriptable.getIds()) {

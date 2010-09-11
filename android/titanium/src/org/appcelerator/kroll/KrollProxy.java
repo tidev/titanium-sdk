@@ -45,7 +45,6 @@ public class KrollProxy implements Handler.Callback, OnEventListenerChange {
 	protected String proxyId;
 	protected KrollProxyListener modelListener;
 	protected static HashMap<Class<? extends KrollProxy>, KrollProxyBinding> bindings = new HashMap<Class<? extends KrollProxy>, KrollProxyBinding>();
-	protected String apiName;
 	
 	@Kroll.inject
 	protected KrollInvocation currentInvocation;
@@ -56,7 +55,6 @@ public class KrollProxy implements Handler.Callback, OnEventListenerChange {
 	
 	public KrollProxy(TiContext context, boolean autoBind) {
 		this.context = context;
-		apiName = getClass().getSimpleName();
 		
 		if (DBG) {
 			Log.d(TAG, "New: " + getClass().getSimpleName());
@@ -85,14 +83,16 @@ public class KrollProxy implements Handler.Callback, OnEventListenerChange {
 		}
 	}
 	
-	public void bind(Scriptable scope, KrollProxy parentProxy) {
+	protected KrollProxyBinding getBinding() {
 		if (!bindings.containsKey(getClass())) {
 			String bindingClassName = getClass().getName();
 			bindingClassName += "BindingGen";
 			
 			try {
 				Class<?> bindingClass = Class.forName(bindingClassName);
-				bindings.put(getClass(), (KrollProxyBinding) bindingClass.newInstance());
+				KrollProxyBinding bindingInstance = (KrollProxyBinding) bindingClass.newInstance();
+				bindings.put(getClass(), bindingInstance);
+				return bindingInstance;
 			} catch (ClassNotFoundException e) {
 				Log.e(TAG, "Couldn't find binding class for proxy " + getClass().getName(), e);
 			} catch (IllegalAccessException e) {
@@ -101,36 +101,31 @@ public class KrollProxy implements Handler.Callback, OnEventListenerChange {
 				Log.e(TAG, "Couldn't insantiate binding class " + bindingClassName, e);
 			}
 		}
-		
-		if (bindings.containsKey(getClass())) {
-			KrollBridge bridge = (KrollBridge) getTiContext().getJSContext();
-			
-			if (parentProxy == null) {
-				parentProxy = this;
-				if (!(this instanceof TitaniumModule)) {
-					// chicken/egg problem, we can't get the root object from the bridge if this is the constructor of the root object
-					parentProxy = bridge.getRootObject();
-				}
-			}
-			
-			List<String> filteredBindings = null;
-			if (this instanceof KrollModule) {
-				filteredBindings = getTiContext().getTiApp().getFilteredBindings(apiName);
-			}
-			bind(scope, parentProxy, filteredBindings);
-		}
+		return bindings.get(getClass());
 	}
 	
-	protected void bind(Scriptable scope, KrollProxy parent, List<String> filteredBindings) {
-		bindings.get(getClass()).bind(scope, parent, this, filteredBindings);
+	public void bind(Scriptable scope, KrollProxy parentProxy) {
+		KrollProxyBinding binding = getBinding();
+		KrollBridge bridge = (KrollBridge) getTiContext().getJSContext();
+		
+		if (parentProxy == null) {
+			parentProxy = this;
+			if (!(this instanceof TitaniumModule)) {
+				// chicken/egg problem, we can't get the root object from the bridge if this is the constructor of the root object
+				parentProxy = bridge.getRootObject();
+			}
+		}
+		
+		List<String> filteredBindings = null;
+		if (this instanceof KrollModule) {
+			filteredBindings = getTiContext().getTiApp().getFilteredBindings(binding.getAPIName());
+		}
+		
+		binding.bind(scope, parentProxy, this, filteredBindings);
 	}
 
 	public String getAPIName() {
-		return apiName;
-	}
-	
-	public void setAPIName(String apiName) {
-		this.apiName = apiName;
+		return getBinding().getAPIName();
 	}
 
 	public boolean has(Scriptable scope, String name) {
@@ -504,6 +499,6 @@ public class KrollProxy implements Handler.Callback, OnEventListenerChange {
 	
 	@Kroll.method
 	public String toString() {
-		return "[Ti."+getAPIName() + (this instanceof KrollModule ? " Module" : "") + "]";
+		return "[Ti."+getAPIName() + "]";
 	}
 }

@@ -12,4 +12,5 @@ import org.mozilla.javascript.Scriptable;
 
 public interface KrollProxyBinding {
 	public void bind(Scriptable scope, KrollProxy rootObject, KrollProxy proxy, List<String> filteredBindings);
+	public String getAPIName();
 }

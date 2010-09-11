@@ -253,6 +253,14 @@ public class KrollContext extends HandlerThread implements Handler.Callback
 	public static KrollContext getKrollContext(Context context) {
 		return (KrollContext) context.getThreadLocal(CONTEXT_KEY);
 	}
+	
+	public static KrollContext getCurrentKrollContext() {
+		Context ctx = Context.getCurrentContext();
+		if (ctx == null) {
+			return null;
+		}
+		return getKrollContext(ctx);
+	}
 
 	private void requireInitialized() {
 		try {

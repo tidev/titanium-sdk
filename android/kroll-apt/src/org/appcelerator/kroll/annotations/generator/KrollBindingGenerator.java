@@ -181,6 +181,7 @@ public class KrollBindingGenerator extends AbstractProcessor {
 					String parentModuleClass = (String) proxyAttrs.get("parentModule");
 					if (!parentModuleClass.equals(Kroll_module_DEFAULT)) {
 						jsonUtils.appendUnique(getModule(parentModuleClass), "childModules", proxyAttrs);
+					} else {
 						proxyAttrs.remove("parentModule");
 					}
 				}

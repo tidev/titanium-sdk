@@ -33,6 +33,7 @@ import org.appcelerator.titanium.util.TiActivitySupport;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiFileHelper;
 import org.appcelerator.titanium.util.TiFileHelper2;
+import org.mozilla.javascript.Context;
 import org.mozilla.javascript.ErrorReporter;
 import org.mozilla.javascript.EvaluatorException;
 import org.mozilla.javascript.Scriptable;
@@ -832,5 +833,13 @@ public class TiContext implements TiEvaluator, ITiMenuDispatcherListener, ErrorR
 	
 	public void setKrollContext(KrollContext krollContext) {
 		this.krollContext = krollContext;
+	}
+	
+	public static TiContext getCurrentTiContext() {
+		KrollContext currentCtx = KrollContext.getCurrentKrollContext();
+		if (currentCtx == null) {
+			return null;
+		}
+		return currentCtx.getTiContext();
 	}
 }

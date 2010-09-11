@@ -75,7 +75,6 @@ public class ${genClassName} <#if superProxyBindingClassName??>extends ${superPr
 	public void bind(final Scriptable scope, final KrollProxy rootObject, final KrollProxy p, final List<String> filteredBindings) {
 		
 		final ${proxyClassName} __proxy = (${proxyClassName}) p;
-		__proxy.setAPIName("${proxyAttrs.name}");
 		
 		<#if isModule>
 		try {
@@ -93,25 +92,23 @@ public class ${genClassName} <#if superProxyBindingClassName??>extends ${superPr
 				<#if allModules[module].createProxies??>
 					<#list allModules[module].createProxies as createProxy>
 			<#if createProxy_index = 0>// create methods for proxies </#if>
-			if (include("create${createProxy.name}", filteredBindings)) {
-				try {
-				__proxy.set(scope, "create${createProxy.name}", new KrollMethod(__proxy, "create${createProxy.name}") {
-					public Object invoke(KrollInvocation __invocation, Object[] __args) throws Exception
-					{
-						${createProxy.proxyClassName} __createdProxy = new ${createProxy.proxyClassName}(__invocation.getTiContext());
-						
-						Object __createArgs[] = new Object[__args.length];
-						for (int i = 0; i < __args.length; i++) {
-							__createArgs[i] = KrollConverter.getInstance().convertJavascript(
-								__invocation, __args[i], Object.class);
-						}
-						
-						__createdProxy.handleCreationArgs(__createArgs);
-						return KrollConverter.getInstance().convertNative(__invocation, __createdProxy);
+			try {
+			__proxy.set(scope, "create${createProxy.name}", new KrollMethod(__proxy, "create${createProxy.name}") {
+				public Object invoke(KrollInvocation __invocation, Object[] __args) throws Exception
+				{
+					${createProxy.proxyClassName} __createdProxy = new ${createProxy.proxyClassName}(__invocation.getTiContext());
+					
+					Object __createArgs[] = new Object[__args.length];
+					for (int i = 0; i < __args.length; i++) {
+						__createArgs[i] = KrollConverter.getInstance().convertJavascript(
+							__invocation, __args[i], Object.class);
 					}
-				});
-				} catch (Exception e) { Log.e(TAG, "Error binding create${createProxy.name}", e); }
-			}
+					
+					__createdProxy.handleCreationArgs(__createArgs);
+					return KrollConverter.getInstance().convertNative(__invocation, __createdProxy);
+				}
+			});
+			} catch (Exception e) { Log.e(TAG, "Error binding create${createProxy.name}", e); }
 					</#list>
 				</#if>
 				<#if allModules[module].childModules??>
@@ -149,11 +146,9 @@ public class ${genClassName} <#if superProxyBindingClassName??>extends ${superPr
 			</#if>
 			<#list properties?keys as propertyName>
 				<#assign property = properties[propertyName]>
-		if (include("${propertyName}", filteredBindings)) {
-			try {
-				__proxy.set(scope, "${propertyName}", new KrollProperty(p, "${propertyName}", ${property.get?string}, ${property.set?string}, "${property.proxyName}"));
-			} catch (Exception e) { Log.e(TAG, "Error binding property ${proxyClassName}:${propertyName}", e); }
-		}
+		try {
+			__proxy.set(scope, "${propertyName}", new KrollProperty(p, "${propertyName}", ${property.get?string}, ${property.set?string}, "${property.proxyName}"));
+		} catch (Exception e) { Log.e(TAG, "Error binding property ${proxyClassName}:${propertyName}", e); }
 			</#list>
 		</#if>
 		
@@ -163,28 +158,26 @@ public class ${genClassName} <#if superProxyBindingClassName??>extends ${superPr
 			</#if>
 			<#list dynamicProperties?keys as propertyName>
 				<#assign dynamicProperty = dynamicProperties[propertyName]>
-		if (include("${propertyName}", filteredBindings)) {
-			try {
-				KrollReflectionProperty __property = new KrollReflectionProperty(p, "${propertyName}",
-					${dynamicProperty.get?string}, ${dynamicProperty.set?string},
-					<#if dynamicProperty.get>
-					"${dynamicProperty.getMethodName}",
-					<#else>
-					null,
-					</#if>
-					<#if dynamicProperty.set>
-					"${dynamicProperty.setMethodName}",
-					${dynamicProperty.retain?string}
-					<#else>
-					null, false
-					</#if>
-				);
-				<#if dynamicProperty.runOnUiThread>
-				__property.setRunOnUiThread(true);
+		try {
+			KrollReflectionProperty __property = new KrollReflectionProperty(p, "${propertyName}",
+				${dynamicProperty.get?string}, ${dynamicProperty.set?string},
+				<#if dynamicProperty.get>
+				"${dynamicProperty.getMethodName}",
+				<#else>
+				null,
 				</#if>
-				__proxy.set(scope, "${propertyName}", __property);
-			} catch (Exception e) { Log.e(TAG, "Error binding dynamic property ${proxyClassName}:${propertyName}", e); }
-		}
+				<#if dynamicProperty.set>
+				"${dynamicProperty.setMethodName}",
+				${dynamicProperty.retain?string}
+				<#else>
+				null, false
+				</#if>
+			);
+			<#if dynamicProperty.runOnUiThread>
+			__property.setRunOnUiThread(true);
+			</#if>
+			__proxy.set(scope, "${propertyName}", __property);
+		} catch (Exception e) { Log.e(TAG, "Error binding dynamic property ${proxyClassName}:${propertyName}", e); }
 			</#list>
 		</#if>
 		
@@ -192,7 +185,6 @@ public class ${genClassName} <#if superProxyBindingClassName??>extends ${superPr
 		//// Methods
 			<#list methods?keys as methodName>
 				<#assign method = methods[methodName]>
-		if (include("${method.apiName}", filteredBindings)) {
 				<#if method.returnType != "void">
 			final ${method.converter} __${methodName}_converter = ${method.converter}.getInstance();
 				</#if>
@@ -269,9 +261,30 @@ public class ${genClassName} <#if superProxyBindingClassName??>extends ${superPr
 					</#if>
 				</#if>
 			} catch (Exception e) { Log.e(TAG, "Error binding method ${proxyClassName}:${method.apiName}", e); }
-		}
 			</#list>
 		</#if>
 		<#if superProxyBindingClassName??>super.bind(scope, rootObject, p, null);</#if>
+	}
+	
+	<#function getParentModule proxy>
+		<#if proxy.creatableInModule??>
+			<#return allModules[proxy.creatableInModule]>
+		<#elseif proxy.parentModule??>
+			<#return allModules[proxy.parentModule]>
+		</#if>
+	</#function>
+	private static final String API_NAME = "${proxyAttrs.name}";
+	public String getAPIName() {
+		String apiName = API_NAME;
+		<#assign childProxy = proxyAttrs>
+		<#list 1..10 as i>
+			<#assign parentProxy = getParentModule(childProxy)!"none">
+			<#if parentProxy?is_string>
+				<#break>
+			</#if>
+		apiName = "${parentProxy.apiName}." + apiName;
+		<#assign childProxy = parentProxy>
+		</#list>
+		return apiName;
 	}
 }

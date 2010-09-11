@@ -317,7 +317,9 @@ public abstract class TiUIView
 			nativeView.setBackgroundColor(bgColor);
 		}
 		if (d.containsKey("opacity")) {
-			setOpacity(TiConvert.toFloat(d, "opacity"));
+			if (nativeView != null) {
+				setOpacity(TiConvert.toFloat(d, "opacity"));
+			}
 		}
 		
 		if (d.containsKey("visible")) {
@@ -621,7 +623,9 @@ public abstract class TiUIView
 	}
 
 	public void setOpacity(float opacity) {
-		setOpacity(nativeView, opacity);
+		if (nativeView != null) {
+			setOpacity(nativeView, opacity);
+		}
 	}
 	
 	protected void setOpacity(View view, float opacity) {

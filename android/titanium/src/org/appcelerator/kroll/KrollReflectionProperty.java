@@ -49,6 +49,23 @@ public class KrollReflectionProperty implements KrollDynamicProperty {
 	
 	protected Object safeInvoke(KrollInvocation invocation, Method method, Object... args) {
 		try {
+			Class<?>[] paramTypes = method.getParameterTypes();
+			if (args.length < paramTypes.length) {
+				Object newArgs[] = new Object[paramTypes.length];
+				System.arraycopy(args, 0, newArgs, 0, args.length);
+				
+				// Append default values onto the end for dynamic getters/setters that have optional arguments
+				for (int i = args.length; i < paramTypes.length; i++) {
+					newArgs[i] = KrollConverter.getInstance().getDefaultValue(paramTypes[i]);
+				}
+				args = newArgs;
+			} else if (args.length > paramTypes.length) {
+				// cut off the remaining args
+				Object newArgs[] = new Object[paramTypes.length];
+				System.arraycopy(args, 0, newArgs, 0, paramTypes.length);
+				args = newArgs;
+			}
+			
 			if (!runOnUiThread) {
 				return KrollConverter.getInstance().convertNative(invocation,
 					method.invoke(proxy, args));

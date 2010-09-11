@@ -7,6 +7,8 @@
 package org.appcelerator.kroll;
 
 import org.appcelerator.titanium.TiContext;
+import org.appcelerator.titanium.kroll.KrollContext;
+import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Scriptable;
 
 public class KrollInvocation {
@@ -20,6 +22,11 @@ public class KrollInvocation {
 	protected KrollProxy proxy;
 	protected KrollInvocation() {}
 	
+	public static KrollInvocation createMethodInvocation(Scriptable scope, Scriptable thisObj, String name, KrollMethod method, KrollProxy proxy)
+	{
+		return createMethodInvocation(TiContext.getCurrentTiContext(), scope, thisObj, name, method, proxy);
+	}
+	
 	public static KrollInvocation createMethodInvocation(TiContext tiContext, Scriptable scope, Scriptable thisObj, String name, KrollMethod method, KrollProxy proxy)
 	{
 		KrollInvocation invocation = new KrollInvocation();
@@ -31,6 +38,11 @@ public class KrollInvocation {
 		invocation.isMethod = true;
 		invocation.proxy = proxy;
 		return invocation;
+	}
+	
+	public static KrollInvocation createPropertyGetInvocation(Scriptable scope, Scriptable thisObj, String name, KrollDynamicProperty property, KrollProxy proxy)
+	{
+		return createPropertyGetInvocation(TiContext.getCurrentTiContext(), scope, thisObj, name, property, proxy);
 	}
 	
 	public static KrollInvocation createPropertyGetInvocation(TiContext tiContext, Scriptable scope, Scriptable thisObj, String name, KrollDynamicProperty property, KrollProxy proxy)
@@ -46,6 +58,11 @@ public class KrollInvocation {
 		return invocation;
 	}
 	
+	public static KrollInvocation createPropertySetInvocation(Scriptable scope, Scriptable thisObj, String name, KrollDynamicProperty property, KrollProxy proxy)
+	{
+		return createPropertySetInvocation(TiContext.getCurrentTiContext(), scope, thisObj, name, property, proxy);
+	}
+	
 	public static KrollInvocation createPropertySetInvocation(TiContext tiContext, Scriptable scope, Scriptable thisObj, String name, KrollDynamicProperty property, KrollProxy proxy)
 	{
 		KrollInvocation invocation = new KrollInvocation();
@@ -57,6 +74,30 @@ public class KrollInvocation {
 		invocation.property = property;
 		invocation.proxy = proxy;
 		return invocation;
+	}
+	
+	public String toString() {
+		String str = "";
+		if (isPropertyGet) {
+			str += "[getProperty ";
+		} else if (isPropertySet) {
+			str += "[setProperty ";
+		} else if (isMethod) {
+			str += "[callMethod ";
+		}
+		
+		if (proxy != null) {
+			str += proxy.getAPIName() + ".";
+		}
+		
+		str += name + " ";
+		if (isPropertyGet || isPropertySet) {
+			str += property;
+		} else if (isMethod) {
+			str += method;
+		}
+		str += "]";
+		return str;
 	}
 
 	public Scriptable getScope() {

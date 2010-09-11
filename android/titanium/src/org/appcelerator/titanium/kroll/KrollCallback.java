@@ -12,6 +12,7 @@ import org.appcelerator.kroll.KrollInvocation;
 import org.appcelerator.kroll.KrollMethod;
 import org.appcelerator.kroll.KrollObject;
 import org.appcelerator.kroll.KrollProxy;
+import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.Log;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.EcmaError;
@@ -29,10 +30,10 @@ public class KrollCallback extends KrollMethod
 	protected Scriptable thisObj;
 	protected Function method;
 
-	public KrollCallback(KrollContext kroll, Scriptable scope, Scriptable thisObj, Function method) {
+	public KrollCallback(KrollContext context, Scriptable scope, Scriptable thisObj, Function method) {
 		super(null);
 		
-		this.kroll = kroll;
+		this.kroll = context;
 		this.scope = scope;
 		this.thisObj = thisObj;
 		this.method = method;
@@ -52,8 +53,8 @@ public class KrollCallback extends KrollMethod
 			methodName = "(anonymous)";
 		}
 		
-		KrollInvocation inv = KrollInvocation.createMethodInvocation(kroll.getTiContext(), scope, thisObj, methodName, this,
-			(thisObj instanceof KrollObject) ? ((KrollObject)thisObj).getProxy() : null);
+		KrollInvocation inv = KrollInvocation.createMethodInvocation(kroll == null ? TiContext.getCurrentTiContext() : kroll.getTiContext(),
+			scope, thisObj, methodName, this, (thisObj instanceof KrollObject) ? ((KrollObject)thisObj).getProxy() : null);
 		
 		invoke(inv, args);
 	}
@@ -62,10 +63,14 @@ public class KrollCallback extends KrollMethod
 	public Object invoke(final KrollInvocation invocation, Object[] args) {
 		if (args == null) args = new Object[0];
 		final Object[] fArgs = args;
-
-		kroll.post(new Runnable(){
+		KrollContext kroll = invocation.getTiContext().getKrollContext();
+		if (kroll == null) {
+			kroll = this.kroll;
+		}
+		final KrollContext fKroll = kroll;
+		fKroll.post(new Runnable(){
 			public void run() {
-				Context ctx = kroll.enter();
+				Context ctx = fKroll.enter();
 
 				try {
 					Object[] jsArgs = new Object[fArgs.length];
@@ -87,7 +92,7 @@ public class KrollCallback extends KrollMethod
 					Log.e(LCAT, "Unhandled throwable: " + e.getMessage(), e);
 					Context.throwAsScriptRuntimeEx(e);
 				} finally {
-					kroll.exit();
+					fKroll.exit();
 				}
 			}
 		});
