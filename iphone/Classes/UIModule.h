@@ -25,6 +25,7 @@
 #ifdef USE_TI_UIIOS
 	TiProxy *ios;
 #endif
+	TiProxy *clipboard;
 }
 
 //TODO: review these, maybe they need to go on iPhone Animation Style - however, they are platform generic
@@ -154,6 +155,8 @@
 #ifdef USE_TI_UIIOS
 @property(nonatomic,readonly)			TiProxy* iOS;
 #endif
+
+@property(nonatomic,readonly)			TiProxy* Clipboard;
 
 @end
 
