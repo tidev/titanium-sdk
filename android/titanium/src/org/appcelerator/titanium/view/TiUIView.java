@@ -646,15 +646,21 @@ public abstract class TiUIView
 	}
 	
 	public void setOpacity(float opacity) {
-		TiUIHelper.setDrawableOpacity(nativeView.getBackground(), opacity);
-		if (opacity == 1) {
-			clearOpacity();
-		}
-		nativeView.invalidate();
+		setOpacity(nativeView, opacity);
 	}
 	
-	public void clearOpacity() {
-		nativeView.getBackground().clearColorFilter();
+	protected void setOpacity(View view, float opacity) {
+		if (view != null) {
+			TiUIHelper.setDrawableOpacity(view.getBackground(), opacity);
+			if (opacity == 1) {
+				clearOpacity(view);
+			}
+			view.invalidate();
+		}
+	}
+	
+	public void clearOpacity(View view) {
+		view.getBackground().clearColorFilter();
 	}
 
 	public TiDict toImage() {

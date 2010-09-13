@@ -607,4 +607,15 @@ public class TiUIWindow extends TiUIView
 
 		return intent;
 	}
+	
+	@Override
+	public void setOpacity(float opacity) {
+		View view = null;
+		if (!lightWeight) {
+			view = windowActivity.getWindow().getDecorView();
+		} else {
+			view = nativeView;
+		}
+		super.setOpacity(view, opacity);
+	}
 }

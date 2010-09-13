@@ -589,7 +589,7 @@ public class TiUIHelper
 		if (drawable instanceof ColorDrawable) {
 			ColorDrawable colorDrawable = (ColorDrawable) drawable;
 			colorDrawable.setAlpha(Math.round(opacity * 255));
-		} else {
+		} else if (drawable != null) {
 			drawable.setColorFilter(createColorFilterForOpacity(opacity));
 		}
 	}

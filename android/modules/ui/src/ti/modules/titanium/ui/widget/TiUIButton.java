@@ -20,12 +20,11 @@ import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiUIView;
 
 import android.graphics.Bitmap;
-import android.graphics.ColorFilter;
 import android.graphics.drawable.BitmapDrawable;
 import android.view.Gravity;
 import android.view.KeyEvent;
+import android.view.View;
 import android.widget.Button;
-import android.widget.TextView;
 
 public class TiUIButton extends TiUIView
 {
@@ -127,8 +126,8 @@ public class TiUIButton extends TiUIView
 	}
 	
 	@Override
-	public void clearOpacity() {
-		super.clearOpacity();
+	public void clearOpacity(View view) {
+		super.clearOpacity(view);
 		((Button)getNativeView()).getPaint().setColorFilter(null);
 	}
 }
