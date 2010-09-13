@@ -25,6 +25,7 @@ import org.appcelerator.titanium.bridge.OnEventListenerChange;
 import org.appcelerator.titanium.io.TiBaseFile;
 import org.appcelerator.titanium.io.TiFileFactory;
 import org.appcelerator.titanium.kroll.KrollBridge;
+import org.appcelerator.titanium.kroll.KrollCallback;
 import org.appcelerator.titanium.kroll.KrollContext;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiActivitySupport;
@@ -465,6 +466,37 @@ public class TiContext implements TiEvaluator, ITiMenuDispatcherListener, ErrorR
 			throw new IllegalStateException("removeEventListener expects a non-null eventName");
 		}
 	}
+	
+	public void removeEventListenersFromContext(TiContext listeningContext)
+	{
+		if (eventListeners == null) {
+			return;
+		}
+		for (String eventName : eventListeners.keySet()) {
+			HashMap<Integer, TiListener> listeners = eventListeners.get(eventName);
+			if (listeners != null) {
+				ArrayList<Integer> toDelete = null;
+				for (Entry<Integer, TiListener>entry :  listeners.entrySet()) {
+					TiListener l = entry.getValue();
+					if (l.listener instanceof KrollCallback) {
+						KrollCallback kc = (KrollCallback) l.listener;
+						if (kc != null && kc.isWithinTiContext(listeningContext)) {
+							if (toDelete == null) {
+								toDelete = new ArrayList<Integer>();
+							}
+							toDelete.add(entry.getKey());
+						}
+					}
+				}
+				if (toDelete != null) {
+					for (Integer id  : toDelete) {
+						removeEventListener(eventName, id.intValue());
+					}
+				}
+			}
+			
+		}
+	}
 
 	public boolean hasAnyEventListener(String eventName)
 	{
@@ -851,6 +883,7 @@ public class TiContext implements TiEvaluator, ITiMenuDispatcherListener, ErrorR
 	
 	public void release()
 	{
+		getTiApp().removeEventListenersFromContext(this);
 
 		if (tiEvaluator != null && tiEvaluator instanceof KrollBridge)
 		{

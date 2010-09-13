@@ -344,7 +344,9 @@ public class TiUIWindow extends TiUIView
 			animateOnClose = props.getBoolean("animated");
 		}
 
+		boolean revertToCreatedContext = false;
 		if (createdContext != null && createdContext.get() != null) {
+			revertToCreatedContext = true;
 			createdContext.get().dispatchEvent("close", data, proxy);
 			createdContext.clear();
 		}
@@ -366,6 +368,11 @@ public class TiUIWindow extends TiUIView
 				}
 				liteWindow.removeAllViews();
 				liteWindow = null;
+			}
+		}
+		if (revertToCreatedContext) {
+			if (proxy instanceof TiWindowProxy) {
+				((TiWindowProxy)proxy).switchToCreatingContext();
 			}
 		}
 	}
@@ -607,7 +614,7 @@ public class TiUIWindow extends TiUIView
 
 		return intent;
 	}
-	
+
 	@Override
 	public void setOpacity(float opacity) {
 		View view = null;
@@ -617,5 +624,18 @@ public class TiUIWindow extends TiUIView
 			view = nativeView;
 		}
 		super.setOpacity(view, opacity);
+	}
+
+	@Override
+	public void release()
+	{
+		super.release();
+		if (liteWindow != null) {
+			liteWindow.removeAllViews();
+			liteWindow = null;
+		}
+		messenger = null;
+		handler = null;
+		windowActivity = null;
 	}
 }

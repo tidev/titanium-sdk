@@ -44,6 +44,11 @@ CGSize SizeConstraintViewWithSizeAddingResizing(LayoutConstraint * constraint, N
 	//TODO: Refactor for elegance.
 	CGFloat width;
 
+	if(resultResizing != NULL)
+	{
+		*resultResizing &= ~(UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight);
+	}
+
 	switch (constraint->width.type)
 	{
 		case TiDimensionTypePercent:
@@ -124,6 +129,9 @@ CGSize SizeConstraintViewWithSizeAddingResizing(LayoutConstraint * constraint, N
 CGPoint PositionConstraintGivenSizeBoundsAddingResizing(LayoutConstraint * constraint, CGSize viewSize, CGPoint anchorPoint, CGSize superViewSize, UIViewAutoresizing * resultResizing)
 {
 	BOOL flexibleSize = *resultResizing & UIViewAutoresizingFlexibleWidth;
+
+	*resultResizing &= ~(UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleRightMargin | UIViewAutoresizingFlexibleTopMargin | UIViewAutoresizingFlexibleBottomMargin);
+
 	BOOL ignoreMargins;
 	CGFloat centerX;
 

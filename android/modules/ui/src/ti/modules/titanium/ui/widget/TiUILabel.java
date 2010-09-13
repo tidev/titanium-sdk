@@ -76,7 +76,6 @@ public class TiUILabel extends TiUIView
 			String verticalAlign = d.getString("verticalAlign");
 			TiUIHelper.setAlignment(tv, null, verticalAlign);
 		}
-
 		// This needs to be the last operation.
 		linkifyIfEnabled(tv, d);
 		tv.invalidate();

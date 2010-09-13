@@ -38,7 +38,6 @@
 	NSInteger loadCount;
 	NSInteger readyCount;
 	NSInteger loadTotal;
-	ImageLoaderRequest *urlRequest;
 	UIImageView * imageView;
 }
 

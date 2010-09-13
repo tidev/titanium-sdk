@@ -318,6 +318,12 @@ public class TiUIHelper
 			bgSelectedDrawable = tfh.loadDrawable(tiContext, selectedImage, false, true);
 		} else if (selectedColor != null) {
 			bgSelectedDrawable = new ColorDrawable(TiConvert.toColor(selectedColor));
+		} else {
+			if (image != null) {
+				bgSelectedDrawable = tfh.loadDrawable(image, false, true);
+			} else if (color != null) {
+				bgSelectedDrawable = new ColorDrawable(TiConvert.toColor(color));				
+			}			
 		}
 
 		if (focusedImage != null) {

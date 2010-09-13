@@ -11,6 +11,7 @@ import org.appcelerator.titanium.TiProxy;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
+import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiUIView;
 
 import android.view.View;
@@ -41,7 +42,7 @@ public class TiUISwitch extends TiUIView
 
 		ToggleButton btn = (ToggleButton) getNativeView();
 		if (d.containsKey("value")) {
-			btn.setChecked((Boolean) d.get("value"));
+			btn.setChecked(TiConvert.toBoolean(d, "value"));
 		}
 	}
 

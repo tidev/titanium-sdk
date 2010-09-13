@@ -104,6 +104,22 @@ def pipe(args1,args2):
 	p2 = subprocess.Popen(args2, stdin=p1.stdout, stdout=subprocess.PIPE)
 	return p2.communicate()[0]
 
+def read_properties(propFile, separator=":= "):
+	propDict = dict()
+	for propLine in propFile:
+		propDef = propLine.strip()
+		if len(propDef) == 0:
+			continue
+		if propDef[0] in ( '!', '#' ):
+			continue
+		punctuation= [ propDef.find(c) for c in separator ] + [ len(propDef) ]
+		found= min( [ pos for pos in punctuation if pos != -1 ] )
+		name= propDef[:found].rstrip()
+		value= propDef[found:].lstrip(separator).rstrip()
+		propDict[name]= value
+	propFile.close()
+	return propDict
+
 def info(msg):
 	print "[INFO] "+msg
 	sys.stdout.flush()
@@ -913,6 +929,20 @@ class Builder(object):
 		if platform.system() == "Windows":
 			run.run([self.sdk.get_adb(), "start-server"], True, ignore_output=True)
 		
+		ti_version_file = os.path.join(self.support_dir, '..', 'version.txt')
+		if os.path.exists(ti_version_file):
+			ti_version_info = read_properties(open(ti_version_file, 'r'), '=')
+			if not ti_version_info is None and 'version' in ti_version_info:
+				ti_version_string = 'Titanium SDK version: %s' % ti_version_info['version']
+				if 'timestamp' in ti_version_info or 'githash' in ti_version_info:
+					ti_version_string += ' ('
+					if 'timestamp' in ti_version_info:
+						ti_version_string += '%s' % ti_version_info['timestamp']
+					if 'githash' in ti_version_info:
+						ti_version_string += ' %s' % ti_version_info['githash']
+					ti_version_string += ')'
+
+				info(ti_version_string)
 		
 		if deploy_type == 'development':
 			self.wait_for_device('e')

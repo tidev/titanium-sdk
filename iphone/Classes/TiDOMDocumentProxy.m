@@ -31,7 +31,9 @@
 {
 	if ([value isKindOfClass:[TiDOMDocumentProxy class]])
 	{
+		return [value isEqual:self];
 	}
+	return NO;
 }
 
 -(void)parseString:(NSString*)xml

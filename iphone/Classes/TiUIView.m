@@ -354,15 +354,18 @@ DEFINE_EXCEPTIONS
 	if (repositioning==NO)
 	{
 		repositioning = YES;
-		if ([self superview] == nil)
-		{
-			[[(TiViewProxy *)proxy parent] layoutChild:(TiViewProxy *)proxy optimize:NO];
-		}
 		oldSize = CGSizeZero;
 		ApplyConstraintToViewWithinViewWithBounds([(TiViewProxy *)proxy layoutProperties], self, [self superview], bounds, YES);
 		[(TiViewProxy *)[self proxy] clearNeedsReposition];
 		repositioning = NO;
 	}
+#ifdef VERBOSE
+	else
+	{
+		NSLog(@"[INFO] %@ Calling Relayout from within relayout.",self);
+	}
+#endif
+
 }
 
 -(void)relayoutOnUIThread:(NSValue*)value

@@ -21,7 +21,6 @@ enum
 	TiRefreshViewEnqueued,
 };
 
-#define USE_VISIBLE_BOOL 0
 #define DONTSHOWHIDDEN 0 
 
 //For TableRows, we need to have minimumParentHeightForWidth:
@@ -52,9 +51,10 @@ enum
 	NSMutableArray *pendingAdds;
 	BOOL needsZIndexRepositioning;	//Todo: Replace
 	
-	
+	CGRect sandboxBounds;
 	CGPoint positionCache;	//Recomputed and stored when position changes.
 	CGRect sizeCache;	//Recomputed and stored when size changes.
+	UIViewAutoresizing autoresizeCache;	//Changed by repositioning or resizing.
 
 	BOOL parentVisible;
 	//In most cases, this is the same as [parent parentVisible] && [parent visible]
@@ -63,6 +63,7 @@ enum
 	//Use parentWillShow and parentWillHide to set this.
 }
 @property(nonatomic,readonly) BOOL visible;
+@property(nonatomic,readwrite,assign) CGRect sandboxBounds;
 	//This is unaffected by parentVisible. So if something is truely visible, it'd be [self visible] && parentVisible.
 
 @property(nonatomic,readwrite,assign) LayoutConstraint * layoutProperties;
@@ -159,6 +160,8 @@ enum
 -(void)parentWillRelay;
 -(void)parentWillShow;
 -(void)parentWillHide;
+
+-(BOOL)suppressesRelayout;
 
 @end
 

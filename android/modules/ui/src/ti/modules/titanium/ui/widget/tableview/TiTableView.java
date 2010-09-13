@@ -23,6 +23,7 @@ import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.ui.TableViewProxy;
+import ti.modules.titanium.ui.TableViewRowProxy;
 import ti.modules.titanium.ui.widget.searchbar.TiUISearchBar.OnSearchChangeListener;
 import ti.modules.titanium.ui.widget.tableview.TableViewModel.Item;
 import android.graphics.Canvas;
@@ -378,6 +379,12 @@ public class TiTableView extends FrameLayout
 
 					event.put("searchMode", adapter.isFiltered());
 
+					if(item.proxy != null && item.proxy instanceof TableViewRowProxy) {
+						TableViewRowProxy rp = (TableViewRowProxy) item.proxy;
+						if (rp.hasListeners("click")) {
+							rp.fireEvent("click", event);
+						}
+					}
 					itemClickListener.onClick(event);
 				}
 			}

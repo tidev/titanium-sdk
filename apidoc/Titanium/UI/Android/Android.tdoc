@@ -39,6 +39,12 @@ LINKIFY_MAP_ADDRESSES[int]: Auto link physical addresses.
 LINKIFY_PHONE_NUMBERS[int]: Auto link phone numbers.
 LINKIFY_WEB_URLS[int]: Auto link web urls.
 
+LINKIFY_ALL[int]: Auto link all supported types.
+LINKIFY_EMAIL_ADDRESSES[int]: Auto link email addresses.
+LINKIFY_MAP_ADDRESSES[int]: Auto link physical addresses.
+LINKIFY_PHONE_NUMBERS[int]: Auto link phone numbers.
+LINKIFY_WEB_URLS[int]: Auto link web urls.
+
 - methods
 
 None

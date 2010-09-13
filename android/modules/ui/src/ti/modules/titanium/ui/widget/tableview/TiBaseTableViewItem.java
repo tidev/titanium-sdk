@@ -125,4 +125,10 @@ public abstract class TiBaseTableViewItem extends ViewGroup implements Handler.C
 			TiUIHelper.setDrawableOpacity(getBackground(), TiConvert.toFloat(props, "opacity"));
 		}
 	}
+	
+	public void release() 
+	{
+		handler = null;
+		tiContext = null;
+	}
 }

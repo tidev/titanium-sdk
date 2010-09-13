@@ -818,8 +818,9 @@
 			}
 			
 			[ourView insertSubview:childView atIndex:insertPosition];
+			pthread_rwlock_unlock(&childrenLock); // must release before calling resize
+			
 			[self childWillResize:child];
-			pthread_rwlock_unlock(&childrenLock);
 		}
 	}
 	[[child view] updateLayout:NULL withBounds:bounds];
@@ -995,7 +996,8 @@
 	{
 		[self.modelDelegate listenerAdded:type count:count];
 	}
-	else {
+	else if(view!=nil)  // don't create the view if not already realized
+	{
 		[self.view listenerAdded:type count:count];
 	}
 }
@@ -1006,7 +1008,8 @@
 	{
 		[self.modelDelegate listenerRemoved:type count:count];
 	}
-	else {
+	else if(view!=nil) // don't create the view if not already realized
+	{
 		[self.view listenerRemoved:type count:count];
 	}
 }
@@ -1247,15 +1250,6 @@
 	}
 }
 
--(void)repositionWithBounds:(CGRect)bounds
-{
-	IGNORE_IF_NOT_OPENED
-	
-	OSAtomicTestAndClearBarrier(NEEDS_REPOSITION, &dirtyflags);
-	[[self view] relayout:bounds];
-	[self layoutChildren:NO];
-}
-
 -(void)reposition
 {
 	IGNORE_IF_NOT_OPENED
@@ -1266,13 +1260,9 @@
 		return;
 	}
 	if ([NSThread isMainThread])
-	{	//NOTE: This will cause problems with ScrollableView, or is a new wrapper needed?
-		[parent childWillResize:self];
-		if (needsZIndexRepositioning)
-		{
-			[(TiUIView*)[self view] performZIndexRepositioning];
-			needsZIndexRepositioning=NO;
-		}
+	{	//NOTE: This will cause problems with ScrollableView, or is a new wrapper needed?		
+		[self refreshView:nil];
+
 		[self repositionWithBounds:superview.bounds];
 	}
 	else 
@@ -1320,27 +1310,28 @@
 	}
 }
 
-#define LAYOUTPROPERTIES_SETTER(methodName,layoutName,converter)	\
+#define LAYOUTPROPERTIES_SETTER(methodName,layoutName,converter,postaction)	\
 -(void)methodName:(id)value	\
 {	\
 	layoutProperties.layoutName = converter(value);	\
 	[self setNeedsReposition];	\
 	[self replaceValue:value forKey:@#layoutName notification:YES];	\
+	postaction; \
 }
 
-LAYOUTPROPERTIES_SETTER(setTop,top,TiDimensionFromObject)
-LAYOUTPROPERTIES_SETTER(setBottom,bottom,TiDimensionFromObject)
+LAYOUTPROPERTIES_SETTER(setTop,top,TiDimensionFromObject,)
+LAYOUTPROPERTIES_SETTER(setBottom,bottom,TiDimensionFromObject,)
 
-LAYOUTPROPERTIES_SETTER(setLeft,left,TiDimensionFromObject)
-LAYOUTPROPERTIES_SETTER(setRight,right,TiDimensionFromObject)
+LAYOUTPROPERTIES_SETTER(setLeft,left,TiDimensionFromObject,)
+LAYOUTPROPERTIES_SETTER(setRight,right,TiDimensionFromObject,)
 
-LAYOUTPROPERTIES_SETTER(setWidth,width,TiDimensionFromObject)
-LAYOUTPROPERTIES_SETTER(setHeight,height,TiDimensionFromObject)
+LAYOUTPROPERTIES_SETTER(setWidth,width,TiDimensionFromObject,)
+LAYOUTPROPERTIES_SETTER(setHeight,height,TiDimensionFromObject,)
 
-LAYOUTPROPERTIES_SETTER(setLayout,layout,TiLayoutRuleFromObject)
+LAYOUTPROPERTIES_SETTER(setLayout,layout,TiLayoutRuleFromObject,)
 
-LAYOUTPROPERTIES_SETTER(setMinWidth,minimumWidth,TiFixedValueRuleFromObject)
-LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject)
+LAYOUTPROPERTIES_SETTER(setMinWidth,minimumWidth,TiFixedValueRuleFromObject,)
+LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,)
 
 -(void)setSize:(id)value
 {
@@ -1396,22 +1387,22 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject)
 	[ourAction release];
 }
 
+@synthesize sandboxBounds;
 
 -(void)refreshView:(TiUIView *)transferView
 {
 	WARN_IF_BACKGROUND_THREAD;
 	OSAtomicTestAndClearBarrier(TiRefreshViewEnqueued, &dirtyflags);
-
-//TODO: Remove the return once the new infrastructure is in place.
-	return;
 	
 	if(!parentVisible)
 	{
-		return;
+		VerboseLog(@"[INFO] Parent Invisible");
+//		return;
 	}
 	
 	if(![self visible])
 	{
+		VerboseLog(@"Removing from superview");
 		if([self viewAttached])
 		{
 			[[self view] removeFromSuperview];
@@ -1419,10 +1410,45 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject)
 		return;
 	}
 
+	BOOL changedFrame = NO;
+
+//BUG BARRIER: Code in this block is legacy code that should be factored out.
+	[parent childWillResize:self];
+	if (needsZIndexRepositioning)
+	{
+		[(TiUIView*)[self view] performZIndexRepositioning];
+		needsZIndexRepositioning=NO;
+	}
+
+	OSAtomicTestAndClearBarrier(NEEDS_REPOSITION, &dirtyflags);
+
+	if (windowOpened && [self viewAttached])
+	{
+		
+		if(![self suppressesRelayout])
+		{
+			CGRect newBounds = [[[self view] superview] bounds];
+			[[self view] relayout:newBounds];
+		}
+		[self layoutChildren:NO];
+
+	}
+
+//END BUG BARRIER
 
 	if(OSAtomicTestAndClearBarrier(TiRefreshViewSize, &dirtyflags))
 	{
 		[self refreshSize];
+		if(TiLayoutRuleIsAbsolute(layoutProperties.layout))
+		{
+			pthread_rwlock_rdlock(&childrenLock);
+			for (TiViewProxy * thisChild in children)
+			{
+				[thisChild setSandboxBounds:sizeCache];
+			}
+			pthread_rwlock_unlock(&childrenLock);
+		}
+		changedFrame = YES;
 	}
 	else if(transferView != nil)
 	{
@@ -1432,6 +1458,7 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject)
 	if(OSAtomicTestAndClearBarrier(TiRefreshViewPosition, &dirtyflags))
 	{
 		[self refreshPosition];
+		changedFrame = YES;
 	}
 	else if(transferView != nil)
 	{
@@ -1439,21 +1466,41 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject)
 	}
 
 //We should only recurse if we're a non-absolute layout. Otherwise, the views can take care of themselves.
-	if((transferView == nil) && OSAtomicTestAndClearBarrier(TiRefreshViewPosition, &dirtyflags))
+	if((transferView == nil) && OSAtomicTestAndClearBarrier(TiRefreshViewChildrenPosition, &dirtyflags))
 	//If transferView is non-nil, this will be managed by the table row.
 	{
 		
 	}
 
+	if(transferView != nil)
+	{
+	//TODO: Better handoff of view
+		[self setView:transferView];
+	}
+
 //By now, we MUST have our view set to transferView.
+	if(changedFrame || (transferView != nil))
+	{
+//		[view setAutoresizingMask:autoresizeCache];
+	}
+
+
 	if(OSAtomicTestAndClearBarrier(TiRefreshViewZIndex, &dirtyflags) || (transferView != nil))
 	{
 		[self refreshZIndex];
 	}
-	
-	
 
 }
+
+-(void)repositionWithBounds:(CGRect)bounds
+{
+  IGNORE_IF_NOT_OPENED
+  
+  OSAtomicTestAndClearBarrier(NEEDS_REPOSITION, &dirtyflags);
+  [[self view] relayout:bounds];
+  [self layoutChildren:NO];
+}
+
 
 -(void)refreshZIndex
 {
@@ -1664,6 +1711,11 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
 -(BOOL) visible
 {
 	return [TiUtils boolValue:[self valueForUndefinedKey:@"visible"] def:YES];
+}
+
+-(BOOL)suppressesRelayout
+{
+	return NO;
 }
 
 @end
