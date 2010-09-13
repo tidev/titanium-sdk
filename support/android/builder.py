@@ -862,6 +862,9 @@ class Builder(object):
 		if self.dist_dir:
 			sys.exit(0)
 
+		if self.build_only:
+			return (False, False)
+
 		out = subprocess.Popen([self.sdk.get_adb(), self.device_type_arg, 'get-state'], stderr=subprocess.PIPE, stdout=subprocess.PIPE).communicate()[0]
 		out = str(out).strip()
 		
@@ -907,8 +910,9 @@ class Builder(object):
 		
 		trace("Launch output: %s" % output)
 		
-	def build_and_run(self, install, avd_id, keystore=None, keystore_pass='tirocks', keystore_alias='tidev', dist_dir=None):
+	def build_and_run(self, install, avd_id, keystore=None, keystore_pass='tirocks', keystore_alias='tidev', dist_dir=None, build_only=False):
 		deploy_type = 'development'
+		self.build_only = build_only
 		if install:
 			if keystore == None:
 				deploy_type = 'test'
@@ -926,7 +930,7 @@ class Builder(object):
 		# to simply call adb start-server here, and not care about
 		# the return code / pipes. (this is harmless if adb is already running)
 		# -- thanks to Bill Dawson for the workaround
-		if platform.system() == "Windows":
+		if platform.system() == "Windows" and not build_only:
 			run.run([self.sdk.get_adb(), "start-server"], True, ignore_output=True)
 		
 		ti_version_file = os.path.join(self.support_dir, '..', 'version.txt')
@@ -944,10 +948,11 @@ class Builder(object):
 
 				info(ti_version_string)
 		
-		if deploy_type == 'development':
-			self.wait_for_device('e')
-		elif deploy_type == 'test':
-			self.wait_for_device('d')
+		if not build_only:
+			if deploy_type == 'development':
+				self.wait_for_device('e')
+			elif deploy_type == 'test':
+				self.wait_for_device('d')
 		
 		self.install = install
 		self.deploy_type = deploy_type
@@ -968,10 +973,10 @@ class Builder(object):
 		if deploy_type == "production":
 			self.app_installed = False
 		else:
-			self.app_installed = self.is_app_installed()
+			self.app_installed = not build_only and self.is_app_installed()
 			debug("%s installed? %s" % (self.app_id, self.app_installed))
 			
-			self.resources_installed = self.are_resources_installed()
+			self.resources_installed = not build_only and self.are_resources_installed()
 			debug("%s resources installed? %s" % (self.app_id, self.resources_installed))
 			
 		if keystore == None:
@@ -1067,6 +1072,9 @@ class Builder(object):
 					self.google_apis_supported = (my_avd['name'].find('Google')!=-1 or my_avd['name'].find('APIs')!=-1)
 					break
 			
+			if build_only:
+				self.google_apis_supported = True
+
 			self.build_generated_classes()
 			generated_classes_built = True
 			
@@ -1100,7 +1108,7 @@ class Builder(object):
 				else:
 					dex_built = True
 			
-			if self.sdcard_copy and \
+			if self.sdcard_copy and not build_only and \
 				(not self.resources_installed or not self.app_installed) and \
 				(self.deploy_type == 'development' or self.deploy_type == 'test'):
 				
@@ -1124,9 +1132,9 @@ class Builder(object):
 				if launched:
 					self.run_app()
 					info("Deployed %s ... Application should be running." % self.name)
-				elif launch_failed==False:
+				elif launch_failed==False and not build_only:
 					info("Application installed. Launch from drawer on Home Screen")
-			else:
+			elif not build_only:
 				
 				# we copied all the files to the sdcard, no need to package
 				# just kill from adb which forces a restart
@@ -1195,6 +1203,8 @@ if __name__ == "__main__":
 		output_dir = dequote(sys.argv[9])
 		avd_id = dequote(sys.argv[10])
 		s.build_and_run(True,avd_id,key,password,alias,output_dir)
+	elif sys.argv[1] == 'build':
+		s.build_and_run(False, 1, build_only=True)
 	else:
 		error("Unknown command: %s" % sys.argv[1])
 		usage()
