@@ -533,9 +533,7 @@ NSArray * tableKeySequence;
 	[self replaceValue:data forKey:@"data" notification:NO];
 	
 	TiUITableViewAction *action = [[[TiUITableViewAction alloc] initWithRow:nil animation:properties section:0 type:TiUITableViewActionSetData] autorelease];
-//	[self makeViewPerformSelector:@selector(dispatchAction:) withObject:action createIfNeeded:YES waitUntilDone:NO];
-	TiUITableView *table = [self tableView];
-	[table dispatchAction:action];
+	[self makeViewPerformSelector:@selector(dispatchAction:) withObject:action createIfNeeded:YES waitUntilDone:NO];
 }
 
 -(void)setData:(id)args
