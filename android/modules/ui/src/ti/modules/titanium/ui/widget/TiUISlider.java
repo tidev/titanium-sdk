@@ -12,8 +12,15 @@ import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiConvert;
+import org.appcelerator.titanium.util.TiFileHelper;
 import org.appcelerator.titanium.view.TiUIView;
 
+import android.graphics.Color;
+import android.graphics.drawable.ClipDrawable;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.LayerDrawable;
+import android.view.Gravity;
 import android.widget.SeekBar;
 
 public class TiUISlider extends TiUIView
@@ -50,6 +57,8 @@ public class TiUISlider extends TiUIView
 	{
 		super.processProperties(d);
 
+		SeekBar seekBar = (SeekBar) getNativeView();
+		
 		if (d.containsKey("value")) {
 			pos = TiConvert.toInt(d, "value");
 		}
@@ -58,6 +67,26 @@ public class TiUISlider extends TiUIView
 		}
 		if (d.containsKey("max")) {
 			max = TiConvert.toInt(d, "max");;
+		}
+		TiFileHelper tfh = null;
+		
+		if (d.containsKey("thumbImage")) {
+			String url = proxy.getTiContext().resolveUrl(null, TiConvert.toString(d, "thumbImage"));
+			if (url != null) {
+				if (tfh == null) {
+					tfh = new TiFileHelper(seekBar.getContext());
+				}
+			}
+			Drawable thumb = tfh.loadDrawable(url, false);
+			seekBar.setThumb(thumb);
+			Drawable[] lda = {
+				new ClipDrawable(new ColorDrawable(Color.RED), Gravity.LEFT, ClipDrawable.HORIZONTAL),
+				tfh.loadDrawable(url, false)
+			};
+			LayerDrawable ld = new LayerDrawable(lda);
+			ld.setId(0, android.R.id.progress);
+			ld.setId(1, android.R.id.background);
+			seekBar.setProgressDrawable(ld);
 		}
 		updateControl();
 	}
