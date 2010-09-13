@@ -32,6 +32,7 @@ void performLayoutRefresh(CFRunLoopTimerRef timer, void *info)
 	{
 		//Might as well stop the timer for now.
 		CFRunLoopTimerInvalidate(layoutTimer);
+		CFRelease(layoutTimer);
 		layoutTimer = NULL;
 	}
 
