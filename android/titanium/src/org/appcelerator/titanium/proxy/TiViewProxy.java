@@ -10,7 +10,6 @@ import java.lang.ref.WeakReference;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.List;
 
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiDict;
@@ -329,6 +328,10 @@ public abstract class TiViewProxy extends TiProxy implements Handler.Callback
 				view.add(cv);
 			}
 		}
+		
+		if (pendingAnimation != null) {
+			handlePendingAnimation();
+		}
 	}
 
 	public void releaseViews() {
@@ -469,12 +472,9 @@ public abstract class TiViewProxy extends TiProxy implements Handler.Callback
 
 	protected void handlePendingAnimation() {
 		if (pendingAnimation != null) {
-			if (getTiContext().isUIThread()) {
-				handleAnimate();
-			} else {
-				Message msg = getUIHandler().obtainMessage(MSG_ANIMATE);
-				msg.sendToTarget();
-			}
+			// Always queue this so any paint / layout messages get processed before the animation starts
+			Message msg = getUIHandler().obtainMessage(MSG_ANIMATE);
+			msg.sendToTarget();
 		}
 	}
 
