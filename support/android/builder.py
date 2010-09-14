@@ -140,6 +140,16 @@ def error(msg):
 	print "[ERROR] "+msg
 	sys.stdout.flush()
 
+def remove_orphaned_files(source_folder, target_folder):
+	for root, dirs, files in os.walk(target_folder):
+		for f in files:
+			full = os.path.join(root, f)
+			rel = full.replace(target_folder, '')
+			if rel[0] == os.sep:
+				rel = rel[1:]
+			if not os.path.exists(os.path.join(source_folder, rel)):
+				os.remove(full)
+
 class Builder(object):
 
 	def __init__(self, name, sdk, project_dir, support_dir, app_id):
@@ -1074,6 +1084,8 @@ class Builder(object):
 			
 			if build_only:
 				self.google_apis_supported = True
+
+			remove_orphaned_files(resources_dir, os.path.join(self.project_dir, 'bin', 'assets', 'Resources'))
 
 			self.build_generated_classes()
 			generated_classes_built = True
