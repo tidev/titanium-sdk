@@ -29,11 +29,13 @@ import android.graphics.ColorMatrix;
 import android.graphics.ColorMatrixColorFilter;
 import android.graphics.drawable.Drawable;
 import android.view.GestureDetector;
+import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.GestureDetector.SimpleOnGestureListener;
 import android.view.View.OnFocusChangeListener;
+import android.view.View.OnKeyListener;
 import android.view.View.OnTouchListener;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.AnimationSet;
@@ -261,7 +263,13 @@ public abstract class TiUIView
 				nativeView.requestLayout();
 			}
 		} else if (key.equals("focusable")) {
-			nativeView.setFocusable(TiConvert.toBoolean(newValue));
+			boolean focusable = TiConvert.toBoolean(newValue);
+			nativeView.setFocusable(focusable);
+			if (focusable) {
+				registerForKeyClick(nativeView);
+			} else {
+				nativeView.setOnClickListener(null);
+			}
 		} else if (key.equals("visible")) {
 			nativeView.setVisibility(TiConvert.toBoolean(newValue) ? View.VISIBLE : View.INVISIBLE);
 		} else if (key.equals("enabled")) {
@@ -383,7 +391,13 @@ public abstract class TiUIView
 		}
 
 		if (d.containsKey("focusable")) {
-			nativeView.setFocusable(TiConvert.toBoolean(d, "focusable"));
+			boolean focusable = TiConvert.toBoolean(d, "focusable");
+			nativeView.setFocusable(focusable);
+			if (focusable) {
+				registerForKeyClick(nativeView);
+			} else {
+				nativeView.setOnClickListener(null);
+			}
 		}
 
 		initializeBorder(d, bgColor);
@@ -674,6 +688,28 @@ public abstract class TiUIView
 	
 	public void clearOpacity(View view) {
 		view.getBackground().clearColorFilter();
+	}
+	
+	protected void registerForKeyClick(View clickable) 
+	{
+		clickable.setOnKeyListener(new OnKeyListener() {
+			
+			@Override
+			public boolean onKey(View view, int keyCode, KeyEvent event) 
+			{
+				if (event.getAction() == KeyEvent.ACTION_UP) {
+					switch(keyCode) {
+					case KeyEvent.KEYCODE_ENTER :
+					case KeyEvent.KEYCODE_DPAD_CENTER :
+						if (proxy.hasListeners("click")) {
+							proxy.fireEvent("click", null);
+							return true;
+						}
+					}
+				}
+				return false;
+			}
+		});
 	}
 
 	public TiDict toImage() {

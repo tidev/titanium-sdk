@@ -211,7 +211,7 @@ ImageLoader *sharedLoader = nil;
 
 @implementation ImageLoaderRequest
 
-@synthesize completed, delegate, imageSize;
+@synthesize completed, delegate, imageSize, request;
 
 DEFINE_EXCEPTIONS
 
@@ -233,11 +233,6 @@ DEFINE_EXCEPTIONS
 		url = [url_ retain];
 	}
 	return self;
-}
-
--(void)setRequest:(ASIHTTPRequest*)request_
-{
-	request = [request_ retain];
 }
 
 -(void)cancel
@@ -513,6 +508,7 @@ DEFINE_EXCEPTIONS
 		ImageLoaderRequest *request = [args objectAtIndex:0];
 		UIImage *image = [args objectAtIndex:1];
 		[[request delegate] imageLoadSuccess:request image:image];
+		[request setRequest:nil];
 	}
 }
 
@@ -649,6 +645,7 @@ DEFINE_EXCEPTIONS
 			[errorDetail setValue:@"Response returned nil" forKey:NSLocalizedDescriptionKey];
 			NSError *error = [NSError errorWithDomain:@"com.appcelerator.titanium.imageloader" code:1 userInfo:errorDetail];
 			[[req delegate] imageLoadFailed:req error:error];
+			[request setUserInfo:nil];
 			[request release];
 			return;
 		}
@@ -693,6 +690,7 @@ DEFINE_EXCEPTIONS
 			[[req delegate] performSelector:@selector(imageLoadCancelled:) withObject:req];
 		}
 	}
+	[request setUserInfo:nil];
 	[request release];
 }
 
@@ -712,6 +710,7 @@ DEFINE_EXCEPTIONS
 	{
 		[[req delegate] imageLoadFailed:req error:[request error]];
 	}
+	[request setUserInfo:nil];
 }
 
 @end
