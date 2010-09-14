@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiDict;
 import org.appcelerator.titanium.TiProxy;
@@ -19,6 +20,7 @@ import org.appcelerator.titanium.util.Log;
 import android.app.Activity;
 import android.content.ContentUris;
 import android.database.Cursor;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.provider.Contacts;
 
@@ -31,6 +33,9 @@ public class PersonProxy extends TiProxy
 	private int kind;
 	private TiDict email, phone, address;
 	private long id;
+	private TiBlob image;
+	private boolean imageFetched; // lazy load these bitmap images
+	private Uri personUri;
 	
 	protected static final String[] PEOPLE_PROJECTION = new String[] {
         Contacts.People._ID,
@@ -232,7 +237,37 @@ public class PersonProxy extends TiProxy
 		addressesCursor.close();
 		person.setAddressFromMap(addresses);
 		
+	
 		return person;
+	}
+	
+	private Uri getPersonUri() 
+	{
+		if (personUri == null) {
+			personUri = ContentUris.withAppendedId(Contacts.People.CONTENT_URI, this.id);
+		}
+		return personUri;
+	}
+	
+	public TiBlob getImage()
+	{
+		if (this.image != null) {
+			return this.image;
+		} else if (!imageFetched && id > 0) {
+			final int NO_PLACEHOLDER_IMAGE = 0;
+			Bitmap photo = Contacts.People.loadContactPhoto(getTiContext().getActivity(), getPersonUri(), NO_PLACEHOLDER_IMAGE, null);
+			this.image = null;
+			if (photo != null) {
+				this.image = TiBlob.blobFromImage(getTiContext(), photo);
+			}
+			imageFetched = true;
+		}
+		return this.image;
+	}
+	
+	public void setImage(TiBlob blob)
+	{
+		this.image = blob;
 	}
 
 	public String getBirthday()
