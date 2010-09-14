@@ -55,7 +55,7 @@ public class KrollContext extends KrollHandlerThread implements Handler.Callback
 	protected KrollContext(TiContext tiContext)
 	{
 		// initialize w/ a 16K stack to avoid StackOverflowErrors in some larger apps
-		super("kroll$" + instanceCounter.incrementAndGet(), Process.THREAD_PRIORITY_DEFAULT, 16 * 1024 * 1024);
+		super("kroll$" + instanceCounter.incrementAndGet(), Process.THREAD_PRIORITY_DEFAULT, 16 * 1024);
 
 		this.tiContext = tiContext;
 		this.initialized = new CountDownLatch(1);
