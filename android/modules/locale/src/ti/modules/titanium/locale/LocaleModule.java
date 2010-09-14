@@ -13,6 +13,8 @@ import org.appcelerator.titanium.TiModule;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiResourceHelper;
 
+import android.telephony.PhoneNumberUtils;
+
 public class LocaleModule extends TiModule
 {
 	private static final String LCAT = "LocaleModule";
@@ -25,6 +27,16 @@ public class LocaleModule extends TiModule
 	public String getCurrentLanguage()
 	{
 	    return Locale.getDefault().getLanguage();
+	}
+	
+	public String getCurrentCountry()
+	{
+	    return Locale.getDefault().getCountry();
+	}
+	
+	public String formatTelephoneNumber(String telephoneNumber)
+	{
+		return PhoneNumberUtils.formatNumber(telephoneNumber);
 	}
 	
 	public void setLanguage(String language) 

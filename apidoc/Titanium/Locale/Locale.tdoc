@@ -23,15 +23,21 @@ android, iphone, ipad
 
 currentLanguage[string]: return the current language for the device based on the user's settings (readonly)
 
+currentCountry[string]: return the current (default) ISO 2-letter country code for the device.
+
 - methods
 
 getString: return a localization string
+formatTelephoneNumber: format a telephone number according to the current locale.
 
 - method : getString, string
 
 key[string]: the key to use when mapping into the localization file
 hint[string]: the text to use if no key found in the localization file
 
+- method : formatTelephoneNumber, string
+
+number[string]: the phone number to format
 
 - notes
 
