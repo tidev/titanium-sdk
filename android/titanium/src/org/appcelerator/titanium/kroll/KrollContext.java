@@ -33,8 +33,9 @@ import android.content.DialogInterface.OnClickListener;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Message;
+import android.os.Process;
 
-public class KrollContext extends HandlerThread implements Handler.Callback
+public class KrollContext extends KrollHandlerThread implements Handler.Callback
 {
 	private static final String LCAT = "KrollContext";
 	private static boolean DBG = TiConfig.DEBUG;
@@ -53,7 +54,8 @@ public class KrollContext extends HandlerThread implements Handler.Callback
 
 	protected KrollContext(TiContext tiContext)
 	{
-		super("kroll$" + instanceCounter.incrementAndGet());
+		// initialize w/ a 16K stack to avoid StackOverflowErrors in some larger apps
+		super("kroll$" + instanceCounter.incrementAndGet(), Process.THREAD_PRIORITY_DEFAULT, 16 * 1024 * 1024);
 
 		this.tiContext = tiContext;
 		this.initialized = new CountDownLatch(1);
@@ -150,7 +152,7 @@ public class KrollContext extends HandlerThread implements Handler.Callback
 		requireInitialized();
 		BufferedReader br = null;   //TODO: remove once new resource code is in
 		Object result = null;
-
+		
 		Context ctx = enter();
 		try {
 			Log.d(LCAT,"eval file: "+filename);
