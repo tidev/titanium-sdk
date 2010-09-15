@@ -473,6 +473,9 @@
 	NSAssert(sections!=nil,@"sections was nil");
 	[[row retain] autorelease];
 	NSMutableArray *rows = [row.section rows];
+#ifdef DEBUG
+	ENSURE_VALUE_CONSISTENCY([rows containsObject:row],YES);
+#endif
 	[rows removeObject:row];
 	[row.section reorderRows];
 }
