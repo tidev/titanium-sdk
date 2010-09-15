@@ -30,6 +30,7 @@ var makeTable = function() {
 			});
 		
 			var top = 0;
+			var showedSomething = false;
 			for (var label in e.row.person.address) {
 				top += 20;
 				var addrs = e.row.person.address[label];
@@ -42,7 +43,11 @@ var makeTable = function() {
 						width:'auto',
 					});
 					display.add(info);
+					showedSomething = true;
 				}
+			}
+			if (!showedSomething){
+				display.add(Ti.UI.createLabel({text: 'No addresses to show'}));
 			}
 			
 			Titanium.UI.currentTab.open(display,{animated:true});
@@ -54,33 +59,6 @@ var makeTable = function() {
 var tableview = Ti.UI.createTableView({
 	data:makeTable()
 });
-
-if (android) {
-	tableview.addEventListener('click', function(e) {
-		var display = Ti.UI.createWindow({
-			backroundColor:'white',
-			title:e.row.person.fullName
-		});
-	
-		var top = 0;
-		for (var label in e.row.person.address) {
-			top += 20;
-			var addrs = e.row.person.address[label];
-			for (var i = 0; i < addrs.length; i++) {
-				var info = Ti.UI.createLabel({
-					text:'('+label+') '+addrs[i].Street,
-					top:top,
-					left:20,
-					height:'auto',
-					width:'auto',
-				});
-				display.add(info);
-			}
-		}
-		
-		Titanium.UI.currentTab.open(display,{animated:true});
-	});
-}
 
 win.add(tableview);
 if (android && activityIndicator) {activityIndicator.hide();}
