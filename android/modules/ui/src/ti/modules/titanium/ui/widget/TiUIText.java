@@ -228,7 +228,7 @@ public class TiUIText extends TiUIView
 		if (DBG) {
 			Log.e(LCAT, "ActionID: " + actionId + " KeyEvent: " + (keyEvent != null ? keyEvent.getKeyCode() : null));
 		}
-		if (actionId != EditorInfo.IME_ACTION_GO) {
+		if (actionId != EditorInfo.IME_ACTION_GO && actionId != EditorInfo.IME_ACTION_SEND) {
 			proxy.fireEvent("return", data);
 		}
 
