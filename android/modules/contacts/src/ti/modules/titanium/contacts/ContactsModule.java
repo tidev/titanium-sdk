@@ -7,6 +7,7 @@
 
 package ti.modules.titanium.contacts;
 
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -61,6 +62,7 @@ public class ContactsModule extends TiModule
 	
 	public Object[] getAllPeople(Object [] args)
 	{
+		Calendar start = Calendar.getInstance();
 		//TODO: right now, this is needed to be able to constrain
 		//temporarily for a specific app.. we need to rethink this entire API
 		int length = Integer.MAX_VALUE;
@@ -70,7 +72,14 @@ public class ContactsModule extends TiModule
 			Double maxObj = (Double)d.get("max");
 			length = maxObj.intValue();
 		}
-		return PersonProxy.getAllPersons(getTiContext(),length);
+		Object[] persons =  PersonProxy.getAllPersons(getTiContext(),length);
+		
+		Calendar end = Calendar.getInstance();
+		long elapsed = end.getTimeInMillis() - start.getTimeInMillis();
+		if (DBG) {
+			Log.d(LCAT, "getAllPersons elapsed: " + elapsed + " milliseconds"); 
+		}
+		return persons;
 	}
 	
 	public Object[] getPeopleWithName(String name)
