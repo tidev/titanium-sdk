@@ -21,6 +21,7 @@ import android.text.InputType;
 import android.text.TextWatcher;
 import android.text.method.DialerKeyListener;
 import android.text.method.DigitsKeyListener;
+import android.text.method.NumberKeyListener;
 import android.text.method.PasswordTransformationMethod;
 import android.text.method.TextKeyListener;
 import android.text.method.TextKeyListener.Capitalize;
@@ -59,7 +60,6 @@ public class TiUIText extends TiUIView
 	private static final int KEYBOARD_EMAIL_ADDRESS = 5;
 	private static final int KEYBOARD_NAMEPHONE_PAD = 6;
 	private static final int KEYBOARD_DEFAULT = 7;
-	private static final int KEYBOARD_PASSWORD = 8; // Not a public constant
 	
 	// UIModule also has these as values - there's a chance they won't stay in sync if somebody changes one without changing these
 	private static final int TEXT_AUTOCAPITALIZATION_NONE = 0;
@@ -85,6 +85,7 @@ public class TiUIText extends TiUIView
 		tv.addTextChangedListener(this);
 		tv.setOnEditorActionListener(this);
 		tv.setOnFocusChangeListener(this); // TODO refactor to TiUIView?
+		tv.setIncludeFontPadding(true); 
 		//tv.setPadding(5, 0, 5, 0);
 		if (field) {
 			tv.setGravity(Gravity.CENTER_VERTICAL | Gravity.LEFT);
@@ -130,56 +131,11 @@ public class TiUIText extends TiUIView
 		if (d.containsKey("returnKeyType")) {
 			handleReturnKeyType(d.getInt("returnKeyType"));
 		}
-		if (d.containsKey("keyboardType"))
+		if (d.containsKey("keyboardType") || d.containsKey("autocorrect") || d.containsKey("passwordMask") || d.containsKey("autocapitalization"))
 		{
-			boolean autocorrect = true;
-			if (d.containsKey("autocorrect")) {
-				autocorrect = d.getBoolean("autocorrect");
-			}
-			handleKeyboardType(d.getInt("keyboardType"), autocorrect);
+			handleKeyboard(d);
+			
 		}
-		
-		if (d.containsKey("autocapitalization")) {
-			
-			Capitalize autoCapValue = null;
-			
-			switch (d.getInt("autocapitalization")) {
-				case TEXT_AUTOCAPITALIZATION_NONE:
-					autoCapValue = Capitalize.NONE;
-				break;
-				
-				case TEXT_AUTOCAPITALIZATION_ALL:
-					autoCapValue = Capitalize.CHARACTERS;
-				break;
-				
-				case TEXT_AUTOCAPITALIZATION_SENTENCES:
-					autoCapValue = Capitalize.SENTENCES;
-				break;
-				
-				case TEXT_AUTOCAPITALIZATION_WORDS:
-					autoCapValue = Capitalize.WORDS;
-				break;
-	
-				default:
-					Log.w(LCAT, "Unknown AutoCapitalization Value ["+d.getString("autocapitalization")+"]");
-				break;
-			}
-			
-			if (null != autoCapValue) {
-				tv.setKeyListener(TextKeyListener.getInstance(false,autoCapValue));					
-			}
-		}
-		
-		if (d.containsKey("passwordMask")) {
-			if (TiConvert.toBoolean(d.get("passwordMask"))) {
-				// This shouldn't be needed but it's belts & braces
-				tv.setKeyListener(TextKeyListener.getInstance(false, Capitalize.NONE));
-				// Both setTransform & keyboard type are required
-				tv.setTransformationMethod(PasswordTransformationMethod.getInstance());
-				// We also need to set the keyboard type - otherwise the password mask won't be applied
-				handleKeyboardType(KEYBOARD_PASSWORD, false);
-			}
-		}		
 	}
 
 
@@ -195,17 +151,6 @@ public class TiUIText extends TiUIView
 			tv.setText((String) newValue);
 		} else if (key.equals("color")) {
 			tv.setTextColor(TiConvert.toColor((String) newValue));
-		} else if (key.equals("passwordMask")) {
-			if (TiConvert.toBoolean(newValue) == true) {
-				// This shouldn't be needed but it's belts & braces
-				tv.setKeyListener(TextKeyListener.getInstance(false, Capitalize.NONE));
-				// Both setTransform & keyboard type are required
-				tv.setTransformationMethod(PasswordTransformationMethod.getInstance());
-				// We also need to set the keyboard type - otherwise the password mask won't be applied
-				handleKeyboardType(KEYBOARD_PASSWORD, false);
-			} else {
-				handleKeyboardType(KEYBOARD_DEFAULT, false);
-			}
 		} else if (key.equals("hintText")) {
 			tv.setHint((String) newValue);
 		} else if (key.equals("textAlign") || key.equals("verticalAlign")) {
@@ -218,45 +163,9 @@ public class TiUIText extends TiUIView
 				verticalAlign = TiConvert.toString(newValue);
 			}
 			handleTextAlign(textAlign, verticalAlign);
-		} else if (key.equals("autocapitalization")) {
-			
-			// TODO Missing
-			Capitalize autoCapValue = null;
-			
-			switch (TiConvert.toInt(newValue)) {
-				case TEXT_AUTOCAPITALIZATION_NONE:
-					autoCapValue = Capitalize.NONE;
-				break;
-				
-				case TEXT_AUTOCAPITALIZATION_ALL:
-					autoCapValue = Capitalize.CHARACTERS;
-				break;
-				
-				case TEXT_AUTOCAPITALIZATION_SENTENCES:
-					autoCapValue = Capitalize.SENTENCES;
-				break;
-				
-				case TEXT_AUTOCAPITALIZATION_WORDS:
-					autoCapValue = Capitalize.WORDS;
-				break;
-	
-				default:
-					Log.w(LCAT, "Unknown AutoCapitalization Value ["+TiConvert.toString(newValue)+"]");
-				break;
-			}
-			
-			if (null != autoCapValue) {
-				tv.setKeyListener(TextKeyListener.getInstance(false,autoCapValue));					
-			}			
-
-		} else if (key.equals("keyboardType") || (key.equals("autocorrect"))) {
+		} else if (key.equals("keyboardType") || (key.equals("autocorrect") || key.equals("autocapitalization") || key.equals("passwordMask"))) {
 			TiDict d = proxy.getDynamicProperties();
-			boolean autocorrect = false;
-			if (d.containsKey("autocorrect")) {
-				autocorrect = d.getBoolean("autocorrect");
-			}
-
-			handleKeyboardType(TiConvert.toInt(d, "keyboardType"), autocorrect);
+			handleKeyboard(d);
 		} else if (key.equals("returnKeyType")) {
 			handleReturnKeyType(TiConvert.toInt(newValue));
 		} else if (key.equals("font")) {
@@ -341,57 +250,123 @@ public class TiUIText extends TiUIView
 		TiUIHelper.setAlignment(tv, textAlign, verticalAlign);
 	}
 
-	public void handleKeyboardType(int type, boolean autocorrect)
+	public void handleKeyboard(TiDict d) 
 	{
-		// Switched the keyboard handler to use the inputType rather than the rawInputType
-		// This is kinda brute-force but more effective for most use-cases
+		int type = KEYBOARD_ASCII;
+		int passwordMask = 0;
+		int autocorrect = InputType.TYPE_TEXT_FLAG_AUTO_CORRECT | InputType.TYPE_TEXT_FLAG_AUTO_CORRECT;
+		int autoCapValue = 0;
+		
+		if (d.containsKey("autocorrect")) {
+			if(TiConvert.toBoolean(d, "autocorrect")) {
+				autocorrect = InputType.TYPE_TEXT_FLAG_AUTO_CORRECT | InputType.TYPE_TEXT_FLAG_AUTO_CORRECT;
+			} else {
+				autocorrect = 0;
+			}
+		}
+
+		if (d.containsKey("autocapitalization")) {
+			
+			switch (TiConvert.toInt(d,"autocapitalization")) {
+				case TEXT_AUTOCAPITALIZATION_NONE:
+					autoCapValue = 0;
+					break;
+				case TEXT_AUTOCAPITALIZATION_ALL:
+					autoCapValue = InputType.TYPE_TEXT_FLAG_CAP_CHARACTERS | 
+						InputType.TYPE_TEXT_FLAG_CAP_SENTENCES |
+						InputType.TYPE_TEXT_FLAG_CAP_WORDS
+						;
+					break;
+				case TEXT_AUTOCAPITALIZATION_SENTENCES:
+					autoCapValue = InputType.TYPE_TEXT_FLAG_CAP_SENTENCES;
+					break;
+				
+				case TEXT_AUTOCAPITALIZATION_WORDS:
+					autoCapValue = InputType.TYPE_TEXT_FLAG_CAP_WORDS;
+					break;
+	
+				default:
+					Log.w(LCAT, "Unknown AutoCapitalization Value ["+d.getString("autocapitalization")+"]");
+				break;
+			}
+		}
+				
+		if (d.containsKey("passwordMask")) {
+			if(TiConvert.toBoolean(d,"passwordMask")) {
+				passwordMask = InputType.TYPE_TEXT_VARIATION_PASSWORD;
+			}
+		}		
+
+		if (d.containsKey("keyboardType")) {
+			type = TiConvert.toInt(d, "keyboardType");
+		}
+		
+		int typeModifiers = autocorrect | passwordMask | autoCapValue;
+		
 		switch(type) {
 			case KEYBOARD_ASCII :
-				tv.setKeyListener(TextKeyListener.getInstance(autocorrect, Capitalize.NONE));
-				tv.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_NORMAL);
-				//tv.setRawInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_NORMAL);
+				tv.setKeyListener(TextKeyListener.getInstance(autocorrect != 0, Capitalize.NONE));
+				tv.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_NORMAL | typeModifiers);
 				break;
 			case KEYBOARD_NUMBERS_PUNCTUATION :
-				tv.setInputType(InputType.TYPE_CLASS_NUMBER);
+				tv.setInputType(InputType.TYPE_CLASS_NUMBER | typeModifiers);
+				tv.setKeyListener(new NumberKeyListener() {
+					
+					@Override
+					public int getInputType() {
+						return InputType.TYPE_CLASS_NUMBER;
+					}
+					
+					@Override
+					protected char[] getAcceptedChars() {
+						return new char[] {
+							'0', '1', '2','3','4','5','6','7','8','9',
+							'.','-','+','_','*','-','!','@', '#', '$',
+							'%', '^', '&', '*', '(', ')', '=',
+							'{', '}', '[', ']', '|', '\\', '<', '>',
+							',', '?', '/', ':', ';', '\'', '"', '~'
+						};
+					}
+				});
 				//tv.setKeyListener(DigitsKeyListener.getInstance());
+				if (passwordMask != 0) {
+					tv.setTransformationMethod(PasswordTransformationMethod.getInstance());
+				}
 				break;
 			case KEYBOARD_URL :
 				Log.i(LCAT, "Setting keyboard type URL-3");
 				//tv.setKeyListener(TextKeyListener.getInstance(autocorrect, Capitalize.NONE));
 				tv.setImeOptions(EditorInfo.IME_ACTION_GO);
-				//tv.setRawInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_URI);
-				tv.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_URI);
+				tv.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_URI | typeModifiers);
 				break;
 			case KEYBOARD_NUMBER_PAD :
 				tv.setKeyListener(DigitsKeyListener.getInstance(true,true));
-				//tv.setRawInputType(InputType.TYPE_CLASS_NUMBER);
-				tv.setInputType(InputType.TYPE_CLASS_NUMBER );
+				tv.setInputType(InputType.TYPE_CLASS_NUMBER | typeModifiers);
+				if (passwordMask != 0) {
+					tv.setTransformationMethod(PasswordTransformationMethod.getInstance());
+				}
 				break;
 			case KEYBOARD_PHONE_PAD :
 				tv.setKeyListener(DialerKeyListener.getInstance());
-				//tv.setRawInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_CLASS_PHONE);
-				tv.setInputType(InputType.TYPE_CLASS_PHONE);
+				tv.setInputType(InputType.TYPE_CLASS_PHONE | typeModifiers);
+				if (passwordMask != 0) {
+					tv.setTransformationMethod(PasswordTransformationMethod.getInstance());
+				}
 				break;
 			case KEYBOARD_EMAIL_ADDRESS :
-				//tv.setKeyListener(TextKeyListener.getInstance(autocorrect, Capitalize.NONE));
-				tv.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS);
+				tv.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS | typeModifiers);
 				break;
 			case KEYBOARD_DEFAULT :
-				tv.setKeyListener(TextKeyListener.getInstance(autocorrect, Capitalize.NONE));
-				//tv.setRawInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_NORMAL);
-				tv.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_NORMAL);
-				break;
-			case KEYBOARD_PASSWORD:
-				tv.setKeyListener(TextKeyListener.getInstance(false, Capitalize.NONE));
-				//tv.setRawInputType(InputType.TYPE_TEXT_VARIATION_PASSWORD);
-				tv.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+				tv.setKeyListener(TextKeyListener.getInstance(autocorrect != 0, Capitalize.NONE));
+				tv.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_NORMAL | typeModifiers);
 				break;
 		}
+
 		if (!field) {
 			tv.setSingleLine(false);
 		}
 	}
-
+	
 	public void handleReturnKeyType(int type)
 	{
 		switch(type) {
