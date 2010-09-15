@@ -34,8 +34,9 @@ public class PersonProxy extends TiProxy
 	private int kind;
 	private TiDict email, phone, address;
 	private long id;
-	private TiBlob image;
+	private TiBlob image = null;
 	private boolean imageFetched; // lazy load these bitmap images
+	protected boolean hasImage = false;
 	private Uri personUri;
 	
 	protected static final String[] PEOPLE_PROJECTION = new String[] {
@@ -67,7 +68,14 @@ public class PersonProxy extends TiProxy
 	protected static final int PHONE_COL_PERSONID = 0;
 	protected static final int PHONE_COL_TYPE = 1;
 	protected static final int PHONE_COL_NUMBER = 2;
-
+	
+	private static final String[] PHOTOS_PROJECTION = new String[] {
+		Contacts.Photos.PERSON_ID,
+		Contacts.Photos.DOWNLOAD_REQUIRED
+	};
+	protected static final int PHOTO_COL_PERSONID = 0;
+	protected static final int PHOTO_COL_DOWNLOAD_REQUIRED = 1;
+	
 	public PersonProxy(TiContext tiContext)
 	{
 		super(tiContext);
@@ -121,6 +129,19 @@ public class PersonProxy extends TiProxy
 			LightPerson lp = persons.get(id);
 			if (lp != null) {
 				lp.addPhoneFromCursor(cursor);
+			}
+		}
+		cursor.close();
+		
+		// Photo info
+		cursor = tiContext.getActivity().managedQuery(
+				Contacts.Photos.CONTENT_URI,
+				PHOTOS_PROJECTION, Contacts.Photos.DATA + " IS NOT NULL", null, null);
+		while (cursor.moveToNext()) {
+			long id = cursor.getLong(PHOTO_COL_PERSONID);
+			LightPerson lp = persons.get(id);
+			if (lp != null) {
+				lp.addPhotoInfoFromCursor(cursor);
 			}
 		}
 		cursor.close();
@@ -268,6 +289,19 @@ public class PersonProxy extends TiProxy
 			lp.addAddressFromCursor(addressesCursor);
 		}
 		addressesCursor.close();
+		
+		Cursor photosCursor = tiContext.getActivity().managedQuery(
+				Contacts.Photos.CONTENT_URI,
+				PHOTOS_PROJECTION,
+				Contacts.Photos.PERSON_ID + " = ? AND " + Contacts.Photos.DATA + " IS NOT NULL",
+				new String[]{ Long.toString(personId)},
+				null);
+		while (photosCursor.moveToNext()) {
+			lp.addPhotoInfoFromCursor(photosCursor);
+		}
+		photosCursor.close();
+		
+		
 		return lp.proxify(tiContext);
 	}
 	
@@ -279,11 +313,16 @@ public class PersonProxy extends TiProxy
 		return personUri;
 	}
 	
+	private boolean isPhotoFetchable()
+	{
+		return (id > 0 && hasImage );
+	}
+	
 	public TiBlob getImage()
 	{
 		if (this.image != null) {
 			return this.image;
-		} else if (!imageFetched && id > 0) {
+		} else if (!imageFetched && isPhotoFetchable()) {
 			final int NO_PLACEHOLDER_IMAGE = 0;
 			Bitmap photo = Contacts.People.loadContactPhoto(getTiContext().getActivity(), getPersonUri(), NO_PLACEHOLDER_IMAGE, null);
 			this.image = null;
@@ -297,7 +336,9 @@ public class PersonProxy extends TiProxy
 	
 	public void setImage(TiBlob blob)
 	{
-		this.image = blob;
+		image = blob;
+		hasImage = true;
+		imageFetched = true;
 	}
 
 	public String getBirthday()
@@ -563,6 +604,7 @@ class LightPerson
 	long id;
 	String name;
 	String notes;
+	boolean hasImage = false;
 	Map<String, ArrayList<String>> emails = new HashMap<String, ArrayList<String>>();
 	Map<String, ArrayList<String>> phones = new HashMap<String, ArrayList<String>>();
 	Map<String, ArrayList<String>> addresses = new HashMap<String, ArrayList<String>>();
@@ -623,6 +665,10 @@ class LightPerson
 		}
 		collection.add(fullAddress);
 	}
+	void addPhotoInfoFromCursor(Cursor photosCursor)
+	{
+		hasImage = true;
+	}
 	
 	PersonProxy proxify(TiContext tiContext)
 	{
@@ -634,6 +680,7 @@ class LightPerson
 		proxy.setAddressFromMap(addresses);
 		proxy.setKind(ContactsModule.CONTACTS_KIND_PERSON) ;
 		proxy.setId(id);
+		proxy.hasImage = this.hasImage;
 		return proxy;
 		
 	}
