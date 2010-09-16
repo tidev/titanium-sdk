@@ -198,7 +198,13 @@
     // Because other windows or proxies we have open and wish to continue functioning might be relying
     // on our created context, we CANNOT explicitly shut down here.  Instead we should memory-manage
     // contexts better so they stop when they're no longer in use.
-    RELEASE_TO_NIL(context);
+
+	// Sadly, today is not that day. Without shutdown, we leak all over the place.
+	if (context!=nil)
+	{
+		[context performSelector:@selector(shutdown:) withObject:nil afterDelay:1.0];
+		RELEASE_TO_NIL(context);
+	}
 	[super windowDidClose];
 }
 
