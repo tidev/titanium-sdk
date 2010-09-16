@@ -330,7 +330,7 @@ public abstract class TiViewProxy extends TiProxy implements Handler.Callback
 		}
 		
 		if (pendingAnimation != null) {
-			handlePendingAnimation();
+			handlePendingAnimation(true);
 		}
 	}
 
@@ -438,6 +438,9 @@ public abstract class TiViewProxy extends TiProxy implements Handler.Callback
 
 	protected void handleHide(TiDict options) {
 		if (view != null) {
+			if (pendingAnimation != null) {
+				handlePendingAnimation(false);
+			}
 			view.hide();
 		}
 	}
@@ -453,7 +456,6 @@ public abstract class TiViewProxy extends TiProxy implements Handler.Callback
 				}
 
 				pendingAnimation = new TiAnimationBuilder();
-				pendingAnimation.applyOptions(getDynamicProperties());
 				pendingAnimation.applyOptions(options);
 				if (callback != null) {
 					pendingAnimation.setCallback(callback);
@@ -461,20 +463,21 @@ public abstract class TiViewProxy extends TiProxy implements Handler.Callback
 			} else if (args[0] instanceof TiAnimation) {
 				TiAnimation anim = (TiAnimation) args[0];
 				pendingAnimation = new TiAnimationBuilder();
-				pendingAnimation.applyOptions(getDynamicProperties());
 				pendingAnimation.applyAnimation(anim);
 			} else {
 				throw new IllegalArgumentException("Unhandled argument to animate: " + args[0].getClass().getSimpleName());
 			}
-			handlePendingAnimation();
+			handlePendingAnimation(false);
 		}
 	}
 
-	protected void handlePendingAnimation() {
-		if (pendingAnimation != null) {
-			// Always queue this so any paint / layout messages get processed before the animation starts
-			Message msg = getUIHandler().obtainMessage(MSG_ANIMATE);
-			msg.sendToTarget();
+	public void handlePendingAnimation(boolean forceQueue) {
+		if (pendingAnimation != null && peekView() != null) {
+			if (forceQueue || !getTiContext().isUIThread()) {
+				getUIHandler().obtainMessage(MSG_ANIMATE).sendToTarget();
+			} else {
+				handleAnimate();
+			}
 		}
 	}
 
