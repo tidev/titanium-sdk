@@ -432,6 +432,9 @@ public class TiUIWindow extends TiUIView
 		View layout = nativeView;
 		if (!lightWeight) {
 			TiActivity tia = (TiActivity) windowActivity;
+			if (tia == null) {
+				return null;
+			}
 			layout = tia.getLayout();
 		}
 		return layout;
