@@ -81,13 +81,17 @@ public final class BarcodeActivity extends Activity implements
 		PRODUCT_FORMATS.add(BarcodeFormat.EAN_13);
 		PRODUCT_FORMATS.add(BarcodeFormat.EAN_8);
 		// PRODUCT_FORMATS.add(BarcodeFormat.RSS14);
+		
 		ONE_D_FORMATS = new Vector<BarcodeFormat>(PRODUCT_FORMATS.size() + 3);
 		ONE_D_FORMATS.addAll(PRODUCT_FORMATS);
 		ONE_D_FORMATS.add(BarcodeFormat.CODE_39);
 		ONE_D_FORMATS.add(BarcodeFormat.CODE_128);
 		ONE_D_FORMATS.add(BarcodeFormat.ITF);
-		QR_CODE_FORMATS = new Vector<BarcodeFormat>(1);
+		
+		QR_CODE_FORMATS = new Vector<BarcodeFormat>(2);
 		QR_CODE_FORMATS.add(BarcodeFormat.QR_CODE);
+		QR_CODE_FORMATS.add(BarcodeFormat.DATA_MATRIX);
+		
 		ALL_FORMATS = new Vector<BarcodeFormat>(ONE_D_FORMATS.size()
 				+ QR_CODE_FORMATS.size());
 		ALL_FORMATS.addAll(ONE_D_FORMATS);
