@@ -42,8 +42,11 @@ public class TiApplication extends Application
 	public static final String DEPLOY_TYPE_DEVELOPMENT = "development";
 	public static final String DEPLOY_TYPE_TEST = "test";
 	public static final String DEPLOY_TYPE_PRODUCTION = "production";
-
+	public static final int DEFAULT_THREAD_STACK_SIZE = 16 * 1024; // 16K as a "sane" default
+	
 	private static final String PROPERTY_DEPLOY_TYPE = "ti.deploytype";
+	private static final String PROPERTY_THREAD_STACK_SIZE = "ti.android.threadstacksize";
+	
 	private static final String LCAT = "TiApplication";
 	private static final boolean DBG = TiConfig.LOGD;
 	private static final long STATS_WAIT = 300000;
@@ -102,6 +105,8 @@ public class TiApplication extends Application
 	public void onCreate()
 	{
 		super.onCreate();
+
+		TiScriptRunner.getInstance().setAppPackageName(getPackageName());
 		if (DBG) {
 			Log.d(LCAT, "Application onCreate");
 		}
@@ -449,5 +454,9 @@ public class TiApplication extends Application
 	
 	public String getTiBuildHash() {
 		return buildHash;
+	}
+	
+	public int getThreadStackSize() {
+		return getSystemProperties().getInt(PROPERTY_THREAD_STACK_SIZE, DEFAULT_THREAD_STACK_SIZE);
 	}
 }

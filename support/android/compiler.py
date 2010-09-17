@@ -118,8 +118,33 @@ class Compiler(object):
 			self.extract_and_combine_modules('Titanium',line)
 			self.extract_and_combine_modules('Ti',line)
 	
-	def compile_into_bytecode(self,paths):
-		res_dir = os.path.join(self.root_dir,'res','values')
+	def compile_javascript(self, fullpath):
+		js_jar = os.path.join(self.template_dir, 'js.jar')
+		resource_relative_path = os.path.relpath(fullpath, self.project_dir)
+		
+		# chop off '.js'
+		js_class_name = resource_relative_path[:-3]
+		escape_chars = ['\\', '/', ' ', '.']
+		for escape_char in escape_chars:
+			js_class_name = js_class_name.replace(escape_char, '_')
+		
+		jsc_args = [self.java, '-classpath', js_jar, 'org.mozilla.javascript.tools.jsc.Main',
+			'-main-method-class', 'org.appcelerator.titanium.TiScriptRunner', '-g',
+			'-package', self.appid + '.js', '-o', js_class_name,
+			'-d', os.path.join(self.root_dir, 'bin'), fullpath]
+			
+		print "[DEBUG] compiling javascript: %s" % resource_relative_path
+		sys.stdout.flush()
+		
+		run.run(jsc_args)
+		
+	def compile_into_bytecode(self, paths):
+		for fullpath in paths:
+			# skip any JS found inside HTML <script>
+			if fullpath in self.html_scripts: continue
+			self.compile_javascript(fullpath)
+		
+		"""res_dir = os.path.join(self.root_dir,'res','values')
 		if not os.path.exists(res_dir):
 			os.makedirs(res_dir)
 
@@ -145,7 +170,7 @@ class Compiler(object):
 			self.compiled_files.append(fullpath)
 			
 		ff.write(u'</resources>\n')
-		ff.close()
+		ff.close()"""
 		
 	def get_ext(self, path):
 		fp = os.path.splitext(path)
@@ -220,10 +245,19 @@ class Compiler(object):
 					
 					
 if __name__ == "__main__":
-	project_dir = os.path.expanduser("~/work/titanium_mobile/demos/KitchenSink")
-	resources_dir = os.path.join(project_dir,"Resources")
-	c = Compiler("com.appcelerator.kitchensink",resources_dir,"java","/Users/jhaynie/Documents/workspace/RhinoFun/generated")
+	if len(sys.argv) != 2:
+		print "Usage: %s <projectdir>" % sys.argv[0]
+		sys.exit(1)
+
+	project_dir = os.path.expanduser(sys.argv[1])
+	resources_dir = os.path.join(project_dir, 'Resources')
+	root_dir = os.path.join(project_dir, 'build', 'android')
+	destdir = os.path.join(root_dir, 'bin')
+	sys.path.append("..")
+	import tiapp
+	xml = tiapp.TiAppXML(os.path.join(project_dir, 'tiapp.xml'))
+
+	c = Compiler(xml.properties['name'], xml.properties['id'], resources_dir, 'java', destdir, root_dir)
 	project_deltafy = Deltafy(resources_dir)
 	project_deltas = project_deltafy.scan()
-	c.compile(project_deltas)
-	print c.html_scripts
+	c.compile()
