@@ -30,6 +30,7 @@ Titanium writes native code so you don't have to. :)
 - Support for in-application SQL database
 - Support for Geolocation (compass, geolocation, forward/reverse lookup)
 - Support for Camera (taking Photos, playing and recording Video)
+- Support for Barcode Scanner (Detect barcodes, scan them)
 - Support for Photo Album (reading and writing)
 - Support for Contacts Database / Address Book
 - Support for Streaming Audio and Recording Audio, Audio Input Levels, Mic etc
