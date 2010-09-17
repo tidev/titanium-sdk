@@ -39,8 +39,10 @@ public class LabelProxy extends TiViewProxy
 	public void eventListenerAdded(String eventName, int count, TiProxy proxy) {
 		super.eventListenerAdded(eventName, count, proxy);
 		
-		if (eventName.equals("click")) {
-			((TiUILabel)getView(getTiContext().getActivity())).setClickable(true);
+		if (eventName.equals("click") && proxy.equals(this)) {
+			if (peekView() != null) {
+				((TiUILabel)getView(getTiContext().getActivity())).setClickable(true);
+			}
 		}
 	}
 	
@@ -48,16 +50,20 @@ public class LabelProxy extends TiViewProxy
 	public void eventListenerRemoved(String eventName, int count, TiProxy proxy) {
 		super.eventListenerRemoved(eventName, count, proxy);
 		
-		if (eventName.equals("click") && count == 0) {
-			((TiUILabel)getView(getTiContext().getActivity())).setClickable(false);
+		if (eventName.equals("click") && count == 0 && proxy.equals(this)) {
+			if (peekView() != null) {
+				((TiUILabel)getView(getTiContext().getActivity())).setClickable(false);
+			}
 		}
 	}
 	
 	public void setClickable(boolean clickable) {
-		TiUILabel label = (TiUILabel)getView(getTiContext().getActivity());
-		if (label != null) {
-			label.setClickable(clickable);
-		}
 		this.clickable = clickable;
+		if (peekView() != null) {
+			TiUILabel label = (TiUILabel)getView(getTiContext().getActivity());
+			if (label != null) {
+				label.setClickable(clickable);
+			}
+		}
 	}
 }
