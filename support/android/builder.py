@@ -397,6 +397,7 @@ class Builder(object):
 		CONTACTS_PERMISSION = ['READ_CONTACTS']
 		VIBRATE_PERMISSION = ['VIBRATE']
 		CAMERA_PERMISSION = ['CAMERA']
+		BARCODE_PERMISSION = ['CAMERA', 'FLASHLIGHT']
 		
 		# this is our module method to permission(s) trigger - for each method on the left, require the permission(s) on the right
 		permission_mapping = {
@@ -424,6 +425,9 @@ class Builder(object):
 			'Contacts.getAllPeople' : CONTACTS_PERMISSION,
 			'Contacts.getAllGroups' : CONTACTS_PERMISSION,
 			'Contacts.getGroupByID' : CONTACTS_PERMISSION,
+			
+			# BARCODE
+			'Barcode.scan' : BARCODE_PERMISSION,
 		}
 		
 		VIDEO_ACTIVITY = """<activity
@@ -443,6 +447,12 @@ class Builder(object):
 		android:name="ti.modules.titanium.facebook.FBActivity"
 		android:theme="@android:style/Theme.Translucent.NoTitleBar"
     />"""
+
+		BARCODE_ACTIVITY = """<activity
+		android:name="ti.modules.titanium.barcode.BarcodeActivity"
+		android:screenOrientation="landscape" android:configChanges="orientation|keyboardHidden"
+		android:theme="@android:style/Theme.NoTitleBar.Fullscreen"
+		/>"""
 		
 		activity_mapping = {
 		
@@ -456,6 +466,9 @@ class Builder(object):
 			'Facebook.setup' : FACEBOOK_ACTIVITY,
 			'Facebook.login' : FACEBOOK_ACTIVITY,
 			'Facebook.createLoginButton' : FACEBOOK_ACTIVITY,
+			
+			# BARCODE
+			'Barcode.scan' : BARCODE_ACTIVITY,
 		}
 		
 		# this is a map of our APIs to ones that require Google APIs to be available on the device
