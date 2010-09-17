@@ -179,11 +179,16 @@ public class BumpModule extends TiModule implements TiActivityResultHandler, Bum
 
 			try {
 				BumpConnectFailedReason reason = (BumpConnectFailedReason) data.getSerializableExtra(BumpAPI.EXTRA_REASON);
-				
-				// Notify the app about the failure
+
 				TiDict eventData = new TiDict();
 				eventData.put("message", reason.toString());
-				this.fireEvent("error", eventData);
+
+				if (reason == BumpConnectFailedReason.FAIL_USER_CANCELED) {
+					this.fireEvent("cancel", eventData);
+				} else {
+					// Notify the app about the failure
+					this.fireEvent("error", eventData);
+				}
 				
 				Log.e(LCAT, "--- Failed to connect (" + reason.toString() + ")---");				
 			} catch (Exception e) {
