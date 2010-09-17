@@ -9,7 +9,7 @@
 	<supports-screens android:smallScreens="false"
                 android:normalScreens="true"
                 android:largeScreens="true"
-                android:anyDensity="false"
+                android:anyDensity="true"
     />
     
 	<application
