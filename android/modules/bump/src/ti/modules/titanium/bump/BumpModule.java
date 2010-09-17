@@ -36,14 +36,11 @@ public class BumpModule extends TiModule implements TiActivityResultHandler, Bum
 	private String username = null;
 	private String bumpMessage = null;
 
-	// This shouldn't be required - but it's belts & braces to try and get around their null ptr exception
-	private TiActivityResultHandler handler;
 	private final Handler baseHandler = new Handler();
 
 	public BumpModule(TiContext context) {
 		super(context);
 		// Setup ourselves as the listener for the result of the Activity
-		setActivityResultHandler(this);
 	}
 	
 	protected void sendMessage(String message) {
@@ -66,7 +63,7 @@ public class BumpModule extends TiModule implements TiActivityResultHandler, Bum
 	
 	protected void connectBump() {
 		
-		Activity activity = getTiContext().getActivity();
+		Activity activity = getTiContext().getTiApp().getCurrentActivity();
 		TiActivitySupport activitySupport = (TiActivitySupport) activity;
 		final int resultCode = activitySupport.getUniqueResultCode();
 		
@@ -92,7 +89,7 @@ public class BumpModule extends TiModule implements TiActivityResultHandler, Bum
 				bump.putExtra(BumpAPI.EXTRA_ACTION_MSG, bumpMessage);				
 			}
 			
-			activitySupport.launchActivityForResult(bump, resultCode, handler);	
+			activitySupport.launchActivityForResult(bump, resultCode, this);	
 			
 			if (DBG) {
 				Log.d(LCAT, "Launched Bump Activity");				
@@ -148,10 +145,6 @@ public class BumpModule extends TiModule implements TiActivityResultHandler, Bum
 		
 	}
 
-	public void setActivityResultHandler(TiActivityResultHandler handler) {
-		this.handler = handler;
-	}
-
 	@Override
 	public void onResult(Activity activity, int requestCode, int resultCode, Intent data) {
 		
@@ -186,11 +179,16 @@ public class BumpModule extends TiModule implements TiActivityResultHandler, Bum
 
 			try {
 				BumpConnectFailedReason reason = (BumpConnectFailedReason) data.getSerializableExtra(BumpAPI.EXTRA_REASON);
-				
-				// Notify the app about the failure
+
 				TiDict eventData = new TiDict();
 				eventData.put("message", reason.toString());
-				this.fireEvent("error", eventData);
+
+				if (reason == BumpConnectFailedReason.FAIL_USER_CANCELED) {
+					this.fireEvent("cancel", eventData);
+				} else {
+					// Notify the app about the failure
+					this.fireEvent("error", eventData);
+				}
 				
 				Log.e(LCAT, "--- Failed to connect (" + reason.toString() + ")---");				
 			} catch (Exception e) {

@@ -67,7 +67,7 @@ public class TiContext implements TiEvaluator, ITiMenuDispatcherListener, ErrorR
 	private WeakReference<Activity> weakActivity;
 	private TiEvaluator	tiEvaluator;
 	private TiApplication tiApp;
-	private HashMap<String, HashMap<Integer, TiListener>> eventListeners;
+	private Map<String, HashMap<Integer, TiListener>> eventListeners;
 	private AtomicInteger listenerIdGenerator;
 
 	private ArrayList<WeakReference<OnEventListenerChange>> eventChangeListeners;
@@ -135,7 +135,8 @@ public class TiContext implements TiEvaluator, ITiMenuDispatcherListener, ErrorR
 		this.tiApp = (TiApplication) activity.getApplication();
 		this.weakActivity = new WeakReference<Activity>(activity);
 		this.listenerIdGenerator = new AtomicInteger(0);
-		this.eventListeners = new HashMap<String, HashMap<Integer,TiListener>>();
+		//this.eventListeners = new HashMap<String, HashMap<Integer,TiListener>>();
+		this.eventListeners = Collections.synchronizedMap(new HashMap<String, HashMap<Integer,TiListener>>());
 		eventChangeListeners = new ArrayList<WeakReference<OnEventListenerChange>>();
 		//lifecycleListeners = new ArrayList<WeakReference<OnLifecycleEvent>>();
 		lifecycleListeners = Collections.synchronizedList(new ArrayList<WeakReference<OnLifecycleEvent>>());
@@ -383,6 +384,7 @@ public class TiContext implements TiEvaluator, ITiMenuDispatcherListener, ErrorR
 	public int addEventListener(String eventName, TiProxy tiProxy, Object listener)
 	{
 		int listenerId = -1;
+		int listenerCount = 0;
 
 		if (eventName != null) {
 			if (tiProxy != null) {
@@ -399,8 +401,9 @@ public class TiContext implements TiEvaluator, ITiMenuDispatcherListener, ErrorR
 						if (DBG) {
 							Log.d(LCAT, "Added for eventName '" + eventName + "' with id " + listenerId);
 						}
-						dispatchOnEventChange(true, eventName, listeners.size(), tiProxy);
+						listenerCount = listeners.size();
 					}
+					dispatchOnEventChange(true, eventName, listenerCount, tiProxy);
 				} else {
 					throw new IllegalStateException("addEventListener expects a non-null listener");
 				}
@@ -443,24 +446,33 @@ public class TiContext implements TiEvaluator, ITiMenuDispatcherListener, ErrorR
 			return;
 		}
 
+		boolean removed = false;
+		int newCount = 0;
+		SoftReference<TiProxy> proxyOfListener = null;
+		
 		if (eventName != null) {
-			HashMap<Integer, TiListener> listeners = eventListeners.get(eventName);
-			if (listeners != null) {
-				boolean removed = false;
-				for (Entry<Integer, TiListener> entry : listeners.entrySet())
-				{
-					Object l = entry.getValue().listener;
-					if (l.equals(listener))
+			synchronized(eventListeners) {
+				HashMap<Integer, TiListener> listeners = eventListeners.get(eventName);
+				if (listeners != null) {
+					for (Entry<Integer, TiListener> entry : listeners.entrySet())
 					{
-						listeners.remove(entry.getKey());
-						dispatchOnEventChange(false, eventName, listeners.size(), entry.getValue().weakTiProxy.get());
-						removed = true;
-						break;
+						Object l = entry.getValue().listener;
+						if (l.equals(listener))
+						{
+							listeners.remove(entry.getKey());
+							removed = true;
+							newCount = listeners.size();
+							proxyOfListener = entry.getValue().weakTiProxy;
+							break;
+						}
+					}
+					if (!removed) {
+						Log.w(LCAT, "listener not found for eventName '" + eventName + "'");
 					}
 				}
-				if (!removed) {
-					Log.w(LCAT, "listener not found for eventName '" + eventName + "'");
-				}
+			}
+			if (removed) {
+				dispatchOnEventChange(false, eventName, newCount, proxyOfListener.get());
 			}
 		} else {
 			throw new IllegalStateException("removeEventListener expects a non-null eventName");
@@ -472,29 +484,31 @@ public class TiContext implements TiEvaluator, ITiMenuDispatcherListener, ErrorR
 		if (eventListeners == null) {
 			return;
 		}
-		for (String eventName : eventListeners.keySet()) {
-			HashMap<Integer, TiListener> listeners = eventListeners.get(eventName);
-			if (listeners != null) {
-				ArrayList<Integer> toDelete = null;
-				for (Entry<Integer, TiListener>entry :  listeners.entrySet()) {
-					TiListener l = entry.getValue();
-					if (l.listener instanceof KrollCallback) {
-						KrollCallback kc = (KrollCallback) l.listener;
-						if (kc != null && kc.isWithinTiContext(listeningContext)) {
-							if (toDelete == null) {
-								toDelete = new ArrayList<Integer>();
+		synchronized(eventListeners) {
+			for (String eventName : eventListeners.keySet()) {
+				HashMap<Integer, TiListener> listeners = eventListeners.get(eventName);
+				if (listeners != null) {
+					ArrayList<Integer> toDelete = null;
+					for (Entry<Integer, TiListener>entry :  listeners.entrySet()) {
+						TiListener l = entry.getValue();
+						if (l.listener instanceof KrollCallback) {
+							KrollCallback kc = (KrollCallback) l.listener;
+							if (kc != null && kc.isWithinTiContext(listeningContext)) {
+								if (toDelete == null) {
+									toDelete = new ArrayList<Integer>();
+								}
+								toDelete.add(entry.getKey());
 							}
-							toDelete.add(entry.getKey());
+						}
+					}
+					if (toDelete != null) {
+						for (Integer id  : toDelete) {
+							removeEventListener(eventName, id.intValue());
 						}
 					}
 				}
-				if (toDelete != null) {
-					for (Integer id  : toDelete) {
-						removeEventListener(eventName, id.intValue());
-					}
-				}
+				
 			}
-			
 		}
 	}
 
@@ -520,12 +534,14 @@ public class TiContext implements TiEvaluator, ITiMenuDispatcherListener, ErrorR
 
 		if (eventName != null) {
 			if (tiProxy != null) {
-				HashMap<Integer, TiListener> listeners = eventListeners.get(eventName);
-				if (listeners != null && !listeners.isEmpty()) {
-					for (TiListener listener : listeners.values()) {
-						if (listener.isSameProxy(tiProxy)) {
-							result = true;
-							break;
+				synchronized(eventListeners) {
+					HashMap<Integer, TiListener> listeners = eventListeners.get(eventName);
+					if (listeners != null && !listeners.isEmpty()) {
+						for (TiListener listener : listeners.values()) {
+							if (listener.isSameProxy(tiProxy)) {
+								result = true;
+								break;
+							}
 						}
 					}
 				}
