@@ -495,7 +495,7 @@ extern NSString * const TI_APPLICATION_RESOURCE_DIR;
 	{
 		if ([object hasPrefix:@"/"])
 		{
-			return [NSURL fileURLWithPath:object];
+			return [TiUtils checkFor2XImage:[NSURL fileURLWithPath:object]];
 		}
 		if ([object hasPrefix:@"sms:"] || 
 			[object hasPrefix:@"tel:"] ||
