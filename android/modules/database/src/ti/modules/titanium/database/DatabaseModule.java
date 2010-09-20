@@ -15,11 +15,13 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 import org.appcelerator.titanium.TiContext;
+import org.appcelerator.titanium.TiFile;
 import org.appcelerator.titanium.TiModule;
 import org.appcelerator.titanium.io.TiBaseFile;
 import org.appcelerator.titanium.io.TiFileFactory;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
+import org.appcelerator.titanium.util.TiConvert;
 
 import android.content.Context;
 import android.database.SQLException;
@@ -34,18 +36,30 @@ public class DatabaseModule extends TiModule
 		super(tiContext);
 	}
 
-	public TiDatabaseProxy open(String name) {
+	public TiDatabaseProxy open(Object file) {
 		TiDatabaseProxy dbp = null;
 
 		try {
-			SQLiteDatabase db = getTiContext().getTiApp().openOrCreateDatabase(name, Context.MODE_PRIVATE, null);
+			if (file instanceof TiFile) {
+				// File support is read-only for now. The NO_LOCALIZED_COLLATORS flag means the database doesn't have Android metadata (i.e. vanilla)
+				TiFile tiFile = (TiFile) file;
+				String absolutePath = tiFile.getBaseFile().getNativeFile().getAbsolutePath();
+				Log.d(LCAT, "Opening database from filesystem: " + absolutePath);
+				
+				SQLiteDatabase db = SQLiteDatabase.openDatabase(absolutePath, null, SQLiteDatabase.OPEN_READONLY | SQLiteDatabase.NO_LOCALIZED_COLLATORS);
+				dbp = new TiDatabaseProxy(getTiContext(), db);
+			} else {
+				String name = TiConvert.toString(file);
+				SQLiteDatabase db = getTiContext().getTiApp().openOrCreateDatabase(name, Context.MODE_PRIVATE, null);
+				dbp = new TiDatabaseProxy(getTiContext(), name, db);
+			}
+			
 			if (DBG) {
-				Log.d(LCAT, "Opened database: " + name);
+				Log.d(LCAT, "Opened database: " + dbp.getName());
 			}
 
-			dbp = new TiDatabaseProxy(getTiContext(), name, db);
 		} catch (SQLException e) {
-			String msg = "Error opening database: " + name + " msg=" + e.getMessage();
+			String msg = "Error opening database: " + dbp.getName() + " msg=" + e.getMessage();
 			Log.e(LCAT, msg, e);
 			//TODO throw exception
 		}
