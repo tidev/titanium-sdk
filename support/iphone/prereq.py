@@ -70,19 +70,10 @@ def check_iphone3():
 		sys.exit(1)
 
 def check_itunes_version(props):
-	ver = run.run(['/usr/libexec/PlistBuddy','-c','Print :CFBundleVersion','/Applications/iTunes.app/Contents/version.plist'],True,False)
-	ver = ver.strip()
-	props['itunes_version']=ver
-	props['itunes']=False
+	# FROM NOW ON, WE DON'T NEED TO WORRY ABOUT iTUNES
+	props['itunes_version']='10.0'
+	props['itunes']=True
 	props['itunes_message']=None
-	if ver:
-		toks = ver.split('.')
-		major = toks[0]
-		minor = toks[1]
-		if (major == 8 and minor >= 2) or major > 8:
-			props['itunes']=True
-			return
-	props['itunes_message'] = 'iTunes 8.2 or later required. You have %s' % ver		
 
 def check_for_wwdr(props,line):
 	if len(re.findall('Apple Worldwide Developer Relations Certification Authority',line)) > 0:
