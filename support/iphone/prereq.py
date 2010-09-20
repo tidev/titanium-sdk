@@ -70,17 +70,10 @@ def check_iphone3():
 		sys.exit(1)
 
 def check_itunes_version(props):
-	ver = run.run(['osascript',os.path.join(template_dir,'itunes_ver.scpt')],False,False).strip()
-	props['itunes_version']=ver
-	props['itunes']=False
+	# FROM NOW ON, WE DON'T NEED TO WORRY ABOUT iTUNES
+	props['itunes_version']='10.0'
+	props['itunes']=True
 	props['itunes_message']=None
-	if ver:
-		major = int(ver[0])
-		minor = int(ver[2])
-		if (major == 8 and minor >= 2) or major > 8:
-			props['itunes']=True
-			return
-	props['itunes_message'] = 'iTunes 8.2 or later required. You have %s' % ver		
 
 def check_for_wwdr(props,line):
 	if len(re.findall('Apple Worldwide Developer Relations Certification Authority',line)) > 0:
@@ -161,4 +154,3 @@ if __name__ == "__main__":
 # FOR TESTING
 #check_for_package()
 #check_iphone3()
-
