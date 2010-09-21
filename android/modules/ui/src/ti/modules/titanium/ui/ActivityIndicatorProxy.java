@@ -22,6 +22,13 @@ public class ActivityIndicatorProxy extends TiViewProxy
 	}
 
 	@Override
+	protected TiDict getLangConversionTable() {
+		TiDict table = new TiDict();
+		table.put("message","messageid");
+		return table;
+	}
+
+	@Override
 	public TiUIView createView(Activity activity)
 	{
 		return new TiUIActivityIndicator(this);

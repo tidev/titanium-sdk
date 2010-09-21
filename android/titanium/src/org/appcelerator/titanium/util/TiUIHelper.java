@@ -14,6 +14,7 @@ import java.lang.reflect.Method;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.codec.digest.DigestUtils;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiDict;
@@ -28,6 +29,10 @@ import android.content.DialogInterface.OnClickListener;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.graphics.ColorFilter;
+import android.graphics.ColorMatrix;
+import android.graphics.ColorMatrixColorFilter;
+import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.graphics.Bitmap.CompressFormat;
@@ -282,7 +287,7 @@ public class TiUIHelper
 	}
 
 
-	public static StateListDrawable buildBackgroundDrawable(Context context,
+	public static StateListDrawable buildBackgroundDrawable(TiContext tiContext,
 			String image,
 			String color,
 			String selectedImage,
@@ -298,17 +303,19 @@ public class TiUIHelper
 		Drawable bgSelectedDrawable = null;
 		Drawable bgFocusedDrawable = null;
 		Drawable bgDisabledDrawable = null;
+		
+		Context appContext = tiContext.getActivity().getApplicationContext();
 
-		TiFileHelper tfh = new TiFileHelper(context);
+		TiFileHelper tfh = new TiFileHelper(appContext);
 
 		if (image != null) {
-			bgDrawable = tfh.loadDrawable(image, false, true);
+			bgDrawable = tfh.loadDrawable(tiContext, image, false, true);
 		} else if (color != null) {
 			bgDrawable = new ColorDrawable(TiConvert.toColor(color));
 		}
 
 		if (selectedImage != null) {
-			bgSelectedDrawable = tfh.loadDrawable(selectedImage, false, true);
+			bgSelectedDrawable = tfh.loadDrawable(tiContext, selectedImage, false, true);
 		} else if (selectedColor != null) {
 			bgSelectedDrawable = new ColorDrawable(TiConvert.toColor(selectedColor));
 		} else {
@@ -320,24 +327,24 @@ public class TiUIHelper
 		}
 
 		if (focusedImage != null) {
-			bgFocusedDrawable = tfh.loadDrawable(focusedImage, false, true);
+			bgFocusedDrawable = tfh.loadDrawable(tiContext, focusedImage, false, true);
 		} else if (focusedColor != null) {
 			bgFocusedDrawable = new ColorDrawable(TiConvert.toColor(focusedColor));
 		} else {
 			if (image != null) {
-				bgFocusedDrawable = tfh.loadDrawable(image, false, true);
+				bgFocusedDrawable = tfh.loadDrawable(tiContext, image, false, true);
 			} else if (color != null) {
 				bgFocusedDrawable = new ColorDrawable(TiConvert.toColor(color));				
 			}
 		}
 
 		if (disabledImage != null) {
-			bgDisabledDrawable = tfh.loadDrawable(disabledImage, false, true);
+			bgDisabledDrawable = tfh.loadDrawable(tiContext, disabledImage, false, true);
 		} else if (disabledColor != null) {
 			bgDisabledDrawable = new ColorDrawable(TiConvert.toColor(disabledColor));
 		} else {
 			if (image != null) {
-				bgDisabledDrawable = tfh.loadDrawable(image, false, true);
+				bgDisabledDrawable = tfh.loadDrawable(tiContext, image, false, true);
 			} else if (color != null) {
 				bgDisabledDrawable = new ColorDrawable(TiConvert.toColor(color));				
 			}
@@ -470,6 +477,82 @@ public class TiUIHelper
 		return b;
 	}
 	
+	private static String getRAKeyForImage(String url)
+	{
+		Pattern pattern = Pattern.compile("^.*/Resources/images/(.*$)");
+		Matcher matcher = pattern.matcher(url);
+		if (!matcher.matches()) {
+			return null;
+		}
+		
+		String chopped = matcher.group(1);
+		if (chopped == null) {
+			return null;
+		}
+		
+		chopped = chopped.toLowerCase();
+		String forHash = chopped;
+		if (forHash.endsWith(".9.png")) {
+			forHash = forHash.replace(".9.png", ".png");
+		}
+		String withoutExtension = chopped;
+		
+		if (chopped.matches("^.*\\..*$")) {
+			if (chopped.endsWith(".9.png")) {
+				withoutExtension = chopped.substring(0, chopped.lastIndexOf(".9.png"));
+			} else {
+				withoutExtension = chopped.substring(0, chopped.lastIndexOf('.'));
+			}
+		}
+		
+		String cleanedWithoutExtension = withoutExtension.replaceAll("[^a-z0-9_]", "_");
+		StringBuilder result = new StringBuilder(100);
+		result.append(cleanedWithoutExtension.substring(0, Math.min(cleanedWithoutExtension.length(), 80))) ;
+		result.append("_");
+		result.append(DigestUtils.md5Hex(forHash).substring(0, 10));
+		
+		return result.toString();
+	}
+	
+	public static Bitmap getResourceBitmap(TiContext context, String url)
+	{
+		if (!url.contains("Resources/images/")) {
+			return null;
+		}
+		
+		String key = getRAKeyForImage(url);
+		if (key == null) {
+			return null;
+		}
+		
+		int id = TiResourceHelper.getDrawable(key);
+		if (id == 0) {
+			return null;
+		}
+		
+		Bitmap bitmap = BitmapFactory.decodeResource(context.getActivity().getResources(), id);
+		return bitmap;
+	}
+	
+	public static Drawable getResourceDrawable(TiContext context, String url)
+	{
+		if (!url.contains("Resources/images/")) {
+			return null;
+		}
+		
+		String key = getRAKeyForImage(url);
+		if (key == null) {
+			return null;
+		}
+		
+		int id = TiResourceHelper.getDrawable(key);
+		if (id == 0) {
+			return null;
+		}
+		
+		return context.getActivity().getResources().getDrawable(id);
+	}
+	
 	public static void overridePendingTransition(Activity activity) 
 	{
 		if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.DONUT) {
@@ -496,6 +579,31 @@ public class TiUIHelper
 		}
 	}
 	
+	public static ColorFilter createColorFilterForOpacity(float opacity) {
+		// 5x4 identity color matrix + fade the alpha to achieve opacity
+		float[] matrix = {
+			1, 0, 0, 0, 0,
+			0, 1, 0, 0, 0,
+			0, 0, 1, 0, 0,
+			0, 0, 0, opacity, 0
+		};
+		
+		return new ColorMatrixColorFilter(new ColorMatrix(matrix));
+	}
+	
+	public static void setDrawableOpacity(Drawable drawable, float opacity) {
+		if (drawable instanceof ColorDrawable) {
+			ColorDrawable colorDrawable = (ColorDrawable) drawable;
+			colorDrawable.setAlpha(Math.round(opacity * 255));
+		} else if (drawable != null) {
+			drawable.setColorFilter(createColorFilterForOpacity(opacity));
+		}
+	}
+	
+	public static void setPaintOpacity(Paint paint, float opacity) {
+		paint.setColorFilter(createColorFilterForOpacity(opacity));
+	}
+
 	public static void requestSoftInputChange(TiProxy proxy, View view) 
 	{
 		int focusState = TiUIView.SOFT_KEYBOARD_DEFAULT_ON_FOCUS;

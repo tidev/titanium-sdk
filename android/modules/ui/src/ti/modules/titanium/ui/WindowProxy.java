@@ -44,6 +44,15 @@ public class WindowProxy extends TiWindowProxy
 	{
 		super(tiContext, args);
 	}
+	
+	@Override
+	protected TiDict getLangConversionTable() {
+		TiDict table = new TiDict();
+		table.put("title","titleid");
+		table.put("titlePrompt","titlepromptid");
+		return table;
+	}
+	
 
 	@Override
 	public TiUIView getView(Activity activity) {

@@ -137,6 +137,9 @@ enum
 -(void)childWillResize:(TiViewProxy *)child;	//Todo: Replace
 -(BOOL)canHaveControllerParent;
 
+-(NSMutableDictionary*)langConversionTable;
+-(NSDictionary*)cssConversionTable;
+
 -(void)makeViewPerformSelector:(SEL)selector withObject:(id)object createIfNeeded:(BOOL)create waitUntilDone:(BOOL)wait;
 
 -(void)refreshView:(TiUIView *)transferView;

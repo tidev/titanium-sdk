@@ -12,6 +12,9 @@ import java.util.HashMap;
 import java.util.Stack;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.text.DateFormat;
+import java.text.NumberFormat;
+import java.lang.reflect.Method;
 
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiContext;
@@ -24,6 +27,7 @@ import org.appcelerator.titanium.kroll.KrollCallback;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUIHelper;
+import org.appcelerator.titanium.util.TiResourceHelper;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Scriptable;
 
@@ -147,6 +151,77 @@ public class TitaniumModule
 		  currentActivity = getTiContext().getActivity();
 		}
 		TiUIHelper.doOkDialog(currentActivity, "Alert", msg, null);
+	}
+	
+	public String stringFormat(TiContext tiContext, Object args[])
+	{
+	    try
+	    {
+	        Method method = String.class.getMethod("format",new Class[]{String.class,Object[].class});
+	        String format  = (String)args[0];
+	        // clean up formats for integers into doubles since thats how JS rolls
+	        format = format.replaceAll("%d","%1.0f");
+	        // in case someone passes an iphone formatter symbol, convert
+	        format = format.replaceAll("%@","%s");
+	        Object vargs [] = new Object[args.length-1];
+	        System.arraycopy(args,1,vargs,0,vargs.length);
+	        return (String)method.invoke(null,new Object[]{format,vargs});
+        }
+        catch (Exception ex)
+        {
+            Log.e(LCAT,"Error in string format",ex);
+            return null;
+        }
+	}
+	
+	public String stringFormatDate(TiContext tiContext, Object args[])
+	{
+	    int style = DateFormat.SHORT;
+	    if (args.length > 1)
+	    {
+	        if (args[1].equals("medium"))
+	        {
+	            style = DateFormat.MEDIUM;
+	        }
+	        else if (args[1].equals("long"))
+	        {
+	            style = DateFormat.LONG;
+	        }
+	    }
+	    DateFormat fmt = DateFormat.getDateInstance(style);
+	    return fmt.format((Date)args[0]);
+	}
+
+	public String stringFormatTime(TiContext tiContext, Object args[])
+	{
+	    int style = DateFormat.SHORT;
+	    DateFormat fmt = DateFormat.getTimeInstance(style);
+	    return fmt.format((Date)args[0]);
+	}
+
+	public String stringFormatCurrency(TiContext tiContext, Object args[])
+	{
+	    return NumberFormat.getCurrencyInstance().format((Number)args[0]);
+	}
+
+	public String stringFormatDecimal(TiContext tiContext, Object args[])
+	{
+	    return NumberFormat.getNumberInstance().format((Number)args[0]);
+	}
+	
+	public String localize(TiContext tiContext, Object args[])
+	{
+	    String key = (String)args[0];
+	    int value = TiResourceHelper.getString(key);
+	    if (value==0)
+	    {
+	        if (args.length > 1)
+	        {
+    	        return (String)args[1];
+	        }
+	        return null;
+	    }
+	    return tiContext.getActivity().getString(value);
 	}
 	
 	public TiProxy require(String path) {

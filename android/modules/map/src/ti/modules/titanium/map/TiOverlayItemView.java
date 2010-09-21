@@ -6,6 +6,9 @@
  */
 package ti.modules.titanium.map;
 
+import java.lang.ref.WeakReference;
+
+import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiFileHelper;
 import org.appcelerator.titanium.util.TiUIHelper;
@@ -38,12 +41,14 @@ public class TiOverlayItemView extends FrameLayout
 	private TextView snippet;
 	private int lastIndex;
 	private View[] hitTestList;
+	private WeakReference<TiContext> weakTiContext;
 
 	private OnOverlayClicked overlayClickedListener;
 
-	public TiOverlayItemView(Context context)
+	public TiOverlayItemView(Context context, TiContext tiContext)
 	{
 		super(context);
+		weakTiContext = new WeakReference<TiContext>(tiContext);
 
 		lastIndex = -1;
 
@@ -134,10 +139,10 @@ public class TiOverlayItemView extends FrameLayout
 		Drawable d = null;
 
 		lastIndex = index;
-
+		
 		if(item.getLeftButton() != null) {
 			try {
-				d = tfh.loadDrawable(item.getLeftButton(), false);
+				d = tfh.loadDrawable(weakTiContext.get(), item.getLeftButton(), false);
 				leftImage.setImageDrawable(d);
 				leftImage.setVisibility(VISIBLE);
 			} catch (Exception e) {
@@ -149,7 +154,7 @@ public class TiOverlayItemView extends FrameLayout
 		}
 		if(item.getRightButton() != null) {
 			try {
-				d = tfh.loadDrawable(item.getRightButton(), false);
+				d = tfh.loadDrawable(weakTiContext.get(), item.getRightButton(), false);
 				rightImage.setImageDrawable(d);
 				rightImage.setVisibility(VISIBLE);
 			} catch (Exception e) {

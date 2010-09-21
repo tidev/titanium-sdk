@@ -25,7 +25,7 @@ public class TiDatabaseProxy extends TiProxy
 
 	protected SQLiteDatabase db;
 	protected String name;
-	boolean statementLogging;
+	boolean statementLogging, readOnly;
 
 	public TiDatabaseProxy(TiContext tiContext, String name, SQLiteDatabase db)
 	{
@@ -33,6 +33,17 @@ public class TiDatabaseProxy extends TiProxy
 		this.name = name;
 		this.db = db;
 		statementLogging = false;
+		readOnly = false;
+	}
+	
+	// readonly database
+	public TiDatabaseProxy(TiContext tiContext, SQLiteDatabase db)
+	{
+		super(tiContext);
+		this.name = db.getPath();
+		this.db = db;
+		statementLogging = false;
+		readOnly = true;
 	}
 
 	public void close() {
@@ -126,6 +137,11 @@ public class TiDatabaseProxy extends TiProxy
 	}
 
 	public void remove() {
+		if (readOnly) {
+			Log.w(LCAT, name + " is a read-only database, cannot remove");
+			return;
+		}
+		
 		if (db.isOpen()) {
 			Log.w(LCAT, "Attempt to remove open database. Closing then removing " + name);
 			db.close();

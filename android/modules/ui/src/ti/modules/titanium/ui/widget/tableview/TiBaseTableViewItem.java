@@ -90,7 +90,7 @@ public abstract class TiBaseTableViewItem extends ViewGroup implements Handler.C
 		if (tfh == null) {
 			tfh = new TiFileHelper(tiContext.getActivity());
 		}
-		return tfh.loadDrawable(url, false);
+		return tfh.loadDrawable(tiContext, url, false);
 	}
 
 	public String getClassName() {
@@ -118,8 +118,11 @@ public abstract class TiBaseTableViewItem extends ViewGroup implements Handler.C
 		if (props.containsKey("backgroundImage")) {
 			setBackgroundImageProperty(props, "backgroundImage");
 		} else if (props.containsKey("backgroundColor")) {
-			Integer bgColor = TiConvert.toColor(props, "backgroundColor", "opacity");
+			Integer bgColor = TiConvert.toColor(props, "backgroundColor");
 			setBackgroundColor(bgColor);
+		}
+		if (props.containsKey("opacity")) {
+			TiUIHelper.setDrawableOpacity(getBackground(), TiConvert.toFloat(props, "opacity"));
 		}
 	}
 	

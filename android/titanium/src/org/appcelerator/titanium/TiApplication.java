@@ -20,6 +20,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Properties;
 
+import org.appcelerator.titanium.ITiStylesheet;
 import org.appcelerator.titanium.analytics.TiAnalyticsEvent;
 import org.appcelerator.titanium.analytics.TiAnalyticsEventFactory;
 import org.appcelerator.titanium.analytics.TiAnalyticsModel;
@@ -27,11 +28,13 @@ import org.appcelerator.titanium.analytics.TiAnalyticsService;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiPlatformHelper;
+import org.appcelerator.titanium.util.TiResourceHelper;
 import org.appcelerator.titanium.view.ITiWindowHandler;
 
 import android.app.Activity;
 import android.app.Application;
 import android.content.Intent;
+import android.util.DisplayMetrics;
 
 // Naming TiHost to more closely match other implementations
 public class TiApplication extends Application
@@ -39,8 +42,11 @@ public class TiApplication extends Application
 	public static final String DEPLOY_TYPE_DEVELOPMENT = "development";
 	public static final String DEPLOY_TYPE_TEST = "test";
 	public static final String DEPLOY_TYPE_PRODUCTION = "production";
-
+	public static final int DEFAULT_THREAD_STACK_SIZE = 16 * 1024; // 16K as a "sane" default
+	
 	private static final String PROPERTY_DEPLOY_TYPE = "ti.deploytype";
+	private static final String PROPERTY_THREAD_STACK_SIZE = "ti.android.threadstacksize";
+	
 	private static final String LCAT = "TiApplication";
 	private static final boolean DBG = TiConfig.LOGD;
 	private static final long STATS_WAIT = 300000;
@@ -55,6 +61,8 @@ public class TiApplication extends Application
 	private ITiWindowHandler windowHandler;
 	private Activity currentActivity;
 	protected ITiAppInfo appInfo;
+	protected ITiStylesheet stylesheet;
+	private String density;
 
 	private boolean needsStartEvent;
 	private boolean needsEnrollEvent;
@@ -97,6 +105,8 @@ public class TiApplication extends Application
 	public void onCreate()
 	{
 		super.onCreate();
+
+		TiScriptRunner.getInstance().setAppPackageName(getPackageName());
 		if (DBG) {
 			Log.d(LCAT, "Application onCreate");
 		}
@@ -120,12 +130,21 @@ public class TiApplication extends Application
 		proxyMap = new HashMap<String, SoftReference<TiProxy>>(5);
 
 		TiPlatformHelper.initialize(this);
-
+		
 		appProperties = new TiProperties(getApplicationContext(), "titanium", false);
 		systemProperties = new TiProperties(getApplicationContext(), "system", true);
+
 		//systemProperties.setString("ti.version", buildVersion); // was always setting "1.0"
 	}
-
+	
+	protected void onAfterCreate()
+	{
+	    // this is called from the applications onCreate (subclass)
+	    // once the appInfo has been set since this method has a dependency
+	    // on it
+    	TiResourceHelper.initialize(this);
+	}
+	
 	public void setRootActivity(TiRootActivity rootActivity)
 	{
 		// Chicken and Egg problem. Set debugging here since I don't want to
@@ -136,6 +155,28 @@ public class TiApplication extends Application
 		//TODO consider weakRef
 		this.rootActivity = rootActivity;
 		this.windowHandler = rootActivity;
+
+        // calculate the display density
+		DisplayMetrics dm = new DisplayMetrics();
+		rootActivity.getWindowManager().getDefaultDisplay().getMetrics(dm);
+		switch(dm.densityDpi)
+		{
+		    case DisplayMetrics.DENSITY_HIGH:
+		    {
+		        density = "high";
+		        break;
+		    }
+		    case DisplayMetrics.DENSITY_MEDIUM:
+		    {
+		        density = "medium";
+		        break;
+		    }
+		    case DisplayMetrics.DENSITY_LOW:
+		    {
+		        density = "low";
+		        break;
+		    }
+		}
 
 		if (collectAnalytics()) {
 			analyticsIntent = new Intent(this, TiAnalyticsService.class);
@@ -289,6 +330,13 @@ public class TiApplication extends Application
 	public ITiAppInfo getAppInfo() {
 		return appInfo;
 	}
+	
+	public TiDict getStylesheet(String basename, String type, String objectId) {
+	    if (stylesheet!=null) {
+        	return stylesheet.getStylesheet(objectId,type,density,basename);
+	    }
+	    return new TiDict();
+	}
 
 	public void registerProxy(TiProxy proxy) {
 		String proxyId = proxy.proxyId;
@@ -406,5 +454,9 @@ public class TiApplication extends Application
 	
 	public String getTiBuildHash() {
 		return buildHash;
+	}
+	
+	public int getThreadStackSize() {
+		return getSystemProperties().getInt(PROPERTY_THREAD_STACK_SIZE, DEFAULT_THREAD_STACK_SIZE);
 	}
 }

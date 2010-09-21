@@ -24,6 +24,14 @@ public class TabProxy extends TiViewProxy
 	public TabProxy(TiContext tiContext, Object[] args) {
 		super(tiContext, args);
 	}
+	
+	@Override
+	protected TiDict getLangConversionTable() {
+		TiDict table = new TiDict();
+		table.put("title","titleid");
+		return table;
+	}
+	
 
 	@Override
 	public TiUIView createView(Activity activity) {

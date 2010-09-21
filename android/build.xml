@@ -62,6 +62,7 @@
 		<build-module name="analytics"/>
 		<build-module name="app"/>
 		<build-module name="api"/>
+		<build-module name="bump"/>
 		<build-module name="database"/>
 		<build-module name="facebook"/>
 		<build-module name="filesystem"/>
@@ -72,7 +73,10 @@
 		<build-module name="utils"/>
 		<build-module name="xml"/>
 		<build-module name="yahoo"/>
+		<build-module name="android"/>
 		<build-module name="contacts"/>
+		<build-module name="calendar"/>
+		<build-module name="locale"/>
 		
 		<build-module name="media">
 			<classpath path="${classesdir}/filesystem"/>

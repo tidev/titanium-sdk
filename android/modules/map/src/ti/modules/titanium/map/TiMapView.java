@@ -341,7 +341,7 @@ public class TiMapView extends TiUIView
 
 		final TiViewProxy fproxy = proxy;
 
-		itemView = new TiOverlayItemView(proxy.getContext());
+		itemView = new TiOverlayItemView(proxy.getContext(), proxy.getTiContext());
 		itemView.setOnOverlayClickedListener(new TiOverlayItemView.OnOverlayClicked(){
 			public void onClick(int lastIndex, String clickedItem) {
 				TiOverlayItem item = overlay.getItem(lastIndex);

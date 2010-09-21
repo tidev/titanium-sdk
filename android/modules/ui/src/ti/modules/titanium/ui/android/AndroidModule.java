@@ -54,7 +54,6 @@ public class AndroidModule extends TiModule
 			constants.put("LINKIFY_MAP_ADDRESSES", Linkify.MAP_ADDRESSES);
 			constants.put("LINKIFY_PHONE_NUMBERS", Linkify.PHONE_NUMBERS);
 			constants.put("LINKIFY_WEB_URLS", Linkify.WEB_URLS);
-
 		}
 		
 		return constants;

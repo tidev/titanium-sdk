@@ -23,8 +23,8 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.view.Gravity;
 import android.view.KeyEvent;
+import android.view.View;
 import android.widget.Button;
-import android.widget.TextView;
 
 public class TiUIButton extends TiUIView
 {
@@ -117,5 +117,17 @@ public class TiUIButton extends TiUIView
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}
+	}
+	
+	@Override
+	public void setOpacity(float opacity) {
+		TiUIHelper.setPaintOpacity(((Button)getNativeView()).getPaint(), opacity);
+		super.setOpacity(opacity);
+	}
+	
+	@Override
+	public void clearOpacity(View view) {
+		super.clearOpacity(view);
+		((Button)getNativeView()).getPaint().setColorFilter(null);
 	}
 }

@@ -62,6 +62,7 @@ public class TiContext implements TiEvaluator, ITiMenuDispatcherListener, ErrorR
 	private long mainThreadId;
 
 	private String baseUrl;
+	private String currentUrl;
 
 	private WeakReference<Activity> weakActivity;
 	private TiEvaluator	tiEvaluator;
@@ -161,7 +162,7 @@ public class TiContext implements TiEvaluator, ITiMenuDispatcherListener, ErrorR
 		return Thread.currentThread().getId() == mainThreadId;
 	}
 
-	private TiEvaluator getJSContext() {
+	public TiEvaluator getJSContext() {
 		return tiEvaluator;
 	}
 
@@ -294,11 +295,17 @@ public class TiContext implements TiEvaluator, ITiMenuDispatcherListener, ErrorR
 	public String getBaseUrl() {
 		return baseUrl;
 	}
+	
+	public String getCurrentUrl() {
+		return currentUrl;
+	}
 
 	// Javascript Support
 
 	public Object evalFile(String filename, Messenger messenger, int messageId) throws IOException {
 		Object result = null;
+		
+		this.currentUrl = filename;
 
 		result = getJSContext().evalFile(filename);
 		if (messenger != null) {

@@ -427,7 +427,7 @@ public class KrollObject extends ScriptableObject
 		return sb.toString();
 	}
 
-	protected Object loadModule(String name)
+	public Object loadModule(String name)
 	{
 		// first see if our module exists and if so, return it since
 		// modules should be singletons
@@ -449,9 +449,7 @@ public class KrollObject extends ScriptableObject
 		}
 
 		String moduleName = createModuleName(name);
-		if (DBG) {
-			Log.d(LCAT, "Module: " + moduleName);
-		}
+		Log.d(LCAT, "Loading Module: " + moduleName+" ("+name+")");
 
 		try {
 			Class<?> c = Class.forName(moduleName);

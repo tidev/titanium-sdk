@@ -33,9 +33,9 @@ import ti.modules.titanium.filesystem.FileProxy;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
-import android.net.Uri;
 import android.os.Handler;
 import android.os.Message;
+import android.view.View;
 import android.webkit.URLUtil;
 
 public class TiUIImageView extends TiUIView
@@ -134,6 +134,10 @@ public class TiUIImageView extends TiUIView
 			}
 		} else if (image instanceof String) {
 			String url = proxy.getTiContext().resolveUrl(null, (String)image);
+			Bitmap b = TiUIHelper.getResourceBitmap(proxy.getTiContext(), url);
+			if (b != null) {
+				return b;
+			}
 			TiBaseFile file = TiFileFactory.createTitaniumFile(proxy.getTiContext(), new String[] { url }, false);
 			try {
 				return TiUIHelper.createBitmap(file.getInputStream());
@@ -562,5 +566,17 @@ public class TiUIImageView extends TiUIView
 		}
 
 		return null;
+	}
+	
+	@Override
+	public void setOpacity(float opacity) {
+		getView().setColorFilter(TiUIHelper.createColorFilterForOpacity(opacity));
+		super.setOpacity(opacity);
+	}
+	
+	@Override
+	public void clearOpacity(View view) {
+		super.clearOpacity(view);
+		getView().setColorFilter(null);
 	}
 }
