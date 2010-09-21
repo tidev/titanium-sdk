@@ -533,9 +533,10 @@
 			[view superview] != nil;
 }
 
+//TODO: When swapping about proxies, views are uninitialized, aren't they?
 -(BOOL)viewInitialized
 {
-	return viewInitialized;
+	return viewInitialized && (view != nil);
 }
 
 -(void)firePropertyChanges
