@@ -9,8 +9,12 @@ package org.appcelerator.titanium.util;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
+import java.util.StringTokenizer;
 import java.util.UUID;
+import java.util.Currency;
 
 import org.appcelerator.titanium.ITiAppInfo;
 import org.appcelerator.titanium.TiApplication;
@@ -29,6 +33,10 @@ public class TiPlatformHelper
 {
 	public static final String LCAT = "TiPlatformHelper";
 	public static final boolean DBG = TiConfig.LOGD;
+	private static final Map<String, Locale> locales = java.util.Collections.synchronizedMap(new HashMap<String, Locale>());
+	private static final Map<Locale,  String> currencyCodes = java.util.Collections.synchronizedMap(new HashMap<Locale, String>());
+	private static final Map<Locale,  String> currencySymbols = java.util.Collections.synchronizedMap(new HashMap<Locale, String>());
+	private static final Map<String,  String> currencySymbolsByCode = java.util.Collections.synchronizedMap(new HashMap<String, String>());
 
 	public static String platformId;
 	public static String sessionId;
@@ -101,6 +109,91 @@ public class TiPlatformHelper
 
 	public static String getLocale() {
 		return Locale.getDefault().getLanguage();
+	}
+	
+	public static Locale getLocale(String code)
+    {
+    	if (locales.containsKey(code)) {
+    		return locales.get(code);
+    	}
+    	
+    	String language = "", country = "", variant = "";
+    	if (code.startsWith("__")) {
+    		// This is weird, just a variant.  Whatever, give it a shot.
+    		StringTokenizer tokens = new StringTokenizer(code, "__");
+    		if (tokens.hasMoreElements()) {
+    			variant = tokens.nextToken();
+    		}
+    	} else if (code.startsWith("_")) {
+    		// No language specified, but country specified and maybe variant.
+    		StringTokenizer tokens = new StringTokenizer(code, "_");
+        	if (tokens.hasMoreElements()) {
+        		country = tokens.nextToken();
+        	}
+        	if (tokens.hasMoreElements()) {
+        		variant = tokens.nextToken();
+        	}
+    	} else if (code.contains("__")) {
+    		// this is language__variant
+    		StringTokenizer tokens = new StringTokenizer(code, "__");
+    		if (tokens.hasMoreElements()) {
+    			language = tokens.nextToken();
+    		}
+    		if (tokens.hasMoreElements()) {
+    			variant = tokens.nextToken();
+    		}
+    	} else {
+    		StringTokenizer tokens = new StringTokenizer(code, "__");
+    		if (tokens.hasMoreElements()) {
+    			language = tokens.nextToken();
+    		}
+    		if (tokens.hasMoreElements()) {
+    			country = tokens.nextToken();
+    		}
+    		if (tokens.hasMoreElements()) {
+    			variant = tokens.nextToken();
+    		}
+    	}
+    	
+    	Locale l = new Locale(language, country, variant);
+    	locales.put(code, l);
+    	return l;
+    }
+	
+	public static String getCurrencyCode(Locale locale)
+	{
+		String code;
+		if (currencyCodes.containsKey(locale)) {
+			code = currencyCodes.get(locale);
+		} else {
+			code = Currency.getInstance(locale).getCurrencyCode();
+			currencyCodes.put(locale, code);
+		}
+		return code;
+	}
+	
+	public static String getCurrencySymbol(Locale locale)
+	{
+		String symbol;
+		if (currencySymbols.containsKey(locale)) {
+			symbol = currencySymbols.get(locale);
+		} else {
+			symbol = Currency.getInstance(locale).getSymbol(locale);
+			currencySymbols.put(locale, symbol);
+		}
+		return symbol;
+	}
+	
+	public static String getCurrencySymbol(String currencyCode) 
+	{
+		String symbol;
+		if (currencySymbolsByCode.containsKey(currencyCode)) {
+			symbol = currencySymbolsByCode.get(currencyCode);
+		} else {
+			symbol = Currency.getInstance(currencyCode).getSymbol();
+			currencySymbolsByCode.put(currencyCode, symbol);
+		}
+		return symbol;
 	}
 
 	public static String createEventId() {
