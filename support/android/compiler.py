@@ -30,12 +30,13 @@ class ScriptProcessor(SGMLParser):
 
 class Compiler(object):
 	
-	def __init__(self,name,appid,project_dir,java,classes_dir,root_dir):
+	def __init__(self,tiapp,project_dir,java,classes_dir,root_dir):
+		self.tiapp = tiapp
 		self.java = java
-		self.appname = name
+		self.appname = tiapp.properties['name']
 		self.classes_dir = classes_dir
 		self.template_dir = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
-		self.appid = appid
+		self.appid = tiapp.properties['id']
 		self.root_dir = root_dir
 		self.project_dir = os.path.abspath(os.path.expanduser(project_dir))
 		self.modules = []
@@ -139,38 +140,26 @@ class Compiler(object):
 		run.run(jsc_args)
 		
 	def compile_into_bytecode(self, paths):
+		compile_js = False
+		
+		# we only optimize for production deploy type or if it's forcefully overridden with ti.android.compilejs
+		if self.tiapp.has_app_property("ti.android.compilejs"):
+			if self.tiapp.to_bool(self.tiapp_get_app_property('ti.android.compilejs')):
+				print "[DEBUG] Found ti.android.compilejs=true, overriding default (this may take some time)"
+				sys.stdout.flush()
+				compile_js = True
+		elif self.tiapp.has_app_property('ti.deploytype'):
+			if self.tiapp.get_app_property('ti.deploytype') == 'production':
+				print "[DEBUG] Deploy type is production, turning on JS compilation"
+				sys.stdout.flush()
+				compile_js = True
+		
+		if not compile_js: return
+		
 		for fullpath in paths:
 			# skip any JS found inside HTML <script>
 			if fullpath in self.html_scripts: continue
 			self.compile_javascript(fullpath)
-		
-		"""res_dir = os.path.join(self.root_dir,'res','values')
-		if not os.path.exists(res_dir):
-			os.makedirs(res_dir)
-
-		f = os.path.join(res_dir,"app.xml")
-		ff = codecs.open( f, "w", encoding="utf-8" )
-		ff.write(u'<?xml version="1.0" encoding="utf-8"?>\n')
-		ff.write(u'<resources>\n')
-		
-		for fullpath in paths:
-			# skip any JS found inside HTML <script>
-			if fullpath in self.html_scripts: continue
-			
-			path, contents = paths[fullpath]
-			contents = contents.replace('Titanium.','Ti.')
-			contents = contents.replace("\"","\\\"")
-			contents = contents.replace("'","\\'")
-			contents = escape(contents)
-
-			ff.write(u'<string name="a$%s">' % path)
-			ff.write(contents)
-			ff.write(u'</string>\n')
-			
-			self.compiled_files.append(fullpath)
-			
-		ff.write(u'</resources>\n')
-		ff.close()"""
 		
 	def get_ext(self, path):
 		fp = os.path.splitext(path)
@@ -257,7 +246,7 @@ if __name__ == "__main__":
 	import tiapp
 	xml = tiapp.TiAppXML(os.path.join(project_dir, 'tiapp.xml'))
 
-	c = Compiler(xml.properties['name'], xml.properties['id'], resources_dir, 'java', destdir, root_dir)
+	c = Compiler(xml, resources_dir, 'java', destdir, root_dir)
 	project_deltafy = Deltafy(resources_dir)
 	project_deltas = project_deltafy.scan()
 	c.compile()

@@ -22,18 +22,15 @@ public final class ${config['classname']}AppInfo implements ITiAppInfo
 					<%
 					value = app_properties[property]['value']
 					type = app_properties[property]['type']
+					if type == 'string': javaValue = '"%s"' % value
+					elif type == 'bool': javaValue = to_bool(value=value)
+					elif type == 'int': javaValue = int(value)
+					elif type == 'double': javaValue = float(value)
+					setter = 'set%s' % type[0:1].upper() + type[1:]
 					%>
-					%if type == "string":
-		properties.setString("${property}", "${value}");
-					%elif type == "bool":
-		properties.setBool("${property}", ${to_bool(value=value)});
-					%elif type == "int":
-		properties.setInt("${property}", ${int(value)});
-					%elif type == "double":
-		properties.setDouble("${property}", ${float(value)});
-					%endif
+					properties.${setter}("${property}", ${javaValue});
 				%except:
-		Log.e(LCAT, "Couldn't convert application property '${property}' to ${type}, skipping.");
+		Log.w(LCAT, "Couldn't convert application property '${property}', with value '${value}' to ${type}, skipping.");
 				%endtry
 			%endfor
 		%endif

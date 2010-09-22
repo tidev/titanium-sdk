@@ -1042,7 +1042,7 @@ class Builder(object):
 
 			# compile resources
 			full_resource_dir = os.path.join(self.project_dir,self.assets_resources_dir)
-			compiler = Compiler(self.name,self.app_id,full_resource_dir,self.java,self.classes_dir,self.project_dir)
+			compiler = Compiler(self.tiapp,full_resource_dir,self.java,self.classes_dir,self.project_dir)
 			compiler.compile()
 			self.compiled_files = compiler.compiled_files
 			self.android_jars = compiler.jar_libraries
