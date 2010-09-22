@@ -13,6 +13,7 @@ import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.Log;
+import org.appcelerator.titanium.util.TiPlatformHelper;
 import org.appcelerator.titanium.util.TiResourceHelper;
 
 import android.telephony.PhoneNumberUtils;
@@ -21,7 +22,7 @@ import android.telephony.PhoneNumberUtils;
 public class LocaleModule extends KrollModule
 {
 	private static final String LCAT = "LocaleModule";
-
+	
 	public LocaleModule(TiContext tiContext)
 	{
 		super(tiContext);
@@ -37,6 +38,32 @@ public class LocaleModule extends KrollModule
 	public String getCurrentCountry()
 	{
 		return Locale.getDefault().getCountry();
+	}
+	
+	@Kroll.method @Kroll.getProperty
+	public String getCurrentLocale()
+	{
+		return Locale.getDefault().toString();
+	}
+	
+	@Kroll.method
+	public String getCurrencyCode(String localeString) 
+	{
+		Locale locale = TiPlatformHelper.getLocale(localeString);
+		return TiPlatformHelper.getCurrencyCode(locale);
+	}
+	
+	@Kroll.method
+	public String getCurrencySymbol(String currencyCode)
+	{
+		return TiPlatformHelper.getCurrencySymbol(currencyCode);
+	}
+	
+	@Kroll.method
+	public String getLocaleCurrencySymbol(String localeString)
+	{
+		Locale locale = TiPlatformHelper.getLocale(localeString);
+		return TiPlatformHelper.getCurrencySymbol(locale);
 	}
 	
 	@Kroll.method

@@ -32,8 +32,8 @@ class ScriptProcessor(SGMLParser):
 class Compiler(object):
 	
 	def __init__(self,tiapp,project_dir,java,classes_dir,root_dir):
-		self.java = java
 		self.tiapp = tiapp
+		self.java = java
 		self.appname = tiapp.properties['name']
 		self.classes_dir = classes_dir
 		self.template_dir = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
@@ -153,12 +153,13 @@ class Compiler(object):
 				sys.stdout.flush()
 				compile_js = True
 		elif self.tiapp.has_app_property('ti.deploytype'):
-			if self.tiapp.to_bool(self.tiapp.get_app_property('ti.deploytype')):
+			if self.tiapp.get_app_property('ti.deploytype') == 'production':
 				print "[DEBUG] Deploy type is production, turning on JS compilation"
 				sys.stdout.flush()
 				compile_js = True
 		
 		if not compile_js: return
+
 		for fullpath in paths:
 			# skip any JS found inside HTML <script>
 			if fullpath in self.html_scripts: continue

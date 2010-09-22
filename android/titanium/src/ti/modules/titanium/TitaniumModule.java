@@ -8,9 +8,11 @@ package ti.modules.titanium;
 
 import java.io.IOException;
 import java.text.DateFormat;
+import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Stack;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -26,6 +28,7 @@ import org.appcelerator.titanium.io.TiFileFactory;
 import org.appcelerator.titanium.kroll.KrollCallback;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConvert;
+import org.appcelerator.titanium.util.TiPlatformHelper;
 import org.appcelerator.titanium.util.TiResourceHelper;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.mozilla.javascript.Context;
@@ -38,6 +41,8 @@ public class TitaniumModule extends KrollModule implements TiContext.OnLifecycle
 {
 	private static final String LCAT = "TitaniumModule";
 	private Stack<String> basePath;
+	private Map<String, NumberFormat> numberFormats = java.util.Collections.synchronizedMap(
+			new HashMap<String, NumberFormat>());
 
 	public TitaniumModule(TiContext tiContext) {
 		super(tiContext);
@@ -224,9 +229,45 @@ public class TitaniumModule extends KrollModule implements TiContext.OnLifecycle
 	}
 
 	@Kroll.method
-	public String stringFormatDecimal(double number)
+	public String stringFormatDecimal(Object args[])
 	{
-		return NumberFormat.getNumberInstance().format(number);
+		String pattern = null;
+		String locale = null;
+		if (args.length == 2) {
+			// Is the second argument a locale string or a format string?
+			String test = TiConvert.toString(args[1]);
+			if (test != null && test.length() > 0) {
+				if (test.contains(".") || test.contains("#") || test.contains("0")) {
+					pattern = test;
+				} else {
+					locale = test;
+				}
+			}
+		} else if (args.length >= 3) {
+			// this is: stringFormatDecimal(n, locale_string, pattern_string);
+			locale = TiConvert.toString(args[1]);
+			pattern = TiConvert.toString(args[2]);
+		}
+		
+		String key = (locale == null ? "" : locale ) + " keysep " + (pattern == null ? "": pattern);
+		
+		NumberFormat format;
+		if (numberFormats.containsKey(key)) {
+			format = numberFormats.get(key);
+		} else {
+			if (locale != null) {
+				format = NumberFormat.getInstance(TiPlatformHelper.getLocale(locale));
+			} else {
+				format = NumberFormat.getInstance();
+			}
+		
+			if (pattern != null && format instanceof DecimalFormat) {
+				((DecimalFormat)format).applyPattern(pattern);
+			}
+			numberFormats.put(key, format);
+		}
+		
+		return format.format((Number)args[0]);
 	}
 	
 	@Kroll.method @Kroll.topLevel("L")

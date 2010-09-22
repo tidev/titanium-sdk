@@ -12,19 +12,19 @@
 #import "TiFile.h"
 
 @interface TiMediaVideoPlayerProxy : TiViewProxy {
+@protected
+	MPMoviePlayerController *movie;
+	NSRecursiveLock* playerLock;
+	BOOL playing;
 @private
 	NSURL *url;
-	MPMoviePlayerController *movie;
 	TiColor* backgroundColor;
-	BOOL playing;
 	NSMutableArray *views;
 	TiFile *tempFile;
 	KrollCallback *thumbnailCallback;
 	
 	NSMutableDictionary* loadProperties; // Used to set properties when the player is created
 	NSMutableDictionary* returnCache; // Return values from UI thread functions
-	
-	NSRecursiveLock* playerLock;
 	BOOL sizeDetermined;
 }
 
@@ -36,6 +36,10 @@
 -(void)remove:(id)proxy;
 -(void)deliverEventOnBackgroundThread:(NSString*)event withObject:(id)object;
 
+// INTERNAL: Used by subclasses
+-(void)configurePlayer;
+-(void)restart;
+-(void)stop:(id)args;
 
 @end
 
