@@ -615,9 +615,9 @@ public class TiUIHelper
 		if (focusState > TiUIView.SOFT_KEYBOARD_DEFAULT_ON_FOCUS) {
 			InputMethodManager imm = (InputMethodManager) view.getContext().getSystemService(Activity.INPUT_METHOD_SERVICE);
 			if (imm != null) {
-				boolean useForce = (Build.VERSION.SDK_INT <= Build.VERSION_CODES.DONUT) ? true : false;
+				boolean useForce = (Build.VERSION.SDK_INT <= Build.VERSION_CODES.DONUT || Build.VERSION.SDK_INT >= 8) ? true : false;
 				String model = TiPlatformHelper.getModel(); 
-				if (model != null && model.toLowerCase().equals("droid")) {
+				if (model != null && model.toLowerCase().startsWith("droid")) {
 					useForce = true;
 				}
 				if (DBG) {

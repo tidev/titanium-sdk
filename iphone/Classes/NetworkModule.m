@@ -10,6 +10,7 @@
 #import "Reachability.h"
 #import "TiApp.h"
 #import "SBJSON.h"
+#import "TiBlob.h"
 
 NSString* const INADDR_ANY_token = @"INADDR_ANY";
 
@@ -289,8 +290,8 @@ MAKE_SYSTEM_PROP(NOTIFICATION_TYPE_SOUND,3);
 	// called by TiApp
 	if (pushNotificationSuccess!=nil)
 	{
-		NSString *token = [[TiApp app] remoteDeviceUUID];
-		NSDictionary *event = [NSDictionary dictionaryWithObject:token forKey:@"deviceToken"];
+		TiBlob* tokenBlob = [[[TiBlob alloc] initWithData:deviceToken mimetype:@"application/octet-stream"] autorelease];
+		NSDictionary *event = [NSDictionary dictionaryWithObject:tokenBlob forKey:@"deviceToken"];
 		[self _fireEventToListener:@"remote" withObject:event listener:pushNotificationSuccess thisObject:nil];
 	}
 }
