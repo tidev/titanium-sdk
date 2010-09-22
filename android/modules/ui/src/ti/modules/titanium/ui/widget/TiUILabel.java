@@ -15,7 +15,9 @@ import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiUIView;
 
+import android.text.Html;
 import android.text.InputType;
+import android.text.util.Linkify;
 import android.view.Gravity;
 import android.widget.TextView;
 
@@ -33,6 +35,8 @@ public class TiUILabel extends TiUIView
 		tv.setGravity(Gravity.CENTER_VERTICAL | Gravity.LEFT);
 		tv.setPadding(0, 0, 0, 0);
 		tv.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_MULTI_LINE);
+		tv.setKeyListener(null);
+		tv.setFocusable(false);
 		setNativeView(tv);
 	}
 
@@ -43,7 +47,9 @@ public class TiUILabel extends TiUIView
 
 		TextView tv = (TextView) getNativeView();
 		// Only accept one, prefer text to title.
-		if (d.containsKey("text")) {
+		if (d.containsKey("html")) {
+			tv.setText(Html.fromHtml(TiConvert.toString(d, "html")), TextView.BufferType.SPANNABLE);
+		} else if (d.containsKey("text")) {
 			tv.setText(TiConvert.toString(d,"text"));
 		} else if (d.containsKey("title")) { //TODO this may not need to be supported.
 			tv.setText(TiConvert.toString(d,"title"));
@@ -66,9 +72,18 @@ public class TiUILabel extends TiUIView
 			String verticalAlign = d.getString("verticalAlign");
 			TiUIHelper.setAlignment(tv, null, verticalAlign);
 		}
+		// This needs to be the last operation.
+		linkifyIfEnabled(tv, d);
 		tv.invalidate();
 	}
 
+	private void linkifyIfEnabled(TextView tv, KrollDict d)
+	{
+		if (d.containsKey("autoLink")) {
+			Linkify.addLinks(tv,TiConvert.toInt(d, "autoLink"));
+		}
+	}
+	
 	@Override
 	public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy proxy)
 	{
@@ -76,8 +91,13 @@ public class TiUILabel extends TiUIView
 			Log.d(LCAT, "Property: " + key + " old: " + oldValue + " new: " + newValue);
 		}
 		TextView tv = (TextView) getNativeView();
-		if (key.equals("text")) {
+		if (key.equals("html")) {
+			tv.setText(Html.fromHtml(TiConvert.toString(newValue)), TextView.BufferType.SPANNABLE);
+			linkifyIfEnabled(tv, proxy.getProperties());
+			tv.requestLayout();
+		} else if (key.equals("text") || key.equals("title")) {
 			tv.setText(TiConvert.toString(newValue));
+			linkifyIfEnabled(tv, proxy.getProperties());
 			tv.requestLayout();
 		} else if (key.equals("color")) {
 			tv.setTextColor(TiConvert.toColor((String) newValue));
@@ -92,6 +112,8 @@ public class TiUILabel extends TiUIView
 		} else if (key.equals("font")) {
 			TiUIHelper.styleText(tv, (KrollDict) newValue);
 			tv.requestLayout();
+		} else if (key.equals("autoLink")) {
+			Linkify.addLinks(tv, TiConvert.toInt(newValue));
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}

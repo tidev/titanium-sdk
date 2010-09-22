@@ -31,7 +31,9 @@
 {
 	if ([value isKindOfClass:[TiDOMDocumentProxy class]])
 	{
+		return [value isEqual:self];
 	}
+	return NO;
 }
 
 -(void)parseString:(NSString*)xml
@@ -84,12 +86,10 @@
 {
 	ENSURE_SINGLE_ARG(args,NSString);
 	NSError *error = nil;
-	NSArray *nodes = [document nodesForXPath:[NSString stringWithFormat:@"//*[@id=%@]",args] error:&error];
+	NSArray *nodes = [document nodesForXPath:[NSString stringWithFormat:@"//*[@id='%@']",args] error:&error];
 	if (error==nil && nodes!=nil && [nodes count]>0)
 	{
-		TiDOMNodeListProxy *proxy = [[[TiDOMNodeListProxy alloc] _initWithPageContext:[self pageContext]] autorelease];
-		[proxy setNodes:nodes];
-		return proxy;
+		return [TiDOMNodeProxy makeNode: [nodes objectAtIndex: 0] context:[self pageContext]];
 	}
 	return nil;
 }

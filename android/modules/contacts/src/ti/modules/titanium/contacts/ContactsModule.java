@@ -7,6 +7,7 @@
 
 package ti.modules.titanium.contacts;
 
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -49,6 +50,7 @@ public class ContactsModule extends KrollModule
 	@Kroll.method
 	public Object[] getAllPeople(@Kroll.argument(optional=true) KrollDict options)
 	{
+		Calendar start = Calendar.getInstance();
 		//TODO: right now, this is needed to be able to constrain
 		//temporarily for a specific app.. we need to rethink this entire API
 		int length = Integer.MAX_VALUE;
@@ -57,7 +59,14 @@ public class ContactsModule extends KrollModule
 			Double maxObj = (Double)options.get("max");
 			length = maxObj.intValue();
 		}
-		return PersonProxy.getAllPersons(getTiContext(),length);
+		Object[] persons =  PersonProxy.getAllPersons(getTiContext(),length);
+		
+		Calendar end = Calendar.getInstance();
+		long elapsed = end.getTimeInMillis() - start.getTimeInMillis();
+		if (DBG) {
+			Log.d(LCAT, "getAllPersons elapsed: " + elapsed + " milliseconds"); 
+		}
+		return persons;
 	}
 	
 	@Kroll.method
@@ -131,7 +140,9 @@ public class ContactsModule extends KrollModule
 					KrollCallback callback = request.get("selectedPerson");
 					if (callback != null) {
 						PersonProxy person = PersonProxy.fromUri(getTiContext(), data.getData());
-						callback.call(new Object[]{person});
+						KrollDict result = new KrollDict();
+						result.put("person", person);
+						callback.call(new Object[]{result});
 					}
 				}
 			} else {

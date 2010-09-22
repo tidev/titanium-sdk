@@ -160,7 +160,7 @@ class Compiler(object):
 
 		resources_dir = os.path.join(project_dir,'Resources')
 		iphone_resources_dir = os.path.join(resources_dir,'iphone')
-	
+
 		# copy in any resources in our module like icons
 		project_module_dir = os.path.join(project_dir,'modules','iphone')
 		if os.path.exists(project_module_dir):
@@ -366,7 +366,7 @@ class Compiler(object):
 		if write_routing:
 			intf = open(os.path.join(self.classes_dir,'ApplicationRouting.h'),'w+')
 			impf = open(os.path.join(self.classes_dir,'ApplicationRouting.m'),'w+')
-
+			
 			intf.write(HEADER)
 			intf.write(INTERFACE_HEADER)
 
@@ -393,7 +393,7 @@ class Compiler(object):
 						dirs.remove(name)	# don't visit ignored directories			  
 				for file in files:
 					if file in ignoreFiles:
-						continue
+						continue					
 					prefix = root[len(source):]
 					from_ = os.path.join(root, file)			  
 					to_ = os.path.expanduser(from_.replace(source, target, 1))
@@ -402,6 +402,7 @@ class Compiler(object):
 						os.makedirs(to_directory)
 					fp = os.path.splitext(file)
 					ext = fp[1]
+					if ext == '.jss': continue
 					if len(fp)>1 and write_routing and ext in ['.html','.js','.css']:
 						path = prefix + os.sep + file
 						path = path[1:]

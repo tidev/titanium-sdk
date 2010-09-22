@@ -82,6 +82,8 @@ thumbnailImageAtTime: Returns a thumbnail at the given time as a blob.
 
 play: start playing the video
 
+pause: pause playing the video. On iOS only available under 3.2 and later
+
 stop: stop playing the video
 
 release: release the internal video resources immediately.  this is not usually necessary but can help if you no longer need to use the player after it is used to help converse memory.

@@ -11,7 +11,6 @@ import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.proxy.TiWindowProxy;
-import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.view.TiUIView;
 
 import android.app.Activity;
@@ -19,8 +18,6 @@ import android.app.Activity;
 @Kroll.proxy(creatableInModule=UIModule.class)
 public class TabProxy extends TiViewProxy
 {
-	private static final String LCAT = "TabProxy";
-	private static final boolean DBG = TiConfig.LOGD;
 
 	private TiWindowProxy win;
 	private TabGroupProxy tabGroupProxy;
@@ -28,6 +25,14 @@ public class TabProxy extends TiViewProxy
 	public TabProxy(TiContext tiContext) {
 		super(tiContext);
 	}
+	
+	@Override
+	protected KrollDict getLangConversionTable() {
+		KrollDict table = new KrollDict();
+		table.put("title","titleid");
+		return table;
+	}
+	
 
 	@Override
 	public TiUIView createView(Activity activity) {
@@ -59,5 +64,15 @@ public class TabProxy extends TiViewProxy
 
 	public void setTabGroup(TabGroupProxy tabGroupProxy) {
 		this.tabGroupProxy = tabGroupProxy;
+	}
+
+	@Override
+	public void releaseViews()
+	{
+		super.releaseViews();
+		if (win != null) {
+			win.setTabGroupProxy(null);
+			win.releaseViews();
+		}
 	}
 }

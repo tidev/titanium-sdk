@@ -24,19 +24,21 @@ public class TiUIPicker extends TiUIView
 		implements OnItemSelectedListener
 {
 	private static final String LCAT = "TiUIPicker";
+	private boolean suppressChangeEvent = false;
+	private boolean initialSelectionDone = false;
 	
 	// With this data structure we're prepared
 	// to handle multiple columns, though we
-	// don't support it yet (and may never).
+	// don't support it yet (and may never with this native Android widget).
 	private ArrayList<ArrayList<PickerRowProxy>> columns;
 
 	public TiUIPicker(TiViewProxy proxy) 
 	{
 		super(proxy);
 		Spinner spinner = new Spinner(proxy.getContext());
-		spinner.setOnItemSelectedListener(this) ;
 		setNativeView(spinner);
 		refreshNativeView();
+		spinner.setOnItemSelectedListener(this);
 	}
 	
 	public void selectRow(int columnIndex, int rowIndex, boolean animated)
@@ -124,31 +126,46 @@ public class TiUIPicker extends TiUIView
 	
 	private void refreshNativeView() 
 	{
-		Spinner spinner = (Spinner) getNativeView();
-		spinner.setAdapter(null);
-		if (columns == null || columns.size() == 0) {
-			return;
+		// Don't allow change events here
+		suppressChangeEvent = true;
+		try {
+			Spinner spinner = (Spinner) getNativeView();
+			spinner.setAdapter(null);
+			if (columns == null || columns.size() == 0) {
+				return;
+			}
+			// Just one column - the first column - for now.  
+			// Maybe someday we'll support multiple columns.
+			ArrayList<PickerRowProxy> rows = columns.get(0);
+			// At the moment we're using the simple spinner layouts provided
+			// in android because we're only supporting a piece of text, which
+			// is fetched via PickerRowProxy.toString().  If we allow 
+			// anything beyond a string, we'll have to implement our own
+			// layouts (maybe our own Adapter too.)
+			ArrayAdapter<PickerRowProxy> adapter = new ArrayAdapter<PickerRowProxy>(
+					spinner.getContext(), 
+					android.R.layout.simple_spinner_item, 
+					rows);
+			adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+			spinner.setAdapter(adapter);
+		} catch(Throwable t) {
+			Log.e(LCAT, "Unable to refresh native spinner control: " + t.getMessage(), t);
+		} finally {
+			suppressChangeEvent = false;
 		}
-		// Just one column - the first column - for now.  
-		// Maybe someday we'll support multiple columns.
-		ArrayList<PickerRowProxy> rows = columns.get(0);
-		// At the moment we're using the simple spinner layouts provided
-		// in android because we're only supporting a piece of text, which
-		// is fetched via PickerRowProxy.toString().  If we allow 
-		// anything beyond a string, we'll have to implement our own
-		// layouts (maybe our own Adapter too.)
-		ArrayAdapter<PickerRowProxy> adapter = new ArrayAdapter<PickerRowProxy>(
-				spinner.getContext(), 
-				android.R.layout.simple_spinner_item, 
-				rows);
-		adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-		spinner.setAdapter(adapter);
 	}
-
+	
 	@Override
 	public void onItemSelected(AdapterView<?> parent, View view, int position,
 			long itemId)
 	{
+		if (!initialSelectionDone) {
+			initialSelectionDone = true;
+			return;
+		}
+		if (suppressChangeEvent) {
+			return;
+		}
 		KrollDict d = new KrollDict();
 		d.put("rowIndex", position);
 		d.put("columnIndex", 0);

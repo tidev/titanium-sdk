@@ -6,10 +6,17 @@
  */
 package ti.modules.titanium.media;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Date;
+import java.util.List;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollModule;
@@ -32,7 +39,9 @@ import android.app.Activity;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
+import android.database.Cursor;
 import android.graphics.BitmapFactory;
 import android.hardware.Camera;
 import android.net.Uri;
@@ -143,6 +152,9 @@ public class MediaModule extends KrollModule
 					imageDir = new File(PHOTO_DCIM_CAMERA, name);
 					if (!imageDir.exists()) {
 						imageDir.mkdirs();
+						if (!imageDir.exists()) {
+							Log.w(LCAT, "Attempt to create '" + imageDir.getAbsolutePath() +  "' failed silently.");
+						}
 					}
 				} else {
 					imageDir = tfh.getDataDirectory(false);
@@ -160,12 +172,32 @@ public class MediaModule extends KrollModule
 
 		final File finalImageFile = imageFile;
 		final String imageUrl = "file://" + imageFile.getAbsolutePath();
-
+		
 		TiIntentWrapper cameraIntent = new TiIntentWrapper(new Intent());
 		cameraIntent.getIntent().setAction(MediaStore.ACTION_IMAGE_CAPTURE);
-		cameraIntent.getIntent().putExtra(MediaStore.EXTRA_OUTPUT, Uri.parse(imageUrl));
 		cameraIntent.getIntent().addCategory(Intent.CATEGORY_DEFAULT);
 		cameraIntent.setWindowId(TiIntentWrapper.createActivityName("CAMERA"));
+
+		PackageManager pm = (PackageManager) activity.getPackageManager();
+		List<ResolveInfo> activities = pm.queryIntentActivities(cameraIntent.getIntent(), PackageManager.MATCH_DEFAULT_ONLY);
+		
+		// See if it's the HTC camera app
+		boolean isHTCCameraApp = false;
+		
+		for (ResolveInfo rs : activities) {
+			try {
+				if (rs.activityInfo.applicationInfo.sourceDir.contains("HTC")) {
+					isHTCCameraApp = true;
+					break;
+				}
+			} catch (NullPointerException e) {
+				//Ignore
+			}
+		}
+
+		if (!isHTCCameraApp) {
+			cameraIntent.getIntent().putExtra(MediaStore.EXTRA_OUTPUT, Uri.parse(imageUrl));
+		} 
 
 		final int code = activitySupport.getUniqueResultCode();
 		final boolean finalSaveToPhotoGallery = saveToPhotoGallery;
@@ -183,31 +215,138 @@ public class MediaModule extends KrollModule
 							fCancelCallback.call();
 						}
 					} else {
-						ContentValues values = new ContentValues(7);
-						values.put(Images.Media.TITLE, finalImageFile.getName());
-						values.put(Images.Media.DISPLAY_NAME, finalImageFile.getName());
-						values.put(Images.Media.DATE_TAKEN, new Date().getTime());
-						values.put(Images.Media.MIME_TYPE, "image/jpeg");
-						if (finalSaveToPhotoGallery) {
-							values.put(Images.ImageColumns.BUCKET_ID, PHOTO_DCIM_CAMERA.toLowerCase().hashCode());
-							values.put(Images.ImageColumns.BUCKET_DISPLAY_NAME, "Camera");
-						} else {
-							values.put(Images.ImageColumns.BUCKET_ID, finalImageFile.getPath().toLowerCase().hashCode());
-							values.put(Images.ImageColumns.BUCKET_DISPLAY_NAME, finalImageFile.getName());
-						}
-						values.put("_data", finalImageFile.getAbsolutePath());
-
-						Uri imageUri = activity.getContentResolver().insert(Images.Media.EXTERNAL_CONTENT_URI, values);
-
-						try {
-							if (fSuccessCallback != null) {
-								fSuccessCallback.call(createDictForImage(imageUri.toString(), "image/jpeg"));
+						if (data == null) {
+							ContentValues values = new ContentValues(7);
+							values.put(Images.Media.TITLE, finalImageFile.getName());
+							values.put(Images.Media.DISPLAY_NAME, finalImageFile.getName());
+							values.put(Images.Media.DATE_TAKEN, new Date().getTime());
+							values.put(Images.Media.MIME_TYPE, "image/jpeg");
+							if (finalSaveToPhotoGallery) {
+								values.put(Images.ImageColumns.BUCKET_ID, PHOTO_DCIM_CAMERA.toLowerCase().hashCode());
+								values.put(Images.ImageColumns.BUCKET_DISPLAY_NAME, "Camera");
+							} else {
+								values.put(Images.ImageColumns.BUCKET_ID, finalImageFile.getPath().toLowerCase().hashCode());
+								values.put(Images.ImageColumns.BUCKET_DISPLAY_NAME, finalImageFile.getName());
 							}
-						} catch (OutOfMemoryError e) {
-							String msg = "Not enough memory to get image: " + e.getMessage();
-							Log.e(LCAT, msg);
-							if (fErrorCallback != null) {
-								fErrorCallback.call(createErrorResponse(UNKNOWN_ERROR, msg));
+							values.put("_data", finalImageFile.getAbsolutePath());
+	
+							Uri imageUri = activity.getContentResolver().insert(Images.Media.EXTERNAL_CONTENT_URI, values);
+	
+							try {
+								if (fSuccessCallback != null) {
+									fSuccessCallback.call(createDictForImage(imageUri.toString(), "image/jpeg"));
+								}
+							} catch (OutOfMemoryError e) {
+								String msg = "Not enough memory to get image: " + e.getMessage();
+								Log.e(LCAT, msg);
+								if (fErrorCallback != null) {
+									fErrorCallback.call(createErrorResponse(UNKNOWN_ERROR, msg));
+								}
+							}
+						} else {
+							// Get the content information about the saved image
+							String[] projection = {
+								Images.Media.TITLE,
+								Images.Media.DISPLAY_NAME,
+								Images.Media.MIME_TYPE,
+								Images.ImageColumns.BUCKET_ID,
+								Images.ImageColumns.BUCKET_DISPLAY_NAME,
+								"_data"
+							};
+
+							String title = null;
+							String displayName = null;
+							String mimeType = null;
+							String bucketId = null;
+							String bucketDisplayName = null;
+							String dataPath = null;
+
+							Cursor c = activity.getContentResolver().query(data.getData(), projection, null, null, null);
+							if (c != null) {
+								try {
+									if (c.moveToNext()) {
+										title = c.getString(0);
+										displayName = c.getString(1);
+										mimeType = c.getString(2);
+										bucketId = c.getString(3);
+										bucketDisplayName = c.getString(4);
+										dataPath = c.getString(5);
+										
+										if (DBG) {
+											Log.d(LCAT,"Image { title: " + title + " displayName: " + displayName + " mimeType: " + mimeType +
+												" bucketId: " + bucketId + " bucketDisplayName: " + bucketDisplayName +
+												" path: " + dataPath + " }");
+										}
+									}
+								} finally {
+									if (c != null) {
+										c.close();
+										c = null;
+									}
+								}
+							}
+							
+							String localImageUrl = dataPath;
+							
+							if (!finalSaveToPhotoGallery) {
+								
+								// We need to move the image from dataPath to imageUrl
+								try {
+									URL url = new URL(imageUrl);
+									
+									File src = new File(dataPath);
+									File dst = new File(url.getPath());
+									
+									BufferedInputStream bis = null;
+									BufferedOutputStream bos = null;
+									
+									try {
+										bis = new BufferedInputStream(new FileInputStream(src), 8096);
+										bos = new BufferedOutputStream(new FileOutputStream(dst), 8096);
+										
+										byte[] buf = new byte[8096];
+										int len = 0;
+										
+										while((len = bis.read(buf)) != -1) {
+											bos.write(buf, 0, len);
+										}
+									} finally {
+										if (bis != null) {
+											bis.close();
+										}
+										if (bos != null) {
+											bos.close();
+										}
+									}
+									
+									// Update Content
+									ContentValues values = new ContentValues();
+									values.put(Images.ImageColumns.BUCKET_ID, finalImageFile.getPath().toLowerCase().hashCode());
+									values.put(Images.ImageColumns.BUCKET_DISPLAY_NAME, finalImageFile.getName());
+									values.put("_data", finalImageFile.getAbsolutePath());
+		
+									activity.getContentResolver().update(data.getData(), values, null, null);
+
+									src.delete();
+									localImageUrl = imageUrl; // make sure it's a good URL before setting it to pass back.
+
+								} catch (MalformedURLException e) {
+									Log.e(LCAT, "Invalid URL not moving image: " + e.getMessage());
+								} catch (IOException e) {
+									Log.e(LCAT, "Unable to move file: " + e.getMessage(), e);
+								}
+							}
+							
+							try {
+								if (fSuccessCallback != null) {
+									fSuccessCallback.call(createDictForImage(localImageUrl, "image/jpeg"));
+								}
+							} catch (OutOfMemoryError e) {
+								String msg = "Not enough memory to get image: " + e.getMessage();
+								Log.e(LCAT, msg);
+								if (fErrorCallback != null) {
+									fErrorCallback.call(createErrorResponse(UNKNOWN_ERROR, msg));
+								}
 							}
 						}
 					}
@@ -311,13 +450,15 @@ public class MediaModule extends KrollModule
 		int height = -1;
 
 		try {
-			Bitmap b = BitmapFactory.decodeStream(getTiContext().getActivity().getContentResolver().openInputStream(Uri.parse(path)));
-			if (b != null) {
-				width = b.getWidth();
-				height = b.getHeight();
-				b.recycle();
-				b = null;
+			String fpath = path;
+			if (!fpath.startsWith("file://")) {
+				fpath = "file://" + path;
 			}
+			BitmapFactory.Options opts = new BitmapFactory.Options();
+			opts.inJustDecodeBounds = true;
+			BitmapFactory.decodeStream(getTiContext().getActivity().getContentResolver().openInputStream(Uri.parse(fpath)),null, opts);
+			width = opts.outWidth;
+			height = opts.outHeight;
 		} catch (FileNotFoundException e) {
 			Log.w(LCAT, "bitmap not found: " + path);
 		}

@@ -43,8 +43,16 @@
 	NSString *value = [label text];
 	UIFont *font = [label font];
 	CGSize maxSize = CGSizeMake(suggestedWidth<=0 ? 480 : suggestedWidth, 1000);
+	CGSize shadowOffset = [label shadowOffset];
 	requiresLayout = YES;
-	return [value sizeWithFont:font constrainedToSize:maxSize lineBreakMode:UILineBreakModeTailTruncation];
+	CGSize size = [value sizeWithFont:font constrainedToSize:maxSize lineBreakMode:UILineBreakModeTailTruncation];
+	if (shadowOffset.width > 0)
+	{
+		// if we have a shadow and auto, we need to adjust to prevent
+		// font from clipping
+		size.width += shadowOffset.width + 10;
+	}
+	return size;
 }
 
 -(CGFloat)autoWidthForWidth:(CGFloat)suggestedWidth
@@ -123,8 +131,7 @@
 	else
 	{
 		[(TiViewProxy *)[self proxy] setNeedsRepositionIfAutoSized];
-	}
-	
+	}	
 }
 
 -(void)setColor_:(id)color
@@ -145,6 +152,10 @@
 	if (requiresLayout)
 	{
 		[(TiViewProxy *)[self proxy] setNeedsReposition];
+	}
+	else
+	{
+		[(TiViewProxy *)[self proxy] setNeedsRepositionIfAutoSized];
 	}
 }
 

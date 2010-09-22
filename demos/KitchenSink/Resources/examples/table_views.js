@@ -32,6 +32,8 @@ var data = [
 	{title:'Table View (Layout 2)', hasChild:true, test:'../examples/table_view_layout_2.js'},
 ];
 
+data.push({title:'Table Search', hasChild:true, test:'../examples/table_view_api_search.js'});
+
 // add iphone specific tests
 if (Titanium.Platform.name == 'iPhone OS')
 {
@@ -51,7 +53,6 @@ if (Titanium.Platform.name == 'iPhone OS')
 	data.push({title:'Table with Remote Images', hasChild:true, test:'../examples/table_view_api_remote_images.js'});
 	data.push({title:'Table with Remote Images 2', hasChild:true, test:'../examples/table_view_remote_images_2.js'});
 	data.push({title:'Table Custom Cell Selection', hasChild:true, test:'../examples/table_view_cell_selection.js'});
-	data.push({title:'Table Search', hasChild:true, test:'../examples/table_view_api_search.js'});
 	data.push({title:'Grouped w/BG Image', hasChild:true, test:'../examples/table_view_grouped_bg_image.js'});
 	data.push({title:'Delete Mode', hasChild:true, test:'../examples/table_view_delete.js'});
 	data.push({title:'Delete Mode (2)', hasChild:true, test:'../examples/table_view_delete_2.js'});

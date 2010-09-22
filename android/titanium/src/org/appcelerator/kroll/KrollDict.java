@@ -62,6 +62,10 @@ public class KrollDict
 		super(size);
 	}
 
+	public boolean containsKeyAndNotNull(String key) {
+		return containsKey(key) && get(key) != null;
+	}
+	
 	public boolean getBoolean(String key) {
 		return KrollConverter.toBoolean(get(key));
 	}

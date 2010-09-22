@@ -30,6 +30,7 @@ import ti.modules.titanium.filesystem.FileProxy;
 import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
+import android.text.Html;
 
 @Kroll.proxy(creatableInModule=UIModule.class)
 public class EmailDialogProxy extends TiViewProxy {
@@ -67,8 +68,15 @@ public class EmailDialogProxy extends TiViewProxy {
 		}
 	}
 	
-	private String baseMimeType() {
-		String result = "text/plain";
+	private String baseMimeType(boolean isHtml) {
+		String result = isHtml ? "text/html" : "text/plain";
+		
+		// After 1.6 (api 4, "Donut"), message/rfc822 will work and still recognize
+		// html encoded text.  The advantage to putting it to message/rfc822 is that
+		// it will most likely "force" the e-mail dialog as opposed to the intent leading
+		// to a chooser that might include other applications that can handle text/plain
+		// or text/html. Since this is all for our "EmailDialogProxy", we want to
+		// force the e-mail dialog as much as possible.
 		if (android.os.Build.VERSION.SDK_INT > android.os.Build.VERSION_CODES.DONUT) {
 			result = "message/rfc822";
 		}
@@ -79,16 +87,12 @@ public class EmailDialogProxy extends TiViewProxy {
 	public void open(){
 		Intent sendIntent = new Intent(Intent.ACTION_SEND);
 		
-		String intentType = baseMimeType();
-		/*
-		if (hasDynamicValue("html")) {
-			if (TiConvert.toBoolean(getDynamicValue("html"))) {
-				intentType = "text/html";
-			}			
-		}*/ 
-		// seems to be no benefit to setting it to html. 
-		// keeping it at message/rfc822 will help force e-mail dialog as opposed 
-		// to another activity the "chooser" may find.
+		boolean isHtml = false;
+		if (hasProperty("html")) {
+			isHtml = TiConvert.toBoolean(getProperty("html"));
+		}
+		
+		String intentType = baseMimeType(isHtml);
 		
 		sendIntent.setType(intentType);
 		putAddressExtra(sendIntent, Intent.EXTRA_EMAIL, "toRecipients");
@@ -96,7 +100,8 @@ public class EmailDialogProxy extends TiViewProxy {
 		putAddressExtra(sendIntent, Intent.EXTRA_BCC, "bccRecipients");
 		
 		putStringExtra(sendIntent, Intent.EXTRA_SUBJECT, "subject");
-		putStringExtra(sendIntent, Intent.EXTRA_TEXT , "messageBody");
+		
+		putStringExtra(sendIntent, Intent.EXTRA_TEXT , "messageBody", isHtml);
 		
 		prepareAttachments(sendIntent);
 		
@@ -242,10 +247,19 @@ public class EmailDialogProxy extends TiViewProxy {
 		}
 	}
 	
+	private void putStringExtra(Intent intent, String extraType, String ourKey)
+	{
+		putStringExtra(intent, extraType, ourKey, false);
+	}
 	
-	private void putStringExtra(Intent intent, String extraType, String ourkey) {		
+	private void putStringExtra(Intent intent, String extraType, String ourkey, boolean encodeHtml) {
 		if (this.hasProperty(ourkey)) {
-			intent.putExtra(extraType, TiConvert.toString(this.getProperty(ourkey)) );
+			String text = TiConvert.toString(this.getProperty(ourkey)) ;
+			if (encodeHtml) {
+				intent.putExtra(extraType, Html.fromHtml(text));
+			} else {
+				intent.putExtra(extraType, text);
+			}
 		}
 	}
 	

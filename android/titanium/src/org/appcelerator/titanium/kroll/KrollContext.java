@@ -10,14 +10,12 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.lang.ref.WeakReference;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiContext;
+import org.appcelerator.titanium.TiScriptRunner;
 import org.appcelerator.titanium.io.TiBaseFile;
 import org.appcelerator.titanium.io.TiFileFactory;
 import org.appcelerator.titanium.util.AsyncResult;
@@ -28,35 +26,48 @@ import org.mozilla.javascript.Context;
 import org.mozilla.javascript.EcmaError;
 import org.mozilla.javascript.EvaluatorException;
 import org.mozilla.javascript.Scriptable;
+import org.mozilla.javascript.ScriptableObject;
 
 import android.app.Activity;
 import android.os.Handler;
-import android.os.HandlerThread;
 import android.os.Message;
+import android.os.Process;
 
-public class KrollContext extends HandlerThread implements Handler.Callback
+public class KrollContext extends KrollHandlerThread implements Handler.Callback
 {
 	private static final String LCAT = "KrollContext";
 	private static boolean DBG = TiConfig.DEBUG;
 
 	private static final int MSG_EVAL_STRING = 1000;
 	private static final int MSG_EVAL_FILE = 1001;
+
 	private static AtomicInteger instanceCounter;
+	
+	private static final String APP_SCHEME= "app://";
+	private static final String FILE_WITH_ASSET = "file:///android_asset/Resources/";
 	
 	public static final String CONTEXT_KEY = "krollContext";
 	
 	private TiContext tiContext;
-	private Scriptable jsScope;
+	private ScriptableObject jsScope;
 
 	private CountDownLatch initialized;
 	private Handler contextHandler;
-	
+	private boolean useOptimization;
+
 	protected KrollContext(TiContext tiContext)
 	{
-		super("kroll$" + instanceCounter.incrementAndGet());
+		// allow a configurable stack size to avoid StackOverflowErrors in some larger apps
+		super("kroll$" + instanceCounter.incrementAndGet(),
+			Process.THREAD_PRIORITY_DEFAULT,
+			tiContext.getTiApp().getThreadStackSize());
 
 		this.tiContext = tiContext;
 		this.initialized = new CountDownLatch(1);
+		
+		// force to true to test compiled JS
+		// this.useOptimization = true;
+		this.useOptimization = tiContext.getTiApp().getDeployType() == TiApplication.DEPLOY_TYPE_PRODUCTION;
 	}
 
 	@Override
@@ -144,20 +155,67 @@ public class KrollContext extends HandlerThread implements Handler.Callback
 
 		return result.getResult();
 	}
-
+	
+	protected Object runCompiledScript(String filename) {
+		
+		if (filename.startsWith(APP_SCHEME)) {
+			filename = filename.substring(APP_SCHEME.length());
+		} else if (filename.startsWith(FILE_WITH_ASSET)) {
+			filename = filename.substring(FILE_WITH_ASSET.length());
+		} else {
+			// we can only handle pre-compiled app:// and file:///android_asset/Resources/ scripts here
+			return evaluateScript(filename);
+		}
+		
+		Context context = enter(true);
+		try {
+			Scriptable scope = context.initStandardObjects(jsScope);
+			Log.d(LCAT, "Running pre-compiled script: "+filename);
+			return TiScriptRunner.getInstance().runScript(context, scope, filename);
+		} catch (ClassNotFoundException e) {
+			Log.e(LCAT, "Couldn't find pre-compiled class for script: " + filename, e);
+		} finally {
+			exit();
+		}
+		return ScriptableObject.NOT_FOUND;
+	}
+	
+	public Object evaluateScript(String filename) { 
+		String[] parts = { filename };
+		TiBaseFile tbf = TiFileFactory.createTitaniumFile(tiContext, parts, false);
+		BufferedReader br = null;
+		
+		Context context = enter(false);
+		try {
+			br = new BufferedReader(new InputStreamReader(tbf.getInputStream()), 4000);
+			Log.d(LCAT, "Running evaluated script: " + filename);
+			return context.evaluateReader(jsScope, br, filename, 0, null);
+		} catch (IOException e) {
+			Log.e(LCAT, "IOException reading file: " + filename, e);
+			Context.throwAsScriptRuntimeEx(e);
+		} finally {
+			if (br != null) {
+				try {
+					br.close();
+				} catch (IOException e) {
+					// Ignore
+				}
+			}
+		}
+		return ScriptableObject.NOT_FOUND;
+	}
+	
 	public Object handleEvalFile(String filename)
 	{
 		requireInitialized();
-		BufferedReader br = null;
 		Object result = null;
 
-		Context ctx = enter();
 		try {
-			Log.d(LCAT,"eval file: "+filename);
-			String[] parts = { filename };
-			TiBaseFile tbf = TiFileFactory.createTitaniumFile(tiContext, parts, false);
-			br = new BufferedReader(new InputStreamReader(tbf.getInputStream()),4000);
-			result = ctx.evaluateReader(jsScope, br, filename, 0, null);
+			if (useOptimization) {
+				result = runCompiledScript(filename);
+			} else {
+				result = evaluateScript(filename);
+			}
 		} catch (EcmaError e) {
 			Log.e(LCAT, "ECMA Error evaluating source: " + e.getMessage(), e);
 			Context.reportRuntimeError(e.getMessage(), e.sourceName(), e.lineNumber(), e.lineSource(), e.columnNumber());
@@ -167,15 +225,6 @@ public class KrollContext extends HandlerThread implements Handler.Callback
 		} catch (Exception e) {
 			Log.e(LCAT, "Error: " + e.getMessage(), e);
 			Context.throwAsScriptRuntimeEx(e);
-		} finally {
-			if (br != null) {
-				try {
-					br.close();
-				} catch(IOException e) {
-					// Ignore
-				}
-			}
-			exit();
 		}
 
 		return result;
@@ -201,7 +250,7 @@ public class KrollContext extends HandlerThread implements Handler.Callback
 		requireInitialized();
 
 		Object result = null;
-		Context ctx = enter();
+		Context ctx = enter(false);
 		try {
 			result = ctx.evaluateString(jsScope, src, "", 0, null);
 		} catch (EcmaError e) {
@@ -238,9 +287,16 @@ public class KrollContext extends HandlerThread implements Handler.Callback
 	}
 
 	public Context enter() {
+		return enter(this.useOptimization);
+	}
+	
+	public Context enter(boolean useOptimization) {
 		Context ctx = Context.enter();
-		// FOR NOW (UNTIL WE CAN COMPILE IN PACKAGING) WE HAVE TO TURN OFF OPTIMIZATIONS
-		ctx.setOptimizationLevel(-1);
+		
+		if (!useOptimization) {
+			ctx.setOptimizationLevel(-1);
+		}
+			
 		ctx.setErrorReporter(getTiContext());
 		ctx.putThreadLocal(CONTEXT_KEY, this);
 		return ctx;
@@ -280,5 +336,12 @@ public class KrollContext extends HandlerThread implements Handler.Callback
 		kc.start();
 		kc.requireInitialized();
 		return kc;
+	}
+	
+	public void release()
+	{
+		if (getLooper() != null) {
+			getLooper().quit();
+		}
 	}
 }

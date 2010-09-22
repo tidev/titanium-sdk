@@ -14,7 +14,7 @@
 //The iPadPopoverProxy should be seen more as like a window or such, because
 //The popover controller will contain the viewController, which has the view.
 //If the view had the logic, you get some nasty dependency loops.
-@interface TiUIiPadPopoverProxy : TiViewProxy<UIPopoverControllerDelegate> {
+@interface TiUIiPadPopoverProxy : TiViewProxy<UIPopoverControllerDelegate,TiUIViewController> {
 @private
 	UIPopoverController *popoverController;
 	UINavigationController *navigationController;

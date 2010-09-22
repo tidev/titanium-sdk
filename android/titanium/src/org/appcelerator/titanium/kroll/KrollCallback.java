@@ -39,7 +39,19 @@ public class KrollCallback extends KrollMethod
 		this.method = method;
 	}
 	
-	public void call() {
+	public boolean isWithinTiContext(TiContext context)
+	{
+		if (kroll != null) {
+			TiContext krollTiContext = kroll.getTiContext();
+			if (krollTiContext != null) {
+				return (krollTiContext.equals(context));
+			}
+		}
+		return false;
+	}
+
+	public void call()
+	{
 		call(new Object[0]);
 	}
 
@@ -105,4 +117,9 @@ public class KrollCallback extends KrollMethod
 		KrollCallback kb = (KrollCallback) obj;
 		return method.equals(kb.method);
 	}
+	
+	public Object toJSFunction() {
+		return Context.javaToJS(method, kroll.getScope());
+	}
+	
 }

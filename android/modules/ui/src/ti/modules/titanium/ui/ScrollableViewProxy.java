@@ -40,6 +40,7 @@ public class ScrollableViewProxy extends TiViewProxy
 	public static final int MSG_SET_VIEWS = MSG_FIRST_ID + 105;
 	public static final int MSG_ADD_VIEW = MSG_FIRST_ID + 106;
 	public static final int MSG_SET_CURRENT = MSG_FIRST_ID + 107;
+	public static final int MSG_REMOVE_VIEW = MSG_FIRST_ID + 108;
 	public static final int MSG_LAST_ID = MSG_FIRST_ID + 999;
 
 	protected AtomicBoolean inAnimation;
@@ -113,6 +114,16 @@ public class ScrollableViewProxy extends TiViewProxy
 				holder.setResult(null); // signal complete.
 				break;
 			}
+			case MSG_REMOVE_VIEW: {
+				AsyncResult holder = (AsyncResult) msg.obj; 
+				Object view = holder.getArg(); 
+				if (view instanceof TiViewProxy) {
+					getView().removeView((TiViewProxy) view);
+					handled = true;
+				}
+				holder.setResult(null); // signal complete.
+				break;
+			}
 			default :
 				handled = super.handleMessage(msg);
 		}
@@ -139,6 +150,14 @@ public class ScrollableViewProxy extends TiViewProxy
 	@Kroll.method
 	public void addView(Object viewObject) {
 		Message msg = getUIHandler().obtainMessage(MSG_ADD_VIEW);
+		AsyncResult result = new AsyncResult(viewObject);
+		msg.obj = result;
+		msg.sendToTarget();
+		result.getResult(); // Wait for it 
+	}
+	
+	public void removeView(Object viewObject) {
+		Message msg = getUIHandler().obtainMessage(MSG_REMOVE_VIEW);
 		AsyncResult result = new AsyncResult(viewObject);
 		msg.obj = result;
 		msg.sendToTarget();

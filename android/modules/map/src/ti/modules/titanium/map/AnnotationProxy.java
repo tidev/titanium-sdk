@@ -25,4 +25,5 @@ public class AnnotationProxy extends KrollProxy
 			Log.d(LCAT, "Creating an Annotation");
 		}
 	}
+	
 }

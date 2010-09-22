@@ -138,6 +138,15 @@ public class TiBackgroundDrawable extends StateListDrawable {
 		return changed || backgroundChanged;
 	}
 
+	
+	@Override
+	public void invalidateSelf() {
+		super.invalidateSelf();
+		if (background instanceof StateListDrawable) {
+			((StateListDrawable)background).invalidateSelf();			
+		}
+	}
+
 	@Override
 	public void invalidateDrawable(Drawable who) {
 		super.invalidateDrawable(who);

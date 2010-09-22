@@ -27,7 +27,7 @@ public class TiDatabaseProxy extends KrollProxy
 
 	protected SQLiteDatabase db;
 	protected String name;
-	boolean statementLogging;
+	boolean statementLogging, readOnly;
 
 	public TiDatabaseProxy(TiContext tiContext, String name, SQLiteDatabase db)
 	{
@@ -35,6 +35,17 @@ public class TiDatabaseProxy extends KrollProxy
 		this.name = name;
 		this.db = db;
 		statementLogging = false;
+		readOnly = false;
+	}
+	
+	// readonly database
+	public TiDatabaseProxy(TiContext tiContext, SQLiteDatabase db)
+	{
+		super(tiContext);
+		this.name = db.getPath();
+		this.db = db;
+		statementLogging = false;
+		readOnly = true;
 	}
 
 	@Kroll.method
@@ -134,6 +145,11 @@ public class TiDatabaseProxy extends KrollProxy
 
 	@Kroll.method
 	public void remove() {
+		if (readOnly) {
+			Log.w(LCAT, name + " is a read-only database, cannot remove");
+			return;
+		}
+		
 		if (db.isOpen()) {
 			Log.w(LCAT, "Attempt to remove open database. Closing then removing " + name);
 			db.close();

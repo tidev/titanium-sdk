@@ -14,9 +14,12 @@ import java.lang.reflect.Method;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.codec.digest.DigestUtils;
 import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiContext;
+import org.appcelerator.titanium.view.TiUIView;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -24,6 +27,8 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.graphics.Bitmap;
+import android.graphics.Bitmap.CompressFormat;
+import android.graphics.Bitmap.Config;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.ColorFilter;
@@ -32,8 +37,6 @@ import android.graphics.ColorMatrixColorFilter;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.Typeface;
-import android.graphics.Bitmap.CompressFormat;
-import android.graphics.Bitmap.Config;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.StateListDrawable;
@@ -42,6 +45,7 @@ import android.os.Process;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.TextView;
 
 public class TiUIHelper
@@ -84,14 +88,11 @@ public class TiUIHelper
 		if (negativeListener == null) {
 			negativeListener = createKillListener();
 		}
-        new AlertDialog.Builder(context)
-        .setTitle(title)
-        .setMessage(message)
-        .setPositiveButton("Continue",positiveListener)
-        .setNegativeButton("Kill", negativeListener)
-        .setCancelable(false)
-        .create()
-        .show();
+		
+		new AlertDialog.Builder(context).setTitle(title).setMessage(message)
+			.setPositiveButton("Continue", positiveListener)
+			.setNegativeButton("Kill", negativeListener)
+			.setCancelable(false).create().show();
 	}
 
 	public static void doOkDialog(Context context, String title, String message, OnClickListener listener) {
@@ -102,13 +103,10 @@ public class TiUIHelper
 					// Do nothing.
 				}};
 		}
-        new AlertDialog.Builder(context)
-        .setTitle(title)
-        .setMessage(message)
-        .setPositiveButton(android.R.string.ok,listener)
-        .setCancelable(false)
-        .create()
-        .show();
+		
+		new AlertDialog.Builder(context).setTitle(title).setMessage(message)
+			.setPositiveButton(android.R.string.ok, listener)
+			.setCancelable(false).create().show();
 	}
 
 	public static int toTypefaceStyle(String fontWeight) {
@@ -283,11 +281,15 @@ public class TiUIHelper
 	}
 
 
-	public static StateListDrawable buildBackgroundDrawable(Context context,
+	public static StateListDrawable buildBackgroundDrawable(TiContext tiContext,
 			String image,
+			String color,
 			String selectedImage,
+			String selectedColor,
 			String disabledImage,
-			String focusedImage)
+			String disabledColor,
+			String focusedImage,
+			String focusedColor)
 	{
 		StateListDrawable sld = null;
 
@@ -295,30 +297,50 @@ public class TiUIHelper
 		Drawable bgSelectedDrawable = null;
 		Drawable bgFocusedDrawable = null;
 		Drawable bgDisabledDrawable = null;
+		
+		Context appContext = tiContext.getActivity().getApplicationContext();
 
-		TiFileHelper tfh = new TiFileHelper(context);
+		TiFileHelper tfh = new TiFileHelper(appContext);
 
 		if (image != null) {
-			bgDrawable = tfh.loadDrawable(image, false, true);
+			bgDrawable = tfh.loadDrawable(tiContext, image, false, true);
+		} else if (color != null) {
+			bgDrawable = new ColorDrawable(TiConvert.toColor(color));
 		}
 
 		if (selectedImage != null) {
-			bgSelectedDrawable = tfh.loadDrawable(selectedImage, false, true);
+			bgSelectedDrawable = tfh.loadDrawable(tiContext, selectedImage, false, true);
+		} else if (selectedColor != null) {
+			bgSelectedDrawable = new ColorDrawable(TiConvert.toColor(selectedColor));
+		} else {
+			if (image != null) {
+				bgSelectedDrawable = tfh.loadDrawable(image, false, true);
+			} else if (color != null) {
+				bgSelectedDrawable = new ColorDrawable(TiConvert.toColor(color));				
+			}			
 		}
 
 		if (focusedImage != null) {
-			bgFocusedDrawable = tfh.loadDrawable(focusedImage, false, true);
+			bgFocusedDrawable = tfh.loadDrawable(tiContext, focusedImage, false, true);
+		} else if (focusedColor != null) {
+			bgFocusedDrawable = new ColorDrawable(TiConvert.toColor(focusedColor));
 		} else {
 			if (image != null) {
-				bgFocusedDrawable = tfh.loadDrawable(image, false, true);
+				bgFocusedDrawable = tfh.loadDrawable(tiContext, image, false, true);
+			} else if (color != null) {
+				bgFocusedDrawable = new ColorDrawable(TiConvert.toColor(color));				
 			}
 		}
 
 		if (disabledImage != null) {
-			bgDisabledDrawable = tfh.loadDrawable(disabledImage, false, true);
+			bgDisabledDrawable = tfh.loadDrawable(tiContext, disabledImage, false, true);
+		} else if (disabledColor != null) {
+			bgDisabledDrawable = new ColorDrawable(TiConvert.toColor(disabledColor));
 		} else {
 			if (image != null) {
-				bgDisabledDrawable = tfh.loadDrawable(image, false, true);
+				bgDisabledDrawable = tfh.loadDrawable(tiContext, image, false, true);
+			} else if (color != null) {
+				bgDisabledDrawable = new ColorDrawable(TiConvert.toColor(color));				
 			}
 		}
 
@@ -410,7 +432,6 @@ public class TiUIHelper
 
 	public static KrollDict viewToImage(TiContext context, View view)
 	{
-		Activity a = null;
 		KrollDict image = new KrollDict();
 
 		if (view != null) {
@@ -449,6 +470,82 @@ public class TiUIHelper
 		return b;
 	}
 	
+	private static String getRAKeyForImage(String url)
+	{
+		Pattern pattern = Pattern.compile("^.*/Resources/images/(.*$)");
+		Matcher matcher = pattern.matcher(url);
+		if (!matcher.matches()) {
+			return null;
+		}
+		
+		String chopped = matcher.group(1);
+		if (chopped == null) {
+			return null;
+		}
+		
+		chopped = chopped.toLowerCase();
+		String forHash = chopped;
+		if (forHash.endsWith(".9.png")) {
+			forHash = forHash.replace(".9.png", ".png");
+		}
+		String withoutExtension = chopped;
+		
+		if (chopped.matches("^.*\\..*$")) {
+			if (chopped.endsWith(".9.png")) {
+				withoutExtension = chopped.substring(0, chopped.lastIndexOf(".9.png"));
+			} else {
+				withoutExtension = chopped.substring(0, chopped.lastIndexOf('.'));
+			}
+		}
+		
+		String cleanedWithoutExtension = withoutExtension.replaceAll("[^a-z0-9_]", "_");
+		StringBuilder result = new StringBuilder(100);
+		result.append(cleanedWithoutExtension.substring(0, Math.min(cleanedWithoutExtension.length(), 80))) ;
+		result.append("_");
+		result.append(DigestUtils.md5Hex(forHash).substring(0, 10));
+		
+		return result.toString();
+	}
+	
+	public static Bitmap getResourceBitmap(TiContext context, String url)
+	{
+		if (!url.contains("Resources/images/")) {
+			return null;
+		}
+		
+		String key = getRAKeyForImage(url);
+		if (key == null) {
+			return null;
+		}
+		
+		int id = TiResourceHelper.getDrawable(key);
+		if (id == 0) {
+			return null;
+		}
+		
+		Bitmap bitmap = BitmapFactory.decodeResource(context.getActivity().getResources(), id);
+		return bitmap;
+	}
+	
+	public static Drawable getResourceDrawable(TiContext context, String url)
+	{
+		if (!url.contains("Resources/images/")) {
+			return null;
+		}
+		
+		String key = getRAKeyForImage(url);
+		if (key == null) {
+			return null;
+		}
+		
+		int id = TiResourceHelper.getDrawable(key);
+		if (id == 0) {
+			return null;
+		}
+		
+		return context.getActivity().getResources().getDrawable(id);
+	}
+	
 	public static void overridePendingTransition(Activity activity) 
 	{
 		if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.DONUT) {
@@ -475,7 +572,6 @@ public class TiUIHelper
 		}
 	}
 	
-	
 	public static ColorFilter createColorFilterForOpacity(float opacity) {
 		// 5x4 identity color matrix + fade the alpha to achieve opacity
 		float[] matrix = {
@@ -499,5 +595,35 @@ public class TiUIHelper
 	
 	public static void setPaintOpacity(Paint paint, float opacity) {
 		paint.setColorFilter(createColorFilterForOpacity(opacity));
+	}
+
+	public static void requestSoftInputChange(KrollProxy proxy, View view) 
+	{
+		int focusState = TiUIView.SOFT_KEYBOARD_DEFAULT_ON_FOCUS;
+		
+		if (proxy.hasProperty("softKeyboardOnFocus")) {
+			focusState = TiConvert.toInt(proxy.getProperty("softKeyboardOnFocus"));
+		}
+
+		if (focusState > TiUIView.SOFT_KEYBOARD_DEFAULT_ON_FOCUS) {
+			InputMethodManager imm = (InputMethodManager) view.getContext().getSystemService(Activity.INPUT_METHOD_SERVICE);
+			if (imm != null) {
+				boolean useForce = (Build.VERSION.SDK_INT <= Build.VERSION_CODES.DONUT) ? true : false;
+				String model = TiPlatformHelper.getModel(); 
+				if (model != null && model.toLowerCase().equals("droid")) {
+					useForce = true;
+				}
+				if (DBG) {
+					Log.i(LCAT, "soft input change request: flag: " + focusState + " useForce: " + useForce);
+				}
+				if (focusState == TiUIView.SOFT_KEYBOARD_SHOW_ON_FOCUS) {
+					imm.showSoftInput(view, useForce ? InputMethodManager.SHOW_FORCED : InputMethodManager.SHOW_IMPLICIT);
+				} else if (focusState == TiUIView.SOFT_KEYBOARD_HIDE_ON_FOCUS) {
+					imm.hideSoftInputFromWindow(view.getWindowToken(), useForce ? 0 : InputMethodManager.HIDE_IMPLICIT_ONLY);
+				} else {
+					Log.w(LCAT, "Unknown onFocus state: " + focusState);
+				}
+			}
+		}
 	}
 }

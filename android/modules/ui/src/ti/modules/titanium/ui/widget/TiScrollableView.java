@@ -204,7 +204,15 @@ public class TiScrollableView extends TiCompositeLayout
 		});
 	}
 
-
+	@Override
+	public boolean dispatchTouchEvent(MotionEvent ev) {
+		boolean handled = false;
+		handled = detector.onTouchEvent(ev);
+		if (!handled || (handled && ev.getAction() == MotionEvent.ACTION_DOWN)) {
+			handled = super.dispatchTouchEvent(ev);
+		}
+		return handled;
+	}
 
 	@Override
 	public boolean onTouchEvent(MotionEvent event)
@@ -371,6 +379,21 @@ public class TiScrollableView extends TiCompositeLayout
 			this.views.add(proxy);
 			gallery.addView(new ViewWrapper(getContext(), gallery.getChildCount()));
 			//gallery.addView(proxy.getView(null).getNativeView());
+		}
+	}
+	
+	public void removeView(TiViewProxy proxy)
+	{
+		if (proxy != null) {
+			int index = this.views.indexOf(proxy);
+			this.views.remove(proxy);
+			if (index == -1) {
+				if (DBG) {
+					Log.d(LCAT, "removeView -- view not located.");
+				}
+			} else {
+				gallery.removeViewAt(index);
+			}
 		}
 	}
 

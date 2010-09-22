@@ -31,8 +31,7 @@
 	NSMutableDictionary *launchOptions;
 	NSTimeInterval started;
 	
-	NSLock *networkActivity;
-	int networkActivityCount;
+	int networkActivityCount; //We now can use atomic increment/decrement instead. This value is 0 upon initialization anyways.
 	
 	// TODO: Create a specialized SplitView controller if necessary
 	UIViewController<TiRootController> *controller;

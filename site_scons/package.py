@@ -19,6 +19,11 @@ osx_dir = os.path.abspath(os.path.join(template_dir,'osx'))
 buildtime = datetime.datetime.now()
 ts = buildtime.strftime("%m/%d/%y %H:%M")
 
+# get the githash for the build so we can always pull this build from a specific
+# commit
+p = subprocess.Popen(["git","show","--abbrev-commit"],stderr=subprocess.PIPE, stdout=subprocess.PIPE)
+githash = p.communicate()[0][8:].split('\n')[0]
+
 ignoreExtensions = ['.pbxuser','.perspectivev3','.pyc']
 ignoreDirs = ['.DS_Store','.git','.gitignore','libTitanium.a','titanium.jar','build','bridge.txt']
 
@@ -52,6 +57,9 @@ def zip_android(zf,basepath):
 	android_dist_dir = os.path.join(top_dir, 'dist', 'android')
 	android_jar = os.path.join(android_dist_dir, 'titanium.jar')
 	zf.write(android_jar, '%s/android/titanium.jar' % basepath)	
+
+	android_depends = os.path.join(top_dir, 'android','dependency.json')
+	zf.write(android_depends, '%s/android/dependency.json' % basepath)	
 	
 	titanium_lib_dir = os.path.join(top_dir, 'android', 'titanium', 'lib')
 	for thirdparty_jar in os.listdir(titanium_lib_dir):
@@ -105,24 +113,12 @@ def zip_iphone_ipad(zf,basepath,platform,version):
 	for f in os.listdir(tp_headers_dir):
 		if os.path.isfile(os.path.join(tp_headers_dir,f)) and os.path.splitext(f)[1]=='.h':
 			 zf.write(os.path.join(tp_headers_dir,f),'%s/iphone/include/TiCore/%s' % (basepath,f))
-	
-	# get the githash for the build so we can always pull this build from a specific
-	# commit
-	p = subprocess.Popen(["git","show","--abbrev-commit"],stderr=subprocess.PIPE, stdout=subprocess.PIPE)
-	githash = p.communicate()[0][8:].split('\n')[0]
-	
+
 	subs = {
 		"__VERSION__":version,
 		"__TIMESTAMP__":ts,
 		"__GITHASH__": githash
 	}
-	
-	version_txt = """version=%s
-timestamp=%s
-githash=%s
-""" % (version,ts,githash)
-
-	zf.writestr('%s/version.txt' % basepath,version_txt)
 	
 	# xcode_templates_dir =  os.path.join(top_dir,'iphone','templates','xcode')
 	# zip_dir(zf,xcode_templates_dir,basepath+'/iphone/xcode/templates',subs)
@@ -170,6 +166,14 @@ def create_platform_zip(platform,dist_dir,osname,version):
 
 def zip_mobilesdk(dist_dir,osname,version,android,iphone,ipad):
 	zf, basepath = create_platform_zip('mobilesdk',dist_dir,osname,version)
+
+	version_txt = """version=%s
+timestamp=%s
+githash=%s
+""" % (version,ts,githash)
+
+	zf.writestr('%s/version.txt' % basepath,version_txt)
+	
 	zip_dir(zf,all_dir,basepath)
 	zip_dir(zf,template_dir,basepath)
 	if android: zip_android(zf,basepath)

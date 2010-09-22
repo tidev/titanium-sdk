@@ -16,6 +16,7 @@ import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.titanium.TiActivity;
 import org.appcelerator.titanium.TiContext;
+import org.appcelerator.titanium.TiModalActivity;
 import org.appcelerator.titanium.kroll.KrollBridge;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.proxy.TiWindowProxy;
@@ -39,9 +40,9 @@ import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
 import android.view.View;
-import android.view.Window;
 import android.view.View.OnFocusChangeListener;
 import android.view.ViewGroup.LayoutParams;
+import android.view.Window;
 
 public class TiUIWindow extends TiUIView
 	implements Handler.Callback
@@ -56,7 +57,7 @@ public class TiUIWindow extends TiUIView
 
 	private static final int MSG_ANIMATE = 100;
 
-	private static final String[] NEW_ACTIVITY_REQUIRED_KEYS = { "fullscreen", "navBarHidden", "modal"};
+	private static final String[] NEW_ACTIVITY_REQUIRED_KEYS = { "fullscreen", "navBarHidden", "modal", "windowSoftInputMode"};
 
 	protected String activityKey;
 	protected Activity windowActivity;
@@ -344,7 +345,9 @@ public class TiUIWindow extends TiUIView
 			animateOnClose = props.getBoolean("animated");
 		}
 
+		boolean revertToCreatedContext = false;
 		if (createdContext != null && createdContext.get() != null) {
+			revertToCreatedContext = true;
 			createdContext.get().dispatchEvent("close", data, proxy);
 			createdContext.clear();
 		}
@@ -366,6 +369,11 @@ public class TiUIWindow extends TiUIView
 				}
 				liteWindow.removeAllViews();
 				liteWindow = null;
+			}
+		}
+		if (revertToCreatedContext) {
+			if (proxy instanceof TiWindowProxy) {
+				((TiWindowProxy)proxy).switchToCreatingContext();
 			}
 		}
 	}
@@ -425,6 +433,9 @@ public class TiUIWindow extends TiUIView
 		View layout = nativeView;
 		if (!lightWeight) {
 			TiActivity tia = (TiActivity) windowActivity;
+			if (tia == null) {
+				return null;
+			}
 			layout = tia.getLayout();
 		}
 		return layout;
@@ -453,7 +464,7 @@ public class TiUIWindow extends TiUIView
 		if (d.containsKey("backgroundImage")) {
 			String path = proxy.getTiContext().resolveUrl(null, TiConvert.toString(d, "backgroundImage"));
 			TiFileHelper tfh = new TiFileHelper(proxy.getContext().getApplicationContext());
-			Drawable bd = tfh.loadDrawable(path, false);
+			Drawable bd = tfh.loadDrawable(proxy.getTiContext(), path, false);
 			if (bd != null) {
 				if (!lightWeight) {
 					windowActivity.getWindow().setBackgroundDrawable(bd);
@@ -487,7 +498,7 @@ public class TiUIWindow extends TiUIView
 			if (newValue != null) {
 				String path = proxy.getTiContext().resolveUrl(null, TiConvert.toString(newValue));
 				TiFileHelper tfh = new TiFileHelper(proxy.getTiContext().getTiApp());
-				Drawable bd = tfh.loadDrawable(path, false);
+				Drawable bd = tfh.loadDrawable(proxy.getTiContext(), path, false);
 				if (bd != null) {
 					if (!lightWeight) {
 						windowActivity.getWindow().setBackgroundDrawable(bd);
@@ -576,6 +587,7 @@ public class TiUIWindow extends TiUIView
 		}
 		props = resolver.findProperty("modal");
 		if (props != null && props.containsKey("modal")) {
+			intent.setClass(activity, TiModalActivity.class);
 			intent.putExtra("modal", TiConvert.toBoolean(props, "modal"));
 		}
 		props = resolver.findProperty("url");
@@ -585,6 +597,10 @@ public class TiUIWindow extends TiUIView
 		props = resolver.findProperty("layout");
 		if (props != null && props.containsKey("layout")) {
 			intent.putExtra("vertical", TiConvert.toString(props, "layout").equals("vertical"));
+		}
+		props = resolver.findProperty("windowSoftInputMode");
+		if (props != null && props.containsKey("windowSoftInputMode")) {
+			intent.putExtra("windowSoftInputMode", TiConvert.toInt(props, "windowSoftInputMode"));
 		}
 
 		boolean finishRoot = false;
@@ -613,5 +629,18 @@ public class TiUIWindow extends TiUIView
 		}
 		
 		super.setOpacity(view, opacity);
+	}
+
+	@Override
+	public void release()
+	{
+		super.release();
+		if (liteWindow != null) {
+			liteWindow.removeAllViews();
+			liteWindow = null;
+		}
+		messenger = null;
+		handler = null;
+		windowActivity = null;
 	}
 }

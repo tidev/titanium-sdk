@@ -47,6 +47,7 @@ public @interface Kroll {
 	public @interface method {
 		String name() default DEFAULT_NAME;
 		Class<? extends KrollNativeConverter> converter() default KrollConverter.class;
+		String bindToPrototype() default DEFAULT_NAME;
 	}
 	
 	@Retention(RetentionPolicy.SOURCE)
@@ -55,6 +56,7 @@ public @interface Kroll {
 		String name() default DEFAULT_NAME;
 		Class<?> parentModule() default DEFAULT.class;
 		public static final class DEFAULT {};
+		boolean contextSpecific() default false;
 	}
 	
 	@Retention(RetentionPolicy.SOURCE)

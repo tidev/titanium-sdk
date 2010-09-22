@@ -40,11 +40,27 @@
 
 -(void)dealloc
 {
-	RELEASE_TO_NIL(windowViewControllers);
 	RELEASE_TO_NIL(backgroundColor);
 	RELEASE_TO_NIL(backgroundImage);
+
+	RELEASE_TO_NIL(windowProxies);
+
+	RELEASE_TO_NIL(windowViewControllers);
+	RELEASE_TO_NIL(viewControllerStack);
 	[super dealloc];
 }
+
+- (id) init
+{
+	self = [super init];
+	if (self != nil)
+	{
+		windowProxies = [[NSMutableArray alloc] init];
+		viewControllerStack = [[NSMutableArray alloc] init];
+	}
+	return self;
+}
+
 
 -(CGRect)resizeView
 {
@@ -101,7 +117,6 @@
 	}
 }
 
-
 -(void)didOrientNotify:(NSNotification *)notification
 {
 	UIInterfaceOrientation newOrientation = [[UIDevice currentDevice] orientation];
@@ -113,8 +128,8 @@
 		if (![[TiApp app] isSplashVisible]) {
 			[[TiApp app] loadSplash];
 		}
-		[self willAnimateRotationToInterfaceOrientation:newOrientation duration:0];
 		windowOrientation = oldOrientation;
+		[self manuallyRotateToOrientation:newOrientation duration:0];
 		return;
 	}
 
@@ -135,44 +150,53 @@
 	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didOrientNotify:) name:UIDeviceOrientationDidChangeNotification object:nil];
 
 	TiRootView *rootView = [[TiRootView alloc] init];
-	[rootView setAutoresizingMask:UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight];
 	self.view = rootView;
 	[self updateBackground];
 	[self resizeView];
 	// we have to make a copy since this code can cause a mutation
-	for (TiWindowViewController * thisWindowController in [[windowViewControllers mutableCopy] autorelease])
+	for (TiWindowProxy * thisProxy in windowProxies)
 	{
-		if ([thisWindowController isKindOfClass:[TiWindowViewController class]])
-		{
-			UIView * thisView = [thisWindowController view];
-			[rootView addSubview:thisView];
-			[[thisWindowController proxy] reposition];
-		}
+		UIView * thisView = [thisProxy view];
+		[rootView addSubview:thisView];
+		[thisProxy reposition];
 	}
 	[rootView release];
+}
+
+- (void)viewWillAppear:(BOOL)animated;    // Called when the view is about to made visible. Default does nothing
+{
+	VerboseLog(@"%@%@",self,CODELOCATION);
+	isCurrentlyVisible = YES;
+	[[viewControllerStack lastObject] viewWillAppear:animated];
+}
+- (void)viewWillDisappear:(BOOL)animated; // Called when the view is dismissed, covered or otherwise hidden. Default does nothing
+{
+	VerboseLog(@"%@%@",self,CODELOCATION);
+	[[viewControllerStack lastObject] viewWillDisappear:animated];
 }
 
 - (void) viewDidAppear:(BOOL)animated
 {
 	[self.view becomeFirstResponder];
     [super viewDidAppear:animated];
+	VerboseLog(@"%@%@",self,CODELOCATION);
+	[[viewControllerStack lastObject] viewDidAppear:animated];
 }
 
 - (void) viewDidDisappear:(BOOL)animated
 {
+	isCurrentlyVisible = NO;
 	[self.view resignFirstResponder];
     [super viewDidDisappear:animated];
+	VerboseLog(@"%@%@",self,CODELOCATION);
+	[[viewControllerStack lastObject] viewDidDisappear:animated];
 }
 
 -(void)repositionSubviews
 {
-	SEL sel = @selector(proxy);
-	for (UIView * subView in [[self view] subviews])
+	for (TiWindowProxy * thisProxy in windowProxies)
 	{
-		if ([subView respondsToSelector:sel])
-		{
-			[(TiViewProxy *)[(TiUIView *)subView proxy] reposition];
-		}
+		[thisProxy reposition];
 	}
 }
 
@@ -208,19 +232,14 @@
 			break;
 	}
 
-	//Propagate this to everyone else. This has to be done outside the animation.
-	for (UIViewController * thisVC in windowViewControllers)
+	for (TiWindowProxy * thisProxy in windowProxies)
 	{
-		UINavigationController * thisNavCon = [thisVC navigationController];
-		if (thisNavCon != nil)
+		UIViewController * thisNavCon = [thisProxy navController];
+		if (thisNavCon == nil)
 		{
-			[thisNavCon willAnimateRotationToInterfaceOrientation:newOrientation duration:duration];
+			thisNavCon = [thisProxy controller];
 		}
-		else
-		{
-			[thisVC willAnimateRotationToInterfaceOrientation:newOrientation duration:duration];
-		}
-
+		[thisNavCon willAnimateRotationToInterfaceOrientation:newOrientation duration:duration];
 	}
 
 
@@ -231,6 +250,7 @@
 	}
 
 	[[self view] setTransform:transform];
+	lastOrientation = newOrientation;
 	[self resizeView];
 
 	//Propigate this to everyone else. This has to be done INSIDE the animation.
@@ -240,7 +260,6 @@
 	{
 		[UIView commitAnimations];
 	}
-	lastOrientation = newOrientation;
 }
 
 -(void)manuallyRotateToOrientation:(UIInterfaceOrientation) newOrientation
@@ -258,12 +277,8 @@
 
 -(void)setOrientationModes:(NSArray *)newOrientationModes
 {
-	for (int i=0; i<MAX_ORIENTATIONS; i++)
-	{
-		allowedOrientations[i] = NO;
-	}
+	allowedOrientations = TiOrientationNone;
 
-	BOOL noOrientations = YES;
 	for (id mode in newOrientationModes)
 	{
 		UIInterfaceOrientation orientation = [TiUtils orientationValue:mode def:-1];
@@ -273,8 +288,7 @@
 			case UIDeviceOrientationPortraitUpsideDown:
 			case UIDeviceOrientationLandscapeLeft:
 			case UIDeviceOrientationLandscapeRight:
-				allowedOrientations[orientation] = YES;
-				noOrientations = NO;
+				TI_ORIENTATION_SET(allowedOrientations,orientation);
 				break;
 			case -1:
 				break;
@@ -284,99 +298,100 @@
 		}
 	}
 	
-	if (noOrientations)
+	if (allowedOrientations == TiOrientationNone)
 	{
-		allowedOrientations[UIInterfaceOrientationPortrait] = YES;
 		if ([TiUtils isIPad])
 		{
-			allowedOrientations[UIInterfaceOrientationPortraitUpsideDown] = YES;
-			allowedOrientations[UIInterfaceOrientationLandscapeLeft] = YES;
-			allowedOrientations[UIInterfaceOrientationLandscapeRight] = YES;
+			allowedOrientations = TiOrientationAny;
 		}
-	}
-}
-
--(void)refreshOrientationModesIfNeeded:(TiWindowProxy *)oldCurrentWindow
-{
-	if (currentWindow != oldCurrentWindow)
-	{
-		return;
-	}
-
-	[self enforceOrientationModesFromWindow:currentWindow];
-}
-
--(void)enforceOrientationModesFromWindow:(TiWindowProxy *) newCurrentWindow
-{	
-	currentWindow = newCurrentWindow;
-
-	Class arrayClass = [NSArray class];
-	Class windowClass = [TiWindowProxy class];
-	SEL proxySel = @selector(proxy);
-
-	BOOL noPrefrenceTab = NO;
-	
-	NSArray * candidateOrientationModes = [newCurrentWindow valueForKey:@"orientationModes"];
-	if (![candidateOrientationModes isKindOfClass:arrayClass])
-	{
-		UINavigationController * navCon = [newCurrentWindow navController];
-		NSEnumerator * viewControllerEnum = [[navCon viewControllers] reverseObjectEnumerator];
-
-		noPrefrenceTab = YES;
-
-		for (UIViewController * thisViewController in viewControllerEnum)
+		else
 		{
-			if (![thisViewController respondsToSelector:proxySel])
-			{
-				continue;
-			}
-			TiWindowProxy * thisProxy = (TiWindowProxy *)[(id)thisViewController proxy];
-			if (![thisProxy isKindOfClass:windowClass])
-			{
-				continue;
-			}
-			candidateOrientationModes = [thisProxy valueForKey:@"orientationModes"];
-			if ([candidateOrientationModes isKindOfClass:arrayClass])
-			{
-				noPrefrenceTab = NO;
-				break;
-			}
+			allowedOrientations = TiOrientationPortrait;
 		}
-	}
 
-	if ([candidateOrientationModes isKindOfClass:arrayClass])
-	{
-		[self setOrientationModes:candidateOrientationModes];
 	}
-	else if(noPrefrenceTab)
-	{
-		[self setOrientationModes:nil];
-	}
+}
 
-	if(allowedOrientations[lastOrientation] || (lastOrientation == 0))
-	{
-		return; //Nothing to enforce.
-	}
-
+-(UIInterfaceOrientation)mostRecentlyAllowedOrientation
+{
 	UIInterfaceOrientation requestedOrientation = [[UIApplication sharedApplication] statusBarOrientation];
 	NSTimeInterval latestRequest = 0.0;
 	for (int i=0; i<MAX_ORIENTATIONS; i++)
 	{
-		if (allowedOrientations[i] && (orientationRequestTimes[i]>latestRequest))
+		if (TI_ORIENTATION_ALLOWED(allowedOrientations,i) && (orientationRequestTimes[i]>latestRequest))
 		{
 			requestedOrientation = i;
 			latestRequest = orientationRequestTimes[i];
 		}
 	}
-	
-	[self manuallyRotateToOrientation:requestedOrientation];
+	return requestedOrientation;
 }
 
 
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation 
 {
 	orientationRequestTimes[interfaceOrientation] = [NSDate timeIntervalSinceReferenceDate];
-	return allowedOrientations[interfaceOrientation];
+	return TI_ORIENTATION_ALLOWED(allowedOrientations,interfaceOrientation);
+}
+
+
+/*
+Okay, Blain's sit and think about this. This is only concerning the top level of things.
+That is, this is only a stack of open windows, and does not concern beyond that.
+What this does mean is that any 
+
+*/
+
+- (void)willHideViewController:(UIViewController *)focusedViewController animated:(BOOL)animated
+{
+	if (!isCurrentlyVisible || (focusedViewController != [viewControllerStack lastObject]))
+	{
+		return;
+	}
+	
+	[focusedViewController viewWillDisappear:animated];
+	
+	int previousIndex = [viewControllerStack count] - 2;	
+	if (previousIndex > 0)
+	{
+		[[viewControllerStack objectAtIndex:previousIndex] viewWillAppear:animated];
+	}
+}
+
+- (void)didHideViewController:(UIViewController *)focusedViewController animated:(BOOL)animated
+{
+	if (!isCurrentlyVisible || (focusedViewController != [viewControllerStack lastObject]))
+	{
+		return;
+	}
+	
+	[focusedViewController viewDidDisappear:animated];
+	[viewControllerStack removeLastObject];
+	
+	[[viewControllerStack lastObject] viewDidAppear:animated];
+}
+
+- (void)willShowViewController:(UIViewController *)focusedViewController animated:(BOOL)animated
+{
+	if (!isCurrentlyVisible || [viewControllerStack containsObject:focusedViewController])
+	{
+		return;
+	}
+	
+	[[viewControllerStack lastObject] viewWillDisappear:animated];
+	[focusedViewController viewWillAppear:animated];
+}
+
+- (void)didShowViewController:(UIViewController *)focusedViewController animated:(BOOL)animated
+{
+	if (!isCurrentlyVisible || [viewControllerStack containsObject:focusedViewController])
+	{
+		return;
+	}
+	
+	[[viewControllerStack lastObject] viewDidDisappear:animated];
+	[viewControllerStack addObject:focusedViewController];
+	[focusedViewController viewDidAppear:animated];
 }
 
 
@@ -397,14 +412,11 @@
 	{
 		focusedProxy = (TiWindowProxy *)[(id)focusedViewController proxy];
 	}
-
 	
 	UIViewController * oldTopWindow = [windowViewControllers lastObject];
 	[windowViewControllers removeObject:focusedViewController];
 	if ((focusedViewController==nil) || [(TiWindowProxy *)focusedProxy _isChildOfTab] || ([(TiWindowProxy *)focusedProxy parent]!=nil))
 	{
-		focusedViewController=nil;
-		[self enforceOrientationModesFromWindow:(id)focusedProxy];
 		return;
 	}
 	
@@ -421,8 +433,6 @@
 	{
 		[(TiWindowProxy *)[(id)oldTopWindow proxy] _tabBlur];
 	}
-	
-	[self enforceOrientationModesFromWindow:(id)focusedProxy];
 }
 
 -(void)windowClosed:(UIViewController *)closedViewController
@@ -467,5 +477,101 @@
 	[[NSNotificationCenter defaultCenter] postNotificationName:kTiRemoteControlNotification object:self userInfo:[NSDictionary dictionaryWithObject:event forKey:@"event"]];
 }
 #endif
+
+#pragma mark TiOrientationFlags management.
+- (void)openWindow:(TiWindowProxy *)window withObject:(id)args
+{
+	if ([windowProxies lastObject] == window)
+	{
+		return;
+	}
+
+	if ([windowProxies containsObject:window])
+	{
+		[[window retain] autorelease];
+		[windowProxies removeObject:window];
+	}
+
+	[window setParentOrientationController:self];
+	[windowProxies addObject:window];
+	[window parentWillShow];
+	//Todo: Move all the root-attaching logic here.
+
+	[self childOrientationControllerChangedFlags:window];
+}
+
+- (void)closeWindow:(TiWindowProxy *)window withObject:(id)args
+{
+	if (![windowProxies containsObject:window])
+	{
+		return;
+	}
+	
+	BOOL wasTopWindow = [windowProxies lastObject] == window;
+
+	//Todo: Move all the root-detaching logic here.
+
+	[window setParentOrientationController:nil];
+	[window parentWillHide];
+	[windowProxies removeObject:window];
+
+	if(wasTopWindow)
+	{
+		[self childOrientationControllerChangedFlags:[windowProxies lastObject]];
+	}
+}
+
+-(void)childOrientationControllerChangedFlags:(id<TiOrientationController>) orientationController;
+{
+	WARN_IF_BACKGROUND_THREAD;
+	//Because a modal window might not introduce new 
+
+	TiOrientationFlags newFlags = [self orientationFlags];
+	if (newFlags == allowedOrientations)
+	{
+		//No change. Nothing to update. Skip.
+		return;
+	}
+
+	allowedOrientations = newFlags;
+	if (TI_ORIENTATION_ALLOWED(allowedOrientations,lastOrientation))
+	{
+		//We're still good. No need to rotate. Skip.
+		return;
+	}
+
+	//Force a rotate to accomodate.
+	[self manuallyRotateToOrientation:[self mostRecentlyAllowedOrientation]];
+}
+
+-(void)setParentOrientationController:(id <TiOrientationController>)newParent
+{
+	//Blank method since we never have a parent.
+}
+
+-(id)parentOrientationController
+{
+	//Blank method since we never have a parent.
+	return nil;
+}
+
+-(TiOrientationFlags) orientationFlags
+{
+	for (TiWindowProxy * thisWindow in [windowProxies reverseObjectEnumerator])
+	{
+		TiOrientationFlags result = [thisWindow orientationFlags];
+		if (result != TiOrientationNone)
+		{
+			return result;
+		}
+	}
+	
+	if ([TiUtils isIPad])
+	{
+		return TiOrientationAny;
+	}
+	return TiOrientationPortrait;
+}
+
 
 @end

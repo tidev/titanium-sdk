@@ -11,7 +11,16 @@
 #define NEEDS_REPOSITION	0 
 #define NEEDS_LAYOUT_CHILDREN	1
 
-#define USE_VISIBLE_BOOL 0
+enum
+{
+	TiRefreshViewPosition = 2,
+	TiRefreshViewChildrenPosition,
+	TiRefreshViewZIndex,
+	TiRefreshViewSize,
+
+	TiRefreshViewEnqueued,
+};
+
 #define DONTSHOWHIDDEN 0 
 
 //For TableRows, we need to have minimumParentHeightForWidth:
@@ -27,6 +36,7 @@
 
 	BOOL windowOpened;
 	BOOL windowOpening;
+
 	int dirtyflags;	//For atomic actions, best to be explicit about the 32 bitness.
 
 	BOOL isUsingBarButtonItem;
@@ -39,12 +49,22 @@
 	TiViewProxy *parent;
 	BOOL viewInitialized;
 	NSMutableArray *pendingAdds;
-	BOOL needsZIndexRepositioning;
+	BOOL needsZIndexRepositioning;	//Todo: Replace
 	
-#if USE_VISIBLE_BOOL
-	BOOL visible;
-#endif
+	CGRect sandboxBounds;
+	CGPoint positionCache;	//Recomputed and stored when position changes.
+	CGRect sizeCache;	//Recomputed and stored when size changes.
+	UIViewAutoresizing autoresizeCache;	//Changed by repositioning or resizing.
+
+	BOOL parentVisible;
+	//In most cases, this is the same as [parent parentVisible] && [parent visible]
+	//However, in the case of windows attached to the root view, the parent is ALWAYS visible.
+	//That is, will be true if and only if all parents are visible or are the root controller.
+	//Use parentWillShow and parentWillHide to set this.
 }
+@property(nonatomic,readonly) BOOL visible;
+@property(nonatomic,readwrite,assign) CGRect sandboxBounds;
+	//This is unaffected by parentVisible. So if something is truely visible, it'd be [self visible] && parentVisible.
 
 @property(nonatomic,readwrite,assign) LayoutConstraint * layoutProperties;
 
@@ -53,10 +73,6 @@
 @property(nonatomic,readonly) TiPoint *center;
 
 @property(nonatomic,retain) UIBarButtonItem * barButtonItem;
-
-#if USE_VISIBLE_BOOL
-@property(nonatomic,readwrite,assign) BOOL visible;
-#endif
 
 //NOTE: DO NOT SET VIEW UNLESS IN A TABLE VIEW, AND EVEN THEN.
 @property(nonatomic,readwrite,retain)TiUIView * view;
@@ -107,23 +123,45 @@
 -(void)viewDidAttach;
 -(void)viewWillDetach;
 -(void)viewDidDetach;
--(void)exchangeView:(TiUIView*)newview;
 
--(void)reposition;
--(void)repositionWithBounds:(CGRect)bounds;
--(void)repositionIfNeeded;
--(void)setNeedsReposition;
--(void)clearNeedsReposition;
--(void)setNeedsRepositionIfAutoSized;
--(void)setNeedsZIndexRepositioning;
--(BOOL)needsZIndexRepositioning;
+-(void)reposition;	//Todo: Replace
+-(void)repositionWithBounds:(CGRect)bounds;	//Todo: Replace
+-(void)repositionIfNeeded;	//Todo: Replace
+-(void)setNeedsReposition;	//Todo: Replace
+-(void)clearNeedsReposition;	//Todo: Replace
+-(void)setNeedsRepositionIfAutoSized;	//Todo: Replace
+-(void)setNeedsZIndexRepositioning;	//Todo: Replace
+-(BOOL)needsZIndexRepositioning;	//Todo: Replace
 
--(BOOL)willBeRelaying;
--(void)childWillResize:(TiViewProxy *)child;
--(BOOL)isAutoHeightOrWidth;
+-(BOOL)willBeRelaying;	//Todo: Replace
+-(void)childWillResize:(TiViewProxy *)child;	//Todo: Replace
 -(BOOL)canHaveControllerParent;
 
+-(NSMutableDictionary*)langConversionTable;
+-(NSDictionary*)cssConversionTable;
+
 -(void)makeViewPerformSelector:(SEL)selector withObject:(id)object createIfNeeded:(BOOL)create waitUntilDone:(BOOL)wait;
+
+-(void)refreshView:(TiUIView *)transferView;
+-(void)refreshZIndex;
+-(void)refreshPosition;
+-(void)refreshSize;
+
+-(void)willChangeSize;
+-(void)willChangePosition;
+-(void)willChangeZIndex;
+-(void)willChangeLayout;
+-(void)willShow;
+-(void)willHide;
+
+-(void)contentsWillChange;
+
+-(void)parentSizeWillChange;
+-(void)parentWillRelay;
+-(void)parentWillShow;
+-(void)parentWillHide;
+
+-(BOOL)suppressesRelayout;
 
 @end
 
@@ -150,4 +188,8 @@
 #define USE_VIEW_FOR_AUTO_WIDTH		USE_VIEW_FOR_METHOD(CGFloat,autoWidthForWidth,CGFloat)
 #define USE_VIEW_FOR_AUTO_HEIGHT	USE_VIEW_FOR_METHOD(CGFloat,autoHeightForWidth,CGFloat)
 
-
+#define DECLARE_VIEW_CLASS_FOR_NEWVIEW(viewClass)	\
+-(TiUIView*)newView	\
+{	\
+	return [[viewClass alloc] init];	\
+}

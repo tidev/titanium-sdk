@@ -20,28 +20,33 @@ pthread_mutex_t layoutMutex;
 
 void performLayoutRefresh(CFRunLoopTimerRef timer, void *info)
 {
+	NSArray* localLayoutArray = nil;
+	
+	// This prevents deadlock if, while laying out, a relayout is requested
+	// (as in the case of redrawing text in a reproxy)
 	pthread_mutex_lock(&layoutMutex);
-	for (TiViewProxy *thisProxy in layoutArray)
-	{
-		[thisProxy repositionIfNeeded];
-		[thisProxy layoutChildrenIfNeeded];
-	}
-	if ([layoutArray count]==0)
+	localLayoutArray = layoutArray;
+	layoutArray = nil;
+
+	if ((layoutTimer != NULL) && ([localLayoutArray count]==0))
 	{
 		//Might as well stop the timer for now.
-		RELEASE_TO_NIL(layoutArray);
-		if (layoutTimer != NULL)
-		{
-			CFRunLoopTimerInvalidate(layoutTimer);
-			layoutTimer = NULL;
-		}
-	}
-	else
-	{
-		[layoutArray removeAllObjects];
+		CFRunLoopTimerInvalidate(layoutTimer);
+		CFRelease(layoutTimer);
+		layoutTimer = NULL;
 	}
 
 	pthread_mutex_unlock(&layoutMutex);
+	
+	for (TiViewProxy *thisProxy in localLayoutArray)
+	{
+		[thisProxy repositionIfNeeded];
+		[thisProxy layoutChildrenIfNeeded];
+
+		[thisProxy refreshView:nil];
+	}
+		
+	RELEASE_TO_NIL(localLayoutArray);
 }
 
 
@@ -50,7 +55,6 @@ void performLayoutRefresh(CFRunLoopTimerRef timer, void *info)
 +(void)initialize
 {
 	pthread_mutex_init(&layoutMutex, NULL);
-	pthread_mutex_unlock(&layoutMutex);
 }
 
 +(void)addViewProxy:(TiViewProxy*)newViewProxy
@@ -60,6 +64,11 @@ void performLayoutRefresh(CFRunLoopTimerRef timer, void *info)
 	if (layoutArray == nil)
 	{
 		layoutArray = [[NSMutableArray alloc] initWithObjects:newViewProxy,nil];
+	}
+	else if([layoutArray containsObject:newViewProxy])
+	{//Nothing to do here. Already added.
+		pthread_mutex_unlock(&layoutMutex);
+		return;
 	}
 	else if([layoutArray containsObject:[newViewProxy parent]])
 	{//For safety reasons, we do add this to the list. But since the parent's already here,

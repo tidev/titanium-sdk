@@ -11,6 +11,9 @@ import java.util.List;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollModule;
+import org.appcelerator.kroll.KrollProxy;
+import org.appcelerator.titanium.analytics.TiAnalyticsEvent;
+import org.appcelerator.titanium.analytics.TiAnalyticsEventFactory;
 import org.appcelerator.titanium.kroll.KrollCallback;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConvert;
@@ -39,7 +42,7 @@ public class TiLocation
 	public static final int ACCURACY_KILOMETER = 3;
 	public static final int ACCURACY_THREE_KILOMETERS = 4;
 
-	public static final long MAX_GEO_ANALYTICS_FREQUENCY = 60000L;
+	public static final long MAX_GEO_ANALYTICS_FREQUENCY = TiAnalyticsEventFactory.MAX_GEO_ANALYTICS_FREQUENCY;
 
 	public static final String EVENT_LOCATION = "location";
 
@@ -51,9 +54,9 @@ public class TiLocation
 	protected LocationListener geoListener;
 	protected boolean listeningForGeo;
 
-	protected long lastEventTimestamp; // This counter is instance specific. The actually queuing code
-	                                   // will arbitrate between other instances. Since only one activity
-									   // at a time can be active, there shouldn't be any contention.
+	protected long lastEventTimestamp;	// This counter is instance specific. The actually queuing code
+										// will arbitrate between other instances. Since only one activity
+										// at a time can be active, there shouldn't be any contention.
 
 	public TiLocation(KrollModule proxy)
 	{
@@ -67,17 +70,9 @@ public class TiLocation
 				if (locationManager != null) {
 					LocationProvider provider = locationManager.getProvider(location.getProvider());
 					fproxy.fireEvent(EVENT_LOCATION, locationToKrollDict(location, provider));
-					if (location.getTime() - lastEventTimestamp > MAX_GEO_ANALYTICS_FREQUENCY) {
-						// Null is returned if it's too early to send another event.
-						// TODO Analytics
-	//						TitaniumAnalyticsEvent event = TitaniumAnalyticsEventFactory.createAppGeoEvent(location);
-	//						if (event != null) {
-	//							app.postAnalyticsEvent(event);
-	//							lastEventTimestamp = location.getTime();
-	//						}
-					}
+					doAnalytics(fproxy, location);
 				} else {
-					Log.i(LCAT, "onLocationChanged - Location Manager null");					
+					Log.i(LCAT, "onLocationChanged - Location Manager null");
 				}
 			}
 
@@ -127,6 +122,7 @@ public class TiLocation
 				Location location = locationManager.getLastKnownLocation(provider);
 				if (location != null) {
 					listener.call(locationToKrollDict(location, locationManager.getProvider(provider)));
+					doAnalytics(proxy, location);
 				} else {
 					Log.i(LCAT, "getCurrentPosition - location is null");
 					listener.call(TiConvert.toErrorObject(ERR_POSITION_UNAVAILABLE, "location is currently unavailable."));
@@ -138,6 +134,17 @@ public class TiLocation
 		} else {
 			Log.i(LCAT, "getCurrentPosition - listener or locationManager null");
 			listener.call(TiConvert.toErrorObject(ERR_POSITION_UNAVAILABLE, "location is currently unavailable."));
+		}
+	}
+	
+	private void doAnalytics(KrollProxy proxy, Location location) {
+		if (location.getTime() - lastEventTimestamp > MAX_GEO_ANALYTICS_FREQUENCY) {
+			// Null is returned if it's too early to send another event.
+			TiAnalyticsEvent event = TiAnalyticsEventFactory.createAppGeoEvent(location);
+			if (event != null) {
+				proxy.getTiContext().getTiApp().postAnalyticsEvent(event);
+				lastEventTimestamp = location.getTime();
+			}
 		}
 	}
 	
@@ -166,7 +173,7 @@ public class TiLocation
 				ex = null;
 			} finally {
 				if (!enabled) {
-					Log.w(LCAT, "Preferred provider ["+name+"] isn't enabled on this device.  Will default to auto-select of GPS provider.");					
+					Log.w(LCAT, "Preferred provider ["+name+"] isn't enabled on this device.  Will default to auto-select of GPS provider.");
 				}
 			}
 		}
@@ -198,7 +205,7 @@ public class TiLocation
 				String provider = fetchProvider();
 
 				if (DBG) {
-					Log.i(LCAT,"Location Provider ["+provider+"] selected.");					
+					Log.i(LCAT,"Location Provider ["+provider+"] selected.");
 				}
 				
 				if (provider != null) {
@@ -313,9 +320,9 @@ public class TiLocation
 				if (DBG) {
 					Log.i(LCAT, "Enabled location provider count: " + providers.size());
 					// Extra debugging
-					for (Iterator iter = providers.iterator(); iter
+					for (Iterator<String> iter = providers.iterator(); iter
 							.hasNext();) {
-						String name = (String) iter.next();
+						String name = iter.next();
 						Log.i(LCAT, "Location ["+name+"] Service available ");
 					}					
 				}

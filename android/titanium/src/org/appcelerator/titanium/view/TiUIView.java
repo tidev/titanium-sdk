@@ -25,14 +25,17 @@ import org.appcelerator.titanium.view.TiCompositeLayout.LayoutParams;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.view.GestureDetector;
+import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.GestureDetector.SimpleOnGestureListener;
 import android.view.View.OnFocusChangeListener;
+import android.view.View.OnKeyListener;
 import android.view.View.OnTouchListener;
 import android.view.animation.AnimationSet;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.AdapterView;
 
 public abstract class TiUIView
 	implements KrollProxyListener, OnFocusChangeListener
@@ -42,6 +45,10 @@ public abstract class TiUIView
 
 	private static AtomicInteger idGenerator;
 
+	public static final int SOFT_KEYBOARD_DEFAULT_ON_FOCUS = 0;
+	public static final int SOFT_KEYBOARD_HIDE_ON_FOCUS = 1;
+	public static final int SOFT_KEYBOARD_SHOW_ON_FOCUS = 2;
+	
 	protected View nativeView; // Native View object
 
 	protected TiViewProxy proxy;
@@ -145,6 +152,26 @@ public abstract class TiUIView
 	public void listenerRemoved(String type, int count, KrollProxy proxy) {
 	}
 
+	private boolean hasImage(KrollDict d) 
+	{
+		return d.containsKeyAndNotNull("backgroundImage")
+			|| d.containsKeyAndNotNull("backgroundSelectedImage") 
+			|| d.containsKeyAndNotNull("backgroundFocusedImage")
+			|| d.containsKeyAndNotNull("backgroundDisabledImage");
+	}
+	
+	private boolean hasBorder(KrollDict d) {
+		return d.containsKeyAndNotNull("borderColor") 
+			|| d.containsKeyAndNotNull("borderRadius")
+			|| d.containsKeyAndNotNull("borderWidth");
+	}
+	
+	private boolean hasColorState(KrollDict d) {
+		return d.containsKeyAndNotNull("backgroundSelectedColor")
+			|| d.containsKeyAndNotNull("backgroundFocusedColor")
+			|| d.containsKeyAndNotNull("backgroundDisabledColor");
+	}
+	
 	public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy proxy)
 	{
 		if (key.equals("left")) {
@@ -182,6 +209,14 @@ public abstract class TiUIView
 			}
 			if (nativeView != null) {
 				nativeView.requestLayout();
+			}
+		} else if (key.equals("size")) {
+			if (newValue instanceof KrollDict) {
+				KrollDict d = (KrollDict)newValue;
+				propertyChanged("width",oldValue,d.get("width"),proxy);
+				propertyChanged("height",oldValue,d.get("height"),proxy);
+			}else if (newValue != null){
+				Log.w(LCAT, "Unsupported property type ("+(newValue.getClass().getSimpleName())+") for key: " + key+". Must be an object/dictionary");
 			}
 		} else if (key.equals("height")) {
 			if (newValue != null) {
@@ -222,17 +257,31 @@ public abstract class TiUIView
 			if (nativeView != null) {
 				nativeView.requestLayout();
 			}
+		} else if (key.equals("focusable")) {
+			boolean focusable = TiConvert.toBoolean(newValue);
+			nativeView.setFocusable(focusable);
+			if (focusable) {
+				registerForKeyClick(nativeView);
+			} else {
+				nativeView.setOnClickListener(null);
+			}
 		} else if (key.equals("visible")) {
 			nativeView.setVisibility(TiConvert.toBoolean(newValue) ? View.VISIBLE : View.INVISIBLE);
 		} else if (key.equals("enabled")) {
 			nativeView.setEnabled(TiConvert.toBoolean(newValue));
-		} else if (key.equals("backgroundColor") || key.equals("backgroundImage") || key.startsWith("border")) {
+		} else if (key.startsWith("backgroundPadding")) {
+			Log.i(LCAT, key + " not yet implemented.");
+		} else if (key.equals("opacity") || key.startsWith("background") || key.startsWith("border")) {			
+			// Update first before querying.
+			proxy.setProperty(key, newValue, false);
+
 			KrollDict d = proxy.getProperties();
 
-			boolean hasBorder = d.get("borderColor") != null || d.get("borderRadius") != null || d.get("borderWidth") != null;
-			boolean hasImage = d.get("backgroundImage") != null || d.get("backgroundSelectedImage") != null || d.get("backgroundDisabledImage") != null;
-			boolean requiresCustomBackground = hasImage || hasBorder;
-				;
+			boolean hasImage = hasImage(d);
+			boolean hasColorState = hasColorState(d);
+			boolean hasBorder = hasBorder(d);
+
+			boolean requiresCustomBackground = hasImage || hasColorState || hasBorder;
 
 			if (!requiresCustomBackground) {
 				if (background != null) {
@@ -241,12 +290,18 @@ public abstract class TiUIView
 					background = null;
 				}
 
-				Integer bgColor = TiConvert.toColor(d, "backgroundColor");
-				if (nativeView != null){
-					nativeView.setBackgroundColor(bgColor);
-					nativeView.postInvalidate();
+				if (d.containsKeyAndNotNull("backgroundColor")) {
+					Integer bgColor = TiConvert.toColor(d, "backgroundColor");
+					if (nativeView != null){
+						nativeView.setBackgroundColor(bgColor);
+						nativeView.postInvalidate();
+					}
+				} else {
+					if (nativeView != null) {
+						nativeView.setBackgroundDrawable(null);
+						nativeView.postInvalidate();
+					}
 				}
-
 			} else {
 				boolean newBackground = background == null;
 				if (newBackground) {
@@ -255,15 +310,17 @@ public abstract class TiUIView
 
 				Integer bgColor = null;
 
-				if (d.get("backgroundColor") != null) {
-					bgColor = TiConvert.toColor(d, "backgroundColor");
-					if (newBackground || key.equals("backgroundColor")) {
-						background.setBackgroundColor(bgColor);
+				if (!hasColorState) {
+					if (d.get("backgroundColor") != null) {
+						bgColor = TiConvert.toColor(d, "backgroundColor");
+						if (newBackground || (key.equals("opacity") || key.equals("backgroundColor"))) {
+							background.setBackgroundColor(bgColor);
+						}
 					}
 				}
 
-				if (hasImage) {
-					if (newBackground || key.equals("backgroundImage") || key.equals("backgroundSelectedImage") || key.equals("backgroundDisabledImage")) {
+				if (hasImage || hasColorState) {
+					if (newBackground || key.startsWith("background")) {
 						handleBackgroundImage(d);
 					}
 				}
@@ -275,14 +332,15 @@ public abstract class TiUIView
 						handleBorderProperty(key, newValue);
 					}
 				}
-
 				applyCustomBackground();
-				if (nativeView != null) {
-					nativeView.postInvalidate();
-				}
+			}
+			if (nativeView != null) {
+				nativeView.postInvalidate();
 			}
 		} else if (key.equals("opacity")) {
 			setOpacity(TiConvert.toFloat(newValue));
+		} else if (key.equals("softKeyboardOnFocus")) {
+				Log.w(LCAT, "Focus state changed to " + TiConvert.toString(newValue) + " not honored until next focus event.");
 		} else {
 			if (DBG) {
 				Log.i(LCAT, "Unhandled property key: " + key);
@@ -310,7 +368,7 @@ public abstract class TiUIView
 
 		// Default background processing.
 		// Prefer image to color.
-		if (d.containsKey("backgroundImage")) {
+		if (hasImage(d) || hasColorState(d) || hasBorder(d)) {
 			handleBackgroundImage(d);
 		} else if (d.containsKey("backgroundColor")) {
 			bgColor = TiConvert.toColor(d, "backgroundColor");
@@ -329,6 +387,16 @@ public abstract class TiUIView
 			nativeView.setEnabled(TiConvert.toBoolean(d, "enabled"));
 		}
 
+		if (d.containsKey("focusable")) {
+			boolean focusable = TiConvert.toBoolean(d, "focusable");
+			nativeView.setFocusable(focusable);
+			if (focusable) {
+				registerForKeyClick(nativeView);
+			} else {
+				nativeView.setOnClickListener(null);
+			}
+		}
+
 		initializeBorder(d, bgColor);
 
 		if (d.containsKey("transform")) {
@@ -344,20 +412,22 @@ public abstract class TiUIView
 	}
 
 	private void applyCustomBackground(boolean reuseCurrentDrawable) {
-		if (nativeView != null && background == null) {
-			nativeView.setClickable(true);
+		if (nativeView != null) {
 
-			background = new TiBackgroundDrawable();
-
-			Drawable currentDrawable = nativeView.getBackground();
-			if (currentDrawable != null) {
-				if (reuseCurrentDrawable) {
-					background.setBackgroundDrawable(currentDrawable);
-				} else {
-					nativeView.setBackgroundDrawable(null);
-					currentDrawable.setCallback(null);
-					if (currentDrawable instanceof TiBackgroundDrawable) {
-						((TiBackgroundDrawable) currentDrawable).releaseDelegate();
+			if (background == null) {
+				nativeView.setClickable(true);
+				background = new TiBackgroundDrawable();
+	
+				Drawable currentDrawable = nativeView.getBackground();
+				if (currentDrawable != null) {
+					if (reuseCurrentDrawable) {
+						background.setBackgroundDrawable(currentDrawable);
+					} else {
+						nativeView.setBackgroundDrawable(null);
+						currentDrawable.setCallback(null);
+						if (currentDrawable instanceof TiBackgroundDrawable) {
+							((TiBackgroundDrawable) currentDrawable).releaseDelegate();
+						}
 					}
 				}
 			}
@@ -368,6 +438,7 @@ public abstract class TiUIView
 	public void onFocusChange(View v, boolean hasFocus)
 	{
 		if (hasFocus) {
+			TiUIHelper.requestSoftInputChange(proxy, v);
 			proxy.fireEvent("focus", getFocusEventObject(hasFocus));
 		} else {
 			proxy.fireEvent("blur", getFocusEventObject(hasFocus));
@@ -412,19 +483,21 @@ public abstract class TiUIView
 				if (DBG) {
 					Log.d(LCAT, "Group has: " + vg.getChildCount());
 				}
-				vg.removeAllViews();
+				if (!(vg instanceof AdapterView<?>)) {
+					vg.removeAllViews();
+				}
+			}
+			Drawable d = nv.getBackground();
+			if (d != null) {
+				nv.setBackgroundDrawable(null);
+				d.setCallback(null);
+				if (d instanceof TiBackgroundDrawable) {
+					((TiBackgroundDrawable)d).releaseDelegate();
+				}
+				d = null;
 			}
 		}
-
-		Drawable d = nv.getBackground();
-		if (d != null) {
-			nv.setBackgroundDrawable(null);
-			d.setCallback(null);
-			if (d instanceof TiBackgroundDrawable) {
-				((TiBackgroundDrawable)d).releaseDelegate();
-			}
-			d = null;
-		}
+		
 	}
 
 	public void show()
@@ -448,15 +521,17 @@ public abstract class TiUIView
 			}
 		}
 	}
-
-	// Initial implementation.
-	// TODO implement other background states.
 	private void handleBackgroundImage(KrollDict d)
 	{
 		String bg = d.getString("backgroundImage");
 		String bgSelected = d.getString("backgroundSelectedImage");
 		String bgFocused = d.getString("backgroundFocusedImage");
 		String bgDisabled = d.getString("backgroundDisabledImage");
+		
+		String bgColor = d.getString("backgroundColor");
+		String bgSelectedColor = d.getString("backgroundSelectedColor");
+		String bgFocusedColor = d.getString("backgroundFocusedColor");
+		String bgDisabledColor = d.getString("backgroundDisabledColor");
 
 		TiContext tiContext = getProxy().getTiContext();
 		if (bg != null) {
@@ -472,45 +547,16 @@ public abstract class TiUIView
 			bgDisabled = tiContext.resolveUrl(null, bgDisabled);
 		}
 
-		if (bg != null || bgSelected != null || bgFocused != null || bgDisabled != null) {
+		if (bg != null || bgSelected != null || bgFocused != null || bgDisabled != null ||
+				bgColor != null || bgSelectedColor != null || bgFocusedColor != null || bgDisabledColor != null) 
+		{
 			if (background == null) {
 				applyCustomBackground(false);
 			}
 
-			Drawable bgDrawable = TiUIHelper.buildBackgroundDrawable(tiContext.getActivity().getApplicationContext(), bg, bgSelected, bgDisabled, bgFocused);
+			Drawable bgDrawable = TiUIHelper.buildBackgroundDrawable(tiContext, bg, bgColor, bgSelected, bgSelectedColor, bgDisabled, bgDisabledColor, bgFocused, bgFocusedColor);
 			background.setBackgroundDrawable(bgDrawable);
 		}
-//		String path = TiConvert.toString(d, "backgroundImage");
-//		if (path.endsWith(".9.png")) {
-//			TiFileHelper helper = new TiFileHelper(getProxy().getTiContext().getActivity());
-//			Drawable drawable = helper.loadDrawable(path, false, true);
-//			if (drawable !=  null) {
-//				applyCustomBackground(false);
-//				background.setBackgroundDrawable(drawable);
-//			}
-//		} else {
-//			String url = getProxy().getTiContext().resolveUrl(null, path);
-//			TiBaseFile file = TiFileFactory.createTitaniumFile(getProxy().getTiContext(), new String[] { url }, false);
-//			InputStream is = null;
-//			try {
-//				is = file.getInputStream();
-//				Bitmap b = TiUIHelper.createBitmap(is);
-//				if (b != null) {
-//					applyCustomBackground(false);
-//					background.setBackgroundImage(b);
-//				}
-//			} catch (IOException e) {
-//				Log.e(LCAT, "Error creating background image from path: " + path.toString(), e);
-//			} finally {
-//				if (is != null) {
-//					try {
-//						is.close();
-//					} catch (IOException ig) {
-//						// Ignore
-//					}
-//				}
-//			}
-//		}
 	}
 
 	private void initializeBorder(KrollDict d, Integer bgColor)
@@ -623,21 +669,43 @@ public abstract class TiUIView
 	}
 
 	public void setOpacity(float opacity) {
-		if (nativeView != null) {
-			setOpacity(nativeView, opacity);
-		}
+		setOpacity(nativeView, opacity);
 	}
 	
 	protected void setOpacity(View view, float opacity) {
-		TiUIHelper.setDrawableOpacity(view.getBackground(), opacity);
-		if (opacity == 1) {
-			clearOpacity(view);
+		if (view != null) {
+			TiUIHelper.setDrawableOpacity(view.getBackground(), opacity);
+			if (opacity == 1) {
+				clearOpacity(view);
+			}
+			view.invalidate();
 		}
-		view.invalidate();
 	}
 	
 	public void clearOpacity(View view) {
 		view.getBackground().clearColorFilter();
+	}
+	
+	protected void registerForKeyClick(View clickable) 
+	{
+		clickable.setOnKeyListener(new OnKeyListener() {
+			
+			@Override
+			public boolean onKey(View view, int keyCode, KeyEvent event) 
+			{
+				if (event.getAction() == KeyEvent.ACTION_UP) {
+					switch(keyCode) {
+					case KeyEvent.KEYCODE_ENTER :
+					case KeyEvent.KEYCODE_DPAD_CENTER :
+						if (proxy.hasListeners("click")) {
+							proxy.fireEvent("click", null);
+							return true;
+						}
+					}
+				}
+				return false;
+			}
+		});
 	}
 	
 	public KrollDict toImage() {

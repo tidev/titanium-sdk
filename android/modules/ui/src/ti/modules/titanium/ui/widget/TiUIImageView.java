@@ -76,6 +76,17 @@ public class TiUIImageView extends TiUIView
 
 			if (d != null) {
 				setImageDrawable(d, token);
+			} else {
+				if (DBG) {
+					String traceMsg = "Background image load returned null";
+					if (proxy.hasProperty("image")) {
+						Object image = proxy.getProperty("image");
+						if (image instanceof String) {
+							traceMsg += " (" + TiConvert.toString(image) + ")";
+						}
+					}
+					Log.d(LCAT, traceMsg);
+				}
 			}
 		}
 	}
@@ -123,6 +134,10 @@ public class TiUIImageView extends TiUIView
 			}
 		} else if (image instanceof String) {
 			String url = proxy.getTiContext().resolveUrl(null, (String)image);
+			Bitmap b = TiUIHelper.getResourceBitmap(proxy.getTiContext(), url);
+			if (b != null) {
+				return b;
+			}
 			TiBaseFile file = TiFileFactory.createTitaniumFile(proxy.getTiContext(), new String[] { url }, false);
 			try {
 				return TiUIHelper.createBitmap(file.getInputStream());

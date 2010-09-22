@@ -13,6 +13,10 @@ from shutil import copyfile
 from androidsdk import AndroidSDK
 from compiler import Compiler
 
+template_dir = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
+sys.path.append(os.path.dirname(template_dir))
+from tiapp import TiAppXML
+
 ignoreFiles = ['.gitignore', '.cvsignore', '.DS_Store'];
 ignoreDirs = ['.git','.svn','_svn', 'CVS'];
 
@@ -44,7 +48,7 @@ def copy_resources(source, target):
 	
 class Android(object):
 
-	def __init__(self, name, myid, sdk, deploy_type):
+	def __init__(self, name, myid, sdk, deploy_type, java):
 		self.name = name
 		
 		# android requires at least one dot in packageid
@@ -64,6 +68,7 @@ class Android(object):
 		}
 		self.config['classname'] = Android.strip_classname(self.name)
 		self.deploy_type = deploy_type
+		self.java = java
 	
 	@classmethod
 	def strip_classname(cls, name):
@@ -125,7 +130,7 @@ class Android(object):
 			self.app_properties[name] = {"type": type, "value": value}
 	
 	def build_modules_info(self, resources_dir, app_bin_dir):
-		compiler = Compiler(self.app_info['id'], resources_dir, 'java', app_bin_dir)
+		compiler = Compiler(self.tiapp, resources_dir, self.java, app_bin_dir, os.path.dirname(app_bin_dir))
 		compiler.compile()
 		self.app_modules = []
 		template_dir = os.path.dirname(sys._getframe(0).f_code.co_filename)
@@ -148,23 +153,26 @@ class Android(object):
 			bindings_json = module_jar.read(bindings_path)
 			module_bindings = simplejson.loads(bindings_json)
 			for module_class in module_bindings['modules'].keys():
+				print '[INFO] module_class = ' + module_class + ', api_name=' + module_bindings['modules'][module_class]['apiName']
 				modules[module_class] = module_bindings['modules'][module_class]
 
 		for module in compiler.modules:
 			bindings = []
 			# TODO: we should also detect module properties
 			for method in compiler.module_methods:
-				if method.startswith(module+'.'):
+				if method.lower().startswith(module+'.'):
 					bindings.append(method[len(module)+1:])
 			
 			module_class = None
+			module_apiName = None
 			for m in modules.keys():
-				if modules[m]['apiName'] == module:
+				if modules[m]['apiName'].lower() == module:
 					module_class = m
+					module_apiName = modules[m]['apiName']
 					break
 
 			self.app_modules.append({
-				'api_name': module,
+				'api_name': module_apiName,
 				'class_name': module_class,
 				'bindings': bindings
 			})
@@ -179,6 +187,7 @@ class Android(object):
 		
 		# Paths to Titanium assets that need to be linked into eclipse structure
 		self.config['ti_tiapp_xml'] = os.path.join(project_dir, 'tiapp.xml')
+		self.tiapp = TiAppXML(self.config['ti_tiapp_xml'])
 		resource_dir = os.path.join(project_dir, 'Resources')
 		self.config['ti_resources_dir'] = resource_dir
 
@@ -237,5 +246,5 @@ if __name__ == '__main__':
 		sys.exit(1)
 
 	sdk = AndroidSDK(sys.argv[4], 4)
-	android = Android(sys.argv[1],sys.argv[2],sdk,None)
+	android = Android(sys.argv[1], sys.argv[2], sdk, None, 'java')
 	android.create(sys.argv[3])

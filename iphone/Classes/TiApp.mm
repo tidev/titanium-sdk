@@ -17,6 +17,8 @@
 #import <QuartzCore/QuartzCore.h>
 #import <AVFoundation/AVFoundation.h>
 
+#import <libkern/OSAtomic.h>
+
 TiApp* sharedApp;
 
 extern NSString * const TI_APPLICATION_DEPLOYTYPE;
@@ -97,24 +99,18 @@ void MyUncaughtExceptionHandler(NSException *exception)
 
 -(void)startNetwork
 {
-	[networkActivity lock];
-	networkActivityCount++;
-	if (networkActivityCount==1)
+	if (OSAtomicIncrement32(&networkActivityCount))
 	{
 		[self changeNetworkStatus:[NSNumber numberWithBool:YES]];
 	}
-	[networkActivity unlock];
 }
 
 -(void)stopNetwork
 {
-	[networkActivity lock];
-	networkActivityCount--;
-	if (networkActivityCount==0)
+	if (OSAtomicDecrement32(&networkActivityCount))
 	{
 		[self changeNetworkStatus:[NSNumber numberWithBool:NO]];
 	}
-	[networkActivity unlock];
 }
 
 -(NSDictionary*)launchOptions
@@ -186,8 +182,6 @@ void MyUncaughtExceptionHandler(NSException *exception)
 - (void)loadSplash
 {
 	sharedApp = self;
-	networkActivity = [[NSLock alloc] init];
-	networkActivityCount = 0;
 	
 	// attach our main view controller... IF we haven't already loaded the main window.
 	if (!loaded) {
@@ -226,8 +220,6 @@ void MyUncaughtExceptionHandler(NSException *exception)
 -(void)initController
 {
 	sharedApp = self;
-	networkActivity = [[NSLock alloc] init];
-	networkActivityCount = 0;
 	
 	// attach our main view controller
 	controller = [[TiRootViewController alloc] init];
@@ -513,6 +505,10 @@ void MyUncaughtExceptionHandler(NSException *exception)
 
 -(void)showModalController:(UIViewController*)modalController animated:(BOOL)animated
 {
+//In the rare event that the iPad application started in landscape, has not been rotated,
+//And is presenting a modal for the first time, 
+		handledModal = YES;
+
 	if(!handledModal)
 	{
 		handledModal = YES;
@@ -571,7 +567,6 @@ void MyUncaughtExceptionHandler(NSException *exception)
 	RELEASE_TO_NIL(window);
 	RELEASE_TO_NIL(launchOptions);
 	RELEASE_TO_NIL(controller);
-	RELEASE_TO_NIL(networkActivity);
 	RELEASE_TO_NIL(userAgent);
 	RELEASE_TO_NIL(remoteDeviceUUID);
 	RELEASE_TO_NIL(remoteNotification);

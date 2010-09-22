@@ -19,6 +19,7 @@ import java.util.Set;
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedAnnotationTypes;
+import javax.annotation.processing.SupportedOptions;
 import javax.annotation.processing.SupportedSourceVersion;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.AnnotationMirror;
@@ -43,6 +44,7 @@ import freemarker.template.TemplateException;
 	"org.appcelerator.kroll.annotations.Kroll.proxy",
 	"org.appcelerator.kroll.annotations.Kroll.module"})
 @SupportedSourceVersion(SourceVersion.RELEASE_6)
+@SupportedOptions({"kroll.jsonPackage", "kroll.jsonFile"})
 @SuppressWarnings("unchecked")
 public class KrollBindingGenerator extends AbstractProcessor {
 
@@ -70,12 +72,18 @@ public class KrollBindingGenerator extends AbstractProcessor {
 	// this needs to mirror Kroll.DEFAULT_NAME
 	protected static final String DEFAULT_NAME = "__default_name__";
 	
+	protected static final String PROPERTY_JSON_PACKAGE = "kroll.jsonPackage";
+	protected static final String PROPERTY_JSON_FILE = "kroll.jsonFile";
+	protected static final String DEFAULT_JSON_PACKAGE = "org.appcelerator.titanium.gen";
+	protected static final String DEFAULT_JSON_FILE = "bindings.json";
+	
 	protected Template bindingTemplate;
 	protected Map properties = new HashMap();
 	protected Map proxyProperties = new HashMap();
 	protected Configuration fmConfig;
 	protected KrollAnnotationUtils utils;
 	protected JSONUtils jsonUtils;
+	protected String jsonPackage, jsonFile;
 	
 	public KrollBindingGenerator() {
 		super();
@@ -100,15 +108,7 @@ public class KrollBindingGenerator extends AbstractProcessor {
 			RoundEnvironment roundEnv) {
 		
 		if (!initialized) {
-			utils = new KrollAnnotationUtils(processingEnv);
-			jsonUtils = new JSONUtils(utils);
-			
-			try {
-				FileObject bindingsFile = processingEnv.getFiler().getResource(StandardLocation.SOURCE_OUTPUT, "org.appcelerator.titanium.gen", "bindings.json");
-				properties = (Map) JSONValue.parseWithException(bindingsFile.openReader(true));
-			} catch (Exception e) {
-				// file doesn't exist, we'll just create it later
-			}
+			initialize();
 			initialized = true;
 		}
 		
@@ -123,6 +123,24 @@ public class KrollBindingGenerator extends AbstractProcessor {
 		}
 		
 		return true;
+	}
+	
+	protected void initialize() {
+		utils = new KrollAnnotationUtils(processingEnv);
+		jsonUtils = new JSONUtils(utils);
+		
+		String jsonPackage = processingEnv.getOptions().get(PROPERTY_JSON_PACKAGE);
+		this.jsonPackage = jsonPackage != null ? jsonPackage : DEFAULT_JSON_PACKAGE;
+		
+		String jsonFile = processingEnv.getOptions().get(PROPERTY_JSON_FILE);
+		this.jsonFile = jsonFile != null ? jsonFile : DEFAULT_JSON_FILE;
+		
+		try {
+			FileObject bindingsFile = processingEnv.getFiler().getResource(StandardLocation.SOURCE_OUTPUT, this.jsonPackage, this.jsonFile);
+			properties = (Map) JSONValue.parseWithException(bindingsFile.openReader(true));
+		} catch (Exception e) {
+			// file doesn't exist, we'll just create it later
+		}
 	}
 	
 	protected void processKrollProxy(final Element element) {
@@ -451,7 +469,7 @@ public class KrollBindingGenerator extends AbstractProcessor {
 	protected void generateJSON() {
 		try {
 			FileObject file = processingEnv.getFiler().createResource(
-				StandardLocation.SOURCE_OUTPUT, "org.appcelerator.titanium.gen", "bindings.json");
+				StandardLocation.SOURCE_OUTPUT, jsonPackage, jsonFile);
 			Writer writer = file.openWriter();
 			
 			writer.write(JSONValue.toJSONString(properties));

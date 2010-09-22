@@ -7,6 +7,9 @@
 package ti.modules.titanium.utils;
 
 import java.io.UnsupportedEncodingException;
+import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
+import java.nio.charset.Charset;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
@@ -17,6 +20,7 @@ import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.Log;
+import org.appcelerator.titanium.util.TiConvert;
 
 @Kroll.module
 public class UtilsModule extends KrollModule
@@ -28,8 +32,17 @@ public class UtilsModule extends KrollModule
 	}
 
 	@Kroll.method
-	public TiBlob base64encode(String data) {
+	public TiBlob base64encode(Object obj) {
+		if (obj instanceof TiBlob) {
+			return TiBlob.blobFromString(getTiContext(), ((TiBlob)obj).toBase64());
+		}
+		String data;
 		try {
+			if (obj instanceof byte[]) {
+				data = new String((byte[])obj, "UTF-8");
+			} else {
+				data = TiConvert.toString(obj);
+			}
 			return TiBlob.blobFromString(getTiContext(),new String(Base64.encodeBase64(data.getBytes("UTF-8")), "UTF-8"));
 		} catch (UnsupportedEncodingException e) {
 			Log.e(LCAT, "UTF-8 is not a supported encoding type");
@@ -72,6 +85,33 @@ public class UtilsModule extends KrollModule
 			return result.toString();
 		} catch(NoSuchAlgorithmException e) {
 			Log.e(LCAT, "SHA1 is not a supported algorithm");
+		}
+		return null;
+	}
+	
+	public String transcodeString(String orig, String inEncoding, String outEncoding)
+	{
+		try {
+			
+			Charset charsetOut = Charset.forName(outEncoding);
+			Charset charsetIn = Charset.forName(inEncoding);
+
+			ByteBuffer bufferIn = ByteBuffer.wrap(orig.getBytes(charsetIn.name()) );
+			CharBuffer dataIn = charsetIn.decode(bufferIn);
+			bufferIn.clear();
+			bufferIn = null;
+
+			ByteBuffer bufferOut = charsetOut.encode(dataIn);
+			dataIn.clear();
+			dataIn = null;
+			byte[] dataOut = bufferOut.array();
+			bufferOut.clear();
+			bufferOut = null;
+			
+			return new String(dataOut, charsetOut.name());
+			
+		} catch (UnsupportedEncodingException e) {
+			Log.e(LCAT, "Unsupported encoding: " + e.getMessage(), e);
 		}
 		return null;
 	}

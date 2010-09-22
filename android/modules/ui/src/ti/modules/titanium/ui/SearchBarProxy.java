@@ -6,6 +6,7 @@
  */
 package ti.modules.titanium.ui;
 
+import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.proxy.TiViewProxy;
@@ -22,6 +23,15 @@ public class SearchBarProxy extends TiViewProxy
 	{
 		super(tiContext);
 	}
+	
+	@Override
+	protected KrollDict getLangConversionTable() {
+		KrollDict table = new KrollDict();
+		table.put("prompt","promptid");
+		table.put("hintText","hinttextid");
+		return table;
+	}
+	
 
 	@Override
 	public TiUIView createView(Activity activity) {

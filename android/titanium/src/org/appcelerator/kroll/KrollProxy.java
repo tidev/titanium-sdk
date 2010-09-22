@@ -6,8 +6,9 @@
  */
 package org.appcelerator.kroll;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -19,7 +20,6 @@ import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 import org.mozilla.javascript.Scriptable;
 
-import ti.modules.titanium.TitaniumModule;
 import android.os.Handler;
 import android.os.Message;
 
@@ -48,7 +48,7 @@ public class KrollProxy implements Handler.Callback, OnEventListenerChange {
 	
 	@Kroll.inject
 	protected KrollInvocation currentInvocation;
-
+	
 	public KrollProxy(TiContext context) {
 		this(context, true);
 	}
@@ -61,7 +61,7 @@ public class KrollProxy implements Handler.Callback, OnEventListenerChange {
 		}
 		this.proxyId = "proxy$" + proxyCounter.incrementAndGet();
 		if (autoBind) {
-			bind(context.getScope(), null);
+			bindProperties();
 		}
 
 		final KrollProxy me = this;
@@ -104,24 +104,24 @@ public class KrollProxy implements Handler.Callback, OnEventListenerChange {
 		return bindings.get(getClass());
 	}
 	
-	public void bind(Scriptable scope, KrollProxy parentProxy) {
+	public void bindProperties() {
 		KrollProxyBinding binding = getBinding();
-		KrollBridge bridge = (KrollBridge) getTiContext().getJSContext();
-		
-		if (parentProxy == null) {
-			parentProxy = this;
-			if (!(this instanceof TitaniumModule)) {
-				// chicken/egg problem, we can't get the root object from the bridge if this is the constructor of the root object
-				parentProxy = bridge.getRootObject();
-			}
-		}
-		
-		List<String> filteredBindings = null;
+		String[] filteredBindings = null;
 		if (this instanceof KrollModule) {
 			filteredBindings = getTiContext().getTiApp().getFilteredBindings(binding.getAPIName());
 		}
 		
-		binding.bind(scope, parentProxy, this, filteredBindings);
+		binding.bindProperties(this, filteredBindings == null ? new ArrayList<String>() : Arrays.asList(filteredBindings));
+	}
+	
+	public void bindToParent(KrollProxy parent) {
+		KrollProxyBinding binding = getBinding();
+		binding.bindToParent(parent, this);
+	}
+	
+	public void bindContextSpecific(KrollBridge bridge) {
+		KrollProxyBinding binding = getBinding();
+		binding.bindContextSpecific(bridge, this);
 	}
 
 	public String getAPIName() {
@@ -305,9 +305,12 @@ public class KrollProxy implements Handler.Callback, OnEventListenerChange {
 			creationDict = (KrollDict)dict.clone();
 			if (modelListener != null) {
 				modelListener.processProperties(creationDict);
-				creationDict = null;
 			}
 		}
+	}
+	
+	public KrollDict getCreationDict() {
+		return creationDict;
 	}
 
 	// Handler.Callback
@@ -339,8 +342,8 @@ public class KrollProxy implements Handler.Callback, OnEventListenerChange {
 
 	public void setModelListener(KrollProxyListener modelListener) {
 		this.modelListener = modelListener;
-		if (this.modelListener != null) {
-			this.modelListener.processProperties(creationDict != null ? creationDict : new KrollDict());
+		if (modelListener != null) {
+			modelListener.processProperties(creationDict != null ? creationDict : new KrollDict());
 		}
 	}
 
@@ -356,6 +359,12 @@ public class KrollProxy implements Handler.Callback, OnEventListenerChange {
 			creatingContext = oldContext;
 		}
 		return oldContext;
+	}
+	
+	public void switchToCreatingContext() {
+		if (creatingContext != null && context != null && !creatingContext.equals(context)) {
+			switchContext(creatingContext);
+		}
 	}
 
 	public Handler getUIHandler() {
@@ -402,6 +411,13 @@ public class KrollProxy implements Handler.Callback, OnEventListenerChange {
 		TiContext ctx = getTiContext();
 		if (ctx != null) {
 			ctx.removeEventListener(eventName, listener);
+		}
+	}
+	
+	public void removeEventListenersFromContext(TiContext listeningContext) {
+		TiContext ctx = getTiContext();
+		if (ctx != null) {
+			ctx.removeEventListenersFromContext(listeningContext);
 		}
 	}
 
@@ -472,10 +488,9 @@ public class KrollProxy implements Handler.Callback, OnEventListenerChange {
 	}
 
 	public boolean hasListeners(String eventName) {
-		boolean hasListeners = getTiContext().hasAnyEventListener(eventName);
+		boolean hasListeners = getTiContext().hasEventListener(eventName, this);
 		if (creatingContext != null) {
-			hasListeners = hasListeners
-					|| creatingContext.hasAnyEventListener(eventName);
+			hasListeners = hasListeners || creatingContext.hasEventListener(eventName, this);
 		}
 		return hasListeners;
 	}

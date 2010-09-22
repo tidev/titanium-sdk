@@ -93,6 +93,11 @@ public class HTTPClientProxy extends KrollProxy {
 		client.setRequestHeader(header, value);
 	}
 	
+	@Kroll.setProperty @Kroll.method
+	public void setTimeout(int millis) {
+		client.setTimeout(millis);
+	}
+	
 	@Kroll.getProperty @Kroll.method
 	public String getLocation() {
 		return client.getLocation();

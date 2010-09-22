@@ -26,7 +26,7 @@
 
 #import "UIImage+Resize.h"
 
-#ifdef TARGET_IPHONE_SIMULATOR
+#if TARGET_IPHONE_SIMULATOR
 extern NSString * const TI_APPLICATION_RESOURCE_DIR;
 #endif
 
@@ -495,7 +495,7 @@ extern NSString * const TI_APPLICATION_RESOURCE_DIR;
 	{
 		if ([object hasPrefix:@"/"])
 		{
-			return [NSURL fileURLWithPath:object];
+			return [TiUtils checkFor2XImage:[NSURL fileURLWithPath:object]];
 		}
 		if ([object hasPrefix:@"sms:"] || 
 			[object hasPrefix:@"tel:"] ||
@@ -1052,7 +1052,7 @@ extern NSString * const TI_APPLICATION_RESOURCE_DIR;
 			had_splash_removed = YES;
 			appurlstr = [appurlstr substringFromIndex:1];
 		}
-#ifdef TARGET_IPHONE_SIMULATOR
+#if TARGET_IPHONE_SIMULATOR
 		if (app==YES && had_splash_removed)
 		{
 			// on simulator we want to keep slash since it's coming from file

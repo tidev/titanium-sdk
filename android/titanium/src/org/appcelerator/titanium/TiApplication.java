@@ -28,14 +28,18 @@ import org.appcelerator.titanium.analytics.TiAnalyticsEvent;
 import org.appcelerator.titanium.analytics.TiAnalyticsEventFactory;
 import org.appcelerator.titanium.analytics.TiAnalyticsModel;
 import org.appcelerator.titanium.analytics.TiAnalyticsService;
+import org.appcelerator.titanium.kroll.KrollBridge;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiPlatformHelper;
+import org.appcelerator.titanium.util.TiResourceHelper;
 import org.appcelerator.titanium.view.ITiWindowHandler;
+import org.mozilla.javascript.Scriptable;
 
 import android.app.Activity;
 import android.app.Application;
 import android.content.Intent;
+import android.util.DisplayMetrics;
 
 // Naming TiHost to more closely match other implementations
 public abstract class TiApplication extends Application
@@ -43,8 +47,11 @@ public abstract class TiApplication extends Application
 	public static final String DEPLOY_TYPE_DEVELOPMENT = "development";
 	public static final String DEPLOY_TYPE_TEST = "test";
 	public static final String DEPLOY_TYPE_PRODUCTION = "production";
-
+	public static final int DEFAULT_THREAD_STACK_SIZE = 16 * 1024; // 16K as a "sane" default
+	
 	private static final String PROPERTY_DEPLOY_TYPE = "ti.deploytype";
+	private static final String PROPERTY_THREAD_STACK_SIZE = "ti.android.threadstacksize";
+	
 	private static final String LCAT = "TiApplication";
 	private static final boolean DBG = TiConfig.LOGD;
 	private static final long STATS_WAIT = 300000;
@@ -61,14 +68,17 @@ public abstract class TiApplication extends Application
 	private ITiWindowHandler windowHandler;
 	private Activity currentActivity;
 	protected ITiAppInfo appInfo;
+	protected ITiStylesheet stylesheet;
+	private String density;
 
 	private boolean needsStartEvent;
 	private boolean needsEnrollEvent;
 	protected TiAnalyticsModel analyticsModel;
 	protected Intent analyticsIntent;
 	private static long lastAnalyticsTriggered = 0;
-	private String buildVersion, buildTimestamp;
-
+	private String buildVersion, buildTimestamp, buildHash;
+	protected ArrayList<KrollModule> modules = new ArrayList<KrollModule>();
+	
 	public TiApplication() {
 		Log.checkpoint("checkpoint, app created.");
 		_instance = this;
@@ -78,8 +88,20 @@ public abstract class TiApplication extends Application
 		loadBuildProperties();
 	}
 	
-	public abstract List<KrollModule> bootModules(TiContext context);
-	public abstract List<String> getFilteredBindings(String moduleName);
+	public void bindModules(KrollBridge bridge, KrollProxy parent) {
+		if (modules.isEmpty()) {
+			bootModules(bridge.getKrollContext().getTiContext());
+			for (KrollModule module : modules) {
+				module.bindToParent(parent);
+			}
+		}
+		for (KrollModule module : modules) {
+			module.bindContextSpecific(bridge);
+		}
+	}
+	
+	protected abstract void bootModules(TiContext context);
+	public abstract String[] getFilteredBindings(String moduleName);
 	
 	public static TiApplication getInstance() {
 		return _instance;
@@ -88,6 +110,7 @@ public abstract class TiApplication extends Application
 	protected void loadBuildProperties() {
 		buildVersion = "1.0";
 		buildTimestamp = "N/A";
+		buildHash = "N/A";
 		InputStream versionStream = getClass().getClassLoader().getResourceAsStream("org/appcelerator/titanium/build.properties");
 		if (versionStream != null) {
 			Properties properties = new Properties();
@@ -99,6 +122,9 @@ public abstract class TiApplication extends Application
 				if (properties.containsKey("build.timestamp")) {
 					buildTimestamp = properties.getProperty("build.timestamp");
 				}
+				if (properties.containsKey("build.githash")) {
+					buildHash = properties.getProperty("build.githash");
+				}
 			} catch (IOException e) {}
 		}
 	}
@@ -107,6 +133,11 @@ public abstract class TiApplication extends Application
 	public void onCreate()
 	{
 		super.onCreate();
+
+		TiScriptRunner.getInstance().setAppPackageName(getPackageName());
+		if (DBG) {
+			Log.d(LCAT, "Application onCreate");
+		}
 
 		final UncaughtExceptionHandler defaultHandler = Thread.getDefaultUncaughtExceptionHandler();
 		Thread.setDefaultUncaughtExceptionHandler(new UncaughtExceptionHandler() {
@@ -127,12 +158,21 @@ public abstract class TiApplication extends Application
 		proxyMap = new HashMap<String, SoftReference<KrollProxy>>(5);
 
 		TiPlatformHelper.initialize(this);
-
+		
 		appProperties = new TiProperties(getApplicationContext(), "titanium", false);
 		systemProperties = new TiProperties(getApplicationContext(), "system", true);
-		systemProperties.setString("ti.version", buildVersion);
-	}
 
+		//systemProperties.setString("ti.version", buildVersion); // was always setting "1.0"
+	}
+	
+	protected void onAfterCreate()
+	{
+	    // this is called from the applications onCreate (subclass)
+	    // once the appInfo has been set since this method has a dependency
+	    // on it
+    	TiResourceHelper.initialize(this);
+	}
+	
 	public void setRootActivity(TiRootActivity rootActivity)
 	{
 		// Chicken and Egg problem. Set debugging here since I don't want to
@@ -143,6 +183,28 @@ public abstract class TiApplication extends Application
 		//TODO consider weakRef
 		this.rootActivity = rootActivity;
 		this.windowHandler = rootActivity;
+
+        // calculate the display density
+		DisplayMetrics dm = new DisplayMetrics();
+		rootActivity.getWindowManager().getDefaultDisplay().getMetrics(dm);
+		switch(dm.densityDpi)
+		{
+		    case DisplayMetrics.DENSITY_HIGH:
+		    {
+		        density = "high";
+		        break;
+		    }
+		    case DisplayMetrics.DENSITY_MEDIUM:
+		    {
+		        density = "medium";
+		        break;
+		    }
+		    case DisplayMetrics.DENSITY_LOW:
+		    {
+		        density = "low";
+		        break;
+		    }
+		}
 
 		if (collectAnalytics()) {
 			analyticsIntent = new Intent(this, TiAnalyticsService.class);
@@ -274,6 +336,14 @@ public abstract class TiApplication extends Application
 		}
 		return handled;
 	}
+	
+	public void removeEventListenersFromContext(TiContext listeningContext)
+	{
+		for (KrollProxy appEventProxy : appEventProxies)
+		{
+			appEventProxy.removeEventListenersFromContext(listeningContext);
+		}
+	}
 
 	public TiProperties getAppProperties()
 	{
@@ -287,6 +357,13 @@ public abstract class TiApplication extends Application
 
 	public ITiAppInfo getAppInfo() {
 		return appInfo;
+	}
+	
+	public KrollDict getStylesheet(String basename, String type, String objectId) {
+		if (stylesheet != null) {
+			return stylesheet.getStylesheet(objectId, type, density, basename);
+		}
+		return new KrollDict();
 	}
 
 	public void registerProxy(KrollProxy proxy) {
@@ -401,5 +478,13 @@ public abstract class TiApplication extends Application
 
 	public String getTiBuildTimestamp() {
 		return buildTimestamp;
+	}
+	
+	public String getTiBuildHash() {
+		return buildHash;
+	}
+	
+	public int getThreadStackSize() {
+		return getSystemProperties().getInt(PROPERTY_THREAD_STACK_SIZE, DEFAULT_THREAD_STACK_SIZE);
 	}
 }

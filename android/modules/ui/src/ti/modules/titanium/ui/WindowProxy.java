@@ -45,6 +45,15 @@ public class WindowProxy extends TiWindowProxy
 	{
 		super(tiContext);
 	}
+	
+	@Override
+	protected KrollDict getLangConversionTable() {
+		KrollDict table = new KrollDict();
+		table.put("title","titleid");
+		table.put("titlePrompt","titlepromptid");
+		return table;
+	}
+	
 
 	@Override
 	public TiUIView getView(Activity activity) {
@@ -105,6 +114,7 @@ public class WindowProxy extends TiWindowProxy
 		if (view != null) {
 			((TiUIWindow) view).close(options);
 		}
+		releaseViews();
 		opened = false;
 	}
 

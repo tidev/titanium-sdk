@@ -81,6 +81,20 @@ public class TiUISlider extends TiUIView
 			pos = TiConvert.toInt(newValue);
 			seekBar.setProgress(pos + offset);
 			onProgressChanged(seekBar, pos, true);
+		} else if (key.equals("min")) {
+			min = TiConvert.toInt(newValue);
+			if (pos < min) {
+				pos = min;
+			}
+			updateControl();
+			onProgressChanged(seekBar, pos, true);
+		} else if (key.equals("max")) {
+			max = TiConvert.toInt(newValue);
+			if (pos > max) {
+				pos = max;
+			}
+			updateControl();
+			onProgressChanged(seekBar, pos, true);
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}

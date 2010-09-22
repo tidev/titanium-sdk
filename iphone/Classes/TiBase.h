@@ -61,6 +61,7 @@ CGPoint midpointBetweenPoints(CGPoint a, CGPoint b);
 
 #define RELEASE_TO_NIL(x) { if (x!=nil) { [x release]; x = nil; } }
 #define RELEASE_TO_NIL_AUTORELEASE(x) { if (x!=nil) { [x autorelease]; x = nil; } }
+#define RELEASE_AND_REPLACE(x,y) { [x release]; x = [y retain]; }
 
 #define CODELOCATION	[NSString stringWithFormat:@" in %s (%@:%d)",__FUNCTION__,[[NSString stringWithFormat:@"%s",__FILE__] lastPathComponent],__LINE__]
 
@@ -367,12 +368,6 @@ enum {
 #define FRAME_DEBUG(f) \
 NSLog(@"FRAME -- size=%fx%f, origin=%f,%f",f.size.width,f.size.height,f.origin.x,f.origin.y);
 
-#define WARN_IF_BACKGROUND_THREAD	\
-if(![NSThread isMainThread])	\
-{	\
-	NSLog(@"[WARN] %@%@ was not running on the main thread.",NSStringFromClass([self class]),CODELOCATION);	\
-}	\
-
 #else
 #define FRAME_DEBUG(f) 
 #define WARN_IF_BACKGROUND_THREAD
@@ -413,9 +408,16 @@ return value;\
 
 #define VerboseLog(...)	{NSLog(__VA_ARGS__);}
 
+#define WARN_IF_BACKGROUND_THREAD	\
+if(![NSThread isMainThread])	\
+{	\
+	NSLog(@"[WARN] %@%@ was not running on the main thread.",NSStringFromClass([self class]),CODELOCATION);	\
+}	\
+
 #else
 
 #define VerboseLog(...)	{}
+#define WARN_IF_BACKGROUND_THREAD	{}
 
 #endif
 

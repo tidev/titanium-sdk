@@ -23,6 +23,7 @@ import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.ui.TableViewProxy;
+import ti.modules.titanium.ui.TableViewRowProxy;
 import ti.modules.titanium.ui.widget.searchbar.TiUISearchBar.OnSearchChangeListener;
 import ti.modules.titanium.ui.widget.tableview.TableViewModel.Item;
 import android.graphics.Canvas;
@@ -378,6 +379,12 @@ public class TiTableView extends FrameLayout
 
 					event.put("searchMode", adapter.isFiltered());
 
+					if(item.proxy != null && item.proxy instanceof TableViewRowProxy) {
+						TableViewRowProxy rp = (TableViewRowProxy) item.proxy;
+						if (rp.hasListeners("click")) {
+							rp.fireEvent("click", event);
+						}
+					}
 					itemClickListener.onClick(event);
 				}
 			}
@@ -482,6 +489,7 @@ public class TiTableView extends FrameLayout
 		if (adapter != null) {
 			tiContext.getActivity().runOnUiThread(new Runnable() {
 				public void run() {
+					Log.d(LCAT, "*************  weird thing ********");
 					dataSetChanged();
 				}
 			});
@@ -495,6 +503,22 @@ public class TiTableView extends FrameLayout
 
 	public void setFilterCaseInsensitive(boolean filterCaseInsensitive) {
 		this.filterCaseInsensitive  = filterCaseInsensitive;
+	}
+	
+	public void release() 
+	{
+		adapter = null;
+		
+		if (listView != null) {
+			listView.setAdapter(null);
+		}
+		listView = null;
+		if (viewModel != null) {
+			viewModel.release();
+		}
+		viewModel = null;
+		itemClickListener = null;
+		tiContext = null;
 	}
 
 //	public void setData(Object[] rows) {

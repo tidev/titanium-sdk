@@ -62,13 +62,13 @@ public class TiUITabGroup extends TiUIView
 		tabContent.setId(android.R.id.tabcontent);
 
 		tabHost.addView(tabWidget, new LinearLayout.LayoutParams(
-                  LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT));
+			LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT));
 		tabHost.addView(tabContent, new LinearLayout.LayoutParams(
-                  LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
+			LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
 		//tabHost.setup(proxy.getTiContext().getRootActivity().getLocalActivityManager());
 		tabHost.setup(activity.getLocalActivityManager());
 
-        tabHost.setBackgroundDrawable(new ColorDrawable(TiConvert.toColor("#ff1a1a1a")));
+		tabHost.setBackgroundDrawable(new ColorDrawable(TiConvert.toColor("#ff1a1a1a")));
 
 		setNativeView(tabHost);
 		TiCompositeLayout.LayoutParams params = new TiCompositeLayout.LayoutParams();
@@ -76,7 +76,7 @@ public class TiUITabGroup extends TiUIView
 		params.autoFillsWidth = true;
 		activity.getLayout().addView(tabHost, params);
 
-  		lastTabId = null;
+		lastTabId = null;
 	}
 
 	public TabSpec newTab(String id)
@@ -132,13 +132,23 @@ public class TiUITabGroup extends TiUIView
 				}
 			} else if (t instanceof TabProxy) {
 				TabProxy tab = (TabProxy) t;
-				String title = TiConvert.toString(tab.getProperty("title"));
-				if (title != null) {
-					tabHost.setCurrentTabByTag(title);
+				String tag = TiConvert.toString(tab.getProperty("tag"));
+				if (tag != null) {
+					tabHost.setCurrentTabByTag(tag);
 				}
 			} else {
 				Log.w(LCAT, "Attempt to set active tab using a non-supported argument. Ignoring");
 			}
+		}
+	}
+
+	@Override
+	public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy proxy)
+	{
+		if ("activeTab".equals(key)) {
+			changeActiveTab(newValue);
+		} else {
+			super.propertyChanged(key, oldValue, newValue, proxy);
 		}
 	}
 }

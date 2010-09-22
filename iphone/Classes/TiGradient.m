@@ -9,6 +9,22 @@
 
 #import "TiUtils.h"
 
+@implementation TiGradientLayer
+@synthesize gradient;
+
+- (void) dealloc
+{
+	[gradient release];
+	[super dealloc];
+}
+
+-(void)drawInContext:(CGContextRef)ctx
+{
+	[gradient paintContext:ctx bounds:[self bounds]];
+}
+
+@end
+
 @implementation TiGradient
 @synthesize backfillStart, backfillEnd;
 
@@ -244,6 +260,21 @@
 			}
 			break;
 	}
+}
+
++(TiGradient *)gradientFromObject:(id)value proxy:(TiProxy *)proxy
+{
+	if ([value isKindOfClass:[NSDictionary class]])
+	{
+		TiGradient * newGradient = [[[TiGradient alloc] _initWithPageContext:[proxy executionContext]] autorelease];
+		[newGradient _initWithProperties:value];
+		return newGradient;
+	}
+	else if([value isKindOfClass:[TiGradient class]])
+	{
+		return value;
+	}
+	return nil;
 }
 
 @end

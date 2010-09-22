@@ -22,12 +22,16 @@ import android.view.ViewParent;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.view.animation.AnimationSet;
+import android.view.animation.LinearInterpolator;
 import android.view.animation.RotateAnimation;
 import android.view.animation.ScaleAnimation;
+import android.view.animation.Transformation;
 import android.view.animation.TranslateAnimation;
 
 public class TiAnimationBuilder
 {
+	private static final String LCAT = "TiAnimationBuilder";
+	
 	protected double anchorX;
 	protected double anchorY;
 
@@ -39,6 +43,7 @@ public class TiAnimationBuilder
 	protected Double repeat = null;
 	protected Boolean autoreverse = null;
 	protected Integer top = null, bottom = null, left = null, right = null;
+	protected Integer width = null, height = null;
 	
 	protected TiAnimation animationProxy;
 
@@ -96,6 +101,12 @@ public class TiAnimationBuilder
 		}
 		if (options.containsKey("right")) {
 			right = KrollConverter.toInt(options, "right");
+		}
+		if (options.containsKey("width")) {
+			width = TiConvert.toInt(options, "width");
+		}
+		if (options.containsKey("height")) {
+			height = TiConvert.toInt(options, "height");
 		}
 		
 		this.options = options;
@@ -176,7 +187,10 @@ public class TiAnimationBuilder
 				addAnimation(as, a);
 			}
 			if (tdm.hasScaleFactor()) {
-				Animation a = new ScaleAnimation(1, tdm.getScaleFactor(), 1, tdm.getScaleFactor(), anchorPointX, anchorPointY);
+				Animation a = new ScaleAnimation(tdm.getFromScaleX(), tdm.getToScaleX(), tdm.getFromScaleY(), tdm.getToScaleY(), anchorPointX, anchorPointY);
+				if (duration != null) {
+					a.setDuration(duration.longValue());
+				}
 				addAnimation(as, a);
 			}
 			if (tdm.hasTranslation()) {
@@ -198,7 +212,8 @@ public class TiAnimationBuilder
 			as.setStartOffset(delay.longValue());
 		}
 		
-		if (top != null || bottom != null || left != null || right != null) {
+		// ignore translate/resize if we have a matrix.. we need to eventually collect to/from properly
+		if (tdm == null && (top != null || bottom != null || left != null || right != null)) {
 			int optionTop = TiCompositeLayout.NOT_SET, optionBottom = TiCompositeLayout.NOT_SET;
 			int optionLeft = TiCompositeLayout.NOT_SET, optionRight = TiCompositeLayout.NOT_SET;
 			
@@ -234,15 +249,72 @@ public class TiAnimationBuilder
 			a.setAnimationListener(listener);
 			as.addAnimation(a);
 			
-			Log.d("ANIMATE", "animate from (" + x + ", " + y + ") to (" + horizontal[1] + ", " + vertical[1] + ")");
+			Log.d(LCAT, "animate " + viewProxy + " relative to self: " + (horizontal[0]-x) + ", " + (vertical[0]-y));
 			relayoutChild = true;
 		}
 
+		if (tdm == null && (width != null || height != null)) {
+			// we need to setup a custom animation for this, is there a better way?
+			int toWidth = width == null ? w : width;
+			int toHeight = height == null ? h : height;
+			SizeAnimation sa = new SizeAnimation(view, w, h, toWidth, toHeight);
+			if (duration != null) {
+				sa.setDuration(duration.longValue());
+			}
+			sa.setInterpolator(new LinearInterpolator());
+			sa.setAnimationListener(listener);
+			as.addAnimation(sa);
+			relayoutChild = true;
+		}
+		
 		if (callback != null || animationProxy != null) {
 			as.setAnimationListener(listener);
 		}
 
 		return as;
+	}
+	
+	protected class SizeAnimation extends Animation {
+		protected View view;
+		protected float fromWidth, fromHeight, toWidth, toHeight;
+		protected static final String LCAT = "TiSizeAnimation";
+		
+		public SizeAnimation(View view, float fromWidth, float fromHeight, float toWidth, float toHeight) {
+			this.view = view;
+			this.fromWidth = fromWidth;
+			this.fromHeight = fromHeight;
+			this.toWidth = toWidth;
+			this.toHeight = toHeight;
+			Log.d(LCAT, "animate view from ("+fromWidth+"x"+fromHeight+") to ("+toWidth+"x"+toHeight+")");
+		}
+		
+		@Override
+		protected void applyTransformation(float interpolatedTime, Transformation t) {
+			super.applyTransformation(interpolatedTime, t);
+			
+			int width = 0;
+			if (fromWidth == toWidth) {
+				width = (int)fromWidth;
+			} else {
+				width = (int)Math.floor(fromWidth + ((toWidth - fromWidth) * interpolatedTime));
+			}
+			int height = 0;
+			if (fromHeight == toHeight) {
+				height = (int)fromHeight;
+			} else {
+				height = (int)Math.floor(fromHeight + ((toHeight - fromHeight) * interpolatedTime));
+			}
+			
+			ViewGroup.LayoutParams params = view.getLayoutParams();
+			params.width = width;
+			params.height = height;
+			if (params instanceof TiCompositeLayout.LayoutParams) {
+				TiCompositeLayout.LayoutParams tiParams = (TiCompositeLayout.LayoutParams)params;
+				tiParams.optionHeight = height;
+				tiParams.optionWidth = width;
+			}
+			view.setLayoutParams(params);
+		}
 	}
 	
 	protected class AnimationListener implements Animation.AnimationListener {

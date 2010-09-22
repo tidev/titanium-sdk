@@ -66,6 +66,43 @@
 	}
 }
 
+-(UIViewController *)childViewController
+{
+	return nil;
+}
+
+
+@synthesize parentOrientationController;
+
+-(TiOrientationFlags) orientationFlags
+{
+	UINavigationController * controller = [self controller];
+	for (UIViewController * thisVC in [[controller viewControllers] reverseObjectEnumerator])
+	{
+		if (![thisVC isKindOfClass:[TiViewController class]])
+		{
+			continue;
+		}
+		TiWindowProxy * thisProxy = [(TiViewController *)thisVC proxy];
+		if ([thisProxy conformsToProtocol:@protocol(TiOrientationController)])
+		{
+			TiOrientationFlags result = [thisProxy orientationFlags];
+			if (result != TiOrientationNone)
+			{
+				return result;
+			}
+		}
+	}
+	return TiOrientationNone;
+}
+
+-(void)childOrientationControllerChangedFlags:(id <TiOrientationController>)orientationController
+{
+	WARN_IF_BACKGROUND_THREAD;
+	[parentOrientationController childOrientationControllerChangedFlags:self];
+}
+
+
 @end
 
 #endif

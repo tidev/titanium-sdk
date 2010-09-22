@@ -159,6 +159,12 @@ NSString* TiStringToNSString(TiContextRef jsContext, TiValueRef value)
 //
 id TiValueToId(KrollContext *context, TiValueRef v)
 {
+	if (v == NULL)
+	{
+		//As opposed to null, this really is a case of no value.
+		//TODO: Right? Or should this be a NSNull?
+		return nil;
+	}
 	TiContextRef jsContext = [context context];
 	if (TiValueIsString(jsContext,v))
 	{

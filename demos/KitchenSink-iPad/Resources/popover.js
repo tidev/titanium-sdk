@@ -26,6 +26,13 @@ Popover.init = function()
 		var close = Ti.UI.createButton({
 			title:'Close'
 		});
+		var canc = Ti.UI.createButton({
+			title:'Cancel'
+		});
+		canc.addEventListener('click', function()
+		{
+			popover.hide({animated:true});
+		});
 		close.addEventListener('click', function()
 		{
 			popover.hide({animated:true});
@@ -35,6 +42,7 @@ Popover.init = function()
 			height:350,
 			title:'Table View',
 			rightNavButton:close,
+			leftNavButton:canc,
 			barColor:'#111'
 		}); 
 		var searchBar = Ti.UI.createSearchBar({top:0,height:44,barColor:'#333'});

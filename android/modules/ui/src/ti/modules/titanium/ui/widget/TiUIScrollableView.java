@@ -73,6 +73,10 @@ public class TiUIScrollableView extends TiUIView
 	public void addView(TiViewProxy proxy) {
 		getView().addView(proxy);
 	}
+	
+	public void removeView(TiViewProxy proxy) {
+		getView().removeView(proxy);
+	}
 
 	public void showPager()
 	{

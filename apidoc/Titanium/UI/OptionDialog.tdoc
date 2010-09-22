@@ -25,6 +25,10 @@ title[string]: the title of the dialog
 destructive[int]: the destructive button (indicated by a visual clue in the UI)
 cancel[int]: an index to indicate which button should be the cancel button
 
+# 1.5
+titleid[string]: the key in the locale file to use for the title property
+
+
 - methods
 
 show: cause the dialog to become visible

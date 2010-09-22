@@ -4,7 +4,6 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-#import <QuartzCore/QuartzCore.h>
 #import "TiBase.h"
 #import "TiUIView.h"
 #import "TiColor.h"
@@ -139,31 +138,6 @@ NSInteger zindexSort(TiUIView* view1, TiUIView* view2, void *reverse)
 	
 	return result;
 }
-
-
-@interface TiGradientLayer : CALayer
-{
-	TiGradient * gradient;
-}
-@property(nonatomic,readwrite,retain) TiGradient * gradient;
-@end
-
-@implementation TiGradientLayer
-@synthesize gradient;
-
-- (void) dealloc
-{
-	[gradient release];
-	[super dealloc];
-}
-
--(void)drawInContext:(CGContextRef)ctx
-{
-	[gradient paintContext:ctx bounds:[self bounds]];
-}
-
-@end
-
 
 
 
@@ -380,15 +354,18 @@ DEFINE_EXCEPTIONS
 	if (repositioning==NO)
 	{
 		repositioning = YES;
-		if ([self superview] == nil)
-		{
-			[[(TiViewProxy *)proxy parent] layoutChild:(TiViewProxy *)proxy optimize:NO];
-		}
 		oldSize = CGSizeZero;
 		ApplyConstraintToViewWithinViewWithBounds([(TiViewProxy *)proxy layoutProperties], self, [self superview], bounds, YES);
 		[(TiViewProxy *)[self proxy] clearNeedsReposition];
 		repositioning = NO;
 	}
+#ifdef VERBOSE
+	else
+	{
+		NSLog(@"[INFO] %@ Calling Relayout from within relayout.",self);
+	}
+#endif
+
 }
 
 -(void)relayoutOnUIThread:(NSValue*)value
@@ -665,6 +642,11 @@ DEFINE_EXCEPTIONS
     changedInteraction = YES;
 }
 
+-(UIView *)gradientWrapperView
+{
+	return self;
+}
+
 -(void)setBackgroundGradient_:(id)arg
 {
 	if (arg == nil)
@@ -677,11 +659,9 @@ DEFINE_EXCEPTIONS
 		gradientLayer = [[TiGradientLayer alloc] init];
 		[(TiGradientLayer *)gradientLayer setGradient:arg];
 		[gradientLayer setNeedsDisplayOnBoundsChange:YES];
-//		[gradientLayer setDelegate:self];
 		[gradientLayer setFrame:[self bounds]];
 		[gradientLayer setNeedsDisplay];
-//		[[self layer] addSublayer:gradientLayer];
-		[[self layer] insertSublayer:gradientLayer atIndex:0];
+		[[[self gradientWrapperView] layer] insertSublayer:gradientLayer atIndex:0];
 	}
 	else
 	{
@@ -774,55 +754,56 @@ DEFINE_EXCEPTIONS
 -(void)transferProxy:(TiViewProxy*)newProxy
 {
 	TiViewProxy * oldProxy = (TiViewProxy *)[self proxy];
-	NSArray * oldProperties = (NSArray *)[oldProxy allKeys];
-	NSArray * newProperties = (NSArray *)[newProxy allKeys];
-	NSArray * keySequence = [newProxy keySequence];
-	[oldProxy retain];
-	[self retain];
 	
-	[newProxy setReproxying:YES];
-
-	[oldProxy setView:nil];
-	[newProxy setView:self];
-	[self setProxy:[newProxy retain]];
-
-	//The important sequence first:
-	for (NSString * thisKey in keySequence)
-	{
-		id newValue = [newProxy valueForKey:thisKey];
-		[self setKrollValue:newValue forKey:thisKey withObject:nil];
-	}
-
-	for (NSString * thisKey in oldProperties)
-	{
-		if([newProperties containsObject:thisKey] || [keySequence containsObject:thisKey])
+	// We can safely skip everything if we're transferring to ourself.
+	if (oldProxy != newProxy) {
+		NSArray * oldProperties = (NSArray *)[oldProxy allKeys];
+		NSArray * newProperties = (NSArray *)[newProxy allKeys];
+		NSArray * keySequence = [newProxy keySequence];
+		[oldProxy retain];
+		[self retain];
+		
+		[newProxy setReproxying:YES];
+		
+		[oldProxy setView:nil];
+		[newProxy setView:self];
+		[self setProxy:[newProxy retain]];
+		
+		//The important sequence first:
+		for (NSString * thisKey in keySequence)
 		{
-			continue;
-		}
-		[self setKrollValue:nil forKey:thisKey withObject:nil];
-	}
-
-	for (NSString * thisKey in newProperties)
-	{
-		if ([keySequence containsObject:thisKey])
-		{
-			continue;
-		}
-	
-		id newValue = [newProxy valueForUndefinedKey:thisKey];
-		id oldValue = [oldProxy valueForUndefinedKey:thisKey];
-		if([newValue isEqual:oldValue])
-		{
-			continue;
+			id newValue = [newProxy valueForKey:thisKey];
+			[self setKrollValue:newValue forKey:thisKey withObject:nil];
 		}
 		
-		[self setKrollValue:newValue forKey:thisKey withObject:nil];
+		for (NSString * thisKey in oldProperties)
+		{
+			if([newProperties containsObject:thisKey] || [keySequence containsObject:thisKey])
+			{
+				continue;
+			}
+			[self setKrollValue:nil forKey:thisKey withObject:nil];
+		}
+		
+		for (NSString * thisKey in newProperties)
+		{
+			if ([keySequence containsObject:thisKey])
+			{
+				continue;
+			}
+			
+			// Always set the new value, even if 'equal' - some view setters (as in UIImageView)
+			// use internal voodoo to determine what to display.
+			// TODO: We may be able to take this out once the imageView.url property is taken out, and change it back to an equality test.
+			id newValue = [newProxy valueForUndefinedKey:thisKey];
+			[self setKrollValue:newValue forKey:thisKey withObject:nil];
+		}
+		
+		[oldProxy release];
+		
+		[newProxy setReproxying:NO];
+		[self release];
 	}
-
-	[oldProxy release];
-
-	[newProxy setReproxying:NO];
-	[self release];
 }
 
 
@@ -929,8 +910,9 @@ DEFINE_EXCEPTIONS
 -(void)handleControlEvents:(UIControlEvents)events
 {
 	// For subclasses (esp. buttons) to override when they have event handlers.
-	if ([parent viewAttached] && [parent canHaveControllerParent]) {
-		[[parent view] handleControlEvents:events];
+	TiViewProxy* parentProxy = [(TiViewProxy*)proxy parent];
+	if ([parentProxy viewAttached] && [parentProxy canHaveControllerParent]) {
+		[[parentProxy view] handleControlEvents:events];
 	}
 }
 
@@ -1008,13 +990,17 @@ DEFINE_EXCEPTIONS
 	}
 	if (handlesSwipes)
 	{
-		CGPoint point = [touch locationInView:nil];
+		// To take orientation into account, swipe calculations should be done in the root view,
+		// not in global device coords.
+		UIView* rootView = [[[TiApp app] controller] view];
+		CGPoint point = [touch locationInView:rootView];
+		CGPoint initialPoint = [rootView convertPoint:touchLocation fromView:nil];
 		// To be a swipe, direction of touch must be horizontal and long enough.
-		if (fabsf(touchLocation.x - point.x) >= HORIZ_SWIPE_DRAG_MIN &&
-			fabsf(touchLocation.y - point.y) <= VERT_SWIPE_DRAG_MAX)
+		if (fabsf(initialPoint.x - point.x) >= HORIZ_SWIPE_DRAG_MIN &&
+			fabsf(initialPoint.y - point.y) <= VERT_SWIPE_DRAG_MAX)
 		{
 			// It appears to be a swipe.
-			if (touchLocation.x < point.x)
+			if (initialPoint.x < point.x)
 			{
 				[self handleSwipeRight];
 			}

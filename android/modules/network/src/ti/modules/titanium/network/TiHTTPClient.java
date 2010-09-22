@@ -54,6 +54,7 @@ import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
 import org.apache.http.message.BasicHttpEntityEnclosingRequest;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.params.BasicHttpParams;
+import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpProtocolParams;
 import org.apache.http.protocol.HTTP;
@@ -119,7 +120,8 @@ public class TiHTTPClient
 	
 	Thread clientThread;
 	private boolean aborted;
-
+	private int timeout = -1;
+	
 	class LocalResponseHandler implements ResponseHandler<String>
 	{
 		public WeakReference<TiHTTPClient> client;
@@ -470,7 +472,12 @@ public class TiHTTPClient
 		}
 		if (responseXml == null && (responseData != null || responseText != null)) {
 			try {
-				responseXml = XMLModule.parse(proxy.getTiContext(), getResponseText());
+				String text = getResponseText();
+				if (charset != null && charset.length() > 0) {
+					responseXml = XMLModule.parse(proxy.getTiContext(), text, charset);
+				} else {
+					responseXml = XMLModule.parse(proxy.getTiContext(), text);
+				}
 			} catch (Exception e) {
 				Log.e(LCAT, "Error parsing XML", e);
 			}
@@ -579,6 +586,18 @@ public class TiHTTPClient
 		return result;
 	}
 
+	private Uri getCleanUri(String uri)
+    {
+    	Uri base = Uri.parse(uri);
+    	
+    	Uri.Builder builder = base.buildUpon();
+    	builder.encodedQuery(Uri.encode(Uri.decode(base.getQuery()), "&="));
+    	builder.encodedAuthority(Uri.encode(Uri.decode(base.getAuthority()),"/:@"));
+    	builder.encodedPath(Uri.encode(Uri.decode(base.getPath()), "/"));
+    	
+    	return builder.build();
+    }
+	
 	public void open(String method, String url)
 	{
 		if (DBG) {
@@ -586,7 +605,9 @@ public class TiHTTPClient
 		}
 
 		this.method = method;
-		uri = Uri.parse(url);
+
+		uri = getCleanUri(url);
+		
 		host = new HttpHost(uri.getHost(), uri.getPort(), uri.getScheme());
 		if (uri.getUserInfo() != null) {
 			credentials = new UsernamePasswordCredentials(uri.getUserInfo());
@@ -698,7 +719,7 @@ public class TiHTTPClient
 		for (String header : headers.keySet()) {
 			request.setHeader(header, headers.get(header));
 		}
-
+		
 		clientThread = new Thread(new ClientRunnable(totalLength), "TiHttpClient-" + httpClientThreadCounter.incrementAndGet());
 		clientThread.setPriority(Thread.MIN_PRIORITY);
 		clientThread.start();
@@ -737,9 +758,15 @@ public class TiHTTPClient
 				registry.register(new Scheme("https", sslFactory, 443));
 				HttpParams params = new BasicHttpParams();
 				
+				if (timeout != -1) {
+					HttpConnectionParams.setConnectionTimeout(params, timeout);
+					HttpConnectionParams.setSoTimeout(params, timeout);
+				}
+				
+				
 				ThreadSafeClientConnManager manager = new ThreadSafeClientConnManager(params, registry);
 				client = new DefaultHttpClient(manager, params);
-
+				
 				if (credentials != null) {
 					client.getCredentialsProvider().setCredentials(
 							new AuthScope(null, -1), credentials);
@@ -811,9 +838,9 @@ public class TiHTTPClient
 				connected = false;
 				setResponseText(result);
 				setReadyState(READY_STATE_DONE);
-			} catch(Exception e) {
-				Log.e(LCAT, "HTTP Error: " + e.getMessage(), e);
-				sendError(e.getMessage());
+			} catch(Throwable t) {
+				Log.e(LCAT, "HTTP Error (" + t.getClass().getName() + "): " + t.getMessage(), t);
+				sendError(t.getMessage());
 			}
 		}
 	}
@@ -858,5 +885,9 @@ public class TiHTTPClient
 
 	public boolean isConnected() {
 		return connected;
+	}
+	
+	public void setTimeout(int millis) {
+		timeout = millis;
 	}
 }

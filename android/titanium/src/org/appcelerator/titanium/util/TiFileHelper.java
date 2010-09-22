@@ -28,6 +28,9 @@ import java.util.TreeSet;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+import org.apache.http.entity.FileEntity;
+import org.appcelerator.titanium.TiContext;
+
 import android.content.Context;
 import android.content.res.AssetManager;
 import android.content.res.Resources;
@@ -62,6 +65,12 @@ public class TiFileHelper
 	{
 		softContext = new SoftReference<Context>(context);
 		this.nph = new TiNinePatchHelper();
+		if (resourcePathCache == null) {
+			resourcePathCache = new HashSet<String>();
+			foundResourcePathCache = new HashSet<String>();
+			notFoundResourcePathCache = new HashSet<String>();
+		}
+
 		if (resourcePathCache == null) {
 			resourcePathCache = new HashSet<String>();
 			foundResourcePathCache = new HashSet<String>();
@@ -215,6 +224,25 @@ public class TiFileHelper
 
 	public Drawable loadDrawable(String path, boolean report) {
 		return loadDrawable(path, report, false);
+	}
+	
+	public Drawable loadDrawable(TiContext tiContext, String path, boolean report) {
+		return loadDrawable(tiContext, path, report, false);
+	}
+	
+	public Drawable loadDrawable(TiContext context, String path, boolean report, boolean checkForNinePatch)
+	{
+		if (context == null) {
+			return loadDrawable(path, report, checkForNinePatch);
+		}
+		
+		Drawable d = TiUIHelper.getResourceDrawable(context, path);
+		if (d != null) {
+			return d;
+		}
+		
+		return loadDrawable(path, report, checkForNinePatch);
+		
 	}
 
 	public Drawable loadDrawable(String path, boolean report, boolean checkForNinePatch)
@@ -555,6 +583,9 @@ public class TiFileHelper
 		File result = null;
 		Context context = softContext.get();
 		if (context != null) {
+			if ( ! dir.exists() ) {
+				Log.w(LCAT, "getTempFile: Directory '" + dir.getAbsolutePath() + "' does not exist. Call to File.createTempFile() will fail." );
+			}
 			result = File.createTempFile("tia", suffix, dir);
 		}
 		return result;

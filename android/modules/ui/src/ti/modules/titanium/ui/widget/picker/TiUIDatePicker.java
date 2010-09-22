@@ -100,6 +100,14 @@ public class TiUIDatePicker extends TiUIView
 	{
 		Calendar calendar = Calendar.getInstance();
 		calendar.set(year, monthOfYear, dayOfMonth);
+		if (calendar.getTime().before(minDate)) {
+			calendar.setTime(minDate);
+			setValue(minDate.getTime(), true);
+		}
+		if (calendar.getTime().after(maxDate)) {
+			calendar.setTime(maxDate);
+			setValue(maxDate.getTime(), true);
+		}
 		if (!suppressChangeEvent) {
 			KrollDict data = new KrollDict();
 			data.put("value", calendar.getTime());

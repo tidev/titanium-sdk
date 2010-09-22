@@ -7,6 +7,8 @@
 package ti.modules.titanium;
 
 import java.io.IOException;
+import java.text.DateFormat;
+import java.text.NumberFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Stack;
@@ -24,6 +26,7 @@ import org.appcelerator.titanium.io.TiFileFactory;
 import org.appcelerator.titanium.kroll.KrollCallback;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConvert;
+import org.appcelerator.titanium.util.TiResourceHelper;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Scriptable;
@@ -57,6 +60,16 @@ public class TitaniumModule extends KrollModule implements TiContext.OnLifecycle
 	@Kroll.getProperty @Kroll.method
 	public String getBuildTimestamp() {
 		return getTiContext().getTiApp().getTiBuildTimestamp();
+	}
+	
+	@Kroll.getProperty @Kroll.method
+	public String getBuildDate() {
+		return getTiContext().getTiApp().getTiBuildTimestamp();
+	}
+	
+	@Kroll.getProperty @Kroll.method
+	public String getBuildHash() {
+		return getTiContext().getTiApp().getTiBuildHash();
 	}
 
 	@Kroll.method
@@ -161,6 +174,73 @@ public class TitaniumModule extends KrollModule implements TiContext.OnLifecycle
 			}
 		}
 		timers.clear();
+	}
+	
+	@Kroll.method
+	public String stringFormat(String format, Object args[])
+	{
+		try {
+			// clean up formats for integers into doubles since thats how JS rolls
+			format = format.replaceAll("%d", "%1.0f");
+			// in case someone passes an iphone formatter symbol, convert
+			format = format.replaceAll("%@", "%s");
+			if (args.length == 0) {
+				return String.format(format);
+			} else {
+				return String.format(format, args);
+			}
+		} catch (Exception ex) {
+			Log.e(LCAT, "Error in string format", ex);
+			return null;
+		}
+	}
+	
+	@Kroll.method
+	public String stringFormatDate(Date date, @Kroll.argument(optional=true) String format)
+	{
+		int style = DateFormat.SHORT;
+		if (format.equals("medium")) {
+			style = DateFormat.MEDIUM;
+		} else if (format.equals("long")) {
+			style = DateFormat.LONG;
+		}
+		
+		DateFormat fmt = DateFormat.getDateInstance(style);
+		return fmt.format(date);
+	}
+
+	@Kroll.method
+	public String stringFormatTime(Date time)
+	{
+		int style = DateFormat.SHORT;
+		DateFormat fmt = DateFormat.getTimeInstance(style);
+		return fmt.format(time);
+	}
+
+	@Kroll.method
+	public String stringFormatCurrency(double currency)
+	{
+		return NumberFormat.getCurrencyInstance().format(currency);
+	}
+
+	@Kroll.method
+	public String stringFormatDecimal(double number)
+	{
+		return NumberFormat.getNumberInstance().format(number);
+	}
+	
+	@Kroll.method @Kroll.topLevel("L")
+	public String localize(KrollInvocation invocation, Object args[])
+	{
+		String key = (String) args[0];
+		int value = TiResourceHelper.getString(key);
+		if (value == 0) {
+			if (args.length > 1) {
+				return (String) args[1];
+			}
+			return null;
+		}
+		return invocation.getTiContext().getActivity().getString(value);
 	}
 	
 	@Kroll.method @Kroll.topLevel

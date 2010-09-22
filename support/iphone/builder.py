@@ -15,9 +15,12 @@ from os.path import join, splitext, split, exists
 
 template_dir = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
 sys.path.append(os.path.join(template_dir,'../'))
+sys.path.append(os.path.join(template_dir,'../common'))
 script_ok = False
 
 from tiapp import *
+from css import csscompiler
+import localecompiler
 
 ignoreFiles = ['.gitignore', '.cvsignore']
 ignoreDirs = ['.git','.svn', 'CVS']
@@ -248,7 +251,7 @@ def main(args):
 	
 	target = 'Debug'
 	deploytype = 'development'
-	devicefamily = None
+	devicefamily = 'iphone'
 	debug = False
 	simulator = False
 	xcode_build = False
@@ -673,6 +676,20 @@ def main(args):
 			if not os.path.exists(os.path.join(iphone_dir,'lib','libtiverify.a')):
 				shutil.copy(os.path.join(template_dir,'libtiverify.a'),os.path.join(iphone_dir,'lib','libtiverify.a'))
 
+			# compile JSS files
+			cssc = csscompiler.CSSCompiler(os.path.join(project_dir,'Resources'),devicefamily,appid)
+			app_stylesheet = os.path.join(iphone_dir,'Resources','stylesheet.plist')
+			asf = codecs.open(app_stylesheet,'w','utf-8')
+			asf.write(cssc.code)
+			asf.close()
+			
+			if command!='simulator':
+				# compile plist
+				os.system("/usr/bin/plutil -convert binary1 \"%s\"" % app_stylesheet)
+			
+			o.write("Generated the following stylecode code:\n\n")
+			o.write(cssc.code)
+			o.write("\n")
 
 			if devicefamily!=None:
 				applogo = ti.generate_infoplist(infoplist,appid,devicefamily,project_dir,iphone_version)
@@ -697,6 +714,9 @@ def main(args):
 						shutil.rmtree(app_dir)
 
 				if not os.path.exists(app_dir): os.makedirs(app_dir)
+
+				# compile localization files
+				localecompiler.LocaleCompiler(app_name,project_dir,devicefamily,command).compile()
 				
 				# copy any module resources
 				if len(tp_module_asset_dirs)>0:
@@ -1067,6 +1087,7 @@ def main(args):
 			finally:
 				os.chdir(cwd)
 		except:
+			print "[ERROR] Error: %s" % traceback.format_exc()
 			if not script_ok:
 				o.write("\nException detected in script:\n")
 				traceback.print_exc(file=o)

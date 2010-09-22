@@ -6,26 +6,29 @@
  */
 
 #import "TiRootController.h"
+#import "TiWindowProxy.h"
 
-@class TiProxy;
-@class TiWindowProxy;
 
 #define MAX_ORIENTATIONS	7
 
-@interface TiRootViewController : UIViewController<UIApplicationDelegate,TiRootController> {
+@interface TiRootViewController : UIViewController<UIApplicationDelegate,TiRootController,TiOrientationController> {
 @private
 	NSMutableArray *windowViewControllers;	
-	TiWindowProxy *currentWindow;	//NOT RETAINED
 	
 	UIColor * backgroundColor;
 	UIImage * backgroundImage;
 
-	BOOL	allowedOrientations[MAX_ORIENTATIONS];
+	TiOrientationFlags	allowedOrientations;
 	NSTimeInterval	orientationRequestTimes[MAX_ORIENTATIONS];
+
 	UIInterfaceOrientation lastOrientation;
-	
 	UIInterfaceOrientation windowOrientation;
 
+	NSMutableArray * viewControllerStack;
+	BOOL isCurrentlyVisible;
+	
+	//TiOrientationController variables.
+	NSMutableArray * windowProxies;
 }
 
 @property(nonatomic,readwrite,retain)	UIColor * backgroundColor;
@@ -41,9 +44,6 @@
 
 -(void)manuallyRotateToOrientation:(UIInterfaceOrientation)orientation;
 -(void)manuallyRotateToOrientation:(UIInterfaceOrientation)newOrientation duration:(NSTimeInterval)duration;
-
--(void)refreshOrientationModesIfNeeded:(TiWindowProxy *)oldCurrentWindow;
--(void)enforceOrientationModesFromWindow:(TiWindowProxy *) newCurrentWindow;
 
 -(void)setOrientationModes:(NSArray *)newOrientationModes;
 

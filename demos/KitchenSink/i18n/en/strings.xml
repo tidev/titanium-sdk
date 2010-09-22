@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+	<string name="welcome_message">Welcome to Kitchen Sink for Titanium/</string>
+	<string name="user_agent_message">user agent set to</string>
+	<string name="format_test">Your name is %s</string>
+	<string name="base_ui_title">Base UI</string>
+	<string name="controls_win_title">Controls</string> 
+	<string name="phone_win_title">Phone</string>
+	<string name="platform_win_title">Platform</string>
+	<string name="mashups_win_title">Mashups</string>
+</resources>

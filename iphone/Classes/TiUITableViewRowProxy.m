@@ -418,6 +418,9 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 
 -(void)configureBackground:(UITableViewCell*)cell
 {
+	[(TiUITableViewCell *)cell setBackgroundGradient_:[self valueForKey:@"backgroundGradient"]];
+	[(TiUITableViewCell *)cell setSelectedBackgroundGradient_:[self valueForKey:@"selectedBackgroundGradient"]];
+
 	id bgImage = [self valueForKey:@"backgroundImage"];
 	id selBgColor = [self valueForKey:@"selectedBackgroundColor"];
 
@@ -484,28 +487,28 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 		{								
 			cell.selectedBackgroundView = [[[TiSelectedCellBackgroundView alloc] initWithFrame:CGRectZero] autorelease];
 		}
-		TiSelectedCellBackgroundView *sv = (TiSelectedCellBackgroundView*)cell.selectedBackgroundView;
+		TiSelectedCellBackgroundView *selectedBGView = (TiSelectedCellBackgroundView*)cell.selectedBackgroundView;
 		int count = [section rowCount];
 		if (count == 1)
 		{
-			sv.position = TiCellBackgroundViewPositionSingleLine;
+			selectedBGView.position = TiCellBackgroundViewPositionSingleLine;
 		}
 		else 
 		{
 			if (row == 0)
 			{
-				sv.position = TiCellBackgroundViewPositionTop;
+				selectedBGView.position = TiCellBackgroundViewPositionTop;
 			}
 			else if (row == count-1)
 			{
-				sv.position = TiCellBackgroundViewPositionBottom;
+				selectedBGView.position = TiCellBackgroundViewPositionBottom;
 			}
 			else 
 			{
-				sv.position = TiCellBackgroundViewPositionMiddle;
+				selectedBGView.position = TiCellBackgroundViewPositionMiddle;
 			}
 		}
-		sv.fillColor = [Webcolor webColorNamed:selBgColor];	
+		selectedBGView.fillColor = [Webcolor webColorNamed:selBgColor];	
 	}
 	else if (cell.selectedBackgroundView!=nil)
 	{
@@ -633,36 +636,38 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 		 touchDelegate:(id)touchDelegate
 {
 	TiViewProxy * oldProxy = (TiViewProxy*)[uiview proxy];
-
-	[uiview transferProxy:proxy];
 	
-	// because proxies can have children, we need to recursively do this
-	NSArray *children_ = proxy.children;
-	if (children_!=nil && [children_ count]>0)
-	{
-		NSArray * oldProxyChildren = [oldProxy children];
-
-		if ([oldProxyChildren count] != [children_ count])
+	// We ONLY have to transfer the proxy if we're not reusing the one that already belongs to us.
+	if (oldProxy != proxy) {
+		[uiview transferProxy:proxy];
+		
+		// because proxies can have children, we need to recursively do this
+		NSArray *children_ = proxy.children;
+		if (children_!=nil && [children_ count]>0)
 		{
-			NSLog(@"[WARN] looks like we have a different table cell layout than expected.  Make sure you set the 'className' property of the table row when you have different cell layouts");
-			NSLog(@"[WARN] if you don't fix this, your tableview will suffer performance issues and also will not render properly");
-			return;
-		}
-		int c = 0;
-		NSEnumerator * oldChildrenEnumator = [oldProxyChildren objectEnumerator];
-		for (TiViewProxy* child in children_)
-		{
-			TiViewProxy * oldChild = [oldChildrenEnumator nextObject];
-			if (![oldChild viewAttached])
+			NSArray * oldProxyChildren = [oldProxy children];
+			
+			if ([oldProxyChildren count] != [children_ count])
 			{
-				NSLog(@"[WARN] Orphaned child found during proxy transfer!");
+				NSLog(@"[WARN] looks like we have a different table cell layout than expected.  Make sure you set the 'className' property of the table row when you have different cell layouts");
+				NSLog(@"[WARN] if you don't fix this, your tableview will suffer performance issues and also will not render properly");
+				return;
 			}
-			//Todo: We should probably be doing this only if the view is attached,
-			//And something else entirely if the view wasn't attached.
-			[self reproxyChildren:child 
-							 view:[oldChild view]
-						   parent:proxy touchDelegate:nil];
-
+			int c = 0;
+			NSEnumerator * oldChildrenEnumator = [oldProxyChildren objectEnumerator];
+			for (TiViewProxy* child in children_)
+			{
+				TiViewProxy * oldChild = [oldChildrenEnumator nextObject];
+				if (![oldChild viewAttached])
+				{
+					NSLog(@"[WARN] Orphaned child found during proxy transfer!");
+				}
+				//Todo: We should probably be doing this only if the view is attached,
+				//And something else entirely if the view wasn't attached.
+				[self reproxyChildren:child 
+								 view:[oldChild view]
+							   parent:proxy touchDelegate:nil];
+			}
 		}
 	}
 }
@@ -711,8 +716,13 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 				[self configureChildren:cell];
 				return;
 			}
-			[rowContainerView release];
-			rowContainerView = [aview retain];
+			
+			UIView* oldContainerView = [rowContainerView retain];
+			if (rowContainerView != aview) {
+				[rowContainerView release];
+				rowContainerView = [aview retain];
+			}
+			
 			for (size_t x=0;x<[subviews count];x++)
 			{
 				TiViewProxy *proxy = [self.children objectAtIndex:x];
@@ -870,7 +880,10 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 	}
 	NSInteger index = [table indexForRow:self];
 	[dict setObject:NUMINT(index) forKey:@"index"];
-	[dict setObject:section forKey:@"section"];
+    // TODO: We really need to ensure that a row's section is set upon creation - even if this means changing how tables work.
+    if (section != nil) {
+        [dict setObject:section forKey:@"section"];
+    }
 	[dict setObject:self forKey:@"row"];
 	[dict setObject:self forKey:@"rowData"];
 	[dict setObject:NUMBOOL(NO) forKey:@"detail"];
@@ -892,6 +905,23 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 
 
 #pragma mark Delegate
+-(void) setBackgroundGradient:(id)arg
+{
+	TiGradient * newGradient = [TiGradient gradientFromObject:arg proxy:self];
+	[self replaceValue:newGradient forKey:@"backgroundGradient" notification:NO];
+	
+	[callbackCell performSelectorOnMainThread:@selector(setBackgroundGradient_:)
+			withObject:newGradient waitUntilDone:NO];
+}
+
+-(void) setSelectedBackgroundGradient:(id)arg
+{
+	TiGradient * newGradient = [TiGradient gradientFromObject:arg proxy:self];
+	[self replaceValue:newGradient forKey:@"selectedBackgroundGradient" notification:NO];
+	
+	[callbackCell performSelectorOnMainThread:@selector(setSelectedBackgroundGradient_:)
+			withObject:newGradient waitUntilDone:NO];
+}
 
 
 -(void)propertyChanged:(NSString*)key oldValue:(id)oldValue newValue:(id)newValue proxy:(TiProxy*)proxy

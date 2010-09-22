@@ -72,59 +72,62 @@ public class ${genClassName} <#if superProxyBindingClassName??>extends ${superPr
 	}
 	
 	<#if superProxyBindingClassName??>@Override</#if>
-	public void bind(final Scriptable scope, final KrollProxy rootObject, final KrollProxy p, final List<String> filteredBindings) {
-		
-		final ${proxyClassName} __proxy = (${proxyClassName}) p;
-		
+	public void bindToParent(KrollProxy parent, KrollProxy proxy) {
 		<#if isModule>
+		parent.setProperty("${proxyAttrs.name}", proxy);
+		</#if>
+	}
+	
+	public void bindContextSpecific(KrollBridge bridge, KrollProxy proxy) {
+		<#if proxyAttrs.isTopLevel>
+		<#list proxyAttrs.topLevelNames as topLevelName>
+		bridge.bindToTopLevel("${topLevelName}", proxy);
+		</#list>
+		</#if>
+	}
+	
+	<#if superProxyBindingClassName??>@Override</#if>
+	public void bindProperties(final KrollProxy p, final List<String> filteredBindings) {
+		final ${proxyClassName} __proxy = (${proxyClassName}) p;
+	<#if isModule>
+		<#list allModules?keys as module>
+			<#if module = packageName+"."+proxyClassName>
+			<#if allModules[module].createProxies??>
+				<#list allModules[module].createProxies as createProxy>
+		<#if createProxy_index = 0>// create methods for proxies </#if>
 		try {
-			rootObject.set(scope, "${proxyAttrs.name}", p);
-			<#if proxyAttrs.isTopLevel>
-			KrollBridge __bridge = (KrollBridge) __proxy.getTiContext().getJSContext();
-				<#list proxyAttrs.topLevelNames as topLevelName>
-			__bridge.bindToTopLevel("${topLevelName}", __proxy);
+		__proxy.setProperty("create${createProxy.name}", new KrollMethod(__proxy, "create${createProxy.name}") {
+			public Object invoke(KrollInvocation __invocation, Object[] __args) throws Exception
+			{
+				${createProxy.proxyClassName} __createdProxy = new ${createProxy.proxyClassName}(__invocation.getTiContext());
+				
+				Object __createArgs[] = new Object[__args.length];
+				for (int i = 0; i < __args.length; i++) {
+					__createArgs[i] = KrollConverter.getInstance().convertJavascript(
+						__invocation, __args[i], Object.class);
+				}
+				
+				__createdProxy.handleCreationArgs(__createArgs);
+				return KrollConverter.getInstance().convertNative(__invocation, __createdProxy);
+			}
+		});
+		} catch (Exception e) { Log.e(TAG, "Error binding create${createProxy.name}", e); }
 				</#list>
 			</#if>
-		} catch (NoSuchFieldException e) {}
-		
-			<#list allModules?keys as module>
-				<#if module = packageName+"."+proxyClassName>
-				<#if allModules[module].createProxies??>
-					<#list allModules[module].createProxies as createProxy>
-			<#if createProxy_index = 0>// create methods for proxies </#if>
+			<#if allModules[module].childModules??>
+				<#list allModules[module].childModules as childModule>
+		<#if childModule_index = 0>// Child modules</#if>
+		if (include("${childModule.name}", filteredBindings)) {
 			try {
-			__proxy.set(scope, "create${createProxy.name}", new KrollMethod(__proxy, "create${createProxy.name}") {
-				public Object invoke(KrollInvocation __invocation, Object[] __args) throws Exception
-				{
-					${createProxy.proxyClassName} __createdProxy = new ${createProxy.proxyClassName}(__invocation.getTiContext());
-					
-					Object __createArgs[] = new Object[__args.length];
-					for (int i = 0; i < __args.length; i++) {
-						__createArgs[i] = KrollConverter.getInstance().convertJavascript(
-							__invocation, __args[i], Object.class);
-					}
-					
-					__createdProxy.handleCreationArgs(__createArgs);
-					return KrollConverter.getInstance().convertNative(__invocation, __createdProxy);
-				}
-			});
-			} catch (Exception e) { Log.e(TAG, "Error binding create${createProxy.name}", e); }
-					</#list>
-				</#if>
-				<#if allModules[module].childModules??>
-					<#list allModules[module].childModules as childModule>
-			<#if childModule_index = 0>// Child modules</#if>
-			if (include("${childModule.name}", filteredBindings)) {
-				try {
-					KrollProxy __childModule = new ${childModule.proxyClassName}(__proxy.getTiContext());
-					__childModule.bind(scope, __proxy);
-				} catch (Exception e) { Log.e(TAG, "Error binding child module: ${childModule.name}", e); }
-			}
-					</#list>
-				</#if>
-				</#if>
-			</#list>
-		</#if>
+				KrollProxy __childModule = new ${childModule.proxyClassName}(__proxy.getTiContext());
+				__childModule.bindToParent(__proxy);
+			} catch (Exception e) { Log.e(TAG, "Error binding child module: ${childModule.name}", e); }
+		}
+				</#list>
+			</#if>
+			</#if>
+		</#list>
+	</#if>
 		
 		<#if constants??>
 			<#if constants?keys?size &gt; 0>
@@ -134,7 +137,7 @@ public class ${genClassName} <#if superProxyBindingClassName??>extends ${superPr
 				<#assign constant = constants[constantName]>
 		if (include("${constantName}", filteredBindings)) {
 			try {
-				__proxy.set(scope, "${constantName}", ${proxyClassName}.${constant.proxyName});
+				__proxy.setProperty("${constantName}", ${proxyClassName}.${constant.proxyName});
 			} catch (Exception e) { Log.e(TAG, "Error binding constant: ${proxyClassName}:${constantName}", e); }
 		}
 			</#list>
@@ -147,7 +150,7 @@ public class ${genClassName} <#if superProxyBindingClassName??>extends ${superPr
 			<#list properties?keys as propertyName>
 				<#assign property = properties[propertyName]>
 		try {
-			__proxy.set(scope, "${propertyName}", new KrollProperty(p, "${propertyName}", ${property.get?string}, ${property.set?string}, "${property.proxyName}"));
+			__proxy.setProperty("${propertyName}", new KrollProperty(p, "${propertyName}", ${property.get?string}, ${property.set?string}, "${property.proxyName}"));
 		} catch (Exception e) { Log.e(TAG, "Error binding property ${proxyClassName}:${propertyName}", e); }
 			</#list>
 		</#if>
@@ -176,7 +179,7 @@ public class ${genClassName} <#if superProxyBindingClassName??>extends ${superPr
 			<#if dynamicProperty.runOnUiThread>
 			__property.setRunOnUiThread(true);
 			</#if>
-			__proxy.set(scope, "${propertyName}", __property);
+			__proxy.setProperty("${propertyName}", __property);
 		} catch (Exception e) { Log.e(TAG, "Error binding dynamic property ${proxyClassName}:${propertyName}", e); }
 			</#list>
 		</#if>
@@ -252,7 +255,7 @@ public class ${genClassName} <#if superProxyBindingClassName??>extends ${superPr
 			${methodName}_method.setRunOnUiThread(true);
 			</#if>
 			try {
-				__proxy.set(scope, "${method.apiName}", ${methodName}_method);
+				__proxy.setProperty("${method.apiName}", ${methodName}_method);
 				<#if topLevelMethods??>
 					<#if topLevelMethods?keys?seq_contains(methodName)>
 						<#list topLevelMethods[methodName] as topLevelName>
@@ -263,7 +266,7 @@ public class ${genClassName} <#if superProxyBindingClassName??>extends ${superPr
 			} catch (Exception e) { Log.e(TAG, "Error binding method ${proxyClassName}:${method.apiName}", e); }
 			</#list>
 		</#if>
-		<#if superProxyBindingClassName??>super.bind(scope, rootObject, p, null);</#if>
+		<#if superProxyBindingClassName??>super.bindProperties(p, null);</#if>
 	}
 	
 	<#function getParentModule proxy>

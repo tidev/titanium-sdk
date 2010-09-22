@@ -183,7 +183,7 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 			}
 			TiUILabel t = (TiUILabel) views[0];
 			t.setProxy(rp);
-			t.processProperties(filterProperties(rp.getProperties()));
+			t.processProperties(filterProperties(rp.getCreationDict()));
 			View v = t.getNativeView();
 			if (v.getParent() == null) {
 				TextView tv = (TextView) v;
@@ -300,5 +300,30 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 	@Override
 	public boolean providesOwnSelector() {
 		return true;
+	}
+	
+	@Override
+	public void release()
+	{
+		super.release();
+		if (views != null) {
+			for (TiUIView view : views) {
+				view.release();
+			}
+			views = null;
+		}
+		if (content != null) {
+			content.removeAllViews();
+			content = null;
+		}
+		if (hasCheckDrawable != null) {
+			hasCheckDrawable.setCallback(null);
+			hasCheckDrawable = null;
+		}
+		if (hasChildDrawable != null) {
+			hasChildDrawable.setCallback(null);
+			hasChildDrawable = null;
+		}
+		
 	}
 }

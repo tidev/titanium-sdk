@@ -10,6 +10,7 @@ import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
 
+@SuppressWarnings("serial")
 public class KrollObject extends ScriptableObject {
 
 	protected KrollProxy proxy;

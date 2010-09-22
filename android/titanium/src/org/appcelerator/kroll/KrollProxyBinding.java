@@ -8,9 +8,12 @@ package org.appcelerator.kroll;
 
 import java.util.List;
 
-import org.mozilla.javascript.Scriptable;
+import org.appcelerator.titanium.kroll.KrollBridge;
 
 public interface KrollProxyBinding {
-	public void bind(Scriptable scope, KrollProxy rootObject, KrollProxy proxy, List<String> filteredBindings);
+	public void bindToParent(KrollProxy parent, KrollProxy proxy);
+	public void bindProperties(KrollProxy proxy, List<String> filteredBindings);
+	public void bindContextSpecific(KrollBridge bridge, KrollProxy proxy);
+	
 	public String getAPIName();
 }

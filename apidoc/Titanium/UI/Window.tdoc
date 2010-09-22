@@ -45,6 +45,10 @@ backButtonTitleImage[string]: url to an image to show as the back button.  only 
 backButtonTitle[string]: title for the back button. only available in iPhone. this is only valid when the window is a child of a tab.
 navBarHidden[boolean]: for modal windows, hide the nav bar (true) or show the nav bar (false, default).
 
+# 1.5
+titleid[string]: the key in the locale file to use for the title property
+titlepromptid[string]: the key in the locale file to use for the titlePrompt property
+
 
 - methods
 
@@ -65,6 +69,12 @@ open: fired when the window is opened
 close: fired when the window is closed
 focus: fired when the window gains focus
 blur: fired when the window loses focus
+android:back: fired when the back button is released. Setting a listener is interpreted as the handler for that button. To restore default behavior, remove the listener. It is recommended that you only have one handler per heavyweight window (Android Only)
+android:camera:  fired when the camera button is released. Setting a listener is interpreted as the handler for that button. To restore default behavior, remove the listener. It is recommended that you only have one handler per heavyweight window (Android Only)
+android:focus:  fired when the camera button is half-pressed then released. Setting a listener is interpreted as the handler for that button. To restore default behavior, remove the listener. It is recommended that you only have one handler per heavyweight window (Android Only)
+android:search: fired when the search button is released. Setting a listener is interpreted as the handler for that button. To restore default behavior, remove the listener. It is recommended that you only have one handler per heavyweight window (Android Only)
+android:volup: fired when the volume up button is released. Setting a listener is interpreted as the handler for that button. To restore default behavior, remove the listener. It is recommended that you only have one handler per heavyweight window (Android Only)
+android:voldown:  fired when the volume down button is released. Setting a listener is interpreted as the handler for that button. To restore default behavior, remove the listener. It is recommended that you only have one handler per heavyweight window (Android Only)
 
 
 - example : Full Screen Window example

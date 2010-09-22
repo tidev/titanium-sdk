@@ -24,6 +24,13 @@ public class ActivityIndicatorProxy extends TiViewProxy
 	}
 
 	@Override
+	protected KrollDict getLangConversionTable() {
+		KrollDict table = new KrollDict();
+		table.put("message","messageid");
+		return table;
+	}
+
+	@Override
 	public TiUIView createView(Activity activity)
 	{
 		return new TiUIActivityIndicator(this);

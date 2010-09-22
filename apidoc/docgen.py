@@ -153,6 +153,9 @@ class API(object):
 		if self.subtype == 'view':
 			# these are common properties that all views inherit
 			self.add_property('backgroundColor','string','the background color of the view')
+			self.add_property('backgroundSelectedColor', 'string', 'the selected background color of the view. focusable must be true for normal views. (Android)')
+			self.add_property('backgroundFocusedColor', 'string', 'the focused background color of the view. focusable must be true for normal views. (Android)')
+			self.add_property('backgroundDisabledColor', 'string', 'the disabled background color of the view. (Android)')
 			self.add_property('backgroundGradient','object','a background gradient for the view with the properties: type,startPoint,endPoint,startRadius,endRadius,backfillStart,backfillEnd,colors.')
 			self.add_property('backgroundLeftCap','float','End caps specify the portion of an image that should not be resized when an image is stretched. This technique is used to implement buttons and other resizable image-based interface elements. When a button with end caps is resized, the resizing occurs only in the middle of the button, in the region between the end caps. The end caps themselves keep their original size and appearance. This property specifies the size of the left end cap. The middle (stretchable) portion is assumed to be 1 pixel wide. The right end cap is therefore computed by adding the size of the left end cap and the middle portion together and then subtracting that value from the width of the image')
 			self.add_property('backgroundTopCap','float','End caps specify the portion of an image that should not be resized when an image is stretched. This technique is used to implement buttons and other resizable image-based interface elements. When a button with end caps is resized, the resizing occurs only in the middle of the button, in the region between the end caps. The end caps themselves keep their original size and appearance. This property specifies the size of the top end cap. The middle (stretchable) portion is assumed to be 1 pixel wide. The bottom end cap is therefore computed by adding the size of the top end cap and the middle portion together and then subtracting that value from the height of the image')
@@ -161,6 +164,9 @@ class API(object):
 			self.add_property('borderWidth','float','the border width of the view')
 			self.add_property('borderRadius','float','the border radius of the view')
 			self.add_property('backgroundImage','string','the background image url of the view')
+			self.add_property('backgroundSelectedImage', 'string', 'the selected background image url of the view. focusable must be true for normal views. (Android)')
+			self.add_property('backgroundFocusedImage', 'string', 'the focused background image url of the view. focusable must be true for normal views. (Android)')
+			self.add_property('backgroundDisabledImage', 'string', 'the disabled background image url of the view. (Android)')
 			self.add_property('zIndex','int','the z index position relative to other sibling views')
 			self.add_property('opacity','float','the opacity from 0.0-1.0')
 			self.add_property('anchorPoint','object','a dictionary with properties x and y to indicate the anchor point value. anchor specifies the position by which animation should occur. center is 0.5, 0.5')
@@ -175,6 +181,8 @@ class API(object):
 			self.add_property('left','float,string','property for the view left position. this position is relative to the views parent. can be either a float value or a string of the width.')
 			self.add_property('right','float,string','property for the view right position. this position is relative to the views parent. can be either a float value or a string of the width.')
 			self.add_property('bottom','float,string','property for the view bottom position. this position is relative to the views parent. can be either a float value or a string of the width.')
+			self.add_property('softKeyboardOnFocus','int','One of Titanium.UI.Android.SOFT_KEYBOARD_DEFAULT_ON_FOCUS, Titanium.UI.Android.SOFT_KEYBOARD_HIDE_ON_FOCUS, or Titanium.UI.Android.SOFT_KEYBOARD_SHOW_ON_FOCUS. (Android only)')
+			self.add_property('focusable','boolean','Set true if you want a view to be focusable when navigating with the trackball or D-Pad. Default: false. (Android Only)')
 			# these are common methods
 			self.add_method('add','add a child to the view hierarchy')
 			self.add_method_property('add','view','object','the view to add to this views hiearchy')
@@ -198,6 +206,11 @@ class API(object):
 			self.add_event('touchmove','fired as soon as the device detects movement of a touch.  Event coordinates are always relative to the view in which the initial touch occurred')
 			self.add_event('touchcancel','fired when a touch event is interrupted by the device. this happens in circumenstances such as an incoming call to allow the UI to clean up state.')
 			self.add_event('touchend','fired when a touch event is completed')
+			# font specials
+			self.add_property('font-weight','string','the font weight, either normal or bold')
+			self.add_property('font-size','string','the font size')
+			self.add_property('font-style','string','the font style, either normal or italics')
+			self.add_property('font-family','string','the font family')
 			# common event properties
 			self.add_event_property('swipe','direction','direction of the swipe - either left or right');
 			for x in self.events:
@@ -307,7 +320,7 @@ def find_filename(namespace):
 	return namespace
 
 def split_keyvalue(line):
-	idx = line.find(":")
+	idx = line.find(": ")
 	if idx == -1:
 		return None,None
 	key = line[0:idx].strip()

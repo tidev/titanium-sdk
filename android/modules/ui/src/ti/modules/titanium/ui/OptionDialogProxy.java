@@ -22,7 +22,14 @@ public class OptionDialogProxy extends TiViewProxy
 	{
 		super(tiContext);
 	}
-
+	
+	@Override
+	protected KrollDict getLangConversionTable() {
+		KrollDict table = new KrollDict();
+		table.put("title","titleid");
+		return table;
+	}
+	
 	@Override
 	public TiUIView createView(Activity activity)
 	{

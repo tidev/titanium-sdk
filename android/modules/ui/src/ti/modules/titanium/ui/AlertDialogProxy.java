@@ -24,6 +24,15 @@ public class AlertDialogProxy extends TiViewProxy
 	}
 
 	@Override
+	protected KrollDict getLangConversionTable() {
+		KrollDict table = new KrollDict();
+		table.put("title","titleid");
+		table.put("ok","okid");
+		table.put("message","messageid");
+		return table;
+	}
+
+	@Override
 	public TiUIView createView(Activity activity)
 	{
 		return new TiUIDialog(this);

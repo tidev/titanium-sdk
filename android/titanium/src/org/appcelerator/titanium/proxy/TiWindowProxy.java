@@ -136,7 +136,16 @@ public abstract class TiWindowProxy extends TiViewProxy
 	}
 
 	public void closeFromActivity() {
+		if (!opened) {
+			return;
+		}
+		releaseViews();
 		opened = false;
+		TiContext context = getTiContext();
+		if (creatingContext != null && context != null && !creatingContext.equals(context)) {
+			switchToCreatingContext();
+		}
+
 	}
 	
 	public void setTabProxy(TiViewProxy tabProxy) {

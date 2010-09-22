@@ -12,10 +12,12 @@ import java.lang.ref.WeakReference;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -27,13 +29,13 @@ import org.appcelerator.titanium.bridge.OnEventListenerChange;
 import org.appcelerator.titanium.io.TiBaseFile;
 import org.appcelerator.titanium.io.TiFileFactory;
 import org.appcelerator.titanium.kroll.KrollBridge;
+import org.appcelerator.titanium.kroll.KrollCallback;
 import org.appcelerator.titanium.kroll.KrollContext;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiActivitySupport;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiFileHelper;
 import org.appcelerator.titanium.util.TiFileHelper2;
-import org.mozilla.javascript.Context;
 import org.mozilla.javascript.ErrorReporter;
 import org.mozilla.javascript.EvaluatorException;
 import org.mozilla.javascript.Scriptable;
@@ -65,16 +67,17 @@ public class TiContext implements TiEvaluator, ITiMenuDispatcherListener, ErrorR
 	private long mainThreadId;
 
 	private String baseUrl;
+	private String currentUrl;
 
 	private WeakReference<Activity> weakActivity;
 	private TiEvaluator	tiEvaluator;
 	private TiApplication tiApp;
-	private HashMap<String, HashMap<Integer, TiListener>> eventListeners;
+	private Map<String, HashMap<Integer, TiListener>> eventListeners;
 	private AtomicInteger listenerIdGenerator;
 	protected KrollContext krollContext;
 	
 	private ArrayList<WeakReference<OnEventListenerChange>> eventChangeListeners;
-	private ArrayList<WeakReference<OnLifecycleEvent>> lifecycleListeners;
+	private List<WeakReference<OnLifecycleEvent>> lifecycleListeners;
 	private OnMenuEvent menuEventListener;
 	private WeakReference<OnConfigurationChanged> weakConfigurationChangedListeners;
 
@@ -137,9 +140,11 @@ public class TiContext implements TiEvaluator, ITiMenuDispatcherListener, ErrorR
 		this.tiApp = (TiApplication) activity.getApplication();
 		this.weakActivity = new WeakReference<Activity>(activity);
 		this.listenerIdGenerator = new AtomicInteger(0);
-		this.eventListeners = new HashMap<String, HashMap<Integer,TiListener>>();
+		//this.eventListeners = new HashMap<String, HashMap<Integer,TiListener>>();
+		this.eventListeners = Collections.synchronizedMap(new HashMap<String, HashMap<Integer,TiListener>>());
 		eventChangeListeners = new ArrayList<WeakReference<OnEventListenerChange>>();
-		lifecycleListeners = new ArrayList<WeakReference<OnLifecycleEvent>>();
+		//lifecycleListeners = new ArrayList<WeakReference<OnLifecycleEvent>>();
+		lifecycleListeners = Collections.synchronizedList(new ArrayList<WeakReference<OnLifecycleEvent>>());
 		if (baseUrl == null) {
 			this.baseUrl = "app://";
 		} else {
@@ -295,11 +300,17 @@ public class TiContext implements TiEvaluator, ITiMenuDispatcherListener, ErrorR
 	public String getBaseUrl() {
 		return baseUrl;
 	}
+	
+	public String getCurrentUrl() {
+		return currentUrl;
+	}
 
 	// Javascript Support
 
 	public Object evalFile(String filename, Messenger messenger, int messageId) throws IOException {
 		Object result = null;
+		
+		this.currentUrl = filename;
 
 		result = getJSContext().evalFile(filename);
 		if (messenger != null) {
@@ -375,6 +386,7 @@ public class TiContext implements TiEvaluator, ITiMenuDispatcherListener, ErrorR
 	public int addEventListener(String eventName, KrollProxy proxy, Object listener)
 	{
 		int listenerId = -1;
+		int listenerCount = 0;
 
 		if (eventName != null) {
 			if (proxy != null) {
@@ -391,8 +403,10 @@ public class TiContext implements TiEvaluator, ITiMenuDispatcherListener, ErrorR
 						if (DBG) {
 							Log.d(LCAT, "Added for eventName '" + eventName + "' with id " + listenerId);
 						}
-						dispatchOnEventChange(true, eventName, listeners.size(), proxy);
+
+						listenerCount = listeners.size();
 					}
+					dispatchOnEventChange(true, eventName, listenerCount, proxy);
 				} else {
 					throw new IllegalStateException("addEventListener expects a non-null listener");
 				}
@@ -435,27 +449,69 @@ public class TiContext implements TiEvaluator, ITiMenuDispatcherListener, ErrorR
 			return;
 		}
 
+		boolean removed = false;
+		int newCount = 0;
+		SoftReference<KrollProxy> proxyOfListener = null;
+		
 		if (eventName != null) {
-			HashMap<Integer, TiListener> listeners = eventListeners.get(eventName);
-			if (listeners != null) {
-				boolean removed = false;
-				for (Entry<Integer, TiListener> entry : listeners.entrySet())
-				{
-					Object l = entry.getValue().listener;
-					if (l.equals(listener))
+			synchronized(eventListeners) {
+				HashMap<Integer, TiListener> listeners = eventListeners.get(eventName);
+				if (listeners != null) {
+					for (Entry<Integer, TiListener> entry : listeners.entrySet())
 					{
-						listeners.remove(entry.getKey());
-						dispatchOnEventChange(false, eventName, listeners.size(), entry.getValue().weakProxy.get());
-						removed = true;
-						break;
+						Object l = entry.getValue().listener;
+						if (l.equals(listener))
+						{
+							listeners.remove(entry.getKey());
+							removed = true;
+							newCount = listeners.size();
+							proxyOfListener = entry.getValue().weakProxy;
+							break;
+						}
+					}
+					if (!removed) {
+						Log.w(LCAT, "listener not found for eventName '" + eventName + "'");
 					}
 				}
-				if (!removed) {
-					Log.w(LCAT, "listener not found for eventName '" + eventName + "'");
-				}
+			}
+			if (removed) {
+				dispatchOnEventChange(false, eventName, newCount, proxyOfListener.get());
 			}
 		} else {
 			throw new IllegalStateException("removeEventListener expects a non-null eventName");
+		}
+	}
+	
+	public void removeEventListenersFromContext(TiContext listeningContext)
+	{
+		if (eventListeners == null) {
+			return;
+		}
+		synchronized(eventListeners) {
+			for (String eventName : eventListeners.keySet()) {
+				HashMap<Integer, TiListener> listeners = eventListeners.get(eventName);
+				if (listeners != null) {
+					ArrayList<Integer> toDelete = null;
+					for (Entry<Integer, TiListener>entry :  listeners.entrySet()) {
+						TiListener l = entry.getValue();
+						if (l.listener instanceof KrollCallback) {
+							KrollCallback kc = (KrollCallback) l.listener;
+							if (kc != null && kc.isWithinTiContext(listeningContext)) {
+								if (toDelete == null) {
+									toDelete = new ArrayList<Integer>();
+								}
+								toDelete.add(entry.getKey());
+							}
+						}
+					}
+					if (toDelete != null) {
+						for (Integer id  : toDelete) {
+							removeEventListener(eventName, id.intValue());
+						}
+					}
+				}
+				
+			}
 		}
 	}
 
@@ -481,12 +537,14 @@ public class TiContext implements TiEvaluator, ITiMenuDispatcherListener, ErrorR
 
 		if (eventName != null) {
 			if (proxy != null) {
-				HashMap<Integer, TiListener> listeners = eventListeners.get(eventName);
-				if (listeners != null && !listeners.isEmpty()) {
-					for (TiListener listener : listeners.values()) {
-						if (listener.isSameProxy(proxy)) {
-							result = true;
-							break;
+				synchronized(eventListeners) {
+					HashMap<Integer, TiListener> listeners = eventListeners.get(eventName);
+					if (listeners != null && !listeners.isEmpty()) {
+						for (TiListener listener : listeners.values()) {
+							if (listener.isSameProxy(proxy)) {
+								result = true;
+								break;
+							}
 						}
 					}
 				}
@@ -560,12 +618,14 @@ public class TiContext implements TiEvaluator, ITiMenuDispatcherListener, ErrorR
 
 	public void removeOnLifecycleEventListener(OnLifecycleEvent listener)
 	{
-		for (WeakReference<OnLifecycleEvent> ref : lifecycleListeners) {
-			OnLifecycleEvent l = ref.get();
-			if (l != null) {
-				if (l.equals(listener)) {
-					eventChangeListeners.remove(ref);
-					break;
+		synchronized(lifecycleListeners) {
+			for (WeakReference<OnLifecycleEvent> ref : lifecycleListeners) {
+				OnLifecycleEvent l = ref.get();
+				if (l != null) {
+					if (l.equals(listener)) {
+						eventChangeListeners.remove(ref);
+						break;
+					}
 				}
 			}
 		}
@@ -633,76 +693,86 @@ public class TiContext implements TiEvaluator, ITiMenuDispatcherListener, ErrorR
 
 	public void dispatchOnStart()
 	{
-		for(WeakReference<OnLifecycleEvent> ref : lifecycleListeners) {
-			OnLifecycleEvent listener = ref.get();
-			if (listener != null) {
-				try {
-					listener.onStart();
-				} catch (Throwable t) {
-					Log.e(LCAT, "Error dispatching onStart  event: " + t.getMessage(), t);
+		synchronized(lifecycleListeners) {
+			for(WeakReference<OnLifecycleEvent> ref : lifecycleListeners) {
+				OnLifecycleEvent listener = ref.get();
+				if (listener != null) {
+					try {
+						listener.onStart();
+					} catch (Throwable t) {
+						Log.e(LCAT, "Error dispatching onStart  event: " + t.getMessage(), t);
+					}
+				} else {
+					Log.w(LCAT, "lifecycleListener has been garbage collected");
 				}
-			} else {
-				Log.w(LCAT, "lifecycleListener has been garbage collected");
 			}
 		}
 	}
 
 	public void dispatchOnResume() {
-		for(WeakReference<OnLifecycleEvent> ref : lifecycleListeners) {
-			OnLifecycleEvent listener = ref.get();
-			if (listener != null) {
-				try {
-					listener.onResume();
-				} catch (Throwable t) {
-					Log.e(LCAT, "Error dispatching onResume  event: " + t.getMessage(), t);
+		synchronized(lifecycleListeners) {
+			for(WeakReference<OnLifecycleEvent> ref : lifecycleListeners) {
+				OnLifecycleEvent listener = ref.get();
+				if (listener != null) {
+					try {
+						listener.onResume();
+					} catch (Throwable t) {
+						Log.e(LCAT, "Error dispatching onResume  event: " + t.getMessage(), t);
+					}
+				} else {
+					Log.w(LCAT, "lifecycleListener has been garbage collected");
 				}
-			} else {
-				Log.w(LCAT, "lifecycleListener has been garbage collected");
 			}
 		}
 	}
 
 	public void dispatchOnPause() {
-		for(WeakReference<OnLifecycleEvent> ref : lifecycleListeners) {
-			OnLifecycleEvent listener = ref.get();
-			if (listener != null) {
-				try {
-					listener.onPause();
-				} catch (Throwable t) {
-					Log.e(LCAT, "Error dispatching onPause  event: " + t.getMessage(), t);
+		synchronized (lifecycleListeners) {
+			for(WeakReference<OnLifecycleEvent> ref : lifecycleListeners) {
+				OnLifecycleEvent listener = ref.get();
+				if (listener != null) {
+					try {
+						listener.onPause();
+					} catch (Throwable t) {
+						Log.e(LCAT, "Error dispatching onPause  event: " + t.getMessage(), t);
+					}
+				} else {
+					Log.w(LCAT, "lifecycleListener has been garbage collected");
 				}
-			} else {
-				Log.w(LCAT, "lifecycleListener has been garbage collected");
 			}
 		}
 	}
 
 	public void dispatchOnStop() {
-		for(WeakReference<OnLifecycleEvent> ref : lifecycleListeners) {
-			OnLifecycleEvent listener = ref.get();
-			if (listener != null) {
-				try {
-					listener.onStop();
-				} catch (Throwable t) {
-					Log.e(LCAT, "Error dispatching onStop  event: " + t.getMessage(), t);
+		synchronized(lifecycleListeners) {
+			for(WeakReference<OnLifecycleEvent> ref : lifecycleListeners) {
+				OnLifecycleEvent listener = ref.get();
+				if (listener != null) {
+					try {
+						listener.onStop();
+					} catch (Throwable t) {
+						Log.e(LCAT, "Error dispatching onStop  event: " + t.getMessage(), t);
+					}
+				} else {
+					Log.w(LCAT, "lifecycleListener has been garbage collected");
 				}
-			} else {
-				Log.w(LCAT, "lifecycleListener has been garbage collected");
 			}
 		}
 	}
 
 	public void dispatchOnDestroy() {
-		for(WeakReference<OnLifecycleEvent> ref : lifecycleListeners) {
-			OnLifecycleEvent listener = ref.get();
-			if (listener != null) {
-				try {
-					listener.onDestroy();
-				} catch (Throwable t) {
-					Log.e(LCAT, "Error dispatching onDestroy  event: " + t.getMessage(), t);
+		synchronized(lifecycleListeners) {
+			for(WeakReference<OnLifecycleEvent> ref : lifecycleListeners) {
+				OnLifecycleEvent listener = ref.get();
+				if (listener != null) {
+					try {
+						listener.onDestroy();
+					} catch (Throwable t) {
+						Log.e(LCAT, "Error dispatching onDestroy  event: " + t.getMessage(), t);
+					}
+				} else {
+					Log.w(LCAT, "lifecycleListener has been garbage collected");
 				}
-			} else {
-				Log.w(LCAT, "lifecycleListener has been garbage collected");
 			}
 		}
 	}
@@ -841,5 +911,28 @@ public class TiContext implements TiEvaluator, ITiMenuDispatcherListener, ErrorR
 			return null;
 		}
 		return currentCtx.getTiContext();
+	}
+	
+	public void release()
+	{
+		getTiApp().removeEventListenersFromContext(this);
+
+		if (tiEvaluator != null && tiEvaluator instanceof KrollBridge)
+		{
+			((KrollBridge)tiEvaluator).release();
+			tiEvaluator = null;
+		}
+		
+		if (lifecycleListeners != null) {
+			lifecycleListeners.clear();
+		}
+		if (eventChangeListeners != null) {
+			eventChangeListeners.clear();
+		}
+		if (eventListeners != null) {
+			eventListeners.clear();
+		}
+		menuEventListener = null;
+		
 	}
 }

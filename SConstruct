@@ -6,6 +6,7 @@ import os, shutil, platform, os.path as path, sys
 import package
 import SCons.Variables
 import SCons.Environment
+import subprocess
 from SCons.Script import *
 
 # read version from the build folder
@@ -22,6 +23,12 @@ if os.environ.has_key('PRODUCT_VERSION'):
 	version = os.environ['PRODUCT_VERSION']
 elif ARGUMENTS.get('PRODUCT_VERSION', 0):
 	version = ARGUMENTS.get('PRODUCT_VERSION')
+
+# get the githash for the build so we can always pull this build from a specific
+# commit.  We're getting it here so we can pass it to android's ant build
+# in order to get it into build.properties
+p = subprocess.Popen(["git","show","--abbrev-commit"],stderr=subprocess.PIPE, stdout=subprocess.PIPE)
+githash = p.communicate()[0][8:].split('\n')[0]
 
 # we clean at the top-level but do incremental at the specific folder level
 if os.path.exists('android/titanium/bin'):
@@ -80,7 +87,7 @@ if build_type in ['full', 'android'] and not only_package:
 		sdk = AndroidSDK(ARGUMENTS.get("android_sdk", None), 4)
 		target = ""
 		if clean: target = "clean"
-		ant.build(target=target, properties={"build.version": version,
+		ant.build(target=target, properties={"build.version": version, "build.githash": githash,
 			"android.sdk": sdk.get_android_sdk(), "android.platform": sdk.get_platform_dir(), "google.apis": sdk.get_google_apis_dir()})
 	finally:
 		os.chdir(d)

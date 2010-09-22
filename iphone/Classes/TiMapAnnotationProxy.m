@@ -17,6 +17,7 @@
 
 @synthesize delegate;
 @synthesize needsRefreshingWithSelection;
+@synthesize placed;
 
 #define LEFT_BUTTON  1
 #define RIGHT_BUTTON 2
@@ -29,6 +30,12 @@
 	tag = mapTags++;
 	needsRefreshingWithSelection = YES;
 }
+
+-(NSMutableDictionary*)langConversionTable
+{
+    return [NSMutableDictionary dictionaryWithObjectsAndKeys:@"title",@"titleid",@"subtitle",@"subtitleid",nil];
+}
+
 
 -(UIView*)makeButton:(id)button tag:(int)buttonTag
 {

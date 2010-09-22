@@ -14,7 +14,7 @@
 #define DEBUG_EVENTS 0
 #endif
 
-#ifdef TARGET_IPHONE_SIMULATOR
+#if TARGET_IPHONE_SIMULATOR
 extern NSString * const TI_APPLICATION_RESOURCE_DIR;
 #endif
 
@@ -26,7 +26,7 @@ extern NSString * const TI_APPLICATION_ID;
 +(NSURL*)resourceBasedURL:(NSString*)fn baseURL:(NSString**)base
 {
 	NSString *path = [[NSBundle mainBundle] bundlePath];
-#ifdef TARGET_IPHONE_SIMULATOR
+#if TARGET_IPHONE_SIMULATOR
 	if (TI_APPLICATION_RESOURCE_DIR!=nil && [TI_APPLICATION_RESOURCE_DIR isEqualToString:@""]==NO)
 	{
 		// if the .local file exists and we're in the simulator, then force load from resources bundle
@@ -62,6 +62,7 @@ extern NSString * const TI_APPLICATION_ID;
 		NSURL *url = [TiHost resourceBasedURL:fn baseURL:&base];
 		startURL = [url retain];
 		baseURL = [[NSURL fileURLWithPath:base] retain];
+		stylesheet = [[TiStylesheet alloc] init];
 	}
 	return self;
 }
@@ -81,12 +82,18 @@ extern NSString * const TI_APPLICATION_ID;
 	return startURL;
 }
 
+-(TiStylesheet*)stylesheet
+{
+	return stylesheet;
+}
+
 -(void)dealloc
 {
 	RELEASE_TO_NIL(modules);
 	RELEASE_TO_NIL(contexts);
 	RELEASE_TO_NIL(baseURL);
 	RELEASE_TO_NIL(startURL);
+	RELEASE_TO_NIL(stylesheet);
 	[super dealloc];
 }
 

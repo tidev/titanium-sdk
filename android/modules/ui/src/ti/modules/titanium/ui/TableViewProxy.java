@@ -62,6 +62,18 @@ public class TableViewProxy extends TiViewProxy
 	}
 
 	@Override
+	public void releaseViews()
+	{
+		super.releaseViews();
+		if (localSections != null) {
+			for (TableViewSectionProxy section : localSections) {
+				section.releaseViews();
+			}
+		}
+		localSections.clear();
+	}
+
+	@Override
 	public TiUIView createView(Activity activity) {
 		return new TiUITableView(this);
 	}

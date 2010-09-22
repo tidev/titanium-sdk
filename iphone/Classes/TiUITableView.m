@@ -26,8 +26,8 @@
 -(id)initWithStyle:(UITableViewCellStyle)style_ reuseIdentifier:(NSString *)reuseIdentifier_ row:(TiUITableViewRowProxy *)row_
 {
 	if (self = [super initWithStyle:style_ reuseIdentifier:reuseIdentifier_]) {
-		row = [row_ retain];
-		[row setCallbackCell:self];
+		proxy = [row_ retain];
+		[proxy setCallbackCell:self];
 	}
 	
 	return self;
@@ -35,13 +35,11 @@
 
 -(void)dealloc
 {
-	RELEASE_TO_NIL(row);
+	RELEASE_TO_NIL(proxy);
+	RELEASE_TO_NIL(gradientLayer);
+	RELEASE_TO_NIL(backgroundGradient);
+	RELEASE_TO_NIL(selectedBackgroundGradient);
 	[super dealloc];
-}
-
--(void)setHighlighted:(BOOL)yn
-{
-	[self setHighlighted:yn animated:NO];
 }
 
 -(void)setHighlighted:(BOOL)yn animated:(BOOL)animated
@@ -49,17 +47,18 @@
 	[super setHighlighted:yn animated:animated];
 	if (yn) 
 	{
-		if ([row _hasListeners:@"touchstart"])
+		if ([proxy _hasListeners:@"touchstart"])
 		{
-			[row fireEvent:@"touchstart" withObject:[row createEventObject:nil] propagate:YES];
+			[proxy fireEvent:@"touchstart" withObject:[proxy createEventObject:nil] propagate:YES];
 		}
 	}
 	else
 	{
-		if ([row _hasListeners:@"touchend"]) {
-			[row fireEvent:@"touchend" withObject:[row createEventObject:nil] propagate:YES];
+		if ([proxy _hasListeners:@"touchend"]) {
+			[proxy fireEvent:@"touchend" withObject:[proxy createEventObject:nil] propagate:YES];
 		}
 	}
+	[self updateGradientLayer:yn|[self isSelected]];
 }
 
 -(void)handleEvent:(NSString*)type
@@ -71,6 +70,89 @@
 		[super setHighlighted:NO animated:YES];
 	}
 }
+
+-(void)layoutSubviews
+{
+	[super layoutSubviews];
+	[gradientLayer setFrame:[self bounds]];
+}
+
+-(BOOL) selectedOrHighlighted
+{
+	return [self isSelected] || [self isHighlighted];
+}
+
+
+-(void) updateGradientLayer:(BOOL)useSelected
+{
+	TiGradient * currentGradient = useSelected?selectedBackgroundGradient:backgroundGradient;
+
+	if(currentGradient == nil)
+	{
+		[gradientLayer removeFromSuperlayer];
+		//Because there's the chance that the other state still has the gradient, let's keep it around.
+		return;
+	}
+	
+	CALayer * ourLayer = [self layer];
+	
+	if(gradientLayer == nil)
+	{
+		gradientLayer = [[TiGradientLayer alloc] init];
+		[gradientLayer setNeedsDisplayOnBoundsChange:YES];
+		[gradientLayer setFrame:[self bounds]];
+	}
+
+	[gradientLayer setGradient:currentGradient];
+	if([gradientLayer superlayer] != ourLayer)
+	{
+		[ourLayer insertSublayer:gradientLayer below:[[self contentView] layer]];
+	}
+	[gradientLayer setNeedsDisplay];
+}
+
+-(void)setHighlighted:(BOOL)yn
+{
+	[self setHighlighted:yn animated:NO];
+}
+
+-(void)setSelected:(BOOL)yn
+{
+	[super setHighlighted:yn];
+	[self updateGradientLayer:yn|[self isHighlighted]];
+}
+
+-(void) setBackgroundGradient_:(TiGradient *)newGradient
+{
+	if(newGradient == backgroundGradient)
+	{
+		return;
+	}
+	[backgroundGradient release];
+	backgroundGradient = [newGradient retain];
+	
+	if(![self selectedOrHighlighted])
+	{
+		[self updateGradientLayer:NO];
+	}
+}
+
+-(void) setSelectedBackgroundGradient_:(TiGradient *)newGradient
+{
+	if(newGradient == selectedBackgroundGradient)
+	{
+		return;
+	}
+	[selectedBackgroundGradient release];
+	selectedBackgroundGradient = [newGradient retain];
+	
+	if([self selectedOrHighlighted])
+	{
+		[self updateGradientLayer:YES];
+	}
+}
+
+
 
 @end
 
@@ -391,6 +473,9 @@
 	NSAssert(sections!=nil,@"sections was nil");
 	[[row retain] autorelease];
 	NSMutableArray *rows = [row.section rows];
+#ifdef DEBUG
+	ENSURE_VALUE_CONSISTENCY([rows containsObject:row],YES);
+#endif
 	[rows removeObject:row];
 	[row.section reorderRows];
 }
@@ -399,8 +484,7 @@
 {
 	NSAssert(sections!=nil,@"sections was nil");
 	row.table = self;
-	TiUITableViewSectionProxy *section = [sections lastObject];
-	row.section = section;
+	TiUITableViewSectionProxy *section = row.section;
     [section add:row];
 	[row.section reorderRows];
 }
@@ -439,6 +523,63 @@
 			[tableview insertRowsAtIndexPaths:[NSArray arrayWithObject:path] withRowAnimation:action.animation];
 			break;
 		}
+        case TiUITableViewActionInsertSectionBefore:
+        {
+            int newSectionIndex = [action section];
+            int rowIndex = action.row.row;
+            action.row.row = 0;
+            TiUITableViewSectionProxy* newSection = action.row.section;
+            
+            // Haven't inserted the new section yet
+            TiUITableViewSectionProxy* nextSection = [sections objectAtIndex:newSectionIndex];
+            
+            // ONLY shift rows around if we're not being inserted before the first row with a header.
+            NSMutableArray* addRows = [NSMutableArray array];
+            if (!(rowIndex == 0 && ([nextSection valueForUndefinedKey:@"headerTitle"] != nil))) {
+                // If it's the first row, we need to NOT remove the rows, but rather the secton;
+                // although we still have to move them.
+                BOOL isFirstRow = (rowIndex == 0);
+                NSMutableArray* removeRows = [NSMutableArray array];
+                int numrows = [[nextSection rows] count];
+                for (int i=rowIndex+1; i < numrows; i++) {
+                    TiUITableViewRowProxy* moveRow = [[[nextSection rows] objectAtIndex:rowIndex+1] retain];
+                    
+                    if (!isFirstRow) {
+                        [removeRows addObject:[NSIndexPath indexPathForRow:i inSection:newSectionIndex]];
+                        [self deleteRow:moveRow];
+                    }
+                    
+                    moveRow.section = newSection;
+                    moveRow.row = (i-(rowIndex+1))+1;
+                    moveRow.parent = newSection;
+                    
+                    [addRows addObject:moveRow];
+                    [moveRow release];
+                }
+                
+                // Remove the stuff that needs to go
+                if (isFirstRow) {
+                    [tableview deleteSections:[NSIndexSet indexSetWithIndex:newSectionIndex] withRowAnimation:UITableViewRowAnimationNone];
+                    [sections removeObjectAtIndex:newSectionIndex];
+                }
+                else {
+                    [tableview deleteRowsAtIndexPaths:removeRows withRowAnimation:UITableViewRowAnimationNone];    
+                    // And, we also need to place the section after the current section - so that it appears in the right spot.
+                    newSectionIndex++;
+                    newSection.section = newSectionIndex;
+                }
+            }
+            
+            // 2nd (sometimes) stage of update: Add in those shiny new rows and update the section.
+            [sections insertObject:newSection atIndex:newSectionIndex];
+            [self appendRow:action.row];
+            for (TiUITableViewRowProxy* moveRow in addRows) {
+                [self appendRow:moveRow];
+            }
+            [tableview insertSections:[NSIndexSet indexSetWithIndex:newSectionIndex] withRowAnimation:action.animation];
+            
+            break;
+        }
 		case TiUITableViewActionInsertRowAfter:
 		{
 			int index = action.row.row-1;
@@ -452,6 +593,45 @@
 			[tableview insertRowsAtIndexPaths:[NSArray arrayWithObject:path] withRowAnimation:action.animation];
 			break;
 		}
+        case TiUITableViewActionInsertSectionAfter:
+        {
+            int newSectionIndex = [action section];
+            int rowIndex = action.row.row; // Get the index of rows which will come after the new row
+            action.row.row = 0; // Reset the row index to the right place
+            TiUITableViewSectionProxy* newSection = action.row.section;
+            
+            // Move ALL of the rows after the row we're inserting after to the new section
+            TiUITableViewSectionProxy* previousSection = [sections objectAtIndex:newSectionIndex-1];
+            int numRows = [[previousSection rows] count];
+            
+            NSMutableArray* removeRows = [NSMutableArray array];
+            NSMutableArray* addRows = [NSMutableArray array];
+            for (int i=rowIndex; i < numRows; i++) {
+                // Have to hold onto the row while we're moving it
+                TiUITableViewRowProxy* moveRow = [[[previousSection rows] objectAtIndex:rowIndex] retain];
+                [removeRows addObject:[NSIndexPath indexPathForRow:i inSection:newSectionIndex-1]];
+                [self deleteRow:moveRow];
+                
+                moveRow.section = newSection;
+                moveRow.row = (i-rowIndex)+1;
+                moveRow.parent = newSection;
+                
+                [addRows addObject:moveRow];
+                [moveRow release];
+            }
+            // 1st stage of update: Remove all those nasty old rows.
+            [tableview deleteRowsAtIndexPaths:removeRows withRowAnimation:UITableViewRowAnimationNone];
+            
+            // 2nd stage of update: Add in those shiny new rows and update the section.
+            [sections insertObject:newSection atIndex:newSectionIndex];
+            [self appendRow:action.row];
+            for (TiUITableViewRowProxy* moveRow in addRows) {
+                [self appendRow:moveRow];
+            }
+            [tableview insertSections:[NSIndexSet indexSetWithIndex:newSectionIndex] withRowAnimation:action.animation];
+            
+            break;
+        }
 		case TiUITableViewActionDeleteRow:
 		{
 			[self deleteRow:action.row];

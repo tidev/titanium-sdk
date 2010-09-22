@@ -11,11 +11,10 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 
 import org.appcelerator.kroll.KrollModule;
-import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiContext;
+import org.appcelerator.titanium.kroll.KrollBridge;
 import org.appcelerator.titanium.util.Log;
-import org.mozilla.javascript.Scriptable;
 
 @Kroll.module
 public class YahooModule extends KrollModule
@@ -27,8 +26,8 @@ public class YahooModule extends KrollModule
 		super(tiContext);
 	}
 	
-	public void bind(Scriptable scope, KrollProxy parentProxy) {
-		super.bind(scope, parentProxy);
+	public void bindContextSpecific(KrollBridge bridge) {
+		super.bindContextSpecific(bridge);
 		// load our JS after we bind
 		String src = null;
 		BufferedReader is = null;

@@ -24,6 +24,10 @@
 
 -(void)dealloc
 {
+	for (id thisTab in tabs)
+	{
+		[thisTab setParentOrientationController:nil];
+	}
 	RELEASE_TO_NIL(tabs);
 	[super dealloc];
 }
@@ -60,6 +64,7 @@
 	{
 		tabs = [[NSMutableArray alloc] initWithCapacity:4];
 	}
+	[tabProxy setParentOrientationController:self];
 	[tabs addObject:tabProxy];
 	[tabProxy setTabGroup:self];
 	[self replaceValue:tabs forKey:@"tabs" notification:YES];
@@ -82,6 +87,7 @@
 		
 		//TODO: close all the tabs and fire events
 		
+		[tabProxy setParentOrientationController:nil];
 		[tabProxy setTabGroup:nil];
 		[tabs removeObject:tabProxy];
 		[self replaceValue:tabs forKey:@"tabs" notification:YES];
@@ -102,7 +108,15 @@
 	}
 
 	[tabs release];
+	for (id thisTab in tabs)
+	{
+		[thisTab setParentOrientationController:nil];
+	}
 	tabs = [newTabs mutableCopy];
+	for (id thisTab in tabs)
+	{
+		[thisTab setParentOrientationController:self];
+	}
 
 	[self replaceValue:tabs forKey:@"tabs" notification:YES];
 }
@@ -154,6 +168,52 @@
 	// override but don't drop the tab group, causes problems
 }
 
+- (void)viewWillAppear:(BOOL)animated;    // Called when the view is about to made visible. Default does nothing
+{
+	if ([self viewAttached])
+	{
+		UITabBarController * tabController = [(TiUITabGroup *)[self view] tabController];
+		[tabController viewWillAppear:animated];
+	}
+}
+
+- (void)viewDidAppear:(BOOL)animated;     // Called when the view has been fully transitioned onto the screen. Default does nothing
+{
+	if ([self viewAttached])
+	{
+		UITabBarController * tabController = [(TiUITabGroup *)[self view] tabController];
+		[tabController viewDidAppear:animated];
+	}
+}
+
+- (void)viewWillDisappear:(BOOL)animated; // Called when the view is dismissed, covered or otherwise hidden. Default does nothing
+{
+	if ([self viewAttached])
+	{
+		UITabBarController * tabController = [(TiUITabGroup *)[self view] tabController];
+		[tabController viewWillDisappear:animated];
+	}
+}
+
+- (void)viewDidDisappear:(BOOL)animated;  // Called after the view was dismissed, covered or otherwise hidden. Default does nothing
+{
+	if ([self viewAttached])
+	{
+		UITabBarController * tabController = [(TiUITabGroup *)[self view] tabController];
+		[tabController viewDidDisappear:animated];
+	}
+}
+
+-(TiOrientationFlags)orientationFlags
+{
+	UITabBarController * tabController = [(TiUITabGroup *)[self view] tabController];
+	int blessedController = [tabController selectedIndex];
+	if (blessedController != NSNotFound)
+	{
+		return [[tabs objectAtIndex:blessedController] orientationFlags];
+	}
+	return [super orientationFlags];
+}
 
 @end
 

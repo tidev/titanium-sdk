@@ -20,6 +20,7 @@ import org.appcelerator.titanium.util.AsyncResult;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiAnimationBuilder;
 import org.appcelerator.titanium.util.TiConfig;
+import org.appcelerator.titanium.util.TiResourceHelper;
 import org.appcelerator.titanium.view.TiAnimation;
 import org.appcelerator.titanium.view.TiUIView;
 
@@ -48,6 +49,7 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 	private static final int MSG_ANIMATE = MSG_FIRST_ID + 109;
 	private static final int MSG_TOIMAGE = MSG_FIRST_ID + 110;
 	private static final int MSG_GETSIZE = MSG_FIRST_ID + 111;
+	private static final int MSG_GETCENTER = MSG_FIRST_ID + 112;
 
 	protected static final int MSG_LAST_ID = MSG_FIRST_ID + 999;
 
@@ -67,6 +69,56 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 	public TiViewProxy(TiContext tiContext)
 	{
 		super(tiContext);
+	}
+	
+	@Override
+	public void handleCreationDict(KrollDict options) {
+		// check to see if we have an idea and if so, we're going to
+		// use that ID to lookup a stylesheet
+		if (options.containsKey("id")) {
+			String key = (String) options.get("id");
+			String type = getClass().getSimpleName().replace("Proxy", "").toLowerCase();
+			String base = context.getCurrentUrl();
+			int idx = base.lastIndexOf("/");
+			if (idx != -1) {
+				base = base.substring(idx + 1).replace(".js", "");
+			}
+			KrollDict dict = context.getTiApp().getStylesheet(base, type, key);
+			Log.d(LCAT, "trying to get stylesheet for base:" + base + ",type:" + type + ",key:" + key + ",dict:" + dict);
+			if (dict != null) {
+				// merge in our stylesheet details to the passed in dictionary
+				// our passed in dictionary takes precedence over the stylesheet
+				dict.putAll(options);
+				options = dict;
+			}
+		}
+
+		// lang conversion table
+		KrollDict langTable = getLangConversionTable();
+		if (langTable != null) {
+			Activity activity = context.getActivity();
+			for (String key : langTable.keySet()) {
+				// if we have it already, ignore
+				if (options.containsKey(key) == false) {
+					String convertKey = (String) langTable.get(key);
+					String langKey = (String) options.get(convertKey);
+					if (langKey != null) {
+						int value = TiResourceHelper.getString(langKey);
+						if (value != 0) {
+							String convertValue = activity.getString(value);
+							options.put(key, convertValue);
+						}
+					}
+				}
+			}
+		}
+		super.handleCreationDict(options);
+	}
+	
+	protected KrollDict getLangConversionTable() {
+		// subclasses override to return a table mapping of langid keys to actual keys
+		// used for specifying things like titleid vs. title so that you can localize them
+		return null;
 	}
 
 	public TiAnimationBuilder getPendingAnimation() {
@@ -150,6 +202,26 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 				result.setResult(d);
 				return true;
 			}
+			case MSG_GETCENTER : {
+				AsyncResult result = (AsyncResult) msg.obj;
+				KrollDict d = null;
+				if (view != null) {
+					View v = view.getNativeView();
+					if (v != null) {
+						d = new KrollDict();
+						d.put("x", (double)v.getLeft() + (double)v.getWidth() / 2);
+						d.put("y", (double)v.getTop() + (double)v.getHeight() / 2);
+					}
+				}
+				if (d == null) {
+					d = new KrollDict();
+					d.put("x", 0);
+					d.put("y", 0);
+				}
+
+				result.setResult(d);
+				return true;
+			}
 		}
 		return super.handleMessage(msg);
 	}
@@ -159,10 +231,18 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 		return getTiContext().getActivity();
 	}
 
-	@Kroll.setProperty @Kroll.method
+	@Kroll.getProperty @Kroll.method
 	public KrollDict getSize() {
 		AsyncResult result = new AsyncResult(getTiContext().getActivity());
 		Message msg = getUIHandler().obtainMessage(MSG_GETSIZE, result);
+		msg.sendToTarget();
+		return (KrollDict) result.getResult();
+	}
+
+	@Kroll.getProperty @Kroll.method
+	public KrollDict getCenter() {
+		AsyncResult result = new AsyncResult(getTiContext().getActivity());
+		Message msg = getUIHandler().obtainMessage(MSG_GETCENTER, result);
 		msg.sendToTarget();
 		return (KrollDict) result.getResult();
 	}
@@ -221,6 +301,10 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 				view.add(cv);
 			}
 		}
+		
+		if (pendingAnimation != null) {
+			handlePendingAnimation(true);
+		}
 	}
 
 	public void releaseViews() {
@@ -233,6 +317,7 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 			view.release();
 			view = null;
 		}
+		setModelListener(null);
 	}
 
 	public abstract TiUIView createView(Activity activity);
@@ -330,6 +415,9 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 
 	protected void handleHide(KrollDict options) {
 		if (view != null) {
+			if (pendingAnimation != null) {
+				handlePendingAnimation(false);
+			}
 			view.hide();
 		}
 	}
@@ -341,7 +429,6 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 			KrollDict options = (KrollDict) arg;
 
 			pendingAnimation = new TiAnimationBuilder();
-			pendingAnimation.applyOptions(getProperties());
 			pendingAnimation.applyOptions(options);
 			if (callback != null) {
 				pendingAnimation.setCallback(callback);
@@ -349,21 +436,19 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 		} else if (arg instanceof TiAnimation) {
 			TiAnimation anim = (TiAnimation) arg;
 			pendingAnimation = new TiAnimationBuilder();
-			pendingAnimation.applyOptions(getProperties());
 			pendingAnimation.applyAnimation(anim);
 		} else {
 			throw new IllegalArgumentException("Unhandled argument to animate: " + arg.getClass().getSimpleName());
 		}
-		handlePendingAnimation();
+		handlePendingAnimation(false);
 	}
 
-	protected void handlePendingAnimation() {
-		if (pendingAnimation != null) {
-			if (getTiContext().isUIThread()) {
-				handleAnimate();
+	public void handlePendingAnimation(boolean forceQueue) {
+		if (pendingAnimation != null && peekView() != null) {
+			if (forceQueue || !getTiContext().isUIThread()) {
+				getUIHandler().obtainMessage(MSG_ANIMATE).sendToTarget();
 			} else {
-				Message msg = getUIHandler().obtainMessage(MSG_ANIMATE);
-				msg.sendToTarget();
+				handleAnimate();
 			}
 		}
 	}

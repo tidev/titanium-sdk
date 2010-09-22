@@ -6,6 +6,7 @@
  */
 package ti.modules.titanium.ui;
 
+import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.proxy.TiViewProxy;
@@ -20,6 +21,13 @@ public class ButtonProxy extends TiViewProxy
 	public ButtonProxy(TiContext tiContext)
 	{
 		super(tiContext);
+	}
+
+	@Override
+	protected KrollDict getLangConversionTable() {
+		KrollDict table = new KrollDict();
+		table.put("title","titleid");
+		return table;
 	}
 
 	@Override

@@ -103,7 +103,10 @@
 
 -(void)_destroy
 {
-	[self performSelectorOnMainThread:@selector(close:) withObject:nil waitUntilDone:YES];
+    if (![self closing]) {
+        [self performSelectorOnMainThread:@selector(close:) withObject:nil waitUntilDone:YES];
+    }
+    
 	RELEASE_TO_NIL(barImageView);
 	if (context!=nil)
 	{
@@ -131,6 +134,11 @@
 			[self open:nil];
 		}
 	}
+}
+
+-(NSMutableDictionary*)langConversionTable
+{
+	return [NSMutableDictionary dictionaryWithObjectsAndKeys:@"title",@"titleid",@"titlePrompt",@"titlepromptid",nil];
 }
 
 #pragma mark Public
@@ -192,6 +200,11 @@
 
 -(void)windowDidClose
 {
+    // Because other windows or proxies we have open and wish to continue functioning might be relying
+    // on our created context, we CANNOT explicitly shut down here.  Instead we should memory-manage
+    // contexts better so they stop when they're no longer in use.
+
+	// Sadly, today is not that day. Without shutdown, we leak all over the place.
 	if (context!=nil)
 	{
 		[context performSelector:@selector(shutdown:) withObject:nil afterDelay:1.0];
@@ -315,12 +328,6 @@
 	{
 		[controller navigationController].navigationBar.translucent = [TiUtils boolValue:value];
 	}
-}
-
--(void)setOrientationModes:(id)value
-{
-	[self replaceValue:value forKey:@"orientationModes" notification:YES];
-	[[[TiApp app] controller] performSelectorOnMainThread:@selector(refreshOrientationModesIfNeeded:) withObject:self waitUntilDone:NO];
 }
 
 -(void)setRightNavButton:(id)proxy withObject:(id)properties

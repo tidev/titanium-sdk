@@ -7,10 +7,15 @@
 #ifdef USE_TI_UIIMAGEVIEW
 
 #import "TiViewProxy.h"
+#import "ImageLoader.h"
 
-@interface TiUIImageViewProxy : TiViewProxy {
+@interface TiUIImageViewProxy : TiViewProxy<ImageLoaderDelegate> {
+	ImageLoaderRequest *urlRequest;
 
 }
+
+-(void)cancelPendingImageLoads;
+-(void)startImageLoad:(NSURL *)url;
 
 @end
 

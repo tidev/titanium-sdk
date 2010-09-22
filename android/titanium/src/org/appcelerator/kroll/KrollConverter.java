@@ -74,7 +74,7 @@ public class KrollConverter implements KrollNativeConverter,
 				ig.printStackTrace();
 			}
 		}
-		return Context.getCurrentContext().newObject(invocation.getScope(), "Array", result);
+		return Context.getCurrentContext().newArray(invocation.getScope(), result);
 	}
 	
 	@SuppressWarnings("serial")
@@ -124,6 +124,7 @@ public class KrollConverter implements KrollNativeConverter,
 		}
 	}
 	
+	@SuppressWarnings("unchecked")
 	public Object convertNative(KrollInvocation invocation, Object value) {
 		if (value instanceof KrollProxy) {
 			return new KrollObject((KrollProxy)value);
@@ -162,6 +163,9 @@ public class KrollConverter implements KrollNativeConverter,
 		else if (value == JSONObject.NULL || value.getClass().equals(JSONObject.NULL.getClass()))
 		{
 			return Context.javaToJS(null, invocation.getScope());
+		}
+		else if (value instanceof KrollCallback) {
+			return ((KrollCallback)value).toJSFunction();
 		}
 		else if (value == KrollProxy.UNDEFINED) {
 			return Context.getUndefinedValue();

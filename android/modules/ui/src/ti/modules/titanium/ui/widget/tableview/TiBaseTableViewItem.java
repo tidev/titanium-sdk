@@ -19,6 +19,8 @@ import org.appcelerator.titanium.util.TiFileHelper;
 import org.appcelerator.titanium.util.TiUIHelper;
 
 import ti.modules.titanium.ui.widget.tableview.TableViewModel.Item;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
@@ -29,7 +31,10 @@ public abstract class TiBaseTableViewItem extends ViewGroup implements Handler.C
 {
 	private static final String LCAT = "TitaniamBaseTableViewItem";
 	private static final boolean DBG = TiConfig.LOGD;
-
+	
+	private static final Bitmap childIndicatorBitmap = BitmapFactory.decodeStream(KrollDict.class.getResourceAsStream("/org/appcelerator/titanium/res/drawable/btn_more.png"));
+	private static final Bitmap checkIndicatorBitmap = BitmapFactory.decodeStream(KrollDict.class.getResourceAsStream("/org/appcelerator/titanium/res/drawable/btn_check_buttonless_on.png"));
+	
 	protected Handler handler;
 	protected TiContext tiContext;
 	protected TiFileHelper tfh;
@@ -58,19 +63,34 @@ public abstract class TiBaseTableViewItem extends ViewGroup implements Handler.C
 		return null;
 	}
 
+	private BitmapDrawable createDrawable(Bitmap bitmap)
+	{
+		try {
+			return new BitmapDrawable(bitmap);
+		} catch (Throwable t) {
+			try {
+				Log.e(LCAT, t.getClass().getName() + ": " + t.getMessage(), t);
+				return null;
+			} catch(Exception e) {
+				// ignore - logging failed
+				return null;
+			}
+		} 
+	}
+	
 	public BitmapDrawable createHasChildDrawable() {
-		return new BitmapDrawable(KrollDict.class.getResourceAsStream("/org/appcelerator/titanium/res/drawable/btn_more.png"));
+		return createDrawable(childIndicatorBitmap);
 	}
 	
 	public BitmapDrawable createHasCheckDrawable() {
-		return new BitmapDrawable(KrollDict.class.getResourceAsStream("/org/appcelerator/titanium/res/drawable/btn_check_buttonless_on.png"));
+		return createDrawable(checkIndicatorBitmap);
 	}
 
 	public Drawable loadDrawable(String url) {
 		if (tfh == null) {
 			tfh = new TiFileHelper(tiContext.getActivity());
 		}
-		return tfh.loadDrawable(url, false);
+		return tfh.loadDrawable(tiContext, url, false);
 	}
 
 	public String getClassName() {
@@ -104,5 +124,11 @@ public abstract class TiBaseTableViewItem extends ViewGroup implements Handler.C
 		if (props.containsKey("opacity")) {
 			TiUIHelper.setDrawableOpacity(getBackground(), TiConvert.toFloat(props, "opacity"));
 		}
+	}
+	
+	public void release() 
+	{
+		handler = null;
+		tiContext = null;
 	}
 }
