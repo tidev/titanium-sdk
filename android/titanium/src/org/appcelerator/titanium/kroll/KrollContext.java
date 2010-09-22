@@ -185,10 +185,9 @@ public class KrollContext extends KrollHandlerThread implements Handler.Callback
 		
 		Context context = enter(false);
 		try {
-			Scriptable scope = context.initStandardObjects(jsScope);
 			br = new BufferedReader(new InputStreamReader(tbf.getInputStream()), 4000);
 			Log.d(LCAT, "Running evaluated script: " + filename);
-			return context.evaluateReader(scope, br, filename, 0, null);
+			return context.evaluateReader(jsScope, br, filename, 0, null);
 		} catch (IOException e) {
 			Log.e(LCAT, "IOException reading file: " + filename, e);
 			Context.throwAsScriptRuntimeEx(e);

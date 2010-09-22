@@ -11,6 +11,7 @@ import java.util.Locale;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiModule;
 import org.appcelerator.titanium.util.Log;
+import org.appcelerator.titanium.util.TiPlatformHelper;
 import org.appcelerator.titanium.util.TiResourceHelper;
 
 import android.telephony.PhoneNumberUtils;
@@ -18,7 +19,7 @@ import android.telephony.PhoneNumberUtils;
 public class LocaleModule extends TiModule
 {
 	private static final String LCAT = "LocaleModule";
-
+	
 	public LocaleModule(TiContext tiContext)
 	{
 		super(tiContext);
@@ -32,6 +33,28 @@ public class LocaleModule extends TiModule
 	public String getCurrentCountry()
 	{
 	    return Locale.getDefault().getCountry();
+	}
+	
+	public String getCurrentLocale()
+	{
+		return Locale.getDefault().toString();
+	}
+	
+	public String getCurrencyCode(String localeString) 
+	{
+		Locale locale = TiPlatformHelper.getLocale(localeString);
+		return TiPlatformHelper.getCurrencyCode(locale);
+	}
+	
+	public String getCurrencySymbol(String currencyCode)
+	{
+		return TiPlatformHelper.getCurrencySymbol(currencyCode);
+	}
+	
+	public String getLocaleCurrencySymbol(String localeString)
+	{
+		Locale locale = TiPlatformHelper.getLocale(localeString);
+		return TiPlatformHelper.getCurrencySymbol(locale);
 	}
 	
 	public String formatTelephoneNumber(String telephoneNumber)
@@ -58,4 +81,5 @@ public class LocaleModule extends TiModule
 	    }
 	    return tiContext.getActivity().getString(value);
     }
+    
 }
