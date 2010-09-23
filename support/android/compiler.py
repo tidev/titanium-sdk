@@ -132,7 +132,7 @@ class Compiler(object):
 		jsc_args = [self.java, '-classpath', js_jar, 'org.mozilla.javascript.tools.jsc.Main',
 			'-main-method-class', 'org.appcelerator.titanium.TiScriptRunner', '-g',
 			'-package', self.appid + '.js', '-o', js_class_name,
-			'-d', os.path.join(self.root_dir, 'bin'), fullpath]
+			'-d', self.classes_dir, fullpath]
 			
 		print "[DEBUG] compiling javascript: %s" % resource_relative_path
 		sys.stdout.flush()
@@ -241,7 +241,7 @@ if __name__ == "__main__":
 	project_dir = os.path.expanduser(sys.argv[1])
 	resources_dir = os.path.join(project_dir, 'Resources')
 	root_dir = os.path.join(project_dir, 'build', 'android')
-	destdir = os.path.join(root_dir, 'bin')
+	destdir = os.path.join(root_dir, 'bin', 'classes')
 	sys.path.append("..")
 	import tiapp
 	xml = tiapp.TiAppXML(os.path.join(project_dir, 'tiapp.xml'))
