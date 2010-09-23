@@ -121,7 +121,8 @@ class Compiler(object):
 	
 	def compile_javascript(self, fullpath):
 		js_jar = os.path.join(self.template_dir, 'js.jar')
-		resource_relative_path = os.path.relpath(fullpath, self.project_dir)
+		# poor man's os.path.relpath (we don't have python 2.6 in windows)
+		resource_relative_path = fullpath[len(self.project_dir)+1:].replace("\\", "/")
 		
 		# chop off '.js'
 		js_class_name = resource_relative_path[:-3]
