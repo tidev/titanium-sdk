@@ -169,9 +169,8 @@ public class KrollContext extends KrollHandlerThread implements Handler.Callback
 		
 		Context context = enter(true);
 		try {
-			Scriptable scope = context.initStandardObjects(jsScope);
 			Log.d(LCAT, "Running pre-compiled script: "+filename);
-			return TiScriptRunner.getInstance().runScript(context, scope, filename);
+			return TiScriptRunner.getInstance().runScript(context, jsScope, filename);
 		} catch (ClassNotFoundException e) {
 			Log.e(LCAT, "Couldn't find pre-compiled class for script: " + filename, e);
 		} finally {
