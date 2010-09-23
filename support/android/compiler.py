@@ -144,7 +144,7 @@ class Compiler(object):
 		
 		# we only optimize for production deploy type or if it's forcefully overridden with ti.android.compilejs
 		if self.tiapp.has_app_property("ti.android.compilejs"):
-			if self.tiapp.to_bool(self.tiapp_get_app_property('ti.android.compilejs')):
+			if self.tiapp.to_bool(self.tiapp.get_app_property('ti.android.compilejs')):
 				print "[DEBUG] Found ti.android.compilejs=true, overriding default (this may take some time)"
 				sys.stdout.flush()
 				compile_js = True

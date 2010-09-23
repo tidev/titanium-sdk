@@ -15,6 +15,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiContext;
+import org.appcelerator.titanium.TiProperties;
 import org.appcelerator.titanium.TiScriptRunner;
 import org.appcelerator.titanium.io.TiBaseFile;
 import org.appcelerator.titanium.io.TiFileFactory;
@@ -65,7 +66,9 @@ public class KrollContext extends KrollHandlerThread implements Handler.Callback
 		
 		// force to true to test compiled JS
 		// this.useOptimization = true;
-		this.useOptimization = tiContext.getTiApp().getDeployType() == TiApplication.DEPLOY_TYPE_PRODUCTION;
+		TiApplication app = tiContext.getTiApp();
+		this.useOptimization =
+			app.getDeployType() == TiApplication.DEPLOY_TYPE_PRODUCTION || app.forceCompileJS();
 	}
 
 	@Override
@@ -78,20 +81,19 @@ public class KrollContext extends KrollHandlerThread implements Handler.Callback
 		}
 
 		contextHandler = new Handler(this);
-        Context ctx = enter();
-        try
-        {
-        	if (DBG) {
-        		Log.i(LCAT, "Preparing scope");
-        	}
-            this.jsScope = ctx.initStandardObjects();
-            if (DBG) {
-            	Log.i(LCAT, "Scope prepared");
-            }
-            initialized.countDown();
-         } finally {
-        	 exit();
-         }
+		Context ctx = enter();
+		try {
+			if (DBG) {
+				Log.i(LCAT, "Preparing scope");
+			}
+			this.jsScope = ctx.initStandardObjects();
+			if (DBG) {
+				Log.i(LCAT, "Scope prepared");
+			}
+			initialized.countDown();
+		} finally {
+			exit();
+		}
 
 	}
 
