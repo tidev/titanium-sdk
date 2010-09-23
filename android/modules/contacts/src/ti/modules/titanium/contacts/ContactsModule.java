@@ -74,7 +74,8 @@ public class ContactsModule extends TiModule
 			Double maxObj = (Double)d.get("max");
 			length = maxObj.intValue();
 		}
-		Object[] persons =  contactsApi.getAllPeople(length);
+		
+		Object[] persons = contactsApi.getAllPeople(length);
 		
 		Calendar end = Calendar.getInstance();
 		long elapsed = end.getTimeInMillis() - start.getTimeInMillis();

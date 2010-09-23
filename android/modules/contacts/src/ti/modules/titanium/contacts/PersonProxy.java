@@ -15,10 +15,7 @@ import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiDict;
 import org.appcelerator.titanium.TiProxy;
 
-import android.content.ContentUris;
 import android.graphics.Bitmap;
-import android.net.Uri;
-import android.provider.Contacts;
 
 public class PersonProxy extends TiProxy
 {
@@ -31,20 +28,10 @@ public class PersonProxy extends TiProxy
 	private TiBlob image = null;
 	private boolean imageFetched; // lazy load these bitmap images
 	protected boolean hasImage = false;
-	private Uri personUri;
 	
 	public PersonProxy(TiContext tiContext)
 	{
 		super(tiContext);
-	}
-	
-
-	private Uri getPersonUri() 
-	{
-		if (personUri == null) {
-			personUri = ContentUris.withAppendedId(Contacts.People.CONTENT_URI, this.id);
-		}
-		return personUri;
 	}
 	
 	private boolean isPhotoFetchable()
@@ -57,9 +44,7 @@ public class PersonProxy extends TiProxy
 		if (this.image != null) {
 			return this.image;
 		} else if (!imageFetched && isPhotoFetchable()) {
-			final int NO_PLACEHOLDER_IMAGE = 0;
-			Bitmap photo = Contacts.People.loadContactPhoto(getTiContext().getActivity(), getPersonUri(), NO_PLACEHOLDER_IMAGE, null);
-			this.image = null;
+			Bitmap photo = CommonContactsApi.getContactImage(getTiContext(), this.id);
 			if (photo != null) {
 				this.image = TiBlob.blobFromImage(getTiContext(), photo);
 			}

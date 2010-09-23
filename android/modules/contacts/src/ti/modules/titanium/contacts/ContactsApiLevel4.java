@@ -2,10 +2,7 @@ package ti.modules.titanium.contacts;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.SortedMap;
-import java.util.TreeMap;
+import java.util.LinkedHashMap;
 
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.Log;
@@ -14,6 +11,7 @@ import android.app.Activity;
 import android.content.ContentUris;
 import android.content.Intent;
 import android.database.Cursor;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.provider.Contacts;
 
@@ -70,24 +68,23 @@ public class ContactsApiLevel4 extends CommonContactsApi
 		TiContext tiContext = weakContext.get();
 		if (tiContext == null) {
 			Log.d(LCAT , "Could not getAllPeople, context is GC'd");
+			return null;
 		}
 		
 		// Fly through all three cursors (people, contact methods (emails & addresses)
 		// and phones) in one direction, one pass each, and add to local data structures.
-		Map<Long, CommonContactsApi.LightPerson> persons = new HashMap<Long, CommonContactsApi.LightPerson>();
-		SortedMap<String, Long> sortedPersons = new TreeMap<String, Long>();
+		LinkedHashMap<Long, CommonContactsApi.LightPerson> persons = new LinkedHashMap<Long, CommonContactsApi.LightPerson>();
 		
 		// The Person record
 		Cursor cursor = tiContext.getActivity().managedQuery(
 				Contacts.People.CONTENT_URI, 
-				PEOPLE_PROJECTION, null, null, Contacts.People.NAME);
+				PEOPLE_PROJECTION, null, null, Contacts.People.NAME + " COLLATE LOCALIZED");
 		
 		int count = 0;
 		while (cursor.moveToNext() && count < limit) {
 			CommonContactsApi.LightPerson lp = new CommonContactsApi.LightPerson();
 			lp.addPersonInfoFromL4Cursor(cursor);
 			persons.put(lp.id, lp);
-			sortedPersons.put(lp.name + "/" + lp.id, lp.id);
 			count++;
 		}
 		cursor.close();
@@ -136,7 +133,7 @@ public class ContactsApiLevel4 extends CommonContactsApi
 		}
 		cursor.close();
 		
-		PersonProxy[] proxies = proxifyLightPeopleMap(persons, sortedPersons, tiContext);
+		PersonProxy[] proxies = proxifyPeople(persons, tiContext);
 		persons.clear();
 		persons = null;
 		return proxies;
@@ -148,6 +145,7 @@ public class ContactsApiLevel4 extends CommonContactsApi
 		TiContext tiContext = weakContext.get();
 		if (tiContext == null) {
 			Log.d(LCAT , "Could not getAllPeople, context is GC'd");
+			return null;
 		}
 		
 		ArrayList<PersonProxy> all = new ArrayList<PersonProxy>();
@@ -177,6 +175,7 @@ public class ContactsApiLevel4 extends CommonContactsApi
 		TiContext tiContext = weakContext.get();
 		if (tiContext == null) {
 			Log.d(LCAT , "Could not getPersonByUri, context is GC'd");
+			return null;
 		}
 		Activity root = tiContext.getRootActivity();
 
@@ -197,12 +196,12 @@ public class ContactsApiLevel4 extends CommonContactsApi
 		return person;
 	}
 
-	@Override
-	protected PersonProxy getPersonFromCursor(Cursor cursor)
+	private PersonProxy getPersonFromCursor(Cursor cursor)
 	{
 		TiContext tiContext = weakContext.get();
 		if (tiContext == null) {
 			Log.d(LCAT , "Could not getPersonFromCursor, context is GC'd");
+			return null;
 		}
 		if (cursor.isBeforeFirst() ) {
 			cursor.moveToFirst();
@@ -260,6 +259,19 @@ public class ContactsApiLevel4 extends CommonContactsApi
 	protected Intent getIntentForContactsPicker()
 	{
 		return new Intent(Intent.ACTION_PICK, Contacts.People.CONTENT_URI);
+	}
+
+	@Override
+	protected Bitmap getContactImage(long id)
+	{
+		TiContext tiContext = weakContext.get();
+		if (tiContext == null) {
+			Log.d(LCAT , "Could not getContactImage, context is GC'd");
+			return null;
+		}
+		final int NO_PLACEHOLDER_IMAGE = 0;
+		return Contacts.People.loadContactPhoto(tiContext.getActivity(), 
+				ContentUris.withAppendedId(Contacts.People.CONTENT_URI, id), NO_PLACEHOLDER_IMAGE, null);
 	}
 
 }
