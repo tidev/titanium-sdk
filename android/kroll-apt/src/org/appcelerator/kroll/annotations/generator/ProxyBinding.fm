@@ -11,7 +11,7 @@ import org.appcelerator.kroll.KrollConverter;
 import org.appcelerator.kroll.KrollInvocation;
 import org.appcelerator.kroll.KrollMethod;
 import org.appcelerator.kroll.KrollProxyBinding;
-import org.appcelerator.kroll.KrollProperty;
+import org.appcelerator.kroll.KrollDynamicProperty;
 import org.appcelerator.kroll.KrollReflectionProperty;
 import org.appcelerator.kroll.KrollInjector;
 import org.appcelerator.kroll.KrollDict;
@@ -26,9 +26,9 @@ import java.util.List;
 
 import ${packageName}.${proxyClassName};
 
-<#function countRequiredArguments method>
+<#function countRequiredArguments args>
 	<#local count = 0>
-	<#list method.args as arg>
+	<#list args as arg>
 		<#if arg?keys?seq_contains("optional")>
 			<#if !arg.optional>
 				<#local count = count + 1>
@@ -56,6 +56,92 @@ import ${packageName}.${proxyClassName};
 			KrollInjector.injectValueIntoField(${proxy}, "${injectField.name}", ${value});
 			</#if>
 		</#list>
+	</#if>
+</#macro>
+
+<#macro generateMethodCall methodName args returnType converter hasInvocation hasArgArray firstArgValue returnUndefinedForVoid>
+	<#local varArgsIndex = -1>
+	<#list args as arg>
+		<#if arg.type == "java.lang.Object[]">
+			<#local varArgsIndex = arg_index>
+		</#if>
+	</#list>
+	
+	<#if hasArgArray>
+		<#local requiredArgs = countRequiredArguments(args)>
+		<#if requiredArgs &gt; 0>
+	if (__args == null) { throw new IllegalArgumentException("Expected ${requiredArgs} arguments for ${methodName}, got 0"); }
+	else if (__args.length < ${requiredArgs}) { throw new IllegalArgumentException("Expected ${requiredArgs} arguments for ${methodName}, got " + __args.length); }
+		</#if>
+	</#if>
+	<#if returnType != "void">
+	final ${converter} __${methodName}_converter = ${converter}.getInstance();
+	</#if>
+	<#list args as arg>
+		${arg.type} ${arg.name};
+		<#if arg_index = varArgsIndex>
+			<#if hasArgArray>
+				// varargs
+				${arg.name} = new Object[__args.length-${arg_index}];
+				for (int i = ${arg_index}; i < __args.length; i++) {
+					${arg.name}[i-${arg_index}] = ${arg.converter}.getInstance().convertJavascript(__invocation, __args[i], Object.class);
+				}
+			<#else>
+				${arg.name} = (Object[]) ${converter}.getInstance().convertJavascript(__invocation, ${firstArgValue}, Object[].class);
+			</#if>
+		<#else>
+			<#local optional = arg?keys?seq_contains("optional") && arg.optional>
+			<#local castType = arg.type>
+			<#if primitiveBoxTypes?keys?seq_contains(arg.type)>
+				<#local castType = primitiveBoxTypes[arg.type]>
+			</#if>
+			<#if optional && hasArgArray>
+			if (__args.length >= ${arg_index+1}) {
+			</#if>
+			
+			<#local argNeedsConvert = true>
+			<#if hasArgArray>
+				<#local argValue = "__args[" + arg_index + "]">
+			<#else>
+				<#if arg_index == 0 && !optional>
+					<#local argValue = firstArgValue>
+				<#else>
+					<#local argNeedsConvert = false>
+					<#local argValue = arg.converter + ".getInstance().getDefaultValue(" + arg.type + ".class)">
+				</#if>
+			</#if>
+			<#if argNeedsConvert>
+				${arg.name} = (${castType})
+					${arg.converter}.getInstance().convertJavascript(__invocation, ${argValue}, ${castType}.class);
+			<#else>
+				${arg.name} = (${castType})
+					${arg.defaultValueProvider}.getInstance().getDefaultValue(${arg.type}.class);
+			</#if>
+			<#if optional && hasArgArray>
+			} else {
+				${arg.name} = (${castType})
+					${arg.defaultValueProvider}.getInstance().getDefaultValue(${arg.type}.class);
+			}
+			</#if>
+		</#if>
+	</#list>
+	
+	<@injectByType type="org.appcelerator.kroll.KrollInvocation" proxy="__proxy" value="__invocation"/>
+	
+	<#if returnType != "void">
+	${returnType} __retVal =
+	</#if>
+	
+	__proxy.${methodName}(<#if hasInvocation>__invocation,</#if>
+		<#list args as arg>
+		${arg.name}<#if arg_has_next>,</#if>
+		</#list>);
+	<#if returnType != "void">
+	return __${methodName}_converter.convertNative(__invocation, __retVal);
+	<#else>
+	<#if returnUndefinedForVoid>
+		return KrollProxy.UNDEFINED;
+	</#if>
 	</#if>
 </#macro>
 
@@ -139,7 +225,7 @@ public class ${genClassName} <#if superProxyBindingClassName??>extends ${superPr
 		if (include("${constantName}", filteredBindings)) {
 			try {
 				__proxy.setProperty("${constantName}", ${proxyClassName}.${constant.proxyName});
-			} catch (Exception e) { Log.e(TAG, "Error binding constant: ${proxyClassName}:${constantName}", e); }
+			} catch (Exception e) { Log.e(TAG, "Error binding constant: ${proxyAttrs.name}.${constantName}", e); }
 		}
 			</#list>
 		</#if>
@@ -151,11 +237,11 @@ public class ${genClassName} <#if superProxyBindingClassName??>extends ${superPr
 			<#list properties?keys as propertyName>
 				<#assign property = properties[propertyName]>
 		try {
-			KrollProperty __property = new KrollProperty(p, "${propertyName}", ${property.get?string}, ${property.set?string}, "${property.proxyName}");
+			KrollReflectionProperty __property = new KrollReflectionProperty(p, "${propertyName}", ${property.get?string}, ${property.set?string}, "${property.proxyName}");
 			__property.setJavascriptConverter(${property.javascriptConverter}.getInstance());
 			__property.setNativeConverter(${property.nativeConverter}.getInstance());
 			__proxy.setProperty("${propertyName}", __property);
-		} catch (Exception e) { Log.e(TAG, "Error binding property ${proxyClassName}:${propertyName}", e); }
+		} catch (Exception e) { Log.e(TAG, "Error binding property ${proxyAttrs.name}.${propertyName}", e); }
 			</#list>
 		</#if>
 		
@@ -166,39 +252,40 @@ public class ${genClassName} <#if superProxyBindingClassName??>extends ${superPr
 			<#list dynamicProperties?keys as propertyName>
 				<#assign dynamicProperty = dynamicProperties[propertyName]>
 		try {
-			KrollReflectionProperty __property = new KrollReflectionProperty(p, "${propertyName}",
+			KrollDynamicProperty __property = new KrollDynamicProperty(p, "${propertyName}",
 				${dynamicProperty.get?string}, ${dynamicProperty.set?string},
-				<#if dynamicProperty.get>
-				"${dynamicProperty.getMethodName}",
-				<#else>
-				null,
-				</#if>
-				<#if dynamicProperty.set>
-				"${dynamicProperty.setMethodName}",
-				${dynamicProperty.retain?string}
-				<#else>
-				null, false
-				</#if>
-			);
+				<#if dynamicProperty.set>${dynamicProperty.retain?string}<#else>false</#if>) {
+				
+				@Override
+				public Object dynamicGet(KrollInvocation __invocation) {
+					<#if dynamicProperty.get>
+						<@generateMethodCall methodName=dynamicProperty.getMethodName args=dynamicProperty.getMethodArgs
+							returnType=dynamicProperty.getReturnType converter=dynamicProperty.nativeConverter
+							hasInvocation=dynamicProperty.getHasInvocation hasArgArray=false firstArgValue="none" returnUndefinedForVoid=true />
+					<#else>
+					Log.w(TAG, "Property ${proxyAttrs.name}.${propertyName} isn't readable");
+					return KrollProxy.UNDEFINED;
+					</#if>
+				}
+				
+				@Override
+				public void dynamicSet(KrollInvocation __invocation, Object __value) {
+					<#if dynamicProperty.set>
+						<@generateMethodCall methodName=dynamicProperty.setMethodName args=dynamicProperty.setMethodArgs
+							returnType="void" converter=dynamicProperty.javascriptConverter
+							hasInvocation=dynamicProperty.setHasInvocation hasArgArray=false firstArgValue="__value" returnUndefinedForVoid=false />
+					<#else>
+					Log.w(TAG, "Property ${proxyAttrs.name}.${propertyName} isn't writable");
+					</#if>
+				}
+			};
 			<#if dynamicProperty.runOnUiThread>
 			__property.setRunOnUiThread(true);
 			</#if>
 			__property.setJavascriptConverter(${dynamicProperty.javascriptConverter}.getInstance());
 			__property.setNativeConverter(${dynamicProperty.nativeConverter}.getInstance());
-			<#if dynamicProperty.get && dynamicProperty.getDefaultProviders?size &gt; 0>
-			__property.setGetDefaultProviders(new KrollDefaultValueProvider[] {
-				<#list dynamicProperty.getDefaultProviders as provider>
-				${provider}.getInstance()<#if provider_has_next>,</#if>
-				</#list>});
-			</#if>
-			<#if dynamicProperty.set && dynamicProperty.setDefaultProviders?size &gt; 0>
-			__property.setSetDefaultProviders(new KrollDefaultValueProvider[] {
-				<#list dynamicProperty.setDefaultProviders as provider>
-				${provider}.getInstance()<#if provider_has_next>,</#if>
-				</#list>});
-			</#if>
 			__proxy.setProperty("${propertyName}", __property);
-		} catch (Exception e) { Log.e(TAG, "Error binding dynamic property ${proxyClassName}:${propertyName}", e); }
+		} catch (Exception e) { Log.e(TAG, "Error binding dynamic property ${proxyAttrs.name}.${propertyName}", e); }
 			</#list>
 		</#if>
 		
@@ -206,67 +293,13 @@ public class ${genClassName} <#if superProxyBindingClassName??>extends ${superPr
 		//// Methods
 			<#list methods?keys as methodName>
 				<#assign method = methods[methodName]>
-				<#if method.returnType != "void">
-			final ${method.converter} __${methodName}_converter = ${method.converter}.getInstance();
-				</#if>
+				
 			KrollMethod ${methodName}_method = new KrollMethod(__proxy, "${method.apiName}") {
 				public Object invoke(KrollInvocation __invocation, Object[] __args) throws Exception
 				{
-					<#assign varArgsIndex = -1>
-					<#list method.args as arg>
-						<#if arg.type == "java.lang.Object[]">
-							<#assign varArgsIndex = arg_index>
-						</#if>
-					</#list>
-					<#assign requiredArgs = countRequiredArguments(method)>
-					<#if requiredArgs &gt; 0>
-					if (__args == null) { throw new IllegalArgumentException("Expected ${requiredArgs} arguments for ${methodName}, got 0"); }
-					else if (__args.length < ${requiredArgs}) { throw new IllegalArgumentException("Expected ${requiredArgs} arguments for ${methodName}, got " + __args.length); }
-					</#if>
-					
-					<#list method.args as arg>
-						${arg.type} ${arg.name};
-						<#if arg_index = varArgsIndex>
-							// varargs
-							${arg.name} = new Object[__args.length-${arg_index}];
-							for (int i = ${arg_index}; i < __args.length; i++) {
-								${arg.name}[i-${arg_index}] = ${arg.converter}.getInstance().convertJavascript(__invocation, __args[i], Object.class);
-							}
-						<#else>
-							<#assign optional = arg?keys?seq_contains("optional") && arg.optional>
-							<#assign castType = arg.type>
-							<#if primitiveBoxTypes?keys?seq_contains(arg.type)>
-								<#assign castType = primitiveBoxTypes[arg.type]>
-							</#if>
-							<#if optional>
-							if (__args.length >= ${arg_index+1}) {
-							</#if>
-								${arg.name} = (${castType})
-									${arg.converter}.getInstance().convertJavascript(__invocation, __args[${arg_index}], ${castType}.class);
-							<#if optional>
-							} else {
-								${arg.name} = (${castType})
-									${arg.defaultValueProvider}.getInstance().getDefaultValue(${arg.type}.class);
-							}
-							</#if>
-						</#if>
-					</#list>
-					
-					<@injectByType type="org.appcelerator.kroll.KrollInvocation" proxy="__proxy" value="__invocation"/>
-					
-					<#if method.returnType != "void">
-					${method.returnType} __retVal =
-					</#if>
-					
-					__proxy.${methodName}(<#if method.hasInvocation>__invocation,</#if>
-						<#list method.args as arg>
-						${arg.name}<#if arg_has_next>,</#if>
-						</#list>);
-					<#if method.returnType != "void">
-					return __${methodName}_converter.convertNative(__invocation, __retVal);
-					<#else>
-					return KrollProxy.UNDEFINED;
-					</#if>
+					<@generateMethodCall methodName=methodName args=method.args returnType=method.returnType
+						converter=method.converter hasInvocation=method.hasInvocation
+						hasArgArray=true firstArgValue="none" returnUndefinedForVoid=true/>
 				}
 			};
 			<#if method.runOnUiThread>
@@ -281,7 +314,7 @@ public class ${genClassName} <#if superProxyBindingClassName??>extends ${superPr
 						</#list>
 					</#if>
 				</#if>
-			} catch (Exception e) { Log.e(TAG, "Error binding method ${proxyClassName}:${method.apiName}", e); }
+			} catch (Exception e) { Log.e(TAG, "Error binding method ${proxyAttrs.name}.${method.apiName}", e); }
 			</#list>
 		</#if>
 		<#if superProxyBindingClassName??>super.bindProperties(p, null);</#if>

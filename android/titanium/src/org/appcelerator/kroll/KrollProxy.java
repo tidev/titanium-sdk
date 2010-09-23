@@ -141,9 +141,9 @@ public class KrollProxy implements Handler.Callback, OnEventListenerChange {
 			throws NoSuchFieldException {
 		if (properties.containsKey(name)) {
 			Object value = properties.get(name);
-			if (value instanceof KrollDynamicProperty) {
+			if (value instanceof KrollProperty) {
 				return getDynamicProperty(scope, name,
-						(KrollDynamicProperty) value);
+						(KrollProperty) value);
 			} else {
 				return value;
 			}
@@ -157,9 +157,9 @@ public class KrollProxy implements Handler.Callback, OnEventListenerChange {
 
 		if (properties.containsKey(name)) {
 			Object currentValue = properties.get(name);
-			if (currentValue instanceof KrollDynamicProperty) {
+			if (currentValue instanceof KrollProperty) {
 				setDynamicProperty(scope, name,
-						(KrollDynamicProperty) currentValue, value);
+						(KrollProperty) currentValue, value);
 				return;
 			} else {
 				oldValue = currentValue;
@@ -192,7 +192,7 @@ public class KrollProxy implements Handler.Callback, OnEventListenerChange {
 	}
 
 	protected Object getDynamicProperty(Scriptable scope, String name,
-			KrollDynamicProperty dynprop) throws NoSuchFieldException {
+			KrollProperty dynprop) throws NoSuchFieldException {
 		if (dynprop.supportsGet(name)) {
 			KrollInvocation inv = KrollInvocation.createPropertyGetInvocation(
 					getTiContext(), scope, new KrollObject(this), name, dynprop, this);
@@ -205,7 +205,7 @@ public class KrollProxy implements Handler.Callback, OnEventListenerChange {
 	}
 
 	protected void setDynamicProperty(Scriptable scope, String name,
-			KrollDynamicProperty dynprop, Object value)
+			KrollProperty dynprop, Object value)
 			throws NoSuchFieldException {
 		if (dynprop.supportsSet(name)) {
 			KrollInvocation inv = KrollInvocation.createPropertySetInvocation(

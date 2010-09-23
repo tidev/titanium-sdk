@@ -382,6 +382,41 @@ public class KrollBindingGenerator extends AbstractProcessor {
 				dynamicProperty.put("set", false);
 				dynamicProperty.put("nativeConverter", KrollConverter);
 				dynamicProperty.put("javascriptConverter", KrollConverter);
+				dynamicProperty.put("getHasInvocation", false);
+				dynamicProperty.put("setHasInvocation", false);
+			}
+			
+			ArrayList<Map<Object,Object>> args = new ArrayList<Map<Object,Object>>();
+			for (VariableElement var: element.getParameters()) {
+				String paramType = utils.getType(var);
+				if (paramType.equals(KrollInvocation)) {
+					if (utils.annotationTypeIs(annotation, Kroll_getProperty)) {
+						dynamicProperty.put("getHasInvocation", true);
+					} else {
+						dynamicProperty.put("setHasInvocation", true);
+					}
+					continue;
+				}
+				
+				String paramName = utils.getName(var);
+				
+				Map<Object,Object> argParams = new HashMap<Object,Object>();
+				argParams.put("sourceName", paramName);
+				argParams.put("type", paramType);
+				jsonUtils.updateObjectFromAnnotationParams(argParams, utils.getAnnotationParams(var, Kroll_argument));
+				
+				String argName = (String) argParams.get("name");
+				if (argName == null || argName.equals(DEFAULT_NAME)) {
+					argParams.put("name", paramName);
+				}
+				
+				if (!argParams.containsKey("converter")) {
+					argParams.put("converter", KrollConverter);
+				}
+				if (!argParams.containsKey("defaultValueProvider")) {
+					argParams.put("defaultValueProvider", KrollConverter);
+				}
+				args.add(argParams);
 			}
 			
 			ArrayList<String> defaultProviders = new ArrayList<String>();
@@ -398,11 +433,15 @@ public class KrollBindingGenerator extends AbstractProcessor {
 				dynamicProperty.put("get", true);
 				dynamicProperty.put("getMethodName", methodName);
 				dynamicProperty.put("getDefaultProviders", defaultProviders);
+				dynamicProperty.put("getMethodArgs", args);
+				dynamicProperty.put("getReturnType", element.getReturnType().toString());
 			} else {
 				dynamicProperty.put("set", true);
 				dynamicProperty.put("setMethodName", methodName);
 				dynamicProperty.put("setDefaultProviders", defaultProviders);
 				dynamicProperty.put("retain", params.get("retain"));
+				dynamicProperty.put("setMethodArgs", args);
+				dynamicProperty.put("setReturnType", element.getReturnType().toString());
 			}
 			
 			dynamicProperties.put(name, dynamicProperty);

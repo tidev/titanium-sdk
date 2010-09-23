@@ -17,7 +17,7 @@ public class KrollInvocation {
 	protected String name;
 	protected boolean isPropertyGet, isPropertySet, isMethod;
 	protected KrollMethod method;
-	protected KrollDynamicProperty property;
+	protected KrollProperty property;
 	protected TiContext tiContext;
 	protected KrollProxy proxy;
 	protected KrollInvocation() {}
@@ -40,12 +40,12 @@ public class KrollInvocation {
 		return invocation;
 	}
 	
-	public static KrollInvocation createPropertyGetInvocation(Scriptable scope, Scriptable thisObj, String name, KrollDynamicProperty property, KrollProxy proxy)
+	public static KrollInvocation createPropertyGetInvocation(Scriptable scope, Scriptable thisObj, String name, KrollProperty property, KrollProxy proxy)
 	{
 		return createPropertyGetInvocation(TiContext.getCurrentTiContext(), scope, thisObj, name, property, proxy);
 	}
 	
-	public static KrollInvocation createPropertyGetInvocation(TiContext tiContext, Scriptable scope, Scriptable thisObj, String name, KrollDynamicProperty property, KrollProxy proxy)
+	public static KrollInvocation createPropertyGetInvocation(TiContext tiContext, Scriptable scope, Scriptable thisObj, String name, KrollProperty property, KrollProxy proxy)
 	{
 		KrollInvocation invocation = new KrollInvocation();
 		invocation.tiContext = tiContext;
@@ -58,12 +58,12 @@ public class KrollInvocation {
 		return invocation;
 	}
 	
-	public static KrollInvocation createPropertySetInvocation(Scriptable scope, Scriptable thisObj, String name, KrollDynamicProperty property, KrollProxy proxy)
+	public static KrollInvocation createPropertySetInvocation(Scriptable scope, Scriptable thisObj, String name, KrollProperty property, KrollProxy proxy)
 	{
 		return createPropertySetInvocation(TiContext.getCurrentTiContext(), scope, thisObj, name, property, proxy);
 	}
 	
-	public static KrollInvocation createPropertySetInvocation(TiContext tiContext, Scriptable scope, Scriptable thisObj, String name, KrollDynamicProperty property, KrollProxy proxy)
+	public static KrollInvocation createPropertySetInvocation(TiContext tiContext, Scriptable scope, Scriptable thisObj, String name, KrollProperty property, KrollProxy proxy)
 	{
 		KrollInvocation invocation = new KrollInvocation();
 		invocation.tiContext = tiContext;
@@ -120,7 +120,7 @@ public class KrollInvocation {
 		return isPropertySet;
 	}
 
-	public KrollDynamicProperty getProperty() {
+	public KrollProperty getProperty() {
 		return property;
 	}
 

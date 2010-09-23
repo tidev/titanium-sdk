@@ -15,7 +15,7 @@ import java.util.concurrent.Semaphore;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollInvocation;
 import org.appcelerator.kroll.KrollMethod;
-import org.appcelerator.kroll.KrollProperty;
+import org.appcelerator.kroll.KrollReflectionProperty;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.Log;

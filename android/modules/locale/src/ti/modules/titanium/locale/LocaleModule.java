@@ -78,7 +78,7 @@ public class LocaleModule extends KrollModule
 		Log.w(LCAT, "Locale.setLanguage not supported for Android.");
 	}
 
-	@Kroll.method @Kroll.getProperty
+	@Kroll.method
 	public String getString(KrollInvocation invocation, String key, @Kroll.argument(optional=true) String defaultValue)
 	{
 		int value = TiResourceHelper.getString(key);

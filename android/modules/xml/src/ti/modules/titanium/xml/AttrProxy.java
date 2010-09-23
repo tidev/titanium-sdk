@@ -44,7 +44,7 @@ public class AttrProxy extends NodeProxy {
 		return attr.getValue();
 	}
 	
-	@Kroll.getProperty @Kroll.method
+	@Kroll.setProperty @Kroll.method
 	public void setValue(String value) throws DOMException {
 		attr.setValue(value);
 	}

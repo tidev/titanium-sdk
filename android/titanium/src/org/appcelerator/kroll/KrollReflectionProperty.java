@@ -6,163 +6,71 @@
  */
 package org.appcelerator.kroll;
 
-import java.lang.reflect.Method;
+import java.lang.reflect.Field;
 
 import org.appcelerator.kroll.util.KrollReflectionUtils;
-import org.appcelerator.titanium.util.AsyncResult;
-import org.appcelerator.titanium.util.Log;
-import org.mozilla.javascript.Context;
 
-import android.app.Activity;
+public class KrollReflectionProperty implements KrollProperty {
 
-public class KrollReflectionProperty implements KrollDynamicProperty {
-	private static final String TAG = "KrollReflectionProperty";
-	
-	protected boolean get, set, retain;
-	protected String name;
 	protected KrollProxy proxy;
-	protected Method getMethod, setMethod;
-	protected boolean runOnUiThread = false;
-	protected boolean getMethodHasInvocation, setMethodHasInvocation;
+	protected String name;
+	protected boolean get, set;
+	protected Field field;
 	protected KrollNativeConverter nativeConverter;
 	protected KrollJavascriptConverter javascriptConverter;
-	protected KrollDefaultValueProvider[] getDefaultProviders;
-	protected KrollDefaultValueProvider[] setDefaultProviders;
 	
-	public KrollReflectionProperty(KrollProxy proxy, String name, boolean get, boolean set, String getMethodName, String setMethodName, boolean retain) {
+	public KrollReflectionProperty(KrollProxy proxy, String name, boolean get, boolean set, String fieldName) {
+		this.proxy = proxy;
 		this.name = name;
 		this.get = get;
 		this.set = set;
-		this.proxy = proxy;
-		
-		if (get && getMethodName != null) {
-			getMethod = KrollReflectionUtils.getMethod(proxy.getClass(), getMethodName);
-			if (getMethod != null) {
-				getMethodHasInvocation = getMethod.getParameterTypes().length > 0 && getMethod.getParameterTypes()[0].equals(KrollInvocation.class);
-			}
-		}
-		if (set && setMethodName != null) {
-			setMethod = KrollReflectionUtils.getMethod(proxy.getClass(), setMethodName);
-			if (setMethod != null) {
-				setMethodHasInvocation = setMethod.getParameterTypes().length > 0 && setMethod.getParameterTypes()[0].equals(KrollInvocation.class);
-			}
-		}
-		this.retain = retain;
-	}
-	
-	protected KrollDefaultValueProvider getDefaultValueProvider(Method method, int argIndex) {
-		KrollDefaultValueProvider[] providers = method == getMethod ? getDefaultProviders : setDefaultProviders;
-		if (providers == null || providers.length <= argIndex || providers[argIndex] == null) {
-			return KrollConverter.getInstance();
-		}
-		
-		return providers[argIndex];
-	}
-	
-	protected Object safeInvoke(KrollInvocation invocation, Method method, Object... args) {
-		try {
-			Class<?>[] paramTypes = method.getParameterTypes();
-			if (args.length < paramTypes.length) {
-				Object newArgs[] = new Object[paramTypes.length];
-				System.arraycopy(args, 0, newArgs, 0, args.length);
-				
-				// Append default values onto the end for dynamic getters/setters that have optional arguments
-				for (int i = args.length; i < paramTypes.length; i++) {
-					KrollDefaultValueProvider provider = getDefaultValueProvider(method, i);
-					newArgs[i] = provider.getDefaultValue(paramTypes[i]);
-				}
-				args = newArgs;
-			} else if (args.length > paramTypes.length) {
-				// cut off the remaining args
-				Object newArgs[] = new Object[paramTypes.length];
-				System.arraycopy(args, 0, newArgs, 0, paramTypes.length);
-				args = newArgs;
-			}
-			
-			if (!runOnUiThread) {
-				return nativeConverter.convertNative(invocation,
-					method.invoke(proxy, args));
-			} else {
-				Activity activity = invocation.getTiContext().getActivity();
-				if (invocation.getTiContext().isUIThread()) {
-					return nativeConverter.convertNative(invocation,
-						method.invoke(proxy, args));
-				} else {
-					final KrollInvocation fInv = invocation;
-					final Object[] fArgs = args;
-					final Method fMethod = method;
-					final AsyncResult result = new AsyncResult();
-					
-					activity.runOnUiThread(new Runnable() {
-						public void run() {
-							try {
-								Object retVal = nativeConverter.convertNative(fInv,
-									fMethod.invoke(proxy, fArgs));
-								result.setResult(retVal);
-							} catch (Exception e) {
-								result.setResult(e);
-							}
-						}
-					});
-					
-					Object retVal = result.getResult();
-					if (retVal instanceof Exception) {
-						throw (Exception)retVal;
-					} else {
-						return retVal;
-					}
-				}
-			}
-		} catch (Exception e) {
-			Log.e(TAG, "Exception getting/setting property: " + name, e);
-			Context.throwAsScriptRuntimeEx(e);
-			return KrollProxy.UNDEFINED;
-		}
+		this.field = KrollReflectionUtils.getField(proxy.getClass(), fieldName);
 	}
 	
 	@Override
 	public Object get(KrollInvocation invocation, String name) {
-		if (supportsGet(name)) {
-			if (getMethodHasInvocation) {
-				return safeInvoke(invocation, getMethod, invocation);
-			} else {
-				return safeInvoke(invocation, getMethod);
+		if (!supportsGet(name)) return KrollProxy.UNDEFINED;
+		
+		if (proxy != null && field != null) {
+			try {
+				return nativeConverter.convertNative(invocation, field.get(proxy));
+			} catch (IllegalArgumentException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IllegalAccessException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
 		}
 		
-		return nativeConverter.convertNative(invocation, proxy.getProperty(name));
+		return KrollProxy.UNDEFINED;
 	}
 
 	@Override
 	public void set(KrollInvocation invocation, String name, Object value) {
-		if (supportsSet(name)) {
-			if (retain) {
-				proxy.setProperty(name, value);
+		if (!supportsSet(name)) return;
+		if (proxy != null && field != null) {
+			try {
+				field.set(proxy,
+					javascriptConverter.convertJavascript(invocation, value, Object.class));
+			} catch (IllegalArgumentException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IllegalAccessException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
-			if (setMethodHasInvocation) {
-				safeInvoke(invocation, setMethod, invocation, value);
-			} else {
-				safeInvoke(invocation, setMethod, value);
-			}
-			
-		} else {
-			Object convertedValue = javascriptConverter.convertJavascript(invocation, value, Object.class);
-			proxy.setProperty(name, convertedValue, true);
 		}
 	}
 
 	@Override
 	public boolean supportsGet(String name) {
-		return get && getMethod != null;
+		return get && name.equals(this.name);
 	}
 
 	@Override
 	public boolean supportsSet(String name) {
-		return set && setMethod != null;
-	}
-
-	public void setRunOnUiThread(boolean runOnUiThread) {
-		this.runOnUiThread = runOnUiThread;
+		return set && name.equals(this.name);
 	}
 
 	public void setNativeConverter(KrollNativeConverter nativeConverter) {
@@ -173,11 +81,4 @@ public class KrollReflectionProperty implements KrollDynamicProperty {
 		this.javascriptConverter = javascriptConverter;
 	}
 
-	public void setGetDefaultProviders(KrollDefaultValueProvider[] getDefaultProviders) {
-		this.getDefaultProviders = getDefaultProviders;
-	}
-	
-	public void setSetDefaultProviders(KrollDefaultValueProvider[] setDefaultProviders) {
-		this.setDefaultProviders = setDefaultProviders;
-	}
 }
