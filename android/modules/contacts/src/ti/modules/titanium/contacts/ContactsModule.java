@@ -40,11 +40,13 @@ public class ContactsModule extends TiModule
 	private static final int CONTACTS_SORT_LAST_NAME = 1;
 	
 	private final AtomicInteger requestCodeGen = new AtomicInteger();
+	private final CommonContactsApi contactsApi;
 	private Map<Integer, Map<String, KrollCallback>> requests;
 	
 	public ContactsModule(TiContext tiContext)
 	{
 		super(tiContext);
+		contactsApi = CommonContactsApi.getInstance(tiContext);
 	}
 	
 	@Override
@@ -72,7 +74,8 @@ public class ContactsModule extends TiModule
 			Double maxObj = (Double)d.get("max");
 			length = maxObj.intValue();
 		}
-		Object[] persons =  PersonProxy.getAllPersons(getTiContext(),length);
+		
+		Object[] persons = contactsApi.getAllPeople(length);
 		
 		Calendar end = Calendar.getInstance();
 		long elapsed = end.getTimeInMillis() - start.getTimeInMillis();
@@ -84,17 +87,17 @@ public class ContactsModule extends TiModule
 	
 	public Object[] getPeopleWithName(String name)
 	{
-		return PersonProxy.getPeopleWithName(getTiContext(), name);
+		return contactsApi.getPeopleWithName(name);
 	}
 	
 	public PersonProxy getPersonByID(long id)
 	{
-		return PersonProxy.fromId(getTiContext(), id);
+		return contactsApi.getPersonById(id);
 	}
 	
 	public void showContacts(Object[] args)
 	{
-		Intent intent = new Intent(Intent.ACTION_PICK, Contacts.People.CONTENT_URI);
+		Intent intent = contactsApi.getIntentForContactsPicker();
 		if (DBG) {
 			Log.d(LCAT, "Launching content picker activity");
 		}
@@ -152,7 +155,7 @@ public class ContactsModule extends TiModule
 				if (request.containsKey("selectedPerson")) {
 					KrollCallback callback = request.get("selectedPerson");
 					if (callback != null) {
-						PersonProxy person = PersonProxy.fromUri(getTiContext(), data.getData());
+						PersonProxy person = contactsApi.getPersonByUri(data.getData());
 						TiDict result = new TiDict();
 						result.put("person", person);
 						callback.call(new Object[]{result});
