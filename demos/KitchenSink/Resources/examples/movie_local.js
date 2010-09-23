@@ -51,8 +51,17 @@ activeMovie.addEventListener('load',function()
 });
 activeMovie.addEventListener('complete',function()
 {
-	Titanium.UI.createAlertDialog({title:'Movie', message:'Completed!'}).show();
-	win.close();
+	var dlg = Titanium.UI.createAlertDialog({title:'Movie', message:'Completed!'});
+	if (Ti.Platform.name == 'android') {
+		dlg.addEventListener('click', function(e) {
+			activeMovie.hide();
+			win.close();
+		});
+		dlg.show();
+	} else {
+		dlg.show();
+		win.close();
+	}
 });
 
 activeMovie.play();

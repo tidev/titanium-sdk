@@ -198,6 +198,19 @@ public class VideoPlayerProxy extends TiProxy
 		}
 	}
 
+	public void hide()
+	{
+		if (activityMessenger != null) {
+			try {
+				Message msg = Message.obtain();
+				msg.what = TiVideoActivity.MSG_HIDE;
+				activityMessenger.send(msg);
+			} catch (RemoteException e) {
+				Log.w(LCAT, "Unable to send hide message: " + e.getMessage());
+			}
+		}
+	}
+	
 	private Handler createControlHandler() {
 		return new Handler(new Handler.Callback(){
 
