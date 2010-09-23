@@ -7,6 +7,7 @@ import java.util.Map;
 
 import javax.lang.model.element.AnnotationMirror;
 
+@SuppressWarnings("unchecked")
 public class JSONUtils {
 	protected KrollAnnotationUtils annUtils;
 	
@@ -14,9 +15,8 @@ public class JSONUtils {
 		this.annUtils = annUtils;
 	}
 	
-	@SuppressWarnings("unchecked")
-	public Map<?,?> getOrCreateMap(Map map, String name) {
-		Map<?,?> subMap = (Map<?,?>) map.get(name);
+	public Map<Object,Object> getOrCreateMap(Map<Object,Object> map, String name) {
+		Map<Object,Object> subMap = (Map<Object,Object>) map.get(name);
 		if (subMap == null) {
 			subMap = new HashMap<Object,Object>();
 			map.put(name, subMap);
@@ -24,9 +24,8 @@ public class JSONUtils {
 		return subMap;
 	}
 	
-	@SuppressWarnings("unchecked")
-	public List<?> getOrCreateList(Map map, String name) {
-		List<?> list = (List<?>) map.get(name);
+	public List<Object> getOrCreateList(Map<Object,Object> map, String name) {
+		List<Object> list = (List<Object>) map.get(name);
 		if (list == null) {
 			list = new ArrayList<Object>();
 			map.put(name, list);
@@ -34,13 +33,11 @@ public class JSONUtils {
 		return list;
 	}
 	
-	@SuppressWarnings("unchecked")
-	public void appendUnique(Map parent, String arrayName, Object value) {
+	public void appendUnique(Map<Object,Object> parent, String arrayName, Object value) {
 		appendUnique(getOrCreateList(parent, arrayName), value);
 	}
 	
-	@SuppressWarnings("unchecked")
-	public void appendUnique(List list, Object value) {
+	public void appendUnique(List<Object> list, Object value) {
 		// treat the array like a set
 		boolean found = false;
 		for (int i = 0; i < list.size(); i++) {
@@ -55,21 +52,19 @@ public class JSONUtils {
 		}
 	}
 	
-	@SuppressWarnings("unchecked")
-	public void updateObjectFromAnnotation(Map object, AnnotationMirror annotation) {
+	public void updateObjectFromAnnotation(Map<Object,Object> object, AnnotationMirror annotation) {
 		updateObjectFromAnnotationParams(object, annUtils.getAnnotationParams(annotation));
 	}
 	
-	@SuppressWarnings("unchecked")
-	public void updateObjectFromAnnotationParams(Map object, HashMap<String, Object> params) {
+	public void updateObjectFromAnnotationParams(Map<Object,Object> object, HashMap<String, Object> params) {
 		for (String key : params.keySet()) {
 			Object value = params.get(key);
 			if (object.containsKey(key)) {
 				Object currentValue = object.get(key);
 				if (currentValue instanceof List && value instanceof List) {
-					List currentList = (List)currentValue;
+					List<Object> currentList = (List<Object>)currentValue;
 					for (int i = 0; i < currentList.size(); i++) {
-						appendUnique(currentList, ((List)value).get(i));
+						appendUnique(currentList, ((List<Object>)value).get(i));
 					}
 				} else if (value instanceof Class<?>) {
 					object.put(key, ((Class<?>)value).getName());

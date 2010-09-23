@@ -15,6 +15,7 @@ import org.appcelerator.kroll.KrollProperty;
 import org.appcelerator.kroll.KrollReflectionProperty;
 import org.appcelerator.kroll.KrollInjector;
 import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollDefaultValueProvider;
 import org.appcelerator.kroll.util.KrollReflectionUtils;
 import org.appcelerator.titanium.kroll.KrollBridge;
 import org.appcelerator.titanium.util.Log;
@@ -150,7 +151,10 @@ public class ${genClassName} <#if superProxyBindingClassName??>extends ${superPr
 			<#list properties?keys as propertyName>
 				<#assign property = properties[propertyName]>
 		try {
-			__proxy.setProperty("${propertyName}", new KrollProperty(p, "${propertyName}", ${property.get?string}, ${property.set?string}, "${property.proxyName}"));
+			KrollProperty __property = new KrollProperty(p, "${propertyName}", ${property.get?string}, ${property.set?string}, "${property.proxyName}");
+			__property.setJavascriptConverter(${property.javascriptConverter}.getInstance());
+			__property.setNativeConverter(${property.nativeConverter}.getInstance());
+			__proxy.setProperty("${propertyName}", __property);
 		} catch (Exception e) { Log.e(TAG, "Error binding property ${proxyClassName}:${propertyName}", e); }
 			</#list>
 		</#if>
@@ -178,6 +182,20 @@ public class ${genClassName} <#if superProxyBindingClassName??>extends ${superPr
 			);
 			<#if dynamicProperty.runOnUiThread>
 			__property.setRunOnUiThread(true);
+			</#if>
+			__property.setJavascriptConverter(${dynamicProperty.javascriptConverter}.getInstance());
+			__property.setNativeConverter(${dynamicProperty.nativeConverter}.getInstance());
+			<#if dynamicProperty.get && dynamicProperty.getDefaultProviders?size &gt; 0>
+			__property.setGetDefaultProviders(new KrollDefaultValueProvider[] {
+				<#list dynamicProperty.getDefaultProviders as provider>
+				${provider}.getInstance()<#if provider_has_next>,</#if>
+				</#list>});
+			</#if>
+			<#if dynamicProperty.set && dynamicProperty.setDefaultProviders?size &gt; 0>
+			__property.setSetDefaultProviders(new KrollDefaultValueProvider[] {
+				<#list dynamicProperty.setDefaultProviders as provider>
+				${provider}.getInstance()<#if provider_has_next>,</#if>
+				</#list>});
 			</#if>
 			__proxy.setProperty("${propertyName}", __property);
 		} catch (Exception e) { Log.e(TAG, "Error binding dynamic property ${proxyClassName}:${propertyName}", e); }

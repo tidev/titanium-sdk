@@ -6,7 +6,6 @@
  */
 package org.appcelerator.kroll;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 import org.appcelerator.kroll.util.KrollReflectionUtils;
@@ -25,6 +24,10 @@ public class KrollReflectionProperty implements KrollDynamicProperty {
 	protected Method getMethod, setMethod;
 	protected boolean runOnUiThread = false;
 	protected boolean getMethodHasInvocation, setMethodHasInvocation;
+	protected KrollNativeConverter nativeConverter;
+	protected KrollJavascriptConverter javascriptConverter;
+	protected KrollDefaultValueProvider[] getDefaultProviders;
+	protected KrollDefaultValueProvider[] setDefaultProviders;
 	
 	public KrollReflectionProperty(KrollProxy proxy, String name, boolean get, boolean set, String getMethodName, String setMethodName, boolean retain) {
 		this.name = name;
@@ -47,6 +50,15 @@ public class KrollReflectionProperty implements KrollDynamicProperty {
 		this.retain = retain;
 	}
 	
+	protected KrollDefaultValueProvider getDefaultValueProvider(Method method, int argIndex) {
+		KrollDefaultValueProvider[] providers = method == getMethod ? getDefaultProviders : setDefaultProviders;
+		if (providers == null || providers.length <= argIndex || providers[argIndex] == null) {
+			return KrollConverter.getInstance();
+		}
+		
+		return providers[argIndex];
+	}
+	
 	protected Object safeInvoke(KrollInvocation invocation, Method method, Object... args) {
 		try {
 			Class<?>[] paramTypes = method.getParameterTypes();
@@ -56,7 +68,8 @@ public class KrollReflectionProperty implements KrollDynamicProperty {
 				
 				// Append default values onto the end for dynamic getters/setters that have optional arguments
 				for (int i = args.length; i < paramTypes.length; i++) {
-					newArgs[i] = KrollConverter.getInstance().getDefaultValue(paramTypes[i]);
+					KrollDefaultValueProvider provider = getDefaultValueProvider(method, i);
+					newArgs[i] = provider.getDefaultValue(paramTypes[i]);
 				}
 				args = newArgs;
 			} else if (args.length > paramTypes.length) {
@@ -67,12 +80,12 @@ public class KrollReflectionProperty implements KrollDynamicProperty {
 			}
 			
 			if (!runOnUiThread) {
-				return KrollConverter.getInstance().convertNative(invocation,
+				return nativeConverter.convertNative(invocation,
 					method.invoke(proxy, args));
 			} else {
 				Activity activity = invocation.getTiContext().getActivity();
 				if (invocation.getTiContext().isUIThread()) {
-					return KrollConverter.getInstance().convertNative(invocation,
+					return nativeConverter.convertNative(invocation,
 						method.invoke(proxy, args));
 				} else {
 					final KrollInvocation fInv = invocation;
@@ -83,7 +96,7 @@ public class KrollReflectionProperty implements KrollDynamicProperty {
 					activity.runOnUiThread(new Runnable() {
 						public void run() {
 							try {
-								Object retVal = KrollConverter.getInstance().convertNative(fInv,
+								Object retVal = nativeConverter.convertNative(fInv,
 									fMethod.invoke(proxy, fArgs));
 								result.setResult(retVal);
 							} catch (Exception e) {
@@ -117,7 +130,7 @@ public class KrollReflectionProperty implements KrollDynamicProperty {
 			}
 		}
 		
-		return KrollConverter.getInstance().convertNative(invocation, proxy.getProperty(name));
+		return nativeConverter.convertNative(invocation, proxy.getProperty(name));
 	}
 
 	@Override
@@ -133,7 +146,7 @@ public class KrollReflectionProperty implements KrollDynamicProperty {
 			}
 			
 		} else {
-			Object convertedValue = KrollConverter.getInstance().convertJavascript(invocation, value, Object.class);
+			Object convertedValue = javascriptConverter.convertJavascript(invocation, value, Object.class);
 			proxy.setProperty(name, convertedValue, true);
 		}
 	}
@@ -150,5 +163,21 @@ public class KrollReflectionProperty implements KrollDynamicProperty {
 
 	public void setRunOnUiThread(boolean runOnUiThread) {
 		this.runOnUiThread = runOnUiThread;
+	}
+
+	public void setNativeConverter(KrollNativeConverter nativeConverter) {
+		this.nativeConverter = nativeConverter;
+	}
+
+	public void setJavascriptConverter(KrollJavascriptConverter javascriptConverter) {
+		this.javascriptConverter = javascriptConverter;
+	}
+
+	public void setGetDefaultProviders(KrollDefaultValueProvider[] getDefaultProviders) {
+		this.getDefaultProviders = getDefaultProviders;
+	}
+	
+	public void setSetDefaultProviders(KrollDefaultValueProvider[] setDefaultProviders) {
+		this.setDefaultProviders = setDefaultProviders;
 	}
 }

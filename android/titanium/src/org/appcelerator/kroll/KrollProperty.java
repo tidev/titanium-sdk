@@ -16,6 +16,8 @@ public class KrollProperty implements KrollDynamicProperty {
 	protected String name;
 	protected boolean get, set;
 	protected Field field;
+	protected KrollNativeConverter nativeConverter;
+	protected KrollJavascriptConverter javascriptConverter;
 	
 	public KrollProperty(KrollProxy proxy, String name, boolean get, boolean set, String fieldName) {
 		this.proxy = proxy;
@@ -31,7 +33,7 @@ public class KrollProperty implements KrollDynamicProperty {
 		
 		if (proxy != null && field != null) {
 			try {
-				return field.get(proxy);
+				return nativeConverter.convertNative(invocation, field.get(proxy));
 			} catch (IllegalArgumentException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -49,7 +51,8 @@ public class KrollProperty implements KrollDynamicProperty {
 		if (!supportsSet(name)) return;
 		if (proxy != null && field != null) {
 			try {
-				field.set(proxy, value);
+				field.set(proxy,
+					javascriptConverter.convertJavascript(invocation, value, Object.class));
 			} catch (IllegalArgumentException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -68,6 +71,14 @@ public class KrollProperty implements KrollDynamicProperty {
 	@Override
 	public boolean supportsSet(String name) {
 		return set && name.equals(this.name);
+	}
+
+	public void setNativeConverter(KrollNativeConverter nativeConverter) {
+		this.nativeConverter = nativeConverter;
+	}
+
+	public void setJavascriptConverter(KrollJavascriptConverter javascriptConverter) {
+		this.javascriptConverter = javascriptConverter;
 	}
 
 }

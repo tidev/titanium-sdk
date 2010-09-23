@@ -196,7 +196,7 @@ public class TabGroupProxy extends TiWindowProxy
 
 	}
 	
-	@Kroll.setProperty @Kroll.method @Kroll.runOnUiThread
+	@Kroll.setProperty(runOnUiThread=true) @Kroll.method(runOnUiThread=true)
 	public void setActiveTab(Object tab) {
 		if (peekView() != null) {
 			TiUITabGroup tg = (TiUITabGroup) peekView();

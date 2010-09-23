@@ -1,5 +1,7 @@
 package org.appcelerator.kroll;
 
+import java.util.HashMap;
+
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiContext.OnLifecycleEvent;
@@ -7,11 +9,25 @@ import org.appcelerator.titanium.TiContext.OnLifecycleEvent;
 @Kroll.module
 public class KrollModule extends KrollProxy
 	implements KrollProxyListener, OnLifecycleEvent
-{	
+{
+	protected static HashMap<String, Object> constants = new HashMap<String, Object>();
+	
 	public KrollModule(TiContext context) {
 		super(context);
 		context.addOnLifecycleEventListener(this);
 		modelListener = this;
+	}
+	
+	@Override
+	public void bindProperties() {
+		super.bindProperties();
+		bindConstants();
+	}
+	
+	protected void bindConstants() {
+		for (String name : constants.keySet()) {
+			setProperty(name, constants.get(name));
+		}
 	}
 	
 	@Override

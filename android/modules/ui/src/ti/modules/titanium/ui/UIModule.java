@@ -96,7 +96,7 @@ public class UIModule extends KrollModule
 		super(tiContext);
 	}
 	
-	@Kroll.setProperty @Kroll.method @Kroll.runOnUiThread
+	@Kroll.setProperty(runOnUiThread=true) @Kroll.method(runOnUiThread=true)
 	public void setBackgroundColor(String color)
 	{
 		Window w = getTiContext().getRootActivity().getWindow();
@@ -105,7 +105,7 @@ public class UIModule extends KrollModule
 		}
 	}
 	
-	@Kroll.setProperty @Kroll.method @Kroll.runOnUiThread
+	@Kroll.setProperty(runOnUiThread=true) @Kroll.method(runOnUiThread=true)
 	public void setOrientation(KrollInvocation invocation, int orientation)
 	{
 		int requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED;
