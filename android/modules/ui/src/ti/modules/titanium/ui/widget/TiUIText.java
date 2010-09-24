@@ -158,9 +158,13 @@ public class TiUIText extends TiUIView
 			String verticalAlign = null;
 			if (key.equals("textAlign")) {
 				textAlign = TiConvert.toString(newValue);
+			} else if (proxy.hasDynamicValue("textAlign")){
+				textAlign = TiConvert.toString(proxy.getDynamicValue("textAlign"));
 			}
 			if (key.equals("verticalAlign")) {
 				verticalAlign = TiConvert.toString(newValue);
+			} else if (proxy.hasDynamicValue("verticalAlign")){
+				verticalAlign = TiConvert.toString(proxy.getDynamicValue("verticalAlign"));
 			}
 			handleTextAlign(textAlign, verticalAlign);
 		} else if (key.equals("keyboardType") || (key.equals("autocorrect") || key.equals("autocapitalization") || key.equals("passwordMask"))) {

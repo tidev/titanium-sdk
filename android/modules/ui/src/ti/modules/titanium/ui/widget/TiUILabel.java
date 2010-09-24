@@ -15,14 +15,10 @@ import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiUIView;
 
-import android.text.Editable;
 import android.text.Html;
 import android.text.InputType;
-import android.text.method.KeyListener;
 import android.text.util.Linkify;
 import android.view.Gravity;
-import android.view.KeyEvent;
-import android.view.View;
 import android.widget.TextView;
 
 public class TiUILabel extends TiUIView
