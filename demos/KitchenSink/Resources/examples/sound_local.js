@@ -1,5 +1,5 @@
 if (Titanium.Media.audioPlaying) {
-	Titanium.Media.defaultAudioSessionMode = Titanium.Media.AUDIO_SESSION_MODE_AMBIENT;
+	Titanium.Media.audioSessionMode = Titanium.Media.AUDIO_SESSION_MODE_AMBIENT;
 }
 
 var win = Titanium.UI.currentWindow;
@@ -141,48 +141,6 @@ looping.addEventListener('click', function()
 win.add(looping);
 
 //
-// SET SESSION MODE
-//
-var title;
-switch (Titanium.Media.defaultAudioSessionMode) {
-	case Titanium.Media.AUDIO_SESSION_MODE_SOLO_AMBIENT:
-		title = 'Set session mode: Solo Ambient';
-		break;
-	case Titanium.Media.AUDIO_SESSION_MODE_AMBIENT:
-		title = 'Set session mode: Ambient';
-		break;
-}
-var sessionMode = Titanium.UI.createButton({
-	title:title,
-	height:40,
-	width:300,
-	bottom:10
-});
-
-sessionMode.addEventListener('click', function() {
-	switch (sound.audioSessionMode) {
-		case Titanium.Media.AUDIO_SESSION_MODE_SOLO_AMBIENT:
-			sound.audioSessionMode = Titanium.Media.AUDIO_SESSION_MODE_AMBIENT;
-			sessionMode.title = 'Set session mode: Ambient';
-			break;
-		case Titanium.Media.AUDIO_SESSION_MODE_AMBIENT:
-			sound.audioSessionMode = Titanium.Media.AUDIO_SESSION_MODE_PLAYBACK;
-			sessionMode.title = 'Set session mode: Playback';
-			break;
-		case Titanium.Media.AUDIO_SESSION_MODE_PLAYBACK:
-			sound.audioSessionMode = Titanium.Media.AUDIO_SESSION_MODE_PLAY_AND_RECORD;
-			sessionMode.title = 'Set session mode: Play & Record';
-			break;
-		case Titanium.Media.AUDIO_SESSION_MODE_PLAY_AND_RECORD:
-			sound.audioSessionMode = Titanium.Media.AUDIO_SESSION_MODE_SOLO_AMBIENT;
-			sessionMode.title = 'Set session mode: Solo Ambient';
-			break;
-	}
-});
-
-win.add(sessionMode);
-
-//
 // EVENTS
 //
 sound.addEventListener('complete', function()
@@ -228,6 +186,5 @@ var i = setInterval(function()
 win.addEventListener('close', function()
 {
 	clearInterval(i);
-	sound.destroy();
 });
 

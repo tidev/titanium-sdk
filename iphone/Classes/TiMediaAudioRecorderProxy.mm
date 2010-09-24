@@ -21,18 +21,15 @@
 {
 	RELEASE_TO_NIL(format);
 	RELEASE_TO_NIL(compression);
-	[[TiMediaAudioSession sharedSession] stopAudioSession];
 	[super dealloc];
 }
 
 -(void)_configure
 {
-    sessionMode = kAudioSessionCategory_RecordAudio; // Doesn't fit into the 'default' mode paradigm.. but I guess that's OK?
 	recorder = NULL;
 	format = [[NSNumber numberWithUnsignedInt:kAudioFileCAFType] retain];
 	compression = [[NSNumber numberWithUnsignedInt:kAudioFormatLinearPCM] retain];
 	
-	[[TiMediaAudioSession sharedSession] startAudioSession];
 	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(audioInterruptionBegin:) name:kTiMediaAudioSessionInterruptionBegin object:[TiMediaAudioSession sharedSession]];
 	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(audioInterruptionEnd:) name:kTiMediaAudioSessionInterruptionEnd object:[TiMediaAudioSession sharedSession]];
 	[super _configure];
@@ -45,6 +42,7 @@
 		if (recorder->IsRunning())
 		{
 			recorder->StopRecord();
+			[[TiMediaAudioSession sharedSession] stopAudioSession];
 		}
 		delete recorder;
 		recorder = NULL;
@@ -52,7 +50,6 @@
 	RELEASE_TO_NIL(file);
 	[[NSNotificationCenter defaultCenter] removeObserver:self name:kTiMediaAudioSessionInterruptionBegin object:[TiMediaAudioSession sharedSession]];
 	[[NSNotificationCenter defaultCenter] removeObserver:self name:kTiMediaAudioSessionInterruptionEnd object:[TiMediaAudioSession sharedSession]];
-	[[TiMediaAudioSession sharedSession] stopAudioSession];
 	[super _destroy];
 }
 
@@ -122,7 +119,13 @@
 		}
 		
 		// indicate we're going to start recording
-		[[TiMediaAudioSession sharedSession] record:sessionMode];
+		if (![[TiMediaAudioSession sharedSession] canRecord]) {
+			[self throwException:@"Improper audio session mode for recording"
+					   subreason:[[NSNumber numberWithUnsignedInt:[[TiMediaAudioSession sharedSession] sessionMode]] description]
+						location:CODELOCATION];
+		}
+		
+		[[TiMediaAudioSession sharedSession] startAudioSession];
 		
 		// set our audio file
 		recorder->SetupAudioFormat(comp);
@@ -139,11 +142,10 @@
 {
 	if (recorder!=NULL)
 	{
-		recorder->StopRecord();
-		
-		// place the session back in playback mode; reset to default category
-		[[TiMediaAudioSession sharedSession] playback:kAudioSessionCategory_SoloAmbientSound];
-		
+		if (recorder->IsRunning()) {
+			recorder->StopRecord();
+			[[TiMediaAudioSession sharedSession] stopAudioSession];
+		}
 		return file;
 	}
 	
@@ -200,12 +202,14 @@
         NSLog(@"Invalid mode for audio recorder... setting to default.");
         newMode = kAudioSessionCategory_RecordAudio;
     }
-    sessionMode = newMode;
+	NSLog(@"'Titanium.Media.AudioRecorder.audioSessionMode' is deprecated; use 'Titanium.Media.audioSessionMode'");
+	[[TiMediaAudioSession sharedSession] setSessionMode:newMode];
 }
 
 -(NSNumber*)audioSessionMode
 {
-    return [NSNumber numberWithUnsignedInteger:sessionMode];
+	NSLog(@"'Titanium.Media.AudioRecorder.audioSessionMode' is deprecated; use 'Titanium.Media.audioSessionMode'");	
+    return [NSNumber numberWithUnsignedInt:[[TiMediaAudioSession sharedSession] sessionMode]];
 }
 
 #pragma mark Delegates 

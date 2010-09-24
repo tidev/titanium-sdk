@@ -33,8 +33,6 @@ looping[boolean]: boolean to indicate if the audio should loop upon completion
 url[string]: url to the audio
 allowBackground[boolean]: boolean to indicate if audio should continue playing even if Activity is paused (Android only as of 1.3.0) 
 
-audioSessionMode[int]: the default audio session mode to be used for this player. One of [[Titanium.Media.AUDIO_SESSION_MODE_AMBIENT]], [[Titanium.Media.AUDIO_SESSION_MODE_SOLO_AMBIENT]],[[Titanium.Media.AUDIO_SESSION_MODE_PLAYBACK]],[[Titanium.Media.AUDIO_SESSION_MODE_RECORD]], [[Titanium.Media.AUDIO_SESSION_MODE_PLAY_AND_RECORD]].
-
 - methods
 
 play: starting playing the source. if paused, will resume.
