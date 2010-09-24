@@ -2,7 +2,7 @@
 #
 # Scons script for building the iphone library
 #
-import os,platform,sys,urllib,gzip
+import os,platform,sys,urllib,gzip,glob
 from progressbar import ProgressBar
 
 ticore_version = '7'
@@ -67,6 +67,10 @@ def fetch():
 		ofile.write(gfile.read())
 		ofile.close()
 		gfile.close()
+		
+		# delete all the old marker files so we can rollback
+		for f in glob.glob('lib/*.txt'):
+			os.remove(f)
 		
 		mfile = open(markerfile,'w')
 		mfile.write('DO NOT DELETE THIS FILE.')
