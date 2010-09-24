@@ -16,6 +16,7 @@ import org.appcelerator.titanium.ContextSpecific;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiDict;
 import org.appcelerator.titanium.TiModule;
+import org.appcelerator.titanium.TiProxy;
 import org.appcelerator.titanium.kroll.KrollCallback;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiActivityResultHandler;
@@ -26,7 +27,6 @@ import android.app.Activity;
 import android.content.Intent;
 import android.provider.Contacts;
 
-@ContextSpecific
 public class ContactsModule extends TiModule
 		implements TiActivityResultHandler
 {
@@ -97,6 +97,7 @@ public class ContactsModule extends TiModule
 	
 	public void showContacts(Object[] args)
 	{
+		TiProxy proxyForActivity = this;
 		Intent intent = contactsApi.getIntentForContactsPicker();
 		if (DBG) {
 			Log.d(LCAT, "Launching content picker activity");
@@ -121,9 +122,12 @@ public class ContactsModule extends TiModule
 					}
 				}
 			}
+			if (d.containsKey("proxy")) {
+				proxyForActivity = (TiProxy) d.get("proxy");
+			}
 		}
 		
-		TiActivitySupport activitySupport = (TiActivitySupport) getTiContext().getActivity();
+		TiActivitySupport activitySupport = (TiActivitySupport) proxyForActivity.getTiContext().getActivity();
 		
 		activitySupport.launchActivityForResult(intent, requestCode, this);
 	}
