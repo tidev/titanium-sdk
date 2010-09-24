@@ -6,6 +6,7 @@
  */
 package ti.modules.titanium.media;
 
+import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
@@ -39,6 +40,7 @@ public class TiVideoActivity extends Activity
 	public static final int MSG_PLAY = 10000;
 	public static final int MSG_ADD_VIEW = 10001;
 	public static final int MSG_STOP_PLAYBACK = 10002;
+	public static final int MSG_HIDE = 10003;
 
 	private Handler handler;
 	private String contentUrl;
@@ -157,6 +159,14 @@ public class TiVideoActivity extends Activity
 				}
 				return false;
 			}
+			case MSG_HIDE: {
+				if (videoView != null && started) {
+					videoView.stopPlayback();
+					started = false;
+				}
+				finish();
+				return true;
+			}
 		}
 		return false;
 	}
@@ -180,6 +190,8 @@ public class TiVideoActivity extends Activity
 	protected void onResume() {
 		super.onResume();
 
+		((TiApplication) getApplication()).setCurrentActivity(this, this);
+
 		if (started) {
 			videoView.start();
 		}
@@ -188,6 +200,7 @@ public class TiVideoActivity extends Activity
 	@Override
 	protected void onPause() {
 		super.onPause();
+		((TiApplication) getApplication()).setCurrentActivity(this, null);
 		videoView.pause();
 	}
 

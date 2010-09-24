@@ -51,6 +51,7 @@ public abstract class TiApplication extends Application
 	
 	private static final String PROPERTY_DEPLOY_TYPE = "ti.deploytype";
 	private static final String PROPERTY_THREAD_STACK_SIZE = "ti.android.threadstacksize";
+	private static final String PROPERTY_COMPILE_JS = "ti.android.compilejs";
 	
 	private static final String LCAT = "TiApplication";
 	private static final boolean DBG = TiConfig.LOGD;
@@ -486,5 +487,9 @@ public abstract class TiApplication extends Application
 	
 	public int getThreadStackSize() {
 		return getSystemProperties().getInt(PROPERTY_THREAD_STACK_SIZE, DEFAULT_THREAD_STACK_SIZE);
+	}
+	
+	public boolean forceCompileJS() {
+		return getSystemProperties().getBool(PROPERTY_COMPILE_JS, false);
 	}
 }

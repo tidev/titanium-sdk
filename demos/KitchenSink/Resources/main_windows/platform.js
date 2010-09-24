@@ -17,7 +17,8 @@ var data = [
 	{title:'XML RSS', hasChild:true, test:'../examples/xml_rss.js'},
 	{title:'Utils', hasChild:true, test:'../examples/utils.js'},
 	{title:'JSON', hasChild:true, test:'../examples/json.js'},
-	{title:'JS search', hasChild:true, test:'../examples/search_case_insensitive.js'}
+	{title:'JS search', hasChild:true, test:'../examples/search_case_insensitive.js'},
+	{title:'Clipboard', hasChild:true, test:'../examples/clipboard.js'}
 
 ];
 

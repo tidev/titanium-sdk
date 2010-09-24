@@ -15,6 +15,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiContext;
+import org.appcelerator.titanium.TiProperties;
 import org.appcelerator.titanium.TiScriptRunner;
 import org.appcelerator.titanium.io.TiBaseFile;
 import org.appcelerator.titanium.io.TiFileFactory;
@@ -67,7 +68,9 @@ public class KrollContext extends KrollHandlerThread implements Handler.Callback
 		
 		// force to true to test compiled JS
 		// this.useOptimization = true;
-		this.useOptimization = tiContext.getTiApp().getDeployType() == TiApplication.DEPLOY_TYPE_PRODUCTION;
+		TiApplication app = tiContext.getTiApp();
+		this.useOptimization =
+			app.getDeployType() == TiApplication.DEPLOY_TYPE_PRODUCTION || app.forceCompileJS();
 	}
 
 	@Override
@@ -80,20 +83,19 @@ public class KrollContext extends KrollHandlerThread implements Handler.Callback
 		}
 
 		contextHandler = new Handler(this);
-        Context ctx = enter();
-        try
-        {
-        	if (DBG) {
-        		Log.i(LCAT, "Preparing scope");
-        	}
-            this.jsScope = ctx.initStandardObjects();
-            if (DBG) {
-            	Log.i(LCAT, "Scope prepared");
-            }
-            initialized.countDown();
-         } finally {
-        	 exit();
-         }
+		Context ctx = enter();
+		try {
+			if (DBG) {
+				Log.i(LCAT, "Preparing scope");
+			}
+			this.jsScope = ctx.initStandardObjects();
+			if (DBG) {
+				Log.i(LCAT, "Scope prepared");
+			}
+			initialized.countDown();
+		} finally {
+			exit();
+		}
 
 	}
 
@@ -169,9 +171,8 @@ public class KrollContext extends KrollHandlerThread implements Handler.Callback
 		
 		Context context = enter(true);
 		try {
-			Scriptable scope = context.initStandardObjects(jsScope);
 			Log.d(LCAT, "Running pre-compiled script: "+filename);
-			return TiScriptRunner.getInstance().runScript(context, scope, filename);
+			return TiScriptRunner.getInstance().runScript(context, jsScope, filename);
 		} catch (ClassNotFoundException e) {
 			Log.e(LCAT, "Couldn't find pre-compiled class for script: " + filename, e);
 		} finally {

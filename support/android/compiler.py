@@ -124,7 +124,8 @@ class Compiler(object):
 	
 	def compile_javascript(self, fullpath):
 		js_jar = os.path.join(self.template_dir, 'js.jar')
-		resource_relative_path = os.path.relpath(fullpath, self.project_dir)
+		# poor man's os.path.relpath (we don't have python 2.6 in windows)
+		resource_relative_path = fullpath[len(self.project_dir)+1:].replace("\\", "/")
 		
 		# chop off '.js'
 		js_class_name = resource_relative_path[:-3]
@@ -136,7 +137,7 @@ class Compiler(object):
 		jsc_args = [self.java, '-classpath', js_jar, 'org.mozilla.javascript.tools.jsc.Main',
 			'-main-method-class', 'org.appcelerator.titanium.TiScriptRunner',
 			'-package', self.appid + '.js', '-o', js_class_name,
-			'-d', os.path.join(self.root_dir, 'bin'), fullpath]
+			'-d', self.classes_dir, fullpath]
 			
 		print "[INFO] Compiling javascript: %s" % resource_relative_path
 		sys.stdout.flush()
@@ -244,7 +245,7 @@ if __name__ == "__main__":
 	project_dir = os.path.expanduser(sys.argv[1])
 	resources_dir = os.path.join(project_dir, 'Resources')
 	root_dir = os.path.join(project_dir, 'build', 'android')
-	destdir = os.path.join(root_dir, 'bin')
+	destdir = os.path.join(root_dir, 'bin', 'classes')
 	sys.path.append("..")
 	from tiapp import TiAppXML
 	tiapp = TiAppXML(os.path.join(project_dir, 'tiapp.xml'))

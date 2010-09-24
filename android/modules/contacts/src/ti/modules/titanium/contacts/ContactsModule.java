@@ -25,7 +25,6 @@ import org.appcelerator.titanium.util.TiConfig;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.provider.Contacts;
 
 @Kroll.module @ContextSpecific
 public class ContactsModule extends KrollModule
@@ -40,11 +39,13 @@ public class ContactsModule extends KrollModule
 	@Kroll.constant public static final int CONTACTS_SORT_LAST_NAME = 1;
 	
 	private final AtomicInteger requestCodeGen = new AtomicInteger();
+	private final CommonContactsApi contactsApi;
 	private Map<Integer, Map<String, KrollCallback>> requests;
 	
 	public ContactsModule(TiContext tiContext)
 	{
 		super(tiContext);
+		contactsApi = CommonContactsApi.getInstance(tiContext);
 	}
 	
 	@Kroll.method
@@ -59,7 +60,8 @@ public class ContactsModule extends KrollModule
 			Double maxObj = (Double)options.get("max");
 			length = maxObj.intValue();
 		}
-		Object[] persons =  PersonProxy.getAllPersons(getTiContext(),length);
+		
+		Object[] persons = contactsApi.getAllPeople(length);
 		
 		Calendar end = Calendar.getInstance();
 		long elapsed = end.getTimeInMillis() - start.getTimeInMillis();
@@ -72,19 +74,19 @@ public class ContactsModule extends KrollModule
 	@Kroll.method
 	public Object[] getPeopleWithName(String name)
 	{
-		return PersonProxy.getPeopleWithName(getTiContext(), name);
+		return contactsApi.getPeopleWithName(name);
 	}
 	
 	@Kroll.method
 	public PersonProxy getPersonByID(long id)
 	{
-		return PersonProxy.fromId(getTiContext(), id);
+		return contactsApi.getPersonById(id);
 	}
 	
 	@Kroll.method
 	public void showContacts(@Kroll.argument(optional=true) KrollDict d)
 	{
-		Intent intent = new Intent(Intent.ACTION_PICK, Contacts.People.CONTENT_URI);
+		Intent intent = contactsApi.getIntentForContactsPicker();
 		if (DBG) {
 			Log.d(LCAT, "Launching content picker activity");
 		}
@@ -139,7 +141,7 @@ public class ContactsModule extends KrollModule
 				if (request.containsKey("selectedPerson")) {
 					KrollCallback callback = request.get("selectedPerson");
 					if (callback != null) {
-						PersonProxy person = PersonProxy.fromUri(getTiContext(), data.getData());
+						PersonProxy person = contactsApi.getPersonByUri(data.getData());
 						KrollDict result = new KrollDict();
 						result.put("person", person);
 						callback.call(new Object[]{result});
