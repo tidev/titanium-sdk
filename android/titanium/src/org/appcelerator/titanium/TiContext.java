@@ -358,20 +358,25 @@ public class TiContext implements TiEvaluator, ITiMenuDispatcherListener, ErrorR
 
 	protected void dispatchOnEventChange(boolean added, String eventName, int count, TiProxy tiProxy)
 	{
-		for (WeakReference<OnEventListenerChange> ref : eventChangeListeners) {
-			OnEventListenerChange l = ref.get();
-			if (l != null) {
-				try {
-					if (added) {
-						l.eventListenerAdded(eventName, count, tiProxy);
-					} else {
-						l.eventListenerRemoved(eventName, count, tiProxy);
-					}
-				} catch (Throwable t) {
-					Log.e(LCAT, "Error invoking OnEventChangeListener: " + t.getMessage(), t);
-				}
-			}
+		if (added) {
+			tiProxy.eventListenerAdded(eventName, count, tiProxy);
+		} else {
+			tiProxy.eventListenerRemoved(eventName, count, tiProxy);
 		}
+//		for (WeakReference<OnEventListenerChange> ref : eventChangeListeners) {
+//			OnEventListenerChange l = ref.get();
+//			if (l != null) {
+//				try {
+//					if (added) {
+//						l.eventListenerAdded(eventName, count, tiProxy);
+//					} else {
+//						l.eventListenerRemoved(eventName, count, tiProxy);
+//					}
+//				} catch (Throwable t) {
+//					Log.e(LCAT, "Error invoking OnEventChangeListener: " + t.getMessage(), t);
+//				}
+//			}
+//		}
 	}
 
 	public int addEventListener(String eventName, TiProxy tiProxy, Object listener)
@@ -394,7 +399,12 @@ public class TiContext implements TiEvaluator, ITiMenuDispatcherListener, ErrorR
 						if (DBG) {
 							Log.d(LCAT, "Added for eventName '" + eventName + "' with id " + listenerId);
 						}
-						listenerCount = listeners.size();
+						listenerCount = 0;
+						for(TiListener l : listeners.values()) {
+							if (l.isSameProxy(tiProxy)) {
+								listenerCount++;
+							}
+						}
 					}
 					dispatchOnEventChange(true, eventName, listenerCount, tiProxy);
 				} else {
