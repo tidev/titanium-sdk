@@ -205,6 +205,7 @@ enum
 	animatedPicker = YES;
 	saveToRoll = NO;
 	BOOL editable = NO;
+	UIImagePickerControllerSourceType ourSource = (isCamera ? UIImagePickerControllerSourceTypeCamera : UIImagePickerControllerSourceTypePhotoLibrary);
 	
 	if (args!=nil)
 	{
@@ -222,7 +223,7 @@ enum
 		// introduced in 3.1
 		[picker setAllowsEditing:editable];
 		
-		NSArray *sourceTypes = [UIImagePickerController availableMediaTypesForSourceType:UIImagePickerControllerSourceTypeCamera];
+		NSArray *sourceTypes = [UIImagePickerController availableMediaTypesForSourceType:ourSource];
 		id types = [args objectForKey:@"mediaTypes"];
 		
 		BOOL movieRequired = NO;
@@ -278,7 +279,6 @@ enum
 	
 	// do this afterwards above so we can first check for video support
 	
-	UIImagePickerControllerSourceType ourSource = (isCamera ? UIImagePickerControllerSourceTypeCamera : UIImagePickerControllerSourceTypePhotoLibrary);
 	if (![UIImagePickerController isSourceTypeAvailable:ourSource])
 	{
 		[self sendPickerError:MediaModuleErrorNoCamera];
