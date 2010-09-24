@@ -13,7 +13,6 @@ public final class ${config['classname']}AppInfo implements ITiAppInfo
 {
 	private static final String LCAT = "AppInfo";
 	
-	<%def name="to_bool(value)">${str(value in ['true', 'True', 'TRUE', 'yes', 'Yes', 'YES', 'y', 't', '1']).lower()}</%def>
 	public ${config['classname']}AppInfo(TiApplication app) {
 		%if len(app_properties.keys()) > 0:
 		TiProperties properties = app.getSystemProperties();
@@ -23,7 +22,7 @@ public final class ${config['classname']}AppInfo implements ITiAppInfo
 					value = app_properties[property]['value']
 					type = app_properties[property]['type']
 					if type == 'string': javaValue = '"%s"' % value
-					elif type == 'bool': javaValue = to_bool(value=value)
+					elif type == 'bool': javaValue = str(value in ['true', 'True', 'TRUE', 'yes', 'Yes', 'YES', 'y', 't', '1']).lower()
 					elif type == 'int': javaValue = int(value)
 					elif type == 'double': javaValue = float(value)
 					setter = 'set%s' % type[0:1].upper() + type[1:]

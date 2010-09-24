@@ -114,6 +114,10 @@ public class KrollCallback extends KrollMethod
 	@Override
 	public boolean equals(Object obj)
 	{
+		if (!(obj instanceof KrollCallback)) {
+			return false;
+		}
+		
 		KrollCallback kb = (KrollCallback) obj;
 		return method.equals(kb.method);
 	}

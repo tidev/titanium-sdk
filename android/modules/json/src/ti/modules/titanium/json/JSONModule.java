@@ -50,7 +50,7 @@ public class JSONModule extends KrollModule {
 	{
 		Object parsed = null;
 
-		if (json == null) {
+		if (json == null || json.length() == 0) {
 			return parsed;
 		}
 		
