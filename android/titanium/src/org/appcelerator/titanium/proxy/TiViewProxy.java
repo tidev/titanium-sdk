@@ -523,7 +523,12 @@ public abstract class TiViewProxy extends TiProxy implements Handler.Callback
 	}
 
 	@Override
-	public boolean fireEvent(String eventName, TiDict data) {
+	public boolean fireEvent(String eventName, TiDict data) 
+	{
+		if (data == null) {
+			data = new TiDict();
+		}
+		
 		boolean handled = super.fireEvent(eventName, data);
 
 		if (parent != null && parent.get() != null) {

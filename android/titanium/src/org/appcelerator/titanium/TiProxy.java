@@ -280,6 +280,17 @@ public class TiProxy implements Handler.Callback, TiDynamicMethod, OnEventListen
 	public boolean fireEvent(String eventName, TiDict data) {
 		TiContext ctx = getTiContext();
 		boolean handled = false;
+		
+		if (data == null) {
+			data = new TiDict();
+		}
+		if (!data.containsKey("type")) {
+			data.put("type", eventName);
+		}
+		if (!data.containsKey("source")) {
+			data.put("source", this);
+		}
+
 		if (ctx != null) {
 			handled = ctx.dispatchEvent(eventName, data, this);
 		}
