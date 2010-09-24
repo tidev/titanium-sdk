@@ -38,15 +38,6 @@ public class KrollBridge implements TiEvaluator
 		tiModule.bindContextSpecific(this);
 		
 		tiContext.getTiApp().bindModules(this, tiModule);
-		bindCustomAPIs();
-	}
-	
-	protected void bindCustomAPIs() {
-		bindContextSpecific("String.format", "stringFormat", true);
-		bindContextSpecific("String.formatDate", "stringFormatDate", true);
-		bindContextSpecific("String.formatTime", "stringFormatTime", true);
-		bindContextSpecific("String.formatCurrency", "stringFormatCurrency", true);
-		bindContextSpecific("String.formatDecimal", "stringFormatDecimal", true);
 	}
 	
 	public Scriptable getObject(Scriptable globalObject, String... objects) {
@@ -81,7 +72,21 @@ public class KrollBridge implements TiEvaluator
 			value = new KrollObject((KrollProxy)value);
 		}
 		
-		kroll.getScope().put(topLevelName, kroll.getScope(), value);
+		Scriptable parent = kroll.getScope();
+		String name = topLevelName;
+		if (topLevelName.contains(".")) {
+			// Support for setting named properties on existing top level objects
+			int lastDot = topLevelName.lastIndexOf(".");
+			String parentName = topLevelName.substring(0, lastDot);
+			parent = getObject(kroll.getScope(), parentName.split("\\."));
+			if (parent == null) {
+				parent = kroll.getScope();
+			} else {
+				name = topLevelName.substring(lastDot+1);
+			}
+		}
+		
+		parent.put(name, parent, value);
 	}
 	
 	public void bindToTopLevel(String topLevelName, String objectName) {
@@ -89,10 +94,6 @@ public class KrollBridge implements TiEvaluator
 	}
 	
 	public void bindContextSpecific(String ctxSpecificName, String objectName) {
-		bindContextSpecific(ctxSpecificName, objectName, false);
-	}
-	
-	public void bindContextSpecific(String ctxSpecificName, String objectName, boolean topLevel) {
 		int lastDot = ctxSpecificName.lastIndexOf('.');
 		if (lastDot < 0) return;
 		
@@ -100,21 +101,13 @@ public class KrollBridge implements TiEvaluator
 		String ctxName = ctxSpecificName.substring(lastDot+1);
 		
 		Scriptable object = getObject(titanium, objectName);
-		bindContextSpecific(objName, ctxName, object, topLevel);
+		bindContextSpecific(objName, ctxName, object);
 	}
 	
 	public void bindContextSpecific(String objectName, String ctxSpecificName, Object value) {
-		bindContextSpecific(objectName, ctxSpecificName, value, false);
-	}
-	
-	public void bindContextSpecific(String objectName, String ctxSpecificName, Object value, boolean topLevel) {
 		Scriptable object = titanium;
 		if (objectName != null) {
-			if (topLevel) {
-				object = getObject(kroll.getScope(), objectName);
-			} else {
-				object = getObject(titanium, objectName);
-			}
+			object = getObject(titanium, objectName);
 		}
 		if (object != null) {
 			KrollInvocation invocation = KrollInvocation.createPropertySetInvocation(object, object, ctxSpecificName, null, null);

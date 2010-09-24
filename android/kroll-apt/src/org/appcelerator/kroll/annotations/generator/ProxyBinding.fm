@@ -161,7 +161,7 @@ public class ${genClassName} <#if superProxyBindingClassName??>extends ${superPr
 	<#if superProxyBindingClassName??>@Override</#if>
 	public void bindToParent(KrollProxy parent, KrollProxy proxy) {
 		<#if isModule>
-		parent.setProperty("${proxyAttrs.name}", proxy);
+		parent.bindValue("${proxyAttrs.name}", proxy);
 		</#if>
 	}
 	
@@ -170,6 +170,13 @@ public class ${genClassName} <#if superProxyBindingClassName??>extends ${superPr
 		<#list proxyAttrs.topLevelNames as topLevelName>
 		bridge.bindToTopLevel("${topLevelName}", proxy);
 		</#list>
+		</#if>
+		<#if topLevelMethods??>
+			<#list topLevelMethods?keys as methodName>
+				<#list topLevelMethods[methodName] as topLevelName>
+		bridge.bindToTopLevel("${topLevelName}", proxy.getBoundMethod("${methodName}"));
+				</#list>
+			</#list>
 		</#if>
 	}
 	
@@ -183,7 +190,7 @@ public class ${genClassName} <#if superProxyBindingClassName??>extends ${superPr
 				<#list allModules[module].createProxies as createProxy>
 		<#if createProxy_index = 0>// create methods for proxies </#if>
 		try {
-		__proxy.setProperty("create${createProxy.name}", new KrollMethod(__proxy, "create${createProxy.name}") {
+		__proxy.bindMethod("create${createProxy.name}", new KrollMethod(__proxy, "create${createProxy.name}") {
 			public Object invoke(KrollInvocation __invocation, Object[] __args) throws Exception
 			{
 				${createProxy.proxyClassName} __createdProxy = new ${createProxy.proxyClassName}(__invocation.getTiContext());
@@ -224,7 +231,7 @@ public class ${genClassName} <#if superProxyBindingClassName??>extends ${superPr
 				<#assign constant = constants[constantName]>
 		if (include("${constantName}", filteredBindings)) {
 			try {
-				__proxy.setProperty("${constantName}", ${proxyClassName}.${constant.proxyName});
+				__proxy.bindValue("${constantName}", ${proxyClassName}.${constant.proxyName});
 			} catch (Exception e) { Log.e(TAG, "Error binding constant: ${proxyAttrs.name}.${constantName}", e); }
 		}
 			</#list>
@@ -240,7 +247,7 @@ public class ${genClassName} <#if superProxyBindingClassName??>extends ${superPr
 			KrollReflectionProperty __property = new KrollReflectionProperty(p, "${propertyName}", ${property.get?string}, ${property.set?string}, "${property.proxyName}");
 			__property.setJavascriptConverter(${property.javascriptConverter}.getInstance());
 			__property.setNativeConverter(${property.nativeConverter}.getInstance());
-			__proxy.setProperty("${propertyName}", __property);
+			__proxy.bindProperty("${propertyName}", __property);
 		} catch (Exception e) { Log.e(TAG, "Error binding property ${proxyAttrs.name}.${propertyName}", e); }
 			</#list>
 		</#if>
@@ -284,7 +291,7 @@ public class ${genClassName} <#if superProxyBindingClassName??>extends ${superPr
 			</#if>
 			__property.setJavascriptConverter(${dynamicProperty.javascriptConverter}.getInstance());
 			__property.setNativeConverter(${dynamicProperty.nativeConverter}.getInstance());
-			__proxy.setProperty("${propertyName}", __property);
+			__proxy.bindProperty("${propertyName}", __property);
 		} catch (Exception e) { Log.e(TAG, "Error binding dynamic property ${proxyAttrs.name}.${propertyName}", e); }
 			</#list>
 		</#if>
@@ -306,14 +313,7 @@ public class ${genClassName} <#if superProxyBindingClassName??>extends ${superPr
 			${methodName}_method.setRunOnUiThread(true);
 			</#if>
 			try {
-				__proxy.setProperty("${method.apiName}", ${methodName}_method);
-				<#if topLevelMethods??>
-					<#if topLevelMethods?keys?seq_contains(methodName)>
-						<#list topLevelMethods[methodName] as topLevelName>
-				__proxy.getKrollBridge().bindToTopLevel("${topLevelName}", ${methodName}_method);
-						</#list>
-					</#if>
-				</#if>
+				__proxy.bindMethod("${method.apiName}", ${methodName}_method);
 			} catch (Exception e) { Log.e(TAG, "Error binding method ${proxyAttrs.name}.${method.apiName}", e); }
 			</#list>
 		</#if>

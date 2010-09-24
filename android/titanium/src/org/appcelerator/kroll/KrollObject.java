@@ -7,11 +7,12 @@
 package org.appcelerator.kroll;
 
 import org.mozilla.javascript.Context;
+import org.mozilla.javascript.Function;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
 
 @SuppressWarnings("serial")
-public class KrollObject extends ScriptableObject {
+public class KrollObject extends ScriptableObject implements Function {
 
 	protected KrollProxy proxy;
 	
@@ -42,6 +43,7 @@ public class KrollObject extends ScriptableObject {
 	
 	@Override
 	public Object get(int index, Scriptable start) {
+		// TODO: implement special array index getters in binding
 		return super.get(index, start);
 	}
 	
@@ -59,7 +61,32 @@ public class KrollObject extends ScriptableObject {
 	
 	@Override
 	public void put(int index, Scriptable start, Object value) {
+		// TODO: implement special array index setters in binding
 		super.put(index, start, value);
+	}
+	
+	@Override
+	public boolean has(int index, Scriptable start) {
+		// TODO: implement special array "has" in binding
+		return super.has(index, start);
+	}
+	
+	@Override
+	public boolean has(String name, Scriptable start) {
+		return proxy.has(start, name);
+	}
+	
+	@Override
+	public Object call(Context cx, Scriptable scope, Scriptable thisObj,
+			Object[] args) {
+		// TODO: implement proxy-as-function binding
+		return null;
+	}
+	
+	@Override
+	public Scriptable construct(Context cx, Scriptable scope, Object[] args) {
+		// TODO: implement proxy-as-constructor binding
+		return null;
 	}
 	
 	public KrollProxy getProxy() {

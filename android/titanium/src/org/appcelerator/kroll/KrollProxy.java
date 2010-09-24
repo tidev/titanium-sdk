@@ -18,6 +18,7 @@ import org.appcelerator.titanium.bridge.OnEventListenerChange;
 import org.appcelerator.titanium.kroll.KrollBridge;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
+import org.mozilla.javascript.Function;
 import org.mozilla.javascript.Scriptable;
 
 import android.os.Handler;
@@ -38,13 +39,14 @@ public class KrollProxy implements Handler.Callback, OnEventListenerChange {
 	public static final Object UNDEFINED = new Object();
 
 	protected KrollDict properties = new KrollDict();
+	protected KrollDict bindings = new KrollDict();
 	protected TiContext context, creatingContext;
 
 	protected Handler uiHandler;
 	protected CountDownLatch waitForHandler;
 	protected String proxyId;
 	protected KrollProxyListener modelListener;
-	protected static HashMap<Class<? extends KrollProxy>, KrollProxyBinding> bindings = new HashMap<Class<? extends KrollProxy>, KrollProxyBinding>();
+	protected static HashMap<Class<? extends KrollProxy>, KrollProxyBinding> proxyBindings = new HashMap<Class<? extends KrollProxy>, KrollProxyBinding>();
 	
 	@Kroll.inject
 	protected KrollInvocation currentInvocation;
@@ -84,14 +86,14 @@ public class KrollProxy implements Handler.Callback, OnEventListenerChange {
 	}
 	
 	protected KrollProxyBinding getBinding() {
-		if (!bindings.containsKey(getClass())) {
+		if (!proxyBindings.containsKey(getClass())) {
 			String bindingClassName = getClass().getName();
 			bindingClassName += "BindingGen";
 			
 			try {
 				Class<?> bindingClass = Class.forName(bindingClassName);
 				KrollProxyBinding bindingInstance = (KrollProxyBinding) bindingClass.newInstance();
-				bindings.put(getClass(), bindingInstance);
+				proxyBindings.put(getClass(), bindingInstance);
 				return bindingInstance;
 			} catch (ClassNotFoundException e) {
 				Log.e(TAG, "Couldn't find binding class for proxy " + getClass().getName(), e);
@@ -101,7 +103,7 @@ public class KrollProxy implements Handler.Callback, OnEventListenerChange {
 				Log.e(TAG, "Couldn't insantiate binding class " + bindingClassName, e);
 			}
 		}
-		return bindings.get(getClass());
+		return proxyBindings.get(getClass());
 	}
 	
 	public void bindProperties() {
@@ -129,24 +131,21 @@ public class KrollProxy implements Handler.Callback, OnEventListenerChange {
 	}
 
 	public boolean has(Scriptable scope, String name) {
-		try {
-			get(scope, name);
-			return true;
-		} catch (NoSuchFieldException e) {
-			return false;
-		}
+		return bindings.containsKey(name) || properties.containsKey(name);
 	}
 
 	public Object get(Scriptable scope, String name)
 			throws NoSuchFieldException {
-		if (properties.containsKey(name)) {
-			Object value = properties.get(name);
+		if (bindings.containsKey(name)) {
+			Object value = bindings.get(name);
 			if (value instanceof KrollProperty) {
 				return getDynamicProperty(scope, name,
 						(KrollProperty) value);
 			} else {
 				return value;
 			}
+		} else if (properties.containsKey(name)) {
+			return properties.get(name);
 		}
 		return UNDEFINED;
 	}
@@ -155,15 +154,19 @@ public class KrollProxy implements Handler.Callback, OnEventListenerChange {
 			throws NoSuchFieldException {
 		Object oldValue = null;
 
-		if (properties.containsKey(name)) {
-			Object currentValue = properties.get(name);
+		if (bindings.containsKey(name)) {
+			Object currentValue = bindings.get(name);
 			if (currentValue instanceof KrollProperty) {
 				setDynamicProperty(scope, name,
 						(KrollProperty) currentValue, value);
 				return;
 			} else {
-				oldValue = currentValue;
+				// support for overwriting an internal binding
+				bindings.put(name, value);
+				return;
 			}
+		} else if (properties.containsKey(name)) {
+			oldValue = properties.get(name);
 		}
 
 		if (oldValue != value) {
@@ -288,7 +291,48 @@ public class KrollProxy implements Handler.Callback, OnEventListenerChange {
 			}
 		}
 	}
+	
+	public boolean hasBoundMethod(String methodName) {
+		if (bindings.containsKey(methodName)) {
+			return bindings.get(methodName) instanceof Function;
+		}
+		return false;
+	}
+	
+	public boolean hasBoundProperty(String propertyName) {
+		if (bindings.containsKey(propertyName)) {
+			Object property = bindings.get(propertyName);
+			if (property instanceof KrollProperty) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	public void bindMethod(String name, Function method) {
+		bindValue(name, method);
+	}
+	
+	public void bindProperty(String name, KrollProperty property) {
+		bindValue(name, property);
+	}
+	
+	public void bindValue(String name, Object value) {
+		bindings.put(name, value);
+	}
 
+	public KrollMethod getBoundMethod(String name) {
+		return (KrollMethod) getBoundValue(name);
+	}
+	
+	public KrollProperty getBoundProperty(String name) {
+		return (KrollProperty) getBoundValue(name);
+	}
+	
+	public Object getBoundValue(String name) {
+		return bindings.get(name);
+	}
+	
 	public void handleCreationArgs(Object[] args) {
 		if (args.length >= 1 && args[0] instanceof KrollDict) {
 			handleCreationDict((KrollDict)args[0]);

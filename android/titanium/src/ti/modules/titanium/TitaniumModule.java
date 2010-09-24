@@ -181,7 +181,7 @@ public class TitaniumModule extends KrollModule implements TiContext.OnLifecycle
 		timers.clear();
 	}
 	
-	@Kroll.method
+	@Kroll.method @Kroll.topLevel("String.format")
 	public String stringFormat(String format, Object args[])
 	{
 		try {
@@ -200,7 +200,7 @@ public class TitaniumModule extends KrollModule implements TiContext.OnLifecycle
 		}
 	}
 	
-	@Kroll.method
+	@Kroll.method @Kroll.topLevel("String.formatDate")
 	public String stringFormatDate(Date date, @Kroll.argument(optional=true) String format)
 	{
 		int style = DateFormat.SHORT;
@@ -214,7 +214,7 @@ public class TitaniumModule extends KrollModule implements TiContext.OnLifecycle
 		return fmt.format(date);
 	}
 
-	@Kroll.method
+	@Kroll.method @Kroll.topLevel("String.formatTime")
 	public String stringFormatTime(Date time)
 	{
 		int style = DateFormat.SHORT;
@@ -222,13 +222,13 @@ public class TitaniumModule extends KrollModule implements TiContext.OnLifecycle
 		return fmt.format(time);
 	}
 
-	@Kroll.method
+	@Kroll.method @Kroll.topLevel("String.formatCurrency")
 	public String stringFormatCurrency(double currency)
 	{
 		return NumberFormat.getCurrencyInstance().format(currency);
 	}
 
-	@Kroll.method
+	@Kroll.method @Kroll.topLevel("String.formatDecimal")
 	public String stringFormatDecimal(Object args[])
 	{
 		String pattern = null;
