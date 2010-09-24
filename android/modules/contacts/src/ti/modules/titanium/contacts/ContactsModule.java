@@ -25,8 +25,8 @@ import org.appcelerator.titanium.util.TiConfig;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.provider.Contacts;
 
+@ContextSpecific
 public class ContactsModule extends TiModule
 		implements TiActivityResultHandler
 {
@@ -123,7 +123,10 @@ public class ContactsModule extends TiModule
 				}
 			}
 			if (d.containsKey("proxy")) {
-				proxyForActivity = (TiProxy) d.get("proxy");
+				Object test = d.get("proxy");
+				if (test != null && test instanceof TiProxy) {
+					proxyForActivity = (TiProxy) test;
+				}
 			}
 		}
 		
