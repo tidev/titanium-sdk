@@ -18,6 +18,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
 import android.content.DialogInterface;
+import android.content.DialogInterface.OnCancelListener;
 
 public class TiUIDialog extends TiUIView
 {
@@ -149,6 +150,17 @@ public class TiUIDialog extends TiUIView
 	{
 		if (dialog == null) {
 			processProperties(proxy.getDynamicProperties());
+			builder.setOnCancelListener(new OnCancelListener() {
+				
+				@Override
+				public void onCancel(DialogInterface dlg) {
+					int cancelIndex = (proxy.hasDynamicValue("cancel")) ? TiConvert.toInt(proxy.getDynamicValue("cancel")) : -1;
+					if (DBG) {
+						Log.d(LCAT, "onCancelListener called. Sending index: " + cancelIndex);
+					}
+					handleEvent(cancelIndex);
+				}
+			});
 			dialog = builder.create();
 		}
 		try {
@@ -168,8 +180,10 @@ public class TiUIDialog extends TiUIView
 
 	public void handleEvent(int id)
 	{
+		int cancelIndex = (proxy.hasDynamicValue("cancel")) ? TiConvert.toInt(proxy.getDynamicValue("cancel")) : -1;
 		TiDict data = new TiDict();
 		data.put("index", id);
+		data.put("cancel", id == cancelIndex);
 		proxy.fireEvent("click", data);
 	}
 }

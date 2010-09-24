@@ -189,7 +189,7 @@ NSArray * tableKeySequence;
     NSDictionary *anim = [args count] > 2 ? [args objectAtIndex:2] : nil;
 	
 	TiUITableViewRowProxy *newrow = [self tableRowFromArg:data];
-	TiUITableView *table = [self viewAttached]?[self tableView]:nil;
+	TiUITableView *table = [self viewInitialized]?[self tableView]:nil;
 	
 	NSMutableArray *sections = [self valueForKey:@"data"];
 	
@@ -264,12 +264,22 @@ NSArray * tableKeySequence;
 		return;
 	}
 	
-	if ([self viewAttached])
+	if ([self viewInitialized])
 	{
 		TiUITableView *table = [self tableView];
 		TiUITableViewAction *action = [[[TiUITableViewAction alloc] initWithRow:row animation:anim section:section.section type:TiUITableViewActionDeleteRow] autorelease];
 		[table dispatchAction:action];
 	}
+	else
+	{
+		//No table, we have to do the data update ourselves.
+		// If we don't handle it, the row gets dropped on the ground,
+		// but if we create the tableview, there's this horrible issue where
+		// the uitableview isn't fully formed, it gets this message to do an action,
+		// and ends up throwing an exception because we're out of bounds.
+		[section remove:row];
+	}
+
 }
 
 -(void)insertRowBefore:(id)args
@@ -280,7 +290,7 @@ NSArray * tableKeySequence;
 	NSDictionary *data = [args objectAtIndex:1];
 	NSDictionary *anim = [args count] > 2 ? [args objectAtIndex:2] : nil;
 	
-	TiUITableView *table = [self viewAttached]?[self tableView]:nil;
+	TiUITableView *table = [self viewInitialized]?[self tableView]:nil;
 	
 	NSMutableArray *sections = [self valueForKey:@"data"];
 	if ([sections count]==0)
@@ -342,8 +352,18 @@ NSArray * tableKeySequence;
         newrow.parent = section;
     }
 	
-	TiUITableViewAction *action = [[[TiUITableViewAction alloc] initWithRow:newrow animation:anim section:actionSection.section type:actionType] autorelease];
-	[table dispatchAction:action];
+	if(table != nil)
+	{
+		TiUITableViewAction *action = [[[TiUITableViewAction alloc] initWithRow:newrow animation:anim section:actionSection.section type:actionType] autorelease];
+		[table dispatchAction:action];
+	}
+	else
+	{
+		//No table, we have to do the data update ourselves.
+		//TODO: Implement. Better yet, refactor.
+		NSLog(@"[WARN] Table view was not in place before insertRowBefore was called. (Tell Blain or Steve to fix it!)");
+	}
+
 }
 
 -(void)insertRowAfter:(id)args
@@ -354,7 +374,7 @@ NSArray * tableKeySequence;
 	NSDictionary *data = [args objectAtIndex:1];
 	NSDictionary *anim = [args count] > 2 ? [args objectAtIndex:2] : nil;
 
-	TiUITableView *table = [self viewAttached]?[self tableView]:nil;
+	TiUITableView *table = [self viewInitialized]?[self tableView]:nil;
 	
 	NSMutableArray *sections = [self valueForKey:@"data"];
 	if ([sections count]==0)
@@ -417,6 +437,13 @@ NSArray * tableKeySequence;
 		TiUITableViewAction *action = [[[TiUITableViewAction alloc] initWithRow:newrow animation:anim section:actionSection.section type:actionType] autorelease];
 		[table dispatchAction:action];
 	}
+	else
+	{
+		//No table, we have to do the data update ourselves.
+		//TODO: Implement. Better yet, refactor.
+		NSLog(@"[WARN] Table view was not in place before insertRowAfter was called. (Tell Blain or Steve to fix it!)");
+	}
+
 }
 
 -(void)appendRow:(id)args
@@ -428,7 +455,7 @@ NSArray * tableKeySequence;
 	
 	TiUITableViewRowProxy *row = [self tableRowFromArg:data];
 
-	TiUITableView *table = [self viewAttached]?[self tableView]:nil;
+	TiUITableView *table = [self viewInitialized]?[self tableView]:nil;
 
 	NSMutableArray *sections = [self valueForKey:@"data"];
 	if (sections == nil || [sections count]==0)
@@ -456,8 +483,15 @@ NSArray * tableKeySequence;
 		row.section = section;
 		row.parent = section;
 		
-		TiUITableViewAction *action = [[[TiUITableViewAction alloc] initWithRow:row animation:anim section:row.section.section type:actionType] autorelease];
-		[table dispatchAction:action];
+		if(table != nil){
+			TiUITableViewAction *action = [[[TiUITableViewAction alloc] initWithRow:row animation:anim section:row.section.section type:actionType] autorelease];
+			[table dispatchAction:action];
+		}
+		else
+		{
+		//No table, we have to do the data update ourselves.
+			[section add:row];
+		}
         
         // Have to do this after the action or else there's an update of a nonexistant section
         if (header != nil) {
