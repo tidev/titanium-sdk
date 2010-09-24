@@ -69,7 +69,7 @@ public abstract class TiViewProxy extends TiProxy implements Handler.Callback
 
 	protected TiUIView view;
 	protected TiAnimationBuilder pendingAnimation;
-
+	
 	public TiViewProxy(TiContext tiContext, Object[] args)
 	{
 		super(tiContext);
@@ -127,6 +127,7 @@ public abstract class TiViewProxy extends TiProxy implements Handler.Callback
 		    
 			setProperties(options);
 		}
+		tiContext.addOnEventChangeListener(this);
 	}
 	
 	protected TiDict getLangConversionTable() {
@@ -591,7 +592,12 @@ public abstract class TiViewProxy extends TiProxy implements Handler.Callback
 	}
 
 	@Override
-	public boolean fireEvent(String eventName, TiDict data) {
+	public boolean fireEvent(String eventName, TiDict data) 
+	{
+		if (data == null) {
+			data = new TiDict();
+		}
+		
 		boolean handled = super.fireEvent(eventName, data);
 
 		if (parent != null && parent.get() != null) {
@@ -625,5 +631,32 @@ public abstract class TiViewProxy extends TiProxy implements Handler.Callback
 		if (children == null) return new TiViewProxy[0];
 		
 		return children.toArray(new TiViewProxy[children.size()]);
+	}
+	
+	@Override
+	public void eventListenerAdded(String eventName, int count, TiProxy proxy) {
+		super.eventListenerAdded(eventName, count, proxy);
+		
+		if (eventName.equals("click") && proxy.equals(this) && count == 1 && !(proxy instanceof TiWindowProxy)) {
+			setClickable(true);
+		}
+	}
+	
+	@Override
+	public void eventListenerRemoved(String eventName, int count, TiProxy proxy) {
+		super.eventListenerRemoved(eventName, count, proxy);
+		
+		if (eventName.equals("click") && count == 0 && proxy.equals(this) && !(proxy instanceof TiWindowProxy)) {
+			setClickable(false);
+		}
+	}
+	
+	public void setClickable(boolean clickable) {
+		if (peekView() != null) {
+			TiUIView v = getView(getTiContext().getActivity());
+			if (v != null) {
+				v.getNativeView().setClickable(clickable);
+			}
+		}
 	}
 }
