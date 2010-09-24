@@ -28,7 +28,7 @@ public class iPhoneModule extends KrollModule {
 	public Object get(Scriptable scope, String name)
 			throws NoSuchFieldException {
 		
-		return new AnyProperty(getTiContext(), "UI.iPhone." + name);
+		return new AnyProperty(TiContext.getCurrentTiContext(), "UI.iPhone." + name);
 	}
 
 	// just stub out a warning for anyone trying to access the iPhone APIs in Android

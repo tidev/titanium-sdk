@@ -29,7 +29,7 @@ public class GestureModule extends KrollModule
 	{
 		super(tiContext);
 		listeningForOrientation = false;
-		tiContext.addOnEventChangeListener(this);
+		eventManager.addOnEventChangeListener(this);
 	}
 
 	@Override

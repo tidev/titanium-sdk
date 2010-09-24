@@ -23,7 +23,7 @@ public class LabelProxy extends TiViewProxy
 	public LabelProxy(TiContext tiContext)
 	{
 		super(tiContext);
-		tiContext.addOnEventChangeListener(this);
+		eventManager.addOnEventChangeListener(this);
 	}
 
 	@Override

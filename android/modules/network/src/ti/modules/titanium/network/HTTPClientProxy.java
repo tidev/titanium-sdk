@@ -82,7 +82,7 @@ public class HTTPClientProxy extends KrollProxy {
 	}
 
 	@Kroll.method
-	public void send(Object data) 
+	public void send(@Kroll.argument(optional=true) Object data) 
 		throws MethodNotSupportedException
 	{
 		client.send(data);

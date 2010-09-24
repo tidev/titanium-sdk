@@ -119,7 +119,7 @@ public class NetworkModule extends KrollModule {
 		setProperty("userAgent", NETWORK_USER_AGENT + " Titanium/"+tiContext.getTiApp().getTiBuildVersion());
 
 		tiContext.addOnLifecycleEventListener(this);
-		tiContext.addOnEventChangeListener(this);
+		eventManager.addOnEventChangeListener(this);
 	}
 
 

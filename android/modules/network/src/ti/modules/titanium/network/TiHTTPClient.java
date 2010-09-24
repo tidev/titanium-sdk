@@ -385,6 +385,7 @@ public class TiHTTPClient
 		KrollCallback cb = getCallback(name);
 		if (cb != null)
 		{
+			cb.setThisProxy(proxy);
 			cb.call(args);
 		}
 	}

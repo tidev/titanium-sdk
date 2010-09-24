@@ -36,7 +36,7 @@ public class ViewProxy extends TiViewProxy
 	public ViewProxy(TiContext tiContext) {
 		super(tiContext);
 
-		tiContext.addOnEventChangeListener(this);
+		eventManager.addOnEventChangeListener(this);
 		tiContext.addOnLifecycleEventListener(this);
 	}
 

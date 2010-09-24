@@ -431,8 +431,7 @@ public class TiActivity extends Activity
 	@Override
 	public void finish()
 	{
-		KrollDict data = new KrollDict();
-		for (WeakReference<TiContext> contextRef : contexts) {
+		/*for (WeakReference<TiContext> contextRef : contexts) {
 			if (contextRef.get() != null) {
 				contextRef.get().dispatchEvent("close", data, proxy);
 			}
@@ -440,6 +439,10 @@ public class TiActivity extends Activity
 
 		if (createdContext != null && createdContext.get() != null) {
 			createdContext.get().dispatchEvent("close", data, proxy);
+		}*/
+		if (proxy != null) {
+			KrollDict data = new KrollDict();
+			proxy.fireEvent("close", data);
 		}
 
 		boolean animate = true;

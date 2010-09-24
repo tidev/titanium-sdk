@@ -66,7 +66,7 @@ public class GeolocationModule
 		tiLocation = new TiLocation(this);
 		tiCompass = new TiCompass(this);
 
-		tiContext.addOnEventChangeListener(this);
+		eventManager.addOnEventChangeListener(this);
 	}
 	
 	@Kroll.getProperty @Kroll.method

@@ -46,6 +46,7 @@ public class KrollProxy implements Handler.Callback, OnEventListenerChange {
 	protected CountDownLatch waitForHandler;
 	protected String proxyId;
 	protected KrollProxyListener modelListener;
+	protected KrollEventManager eventManager;
 	protected static HashMap<Class<? extends KrollProxy>, KrollProxyBinding> proxyBindings = new HashMap<Class<? extends KrollProxy>, KrollProxyBinding>();
 	
 	@Kroll.inject
@@ -57,6 +58,7 @@ public class KrollProxy implements Handler.Callback, OnEventListenerChange {
 	
 	public KrollProxy(TiContext context, boolean autoBind) {
 		this.context = context;
+		this.eventManager = new KrollEventManager(this);
 		
 		if (DBG) {
 			Log.d(TAG, "New: " + getClass().getSimpleName());
@@ -442,27 +444,14 @@ public class KrollProxy implements Handler.Callback, OnEventListenerChange {
 			Log.i(TAG, "Adding listener for \"" + eventName + "\": "
 					+ listener.getClass().getName());
 		}
-		TiContext ctx = getTiContext();
-		if (ctx != null) {
-			listenerId = ctx.addEventListener(eventName, this, listener);
-		}
-
+		listenerId = eventManager.addEventListener(eventName, listener);
+		
 		return listenerId;
 	}
 
 	@Kroll.method
 	public void removeEventListener(String eventName, Object listener) {
-		TiContext ctx = getTiContext();
-		if (ctx != null) {
-			ctx.removeEventListener(eventName, listener);
-		}
-	}
-	
-	public void removeEventListenersFromContext(TiContext listeningContext) {
-		TiContext ctx = getTiContext();
-		if (ctx != null) {
-			ctx.removeEventListenersFromContext(listeningContext);
-		}
+		eventManager.removeEventListener(eventName, listener);
 	}
 
 	public void eventListenerAdded(String eventName, int count, KrollProxy proxy) {
@@ -486,20 +475,7 @@ public class KrollProxy implements Handler.Callback, OnEventListenerChange {
 
 	@Kroll.method
 	public boolean fireEvent(String eventName, @Kroll.argument(optional=true) KrollDict data) {
-		KrollInvocation invocation = currentInvocation == null ?
-				createEventInvocation(eventName) : currentInvocation;
-		TiContext ctx = getTiContext();
-		boolean handled = false;
-		if (ctx != null) {
-			handled = ctx.dispatchEvent(invocation, eventName, data,
-					this);
-		}
-		if (creatingContext != null) {
-			handled = creatingContext.dispatchEvent(invocation,
-					eventName, data, this)
-					|| handled;
-		}
-		return handled;
+		return eventManager.dispatchEvent(eventName, data);
 	}
 
 	// Convenience for internal code
@@ -532,11 +508,7 @@ public class KrollProxy implements Handler.Callback, OnEventListenerChange {
 	}
 
 	public boolean hasListeners(String eventName) {
-		boolean hasListeners = getTiContext().hasEventListener(eventName, this);
-		if (creatingContext != null) {
-			hasListeners = hasListeners || creatingContext.hasEventListener(eventName, this);
-		}
-		return hasListeners;
+		return eventManager.hasAnyEventListener(eventName);
 	}
 
 	public Object resultForUndefinedMethod(String name, Object[] args) {

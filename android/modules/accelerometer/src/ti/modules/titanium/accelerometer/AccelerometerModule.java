@@ -53,7 +53,7 @@ public class AccelerometerModule extends KrollModule
 		sensorAttached = false;
 		listeningForUpdate = false;
 
-		tiContext.addOnEventChangeListener(this);
+		eventManager.addOnEventChangeListener(this);
 	}
 
 	protected SensorEventListener createUpdateListener() {
@@ -139,7 +139,7 @@ public class AccelerometerModule extends KrollModule
 		sensorAttached = sensorHelper.attach(getTiContext().getActivity());
 
 		if (sensorAttached) {
-			if (getTiContext().hasEventListener(EVENT_UPDATE, this)) {
+			if (hasListeners(EVENT_UPDATE)) {
 				manageUpdateListener(true);
 			}
 		}

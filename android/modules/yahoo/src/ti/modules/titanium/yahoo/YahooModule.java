@@ -55,7 +55,7 @@ public class YahooModule extends KrollModule
 		}
 
 		if (src != null) {
-			getTiContext().evalJS(src);
+			bridge.evalJS(src);
 		}
 	}
 

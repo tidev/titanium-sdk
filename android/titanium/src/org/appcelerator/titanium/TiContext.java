@@ -72,11 +72,8 @@ public class TiContext implements TiEvaluator, ITiMenuDispatcherListener, ErrorR
 	private WeakReference<Activity> weakActivity;
 	private TiEvaluator	tiEvaluator;
 	private TiApplication tiApp;
-	private Map<String, HashMap<Integer, TiListener>> eventListeners;
-	private AtomicInteger listenerIdGenerator;
 	protected KrollContext krollContext;
 	
-	private ArrayList<WeakReference<OnEventListenerChange>> eventChangeListeners;
 	private List<WeakReference<OnLifecycleEvent>> lifecycleListeners;
 	private OnMenuEvent menuEventListener;
 	private WeakReference<OnConfigurationChanged> weakConfigurationChangedListeners;
@@ -102,48 +99,12 @@ public class TiContext implements TiEvaluator, ITiMenuDispatcherListener, ErrorR
 		public boolean menuItemSelected(MenuItem item);
 	}
 
-	public static class TiListener
-	{
-		protected SoftReference<KrollProxy> weakProxy;
-		protected Object listener;
-
-		public TiListener(KrollProxy proxy, Object listener) {
-			this.weakProxy = new SoftReference<KrollProxy>(proxy);
-			this.listener = listener;
-		}
-
-		public boolean invoke(KrollInvocation invocation, String eventName, KrollDict data) {
-			boolean invoked = false;
-			KrollProxy p = weakProxy.get();
-			if (p != null && listener != null) {
-				p.fireSingleEvent(eventName, listener, data);
-				invoked = true;
-			} else {
-				if (DBG) {
-					Log.w(LCAT, "Unable to fire event with eventName '" + eventName + "' references were garbage collected.");
-				}
-			}
-
-			return invoked;
-		}
-
-		public boolean isSameProxy(KrollProxy p) {
-			KrollProxy localProxy = weakProxy.get();
-			return (p != null && localProxy != null && localProxy.equals(p));
-		}
-	}
-
 	public TiContext(Activity activity, String baseUrl)
 	{
 		this.mainThreadId = Looper.getMainLooper().getThread().getId();
 
 		this.tiApp = (TiApplication) activity.getApplication();
 		this.weakActivity = new WeakReference<Activity>(activity);
-		this.listenerIdGenerator = new AtomicInteger(0);
-		//this.eventListeners = new HashMap<String, HashMap<Integer,TiListener>>();
-		this.eventListeners = Collections.synchronizedMap(new HashMap<String, HashMap<Integer,TiListener>>());
-		eventChangeListeners = new ArrayList<WeakReference<OnEventListenerChange>>();
-		//lifecycleListeners = new ArrayList<WeakReference<OnLifecycleEvent>>();
 		lifecycleListeners = Collections.synchronizedList(new ArrayList<WeakReference<OnLifecycleEvent>>());
 		if (baseUrl == null) {
 			this.baseUrl = "app://";
@@ -345,272 +306,6 @@ public class TiContext implements TiEvaluator, ITiMenuDispatcherListener, ErrorR
 	public Scriptable getScope() {
 		return getJSContext().getScope();
 	}
-	
-	// Event Management
-
-	public void addOnEventChangeListener(OnEventListenerChange listener) {
-		eventChangeListeners.add(new WeakReference<OnEventListenerChange>(listener));
-	}
-
-	public void removeOnEventChangeListener(OnEventListenerChange listener)
-	{
-		for (WeakReference<OnEventListenerChange> ref : eventChangeListeners) {
-			OnEventListenerChange l = ref.get();
-			if (l != null) {
-				if (l.equals(listener)) {
-					eventChangeListeners.remove(ref);
-					break;
-				}
-			}
-		}
-	}
-
-	protected void dispatchOnEventChange(boolean added, String eventName, int count, KrollProxy proxy)
-	{
-		for (WeakReference<OnEventListenerChange> ref : eventChangeListeners) {
-			OnEventListenerChange l = ref.get();
-			if (l != null) {
-				try {
-					if (added) {
-						l.eventListenerAdded(eventName, count, proxy);
-					} else {
-						l.eventListenerRemoved(eventName, count, proxy);
-					}
-				} catch (Throwable t) {
-					Log.e(LCAT, "Error invoking OnEventChangeListener: " + t.getMessage(), t);
-				}
-			}
-		}
-	}
-
-	public int addEventListener(String eventName, KrollProxy proxy, Object listener)
-	{
-		int listenerId = -1;
-		int listenerCount = 0;
-
-		if (eventName != null) {
-			if (proxy != null) {
-				if (listener != null) {
-					synchronized (eventListeners) {
-						HashMap<Integer, TiListener> listeners = eventListeners.get(eventName);
-						if (listeners == null) {
-							listeners = new HashMap<Integer, TiListener>();
-							eventListeners.put(eventName, listeners);
-						}
-
-						listenerId = listenerIdGenerator.incrementAndGet();
-						listeners.put(listenerId, new TiListener(proxy, listener));
-						if (DBG) {
-							Log.d(LCAT, "Added for eventName '" + eventName + "' with id " + listenerId);
-						}
-
-						listenerCount = listeners.size();
-					}
-					dispatchOnEventChange(true, eventName, listenerCount, proxy);
-				} else {
-					throw new IllegalStateException("addEventListener expects a non-null listener");
-				}
-			} else {
-				throw new IllegalStateException("addEventListener expects a non-null KrollProxy");
-			}
-		} else {
-			throw new IllegalStateException("addEventListener expects a non-null eventName");
-		}
-
-		return listenerId;
-	}
-
-	public void removeEventListener(String eventName, int listenerId)
-	{
-		if (eventName != null) {
-			HashMap<Integer, TiListener> listeners = eventListeners.get(eventName);
-			if (listeners != null) {
-				TiListener listener = listeners.get(listenerId);
-				if (listeners.remove(listenerId) == null) {
-					if (DBG) {
-						Log.w(LCAT, "listenerId " + listenerId + " not for eventName '" + eventName + "'");
-					}
-				} else {
-					dispatchOnEventChange(false, eventName, listeners.size(), listener.weakProxy.get());
-					if (DBG) {
-						Log.i(LCAT, "listener with id " + listenerId + " with eventName '" + eventName + "' was removed.");
-					}
-				}
-			}
-		} else {
-			throw new IllegalStateException("removeEventListener expects a non-null eventName");
-		}
-	}
-
-	public void removeEventListener(String eventName, Object listener)
-	{
-		if (listener instanceof Number) {
-			removeEventListener(eventName, ((Number)listener).intValue());
-			return;
-		}
-
-		boolean removed = false;
-		int newCount = 0;
-		SoftReference<KrollProxy> proxyOfListener = null;
-		
-		if (eventName != null) {
-			synchronized(eventListeners) {
-				HashMap<Integer, TiListener> listeners = eventListeners.get(eventName);
-				if (listeners != null) {
-					for (Entry<Integer, TiListener> entry : listeners.entrySet())
-					{
-						Object l = entry.getValue().listener;
-						if (l.equals(listener))
-						{
-							listeners.remove(entry.getKey());
-							removed = true;
-							newCount = listeners.size();
-							proxyOfListener = entry.getValue().weakProxy;
-							break;
-						}
-					}
-					if (!removed) {
-						Log.w(LCAT, "listener not found for eventName '" + eventName + "'");
-					}
-				}
-			}
-			if (removed) {
-				dispatchOnEventChange(false, eventName, newCount, proxyOfListener.get());
-			}
-		} else {
-			throw new IllegalStateException("removeEventListener expects a non-null eventName");
-		}
-	}
-	
-	public void removeEventListenersFromContext(TiContext listeningContext)
-	{
-		if (eventListeners == null) {
-			return;
-		}
-		synchronized(eventListeners) {
-			for (String eventName : eventListeners.keySet()) {
-				HashMap<Integer, TiListener> listeners = eventListeners.get(eventName);
-				if (listeners != null) {
-					ArrayList<Integer> toDelete = null;
-					for (Entry<Integer, TiListener>entry :  listeners.entrySet()) {
-						TiListener l = entry.getValue();
-						if (l.listener instanceof KrollCallback) {
-							KrollCallback kc = (KrollCallback) l.listener;
-							if (kc != null && kc.isWithinTiContext(listeningContext)) {
-								if (toDelete == null) {
-									toDelete = new ArrayList<Integer>();
-								}
-								toDelete.add(entry.getKey());
-							}
-						}
-					}
-					if (toDelete != null) {
-						for (Integer id  : toDelete) {
-							removeEventListener(eventName, id.intValue());
-						}
-					}
-				}
-				
-			}
-		}
-	}
-
-	public boolean hasAnyEventListener(String eventName)
-	{
-		boolean result = false;
-
-		if (eventName != null) {
-			HashMap<Integer, TiListener> listeners = eventListeners.get(eventName);
-			if (listeners != null) {
-				result = !listeners.isEmpty();
-			}
-		} else {
-			throw new IllegalStateException("removeEventListener expects a non-null eventName");
-		}
-
-		return result;
-	}
-
-	public boolean hasEventListener(String eventName, KrollProxy proxy)
-	{
-		boolean result = false;
-
-		if (eventName != null) {
-			if (proxy != null) {
-				synchronized(eventListeners) {
-					HashMap<Integer, TiListener> listeners = eventListeners.get(eventName);
-					if (listeners != null && !listeners.isEmpty()) {
-						for (TiListener listener : listeners.values()) {
-							if (listener.isSameProxy(proxy)) {
-								result = true;
-								break;
-							}
-						}
-					}
-				}
-			} else {
-				throw new IllegalStateException("addEventListener expects a non-null KrollProxy");
-			}
-		} else {
-			throw new IllegalStateException("addEventListener expects a non-null eventName");
-		}
-
-		return result;
-	}
-
-	public boolean dispatchEvent(String eventName, KrollDict data, KrollProxy proxy)
-	{
-		KrollInvocation inv = KrollInvocation.createMethodInvocation(
-			this, getJSContext().getScope(), new KrollObject(proxy), "event:"+eventName, null, proxy);
-		return dispatchEvent(inv, eventName, data, proxy);
-	}
-
-	public boolean dispatchEvent(KrollInvocation invocation, String eventName, KrollDict data)
-	{
-		return dispatchEvent(invocation, eventName, data, null);
-	}
-	
-	public boolean dispatchEvent(KrollInvocation invocation, String eventName, KrollDict data, KrollProxy proxy)
-	{
-		boolean dispatched = false;
-		if (eventName != null) {
-			Map<Integer, TiListener> listeners = eventListeners.get(eventName);
-			if (listeners != null) {
-				if (data == null) {
-					data = new KrollDict();
-				}
-				data.put("type", eventName);
-
-				Set<Entry<Integer, TiListener>> listenerSet = listeners.entrySet();
-				synchronized(eventListeners) {
-					for(Entry<Integer, TiListener> entry : listenerSet) {
-						TiListener listener = entry.getValue();
-						if (proxy == null || (proxy != null && listener.isSameProxy(proxy))) {
-							boolean invoked = false;
-							try {
-								if (listener.weakProxy.get() != null) {
-									if (!data.containsKey("source")) {
-										data.put("source", listener.weakProxy.get());
-									}
-									invoked = listener.invoke(invocation, eventName, data);
-								}
-							} catch (Exception e) {
-								Log.e(LCAT, "Error invoking listener with id " + entry.getKey() + " on eventName '" + eventName + "'", e);
-							}
-							dispatched = dispatched || invoked;
-						}
-					}
-				}
-			} else {
-				if(TRACE) {
-					Log.w(LCAT, "No listeners for eventName: " + eventName);
-				}
-			}
-		} else {
-			throw new IllegalStateException("dispatchEvent expects a non-null eventName");
-		}
-		return dispatched;
-	}
 
 	public void addOnLifecycleEventListener(OnLifecycleEvent listener) {
 		lifecycleListeners.add(new WeakReference<OnLifecycleEvent>(listener));
@@ -623,7 +318,7 @@ public class TiContext implements TiEvaluator, ITiMenuDispatcherListener, ErrorR
 				OnLifecycleEvent l = ref.get();
 				if (l != null) {
 					if (l.equals(listener)) {
-						eventChangeListeners.remove(ref);
+						lifecycleListeners.remove(ref);
 						break;
 					}
 				}
@@ -874,27 +569,23 @@ public class TiContext implements TiEvaluator, ITiMenuDispatcherListener, ErrorR
 				vlayout.addView(sourceLabel);
 				vlayout.addView(sourceView);
 
-		        new AlertDialog.Builder(activity)
-		        .setTitle(title)
-		        .setView(layout)
-		        .setPositiveButton("Kill",listener)
-		        .setNeutralButton("Continue", new OnClickListener(){
-					@Override
-					public void onClick(DialogInterface arg0, int arg1) {
-						s.release();
-					}})
-		        .setCancelable(false)
-		        .create()
-		        .show();
+				new AlertDialog.Builder(activity).setTitle(title)
+						.setView(layout).setPositiveButton("Kill", listener)
+						.setNeutralButton("Continue", new OnClickListener() {
+							@Override
+							public void onClick(DialogInterface arg0, int arg1) {
+								s.release();
+							}
+						}).setCancelable(false).create().show();
 
 			}
 		});
 
-        try {
-        	s.acquire();
-        } catch (InterruptedException e) {
-        	// Ignore
-        }
+		try {
+			s.acquire();
+		} catch (InterruptedException e) {
+			// Ignore
+		}
 	}
 	
 	public KrollContext getKrollContext() {
@@ -915,8 +606,6 @@ public class TiContext implements TiEvaluator, ITiMenuDispatcherListener, ErrorR
 	
 	public void release()
 	{
-		getTiApp().removeEventListenersFromContext(this);
-
 		if (tiEvaluator != null && tiEvaluator instanceof KrollBridge)
 		{
 			((KrollBridge)tiEvaluator).release();
@@ -925,12 +614,6 @@ public class TiContext implements TiEvaluator, ITiMenuDispatcherListener, ErrorR
 		
 		if (lifecycleListeners != null) {
 			lifecycleListeners.clear();
-		}
-		if (eventChangeListeners != null) {
-			eventChangeListeners.clear();
-		}
-		if (eventListeners != null) {
-			eventListeners.clear();
 		}
 		menuEventListener = null;
 		

@@ -332,19 +332,19 @@ public abstract class TiApplication extends Application
 		boolean handled = false;
 		for (KrollProxy appEventProxy : appEventProxies)
 		{
-			boolean proxyHandled = appEventProxy.getTiContext().dispatchEvent(invocation, eventName, data, appEventProxy);
+			boolean proxyHandled = appEventProxy.fireEvent(eventName, data);
 			handled = handled || proxyHandled;
 		}
 		return handled;
 	}
 	
-	public void removeEventListenersFromContext(TiContext listeningContext)
+	/*public void removeEventListenersFromContext(TiContext listeningContext)
 	{
 		for (KrollProxy appEventProxy : appEventProxies)
 		{
-			appEventProxy.removeEventListenersFromContext(listeningContext);
+			//appEventProxy.removeEventListenersFromContext(listeningContext);
 		}
-	}
+	}*/
 
 	public TiProperties getAppProperties()
 	{

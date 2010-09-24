@@ -14,6 +14,7 @@ public class KrollDefaultValues implements KrollDefaultValueProvider {
 		defaultValues.put(Byte.class, -1);
 		defaultValues.put(Character.class, -1);
 		defaultValues.put(Float.class, -1);
+		defaultValues.put(Object.class, null);
 	}
 	
 	public static Object getDefault(Class<?> clazz) {

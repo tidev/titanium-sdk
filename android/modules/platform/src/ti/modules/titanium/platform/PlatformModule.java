@@ -48,7 +48,7 @@ public class PlatformModule extends KrollModule
 	{
 		super(context);
 
-		context.addOnEventChangeListener(this);
+		eventManager.addOnEventChangeListener(this);
 
 		batteryState = -1;
 		batteryLevel = -1;

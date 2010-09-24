@@ -223,7 +223,7 @@ public class TiCompass
 	}
 	public void onResume() {
 
-		if (proxy.getTiContext().hasEventListener(EVENT_HEADING, proxy)) {
+		if (proxy.hasListeners(EVENT_HEADING)) {
 			manageUpdateListener(true, updateListener);
 		}
 	}

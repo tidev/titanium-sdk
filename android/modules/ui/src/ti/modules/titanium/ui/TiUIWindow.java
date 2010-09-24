@@ -346,11 +346,11 @@ public class TiUIWindow extends TiUIView
 		}
 
 		boolean revertToCreatedContext = false;
-		if (createdContext != null && createdContext.get() != null) {
+		/*if (createdContext != null && createdContext.get() != null) {
 			revertToCreatedContext = true;
-			createdContext.get().dispatchEvent("close", data, proxy);
+			proxy.fireEvent("close", data);
 			createdContext.clear();
-		}
+		}*/
 		if (!lightWeight) {
 			if (windowActivity != null) {
 				if (!animateOnClose) {

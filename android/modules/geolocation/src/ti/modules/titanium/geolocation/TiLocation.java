@@ -343,7 +343,7 @@ public class TiLocation
 
 		locationManager = (LocationManager) proxy.getTiContext().getActivity().getSystemService(Context.LOCATION_SERVICE);
 
-		if (proxy.getTiContext().hasEventListener(EVENT_LOCATION, proxy)) {
+		if (proxy.hasListeners(EVENT_LOCATION)) {
 			manageLocationListener(true);
 		}
 	}

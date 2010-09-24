@@ -126,4 +126,11 @@ public class KrollCallback extends KrollMethod
 		return Context.javaToJS(method, kroll.getScope());
 	}
 	
+	public void setThisObj(Scriptable thisObj) {
+		this.thisObj = thisObj;
+	}
+	
+	public void setThisProxy(KrollProxy proxy) {
+		setThisObj(new KrollObject(proxy));
+	}
 }

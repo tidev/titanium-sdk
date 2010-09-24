@@ -47,7 +47,7 @@ public class TableViewProxy extends TiViewProxy
 	public TableViewProxy(TiContext tiContext) {
 		super(tiContext);
 		
-		tiContext.addOnEventChangeListener(this);
+		eventManager.addOnEventChangeListener(this);
 	}
 	
 	@Override
