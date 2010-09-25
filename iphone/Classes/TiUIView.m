@@ -288,85 +288,55 @@ DEFINE_EXCEPTIONS
 	return transformMatrix;
 }
 
+#ifdef DEBUG
 #pragma mark Legacy layout calls
-/*	These methods are due to layoutProperties and such things origionally being a property of UIView
+/*  These methods are due to layoutProperties and such things origionally being a property of UIView
 	and not the proxy. To lessen dependance on UIView (In cases where layout is needed without views
 	such as TableViews), this was moved to the proxy. In order to degrade gracefully, these shims are
 	left here. They should not be relied upon, but instead used to find methods that still incorrectly
 	rely on the view, and fix those methods.
-*/
+	*/
 
 -(LayoutConstraint*)layoutProperties
 {
-	NSLog(@"[DEBUG] Using view proxy via redirection instead of directly for %@.",self);
+	NSLog(@"[WARN] Using view proxy via redirection instead of directly for %@.",self);
 	return [(TiViewProxy *)proxy layoutProperties];
 }
 
 -(void)setLayoutProperties:(LayoutConstraint *)layout_
 {
-	NSLog(@"[DEBUG] Using view proxy via redirection instead of directly for %@.",self);
+	NSLog(@"[WARN] Using view proxy via redirection instead of directly for %@.",self);
 	[(TiViewProxy *)proxy setLayoutProperties:layout_];
 }
 
 -(CGFloat)minimumParentWidthForWidth:(CGFloat)value
 {
-	NSLog(@"[DEBUG] Using view proxy via redirection instead of directly for %@.",self);
+	NSLog(@"[WARN] Using view proxy via redirection instead of directly for %@.",self);
 	return [(TiViewProxy *)[self proxy] minimumParentWidthForWidth:value];
 }
 
 -(CGFloat)minimumParentHeightForWidth:(CGFloat)value
 {
-	NSLog(@"[DEBUG] Using view proxy via redirection instead of directly for %@.",self);
+	NSLog(@"[WARN] Using view proxy via redirection instead of directly for %@.",self);
 	return [(TiViewProxy *)[self proxy] minimumParentHeightForWidth:value];
 }
 
 -(CGFloat)autoWidthForWidth:(CGFloat)value
 {
-	NSLog(@"[DEBUG] Using view proxy via redirection instead of directly for %@.",self);
+	NSLog(@"[WARN] Using view proxy via redirection instead of directly for %@.",self);
 	return [(TiViewProxy *)[self proxy] autoWidthForWidth:value];
 }
 
 -(CGFloat)autoHeightForWidth:(CGFloat)value
 {
-	NSLog(@"[DEBUG] Using view proxy via redirection instead of directly for %@.",self);
+	NSLog(@"[WARN] Using view proxy via redirection instead of directly for %@.",self);
 	return [(TiViewProxy *)[self proxy] autoHeightForWidth:value];
 }
-
-
+#endif
 
 
 #pragma mark Layout 
 
-
--(void)insertIntoView:(UIView*)newSuperview bounds:(CGRect)bounds
-{
-	if (newSuperview==self)
-	{
-		NSLog(@"[ERROR] invalid call to insertIntoView, new super view is same as myself");
-		return;
-	}
-	ApplyConstraintToViewWithinViewWithBounds([(TiViewProxy *)proxy layoutProperties], self, newSuperview, bounds,YES);
-	[(TiViewProxy *)[self proxy] clearNeedsReposition];
-}
-
--(void)relayout:(CGRect)bounds
-{
-	if (repositioning==NO)
-	{
-		repositioning = YES;
-		oldSize = CGSizeZero;
-		ApplyConstraintToViewWithinViewWithBounds([(TiViewProxy *)proxy layoutProperties], self, [self superview], bounds, YES);
-		[(TiViewProxy *)[self proxy] clearNeedsReposition];
-		repositioning = NO;
-	}
-#ifdef VERBOSE
-	else
-	{
-		NSLog(@"[INFO] %@ Calling Relayout from within relayout.",self);
-	}
-#endif
-
-}
 
 -(void)relayoutOnUIThread:(NSValue*)value
 {

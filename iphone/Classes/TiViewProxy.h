@@ -51,6 +51,8 @@ enum
 	NSMutableArray *pendingAdds;
 	BOOL needsZIndexRepositioning;	//Todo: Replace
 	
+	BOOL repositioning;
+	
 	CGRect sandboxBounds;
 	CGPoint positionCache;	//Recomputed and stored when position changes.
 	CGRect sizeCache;	//Recomputed and stored when size changes.
@@ -124,8 +126,9 @@ enum
 -(void)viewWillDetach;
 -(void)viewDidDetach;
 
+-(void)relayout;
+-(void)insertIntoView:(UIView*)view bounds:(CGRect)bounds;
 -(void)reposition;	//Todo: Replace
--(void)repositionWithBounds:(CGRect)bounds;	//Todo: Replace
 -(void)repositionIfNeeded;	//Todo: Replace
 -(void)setNeedsReposition;	//Todo: Replace
 -(void)clearNeedsReposition;	//Todo: Replace

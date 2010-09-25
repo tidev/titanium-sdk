@@ -593,7 +593,8 @@
 		[self viewDidAttach];
 
 		// make sure we do a layout of ourselves
-		[view updateLayout:NULL withBounds:view.bounds];
+		[self setSandboxBounds:view.bounds];
+		[self relayout];
 		viewInitialized = YES;
 	}
 
@@ -764,8 +765,19 @@
 			[self childWillResize:child];
 		}
 	}
-	[[child view] updateLayout:NULL withBounds:bounds];
-	
+	[child setSandboxBounds:bounds];
+	if ([[child view] animating])
+	{
+#ifdef DEBUG
+	// changing the layout while animating is bad, ignore for now
+		NSLog(@"[DEBUG] ignoring new layout while animating in layout Child..");
+#endif
+	}
+	else
+	{
+		[child relayout];
+	}
+
 	// tell our children to also layout
 	[child layoutChildren:optimize];
 }
@@ -1172,6 +1184,8 @@
 
 -(void)childWillResize:(TiViewProxy *)child
 {
+	[self contentsWillChange];
+
 	IGNORE_IF_NOT_OPENED
 	
 	pthread_rwlock_rdlock(&childrenLock);
@@ -1226,6 +1240,9 @@
 
 -(void)setNeedsReposition
 {
+	[self willChangeSize];
+	[self willChangePosition];
+
 	IGNORE_IF_NOT_OPENED
 	
 	BOOL alreadySet = OSAtomicTestAndSetBarrier(NEEDS_REPOSITION, &dirtyflags);
@@ -1260,19 +1277,19 @@
 	postaction; \
 }
 
-LAYOUTPROPERTIES_SETTER(setTop,top,TiDimensionFromObject,)
-LAYOUTPROPERTIES_SETTER(setBottom,bottom,TiDimensionFromObject,)
-
-LAYOUTPROPERTIES_SETTER(setLeft,left,TiDimensionFromObject,)
-LAYOUTPROPERTIES_SETTER(setRight,right,TiDimensionFromObject,)
-
-LAYOUTPROPERTIES_SETTER(setWidth,width,TiDimensionFromObject,)
-LAYOUTPROPERTIES_SETTER(setHeight,height,TiDimensionFromObject,)
-
-LAYOUTPROPERTIES_SETTER(setLayout,layout,TiLayoutRuleFromObject,)
-
-LAYOUTPROPERTIES_SETTER(setMinWidth,minimumWidth,TiFixedValueRuleFromObject,)
-LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,)
+LAYOUTPROPERTIES_SETTER(setTop,top,TiDimensionFromObject,[self willChangePosition])
+LAYOUTPROPERTIES_SETTER(setBottom,bottom,TiDimensionFromObject,[self willChangePosition])
+ 
+LAYOUTPROPERTIES_SETTER(setLeft,left,TiDimensionFromObject,[self willChangePosition])
+LAYOUTPROPERTIES_SETTER(setRight,right,TiDimensionFromObject,[self willChangePosition])
+ 
+LAYOUTPROPERTIES_SETTER(setWidth,width,TiDimensionFromObject,[self willChangeSize])
+LAYOUTPROPERTIES_SETTER(setHeight,height,TiDimensionFromObject,[self willChangeSize])
+ 
+LAYOUTPROPERTIES_SETTER(setLayout,layout,TiLayoutRuleFromObject,[self willChangeLayout])
+ 
+LAYOUTPROPERTIES_SETTER(setMinWidth,minimumWidth,TiFixedValueRuleFromObject,[self willChangeSize])
+LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[self willChangeSize])
 
 -(void)setSize:(id)value
 {
@@ -1280,6 +1297,7 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,)
 	layoutProperties.width = TiDimensionFromObject([value objectForKey:@"width"]);
  	layoutProperties.height = TiDimensionFromObject([value objectForKey:@"height"]);
 	[self setNeedsReposition];
+	[self willChangeSize];
 }
 
 -(void)setCenter:(id)value
@@ -1295,6 +1313,7 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,)
 		layoutProperties.centerY = TiDimensionFromObject([value objectForKey:@"y"]);
 	}
 	[self setNeedsReposition];
+	[self willChangePosition];
 }
 
 -(void)makeViewPerformAction:(TiAction *)action
@@ -1368,8 +1387,8 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,)
 		
 		if(![self suppressesRelayout])
 		{
-			CGRect newBounds = [[[self view] superview] bounds];
-			[[self view] relayout:newBounds];
+			sandboxBounds = [[[self view] superview] bounds];
+			[self relayout];
 		}
 		[self layoutChildren:NO];
 
@@ -1433,14 +1452,48 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,)
 
 }
 
--(void)repositionWithBounds:(CGRect)bounds
+-(void)relayout
 {
-  IGNORE_IF_NOT_OPENED
-  
-  OSAtomicTestAndClearBarrier(NEEDS_REPOSITION, &dirtyflags);
-  [[self view] relayout:bounds];
-  [self layoutChildren:NO];
+	if (!repositioning)
+	{
+		ENSURE_UI_THREAD_0_ARGS
+
+		repositioning = YES;
+
+
+		sizeCache.size = SizeConstraintViewWithSizeAddingResizing(&layoutProperties,self, sandboxBounds.size, &autoresizeCache);
+
+		positionCache = PositionConstraintGivenSizeBoundsAddingResizing(&layoutProperties, sizeCache.size,
+		[[view layer] anchorPoint], sandboxBounds.size, &autoresizeCache);
+
+		positionCache.x += sizeCache.origin.x + sandboxBounds.origin.x;
+		positionCache.y += sizeCache.origin.y + sandboxBounds.origin.y;
+
+		[view setAutoresizingMask:autoresizeCache];
+		[view setCenter:positionCache];
+		[view setBounds:sizeCache];
+
+		UIView * parentView = [parent parentViewForChild:self];
+		if([view superview]!=parentView)
+		{
+			[parentView addSubview:view];
+		}
+
+
+		//    ApplyConstraintToViewWithinViewWithBounds(&layoutProperties, [self view], [[self view] superview], bounds, YES);
+		[self clearNeedsReposition];
+		repositioning = NO;
+	}
+#ifdef VERBOSE
+	else
+	{
+		NSLog(@"[INFO] %@ Calling Relayout from within relayout.",self);
+	}
+#endif
+
 }
+
+
 
 
 -(void)refreshZIndex
@@ -1451,7 +1504,7 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,)
 	UIView * ourView = [self view];
 	
 	int newPosition = 0;
-	int ourZIndex = [ourView zIndex];
+	int ourZIndex = [(TiUIView *)ourView zIndex];
 	
 	for (UIView * childView in [parentView subviews])
 	{
@@ -1519,6 +1572,18 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
 	[children makeObjectsPerformSelector:@selector(parentSizeWillChange)];
 	pthread_rwlock_unlock(&childrenLock);
 }
+
+-(void)insertIntoView:(UIView*)newSuperview bounds:(CGRect)bounds
+{
+	if (newSuperview==view)
+	{
+		NSLog(@"[ERROR] invalid call to insertIntoView, new super view is same as myself");
+		return;
+	}
+	ApplyConstraintToViewWithinViewWithBounds(&layoutProperties, [self view], newSuperview, bounds,YES);
+	[self clearNeedsReposition];
+}
+
 
 -(void)willChangePosition
 {

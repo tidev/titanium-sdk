@@ -44,7 +44,7 @@
 }
 
 
--(void)setDetailView:(id<TiOrientationController>)newDetailView
+-(void)setDetailView:(id<NSObject,TiOrientationController>)newDetailView
 {
 	ENSURE_UI_THREAD_1_ARG(newDetailView);
 	if (newDetailView == detailView)

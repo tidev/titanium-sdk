@@ -962,8 +962,7 @@ NSArray* moviePlayerKeys = nil;
 			
 			for (TiViewProxy *proxy in views)
 			{
-				TiUIView *view = [proxy view];
-				[view insertIntoView:subview bounds:bounds];
+				[proxy insertIntoView:subview bounds:bounds];
 			}
 		}
 	}

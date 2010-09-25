@@ -115,6 +115,17 @@ NSArray * tableKeySequence;
 	return sectionProxy;
 }
 
+-(void)relayout:(CGRect)bounds
+{
+	[super relayout:bounds];
+	
+	if ([self viewInitialized] && ![self windowIsOpening])
+	{
+		[[self view] relayout:bounds];
+	}
+}
+
+
 #pragma mark Public APIs
 
 -(void)setSearchHidden:(id)args

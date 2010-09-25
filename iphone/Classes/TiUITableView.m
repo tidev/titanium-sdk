@@ -250,12 +250,9 @@
 
 -(void)relayout:(CGRect)bounds
 {
-	[super relayout:bounds];
-	
 	if (tableview!=nil && 
 		!CGRectIsEmpty(self.bounds) && 
-		[tableview superview]!=nil && 
-		![(TiViewProxy*)self.proxy windowIsOpening])
+		[tableview superview]!=nil)
 	{
 		[self replaceData:UITableViewRowAnimationNone];
 	}

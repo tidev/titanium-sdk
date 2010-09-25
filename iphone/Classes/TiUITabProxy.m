@@ -451,7 +451,7 @@
 		{
 			continue;
 		}
-		TiWindowProxy * thisProxy = [(TiViewController *)thisController proxy];
+		TiWindowProxy * thisProxy = (TiWindowProxy *)[(TiViewController *)thisController proxy];
 		if ([thisProxy conformsToProtocol:@protocol(TiOrientationController)])
 		{
 			TiOrientationFlags result = [thisProxy orientationFlags];

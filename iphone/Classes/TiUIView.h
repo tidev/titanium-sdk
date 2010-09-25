@@ -57,7 +57,6 @@ CGFloat AutoHeightForView(UIView * superView,CGFloat suggestedWidth,BOOL isVerti
 	BOOL handlesSwipes;
 	UIView *touchDelegate;		 // used for touch delegate forwarding
 	BOOL animating;
-	BOOL repositioning;
 	
 	//Resizing handling
 	CGSize oldSize;
@@ -102,9 +101,7 @@ CGFloat AutoHeightForView(UIView * superView,CGFloat suggestedWidth,BOOL isVerti
 
 -(void)updateLayout:(LayoutConstraint*)layout withBounds:(CGRect)bounds;
 -(void)updateTouchHandling;
--(void)relayout:(CGRect)bounds;
 -(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds;
--(void)insertIntoView:(UIView*)view bounds:(CGRect)bounds;
 -(void)makeRootViewFirstResponder;
 -(void)animationCompleted;
 
@@ -120,6 +117,8 @@ CGFloat AutoHeightForView(UIView * superView,CGFloat suggestedWidth,BOOL isVerti
 -(void)setVisible_:(id)visible;
 
 -(UIView *)gradientWrapperView;
+
+-(unsigned int)zIndex;
 
 @end
 

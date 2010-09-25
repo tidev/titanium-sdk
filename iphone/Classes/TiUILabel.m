@@ -116,6 +116,7 @@
 -(void)setText_:(id)text
 {
 	[[self label] setText:[TiUtils stringValue:text]];
+	[(TiViewProxy *)[self proxy] contentsWillChange];
 	if (requiresLayout)
 	{
 		[(TiViewProxy *)[self proxy] setNeedsReposition];
@@ -141,6 +142,7 @@
 -(void)setFont_:(id)font
 {
 	[[self label] setFont:[[TiUtils fontValue:font] font]];
+	[(TiViewProxy *)[self proxy] contentsWillChange];
 	if (requiresLayout)
 	{
 		[(TiViewProxy *)[self proxy] setNeedsReposition];
