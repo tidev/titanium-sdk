@@ -154,7 +154,6 @@ public class KrollProxy implements Handler.Callback, OnEventListenerChange {
 
 	public void set(Scriptable scope, String name, Object value)
 			throws NoSuchFieldException {
-		Object oldValue = null;
 
 		if (bindings.containsKey(name)) {
 			Object currentValue = bindings.get(name);
@@ -167,14 +166,8 @@ public class KrollProxy implements Handler.Callback, OnEventListenerChange {
 				bindings.put(name, value);
 				return;
 			}
-		} else if (properties.containsKey(name)) {
-			oldValue = properties.get(name);
 		}
-
-		if (oldValue != value) {
-			firePropertyChanged(name, oldValue, value);
-		}
-		properties.put(name, value);
+		setProperty(name, value, true);
 	}
 
 	public Object call(Scriptable scope, String name, Object[] args)
@@ -389,7 +382,7 @@ public class KrollProxy implements Handler.Callback, OnEventListenerChange {
 	public void setModelListener(KrollProxyListener modelListener) {
 		this.modelListener = modelListener;
 		if (modelListener != null) {
-			modelListener.processProperties(creationDict != null ? creationDict : new KrollDict());
+			modelListener.processProperties(properties);
 		}
 	}
 

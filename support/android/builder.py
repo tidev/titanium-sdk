@@ -305,7 +305,7 @@ class Builder(object):
 			inifiledata.write(inifilec)
 			# TODO - Document options
 			for hw_options in android_avd_hw:
-				initfiledata.write("{0[0]}={0[1]}".format(hw_options))
+				inifiledata.write("{0[0]}={0[1]}".format(hw_options))
 			inifiledata.close()
 			
 		return name

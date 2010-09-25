@@ -223,10 +223,10 @@ public class TiMapView extends TiUIView
 				}
 
 				if (a.containsKey("leftButton")) {
-					item.setLeftButton(proxy.getTiContext().resolveUrl(null, a.getString("leftButton")));
+					item.setLeftButton(proxy.getTiContext().resolveUrl(null, TiConvert.toString(a, "leftButton")));
 				}
 				if (a.containsKey("rightButton")) {
-					item.setRightButton(proxy.getTiContext().resolveUrl(null, a.getString("rightButton")));
+					item.setRightButton(proxy.getTiContext().resolveUrl(null, TiConvert.toString(a, "rightButton")));
 				}
 			} else {
 				Log.w(LCAT, "Skipping annotation: No coordinates #" + i);
