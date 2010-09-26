@@ -6,10 +6,13 @@
  */
 package org.appcelerator.kroll;
 
+import java.util.List;
+
 public interface KrollProxyListener
 {
 	public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy proxy);
 	public void processProperties(KrollDict d);
+	public void propertiesChanged(List<KrollPropertyChange> changes, KrollProxy proxy);
 	
 	public void listenerAdded(String type, int count, KrollProxy proxy);
 	public void listenerRemoved(String type, int count, KrollProxy proxy);

@@ -36,7 +36,7 @@ public abstract class KrollMethod extends ScriptableObject implements Function {
 	
 	@Override
 	public Object call(Context context, Scriptable scope, Scriptable thisObj, Object[] args) {
-		KrollInvocation inv = KrollInvocation.createMethodInvocation(KrollContext.getKrollContext(context).getTiContext(), scope, thisObj, name, this, proxy);
+		KrollInvocation inv = KrollInvocation.createMethodInvocation(scope, thisObj, name, this, proxy);
 		try {
 			if (!runOnUiThread) {
 				return invoke(inv, args);

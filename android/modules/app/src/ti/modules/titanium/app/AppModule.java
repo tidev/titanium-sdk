@@ -1,6 +1,5 @@
 package ti.modules.titanium.app;
 
-import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.ITiAppInfo;
@@ -20,11 +19,6 @@ public class AppModule extends KrollModule
 
 	public void onDestroy() {
 		getTiContext().getTiApp().removeAppEventProxy(this);
-	}
-
-	public boolean fireEvent(String event, KrollDict data)
-	{
-		return getTiContext().getTiApp().fireAppEvent(currentInvocation, event, data);
 	}
 
 	@Kroll.getProperty(name="id") @Kroll.method

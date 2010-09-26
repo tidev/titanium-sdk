@@ -3,9 +3,7 @@
  */
 package ti.modules.titanium.android;
 
-import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
-import org.appcelerator.kroll.KrollProxyListener;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.Log;
@@ -17,7 +15,6 @@ import android.content.Intent;
 @Kroll.proxy(creatableInModule=AndroidModule.class)
 public class ActivityProxy 
 	extends KrollProxy
-	implements KrollProxyListener
 {
 	private static final String LCAT = "TiActivity";
 	private static boolean DBG = TiConfig.LOGD;
@@ -28,7 +25,6 @@ public class ActivityProxy
 	public ActivityProxy(TiContext tiContext) 
 	{
 		super(tiContext);
-		modelListener = this;
 	}
 	
 	@Override
@@ -64,22 +60,5 @@ public class ActivityProxy
 	
 	protected void release() {
 		activity = null;
-	}
-
-	@Override
-	public void listenerAdded(String type, int count, KrollProxy proxy) {
-	}
-
-	@Override
-	public void listenerRemoved(String type, int count, KrollProxy proxy) {
-	}
-
-	@Override
-	public void processProperties(KrollDict d) {
-	}
-
-	@Override
-	public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy proxy) {
-		Log.e(LCAT, "Property Change: " + key);
 	}
 }

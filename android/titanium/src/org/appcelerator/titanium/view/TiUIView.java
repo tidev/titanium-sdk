@@ -8,9 +8,11 @@ package org.appcelerator.titanium.view;
 
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollPropertyChange;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.KrollProxyListener;
 import org.appcelerator.titanium.TiContext;
@@ -407,6 +409,13 @@ public abstract class TiUIView
 		}
 	}
 
+	@Override
+	public void propertiesChanged(List<KrollPropertyChange> changes, KrollProxy proxy) {
+		for (KrollPropertyChange change : changes) {
+			propertyChanged(change.getName(), change.getOldValue(), change.getNewValue(), proxy);
+		}
+	}
+	
 	private void applyCustomBackground() {
 		applyCustomBackground(true);
 	}

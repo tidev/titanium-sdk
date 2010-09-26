@@ -1,6 +1,7 @@
 package org.appcelerator.kroll;
 
 import java.util.HashMap;
+import java.util.List;
 
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiContext;
@@ -65,5 +66,12 @@ public class KrollModule extends KrollProxy
 	
 	@Override
 	public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy proxy) {
+	}
+	
+	@Override
+	public void propertiesChanged(List<KrollPropertyChange> changes, KrollProxy proxy) {
+		for (KrollPropertyChange change : changes) {
+			propertyChanged(change.getName(), change.getOldValue(), change.getNewValue(), proxy);
+		}
 	}
 }

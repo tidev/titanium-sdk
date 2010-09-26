@@ -78,7 +78,7 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 		if (options.containsKey("id")) {
 			String key = (String) options.get("id");
 			String type = getClass().getSimpleName().replace("Proxy", "").toLowerCase();
-			String base = context.getCurrentUrl();
+			String base = context.getBaseUrl();
 			int idx = base.lastIndexOf("/");
 			if (idx != -1) {
 				base = base.substring(idx + 1).replace(".js", "");

@@ -7,10 +7,12 @@
 package ti.modules.titanium.media;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
 import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollPropertyChange;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.KrollProxyListener;
 import org.appcelerator.titanium.util.Log;
@@ -533,6 +535,13 @@ public class TiSound
 			setVolume(TiConvert.toFloat(newValue));
 		} else if ("time".equals(key)) {
 			setTime(TiConvert.toInt(newValue));
+		}
+	}
+	
+	@Override
+	public void propertiesChanged(List<KrollPropertyChange> changes, KrollProxy proxy) {
+		for (KrollPropertyChange change : changes) {
+			propertyChanged(change.getName(), change.getOldValue(), change.getNewValue(), proxy);
 		}
 	}
 }

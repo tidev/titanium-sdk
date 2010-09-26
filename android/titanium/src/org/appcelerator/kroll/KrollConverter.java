@@ -213,6 +213,10 @@ public class KrollConverter implements KrollNativeConverter,
 				return scriptable.get("message", scriptable);
 			}
 		} else if (scriptable instanceof Function) {
+			if (scriptable instanceof KrollCallback) {
+				return scriptable;
+			}
+			
 			KrollContext ctx = null;
 			if (invocation.getTiContext() != null) {
 				ctx = invocation.getTiContext().getKrollContext();
@@ -254,7 +258,7 @@ public class KrollConverter implements KrollNativeConverter,
 				}
 				return newValues;
 			} else {
-				Log.w(TAG, "Unhandled type conversion: value: " + value.toString() + " type: " + value.getClass().getName());
+				Log.w(TAG, "Unhandled type conversion: value: " + value.toString() + " type: " + value.getClass().getName() + ", invocation: " + invocation);
 			}
 		}
 		return value;

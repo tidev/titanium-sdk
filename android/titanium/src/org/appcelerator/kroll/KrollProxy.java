@@ -9,6 +9,7 @@ package org.appcelerator.kroll;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -33,6 +34,7 @@ public class KrollProxy implements Handler.Callback, OnEventListenerChange {
 	protected static final int MSG_MODEL_PROPERTY_CHANGE = 100;
 	protected static final int MSG_LISTENER_ADDED = 101;
 	protected static final int MSG_LISTENER_REMOVED = 102;
+	protected static final int MSG_MODEL_PROPERTIES_CHANGED = 103;
 	protected static final int MSG_LAST_ID = 999;
 	protected static AtomicInteger proxyCounter = new AtomicInteger();
 
@@ -167,7 +169,10 @@ public class KrollProxy implements Handler.Callback, OnEventListenerChange {
 				return;
 			}
 		}
-		setProperty(name, value, true);
+		
+		KrollInvocation invocation = KrollInvocation.createPropertySetInvocation(scope, null, name, null, this);
+		Object convertedValue = KrollConverter.getInstance().convertJavascript(invocation, value, Object.class);
+		setProperty(name, convertedValue, true);
 	}
 
 	public Object call(Scriptable scope, String name, Object[] args)
@@ -234,56 +239,65 @@ public class KrollProxy implements Handler.Callback, OnEventListenerChange {
 		setProperty(name, value, false);
 	}
 
-	private static class PropertyChangeHolder {
-		private KrollProxyListener modelListener;
-		private String key;
-		private Object current;
-		private Object value;
-		private KrollProxy proxy;
-
-		PropertyChangeHolder(KrollProxyListener modelListener, String key,
-				Object current, Object value, KrollProxy proxy) {
-			this.modelListener = modelListener;
-			this.key = key;
-			this.current = current;
-			this.value = value;
-			this.proxy = proxy;
-		}
-
-		public void fireEvent() {
-			try {
-				modelListener.propertyChanged(key, current, value, proxy);
-			} finally {
-				modelListener = null;
-				proxy = null;
-			}
-		}
-	}
-
 	protected void firePropertyChanged(String name, Object oldValue, Object newValue) {
 		if (modelListener != null) {
 			if (context.isUIThread()) {
 				modelListener.propertyChanged(name, oldValue, newValue,
 						this);
 			} else {
-				PropertyChangeHolder pch = new PropertyChangeHolder(
-						modelListener, name, oldValue, newValue, this);
-				getUIHandler().obtainMessage(MSG_MODEL_PROPERTY_CHANGE,
-						pch).sendToTarget();
+				KrollPropertyChange pch = new KrollPropertyChange(name, oldValue, newValue);
+				getUIHandler().obtainMessage(MSG_MODEL_PROPERTY_CHANGE, pch).sendToTarget();
 			}
 		}
+	}
+	
+	protected boolean shouldFireChange(Object oldValue, Object newValue) {
+		if (!(oldValue == null && newValue == null)) {
+			if ((oldValue == null && newValue != null)
+					|| (newValue == null && oldValue != null)
+					|| (!oldValue.equals(newValue))) {
+				return true;
+			}
+		}
+		return false;
 	}
 	
 	public void setProperty(String name, Object value, boolean fireChange) {
 		Object current = properties.get(name);
 		properties.put(name, value);
 
-		if (fireChange && !(current == null && value == null)) {
-			if ((current == null && value != null)
-					|| (value == null && current != null)
-					|| (!current.equals(value))) {
-				firePropertyChanged(name, current, value);
+		if (fireChange && shouldFireChange(current, value)) {
+			firePropertyChanged(name, current, value);
+		}
+	}
+	
+	// native extending support allows us to whole-sale apply properties and only fire one event / job
+	@Kroll.method
+	public void extend(KrollInvocation invocation, KrollDict options) {
+		ArrayList<KrollPropertyChange> propertyChanges = new ArrayList<KrollPropertyChange>();
+		
+		for (String name : options.keySet()) {
+			Object oldValue = properties.get(name);
+			Object value = options.get(name);
+			properties.put(name, value);
+			
+			if (shouldFireChange(oldValue, value)) {
+				KrollPropertyChange pch = new KrollPropertyChange(name, oldValue, value);
+				propertyChanges.add(pch);
 			}
+		}
+		
+		if (context.isUIThread()) {
+			firePropertiesChanged(propertyChanges);
+		} else {
+			Message msg = getUIHandler().obtainMessage(MSG_MODEL_PROPERTIES_CHANGED, propertyChanges);
+			msg.sendToTarget();
+		}
+	}
+	
+	protected void firePropertiesChanged(List<KrollPropertyChange> changes) {
+		if (modelListener != null) {
+			modelListener.propertiesChanged(changes, this);
 		}
 	}
 	
@@ -356,8 +370,8 @@ public class KrollProxy implements Handler.Callback, OnEventListenerChange {
 	public boolean handleMessage(Message msg) {
 		switch (msg.what) {
 		case MSG_MODEL_PROPERTY_CHANGE: {
-			PropertyChangeHolder pch = (PropertyChangeHolder) msg.obj;
-			pch.fireEvent();
+			KrollPropertyChange pch = (KrollPropertyChange) msg.obj;
+			pch.fireEvent(this, modelListener);
 			return true;
 		}
 		case MSG_LISTENER_ADDED: {
@@ -373,6 +387,10 @@ public class KrollProxy implements Handler.Callback, OnEventListenerChange {
 				modelListener.listenerRemoved(msg.getData().getString(
 						"eventName"), msg.arg1, (KrollProxy) msg.obj);
 			}
+			return true;
+		}
+		case MSG_MODEL_PROPERTIES_CHANGED: {
+			firePropertiesChanged((List<KrollPropertyChange>)msg.obj);
 			return true;
 		}
 		}

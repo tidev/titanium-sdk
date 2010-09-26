@@ -60,9 +60,13 @@ public class KrollCallback extends KrollMethod
 	}
 	
 	public void call(Object[] args) {
-		String methodName = (String) method.get("name", method);
-		if (methodName.length() == 0) {
-			methodName = "(anonymous)";
+		String methodName = "(anonymous)";
+		Object methodNameObject = method.get("name", method);
+		if (methodNameObject != null && methodNameObject instanceof String) {
+			String m = (String) methodNameObject;
+			if (m.length() > 0) {
+				methodName = m;
+			}
 		}
 		
 		KrollInvocation inv = KrollInvocation.createMethodInvocation(kroll == null ? TiContext.getCurrentTiContext() : kroll.getTiContext(),
@@ -92,16 +96,16 @@ public class KrollCallback extends KrollMethod
 					}
 					method.call(ctx, scope, thisObj, jsArgs);
 				} catch (EcmaError e) {
-					Log.e(LCAT, "ECMA Error evaluating source: " + e.getMessage(), e);
+					Log.e(LCAT, "ECMA Error evaluating source, invocation: " + invocation + ", message: "+ e.getMessage(), e);
 					Context.reportRuntimeError(e.getMessage(), e.sourceName(), e.lineNumber(), e.lineSource(), e.columnNumber());
 				} catch (EvaluatorException e) {
-					Log.e(LCAT, "Error evaluating source: " + e.getMessage(), e);
+					Log.e(LCAT, "Error evaluating source, invocation: " + invocation + ", message: " + e.getMessage(), e);
 					Context.reportRuntimeError(e.getMessage(), e.sourceName(), e.lineNumber(), e.lineSource(), e.columnNumber());
 				} catch (Exception e) {
-					Log.e(LCAT, "Error: " + e.getMessage(), e);
+					Log.e(LCAT, "Error, invocation: " + invocation + ", message: " + e.getMessage(), e);
 					Context.throwAsScriptRuntimeEx(e);
 				} catch (Throwable e) {
-					Log.e(LCAT, "Unhandled throwable: " + e.getMessage(), e);
+					Log.e(LCAT, "Unhandled throwable, invocation:" + invocation + ", message: " + e.getMessage(), e);
 					Context.throwAsScriptRuntimeEx(e);
 				} finally {
 					fKroll.exit();
