@@ -16,7 +16,6 @@
 	AudioStreamer *player;
 	BOOL progress;
 	NSTimer *timer;
-    UInt32 sessionMode;
 }
 
 @property (nonatomic,readonly) NSURL *url;

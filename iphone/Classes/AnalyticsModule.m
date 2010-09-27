@@ -133,6 +133,7 @@ NSString * const TI_DB_VERSION = @"1";
 			RELEASE_TO_NIL(flushTimer);
 		}
 		
+		[lock unlock];
 		[pool release];
 		return;
 	}

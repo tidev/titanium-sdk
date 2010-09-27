@@ -74,7 +74,6 @@ public abstract class TiViewProxy extends TiProxy implements Handler.Callback
 	{
 		super(tiContext);
 		if (args.length > 0) {
-		    
 		    TiDict options = (TiDict) args[0];
 		    
 		    // check to see if we have an idea and if so, we're going to 
