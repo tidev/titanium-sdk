@@ -7,29 +7,17 @@
 package org.appcelerator.titanium;
 
 import java.io.IOException;
-import java.lang.ref.SoftReference;
 import java.lang.ref.WeakReference;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
 import java.util.concurrent.Semaphore;
-import java.util.concurrent.atomic.AtomicInteger;
 
-import org.appcelerator.kroll.KrollDict;
-import org.appcelerator.kroll.KrollInvocation;
-import org.appcelerator.kroll.KrollObject;
-import org.appcelerator.kroll.KrollProxy;
-import org.appcelerator.titanium.bridge.OnEventListenerChange;
 import org.appcelerator.titanium.io.TiBaseFile;
 import org.appcelerator.titanium.io.TiFileFactory;
 import org.appcelerator.titanium.kroll.KrollBridge;
-import org.appcelerator.titanium.kroll.KrollCallback;
 import org.appcelerator.titanium.kroll.KrollContext;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiActivitySupport;
@@ -62,6 +50,7 @@ public class TiContext implements TiEvaluator, ITiMenuDispatcherListener, ErrorR
 {
 	private static final String LCAT = "TiContext";
 	private static final boolean DBG = TiConfig.LOGD;
+	@SuppressWarnings("unused")
 	private static final boolean TRACE = TiConfig.LOGV;
 
 	private long mainThreadId;

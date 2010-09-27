@@ -588,4 +588,31 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 		
 		return children.toArray(new TiViewProxy[children.size()]);
 	}
+	
+	@Override
+	public void eventListenerAdded(String eventName, int count, KrollProxy proxy) {
+		super.eventListenerAdded(eventName, count, proxy);
+		
+		if (eventName.equals("click") && proxy.equals(this) && count == 1 && !(proxy instanceof TiWindowProxy)) {
+			setClickable(true);
+		}
+	}
+	
+	@Override
+	public void eventListenerRemoved(String eventName, int count, KrollProxy proxy) {
+		super.eventListenerRemoved(eventName, count, proxy);
+		
+		if (eventName.equals("click") && count == 0 && proxy.equals(this) && !(proxy instanceof TiWindowProxy)) {
+			setClickable(false);
+		}
+	}
+	
+	public void setClickable(boolean clickable) {
+		if (peekView() != null) {
+			TiUIView v = getView(getTiContext().getActivity());
+			if (v != null) {
+				v.getNativeView().setClickable(clickable);
+			}
+		}
+	}
 }

@@ -11,6 +11,9 @@ import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -56,6 +59,7 @@ public class TiUIHelper
 	public static final Pattern SIZED_VALUE = Pattern.compile("([0-9]*\\.?[0-9]+)\\W*(px|dp|dip|sp|sip|mm|pt|in)?");
 
 	private static Method overridePendingTransition;
+	private static Map<String, String> raImageKeys = Collections.synchronizedMap(new HashMap<String, String>());
 	
 	public static OnClickListener createDoNothingListener() {
 		return new OnClickListener() {
@@ -472,6 +476,10 @@ public class TiUIHelper
 	
 	private static String getRAKeyForImage(String url)
 	{
+		if (raImageKeys.containsKey(url)) {
+			return raImageKeys.get(url);
+		}
+		
 		Pattern pattern = Pattern.compile("^.*/Resources/images/(.*$)");
 		Matcher matcher = pattern.matcher(url);
 		if (!matcher.matches()) {
@@ -503,8 +511,9 @@ public class TiUIHelper
 		result.append(cleanedWithoutExtension.substring(0, Math.min(cleanedWithoutExtension.length(), 80))) ;
 		result.append("_");
 		result.append(DigestUtils.md5Hex(forHash).substring(0, 10));
-		
-		return result.toString();
+		String sResult = result.toString();
+		raImageKeys.put(url, sResult);
+		return sResult;
 	}
 	
 	public static Bitmap getResourceBitmap(TiContext context, String url)

@@ -205,6 +205,7 @@ enum
 	animatedPicker = YES;
 	saveToRoll = NO;
 	BOOL editable = NO;
+	UIImagePickerControllerSourceType ourSource = (isCamera ? UIImagePickerControllerSourceTypeCamera : UIImagePickerControllerSourceTypePhotoLibrary);
 	
 	if (args!=nil)
 	{
@@ -222,7 +223,7 @@ enum
 		// introduced in 3.1
 		[picker setAllowsEditing:editable];
 		
-		NSArray *sourceTypes = [UIImagePickerController availableMediaTypesForSourceType:UIImagePickerControllerSourceTypeCamera];
+		NSArray *sourceTypes = [UIImagePickerController availableMediaTypesForSourceType:ourSource];
 		id types = [args objectForKey:@"mediaTypes"];
 		
 		BOOL movieRequired = NO;
@@ -278,7 +279,6 @@ enum
 	
 	// do this afterwards above so we can first check for video support
 	
-	UIImagePickerControllerSourceType ourSource = (isCamera ? UIImagePickerControllerSourceTypeCamera : UIImagePickerControllerSourceTypePhotoLibrary);
 	if (![UIImagePickerController isSourceTypeAvailable:ourSource])
 	{
 		[self sendPickerError:MediaModuleErrorNoCamera];
@@ -931,12 +931,24 @@ if (![TiUtils isIOS4OrGreater]) { \
 
 -(void)setDefaultAudioSessionMode:(NSNumber*)mode
 {
-    [[TiMediaAudioSession sharedSession] setDefaultSessionMode:[mode unsignedIntValue]];
+	NSLog(@"[WARN] Deprecated; use 'audioSessionMode'");
+    [[TiMediaAudioSession sharedSession] setSessionMode:[mode unsignedIntValue]];
 } 
 
 -(NSNumber*)defaultAudioSessionMode
 {
-    return [NSNumber numberWithUnsignedInt:[[TiMediaAudioSession sharedSession] defaultSessionMode]];
+	NSLog(@"[WARN] Deprecated; use 'audioSessionMode'");	
+    return [NSNumber numberWithUnsignedInt:[[TiMediaAudioSession sharedSession] sessionMode]];
+}
+
+-(void)setAudioSessionMode:(NSNumber*)mode
+{
+    [[TiMediaAudioSession sharedSession] setSessionMode:[mode unsignedIntValue]];
+} 
+
+-(NSNumber*)audioSessionMode
+{
+    return [NSNumber numberWithUnsignedInt:[[TiMediaAudioSession sharedSession] sessionMode]];
 }
 
 #pragma mark Delegates
@@ -1131,17 +1143,14 @@ if (![TiUtils isIOS4OrGreater]) { \
 {
 	if (count == 1 && [type isEqualToString:@"linechange"])
 	{
-		[[TiMediaAudioSession sharedSession] startAudioSession];
 		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(audioRouteChanged:) name:kTiMediaAudioSessionRouteChange object:[TiMediaAudioSession sharedSession]];
 	}
 	else if (count == 1 && [type isEqualToString:@"volume"])
 	{
-		[[TiMediaAudioSession sharedSession] startAudioSession];
 		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(audioVolumeChanged:) name:kTiMediaAudioSessionVolumeChange object:[TiMediaAudioSession sharedSession]];
 	}
 	else if (count == 1 && [type isEqualToString:@"recordinginput"])
 	{
-		[[TiMediaAudioSession sharedSession] startAudioSession];
 		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(audioInputChanged:) name:kTiMediaAudioSessionInputChange object:[TiMediaAudioSession sharedSession]];
 	}
 }
@@ -1150,17 +1159,14 @@ if (![TiUtils isIOS4OrGreater]) { \
 {
 	if (count == 0 && [type isEqualToString:@"linechange"])
 	{
-		[[TiMediaAudioSession sharedSession] stopAudioSession];
 		[[NSNotificationCenter defaultCenter] removeObserver:self name:kTiMediaAudioSessionRouteChange object:[TiMediaAudioSession sharedSession]];
 	}
 	else if (count == 0 && [type isEqualToString:@"volume"])
 	{
-		[[TiMediaAudioSession sharedSession] stopAudioSession];
 		[[NSNotificationCenter defaultCenter] removeObserver:self name:kTiMediaAudioSessionVolumeChange object:[TiMediaAudioSession sharedSession]];
 	}
 	else if (count == 0 && [type isEqualToString:@"recordinginput"]) 
 	{
-		[[TiMediaAudioSession sharedSession] stopAudioSession];
 		[[NSNotificationCenter defaultCenter] removeObserver:self name:kTiMediaAudioSessionInputChange object:[TiMediaAudioSession sharedSession]];
 	}
 }

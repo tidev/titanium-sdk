@@ -45,7 +45,7 @@ public class BumpModule extends KrollModule implements TiActivityResultHandler, 
 		// Setup ourselves as the listener for the result of the Activity
 	}
 	
-	protected void sendMessage(String message) {
+	public void sendMessage(String message) {
 		if (null != this.conn) {
 			
 			try {

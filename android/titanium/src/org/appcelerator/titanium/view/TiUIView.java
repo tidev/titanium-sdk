@@ -125,6 +125,7 @@ public abstract class TiUIView
 			view.setId(idGenerator.incrementAndGet());
 		}
 		this.nativeView = view;
+		nativeView.setClickable(proxy.hasListeners("click"));
 		nativeView.setOnFocusChangeListener(this);
 	}
 	protected void setLayoutParams(LayoutParams layoutParams) {
@@ -424,7 +425,6 @@ public abstract class TiUIView
 		if (nativeView != null) {
 
 			if (background == null) {
-				nativeView.setClickable(true);
 				background = new TiBackgroundDrawable();
 	
 				Drawable currentDrawable = nativeView.getBackground();
