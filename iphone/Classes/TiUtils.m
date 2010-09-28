@@ -111,6 +111,7 @@ extern NSString * const TI_APPLICATION_RESOURCE_DIR;
 						   VAL_OR_NSNULL(name),@"name",
 						   VAL_OR_NSNULL(data),@"data",
 						   nil];
+	WARN_IF_BACKGROUND_THREAD;	//NSNotificationCenter is not threadsafe!
 	[[NSNotificationCenter defaultCenter] postNotificationName:kTiAnalyticsNotification object:nil userInfo:event];
 }
 
@@ -487,6 +488,9 @@ extern NSString * const TI_APPLICATION_RESOURCE_DIR;
 	return url;
 }
 
+const CFStringRef charactersThatNeedEscaping = NULL;
+const CFStringRef charactersToNotEscape = CFSTR(":[]@!$ '()*+,;\"<>%{}|\\^~`");
+
 +(NSURL*)toURL:(id)object proxy:(TiProxy*)proxy
 {
 	NSURL *url = nil;
@@ -505,14 +509,23 @@ extern NSString * const TI_APPLICATION_RESOURCE_DIR;
 		}
 		
 		// don't bother if we don't at least have a path and it's not remote
+		///TODO: This looks ugly and klugy.
 		NSString *urlString = [TiUtils stringValue:object];
 		if ([urlString hasPrefix:@"http"])
 		{
 			NSRange range = [urlString rangeOfString:@"/" options:0 range:NSMakeRange(7, [urlString length]-7)];
 			if (range.location!=NSNotFound)
 			{
-				NSString *path = [(NSString *)CFURLCreateStringByAddingPercentEscapes(kCFAllocatorDefault, (CFStringRef)[urlString substringFromIndex:range.location], CFSTR(":[]@!$ '()*+,;\"<>%{}|\\^~`"), NULL, CFStringConvertNSStringEncodingToEncoding(NSUTF8StringEncoding)) autorelease];
-				urlString = [NSString stringWithFormat:@"%@%@",[urlString substringToIndex:range.location],path];
+				NSString *firstPortion = [urlString substringToIndex:range.location];
+				NSString *pathPortion = [urlString substringFromIndex:range.location];
+				CFStringRef escapedPath = CFURLCreateStringByAddingPercentEscapes(kCFAllocatorDefault,
+						(CFStringRef)pathPortion, charactersToNotEscape,charactersThatNeedEscaping,
+						kCFStringEncodingUTF8);
+				urlString = [firstPortion stringByAppendingString:(NSString *)escapedPath];
+				if(escapedPath != NULL)
+				{
+					CFRelease(escapedPath);
+				}
 			}
 		}
 		

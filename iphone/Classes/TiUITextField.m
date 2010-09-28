@@ -248,6 +248,7 @@
 
 - (void) dealloc
 {
+	WARN_IF_BACKGROUND_THREAD;	//NSNotificationCenter is not threadsafe!
 	[[NSNotificationCenter defaultCenter] removeObserver:self name:UITextFieldTextDidChangeNotification object:nil];
 	[super dealloc];
 }
@@ -264,6 +265,7 @@
 		((TiTextField *)textWidgetView).contentVerticalAlignment = UIControlContentVerticalAlignmentCenter;
 		[(TiTextField *)textWidgetView configure];
 		[self addSubview:textWidgetView];
+		WARN_IF_BACKGROUND_THREAD;	//NSNotificationCenter is not threadsafe!
 		NSNotificationCenter * theNC = [NSNotificationCenter defaultCenter];
 		[theNC addObserver:self selector:@selector(keyboardWillHide:) name:UIKeyboardWillHideNotification object:nil];
 		[theNC addObserver:self selector:@selector(keyboardWillShow:) name:UIKeyboardWillShowNotification object:nil];

@@ -23,10 +23,12 @@ void TiAudioSessionInterruptionCallback(void *inUserData,UInt32 interruptionStat
 	{
 		if (interruptionState == kAudioSessionBeginInterruption)
 		{
+			WARN_IF_BACKGROUND_THREAD;	//NSNotificationCenter is not threadsafe!
 			[[NSNotificationCenter defaultCenter] postNotificationName:kTiMediaAudioSessionInterruptionBegin object:session];
 		}
 		else if (interruptionState == kAudioSessionEndInterruption)
 		{
+			WARN_IF_BACKGROUND_THREAD;	//NSNotificationCenter is not threadsafe!
 			[[NSNotificationCenter defaultCenter] postNotificationName:kTiMediaAudioSessionInterruptionEnd object:session];
 		}
 	}
@@ -35,6 +37,7 @@ void TiAudioSessionInterruptionCallback(void *inUserData,UInt32 interruptionStat
 void TiAudioSessionAudioVolumeCallback(void *inUserData, AudioSessionPropertyID prop, UInt32 size, const void *inData)
 {
 	TiMediaAudioSession* session = (TiMediaAudioSession*)inUserData;
+	WARN_IF_BACKGROUND_THREAD;	//NSNotificationCenter is not threadsafe!
 	[[NSNotificationCenter defaultCenter] postNotificationName:kTiMediaAudioSessionVolumeChange object:session];
 }
 
@@ -92,12 +95,14 @@ void TiAudioSessionAudioRouteChangeCallback(void *inUserData, AudioSessionProper
 	}
 	[event setObject:[dict objectForKey:@"OutputDeviceDidChange_OldRoute"] forKey:@"oldRoute"];
 	[event setObject:reason forKey:@"reason"];
+	WARN_IF_BACKGROUND_THREAD;	//NSNotificationCenter is not threadsafe!
 	[[NSNotificationCenter defaultCenter] postNotificationName:kTiMediaAudioSessionRouteChange object:session userInfo:event];
 }
 
 void TiAudioSessionInputAvailableCallback(void* inUserData, AudioSessionPropertyID inID, UInt32 dataSize, const void* inData)
 {
 	TiMediaAudioSession* session = (TiMediaAudioSession*)inUserData;
+	WARN_IF_BACKGROUND_THREAD;	//NSNotificationCenter is not threadsafe!
 	[[NSNotificationCenter defaultCenter] postNotificationName:kTiMediaAudioSessionInputChange object:session];
 }
 
