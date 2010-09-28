@@ -5,7 +5,7 @@
 #
 
 import os, sys, shutil, platform, zipfile
-import string, subprocess, re, simplejson
+import string, subprocess, re
 from mako.template import Template
 from xml.etree.ElementTree import ElementTree
 from os.path import join, splitext, split, exists
@@ -16,6 +16,7 @@ from compiler import Compiler
 template_dir = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
 sys.path.append(os.path.dirname(template_dir))
 from tiapp import TiAppXML
+import simplejson
 
 ignoreFiles = ['.gitignore', '.cvsignore', '.DS_Store'];
 ignoreDirs = ['.git','.svn','_svn', 'CVS'];
