@@ -32,6 +32,7 @@
  
 -(void)_destroy
 {
+	WARN_IF_BACKGROUND_THREAD;	//NSNotificationCenter is not threadsafe!
 	[[NSNotificationCenter defaultCenter] removeObserver:self name:kTiShutdownNotification object:nil];
 	[self shutdown:nil];
 	[super _destroy];
@@ -39,6 +40,7 @@
 
 -(void)_configure
 {
+	WARN_IF_BACKGROUND_THREAD;	//NSNotificationCenter is not threadsafe!
 	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(shutdown:) name:kTiShutdownNotification object:nil];
 	[super _configure];
 }
