@@ -14,6 +14,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollModule;
+import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.ContextSpecific;
 import org.appcelerator.titanium.TiContext;
@@ -86,6 +87,7 @@ public class ContactsModule extends KrollModule
 	@Kroll.method
 	public void showContacts(@Kroll.argument(optional=true) KrollDict d)
 	{
+		KrollProxy proxyForActivity = this;
 		Intent intent = contactsApi.getIntentForContactsPicker();
 		if (DBG) {
 			Log.d(LCAT, "Launching content picker activity");
@@ -107,9 +109,15 @@ public class ContactsModule extends KrollModule
 					callbacks.put(callbackToConsider, (KrollCallback)test);
 				}
 			}
+			if (d.containsKey("proxy")) {
+				Object test = d.get("proxy");
+				if (test != null && test instanceof KrollProxy) {
+					proxyForActivity = (KrollProxy) test;
+				}
+			}
 		}
 		
-		TiActivitySupport activitySupport = (TiActivitySupport) getTiContext().getActivity();
+		TiActivitySupport activitySupport = (TiActivitySupport) proxyForActivity.getTiContext().getActivity();
 		
 		activitySupport.launchActivityForResult(intent, requestCode, this);
 	}
