@@ -17,7 +17,6 @@
 	TiDimension contentHeight;
 	
 	CGFloat minimumContentHeight;
-	CGFloat verticalLayoutBoundary;
 	
 	BOOL needsHandleContentSize;
 	
@@ -25,7 +24,6 @@
 }
 
 @property(nonatomic,retain,readonly) UIScrollView * scrollView;
-@property(nonatomic,readwrite,assign)	CGFloat verticalLayoutBoundary;
 
 -(void)setNeedsHandleContentSize;
 -(void)setNeedsHandleContentSizeIfAutosizing;
