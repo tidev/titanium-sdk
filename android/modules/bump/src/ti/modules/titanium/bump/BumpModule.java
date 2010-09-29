@@ -28,7 +28,7 @@ import com.bumptech.bumpapi.BumpResources;
 public class BumpModule extends TiModule implements TiActivityResultHandler, BumpAPIListener {
 	
 	private static final String LCAT = "BumpModule";
-	private static final boolean DBG = true;
+	private static final boolean DBG = false;
 	
 	private BumpConnection conn;
 	
