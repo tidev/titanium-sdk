@@ -248,16 +248,6 @@
 	return tableview;
 }
 
--(void)relayout:(CGRect)bounds
-{
-	if (tableview!=nil && 
-		!CGRectIsEmpty(self.bounds) && 
-		[tableview superview]!=nil)
-	{
-		[self replaceData:UITableViewRowAnimationNone];
-	}
-}
-
 -(NSInteger)indexForRow:(TiUITableViewRowProxy*)row
 {
 	int index = 0;
@@ -971,6 +961,13 @@
         [(TiViewProxy*)[(TiUIView*)footerView proxy] reposition];
         [[self tableView] setTableFooterView:footerView];
     }
+
+	if (tableview!=nil && 
+		!CGRectIsEmpty(self.bounds) && 
+		[tableview superview]!=nil)
+	{
+		[self replaceData:UITableViewRowAnimationNone];
+	}
 }
 
 #pragma mark Searchbar-related IBActions

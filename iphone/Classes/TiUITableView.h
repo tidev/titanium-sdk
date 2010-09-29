@@ -31,6 +31,8 @@
 -(void) setBackgroundGradient_:(TiGradient *)newGradient;
 -(void) setSelectedBackgroundGradient_:(TiGradient *)newGradient;
 
+-(void) updateGradientLayer:(BOOL)useSelected;
+
 @end
 
 @interface TiUITableView : TiUIView<UISearchDisplayDelegate,UIScrollViewDelegate,UITableViewDelegate,UITableViewDataSource,UISearchBarDelegate,TiUIScrollView> {
@@ -80,6 +82,7 @@
 -(IBAction)hideSearchScreen:(id)sender;
 -(UITableView*)searchTableView;
 -(UITableView*)tableView;
+
 
 @end
 
