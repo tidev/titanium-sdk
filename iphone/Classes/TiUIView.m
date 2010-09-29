@@ -222,11 +222,6 @@ DEFINE_EXCEPTIONS
 
 #pragma mark Layout 
 
--(unsigned int)zIndex
-{
-	return [(TiViewProxy *)proxy zIndex];
-}
-
 -(BOOL)animationFromArgument:(id)args
 {
 	// should happen already in completed callback but in case it didn't complete or was implicitly cancelled

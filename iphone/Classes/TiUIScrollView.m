@@ -11,7 +11,6 @@
 #import "TiUtils.h"
 
 @implementation TiUIScrollView
-@synthesize verticalLayoutBoundary;
 
 - (void) dealloc
 {
