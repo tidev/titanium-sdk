@@ -7,9 +7,12 @@
 package org.appcelerator.titanium.proxy;
 
 import java.lang.ref.WeakReference;
+import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.TreeSet;
 
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiDict;
@@ -19,6 +22,7 @@ import org.appcelerator.titanium.util.AsyncResult;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiAnimationBuilder;
 import org.appcelerator.titanium.util.TiConfig;
+import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiResourceHelper;
 import org.appcelerator.titanium.view.TiAnimation;
 import org.appcelerator.titanium.view.TiUIView;
@@ -73,42 +77,21 @@ public abstract class TiViewProxy extends TiProxy implements Handler.Callback
 	public TiViewProxy(TiContext tiContext, Object[] args)
 	{
 		super(tiContext);
+
 		if (args.length > 0) {
-		    TiDict options = (TiDict) args[0];
-		    
-		    // check to see if we have an idea and if so, we're going to 
-		    // use that ID to lookup a stylesheet
-		    if (options.containsKey("id"))
-		    {
-		        String key = (String)options.get("id");
-		        String type = getClass().getSimpleName().replace("Proxy","").toLowerCase();
-		        String base = tiContext.getCurrentUrl();
-		        int idx = base.lastIndexOf("/");
-		        if (idx != -1)
-		        {
-		            base = base.substring(idx+1).replace(".js","");
-		        }
-		        TiDict dict = tiContext.getTiApp().getStylesheet(base,type,key);
-		        Log.d(LCAT,"trying to get stylesheet for base:"+base+",type:"+type+",key:"+key+",dict:"+dict);
-		        if (dict!=null)
-		        {
-		            // merge in our stylesheet details to the passed in dictionary
-		            // our passed in dictionary takes precedence over the stylesheet
-		            dict.putAll(options);
-		            options = dict;
-		        }
-		    }
-		    
-		    //lang conversion table
-		    TiDict langTable = getLangConversionTable();
-		    if (langTable!=null)
-		    {
+			TiDict options = (TiDict) args[0];
+			options = handleStyleOptions(options);
+			
+			//lang conversion table
+			TiDict langTable = getLangConversionTable();
+			if (langTable!=null)
+			{
 				Activity activity = tiContext.getActivity();
-		        for (String key : langTable.keySet())
-		        {
+				for (String key : langTable.keySet())
+				{
 					// if we have it already, ignore
-		            if (options.containsKey(key)==false)
-		            {
+					if (options.containsKey(key)==false)
+					{
 						String convertKey = (String)langTable.get(key);
 						String langKey = (String)options.get(convertKey);
 						if (langKey!=null)
@@ -120,19 +103,70 @@ public abstract class TiViewProxy extends TiProxy implements Handler.Callback
 								options.put(key,convertValue);
 							}
 						}
-		            }
-		        }
-		    }
-		    
+					}
+				}
+			}
 			setProperties(options);
 		}
 		tiContext.addOnEventChangeListener(this);
 	}
 	
+	protected String getBaseUrlForStylesheet() {
+		String baseUrl = getTiContext().getCurrentUrl();
+		if (baseUrl == null) {
+			baseUrl = "app://app.js";
+		}
+		
+		int idx = baseUrl.lastIndexOf("/");
+		if (idx != -1) {
+			baseUrl = baseUrl.substring(idx + 1).replace(".js", "");
+		}
+		return baseUrl;
+	}
+	
+	protected TiDict handleStyleOptions(TiDict options) {
+		String viewId = getProxyId();
+		TreeSet<String> styleClasses = new TreeSet<String>();
+		styleClasses.add(getClass().getSimpleName().replace("Proxy", "").toLowerCase());
+		
+		if (options.containsKey("id")) {
+			viewId = TiConvert.toString(options, "id");
+		}
+		if (options.containsKey("className")) {
+			String className = TiConvert.toString(options, "className");
+			for (String clazz : className.split(" ")) {
+				styleClasses.add(clazz);
+			}
+		}
+		if (options.containsKey("classNames")) {
+			Object c = options.get("classNames");
+			if (c.getClass().isArray()) {
+				int length = Array.getLength(c);
+				for (int i = 0; i < length; i++) {
+					Object clazz = Array.get(c, i);
+					if (clazz != null) {
+						styleClasses.add(clazz.toString());
+					}
+				}
+			}
+		}
+		
+		String baseUrl = getBaseUrlForStylesheet();
+		TiDict dict = getTiContext().getTiApp().getStylesheet(baseUrl, styleClasses, viewId);
+		Log.d(LCAT, "trying to get stylesheet for base:" + baseUrl + ",classes:" + styleClasses + ",id:" + viewId + ",dict:" + dict);
+		if (dict != null) {
+			// merge in our stylesheet details to the passed in dictionary
+			// our passed in dictionary takes precedence over the stylesheet
+			dict.putAll(options);
+			return dict;
+		}
+		return options;
+	}
+	
 	protected TiDict getLangConversionTable() {
-	    // subclasses override to return a table mapping of langid keys to actual keys
-	    // used for specifying things like titleid vs. title so that you can localize them
-	    return null;
+		// subclasses override to return a table mapping of langid keys to actual keys
+		// used for specifying things like titleid vs. title so that you can localize them
+		return null;
 	}
 
 	public TiAnimationBuilder getPendingAnimation() {
@@ -657,5 +691,21 @@ public abstract class TiViewProxy extends TiProxy implements Handler.Callback
 				v.getNativeView().setClickable(clickable);
 			}
 		}
+	}
+	
+	public void addClass(String className) {
+		addClasses(new String[] { className });
+	}
+	
+	public void addClasses(Object[] classNames) {
+		// This is a pretty naive implementation right now,
+		// but it will work for our current needs
+		String baseUrl = getBaseUrlForStylesheet();
+		ArrayList<String> classes = new ArrayList<String>();
+		for (Object c : classNames) {
+			classes.add(TiConvert.toString(c));
+		}
+		TiDict options = getTiContext().getTiApp().getStylesheet(baseUrl, classes, null);
+		extend(options);
 	}
 }

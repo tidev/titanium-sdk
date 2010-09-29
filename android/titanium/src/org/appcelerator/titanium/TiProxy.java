@@ -6,6 +6,8 @@
  */
 package org.appcelerator.titanium;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -27,6 +29,7 @@ public class TiProxy implements Handler.Callback, TiDynamicMethod, OnEventListen
 	protected static final int MSG_MODEL_PROPERTY_CHANGE = 100;
 	protected static final int MSG_LISTENER_ADDED = 101;
 	protected static final int MSG_LISTENER_REMOVED = 102;
+	protected static final int MSG_MODEL_PROPERTIES_CHANGED = 103;
 
 	protected static final int MSG_LAST_ID = 999;
 
@@ -163,6 +166,10 @@ public class TiProxy implements Handler.Callback, TiDynamicMethod, OnEventListen
 				if (modelListener != null) {
 					modelListener.listenerRemoved(msg.getData().getString("eventName"), msg.arg1, (TiProxy) msg.obj);
 				}
+				return true;
+			}
+			case MSG_MODEL_PROPERTIES_CHANGED: {
+				firePropertiesChanged((List<PropertyChangeHolder>)msg.obj);
 				return true;
 			}
 		}
@@ -332,5 +339,46 @@ public class TiProxy implements Handler.Callback, TiDynamicMethod, OnEventListen
 		error.put("message", message);
 
 		return error;
+	}
+	
+	protected boolean shouldFireChange(Object oldValue, Object newValue) {
+		if (!(oldValue == null && newValue == null)) {
+			if ((oldValue == null && newValue != null)
+					|| (newValue == null && oldValue != null)
+					|| (!oldValue.equals(newValue))) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	public void extend(TiDict options) {
+		ArrayList<PropertyChangeHolder> propertyChanges = new ArrayList<PropertyChangeHolder>();
+
+		for (String name : options.keySet()) {
+			Object oldValue = getDynamicValue(name);
+			Object value = options.get(name);
+			internalSetDynamicValue(name, value, false);
+
+			if (shouldFireChange(oldValue, value)) {
+				PropertyChangeHolder pch = new PropertyChangeHolder(modelListener, name, oldValue, value, this);
+				propertyChanges.add(pch);
+			}
+		}
+
+		if (getTiContext().isUIThread()) {
+			firePropertiesChanged(propertyChanges);
+		} else {
+			Message msg = getUIHandler().obtainMessage(MSG_MODEL_PROPERTIES_CHANGED, propertyChanges);
+			msg.sendToTarget();
+		}
+	}
+	
+	protected void firePropertiesChanged(List<PropertyChangeHolder> changes) {
+		if (modelListener != null) {
+			for (PropertyChangeHolder change : changes) {
+				modelListener.propertyChanged(change.key, change.current, change.value, this);
+			}
+		}
 	}
 }

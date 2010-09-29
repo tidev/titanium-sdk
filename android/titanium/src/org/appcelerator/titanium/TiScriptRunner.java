@@ -4,6 +4,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 
+import org.appcelerator.titanium.util.Log;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Script;
 import org.mozilla.javascript.Scriptable;
@@ -12,6 +13,7 @@ import org.mozilla.javascript.ScriptableObject;
 // This class provides an API for running pre-compiled javascript from Rhino
 public class TiScriptRunner {
 
+	private static final String TAG = "TiScriptRunner";
 	private static TiScriptRunner _instance;
 	
 	public static TiScriptRunner getInstance() {
@@ -44,6 +46,7 @@ public class TiScriptRunner {
 	private TiScriptRunner() {}
 	
 	protected Object executeScript(TiScript script) {
+		Log.d(TAG, "Executing script: " + script.name);
 		Object returnValue = script.script.exec(script.context, script.scope);
 		script.context = null;
 		script.scope = null;

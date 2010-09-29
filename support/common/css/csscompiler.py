@@ -26,61 +26,20 @@ ANDROID_CLASS_TEMPLATE = """/**
 package %s;
 
 import java.util.HashMap;
-import org.appcelerator.titanium.ITiStylesheet;
+import java.util.List;
+import java.util.Map;
+import org.appcelerator.titanium.TiStylesheet;
 import org.appcelerator.titanium.TiDict;
 
-public final class ApplicationStylesheet implements ITiStylesheet 
+public final class ApplicationStylesheet extends TiStylesheet 
 {
-	private static final HashMap<String,HashMap<String,TiDict>> classesMap;
-	private static final HashMap<String,HashMap<String,TiDict>> idsMap;
-	private static final HashMap<String,HashMap<String,HashMap<String,TiDict>>> classesDensityMap;
-	private static final HashMap<String,HashMap<String,HashMap<String,TiDict>>> idsDensityMap;
-
-	static
+	public ApplicationStylesheet()
 	{
-		classesMap = new HashMap<String,HashMap<String,TiDict>>();
-		idsMap = new HashMap<String,HashMap<String,TiDict>>();
-		classesDensityMap = new HashMap<String,HashMap<String,HashMap<String,TiDict>>>();
-		idsDensityMap = new HashMap<String,HashMap<String,HashMap<String,TiDict>>>();
-		
+		super();
 %s
 %s
 %s
 %s
-	}
-
-	public final TiDict getStylesheet(String objectId, String type, String density, String basename)
-	{
-		TiDict result = new TiDict();
-		if (classesMap!=null && classesMap.containsKey(basename))
-		{
-			TiDict r = classesMap.get(basename).get(type);
-			if (r!=null) result.putAll(r);
-		}
-		if (classesDensityMap!=null && classesDensityMap.containsKey(basename))
-		{
-			HashMap<String,TiDict> r = classesDensityMap.get(basename).get(density);
-			if (r!=null && r.containsKey(type)) 
-			{
-				TiDict r2 = r.get(type);
-				if (r2!=null) result.putAll(r2);
-			}
-		}
-		if (idsMap!=null && idsMap.containsKey(basename))
-		{
-			TiDict r = idsMap.get(basename).get(objectId);
-			if (r!=null) result.putAll(r);
-		}
-		if (idsDensityMap!=null && idsDensityMap.containsKey(basename))
-		{
-			HashMap<String,TiDict> r = idsDensityMap.get(basename).get(density);
-			if (r!=null && r.containsKey(objectId)) 
-			{
-				TiDict r2 = r.get(objectId);
-				if (r2!=null) result.putAll(r2);
-			}
-		}
-		return result;
 	}
 }
 
@@ -96,6 +55,7 @@ CSS_MAPPINGS = {
 	u'border-radius':u'borderRadius',
 	u'border-color':u'borderColor',
 	u'border-width':u'borderWidth',
+	u'background-color':u'backgroundColor'
 }
 
 
@@ -133,7 +93,7 @@ class CSSCompiler(object):
 				if count == 1:
 					dict['base'] = os.path.join(dirname,f)
 				elif count == 2:
-					dict['platform'] = os.path.join(dirname,f)
+					dict['platform'] = tok[1]#os.path.join(dirname,f)
 				elif count == 3:
 					dict['density'][tok[2]] = os.path.join(dirname,f)
 				
@@ -287,19 +247,19 @@ class CSSCompiler(object):
 	def create_android_dict(self,hash,varname):
 		str = ''
 		for pathname in hash:
-			mapname1 = self.generate_mapname()
+			mapname1 = '%s_%s' % (pathname, varname)
 			xcount = 0
 			xstr='		HashMap<String,TiDict> %s = new HashMap<String,TiDict>();\n' % mapname1
 			for classname in hash[pathname]:
 				xcount+=1
-				mapname = self.generate_mapname()
+				mapname = '%s_%s_%s' % (pathname, varname, classname)
 				xstr+='		TiDict %s = new TiDict();\n' % mapname
 				xstr+='		%s.put("%s",%s);\n' % (mapname1,classname,mapname)
 				for key in hash[pathname][classname]:
 					value = hash[pathname][classname][key]
 					if type(value) == types.DictType:
 						# NOTE: only one level right now which is OK since it's just font
-						dictname = self.generate_mapname()
+						dictname = '%s_%s_%s_%s' % (pathname, varname, classname, key)
 						xstr+='		TiDict %s = new TiDict();\n' % (dictname)
 						for k in value:
 							v = value[k]
@@ -316,22 +276,21 @@ class CSSCompiler(object):
 	def create_android_density_dict(self,hash,varname):
 		str = ''
 		for pathname in hash:
-			mapname1 = self.generate_mapname()
+			mapname1 = '%s_density_%s' % (pathname, varname)
 			xcount = 0
-			xstr='		HashMap<String,TiDict> %s = new HashMap<String,TiDict>();\n' % mapname1
+			xstr='		HashMap<String,HashMap<String,TiDict>> %s = new HashMap<String,HashMap<String,TiDict>>();\n' % mapname1
 			for density in hash[pathname]:
-				mapname2 = self.generate_mapname()
+				mapname2 = '%s_density_%s_%s' % (pathname, varname, density)
 				xstr+='		HashMap<String,TiDict> %s = new HashMap<String,TiDict>();\n' % mapname2
-				xstr+='		%s.put("%s",%s);\n' % (mapname2,classname,mapname1)
+				xstr+='		%s.put("%s",%s);\n' % (mapname1,density,mapname2)
 				for classname in hash[pathname][density]:
-					mapname = self.generate_mapname()
+					mapname = '%s_density_%s_%s_%s' % (pathname, varname, density, classname)
 					xcount+=1
 					xstr+='		TiDict %s = new TiDict();\n' % mapname
-					xstr+='		%s.put("%s",%s);\n' % (mapname1,classname,mapname)
+					xstr+='		%s.put("%s",%s);\n' % (mapname2,classname,mapname)
 					for key in hash[pathname][density][classname]:
 						xstr+='		%s.put("%s","%s");\n' % (mapname,key,hash[pathname][density][classname][key])
-					xstr += '		%s.put("%s",%s);\n' % (varname,pathname,mapname)
-				xstr += '		%s.put("%s",%s);\n' % (varname,pathname,mapname1)
+			xstr += '		%s.put("%s",%s);\n' % (varname,pathname,mapname1)
 			if xcount > 0:
 				str+=xstr
 				str+='\n'
@@ -365,6 +324,8 @@ class CSSCompiler(object):
 						key = selector
 						if selector[0:1]=='#':
 							dest = ids
+							key = key[1:]
+						elif selector[0:1]=='.':
 							key = key[1:]
 						prop = self.translate_key(r.property)
 						if not dest.has_key(key):
