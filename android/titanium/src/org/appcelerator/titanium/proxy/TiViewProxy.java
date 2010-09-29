@@ -698,11 +698,7 @@ public abstract class TiViewProxy extends TiProxy implements Handler.Callback
 		}
 	}
 	
-	public void addClass(String className) {
-		addClasses(new String[] { className });
-	}
-	
-	public void addClasses(Object[] classNames) {
+	public void addClass(Object[] classNames) {
 		// This is a pretty naive implementation right now,
 		// but it will work for our current needs
 		String baseUrl = getBaseUrlForStylesheet();
