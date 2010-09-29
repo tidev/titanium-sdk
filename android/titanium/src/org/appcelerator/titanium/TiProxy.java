@@ -241,6 +241,13 @@ public class TiProxy implements Handler.Callback, TiDynamicMethod, OnEventListen
 		if (ctx != null) {
 			ctx.removeEventListener(eventName, listener);
 		}
+		// If context was switched (this occurs when heavy window opens)
+		// and event listeners existed on the old context, we do NOT move
+		// those event listeners over.  So we need to check to remove them
+		// in the old context as well.
+		if (creatingContext != null && !creatingContext.equals(ctx)) {
+			creatingContext.removeEventListener(eventName, listener );
+		}
 	}
 	
 	public void removeEventListenersFromContext(TiContext listeningContext)
