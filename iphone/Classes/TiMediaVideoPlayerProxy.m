@@ -80,6 +80,7 @@ NSArray* moviePlayerKeys = nil;
 {
 	[movie stop];
 	
+	WARN_IF_BACKGROUND_THREAD;	//NSNotificationCenter is not threadsafe!
 	NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
 	[nc removeObserver:self];
 
@@ -95,6 +96,7 @@ NSArray* moviePlayerKeys = nil;
 
 -(void)configureNotifications
 {
+	WARN_IF_BACKGROUND_THREAD;	//NSNotificationCenter is not threadsafe!
 	NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
 	
 	[nc addObserver:self selector:@selector(handlePlayerNotification:) 

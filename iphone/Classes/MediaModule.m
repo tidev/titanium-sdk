@@ -1143,14 +1143,17 @@ if (![TiUtils isIOS4OrGreater]) { \
 {
 	if (count == 1 && [type isEqualToString:@"linechange"])
 	{
+		WARN_IF_BACKGROUND_THREAD;	//NSNotificationCenter is not threadsafe!
 		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(audioRouteChanged:) name:kTiMediaAudioSessionRouteChange object:[TiMediaAudioSession sharedSession]];
 	}
 	else if (count == 1 && [type isEqualToString:@"volume"])
 	{
+		WARN_IF_BACKGROUND_THREAD;	//NSNotificationCenter is not threadsafe!
 		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(audioVolumeChanged:) name:kTiMediaAudioSessionVolumeChange object:[TiMediaAudioSession sharedSession]];
 	}
 	else if (count == 1 && [type isEqualToString:@"recordinginput"])
 	{
+		WARN_IF_BACKGROUND_THREAD;	//NSNotificationCenter is not threadsafe!
 		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(audioInputChanged:) name:kTiMediaAudioSessionInputChange object:[TiMediaAudioSession sharedSession]];
 	}
 }
@@ -1159,14 +1162,17 @@ if (![TiUtils isIOS4OrGreater]) { \
 {
 	if (count == 0 && [type isEqualToString:@"linechange"])
 	{
+		WARN_IF_BACKGROUND_THREAD;	//NSNotificationCenter is not threadsafe!
 		[[NSNotificationCenter defaultCenter] removeObserver:self name:kTiMediaAudioSessionRouteChange object:[TiMediaAudioSession sharedSession]];
 	}
 	else if (count == 0 && [type isEqualToString:@"volume"])
 	{
+		WARN_IF_BACKGROUND_THREAD;	//NSNotificationCenter is not threadsafe!
 		[[NSNotificationCenter defaultCenter] removeObserver:self name:kTiMediaAudioSessionVolumeChange object:[TiMediaAudioSession sharedSession]];
 	}
 	else if (count == 0 && [type isEqualToString:@"recordinginput"]) 
 	{
+		WARN_IF_BACKGROUND_THREAD;	//NSNotificationCenter is not threadsafe!
 		[[NSNotificationCenter defaultCenter] removeObserver:self name:kTiMediaAudioSessionInputChange object:[TiMediaAudioSession sharedSession]];
 	}
 }

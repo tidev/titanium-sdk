@@ -58,6 +58,7 @@ NSString* const INADDR_ANY_token = @"INADDR_ANY";
 	[super _configure];
 	// default to unknown network type on startup until reachability has figured it out
 	state = TiNetworkConnectionStateUnknown; 
+	WARN_IF_BACKGROUND_THREAD;	//NSNotificationCenter is not threadsafe!
 	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(reachabilityChanged:) name:kReachabilityChangedNotification object:nil];
 	// wait until done is important to get the right state
 	[self performSelectorOnMainThread:@selector(startReachability) withObject:nil waitUntilDone:YES];
@@ -66,6 +67,7 @@ NSString* const INADDR_ANY_token = @"INADDR_ANY";
 -(void)_destroy
 {
 	[self performSelectorOnMainThread:@selector(stopReachability) withObject:nil waitUntilDone:NO];
+	WARN_IF_BACKGROUND_THREAD;	//NSNotificationCenter is not threadsafe!
 	[[NSNotificationCenter defaultCenter] removeObserver:self name:kReachabilityChangedNotification object:nil];
 	RELEASE_TO_NIL(pushNotificationCallback);
 	RELEASE_TO_NIL(pushNotificationError);
