@@ -83,6 +83,7 @@
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0		
 		if ([TiUtils isIOS4OrGreater])
 		{
+			WARN_IF_BACKGROUND_THREAD;	//NSNotificationCenter is not threadsafe!
 			[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(remoteControlEvent:) name:kTiRemoteControlNotification object:nil];
 		}
 #endif
@@ -117,6 +118,7 @@
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0	
 	if ([TiUtils isIOS4OrGreater])
 	{
+		WARN_IF_BACKGROUND_THREAD;	//NSNotificationCenter is not threadsafe!
 		[[NSNotificationCenter defaultCenter] removeObserver:self];
 	}
 #endif	

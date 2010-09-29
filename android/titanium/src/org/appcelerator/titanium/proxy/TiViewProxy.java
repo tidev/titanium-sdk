@@ -20,6 +20,7 @@ import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiAnimationBuilder;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiResourceHelper;
+import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiAnimation;
 import org.appcelerator.titanium.view.TiUIView;
 
@@ -637,7 +638,9 @@ public abstract class TiViewProxy extends TiProxy implements Handler.Callback
 		super.eventListenerAdded(eventName, count, proxy);
 		
 		if (eventName.equals("click") && proxy.equals(this) && count == 1 && !(proxy instanceof TiWindowProxy)) {
-			setClickable(true);
+			if (!proxy.hasDynamicValue("touchEnabled") || TiConvert.toBoolean(proxy.getDynamicValue("touchEnabled"))) {
+				setClickable(true);
+			}
 		}
 	}
 	
@@ -646,7 +649,9 @@ public abstract class TiViewProxy extends TiProxy implements Handler.Callback
 		super.eventListenerRemoved(eventName, count, proxy);
 		
 		if (eventName.equals("click") && count == 0 && proxy.equals(this) && !(proxy instanceof TiWindowProxy)) {
-			setClickable(false);
+			if (proxy.hasDynamicValue("touchEnabled") && !TiConvert.toBoolean(proxy.getDynamicValue("touchEnabled"))) {
+				setClickable(false);
+			}
 		}
 	}
 	

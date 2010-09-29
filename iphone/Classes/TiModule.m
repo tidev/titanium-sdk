@@ -15,6 +15,7 @@
 
 -(void)dealloc
 {
+	WARN_IF_BACKGROUND_THREAD;	//NSNotificationCenter is not threadsafe!
 	[[NSNotificationCenter defaultCenter] removeObserver:self name:kTiShutdownNotification object:nil];
 	[[NSNotificationCenter defaultCenter] removeObserver:self name:kTiSuspendNotification object:nil];
 	[[NSNotificationCenter defaultCenter] removeObserver:self name:kTiResumeNotification object:nil];
@@ -65,6 +66,7 @@
 		//We do not retain the Class, but simply assign them.
 	}
 
+	WARN_IF_BACKGROUND_THREAD;	//NSNotificationCenter is not threadsafe!
 	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(shutdown:) name:kTiShutdownNotification object:nil];
 	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(suspend:) name:kTiSuspendNotification object:nil];
 	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(resume:) name:kTiResumeNotification object:nil];

@@ -68,6 +68,7 @@
 			[self throwException:@"invalid url" subreason:@"url has not been set" location:CODELOCATION];
 		}
 		player = [[AudioStreamer alloc] initWithURL:url];
+		WARN_IF_BACKGROUND_THREAD;	//NSNotificationCenter is not threadsafe!
 		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(playbackStateChanged:)
 												name:ASStatusChangedNotification
 												object:player];
@@ -91,6 +92,7 @@
 	}
 	if (player!=nil)
 	{
+		WARN_IF_BACKGROUND_THREAD;	//NSNotificationCenter is not threadsafe!
 		[[NSNotificationCenter defaultCenter] removeObserver:self name:ASStatusChangedNotification object:player];
 		if ([player isPlaying] || [player isPaused] || [player isWaiting])
 		{

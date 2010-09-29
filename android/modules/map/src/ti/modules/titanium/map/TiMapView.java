@@ -259,15 +259,11 @@ public class TiMapView extends TiUIView
 		this.handler = new Handler(this);
 		this.annotations = new ArrayList<AnnotationProxy>();
 
-		//TODO MapKey
 		TiApplication app = proxy.getTiContext().getTiApp();
-		TiProperties appProperties = app.getSystemProperties();
-		//String oldKey = appProperties.getString(OLD_API_KEY, TI_DEVELOPMENT_KEY);
-		//String developmentKey = appProperties.getString(DEVELOPMENT_API_KEY, oldKey);
-		//String productionKey = appProperties.getString(PRODUCTION_API_KEY, oldKey);
-		String oldKey = appProperties.getString(OLD_API_KEY, "");
-		String developmentKey = appProperties.getString(DEVELOPMENT_API_KEY, "");
-		String productionKey = appProperties.getString(PRODUCTION_API_KEY, "");
+		TiProperties systemProperties = app.getSystemProperties();
+		String oldKey = systemProperties.getString(OLD_API_KEY, "");
+		String developmentKey = systemProperties.getString(DEVELOPMENT_API_KEY, "");
+		String productionKey = systemProperties.getString(PRODUCTION_API_KEY, "");
 		
 		// To help in debugging key problems ...
 		String devKeySourceInfo = "";

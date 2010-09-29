@@ -63,6 +63,7 @@ DEFINE_DEF_BOOL_PROP(suppressReturn,YES);
 
 -(void)fireHideNotification
 {
+	WARN_IF_BACKGROUND_THREAD;	//NSNotificationCenter is not threadsafe!
 	[[NSNotificationCenter defaultCenter] postNotificationName:TiKeyboardHideNotification 
 													object:nil 
 												  userInfo:[(TiUITextWidget*)[self view] keyboardUserInfo]];
@@ -70,6 +71,7 @@ DEFINE_DEF_BOOL_PROP(suppressReturn,YES);
 
 -(void)fireShowNotification
 {	
+	WARN_IF_BACKGROUND_THREAD;	//NSNotificationCenter is not threadsafe!
 	[[NSNotificationCenter defaultCenter] postNotificationName:TiKeyboardShowNotification 
 														object:nil
 													  userInfo:[(TiUITextWidget*)[self view] keyboardUserInfo]];

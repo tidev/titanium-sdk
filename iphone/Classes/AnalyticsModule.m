@@ -457,6 +457,7 @@ NSString * const TI_DB_VERSION = @"1";
 
 	AnalyticsStarted = YES;
 	
+	WARN_IF_BACKGROUND_THREAD;	//NSNotificationCenter is not threadsafe!
 	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(analyticsEvent:) name:kTiAnalyticsNotification object:nil];
 	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(remoteDeviceUUIDChanged:) name:kTiRemoteDeviceUUIDNotification object:nil];
 	
@@ -469,6 +470,7 @@ NSString * const TI_DB_VERSION = @"1";
 	if (TI_APPLICATION_ANALYTICS)
 	{
 		[self queueEvent:@"ti.end" name:@"ti.end" data:nil immediate:YES];
+		WARN_IF_BACKGROUND_THREAD;	//NSNotificationCenter is not threadsafe!
 		[[NSNotificationCenter defaultCenter] removeObserver:self name:kTiAnalyticsNotification object:nil];
 		[[NSNotificationCenter defaultCenter] removeObserver:self name:kTiRemoteDeviceUUIDNotification object:nil];
 	}
