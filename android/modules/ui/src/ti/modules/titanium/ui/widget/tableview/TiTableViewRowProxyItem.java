@@ -176,7 +176,9 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 			if (rp.getProperty("title") != null) {
 				title = TiConvert.toString(rp.getProperty("title"));
 			}
-
+			if (!rp.hasProperty("touchEnabled")) {
+				rp.setProperty("touchEnabled", false);
+			}
 			if (views == null) {
 				views = new TiUIView[1];
 				views[0] = new TiUILabel(rp);

@@ -25,6 +25,7 @@ import org.appcelerator.titanium.util.TiAnimationBuilder;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiResourceHelper;
+import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiAnimation;
 import org.appcelerator.titanium.view.TiUIView;
 
@@ -143,6 +144,7 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 		
 		String baseUrl = getBaseUrlForStylesheet();
 		KrollDict dict = context.getTiApp().getStylesheet(baseUrl, styleClasses, viewId);
+
 		Log.d(LCAT, "trying to get stylesheet for base:" + baseUrl + ",classes:" + styleClasses + ",id:" + viewId + ",dict:" + dict);
 		if (dict != null) {
 			// merge in our stylesheet details to the passed in dictionary
@@ -626,31 +628,15 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 		
 		return children.toArray(new TiViewProxy[children.size()]);
 	}
-	
-	@Kroll.method
-	public void addClass(String className) {
-		addClasses(new String[] { className });
-	}
-	
-	@Kroll.method
-	public void addClasses(Object[] classNames) {
-		// This is a pretty naive implementation right now,
-		// but it will work for our current needs
-		String baseUrl = getBaseUrlForStylesheet();
-		ArrayList<String> classes = new ArrayList<String>();
-		for (Object c : classNames) {
-			classes.add(TiConvert.toString(c));
-		}
-		KrollDict options = getTiContext().getTiApp().getStylesheet(baseUrl, classes, null);
-		extend(options);
-	}
-	
+		
 	@Override
 	public void eventListenerAdded(String eventName, int count, KrollProxy proxy) {
 		super.eventListenerAdded(eventName, count, proxy);
 		
 		if (eventName.equals("click") && proxy.equals(this) && count == 1 && !(proxy instanceof TiWindowProxy)) {
-			setClickable(true);
+			if (!proxy.hasProperty("touchEnabled") || TiConvert.toBoolean(proxy.getProperty("touchEnabled"))) {
+				setClickable(true);
+			}
 		}
 	}
 	
@@ -659,7 +645,9 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 		super.eventListenerRemoved(eventName, count, proxy);
 		
 		if (eventName.equals("click") && count == 0 && proxy.equals(this) && !(proxy instanceof TiWindowProxy)) {
-			setClickable(false);
+			if (proxy.hasProperty("touchEnabled") && !TiConvert.toBoolean(proxy.getProperty("touchEnabled"))) {
+				setClickable(false);
+			}
 		}
 	}
 	
@@ -670,5 +658,18 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 				v.getNativeView().setClickable(clickable);
 			}
 		}
+	}
+	
+	@Kroll.method
+	public void addClass(Object[] classNames) {
+		// This is a pretty naive implementation right now,
+		// but it will work for our current needs
+		String baseUrl = getBaseUrlForStylesheet();
+		ArrayList<String> classes = new ArrayList<String>();
+		for (Object c : classNames) {
+			classes.add(TiConvert.toString(c));
+		}
+		KrollDict options = getTiContext().getTiApp().getStylesheet(baseUrl, classes, null);
+		extend(options);
 	}
 }

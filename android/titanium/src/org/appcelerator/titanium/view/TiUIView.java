@@ -125,7 +125,11 @@ public abstract class TiUIView
 			view.setId(idGenerator.incrementAndGet());
 		}
 		this.nativeView = view;
-		nativeView.setClickable(proxy.hasListeners("click"));
+		boolean clickable = true;
+		if (proxy.hasProperty("touchEnabled")) {
+			clickable = TiConvert.toBoolean(proxy.getProperty("touchEnabled"));
+		}
+		nativeView.setClickable(clickable);
 		nativeView.setOnFocusChangeListener(this);
 	}
 	protected void setLayoutParams(LayoutParams layoutParams) {
@@ -261,13 +265,15 @@ public abstract class TiUIView
 				nativeView.requestLayout();
 			}
 		} else if (key.equals("focusable")) {
-			boolean focusable = TiConvert.toBoolean(newValue);
+			boolean focusable = TiConvert.toBoolean(proxy.getProperty("focusable"));
 			nativeView.setFocusable(focusable);
 			if (focusable) {
 				registerForKeyClick(nativeView);
 			} else {
 				nativeView.setOnClickListener(null);
 			}
+		} else if (key.equals("touchEnabled")) {
+			nativeView.setClickable(TiConvert.toBoolean(newValue));
 		} else if (key.equals("visible")) {
 			nativeView.setVisibility(TiConvert.toBoolean(newValue) ? View.VISIBLE : View.INVISIBLE);
 		} else if (key.equals("enabled")) {
