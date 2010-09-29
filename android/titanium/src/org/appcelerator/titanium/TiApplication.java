@@ -14,6 +14,7 @@ import java.lang.ref.SoftReference;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -34,7 +35,6 @@ import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiPlatformHelper;
 import org.appcelerator.titanium.util.TiResourceHelper;
 import org.appcelerator.titanium.view.ITiWindowHandler;
-import org.mozilla.javascript.Scriptable;
 
 import android.app.Activity;
 import android.app.Application;
@@ -69,7 +69,7 @@ public abstract class TiApplication extends Application
 	private ITiWindowHandler windowHandler;
 	private Activity currentActivity;
 	protected ITiAppInfo appInfo;
-	protected ITiStylesheet stylesheet;
+	protected TiStylesheet stylesheet;
 	private String density;
 
 	private boolean needsStartEvent;
@@ -185,26 +185,23 @@ public abstract class TiApplication extends Application
 		this.rootActivity = rootActivity;
 		this.windowHandler = rootActivity;
 
-        // calculate the display density
+		// calculate the display density
 		DisplayMetrics dm = new DisplayMetrics();
 		rootActivity.getWindowManager().getDefaultDisplay().getMetrics(dm);
 		switch(dm.densityDpi)
 		{
-		    case DisplayMetrics.DENSITY_HIGH:
-		    {
-		        density = "high";
-		        break;
-		    }
-		    case DisplayMetrics.DENSITY_MEDIUM:
-		    {
-		        density = "medium";
-		        break;
-		    }
-		    case DisplayMetrics.DENSITY_LOW:
-		    {
-		        density = "low";
-		        break;
-		    }
+			case DisplayMetrics.DENSITY_HIGH: {
+				density = "high";
+				break;
+			}
+			case DisplayMetrics.DENSITY_MEDIUM: {
+				density = "medium";
+				break;
+			}
+			case DisplayMetrics.DENSITY_LOW: {
+				density = "low";
+				break;
+			}
 		}
 
 		if (collectAnalytics()) {
@@ -360,9 +357,10 @@ public abstract class TiApplication extends Application
 		return appInfo;
 	}
 	
-	public KrollDict getStylesheet(String basename, String type, String objectId) {
+	public KrollDict getStylesheet(String basename, Collection<String> classes, String objectId) {
 		if (stylesheet != null) {
-			return stylesheet.getStylesheet(objectId, type, density, basename);
+			Log.d(LCAT, "delegating to TiStylesheet for style properties");
+			return stylesheet.getStylesheet(objectId, classes, density, basename);
 		}
 		return new KrollDict();
 	}

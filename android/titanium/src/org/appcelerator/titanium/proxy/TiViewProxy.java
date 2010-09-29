@@ -7,9 +7,12 @@
 package org.appcelerator.titanium.proxy;
 
 import java.lang.ref.WeakReference;
+import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.TreeSet;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
@@ -20,6 +23,7 @@ import org.appcelerator.titanium.util.AsyncResult;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiAnimationBuilder;
 import org.appcelerator.titanium.util.TiConfig;
+import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiResourceHelper;
 import org.appcelerator.titanium.view.TiAnimation;
 import org.appcelerator.titanium.view.TiUIView;
@@ -55,7 +59,7 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 
 	protected ArrayList<TiViewProxy> children;
 	protected WeakReference<TiViewProxy> parent;
-
+	
 	private static class InvocationWrapper {
 		public String name;
 		public Method m;
@@ -73,26 +77,8 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 	
 	@Override
 	public void handleCreationDict(KrollDict options) {
-		// check to see if we have an idea and if so, we're going to
-		// use that ID to lookup a stylesheet
-		if (options.containsKey("id")) {
-			String key = (String) options.get("id");
-			String type = getClass().getSimpleName().replace("Proxy", "").toLowerCase();
-			String base = context.getBaseUrl();
-			int idx = base.lastIndexOf("/");
-			if (idx != -1) {
-				base = base.substring(idx + 1).replace(".js", "");
-			}
-			KrollDict dict = context.getTiApp().getStylesheet(base, type, key);
-			Log.d(LCAT, "trying to get stylesheet for base:" + base + ",type:" + type + ",key:" + key + ",dict:" + dict);
-			if (dict != null) {
-				// merge in our stylesheet details to the passed in dictionary
-				// our passed in dictionary takes precedence over the stylesheet
-				dict.putAll(options);
-				options = dict;
-			}
-		}
-
+		options = handleStyleOptions(options);
+		
 		// lang conversion table
 		KrollDict langTable = getLangConversionTable();
 		if (langTable != null) {
@@ -113,6 +99,58 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 			}
 		}
 		super.handleCreationDict(options);
+	}
+	
+	protected String getBaseUrlForStylesheet() {
+		String baseUrl = getTiContext().getCurrentUrl();
+		if (baseUrl == null) {
+			baseUrl = "app://app.js";
+		}
+		
+		int idx = baseUrl.lastIndexOf("/");
+		if (idx != -1) {
+			baseUrl = baseUrl.substring(idx + 1).replace(".js", "");
+		}
+		return baseUrl;
+	}
+	
+	protected KrollDict handleStyleOptions(KrollDict options) {
+		String viewId = getProxyId();
+		TreeSet<String> styleClasses = new TreeSet<String>();
+		styleClasses.add(getShortAPIName().toLowerCase());
+		
+		if (options.containsKey("id")) {
+			viewId = TiConvert.toString(options, "id");
+		}
+		if (options.containsKey("className")) {
+			String className = TiConvert.toString(options, "className");
+			for (String clazz : className.split(" ")) {
+				styleClasses.add(clazz);
+			}
+		}
+		if (options.containsKey("classNames")) {
+			Object c = options.get("classNames");
+			if (c.getClass().isArray()) {
+				int length = Array.getLength(c);
+				for (int i = 0; i < length; i++) {
+					Object clazz = Array.get(c, i);
+					if (clazz != null) {
+						styleClasses.add(clazz.toString());
+					}
+				}
+			}
+		}
+		
+		String baseUrl = getBaseUrlForStylesheet();
+		KrollDict dict = context.getTiApp().getStylesheet(baseUrl, styleClasses, viewId);
+		Log.d(LCAT, "trying to get stylesheet for base:" + baseUrl + ",classes:" + styleClasses + ",id:" + viewId + ",dict:" + dict);
+		if (dict != null) {
+			// merge in our stylesheet details to the passed in dictionary
+			// our passed in dictionary takes precedence over the stylesheet
+			dict.putAll(options);
+			return dict;
+		}
+		return options;
 	}
 	
 	protected KrollDict getLangConversionTable() {
@@ -587,5 +625,23 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 		if (children == null) return new TiViewProxy[0];
 		
 		return children.toArray(new TiViewProxy[children.size()]);
+	}
+	
+	@Kroll.method
+	public void addClass(String className) {
+		addClasses(new String[] { className });
+	}
+	
+	@Kroll.method
+	public void addClasses(Object[] classNames) {
+		// This is a pretty naive implementation right now,
+		// but it will work for our current needs
+		String baseUrl = getBaseUrlForStylesheet();
+		ArrayList<String> classes = new ArrayList<String>();
+		for (Object c : classNames) {
+			classes.add(TiConvert.toString(c));
+		}
+		KrollDict options = getTiContext().getTiApp().getStylesheet(baseUrl, classes, null);
+		extend(options);
 	}
 }

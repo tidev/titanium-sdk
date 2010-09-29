@@ -133,6 +133,10 @@ public class KrollProxy implements Handler.Callback, OnEventListenerChange {
 	public String getAPIName() {
 		return getBinding().getAPIName();
 	}
+	
+	public String getShortAPIName() {
+		return getBinding().getShortAPIName();
+	}
 
 	public boolean has(Scriptable scope, String name) {
 		return bindings.containsKey(name) || properties.containsKey(name);
@@ -273,7 +277,7 @@ public class KrollProxy implements Handler.Callback, OnEventListenerChange {
 	
 	// native extending support allows us to whole-sale apply properties and only fire one event / job
 	@Kroll.method
-	public void extend(KrollInvocation invocation, KrollDict options) {
+	public void extend(KrollDict options) {
 		ArrayList<KrollPropertyChange> propertyChanges = new ArrayList<KrollPropertyChange>();
 		
 		for (String name : options.keySet()) {

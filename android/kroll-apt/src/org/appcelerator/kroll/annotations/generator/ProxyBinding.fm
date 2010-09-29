@@ -341,4 +341,8 @@ public class ${genClassName} <#if superProxyBindingClassName??>extends ${superPr
 		</#list>
 		return apiName;
 	}
+	
+	public String getShortAPIName() {
+		return API_NAME;
+	}
 }

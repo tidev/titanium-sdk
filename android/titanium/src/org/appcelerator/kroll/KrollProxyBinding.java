@@ -16,4 +16,5 @@ public interface KrollProxyBinding {
 	public void bindContextSpecific(KrollBridge bridge, KrollProxy proxy);
 	
 	public String getAPIName();
+	public String getShortAPIName();
 }
