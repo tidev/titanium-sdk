@@ -726,15 +726,6 @@
 		bounds.origin.y += verticalLayoutBoundary;
 		bounds.size.height = desiredHeight;
 	}
-
-#if DONTSHOWHIDDEN
-	BOOL isVisible = [TiUtils boolValue:[child valueForKey:@"visible"] def:YES];
-
-	if (!isVisible)
-	{
-		//TODO: Return early for speed
-	}
-#endif
 	
 	if (optimize==NO)
 	{
