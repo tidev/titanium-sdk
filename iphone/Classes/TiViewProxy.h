@@ -50,7 +50,8 @@ enum
 	BOOL viewInitialized;
 	NSMutableArray *pendingAdds;
 	BOOL needsZIndexRepositioning;	//Todo: Replace
-	
+	int zIndex;
+
 	BOOL repositioning;
 	
 	CGRect sandboxBounds;
@@ -64,6 +65,9 @@ enum
 	//That is, will be true if and only if all parents are visible or are the root controller.
 	//Use parentWillShow and parentWillHide to set this.
 }
+
+@property(nonatomic,readwrite,assign) int zIndex;
+
 @property(nonatomic,readonly) BOOL visible;
 @property(nonatomic,readwrite,assign) CGRect sandboxBounds;
 	//This is unaffected by parentVisible. So if something is truely visible, it'd be [self visible] && parentVisible.
@@ -162,6 +166,7 @@ enum
 -(void)parentWillHide;
 
 -(BOOL)suppressesRelayout;
+-(void)performZIndexRepositioning;
 
 @end
 
@@ -193,3 +198,4 @@ enum
 {	\
 	return [[viewClass alloc] init];	\
 }
+

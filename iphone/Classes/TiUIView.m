@@ -74,74 +74,6 @@ void RestoreScrollViewFromKeyboard(UIScrollView * scrollView)
 	}
 }
 
-
-CGFloat AutoWidthForView(UIView * superView,CGFloat suggestedWidth)
-{
-	CGFloat result = 0.0;
-	for (TiUIView * thisChildView in [superView subviews])
-	{
-		//TODO: This should be an unnecessary check, but this happening means the child class didn't override AutoWidth when it should have.
-		if(![thisChildView respondsToSelector:@selector(minimumParentWidthForWidth:)])
-		{
-			NSLog(@"[WARN] %@ contained %@, but called AutoWidthForView was called for it anyways."
-					"This typically means that -[TIUIView autoWidthForWidth] should have been overridden.",superView,thisChildView);
-			//Treating this as if we had no autosize, and thus, 
-			return suggestedWidth;
-		}
-		//END TODO
-		result = MAX(result,[thisChildView minimumParentWidthForWidth:suggestedWidth]);
-	}
-	return result;
-}
-
-CGFloat AutoHeightForView(UIView * superView,CGFloat suggestedWidth,BOOL isVertical)
-{
-	CGFloat neededAbsoluteHeight=0.0;
-	CGFloat neededVerticalHeight=0.0;
-
-	for (TiUIView * thisChildView in [superView subviews])
-	{
-		if (![thisChildView respondsToSelector:@selector(minimumParentHeightForWidth:)])
-		{
-			continue;
-		}
-		CGFloat thisHeight = [thisChildView minimumParentHeightForWidth:suggestedWidth];
-		if (isVertical)
-		{
-			neededVerticalHeight += thisHeight;
-		}
-		else
-		{
-			neededAbsoluteHeight = MAX(neededAbsoluteHeight,thisHeight);
-		}
-	}
-	return MAX(neededVerticalHeight,neededAbsoluteHeight);
-}
-
-
-
-NSInteger zindexSort(TiUIView* view1, TiUIView* view2, void *reverse)
-{
-	int v1 = view1.zIndex;
-	int v2 = view2.zIndex;
-	
-	int result = 0;
-	
-	if (v1 < v2)
-	{
-		result = -1;
-	}
-	else if (v1 > v2)
-	{
-		result = 1;
-	}
-	
-	return result;
-}
-
-
-
-
 #define DOUBLE_TAP_DELAY		0.35
 #define HORIZ_SWIPE_DRAG_MIN	12
 #define VERT_SWIPE_DRAG_MAX		4
@@ -288,140 +220,11 @@ DEFINE_EXCEPTIONS
 	return transformMatrix;
 }
 
-#ifdef DEBUG
-#pragma mark Legacy layout calls
-/*  These methods are due to layoutProperties and such things origionally being a property of UIView
-	and not the proxy. To lessen dependance on UIView (In cases where layout is needed without views
-	such as TableViews), this was moved to the proxy. In order to degrade gracefully, these shims are
-	left here. They should not be relied upon, but instead used to find methods that still incorrectly
-	rely on the view, and fix those methods.
-	*/
-
--(LayoutConstraint*)layoutProperties
-{
-	NSLog(@"[WARN] Using view proxy via redirection instead of directly for %@.",self);
-	return [(TiViewProxy *)proxy layoutProperties];
-}
-
--(void)setLayoutProperties:(LayoutConstraint *)layout_
-{
-	NSLog(@"[WARN] Using view proxy via redirection instead of directly for %@.",self);
-	[(TiViewProxy *)proxy setLayoutProperties:layout_];
-}
-
--(CGFloat)minimumParentWidthForWidth:(CGFloat)value
-{
-	NSLog(@"[WARN] Using view proxy via redirection instead of directly for %@.",self);
-	return [(TiViewProxy *)[self proxy] minimumParentWidthForWidth:value];
-}
-
--(CGFloat)minimumParentHeightForWidth:(CGFloat)value
-{
-	NSLog(@"[WARN] Using view proxy via redirection instead of directly for %@.",self);
-	return [(TiViewProxy *)[self proxy] minimumParentHeightForWidth:value];
-}
-
--(CGFloat)autoWidthForWidth:(CGFloat)value
-{
-	NSLog(@"[WARN] Using view proxy via redirection instead of directly for %@.",self);
-	return [(TiViewProxy *)[self proxy] autoWidthForWidth:value];
-}
-
--(CGFloat)autoHeightForWidth:(CGFloat)value
-{
-	NSLog(@"[WARN] Using view proxy via redirection instead of directly for %@.",self);
-	return [(TiViewProxy *)[self proxy] autoHeightForWidth:value];
-}
-#endif
-
-
 #pragma mark Layout 
-
-
--(void)relayoutOnUIThread:(NSValue*)value
-{
-	CGRect bounds = [value CGRectValue];
-	[self relayout:bounds];
-}
-
--(void)updateLayout:(LayoutConstraint*)layout_ withBounds:(CGRect)bounds
-{
-	if ([NSThread isMainThread]==NO)
-	{
-		[self performSelectorOnMainThread:@selector(relayoutOnUIThread:) withObject:[NSValue valueWithCGRect:bounds] waitUntilDone:NO];
-		return;
-	}
-	if (animating)
-	{
-#ifdef DEBUG		
-		// changing the layout while animating is bad, ignore for now
-		NSLog(@"[DEBUG] ignoring new layout while animating..");
-#endif		
-		return;
-	}
-	[self relayout:bounds];
-}
-
--(void)performZIndexRepositioning
-{
-	if ([[self subviews] count] == 0)
-	{
-		return;
-	}
-	
-	if (![NSThread isMainThread])
-	{
-		[self performSelectorOnMainThread:@selector(performZIndexRepositioning) withObject:nil waitUntilDone:NO];
-		return;
-	}
-	
-	// sort by zindex
-	
-	//TODO: This doesn't work with scrollable and scroll views. Really, this should be refactored out.
-	
-	NSMutableArray * validChildren = nil;
-	for (UIView * thisView in [self subviews])
-	{
-		if ([thisView isKindOfClass:[TiUIView class]])
-		{
-			if(validChildren == nil)
-			{
-				validChildren = [[NSMutableArray alloc] initWithObjects:thisView,nil];
-			}
-			else
-			{
-				[validChildren addObject:thisView];
-			}
-		}
-	}
-	
-	[validChildren sortUsingFunction:zindexSort context:NULL];
-	for (UIView * thisView in validChildren)
-	{
-		[thisView removeFromSuperview];
-		[self addSubview:thisView];
-		[thisView repositionZIndexIfNeeded];
-	}
-
-	[validChildren release];
-}
 
 -(unsigned int)zIndex
 {
-	return zIndex;
-}
-
--(void)repositionZIndexIfNeeded
-{
-	if ([(TiViewProxy*)proxy needsZIndexRepositioning])
-	{
-		[self repositionZIndex];
-	}
-}
-
--(void)repositionZIndex
-{
-	[(TiViewProxy*)self.proxy setNeedsZIndexRepositioning];
+	return [(TiViewProxy *)proxy zIndex];
 }
 
 -(BOOL)animationFromArgument:(id)args
@@ -608,12 +411,6 @@ DEFINE_EXCEPTIONS
     }
 }
 
--(void)setZIndex_:(id)z
-{
-	zIndex = [TiUtils intValue:z];
-	[self repositionZIndex];
-}
-
 -(void)setAnimation_:(id)arg
 {
 	[self.proxy replaceValue:nil forKey:@"animation" notification:NO];
@@ -692,6 +489,11 @@ DEFINE_EXCEPTIONS
 -(void)animationCompleted
 {
 	animating = NO;
+}
+
+-(BOOL)animating
+{
+	return animating;
 }
 
 #pragma mark Property Change Support

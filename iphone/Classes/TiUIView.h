@@ -21,10 +21,6 @@
 void ModifyScrollViewForKeyboardHeightAndContentHeightWithResponderRect(UIScrollView * scrollView,CGFloat keyboardTop,CGFloat minimumContentHeight,CGRect responderRect);
 void RestoreScrollViewFromKeyboard(UIScrollView * scrollView);
 
-CGFloat AutoWidthForView(UIView * superView,CGFloat suggestedWidth);
-CGFloat AutoHeightForView(UIView * superView,CGFloat suggestedWidth,BOOL isVertical);
-//CGFloat AutoHeightForView(UIView * superView,CGFloat suggestedWidth);
-
 
 @class TiViewProxy;
 
@@ -43,7 +39,6 @@ CGFloat AutoHeightForView(UIView * superView,CGFloat suggestedWidth,BOOL isVerti
 	BOOL configured;
 	BOOL touchEnabled;
 
-	unsigned int zIndex;
 	unsigned int animationDelayGuard;
 	
 	// Touch detection
@@ -66,10 +61,10 @@ CGFloat AutoHeightForView(UIView * superView,CGFloat suggestedWidth,BOOL isVerti
   TiDimension leftCap;
   TiDimension topCap;
 }
+-(BOOL)animating;
 
 @property(nonatomic,readwrite,assign)	TiProxy *proxy;
 @property(nonatomic,readwrite,assign)	TiViewProxy *parent;
-@property(nonatomic,readonly)			unsigned	int zIndex;
 @property(nonatomic,readonly)			LayoutConstraint *layoutProperties;
 @property(nonatomic,readwrite,assign)	UIView *touchDelegate;
 @property(nonatomic,readonly)			id transformMatrix;
@@ -89,17 +84,12 @@ CGFloat AutoHeightForView(UIView * superView,CGFloat suggestedWidth,BOOL isVerti
 -(void)setVirtualParentTransform:(CGAffineTransform)newTransform;
 -(void)setTransform_:(id)matrix;
 
--(void)performZIndexRepositioning;
--(void)repositionZIndex;
--(void)repositionZIndexIfNeeded;
-
 -(UIImage*)loadImage:(id)image;
 
 -(id)proxyValueForKey:(NSString *)key;
 -(void)readProxyValuesWithKeys:(id<NSFastEnumeration>)keys;
 -(void)transferProxy:(TiViewProxy*)newProxy;
 
--(void)updateLayout:(LayoutConstraint*)layout withBounds:(CGRect)bounds;
 -(void)updateTouchHandling;
 -(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds;
 -(void)makeRootViewFirstResponder;
@@ -117,8 +107,6 @@ CGFloat AutoHeightForView(UIView * superView,CGFloat suggestedWidth,BOOL isVerti
 -(void)setVisible_:(id)visible;
 
 -(UIView *)gradientWrapperView;
-
--(unsigned int)zIndex;
 
 @end
 

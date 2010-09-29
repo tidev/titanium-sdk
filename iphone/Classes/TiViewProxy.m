@@ -338,6 +338,19 @@
 	}
 }
 
+@synthesize zIndex;
+-(void)setZIndex:(int)newZindex
+{
+	if(newZindex == zIndex)
+	{
+		return;
+	}
+
+	zIndex = newZindex;
+	[self replaceValue:NUMINT(zIndex) forKey:@"zIndex" notification:NO];
+	[self setNeedsZIndexRepositioning];
+}
+
 -(void)animationCompleted:(TiAnimation*)animation
 {
 	[[self view] animationCompleted];
@@ -730,7 +743,7 @@
 		{	
 			//TODO: Optimize!
 			int insertPosition = 0;
-			CGFloat zIndex = [childView zIndex];
+			int childZIndex = [child zIndex];
 			
 			pthread_rwlock_rdlock(&childrenLock);
 			int childProxyIndex = [children indexOfObject:child];
@@ -743,12 +756,12 @@
 					continue;
 				}
 				
-				CGFloat thisZIndex=[thisView zIndex];
-				if (zIndex < thisZIndex) //We've found our stop!
+				int thisZIndex=[(TiViewProxy *)[thisView proxy] zIndex];
+				if (childZIndex < thisZIndex) //We've found our stop!
 				{
 					break;
 				}
-				if (zIndex == thisZIndex)
+				if (childZIndex == thisZIndex)
 				{
 					TiProxy * thisProxy = [thisView proxy];
 					if (childProxyIndex <= [children indexOfObject:thisProxy])
@@ -1216,9 +1229,10 @@
 	}
 	if ([NSThread isMainThread])
 	{	//NOTE: This will cause problems with ScrollableView, or is a new wrapper needed?		
+		[self willChangeSize];
+		[self willChangePosition];
+	
 		[self refreshView:nil];
-
-		[self repositionWithBounds:superview.bounds];
 	}
 	else 
 	{
@@ -1279,15 +1293,15 @@
 
 LAYOUTPROPERTIES_SETTER(setTop,top,TiDimensionFromObject,[self willChangePosition])
 LAYOUTPROPERTIES_SETTER(setBottom,bottom,TiDimensionFromObject,[self willChangePosition])
- 
+
 LAYOUTPROPERTIES_SETTER(setLeft,left,TiDimensionFromObject,[self willChangePosition])
 LAYOUTPROPERTIES_SETTER(setRight,right,TiDimensionFromObject,[self willChangePosition])
- 
+
 LAYOUTPROPERTIES_SETTER(setWidth,width,TiDimensionFromObject,[self willChangeSize])
 LAYOUTPROPERTIES_SETTER(setHeight,height,TiDimensionFromObject,[self willChangeSize])
- 
+
 LAYOUTPROPERTIES_SETTER(setLayout,layout,TiLayoutRuleFromObject,[self willChangeLayout])
- 
+
 LAYOUTPROPERTIES_SETTER(setMinWidth,minimumWidth,TiFixedValueRuleFromObject,[self willChangeSize])
 LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[self willChangeSize])
 
@@ -1504,7 +1518,6 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
 	UIView * ourView = [self view];
 	
 	int newPosition = 0;
-	int ourZIndex = [(TiUIView *)ourView zIndex];
 	
 	for (UIView * childView in [parentView subviews])
 	{
@@ -1516,7 +1529,8 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
 		}
 		if([childView isKindOfClass:[TiUIView class]])
 		{
-			if(ourZIndex < [(TiUIView *)childView zIndex])
+			TiViewProxy * childProxy = (TiViewProxy *)[(TiUIView *)childView proxy];
+			if(zIndex < [childProxy zIndex])
 			{
 				break;
 			}
@@ -1722,6 +1736,80 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
 -(BOOL)suppressesRelayout
 {
 	return NO;
+}
+
+NSInteger zindexSort2(TiUIView* view1, TiUIView* view2, void *reverse)
+{
+	int v1 = [(TiViewProxy *)[view1 proxy] zIndex];
+	int v2 = [(TiViewProxy *)[view2 proxy] zIndex];
+	
+	int result = 0;
+	
+	if (v1 < v2)
+	{
+		result = -1;
+	}
+	else if (v1 > v2)
+	{
+		result = 1;
+	}
+	
+	return result;
+}
+
+
+-(void)performZIndexRepositioning
+{
+	if(![self viewInitialized])
+	{
+		return;
+	}
+
+	if (![NSThread isMainThread])
+	{
+		[self performSelectorOnMainThread:@selector(performZIndexRepositioning) withObject:nil waitUntilDone:NO];
+		return;
+	}
+
+	if ([[[self view] subviews] count] == 0)
+	{
+		return;
+	}
+	
+	// sort by zindex
+	
+	//TODO: This doesn't work with scrollable and scroll views. Really, this should be refactored out.
+	
+	NSMutableArray * validChildren = nil;
+	for (UIView * thisView in [[self view] subviews])
+	{
+		if ([thisView isKindOfClass:[TiUIView class]])
+		{
+			if(validChildren == nil)
+			{
+				validChildren = [[NSMutableArray alloc] initWithObjects:thisView,nil];
+			}
+			else
+			{
+				[validChildren addObject:thisView];
+			}
+		}
+	}
+	
+	[validChildren sortUsingFunction:zindexSort2 context:NULL];
+	for (TiUIView * thisView in validChildren)
+	{
+		[thisView removeFromSuperview];
+		[[self view] addSubview:thisView];
+		TiViewProxy * thisProxy = (TiViewProxy *)[thisView proxy];
+		//TODO: No, this makes no sense to me either. This is a flattening of repositionZIndexIfNeeded.
+		if ([thisProxy needsZIndexRepositioning])
+		{
+			[thisProxy setNeedsZIndexRepositioning];
+		}
+	}
+
+	[validChildren release];
 }
 
 @end

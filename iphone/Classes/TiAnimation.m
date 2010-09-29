@@ -488,7 +488,7 @@ else \
 
 		if (zIndex!=nil)
 		{
-			[uiview performSelector:@selector(setZIndex_:) withObject:zIndex];
+			[(TiViewProxy *)[uiview proxy] setZIndex:[zIndex intValue]];
 		}
 		
 		if (doReposition)
