@@ -109,7 +109,7 @@ public class TableViewProxy extends TiViewProxy
 		}
 	}
 
-	public void appendRow(Object row, TiDict options)
+	public synchronized void appendRow(Object row, TiDict options)
 	{
 		TableViewRowProxy rowProxy = rowProxyFor(row);
 		
@@ -129,7 +129,7 @@ public class TableViewProxy extends TiViewProxy
 		updateView();
 	}
 
-	public void deleteRow(int index, TiDict options)
+	public synchronized void deleteRow(int index, TiDict options)
 	{
 		RowResult rr = new RowResult();
 		if (locateIndex(index, rr)) {
@@ -163,7 +163,7 @@ public class TableViewProxy extends TiViewProxy
 		return index;
 	}
 
-	public void insertRowBefore(int index, Object data, TiDict options) {
+	public synchronized void insertRowBefore(int index, Object data, TiDict options) {
 		if (getSections().size() > 0) {
 			if (index < 0) {
 				index = 0;
@@ -186,7 +186,7 @@ public class TableViewProxy extends TiViewProxy
 		updateView();
 	}
 
-	public void insertRowAfter(int index, Object data, TiDict options) {
+	public synchronized void insertRowAfter(int index, Object data, TiDict options) {
 		RowResult rr = new RowResult();
 		if (locateIndex(index, rr)) {
 			// TODO check for section
@@ -268,7 +268,7 @@ public class TableViewProxy extends TiViewProxy
 		}
 	}
 
-	public void setData(Object[] data, TiDict options) {
+	public synchronized void setData(Object[] data, TiDict options) {
 		if (data != null) {
 			processData(data);
 			getTableView().setModelDirty();
