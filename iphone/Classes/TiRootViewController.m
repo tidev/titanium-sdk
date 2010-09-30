@@ -147,6 +147,7 @@
 -(void)loadView
 {
 	[[UIDevice currentDevice] beginGeneratingDeviceOrientationNotifications];
+	WARN_IF_BACKGROUND_THREAD;	//NSNotificationCenter is not threadsafe!
 	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didOrientNotify:) name:UIDeviceOrientationDidChangeNotification object:nil];
 
 	TiRootView *rootView = [[TiRootView alloc] init];
