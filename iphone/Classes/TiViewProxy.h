@@ -23,6 +23,7 @@ enum
 	TiRefreshViewEnqueued,
 };
 
+@class TiAction, TiBlob;
 //For TableRows, we need to have minimumParentHeightForWidth:
 @interface TiViewProxy : TiProxy<LayoutAutosizing> 
 {
@@ -85,15 +86,30 @@ enum
 -(void)hide:(id)arg;
 -(void)animate:(id)arg;
 
+-(void)setTop:(id)value;
+-(void)setBottom:(id)value;
+-(void)setLeft:(id)value;
+-(void)setRight:(id)value;
 -(void)setWidth:(id)value;
 -(void)setHeight:(id)value;
+-(void)setLayout:(id)value;
+-(void)setMinWidth:(id)value;
+-(void)setMinHeight:(id)value;
+
+-(void)setSize:(id)value;
+-(void)setCenter:(id)value;
+-(id)animatedCenter;
+
+-(void)setBackgroundGradient:(id)arg;
+-(TiBlob*)toImage:(id)args;
+
 
 #pragma mark nonpublic accessors not related to Housecleaning
 @property(nonatomic,readonly) TiViewProxy *parent;
 //TODO: make this a proper readwrite property declaration.
 -(void)setParent:(TiProxy*)parent;
 
-@property(nonatomic,readwrite,assign) LayoutConstraint * layoutProperties;
+@property(nonatomic,readonly,assign) LayoutConstraint * layoutProperties;
 @property(nonatomic,readwrite,assign) CGRect sandboxBounds;
 	//This is unaffected by parentVisible. So if something is truely visible, it'd be [self visible] && parentVisible.
 
@@ -133,6 +149,7 @@ enum
 
 -(BOOL)isUsingBarButtonItem;
 
+-(CGRect)appFrame;	//TODO: Why is this here? It doesn't have anything to do with a specific instance.
 
 #pragma mark Building up and tearing down
 -(void)firePropertyChanges;
@@ -142,9 +159,13 @@ enum
 -(void)destroy;
 -(void)removeBarButtonView;
 
-#pragma mark Misc actions
--(CGRect)appFrame;
+#pragma mark Callbacks
+
+-(void)getAnimatedCenterPoint:(NSMutableDictionary *)resultDict;
+-(void)addImageToBlob:(NSArray*)args;
+
 -(void)animationCompleted:(TiAnimation*)animation;
+-(void)makeViewPerformAction:(TiAction *)action;
 -(void)makeViewPerformSelector:(SEL)selector withObject:(id)object createIfNeeded:(BOOL)create waitUntilDone:(BOOL)wait;
 
 #pragma mark Layout events, internal and external
@@ -190,6 +211,9 @@ enum
 
 -(BOOL)willBeRelaying;	//Todo: Replace
 -(void)childWillResize:(TiViewProxy *)child;	//Todo: Replace
+
+-(void)childAdded:(id)child;
+-(void)childRemoved:(id)child;
 
 @end
 
