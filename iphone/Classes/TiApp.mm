@@ -415,7 +415,7 @@ void MyUncaughtExceptionHandler(NSException *exception)
 
 -(void)applicationWillEnterForeground:(UIApplication *)application
 {
-	[[NSNotificationCenter defaultCenter] postNotificationName:kTiResumeNotification object:self];
+	// According to docs, always followed by applicationDidBecomeActive; no reason to send notification here
 	[TiUtils queueAnalytics:@"ti.foreground" name:@"ti.foreground" data:nil];
 }
 
