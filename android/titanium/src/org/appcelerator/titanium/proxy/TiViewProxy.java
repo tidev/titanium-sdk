@@ -79,9 +79,9 @@ public abstract class TiViewProxy extends TiProxy implements Handler.Callback
 	{
 		super(tiContext);
 
+		TiDict options = new TiDict();
 		if (args.length > 0) {
-			TiDict options = (TiDict) args[0];
-			options = handleStyleOptions(options);
+			options = (TiDict) args[0];
 			
 			//lang conversion table
 			TiDict langTable = getLangConversionTable();
@@ -107,8 +107,11 @@ public abstract class TiViewProxy extends TiProxy implements Handler.Callback
 					}
 				}
 			}
-			setProperties(options);
 		}
+
+		options = handleStyleOptions(options);
+		setProperties(options);
+		
 		tiContext.addOnEventChangeListener(this);
 	}
 	
