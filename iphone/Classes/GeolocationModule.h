@@ -21,6 +21,8 @@
 	NSString *purpose;
 	BOOL trackingHeading;
 	BOOL trackingLocation;
+	
+	NSLock* lock;
 }
 
 @property(nonatomic,readonly,getter=hasCompass) NSNumber *compass;
