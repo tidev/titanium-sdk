@@ -15,6 +15,7 @@ import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiConvert;
 
+import android.app.Activity;
 import android.os.Handler;
 import android.os.Message;
 
@@ -90,7 +91,14 @@ public class TiProxy implements Handler.Callback, TiDynamicMethod, OnEventListen
 			uiHandler = new Handler(me);
 			waitForHandler.countDown();
 		} else {
-			tiContext.getActivity().runOnUiThread(new Runnable()
+			Activity activity = tiContext.getActivity();
+			if (activity == null || activity.isFinishing()) {
+				if (DBG) {
+					Log.w(LCAT, "Proxy created in context with no activity.  Activity finished?  Context is effectively dead.");
+				}
+				return;
+			}
+			activity.runOnUiThread(new Runnable()
 			{
 				public void run() {
 					if (DBG) {

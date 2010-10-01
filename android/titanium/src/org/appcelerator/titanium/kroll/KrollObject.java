@@ -69,7 +69,7 @@ public class KrollObject extends ScriptableObject
 		if (kroll != null) {
 			TiContext tiContext = kroll.getTiContext();
 			if (tiContext != null) {
-				weakApplication = new WeakReference<TiApplication>((TiApplication) tiContext.getActivity().getApplication());
+				weakApplication = new WeakReference<TiApplication>(tiContext.getTiApp());
 			}
 		}
 	}
@@ -490,9 +490,11 @@ public class KrollObject extends ScriptableObject
 	private Object loadMethod(Class<?> source, String name)
 	{
 		Object o = null;
-		TiApplication tiApp = weakApplication.get();
-		if(tiApp != null) {
-			o = tiApp.methodFor(source, name);
+		if (weakApplication != null) {
+			TiApplication tiApp = weakApplication.get();
+			if(tiApp != null) {
+				o = tiApp.methodFor(source, name);
+			}
 		}
 
 		return o;

@@ -74,7 +74,9 @@ public abstract class TiViewProxy extends TiProxy implements Handler.Callback
 		if (args.length > 0) {
 			setProperties((TiDict) args[0]);
 		}
-		tiContext.addOnEventChangeListener(this);
+		if (tiContext != null) {
+			tiContext.addOnEventChangeListener(this);
+		}
 	}
 
 	public TiAnimationBuilder getPendingAnimation() {
