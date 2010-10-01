@@ -14,6 +14,7 @@ import org.appcelerator.titanium.TiDict;
 import org.appcelerator.titanium.TiProxy;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.AsyncResult;
+import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiUIView;
@@ -25,11 +26,19 @@ import android.os.Message;
 public class TableViewProxy extends TiViewProxy
 {
 	private static final String LCAT = "TableViewProxyl";
+	@SuppressWarnings("unused")
 	private static final boolean DBG = TiConfig.LOGD;
 
+	private static final int INSERT_ROW_BEFORE = 0;
+	private static final int INSERT_ROW_AFTER = 1;
+	
 	private static final int MSG_UPDATE_VIEW = TiViewProxy.MSG_LAST_ID + 5001;
 	private static final int MSG_SCROLL_TO_INDEX = TiViewProxy.MSG_LAST_ID + 5002;
-
+	private static final int MSG_SET_DATA = TiViewProxy.MSG_LAST_ID + 5003;
+	private static final int MSG_DELETE_ROW = TiViewProxy.MSG_LAST_ID + 5004;
+	private static final int MSG_INSERT_ROW = TiViewProxy.MSG_LAST_ID + 5005;
+	private static final int MSG_APPEND_ROW = TiViewProxy.MSG_LAST_ID + 5006;
+	
 	public static final String CLASSNAME_DEFAULT = "__default__";
 	public static final String CLASSNAME_HEADER = "__header__";
 	public static final String CLASSNAME_NORMAL = "__normal__";
@@ -72,7 +81,11 @@ public class TableViewProxy extends TiViewProxy
 	}
 
 	public TiUITableView getTableView() {
-		return (TiUITableView) getView(getTiContext().getActivity());
+		TiContext ctx = getTiContext();
+		if (ctx != null) {
+			return (TiUITableView) getView(ctx.getActivity());
+		} 
+		return null;
 	}
 	
 	public void updateRow(Object row, Object data, TiDict options) {
@@ -109,7 +122,25 @@ public class TableViewProxy extends TiViewProxy
 		}
 	}
 
-	public synchronized void appendRow(Object row, TiDict options)
+	public void appendRow(Object row, TiDict options)
+	{
+		TiContext ctx = getTiContext();
+		if (ctx == null) {
+			Log.w(LCAT, "Context has been GC'd, not appending row");
+			return;
+		}
+		if (ctx.isUIThread()) {
+			handleAppendRow(row);
+			return;
+		}
+		
+		AsyncResult result = new AsyncResult(row);
+		Message msg = getUIHandler().obtainMessage(MSG_APPEND_ROW, result);
+		msg.sendToTarget();
+		result.getResult();
+	}
+	
+	private void handleAppendRow(Object row)
 	{
 		TableViewRowProxy rowProxy = rowProxyFor(row);
 		
@@ -129,7 +160,24 @@ public class TableViewProxy extends TiViewProxy
 		updateView();
 	}
 
-	public synchronized void deleteRow(int index, TiDict options)
+	public void deleteRow(int index, TiDict options)
+	{
+		TiContext ctx = getTiContext();
+		if (ctx == null) {
+			Log.w(LCAT, "Context has been GC'd, not deleting row.");
+			return;
+		}
+		if (ctx.isUIThread()) {
+			handleDeleteRow(index);
+			return;
+		}
+		Message msg = getUIHandler().obtainMessage(MSG_DELETE_ROW);
+		msg.arg1 = index;
+		msg.sendToTarget();
+
+	}
+	
+	private void handleDeleteRow(int index)
 	{
 		RowResult rr = new RowResult();
 		if (locateIndex(index, rr)) {
@@ -163,7 +211,25 @@ public class TableViewProxy extends TiViewProxy
 		return index;
 	}
 
-	public synchronized void insertRowBefore(int index, Object data, TiDict options) {
+	public void insertRowBefore(int index, Object data, TiDict options) {
+		TiContext ctx = getTiContext();
+		if (ctx == null) {
+			Log.w(LCAT, "Context has been GC'd, not inserting row");
+			return;
+		}
+		if (ctx.isUIThread()) {
+			handleInsertRowBefore(index, data);
+			return;
+		}
+		AsyncResult result = new AsyncResult(data);
+		Message msg = getUIHandler().obtainMessage(MSG_INSERT_ROW, result);
+		msg.arg1 = INSERT_ROW_BEFORE;
+		msg.arg2 = index;
+		msg.sendToTarget();
+		result.getResult();
+	}
+	
+	private void handleInsertRowBefore(int index, Object data) {
 		if (getSections().size() > 0) {
 			if (index < 0) {
 				index = 0;
@@ -186,7 +252,25 @@ public class TableViewProxy extends TiViewProxy
 		updateView();
 	}
 
-	public synchronized void insertRowAfter(int index, Object data, TiDict options) {
+	public void insertRowAfter(int index, Object data, TiDict options) {
+		TiContext ctx = getTiContext();
+		if (ctx == null) {
+			Log.w(LCAT, "Context has been GC'd, not inserting row.");
+			return;
+		}
+		if (ctx.isUIThread()) {
+			handleInsertRowAfter(index, data);
+			return;
+		}
+		AsyncResult result = new AsyncResult(data);
+		Message msg = getUIHandler().obtainMessage(MSG_INSERT_ROW, result);
+		msg.arg1 = INSERT_ROW_AFTER;
+		msg.arg2 = index;
+		msg.sendToTarget();
+		result.getResult();
+	}
+	
+	private void handleInsertRowAfter(int index, Object data) {
 		RowResult rr = new RowResult();
 		if (locateIndex(index, rr)) {
 			// TODO check for section
@@ -268,12 +352,28 @@ public class TableViewProxy extends TiViewProxy
 		}
 	}
 
-	public synchronized void setData(Object[] data, TiDict options) {
+	public void setData(Object[] data, TiDict options) {
+		TiContext ctx = getTiContext();
+		if (ctx == null) {
+			Log.w(LCAT, "Context has been GC'd, not setting table data.");
+			return;
+		}
+		if (ctx.isUIThread()) {
+			handleSetData(data);
+		} else {
+			AsyncResult result = new AsyncResult(data);
+			Message msg = getUIHandler().obtainMessage(MSG_SET_DATA, result);
+			msg.sendToTarget();
+			result.getResult();
+		}
+	}
+	
+	private void handleSetData(Object[] data) {
 		if (data != null) {
 			processData(data);
 			getTableView().setModelDirty();
 			updateView();
-		}
+		} 
 	}
 	
 	public Object[] getData() {
@@ -326,6 +426,10 @@ public class TableViewProxy extends TiViewProxy
 	}
 
 	public void updateView() {
+		if (getTiContext().isUIThread()) {
+			getTableView().updateView();
+			return;
+		}
 		AsyncResult result = new AsyncResult();
 		Message msg = getUIHandler().obtainMessage(MSG_UPDATE_VIEW);
 		msg.obj = result;
@@ -347,6 +451,29 @@ public class TableViewProxy extends TiViewProxy
 			return true;
 		} else if (msg.what == MSG_SCROLL_TO_INDEX) {
 			getTableView().scrollToIndex(msg.arg1);
+			return true;
+		} else if (msg.what == MSG_SET_DATA) {
+			AsyncResult result = (AsyncResult) msg.obj;
+			Object[] data = (Object[]) result.getArg();
+			handleSetData(data);
+			result.setResult(0);
+			return true;
+		} else if (msg.what == MSG_INSERT_ROW) {
+			AsyncResult result = (AsyncResult) msg.obj;
+			if (msg.arg1 == INSERT_ROW_AFTER) {
+				handleInsertRowAfter(msg.arg2, result.getArg());
+			} else {
+				handleInsertRowBefore(msg.arg2, result.getArg());
+			}
+			result.setResult(0);
+			return true;
+		} else if (msg.what == MSG_APPEND_ROW) {
+			AsyncResult result = (AsyncResult) msg.obj;
+			handleAppendRow(result.getArg());
+			result.setResult(0);
+			return true;
+		} else if (msg.what == MSG_DELETE_ROW) {
+			handleDeleteRow(msg.arg1);
 			return true;
 		}
 
