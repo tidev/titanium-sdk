@@ -299,8 +299,15 @@ public class TiContext implements TiEvaluator, ITiMenuDispatcherListener, ErrorR
 
 	public Object evalFile(String filename, Messenger messenger, int messageId) throws IOException {
 		Object result = null;
+		TiEvaluator jsContext = getJSContext();
+		if (jsContext == null) {
+			if (DBG) {
+				Log.w(LCAT, "Cannot eval file '" + filename + "'. Context has been released already.");
+			}
+			return null;
+		}
 
-		result = getJSContext().evalFile(filename);
+		result = jsContext.evalFile(filename);
 		if (messenger != null) {
 			try {
 				Message msg = Message.obtain();
@@ -804,7 +811,10 @@ public class TiContext implements TiEvaluator, ITiMenuDispatcherListener, ErrorR
 	{
 		final Semaphore s = new Semaphore(0);
 		final Activity activity = getActivity();
-
+		if (activity == null || activity.isFinishing() ) {
+			Log.w(LCAT, "Wanted to display an alert dialog in Javascript, but activity is finished.  Details: " + title  + " / " + message + " / " + sourceName + " / " + line + " / " + lineSource);
+			return;
+		}
 		activity.runOnUiThread(new Runnable(){
 
 			@Override
