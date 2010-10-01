@@ -804,6 +804,10 @@ public class TiContext implements TiEvaluator, ITiMenuDispatcherListener, ErrorR
 	{
 		final Semaphore s = new Semaphore(0);
 		final Activity activity = getActivity();
+		if (activity == null || activity.isFinishing() ) {
+			Log.w(LCAT, "Wanted to display an alert dialog in Javascript, but activity is finished.  Details: " + title  + " / " + message + " / " + sourceName + " / " + line + " / " + lineSource);
+			return;
+		}
 
 		activity.runOnUiThread(new Runnable(){
 
