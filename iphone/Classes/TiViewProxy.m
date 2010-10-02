@@ -35,7 +35,7 @@
 
 	zIndex = newZindex;
 	[self replaceValue:NUMINT(zIndex) forKey:@"zIndex" notification:NO];
-	[self setNeedsZIndexRepositioning];
+	[self willChangeZIndex];
 }
 
 @synthesize children;
@@ -52,10 +52,12 @@
 	return children;
 }
 
--(BOOL) visible
+-(void)setVisible:(NSNumber *)newVisible withObject:(id)args
 {
-	return [TiUtils boolValue:[self valueForUndefinedKey:@"visible"] def:YES];
+	[self replaceValue:newVisible forKey:@"visible" notification:YES];
+	[self setHidden:![TiUtils boolValue:newVisible def:YES] withArgs:args];
 }
+
 
 -(TiPoint*)center
 {
@@ -176,23 +178,14 @@
 
 -(void)show:(id)arg
 {
-	//TODO: animate
-	[self setValue:[NSNumber numberWithBool:YES] forKey:@"visible"];
-	if(parentVisible)	//We actually care about showing or hiding now.
-	{
-		[self willShow];
-	}
+	[self replaceValue:NUMBOOL(YES) forKey:@"visible" notification:YES];
+	[self setHidden:NO withArgs:arg];
 }
  
 -(void)hide:(id)arg
 {
-	//TODO: animate
-	[self setValue:[NSNumber numberWithBool:NO] forKey:@"visible"];
-
-	if(parentVisible)	//We actually care about showing or hiding now.
-	{
-		[self willHide];
-	}
+	[self replaceValue:NUMBOOL(NO) forKey:@"visible" notification:YES];
+	[self setHidden:NO withArgs:arg];
 }
 
 -(void)animate:(id)arg
@@ -327,11 +320,6 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
 	}
 }
 
--(UIView *)parentViewForChild:(TiViewProxy *)child
-{
-	return view;
-}
-
 -(LayoutConstraint *)layoutProperties
 {
 	return &layoutProperties;
@@ -339,6 +327,28 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
 
 @synthesize sandboxBounds;
 
+-(void)setHidden:(BOOL)newHidden withArgs:(id)args
+{
+	if(hidden == newHidden)
+	{
+		return;
+	}
+	hidden = newHidden;
+	
+	//TODO: If we have an animated show, hide, or setVisible, here's the spot for it.
+	
+	if(parentVisible)
+	{
+		if (hidden)
+		{
+			[self willHide];
+		}
+		else
+		{
+			[self willShow];
+		}
+	}
+}
 
 -(CGFloat)autoWidthForWidth:(CGFloat)suggestedWidth
 {
@@ -535,7 +545,7 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
 		for (id child in self.children)
 		{
 			TiUIView *childView = [(TiViewProxy*)child view];
-			[view addSubview:childView];
+			[self insertSubview:childView forProxy:child];
 		}
 		pthread_rwlock_unlock(&childrenLock);
 		[self viewDidAttach];
@@ -596,6 +606,11 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
 -(BOOL)shouldDetachViewOnUnload
 {
 	return YES;
+}
+
+-(UIView *)parentViewForChild:(TiViewProxy *)child
+{
+	return view;
 }
 
 #pragma mark Event trigger methods
@@ -711,6 +726,11 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
 
 
 #pragma mark Housecleaning state accessors
+
+-(BOOL)viewHasSuperview:(UIView *)superview
+{
+	return [(UIView *)view superview] == superview;
+}
 
 -(BOOL)viewAttached
 {
@@ -1228,7 +1248,7 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
 		return;
 	}
 	parentVisible = YES;
-	if([self visible])
+	if(!hidden)
 	{	//We should propagate this new status! Note this does not change the visible property.
 		[self willShow];
 	}
@@ -1241,7 +1261,7 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
 		return;
 	}
 	parentVisible = NO;
-	if([self visible])
+	if(!hidden)
 	{	//We should propagate this new status! Note this does not change the visible property.
 		[self willHide];
 	}
@@ -1260,7 +1280,7 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
 //		return;
 	}
 	
-	if(![self visible])
+	if(hidden)
 	{
 		VerboseLog(@"Removing from superview");
 		if([self viewAttached])
@@ -1274,11 +1294,6 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
 
 //BUG BARRIER: Code in this block is legacy code that should be factored out.
 	[parent childWillResize:self];
-	if (needsZIndexRepositioning)
-	{
-		[(TiUIView*)[self view] performZIndexRepositioning];
-		needsZIndexRepositioning=NO;
-	}
 
 	OSAtomicTestAndClearBarrier(NEEDS_REPOSITION, &dirtyflags);
 
@@ -1347,39 +1362,9 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
 
 	if(OSAtomicTestAndClearBarrier(TiRefreshViewZIndex, &dirtyflags) || (transferView != nil))
 	{
-		[self refreshZIndex];
+		[parent insertSubview:view forProxy:self];
 	}
 
-}
-
--(void)refreshZIndex
-{
-	OSAtomicTestAndClearBarrier(TiRefreshViewZIndex, &dirtyflags);
-	
-	UIView * parentView = [parent parentViewForChild:self];
-	UIView * ourView = [self view];
-	
-	int newPosition = 0;
-	
-	for (UIView * childView in [parentView subviews])
-	{
-	//TODO: Use reverse object enumerator and compensate accordingly so that
-	//We can add to the tail faster.
-		if(childView == ourView)
-		{
-			continue;
-		}
-		if([childView isKindOfClass:[TiUIView class]])
-		{
-			TiViewProxy * childProxy = (TiViewProxy *)[(TiUIView *)childView proxy];
-			if(zIndex < [childProxy zIndex])
-			{
-				break;
-			}
-		}
-		newPosition ++;
-	}
-	[parentView insertSubview:ourView atIndex:newPosition];
 }
 
 -(void)refreshPosition
@@ -1393,6 +1378,39 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
 	OSAtomicTestAndClearBarrier(TiRefreshViewSize, &dirtyflags);
 
 
+}
+
+-(void)insertSubview:(UIView *)childView forProxy:(TiViewProxy *)childProxy
+{
+	int result = 0;
+	int childZindex = [childProxy zIndex];
+	BOOL earlierSibling = YES;
+	UIView * ourView = [self parentViewForChild:childProxy];
+	
+	pthread_rwlock_rdlock(&childrenLock);
+	for (TiViewProxy * thisChildProxy in self.children)
+	{
+		if(thisChildProxy == childProxy)
+		{
+			earlierSibling = NO;
+			continue;
+		}
+		
+		if(![thisChildProxy viewHasSuperview:ourView])
+		{
+			continue;
+		}
+		
+		int thisChildZindex = [thisChildProxy zIndex];
+		if((thisChildZindex < childZindex) ||
+				(earlierSibling && (thisChildZindex == zIndex)))
+		{
+			result ++;
+		}
+	}
+	pthread_rwlock_unlock(&childrenLock);
+
+	[ourView insertSubview:childView atIndex:result];
 }
 
 
@@ -1418,59 +1436,6 @@ NSInteger zindexSort2(TiUIView* view1, TiUIView* view2, void *reverse)
 	return result;
 }
 
--(void)performZIndexRepositioning
-{
-	if(![self viewInitialized])
-	{
-		return;
-	}
-
-	if (![NSThread isMainThread])
-	{
-		[self performSelectorOnMainThread:@selector(performZIndexRepositioning) withObject:nil waitUntilDone:NO];
-		return;
-	}
-
-	if ([[[self view] subviews] count] == 0)
-	{
-		return;
-	}
-	
-	// sort by zindex
-	
-	//TODO: This doesn't work with scrollable and scroll views. Really, this should be refactored out.
-	
-	NSMutableArray * validChildren = nil;
-	for (UIView * thisView in [[self view] subviews])
-	{
-		if ([thisView isKindOfClass:[TiUIView class]])
-		{
-			if(validChildren == nil)
-			{
-				validChildren = [[NSMutableArray alloc] initWithObjects:thisView,nil];
-			}
-			else
-			{
-				[validChildren addObject:thisView];
-			}
-		}
-	}
-	
-	[validChildren sortUsingFunction:zindexSort2 context:NULL];
-	for (TiUIView * thisView in validChildren)
-	{
-		[thisView removeFromSuperview];
-		[[self view] addSubview:thisView];
-		TiViewProxy * thisProxy = (TiViewProxy *)[thisView proxy];
-		//TODO: No, this makes no sense to me either. This is a flattening of repositionZIndexIfNeeded.
-		if ([thisProxy needsZIndexRepositioning])
-		{
-			[thisProxy setNeedsZIndexRepositioning];
-		}
-	}
-
-	[validChildren release];
-}
 
 -(void)relayout
 {
@@ -1493,11 +1458,7 @@ NSInteger zindexSort2(TiUIView* view1, TiUIView* view2, void *reverse)
 		[view setCenter:positionCache];
 		[view setBounds:sizeCache];
 
-		UIView * parentView = [parent parentViewForChild:self];
-		if([view superview]!=parentView)
-		{
-			[parentView addSubview:view];
-		}
+		[parent insertSubview:view forProxy:self];
 
 
 		//    ApplyConstraintToViewWithinViewWithBounds(&layoutProperties, [self view], [[self view] superview], bounds, YES);
@@ -1784,26 +1745,6 @@ NSInteger zindexSort2(TiUIView* view1, TiUIView* view2, void *reverse)
 -(void)childRemoved:(id)child
 {
 }
-
--(BOOL)needsZIndexRepositioning
-{
-	return needsZIndexRepositioning;
-}
-
--(void)setNeedsZIndexRepositioning
-{
-	needsZIndexRepositioning = YES;
-	if (!windowOpened||[self viewAttached]==NO)
-	{
-		[[self parent] setNeedsZIndexRepositioning];
-	}
-	else
-	{
-		[(TiUIView*)[self view] performZIndexRepositioning];
-		//[self layoutChildren:NO];
-	}
-}
-
 
 
 @end

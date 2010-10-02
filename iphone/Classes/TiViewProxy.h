@@ -34,6 +34,8 @@ enum
 #pragma mark Layout properties
 	LayoutConstraint layoutProperties;
 	int zIndex;
+	BOOL hidden;	//This is the boolean version of ![TiUtils boolValue:visible def:yes]
+		//And has nothing to do with whether or not it's onscreen or 
 
 #pragma mark Parent/Children relationships
 	TiViewProxy *parent;
@@ -56,7 +58,7 @@ enum
 	UIViewAutoresizing autoresizeCache;	//Changed by repositioning or resizing.
 
 	BOOL parentVisible;
-	//In most cases, this is the same as [parent parentVisible] && [parent visible]
+	//In most cases, this is the same as [parent parentVisible] && ![parent hidden]
 	//However, in the case of windows attached to the root view, the parent is ALWAYS visible.
 	//That is, will be true if and only if all parents are visible or are the root controller.
 	//Use parentWillShow and parentWillHide to set this.
@@ -68,7 +70,6 @@ enum
 	BOOL windowOpening;
 
 	int dirtyflags;	//For atomic actions, best to be explicit about the 32 bitness.
-	BOOL needsZIndexRepositioning;	//Todo: Replace
 	BOOL viewInitialized;
 	BOOL repositioning;
 	BOOL isUsingBarButtonItem;
@@ -77,7 +78,6 @@ enum
 #pragma mark public API
 @property(nonatomic,readwrite,assign) int zIndex;
 @property(nonatomic,readonly) NSArray *children;
-@property(nonatomic,readonly) BOOL visible;
 @property(nonatomic,readonly) TiPoint *center;
 
 -(void)add:(id)arg;
@@ -112,6 +112,7 @@ enum
 @property(nonatomic,readonly,assign) LayoutConstraint * layoutProperties;
 @property(nonatomic,readwrite,assign) CGRect sandboxBounds;
 	//This is unaffected by parentVisible. So if something is truely visible, it'd be [self visible] && parentVisible.
+-(void)setHidden:(BOOL)newHidden withArgs:(id)args;
 
 @property(nonatomic,retain) UIBarButtonItem * barButtonItem;
 -(TiUIView *)barButtonViewForSize:(CGSize)bounds;
@@ -124,6 +125,7 @@ enum
 -(BOOL)supportsNavBarPositioning;
 -(BOOL)canHaveControllerParent;
 -(BOOL)shouldDetachViewOnUnload;
+-(UIView *)parentViewForChild:(TiViewProxy *)child;
 
 #pragma mark Event trigger methods
 -(void)windowWillOpen;
@@ -187,9 +189,13 @@ enum
 #pragma mark Layout actions
 
 -(void)refreshView:(TiUIView *)transferView;
--(void)refreshZIndex;
--(void)refreshPosition;
+
 -(void)refreshSize;
+-(void)refreshPosition;
+
+//Unlike the other layout actions, this one is done by the parent of the one called by refreshView.
+//This is the effect of refreshing the Z index via careful view placement.
+-(void)insertSubview:(UIView *)childView forProxy:(TiViewProxy *)childProxy;
 
 
 #pragma mark Layout commands that need refactoring out
@@ -205,15 +211,13 @@ enum
 -(void)setNeedsReposition;	//Todo: Replace
 -(void)clearNeedsReposition;	//Todo: Replace
 -(void)setNeedsRepositionIfAutoSized;	//Todo: Replace
--(void)setNeedsZIndexRepositioning;	//Todo: Replace
--(BOOL)needsZIndexRepositioning;	//Todo: Replace
--(void)performZIndexRepositioning;
 
 -(BOOL)willBeRelaying;	//Todo: Replace
 -(void)childWillResize:(TiViewProxy *)child;	//Todo: Replace
 
 -(void)childAdded:(id)child;
 -(void)childRemoved:(id)child;
+-(void)layoutChildOnMainThread:(id)arg;
 
 @end
 
