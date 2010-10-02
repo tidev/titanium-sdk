@@ -91,7 +91,7 @@
 		[arg setParent:self];
 		[self childAdded:arg];
 		[self contentsWillChange];
-		if(parentVisible && [self visible])
+		if(parentVisible && !hidden)
 		{
 			[arg parentWillShow];
 		}
@@ -140,7 +140,7 @@
 	[children removeObject:arg];
 
 		[self contentsWillChange];
-		if(parentVisible && [self visible])
+		if(parentVisible && !hidden)
 		{
 			[arg parentWillShow];
 		}
@@ -1187,7 +1187,7 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
 {
 	SET_AND_PERFORM(TiRefreshViewChildrenPosition,return);
 
-	if(parentVisible && [self visible])
+	if(parentVisible && !hidden)
 	{
 		[self willEnqueue];
 	}
@@ -1415,27 +1415,6 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
 
 
 #pragma mark Layout commands that need refactoring out
-
-
-NSInteger zindexSort2(TiUIView* view1, TiUIView* view2, void *reverse)
-{
-	int v1 = [(TiViewProxy *)[view1 proxy] zIndex];
-	int v2 = [(TiViewProxy *)[view2 proxy] zIndex];
-	
-	int result = 0;
-	
-	if (v1 < v2)
-	{
-		result = -1;
-	}
-	else if (v1 > v2)
-	{
-		result = 1;
-	}
-	
-	return result;
-}
-
 
 -(void)relayout
 {
