@@ -27,11 +27,28 @@
 -(void)dealloc
 {
 	RELEASE_TO_NIL(progress);
-
 	RELEASE_TO_NIL(messageLabel);
-	RELEASE_TO_NIL(fontDesc);
-	RELEASE_TO_NIL(textColor);
 	[super dealloc];
+}
+
+-(CGSize)sizeForFont:(CGFloat)suggestedWidth
+{
+	NSString *value = [messageLabel text];
+	UIFont *font = [messageLabel font];
+	CGSize maxSize = CGSizeMake(suggestedWidth<=0 ? 480 : suggestedWidth, 1000);
+	return [value sizeWithFont:font constrainedToSize:maxSize lineBreakMode:UILineBreakModeTailTruncation];
+}
+
+-(CGFloat)autoWidthForWidth:(CGFloat)suggestedWidth
+{
+	return [self sizeForFont:suggestedWidth].width;
+}
+
+-(CGFloat)autoHeightForWidth:(CGFloat)width
+{
+	CGSize fontSize = [self sizeForFont:width];
+	CGSize progressSize = [progress sizeThatFits:fontSize];
+	return fontSize.height + progressSize.height;
 }
 
 #pragma mark Accessors
@@ -53,16 +70,6 @@
 	{
 		messageLabel=[[UILabel alloc] init];
 		[messageLabel setBackgroundColor:[UIColor clearColor]];
-		if (fontDesc != nil)
-		{
-			[messageLabel setFont:[fontDesc font]];
-		}
-		
-		if (textColor != nil)
-		{
-			[messageLabel setTextColor:textColor];
-		}
-		
 		
 		[self setNeedsLayout];
 		[self addSubview:messageLabel];
@@ -94,7 +101,7 @@
 		return;
 	}
 
-	CGSize messageSize = [messageLabel sizeThatFits:CGSizeZero];
+	CGSize messageSize = [messageLabel sizeThatFits:boundsRect.size];
 	
 	float fittingHeight = barSize.height + messageSize.height + 5;
 	
@@ -127,42 +134,19 @@
 
 -(void)setFont_:(id)value
 {
-	WebFont * newFont = [TiUtils fontValue:value def:nil];
-	if ((newFont == fontDesc) || ([fontDesc isEqual:newFont]))
-	{
-		return;
-	}
-
-	if (newFont == nil)
-	{
-		newFont = [WebFont defaultFont];
-	}
-	
-	[fontDesc release];
-	fontDesc = [newFont retain];
-
-	if (messageLabel != nil) {
-		[messageLabel setFont:[fontDesc font]];
-	}
+	WebFont * newFont = [TiUtils fontValue:value def:[WebFont defaultFont]];
+	[[self messageLabel] setFont:[newFont font]];
+	[self setNeedsLayout];
 }
 
 
 -(void)setColor_:(id)value
 {
 	UIColor * newColor = [[TiUtils colorValue:value] _color];
-	[textColor release];
-	textColor = [newColor retain];
-	if (messageLabel != nil)
-	{
-		if (textColor == nil)
-		{
-			[messageLabel setTextColor:[UIColor blackColor]];
-		}
-		else
-		{
-			[messageLabel setTextColor:textColor];
-		}
+	if (newColor == nil) {
+		newColor = [UIColor blackColor];
 	}
+	[[self messageLabel] setTextColor:newColor];
 }
 
 -(void)setMessage_:(id)value

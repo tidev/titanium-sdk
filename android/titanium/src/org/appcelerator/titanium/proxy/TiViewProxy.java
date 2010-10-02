@@ -74,7 +74,9 @@ public abstract class TiViewProxy extends TiProxy implements Handler.Callback
 		if (args.length > 0) {
 			setProperties((TiDict) args[0]);
 		}
-		tiContext.addOnEventChangeListener(this);
+		if (tiContext != null) {
+			tiContext.addOnEventChangeListener(this);
+		}
 	}
 
 	public TiAnimationBuilder getPendingAnimation() {
@@ -586,7 +588,10 @@ public abstract class TiViewProxy extends TiProxy implements Handler.Callback
 		if (peekView() != null) {
 			TiUIView v = getView(getTiContext().getActivity());
 			if (v != null) {
-				v.getNativeView().setClickable(clickable);
+				View nv = v.getNativeView();
+				if (nv != null) {
+					nv.setClickable(clickable);
+				}
 			}
 		}
 	}
