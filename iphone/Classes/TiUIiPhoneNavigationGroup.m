@@ -52,8 +52,8 @@
 		[controller.view addSubview:[windowProxy view]];
 		[windowProxy prepareForNavView:controller];
 		
-		current = windowProxy;
 		root = windowProxy;
+		[self setVisibleProxy:windowProxy];
 	}
 	return controller;
 }
@@ -92,6 +92,7 @@
 		[controller.view removeFromSuperview];
 		[controller resignFirstResponder];
 		RELEASE_TO_NIL(controller);
+		visibleProxy = nil; // close/release handled by view removal
 	}
 }
 
@@ -99,7 +100,7 @@
 {
 	BOOL animated = [TiUtils boolValue:@"animated" properties:properties def:YES];
 	UIViewController *viewController = [window controller];
-	current = window;
+	[self setVisibleProxy:window];
 	opening = YES;
 	[controller pushViewController:viewController animated:animated];
 }
@@ -137,15 +138,14 @@
 {
 	TiViewController *wincontroller = (TiViewController*)viewController;
 	TiWindowProxy *newWindow = (TiWindowProxy *)[wincontroller proxy];
-	[self setVisibleProxy:newWindow];
 	
-	if (newWindow!=current)
+	if (newWindow!=visibleProxy)
 	{
-		if (current!=root && opening==NO)
+		if (visibleProxy!=root && opening==NO)
 		{
-			[self close:current withObject:nil];
+			[self close:visibleProxy withObject:nil];
 		}
-		current = newWindow;
+		[self setVisibleProxy:newWindow];
 	}
 	opening = NO;
 	[newWindow windowDidOpen];

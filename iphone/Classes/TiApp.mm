@@ -257,6 +257,7 @@ void MyUncaughtExceptionHandler(NSException *exception)
 	
 	[kjsBridge boot:self url:nil preload:nil];
 
+	WARN_IF_BACKGROUND_THREAD;	//NSNotificationCenter is not threadsafe!
 	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardDidHide:) name:UIKeyboardDidHideNotification object:nil];
 	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardDidShow:) name:UIKeyboardDidShowNotification object:nil];
 	
@@ -414,7 +415,7 @@ void MyUncaughtExceptionHandler(NSException *exception)
 
 -(void)applicationWillEnterForeground:(UIApplication *)application
 {
-	[[NSNotificationCenter defaultCenter] postNotificationName:kTiResumeNotification object:self];
+	// According to docs, always followed by applicationDidBecomeActive; no reason to send notification here
 	[TiUtils queueAnalytics:@"ti.foreground" name:@"ti.foreground" data:nil];
 }
 
@@ -557,6 +558,7 @@ void MyUncaughtExceptionHandler(NSException *exception)
 
 - (void)dealloc 
 {
+	WARN_IF_BACKGROUND_THREAD;	//NSNotificationCenter is not threadsafe!
 	[[NSNotificationCenter defaultCenter] removeObserver:self name:UIKeyboardDidHideNotification object:nil];
 	[[NSNotificationCenter defaultCenter] removeObserver:self name:UIKeyboardDidShowNotification object:nil];
 	RELEASE_TO_NIL(kjsBridge);

@@ -177,7 +177,9 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 			if (rp.getDynamicValue("title") != null) {
 				title = TiConvert.toString(rp.getDynamicValue("title"));
 			}
-
+			if (!rp.hasDynamicValue("touchEnabled")) {
+				rp.internalSetDynamicValue("touchEnabled", false, false);
+			}
 			if (views == null) {
 				views = new TiUIView[1];
 				views[0] = new TiUILabel(rp);
