@@ -52,11 +52,6 @@
 	}
 }
 
--(BOOL)willBeRelaying
-{
-	return [super willBeRelaying];
-}
-
 -(void)childWillResize:(TiViewProxy *)child
 {
 	[super childWillResize:child];

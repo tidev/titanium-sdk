@@ -65,7 +65,6 @@ void RestoreScrollViewFromKeyboard(UIScrollView * scrollView);
 
 @property(nonatomic,readwrite,assign)	TiProxy *proxy;
 @property(nonatomic,readwrite,assign)	TiViewProxy *parent;
-@property(nonatomic,readonly)			LayoutConstraint *layoutProperties;
 @property(nonatomic,readwrite,assign)	UIView *touchDelegate;
 @property(nonatomic,readonly)			id transformMatrix;
 @property(nonatomic,readwrite,retain) id backgroundImage;

@@ -106,19 +106,6 @@
 			centerPoint.y - (fittingHeight - messageSize.height)/2)];
 }
 
-
-
--(BOOL)isFrameUndefined
-{
-	return (TiDimensionIsUndefined(self.layoutProperties->top) && TiDimensionIsUndefined(self.layoutProperties->bottom));
-}
-
--(BOOL)isFrameAuto
-{
-	return (TiDimensionIsAuto(self.layoutProperties->top) || TiDimensionIsAuto(self.layoutProperties->bottom) ||
-			TiDimensionIsAuto(self.layoutProperties->width) || TiDimensionIsAuto(self.layoutProperties->height));
-}
-
 #pragma mark Properties
 
 -(void)setMin_:(id)value
