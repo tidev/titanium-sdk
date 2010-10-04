@@ -566,7 +566,11 @@ NSArray* moviePlayerKeys = nil;
 		[loadProperties setValue:color forKey:@"backgroundColor"];
 	}
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
-	[[self view] setBackgroundColor:[backgroundColor _color]];
+	// Have to make sure the view is created on the main thread, and that all properties are set there.
+	[self makeViewPerformSelector:@selector(setBackgroundColor:) 
+					   withObject:[backgroundColor _color] 
+				   createIfNeeded:YES
+					waitUntilDone:NO];
 #endif
 }
 
