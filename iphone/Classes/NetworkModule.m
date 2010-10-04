@@ -10,6 +10,7 @@
 #import "Reachability.h"
 #import "TiApp.h"
 #import "SBJSON.h"
+#import "TiBlob.h"
 
 NSString* const INADDR_ANY_token = @"INADDR_ANY";
 
@@ -57,6 +58,7 @@ NSString* const INADDR_ANY_token = @"INADDR_ANY";
 	[super _configure];
 	// default to unknown network type on startup until reachability has figured it out
 	state = TiNetworkConnectionStateUnknown; 
+	WARN_IF_BACKGROUND_THREAD;	//NSNotificationCenter is not threadsafe!
 	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(reachabilityChanged:) name:kReachabilityChangedNotification object:nil];
 	// wait until done is important to get the right state
 	[self performSelectorOnMainThread:@selector(startReachability) withObject:nil waitUntilDone:YES];
@@ -65,6 +67,7 @@ NSString* const INADDR_ANY_token = @"INADDR_ANY";
 -(void)_destroy
 {
 	[self performSelectorOnMainThread:@selector(stopReachability) withObject:nil waitUntilDone:NO];
+	WARN_IF_BACKGROUND_THREAD;	//NSNotificationCenter is not threadsafe!
 	[[NSNotificationCenter defaultCenter] removeObserver:self name:kReachabilityChangedNotification object:nil];
 	RELEASE_TO_NIL(pushNotificationCallback);
 	RELEASE_TO_NIL(pushNotificationError);
@@ -289,8 +292,8 @@ MAKE_SYSTEM_PROP(NOTIFICATION_TYPE_SOUND,3);
 	// called by TiApp
 	if (pushNotificationSuccess!=nil)
 	{
-		NSString *token = [[TiApp app] remoteDeviceUUID];
-		NSDictionary *event = [NSDictionary dictionaryWithObject:token forKey:@"deviceToken"];
+		TiBlob* tokenBlob = [[[TiBlob alloc] initWithData:deviceToken mimetype:@"application/octet-stream"] autorelease];
+		NSDictionary *event = [NSDictionary dictionaryWithObject:tokenBlob forKey:@"deviceToken"];
 		[self _fireEventToListener:@"remote" withObject:event listener:pushNotificationSuccess thisObject:nil];
 	}
 }

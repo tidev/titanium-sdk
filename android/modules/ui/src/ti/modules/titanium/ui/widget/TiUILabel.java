@@ -15,14 +15,11 @@ import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiUIView;
 
-import android.text.Editable;
 import android.text.Html;
 import android.text.InputType;
-import android.text.method.KeyListener;
+import android.text.TextUtils.TruncateAt;
 import android.text.util.Linkify;
 import android.view.Gravity;
-import android.view.KeyEvent;
-import android.view.View;
 import android.widget.TextView;
 
 public class TiUILabel extends TiUIView
@@ -76,6 +73,16 @@ public class TiUILabel extends TiUIView
 			String verticalAlign = d.getString("verticalAlign");
 			TiUIHelper.setAlignment(tv, null, verticalAlign);
 		}
+		if (d.containsKey("ellipsize")) {
+			if (TiConvert.toBoolean(d, "ellipsize")) {
+				tv.setEllipsize(TruncateAt.END);
+			} else {
+				tv.setEllipsize(null);
+			}
+		}
+		if (d.containsKey("wordWrap")) {
+			tv.setSingleLine(!TiConvert.toBoolean(d, "wordWrap"));
+		}
 		
 		// This needs to be the last operation.
 		linkifyIfEnabled(tv, d);
@@ -117,6 +124,14 @@ public class TiUILabel extends TiUIView
 		} else if (key.equals("font")) {
 			TiUIHelper.styleText(tv, (TiDict) newValue);
 			tv.requestLayout();
+		} else if (key.equals("ellipsize")) {
+			if (TiConvert.toBoolean(newValue)) {
+				tv.setEllipsize(TruncateAt.END);
+			} else {
+				tv.setEllipsize(null);
+			}
+		} else if (key.equals("wordWrap")) {
+			tv.setSingleLine(!TiConvert.toBoolean(newValue));
 		} else if (key.equals("autoLink")) {
 			Linkify.addLinks(tv, TiConvert.toInt(newValue));
 		} else {

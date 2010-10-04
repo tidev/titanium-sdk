@@ -159,9 +159,10 @@ public class TiUIWindow extends TiUIView
 		activityKey = "window$" + idGenerator.incrementAndGet();
 		TiDict props = proxy.getDynamicProperties();
 
-		getLayout().setClickable(true);
-		registerForTouch(getLayout());
-		getLayout().setOnFocusChangeListener(new OnFocusChangeListener() {
+		View layout = getLayout();
+		layout.setClickable(true);
+		registerForTouch(layout);
+		layout.setOnFocusChangeListener(new OnFocusChangeListener() {
 			public void onFocusChange(View view, boolean hasFocus) {
 				proxy.fireEvent(hasFocus ? "focus" : "blur", new TiDict());
 			}
@@ -327,6 +328,14 @@ public class TiUIWindow extends TiUIView
 			}
 			handler.obtainMessage(MSG_ANIMATE).sendToTarget();
 		} else if (windowActivity != null && windowActivity instanceof TiActivity) {
+			View layout = getLayout();
+			if (layout == null) {
+				if (DBG) {
+					Log.w(LCAT, "Layout for booted window is gone. User maybe backed out quickly.");
+				}
+				return;
+			}
+			layout.requestFocus();
 			((TiActivity) windowActivity).fireInitialFocus(); 
 		}
 	}
@@ -432,6 +441,9 @@ public class TiUIWindow extends TiUIView
 		View layout = nativeView;
 		if (!lightWeight) {
 			TiActivity tia = (TiActivity) windowActivity;
+			if (tia == null) {
+				return null;
+			}
 			layout = tia.getLayout();
 		}
 		return layout;

@@ -43,39 +43,45 @@ showDisplay.addEventListener('click', function() {
 	});
 });
 
-var removeDisplay = Ti.UI.createButton({
-	title:'Remove image via picker',
-	bottom:80,
-	width:200,
-	height:40
-});
-removeDisplay.addEventListener('click', function() {
-	Titanium.Contacts.showContacts({
-		selectedPerson: function(e) {
-			e.person.image = null;
-			infoLabel.text = 'Removed image for '+e.person.fullName;
-			Titanium.Contacts.save();
-		}
-	});
-});
-
-var sampleImage = Ti.Filesystem.getFile('images/chat.png').read();
-var setDisplay = Ti.UI.createButton({
-	title:'Set image via picker',
-	bottom:20,
-	height:40,
-	width:200
-});
-setDisplay.addEventListener('click', function() {
-	Titanium.Contacts.showContacts({
-		selectedPerson: function(e) {
-			e.person.image = sampleImage;
-			infoLabel.text = 'Set image for '+e.person.fullName;
-			Titanium.Contacts.save();
-		}
-	});
-});
 win.add(infoLabel);
-win.add(removeDisplay);
-win.add(setDisplay);
 win.add(showDisplay);
+
+// Android contacts are so far readonly
+if (Ti.Platform.osname !== 'android') {
+	var removeDisplay = Ti.UI.createButton({
+		title:'Remove image via picker',
+		bottom:80,
+		width:200,
+		height:40
+	});
+	removeDisplay.addEventListener('click', function() {
+		Titanium.Contacts.showContacts({
+			selectedPerson: function(e) {
+				e.person.image = null;
+				infoLabel.text = 'Removed image for '+e.person.fullName;
+				Titanium.Contacts.save();
+			}
+		});
+	});
+
+	sampleImage = Ti.Filesystem.getFile('images/chat.png').read();
+	var setDisplay = Ti.UI.createButton({
+		title:'Set image via picker',
+		bottom:20,
+		height:40,
+		width:200
+	});
+	setDisplay.addEventListener('click', function() {
+		Titanium.Contacts.showContacts({
+			selectedPerson: function(e) {
+				e.person.image = sampleImage;
+				infoLabel.text = 'Set image for '+e.person.fullName;
+				Titanium.Contacts.save();
+			}
+		});
+	});
+
+	// Android contacts are so far readonly
+	win.add(removeDisplay);
+	win.add(setDisplay);
+}

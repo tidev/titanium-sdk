@@ -40,7 +40,7 @@ typedef enum {
 	BOOL cancelled;
 }
 
--(void)setRequest:(ASIHTTPRequest*)request;
+@property(nonatomic,readwrite,retain) ASIHTTPRequest* request;
 
 @property(nonatomic,readwrite,assign) BOOL completed;
 @property(nonatomic,readwrite,assign) CGSize imageSize;

@@ -8,231 +8,56 @@
 package ti.modules.titanium.contacts;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Map;
 
+import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiDict;
 import org.appcelerator.titanium.TiProxy;
-import org.appcelerator.titanium.util.Log;
 
-import android.app.Activity;
-import android.content.ContentUris;
-import android.database.Cursor;
-import android.net.Uri;
-import android.provider.Contacts;
+import android.graphics.Bitmap;
 
 public class PersonProxy extends TiProxy
 {
-	private static final String LCAT = "PersonProxy";
 	private String lastName, firstName, fullName, middleName, firstPhonetic, lastPhonetic, middlePhonetic, department;
 	private String jobTitle, nickname, note, organization, prefix, suffix;
 	private String birthday, created, modified;
 	private int kind;
 	private TiDict email, phone, address;
 	private long id;
+	private TiBlob image = null;
+	private boolean imageFetched; // lazy load these bitmap images
+	protected boolean hasImage = false;
 	
-	protected static final String[] PEOPLE_PROJECTION = new String[] {
-        Contacts.People._ID,
-        Contacts.People.NAME,
-        Contacts.People.NOTES,
-    };
-	
-	private static final String[] CONTACT_METHOD_PROJECTION = new String[] {
-		Contacts.ContactMethods.DATA,
-		Contacts.ContactMethods.TYPE
-	};
-	
-	private static final String[] PHONE_PROJECTION = new String[] {
-		Contacts.Phones.NUMBER,
-		Contacts.Phones.TYPE
-	};
-
 	public PersonProxy(TiContext tiContext)
 	{
 		super(tiContext);
 	}
 	
-	public static PersonProxy[] getAllPersons(TiContext tiContext, int limit)
+	private boolean isPhotoFetchable()
 	{
-		ArrayList<PersonProxy> all = new ArrayList<PersonProxy>();
-		Cursor cursor = tiContext.getActivity().managedQuery(
-				Contacts.People.CONTENT_URI, 
-				PEOPLE_PROJECTION, 
-				null, 
-				null,
-				null);
-		int count = 0;
-		while (cursor.moveToNext()) {
-			all.add(fromCursor(tiContext, cursor));
-			if (++count == limit)
-			{
-				break;
-			}
-		}
-		cursor.close();
-		return all.toArray(new PersonProxy[all.size()]);
+		return (id > 0 && hasImage );
 	}
 	
-	public static PersonProxy[] getPeopleWithName(TiContext tiContext, String name)
+	public TiBlob getImage()
 	{
-		ArrayList<PersonProxy> all = new ArrayList<PersonProxy>();
-		Cursor cursor = tiContext.getActivity().managedQuery(
-				Contacts.People.CONTENT_URI, 
-				PEOPLE_PROJECTION, 
-				Contacts.People.NAME + " = ?", 
-				new String[]{name},
-				null);
-		while (cursor.moveToNext()) {
-			all.add(fromCursor(tiContext, cursor));
+		if (this.image != null) {
+			return this.image;
+		} else if (!imageFetched && isPhotoFetchable()) {
+			Bitmap photo = CommonContactsApi.getContactImage(getTiContext(), this.id);
+			if (photo != null) {
+				this.image = TiBlob.blobFromImage(getTiContext(), photo);
+			}
+			imageFetched = true;
 		}
-		cursor.close();
-		return all.toArray(new PersonProxy[all.size()]);
+		return this.image;
 	}
 	
-	public static PersonProxy fromId(TiContext tiContext, long id)
+	public void setImage(TiBlob blob)
 	{
-		Uri uri = ContentUris.withAppendedId(Contacts.People.CONTENT_URI, id);
-		return fromUri(tiContext, uri);
-	}
-	
-	public static PersonProxy fromUri(TiContext tiContext, Uri uri)
-	{
-		Activity root = tiContext.getRootActivity();
-
-		Cursor cursor = root.managedQuery(uri, PEOPLE_PROJECTION, null, null, null);
-		PersonProxy person = null;
-		try {
-			cursor.moveToFirst();
-			person = fromCursor(tiContext, cursor);
-		} catch (Throwable t) {
-			Log.e(LCAT, "Error fetching contact from cursor: " + t.getMessage(), t);
-		} finally {
-			try {
-				cursor.close();
-			} catch(Throwable tt) {
-				// ignore
-			}
-		}
-		return person;
-		
-	}
-	
-	public static PersonProxy fromCursor(TiContext tiContext, Cursor cursor)
-	{
-		if (cursor.isBeforeFirst() ) {
-			cursor.moveToFirst();
-		}
-		PersonProxy person = new PersonProxy(tiContext);
-		person.setFullName(cursor.getString(cursor.getColumnIndex(Contacts.People.NAME)));
-		person.setKind(ContactsModule.CONTACTS_KIND_PERSON) ;
-		person.setNote(cursor.getString(cursor.getColumnIndex(Contacts.People.NOTES)));
-		long personId = cursor.getInt(cursor.getColumnIndex(Contacts.People._ID));
-		person.setId(personId);
-		
-		Cursor emailsCursor = tiContext.getActivity().managedQuery(Contacts.ContactMethods.CONTENT_URI, 
-				CONTACT_METHOD_PROJECTION, 
-				Contacts.ContactMethods.PERSON_ID + " = ? AND " + Contacts.ContactMethods.KIND + " = ?" , 
-				new String[]{ Long.toString(personId) , Integer.toString(Contacts.KIND_EMAIL) }, 
-				null);
-		
-
-		Map<String, ArrayList<String>> emails = new HashMap<String, ArrayList<String>>();
-		while (emailsCursor.moveToNext()) {
-			String emailAddress = emailsCursor.getString(emailsCursor.getColumnIndex(Contacts.ContactMethods.DATA));
-			int type = emailsCursor.getInt(emailsCursor.getColumnIndex(Contacts.ContactMethods.TYPE));
-			String key = "other";
-			if (type == Contacts.ContactMethods.TYPE_HOME) {
-				key = "home";
-			} else if (type == Contacts.ContactMethods.TYPE_WORK) {
-				key = "work";
-			}
-			
-			ArrayList<String> collection;
-			if (emails.containsKey(key)) {
-				collection = emails.get(key);
-			} else {
-				collection = new ArrayList<String>();
-				emails.put(key, collection);
-			}
-			collection.add(emailAddress);
-		}
-		emailsCursor.close();		
-		person.setEmailFromMap(emails);
-		
-		
-		Cursor phonesCursor = tiContext.getActivity().managedQuery(
-				Contacts.Phones.CONTENT_URI,
-				PHONE_PROJECTION,
-				Contacts.Phones.PERSON_ID + " = ?",
-				new String[]{ Long.toString(personId) },
-				null);
-		Map<String, ArrayList<String>> phones = new HashMap<String, ArrayList<String>>();
-		while (phonesCursor.moveToNext()) {
-			String phoneNumber = phonesCursor.getString(
-					phonesCursor.getColumnIndex(Contacts.Phones.NUMBER));
-			int type = phonesCursor.getInt(phonesCursor.getColumnIndex(Contacts.Phones.TYPE));
-			String key = "other";
-			if (type == Contacts.Phones.TYPE_FAX_HOME) {
-				key = "homeFax";
-			}
-			if (type == Contacts.Phones.TYPE_FAX_WORK) {
-				key = "workFax";
-			}
-			if (type == Contacts.Phones.TYPE_HOME) {
-				key = "home";
-			}
-			if (type == Contacts.Phones.TYPE_MOBILE) {
-				key = "mobile";
-			}
-			if (type == Contacts.Phones.TYPE_PAGER) {
-				key = "pager";
-			}
-			if (type == Contacts.Phones.TYPE_WORK) {
-				key = "work";
-			}
-			ArrayList<String> collection;
-			if (phones.containsKey(key)) {
-				collection = phones.get(key);
-			} else {
-				collection = new ArrayList<String>();
-				phones.put(key, collection);
-			}
-			collection.add(phoneNumber);
-		}
-		phonesCursor.close();
-		person.setPhoneFromMap(phones);
-		
-		Cursor addressesCursor = tiContext.getActivity().managedQuery(
-				Contacts.ContactMethods.CONTENT_URI,
-				CONTACT_METHOD_PROJECTION,
-				Contacts.ContactMethods.PERSON_ID + " = ? AND " + Contacts.ContactMethods.KIND + " = ?",
-				new String[]{ Long.toString(personId), Integer.toString(Contacts.KIND_POSTAL) },
-				null);
-		Map<String, ArrayList<String>> addresses = new HashMap<String, ArrayList<String>>();
-		while (addressesCursor.moveToNext()) {
-			String fullAddress = addressesCursor.getString(
-					addressesCursor.getColumnIndex(Contacts.ContactMethods.DATA));
-			int type = addressesCursor.getInt(addressesCursor.getColumnIndex(Contacts.ContactMethods.TYPE));
-			String key = "other";
-			if (type == Contacts.ContactMethods.TYPE_HOME) {
-				key = "home";
-			} else if (type == Contacts.ContactMethods.TYPE_WORK) {
-				key = "work";
-			}
-			ArrayList<String> collection;
-			if (addresses.containsKey(key)) {
-				collection = addresses.get(key);
-			} else {
-				collection = new ArrayList<String>();
-				addresses.put(key, collection);
-			}
-			collection.add(fullAddress);
-		}
-		addressesCursor.close();
-		person.setAddressFromMap(addresses);
-		
-		return person;
+		image = blob;
+		hasImage = true;
+		imageFetched = true;
 	}
 
 	public String getBirthday()
@@ -491,5 +316,5 @@ public class PersonProxy extends TiProxy
 		return id;
 	}
 
-	
 }
+

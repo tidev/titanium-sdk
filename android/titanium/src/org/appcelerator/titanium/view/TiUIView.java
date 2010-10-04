@@ -25,11 +25,13 @@ import org.appcelerator.titanium.view.TiCompositeLayout.LayoutParams;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.view.GestureDetector;
+import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.GestureDetector.SimpleOnGestureListener;
 import android.view.View.OnFocusChangeListener;
+import android.view.View.OnKeyListener;
 import android.view.View.OnTouchListener;
 import android.view.animation.AnimationSet;
 import android.view.inputmethod.InputMethodManager;
@@ -121,6 +123,11 @@ public abstract class TiUIView
 			view.setId(idGenerator.incrementAndGet());
 		}
 		this.nativeView = view;
+		boolean clickable = true;
+		if (proxy.hasDynamicValue("touchEnabled")) {
+			clickable = TiConvert.toBoolean(proxy.getDynamicValue("touchEnabled"));
+		}
+		nativeView.setClickable(clickable);
 		nativeView.setOnFocusChangeListener(this);
 	}
 	protected void setLayoutParams(LayoutParams layoutParams) {
@@ -148,10 +155,12 @@ public abstract class TiUIView
 		}
 	}
 
-	public void listenerAdded(String type, int count, TiProxy proxy) {
+	public void listenerAdded(String type, int count, TiProxy proxy) 
+	{
 	}
 
-	public void listenerRemoved(String type, int count, TiProxy proxy) {
+	public void listenerRemoved(String type, int count, TiProxy proxy) 
+	{
 	}
 
 	private boolean hasImage(TiDict d) 
@@ -260,7 +269,15 @@ public abstract class TiUIView
 				nativeView.requestLayout();
 			}
 		} else if (key.equals("focusable")) {
-			nativeView.setFocusable(TiConvert.toBoolean(newValue));
+			boolean focusable = TiConvert.toBoolean(proxy.getDynamicValue("focusable"));
+			nativeView.setFocusable(focusable);
+			if (focusable) {
+				registerForKeyClick(nativeView);
+			} else {
+				nativeView.setOnClickListener(null);
+			}
+		} else if (key.equals("touchEnabled")) {
+			nativeView.setClickable(TiConvert.toBoolean(newValue));
 		} else if (key.equals("visible")) {
 			nativeView.setVisibility(TiConvert.toBoolean(newValue) ? View.VISIBLE : View.INVISIBLE);
 		} else if (key.equals("enabled")) {
@@ -376,7 +393,13 @@ public abstract class TiUIView
 		}
 
 		if (d.containsKey("focusable")) {
-			nativeView.setFocusable(TiConvert.toBoolean(d, "focusable"));
+			boolean focusable = TiConvert.toBoolean(d, "focusable");
+			nativeView.setFocusable(focusable);
+			if (focusable) {
+				registerForKeyClick(nativeView);
+			} else {
+				nativeView.setOnClickListener(null);
+			}
 		}
 
 		initializeBorder(d, bgColor);
@@ -397,7 +420,6 @@ public abstract class TiUIView
 		if (nativeView != null) {
 
 			if (background == null) {
-				nativeView.setClickable(true);
 				background = new TiBackgroundDrawable();
 	
 				Drawable currentDrawable = nativeView.getBackground();
@@ -649,6 +671,28 @@ public abstract class TiUIView
 			}
 		});
 
+	}
+	
+	protected void registerForKeyClick(View clickable) 
+	{
+		clickable.setOnKeyListener(new OnKeyListener() {
+			
+			@Override
+			public boolean onKey(View view, int keyCode, KeyEvent event) 
+			{
+				if (event.getAction() == KeyEvent.ACTION_UP) {
+					switch(keyCode) {
+					case KeyEvent.KEYCODE_ENTER :
+					case KeyEvent.KEYCODE_DPAD_CENTER :
+						if (proxy.hasListeners("click")) {
+							proxy.fireEvent("click", null);
+							return true;
+						}
+					}
+				}
+				return false;
+			}
+		});
 	}
 
 	public TiDict toImage() {

@@ -19,6 +19,7 @@ import org.appcelerator.titanium.util.AsyncResult;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiAnimationBuilder;
 import org.appcelerator.titanium.util.TiConfig;
+import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiAnimation;
 import org.appcelerator.titanium.view.TiUIView;
 
@@ -66,12 +67,15 @@ public abstract class TiViewProxy extends TiProxy implements Handler.Callback
 
 	protected TiUIView view;
 	protected TiAnimationBuilder pendingAnimation;
-
+	
 	public TiViewProxy(TiContext tiContext, Object[] args)
 	{
 		super(tiContext);
 		if (args.length > 0) {
 			setProperties((TiDict) args[0]);
+		}
+		if (tiContext != null) {
+			tiContext.addOnEventChangeListener(this);
 		}
 	}
 
@@ -523,7 +527,12 @@ public abstract class TiViewProxy extends TiProxy implements Handler.Callback
 	}
 
 	@Override
-	public boolean fireEvent(String eventName, TiDict data) {
+	public boolean fireEvent(String eventName, TiDict data) 
+	{
+		if (data == null) {
+			data = new TiDict();
+		}
+		
 		boolean handled = super.fireEvent(eventName, data);
 
 		if (parent != null && parent.get() != null) {
@@ -551,5 +560,39 @@ public abstract class TiViewProxy extends TiProxy implements Handler.Callback
 			}
 		}
 		return oldContext;
+	}
+	
+	@Override
+	public void eventListenerAdded(String eventName, int count, TiProxy proxy) {
+		super.eventListenerAdded(eventName, count, proxy);
+		
+		if (eventName.equals("click") && proxy.equals(this) && count == 1 && !(proxy instanceof TiWindowProxy)) {
+			if (!proxy.hasDynamicValue("touchEnabled") || TiConvert.toBoolean(proxy.getDynamicValue("touchEnabled"))) {
+				setClickable(true);
+			}
+		}
+	}
+	
+	@Override
+	public void eventListenerRemoved(String eventName, int count, TiProxy proxy) {
+		super.eventListenerRemoved(eventName, count, proxy);
+		
+		if (eventName.equals("click") && count == 0 && proxy.equals(this) && !(proxy instanceof TiWindowProxy)) {
+			if (proxy.hasDynamicValue("touchEnabled") && !TiConvert.toBoolean(proxy.getDynamicValue("touchEnabled"))) {
+				setClickable(false);
+			}
+		}
+	}
+	
+	public void setClickable(boolean clickable) {
+		if (peekView() != null) {
+			TiUIView v = getView(getTiContext().getActivity());
+			if (v != null) {
+				View nv = v.getNativeView();
+				if (nv != null) {
+					nv.setClickable(clickable);
+				}
+			}
+		}
 	}
 }

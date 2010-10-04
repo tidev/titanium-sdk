@@ -58,7 +58,7 @@
 @property(nonatomic,readonly) NSInteger audioLineType;
 @property(nonatomic,readonly) BOOL audioPlaying;
 @property(nonatomic,readonly) BOOL isCameraSupported;
-@property(nonatomic, assign) NSNumber* defaultAudioSessionMode;
+@property(nonatomic, assign) NSNumber* audioSessionMode;
 @property(nonatomic,readonly) TiMediaMusicPlayer* systemMusicPlayer;
 @property(nonatomic,readonly) TiMediaMusicPlayer* appMusicPlayer;
 

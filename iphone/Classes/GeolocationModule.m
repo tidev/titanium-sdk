@@ -165,6 +165,7 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 	RELEASE_TO_NIL(singleHeading);
 	RELEASE_TO_NIL(singleLocation);
 	RELEASE_TO_NIL(purpose);
+	RELEASE_TO_NIL(lock);
 	[super _destroy];
 }
 
@@ -220,11 +221,14 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 	// should we show heading calibration dialog? defaults to YES
 	calibration = YES; 
 	
+	lock = [[NSLock alloc] init];
+	
 	[super _configure]; 
 }
 
 -(CLLocationManager*)locationManager
 {
+	[lock lock];
 	if (locationManager==nil)
 	{
 		locationManager = [[CLLocationManager alloc] init];
@@ -263,6 +267,7 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 			[servicesDisabledAlert release];
 		}
 	}
+	[lock unlock];
 	return locationManager;
 }
 
@@ -561,6 +566,22 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 	return NUMBOOL([[self tempLocationManager] locationServicesEnabled]);
 }
 
+-(void)restart:(id)arg
+{
+	[lock lock];
+	if (locationManager != nil) {
+		[locationManager stopUpdatingHeading];
+		[locationManager stopUpdatingLocation];
+		[locationManager setDelegate:nil];
+		RELEASE_TO_NIL(locationManager);
+	}
+	trackingHeading = NO;
+	trackingLocation = NO;
+	[lock unlock];
+	// must be on UI thread
+	[self performSelectorOnMainThread:@selector(startStopLocationManagerIfNeeded) withObject:nil waitUntilDone:NO];
+}
+
 MAKE_SYSTEM_PROP_DBL(ACCURACY_BEST,kCLLocationAccuracyBest);
 MAKE_SYSTEM_PROP_DBL(ACCURACY_NEAREST_TEN_METERS,kCLLocationAccuracyNearestTenMeters);
 MAKE_SYSTEM_PROP_DBL(ACCURACY_HUNDRED_METERS,kCLLocationAccuracyHundredMeters);
@@ -694,6 +715,7 @@ MAKE_SYSTEM_PROP_DBL(ACCURACY_THREE_KILOMETERS,kCLLocationAccuracyThreeKilometer
 	{
 		NSDictionary *data = [NSDictionary dictionaryWithObjectsAndKeys:todict,@"to",[self locationDictionary:oldLocation],@"from",nil];
 		NSDictionary *geo = [NSDictionary dictionaryWithObjectsAndKeys:data,@"data",@"ti.geo",@"name",@"ti.geo",@"type",nil];
+		WARN_IF_BACKGROUND_THREAD;	//NSNotificationCenter is not threadsafe!
 		[[NSNotificationCenter defaultCenter] postNotificationName:kTiAnalyticsNotification object:nil userInfo:geo]; 
 	}
 	
@@ -707,7 +729,7 @@ MAKE_SYSTEM_PROP_DBL(ACCURACY_THREE_KILOMETERS,kCLLocationAccuracyThreeKilometer
 
 - (void)locationManager:(CLLocationManager *)manager didFailWithError:(NSError *)error
 {
-	NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:[error description],@"error",
+	NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:[error localizedDescription],@"error",
 						   NUMBOOL(NO),@"success",nil];
 	
 	if ([self _hasListeners:@"location"])

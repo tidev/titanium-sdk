@@ -24,8 +24,6 @@
 {
 	if (self = [super _initWithPageContext:context_ args:args])
 	{
-		[[TiMediaAudioSession sharedSession] startAudioSession];
-		
 		id arg = args!=nil && [args count] > 0 ? [args objectAtIndex:0] : nil;
 		if (arg!=nil)
 		{
@@ -69,8 +67,10 @@
 				}
                 int initialMode = [TiUtils intValue:@"audioSessionMode" 
                                          properties:arg
-                                                def:[[TiMediaAudioSession sharedSession] defaultSessionMode]];
-                [self setAudioSessionMode:[NSNumber numberWithInt:initialMode]];
+                                                def:0];
+				if (initialMode) {
+					[self setAudioSessionMode:[NSNumber numberWithInt:initialMode]];
+				}
 			}
 			if (url==nil)
 			{
@@ -83,6 +83,7 @@
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0		
 		if ([TiUtils isIOS4OrGreater])
 		{
+			WARN_IF_BACKGROUND_THREAD;	//NSNotificationCenter is not threadsafe!
 			[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(remoteControlEvent:) name:kTiRemoteControlNotification object:nil];
 		}
 #endif
@@ -108,14 +109,16 @@
 {
 	if (player!=nil)
 	{
-		[player stop];
+		if ([player isPlaying] || paused) {
+			[player stop];
+			[[TiMediaAudioSession sharedSession] stopAudioSession];
+		}
 		[player setDelegate:nil];
 	}
-	
-	[[TiMediaAudioSession sharedSession] stopAudioSession];
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0	
 	if ([TiUtils isIOS4OrGreater])
 	{
+		WARN_IF_BACKGROUND_THREAD;	//NSNotificationCenter is not threadsafe!
 		[[NSNotificationCenter defaultCenter] removeObserver:self];
 	}
 #endif	
@@ -156,19 +159,29 @@
 
 -(void)play:(id)args
 {
-	// indicate we're going to start playing
-	[[TiMediaAudioSession sharedSession] playback:sessionMode];
+	// indicate we're going to start playback
+	if (![[TiMediaAudioSession sharedSession] canPlayback]) {
+		[self throwException:@"Improper audio session mode for playback"
+				   subreason:[[NSNumber numberWithUnsignedInt:[[TiMediaAudioSession sharedSession] sessionMode]] description]
+					location:CODELOCATION];
+	}
 	
-	paused = NO;
+	if (player == nil || !([player isPlaying] || paused)) {
+		[[TiMediaAudioSession sharedSession] startAudioSession];
+	}
 	[[self player] play];
+	paused = NO;
 }
 
 -(void)stop:(id)args
 {
 	if (player!=nil)
 	{
-		[player stop];
-		[player setCurrentTime:0];
+		if ([player isPlaying] || paused) {
+			[player stop];
+			[player setCurrentTime:0];
+			[[TiMediaAudioSession sharedSession] stopAudioSession];
+		}
 	}
 	resumeTime = 0;
 	paused = NO;
@@ -187,6 +200,10 @@
 {
 	if (player!=nil)
 	{
+		if (!([player isPlaying] || paused)) {
+			[[TiMediaAudioSession sharedSession] startAudioSession];
+		}
+		
 		[player stop];
 		[player setCurrentTime:0];
 		[player play];
@@ -338,12 +355,14 @@
         NSLog(@"[WARN] Invalid mode for audio player... setting to default.");
         newMode = kAudioSessionCategory_SoloAmbientSound;
     }
-    sessionMode = newMode;
+	NSLog(@"'Titanium.Media.Sound.audioSessionMode' is deprecated; use 'Titanium.Media.audioSessionMode'");
+	[[TiMediaAudioSession sharedSession] setSessionMode:newMode];
 }
 
 -(NSNumber*)audioSessionMode
 {
-    return [NSNumber numberWithUnsignedInteger:sessionMode];
+	NSLog(@"'Titanium.Media.Sound.audioSessionMode' is deprecated; use 'Titanium.Media.audioSessionMode'");
+    return [NSNumber numberWithUnsignedInteger:[[TiMediaAudioSession sharedSession] sessionMode]];
 }
 
 #pragma mark Delegate
@@ -354,6 +373,9 @@
 	{
 		NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:NUMBOOL(flag),@"success",nil];
 		[self fireEvent:@"complete" withObject:event];
+	}
+	if (flag) {
+		[[TiMediaAudioSession sharedSession] stopAudioSession];
 	}
 }
 

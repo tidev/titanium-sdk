@@ -45,7 +45,7 @@ import android.widget.TextView;
 
 public class TiUIHelper
 {
-	private static final String LCAT = "TitaniumUIHelper";
+	private static final String LCAT = "TiUIHelper";
 	private static final boolean DBG = TiConfig.LOGD;
 
 	public static final Pattern SIZED_VALUE = Pattern.compile("([0-9]*\\.?[0-9]+)\\W*(px|dp|dip|sp|sip|mm|pt|in)?");
@@ -249,7 +249,9 @@ public class TiUIHelper
 		} else {
 			// Nothing has been set - let's set if something was set previously
 			// You can do this with shortcut syntax - but long term maint of code is easier if it's explicit
-			Log.w(LCAT, "No alignment set - old horiz align was: " + (tv.getGravity() & Gravity.HORIZONTAL_GRAVITY_MASK));
+			if (DBG) {
+				Log.w(LCAT, "No alignment set - old horiz align was: " + (tv.getGravity() & Gravity.HORIZONTAL_GRAVITY_MASK));
+			}
 			
 			if ((tv.getGravity() & Gravity.HORIZONTAL_GRAVITY_MASK) != Gravity.NO_GRAVITY) {
 				// Something was set before - so let's use it
@@ -270,8 +272,9 @@ public class TiUIHelper
 		} else {
 			// Nothing has been set - let's set if something was set previously
 			// You can do this with shortcut syntax - but long term maint of code is easier if it's explicit
-			Log.w(LCAT, "No alignment set - old vert align was: " + (tv.getGravity() & Gravity.VERTICAL_GRAVITY_MASK));
-			
+			if (DBG) {
+				Log.w(LCAT, "No alignment set - old vert align was: " + (tv.getGravity() & Gravity.VERTICAL_GRAVITY_MASK));
+			}
 			if ((tv.getGravity() & Gravity.VERTICAL_GRAVITY_MASK) != Gravity.NO_GRAVITY) {
 				// Something was set before - so let's use it
 				gravity |= tv.getGravity() & Gravity.VERTICAL_GRAVITY_MASK;
@@ -507,9 +510,9 @@ public class TiUIHelper
 		if (focusState > TiUIView.SOFT_KEYBOARD_DEFAULT_ON_FOCUS) {
 			InputMethodManager imm = (InputMethodManager) view.getContext().getSystemService(Activity.INPUT_METHOD_SERVICE);
 			if (imm != null) {
-				boolean useForce = (Build.VERSION.SDK_INT <= Build.VERSION_CODES.DONUT) ? true : false;
+				boolean useForce = (Build.VERSION.SDK_INT <= Build.VERSION_CODES.DONUT || Build.VERSION.SDK_INT >= 8) ? true : false;
 				String model = TiPlatformHelper.getModel(); 
-				if (model != null && model.toLowerCase().equals("droid")) {
+				if (model != null && model.toLowerCase().startsWith("droid")) {
 					useForce = true;
 				}
 				if (DBG) {

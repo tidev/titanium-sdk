@@ -24,6 +24,12 @@ public class ViewProxy extends TiViewProxy
 
 	private static LocalActivityManager lam;
 	private static Window mapWindow;
+	
+	/*
+	 * Track whether the map activity has been destroyed (or told to destroy).
+	 * Only one map activity may run, so we're tracking its life here.
+	 */
+	private boolean destroyed = false;
 
 	public ViewProxy(TiContext tiContext, Object[] args) {
 		super(tiContext, args);
@@ -35,6 +41,7 @@ public class ViewProxy extends TiViewProxy
 	@Override
 	public TiUIView createView(Activity activity)
 	{
+		destroyed = false;
 		if (lam == null) {
 			lam = new LocalActivityManager(getTiContext().getRootActivity(), true);
 			lam.dispatchCreate(null);
@@ -121,8 +128,34 @@ public class ViewProxy extends TiViewProxy
 		}
 	}
 
+	public void deselectAnnotation(Object[] args)
+	{
+		String title = null;
+
+		if (args.length > 0) {
+			if (args[0] instanceof AnnotationProxy) {
+				title = TiConvert.toString(((AnnotationProxy) args[0]).getDynamicValue("title"));
+			} else if (args[0] instanceof String) {
+				title = TiConvert.toString(args[0]);
+			}
+		}
+		if (title != null) {
+			boolean animate = false;
+
+			if (args.length > 1) {
+				animate = TiConvert.toBoolean(args[1]);
+			}
+
+			TiMapView mv = (TiMapView) view;
+			if (mv != null) {
+				mv.selectAnnotation(false, title, animate);
+			}
+		}
+	}
+
 	public void onDestroy() {
-		if (lam != null) {
+		if (lam != null && !destroyed) {
+			destroyed = true;
 			lam.dispatchDestroy(true);
 			lam.destroyActivity("TIMAP", true);
 		}
@@ -148,5 +181,12 @@ public class ViewProxy extends TiViewProxy
 		if (lam != null) {
 			lam.dispatchStop();
 		}
+	}
+
+	@Override
+	public void releaseViews()
+	{
+		super.releaseViews();
+		onDestroy(); 
 	}
 }

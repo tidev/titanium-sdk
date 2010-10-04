@@ -56,7 +56,8 @@ public class TiMapView extends TiUIView
 	private static final String LCAT = "TiMapView";
 	private static final boolean DBG = TiConfig.LOGD;
 
-	private static final String TI_DEVELOPMENT_KEY = "0Rq5tT4bUSXcVQ3F0gt8ekVBkqgn05ZJBQMj6uw";
+	//private static final String TI_DEVELOPMENT_KEY = "0Rq5tT4bUSXcVQ3F0gt8ekVBkqgn05ZJBQMj6uw";
+	private static final String TI_DEVELOPMENT_KEY = "0ZnKXkWA2dIAu2EM-OV4ZD2lJY3sEWE5TSgjJNg";
 	private static final String OLD_API_KEY = "ti.android.google.map.api.key";
 	private static final String DEVELOPMENT_API_KEY = "ti.android.google.map.api.key.development";
 	private static final String PRODUCTION_API_KEY = "ti.android.google.map.api.key.production";
@@ -258,16 +259,39 @@ public class TiMapView extends TiUIView
 		this.handler = new Handler(this);
 		this.annotations = new ArrayList<AnnotationProxy>();
 
-		//TODO MapKey
 		TiApplication app = proxy.getTiContext().getTiApp();
-		TiProperties appProperties = app.getSystemProperties();
-		String oldKey = appProperties.getString(OLD_API_KEY, TI_DEVELOPMENT_KEY);
-		String developmentKey = appProperties.getString(DEVELOPMENT_API_KEY, oldKey);
-		String productionKey = appProperties.getString(PRODUCTION_API_KEY, oldKey);
-
+		TiProperties systemProperties = app.getSystemProperties();
+		String oldKey = systemProperties.getString(OLD_API_KEY, "");
+		String developmentKey = systemProperties.getString(DEVELOPMENT_API_KEY, "");
+		String productionKey = systemProperties.getString(PRODUCTION_API_KEY, "");
+		
+		// To help in debugging key problems ...
+		String devKeySourceInfo = "";
+		String prodKeySourceInfo = "";
+		
+		if (developmentKey.length() > 0) {
+			devKeySourceInfo = "application property '" + DEVELOPMENT_API_KEY + "'";
+		} else if (oldKey.length() > 0) {
+			developmentKey = oldKey;
+			devKeySourceInfo = "application property '" + OLD_API_KEY + "'";
+		} else {
+			developmentKey = TI_DEVELOPMENT_KEY;
+			devKeySourceInfo = "(Source Code)";
+		}
+		
+		if (productionKey.length() > 0) {
+			prodKeySourceInfo = "application property '" + PRODUCTION_API_KEY + "'";
+		} else {
+			productionKey = developmentKey;
+			prodKeySourceInfo = devKeySourceInfo + " (fallback)";
+		}
+		
 		String apiKey = developmentKey;
 		if (app.getDeployType().equals(TiApplication.DEPLOY_TYPE_PRODUCTION)) {
 			apiKey = productionKey;
+			Log.d(LCAT, "Production mode using map api key ending with '" + productionKey.substring(productionKey.length() - 10, productionKey.length()) + "' retrieved from " + prodKeySourceInfo);
+		} else {
+			Log.d(LCAT, "Development mode using map api key ending with '" + developmentKey.substring(developmentKey.length() - 10, developmentKey.length()) + "' retrieved from " + devKeySourceInfo);
 		}
 
 		view = new LocalMapView(mapWindow.getContext(), apiKey);

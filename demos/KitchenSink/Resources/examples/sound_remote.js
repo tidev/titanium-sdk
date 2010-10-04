@@ -21,9 +21,17 @@ var streamButton = Titanium.UI.createButton({
 	height:40
 });
 
+var pauseButton = Titanium.UI.createButton({
+	title:'Pause Streaming',
+	top:110,
+	width:200,
+	height:40,
+	enabled:false
+});
+
 var progressLabel = Titanium.UI.createLabel({
 	text:'Time Played: Not Started',
-	top:110,
+	top:160,
 	left:10,
 	height:40,
 	width:300,
@@ -32,7 +40,7 @@ var progressLabel = Titanium.UI.createLabel({
 });
 var stateLabel = Titanium.UI.createLabel({
 	text:'State: Not Started',
-	top:130,
+	top:180,
 	left:10,
 	width:300,
 	height:40,
@@ -41,6 +49,7 @@ var stateLabel = Titanium.UI.createLabel({
 
 Ti.UI.currentWindow.add(url);
 Ti.UI.currentWindow.add(streamButton);
+Ti.UI.currentWindow.add(pauseButton);
 Ti.UI.currentWindow.add(progressLabel);
 Ti.UI.currentWindow.add(stateLabel);
 var streamer = Ti.Media.createAudioPlayer();
@@ -51,6 +60,8 @@ streamButton.addEventListener('click',function()
 	{
 		progressLabel.text = 'Stopped';
 		streamer.stop();
+		pauseButton.enabled = false;
+		pauseButton.title = 'Pause Streaming'
 		streamButton.title = "Start Streaming";
 	}
 	else
@@ -58,7 +69,20 @@ streamButton.addEventListener('click',function()
 		progressLabel.text = 'Starting ...';
 		streamer.url = url.value;
 		streamer.start();
+		pauseButton.enabled = true;
+		pauseButton.title = 'Pause Streaming'
 		streamButton.title = "Stop Stream";
+	}
+});
+
+pauseButton.addEventListener('click', function()
+{
+	streamer.pause();
+	if (streamer.paused) {
+		pauseButton.title = 'Unpause Streaming';
+	}
+	else {
+		pauseButton.title = 'Pause Streaming';
 	}
 });
 

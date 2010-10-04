@@ -80,6 +80,7 @@ NSArray* moviePlayerKeys = nil;
 {
 	[movie stop];
 	
+	WARN_IF_BACKGROUND_THREAD;	//NSNotificationCenter is not threadsafe!
 	NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
 	[nc removeObserver:self];
 
@@ -95,6 +96,7 @@ NSArray* moviePlayerKeys = nil;
 
 -(void)configureNotifications
 {
+	WARN_IF_BACKGROUND_THREAD;	//NSNotificationCenter is not threadsafe!
 	NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
 	
 	[nc addObserver:self selector:@selector(handlePlayerNotification:) 
@@ -156,6 +158,22 @@ NSArray* moviePlayerKeys = nil;
 #endif	
 }
 
+// Used to avoid duplicate code in Brightcove module; makes things easier to maintain.
+-(void)configurePlayer
+{
+	[self configureNotifications];
+	[self setValuesForKeysWithDictionary:loadProperties];
+	// we need this code below since the player can be realized before loading
+	// properties in certain cases and when we go to create it again after setting
+	// url we will need to set the new controller to the already created view
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
+	if ([TiUtils isiPhoneOS3_2OrGreater]) {
+		TiMediaVideoPlayer *vp = (TiMediaVideoPlayer*)[self view];
+		[vp setMovie:movie];
+	}
+#endif
+}
+
 -(MPMoviePlayerController*)player
 {
 	[playerLock lock];
@@ -169,17 +187,7 @@ NSArray* moviePlayerKeys = nil;
 			return nil;
 		}
 		movie = [[MPMoviePlayerController alloc] initWithContentURL:url];
-		[self configureNotifications];
-		[self setValuesForKeysWithDictionary:loadProperties];
-		// we need this code below since the player can be realized before loading
-		// properties in certain cases and when we go to create it again after setting
-		// url we will need to set the new controller to the already created view
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
-		if ([TiUtils isiPhoneOS3_2OrGreater]) {
-			TiMediaVideoPlayer *vp = (TiMediaVideoPlayer*)[self view];
-			[vp setMovie:movie];
-		}
-#endif
+		[self configurePlayer];
 	}
 	[playerLock unlock];
 	return movie;
@@ -386,6 +394,31 @@ NSArray* moviePlayerKeys = nil;
 	}
 }
 
+// Used to avoid duplicate code in Brightcove module; makes things easier to maintain.
+-(void)restart
+{
+	BOOL restart = playing;
+	if (playing)
+	{
+		[movie stop];
+	}
+	[[movie retain] autorelease];
+	movie = nil;
+	
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
+	if ([TiUtils isiPhoneOS3_2OrGreater]) {
+		TiMediaVideoPlayer *video = (TiMediaVideoPlayer*)[self view];
+		[video setMovie:[self player]];
+		[video frameSizeChanged:[video frame] bounds:[video bounds]];
+	}
+#endif
+	
+	if (restart)
+	{ 
+		[self performSelectorOnMainThread:@selector(play:) withObject:nil waitUntilDone:NO];
+	}
+}
+
 -(void)setUrl:(id)url_
 {
 	ENSURE_UI_THREAD(setUrl,url_);
@@ -394,26 +427,7 @@ NSArray* moviePlayerKeys = nil;
 	
 	if (movie!=nil)
 	{
-		BOOL restart = playing;
-		if (playing)
-		{
-			[movie stop];
-		}
-		[[movie retain] autorelease];
-		movie = nil;
-
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
-		if ([TiUtils isiPhoneOS3_2OrGreater]) {
-			TiMediaVideoPlayer *video = (TiMediaVideoPlayer*)[self view];
-			[video setMovie:[self player]];
-			[video frameSizeChanged:[video frame] bounds:[video bounds]];
-		}
-#endif
-		
-		if (restart)
-		{ 
-			[self performSelectorOnMainThread:@selector(play:) withObject:nil waitUntilDone:NO];
-		}
+		[self restart];
 	}
 	else {
 		[self player];
@@ -1076,6 +1090,7 @@ NSArray* moviePlayerKeys = nil;
 		NSDictionary *event = [NSDictionary dictionaryWithObject:[self url] forKey:@"url"];
 		[self deliverEventOnBackgroundThread:@"playing" withObject:event];
 	}
+	playing = YES; 
 }
 
 -(void)handlePlaybackStateChangeNotification:(NSNotification*)note

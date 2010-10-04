@@ -19,21 +19,24 @@
 	url = [[TiUtils toURL:[properties objectForKey:@"url"] proxy:self] retain];
     int initialMode = [TiUtils intValue:@"audioSessionMode" 
                              properties:properties
-                                    def:[[TiMediaAudioSession sharedSession] defaultSessionMode]];
-    [self setAudioSessionMode:[NSNumber numberWithInt:initialMode]];
-	[[TiMediaAudioSession sharedSession] startAudioSession];
+                                    def:0];
+	if (initialMode) {
+		[self setAudioSessionMode:[NSNumber numberWithInt:initialMode]];
+	}
 }
 
 -(void)_destroy
 {
-    [[TiMediaAudioSession sharedSession] stopAudioSession];
 	if (timer!=nil)
 	{
 		[timer invalidate];
 	}
 	if (player!=nil)
 	{
-		[player stop];
+		if ([player isPlaying] || [player isPaused] || [player isWaiting]) {
+			[player stop];
+			[[TiMediaAudioSession sharedSession] stopAudioSession];
+		}
 	}
 	RELEASE_TO_NIL(player);
 	RELEASE_TO_NIL(timer);
@@ -65,6 +68,7 @@
 			[self throwException:@"invalid url" subreason:@"url has not been set" location:CODELOCATION];
 		}
 		player = [[AudioStreamer alloc] initWithURL:url];
+		WARN_IF_BACKGROUND_THREAD;	//NSNotificationCenter is not threadsafe!
 		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(playbackStateChanged:)
 												name:ASStatusChangedNotification
 												object:player];
@@ -88,10 +92,12 @@
 	}
 	if (player!=nil)
 	{
+		WARN_IF_BACKGROUND_THREAD;	//NSNotificationCenter is not threadsafe!
 		[[NSNotificationCenter defaultCenter] removeObserver:self name:ASStatusChangedNotification object:player];
-		if ([player isPlaying])
+		if ([player isPlaying] || [player isPaused] || [player isWaiting])
 		{
 			[player stop];
+			[[TiMediaAudioSession sharedSession] stopAudioSession];
 		}
 		RELEASE_TO_NIL(player);
 	}
@@ -99,8 +105,7 @@
 
 -(void)restart:(id)args
 {
-	ENSURE_UI_THREAD(restart,args);
-	BOOL playing = [player isPlaying];
+	BOOL playing = [player isPlaying] || [player isPaused] || [player isWaiting];
 	[self destroyPlayer];
 	
 	if (playing)
@@ -177,26 +182,41 @@ PLAYER_PROP_DOUBLE(state,state);
 	return url;
 }
 
+// Only need to ensure the UI thread when starting; and we should actually wait until it's finished so
+// that execution flow is correct (if we stop/pause immediately after)
 -(void)start:(id)args
 {
-	ENSURE_UI_THREAD(start,args);
+	if (![NSThread isMainThread]) {
+		[self performSelectorOnMainThread:@selector(start:) withObject:args waitUntilDone:YES];
+		return;
+	}
 	// indicate we're going to start playing
-	[[TiMediaAudioSession sharedSession] playback:sessionMode];
+	if (![[TiMediaAudioSession sharedSession] canPlayback]) {
+		[self throwException:@"Improper audio session mode for playback"
+				   subreason:[[NSNumber numberWithUnsignedInt:[[TiMediaAudioSession sharedSession] sessionMode]] description]
+					location:CODELOCATION];
+	}
+	
+	if (player == nil || !([player isPlaying] || [player isPaused] || [player isWaiting])) {
+		[[TiMediaAudioSession sharedSession] startAudioSession];
+	}
 	[[self player] start];
 }
 
 -(void)stop:(id)args
 {
-	ENSURE_UI_THREAD(stop,args);
 	if (player!=nil)
-	{
-		[player stop];
+	{		
+		if ([player isPlaying] || [player isPaused] || [player isWaiting])
+		{
+			[player stop];
+			[[TiMediaAudioSession sharedSession] stopAudioSession];
+		}
 	}
 }
 
 -(void)pause:(id)args
 {
-	ENSURE_UI_THREAD(pause,args);
 	if (player!=nil)
 	{
 		[player pause];
@@ -220,12 +240,14 @@ MAKE_SYSTEM_PROP(STATE_PAUSED,AS_PAUSED);
         NSLog(@"Invalid mode for audio player... setting to default.");
         newMode = kAudioSessionCategory_SoloAmbientSound;
     }
-    sessionMode = newMode;
+	NSLog(@"'Titanium.Media.AudioPlayer.audioSessionMode' is deprecated; use 'Titanium.Media.audioSessionMode'");
+	[[TiMediaAudioSession sharedSession] setSessionMode:newMode];
 }
 
 -(NSNumber*)audioSessionMode
 {
-    return [NSNumber numberWithUnsignedInteger:sessionMode];
+	NSLog(@"'Titanium.Media.AudioPlayer.audioSessionMode' is deprecated; use 'Titanium.Media.audioSessionMode'");	
+    return [NSNumber numberWithUnsignedInteger:[[TiMediaAudioSession sharedSession] sessionMode]];
 }
 
 -(NSString*)stateToString:(int)state
@@ -268,6 +290,9 @@ MAKE_SYSTEM_PROP(STATE_PAUSED,AS_PAUSED);
 	{
 		NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:[self state],@"state",[self stateToString:player.state],@"description",nil];
 		[self fireEvent:@"change" withObject:event];
+	}
+	if (player.errorCode != AS_NO_ERROR && player.state == AS_STOPPED) {
+		[[TiMediaAudioSession sharedSession] stopAudioSession];
 	}
 }
 

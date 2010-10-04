@@ -16,6 +16,7 @@
 #import "TiBlob.h"
 #import "TiFile.h"
 #import "UIImage+Resize.h"
+#import "TiUIImageViewProxy.h"
 
 #define IMAGEVIEW_DEBUG 0
 
@@ -35,7 +36,6 @@ DEFINE_EXCEPTIONS
 	RELEASE_TO_NIL(images);
 	RELEASE_TO_NIL(container);
 	RELEASE_TO_NIL(previous);
-	RELEASE_TO_NIL(urlRequest);
 	RELEASE_TO_NIL(imageView);
 	[super dealloc];
 }
@@ -303,7 +303,7 @@ DEFINE_EXCEPTIONS
 	{
 		imageView = [[UIImageView alloc] initWithFrame:[self bounds]];
 		[imageView setAutoresizingMask:UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight];
-		[imageView setContentMode:UIViewContentModeCenter];
+		[imageView setContentMode:UIViewContentModeScaleAspectFit];
 		[self addSubview:imageView];
 	}
 	return imageView;
@@ -323,7 +323,7 @@ DEFINE_EXCEPTIONS
 	if (placeholderLoading)
 	{
 		iv.autoresizingMask = UIViewAutoresizingNone;
-		iv.contentMode = UIViewContentModeCenter;
+		iv.contentMode = UIViewContentModeScaleAspectFit;
 		iv.alpha = 0;
 		
 		[(TiViewProxy *)[self proxy] setNeedsReposition];
@@ -404,11 +404,7 @@ DEFINE_EXCEPTIONS
 -(void)cancelPendingImageLoads
 {
 	// cancel a pending request if we have one pending
-	if (urlRequest!=nil)
-	{
-		[urlRequest cancel];
-		RELEASE_TO_NIL(urlRequest);
-	}
+	[(TiUIImageViewProxy *)[self proxy] cancelPendingImageLoads];
 	placeholderLoading = NO;
 }
 
@@ -449,7 +445,7 @@ DEFINE_EXCEPTIONS
 				[self imageView].image = poster;
 			}
 			placeholderLoading = YES;
-			urlRequest = [[[ImageLoader sharedLoader] loadImage:url_ delegate:self userInfo:nil] retain];
+			[(TiUIImageViewProxy *)[self proxy] startImageLoad:url_];
 			return;
 		}
 		if (image!=nil)
@@ -642,9 +638,7 @@ DEFINE_EXCEPTIONS
 	[self removeAllImagesFromContainer];
 	[self cancelPendingImageLoads];
 	
-	[self.proxy replaceValue:arg forKey:@"image" notification:NO];
-	
-	if (arg==nil || arg==imageview.image)
+	if (arg==nil || arg==imageview.image || [arg isEqual:@""])
 	{
 		return;
 	}
@@ -665,7 +659,7 @@ DEFINE_EXCEPTIONS
 	
 	if (image == nil) 
 	{
-		if ([arg isKindOfClass:[NSString class]])
+		if ([arg isKindOfClass:[NSString class]] || [arg isKindOfClass:[NSURL class]])
 		{
 			[self loadUrl:arg];
 			return;
@@ -755,42 +749,29 @@ DEFINE_EXCEPTIONS
 
 -(void)imageLoadSuccess:(ImageLoaderRequest*)request image:(UIImage*)image
 {
-	if (request == urlRequest)
+	CGSize fullSize = [[ImageLoader sharedLoader] fullImageSize:[request url]];
+	autoWidth = fullSize.width;
+	autoHeight = fullSize.height;
+	
+	CGFloat computedWidth = TiDimensionCalculateValue(width, autoWidth);
+	CGFloat computedHeight = TiDimensionCalculateValue(height, autoHeight);
+	
+	UIImage * bestImage = [[ImageLoader sharedLoader] loadImmediateImage:[request url] withSize:CGSizeMake(computedWidth, computedHeight)];
+	if (bestImage != nil)
 	{
-		CGSize fullSize = [[ImageLoader sharedLoader] fullImageSize:[request url]];
-		autoWidth = fullSize.width;
-		autoHeight = fullSize.height;
-		
-		CGFloat computedWidth = TiDimensionCalculateValue(width, autoWidth);
-		CGFloat computedHeight = TiDimensionCalculateValue(height, autoHeight);
-		
-		UIImage * bestImage = [[ImageLoader sharedLoader] loadImmediateImage:[request url] withSize:CGSizeMake(computedWidth, computedHeight)];
-		if (bestImage != nil)
-		{
-			image = bestImage;
-		}
-		else
-		{
-			image = [self scaleImageIfRequired:image];
-		}
-		[self performSelectorOnMainThread:@selector(setURLImageOnUIThread:) withObject:image waitUntilDone:NO modes:[NSArray arrayWithObject:NSRunLoopCommonModes]];
-		RELEASE_TO_NIL(urlRequest);
+		image = bestImage;
 	}
+	else
+	{
+		image = [self scaleImageIfRequired:image];
+	}
+	[self performSelectorOnMainThread:@selector(setURLImageOnUIThread:) withObject:image waitUntilDone:NO modes:[NSArray arrayWithObject:NSRunLoopCommonModes]];
 }
 
 -(void)imageLoadFailed:(ImageLoaderRequest*)request error:(NSError*)error
 {
-	if (request == urlRequest)
-	{
-		NSLog(@"[ERROR] Failed to load image: %@, Error: %@",[request url], error);
-		RELEASE_TO_NIL(urlRequest);
-	}
+	NSLog(@"[ERROR] Failed to load image: %@, Error: %@",[request url], error);
 }
-
--(void)imageLoadCancelled:(ImageLoaderRequest *)request
-{
-}
-
 
 @end
 

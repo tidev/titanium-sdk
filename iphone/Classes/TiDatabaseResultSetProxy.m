@@ -98,7 +98,11 @@
 	ENSURE_SINGLE_ARG(args,NSObject);
 	if (results!=nil)
 	{
-		return [results objectForColumn:[TiUtils stringValue:args]];
+		id result = [results objectForColumn:[TiUtils stringValue:args]];
+		if ([result isKindOfClass:[NSData class]]) {
+			result = [[[TiBlob alloc] initWithData:result mimetype:@"application/octet-stream"] autorelease];
+		}
+		return result;
 	}
 	return nil;
 }

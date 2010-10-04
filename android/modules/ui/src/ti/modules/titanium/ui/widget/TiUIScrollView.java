@@ -10,13 +10,12 @@ import org.appcelerator.titanium.TiDict;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConvert;
-import org.appcelerator.titanium.view.TiUIView;
 import org.appcelerator.titanium.view.TiCompositeLayout;
+import org.appcelerator.titanium.view.TiUIView;
 
 import android.content.Context;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.View.MeasureSpec;
 import android.widget.FrameLayout;
 import android.widget.HorizontalScrollView;
 import android.widget.ScrollView;
@@ -50,6 +49,13 @@ public class TiUIScrollView extends TiUIView {
 			super.onLayout(changed, l, t, r, b);
 			measuredHeight = measuredWidth = 0;
 		}
+		
+		@Override
+		protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) 
+		{
+			super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+			setMeasuredDimension(Math.max(measuredWidth, getMeasuredWidth()), Math.max(measuredHeight, getMeasuredHeight()));
+		}
 
 		private int getContentProperty(String property) {
 			Object value = getProxy().getDynamicValue(property);
@@ -80,10 +86,11 @@ public class TiUIScrollView extends TiUIView {
 				}
 
 				measuredWidth = Math.max(childMeasuredWidth, measuredWidth);
-				return measuredWidth;
 			} else {
-				return contentWidth;
+				measuredWidth = contentWidth;
 			}
+			
+			return measuredWidth;
 		}
 
 		private int calculateAbsoluteBottom(View child)
@@ -104,10 +111,10 @@ public class TiUIScrollView extends TiUIView {
 				}
 
 				measuredHeight = Math.max(childMeasuredHeight, measuredHeight);
-				return measuredHeight;
 			} else {
-				return contentHeight;
+				measuredHeight = contentHeight;
 			}
+			return measuredHeight;
 		}
 
 		@Override
@@ -117,13 +124,11 @@ public class TiUIScrollView extends TiUIView {
 			super.constrainChild(child, width, wMode, height, hMode);
 			
 			// We need to support an automatically growing contentArea, so this code is
-			LayoutParams p = (LayoutParams)child.getLayoutParams();
-			calculateAbsoluteRight(child);
-			calculateAbsoluteBottom(child);
-			int contentWidth = getContentProperty("contentWidth");
-			int contentHeight = getContentProperty("contentHeight");
-
-			super.constrainChild(child, contentWidth, wMode, contentHeight, hMode);
+			// updates the measured dimensions as needed. absWidth, absHeight are
+			// left in for debugging purposes. ATM
+			
+			int absWidth = calculateAbsoluteRight(child);
+			int absHeight = calculateAbsoluteBottom(child);
 		}
 
 
@@ -147,7 +152,7 @@ public class TiUIScrollView extends TiUIView {
 		protected int getMeasuredWidth(int maxWidth, int widthSpec) {
 			int contentWidth = getContentProperty("contentWidth");
 			if (contentWidth == AUTO) {
-				return measuredWidth;
+				return maxWidth; //measuredWidth;
 			} else return contentWidth;
 		}
 
@@ -155,7 +160,7 @@ public class TiUIScrollView extends TiUIView {
 		protected int getMeasuredHeight(int maxHeight, int heightSpec) {
 			int contentHeight = getContentProperty("contentHeight");
 			if (contentHeight == AUTO) {
-				return measuredHeight;
+				return maxHeight; //measuredHeight;
 			}
 			else return contentHeight;
 		}
@@ -166,14 +171,14 @@ public class TiUIScrollView extends TiUIView {
 	{
 		private TiScrollViewLayout layout;
 
-		public TiVerticalScrollView(Context context)
+		public TiVerticalScrollView(Context context, boolean vertical)
 		{
 			super(context);
 			setScrollBarStyle(SCROLLBARS_INSIDE_OVERLAY);
 			//setFillViewport(true);
 			//setScrollContainer(true);
 
-			layout = new TiScrollViewLayout(context, false);
+			layout = new TiScrollViewLayout(context, vertical);
 			FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
 				ViewGroup.LayoutParams.FILL_PARENT,
 				ViewGroup.LayoutParams.FILL_PARENT);
@@ -202,14 +207,14 @@ public class TiUIScrollView extends TiUIView {
 	{
 		private TiScrollViewLayout layout;
 
-		public TiHorizontalScrollView(Context context)
+		public TiHorizontalScrollView(Context context, boolean vertical)
 		{
 			super(context);
 			setScrollBarStyle(SCROLLBARS_INSIDE_OVERLAY);
 			setFillViewport(true);
 			setScrollContainer(true);
 
-			layout = new TiScrollViewLayout(context, false);
+			layout = new TiScrollViewLayout(context, vertical);
 			FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
 				ViewGroup.LayoutParams.FILL_PARENT,
 				ViewGroup.LayoutParams.FILL_PARENT);
@@ -293,12 +298,12 @@ public class TiUIScrollView extends TiUIView {
 		switch (type) {
 			case TYPE_HORIZONTAL:
 				Log.d(LCAT, "creating horizontal scroll view");
-				view = new TiHorizontalScrollView(getProxy().getContext());
+				view = new TiHorizontalScrollView(getProxy().getContext(), d.containsKey("layout") && d.getString("layout").equals("vertical"));
 				break;
 			case TYPE_VERTICAL:
 			default:
 				Log.d(LCAT, "creating vertical scroll view");
-				view = new TiVerticalScrollView(getProxy().getContext());
+				view = new TiVerticalScrollView(getProxy().getContext(), d.containsKey("layout") && d.getString("layout").equals("vertical"));
 		}
 		setNativeView(view);
 

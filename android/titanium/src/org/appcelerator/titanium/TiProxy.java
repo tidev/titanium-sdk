@@ -15,6 +15,7 @@ import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiConvert;
 
+import android.app.Activity;
 import android.os.Handler;
 import android.os.Message;
 
@@ -90,7 +91,14 @@ public class TiProxy implements Handler.Callback, TiDynamicMethod, OnEventListen
 			uiHandler = new Handler(me);
 			waitForHandler.countDown();
 		} else {
-			tiContext.getActivity().runOnUiThread(new Runnable()
+			Activity activity = tiContext.getActivity();
+			if (activity == null || activity.isFinishing()) {
+				if (DBG) {
+					Log.w(LCAT, "Proxy created in context with no activity.  Activity finished?  Context is effectively dead.");
+				}
+				return;
+			}
+			activity.runOnUiThread(new Runnable()
 			{
 				public void run() {
 					if (DBG) {
@@ -241,6 +249,13 @@ public class TiProxy implements Handler.Callback, TiDynamicMethod, OnEventListen
 		if (ctx != null) {
 			ctx.removeEventListener(eventName, listener);
 		}
+		// If context was switched (this occurs when heavy window opens)
+		// and event listeners existed on the old context, we do NOT move
+		// those event listeners over.  So we need to check to remove them
+		// in the old context as well.
+		if (creatingContext != null && !creatingContext.equals(ctx)) {
+			creatingContext.removeEventListener(eventName, listener );
+		}
 	}
 	
 	public void removeEventListenersFromContext(TiContext listeningContext)
@@ -280,6 +295,17 @@ public class TiProxy implements Handler.Callback, TiDynamicMethod, OnEventListen
 	public boolean fireEvent(String eventName, TiDict data) {
 		TiContext ctx = getTiContext();
 		boolean handled = false;
+		
+		if (data == null) {
+			data = new TiDict();
+		}
+		if (!data.containsKey("type")) {
+			data.put("type", eventName);
+		}
+		if (!data.containsKey("source")) {
+			data.put("source", this);
+		}
+
 		if (ctx != null) {
 			handled = ctx.dispatchEvent(eventName, data, this);
 		}

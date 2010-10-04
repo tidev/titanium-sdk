@@ -22,7 +22,7 @@ ts = buildtime.strftime("%m/%d/%y %H:%M")
 # get the githash for the build so we can always pull this build from a specific
 # commit
 p = subprocess.Popen(["git","show","--abbrev-commit"],stderr=subprocess.PIPE, stdout=subprocess.PIPE)
-githash = p.communicate()[0][8:].split('\n')[0]
+githash = p.communicate()[0][7:].split('\n')[0].strip()
 
 ignoreExtensions = ['.pbxuser','.perspectivev3','.pyc']
 ignoreDirs = ['.DS_Store','.git','.gitignore','libTitanium.a','titanium.jar','build','bridge.txt']
