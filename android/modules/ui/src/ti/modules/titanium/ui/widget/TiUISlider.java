@@ -6,14 +6,22 @@
  */
 package ti.modules.titanium.ui.widget;
 
+import java.lang.ref.SoftReference;
+
 import org.appcelerator.titanium.TiDict;
 import org.appcelerator.titanium.TiProxy;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiConvert;
+import org.appcelerator.titanium.util.TiFileHelper;
 import org.appcelerator.titanium.view.TiUIView;
 
+import android.graphics.Rect;
+import android.graphics.drawable.ClipDrawable;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.LayerDrawable;
+import android.view.Gravity;
 import android.widget.SeekBar;
 
 public class TiUISlider extends TiUIView
@@ -26,6 +34,8 @@ public class TiUISlider extends TiUIView
 	private int max;
 	private int pos;
 	private int offset;
+	
+	private SoftReference<Drawable> thumbDrawable;
 
 	public TiUISlider(TiViewProxy proxy) {
 		super(proxy);
@@ -50,6 +60,8 @@ public class TiUISlider extends TiUIView
 	{
 		super.processProperties(d);
 
+		SeekBar seekBar = (SeekBar) getNativeView();
+		
 		if (d.containsKey("value")) {
 			pos = TiConvert.toInt(d, "value");
 		}
@@ -58,6 +70,14 @@ public class TiUISlider extends TiUIView
 		}
 		if (d.containsKey("max")) {
 			max = TiConvert.toInt(d, "max");;
+		}
+		
+		if (d.containsKey("thumbImage")) {
+			updateThumb(seekBar, d);
+		}
+		
+		if (d.containsKey("leftTrackImage") && d.containsKey("rightTrackImage")) {
+			updateTrackingImages(seekBar, d);
 		}
 		updateControl();
 	}
@@ -70,6 +90,50 @@ public class TiUISlider extends TiUIView
 		seekBar.setProgress(pos + offset);
 	}
 
+	private void updateThumb(SeekBar seekBar, TiDict d) 
+	{
+		TiFileHelper tfh = null;
+		String thumbImage = TiConvert.toString(d, "thumbImage");
+		if (thumbImage != null) {
+			if (tfh == null) {
+				tfh = new TiFileHelper(seekBar.getContext());
+			}
+			String url = proxy.getTiContext().resolveUrl(null, thumbImage);
+			Drawable thumb = tfh.loadDrawable(url, false);
+			thumbDrawable = new SoftReference<Drawable>(thumb);
+			seekBar.setThumb(thumb);
+		} else {
+			seekBar.setThumb(null);
+		}
+	}
+	
+	private void updateTrackingImages(SeekBar seekBar, TiDict d) 
+	{
+		TiFileHelper tfh = null;
+		String leftImage =  TiConvert.toString(d, "leftTrackImage");
+		String rightImage = TiConvert.toString(d, "rightTrackImage");
+		if (leftImage != null && rightImage != null) {
+			if (tfh == null) {
+				tfh = new TiFileHelper(seekBar.getContext());
+			}
+			String leftUrl = proxy.getTiContext().resolveUrl(null, leftImage);
+			String rightUrl = proxy.getTiContext().resolveUrl(null, rightImage);
+
+			Drawable[] lda = {
+				tfh.loadDrawable(rightUrl, false, true),
+				new ClipDrawable(tfh.loadDrawable(leftUrl, false, true), Gravity.LEFT, ClipDrawable.HORIZONTAL)
+			};
+			LayerDrawable ld = new LayerDrawable(lda);
+			ld.setId(0, android.R.id.background);
+			ld.setId(1, android.R.id.progress);
+			seekBar.setProgressDrawable(ld);
+		} else if (leftImage == null && rightImage == null) {
+			seekBar.setProgressDrawable(null);
+		} else {
+			Log.w(LCAT, "Custom tracking images must both be set before they'll be drawn.");
+		}
+	}
+	
 	@Override
 	public void propertyChanged(String key, Object oldValue, Object newValue, TiProxy proxy)
 	{
@@ -95,6 +159,14 @@ public class TiUISlider extends TiUIView
 			}
 			updateControl();
 			onProgressChanged(seekBar, pos, true);
+		} else if (key.equals("thumbImage")) {
+			//updateThumb(seekBar, proxy.getDynamicProperties());
+			//seekBar.invalidate();
+			Log.i(LCAT, "Dynamically changing thumbImage is not yet supported. Native control doesn't draw");
+		} else if (key.equals("leftTrackImage") || key.equals("rightTrackImage")) {
+			//updateTrackingImages(seekBar, proxy.getDynamicProperties());
+			//seekBar.invalidate();
+			Log.i(LCAT, "Dynamically changing leftTrackImage or rightTrackImage is not yet supported. Native control doesn't draw");
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}
@@ -102,8 +174,26 @@ public class TiUISlider extends TiUIView
 
 	public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
 		pos = seekBar.getProgress();
+		Drawable thumb = (thumbDrawable != null) ? thumbDrawable.get() : null;
+		TiDict offset = new TiDict();
+		offset.put("x", 0);
+		offset.put("y", 0);
+		TiDict size = new TiDict();
+		size.put("width", 0);
+		size.put("height", 0);
+		if (thumb != null) {
+			Rect thumbBounds = thumb.getBounds();
+			if (thumbBounds != null) {
+				offset.put("x", thumbBounds.left - seekBar.getThumbOffset());
+				offset.put("y", thumbBounds.top);
+				size.put("width", thumbBounds.width());
+				size.put("height", thumbBounds.height());				
+			}
+		}
 		TiDict data = new TiDict();
 		data.put("value", scaledValue());
+		data.put("thumbOffset", offset);
+		data.put("thumbSize", size);
 		proxy.internalSetDynamicValue("value", scaledValue(), false);
 		proxy.fireEvent("change", data);
 	}

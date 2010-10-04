@@ -328,7 +328,14 @@ public class TiUIWindow extends TiUIView
 			}
 			handler.obtainMessage(MSG_ANIMATE).sendToTarget();
 		} else if (windowActivity != null && windowActivity instanceof TiActivity) {
-			getLayout().requestFocus();
+			View layout = getLayout();
+			if (layout == null) {
+				if (DBG) {
+					Log.w(LCAT, "Layout for booted window is gone. User maybe backed out quickly.");
+				}
+				return;
+			}
+			layout.requestFocus();
 			((TiActivity) windowActivity).fireInitialFocus(); 
 		}
 	}

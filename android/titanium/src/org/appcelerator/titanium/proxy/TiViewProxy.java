@@ -112,7 +112,9 @@ public abstract class TiViewProxy extends TiProxy implements Handler.Callback
 		options = handleStyleOptions(options);
 		setProperties(options);
 		
-		tiContext.addOnEventChangeListener(this);
+		if (tiContext != null) {
+			tiContext.addOnEventChangeListener(this);
+		}
 	}
 	
 	protected String getBaseUrlForStylesheet() {
@@ -696,7 +698,10 @@ public abstract class TiViewProxy extends TiProxy implements Handler.Callback
 		if (peekView() != null) {
 			TiUIView v = getView(getTiContext().getActivity());
 			if (v != null) {
-				v.getNativeView().setClickable(clickable);
+				View nv = v.getNativeView();
+				if (nv != null) {
+					nv.setClickable(clickable);
+				}
 			}
 		}
 	}

@@ -65,10 +65,10 @@
 -(CGRect)resizeView
 {
 	CGRect rect = [[UIScreen mainScreen] applicationFrame];
-	[[self view] setFrame:rect];
 	VerboseLog(@"(%f,%f),(%fx%f)",rect.origin.x,rect.origin.y,rect.size.width,rect.size.height);
+	[[self view] setFrame:rect];
 	//Because of the transition in landscape orientation, TiUtils can't be used here... SetFrame compensates for it.
-	return rect;
+	return [[self view] bounds];
 }
 
 -(void)setBackgroundColor:(UIColor *)newColor
@@ -147,7 +147,7 @@
 -(void)loadView
 {
 	[[UIDevice currentDevice] beginGeneratingDeviceOrientationNotifications];
-	WARN_IF_BACKGROUND_THREAD;	//NSNotificationCenter is not threadsafe!
+	WARN_IF_BACKGROUND_THREAD_OBJ;	//NSNotificationCenter is not threadsafe!
 	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didOrientNotify:) name:UIDeviceOrientationDidChangeNotification object:nil];
 
 	TiRootView *rootView = [[TiRootView alloc] init];
@@ -524,7 +524,7 @@ What this does mean is that any
 
 -(void)childOrientationControllerChangedFlags:(id<TiOrientationController>) orientationController;
 {
-	WARN_IF_BACKGROUND_THREAD;
+	WARN_IF_BACKGROUND_THREAD_OBJ;
 	//Because a modal window might not introduce new 
 
 	TiOrientationFlags newFlags = [self orientationFlags];
