@@ -37,13 +37,13 @@
 {
 	if (count == 1 && [type isEqualToString:@"shake"])
 	{
-		WARN_IF_BACKGROUND_THREAD;	//NSNotificationCenter is not threadsafe!
+		WARN_IF_BACKGROUND_THREAD_OBJ;	//NSNotificationCenter is not threadsafe!
 		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(shakeEvent:) name:kTiGestureShakeNotification object:nil];
 	}
 	else if (count == 1 && [type isEqualToString:@"orientationchange"])
 	{
 		[[UIDevice currentDevice] beginGeneratingDeviceOrientationNotifications];
-		WARN_IF_BACKGROUND_THREAD;	//NSNotificationCenter is not threadsafe!
+		WARN_IF_BACKGROUND_THREAD_OBJ;	//NSNotificationCenter is not threadsafe!
 		[[NSNotificationCenter defaultCenter] addObserver:self
 												 selector:@selector(rotateEvent:)
 													 name:UIDeviceOrientationDidChangeNotification object:nil];
@@ -54,13 +54,13 @@
 {
 	if (count == 0 && [type isEqualToString:@"shake"])
 	{
-		WARN_IF_BACKGROUND_THREAD;	//NSNotificationCenter is not threadsafe!
+		WARN_IF_BACKGROUND_THREAD_OBJ;	//NSNotificationCenter is not threadsafe!
 		[[NSNotificationCenter defaultCenter] removeObserver:self name:kTiGestureShakeNotification object:nil];
 	}
 	else if (count == 0 && [type isEqualToString:@"orientationchange"])
 	{
 		// don't stop device orientation against current device since that's used by Platform module too
-		WARN_IF_BACKGROUND_THREAD;	//NSNotificationCenter is not threadsafe!
+		WARN_IF_BACKGROUND_THREAD_OBJ;	//NSNotificationCenter is not threadsafe!
 		[[NSNotificationCenter defaultCenter] removeObserver:self name:UIDeviceOrientationDidChangeNotification object:nil];
 	}
 }

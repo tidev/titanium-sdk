@@ -187,7 +187,7 @@ extern NSString * const TI_APPLICATION_GUID;
 {
 	BOOL yn = [TiUtils boolValue:value];
 	[UIDevice currentDevice].proximityMonitoringEnabled = yn;
-	WARN_IF_BACKGROUND_THREAD;	//NSNotificationCenter is not threadsafe!
+	WARN_IF_BACKGROUND_THREAD_OBJ;	//NSNotificationCenter is not threadsafe!
 	if (yn)
 	{
 		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(proximityDetectionChanged:)
@@ -264,7 +264,7 @@ extern NSString * const TI_APPLICATION_GUID;
 
 -(void)startup
 {
-	WARN_IF_BACKGROUND_THREAD;	//NSNotificationCenter is not threadsafe!
+	WARN_IF_BACKGROUND_THREAD_OBJ;	//NSNotificationCenter is not threadsafe!
 	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(willShutdown:) name:kTiWillShutdownNotification object:nil];
 	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(willShutdownContext:) name:kTiContextShutdownNotification object:nil];
 	[super startup];
@@ -274,7 +274,7 @@ extern NSString * const TI_APPLICATION_GUID;
 {
 	// make sure we force any changes made on shutdown
 	[[NSUserDefaults standardUserDefaults] synchronize];
-	WARN_IF_BACKGROUND_THREAD;	//NSNotificationCenter is not threadsafe!
+	WARN_IF_BACKGROUND_THREAD_OBJ;	//NSNotificationCenter is not threadsafe!
 	[[NSNotificationCenter defaultCenter] removeObserver:self];
 	[super shutdown:sender];
 }

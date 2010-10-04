@@ -30,7 +30,7 @@
 	format = [[NSNumber numberWithUnsignedInt:kAudioFileCAFType] retain];
 	compression = [[NSNumber numberWithUnsignedInt:kAudioFormatLinearPCM] retain];
 	
-	WARN_IF_BACKGROUND_THREAD;	//NSNotificationCenter is not threadsafe!
+	WARN_IF_BACKGROUND_THREAD_OBJ;	//NSNotificationCenter is not threadsafe!
 	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(audioInterruptionBegin:) name:kTiMediaAudioSessionInterruptionBegin object:[TiMediaAudioSession sharedSession]];
 	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(audioInterruptionEnd:) name:kTiMediaAudioSessionInterruptionEnd object:[TiMediaAudioSession sharedSession]];
 	[super _configure];
@@ -49,7 +49,7 @@
 		recorder = NULL;
 	}
 	RELEASE_TO_NIL(file);
-	WARN_IF_BACKGROUND_THREAD;	//NSNotificationCenter is not threadsafe!
+	WARN_IF_BACKGROUND_THREAD_OBJ;	//NSNotificationCenter is not threadsafe!
 	[[NSNotificationCenter defaultCenter] removeObserver:self name:kTiMediaAudioSessionInterruptionBegin object:[TiMediaAudioSession sharedSession]];
 	[[NSNotificationCenter defaultCenter] removeObserver:self name:kTiMediaAudioSessionInterruptionEnd object:[TiMediaAudioSession sharedSession]];
 	[super _destroy];
