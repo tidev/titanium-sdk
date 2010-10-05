@@ -378,7 +378,7 @@ if (!TiDimensionIsUndefined(autoreverseLayout.a)) {\
 		// animation.. which we don't want
 		TiViewProxy * ourProxy = (TiViewProxy*)[view_ proxy];
 		LayoutConstraint *contraints = [ourProxy layoutProperties];
-		ApplyConstraintToViewWithinViewWithBounds(contraints, view_, transitionView, transitionView.bounds, NO);
+		ApplyConstraintToViewWithBounds(contraints, view_, transitionView.bounds);
 		[ourProxy layoutChildren:NO];
 	}
 	else

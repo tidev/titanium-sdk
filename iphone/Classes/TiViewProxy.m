@@ -1440,7 +1440,6 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
 		[parent insertSubview:view forProxy:self];
 
 
-		//    ApplyConstraintToViewWithinViewWithBounds(&layoutProperties, [self view], [[self view] superview], bounds, YES);
 		[self clearNeedsReposition];
 		repositioning = NO;
 	}
@@ -1460,7 +1459,12 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
 		NSLog(@"[ERROR] invalid call to insertIntoView, new super view is same as myself");
 		return;
 	}
-	ApplyConstraintToViewWithinViewWithBounds(&layoutProperties, [self view], newSuperview, bounds,YES);
+	ApplyConstraintToViewWithBounds(&layoutProperties, [self view], bounds);
+	if([view superview]!=newSuperview)	//TODO: Refactor out.
+	{
+		[newSuperview addSubview:view];
+	}
+
 	[self clearNeedsReposition];
 }
 

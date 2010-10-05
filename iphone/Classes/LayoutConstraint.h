@@ -90,7 +90,7 @@ typedef struct LayoutConstraint {
 } LayoutConstraint;
 
 @class TiUIView;
-void ApplyConstraintToViewWithinViewWithBounds(LayoutConstraint * constraint, TiUIView * subView, UIView * superView, CGRect viewBounds, BOOL addToSuperView);
+void ApplyConstraintToViewWithBounds(LayoutConstraint * constraint, TiUIView * subView, CGRect viewBounds);
 CGFloat WidthFromConstraintGivenWidth(LayoutConstraint * constraint,CGFloat viewWidth);
 CGSize SizeConstraintViewWithSizeAddingResizing(LayoutConstraint * constraint, NSObject<LayoutAutosizing> * autoSizer, CGSize boundSize, UIViewAutoresizing * resultResizing);
 CGPoint PositionConstraintGivenSizeBoundsAddingResizing(LayoutConstraint * constraint, CGSize viewSize, CGPoint anchorPoint, CGSize superViewSize, UIViewAutoresizing * resultResizing);
