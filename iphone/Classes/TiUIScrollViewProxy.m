@@ -23,15 +23,7 @@
 }
 
 
--(void)childAdded:(id)child
-{
-	if ([self viewAttached])
-	{
-		[(TiUIScrollView *)[self view] setNeedsHandleContentSize];
-	}
-}
-
--(void)childRemoved:(id)child
+-(void)contentsWillChange
 {
 	if ([self viewAttached])
 	{

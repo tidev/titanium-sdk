@@ -833,17 +833,12 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 	attaching = NO;
 }
 
--(void)childAdded:(id)child
+-(void)contentsWillChange
 {
 	if (attaching==NO)
 	{
 		[self triggerRowUpdate];
 	}
-}
-
--(void)childRemoved:(id)child
-{
-	[self triggerRowUpdate];
 }
 
 -(void)childWillResize:(TiViewProxy *)child

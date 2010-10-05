@@ -89,7 +89,6 @@
 		}
 		pthread_rwlock_unlock(&childrenLock);
 		[arg setParent:self];
-		[self childAdded:arg];
 		[self contentsWillChange];
 		if(parentVisible && !hidden)
 		{
@@ -134,8 +133,6 @@
 		NSLog(@"[WARN] called remove for %@ on %@, but %@ isn't a child or has already been removed",arg,self,arg);
 		return;
 	}
-
-	[self childRemoved:arg];
 
 	[children removeObject:arg];
 
@@ -1730,14 +1727,5 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
 	IGNORE_IF_NOT_OPENED
 	[self layoutChild:arg optimize:NO]; 
 }
-
--(void)childAdded:(id)child
-{
-}
-
--(void)childRemoved:(id)child
-{
-}
-
 
 @end
