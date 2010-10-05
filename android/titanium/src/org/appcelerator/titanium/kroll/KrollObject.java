@@ -435,12 +435,14 @@ public class KrollObject extends ScriptableObject
 		TiContext context = null;
 		Object p = null;
 		
-		p = TiModule.getModule(name);
+		String moduleName = createModuleName(name);
+		
+		p = TiModule.getModule(moduleName);
 		
 		// Maybe it's a context-aware module
 		if (p == null) {
 			context = (TiContext) (weakKrollContext.get().getTiContext());
-			p = context.getModule(name);
+			p = context.getModule(moduleName);
 		}
 		
 		if (p!=null)
@@ -448,7 +450,6 @@ public class KrollObject extends ScriptableObject
 			return p;
 		}
 
-		String moduleName = createModuleName(name);
 		Log.d(LCAT, "Loading Module: " + moduleName+" ("+name+")");
 
 		try {

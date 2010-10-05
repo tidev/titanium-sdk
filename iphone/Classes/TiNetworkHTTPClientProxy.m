@@ -289,6 +289,7 @@ extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 	RELEASE_TO_NIL(request);
 	
 	NSString *method = [TiUtils stringValue:[args objectAtIndex:0]];
+	[url release];
 	url = [[TiUtils toURL:[args objectAtIndex:1] proxy:self] retain];
 	
 	if ([args count]>2)
