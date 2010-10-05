@@ -280,7 +280,7 @@ static TiValueRef CommonJSRequireCallback (TiContextRef jsContext, TiObjectRef j
 		stopped = YES;
 		KrollContextCount++;
 		
-		WARN_IF_BACKGROUND_THREAD;	//NSNotificationCenter is not threadsafe!
+		WARN_IF_BACKGROUND_THREAD_OBJ;	//NSNotificationCenter is not threadsafe!
 		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(suspend:) name:kTiSuspendNotification object:nil];
 		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(resume:) name:kTiResumeNotification object:nil];
 	}
@@ -332,7 +332,7 @@ static TiValueRef CommonJSRequireCallback (TiContextRef jsContext, TiObjectRef j
 #if CONTEXT_MEMORY_DEBUG==1
 	NSLog(@"DEALLOC: %@",self);
 #endif
-	WARN_IF_BACKGROUND_THREAD;	//NSNotificationCenter is not threadsafe!
+	WARN_IF_BACKGROUND_THREAD_OBJ;	//NSNotificationCenter is not threadsafe!
 	[[NSNotificationCenter defaultCenter] removeObserver:self name:kTiSuspendNotification object:nil];
 	[[NSNotificationCenter defaultCenter] removeObserver:self name:kTiResumeNotification object:nil];
 	assert(!destroyed);
