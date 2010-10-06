@@ -239,6 +239,7 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 {
 	id<TiEvaluator> context = (id<TiEvaluator>)sender;
 	// remove any listeners that match this context being destroyed that we have registered
+	//TODO: This listeners needs a lock around it, but not deadlock with the removeEventListener inside.
 	if (listeners!=nil)
 	{
 		for (id type in listeners)
@@ -461,7 +462,11 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 
 -(BOOL)_hasListeners:(NSString*)type
 {
-	return listeners!=nil && [listeners objectForKey:type]!=nil;
+	pthread_rwlock_rdlock(&listenerLock);
+	//If listeners is nil at this point, result is still false.
+	BOOL result = [listeners objectForKey:type]!=nil;
+	pthread_rwlock_unlock(&listenerLock);
+	return result;
 }
 
 -(void)_fireEventToListener:(NSString*)type withObject:(id)obj listener:(KrollCallback*)listener thisObject:(TiProxy*)thisObject_
@@ -742,7 +747,9 @@ DEFINE_EXCEPTIONS
 	if (dynprops != nil)
 	{
 		pthread_rwlock_rdlock(&dynpropsLock);
-		id result = [dynprops objectForKey:key];
+		// In some circumstances this result can be replaced at an inconvenient time,
+		// releasing the returned value - so we retain/autorelease.
+		id result = [[[dynprops objectForKey:key] retain] autorelease];
 		pthread_rwlock_unlock(&dynpropsLock);
 		
 		// if we have a stored value as complex, just unwrap 
@@ -759,7 +766,7 @@ DEFINE_EXCEPTIONS
 	return nil;
 }
 
-- (void) replaceValue:(id)value forKey:(NSString*)key notification:(BOOL)notify
+- (void)replaceValue:(id)value forKey:(NSString*)key notification:(BOOL)notify
 {
 	// used for replacing a value and controlling model delegate notifications
 	if (value==nil)
