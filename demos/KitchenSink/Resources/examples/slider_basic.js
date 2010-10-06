@@ -30,6 +30,15 @@ basicSlider.addEventListener('change',function(e)
 {
 	basicSliderLabel.text = 'Basic Slider - value = ' + Math.round(e.value) + ' act val ' + Math.round(basicSlider.value);
 });
+// For #806
+basicSlider.addEventListener('touchstart', function(e)
+{
+	Ti.API.info('Touch started: '+e.value);
+});
+basicSlider.addEventListener('touchend', function(e)
+{
+	Ti.API.info('Touch ended: '+e.value);
+});
 basicSlider.value = 0; // For regression test purposes
 
 //
