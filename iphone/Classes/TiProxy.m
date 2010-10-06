@@ -239,6 +239,7 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 {
 	id<TiEvaluator> context = (id<TiEvaluator>)sender;
 	// remove any listeners that match this context being destroyed that we have registered
+	//TODO: This listeners needs a lock around it, but not deadlock with the removeEventListener inside.
 	if (listeners!=nil)
 	{
 		for (id type in listeners)
@@ -461,7 +462,11 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 
 -(BOOL)_hasListeners:(NSString*)type
 {
-	return listeners!=nil && [listeners objectForKey:type]!=nil;
+	pthread_rwlock_rdlock(&listenerLock);
+	//If listeners is nil at this point, result is still false.
+	BOOL result = [listeners objectForKey:type]!=nil;
+	pthread_rwlock_unlock(&listenerLock);
+	return result;
 }
 
 -(void)_fireEventToListener:(NSString*)type withObject:(id)obj listener:(KrollCallback*)listener thisObject:(TiProxy*)thisObject_
