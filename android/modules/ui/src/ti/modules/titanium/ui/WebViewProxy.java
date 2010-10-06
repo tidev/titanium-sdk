@@ -120,4 +120,16 @@ public class WebViewProxy extends ViewProxy
 		getUIHandler().sendEmptyMessage(MSG_STOP_LOADING);
 
 	}
+	
+	@Override
+	public void releaseViews()
+	{
+		// See Lighthouse #1936 - we can't allow the releasing
+		// of the view because Android's WebViewCoreThread seems
+		// to refer back to it in GC and freak out (crash the app)
+		// if it's not there.
+		// So we're just overriding and not calling super.
+	}
+
+
 }

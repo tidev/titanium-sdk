@@ -131,6 +131,31 @@ public class ViewProxy extends TiViewProxy
 		}
 	}
 
+	public void deselectAnnotation(Object[] args)
+	{
+		String title = null;
+
+		if (args.length > 0) {
+			if (args[0] instanceof AnnotationProxy) {
+				title = TiConvert.toString(((AnnotationProxy) args[0]).getProperty("title"));
+			} else if (args[0] instanceof String) {
+				title = TiConvert.toString(args[0]);
+			}
+		}
+		if (title != null) {
+			boolean animate = false;
+
+			if (args.length > 1) {
+				animate = TiConvert.toBoolean(args[1]);
+			}
+
+			TiMapView mv = (TiMapView) view;
+			if (mv != null) {
+				mv.selectAnnotation(false, title, animate);
+			}
+		}
+	}
+
 	public void onDestroy() {
 		if (lam != null && !destroyed) {
 			destroyed = true;

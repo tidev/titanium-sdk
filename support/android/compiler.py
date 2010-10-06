@@ -89,11 +89,19 @@ class Compiler(object):
 			for sym in f:
 				mm = self.extract_from_namespace("%s.%s" % (name,sym), line)
 				for m in mm[0]:
-					method_name = "%s.%s" %(sym,m)
-					try:
-						methods.index(method_name)
-					except:
-						methods.append(method_name)
+					if m[0].isupper() and sym == "Android":
+						# This "method" is actually a module below Android
+						# such as Ti.Android.Calendar
+						try:
+							modules.index(m)
+						except:
+							modules.append(m)
+					else:
+						method_name = "%s.%s" %(sym,m)
+						try:
+							methods.index(method_name)
+						except:
+							methods.append(method_name)
 				# skip Titanium.version, Titanium.userAgent and Titanium.name since these
 				# properties are not modules
 				if sym in ('version','userAgent','name','_JSON','include','fireEvent','addEventListener','removeEventListener','buildhash','builddate'):

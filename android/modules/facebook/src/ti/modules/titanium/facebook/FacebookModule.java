@@ -276,17 +276,19 @@ public class FacebookModule extends KrollModule implements FBActivityDelegate,
 			Intent data) {
 		Log.d(LCAT, "onResult = " + requestCode + ", resultCode=" + resultCode
 				+ ", data = " + data);
-		if (data != null) {
-			KrollCallback callback = callbacks.remove(resultCode);
+		if (callbacks.containsKey(requestCode)) {
+			KrollCallback callback = callbacks.remove(requestCode);
 			if (DBG)
 				Log.d(LCAT, "onResult callback = " + callback);
 			if (callback != null) {
 				KrollDict event = new KrollDict();
 				event.put("success", resultCode == Activity.RESULT_OK);
 				event.put("cancel", resultCode == Activity.RESULT_CANCELED);
-				String permission = data.getStringExtra("permission");
-				if (permission != null) {
-					event.put("permission", permission);
+				if (data != null) {
+					String permission = data.getStringExtra("permission");
+					if (permission != null) {
+						event.put("permission", permission);
+					}
 				}
 				callback.call(event);
 				Log.d(LCAT, "Calling post activity event = " + event + " to "

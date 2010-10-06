@@ -21,50 +21,67 @@ public abstract class TiStylesheet {
 		classesDensityMap = new HashMap<String, HashMap<String,HashMap<String,KrollDict>>>();
 		idsDensityMap = new HashMap<String, HashMap<String,HashMap<String,KrollDict>>>();
 	}
+
+	protected void addAll(KrollDict result, HashMap<String, KrollDict> map, String key) {
+		if (map != null) {
+			KrollDict d = map.get(key);
+			if (d != null) {
+				result.putAll(d);
+			}
+		}
+	}
 	
 	public final KrollDict getStylesheet(String objectId, Collection<String> classes, String density, String basename)
 	{
 		Log.d(TAG, "getStylesheet id: "+objectId+", classes: "+classes+", density: " + density + ", basename: " + basename);
 		KrollDict result = new KrollDict();
-		if (classesMap != null && classesMap.containsKey(basename))
+		if (classesMap != null)
 		{
 			HashMap<String, KrollDict> classMap = classesMap.get(basename);
-			for (String clazz : classes) {
-				KrollDict classDict = classMap.get(clazz);
-				if (classDict != null) {
-					result.putAll(classDict);
-				}
-			}
-		}
-		if (classesDensityMap != null && classesDensityMap.containsKey(basename))
-		{
-			HashMap<String,KrollDict> classDensityMap = classesDensityMap.get(basename).get(density);
-			if (classDensityMap != null) {
+			HashMap<String, KrollDict> globalMap = classesMap.get("global");
+			if (globalMap != null || classMap != null) {
 				for (String clazz : classes) {
-					KrollDict classDensityDict = classDensityMap.get(clazz);
-					if (classDensityDict != null) {
-						result.putAll(classDensityDict);
-					}
+					addAll(result, globalMap, clazz);
+					addAll(result, classMap, clazz);
 				}
 			}
 		}
-		if (idsMap != null && objectId != null && idsMap.containsKey(objectId))
+		if (classesDensityMap != null)
 		{
-			KrollDict idDict = idsMap.get(basename).get(objectId);
-			if (idDict != null) {
-				result.putAll(idDict);
+			HashMap<String,KrollDict> globalDensityMap = null;
+			if (classesDensityMap.containsKey("global")) {
+				globalDensityMap = classesDensityMap.get("global").get(density);
 			}
-		}
-		if (idsDensityMap != null && objectId != null && idsDensityMap.containsKey(basename))
-		{
-			HashMap<String,KrollDict> idDensityMap = idsDensityMap.get(basename).get(density);
-			if (idDensityMap != null && idDensityMap.containsKey(objectId)) 
-			{
-				KrollDict idDensityDict = idDensityMap.get(objectId);
-				if (idDensityDict != null) {
-					result.putAll(idDensityDict);
+
+			HashMap<String, KrollDict> classDensityMap = null;
+			if (classesDensityMap.containsKey(basename)) {
+				classDensityMap = classesDensityMap.get(basename).get(density);
+			}
+
+			if (globalDensityMap != null || classDensityMap != null) {
+				for (String clazz : classes) {
+					addAll(result, globalDensityMap, clazz);
+					addAll(result, classDensityMap, clazz);
 				}
 			}
+		}
+		if (idsMap != null && objectId != null)
+		{
+			addAll(result, idsMap.get("global"), objectId);
+			addAll(result, idsMap.get(basename), objectId);
+		}
+		if (idsDensityMap != null && objectId != null)
+		{
+			HashMap<String,KrollDict> globalDensityMap = null;
+			if (idsDensityMap.containsKey("global")) {
+				globalDensityMap = idsDensityMap.get("global").get(density);
+			}
+			HashMap<String,KrollDict> idDensityMap = null;
+			if (idsDensityMap.containsKey(basename)) {
+				idDensityMap = idsDensityMap.get(basename).get(density);
+			}
+			addAll(result, globalDensityMap, objectId);
+			addAll(result, idDensityMap, objectId);
 		}
 		return result;
 	}

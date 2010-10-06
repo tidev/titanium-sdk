@@ -225,6 +225,9 @@ public class TiActivity extends Activity
 	public boolean dispatchKeyEvent(KeyEvent event) 
 	{
 		boolean handled = false;
+		if (proxy == null) {
+			return super.dispatchKeyEvent(event);
+		}
 		switch(event.getKeyCode()) {
 			case KeyEvent.KEYCODE_BACK : {
 				if (proxy.hasListeners("android:back")) {

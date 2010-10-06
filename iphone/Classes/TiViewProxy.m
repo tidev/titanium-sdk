@@ -614,7 +614,7 @@
 {
 	if (view == nil)
 	{
-		WARN_IF_BACKGROUND_THREAD
+		WARN_IF_BACKGROUND_THREAD_OBJ
 #ifdef VERBOSE
 		if(![NSThread isMainThread])
 		{
@@ -1099,6 +1099,11 @@
 	}
 	pthread_rwlock_unlock(&childrenLock);
 
+	if([self respondsToSelector:@selector(verifyWidth:)])
+	{
+		result = [self verifyWidth:result];
+	}
+
 	if (result == 0)
 	{
 		NSLog(@"[WARN] %@ has an auto width value of 0, meaning this view may not be visible.",self);
@@ -1156,6 +1161,12 @@
 	}
 	pthread_rwlock_unlock(&childrenLock);
 	result += currentRowHeight;
+	
+	if([self respondsToSelector:@selector(verifyHeight:)])
+	{
+		result = [self verifyHeight:result];
+	}
+	
 	if (result == 0)
 	{
 		NSLog(@"[WARN] %@ has an auto height value of 0, meaning this view may not be visible.",self);
@@ -1392,7 +1403,7 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,)
 
 -(void)refreshView:(TiUIView *)transferView
 {
-	WARN_IF_BACKGROUND_THREAD;
+	WARN_IF_BACKGROUND_THREAD_OBJ;
 	OSAtomicTestAndClearBarrier(TiRefreshViewEnqueued, &dirtyflags);
 	
 	if(!parentVisible)

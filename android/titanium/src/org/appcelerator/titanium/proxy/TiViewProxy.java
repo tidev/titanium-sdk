@@ -99,7 +99,11 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 				}
 			}
 		}
+
+		options = handleStyleOptions(options);
 		super.handleCreationDict(options);
+		
+		eventManager.addOnEventChangeListener(this);
 	}
 	
 	protected String getBaseUrlForStylesheet() {
@@ -592,6 +596,7 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 
 	@Override
 	public boolean fireEvent(String eventName, KrollDict data) {
+		if (data == null) data = new KrollDict();
 		boolean handled = super.fireEvent(eventName, data);
 
 		if (parent != null && parent.get() != null) {
@@ -655,7 +660,10 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 		if (peekView() != null) {
 			TiUIView v = getView(getTiContext().getActivity());
 			if (v != null) {
-				v.getNativeView().setClickable(clickable);
+				View nv = v.getNativeView();
+				if (nv != null) {
+					nv.setClickable(clickable);
+				}
 			}
 		}
 	}

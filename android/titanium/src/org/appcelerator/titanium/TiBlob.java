@@ -103,16 +103,18 @@ public class TiBlob extends KrollProxy
 				break;
 			case TYPE_FILE:	
 				InputStream stream = getInputStream();
-				try {
-					bytes = new byte[getLength()];
-					stream.read(bytes);
-				} catch(IOException e) {
-					Log.w(LCAT, e.getMessage(), e);
-				} finally {
+				if (stream != null) {
 					try {
-						stream.close();
-					} catch (IOException e) {
+						bytes = new byte[getLength()];
+						stream.read(bytes);
+					} catch(IOException e) {
 						Log.w(LCAT, e.getMessage(), e);
+					} finally {
+						try {
+							stream.close();
+						} catch (IOException e) {
+							Log.w(LCAT, e.getMessage(), e);
+						}
 					}
 				}
 				break;
@@ -145,6 +147,7 @@ public class TiBlob extends KrollProxy
 				return ((TiBaseFile)data).getInputStream();
 			} catch (IOException e) {
 				Log.e(LCAT, e.getMessage(), e);
+				return null;
 			}
 			default:
 				return new ByteArrayInputStream(getBytes());
@@ -195,6 +198,7 @@ public class TiBlob extends KrollProxy
 				} catch (UnsupportedEncodingException e) {
 					Log.w(LCAT, "Unable to convert to string.");
 				}
+				break;
 		}
 
 		return result;

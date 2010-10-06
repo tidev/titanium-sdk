@@ -120,7 +120,7 @@
 	}
 	
 	[newWindow _tabFocus];
-	WARN_IF_BACKGROUND_THREAD;
+	WARN_IF_BACKGROUND_THREAD_OBJ;
 	[self childOrientationControllerChangedFlags:newWindow];
 
 	opening = NO; 
@@ -471,7 +471,7 @@
 
 -(void)childOrientationControllerChangedFlags:(id<TiOrientationController>) orientationController
 {
-	WARN_IF_BACKGROUND_THREAD;
+	WARN_IF_BACKGROUND_THREAD_OBJ;
 	[parentOrientationController childOrientationControllerChangedFlags:self];
 }
 

@@ -223,7 +223,9 @@ public class KrollEventManager {
 				if (data == null) {
 					data = new KrollDict();
 				}
-				data.put("type", eventName);
+				if (!data.containsKey("type")) {
+					data.put("type", eventName);
+				}
 
 				Set<Entry<Integer, KrollListener>> listenerSet = listeners.entrySet();
 				synchronized(eventListeners) {

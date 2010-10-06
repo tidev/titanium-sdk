@@ -411,6 +411,12 @@ return value;\
 #define WARN_IF_BACKGROUND_THREAD	\
 if(![NSThread isMainThread])	\
 {	\
+	NSLog(@"[WARN] %@ not running on the main thread.",CODELOCATION);	\
+}	\
+
+#define WARN_IF_BACKGROUND_THREAD_OBJ	\
+if(![NSThread isMainThread])	\
+{	\
 	NSLog(@"[WARN] %@%@ was not running on the main thread.",NSStringFromClass([self class]),CODELOCATION);	\
 }	\
 
@@ -418,6 +424,7 @@ if(![NSThread isMainThread])	\
 
 #define VerboseLog(...)	{}
 #define WARN_IF_BACKGROUND_THREAD	{}
+#define WARN_IF_BACKGROUND_THREAD_OBJ	{}
 
 #endif
 

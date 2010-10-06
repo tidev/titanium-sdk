@@ -559,6 +559,8 @@ public class TiHTTPClient
 
 	protected HashMap<String,String> headers = new HashMap<String,String>();
 	private Uri uri;
+	private String url;
+	
 	public void setRequestHeader(String header, String value)
 	{
 		if (readyState == READY_STATE_OPENED) {
@@ -592,7 +594,7 @@ public class TiHTTPClient
     	Uri base = Uri.parse(uri);
     	
     	Uri.Builder builder = base.buildUpon();
-    	builder.encodedQuery(Uri.encode(Uri.decode(base.getQuery()), "&="));
+		builder.encodedQuery(Uri.encode(Uri.decode(base.getQuery()), "&="));
     	builder.encodedAuthority(Uri.encode(Uri.decode(base.getAuthority()),"/:@"));
     	builder.encodedPath(Uri.encode(Uri.decode(base.getPath()), "/"));
     	
@@ -604,10 +606,21 @@ public class TiHTTPClient
 		if (DBG) {
 			Log.d(LCAT, "open request method=" + method + " url=" + url);
 		}
+		this.uri = getCleanUri(url);
+		
+		// If the original url does not contained any
+		// escaped query string (i.e., does not look
+		// pre-encoded), go ahead and reset it to the 
+		// clean uri. Else keep it as is so the user's
+		// escaping stays in effect.  The users are on their own
+		// at that point.
+		if (!url.matches(".*\\?.*\\%\\d\\d.*$")) {
+			this.url = this.uri.toString();
+		} else {
+			this.url = url;
+		}
 
 		this.method = method;
-
-		uri = getCleanUri(url);
 		
 		host = new HttpHost(uri.getHost(), uri.getPort(), uri.getScheme());
 		if (uri.getUserInfo() != null) {
@@ -695,6 +708,7 @@ public class TiHTTPClient
 					}
 				}
 				
+				boolean queryStringAltered = false;
 				for (String key : data.keySet()) {
 					Object value = data.get(key);
 
@@ -709,14 +723,18 @@ public class TiHTTPClient
 					} else if (method.equals("GET")) {
 						uri = uri.buildUpon().appendQueryParameter(
 							key, TiConvert.toString(value)).build();
+						queryStringAltered = true;
 					}
+				}
+				if (queryStringAltered) {
+					this.url = uri.toString();
 				}
 			} else {
 				addStringData(TiConvert.toString(userData));
 			}
 		}
 
-		request = new DefaultHttpRequestFactory().newHttpRequest(method, uri.toString());
+		request = new DefaultHttpRequestFactory().newHttpRequest(method, this.url);
 		for (String header : headers.keySet()) {
 			request.setHeader(header, headers.get(header));
 		}
@@ -874,10 +892,7 @@ public class TiHTTPClient
 	}
 	
 	public String getLocation() {
-		if (uri != null) {
-			return uri.toString();
-		}
-		return null;
+		return url;
 	}
 
 	public String getConnectionType() {
