@@ -1250,6 +1250,7 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
 
 -(void)parentWillShow
 {
+	VerboseLog(@"[INFO] Parent Will Show for %@",self);
 	if(parentVisible)
 	{//Nothing to do here, we're already visible here.
 		return;
@@ -1263,6 +1264,7 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
 
 -(void)parentWillHide
 {
+	VerboseLog(@"[INFO] Parent Will Hide for %@",self);
 	if(!parentVisible)
 	{//Nothing to do here, we're already visible here.
 		return;
@@ -1284,7 +1286,7 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
 	if(!parentVisible)
 	{
 		VerboseLog(@"[INFO] Parent Invisible");
-//		return;
+		return;
 	}
 	
 	if(hidden)
@@ -1348,7 +1350,7 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
 	}
 
 //We should only recurse if we're a non-absolute layout. Otherwise, the views can take care of themselves.
-	if((transferView == nil) && OSAtomicTestAndClearBarrier(TiRefreshViewChildrenPosition, &dirtyflags))
+	if(OSAtomicTestAndClearBarrier(TiRefreshViewChildrenPosition, &dirtyflags) && (transferView == nil))
 	//If transferView is non-nil, this will be managed by the table row.
 	{
 		
@@ -1363,7 +1365,7 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
 //By now, we MUST have our view set to transferView.
 	if(changedFrame || (transferView != nil))
 	{
-//		[view setAutoresizingMask:autoresizeCache];
+		[view setAutoresizingMask:autoresizeCache];
 	}
 
 
@@ -1533,6 +1535,7 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
 	UIView* superview = [[self view] superview];
 	if (![self viewAttached] || view.hidden || superview == nil)
 	{
+		VerboseLog(@"[INFO] Reposition is exiting early in %@.",self);
 		return;
 	}
 	if ([NSThread isMainThread])
@@ -1544,6 +1547,7 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
 	}
 	else 
 	{
+		VerboseLog(@"[INFO] Reposition was called by a background thread in %@.",self);
 		[self performSelectorOnMainThread:@selector(reposition) withObject:nil waitUntilDone:NO];
 	}
 
