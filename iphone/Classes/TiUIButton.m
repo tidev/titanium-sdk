@@ -151,6 +151,8 @@ const UIControlEvents unHighlightingTouches = UIControlEventTouchCancel|UIContro
 		[[self button] setImage:image forState:UIControlStateNormal];
 		
 		// if the layout is undefined or auto, we need to take the size of the image
+		//TODO: Refactor. This will cause problems if there's multiple setImages called,
+		//Since we change the values of the proxy.
 		LayoutConstraint *layout = [(TiViewProxy *)[self proxy] layoutProperties];
 		BOOL reposition = NO;
 		
@@ -168,6 +170,8 @@ const UIControlEvents unHighlightingTouches = UIControlEventTouchCancel|UIContro
 		if (reposition)
 		{
 			[(TiViewProxy *)[self proxy] setNeedsReposition];
+
+			[(TiViewProxy *)[self proxy] contentsWillChange];			
 		}
 	}
 	else

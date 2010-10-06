@@ -127,6 +127,7 @@ USE_VIEW_FOR_AUTO_WIDTH
 
 -(void)repaint:(id)unused
 {
+	[self contentsWillChange];
 	[self setNeedsReposition];
 }
 

@@ -48,6 +48,8 @@
 	CGFloat height = ourBounds.size.height;	
 	if (height != [self verifyHeight:height])
 	{
+		[(TiViewProxy *)[self proxy] willChangeSize];
+		
 		[(TiViewProxy *)[self proxy] setNeedsReposition];
 		return;
 	}

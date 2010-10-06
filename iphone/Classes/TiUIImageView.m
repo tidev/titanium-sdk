@@ -327,6 +327,7 @@ DEFINE_EXCEPTIONS
 		iv.alpha = 0;
 		
 		[(TiViewProxy *)[self proxy] setNeedsReposition];
+		[(TiViewProxy *)[self proxy] contentsWillChange];
 		
 		// do a nice fade in animation to replace the new incoming image
 		// with our placeholder
