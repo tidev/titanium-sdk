@@ -135,10 +135,15 @@ public @interface Kroll {
 	}
 	
 	/**
-	 * Declares a method to be exposed as part of this {@link proxy} or {@link module}.<br>
-	 * To declare optional arguments of a method, see {@link argument @Kroll.argument}.<br>
+	 * Declares a method to be exposed as part of this {@link proxy} or {@link module}.
+	 * <p>Methods may optionally make their first argument a {@link KrollInvocation} object,
+	 * and may also declare {@link argument#optional() optional arguments}.</p>
 	 * <b>Example</b>:<br>
-	 * <pre>@Kroll.method public void execute() { }</pre>
+	 * <pre>
+	 * @Kroll.method
+	 * public void execute(String action, @Kroll.argument(optional=true) KrollDict options) {
+	 * }
+	 * </pre>
 	 * 
 	 * @see method#name()
 	 * @see method#converter()
@@ -226,6 +231,8 @@ public @interface Kroll {
 	/**
 	 * Declares a property to be exposed as part of this {@link proxy} or {@link module}.<br>
 	 * Standard properties are automatically written and read into instance fields on the {@link proxy} object.<br>
+	 * Note that properties defined by this annotation are <b>not</b> exposed as getter or setter methods.<br>
+	 * To generate both a getter/setter and property style, use a combination of {@link method} and {@link getProperty} / {@link setProperty}<br>
 	 * <b>Example</b>:<br>
 	 * <pre>
 	 * @Kroll.property protected String username;
@@ -236,21 +243,27 @@ public @interface Kroll {
 	 * @see property#name()
 	 * @see property#nativeConverter()
 	 * @see property#javascriptConverter()
+	 * @see method @Kroll.method
+	 * @see getProperty @Kroll.getProperty
+	 * @see setProperty @Kroll.setProperty
 	 */
 	@Documented
 	@Retention(RetentionPolicy.SOURCE)
 	@Target(ElementType.FIELD)
 	public @interface property {
 		/**
-		 * TODO: document me
+		 * Whether or not this property has "get" or read access
+		 * <b><i>Default Value</i></b>: true
 		 */
 		boolean get() default true;
 		/**
-		 * TODO: document me
+		 * Whether or not this property has "set", or write access
+		 * <b><i>Default Value</i></b>: true
 		 */
 		boolean set() default true;
 		/**
-		 * TODO: document me
+		 * The name of this property in the API.<br>
+		 * <b><i>Default Value</i></b>: The property's name in java source
 		 */
 		String name() default DEFAULT_NAME;
 		/**
@@ -272,12 +285,26 @@ public @interface Kroll {
 	}
 
 	/**
-	 * TODO: document me
+	 * Declares a method as a property getter of this {@link proxy} or {@link module}.<br>
+	 * <p>Getter methods must return a value, and may optionally have a {@link KrollInvocation} as the first argument,
+	 * and {@link argument#optional() optional arguments} when they are also exposed as {@link method methods}</p>
+	 * 
+	 * @see getProperty#name()
+	 * @see getProperty#nativeConverter()
+	 * @see getProperty#javascriptConverter()
+	 * @see getProperty#runOnUiThread()
+	 * @see KrollInvocation
+	 * @see method @Kroll.method
+	 * @see argument#optional()
 	 */
 	@Documented
 	@Retention(RetentionPolicy.SOURCE)
 	@Target(ElementType.METHOD)
 	public @interface getProperty {
+		/**
+		 * The name of this property in the API.
+		 * <b><i>Default Value</i></b>: The method name stripped of "get", and lower-camel-cased or the method name itself.
+		 */
 		String name() default DEFAULT_NAME;
 		/**
 		 * Converter of Java objects to Javascript objects suitable for use by the Rhino runtime<br>
@@ -296,20 +323,35 @@ public @interface Kroll {
 		 */
 		Class<? extends KrollJavascriptConverter> javascriptConverter() default KrollConverter.class;
 		/**
-		 * TODO: document me
+		 * When set to true, this property getter will only be executed on the UI thread.<br>
+		 * <b><i>Default Value</i></b>: false
 		 */
 		boolean runOnUiThread() default false;
 	}
 	
 	/**
-	 * TODO: document me
+	 * Declares a method as a property setter of this {@link proxy} or {@link module}.<br>
+	 * <p>Setter methods must have at least one argument: The value to set. Optionally, setter methods may also have a
+	 * {@link KrollInvocation} object as the first argument (with the value as the second), and may also have as many
+	 * {@link argument#optional() optional arguments} as necessary after the value when exposed as a {@link method}.
+	 * 
+	 * @see setProperty#name()
+	 * @see setProperty#nativeConverter()
+	 * @see setProperty#javascriptConverter()
+	 * @see setProperty#retain()
+	 * @see setProperty#runOnUiThread()
+	 * @see KrollInvocation
+	 * @see argument#optional()
+	 * @see method @Kroll.method
+	 * </p>
 	 */
 	@Documented
 	@Retention(RetentionPolicy.SOURCE)
 	@Target(ElementType.METHOD)
 	public @interface setProperty {
 		/**
-		 * TODO: document me
+		 * The name of this property in the API.<br>
+		 * <b><i>Default Value</i></b>: The method name stripped of "set", and lower-camel-cased or the method name itself.
 		 */
 		String name() default DEFAULT_NAME;
 		/**
@@ -329,42 +371,85 @@ public @interface Kroll {
 		 */
 		Class<? extends KrollJavascriptConverter> javascriptConverter() default KrollConverter.class;
 		/**
-		 * TODO: document me
+		 * When set to true, the value of this property is retained in the internal property map of this {@link proxy}
+		 * <b><i>Default Value</i></b>: true
 		 */
 		boolean retain() default true;
 		/**
-		 * TODO: document me
+		 * When set to true, this property setter will only be executed on the UI thread.<br>
+		 * <b><i>Default Value</i></b>: false
 		 */
 		boolean runOnUiThread() default false;
 	}
 	
 	/**
-	 * TODO: document me
+	 * Declares a Kroll proxy.<br>
+	 * <p>Proxies are the API interface between Javascript (Rhino) and Java.
+	 * Proxy classes must use this or {@link module the module annotation} to expose methods and properties,
+	 * and must follow a few specific source patterns:
+	 * <ul>
+	 * <li>Proxy classes must extend the {@link KrollProxy} class</li>
+	 * <li>The proxy constructor must take only one argument, a {@link TiContext}</li>
+	 * </ul>
+	 * To expose a "create" method for this proxy, see {@link proxy#creatableInModule()}
+	 * 
+	 * @see proxy#name()
+	 * @see proxy#creatableInModule()
+	 * @see KrollProxy
+	 * @see module @Kroll.module
+	 * </p>
 	 */
 	@Documented
 	@Retention(RetentionPolicy.SOURCE)
 	@Target(ElementType.TYPE)
 	public @interface proxy {
 		/**
-		 * TODO: document me
+		 * The name of this proxy. Used in debugging, toString(), and {@link proxy#creatableInModule()}.<br>
+		 * <b><i>Default Value</i></b>: The name of the proxy class with the "Proxy" suffix removed.
 		 */
 		String name() default DEFAULT_NAME;
 		/**
-		 * TODO: document me
+		 * Specify which module will have a "create" method for this proxy.<br>
+		 * <p>
+		 * This will generate a "create" method that follows the pattern "create" + {@link proxy#name() name of this proxy}.
+		 * For instance, if the name of your proxy class is LabelProxy, the create method would be named "createLabel".
+		 * To handle the creation arguments for your proxy, see {@link KrollProxy#handleCreationArgs} and {@link KrollProxy#handleCreationDict}
+		 * </p>
+		 * 
+		 * <b><i>Default Value</i></b>: None (don't generate a create method)
+		 * @see KrollProxy#handleCreationArgs
+		 * @see KrollProxy#handleCreationDict
 		 */
 		Class<?> creatableInModule() default DEFAULT.class;
 		public static final class DEFAULT {};
 	}
 	
 	/**
-	 * TODO: document me
+	 * Declares a module or proxy method as "top level".<br>
+	 * <p>
+	 * Methods and modules with this annotation will be exposed at the top level Javascript global scope.
+	 * This provides a convenient way to expose custom APIs that don't live under the "Ti" or "Titanium" namespace,
+	 * and also supports extending existing objects with new methods.
+	 * </p>
+	 * <b>Examples</b>:<br>
+	 * <pre>
+	 * @Kroll.topLevel("setTimeout") @Kroll.method
+	 * public void setTimeout(KrollCallback fn, long timeout) { }
+	 * 
+	 * @Kroll.topLevel("Ti") @Kroll.module
+	 * public class TitaniumModule extends KrollModule { }
+	 * 
+	 * @Kroll.topLevel("String.format") @Kroll.method
+	 * public void stringFormat(String format, String[] arguments) { }
+	 * </pre>
 	 */
 	@Documented
 	@Retention(RetentionPolicy.SOURCE)
 	@Target({ElementType.METHOD, ElementType.TYPE})
 	public @interface topLevel {
 		/**
-		 * TODO: document me
+		 * An array of top level names to expose this {@link method} or {@link module} as.<br>
+		 * <b><i>Default Value</i></b>: The method name or module name
 		 */
 		String[] value() default DEFAULT_NAME;
 	}
