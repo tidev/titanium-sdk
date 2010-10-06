@@ -321,10 +321,12 @@ public class ${genClassName} <#if superProxyBindingClassName??>extends ${superPr
 	}
 	
 	<#function getParentModule proxy>
-		<#if proxy.creatableInModule??>
-			<#return allModules[proxy.creatableInModule]>
-		<#elseif proxy.parentModule??>
-			<#return allModules[proxy.parentModule]>
+		<#if allModules??>
+			<#if proxy.creatableInModule??>
+				<#return allModules[proxy.creatableInModule]>
+			<#elseif proxy.parentModule??>
+				<#return allModules[proxy.parentModule]>
+			</#if>
 		</#if>
 	</#function>
 	private static final String API_NAME = "${proxyAttrs.name}";

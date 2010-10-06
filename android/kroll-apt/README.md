@@ -11,11 +11,22 @@ Code generation works in a two-phase process:
 
 This is split up into two phases to avoid problems using Eclipse's incremental compiler, which would end up generating only partial binding classes since the entire binding "state" was lost between annotation rounds. JSON files act as the intermediary model that fix this problem.
 
+Implementation
+--------------
+The majority of the code lives in two places:
+
+1. [KrollBindingGenerator.java](http://github.com/appcelerator/titanium_mobile/blob/master/android/kroll-apt/src/org/appcelerator/kroll/annotations/generator/KrollBindingGenerator.java)
+    - This is the main class that implements AnnotationProcessor, builds/manages the JSON model, and invokes Freemarker for each proxy/module.
+2. [ProxyBinding.fm](http://github.com/appcelerator/titanium_mobile/blob/master/android/kroll-apt/src/org/appcelerator/kroll/annotations/generator/ProxyBinding.fm)
+    - This is a [Freemarker](http://freemarker.sourceforge.net/docs/index.html) template that reads from the JSON model and generates a binding class that binds all of a proxy's methods and properties
+
 Running the Annotation processor
 ---------------------------------
 There are two ways to use this annotation processor:
 
-1. via javac, using the "-processor" and "-classpath" arguments
+1. via javac
+    - Example of building a simple proxy: ($TI_MOBILE represents the titanium_mobile repository)
+    <code><pre>javac org/test/Test.java -classpath $TI_MOBILE/android/kroll-apt/bin:$TI_MOBILE/android/titanium/bin:$TI_MOBILE/android/kroll-apt/lib/freemarker.jar:$TI_MOBILE/android/kroll-apt/lib/json_simple-1.1.jar -processor org.appcelerator.kroll.annotations.generator.KrollBindingGenerator -Akroll.jsonFile=test.json -s .apt_generated</pre></code>
     - This process is a little tricky when building titanium itself, because there are circular class dependencies between the @Kroll annotation and certain classes that are annotated in the "titanium" project. See the top level build.xml to see how this is worked around with a two-stage compile.
 2. via Eclipse's built in Annotation processing support, using the processor as an Eclipse plugin (see details below)
 
@@ -23,7 +34,7 @@ Using the annotation processor in Eclipse
 ------------------------------------------
 __Details for building and installing the Eclipse plugin__
 
-You will need to make sure you have the Eclipse PDE plugins installed. If you have the "Classic" Eclipse SDK, these should come pre-installed. If not, you can download them here (this is for Eclipse 3.6.x): [http://download.eclipse.org/eclipse/downloads/drops/R-3.6.1-201009090800/index.php#PDERuntime](http://download.eclipse.org/eclipse/downloads/drops/R-3.6.1-201009090800/index.php#PDERuntime)
+You will need to make sure you have the Eclipse PDE plugins installed. If you have the "Classic" Eclipse SDK, these should come pre-installed. If not, you can [download them here](http://download.eclipse.org/eclipse/downloads/drops/R-3.6.1-201009090800/index.php#PDERuntime) (this is for Eclipse 3.6.x):
 
 - Import the kroll-apt project into your Eclipse workspace
 - Expand the project, right-click on the "pde-build.xml" file and click Run As > Ant Build
