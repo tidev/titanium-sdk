@@ -160,8 +160,10 @@ class CSSCompiler(object):
 	def transform_properties(self):
 		self.classes = self.transform_fonts(self.classes)
 		self.ids = self.transform_fonts(self.ids)
-		self.classes_density = self.transform_fonts(self.classes_density)
-		self.ids_density = self.transform_fonts(self.ids_density)
+		for density in self.classes_density.keys():
+			self.classes_density[density] = self.transform_fonts(self.classes_density[density])
+		for density in self.ids_density.keys():
+			self.ids_density[density] = self.transform_fonts(self.ids_density[density])
 			
 	def parse(self,data):
 		parser = cssyacc.yacc()
@@ -289,7 +291,16 @@ class CSSCompiler(object):
 					xstr+='		TiDict %s = new TiDict();\n' % mapname
 					xstr+='		%s.put("%s",%s);\n' % (mapname2,classname,mapname)
 					for key in hash[pathname][density][classname]:
-						xstr+='		%s.put("%s","%s");\n' % (mapname,key,hash[pathname][density][classname][key])
+						value = hash[pathname][density][classname][key]
+						if type(value) == types.DictType:
+							dictname = '%s_%s_%s_%s_%s' % (pathname, varname, density, classname, key)
+							xstr += '		TiDict %s = new TiDict();\n' % dictname
+							for k in value:
+								v = value[k]
+								xstr += '		%s.put("%s", "%s");\n' % (dictname, k, v)
+							xstr += '		%s.put("%s", %s);\n' % (mapname, key, dictname)
+						else:
+							xstr+='		%s.put("%s","%s");\n' % (mapname,key,value)
 			xstr += '		%s.put("%s",%s);\n' % (varname,pathname,mapname1)
 			if xcount > 0:
 				str+=xstr
