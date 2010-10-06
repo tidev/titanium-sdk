@@ -215,8 +215,6 @@ enum
 -(BOOL)willBeRelaying;	//Todo: Replace
 -(void)childWillResize:(TiViewProxy *)child;	//Todo: Replace
 
--(void)childAdded:(id)child;
--(void)childRemoved:(id)child;
 -(void)layoutChildOnMainThread:(id)arg;
 
 @end
