@@ -19,6 +19,7 @@ import android.graphics.Rect;
 import android.text.Editable;
 import android.text.InputType;
 import android.text.TextWatcher;
+import android.text.TextUtils.TruncateAt;
 import android.text.method.DialerKeyListener;
 import android.text.method.DigitsKeyListener;
 import android.text.method.NumberKeyListener;
@@ -114,6 +115,13 @@ public class TiUIText extends TiUIView
 		if (d.containsKey("hintText")) {
 			tv.setHint(d.getString("hintText"));
 		}
+		if (d.containsKey("ellipsize")) {
+			if (TiConvert.toBoolean(d, "ellipsize")) {
+				tv.setEllipsize(TruncateAt.END);
+			} else {
+				tv.setEllipsize(null);
+			}
+		}
 		if (d.containsKey("font")) {
 			TiUIHelper.styleText(tv, d.getKrollDict("font"));
 		}
@@ -152,6 +160,12 @@ public class TiUIText extends TiUIView
 			tv.setTextColor(TiConvert.toColor((String) newValue));
 		} else if (key.equals("hintText")) {
 			tv.setHint((String) newValue);
+		} else if (key.equals("ellipsize")) {
+			if (TiConvert.toBoolean(newValue)) {
+				tv.setEllipsize(TruncateAt.END);
+			} else {
+				tv.setEllipsize(null);
+			}
 		} else if (key.equals("textAlign") || key.equals("verticalAlign")) {
 			String textAlign = null;
 			String verticalAlign = null;
