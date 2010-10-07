@@ -44,14 +44,14 @@ public class FBStreamDialog extends FBDialog {
 	protected void load() {
 		Map<String, String> params = new HashMap<String, String>(1);
 		params.put("display", "touch");
+		params.put("callback", "fbconnect://success");
+		params.put("cancel", "fbconnect://cancel");
 
 		try {
 			Map<String, String> postParams = new HashMap<String, String>(8);
 			postParams.put("api_key", mSession.getApiKey());
 			postParams.put("session_key", mSession.getSessionKey());
 			postParams.put("preview", "1");
-			postParams.put("callback", "fbconnect:success");
-			postParams.put("cancel", "fbconnect:cancel");
 			postParams.put("attachment", attachment);
 			postParams.put("action_links", actionLinks);
 			postParams.put("target_id", targetId);
