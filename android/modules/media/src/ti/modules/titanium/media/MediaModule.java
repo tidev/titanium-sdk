@@ -19,6 +19,7 @@ import java.util.Date;
 import java.util.List;
 
 import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollInvocation;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.ContextSpecific;
@@ -87,7 +88,7 @@ public class MediaModule extends KrollModule
 	}
 
 	@Kroll.method
-	public void showCamera(KrollDict options)
+	public void showCamera(KrollInvocation invocation, KrollDict options)
 	{
 		KrollCallback successCallback = null;
 		KrollCallback cancelCallback = null;
@@ -132,7 +133,7 @@ public class MediaModule extends KrollModule
 			saveToPhotoGallery = options.getBoolean("saveToPhotoGallery");
 		}
 
-		Activity activity = getTiContext().getActivity();
+		Activity activity = invocation.getTiContext().getActivity();
 		TiActivitySupport activitySupport = (TiActivitySupport) activity;
 
 		TiFileHelper tfh = getTiContext().getTiFileHelper();
@@ -366,7 +367,7 @@ public class MediaModule extends KrollModule
 	}
 
 	@Kroll.method
-	public void openPhotoGallery(KrollDict options)
+	public void openPhotoGallery(KrollInvocation invocation, KrollDict options)
 	{
 		KrollCallback successCallback = null;
 		KrollCallback cancelCallback = null;
@@ -390,7 +391,7 @@ public class MediaModule extends KrollModule
 			Log.d(LCAT, "openPhotoGallery called");
 		}
 
-		Activity activity = getTiContext().getActivity();
+		Activity activity = invocation.getTiContext().getActivity();
 		TiActivitySupport activitySupport = (TiActivitySupport) activity;
 
 		TiIntentWrapper galleryIntent = new TiIntentWrapper(new Intent());
@@ -502,7 +503,7 @@ public class MediaModule extends KrollModule
 	}
 
 	@Kroll.method
-	public void previewImage(KrollDict options)
+	public void previewImage(KrollInvocation invocation, KrollDict options)
 	{
 		if (DBG) {
 			Log.d(LCAT, "previewImage");
@@ -537,7 +538,7 @@ public class MediaModule extends KrollModule
 			Log.d(LCAT, "openPhotoGallery called");
 		}
 
-		Activity activity = getTiContext().getActivity();
+		Activity activity = invocation.getTiContext().getActivity();
 		TiActivitySupport activitySupport = (TiActivitySupport) activity;
 
 		TiIntentWrapper previewIntent = new TiIntentWrapper(new Intent());
