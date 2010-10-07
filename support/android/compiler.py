@@ -106,8 +106,6 @@ class Compiler(object):
 				# properties are not modules
 				if sym in ('version','userAgent','name','_JSON','include','fireEvent','addEventListener','removeEventListener','buildhash','builddate'):
 					continue
-				elif sym[0:1].lower() == sym[0:1] and sym != 'iPhone': #lower case first character, just skip
-					continue
 				try:
 					modules.index(sym)
 				except:	
