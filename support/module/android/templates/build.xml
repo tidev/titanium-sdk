@@ -2,13 +2,14 @@
 	<description>
 		simple build file for a Ti Android Module
     </description>
-	<property file="build.properties"/>
+	<property file="build.properties" />
 	<!-- set global properties for this build -->
 	<property name="src" location="src" />
+	<property name="gen" location="gen" />
 	<property name="build" location="build" />
 	<property name="dist" location="dist" />
 	<property name="classesdir" value="${dist}/classes" />
-	<property name="build.version" value="1.0.0"/>
+	<property name="build.version" value="1.0.0" />
 
 	<path id="android">
 		<pathelement path="${android.platform}/android.jar" />
@@ -26,10 +27,11 @@
 			<include name="**/*.jar" />
 		</fileset>
 		<pathelement location="classes" />
-    <pathelement path="${titanium.platform}/js.jar" />
-    <pathelement path="${titanium.platform}/titanium.jar" />
-    <pathelement path="${android.platform}/android.jar" />
-    <pathelement path="${google.apis}/libs/maps.jar" />
+		<fileset dir="${titanium.platform}">
+			<include name="*.jar" />
+		</fileset>
+		<pathelement path="${android.platform}/android.jar" />
+		<pathelement path="${google.apis}/libs/maps.jar" />
 	</path>
 
 	<target name="init">
@@ -49,16 +51,16 @@
 	-->
 	<target name="generate-module-def" depends="init"
 		description="Generate the class ModuleDef">
+		<mkdir dir="${gen}" />
 		<javac 
 			srcdir="${src}" 
 			destdir="${build}"
 			debug="true"
 			includeantruntime="false">
-				<compilerarg value="-verbose" />
 				<compilerarg value="-processor" />
-				<compilerarg value="org.appcelerator.titanium.annotations.processor.ModuleRefGenerator" />
-				<compilerarg value="-AprojectName=${ant.project.name}" /> 
-				<compilerarg value="-proc:only" />
+				<compilerarg value="org.appcelerator.kroll.annotations.generator.KrollBindingGenerator" />
+				<compilerarg line="-s ${gen}" />
+				<compilerarg value="-Akroll.jsonFile=${ant.project.name}.json" /> 
 				<classpath refid="base.path" />
 		</javac>
 	</target>
@@ -67,12 +69,18 @@
 		description="compile the source ">
 		<!-- Compile the java code from ${src} into ${build} -->
 		<javac 
-			srcdir="${src}" 
 			destdir="${build}"
 			debug="true"
 			includeantruntime="false">
+			<src path="${src}" />
+			<src path="${gen}" />
+			<include name="**/*.java" />
+			
 			<classpath refid="base.path" />
 		</javac>
+		<copy todir="${build}">
+			<fileset dir="${gen}" includes="org/appcelerator/titanium/gen/*.json"/>
+		</copy>
 	</target>
 
 	<target name="dist" depends="compile" description="generate the distribution">

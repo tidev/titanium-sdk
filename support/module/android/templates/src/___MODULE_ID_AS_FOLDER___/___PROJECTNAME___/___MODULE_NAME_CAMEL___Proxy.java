@@ -6,34 +6,42 @@
  * Please see the LICENSE included with this distribution for details.
  *
  */
-package ti.modules.titanium.___PROJECTNAME___;
+package __MODULE_ID__.___PROJECTNAME___;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
+import org.appcelerator.kroll.KrollProxy;
+import org.appcelerator.kroll.annotations.Kroll;
+
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiContext;
-import org.appcelerator.titanium.TiProxy;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiConvert;
 
 // Import the minimal set of your namespaces here
 
-public class __PROJECT_SHORT_NAME__Proxy extends TiProxy
+@Kroll.proxy
+public class ___MODULE_NAME_CAMEL___Proxy extends KrollProxy
 {
 	// Standard Debugging variables
-	private static final String LCAT = "__PROJECT_SHORT_NAME__Proxy";
+	private static final String LCAT = "___MODULE_NAME_CAMEL___Proxy";
 	private static final boolean DBG = TiConfig.LOGD;
 
+	protected Ti___MODULE_NAME_CAMEL___ ___PROJECT_SHORT_NAME___;
+	
 	// Constructor
-	public __PROJECT_SHORT_NAME__Proxy(TiContext tiContext, Object[] args) {
+	public ___MODULE_NAME_CAMEL___Proxy(TiContext tiContext) {
 		super(tiContext);
+		
+		___PROJECT_SHORT_NAME___ = new Ti___MODULE_NAME_CAMEL___(this);
 	}
 	
-	// Put your own methods here
-	
+	// Methods
+	// You can define methods with @Kroll.method, for example:
+	// @Kroll.method public void helloWorld() { Log.d(LCAT, "hello world!"); }
 	
 
 }

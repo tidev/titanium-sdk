@@ -5,6 +5,11 @@
 #
 import os,sys,shutil
 template_dir = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
+support_dir = os.path.dirname(os.path.dirname(template_dir))
+support_android_dir = os.path.join(support_dir, 'android')
+sys.path.append(support_android_dir)
+
+import androidsdk
 reference_jars = ['titanium.jar', 'js.jar']
 create_folders = ['lib']
 
@@ -57,7 +62,9 @@ class android(object):
 		build_properties = os.path.join(project_dir,"build.properties")
 		tof = open(build_properties,'w')
 		tof.write("titanium.platform = %s\n" % jar_locations)
-		tof.write("android.platform = %s\n" % module.sdk)
+		sdk = androidsdk.AndroidSDK(module.sdk, 4)
+		tof.write("android.platform = %s\n" % sdk.get_platform_dir())
+		tof.write("google.apis = %s\n" % sdk.get_google_apis_dir())
 		tof.close()
 		# Cleanup 
 		os.remove(old_classpath_file)

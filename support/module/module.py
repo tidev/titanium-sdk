@@ -25,14 +25,16 @@ class ModuleProject(object):
 		for root, dirs, files in os.walk(template_dir):
 			for name in ignoreDirs:
 				if name in dirs:
-					dirs.remove(name)	# don't visit ignored directories			  
+					dirs.remove(name)	# don't visit ignored directories
 			for file in files:
 				if file in ignoreFiles:
 					continue
 				prefix = root[len(template_dir):]
-				from_ = os.path.join(root, file)			  
+				from_ = os.path.join(root, file)
 				to_ = os.path.expanduser(from_.replace(template_dir, project_dir, 1))
 				to_ = to_.replace('___PROJECTNAMEASIDENTIFIER___',self.module_name)
+				to_ = to_.replace('___MODULE_NAME_CAMEL___', self.module_name_camel)
+				to_ = to_.replace('___MODULE_ID_AS_FOLDER___', self.module_id.replace('.', os.path.sep))
 				to_ = to_.replace('___PROJECTNAME___',self.project_name)
 				to_ = to_.replace('__MODULE_ID__',self.module_id)
 				to_ = to_.replace('__PROJECT_SHORT_NAME__',self.project_short_name)
@@ -52,6 +54,7 @@ class ModuleProject(object):
 					contents = open(from_).read()
 					tof = open(to_,'w')
 					contents = contents.replace('___PROJECTNAMEASIDENTIFIER___',self.module_name)
+					contents = contents.replace('___MODULE_NAME_CAMEL___', self.module_name_camel)
 					contents = contents.replace('___PROJECTNAME___',self.project_name)
 					contents = contents.replace('__PROJECT_SHORT_NAME__',self.project_short_name)
 					contents = contents.replace('__VERSION__',self.sdk_version)
