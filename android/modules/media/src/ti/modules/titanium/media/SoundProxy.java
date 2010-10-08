@@ -6,9 +6,10 @@
  */
 package ti.modules.titanium.media;
 
+import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollProxy;
+import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiContext;
-import org.appcelerator.titanium.TiDict;
-import org.appcelerator.titanium.TiProxy;
 import org.appcelerator.titanium.TiContext.OnLifecycleEvent;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
@@ -16,7 +17,8 @@ import org.appcelerator.titanium.util.TiConvert;
 
 import ti.modules.titanium.filesystem.FileProxy;
 
-public class SoundProxy extends TiProxy
+@Kroll.proxy(creatableInModule=MediaModule.class)
+public class SoundProxy extends KrollProxy
 	implements OnLifecycleEvent
 {
 	private static final String LCAT = "SoundProxy";
@@ -24,32 +26,31 @@ public class SoundProxy extends TiProxy
 
 	protected TiSound snd;
 
-	public SoundProxy(TiContext tiContext, Object[] args)
+	public SoundProxy(TiContext tiContext)
 	{
 		super(tiContext);
-
-		if (args != null && args.length > 0) {
-			TiDict options = (TiDict) args[0];
-			if (options != null) {
-				if (options.containsKey("url")) {
-					internalSetDynamicValue("url", tiContext.resolveUrl(null, TiConvert.toString(options, "url")), false);
-				} else if (options.containsKey("sound")) {
-					FileProxy fp = (FileProxy) options.get("sound");
-					if (fp != null) {
-						String url = fp.getNativePath();
-						internalSetDynamicValue("url", url, false);
-					}
-				}
-				if (options.containsKey("allowBackground")) {
-					internalSetDynamicValue("allowBackground", options.get("allowBackground"), false);
-				}
-				if (DBG) {
-					Log.i(LCAT, "Creating sound proxy for url: " + TiConvert.toString(getDynamicValue("url")));
-				}
+		tiContext.addOnLifecycleEventListener(this);
+		setProperty("volume", 0.5, true);
+	}
+	
+	@Override
+	public void handleCreationDict(KrollDict options) {
+		super.handleCreationDict(options);
+		if (options.containsKey("url")) {
+			setProperty("url", getTiContext().resolveUrl(null, TiConvert.toString(options, "url")));
+		} else if (options.containsKey("sound")) {
+			FileProxy fp = (FileProxy) options.get("sound");
+			if (fp != null) {
+				String url = fp.getNativePath();
+				setProperty("url", url);
 			}
 		}
-		tiContext.addOnLifecycleEventListener(this);
-		setDynamicValue("volume", 0.5);
+		if (options.containsKey("allowBackground")) {
+			setProperty("allowBackground", options.get("allowBackground"));
+		}
+		if (DBG) {
+			Log.i(LCAT, "Creating sound proxy for url: " + TiConvert.toString(getProperty("url")));
+		}
 	}
 
 	public boolean isPlaying() {
@@ -172,8 +173,8 @@ public class SoundProxy extends TiProxy
 
 	private boolean allowBackground() {
 		boolean allow = false;
-		if (hasDynamicValue("allowBackground")) {
-			allow = TiConvert.toBoolean(getDynamicValue("allowBackground"));
+		if (hasProperty("allowBackground")) {
+			allow = TiConvert.toBoolean(getProperty("allowBackground"));
 		}
 		return allow;
 	}

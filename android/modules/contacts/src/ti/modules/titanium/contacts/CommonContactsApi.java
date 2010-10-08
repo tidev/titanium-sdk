@@ -281,13 +281,13 @@ public abstract class CommonContactsApi
 		PersonProxy proxify(TiContext tiContext)
 		{
 			PersonProxy proxy = new PersonProxy(tiContext);
-			proxy.setFullName(name);
-			proxy.setNote(notes);
+			proxy.fullName = name;
+			proxy.note = notes;
 			proxy.setEmailFromMap(emails);
 			proxy.setPhoneFromMap(phones);
 			proxy.setAddressFromMap(addresses);
-			proxy.setKind(ContactsModule.CONTACTS_KIND_PERSON) ;
-			proxy.setId(id);
+			proxy.kind = ContactsModule.CONTACTS_KIND_PERSON;
+			proxy.id = id;
 			proxy.hasImage = this.hasImage;
 			return proxy;
 			

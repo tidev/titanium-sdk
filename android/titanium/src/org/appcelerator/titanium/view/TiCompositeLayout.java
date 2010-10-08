@@ -303,8 +303,8 @@ public class TiCompositeLayout extends ViewGroup
 
 				int newWidth = horizontal[1] - horizontal[0];
 				int newHeight = vertical[1] - vertical[0];
-				if (newWidth > childMeasuredWidth
-					|| newHeight > childMeasuredHeight) {
+				if (newWidth != childMeasuredWidth
+					|| newHeight != childMeasuredHeight) {
 					
 					int newWidthSpec = MeasureSpec.makeMeasureSpec(newWidth, MeasureSpec.EXACTLY);
 					int newHeightSpec = MeasureSpec.makeMeasureSpec(newHeight, MeasureSpec.EXACTLY);
@@ -322,7 +322,7 @@ public class TiCompositeLayout extends ViewGroup
 	}
 
 	// 0 is left/top, 1 is right/bottom
-	private void computePosition(int o0, int o1, int size, int p0, int p1, int[] pos)
+	public static void computePosition(int o0, int o1, int size, int p0, int p1, int[] pos)
 	{
 		int dist = p1 - p0;
 

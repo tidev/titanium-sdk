@@ -8,14 +8,16 @@ package ti.modules.titanium.database;
 
 import java.util.HashMap;
 
+import org.appcelerator.kroll.KrollProxy;
+import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiContext;
-import org.appcelerator.titanium.TiProxy;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 
 import android.database.Cursor;
 
-public class TiResultSetProxy extends TiProxy
+@Kroll.proxy
+public class TiResultSetProxy extends KrollProxy
 {
 	private static final String LCAT = "TiResultSet";
 	private static final boolean DBG = TiConfig.LOGD;
@@ -36,6 +38,7 @@ public class TiResultSetProxy extends TiProxy
 		}
 	}
 
+	@Kroll.method
 	public void close() 
 	{
 		if (rs != null && !rs.isClosed()) {
@@ -49,11 +52,13 @@ public class TiResultSetProxy extends TiProxy
 
 	}
 
+	@Kroll.method
 	public String field(int index) 
 	{
 		return getField(index);
 	}
 
+	@Kroll.method
 	public String getField(int index) 
 	{
 		String result = null;
@@ -70,11 +75,13 @@ public class TiResultSetProxy extends TiProxy
 		return result;
 	}
 
+	@Kroll.method
 	public String fieldByName(String fieldName) 
 	{
 		return getFieldByName(fieldName);
 	}
 
+	@Kroll.method
 	public String getFieldByName(String fieldName) 
 	{
 		int index = 0;
@@ -95,6 +102,7 @@ public class TiResultSetProxy extends TiProxy
 		return result;
 	}
 
+	@Kroll.getProperty @Kroll.method
 	public int getFieldCount() 
 	{
 		if (rs != null) {
@@ -108,11 +116,14 @@ public class TiResultSetProxy extends TiProxy
 		return 0;
 
 	}
-
+	
+	@Kroll.method
 	public String fieldName(int index) 
 	{
 		return getFieldName(index);
 	}
+	
+	@Kroll.method
 	public String getFieldName(int index) 
 	{
 		if (rs != null) {
@@ -125,6 +136,7 @@ public class TiResultSetProxy extends TiProxy
 		return null;
 	}
 
+	@Kroll.getProperty @Kroll.method
 	public int getRowCount() 
 	{
 		if (rs != null) {
@@ -134,6 +146,7 @@ public class TiResultSetProxy extends TiProxy
 		return 0;
 	}
 
+	@Kroll.method
 	public boolean isValidRow() 
 	{
 		boolean valid = false;
@@ -143,6 +156,7 @@ public class TiResultSetProxy extends TiProxy
 		return valid;
 	}
 
+	@Kroll.method
 	public void next() 
 	{
 		if(isValidRow()) {

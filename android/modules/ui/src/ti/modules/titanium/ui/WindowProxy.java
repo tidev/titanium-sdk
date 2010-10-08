@@ -9,13 +9,13 @@ package ti.modules.titanium.ui;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 
+import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiContext;
-import org.appcelerator.titanium.TiDict;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.proxy.TiWindowProxy;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
-import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiUIView;
 import org.json.JSONObject;
 
@@ -24,6 +24,7 @@ import android.content.Intent;
 import android.os.Message;
 import android.os.Messenger;
 
+@Kroll.proxy(creatableInModule=UIModule.class)
 public class WindowProxy extends TiWindowProxy
 {
 	private static final String LCAT = "WindowProxy";
@@ -40,10 +41,19 @@ public class WindowProxy extends TiWindowProxy
 	WeakReference<Activity> weakActivity;
 	String windowId;
 
-	public WindowProxy(TiContext tiContext, Object[] args)
+	public WindowProxy(TiContext tiContext)
 	{
-		super(tiContext, args);
+		super(tiContext);
 	}
+	
+	@Override
+	protected KrollDict getLangConversionTable() {
+		KrollDict table = new KrollDict();
+		table.put("title","titleid");
+		table.put("titlePrompt","titlepromptid");
+		return table;
+	}
+	
 
 	@Override
 	public TiUIView getView(Activity activity) {
@@ -77,7 +87,7 @@ public class WindowProxy extends TiWindowProxy
 	}
 
 	@Override
-	protected void handleOpen(TiDict options)
+	protected void handleOpen(KrollDict options)
 	{
 		if (DBG) {
 			Log.i(LCAT, "handleOpen");
@@ -94,7 +104,7 @@ public class WindowProxy extends TiWindowProxy
 	}
 
 	@Override
-	protected void handleClose(TiDict options)
+	protected void handleClose(KrollDict options)
 	{
 		if (DBG) {
 			Log.i(LCAT, "handleClose");
@@ -137,13 +147,20 @@ public class WindowProxy extends TiWindowProxy
 
 	}
 
+	@Kroll.getProperty @Kroll.method
 	public TiViewProxy getTab()
 	{
 		return tab;
 	}
 
+	@Kroll.getProperty @Kroll.method
 	public TiViewProxy getTabGroup()
 	{
 		return tabGroup;
+	}
+	
+	@Kroll.setProperty @Kroll.method
+	public void setLeftNavButton(ButtonProxy button) {
+		Log.w(LCAT, "setLeftNavButton not supported in Android");
 	}
 }

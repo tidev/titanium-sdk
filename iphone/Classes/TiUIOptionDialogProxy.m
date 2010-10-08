@@ -23,6 +23,10 @@
 	[super dealloc];
 }
 
+-(NSMutableDictionary*)langConversionTable
+{
+    return [NSMutableDictionary dictionaryWithObject:@"title" forKey:@"titleid"];
+}
 
 -(void)show:(id)args
 {

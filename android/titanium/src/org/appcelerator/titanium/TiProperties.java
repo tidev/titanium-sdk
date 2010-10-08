@@ -7,7 +7,6 @@
 package org.appcelerator.titanium;
 
 import java.util.ArrayList;
-import java.util.Set;
 
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;

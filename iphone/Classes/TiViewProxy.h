@@ -120,6 +120,9 @@ enum
 //NOTE: DO NOT SET VIEW UNLESS IN A TABLE VIEW, AND EVEN THEN.
 @property(nonatomic,readwrite,retain)TiUIView * view;
 
+-(NSMutableDictionary*)langConversionTable;
+-(NSDictionary*)cssConversionTable;
+
 #pragma mark Methods subclasses should override for behavior changes
 -(BOOL)suppressesRelayout;
 -(BOOL)supportsNavBarPositioning;
@@ -168,6 +171,7 @@ enum
 
 -(void)animationCompleted:(TiAnimation*)animation;
 -(void)makeViewPerformAction:(TiAction *)action;
+
 -(void)makeViewPerformSelector:(SEL)selector withObject:(id)object createIfNeeded:(BOOL)create waitUntilDone:(BOOL)wait;
 
 #pragma mark Layout events, internal and external

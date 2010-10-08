@@ -10,9 +10,8 @@ import java.lang.ref.SoftReference;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 
-import org.appcelerator.titanium.kroll.KrollCallback;
+import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.titanium.proxy.TiWindowProxy;
-import org.appcelerator.titanium.util.AsyncResult;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiActivityResultHandler;
 import org.appcelerator.titanium.util.TiActivitySupport;
@@ -59,123 +58,123 @@ public class TiActivity extends Activity
 		contexts = new ArrayList<WeakReference<TiContext>>();
 	}
 
-    /** Called when the activity is first created. */
-    @Override
-    public void onCreate(Bundle savedInstanceState)
-    {
-//        super.onCreate(savedInstanceState);
-    	if (DBG) {
-    		Log.d(LCAT, "Activity onCreate");
-    	}
-        handler = new Handler();
+	/** Called when the activity is first created. */
+	@Override
+	public void onCreate(Bundle savedInstanceState)
+	{
+		if (DBG) {
+			Log.d(LCAT, "Activity onCreate");
+		}
+		handler = new Handler();
 
-        Intent intent = getIntent();
+		Intent intent = getIntent();
 
-        boolean fullscreen = false;
-        boolean navbar = true;
-        boolean modal = false;
-        Messenger messenger = null;
-        Integer messageId = null;
-        boolean vertical = false;
-        boolean hasSoftInputMode = false;
-        int softInputMode = -1;
+		boolean fullscreen = false;
+		boolean navbar = true;
+		boolean modal = false;
+		Messenger messenger = null;
+		Integer messageId = null;
+		boolean vertical = false;
+		boolean hasSoftInputMode = false;
+		int softInputMode = -1;
 
-        if (intent != null) {
-        	if (intent.hasExtra("modal")) {
-        		modal = intent.getBooleanExtra("modal", modal);
-        	}
-        	if (intent.hasExtra("fullscreen")) {
-        		fullscreen = intent.getBooleanExtra("fullscreen", fullscreen);
-        	}
-        	if (intent.hasExtra("navBarHidden")) {
-        		navbar = !intent.getBooleanExtra("navBarHidden", navbar);
-        	}
-        	if (intent.hasExtra("messenger")) {
-        		messenger = (Messenger) intent.getParcelableExtra("messenger");
-        		messageId = intent.getIntExtra("messageId", -1);
-        	}
-        	if (intent.hasExtra("vertical")) {
-        		vertical = intent.getBooleanExtra("vertical", vertical);
-        	}
-        	if (intent.hasExtra("windowSoftInputMode")) {
-        		hasSoftInputMode = true;
-        		softInputMode = intent.getIntExtra("windowSoftInputMode", WindowManager.LayoutParams.SOFT_INPUT_ADJUST_UNSPECIFIED);
-        	}
-        }
+		if (intent != null) {
+			if (intent.hasExtra("modal")) {
+				modal = intent.getBooleanExtra("modal", modal);
+			}
+			if (intent.hasExtra("fullscreen")) {
+				fullscreen = intent.getBooleanExtra("fullscreen", fullscreen);
+			}
+			if (intent.hasExtra("navBarHidden")) {
+				navbar = !intent.getBooleanExtra("navBarHidden", navbar);
+			}
+			if (intent.hasExtra("messenger")) {
+				messenger = (Messenger) intent.getParcelableExtra("messenger");
+				messageId = intent.getIntExtra("messageId", -1);
+			}
+			if (intent.hasExtra("vertical")) {
+				vertical = intent.getBooleanExtra("vertical", vertical);
+			}
+			if (intent.hasExtra("windowSoftInputMode")) {
+				hasSoftInputMode = true;
+				softInputMode = intent.getIntExtra("windowSoftInputMode", WindowManager.LayoutParams.SOFT_INPUT_ADJUST_UNSPECIFIED);
+			}
+		}
 
-        layout = new TiCompositeLayout(this, vertical);
+		layout = new TiCompositeLayout(this, vertical);
 
-        super.onCreate(savedInstanceState);
-            
-        if (!modal) {
-	        if (fullscreen) {
-	        	getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-	                    WindowManager.LayoutParams.FLAG_FULLSCREEN);
-	        }
-	        
-	        if (navbar) {
-	        	this.requestWindowFeature(Window.FEATURE_LEFT_ICON); // TODO Keep?
-		        this.requestWindowFeature(Window.FEATURE_RIGHT_ICON);
-		        this.requestWindowFeature(Window.FEATURE_PROGRESS);
-		        this.requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
-	        } else {
-	           	this.requestWindowFeature(Window.FEATURE_NO_TITLE);
-	        }
-        } else {
-        	int flags = WindowManager.LayoutParams.FLAG_BLUR_BEHIND;
-        	getWindow().setFlags(flags,flags);
-        }
-        
-        if (hasSoftInputMode) {
-        	if (DBG) {
-        		Log.d(LCAT, "windowSoftInputMode: " + softInputMode);
-        	}
-        	getWindow().setSoftInputMode(softInputMode);
-        }
-        
+		super.onCreate(savedInstanceState);
 
-        setContentView(layout);
+		if (!modal) {
+			if (fullscreen) {
+				getWindow().setFlags(
+					WindowManager.LayoutParams.FLAG_FULLSCREEN,
+					WindowManager.LayoutParams.FLAG_FULLSCREEN);
+			}
 
-        //Notify caller that onCreate is done. Use post
-        // to prevent deadlock.
-        final TiActivity me = this;
-        final Messenger fMessenger = messenger;
-        if (messenger != null) {
-	        final int fMessageId = messageId;
-	        handler.post(new Runnable(){
+			if (navbar) {
+				this.requestWindowFeature(Window.FEATURE_LEFT_ICON); // TODO Keep?
+				this.requestWindowFeature(Window.FEATURE_RIGHT_ICON);
+				this.requestWindowFeature(Window.FEATURE_PROGRESS);
+				this.requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
+			} else {
+				this.requestWindowFeature(Window.FEATURE_NO_TITLE);
+			}
+		} else {
+			int flags = WindowManager.LayoutParams.FLAG_BLUR_BEHIND;
+			getWindow().setFlags(flags, flags);
+		}
+
+		if (hasSoftInputMode) {
+			if (DBG) {
+				Log.d(LCAT, "windowSoftInputMode: " + softInputMode);
+			}
+			getWindow().setSoftInputMode(softInputMode);
+		}
+
+		setContentView(layout);
+
+		// Notify caller that onCreate is done. Use post
+		// to prevent deadlock.
+		final TiActivity me = this;
+		final Messenger fMessenger = messenger;
+		if (messenger != null) {
+			final int fMessageId = messageId;
+			handler.post(new Runnable() {
 				@Override
 				public void run() {
-			        if (fMessenger != null) {
-			        	try {
-				        	Message msg = Message.obtain();
-				        	msg.what = fMessageId;
-				        	msg.obj = me;
-				        	fMessenger.send(msg);
-				        	Log.w(LCAT, "Notifying TiUIWindow, activity is created");
-			        	} catch (RemoteException e) {
-			        		Log.e(LCAT, "Unable to message creator. finishing.");
-			        		me.finish();
-			        	} catch (RuntimeException e) {
-			        		Log.e(LCAT, "Unable to message creator. finishing.");
-			        		me.finish();
-			        	}
-			        }
+					if (fMessenger != null) {
+						try {
+							Message msg = Message.obtain();
+							msg.what = fMessageId;
+							msg.obj = me;
+							fMessenger.send(msg);
+							Log.w(LCAT, "Notifying TiUIWindow, activity is created");
+						} catch (RemoteException e) {
+							Log.e(LCAT, "Unable to message creator. finishing.");
+							me.finish();
+						} catch (RuntimeException e) {
+							Log.e(LCAT, "Unable to message creator. finishing.");
+							me.finish();
+						}
+					}
 				}
 			});
-        }
-    }
+		}
+	}
 
-    public TiApplication getTiApp() {
-    	return (TiApplication) getApplication();
-    }
+	public TiApplication getTiApp() {
+		return (TiApplication) getApplication();
+	}
 
-    public TiCompositeLayout getLayout() {
-    	return layout;
-    }
+	public TiCompositeLayout getLayout() {
+		return layout;
+	}
 
 	public void setMenuDispatchListener(ITiMenuDispatcherListener dispatcher) {
-    	softMenuDispatcher = new SoftReference<ITiMenuDispatcherListener>(dispatcher);
-    }
+		softMenuDispatcher = new SoftReference<ITiMenuDispatcherListener>(
+				dispatcher);
+	}
 
 	// Activity Support
 	public int getUniqueResultCode() {
@@ -245,7 +244,7 @@ public class TiActivity extends Activity
 						proxy.fireEvent("android:camera", null);
 					}
 					handled = true;
-				}										
+				}
 				break;
 			}
 			case KeyEvent.KEYCODE_FOCUS : {
@@ -254,7 +253,7 @@ public class TiActivity extends Activity
 						proxy.fireEvent("android:focus", null);
 					}
 					handled = true;
-				}										
+				}
 				break;
 			}
 			case KeyEvent.KEYCODE_SEARCH : {
@@ -263,7 +262,7 @@ public class TiActivity extends Activity
 						proxy.fireEvent("android:search", null);
 					}
 					handled = true;
-				}										
+				}
 				break;
 			}
 			case KeyEvent.KEYCODE_VOLUME_UP : {
@@ -272,7 +271,7 @@ public class TiActivity extends Activity
 						proxy.fireEvent("android:volup", null);
 					}
 					handled = true;
-				}										
+				}
 				break;
 			}
 			case KeyEvent.KEYCODE_VOLUME_DOWN : {
@@ -281,7 +280,7 @@ public class TiActivity extends Activity
 						proxy.fireEvent("android:voldown", null);
 					}
 					handled = true;
-				}										
+				}
 				break;
 			}
 		}
@@ -435,8 +434,7 @@ public class TiActivity extends Activity
 	@Override
 	public void finish()
 	{
-		TiDict data = new TiDict();
-		for (WeakReference<TiContext> contextRef : contexts) {
+		/*for (WeakReference<TiContext> contextRef : contexts) {
 			if (contextRef.get() != null) {
 				contextRef.get().dispatchEvent("close", data, proxy);
 			}
@@ -444,6 +442,10 @@ public class TiActivity extends Activity
 
 		if (createdContext != null && createdContext.get() != null) {
 			createdContext.get().dispatchEvent("close", data, proxy);
+		}*/
+		if (proxy != null) {
+			KrollDict data = new KrollDict();
+			proxy.fireEvent("close", data);
 		}
 
 		boolean animate = true;
@@ -489,9 +491,9 @@ public class TiActivity extends Activity
 	
 	protected void updateTitle() {
 		if (proxy != null) {
-			if (proxy.hasDynamicValue("title")) {
+			if (proxy.hasProperty("title")) {
 				String oldTitle = (String) getTitle();
-				String newTitle = TiConvert.toString(proxy.getDynamicValue("title"));
+				String newTitle = TiConvert.toString(proxy.getProperty("title"));
 				if (oldTitle == null) {
 					oldTitle = "";
 				}
@@ -504,7 +506,7 @@ public class TiActivity extends Activity
 
 						@Override
 						public void run() {
-							setTitle(fnewTitle);							
+							setTitle(fnewTitle);
 						}
 					});
 				}

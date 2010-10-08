@@ -6,16 +6,21 @@
  */
 package ti.modules.titanium.app.properties;
 
+import org.appcelerator.kroll.KrollDefaultValueProvider;
+import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollModule;
+import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiContext;
-import org.appcelerator.titanium.TiDict;
-import org.appcelerator.titanium.TiModule;
 import org.appcelerator.titanium.TiProperties;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConvert;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class PropertiesModule extends TiModule {
+import ti.modules.titanium.app.AppModule;
+
+@Kroll.module(parentModule=AppModule.class)
+public class PropertiesModule extends KrollModule {
 
 	private static final String LCAT = "PropertiesModule";
 	private TiProperties appProperties;
@@ -24,164 +29,113 @@ public class PropertiesModule extends TiModule {
 		super(tiContext);
 		
 		appProperties = tiContext.getTiApp().getAppProperties();
-		
 	}
 
-	public Boolean getBool(Object[] args) {
-		
-		if (null != args && args.length>0) {
-			// We have some args to work with
-			String key = TiConvert.toString(args[0]);
-			
-			if (appProperties.hasProperty(key)) {
-				// Without being forced to pass in a default - we need to handle the case where there isn't one passed
-				// This means we either have to return null or throw something
-				return appProperties.getBool(key, false);
-			} 
-			
-			if (args.length > 1) {
-				// grab the default that's been passed
-				return TiConvert.toBoolean(args[1]);
-			}			
+	public static class DefaultValues implements KrollDefaultValueProvider {
+		protected static DefaultValues _instance = new DefaultValues();
+		@Override
+		public Object getDefaultValue(Class<?> clazz) {
+			if (clazz.equals(Boolean.class)) {
+				return false;
+			} else if (Number.class.isAssignableFrom(clazz)) {
+				return 0;
+			} else if (clazz.equals(String.class)) {
+				return "";
+			} else if (clazz.equals(Object[].class)) {
+				return new Object[0];
+			}
+			return null;
 		}
-		
-		// TODO: Explore again returning native undefined, rather than: 
-		//  - null, org.mozilla.javascript.Undefined@44e89068 (proxy) or org.mozilla.javascript.Undefined (none of which allow '=== undefined' comparison) 
-		//		KrollBridge kb = (KrollBridge)this.getTiContext().getJSContext();
-		//		KrollContext kc = kb.getKrollContext();
-		//		return KrollObject.fromNative(Undefined.instance, kb.getKrollContext());
-		
-		return null;
+		public static DefaultValues getInstance() {
+			return _instance;
+		}
 	}
 	
-	public Double getDouble(Object[] args) {
-		
-		if (null != args && args.length>0) {
-			// We have some args to work with
-			String key = TiConvert.toString(args[0]);
-			
-			if (appProperties.hasProperty(key)) {
-				// Without being forced to pass in a default - we need to handle the case where there isn't one passed
-				// This means we either have to return null or throw something
-				return appProperties.getDouble(key, 0.0f);
-			} 
-			
-			if (args.length > 1) {
-				// grab the default that's been passed
-				return TiConvert.toDouble(args[1]);
-			}			
-		}
-		
-		// Should throw something - as we always expect at least a key
-		return null;
+	@Kroll.method
+	public boolean getBool(String key,
+		@Kroll.argument(optional=true, defaultValueProvider=DefaultValues.class) boolean defaultValue) {
+		return appProperties.getBool(key, defaultValue);
 	}
 	
-	public Integer getInt(Object[] args) {
+	@Kroll.method
+	public double getDouble(String key,
+		@Kroll.argument(optional=true, defaultValueProvider=DefaultValues.class) double defaultValue) {
 		
-		if (null != args && args.length>0) {
-			// We have some args to work with
-			String key = TiConvert.toString(args[0]);
-			
-			if (appProperties.hasProperty(key)) {
-				// It has the property - so the default isn't needed really
-				return appProperties.getInt(key, 0);
-			} 
-			
-			// So the property doesn't exist
-			
-			if (args.length > 1) {
-				// grab the default that's been passed
-				return TiConvert.toInt(args[1]);
-			}	
-			
-		} 
+		return appProperties.getDouble(key, defaultValue);
+	}
+	
+	@Kroll.method
+	public int getInt(String key,
+		@Kroll.argument(optional=true, defaultValueProvider=DefaultValues.class) int defaultValue) {
 		
-		return null;
+		return appProperties.getInt(key, defaultValue);
 	}	
 	
-	public Object getString(Object[] args) {
+	@Kroll.method
+	public Object getString(String key,
+		@Kroll.argument(optional=true, defaultValueProvider=DefaultValues.class) String defaultValue) {
+		return appProperties.getString(key, defaultValue);
+	}	
+	
+	@Kroll.method
+	public Object getList(String key,
+		@Kroll.argument(optional=true, defaultValueProvider=DefaultValues.class) Object[] defaultValue) {
 		
-		if (null != args && args.length>0) {
-			String key = TiConvert.toString(args[0]);
-			
-			if (appProperties.hasProperty(key)) {
-				// Without being forced to pass in a default - we need to handle the case where there isn't one passed
-				// This means we either have to return null or throw something
-				return appProperties.getString(key, "");
-			} 
-			
-			if (args.length > 1) {
-				// grab the default that's been passed
-				return TiConvert.toString(args[1]);
-			}			
+		String[] values = new String[0];
+		if (appProperties.hasListProperty(key)) {			
+			//auto transform JSON data into objects 
+			values = appProperties.getList(key, values);
+		} else {
+			values = TiConvert.toStringArray(defaultValue);
 		}
-		
-		return null;
-	}	
-	
-	public Object getList(Object[] args) {
-		
-		if (null != args && args.length>0) {
-			// We have some args to work with
-			String key = TiConvert.toString(args[0]);
-			
-			String[] values = new String[0];
-			if (appProperties.hasListProperty(key)) {			
-				//auto transform JSON data into objects 
-				values = appProperties.getList(key, values);
+		// Now we should process values - we want the default process to happen with both stored & default values
+		Object list[] = new Object[values.length];
+		for (int i = 0; i < values.length; i++) {
+			String value = values[i];
+			if (value.startsWith("{") && value.endsWith("}")) {
+				try {
+					list[i] = new KrollDict(new JSONObject(value));
+				} catch (JSONException e) {
+					Log.e(LCAT, "Error converting JSON string to KrollDict, property:" + key, e);
+				}
 			} else {
-				if (args.length > 1) {
-					// grab the default that's been passed
-					Object t = args[1];
-					values = TiConvert.toStringArray((Object[])args[1]);
-				} else {
-					return null;
-				}
+				list[i] = value;
 			}
-			// Now we should process values - we want the default process to happen with both stored & default values
-			
-			Object list[] = new Object[values.length];
-			for (int i = 0; i < values.length; i++) {
-				String value = values[i];
-				if (value.startsWith("{") && value.endsWith("}")) {
-					try {
-						list[i] = new TiDict(new JSONObject(value));
-					} catch (JSONException e) {
-						Log.e(LCAT, "Error converting JSON string to TiDict, property:" + key, e);
-					}
-				} else {
-					list[i] = value;
-				}
-			}
-			return list;
 		}
-		return null;
+		return list;
 	}
 
+	@Kroll.method
 	public boolean hasProperty(String key) {
 		return appProperties.hasProperty(key);
 	}
 
+	@Kroll.method
 	public String[] listProperties() {
 		return appProperties.listProperties();
 	}
 
+	@Kroll.method
 	public void removeProperty(String key) {
 		appProperties.removeProperty(key);
 	}
 
+	@Kroll.method
 	public void setBool(String key, boolean value) {
 		appProperties.setBool(key, value);
 	}
 
+	@Kroll.method
 	public void setDouble(String key, double value) {
 		appProperties.setDouble(key, value);
 	}
 
+	@Kroll.method
 	public void setInt(String key, int value) {
 		appProperties.setInt(key, value);
 	}
 
+	@Kroll.method
 	public void setList(String key, Object[] value) {
 		
 		Log.i(LCAT, "setList passed with ["+key+"] and a list of ["+value.length+"] items.");
@@ -189,8 +143,8 @@ public class PropertiesModule extends TiModule {
 		String[] valueList = new String[value.length];
 		for (int i = 0; i < value.length; i++) {
 			Object v = value[i];
-			if (v instanceof TiDict) {
-				valueList[i] = TiConvert.toJSON((TiDict)v).toString();
+			if (v instanceof KrollDict) {
+				valueList[i] = TiConvert.toJSON((KrollDict)v).toString();
 			} else if (v instanceof Object[]) {
 				valueList[i] = TiConvert.toJSONArray((Object[])v).toString();
 			} else {
@@ -200,9 +154,8 @@ public class PropertiesModule extends TiModule {
 		appProperties.setList(key, valueList);
 	}
 
+	@Kroll.method
 	public void setString(String key, String value) {
 		appProperties.setString(key, value);
 	}
-	
-	
 }

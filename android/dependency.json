@@ -1,0 +1,34 @@
+{
+	"dependencies":
+	{
+		"accelerometer":[],
+		"analytics":[],
+		"android":[],
+		"api":[],
+		"app":[],
+		"bump":[],
+		"contacts":[],
+		"database":[],
+		"facebook":[],
+		"filesystem":[],
+		"gesture":[],
+		"geolocation":[],
+		"json":[],
+		"locale":[],
+		"map":[],
+		"media":["filesystem"],
+		"network":["xml"],
+		"platform":[],
+		"ui":["app","api","filesystem","media"],
+		"utils":[],
+		"xml":[],
+		"yahoo":[]
+	},
+	"required": ["analytics","android","ui","json","locale"],
+	"libraries": 
+	{
+		"android":["titanium.jar","commons-codec-1.3.jar","js.jar","jaxen-1.1.1.jar"],
+		"xml":["jaxen-1.1.1.jar"],
+		"bump":["bump-api.jar"]
+	}
+}

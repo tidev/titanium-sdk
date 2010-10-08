@@ -6,17 +6,15 @@
  */
 package ti.modules.titanium.ui.widget.webview;
 
+import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.titanium.TiBlob;
-import org.appcelerator.titanium.TiDict;
-import org.appcelerator.titanium.TiProxy;
 import org.appcelerator.titanium.proxy.TiViewProxy;
-import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiMimeTypeHelper;
 import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.titanium.view.TiUIView;
 
-import ti.modules.titanium.ui.WebViewProxy;
 import android.content.Context;
 import android.net.Uri;
 import android.webkit.WebSettings;
@@ -78,7 +76,7 @@ public class TiUIWebView extends TiUIView {
 	}
 
 	@Override
-	public void processProperties(TiDict d) {
+	public void processProperties(KrollDict d) {
 		super.processProperties(d);
 
 		if (d.containsKey("url")) {
@@ -94,7 +92,7 @@ public class TiUIWebView extends TiUIView {
 	}
 
 	@Override
-	public void propertyChanged(String key, Object oldValue, Object newValue, TiProxy proxy) {
+	public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy proxy) {
 		if ("url".equals(key) && !changingUrl) {
 			setUrl(TiConvert.toString(newValue));
 		} else if ("html".equals(key)) {
@@ -122,7 +120,7 @@ public class TiUIWebView extends TiUIView {
 
 	public void changeProxyUrl(String url) {
 		changingUrl = true;
-		getProxy().setDynamicValue("url", url);
+		getProxy().setProperty("url", url, true);
 		changingUrl = false;
 	}
 

@@ -4,13 +4,19 @@
 # Android Application Script
 #
 
-import os,sys,shutil,platform
-import string,subprocess,re
+import os, sys, shutil, platform, zipfile
+import string, subprocess, re
 from mako.template import Template
 from xml.etree.ElementTree import ElementTree
 from os.path import join, splitext, split, exists
 from shutil import copyfile
 from androidsdk import AndroidSDK
+from compiler import Compiler
+
+template_dir = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
+sys.path.append(os.path.dirname(template_dir))
+from tiapp import TiAppXML
+import simplejson
 
 ignoreFiles = ['.gitignore', '.cvsignore', '.DS_Store'];
 ignoreDirs = ['.git','.svn','_svn', 'CVS'];
@@ -43,7 +49,7 @@ def copy_resources(source, target):
 	
 class Android(object):
 
-	def __init__(self, name, myid, sdk, deploy_type):
+	def __init__(self, name, myid, sdk, deploy_type, java):
 		self.name = name
 		
 		# android requires at least one dot in packageid
@@ -63,6 +69,7 @@ class Android(object):
 		}
 		self.config['classname'] = Android.strip_classname(self.name)
 		self.deploy_type = deploy_type
+		self.java = java
 	
 	@classmethod
 	def strip_classname(cls, name):
@@ -123,6 +130,55 @@ class Android(object):
 			if value == None: value = ""
 			self.app_properties[name] = {"type": type, "value": value}
 	
+	def build_modules_info(self, resources_dir, app_bin_dir):
+		compiler = Compiler(self.tiapp, resources_dir, self.java, app_bin_dir, os.path.dirname(app_bin_dir))
+		compiler.compile()
+		self.app_modules = []
+		template_dir = os.path.dirname(sys._getframe(0).f_code.co_filename)
+		android_modules_dir = os.path.abspath(os.path.join(template_dir, 'modules'))
+		
+		modules = {}
+		for jar in os.listdir(android_modules_dir):
+			if not jar.endswith('.jar'): continue
+			
+			module_path = os.path.join(android_modules_dir, jar)
+			module_jar = zipfile.ZipFile(module_path)
+			bindings_path = None
+			for name in module_jar.namelist():
+				if name.endswith('.json') and name.startswith('org/appcelerator/titanium/bindings/'):
+					bindings_path = name
+					break
+			
+			if bindings_path is None: continue
+			
+			bindings_json = module_jar.read(bindings_path)
+			module_bindings = simplejson.loads(bindings_json)
+			for module_class in module_bindings['modules'].keys():
+				print '[INFO] module_class = ' + module_class + ', api_name=' + module_bindings['modules'][module_class]['apiName']
+				modules[module_class] = module_bindings['modules'][module_class]
+
+		for module in compiler.modules:
+			bindings = []
+			# TODO: we should also detect module properties
+			for method in compiler.module_methods:
+				if method.lower().startswith(module+'.'):
+					bindings.append(method[len(module)+1:])
+			
+			module_class = None
+			module_apiName = None
+			for m in modules.keys():
+				if modules[m]['apiName'].lower() == module:
+					module_class = m
+					module_apiName = modules[m]['apiName']
+					break
+
+			self.app_modules.append({
+				'api_name': module_apiName,
+				'class_name': module_class,
+				'bindings': bindings
+			})
+			
+		
 	def create(self, dir, build_time=False, project_dir=None):
 		template_dir = os.path.dirname(sys._getframe(0).f_code.co_filename)
 		
@@ -132,6 +188,7 @@ class Android(object):
 		
 		# Paths to Titanium assets that need to be linked into eclipse structure
 		self.config['ti_tiapp_xml'] = os.path.join(project_dir, 'tiapp.xml')
+		self.tiapp = TiAppXML(self.config['ti_tiapp_xml'])
 		resource_dir = os.path.join(project_dir, 'Resources')
 		self.config['ti_resources_dir'] = resource_dir
 
@@ -159,12 +216,15 @@ class Android(object):
 		app_bin_assets_dir = self.newdir(app_bin_dir, 'assets')
 		
 		self.build_app_info(project_dir)
+		self.build_modules_info(resource_dir, app_bin_dir)
+		
 		# Create android source
 		self.render(template_dir, 'AppInfo.java', app_package_dir, self.config['classname'] + 'AppInfo.java',
 			app_properties = self.app_properties, app_info = self.app_info)
 		
 		self.render(template_dir, 'AndroidManifest.xml', app_dir, 'AndroidManifest.xml')
-		self.render(template_dir, 'App.java', app_package_dir, self.config['classname'] + 'Application.java')
+		self.render(template_dir, 'App.java', app_package_dir, self.config['classname'] + 'Application.java',
+			app_modules = self.app_modules)
 		self.render(template_dir, 'Activity.java', app_package_dir, self.config['classname'] + 'Activity.java')
 		self.render(template_dir, 'classpath', app_dir, '.classpath')
 		self.render(template_dir, 'project', app_dir, '.project')
@@ -187,5 +247,5 @@ if __name__ == '__main__':
 		sys.exit(1)
 
 	sdk = AndroidSDK(sys.argv[4], 4)
-	android = Android(sys.argv[1],sys.argv[2],sdk,None)
+	android = Android(sys.argv[1], sys.argv[2], sdk, None, 'java')
 	android.create(sys.argv[3])

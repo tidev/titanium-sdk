@@ -6,19 +6,21 @@
  */
 package ti.modules.titanium.ui;
 
+import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiContext;
-import org.appcelerator.titanium.TiDict;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.ui.widget.TiUINotification;
 import android.app.Activity;
 
+@Kroll.proxy(creatableInModule=UIModule.class)
 public class NotificationProxy extends TiViewProxy
 {
-	public NotificationProxy(TiContext tiContext, Object[] args)
+	public NotificationProxy(TiContext tiContext)
 	{
-		super(tiContext, args);
+		super(tiContext);
 	}
 
 	@Override
@@ -28,7 +30,7 @@ public class NotificationProxy extends TiViewProxy
 	}
 
 	@Override
-	protected void handleShow(TiDict options) {
+	protected void handleShow(KrollDict options) {
 		super.handleShow(options);
 
 		TiUINotification n = (TiUINotification) getView(getTiContext().getActivity());

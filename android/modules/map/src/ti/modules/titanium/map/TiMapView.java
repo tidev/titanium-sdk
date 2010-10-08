@@ -11,10 +11,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.titanium.TiApplication;
-import org.appcelerator.titanium.TiDict;
 import org.appcelerator.titanium.TiProperties;
-import org.appcelerator.titanium.TiProxy;
 import org.appcelerator.titanium.TiContext.OnLifecycleEvent;
 import org.appcelerator.titanium.io.TiBaseFile;
 import org.appcelerator.titanium.io.TiFileFactory;
@@ -141,7 +141,7 @@ public class TiMapView extends TiUIView
 				lastLatitudeSpan = getLatitudeSpan();
 				lastLongitudeSpan = getLongitudeSpan();
 
-				TiDict d = new TiDict();
+				KrollDict d = new KrollDict();
 				d.put("latitude", scaleFromGoogle(lastLatitude));
 				d.put("longitude", scaleFromGoogle(lastLongitude));
 				d.put("latitudeDelta", scaleFromGoogle(lastLatitudeSpan));
@@ -174,7 +174,7 @@ public class TiMapView extends TiUIView
 			TiOverlayItem item = null;
 
 			AnnotationProxy p = annotations.get(i);
-			TiDict a = p.getDynamicProperties();
+			KrollDict a = p.getProperties();
 			if (a.containsKey("latitude") && a.containsKey("longitude")) {
 				String title = a.optString("title", "");
 				String subtitle = a.optString("subtitle", "");
@@ -223,10 +223,10 @@ public class TiMapView extends TiUIView
 				}
 
 				if (a.containsKey("leftButton")) {
-					item.setLeftButton(proxy.getTiContext().resolveUrl(null, a.getString("leftButton")));
+					item.setLeftButton(proxy.getTiContext().resolveUrl(null, TiConvert.toString(a, "leftButton")));
 				}
 				if (a.containsKey("rightButton")) {
-					item.setRightButton(proxy.getTiContext().resolveUrl(null, a.getString("rightButton")));
+					item.setRightButton(proxy.getTiContext().resolveUrl(null, TiConvert.toString(a, "rightButton")));
 				}
 			} else {
 				Log.w(LCAT, "Skipping annotation: No coordinates #" + i);
@@ -337,12 +337,12 @@ public class TiMapView extends TiUIView
 
 		final TiViewProxy fproxy = proxy;
 
-		itemView = new TiOverlayItemView(proxy.getContext());
+		itemView = new TiOverlayItemView(proxy.getContext(), proxy.getTiContext());
 		itemView.setOnOverlayClickedListener(new TiOverlayItemView.OnOverlayClicked(){
 			public void onClick(int lastIndex, String clickedItem) {
 				TiOverlayItem item = overlay.getItem(lastIndex);
 				if (item != null) {
-					TiDict d = new TiDict();
+					KrollDict d = new KrollDict();
 					d.put("title", item.getTitle());
 					d.put("subtitle", item.getSnippet());
 					d.put("latitude", scaleFromGoogle(item.getPoint().getLatitudeE6()));
@@ -363,7 +363,7 @@ public class TiMapView extends TiUIView
 	public boolean handleMessage(Message msg) {
 		switch(msg.what) {
 			case MSG_SET_LOCATION : {
-				doSetLocation((TiDict) msg.obj);
+				doSetLocation((KrollDict) msg.obj);
 				return true;
 			}
 			case MSG_SET_MAPTYPE : {
@@ -458,7 +458,7 @@ public class TiMapView extends TiUIView
 	}
 
 	@Override
-	public void processProperties(TiDict d)
+	public void processProperties(KrollDict d)
 	{
 		LocalMapView view = getView();
 
@@ -472,7 +472,7 @@ public class TiMapView extends TiUIView
 			view.setScrollable(TiConvert.toBoolean(d, "scrollEnabled"));
 		}
 		if (d.containsKey("region")) {
-			doSetLocation(d.getTiDict("region"));
+			doSetLocation(d.getKrollDict("region"));
 		}
 		if (d.containsKey("regionFit")) {
 			regionFit = d.getBoolean("regionFit");
@@ -484,7 +484,7 @@ public class TiMapView extends TiUIView
 			doUserLocation(d.getBoolean("userLocation"));
 		}
 		if (d.containsKey("annotations")) {
-			proxy.internalSetDynamicValue("annotations", d.get("annotations"), false);
+			proxy.setProperty("annotations", d.get("annotations"));
 			Object [] annotations = (Object[]) d.get("annotations");
 			for(int i = 0; i < annotations.length; i++) {
 				AnnotationProxy ap = (AnnotationProxy) annotations[i];
@@ -497,16 +497,16 @@ public class TiMapView extends TiUIView
 	}
 
 	@Override
-	public void propertyChanged(String key, Object oldValue, Object newValue, TiProxy proxy)
+	public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy proxy)
 	{
 
 		if (key.equals("location")) {
 			if (newValue != null) {
 				if (newValue instanceof AnnotationProxy) {
 					AnnotationProxy ap = (AnnotationProxy) newValue;
-					doSetLocation(ap.getDynamicProperties());
-				} else if (newValue instanceof TiDict) {
-					doSetLocation((TiDict) newValue);
+					doSetLocation(ap.getProperties());
+				} else if (newValue instanceof KrollDict) {
+					doSetLocation((KrollDict) newValue);
 				}
 			}
 		} else if (key.equals("mapType")) {
@@ -520,7 +520,7 @@ public class TiMapView extends TiUIView
 		}
 	}
 
-	public void doSetLocation(TiDict d)
+	public void doSetLocation(KrollDict d)
 	{
 		LocalMapView view = getView();
 
@@ -618,7 +618,7 @@ public class TiMapView extends TiUIView
 		int len = annotations.size();
 		for(int i = 0; i < len; i++) {
 			AnnotationProxy a = annotations.get(i);
-			String t = (String) a.getDynamicValue("title");
+			String t = (String) a.getProperty("title");
 
 			if (t != null) {
 				if (title.equals(t)) {

@@ -1,0 +1,114 @@
+body, td {
+	background-color:#292929;
+	font-family:"Lucida Sans",Arial;
+	color:white;
+	font-size:12px;
+	padding:2px;
+	margin:2px;
+}
+
+a {
+	color: #cc9;
+	font-weight: bold;
+}
+
+a.disabled {
+	color: #331;
+	font-weight: bold;
+	text-decoration: none;
+}
+
+#actions,#passed-count, #failed-count, #assertion-count, #test-count
+{
+	float: left;
+	width: 150px;
+	margin-bottom: 3px;
+	font-size: 12px;
+}
+
+#actions {
+	width: 165px;
+}
+
+#current-test
+{	
+	clear: left;
+	margin-bottom: 15px;
+}
+
+.line {
+	background-color: #333;
+	clear: both;
+}
+
+.suites
+{
+	margin:0px;
+	padding:0px;
+	margin-top: 5px;
+	overflow:hidden;
+}
+
+.suite, .suite-running, .suite-passed, .suite-failed
+{
+	font-family:"Lucida Sans",Arial;
+	font-size: 12px;
+	
+	background-image: url(images/gradient.png);
+	background-repeat: repeat-x;
+	background-position: top left;
+	
+	border: 1px solid #000;
+	color:white;
+	margin: 0px;
+	padding: 1px;
+	float: left;
+	height: 50px;
+	width: 150px;
+	overflow: hidden;
+	cursor: pointer;
+}
+
+.suite_name
+{
+	font-weight: bold;
+}
+
+.suite-running
+{
+	background: #336;
+}
+
+.suite-passed
+{
+	background: #363;
+}
+
+.suite-failed
+{
+	background: #633;
+}
+
+.description {
+	font-size: 10px;
+	margin-left: 3px;
+}
+
+.untested, .running, .failed, .passed {
+	font-size: 10px;
+	color: #ccc;
+	font-weight:bold;
+	text-align:right;
+}
+
+.running {
+	color: #66c;
+}
+
+.failed {
+	color: #c66;
+}
+
+.passed {
+	color: #6c6;
+}

@@ -21,7 +21,6 @@ import org.appcelerator.titanium.view.ITiWindowHandler;
 import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.titanium.view.TiCompositeLayout.LayoutParams;
 
-import android.R.color;
 import android.app.Activity;
 import android.app.ActivityGroup;
 import android.app.AlarmManager;
@@ -29,11 +28,9 @@ import android.app.AlertDialog;
 import android.app.LocalActivityManager;
 import android.app.PendingIntent;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.content.DialogInterface.OnClickListener;
-import android.graphics.Color;
+import android.content.Intent;
 import android.os.Bundle;
-import android.os.Process;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -100,7 +97,7 @@ public class TiRootActivity extends ActivityGroup
 		
 		TiApplication host = getTiApp();
 		host.setRootActivity(this);
-		tiContext = TiContext.createTiContext(this, null, null);
+		tiContext = TiContext.createTiContext(this, null);
 
 		 if (host.getAppInfo().isFullscreen()) {
 			getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
@@ -356,11 +353,10 @@ public class TiRootActivity extends ActivityGroup
 	@Override
 	protected void onDestroy() {
 		super.onDestroy();
-
 		if (tiContext != null) {
 			tiContext.dispatchOnDestroy();
 			tiContext.release();
-			TiModule.clearModuleSingletons();
+			//TiModule.clearModuleSingletons();
 		}
 	}
 }

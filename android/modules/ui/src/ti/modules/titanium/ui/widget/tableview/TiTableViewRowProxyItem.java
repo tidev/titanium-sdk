@@ -8,14 +8,13 @@ package ti.modules.titanium.ui.widget.tableview;
 
 import java.util.ArrayList;
 
+import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.titanium.TiContext;
-import org.appcelerator.titanium.TiDict;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.titanium.view.TiUIView;
-import org.appcelerator.titanium.util.Log;
 
 import ti.modules.titanium.ui.TableViewRowProxy;
 import ti.modules.titanium.ui.widget.TiUILabel;
@@ -76,7 +75,7 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 
 	public void setRowData(TableViewRowProxy rp)
 	{
-		TiDict props = rp.getDynamicProperties();
+		KrollDict props = rp.getProperties();
 		hasControls = rp.hasControls();
 
 		setBackgroundFromProperties(props);
@@ -143,8 +142,8 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 		}
 		
 		if (rp.getParent() != null) {
-			if (rp.getParent().hasDynamicValue("minRowHeight")) {
-				height = Math.max(height, TiConvert.toInt(rp.getParent().getDynamicProperties(), "minRowHeight"));
+			if (rp.getParent().hasProperty("minRowHeight")) {
+				height = Math.max(height, TiConvert.toInt(rp.getParent().getProperties(), "minRowHeight"));
 			}
 		}
 		
@@ -166,7 +165,7 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 					views[i] = view;
 				}
 				view.setProxy(proxy);
-				view.processProperties(proxy.getDynamicProperties());
+				view.processProperties(proxy.getProperties());
 				View v = view.getNativeView();
 				if (v.getParent() == null) {
 					content.addView(v, view.getLayoutParams());
@@ -174,11 +173,11 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 			}
 		} else {
 			String title = "Missing title";
-			if (rp.getDynamicValue("title") != null) {
-				title = TiConvert.toString(rp.getDynamicValue("title"));
+			if (rp.getProperty("title") != null) {
+				title = TiConvert.toString(rp.getProperty("title"));
 			}
-			if (!rp.hasDynamicValue("touchEnabled")) {
-				rp.internalSetDynamicValue("touchEnabled", false, false);
+			if (!rp.hasProperty("touchEnabled")) {
+				rp.setProperty("touchEnabled", false);
 			}
 			if (views == null) {
 				views = new TiUIView[1];
@@ -186,7 +185,7 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 			}
 			TiUILabel t = (TiUILabel) views[0];
 			t.setProxy(rp);
-			t.processProperties(filterProperties(rp.getDynamicProperties()));
+			t.processProperties(filterProperties(rp.getCreationDict()));
 			View v = t.getNativeView();
 			if (v.getParent() == null) {
 				TextView tv = (TextView) v;
@@ -289,9 +288,9 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 	private static String[] filteredProperties = new String[]{
 		"backgroundImage", "backgroundColor"
 	};
-	private TiDict filterProperties(TiDict d)
+	private KrollDict filterProperties(KrollDict d)
 	{
-		TiDict filtered = new TiDict(d);
+		KrollDict filtered = new KrollDict(d);
 		for (int i = 0;i < filteredProperties.length; i++) {
 			if (filtered.containsKey(filteredProperties[i])) {
 				filtered.remove(filteredProperties[i]);

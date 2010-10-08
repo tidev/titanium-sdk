@@ -7,12 +7,11 @@
 
 package ti.modules.titanium.ui.widget.webview;
 
-import org.appcelerator.titanium.TiDict;
+import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 
 import ti.modules.titanium.media.TiVideoActivity;
-import ti.modules.titanium.ui.WebViewProxy;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
@@ -39,10 +38,10 @@ public class TiWebViewClient extends WebViewClient
 
 	@Override
 	public void onPageFinished(WebView view, String url) {
+		binding.insertApiBindings();
 		super.onPageFinished(view, url);
-
 		webView.changeProxyUrl(url);
-		TiDict data = new TiDict();
+		KrollDict data = new KrollDict();
 		data.put("url", url);
 		webView.getProxy().fireEvent("load", data);
 	}
@@ -54,7 +53,7 @@ public class TiWebViewClient extends WebViewClient
 	@Override
 	public void onPageStarted(WebView view, String url, Bitmap favicon) {
 		super.onPageStarted(view, url, favicon);
-		binding.insertApiBindings();
+		//binding.insertApiBindings(); 
 	}
 
 	@Override
@@ -75,7 +74,7 @@ public class TiWebViewClient extends WebViewClient
 
 		if (URLUtil.isAssetUrl(url) || URLUtil.isContentUrl(url) || URLUtil.isFileUrl(url)) {
 			// go through the proxy to ensure we're on the UI thread
-			webView.getProxy().setDynamicValue("url", url);
+			webView.getProxy().setProperty("url", url, true);
 			return true;
 		} else if(url.startsWith(WebView.SCHEME_TEL)) {
 			Log.i(LCAT, "Launching dialer for " + url);

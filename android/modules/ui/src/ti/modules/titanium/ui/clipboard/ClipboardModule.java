@@ -6,13 +6,17 @@
  */
 package ti.modules.titanium.ui.clipboard;
 
+import org.appcelerator.kroll.KrollModule;
+import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiContext;
-import org.appcelerator.titanium.TiModule;
+
+import ti.modules.titanium.ui.UIModule;
 
 import android.content.Context;
 import android.text.ClipboardManager;
 
-public class ClipboardModule extends TiModule {
+@Kroll.module(parentModule=UIModule.class)
+public class ClipboardModule extends KrollModule {
 
 	public ClipboardModule(TiContext tiContext) {
 		super(tiContext);
@@ -36,16 +40,19 @@ public class ClipboardModule extends TiModule {
 		return mimeType.equals("text/plain") || mimeType.startsWith("text");
 	}
 
+	@Kroll.method
 	public void clearData(String type)
 	{
 		clearText();
 	}
 
+	@Kroll.method
 	public void clearText()
 	{
 		board().setText(""); // can we use null?
 	}
 
+	@Kroll.method
 	public Object getData(String type)
 	{
 		if (isTextType(type))
@@ -59,11 +66,13 @@ public class ClipboardModule extends TiModule {
 		}
 	}
 
+	@Kroll.method @Kroll.getProperty
 	public String getText()
 	{
 		return board().getText().toString();
 	}
 
+	@Kroll.method
 	public boolean hasData(String type)
 	{
 		if (type == null || isTextType(type))
@@ -76,11 +85,13 @@ public class ClipboardModule extends TiModule {
 		}
 	}
 
+	@Kroll.method
 	public boolean hasText()
 	{
 		return board().hasText();
 	}
 
+	@Kroll.method
 	public void setData(String type, Object data)
 	{
 		if (isTextType(type))
@@ -93,9 +104,9 @@ public class ClipboardModule extends TiModule {
 		}
 	}
 
+	@Kroll.method @Kroll.setProperty
 	public void setText(String text)
 	{
 		board().setText(text);
 	}
-
 }

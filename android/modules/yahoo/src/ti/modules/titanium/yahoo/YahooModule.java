@@ -10,11 +10,14 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
+import org.appcelerator.kroll.KrollModule;
+import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiContext;
-import org.appcelerator.titanium.TiModule;
+import org.appcelerator.titanium.kroll.KrollBridge;
 import org.appcelerator.titanium.util.Log;
 
-public class YahooModule extends TiModule
+@Kroll.module
+public class YahooModule extends KrollModule
 {
 	private static final String LCAT = "YahooModule";
 
@@ -22,12 +25,11 @@ public class YahooModule extends TiModule
 	{
 		super(tiContext);
 	}
-
-	@Override
-	public void postCreate() {
-//		super.postCreate();
+	
+	public void bindContextSpecific(KrollBridge bridge) {
+		super.bindContextSpecific(bridge);
+		// load our JS after we bind
 		String src = null;
-
 		BufferedReader is = null;
 		try {
 			is = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream("yahoo.js")));
@@ -41,7 +43,7 @@ public class YahooModule extends TiModule
 				src = sb.toString();
 			}
 		} catch (IOException e) {
-			Log.e(LCAT, "Unable to load yahoo.js");
+			Log.e(LCAT, "Unable to load yahoo.js");    
 		} finally {
 			if (is != null) {
 				try {
@@ -53,7 +55,7 @@ public class YahooModule extends TiModule
 		}
 
 		if (src != null) {
-			getTiContext().evalJS(src);
+			bridge.evalJS(src);
 		}
 	}
 

@@ -199,6 +199,11 @@ USE_VIEW_FOR_AUTO_WIDTH
 	[self evalJS:code];
 }
 
+- (NSString*)basename
+{
+	return nil;
+}
+
 
 @end
 

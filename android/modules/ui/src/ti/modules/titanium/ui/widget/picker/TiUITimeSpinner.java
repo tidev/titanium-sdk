@@ -13,8 +13,8 @@ import java.util.Date;
 
 import kankan.wheel.widget.WheelView;
 
-import org.appcelerator.titanium.TiDict;
-import org.appcelerator.titanium.TiProxy;
+import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.view.TiUIView;
 
@@ -61,7 +61,7 @@ public class TiUITimeSpinner extends TiUIView
 	}
 	
 	@Override
-	public void processProperties(TiDict d) {
+	public void processProperties(KrollDict d) {
 		super.processProperties(d);
 		
 		boolean valueExistsInProxy = false;
@@ -81,14 +81,14 @@ public class TiUITimeSpinner extends TiUIView
         setValue(calendar.getTimeInMillis() , true);
         
         if (!valueExistsInProxy) {
-        	proxy.internalSetDynamicValue("value", calendar.getTime(), false);
+        	proxy.setProperty("value", calendar.getTime());
         }
       
 	}
 	
 	@Override
 	public void propertyChanged(String key, Object oldValue, Object newValue,
-			TiProxy proxy)
+			KrollProxy proxy)
 	{
 		if (key.equals("value")) {
 			Date date = (Date)newValue;
@@ -126,9 +126,9 @@ public class TiUITimeSpinner extends TiUIView
 		calendar.set(Calendar.MINUTE, minutesWheel.getCurrentItem());
 		calendar.set(Calendar.HOUR_OF_DAY, hoursWheel.getCurrentItem());
 		Date dateval = calendar.getTime();
-		proxy.internalSetDynamicValue("value", dateval, false);
+		proxy.setProperty("value", dateval);
 		if (!suppressChangeEvent) {
-			TiDict data = new TiDict();
+			KrollDict data = new KrollDict();
 			data.put("value", dateval);
 			proxy.fireEvent("change", data);
 		}

@@ -12,11 +12,12 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollModule;
+import org.appcelerator.kroll.KrollProxy;
+import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.ContextSpecific;
 import org.appcelerator.titanium.TiContext;
-import org.appcelerator.titanium.TiDict;
-import org.appcelerator.titanium.TiModule;
-import org.appcelerator.titanium.TiProxy;
 import org.appcelerator.titanium.kroll.KrollCallback;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiActivityResultHandler;
@@ -26,18 +27,17 @@ import org.appcelerator.titanium.util.TiConfig;
 import android.app.Activity;
 import android.content.Intent;
 
-@ContextSpecific
-public class ContactsModule extends TiModule
+@Kroll.module @ContextSpecific
+public class ContactsModule extends KrollModule
 		implements TiActivityResultHandler
 {
-	private static TiDict constants;
 	private static final String LCAT = "TiContacts";
 	private static final boolean DBG = TiConfig.LOGD;
 	
-	protected static final int CONTACTS_KIND_ORGANIZATION = 0;
-	protected static final int CONTACTS_KIND_PERSON = 1;
-	private static final int CONTACTS_SORT_FIRST_NAME = 0;
-	private static final int CONTACTS_SORT_LAST_NAME = 1;
+	@Kroll.constant public static final int CONTACTS_KIND_ORGANIZATION = 0;
+	@Kroll.constant public static final int CONTACTS_KIND_PERSON = 1;
+	@Kroll.constant public static final int CONTACTS_SORT_FIRST_NAME = 0;
+	@Kroll.constant public static final int CONTACTS_SORT_LAST_NAME = 1;
 	
 	private final AtomicInteger requestCodeGen = new AtomicInteger();
 	private final CommonContactsApi contactsApi;
@@ -49,29 +49,16 @@ public class ContactsModule extends TiModule
 		contactsApi = CommonContactsApi.getInstance(tiContext);
 	}
 	
-	@Override
-	public TiDict getConstants()
-	{
-		if (constants == null) {
-			constants = new TiDict();
-			constants.put("CONTACTS_KIND_ORGANIZATION", CONTACTS_KIND_ORGANIZATION);
-			constants.put("CONTACTS_KIND_PERSON", CONTACTS_KIND_PERSON);
-			constants.put("CONTACTS_SORT_FIRST_NAME", CONTACTS_SORT_FIRST_NAME);
-			constants.put("CONTACTS_SORT_LAST_NAME", CONTACTS_SORT_LAST_NAME);
-		}
-		return constants;
-	}
-	
-	public Object[] getAllPeople(Object [] args)
+	@Kroll.method
+	public Object[] getAllPeople(@Kroll.argument(optional=true) KrollDict options)
 	{
 		Calendar start = Calendar.getInstance();
 		//TODO: right now, this is needed to be able to constrain
 		//temporarily for a specific app.. we need to rethink this entire API
 		int length = Integer.MAX_VALUE;
-		if (args!=null && args.length > 0)
+		if (options.containsKey("max"))
 		{
-			TiDict d = (TiDict) args[0];
-			Double maxObj = (Double)d.get("max");
+			Double maxObj = (Double)options.get("max");
 			length = maxObj.intValue();
 		}
 		
@@ -85,19 +72,22 @@ public class ContactsModule extends TiModule
 		return persons;
 	}
 	
+	@Kroll.method
 	public Object[] getPeopleWithName(String name)
 	{
 		return contactsApi.getPeopleWithName(name);
 	}
 	
+	@Kroll.method
 	public PersonProxy getPersonByID(long id)
 	{
 		return contactsApi.getPersonById(id);
 	}
 	
-	public void showContacts(Object[] args)
+	@Kroll.method
+	public void showContacts(@Kroll.argument(optional=true) KrollDict d)
 	{
-		TiProxy proxyForActivity = this;
+		KrollProxy proxyForActivity = this;
 		Intent intent = contactsApi.getIntentForContactsPicker();
 		if (DBG) {
 			Log.d(LCAT, "Launching content picker activity");
@@ -111,21 +101,18 @@ public class ContactsModule extends TiModule
 		Map<String, KrollCallback> callbacks = new HashMap<String, KrollCallback>();
 		requests.put(new Integer(requestCode), callbacks);
 		
-		if (args.length > 0) {
-			TiDict d = (TiDict) args[0];
-			String[] callbacksToConsider = new String[]{"selectedPerson", "cancel"};
-			for (String callbackToConsider : callbacksToConsider) {
-				if (d.containsKey(callbackToConsider)) {
-					Object test = d.get(callbackToConsider);
-					if (test instanceof KrollCallback) {
-						callbacks.put(callbackToConsider, (KrollCallback)test);
-					}
+		String[] callbacksToConsider = new String[]{"selectedPerson", "cancel"};
+		for (String callbackToConsider : callbacksToConsider) {
+			if (d.containsKey(callbackToConsider)) {
+				Object test = d.get(callbackToConsider);
+				if (test instanceof KrollCallback) {
+					callbacks.put(callbackToConsider, (KrollCallback)test);
 				}
 			}
 			if (d.containsKey("proxy")) {
 				Object test = d.get("proxy");
-				if (test != null && test instanceof TiProxy) {
-					proxyForActivity = (TiProxy) test;
+				if (test != null && test instanceof KrollProxy) {
+					proxyForActivity = (KrollProxy) test;
 				}
 			}
 		}
@@ -163,7 +150,7 @@ public class ContactsModule extends TiModule
 					KrollCallback callback = request.get("selectedPerson");
 					if (callback != null) {
 						PersonProxy person = contactsApi.getPersonByUri(data.getData());
-						TiDict result = new TiDict();
+						KrollDict result = new KrollDict();
 						result.put("person", person);
 						callback.call(new Object[]{result});
 					}

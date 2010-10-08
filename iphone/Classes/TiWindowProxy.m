@@ -258,7 +258,9 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 -(void)_tabFocus
 {
 	focused = YES;
-	[[[TiApp app] controller] windowFocused:[self controller]];
+	if (!navWindow) {
+		[[[TiApp app] controller] windowFocused:[self controller]];
+	}
 }
 
 -(void)_tabBlur

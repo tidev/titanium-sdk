@@ -6,9 +6,10 @@
  */
 package org.appcelerator.titanium.proxy;
 
+import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollProxy;
+import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiContext;
-import org.appcelerator.titanium.TiDict;
-import org.appcelerator.titanium.TiProxy;
 import org.appcelerator.titanium.util.AsyncResult;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiUIHelper;
@@ -18,12 +19,13 @@ import org.appcelerator.titanium.view.TiUIView;
 import android.app.Activity;
 import android.os.Message;
 
+@Kroll.proxy
 public abstract class TiWindowProxy extends TiViewProxy
 {
 	private static final String LCAT = "TiWindowProxy";
 	private static final boolean DBG = TiConfig.LOGD;
 
-	private static final int MSG_FIRST_ID = TiProxy.MSG_LAST_ID + 1;
+	private static final int MSG_FIRST_ID = KrollProxy.MSG_LAST_ID + 1;
 
 	private static final int MSG_OPEN = MSG_FIRST_ID + 100;
 	private static final int MSG_CLOSE = MSG_FIRST_ID + 101;
@@ -40,9 +42,9 @@ public abstract class TiWindowProxy extends TiViewProxy
 	protected TiViewProxy tab;
 	protected boolean inTab;
 
-	public TiWindowProxy(TiContext tiContext, Object[] args)
+	public TiWindowProxy(TiContext tiContext)
 	{
-		super(tiContext, args);
+		super(tiContext);
 		inTab = false;
 	}
 
@@ -57,13 +59,13 @@ public abstract class TiWindowProxy extends TiViewProxy
 		switch(msg.what) {
 			case MSG_OPEN : {
 				AsyncResult result = (AsyncResult) msg.obj;
-				handleOpen((TiDict) result.getArg());
+				handleOpen((KrollDict) result.getArg());
 				result.setResult(null); // signal opened
 				return true;
 			}
 			case MSG_CLOSE : {
 				AsyncResult result = (AsyncResult) msg.obj;
-				handleClose((TiDict) result.getArg());
+				handleClose((KrollDict) result.getArg());
 				result.setResult(null); // signal closed
 				return true;
 			}
@@ -73,20 +75,21 @@ public abstract class TiWindowProxy extends TiViewProxy
 		}
 	}
 
-	public void open(Object arg)
+	@Kroll.method
+	public void open(@Kroll.argument(optional=true) Object arg)
 	{
 		if (opened) {
 			return;
 		}
 
-		TiDict options = null;
+		KrollDict options = null;
 		TiAnimation animation = null;
 
 		if (arg != null) {
-			if (arg instanceof TiDict) {
-				options = (TiDict) arg;
+			if (arg instanceof KrollDict) {
+				options = (KrollDict) arg;
 			} else if (arg instanceof TiAnimation) {
-				options = new TiDict();
+				options = new KrollDict();
 				options.put("_anim", animation);
 			}
 		}
@@ -102,20 +105,21 @@ public abstract class TiWindowProxy extends TiViewProxy
 		result.getResult(); // Don't care about result, just synchronizing.
 	}
 
-	public void close(Object arg)
+	@Kroll.method
+	public void close(@Kroll.argument(optional=true) Object arg)
 	{
 		if (!opened) {
 			return;
 		}
 
-		TiDict options = null;
+		KrollDict options = null;
 		TiAnimation animation = null;
 
 		if (arg != null) {
-			if (arg instanceof TiDict) {
-				options = (TiDict) arg;
+			if (arg instanceof KrollDict) {
+				options = (KrollDict) arg;
 			} else if (arg instanceof TiAnimation) {
-				options = new TiDict();
+				options = new KrollDict();
 				options.put("_anim", animation);
 			}
 		}
@@ -159,15 +163,16 @@ public abstract class TiWindowProxy extends TiViewProxy
 		return this.tabGroup;
 	}
 
+	@Kroll.method
 	public void hideTabBar() {
 		// iPhone only right now.
 	}
 
-	public TiDict handleToImage() {
+	public KrollDict handleToImage() {
 		return TiUIHelper.viewToImage(getTiContext(), getTiContext().getActivity().getWindow().getDecorView());
 	}
 	
-	protected abstract void handleOpen(TiDict options);
+	protected abstract void handleOpen(KrollDict options);
 	//public abstract void handlePostOpen(Activity activity);
-	protected abstract void handleClose(TiDict options);
+	protected abstract void handleClose(KrollDict options);
 }

@@ -6,9 +6,10 @@
  */
 package ti.modules.titanium.media;
 
+import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollProxy;
+import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiContext;
-import org.appcelerator.titanium.TiDict;
-import org.appcelerator.titanium.TiProxy;
 import org.appcelerator.titanium.TiContext.OnLifecycleEvent;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
@@ -16,44 +17,54 @@ import org.appcelerator.titanium.util.TiConvert;
 
 import ti.modules.titanium.filesystem.FileProxy;
 
-public class AudioPlayerProxy extends TiProxy
+@Kroll.proxy(creatableInModule=MediaModule.class)
+public class AudioPlayerProxy extends KrollProxy
 	implements OnLifecycleEvent
 {
 	private static final String LCAT = "AudioPlayerProxy";
 	private static final boolean DBG = TiConfig.LOGD;
 
-	protected static TiDict constants;
-
+	@Kroll.constant public static final int STATE_BUFFERING = TiSound.STATE_BUFFERING;
+	@Kroll.constant public static final int STATE_INITIALIZED = TiSound.STATE_INITIALIZED;
+	@Kroll.constant public static final int STATE_PAUSED = TiSound.STATE_PAUSED;
+	@Kroll.constant public static final int STATE_PLAYING = TiSound.STATE_PLAYING;
+	@Kroll.constant public static final int STATE_STARTING = TiSound.STATE_STARTING;
+	@Kroll.constant public static final int STATE_STOPPED = TiSound.STATE_STOPPED;
+	@Kroll.constant public static final int STATE_STOPPING = TiSound.STATE_STOPPING;
+	@Kroll.constant public static final int STATE_WAITING_FOR_DATA = TiSound.STATE_WAITING_FOR_DATA;
+	@Kroll.constant public static final int STATE_WAITING_FOR_QUEUE = TiSound.STATE_WAITING_FOR_QUEUE;
+	
 	protected TiSound snd;
 
-	public AudioPlayerProxy(TiContext tiContext, Object[] args)
+	public AudioPlayerProxy(TiContext tiContext)
 	{
 		super(tiContext);
 
-		if (args != null && args.length > 0) {
-			TiDict options = (TiDict) args[0];
-			if (options != null) {
-				if (options.containsKey("url")) {
-					internalSetDynamicValue("url", tiContext.resolveUrl(null, TiConvert.toString(options, "url")), false);
-				} else if (options.containsKey("sound")) {
-					FileProxy fp = (FileProxy) options.get("sound");
-					if (fp != null) {
-						String url = fp.getNativePath();
-						internalSetDynamicValue("url", url, false);
-					}
-				}
-				if (options.containsKey("allowBackground")) {
-					internalSetDynamicValue("allowBackground", options.get("allowBackground"), false);
-				}
-				if (DBG) {
-					Log.i(LCAT, "Creating audio player proxy for url: " + TiConvert.toString(getDynamicValue("url")));
-				}
-			}
-		}
 		tiContext.addOnLifecycleEventListener(this);
-		setDynamicValue("volume", 0.5);
+		setProperty("volume", 0.5, true);
 	}
 
+	@Override
+	public void handleCreationDict(KrollDict options) {
+		super.handleCreationDict(options);
+		if (options.containsKey("url")) {
+			setProperty("url", getTiContext().resolveUrl(null, TiConvert.toString(options, "url")));
+		} else if (options.containsKey("sound")) {
+			FileProxy fp = (FileProxy) options.get("sound");
+			if (fp != null) {
+				String url = fp.getNativePath();
+				setProperty("url", url);
+			}
+		}
+		if (options.containsKey("allowBackground")) {
+			setProperty("allowBackground", options.get("allowBackground"));
+		}
+		if (DBG) {
+			Log.i(LCAT, "Creating audio player proxy for url: " + TiConvert.toString(getProperty("url")));
+		}
+	}
+	
+	@Kroll.getProperty @Kroll.method
 	public boolean isPlaying() {
 		TiSound s = getSound();
 		if (s != null) {
@@ -62,6 +73,7 @@ public class AudioPlayerProxy extends TiProxy
 		return false;
 	}
 
+	@Kroll.getProperty @Kroll.method
 	public boolean isPaused() {
 		TiSound s = getSound();
 		if (s != null) {
@@ -71,10 +83,12 @@ public class AudioPlayerProxy extends TiProxy
 	}
 
 	// An alias for play so that
+	@Kroll.method
 	public void start() {
 		play();
 	}
 
+	@Kroll.method
 	public void play() {
 		TiSound s = getSound();
 		if (s != null) {
@@ -82,6 +96,7 @@ public class AudioPlayerProxy extends TiProxy
 		}
 	}
 
+	@Kroll.method
 	public void pause() {
 		TiSound s = getSound();
 		if (s != null) {
@@ -89,6 +104,7 @@ public class AudioPlayerProxy extends TiProxy
 		}
 	}
 
+	@Kroll.method
 	public void release() {
 		TiSound s = getSound();
 		if (s != null) {
@@ -97,10 +113,12 @@ public class AudioPlayerProxy extends TiProxy
 		}
 	}
 
+	@Kroll.method
 	public void destroy() {
 		release();
 	}
 
+	@Kroll.method
 	public void stop() {
 		TiSound s = getSound();
 		if (s != null) {
@@ -119,8 +137,8 @@ public class AudioPlayerProxy extends TiProxy
 
 	private boolean allowBackground() {
 		boolean allow = false;
-		if (hasDynamicValue("allowBackground")) {
-			allow = TiConvert.toBoolean(getDynamicValue("allowBackground"));
+		if (hasProperty("allowBackground")) {
+			allow = TiConvert.toBoolean(getProperty("allowBackground"));
 		}
 		return allow;
 	}
@@ -152,24 +170,5 @@ public class AudioPlayerProxy extends TiProxy
 			snd.onDestroy();
 		}
 		snd = null;
-	}
-
-	@Override
-	public TiDict getConstants()
-	{
-		if (constants == null) {
-			constants = new TiDict();
-			constants.put("STATE_BUFFERING",TiSound.STATE_BUFFERING);
-			constants.put("STATE_INITIALIZED", TiSound.STATE_INITIALIZED);
-			constants.put("STATE_PAUSED", TiSound.STATE_PAUSED);
-			constants.put("STATE_PLAYING", TiSound.STATE_PLAYING);
-			constants.put("STATE_STARTING", TiSound.STATE_STARTING);
-			constants.put("STATE_STOPPED", TiSound.STATE_STOPPED);
-			constants.put("STATE_STOPPING", TiSound.STATE_STOPPING);
-			constants.put("STATE_WAITING_FOR_DATA", TiSound.STATE_WAITING_FOR_DATA);
-			constants.put("STATE_WAITING_FOR_QUEUE", TiSound.STATE_WAITING_FOR_QUEUE);
-		}
-
-		return constants;
 	}
 }

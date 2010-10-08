@@ -7,26 +7,23 @@
 package ti.modules.titanium.utils;
 
 import java.io.UnsupportedEncodingException;
-import java.io.IOException;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.Charset;
-import java.security.DigestInputStream;
-import java.security.DigestOutputStream;
-import java.security.NoSuchAlgorithmException;
 import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.digest.DigestUtils;
-import org.appcelerator.titanium.TiContext;
-import org.appcelerator.titanium.TiModule;
+import org.appcelerator.kroll.KrollModule;
+import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiBlob;
+import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConvert;
 
-public class UtilsModule extends TiModule
+@Kroll.module
+public class UtilsModule extends KrollModule
 {
 	private static final String LCAT = "UtilsModule";
 
@@ -34,6 +31,7 @@ public class UtilsModule extends TiModule
 		super(tiContext);
 	}
 
+	@Kroll.method
 	public TiBlob base64encode(Object obj) {
 		if (obj instanceof TiBlob) {
 			return TiBlob.blobFromString(getTiContext(), ((TiBlob)obj).toBase64());
@@ -52,10 +50,10 @@ public class UtilsModule extends TiModule
 		return null;
 	}
 
-	public TiBlob base64decode(Object obj)
+	@Kroll.method
+	public TiBlob base64decode(String data)
 	{
 		try {
-			String data = TiConvert.toString(obj);
 			return TiBlob.blobFromData(getTiContext(), Base64.decodeBase64(data.getBytes("UTF-8")));
 		} catch (UnsupportedEncodingException e) {
 			Log.e(LCAT, "UTF-8 is not a supported encoding type");
@@ -64,15 +62,15 @@ public class UtilsModule extends TiModule
 		return null;
 	}
 
-	public String md5HexDigest(Object obj) {
-		String data = TiConvert.toString(obj);
+	@Kroll.method
+	public String md5HexDigest(String data) {
 		return DigestUtils.md5Hex(data);
 	}
 	
-	public String sha1(Object obj) {
+	@Kroll.method
+	public String sha1(String data) {
 		try
 		{
-			String data = TiConvert.toString(obj);
 			byte[] b = data.getBytes();
 			MessageDigest algorithm = MessageDigest.getInstance("SHA-1");
 			algorithm.reset();

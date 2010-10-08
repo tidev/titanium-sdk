@@ -7,10 +7,13 @@
 
 package ti.modules.titanium.accelerometer;
 
+import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollModule;
+import org.appcelerator.kroll.KrollProxy;
+import org.appcelerator.kroll.KrollProxyListener;
+import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiContext;
-import org.appcelerator.titanium.TiDict;
-import org.appcelerator.titanium.TiModule;
-import org.appcelerator.titanium.TiProxy;
+import org.appcelerator.titanium.TiContext.OnLifecycleEvent;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiSensorHelper;
 
@@ -19,8 +22,9 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 
-public class AccelerometerModule
-	extends TiModule
+@Kroll.module
+public class AccelerometerModule extends KrollModule
+	implements KrollProxyListener, OnLifecycleEvent
 {
 	private static final String LCAT = "TiAccelerometer";
 	private static final boolean DBG = TiConfig.LOGD;
@@ -43,19 +47,13 @@ public class AccelerometerModule
 	public AccelerometerModule(TiContext tiContext)
 	{
 		super(tiContext);
-
 		sensorHelper = new TiSensorHelper();
 		updateListener = createUpdateListener();
 
 		sensorAttached = false;
 		listeningForUpdate = false;
 
-		tiContext.addOnEventChangeListener(this);
-	}
-
-	@Override
-	public TiDict getConstants() {
-		return null;
+		eventManager.addOnEventChangeListener(this);
 	}
 
 	protected SensorEventListener createUpdateListener() {
@@ -76,7 +74,7 @@ public class AccelerometerModule
 					float y = event.values[SensorManager.DATA_Y];
 					float z = event.values[SensorManager.DATA_Z];
 
-					TiDict data = new TiDict();
+					KrollDict data = new KrollDict();
 					data.put("type", EVENT_UPDATE);
 					data.put("timestamp", lastEventInUpdate);
 					data.put("x", x);
@@ -89,9 +87,8 @@ public class AccelerometerModule
 	}
 
 	@Override
-	public void listenerAdded(String eventName, int count, TiProxy proxy) {
+	public void listenerAdded(String eventName, int count, KrollProxy proxy) {
 		super.listenerAdded(eventName, count, proxy);
-
 		if (eventName != null && eventName.equals(EVENT_UPDATE)) {
 			if (proxy != null && proxy.equals(this)) {
 				if (!listeningForUpdate) {
@@ -104,7 +101,7 @@ public class AccelerometerModule
 	}
 
 	@Override
-	public void listenerRemoved(String eventName, int count, TiProxy proxy) {
+	public void listenerRemoved(String eventName, int count, KrollProxy proxy) {
 		super.listenerRemoved(eventName, count, proxy);
 		if (eventName != null && eventName.equals(EVENT_UPDATE)) {
 			if (proxy != null && proxy.equals(this)) {
@@ -139,11 +136,10 @@ public class AccelerometerModule
 	@Override
 	public void onResume() {
 		super.onResume();
-
 		sensorAttached = sensorHelper.attach(getTiContext().getActivity());
 
 		if (sensorAttached) {
-			if (getTiContext().hasEventListener(EVENT_UPDATE, this)) {
+			if (hasListeners(EVENT_UPDATE)) {
 				manageUpdateListener(true);
 			}
 		}
@@ -152,7 +148,6 @@ public class AccelerometerModule
 	@Override
 	public void onPause() {
 		super.onPause();
-
 		if (sensorAttached) {
 			manageUpdateListener(false);
 

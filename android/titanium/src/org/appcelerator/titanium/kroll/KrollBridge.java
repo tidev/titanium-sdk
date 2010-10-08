@@ -8,62 +8,119 @@ package org.appcelerator.titanium.kroll;
 
 import java.io.IOException;
 
-import org.appcelerator.titanium.TiDict;
+import org.appcelerator.kroll.KrollConverter;
+import org.appcelerator.kroll.KrollInvocation;
+import org.appcelerator.kroll.KrollModule;
+import org.appcelerator.kroll.KrollObject;
+import org.appcelerator.kroll.KrollProxy;
+import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiEvaluator;
 import org.mozilla.javascript.Scriptable;
 
-public class KrollBridge
-	implements TiEvaluator
+import ti.modules.titanium.TitaniumModule;
+
+public class KrollBridge implements TiEvaluator
 {
-
+	private static TitaniumModule tiModule;
 	private KrollContext kroll;
-	private TitaniumObject titanium;
-
-	public KrollBridge(KrollContext kroll, TiDict preload)
+	private KrollObject titanium;
+	
+	public KrollBridge(KrollContext kroll)
 	{
 		this.kroll = kroll;
+		TiContext tiContext = kroll.getTiContext();
+		tiContext.setJSContext(this);
 
-		titanium = new TitaniumObject(kroll);
-		kroll.put("Titanium", titanium);
-		kroll.put("Ti", titanium);
-
-		kroll.put("setTimeout", (Scriptable) titanium.get("setTimeout", titanium));
-		kroll.put("clearTimeout", (Scriptable) titanium.get("clearTimeout", titanium));
-		kroll.put("setInterval", (Scriptable) titanium.get("setInterval", titanium));
-		kroll.put("clearInterval", (Scriptable) titanium.get("clearInterval", titanium));
-		kroll.put("alert", (Scriptable) titanium.get("alert", titanium));
-		kroll.put("JSON", (Scriptable) titanium.get("JSON", titanium));
-		kroll.put("require", (Scriptable) titanium.get("require", titanium));
+		if (tiModule == null) {
+			tiModule = new TitaniumModule(kroll.getTiContext());
+		}
+		titanium = new KrollObject(tiModule);
+		tiModule.bindContextSpecific(this);
 		
-		//TODO: userAgent and version
-
-		if (preload != null) {
-			Object p = titanium.loadModule("UI");
-			Scriptable root = kroll.getScope();
-			Scriptable ti = (Scriptable) root.get("Ti", root);
-			KrollObject ui = new KrollObject((KrollObject) ti, p);
-			ti.put("UI", ti, ui);
-
-			for(String key : preload.keySet()) {
-				KrollObject ko = new KrollObject(ui, preload.get(key));
-				ui.superPut(key, ui, ko);
+		tiContext.getTiApp().bindModules(this, tiModule);
+	}
+	
+	public Scriptable getObject(Scriptable globalObject, String... objects) {
+		Scriptable object = globalObject;
+		for (int i = 0; i < objects.length; i++) {
+			Object child = object.get(objects[i], object);
+			if (child instanceof Scriptable) {
+				object = (Scriptable)child;
+			} else {
+				return null;
 			}
+		}
+		return object;
+	}
+	
+	public KrollObject getObject(String... objects) {
+		Scriptable sObject = getObject(titanium, objects);
+		if (sObject instanceof KrollObject) {
+			return (KrollObject)sObject;
+		}
+		return null;
+	}
+	
+	public KrollObject getObject(String name) {
+		if (name == null) return titanium;
+		
+		return getObject(name.split("\\."));
+	}
+	
+	public void bindToTopLevel(String topLevelName, Object value) {
+		if (value instanceof KrollProxy) {
+			value = new KrollObject((KrollProxy)value);
+		}
+		
+		Scriptable parent = kroll.getScope();
+		String name = topLevelName;
+		if (topLevelName.contains(".")) {
+			// Support for setting named properties on existing top level objects
+			int lastDot = topLevelName.lastIndexOf(".");
+			String parentName = topLevelName.substring(0, lastDot);
+			parent = getObject(kroll.getScope(), parentName.split("\\."));
+			if (parent == null) {
+				parent = kroll.getScope();
+			} else {
+				name = topLevelName.substring(lastDot+1);
+			}
+		}
+		
+		parent.put(name, parent, value);
+	}
+	
+	public void bindToTopLevel(String topLevelName, String objectName) {
+		bindToTopLevel(topLevelName, getObject(objectName));
+	}
+	
+	public void bindContextSpecific(String ctxSpecificName, String objectName) {
+		int lastDot = ctxSpecificName.lastIndexOf('.');
+		if (lastDot < 0) return;
+		
+		String objName = ctxSpecificName.substring(0, lastDot);
+		String ctxName = ctxSpecificName.substring(lastDot+1);
+		
+		Scriptable object = getObject(titanium, objectName);
+		bindContextSpecific(objName, ctxName, object);
+	}
+	
+	public void bindContextSpecific(String objectName, String ctxSpecificName, Object value) {
+		Scriptable object = titanium;
+		if (objectName != null) {
+			object = getObject(titanium, objectName);
+		}
+		if (object != null) {
+			KrollInvocation invocation = KrollInvocation.createPropertySetInvocation(object, object, ctxSpecificName, null, null);
+			object.put(ctxSpecificName, object, KrollConverter.getInstance().convertNative(invocation, value));
 		}
 	}
-
-	// objectName should be relative to "Titanium"
-	public void bindToToplevel(String topLevelName, String[] objectName)
-	{
-		Scriptable o = titanium;
-		for (int i = 0; i < objectName.length; i++) {
-			o = (Scriptable) o.get(objectName[i], o);
-			if (o == Scriptable.NOT_FOUND) {
-				// this object doesn't exist
-				return;
-			}
+	
+	public KrollModule getModule(String moduleName) {
+		KrollObject object = getObject(moduleName);
+		if (object != null) {
+			return (KrollModule) object.getProxy();
 		}
-
-		kroll.put(topLevelName, o);
+		return null;
 	}
 
 	public Object evalFile(String filename)
@@ -75,8 +132,18 @@ public class KrollBridge
 	public Object evalJS(String src) {
 		return kroll.eval(src);
 	}
-
-	public void fireEvent() {
+	
+	public KrollContext getKrollContext() {
+		return kroll;
+	}
+	
+	@Override
+	public Scriptable getScope() {
+		return kroll.getScope();
+	}
+	
+	public KrollProxy getRootObject() {
+		return titanium.getProxy();
 	}
 	
 	public void release() {

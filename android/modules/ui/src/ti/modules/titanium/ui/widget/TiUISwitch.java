@@ -6,8 +6,8 @@
  */
 package ti.modules.titanium.ui.widget;
 
-import org.appcelerator.titanium.TiDict;
-import org.appcelerator.titanium.TiProxy;
+import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
@@ -36,7 +36,7 @@ public class TiUISwitch extends TiUIView
 
 
 	@Override
-	public void processProperties(TiDict d)
+	public void processProperties(KrollDict d)
 	{
 		super.processProperties(d);
 
@@ -48,7 +48,7 @@ public class TiUISwitch extends TiUIView
 
 
 	@Override
-	public void propertyChanged(String key, Object oldValue, Object newValue, TiProxy proxy)
+	public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy proxy)
 	{
 		if (DBG) {
 			Log.d(LCAT, "Property: " + key + " old: " + oldValue + " new: " + newValue);
@@ -63,11 +63,11 @@ public class TiUISwitch extends TiUIView
 	}
 
 	public void onClick(View v) {
-		TiDict data = new TiDict();
+		KrollDict data = new KrollDict();
 		ToggleButton btn = (ToggleButton) v;
 		boolean isChecked = btn.isChecked();
 		data.put("value", isChecked);
-		proxy.internalSetDynamicValue("value", isChecked, false);
+		proxy.setProperty("value", isChecked);
 		proxy.fireEvent("change", data);
 	}
 }

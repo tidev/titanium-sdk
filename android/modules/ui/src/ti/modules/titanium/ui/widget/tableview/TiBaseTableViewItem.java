@@ -8,8 +8,8 @@ package ti.modules.titanium.ui.widget.tableview;
 
 import java.io.IOException;
 
+import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.titanium.TiContext;
-import org.appcelerator.titanium.TiDict;
 import org.appcelerator.titanium.io.TiBaseFile;
 import org.appcelerator.titanium.io.TiFileFactory;
 import org.appcelerator.titanium.util.Log;
@@ -32,8 +32,8 @@ public abstract class TiBaseTableViewItem extends ViewGroup implements Handler.C
 	private static final String LCAT = "TitaniamBaseTableViewItem";
 	private static final boolean DBG = TiConfig.LOGD;
 	
-	private static final Bitmap childIndicatorBitmap = BitmapFactory.decodeStream(TiDict.class.getResourceAsStream("/org/appcelerator/titanium/res/drawable/btn_more.png"));
-	private static final Bitmap checkIndicatorBitmap = BitmapFactory.decodeStream(TiDict.class.getResourceAsStream("/org/appcelerator/titanium/res/drawable/btn_check_buttonless_on.png"));
+	private static final Bitmap childIndicatorBitmap = BitmapFactory.decodeStream(KrollDict.class.getResourceAsStream("/org/appcelerator/titanium/res/drawable/btn_more.png"));
+	private static final Bitmap checkIndicatorBitmap = BitmapFactory.decodeStream(KrollDict.class.getResourceAsStream("/org/appcelerator/titanium/res/drawable/btn_check_buttonless_on.png"));
 	
 	protected Handler handler;
 	protected TiContext tiContext;
@@ -90,7 +90,7 @@ public abstract class TiBaseTableViewItem extends ViewGroup implements Handler.C
 		if (tfh == null) {
 			tfh = new TiFileHelper(tiContext.getActivity());
 		}
-		return tfh.loadDrawable(url, false);
+		return tfh.loadDrawable(tiContext, url, false);
 	}
 
 	public String getClassName() {
@@ -101,7 +101,7 @@ public abstract class TiBaseTableViewItem extends ViewGroup implements Handler.C
 		this.className = className;
 	}
 	
-	public void setBackgroundImageProperty(TiDict d, String property)
+	public void setBackgroundImageProperty(KrollDict d, String property)
 	{
 		String path = TiConvert.toString(d, property);
 		String url = tiContext.resolveUrl(null, path);
@@ -113,13 +113,16 @@ public abstract class TiBaseTableViewItem extends ViewGroup implements Handler.C
 		}
 	}
 	
-	public void setBackgroundFromProperties(TiDict props)
+	public void setBackgroundFromProperties(KrollDict props)
 	{
 		if (props.containsKey("backgroundImage")) {
 			setBackgroundImageProperty(props, "backgroundImage");
 		} else if (props.containsKey("backgroundColor")) {
-			Integer bgColor = TiConvert.toColor(props, "backgroundColor", "opacity");
+			Integer bgColor = TiConvert.toColor(props, "backgroundColor");
 			setBackgroundColor(bgColor);
+		}
+		if (props.containsKey("opacity")) {
+			TiUIHelper.setDrawableOpacity(getBackground(), TiConvert.toFloat(props, "opacity"));
 		}
 	}
 	

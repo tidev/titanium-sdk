@@ -6,7 +6,7 @@
  */
 package ti.modules.titanium.ui.widget;
 
-import org.appcelerator.titanium.TiDict;
+import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConvert;
@@ -58,7 +58,7 @@ public class TiUIScrollView extends TiUIView {
 		}
 
 		private int getContentProperty(String property) {
-			Object value = getProxy().getDynamicValue(property);
+			Object value = getProxy().getProperty(property);
 			if (value != null) {
 				if (value.equals("auto")) {
 					return AUTO;
@@ -196,7 +196,7 @@ public class TiUIScrollView extends TiUIView {
 		protected void onScrollChanged(int l, int t, int oldl, int oldt) {
 			super.onScrollChanged(l, t, oldl, oldt);
 
-			TiDict data = new TiDict();
+			KrollDict data = new KrollDict();
 			data.put("x", l);
 			data.put("y", t);
 			getProxy().fireEvent("scroll", data);
@@ -232,7 +232,7 @@ public class TiUIScrollView extends TiUIView {
 		protected void onScrollChanged(int l, int t, int oldl, int oldt) {
 			super.onScrollChanged(l, t, oldl, oldt);
 
-			TiDict data = new TiDict();
+			KrollDict data = new KrollDict();
 			data.put("x", l);
 			data.put("y", t);
 			getProxy().fireEvent("scroll", data);
@@ -248,7 +248,7 @@ public class TiUIScrollView extends TiUIView {
 	}
 
 	@Override
-	public void processProperties(TiDict d)
+	public void processProperties(KrollDict d)
 	{
 		boolean showHorizontalScrollBar = false;
 		boolean showVerticalScrollBar = false;
@@ -327,6 +327,17 @@ public class TiUIScrollView extends TiUIView {
 		getNativeView().scrollTo(x, y);
 		getNativeView().computeScroll();
 		//getLayout().scrollTo(x, y);
+	}
+	
+	public void scrollToBottom() {
+		View view = getNativeView();
+		if (view instanceof TiHorizontalScrollView) {
+			TiHorizontalScrollView scrollView = (TiHorizontalScrollView)view;
+			scrollView.fullScroll(View.FOCUS_RIGHT);
+		} else if (view instanceof TiVerticalScrollView) {
+			TiVerticalScrollView scrollView = (TiVerticalScrollView)view;
+			scrollView.fullScroll(View.FOCUS_DOWN);
+		}
 	}
 	
 	@Override

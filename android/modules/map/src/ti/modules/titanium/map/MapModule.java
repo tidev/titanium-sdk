@@ -6,39 +6,27 @@
  */
 package ti.modules.titanium.map;
 
+import org.appcelerator.kroll.KrollModule;
+import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiContext;
-import org.appcelerator.titanium.TiDict;
-import org.appcelerator.titanium.TiModule;
 import org.appcelerator.titanium.util.TiConfig;
 
-public class MapModule extends TiModule
+@Kroll.module
+public class MapModule extends KrollModule
 {
 	private static final String LCAT = "TiMap";
 	private static final boolean DBG = TiConfig.LOGD;
 
-	private static TiDict constants;
+	@Kroll.constant public static final int ANNOTATION_RED = 1;
+	@Kroll.constant public static final int ANNOTATION_GREEN = 2;
+	@Kroll.constant public static final int ANNOTATION_PURPLE = 3;
+
+	@Kroll.constant public static final int STANDARD_TYPE = TiMapView.MAP_VIEW_STANDARD;
+	@Kroll.constant public static final int SATELLITE_TYPE = TiMapView.MAP_VIEW_SATELLITE;
+	@Kroll.constant public static final int HYBRID_TYPE = TiMapView.MAP_VIEW_HYBRID;
 
 	public MapModule(TiContext tiContext)
 	{
 		super(tiContext);
 	}
-
-	@Override
-	public TiDict getConstants() {
-		if (constants == null) {
-			constants = new TiDict();
-
-			constants.put("ANNOTATION_RED", 1);
-			constants.put("ANNOTATION_GREEN", 2);
-			constants.put("ANNOTATION_PURPLE", 3);
-
-			constants.put("STANDARD_TYPE", TiMapView.MAP_VIEW_STANDARD);
-			constants.put("SATELLITE_TYPE", TiMapView.MAP_VIEW_SATELLITE);
-			constants.put("HYBRID_TYPE", TiMapView.MAP_VIEW_HYBRID);
-		}
-
-		return constants;
-	}
-
-
 }

@@ -11,9 +11,10 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiContext;
-import org.appcelerator.titanium.TiDict;
 import org.appcelerator.titanium.io.TiBaseFile;
 import org.appcelerator.titanium.io.TiFile;
 import org.appcelerator.titanium.proxy.TiViewProxy;
@@ -31,35 +32,28 @@ import android.content.Intent;
 import android.net.Uri;
 import android.text.Html;
 
+@Kroll.proxy(creatableInModule=UIModule.class)
 public class EmailDialogProxy extends TiViewProxy {
 	
 	private static final String LCAT = "EmailDialogProxy";
 	private static final boolean DBG = TiConfig.LOGD;	
-	public static final int CANCELLED = 0;
-	public static final int SAVED = 1;
-	public static final int SENT = 2;
-	public static final int FAILED = 3;
 	
-	public static TiDict constants;
+	@Kroll.constant
+	public static final int CANCELLED = 0;
+	@Kroll.constant
+	public static final int SAVED = 1;
+	@Kroll.constant
+	public static final int SENT = 2;
+	@Kroll.constant
+	public static final int FAILED = 3;
 	
 	private ArrayList<Object> attachments;
 	
-	public EmailDialogProxy(TiContext tiContext, Object[] args) {
-		super(tiContext, args);		
+	public EmailDialogProxy(TiContext tiContext) {
+		super(tiContext);
 	}
 	
-	@Override
-	public TiDict getConstants() {
-		if (constants == null) {
-			constants = new TiDict();
-			constants.put("CANCELLED", CANCELLED);
-			constants.put("SAVED", SAVED);
-			constants.put("SENT", SENT);
-			constants.put("FAILED", FAILED);			
-		}
-		return constants;
-	} 
-	
+	@Kroll.method
 	public void addAttachment(Object attachment) {
 		if (attachment instanceof FileProxy || attachment instanceof TiBlob) {
 			if (attachments == null) {
@@ -70,7 +64,7 @@ public class EmailDialogProxy extends TiViewProxy {
 			// silently ignore?
 			if (DBG) {
 				Log.d(LCAT, "addAttachment for type " + attachment.getClass().getName() + " ignored. Only files and blobs may be attached.");
-			}			
+			}
 		}
 	}
 	
@@ -88,13 +82,14 @@ public class EmailDialogProxy extends TiViewProxy {
 		}
 		return result;
 	}
-			
+	
+	@Kroll.method
 	public void open(){
 		Intent sendIntent = new Intent(Intent.ACTION_SEND);
 		
 		boolean isHtml = false;
-		if (hasDynamicValue("html")) {
-			isHtml = TiConvert.toBoolean(getDynamicValue("html"));
+		if (hasProperty("html")) {
+			isHtml = TiConvert.toBoolean(getProperty("html"));
 		}
 		
 		String intentType = baseMimeType(isHtml);
@@ -128,7 +123,7 @@ public class EmailDialogProxy extends TiViewProxy {
 					// ACTION_SEND does not set a result code (so the default of 0
 					// is always returned. We'll neither confirm nor deny -- assume SENT
 					// see http://code.google.com/p/android/issues/detail?id=5512
-					TiDict result = new TiDict();
+					KrollDict result = new KrollDict();
 					result.put("result", SENT); // TODO fix this when figure out above
 					result.put("success", true);
 					fireEvent("complete", result);					
@@ -136,7 +131,7 @@ public class EmailDialogProxy extends TiViewProxy {
 				
 				@Override
 				public void onError(Activity activity, int requestCode, Exception e) {
-					TiDict result = new TiDict();
+					KrollDict result = new KrollDict();
 					result.put("result", FAILED);
 					result.put("error", e.getMessage());
 					result.put("success", false);
@@ -257,9 +252,9 @@ public class EmailDialogProxy extends TiViewProxy {
 		putStringExtra(intent, extraType, ourKey, false);
 	}
 	
-	private void putStringExtra(Intent intent, String extraType, String ourkey, boolean encodeHtml) {		
-		if (this.hasDynamicValue(ourkey)) {
-			String text = TiConvert.toString(this.getDynamicValue(ourkey)) ;
+	private void putStringExtra(Intent intent, String extraType, String ourkey, boolean encodeHtml) {
+		if (this.hasProperty(ourkey)) {
+			String text = TiConvert.toString(this.getProperty(ourkey)) ;
 			if (encodeHtml) {
 				intent.putExtra(extraType, Html.fromHtml(text));
 			} else {
@@ -269,15 +264,14 @@ public class EmailDialogProxy extends TiViewProxy {
 	}
 	
 	private void putAddressExtra(Intent intent, String extraType, String ourkey) {
-		Object testprop = this.getDynamicValue(ourkey);
+		Object testprop = this.getProperty(ourkey);
 		if (testprop instanceof String[]) {
 			intent.putExtra(extraType, (String[])testprop);
 		}		
 	}
 
 	@Override
-	public TiUIView createView(Activity activity) {		
+	public TiUIView createView(Activity activity) {
 		return null;
 	}
-	
 }

@@ -18,8 +18,8 @@ import java.util.Locale;
 
 import kankan.wheel.widget.WheelView;
 
-import org.appcelerator.titanium.TiDict;
-import org.appcelerator.titanium.TiProxy;
+import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConvert;
@@ -70,15 +70,15 @@ public class TiUIDateSpinner extends TiUIView
 		dayWheel.setTextSize(monthWheel.getTextSize());
 		yearWheel.setTextSize(monthWheel.getTextSize());
 		
-    	monthWheel.setItemSelectedListener(this);
-    	dayWheel.setItemSelectedListener(this);
-    	yearWheel.setItemSelectedListener(this);
-        
+		monthWheel.setItemSelectedListener(this);
+		dayWheel.setItemSelectedListener(this);
+		yearWheel.setItemSelectedListener(this);
+		
 		LinearLayout layout = new LinearLayout(proxy.getContext());
 		layout.setOrientation(LinearLayout.HORIZONTAL);
 		
-		if (proxy.hasDynamicValue("dayBeforeMonth")) {
-			dayBeforeMonth = TiConvert.toBoolean(proxy.getDynamicProperties(), "dayBeforeMonth");
+		if (proxy.hasProperty("dayBeforeMonth")) {
+			dayBeforeMonth = TiConvert.toBoolean(proxy.getProperties(), "dayBeforeMonth");
 		}
 		
 		if (dayBeforeMonth) {
@@ -95,7 +95,7 @@ public class TiUIDateSpinner extends TiUIView
 	}
 	
 	@Override
-	public void processProperties(TiDict d) {
+	public void processProperties(KrollDict d) {
 		super.processProperties(d);
 		
 		boolean valueExistsInProxy = false;
@@ -143,14 +143,13 @@ public class TiUIDateSpinner extends TiUIView
         setValue(calendar.getTimeInMillis() , true);
         
         if (!valueExistsInProxy) {
-        	proxy.internalSetDynamicValue("value", calendar.getTime(), false);
+        	proxy.setProperty("value", calendar.getTime());
         }
       
 	}
 	
 	@Override
-	public void propertyChanged(String key, Object oldValue, Object newValue,
-			TiProxy proxy)
+	public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy proxy)
 	{
 		if ("value".equals(key)) {
 			Date date = (Date)newValue;
@@ -297,11 +296,11 @@ public class TiUIDateSpinner extends TiUIView
 		setAdapters();
 		
 		syncWheels();
-		proxy.internalSetDynamicValue("value", newVal, false);
+		proxy.setProperty("value", newVal);
 		
 		if (isChanged && !suppressEvent) {
 			if (!suppressChangeEvent) {
-				TiDict data = new TiDict();
+				KrollDict data = new KrollDict();
 				data.put("value", newVal);
 				proxy.fireEvent("change", data);
 			}

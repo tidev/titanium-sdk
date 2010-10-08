@@ -59,10 +59,10 @@ import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpProtocolParams;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.util.EntityUtils;
+import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBlob;
-import org.appcelerator.titanium.TiDict;
-import org.appcelerator.titanium.TiProxy;
 import org.appcelerator.titanium.io.TiBaseFile;
 import org.appcelerator.titanium.kroll.KrollCallback;
 import org.appcelerator.titanium.util.Log;
@@ -93,7 +93,7 @@ public class TiHTTPClient
 	private static final String ON_DATA_STREAM = "ondatastream";
 	private static final String ON_SEND_STREAM = "onsendstream";
 
-	private TiProxy proxy;
+	private KrollProxy proxy;
 	private int readyState;
 	private String responseText;
 	private DocumentProxy responseXml;
@@ -195,7 +195,7 @@ public class TiHTTPClient
 						} else {
 							while((count = is.read(buf)) != -1) {
 								totalSize += count;
-								TiDict o = new TiDict();
+								KrollDict o = new KrollDict();
 								o.put("totalCount", contentLength);
 								o.put("totalSize", totalSize);
 								o.put("size", count);
@@ -212,7 +212,7 @@ public class TiHTTPClient
 								o.put("blob", blob);
 								o.put("progress", ((double)totalSize)/((double)contentLength));
 
-								cb.callWithProperties(o);
+								cb.call(o);
 							}
 							if (entity != null) {
 								try {
@@ -343,7 +343,7 @@ public class TiHTTPClient
 		}
 	}
 
-	public TiHTTPClient(TiProxy proxy)
+	public TiHTTPClient(KrollProxy proxy)
 	{
 		this.proxy = proxy;
 
@@ -367,7 +367,7 @@ public class TiHTTPClient
 
 	public KrollCallback getCallback(String name)
 	{
-		Object value = proxy.getDynamicValue(name);
+		Object value = proxy.getProperty(name);
 		if (value != null && value instanceof KrollCallback)
 		{
 			return (KrollCallback) value;
@@ -385,13 +385,14 @@ public class TiHTTPClient
 		KrollCallback cb = getCallback(name);
 		if (cb != null)
 		{
+			cb.setThisProxy(proxy);
 			cb.call(args);
 		}
 	}
 
 	public boolean validatesSecureCertificate() {
-		if (proxy.hasDynamicValue("validatesSecureCertificate")) {
-			return TiConvert.toBoolean(proxy.getDynamicValue("validatesSecureCertificate"));
+		if (proxy.hasProperty("validatesSecureCertificate")) {
+			return TiConvert.toBoolean(proxy.getProperty("validatesSecureCertificate"));
 		} else {
 			if (proxy.getTiContext().getTiApp().getDeployType().equals(
 					TiApplication.DEPLOY_TYPE_PRODUCTION)) {
@@ -414,7 +415,7 @@ public class TiHTTPClient
 
 	public void sendError(String error) {
 		Log.i(LCAT, "Sending error " + error);
-		TiDict event = new TiDict();
+		KrollDict event = new KrollDict();
 		event.put("error", error);
 		event.put("source", proxy);
 		fireCallback(ON_ERROR, new Object[] {event});
@@ -626,7 +627,7 @@ public class TiHTTPClient
 			credentials = new UsernamePasswordCredentials(uri.getUserInfo());
 		}
 		setReadyState(READY_STATE_OPENED);
-		setRequestHeader("User-Agent", (String) proxy.getDynamicValue("userAgent"));
+		setRequestHeader("User-Agent", (String) proxy.getProperty("userAgent"));
 		// Causes Auth to Fail with twitter and other size apparently block X- as well
 		// Ticket #729, ignore twitter for now
 		if (!uri.getHost().contains("twitter.com")) {
@@ -696,8 +697,8 @@ public class TiHTTPClient
 		
 		if (userData != null)
 		{
-			if (userData instanceof TiDict) {
-				TiDict data = (TiDict)userData;
+			if (userData instanceof KrollDict) {
+				KrollDict data = (KrollDict)userData;
 				
 				// first time through check if we need multipart for POST
 				for (String key : data.keySet()) {
@@ -831,7 +832,7 @@ public class TiHTTPClient
 							public void progress(int progress) {
 								KrollCallback cb = getCallback(ON_SEND_STREAM);
 								if (cb != null) {
-									TiDict data = new TiDict();
+									KrollDict data = new KrollDict();
 									data.put("progress", ((double)progress)/fTotalLength);
 									data.put("source", proxy);
 									cb.callWithProperties(data);

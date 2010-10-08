@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project default="plugin_export" name="build">
+	<target name="plugin_export">
+		
+		<pde.exportPlugins
+			destination="bin" exportSource="true" exportType="directory" plugins="org.appcelerator.kroll.apt" useJARFormat="true"/>
+	</target>
+</project>

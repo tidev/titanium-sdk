@@ -6,14 +6,14 @@
  */
 package ti.modules.titanium.network;
 
+import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollModule;
+import org.appcelerator.kroll.KrollProxy;
+import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiContext;
-import org.appcelerator.titanium.TiDict;
-import org.appcelerator.titanium.TiModule;
-import org.appcelerator.titanium.TiProxy;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 
-import android.app.Activity;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -21,7 +21,8 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 
-public class NetworkModule extends TiModule {
+@Kroll.module
+public class NetworkModule extends KrollModule {
 
 	private static final String LCAT = "TiNetwork";
 	private static final boolean DBG = TiConfig.LOGD;
@@ -98,7 +99,7 @@ public class NetworkModule extends TiModule {
 				lastNetInfo.reason = reason;
 			}
 
-			TiDict data = new TiDict();
+			KrollDict data = new KrollDict();
 			data.put("online", connected);
 			int titaniumType = networkTypeToTitanium(connected, type);
 			data.put("networkType", titaniumType);
@@ -115,15 +116,15 @@ public class NetworkModule extends TiModule {
 		this.lastNetInfo = new NetInfo();
 		this.isListeningForConnectivity = false;
 
-		setDynamicValue("userAgent", NETWORK_USER_AGENT + " Titanium/"+getBuildVersion());
+		setProperty("userAgent", NETWORK_USER_AGENT + " Titanium/"+tiContext.getTiApp().getTiBuildVersion());
 
 		tiContext.addOnLifecycleEventListener(this);
-		tiContext.addOnEventChangeListener(this);
+		eventManager.addOnEventChangeListener(this);
 	}
 
 
 	@Override
-	public void listenerAdded(String type, int count, TiProxy proxy)
+	public void listenerAdded(String type, int count, KrollProxy proxy)
 	{
 		//super.listenerAdded(type, count, proxy);
 
@@ -136,7 +137,7 @@ public class NetworkModule extends TiModule {
 
 
 	@Override
-	public void listenerRemoved(String type, int count, TiProxy proxy) {
+	public void listenerRemoved(String type, int count, KrollProxy proxy) {
 		//super.listenerRemoved(type, count, proxy);
 
 		if ("change".equals(type) && count == 0) {
@@ -144,6 +145,7 @@ public class NetworkModule extends TiModule {
 		}
 	}
 
+	@Kroll.getProperty @Kroll.method
 	public boolean getOnline()
 	{
 		boolean result = false;
@@ -181,6 +183,7 @@ public class NetworkModule extends TiModule {
 		return type;
 	}
 
+	@Kroll.getProperty @Kroll.method
 	public int getNetworkType() {
 		int type = NETWORK_UNKNOWN;
 
@@ -202,6 +205,7 @@ public class NetworkModule extends TiModule {
 		return type;
 	}
 
+	@Kroll.getProperty @Kroll.method
 	public String getNetworkTypeName()
 	{
 		return networkTypeToTypeName(getNetworkType());

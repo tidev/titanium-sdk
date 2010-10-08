@@ -8,7 +8,7 @@ package ti.modules.titanium.ui.widget.tableview;
 
 import java.util.HashMap;
 
-import org.appcelerator.titanium.TiDict;
+import org.appcelerator.kroll.KrollDict;
 
 public class TiTableViewItemOptions extends HashMap<String, String>
 {
@@ -23,11 +23,11 @@ public class TiTableViewItemOptions extends HashMap<String, String>
 		super(initialCapacity);
 	}
 
-	public String resolveOption(String key, TiDict ... items) {
+	public String resolveOption(String key, KrollDict ... items) {
 
 		String value = get(key);
 
-		for(TiDict item : items) {
+		for(KrollDict item : items) {
 			if (item != null && item.containsKey(key)) {
 				value = item.getString(key);
 				break;
@@ -36,7 +36,7 @@ public class TiTableViewItemOptions extends HashMap<String, String>
 		return value;
 	}
 
-	public int resolveIntOption(String key, TiDict ... items) {
+	public int resolveIntOption(String key, KrollDict ... items) {
 		String value = resolveOption(key, items);
 		return value == null ? -1 : Integer.parseInt(value);
 	}

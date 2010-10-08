@@ -9,32 +9,29 @@ package ti.modules.titanium.ui.android.optionmenu;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import org.appcelerator.kroll.KrollModule;
+import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiContext;
-import org.appcelerator.titanium.TiModule;
-import org.appcelerator.titanium.TiProxy;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiFileHelper;
 
+import ti.modules.titanium.ui.android.AndroidModule;
 import android.graphics.drawable.Drawable;
 import android.view.Menu;
 import android.view.MenuItem;
 
-public class OptionMenuModule extends TiModule {
+@Kroll.module(parentModule=AndroidModule.class)
+public class OptionMenuModule extends KrollModule {
 
 	public OptionMenuModule(TiContext tiContext) {
 		super(tiContext);
 	}
 
-	@Override
-	public void propertyChanged(String key, Object oldValue, Object newValue, TiProxy proxy)
-	{
-		if ("menu".equals(key)) {
-			setMenuListener((MenuProxy) newValue);
-		} else {
-			super.propertyChanged(key, oldValue, newValue, proxy);
-		}
+	@Kroll.setProperty @Kroll.method
+	public void setMenu(MenuProxy menu) {
+		setMenuListener(menu);
 	}
-
+	
 	private void setMenuListener(final MenuProxy menu)
 	{
 		menu.getTiContext().setOnMenuEventListener(new TiContext.OnMenuEvent()
@@ -73,17 +70,17 @@ public class OptionMenuModule extends TiModule {
 					int id = 0;
 
 					for (MenuItemProxy mip : menuItems) {
-						String title = TiConvert.toString(mip.getDynamicValue("title"));
+						String title = TiConvert.toString(mip.getProperty("title"));
 						if (title != null) {
 							MenuItem mi = menu.add(0, id, 0, title);
 							itemMap.put(id, mip);
 							id += 1;
 
-							String iconPath = TiConvert.toString(mip.getDynamicValue("icon"));
+							String iconPath = TiConvert.toString(mip.getProperty("icon"));
 							if (iconPath != null) {
 				     			Drawable d = null;
 								TiFileHelper tfh = new TiFileHelper(getTiContext().getActivity());
-								d = tfh.loadDrawable(iconPath, false);
+								d = tfh.loadDrawable(getTiContext(), iconPath, false);
 								if (d != null) {
 									mi.setIcon(d);
 								}

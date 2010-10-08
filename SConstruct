@@ -54,6 +54,7 @@ if ARGUMENTS.get("package",0):
 	only_package = True
 
 clean = "clean" in COMMAND_LINE_TARGETS or ARGUMENTS.get("clean", 0)
+run_drillbit = "drillbit" in COMMAND_LINE_TARGETS or ARGUMENTS.get("drillbit",0)
 
 if clean and os.path.exists('iphone/iphone/build'):
 	shutil.rmtree('iphone/iphone/build')
@@ -125,6 +126,16 @@ def package_sdk(target, source, env):
 package_builder = Builder(action = package_sdk)
 env.Append(BUILDERS = {'PackageMobileSDK': package_builder})
 env.PackageMobileSDK("#dummy-sdk-target", [])
+
+def drillbit_builder(target, source, env):
+	sys.path.append("drillbit")
+	import drillbit
+	drillbit.build_and_run(android_sdk=sdk.get_android_sdk())
+
+if run_drillbit:
+	drillbit = Builder(action = drillbit_builder)
+	env.Append(BUILDERS = {'BuildAndRunDrillbit': drillbit})
+	env.BuildAndRunDrillbit('#dummy-drillbit-target', [])
 
 if clean:
 	# don't error 

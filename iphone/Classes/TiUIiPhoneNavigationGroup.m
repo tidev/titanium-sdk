@@ -100,6 +100,7 @@
 {
 	BOOL animated = [TiUtils boolValue:@"animated" properties:properties def:YES];
 	UIViewController *viewController = [window controller];
+	[window prepareForNavView:controller];
 	[self setVisibleProxy:window];
 	opening = YES;
 	[controller pushViewController:viewController animated:animated];
@@ -129,7 +130,6 @@
 - (void)navigationController:(UINavigationController *)navigationController willShowViewController:(UIViewController *)viewController animated:(BOOL)animated
 {
     TiWindowProxy *newWindow = (TiWindowProxy *)[(TiViewController*)viewController proxy];
-	[newWindow prepareForNavView:controller];
 	[newWindow setupWindowDecorations];
 	
 	[newWindow windowWillOpen];

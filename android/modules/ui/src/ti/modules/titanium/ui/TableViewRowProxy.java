@@ -8,10 +8,9 @@ package ti.modules.titanium.ui;
 
 import java.util.ArrayList;
 
+import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiContext;
-import org.appcelerator.titanium.TiDict;
-import org.appcelerator.titanium.TiProxy;
-import org.appcelerator.titanium.bridge.OnEventListenerChange;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.view.TiUIView;
 
@@ -21,6 +20,7 @@ import ti.modules.titanium.ui.widget.tableview.TableViewModel.Item;
 import android.app.Activity;
 import android.os.Message;
 
+@Kroll.proxy(creatableInModule=UIModule.class)
 public class TableViewRowProxy extends TiViewProxy
 {
 	protected ArrayList<TiViewProxy> controls;
@@ -28,8 +28,8 @@ public class TableViewRowProxy extends TiViewProxy
 	
 	private static final int MSG_SET_DATA = TiViewProxy.MSG_LAST_ID + 5001;
 	
-	public TableViewRowProxy(TiContext tiContext, Object[] args) {
-		super(tiContext, args);
+	public TableViewRowProxy(TiContext tiContext) {
+		super(tiContext);
 	}
 
 	@Override
@@ -40,13 +40,14 @@ public class TableViewRowProxy extends TiViewProxy
 	public ArrayList<TiViewProxy> getControls() {
 		return controls;
 	}
-	
-	public TiViewProxy[] getChildren() {
-		return controls.toArray(new TiViewProxy[controls.size()]);
-	}
 
 	public boolean hasControls() {
 		return (controls != null && controls.size() > 0);
+	}
+	
+	@Override
+	public TiViewProxy[] getChildren() {
+		return controls.toArray(new TiViewProxy[controls.size()]);
 	}
 
 	public void add(TiViewProxy control) {
@@ -70,8 +71,8 @@ public class TableViewRowProxy extends TiViewProxy
 	}
 	
 	@Override
-	public void setDynamicValue(String key, Object value) {
-		super.setDynamicValue(key, value);
+	public void setProperty(String key, Object value) {
+		super.setProperty(key, value);
 		if (tableViewItem != null) {
 			Message msg = getUIHandler().obtainMessage(MSG_SET_DATA);
 			msg.sendToTarget();
@@ -93,7 +94,7 @@ public class TableViewRowProxy extends TiViewProxy
 	}
 	
 	@Override
-	public boolean fireEvent(String eventName, TiDict data) {
+	public boolean fireEvent(String eventName, KrollDict data) {
 		if (eventName.equals("click")) {
 			// inject row click data for events coming from row children
 			TableViewProxy table = getTable();

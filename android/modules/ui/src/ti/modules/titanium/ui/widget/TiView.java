@@ -6,11 +6,11 @@
  */
 package ti.modules.titanium.ui.widget;
 
-import org.appcelerator.titanium.TiDict;
+import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
-import org.appcelerator.titanium.view.TiUIView;
 import org.appcelerator.titanium.view.TiCompositeLayout;
+import org.appcelerator.titanium.view.TiUIView;
 
 public class TiView extends TiUIView
 {
@@ -18,12 +18,12 @@ public class TiView extends TiUIView
 	public TiView(TiViewProxy proxy) {
 		super(proxy);
 
-		boolean vertical = proxy.hasDynamicValue("layout") && TiConvert.toString(proxy.getDynamicValue("layout")).equals("vertical");
+		boolean vertical = proxy.hasProperty("layout") && TiConvert.toString(proxy.getProperty("layout")).equals("vertical");
 		setNativeView(new TiCompositeLayout(proxy.getContext(), vertical));
 	}
 
 	@Override
-	public void processProperties(TiDict d)
+	public void processProperties(KrollDict d)
 	{
 
 		super.processProperties(d);

@@ -8,8 +8,8 @@ package ti.modules.titanium.ui.widget;
 
 import java.lang.ref.SoftReference;
 
-import org.appcelerator.titanium.TiDict;
-import org.appcelerator.titanium.TiProxy;
+import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
@@ -56,7 +56,7 @@ public class TiUISlider extends TiUIView
 
 
 	@Override
-	public void processProperties(TiDict d)
+	public void processProperties(KrollDict d)
 	{
 		super.processProperties(d);
 
@@ -90,7 +90,7 @@ public class TiUISlider extends TiUIView
 		seekBar.setProgress(pos + offset);
 	}
 
-	private void updateThumb(SeekBar seekBar, TiDict d) 
+	private void updateThumb(SeekBar seekBar, KrollDict d) 
 	{
 		TiFileHelper tfh = null;
 		String thumbImage = TiConvert.toString(d, "thumbImage");
@@ -107,7 +107,7 @@ public class TiUISlider extends TiUIView
 		}
 	}
 	
-	private void updateTrackingImages(SeekBar seekBar, TiDict d) 
+	private void updateTrackingImages(SeekBar seekBar, KrollDict d) 
 	{
 		TiFileHelper tfh = null;
 		String leftImage =  TiConvert.toString(d, "leftTrackImage");
@@ -135,7 +135,7 @@ public class TiUISlider extends TiUIView
 	}
 	
 	@Override
-	public void propertyChanged(String key, Object oldValue, Object newValue, TiProxy proxy)
+	public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy proxy)
 	{
 		if (DBG) {
 			Log.d(LCAT, "Property: " + key + " old: " + oldValue + " new: " + newValue);
@@ -174,11 +174,12 @@ public class TiUISlider extends TiUIView
 
 	public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
 		pos = seekBar.getProgress();
+
 		Drawable thumb = (thumbDrawable != null) ? thumbDrawable.get() : null;
-		TiDict offset = new TiDict();
+		KrollDict offset = new KrollDict();
 		offset.put("x", 0);
 		offset.put("y", 0);
-		TiDict size = new TiDict();
+		KrollDict size = new KrollDict();
 		size.put("width", 0);
 		size.put("height", 0);
 		if (thumb != null) {
@@ -190,11 +191,12 @@ public class TiUISlider extends TiUIView
 				size.put("height", thumbBounds.height());				
 			}
 		}
-		TiDict data = new TiDict();
+		KrollDict data = new KrollDict();
 		data.put("value", scaledValue());
 		data.put("thumbOffset", offset);
 		data.put("thumbSize", size);
-		proxy.internalSetDynamicValue("value", scaledValue(), false);
+		proxy.setProperty("value", scaledValue(), false);
+
 		proxy.fireEvent("change", data);
 	}
 

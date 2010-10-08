@@ -6,8 +6,9 @@
  */
 package ti.modules.titanium.database;
 
+import org.appcelerator.kroll.KrollProxy;
+import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiContext;
-import org.appcelerator.titanium.TiProxy;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiConvert;
@@ -18,14 +19,15 @@ import android.database.DatabaseUtils;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 
-public class TiDatabaseProxy extends TiProxy
+@Kroll.proxy
+public class TiDatabaseProxy extends KrollProxy
 {
 	private static final String LCAT = "TiDB";
 	private static final boolean DBG = TiConfig.LOGD;
 
 	protected SQLiteDatabase db;
 	protected String name;
-	boolean statementLogging;
+	boolean statementLogging, readOnly;
 
 	public TiDatabaseProxy(TiContext tiContext, String name, SQLiteDatabase db)
 	{
@@ -33,8 +35,20 @@ public class TiDatabaseProxy extends TiProxy
 		this.name = name;
 		this.db = db;
 		statementLogging = false;
+		readOnly = false;
+	}
+	
+	// readonly database
+	public TiDatabaseProxy(TiContext tiContext, SQLiteDatabase db)
+	{
+		super(tiContext);
+		this.name = db.getPath();
+		this.db = db;
+		statementLogging = false;
+		readOnly = true;
 	}
 
+	@Kroll.method
 	public void close() {
 		if (db.isOpen()) {
 			if (DBG) {
@@ -48,6 +62,7 @@ public class TiDatabaseProxy extends TiProxy
 		}
 	}
 
+	@Kroll.method
 	public TiResultSetProxy execute(String sql, Object... args)
 	{
 		if(statementLogging) {
@@ -113,19 +128,28 @@ public class TiDatabaseProxy extends TiProxy
 		return rs;
 	}
 
+	@Kroll.getProperty @Kroll.method
 	public String getName() {
 		return name;
 	}
 
+	@Kroll.getProperty @Kroll.method
 	public int getLastInsertRowId() {
 		return (int) DatabaseUtils.longForQuery(db, "select last_insert_rowid()", null);
 	}
 
+	@Kroll.getProperty @Kroll.method
 	public int getRowsAffected() {
 		return (int) DatabaseUtils.longForQuery(db, "select changes()", null);
 	}
 
+	@Kroll.method
 	public void remove() {
+		if (readOnly) {
+			Log.w(LCAT, name + " is a read-only database, cannot remove");
+			return;
+		}
+		
 		if (db.isOpen()) {
 			Log.w(LCAT, "Attempt to remove open database. Closing then removing " + name);
 			db.close();

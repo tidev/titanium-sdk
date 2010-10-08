@@ -39,6 +39,11 @@
 	return [(TiUISearchBar*)[self view] searchBar];
 }
 
+-(NSMutableDictionary*)langConversionTable
+{
+    return [NSMutableDictionary dictionaryWithObjectsAndKeys:@"prompt",@"promptid",@"hintText",@"hinttextid",nil];
+}
+
 @end
 
 #endif

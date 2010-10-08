@@ -9,7 +9,6 @@ package org.appcelerator.titanium.view;
 import java.io.IOException;
 import java.util.Arrays;
 
-import org.appcelerator.titanium.util.Log;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 

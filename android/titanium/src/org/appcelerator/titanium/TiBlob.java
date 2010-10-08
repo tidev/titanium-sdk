@@ -13,6 +13,8 @@ import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 
 import org.apache.commons.codec.binary.Base64;
+import org.appcelerator.kroll.KrollProxy;
+import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.io.TiBaseFile;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
@@ -21,8 +23,8 @@ import org.appcelerator.titanium.util.TiMimeTypeHelper;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.CompressFormat;
 
-
-public class TiBlob extends TiProxy
+@Kroll.proxy
+public class TiBlob extends KrollProxy
 {
 	private static final String LCAT = "TiBlob";
 	private static final boolean DBG = TiConfig.LOGD;
@@ -123,6 +125,7 @@ public class TiBlob extends TiProxy
 		return bytes;
 	}
 
+	@Kroll.getProperty @Kroll.method
 	public int getLength() {
 		switch (type) {
 			case TYPE_FILE:
@@ -151,6 +154,7 @@ public class TiBlob extends TiProxy
 		}
 	}
 
+	@Kroll.method
 	public void append(TiBlob blob) {
 		switch(type) {
 			case TYPE_STRING :
@@ -179,6 +183,7 @@ public class TiBlob extends TiProxy
 		}
 	}
 
+	@Kroll.getProperty @Kroll.method
 	public String getText() {
 		String result = null;
 
@@ -199,6 +204,7 @@ public class TiBlob extends TiProxy
 		return result;
 	}
 
+	@Kroll.getProperty @Kroll.method
 	public String getMimeType() {
 		return mimetype;
 	}
@@ -206,15 +212,18 @@ public class TiBlob extends TiProxy
 	public Object getData() {
 		return data;
 	}
-
+	
+	@Kroll.getProperty @Kroll.method
 	public int getType() {
 		return type;
 	}
 
+	@Kroll.getProperty @Kroll.method
 	public int getWidth() {
 		return width;
 	}
 
+	@Kroll.getProperty @Kroll.method
 	public int getHeight() {
 		return height;
 	}
@@ -231,6 +240,7 @@ public class TiBlob extends TiProxy
 		return "[object TiBlob]";
 	}
 
+	@Kroll.method
 	public String toBase64()
 	{
 		return new String(Base64.encodeBase64(getBytes()));

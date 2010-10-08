@@ -256,6 +256,25 @@ const UIControlEvents unHighlightingTouches = UIControlEventTouchCancel|UIContro
 	}
 }
 
+-(void)setTextAlign_:(id)align
+{
+	UIButton *b = [self button];
+	if ([align isEqual:@"left"])
+	{
+		b.contentHorizontalAlignment = UIControlContentHorizontalAlignmentLeft;
+		b.contentEdgeInsets = UIEdgeInsetsMake(0,10,0,0);
+	}
+	else if ([align isEqual:@"right"])
+	{
+		b.contentHorizontalAlignment = UIControlContentHorizontalAlignmentRight;
+		b.contentEdgeInsets = UIEdgeInsetsMake(0,0,10,0);
+	}
+	else if ([align isEqual:@"center"])
+	{
+		b.contentHorizontalAlignment = UIControlContentHorizontalAlignmentCenter;
+	}
+}
+
 -(CGFloat)autoWidthForWidth:(CGFloat)value
 {
 	return [[self button] sizeThatFits:CGSizeMake(value, 0)].width;

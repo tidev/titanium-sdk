@@ -6,14 +6,16 @@
 # Resource to Android Page Compiler
 # Handles JS, CSS and HTML files only
 #
-import os, sys, re, shutil, tempfile, run
-import jspacker 
+import os, sys, re, shutil, tempfile, run, codecs, traceback, types
+import jspacker, json
+from xml.sax.saxutils import escape
 from sgmllib import SGMLParser
 from csspacker import CSSPacker
 from deltafy import Deltafy
 
 ignoreFiles = ['.gitignore', '.cvsignore', '.DS_Store'];
 ignoreDirs = ['.git','.svn','_svn', 'CVS'];
+template_dir = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
 
 # class for extracting javascripts
 class ScriptProcessor(SGMLParser):
@@ -29,19 +31,55 @@ class ScriptProcessor(SGMLParser):
 
 class Compiler(object):
 	
-	def __init__(self,appid,project_dir,java,classes_dir):
+	def __init__(self,tiapp,project_dir,java,classes_dir,root_dir):
+		self.tiapp = tiapp
 		self.java = java
+		self.appname = tiapp.properties['name']
 		self.classes_dir = classes_dir
 		self.template_dir = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
-		self.appid = appid
+		self.appid = tiapp.properties['id']
+		self.root_dir = root_dir
 		self.project_dir = os.path.abspath(os.path.expanduser(project_dir))
-		# these modules are always required 
-		# TODO: review these
-		self.modules = ['App','API','Platform','Analytics','Network']
+		self.modules = []
+		self.jar_libraries = []
+		
+		json_contents = open(os.path.join(self.template_dir,'dependency.json')).read()
+		self.depends_map = json.read(json_contents)
+		
+		# go ahead and slurp in any required modules
+		for required in self.depends_map['required']:
+			self.add_required_module(required)
+			
 		self.module_methods = []
 		self.js_files = {}
 		self.html_scripts = []
 		self.compiled_files = []
+
+
+	def add_required_module(self,name):
+		name = name.lower()
+		if name in ('buildhash','builddate'): return # ignore these
+		if not name in self.modules:
+			self.modules.append(name)
+			mf = os.path.join(self.template_dir, 'modules', 'titanium-%s.jar' % name)
+			if os.path.exists(mf):
+				print "[DEBUG] detected module = %s" % name
+				self.jar_libraries.append(mf)
+			else:
+				print "[INFO] unknown module = %s" % name
+				
+			if self.depends_map['libraries'].has_key(name):
+				for lib in self.depends_map['libraries'][name]:
+					lf = os.path.join(self.template_dir,lib)
+					if os.path.exists(lf):
+						if not lf in self.jar_libraries:
+							print "[DEBUG] adding required library: %s" % lib
+							self.jar_libraries.append(lf) 
+
+			if self.depends_map['dependencies'].has_key(name):
+				for depend in self.depends_map['dependencies'][name]:
+					self.add_required_module(depend)
+				
 
 	def extract_from_namespace(self,name,line):
 		modules = [] 
@@ -51,14 +89,22 @@ class Compiler(object):
 			for sym in f:
 				mm = self.extract_from_namespace("%s.%s" % (name,sym), line)
 				for m in mm[0]:
-					method_name = "%s.%s" %(sym,m)
-					try:
-						methods.index(method_name)
-					except:
-						methods.append(method_name)
+					if m[0].isupper() and sym == "Android":
+						# This "method" is actually a module below Android
+						# such as Ti.Android.Calendar
+						try:
+							modules.index(m)
+						except:
+							modules.append(m)
+					else:
+						method_name = "%s.%s" %(sym,m)
+						try:
+							methods.index(method_name)
+						except:
+							methods.append(method_name)
 				# skip Titanium.version, Titanium.userAgent and Titanium.name since these
 				# properties are not modules
-				if sym == 'version' or sym == 'userAgent' or sym == 'name' or sym == '_JSON':
+				if sym in ('version','userAgent','name','_JSON','include','fireEvent','addEventListener','removeEventListener','buildhash','builddate'):
 					continue
 				try:
 					modules.index(sym)
@@ -70,10 +116,7 @@ class Compiler(object):
 		modules,methods = self.extract_from_namespace(name,line)
 		if len(modules) > 0:
 			for m in modules:
-				try:
-					self.modules.index(m)
-				except:
-					self.modules.append(m)
+				self.add_required_module(m)
 			for m in methods:
 				try:
 					self.module_methods.index(m)
@@ -85,18 +128,49 @@ class Compiler(object):
 			self.extract_and_combine_modules('Titanium',line)
 			self.extract_and_combine_modules('Ti',line)
 	
-	def compile_into_bytecode(self,paths):
-		jar_path = os.path.join(self.template_dir,"js.jar")
-		for package in paths:
-			args = [self.java,"-cp",jar_path,"org.mozilla.javascript.tools.jsc.Main","-opt","9","-nosource","-package",package,"-d",self.classes_dir]
-			count = 0
-			for path in paths[package]:
-				# skip any JS found inside HTML <script>
-				if path in self.html_scripts: continue
-				args.append(path)
-				count+=1
-				self.compiled_files.append(path)
-			if count > 0: run.run(args)
+	def compile_javascript(self, fullpath):
+		js_jar = os.path.join(self.template_dir, 'js.jar')
+		# poor man's os.path.relpath (we don't have python 2.6 in windows)
+		resource_relative_path = fullpath[len(self.project_dir)+1:].replace("\\", "/")
+		
+		# chop off '.js'
+		js_class_name = resource_relative_path[:-3]
+		escape_chars = ['\\', '/', ' ', '.']
+		for escape_char in escape_chars:
+			js_class_name = js_class_name.replace(escape_char, '_')
+		
+		# TODO: add closure compiling too?
+		jsc_args = [self.java, '-classpath', js_jar, 'org.mozilla.javascript.tools.jsc.Main',
+			'-main-method-class', 'org.appcelerator.titanium.TiScriptRunner',
+			'-package', self.appid + '.js', '-o', js_class_name,
+			'-d', self.classes_dir, fullpath]
+			
+		print "[INFO] Compiling javascript: %s" % resource_relative_path
+		sys.stdout.flush()
+		
+		run.run(jsc_args)
+		
+	def compile_into_bytecode(self, paths):
+		compile_js = False
+		
+		# we only optimize for production deploy type or if it's forcefully overridden with ti.android.compilejs
+		if self.tiapp.has_app_property("ti.android.compilejs"):
+			if self.tiapp.to_bool(self.tiapp.get_app_property('ti.android.compilejs')):
+				print "[DEBUG] Found ti.android.compilejs=true, overriding default (this may take some time)"
+				sys.stdout.flush()
+				compile_js = True
+		elif self.tiapp.has_app_property('ti.deploytype'):
+			if self.tiapp.get_app_property('ti.deploytype') == 'production':
+				print "[DEBUG] Deploy type is production, turning on JS compilation"
+				sys.stdout.flush()
+				compile_js = True
+		
+		if not compile_js: return
+
+		for fullpath in paths:
+			# skip any JS found inside HTML <script>
+			if fullpath in self.html_scripts: continue
+			self.compile_javascript(fullpath)
 		
 	def get_ext(self, path):
 		fp = os.path.splitext(path)
@@ -105,12 +179,16 @@ class Compiler(object):
 	def make_function_from_file(self, path, pack=True):
 		ext = self.get_ext(path)
 		path = os.path.expanduser(path)
-		file_contents = open(path).read()
+		file_contents = codecs.open(path,'r',encoding='utf-8').read()
 			
-		if pack: self.pack(path, ext, file_contents)
+		if pack: 
+			file_contents = self.pack(path, ext, file_contents)
+			
 		if ext == 'js':
 			# determine which modules this file is using
 			self.extract_modules(file_contents)
+			
+		return file_contents
 		
 	def pack(self, path, ext, file_contents):
 		def jspack(c): return jspacker.jsmin(c)
@@ -119,13 +197,13 @@ class Compiler(object):
 		packers = {'js': jspack, 'css': csspack }
 		if ext in packers:
 			file_contents = packers[ext](file_contents)
-			of = open(path,'w')
+			of = codecs.open(path,'w',encoding='utf-8')
 			of.write(file_contents)
 			of.close()
-			print "[DEBUG] packed: %s" % path
+		return file_contents
 	
 	def extra_source_inclusions(self,path):
-		content = open(path).read()
+		content = codecs.open(path,'r',encoding='utf-8').read()
 		p = ScriptProcessor()
 		p.feed(content)
 		p.close()
@@ -137,6 +215,8 @@ class Compiler(object):
 			self.html_scripts.append(p)
 			
 	def compile(self):
+		print "[INFO] Compiling Javascript resources ..."
+		sys.stdout.flush()
 		for root, dirs, files in os.walk(self.project_dir):
 			for dir in dirs:
 				if dir in ignoreDirs:
@@ -146,32 +226,37 @@ class Compiler(object):
 				for f in files:
 					fp = os.path.splitext(f)
 					if len(fp)!=2: continue
+					if fp[1] == '.jss': continue
 					if not fp[1] in ['.html','.js','.css']: continue
 					if f in ignoreFiles: continue
 					fullpath = os.path.join(root,f)
-					#pack = deltas.has_path(fullpath)
-					pack = False # ?
 					if fp[1] == '.html':
 						self.extra_source_inclusions(fullpath)
 					if fp[1] == '.js':
 						relative = prefix[1:]
-						package = "org.appcelerator.generated"
-						if len(relative)>0:
-							relative = relative.replace('/','.').replace('\\','.')
-							package += ".%s" % relative
-						if self.js_files.has_key(package):
-							self.js_files[package].append(fullpath)
+						js_contents = self.make_function_from_file(fullpath, pack=False)
+						if relative!='':
+							key = "%s_%s" % (relative,f)
 						else:
-							self.js_files[package] = [fullpath]
-					self.make_function_from_file(fullpath, pack=pack)
+							key = f
+						key = key.replace('.js','').replace('\\','_').replace('/','_').replace(' ','_').replace('.','_')
+						self.js_files[fullpath] = (key, js_contents)
 		self.compile_into_bytecode(self.js_files)
-					
-					
+
 if __name__ == "__main__":
-	project_dir = os.path.expanduser("~/work/titanium_mobile/demos/KitchenSink")
-	resources_dir = os.path.join(project_dir,"Resources")
-	c = Compiler("com.appcelerator.kitchensink",resources_dir,"java","/Users/jhaynie/Documents/workspace/RhinoFun/generated")
+	if len(sys.argv) != 2:
+		print "Usage: %s <projectdir>" % sys.argv[0]
+		sys.exit(1)
+
+	project_dir = os.path.expanduser(sys.argv[1])
+	resources_dir = os.path.join(project_dir, 'Resources')
+	root_dir = os.path.join(project_dir, 'build', 'android')
+	destdir = os.path.join(root_dir, 'bin', 'classes')
+	sys.path.append("..")
+	from tiapp import TiAppXML
+	tiapp = TiAppXML(os.path.join(project_dir, 'tiapp.xml'))
+
+	c = Compiler(tiapp, resources_dir, 'java', destdir, root_dir)
 	project_deltafy = Deltafy(resources_dir)
 	project_deltas = project_deltafy.scan()
-	c.compile(project_deltas)
-	print c.html_scripts
+	c.compile()

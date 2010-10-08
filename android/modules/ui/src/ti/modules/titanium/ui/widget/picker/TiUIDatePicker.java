@@ -9,8 +9,8 @@ package ti.modules.titanium.ui.widget.picker;
 import java.util.Calendar;
 import java.util.Date;
 
-import org.appcelerator.titanium.TiDict;
-import org.appcelerator.titanium.TiProxy;
+import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
@@ -41,7 +41,7 @@ public class TiUIDatePicker extends TiUIView
 	}
 	
 	@Override
-	public void processProperties(TiDict d) {
+	public void processProperties(KrollDict d) {
 		super.processProperties(d);
 		
 		boolean valueExistsInProxy = false;
@@ -71,7 +71,7 @@ public class TiUIDatePicker extends TiUIView
         suppressChangeEvent = false;
         
         if (!valueExistsInProxy) {
-        	proxy.internalSetDynamicValue("value", calendar.getTime(), false);
+        	proxy.setProperty("value", calendar.getTime());
         }
         
         //iPhone ignores both values if max <= min
@@ -86,7 +86,7 @@ public class TiUIDatePicker extends TiUIView
 	
 	@Override
 	public void propertyChanged(String key, Object oldValue, Object newValue,
-			TiProxy proxy)
+			KrollProxy proxy)
 	{
 		if (key.equals("value"))
 		{
@@ -109,11 +109,11 @@ public class TiUIDatePicker extends TiUIView
 			setValue(maxDate.getTime(), true);
 		}
 		if (!suppressChangeEvent) {
-			TiDict data = new TiDict();
+			KrollDict data = new KrollDict();
 			data.put("value", calendar.getTime());
 			proxy.fireEvent("change", data);
 		}
-		proxy.internalSetDynamicValue("value", calendar.getTime(), false);
+		proxy.setProperty("value", calendar.getTime());
 	}
 	
 	public void setValue(long value)

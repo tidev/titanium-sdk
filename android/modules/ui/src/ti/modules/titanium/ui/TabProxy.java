@@ -6,34 +6,44 @@
  */
 package ti.modules.titanium.ui;
 
+import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiContext;
-import org.appcelerator.titanium.TiDict;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.proxy.TiWindowProxy;
-import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.view.TiUIView;
 
 import android.app.Activity;
 
+@Kroll.proxy(creatableInModule=UIModule.class)
 public class TabProxy extends TiViewProxy
 {
 
 	private TiWindowProxy win;
 	private TabGroupProxy tabGroupProxy;
 
-	public TabProxy(TiContext tiContext, Object[] args) {
-		super(tiContext, args);
+	public TabProxy(TiContext tiContext) {
+		super(tiContext);
 	}
+	
+	@Override
+	protected KrollDict getLangConversionTable() {
+		KrollDict table = new KrollDict();
+		table.put("title","titleid");
+		return table;
+	}
+	
 
 	@Override
 	public TiUIView createView(Activity activity) {
 		return null;
 	}
 
-	public void open(TiWindowProxy win, TiDict options) {
+	@Kroll.method
+	public void open(TiWindowProxy win, @Kroll.argument(optional=true) KrollDict options) {
 		if (win != null) {
 			if (options == null) {
-				options = new TiDict();
+				options = new KrollDict();
 			}
 
 			this.win = win;
@@ -44,7 +54,8 @@ public class TabProxy extends TiViewProxy
 		}
 	}
 
-	public void close(TiDict options) {
+	@Kroll.method
+	public void close(@Kroll.argument(optional=true) KrollDict options) {
 		if (win != null) {
 			win.close(options);
 			win = null;

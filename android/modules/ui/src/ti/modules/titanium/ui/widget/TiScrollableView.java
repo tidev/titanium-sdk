@@ -8,7 +8,7 @@ package ti.modules.titanium.ui.widget;
 
 import java.util.ArrayList;
 
-import org.appcelerator.titanium.TiDict;
+import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiAnimationFactory;
@@ -19,7 +19,6 @@ import org.appcelerator.titanium.view.TiCompositeLayout;
 
 import ti.modules.titanium.ui.ScrollableViewProxy;
 import android.content.Context;
-import android.graphics.Color;
 import android.os.Handler;
 import android.view.GestureDetector;
 import android.view.KeyEvent;
@@ -369,7 +368,7 @@ public class TiScrollableView extends TiCompositeLayout
 			}
 			if (views.length > 0) {
 				((ViewWrapper) gallery.getChildAt(0)).doAttachView();
-				((TiViewProxy)views[0]).show(new TiDict());
+				((TiViewProxy)views[0]).show(new KrollDict());
 			}
 		}
 	}
@@ -434,7 +433,7 @@ public class TiScrollableView extends TiCompositeLayout
 				gallery.setInAnimation(null);
 				gallery.setOutAnimation(null);
 				gallery.setDisplayedChild(position);
-				proxy.internalSetDynamicValue("currentPage", position, false);
+				proxy.setProperty("currentPage", position);
 				proxy.fireScroll(position);
 
 				if (fromWrapper != null && (fromWrapper != toWrapper)) {
@@ -510,7 +509,7 @@ public class TiScrollableView extends TiCompositeLayout
 		if (v != null) {
 			v.setVisibility(hasNext() ? View.VISIBLE : View.INVISIBLE);
 		}
-		proxy.internalSetDynamicValue("currentPage", to, false);
+		proxy.setProperty("currentPage", to);
 	}
 
 	public void onNothingSelected(AdapterView<?> view)

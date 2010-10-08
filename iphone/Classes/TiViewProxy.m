@@ -11,8 +11,9 @@
 #import "TiBlob.h"
 #import "TiRect.h"
 #import "TiLayoutQueue.h"
-
 #import "TiAction.h"
+#import "TiStylesheet.h"
+#import "TiLocale.h"
 
 #import <QuartzCore/QuartzCore.h>
 #import <libkern/OSAtomic.h>
@@ -578,6 +579,11 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
 	}
 }
 
+-(NSMutableDictionary*)langConversionTable
+{
+    return nil;
+}
+
 #pragma mark Methods subclasses should override for behavior changes
 
 -(BOOL)suppressesRelayout
@@ -785,6 +791,59 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
 		pthread_rwlock_init(&childrenLock, NULL);
 	}
 	return self;
+}
+
+-(void)_initWithProperties:(NSDictionary*)properties
+{
+	if (properties!=nil)
+	{
+		NSString *objectId = [properties objectForKey:@"id"];
+		if (objectId!=nil)
+		{
+			TiStylesheet *stylesheet = [[[self pageContext] host] stylesheet];
+			NSString *density = [TiUtils isRetinaDisplay] ? @"high" : @"medium";
+			NSString *basename = [[self pageContext] basename];
+			NSString *type = [NSStringFromClass([self class]) stringByReplacingOccurrencesOfString:@"TiUI" withString:@""];
+			type = [[type stringByReplacingOccurrencesOfString:@"Proxy" withString:@""] lowercaseString];
+			NSDictionary *merge = [stylesheet stylesheet:objectId type:type density:density basename:basename];
+			if (merge!=nil)
+			{
+				// incoming keys take precendence over existing stylesheet keys
+				NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithDictionary:merge];
+				[dict addEntriesFromDictionary:properties];
+                
+				properties = dict;
+			}
+		}
+		// do a translation of language driven keys to their converted counterparts
+		// for example titleid should look up the title in the Locale
+		NSMutableDictionary *table = [self langConversionTable];
+		if (table!=nil)
+		{
+			for (id key in table)
+			{
+				// determine which key in the lang table we need to use
+				// from the lang property conversion key
+				id langKey = [properties objectForKey:key];
+				if (langKey!=nil)
+				{
+					// eg. titleid -> title
+					id convertKey = [table objectForKey:key];
+					// check and make sure we don't already have that key
+					// since you can't override it if already present
+					if ([properties objectForKey:convertKey]==nil)
+					{
+						id newValue = [TiLocale getString:langKey comment:nil];
+						if (newValue!=nil)
+						{
+							[(NSMutableDictionary*)properties setObject:newValue forKey:convertKey];
+						}
+					}
+				}
+			}
+		}
+	}
+	[super _initWithProperties:properties];
 }
 
 -(void)dealloc

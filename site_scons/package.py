@@ -55,8 +55,12 @@ def zip_dir(zf,dir,basepath,subs=None,cb=None):
 
 def zip_android(zf,basepath):
 	android_dist_dir = os.path.join(top_dir, 'dist', 'android')
+	zip_dir(zf, os.path.join(cur_dir,'simplejson'), os.path.join(basepath, 'android', 'simplejson'))
 	android_jar = os.path.join(android_dist_dir, 'titanium.jar')
 	zf.write(android_jar, '%s/android/titanium.jar' % basepath)	
+
+	android_depends = os.path.join(top_dir, 'android','dependency.json')
+	zf.write(android_depends, '%s/android/dependency.json' % basepath)	
 	
 	titanium_lib_dir = os.path.join(top_dir, 'android', 'titanium', 'lib')
 	for thirdparty_jar in os.listdir(titanium_lib_dir):

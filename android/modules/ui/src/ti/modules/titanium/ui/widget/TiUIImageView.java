@@ -13,10 +13,10 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiContext;
-import org.appcelerator.titanium.TiDict;
-import org.appcelerator.titanium.TiProxy;
 import org.appcelerator.titanium.TiContext.OnLifecycleEvent;
 import org.appcelerator.titanium.io.TiBaseFile;
 import org.appcelerator.titanium.io.TiFileFactory;
@@ -33,9 +33,9 @@ import ti.modules.titanium.filesystem.FileProxy;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
-import android.net.Uri;
 import android.os.Handler;
 import android.os.Message;
+import android.view.View;
 import android.webkit.URLUtil;
 
 public class TiUIImageView extends TiUIView
@@ -79,8 +79,8 @@ public class TiUIImageView extends TiUIView
 			} else {
 				if (DBG) {
 					String traceMsg = "Background image load returned null";
-					if (proxy.hasDynamicValue("image")) {
-						Object image = proxy.getDynamicValue("image");
+					if (proxy.hasProperty("image")) {
+						Object image = proxy.getProperty("image");
 						if (image instanceof String) {
 							traceMsg += " (" + TiConvert.toString(image) + ")";
 						}
@@ -134,14 +134,18 @@ public class TiUIImageView extends TiUIView
 			}
 		} else if (image instanceof String) {
 			String url = proxy.getTiContext().resolveUrl(null, (String)image);
+			Bitmap b = TiUIHelper.getResourceBitmap(proxy.getTiContext(), url);
+			if (b != null) {
+				return b;
+			}
 			TiBaseFile file = TiFileFactory.createTitaniumFile(proxy.getTiContext(), new String[] { url }, false);
 			try {
 				return TiUIHelper.createBitmap(file.getInputStream());
 			} catch (IOException e) {
 				Log.e(LCAT, "Error creating drawable from path: " + image.toString(), e);
 			}
-		} else if (image instanceof TiDict) {
-			TiBlob blob = TiUIHelper.getImageFromDict((TiDict)image);
+		} else if (image instanceof KrollDict) {
+			TiBlob blob = TiUIHelper.getImageFromDict((KrollDict)image);
 			if (blob != null) {
 				return TiUIHelper.createBitmap(blob.getInputStream());
 			} else {
@@ -202,8 +206,8 @@ public class TiUIImageView extends TiUIView
 		}
 
 		private int getRepeatCount() {
-			if (proxy.hasDynamicValue("repeatCount")) {
-				return TiConvert.toInt(proxy.getDynamicValue("repeatCount"));
+			if (proxy.hasProperty("repeatCount")) {
+				return TiConvert.toInt(proxy.getProperty("repeatCount"));
 			}
 			return INFINITE;
 		}
@@ -301,8 +305,8 @@ public class TiUIImageView extends TiUIView
 
 	public double getDuration()
 	{
-		if (proxy.getDynamicValue("duration") != null) {
-			return TiConvert.toDouble(proxy.getDynamicValue("duration"));
+		if (proxy.getProperty("duration") != null) {
+			return TiConvert.toDouble(proxy.getProperty("duration"));
 		}
 
 		if (images != null) {
@@ -313,27 +317,27 @@ public class TiUIImageView extends TiUIView
 
 	private void fireLoad(String state)
 	{
-		TiDict data = new TiDict();
+		KrollDict data = new KrollDict();
 		data.put("state", state);
 		proxy.fireEvent("load", data);
 	}
 
 	private void fireStart()
 	{
-		TiDict data = new TiDict();
+		KrollDict data = new KrollDict();
 		proxy.fireEvent("start", data);
 	}
 
 	private void fireChange(int index)
 	{
-		TiDict data = new TiDict();
+		KrollDict data = new KrollDict();
 		data.put("index", index);
 		proxy.fireEvent("change", data);
 	}
 
 	private void fireStop()
 	{
-		TiDict data = new TiDict();
+		KrollDict data = new KrollDict();
 		proxy.fireEvent("stop", data);
 	}
 
@@ -435,7 +439,7 @@ public class TiUIImageView extends TiUIView
 	}
 
 	@Override
-	public void processProperties(TiDict d)
+	public void processProperties(KrollDict d)
 	{
 		TiImageView view = getView();
 
@@ -475,14 +479,14 @@ public class TiUIImageView extends TiUIView
 			}
 			
 		} else {
-			getProxy().internalSetDynamicValue("image", null, false);
+			getProxy().setProperty("image", null);
 		}
 
 		super.processProperties(d);
 	}
 
 	@Override
-	public void propertyChanged(String key, Object oldValue, Object newValue, TiProxy proxy)
+	public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy proxy)
 	{
 		TiImageView view = getView();
 
@@ -562,5 +566,17 @@ public class TiUIImageView extends TiUIView
 		}
 
 		return null;
+	}
+	
+	@Override
+	public void setOpacity(float opacity) {
+		getView().setColorFilter(TiUIHelper.createColorFilterForOpacity(opacity));
+		super.setOpacity(opacity);
+	}
+	
+	@Override
+	public void clearOpacity(View view) {
+		super.clearOpacity(view);
+		getView().setColorFilter(null);
 	}
 }

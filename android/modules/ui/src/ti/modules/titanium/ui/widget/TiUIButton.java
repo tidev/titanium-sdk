@@ -8,8 +8,8 @@ package ti.modules.titanium.ui.widget;
 
 import java.io.IOException;
 
-import org.appcelerator.titanium.TiDict;
-import org.appcelerator.titanium.TiProxy;
+import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.titanium.io.TiBaseFile;
 import org.appcelerator.titanium.io.TiFileFactory;
 import org.appcelerator.titanium.proxy.TiViewProxy;
@@ -23,8 +23,8 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.view.Gravity;
 import android.view.KeyEvent;
+import android.view.View;
 import android.widget.Button;
-import android.widget.TextView;
 
 public class TiUIButton extends TiUIView
 {
@@ -45,7 +45,7 @@ public class TiUIButton extends TiUIView
 				if (event.getAction() == KeyEvent.ACTION_UP &&
 						(keyCode == KeyEvent.KEYCODE_DPAD_CENTER || keyCode == KeyEvent.KEYCODE_ENTER))
 				{
-					proxy.fireEvent("click", new TiDict());
+					proxy.fireEvent("click", new KrollDict());
 				}
 				return super.onKeyUp(keyCode, event);
 			}
@@ -56,7 +56,7 @@ public class TiUIButton extends TiUIView
 	}
 
 	@Override
-	public void processProperties(TiDict d)
+	public void processProperties(KrollDict d)
 	{
 		super.processProperties(d);
 
@@ -82,7 +82,7 @@ public class TiUIButton extends TiUIView
 			btn.setTextColor(TiConvert.toColor(d, "color"));
 		}
 		if (d.containsKey("font")) {
-			TiUIHelper.styleText(btn, d.getTiDict("font"));
+			TiUIHelper.styleText(btn, d.getKrollDict("font"));
 		}
 		if (d.containsKey("textAlign")) {
 			String textAlign = d.getString("textAlign");
@@ -96,7 +96,7 @@ public class TiUIButton extends TiUIView
 	}
 
 	@Override
-	public void propertyChanged(String key, Object oldValue, Object newValue, TiProxy proxy)
+	public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy proxy)
 	{
 		if (DBG) {
 			Log.d(LCAT, "Property: " + key + " old: " + oldValue + " new: " + newValue);
@@ -107,7 +107,7 @@ public class TiUIButton extends TiUIView
 		} else if (key.equals("color")) {
 			btn.setTextColor(TiConvert.toColor(TiConvert.toString(newValue)));
 		} else if (key.equals("font")) {
-			TiUIHelper.styleText(btn, (TiDict) newValue);
+			TiUIHelper.styleText(btn, (KrollDict) newValue);
 		} else if (key.equals("textAlign")) {
 			TiUIHelper.setAlignment(btn, TiConvert.toString(newValue), null);
 			btn.requestLayout();
@@ -117,5 +117,17 @@ public class TiUIButton extends TiUIView
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}
+	}
+	
+	@Override
+	public void setOpacity(float opacity) {
+		TiUIHelper.setPaintOpacity(((Button)getNativeView()).getPaint(), opacity);
+		super.setOpacity(opacity);
+	}
+	
+	@Override
+	public void clearOpacity(View view) {
+		super.clearOpacity(view);
+		((Button)getNativeView()).getPaint().setColorFilter(null);
 	}
 }
