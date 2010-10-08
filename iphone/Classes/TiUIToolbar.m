@@ -49,8 +49,6 @@
 	if (height != [self verifyHeight:height])
 	{
 		[(TiViewProxy *)[self proxy] willChangeSize];
-		
-		[(TiViewProxy *)[self proxy] setNeedsReposition];
 		return;
 	}
 
@@ -137,7 +135,6 @@
 {
 	hideTopBorder = ![TiUtils boolValue:value def:YES];
 	[(TiViewProxy *)[self proxy] willChangeSize];
-	[(TiViewProxy *)[self proxy] setNeedsReposition];
 	//The default is that a top border exists.
 }
 
@@ -145,7 +142,6 @@
 {
 	showBottomBorder = [TiUtils boolValue:value def:NO];
 	[(TiViewProxy *)[self proxy] willChangeSize];
-	[(TiViewProxy *)[self proxy] setNeedsReposition];
 	//The default is that there is no bottom border.
 }
 
@@ -172,7 +168,6 @@
 	if (height != [self verifyHeight:height])
 	{
 		[(TiViewProxy *)[self proxy] willChangeSize];
-		[(TiViewProxy *)[self proxy] setNeedsReposition];
 	}
 }
 

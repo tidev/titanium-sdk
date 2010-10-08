@@ -326,7 +326,6 @@ DEFINE_EXCEPTIONS
 		iv.contentMode = UIViewContentModeScaleAspectFit;
 		iv.alpha = 0;
 		
-		[(TiViewProxy *)[self proxy] setNeedsReposition];
 		[(TiViewProxy *)[self proxy] contentsWillChange];
 		
 		// do a nice fade in animation to replace the new incoming image

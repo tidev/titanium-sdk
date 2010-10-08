@@ -117,14 +117,6 @@
 {
 	[[self label] setText:[TiUtils stringValue:text]];
 	[(TiViewProxy *)[self proxy] contentsWillChange];
-	if (requiresLayout)
-	{
-		[(TiViewProxy *)[self proxy] setNeedsReposition];
-	}
-	else
-	{
-		[(TiViewProxy *)[self proxy] setNeedsRepositionIfAutoSized];
-	}	
 }
 
 -(void)setColor_:(id)color
@@ -143,14 +135,6 @@
 {
 	[[self label] setFont:[[TiUtils fontValue:font] font]];
 	[(TiViewProxy *)[self proxy] contentsWillChange];
-	if (requiresLayout)
-	{
-		[(TiViewProxy *)[self proxy] setNeedsReposition];
-	}
-	else
-	{
-		[(TiViewProxy *)[self proxy] setNeedsRepositionIfAutoSized];
-	}
 }
 
 -(void)setMinimumFontSize_:(id)size

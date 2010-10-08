@@ -169,8 +169,6 @@ const UIControlEvents unHighlightingTouches = UIControlEventTouchCancel|UIContro
 		}
 		if (reposition)
 		{
-			[(TiViewProxy *)[self proxy] setNeedsReposition];
-
 			[(TiViewProxy *)[self proxy] contentsWillChange];			
 		}
 	}

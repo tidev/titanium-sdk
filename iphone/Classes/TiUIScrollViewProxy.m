@@ -29,6 +29,7 @@
 	{
 		[(TiUIScrollView *)[self view] setNeedsHandleContentSize];
 	}
+	[super contentsWillChange];
 }
 
 -(void)layoutChildren:(BOOL)optimize

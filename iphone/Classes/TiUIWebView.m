@@ -640,8 +640,6 @@ NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._listeners={
 	}
 	
 	TiViewProxy * ourProxy = (TiViewProxy *)[self proxy];
-	
-	[ourProxy setNeedsRepositionIfAutoSized];
 	[ourProxy contentsWillChange];
 }
 
