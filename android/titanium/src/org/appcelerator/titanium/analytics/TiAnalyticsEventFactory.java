@@ -163,7 +163,7 @@ public class TiAnalyticsEventFactory
 //
 //	- details		-- event details (string)
 
-	public static TiAnalyticsEvent createErrorEvent(Thread t, Throwable err)
+	public static TiAnalyticsEvent createErrorEvent(Thread t, Throwable err, String tiVersionInfo)
 	{
 		TiAnalyticsEvent event = null;
 
@@ -172,6 +172,7 @@ public class TiAnalyticsEventFactory
 			.append("thread_name").append(t.getName()).append("\n")
 			.append("thread_id").append(t.getId()).append("\n")
 			.append("error_msg").append(err.toString()).append("\n")
+			.append("ti_version").append(tiVersionInfo).append("\n")
 			.append("<<<<<<<<<<<<<<< STACK TRACE >>>>>>>>>>>>>>>").append("\n")
 			;
 

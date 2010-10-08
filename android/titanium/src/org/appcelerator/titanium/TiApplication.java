@@ -61,7 +61,7 @@ public class TiApplication extends Application
 	protected TiAnalyticsModel analyticsModel;
 	protected Intent analyticsIntent;
 	private static long lastAnalyticsTriggered = 0;
-	private String buildVersion, buildTimestamp, buildHash;
+	private String buildVersion = "", buildTimestamp = "", buildHash = "";
 
 	public TiApplication() {
 		Log.checkpoint("checkpoint, app created.");
@@ -69,8 +69,9 @@ public class TiApplication extends Application
 		needsEnrollEvent = false; // test is after DB is available
 		needsStartEvent = true;
 		getBuildVersion();
+		Log.i(LCAT, "Titanium " + buildVersion + " (" + buildTimestamp + " " + buildHash + ")");
 	}
-
+	
 	private void getBuildVersion() {
 		buildVersion = "1.0";
 		buildTimestamp = "N/A";
@@ -105,8 +106,9 @@ public class TiApplication extends Application
 		Thread.setDefaultUncaughtExceptionHandler(new UncaughtExceptionHandler() {
 
 			public void uncaughtException(Thread t, Throwable e) {
-				Log.e("TiUncaughtHandler", "Sending event: exception on thread: " + t.getName() + " msg:" + e.toString(), e);
-				postAnalyticsEvent(TiAnalyticsEventFactory.createErrorEvent(t, e));
+				String tiVer = buildVersion + "," + buildTimestamp + "," + buildHash ;
+				Log.e("TiUncaughtHandler", "Sending event: exception on thread: " + t.getName() + " msg:" + e.toString() + "; Titanium " + tiVer, e);
+				postAnalyticsEvent(TiAnalyticsEventFactory.createErrorEvent(t, e, tiVer));
 				defaultHandler.uncaughtException(t, e);
 			}
 		});
