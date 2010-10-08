@@ -47,4 +47,8 @@
 
 -(void)setOrientationModes:(NSArray *)newOrientationModes;
 
+- (void)openWindow:(TiWindowProxy *)window withObject:(id)args;
+- (void)closeWindow:(TiWindowProxy *)window withObject:(id)args;
+
+
 @end
