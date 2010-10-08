@@ -13,8 +13,9 @@ from sgmllib import SGMLParser
 from csspacker import CSSPacker
 from deltafy import Deltafy
 
-ignoreFiles = ['.gitignore', '.cvsignore', '.DS_Store'];
-ignoreDirs = ['.git','.svn','_svn', 'CVS'];
+ignoreFiles = ['.gitignore', '.cvsignore', '.DS_Store']
+ignoreDirs = ['.git','.svn','_svn', 'CVS']
+ignoreSymbols = ['version','userAgent','name','_JSON','include','fireEvent','addEventListener','removeEventListener','buildhash','builddate']
 template_dir = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
 
 # class for extracting javascripts
@@ -40,7 +41,7 @@ class Compiler(object):
 		self.appid = tiapp.properties['id']
 		self.root_dir = root_dir
 		self.project_dir = os.path.abspath(os.path.expanduser(project_dir))
-		self.modules = []
+		self.modules = set()
 		self.jar_libraries = []
 		
 		json_contents = open(os.path.join(self.template_dir,'dependency.json')).read()
@@ -50,7 +51,7 @@ class Compiler(object):
 		for required in self.depends_map['required']:
 			self.add_required_module(required)
 			
-		self.module_methods = []
+		self.module_methods = set()
 		self.js_files = {}
 		self.html_scripts = []
 		self.compiled_files = []
@@ -60,7 +61,7 @@ class Compiler(object):
 		name = name.lower()
 		if name in ('buildhash','builddate'): return # ignore these
 		if not name in self.modules:
-			self.modules.append(name)
+			self.modules.add(name)
 			mf = os.path.join(self.template_dir, 'modules', 'titanium-%s.jar' % name)
 			if os.path.exists(mf):
 				print "[DEBUG] detected module = %s" % name
@@ -79,49 +80,44 @@ class Compiler(object):
 			if self.depends_map['dependencies'].has_key(name):
 				for depend in self.depends_map['dependencies'][name]:
 					self.add_required_module(depend)
-				
+	
+	def is_module(self, name):
+		if name.isupper(): return False # completely upper case signifies a constant
+		if not name[0].isupper() and name != "iPhone": return False
+		if 'iPhone.' in name: return False
+		
+		return True
+	
+	def extract_from_namespace(self, name, line):
+		modules = set()
+		methods = set()
+		symbols = re.findall(r'%s\.(\w+)' % name, line)
+		if len(symbols) == 0:
+			return modules, methods
 
-	def extract_from_namespace(self,name,line):
-		modules = [] 
-		methods = []
-		f = re.findall(r'%s\.(\w+)' % name,line)
-		if len(f) > 0:
-			for sym in f:
-				mm = self.extract_from_namespace("%s.%s" % (name,sym), line)
-				for m in mm[0]:
-					if m[0].isupper() and sym == "Android":
-						# This "method" is actually a module below Android
-						# such as Ti.Android.Calendar
-						try:
-							modules.index(m)
-						except:
-							modules.append(m)
-					else:
-						method_name = "%s.%s" %(sym,m)
-						try:
-							methods.index(method_name)
-						except:
-							methods.append(method_name)
-				# skip Titanium.version, Titanium.userAgent and Titanium.name since these
-				# properties are not modules
-				if sym in ('version','userAgent','name','_JSON','include','fireEvent','addEventListener','removeEventListener','buildhash','builddate'):
-					continue
-				try:
-					modules.index(sym)
-				except:	
-					modules.append(sym)
-		return modules,methods
-					
-	def extract_and_combine_modules(self,name,line):
-		modules,methods = self.extract_from_namespace(name,line)
-		if len(modules) > 0:
-			for m in modules:
-				self.add_required_module(m)
-			for m in methods:
-				try:
-					self.module_methods.index(m)
-				except:
-					self.module_methods.append(m)
+		for sym in symbols:
+			sub_symbols = self.extract_from_namespace("%s.%s" % (name, sym), line)
+			for module in sub_symbols[0]:
+				modules.add("%s.%s" % (sym, module))
+			for method_name in sub_symbols[1]:
+				method_name = "%s.%s" % (sym, method_name)
+				methods.add(method_name)
+
+			if sym in ignoreSymbols:
+				continue
+
+			if self.is_module(sym):
+				modules.add(sym)
+			else:
+				methods.add(sym)
+		return modules, methods
+	
+	def extract_and_combine_modules(self, name, line):
+		modules, methods = self.extract_from_namespace(name, line)
+		for module in modules:
+			self.add_required_module(module)
+		for method in methods:
+			self.module_methods.add(method)
 			
 	def extract_modules(self,out):
 		for line in out.split(';'):
@@ -214,7 +210,7 @@ class Compiler(object):
 			p = os.path.abspath(os.path.join(os.path.join(path,'..'),script))
 			self.html_scripts.append(p)
 			
-	def compile(self):
+	def compile(self, compile_bytecode=True):
 		print "[INFO] Compiling Javascript resources ..."
 		sys.stdout.flush()
 		for root, dirs, files in os.walk(self.project_dir):
@@ -241,7 +237,8 @@ class Compiler(object):
 							key = f
 						key = key.replace('.js','').replace('\\','_').replace('/','_').replace(' ','_').replace('.','_')
 						self.js_files[fullpath] = (key, js_contents)
-		self.compile_into_bytecode(self.js_files)
+		if compile_bytecode:
+			self.compile_into_bytecode(self.js_files)
 
 if __name__ == "__main__":
 	if len(sys.argv) != 2:

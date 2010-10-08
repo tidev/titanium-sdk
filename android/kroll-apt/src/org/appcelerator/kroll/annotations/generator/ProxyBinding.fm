@@ -320,31 +320,14 @@ public class ${genClassName} <#if superProxyBindingClassName??>extends ${superPr
 		<#if superProxyBindingClassName??>super.bindProperties(p, null);</#if>
 	}
 	
-	<#function getParentModule proxy>
-		<#if allModules??>
-			<#if proxy.creatableInModule??>
-				<#return allModules[proxy.creatableInModule]>
-			<#elseif proxy.parentModule??>
-				<#return allModules[proxy.parentModule]>
-			</#if>
-		</#if>
-	</#function>
-	private static final String API_NAME = "${proxyAttrs.name}";
+	private static final String SHORT_API_NAME = "${proxyAttrs.name}";
+	private static final String FULL_API_NAME = "${proxyAttrs.fullAPIName}";
+	
 	public String getAPIName() {
-		String apiName = API_NAME;
-		<#assign childProxy = proxyAttrs>
-		<#list 1..10 as i>
-			<#assign parentProxy = getParentModule(childProxy)!"none">
-			<#if parentProxy?is_string>
-				<#break>
-			</#if>
-		apiName = "${parentProxy.apiName}." + apiName;
-		<#assign childProxy = parentProxy>
-		</#list>
-		return apiName;
+		return FULL_API_NAME;
 	}
 	
 	public String getShortAPIName() {
-		return API_NAME;
+		return SHORT_API_NAME;
 	}
 }

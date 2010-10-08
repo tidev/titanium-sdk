@@ -103,7 +103,11 @@ public abstract class TiApplication extends Application
 	}
 	
 	protected abstract void bootModules(TiContext context);
-	public abstract String[] getFilteredBindings(String moduleName);
+	
+	public String[] getFilteredBindings(String moduleName) {
+		// TODO: re-enable filtered bindings when our compiler can better detect methods and properties
+		return null;
+	}
 	
 	public static TiApplication getInstance() {
 		return _instance;

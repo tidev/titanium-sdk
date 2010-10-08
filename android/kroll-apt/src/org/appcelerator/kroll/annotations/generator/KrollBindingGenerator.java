@@ -517,8 +517,41 @@ public class KrollBindingGenerator extends AbstractProcessor {
 		
 	}
 	
+	protected Map<String, Object> getParentModule(Map<String, Object> proxy) {
+		if (properties.containsKey("modules")) {
+			Map<String, Object> modules = (Map<String, Object>) properties.get("modules");
+			if (proxy.containsKey("creatableInModule")) {
+				return (Map<String, Object>) modules.get(proxy.get("creatableInModule"));
+			} else if (proxy.containsKey("parentModule")) {
+				return (Map<String, Object>) modules.get(proxy.get("parentModule"));
+			}
+		}
+		return null;
+	}
+	
+	protected void generateFullAPIName(Map<String, Object> proxy) {
+		Map<String, Object> childProxy = proxy;
+		String fullAPIName = (String) proxy.get("name");
+		for (int i = 0; i < 10; i++) {
+			Map<String, Object> parentProxy = getParentModule(childProxy);
+			if (parentProxy == null) {
+				break;
+			}
+			fullAPIName = parentProxy.get("apiName") + "." + fullAPIName;
+			childProxy = parentProxy;
+		}
+		utils.debugLog("full api name => " + fullAPIName);
+		proxy.put("fullAPIName", fullAPIName);
+	}
+	
 	protected void generateJSON() {
 		try {
+			Map<String,Object> proxies = (Map<String,Object>) properties.get("proxies");
+			for (String proxyName : proxies.keySet()) {
+				Map<String,Object> proxy = (Map<String,Object>)proxies.get(proxyName);
+				generateFullAPIName((Map<String,Object>)proxy.get("proxyAttrs"));
+			}
+			
 			FileObject file = processingEnv.getFiler().createResource(
 				StandardLocation.SOURCE_OUTPUT, jsonPackage, jsonFile);
 			Writer writer = file.openWriter();

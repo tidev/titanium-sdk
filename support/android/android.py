@@ -132,7 +132,7 @@ class Android(object):
 	
 	def build_modules_info(self, resources_dir, app_bin_dir):
 		compiler = Compiler(self.tiapp, resources_dir, self.java, app_bin_dir, os.path.dirname(app_bin_dir))
-		compiler.compile()
+		compiler.compile(compile_bytecode=False)
 		self.app_modules = []
 		template_dir = os.path.dirname(sys._getframe(0).f_code.co_filename)
 		android_modules_dir = os.path.abspath(os.path.join(template_dir, 'modules'))
@@ -154,24 +154,27 @@ class Android(object):
 			bindings_json = module_jar.read(bindings_path)
 			module_bindings = simplejson.loads(bindings_json)
 			for module_class in module_bindings['modules'].keys():
-				print '[INFO] module_class = ' + module_class + ', api_name=' + module_bindings['modules'][module_class]['apiName']
+				full_api_name = module_bindings['proxies'][module_class]['proxyAttrs']['fullAPIName']
+				print '[INFO] module_class = ' + module_class + ', api_name=' + module_bindings['modules'][module_class]['apiName'] + ', full_api_name='+full_api_name
 				modules[module_class] = module_bindings['modules'][module_class]
+				modules[module_class]['fullAPIName'] = full_api_name
 
 		for module in compiler.modules:
 			bindings = []
 			# TODO: we should also detect module properties
 			for method in compiler.module_methods:
-				if method.lower().startswith(module+'.'):
+				if method.lower().startswith(module+'.') and '.' not in method:
 					bindings.append(method[len(module)+1:])
 			
 			module_class = None
 			module_apiName = None
 			for m in modules.keys():
-				if modules[m]['apiName'].lower() == module:
+				if modules[m]['fullAPIName'].lower() == module:
 					module_class = m
-					module_apiName = modules[m]['apiName']
+					module_apiName = modules[m]['fullAPIName']
 					break
-
+			
+			if module_apiName == None: continue # module wasn't found
 			self.app_modules.append({
 				'api_name': module_apiName,
 				'class_name': module_class,
