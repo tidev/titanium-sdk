@@ -451,7 +451,7 @@ DEFINE_EXCEPTIONS
 
 -(void)repositionZIndex
 {
-	[(TiViewProxy*)self.proxy setNeedsZIndexRepositioning];
+	[[(TiViewProxy*)self.proxy parent] setNeedsZIndexRepositioning];
 }
 
 -(BOOL)animationFromArgument:(id)args
