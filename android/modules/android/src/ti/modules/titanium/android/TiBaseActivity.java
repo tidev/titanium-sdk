@@ -322,7 +322,7 @@ Log.i(LCAT, "JSLOADED!!!!");
 					if (iconPath != null) {
 		     			Drawable d = null;
 						TiFileHelper tfh = new TiFileHelper(this);
-						d = tfh.loadDrawable(iconPath, false);
+						d = tfh.loadDrawable(tiContext, iconPath, false);
 						if (d != null) {
 							mi.setIcon(d);
 						}

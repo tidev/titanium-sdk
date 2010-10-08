@@ -321,7 +321,7 @@ public class TiUIHelper
 			bgSelectedDrawable = new ColorDrawable(TiConvert.toColor(selectedColor));
 		} else {
 			if (image != null) {
-				bgSelectedDrawable = tfh.loadDrawable(image, false, true);
+				bgSelectedDrawable = tfh.loadDrawable(tiContext, image, false, true);
 			} else if (color != null) {
 				bgSelectedDrawable = new ColorDrawable(TiConvert.toColor(color));				
 			}			

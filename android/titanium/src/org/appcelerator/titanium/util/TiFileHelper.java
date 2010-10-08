@@ -222,7 +222,7 @@ public class TiFileHelper
 		return is;
 	}
 
-	public Drawable loadDrawable(String path, boolean report) {
+	private Drawable loadDrawable(String path, boolean report) {
 		return loadDrawable(path, report, false);
 	}
 	
@@ -245,7 +245,7 @@ public class TiFileHelper
 		
 	}
 
-	public Drawable loadDrawable(String path, boolean report, boolean checkForNinePatch)
+	private Drawable loadDrawable(String path, boolean report, boolean checkForNinePatch)
 	{
 		Drawable d = null;
 		InputStream is = null;

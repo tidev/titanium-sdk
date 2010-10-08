@@ -78,7 +78,7 @@ public abstract class TiApplication extends Application
 	protected TiAnalyticsModel analyticsModel;
 	protected Intent analyticsIntent;
 	private static long lastAnalyticsTriggered = 0;
-	private String buildVersion, buildTimestamp, buildHash;
+	private String buildVersion = "", buildTimestamp = "", buildHash = "";
 	protected ArrayList<KrollModule> modules = new ArrayList<KrollModule>();
 	
 	public TiApplication() {
@@ -88,6 +88,7 @@ public abstract class TiApplication extends Application
 		needsEnrollEvent = false; // test is after DB is available
 		needsStartEvent = true;
 		loadBuildProperties();
+		Log.i(LCAT, "Titanium " + buildVersion + " (" + buildTimestamp + " " + buildHash + ")");
 	}
 	
 	public void bindModules(KrollBridge bridge, KrollProxy parent) {
@@ -149,8 +150,9 @@ public abstract class TiApplication extends Application
 		Thread.setDefaultUncaughtExceptionHandler(new UncaughtExceptionHandler() {
 
 			public void uncaughtException(Thread t, Throwable e) {
-				Log.e("TiUncaughtHandler", "Sending event: exception on thread: " + t.getName() + " msg:" + e.toString(), e);
-				postAnalyticsEvent(TiAnalyticsEventFactory.createErrorEvent(t, e));
+				String tiVer = buildVersion + "," + buildTimestamp + "," + buildHash ;
+				Log.e("TiUncaughtHandler", "Sending event: exception on thread: " + t.getName() + " msg:" + e.toString() + "; Titanium " + tiVer, e);
+				postAnalyticsEvent(TiAnalyticsEventFactory.createErrorEvent(t, e, tiVer));
 				defaultHandler.uncaughtException(t, e);
 			}
 		});
