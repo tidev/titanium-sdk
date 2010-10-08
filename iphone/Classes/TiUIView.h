@@ -28,7 +28,6 @@ void RestoreScrollViewFromKeyboard(UIScrollView * scrollView);
 {
 @private
 	TiProxy *proxy;
-	TiViewProxy *parent;
 	TiAnimation *animation;
 	
 	CALayer *gradientLayer;
@@ -36,7 +35,6 @@ void RestoreScrollViewFromKeyboard(UIScrollView * scrollView);
 	CGAffineTransform virtualParentTransform;
 	id transformMatrix;
 	BOOL childrenInitialized;
-	BOOL configured;
 	BOOL touchEnabled;
 
 	unsigned int animationDelayGuard;
@@ -64,7 +62,6 @@ void RestoreScrollViewFromKeyboard(UIScrollView * scrollView);
 -(BOOL)animating;
 
 @property(nonatomic,readwrite,assign)	TiProxy *proxy;
-@property(nonatomic,readwrite,assign)	TiViewProxy *parent;
 @property(nonatomic,readwrite,assign)	UIView *touchDelegate;
 @property(nonatomic,readonly)			id transformMatrix;
 @property(nonatomic,readwrite,retain) id backgroundImage;
@@ -76,10 +73,7 @@ void RestoreScrollViewFromKeyboard(UIScrollView * scrollView);
 #pragma mark Framework
 
 -(void)initializeState;
--(void)willSendConfiguration;
 -(void)configurationSet;
--(void)didSendConfiguration;
--(BOOL)viewConfigured;
 -(void)setVirtualParentTransform:(CGAffineTransform)newTransform;
 -(void)setTransform_:(id)matrix;
 

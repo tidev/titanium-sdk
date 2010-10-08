@@ -619,7 +619,6 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 			[proxy windowWillOpen];
 			[proxy setReproxying:YES];
 			TiUIView *uiview = [proxy view];
-			uiview.parent = self;
 			[self redelegateViews:proxy toView:contentView];
 			[rowContainerView addSubview:uiview];
 			[proxy setReproxying:NO];

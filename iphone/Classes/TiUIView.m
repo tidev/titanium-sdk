@@ -82,7 +82,7 @@ void RestoreScrollViewFromKeyboard(UIScrollView * scrollView)
 
 DEFINE_EXCEPTIONS
 
-@synthesize proxy,parent,touchDelegate,backgroundImage;
+@synthesize proxy,touchDelegate,backgroundImage;
 
 #pragma mark Internal Methods
 
@@ -93,7 +93,6 @@ DEFINE_EXCEPTIONS
     RELEASE_TO_NIL(backgroundImage);
 	RELEASE_TO_NIL(gradientLayer);
 	proxy = nil;
-	parent = nil;
 	touchDelegate = nil;
 	[super dealloc];
 }
@@ -173,34 +172,15 @@ DEFINE_EXCEPTIONS
     }
 }
 
--(void)willSendConfiguration
-{
-}
-
--(void)didSendConfiguration
-{
-	configured = YES;
-}
-
 -(void)configurationSet
 {
 	// can be used to trigger things after all properties are set
-}
-
--(BOOL)viewConfigured
-{
-	return configured;
 }
 
 -(void)setProxy:(TiProxy *)p
 {
 	proxy = p;
 	[proxy setModelDelegate:self];
-}
-
--(void)setParent:(TiViewProxy *)p
-{
-	parent = p;
 }
 
 -(UIImage*)loadImage:(id)image 

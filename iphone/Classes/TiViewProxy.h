@@ -10,7 +10,6 @@
 
 
 #pragma mark dirtyflags used by TiViewProxy
-#define NEEDS_REPOSITION	0 
 #define NEEDS_LAYOUT_CHILDREN	1
 
 enum
@@ -51,6 +50,7 @@ enum
 	CGFloat verticalLayoutBoundary;
 	CGFloat horizontalLayoutBoundary;
 	CGFloat horizontalLayoutRowHeight;	//Note, this has nothing to do with table views.
+	int lastChildArranged;
 
 	CGRect sandboxBounds;
 	CGPoint positionCache;	//Recomputed and stored when position changes.
@@ -126,6 +126,7 @@ enum
 -(BOOL)canHaveControllerParent;
 -(BOOL)shouldDetachViewOnUnload;
 -(UIView *)parentViewForChild:(TiViewProxy *)child;
+-(CGRect)sandboxBoundsForChild:(TiViewProxy *)child;
 
 #pragma mark Event trigger methods
 -(void)windowWillOpen;
@@ -136,7 +137,6 @@ enum
 -(void)willFirePropertyChanges;
 -(void)didFirePropertyChanges;
 
--(void)viewWillAttach;
 -(void)viewDidAttach;
 -(void)viewWillDetach;
 -(void)viewDidDetach;
@@ -207,15 +207,9 @@ enum
 -(void)relayout;
 -(void)insertIntoView:(UIView*)view bounds:(CGRect)bounds;
 -(void)reposition;	//Todo: Replace
--(void)repositionIfNeeded;	//Todo: Replace
--(void)setNeedsReposition;	//Todo: Replace
--(void)clearNeedsReposition;	//Todo: Replace
--(void)setNeedsRepositionIfAutoSized;	//Todo: Replace
 
 -(BOOL)willBeRelaying;	//Todo: Replace
 -(void)childWillResize:(TiViewProxy *)child;	//Todo: Replace
-
--(void)layoutChildOnMainThread:(id)arg;
 
 @end
 

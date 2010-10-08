@@ -96,7 +96,7 @@
 		}
 		
 		// only call layout if the view is attached
-		[self layoutChildOnMainThread:arg];
+		[self layoutChild:arg optimize:NO]; 
 	}
 	else
 	{
@@ -188,6 +188,8 @@
 -(void)animate:(id)arg
 {
 	ENSURE_UI_THREAD(animate,arg);
+	[parent contentsWillChange];
+
 	if ([view superview]==nil)
 	{
 		VerboseLog(@"Entering animation without a superview Parent is %@, props are %@",parent,dynprops);
@@ -202,7 +204,6 @@
 -(void)methodName:(id)value	\
 {	\
 	layoutProperties.layoutName = converter(value);	\
-	[self setNeedsReposition];	\
 	[self replaceValue:value forKey:@#layoutName notification:YES];	\
 	postaction; \
 }
@@ -248,7 +249,6 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
 	ENSURE_DICT(value);
 	layoutProperties.width = TiDimensionFromObject([value objectForKey:@"width"]);
  	layoutProperties.height = TiDimensionFromObject([value objectForKey:@"height"]);
-	[self setNeedsReposition];
 	[self willChangeSize];
 }
 
@@ -264,7 +264,6 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
 		layoutProperties.centerX = TiDimensionFromObject([value objectForKey:@"x"]);
 		layoutProperties.centerY = TiDimensionFromObject([value objectForKey:@"y"]);
 	}
-	[self setNeedsReposition];
 	[self willChangePosition];
 }
 
@@ -305,11 +304,6 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
 -(void)setParent:(TiViewProxy*)parent_
 {
 	parent = parent_;
-	
-	if (view!=nil)
-	{
-		[view setParent:parent_];
-	}
 	
 	if (parent_!=nil && [parent windowHasOpened])
 	{
@@ -526,26 +520,18 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
 		{
 			NSLog(@"[WARN] Break here");
 		}
-#endif
-		[self viewWillAttach];
-		
+#endif		
 		// on open we need to create a new view
 		view = [self newView];
 		
 		view.proxy = self;
-		view.parent = parent;
 		view.layer.transform = CATransform3DIdentity;
 		view.transform = CGAffineTransformIdentity;
 
 		[view initializeState];
 
-		[view willSendConfiguration];
-
 		// fire property changes for all properties to our delegate
 		[self firePropertyChanges];
-
-
-		[view didSendConfiguration];
 
 		[view configurationSet];
 
@@ -711,11 +697,6 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
 	}
 }
 
-
--(void)viewWillAttach
-{
-	// for subclasses
-}
 
 -(void)viewDidAttach
 {
@@ -1120,8 +1101,7 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
 
 -(void)willEnqueue
 {
-//Todo: Find out why we need to add the proxy multiple times.
-//	SET_AND_PERFORM(TiRefreshViewEnqueued,return);
+	SET_AND_PERFORM(TiRefreshViewEnqueued,return);
 	[TiLayoutQueue addViewProxy:self];
 }
 
@@ -1304,8 +1284,6 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
 //BUG BARRIER: Code in this block is legacy code that should be factored out.
 	[parent childWillResize:self];
 
-	OSAtomicTestAndClearBarrier(NEEDS_REPOSITION, &dirtyflags);
-
 	if (windowOpened && [self viewAttached])
 	{
 		
@@ -1449,7 +1427,6 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
 		[parent insertSubview:view forProxy:self];
 
 
-		[self clearNeedsReposition];
 		repositioning = NO;
 	}
 #ifdef VERBOSE
@@ -1473,8 +1450,6 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
 	{
 		[newSuperview addSubview:view];
 	}
-
-	[self clearNeedsReposition];
 }
 
 -(void)layoutChildrenIfNeeded
@@ -1490,7 +1465,7 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
 			return;
 		}
 		
-		[self repositionIfNeeded];
+		[self refreshView:nil];
 
 		BOOL wasSet=OSAtomicTestAndClearBarrier(NEEDS_LAYOUT_CHILDREN, &dirtyflags);
 		if (wasSet && [self viewAttached])
@@ -1516,7 +1491,6 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
 	pthread_rwlock_unlock(&childrenLock);
 
 	ENSURE_VALUE_CONSISTENCY(containsChild,YES);
-	[self setNeedsRepositionIfAutoSized];
 
 	if (!TiLayoutRuleIsAbsolute(layoutProperties.layout))
 	{
@@ -1551,47 +1525,6 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
 		[self performSelectorOnMainThread:@selector(reposition) withObject:nil waitUntilDone:NO];
 	}
 
-}
-
--(void)repositionIfNeeded
-{
-	IGNORE_IF_NOT_OPENED
-	
-	BOOL wasSet=OSAtomicTestAndClearBarrier(NEEDS_REPOSITION, &dirtyflags);
-	if (wasSet && [self viewAttached])
-	{
-		[self reposition];
-	}
-}
-
--(void)setNeedsReposition
-{
-	[self willChangeSize];
-	[self willChangePosition];
-
-	IGNORE_IF_NOT_OPENED
-	
-	BOOL alreadySet = OSAtomicTestAndSetBarrier(NEEDS_REPOSITION, &dirtyflags);
-	if (alreadySet || [parent willBeRelaying])
-	{
-		return;
-	}
-
-	[parent childWillResize:self];
-	[self willEnqueue];
-}
-
--(void)clearNeedsReposition
-{
-	OSAtomicTestAndClearBarrier(NEEDS_REPOSITION, &dirtyflags);
-}
-
--(void)setNeedsRepositionIfAutoSized
-{
-	if (TiDimensionIsAuto(layoutProperties.width) || TiDimensionIsAuto(layoutProperties.height))
-	{
-		[self setNeedsReposition];
-	}
 }
 
 -(void)layoutChild:(TiViewProxy*)child optimize:(BOOL)optimize
@@ -1723,13 +1656,6 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
 	{
 		OSAtomicTestAndClearBarrier(NEEDS_LAYOUT_CHILDREN, &dirtyflags);
 	}
-}
-
--(void)layoutChildOnMainThread:(id)arg
-{
-	ENSURE_UI_THREAD(layoutChildOnMainThread,arg);
-	IGNORE_IF_NOT_OPENED
-	[self layoutChild:arg optimize:NO]; 
 }
 
 @end
