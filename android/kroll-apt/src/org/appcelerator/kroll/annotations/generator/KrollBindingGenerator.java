@@ -540,7 +540,6 @@ public class KrollBindingGenerator extends AbstractProcessor {
 			fullAPIName = parentProxy.get("apiName") + "." + fullAPIName;
 			childProxy = parentProxy;
 		}
-		utils.debugLog("full api name => " + fullAPIName);
 		proxy.put("fullAPIName", fullAPIName);
 	}
 	
