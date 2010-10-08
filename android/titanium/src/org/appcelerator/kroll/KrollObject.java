@@ -29,7 +29,7 @@ public class KrollObject extends ScriptableObject implements Function {
 	public Object get(String name, Scriptable start) {
 		try {
 			Object value = proxy.get(start, name);
-			if (value.equals(KrollProxy.UNDEFINED)) {
+			if (value != null && value.equals(KrollProxy.UNDEFINED)) {
 				return Scriptable.NOT_FOUND;
 			}
 			
