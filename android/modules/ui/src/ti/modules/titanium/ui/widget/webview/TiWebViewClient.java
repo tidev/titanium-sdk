@@ -38,8 +38,8 @@ public class TiWebViewClient extends WebViewClient
 
 	@Override
 	public void onPageFinished(WebView view, String url) {
+		binding.insertApiBindings();
 		super.onPageFinished(view, url);
-
 		webView.changeProxyUrl(url);
 		KrollDict data = new KrollDict();
 		data.put("url", url);
@@ -53,7 +53,7 @@ public class TiWebViewClient extends WebViewClient
 	@Override
 	public void onPageStarted(WebView view, String url, Bitmap favicon) {
 		super.onPageStarted(view, url, favicon);
-		binding.insertApiBindings();
+		//binding.insertApiBindings(); 
 	}
 
 	@Override

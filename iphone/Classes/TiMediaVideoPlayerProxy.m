@@ -402,8 +402,7 @@ NSArray* moviePlayerKeys = nil;
 	{
 		[movie stop];
 	}
-	[[movie retain] autorelease];
-	movie = nil;
+	RELEASE_TO_NIL_AUTORELEASE(movie);
 	
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
 	if ([TiUtils isiPhoneOS3_2OrGreater]) {
@@ -752,6 +751,12 @@ NSArray* moviePlayerKeys = nil;
 		[[self player] setFullscreen:fs];
 	}
 	
+	if ([value isEqual:[loadProperties valueForKey:@"fullscreen"]])
+	{
+		//This is to stop mutating loadProperties while configurePlayer.
+		return;
+	}
+	
 	// Movie players are picky.  You can't set the fullscreen value until
 	// the movie's size has been determined, so we always have to cache the value - just in case
 	// it's set before then.
@@ -778,9 +783,8 @@ NSArray* moviePlayerKeys = nil;
 	{
 		[movie stop];
 	}
-	[[movie retain] autorelease];
 	[self detachView];
-	movie = nil;
+	RELEASE_TO_NIL_AUTORELEASE(movie);
 	playing = NO;
 }
 

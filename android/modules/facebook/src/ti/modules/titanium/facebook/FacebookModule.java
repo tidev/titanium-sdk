@@ -12,6 +12,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollInvocation;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiContext;
@@ -229,10 +230,11 @@ public class FacebookModule extends KrollModule implements FBActivityDelegate,
 	}
 
 	@Kroll.method
-	public void publishStream(String title, KrollDict data, String target,
+	public void publishStream(KrollInvocation invocation, String title, KrollDict data, String target,
 			KrollCallback callback) {
 		JSONObject json = TiConvert.toJSON(data);
-		Activity activity = getTiContext().getActivity();
+		//Activity activity = getTiContext().getActivity();
+		Activity activity = invocation.getTiContext().getActivity();
 		TiActivitySupport activitySupport = (TiActivitySupport) activity;
 		final int resultCode = activitySupport.getUniqueResultCode();
 		Intent intent = new Intent(activity, FBActivity.class);
@@ -251,9 +253,10 @@ public class FacebookModule extends KrollModule implements FBActivityDelegate,
 	}
 
 	@Kroll.method
-	public void publishFeed(long templateBundleId, String data, String body,
+	public void publishFeed(KrollInvocation invocation, long templateBundleId, String data, String body,
 			KrollCallback callback) {
-		Activity activity = getTiContext().getActivity();
+		//Activity activity = getTiContext().getActivity();
+		Activity activity = invocation.getTiContext().getActivity();
 		TiActivitySupport activitySupport = (TiActivitySupport) activity;
 		final int resultCode = activitySupport.getUniqueResultCode();
 		Intent intent = new Intent(activity, FBActivity.class);
