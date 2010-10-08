@@ -76,6 +76,10 @@ public class TitaniumModule extends KrollModule implements TiContext.OnLifecycle
 	public String getBuildHash() {
 		return getTiContext().getTiApp().getTiBuildHash();
 	}
+	
+	// For testing exception handling.  Can remove after ticket 2032
+	@Kroll.method
+	public void testThrow(){ throw new Error("Testing throwing throwables"); }
 
 	@Kroll.method
 	public void include(KrollInvocation invocation, Object[] files) {
