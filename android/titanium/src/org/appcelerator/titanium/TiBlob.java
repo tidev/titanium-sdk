@@ -193,6 +193,11 @@ public class TiBlob extends KrollProxy
 				result = (String) data;
 			case TYPE_DATA:
 			case TYPE_FILE:
+				// Don't try to return a string if we can see the 
+				// mimetype is binary
+				if (mimetype != null && TiMimeTypeHelper.isBinaryMimeType(mimetype)) {
+					return null;
+				}
 				try {
 					result = new String(getBytes(), "utf-8");
 				} catch (UnsupportedEncodingException e) {

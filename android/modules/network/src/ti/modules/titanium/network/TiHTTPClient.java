@@ -474,6 +474,9 @@ public class TiHTTPClient
 		if (responseXml == null && (responseData != null || responseText != null)) {
 			try {
 				String text = getResponseText();
+				if (text == null || text.length() == 0) {
+					return null;
+				}
 				if (charset != null && charset.length() > 0) {
 					responseXml = XMLModule.parse(proxy.getTiContext(), text, charset);
 				} else {
@@ -858,8 +861,12 @@ public class TiHTTPClient
 				setResponseText(result);
 				setReadyState(READY_STATE_DONE);
 			} catch(Throwable t) {
-				Log.e(LCAT, "HTTP Error (" + t.getClass().getName() + "): " + t.getMessage(), t);
-				sendError(t.getMessage());
+				String msg = t.getMessage();
+				if (msg == null && t.getCause() != null) {
+					msg = t.getCause().getMessage();
+				}
+				Log.e(LCAT, "HTTP Error (" + t.getClass().getName() + "): " + msg, t);
+				sendError(msg);
 			}
 		}
 	}
