@@ -111,7 +111,8 @@ public class KrollBridge implements TiEvaluator
 		}
 		if (object != null) {
 			KrollInvocation invocation = KrollInvocation.createPropertySetInvocation(object, object, ctxSpecificName, null, null);
-			object.put(ctxSpecificName, object, KrollConverter.getInstance().convertNative(invocation, value));
+			Object convertedValue = KrollConverter.getInstance().convertNative(invocation, value);
+			object.put(ctxSpecificName, object, convertedValue);
 		}
 	}
 	

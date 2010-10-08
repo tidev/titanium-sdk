@@ -12,26 +12,26 @@ import org.appcelerator.kroll.util.KrollReflectionUtils;
 
 public class KrollReflectionProperty implements KrollProperty {
 
-	protected KrollProxy proxy;
 	protected String name;
 	protected boolean get, set;
-	protected Field field;
+	protected String fieldName;
 	protected KrollNativeConverter nativeConverter;
 	protected KrollJavascriptConverter javascriptConverter;
 	
-	public KrollReflectionProperty(KrollProxy proxy, String name, boolean get, boolean set, String fieldName) {
-		this.proxy = proxy;
+	public KrollReflectionProperty(String name, boolean get, boolean set, String fieldName) {
 		this.name = name;
 		this.get = get;
 		this.set = set;
-		this.field = KrollReflectionUtils.getField(proxy.getClass(), fieldName);
+		this.fieldName = fieldName;
 	}
 	
 	@Override
 	public Object get(KrollInvocation invocation, String name) {
 		if (!supportsGet(name)) return KrollProxy.UNDEFINED;
 		
-		if (proxy != null && field != null) {
+		if (invocation.getProxy() != null) {
+			KrollProxy proxy = invocation.getProxy();
+			Field field = KrollReflectionUtils.getField(proxy.getClass(), fieldName);
 			try {
 				return nativeConverter.convertNative(invocation, field.get(proxy));
 			} catch (IllegalArgumentException e) {
@@ -49,7 +49,9 @@ public class KrollReflectionProperty implements KrollProperty {
 	@Override
 	public void set(KrollInvocation invocation, String name, Object value) {
 		if (!supportsSet(name)) return;
-		if (proxy != null && field != null) {
+		if (invocation.getProxy() != null) {
+			KrollProxy proxy = invocation.getProxy();
+			Field field = KrollReflectionUtils.getField(proxy.getClass(), fieldName);
 			try {
 				field.set(proxy,
 					javascriptConverter.convertJavascript(invocation, value, Object.class));

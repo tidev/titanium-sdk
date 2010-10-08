@@ -59,6 +59,10 @@ public class KrollObject extends ScriptableObject implements Function {
 		}
 	}
 	
+	public void superPut(String name, Scriptable start, Object value) {
+		super.put(name, start, value);
+	}
+	
 	@Override
 	public void put(int index, Scriptable start, Object value) {
 		// TODO: implement special array index setters in binding

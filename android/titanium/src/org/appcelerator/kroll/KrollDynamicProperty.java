@@ -20,17 +20,15 @@ public abstract class KrollDynamicProperty implements KrollProperty {
 	
 	protected boolean get, set, retain;
 	protected String name;
-	protected KrollProxy proxy;
 	protected boolean runOnUiThread = false;
 	//protected boolean getMethodHasInvocation, setMethodHasInvocation;
 	protected KrollNativeConverter nativeConverter;
 	protected KrollJavascriptConverter javascriptConverter;
 	
-	public KrollDynamicProperty(KrollProxy proxy, String name, boolean get, boolean set, boolean retain) {
+	public KrollDynamicProperty(String name, boolean get, boolean set, boolean retain) {
 		this.name = name;
 		this.get = get;
 		this.set = set;
-		this.proxy = proxy;
 		this.retain = retain;
 	}
 	
@@ -90,7 +88,7 @@ public abstract class KrollDynamicProperty implements KrollProperty {
 			return safeInvoke(invocation, GET, null);
 		}
 		
-		return nativeConverter.convertNative(invocation, proxy.getProperty(name));
+		return nativeConverter.convertNative(invocation, invocation.getProxy().getProperty(name));
 	}
 
 	public abstract Object dynamicGet(KrollInvocation invocation);
@@ -99,12 +97,12 @@ public abstract class KrollDynamicProperty implements KrollProperty {
 	public void set(KrollInvocation invocation, String name, Object value) {
 		if (supportsSet(name)) {
 			if (retain) {
-				proxy.setProperty(name, value);
+				invocation.getProxy().setProperty(name, value);
 			}
 			safeInvoke(invocation, SET, value);
 		} else {
 			Object convertedValue = javascriptConverter.convertJavascript(invocation, value, Object.class);
-			proxy.setProperty(name, convertedValue, true);
+			invocation.getProxy().setProperty(name, convertedValue, true);
 		}
 	}
 	

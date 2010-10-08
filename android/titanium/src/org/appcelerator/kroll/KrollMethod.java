@@ -16,17 +16,11 @@ public abstract class KrollMethod extends ScriptableObject implements Function {
 	private static final String TAG = "KrollMethod";
 	
 	protected String name;
-	protected KrollProxy proxy;
 	protected boolean runOnUiThread = false;
 
 	public KrollMethod(String name) {
 		super();
 		this.name = name;
-	}
-	
-	public KrollMethod(KrollProxy proxy, String name) {
-		this(name);
-		this.proxy = proxy;
 	}
 	
 	@Override
@@ -36,6 +30,11 @@ public abstract class KrollMethod extends ScriptableObject implements Function {
 	
 	@Override
 	public Object call(Context context, Scriptable scope, Scriptable thisObj, Object[] args) {
+		KrollProxy proxy = null;
+		if (thisObj instanceof KrollObject) {
+			proxy = ((KrollObject)thisObj).getProxy();
+		}
+		
 		KrollInvocation inv = KrollInvocation.createMethodInvocation(scope, thisObj, name, this, proxy);
 		try {
 			if (!runOnUiThread) {

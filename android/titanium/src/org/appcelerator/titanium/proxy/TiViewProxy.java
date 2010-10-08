@@ -149,7 +149,9 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 		String baseUrl = getBaseUrlForStylesheet();
 		KrollDict dict = context.getTiApp().getStylesheet(baseUrl, styleClasses, viewId);
 
-		Log.d(LCAT, "trying to get stylesheet for base:" + baseUrl + ",classes:" + styleClasses + ",id:" + viewId + ",dict:" + dict);
+		if (DBG) {
+			Log.d(LCAT, "trying to get stylesheet for base:" + baseUrl + ",classes:" + styleClasses + ",id:" + viewId + ",dict:" + dict);
+		}
 		if (dict != null) {
 			// merge in our stylesheet details to the passed in dictionary
 			// our passed in dictionary takes precedence over the stylesheet

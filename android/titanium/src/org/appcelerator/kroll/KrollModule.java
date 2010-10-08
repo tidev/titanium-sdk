@@ -17,11 +17,6 @@ public class KrollModule extends KrollProxy
 		super(context);
 		context.addOnLifecycleEventListener(this);
 		modelListener = this;
-	}
-	
-	@Override
-	public void bindProperties() {
-		super.bindProperties();
 		bindConstants();
 	}
 	
@@ -41,7 +36,6 @@ public class KrollModule extends KrollProxy
 	
 	@Override
 	public void onDestroy() {
-		context.removeOnLifecycleEventListener(this);
 	}
 	
 	@Override
