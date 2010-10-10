@@ -45,8 +45,9 @@ public class FBStreamDialog extends FBDialog {
 		Map<String, String> params = new HashMap<String, String>(1);
 		params.put("display", "touch");
 		params.put("callback", "fbconnect://success");
-		params.put("cancel", "fbconnect://cancel");
-
+		params.put("cancel", "fbconnect:cancel");
+		// See http://github.com/facebook/facebook-android-sdk/blob/ef53183c59dac75cda7b6787a7fcb6f4bcd35b7b/facebook/src/com/facebook/android/Facebook.java#L42
+		// for those urls.
 		try {
 			Map<String, String> postParams = new HashMap<String, String>(8);
 			postParams.put("api_key", mSession.getApiKey());

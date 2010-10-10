@@ -45,6 +45,10 @@ public class FBFeedDialog extends FBDialog {
 	protected void load() {
 		Map<String, String> params = new HashMap<String, String>(1);
 		params.put("display", "touch");
+		params.put("callback", "fbconnect://success");
+		params.put("cancel", "fbconnect:cancel");
+		// See http://github.com/facebook/facebook-android-sdk/blob/ef53183c59dac75cda7b6787a7fcb6f4bcd35b7b/facebook/src/com/facebook/android/Facebook.java#L42
+		// for those urls.
 
 		try {
 			JSONObject obj = new JSONObject();
@@ -64,8 +68,6 @@ public class FBFeedDialog extends FBDialog {
 			postParams.put("api_key", mSession.getApiKey());
 			postParams.put("session_key", mSession.getSessionKey());
 			postParams.put("preview", "1");
-			postParams.put("callback", "fbconnect:success");
-			postParams.put("cancel", "fbconnect:cancel");
 			postParams.put("feed_info", obj.toString());
 			postParams.put("feed_target_type", "self_feed");
 			postParams.put("user_message_prompt", userMessagePrompt);
