@@ -34,13 +34,12 @@ public class IntentProxy extends TiProxy
 		
 		intent = new Intent();
 		
-		// See which set of options we have to work with.
-
 		if (d != null) {
 			String action = d.getString("action");
 			String data = d.getString("data");
 			String classname = d.getString("className");
-
+			String type = d.getString("type");
+			
 			if (action != null) {
 				if (DBG) {
 					Log.d(LCAT, "Setting action: " + action);
@@ -64,6 +63,16 @@ public class IntentProxy extends TiProxy
 					throw new IllegalStateException("Missing class for name: " + classname, e);
 				}
 			}
+			if (type != null) {
+				if (DBG) {
+					Log.d(LCAT, "Setting type: " + type);
+				} 
+			} else {
+				if (DBG) {
+					Log.d(LCAT, "Intent type not set, defaulting to text/plain");
+				}
+			}
+			intent.setType( (type == null) ? "text/plain" : type);		
 		}
 	}	
 	
