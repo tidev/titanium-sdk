@@ -34,6 +34,7 @@ public class IntentProxy extends KrollProxy
 		String action = dict.getString("action");
 		String data = dict.getString("data");
 		String classname = dict.getString("className");
+		String type = dict.getString("type");
 
 		if (action != null) {
 			if (DBG) {
@@ -58,6 +59,17 @@ public class IntentProxy extends KrollProxy
 				throw new IllegalStateException("Missing class for name: " + classname, e);
 			}
 		}
+		
+		if (type != null) {
+			if (DBG) {
+				Log.d(LCAT, "Setting type: " + type);
+			} 
+		} else {
+			if (DBG) {
+				Log.d(LCAT, "Intent type not set, defaulting to text/plain");
+			}
+		}
+		intent.setType( (type == null) ? "text/plain" : type);
 	}	
 	
 	@Kroll.method
