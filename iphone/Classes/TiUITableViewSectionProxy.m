@@ -49,7 +49,7 @@
 
 -(void)triggerSectionUpdate
 {
-	TiUITableViewAction *action = [[[TiUITableViewAction alloc] initWithRow:nil animation:nil section:self.section type:TiUITableViewActionSectionReload] autorelease];
+	TiUITableViewAction *action = [[[TiUITableViewAction alloc] initWithObject:self animation:nil type:TiUITableViewActionSectionReload] autorelease];
 	[table dispatchAction:action];
 }
 

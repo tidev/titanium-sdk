@@ -16,7 +16,7 @@
 {
 }
 -(void)setData:(id)args withObject:(id)properties;
-
+-(NSArray*)data;
 @end
 
 #endif

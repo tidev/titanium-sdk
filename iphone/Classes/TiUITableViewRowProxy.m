@@ -820,7 +820,7 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 {
 	if ([self isAttached] && !modifyingRow && !attaching)
 	{
-		TiUITableViewAction *action = [[[TiUITableViewAction alloc] initWithRow:self animation:nil section:section.section type:TiUITableViewActionRowReload] autorelease];
+		TiUITableViewAction *action = [[[TiUITableViewAction alloc] initWithObject:self animation:nil type:TiUITableViewActionRowReload] autorelease];
 		[table dispatchAction:action];
 	}
 }

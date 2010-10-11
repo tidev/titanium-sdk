@@ -12,6 +12,7 @@
 #define TI_BASE_H
 
 #define MEMORY_DEBUG 0
+#define VIEW_DEBUG 0
 
 #ifdef DEBUG
 	// Kroll memory debugging

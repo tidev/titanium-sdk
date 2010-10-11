@@ -12,11 +12,11 @@
 
 @implementation TiUITableViewAction
 
-@synthesize animation, section, row, type;
+@synthesize animation, obj, type;
 
 -(void)dealloc
 {
-	RELEASE_TO_NIL(row);
+	RELEASE_TO_NIL(obj);
 	[super dealloc];
 }
 
@@ -32,14 +32,13 @@
 	return animate ? UITableViewRowAnimationFade : UITableViewRowAnimationNone;
 }
 
--(id)initWithRow:(TiUITableViewRowProxy*)row_ animation:(NSDictionary*)animation_ section:(NSInteger)section_ type:(TiUITableViewActionType)type_
+-(id)initWithObject:(id)obj_ animation:(NSDictionary*)animation_ type:(TiUITableViewActionType)type_
 {
 	if (self = [self init])
 	{
 		animation = [TiUITableViewAction animationStyleForProperties:animation_];
-		section = section_;
 		type = type_;
-		row = [row_ retain];
+		obj = [obj_ retain];
 	}
 	return self;
 }

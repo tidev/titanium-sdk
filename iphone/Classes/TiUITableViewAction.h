@@ -28,17 +28,15 @@ typedef enum
 @interface TiUITableViewAction : NSObject {
 @private
 	NSInteger animation;
-	NSInteger section;
 	TiUITableViewActionType type;
-	TiUITableViewRowProxy *row;
+	id obj;
 }
 
 @property(nonatomic,readonly) NSInteger animation;
-@property(nonatomic,readonly) NSInteger section;
 @property(nonatomic,readonly) TiUITableViewActionType type;
-@property(nonatomic,readonly) TiUITableViewRowProxy *row;
+@property(nonatomic,readonly) id obj;
 
--(id)initWithRow:(TiUITableViewRowProxy*)row animation:(NSDictionary*)animation section:(NSInteger)section type:(TiUITableViewActionType)type;
+-(id)initWithObject:(id)obj_ animation:(NSDictionary*)animation_ type:(TiUITableViewActionType)type_;
 +(UITableViewRowAnimation)animationStyleForProperties:(NSDictionary*)properties;
 
 @end
