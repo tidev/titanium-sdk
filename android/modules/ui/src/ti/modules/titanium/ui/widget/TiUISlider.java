@@ -102,6 +102,7 @@ public class TiUISlider extends TiUIView
 			Drawable thumb = tfh.loadDrawable(proxy.getTiContext(), url, false);
 			thumbDrawable = new SoftReference<Drawable>(thumb);
 			seekBar.setThumb(thumb);
+			seekBar.setThumbOffset(0);
 		} else {
 			seekBar.setThumb(null);
 		}
