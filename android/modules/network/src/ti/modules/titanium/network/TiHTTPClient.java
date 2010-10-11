@@ -650,7 +650,12 @@ public class TiHTTPClient
 		}
 		try {
 			if (needMultipart) {
-				parts.put(name, new StringBody(value));
+				// JGH NOTE: this seems to be a bug in RoR where it would puke if you 
+				// send a content-type of text/plain for key/value pairs in form-data
+				// so we send an empty string by default instead which will cause the
+				// StringBody to not include the content-type header. this should be
+				// harmless for all other cases
+				parts.put(name, new StringBody(value,"",null));
 			} else {
 				nvPairs.add(new BasicNameValuePair(name, value.toString()));
 			}
@@ -702,12 +707,15 @@ public class TiHTTPClient
 		{
 			if (userData instanceof KrollDict) {
 				KrollDict data = (KrollDict)userData;
-				
+				boolean isPostOrPut = method.equals("POST") || method.equals("PUT");
+				boolean isGet = !isPostOrPut && method.equals("GET");
+								
 				// first time through check if we need multipart for POST
 				for (String key : data.keySet()) {
 					Object value = data.get(key);
 					if (value instanceof TiBaseFile || value instanceof TiBlob) {
 						needMultipart = true;
+						break;
 					}
 				}
 				
@@ -715,7 +723,7 @@ public class TiHTTPClient
 				for (String key : data.keySet()) {
 					Object value = data.get(key);
 
-					if (method.equals("POST") || method.equals("PUT")) {
+					if (isPostOrPut) {
 						if (value instanceof TiBaseFile || value instanceof TiBlob) {
 							totalLength += addTitaniumFileAsPostData(key, value);
 						} else {
@@ -723,7 +731,7 @@ public class TiHTTPClient
 							addPostData(key, str);
 							totalLength += str.length();
 						}
-					} else if (method.equals("GET")) {
+					} else if (isGet) {
 						uri = uri.buildUpon().appendQueryParameter(
 							key, TiConvert.toString(value)).build();
 						queryStringAltered = true;
