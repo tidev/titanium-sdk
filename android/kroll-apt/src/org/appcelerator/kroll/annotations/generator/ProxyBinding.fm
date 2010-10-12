@@ -12,6 +12,7 @@ import org.appcelerator.kroll.KrollInvocation;
 import org.appcelerator.kroll.KrollMethod;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.KrollProxyBinding;
+import org.appcelerator.kroll.KrollModuleBinding;
 import org.appcelerator.kroll.KrollDynamicProperty;
 import org.appcelerator.kroll.KrollReflectionProperty;
 import org.appcelerator.kroll.KrollInjector;
@@ -220,7 +221,11 @@ public class ${genClassName}
 <#if superProxyBindingClassName??>
 	extends ${superProxyBindingClassName}
 <#else>
+	<#if isModule>
+	extends KrollModuleBinding
+	<#else>
 	extends KrollProxyBinding
+	</#if>
 </#if>
 {
 	private static final String TAG = "${genClassName}";
@@ -392,8 +397,16 @@ public class ${genClassName}
 	public String getAPIName() {
 		return FULL_API_NAME;
 	}
-	
+		
 	public String getShortAPIName() {
 		return SHORT_API_NAME;
 	}
+	
+	<#if isModule>
+	private static final String MODULE_ID = "${proxyAttrs.id}";
+	
+	public String getId() {
+		return MODULE_ID;
+	}
+	</#if>
 }

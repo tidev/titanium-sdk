@@ -43,9 +43,8 @@
 	<!--
 		Manual usage
 			javac 
-				-processor org.appcelerator.titanium.annotations.processor.ModuleRefGenerator
+				-processor org.appcelerator.kroll.annotations.generator.KrollBindingGenerator
 				[Optional: -processorpath <ti-sdk-folder containing titanium.jar>]
-				-proc:only
 				-classpath lib/js.jar:lib/titanium.jar:/opt/android-sdk/platforms/android-1.6/android.jar
 				src/ti/modules/titanium/urbanairship/*.java  
 	-->
@@ -60,7 +59,8 @@
 				<compilerarg value="-processor" />
 				<compilerarg value="org.appcelerator.kroll.annotations.generator.KrollBindingGenerator" />
 				<compilerarg line="-s ${gen}" />
-				<compilerarg value="-Akroll.jsonFile=${ant.project.name}.json" /> 
+				<compilerarg line="-Akroll.jsonFile=${ant.project.name}.json" />
+				<compilerarg line="-Akroll.jsonPackage=org.appcelerator.titanium.bindings" />
 				<classpath refid="base.path" />
 		</javac>
 	</target>
@@ -79,15 +79,16 @@
 			<classpath refid="base.path" />
 		</javac>
 		<copy todir="${build}">
-			<fileset dir="${gen}" includes="org/appcelerator/titanium/gen/*.json"/>
+			<fileset dir="${gen}" includes="**/*.json"/>
 		</copy>
 	</target>
 
 	<target name="dist" depends="compile" description="generate the distribution">
 		<!-- Create the distribution directory -->
 		<mkdir dir="${dist}" />
-		<jar jarfile="${dist}/${ant.project.name}.jar" basedir="${build}" />
-		<zip destfile="${dist}/${ant.project.name}.zip" basedir="${dist}" includes="*.jar" />
+		<jar jarfile="${dist}/${ant.project.name}.jar" basedir="${build}">
+			<fileset file="manifest"/>
+		</jar>
 	</target>
 	
 

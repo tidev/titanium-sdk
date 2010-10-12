@@ -4,10 +4,14 @@
 # Module Project Create Script
 #
 
-import os,sys,shutil,string,uuid,re
+import os, sys, shutil, string, uuid, re, zipfile
 from string import capitalize
+from StringIO import StringIO
 
 template_dir = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
+top_support_dir = os.path.dirname(template_dir)
+sys.path.append(top_support_dir)
+from manifest import Manifest
 
 ignoreFiles = ['.gitignore', '.cvsignore', '.DS_Store'];
 ignoreDirs = ['.git','.svn','_svn','CVS'];
@@ -89,8 +93,9 @@ class ModuleProject(object):
 		self.guid = str(uuid.uuid4())
 		self.project_dir = project_dir
 		self.module_name_camel = camelcase(self.project_name)
+		self.sdk = None
 		if config.has_key('sdk'):
-		  self.sdk = config['sdk']
+			self.sdk = config['sdk']
 		  
 		platform_dir = os.path.join(template_dir,platform.lower())
 		all_templates_dir = os.path.join(template_dir,'all')
@@ -105,6 +110,73 @@ class ModuleProject(object):
 		exec "cl = %s" % platform.lower()
 		m = cl(project_dir,config,self)
 
+class Module(object):
+	def __init__(self, path, manifest):
+		self.path = path
+		self.manifest = manifest
+
+class ModuleDetector(object):
+	# TODO: this currently only works for android JAR modules (we embed the manifest in our JAR)
+	def __init__(self, project_dir):
+		self.project_dir = project_dir
+		self.modules = self.detect_modules()
+	
+	def get_modules(self, dir):
+		print '[DEBUG] Detecting modules in %s' % dir
+		modules = []
+		if not os.path.exists(dir): return modules
+		
+		for platform in os.listdir(dir):
+			platform_dir = os.path.join(dir, platform)
+			if not os.path.isdir(platform_dir): continue
+			if platform_dir in ['osx', 'win32', 'linux']: continue # skip desktop modules
+			
+			for module_file in os.listdir(platform_dir):
+				module_file = os.path.join(platform_dir, module_file)
+				if not module_file.endswith('.jar'): continue
+
+				module_zip = zipfile.ZipFile(module_file)
+				manifest_data = module_zip.read('manifest')
+				manifest = Manifest(StringIO(manifest_data))
+				modules.append(Module(module_file, manifest))
+		return modules
+	
+	def detect_modules(self):
+		app_modules_dir = os.path.join(self.project_dir, 'modules')
+		system_modules_dir = os.path.abspath(os.path.join(top_support_dir, '..', '..', '..', 'modules'))
+		
+		modules = self.get_modules(app_modules_dir)
+		modules.extend(self.get_modules(system_modules_dir))
+		
+		return modules
+	
+	def find_app_modules(self, tiapp):
+		missing = []
+		modules = []
+		if 'modules' not in tiapp.properties: return missing, modules
+		
+		for dependency in tiapp.properties['modules']:
+			print '[DEBUG] Looking for %s/%s' % (dependency['name'], dependency['version'])
+			module = self.find_module(id=dependency['name'], version=dependency['version'])
+			if module == None:
+				missing.append(dependency)
+			else:
+				modules.append(module)
+		
+		return missing, modules
+
+	def find_module(self, id=None, name=None, version=None):
+		for module in self.modules:
+			manifest = module.manifest
+			
+			matches = id == None or manifest.moduleid == id
+			matches = matches and name == None or manifest.name == name
+			matches = matches and version == None or manifest.version == version
+			
+			if matches:
+				return module
+		return None
+	
 def usage(prop,required,optional=None):
   print "Couldn't find required '%s' argument" % prop
   print

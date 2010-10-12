@@ -9,6 +9,7 @@ import org.mozilla.javascript.Scriptable;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.kroll.KrollModule;
+import org.appcelerator.kroll.KrollModuleInfo;
 
 import java.util.List;
 import java.util.ArrayList;
@@ -32,5 +33,39 @@ public final class ${config['classname']}Application extends TiApplication {
 		// ${module['api_name']} module
 		modules.add(new ${module['class_name']}(context));
 		%endfor
+		
+		%if len(custom_modules) > 0:
+		// Custom modules
+		%endif
+		%for module in custom_modules:
+		<% manifest = module['manifest'] %>
+		KrollModule.addModuleInfo(new KrollModuleInfo(
+			"${manifest.name}", "${manifest.moduleid}", "${manifest.guid}", "${manifest.version}",
+			"${manifest.description}", "${manifest.author}", "${manifest.license}", "${manifest.copyright}"
+		));
+		%endfor
 	}
+	
+	%if len(custom_modules) > 0:
+	@Override
+	public KrollModule requireModule(TiContext context, KrollModuleInfo info) {
+		KrollModule module = super.requireModule(context, info);
+		if (module != null) {
+			return module;
+		}
+		
+		String id = info.getId();
+		%for module in custom_modules:
+		if ("${module['manifest'].moduleid}".equals(id)) {
+			module = new ${module['class_name']}(context);
+		}
+		%endfor
+		
+		if (module != null) {
+			modules.add(module);
+			return module;
+		}
+		return null;
+	}
+	%endif
 }

@@ -24,8 +24,8 @@ import java.util.Properties;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollInvocation;
 import org.appcelerator.kroll.KrollModule;
+import org.appcelerator.kroll.KrollModuleInfo;
 import org.appcelerator.kroll.KrollProxy;
-
 import org.appcelerator.titanium.analytics.TiAnalyticsEvent;
 import org.appcelerator.titanium.analytics.TiAnalyticsEventFactory;
 import org.appcelerator.titanium.analytics.TiAnalyticsModel;
@@ -104,6 +104,17 @@ public abstract class TiApplication extends Application
 	}
 	
 	protected abstract void bootModules(TiContext context);
+	
+	// Apps with custom modules will override this with their own creation logic
+	public KrollModule requireModule(TiContext context, KrollModuleInfo info) {
+		for (KrollModule module : modules) {
+			if (module.getId().equals(info.getId())) {
+				return module;
+			}
+		}
+		
+		return null;
+	}
 	
 	public String[] getFilteredBindings(String moduleName) {
 		// TODO: re-enable filtered bindings when our compiler can better detect methods and properties

@@ -135,11 +135,6 @@ public class KrollProxy implements Handler.Callback, OnEventListenerChange {
 		binding.bindProperties(this, filteredBindings == null ? new ArrayList<String>() : Arrays.asList(filteredBindings));
 	}*/
 	
-	public void bindToParent(KrollProxy parent) {
-		KrollProxyBinding binding = getBinding();
-		binding.bindToParent(parent, this);
-	}
-	
 	public void bindContextSpecific(KrollBridge bridge) {
 		KrollProxyBinding binding = getBinding();
 		binding.bindContextSpecific(bridge, this);
@@ -372,6 +367,11 @@ public class KrollProxy implements Handler.Callback, OnEventListenerChange {
 		return (KrollProperty) getBinding(name);
 	}
 	
+	/**
+	 * Handle the arguments passed into the "create" method for this proxy.
+	 * If your proxy simply needs to handle a KrollDict, see {@link KrollProxy#handleCreationDict(KrollDict)}
+	 * @param args
+	 */
 	public void handleCreationArgs(Object[] args) {
 		if (args.length >= 1 && args[0] instanceof KrollDict) {
 			handleCreationDict((KrollDict)args[0]);
@@ -379,6 +379,11 @@ public class KrollProxy implements Handler.Callback, OnEventListenerChange {
 	}
 	
 	protected KrollDict creationDict = null;
+	/**
+	 * Handle the creation {@link KrollDict} passed into the create method for this proxy.
+	 * This is usually the first (and sometimes only) argument to the proxy's create method.
+	 * @param dict
+	 */
 	public void handleCreationDict(KrollDict dict) {
 		if (dict != null) {
 			for (String key : dict.keySet()) {

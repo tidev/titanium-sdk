@@ -8,27 +8,14 @@
  */
 package __MODULE_ID__.___PROJECTNAME___;
 
-import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
 
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
-import org.appcelerator.titanium.util.TiConvert;
-import org.appcelerator.titanium.util.TiConfig;
 
-/*import org.appcelerator.titanium.annotations.manifest.Ti;
-import org.appcelerator.titanium.annotations.manifest.Ti.version;
-import org.appcelerator.titanium.annotations.manifest.Ti.manifest.activity.configChangesTypes;
-import org.appcelerator.titanium.annotations.manifest.Ti.manifest.activity.launchModeTypes;
-
-@Ti.module(
-		name = "__PROJECT_SHORT_NAME__", 
-		version = @version(buildVersion=0, minorVersion=0, majorVersion=1),
-		dependsUponTitanium = @version(minorVersion=3, majorVersion=1)
-)*/
-@Kroll.module(name="___MODULE_NAME_CAMEL___")
+@Kroll.module(name="___MODULE_NAME_CAMEL___", id="__MODULE_ID__")
 public class ___MODULE_NAME_CAMEL___Module extends KrollModule
 {
 
@@ -44,15 +31,23 @@ public class ___MODULE_NAME_CAMEL___Module extends KrollModule
 	}
 
 	// Methods
-	// You can define methods with @Kroll.method, for example:
-	// @Kroll.method public void helloWorld() { Log.d(LCAT, "hello world!"); }
+	@Kroll.method
+	public String example() {
+		Log.d(LCAT, "example called");
+		return "hello world";
+	}
 	
 	// Properties
-	// You can define properties @Kroll.getProperty and @Kroll.setProperty, for example:
-	// @Kroll.getProperty public String getMessage() { return "hello world"; }
+	@Kroll.getProperty
+	public String getExampleProp() {
+		Log.d(LCAT, "get example property");
+		return "hello world";
+	}
 	
-	// Standard helpers 
-	// To log a message to logcat
-	//    Log.e(LCAT, "Unable to create tmp file: " + e.getMessage(), e);
+	
+	@Kroll.setProperty
+	public void setExampleProp(String value) {
+		Log.d(LCAT, "set example property: " + value);
+	}
 
 }

@@ -28,8 +28,11 @@ def fork(args,quiet=False):
 			sys.stdout.flush()
 
 def is_module_project(dir):
-	if os.path.exists(os.path.join(dir,'manifest')) and os.path.exists(os.path.join(dir,'titanium.xcconfig')):
-		return True
+	if os.path.exists(os.path.join(dir,'manifest')):
+		if os.path.exists(os.path.join(dir,'titanium.xcconfig')):
+			return True
+		elif os.path.exists(os.path.join(dir, '.project')):
+			return True
 	return False
 	
 def is_valid_project(dir):
@@ -278,6 +281,13 @@ def package_module_args(args,script,project_dir,platform):
 def package(args):
 	dyn_run(args,package_project_args,package_module_args)
 
+def emulator_args(args, script, project_dir, platform):
+	if platform == 'android':
+		return [script, 'run-emulator', platform, project_dir]
+
+def emulator(args):
+	dyn_run(args, emulator_args, emulator_args)
+
 def help(args=[],suppress_banner=False):
 	if not suppress_banner:
 		print "Appcelerator Titanium"
@@ -290,6 +300,7 @@ def help(args=[],suppress_banner=False):
 		print "  create      - create a project"
 #		print "  build       - build/compile project"
 		print "  run         - run an existing project"
+		print "  emulator    - start the emulator (android)"
 #		print "  install     - install a project"
 #		print "  package     - package a project for distribution"
 		print "  help        - get help"

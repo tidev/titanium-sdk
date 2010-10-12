@@ -20,12 +20,6 @@ public abstract class KrollProxyBinding {
 	
 	public abstract Object getBinding(String name);
 	
-	public void bindToParent(KrollProxy parent, KrollProxy proxy) {
-		if (proxy instanceof KrollModule) {
-			parent.getBinding().bindings.put(getShortAPIName(), proxy);
-		}
-	}
-	
 	public abstract void bindContextSpecific(KrollBridge bridge, KrollProxy proxy);
 	
 	public abstract String getAPIName();

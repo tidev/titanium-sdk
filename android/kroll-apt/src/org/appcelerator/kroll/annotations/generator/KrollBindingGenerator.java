@@ -41,8 +41,8 @@ import freemarker.template.Template;
 import freemarker.template.TemplateException;
 
 @SupportedAnnotationTypes({
-	"org.appcelerator.kroll.annotations.Kroll.proxy",
-	"org.appcelerator.kroll.annotations.Kroll.module"})
+	KrollBindingGenerator.Kroll_proxy,
+	KrollBindingGenerator.Kroll_module})
 @SupportedSourceVersion(SourceVersion.RELEASE_6)
 @SupportedOptions({"kroll.jsonPackage", "kroll.jsonFile"})
 @SuppressWarnings("unchecked")
@@ -67,6 +67,7 @@ public class KrollBindingGenerator extends AbstractProcessor {
 	
 	protected static final String KrollInvocation = "org.appcelerator.kroll.KrollInvocation";
 	protected static final String KrollConverter = "org.appcelerator.kroll.KrollConverter";
+	protected static final String KrollModule = "org.appcelerator.kroll.KrollModule";
 	
 	// this needs to mirror Kroll.DEFAULT_NAME
 	protected static final String DEFAULT_NAME = "__default_name__";
@@ -165,6 +166,8 @@ public class KrollBindingGenerator extends AbstractProcessor {
 				
 				String packageName = utils.getPackage(element);
 				String proxyClassName = utils.getName(element);
+				String fullProxyClassName = String.format("%s.%s", packageName, proxyClassName);
+				
 				proxyProperties = getProxyProperties(packageName, proxyClassName);
 				
 				String genClassName = proxyClassName + "BindingGen";
@@ -182,6 +185,11 @@ public class KrollBindingGenerator extends AbstractProcessor {
 					proxyAttrs.put("name", apiName);
 				} else {
 					apiName = (String)proxyAttrs.get("name");
+				}
+				if (utils.annotationTypeIs(annotation, Kroll_module)) {
+					if (proxyAttrs.get("id").equals(DEFAULT_NAME)) {
+						proxyAttrs.put("id", fullProxyClassName);
+					}
 				}
 				
 				utils.debugLog("Found binding for " +
@@ -220,7 +228,7 @@ public class KrollBindingGenerator extends AbstractProcessor {
 				Element superType = processingEnv.getTypeUtils().asElement(type.getSuperclass());
 				
 				String superTypeName = utils.getName(superType);
-				if (!superTypeName.equals("Object")) {
+				if (!type.getQualifiedName().toString().equals(KrollModule) & !superTypeName.equals("Object")) {
 					proxyProperties.put(
 						"superProxyBindingClassName", String.format("%s.%sBindingGen", utils.getPackage(superType), superTypeName));
 				}

@@ -8,9 +8,15 @@
 var window = Ti.UI.createWindow({
   backgroundColor:'white'
 });
+var label = Ti.UI.createLabel();
+window.add(label);
 window.open();
 
 // TODO: write your module tests here
 var ___PROJECTNAME___ = require('__MODULE_ID__');
-Ti.API.info("module is => "+___PROJECTNAME___);
+Ti.API.info("module is => " + ___PROJECTNAME___);
 
+label.text = ___PROJECTNAME___.example();
+
+Ti.API.info("module exampleProp is => " + ___PROJECTNAME___.exampleProp);
+___PROJECTNAME___.exampleProp = "This is a test value";

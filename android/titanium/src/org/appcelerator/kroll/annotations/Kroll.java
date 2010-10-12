@@ -17,6 +17,7 @@ import org.appcelerator.kroll.KrollDefaultValueProvider;
 import org.appcelerator.kroll.KrollInvocation;
 import org.appcelerator.kroll.KrollNativeConverter;
 import org.appcelerator.kroll.KrollJavascriptConverter;
+import org.appcelerator.kroll.KrollProxy;
 
 /**
  * The top level Kroll annotation.<br>
@@ -41,7 +42,7 @@ public @interface Kroll {
 	 * An optional annotation for arguments of a {@link method Kroll method}.
 	 * This annotation is retained at runtime so dynamic properties can check for optional arguments in their setters.
 	 * <b>Example</b>:<br>
-	 * <pre>@Kroll.method public sayHi(@Kroll.argument(optional=true) String name) { }</pre>
+	 * <pre>&#064;Kroll.method public sayHi(&#064;Kroll.argument(optional=true) String name) { }</pre>
 	 * @see argument#optional()
 	 * @see argument#converter() 
 	 * @see argument#defaultValueProvider()
@@ -88,7 +89,7 @@ public @interface Kroll {
 	 * Marks a static final field as a constant for this {@link module} or {@link proxy}.
 	 * <b>Note</b>: This only works on static final fields (the value is pulled directly when generating source)
 	 * <b>Example</b>:<br>
-	 * <pre>@Kroll.constant public static final int ID = 100;</pre>
+	 * <pre>&#064;Kroll.constant public static final int ID = 100;</pre>
 	 * @see constant#name()
 	 */
 	@Documented
@@ -109,8 +110,8 @@ public @interface Kroll {
 	 * <li><b>type</b>: {@link KrollInvocation}</li>
 	 * </ul>
 	 * <b>Examples</b>:<br>
-	 * <pre>@Kroll.inject protected KrollInvocation currentInvocation;</pre>
-	 * <pre>@Kroll.inject protected void setCurrentInvocation(KrollInvocation currentInvocation) { }</pre>
+	 * <pre>&#064;Kroll.inject protected KrollInvocation currentInvocation;</pre>
+	 * <pre>&#064;Kroll.inject protected void setCurrentInvocation(KrollInvocation currentInvocation) { }</pre>
 	 * 
 	 * @see inject#name()
 	 * @see inject#type()
@@ -140,8 +141,8 @@ public @interface Kroll {
 	 * and may also declare {@link argument#optional() optional arguments}.</p>
 	 * <b>Example</b>:<br>
 	 * <pre>
-	 * @Kroll.method
-	 * public void execute(String action, @Kroll.argument(optional=true) KrollDict options) {
+	 * &#064;Kroll.method
+	 * public void execute(String action, &#064;Kroll.argument(optional=true) KrollDict options) {
 	 * }
 	 * </pre>
 	 * 
@@ -195,7 +196,7 @@ public @interface Kroll {
 	 * Module classes must extend {@link KrollModule} (which is itself an extension of {@link KrollProxy}).<br>
 	 * <b>Example</b>:<br>
 	 * <pre>
-	 * @Kroll.module
+	 * &#064;Kroll.module
 	 * public class APIModule extend KrollModule { .. }
 	 * </pre>
 	 * @see module#name()
@@ -214,6 +215,18 @@ public @interface Kroll {
 		 * <b><i>Default Value</i></b>: If the class name follows the naming convention <pre>XYZModule</pre>, then the default API name is <pre>XYZ</pre>. Otherwise, the default name is the same as the class name.
 		 */
 		String name() default DEFAULT_NAME;
+		/**
+		 * This ID will be used when a user tries to load a module by using "require", for example:
+		 * <pre>
+		 * var MyModule = require('com.mycompany.mymodule');
+		 * </pre>
+		 * <pre>
+		 * &#064;Kroll.module(name="MyModule", id="com.mycompany.mymodule")
+		 * public class MyModule extends KrollModule { ... }
+		 * </pre>
+		 * <b><i>Default Value</i></b>: The fully qualified class name of the module
+		 */
+		String id() default DEFAULT_NAME;
 		/**
 		 * The parent module class of this module.
 		 * <b><i>Default Value</i></b>: No parent module (binds directly to <pre>Titanium</pre>)
@@ -235,7 +248,7 @@ public @interface Kroll {
 	 * To generate both a getter/setter and property style, use a combination of {@link method} and {@link getProperty} / {@link setProperty}<br>
 	 * <b>Example</b>:<br>
 	 * <pre>
-	 * @Kroll.property protected String username;
+	 * &#064;Kroll.property protected String username;
 	 * </pre>
 	 * 
 	 * @see property#get()
@@ -413,12 +426,11 @@ public @interface Kroll {
 		 * <p>
 		 * This will generate a "create" method that follows the pattern "create" + {@link proxy#name() name of this proxy}.
 		 * For instance, if the name of your proxy class is LabelProxy, the create method would be named "createLabel".
-		 * To handle the creation arguments for your proxy, see {@link KrollProxy#handleCreationArgs} and {@link KrollProxy#handleCreationDict}
 		 * </p>
 		 * 
 		 * <b><i>Default Value</i></b>: None (don't generate a create method)
-		 * @see KrollProxy#handleCreationArgs
-		 * @see KrollProxy#handleCreationDict
+		 * @see KrollProxy#handleCreationArgs(Object[])
+		 * @see KrollProxy#handleCreationDict(org.appcelerator.kroll.KrollDict)
 		 */
 		Class<?> creatableInModule() default DEFAULT.class;
 		public static final class DEFAULT {};
@@ -433,13 +445,13 @@ public @interface Kroll {
 	 * </p>
 	 * <b>Examples</b>:<br>
 	 * <pre>
-	 * @Kroll.topLevel("setTimeout") @Kroll.method
+	 * &#064;Kroll.topLevel("setTimeout") &#064;Kroll.method
 	 * public void setTimeout(KrollCallback fn, long timeout) { }
 	 * 
-	 * @Kroll.topLevel("Ti") @Kroll.module
+	 * &#064;Kroll.topLevel("Ti") &#064;Kroll.module
 	 * public class TitaniumModule extends KrollModule { }
 	 * 
-	 * @Kroll.topLevel("String.format") @Kroll.method
+	 * &#064;Kroll.topLevel("String.format") &#064;Kroll.method
 	 * public void stringFormat(String format, String[] arguments) { }
 	 * </pre>
 	 */

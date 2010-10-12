@@ -22,14 +22,8 @@ isDebug=False
 class android(object):
 	def __init__(self,project_dir,config,module):
 		# copy over the needed jars
-		if isDebug:
-			print "Template DIR: %s " % template_dir
-		
 		jar_locations = os.path.abspath(os.path.join(template_dir,'..','..','android'))
 		
-		if isDebug:
-			print "Jar Locations %s" % jar_locations
-
 		# Create any needed folders
 		for this_folder in create_folders:
 			os.mkdir(os.path.join(project_dir,this_folder))
@@ -42,16 +36,20 @@ class android(object):
 		class_path_file = os.path.join(project_dir,'.classpath')
 		old_classpath_file = os.path.join(project_dir,'.classpath.old')
 		os.rename(class_path_file, old_classpath_file)
+		sdk = androidsdk.AndroidSDK(module.sdk, 4)
 		
 		# Build up the replacement string
 		classpath_refs = "";
 		for jar in reference_jars:
-			classpath_refs += '<classpathentry kind="lib" path="%s/%s"/>\n' % (jar_locations, jar)		
+			classpath_refs += '<classpathentry kind="lib" path="%s/%s"/>\n' % (jar_locations, jar)
 		
 		# Processing contents of classpath 
 		contents = open(old_classpath_file).read()
 		tof = open(class_path_file,'w')
-		contents = contents.replace('<!--__INCLUDE_JARS__-->',classpath_refs )
+		
+		contents = contents.replace("__ANDROID_PLATFORM_JAR__", sdk.get_android_jar())
+		contents = contents.replace("__MAPS_JAR__", sdk.get_maps_jar())
+		contents = contents.replace('<!--__INCLUDE_JARS__-->',classpath_refs)
 		tof.write(contents)
 		tof.close()
 		
@@ -62,9 +60,15 @@ class android(object):
 		build_properties = os.path.join(project_dir,"build.properties")
 		tof = open(build_properties,'w')
 		tof.write("titanium.platform = %s\n" % jar_locations)
-		sdk = androidsdk.AndroidSDK(module.sdk, 4)
 		tof.write("android.platform = %s\n" % sdk.get_platform_dir())
 		tof.write("google.apis = %s\n" % sdk.get_google_apis_dir())
 		tof.close()
+		
+		# Append the configured Android SDK onto the module's manifest
+		manifest_file = os.path.join(project_dir, 'manifest')
+		manifest = open(manifest_file, 'a+')
+		manifest.write('android.sdk: %s' % sdk.get_android_sdk())
+		manifest.close()
+		
 		# Cleanup 
 		os.remove(old_classpath_file)

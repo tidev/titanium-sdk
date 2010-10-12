@@ -96,4 +96,9 @@ public class KrollObject extends ScriptableObject implements Function {
 	public KrollProxy getProxy() {
 		return proxy;
 	}
+	
+	@Override
+	public Object getDefaultValue(Class<?> typeHint) {
+		return proxy.toString();
+	}
 }
