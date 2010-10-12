@@ -78,8 +78,8 @@ public class IntentProxy extends KrollProxy
 		if (type != null) {
 			if (DBG) {
 				Log.d(LCAT, "Setting type: " + type);
-				intent.setType(type);
 			} 
+			intent.setType(type);
 		} else {
 			if (action != null && action.equals(Intent.ACTION_SEND)) {
 				if (DBG) {
