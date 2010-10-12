@@ -94,7 +94,7 @@ class CSSCompiler(object):
 				if count == 1:
 					dict['base'] = os.path.join(dirname,f)
 				elif count == 2:
-					dict['platform'] = tok[1]#os.path.join(dirname,f)
+					dict['platform'] = os.path.join(dirname,f)
 				elif count == 3:
 					dict['density'][tok[2]] = os.path.join(dirname,f)
 				
