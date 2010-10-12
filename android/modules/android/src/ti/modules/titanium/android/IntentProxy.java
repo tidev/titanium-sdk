@@ -69,7 +69,7 @@ public class IntentProxy extends TiProxy
 					intent.setType(type);
 				} 
 			} else {
-				if (action != null && (action.equals(Intent.ACTION_SEND) || action.equals(Intent.ACTION_SEND_MULTIPLE))) {
+				if (action != null && action.equals(Intent.ACTION_SEND)) {
 					if (DBG) {
 						Log.d(LCAT, "Intent type not set, defaulting to text/plain because action is a SEND action");
 					}
