@@ -6,6 +6,7 @@
  */
 package ti.modules.titanium.ui;
 
+import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.view.TiUIView;
@@ -22,8 +23,12 @@ public class ViewProxy extends TiViewProxy
 	@Override
 	public TiUIView createView(Activity activity) {
 		TiUIView view = new TiView(this);
-		view.getLayoutParams().autoFillsHeight = true;
-		view.getLayoutParams().autoFillsWidth = true;
+		boolean wrap = true;
+		if (hasDynamicValue("wrap")) {
+		    wrap = !TiConvert.toBoolean(getDynamicValue("wrap"));
+		}
+		view.getLayoutParams().autoFillsHeight = wrap;
+		view.getLayoutParams().autoFillsWidth = wrap;
 		return view;
 	}
 }
