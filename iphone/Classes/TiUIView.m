@@ -430,7 +430,6 @@ DEFINE_EXCEPTIONS
 	{
 		[thisView removeFromSuperview];
 		[self addSubview:thisView];
-		[thisView repositionZIndexIfNeeded];
 	}
 
 	[validChildren release];
