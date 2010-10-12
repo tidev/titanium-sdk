@@ -53,7 +53,9 @@ public class TiWebViewClient extends WebViewClient
 	@Override
 	public void onPageStarted(WebView view, String url, Bitmap favicon) {
 		super.onPageStarted(view, url, favicon);
-		//binding.insertApiBindings(); 
+		KrollDict data = new KrollDict();
+		data.put("url", url);
+		webView.getProxy().fireEvent("beforeload", data);
 	}
 
 	@Override
