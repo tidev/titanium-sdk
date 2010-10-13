@@ -18,7 +18,7 @@
 	UIEvent *evt = [sender object];
 	// since we get multiple motion end events we need to detect the first one and then ignore the subsequent 
 	// ones during the same shake motion
-	if (evt.timestamp == 0 || evt.timestamp - lastShakeTime < 1)
+	if (evt.timestamp == 0 || evt.timestamp - lastShakeTime > 1)
 	{
 		NSDictionary *event = [NSDictionary dictionaryWithObject:NUMDOUBLE(evt.timestamp) forKey:@"timestamp"];
 		[self fireEvent:@"shake" withObject:event];
