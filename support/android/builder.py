@@ -661,6 +661,22 @@ class Builder(object):
 					activities.append(mappings)
 			except:
 				pass
+
+		# grab the activities explicitly stated in tiapp.xml
+		if self.tiapp and self.tiapp.android and 'activities' in self.tiapp.android:
+			tiapp_activities = self.tiapp.android['activities']
+			for key in tiapp_activities:
+				activity = tiapp_activities[key]
+				# todo: activities have other attributes besides name!
+				if 'name' in activity:
+					activities.append('<activity android:name="%s"/>' % activity['name'])
+		activities = set(activities)
+
+		# grab the permissions explicitly stated in tiapp.xml
+		if self.tiapp and self.tiapp.android and 'permissions' in self.tiapp.android:
+			permissions_required.extend(self.tiapp.android['permissions'])
+
+		permissions_required = set(permissions_required)
 		
 		# build the permissions XML based on the permissions detected
 		permissions_required_xml = ""
@@ -746,6 +762,21 @@ class Builder(object):
 		manifest_contents = manifest_contents.replace(ti_activities,"\n\n\t\t".join(activities))
 		manifest_contents = manifest_contents.replace(ti_permissions,permissions_required_xml)
 		manifest_contents = manifest_contents.replace('<uses-sdk android:minSdkVersion="4" />', '<uses-sdk android:minSdkVersion="%s" />' % android_sdk_version)
+
+		# screens
+		if 'screens' in self.tiapp.android:
+			screens = self.tiapp.android['screens']
+			for key in ('small', 'normal', 'large', 'anyDensity'):
+				if key in screens:
+					value = unicode(screens[key]).lower()
+					if key != 'anyDensity':
+						key += "Screens"
+					pattern = r'android:%s\s*=\s*\".*\"' % key
+					match = re.search(pattern, manifest_contents)
+					if match:
+						manifest_contents = manifest_contents.replace(match.group(0), 'android:%s="%s"' % (key, value))
+						
+						
 		
 		old_contents = None
 		if os.path.exists(android_manifest):

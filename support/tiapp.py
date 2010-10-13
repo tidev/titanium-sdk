@@ -56,6 +56,7 @@ class TiAppXML(object):
 			'modules' : []
 		}
 		self.app_properties = {}
+		self.android = {}
 
 		root = self.dom.getElementsByTagName("ti:app")
 		children = root[0].childNodes
@@ -75,6 +76,8 @@ class TiAppXML(object):
 							ver = module.getAttribute('version')
 							name = getText(module.childNodes)
 							self.properties['modules'].append({'name':name,'version':ver})
+				elif child.nodeName == 'android':
+					self.parse_android(child)
 				elif child.nodeName == 'property':
 					name = child.getAttribute('name')
 					value = getText(child.childNodes)
@@ -94,7 +97,43 @@ class TiAppXML(object):
 			root[0].appendChild(n)
 			root[0].appendChild(self.dom.createTextNode("\n"))
 			self.dom.writexml(codecs.open(self.file, 'w+','utf-8','replace'), encoding="UTF-8")
-	
+
+	def parse_android(self, node):
+		def parse_permissions(node):
+			if not 'permissions' in self.android:
+				self.android['permissions'] = []
+			for child in node.childNodes:
+				if child.nodeName == 'permission':
+					self.android['permissions'].append(getText(child.childNodes))
+
+		def parse_screens(node):
+			if not 'screens' in self.android:
+				self.android['screens'] = {}
+			screens = self.android['screens']
+			for key in node.attributes.keys():
+				screens[key] = self.to_bool(node.attributes.getNamedItem(key).value)
+
+		def parse_activities(node):
+			if not 'activities' in self.android:
+				self.android['activities'] = {}
+			activities = self.android['activities']
+			for child in node.childNodes:
+				if child.nodeName == 'activity':
+					name = getText(child.childNodes)
+					if not name in activities:
+						activities[name] = {}
+					activity = activities[name]
+					# TODO need to support more than just name! (theme, intents filters etc)
+					activity['name'] = name
+
+		for child in node.childNodes:
+			if child.nodeName == 'permissions':
+				parse_permissions(child)
+			if child.nodeName == 'screens':
+				parse_screens(child)
+			if child.nodeName == 'activities':
+				parse_activities(child)
+
 	def has_app_property(self, property):
 		return property in self.app_properties
 	
