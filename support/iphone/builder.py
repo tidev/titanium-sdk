@@ -25,6 +25,9 @@ import localecompiler
 ignoreFiles = ['.gitignore', '.cvsignore']
 ignoreDirs = ['.git','.svn', 'CVS']
 
+# need this so unicode works
+sys.stdout = codecs.getwriter('utf-8')(sys.stdout)
+
 def dequote(s):
 	if s[0:1] == '"':
 		return s[1:-1]
@@ -67,7 +70,7 @@ def read_project_version(f):
 			
 def infoplist_has_appid(f,appid):
 	if os.path.exists(f):
-		contents = open(f).read()
+		contents = codecs.open(f,encoding='utf-8').read()
 		return contents.find(appid)>0
 	return False
 		
@@ -163,7 +166,7 @@ def dump_resources_listing(rootdir,out):
 	out.write("\n")
 
 def dump_infoplist(infoplist,out):
-	plist = open(infoplist).read()
+	plist = codecs.open(infoplist, encoding='utf-8').read()
 	out.write("Contents of Info.plist\n\n")
 	out.write(plist)
 	out.write("\n")
@@ -372,7 +375,7 @@ def main(args):
 		if not os.path.exists(build_out_dir): 
 			os.makedirs(build_out_dir)
 		# write out the build log, useful for debugging
-		o = open(os.path.join(build_out_dir,'build.log'),'w')
+		o = codecs.open(os.path.join(build_out_dir,'build.log'),'w',encoding='utf-8')
 		try:
 			buildtime = datetime.datetime.now()
 			o.write("%s\n" % ("="*80))
@@ -395,7 +398,7 @@ def main(args):
 				
 			o.write("Script arguments:\n")
 			for arg in args:
-				o.write("   %s\n" % arg)
+				o.write(unicode("   %s\n" % arg, 'utf-8'))
 			o.write("\n")
 			o.write("Building from: %s\n" % template_dir)
 			o.write("Platform: %s\n\n" % platform.version())
@@ -528,13 +531,13 @@ def main(args):
 				
 				
 			def write_info_plist(infoplist_tmpl):
-				plist = open(infoplist_tmpl).read()
+				plist = codecs.open(infoplist_tmpl, encoding='utf-8').read()
 				plist = plist.replace('__PROJECT_NAME__',name)
 				plist = plist.replace('__PROJECT_ID__',appid)
 				plist = plist.replace('__URL__',appid)
 				urlscheme = name.replace('.','_').replace(' ','').lower()
 				plist = plist.replace('__URLSCHEME__',urlscheme)
-				pf = open(infoplist,'w')
+				pf = codecs.open(infoplist,'w', encoding='utf-8')
 				pf.write(plist)
 				pf.close()			
 
