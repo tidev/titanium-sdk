@@ -79,8 +79,7 @@ public class PendingIntentProxy extends TiProxy
 		}
 	}
 	
-	protected PendingIntent getPendingIntent() {
+	public PendingIntent getPendingIntent() {
 		return pendingIntent;
 	}
-
 }
