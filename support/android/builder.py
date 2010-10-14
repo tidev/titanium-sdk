@@ -661,6 +661,43 @@ class Builder(object):
 					activities.append(mappings)
 			except:
 				pass
+
+		# grab the activities explicitly stated in tiapp.xml
+		if self.tiapp and self.tiapp.android and 'activities' in self.tiapp.android:
+			tiapp_activities = self.tiapp.android['activities']
+			for key in tiapp_activities:
+				activity = tiapp_activities[key]
+				activity_str = '<activity '
+				if 'name' in activity:
+					activity_str += '\n\t\t\tandroid:name="%s"' % activity['name']
+				for subkey in activity:
+					if subkey != 'name':
+						activity_str += '\n\t\t\tandroid:%s="%s"' % (subkey, activity[subkey])
+
+				activities.append(activity_str + '\n\t\t/>\n')
+
+		activities = set(activities)
+
+		# grab the services explicitly stated in tiapp.xml
+		services_str = ''
+		if self.tiapp and self.tiapp.android and 'services' in self.tiapp.android:
+			tiapp_services = self.tiapp.android['services']
+			for key in tiapp_services:
+				service = tiapp_services[key]
+				service_str = '<service '
+				if 'name' in service:
+					service_str += '\n\t\t\tandroid:name="%s"' % service['name']
+				for subkey in service:
+					if subkey != 'name':
+						service_str += '\n\t\t\tandroid:%s="%s"' % (subkey, service[subkey])
+
+				services_str += service_str + '\n\t\t/>\n'
+
+		# grab the permissions explicitly stated in tiapp.xml
+		if self.tiapp and self.tiapp.android and 'permissions' in self.tiapp.android:
+			permissions_required.extend(self.tiapp.android['permissions'])
+
+		permissions_required = set(permissions_required)
 		
 		# build the permissions XML based on the permissions detected
 		permissions_required_xml = ""
@@ -733,6 +770,8 @@ class Builder(object):
 		
 		ti_activities = '<!-- TI_ACTIVITIES -->'
 		ti_permissions = '<!-- TI_PERMISSIONS -->'
+		ti_screens = '<!-- TI_SCREENS -->'
+		ti_services = '<!-- TI_SERVICES -->'
 		manifest_changed = False
 		
 		match = re.search('<uses-sdk android:minSdkVersion="(\d)" />', manifest_contents)
@@ -745,7 +784,30 @@ class Builder(object):
 			
 		manifest_contents = manifest_contents.replace(ti_activities,"\n\n\t\t".join(activities))
 		manifest_contents = manifest_contents.replace(ti_permissions,permissions_required_xml)
+		manifest_contents = manifest_contents.replace(ti_services, services_str)
 		manifest_contents = manifest_contents.replace('<uses-sdk android:minSdkVersion="4" />', '<uses-sdk android:minSdkVersion="%s" />' % android_sdk_version)
+
+		# screens
+		if 'screens' in self.tiapp.android:
+			screens = self.tiapp.android['screens']
+		else:
+			screens = {}
+		for key in ('small', 'normal', 'large', 'anyDensity'):
+			if not key in screens:
+				if key in ('small', 'anyDensity'):
+					screens[key] = False
+				else:
+					screens[key] = True
+		screens_str = '<supports-screens '
+		for key in ('small', 'normal', 'large', 'anyDensity'):
+			value = unicode(screens[key]).lower()
+			if key != 'anyDensity':
+				key += "Screens"
+			screens_str += '\n\t\tandroid:%s="%s"' % (key, value)
+		screens_str += '\n\t/>'
+		manifest_contents = manifest_contents.replace(ti_screens, screens_str)
+						
+						
 		
 		old_contents = None
 		if os.path.exists(android_manifest):

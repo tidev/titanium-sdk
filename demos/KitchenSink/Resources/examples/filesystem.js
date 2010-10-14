@@ -29,6 +29,7 @@ Ti.API.info('writeable = ' + f.writeable);
 Ti.API.info('name = ' + f.name);
 Ti.API.info('extension = ' + f.extension());
 Ti.API.info('resolve = ' + f.resolve());
+Ti.API.info('created = ' + String(new Date(f.createTimestamp()))); // #2085 test
 
 var dir = Titanium.Filesystem.getFile(Titanium.Filesystem.resourcesDirectory);
 Ti.API.info('directoryListing = ' + dir.getDirectoryListing());

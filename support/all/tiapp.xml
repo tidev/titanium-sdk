@@ -16,4 +16,7 @@
     <navbar-hidden>false</navbar-hidden>
     <analytics>true</analytics>
     <guid></guid>
+	<android>
+		<screens small="false" normal="true" large="true" anyDensity="false"/>
+	</android>
 </ti:app>

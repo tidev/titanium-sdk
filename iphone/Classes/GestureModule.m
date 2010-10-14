@@ -22,8 +22,12 @@
 	{
 		NSDictionary *event = [NSDictionary dictionaryWithObject:NUMDOUBLE(evt.timestamp) forKey:@"timestamp"];
 		[self fireEvent:@"shake" withObject:event];
+		lastShakeTime = evt.timestamp;
 	}
-	lastShakeTime = evt.timestamp;
+	// TODO: This will still allow "fast shakes" to send two events initially, since evt.timestamp is 0 initially.
+	if (lastShakeTime == 0) {
+		lastShakeTime = evt.timestamp;
+	}
 }
 
 -(void)rotateEvent:(NSNotification*)sender
@@ -39,6 +43,7 @@
 	{
 		WARN_IF_BACKGROUND_THREAD_OBJ;	//NSNotificationCenter is not threadsafe!
 		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(shakeEvent:) name:kTiGestureShakeNotification object:nil];
+		lastShakeTime = 0;
 	}
 	else if (count == 1 && [type isEqualToString:@"orientationchange"])
 	{
