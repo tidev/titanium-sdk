@@ -111,15 +111,16 @@
 	}
 
 	UIView *wrapper = [svSubviews objectAtIndex:index];
+	TiViewProxy *viewproxy = [views objectAtIndex:index];
 	if ([[wrapper subviews] count]==0)
 	{
 		// we need to realize this view
-		TiViewProxy *viewproxy = [views objectAtIndex:index];
 		[viewproxy windowWillOpen];
 		TiUIView *uiview = [viewproxy view];
 		[wrapper addSubview:uiview];
 		[viewproxy reposition];
 	}
+	[viewproxy performSelector:@selector(parentWillShow) withObject:nil afterDelay:0.0];
 }
 
 -(void)loadNextFrames:(BOOL)forward
