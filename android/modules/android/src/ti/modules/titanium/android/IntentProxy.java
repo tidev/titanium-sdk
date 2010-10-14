@@ -65,9 +65,9 @@ public class IntentProxy extends TiProxy
 			}
 			if (type != null) {
 				if (DBG) {
-					Log.d(LCAT, "Setting type: " + type);
-					intent.setType(type);
+					Log.d(LCAT, "Setting type: " + type);					
 				} 
+				intent.setType(type);
 			} else {
 				if (action != null && action.equals(Intent.ACTION_SEND)) {
 					if (DBG) {
