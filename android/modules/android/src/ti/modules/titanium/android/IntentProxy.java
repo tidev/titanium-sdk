@@ -95,7 +95,7 @@ public class IntentProxy extends TiProxy
 		}
 	}
 	
-	protected Intent getIntent() { 
+	public Intent getIntent() { 
 		return intent;
 	}
 }
