@@ -1,0 +1,7 @@
+<project name="media" default="build">
+	<import file="../../build/build-module.xml"/>
+	
+	<path id="dependencies">
+		<path path="${modules.dir}/filesystem/bin"/>
+	</path>
+</project>

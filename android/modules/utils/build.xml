@@ -1,0 +1,3 @@
+<project name="utils" default="build">
+	<import file="../../build/build-module.xml"/>
+</project>

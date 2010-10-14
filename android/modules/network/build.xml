@@ -1,0 +1,7 @@
+<project name="network" default="build">
+	<import file="../../build/build-module.xml"/>
+	
+	<path id="dependencies">
+		<path path="${modules.dir}/xml/bin"/>
+	</path>
+</project>

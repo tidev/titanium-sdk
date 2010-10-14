@@ -11,7 +11,7 @@
 		"database":[],
 		"facebook":[],
 		"filesystem":[],
-		"gesture":[],
+		"gesture":["ui"],
 		"geolocation":[],
 		"json":[],
 		"locale":[],

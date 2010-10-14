@@ -26,7 +26,10 @@ def get_java():
 				jdk_jar_added = True
 	return java
 
-def build(script='build.xml', target='', properties={}):
+def build(script='build.xml', target='', properties={}, basedir=None):
+	if basedir == None:
+		basedir = os.path.dirname(os.path.abspath(script))
+
 	ant_cmd = [get_java(), '-cp', os.pathsep.join(ant_classpath),
 		'org.apache.tools.ant.launch.Launcher', '-Dant.home=build']
 
@@ -38,6 +41,6 @@ def build(script='build.xml', target='', properties={}):
 		ant_cmd.append(target)
 	
 	print " ".join(ant_cmd)
-	ret = subprocess.Popen(ant_cmd, shell=False).wait()
+	ret = subprocess.Popen(ant_cmd, shell=False, cwd=basedir).wait()
 	if ret:
 		sys.exit(ret)

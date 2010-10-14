@@ -1,0 +1,380 @@
+<!-- 
+Appcelerator Titanium Mobile
+
+Copyright (c) 2010 by Appcelerator, Inc. All Rights Reserved.
+Licensed under the terms of the Apache Public License
+Please see the LICENSE included with this distribution for details.
+
+Common ant tasks and macros for building Android-based Titanium modules and projects
+-->
+<project name="titanium-common" default="dont.run.me">
+
+	<property file="build.properties"/>
+	<property name="ti.android.root" location="${basedir}/.." />
+	<property name="ti.build.dir" value="${ti.android.root}/build"/>
+	<property file="${ti.build.dir}/build.properties"/>
+	
+	<taskdef resource="net/sf/antcontrib/antlib.xml">
+		<classpath>
+			<pathelement location="${ti.build.dir}/lib/ant-contrib-1.0b3.jar" />
+		</classpath>
+	</taskdef>
+	
+	<path id="ti.build.lib.path">
+		<fileset dir="${ti.build.dir}/lib" includes="**/*.jar"/>
+	</path>
+	
+	<path id="ti.build.path">
+		<path refid="ti.build.lib.path"/>
+		<path path="${ti.build.dir}/bin"/>
+	</path>
+	
+	<property name="titanium.project.dir" value="${ti.android.root}/titanium"/>
+	<property name="kroll.apt.project.dir" value="${ti.android.root}/kroll-apt"/>
+	<property name="modules.dir" value="${ti.android.root}/modules"/>
+	<property name="ui.module.dir" value="${modules.dir}/ui"/>
+	
+	<property name="dist.dir" location="${ti.android.root}/../dist/android"/>
+	<available property="dist.dir.available" file="${dist.dir}"/>
+
+	<property name="dist.classes.dir" value="${dist.dir}/classes"/>
+	<property name="gen.src.dir" value="${dist.dir}/generated"/>
+	<property name="build.version" value="1.0.0"/>
+
+	<property environment="env"/>
+	
+	<if>
+		<isset property="env.ANDROID_PLATFORM"/>
+		<then>
+			<property name="android.sdk" location="${env.ANDROID_PLATFORM}/../.."/>
+			<property name="android.platform" location="${env.ANDROID_PLATFORM}"/>
+			<property name="google.apis" location="${env.GOOGLE_APIS}"/>
+		</then>
+		<else>
+			<if>
+				<isset property="env.ANDROID_SDK"/>
+				<then>
+					<property name="android.sdk" location="${env.ANDROID_SDK}"/>
+				</then>
+				<else>
+					<if>
+						<not><isset property="android.sdk"/></not>
+						<then>
+							<echo level="warning">Android SDK not found, using default /opt/android-sdk</echo>
+						</then>
+					</if>
+					<property name="android.sdk" location="/opt/android-sdk"/>
+				</else>
+			</if>
+			<property name="android.platform" location="${android.sdk}/platforms/android-4"/>
+			<property name="google.apis" location="${android.sdk}/add-ons/google_apis-4_r02"/>
+		</else>
+	</if>
+
+	<path id="android">
+		<pathelement path="${android.platform}/android.jar"/>
+		<pathelement path="${google.apis}/libs/maps.jar"/>
+	</path>
+
+	<path id="kroll.apt.path">
+		<pathelement path="${kroll.apt.project.dir}/bin"/>
+		<fileset dir="${kroll.apt.project.dir}/lib" includes="**/*.jar"/>
+	</path>
+
+	<path id="titanium.path">
+		<pathelement path="${titanium.project.dir}/bin"/>
+		<fileset dir="${titanium.project.dir}/lib" includes="**/*.jar"/>
+	</path>
+
+	<macrodef name="build.project">
+		<attribute name="name"/>
+		<attribute name="dir" default="${ti.android.root}/@{name}"/>
+		<attribute name="build.dir" default="@{dir}/bin"/>
+		<attribute name="src.dir" default="@{dir}/src"/>
+		<attribute name="includes" default="**/*.java"/>
+		<attribute name="excludes" default=""/>
+		<attribute name="debug" default="true"/>
+		<attribute name="compiler.args" default=""/>
+
+		<element name="javac.args" optional="true"/>
+		<element name="javac.classpath" optional="true"/>
+		<element name="copy.to.build" optional="true"/>
+
+		<sequential>
+			<mkdir dir="@{build.dir}"/>
+			<javac destdir="@{build.dir}"
+				includes="@{includes}"
+				excludes="@{excludes}"
+				source="1.6"
+				debug="@{debug}"
+				includeantruntime="false">
+
+				<compilerarg line="@{compiler.args}"/>
+				<src path="@{src.dir}"/>
+				<classpath>
+					<fileset dir="@{dir}">
+						<include name="lib/**/*.jar"/>
+					</fileset>
+				</classpath>
+				<javac.classpath/>
+				<javac.args/>
+			</javac>
+			<copy todir="@{build.dir}">
+				<fileset dir="@{src.dir}">
+					<include name="**/*"/>
+					<exclude name="**/*.java"/>
+				</fileset>
+				<copy.to.build/>
+			</copy>
+		</sequential>
+	</macrodef>
+
+	<macrodef name="build.project.annotations">
+		<attribute name="name"/>
+		<attribute name="prefix" default=""/>
+		<attribute name="dir" default="${ti.android.root}/@{prefix}@{name}"/>
+		<attribute name="build.dir" default="@{dir}/bin"/>
+		<attribute name="src.dir" default="@{dir}/src"/>
+		<attribute name="apt.src.dir" default="@{dir}/.apt_generated"/>
+		<attribute name="kroll.jsonFile" default="@{name}.json"/>
+		<attribute name="kroll.jsonPackage" default="org.appcelerator.titanium.bindings"/>
+		<attribute name="includes" default="**/*.java"/>
+		<attribute name="excludes" default=""/>
+		<attribute name="debug" default="true"/>
+		<attribute name="clean" default="false"/>
+		<attribute name="compiler.args" default=""/>
+		
+		<element name="extra.args" implicit="true" optional="true"/>
+		<sequential>
+			<if>
+				<istrue value="@{clean}"/>
+				<then>
+					<clean.project name="@{name}" prefix="@{prefix}" dir="@{dir}" apt.src.dir="@{apt.src.dir}" build.dir="@{build.dir}"/>
+				</then>
+			</if>
+			<mkdir dir="@{apt.src.dir}"/>
+			<build.project
+				name="@{name}"
+				dir="@{dir}"
+				build.dir="@{build.dir}"
+				src.dir="@{src.dir}"
+				includes="@{includes}"
+				excludes="@{excludes}"
+				debug="@{debug}"
+				compiler.args="@{compiler.args}">
+
+				<javac.args>
+					<compilerarg line="-s @{apt.src.dir} -Akroll.jsonFile=@{kroll.jsonFile} -Akroll.jsonPackage=@{kroll.jsonPackage} -proc:only"/>
+					<extra.args/>
+				</javac.args>
+				<javac.classpath>
+					<classpath refid="android"/>
+					<classpath refid="kroll.apt.path"/>
+				</javac.classpath>
+				<copy.to.build>
+					<fileset dir="@{apt.src.dir}">
+						<include name="**/*"/>
+						<exclude name="**/*.java"/>
+					</fileset>
+				</copy.to.build>
+			</build.project>
+		</sequential>
+	</macrodef>
+
+	<!-- 
+	We do a two-phase module build:
+	- Build all classes, and generate code from the annotation processor
+	- Build annotation processor code and don't run any further processing
+	-->
+	<macrodef name="build.module.project">
+		<attribute name="name"/>
+		<attribute name="dir" default="${ti.android.root}/modules/@{name}"/>
+		<attribute name="build.dir" default="@{dir}/bin"/>
+		<attribute name="src.dir" default="@{dir}/src"/>
+		<attribute name="apt.src.dir" default="@{dir}/.apt_generated"/>
+		<attribute name="kroll.jsonFile" default="@{name}.json"/>
+		<attribute name="kroll.jsonPackage" default="org.appcelerator.titanium.bindings"/>
+		<attribute name="includes" default="**/*.java"/>
+		<attribute name="excludes" default=""/>
+		<attribute name="debug" default="true"/>
+		<attribute name="compiler.args" default=""/>
+
+		<element name="extra.javac.args" optional="true"/>
+		<element name="extra.javac.classpath" optional="true"/>
+		<element name="extra.copy.to.build" optional="true"/>
+
+		<sequential>
+			<build.project.annotations
+				name="@{name}"
+				dir="@{dir}"
+				build.dir="@{build.dir}"
+				src.dir="@{src.dir}"
+				apt.src.dir="@{apt.src.dir}"
+				kroll.jsonFile="@{kroll.jsonFile}"
+				kroll.jsonPackage="@{kroll.jsonPackage}"
+				includes="@{includes}"
+				excludes="@{excludes}"
+				debug="@{debug}"
+				compiler.args="@{compiler.args}">
+
+				<extra.javac.args/>
+				<extra.javac.classpath/>
+				<classpath refid="titanium.path"/>
+			</build.project.annotations>
+			<build.project
+				name="@{name}"
+				dir="@{dir}"
+				build.dir="@{build.dir}"
+				includes="@{includes}"
+				excludes="@{excludes}"
+				debug="@{debug}"
+				compiler.args="@{compiler.args}">
+
+				<javac.args>
+					<extra.javac.args/>
+					<src path="@{apt.src.dir}"/>
+					<src path="@{src.dir}"/>
+					<compilerarg line="-proc:none"/>
+				</javac.args>
+				<javac.classpath>
+					<extra.javac.classpath/>
+					<classpath refid="android"/>
+					<classpath refid="kroll.apt.path"/>
+					<classpath refid="titanium.path"/>
+					<classpath>
+						<pathelement path="@{build.dir}"/>
+					</classpath>
+				</javac.classpath>
+				<copy.to.build>
+					<extra.copy.to.build/>
+				</copy.to.build>
+			</build.project>
+		</sequential>
+	</macrodef>
+
+	<!-- build targets are designed to be called with <antcall> so multiple projects can be built in the same file -->
+
+	<target name="build.kroll.apt">
+		<property name="build.dir" value="${kroll.apt.project.dir}/bin"/>
+
+		<build.project
+			name="kroll-apt"
+			build.dir="${build.dir}"
+			excludes="org/appcelerator/kroll/apt/Activator.java">
+			<copy.to.build>
+				<fileset dir="${kroll.apt.project.dir}" includes="META-INF/**/*"/>
+			</copy.to.build>
+		</build.project>
+	</target>
+
+	<target name="build.kroll.apt.jar" depends="build.kroll.apt">
+		<property name="dest.file" value="${dist.dir}/kroll-apt.jar"/>
+		<jar destfile="${dest.file}" basedir="${build.dir}"/>
+	</target>
+
+	<macrodef name="generate.build.properties">
+		<attribute name="dir" default="${titanium.project.dir}/bin"/>
+		<sequential>
+			<mkdir dir="@{dir}/org/appcelerator/titanium"/>
+			<propertyfile file="@{dir}/org/appcelerator/titanium/build.properties"
+				comment="Generated by Titanium">
+				<entry key="build.version" value="${build.version}"/>
+				<entry key="build.timestamp" type="date" value="now"/>
+				<entry key="build.githash" value="${build.githash}"/>
+			</propertyfile>
+		</sequential>
+	</macrodef>
+
+	<target name="build.titanium">
+		<property name="build.dir" value="${titanium.project.dir}/bin"/>
+		<property name="apt.src.dir" value="${titanium.project.dir}/.apt_generated"/>
+
+		<build.module.project name="titanium" dir="${ti.android.root}/titanium" build.dir="${build.dir}" apt.src.dir="${apt.src.dir}">
+			<extra.javac.args>
+				<src path="${titanium.project.dir}/thirdparty"/>
+			</extra.javac.args>
+			<extra.copy.to.build>
+				<fileset dir="${titanium.project.dir}/thirdparty">
+					<include name="**/*"/>
+					<exclude name="**/*.java"/>
+				</fileset>
+			</extra.copy.to.build>
+		</build.module.project>
+	</target>
+
+	<target name="build.titanium.jar" depends="build.titanium">
+		<!-- TODO: retrieve git hash / value from titanium_version.py -->
+		<property name="build.githash" value="HEAD"/>
+		<generate.build.properties/>
+		
+		<property name="dest.file" value="${dist.dir}/titanium.jar"/>
+		<jar destfile="${dest.file}" basedir="${build.dir}"/>
+	</target>
+	
+	<macrodef name="build.module.jar">
+		<attribute name="name"/>
+		
+		<sequential>
+			<build.module.project name="@{name}">
+				<extra.javac.classpath>
+					<classpath refid="dependencies"/>
+				</extra.javac.classpath>
+			</build.module.project>
+			<jar destfile="${dist.dir}/titanium-@{name}.jar" basedir="${modules.dir}/@{name}/bin"/>
+		</sequential>
+	</macrodef>
+
+	<macrodef name="clean.project">
+		<attribute name="name"/>
+		<attribute name="prefix" default=""/>
+		<attribute name="dir" default="${ti.android.root}/@{prefix}@{name}"/>
+		<attribute name="apt.src.dir" default="@{dir}/.apt_generated"/>
+		<attribute name="build.dir" default="@{dir}/bin"/>
+		<sequential>
+			<delete includeemptydirs="true" failonerror="false">
+				<fileset dir="@{build.dir}" includes="**/*" defaultexcludes="false"/>
+				<fileset dir="@{apt.src.dir}" includes="**/*" defaultexcludes="false"/>
+				<fileset file="${dist.dir}/@{name}.jar"/>
+			</delete>
+		</sequential>
+	</macrodef>
+	
+	<macrodef name="define.ti.ant.tasks">
+		<sequential>
+			<taskdef classname="org.appcelerator.titanium.ant.GetModuleBuildOrderTask" name="ti.getModuleBuildOrder" classpathref="ti.build.path"/>
+			<taskdef classname="org.appcelerator.titanium.ant.ModulePathTask" name="ti.modulePath" classpathref="ti.build.path"/>
+		</sequential>
+	</macrodef>
+	
+	<macrodef name="build.ti.ant.tasks">
+		<sequential>
+			<javac srcdir="${ti.build.dir}/src" destdir="${ti.build.dir}/bin" includes="**/*.java" classpathref="ti.build.lib.path" includeantruntime="false"/>
+		</sequential>
+	</macrodef>
+	
+	<target name="build.all.modules">
+		<build.ti.ant.tasks/>
+		<define.ti.ant.tasks/>
+		
+		<property name="dependency.json" location="${ti.android.root}/dependency.json"/>
+		
+		<ti.getModuleBuildOrder json="${dependency.json}" property="modules"/>
+		
+		<for list="${modules}" param="module" delimiter=" ">
+		<sequential>
+			<ti.modulePath json="${dependency.json}" module="@{module}" modulesdir="${modules.dir}" pathid="dependencies"/>
+			<build.module.jar name="@{module}"/>
+		</sequential>
+		</for>
+	</target>
+
+	<target name="clean.dist" if="distdir.available">
+		<delete includeemptydirs="true">
+			<fileset dir="${dist.dir}" includes="**/*" defaultexcludes="false"/>
+		</delete>
+	</target>
+
+	<target name="dont.run.me">
+		<echo>This script is intended for reuse by other ant scripts, and is not directly executable</echo>
+	</target>
+</project>
