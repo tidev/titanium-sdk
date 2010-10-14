@@ -57,8 +57,23 @@
 }
 
 FILEATTR(readonly,NSFileImmutable,NO)
-FILEATTR(createTimestamp,NSFileCreationDate,YES);
 FILEATTR(modificationTimestamp,NSFileModificationDate,YES);
+
+-(id) createTimestamp
+{	
+	NSError *error = nil; 
+	NSDictionary * resultDict = [fm attributesOfItemAtPath:path error:&error];
+	if ((YES) && error!=nil)	
+	{	
+		[self throwException:TiExceptionOSError subreason:[error localizedDescription] location:CODELOCATION];	
+	}	
+	// Have to do this one up special because of 3.x bug where NSFileCreationDate is sometimes undefined
+	id result = [resultDict objectForKey:NSFileCreationDate];
+	if (result == nil) {
+		result = [resultDict objectForKey:NSFileModificationDate];
+	}
+	return result;
+}
 
 //TODO: Should this be a method or a property? Until then, do both.
 -(id)createTimestamp:(id)args
