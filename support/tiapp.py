@@ -123,8 +123,23 @@ class TiAppXML(object):
 					if not name in activities:
 						activities[name] = {}
 					activity = activities[name]
-					# TODO need to support more than just name! (theme, intents filters etc)
 					activity['name'] = name
+					for attr in child.attributes.keys():
+						activity[attr] = child.attributes.getNamedItem(attr).value
+
+		def parse_services(node):
+			if not 'services' in self.android:
+				self.android['services'] = {}
+			services = self.android['services']
+			for child in node.childNodes:
+				if child.nodeName == 'service':
+					name = getText(child.childNodes)
+					if not name in services:
+						services[name] = {}
+					service = services[name]
+					service['name'] = name
+					for attr in child.attributes.keys():
+						service[attr] = child.attributes.getNamedItem(attr).value
 
 		for child in node.childNodes:
 			if child.nodeName == 'permissions':
@@ -133,6 +148,8 @@ class TiAppXML(object):
 				parse_screens(child)
 			if child.nodeName == 'activities':
 				parse_activities(child)
+			if child.nodeName == 'services':
+				parse_services(child)
 
 	def has_app_property(self, property):
 		return property in self.app_properties
