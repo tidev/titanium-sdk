@@ -34,6 +34,16 @@ public class CalendarModule extends TiModule {
 			constants.put("STATE_DISMISSED", AlertProxy.STATE_DISMISSED);
 			constants.put("STATE_FIERD", AlertProxy.STATE_FIRED);
 			constants.put("STATE_SCHEDULED", AlertProxy.STATE_SCHEDULED);
+			
+			constants.put("NO_ACCESS", CalendarProxy.NO_ACCESS);
+			constants.put("FREEBUSY_ACCESS", CalendarProxy.FREEBUSY_ACCESS);
+			constants.put("READ_ACCESS", CalendarProxy.READ_ACCESS);
+			constants.put("RESPOND_ACCESS", CalendarProxy.RESPOND_ACCESS);
+			constants.put("OVERRIDE_ACCESS", CalendarProxy.OVERRIDE_ACCESS);
+			constants.put("CONTRIBUTOR_ACCESS", CalendarProxy.CONTRIBUTOR_ACCESS);
+			constants.put("EDITOR_ACCESS", CalendarProxy.EDITOR_ACCESS);
+			constants.put("OWNER_ACCESS", CalendarProxy.OWNER_ACCESS);
+			constants.put("ROOT_ACCESS", CalendarProxy.ROOT_ACCESS);
 		}
 		return constants;
 	}

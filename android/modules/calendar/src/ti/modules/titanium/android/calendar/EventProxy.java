@@ -33,6 +33,7 @@ public class EventProxy extends TiProxy {
 	protected boolean allDay, hasAlarm = true, hasExtendedProperties = true;
 	protected int status, visibility;
 	protected TiDict extendedProperties = new TiDict();
+	protected CalendarProxy calendar;
 	
 	protected String recurrenceRule, recurrenceDate, recurrenceExceptionRule, recurrenceExceptionDate;
 	protected Date lastDate;
@@ -53,11 +54,13 @@ public class EventProxy extends TiProxy {
 		return CalendarProxy.getBaseCalendarUri() + "/extendedproperties";
 	}
 	
-	public static ArrayList<EventProxy> queryEvents(TiContext context, String query, String[] queryArgs) {
-		return queryEvents(context, Uri.parse(getEventsUri()), query, queryArgs, "dtstart ASC");
+	public static ArrayList<EventProxy> queryEvents(TiContext context, String query, String[] queryArgs, CalendarProxy calendar) {
+		return queryEvents(context, Uri.parse(getEventsUri()), query, queryArgs, "dtstart ASC", calendar);
 	}
 	
-	public static ArrayList<EventProxy> queryEventsBetweenDates(TiContext context, long date1, long date2, String query, String[] queryArgs) {
+	public static ArrayList<EventProxy> queryEventsBetweenDates(TiContext context, long date1, long date2,
+			String query, String[] queryArgs, CalendarProxy calendar)
+	{
 		ArrayList<EventProxy> events = new ArrayList<EventProxy>();
 		ContentResolver contentResolver = context.getActivity().getContentResolver();
 		
@@ -81,6 +84,7 @@ public class EventProxy extends TiProxy {
 			event.hasAlarm = !eventCursor.getString(7).equals("0");
 			event.status = eventCursor.getInt(8);
 			event.visibility = eventCursor.getInt(9);
+			event.calendar = calendar;
 			
 			events.add(event);
 		}
@@ -90,7 +94,7 @@ public class EventProxy extends TiProxy {
 		return events;
 	}
 	
-	public static ArrayList<EventProxy> queryEvents(TiContext context, Uri uri, String query, String[] queryArgs, String orderBy) {
+	public static ArrayList<EventProxy> queryEvents(TiContext context, Uri uri, String query, String[] queryArgs, String orderBy, CalendarProxy calendar) {
 		ArrayList<EventProxy> events = new ArrayList<EventProxy>();
 		ContentResolver contentResolver = context.getActivity().getContentResolver();
 		Cursor eventCursor = contentResolver.query(uri,
@@ -110,6 +114,7 @@ public class EventProxy extends TiProxy {
 			event.status = eventCursor.getInt(8);
 			event.visibility = eventCursor.getInt(9);
 			event.hasExtendedProperties = !eventCursor.getString(10).equals("0");
+			event.calendar = calendar;
 			
 			events.add(event);
 		}
@@ -120,6 +125,7 @@ public class EventProxy extends TiProxy {
 	public static EventProxy createEvent(TiContext context, CalendarProxy calendar, TiDict data) {
 		ContentResolver contentResolver = context.getActivity().getContentResolver();
 		EventProxy event = new EventProxy(context);
+		event.calendar = calendar;
 		
 		ContentValues eventValues = new ContentValues();
 		eventValues.put("hasAlarm", 1);
@@ -165,8 +171,13 @@ public class EventProxy extends TiProxy {
 			eventValues.put("hasAlarm", event.hasAlarm ? 1 : 0);
 		}
 		
-		Uri eventUri = contentResolver.insert(Uri.parse(CalendarProxy.getBaseCalendarUri()+"/events"), eventValues);
-		Log.d("TiEvents", "created event with uri: " + eventUri);
+		if (data.containsKey("visibility")) {
+			event.visibility = TiConvert.toInt(data, "visibility");
+			eventValues.put("visibility", event.visibility);
+		}
+		
+		Uri eventUri = contentResolver.insert(Uri.parse(getEventsUri()), eventValues);
+		Log.d(TAG, "created event with uri: " + eventUri);
 		
 		String eventId = eventUri.getLastPathSegment();
 		event.id = eventId;
@@ -175,7 +186,7 @@ public class EventProxy extends TiProxy {
 	}
 	
 	public static ArrayList<EventProxy> queryEventsBetweenDates(TiContext context, long date1, long date2, CalendarProxy calendar) {
-		return queryEventsBetweenDates(context, date1, date2, "Calendars._id="+calendar.getId(), null);
+		return queryEventsBetweenDates(context, date1, date2, "Calendars._id="+calendar.getId(), null, calendar);
 	}
 
 	public ReminderProxy[] getReminders() {
@@ -247,7 +258,17 @@ public class EventProxy extends TiProxy {
 	public int getVisibility() {
 		return visibility;
 	}
-
+	
+	public String getVisibilityString() {
+		switch(visibility) {
+			case VISIBILITY_DEFAULT: return "VISIBILITY_DEFAULT";
+			case VISIBILITY_CONFIDENTIAL: return "VISIBILITY_CONFIDENTIAL";
+			case VISIBILITY_PRIVATE: return "VISIBILITY_PRIVATE";
+			case VISIBILITY_PUBLIC: return "VISIBILITY_PUBLIC";
+		}
+		return "Couldn't find visibility";
+	}
+	
 	public String getRecurrenceRule() {
 		return recurrenceRule;
 	}
@@ -304,7 +325,7 @@ public class EventProxy extends TiProxy {
 		if (!hasExtendedProperties) {
 			hasExtendedProperties = true;
 		}
-		Log.d("TiEvent", "set extended property: " + name + " = " + value);
+		Log.d(TAG, "set extended property: " + name + " = " + value);
 		
 		// we need to update the DB
 		ContentResolver contentResolver = getTiContext().getActivity().getContentResolver();
@@ -330,5 +351,18 @@ public class EventProxy extends TiProxy {
 		// insert the record
 		values.put("event_id", getId());
 		contentResolver.insert(extPropsUri, values);
+	}
+	
+	public boolean deleteEvent() {
+		ContentResolver contentResolver = getTiContext().getActivity().getContentResolver();
+		Uri.Builder builder = Uri.parse(getEventsUri()).buildUpon();
+		builder.appendPath(getId());
+		int deleted = contentResolver.delete(builder.build(), null, null);
+		
+		return deleted > 0;
+	}
+	
+	public CalendarProxy getCalendar() {
+		return calendar;
 	}
 }

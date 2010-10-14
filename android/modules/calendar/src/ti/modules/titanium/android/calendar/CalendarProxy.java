@@ -15,21 +15,33 @@ import android.os.Build;
 import android.text.format.DateUtils;
 
 public class CalendarProxy extends TiProxy {
-
+	
 	protected String id, name;
 	protected boolean selected, hidden;
+	protected int accessLevel;
 	
-	public CalendarProxy(TiContext context, String id, String name, boolean selected, boolean hidden) {
+	public static final int NO_ACCESS = 0;
+	public static final int FREEBUSY_ACCESS = 100;
+	public static final int READ_ACCESS = 200;
+	public static final int RESPOND_ACCESS = 300;
+	public static final int OVERRIDE_ACCESS = 400;
+	public static final int CONTRIBUTOR_ACCESS = 500;
+	public static final int EDITOR_ACCESS = 600;
+	public static final int OWNER_ACCESS = 700;
+	public static final int ROOT_ACCESS = 800;
+	
+	public CalendarProxy(TiContext context, String id, String name, boolean selected, boolean hidden, int accessLevel) {
 		super(context);
 		
 		this.id = id;
 		this.name = name;
 		this.selected = selected;
 		this.hidden = hidden;
+		this.accessLevel = accessLevel;
 	}
 
 	public static String getBaseCalendarUri() {
-		if (Build.VERSION.RELEASE.contains("2.2")) {
+		if (Build.VERSION.SDK_INT >= 8) {
 			return "content://com.android.calendar";
 		}
 		
@@ -41,7 +53,7 @@ public class CalendarProxy extends TiProxy {
 		ContentResolver contentResolver = context.getActivity().getContentResolver();
 		
 		Cursor cursor = contentResolver.query(Uri.parse(getBaseCalendarUri() + "/calendars"),
-			new String[] { "_id", "displayName", "selected", "hidden" }, query, queryArgs, null);
+			new String[] { "_id", "displayName", "selected", "hidden", "access_level" }, query, queryArgs, null);
 		
 		// calendars can be null
 		if (cursor!=null)
@@ -51,8 +63,9 @@ public class CalendarProxy extends TiProxy {
 				String name = cursor.getString(1);
 				boolean selected = !cursor.getString(2).equals("0");
 				boolean hidden = !cursor.getString(3).equals("0");
-
-				calendars.add(new CalendarProxy(context, id, name, selected, hidden));
+				int accessLevel = cursor.getInt(4);
+				
+				calendars.add(new CalendarProxy(context, id, name, selected, hidden, accessLevel));
 			}
 		}
 		
@@ -109,7 +122,7 @@ public class CalendarProxy extends TiProxy {
 	}
 	
 	public EventProxy getEventById(int id) {
-		ArrayList<EventProxy> events = EventProxy.queryEvents(getTiContext(), "_id = ?", new String[] { ""+id });
+		ArrayList<EventProxy> events = EventProxy.queryEvents(getTiContext(), "_id = ?", new String[] { ""+id }, this);
 		if (events.size() > 0) {
 			return events.get(0);
 		} else return null;
@@ -133,5 +146,24 @@ public class CalendarProxy extends TiProxy {
 	
 	public boolean getHidden() {
 		return hidden;
+	}
+	
+	public int getAccessLevel() {
+		return accessLevel;
+	}
+	
+	public String getAccessLevelString() {
+		switch (accessLevel) {
+			case NO_ACCESS: return "NO_ACCESS";
+			case FREEBUSY_ACCESS: return "FREEBUSY_ACCESS";
+			case READ_ACCESS: return "READ_ACCESS";
+			case RESPOND_ACCESS: return "RESPOND_ACCESS";
+			case OVERRIDE_ACCESS: return "OVERRIDE_ACCESS";
+			case CONTRIBUTOR_ACCESS: return "CONTRIBUTOR_ACCESS";
+			case EDITOR_ACCESS: return "EDITOR_ACCESS";
+			case OWNER_ACCESS: return "OWNER_ACCESS";
+			case ROOT_ACCESS: return "ROOT_ACCESS";
+		}
+		return "Couldn't find access level";
 	}
 }

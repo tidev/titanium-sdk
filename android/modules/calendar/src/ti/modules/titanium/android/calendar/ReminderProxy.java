@@ -13,6 +13,8 @@ import android.net.Uri;
 
 public class ReminderProxy extends TiProxy {
 
+	private static final String TAG = "TiReminder";
+	
 	public static final int METHOD_DEFAULT = 0;
 	public static final int METHOD_ALERT = 1;
 	public static final int METHOD_EMAIL = 2;
@@ -61,7 +63,7 @@ public class ReminderProxy extends TiProxy {
 		eventValues.put("event_id", event.getId());
 		
 		Uri reminderUri = contentResolver.insert(Uri.parse(getRemindersUri()), eventValues);
-		Log.d("TiEvents", "created reminder with uri: " + reminderUri + ", minutes: " + minutes + ", method: " + method + ", event_id: " + event.getId());
+		Log.d(TAG, "created reminder with uri: " + reminderUri + ", minutes: " + minutes + ", method: " + method + ", event_id: " + event.getId());
 		
 		String eventId = reminderUri.getLastPathSegment();
 		ReminderProxy reminder = new ReminderProxy(context);
