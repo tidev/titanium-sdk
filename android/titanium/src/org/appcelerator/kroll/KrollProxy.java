@@ -39,7 +39,11 @@ public class KrollProxy implements Handler.Callback, OnEventListenerChange {
 	protected static final int MSG_LAST_ID = 999;
 	protected static AtomicInteger proxyCounter = new AtomicInteger();
 
-	public static final Object UNDEFINED = new Object();
+	public static final Object UNDEFINED = new Object() {
+		public String toString() {
+			return "undefined";
+		}
+	};
 
 	protected KrollDict properties = new KrollDict();
 	protected TiContext context, creatingContext;

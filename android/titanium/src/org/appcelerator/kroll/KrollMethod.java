@@ -6,7 +6,6 @@
  */
 package org.appcelerator.kroll;
 
-import org.appcelerator.titanium.kroll.KrollContext;
 import org.appcelerator.titanium.util.AsyncResult;
 import org.appcelerator.titanium.util.Log;
 import org.mozilla.javascript.Context;
