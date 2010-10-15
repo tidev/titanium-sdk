@@ -195,18 +195,35 @@ NSArray* moviePlayerKeys = nil;
 
 -(TiUIView*)newView
 {
+	if (reallyAttached) {
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
+		if ([TiUtils isiPhoneOS3_2OrGreater]) {
+			// override since we're constructing ourselfs
+			TiUIView *v = [[TiMediaVideoPlayer alloc] initWithPlayer:[self player] proxy:self];
+			return v;
+		}
+		else {
+#endif
+			return [super newView];
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
+		}
+#endif
+	}
+	return nil;
+}
+
+-(void)viewWillAttach
+{
+	reallyAttached = YES;
+}
+
+-(void)viewDidDetach
+{
 	if ([TiUtils isiPhoneOS3_2OrGreater]) {
-		// override since we're constructing ourselfs
-		TiUIView *v = [[TiMediaVideoPlayer alloc] initWithPlayer:[self player] proxy:self];
-		return v;
+		[movie stop];
+		RELEASE_TO_NIL(movie);
 	}
-	else {
-#endif
-		return [super newView];
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
-	}
-#endif
+	reallyAttached = NO;
 }
 
 #pragma mark Public APIs
