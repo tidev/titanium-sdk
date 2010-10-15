@@ -1,34 +1,24 @@
 <project name="__PROJECT_SHORT_NAME__" default="dist" basedir=".">
 	<description>
-		simple build file for a Ti Android Module
+		Ant build script for Titanium Android module __PROJECT_SHORT_NAME__
     </description>
+
 	<property file="build.properties" />
-	<!-- set global properties for this build -->
 	<property name="src" location="src" />
 	<property name="gen" location="gen" />
-	<property name="build" location="build" />
+	<property name="bin" location="bin" />
 	<property name="dist" location="dist" />
 	<property name="classesdir" value="${dist}/classes" />
 	<property name="build.version" value="1.0.0" />
 
-	<path id="android">
-		<pathelement path="${android.platform}/android.jar" />
-		<pathelement path="${google.apis}/libs/maps.jar" />
-	</path>
-
-	<path id="titanium_includes">
-		<pathelement path="${classesdir}/titanium" />
-		<fileset dir="lib" includes="**/*.jar" />
-	</path>
-
-	<path id="base.path">
+	<path id="project.classpath">
 		<pathelement path="${classesdir}" />
 		<fileset dir="lib">
 			<include name="**/*.jar" />
 		</fileset>
-		<pathelement location="classes" />
 		<fileset dir="${titanium.platform}">
 			<include name="*.jar" />
+			<include name="modules/titanium-*.jar"/>
 		</fileset>
 		<pathelement path="${android.platform}/android.jar" />
 		<pathelement path="${google.apis}/libs/maps.jar" />
@@ -38,22 +28,15 @@
 		<!-- Create the time stamp -->
 		<tstamp />
 		<!-- Create the build directory structure used by compile -->
-		<mkdir dir="${build}" />
+		<mkdir dir="${bin}" />
 	</target>
-	<!--
-		Manual usage
-			javac 
-				-processor org.appcelerator.kroll.annotations.generator.KrollBindingGenerator
-				[Optional: -processorpath <ti-sdk-folder containing titanium.jar>]
-				-classpath lib/js.jar:lib/titanium.jar:/opt/android-sdk/platforms/android-1.6/android.jar
-				src/ti/modules/titanium/urbanairship/*.java  
-	-->
-	<target name="generate-module-def" depends="init"
-		description="Generate the class ModuleDef">
+	
+	<target name="process.annotations" depends="init"
+		description="Processes @Kroll.proxy and @Kroll.module annotations">
 		<mkdir dir="${gen}" />
 		<javac 
 			srcdir="${src}" 
-			destdir="${build}"
+			destdir="${bin}"
 			debug="true"
 			includeantruntime="false">
 				<compilerarg value="-processor" />
@@ -61,40 +44,59 @@
 				<compilerarg line="-s ${gen}" />
 				<compilerarg line="-Akroll.jsonFile=${ant.project.name}.json" />
 				<compilerarg line="-Akroll.jsonPackage=org.appcelerator.titanium.bindings" />
-				<classpath refid="base.path" />
+				<classpath refid="project.classpath" />
 		</javac>
 	</target>
 
-	<target name="compile" depends="generate-module-def"
-		description="compile the source ">
-		<!-- Compile the java code from ${src} into ${build} -->
+	<target name="compile" depends="process.annotations"
+		description="Compile this module's source code">
 		<javac 
-			destdir="${build}"
+			destdir="${bin}"
 			debug="true"
 			includeantruntime="false">
 			<src path="${src}" />
 			<src path="${gen}" />
 			<include name="**/*.java" />
 			
-			<classpath refid="base.path" />
+			<classpath refid="project.classpath" />
 		</javac>
-		<copy todir="${build}">
+		<copy todir="${bin}">
 			<fileset dir="${gen}" includes="**/*.json"/>
 		</copy>
 	</target>
 
-	<target name="dist" depends="compile" description="generate the distribution">
-		<!-- Create the distribution directory -->
+	<target name="dist" depends="compile" description="Generate a distributable module JAR">
 		<mkdir dir="${dist}" />
-		<jar jarfile="${dist}/${ant.project.name}.jar" basedir="${build}">
+		<jar jarfile="${dist}/${ant.project.name}.jar" basedir="${bin}">
 			<fileset file="manifest"/>
 		</jar>
 	</target>
 	
-
-	<target name="clean" description="clean up">
-		<!-- Delete the ${build} and ${dist} directory trees -->
-		<delete dir="${build}" />
+	<target name="clean" description="Cleans classes and dist files">
+		<delete dir="${bin}" />
 		<delete dir="${dist}" />
+	</target>
+	
+	<property name="titanium.py" location="${titanium.platform}/../titanium.py"/>
+	
+	<macrodef name="titanium">
+		<attribute name="command"/>
+		<element name="args" implicit="true" optional="true"/>
+		<sequential>
+			<!-- Python needs to be on the path ... -->
+			<exec executable="python" dir="${basedir}">
+				<arg file="${titanium.py}"/>
+				<arg value="@{command}"/>
+				<args/>
+			</exec>
+		</sequential>
+	</macrodef>
+	
+	<target name="run.emulator" description="Run the android emulator">
+		<titanium command="emulator"/>
+	</target>
+	
+	<target name="run" description="Run the module's test project">
+		<titanium command="run"/>
 	</target>
 </project>

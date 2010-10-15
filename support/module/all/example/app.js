@@ -6,7 +6,7 @@
 
 // open a single window
 var window = Ti.UI.createWindow({
-  backgroundColor:'white'
+	backgroundColor:'white'
 });
 var label = Ti.UI.createLabel();
 window.add(label);
@@ -20,3 +20,8 @@ label.text = ___PROJECTNAME___.example();
 
 Ti.API.info("module exampleProp is => " + ___PROJECTNAME___.exampleProp);
 ___PROJECTNAME___.exampleProp = "This is a test value";
+
+if (Ti.Platform.name == "android") {
+	var proxy = ___PROJECTNAME___.createExample({message: "Creating an example Proxy"});
+	proxy.printMessage("Hello world!");
+}

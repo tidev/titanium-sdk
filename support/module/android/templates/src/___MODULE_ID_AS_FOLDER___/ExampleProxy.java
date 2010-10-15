@@ -6,7 +6,7 @@
  * Please see the LICENSE included with this distribution for details.
  *
  */
-package __MODULE_ID__.___PROJECTNAME___;
+package __MODULE_ID__;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
@@ -40,7 +40,6 @@ public class ExampleProxy extends KrollProxy
 	}
 	
 	// Methods
-	
 	@Kroll.method
 	public void printMessage(String message) {
 		Log.d(LCAT, "printing message: " + message);

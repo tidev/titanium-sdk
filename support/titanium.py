@@ -6,8 +6,6 @@
 import os, sys, subprocess, types, re, uuid
 from tiapp import *
 
-isDebug=False
-
 template_dir = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
 
 def die(msg):
@@ -132,17 +130,12 @@ def create_android_project(project_dir,osname,args):
 def create_android_module(project_dir,osname,args):
 	script = os.path.join(template_dir,'module','module.py')
 	
-	if isDebug:
-		print "Script %s" % script
-		
 	name = get_required(args,'name')
 	validate_project_name(name)
 	appid = get_required(args,'id')
 	android_sdk = get_required_dir(args,'android')
 	args = [script,'--name',name,'--id',appid,'--directory',project_dir,'--platform',osname,'--sdk',android_sdk]
 	
-	if isDebug:
-		print "Calling with '{0[0]} {0[1]} {0[2]} {0[3]} {0[4]} {0[5]} {0[6]} {0[7]} {0[8]} {0[9]} {0[10]}'".format(args)
 	fork(args,False)
 	print "Created %s module project" % osname
 	return os.path.join(project_dir,name)
@@ -362,7 +355,7 @@ def main(args):
 	a.pop(0) # program
 	a.pop(0) # command
 	try:
-		c = eval("%s" % command)	
+		c = eval("%s" % command)
 	except NameError,e:
 		help([command])
 	if command == 'help':

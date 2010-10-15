@@ -3,72 +3,58 @@
 #
 # Android Module Project Create Script
 #
-import os,sys,shutil
-template_dir = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
-support_dir = os.path.dirname(os.path.dirname(template_dir))
-support_android_dir = os.path.join(support_dir, 'android')
-sys.path.append(support_android_dir)
+import os, sys, shutil
+module_android_dir = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
+module_dir = os.path.dirname(module_android_dir)
+sys.path.append(module_dir)
 
-import androidsdk
-reference_jars = ['titanium.jar', 'js.jar']
-create_folders = ['lib']
+sdk_dir = os.path.dirname(module_dir)
+sdk_android_dir = os.path.join(sdk_dir, 'android')
+sys.path.append(sdk_android_dir)
 
-isDebug=False
-#
-# this class is created after all template files (if any) in
-# this directory are copied to allow the project creation 
-# script to complete the install
-# 
-class android(object):
-	def __init__(self,project_dir,config,module):
-		# copy over the needed jars
-		jar_locations = os.path.abspath(os.path.join(template_dir,'..','..','android'))
-		
-		# Create any needed folders
-		for this_folder in create_folders:
-			os.mkdir(os.path.join(project_dir,this_folder))
-		
-		# rename the project file
-		os.rename(os.path.join(project_dir,'.project_template'), os.path.join(project_dir,'.project'))		
+import module, androidsdk
 
-		# Classpath processing for the project
-		# Construct the name,  rename the old .classpath		
-		class_path_file = os.path.join(project_dir,'.classpath')
-		old_classpath_file = os.path.join(project_dir,'.classpath.old')
-		os.rename(class_path_file, old_classpath_file)
-		sdk = androidsdk.AndroidSDK(module.sdk, 4)
+class android(module.ModulePlatform):
+	def __init__(self, project_dir, config, module_project):
+		super(android, self).__init__(project_dir, config, module_project)
 		
-		# Build up the replacement string
-		classpath_refs = "";
-		for jar in reference_jars:
-			classpath_refs += '<classpathentry kind="lib" path="%s/%s"/>\n' % (jar_locations, jar)
+		self.sdk = androidsdk.AndroidSDK(module_project.sdk, 4)
+		self.init_classpath()
+	
+	def init_classpath(self):
+		classpath_libs = [
+			self.sdk.get_android_jar(),
+			self.sdk.get_maps_jar(),
+			'/'.join([sdk_android_dir, 'titanium.jar']),
+			'/'.join([sdk_android_dir, 'js.jar'])
+		]
+		self.classpath = ""
+		for lib in classpath_libs:
+			self.classpath += '\t<classpathentry kind="lib" path="%s"/>' % lib
+
+	def get_file_dest(self, to_path):
+		to_dir, to_file = os.path.split(to_path)
+		if to_file == "eclipse_classpath":
+			to_file = ".classpath"
+		elif to_file == "eclipse_project":
+			to_file = ".project"
+		return os.path.join(to_dir, to_file)
 		
-		# Processing contents of classpath 
-		contents = open(old_classpath_file).read()
-		tof = open(class_path_file,'w')
-		
-		contents = contents.replace("__ANDROID_PLATFORM_JAR__", sdk.get_android_jar())
-		contents = contents.replace("__MAPS_JAR__", sdk.get_maps_jar())
-		contents = contents.replace('<!--__INCLUDE_JARS__-->',classpath_refs)
-		tof.write(contents)
-		tof.close()
-		
-		# Create the build.properties file 
-		# titanium.platform = /home/dasher/.titanium/mobilesdk/linux/1.3.3/android
-		# android.platform = /usr/local/android-sdk-linux/platforms/android-1.6
-		# google.apis aren't supported currently
-		build_properties = os.path.join(project_dir,"build.properties")
-		tof = open(build_properties,'w')
-		tof.write("titanium.platform = %s\n" % jar_locations)
-		tof.write("android.platform = %s\n" % sdk.get_platform_dir())
-		tof.write("google.apis = %s\n" % sdk.get_google_apis_dir())
-		tof.close()
+	def replace_tokens(self, string):
+		string = string.replace('___CLASSPATH_ENTRIES___', self.classpath)
+		string = string.replace('___ANDROID_PLATFORM___', self.sdk.get_platform_dir())
+		string = string.replace('___GOOGLE_APIS___', self.sdk.get_google_apis_dir())
+		return string
+	
+	def get_gitignore(self):
+		return ['.apt_generated']
+	
+	def finished(self):
+		os.mkdir(os.path.join(self.project_dir, 'lib'))
+		os.mkdir(os.path.join(self.project_dir, '.apt_generated'))
 		
 		# Append the configured Android SDK onto the module's manifest
-		manifest_file = os.path.join(project_dir, 'manifest')
+		manifest_file = os.path.join(self.project_dir, 'manifest')
 		manifest = open(manifest_file, 'a+')
-		manifest.write('android.sdk: %s' % sdk.get_android_sdk())
+		manifest.write('android.sdk: %s' % self.sdk.get_android_sdk())
 		manifest.close()
-		
-		# Cleanup 
-		os.remove(old_classpath_file)

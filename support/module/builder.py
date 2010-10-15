@@ -38,6 +38,7 @@ def run(args, cwd=None):
 
 ignoreFiles = ['.gitignore', '.cvsignore', '.DS_Store'];
 ignoreDirs = ['.git','.svn','_svn','CVS'];
+android_sdk = None
 
 def copy_resources(source, target):
 	if not os.path.exists(os.path.expanduser(target)):
@@ -45,11 +46,11 @@ def copy_resources(source, target):
 	for root, dirs, files in os.walk(source):
 		for name in ignoreDirs:
 			if name in dirs:
-				dirs.remove(name)	# don't visit ignored directories			  
+				dirs.remove(name) # don't visit ignored directories 
 		for file in files:
 			if file in ignoreFiles:
 				continue
-			from_ = os.path.join(root, file)			  
+			from_ = os.path.join(root, file)
 			to_ = os.path.expanduser(from_.replace(source, target, 1))
 			to_directory = os.path.expanduser(split(to_)[0])
 			if not exists(to_directory):
@@ -72,8 +73,14 @@ def stage(platform, project_dir, manifest, callback):
 		moduleid = manifest.moduleid
 		version = manifest.version
 		script = os.path.join(template_dir,'..','project.py')
+		
 		# create a temporary proj
-		run([script,name,moduleid,dir,platform])
+		create_project_args = [script, name, moduleid, dir, platform]
+		if is_android(platform):
+			create_project_args.append(android_sdk.get_android_sdk())
+		
+		run(create_project_args)
+		
 		gen_project_dir = os.path.join(dir, name)
 		gen_resources_dir = os.path.join(gen_project_dir, 'Resources')
 		
@@ -124,7 +131,7 @@ def stage(platform, project_dir, manifest, callback):
 		if not dont_delete: shutil.rmtree(dir)
 
 def main(args):
-	
+	global android_sdk
 	# command platform project_dir
 	command = args[1]
 	platform = args[2]
@@ -133,14 +140,14 @@ def main(args):
 	error = False
 	
 	if is_android(platform):
-		sdk = AndroidSDK(manifest.get_property('android.sdk'), 4)
+		android_sdk = AndroidSDK(manifest.get_property('android.sdk'), 4)
 		
 	if command == 'run':
 		def run_callback(gen_project_dir):
 			script = os.path.abspath(os.path.join(template_dir,'..',platform,'builder.py'))
 			script_args = [script, 'run', gen_project_dir]
 			if is_android(platform):
-				script_args.append(sdk.get_android_sdk())
+				script_args.append(android_sdk.get_android_sdk())
 			
 			rc = run(script_args)
 			
@@ -157,7 +164,7 @@ def main(args):
 		if is_android(platform):
 			def run_emulator_callback(gen_project_dir):
 				script = os.path.abspath(os.path.join(template_dir, '..', platform, 'builder.py'))
-				run([script, 'run-emulator', gen_project_dir, sdk.get_android_sdk()])
+				run([script, 'run-emulator', gen_project_dir, android_sdk.get_android_sdk()])
 			
 			stage(platform, project_dir, manifest, run_emulator_callback)
 	
