@@ -110,7 +110,7 @@ import ${packageName}.${proxyClassName};
 					<#local argValue = firstArgValue>
 				<#else>
 					<#local argNeedsConvert = false>
-					<#local argValue = arg.converter + ".getInstance().getDefaultValue(" + arg.type + ".class)">
+					<#local argValue = arg.converter + ".getInstance().getDefaultValue(" + castType + ".class)">
 				</#if>
 			</#if>
 			<#if argNeedsConvert>
@@ -118,12 +118,12 @@ import ${packageName}.${proxyClassName};
 					${arg.converter}.getInstance().convertJavascript(__invocation, ${argValue}, ${castType}.class);
 			<#else>
 				${arg.name} = (${castType})
-					${arg.defaultValueProvider}.getInstance().getDefaultValue(${arg.type}.class);
+					${arg.defaultValueProvider}.getInstance().getDefaultValue(${castType}.class);
 			</#if>
 			<#if optional && hasArgArray>
 			} else {
 				${arg.name} = (${castType})
-					${arg.defaultValueProvider}.getInstance().getDefaultValue(${arg.type}.class);
+					${arg.defaultValueProvider}.getInstance().getDefaultValue(${castType}.class);
 			}
 			</#if>
 		</#if>
