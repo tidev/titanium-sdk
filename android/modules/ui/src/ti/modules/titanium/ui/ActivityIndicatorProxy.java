@@ -15,7 +15,8 @@ import org.appcelerator.titanium.view.TiUIView;
 import ti.modules.titanium.ui.widget.TiUIActivityIndicator;
 import android.app.Activity;
 
-@Kroll.proxy(creatableInModule=UIModule.class)
+@Kroll.proxy(creatableInModule=UIModule.class,
+	propertyAccessors={"message", "value"})
 public class ActivityIndicatorProxy extends TiViewProxy
 {
 	public ActivityIndicatorProxy(TiContext tiContext)

@@ -11,7 +11,6 @@ import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.TreeSet;
 
 import org.appcelerator.kroll.KrollDict;
@@ -25,7 +24,6 @@ import org.appcelerator.titanium.util.TiAnimationBuilder;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiResourceHelper;
-import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiAnimation;
 import org.appcelerator.titanium.view.TiUIView;
 
@@ -35,7 +33,23 @@ import android.os.Handler;
 import android.os.Message;
 import android.view.View;
 
-@Kroll.proxy
+@Kroll.proxy(propertyAccessors={
+	// background properties
+	"backgroundImage", "backgroundSelectedImage", "backgroundFocusedImage",
+	"backgroundDisabledImage", "backgroundColor", "backgroundSelectedColor",
+	"backgroundFocusedColor", "backgroundDisabledColor", "backgroundPadding",
+	
+	// border properties
+	"borderColor", "borderRadius", "borderWidth",
+	
+	// layout / dimension (size has a custom setter)
+	"left", "top", "right", "bottom", "layout", "width", "height", "zIndex",
+	
+	// others
+	"focusable", "touchEnabled", "visible", "enabled", "opacity",
+	"softKeyboardOnFocus", "transform"
+	
+})
 public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 {
 	private static final String LCAT = "TiViewProxy";
