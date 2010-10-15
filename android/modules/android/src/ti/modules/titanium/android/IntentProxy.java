@@ -38,6 +38,7 @@ public class IntentProxy extends TiProxy
 			String action = d.getString("action");
 			String data = d.getString("data");
 			String classname = d.getString("className");
+			String packageName = d.getString("packageName");
 			String type = d.getString("type");
 			
 			if (action != null) {
@@ -54,13 +55,27 @@ public class IntentProxy extends TiProxy
 				intent.setData(Uri.parse(data));
 			}
 			
+			if (packageName != null) {
+				if (DBG) {
+					Log.d(LCAT, "Setting package: " + packageName);
+				}
+				intent.setPackage(packageName);
+			}
+
 			if (classname != null) {
-				try {
-					Class c = getClass().getClassLoader().loadClass(classname);
-					intent.setClass(tiContext.getActivity().getApplicationContext(), c);
-				} catch (ClassNotFoundException e) {
-					Log.e(LCAT, "Unable to locate class for name: " + classname);
-					throw new IllegalStateException("Missing class for name: " + classname, e);
+				if (packageName != null) {
+					if (DBG) {
+						Log.d(LCAT, "Both className and packageName set, using intent.setClassName(packageName, className");
+					}
+					intent.setClassName(packageName, classname);
+				} else {
+					try {
+						Class<?> c = getClass().getClassLoader().loadClass(classname);
+						intent.setClass(getTiContext().getActivity().getApplicationContext(), c);
+					} catch (ClassNotFoundException e) {
+						Log.e(LCAT, "Unable to locate class for name: " + classname);
+						throw new IllegalStateException("Missing class for name: " + classname, e);
+					}
 				}
 			}
 			if (type != null) {
@@ -92,6 +107,15 @@ public class IntentProxy extends TiProxy
 		} else {
 			Log.w(LCAT, "Warning unimplemented put conversion for " + value.getClass().getCanonicalName() + " trying String");
 			intent.putExtra(key, TiConvert.toString(value));
+		}
+	}
+	
+	public void addCategory(String category) {
+		if (category != null) {
+			if (DBG) {
+				Log.d(LCAT, "Adding category: " + category);
+			}
+			intent.addCategory(category);
 		}
 	}
 	
