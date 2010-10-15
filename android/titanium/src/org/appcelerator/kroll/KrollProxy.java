@@ -157,8 +157,10 @@ public class KrollProxy implements Handler.Callback, OnEventListenerChange {
 		if (hasBinding(name)) {
 			Object value = getBinding(name);
 			if (value instanceof KrollProperty) {
-				return getDynamicProperty(scope, name,
-						(KrollProperty) value);
+				KrollProperty property = (KrollProperty)value;
+				if (property.supportsGet(name)) {
+					return getDynamicProperty(scope, name, property);
+				} // else fall through to properties
 			} else {
 				return value;
 			}
@@ -174,9 +176,11 @@ public class KrollProxy implements Handler.Callback, OnEventListenerChange {
 		if (hasBinding(name)) {
 			Object currentValue = getBinding(name);
 			if (currentValue instanceof KrollProperty) {
-				setDynamicProperty(scope, name,
-						(KrollProperty) currentValue, value);
-				return;
+				KrollProperty property = (KrollProperty) currentValue;
+				if (property.supportsSet(name)) {
+					setDynamicProperty(scope, name, property, value);
+					return;
+				} // else fall through to properties
 			}
 		}
 		
