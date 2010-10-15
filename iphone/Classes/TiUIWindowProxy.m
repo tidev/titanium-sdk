@@ -37,6 +37,7 @@
 {
 	NSCondition *lock;
 	TiUIWindowProxy* window;
+	id args;
 	BOOL completed;
 	BOOL timeout;
 }
@@ -44,11 +45,12 @@
 
 @implementation TiUIWindowProxyLatch
 
--(id)initWithWindow:(id)window_
+-(id)initWithWindow:(id)window_ args:(id)args_
 {
 	if (self = [super init])
 	{
 		window = [window_ retain];
+		args = [args_ retain];
 		lock = [[NSCondition alloc] init];
 	}
 	return self;
@@ -58,6 +60,7 @@
 {
 	RELEASE_TO_NIL(lock);
 	RELEASE_TO_NIL(window);
+	RELEASE_TO_NIL(args);
 	[super dealloc];
 }
 
@@ -68,7 +71,7 @@
 	[lock signal];
 	if (timeout)
 	{
-		[window boot:YES];
+		[window boot:YES args:args];
 	}
 	[lock unlock];
 }
@@ -118,7 +121,7 @@
 	[super _destroy];
 }
 
--(void)boot:(BOOL)timeout
+-(void)boot:(BOOL)timeout args:args
 {
 	RELEASE_TO_NIL(latch);
 	contextReady = YES;
@@ -131,7 +134,7 @@
 	{
 		if (timeout)
 		{
-			[self open:nil];
+			[self open:args];
 		}
 	}
 }
@@ -176,11 +179,11 @@
 				contextReady=NO;
 				context = [[KrollBridge alloc] initWithHost:[self _host]];
 				NSDictionary *preload = [NSDictionary dictionaryWithObjectsAndKeys:self,@"currentWindow",[self.tab tabGroup],@"currentTabGroup",self.tab,@"currentTab",nil];
-				latch = [[TiUIWindowProxyLatch alloc]initWithWindow:self];
+				latch = [[TiUIWindowProxyLatch alloc] initWithWindow:self args:args];
 				[context boot:latch url:url preload:preload];
 				if ([latch waitForBoot])
 				{
-					[self boot:NO];
+					[self boot:NO args:args];
 					return YES;
 				}
 				else 
