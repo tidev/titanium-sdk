@@ -239,6 +239,15 @@ public @interface Kroll {
 		 * When set to true, this module will be instantiated for every TiContext that is created (instead of only once for the entire application).<br>
 		 */
 		boolean contextSpecific() default false;
+		/**
+		 * Declares a list of dynamic property accessors for this module.<br>
+		 * <b>Example</b>:<br>
+		 * <pre>
+		 * &#064;Kroll.module(propertyAccessors={"property1", "property2", "property3"})
+		 * </pre>
+		 * <b><i>Default Value</i></b>: No dynamic property accessors are generated
+		 */
+		String[] propertyAccessors() default {};
 	}
 	
 	/**
@@ -408,6 +417,7 @@ public @interface Kroll {
 	 * 
 	 * @see proxy#name()
 	 * @see proxy#creatableInModule()
+	 * @see proxy#propertyAccessors()
 	 * @see KrollProxy
 	 * @see module @Kroll.module
 	 * </p>
@@ -434,6 +444,15 @@ public @interface Kroll {
 		 */
 		Class<?> creatableInModule() default DEFAULT.class;
 		public static final class DEFAULT {};
+		/**
+		 * Declares a list of dynamic property accessors for this proxy.<br>
+		 * <b>Example</b>:<br>
+		 * <pre>
+		 * &#064;Kroll.proxy(propertyAccessors={"property1", "property2", "property3"})
+		 * </pre>
+		 * <b><i>Default Value</i></b>: No dynamic property accessors are generated
+		 */
+		String[] propertyAccessors() default {};
 	}
 	
 	/**

@@ -6,6 +6,7 @@
  */
 package org.appcelerator.kroll.annotations.generator;
 
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Writer;
@@ -28,10 +29,10 @@ import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.util.SimpleElementVisitor6;
+import javax.tools.Diagnostic.Kind;
 import javax.tools.FileObject;
 import javax.tools.JavaFileObject;
 import javax.tools.StandardLocation;
-import javax.tools.Diagnostic.Kind;
 
 import org.json.simple.JSONValue;
 
@@ -138,9 +139,13 @@ public class KrollBindingGenerator extends AbstractProcessor {
 		
 		try {
 			FileObject bindingsFile = processingEnv.getFiler().getResource(StandardLocation.SOURCE_OUTPUT, this.jsonPackage, this.jsonFile);
-			properties = (Map<Object,Object>) JSONValue.parseWithException(bindingsFile.openReader(true));
+			
+			// using the FileObject API fails to read the file, we'll use the pure file API
+			properties = (Map<Object,Object>) JSONValue.parseWithException(new FileReader(bindingsFile.toUri().toString()));
+			utils.debugLog("Succesfully loaded existing binding data.");
 		} catch (Exception e) {
 			// file doesn't exist, we'll just create it later
+			utils.debugLog("No binding data found, creating new data file.");
 		}
 	}
 	
@@ -186,10 +191,9 @@ public class KrollBindingGenerator extends AbstractProcessor {
 				} else {
 					apiName = (String)proxyAttrs.get("name");
 				}
-				if (utils.annotationTypeIs(annotation, Kroll_module)) {
-					if (proxyAttrs.get("id").equals(DEFAULT_NAME)) {
-						proxyAttrs.put("id", fullProxyClassName);
-					}
+				
+				if (!proxyAttrs.containsKey("id") || proxyAttrs.get("id").equals(DEFAULT_NAME)) {
+					proxyAttrs.put("id", fullProxyClassName);
 				}
 				
 				utils.debugLog("Found binding for " +
@@ -228,7 +232,7 @@ public class KrollBindingGenerator extends AbstractProcessor {
 				Element superType = processingEnv.getTypeUtils().asElement(type.getSuperclass());
 				
 				String superTypeName = utils.getName(superType);
-				if (!type.getQualifiedName().toString().equals(KrollModule) && !superTypeName.equals("Object")) {
+				if (!superTypeName.equals("Object")) {
 					proxyProperties.put(
 						"superProxyBindingClassName", String.format("%s.%sBindingGen", utils.getPackage(superType), superTypeName));
 				}

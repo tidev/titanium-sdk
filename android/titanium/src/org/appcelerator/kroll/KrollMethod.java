@@ -91,4 +91,8 @@ public abstract class KrollMethod extends ScriptableObject implements Function {
 	public void setRunOnUiThread(boolean runOnUiThread) {
 		this.runOnUiThread = runOnUiThread;
 	}
+	
+	public String getName() {
+		return name;
+	}
 }

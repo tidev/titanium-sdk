@@ -32,7 +32,8 @@ import android.content.Intent;
 import android.net.Uri;
 import android.text.Html;
 
-@Kroll.proxy(creatableInModule=UIModule.class)
+@Kroll.proxy(creatableInModule=UIModule.class,
+	propertyAccessors={"bccRecipients", "ccRecipients", "html", "messageBody", "subject", "toRecipients"})
 public class EmailDialogProxy extends TiViewProxy {
 	
 	private static final String LCAT = "EmailDialogProxy";
@@ -236,7 +237,7 @@ public class EmailDialogProxy extends TiViewProxy {
 					if (fileProxy.getNativePath().contains("android_asset")) {
 						attachAssetFile(sendIntent, fileProxy);
 					} else {
-						attachStandardFile(sendIntent, Uri.fromFile(fileProxy.getBaseFile().getNativeFile()));						
+						attachStandardFile(sendIntent, Uri.fromFile(fileProxy.getBaseFile().getNativeFile()));
 					}					
 				}				
 			} else if (attachment instanceof TiBlob) {

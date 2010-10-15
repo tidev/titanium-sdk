@@ -221,11 +221,8 @@ public class ${genClassName}
 <#if superProxyBindingClassName??>
 	extends ${superProxyBindingClassName}
 <#else>
-	<#if isModule>
+	<#-- even proxies need to extend module binding so we can preserve KrollProxy delegation -->
 	extends KrollModuleBinding
-	<#else>
-	extends KrollProxyBinding
-	</#if>
 </#if>
 {
 	private static final String TAG = "${genClassName}";
@@ -250,6 +247,12 @@ public class ${genClassName}
 		<@listMethods ; isFirst, name, method>
 		bindings.put("${name}", null);
 		</@listMethods>
+		<#list proxyAttrs.propertyAccessors as accessor>
+			<#assign upperCamel = accessor?substring(0, 1)?upper_case + accessor?substring(1)>
+		bindings.put("get${upperCamel}", null);
+		bindings.put("set${upperCamel}", null);
+		</#list>
+		
 	}
 	
 	public void bindContextSpecific(KrollBridge bridge, KrollProxy proxy) {
@@ -384,7 +387,33 @@ public class ${genClassName}
 			return ${method.apiName}_method;
 		}
 		</@listMethods>
-		<#if superProxyBindingClassName??>
+		
+		<#list proxyAttrs.propertyAccessors as accessor>
+		<#assign upperCamel = accessor?substring(0, 1)?upper_case + accessor?substring(1)>
+		if (name.equals("get${upperCamel}") || name.equals("set${upperCamel}")) {
+			KrollMethod ${accessor}_accessor = new KrollMethod("${accessor}") {
+				public Object invoke(KrollInvocation __invocation, Object[] __args) throws Exception
+				{
+					String name = __invocation.getMethod(). 	getName(); 
+					if (name.startsWith("get") || name.startsWith("is")) {
+						return KrollConverter.getInstance().convertNative(__invocation,
+							__invocation.getProxy().getProperty("${accessor}"));
+					} else {
+						__invocation.getProxy().setProperty("${accessor}", __args.length > 0 ?
+							KrollConverter.getInstance().convertJavascript(__invocation, __args[0], Object.class) : null, true);
+					}
+					return KrollProxy.UNDEFINED;
+				}
+			};
+			
+			
+			bindings.put("get${upperCamel}", ${accessor}_accessor);
+			bindings.put("set${upperCamel}", ${accessor}_accessor);
+			return ${accessor}_accessor;
+		}
+		</#list>
+		
+		<#if proxyClassName != "KrollProxy">
 			return super.getBinding(name);
 		<#else>
 			return null;
@@ -393,6 +422,7 @@ public class ${genClassName}
 	
 	private static final String SHORT_API_NAME = "${proxyAttrs.name}";
 	private static final String FULL_API_NAME = "${proxyAttrs.fullAPIName}";
+	private static final String ID = "${proxyAttrs.id}";
 	
 	public String getAPIName() {
 		return FULL_API_NAME;
@@ -402,11 +432,7 @@ public class ${genClassName}
 		return SHORT_API_NAME;
 	}
 	
-	<#if isModule>
-	private static final String MODULE_ID = "${proxyAttrs.id}";
-	
 	public String getId() {
-		return MODULE_ID;
+		return ID;
 	}
-	</#if>
 }
