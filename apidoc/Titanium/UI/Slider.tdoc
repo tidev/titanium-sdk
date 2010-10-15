@@ -40,6 +40,8 @@ rightTrackImage[string]: the image url of the slider right track
 selectedRightTrackImage[string]: the image url of the slider right track when in the selected state
 highlightedRightTrackImage[string]: the image url of the slider right track when in the highlighted state
 disabledRightTrackImage[string]: the image url of the slider right track when in the disabled state
+minRange[int]: value can't be moved lower than minRange. minRange equals min by default. (Android)
+maxRange[int]: value can't be moved higher than maxRange. maxRange equals max by default. (Android)
 
 
 - methods
@@ -51,6 +53,8 @@ change: fired when the value of the slider changes
 - event : change
 
 value[string]: the new value of the slider
+thumbOffset[object]: a dictionary with properties x and y of the thumbs left-top corner in the control Available with custom thumb image. (Android)
+thumbSize[object]: a dictionary with properties width and height of the size of the thumb. Available with custom thumb image.  (Android)
 
 - notes
 
