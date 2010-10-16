@@ -348,6 +348,7 @@ Common ant tasks and macros for building Android-based Titanium modules and proj
 	
 	<macrodef name="build.ti.ant.tasks">
 		<sequential>
+			<mkdir dir="${ti.build.dir}/bin"/>
 			<javac srcdir="${ti.build.dir}/src" destdir="${ti.build.dir}/bin" includes="**/*.java" classpathref="ti.build.lib.path" includeantruntime="false"/>
 		</sequential>
 	</macrodef>
