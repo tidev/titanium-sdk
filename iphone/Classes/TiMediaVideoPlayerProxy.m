@@ -800,7 +800,7 @@ NSArray* moviePlayerKeys = nil;
 	{
 		[movie stop];
 	}
-	[self detachView];
+	//[self detachView];
 	RELEASE_TO_NIL_AUTORELEASE(movie);
 	playing = NO;
 }
