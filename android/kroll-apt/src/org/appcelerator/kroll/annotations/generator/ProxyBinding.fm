@@ -95,7 +95,8 @@ import ${packageName}.${proxyClassName};
 		<#else>
 			<#local optional = arg?keys?seq_contains("optional") && arg.optional>
 			<#local castType = arg.type>
-			<#if primitiveBoxTypes?keys?seq_contains(arg.type)>
+			<#local isBoxType = primitiveBoxTypes?keys?seq_contains(arg.type)>
+			<#if isBoxType>
 				<#local castType = primitiveBoxTypes[arg.type]>
 			</#if>
 			<#if optional && hasArgArray>
