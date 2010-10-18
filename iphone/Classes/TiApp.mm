@@ -94,23 +94,25 @@ void MyUncaughtExceptionHandler(NSException *exception)
 -(void)changeNetworkStatus:(NSNumber*)yn
 {
 	ENSURE_UI_THREAD(changeNetworkStatus,yn);
-	[UIApplication sharedApplication].networkActivityIndicatorVisible = [TiUtils boolValue:yn];
+	[[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:[TiUtils boolValue:yn]];
 }
 
 -(void)startNetwork
 {
-	if (OSAtomicIncrement32(&networkActivityCount))
+	if (OSAtomicIncrement32Barrier(&networkActivityCount))
 	{
 		[self changeNetworkStatus:[NSNumber numberWithBool:YES]];
 	}
+	NSLog(@"Count+: %d", networkActivityCount);
 }
 
 -(void)stopNetwork
 {
-	if (OSAtomicDecrement32(&networkActivityCount))
+	if (!OSAtomicDecrement32Barrier(&networkActivityCount))
 	{
 		[self changeNetworkStatus:[NSNumber numberWithBool:NO]];
 	}
+	NSLog(@"Count-: %d", networkActivityCount);	
 }
 
 -(NSDictionary*)launchOptions

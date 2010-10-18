@@ -59,7 +59,7 @@
 FILEATTR(readonly,NSFileImmutable,NO)
 FILEATTR(modificationTimestamp,NSFileModificationDate,YES);
 
--(id) createTimestamp
+-(id)createTimestamp
 {	
 	NSError *error = nil; 
 	NSDictionary * resultDict = [fm attributesOfItemAtPath:path error:&error];
