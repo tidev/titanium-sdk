@@ -103,7 +103,6 @@ void MyUncaughtExceptionHandler(NSException *exception)
 	{
 		[self changeNetworkStatus:[NSNumber numberWithBool:YES]];
 	}
-	NSLog(@"Count+: %d", networkActivityCount);
 }
 
 -(void)stopNetwork
@@ -112,7 +111,6 @@ void MyUncaughtExceptionHandler(NSException *exception)
 	{
 		[self changeNetworkStatus:[NSNumber numberWithBool:NO]];
 	}
-	NSLog(@"Count-: %d", networkActivityCount);	
 }
 
 -(NSDictionary*)launchOptions
