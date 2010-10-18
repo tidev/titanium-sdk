@@ -42,8 +42,8 @@ import android.view.View;
 	// border properties
 	"borderColor", "borderRadius", "borderWidth",
 	
-	// layout / dimension (size has a custom setter)
-	"left", "top", "right", "bottom", "layout", "width", "height", "zIndex",
+	// layout / dimension (size/width/height have custom accessors)
+	"left", "top", "right", "bottom", "layout", "zIndex",
 	
 	// others
 	"focusable", "touchEnabled", "visible", "enabled", "opacity",
@@ -297,6 +297,28 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 		Message msg = getUIHandler().obtainMessage(MSG_GETSIZE, result);
 		msg.sendToTarget();
 		return (KrollDict) result.getResult();
+	}
+	
+	@Kroll.getProperty @Kroll.method
+	public int getWidth() {
+		KrollDict size = getSize();
+		return size.getInt("width");
+	}
+	
+	@Kroll.setProperty(retain=false) @Kroll.method
+	public void setWidth(Object width) {
+		setProperty("width", width, true);
+	}
+	
+	@Kroll.getProperty @Kroll.method
+	public int getHeight() {
+		KrollDict size = getSize();
+		return size.getInt("height");
+	}
+	
+	@Kroll.setProperty(retain=false) @Kroll.method
+	public void setHeight(Object height) {
+		setProperty("height", height, true);
 	}
 
 	@Kroll.getProperty @Kroll.method

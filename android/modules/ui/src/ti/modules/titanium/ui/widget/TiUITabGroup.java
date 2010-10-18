@@ -19,6 +19,7 @@ import ti.modules.titanium.ui.TabGroupProxy;
 import ti.modules.titanium.ui.TabProxy;
 import ti.modules.titanium.ui.TiTabActivity;
 import android.graphics.drawable.ColorDrawable;
+import android.view.View;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
@@ -36,6 +37,7 @@ public class TiUITabGroup extends TiUIView
 	private TabHost tabHost;
 	private TabWidget tabWidget;
 	private FrameLayout tabContent;
+	private boolean addingTab;
 
 	private String lastTabId;
 	private KrollDict tabChangeEventData;
@@ -85,7 +87,9 @@ public class TiUITabGroup extends TiUIView
 	}
 
 	public void addTab(TabSpec tab) {
+		addingTab = true;
 		tabHost.addTab(tab);
+		addingTab = false;
 	}
 
 	public void setActiveTab(int index) {
@@ -105,13 +109,28 @@ public class TiUITabGroup extends TiUIView
 	}
 
 	@Override
+	public void onFocusChange(View v, boolean hasFocus) {
+		// ignore focus change for tab group.
+		// we can simply fire focus/blur from onTabChanged (to avoid chicken/egg event problems)
+	}
+	
+	@Override
 	public void onTabChanged(String id)
 	{
 		if (DBG) {
 			Log.i(LCAT,"Tab change from " + lastTabId + " to " + id);
 		}
 
-		tabChangeEventData = ((TabGroupProxy) proxy).buildFocusEvent(id, lastTabId);
+		if (!addingTab) {
+			TabGroupProxy tabGroupProxy = ((TabGroupProxy) proxy);
+			if (tabChangeEventData != null) {
+				proxy.fireEvent("blur", tabChangeEventData);
+			}
+			
+			tabChangeEventData = tabGroupProxy.buildFocusEvent(id, lastTabId);
+			proxy.fireEvent("focus", tabChangeEventData);
+		}
+		
 		lastTabId = id;
 		proxy.setProperty("activeTab", tabHost.getCurrentTab());
 	}
