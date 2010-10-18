@@ -137,7 +137,11 @@ import ${packageName}.${proxyClassName};
 	</#if>
 	
 	
-	((${proxyClassName}) __invocation.getProxy()).${methodName}(<#if hasInvocation>__invocation,</#if>
+	((${proxyClassName}) __invocation.getProxy()).${methodName}(
+		<#if hasInvocation>
+		__invocation
+		<#if args?size &gt; 0>,</#if>
+		</#if>
 		<#list args as arg>
 		${arg.name}<#if arg_has_next>,</#if>
 		</#list>);
