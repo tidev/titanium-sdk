@@ -44,6 +44,9 @@ var statusLabel = Titanium.UI.createLabel({
 var navActInd = Titanium.UI.createActivityIndicator();
 if (Titanium.Platform.name == 'iPhone OS') {
 	win.setRightNavButton(navActInd);
+	if (parseFloat(Titanium.Platform.version) >= 3.2) {
+		Ti.Geolocation.purpose = 'Foursquare';
+	}
 }
 
 var label = Titanium.UI.createLabel({
