@@ -29,6 +29,7 @@ import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.util.SimpleElementVisitor6;
+import javax.tools.Diagnostic;
 import javax.tools.Diagnostic.Kind;
 import javax.tools.FileObject;
 import javax.tools.JavaFileObject;
@@ -49,6 +50,8 @@ import freemarker.template.TemplateException;
 @SuppressWarnings("unchecked")
 public class KrollBindingGenerator extends AbstractProcessor {
 
+	protected static final String TAG = "KrollBindingGen";
+	
 	// define these here so we can avoid the titanium dependency chicken/egg problem
 	protected static final String Kroll_annotation = "org.appcelerator.kroll.annotations.Kroll";
 	
@@ -127,9 +130,19 @@ public class KrollBindingGenerator extends AbstractProcessor {
 		return true;
 	}
 	
+	protected void debug(String format, Object... args) {
+		utils.debugLog(TAG, String.format(format, args));
+	}
+	
+	protected void warn(String format, Object... args) {
+		utils.debugLog(Diagnostic.Kind.WARNING, TAG, String.format(format, args));
+	}
+	
 	protected void initialize() {
 		utils = new KrollAnnotationUtils(processingEnv);
 		jsonUtils = new JSONUtils(utils);
+		
+		debug("Running Kroll binding generator.");
 		
 		String jsonPackage = processingEnv.getOptions().get(PROPERTY_JSON_PACKAGE);
 		this.jsonPackage = jsonPackage != null ? jsonPackage : DEFAULT_JSON_PACKAGE;
@@ -142,10 +155,10 @@ public class KrollBindingGenerator extends AbstractProcessor {
 			
 			// using the FileObject API fails to read the file, we'll use the pure file API
 			properties = (Map<Object,Object>) JSONValue.parseWithException(new FileReader(bindingsFile.toUri().toString()));
-			utils.debugLog("Succesfully loaded existing binding data.");
+			debug("Succesfully loaded existing binding data.");
 		} catch (Exception e) {
 			// file doesn't exist, we'll just create it later
-			utils.debugLog("No binding data found, creating new data file.");
+			debug("No binding data found, creating new data file.");
 		}
 	}
 	
@@ -196,8 +209,8 @@ public class KrollBindingGenerator extends AbstractProcessor {
 					proxyAttrs.put("id", fullProxyClassName);
 				}
 				
-				utils.debugLog("Found binding for " +
-					(utils.annotationTypeIs(annotation, Kroll_module) ? "module" : "proxy") + " " + apiName);
+				debug("Found binding for %s %s",
+					(utils.annotationTypeIs(annotation, Kroll_module) ? "module" : "proxy"), apiName);
 
 				proxyAttrs.put("proxyClassName", String.format("%s.%s", packageName, proxyClassName));
 				if (proxyAttrs.containsKey("creatableInModule")) {
@@ -472,7 +485,7 @@ public class KrollBindingGenerator extends AbstractProcessor {
 					defaultType = utils.getType(firstParam);
 					
 				} else {
-					utils.debugLog(Kind.WARNING, "Skipping injection into method " + utils.getName(element) + ", at least one argument is required in a setter");
+					warn("Skipping injection into method %s, at least one argument is required in a setter", utils.getName(element));
 					return;
 				}
 			} else {

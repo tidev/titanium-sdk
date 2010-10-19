@@ -26,7 +26,7 @@ def get_java():
 				jdk_jar_added = True
 	return java
 
-def build(script='build.xml', target='', properties={}, basedir=None):
+def build(script='build.xml', targets=None, properties={}, basedir=None):
 	if basedir == None:
 		basedir = os.path.dirname(os.path.abspath(script))
 
@@ -37,8 +37,8 @@ def build(script='build.xml', target='', properties={}, basedir=None):
 		ant_cmd.append('-D%s=%s' % (property, properties[property]))
 
 	ant_cmd.extend(['-buildfile', script])
-	if target != '':
-		ant_cmd.append(target)
+	if targets != None:
+		ant_cmd.extend(targets)
 	
 	print " ".join(ant_cmd)
 	ret = subprocess.Popen(ant_cmd, shell=False, cwd=basedir).wait()

@@ -85,9 +85,9 @@ if build_type in ['full', 'android'] and not only_package:
 	os.chdir('android')
 	try:
 		sdk = AndroidSDK(ARGUMENTS.get("android_sdk", None), 4)
-		target = "full.build"
-		if clean: target = "clean"
-		ant.build(target=target, properties={"build.version": version, "build.githash": githash,
+		targets = ["full.build", "build.titanium.javadoc"]
+		if clean: targets = ["clean"]
+		ant.build(targets=targets, properties={"build.version": version, "build.githash": githash,
 			"android.sdk": sdk.get_android_sdk(), "android.platform": sdk.get_platform_dir(), "google.apis": sdk.get_google_apis_dir()})
 	finally:
 		os.chdir(d)

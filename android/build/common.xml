@@ -301,6 +301,29 @@ Common ant tasks and macros for building Android-based Titanium modules and proj
 			</extra.copy.to.build>
 		</build.module.project>
 	</target>
+	
+	<target name="build.titanium.javadoc">
+		<mkdir dir="${dist.dir}/javadoc"/>
+		<property file="${ti.build.dir}/javadoc.properties" prefix="javadoc"/>
+		
+		<javadoc
+			packagenames="org.appcelerator.*"
+			sourcepath="${titanium.project.dir}/src"
+			excludepackagenames="ti.*"
+			defaultexcludes="yes"
+			destdir="${dist.dir}/javadoc"
+			version="true"
+			use="true"
+			windowtitle="${javadoc.windowTitle}">
+			
+			<classpath refid="android"/>
+			<classpath refid="titanium.path"/>
+			
+			<doctitle>${javadoc.docTitle}</doctitle>
+			<bottom>${javadoc.bottom}</bottom>
+			<tag name="default" description="${javadoc.defaultValueDescription}"/>
+		</javadoc>
+	</target>
 
 	<target name="build.titanium.jar" depends="build.titanium">
 		<!-- TODO: retrieve git hash / value from titanium_version.py -->
