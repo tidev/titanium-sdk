@@ -5,14 +5,15 @@
 
 	<property file="build.properties" />
 	<property name="src" location="src" />
-	<property name="gen" location=".apt_generated" />
-	<property name="bin" location="bin" />
+	<property name="build" location="build"/>
+	<property name="gen" location="${build}/.apt_generated" />
+	<property name="classes" location="${build}/classes" />
 	<property name="dist" location="dist" />
-	<property name="classesdir" value="${dist}/classes" />
+	<property name="lib" location="lib"/>
+
 	<property name="build.version" value="1.0.0" />
 
 	<path id="project.classpath">
-		<pathelement path="${classesdir}" />
 		<fileset dir="lib">
 			<include name="**/*.jar" />
 		</fileset>
@@ -25,18 +26,16 @@
 	</path>
 
 	<target name="init">
-		<!-- Create the time stamp -->
-		<tstamp />
-		<!-- Create the build directory structure used by compile -->
-		<mkdir dir="${bin}" />
+		<mkdir dir="${classes}" />
+		<mkdir dir="${gen}"/>
+		<mkdir dir="${dist}"/>
 	</target>
 	
 	<target name="process.annotations" depends="init"
 		description="Processes @Kroll.proxy and @Kroll.module annotations">
-		<mkdir dir="${gen}" />
 		<javac 
 			srcdir="${src}" 
-			destdir="${bin}"
+			destdir="${classes}"
 			debug="true"
 			includeantruntime="false">
 				<compilerarg value="-processor" />
@@ -51,7 +50,7 @@
 	<target name="compile" depends="process.annotations"
 		description="Compile this module's source code">
 		<javac 
-			destdir="${bin}"
+			destdir="${classes}"
 			debug="true"
 			includeantruntime="false">
 			<src path="${src}" />
@@ -60,21 +59,31 @@
 			
 			<classpath refid="project.classpath" />
 		</javac>
-		<copy todir="${bin}">
+		<copy todir="${classes}">
 			<fileset dir="${gen}" includes="**/*.json"/>
 		</copy>
 	</target>
 
 	<target name="dist" depends="compile" description="Generate a distributable module JAR">
-		<mkdir dir="${dist}" />
-		<jar jarfile="${dist}/${ant.project.name}.jar" basedir="${bin}">
+		<tempfile property="lib.expand.dir" prefix="${ant.project.name}.libs"/>
+		<mkdir dir="${lib.expand.dir}"/>
+		<unzip dest="${lib.expand.dir}">
+			<fileset dir="${lib}" includes="*.jar"/>
+		</unzip>
+
+		<jar jarfile="${dist}/${ant.project.name}.jar" basedir="${classes}">
 			<fileset file="manifest"/>
+			<zipfileset dir="${lib.expand.dir}"/>
 		</jar>
+		<delete dir="${lib.expand.dir}" includeemptydirs="true" failonerror="false" deleteonexit="true"/>
 	</target>
 	
 	<target name="clean" description="Cleans classes and dist files">
-		<delete dir="${bin}" />
-		<delete dir="${dist}" />
+		<delete dir="${classes}"/>
+		<delete dir="${dist}"/>
+		<delete includeemptydirs="true" failonerror="false">
+			<fileset dir="${gen}" includes="**/*"/>
+		</delete>
 	</target>
 	
 	<property name="titanium.py" location="${titanium.platform}/../titanium.py"/>
@@ -96,11 +105,11 @@
 		</sequential>
 	</macrodef>
 	
-	<target name="run.emulator" description="Run the android emulator">
+	<target name="run.emulator" depends="dist" description="Run the android emulator">
 		<titanium command="emulator"/>
 	</target>
 	
-	<target name="run" description="Run the module's test project">
+	<target name="run" depends="dist" description="Run the module's test project">
 		<titanium command="run"/>
 	</target>
 </project>

@@ -30,7 +30,6 @@ import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.util.SimpleElementVisitor6;
 import javax.tools.Diagnostic;
-import javax.tools.Diagnostic.Kind;
 import javax.tools.FileObject;
 import javax.tools.JavaFileObject;
 import javax.tools.StandardLocation;
@@ -46,7 +45,7 @@ import freemarker.template.TemplateException;
 	KrollBindingGenerator.Kroll_proxy,
 	KrollBindingGenerator.Kroll_module})
 @SupportedSourceVersion(SourceVersion.RELEASE_6)
-@SupportedOptions({"kroll.jsonPackage", "kroll.jsonFile"})
+@SupportedOptions({KrollBindingGenerator.PROPERTY_JSON_PACKAGE, KrollBindingGenerator.PROPERTY_JSON_FILE})
 @SuppressWarnings("unchecked")
 public class KrollBindingGenerator extends AbstractProcessor {
 
@@ -154,7 +153,13 @@ public class KrollBindingGenerator extends AbstractProcessor {
 			FileObject bindingsFile = processingEnv.getFiler().getResource(StandardLocation.SOURCE_OUTPUT, this.jsonPackage, this.jsonFile);
 			
 			// using the FileObject API fails to read the file, we'll use the pure file API
-			properties = (Map<Object,Object>) JSONValue.parseWithException(new FileReader(bindingsFile.toUri().toString()));
+			String jsonPath = bindingsFile.toUri().toString();
+			if (System.getProperty("os.name").contains("Windows")) {
+				// the file URI in windows needs to be massaged (remove file:\)
+				jsonPath = jsonPath.substring(6);
+			}
+			
+			properties = (Map<Object,Object>) JSONValue.parseWithException(new FileReader(jsonPath));
 			debug("Succesfully loaded existing binding data.");
 		} catch (Exception e) {
 			// file doesn't exist, we'll just create it later
