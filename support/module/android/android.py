@@ -19,6 +19,12 @@ class android(module.ModulePlatform):
 		super(android, self).__init__(project_dir, config, module_project)
 		
 		self.sdk = androidsdk.AndroidSDK(module_project.sdk, 4)
+		if self.sdk.get_platform_dir() == None:
+			print "[ERROR] Couldn't find the Android API r4 platform directory"
+			sys.exit(1)
+		if self.sdk.get_google_apis_dir() == None:
+			print "[ERROR] Couldn't find the Google APIs r4 add-on directory"
+			sys.exit(1)
 		self.init_classpath()
 	
 	def init_classpath(self):
@@ -41,8 +47,8 @@ class android(module.ModulePlatform):
 		return os.path.join(to_dir, to_file)
 	
 	# escape win32 directories for ant build properties
-	def escape_dir(self, path):
-		return path.replace('\\', '\\\\')
+	def escape_dir(self, dir):
+		return dir.replace('\\', '\\\\')
 	
 	def replace_tokens(self, string):
 		string = string.replace('__SDK_ANDROID__', self.escape_dir(sdk_android_dir))

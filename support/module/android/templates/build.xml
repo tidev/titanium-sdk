@@ -1,11 +1,11 @@
 <project name="__PROJECT_SHORT_NAME__" default="dist" basedir=".">
 	<description>
 		Ant build script for Titanium Android module __PROJECT_SHORT_NAME__
-    </description>
+	</description>
 
 	<property file="build.properties" />
 	<property name="src" location="src" />
-	<property name="gen" location="gen" />
+	<property name="gen" location=".apt_generated" />
 	<property name="bin" location="bin" />
 	<property name="dist" location="dist" />
 	<property name="classesdir" value="${dist}/classes" />
@@ -78,14 +78,18 @@
 	</target>
 	
 	<property name="titanium.py" location="${titanium.platform}/../titanium.py"/>
-	
+	<property name="titanium.bat" location="${titanium.platform}/../titanium.bat"/>
+
 	<macrodef name="titanium">
 		<attribute name="command"/>
 		<element name="args" implicit="true" optional="true"/>
 		<sequential>
-			<!-- Python needs to be on the path ... -->
-			<exec executable="python" dir="${basedir}">
-				<arg file="${titanium.py}"/>
+			<!-- Python needs to be on the path in OSX / Linux -->
+			<condition property="titanium.exec" value="${titanium.bat}" else="${titanium.py}">
+				<os family="windows"/>
+			</condition>
+			<exec executable="${titanium.exec}" dir="${basedir}">
+				<env key="ANT_HOME" file="${ant.home}"/>
 				<arg value="@{command}"/>
 				<args/>
 			</exec>

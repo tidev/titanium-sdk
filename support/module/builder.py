@@ -3,7 +3,7 @@
 #
 # module builder script
 #
-import os, sys, shutil, tempfile, subprocess
+import os, sys, shutil, tempfile, subprocess, platform
 template_dir = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
 android_support_dir = os.path.join(os.path.dirname(template_dir), 'android')
 top_support_dir = os.path.dirname(android_support_dir)
@@ -27,6 +27,10 @@ def print_emulator_line(line):
 				print "[DEBUG] %s" % s
 			sys.stdout.flush()
 
+def run_python(args, cwd=None):
+	args.insert(0, sys.executable)
+	return run(args, cwd=cwd)
+
 def run(args, cwd=None):
 	proc = run_pipe(args, cwd)
 	rc = None
@@ -35,6 +39,19 @@ def run(args, cwd=None):
 		rc = proc.poll()
 		if rc!=None: break
 	return rc
+
+def run_ant(project_dir):
+	build_xml = os.path.join(project_dir, 'build.xml')
+	ant = 'ant'
+	if 'ANT_HOME' in os.environ:
+		ant = os.path.join(os.environ['ANT_HOME'], 'bin', 'ant')
+	
+	if platform.system() == 'Windows':
+		ant_args = ['cmd.exe', '/C', ant+'.bat', '-f', build_xml]
+	else:
+		ant_args = [ant, '-f', build_xml]
+	
+	run(ant_args, cwd=project_dir)
 
 ignoreFiles = ['.gitignore', '.cvsignore', '.DS_Store'];
 ignoreDirs = ['.git','.svn','_svn','CVS'];
@@ -79,7 +96,7 @@ def stage(platform, project_dir, manifest, callback):
 		if is_android(platform):
 			create_project_args.append(android_sdk.get_android_sdk())
 		
-		run(create_project_args)
+		run_python(create_project_args)
 		
 		gen_project_dir = os.path.join(dir, name)
 		gen_resources_dir = os.path.join(gen_project_dir, 'Resources')
@@ -113,11 +130,10 @@ def stage(platform, project_dir, manifest, callback):
 
 			# build the module
 			script = os.path.join(project_dir,'build.py')
-			run([script])
+			run_python([script])
 		elif is_android(platform):
 			buildfile = os.path.join(project_dir, 'dist', '%s.jar' % name)
-			build_xml = os.path.join(project_dir, 'build.xml')
-			run(['ant', '-f', build_xml], cwd=project_dir)
+			run_ant(project_dir)
 
 		if buildfile:
 			shutil.copy(buildfile,module_dir)
@@ -149,7 +165,7 @@ def main(args):
 			if is_android(platform):
 				script_args.append(android_sdk.get_android_sdk())
 			
-			rc = run(script_args)
+			rc = run_python(script_args)
 			
 			# run the project
 			if rc==1:
@@ -164,7 +180,7 @@ def main(args):
 		if is_android(platform):
 			def run_emulator_callback(gen_project_dir):
 				script = os.path.abspath(os.path.join(template_dir, '..', platform, 'builder.py'))
-				run([script, 'run-emulator', gen_project_dir, android_sdk.get_android_sdk()])
+				run_python([script, 'run-emulator', gen_project_dir, android_sdk.get_android_sdk()])
 			
 			stage(platform, project_dir, manifest, run_emulator_callback)
 	

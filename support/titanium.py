@@ -5,6 +5,7 @@
 #
 import os, sys, subprocess, types, re, uuid, platform
 from tiapp import *
+from manifest import *
 
 template_dir = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
 
@@ -79,19 +80,7 @@ def get_required_dir(config,key):
 	if not os.path.exists(dir):
 		die("directory: %s doesn't exist" % dir)
 	return dir
-		
-def read_manifest(project_dir):
-	path = os.path.join(project_dir,'manifest')
-	f = open(path)
-	manifest = {}
-	for line in f.readlines():
-		line = line.strip()
-		if line[0:1]=='#': continue
-		if line.find(':') < 0: continue
-		key,value = line.split(':')
-		manifest[key.strip()]=value.strip()
-	return manifest
-	
+
 def is_ios(osname):
 	if osname == 'iphone' or osname == 'ipad' or osname == 'ios':
 		return True
@@ -213,8 +202,8 @@ def dyn_run(args,project_cb,module_cb):
 		atype = get_optional(args,'type',None)
 		is_module = is_module_project(project_dir) 
 		if is_module:
-			manifest = read_manifest(project_dir)
-			platform = manifest['platform']
+			manifest = Manifest(os.path.join(project_dir, 'manifest'))
+			platform = manifest.platform
 			atype = 'module'
 		if atype == None:
 			atype = 'project'
