@@ -3,7 +3,7 @@
 #
 # Titanium SDK script
 #
-import os, sys, subprocess, types, re, uuid
+import os, sys, subprocess, types, re, uuid, platform
 from tiapp import *
 
 template_dir = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
@@ -15,9 +15,10 @@ def die(msg):
 def validate_project_name(name):
 	if re.match("^[A-Za-z]+[A-Za-z0-9_-]*",name)==None:
 		die("Invalid project name: %s" % name)
-		
+
 def fork(args,quiet=False):
-#	print args
+	# We need to insert the python executable to be safe
+	args.insert(0, sys.executable)
 	proc = subprocess.Popen(args, stderr=subprocess.STDOUT, stdout=subprocess.PIPE)
 	while proc.poll()==None:
 		line = proc.stdout.readline()

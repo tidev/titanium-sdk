@@ -15,7 +15,7 @@ class Manifest(object):
 			line = line.strip()
 			if line[0:1]=='#': continue
 			if line.find(':') < 0: continue
-			key,value = line.split(':')
+			key,value = line.split(':', 1)
 			self.manifest[key.strip()] = value.strip()
 	
 	def get_property(self, property):
@@ -28,4 +28,3 @@ class Manifest(object):
 	
 	def __getattr__(self, name):
 		return self.get_property(name)
-	

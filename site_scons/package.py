@@ -15,6 +15,7 @@ all_dir = os.path.abspath(os.path.join(template_dir,'all'))
 android_dir = os.path.abspath(os.path.join(template_dir,'android'))
 iphone_dir = os.path.abspath(os.path.join(template_dir,'iphone'))
 osx_dir = os.path.abspath(os.path.join(template_dir,'osx'))
+win32_dir = os.path.abspath(os.path.join(template_dir, 'win32'))
 
 buildtime = datetime.datetime.now()
 ts = buildtime.strftime("%m/%d/%y %H:%M")
@@ -187,6 +188,9 @@ githash=%s
 	zip_dir(zf,template_dir,basepath)
 	if android: zip_android(zf,basepath)
 	if (iphone or ipad) and osname == "osx": zip_iphone_ipad(zf,basepath,'iphone',version)
+	if osname == 'win32':
+		zip_dir(zf, win32_dir, basepath)
+	
 	zf.close()
 				
 def zip_it(dist_dir,osname,version,android,iphone,ipad):
