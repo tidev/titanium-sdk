@@ -919,7 +919,7 @@ NSArray* moviePlayerKeys = nil;
 				}
 			}
 #endif			
-			[self deliverEventOnBackgroundThread:@"complete" withObject:event];
+			[self fireEvent:@"complete" withObject:event];
 		}
 		// release memory!
 		[self stop:nil];
@@ -945,27 +945,6 @@ NSArray* moviePlayerKeys = nil;
 	{
 		[self fireEvent:@"resize" withObject:nil];
 	}
-}
-
--(void)deliverBackgroundEvent:(NSArray*)args
-{
-	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-	if ([args count]==2)
-	{
-		[self fireEvent:[args objectAtIndex:0] withObject:[args objectAtIndex:1]];
-	}
-	else
-	{
-		[self fireEvent:[args objectAtIndex:0] withObject:nil];
-	}
-	[pool release];
-}
-
--(void)deliverEventOnBackgroundThread:(NSString*)event withObject:(id)object
-{
-	[NSThread detachNewThreadSelector:@selector(deliverBackgroundEvent:) 
-							 toTarget:self 
-						   withObject:[NSArray arrayWithObjects:event,object,nil]];
 }
 
 -(void)handleKeyWindowChanged:(NSNotification*)note
@@ -1032,7 +1011,7 @@ NSArray* moviePlayerKeys = nil;
 		NSMutableDictionary *event = [NSMutableDictionary dictionary];
 		[event setObject:[userinfo valueForKey:MPMoviePlayerFullscreenAnimationDurationUserInfoKey] forKey:@"duration"];
 		[event setObject:NUMBOOL(YES) forKey:@"entering"];
-		[self deliverEventOnBackgroundThread:@"fullscreen" withObject:event];
+		[self fireEvent:@"fullscreen" withObject:event];
 	}	
 }
 
@@ -1044,7 +1023,7 @@ NSArray* moviePlayerKeys = nil;
 		NSMutableDictionary *event = [NSMutableDictionary dictionary];
 		[event setObject:[userinfo valueForKey:MPMoviePlayerFullscreenAnimationDurationUserInfoKey] forKey:@"duration"];
 		[event setObject:NUMBOOL(NO) forKey:@"entering"];
-		[self deliverEventOnBackgroundThread:@"fullscreen" withObject:event];
+		[self fireEvent:@"fullscreen" withObject:event];
 	}	
 }
 
@@ -1053,7 +1032,7 @@ NSArray* moviePlayerKeys = nil;
 	if ([self _hasListeners:@"sourceChange"])
 	{
 		NSDictionary *event = [NSDictionary dictionaryWithObject:[self sourceType] forKey:@"sourceType"];
-		[self deliverEventOnBackgroundThread:@"sourceChange" withObject:event];
+		[self fireEvent:@"sourceChange" withObject:event];
 	}
 }
 
@@ -1062,7 +1041,7 @@ NSArray* moviePlayerKeys = nil;
 	if ([self _hasListeners:@"durationAvailable"])
 	{
 		NSDictionary *event = [NSDictionary dictionaryWithObject:[self duration] forKey:@"duration"];
-		[self deliverEventOnBackgroundThread:@"durationAvailable" withObject:event];
+		[self fireEvent:@"durationAvailable" withObject:event];
 	}
 }
 
@@ -1071,7 +1050,7 @@ NSArray* moviePlayerKeys = nil;
 	if ([self _hasListeners:@"mediaTypesAvailable"])
 	{
 		NSDictionary *event = [NSDictionary dictionaryWithObject:[self mediaTypes] forKey:@"mediaTypes"];
-		[self deliverEventOnBackgroundThread:@"mediaTypesAvailable" withObject:event];
+		[self fireEvent:@"mediaTypesAvailable" withObject:event];
 	}
 }
 
@@ -1081,7 +1060,7 @@ NSArray* moviePlayerKeys = nil;
 	if ([self _hasListeners:@"naturalSizeAvailable"])
 	{
 		NSDictionary *event = [NSDictionary dictionaryWithObject:[self naturalSize] forKey:@"naturalSize"];
-		[self deliverEventOnBackgroundThread:@"naturalSizeAvailable" withObject:event];
+		[self fireEvent:@"naturalSizeAvailable" withObject:event];
 	}
 	sizeDetermined = YES;
 }
@@ -1104,7 +1083,7 @@ NSArray* moviePlayerKeys = nil;
 	if ([self _hasListeners:@"loadstate"])
 	{
 		NSDictionary *event = [NSDictionary dictionaryWithObject:[self loadState] forKey:@"loadState"];
-		[self deliverEventOnBackgroundThread:@"loadstate" withObject:event];
+		[self fireEvent:@"loadstate" withObject:event];
 	}
 }
 
@@ -1113,7 +1092,7 @@ NSArray* moviePlayerKeys = nil;
 	if ([self _hasListeners:@"playing"])
 	{
 		NSDictionary *event = [NSDictionary dictionaryWithObject:[self url] forKey:@"url"];
-		[self deliverEventOnBackgroundThread:@"playing" withObject:event];
+		[self fireEvent:@"playing" withObject:event];
 	}
 	playing = YES; 
 }
@@ -1123,7 +1102,7 @@ NSArray* moviePlayerKeys = nil;
 	if ([self _hasListeners:@"playbackState"])
 	{
 		NSDictionary *event = [NSDictionary dictionaryWithObject:[self playbackState] forKey:@"playbackState"];
-		[self deliverEventOnBackgroundThread:@"playbackState" withObject:event];
+		[self fireEvent:@"playbackState" withObject:event];
 	}
 }
 #endif

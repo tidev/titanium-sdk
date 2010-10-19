@@ -38,7 +38,6 @@
 
 -(void)add:(id)proxy;
 -(void)remove:(id)proxy;
--(void)deliverEventOnBackgroundThread:(NSString*)event withObject:(id)object;
 
 // INTERNAL: Used by subclasses
 -(void)configurePlayer;
