@@ -39,11 +39,16 @@ class android(module.ModulePlatform):
 		elif to_file == "eclipse_project":
 			to_file = ".project"
 		return os.path.join(to_dir, to_file)
-		
+	
+	# escape win32 directories for ant build properties
+	def escape_dir(self, path):
+		return path.replace('\\', '\\\\')
+	
 	def replace_tokens(self, string):
+		string = string.replace('__SDK_ANDROID__', self.escape_dir(sdk_android_dir))
 		string = string.replace('___CLASSPATH_ENTRIES___', self.classpath)
-		string = string.replace('___ANDROID_PLATFORM___', self.sdk.get_platform_dir())
-		string = string.replace('___GOOGLE_APIS___', self.sdk.get_google_apis_dir())
+		string = string.replace('___ANDROID_PLATFORM___', self.escape_dir(self.sdk.get_platform_dir()))
+		string = string.replace('___GOOGLE_APIS___', self.escape_dir(self.sdk.get_google_apis_dir()))
 		return string
 	
 	def get_gitignore(self):
