@@ -78,7 +78,9 @@ NSArray* moviePlayerKeys = nil;
 
 -(void)_destroy
 {
-	[movie stop];
+	if (playing) {
+		[movie stop];
+	}
 	
 	WARN_IF_BACKGROUND_THREAD;	//NSNotificationCenter is not threadsafe!
 	NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
@@ -220,7 +222,9 @@ NSArray* moviePlayerKeys = nil;
 -(void)viewDidDetach
 {
 	if ([TiUtils isiPhoneOS3_2OrGreater]) {
-		[movie stop];
+		if (playing) {
+			[movie stop];
+		}
 		RELEASE_TO_NIL(movie);
 	}
 	reallyAttached = NO;
@@ -418,6 +422,7 @@ NSArray* moviePlayerKeys = nil;
 	if (playing)
 	{
 		[movie stop];
+		playing = NO;
 	}
 	RELEASE_TO_NIL_AUTORELEASE(movie);
 	
@@ -795,19 +800,27 @@ NSArray* moviePlayerKeys = nil;
 
 -(void)stop:(id)args
 {
-	ENSURE_UI_THREAD(stop,args);
+	ENSURE_UI_THREAD(stop, args);
+	
+	if (!playing) {
+		return;
+	}
+	
+	playing = NO;
 	if (movie!=nil)
 	{
 		[movie stop];
 	}
-	//[self detachView];
 	RELEASE_TO_NIL_AUTORELEASE(movie);
-	playing = NO;
 }
 
 -(void)play:(id)args
 {
-	ENSURE_UI_THREAD(play,args);
+	ENSURE_UI_THREAD(play, args);
+	
+	if (playing) {
+		return;
+	}
 	
 	if (url == nil)
 	{
@@ -815,9 +828,6 @@ NSArray* moviePlayerKeys = nil;
 				subreason:@"Tried to play movie player without a valid url, media, or contentURL property"
 				location:CODELOCATION];
 	}
-
-	// indicate we're going to start playing
-	//[[TiMediaAudioSession sharedSession] playback];
 	
 	if (playing)
 	{
@@ -825,14 +835,12 @@ NSArray* moviePlayerKeys = nil;
 	}
 	
 	playing = YES;
-	
 	[[self player] play];
 }
 
 -(void)pause:(id)args
 {
-	ENSURE_UI_THREAD(pause,args)
-
+	ENSURE_UI_THREAD(pause,args)	
 	if (!playing) {
 		return;
 	}
@@ -903,10 +911,8 @@ NSArray* moviePlayerKeys = nil;
 	
 	NSString * name = [notification name];
 	
-	if ([name isEqualToString:MPMoviePlayerPlaybackDidFinishNotification] && playing)
+	if ([name isEqualToString:MPMoviePlayerPlaybackDidFinishNotification])
 	{
-		playing = NO;
-		
 		if ([self _hasListeners:@"complete"])
 		{
 			NSMutableDictionary *event = [NSMutableDictionary dictionary];
@@ -1094,7 +1100,6 @@ NSArray* moviePlayerKeys = nil;
 		NSDictionary *event = [NSDictionary dictionaryWithObject:[self url] forKey:@"url"];
 		[self fireEvent:@"playing" withObject:event];
 	}
-	playing = YES; 
 }
 
 -(void)handlePlaybackStateChangeNotification:(NSNotification*)note
@@ -1103,6 +1108,14 @@ NSArray* moviePlayerKeys = nil;
 	{
 		NSDictionary *event = [NSDictionary dictionaryWithObject:[self playbackState] forKey:@"playbackState"];
 		[self fireEvent:@"playbackState" withObject:event];
+	}
+	switch ([movie playbackState]) {
+		case MPMoviePlaybackStateStopped:
+			playing = NO;
+			break;
+		case MPMoviePlaybackStatePlaying:
+			playing = YES;
+			break;
 	}
 }
 #endif
