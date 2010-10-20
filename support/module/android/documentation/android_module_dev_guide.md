@@ -11,7 +11,7 @@
  	- If you don't want to install Ant separately, you can optionally use [Eclipse](http://www.eclipse.org/downloads)
 
 ## Environment setup
-The `titanium` script in the Mobile SDK is the frontend to creating and testing modules. It's recommended that you setup an alias / add it to your PATH so you can call it directly, for example:
+The `titanium` script in the Mobile SDK is the frontend to creating and testing modules. It's recommended that you setup an alias or add it to your PATH so you can call it directly, for example:
 
 **In Windows**:
 Open your environment variable settings by going to:
@@ -25,10 +25,13 @@ Open your environment variable settings by going to:
 	- Add `C:\Documents and Settings\All Users\Application Data\Titanium\mobilesdk\win32\1.5.0`
 
 **In OSX, Add this to your ~/.bash_profile**
-<pre>alias titanium="/Library/Application Support/Titanium/mobilesdk/osx/1.5.0/titanium.py"</pre>
+<pre>alias titanium="/Library/Application\ Support/Titanium/mobilesdk/osx/1.5.0/titanium.py"</pre>
+or
+<pre>alias titanium="$HOME/Library/Application\ Support/Titanium/mobilesdk/osx/1.5.0/titanium.py"</pre>
+depending on where your mobile SDKs are installed.
 
 **In Linux, Add this to your ~/.bash_profile**
-<pre>alias titanium=~/.titanium/mobilesdk/linux/1.5.0/titanium.py</pre>
+<pre>alias titanium=$HOME/.titanium/mobilesdk/linux/1.5.0/titanium.py</pre>
 
 ### Testing the titanium script
 Once you have the environment setup, you should be able to run titanium in a console window, and see the following output:
@@ -48,9 +51,9 @@ To create a module, we need to pass some arguments to the `titanium create` comm
 
 - The module's name (`$MODULE_NAME`) and ID (`$MODULE_ID`)
 - The platform we're creating a module for (android)
-- The path to your installation of the Android SDK ($ANDROID_SDK)
+- The top-level path to your installation of the Android SDK ($ANDROID_SDK) (e.g. /opt/android-sdk)
 
-For an Android module, we can create it with the following command:
+For an Android module, we can create it with the following command from the parent directory of where you want the module created:
 <pre>titanium create --platform=android --type=module --name=$MODULE_NAME --id=$MODULE_ID --android=$ANDROID_SDK</pre>
 
 As an example, we'll create a module that performs simple addition and subtraction, call it the "calc" module, and give it an ID of "org.appcelerator.calc". Here we use `/path/to/android-sdk` to point to the place where we extracted the Android SDK.
@@ -135,7 +138,7 @@ To use your module in a Titanium Mobile app, follow these steps:
 2. Copy the module JAR into `modules/android`
 3. In the application's tiapp.xml, add the following XML inside `<ti:app>`:
 	<pre>&lt;modules&gt;
-		&lt;module version="$MODULE_VERSION"&gt;$MODULE_ID&lt;/module&gt;
+		&lt;module version="`$MODULE_VERSION`"&gt;$`MODULE_ID`&lt;/module&gt;
 	&lt;/modules&gt;</pre>
 4. The next time the app is Launched or Built, the module should be included with the application
 
