@@ -428,6 +428,12 @@ NSDictionary* keyboardUserInfo;
 
 		toolbarVisible = stillIsResponder;
 	}
+	
+	if (parentScrollView != nil)
+	{
+		[parentScrollView keyboardDidHideForView:self];
+		parentScrollView = nil;
+	}
 }
 
 - (void)keyboardWillHide:(NSNotification*)notification 
