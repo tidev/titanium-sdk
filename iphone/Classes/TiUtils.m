@@ -563,7 +563,7 @@ const CFStringRef charactersToNotEscape = CFSTR(":[]@!$ '()*+,;\"<>%{}|\\^~`");
 
 +(int)intValue:(NSString*)name properties:(NSDictionary*)properties def:(int)def exists:(BOOL*) exists
 {
-	if (properties != nil)
+	if ([properties isKindOfClass:[NSDictionary class]])
 	{
 		id value = [properties objectForKey:name];
 		if ([value respondsToSelector:@selector(intValue)])
@@ -578,7 +578,7 @@ const CFStringRef charactersToNotEscape = CFSTR(":[]@!$ '()*+,;\"<>%{}|\\^~`");
 
 +(double)doubleValue:(NSString*)name properties:(NSDictionary*)properties def:(double)def exists:(BOOL*) exists
 {
-	if (properties != nil)
+	if ([properties isKindOfClass:[NSDictionary class]])
 	{
 		id value = [properties objectForKey:name];
 		if ([value respondsToSelector:@selector(doubleValue)])
@@ -593,7 +593,7 @@ const CFStringRef charactersToNotEscape = CFSTR(":[]@!$ '()*+,;\"<>%{}|\\^~`");
 
 +(float)floatValue:(NSString*)name properties:(NSDictionary*)properties def:(float)def exists:(BOOL*) exists
 {
-	if (properties != nil)
+	if ([properties isKindOfClass:[NSDictionary class]])
 	{
 		id value = [properties objectForKey:name];
 		if ([value respondsToSelector:@selector(floatValue)])
@@ -608,7 +608,7 @@ const CFStringRef charactersToNotEscape = CFSTR(":[]@!$ '()*+,;\"<>%{}|\\^~`");
 
 +(BOOL)boolValue:(NSString*)name properties:(NSDictionary*)properties def:(BOOL)def exists:(BOOL*) exists
 {
-	if (properties != nil)
+	if ([properties isKindOfClass:[NSDictionary class]])
 	{
 		id value = [properties objectForKey:name];
 		if ([value respondsToSelector:@selector(boolValue)])
@@ -623,7 +623,7 @@ const CFStringRef charactersToNotEscape = CFSTR(":[]@!$ '()*+,;\"<>%{}|\\^~`");
 
 +(NSString*)stringValue:(NSString*)name properties:(NSDictionary*)properties def:(NSString*)def exists:(BOOL*) exists
 {
-	if (properties != nil)
+	if ([properties isKindOfClass:[NSDictionary class]])
 	{
 		id value = [properties objectForKey:name];
 		if ([value isKindOfClass:[NSString class]])
@@ -648,7 +648,7 @@ const CFStringRef charactersToNotEscape = CFSTR(":[]@!$ '()*+,;\"<>%{}|\\^~`");
 
 +(CGPoint)pointValue:(NSString*)name properties:(NSDictionary*)properties def:(CGPoint)def exists:(BOOL*) exists
 {
-	if (properties != nil)
+	if ([properties isKindOfClass:[NSDictionary class]])
 	{
 		id value = [properties objectForKey:name];
 		if ([value isKindOfClass:[NSDictionary class]])
@@ -669,7 +669,7 @@ const CFStringRef charactersToNotEscape = CFSTR(":[]@!$ '()*+,;\"<>%{}|\\^~`");
 +(TiColor*)colorValue:(NSString*)name properties:(NSDictionary*)properties def:(TiColor*)def exists:(BOOL*) exists
 {
 	TiColor * result = nil;
-	if (properties != nil)
+	if ([properties isKindOfClass:[NSDictionary class]])
 	{
 		id value = [properties objectForKey:name];
 		if (value == [NSNull null])
@@ -699,7 +699,7 @@ const CFStringRef charactersToNotEscape = CFSTR(":[]@!$ '()*+,;\"<>%{}|\\^~`");
 
 +(TiDimension)dimensionValue:(NSString*)name properties:(NSDictionary*)properties def:(TiDimension)def exists:(BOOL*) exists
 {
-	if (properties != nil)
+	if ([properties isKindOfClass:[NSDictionary class]])
 	{
 		id value = [properties objectForKey:name];
 		if (value != nil)

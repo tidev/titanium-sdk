@@ -126,6 +126,13 @@ extern NSString * const TI_APPLICATION_ID;
 			[m release];
 		}
 	}
+	
+	// Modules, if they were allocated on a page that has been destroyed, need
+	// their page context reset.  Note that everything else should be OK.
+	if (m != nil && [m pageContext] == nil) {
+		[m setPageContext:context];
+		[context registerProxy:m];
+	}
 	return m;
 }
 

@@ -29,7 +29,7 @@ public class KrollObject extends ScriptableObject implements Function {
 	public Object get(String name, Scriptable start) {
 		try {
 			Object value = proxy.get(start, name);
-			if (value.equals(KrollProxy.UNDEFINED)) {
+			if (value != null && value.equals(KrollProxy.UNDEFINED)) {
 				return Scriptable.NOT_FOUND;
 			}
 			
@@ -57,6 +57,10 @@ public class KrollObject extends ScriptableObject implements Function {
 		} catch (NoSuchFieldException e) {
 			Context.throwAsScriptRuntimeEx(e);
 		}
+	}
+	
+	public void superPut(String name, Scriptable start, Object value) {
+		super.put(name, start, value);
 	}
 	
 	@Override
@@ -91,5 +95,10 @@ public class KrollObject extends ScriptableObject implements Function {
 	
 	public KrollProxy getProxy() {
 		return proxy;
+	}
+	
+	@Override
+	public Object getDefaultValue(Class<?> typeHint) {
+		return proxy.toString();
 	}
 }

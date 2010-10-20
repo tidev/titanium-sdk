@@ -1,0 +1,10 @@
+<project name="ui" default="build">
+	<import file="../../build/build-module.xml"/>
+	
+	<path id="dependencies">
+		<path path="${modules.dir}/app/bin"/>
+		<path path="${modules.dir}/api/bin"/>
+		<path path="${modules.dir}/filesystem/bin"/>
+		<path path="${modules.dir}/media/bin"/>
+	</path>
+</project>

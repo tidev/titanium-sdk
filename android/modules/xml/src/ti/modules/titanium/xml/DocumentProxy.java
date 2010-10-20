@@ -75,12 +75,13 @@ public class DocumentProxy extends NodeProxy {
 		return getProxy(doc.createTextNode(data));
 	}
 	
-	@Kroll.method
+	
+	@Kroll.getProperty @Kroll.method
 	public DocumentTypeProxy getDoctype() {
 		return getProxy(doc.getDoctype());
 	}
 	
-	@Kroll.method
+	@Kroll.getProperty @Kroll.method
 	public ElementProxy getDocumentElement() {
 		return getProxy(doc.getDocumentElement());
 	}
@@ -100,7 +101,7 @@ public class DocumentProxy extends NodeProxy {
 		return new NodeListProxy(getTiContext(), doc.getElementsByTagNameNS(namespaceURI, localName));
 	}
 
-	@Kroll.method
+	@Kroll.getProperty @Kroll.method
 	public DOMImplementationProxy getImplementation() {
 		return new DOMImplementationProxy(getTiContext(), doc.getImplementation());
 	}

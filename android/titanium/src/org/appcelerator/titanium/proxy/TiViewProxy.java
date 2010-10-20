@@ -11,7 +11,6 @@ import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.TreeSet;
 
 import org.appcelerator.kroll.KrollDict;
@@ -25,7 +24,6 @@ import org.appcelerator.titanium.util.TiAnimationBuilder;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiResourceHelper;
-import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiAnimation;
 import org.appcelerator.titanium.view.TiUIView;
 
@@ -35,7 +33,23 @@ import android.os.Handler;
 import android.os.Message;
 import android.view.View;
 
-@Kroll.proxy
+@Kroll.proxy(propertyAccessors={
+	// background properties
+	"backgroundImage", "backgroundSelectedImage", "backgroundFocusedImage",
+	"backgroundDisabledImage", "backgroundColor", "backgroundSelectedColor",
+	"backgroundFocusedColor", "backgroundDisabledColor", "backgroundPadding",
+	
+	// border properties
+	"borderColor", "borderRadius", "borderWidth",
+	
+	// layout / dimension (size/width/height have custom accessors)
+	"left", "top", "right", "bottom", "layout", "zIndex",
+	
+	// others
+	"focusable", "touchEnabled", "visible", "enabled", "opacity",
+	"softKeyboardOnFocus", "transform"
+	
+})
 public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 {
 	private static final String LCAT = "TiViewProxy";
@@ -149,7 +163,9 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 		String baseUrl = getBaseUrlForStylesheet();
 		KrollDict dict = context.getTiApp().getStylesheet(baseUrl, styleClasses, viewId);
 
-		Log.d(LCAT, "trying to get stylesheet for base:" + baseUrl + ",classes:" + styleClasses + ",id:" + viewId + ",dict:" + dict);
+		if (DBG) {
+			Log.d(LCAT, "trying to get stylesheet for base:" + baseUrl + ",classes:" + styleClasses + ",id:" + viewId + ",dict:" + dict);
+		}
 		if (dict != null) {
 			// merge in our stylesheet details to the passed in dictionary
 			// our passed in dictionary takes precedence over the stylesheet
@@ -281,6 +297,28 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 		Message msg = getUIHandler().obtainMessage(MSG_GETSIZE, result);
 		msg.sendToTarget();
 		return (KrollDict) result.getResult();
+	}
+	
+	@Kroll.getProperty @Kroll.method
+	public int getWidth() {
+		KrollDict size = getSize();
+		return size.getInt("width");
+	}
+	
+	@Kroll.setProperty(retain=false) @Kroll.method
+	public void setWidth(Object width) {
+		setProperty("width", width, true);
+	}
+	
+	@Kroll.getProperty @Kroll.method
+	public int getHeight() {
+		KrollDict size = getSize();
+		return size.getInt("height");
+	}
+	
+	@Kroll.setProperty(retain=false) @Kroll.method
+	public void setHeight(Object height) {
+		setProperty("height", height, true);
 	}
 
 	@Kroll.getProperty @Kroll.method

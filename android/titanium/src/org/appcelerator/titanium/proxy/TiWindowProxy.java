@@ -19,7 +19,7 @@ import org.appcelerator.titanium.view.TiUIView;
 import android.app.Activity;
 import android.os.Message;
 
-@Kroll.proxy
+@Kroll.proxy(propertyAccessors={"title"})
 public abstract class TiWindowProxy extends TiViewProxy
 {
 	private static final String LCAT = "TiWindowProxy";

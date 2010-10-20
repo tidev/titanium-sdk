@@ -19,6 +19,7 @@ import java.util.TimerTask;
 
 import org.appcelerator.kroll.KrollInvocation;
 import org.appcelerator.kroll.KrollModule;
+import org.appcelerator.kroll.KrollModuleInfo;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiBlob;
@@ -76,6 +77,10 @@ public class TitaniumModule extends KrollModule implements TiContext.OnLifecycle
 	public String getBuildHash() {
 		return getTiContext().getTiApp().getTiBuildHash();
 	}
+	
+	// For testing exception handling.  Can remove after ticket 2032
+	@Kroll.method
+	public void testThrow(){ throw new Error("Testing throwing throwables"); }
 
 	@Kroll.method
 	public void include(KrollInvocation invocation, Object[] files) {
@@ -284,17 +289,28 @@ public class TitaniumModule extends KrollModule implements TiContext.OnLifecycle
 		return invocation.getTiContext().getActivity().getString(value);
 	}
 	
+	protected KrollModule requireNativeModule(TiContext context, String path) {
+		Log.d(LCAT, "Attempting to include native module: " + path);
+		KrollModuleInfo info = KrollModule.getModuleInfo(path);
+		if (info == null) return null;
+		
+		return context.getTiApp().requireModule(context, info);
+	}
+	
 	@Kroll.method @Kroll.topLevel
-	public KrollProxy require(String path) {
+	public KrollProxy require(KrollInvocation invocation, String path) {
 		
 		// 1. look for a TiPlus module first
 		// 2. then look for a cached module
 		// 3. then attempt to load from resources
-		TiContext ctx = getTiContext();
-		KrollProxy proxy = new KrollProxy(ctx);
+		TiContext ctx = invocation.getTiContext();
 		
-		//TODO: right now, we're only supporting app 
-		//level modules until TiPlus is done for android
+		KrollModule module = requireNativeModule(ctx, path);
+		if (module != null) {
+			KrollModuleInfo info = module.getModuleInfo();
+			Log.d(LCAT, "Succesfully loaded module: " + info.getName() + "/" + info.getVersion());
+			return module;
+		}
 		
 		// NOTE: commonjs modules load absolute to root in Titanium
 		String fileUrl = "app://"+path+".js";
@@ -304,30 +320,33 @@ public class TitaniumModule extends KrollModule implements TiContext.OnLifecycle
 			try
 			{
 				TiBlob blob = (TiBlob)tbf.read();
-				if (blob!=null)
-				{
-					// create the common js exporter
-					StringBuilder buf = new StringBuilder();
-					buf.append("(function(exports){");
-					buf.append(blob.getText());
-					buf.append("return exports;");
-					buf.append("})({})");
-					Scriptable result = (Scriptable)ctx.evalJS(buf.toString());
-					// common js modules export all functions/properties as 
-					// properties of the special export object provided
-					for (Object key : result.getIds())
-					{
-						String propName = key.toString();
-						Scriptable propValue = (Scriptable)result.get(propName,result);
-						proxy.setProperty(propName, propValue);
-					}
-					// spec says you must have a read-only id property - we don't
-					// currently support readonly in kroll so this is probably OK for now
-					proxy.setProperty("id", path);
-					// uri is optional but we point it to where we loaded it
-					proxy.setProperty("uri",fileUrl);
-					return proxy;
+				if (blob == null) {
+					Log.e(LCAT, "Couldn't read required file: " + fileUrl);
+					return null;
 				}
+				
+				// create the common js exporter
+				KrollProxy proxy = new KrollProxy(ctx);
+				StringBuilder buf = new StringBuilder();
+				buf.append("(function(exports){");
+				buf.append(blob.getText());
+				buf.append("return exports;");
+				buf.append("})({})");
+				Scriptable result = (Scriptable)ctx.evalJS(buf.toString());
+				// common js modules export all functions/properties as 
+				// properties of the special export object provided
+				for (Object key : result.getIds())
+				{
+					String propName = key.toString();
+					Scriptable propValue = (Scriptable)result.get(propName,result);
+					proxy.setProperty(propName, propValue);
+				}
+				// spec says you must have a read-only id property - we don't
+				// currently support readonly in kroll so this is probably OK for now
+				proxy.setProperty("id", path);
+				// uri is optional but we point it to where we loaded it
+				proxy.setProperty("uri",fileUrl);
+				return proxy;
 			}
 			catch(Exception ex)
 			{

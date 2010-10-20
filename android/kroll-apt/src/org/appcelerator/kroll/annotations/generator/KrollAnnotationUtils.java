@@ -1,3 +1,9 @@
+/**
+ * Appcelerator Titanium Mobile
+ * Copyright (c) 2010 by Appcelerator, Inc. All Rights Reserved.
+ * Licensed under the terms of the Apache Public License
+ * Please see the LICENSE included with this distribution for details.
+ */
 package org.appcelerator.kroll.annotations.generator;
 
 import java.util.ArrayList;
@@ -40,13 +46,21 @@ public class KrollAnnotationUtils {
 		return found;
 	}
 	
+	public void debugLog(String message) {
+		debugLog(Diagnostic.Kind.NOTE, message);
+	}
+	
+	public void debugLog(String category, String message) {
+		debugLog(Diagnostic.Kind.NOTE, category, message);
+	}
+	
+	public void debugLog(Diagnostic.Kind debugType, String category, String message) {
+		debugLog(debugType, "[" + category + "] " + message);
+	}
+	
 	public void debugLog(Diagnostic.Kind debugType, String message) {
 		Messager msg = env.getMessager();
 		msg.printMessage(Diagnostic.Kind.NOTE, message);
-	}
-	
-	public void debugLog(String message) {
-		debugLog(Diagnostic.Kind.NOTE, message);
 	}
 	
 	public void logException(Exception exception) {

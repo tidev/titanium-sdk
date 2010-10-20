@@ -57,7 +57,7 @@ public class MediaModule extends KrollModule
 	private static final String LCAT = "TiMedia";
 	private static final boolean DBG = TiConfig.LOGD;
 
-	private static final long[] DEFAULT_VIBRATE_PATTERN = { 100L,250L };
+	private static final long[] DEFAULT_VIBRATE_PATTERN = { 100L, 250L };
 	private static final String PHOTO_DCIM_CAMERA = "/sdcard/dcim/Camera";
 
 	@Kroll.constant public static final int UNKNOWN_ERROR = 0;

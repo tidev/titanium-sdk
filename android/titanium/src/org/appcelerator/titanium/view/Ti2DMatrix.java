@@ -33,14 +33,15 @@ public class Ti2DMatrix extends KrollProxy
 	}
 
 	@Kroll.method
-	public void translate(double x, double y)
+	public Ti2DMatrix translate(double x, double y)
 	{
 		translateX = x;
 		translateY = y;
+		return this;
 	}
 
 	@Kroll.method
-	public void scale(Object args[]) {
+	public Ti2DMatrix scale(Object args[]) {
 		// varargs for API backwards compatibility
 		if (args.length == 4) {
 			// scale(fromX, fromY, toX, toY);
@@ -61,11 +62,13 @@ public class Ti2DMatrix extends KrollProxy
 			this.toScaleX = TiConvert.toDouble(args[0]);
 			this.toScaleY = this.toScaleX;
 		}
+		return this;
 	}
 
 	@Kroll.method
-	public void rotate(double degrees) {
+	public Ti2DMatrix rotate(double degrees) {
 		this.rotateDegrees = degrees;
+		return this;
 	}
 
 	@Kroll.method

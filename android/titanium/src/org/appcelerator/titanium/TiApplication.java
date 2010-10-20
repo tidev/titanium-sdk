@@ -24,8 +24,8 @@ import java.util.Properties;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollInvocation;
 import org.appcelerator.kroll.KrollModule;
+import org.appcelerator.kroll.KrollModuleInfo;
 import org.appcelerator.kroll.KrollProxy;
-
 import org.appcelerator.titanium.analytics.TiAnalyticsEvent;
 import org.appcelerator.titanium.analytics.TiAnalyticsEventFactory;
 import org.appcelerator.titanium.analytics.TiAnalyticsModel;
@@ -78,7 +78,7 @@ public abstract class TiApplication extends Application
 	protected TiAnalyticsModel analyticsModel;
 	protected Intent analyticsIntent;
 	private static long lastAnalyticsTriggered = 0;
-	private String buildVersion, buildTimestamp, buildHash;
+	private String buildVersion = "", buildTimestamp = "", buildHash = "";
 	protected ArrayList<KrollModule> modules = new ArrayList<KrollModule>();
 	
 	public TiApplication() {
@@ -88,6 +88,7 @@ public abstract class TiApplication extends Application
 		needsEnrollEvent = false; // test is after DB is available
 		needsStartEvent = true;
 		loadBuildProperties();
+		Log.i(LCAT, "Titanium " + buildVersion + " (" + buildTimestamp + " " + buildHash + ")");
 	}
 	
 	public void bindModules(KrollBridge bridge, KrollProxy parent) {
@@ -103,7 +104,22 @@ public abstract class TiApplication extends Application
 	}
 	
 	protected abstract void bootModules(TiContext context);
-	public abstract String[] getFilteredBindings(String moduleName);
+	
+	// Apps with custom modules will override this with their own creation logic
+	public KrollModule requireModule(TiContext context, KrollModuleInfo info) {
+		for (KrollModule module : modules) {
+			if (module.getId().equals(info.getId())) {
+				return module;
+			}
+		}
+		
+		return null;
+	}
+	
+	public String[] getFilteredBindings(String moduleName) {
+		// TODO: re-enable filtered bindings when our compiler can better detect methods and properties
+		return null;
+	}
 	
 	public static TiApplication getInstance() {
 		return _instance;
@@ -145,8 +161,9 @@ public abstract class TiApplication extends Application
 		Thread.setDefaultUncaughtExceptionHandler(new UncaughtExceptionHandler() {
 
 			public void uncaughtException(Thread t, Throwable e) {
-				Log.e("TiUncaughtHandler", "Sending event: exception on thread: " + t.getName() + " msg:" + e.toString(), e);
-				postAnalyticsEvent(TiAnalyticsEventFactory.createErrorEvent(t, e));
+				String tiVer = buildVersion + "," + buildTimestamp + "," + buildHash ;
+				Log.e("TiUncaughtHandler", "Sending event: exception on thread: " + t.getName() + " msg:" + e.toString() + "; Titanium " + tiVer, e);
+				postAnalyticsEvent(TiAnalyticsEventFactory.createErrorEvent(t, e, tiVer));
 				defaultHandler.uncaughtException(t, e);
 			}
 		});
@@ -360,7 +377,9 @@ public abstract class TiApplication extends Application
 	
 	public KrollDict getStylesheet(String basename, Collection<String> classes, String objectId) {
 		if (stylesheet != null) {
-			Log.d(LCAT, "delegating to TiStylesheet for style properties");
+			if (DBG) {
+				Log.d(LCAT, "delegating to TiStylesheet for style properties");
+			}
 			return stylesheet.getStylesheet(objectId, classes, density, basename);
 		}
 		return new KrollDict();

@@ -185,7 +185,7 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 			}
 			TiUILabel t = (TiUILabel) views[0];
 			t.setProxy(rp);
-			t.processProperties(filterProperties(rp.getCreationDict()));
+			t.processProperties(filterProperties(rp.getProperties()));
 			View v = t.getNativeView();
 			if (v.getParent() == null) {
 				TextView tv = (TextView) v;
@@ -290,6 +290,8 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 	};
 	private KrollDict filterProperties(KrollDict d)
 	{
+		if (d == null) return new KrollDict();
+		
 		KrollDict filtered = new KrollDict(d);
 		for (int i = 0;i < filteredProperties.length; i++) {
 			if (filtered.containsKey(filteredProperties[i])) {

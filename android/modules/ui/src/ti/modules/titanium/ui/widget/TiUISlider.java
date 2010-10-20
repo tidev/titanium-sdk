@@ -99,7 +99,7 @@ public class TiUISlider extends TiUIView
 				tfh = new TiFileHelper(seekBar.getContext());
 			}
 			String url = proxy.getTiContext().resolveUrl(null, thumbImage);
-			Drawable thumb = tfh.loadDrawable(url, false);
+			Drawable thumb = tfh.loadDrawable(proxy.getTiContext(), url, false);
 			thumbDrawable = new SoftReference<Drawable>(thumb);
 			seekBar.setThumb(thumb);
 		} else {
@@ -120,8 +120,8 @@ public class TiUISlider extends TiUIView
 			String rightUrl = proxy.getTiContext().resolveUrl(null, rightImage);
 
 			Drawable[] lda = {
-				tfh.loadDrawable(rightUrl, false, true),
-				new ClipDrawable(tfh.loadDrawable(leftUrl, false, true), Gravity.LEFT, ClipDrawable.HORIZONTAL)
+				tfh.loadDrawable(proxy.getTiContext(), rightUrl, false, true),
+				new ClipDrawable(tfh.loadDrawable(proxy.getTiContext(), leftUrl, false, true), Gravity.LEFT, ClipDrawable.HORIZONTAL)
 			};
 			LayerDrawable ld = new LayerDrawable(lda);
 			ld.setId(0, android.R.id.background);

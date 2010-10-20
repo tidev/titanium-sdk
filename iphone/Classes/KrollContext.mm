@@ -290,7 +290,19 @@ static TiValueRef StringFormatDateCallback (TiContextRef jsContext, TiObjectRef 
 	
 	@try 
 	{
-		NSString* result = [NSDateFormatter localizedStringFromDate:date dateStyle:style timeStyle:NSDateFormatterNoStyle];
+		NSString* result;
+		// Only available in iOS4+
+		if ([TiUtils isIOS4OrGreater]) {
+			result = [NSDateFormatter localizedStringFromDate:date dateStyle:style timeStyle:NSDateFormatterNoStyle];
+		}
+		else {
+			NSLocale* locale = [NSLocale currentLocale];
+			NSDateFormatter* formatter = [[[NSDateFormatter alloc] init] autorelease];
+			[formatter setLocale:locale];
+			[formatter setDateStyle:style];
+			[formatter setTimeStyle:NSDateFormatterNoStyle];
+			result = [formatter stringFromDate:date];
+		}
 		TiValueRef value = [KrollObject toValue:ctx value:result];
 		return value;
 	}
@@ -331,7 +343,18 @@ static TiValueRef StringFormatTimeCallback (TiContextRef jsContext, TiObjectRef 
 	
 	@try 
 	{
-		NSString* result = [NSDateFormatter localizedStringFromDate:date dateStyle:NSDateFormatterNoStyle timeStyle:style];
+		NSString* result;
+		if ([TiUtils isIOS4OrGreater]) {
+			result = [NSDateFormatter localizedStringFromDate:date dateStyle:NSDateFormatterNoStyle timeStyle:style];
+		}
+		else {
+			NSLocale* locale = [NSLocale currentLocale];
+			NSDateFormatter* formatter = [[[NSDateFormatter alloc] init] autorelease];
+			[formatter setLocale:locale];
+			[formatter setDateStyle:NSDateFormatterNoStyle];
+			[formatter setTimeStyle:style];
+			result = [formatter stringFromDate:date];
+		}
 		TiValueRef value = [KrollObject toValue:ctx value:result];
 		return value;
 	}
@@ -354,7 +377,16 @@ static TiValueRef StringFormatCurrencyCallback (TiContextRef jsContext, TiObject
 	
 	@try 
 	{
-		NSString* result = [NSNumberFormatter localizedStringFromNumber:number numberStyle:NSNumberFormatterCurrencyStyle];
+		NSString* result;
+		if ([TiUtils isIOS4OrGreater]) {
+			result = [NSNumberFormatter localizedStringFromNumber:number numberStyle:NSNumberFormatterCurrencyStyle];
+		}
+		else {
+			NSNumberFormatter* formatter = [[[NSNumberFormatter alloc] init] autorelease];
+			NSLocale* locale = [NSLocale currentLocale];
+			[formatter setNumberStyle:NSNumberFormatterCurrencyStyle];
+			result = [formatter stringFromNumber:number];
+		}
 		TiValueRef value = [KrollObject toValue:ctx value:result];
 		return value;
 	}
@@ -377,7 +409,16 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 	
 	@try 
 	{
-		NSString* result = [NSNumberFormatter localizedStringFromNumber:number numberStyle:NSNumberFormatterDecimalStyle];
+		NSString* result;
+		if ([TiUtils isIOS4OrGreater]) {
+			result = [NSNumberFormatter localizedStringFromNumber:number numberStyle:NSNumberFormatterDecimalStyle];
+		}
+		else {
+			NSNumberFormatter* formatter = [[[NSNumberFormatter alloc] init] autorelease];
+			NSLocale* locale = [NSLocale currentLocale];
+			[formatter setNumberStyle:NSNumberFormatterDecimalStyle];
+			result = [formatter stringFromNumber:number];			
+		}
 		TiValueRef value = [KrollObject toValue:ctx value:result];
 		return value;
 	}
@@ -816,7 +857,7 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 	[self bindCallback:@"L" callback:&LCallback];
 
 	prop = TiStringCreateWithUTF8CString("String");
-
+	
 	// create a special method -- String.format -- that will act as a string formatter
 	TiStringRef formatName = TiStringCreateWithUTF8CString([@"format" UTF8String]);
 	TiValueRef invoker = TiObjectMakeFunctionWithCallback(context, formatName, &StringFormatCallback);
@@ -828,6 +869,7 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 						NULL); 
 	TiStringRelease(formatName);	
 
+	
 	// create a special method -- String.formatDate -- that will act as a date formatter
 	formatName = TiStringCreateWithUTF8CString([@"formatDate" UTF8String]);
 	invoker = TiObjectMakeFunctionWithCallback(context, formatName, &StringFormatDateCallback);

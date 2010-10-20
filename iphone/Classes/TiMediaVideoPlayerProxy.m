@@ -78,7 +78,9 @@ NSArray* moviePlayerKeys = nil;
 
 -(void)_destroy
 {
-	[movie stop];
+	if (playing) {
+		[movie stop];
+	}
 	
 	WARN_IF_BACKGROUND_THREAD;	//NSNotificationCenter is not threadsafe!
 	NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
@@ -195,18 +197,37 @@ NSArray* moviePlayerKeys = nil;
 
 -(TiUIView*)newView
 {
+	if (reallyAttached) {
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
+		if ([TiUtils isiPhoneOS3_2OrGreater]) {
+			// override since we're constructing ourselfs
+			TiUIView *v = [[TiMediaVideoPlayer alloc] initWithPlayer:[self player] proxy:self];
+			return v;
+		}
+		else {
+#endif
+			return [super newView];
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
+		}
+#endif
+	}
+	return nil;
+}
+
+-(void)viewWillAttach
+{
+	reallyAttached = YES;
+}
+
+-(void)viewDidDetach
+{
 	if ([TiUtils isiPhoneOS3_2OrGreater]) {
-		// override since we're constructing ourselfs
-		TiUIView *v = [[TiMediaVideoPlayer alloc] initWithPlayer:[self player] proxy:self];
-		return v;
+		if (playing) {
+			[movie stop];
+		}
+		RELEASE_TO_NIL(movie);
 	}
-	else {
-#endif
-		return [super newView];
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
-	}
-#endif
+	reallyAttached = NO;
 }
 
 #pragma mark Public APIs
@@ -401,6 +422,7 @@ NSArray* moviePlayerKeys = nil;
 	if (playing)
 	{
 		[movie stop];
+		playing = NO;
 	}
 	RELEASE_TO_NIL_AUTORELEASE(movie);
 	
@@ -778,19 +800,27 @@ NSArray* moviePlayerKeys = nil;
 
 -(void)stop:(id)args
 {
-	ENSURE_UI_THREAD(stop,args);
+	ENSURE_UI_THREAD(stop, args);
+	
+	if (!playing) {
+		return;
+	}
+	
+	playing = NO;
 	if (movie!=nil)
 	{
 		[movie stop];
 	}
-	[self detachView];
 	RELEASE_TO_NIL_AUTORELEASE(movie);
-	playing = NO;
 }
 
 -(void)play:(id)args
 {
-	ENSURE_UI_THREAD(play,args);
+	ENSURE_UI_THREAD(play, args);
+	
+	if (playing) {
+		return;
+	}
 	
 	if (url == nil)
 	{
@@ -798,9 +828,6 @@ NSArray* moviePlayerKeys = nil;
 				subreason:@"Tried to play movie player without a valid url, media, or contentURL property"
 				location:CODELOCATION];
 	}
-
-	// indicate we're going to start playing
-	//[[TiMediaAudioSession sharedSession] playback];
 	
 	if (playing)
 	{
@@ -808,14 +835,12 @@ NSArray* moviePlayerKeys = nil;
 	}
 	
 	playing = YES;
-	
 	[[self player] play];
 }
 
 -(void)pause:(id)args
 {
-	ENSURE_UI_THREAD(pause,args)
-
+	ENSURE_UI_THREAD(pause,args)	
 	if (!playing) {
 		return;
 	}
@@ -886,10 +911,8 @@ NSArray* moviePlayerKeys = nil;
 	
 	NSString * name = [notification name];
 	
-	if ([name isEqualToString:MPMoviePlayerPlaybackDidFinishNotification] && playing)
+	if ([name isEqualToString:MPMoviePlayerPlaybackDidFinishNotification])
 	{
-		playing = NO;
-		
 		if ([self _hasListeners:@"complete"])
 		{
 			NSMutableDictionary *event = [NSMutableDictionary dictionary];
@@ -902,7 +925,7 @@ NSArray* moviePlayerKeys = nil;
 				}
 			}
 #endif			
-			[self deliverEventOnBackgroundThread:@"complete" withObject:event];
+			[self fireEvent:@"complete" withObject:event];
 		}
 		// release memory!
 		[self stop:nil];
@@ -928,27 +951,6 @@ NSArray* moviePlayerKeys = nil;
 	{
 		[self fireEvent:@"resize" withObject:nil];
 	}
-}
-
--(void)deliverBackgroundEvent:(NSArray*)args
-{
-	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-	if ([args count]==2)
-	{
-		[self fireEvent:[args objectAtIndex:0] withObject:[args objectAtIndex:1]];
-	}
-	else
-	{
-		[self fireEvent:[args objectAtIndex:0] withObject:nil];
-	}
-	[pool release];
-}
-
--(void)deliverEventOnBackgroundThread:(NSString*)event withObject:(id)object
-{
-	[NSThread detachNewThreadSelector:@selector(deliverBackgroundEvent:) 
-							 toTarget:self 
-						   withObject:[NSArray arrayWithObjects:event,object,nil]];
 }
 
 -(void)handleKeyWindowChanged:(NSNotification*)note
@@ -1014,7 +1016,7 @@ NSArray* moviePlayerKeys = nil;
 		NSMutableDictionary *event = [NSMutableDictionary dictionary];
 		[event setObject:[userinfo valueForKey:MPMoviePlayerFullscreenAnimationDurationUserInfoKey] forKey:@"duration"];
 		[event setObject:NUMBOOL(YES) forKey:@"entering"];
-		[self deliverEventOnBackgroundThread:@"fullscreen" withObject:event];
+		[self fireEvent:@"fullscreen" withObject:event];
 	}	
 }
 
@@ -1026,7 +1028,7 @@ NSArray* moviePlayerKeys = nil;
 		NSMutableDictionary *event = [NSMutableDictionary dictionary];
 		[event setObject:[userinfo valueForKey:MPMoviePlayerFullscreenAnimationDurationUserInfoKey] forKey:@"duration"];
 		[event setObject:NUMBOOL(NO) forKey:@"entering"];
-		[self deliverEventOnBackgroundThread:@"fullscreen" withObject:event];
+		[self fireEvent:@"fullscreen" withObject:event];
 	}	
 }
 
@@ -1035,7 +1037,7 @@ NSArray* moviePlayerKeys = nil;
 	if ([self _hasListeners:@"sourceChange"])
 	{
 		NSDictionary *event = [NSDictionary dictionaryWithObject:[self sourceType] forKey:@"sourceType"];
-		[self deliverEventOnBackgroundThread:@"sourceChange" withObject:event];
+		[self fireEvent:@"sourceChange" withObject:event];
 	}
 }
 
@@ -1044,7 +1046,7 @@ NSArray* moviePlayerKeys = nil;
 	if ([self _hasListeners:@"durationAvailable"])
 	{
 		NSDictionary *event = [NSDictionary dictionaryWithObject:[self duration] forKey:@"duration"];
-		[self deliverEventOnBackgroundThread:@"durationAvailable" withObject:event];
+		[self fireEvent:@"durationAvailable" withObject:event];
 	}
 }
 
@@ -1053,7 +1055,7 @@ NSArray* moviePlayerKeys = nil;
 	if ([self _hasListeners:@"mediaTypesAvailable"])
 	{
 		NSDictionary *event = [NSDictionary dictionaryWithObject:[self mediaTypes] forKey:@"mediaTypes"];
-		[self deliverEventOnBackgroundThread:@"mediaTypesAvailable" withObject:event];
+		[self fireEvent:@"mediaTypesAvailable" withObject:event];
 	}
 }
 
@@ -1063,7 +1065,7 @@ NSArray* moviePlayerKeys = nil;
 	if ([self _hasListeners:@"naturalSizeAvailable"])
 	{
 		NSDictionary *event = [NSDictionary dictionaryWithObject:[self naturalSize] forKey:@"naturalSize"];
-		[self deliverEventOnBackgroundThread:@"naturalSizeAvailable" withObject:event];
+		[self fireEvent:@"naturalSizeAvailable" withObject:event];
 	}
 	sizeDetermined = YES;
 }
@@ -1086,7 +1088,7 @@ NSArray* moviePlayerKeys = nil;
 	if ([self _hasListeners:@"loadstate"])
 	{
 		NSDictionary *event = [NSDictionary dictionaryWithObject:[self loadState] forKey:@"loadState"];
-		[self deliverEventOnBackgroundThread:@"loadstate" withObject:event];
+		[self fireEvent:@"loadstate" withObject:event];
 	}
 }
 
@@ -1095,9 +1097,8 @@ NSArray* moviePlayerKeys = nil;
 	if ([self _hasListeners:@"playing"])
 	{
 		NSDictionary *event = [NSDictionary dictionaryWithObject:[self url] forKey:@"url"];
-		[self deliverEventOnBackgroundThread:@"playing" withObject:event];
+		[self fireEvent:@"playing" withObject:event];
 	}
-	playing = YES; 
 }
 
 -(void)handlePlaybackStateChangeNotification:(NSNotification*)note
@@ -1105,7 +1106,15 @@ NSArray* moviePlayerKeys = nil;
 	if ([self _hasListeners:@"playbackState"])
 	{
 		NSDictionary *event = [NSDictionary dictionaryWithObject:[self playbackState] forKey:@"playbackState"];
-		[self deliverEventOnBackgroundThread:@"playbackState" withObject:event];
+		[self fireEvent:@"playbackState" withObject:event];
+	}
+	switch ([movie playbackState]) {
+		case MPMoviePlaybackStateStopped:
+			playing = NO;
+			break;
+		case MPMoviePlaybackStatePlaying:
+			playing = YES;
+			break;
 	}
 }
 #endif

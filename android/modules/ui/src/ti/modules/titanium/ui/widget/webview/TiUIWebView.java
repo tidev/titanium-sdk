@@ -196,11 +196,6 @@ public class TiUIWebView extends TiUIView {
 		client.setBasicAuthentication(username, password);
 	}
 
-	@Override
-	protected boolean allowRegisterForTouch() {
-		return false;
-	}
-
 	public boolean canGoBack() {
 		return getWebView().canGoBack();
 	}

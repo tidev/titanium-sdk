@@ -9,6 +9,7 @@ import org.mozilla.javascript.Scriptable;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.kroll.KrollModule;
+import org.appcelerator.kroll.KrollModuleInfo;
 
 import java.util.List;
 import java.util.ArrayList;
@@ -16,8 +17,6 @@ import java.util.HashMap;
 
 public final class ${config['classname']}Application extends TiApplication {
 
-	protected HashMap<String, String[]> moduleBindings = new HashMap<String, String[]>();
-	
 	@Override
 	public void onCreate() {
 		super.onCreate();
@@ -30,27 +29,43 @@ public final class ${config['classname']}Application extends TiApplication {
 	
 	@Override
 	protected void bootModules(TiContext context) {
-		//TODO: Make Modules independent of context
 		%for module in app_modules:
 		// ${module['api_name']} module
-			<% bindings_len = len(module['bindings']) %>
-		String[] ${module['api_name']}_bindings = new String[] {
-			%for j in range(0, bindings_len):
-			<% binding = module['bindings'][j] %>\
-		"${binding}"\
-			%if j < bindings_len:
-		,
-			%endif
-			%endfor
-		};
-		moduleBindings.put("${module['api_name']}", ${module['api_name']}_bindings);
-		${module['class_name']} ${module['api_name']}_module = new ${module['class_name']}(context);
-		modules.add(${module['api_name']}_module);
+		modules.add(new ${module['class_name']}(context));
+		%endfor
+		
+		%if len(custom_modules) > 0:
+		// Custom modules
+		%endif
+		%for module in custom_modules:
+		<% manifest = module['manifest'] %>
+		KrollModule.addModuleInfo(new KrollModuleInfo(
+			"${manifest.name}", "${manifest.moduleid}", "${manifest.guid}", "${manifest.version}",
+			"${manifest.description}", "${manifest.author}", "${manifest.license}", "${manifest.copyright}"
+		));
 		%endfor
 	}
 	
+	%if len(custom_modules) > 0:
 	@Override
-	public String[] getFilteredBindings(String moduleName) {
-		return moduleBindings.get(moduleName);
+	public KrollModule requireModule(TiContext context, KrollModuleInfo info) {
+		KrollModule module = super.requireModule(context, info);
+		if (module != null) {
+			return module;
+		}
+		
+		String id = info.getId();
+		%for module in custom_modules:
+		if ("${module['manifest'].moduleid}".equals(id)) {
+			module = new ${module['class_name']}(context);
+		}
+		%endfor
+		
+		if (module != null) {
+			modules.add(module);
+			return module;
+		}
+		return null;
 	}
+	%endif
 }

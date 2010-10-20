@@ -25,7 +25,11 @@
 
 -(id)description
 {
-	return @"[object TiBlob]";
+	NSString* text = [self text];
+	if (text == nil || [text isEqualToString:@""]) {
+		return @"[object TiBlob]";
+	}
+	return text;
 }
 
 -(BOOL)isImageMimeType

@@ -16,7 +16,10 @@ tableview.addEventListener('click', function(e)
 
 var navActInd = Titanium.UI.createActivityIndicator();
 navActInd.show();
-Titanium.UI.currentWindow.setRightNavButton(navActInd);
+
+if (Titanium.Platform.name == 'iPhone OS') {
+	Titanium.UI.currentWindow.setRightNavButton(navActInd);
+}
 
 // add table view to the window
 Titanium.UI.currentWindow.add(tableview);

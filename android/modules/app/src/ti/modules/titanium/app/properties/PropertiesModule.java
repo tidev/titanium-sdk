@@ -37,7 +37,9 @@ public class PropertiesModule extends KrollModule {
 		public Object getDefaultValue(Class<?> clazz) {
 			if (clazz.equals(Boolean.class)) {
 				return false;
-			} else if (Number.class.isAssignableFrom(clazz)) {
+			} else if (clazz.equals(Double.class)) {
+				return 0.0;
+			} else if (clazz.equals(Integer.class)) {
 				return 0;
 			} else if (clazz.equals(String.class)) {
 				return "";
@@ -86,7 +88,12 @@ public class PropertiesModule extends KrollModule {
 			//auto transform JSON data into objects 
 			values = appProperties.getList(key, values);
 		} else {
-			values = TiConvert.toStringArray(defaultValue);
+			// Object[] at the end of the method is varargs, so the list should be the first element
+			if (defaultValue != null && defaultValue.length > 0) {
+				values = TiConvert.toStringArray((Object[])defaultValue[0]);
+			} else {
+				values = new String[0];
+			}
 		}
 		// Now we should process values - we want the default process to happen with both stored & default values
 		Object list[] = new Object[values.length];

@@ -34,6 +34,8 @@ public class IntentProxy extends KrollProxy
 		String action = dict.getString("action");
 		String data = dict.getString("data");
 		String classname = dict.getString("className");
+		String packageName = dict.getString("packageName");
+		String type = dict.getString("type");
 
 		if (action != null) {
 			if (DBG) {
@@ -49,13 +51,41 @@ public class IntentProxy extends KrollProxy
 			intent.setData(Uri.parse(data));
 		}
 		
+		if (packageName != null) {
+			if (DBG) {
+				Log.d(LCAT, "Setting package: " + packageName);
+			}
+			intent.setPackage(packageName);
+		}
+		
 		if (classname != null) {
-			try {
-				Class<?> c = getClass().getClassLoader().loadClass(classname);
-				intent.setClass(getTiContext().getActivity().getApplicationContext(), c);
-			} catch (ClassNotFoundException e) {
-				Log.e(LCAT, "Unable to locate class for name: " + classname);
-				throw new IllegalStateException("Missing class for name: " + classname, e);
+			if (packageName != null) {
+				if (DBG) {
+					Log.d(LCAT, "Both className and packageName set, using intent.setClassName(packageName, className");
+				}
+				intent.setClassName(packageName, classname);
+			} else {
+				try {
+					Class<?> c = getClass().getClassLoader().loadClass(classname);
+					intent.setClass(getTiContext().getActivity().getApplicationContext(), c);
+				} catch (ClassNotFoundException e) {
+					Log.e(LCAT, "Unable to locate class for name: " + classname);
+					throw new IllegalStateException("Missing class for name: " + classname, e);
+				}
+			}
+		}
+		
+		if (type != null) {
+			if (DBG) {
+				Log.d(LCAT, "Setting type: " + type);
+			} 
+			intent.setType(type);
+		} else {
+			if (action != null && action.equals(Intent.ACTION_SEND)) {
+				if (DBG) {
+					Log.d(LCAT, "Intent type not set, defaulting to text/plain because action is a SEND action");
+				}
+				intent.setType("text/plain");
 			}
 		}
 	}	

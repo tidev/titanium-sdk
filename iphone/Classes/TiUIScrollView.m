@@ -175,7 +175,8 @@
 {
 	CGFloat scale = [TiUtils floatValue:args];
 	[[self scrollView] setZoomScale:scale];
-	[[self proxy] replaceValue:args forKey:@"scale" notification:NO];
+	scale = [[self scrollView] zoomScale]; //Why are we doing this? Because of minZoomScale or maxZoomScale.
+	[[self proxy] replaceValue:NUMFLOAT(scale) forKey:@"scale" notification:NO];
 	if ([self.proxy _hasListeners:@"scale"])
 	{
 		[self.proxy fireEvent:@"scale" withObject:[NSDictionary dictionaryWithObjectsAndKeys:

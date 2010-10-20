@@ -6,15 +6,22 @@
  */
 package org.appcelerator.kroll;
 
-import java.util.List;
+import java.util.HashMap;
 
 import org.appcelerator.titanium.kroll.KrollBridge;
 
-public interface KrollProxyBinding {
-	public void bindToParent(KrollProxy parent, KrollProxy proxy);
-	public void bindProperties(KrollProxy proxy, List<String> filteredBindings);
-	public void bindContextSpecific(KrollBridge bridge, KrollProxy proxy);
+public abstract class KrollProxyBinding {
+	protected HashMap<String, Object> bindings = new HashMap<String, Object>();
 	
-	public String getAPIName();
-	public String getShortAPIName();
+	public boolean hasBinding(String name) {
+		// Subclasses will need to initialize all bindings to null
+		return bindings.containsKey(name);
+	}
+	
+	public abstract Object getBinding(String name);
+	
+	public abstract void bindContextSpecific(KrollBridge bridge, KrollProxy proxy);
+	
+	public abstract String getAPIName();
+	public abstract String getShortAPIName();
 }

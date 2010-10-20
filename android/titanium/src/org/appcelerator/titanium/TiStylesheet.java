@@ -5,9 +5,11 @@ import java.util.HashMap;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.titanium.util.Log;
+import org.appcelerator.titanium.util.TiConfig;
 
 public abstract class TiStylesheet {
 	private static final String TAG = "TiStylesheet";
+	private static final boolean DBG = TiConfig.DEBUG;
 	
 	protected final HashMap<String,HashMap<String,KrollDict>> classesMap;
 	protected final HashMap<String,HashMap<String,KrollDict>> idsMap;
@@ -33,7 +35,10 @@ public abstract class TiStylesheet {
 	
 	public final KrollDict getStylesheet(String objectId, Collection<String> classes, String density, String basename)
 	{
-		Log.d(TAG, "getStylesheet id: "+objectId+", classes: "+classes+", density: " + density + ", basename: " + basename);
+		if (DBG) {
+			Log.d(TAG, "getStylesheet id: "+objectId+", classes: "+classes+", density: " + density + ", basename: " + basename);
+		}
+		
 		KrollDict result = new KrollDict();
 		if (classesMap != null)
 		{

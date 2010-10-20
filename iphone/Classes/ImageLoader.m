@@ -417,7 +417,7 @@ DEFINE_EXCEPTIONS
 				}
 			}
 #endif
-			result = [self setImage:resultImage forKey:urlString];
+			result = [self setImage:resultImage forKey:urlString cache:NO];
 			[result setIsLocalImage:YES];
 		}
 		else

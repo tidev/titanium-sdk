@@ -8,14 +8,18 @@ import os, sys, shutil, platform, zipfile
 import string, subprocess, re
 from mako.template import Template
 from xml.etree.ElementTree import ElementTree
+from StringIO import StringIO
 from os.path import join, splitext, split, exists
 from shutil import copyfile
 from androidsdk import AndroidSDK
 from compiler import Compiler
 
 template_dir = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
-sys.path.append(os.path.dirname(template_dir))
+module_dir = os.path.join(os.path.dirname(template_dir), 'module')
+sys.path.extend([os.path.dirname(template_dir), module_dir])
 from tiapp import TiAppXML
+from manifest import Manifest
+from module import ModuleDetector
 import simplejson
 
 ignoreFiles = ['.gitignore', '.cvsignore', '.DS_Store'];
@@ -130,9 +134,20 @@ class Android(object):
 			if value == None: value = ""
 			self.app_properties[name] = {"type": type, "value": value}
 	
+	def get_module_bindings(self, jar):
+		bindings_path = None
+		for name in jar.namelist():
+			if name.endswith('.json') and name.startswith('org/appcelerator/titanium/bindings/'):
+				bindings_path = name
+				break
+		
+		if bindings_path is None: return None
+		
+		return simplejson.loads(jar.read(bindings_path))
+	
 	def build_modules_info(self, resources_dir, app_bin_dir):
 		compiler = Compiler(self.tiapp, resources_dir, self.java, app_bin_dir, os.path.dirname(app_bin_dir))
-		compiler.compile()
+		compiler.compile(compile_bytecode=False)
 		self.app_modules = []
 		template_dir = os.path.dirname(sys._getframe(0).f_code.co_filename)
 		android_modules_dir = os.path.abspath(os.path.join(template_dir, 'modules'))
@@ -143,41 +158,56 @@ class Android(object):
 			
 			module_path = os.path.join(android_modules_dir, jar)
 			module_jar = zipfile.ZipFile(module_path)
-			bindings_path = None
-			for name in module_jar.namelist():
-				if name.endswith('.json') and name.startswith('org/appcelerator/titanium/bindings/'):
-					bindings_path = name
-					break
+			module_bindings = self.get_module_bindings(module_jar)
+			if module_bindings is None: continue
 			
-			if bindings_path is None: continue
-			
-			bindings_json = module_jar.read(bindings_path)
-			module_bindings = simplejson.loads(bindings_json)
 			for module_class in module_bindings['modules'].keys():
-				print '[INFO] module_class = ' + module_class + ', api_name=' + module_bindings['modules'][module_class]['apiName']
+				full_api_name = module_bindings['proxies'][module_class]['proxyAttrs']['fullAPIName']
 				modules[module_class] = module_bindings['modules'][module_class]
+				modules[module_class]['fullAPIName'] = full_api_name
 
 		for module in compiler.modules:
 			bindings = []
 			# TODO: we should also detect module properties
 			for method in compiler.module_methods:
-				if method.lower().startswith(module+'.'):
+				if method.lower().startswith(module+'.') and '.' not in method:
 					bindings.append(method[len(module)+1:])
 			
 			module_class = None
 			module_apiName = None
 			for m in modules.keys():
-				if modules[m]['apiName'].lower() == module:
+				if modules[m]['fullAPIName'].lower() == module:
 					module_class = m
-					module_apiName = modules[m]['apiName']
+					module_apiName = modules[m]['fullAPIName']
 					break
-
+			
+			if module_apiName == None: continue # module wasn't found
 			self.app_modules.append({
 				'api_name': module_apiName,
 				'class_name': module_class,
 				'bindings': bindings
 			})
+		
+		# discover app modules
+		detector = ModuleDetector(self.project_dir)
+		missing, detected_modules = detector.find_app_modules(self.tiapp)
+		for missing_module in missing: print '[WARN] Couldn\'t find app module: %s' % missing_module['name']
+		
+		self.custom_modules = []
+		for module in detected_modules:
+			module_jar = zipfile.ZipFile(module.path)
+			module_bindings = self.get_module_bindings(module_jar)
+			if module_bindings is None: continue
 			
+			for module_class in module_bindings['modules'].keys():
+				module_id = module_bindings['proxies'][module_class]['proxyAttrs']['id']
+				print '[DEBUG] module_id = %s' % module_id
+				if module_id == module.manifest.moduleid:
+					print '[DEBUG] appending module: %s' % module_class
+					self.custom_modules.append({
+						'class_name': module_class,
+						'manifest': module.manifest
+					})
 		
 	def create(self, dir, build_time=False, project_dir=None):
 		template_dir = os.path.dirname(sys._getframe(0).f_code.co_filename)
@@ -185,7 +215,8 @@ class Android(object):
 		# Build up output directory tree
 		if project_dir is None:
 			project_dir = self.newdir(dir, self.name)
-		
+
+		self.project_dir = project_dir
 		# Paths to Titanium assets that need to be linked into eclipse structure
 		self.config['ti_tiapp_xml'] = os.path.join(project_dir, 'tiapp.xml')
 		self.tiapp = TiAppXML(self.config['ti_tiapp_xml'])
@@ -224,7 +255,7 @@ class Android(object):
 		
 		self.render(template_dir, 'AndroidManifest.xml', app_dir, 'AndroidManifest.xml')
 		self.render(template_dir, 'App.java', app_package_dir, self.config['classname'] + 'Application.java',
-			app_modules = self.app_modules)
+			app_modules = self.app_modules, custom_modules = self.custom_modules)
 		self.render(template_dir, 'Activity.java', app_package_dir, self.config['classname'] + 'Activity.java')
 		self.render(template_dir, 'classpath', app_dir, '.classpath')
 		self.render(template_dir, 'project', app_dir, '.project')

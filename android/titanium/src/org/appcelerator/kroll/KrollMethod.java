@@ -1,6 +1,11 @@
+/**
+ * Appcelerator Titanium Mobile
+ * Copyright (c) 2010 by Appcelerator, Inc. All Rights Reserved.
+ * Licensed under the terms of the Apache Public License
+ * Please see the LICENSE included with this distribution for details.
+ */
 package org.appcelerator.kroll;
 
-import org.appcelerator.titanium.kroll.KrollContext;
 import org.appcelerator.titanium.util.AsyncResult;
 import org.appcelerator.titanium.util.Log;
 import org.mozilla.javascript.Context;
@@ -16,17 +21,11 @@ public abstract class KrollMethod extends ScriptableObject implements Function {
 	private static final String TAG = "KrollMethod";
 	
 	protected String name;
-	protected KrollProxy proxy;
 	protected boolean runOnUiThread = false;
 
 	public KrollMethod(String name) {
 		super();
 		this.name = name;
-	}
-	
-	public KrollMethod(KrollProxy proxy, String name) {
-		this(name);
-		this.proxy = proxy;
 	}
 	
 	@Override
@@ -36,6 +35,11 @@ public abstract class KrollMethod extends ScriptableObject implements Function {
 	
 	@Override
 	public Object call(Context context, Scriptable scope, Scriptable thisObj, Object[] args) {
+		KrollProxy proxy = null;
+		if (thisObj instanceof KrollObject) {
+			proxy = ((KrollObject)thisObj).getProxy();
+		}
+		
 		KrollInvocation inv = KrollInvocation.createMethodInvocation(scope, thisObj, name, this, proxy);
 		try {
 			if (!runOnUiThread) {
@@ -85,5 +89,9 @@ public abstract class KrollMethod extends ScriptableObject implements Function {
 	
 	public void setRunOnUiThread(boolean runOnUiThread) {
 		this.runOnUiThread = runOnUiThread;
+	}
+	
+	public String getName() {
+		return name;
 	}
 }

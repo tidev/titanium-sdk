@@ -12,14 +12,17 @@ from os.path import join, splitext, split, exists
 from shutil import copyfile
 
 template_dir = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
-sys.path.append(os.path.join(template_dir,'..'))
-sys.path.append(os.path.join(template_dir,'../common'))
+top_support_dir = os.path.dirname(template_dir) 
+sys.path.append(top_support_dir)
+sys.path.append(os.path.join(top_support_dir, 'common'))
+sys.path.append(os.path.join(top_support_dir, 'module'))
 
 from tiapp import *
 from android import Android
 from androidsdk import AndroidSDK
 from deltafy import Deltafy, Delta
 from css import csscompiler
+from module import ModuleDetector
 import localecompiler
 
 ignoreFiles = ['.gitignore', '.cvsignore', '.DS_Store'];
@@ -658,6 +661,43 @@ class Builder(object):
 					activities.append(mappings)
 			except:
 				pass
+
+		# grab the activities explicitly stated in tiapp.xml
+		if self.tiapp and self.tiapp.android and 'activities' in self.tiapp.android:
+			tiapp_activities = self.tiapp.android['activities']
+			for key in tiapp_activities:
+				activity = tiapp_activities[key]
+				activity_str = '<activity '
+				if 'name' in activity:
+					activity_str += '\n\t\t\tandroid:name="%s"' % activity['name']
+				for subkey in activity:
+					if subkey != 'name':
+						activity_str += '\n\t\t\tandroid:%s="%s"' % (subkey, activity[subkey])
+
+				activities.append(activity_str + '\n\t\t/>\n')
+
+		activities = set(activities)
+
+		# grab the services explicitly stated in tiapp.xml
+		services_str = ''
+		if self.tiapp and self.tiapp.android and 'services' in self.tiapp.android:
+			tiapp_services = self.tiapp.android['services']
+			for key in tiapp_services:
+				service = tiapp_services[key]
+				service_str = '<service '
+				if 'name' in service:
+					service_str += '\n\t\t\tandroid:name="%s"' % service['name']
+				for subkey in service:
+					if subkey != 'name':
+						service_str += '\n\t\t\tandroid:%s="%s"' % (subkey, service[subkey])
+
+				services_str += service_str + '\n\t\t/>\n'
+
+		# grab the permissions explicitly stated in tiapp.xml
+		if self.tiapp and self.tiapp.android and 'permissions' in self.tiapp.android:
+			permissions_required.extend(self.tiapp.android['permissions'])
+
+		permissions_required = set(permissions_required)
 		
 		# build the permissions XML based on the permissions detected
 		permissions_required_xml = ""
@@ -730,6 +770,8 @@ class Builder(object):
 		
 		ti_activities = '<!-- TI_ACTIVITIES -->'
 		ti_permissions = '<!-- TI_PERMISSIONS -->'
+		ti_screens = '<!-- TI_SCREENS -->'
+		ti_services = '<!-- TI_SERVICES -->'
 		manifest_changed = False
 		
 		match = re.search('<uses-sdk android:minSdkVersion="(\d)" />', manifest_contents)
@@ -742,7 +784,30 @@ class Builder(object):
 			
 		manifest_contents = manifest_contents.replace(ti_activities,"\n\n\t\t".join(activities))
 		manifest_contents = manifest_contents.replace(ti_permissions,permissions_required_xml)
+		manifest_contents = manifest_contents.replace(ti_services, services_str)
 		manifest_contents = manifest_contents.replace('<uses-sdk android:minSdkVersion="4" />', '<uses-sdk android:minSdkVersion="%s" />' % android_sdk_version)
+
+		# screens
+		if 'screens' in self.tiapp.android:
+			screens = self.tiapp.android['screens']
+		else:
+			screens = {}
+		for key in ('small', 'normal', 'large', 'anyDensity'):
+			if not key in screens:
+				if key in ('small', 'anyDensity'):
+					screens[key] = False
+				else:
+					screens[key] = True
+		screens_str = '<supports-screens '
+		for key in ('small', 'normal', 'large', 'anyDensity'):
+			value = unicode(screens[key]).lower()
+			if key != 'anyDensity':
+				key += "Screens"
+			screens_str += '\n\t\tandroid:%s="%s"' % (key, value)
+		screens_str += '\n\t/>'
+		manifest_contents = manifest_contents.replace(ti_screens, screens_str)
+						
+						
 		
 		old_contents = None
 		if os.path.exists(android_manifest):
@@ -789,7 +854,7 @@ class Builder(object):
 			
 	def build_generated_classes(self):
 		srclist = []
-		jarlist = []
+		self.module_jars = []
 		srcdir = os.path.join(self.project_dir,'src')
 		
 		for root, dirs, files in os.walk(srcdir):
@@ -804,26 +869,14 @@ class Builder(object):
 					path = root + os.sep + f
 					srclist.append(path)
 	
-		project_module_dir = os.path.join(self.top_dir,'modules','android')
-		if os.path.exists(project_module_dir):
-			for root, dirs, files in os.walk(project_module_dir):
-				# Strip out directories we shouldn't traverse
-				for name in ignoreDirs:
-					if name in dirs:
-						dirs.remove(name)
-
-				if len(files) > 0:
-					for f in files:
-						path = root + os.sep + f
-						ext = splitext(f)[-1]
-						if ext in ('.java'):
-							srclist.append(path)
-						elif ext in ('.jar'):
-							jarlist.append(path) 
-			
+		classpath = os.pathsep.join([self.android_jar, os.pathsep.join(self.android_jars)])
 	
-		classpath = self.android_jar + os.pathsep + os.pathsep.join(self.android_jars)
-		debug("classpath = %s" % classpath)
+		project_module_dir = os.path.join(self.top_dir,'modules','android')
+		detector = ModuleDetector(self.top_dir)
+		missing, modules = detector.find_app_modules(self.tiapp)
+		for module in modules:
+			self.module_jars.append(module.path)
+			classpath = os.pathsep.join([classpath, module.path])
 		
 		javac_command = [self.javac, '-classpath', classpath, '-d', self.classes_dir, '-sourcepath', self.src_dir]
 		javac_command += srclist
@@ -1102,11 +1155,12 @@ class Builder(object):
 				# the dx.bat that ships with android in windows doesn't allow command line
 				# overriding of the java heap space, so we call the jar directly
 				if platform.system() == 'Windows':
-					dex_args = [self.java, '-Xmx512M', '-Djava.ext.dirs=%s' % self.sdk.get_platform_tools_dir(), '-jar', self.sdk.get_dx_jar()]
+					dex_args = [self.java, '-Xmx1024M', '-Djava.ext.dirs=%s' % self.sdk.get_platform_tools_dir(), '-jar', self.sdk.get_dx_jar()]
 				else:
-					dex_args = [dx, '-JXmx896M', '-JXX:-UseGCOverheadLimit']
+					dex_args = [dx, '-JXmx1536M', '-JXX:-UseGCOverheadLimit']
 				dex_args += ['--dex', '--output='+self.classes_dex, self.classes_dir]
 				dex_args += self.android_jars
+				dex_args += self.module_jars
 		
 				info("Compiling Android Resources... This could take some time")
 				sys.stdout.flush()
@@ -1181,43 +1235,84 @@ if __name__ == "__main__":
 		print "  emulator      build and run the emulator"
 		print "  simulator     build and run the app on the simulator"
 		print "  install       build and install the app on the device"
-		print "  distribute	   build final distribution package for upload to marketplace"
+		print "  distribute    build final distribution package for upload to marketplace"
+		print "  run           build and run the project using values from tiapp.xml"
+		print "  run-emulator  run the emulator with a default AVD ID and skin"
 		
 		sys.exit(1)
-		
-	if len(sys.argv)<6 or sys.argv[1] == '--help' or (sys.argv[1]=='distribute' and len(sys.argv)<10):
-		usage()
 
+	argc = len(sys.argv)
+	if argc < 1:
+		usage()
+	
+	command = sys.argv[1]
+	
 	template_dir = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
-	project_name = dequote(sys.argv[2])
-	sdk_dir = os.path.abspath(os.path.expanduser(dequote(sys.argv[3])))
-	project_dir = os.path.abspath(os.path.expanduser(dequote(sys.argv[4])))
-	app_id = dequote(sys.argv[5])
+	get_values_from_tiapp = False
+	
+	if command == 'run':
+		if argc < 4:
+			print 'Usage: %s run <project_dir> <android_sdk>' % sys.argv[0]
+			sys.exit(1)
+		
+		get_values_from_tiapp = True
+		project_dir = sys.argv[2]
+		sdk_dir = sys.argv[3]
+		
+		avd_id = "7"
+	elif command == 'run-emulator':
+		if argc < 4:
+			print 'Usage: %s run-emulator <project_dir> <android_sdk>' % sys.argv[0]
+			sys.exit(1)
+
+		get_values_from_tiapp = True
+		project_dir = sys.argv[2]
+		sdk_dir = sys.argv[3]
+		# sensible defaults?
+		avd_id = "7"
+		avd_skin = "HVGA"
+	else:
+		if argc < 6 or command == '--help' or (command=='distribute' and argc < 10):
+			usage()
+
+	if get_values_from_tiapp:
+		tiappxml = TiAppXML(os.path.join(project_dir, 'tiapp.xml'))
+		app_id = tiappxml.properties['id']
+		project_name = tiappxml.properties['name']
+	else:
+		project_name = dequote(sys.argv[2])
+		sdk_dir = os.path.abspath(os.path.expanduser(dequote(sys.argv[3])))
+		project_dir = os.path.abspath(os.path.expanduser(dequote(sys.argv[4])))
+		app_id = dequote(sys.argv[5])
 	
 	s = Builder(project_name,sdk_dir,project_dir,template_dir,app_id)
 	
-	if sys.argv[1] == 'emulator':
+	if command == 'run-emulator':
+		s.run_emulator(avd_id, avd_skin)
+	elif command == 'run':
+		s.build_and_run(False, avd_id)
+	elif command == 'emulator':
 		avd_id = dequote(sys.argv[6])
 		avd_skin = dequote(sys.argv[7])
 		s.run_emulator(avd_id,avd_skin)
-	elif sys.argv[1] == 'simulator':
+	elif command == 'simulator':
 		info("Building %s for Android ... one moment" % project_name)
 		avd_id = dequote(sys.argv[6])
 		s.build_and_run(False,avd_id)
-	elif sys.argv[1] == 'install':
+	elif command == 'install':
 		avd_id = dequote(sys.argv[6])
 		s.build_and_run(True,avd_id)
-	elif sys.argv[1] == 'distribute':
+	elif command == 'distribute':
 		key = os.path.abspath(os.path.expanduser(dequote(sys.argv[6])))
 		password = dequote(sys.argv[7])
 		alias = dequote(sys.argv[8])
 		output_dir = dequote(sys.argv[9])
 		avd_id = dequote(sys.argv[10])
 		s.build_and_run(True,avd_id,key,password,alias,output_dir)
-	elif sys.argv[1] == 'build':
+	elif command == 'build':
 		s.build_and_run(False, 1, build_only=True)
 	else:
-		error("Unknown command: %s" % sys.argv[1])
+		error("Unknown command: %s" % command)
 		usage()
 
 	sys.exit(0)
