@@ -134,20 +134,28 @@ If you don't have `ant` in your `PATH`, or prefer using Eclipse, just follow the
 ### Module Distribution
 To use your module in a Titanium Mobile app, follow these steps:
 
-1. In the application's root, create a folder named `modules/android`
-2. Copy the module JAR into `modules/android`
-3. In the application's tiapp.xml, add the following XML inside `<ti:app>`:
-	<pre>&lt;modules&gt;
-		&lt;module version="`$MODULE_VERSION`"&gt;$`MODULE_ID`&lt;/module&gt;
-	&lt;/modules&gt;</pre>
-4. The next time the app is Launched or Built, the module should be included with the application
+- In the application's root, create a folder named `modules/android`
+- Copy the module JAR into `modules/android`
+- In the application's tiapp.xml, add the following XML inside `<ti:app>`:
+<pre>&lt;!-- $MODULE_VERSION should be the same as "version" in the module manifest --&gt;
+&lt;modules&gt;
+	&lt;module version="$MODULE_VERSION"&gt;$MODULE_ID&lt;/module&gt;
+	&lt;!-- For example, if we were adding the calc module: --&gt;
+	&lt;module version="0.1"&gt;org.appcelerator.calc&lt;/module&gt;
+&lt;/modules&gt;</pre>
+
+- Use the `require` function to load the module in the app's code, Example:
+<pre>var Module = require('$MODULE_ID');
+// For example, to load the calc module:
+var Calc = require('org.appcelerator.calc');</pre>
+- The next time the app is Launched or Built, the module should be included with the application
 
 ## Testing with the embedded Example project
-The easiest way to get started with your module is to start writing code in the `example/app.js` file, and use the `titanium` script to run and test your module's code. The example folder is equivalent to the `Resources` folder of the application, so feel free to copy data files and other code there for testing purposes.
+The easiest way to get started with your module is to start writing code in the `example/app.js` file, and use ant to run and test your module's code. The example folder is equivalent to the `Resources` folder of the application, so feel free to copy data files and other code there for testing purposes.
 
 The process for running the example project is simply:
 
-- Run the android emulator
+- Run the android emulator once
 - Once the emulator is booted, you can run your example app and module as many times as you like
 
 ### Running the Android emulator
