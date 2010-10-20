@@ -157,7 +157,6 @@
 @end
 
 @implementation TiUITableView
-
 #pragma mark Internal 
 
 -(id)init
@@ -378,7 +377,7 @@
 	[tableview endUpdates];
 }
 
--(void)replaceData:(UITableViewRowAnimation)animation
+-(void)replaceData:(NSMutableArray*)data animation:(UITableViewRowAnimation)animation
 { 
 	//Technically, we should assert that sections is non-nil, but this code
 	//won't have any problems in the case that it is actually nil.	
@@ -396,10 +395,7 @@
 	}
 	RELEASE_TO_NIL(sections);
 
-	NSArray *newsections = [ourProxy valueForKey:@"data"];
-	// get new data array from the proxy
-	sections = [newsections mutableCopy];	//Mutablecopy is faster than adding one by one.
-
+	sections = [data retain];
 	int newCount = 0;	//Since we're iterating anyways, we might as well not get count.
 
 	for (TiUITableViewSectionProxy *section in sections)
@@ -484,38 +480,43 @@
 	{
 		case TiUITableViewActionRowReload:
 		{
-			NSIndexPath *path = [NSIndexPath indexPathForRow:action.row.row inSection:action.row.section.section];
+			TiUITableViewRowProxy* row = (TiUITableViewRowProxy*)action.obj;
+			NSIndexPath *path = [NSIndexPath indexPathForRow:row.row inSection:row.section.section];
 			[tableview reloadRowsAtIndexPaths:[NSArray arrayWithObject:path] withRowAnimation:action.animation];
 			break;
 		}
 		case TiUITableViewActionUpdateRow:
 		{
-			[self updateRow:action.row];
-			NSIndexPath *path = [NSIndexPath indexPathForRow:action.row.row inSection:action.row.section.section];
+			TiUITableViewRowProxy* row = (TiUITableViewRowProxy*)action.obj;			
+			[self updateRow:row];
+			NSIndexPath *path = [NSIndexPath indexPathForRow:row.row inSection:row.section.section];
 			[tableview reloadRowsAtIndexPaths:[NSArray arrayWithObject:path] withRowAnimation:action.animation];
 			break;
 		}
 		case TiUITableViewActionSectionReload:
 		{
-			NSIndexSet *path = [NSIndexSet indexSetWithIndex:action.section];
+			TiUITableViewSectionProxy* section = action.obj;
+			NSIndexSet *path = [NSIndexSet indexSetWithIndex:section.section];
 			[tableview reloadSections:path withRowAnimation:action.animation];
 			break;
 		}
 		case TiUITableViewActionInsertRowBefore:
 		{
-			int index = action.row.row;
-			TiUITableViewRowProxy *oldrow = [[action.row.section rows] objectAtIndex:index];
-			[self insertRow:action.row before:oldrow];
-			NSIndexPath *path = [NSIndexPath indexPathForRow:action.row.row inSection:action.row.section.section];
+			TiUITableViewRowProxy* row = (TiUITableViewRowProxy*)action.obj;						
+			int index = row.row;
+			TiUITableViewRowProxy *oldrow = [[row.section rows] objectAtIndex:index];
+			[self insertRow:row before:oldrow];
+			NSIndexPath *path = [NSIndexPath indexPathForRow:row.row inSection:row.section.section];
 			[tableview insertRowsAtIndexPaths:[NSArray arrayWithObject:path] withRowAnimation:action.animation];
 			break;
 		}
         case TiUITableViewActionInsertSectionBefore:
         {
-            int newSectionIndex = [action section];
-            int rowIndex = action.row.row;
-            action.row.row = 0;
-            TiUITableViewSectionProxy* newSection = action.row.section;
+			TiUITableViewRowProxy* row = (TiUITableViewRowProxy*)action.obj;									
+            int newSectionIndex = row.section.section;
+            int rowIndex = row.row;
+            row.row = 0;
+            TiUITableViewSectionProxy* newSection = row.section;
             
             // Haven't inserted the new section yet
             TiUITableViewSectionProxy* nextSection = [sections objectAtIndex:newSectionIndex];
@@ -559,7 +560,7 @@
             
             // 2nd (sometimes) stage of update: Add in those shiny new rows and update the section.
             [sections insertObject:newSection atIndex:newSectionIndex];
-            [self appendRow:action.row];
+            [self appendRow:row];
             for (TiUITableViewRowProxy* moveRow in addRows) {
                 [self appendRow:moveRow];
             }
@@ -569,23 +570,25 @@
         }
 		case TiUITableViewActionInsertRowAfter:
 		{
-			int index = action.row.row-1;
+			TiUITableViewRowProxy* row = (TiUITableViewRowProxy*)action.obj;												
+			int index = row.row-1;
 			TiUITableViewRowProxy *oldrow = nil;
-			if (index < [[action.row.section rows] count])
+			if (index < [[row.section rows] count])
 			{
-				oldrow = [[action.row.section rows] objectAtIndex:index];
+				oldrow = [[row.section rows] objectAtIndex:index];
 			}
-			[self insertRow:action.row after:oldrow];
-			NSIndexPath *path = [NSIndexPath indexPathForRow:action.row.row inSection:action.row.section.section];
+			[self insertRow:row after:oldrow];
+			NSIndexPath *path = [NSIndexPath indexPathForRow:row.row inSection:row.section.section];
 			[tableview insertRowsAtIndexPaths:[NSArray arrayWithObject:path] withRowAnimation:action.animation];
 			break;
 		}
         case TiUITableViewActionInsertSectionAfter:
         {
-            int newSectionIndex = [action section];
-            int rowIndex = action.row.row; // Get the index of rows which will come after the new row
-            action.row.row = 0; // Reset the row index to the right place
-            TiUITableViewSectionProxy* newSection = action.row.section;
+			TiUITableViewRowProxy* row = (TiUITableViewRowProxy*)action.obj;															
+            int newSectionIndex = row.section.section;
+            int rowIndex = row.row; // Get the index of rows which will come after the new row
+            row.row = 0; // Reset the row index to the right place
+            TiUITableViewSectionProxy* newSection = row.section;
             
             // Move ALL of the rows after the row we're inserting after to the new section
             TiUITableViewSectionProxy* previousSection = [sections objectAtIndex:newSectionIndex-1];
@@ -611,7 +614,7 @@
             
             // 2nd stage of update: Add in those shiny new rows and update the section.
             [sections insertObject:newSection atIndex:newSectionIndex];
-            [self appendRow:action.row];
+            [self appendRow:action.obj];
             for (TiUITableViewRowProxy* moveRow in addRows) {
                 [self appendRow:moveRow];
             }
@@ -621,27 +624,30 @@
         }
 		case TiUITableViewActionDeleteRow:
 		{
-			[self deleteRow:action.row];
-			NSIndexPath *path = [NSIndexPath indexPathForRow:action.row.row inSection:action.row.section.section];
+			TiUITableViewRowProxy* row = (TiUITableViewRowProxy*)action.obj;
+			[self deleteRow:row];
+			NSIndexPath *path = [NSIndexPath indexPathForRow:row.row inSection:row.section.section];
 			[tableview deleteRowsAtIndexPaths:[NSArray arrayWithObject:path] withRowAnimation:action.animation];
 			break;
 		}
 		case TiUITableViewActionSetData:
 		{
-			[self replaceData:action.animation];
+			[self replaceData:action.obj animation:action.animation];
 			break;
 		}
 		case TiUITableViewActionAppendRow:
 		{
-			[self appendRow:action.row];
-			NSIndexPath *path = [NSIndexPath indexPathForRow:action.row.row inSection:action.row.section.section];
+			TiUITableViewRowProxy* row = (TiUITableViewRowProxy*)action.obj;
+			[self appendRow:action.obj];
+			NSIndexPath *path = [NSIndexPath indexPathForRow:row.row inSection:row.section.section];
 			[tableview insertRowsAtIndexPaths:[NSArray arrayWithObject:path] withRowAnimation:action.animation];
 			break;
 		}
         case TiUITableViewActionAppendRowWithSection:
         {
-            [sections addObject:action.row.section];
-            [self appendRow:action.row];
+			TiUITableViewRowProxy* row = (TiUITableViewRowProxy*)action.obj;			
+            [sections addObject:row.section];
+            [self appendRow:action.obj];
             [tableview insertSections:[NSIndexSet indexSetWithIndex:[sections count]-1] withRowAnimation:action.animation];
             break;
         }
@@ -720,11 +726,6 @@
 	}
 	
 	return 0;
-}
-
--(void)setBounds:(CGRect)bounds
-{
-    [super setBounds:bounds];
 }
 
 - (void)triggerActionForIndexPath:(NSIndexPath *)indexPath fromPath:(NSIndexPath*)fromPath tableView:(UITableView*)ourTableView wasAccessory: (BOOL)accessoryTapped search:(BOOL)viaSearch name:(NSString*)name
@@ -907,10 +908,6 @@
 			[tableview setContentOffset:CGPointMake(0,0)];
 		}
 	}
-	// if the first frame size change, don't reload - otherwise, we'll reload
-	// the entire table twice each time - which is a killer on big tables
-	int sectionCount = [self numberOfSectionsInTableView:tableview]-1;
-	[self reloadDataFromCount:sectionCount toCount:sectionCount animation:UITableViewRowAnimationNone];
 
 	[super frameSizeChanged:frame bounds:bounds];
 	
@@ -961,12 +958,20 @@
         [(TiViewProxy*)[(TiUIView*)footerView proxy] reposition];
         [[self tableView] setTableFooterView:footerView];
     }
-
-	if (tableview!=nil && 
-		!CGRectIsEmpty(self.bounds) && 
-		[tableview superview]!=nil)
+	
+    if (tableview!=nil && 
+        !CGRectIsEmpty(self.bounds) && 
+        [tableview superview]!=nil)
 	{
-		[self replaceData:UITableViewRowAnimationNone];
+		
+		if([NSThread isMainThread])
+		{
+			[tableview reloadData];
+		}
+		else
+		{
+			[tableview performSelectorOnMainThread:@selector(reloadData) withObject:nil waitUntilDone:NO];
+		}
 	}
 }
 

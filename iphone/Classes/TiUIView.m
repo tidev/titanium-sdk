@@ -86,6 +86,20 @@ DEFINE_EXCEPTIONS
 
 #pragma mark Internal Methods
 
+#if VIEW_DEBUG
+-(id)retain
+{
+	[super retain];
+	NSLog(@"[VIEW %@] RETAIN: %d", self, [self retainCount]);
+}
+
+-(oneway void)release
+{
+	NSLog(@"[VIEW %@] RELEASE: %d", self, [self retainCount]-1);
+	[super release];
+}
+#endif
+
 -(void)dealloc
 {
 	RELEASE_TO_NIL(transformMatrix);

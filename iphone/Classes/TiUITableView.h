@@ -73,7 +73,7 @@
 -(TiUITableViewRowProxy*)rowForIndex:(NSInteger)index section:(NSInteger*)section;
 -(void)updateSearchView;
 -(NSMutableArray*)sections;
--(void)replaceData:(UITableViewRowAnimation)animation;
+-(void)replaceData:(NSArray*)data animation:(UITableViewRowAnimation)animation;
 
 -(void)dispatchAction:(TiUITableViewAction*)action;
 -(void)scrollToIndex:(NSInteger)index position:(UITableViewScrollPosition)position animated:(BOOL)animated;
