@@ -27,6 +27,11 @@ public class IntentProxy extends KrollProxy
 		super(tiContext);
 	}
 	
+	public IntentProxy(TiContext tiContext, Intent intent) {
+		super(tiContext);
+		this.intent = intent;
+	}
+	
 	public void handleCreationDict(KrollDict dict) {
 		intent = new Intent();
 		
@@ -107,7 +112,37 @@ public class IntentProxy extends KrollProxy
 		}
 	}
 	
-	protected Intent getIntent() { 
+	@Kroll.method
+	public void addCategory(String category) {
+		if (category != null) {
+			if (DBG) {
+				Log.d(LCAT, "Adding category: " + category);
+			}
+			intent.addCategory(category);
+		}
+	}
+	
+	@Kroll.method
+	public String getStringExtra(String name) {
+		return intent.getStringExtra(name);
+	}
+	
+	@Kroll.method
+	public boolean getBooleanExtra(String name, boolean defaultValue) {
+		return intent.getBooleanExtra(name, defaultValue);
+	}
+	
+	@Kroll.method
+	public int getIntExtra(String name, int defaultValue) {
+		return intent.getIntExtra(name, defaultValue);
+	}
+	
+	@Kroll.method
+	public double getDoubleExtra(String name, double defaultValue) {
+		return intent.getDoubleExtra(name, defaultValue);
+	}
+	
+	public Intent getIntent() { 
 		return intent;
 	}
 }
