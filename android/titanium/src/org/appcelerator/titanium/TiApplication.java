@@ -377,9 +377,6 @@ public abstract class TiApplication extends Application
 	
 	public KrollDict getStylesheet(String basename, Collection<String> classes, String objectId) {
 		if (stylesheet != null) {
-			if (DBG) {
-				Log.d(LCAT, "delegating to TiStylesheet for style properties");
-			}
 			return stylesheet.getStylesheet(objectId, classes, density, basename);
 		}
 		return new KrollDict();
