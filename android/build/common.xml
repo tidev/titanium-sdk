@@ -347,6 +347,12 @@ Common ant tasks and macros for building Android-based Titanium modules and proj
 		</sequential>
 	</macrodef>
 
+	<target name="build.all">
+		<antcall target="build.kroll.apt.jar"/>
+		<antcall target="build.titanium.jar"/>
+		<antcall target="build.all.modules"/>
+	</target>
+
 	<macrodef name="clean.project">
 		<attribute name="name"/>
 		<attribute name="prefix" default=""/>
@@ -361,6 +367,18 @@ Common ant tasks and macros for building Android-based Titanium modules and proj
 			</delete>
 		</sequential>
 	</macrodef>
+
+	<target name="clean.all">
+		<delete includeemptydirs="true" failonerror="false">
+			<fileset dir="${ti.build.dir}/bin" includes="**/*" defaultexcludes="false"/>
+			<fileset dir="${dist.dir}" includes="**/*" defaultexcludes="false"/>
+			<fileset dir="${titanium.project.dir}/bin" includes="**/*" defaultexcludes="false"/>
+			<fileset dir="${titanium.project.dir}/.apt_generated" includes="**/*" defaultexcludes="false"/>
+			<fileset dir="${kroll.apt.project.dir}/bin" includes="**/*" defaultexcludes="false"/>
+			<fileset dir="${modules.dir}" includes="*/bin/**/*" defaultexcludes="false"/>
+			<fileset dir="${modules.dir}" includes="*/.apt_generated/**/*" defaultexcludes="false"/>
+		</delete>
+	</target>
 	
 	<macrodef name="define.ti.ant.tasks">
 		<sequential>
