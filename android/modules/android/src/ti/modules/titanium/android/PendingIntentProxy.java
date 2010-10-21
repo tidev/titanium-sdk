@@ -80,7 +80,7 @@ public class PendingIntentProxy extends KrollProxy
 		}
 	}
 	
-	protected PendingIntent getPendingIntent() {
+	public PendingIntent getPendingIntent() {
 		return pendingIntent;
 	}
 
