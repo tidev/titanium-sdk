@@ -8,21 +8,21 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.concurrent.CountDownLatch;
 
-import org.appcelerator.kroll.KrollModule;
-import org.appcelerator.kroll.KrollObject;
+import org.appcelerator.titanium.ITiMenuDispatcherListener;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiRootActivity;
 import org.appcelerator.titanium.kroll.KrollBridge;
-import org.appcelerator.titanium.kroll.KrollContext;
 import org.appcelerator.titanium.proxy.TiActivityWindowProxy;
 import org.appcelerator.titanium.util.Log;
+import org.appcelerator.titanium.util.TiActivityResultHandler;
+import org.appcelerator.titanium.util.TiActivitySupport;
+import org.appcelerator.titanium.util.TiActivitySupportHelper;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiFileHelper;
 import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.titanium.view.TiUIActivityWindow;
-import org.mozilla.javascript.Scriptable;
 
 import android.app.Activity;
 import android.app.Application;
@@ -35,7 +35,8 @@ import android.view.MenuItem;
 import android.view.Window;
 import android.view.WindowManager;
 
-public abstract class TiBaseActivity extends Activity 
+public abstract class TiBaseActivity extends Activity
+	implements TiActivitySupport
 {
 	private static final String LCAT = "TiBaseActivity";
 	private static boolean DBG = TiConfig.LOGD;
@@ -46,6 +47,7 @@ public abstract class TiBaseActivity extends Activity
 	protected ActivityProxy currentActivity;
 	protected IntentProxy currentIntent;
 	protected TiActivityWindowProxy currentWindow;
+	protected TiActivitySupportHelper supportHelper;
 	
 	private HashMap<Integer, MenuItemProxy> itemMap;
 
@@ -316,5 +318,31 @@ public abstract class TiBaseActivity extends Activity
 			return true;
 		}
 		return false;
+	}
+	
+	// Activity Support
+	public int getUniqueResultCode() {
+		if (supportHelper == null) {
+			this.supportHelper = new TiActivitySupportHelper(this);
+		}
+		return supportHelper.getUniqueResultCode();
+	}
+
+	public void launchActivityForResult(Intent intent, int code, TiActivityResultHandler resultHandler)
+	{
+		if (supportHelper == null) {
+			this.supportHelper = new TiActivitySupportHelper(this);
+		}
+		supportHelper.launchActivityForResult(intent, code, resultHandler);
+	}
+	
+	public void setMenuDispatchListener(ITiMenuDispatcherListener listener) {
+		// TODO This just a no-op for now, remove when we refactor
+	}
+	
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		super.onActivityResult(requestCode, resultCode, data);
+		supportHelper.onActivityResult(requestCode, resultCode, data);
 	}
 }
