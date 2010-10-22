@@ -16,9 +16,9 @@ function resultHelper(result, expected) {
 	} 
 	
 	if (result == expected) {
-		return "Test Success";
+		return "Test Success ("+result+"=="+expected+")";
 	} else {
-		return "Test Failure";
+		return "Test Failure: result (" + result + ") != expected (" + expected + ")";
 	}
 }
 

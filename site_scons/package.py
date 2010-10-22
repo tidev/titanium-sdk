@@ -57,11 +57,14 @@ def zip_dir(zf,dir,basepath,subs=None,cb=None):
 def zip_android(zf,basepath):
 	android_dist_dir = os.path.join(top_dir, 'dist', 'android')
 	zip_dir(zf, os.path.join(cur_dir,'simplejson'), os.path.join(basepath, 'android', 'simplejson'))
-	android_jar = os.path.join(android_dist_dir, 'titanium.jar')
-	zf.write(android_jar, '%s/android/titanium.jar' % basepath)	
+	
+	for jar in ['titanium.jar', 'kroll-apt.jar']:
+		jar_path = os.path.join(android_dist_dir, jar)
+		zf.write(jar_path, '%s/android/%s' % (basepath, jar))
 
-	kroll_apt_jar = os.path.join(android_dist_dir, 'kroll-apt.jar')
-	zf.write(kroll_apt_jar, '%s/android/kroll-apt.jar' % basepath)
+	ant_tasks_jar = os.path.join(android_dist_dir, 'ant-tasks.jar')
+	zf.write(ant_tasks_jar, '%s/module/android/ant-tasks.jar' % basepath)
+	
 	kroll_apt_lib_dir = os.path.join(top_dir, 'android', 'kroll-apt', 'lib')
 	for jar in os.listdir(kroll_apt_lib_dir):
 		if jar.endswith('.jar'):

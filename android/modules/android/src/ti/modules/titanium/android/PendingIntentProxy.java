@@ -4,6 +4,7 @@
 package ti.modules.titanium.android;
 
 import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiContext;
@@ -29,12 +30,12 @@ public class PendingIntentProxy extends KrollProxy
 	}
 	
 	@Override
-	public void handleCreationArgs(Object[] args) {
+	public void handleCreationArgs(KrollModule createdInModule, Object[] args) {
 		if (args.length == 0 || !(args[0] instanceof KrollDict)) {
 			throw new IllegalStateException("Missing creation arguments.");
 		}
 		
-		super.handleCreationArgs(args);
+		super.handleCreationArgs(createdInModule, args);
 	}
 	
 	public void handleCreationDict(KrollDict dict) {
@@ -70,17 +71,17 @@ public class PendingIntentProxy extends KrollProxy
 				break;
 			}
 			case AndroidModule.PENDING_INTENT_FOR_BROADCAST : {
-				pendingIntent = PendingIntent.getBroadcast(activity.getActivity(), 0, intent.getIntent(), flags);
+				pendingIntent = PendingIntent.getBroadcast(activity.getContext(), 0, intent.getIntent(), flags);
 				break;
 			}
 			case AndroidModule.PENDING_INTENT_FOR_SERVICE : {
-				pendingIntent = PendingIntent.getService(activity.getActivity(), 0, intent.getIntent(), flags);
+				pendingIntent = PendingIntent.getService(activity.getContext(), 0, intent.getIntent(), flags);
 				break;
 			}
 		}
 	}
 	
-	protected PendingIntent getPendingIntent() {
+	public PendingIntent getPendingIntent() {
 		return pendingIntent;
 	}
 

@@ -5,7 +5,7 @@
 # the Android Emulator or on the device
 #
 import os, sys, subprocess, shutil, time, signal, string, platform, re, glob, hashlib
-import run, avd, prereq
+import run, avd, prereq, zipfile
 from os.path import splitext
 from compiler import Compiler
 from os.path import join, splitext, split, exists
@@ -772,6 +772,8 @@ class Builder(object):
 		ti_permissions = '<!-- TI_PERMISSIONS -->'
 		ti_screens = '<!-- TI_SCREENS -->'
 		ti_services = '<!-- TI_SERVICES -->'
+		ti_manifest = '<!-- TI_MANIFEST -->'
+		ti_application = '<!-- TI_APPLICATION -->'
 		manifest_changed = False
 		
 		match = re.search('<uses-sdk android:minSdkVersion="(\d)" />', manifest_contents)
@@ -806,8 +808,39 @@ class Builder(object):
 			screens_str += '\n\t\tandroid:%s="%s"' % (key, value)
 		screens_str += '\n\t/>'
 		manifest_contents = manifest_contents.replace(ti_screens, screens_str)
-						
-						
+		
+		manifest_xml = ''
+		def get_manifest_xml(tiapp):
+			xml = ''
+			if 'manifest' in tiapp.android_manifest:
+				for manifest_el in tiapp.android_manifest['manifest']:
+					xml += manifest_el.toprettyxml()
+			return xml
+		
+		application_xml = ''
+		def get_application_xml(tiapp):
+			xml = ''
+			if 'application' in tiapp.android_manifest:
+				for app_el in tiapp.android_manifest['application']:
+					xml += app_el.toxml()
+			return xml
+		
+		# add manifest / application entries from tiapp.xml
+		manifest_xml += get_manifest_xml(self.tiapp)
+		application_xml += get_application_xml(self.tiapp)
+		
+		# add manifest / application entries from modules
+		detector = ModuleDetector(self.top_dir)
+		self.missing_modules, self.modules = detector.find_app_modules(self.tiapp)
+		for module in self.modules:
+			if module.xml == None: continue
+			manifest_xml += get_manifest_xml(module.xml)
+			application_xml += get_application_xml(module.xml)
+		
+		if len(manifest_xml) > 0:
+			manifest_contents = manifest_contents.replace(ti_manifest, manifest_xml)
+		if len(application_xml) > 0:
+			manifest_contents = manifest_contents.replace(ti_application, application_xml)
 		
 		old_contents = None
 		if os.path.exists(android_manifest):
@@ -872,11 +905,14 @@ class Builder(object):
 		classpath = os.pathsep.join([self.android_jar, os.pathsep.join(self.android_jars)])
 	
 		project_module_dir = os.path.join(self.top_dir,'modules','android')
-		detector = ModuleDetector(self.top_dir)
-		missing, modules = detector.find_app_modules(self.tiapp)
-		for module in modules:
-			self.module_jars.append(module.path)
-			classpath = os.pathsep.join([classpath, module.path])
+		for module in self.modules:
+			if module.jar == None: continue
+			self.module_jars.append(module.jar)
+			classpath = os.pathsep.join([classpath, module.jar])
+			module_lib = module.get_resource('lib')
+			for jar in glob.glob(os.path.join(module_lib, '*.jar')):
+				self.module_jars.append(jar)
+				classpath = os.pathsep.join([classpath, jar])
 		
 		javac_command = [self.javac, '-classpath', classpath, '-d', self.classes_dir, '-sourcepath', self.src_dir]
 		javac_command += srclist
@@ -891,6 +927,8 @@ class Builder(object):
 		unsigned_apk = os.path.join(self.project_dir, 'bin', 'app-unsigned.apk')
 		apk_build_cmd = [self.apkbuilder, unsigned_apk, '-u', '-z', ap_, '-f', self.classes_dex, '-rf', self.src_dir]
 		for jar in self.android_jars:
+			apk_build_cmd += ['-rj', jar]
+		for jar in self.module_jars:
 			apk_build_cmd += ['-rj', jar]
 		
 		run.run(apk_build_cmd)

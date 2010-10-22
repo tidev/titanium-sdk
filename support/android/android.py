@@ -195,7 +195,8 @@ class Android(object):
 		
 		self.custom_modules = []
 		for module in detected_modules:
-			module_jar = zipfile.ZipFile(module.path)
+			if module.jar == None: continue
+			module_jar = zipfile.ZipFile(module.jar)
 			module_bindings = self.get_module_bindings(module_jar)
 			if module_bindings is None: continue
 			

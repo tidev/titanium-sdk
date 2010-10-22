@@ -3,12 +3,14 @@
  */
 package ti.modules.titanium.android;
 
+import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 
@@ -28,8 +30,8 @@ public class ActivityProxy
 	}
 	
 	@Override
-	public void handleCreationArgs(Object[] args) {
-		super.handleCreationArgs(args);
+	public void handleCreationArgs(KrollModule createdInModule, Object[] args) {
+		super.handleCreationArgs(createdInModule, args);
 		if (args != null && args.length >= 1) {
 			if (args[0] instanceof TiBaseActivity) {
 				if (DBG) {
@@ -45,6 +47,29 @@ public class ActivityProxy
 	{
 		Intent intent = intentProxy.getIntent();
 		this.getTiContext().getActivity().startActivity(intent);
+	}
+	
+	@Kroll.method
+	public IntentProxy getIntent()
+	{
+		IntentProxy ip = null;
+		Activity a = activity;
+		
+		if (a == null) {
+			a = getTiContext().getActivity();
+			if (a == null) {
+				a = getTiContext().getRootActivity();
+			}
+		}
+		
+		if (a != null) {
+			Intent intent = a.getIntent();
+			if (intent != null) {
+				ip = new IntentProxy(getTiContext(), intent);
+			}
+		}
+		
+		return ip;
 	}
 	
 	protected Context getContext() {
