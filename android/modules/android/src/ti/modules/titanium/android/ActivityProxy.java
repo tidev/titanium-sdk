@@ -10,6 +10,7 @@ import org.appcelerator.titanium.TiProxyListener;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 
@@ -72,6 +73,24 @@ public class ActivityProxy
 	
 	protected TiBaseActivity getActivity() {
 		return activity;
+	}
+	
+	public IntentProxy getIntent() {
+		IntentProxy ip = null;
+		
+		Activity a = activity;
+		if (a == null) {
+			a = getTiContext().getActivity();
+		}
+		
+		if (a != null) {
+			Intent intent = a.getIntent();
+			if (intent != null) {
+				ip = new IntentProxy(getTiContext(), intent);
+			}
+		}
+		
+		return ip;
 	}
 	
 	protected void release() {

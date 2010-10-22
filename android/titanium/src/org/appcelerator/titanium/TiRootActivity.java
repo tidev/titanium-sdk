@@ -21,7 +21,6 @@ import org.appcelerator.titanium.view.ITiWindowHandler;
 import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.titanium.view.TiCompositeLayout.LayoutParams;
 
-import android.R.color;
 import android.app.Activity;
 import android.app.ActivityGroup;
 import android.app.AlarmManager;
@@ -31,9 +30,7 @@ import android.app.PendingIntent;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.DialogInterface.OnClickListener;
-import android.graphics.Color;
 import android.os.Bundle;
-import android.os.Process;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -270,6 +267,19 @@ public class TiRootActivity extends ActivityGroup
 		if (restart) {
 			Log.w(LCAT, "Tasks may have been destroyed by Android OS for inactivity. Restarting.");
 			restartApp(buildLaunchIntent(), 250);
+		}
+	}
+
+	
+	@Override
+	protected void onNewIntent(Intent intent) {
+		super.onNewIntent(intent);
+		if (intent != null) {
+			if (intent.hasExtra("alarmData")) {
+				TiDict d = new TiDict();
+				d.put("alarmData", intent.getStringExtra("alarmData"));
+				tiContext.getTiApp().fireAppEvent("android:newIntent", d);
+			}
 		}
 	}
 

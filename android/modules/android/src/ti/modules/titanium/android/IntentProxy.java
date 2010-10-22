@@ -94,6 +94,12 @@ public class IntentProxy extends TiProxy
 		}
 	}	
 	
+	public IntentProxy(TiContext tiContext, Intent intent) {
+		super(tiContext);
+		
+		this.intent = intent;
+	}
+	
 	public void putExtra(String key, Object value) 
 	{
 		if (value instanceof String) {
@@ -117,6 +123,18 @@ public class IntentProxy extends TiProxy
 			}
 			intent.addCategory(category);
 		}
+	}
+	
+	public String getStringExtra(String name) {
+		String value = null;
+		
+		if (intent != null) {
+			if (intent.hasExtra(name)) {
+				value = intent.getStringExtra(name);
+			}
+		}
+		
+		return value;
 	}
 	
 	public Intent getIntent() { 
