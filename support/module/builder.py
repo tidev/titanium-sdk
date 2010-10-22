@@ -5,9 +5,9 @@
 #
 import os, sys, shutil, tempfile, subprocess, platform
 template_dir = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
-android_support_dir = os.path.join(os.path.dirname(template_dir), 'android')
-top_support_dir = os.path.dirname(android_support_dir)
-sys.path.extend([top_support_dir, android_support_dir])
+sdk_dir = os.path.dirname(template_dir)
+android_support_dir = os.path.join(sdk_dir, 'android')
+sys.path.extend([sdk_dir, android_support_dir])
 
 from androidsdk import AndroidSDK
 from manifest import Manifest
@@ -47,10 +47,16 @@ def run_ant(project_dir):
 		ant = os.path.join(os.environ['ANT_HOME'], 'bin', 'ant')
 	
 	if platform.system() == 'Windows':
-		ant_args = ['cmd.exe', '/C', ant+'.bat', '-f', build_xml]
-	else:
-		ant_args = [ant, '-f', build_xml]
+		ant += '.bat'
+
+	ant_args = [ant, '-f', build_xml]
 	
+	if platform.system() == 'Windows':
+		ant_args = ['cmd.exe', '/C'] + ant_args
+	else:
+		# wrap with /bin/sh in Unix, in some cases the script itself isn't executable
+		ant_args = ['/bin/sh'] + ant_args
+
 	run(ant_args, cwd=project_dir)
 
 ignoreFiles = ['.gitignore', '.cvsignore', '.DS_Store'];
@@ -80,7 +86,7 @@ def is_ios(platform):
 
 def is_android(platform):
 	return platform == 'android'
-	
+
 def stage(platform, project_dir, manifest, callback):
 	dont_delete = True
 	dir = tempfile.mkdtemp('ti','m')
@@ -146,6 +152,17 @@ def stage(platform, project_dir, manifest, callback):
 	finally:
 		if not dont_delete: shutil.rmtree(dir)
 
+# a simplified .properties file parser
+def read_properties(file):
+	properties = {}
+	for line in file.read().splitlines():
+		line = line.strip()
+		if len(line) > 0 and line[0] == '#': continue
+		
+		key, value = line.split('=', 1)
+		properties[key.strip()] = value.strip().replace('\\\\', '\\')
+	return properties
+
 def main(args):
 	global android_sdk
 	# command platform project_dir
@@ -156,8 +173,10 @@ def main(args):
 	error = False
 	
 	if is_android(platform):
-		android_sdk = AndroidSDK(manifest.get_property('android.sdk'), 4)
-		
+		build_properties = read_properties(open(os.path.join(project_dir, 'build.properties')))
+		android_sdk_path = os.path.dirname(os.path.dirname(build_properties['android.platform']))
+		android_sdk = AndroidSDK(android_sdk_path, 4)
+
 	if command == 'run':
 		def run_callback(gen_project_dir):
 			script = os.path.abspath(os.path.join(template_dir,'..',platform,'builder.py'))

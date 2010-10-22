@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+0#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
 # tiapp parser
@@ -6,13 +6,14 @@
 import os, types, uuid
 import codecs, time, sys
 from xml.dom.minidom import parseString
+from StringIO import StringIO
 
 def getText(nodelist):
-    rc = ""
-    for node in nodelist:
-        if node.nodeType == node.TEXT_NODE:
-            rc = rc + node.data
-    return rc
+	rc = ""
+	for node in nodelist:
+		if node.nodeType == node.TEXT_NODE:
+			rc = rc + node.data
+	return rc
 
 class TiWindow(object):
 	def __init__(self,properties):
@@ -39,10 +40,14 @@ def get_window_properties(node):
 
 			
 class TiAppXML(object):
-	def __init__(self,file):
+	def __init__(self, file, parse_only=False):
 		self.file = file
-		self.dom = parseString(codecs.open(self.file,'r','utf-8','replace').read().encode('utf-8'))
+		if isinstance(self.file, StringIO):
+			data = self.file
+		else:
+			data = codecs.open(self.file,'r','utf-8','replace')
 		
+		self.dom = parseString(data.read().encode('utf-8'))
 		self.properties = {
 			'id':None,
 			'name':None,
@@ -57,9 +62,10 @@ class TiAppXML(object):
 		}
 		self.app_properties = {}
 		self.android = {}
-
-		root = self.dom.getElementsByTagName("ti:app")
-		children = root[0].childNodes
+		self.android_manifest = {}
+		
+		root = self.dom.documentElement
+		children = root.childNodes
 		self.windows = []
 		for child in children:
 			if child.nodeType == 1:
@@ -78,6 +84,8 @@ class TiAppXML(object):
 							self.properties['modules'].append({'name':name,'version':ver})
 				elif child.nodeName == 'android':
 					self.parse_android(child)
+				elif child.nodeName == 'android:manifest':
+					self.parse_android_manifest(child)
 				elif child.nodeName == 'property':
 					name = child.getAttribute('name')
 					value = getText(child.childNodes)
@@ -89,67 +97,74 @@ class TiAppXML(object):
 					self.properties[child.nodeName]=getText(child.childNodes)
 		
 		# ensure we create a guid if the project doesn't already have one
-		if not self.properties.has_key('guid'):
+		if not parse_only and not self.properties.has_key('guid'):
 			guid = uuid.uuid4().hex
 			self.properties['guid'] = guid
 			n = self.dom.createElement("guid")
 			n.appendChild(self.dom.createTextNode(guid))
-			root[0].appendChild(n)
-			root[0].appendChild(self.dom.createTextNode("\n"))
+			root.appendChild(n)
+			root.appendChild(self.dom.createTextNode("\n"))
 			self.dom.writexml(codecs.open(self.file, 'w+','utf-8','replace'), encoding="UTF-8")
 
+	def parse_android_manifest(self, node):
+		# android:manifest XML gets copied to the AndroidManifest.xml under the top level <manifest>
+		# anything under <application> will also get copied into the manifest's <application>
+		for child in node.childNodes:
+			if child.nodeType != child.ELEMENT_NODE: continue
+			if child.nodeName == 'application':
+				if 'application' not in self.android_manifest:
+					self.android_manifest['application'] = []
+				application = self.android_manifest['application']
+				application.extend([n for n in child.childNodes if n.nodeType == n.ELEMENT_NODE])
+				continue
+			
+			if 'manifest' not in self.android_manifest:
+				self.android_manifest['manifest'] = []
+			manifest = self.android_manifest['manifest']
+			manifest.append(child)
+	
 	def parse_android(self, node):
+		def get_text(node): return getText(node.childNodes)
+		
+		def lazy_init(name, value, map=self.android, set_name=False):
+			if not name in map: map[name] = value
+			if set_name: map[name]['name'] = name
+			return map[name]
+		
+		def add_attrs(map, element, fn=None):
+			for attr in element.attributes.keys():
+				value = element.getAttribute(attr)
+				if fn != None: value = fn(value)
+				map[attr] = value
+		
 		def parse_permissions(node):
-			if not 'permissions' in self.android:
-				self.android['permissions'] = []
-			for child in node.childNodes:
-				if child.nodeName == 'permission':
-					self.android['permissions'].append(getText(child.childNodes))
+			permissions = lazy_init('permissions', [])
+			for permission in node.getElementsByTagName('permission'):
+				permissions.append(get_text(permission))
 
 		def parse_screens(node):
-			if not 'screens' in self.android:
-				self.android['screens'] = {}
-			screens = self.android['screens']
-			for key in node.attributes.keys():
-				screens[key] = self.to_bool(node.attributes.getNamedItem(key).value)
+			screens = lazy_init('screens', {})
+			add_attrs(screens, node, self.to_bool)
 
 		def parse_activities(node):
-			if not 'activities' in self.android:
-				self.android['activities'] = {}
-			activities = self.android['activities']
-			for child in node.childNodes:
-				if child.nodeName == 'activity':
-					name = getText(child.childNodes)
-					if not name in activities:
-						activities[name] = {}
-					activity = activities[name]
-					activity['name'] = name
-					for attr in child.attributes.keys():
-						activity[attr] = child.attributes.getNamedItem(attr).value
+			activities = lazy_init('activities', {})
+			for activity_el in node.getElementsByTagName('activity'):
+				name = get_text(activity_el)
+				activity = lazy_init(name, {}, activities, set_name=True)
+				add_attrs(activity, activity_el)
 
 		def parse_services(node):
-			if not 'services' in self.android:
-				self.android['services'] = {}
-			services = self.android['services']
-			for child in node.childNodes:
-				if child.nodeName == 'service':
-					name = getText(child.childNodes)
-					if not name in services:
-						services[name] = {}
-					service = services[name]
-					service['name'] = name
-					for attr in child.attributes.keys():
-						service[attr] = child.attributes.getNamedItem(attr).value
-
+			services = lazy_init('services', {})
+			for service_el in node.getElementsByTagName('service'):
+				name = get_text(service_el)
+				service = lazy_init(name, {}, services, set_name=True)
+				add_attrs(service, service_el)
+		
+		local_objects = locals()
+		parse_tags = ['permissions', 'screens', 'activities', 'services']
 		for child in node.childNodes:
-			if child.nodeName == 'permissions':
-				parse_permissions(child)
-			if child.nodeName == 'screens':
-				parse_screens(child)
-			if child.nodeName == 'activities':
-				parse_activities(child)
-			if child.nodeName == 'services':
-				parse_services(child)
+			if child.nodeName in parse_tags:
+				local_objects['parse_'+child.nodeName](child)
 
 	def has_app_property(self, property):
 		return property in self.app_properties
@@ -162,7 +177,7 @@ class TiAppXML(object):
 	
 	def setDeployType(self, deploy_type):
 		found = False
-		children = self.dom.getElementsByTagName("ti:app")[0].childNodes
+		children = self.dom.documentElement.childNodes
 		for child in children:
 			if child.nodeType == 1 and child.nodeName == 'property' :
 				if child.getAttributeNode('name').nodeValue == 'ti.deploytype' :
@@ -171,11 +186,11 @@ class TiAppXML(object):
 					break
 
 		if not found :
-			root = self.dom.getElementsByTagName("ti:app")
+			root = self.dom.documentElement
 			n = self.dom.createElement("property")
 			n.setAttribute('name','ti.deploytype')
 			n.appendChild(self.dom.createTextNode(deploy_type))
-			root[0].appendChild(n)
+			root.appendChild(n)
 			
 		self.dom.writexml(codecs.open(self.file, 'w+','utf-8','replace'), encoding="UTF-8")
 

@@ -73,6 +73,7 @@
 
 		<jar jarfile="${dist}/${ant.project.name}.jar" basedir="${classes}">
 			<fileset file="manifest"/>
+			<fileset file="timodule.xml"/>
 			<zipfileset dir="${lib.expand.dir}"/>
 		</jar>
 		<delete dir="${lib.expand.dir}" includeemptydirs="true" failonerror="false" deleteonexit="true"/>
