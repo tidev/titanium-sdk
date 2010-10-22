@@ -127,6 +127,15 @@ public class TiContext implements TiEvaluator, ITiMenuDispatcherListener, ErrorR
 		}
 		tiEvaluator = evaluator;
 	}
+	
+	public KrollBridge getKrollBridge() {
+		if (tiEvaluator instanceof KrollBridge) {
+			return (KrollBridge)tiEvaluator;
+		} else if (tiEvaluator instanceof TiContext) {
+			return ((TiContext)tiEvaluator).getKrollBridge();
+		}
+		return null;
+	}
 
 	public Activity getActivity() {
 		Activity activity = weakActivity.get();

@@ -429,7 +429,7 @@ public @interface Kroll {
 		 * </p>
 		 * 
 		 * @default None (don't generate a create method)
-		 * @see KrollProxy#handleCreationArgs(Object[])
+		 * @see KrollProxy#handleCreationArgs(org.appcelerator.kroll.KrollModule, Object[])
 		 * @see KrollProxy#handleCreationDict(org.appcelerator.kroll.KrollDict)
 		 */
 		Class<?> creatableInModule() default DEFAULT.class;
