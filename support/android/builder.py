@@ -831,16 +831,11 @@ class Builder(object):
 		
 		# add manifest / application entries from modules
 		detector = ModuleDetector(self.top_dir)
-		missing, modules = detector.find_app_modules(self.tiapp)
-		for module in modules:
-			jar = zipfile.ZipFile(module.path)
-			jar_names = jar.namelist()
-			if 'timodule.xml' not in jar_names: continue
-			
-			timodule_xml = StringIO(jar.read('timodule.xml'))
-			timodule = TiAppXML(timodule_xml, parse_only=True)
-			manifest_xml += get_manifest_xml(timodule)
-			application_xml += get_application_xml(timodule)
+		self.missing_modules, self.modules = detector.find_app_modules(self.tiapp)
+		for module in self.modules:
+			if module.xml == None: continue
+			manifest_xml += get_manifest_xml(module.xml)
+			application_xml += get_application_xml(module.xml)
 		
 		if len(manifest_xml) > 0:
 			manifest_contents = manifest_contents.replace(ti_manifest, manifest_xml)
@@ -910,11 +905,14 @@ class Builder(object):
 		classpath = os.pathsep.join([self.android_jar, os.pathsep.join(self.android_jars)])
 	
 		project_module_dir = os.path.join(self.top_dir,'modules','android')
-		detector = ModuleDetector(self.top_dir)
-		missing, modules = detector.find_app_modules(self.tiapp)
-		for module in modules:
-			self.module_jars.append(module.path)
-			classpath = os.pathsep.join([classpath, module.path])
+		for module in self.modules:
+			if module.jar == None: continue
+			self.module_jars.append(module.jar)
+			classpath = os.pathsep.join([classpath, module.jar])
+			module_lib = module.get_resource('lib')
+			for jar in glob.glob(os.path.join(module_lib, '*.jar')):
+				self.module_jars.append(jar)
+				classpath = os.pathsep.join([classpath, jar])
 		
 		javac_command = [self.javac, '-classpath', classpath, '-d', self.classes_dir, '-sourcepath', self.src_dir]
 		javac_command += srclist

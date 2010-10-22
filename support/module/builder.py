@@ -138,7 +138,8 @@ def stage(platform, project_dir, manifest, callback):
 			script = os.path.join(project_dir,'build.py')
 			run_python([script])
 		elif is_android(platform):
-			buildfile = os.path.join(project_dir, 'dist', '%s.jar' % name)
+			module_zip = os.path.join(project_dir, 'dist', '%s-android-%s.zip' % (moduleid.lower(), version))
+			shutil.copy(module_zip, gen_project_dir)
 			run_ant(project_dir)
 
 		if buildfile:
