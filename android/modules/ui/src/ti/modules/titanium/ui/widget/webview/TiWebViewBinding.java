@@ -17,6 +17,7 @@ import org.appcelerator.kroll.KrollInvocation;
 import org.appcelerator.kroll.KrollMethod;
 import org.appcelerator.kroll.KrollReflectionProperty;
 import org.appcelerator.kroll.KrollProxy;
+import org.appcelerator.titanium.kroll.KrollBridge;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.Log;
 import org.json.JSONException;
@@ -163,7 +164,7 @@ public class TiWebViewBinding {
 		
 		public AppBinding(TiContext context)
 		{
-			module = new AppModule(context);
+			module = (AppModule)((KrollBridge)context.getJSContext()).getModule("App");
 		}
 		
 		public void fireEvent(String event, String json)
