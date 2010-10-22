@@ -70,11 +70,11 @@ public class PendingIntentProxy extends KrollProxy
 				break;
 			}
 			case AndroidModule.PENDING_INTENT_FOR_BROADCAST : {
-				pendingIntent = PendingIntent.getBroadcast(activity.getActivity(), 0, intent.getIntent(), flags);
+				pendingIntent = PendingIntent.getBroadcast(activity.getContext(), 0, intent.getIntent(), flags);
 				break;
 			}
 			case AndroidModule.PENDING_INTENT_FOR_SERVICE : {
-				pendingIntent = PendingIntent.getService(activity.getActivity(), 0, intent.getIntent(), flags);
+				pendingIntent = PendingIntent.getService(activity.getContext(), 0, intent.getIntent(), flags);
 				break;
 			}
 		}
