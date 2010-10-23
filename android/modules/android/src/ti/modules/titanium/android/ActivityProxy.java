@@ -3,6 +3,7 @@
  */
 package ti.modules.titanium.android;
 
+import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiContext;
@@ -29,8 +30,8 @@ public class ActivityProxy
 	}
 	
 	@Override
-	public void handleCreationArgs(Object[] args) {
-		super.handleCreationArgs(args);
+	public void handleCreationArgs(KrollModule createdInModule, Object[] args) {
+		super.handleCreationArgs(createdInModule, args);
 		if (args != null && args.length >= 1) {
 			if (args[0] instanceof TiBaseActivity) {
 				if (DBG) {

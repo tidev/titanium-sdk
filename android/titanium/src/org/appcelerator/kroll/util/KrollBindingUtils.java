@@ -11,6 +11,7 @@ import org.appcelerator.kroll.KrollDefaultValueProvider;
 import org.appcelerator.kroll.KrollInvocation;
 import org.appcelerator.kroll.KrollJavascriptConverter;
 import org.appcelerator.kroll.KrollMethod;
+import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.titanium.TiContext;
 
@@ -62,6 +63,7 @@ public class KrollBindingUtils {
 		return new KrollMethod("create" + proxyName) {
 			public Object invoke(KrollInvocation invocation, Object[] args) throws Exception
 			{
+				KrollModule createdInModule = (KrollModule) invocation.getProxy();
 				KrollProxy proxy = creator.create(invocation.getTiContext());
 				
 				Object createArgs[] = new Object[args.length];
@@ -70,7 +72,7 @@ public class KrollBindingUtils {
 						invocation, args[i], Object.class);
 				}
 				
-				proxy.handleCreationArgs(createArgs);
+				proxy.handleCreationArgs(createdInModule, createArgs);
 				return KrollConverter.getInstance().convertNative(invocation, proxy);
 			}
 		};

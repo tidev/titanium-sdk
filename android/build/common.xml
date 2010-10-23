@@ -384,6 +384,7 @@ Common ant tasks and macros for building Android-based Titanium modules and proj
 		<sequential>
 			<taskdef classname="org.appcelerator.titanium.ant.GetModuleBuildOrderTask" name="ti.getModuleBuildOrder" classpathref="ti.build.path"/>
 			<taskdef classname="org.appcelerator.titanium.ant.ModulePathTask" name="ti.modulePath" classpathref="ti.build.path"/>
+			<taskdef classname="org.appcelerator.titanium.ant.StringTask" name="ti.string" classpathref="ti.build.path"/>
 		</sequential>
 	</macrodef>
 	
@@ -391,6 +392,7 @@ Common ant tasks and macros for building Android-based Titanium modules and proj
 		<sequential>
 			<mkdir dir="${ti.build.dir}/bin"/>
 			<javac srcdir="${ti.build.dir}/src" destdir="${ti.build.dir}/bin" includes="**/*.java" classpathref="ti.build.lib.path" includeantruntime="false"/>
+			<jar basedir="${ti.build.dir}/bin" destfile="${dist.dir}/ant-tasks.jar"/>
 		</sequential>
 	</macrodef>
 	

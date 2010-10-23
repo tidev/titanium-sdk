@@ -15,14 +15,11 @@ import java.util.concurrent.Semaphore;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollInvocation;
 import org.appcelerator.kroll.KrollMethod;
-import org.appcelerator.kroll.KrollReflectionProperty;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.Log;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.mozilla.javascript.Context;
-import org.mozilla.javascript.Scriptable;
 
 import ti.modules.titanium.api.APIModule;
 import ti.modules.titanium.app.AppModule;
@@ -45,7 +42,7 @@ public class TiWebViewBinding {
 		webView.addJavascriptInterface(apiBinding, "TiAPI");
 		webView.addJavascriptInterface(appBinding, "TiApp");
 		webView.addJavascriptInterface(new TiReturn(), "_TiReturn");
-		insertApiBindings();		
+		insertApiBindings();
 	}
 	
 	public void insertApiBindings() 
@@ -55,7 +52,6 @@ public class TiWebViewBinding {
 	}
 	
 	public void destroy() {
-		appBinding.module.onDestroy();
 	}
 	
 	private void evalJS(InputStream stream)
@@ -93,7 +89,7 @@ public class TiWebViewBinding {
 		return null;
 	}
 	
-	
+	@SuppressWarnings("unused")
 	private class TiReturn {
 		public void setValue(String value) {
 			if (value != null) {
@@ -103,6 +99,7 @@ public class TiWebViewBinding {
 		}
 	}
 	
+	@SuppressWarnings("serial")
 	private class WebViewCallback extends KrollMethod
 	{
 		private int id;
@@ -122,11 +119,12 @@ public class TiWebViewBinding {
 		}
 	}
 
+	@SuppressWarnings("unused")
 	private class APIBinding
 	{
 		private APIModule module;
 		public APIBinding(TiContext context) {
-			module = new APIModule(context);
+			module = context.getTiApp().getModuleByClass(APIModule.class);
 		}
 		public void critical(String msg) {
 			module.critical(msg);
@@ -156,14 +154,15 @@ public class TiWebViewBinding {
 			module.warn(msg);
 		}
 	}
-	
+
+	@SuppressWarnings("unused")
 	private class AppBinding
 	{
 		private AppModule module;
 		
 		public AppBinding(TiContext context)
 		{
-			module = new AppModule(context);
+			module = context.getTiApp().getModuleByClass(AppModule.class);
 		}
 		
 		public void fireEvent(String event, String json)

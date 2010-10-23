@@ -8,21 +8,21 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.concurrent.CountDownLatch;
 
-import org.appcelerator.kroll.KrollObject;
-import org.appcelerator.kroll.KrollProxy;
+import org.appcelerator.titanium.ITiMenuDispatcherListener;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiRootActivity;
 import org.appcelerator.titanium.kroll.KrollBridge;
-import org.appcelerator.titanium.kroll.KrollContext;
 import org.appcelerator.titanium.proxy.TiActivityWindowProxy;
 import org.appcelerator.titanium.util.Log;
+import org.appcelerator.titanium.util.TiActivityResultHandler;
+import org.appcelerator.titanium.util.TiActivitySupport;
+import org.appcelerator.titanium.util.TiActivitySupportHelper;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiFileHelper;
 import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.titanium.view.TiUIActivityWindow;
-import org.mozilla.javascript.Scriptable;
 
 import android.app.Activity;
 import android.app.Application;
@@ -35,7 +35,8 @@ import android.view.MenuItem;
 import android.view.Window;
 import android.view.WindowManager;
 
-public abstract class TiBaseActivity extends Activity 
+public abstract class TiBaseActivity extends Activity
+	implements TiActivitySupport
 {
 	private static final String LCAT = "TiBaseActivity";
 	private static boolean DBG = TiConfig.LOGD;
@@ -46,6 +47,7 @@ public abstract class TiBaseActivity extends Activity
 	protected ActivityProxy currentActivity;
 	protected IntentProxy currentIntent;
 	protected TiActivityWindowProxy currentWindow;
+	protected TiActivitySupportHelper supportHelper;
 	
 	private HashMap<Integer, MenuItemProxy> itemMap;
 
@@ -77,86 +79,70 @@ public abstract class TiBaseActivity extends Activity
 		itemMap = new HashMap<Integer, MenuItemProxy>();
 		
 		tiContext = TiContext.createTiContext(this, null); // TODO baseurl
+		
+		AndroidModule androidModule = tiContext.getTiApp().getModuleByClass(AndroidModule.class);
 		currentActivity = new ActivityProxy(tiContext);
-		currentActivity.handleCreationArgs(new Object[] { this });
+		currentActivity.handleCreationArgs(androidModule, new Object[] { this });
 		currentIntent = new IntentProxy(tiContext);
-		currentIntent.handleCreationArgs(new Object[] { getIntent() });
+		currentIntent.handleCreationArgs(androidModule, new Object[] { getIntent() });
 		currentWindow = new TiActivityWindowProxy(tiContext);
 		
-		//Bootstrap Android Module
-		KrollBridge krollBridge = (KrollBridge) tiContext.getJSContext();
-		final KrollContext kroll = krollBridge.getKrollContext();
-		Scriptable root = kroll.getScope();
-		
-		KrollObject titanium = new KrollObject(krollBridge.getRootObject());
-		KrollObject androidModule = (KrollObject) titanium.get("Android", titanium);
-		androidModule.put("currentActivity", androidModule, new KrollObject(currentActivity));
-		androidModule.put("currentIntent", androidModule, new KrollObject(currentIntent));
-		titanium.put("Android", titanium, androidModule);
-		
-		//Object m = titanium.loadModule("Android");
-		//KrollObject android = new KrollObject((KrollObject) titanium, m);
-		//titanium.put("Android", titanium, android);
-		//android.superPut("currentActivity", android, new KrollObject(android, currentActivity));
-		//android.superPut("currentIntent", android, new KrollObject(android, currentIntent));
-
+		KrollBridge bridge = tiContext.getKrollBridge();
+		bridge.bindContextSpecific("Android", "currentActivity", currentActivity);
+		bridge.bindContextSpecific("Android", "currentIntent", currentIntent);
 		// currentWindow
-		KrollObject uiModule = (KrollObject) titanium.get("UI", titanium);
-		uiModule.put("currentWindow", uiModule, new KrollObject(currentWindow));
-		titanium.put("UI", titanium, uiModule);
-		//m = titanium.loadModule("UI");
-		//KrollObject ui = new KrollObject((KrollObject) titanium, m);
-		//titanium.put("UI", titanium, ui);
-		//ui.superPut("currentWindow", ui, new KrollObject(ui, currentWindow));
+		bridge.bindContextSpecific("UI", "currentWindow", currentWindow);
 		
-        Intent intent = getIntent();
+		
+		Intent intent = getIntent();
 
-        boolean fullscreen = false;
-        boolean navbar = true;
-        boolean modal = false;
-        Messenger messenger = null;
-        Integer messageId = null;
-        boolean vertical = false;
+		boolean fullscreen = false;
+		boolean navbar = true;
+		boolean modal = false;
+		Messenger messenger = null;
+		Integer messageId = null;
+		boolean vertical = false;
 
-        if (intent != null) {
-        	if (intent.hasExtra("modal")) {
-        		modal = intent.getBooleanExtra("modal", modal);
-        	}
-        	if (intent.hasExtra("fullscreen")) {
-        		fullscreen = intent.getBooleanExtra("fullscreen", fullscreen);
-        	}
-        	if (intent.hasExtra("navBarHidden")) {
-        		navbar = !intent.getBooleanExtra("navBarHidden", navbar);
-        	}
-        	if (intent.hasExtra("messenger")) {
-        		messenger = (Messenger) intent.getParcelableExtra("messenger");
-        		messageId = intent.getIntExtra("messageId", -1);
-        	}
-        	if (intent.hasExtra("vertical")) {
-        		vertical = intent.getBooleanExtra("vertical", vertical);
-        	}
-        }
+		if (intent != null) {
+			if (intent.hasExtra("modal")) {
+				modal = intent.getBooleanExtra("modal", modal);
+			}
+			if (intent.hasExtra("fullscreen")) {
+				fullscreen = intent.getBooleanExtra("fullscreen", fullscreen);
+			}
+			if (intent.hasExtra("navBarHidden")) {
+				navbar = !intent.getBooleanExtra("navBarHidden", navbar);
+			}
+			if (intent.hasExtra("messenger")) {
+				messenger = (Messenger) intent.getParcelableExtra("messenger");
+				messageId = intent.getIntExtra("messageId", -1);
+			}
+			if (intent.hasExtra("vertical")) {
+				vertical = intent.getBooleanExtra("vertical", vertical);
+			}
+		}
 
-        layout = new TiCompositeLayout(this, vertical);
+		layout = new TiCompositeLayout(this, vertical);
 
-        if (modal) {
-        	Log.w(LCAT, "modal not supported yet.");
-        	//setTheme(android.R.style.Theme_Translucent_NoTitleBar_Fullscreen);
-        } else {
-	        if (fullscreen) {
-	        	getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-	                    WindowManager.LayoutParams.FLAG_FULLSCREEN);
-	        }
+		if (modal) {
+			Log.w(LCAT, "modal not supported yet.");
+			// setTheme(android.R.style.Theme_Translucent_NoTitleBar_Fullscreen);
+		} else {
+			if (fullscreen) {
+				getWindow().setFlags(
+					WindowManager.LayoutParams.FLAG_FULLSCREEN,
+					WindowManager.LayoutParams.FLAG_FULLSCREEN);
+			}
 
-	        if (navbar) {
-	        	this.requestWindowFeature(Window.FEATURE_LEFT_ICON); // TODO Keep?
-		        this.requestWindowFeature(Window.FEATURE_RIGHT_ICON);
-		        this.requestWindowFeature(Window.FEATURE_PROGRESS);
-		        this.requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
-	        } else {
-	           	this.requestWindowFeature(Window.FEATURE_NO_TITLE);
-	        }
-        }
+			if (navbar) {
+				this.requestWindowFeature(Window.FEATURE_LEFT_ICON); // TODO Keep?
+				this.requestWindowFeature(Window.FEATURE_RIGHT_ICON);
+				this.requestWindowFeature(Window.FEATURE_PROGRESS);
+				this.requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
+			} else {
+				this.requestWindowFeature(Window.FEATURE_NO_TITLE);
+			}
+		}
 
 
 		layout = new TiCompositeLayout(this, false);
@@ -210,7 +196,7 @@ public abstract class TiBaseActivity extends Activity
 		} catch (InterruptedException e) {
 			Log.w(LCAT, "Wait for JS Load interrupted.");
 		}
-Log.i(LCAT, "JSLOADED!!!!");
+		Log.i(LCAT, "JSLOADED!!!!");
 		if (currentActivity.hasListeners("start")) {
 			currentActivity.fireEvent("start", null);
 		}
@@ -320,7 +306,7 @@ Log.i(LCAT, "JSLOADED!!!!");
 
 					String iconPath = TiConvert.toString(mip.getProperty("icon"));
 					if (iconPath != null) {
-		     			Drawable d = null;
+						Drawable d = null;
 						TiFileHelper tfh = new TiFileHelper(this);
 						d = tfh.loadDrawable(tiContext, iconPath, false);
 						if (d != null) {
@@ -333,7 +319,30 @@ Log.i(LCAT, "JSLOADED!!!!");
 		}
 		return false;
 	}
+	
+	// Activity Support
+	public int getUniqueResultCode() {
+		if (supportHelper == null) {
+			this.supportHelper = new TiActivitySupportHelper(this);
+		}
+		return supportHelper.getUniqueResultCode();
+	}
 
-
-
+	public void launchActivityForResult(Intent intent, int code, TiActivityResultHandler resultHandler)
+	{
+		if (supportHelper == null) {
+			this.supportHelper = new TiActivitySupportHelper(this);
+		}
+		supportHelper.launchActivityForResult(intent, code, resultHandler);
+	}
+	
+	public void setMenuDispatchListener(ITiMenuDispatcherListener listener) {
+		// TODO This just a no-op for now, remove when we refactor
+	}
+	
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		super.onActivityResult(requestCode, resultCode, data);
+		supportHelper.onActivityResult(requestCode, resultCode, data);
+	}
 }

@@ -68,10 +68,11 @@ Inside the module folder, you'll see a tree of files and directories that have b
 - **build.properties** - An Ant properties file that contains the location to the Titanium SDK and Android SDK
 - **build.xml** - The main Ant build script - You will use this to build, distribute, and test your module
 - **manifest** - The module's manifest that contains version, author, license, copyright, name, id, GUID, and platform information
+- **timodule.xml** - A place to put custom activities, and general XML for insertion in AndroidManifest.xml (more doc coming soon)
 - **hooks** - A directory with scripts that will be called when a module is added/installed/removed/uninstalled from a project (this is still a WIP)
 - **documentation** - A generated Markdown file lives here that contains example documentation for your module
 - **assets** - Module specific assets such as images live here (see the README)
-- **lib** - Place any third party JAR dependencies here and they will be automatically added to your project's classpath and module JAR
+- **lib** - Place any third party JAR dependencies here and they will be automatically added to your project's classpath and module zip
 - **src** - The source code for your module(s)
 - **example** - The module example project
 
@@ -87,13 +88,16 @@ Titanium also creates the necessary files so that you can import your module pro
 
 - Press `Finish` and your module project should now be visible from the `Package Explorer` view in Eclipse
 
-## Building the module JAR
-The JAR under the `dist` folder is the module's distributable form. The JAR contains:
+## Building the module zip
+The zip under the `dist` folder is the module's distributable form. It generally follows the naming pattern
+<pre>$MODULE_ID-android-$MODULE_VERSION.zip</pre>
 
-- Compiled classes and resources from the module project (built from the `src` folder)
-- Generated Proxy and Module classes (built from the `build/.apt_generated` folder)
-- Third party classes and resources copied from all the JARs found in the `lib` folder
+The zip contains:
+
+- The compiled JAR with classes, generated bindings, and resources from the module project (built from the `src` folder)
+- Third party JARs found in the `lib` folder
 - The module manifest, which includes deployment metadata such as author, version, license, copyright, etc
+- The module's timodule.xml
 
 ### Building from command line / Ant
 If `ant` is already on your `PATH`, then simply execute it from the top level directory of your module.
@@ -103,23 +107,23 @@ On the first build, you should see output similar to this:
 Buildfile: /Users/marshall/Code/test/test_modules/calc/build.xml
 
 init:
-    [mkdir] Created dir: /Users/marshall/Code/test/test_modules/calc/bin
+    [mkdir] Created dir: /Users/marshall/Code/test/test_modules/calc/build/classes
+    [mkdir] Created dir: /Users/marshall/Code/test/test_modules/calc/dist
 
 process.annotations:
-    [mkdir] Created dir: /Users/marshall/Code/test/test_modules/calc/gen
-    [javac] Compiling 2 source files to /Users/marshall/Code/test/test_modules/calc/bin
+    [javac] Compiling 2 source files to /Users/marshall/Code/test/test_modules/calc/build/classes
     [javac] Note: [KrollBindingGen] Running Kroll binding generator.
     [javac] Note: [KrollBindingGen] No binding data found, creating new data file.
     [javac] Note: [KrollBindingGen] Found binding for module Calc
     [javac] Note: [KrollBindingGen] Found binding for proxy Example
 
 compile:
-    [javac] Compiling 2 source files to /Users/marshall/Code/test/test_modules/calc/bin
-     [copy] Copying 1 file to /Users/marshall/Code/test/test_modules/calc/bin
+    [javac] Compiling 2 source files to /Users/marshall/Code/test/test_modules/calc/build/classes
+     [copy] Copying 1 file to /Users/marshall/Code/test/test_modules/calc/build/classes
 
 dist:
-    [mkdir] Created dir: /Users/marshall/Code/test/test_modules/calc/dist
       [jar] Building jar: /Users/marshall/Code/test/test_modules/calc/dist/calc.jar
+      [zip] Building zip: /Users/marshall/Code/test/test_modules/calc/dist/org.appcelerator.calc-android-0.1.zip
 
 BUILD SUCCESSFUL
 Total time: 1 second</pre>
@@ -134,8 +138,7 @@ If you don't have `ant` in your `PATH`, or prefer using Eclipse, just follow the
 ### Module Distribution
 To use your module in a Titanium Mobile app, follow these steps:
 
-- In the application's root, create a folder named `modules/android`
-- Copy the module JAR into `modules/android`
+- Copy the module zip to the root of the Titanium app, or to the root of the system Titanium installation
 - In the application's tiapp.xml, add the following XML inside `<ti:app>`:
 <pre>&lt;!-- $MODULE_VERSION should be the same as "version" in the module manifest --&gt;
 &lt;modules&gt;

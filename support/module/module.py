@@ -4,7 +4,7 @@
 # Module Project Create Script
 #
 
-import os, sys, shutil, string, uuid, re, zipfile
+import os, sys, shutil, string, uuid, re, zipfile, glob
 from string import capitalize
 from StringIO import StringIO
 
@@ -12,6 +12,7 @@ template_dir = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filena
 sdk_dir = os.path.dirname(template_dir)
 sys.path.append(sdk_dir)
 from manifest import Manifest
+from tiapp import TiAppXML
 
 ignoreFiles = ['.gitignore', '.cvsignore', '.DS_Store'];
 ignoreDirs = ['.git','.svn','_svn','CVS'];
@@ -140,9 +141,20 @@ class Module(object):
 	def __init__(self, path, manifest):
 		self.path = path
 		self.manifest = manifest
+		self.jar = None
+		module_jar = self.get_resource(manifest.name+'.jar')
+		if os.path.exists(module_jar):
+			self.jar = module_jar
+		
+		self.xml = None
+		module_xml = self.get_resource('timodule.xml')
+		if os.path.exists(module_xml):
+			self.xml = TiAppXML(module_xml, parse_only=True)
+	
+	def get_resource(self, *path):
+		return os.path.join(self.path, *path)
 
 class ModuleDetector(object):
-	# TODO: this currently only works for android JAR modules (we embed the manifest in our JAR)
 	def __init__(self, project_dir):
 		self.project_dir = project_dir
 		self.modules = self.detect_modules()
@@ -152,24 +164,43 @@ class ModuleDetector(object):
 		modules = []
 		if not os.path.exists(dir): return modules
 		
-		for platform in os.listdir(dir):
-			platform_dir = os.path.join(dir, platform)
+		for module_zip in glob.glob(os.path.join(dir, '*-*-*.zip')):
+			print '[INFO] Installing module: %s' % module_zip
+			module_zf = zipfile.ZipFile(module_zip)
+			for name in module_zf.namelist():
+				if name.endswith('/'): continue
+				destdir = os.path.join(dir, os.path.dirname(name.replace('/', os.path.sep)))
+				if not os.path.exists(destdir):
+					os.makedirs(destdir)
+				destfile = open(os.path.join(destdir, os.path.basename(name)), 'wb')
+				destfile.write(module_zf.read(name))
+				destfile.close()
+			module_zf.close()
+			os.remove(module_zip)
+		
+		modules_dir = os.path.join(dir, 'modules')
+		if not os.path.exists(modules_dir): return modules
+		
+		for platform in os.listdir(modules_dir):
+			platform_dir = os.path.join(modules_dir, platform)
 			if not os.path.isdir(platform_dir): continue
 			if platform_dir in ['osx', 'win32', 'linux']: continue # skip desktop modules
 			
-			for module_file in os.listdir(platform_dir):
-				module_file = os.path.join(platform_dir, module_file)
-				if not module_file.endswith('.jar'): continue
-
-				module_zip = zipfile.ZipFile(module_file)
-				manifest_data = module_zip.read('manifest')
-				manifest = Manifest(StringIO(manifest_data))
-				modules.append(Module(module_file, manifest))
+			# recursive once in the platform directory so we can get versioned modules too
+			for root, dirs, files in os.walk(platform_dir):
+				for module_dir in dirs:
+					module_dir = os.path.join(root, module_dir)
+					manifest_file = os.path.join(module_dir, 'manifest')
+					if not os.path.exists(manifest_file): continue
+					
+					manifest = Manifest(manifest_file)
+					print '[DEBUG] Detected module: %s %s @ %s' % (manifest.moduleid, manifest.version, module_dir)
+					modules.append(Module(module_dir, manifest))
 		return modules
 	
 	def detect_modules(self):
-		app_modules_dir = os.path.join(self.project_dir, 'modules')
-		system_modules_dir = os.path.abspath(os.path.join(sdk_dir, '..', '..', '..', 'modules'))
+		app_modules_dir = os.path.join(self.project_dir)
+		system_modules_dir = os.path.abspath(os.path.join(sdk_dir, '..', '..', '..'))
 		
 		modules = self.get_modules(app_modules_dir)
 		modules.extend(self.get_modules(system_modules_dir))

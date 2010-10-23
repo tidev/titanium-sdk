@@ -5,7 +5,7 @@
       android:versionName="${config['appversion']}"
 >
 	<uses-sdk android:minSdkVersion="4" />
-
+	<!-- TI_MANIFEST -->
 	<!-- TI_SCREENS -->
     
 	<application
@@ -26,6 +26,7 @@
             </intent-filter>
         </activity>
 
+		<!-- TI_APPLICATION -->
 		<!-- TI_ACTIVITIES -->
 		<activity
         	android:name="org.appcelerator.titanium.TiActivity"
