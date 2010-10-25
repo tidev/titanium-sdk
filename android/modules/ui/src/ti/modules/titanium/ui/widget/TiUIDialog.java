@@ -12,6 +12,7 @@ import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiConvert;
+import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.titanium.view.TiUIView;
 
 import android.app.Activity;
@@ -22,12 +23,13 @@ import android.content.DialogInterface.OnCancelListener;
 
 public class TiUIDialog extends TiUIView
 {
-	private static final String LCAT = "TiUIButton";
+	private static final String LCAT = "TiUIDialog";
 	private static final boolean DBG = TiConfig.LOGD;
 	private static final int BUTTON_MASK = 0x10000000;
 
 	protected Builder builder;
 	protected AlertDialog dialog;
+	protected TiUIView view;
 
 	protected class ClickHandler implements DialogInterface.OnClickListener {
 
@@ -38,7 +40,7 @@ public class TiUIDialog extends TiUIView
 		}
 		public void onClick(DialogInterface dialog, int which) {
 			handleEvent(result);
-			dialog.dismiss();
+			hide(null);
 		}
 	}
 
@@ -47,18 +49,22 @@ public class TiUIDialog extends TiUIView
 		if (DBG) {
 			Log.d(LCAT, "Creating a dialog");
 		}
+	}
 
+	private Activity getCurrentActivity() {
 		Activity currentActivity = proxy.getTiContext().getTiApp().getCurrentActivity();
 		if (currentActivity == null) {
 			currentActivity = proxy.getTiContext().getActivity();
 		}
-		this.builder = new AlertDialog.Builder(currentActivity);
-		this.builder.setCancelable(true);
+		return currentActivity;
 	}
-
+	
 	@Override
 	public void processProperties(TiDict d)
 	{
+		if (builder == null) {
+			return;
+		}
 		if (d.containsKey("title")) {
 			builder.setTitle(d.getString("title"));
 		}
@@ -70,7 +76,9 @@ public class TiUIDialog extends TiUIView
 			String[] buttonText = d.getStringArray("buttonNames");
 			processButtons(buttonText);
 		}
-		if (d.containsKey("options")) {
+		if (d.containsKey("androidView")) {
+			processView((TiViewProxy) proxy.getDynamicValue("androidView"));
+		} else if (d.containsKey("options")) {
 			String[] optionText = d.getStringArray("options");
 			processOptions(optionText);
 		}
@@ -112,6 +120,10 @@ public class TiUIDialog extends TiUIView
 		}
 	}
 
+	private void processView(TiViewProxy proxy) {
+		view = proxy.getView(getCurrentActivity());
+		builder.setView(view.getNativeView());
+	}
 
 	@Override
 	public void propertyChanged(String key, Object oldValue, Object newValue, TiProxy proxy)
@@ -141,7 +153,14 @@ public class TiUIDialog extends TiUIView
 				dialog = null;
 			}
 
+			builder.setView(null);
 			processOptions(TiConvert.toStringArray((Object[]) newValue));
+		} else if (key.equals("androidView")) {
+			if (dialog != null) {
+				dialog.dismiss();
+				dialog = null;
+			}
+			processView((TiViewProxy) newValue);
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}
@@ -150,6 +169,11 @@ public class TiUIDialog extends TiUIView
 	public void show(TiDict options)
 	{
 		if (dialog == null) {
+			Activity currentActivity = getCurrentActivity();
+			
+			this.builder = new AlertDialog.Builder(currentActivity);
+			this.builder.setCancelable(true);
+
 			processProperties(proxy.getDynamicProperties());
 			builder.setOnCancelListener(new OnCancelListener() {
 				
@@ -160,9 +184,11 @@ public class TiUIDialog extends TiUIView
 						Log.d(LCAT, "onCancelListener called. Sending index: " + cancelIndex);
 					}
 					handleEvent(cancelIndex);
+					hide(null);
 				}
 			});
 			dialog = builder.create();
+			builder = null;
 		}
 		try {
 			dialog.show();
@@ -176,6 +202,10 @@ public class TiUIDialog extends TiUIView
 		if (dialog != null) {
 			dialog.dismiss();
 			dialog = null;
+		}
+		if (view != null) {
+			view.getProxy().releaseViews();
+			view = null;
 		}
 	}
 
