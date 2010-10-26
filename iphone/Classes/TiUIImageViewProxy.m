@@ -127,6 +127,11 @@ static NSArray* imageKeySequence;
 	return nil;
 }
 
+-(void)addLoadDelegate:(id <ImageLoaderDelegate>)delegate
+{
+	
+}
+
 USE_VIEW_FOR_AUTO_WIDTH
 
 USE_VIEW_FOR_AUTO_HEIGHT

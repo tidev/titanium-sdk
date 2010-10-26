@@ -34,7 +34,7 @@ setImage: change an image for a index
 - method : setImage
 
 index[int]: index to change
-image[object]: the image to set the index to. May be a TiBlob, TiFile, or URL
+image[object]: the image to set the index to. May be a TiBlob, TiFile, URL, or dictionary with 'image' (may be any of TiBlob, TiFile, URL), 'width', 'height' keys.  'auto' is not allowed, only exact sizes (although a size may be omitted to keep the image at that size).  If passed as a TiFile or URL, will perform a check for '@2x' on Retina displays
 
 - events
 

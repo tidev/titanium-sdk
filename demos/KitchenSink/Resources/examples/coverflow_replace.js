@@ -69,9 +69,9 @@ var right = Titanium.UI.createButton({
 right.addEventListener('click', function(e)
 {
 	var i = view.selected + 1;
-	if (i >= images.length) 
+	if (i >= view.images.length) 
 	{
-		i = images.length - 1;
+		i = view.images.length - 1;
 	}
 	view.selected = i;
 });
