@@ -8,16 +8,19 @@
 
 #import "TiUIView.h"
 #import "AFOpenFlow/AFOpenFlowView.h"
+#import "ImageLoader.h"
 
-@interface TiUICoverFlowView : TiUIView <AFOpenFlowViewDataSource,AFOpenFlowViewDelegate>
+@interface TiUICoverFlowView : TiUIView <AFOpenFlowViewDataSource,AFOpenFlowViewDelegate,ImageLoaderDelegate>
 {
 @private
 	AFOpenFlowView *view;
-	NSMutableArray *images;
+	NSMutableDictionary* toLoad;
+	NSMutableDictionary* loading;
+	NSRecursiveLock* loadLock;
 	int previous;
 }
 
--(void)setURL:(id)urlstr forIndex:(NSInteger)index;
+-(void)setImage:(id)image forIndex:(NSInteger)index;
 
 @end
 

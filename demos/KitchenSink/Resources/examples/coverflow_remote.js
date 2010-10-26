@@ -1,9 +1,11 @@
 var win = Titanium.UI.currentWindow;
 
 var images = [];
+var prefix = 'http://grin.hq.nasa.gov/IMAGES/SMALL/GPN-2000-0000';
+var start = 38;
 for (var c=0;c<30;c++)
 {
-	images[c]='../images/imageview/'+c+'.jpg';
+	images[c]=prefix + (start+c) + '.jpg';
 }
 
 // create coverflow view with images

@@ -1,14 +1,19 @@
 var win = Titanium.UI.currentWindow;
 
-var images = [];
-for (var c=0;c<30;c++)
+var images1 = [];
+for (var c=0;c<15;c++)
 {
-	images[c]='../images/imageview/'+c+'.jpg';
+	images1[c]='../images/imageview/'+c+'.jpg';
+}
+
+var images2 = [];
+for (var c=15; c<30; c++) {
+	images2[c-15]='../images/imageview/'+c+'.jpg';
 }
 
 // create coverflow view with images
 var view = Titanium.UI.createCoverFlowView({
-	images:images,
+	images:images1,
 	backgroundColor:'#000'
 });
 
@@ -25,15 +30,22 @@ view.addEventListener('change',function(e)
 });
 win.add(view);
 
-// change button to dynamically change the image
+// change button to dynamically change the images
+var set1 = true;
 var change = Titanium.UI.createButton({
-	title:'Change Image',
+	title:'Change Images',
 	style:Titanium.UI.iPhone.SystemButtonStyle.BORDERED
 });
 change.addEventListener('click',function()
 {
-	Titanium.API.info("selected is = "+view.selected);
-	view.setImage(view.selected,'../images/imageview/28.jpg');
+	if (set1) {
+		view.images = images2;
+		set1 = false;
+	}
+	else {
+		view.images = images1;
+		set1 = true;
+	}
 });
 
 // move scroll view left

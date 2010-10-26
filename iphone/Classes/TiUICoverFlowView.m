@@ -6,12 +6,9 @@
  */
 #ifdef USE_TI_UICOVERFLOWVIEW
 
-#import "TiBase.h"
 #import "TiUICoverFlowView.h"
 #import "ImageLoader.h"
-#import "TiUtils.h"
-#import "TiProxy.h"
-#import "OperationQueue.h"
+#import "TiBlob.h"
 
 @implementation TiUICoverFlowView
 
@@ -20,8 +17,28 @@
 -(void)dealloc
 {
 	RELEASE_TO_NIL(view);
-	RELEASE_TO_NIL(images);
+	
+	RELEASE_TO_NIL(toLoad);
+	[loadLock lock];
+	for (NSString* requestKey in loading) {
+		ImageLoaderRequest* request = [loading objectForKey:requestKey];
+		[request cancel];
+	}
+	RELEASE_TO_NIL(loading);
+	[loadLock unlock];
+	
+	RELEASE_TO_NIL(loadLock);
 	[super dealloc];
+}
+
+-(id)init
+{
+	if (self = [super init]) {
+		loadLock = [[NSRecursiveLock alloc] init];
+		toLoad = [[NSMutableDictionary alloc] init];
+		loading = [[NSMutableDictionary alloc] init];
+	}
+	return self;
 }
 
 -(AFOpenFlowView*)view
@@ -37,44 +54,132 @@
 	return view;
 }
 
+-(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
+{
+	for (UIView *child in [self subviews])
+	{
+		[TiUtils setView:child positionRect:bounds];
+	}
+}
+
+// Largely stolen from TiUIImageView, but it's different enough that we can't make a common version...
+// TODO: Or can we?
+-(UIImage*)convertToUIImage:(id)arg
+{
+	UIImage *image = nil;
+	
+	if ([arg isKindOfClass:[TiBlob class]])
+	{
+		image = [(TiBlob*)arg image];
+	}
+	else if ([arg isKindOfClass:[TiFile class]])
+	{
+		TiFile *file = (TiFile*)arg;
+		NSURL * fileUrl = [NSURL fileURLWithPath:[file path]];
+		
+		CGSize fullSize = [[ImageLoader sharedLoader] fullImageSize:fileUrl];
+		// AFOpenFlow demo seems to indicate that 225 is a "magic" size?
+		image = [[ImageLoader sharedLoader] loadImmediateImage:fileUrl withSize:CGSizeMake(225,225)];
+	}
+	else if ([arg isKindOfClass:[NSString class]]) {
+		NSURL *url_ = [TiUtils toURL:arg proxy:self.proxy];
+		image = [[ImageLoader sharedLoader] loadImmediateImage:url_ withSize:CGSizeMake(225, 225)];
+	}
+	else if ([arg isKindOfClass:[UIImage class]])
+	{
+		// called within this class
+		image = (UIImage*)arg;
+	}
+	
+	return image;
+}
+
 #pragma mark Public APIs 
 
 -(void)setImages_:(id)args
 {
-	RELEASE_TO_NIL(images);
-	images = [args retain];
-	previous = -1;
-	[self.proxy replaceValue:NUMINT(0) forKey:@"selected" notification:NO];
-	[[self view] setNumberOfImages:[images count]];
+	ENSURE_TYPE_OR_NIL(args, NSArray);
+	AFOpenFlowView* flow = [self view];
+
+	if (previous >= [args count]) {
+		[self setSelected_:[args count]-1];
+	}
+
+	[flow setNumberOfImages:[args count]];
+	for (int i=0; i < [flow numberOfImages]; i++) {
+		[self setImage:[args objectAtIndex:i] forIndex:i];
+	}
 }
 
 -(void)setSelected_:(id)arg
 {
 	int index = [TiUtils intValue:arg];
-	if (index >= 0 && index < [images count])
+	AFOpenFlowView *flow = [self view];
+	
+	if (index >= 0 && index < [flow numberOfImages])
 	{
-		AFOpenFlowView *flow = [self view];
 		[flow setSelectedCover:index];
 		[flow centerOnSelectedCover:YES];
-		[self openFlowView:flow selectionDidChange:index];
+	}
+	else {
+		NSLog(@"[ERROR] attempt to select index: %d that is out of bounds. Number of images: %d",index,[flow numberOfImages]);
 	}
 }
 
--(void)setURL:(id)urlstr forIndex:(NSInteger)index
+-(void)setImage:(id)image forIndex:(NSInteger)index
 {
-	NSString *newurl = [TiUtils stringValue:urlstr];
-	if (index>=0 && index < [images count])
+	AFOpenFlowView* flow = [self view];
+	if (index>=0 && index < [flow numberOfImages])
 	{
-		[images replaceObjectAtIndex:index withObject:newurl]; 
-		[self openFlowView:[self view] requestImageForIndex:index];
+		[loadLock lock];
+		ImageLoaderRequest* request = [loading valueForKey:[NUMINT(index) stringValue]];
+		if (request != nil) {
+			[request cancel];
+			[loading removeObjectForKey:[NUMINT(index) stringValue]];
+		}
+		[loadLock unlock];
+		UIImage* coverImage = [self convertToUIImage:image];
+		if (coverImage != nil) {
+			[flow setImage:coverImage forIndex:index];
+		}
+		else {
+			if ([image isKindOfClass:[NSString class]]) {
+				// Assume a remote URL
+				[loadLock lock];
+				[toLoad setValue:image forKey:[NUMINT(index) stringValue]];
+				[loadLock unlock];
+			}
+			else {
+				[[self proxy] throwException:[NSString stringWithFormat:@"Bad image type (%@) for image at index %d",[image class], index]
+								   subreason:nil
+									location:CODELOCATION];
+			}
+		}
 	}
 	else
 	{
-		NSLog(@"[ERROR] attempt to set index: %d that is out of bounds. number of images: %d",index,[images count]);
+		NSLog(@"[ERROR] attempt to set index: %d that is out of bounds. number of images: %d",index,[flow numberOfImages]);
 	}
 }
 
-#pragma mark Delegates
+#pragma mark ImageLoaderRequest Delegates
+
+-(void)imageLoadSuccess:(ImageLoaderRequest*)request image:(UIImage*)image
+{
+	NSNumber* index = [[request userInfo] valueForKey:@"index"];
+	[loadLock lock];
+	[loading removeObjectForKey:[index stringValue]];
+	[loadLock unlock];
+	
+	[[self view] setImage:image forIndex:[index intValue]];
+}
+
+-(void)imageLoadFailed:(ImageLoaderRequest*)request error:(NSError*)error
+{
+	NSLog(@"[ERROR] Failed to load remote image at %@: %@", [[request userInfo] valueForKey:@"index"], [error localizedDescription]);
+}
+
+#pragma mark OpenFlow Delegates
 
 - (void)openFlowView:(AFOpenFlowView *)openFlowView selectionDidChange:(int)index
 {
@@ -98,47 +203,19 @@
 	previous = index;
 }
 
--(NSArray*)loadRemote:(NSArray*)args
-{
-	NSMutableArray *result = [NSMutableArray arrayWithArray:args];
-	UIImage *image = [[ImageLoader sharedLoader] loadRemote:[args objectAtIndex:0]];
-	if (image==nil)
-	{
-		NSLog(@"[ERROR] Couldn't load coverflow image url: %@",[args objectAtIndex:0]);
-		return nil;
-	}
-	[result addObject:image];
-	return result;
-}
-
--(void)changeImage:(NSArray*)args
-{
-	if (args!=nil)
-	{
-		int index = [TiUtils intValue:[args objectAtIndex:1]];
-		UIImage *image = [args objectAtIndex:2];
-		[[self view] setImage:image forIndex:index];
-	}
-}
+#pragma mark Datasource
 
 - (void)openFlowView:(AFOpenFlowView *)openFlowView requestImageForIndex:(int)index
 {
-	NSString *urlstr = [images objectAtIndex:index];
-	NSURL *url = [TiUtils toURL:urlstr proxy:(TiProxy*)self.proxy];
-	UIImage *image = [[ImageLoader sharedLoader] loadImmediateImage:url];
-	if (image!=nil)
-	{
-		[openFlowView setImage:image forIndex:index];
+	[loadLock lock];
+	id loadUrl = [toLoad valueForKey:[NUMINT(index) stringValue]];
+	if (loadUrl != nil) {
+		[loading setValue:[[ImageLoader sharedLoader] loadImage:[NSURL URLWithString:loadUrl]
+														delegate:self
+														userInfo:[NSDictionary dictionaryWithObject:NUMINT(index) forKey:@"index"]]
+				   forKey:[NUMINT(index) stringValue]];
 	}
-	else
-	{
-		[[OperationQueue sharedQueue] queue:@selector(loadRemote:) 
-									 target:self 
-										arg:[NSArray arrayWithObjects:url,NUMINT(index),nil] 
-									  after:@selector(changeImage:) 
-										 on:self 
-										 ui:YES];
-	}
+	[loadLock unlock];
 }
 
 - (UIImage *)defaultImage
