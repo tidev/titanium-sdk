@@ -131,6 +131,10 @@ public abstract class TiApplication extends Application
 		return null;
 	}
 	
+	public void releaseModules() {
+		modules.clear();
+	}
+	
 	public String[] getFilteredBindings(String moduleName) {
 		// TODO: re-enable filtered bindings when our compiler can better detect methods and properties
 		return null;

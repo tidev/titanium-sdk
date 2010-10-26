@@ -123,7 +123,7 @@ public class TiContext implements TiEvaluator, ITiMenuDispatcherListener, ErrorR
 
 	public void setJSContext(TiEvaluator evaluator) {
 		if (DBG) {
-			Log.i(LCAT, "Setting JS Context");
+			Log.d(LCAT, "Setting JS Context on " + this + " to " + evaluator);
 		}
 		tiEvaluator = evaluator;
 	}

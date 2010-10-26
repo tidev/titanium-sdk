@@ -7,7 +7,6 @@
 package org.appcelerator.kroll;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
@@ -539,6 +538,9 @@ public class KrollProxy implements Handler.Callback, OnEventListenerChange {
 
 	// Convenience for internal code
 	public KrollInvocation createEventInvocation(String eventName) {
+		if (DBG) {
+			Log.d(TAG, "creating event invocation, context: " + getTiContext() + ", js context: " + getTiContext().getJSContext());
+		}
 		KrollInvocation inv = KrollInvocation.createMethodInvocation(
 				getTiContext(),
 				getTiContext().getJSContext().getScope(),

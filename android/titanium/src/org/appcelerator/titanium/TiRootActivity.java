@@ -66,7 +66,7 @@ public class TiRootActivity extends ActivityGroup
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		Log.checkpoint("checkpoint, on root activity create.");
+		Log.checkpoint("checkpoint, on root activity create, savedInstanceState: " + savedInstanceState);
 		if (DBG) {
 			Log.e(LCAT, "Instance Count: " + getInstanceCount());
 		}
@@ -194,7 +194,6 @@ public class TiRootActivity extends ActivityGroup
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
-
 		supportHelper.onActivityResult(requestCode, resultCode, data);
 	}
 
@@ -204,9 +203,9 @@ public class TiRootActivity extends ActivityGroup
 		super.finish();
 	}
 
-   public void setMenuDispatchListener(ITiMenuDispatcherListener dispatcher) {
-    	softMenuDispatcher = new SoftReference<ITiMenuDispatcherListener>(dispatcher);
-    }
+	public void setMenuDispatchListener(ITiMenuDispatcherListener dispatcher) {
+		softMenuDispatcher = new SoftReference<ITiMenuDispatcherListener>(dispatcher);
+	}
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu)
@@ -273,12 +272,11 @@ public class TiRootActivity extends ActivityGroup
 	@Override
 	protected void onResume() {
 		super.onResume();
-		Log.checkpoint("checkpoint, on root activity resume.");
+		Log.checkpoint("checkpoint, on root activity resume. context = " + tiContext);
 		if (tiContext != null) {
 			tiContext.dispatchOnResume();
 		} else {
 			// No context, we have a launch problem.
-
 			TiProperties systemProperties = getTiApp().getSystemProperties();
 			String backgroundColor = systemProperties.getString("ti.android.bug2373.backgroundColor", "black");
 			rootLayout.setBackgroundColor(TiColorHelper.parseColor(backgroundColor));
@@ -297,11 +295,10 @@ public class TiRootActivity extends ActivityGroup
 			String buttonText = systemProperties.getString("ti.android.bug2373.buttonText", "Continue");
 			
 			b2373Alert = new AlertDialog.Builder(this)
-	        .setTitle(title)
-	        .setMessage(message)
-	        .setPositiveButton(buttonText, restartListener)
-	        .setCancelable(false)
- 	        .create();
+				.setTitle(title)
+				.setMessage(message)
+				.setPositiveButton(buttonText, restartListener)
+				.setCancelable(false).create();
 			
 			b2373Alert.show();
 		}
@@ -328,7 +325,10 @@ public class TiRootActivity extends ActivityGroup
 	@Override
 	protected void onPause() {
 		super.onPause();
-
+		if (DBG) {
+			Log.d(LCAT, "root activity onPause, context = " + tiContext);
+		}
+		
 		if (tiContext != null) {
 			tiContext.dispatchOnPause();
 		} else {
@@ -353,10 +353,14 @@ public class TiRootActivity extends ActivityGroup
 	@Override
 	protected void onDestroy() {
 		super.onDestroy();
+		if (DBG) {
+			Log.d(LCAT, "root activity onDestroy, context = " + tiContext);
+		}
+		
+		tiContext.getTiApp().releaseModules();
 		if (tiContext != null) {
 			tiContext.dispatchOnDestroy();
 			tiContext.release();
-			//TiModule.clearModuleSingletons();
 		}
 	}
 }

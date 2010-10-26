@@ -664,7 +664,7 @@ public abstract class TiUIView
 
 				@Override
 				public boolean onSingleTapConfirmed(MotionEvent e) {
-					Log.e(LCAT, "TAP, TAP, TAP");
+					Log.e(LCAT, "TAP, TAP, TAP on " + proxy);
 					boolean handledTap = proxy.fireEvent("singletap", dictFromEvent(e));
 					boolean handledClick = proxy.fireEvent("click", dictFromEvent(e));
 					return handledTap || handledClick;
