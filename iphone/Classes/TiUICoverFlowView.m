@@ -9,6 +9,7 @@
 #import "TiUICoverFlowView.h"
 #import "ImageLoader.h"
 #import "TiBlob.h"
+#import "AFOpenFlow/UIImageExtras.h"
 
 @implementation TiUICoverFlowView
 
@@ -68,6 +69,9 @@
 {
 	UIImage *image = nil;
 	
+	if ([arg isKindOfClass:[NSDictionary class]]) {
+		return [self convertToUIImage:[arg valueForKey:@"image"]];
+	}
 	if ([arg isKindOfClass:[TiBlob class]])
 	{
 		image = [(TiBlob*)arg image];
@@ -75,15 +79,12 @@
 	else if ([arg isKindOfClass:[TiFile class]])
 	{
 		TiFile *file = (TiFile*)arg;
-		NSURL * fileUrl = [NSURL fileURLWithPath:[file path]];
-		
-		CGSize fullSize = [[ImageLoader sharedLoader] fullImageSize:fileUrl];
-		// AFOpenFlow demo seems to indicate that 225 is a "magic" size?
-		image = [[ImageLoader sharedLoader] loadImmediateImage:fileUrl withSize:CGSizeMake(225,225)];
+		NSURL * fileUrl = [TiUtils toURL:[NSURL fileURLWithPath:[file path]] proxy:self.proxy];
+		image = [[ImageLoader sharedLoader] loadImmediateImage:fileUrl];
 	}
 	else if ([arg isKindOfClass:[NSString class]]) {
 		NSURL *url_ = [TiUtils toURL:arg proxy:self.proxy];
-		image = [[ImageLoader sharedLoader] loadImmediateImage:url_ withSize:CGSizeMake(225, 225)];
+		image = [[ImageLoader sharedLoader] loadImmediateImage:url_];
 	}
 	else if ([arg isKindOfClass:[UIImage class]])
 	{
@@ -94,22 +95,21 @@
 	return image;
 }
 
-#pragma mark Public APIs 
-
--(void)setImages_:(id)args
+-(UIImage*)cropAndScale:(UIImage*)image props:(NSDictionary*)props
 {
-	ENSURE_TYPE_OR_NIL(args, NSArray);
-	AFOpenFlowView* flow = [self view];
-
-	if (previous >= [args count]) {
-		[self setSelected_:[args count]-1];
-	}
-
-	[flow setNumberOfImages:[args count]];
-	for (int i=0; i < [flow numberOfImages]; i++) {
-		[self setImage:[args objectAtIndex:i] forIndex:i];
-	}
+	CGSize originalSize = [image size];	
+	TiDimension widthDimension = TiDimensionFromObject([props valueForKey:@"width"]);
+	TiDimension heightDimension = TiDimensionFromObject([props valueForKey:@"height"]);
+	
+	CGFloat width = (TiDimensionIsAuto(widthDimension) || TiDimensionIsUndefined(widthDimension)) ? 
+						originalSize.width : TiDimensionCalculateValue(widthDimension, originalSize.width);
+	CGFloat height = (TiDimensionIsAuto(heightDimension) || TiDimensionIsUndefined(heightDimension)) ? 
+						originalSize.height : TiDimensionCalculateValue(heightDimension, originalSize.height);
+	
+	return [image cropCenterAndScaleImageToSize:CGSizeMake(width, height)];
 }
+
+#pragma mark Public APIs 
 
 -(void)setSelected_:(id)arg
 {
@@ -123,6 +123,21 @@
 	}
 	else {
 		NSLog(@"[ERROR] attempt to select index: %d that is out of bounds. Number of images: %d",index,[flow numberOfImages]);
+	}
+}
+
+-(void)setImages_:(id)args
+{
+	ENSURE_TYPE_OR_NIL(args, NSArray);
+	AFOpenFlowView* flow = [self view];
+
+	if (previous >= [args count]) {
+		[self setSelected_:[NSNumber numberWithInt:[args count]-1]];
+	}
+
+	[flow setNumberOfImages:[args count]];
+	for (int i=0; i < [flow numberOfImages]; i++) {
+		[self setImage:[args objectAtIndex:i] forIndex:i];
 	}
 }
 
@@ -140,10 +155,13 @@
 		[loadLock unlock];
 		UIImage* coverImage = [self convertToUIImage:image];
 		if (coverImage != nil) {
+			if ([image isKindOfClass:[NSDictionary class]]) {
+				coverImage = [self cropAndScale:coverImage props:image];
+			}
 			[flow setImage:coverImage forIndex:index];
 		}
 		else {
-			if ([image isKindOfClass:[NSString class]]) {
+			if ([image isKindOfClass:[NSString class]] || [image isKindOfClass:[NSDictionary class]]) {
 				// Assume a remote URL
 				[loadLock lock];
 				[toLoad setValue:image forKey:[NUMINT(index) stringValue]];
@@ -171,12 +189,17 @@
 	[loading removeObjectForKey:[index stringValue]];
 	[loadLock unlock];
 	
-	[[self view] setImage:image forIndex:[index intValue]];
+	UIImage* coverImage = [self cropAndScale:image props:[request userInfo]];
+	
+	[[self view] setImage:coverImage forIndex:[index intValue]];
 }
 
 -(void)imageLoadFailed:(ImageLoaderRequest*)request error:(NSError*)error
 {
 	NSLog(@"[ERROR] Failed to load remote image at %@: %@", [[request userInfo] valueForKey:@"index"], [error localizedDescription]);
+	[loadLock lock];
+	[loading removeObjectForKey:[[[request userInfo] valueForKey:@"index"] stringValue]];
+	[loadLock unlock];
 }
 
 #pragma mark OpenFlow Delegates
@@ -210,9 +233,17 @@
 	[loadLock lock];
 	id loadUrl = [toLoad valueForKey:[NUMINT(index) stringValue]];
 	if (loadUrl != nil) {
-		[loading setValue:[[ImageLoader sharedLoader] loadImage:[NSURL URLWithString:loadUrl]
+		NSMutableDictionary* userInfo = [NSMutableDictionary dictionaryWithObject:NUMINT(index) forKey:@"index"];
+		NSString* urlString = loadUrl;
+		if ([loadUrl isKindOfClass:[NSDictionary class]]) {
+			[userInfo setValue:[loadUrl valueForKey:@"height"] forKey:@"height"];
+			[userInfo setValue:[loadUrl valueForKey:@"width"] forKey:@"width"];
+			urlString = [loadUrl valueForKey:@"image"];
+		}
+		
+		[loading setValue:[[ImageLoader sharedLoader] loadImage:[NSURL URLWithString:urlString]
 														delegate:self
-														userInfo:[NSDictionary dictionaryWithObject:NUMINT(index) forKey:@"index"]]
+														userInfo:userInfo]
 				   forKey:[NUMINT(index) stringValue]];
 	}
 	[loadLock unlock];
