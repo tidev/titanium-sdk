@@ -41,12 +41,13 @@
 			destdir="${classes}"
 			debug="true"
 			includeantruntime="false">
-				<compilerarg value="-processor" />
-				<compilerarg value="org.appcelerator.kroll.annotations.generator.KrollBindingGenerator" />
-				<compilerarg line="-s ${gen}" />
-				<compilerarg line="-Akroll.jsonFile=${ant.project.name}.json" />
-				<compilerarg line="-Akroll.jsonPackage=org.appcelerator.titanium.bindings" />
-				<classpath refid="project.classpath" />
+				<compilerarg value="-processor"/>
+				<compilerarg value="org.appcelerator.kroll.annotations.generator.KrollBindingGenerator"/>
+				<compilerarg value="-s"/>
+				<compilerarg value="${gen}"/>
+				<compilerarg line="-Akroll.jsonFile=${ant.project.name}.json"/>
+				<compilerarg line="-Akroll.jsonPackage=org.appcelerator.titanium.bindings"/>
+				<classpath refid="project.classpath"/>
 		</javac>
 	</target>
 

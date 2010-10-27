@@ -184,7 +184,7 @@ class ModuleDetector(object):
 		for platform in os.listdir(modules_dir):
 			platform_dir = os.path.join(modules_dir, platform)
 			if not os.path.isdir(platform_dir): continue
-			if platform_dir in ['osx', 'win32', 'linux']: continue # skip desktop modules
+			if platform in ['osx', 'win32', 'linux']: continue # skip desktop modules
 			
 			# recursive once in the platform directory so we can get versioned modules too
 			for root, dirs, files in os.walk(platform_dir):
