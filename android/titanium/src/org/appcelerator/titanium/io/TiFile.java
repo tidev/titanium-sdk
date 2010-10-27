@@ -29,6 +29,7 @@ import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 
 import android.net.Uri;
+import android.os.StatFs;
 
 public class TiFile extends TiBaseFile
 {
@@ -192,8 +193,8 @@ public class TiFile extends TiBaseFile
 	@Override
 	public double spaceAvailable()
 	{
-		// only implemented in Java 6.0 :(
-		return 0;
+		StatFs stat = new StatFs(file.getPath());
+		return (double)stat.getAvailableBlocks() * (double)stat.getBlockSize();
 	}
 
 	@Override
