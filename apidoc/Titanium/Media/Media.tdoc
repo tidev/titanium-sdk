@@ -60,6 +60,7 @@ callback[function] : function that will be called upon capture. the event proper
 - method : saveToPhotoGallery
 
 media[object]: save the media passed to the cameras photo roll/media gallery. must be one of Blob object or File object or an error will be generated.
+callbacks[object]: pass a dictionary with the following supported keys: `success` a function that will be called when the save succeeds, and `error` a function that will be called upon anreceiving an error
 
 - method : showMusicLibrary
 
