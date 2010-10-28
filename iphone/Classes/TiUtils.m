@@ -489,7 +489,7 @@ extern NSString * const TI_APPLICATION_RESOURCE_DIR;
 }
 
 const CFStringRef charactersThatNeedEscaping = NULL;
-const CFStringRef charactersToNotEscape = CFSTR(":[]@!$ '()*+,;\"<>%{}|\\^~`");
+const CFStringRef charactersToNotEscape = CFSTR(":[]@!$ '()*+,;\"<>%{}|\\^~`#");
 
 +(NSURL*)toURL:(id)object proxy:(TiProxy*)proxy
 {
