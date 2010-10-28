@@ -124,8 +124,12 @@ public class TiUISlider extends TiUIView
 			}
 			String url = proxy.getTiContext().resolveUrl(null, thumbImage);
 			Drawable thumb = tfh.loadDrawable(proxy.getTiContext(), url, false);
-			thumbDrawable = new SoftReference<Drawable>(thumb);
-			seekBar.setThumb(thumb);
+		 	if (thumb != null) {
+				thumbDrawable = new SoftReference<Drawable>(thumb);
+				seekBar.setThumb(thumb);
+			} else {
+				Log.e(LCAT, "Unable to locate thumb image for progress bar: " + url);
+			}
 		} else {
 			seekBar.setThumb(null);
 		}
@@ -143,14 +147,28 @@ public class TiUISlider extends TiUIView
 			String leftUrl = proxy.getTiContext().resolveUrl(null, leftImage);
 			String rightUrl = proxy.getTiContext().resolveUrl(null, rightImage);
 
-			Drawable[] lda = {
-				tfh.loadDrawable(proxy.getTiContext(), rightUrl, false, true),
-				new ClipDrawable(tfh.loadDrawable(proxy.getTiContext(), leftUrl, false, true), Gravity.LEFT, ClipDrawable.HORIZONTAL)
-			};
-			LayerDrawable ld = new LayerDrawable(lda);
-			ld.setId(0, android.R.id.background);
-			ld.setId(1, android.R.id.progress);
-			seekBar.setProgressDrawable(ld);
+			Drawable rightDrawable = tfh.loadDrawable(proxy.getTiContext(), rightUrl, false, true);
+			Drawable leftDrawable = tfh.loadDrawable(proxy.getTiContext(), leftUrl, false, true);
+			if (rightDrawable != null && leftDrawable != null) {
+				Drawable[] lda = {
+					rightDrawable,
+					new ClipDrawable(leftDrawable, Gravity.LEFT, ClipDrawable.HORIZONTAL)
+				};
+				LayerDrawable ld = new LayerDrawable(lda);
+				ld.setId(0, android.R.id.background);
+				ld.setId(1, android.R.id.progress);
+				seekBar.setProgressDrawable(ld);
+			} else {
+				if (leftDrawable == null) {
+					Log.e(LCAT, "Unable to locate left image for progress bar: " + leftUrl);					
+				}
+				if (rightDrawable == null) {
+					Log.e(LCAT, "Unable to locate right image for progress bar: " + rightUrl);
+				}
+				// release
+				leftDrawable = null;
+				rightDrawable = null;
+			}
 		} else if (leftImage == null && rightImage == null) {
 			seekBar.setProgressDrawable(null);
 		} else {
