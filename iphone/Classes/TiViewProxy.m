@@ -1412,7 +1412,7 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,)
 //		return;
 	}
 	
-	if(![self visible])
+	if(![self visible] && parent != nil)
 	{
 		VerboseLog(@"Removing from superview");
 		if([self viewAttached])
