@@ -165,6 +165,9 @@ class ModuleDetector(object):
 		if not os.path.exists(dir): return modules
 		
 		for module_zip in glob.glob(os.path.join(dir, '*-*-*.zip')):
+			# in development we store mobilesdk zips in the same place that module zips go
+			if module_zip.startswith('mobilesdk-'):
+				continue
 			print '[INFO] Installing module: %s' % module_zip
 			module_zf = zipfile.ZipFile(module_zip)
 			for name in module_zf.namelist():
