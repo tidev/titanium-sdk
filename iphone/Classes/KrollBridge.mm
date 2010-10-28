@@ -442,6 +442,7 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 
 -(void)willStartNewContext:(KrollContext*)kroll
 {
+	[self retain]; // Hold onto ourselves as long as the context needs us
 }
 
 -(void)didStartNewContext:(KrollContext*)kroll
@@ -514,6 +515,7 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 	RELEASE_TO_NIL(context);
 	RELEASE_TO_NIL(preload);
 	RELEASE_TO_NIL(modules);
+	[self autorelease]; // Safe to release now that the context is done
 }
 
 - (void)registerProxy:(id)proxy 

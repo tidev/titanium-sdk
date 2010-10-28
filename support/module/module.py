@@ -165,6 +165,9 @@ class ModuleDetector(object):
 		if not os.path.exists(dir): return modules
 		
 		for module_zip in glob.glob(os.path.join(dir, '*-*-*.zip')):
+			# in development we store mobilesdk zips in the same place that module zips go
+			if os.path.basename(module_zip).startswith('mobilesdk-'):
+				continue
 			print '[INFO] Installing module: %s' % module_zip
 			module_zf = zipfile.ZipFile(module_zip)
 			for name in module_zf.namelist():
@@ -184,7 +187,7 @@ class ModuleDetector(object):
 		for platform in os.listdir(modules_dir):
 			platform_dir = os.path.join(modules_dir, platform)
 			if not os.path.isdir(platform_dir): continue
-			if platform_dir in ['osx', 'win32', 'linux']: continue # skip desktop modules
+			if platform in ['osx', 'win32', 'linux']: continue # skip desktop modules
 			
 			# recursive once in the platform directory so we can get versioned modules too
 			for root, dirs, files in os.walk(platform_dir):

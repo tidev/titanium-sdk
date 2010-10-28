@@ -240,11 +240,12 @@ class Android(object):
 		app_lib_dir = self.newdir(app_dir, 'lib')
 		app_src_dir = self.newdir(app_dir, 'src')
 		app_res_dir = self.newdir(app_dir, 'res')
+		app_gen_dir = self.newdir(app_dir, 'gen')
 		app_bin_classes_dir = self.newdir(app_bin_dir, 'classes')
 		
 		app_res_drawable_dir = self.newdir(app_res_dir, 'drawable')
 		app_assets_dir = self.newdir(app_dir, 'assets')
-		app_package_dir = self.newdir(app_src_dir, *self.id.split('.'))
+		app_package_dir = self.newdir(app_gen_dir, *self.id.split('.'))
 		app_bin_assets_dir = self.newdir(app_bin_dir, 'assets')
 		
 		self.build_app_info(project_dir)

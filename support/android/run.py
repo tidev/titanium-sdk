@@ -13,7 +13,7 @@ def check_output_for_error(output, match,error_in_first_match):
 
 def run(args,ignore_error=False,debug=True, ignore_output=False):
 	if debug:
-		print "[DEBUG] %s"%(" ".join(args))
+		print "[DEBUG] %s" % (subprocess.list2cmdline(args))
 		sys.stdout.flush()
 	if ignore_output:
 		subprocess.Popen(args, stderr=subprocess.PIPE, stdout=subprocess.PIPE).wait()
