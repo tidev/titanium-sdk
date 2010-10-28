@@ -934,6 +934,9 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 	
 	while(1)
 	{
+		if (pool == nil) {
+			pool = [[NSAutoreleasePool alloc] init];
+		}
 		loopCount++;
 		
 		// if we're suspended, we simply wait for resume
@@ -1034,6 +1037,7 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 				}				
 			}
 		}
+		RELEASE_TO_NIL(pool); // Clean up all of our autorelease so that long-running contexts don't devour everything
 
 		
 		// TODO: experiment, attempt to collect more often than usual given our environment
