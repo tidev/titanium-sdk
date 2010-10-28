@@ -26,9 +26,9 @@
 
 -(void)add:(id)proxy;
 -(void)remove:(id)proxy;
--(TiUITableViewRowProxy*)rowAtIndex:(NSInteger)index;
 
 #pragma mark Framework
+-(TiUITableViewRowProxy*)rowAtIndex:(NSInteger)index;
 @property(nonatomic,readwrite,assign) TiUITableView *table;
 @property(nonatomic,readwrite,assign) NSInteger section;
 

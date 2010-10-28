@@ -75,12 +75,6 @@
 	return [rows count];
 }
 
--(TiUITableViewRowProxy*)rowAtIndex:(NSInteger)index
-{
-//The result of a method call also happens to be nil.
-	return [rows objectAtIndex:index];
-}
-
 -(void)add:(id)proxy
 {
 	ENSURE_SINGLE_ARG(proxy,TiUITableViewRowProxy);
@@ -103,6 +97,13 @@
 -(UIView*)view
 {
 	return nil;
+}
+
+-(TiUITableViewRowProxy*)rowAtIndex:(NSInteger)index
+{
+//Because rowAtIndex is used internally, with an int, it can't be used by the Javascript.
+//The javascript passes in an NSArray pointer, not an index. And things blow up.
+	return [rows objectAtIndex:index];
 }
 
 -(NSString*)headerTitle
