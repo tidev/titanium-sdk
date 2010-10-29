@@ -175,6 +175,7 @@
 		return;
 	}
 	
+	[self setNeedsZIndexRepositioning];
 	if ([NSThread isMainThread])
 	{
 		pthread_rwlock_wrlock(&childrenLock);
