@@ -20,6 +20,7 @@
 	TiObjectRef thisObj;
 	TiObjectRef function;
 	KrollContext *context;
+	NSLock* contextLock;
 	NSString *type;
 }
 

@@ -47,6 +47,7 @@ static NSLock *callbackLock;
 			callbackLock = [[NSLock alloc] init];
 			callbacks = TiCreateNonRetainingArray();
 		}
+		contextLock = [[NSLock alloc] init];
 		[callbacks addObject:self];
 	}
 	return self;
@@ -59,6 +60,8 @@ static NSLock *callbackLock;
 	[callbackLock unlock];
 
 	[type release];
+	[contextLock release];
+	
 	TiValueUnprotect(jsContext, function);
 	TiValueUnprotect(jsContext, thisObj);
 	function = NULL;
@@ -93,8 +96,10 @@ static NSLock *callbackLock;
 
 -(id)call:(NSArray*)args thisObject:(id)thisObject_
 {
+	[contextLock lock];
 	if (context==nil)
 	{
+		[contextLock unlock];
 		return nil;
 	}
 	
@@ -133,7 +138,8 @@ static NSLock *callbackLock;
 	}
 	
 	id val = [KrollObject toID:context value:retVal];
-	[context autorelease];
+	[context release];
+	[contextLock unlock];
 	return val;
 }
 
@@ -145,6 +151,13 @@ static NSLock *callbackLock;
 -(KrollContext*)context
 {
 	return context;
+}
+
+-(void)setContext:(KrollContext*)context_
+{
+	[contextLock lock];
+	context = context_;
+	[contextLock unlock];
 }
 
 @end
