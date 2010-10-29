@@ -927,8 +927,9 @@ NSArray* moviePlayerKeys = nil;
 #endif			
 			[self fireEvent:@"complete" withObject:event];
 		}
-		// release memory!
-		[self stop:nil];
+		// Release memory
+		playing = NO;
+		RELEASE_TO_NIL_AUTORELEASE(movie);
 	}
 #if __IPHONE_OS_VERSION_MAX_ALLOWED < __IPHONE_3_2
 	else if ([name isEqualToString:MPMoviePlayerContentPreloadDidFinishNotification])

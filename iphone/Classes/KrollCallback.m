@@ -98,7 +98,7 @@ static NSLock *callbackLock;
 		return nil;
 	}
 	
-	[[context retain] autorelease];
+	[context retain];
 	
 	TiValueRef _args[[args count]];
 	for (size_t c = 0; c < [args count]; c++)
@@ -132,7 +132,9 @@ static NSLock *callbackLock;
 		TiValueUnprotect(jsContext,top);
 	}
 	
-	return [KrollObject toID:context value:retVal];
+	id val = [KrollObject toID:context value:retVal];
+	[context autorelease];
+	return val;
 }
 
 -(TiObjectRef)function
