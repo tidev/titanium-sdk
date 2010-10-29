@@ -282,22 +282,26 @@
 
 -(void)show:(id)arg
 {
-	//TODO: animate
-	[self setValue:[NSNumber numberWithBool:YES] forKey:@"visible"];
-	if(parentVisible)	//We actually care about showing or hiding now.
-	{
-		[self willShow];
+	if (![self visible]) {
+		//TODO: animate
+		[self setValue:[NSNumber numberWithBool:YES] forKey:@"visible"];
+		if(parentVisible)	//We actually care about showing or hiding now.
+		{
+			[self willShow];
+		}
 	}
 }
  
 -(void)hide:(id)arg
 {
-	//TODO: animate
-	[self setValue:[NSNumber numberWithBool:NO] forKey:@"visible"];
-
-	if(parentVisible)	//We actually care about showing or hiding now.
-	{
-		[self willHide];
+	if ([self visible]) {
+		//TODO: animate
+		[self setValue:[NSNumber numberWithBool:NO] forKey:@"visible"];
+		
+		if(parentVisible)	//We actually care about showing or hiding now.
+		{
+			[self willHide];
+		}
 	}
 }
 
@@ -1541,7 +1545,12 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,)
 		}
 		newPosition ++;
 	}
-	[parentView insertSubview:ourView atIndex:newPosition];
+	if (newPosition == [[parentView subviews] count]) {
+		[parentView addSubview:ourView];
+	}
+	else {
+		[parentView insertSubview:ourView atIndex:newPosition];
+	}
 }
 
 -(void)refreshPosition
@@ -1616,7 +1625,6 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
 		[self willEnqueue];
 	}
 
-	SET_AND_PERFORM(TiRefreshViewZIndex,);
 	[parent contentsWillChange];
 
 	pthread_rwlock_rdlock(&childrenLock);
