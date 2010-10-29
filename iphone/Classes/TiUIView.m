@@ -634,7 +634,9 @@ DEFINE_EXCEPTIONS
     // Redraw ourselves if changing from invisible to visible, to handle any changes made
     if (!self.hidden) {
 		TiViewProxy* viewProxy = (TiViewProxy*)[self proxy];
-		[viewProxy refreshZIndex];  // Have to do this before the reposition to make sure we have a superview
+		if ([self superview] == nil) {
+			[viewProxy refreshZIndex];  // Have to do this before the reposition to make sure we have a superview
+		}
         [viewProxy reposition];
     }
 }
