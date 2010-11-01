@@ -930,13 +930,14 @@ class Builder(object):
 		
 		debug("Building Java Sources: " + " ".join(src_list))
 		javac_command = [self.javac, '-classpath', classpath, '-d', self.classes_dir, '-sourcepath', self.project_src_dir, '-sourcepath', self.project_gen_dir]
-		src_list_file = tempfile.NamedTemporaryFile(delete=False)
+		(src_list_osfile, src_list_filename) = tempfile.mkstemp()
+		src_list_file = os.fdopen(src_list_osfile, 'w')
 		src_list_file.write("\n".join(src_list))
 		src_list_file.close()
 		
-		javac_command.append('@' + src_list_file.name)
+		javac_command.append('@' + src_list_filename)
 		out = run.run(javac_command)
-		os.remove(src_list_file.name)
+		os.remove(src_list_filename)
 	
 	def package_and_deploy(self):
 		ap_ = os.path.join(self.project_dir, 'bin', 'app.ap_')
