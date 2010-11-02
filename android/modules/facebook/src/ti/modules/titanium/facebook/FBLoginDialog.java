@@ -29,9 +29,11 @@ public class FBLoginDialog extends FBDialog {
 
     private FBRequest mGetSessionRequest;
     private FBRequestDelegate mRequestDelegate;
+    private String mRequestedPermissions;
 
-    public FBLoginDialog(Activity context, FBSession session) {
+    public FBLoginDialog(Activity context, FBSession session, String permissions) {
         super(context, session);
+        this.mRequestedPermissions  = permissions;
         mRequestDelegate = new FBRequestDelegateImpl();
     }
 
@@ -63,7 +65,7 @@ public class FBLoginDialog extends FBDialog {
         String url = FacebookModule.usingOauth ? OAUTH_URL : LOGIN_URL;
         if (FacebookModule.usingOauth) {
         	params.put("display", "touch");
-        	params.put("scope", "publish_stream");
+        	params.put("scope", mRequestedPermissions);
         	params.put("sdk", "android");
         	params.put("redirect_uri", "fbconnect://success");
         	params.put("type", "user_agent");

@@ -37,6 +37,7 @@ public class LoginButton extends TiUIView {
 	private FBSession session;
 	private FacebookModule facebook;
 	private boolean wide;
+	private String requestedPermissions = null;
 
 	public LoginButton(final TiViewProxy proxy) {
 		super(proxy);
@@ -61,7 +62,7 @@ public class LoginButton extends TiUIView {
 				if (facebook.isLoggedIn()) {
 					facebook.executeLogout();
 				} else {
-					facebook.executeLogin();
+					facebook.executeLogin(requestedPermissions);
 				}
 			}
 		});
@@ -102,6 +103,10 @@ public class LoginButton extends TiUIView {
 		String sessionProxy = TiConvert.toString(d, "sessionProxy");
 		if (d.containsKey("oauth")) {
 			FacebookModule.usingOauth = TiConvert.toBoolean(d, "oauth");
+		}
+		
+		if (d.containsKey("permissions")) {
+			requestedPermissions = TiConvert.toString(d, "permissions");
 		}
 
 		final KrollProxy proxy = getProxy();
