@@ -100,6 +100,9 @@ public class LoginButton extends TiUIView {
 		String apiKey = TiConvert.toString(d, "apikey");
 		String secret = TiConvert.toString(d, "secret");
 		String sessionProxy = TiConvert.toString(d, "sessionProxy");
+		if (d.containsKey("oauth")) {
+			FacebookModule.usingOauth = TiConvert.toBoolean(d, "oauth");
+		}
 
 		final KrollProxy proxy = getProxy();
 		
@@ -142,7 +145,11 @@ public class LoginButton extends TiUIView {
 		}
 
 		if (!session.isConnected()) {
-			session.resume(getWinContext());
+			if (FacebookModule.usingOauth) {
+				session.resume_oauth(getWinContext());
+			} else {
+				session.resume(getWinContext());
+			}
 		}
 	}
 

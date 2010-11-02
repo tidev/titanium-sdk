@@ -25,6 +25,7 @@ public class FBLoginDialog extends FBDialog {
     private static final String LOG = FBLoginDialog.class.getSimpleName();
     
     private static final String LOGIN_URL = "http://www.facebook.com/login.php";
+    private static final String OAUTH_URL = "http://graph.facebook.com/oauth/authorize";
 
     private FBRequest mGetSessionRequest;
     private FBRequestDelegate mRequestDelegate;
@@ -40,9 +41,13 @@ public class FBLoginDialog extends FBDialog {
     private void connectToGetSession(String token) {
     	mGetSessionRequest = FBRequest.requestWithSession(mSession, mRequestDelegate);
         Map<String, String> params = new HashMap<String, String>();
-        params.put("auth_token", token);
+        if (FacebookModule.usingOauth) {
+        	params.put("access_token", token);
+        } else {
+        	params.put("auth_token", token);
+        }
         params.put("format","json");
-        if (mSession.getApiSecret() == null) {
+        if (mSession.getApiSecret() == null && !FacebookModule.usingOauth) {
             params.put("generate_session_secret", "1");
         }
 
@@ -55,13 +60,23 @@ public class FBLoginDialog extends FBDialog {
 
     private void loadLoginPage() {
         Map<String, String> params = new HashMap<String, String>();
-        params.put("fbconnect", "1");
-        params.put("connect_display", "touch");
-        params.put("api_key", mSession.getApiKey());
-        params.put("next", "fbconnect://success");
+        String url = FacebookModule.usingOauth ? OAUTH_URL : LOGIN_URL;
+        if (FacebookModule.usingOauth) {
+        	params.put("display", "touch");
+        	params.put("scope", "publish_stream");
+        	params.put("sdk", "android");
+        	params.put("redirect_uri", "fbconnect://success");
+        	params.put("type", "user_agent");
+        	params.put("client_id", mSession.getApiKey());
+        } else {
+	        params.put("fbconnect", "1");
+	        params.put("connect_display", "touch");
+	        params.put("api_key", mSession.getApiKey());
+	        params.put("next", "fbconnect://success");
+        }
 
         try {
-            loadURL(LOGIN_URL, "GET", params, null);
+            loadURL(url, "GET", params, null);
         } catch (MalformedURLException e) {
             e.printStackTrace();
         }
@@ -87,18 +102,35 @@ public class FBLoginDialog extends FBDialog {
 
     @Override
     protected void dialogDidSucceed(URI url) {
-        String q = url.getQuery();
-        int start = q.indexOf("auth_token=");
+        String toSearch = FacebookModule.usingOauth ? url.toString() : url.getQuery();
+        String PATTERN = FacebookModule.usingOauth ? "access_token=" : "auth_token=";
+        
+        int start = toSearch.indexOf(PATTERN);
         if (start != -1) {
-            int end = q.indexOf("&");
-            int offset = start + "auth_token=".length();
-            String token = end == -1 ? q.substring(offset) : q.substring(offset, end - offset);
-
+            int end = toSearch.indexOf("&");
+            int offset = start + PATTERN.length();
+            String token = end == -1 ? toSearch.substring(offset) : toSearch.substring(offset, end);
             if (token != null) {
-                connectToGetSession(token);
+            	if (!FacebookModule.usingOauth) {
+            		connectToGetSession(token);
+            	} else {
+            		start = toSearch.indexOf("expires_in=");
+            		if (start != -1) {
+            			offset = start + "expires_in=".length();
+            			end = toSearch.indexOf("&", offset);
+            			String expires_in = null;
+            			if (end != -1) {
+            				expires_in = toSearch.substring(offset, end);
+            			} else {
+            				expires_in = toSearch.substring(offset);
+            			}
+            			mSession.begin_oauth(mContext, token, expires_in);
+            			mSession.resume_oauth(mContext);
+            			super.dialogDidSucceed(url);
+            		}
+            	}
             }
         }
-//        super.dialogDidSucceed(url);
     }
 
     private class FBRequestDelegateImpl extends FBRequestDelegate {
@@ -141,8 +173,8 @@ public class FBLoginDialog extends FBDialog {
 
         @Override
         public void requestDidFailWithError(FBRequest request, Throwable error) {
+        	super.requestDidFailWithError(request, error);
             mGetSessionRequest = null;
-
             dismissWithError(error, true);
         }
 

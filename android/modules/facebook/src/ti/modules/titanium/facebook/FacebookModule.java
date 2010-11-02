@@ -41,6 +41,8 @@ public class FacebookModule extends KrollModule implements FBActivityDelegate,
 		TiActivityResultHandler {
 	private static final String LCAT = "TiFacebook";
 	private static final boolean DBG = TiConfig.LOGD;
+	
+	protected static boolean usingOauth = true;
 
 	@Kroll.constant public static final String LOGIN_BUTTON_STYLE_WIDE = "wide";
 	@Kroll.constant public static final String LOGIN_BUTTON_STYLE_NORMAL = "normal";

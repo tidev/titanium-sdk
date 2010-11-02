@@ -8,6 +8,7 @@ package ti.modules.titanium.facebook;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -49,8 +50,11 @@ public class FBSession {
 	// /////////////////////////////////////////////////////////////////////////////////////////////////
 	// global
 
-	private static final String APIRESTURL = "http://api.facebook.com/restserver.php";
-	private static final String APIRESTSECUREURL = "https://api.facebook.com/restserver.php";
+	//private static final String APIRESTURL = "http://api.facebook.com/restserver.php";
+	//private static final String APIRESTSECUREURL = "https://api.facebook.com/restserver.php";
+	private static final String APIRESTURL = "http://api.facebook.com/method/";
+	private static final String APIRESTSECUREURL = "https://api.facebook.com/method/";
+	
 
 	private static final int MAXBURSTREQUESTS = 3;
 	private static final long BURSTDURATION = 2;
@@ -72,6 +76,7 @@ public class FBSession {
 	private Date mLastRequestTime;
 	private int mRequestBurstCount;
 	private Timer mRequestTimer;
+	private String mAccessToken; //OAUTH
 
 	// /////////////////////////////////////////////////////////////////////////////////////////////////
 	// constructor
@@ -89,6 +94,7 @@ public class FBSession {
 		mLastRequestTime = new Date();
 		mRequestBurstCount = 0;
 		mRequestTimer = null;
+		mAccessToken = null;
 	}
 
 	/**
@@ -164,6 +170,9 @@ public class FBSession {
 	// private
 
 	public void save(Context context) {
+		if (FacebookModule.usingOauth) {
+			throw new IllegalStateException("'save' is invalid if OAUTH is used");
+		}
 		SharedPreferences defaults = context.getSharedPreferences(PREFS_NAME,
 				Context.MODE_PRIVATE);
 		Editor editor = defaults.edit();
@@ -202,6 +211,28 @@ public class FBSession {
 		}
 		editor.commit();
 	}
+	
+	public void save_oauth(Context context)
+	{
+		SharedPreferences defaults = context.getSharedPreferences(PREFS_NAME,
+				Context.MODE_PRIVATE);
+		Editor editor = defaults.edit();
+		if (mAccessToken != null) {
+			editor.putString("FBAccessToken", mAccessToken);
+		} else {
+			editor.remove("FBAccessToken");
+		}
+		
+		if (mExpirationDate != null) {
+			editor.putLong("FBSessionExpires", mExpirationDate.getTime());
+		} else {
+			editor.remove("FBSessionExpires");
+		}
+		
+		editor.commit();
+		
+		
+	}
 
 	public void unsave(Context context) {
 		Editor defaults = context.getSharedPreferences(PREFS_NAME,
@@ -212,6 +243,7 @@ public class FBSession {
 		defaults.remove("FBSessionSecret");
 		defaults.remove("FBSessionExpires");
 		defaults.remove("FBPermissions");
+		defaults.remove("FBAccessToken");
 		defaults.commit();
 		if (permissions != null) {
 			permissions.clear();
@@ -306,7 +338,21 @@ public class FBSession {
 	 * Determines if the session is active and connected to a user.
 	 */
 	public boolean isConnected() {
-		return mSessionKey != null && mUid.longValue() != 0;
+		if (FacebookModule.usingOauth) {
+			return mAccessToken != null && !hasExpired() ;
+		} else {
+			return mSessionKey != null && mUid.longValue() != 0;
+		}
+	}
+	
+	private boolean hasExpired() {
+		if (mExpirationDate == null) {
+			return false;
+		}
+		Calendar c = Calendar.getInstance();
+		c.setTime(mExpirationDate);
+		return (c.before(Calendar.getInstance()));
+		
 	}
 
 	/**
@@ -314,11 +360,24 @@ public class FBSession {
 	 */
 	public void begin(Context context, Long uid, String sessionKey,
 			String sessionSecret, Date expires) {
+		if (FacebookModule.usingOauth) {
+			throw new IllegalStateException("'begin' is invalid if OAUTH used");
+		}
 		mUid = uid;
 		mSessionKey = sessionKey;
 		mSessionSecret = sessionSecret;
 		mExpirationDate = (Date) expires.clone();
 		save(context);
+	}
+	
+	// OAUTH version of begin()
+	public void begin_oauth(Context context, String access_token, String expires_in_seconds)
+	{
+		mAccessToken = access_token;
+		Calendar c = Calendar.getInstance();
+		c.setTimeInMillis(System.currentTimeMillis() + Integer.parseInt(expires_in_seconds) * 1000);
+		mExpirationDate = c.getTime();
+		save_oauth(context);
 	}
 
 	/**
@@ -326,6 +385,9 @@ public class FBSession {
 	 * on disk.
 	 */
 	public boolean resume(Context context) {
+		if (FacebookModule.usingOauth) {
+			throw new IllegalStateException("'resume' is invalid if OAUTH is used");
+		}
 		SharedPreferences defaults = context.getSharedPreferences(PREFS_NAME,
 				Context.MODE_PRIVATE);
 		Long uid = defaults.getLong("FBUserId", 0);
@@ -378,6 +440,33 @@ public class FBSession {
 		}
 		return false;
 	}
+	
+	public boolean resume_oauth(Context context)
+	{
+		SharedPreferences defaults = context.getSharedPreferences(PREFS_NAME,
+				Context.MODE_PRIVATE);
+		mAccessToken = defaults.getString("FBAccessToken", null);
+		long expiration = defaults.getLong("FBSessionExpires", 0);
+		if (expiration == 0 || mAccessToken == null){
+			mAccessToken = null;
+			return false;
+		} else {
+			Calendar c = Calendar.getInstance();
+			c.setTimeInMillis(expiration);
+			mExpirationDate = c.getTime();
+			if (c.before(Calendar.getInstance())) {
+				mExpirationDate = null;
+				mAccessToken = null;
+				return false;
+			} else {
+				for (FBSessionDelegate delegate : mDelegates) {
+					delegate.sessionDidLogin(this, null);
+				}
+				return true;
+			}
+		}
+		
+	}
 
 	/**
 	 * Ends the current session and deletes the uid, session key, and secret
@@ -385,7 +474,7 @@ public class FBSession {
 	 */
 	public void logout(Context context) {
 
-		if (mSessionKey != null) {
+		if (mSessionKey != null || mAccessToken != null) {
 
 			// Execute will logout
 			for (FBSessionDelegate delegate : mDelegates) {
@@ -397,6 +486,7 @@ public class FBSession {
 			mSessionKey = null;
 			mSessionSecret = null;
 			mExpirationDate = null;
+			mAccessToken = null;
 		}
 
 		// Remove session cookies from the web view. We create the
@@ -512,6 +602,10 @@ public class FBSession {
 		this.permissions.put(name, value);
 		this.save(ctx);
 	}
+	
+	public String getAccessToken() {
+		return mAccessToken;
+	}
 
 	// /////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -536,5 +630,5 @@ public class FBSession {
 		}
 
 	}
-
+	
 }
