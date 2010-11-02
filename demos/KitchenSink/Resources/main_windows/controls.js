@@ -21,6 +21,12 @@ if (Titanium.Platform.name == 'iPhone OS')
 	data.push({title:'Picker', hasChild:true, test:'../examples/picker.js'});
 }
 
+// add android specific tests
+if (Titanium.Platform.osname == 'android')
+{
+	data.push({title:'CheckBox', hasChild:true, test:'../examples/checkbox.js'});
+}
+
 // create table view
 var tableview = Titanium.UI.createTableView({
 	data:data
