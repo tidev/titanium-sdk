@@ -283,26 +283,22 @@
 
 -(void)show:(id)arg
 {
-	if (![self visible]) {
-		//TODO: animate
-		[self setValue:[NSNumber numberWithBool:YES] forKey:@"visible"];
-		if(parentVisible)	//We actually care about showing or hiding now.
-		{
-			[self willShow];
-		}
+	//TODO: animate
+	[self replaceValue:[NSNumber numberWithBool:YES] forKey:@"visible" notification:YES];
+	if(parentVisible)	//We actually care about showing or hiding now.
+	{
+		[self willShow];
 	}
 }
  
 -(void)hide:(id)arg
 {
-	if ([self visible]) {
-		//TODO: animate
-		[self setValue:[NSNumber numberWithBool:NO] forKey:@"visible"];
+	//TODO: animate
+	[self replaceValue:[NSNumber numberWithBool:NO] forKey:@"visible" notification:YES];
 		
-		if(parentVisible)	//We actually care about showing or hiding now.
-		{
-			[self willHide];
-		}
+	if(parentVisible)	//We actually care about showing or hiding now.
+	{
+		[self willHide];
 	}
 }
 
