@@ -242,6 +242,25 @@ class Builder(object):
 					error("Error locating JDK: set $JAVA_HOME or put javac and jarsigner on your $PATH")
 					sys.exit(1)
 
+	def wait_for_home(self, type):
+		max_wait = 20
+		attempts = 0
+		while True:
+			processes = self.sdk.list_processes(['-%s' % type])
+			found_home = False
+			for process in processes:
+				if process["name"] == "android.process.acore":
+					found_home = True
+					break
+			if found_home:
+				break
+			attempts += 1
+			if attempts == max_wait:
+				error("Timed out waiting for android.process.acore")
+				return False
+			time.sleep(1)
+		return True
+	
 	def wait_for_device(self,type):
 		print "[DEBUG] Waiting for device to be ready ..."
 		sys.stdout.flush()
@@ -292,7 +311,8 @@ class Builder(object):
 		debug("waited %f seconds on emulator to get ready" % duration)
 		if duration > 1.0:
 			info("Waiting for the Android Emulator to become available")
-			time.sleep(20) # give it a little more time to get installed
+			return self.wait_for_home(type)
+			#time.sleep(20) # give it a little more time to get installed
 		return True
 	
 	def create_avd(self,avd_id,avd_skin):
@@ -930,13 +950,14 @@ class Builder(object):
 		
 		debug("Building Java Sources: " + " ".join(src_list))
 		javac_command = [self.javac, '-classpath', classpath, '-d', self.classes_dir, '-sourcepath', self.project_src_dir, '-sourcepath', self.project_gen_dir]
-		src_list_file = tempfile.NamedTemporaryFile(delete=False)
+		(src_list_osfile, src_list_filename) = tempfile.mkstemp()
+		src_list_file = os.fdopen(src_list_osfile, 'w')
 		src_list_file.write("\n".join(src_list))
 		src_list_file.close()
 		
-		javac_command.append('@' + src_list_file.name)
+		javac_command.append('@' + src_list_filename)
 		out = run.run(javac_command)
-		os.remove(src_list_file.name)
+		os.remove(src_list_filename)
 	
 	def package_and_deploy(self):
 		ap_ = os.path.join(self.project_dir, 'bin', 'app.ap_')

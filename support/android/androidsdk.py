@@ -3,7 +3,7 @@
 # An autodetection utility for the Android SDK
 #
 
-import os, sys, platform, glob, subprocess, types
+import os, sys, platform, glob, subprocess, types, re
 
 android_api_levels = {
 	3: 'android-1.5',
@@ -193,3 +193,48 @@ class AndroidSDK:
 				name = line.split()[0]
 				devices.append(Device(name))
 		return devices
+	
+	def list_processes(self, adb_args=None):
+		args = [self.get_adb()]
+		if adb_args != None:
+			args.extend(adb_args)
+		args.extend['shell', 'ps']
+		(out, err) = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
+		if type(err) != types.NoneType and len(err) > 0:
+			raise Exception(err)
+		processes = []
+		for line in out.splitlines():
+			line = line.strip()
+			tokens = re.split(r"\s+", line)
+			if len(tokens) == 0: continue
+			if tokens[0] == 'USER': continue
+			process = {"pid": tokens[1], "name": tokens[len(tokens)-1]}
+			processes.append(process)
+		return processes
+
+if __name__ == "__main__":
+	if len(sys.argv) < 2:
+		print "Usage: %s ANDROID_SDK [API]" % sys.argv[0]
+		print "  ANDROID_SDK is the default path to the Android SDK. Use '-' if there is no default path"
+		print "  API (optional) is an Android API version (i.e. 4, 5, 6, 7, 8). The default is 4."
+		print ""
+		print "Prints the SDK directory, Android Platform directory, and Google APIs directory"
+		sys.exit(1)
+	
+	sdk_path = sys.argv[1]
+	if sdk_path == '-':
+		sdk_path = None
+	
+	api_level = 4
+	if len(sys.argv) > 2:
+		api_level = int(sys.argv[2])
+	
+	try:
+		sdk = AndroidSDK(sdk_path, api_level)
+		print "ANDROID_SDK=%s" % sdk.get_android_sdk()
+		print "ANDROID_API_LEVEL=%d" % sdk.get_api_level()
+		print "ANDROID_PLATFORM=%s" % sdk.get_platform_dir()
+		print "GOOGLE_APIS=%s" % sdk.get_google_apis_dir()
+	except Exception, e:
+		print >>sys.stderr, e
+	

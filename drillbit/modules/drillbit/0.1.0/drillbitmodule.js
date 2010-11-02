@@ -1,704 +1,704 @@
-(function() {
-	var Drillbit = function() {
-		var TFS = Titanium.Filesystem;
-		var TA  = Titanium.App;
+/**
+ * Appcelerator Drillbit
+ * Copyright (c) 2010 by Appcelerator, Inc. All Rights Reserved.
+ * Licensed under the terms of the Apache Public License
+ * Please see the LICENSE included with this distribution for details.
+ * 
+ * The main drillbit module -- responsible for the setup, teardown, and running of test suites.
+ * Delegates to a "frontend" object to show status
+ */
+var ti = Ti = Titanium;
+Drillbit = function() {
+	this.module = ti.api.findModule('drillbit', '0.1.0');
+	this.frontend = null;
+	this.platforms = [];
+	this.emulators = {};
+	this.autoClose = false;
+	this.debugTests = false;
+	this.runTestsAsync = false;
+	this.window = null;
+	
+	this.tests = {};
+	this.testNames = [];
+	this.totalAssertions = 0;
+	this.totalTests = 0;
+	this.totalFiles = 0;
+	this.currentTest = null;
+	this.testsStarted = 0;
+	this.testDuration = 0;
+	this.loadingTest = null;
+	
+	this.platformStatus = {};
+	this.excludes = ['before','before_all','after','after_all','timeout'];
+	this.runningTests = 0;
+	this.runningCompleted = 0;
+	this.runningPassed = 0;
+	this.runningFailed = 0;
+	this.testFailures = false;
+	this.executingTests = [];
+	this.currentPassed = 0;
+	this.currentFailed = 0;
+	this.currentTimer = 0;
+	
+	this.resultsDir = ti.fs.getFile(ti.path.fromurl('app://test_results'));
+	this.initPython();
+	
+	ti.include(ti.path.join(this.module.getPath(), 'lib', 'optimist.js'));
+	ti.include(ti.path.join(this.module.getPath(), 'lib', 'ejs.js'));
+	this.processArgv();
+	
+	var app = Ti.API.getApplication();
+	this.resourcesDir = app.getResourcesPath();
+	this.contentsDir = ti.path.dirname(this.resourcesDir);
+	this.testHarnessDir = ti.path.join(this.resourcesDir, 'test_harness');
+	this.testHarnessResourcesDir = ti.path.join(this.testHarnessDir, 'Resources');
+	this.testHarnessId = 'org.appcelerator.titanium.testharness';
+	
+	this.drillbitTestJs = ti.fs.getFile(this.module.getPath(), 'drillbitTest.js').read().toString();
+	this.templatesDir = ti.path.join(this.module.getPath(), 'templates');
+	
+	this.loadAllTests();
+	
+	var manifestPath = app.getManifestPath();
+	var manifestHarness = ti.fs.getFile(ti.path.dirname(manifestPath), 'manifest_harness');
+	this.setupTestHarness(manifestHarness);
+};
+
+Drillbit.prototype.processArgv = function() {
+	this.mobileSdk = null;
+	this.argv = Ti.Optimist.argv;
+	var env = ti.api.getEnvironment();
+	
+	if ('mobileSdk' in this.argv) {
+		this.mobileSdk = this.argv.mobileSdk;
+	} else { // pull the latest version from the API
+		var mobileSdks = ti.api.getInstalledMobileSDKs();
+		if (mobileSdks.length > 0) {
+			this.mobileSdk = mobileSdks[mobileSdks.length-1].getPath();
+			ti.api.debug("No MobileSDK specified, using detected path: " + this.mobileSdk);
+		}
+	}
+	
+	if (this.mobileSdk == null) {
+		ti.api.error("No MobileSDK found, please specify with --mobile-sdk, or install MobileSDK 1.5.0 or greater");
+		ti.app.exit(1);
+	}
+	
+	this.extraTests = [];
+	if ('tests' in this.argv) {
+		if (Array.isArray(this.argv.tests)) {
+			this.extraTests = this.argv.tests;
+		} else {
+			this.extraTests = [this.argv.tests];
+		}
+	}
+	if ('DRILLBIT_TESTS' in env) {
+		this.extraTests = this.extraTests.concat(env['DRILLBIT_TESTS'].split(ti.path.pathsep));
+	}
+	
+	if ('resultsDir' in this.argv) {
+		this.resultsDir = ti.fs.getFile(this.argv.resultsDir);
+	} else if ('DRILLBIT_RESULTS_DIR' in env) {
+		this.resultsDir = ti.fs.getFile(env['DRILLBIT_RESULTS_DIR']);
+	}
+	
+	this.initPlatforms();
+};
+
+Drillbit.prototype.initPlatforms = function() {
+	var platformsArg = 'platforms' in this.argv ? this.argv.platforms.split(',') : null;
+	
+	if (ti.Platform.isOSX()) {
+		if (platformsArg == null || platformsArg.contains('iphone')) {
+			// Default to 4.0 iPhone SDK
+			var iphoneVersion = 'iphoneVersion' in this.argv ? this.argv.iphoneVersion : "4.0";
+			ti.api.info('Adding iPhone SDK to list of drillbit target platforms: ' + iphoneVersion);
+			
+			ti.include(ti.path.join(this.module.getPath(), 'iphone.js'));
+			this.platforms.push('iphone');
+			this.emulators.iphone = new Titanium.iPhoneSimulator(this, iphoneVersion);
+		}
+	}
+	
+	if (platformsArg == null || platformsArg.contains('android')) {
+		// Try to detect the Android SDK
+		var androidSdkScript = ti.path.join(this.mobileSdk, 'android', 'androidsdk.py');
+		var androidSdk = 'androidSdk' in this.argv ? this.argv.androidSdk : '-';
+		var args = [androidSdkScript, androidSdk];
 		
-		this.frontend = null;
-		this.auto_close = false;
-		this.debug_tests = false;
-		this.run_tests_async = false;
-		this.window = null;
-		
-		this.tests = {};
-		this.test_names = [];
-		this.total_assertions = 0;
-		this.total_tests = 0;
-		this.total_files = 0;
-		this.current_test = null;
-		this.tests_started = 0;
-		this.test_duration = 0;
-		
-		var current_test_load = null;
-		var excludes = ['before','before_all','after','after_all','timeout'];
-		var running_tests = 0;
-		var running_completed = 0;
-		var running_passed = 0;
-		var running_failed = 0;
-		var test_failures = false;
-		var specific_tests = null;
-		var executing_tests = [];
-		var current_passed = 0;
-		var current_failed = 0;
-		var current_timer = 0;
-		
-		this.results_dir = TFS.getFile(TA.appURLToPath('app://test_results'));
-		var app_dir = TFS.getApplicationDirectory();
-		var drillbit_funcs = TFS.getFile(TA.appURLToPath('app://drillbit_func.js')).read();
-		var user_scripts_dir = null;
-		var app = Titanium.API.getApplication();
-		var tiapp_backup = null, tiapp = null;
-		var manifest_backup = null, manifest = null;
-		var non_visual_ti = null;
-		var self = this;
-		
-		var mobile_sdk = null;
-		var android_sdk = null;
-		for (var i = 0; i < Titanium.App.arguments.length; i++) {
-			if (Titanium.App.arguments[i].indexOf('--mobile-sdk=') >= 0) {
-				mobile_sdk = Titanium.App.arguments[i].substring('--mobile-sdk='.length);
-			} else if (Titanium.App.arguments[i].indexOf('--android-sdk=') >= 0) {
-				android_sdk = Titanium.App.arguments[i].substring('--android-sdk='.length);
-			}
+		if ('androidVersion' in this.argv) {
+			args.push(this.argv.androidVersion);
 		}
 		
-		var android_emulator_process = null;
-		var iphone_simulator_process = null;
+		var process = this.createPythonProcess(args);
+		var result = process();
+		ti.api.debug("result="+result);
 		
-		var resources_dir = app.getResourcesPath();
-		var test_harness_dir = TFS.getFile(resources_dir, 'test_harness').nativePath();
-		var test_harness_resources_dir = TFS.getFile(test_harness_dir, 'Resources').nativePath();
-		var test_harness_id = 'org.appcelerator.titanium.testharness';
+		if (process.getExitCode() != 0) {
+			ti.api.warn("No Android SDK found, disabling Android tests, exit code: " + process.getExitCode());
+			return;
+		}
 		
-		var titanium_py = TFS.getFile(mobile_sdk, 'titanium.py').nativePath();
-		var android_builder_py = TFS.getFile(mobile_sdk, 'android', 'builder.py').nativePath();
-		var wait_for_device_py = TFS.getFile(mobile_sdk, 'android', 'wait_for_device.py').nativePath();
-		var python = "python";
-		if (Titanium.platform == "win32") {
+		var androidSdkResult = {};
+		result.toString().split(/\r?\n/).forEach(function(line) {
+			var tokens = line.trim().split('=');
+			if (tokens.length != 2) return;
+			
+			var key = tokens[0].trim();
+			var value = tokens[1].trim();
+			androidSdkResult[key] = value;
+		});
+		
+		androidSdk = androidSdkResult['ANDROID_SDK'];
+		platform = androidSdkResult['ANDROID_PLATFORM'];
+		googleApis = androidSdkResult['GOOGLE_APIS'];
+		apiLevel = androidSdkResult['ANDROID_API_LEVEL'];
+		
+		ti.api.info('Adding Android SDK to list of Drillbit target platforms. API Level: ' + apiLevel + ', SDK: ' + androidSdk);
+		
+		ti.include(ti.path.join(this.module.getPath(), 'android.js'));
+		this.platforms.push('android');
+		this.emulators.android = new Titanium.AndroidEmulator(this, androidSdk, apiLevel, platform, googleApis);
+	}
+};
+
+Drillbit.prototype.initPython = function() {
+	var python = "python";
+	if (ti.Platform.isWin32()) {
+		// Use bundled python module in win32
+		var pythonModule = ti.api.findModule("python");
+		if (pythonModule != null) {
+			python = ti.path.join(pythonModule.getPath(), 'python.exe');
+		} else {
 			python += ".exe";
 		}
-		var adb = TFS.getFile(android_sdk, 'tools', 'adb').nativePath();
-		if (Titanium.platform == "win32") {
-			adb += ".exe";
+	}
+	this.python = python;
+};
+
+Drillbit.prototype.eachEmulator = function(fn) {
+	var self = this;
+	Object.keys(this.emulators).forEach(function(platform) {
+		fn(self.emulators[platform], platform);
+	});
+};
+
+Drillbit.prototype.renderTemplate = function(path, data, toPath) {
+	var file = ti.fs.getFile(path);
+	try {
+		var output = new Titanium.EJS({text: file.read().toString(), name: path}).render(data);
+		if (typeof(toPath) != 'undefined') {
+			var file = ti.fs.getFile(toPath);
+			var stream = file.open(ti.fs.MODE_WRITE);
+			stream.write(output);
+			stream.close();
 		}
-		var drillbit_module = null;
-		var test_harness_running = false;
-		
-		var modules = Titanium.API.getApplication().getModules();
-		for (var i = 0; i < modules.length; i++)
+		return output;
+	} catch (e) {
+		var msg = "Error rendering template: " + e + ",line:" + e.line;
+		ti.api.error(msg);
+		this.frontendDo('error', msg);
+	}
+	return null;
+};
+
+Drillbit.prototype.createPythonProcess = function(args) {
+	return Ti.Process.createProcess([this.python].concat(args));
+};
+
+Drillbit.prototype.frontendDo = function()
+{
+	try {
+		var args = Array.prototype.slice.call(arguments);
+	
+		var fnName = args[0];
+		args.shift();
+	
+		if (this.frontend &&
+			fnName in this.frontend && typeof this.frontend[fnName] == 'function')
 		{
-			if (modules[i].getName() == "drillbit") {
-				drillbit_module = modules[i]; 
-				break;
-			}
+			this.frontend[fnName].apply(this.frontend, args);
 		}
+	}
+	catch (e)
+	{
+		Ti.App.stderr("Error: " +e);
+	}
+};
+
+Drillbit.prototype.findLine = function(needle, haystack)
+{
+	var lines = haystack.split('\n');
+	for (var i = 0; i < lines.length; i++)
+	{
+		if (needle.test(lines[i]))
+		{
+			if (/^[\t ]*{[\t ]*$/.test(lines[i+1]))
+			{
+				//offset by 1 when the bracket is on a seperate line
+				// Function.toString show an inline bracket, so we need to compensate
+				return i+1;
+			}
+			return i;
+		}
+	}
+	return -1;
+}
+
+Drillbit.prototype.describe = function(description, test)
+{
+	ti.api.debug('describing test: ' + description);
+	this.loadingTest.description = description;
+	this.loadingTest.test = test;
+	this.loadingTest.lineOffsets = {};
+	this.loadingTest.timeout = test.timeout || 5000;
+	this.loadingTest.assertions = {};
+	this.loadingTest.assertionCount = 0;
+	var testSource = this.loadingTest.sourceFile.read().toString();
+	
+	for (var p in test)
+	{
+		if (this.excludes.indexOf(p)==-1)
+		{
+			var fn = test[p];
+			if (typeof fn == 'function')
+			{
+				this.totalTests++;
+				this.loadingTest.assertionCount++;
+				this.loadingTest.assertions[p] = false;
 				
-		this.getTestHarnessPID = function() {
-			var ps_process = Titanium.Process.createProcess([adb, '-e', 'shell', 'ps']);
-			var processes = ps_process().toString().split(/\r?\n/);
-			
-			for (var i = 0; i < processes.length; i++) {
-				var columns = processes[i].split(/\s/);
-				var pid = columns[1];
-				var id = columns[columns.length-1];
-				if (id == test_harness_id) {
-					return pid;
-				}
-			}
-			return null;
-		};
-		
-		this.isTestHarnessRunning = function() {
-			return this.getTestHarnessPID() != null;
-		};
-		
-		this.require = function(app_url) {
-			this.include(TA.appURLToPath(app_url));
-		};
-
-		this.include = function(path)
-		{
-			var code = TFS.getFile(path).read();
-			try {
-				with (this) {
-					eval(code.toString());
-				}
-			} catch (e) {
-				Titanium.App.stdout("Error: "+String(e)+", "+path+", line:"+e.line);
-			}
-		};
-		
-		this.frontend_do = function()
-		{
-			try {
-				var args = Array.prototype.slice.call(arguments);
-			
-				var fn_name = args[0];
-				args.shift();
-			
-				if (this.frontend &&
-					fn_name in this.frontend && typeof this.frontend[fn_name] == 'function')
-				{
-					this.frontend[fn_name].apply(this.frontend, args);
-				}
-			}
-			catch (e)
-			{
-				Titanium.App.stderr("Error: " +e);
+				var r = new RegExp(p+" *: *function *\\(");
+				this.loadingTest.lineOffsets[p] = this.findLine(r, testSource);
 			}
 		}
-		
-		function findLine(needle,haystack)
-		{
-			var lines = haystack.split('\n');
-			for (var i = 0; i < lines.length; i++)
-			{
-				if (needle.test(lines[i]))
-				{
-					if (/^[\t ]*{[\t ]*$/.test(lines[i+1]))
-					{
-						//offset by 1 when the bracket is on a seperate line
-						// Function.toString show an inline bracket, so we need to compensate
-						return i+1;
-					}
-					return i;
-				}
-			}
-			return -1;
-		}
-		
-		function describe(description,test)
-		{
-			current_test_load.description = description;
-			current_test_load.test = test;
-			current_test_load.line_offsets = {};
-			current_test_load.timeout = test.timeout || 5000;
-			current_test_load.assertions = {};
-			current_test_load.assertion_count = 0;
-			current_test_load.source_file = TFS.getFile(current_test_load.dir, current_test_load.name+".js");
-			var testSource = current_test_load.source_file.read().toString();
-			
-			for (var p in test)
-			{
-				if (excludes.indexOf(p)==-1)
-				{
-					var fn = test[p];
-					if (typeof fn == 'function')
-					{
-						self.total_tests++;
-						current_test_load.assertion_count++;
-						current_test_load.assertions[p]=false;
-						var r = new RegExp(p+" *: *function *\\(");
-						current_test_load.line_offsets[p] = findLine(r,testSource);
-					}
-				}
-			}
+	}
 
-			self.total_files++;
-			current_test_load = null;
-		};
-		
-		this.loadTestFile = function(test_file)
-		{
-			var name = test_file.name();
-			var ext = test_file.extension();
-			name = name.replace('.'+ext,'');
-			var dir = test_file.parent();
-			var jsfile = TFS.getFile(dir,name+'.js');
-			if (!jsfile.exists() || dir.name() != name)
-			{
+	this.totalFiles++;
+	this.loadingTest = null;
+};
+
+Drillbit.prototype.loadTestFile = function(testFile, platform)
+{
+	var name = testFile.name();
+	var ext = testFile.extension();
+	if (ext != 'js') {
+		return;
+	}
+	
+	var testName = name.substring(0, name.indexOf('.'+ext));
+	var dir = testFile.parent().nativePath();
+	var hasDir = false;
+	if (testFile.parent().name() == testName) {
+		hasDir = true;
+	}
+	
+	var entry = this.tests[name];
+	if (!entry)
+	{
+		var platforms = typeof(platform) != 'undefined' ? [platform] : this.platforms;
+		Ti.API.info("found test: " + testName + ', platforms: ' + platforms + ", dir: " + dir);
+		entry = {name: testName, dir: dir, sourceFile: testFile, hasDir: hasDir, platforms: platforms};
+		this.tests[testName] = entry;
+		this.testNames.push(testName);
+	}
+	entry[ext] = testFile;
+	this.loadingTest = entry;
+	
+	try
+	{
+		with (this) {
+			eval(String(testFile.read()));
+		}
+	}
+	catch(EX)
+	{
+		this.frontendDo('error', "error loading: "+testFile+". Exception: "+EX+" (line: "+EX.line+")");
+	}
+};
+
+Drillbit.prototype.loadPlatformTestDir = function(testDir)
+{
+	var list = testDir.getDirectoryListing();
+	var platform = testDir.name();
+	for (var c = 0; c < list.length; c++)
+	{
+		var file = ti.fs.getFile(list[c]);
+		if (file.isDirectory()) {
+			this.loadTestDir(file, platform);
+		} else {
+			this.loadTestFile(file, platform);
+		}
+	}
+};
+
+Drillbit.prototype.loadTestDir = function(testDir, platform)
+{
+	var dirname = testDir.name();
+	var testFile = ti.fs.getFile(testDir, dirname+".js");
+	if (testFile.exists()) {
+		this.loadTestFile(testFile, platform);
+	}
+};
+
+Drillbit.prototype.loadTests = function(testDir)
+{
+	this.resultsDir.createDirectory();
+	
+	ti.api.debug("Load tests from: " + testDir);
+	var testFiles = ti.fs.getFile(testDir).getDirectoryListing();
+	for (var c = 0; c < testFiles.length; c++) {
+		var file = ti.fs.getFile(testFiles[c]);
+		ti.api.debug("Trying to load tests from: " + file.nativePath());
+		if (file.isDirectory()) {
+			if (this.platforms.indexOf(file.name()) != -1) {
+				// platform specific tests
+				this.loadPlatformTestDir(file);
+			} else {
+				// all platforms
+				this.loadTestDir(file);
+			}
+		} else {
+			this.loadTestFile(file);
+		}
+	}
+
+	this.testNames.sort();
+};
+
+Drillbit.prototype.loadAllTests = function()
+{
+	this.loadTests(ti.path.fromurl('app://tests'));
+	if (this.extraTests != null) {
+		this.extraTests.forEach(function(extraTestDir) {
+			if (ti.path.exists(extraTestDir)) {
+				this.loadTests(extraTestDir);
+			}
+		}, this);
+	}
+};
+
+Drillbit.prototype.handleTestEvent = function(event, platform) {
+	this.frontendDo('show_current_test', event.suite, event.test);
+};
+
+Drillbit.prototype.handleAssertionEvent = function(event, platform) {
+	this.totalAssertions++;
+	this.frontendDo('add_assertion', event.test, event.lineNumber);
+};
+
+Drillbit.prototype.handleCompleteEvent = function(results, platform) {
+	var suite = results.suite;
+	
+	this.platformStatus[platform][suite].completed = true;
+	try {
+		if (this.window) this.window.clearInterval(this.currentTimer);
+		if (!this.currentTest.failed) {
+			var status = results.failed > 0 ? 'Failed' : 'Passed';
+			this.platformStatus[platform][suite].passed = results.failed == 0;
+			
+			if (!('results' in this.currentTest)) {
+				this.currentTest.results = {};
+			}
+			this.currentTest.results[platform] = results;
+			
+			this.frontendDo('test_platform_status', suite, status, platform);
+			this.frontendDo('update_status', suite + ' complete ... ' + results.passed + ' passed, ' + results.failed + ' failed');
+			if (!this.testFailures && results.failed > 0) {
+				this.testFailures = true;
+			}
+		} else {
+			this.testFailures = true;
+		}
+	} catch (E) {
+		this.frontendDo('error', "onexit failure = "+E+" at "+E.line);
+	}
+	
+	var allCompleted = true;
+	var allPassed = true;
+	var self = this;
+	this.tests[suite].platforms.forEach(function(platform) {
+		if (platform in this.platformStatus) {
+			if (suite in this.platformStatus[platform]) {
+				allCompleted = this.platformStatus[platform][suite].completed && allCompleted;
+				allPassed = this.platformStatus[platform][suite].passed && allPassed;
 				return;
 			}
-			var entry = this.tests[name];
-			if (!entry)
-			{
-				entry = {name:name,dir:dir};
-				this.tests[name] = entry;
-				this.test_names.push(name);
-			}
-			entry[ext] = test_file;
-			current_test_load = entry;
-			try
-			{
-				eval(String(jsfile.read()));
-			}
-			catch(EX)
-			{
-				this.frontend_do('error', "error loading: "+test_file+". Exception: "+EX+" (line: "+EX.line+")");
-			}
-		};
-		
-		this.loadTestDir = function(test_dir)
-		{
-			var dirname = test_dir.name();
-			var test_file = TFS.getFile(test_dir, dirname+".js");
-			if (test_file.exists()) {
-				this.loadTestFile(test_file);
-			}
-		};
-		
-		this.loadTests = function(test_files)
-		{
-			this.results_dir.createDirectory();
-
-			var f = Titanium.Filesystem.getFile(this.results_dir, "results.html");
-			if (f.exists()) {
-				f.deleteFile();
-			}
-		
-			for (var c=0;c<test_files.length;c++)
-			{
-				var file = TFS.getFile(test_files[c]);
-				if (file.isDirectory())
-				{
-					this.loadTestDir(file);
-				}
-				else
-				{
-					this.loadTestFile(file);
-				}
-			}
-
-			this.test_names.sort();
-		};
-	
-		this.setupTestHarness = function(harness_manifest)
-		{	
-			var self = this;
-			function suiteFinished() {
-				self.frontend_do('suite_finished', self.current_test.name);
-				try
-				{
-					if (this.window) this.window.clearInterval(current_timer);
-					if (!self.current_test.failed)
-					{
-						var get_results_process = Titanium.Process.createProcess(
-							[adb, '-e', 'shell', 'cat', '/sdcard/'+test_harness_id+'/'+self.current_test.name+'.json']);
-						var json_data = get_results_process();
-						
-						var rs = '(' + json_data + ');';
-						var results = eval(rs);
-						self.current_test.results = results;
-						self.frontend_do('test_status', self.current_test.name,results.failed>0?'Failed':'Passed');
-						self.frontend_do('update_status', self.current_test.name + ' complete ... '+results.passed+' passed, '+results.failed+' failed');
-						if (!test_failures && results.failed>0)
-						{
-							test_failures = true;
-						}
-					}
-					else
-					{
-						test_failures = true;
-					}
-				}
-				catch(E)
-				{
-					self.frontend_do('error', "onexit failure = "+E+" at "+E.line);
-				}
-				self.run_next_test();	
-			}
-			
-			function isEmulatorRunning() {
-				var devices_process = Titanium.Process.createProcess([adb, 'devices']);
-				var devices = devices_process();
-				if (devices.indexOf('emulator') >= 0) {
-					return true;
-				}
-				return false;
-			}
-			
-			
-			var test_harness_tiapp = TFS.getFile(test_harness_dir, 'tiapp.xml');
-			if (!test_harness_tiapp.exists()) {
-				var create_project_process = Titanium.Process.createProcess([python, titanium_py, 'create', '--platform=iphone,android',
-				'--dir='+resources_dir, '--name=test_harness', '--id='+test_harness_id, '--android='+android_sdk]);
-			
-				create_project_process();
-			}
-			
-			var android_emulator_process = null;
-			var emulator_running = isEmulatorRunning();
-			if (emulator_running) {
-				// just launch logcat on the existing emulator, we need to clear it first though or we get tons of backscroll
-				var logcat_clear_process = Titanium.Process.createProcess([adb, '-e', 'logcat', '-c']);
-				logcat_clear_process();
-				
-				android_emulator_process = Titanium.Process.createProcess([adb, '-e', 'logcat'])
-				test_harness_running = this.isTestHarnessRunning();
-			} else {
-				// launch the (si|e)mulator async
-				android_emulator_process = Titanium.Process.createProcess([python, android_builder_py,
-					'emulator', 'test_harness', android_sdk, test_harness_dir, test_harness_id, '4', 'HVGA']);
-			}
-			
-			android_emulator_process.setOnReadLine(function(data)
-			{
-				var i = data.indexOf('DRILLBIT_');
-				if (i != -1)
-				{
-					var index = -1;
-					if ((index = data.indexOf('DRILLBIT_TEST:')) != -1) {
-						var comma = data.indexOf(',', index);
-						var suite_name = data.substring(index+15, comma);
-						var test_name = data.substring(comma+1);
-						self.frontend_do('show_current_test', suite_name, test_name);
-						return;
-					}
-					else if ((index = data.indexOf('DRILLBIT_ASSERTION:')) != -1) {
-						var comma = data.indexOf(',', index);
-						var test_name = data.substring(index+'DRILLBIT_ASSERTION:'.length+1, comma);
-						var line_number = data.substring(comma+1);
-						self.total_assertions++;
-						self.frontend_do('add_assertion', test_name, line_number);
-						return;
-					} else if (data.indexOf('DRILLBIT_COMPLETE') != -1) {
-						suiteFinished();
-					}
-
-					index = data.indexOf("DRILLBIT_PASS");
-					if (index == -1) {
-						index = data.indexOf("DRILLBIT_FAIL");
-					}
-					
-					if (index != -1) {
-						var test_name = data.substring(index+15);
-						var test_passed = data.indexOf('_PASS:')!=-1;
-						running_completed++;
-						if (test_passed) {
-							current_passed++; running_passed++;
-							self.frontend_do('test_passed', self.current_test.name, test_name);
-						}
-						else {
-							current_failed ++; running_failed++;
-							var dashes = test_name.indexOf(" --- ");
-							var error = test_name.substring(dashes+5);
-							var test_args = test_name.substring(0,dashes).split(',');
-							test_name = test_args[0];
-							line_number = test_args[1];
-							self.frontend_do('test_failed', self.current_test.name, test_name, line_number, error);
-						}
-
-						self.frontend_do('total_progress', running_passed, running_failed, self.total_tests);
-
-						var msg = "Completed: " +self.current_test.name + " ... " + running_completed + "/" + running_tests;
-						self.frontend_do('update_status', msg);
-					}
-				}
-				else
-				{
-					//self.frontend_do('process_data', data);
-				}
-			});
-			android_emulator_process.launch();
-			// after we launch, double-check that ADB can see the emulator. if it can't we probably need to restart the ADB server
-			// ADB will actually see the emulator within a second or two of launching, i pause 5 seconds just in case
-			if (this.window) {
-				this.window.setTimeout(function() {
-					if (!isEmulatorRunning()) {
-						Titanium.API.debug("emulator not found by ADB, force-killing the ADB server");
-						// emulator not found yet, restart ADB
-						var restart_process = Titanium.Process.createProcess([adb, 'kill-server']);
-						restart_process();
-					}
-				}, 5000);
-			}
-			
-			/*var wait_for_device_process = Titanium.Process.createProcess([python, wait_for_device_py, android_sdk, 'emulator', '5']);
-			wait_for_device_process.setOnRead(function(e) {
-				Titanium.API.debug("wait_for_device: " + e.data.toString());
-			});
-			wait_for_device_process.setOnExit(function(e) {*/
-				
-			//});
-			
-			//wait_for_device_process.launch();
-			
-			if (!emulator_running) {
-				self.frontend_do('status', 'pre-building initial APK');
-				var app_js = TFS.getFile(resources_dir, 'app.js');
-				var test_app_js = TFS.getFile(test_harness_resources_dir, 'app.js');
-				test_app_js.write(app_js.read());
-
-				var prebuild_launch_process = Titanium.Process.createProcess([python, android_builder_py, "simulator", "test_harness", android_sdk, test_harness_dir, test_harness_id, '4', 'HVGA']);
-				prebuild_launch_process.setOnExit(function(e) {
-					Titanium.API.info("==> Finished waiting for android emualtor to boot");
-			
-					self.frontend_do('status', 'unlocking android screen...');
-					var unlock_screen_apk = TFS.getFile(resources_dir, 'android', 'UnlockScreen', 'dist', 'UnlockScreen.apk');
-					var unlock_screen_args = [adb, '-e', 'install', '-r', unlock_screen_apk.nativePath()];
-					var unlock_screen_process = Titanium.Process.createProcess(unlock_screen_args);
-					Titanium.API.debug(unlock_screen_args)
-					unlock_screen_process();
-			
-					var start_unlock_screen_args = [adb, '-e', 'shell', 'am', 'start', '-n', 'org.appcelerator.titanium/.UnlockScreenActivity'];
-					var start_unlock_screen_process = Titanium.Process.createProcess(start_unlock_screen_args);
-					Titanium.API.debug(start_unlock_screen_args);
-					start_unlock_screen_process();
-					
-					test_harness_running = true;
-					self.frontend_do('status', 'screen unlocked, ready to run tests');
-					self.frontend_do('setup_finished');	
-				});
-				prebuild_launch_process.launch();
-			} else {
-				self.frontend_do('status', 'ready to run tests');
-				self.frontend_do('setup_finished');
-			}
-		};
-	
-		this.runTests = function(tests_to_run)
-		{
-			if (!tests_to_run)
-			{
-				tests_to_run = [];
-				for (var i = 0; i < this.test_names.length; i++)
-				{
-					tests_to_run.push({suite: this.test_names[i], tests:'all'});
-				}
-			}
-			
-			for (var i = 0; i < tests_to_run.length; i++)
-			{
-				var name = tests_to_run[i].suite;
-				var entry = this.tests[name];
-				entry.tests_to_run = tests_to_run[i].tests;
-				
-				executing_tests.push(entry);
-				running_tests+=entry.assertion_count;
-			}
-		
-			this.tests_started = new Date().getTime();
-			if (this.run_tests_async)
-			{
-				this.window.setTimeout(function(){self.run_next_test();}, 1);
-			}
-			else
-			{
-				this.run_next_test();
-			}
-		};
-	
-		this.run_test = function(entry)
-		{
-			// make sure we cleanup
-			/*var list = user_scripts_dir.getDirectoryListing();
-			for (var c=0;c<list.length;c++)
-			{
-				var lf = list[c];
-				if (lf.isFile())
-				{
-					lf.deleteFile();
-				}
-			}
-		
-			// we always initially override
-			tiapp_backup.copy(tiapp);
-			manifest_backup.copy(manifest);
-
-			// make sure we have an index file always
-			var tofile = TFS.getFile(dir,'index.html');
-			var html = '<html><head><script type="text/javascript"></script></head><body>Running...'+entry.name+'</body></html>';
-			tofile.write(html);
-
-			var html_found = false;
-			var tiapp_found = false;*/
-			function strip_extension(f)
-			{
-				var name = f.name();
-				return name.replace('.'+f.extension(),'');
-			}
-
-			var files = entry.dir.getDirectoryListing();
-			for (var c=0;c<files.length;c++)
-			{
-				var src = files[c];
-				var same_as_testname = strip_extension(src) == entry.name;
-				if (src.name() == entry.name+'.js')
-				{
-					continue;
-				}
-				if (same_as_testname)
-				{
-					var ext = src.extension();
-					switch(ext)
-					{
-						case 'xml':
-						{
-							tiapp_found=true;
-							var srcIn = src.open();
-							tiapp.write(srcIn.read());
-							srcIn.close();
-							break;
-						}
-						case 'html':
-						{
-							var tofile = TFS.getFile(test_harness_resources_dir,'index.html');
-							src.copy(tofile);
-							html_found = true;
-							break;
-						}
-						case 'usjs':
-						{
-							var tofile = TFS.getFile(user_scripts_dir,entry.name+'.js');
-							src.copy(tofile);
-							break;
-						}
-						case 'manifest':
-						{
-							var tofile = TFS.getFile(app.base,'manifest');
-							src.copy(tofile);
-							break;
-						}
-						default:
-						{
-							// just copy the file otherwise
-							Titanium.API.debug("copying "+src+" to "+test_harness_resources_dir);
-							src.copy(test_harness_resources_dir);
-							break;
-						}
-					}
-				}
-				else
-				{
-					// just copy the file otherwise
-					src.copy(test_harness_resources_dir);
-				}
-			}
-
-			// make it non-visual if no HTML found
-			/*if (!html_found && !tiapp_found)
-			{
-				tiapp.write(non_visual_ti);
-			}*/
-			
-			var file = TFS.getFile(drillbit_module.getPath(), "ejs.js");
-			var template = TFS.getFile(drillbit_module.getPath(), "template.js").read().toString();
-			
-			this.include(file.nativePath());
-			//var app_js = TFS.getFile(test_harness_resources_dir, 'app.js');
-			var data = {entry: entry, Titanium: Titanium, excludes: excludes};
-			var test_script = null;
-			
-			try {
-				test_script = new EJS({text: template, name: "template.js"}).render(data);
-			} catch(e) {
-				this.frontend_do('error',"Error rendering template: "+e+",line:"+e.line);
-			}
-			
-			//TFS.getFile(module.getPath(),"template_out.js").write(user_script);
-			
-			// copy the test to the sdcard
-			var test_js = TFS.createTempFile();
-			test_js.write(test_script);
-			var test_js_copy_process = Titanium.Process.createProcess([
-				adb, '-e', 'push', test_js.nativePath(), '/sdcard/'+test_harness_id+'/test.js']);
-			test_js_copy_process();
-			
-			var profile_path = TFS.getFile(this.results_dir,entry.name+'.prof');
-			var log_path = TFS.getFile(this.results_dir,entry.name+'.log');
-
-			profile_path.deleteFile();
-			log_path.deleteFile();
-
-			/*var args = [app.executable.nativePath(), '--profile="'+profile_path+'"']
-			args.push('--logpath="'+log_path+'"')
-			args.push('--bundled-component-override="'+app_dir+'"')
-			args.push('--no-console-logging');
-			args.push('--debug');
-			if (this.debug_tests) {
-				args.push('--attach-debugger');
-			}
-
-			args.push('--results-dir="' + this.results_dir + '"');*/
-
-			current_passed = 0;
-			current_failed = 0;
-			///////////////////////////////////////////
-			
-			var size = 0;
-			current_timer = null;
-			var start_time = new Date().getTime();
-			var original_time = start_time;
-
-			if (!test_harness_running) {
-				var process = Titanium.Process.createProcess([python, android_builder_py, "simulator", "test_harness", android_sdk, test_harness_dir, test_harness_id, '4', 'HVGA']);
-				Titanium.App.stdout("running: " + process);
-				
-				process.setOnExit(function(e) {
-					test_harness_running = true;
-				});
-				process.launch();
-			} else {
-				// restart the app
-				var pid = this.getTestHarnessPID();
-				if (pid != null) {
-					var kill_process = Titanium.Process.createProcess([adb, '-e', 'shell', 'kill', pid]);
-					kill_process();
-				}
-				
-				var start_app_process = Titanium.Process.createProcess([adb, '-e', 'shell', 'am', 'start',
-					'-a', 'android.intent.action.MAIN',
-					'-c', 'android.intent.category.LAUNCHER',
-					'-n', test_harness_id + '/.Test_harnessActivity']);
-				start_app_process();
-			}
-			
-			// start a stuck process monitor in which we check the 
-			// size of the profile file -- if we're not doing anything
-			// we should have a file that hasn't changed in sometime
-			// TODO we need a way to monitor from cmdline, though it probably
-			// isn't as important there
-			if (this.window) {
-				/*var self = this;
-				current_timer = this.window.setInterval(function()
-				{
-					var t = new Date().getTime();
-					var newsize = profile_path.size();
-					var timed_out = (t-original_time) > 40000;
-					if (newsize == size || timed_out)
-					{
-						if (timed_out || t-start_time>=self.current_test.timeout)
-						{
-							self.window.clearInterval(current_timer);
-							self.current_test.failed = true;
-							update_status(self.current_test.name + " timed out");
-							test_status(self.current_test.name,'Failed');
-							//process.terminate();
-							return;
-						}
-					}
-					else
-					{
-						size = newsize;
-					}
-					start_time = t;
-				},1000);*/
-			}
-		};
-	
-		this.run_next_test = function()
-		{
-			if (executing_tests==null || executing_tests.length == 0)
-			{
-				this.test_duration = (new Date().getTime() - this.tests_started)/1000;
-				this.frontend_do('all_finished');
-				executing_tests = null;
-				this.current_test = null;
-				self.frontend_do('update_status', 'Testing complete ... took ' + this.test_duration + ' seconds',true);
-				var f = TFS.getFile(this.results_dir,'drillbit.json');
-				f.write("{\"success\":" + String(!test_failures) + "}");
-				if (self.auto_close)
-				{
-					Titanium.App.exit(test_failures ? 1 : 0);
-				}
-				return;
-			}
-			var entry = executing_tests.shift();
-			Titanium.API.debug(" -----> SETTING CURRENT_TEST = " + entry.name);
-			this.current_test = entry;
-			this.current_test.failed = false;
-			self.frontend_do('update_status', 'Executing: '+entry.name+' ... '+running_completed + "/" + running_tests);
-			self.frontend_do('suite_started', entry.name);
-			this.run_tests_async ? this.window.setTimeout(function(){self.run_test(entry)},1) : this.run_test(entry);
-		};
-		
-		this.reset = function()
-		{
-			executing_tests = [];
-			running_tests = 0;
-			running_completed = 0;
-			running_passed = running_failed = this.total_assertions = 0;
 		}
-	};
+		allCompleted = false;
+	}, this);
 	
-	Titanium.Drillbit = new Drillbit();
-})();
+	if (allCompleted) {
+		this.frontendDo('suite_finished', suite);
+		this.frontendDo('test_status', suite, allPassed ? 'Passed' : 'Failed', platform);
+		this.generateResults(this.tests[suite]);
+		this.runNextTest();
+	}
+};
+
+Drillbit.prototype.handleTestStatusEvent = function(event, platform) {
+	var platformStatus = this.platformStatus[platform];
+	if (!platformStatus) {
+		platformStatus = this.platformStatus[platform] = {};
+	}
+	
+	var suite = event.suite;
+	var test = event.test;
+	
+	var suiteStatus = platformStatus[suite];
+	if (!suiteStatus) {
+		suiteStatus = platformStatus[suite] = {completed: false, testStatus: {}};
+	}
+	
+	var testStatus = suiteStatus.testStatus[test];
+	if (!testStatus) {
+		testStatus = suiteStatus.testStatus[test] = {passed: event.passed, completed: true};
+	}
+	testStatus.passed = event.passed;
+	
+	var completed = true;
+	var passedAll = true;
+	var self = this;
+	this.tests[suite].platforms.forEach(function(platform) {
+		if (platform in this.platformStatus) {
+			if (suite in this.platformStatus[platform]) {
+				if (test in this.platformStatus[platform][suite].testStatus) {
+					var t = this.platformStatus[platform][suite].testStatus[test];
+				
+					completed = t.completed && completed;
+					passedAll = t.passed && passedAll;
+					return;
+				}
+			}
+		}
+		completed = false;
+	}, this);
+	
+	if (completed) {
+		this.runningCompleted++;
+		if (passedAll) {
+			this.currentPassed++;
+			this.runningPassed++;
+			this.frontendDo('test_passed', suite, test, platform);
+		} else {
+			this.currentFailed++;
+			this.runningFailed++;
+			this.frontendDo('test_failed', suite, test, event.lineNumber, event.error, platform);
+		}
+		
+		this.frontendDo('total_progress', this.runningPassed, this.runningFailed, this.totalTests);
+
+		var msg = "Completed: " + suite + " ... " + this.runningCompleted + "/" + this.runningTests;
+		this.frontendDo('update_status', msg);
+	}
+};
+
+Drillbit.prototype.readLine = function(data, platform)
+{
+	var eventPrefix = 'DRILLBIT_EVENT: ';
+	var eventIndex = data.indexOf(eventPrefix);
+	if (eventIndex == -1) {
+		this.frontendDo('process_data', data);
+		return;
+	}
+	
+	var event = JSON.parse(data.substring(eventIndex + eventPrefix.length));
+	
+	var upperEventName = event.name.substring(0, 1).toUpperCase() + event.name.substring(1);
+	var eventHandler = 'handle' + upperEventName + 'Event';
+	if (eventHandler in this) {
+		this[eventHandler](event, platform);
+	}
+};
+
+Drillbit.prototype.setupTestHarness = function(harnessManifest)
+{	
+	var self = this;
+	var testHarnessTiapp = ti.fs.getFile(this.testHarnessDir, 'tiapp.xml');
+	if (!testHarnessTiapp.exists()) {
+		var titaniumScript = ti.path.join(this.mobileSdk, 'titanium.py');
+		var titaniumArgs = [titaniumScript, 'create', '--platform=' + this.platforms.join(','),
+		'--dir='+this.resourcesDir, '--name=test_harness', '--id='+this.testHarnessId];
+		
+		if ('android' in this.emulators) {
+			titaniumArgs.push('--android=' + this.emulators.android.androidSdk);
+		}
+		if ('iphone' in this.emulators) {
+			titaniumArgs.push('--ver=' + this.emulators.iphone.version);
+		}
+		var createProjectProcess = this.createPythonProcess(titaniumArgs);
+		createProjectProcess();
+	}
+	
+	var data = {testJSIncludes: {}};
+	this.eachEmulator(function(emulator, platform) {
+		data.testJSIncludes[platform] = emulator.getTestJSInclude();
+	});
+	
+	this.renderTemplate(ti.path.join(this.templatesDir, 'app.js'), data, ti.path.join(this.testHarnessResourcesDir, 'app.js'));
+	ti.fs.getFile(this.resourcesDir, 'test_harness_console.html').copy(this.testHarnessResourcesDir);
+	ti.fs.getFile(this.contentsDir, 'tiapp_harness.xml').copy(testHarnessTiapp);
+	
+	this.eachEmulator(function(emulator, platform) {
+		emulator.run(function(data) {
+			self.readLine(data, platform);
+		});
+	});
+};
+
+Drillbit.prototype.runTests = function(testsToRun)
+{
+	if (!testsToRun)
+	{
+		testsToRun = [];
+		for (var i = 0; i < this.testNames.length; i++)
+		{
+			var suite = this.testNames[i];
+			testsToRun.push({suite: suite, tests:'all', platforms: this.tests[suite].platforms});
+		}
+	}
+	
+	for (var i = 0; i < testsToRun.length; i++)
+	{
+		var name = testsToRun[i].suite;
+		var entry = this.tests[name];
+		entry.testsToRun = testsToRun[i].tests;
+		entry.platforms = testsToRun[i].platforms;
+		
+		this.executingTests.push(entry);
+		var self = this;
+		entry.platforms.forEach(function(platform) {
+			self.runningTests += entry.assertionCount;
+		});
+	}
+
+	this.testsStarted = new Date().getTime();
+	if (this.runTestsAsync)
+	{
+		var self = this;
+		this.window.setTimeout(function() {
+			self.runNextTest();
+		}, 1);
+	}
+	else
+	{
+		this.runNextTest();
+	}
+};
+
+Drillbit.prototype.stageTest = function(entry) {
+	var stagedFiles = [];
+	if (!entry.hasDir) return stagedFiles;
+	
+	var self = this;
+	this.frontendDo('status', 'staging test ' + entry.name);
+	ti.path.recurse(entry.dir, function(file) {
+		if (file.name() == entry.name + '.js') return;
+		
+		var relativePath = ti.path.relpath(file.nativePath(), entry.dir);
+		var destFile = ti.fs.getFile(self.testHarnessDir, relativePath);
+		
+		ti.api.debug("copying " + file.nativePath() + " to " + destFile.nativePath());
+		file.copy(destFile);
+		stagedFiles.push(destFile);
+	});
+	return stagedFiles;
+};
+
+Drillbit.prototype.runTest = function(entry)
+{
+	var data = {entry: entry, Titanium: Titanium, excludes: this.excludes, Drillbit: this};
+	var testScript = this.renderTemplate(ti.path.join(this.templatesDir, 'test.js'), data);
+
+	var self = this;
+	entry.platforms.forEach(function(platform) {
+		var emulator = self.emulators[platform];
+		if (!emulator) return;
+		
+		emulator.pushTestJS(testScript);
+	});
+	
+	var stagedFiles = this.stageTest(entry);
+	
+	var profilePath = ti.fs.getFile(this.resultsDir, entry.name+'.prof');
+	var logPath = ti.fs.getFile(this.resultsDir, entry.name+'.log');
+
+	profilePath.deleteFile();
+	logPath.deleteFile();
+	this.currentPassed = 0;
+	this.currentFailed = 0;
+	this.currentTimer = null;
+	
+	entry.platforms.forEach(function(platform) {
+		var emulator = self.emulators[platform];
+		if (!emulator) return;
+		
+		emulator.runTestHarness(entry.name, stagedFiles);
+	});
+	
+	this.checkForTimeout();
+};
+
+Drillbit.prototype.checkForTimeout = function()
+{
+	// TODO add test suite timeout checking code
+};
+
+Drillbit.prototype.runNextTest = function()
+{
+	if (this.executingTests == null || this.executingTests.length == 0)
+	{
+		this.testDuration = (new Date().getTime() - this.testsStarted)/1000;
+		this.frontendDo('all_finished');
+		this.executingTests = null;
+		this.currentTest = null;
+		this.frontendDo('update_status', 'Testing complete ... took ' + this.testDuration + ' seconds',true);
+		this.generateFinalResults();
+		if (this.autoClose)
+		{
+			Ti.App.exit(this.testFailures ? 1 : 0);
+		}
+		return;
+	}
+	var entry = this.executingTests.shift();
+	this.currentTest = entry;
+	this.currentTest.failed = false;
+	this.frontendDo('update_status', 'Executing: '+entry.name+' ... '+this.runningCompleted + "/" + this.runningTests);
+	this.frontendDo('suite_started', entry.name, entry.platforms);
+	var self = this;
+	this.runTestsAsync ? this.window.setTimeout(function(){self.runTest(entry)},1) : this.runTest(entry);
+};
+
+Drillbit.prototype.generateResults = function(test) {
+	var resultsJson = ti.fs.getFile(this.resultsDir, test.name + '.json');
+	var resultsJsonStream = resultsJson.open(ti.fs.MODE_WRITE);
+	resultsJsonStream.write(JSON.stringify(test.results));
+	resultsJsonStream.close();
+	
+	var data = {test: test, ti: ti};
+	var resultsHtml = ti.fs.getFile(this.resultsDir, test.name + '.html').nativePath();
+	this.renderTemplate(ti.path.join(this.templatesDir, 'results.html'), data, resultsHtml);
+};
+
+Drillbit.prototype.generateFinalResults = function()
+{
+	var drillbitJson = ti.fs.getFile(this.resultsDir, 'drillbit.json');
+	var drillbitJsonStream = drillbitJson.open(ti.fs.MODE_WRITE);
+	
+	var finalResults = {};
+	Object.keys(this.tests).forEach(function(suite) {
+		finalResults[suite] = this.tests[suite].results;
+	}, this);
+	
+	drillbitJsonStream.write(JSON.stringify(finalResults));
+	drillbitJsonStream.close();
+};
+
+Drillbit.prototype.reset = function()
+{
+	this.executingTests = [];
+	this.runningTests = 0;
+	this.runningCompleted = 0;
+	this.runningPassed = this.runningFailed = this.totalAssertions = 0;
+};
+
+Titanium.Drillbit = new Drillbit();

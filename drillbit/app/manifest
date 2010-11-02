@@ -22,4 +22,5 @@ tiprocess:
 tidatabase:
 tiworker:
 ticodec:
+tiextras:0.1.0
 drillbit:0.1.0

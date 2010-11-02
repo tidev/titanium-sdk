@@ -50,7 +50,14 @@ class Compiler(object):
 		# go ahead and slurp in any required modules
 		for required in self.depends_map['required']:
 			self.add_required_module(required)
-			
+		
+		if (tiapp.has_app_property('ti.android.include_all_modules')):
+			if tiapp.to_bool(tiapp.get_app_property('ti.android.include_all_modules')):
+				print '[INFO] Force including all modules...'
+				sys.stdout.flush()
+				for module in self.depends_map['dependencies'].keys():
+					self.add_required_module(module)
+
 		self.module_methods = set()
 		self.js_files = {}
 		self.html_scripts = []

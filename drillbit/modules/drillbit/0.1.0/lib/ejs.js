@@ -466,3 +466,4 @@ EJS.prototype = {
 //}
 
 
+Titanium.EJS = EJS;

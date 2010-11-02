@@ -1,3 +1,9 @@
+/**
+ * Appcelerator Drillbit
+ * Copyright (c) 2010 by Appcelerator, Inc. All Rights Reserved.
+ * Licensed under the terms of the Apache Public License
+ * Please see the LICENSE included with this distribution for details.
+ */
 var TitaniumTest = 
 {
 	currentTest:null,
@@ -7,20 +13,24 @@ var TitaniumTest =
 	failed:0,
 	totalAssertions:0,
 	
-	runningTest:function(suite,name)
-	{
-		//Titanium.App.stdout('DRILLBIT_TEST: '+suite+','+name);
-		Titanium.API.debug('DRILLBIT_TEST: '+suite+','+name);
+	fireEvent: function(name, event) {
+		event.name = name;
+		Titanium.API.debug('DRILLBIT_EVENT: ' + JSON.stringify(event));
 	},
 	
-	assertion:function(subject)
+	runningTest: function(suite, name)
 	{
-		//Titanium.App.stdout('DRILLBIT_ASSERTION: ' + TitaniumTest.currentTest + "," + subject.lineNumber);
-		Titanium.API.debug('DRILLBIT_ASSERTION: ' + TitaniumTest.currentTest + "," + subject.lineNumber);
+		this.fireEvent('test', {suite: suite, test: name});
+		appendMessage("> running test <span class=\"test\">" + name + "</span> in suite <span class=\"suite\">" + suite + "</span>");
+	},
+	
+	assertion: function(subject)
+	{
+		this.fireEvent('assertion', {suite: TitaniumTest.NAME, test: TitaniumTest.currentTest, lineNumber: subject.lineNumber});
 		TitaniumTest.totalAssertions++;
 	},
 	
-	testPassed:function(name, lineNumber)
+	testPassed: function(name, lineNumber)
 	{
 		this.success++;
 		this.results.push({
@@ -29,13 +39,12 @@ var TitaniumTest =
 			message: "Success",
 			lineNumber: lineNumber
 		});
-		//Titanium.App.stdout("DRILLBIT_PASS: "+name);
-		Titanium.API.debug("DRILLBIT_PASS: "+name);
-		appendMessage(name + ' passed');
+		this.fireEvent('testStatus', {suite: TitaniumTest.NAME, test: name, lineNumber: lineNumber, passed: true, error: null});
+		appendMessage('>> test <span class=\"test\">' + name + '</span> passed', 'pass');
 		TitaniumTest.run_next_test();
 	},
 	
-	testFailed:function(name,e)
+	testFailed: function(name,e)
 	{
 		this.failed++;
 		this.results.push({
@@ -45,9 +54,10 @@ var TitaniumTest =
 			message:e.message || String(e)
 		});
 		
-		//Titanium.App.stdout("DRILLBIT_FAIL: "+name+","+e.line+" --- "+String(e).replace("\n","\\n"));
-		Titanium.API.debug("DRILLBIT_FAIL: "+name+","+e.line+" --- "+String(e).replace("\n","\\n"));
-		appendMessage(name + ' failed: line ' + e.line);
+		var errorMessage = String(e).replace("\n","\\n");
+		this.fireEvent('testStatus', {suite: TitaniumTest.NAME, test: name, lineNumber: e.line, passed: false, error: errorMessage});
+		
+		appendMessage('>> test <span class=\"test\">' + name + '</span> failed: line ' + e.line + ", error: " + errorMessage, 'fail');
 		TitaniumTest.run_next_test();
 	},
 	
@@ -55,11 +65,12 @@ var TitaniumTest =
 	{
 		try
 		{
-			if (Ti.Platform.name == "android") {
-				// we can just save to /sdcard and read it from ADB in android, not sure about iPhone?
-				var results_json = Ti.Filesystem.getFile("appdata://" + TitaniumTest.NAME + ".json");
-				this.write_results_to_json(results_json);
-			}
+			// we print the stringified result back over the process
+			// this lets us be platform/simulator/device independent (in theory)
+			var results = this.getResults();
+			results.suite = TitaniumTest.NAME;
+			this.fireEvent("complete", results);
+			
 			/*Titanium.API.info("test complete");
 			var results_dir = Titanium.API.getApplication().getArgumentValue('results-dir');
 			if (results_dir==null)
@@ -85,19 +96,22 @@ var TitaniumTest =
 		{
 			Titanium.API.error("Exception on completion: "+e);
 		}
-		Titanium.API.debug("DRILLBIT_COMPLETE");
 	},
 	
-	write_results_to_json: function(f)
+	getResults: function()
 	{
-		var data = {
+		return {
 			'results':this.results,
 			'count':this.results.length,
 			'success':this.success,
 			'failed':this.failed,
 			'assertions':this.assertions
 		};
-		f.write(JSON.stringify(data));
+	},
+	
+	write_results_to_json: function(f)
+	{
+		f.write(JSON.stringify(this.getResults()));
 	},
 
 	write_results_to_single_html: function(f)
@@ -181,10 +195,9 @@ var TitaniumTest =
 	
 	run_next_test:function()
 	{
-		Titanium.API.info("test run_next_test "+this.tests.length);
 		if (this.tests.length == 0)
 		{
-			this.on_complete();
+			this.complete();
 		}
 		else
 		{

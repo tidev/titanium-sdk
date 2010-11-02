@@ -46,10 +46,13 @@ a.disabled {
 	margin:0px;
 	padding:0px;
 	margin-top: 5px;
-	overflow:hidden;
+	overflow: auto;
+	width: 98%;
+	height: 300px;
+	position: absolute;
 }
 
-.suite, .suite-running, .suite-passed, .suite-failed
+.suite
 {
 	font-family:"Lucida Sans",Arial;
 	font-size: 12px;
@@ -57,21 +60,36 @@ a.disabled {
 	background-image: url(images/gradient.png);
 	background-repeat: repeat-x;
 	background-position: top left;
+	background-size: auto 100%;
+	background-origin: content;
 	
 	border: 1px solid #000;
 	color:white;
 	margin: 0px;
 	padding: 1px;
+	width: 99%;
 	float: left;
-	height: 50px;
-	width: 150px;
+	width: 175px;
 	overflow: hidden;
 	cursor: pointer;
+	position: relative;
+	vertical-align: middle;
 }
 
-.suite_name
+.suite-status {
+}
+
+.platform-status {
+	padding: 2px;
+	margin-left: 5px;
+	float: left;
+}
+
+.suite-name
 {
 	font-weight: bold;
+	margin-left: 5px;
+	margin-top: 10px;
 }
 
 .suite-running
@@ -90,15 +108,19 @@ a.disabled {
 }
 
 .description {
-	font-size: 10px;
-	margin-left: 3px;
+	font-size: 11px;
+	margin-left: 5px;
 }
 
-.untested, .running, .failed, .passed {
+.untested, .init, .building, .running, .failed, .passed {
 	font-size: 10px;
 	color: #ccc;
 	font-weight:bold;
 	text-align:right;
+}
+
+.init, .building {
+	color: #B7B04A;
 }
 
 .running {
@@ -111,4 +133,16 @@ a.disabled {
 
 .passed {
 	color: #6c6;
+}
+
+#console {
+	height: 200px;
+	font-family: monospace;
+	background-color: black;
+	color: #ccc;
+	position: absolute;
+	bottom: 5px;
+	left: 5px;
+	right: 5px;
+	overflow: scroll;
 }
