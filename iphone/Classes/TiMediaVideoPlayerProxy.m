@@ -973,7 +973,7 @@ NSArray* moviePlayerKeys = nil;
 			for (TiViewProxy *proxy in views)
 			{
 				[proxy setSandboxBounds:bounds];
-				[proxy insertIntoView:subview bounds:bounds];
+				[proxy insertIntoView:legacyWindowView bounds:bounds];
 			}
 		}
 	}
