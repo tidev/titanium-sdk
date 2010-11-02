@@ -136,11 +136,20 @@ public class FBRequest {
     // private
 
     private boolean isSpecialMethod() {
-        return mMethod.equals("facebook.auth.getSession") || mMethod.equals("facebook.auth.createToken");
+    	return isSpecialMethod(mMethod);
+    }
+    
+    private boolean isSpecialMethod(String method) {
+    	return method.equals("facebook.auth.getSession") || method.equals("facebook.auth.createToken");
     }
 
     private String urlForMethod(String method) {
-        return mSession.getApiURL();
+    	String cleanMethod = method.replace("facebook.", "");
+    	if (isSpecialMethod()) {
+    		return mSession.getApiSecureURL() + cleanMethod ;
+    	} else {
+    		return mSession.getApiURL() + cleanMethod;
+    	}
     }
 
     private String generateGetUrl() {
@@ -409,17 +418,19 @@ public class FBRequest {
      * The delegate will be called for each stage of the loading process.
      */
     public void callWithAnyData(String method, Map<String, String> params, Object data) {
+    	mMethod = method;
         mUrl = urlForMethod(method);
-        mMethod = method;
         mParams = params != null ? new HashMap<String, String>(params) : new HashMap<String, String>();
         mData = data;
 
-        mParams.put("method", mMethod);
-        mParams.put("api_key", mSession.getApiKey());
-        mParams.put("v", API_VERSION);
-        mParams.put("format", API_FORMAT);
+        //mParams.put("method", mMethod);
+        if (!FacebookModule.usingOauth) {
+	        mParams.put("api_key", mSession.getApiKey());
+	        mParams.put("v", API_VERSION);
+	        mParams.put("format", API_FORMAT);
+        }
 
-        if (!isSpecialMethod()) {
+        if (!isSpecialMethod() && !FacebookModule.usingOauth) {
             mParams.put("session_key", mSession.getSessionKey());
             mParams.put("call_id", generateCallId());
 
@@ -428,7 +439,9 @@ public class FBRequest {
             }
         }
 
-        mParams.put("sig", generateSig());
+        if (!FacebookModule.usingOauth) {
+        	mParams.put("sig", generateSig());
+        }
 
         mSession.send(this);
     }
@@ -482,6 +495,7 @@ public class FBRequest {
 
     public static abstract class FBRequestDelegate implements IRequestDelegate {
 
+    	public static final String LCAT = "FBRequestDelegate";
         /**
          * Called just before the request is sent to the server.
          */
@@ -492,6 +506,7 @@ public class FBRequest {
          * Called when an error prevents the request from completing successfully.
          */
         public void requestDidFailWithError(FBRequest request, Throwable error) {
+        	Log.e(LCAT, "Facebook request error.  URL: " + request.getUrl() + "; method: " + request.getMethod() + "; message: " + error.getMessage(), error);
         }
 
         /**

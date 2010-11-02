@@ -38,6 +38,8 @@ public class FacebookModule extends TiModule implements FBActivityDelegate,
 		TiActivityResultHandler {
 	private static final String LCAT = "TiFacebook";
 	private static final boolean DBG = TiConfig.LOGD;
+	
+	protected static boolean usingOauth = true;
 
 	private static TiDict constants;
 
