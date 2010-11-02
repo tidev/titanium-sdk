@@ -45,6 +45,10 @@ backButtonTitleImage[string]: url to an image to show as the back button.  only 
 backButtonTitle[string]: title for the back button. only available in iPhone. this is only valid when the window is a child of a tab.
 navBarHidden[boolean]: for modal windows, hide the nav bar (true) or show the nav bar (false, default).
 
+# 1.5
+titleid[string]: the key in the locale file to use for the title property
+titlepromptid[string]: the key in the locale file to use for the titlePrompt property
+
 
 - methods
 

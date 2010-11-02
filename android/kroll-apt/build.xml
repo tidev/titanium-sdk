@@ -1,0 +1,11 @@
+<project name="kroll-apt" default="build">
+	<import file="../build/common.xml"/>
+	
+	<target name="build">
+		<antcall target="build.kroll.apt.jar"/>
+	</target>
+	
+	<target name="clean">
+		<clean.project name="kroll-apt"/>
+	</target>
+</project>

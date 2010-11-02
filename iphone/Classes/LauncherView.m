@@ -328,6 +328,10 @@ static const NSTimeInterval kLauncherViewFastTransitionDuration = 0.2;
 	
 	if (button) 
 	{
+		if ([delegate respondsToSelector:@selector(launcherView:willDragItem:)]) {
+			[delegate launcherView:self willDragItem:button.item];
+		}
+		
 		button.transform = CGAffineTransformIdentity;
 		[self addSubview:button];
 		
@@ -892,6 +896,9 @@ static const NSTimeInterval kLauncherViewFastTransitionDuration = 0.2;
 			if (touch == dragTouch) 
 			{
 				dragTouch = nil;
+				if ([delegate respondsToSelector:@selector(launcherView:didDragItem:)]) {
+					[delegate launcherView:self didDragItem:dragButton.item];
+				}
 				break;
 			}
 		}

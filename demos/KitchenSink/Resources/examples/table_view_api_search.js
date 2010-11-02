@@ -68,4 +68,6 @@ hide.addEventListener('click', function(e)
 		tableview.scrollToTop(0,{animated:true});
 	}
 });
-win.setRightNavButton(hide);
+if (Titanium.Platform.name == 'iPhone OS') {
+	win.setRightNavButton(hide);
+}

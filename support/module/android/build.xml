@@ -1,0 +1,120 @@
+<project name="build-module">
+	<property name="ti.module.root" location="${basedir}"/>
+
+	<property file="${ti.module.root}/build.properties"/>
+	<property name="ti.module.support.dir" location="${titanium.platform}/../module"/>
+	
+	<!-- the manifest format seems to be compatible w/ the properties format -->
+	<property file="${ti.module.root}/manifest" prefix="manifest"/>
+	
+	<taskdef classname="org.appcelerator.titanium.ant.StringTask" name="ti.string" classpath="${ti.module.support.dir}/android/ant-tasks.jar"/>
+	
+	<property name="src" location="${ti.module.root}/src"/>
+	<property name="build" location="${ti.module.root}/build"/>
+	<property name="gen" location="${build}/.apt_generated"/>
+	<property name="classes" location="${build}/classes"/>
+	<property name="dist" location="${ti.module.root}/dist"/>
+	<property name="lib" location="${ti.module.root}/lib"/>
+
+	<path id="project.classpath">
+		<fileset dir="${lib}">
+			<include name="**/*.jar"/>
+		</fileset>
+		<fileset dir="${titanium.platform}">
+			<include name="*.jar"/>
+			<include name="modules/titanium-*.jar"/>
+		</fileset>
+		<pathelement path="${android.platform}/android.jar"/>
+		<pathelement path="${google.apis}/libs/maps.jar"/>
+	</path>
+
+	<target name="init">
+		<mkdir dir="${classes}"/>
+		<mkdir dir="${gen}"/>
+		<mkdir dir="${dist}"/>
+	</target>
+	
+	<target name="process.annotations" depends="init"
+		description="Processes @Kroll.proxy and @Kroll.module annotations">
+		<javac 
+			srcdir="${src}" 
+			destdir="${classes}"
+			debug="true"
+			includeantruntime="false">
+				<compilerarg value="-processor"/>
+				<compilerarg value="org.appcelerator.kroll.annotations.generator.KrollBindingGenerator"/>
+				<compilerarg value="-s"/>
+				<compilerarg value="${gen}"/>
+				<compilerarg line="-Akroll.jsonFile=${ant.project.name}.json"/>
+				<compilerarg line="-Akroll.jsonPackage=org.appcelerator.titanium.bindings"/>
+				<classpath refid="project.classpath"/>
+		</javac>
+	</target>
+
+	<target name="compile" depends="process.annotations"
+		description="Compile this module's source code">
+		<javac 
+			destdir="${classes}"
+			debug="true"
+			includeantruntime="false">
+			<src path="${src}" />
+			<src path="${gen}" />
+			<include name="**/*.java" />
+			
+			<classpath refid="project.classpath" />
+		</javac>
+		<copy todir="${classes}">
+			<fileset dir="${gen}" includes="**/*.json"/>
+		</copy>
+	</target>
+
+	<target name="dist" depends="compile" description="Generate a distributable module JAR">
+		<ti.string property="module.id" string="${manifest.moduleid}" tolowercase="true"/>
+		<property name="module.jar" location="${dist}/${ant.project.name}.jar"/>
+		<jar destfile="${module.jar}" basedir="${classes}"/>
+		<property name="zip.prefix" value="modules/android/${module.id}/${manifest.version}"/>
+		
+		<zip destfile="${dist}/${module.id}-android-${manifest.version}.zip">
+			<zipfileset file="${module.jar}" prefix="${zip.prefix}"/>
+			<zipfileset file="manifest" prefix="${zip.prefix}"/>
+			<zipfileset file="timodule.xml" prefix="${zip.prefix}"/>
+			<zipfileset dir="${lib}" includes="**/*.jar" prefix="${zip.prefix}/lib"/>
+		</zip>
+		<delete dir="${lib.expand.dir}" includeemptydirs="true" failonerror="false" deleteonexit="true"/>
+	</target>
+	
+	<target name="clean" description="Cleans classes and dist files">
+		<delete dir="${classes}"/>
+		<delete dir="${dist}"/>
+		<delete includeemptydirs="true" failonerror="false">
+			<fileset dir="${gen}" includes="**/*"/>
+		</delete>
+	</target>
+	
+	<property name="titanium.py" location="${titanium.platform}/../titanium.py"/>
+	<property name="titanium.bat" location="${titanium.platform}/../titanium.bat"/>
+
+	<macrodef name="titanium">
+		<attribute name="command"/>
+		<element name="args" implicit="true" optional="true"/>
+		<sequential>
+			<!-- Python needs to be on the path in OSX / Linux -->
+			<condition property="titanium.exec" value="${titanium.bat}" else="${titanium.py}">
+				<os family="windows"/>
+			</condition>
+			<exec executable="${titanium.exec}" dir="${basedir}">
+				<env key="ANT_HOME" file="${ant.home}"/>
+				<arg value="@{command}"/>
+				<args/>
+			</exec>
+		</sequential>
+	</macrodef>
+	
+	<target name="run.emulator" depends="clean,dist" description="Run the android emulator">
+		<titanium command="emulator"/>
+	</target>
+	
+	<target name="run" depends="clean,dist" description="Run the module's test project">
+		<titanium command="run"/>
+	</target>
+</project>

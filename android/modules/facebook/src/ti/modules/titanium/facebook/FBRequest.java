@@ -208,7 +208,9 @@ public class FBRequest {
             String cd = "Content-Disposition: form-data; name=\"" + key + "\"\r\n\r\n";
             
             os.write(cd.getBytes(ENCODING));
-            os.write(value.getBytes(ENCODING));
+            if (value != null) {
+            	os.write(value.getBytes(ENCODING));
+            }
             os.write(endLine.getBytes(ENCODING));
         }
   

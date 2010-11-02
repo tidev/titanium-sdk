@@ -32,7 +32,6 @@ rowCount[int]: the (readonly) number of rows in the section
 
 - methods
 
-rowAtIndex: retrieve the row object at a specific index
 add: add a row to the section
 remove: remove a remove from the section
 

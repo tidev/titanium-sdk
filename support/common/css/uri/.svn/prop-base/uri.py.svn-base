@@ -1,0 +1,17 @@
+K 13
+svn:eol-style
+V 6
+native
+K 14
+svn:executable
+V 1
+*
+K 12
+svn:keywords
+V 2
+Id
+K 13
+svn:mime-type
+V 13
+text/x-python
+END

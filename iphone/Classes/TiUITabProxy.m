@@ -33,6 +33,11 @@
 	[super _destroy];
 }
 
+-(NSMutableDictionary*)langConversionTable
+{
+    return [NSMutableDictionary dictionaryWithObject:@"title" forKey:@"titleid"];
+}
+
 -(void)_configure
 {
 	// since we're special proxy type instead of normal, we force in values
@@ -115,7 +120,7 @@
 	}
 	
 	[newWindow _tabFocus];
-	WARN_IF_BACKGROUND_THREAD;
+	WARN_IF_BACKGROUND_THREAD_OBJ;
 	[self childOrientationControllerChangedFlags:newWindow];
 
 	opening = NO; 
@@ -466,7 +471,7 @@
 
 -(void)childOrientationControllerChangedFlags:(id<TiOrientationController>) orientationController
 {
-	WARN_IF_BACKGROUND_THREAD;
+	WARN_IF_BACKGROUND_THREAD_OBJ;
 	[parentOrientationController childOrientationControllerChangedFlags:self];
 }
 

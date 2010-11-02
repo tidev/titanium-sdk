@@ -23,7 +23,6 @@ import javax.net.ssl.TrustManager;
 
 import org.apache.http.conn.ConnectTimeoutException;
 import org.apache.http.conn.scheme.LayeredSocketFactory;
-import org.apache.http.conn.scheme.SocketFactory;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 import org.appcelerator.titanium.util.Log;

@@ -15,6 +15,7 @@ all_dir = os.path.abspath(os.path.join(template_dir,'all'))
 android_dir = os.path.abspath(os.path.join(template_dir,'android'))
 iphone_dir = os.path.abspath(os.path.join(template_dir,'iphone'))
 osx_dir = os.path.abspath(os.path.join(template_dir,'osx'))
+win32_dir = os.path.abspath(os.path.join(template_dir, 'win32'))
 
 buildtime = datetime.datetime.now()
 ts = buildtime.strftime("%m/%d/%y %H:%M")
@@ -22,7 +23,7 @@ ts = buildtime.strftime("%m/%d/%y %H:%M")
 # get the githash for the build so we can always pull this build from a specific
 # commit
 p = subprocess.Popen(["git","show","--abbrev-commit"],stderr=subprocess.PIPE, stdout=subprocess.PIPE)
-githash = p.communicate()[0][8:].split('\n')[0]
+githash = p.communicate()[0][7:].split('\n')[0].strip()
 
 ignoreExtensions = ['.pbxuser','.perspectivev3','.pyc']
 ignoreDirs = ['.DS_Store','.git','.gitignore','libTitanium.a','titanium.jar','build','bridge.txt']
@@ -55,8 +56,23 @@ def zip_dir(zf,dir,basepath,subs=None,cb=None):
 
 def zip_android(zf,basepath):
 	android_dist_dir = os.path.join(top_dir, 'dist', 'android')
-	android_jar = os.path.join(android_dist_dir, 'titanium.jar')
-	zf.write(android_jar, '%s/android/titanium.jar' % basepath)	
+	zip_dir(zf, os.path.join(cur_dir,'simplejson'), os.path.join(basepath, 'android', 'simplejson'))
+	
+	for jar in ['titanium.jar', 'kroll-apt.jar']:
+		jar_path = os.path.join(android_dist_dir, jar)
+		zf.write(jar_path, '%s/android/%s' % (basepath, jar))
+
+	ant_tasks_jar = os.path.join(android_dist_dir, 'ant-tasks.jar')
+	zf.write(ant_tasks_jar, '%s/module/android/ant-tasks.jar' % basepath)
+	
+	kroll_apt_lib_dir = os.path.join(top_dir, 'android', 'kroll-apt', 'lib')
+	for jar in os.listdir(kroll_apt_lib_dir):
+		if jar.endswith('.jar'):
+			jar_path = os.path.join(kroll_apt_lib_dir, jar)
+			zf.write(jar_path, '%s/android/%s' % (basepath, jar))
+
+	android_depends = os.path.join(top_dir, 'android','dependency.json')
+	zf.write(android_depends, '%s/android/dependency.json' % basepath)	
 	
 	titanium_lib_dir = os.path.join(top_dir, 'android', 'titanium', 'lib')
 	for thirdparty_jar in os.listdir(titanium_lib_dir):
@@ -175,6 +191,9 @@ githash=%s
 	zip_dir(zf,template_dir,basepath)
 	if android: zip_android(zf,basepath)
 	if (iphone or ipad) and osname == "osx": zip_iphone_ipad(zf,basepath,'iphone',version)
+	if osname == 'win32':
+		zip_dir(zf, win32_dir, basepath)
+	
 	zf.close()
 				
 def zip_it(dist_dir,osname,version,android,iphone,ipad):

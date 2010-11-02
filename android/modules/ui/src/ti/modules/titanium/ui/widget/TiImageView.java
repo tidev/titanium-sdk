@@ -10,6 +10,7 @@ import org.appcelerator.titanium.util.TiConfig;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.ColorFilter;
 import android.graphics.Matrix;
 import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
@@ -396,5 +397,8 @@ public class TiImageView extends ViewGroup
 					parentRight, parentBottom);
 		}
 	}
-
+	
+	public void setColorFilter(ColorFilter filter) {
+		imageView.setColorFilter(filter);
+	}
 }

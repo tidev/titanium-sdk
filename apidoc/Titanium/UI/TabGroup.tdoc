@@ -68,6 +68,5 @@ index: the tab index
 
 - notes
 
-
-
+Note that when opening a tab group, if one or more of its tabs have been set 'active' prior to opening, or if setActiveTab() has been called while a tab is 'active', the result of which tab is initially selected is undefined.
 

@@ -16,7 +16,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import ti.modules.titanium.facebook.FBRequest.FBRequestDelegate;
-
 import android.app.Activity;
 import android.util.Log;
 

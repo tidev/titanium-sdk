@@ -36,3 +36,7 @@ rightView[object]: a right view that is displayed on the annotation
 # 1.4
 image[string]: image view for the pin instead of default image.  currently only supported in iphone
 
+# 1.5
+titleid[string]: the key in the locale file to use for the title property
+subtitleid[string]: the key in the locale file to use for the subtitle property
+

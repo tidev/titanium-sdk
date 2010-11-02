@@ -2,7 +2,7 @@
 #
 # Scons script for building the iphone library
 #
-import os,platform,sys,urllib,gzip
+import os,platform,sys,urllib,gzip,glob
 from progressbar import ProgressBar
 
 ticore_version = '7'
@@ -46,7 +46,11 @@ def fetch():
 	print "You don't seem to have the appropriate thirdparty files. I'll fetch them."
 	print "This could take awhile.. Might want to grab a cup of Joe or make fun of Nolan."
 	print "Downloading %s" % url
- 
+
+	# delete all the old marker files so we can rollback
+	for f in glob.glob('lib/*.txt'):
+		os.remove(f)
+	
 	pbar = ProgressBar().start()
 	try:
 		def progress_callback(count, block_size, total_size):
@@ -107,29 +111,10 @@ def build(apiversion,targetversion,name,target,namever=''):
 
 	build_titanium_target(target,apiversion,targetversion,"build")
 	
-	# build the merged library using lipo
-	#os.system("lipo build/%s-iphonesimulator/lib%s.a build/%s-iphoneos/lib%s.a -create -output build/lib%s%s.a" %(config,name,config,name,name,namever))
-	
 	os.chdir(curdir)
 
-if not os.path.exists(markerfile):
+if not os.path.exists(markerfile) or len(glob.glob('lib/*.txt')) > 1:
 	fetch()
 
-
-#
-# first version is the SDK version
-# second version if the minimum SDK required for the app to run (deployment target)
-# third is the name of the archive
-# fourth is the xcode target name
-#
-
-#if build_type == "clean":
-#	clean('3.2','3.1.3','Titanium-KitchenSink','Titanium-KitchenSink')
-#else:
-	# because 3.2 supports only ipad in the simulator right now, we'll have to 
-	# build 2 libraries - one for 3.1 SDK and one for 3.2 ipad. once apple removes
-	# this simulator issue, we can go back to one library
-#	build('3.1.3','3.1.3','Titanium-KitchenSink','Titanium-KitchenSink')
-#	build('3.2','3.1.3','Titanium-KitchenSink','Titanium-KitchenSink','_3.2')
 
 sys.exit(0)

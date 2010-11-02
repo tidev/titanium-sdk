@@ -1,0 +1,22 @@
+#appname:UnitTest Harness
+#version:0.5.0
+#appid:com.titaniumapp.unittest
+#publisher:Appcelerator
+#url:http://titaniumapp.com
+#guid:CF0D2CB7-B4BD-488F-9F8E-669E6B53E0C4
+#desc:Unit Test Harness
+runtime:1.1.0
+tiapp:1.1.0
+tifilesystem:1.1.0
+tiplatform:1.1.0
+tiui:1.1.0
+python:1.1.0
+ruby:1.1.0
+php:1.1.0
+timedia:1.1.0
+timonkey:1.1.0
+tinetwork:1.1.0
+tiprocess:1.1.0
+tidatabase:1.1.0
+tiworker:1.1.0
+ticodec:1.1.0

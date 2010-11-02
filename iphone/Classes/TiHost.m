@@ -62,6 +62,7 @@ extern NSString * const TI_APPLICATION_ID;
 		NSURL *url = [TiHost resourceBasedURL:fn baseURL:&base];
 		startURL = [url retain];
 		baseURL = [[NSURL fileURLWithPath:base] retain];
+		stylesheet = [[TiStylesheet alloc] init];
 	}
 	return self;
 }
@@ -81,12 +82,18 @@ extern NSString * const TI_APPLICATION_ID;
 	return startURL;
 }
 
+-(TiStylesheet*)stylesheet
+{
+	return stylesheet;
+}
+
 -(void)dealloc
 {
 	RELEASE_TO_NIL(modules);
 	RELEASE_TO_NIL(contexts);
 	RELEASE_TO_NIL(baseURL);
 	RELEASE_TO_NIL(startURL);
+	RELEASE_TO_NIL(stylesheet);
 	[super dealloc];
 }
 
@@ -108,7 +115,7 @@ extern NSString * const TI_APPLICATION_ID;
 -(id) moduleNamed:(NSString*)name context:(id<TiEvaluator>)context
 {
 	TiModule *m = [modules objectForKey:name];
-	if (m == nil)
+	if (m == nil || [m destroyed]) // Need to re-allocate any modules which have been destroyed
 	{
 		Class moduleClass = NSClassFromString([NSString stringWithFormat:@"%@Module",name]);
 		if (moduleClass!=nil)
@@ -119,6 +126,7 @@ extern NSString * const TI_APPLICATION_ID;
 			[m release];
 		}
 	}
+	
 	return m;
 }
 

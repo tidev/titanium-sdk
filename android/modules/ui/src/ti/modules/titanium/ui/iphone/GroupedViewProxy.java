@@ -6,6 +6,7 @@
  */
 package ti.modules.titanium.ui.iphone;
 
+import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.Log;
@@ -13,12 +14,13 @@ import org.appcelerator.titanium.view.TiUIView;
 
 import android.app.Activity;
 
+@Kroll.proxy(creatableInModule=iPhoneModule.class)
 public class GroupedViewProxy extends TiViewProxy
 {
 	private static final String LCAT = "GroupedViewProxy";
 
-	public GroupedViewProxy(TiContext tiContext, Object[] args) {
-		super(tiContext, args);
+	public GroupedViewProxy(TiContext tiContext) {
+		super(tiContext);
 	}
 
 	@Override
@@ -27,10 +29,12 @@ public class GroupedViewProxy extends TiViewProxy
 		return null;
 	}
 
+	@Kroll.method
 	public void hideStatusBar() {
 		Log.w(LCAT, "hideStatusBar not valid on Android");
 	}
 
+	@Kroll.method
 	public void showStatusBar() {
 		Log.w(LCAT, "showStatusBar not valid on Android");
 	}

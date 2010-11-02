@@ -6,11 +6,13 @@
  */
 package ti.modules.titanium.xml;
 
+import org.appcelerator.kroll.KrollProxy;
+import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiContext;
-import org.appcelerator.titanium.TiProxy;
 import org.w3c.dom.NodeList;
 
-public class NodeListProxy extends TiProxy {
+@Kroll.proxy
+public class NodeListProxy extends KrollProxy {
 
 	private NodeList list;
 	public NodeListProxy(TiContext context, NodeList list)
@@ -19,13 +21,13 @@ public class NodeListProxy extends TiProxy {
 		this.list = list;
 	}
 
+	@Kroll.getProperty @Kroll.method
 	public int getLength() {
 		return list.getLength();
 	}
 
+	@Kroll.method
 	public NodeProxy item(int index) {
 		return NodeProxy.getNodeProxy(getTiContext(), list.item(index));
 	}
-	
-	
 }

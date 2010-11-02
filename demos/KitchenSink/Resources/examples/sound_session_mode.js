@@ -4,20 +4,27 @@ var count = 0;
 
 // Need this so that any sound which is playing when we come in continues to
 // do so
-Titanium.Media.defaultAudioSessionMode = Ti.Media.AUDIO_SESSION_MODE_AMBIENT;
+Titanium.Media.audioSessionMode = Ti.Media.AUDIO_SESSION_MODE_AMBIENT;
+
+var modeArray = [
+	{mode:Ti.Media.AUDIO_SESSION_MODE_AMBIENT,desc:'Ambient Mode'},
+	{mode:Ti.Media.AUDIO_SESSION_MODE_SOLO_AMBIENT,desc:'Solo Ambient Mode'},
+	{mode:Ti.Media.AUDIO_SESSION_MODE_PLAYBACK,desc:'Playback Mode'},
+	{mode:Ti.Media.AUDIO_SESSION_MODE_PLAY_AND_RECORD,desc:'Play and Record Mode'}
+];
+
+var audio = Ti.Media.createAudioPlayer({url:'http://202.6.74.107:8060/triplej.mp3'});
+var sound = Titanium.Media.createSound({url:'../cricket.wav'});
 
 var startAudio = Titanium.UI.createButton({
-	title:'Toggle Audio Session Mode',
+	title:'Play streaming audio',
 	top:10,
 	width:250,
 	height:40
 });
 startAudio.addEventListener('click', function()
 {
-	if (count == 4)count=0; else count++
-	Ti.API.info('playing audio with mode ' + modeArray[count].desc + ' count ' + count);
-	audio.audioSessionMode = modeArray[count].mode;
-	l.text = modeArray[count].desc
+	Ti.API.info('streaming with mode ' + modeArray[count].desc + ' count ' + count);
 	audio.start()
 });
 
@@ -33,19 +40,15 @@ stopAudio.addEventListener('click', function()
 });
 
 var startSound = Titanium.UI.createButton({
-	title:'Toggle Sound Session Mode',
+	title:'Play sound',
 	top:110,
 	width:250,
 	height:40
 });
 startSound.addEventListener('click', function()
 {
-	if (count == 4)count=0; else count++
 	Ti.API.info('playing sound with mode ' + modeArray[count].desc + ' count ' + count);
-	sound.audioSessionMode = modeArray[count].mode;
-	l.text = modeArray[count].desc;
 	sound.play()
-	
 });
 
 var stopSound = Titanium.UI.createButton({
@@ -59,9 +62,25 @@ stopSound.addEventListener('click', function()
 	sound.stop()
 });
 
-var l = Ti.UI.createLabel({
-	text:'Play sounds to toggle audio mode - try running this test when you have the iPod playing!',
+var changeMode = Titanium.UI.createButton({
+	title:'Change audio mode',
 	top:210,
+	width:250,
+	height:40
+});
+changeMode.addEventListener('click', function()
+{
+	audio.stop();
+	sound.stop();
+
+	if (count == modeArray.length-1)count=0; else count++
+	Titanium.Media.audioSessionMode = modeArray[count].mode;
+	l.text = modeArray[count].desc
+});
+
+var l = Ti.UI.createLabel({
+	text:'Ambient: Try running w/iPod!',
+	top:260,
 	width:300,
 	height:30
 });
@@ -70,16 +89,6 @@ win.add(startAudio);
 win.add(stopAudio);
 win.add(startSound);
 win.add(stopSound);
+win.add(changeMode);
 win.add(l);
-
-var modeArray = [
-	{mode:Ti.Media.AUDIO_SESSION_MODE_SOLO_AMBIENT,desc:'Solo Ambient Mode'},
-	{mode:Ti.Media.AUDIO_SESSION_MODE_AMBIENT,desc:'Ambient Mode'},
-	{mode:Ti.Media.AUDIO_SESSION_MODE_PLAYBACK,desc:'Playback Mode'},
-	{mode:Ti.Media.AUDIO_SESSION_MODE_RECORD,desc:'Record Mode'},
-	{mode:Ti.Media.AUDIO_SESSION_MODE_PLAY_AND_RECORD,desc:'Play and Record Mode'}
-];
-
-var audio = Ti.Media.createAudioPlayer({url:'http://202.6.74.107:8060/triplej.mp3'});
-var sound = Titanium.Media.createSound({url:'../cricket.wav'});
 

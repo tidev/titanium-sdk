@@ -12,18 +12,17 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.concurrent.Semaphore;
 
-import org.appcelerator.titanium.TiActivity;
+import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollInvocation;
+import org.appcelerator.kroll.KrollMethod;
+import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.titanium.TiContext;
-import org.appcelerator.titanium.TiDict;
-import org.appcelerator.titanium.TiContext.OnLifecycleEvent;
-import org.appcelerator.titanium.kroll.IKrollCallable;
 import org.appcelerator.titanium.util.Log;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import ti.modules.titanium.api.APIModule;
 import ti.modules.titanium.app.AppModule;
-import android.app.Activity;
 import android.webkit.WebView;
 
 public class TiWebViewBinding {
@@ -43,7 +42,7 @@ public class TiWebViewBinding {
 		webView.addJavascriptInterface(apiBinding, "TiAPI");
 		webView.addJavascriptInterface(appBinding, "TiApp");
 		webView.addJavascriptInterface(new TiReturn(), "_TiReturn");
-		insertApiBindings();		
+		insertApiBindings();
 	}
 	
 	public void insertApiBindings() 
@@ -53,8 +52,6 @@ public class TiWebViewBinding {
 	}
 	
 	public void destroy() {
-		appBinding.module.onDestroy();
-		apiBinding.module.onDestroy();
 	}
 	
 	private void evalJS(InputStream stream)
@@ -92,7 +89,7 @@ public class TiWebViewBinding {
 		return null;
 	}
 	
-	
+	@SuppressWarnings("unused")
 	private class TiReturn {
 		public void setValue(String value) {
 			if (value != null) {
@@ -102,28 +99,32 @@ public class TiWebViewBinding {
 		}
 	}
 	
-	private class WebViewCallback implements IKrollCallable
+	@SuppressWarnings("serial")
+	private class WebViewCallback extends KrollMethod
 	{
 		private int id;
 		public WebViewCallback(int id) {
+			super("webViewCallback$"+id);
 			this.id = id;
 		}
 		
-		// These shouldn't be necessary?
-		public void call() {}
-		public void call(Object[] args) {}
-		
-		public void callWithProperties(TiDict data) {
-			String code = "Ti.executeListener("+id+", "+data.toString()+");";
-			evalJS(code);
+		@Override
+		public Object invoke(KrollInvocation invocation, Object[] args) {
+			if (args.length > 0 && args[0] instanceof KrollDict) {
+				KrollDict data = (KrollDict) args[0];
+				String code = "Ti.executeListener("+id+", "+data.toString()+");";
+				evalJS(code);
+			}
+			return KrollProxy.UNDEFINED;
 		}
 	}
 
+	@SuppressWarnings("unused")
 	private class APIBinding
 	{
 		private APIModule module;
 		public APIBinding(TiContext context) {
-			module = new APIModule(context);
+			module = context.getTiApp().getModuleByClass(APIModule.class);
 		}
 		public void critical(String msg) {
 			module.critical(msg);
@@ -153,22 +154,23 @@ public class TiWebViewBinding {
 			module.warn(msg);
 		}
 	}
-	
+
+	@SuppressWarnings("unused")
 	private class AppBinding
 	{
 		private AppModule module;
 		
 		public AppBinding(TiContext context)
 		{
-			module = new AppModule(context);
+			module = context.getTiApp().getModuleByClass(AppModule.class);
 		}
 		
 		public void fireEvent(String event, String json)
 		{
 			try {
-				TiDict dict = new TiDict();
+				KrollDict dict = new KrollDict();
 				if (json != null && !json.equals("undefined")) {
-					dict = new TiDict(new JSONObject(json));
+					dict = new KrollDict(new JSONObject(json));
 				}
 				module.fireEvent(event, dict);
 			} catch (JSONException e) {

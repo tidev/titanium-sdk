@@ -266,6 +266,7 @@ DEFINE_EXCEPTIONS
 {
 	if (self = [super init])
 	{
+		WARN_IF_BACKGROUND_THREAD_OBJ;	//NSNotificationCenter is not threadsafe!
 		[[NSNotificationCenter defaultCenter] addObserver:self
 												 selector:@selector(didReceiveMemoryWarning:)
 													 name:UIApplicationDidReceiveMemoryWarningNotification  
@@ -277,6 +278,7 @@ DEFINE_EXCEPTIONS
 
 -(void)dealloc
 {
+	WARN_IF_BACKGROUND_THREAD_OBJ;	//NSNotificationCenter is not threadsafe!
 	[[NSNotificationCenter defaultCenter] removeObserver:self
 													name:UIApplicationDidReceiveMemoryWarningNotification  
 												  object:nil];  
@@ -415,7 +417,7 @@ DEFINE_EXCEPTIONS
 				}
 			}
 #endif
-			result = [self setImage:resultImage forKey:urlString];
+			result = [self setImage:resultImage forKey:urlString cache:NO];
 			[result setIsLocalImage:YES];
 		}
 		else

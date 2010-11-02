@@ -3,12 +3,12 @@ var data = [
 	{title:'Basic', hasChild:true, test:'../examples/label_basic.js'}
 ];
 
-// add iphone specific tests
+// add android specific tests
 if (Titanium.Platform.name == 'android')
 {
-data.push({title:'Auto Link', hasChild:true, test:'../examples/label_linkify.js'});
-
+	data.push({title:'Auto Link', hasChild:true, test:'../examples/label_linkify.js'});
 }
+
 // create table view
 var tableview = Titanium.UI.createTableView({
 	data:data

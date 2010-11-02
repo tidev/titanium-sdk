@@ -303,7 +303,7 @@ DEFINE_EXCEPTIONS
 	{
 		imageView = [[UIImageView alloc] initWithFrame:[self bounds]];
 		[imageView setAutoresizingMask:UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight];
-		[imageView setContentMode:UIViewContentModeCenter];
+		[imageView setContentMode:UIViewContentModeScaleAspectFit];
 		[self addSubview:imageView];
 	}
 	return imageView;
@@ -323,7 +323,7 @@ DEFINE_EXCEPTIONS
 	if (placeholderLoading)
 	{
 		iv.autoresizingMask = UIViewAutoresizingNone;
-		iv.contentMode = UIViewContentModeCenter;
+		iv.contentMode = UIViewContentModeScaleAspectFit;
 		iv.alpha = 0;
 		
 		[(TiViewProxy *)[self proxy] setNeedsReposition];

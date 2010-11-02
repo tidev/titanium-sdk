@@ -92,10 +92,11 @@ public class ContactsApiLevel5 extends CommonContactsApi
 	private static String[] PEOPLE_PROJECTION = new String[] {
         "_id",
         "display_name",
+        "photo_id"
     };
 	protected static int PEOPLE_COL_ID = 0;
 	protected static int PEOPLE_COL_NAME = 1;
-	
+	protected static int PEOPLE_COL_PHOTO_ID = 2;
 	
 	private static String INConditionForKinds =
 		"('" + KIND_ADDRESS + "','" + KIND_EMAIL + "','" +
@@ -194,8 +195,7 @@ public class ContactsApiLevel5 extends CommonContactsApi
 		
 		if (cursor.moveToFirst()) {
 			person = new CommonContactsApi.LightPerson();
-			person.name = cursor.getString(PEOPLE_COL_NAME);
-			person.id = id;
+			person.addPersonInfoFromL5PersonRow(cursor);
 		}
 		
 		cursor.close();

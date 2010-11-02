@@ -12,8 +12,9 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiContext;
-import org.appcelerator.titanium.TiDict;
 import org.appcelerator.titanium.kroll.KrollCallback;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.AsyncResult;
@@ -34,6 +35,7 @@ import android.util.Log;
 import android.widget.DatePicker;
 import android.widget.TimePicker;
 
+@Kroll.proxy(creatableInModule=UIModule.class)
 public class PickerProxy extends TiViewProxy 
 {
 	private int type = UIModule.PICKER_TYPE_PLAIN;
@@ -46,11 +48,16 @@ public class PickerProxy extends TiViewProxy
 	private static final int MSG_SELECT_ROW = MSG_FIRST_ID + 101;
 	private static final int MSG_REPLACE_MODEL = MSG_FIRST_ID + 102;
 	
-	public PickerProxy(TiContext tiContext, Object[] args)
+	public PickerProxy(TiContext tiContext)
 	{
-		super(tiContext, args);
-		if (hasDynamicValue("type")) {
-			type = getDynamicProperties().getInt("type");
+		super(tiContext);
+	}
+	
+	@Override
+	public void handleCreationDict(KrollDict dict) {
+		super.handleCreationDict(dict);
+		if (hasProperty("type")) {
+			type = getProperties().getInt("type");
 		}
 	}
 	
@@ -58,8 +65,8 @@ public class PickerProxy extends TiViewProxy
 	public TiUIView createView(Activity activity) 
 	{
 		boolean useSpinner = false;
-		if (hasDynamicValue("useSpinner")) {
-			useSpinner = (TiConvert.toBoolean(getDynamicValue("useSpinner")));
+		if (hasProperty("useSpinner")) {
+			useSpinner = (TiConvert.toBoolean(getProperty("useSpinner")));
 		}
 		if (type == UIModule.PICKER_TYPE_COUNT_DOWN_TIMER ) {
 			Log.w(LCAT, "Countdown timer not supported in Titanium for Android");
@@ -91,8 +98,8 @@ public class PickerProxy extends TiViewProxy
 	private TiUIView createPlainPicker(Activity activity)
 	{
 		TiUIPicker picker = new TiUIPicker(this);
-		if ((columns == null || columns.size() == 0) && hasDynamicValue("columns") ) {
-			Object columnsAtCreation = getDynamicValue("columns");
+		if ((columns == null || columns.size() == 0) && hasProperty("columns") ) {
+			Object columnsAtCreation = getProperty("columns");
 			if (columnsAtCreation.getClass().isArray()) {
 				Object[] columnsArray = (Object[]) columnsAtCreation;
 				if (this.columns == null) {
@@ -135,11 +142,13 @@ public class PickerProxy extends TiViewProxy
 		return new TiUIDateSpinner(this);
 	}
 	
+	@Kroll.getProperty @Kroll.method
 	public int getType()
 	{
 		return type;
 	}
 	
+	@Kroll.setProperty @Kroll.method
 	public void setType(int type)
 	{
 		if (peekView() != null) {
@@ -226,7 +235,7 @@ public class PickerProxy extends TiViewProxy
 			return true;
 		} else if (msg.what == MSG_SELECT_ROW) {
 			AsyncResult result = (AsyncResult)msg.obj;
-			handleSelectRow( (TiDict)result.getArg() );
+			handleSelectRow( (KrollDict)result.getArg() );
 			result.setResult(null);
 			return true;
 		} else if (msg.what == MSG_REPLACE_MODEL) {
@@ -239,6 +248,7 @@ public class PickerProxy extends TiViewProxy
 		}
 	}
 	
+	@Kroll.method
 	public void setSelectedRow(int column, int row, boolean animated)
 	{
 		if (!isPlainPicker()) {
@@ -265,7 +275,7 @@ public class PickerProxy extends TiViewProxy
 		if (getTiContext().isUIThread()) {
 			handleSelectRow(column, row, animated);			
 		} else {
-			TiDict dict = new TiDict();
+			KrollDict dict = new KrollDict();
 			dict.put("column", new Integer(column));
 			dict.put("row", new Integer(row));
 			dict.put("animated", new Boolean(animated));
@@ -277,6 +287,7 @@ public class PickerProxy extends TiViewProxy
 		
 	}
 	
+	@Kroll.method
 	public PickerRowProxy getSelectedRow(int columnIndex)
 	{
 		if (!isPlainPicker()) {
@@ -290,6 +301,7 @@ public class PickerProxy extends TiViewProxy
 		return ((TiUIPicker)peekView()).getSelectedRow(columnIndex);
 	}
 	
+	@Kroll.getProperty @Kroll.method
 	public PickerColumnProxy[] getColumns()
 	{
 		if (!isPlainPicker()) {
@@ -303,6 +315,7 @@ public class PickerProxy extends TiViewProxy
 		}
 	}
 	
+	@Kroll.setProperty @Kroll.method
 	public void setColumns(Object[] rawcolumns)
 	{
 		if (!isPlainPicker()) {
@@ -343,7 +356,7 @@ public class PickerProxy extends TiViewProxy
 		picker.replaceColumns(getColumnsAsListOfLists());
 	}
 	
-	private void handleSelectRow(TiDict dict)
+	private void handleSelectRow(KrollDict dict)
 	{
 		handleSelectRow(dict.getInt("column"), dict.getInt("row"), dict.getBoolean("animated"));
 	}
@@ -395,13 +408,14 @@ public class PickerProxy extends TiViewProxy
 	// This is meant to be a kind of "static" method, in the sense that
 	// it doesn't use any state except for context.  It's a quick hit way
 	// of getting a date dialog up, in other words.
+	@Kroll.method
 	public void showDatePickerDialog(Object[] args)
 	{
-		TiDict settings = new TiDict();
+		KrollDict settings = new KrollDict();
 		final AtomicInteger callbackCount = new AtomicInteger(0); // just a flag to be sure dismiss doesn't fire callback if ondateset did already.
 		
 		if (args.length > 0) {
-			settings = (TiDict) args[0];
+			settings = (KrollDict) args[0];
 		}
 		
 		Calendar calendar = Calendar.getInstance();
@@ -438,7 +452,7 @@ public class PickerProxy extends TiViewProxy
 						calendar.set(Calendar.MONTH, monthOfYear);
 						calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
 						Date value = calendar.getTime();
-						TiDict data = new TiDict();
+						KrollDict data = new KrollDict();
 						data.put("cancel", false);
 						data.put("value", value);
 						callback.call(new Object[]{ data });
@@ -455,7 +469,7 @@ public class PickerProxy extends TiViewProxy
 				{
 					if (callbackCount.get() == 0 && callback != null) {
 						callbackCount.incrementAndGet();
-						TiDict data = new TiDict();
+						KrollDict data = new KrollDict();
 						data.put("cancel", true);
 						data.put("value", null);
 						callback.call(new Object[]{ data });
@@ -491,14 +505,15 @@ public class PickerProxy extends TiViewProxy
 	// This is meant to be a kind of "static" method, in the sense that
 	// it doesn't use any state except for context.  It's a quick hit way
 	// of getting a date dialog up, in other words.
+	@Kroll.method
 	public void showTimePickerDialog(Object[] args)
 	{
-		TiDict settings = new TiDict();
+		KrollDict settings = new KrollDict();
 		boolean is24HourView = false;
 		final AtomicInteger callbackCount = new AtomicInteger(0); // just a flag to be sure dismiss doesn't fire callback if ondateset did already.
 		
 		if (args.length > 0) {
-			settings = (TiDict) args[0];
+			settings = (KrollDict) args[0];
 		}
 		
 		if (settings.containsKey("format24")) {
@@ -537,7 +552,7 @@ public class PickerProxy extends TiViewProxy
 						calendar.set(Calendar.HOUR_OF_DAY, hourOfDay);
 						calendar.set(Calendar.MINUTE, minute);
 						Date value = calendar.getTime();
-						TiDict data = new TiDict();
+						KrollDict data = new KrollDict();
 						data.put("cancel", false);
 						data.put("value", value);
 						callback.call(new Object[]{ data });
@@ -553,7 +568,7 @@ public class PickerProxy extends TiViewProxy
 				{
 					if (callbackCount.get() == 0 && callback != null) {
 						callbackCount.incrementAndGet();
-						TiDict data = new TiDict();
+						KrollDict data = new KrollDict();
 						data.put("cancel", true);
 						data.put("value", null);
 						callback.call(new Object[]{ data });

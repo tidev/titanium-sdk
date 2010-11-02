@@ -8,10 +8,9 @@ package ti.modules.titanium.ui.widget.tableview;
 
 import java.util.ArrayList;
 
+import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.titanium.TiContext;
-import org.appcelerator.titanium.TiDict;
 import org.appcelerator.titanium.proxy.TiViewProxy;
-import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConvert;
 
 import ti.modules.titanium.ui.TableViewProxy;
@@ -73,7 +72,7 @@ public class TableViewModel
     }
 
     private String classNameForRow(TableViewRowProxy rowProxy) {
-        String className = TiConvert.toString(rowProxy.getDynamicValue("className"));
+        String className = TiConvert.toString(rowProxy.getProperty("className"));
         if (className == null) {
         	className = TableViewProxy.CLASSNAME_DEFAULT;
         }
@@ -85,11 +84,11 @@ public class TableViewModel
         Item newItem = new Item(index);
         TableViewRowProxy rowProxy = null;
 
-        if (data instanceof TiDict) {
-            Object[] args = { data };
-            rowProxy = new TableViewRowProxy(tiContext, args);
-            rowProxy.setDynamicValue("className", TableViewProxy.CLASSNAME_NORMAL);
-            rowProxy.setDynamicValue("rowData", data);
+        if (data instanceof KrollDict) {
+            rowProxy = new TableViewRowProxy(tiContext);
+            rowProxy.handleCreationDict((KrollDict)data);
+            rowProxy.setProperty("className", TableViewProxy.CLASSNAME_NORMAL);
+            rowProxy.setProperty("rowData", data);
             newItem.proxy = rowProxy;
             newItem.rowData = data;
             newItem.className = TableViewProxy.CLASSNAME_NORMAL;
@@ -97,7 +96,7 @@ public class TableViewModel
             rowProxy = (TableViewRowProxy) data;
             newItem.proxy = rowProxy;
             newItem.rowData = rowProxy;
-            String className = TiConvert.toString(rowProxy.getDynamicValue("className"));
+            String className = TiConvert.toString(rowProxy.getProperty("className"));
             if (className == null) {
             	className = TableViewProxy.CLASSNAME_DEFAULT;
             }
@@ -149,7 +148,7 @@ public class TableViewModel
             if (sections != null) {
 
 	            for (TableViewSectionProxy section : sections) {
-	            	String headerTitle = TiConvert.toString(section.getDynamicValue("headerTitle"));
+	            	String headerTitle = TiConvert.toString(section.getProperty("headerTitle"));
 	            	if (headerTitle != null) {
 	            		viewModel.add(itemForHeader(index, section, headerTitle, null));
 	            	}
@@ -166,7 +165,7 @@ public class TableViewModel
 	            		indexInSection++;
 	            	}
 
-	            	String footerTitle = TiConvert.toString(section.getDynamicValue("footerTitle"));
+	            	String footerTitle = TiConvert.toString(section.getProperty("footerTitle"));
 	            	if (footerTitle != null) {
 	            		viewModel.add(itemForHeader(index, section, null, footerTitle));
 	            	}
@@ -200,7 +199,7 @@ public class TableViewModel
         int rowHeight = defaultHeight;
 
         Item item = viewModel.get(position);
-        Object rh = item.proxy.getDynamicValue("rowHeight");
+        Object rh = item.proxy.getProperty("rowHeight");
         if (rh != null) {
         	rowHeight = TiConvert.toInt(rh);
         }

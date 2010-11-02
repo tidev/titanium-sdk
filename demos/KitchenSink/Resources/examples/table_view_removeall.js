@@ -22,13 +22,27 @@ var button2 = Ti.UI.createButton({
 	title:"Add back"
 });
 
-win.setRightNavButton(button);
+if (Titanium.Platform.name == 'iPhone OS') {
+	win.setRightNavButton(button);
+} else {
+	button.top = 0;
+	button.left = 0;
+	button2.top = 0;
+	button2.left = 0;
+	tableview.top = 30;
+	win.add(button);
+}
 
 button.addEventListener('click',function(e)
 {
 	// remove all rows with no animation (default in setter)
 	tableview.data = [];
-	win.setRightNavButton(button2);
+	if (Titanium.Platform.name == 'iPhone OS') {
+		win.setRightNavButton(button2);
+	} else {
+		win.remove(button);
+		win.add(button2);
+	}
 });
 
 button2.addEventListener('click',function(e)

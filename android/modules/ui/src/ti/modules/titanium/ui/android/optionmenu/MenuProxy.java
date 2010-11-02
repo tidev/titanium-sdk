@@ -8,22 +8,26 @@ package ti.modules.titanium.ui.android.optionmenu;
 
 import java.util.ArrayList;
 
+import org.appcelerator.kroll.KrollProxy;
+import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiContext;
-import org.appcelerator.titanium.TiProxy;
 
-public class MenuProxy extends TiProxy
+@Kroll.proxy(creatableInModule=OptionMenuModule.class)
+public class MenuProxy extends KrollProxy
 {
 	protected ArrayList<MenuItemProxy> menuItems;
 
-	public MenuProxy(TiContext tiContext, Object[] args) {
+	public MenuProxy(TiContext tiContext) {
 		super(tiContext);
 		menuItems = new ArrayList<MenuItemProxy>();
 	}
 
+	@Kroll.method
 	public void add(MenuItemProxy mip) {
 		menuItems.add(mip);
 	}
 
+	@Kroll.getProperty @Kroll.method
 	protected ArrayList<MenuItemProxy> getMenuItems() {
 		return menuItems;
 	}

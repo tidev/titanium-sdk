@@ -8,7 +8,7 @@ def run(args,ignore_error=False,debug=True,out=None):
 	results = ''
 	rc = None
 	while True:
-		line = proc.stdout.readline()
+		line = unicode(proc.stdout.readline(), 'utf-8')
 		if line:
 			if out!=None:
 				out.write(line)

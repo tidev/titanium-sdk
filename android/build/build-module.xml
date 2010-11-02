@@ -1,0 +1,42 @@
+<!-- 
+Appcelerator Titanium Mobile
+
+Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+Licensed under the terms of the Apache Public License
+Please see the LICENSE included with this distribution for details.
+
+A convenience wrapper script that standalone modules can import
+-->
+<project name="build-module">
+	<property name="ti.android.root" location="${basedir}/../.."/>
+	
+	<import file="${ti.android.root}/build/common.xml"/>
+	
+	<path id="dependencies">
+		<!-- modules with extra dependencies should override this -->
+	</path>
+
+	<target name="build">
+		<build.module.project name="${ant.project.name}">
+			<extra.javac.classpath>
+				<classpath refid="dependencies"/>
+			</extra.javac.classpath>
+		</build.module.project>
+		<jar destfile="${dist.dir}/titanium-${ant.project.name}.jar" basedir="${basedir}/bin"/>
+	</target>
+	
+	<target name="build.annotations">
+		<build.project.annotations
+			name="${ant.project.name}" prefix="modules/">
+			
+			<classpath>
+				<path refid="titanium.path"/>
+				<path refid="${ant.project.name}.dependencies"/>
+			</classpath>
+		</build.project.annotations>
+	</target>
+	
+	<target name="clean">
+		<clean.project name="${ant.project.name}" prefix="modules/"/>
+	</target>
+</project>

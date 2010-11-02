@@ -40,6 +40,7 @@ FAILED[int]: constant for the FAILED status result
 
 - methods
 
+isSupported: return whether or not sending email is supported
 open: open the email dialog. the email dialog itself is a modal window
 addAttachment: add an attachment to the email. the attachment can either be a Blob or File object. (Note: Android will only accept one attachment at this time.)
 

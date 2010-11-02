@@ -12,6 +12,9 @@
 
 @implementation TiUIProgressBarProxy
 
+USE_VIEW_FOR_AUTO_WIDTH
+USE_VIEW_FOR_AUTO_HEIGHT
+
 -(TiUIView*)newView
 {
 	id styleObj = [self valueForKey:@"style"];

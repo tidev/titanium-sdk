@@ -8,7 +8,7 @@ package ti.modules.titanium.ui.widget.picker;
 
 import java.util.ArrayList;
 
-import org.appcelerator.titanium.TiDict;
+import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.view.TiUIView;
@@ -166,7 +166,7 @@ public class TiUIPicker extends TiUIView
 		if (suppressChangeEvent) {
 			return;
 		}
-		TiDict d = new TiDict();
+		KrollDict d = new KrollDict();
 		d.put("rowIndex", position);
 		d.put("columnIndex", 0);
 		d.put("row", columns.get(0).get(position));

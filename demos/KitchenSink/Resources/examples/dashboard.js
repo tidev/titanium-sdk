@@ -55,6 +55,20 @@ dashboard.addEventListener('commit',function()
 	}
 });
 
+dashboard.addEventListener('move', function(e) {
+	Ti.API.log('Moved item '+e.item.label);
+});
+
+dashboard.addEventListener('dragStart', function(e) {
+	Ti.API.log('Dragging item '+e.item.label);
+	win.rightNavButton = null;
+});
+
+dashboard.addEventListener('dragEnd', function(e) {
+	Ti.API.log('Drag ended: ' + e.item.label);
+	win.rightNavButton = cancel;
+});
+
 dashboard.addEventListener('click',function(e)
 {
 	if (e.item.label == 'account')

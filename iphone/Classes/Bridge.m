@@ -23,15 +23,34 @@
 
 -(void) dealloc
 {
-	[host release];
-	[url release];
-	[callback release];
+	RELEASE_TO_NIL(host);
+	RELEASE_TO_NIL(url);
+	RELEASE_TO_NIL(callback);
+	RELEASE_TO_NIL(basename);
 	[super dealloc];
 }
 
 - (TiHost*)host
 {
 	return host;
+}
+
+- (NSString*)basename
+{
+	if (basename == nil)
+	{
+		// for app.js, url will always be nil
+		if (url == nil)
+		{
+			basename = [@"app" retain];
+		}
+		else
+		{
+			NSString *last = [[url path] lastPathComponent];
+			basename = [[last stringByReplacingOccurrencesOfString:@".js" withString:@""] retain];
+		}
+	}
+	return basename;
 }
 
 -(void)shutdown:(NSCondition*)condition

@@ -14,7 +14,8 @@ public class AsyncResult extends Semaphore
 
 	protected Object result;
 	protected Object arg;
-
+	protected Throwable exception;
+	
 	public AsyncResult() {
 		this(null);
 	}
@@ -32,6 +33,12 @@ public class AsyncResult extends Semaphore
 		this.result = result;
 		this.release();
 	}
+	
+	public void setException(Throwable exception) {
+		this.result = null;
+		this.exception = exception;
+		this.release();
+	}
 
 	public Object getResult()
 	{
@@ -40,8 +47,8 @@ public class AsyncResult extends Semaphore
 		} catch (InterruptedException e) {
 			// Ignore
 		}
-		if (result instanceof Throwable) {
-			//TODO handle sending exception
+		if (exception != null) {
+			throw new RuntimeException(exception);
 		}
 		return result;
 	}

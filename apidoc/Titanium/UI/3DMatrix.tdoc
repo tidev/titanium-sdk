@@ -12,7 +12,7 @@ proxy
 
 - description
 
-The 2DMatrix is created by `Titanium.UI.create2DMatrix`.  The 2D Matrix is an object for holding values for an affine transformation matrix. A 2D matrix is used to rotate, scale, translate, or skew the objects in a three-dimensional space. A 3D matrix is represented by a 4 by 4 matrix. Because the forth column is always (0,0,1), the data structure contains values for only the first three columns.
+The 3DMatrix is created by `Titanium.UI.create3DMatrix`.  The 3D Matrix is an object for holding values for an affine transformation matrix. A 3D matrix is used to rotate, scale, translate, or skew the objects in a three-dimensional space. A 3D matrix is represented by a 4 by 4 matrix. Because the forth column is always (0,0,1), the data structure contains values for only the first three columns.
 
 - since
 

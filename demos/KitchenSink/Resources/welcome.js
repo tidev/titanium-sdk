@@ -31,8 +31,12 @@
 	welcomeWindow.add(message);
 	welcomeWindow.open();
 
-	var t = Ti.UI.create2DMatrix().translate(-200,200).scale(0);
-	welcomeWindow.animate({transform:t,delay:1500,duration:1000,opacity:0.1},function()
+	var animationProperties = {delay: 1500, duration: 1000, opacity: 0.1};
+	if (Ti.Platform.osname == "iPhone OS") {
+		animationProperties.transform =
+			Ti.UI.create2DMatrix().translate(-200,200).scale(0);
+	}
+	welcomeWindow.animate(animationProperties, function()
 	{
 		welcomeWindow.close();
 	});

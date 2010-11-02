@@ -10,8 +10,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiContext;
-import org.appcelerator.titanium.TiDict;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.AsyncResult;
 import org.appcelerator.titanium.util.TiEventHelper;
@@ -23,6 +24,7 @@ import android.os.Message;
 import android.view.animation.Animation;
 import android.view.animation.Animation.AnimationListener;
 
+@Kroll.proxy(creatableInModule=UIModule.class)
 public class ScrollableViewProxy extends TiViewProxy
 	implements AnimationListener
 {
@@ -44,9 +46,9 @@ public class ScrollableViewProxy extends TiViewProxy
 	protected AtomicBoolean inAnimation;
 	protected AtomicBoolean inScroll;
 
-	public ScrollableViewProxy(TiContext context, Object[] args)
+	public ScrollableViewProxy(TiContext context)
 	{
-		super(context, args);
+		super(context);
 		inAnimation = new AtomicBoolean(false);
 		inScroll = new AtomicBoolean(false);
 	}
@@ -129,12 +131,14 @@ public class ScrollableViewProxy extends TiViewProxy
 		return handled;
 	}
 
+	@Kroll.getProperty @Kroll.method
 	public Object getViews()
 	{
 		List<TiViewProxy> list = new ArrayList<TiViewProxy>();
 		return getView().getViews().toArray(new TiViewProxy[list.size()]);
 	}
 
+	@Kroll.setProperty @Kroll.method
 	public void setViews(Object viewsObject) {
 		Message msg = getUIHandler().obtainMessage(MSG_SET_VIEWS);
 		AsyncResult result = new AsyncResult(viewsObject);
@@ -143,6 +147,7 @@ public class ScrollableViewProxy extends TiViewProxy
 		result.getResult(); // Wait for it
 	}
 
+	@Kroll.method
 	public void addView(Object viewObject) {
 		Message msg = getUIHandler().obtainMessage(MSG_ADD_VIEW);
 		AsyncResult result = new AsyncResult(viewObject);
@@ -159,17 +164,20 @@ public class ScrollableViewProxy extends TiViewProxy
 		result.getResult(); // Wait for it 
 	}
 
+	@Kroll.method
 	public void scrollToView(Object view) {
 		if (inScroll.get()) return;
 		getUIHandler().obtainMessage(MSG_SCROLL_TO, view).sendToTarget();
 	}
 
+	@Kroll.method
 	public void movePrevious() {
 		if (inScroll.get() || inAnimation.get()) return;
 		getUIHandler().removeMessages(MSG_MOVE_PREV);
 		getUIHandler().sendEmptyMessage(MSG_MOVE_PREV);
 	}
 
+	@Kroll.method
 	public void moveNext() {
 		// was synchronized(gallery) {
 		if (inScroll.get() || inAnimation.get()) return;
@@ -182,6 +190,7 @@ public class ScrollableViewProxy extends TiViewProxy
 		getUIHandler().sendEmptyMessageDelayed(MSG_HIDE_PAGER, 3000);
 	}
 
+	@Kroll.setProperty @Kroll.method
 	public void setShowPagingControl(boolean showPagingControl) {
 		getView().setShowPagingControl(showPagingControl);
 		if (!showPagingControl) {
@@ -194,7 +203,7 @@ public class ScrollableViewProxy extends TiViewProxy
 	public void fireScroll(int to)
 	{
 		if (hasListeners(EVENT_SCROLL)) {
-			TiDict options = new TiDict();
+			KrollDict options = new KrollDict();
 			options.put("index", to);
 			options.put("view", this);
 			options.put("currentPage", getView().getCurrentPage());
@@ -202,10 +211,12 @@ public class ScrollableViewProxy extends TiViewProxy
 		}
 	}
 
+	@Kroll.getProperty @Kroll.method
 	public int getCurrentPage() {
 		return getView().getCurrentPage();
 	}
 
+	@Kroll.setProperty @Kroll.method
 	public void setCurrentPage(Object page) {
 		getUIHandler().obtainMessage(MSG_SET_CURRENT, page).sendToTarget();
 	}

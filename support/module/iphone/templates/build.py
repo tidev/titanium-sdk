@@ -3,7 +3,7 @@
 # Appcelerator Titanium Module Packager
 #
 #
-import os, sys, glob
+import os, sys, glob, string
 import zipfile
 
 cwd = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
@@ -42,16 +42,20 @@ def read_ti_xcconfig():
 	return config
 
 def generate_doc(config):
-	docfile = os.path.join(cwd,'documentation','index.md')
-	if not os.path.exists(docfile):
-		print "Couldn't find documentation file at: %s" % docfile
+	docdir = os.path.join(cwd,'documentation')
+	if not os.path.exists(docdir):
+		print "Couldn't find documentation file at: %s" % docdir
 		return None
 	sdk = config['TITANIUM_SDK']
 	support_dir = os.path.join(sdk,'module','support')
 	sys.path.append(support_dir)
 	import markdown2
-	html_md = open(docfile).read()
-	return markdown2.markdown(html_md)
+	documentation = []
+	for file in os.listdir(docdir):
+		md = open(os.path.join(docdir,file)).read()
+		html = markdown2.markdown(md)
+		documentation.append({file:html});
+	return documentation
 
 def compile_js(manifest,config):
 	js_file = os.path.join(cwd,'assets','__MODULE_ID__.js')
@@ -164,9 +168,12 @@ def package_module(manifest,mf,config):
 	zf.write(mf,'%s/manifest' % modulepath)
 	libname = 'lib%s.a' % moduleid
 	zf.write('build/%s' % libname, '%s/%s' % (modulepath,libname))
-	html = generate_doc(config)
-	if html!=None:
-		zf.writestr('%s/documentation/index.html'%modulepath,html)
+	docs = generate_doc(config)
+	if docs!=None:
+		for doc in docs:
+			for file, html in doc.iteritems():
+				filename = string.replace(file,'.md','.html')
+				zf.writestr('%s/documentation/%s'%(modulepath,filename),html)
 	for dn in ('assets','example'):
 	  if os.path.exists(dn):
 		  zip_dir(zf,dn,'%s/%s' % (modulepath,dn),['README'])

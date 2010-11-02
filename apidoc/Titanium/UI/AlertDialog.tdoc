@@ -27,7 +27,11 @@ android, iphone, ipad
 buttonNames[array]: array of button names as strings
 title[string]: the title of the dialog
 message[string]: the message of the dialog
-cancel[int]: an index to indicate which button should be the cancel button.
+cancel[int]: an index to indicate which button should be the cancel button
+
+# 1.5
+messageid[string]: the key in the locale file to use for the message property
+
 
 - methods
 

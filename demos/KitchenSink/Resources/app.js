@@ -2,23 +2,16 @@
 Titanium.UI.setBackgroundColor('#000');
 
 // create tab group
-var tabGroup = Titanium.UI.createTabGroup(
-{
-	barColor:'#336699'
-});
+var tabGroup = Titanium.UI.createTabGroup({id:'tabGroup1'});
 
 
 //
 // create base UI tab and root window
 //
-var win1 = Titanium.UI.createWindow({
-    url:'main_windows/base_ui.js',
-    titleImage:'images/appcelerator_small.png'
-});
+var win1 = Titanium.UI.createWindow({id:'win1'});
 
 var tab1 = Titanium.UI.createTab({
-    icon:'images/tabs/KS_nav_views.png',
-    title:'Base UI',
+	id:'tab1',
     window:win1
 });
 
@@ -27,11 +20,11 @@ var tab1 = Titanium.UI.createTab({
 //
 var win2 = Titanium.UI.createWindow({
     url:'main_windows/controls.js',
-    title:'Controls'
+    titleid:'controls_win_title'
 });
 var tab2 = Titanium.UI.createTab({
     icon:'images/tabs/KS_nav_ui.png',
-    title:'Controls',
+    titleid:'controls_win_title',
     window:win2
 });
 
@@ -41,11 +34,11 @@ var tab2 = Titanium.UI.createTab({
 //
 var win3 = Titanium.UI.createWindow({
     url:'main_windows/phone.js',
-    title:'Phone'
+    titleid:'phone_win_title'
 });
 var tab3 = Titanium.UI.createTab({
     icon:'images/tabs/KS_nav_phone.png',
-    title:'Phone',
+    titleid:'phone_win_title',
     window:win3
 });
 
@@ -55,11 +48,11 @@ var tab3 = Titanium.UI.createTab({
 //
 var win4 = Titanium.UI.createWindow({
     url:'main_windows/platform.js',
-    title:'Platform'
+    titleid:'platform_win_title'
 });
 var tab4 = Titanium.UI.createTab({
     icon:'images/tabs/KS_nav_platform.png',
-    title:'Platform',
+    titleid:'platform_win_title',
 	active:true,
     window:win4
 });
@@ -69,11 +62,11 @@ var tab4 = Titanium.UI.createTab({
 //
 var win5 = Titanium.UI.createWindow({
     url:'main_windows/mashups.js',
-    title:'Mashups'
+    titleid:'mashups_win_title'
 });
 var tab5 = Titanium.UI.createTab({
     icon:'images/tabs/KS_nav_mashup.png',
-    title:'Mashups',
+    titleid:'mashups_win_title',
     window:win5
 });
 
@@ -125,6 +118,7 @@ var messageWin = Titanium.UI.createWindow({
 	]
 });
 var messageView = Titanium.UI.createView({
+	id:'messageview',
 	height:30,
 	width:250,
 	borderRadius:10,
@@ -134,6 +128,7 @@ var messageView = Titanium.UI.createView({
 });
 
 var messageLabel = Titanium.UI.createLabel({
+	id:'messagelabel',
 	text:'',
 	color:'#fff',
 	width:250,
@@ -300,10 +295,25 @@ Titanium.App.addEventListener('close',function(e)
 // test for loading in a root-level include
 Ti.include("welcome.js");
 
-// test out logging to developer console
-Ti.API.info("Welcome to Kitchen Sink for Titanium/"+Titanium.version);
-Ti.API.debug("user agent set to "+Titanium.userAgent);
+// test out logging to developer console, formatting and localization
+Ti.API.info(String.format("%s%s",L("welcome_message","default_not_set"),Titanium.version));
+Ti.API.debug(String.format("%s %s",L("user_agent_message","default_not_set"),Titanium.userAgent));
+
+Ti.API.debug(String.format("locale specific date is %s",String.formatDate(new Date))); // default is short
+Ti.API.debug(String.format("locale specific date (medium) is %s",String.formatDate(new Date,"medium")));
+Ti.API.debug(String.format("locale specific date (long) is %s",String.formatDate(new Date,"long")));
+Ti.API.debug(String.format("locale specific time is %s",String.formatTime(new Date)));
+Ti.API.debug(String.format("locale specific currency is %s",String.formatCurrency(12.99)));
+Ti.API.debug(String.format("locale specific decimal is %s",String.formatDecimal(12.99)));
 
 
+Ti.API.info("should be en, was = "+Ti.Locale.currentLanguage);
+Ti.API.info("welcome_message = "+Ti.Locale.getString("welcome_message"));
+Ti.API.info("should be def, was = "+Ti.Locale.getString("welcome_message2","def"));
+Ti.API.info("welcome_message = "+L("welcome_message"));
+Ti.API.info("should be def, was = "+L("welcome_message2","def"));
+Ti.API.info("should be 1, was = "+String.format('%d',1));
+Ti.API.info("should be 1.0, was = "+String.format('%1.1f',1));
+Ti.API.info("should be hello, was = "+String.format('%s','hello'));
 
 

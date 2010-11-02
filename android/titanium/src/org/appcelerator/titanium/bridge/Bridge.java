@@ -14,7 +14,7 @@ public abstract class Bridge
 
 	}
 
-	public abstract void boot(String Url /*TiProxy window*/);
+	public abstract void boot(String Url /*KrollProxy window*/);
 	public abstract void gc();
 	public abstract void shutdown();
 }

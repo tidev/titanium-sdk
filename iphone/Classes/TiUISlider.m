@@ -15,6 +15,8 @@
 -(void)dealloc
 {
 	[sliderView removeTarget:self action:@selector(sliderChanged:) forControlEvents:UIControlEventValueChanged];
+	[sliderView removeTarget:self action:@selector(sliderBegin:) forControlEvents:UIControlEventTouchDown];
+	[sliderView removeTarget:self action:@selector(sliderEnd:) forControlEvents:(UIControlEventTouchUpInside | UIControlEventTouchUpOutside)];
 	RELEASE_TO_NIL(sliderView);
 	[super dealloc];
 }
@@ -33,6 +35,8 @@
 		[sliderView setValue:0 animated:NO];
 		
 		[sliderView addTarget:self action:@selector(sliderChanged:) forControlEvents:UIControlEventValueChanged];
+		[sliderView addTarget:self action:@selector(sliderBegin:) forControlEvents:UIControlEventTouchDown];
+		[sliderView addTarget:self action:@selector(sliderEnd:) forControlEvents:(UIControlEventTouchUpInside | UIControlEventTouchUpOutside)];
 		[self addSubview:sliderView];
 	}
 	return sliderView;
@@ -175,6 +179,23 @@ USE_PROXY_FOR_VERIFY_AUTORESIZING
 	}
 }
 
+-(IBAction)sliderBegin:(id)sender
+{
+	NSNumber * newValue = [NSNumber numberWithFloat:[(UISlider*)sender value]];
+	if ([[self proxy] _hasListeners:@"touchstart"])
+	{
+		[[self proxy] fireEvent:@"touchstart" withObject:[NSDictionary dictionaryWithObject:newValue forKey:@"value"]];
+	 }
+}
+
+-(IBAction)sliderEnd:(id)sender
+{
+	NSNumber * newValue = [NSNumber numberWithFloat:[(UISlider*)sender value]];
+	if ([[self proxy] _hasListeners:@"touchend"])
+	{
+		[[self proxy] fireEvent:@"touchend" withObject:[NSDictionary dictionaryWithObject:newValue forKey:@"value"]];
+	}
+}
 
 @end
 

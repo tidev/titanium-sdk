@@ -8,10 +8,9 @@ package ti.modules.titanium.ui.widget;
 
 import java.util.concurrent.Semaphore;
 
-import org.appcelerator.titanium.TiDict;
-import org.appcelerator.titanium.TiProxy;
+import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.titanium.proxy.TiViewProxy;
-import org.appcelerator.titanium.util.AsyncResult;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiConvert;
@@ -19,13 +18,11 @@ import org.appcelerator.titanium.view.TiUIView;
 import org.json.JSONObject;
 
 import ti.modules.titanium.ui.TableViewProxy;
-import ti.modules.titanium.ui.ViewProxy;
 import ti.modules.titanium.ui.widget.searchbar.TiUISearchBar;
 import ti.modules.titanium.ui.widget.tableview.TableViewModel;
 import ti.modules.titanium.ui.widget.tableview.TiTableView;
 import ti.modules.titanium.ui.widget.tableview.TiTableView.OnItemClickedListener;
 import android.os.Handler;
-import android.os.Message;
 import android.view.Gravity;
 import android.widget.RelativeLayout;
 
@@ -69,7 +66,7 @@ public class TiUITableView extends TiUIView
 	}
 
 	@Override
-	public void onClick(TiDict data) {
+	public void onClick(KrollDict data) {
 		proxy.fireEvent(EVENT_CLICK, data);
 	}
 	
@@ -90,7 +87,7 @@ public class TiUITableView extends TiUIView
 	}
 
 	@Override
-	public void processProperties(TiDict d)
+	public void processProperties(KrollDict d)
 	{
 		tableView = new TiTableView(proxy.getTiContext(), (TableViewProxy) proxy);
 		tableView.setOnItemClickListener(this);
@@ -133,7 +130,7 @@ public class TiUITableView extends TiUIView
 			tableView.setFilterAttribute(TiConvert.toString(d, "filterAttribute"));
 		} else {
 			// Default to title to match iPhone default.
-			proxy.internalSetDynamicValue("filterAttribute", "title", false);
+			proxy.setProperty("filterAttribute", "title", false);
 			tableView.setFilterAttribute("title");
 		}
 		
@@ -301,7 +298,7 @@ public class TiUITableView extends TiUIView
 
 	@Override
 	public void propertyChanged(String key, Object oldValue, Object newValue,
-			TiProxy proxy) {
+			KrollProxy proxy) {
 		if (DBG) {
 			Log.d(LCAT, "Property: " + key + " old: " + oldValue + " new: " + newValue);
 		}
@@ -311,7 +308,7 @@ public class TiUITableView extends TiUIView
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}
 	}
-
+	
 	private void acquireModifySemaphore() {
 		try {
 			modifySemaphore.acquire();

@@ -29,10 +29,6 @@ elif ARGUMENTS.get('PRODUCT_VERSION', 0):
 # in order to get it into build.properties
 p = subprocess.Popen(["git","show","--abbrev-commit"],stderr=subprocess.PIPE, stdout=subprocess.PIPE)
 githash = p.communicate()[0][8:].split('\n')[0]
-
-# we clean at the top-level but do incremental at the specific folder level
-if os.path.exists('android/titanium/bin'):
-	shutil.rmtree('android/titanium/bin')
 	
 #
 # this is messy, but i don't care, scons makes it too
@@ -54,6 +50,7 @@ if ARGUMENTS.get("package",0):
 	only_package = True
 
 clean = "clean" in COMMAND_LINE_TARGETS or ARGUMENTS.get("clean", 0)
+run_drillbit = "drillbit" in COMMAND_LINE_TARGETS or ARGUMENTS.get("drillbit",0)
 
 if clean and os.path.exists('iphone/iphone/build'):
 	shutil.rmtree('iphone/iphone/build')
@@ -84,9 +81,11 @@ if build_type in ['full', 'android'] and not only_package:
 	os.chdir('android')
 	try:
 		sdk = AndroidSDK(ARGUMENTS.get("android_sdk", None), 4)
-		target = ""
-		if clean: target = "clean"
-		ant.build(target=target, properties={"build.version": version, "build.githash": githash,
+		targets = ["full.build", "build.titanium.javadoc"]
+		if clean: targets = ["clean"]
+		elif "ant_targets" in ARGUMENTS: targets = ARGUMENTS["ant_targets"].split(",")
+			
+		ant.build(targets=targets, properties={"build.version": version, "build.githash": githash,
 			"android.sdk": sdk.get_android_sdk(), "android.platform": sdk.get_platform_dir(), "google.apis": sdk.get_google_apis_dir()})
 	finally:
 		os.chdir(d)
@@ -125,6 +124,16 @@ def package_sdk(target, source, env):
 package_builder = Builder(action = package_sdk)
 env.Append(BUILDERS = {'PackageMobileSDK': package_builder})
 env.PackageMobileSDK("#dummy-sdk-target", [])
+
+def drillbit_builder(target, source, env):
+	sys.path.append("drillbit")
+	import drillbit
+	drillbit.build_and_run(android_sdk=sdk.get_android_sdk())
+
+if run_drillbit:
+	drillbit = Builder(action = drillbit_builder)
+	env.Append(BUILDERS = {'BuildAndRunDrillbit': drillbit})
+	env.BuildAndRunDrillbit('#dummy-drillbit-target', [])
 
 if clean:
 	# don't error 

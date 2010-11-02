@@ -6,10 +6,10 @@
  */
 package org.appcelerator.titanium.bridge;
 
-import org.appcelerator.titanium.TiProxy;
+import org.appcelerator.kroll.KrollProxy;
 
 public interface OnEventListenerChange
 {
-	void eventListenerAdded(String eventName, int count, TiProxy proxy);
-	void eventListenerRemoved(String eventName, int count, TiProxy proxy);
+	void eventListenerAdded(String eventName, int count, KrollProxy proxy);
+	void eventListenerRemoved(String eventName, int count, KrollProxy proxy);
 }

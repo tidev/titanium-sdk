@@ -258,7 +258,9 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 -(void)_tabFocus
 {
 	focused = YES;
-	[[[TiApp app] controller] windowFocused:[self controller]];
+	if (!navWindow) {
+		[[[TiApp app] controller] windowFocused:[self controller]];
+	}
 }
 
 -(void)_tabBlur
@@ -352,7 +354,6 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 	// false to delay for some other action
 	if ([self _handleOpen:args])
 	{
-		
 		// ensure on open that we've created our view before we start to use it
 		[self view];
 		[self windowWillOpen];

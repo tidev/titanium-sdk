@@ -20,76 +20,6 @@
 
 #pragma mark Internal
 
--(id)_initWithPageContext:(id<TiEvaluator>)context_ args:(NSArray*)args
-{
-	if (self = [super _initWithPageContext:context_ args:args])
-	{
-		[[TiMediaAudioSession sharedSession] startAudioSession];
-		
-		id arg = args!=nil && [args count] > 0 ? [args objectAtIndex:0] : nil;
-		if (arg!=nil)
-		{
-			if ([arg isKindOfClass:[NSDictionary class]])
-			{
-				NSString *urlStr = [TiUtils stringValue:@"url" properties:arg];
-				if (urlStr!=nil)
-				{
-					url = [[TiUtils toURL:urlStr proxy:self] retain];
-					
-					if ([url isFileURL]==NO)
-					{
-						// we need to download it and save it off into temp file
-						NSData *data = [NSData dataWithContentsOfURL:url];
-						NSString *ext = [[[url path] lastPathComponent] pathExtension];
-						tempFile = [[TiFile createTempFile:ext] retain]; // file auto-deleted on release
-						[data writeToFile:[tempFile path] atomically:YES];
-						RELEASE_TO_NIL(url);
-						url = [[NSURL fileURLWithPath:[tempFile path]] retain];
-					}
-				}
-				if (url==nil)
-				{
-					id obj = [arg objectForKey:@"sound"];
-					if (obj!=nil)
-					{
-						if ([obj isKindOfClass:[TiBlob class]])
-						{
-							TiBlob *blob = (TiBlob*)obj;
-							//TODO: for now we're only supporting File-type blobs
-							if ([blob type]==TiBlobTypeFile)
-							{
-								url = [[NSURL fileURLWithPath:[blob path]] retain];
-							}
-						}
-						else if ([obj isKindOfClass:[TiFile class]])
-						{
-							url = [[NSURL fileURLWithPath:[(TiFile*)obj path]] retain];
-						}
-					}
-				}
-                int initialMode = [TiUtils intValue:@"audioSessionMode" 
-                                         properties:arg
-                                                def:[[TiMediaAudioSession sharedSession] defaultSessionMode]];
-                [self setAudioSessionMode:[NSNumber numberWithInt:initialMode]];
-			}
-			if (url==nil)
-			{
-				[self throwException:@"no 'url' or 'sound' specified or invalid value" subreason:nil location:CODELOCATION];
-			}
-		}
-		volume = 1.0;
-		resumeTime = 0;
-
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0		
-		if ([TiUtils isIOS4OrGreater])
-		{
-			[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(remoteControlEvent:) name:kTiRemoteControlNotification object:nil];
-		}
-#endif
-	}
-	return self;
-}
-
 -(void)configurationSet
 {
 	if (url!=nil)
@@ -104,18 +34,34 @@
 	}
 }
 
+-(void)_configure
+{
+	volume = 1.0;
+	resumeTime = 0;
+	
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0		
+	if ([TiUtils isIOS4OrGreater])
+	{
+		WARN_IF_BACKGROUND_THREAD_OBJ;	//NSNotificationCenter is not threadsafe!
+		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(remoteControlEvent:) name:kTiRemoteControlNotification object:nil];
+	}
+#endif
+}
+
 -(void)_destroy
 {
 	if (player!=nil)
 	{
-		[player stop];
+		if ([player isPlaying] || paused) {
+			[player stop];
+			[[TiMediaAudioSession sharedSession] stopAudioSession];
+		}
 		[player setDelegate:nil];
 	}
-	
-	[[TiMediaAudioSession sharedSession] stopAudioSession];
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0	
 	if ([TiUtils isIOS4OrGreater])
 	{
+		WARN_IF_BACKGROUND_THREAD_OBJ;	//NSNotificationCenter is not threadsafe!
 		[[NSNotificationCenter defaultCenter] removeObserver:self];
 	}
 #endif	
@@ -131,6 +77,10 @@
 {
 	if (player==nil)
 	{
+		// We do the same thing as the video player and fail silently, now.
+		if (url == nil) {
+			return nil;
+		}
 		NSError *error = nil;
 		player = [[AVAudioPlayer alloc] initWithContentsOfURL:url error:(NSError **)&error];
 		if (error != nil)
@@ -156,19 +106,29 @@
 
 -(void)play:(id)args
 {
-	// indicate we're going to start playing
-	[[TiMediaAudioSession sharedSession] playback:sessionMode];
+	// indicate we're going to start playback
+	if (![[TiMediaAudioSession sharedSession] canPlayback]) {
+		[self throwException:@"Improper audio session mode for playback"
+				   subreason:[[NSNumber numberWithUnsignedInt:[[TiMediaAudioSession sharedSession] sessionMode]] description]
+					location:CODELOCATION];
+	}
 	
-	paused = NO;
+	if (player == nil || !([player isPlaying] || paused)) {
+		[[TiMediaAudioSession sharedSession] startAudioSession];
+	}
 	[[self player] play];
+	paused = NO;
 }
 
 -(void)stop:(id)args
 {
 	if (player!=nil)
 	{
-		[player stop];
-		[player setCurrentTime:0];
+		if ([player isPlaying] || paused) {
+			[player stop];
+			[player setCurrentTime:0];
+			[[TiMediaAudioSession sharedSession] stopAudioSession];
+		}
 	}
 	resumeTime = 0;
 	paused = NO;
@@ -187,6 +147,10 @@
 {
 	if (player!=nil)
 	{
+		if (!([player isPlaying] || paused)) {
+			[[TiMediaAudioSession sharedSession] startAudioSession];
+		}
+		
 		[player stop];
 		[player setCurrentTime:0];
 		[player play];
@@ -326,6 +290,44 @@
 	return [self isLooping:nil];
 }
 
+-(void)setUrl:(id)url_
+{
+	if ([url_ isKindOfClass:[NSString class]])
+	{
+		url = [[TiUtils toURL:url_ proxy:self] retain];
+		
+		if ([url isFileURL]==NO)
+		{
+			// we need to download it and save it off into temp file
+			NSData *data = [NSData dataWithContentsOfURL:url];
+			NSString *ext = [[[url path] lastPathComponent] pathExtension];
+			tempFile = [[TiFile createTempFile:ext] retain]; // file auto-deleted on release
+			[data writeToFile:[tempFile path] atomically:YES];
+			RELEASE_TO_NIL(url);
+			url = [[NSURL fileURLWithPath:[tempFile path]] retain];
+		}
+	}
+	else if ([url_ isKindOfClass:[TiBlob class]])
+	{
+		TiBlob *blob = (TiBlob*)url_;
+		//TODO: for now we're only supporting File-type blobs
+		if ([blob type]==TiBlobTypeFile)
+		{
+			url = [[NSURL fileURLWithPath:[blob path]] retain];
+		}
+	}
+	else if ([url_ isKindOfClass:[TiFile class]])
+	{
+		url = [[NSURL fileURLWithPath:[(TiFile*)url_ path]] retain];
+	}
+}
+
+// For backwards compatibility
+-(void)setSound:(id)sound
+{
+	[self setUrl:sound];
+}
+
 -(NSURL*)url
 {
 	return url;
@@ -338,12 +340,14 @@
         NSLog(@"[WARN] Invalid mode for audio player... setting to default.");
         newMode = kAudioSessionCategory_SoloAmbientSound;
     }
-    sessionMode = newMode;
+	NSLog(@"'Titanium.Media.Sound.audioSessionMode' is deprecated; use 'Titanium.Media.audioSessionMode'");
+	[[TiMediaAudioSession sharedSession] setSessionMode:newMode];
 }
 
 -(NSNumber*)audioSessionMode
 {
-    return [NSNumber numberWithUnsignedInteger:sessionMode];
+	NSLog(@"'Titanium.Media.Sound.audioSessionMode' is deprecated; use 'Titanium.Media.audioSessionMode'");
+    return [NSNumber numberWithUnsignedInteger:[[TiMediaAudioSession sharedSession] sessionMode]];
 }
 
 #pragma mark Delegate
@@ -354,6 +358,9 @@
 	{
 		NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:NUMBOOL(flag),@"success",nil];
 		[self fireEvent:@"complete" withObject:event];
+	}
+	if (flag) {
+		[[TiMediaAudioSession sharedSession] stopAudioSession];
 	}
 }
 

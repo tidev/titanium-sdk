@@ -25,7 +25,7 @@
 }
 
 -(void)_refreshBackButton;
--(void)boot:(BOOL)timeout;
+-(void)boot:(BOOL)timeout args:(id)args;
 
 @end
 

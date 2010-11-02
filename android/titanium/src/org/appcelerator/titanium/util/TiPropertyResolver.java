@@ -6,16 +6,16 @@
  */
 package org.appcelerator.titanium.util;
 
-import org.appcelerator.titanium.TiDict;
+import org.appcelerator.kroll.KrollDict;
 
 public class TiPropertyResolver
 {
-	private TiDict[] propSets;
+	private KrollDict[] propSets;
 
-	public TiPropertyResolver(TiDict... propSets)
+	public TiPropertyResolver(KrollDict... propSets)
 	{
 		int len = propSets.length;
-		this.propSets = new TiDict[len];
+		this.propSets = new KrollDict[len];
 		for (int i = 0; i < len; i++) {
 			this.propSets[i] = propSets[i];
 		}
@@ -28,11 +28,11 @@ public class TiPropertyResolver
 		propSets = null;
 	}
 
-	public TiDict findProperty(String key)
+	public KrollDict findProperty(String key)
 	{
-		TiDict result = null;
+		KrollDict result = null;
 
-		for(TiDict d : propSets) {
+		for(KrollDict d : propSets) {
 			if (d != null) {
 				if (d.containsKey(key)) {
 					result = d;
@@ -48,7 +48,7 @@ public class TiPropertyResolver
 	{
 		boolean found = false;
 
-		for(TiDict d : propSets) {
+		for(KrollDict d : propSets) {
 			if (d != null) {
 				for (String key : keys) {
 					if (d.containsKey(key)) {

@@ -1,0 +1,18 @@
+#appname: drillbit_cmd
+#version:0.5.0
+#appid: com.titaniumapp.drillbit_cmd
+#guid: 68FC5BD1-CE49-43C8-A694-1E3275599A8A
+#version: 0.4.4
+#publisher: Appcelerator
+#url: http://appcelerator.org
+#loglevel: ERROR
+runtime:0.x
+tiapp:0.x
+tinetwork:0.x
+tifilesystem:0.x
+tiplatform:0.x
+tiprocess:0.x
+timonkey:0.x
+tidatabase:0.x
+drillbit:0.1.0
+drillbit_cmd:0.1.0

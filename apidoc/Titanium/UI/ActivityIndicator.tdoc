@@ -25,6 +25,9 @@ color[string]: the color of the message label
 message[string]: the activity message label text
 style[int]: the style constant of the activity indicator
 
+# 1.5
+messageid[string]: the key in the locale file to use for the message property
+
 
 - methods
 

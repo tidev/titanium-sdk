@@ -8,6 +8,7 @@
 #import "TiProxy.h"
 #import "Bridge.h"
 #import "TiEvaluator.h"
+#import "TiStylesheet.h"
 
 @interface TiHost : NSObject 
 {
@@ -15,11 +16,13 @@
 	NSMutableDictionary *contexts;
 	NSURL *startURL;
 	NSURL *baseURL;
+	TiStylesheet *stylesheet;
 }
 
 -(NSString*)appID;
 -(NSURL*)baseURL;
 -(NSURL*)startURL;
+-(TiStylesheet*)stylesheet;
 
 +(NSURL*)resourceBasedURL:(NSString*)fn baseURL:(NSString**)base;
 

@@ -25,6 +25,11 @@
 	[super _configure];
 }
 
+-(NSMutableDictionary*)langConversionTable
+{
+    return [NSMutableDictionary dictionaryWithObject:@"title" forKey:@"titleid"];
+}
+
 -(void)setStyle:(id)value
 {
 	styleCache = [TiUtils intValue:value def:UIButtonTypeCustom];

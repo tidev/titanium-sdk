@@ -134,6 +134,7 @@ USE_VIEW_FOR_AUTO_WIDTH
 {
 	[self _destroy];
 	NSNotification *notification = [NSNotification notificationWithName:kTiContextShutdownNotification object:self];
+	WARN_IF_BACKGROUND_THREAD_OBJ;	//NSNotificationCenter is not threadsafe!
 	[[NSNotificationCenter defaultCenter] postNotification:notification];
 	[super windowDidClose];
 }
@@ -196,6 +197,11 @@ USE_VIEW_FOR_AUTO_WIDTH
 -(void)evalJSWithoutResult:(NSString*)code
 {
 	[self evalJS:code];
+}
+
+- (NSString*)basename
+{
+	return nil;
 }
 
 

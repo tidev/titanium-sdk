@@ -16,8 +16,7 @@
 	CGFloat max;
 	CGFloat min;
 	
-	WebFont * fontDesc;
-	UIColor * textColor;
+	BOOL requiresLayout;
 	UILabel * messageLabel;
 }
 

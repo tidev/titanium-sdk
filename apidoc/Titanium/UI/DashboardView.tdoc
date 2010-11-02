@@ -49,6 +49,14 @@ delete: fired when a  [[Titanium.UI.DashboardItem]] is deleted during editings
 item: the [[Titanium.UI.DashboardItem]] that was clicked
 location: the location object with the properties `x` and `y` of where in the parent view the click was
 
+- event : dragStart
+
+item: the [[Titanium.UI.DashboardItem]] that will be dragged
+
+- event : dragEnd
+
+item: the [[Titanium.UI.DashboardItem]] that was dragged (not necessarily moved)
+
 - event : move
 
 item: the [[Titanium.UI.DashboardItem]] that was moved

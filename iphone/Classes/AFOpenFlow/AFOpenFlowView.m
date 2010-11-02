@@ -102,7 +102,12 @@ const static CGFloat kReflectionFraction = 0.85;
 		if (coverImageHeightNumber)
 			[aCover setImage:coverImage originalImageHeight:[coverImageHeightNumber floatValue] reflectionFraction:kReflectionFraction];
 	} else {
-		[aCover setImage:defaultImage originalImageHeight:defaultImageHeight reflectionFraction:kReflectionFraction];
+		// Bugfix for invalid defaultImage - SPT
+		UIImage* cover = defaultImage;
+		if (cover == nil) {
+			cover = [self.dataSource defaultImage];
+		}
+		[aCover setImage:cover originalImageHeight:defaultImageHeight reflectionFraction:kReflectionFraction];
 		[self.dataSource openFlowView:self requestImageForIndex:aCover.number];
 	}
 }

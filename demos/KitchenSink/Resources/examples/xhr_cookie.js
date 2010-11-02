@@ -41,7 +41,9 @@ var label = Titanium.UI.createLabel({
 });
 
 var navActInd = Titanium.UI.createActivityIndicator();
-win.setRightNavButton(navActInd);
+if (Titanium.Platform.name == 'iPhone OS') {
+	win.setRightNavButton(navActInd);
+}
 
 
 var gReader = 

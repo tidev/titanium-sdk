@@ -93,6 +93,38 @@
 	}
 }
 
+- (void)launcherView:(LauncherView*)launcher_ willDragItem:(LauncherItem*)item
+{
+	NSMutableDictionary *event = [NSMutableDictionary dictionary];
+	// the actual item being moved
+	[event setObject:item.userData forKey:@"item"];
+	
+	if ([self.proxy _hasListeners:@"dragStart"])
+	{
+		[self.proxy fireEvent:@"dragStart" withObject:event];
+	}
+	if ([item.userData _hasListeners:@"dragStart"])
+	{
+		[item.userData fireEvent:@"dragStart" withObject:event];
+	}
+}
+
+- (void)launcherView:(LauncherView*)launcher_ didDragItem:(LauncherItem*)item
+{
+	NSMutableDictionary *event = [NSMutableDictionary dictionary];
+	// the actual item being moved
+	[event setObject:item.userData forKey:@"item"];
+	
+	if ([self.proxy _hasListeners:@"dragEnd"])
+	{
+		[self.proxy fireEvent:@"dragEnd" withObject:event];
+	}
+	if ([item.userData _hasListeners:@"dragEnd"])
+	{
+		[item.userData fireEvent:@"dragEnd" withObject:event];
+	}
+}
+
 - (void)launcherView:(LauncherView*)launcher_ didMoveItem:(LauncherItem*)item
 {
 	NSMutableDictionary *event = [NSMutableDictionary dictionary];

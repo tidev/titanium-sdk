@@ -6,8 +6,8 @@
  */
 package ti.modules.titanium.ui.widget;
 
-import org.appcelerator.titanium.TiDict;
-import org.appcelerator.titanium.TiProxy;
+import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
@@ -19,6 +19,7 @@ import ti.modules.titanium.ui.TabGroupProxy;
 import ti.modules.titanium.ui.TabProxy;
 import ti.modules.titanium.ui.TiTabActivity;
 import android.graphics.drawable.ColorDrawable;
+import android.view.View;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
@@ -36,9 +37,10 @@ public class TiUITabGroup extends TiUIView
 	private TabHost tabHost;
 	private TabWidget tabWidget;
 	private FrameLayout tabContent;
+	private boolean addingTab;
 
 	private String lastTabId;
-	private TiDict tabChangeEventData;
+	private KrollDict tabChangeEventData;
 
 	public TiUITabGroup(TiViewProxy proxy, TiTabActivity activity)
 	{
@@ -62,13 +64,13 @@ public class TiUITabGroup extends TiUIView
 		tabContent.setId(android.R.id.tabcontent);
 
 		tabHost.addView(tabWidget, new LinearLayout.LayoutParams(
-                  LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT));
+			LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT));
 		tabHost.addView(tabContent, new LinearLayout.LayoutParams(
-                  LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
+			LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
 		//tabHost.setup(proxy.getTiContext().getRootActivity().getLocalActivityManager());
 		tabHost.setup(activity.getLocalActivityManager());
 
-        tabHost.setBackgroundDrawable(new ColorDrawable(TiConvert.toColor("#ff1a1a1a")));
+		tabHost.setBackgroundDrawable(new ColorDrawable(TiConvert.toColor("#ff1a1a1a")));
 
 		setNativeView(tabHost);
 		TiCompositeLayout.LayoutParams params = new TiCompositeLayout.LayoutParams();
@@ -76,7 +78,7 @@ public class TiUITabGroup extends TiUIView
 		params.autoFillsWidth = true;
 		activity.getLayout().addView(tabHost, params);
 
-  		lastTabId = null;
+		lastTabId = null;
 	}
 
 	public TabSpec newTab(String id)
@@ -85,7 +87,9 @@ public class TiUITabGroup extends TiUIView
 	}
 
 	public void addTab(TabSpec tab) {
+		addingTab = true;
 		tabHost.addTab(tab);
+		addingTab = false;
 	}
 
 	public void setActiveTab(int index) {
@@ -95,7 +99,7 @@ public class TiUITabGroup extends TiUIView
 	}
 
 	@Override
-	protected TiDict getFocusEventObject(boolean hasFocus) {
+	protected KrollDict getFocusEventObject(boolean hasFocus) {
 		if (tabChangeEventData == null) {
 			TabHost th = (TabHost) getNativeView();
 			return ((TabGroupProxy) proxy).buildFocusEvent(th.getCurrentTabTag(), lastTabId);
@@ -105,15 +109,30 @@ public class TiUITabGroup extends TiUIView
 	}
 
 	@Override
+	public void onFocusChange(View v, boolean hasFocus) {
+		// ignore focus change for tab group.
+		// we can simply fire focus/blur from onTabChanged (to avoid chicken/egg event problems)
+	}
+	
+	@Override
 	public void onTabChanged(String id)
 	{
 		if (DBG) {
 			Log.i(LCAT,"Tab change from " + lastTabId + " to " + id);
 		}
 
-		tabChangeEventData = ((TabGroupProxy) proxy).buildFocusEvent(id, lastTabId);
+		if (!addingTab) {
+			TabGroupProxy tabGroupProxy = ((TabGroupProxy) proxy);
+			if (tabChangeEventData != null) {
+				proxy.fireEvent("blur", tabChangeEventData);
+			}
+			
+			tabChangeEventData = tabGroupProxy.buildFocusEvent(id, lastTabId);
+			proxy.fireEvent("focus", tabChangeEventData);
+		}
+		
 		lastTabId = id;
-		proxy.internalSetDynamicValue("activeTab", tabHost.getCurrentTab(), false);
+		proxy.setProperty("activeTab", tabHost.getCurrentTab());
 	}
 
 	public void changeActiveTab(Object t) {
@@ -132,7 +151,7 @@ public class TiUITabGroup extends TiUIView
 				}
 			} else if (t instanceof TabProxy) {
 				TabProxy tab = (TabProxy) t;
-				String tag = TiConvert.toString(tab.getDynamicValue("tag"));
+				String tag = TiConvert.toString(tab.getProperty("tag"));
 				if (tag != null) {
 					tabHost.setCurrentTabByTag(tag);
 				}
@@ -143,7 +162,7 @@ public class TiUITabGroup extends TiUIView
 	}
 
 	@Override
-	public void propertyChanged(String key, Object oldValue, Object newValue, TiProxy proxy)
+	public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy proxy)
 	{
 		if ("activeTab".equals(key)) {
 			changeActiveTab(newValue);
@@ -151,13 +170,4 @@ public class TiUITabGroup extends TiUIView
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}
 	}
-
-	/*@Override
-	public void release()
-	{
-		super.release();
-		tabHost = null;
-		nativeView = null;
-		
-	}*/
 }

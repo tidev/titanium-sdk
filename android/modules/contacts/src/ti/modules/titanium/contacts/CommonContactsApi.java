@@ -152,6 +152,13 @@ public abstract class CommonContactsApi
 			this.hasImage = (cursor.getInt(ContactsApiLevel5.DATA_COLUMN_PHOTO_ID) > 0);
 		}
 		
+		void addPersonInfoFromL5PersonRow(Cursor cursor)
+		{
+			this.id = cursor.getLong(ContactsApiLevel5.PEOPLE_COL_ID);
+			this.name = cursor.getString(ContactsApiLevel5.PEOPLE_COL_NAME);
+			this.hasImage = (cursor.getInt(ContactsApiLevel5.PEOPLE_COL_PHOTO_ID) > 0);
+		}
+		
 		void addDataFromL5Cursor(Cursor cursor) {
 			String kind = cursor.getString(ContactsApiLevel5.DATA_COLUMN_MIMETYPE);
 			if (kind.equals(ContactsApiLevel5.KIND_ADDRESS)) {
@@ -274,13 +281,13 @@ public abstract class CommonContactsApi
 		PersonProxy proxify(TiContext tiContext)
 		{
 			PersonProxy proxy = new PersonProxy(tiContext);
-			proxy.setFullName(name);
-			proxy.setNote(notes);
+			proxy.fullName = name;
+			proxy.note = notes;
 			proxy.setEmailFromMap(emails);
 			proxy.setPhoneFromMap(phones);
 			proxy.setAddressFromMap(addresses);
-			proxy.setKind(ContactsModule.CONTACTS_KIND_PERSON) ;
-			proxy.setId(id);
+			proxy.kind = ContactsModule.CONTACTS_KIND_PERSON;
+			proxy.id = id;
 			proxy.hasImage = this.hasImage;
 			return proxy;
 			

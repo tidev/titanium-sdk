@@ -6,19 +6,19 @@
  */
 package ti.modules.titanium.gesture;
 
+import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollModule;
+import org.appcelerator.kroll.KrollProxy;
+import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.ContextSpecific;
 import org.appcelerator.titanium.TiContext;
-import org.appcelerator.titanium.TiDict;
-import org.appcelerator.titanium.TiModule;
-import org.appcelerator.titanium.TiProxy;
 import org.appcelerator.titanium.TiContext.OnConfigurationChanged;
 
 import ti.modules.titanium.ui.UIModule;
-
 import android.content.res.Configuration;
 
-@ContextSpecific
-public class GestureModule extends TiModule
+@Kroll.module @ContextSpecific
+public class GestureModule extends KrollModule
 	implements OnConfigurationChanged
 {
 	public static final String EVENT_ONCONFIGCHANGE = "orientationchange";
@@ -29,11 +29,11 @@ public class GestureModule extends TiModule
 	{
 		super(tiContext);
 		listeningForOrientation = false;
-		tiContext.addOnEventChangeListener(this);
+		eventManager.addOnEventChangeListener(this);
 	}
 
 	@Override
-	public void listenerAdded(String type, int count, TiProxy proxy)
+	public void listenerAdded(String type, int count, KrollProxy proxy)
 	{
 		super.listenerAdded(type, count, proxy);
 
@@ -46,7 +46,7 @@ public class GestureModule extends TiModule
 	}
 
 	@Override
-	public void listenerRemoved(String type, int count, TiProxy proxy)
+	public void listenerRemoved(String type, int count, KrollProxy proxy)
 	{
 		super.listenerRemoved(type, count, proxy);
 		if (type != null && EVENT_ONCONFIGCHANGE.equals(this)) {
@@ -60,7 +60,7 @@ public class GestureModule extends TiModule
 	@Override
 	public void configurationChanged(Configuration newConfig)
 	{
-		TiDict data = new TiDict();
+		KrollDict data = new KrollDict();
 		data.put("orientation", convertToTiOrientation(newConfig.orientation));
 		fireEvent(EVENT_ONCONFIGCHANGE, data);
 	}
@@ -69,14 +69,17 @@ public class GestureModule extends TiModule
 		return getTiContext().getActivity().getResources().getConfiguration();
 	}
 
+	@Kroll.getProperty @Kroll.method
 	public boolean isPortrait() {
 		return getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT;
 	}
 
+	@Kroll.getProperty @Kroll.method
 	public boolean isLandscape() {
 		return getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE;
 	}
 
+	@Kroll.getProperty @Kroll.method
 	public int getOrientation() {
 		return convertToTiOrientation(getConfiguration().orientation);
 	}

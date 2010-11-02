@@ -187,7 +187,7 @@ class Projector(object):
 		# we do special processing here
 		c = open(src_xcode_proj).read()
 		c = self.process_xcode(c)
-		f = open(os.path.join(out_dir,'%s.xcodeproj'%self.name,'project.pbxproj'),'w')
+		f = codecs.open(os.path.join(out_dir,'%s.xcodeproj'%self.name,'project.pbxproj'),'w',encoding='utf-8')
 		f.write(c)
 		f.close()
 		

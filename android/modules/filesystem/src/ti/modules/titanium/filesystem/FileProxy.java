@@ -12,6 +12,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
+import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiFile;
@@ -22,6 +23,7 @@ import org.appcelerator.titanium.util.TiFileHelper2;
 
 import android.net.Uri;
 
+@Kroll.proxy
 public class FileProxy extends TiFile
 {
 
@@ -88,26 +90,32 @@ public class FileProxy extends TiFile
 		return tbf;
 	}
 
+	@Kroll.method
 	public boolean isFile() {
 		return tbf.isFile();
 	}
 
+	@Kroll.method
 	public boolean isDirectory() {
 		return tbf.isDirectory();
 	}
 
+	@Kroll.getProperty @Kroll.method
 	public boolean getReadonly() {
 		return tbf.isReadonly();
 	}
 
+	@Kroll.getProperty @Kroll.method
 	public boolean getWritable() {
 		return tbf.isWriteable();
 	}
 
+	@Kroll.method
 	public boolean copy (String destination) throws IOException {
 		return tbf.copy(destination);
 	}
 
+	@Kroll.method
 	public boolean createDirectory(Object arg) {
 		boolean recursive = true;
 
@@ -117,6 +125,7 @@ public class FileProxy extends TiFile
 		return tbf.createDirectory(recursive);
 	}
 
+	@Kroll.method
 	public boolean deleteDirectory(Object arg) {
 		boolean recursive = false;
 
@@ -126,85 +135,103 @@ public class FileProxy extends TiFile
 		return tbf.deleteDirectory(recursive);
 	}
 
+	@Kroll.method
 	public boolean deleteFile() {
 		return tbf.deleteFile();
 	}
 
+	@Kroll.method
 	public boolean exists() {
 		return tbf.exists();
 	}
 
+	@Kroll.method
 	public String extension() {
 		return tbf.extension();
 	}
 
+	@Kroll.getProperty @Kroll.method
 	public boolean getSymbolicLink() {
 		return tbf.isSymbolicLink();
 	}
 
+	@Kroll.getProperty @Kroll.method
 	public boolean getExecutable() {
 		return tbf.isExecutable();
 	}
 
+	@Kroll.getProperty @Kroll.method
 	public boolean getHidden() {
 		return tbf.isHidden();
 	}
 
+	@Kroll.getProperty @Kroll.method
 	public String[] getDirectoryListing()
 	{
 		List<String> dl = tbf.getDirectoryListing();
 		return dl != null ? dl.toArray(new String[0]) : null;
 	}
 
+	@Kroll.getProperty @Kroll.method
 	public FileProxy getParent()
 	{
 		TiBaseFile bf = tbf.getParent();
 		return bf != null ? new FileProxy(getTiContext(), bf) : null;
 	}
 
+	@Kroll.method
 	public boolean move(String destination)
 		throws IOException
 	{
 		return tbf.move(destination);
 	}
 
+	@Kroll.getProperty @Kroll.method
 	public String getName() {
 		return tbf.name();
 	}
 
+	@Kroll.getProperty @Kroll.method
 	public String getNativePath() {
 		return tbf.nativePath();
 	}
 
+	@Kroll.method
 	public TiBlob read()
 		throws IOException
 	{
 		return tbf.read();
 	}
 
+	@Kroll.method
 	public String readLine()
 		throws IOException
 	{
 		return tbf.readLine();
 	}
 
+	@Kroll.method
 	public boolean rename(String destination)
 	{
 		return tbf.rename(destination);
 	}
 
+	@Kroll.method
 	public TiBaseFile resolve() {
 		return tbf.resolve();
 	}
 
+	@Kroll.getProperty @Kroll.method
 	public double getSize() {
 		return tbf.size();
 	}
 
+	@Kroll.method
 	public double spaceAvailable() {
 		return tbf.spaceAvailable();
 	}
 
+	@Kroll.method
 	public void write(Object[] args)
 		throws IOException
 	{
@@ -223,17 +250,20 @@ public class FileProxy extends TiFile
 		}
 	}
 
+	@Kroll.method
 	public void writeLine(String data)
 		throws IOException
 	{
 		tbf.writeLine(data);
 	}
 	
+	@Kroll.method
 	public double createTimestamp() 
 	{
 		return tbf.createTimestamp();
 	}
 	
+	@Kroll.method
 	public double modificationTimestamp() 
 	{
 		return tbf.modificationTimestamp();

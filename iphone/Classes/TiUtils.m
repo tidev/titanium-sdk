@@ -111,6 +111,7 @@ extern NSString * const TI_APPLICATION_RESOURCE_DIR;
 						   VAL_OR_NSNULL(name),@"name",
 						   VAL_OR_NSNULL(data),@"data",
 						   nil];
+	WARN_IF_BACKGROUND_THREAD;	//NSNotificationCenter is not threadsafe!
 	[[NSNotificationCenter defaultCenter] postNotificationName:kTiAnalyticsNotification object:nil userInfo:event];
 }
 
@@ -487,6 +488,9 @@ extern NSString * const TI_APPLICATION_RESOURCE_DIR;
 	return url;
 }
 
+const CFStringRef charactersThatNeedEscaping = NULL;
+const CFStringRef charactersToNotEscape = CFSTR(":[]@!$ '()*+,;\"<>%{}|\\^~`#");
+
 +(NSURL*)toURL:(id)object proxy:(TiProxy*)proxy
 {
 	NSURL *url = nil;
@@ -505,14 +509,23 @@ extern NSString * const TI_APPLICATION_RESOURCE_DIR;
 		}
 		
 		// don't bother if we don't at least have a path and it's not remote
+		///TODO: This looks ugly and klugy.
 		NSString *urlString = [TiUtils stringValue:object];
 		if ([urlString hasPrefix:@"http"])
 		{
 			NSRange range = [urlString rangeOfString:@"/" options:0 range:NSMakeRange(7, [urlString length]-7)];
 			if (range.location!=NSNotFound)
 			{
-				NSString *path = [(NSString *)CFURLCreateStringByAddingPercentEscapes(kCFAllocatorDefault, (CFStringRef)[urlString substringFromIndex:range.location], CFSTR(":[]@!$ '()*+,;\"<>%{}|\\^~`"), NULL, CFStringConvertNSStringEncodingToEncoding(NSUTF8StringEncoding)) autorelease];
-				urlString = [NSString stringWithFormat:@"%@%@",[urlString substringToIndex:range.location],path];
+				NSString *firstPortion = [urlString substringToIndex:range.location];
+				NSString *pathPortion = [urlString substringFromIndex:range.location];
+				CFStringRef escapedPath = CFURLCreateStringByAddingPercentEscapes(kCFAllocatorDefault,
+						(CFStringRef)pathPortion, charactersToNotEscape,charactersThatNeedEscaping,
+						kCFStringEncodingUTF8);
+				urlString = [firstPortion stringByAppendingString:(NSString *)escapedPath];
+				if(escapedPath != NULL)
+				{
+					CFRelease(escapedPath);
+				}
 			}
 		}
 		
@@ -550,7 +563,7 @@ extern NSString * const TI_APPLICATION_RESOURCE_DIR;
 
 +(int)intValue:(NSString*)name properties:(NSDictionary*)properties def:(int)def exists:(BOOL*) exists
 {
-	if (properties != nil)
+	if ([properties isKindOfClass:[NSDictionary class]])
 	{
 		id value = [properties objectForKey:name];
 		if ([value respondsToSelector:@selector(intValue)])
@@ -565,7 +578,7 @@ extern NSString * const TI_APPLICATION_RESOURCE_DIR;
 
 +(double)doubleValue:(NSString*)name properties:(NSDictionary*)properties def:(double)def exists:(BOOL*) exists
 {
-	if (properties != nil)
+	if ([properties isKindOfClass:[NSDictionary class]])
 	{
 		id value = [properties objectForKey:name];
 		if ([value respondsToSelector:@selector(doubleValue)])
@@ -580,7 +593,7 @@ extern NSString * const TI_APPLICATION_RESOURCE_DIR;
 
 +(float)floatValue:(NSString*)name properties:(NSDictionary*)properties def:(float)def exists:(BOOL*) exists
 {
-	if (properties != nil)
+	if ([properties isKindOfClass:[NSDictionary class]])
 	{
 		id value = [properties objectForKey:name];
 		if ([value respondsToSelector:@selector(floatValue)])
@@ -595,7 +608,7 @@ extern NSString * const TI_APPLICATION_RESOURCE_DIR;
 
 +(BOOL)boolValue:(NSString*)name properties:(NSDictionary*)properties def:(BOOL)def exists:(BOOL*) exists
 {
-	if (properties != nil)
+	if ([properties isKindOfClass:[NSDictionary class]])
 	{
 		id value = [properties objectForKey:name];
 		if ([value respondsToSelector:@selector(boolValue)])
@@ -610,7 +623,7 @@ extern NSString * const TI_APPLICATION_RESOURCE_DIR;
 
 +(NSString*)stringValue:(NSString*)name properties:(NSDictionary*)properties def:(NSString*)def exists:(BOOL*) exists
 {
-	if (properties != nil)
+	if ([properties isKindOfClass:[NSDictionary class]])
 	{
 		id value = [properties objectForKey:name];
 		if ([value isKindOfClass:[NSString class]])
@@ -635,7 +648,7 @@ extern NSString * const TI_APPLICATION_RESOURCE_DIR;
 
 +(CGPoint)pointValue:(NSString*)name properties:(NSDictionary*)properties def:(CGPoint)def exists:(BOOL*) exists
 {
-	if (properties != nil)
+	if ([properties isKindOfClass:[NSDictionary class]])
 	{
 		id value = [properties objectForKey:name];
 		if ([value isKindOfClass:[NSDictionary class]])
@@ -656,7 +669,7 @@ extern NSString * const TI_APPLICATION_RESOURCE_DIR;
 +(TiColor*)colorValue:(NSString*)name properties:(NSDictionary*)properties def:(TiColor*)def exists:(BOOL*) exists
 {
 	TiColor * result = nil;
-	if (properties != nil)
+	if ([properties isKindOfClass:[NSDictionary class]])
 	{
 		id value = [properties objectForKey:name];
 		if (value == [NSNull null])
@@ -686,7 +699,7 @@ extern NSString * const TI_APPLICATION_RESOURCE_DIR;
 
 +(TiDimension)dimensionValue:(NSString*)name properties:(NSDictionary*)properties def:(TiDimension)def exists:(BOOL*) exists
 {
-	if (properties != nil)
+	if ([properties isKindOfClass:[NSDictionary class]])
 	{
 		id value = [properties objectForKey:name];
 		if (value != nil)

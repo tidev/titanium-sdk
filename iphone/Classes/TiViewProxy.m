@@ -11,8 +11,9 @@
 #import "TiBlob.h"
 #import "TiRect.h"
 #import "TiLayoutQueue.h"
-
 #import "TiAction.h"
+#import "TiStylesheet.h"
+#import "TiLocale.h"
 
 #import <QuartzCore/QuartzCore.h>
 #import <libkern/OSAtomic.h>
@@ -37,6 +38,65 @@
 	}
 	return self;
 }
+
+-(void)_initWithProperties:(NSDictionary*)properties
+{
+	if (properties!=nil)
+	{
+		NSString *objectId = [properties objectForKey:@"id"];
+		if (objectId!=nil)
+		{
+			TiStylesheet *stylesheet = [[[self pageContext] host] stylesheet];
+			NSString *density = [TiUtils isRetinaDisplay] ? @"high" : @"medium";
+			NSString *basename = [[self pageContext] basename];
+			NSString *type = [NSStringFromClass([self class]) stringByReplacingOccurrencesOfString:@"TiUI" withString:@""];
+			type = [[type stringByReplacingOccurrencesOfString:@"Proxy" withString:@""] lowercaseString];
+			NSDictionary *merge = [stylesheet stylesheet:objectId type:type density:density basename:basename];
+			if (merge!=nil)
+			{
+				// incoming keys take precendence over existing stylesheet keys
+				NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithDictionary:merge];
+				[dict addEntriesFromDictionary:properties];
+                
+				properties = dict;
+			}
+		}
+		// do a translation of language driven keys to their converted counterparts
+		// for example titleid should look up the title in the Locale
+		NSMutableDictionary *table = [self langConversionTable];
+		if (table!=nil)
+		{
+			for (id key in table)
+			{
+				// determine which key in the lang table we need to use
+				// from the lang property conversion key
+				id langKey = [properties objectForKey:key];
+				if (langKey!=nil)
+				{
+					// eg. titleid -> title
+					id convertKey = [table objectForKey:key];
+					// check and make sure we don't already have that key
+					// since you can't override it if already present
+					if ([properties objectForKey:convertKey]==nil)
+					{
+						id newValue = [TiLocale getString:langKey comment:nil];
+						if (newValue!=nil)
+						{
+							[(NSMutableDictionary*)properties setObject:newValue forKey:convertKey];
+						}
+					}
+				}
+			}
+		}
+	}
+	[super _initWithProperties:properties];
+}
+
+-(NSMutableDictionary*)langConversionTable
+{
+    return nil;
+}
+
 
 -(NSArray*)children
 {
@@ -115,6 +175,7 @@
 		return;
 	}
 	
+	[self setNeedsZIndexRepositioning];
 	if ([NSThread isMainThread])
 	{
 		pthread_rwlock_wrlock(&childrenLock);
@@ -223,7 +284,7 @@
 -(void)show:(id)arg
 {
 	//TODO: animate
-	[self setValue:[NSNumber numberWithBool:YES] forKey:@"visible"];
+	[self replaceValue:[NSNumber numberWithBool:YES] forKey:@"visible" notification:YES];
 	if(parentVisible)	//We actually care about showing or hiding now.
 	{
 		[self willShow];
@@ -233,8 +294,8 @@
 -(void)hide:(id)arg
 {
 	//TODO: animate
-	[self setValue:[NSNumber numberWithBool:NO] forKey:@"visible"];
-
+	[self replaceValue:[NSNumber numberWithBool:NO] forKey:@"visible" notification:YES];
+		
 	if(parentVisible)	//We actually care about showing or hiding now.
 	{
 		[self willHide];
@@ -554,7 +615,7 @@
 {
 	if (view == nil)
 	{
-		WARN_IF_BACKGROUND_THREAD
+		WARN_IF_BACKGROUND_THREAD_OBJ
 #ifdef VERBOSE
 		if(![NSThread isMainThread])
 		{
@@ -1039,6 +1100,11 @@
 	}
 	pthread_rwlock_unlock(&childrenLock);
 
+	if([self respondsToSelector:@selector(verifyWidth:)])
+	{
+		result = [self verifyWidth:result];
+	}
+
 	if (result == 0)
 	{
 		NSLog(@"[WARN] %@ has an auto width value of 0, meaning this view may not be visible.",self);
@@ -1096,6 +1162,12 @@
 	}
 	pthread_rwlock_unlock(&childrenLock);
 	result += currentRowHeight;
+	
+	if([self respondsToSelector:@selector(verifyHeight:)])
+	{
+		result = [self verifyHeight:result];
+	}
+	
 	if (result == 0)
 	{
 		NSLog(@"[WARN] %@ has an auto height value of 0, meaning this view may not be visible.",self);
@@ -1332,7 +1404,7 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,)
 
 -(void)refreshView:(TiUIView *)transferView
 {
-	WARN_IF_BACKGROUND_THREAD;
+	WARN_IF_BACKGROUND_THREAD_OBJ;
 	OSAtomicTestAndClearBarrier(TiRefreshViewEnqueued, &dirtyflags);
 	
 	if(!parentVisible)
@@ -1341,7 +1413,7 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,)
 //		return;
 	}
 	
-	if(![self visible])
+	if(![self visible] && parent != nil)
 	{
 		VerboseLog(@"Removing from superview");
 		if([self viewAttached])
@@ -1470,7 +1542,12 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,)
 		}
 		newPosition ++;
 	}
-	[parentView insertSubview:ourView atIndex:newPosition];
+	if (newPosition == [[parentView subviews] count]) {
+		[parentView addSubview:ourView];
+	}
+	else {
+		[parentView insertSubview:ourView atIndex:newPosition];
+	}
 }
 
 -(void)refreshPosition
@@ -1545,7 +1622,6 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
 		[self willEnqueue];
 	}
 
-	SET_AND_PERFORM(TiRefreshViewZIndex,);
 	[parent contentsWillChange];
 
 	pthread_rwlock_rdlock(&childrenLock);

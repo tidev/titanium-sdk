@@ -88,7 +88,8 @@ volumeUp.addEventListener('click', function()
 	if (sound.volume < 1.0)
 	{
 		sound.volume += 0.1;
-		volumeUp.title = 'Volume++ (' + String(sound.volume).substring(0,3) + ')';
+		var roundedVolume = Math.round(sound.volume*1000)/1000;
+		volumeUp.title = 'Volume++ (' + roundedVolume + ')';
 		volumeDown.title = 'Volume--';
 	}
 });
@@ -112,7 +113,8 @@ volumeDown.addEventListener('click', function()
 			sound.volume = 0;
 		else
 			sound.volume -= 0.1;
-		volumeDown.title = 'Volume-- (' + String(sound.volume).substring(0,3) + ')';
+		var roundedVolume = Math.round(sound.volume*1000)/1000;
+		volumeDown.title = 'Volume-- (' + roundedVolume + ')';
 		volumeUp.title = 'Volume++';
 	}
 

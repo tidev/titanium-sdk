@@ -27,7 +27,7 @@ public class TiCompositeLayout extends ViewGroup
 
 	private TreeSet<View> viewSorter;
 	private boolean needsSort;
-	private boolean vertical;
+	protected boolean vertical;
 
 	public TiCompositeLayout(Context context, boolean vertical)
 	{
@@ -177,7 +177,7 @@ public class TiCompositeLayout extends ViewGroup
 		maxHeight = Math.max(maxHeight, getSuggestedMinimumHeight());
 
 		int measuredWidth = getMeasuredWidth(maxWidth, widthMeasureSpec);
-		int measuredHeight = getMeasuredHeight(maxHeight, heightMeasureSpec);
+		int measuredHeight = getMeasuredHeight(maxHeight,heightMeasureSpec);
 		setMeasuredDimension(measuredWidth, measuredHeight);
 	}
 
@@ -298,13 +298,13 @@ public class TiCompositeLayout extends ViewGroup
 				}
 
 				if (DBG) {
-					Log.d("LAYOUT", child.getClass().getSimpleName() + " {" + horizontal[0] + "," + vertical[0] + "," + horizontal[1] + "," + vertical[1] + "}");
+					Log.d("LAYOUT", child.getClass().getName() + " {" + horizontal[0] + "," + vertical[0] + "," + horizontal[1] + "," + vertical[1] + "}");
 				}
 
 				int newWidth = horizontal[1] - horizontal[0];
 				int newHeight = vertical[1] - vertical[0];
-				if (newWidth > childMeasuredWidth
-					|| newHeight > childMeasuredHeight) {
+				if (newWidth != childMeasuredWidth
+					|| newHeight != childMeasuredHeight) {
 					
 					int newWidthSpec = MeasureSpec.makeMeasureSpec(newWidth, MeasureSpec.EXACTLY);
 					int newHeightSpec = MeasureSpec.makeMeasureSpec(newHeight, MeasureSpec.EXACTLY);
@@ -322,7 +322,7 @@ public class TiCompositeLayout extends ViewGroup
 	}
 
 	// 0 is left/top, 1 is right/bottom
-	private void computePosition(int o0, int o1, int size, int p0, int p1, int[] pos)
+	public static void computePosition(int o0, int o1, int size, int p0, int p1, int[] pos)
 	{
 		int dist = p1 - p0;
 

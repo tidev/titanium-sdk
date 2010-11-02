@@ -61,7 +61,7 @@ DEFINE_EXCEPTIONS
 
 -(NSString*)title:(TiUIButtonProxy*)proxy_
 {
-	NSString *title = [proxy_ valueForKey:@"title"];
+	NSString *title = [TiUtils stringValue:[proxy_ valueForKey:@"title"]];
 	return title == nil ? @"" : title;
 }
 

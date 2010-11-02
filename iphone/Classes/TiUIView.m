@@ -406,20 +406,33 @@ DEFINE_EXCEPTIONS
 	}
 	
 	// sort by zindex
-	NSArray *children = [[NSArray arrayWithArray:[self subviews]] sortedArrayUsingFunction:zindexSort context:NULL];
-						 
-	// re-configure all the views by zindex order
-	for (TiUIView *child in children)
+	
+	//TODO: This doesn't work with scrollable and scroll views. Really, this should be refactored out.
+	
+	NSMutableArray * validChildren = nil;
+	for (UIView * thisView in [self subviews])
 	{
-		[child retain];
-		[child removeFromSuperview];
-		[self addSubview:child];
-		if ([child isKindOfClass:[TiUIView class]])
+		if ([thisView isKindOfClass:[TiUIView class]])
 		{
-			[child repositionZIndexIfNeeded];
+			if(validChildren == nil)
+			{
+				validChildren = [[NSMutableArray alloc] initWithObjects:thisView,nil];
+			}
+			else
+			{
+				[validChildren addObject:thisView];
+			}
 		}
-		[child release];
 	}
+	
+	[validChildren sortUsingFunction:zindexSort context:NULL];
+	for (UIView * thisView in validChildren)
+	{
+		[thisView removeFromSuperview];
+		[self addSubview:thisView];
+	}
+
+	[validChildren release];
 }
 
 -(unsigned int)zIndex
@@ -437,7 +450,7 @@ DEFINE_EXCEPTIONS
 
 -(void)repositionZIndex
 {
-	[(TiViewProxy*)self.proxy setNeedsZIndexRepositioning];
+	[[(TiViewProxy*)self.proxy parent] setNeedsZIndexRepositioning];
 }
 
 -(BOOL)animationFromArgument:(id)args
@@ -620,7 +633,11 @@ DEFINE_EXCEPTIONS
     
     // Redraw ourselves if changing from invisible to visible, to handle any changes made
     if (!self.hidden) {
-        [(TiViewProxy*)[self proxy] reposition];
+		TiViewProxy* viewProxy = (TiViewProxy*)[self proxy];
+		if ([self superview] == nil) {
+			[viewProxy refreshZIndex];  // Have to do this before the reposition to make sure we have a superview
+		}
+        [viewProxy reposition];
     }
 }
 

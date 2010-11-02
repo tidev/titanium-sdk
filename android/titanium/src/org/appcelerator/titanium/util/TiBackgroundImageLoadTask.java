@@ -62,7 +62,7 @@ public abstract class TiBackgroundImageLoadTask
 			retry = false;
 
 			try {
-				d = tfh.loadDrawable(url, false);
+				d = tfh.loadDrawable(context, url, false);
 				if (d != null) {
 					BitmapDrawable bd = (BitmapDrawable) d;
 					Bitmap bitmap = bd.getBitmap();

@@ -13,6 +13,8 @@
 
 - (TiHost*)host;
 
+- (NSString*)basename;
+
 - (void)evalJSWithoutResult:(NSString*)code;
 
 - (void)evalFile:(NSString*)file;

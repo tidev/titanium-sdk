@@ -1,0 +1,11 @@
+<project name="titanium" default="build">
+	<import file="../build/common.xml"/>
+		
+	<target name="build">
+		<antcall target="build.titanium.jar"/>
+	</target>
+	
+	<target name="clean">
+		<clean.project name="titanium"/>
+	</target>
+</project>

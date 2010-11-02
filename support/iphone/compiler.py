@@ -4,7 +4,7 @@
 # Project Compiler
 #
 
-import os, sys, re, shutil, time, base64, run, sgmllib
+import os, sys, re, shutil, time, base64, run, sgmllib, codecs
 
 template_dir = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
 sys.path.append(os.path.join(template_dir,'../'))
@@ -122,7 +122,7 @@ class Compiler(object):
 			app_dir = os.path.abspath(os.path.join(self.iphone_dir,'build',app_folder_name,app_name))
 		
 		main_template_file = os.path.join(template_dir,'main.m')
-		main_template = open(main_template_file).read()
+		main_template = codecs.open(main_template_file, encoding='utf-8').read()
 		main_template = main_template.replace('__PROJECT_NAME__',name)
 		main_template = main_template.replace('__PROJECT_ID__',appid)
 		main_template = main_template.replace('__DEPLOYTYPE__',deploytype)
@@ -146,7 +146,7 @@ class Compiler(object):
 			print "[INFO] iPhone SDK version: %s" % iphone_version
 		
 		main_template_out = os.path.join(self.iphone_dir,'main.m')	
-		main_file = open(main_template_out,'w+')
+		main_file = codecs.open(main_template_out,'w+',encoding='utf-8')
 		main_file_contents = main_file.read()
 		if main_file_contents!=main_template:
 			main_file.write(main_template)
@@ -160,7 +160,7 @@ class Compiler(object):
 
 		resources_dir = os.path.join(project_dir,'Resources')
 		iphone_resources_dir = os.path.join(resources_dir,'iphone')
-	
+
 		# copy in any resources in our module like icons
 		project_module_dir = os.path.join(project_dir,'modules','iphone')
 		if os.path.exists(project_module_dir):
@@ -366,7 +366,7 @@ class Compiler(object):
 		if write_routing:
 			intf = open(os.path.join(self.classes_dir,'ApplicationRouting.h'),'w+')
 			impf = open(os.path.join(self.classes_dir,'ApplicationRouting.m'),'w+')
-
+			
 			intf.write(HEADER)
 			intf.write(INTERFACE_HEADER)
 
@@ -393,7 +393,7 @@ class Compiler(object):
 						dirs.remove(name)	# don't visit ignored directories			  
 				for file in files:
 					if file in ignoreFiles:
-						continue
+						continue					
 					prefix = root[len(source):]
 					from_ = os.path.join(root, file)			  
 					to_ = os.path.expanduser(from_.replace(source, target, 1))
@@ -402,6 +402,7 @@ class Compiler(object):
 						os.makedirs(to_directory)
 					fp = os.path.splitext(file)
 					ext = fp[1]
+					if ext == '.jss': continue
 					if len(fp)>1 and write_routing and ext in ['.html','.js','.css']:
 						path = prefix + os.sep + file
 						path = path[1:]

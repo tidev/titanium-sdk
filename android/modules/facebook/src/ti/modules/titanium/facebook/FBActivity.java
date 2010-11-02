@@ -10,7 +10,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import ti.modules.titanium.facebook.FBDialog.FBDialogDelegate;
-
 import android.app.Activity;
 import android.os.Bundle;
 import android.view.WindowManager;

@@ -3,10 +3,20 @@ Titanium.Media.showCamera({
 	success:function(event)
 	{
 		var video = event.media;
-		Titanium.Media.saveToPhotoGallery(video);
-		
-		Titanium.UI.createAlertDialog({title:'Photo Gallery',message:'Check your photo gallery'}).show();		
-		
+		Titanium.Media.saveToPhotoGallery(video,{
+			success: function(e) {
+				Titanium.UI.createAlertDialog({
+					title:'Photo Gallery',
+					message:'Check your photo gallery for your video'
+				}).show();		
+			},
+			error: function(e) {
+				Titanium.UI.createAlertDialog({
+					title:'Error saving',
+					message:e.error
+				}).show();
+			}
+		});
 	},
 	cancel:function()
 	{

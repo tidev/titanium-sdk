@@ -59,10 +59,10 @@ import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpProtocolParams;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.util.EntityUtils;
+import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBlob;
-import org.appcelerator.titanium.TiDict;
-import org.appcelerator.titanium.TiProxy;
 import org.appcelerator.titanium.io.TiBaseFile;
 import org.appcelerator.titanium.kroll.KrollCallback;
 import org.appcelerator.titanium.util.Log;
@@ -93,7 +93,7 @@ public class TiHTTPClient
 	private static final String ON_DATA_STREAM = "ondatastream";
 	private static final String ON_SEND_STREAM = "onsendstream";
 
-	private TiProxy proxy;
+	private KrollProxy proxy;
 	private int readyState;
 	private String responseText;
 	private DocumentProxy responseXml;
@@ -195,7 +195,7 @@ public class TiHTTPClient
 						} else {
 							while((count = is.read(buf)) != -1) {
 								totalSize += count;
-								TiDict o = new TiDict();
+								KrollDict o = new KrollDict();
 								o.put("totalCount", contentLength);
 								o.put("totalSize", totalSize);
 								o.put("size", count);
@@ -212,7 +212,7 @@ public class TiHTTPClient
 								o.put("blob", blob);
 								o.put("progress", ((double)totalSize)/((double)contentLength));
 
-								cb.callWithProperties(o);
+								cb.call(o);
 							}
 							if (entity != null) {
 								try {
@@ -343,7 +343,7 @@ public class TiHTTPClient
 		}
 	}
 
-	public TiHTTPClient(TiProxy proxy)
+	public TiHTTPClient(KrollProxy proxy)
 	{
 		this.proxy = proxy;
 
@@ -367,7 +367,7 @@ public class TiHTTPClient
 
 	public KrollCallback getCallback(String name)
 	{
-		Object value = proxy.getDynamicValue(name);
+		Object value = proxy.getProperty(name);
 		if (value != null && value instanceof KrollCallback)
 		{
 			return (KrollCallback) value;
@@ -385,13 +385,14 @@ public class TiHTTPClient
 		KrollCallback cb = getCallback(name);
 		if (cb != null)
 		{
+			cb.setThisProxy(proxy);
 			cb.call(args);
 		}
 	}
 
 	public boolean validatesSecureCertificate() {
-		if (proxy.hasDynamicValue("validatesSecureCertificate")) {
-			return TiConvert.toBoolean(proxy.getDynamicValue("validatesSecureCertificate"));
+		if (proxy.hasProperty("validatesSecureCertificate")) {
+			return TiConvert.toBoolean(proxy.getProperty("validatesSecureCertificate"));
 		} else {
 			if (proxy.getTiContext().getTiApp().getDeployType().equals(
 					TiApplication.DEPLOY_TYPE_PRODUCTION)) {
@@ -414,7 +415,7 @@ public class TiHTTPClient
 
 	public void sendError(String error) {
 		Log.i(LCAT, "Sending error " + error);
-		TiDict event = new TiDict();
+		KrollDict event = new KrollDict();
 		event.put("error", error);
 		event.put("source", proxy);
 		fireCallback(ON_ERROR, new Object[] {event});
@@ -473,6 +474,9 @@ public class TiHTTPClient
 		if (responseXml == null && (responseData != null || responseText != null)) {
 			try {
 				String text = getResponseText();
+				if (text == null || text.length() == 0) {
+					return null;
+				}
 				if (charset != null && charset.length() > 0) {
 					responseXml = XMLModule.parse(proxy.getTiContext(), text, charset);
 				} else {
@@ -558,6 +562,8 @@ public class TiHTTPClient
 
 	protected HashMap<String,String> headers = new HashMap<String,String>();
 	private Uri uri;
+	private String url;
+	
 	public void setRequestHeader(String header, String value)
 	{
 		if (readyState == READY_STATE_OPENED) {
@@ -591,7 +597,7 @@ public class TiHTTPClient
     	Uri base = Uri.parse(uri);
     	
     	Uri.Builder builder = base.buildUpon();
-    	builder.encodedQuery(Uri.encode(Uri.decode(base.getQuery()), "&="));
+		builder.encodedQuery(Uri.encode(Uri.decode(base.getQuery()), "&="));
     	builder.encodedAuthority(Uri.encode(Uri.decode(base.getAuthority()),"/:@"));
     	builder.encodedPath(Uri.encode(Uri.decode(base.getPath()), "/"));
     	
@@ -603,17 +609,28 @@ public class TiHTTPClient
 		if (DBG) {
 			Log.d(LCAT, "open request method=" + method + " url=" + url);
 		}
+		this.uri = getCleanUri(url);
+		
+		// If the original url does not contained any
+		// escaped query string (i.e., does not look
+		// pre-encoded), go ahead and reset it to the 
+		// clean uri. Else keep it as is so the user's
+		// escaping stays in effect.  The users are on their own
+		// at that point.
+		if (!url.matches(".*\\?.*\\%\\d\\d.*$")) {
+			this.url = this.uri.toString();
+		} else {
+			this.url = url;
+		}
 
 		this.method = method;
-
-		uri = getCleanUri(url);
 		
 		host = new HttpHost(uri.getHost(), uri.getPort(), uri.getScheme());
 		if (uri.getUserInfo() != null) {
 			credentials = new UsernamePasswordCredentials(uri.getUserInfo());
 		}
 		setReadyState(READY_STATE_OPENED);
-		setRequestHeader("User-Agent", (String) proxy.getDynamicValue("userAgent"));
+		setRequestHeader("User-Agent", (String) proxy.getProperty("userAgent"));
 		// Causes Auth to Fail with twitter and other size apparently block X- as well
 		// Ticket #729, ignore twitter for now
 		if (!uri.getHost().contains("twitter.com")) {
@@ -633,7 +650,12 @@ public class TiHTTPClient
 		}
 		try {
 			if (needMultipart) {
-				parts.put(name, new StringBody(value));
+				// JGH NOTE: this seems to be a bug in RoR where it would puke if you 
+				// send a content-type of text/plain for key/value pairs in form-data
+				// so we send an empty string by default instead which will cause the
+				// StringBody to not include the content-type header. this should be
+				// harmless for all other cases
+				parts.put(name, new StringBody(value,"",null));
 			} else {
 				nvPairs.add(new BasicNameValuePair(name, value.toString()));
 			}
@@ -683,21 +705,25 @@ public class TiHTTPClient
 		
 		if (userData != null)
 		{
-			if (userData instanceof TiDict) {
-				TiDict data = (TiDict)userData;
-				
+			if (userData instanceof KrollDict) {
+				KrollDict data = (KrollDict)userData;
+				boolean isPostOrPut = method.equals("POST") || method.equals("PUT");
+				boolean isGet = !isPostOrPut && method.equals("GET");
+								
 				// first time through check if we need multipart for POST
 				for (String key : data.keySet()) {
 					Object value = data.get(key);
 					if (value instanceof TiBaseFile || value instanceof TiBlob) {
 						needMultipart = true;
+						break;
 					}
 				}
 				
+				boolean queryStringAltered = false;
 				for (String key : data.keySet()) {
 					Object value = data.get(key);
 
-					if (method.equals("POST") || method.equals("PUT")) {
+					if (isPostOrPut) {
 						if (value instanceof TiBaseFile || value instanceof TiBlob) {
 							totalLength += addTitaniumFileAsPostData(key, value);
 						} else {
@@ -705,17 +731,21 @@ public class TiHTTPClient
 							addPostData(key, str);
 							totalLength += str.length();
 						}
-					} else if (method.equals("GET")) {
+					} else if (isGet) {
 						uri = uri.buildUpon().appendQueryParameter(
 							key, TiConvert.toString(value)).build();
+						queryStringAltered = true;
 					}
+				}
+				if (queryStringAltered) {
+					this.url = uri.toString();
 				}
 			} else {
 				addStringData(TiConvert.toString(userData));
 			}
 		}
 
-		request = new DefaultHttpRequestFactory().newHttpRequest(method, uri.toString());
+		request = new DefaultHttpRequestFactory().newHttpRequest(method, this.url);
 		for (String header : headers.keySet()) {
 			request.setHeader(header, headers.get(header));
 		}
@@ -813,7 +843,7 @@ public class TiHTTPClient
 							public void progress(int progress) {
 								KrollCallback cb = getCallback(ON_SEND_STREAM);
 								if (cb != null) {
-									TiDict data = new TiDict();
+									KrollDict data = new KrollDict();
 									data.put("progress", ((double)progress)/fTotalLength);
 									data.put("source", proxy);
 									cb.callWithProperties(data);
@@ -839,8 +869,12 @@ public class TiHTTPClient
 				setResponseText(result);
 				setReadyState(READY_STATE_DONE);
 			} catch(Throwable t) {
-				Log.e(LCAT, "HTTP Error (" + t.getClass().getName() + "): " + t.getMessage(), t);
-				sendError(t.getMessage());
+				String msg = t.getMessage();
+				if (msg == null && t.getCause() != null) {
+					msg = t.getCause().getMessage();
+				}
+				Log.e(LCAT, "HTTP Error (" + t.getClass().getName() + "): " + msg, t);
+				sendError(msg);
 			}
 		}
 	}
@@ -873,10 +907,7 @@ public class TiHTTPClient
 	}
 	
 	public String getLocation() {
-		if (uri != null) {
-			return uri.toString();
-		}
-		return null;
+		return url;
 	}
 
 	public String getConnectionType() {

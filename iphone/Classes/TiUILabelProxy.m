@@ -52,6 +52,11 @@ USE_VIEW_FOR_AUTO_WIDTH
 	return height;
 }
 
+-(NSMutableDictionary*)langConversionTable
+{
+    return [NSMutableDictionary dictionaryWithObject:@"text" forKey:@"textid"];
+}
+
 @end
 
 #endif

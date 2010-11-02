@@ -20,7 +20,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
-import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,6 +29,7 @@ import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 
 import android.net.Uri;
+import android.os.StatFs;
 
 public class TiFile extends TiBaseFile
 {
@@ -193,7 +193,8 @@ public class TiFile extends TiBaseFile
 	@Override
 	public double spaceAvailable()
 	{
-		return 99999999L;
+		StatFs stat = new StatFs(file.getPath());
+		return (double)stat.getAvailableBlocks() * (double)stat.getBlockSize();
 	}
 
 	@Override

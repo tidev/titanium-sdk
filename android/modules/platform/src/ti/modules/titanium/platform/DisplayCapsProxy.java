@@ -8,13 +8,15 @@ package ti.modules.titanium.platform;
 
 import java.lang.ref.SoftReference;
 
+import org.appcelerator.kroll.KrollProxy;
+import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiContext;
-import org.appcelerator.titanium.TiProxy;
 
 import android.util.DisplayMetrics;
 import android.view.Display;
 
-public class DisplayCapsProxy extends TiProxy
+@Kroll.proxy
+public class DisplayCapsProxy extends KrollProxy
 {
 	private final DisplayMetrics dm;
 	private SoftReference<Display> softDisplay;
@@ -32,14 +34,17 @@ public class DisplayCapsProxy extends TiProxy
 		return softDisplay.get();
 	}
 
+	@Kroll.getProperty @Kroll.method
 	public int getPlatformWidth() {
 		return getDisplay().getWidth();
 	}
 
+	@Kroll.getProperty @Kroll.method
 	public int getPlatformHeight() {
 		return getDisplay().getHeight();
 	}
 
+	@Kroll.getProperty @Kroll.method
 	public String getDensity() {
 		synchronized(dm) {
 			getDisplay().getMetrics(dm);
@@ -56,6 +61,7 @@ public class DisplayCapsProxy extends TiProxy
 		}
 	}
 
+	@Kroll.getProperty @Kroll.method
 	public float getDpi() {
 		synchronized(dm) {
 			getDisplay().getMetrics(dm);
@@ -63,6 +69,7 @@ public class DisplayCapsProxy extends TiProxy
 		}
 	}
 
+	@Kroll.getProperty @Kroll.method
 	public float getXdpi() {
 		synchronized(dm) {
 			getDisplay().getMetrics(dm);
@@ -70,6 +77,7 @@ public class DisplayCapsProxy extends TiProxy
 		}
 	}
 
+	@Kroll.getProperty @Kroll.method
 	public float getYdpi() {
 		synchronized(dm) {
 			getDisplay().getMetrics(dm);
@@ -77,6 +85,7 @@ public class DisplayCapsProxy extends TiProxy
 		}
 	}
 
+	@Kroll.getProperty @Kroll.method
 	public float getLogicalDensityFactor() {
 		synchronized(dm) {
 			getDisplay().getMetrics(dm);
