@@ -4,6 +4,13 @@
       android:versionCode="${config['appversion']}"
       android:versionName="${config['appversion']}"
 >
+
+  <supports-screens android:smallScreens="false"
+                android:normalScreens="true"
+                android:largeScreens="true"
+                android:anyDensity="true"
+  />
+
 	<uses-sdk android:minSdkVersion="4" />
 	<!-- TI_MANIFEST -->
 	<!-- TI_SCREENS -->
