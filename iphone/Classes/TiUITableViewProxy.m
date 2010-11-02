@@ -449,17 +449,17 @@ NSArray * tableKeySequence;
 	{
         id header = [row valueForKey:@"header"];
         TiUITableViewActionType actionType = TiUITableViewActionAppendRow;
+		TiUITableViewSectionProxy* section = [sections lastObject];
         if (header != nil) {
-            TiUITableViewSectionProxy *newSection = [[[TiUITableViewSectionProxy alloc] _initWithPageContext:[self executionContext] args:nil] autorelease];
-			[newSection replaceValue:header forKey:@"headerTitle" notification:NO];
+            section = [[[TiUITableViewSectionProxy alloc] _initWithPageContext:[self executionContext] args:nil] autorelease];
+			[section replaceValue:header forKey:@"headerTitle" notification:NO];
 			
-            newSection.section = [sections count];
-            newSection.table = table;
-			newSection.parent = [table proxy];
+            section.section = [sections count];
+            section.table = table;
+			section.parent = [table proxy];
             
             actionType = TiUITableViewActionAppendRowWithSection;
         }
-		TiUITableViewSectionProxy *section = [sections lastObject];
 		row.section = section;
 		row.parent = section;
 		
@@ -472,11 +472,6 @@ NSArray * tableKeySequence;
 		//No table, we have to do the data update ourselves.
 			[section add:row];
 		}
-        
-        // Have to do this after the action or else there's an update of a nonexistant section
-        if (header != nil) {
-			[section replaceValue:header forKey:@"headerTitle" notification:NO];
-        }
 	}	
 }
 
