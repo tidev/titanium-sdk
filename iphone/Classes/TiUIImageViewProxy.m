@@ -29,6 +29,13 @@ static NSArray* imageKeySequence;
 	return imageKeySequence;
 }
 
+// TODO: Hack to resize 'auto' image views; other 'auto' views may still need to be
+// resized/relayed on iPad.  See #2227
+-(UIViewAutoresizing)verifyAutoresizing:(UIViewAutoresizing)suggestedResizing
+{
+	return (suggestedResizing | UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth);
+}
+
 -(void)_configure
 {
 	[self replaceValue:NUMBOOL(NO) forKey:@"animating" notification:NO];

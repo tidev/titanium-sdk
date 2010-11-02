@@ -41,7 +41,7 @@
 
     /** Cache of column name to column index */
     NSDictionary *_columnNames;
-	NSArray * columnNamesArray;
+    NSArray * columnNamesArray;
 }
 
 - (id) initWithPreparedStatement: (PLSqlitePreparedStatement *) stmt sqliteStatemet: (sqlite3_stmt *)sqlite_stmt;
