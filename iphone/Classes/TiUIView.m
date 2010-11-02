@@ -394,10 +394,11 @@ DEFINE_EXCEPTIONS
 {
 	self.hidden = ![TiUtils boolValue:visible];
     
-    // Redraw ourselves if changing from invisible to visible, to handle any changes made
-    if (!self.hidden) {
-        [(TiViewProxy*)[self proxy] reposition];
-    }
+//	Redraw ourselves if changing from invisible to visible, to handle any changes made
+	if (!self.hidden) {
+		TiViewProxy* viewProxy = (TiViewProxy*)[self proxy];
+		[viewProxy reposition];
+	}
 }
 
 -(void)setAnimation_:(id)arg

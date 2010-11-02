@@ -7,25 +7,30 @@
 #ifdef USE_TI_UICOVERFLOWVIEW
 
 #import "TiUICoverFlowViewProxy.h"
-#import "TiUtils.h"
-#import "ImageLoader.h"
+#import "TiBase.h"
 #import "TiUICoverFlowView.h"
+
+NSArray* coverflowKeySequence;
 
 @implementation TiUICoverFlowViewProxy
 
--(void)setSelected:(id)arg
+DEFINE_DEF_INT_PROP(selected, 0);
+
+-(NSArray*)keySequence
 {
-	ENSURE_SINGLE_ARG_OR_NIL(arg,NSObject);
-	[self replaceValue:arg forKey:@"selected" notification:YES];
+	if (coverflowKeySequence == nil) {
+		coverflowKeySequence = [[NSArray alloc] initWithObjects:@"images",nil];
+	}
+	return coverflowKeySequence;
 }
 
--(void)setURL:(id)args
+-(void)setImage:(id)args
 {
 	ENSURE_ARG_COUNT(args,2);
-	ENSURE_UI_THREAD(setURL,args);
+	ENSURE_UI_THREAD(setImage,args);
 	int index = [TiUtils intValue:[args objectAtIndex:0]];
-	NSString *url = [TiUtils stringValue:[args objectAtIndex:1]];
-	[(TiUICoverFlowView*)[self view] setURL:url forIndex:index];
+	id image = [args objectAtIndex:1];
+	[(TiUICoverFlowView*)[self view] setImage:image forIndex:index];
 }
 
 @end

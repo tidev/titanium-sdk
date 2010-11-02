@@ -1,6 +1,8 @@
 // create table view data object
 var data = [
-	{title:'Coverflow Local Files', hasChild:true, test:'../examples/coverflow_view.js'}
+	{title:'Coverflow Local Files', hasChild:true, test:'../examples/coverflow_view.js'},
+	{title:'Coverflow Remote Files', hasChild:true, test:'../examples/coverflow_remote.js'},
+	{title:'Coverflow Replace Images', hasChild:true, test:'../examples/coverflow_replace.js'}
 ];
 
 // create table view

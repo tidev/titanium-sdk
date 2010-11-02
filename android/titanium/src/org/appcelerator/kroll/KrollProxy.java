@@ -7,7 +7,6 @@
 package org.appcelerator.kroll;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
@@ -53,6 +52,7 @@ public class KrollProxy implements Handler.Callback, OnEventListenerChange {
 	protected String proxyId;
 	protected KrollProxyListener modelListener;
 	protected KrollEventManager eventManager;
+	protected KrollModule createdInModule;
 	protected static HashMap<Class<? extends KrollProxy>, KrollProxyBinding> proxyBindings = new HashMap<Class<? extends KrollProxy>, KrollProxyBinding>();
 	
 	@Kroll.inject
@@ -188,9 +188,8 @@ public class KrollProxy implements Handler.Callback, OnEventListenerChange {
 			}
 		}
 		
-		KrollInvocation invocation = KrollInvocation.createPropertySetInvocation(scope, null, name, null, this);
-		Object convertedValue = KrollConverter.getInstance().convertJavascript(invocation, value, Object.class);
-		setProperty(name, convertedValue, true);
+		// the value that comes from KrollObject should already be converted
+		setProperty(name, value, true);
 	}
 
 	public Object call(Scriptable scope, String name, Object[] args)
@@ -380,7 +379,8 @@ public class KrollProxy implements Handler.Callback, OnEventListenerChange {
 	 * If your proxy simply needs to handle a KrollDict, see {@link KrollProxy#handleCreationDict(KrollDict)}
 	 * @param args
 	 */
-	public void handleCreationArgs(Object[] args) {
+	public void handleCreationArgs(KrollModule createdInModule, Object[] args) {
+		this.createdInModule = createdInModule;
 		if (args.length >= 1 && args[0] instanceof KrollDict) {
 			handleCreationDict((KrollDict)args[0]);
 		}
@@ -409,6 +409,10 @@ public class KrollProxy implements Handler.Callback, OnEventListenerChange {
 		return creationDict;
 	}
 
+	public KrollModule getCreatedInModule() {
+		return createdInModule;
+	}
+	
 	// Handler.Callback
 	public boolean handleMessage(Message msg) {
 		switch (msg.what) {
@@ -534,6 +538,9 @@ public class KrollProxy implements Handler.Callback, OnEventListenerChange {
 
 	// Convenience for internal code
 	public KrollInvocation createEventInvocation(String eventName) {
+		if (DBG) {
+			Log.d(TAG, "creating event invocation, context: " + getTiContext() + ", js context: " + getTiContext().getJSContext());
+		}
 		KrollInvocation inv = KrollInvocation.createMethodInvocation(
 				getTiContext(),
 				getTiContext().getJSContext().getScope(),

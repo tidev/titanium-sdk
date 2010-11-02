@@ -6,9 +6,11 @@
  */
 package org.appcelerator.kroll;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
 import org.appcelerator.titanium.TiContext;
-import org.appcelerator.titanium.kroll.KrollContext;
-import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Scriptable;
 
 public class KrollInvocation {
@@ -17,6 +19,7 @@ public class KrollInvocation {
 	protected String name;
 	protected boolean isPropertyGet, isPropertySet, isMethod;
 	protected KrollMethod method;
+	protected ArrayList<KrollArgument> arguments = new ArrayList<KrollArgument>();
 	protected KrollProperty property;
 	protected TiContext tiContext;
 	protected KrollProxy proxy;
@@ -95,11 +98,46 @@ public class KrollInvocation {
 			str += property;
 		} else if (isMethod) {
 			str += method;
+			if (arguments != null) {
+				Iterator<KrollArgument> iter = arguments.iterator();
+				while(iter.hasNext()) {
+					KrollArgument arg = iter.next();
+					str += arg;
+					if (iter.hasNext()) {
+						str += " ";
+					}
+				}
+			}
 		}
 		str += "]";
 		return str;
 	}
 
+	public void addArgument(KrollArgument arg) {
+		arguments.add(arg);
+	}
+	
+	public List<KrollArgument> getArguments() {
+		return arguments;
+	}
+	
+	public KrollArgument getArgument(String name) {
+		for (KrollArgument arg : arguments) {
+			if (arg.getName().equals(name)) {
+				return arg;
+			}
+		}
+		return null;
+	}
+	
+	public boolean isDefaultValue(String argName) {
+		KrollArgument arg = getArgument(argName);
+		if (arg != null) {
+			return arg.isValueDefault;
+		}
+		return false;
+	}
+	
 	public Scriptable getScope() {
 		return scope;
 	}

@@ -66,6 +66,7 @@ b2.addEventListener('click', function()
 });
 win.add(b2);
 
+tf1.autocorrect = true; // Need to specify an absolute value or we're at the mercy of iOS' default (and maybe android's)
 var b3 = Titanium.UI.createButton({
 	title:'Autocorrect',
 	height:40,
@@ -108,6 +109,7 @@ b5.addEventListener('click', function()
 });
 win.add(b5);
 
+tf1.autocapitalization = true; // See autocorrect note
 var b6 = Titanium.UI.createButton({
 	title:'Capitals',
 	height:40,

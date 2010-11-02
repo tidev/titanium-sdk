@@ -123,9 +123,18 @@ public class TiContext implements TiEvaluator, ITiMenuDispatcherListener, ErrorR
 
 	public void setJSContext(TiEvaluator evaluator) {
 		if (DBG) {
-			Log.i(LCAT, "Setting JS Context");
+			Log.d(LCAT, "Setting JS Context on " + this + " to " + evaluator);
 		}
 		tiEvaluator = evaluator;
+	}
+	
+	public KrollBridge getKrollBridge() {
+		if (tiEvaluator instanceof KrollBridge) {
+			return (KrollBridge)tiEvaluator;
+		} else if (tiEvaluator instanceof TiContext) {
+			return ((TiContext)tiEvaluator).getKrollBridge();
+		}
+		return null;
 	}
 
 	public Activity getActivity() {

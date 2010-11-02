@@ -14,6 +14,13 @@ Titanium.Media.openPhotoGallery({
     success: function(event)
     {
         var emailDialog = Titanium.UI.createEmailDialog();
+        if (!emailDialog.isSupported()) {
+        	Ti.UI.createAlertDialog({
+        		title:'Error',
+        		message:'Email not available'
+        	}).show();
+        	return;
+        }
         emailDialog.setSubject('Hello from Titanium!');
         emailDialog.setToRecipients(['foo@yahoo.com']);
         emailDialog.setCcRecipients(['bar@yahoo.com']);

@@ -31,5 +31,5 @@ tv.data = data;
 
 var ts2 = new Date;
 var duration = ts2.getTime() - ts.getTime();
-var each = count / duration;
+var each = duration / count;
 l.text = "Executed: "+count+" iterations\nTook: " + duration +" ms\n" + each.toFixed(2) + " ms/row";

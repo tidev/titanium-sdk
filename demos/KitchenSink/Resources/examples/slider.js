@@ -7,7 +7,10 @@ var data = [
 // add iphone specific tests
 if (Titanium.Platform.name == 'iPhone OS')
 {
+} else if (Titanium.Platform.name == 'android') {
+	data.push({title:'Min/Max Range', hasChild:true, test:'../examples/slider_range.js'});
 }
+
 // create table view
 var tableview = Titanium.UI.createTableView({
 	data:data

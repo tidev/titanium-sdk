@@ -33,7 +33,7 @@ var change = Titanium.UI.createButton({
 change.addEventListener('click',function()
 {
 	Titanium.API.info("selected is = "+view.selected);
-	view.setURL(view.selected,'../images/imageview/28.jpg');
+	view.setImage(view.selected,'../images/imageview/28.jpg');
 });
 
 // move scroll view left
@@ -57,7 +57,7 @@ var right = Titanium.UI.createButton({
 right.addEventListener('click', function(e)
 {
 	var i = view.selected + 1;
-	if (i > images.length) 
+	if (i >= images.length) 
 	{
 		i = images.length - 1;
 	}

@@ -107,13 +107,32 @@ public abstract class TiApplication extends Application
 	
 	// Apps with custom modules will override this with their own creation logic
 	public KrollModule requireModule(TiContext context, KrollModuleInfo info) {
+		return getModuleById(info.getId());
+	}
+	
+	public KrollModule getModuleById(String id) {
 		for (KrollModule module : modules) {
-			if (module.getId().equals(info.getId())) {
+			if (module.getId().equals(id)) {
 				return module;
 			}
 		}
 		
 		return null;
+	}
+	
+	@SuppressWarnings("unchecked")
+	public <T extends KrollModule> T getModuleByClass(Class<T> moduleClass) {
+		for (KrollModule module : modules) {
+			if (module.getClass().equals(moduleClass)) {
+				return (T)module;
+			}
+		}
+		
+		return null;
+	}
+	
+	public void releaseModules() {
+		modules.clear();
 	}
 	
 	public String[] getFilteredBindings(String moduleName) {
@@ -377,9 +396,6 @@ public abstract class TiApplication extends Application
 	
 	public KrollDict getStylesheet(String basename, Collection<String> classes, String objectId) {
 		if (stylesheet != null) {
-			if (DBG) {
-				Log.d(LCAT, "delegating to TiStylesheet for style properties");
-			}
 			return stylesheet.getStylesheet(objectId, classes, density, basename);
 		}
 		return new KrollDict();

@@ -62,10 +62,4 @@ class android(module.ModulePlatform):
 	
 	def finished(self):
 		os.mkdir(os.path.join(self.project_dir, 'lib'))
-		os.mkdir(os.path.join(self.project_dir, '.apt_generated'))
-		
-		# Append the configured Android SDK onto the module's manifest
-		manifest_file = os.path.join(self.project_dir, 'manifest')
-		manifest = open(manifest_file, 'a+')
-		manifest.write('android.sdk: %s' % self.sdk.get_android_sdk())
-		manifest.close()
+		os.makedirs(os.path.join(self.project_dir, 'build', '.apt_generated'))

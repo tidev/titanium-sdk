@@ -34,6 +34,8 @@ public class TiUISlider extends TiUIView
 	private int max;
 	private int pos;
 	private int offset;
+	private int minRange;
+	private int maxRange;
 	
 	private SoftReference<Drawable> thumbDrawable;
 
@@ -48,6 +50,7 @@ public class TiUISlider extends TiUIView
 		this.min = 0;
 		this.max = 0;
 		this.pos = 0;
+		
 
 		SeekBar seekBar = new SeekBar(proxy.getContext());
 		seekBar.setOnSeekBarChangeListener(this);
@@ -71,6 +74,16 @@ public class TiUISlider extends TiUIView
 		if (d.containsKey("max")) {
 			max = TiConvert.toInt(d, "max");;
 		}
+		if (d.containsKey("minRange")) {
+			minRange = TiConvert.toInt(d, "minRange");
+		} else {
+			minRange = min;
+		}
+		if (d.containsKey("maxRange")) {
+			maxRange = TiConvert.toInt(d, "maxRange");
+		} else {
+			maxRange = max;
+		}
 		
 		if (d.containsKey("thumbImage")) {
 			updateThumb(seekBar, d);
@@ -79,9 +92,20 @@ public class TiUISlider extends TiUIView
 		if (d.containsKey("leftTrackImage") && d.containsKey("rightTrackImage")) {
 			updateTrackingImages(seekBar, d);
 		}
+		updateRange();
 		updateControl();
 	}
 
+	private void updateRange() {
+		minRange = Math.max(minRange, min);
+		minRange = Math.min(minRange, max);
+		proxy.setProperty("minRange", minRange, false);
+		
+		maxRange = Math.min(maxRange, max);
+		maxRange = Math.max(maxRange, min);
+		proxy.setProperty("maxRange", maxRange, false);
+	}
+	
 	private void updateControl() {
 		offset = -min;
 		int length = (int) Math.floor(Math.sqrt(Math.pow(max - min, 2)));
@@ -100,8 +124,12 @@ public class TiUISlider extends TiUIView
 			}
 			String url = proxy.getTiContext().resolveUrl(null, thumbImage);
 			Drawable thumb = tfh.loadDrawable(proxy.getTiContext(), url, false);
-			thumbDrawable = new SoftReference<Drawable>(thumb);
-			seekBar.setThumb(thumb);
+		 	if (thumb != null) {
+				thumbDrawable = new SoftReference<Drawable>(thumb);
+				seekBar.setThumb(thumb);
+			} else {
+				Log.e(LCAT, "Unable to locate thumb image for progress bar: " + url);
+			}
 		} else {
 			seekBar.setThumb(null);
 		}
@@ -119,14 +147,28 @@ public class TiUISlider extends TiUIView
 			String leftUrl = proxy.getTiContext().resolveUrl(null, leftImage);
 			String rightUrl = proxy.getTiContext().resolveUrl(null, rightImage);
 
-			Drawable[] lda = {
-				tfh.loadDrawable(proxy.getTiContext(), rightUrl, false, true),
-				new ClipDrawable(tfh.loadDrawable(proxy.getTiContext(), leftUrl, false, true), Gravity.LEFT, ClipDrawable.HORIZONTAL)
-			};
-			LayerDrawable ld = new LayerDrawable(lda);
-			ld.setId(0, android.R.id.background);
-			ld.setId(1, android.R.id.progress);
-			seekBar.setProgressDrawable(ld);
+			Drawable rightDrawable = tfh.loadDrawable(proxy.getTiContext(), rightUrl, false, true);
+			Drawable leftDrawable = tfh.loadDrawable(proxy.getTiContext(), leftUrl, false, true);
+			if (rightDrawable != null && leftDrawable != null) {
+				Drawable[] lda = {
+					rightDrawable,
+					new ClipDrawable(leftDrawable, Gravity.LEFT, ClipDrawable.HORIZONTAL)
+				};
+				LayerDrawable ld = new LayerDrawable(lda);
+				ld.setId(0, android.R.id.background);
+				ld.setId(1, android.R.id.progress);
+				seekBar.setProgressDrawable(ld);
+			} else {
+				if (leftDrawable == null) {
+					Log.e(LCAT, "Unable to locate left image for progress bar: " + leftUrl);					
+				}
+				if (rightDrawable == null) {
+					Log.e(LCAT, "Unable to locate right image for progress bar: " + rightUrl);
+				}
+				// release
+				leftDrawable = null;
+				rightDrawable = null;
+			}
 		} else if (leftImage == null && rightImage == null) {
 			seekBar.setProgressDrawable(null);
 		} else {
@@ -147,15 +189,35 @@ public class TiUISlider extends TiUIView
 			onProgressChanged(seekBar, pos, true);
 		} else if (key.equals("min")) {
 			min = TiConvert.toInt(newValue);
-			if (pos < min) {
-				pos = min;
+			minRange = min;
+			updateRange();
+			if (pos < minRange) {
+				pos = minRange;
+			}
+			updateControl();
+			onProgressChanged(seekBar, pos, true);
+		} else if (key.equals("minRange")) {
+			minRange = TiConvert.toInt(newValue);
+			updateRange();
+			if (pos < minRange) {
+				pos = minRange;
 			}
 			updateControl();
 			onProgressChanged(seekBar, pos, true);
 		} else if (key.equals("max")) {
 			max = TiConvert.toInt(newValue);
-			if (pos > max) {
-				pos = max;
+			maxRange = max;
+			updateRange();
+			if (pos > maxRange) {
+				pos = maxRange;
+			}
+			updateControl();
+			onProgressChanged(seekBar, pos, true);
+		} else if (key.equals("maxRange")) {
+			maxRange = TiConvert.toInt(newValue);
+			updateRange();
+			if (pos > maxRange) {
+				pos = maxRange;
 			}
 			updateControl();
 			onProgressChanged(seekBar, pos, true);
@@ -174,7 +236,19 @@ public class TiUISlider extends TiUIView
 
 	public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
 		pos = seekBar.getProgress();
-
+		
+		// Range check
+		int actualMinRange = minRange + offset;
+		int actualMaxRange = maxRange + offset;
+		
+		if (pos < actualMinRange) {
+			seekBar.setProgress(actualMinRange);
+			pos = minRange;
+		} else if (pos > actualMaxRange) {
+			seekBar.setProgress(actualMaxRange);
+			pos = maxRange;
+		}
+		
 		Drawable thumb = (thumbDrawable != null) ? thumbDrawable.get() : null;
 		KrollDict offset = new KrollDict();
 		offset.put("x", 0);

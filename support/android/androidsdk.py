@@ -160,7 +160,19 @@ class AndroidSDK:
 	
 	def get_mksdcard(self):
 		return self.get_tool(self.android_sdk, 'mksdcard')
-		
+	
+	def get_aidl(self):
+		return self.get_tool(self.platform_dir, 'aidl')
+	
+	def sdk_path(self, *path):
+		return os.path.join(self.android_sdk, *path)
+	
+	def platform_path(self, *path):
+		return os.path.join(self.platform_dir, *path)
+	
+	def google_apis_path(self, *path):
+		return os.path.join(self.google_apis_dir, *path)
+	
 	def list_devices(self):
 		adb = self.get_adb()
 		(out, err) = subprocess.Popen([adb, 'devices'], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()

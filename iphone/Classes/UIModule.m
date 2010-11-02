@@ -29,6 +29,7 @@
 #ifdef USE_TI_UIIOS
 #import "TiUIiOSProxy.h"
 #endif
+#import "TiUIClipboardProxy.h"
 #import "TiApp.h"
 #import "ImageLoader.h"
 #import "Webcolor.h"
@@ -282,6 +283,15 @@ MAKE_SYSTEM_PROP(FACE_DOWN,UIDeviceOrientationFaceDown);
 }
 #endif
 
+-(id)Clipboard
+{
+	if (clipboard==nil)
+	{
+		clipboard = [[TiUIClipboardProxy alloc] _initWithPageContext:[self pageContext]];
+	}
+	return clipboard;
+}
+
 #pragma mark Internal Memory Management
 
 -(void)didReceiveMemoryWarning:(NSNotification*)notification
@@ -295,6 +305,7 @@ MAKE_SYSTEM_PROP(FACE_DOWN,UIDeviceOrientationFaceDown);
 #ifdef USE_TI_UIIOS
 	RELEASE_TO_NIL(ios);
 #endif
+	RELEASE_TO_NIL(clipboard);
 	[super didReceiveMemoryWarning:notification];
 }
 

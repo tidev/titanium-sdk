@@ -306,8 +306,9 @@ public class TiFileHelper
 			} else {
 				is = openInputStream(path, report);
 				Bitmap b = TiUIHelper.createBitmap(is);
-				d = new BitmapDrawable(b);
-				//d = Drawable.createFromStream(is, path);
+				if (b != null) {
+					d = new BitmapDrawable(b);
+				}
 			}
 		} catch (IOException e) {
 			Log.i(LCAT, path + " not found.");

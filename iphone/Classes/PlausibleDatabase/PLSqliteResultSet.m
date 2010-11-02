@@ -67,11 +67,11 @@
     /* Create a column name cache. Optimization possibility: Using CFDictionary may
      * provide an optimization here, since dictionary values do not need to be boxed as objects */
     _columnNames = [[NSMutableDictionary alloc] initWithCapacity: _columnCount];
-	columnNamesArray = [[NSMutableArray alloc] initWithCapacity:_columnCount];
+    columnNamesArray =  [[NSMutableArray alloc] initWithCapacity: _columnCount];
     for (int columnIndex = 0; columnIndex < _columnCount; columnIndex++) {
-        NSString *name = [[NSString stringWithUTF8String: sqlite3_column_name(_sqlite_stmt, columnIndex)] lowercaseString];
-        [_columnNames setValue: [NSNumber numberWithInt: columnIndex] forKey: name];
-		[(NSMutableArray *)columnNamesArray addObject:name];
+        NSString *name = [NSString stringWithUTF8String: sqlite3_column_name(_sqlite_stmt, columnIndex)];
+        [(NSMutableArray *)columnNamesArray addObject: name];
+        [_columnNames setValue: [NSNumber numberWithInt: columnIndex] forKey: [name lowercaseString]];
     }
 
     return self;
@@ -92,7 +92,7 @@
 
     /* Release the column cache. */
     [_columnNames release];
-	[columnNamesArray release];
+    [columnNamesArray release];
     
     /* Release the statement. */
     [_stmt release];
@@ -351,5 +351,3 @@ VALUE_ACCESSORS(NSData *, data, SQLITE_BLOB, [NSData dataWithBytes: sqlite3_colu
 
 
 @end
-
-

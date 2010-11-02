@@ -5,7 +5,7 @@
 # the Android Emulator or on the device
 #
 import os, sys, subprocess, shutil, time, signal, string, platform, re, glob, hashlib
-import run, avd, prereq
+import run, avd, prereq, zipfile, tempfile, fnmatch
 from os.path import splitext
 from compiler import Compiler
 from os.path import join, splitext, split, exists
@@ -158,6 +158,8 @@ class Builder(object):
 	def __init__(self, name, sdk, project_dir, support_dir, app_id):
 		self.top_dir = project_dir
 		self.project_dir = os.path.join(project_dir,'build','android')
+		self.project_src_dir = os.path.join(self.project_dir, 'src')
+		self.project_gen_dir = os.path.join(self.project_dir, 'gen')
 		# this is hardcoded for now
 		self.sdk = AndroidSDK(sdk, 4)
 		self.name = name
@@ -170,9 +172,14 @@ class Builder(object):
 		# start in 1.4, you no longer need the build/android directory
 		# if missing, we'll create it on the fly
 		if not os.path.exists(self.project_dir) or (not os.path.exists(os.path.join(self.top_dir, 'AndroidManifest.xml')) and not os.path.exists(os.path.join(self.project_dir,'AndroidManifest.xml'))):
-			info("Detected missing project but that's OK. re-creating it...")
+			info("Detected missing project but that's OK. re-creating it... ")
 			android_creator = Android(name, app_id, self.sdk, None, self.java)
-			android_creator.create(os.path.join(project_dir,'..'))
+			parent_dir = os.path.dirname(self.top_dir)
+			if os.path.exists(self.top_dir):
+				android_creator.create(parent_dir, project_dir=self.top_dir)
+			else:
+				android_creator.create(parent_dir)
+			
 			self.force_rebuild = True
 			sys.stdout.flush()
 		
@@ -746,7 +753,6 @@ class Builder(object):
 			shutil.copy(os.path.join(self.support_resources_dir, 'default.png'), background_png)
 		
 
-		self.src_dir = os.path.join(self.project_dir, 'src')
 		android_manifest = os.path.join(self.project_dir, 'AndroidManifest.xml')
 		
 		android_manifest_to_read = android_manifest
@@ -772,6 +778,8 @@ class Builder(object):
 		ti_permissions = '<!-- TI_PERMISSIONS -->'
 		ti_screens = '<!-- TI_SCREENS -->'
 		ti_services = '<!-- TI_SERVICES -->'
+		ti_manifest = '<!-- TI_MANIFEST -->'
+		ti_application = '<!-- TI_APPLICATION -->'
 		manifest_changed = False
 		
 		match = re.search('<uses-sdk android:minSdkVersion="(\d)" />', manifest_contents)
@@ -806,8 +814,39 @@ class Builder(object):
 			screens_str += '\n\t\tandroid:%s="%s"' % (key, value)
 		screens_str += '\n\t/>'
 		manifest_contents = manifest_contents.replace(ti_screens, screens_str)
-						
-						
+		
+		manifest_xml = ''
+		def get_manifest_xml(tiapp):
+			xml = ''
+			if 'manifest' in tiapp.android_manifest:
+				for manifest_el in tiapp.android_manifest['manifest']:
+					xml += manifest_el.toprettyxml()
+			return xml
+		
+		application_xml = ''
+		def get_application_xml(tiapp):
+			xml = ''
+			if 'application' in tiapp.android_manifest:
+				for app_el in tiapp.android_manifest['application']:
+					xml += app_el.toxml()
+			return xml
+		
+		# add manifest / application entries from tiapp.xml
+		manifest_xml += get_manifest_xml(self.tiapp)
+		application_xml += get_application_xml(self.tiapp)
+		
+		# add manifest / application entries from modules
+		detector = ModuleDetector(self.top_dir)
+		self.missing_modules, self.modules = detector.find_app_modules(self.tiapp)
+		for module in self.modules:
+			if module.xml == None: continue
+			manifest_xml += get_manifest_xml(module.xml)
+			application_xml += get_application_xml(module.xml)
+		
+		if len(manifest_xml) > 0:
+			manifest_contents = manifest_contents.replace(ti_manifest, manifest_xml)
+		if len(application_xml) > 0:
+			manifest_contents = manifest_contents.replace(ti_application, application_xml)
 		
 		old_contents = None
 		if os.path.exists(android_manifest):
@@ -822,66 +861,83 @@ class Builder(object):
 			manifest_changed = True
 		
 		res_dir = os.path.join(self.project_dir, 'res')
-		output = run.run([self.aapt, 'package', '-m', '-J', self.src_dir, '-M', android_manifest, '-S', res_dir, '-I', self.android_jar])
+		output = run.run([self.aapt, 'package', '-m', '-J', self.project_gen_dir, '-M', android_manifest, '-S', res_dir, '-I', self.android_jar])
 		if output == None:
 			error("Error generating R.java from manifest")
 			sys.exit(1)
-		r_file = os.path.join(self.project_dir,'src',self.app_id.replace('.','/'),'R.java')
-		ra_file = os.path.join(self.project_dir,'src',self.app_id.replace('.','/'),'RA.java')
-		package,map = parse_r(r_file)
-		ra_out = generate_appc_r(package,map)
-		ra_f = open(ra_file,'w')
+		r_file = os.path.join(self.project_gen_dir, self.app_id.replace('.', os.sep), 'R.java')
+		ra_file = os.path.join(self.project_gen_dir, self.app_id.replace('.', os.sep), 'RA.java')
+		package, map = parse_r(r_file)
+		ra_out = generate_appc_r(package, map)
+		ra_f = open(ra_file, 'w')
 		ra_f.write(ra_out)
 		ra_f.close()
 
 		return manifest_changed
 
 	def generate_stylesheet(self):
-		srcdir = os.path.join(self.project_dir,'src')
-		cssc = csscompiler.CSSCompiler(os.path.join(self.top_dir,'Resources'),'android',self.app_id)
-		app_sdir = os.path.join(srcdir,self.app_id.replace('.','/'))
-		if not os.path.exists(app_sdir): os.makedirs(app_sdir)
-		app_stylesheet = os.path.join(app_sdir,'ApplicationStylesheet.java')
+		cssc = csscompiler.CSSCompiler(os.path.join(self.top_dir, 'Resources'), 'android', self.app_id)
+		project_gen_pkg_dir = os.path.join(self.project_gen_dir, self.app_id.replace('.', os.sep))
+		if not os.path.exists(project_gen_pkg_dir):
+			os.makedirs(project_gen_pkg_dir)
+		app_stylesheet = os.path.join(project_gen_pkg_dir, 'ApplicationStylesheet.java')
 		debug("app stylesheet => %s" % app_stylesheet)
-		sys.stdout.flush()
-		asf = codecs.open(app_stylesheet,'w','utf-8')
+		
+		asf = codecs.open(app_stylesheet, 'w', 'utf-8')
 		asf.write(cssc.code)
 		asf.close()
 		
 	def generate_localizations(self):
 		# compile localization files
 		localecompiler.LocaleCompiler(self.name,self.top_dir,'android',sys.argv[1]).compile()
+	
+	def recurse(self, paths, file_glob=None):
+		if paths == None: yield None
+		if not isinstance(paths, list): paths = [paths]
+		
+		for path in paths:
+			for root, dirs, files in os.walk(path):
+				for filename in files:
+					if file_glob != None:
+						if not fnmatch.fnmatch(filename, file_glob): continue
+					yield os.path.join(root, filename)
+	
+	def generate_aidl(self):
+		# support for android remote interfaces in platform/android/src
+		framework_aidl = self.sdk.platform_path('framework.aidl')
+		aidl_args = [self.sdk.get_aidl(), '-p' + framework_aidl, '-I' + self.project_src_dir, '-o' + self.project_gen_dir]
+		for aidl_file in self.recurse(self.project_src_dir, '*.aidl'):
+			run.run(aidl_args + [aidl_file])
 			
 	def build_generated_classes(self):
-		srclist = []
+		src_list = []
 		self.module_jars = []
-		srcdir = os.path.join(self.project_dir,'src')
 		
-		for root, dirs, files in os.walk(srcdir):
-			# Strip out directories we shouldn't traverse
-			for name in ignoreDirs:
-				if name in dirs:
-					dirs.remove(name)
-					
-			if len(files) > 0:
-				for f in files:
-					if f in ignoreFiles : continue
-					path = root + os.sep + f
-					srclist.append(path)
+		for java_file in self.recurse([self.project_src_dir, self.project_gen_dir], '*.java'):
+			src_list.append(java_file)
 	
 		classpath = os.pathsep.join([self.android_jar, os.pathsep.join(self.android_jars)])
 	
 		project_module_dir = os.path.join(self.top_dir,'modules','android')
-		detector = ModuleDetector(self.top_dir)
-		missing, modules = detector.find_app_modules(self.tiapp)
-		for module in modules:
-			self.module_jars.append(module.path)
-			classpath = os.pathsep.join([classpath, module.path])
+		for module in self.modules:
+			if module.jar == None: continue
+			self.module_jars.append(module.jar)
+			classpath = os.pathsep.join([classpath, module.jar])
+			module_lib = module.get_resource('lib')
+			for jar in glob.glob(os.path.join(module_lib, '*.jar')):
+				self.module_jars.append(jar)
+				classpath = os.pathsep.join([classpath, jar])
 		
-		javac_command = [self.javac, '-classpath', classpath, '-d', self.classes_dir, '-sourcepath', self.src_dir]
-		javac_command += srclist
-		debug(" ".join(javac_command))
+		debug("Building Java Sources: " + " ".join(src_list))
+		javac_command = [self.javac, '-classpath', classpath, '-d', self.classes_dir, '-sourcepath', self.project_src_dir, '-sourcepath', self.project_gen_dir]
+		(src_list_osfile, src_list_filename) = tempfile.mkstemp()
+		src_list_file = os.fdopen(src_list_osfile, 'w')
+		src_list_file.write("\n".join(src_list))
+		src_list_file.close()
+		
+		javac_command.append('@' + src_list_filename)
 		out = run.run(javac_command)
+		os.remove(src_list_filename)
 	
 	def package_and_deploy(self):
 		ap_ = os.path.join(self.project_dir, 'bin', 'app.ap_')
@@ -889,8 +945,10 @@ class Builder(object):
 		run.run([self.aapt, 'package', '-f', '-M', 'AndroidManifest.xml', '-A', self.assets_dir, '-S', 'res', '-I', self.android_jar, '-I', self.titanium_jar, '-F', ap_])
 	
 		unsigned_apk = os.path.join(self.project_dir, 'bin', 'app-unsigned.apk')
-		apk_build_cmd = [self.apkbuilder, unsigned_apk, '-u', '-z', ap_, '-f', self.classes_dex, '-rf', self.src_dir]
+		apk_build_cmd = [self.apkbuilder, unsigned_apk, '-u', '-z', ap_, '-f', self.classes_dex, '-rf', self.project_src_dir]
 		for jar in self.android_jars:
+			apk_build_cmd += ['-rj', jar]
+		for jar in self.module_jars:
 			apk_build_cmd += ['-rj', jar]
 		
 		run.run(apk_build_cmd)
@@ -1120,6 +1178,7 @@ class Builder(object):
 						shutil.copyfile(from_, to_)
 			
 			self.generate_stylesheet()
+			self.generate_aidl()
 			
 			# The next line does localization and RA generation stuff
 			manifest_changed = self.generate_android_manifest(compiler)

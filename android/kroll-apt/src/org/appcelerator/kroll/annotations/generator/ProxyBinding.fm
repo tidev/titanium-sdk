@@ -6,6 +6,7 @@
  */
 package ${packageName};
 
+import org.appcelerator.kroll.KrollArgument;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.KrollConverter;
 import org.appcelerator.kroll.KrollInvocation;
@@ -19,6 +20,7 @@ import org.appcelerator.kroll.KrollInjector;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollDefaultValueProvider;
 import org.appcelerator.kroll.util.KrollReflectionUtils;
+import org.appcelerator.kroll.util.KrollBindingUtils;
 import org.appcelerator.titanium.kroll.KrollBridge;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.Log;
@@ -73,27 +75,24 @@ import ${packageName}.${proxyClassName};
 	<#if hasArgArray>
 		<#local requiredArgs = countRequiredArguments(args)>
 		<#if requiredArgs &gt; 0>
-	if (__args == null) { throw new IllegalArgumentException("Expected ${requiredArgs} arguments for ${methodName}, got 0"); }
-	else if (__args.length < ${requiredArgs}) { throw new IllegalArgumentException("Expected ${requiredArgs} arguments for ${methodName}, got " + __args.length); }
+	KrollBindingUtils.assertRequiredArgs(__args, ${requiredArgs}, "${methodName}");
 		</#if>
 	</#if>
 	<#if returnType != "void">
 	final ${converter} __${methodName}_converter = ${converter}.getInstance();
 	</#if>
 	<#list args as arg>
+		KrollArgument __${arg.name}_argument = new KrollArgument("${arg.name}");
 		${arg.type} ${arg.name};
 		<#if arg_index = varArgsIndex>
 			<#if hasArgArray>
-				// varargs
-				${arg.name} = new Object[__args.length-${arg_index}];
-				for (int i = ${arg_index}; i < __args.length; i++) {
-					${arg.name}[i-${arg_index}] = ${arg.converter}.getInstance().convertJavascript(__invocation, __args[i], Object.class);
-				}
+				${arg.name} = KrollBindingUtils.getVarArgs(__invocation, __args, ${arg_index}, ${arg.converter}.getInstance(), ${arg.defaultValueProvider}.getInstance()); 
 			<#else>
 				${arg.name} = (Object[]) ${converter}.getInstance().convertJavascript(__invocation, ${firstArgValue}, Object[].class);
 			</#if>
 		<#else>
 			<#local optional = arg?keys?seq_contains("optional") && arg.optional>
+			__${arg.name}_argument.setOptional(${optional?string});
 			<#local castType = arg.type>
 			<#local isBoxType = primitiveBoxTypes?keys?seq_contains(arg.type)>
 			<#if isBoxType>
@@ -118,16 +117,20 @@ import ${packageName}.${proxyClassName};
 				${arg.name} = (${castType})
 					${arg.converter}.getInstance().convertJavascript(__invocation, ${argValue}, ${castType}.class);
 			<#else>
+				__${arg.name}_argument.setValueDefault(true);
 				${arg.name} = (${castType})
 					${arg.defaultValueProvider}.getInstance().getDefaultValue(${castType}.class);
 			</#if>
 			<#if optional && hasArgArray>
 			} else {
+				__${arg.name}_argument.setValueDefault(true);
 				${arg.name} = (${castType})
 					${arg.defaultValueProvider}.getInstance().getDefaultValue(${castType}.class);
 			}
 			</#if>
 		</#if>
+		__${arg.name}_argument.setValue(${arg.name});
+		__invocation.addArgument(__${arg.name}_argument);
 	</#list>
 	
 	<#-- TODO: re-enable injection
@@ -285,23 +288,14 @@ public class ${genClassName}
 		<@listCreateProxies ; isFirst, createProxy>
 		<#if isFirst>// Proxy create methods</#if>
 		if (name.equals("create${createProxy.name}")) {
-			KrollMethod create${createProxy.name} = new KrollMethod("create${createProxy.name}") {
-				public Object invoke(KrollInvocation __invocation, Object[] __args) throws Exception
-				{
-					${createProxy.proxyClassName} __createdProxy = new ${createProxy.proxyClassName}(__invocation.getTiContext());
-					
-					Object __createArgs[] = new Object[__args.length];
-					for (int i = 0; i < __args.length; i++) {
-						__createArgs[i] = KrollConverter.getInstance().convertJavascript(
-							__invocation, __args[i], Object.class);
-					}
-					
-					__createdProxy.handleCreationArgs(__createArgs);
-					return KrollConverter.getInstance().convertNative(__invocation, __createdProxy);
+			KrollBindingUtils.KrollProxyCreator creator = new KrollBindingUtils.KrollProxyCreator() {
+				public KrollProxy create(TiContext context) {
+					return new ${createProxy.proxyClassName}(context);
 				}
 			};
-			bindings.put("create${createProxy.name}", create${createProxy.name});
-			return create${createProxy.name};
+			KrollMethod create${createProxy.name}_method = KrollBindingUtils.createCreateMethod("${createProxy.name}", creator);
+			bindings.put("create${createProxy.name}", create${createProxy.name}_method);
+			return create${createProxy.name}_method;
 		}
 		</@listCreateProxies>
 		
@@ -396,22 +390,7 @@ public class ${genClassName}
 		<#list proxyAttrs.propertyAccessors as accessor>
 		<#assign upperCamel = accessor?substring(0, 1)?upper_case + accessor?substring(1)>
 		if (name.equals("get${upperCamel}") || name.equals("set${upperCamel}")) {
-			KrollMethod ${accessor}_accessor = new KrollMethod("${accessor}") {
-				public Object invoke(KrollInvocation __invocation, Object[] __args) throws Exception
-				{
-					String name = __invocation.getMethod(). 	getName(); 
-					if (name.startsWith("get") || name.startsWith("is")) {
-						return KrollConverter.getInstance().convertNative(__invocation,
-							__invocation.getProxy().getProperty("${accessor}"));
-					} else {
-						__invocation.getProxy().setProperty("${accessor}", __args.length > 0 ?
-							KrollConverter.getInstance().convertJavascript(__invocation, __args[0], Object.class) : null, true);
-					}
-					return KrollProxy.UNDEFINED;
-				}
-			};
-			
-			
+			KrollMethod ${accessor}_accessor = KrollBindingUtils.createAccessorMethod("${accessor}"); 
 			bindings.put("get${upperCamel}", ${accessor}_accessor);
 			bindings.put("set${upperCamel}", ${accessor}_accessor);
 			return ${accessor}_accessor;

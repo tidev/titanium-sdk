@@ -29,12 +29,12 @@ selected[int]: index to make selected
 
 - methods
 
-setURL: change an image for a index
+setImage: change an image for a index
 
-- method : setURL
+- method : setImage
 
 index[int]: index to change
-url[string]: url to the new image
+image[object]: the image to set the index to. May be a TiBlob, TiFile, URL, or dictionary with 'image' (may be any of TiBlob, TiFile, URL), 'width', 'height' keys.  'auto' is not allowed, only exact sizes (although a size may be omitted to keep the image at that size).  If passed as a TiFile or URL, will perform a check for '@2x' on Retina displays
 
 - events
 
@@ -50,7 +50,6 @@ previous: the previous index of the image that was visible
 
 index: the index of the image that is now visible
 previous: the previous index of the image that was visible
-
 
 - example : Simple 3 image cover flow example
 

@@ -11,6 +11,7 @@
 #import "OperationQueue.h"
 #import "ASIHTTPRequest.h"
 #import "TiApp.h"
+#import "TiFile.h"
 #import "TiBlob.h"
 
 @implementation TiUIImageViewProxy
@@ -26,6 +27,13 @@ static NSArray* imageKeySequence;
 		imageKeySequence = [[NSArray arrayWithObjects:@"width",@"height",nil] retain];
 	}
 	return imageKeySequence;
+}
+
+// TODO: Hack to resize 'auto' image views; other 'auto' views may still need to be
+// resized/relayed on iPad.  See #2227
+-(UIViewAutoresizing)verifyAutoresizing:(UIViewAutoresizing)suggestedResizing
+{
+	return (suggestedResizing | UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth);
 }
 
 -(void)_configure
@@ -91,10 +99,26 @@ static NSArray* imageKeySequence;
 
 -(id)toBlob:(id)args
 {
-	id url = [self valueForKey:@"url"];
-	if (url!=nil)
+	id imageValue = [self valueForKey:@"image"];
+	if (imageValue == nil)
 	{
-		NSURL *url_ = [TiUtils toURL:url proxy:self];
+		imageValue = [self valueForKey:@"url"];
+	}
+
+	if ([imageValue isKindOfClass:[TiBlob class]])
+	{
+		//We already have it right here already!
+		return imageValue;
+	}
+
+	if ([imageValue isKindOfClass:[TiFile class]])
+	{
+		return [(TiFile *)imageValue toBlob:nil];
+	}
+
+	if (imageValue!=nil)
+	{
+		NSURL *url_ = [TiUtils toURL:imageValue proxy:self];
 		UIImage *image = [[ImageLoader sharedLoader] loadImmediateImage:url_];
 		
 		if (image!=nil)
@@ -108,6 +132,11 @@ static NSArray* imageKeySequence;
 		return [[[TiBlob alloc] initWithImage:image] autorelease];
 	}
 	return nil;
+}
+
+-(void)addLoadDelegate:(id <ImageLoaderDelegate>)delegate
+{
+	
 }
 
 USE_VIEW_FOR_AUTO_WIDTH

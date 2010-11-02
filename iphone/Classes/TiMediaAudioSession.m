@@ -116,15 +116,6 @@ void TiAudioSessionInputAvailableCallback(void* inUserData, AudioSessionProperty
 		lock = [[NSLock alloc] init];
 		
 		AudioSessionInitialize (NULL, NULL, TiAudioSessionInterruptionCallback, self);
-			
-		// register for audio route changes
-		AudioSessionAddPropertyListener(kAudioSessionProperty_AudioRouteChange, TiAudioSessionAudioRouteChangeCallback, self); 
-			
-		// register for audio volume changes
-		AudioSessionAddPropertyListener(kAudioSessionProperty_CurrentHardwareOutputVolume, TiAudioSessionAudioVolumeCallback, self);
-			
-		// register for input availability changes
-		AudioSessionAddPropertyListener(kAudioSessionProperty_AudioInputAvailable, TiAudioSessionInputAvailableCallback, self);
 	}
 	return self;
 }
@@ -153,34 +144,46 @@ void TiAudioSessionInputAvailableCallback(void* inUserData, AudioSessionProperty
 -(BOOL)isAudioPlaying
 {
 	// returns YES if audio is currently playing
+	if (![self isActive]) {
+		return NO;
+	}
+	
+	[self startAudioSession];
 	UInt32 size, playing;
 	size = sizeof(UInt32);
 	AudioSessionGetProperty(kAudioSessionProperty_OtherAudioIsPlaying, &size, &playing);
+	[self stopAudioSession];
 	return playing;
 }
 
 -(CGFloat)volume
 {
+	[self startAudioSession];
 	UInt32 size;
 	CGFloat volume;
 	size = sizeof(CGFloat);
 	AudioSessionGetProperty(kAudioSessionProperty_CurrentHardwareOutputVolume, &size, &volume);
+	[self stopAudioSession];
 	return volume;
 }
 
 -(BOOL)hasInput
 {
+	[self startAudioSession];
 	UInt32 hasInput;
 	UInt32 size = sizeof(hasInput);
 	AudioSessionGetProperty(kAudioSessionProperty_AudioInputAvailable, &size, &hasInput);
+	[self stopAudioSession];
 	return hasInput;
 }
 
 -(TiMediaAudioSessionInputType)inputType
 {
+	[self startAudioSession];
 	CFStringRef newRoute = NULL;
 	UInt32 size = sizeof(CFStringRef);
 	AudioSessionGetProperty(kAudioSessionProperty_AudioRoute, &size, &newRoute);
+	[self stopAudioSession];
 	if (newRoute)
 	{	
 		if (CFStringGetLength(newRoute) == 0)
@@ -227,7 +230,9 @@ void TiAudioSessionInputAvailableCallback(void* inUserData, AudioSessionProperty
 {
 	UInt32 mode;
 	UInt32 size = sizeof(mode);
+	[self startAudioSession];
 	AudioSessionGetProperty(kAudioSessionProperty_AudioCategory, &size, &mode);
+	[self stopAudioSession];
     if (mode != kAudioSessionCategory_RecordAudio && mode != kAudioSessionCategory_PlayAndRecord) {
 		return false;
     }
@@ -238,7 +243,9 @@ void TiAudioSessionInputAvailableCallback(void* inUserData, AudioSessionProperty
 {
 	UInt32 mode;
 	UInt32 size = sizeof(mode);
+	[self startAudioSession];
 	AudioSessionGetProperty(kAudioSessionProperty_AudioCategory, &size, &mode);
+	[self stopAudioSession];
     if (mode == kAudioSessionCategory_RecordAudio) {
 		return false;
     }
@@ -257,7 +264,9 @@ void TiAudioSessionInputAvailableCallback(void* inUserData, AudioSessionProperty
 {
 	UInt32 mode;
 	UInt32 size = sizeof(mode);
+	[self startAudioSession];
 	AudioSessionGetProperty(kAudioSessionProperty_AudioCategory, &size, &mode);
+	[self stopAudioSession];
 	return mode;
 }
 
@@ -267,6 +276,16 @@ void TiAudioSessionInputAvailableCallback(void* inUserData, AudioSessionProperty
 	count++;
 	if (count == 1)
 	{
+		// Registration must be done with each new audio session activation
+		
+		// register for audio route changes
+		AudioSessionAddPropertyListener(kAudioSessionProperty_AudioRouteChange, TiAudioSessionAudioRouteChangeCallback, self); 
+		
+		// register for audio volume changes
+		AudioSessionAddPropertyListener(kAudioSessionProperty_CurrentHardwareOutputVolume, TiAudioSessionAudioVolumeCallback, self);
+		
+		// register for input availability changes
+		AudioSessionAddPropertyListener(kAudioSessionProperty_AudioInputAvailable, TiAudioSessionInputAvailableCallback, self);
 		AudioSessionSetActive(true);
 	}
 	[lock unlock];

@@ -554,6 +554,7 @@ static BOOL isiPhoneOS2;
 #if DEBUG_REQUEST_STATUS || DEBUG_THROTTLING
 	NSLog(@"Starting asynchronous request %@",self);
 #endif
+	[cancelledLock retain];
 	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 
 	[self setInProgress:YES];	
@@ -575,6 +576,7 @@ static BOOL isiPhoneOS2;
 		[self failWithError:[NSError errorWithDomain:NetworkRequestErrorDomain code:ASIUnhandledExceptionError userInfo:[NSDictionary dictionaryWithObjectsAndKeys:[exception name],NSLocalizedDescriptionKey,[exception reason],NSLocalizedFailureReasonErrorKey,underlyingError,NSUnderlyingErrorKey,nil]]];
 	}	
 	[pool release];
+	[cancelledLock release];
 }
 
 #pragma mark concurrency

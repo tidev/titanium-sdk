@@ -16,15 +16,16 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.appcelerator.titanium.TiContext.OnLifecycleEvent;
 import org.appcelerator.titanium.bridge.OnEventListenerChange;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 
-public class KrollEventManager {
+public class KrollEventManager implements OnLifecycleEvent {
 	private static final String TAG = "KrollEventManager";
 	private static final boolean DBG = TiConfig.LOGD;
 	private static final boolean TRACE = TiConfig.LOGV;
-	
+
 	protected KrollProxy proxy;
 	protected ArrayList<WeakReference<OnEventListenerChange>> eventChangeListeners;
 	protected Map<String, HashMap<Integer, KrollListener>> eventListeners;
@@ -32,7 +33,8 @@ public class KrollEventManager {
 	
 	public KrollEventManager(KrollProxy proxy) {
 		this.proxy = proxy;
-
+		proxy.getTiContext().addOnLifecycleEventListener(this);
+		
 		this.eventChangeListeners = new ArrayList<WeakReference<OnEventListenerChange>>();
 		this.listenerIdGenerator = new AtomicInteger(0);
 		this.eventListeners = Collections.synchronizedMap(new HashMap<String, HashMap<Integer, KrollListener>>());
@@ -263,6 +265,15 @@ public class KrollEventManager {
 		}
 		return dispatched;
 	}
+
+	public void onDestroy() {
+		release();
+	}
+	
+	public void onPause() {}
+	public void onResume() {}
+	public void onStart() {}
+	public void onStop() {}
 	
 	public void release() {
 		if (eventChangeListeners != null) {

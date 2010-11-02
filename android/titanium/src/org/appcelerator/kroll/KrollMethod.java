@@ -73,7 +73,7 @@ public abstract class KrollMethod extends ScriptableObject implements Function {
 				}
 			}
 		} catch (Exception e) {
-			Log.e(TAG, "Exception calling kroll method " + name, e);
+			Log.e(TAG, "Exception calling kroll method " + name + ", invocation: " + inv, e);
 			Context.throwAsScriptRuntimeEx(e);
 			return Context.getUndefinedValue();
 		}

@@ -238,7 +238,6 @@ public class KrollConverter implements KrollNativeConverter,
 				args.put(key.toString(), v);
 			}
 			return args;
-			//Log.w(LCAT, "Unhandled type conversion of Scriptable: value: " + value.toString() + " type: " + value.getClass().getName());
 		}
 	}
 	
