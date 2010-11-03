@@ -33,7 +33,15 @@ static NSArray* imageKeySequence;
 // resized/relayed on iPad.  See #2227
 -(UIViewAutoresizing)verifyAutoresizing:(UIViewAutoresizing)suggestedResizing
 {
-	return (suggestedResizing | UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth);
+	UIViewAutoresizing resizing = suggestedResizing;
+	if (TiDimensionIsAuto(layoutProperties.width)) {
+		resizing |= UIViewAutoresizingFlexibleWidth;
+	}
+	if (TiDimensionIsAuto(layoutProperties.height)) {
+		resizing |= UIViewAutoresizingFlexibleHeight;
+	}
+	
+	return resizing;
 }
 
 -(void)_configure
