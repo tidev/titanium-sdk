@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -56,6 +57,7 @@ public class FBRequest {
     private Object mData = null;
     private Date mTimestamp = null;
     private boolean mLoading = false;
+    private String mHttpMethod = "POST";
     
     private FBRequest(FBSession session, FBRequestDelegate delegate) {
         mSession = session;
@@ -147,6 +149,10 @@ public class FBRequest {
     	String cleanMethod = method.replace("facebook.", "");
     	if (isSpecialMethod()) {
     		return mSession.getApiSecureURL() + cleanMethod ;
+    	} else if (method == "me") {
+    		return mSession.getGraphApiSecureURL() + method;
+    	} else if (FacebookModule.usingOauth ){
+    		return mSession.getApiSecureURL() + cleanMethod;
     	} else {
     		return mSession.getApiURL() + cleanMethod;
     	}
@@ -200,7 +206,12 @@ public class FBRequest {
 
         return CcUtil.generateMD5(joined.toString());
     }
-
+    
+    
+    protected void setHttpMethod(String method) {
+    	mHttpMethod = method;
+    }
+    
     private byte[] generatePostBody() throws UnsupportedEncodingException, IOException {
         ByteArrayOutputStream os = new ByteArrayOutputStream();
         
@@ -330,8 +341,13 @@ public class FBRequest {
             if (mDelegate != null) {
                 mDelegate.requestLoading(this);
             }
+            String url = null;
+            if (mMethod == null || mHttpMethod.equals("GET")) {
+            	url = generateGetUrl();
+            } else {
+            	url = mUrl;
+            }
     
-            String url = (mMethod != null ? mUrl : generateGetUrl());
             URL serverUrl = new URL(url);
             
             HttpURLConnection conn = null;
@@ -344,12 +360,11 @@ public class FBRequest {
                 conn.setRequestProperty("User-Agent", USER_AGENT);
     
                 byte[] body = null;
-                if (mMethod != null) {
-                    conn.setRequestMethod("POST");
-    
+                if ("POST".equals(mHttpMethod) && mMethod != null) {
                     conn.setRequestProperty("Content-Type", "multipart/form-data; boundary=" + STRING_BOUNDARY);
-    
                     body = generatePostBody();
+                } else {
+                	conn.setRequestMethod("GET");
                 }
     
                 conn.setDoOutput(true);
@@ -370,6 +385,9 @@ public class FBRequest {
             mTimestamp = new Date();
             
             handleResponseData(response,contentType);
+            
+        } catch (Throwable t) {
+        	Log.e(LOG, "FBRequest connect() error: " + t.getClass().getName() + " - " +  t.getMessage(), t);
         } finally {
             mLoading = false;
         }
@@ -424,11 +442,11 @@ public class FBRequest {
         mData = data;
 
         //mParams.put("method", mMethod);
-        if (!FacebookModule.usingOauth) {
+        //if (!FacebookModule.usingOauth) {
 	        mParams.put("api_key", mSession.getApiKey());
 	        mParams.put("v", API_VERSION);
 	        mParams.put("format", API_FORMAT);
-        }
+        //}
 
         if (!isSpecialMethod() && !FacebookModule.usingOauth) {
             mParams.put("session_key", mSession.getSessionKey());
@@ -441,6 +459,10 @@ public class FBRequest {
 
         if (!FacebookModule.usingOauth) {
         	mParams.put("sig", generateSig());
+        }
+        
+        if (FacebookModule.usingOauth && !mParams.containsKey("access_token")) {
+        	mParams.put("access_token", mSession.getAccessToken());
         }
 
         mSession.send(this);
@@ -506,7 +528,7 @@ public class FBRequest {
          * Called when an error prevents the request from completing successfully.
          */
         public void requestDidFailWithError(FBRequest request, Throwable error) {
-        	Log.e(LCAT, "Facebook request error.  URL: " + request.getUrl() + "; method: " + request.getMethod() + "; message: " + error.getMessage(), error);
+        	Log.e(LOG, "Facebook request error.  URL: " + request.getUrl() + "; method: " + request.getMethod() + "; message: " + error.getMessage(), error);
         }
 
         /**

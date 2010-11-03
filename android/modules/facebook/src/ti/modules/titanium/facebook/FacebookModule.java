@@ -308,6 +308,11 @@ public class FacebookModule extends TiModule implements FBActivityDelegate,
 						event.put("permission", permission);
 					}
 				}
+				if (resultCode == FBActivity.RESULT_ERROR) {
+					if (data.hasExtra("error")) {
+						event.put("error", data.getStringExtra("error"));
+					}
+				}
 				callback.callWithProperties(event);
 				Log.d(LCAT, "Calling post activity event = " + event + " to "
 						+ callback);
@@ -334,6 +339,7 @@ public class FacebookModule extends TiModule implements FBActivityDelegate,
 			triggerLoginChange(false);
 		}
 		
+		internalSetDynamicValue("permissions", session.getPermissions(), false);
 		internalSetDynamicValue("loggedIn", isLoggedIn(), false);
 		internalSetDynamicValue("userId", getUserId(), false);
 
@@ -437,7 +443,7 @@ public class FacebookModule extends TiModule implements FBActivityDelegate,
 
 		String fql = "select uid,name from user where uid == "
 				+ session.getUid();
-		String fql2 = "select status_update,photo_upload,sms,email,create_event,rsvp_event,publish_stream,read_stream,share_item,create_note from permissions where uid == "
+		String fql2 = "select status_update,photo_upload,sms,email,create_event,rsvp_event,publish_stream,read_stream,share_item,create_note,offline_access from permissions where uid == "
 				+ session.getUid();
 
 		String json = null;
