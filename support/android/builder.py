@@ -755,7 +755,7 @@ class Builder(object):
 			resfile = open(resfilepath,'w')
 			TITANIUM_THEME="""<?xml version="1.0" encoding="utf-8"?>
 <resources>
-<style name="Theme.Titanium" parent="android:Theme">
+<style name="Theme.Titanium" parent="android:Theme.NoTitleBar.Fullscreen">
     <item name="android:windowBackground">@drawable/background</item>
 </style>
 </resources>
