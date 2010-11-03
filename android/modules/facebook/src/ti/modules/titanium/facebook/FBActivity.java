@@ -11,6 +11,7 @@ import java.util.Map;
 
 import ti.modules.titanium.facebook.FBDialog.FBDialogDelegate;
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.WindowManager;
 
@@ -18,6 +19,7 @@ public class FBActivity extends Activity {
 	private static final Map<String, FBActivityDelegate> activities = new HashMap<String, FBActivityDelegate>();
 
 	private FBDialog dialog;
+	protected static final int RESULT_ERROR = Activity.RESULT_FIRST_USER;
 
 	public static void registerActivity(String identifier,
 			FBActivityDelegate activity) {
@@ -53,7 +55,9 @@ public class FBActivity extends Activity {
         @Override
         public void dialogDidFailWithError(FBDialog dialog, Throwable error) {
             super.dialogDidFailWithError(dialog, error);
-            setResult(-1);
+            Intent data = new Intent();
+            data.putExtra("error", error.getMessage());
+            setResult(RESULT_ERROR, data);
         }
 
     }

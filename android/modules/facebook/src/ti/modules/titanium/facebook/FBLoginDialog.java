@@ -60,6 +60,18 @@ public class FBLoginDialog extends FBDialog {
         }
     }
 
+    // OAUTH
+    private void connectToGetUserInfo(String token) {
+    	mGetSessionRequest = FBRequest.requestWithSession(mSession, mRequestDelegate);
+    	mGetSessionRequest.setHttpMethod("GET");
+        Map<String, String> params = new HashMap<String, String>();
+    	params.put("access_token", token);
+    	params.put("sdk", "android");
+    	params.put("type", "user_agent");
+        params.put("format","json");
+        mGetSessionRequest.call("me", params);
+    }
+
     private void loadLoginPage() {
         Map<String, String> params = new HashMap<String, String>();
         String url = FacebookModule.usingOauth ? OAUTH_URL : LOGIN_URL;
@@ -126,9 +138,9 @@ public class FBLoginDialog extends FBDialog {
             			} else {
             				expires_in = toSearch.substring(offset);
             			}
-            			mSession.begin_oauth(mContext, token, expires_in);
-            			mSession.resume_oauth(mContext);
-            			super.dialogDidSucceed(url);
+            			mSession.setAccessToken(token);
+            			mSession.setFutureExpiration(mContext, expires_in);
+            			connectToGetUserInfo(token);
             		}
             	}
             }
@@ -141,28 +153,35 @@ public class FBLoginDialog extends FBDialog {
         public void requestDidLoad(FBRequest request, String contentType, Object result) {
             
             try {
-                JSONObject jsonObject = (JSONObject) result;
-                Long uid = jsonObject.getLong("uid"); // XXX maybe create Long?
-                String sessionKey = jsonObject.getString("session_key");
-                Long expires = jsonObject.getLong("expires");
-
-                //Sometimes there is no session secret
-                String sessionSecret = null;
-                try {
-                    sessionSecret = jsonObject.getString("secret");
-                } catch (JSONException e) {
-                    Log.w(LOG, "Session secret not used");
-                }
-
-                Date expiration = null;
-                if (expires != null) {
-                    expiration = new Date(expires);
-                }
-                            
-                 mGetSessionRequest = null;
-                
-                 mSession.begin(mContext, uid, sessionKey, sessionSecret, expiration);
-                 mSession.resume(mContext);
+            	JSONObject jsonObject = (JSONObject) result;
+            	
+            	if (FacebookModule.usingOauth) {
+            		mGetSessionRequest = null;
+            		mSession.begin_oauth(mContext, jsonObject.getLong("id"));
+            		mSession.resume(mContext);
+            	} else {
+	                Long uid = jsonObject.getLong("uid"); // XXX maybe create Long?
+	                String sessionKey = jsonObject.getString("session_key");
+	                Long expires = jsonObject.getLong("expires");
+	
+	                //Sometimes there is no session secret
+	                String sessionSecret = null;
+	                try {
+	                    sessionSecret = jsonObject.getString("secret");
+	                } catch (JSONException e) {
+	                    Log.w(LOG, "Session secret not used");
+	                }
+	
+	                Date expiration = null;
+	                if (expires != null) {
+	                    expiration = new Date(expires);
+	                }
+	                            
+	                 mGetSessionRequest = null;
+	                
+	                 mSession.begin(mContext, uid, sessionKey, sessionSecret, expiration, null);
+	                 mSession.resume(mContext);
+            	}
                  
                  //triggerLoginChange(false);
                             

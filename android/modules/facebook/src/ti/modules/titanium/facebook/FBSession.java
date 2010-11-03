@@ -46,6 +46,7 @@ import android.webkit.CookieSyncManager;
 public class FBSession {
 
 	private static final String PREFS_NAME = "FBSessionPreferences";
+	private static final String LCAT = "TiFBSession";
 
 	// /////////////////////////////////////////////////////////////////////////////////////////////////
 	// global
@@ -54,6 +55,7 @@ public class FBSession {
 	//private static final String APIRESTSECUREURL = "https://api.facebook.com/restserver.php";
 	private static final String APIRESTURL = "http://api.facebook.com/method/";
 	private static final String APIRESTSECUREURL = "https://api.facebook.com/method/";
+	private static final String APIGRAPHSECUREURL = "https://graph.facebook.com/";
 	
 
 	private static final int MAXBURSTREQUESTS = 3;
@@ -170,9 +172,6 @@ public class FBSession {
 	// private
 
 	public void save(Context context) {
-		if (FacebookModule.usingOauth) {
-			throw new IllegalStateException("'save' is invalid if OAUTH is used");
-		}
 		SharedPreferences defaults = context.getSharedPreferences(PREFS_NAME,
 				Context.MODE_PRIVATE);
 		Editor editor = defaults.edit();
@@ -180,6 +179,12 @@ public class FBSession {
 			editor.putLong("FBUserId", mUid);
 		} else {
 			editor.remove("FBUserId");
+		}
+		
+		if (mAccessToken != null) {
+			editor.putString("FBAccessToken", mAccessToken);
+		} else {
+			editor.remove("FBAccessToken");
 		}
 
 		if (mSessionKey != null) {
@@ -212,27 +217,6 @@ public class FBSession {
 		editor.commit();
 	}
 	
-	public void save_oauth(Context context)
-	{
-		SharedPreferences defaults = context.getSharedPreferences(PREFS_NAME,
-				Context.MODE_PRIVATE);
-		Editor editor = defaults.edit();
-		if (mAccessToken != null) {
-			editor.putString("FBAccessToken", mAccessToken);
-		} else {
-			editor.remove("FBAccessToken");
-		}
-		
-		if (mExpirationDate != null) {
-			editor.putLong("FBSessionExpires", mExpirationDate.getTime());
-		} else {
-			editor.remove("FBSessionExpires");
-		}
-		
-		editor.commit();
-		
-		
-	}
 
 	public void unsave(Context context) {
 		Editor defaults = context.getSharedPreferences(PREFS_NAME,
@@ -241,7 +225,7 @@ public class FBSession {
 		defaults.remove("FBUserId");
 		defaults.remove("FBSessionKey");
 		defaults.remove("FBSessionSecret");
-		//defaults.remove("FBSessionExpires"); // With oauth, using the login dialog to add a permission causes the returned expires_in to be 0, so don't wipe out the expiration date (we may need it.)
+		defaults.remove("FBSessionExpires");
 		defaults.remove("FBPermissions");
 		defaults.remove("FBAccessToken");
 		defaults.commit();
@@ -333,6 +317,10 @@ public class FBSession {
 	public String getApiSecureURL() {
 		return APIRESTSECUREURL;
 	}
+	
+	public String getGraphApiSecureURL() {
+		return APIGRAPHSECUREURL;
+	}
 
 	/**
 	 * Determines if the session is active and connected to a user.
@@ -357,38 +345,23 @@ public class FBSession {
 
 	/**
 	 * Begins a session for a user with a given key and secret.
+	 * 2010-11-02 added accessToken for OAUTH
 	 */
 	public void begin(Context context, Long uid, String sessionKey,
-			String sessionSecret, Date expires) {
-		if (FacebookModule.usingOauth) {
-			throw new IllegalStateException("'begin' is invalid if OAUTH used");
-		}
+			String sessionSecret, Date expires, String accessToken) {
 		mUid = uid;
 		mSessionKey = sessionKey;
 		mSessionSecret = sessionSecret;
 		mExpirationDate = (Date) expires.clone();
+		mAccessToken = accessToken;
 		save(context);
 	}
 	
 	// OAUTH version of begin()
-	public void begin_oauth(Context context, String access_token, String expires_in_seconds)
+	public void begin_oauth(Context context, Long uid)
 	{
-		mAccessToken = access_token;
-		// expires_in_seconds is sometimes zero (seems to occur when re-logging-in without logging out), so 
-		// don't wipe out the current expiration if expires_in_seconds is 0 
-		int seconds = Integer.parseInt(expires_in_seconds);
-		if (seconds > 0) {
-			Calendar c = Calendar.getInstance();
-			c.setTimeInMillis(System.currentTimeMillis() + Integer.parseInt(expires_in_seconds) * 1000);
-			mExpirationDate = c.getTime();
-		} else {
-			// seconds == 0, which could be caused by the expires_in from FB being 0 when using oauth to add
-			// on a permission to a live session.  So use the old expiration time.
-			if (mExpirationDate == null) {
-				loadCachedExpirationTime(context);
-			}
-		}
-		save_oauth(context);
+		mUid = uid;
+		begin(context, uid, null, null, mExpirationDate, mAccessToken);
 	}
 
 	/**
@@ -396,29 +369,30 @@ public class FBSession {
 	 * on disk.
 	 */
 	public boolean resume(Context context) {
-		if (FacebookModule.usingOauth) {
-			throw new IllegalStateException("'resume' is invalid if OAUTH is used");
-		}
 		SharedPreferences defaults = context.getSharedPreferences(PREFS_NAME,
 				Context.MODE_PRIVATE);
 		Long uid = defaults.getLong("FBUserId", 0);
+		mAccessToken = defaults.getString("FBAccessToken", null);
+		if (FacebookModule.usingOauth && mAccessToken == null) {
+			return false; 
+		}
 		Log.d("FBSession", "FBUserId = " + uid);
 		if (uid != 0) {
 			boolean loadSession = false;
 			long expires = defaults.getLong("FBSessionExpires", 0);
 			if (expires > 0) {
-				Date expirationDate = new Date(expires);
+				mExpirationDate = new Date(expires);
 				Log.d(
 								"FBSession",
-								"expirationDate = " + expirationDate != null ? expirationDate
+								"expirationDate = " + mExpirationDate != null ? mExpirationDate
 										.toString()
 										: "null");
 				long timeIntervalSinceNow = CcDate
-						.timeIntervalSinceNow(expirationDate);
+						.timeIntervalSinceNow(mExpirationDate);
 				Log.d("FBSession", "Time interval since now = "
 						+ timeIntervalSinceNow);
 
-				if (expirationDate == null || timeIntervalSinceNow <= 0) {
+				if (mExpirationDate == null || timeIntervalSinceNow <= 0) {
 					loadSession = true;
 				}
 			} else {
@@ -435,14 +409,14 @@ public class FBSession {
 						FBUtil.jsonToMap(new JSONObject(fbPerms),
 								this.permissions);
 					} catch (JSONException ex) {
-						ex.printStackTrace();
+						Log.e(LCAT, "Failed loading cached permissions: " + ex.getMessage(), ex);
 					}
 				}
 				Log.d("FBSession", "Session can be loaded.  Loading...");
 				mUid = uid;
 				mSessionKey = defaults.getString("FBSessionKey", null);
 				mSessionSecret = defaults.getString("FBSessionSecret", null);
-
+				
 				for (FBSessionDelegate delegate : mDelegates) {
 					delegate.sessionDidLogin(this, uid);
 				}
@@ -452,46 +426,6 @@ public class FBSession {
 		return false;
 	}
 	
-	public boolean resume_oauth(Context context)
-	{
-		SharedPreferences defaults = context.getSharedPreferences(PREFS_NAME,
-				Context.MODE_PRIVATE);
-		mAccessToken = defaults.getString("FBAccessToken", null);
-		long expiration = defaults.getLong("FBSessionExpires", 0);
-		if (mAccessToken == null){
-			mAccessToken = null;
-			return false;
-		} else {
-			Calendar c = Calendar.getInstance();
-			c.setTimeInMillis(expiration);
-			mExpirationDate = c.getTime();
-			if (c.before(Calendar.getInstance())) {
-				mExpirationDate = null;
-				mAccessToken = null;
-				return false;
-			} else {
-				for (FBSessionDelegate delegate : mDelegates) {
-					delegate.sessionDidLogin(this, null);
-				}
-				return true;
-			}
-		}
-		
-	}
-	
-	// Using the oauth login to add-on a permission for some reason returns a 
-	// zero as the expires_in, so we want to keep "old" expiration times so the new
-	// expiration time of 0 does not wipe out expirations.
-	private void loadCachedExpirationTime(Context context) {
-		SharedPreferences defaults = context.getSharedPreferences(PREFS_NAME,
-				Context.MODE_PRIVATE);
-		long expiration = defaults.getLong("FBSessionExpires", 0);
-		if (expiration > 0) {
-			Calendar c = Calendar.getInstance();
-			c.setTimeInMillis(expiration);
-			mExpirationDate = c.getTime();
-		}
-	}
 
 	/**
 	 * Ends the current session and deletes the uid, session key, and secret
@@ -510,7 +444,7 @@ public class FBSession {
 			mUid = Long.valueOf(0);
 			mSessionKey = null;
 			mSessionSecret = null;
-			//mExpirationDate = null; // With oauth, using the login dialog to add a permission causes the returned expires_in to be 0, so don't wipe out the expiration date (we may need it.)
+			mExpirationDate = null; 
 			mAccessToken = null;
 		}
 
@@ -618,6 +552,15 @@ public class FBSession {
 		}
 		return false;
 	}
+	
+	public Map<String, String> getPermissions()
+	{
+		if (this.permissions == null) {
+			return new HashMap<String, String>();
+		} else {
+			return permissions;
+		}
+	}
 
 	public void addPermissions(Context ctx, String name, String value) {
 		if (this.permissions == null) {
@@ -630,6 +573,22 @@ public class FBSession {
 	
 	public String getAccessToken() {
 		return mAccessToken;
+	}
+	
+	public void setFutureExpiration(Context context, String expires_in_seconds) {
+		long seconds = Integer.parseInt(expires_in_seconds);
+		if (seconds <= 0) {
+			// occurs if offline_access permission exists
+			seconds = Integer.MAX_VALUE;
+		}
+		Calendar c = Calendar.getInstance();
+		long addMs = seconds * 1000L;
+		c.setTimeInMillis(System.currentTimeMillis() + addMs);
+		mExpirationDate = c.getTime();
+	}
+	
+	public void setAccessToken(String token) {
+		this.mAccessToken = token;
 	}
 
 	// /////////////////////////////////////////////////////////////////////////////////////////////////

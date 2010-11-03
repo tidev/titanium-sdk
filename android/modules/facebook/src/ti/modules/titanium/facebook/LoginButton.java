@@ -150,11 +150,7 @@ public class LoginButton extends TiUIView {
 		}
 
 		if (!session.isConnected()) {
-			if (FacebookModule.usingOauth) {
-				session.resume_oauth(getWinContext());
-			} else {
-				session.resume(getWinContext());
-			}
+			session.resume(getWinContext());
 		}
 	}
 
