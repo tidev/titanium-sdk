@@ -11,10 +11,13 @@ var lbl = Titanium.UI.createLabel({
 	height:20,
 	top:50
 });
-cb1.addEventListener('click', function() {
-	lbl.text = 'CheckBox is ' + (cb1.checked ? '' : 'un') + 'checked';
+cb1.addEventListener('change', function(e) {
+	lbl.text = 'CheckBox is ' + (e.value ? '' : 'un') + 'checked';
 });
-cb1.fireEvent('click'); // Make sure label is initially filled in
+cb1.addEventListener('click', function() {
+	alert('CheckBox was clicked!');
+});
+cb1.fireEvent('change', {value: cb1.value}); // Make sure label is initially filled in
 
 // Create a button used to toggle the CheckBox remotely
 var tglBtn = Titanium.UI.createButton({
@@ -25,7 +28,6 @@ var tglBtn = Titanium.UI.createButton({
 });
 tglBtn.addEventListener('click', function() {
 	cb1.toggle();
-	cb1.fireEvent('click');
 });
 
 // Create a button used to check the CheckBox
@@ -36,8 +38,7 @@ var chkBtn = Titanium.UI.createButton({
 	top:120
 });
 chkBtn.addEventListener('click', function() {
-	cb1.checked = true;
-	cb1.fireEvent('click');
+	cb1.value = true;
 });
 
 Titanium.UI.currentWindow.add(cb1);

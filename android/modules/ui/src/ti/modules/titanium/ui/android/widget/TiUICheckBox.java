@@ -6,12 +6,8 @@
  */
 package ti.modules.titanium.ui.android.widget;
 
-import java.io.IOException;
-
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
-import org.appcelerator.titanium.io.TiBaseFile;
-import org.appcelerator.titanium.io.TiFileFactory;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
@@ -19,14 +15,14 @@ import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiUIView;
 
-import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.CheckBox;
+import android.widget.CompoundButton;
+import android.widget.CompoundButton.OnCheckedChangeListener;
 
-public class TiUICheckBox extends TiUIView
+public class TiUICheckBox extends TiUIView implements OnCheckedChangeListener
 {
 	private static final String LCAT = "TiUICheckBox";
 	private static final boolean DBG = TiConfig.LOGD;
@@ -36,9 +32,8 @@ public class TiUICheckBox extends TiUIView
 		if (DBG) {
 			Log.d(LCAT, "Creating a checkbox");
 		}
-
+		
 		CheckBox cb = new CheckBox(proxy.getContext()) {
-
 			@Override
 			public boolean onKeyUp(int keyCode, KeyEvent event)
 			{
@@ -52,6 +47,7 @@ public class TiUICheckBox extends TiUIView
 		};
 		cb.setPadding(8, 0, 8, 0);
 		cb.setGravity(Gravity.CENTER);
+		cb.setOnCheckedChangeListener(this);
 		setNativeView(cb);
 	}
 
@@ -63,6 +59,9 @@ public class TiUICheckBox extends TiUIView
 		CheckBox cb = (CheckBox)getNativeView();
 		if (d.containsKey("title")) {
 			cb.setText(d.getString("title"));
+		}
+		if (d.containsKey("value")) {
+			cb.setChecked(d.getBoolean("value"));
 		}
 		if (d.containsKey("color")) {
 			cb.setTextColor(TiConvert.toColor(d, "color"));
@@ -90,6 +89,8 @@ public class TiUICheckBox extends TiUIView
 		CheckBox cb = (CheckBox) getNativeView();
 		if (key.equals("title")) {
 			cb.setText((String) newValue);
+		} else if (key.equals("value")) {
+			cb.setChecked(TiConvert.toBoolean(newValue));
 		} else if (key.equals("color")) {
 			cb.setTextColor(TiConvert.toColor(TiConvert.toString(newValue)));
 		} else if (key.equals("font")) {
@@ -117,15 +118,12 @@ public class TiUICheckBox extends TiUIView
 		((CheckBox)getNativeView()).getPaint().setColorFilter(null);
 	}
 
-	public void toggle() {
-		((CheckBox) getNativeView()).toggle();
-	}
+	@Override
+	public void onCheckedChanged(CompoundButton btn, boolean value) {
+		KrollDict data = new KrollDict();
+		data.put("value", value);
 
-	public boolean checked() {
-		return ((CheckBox) getNativeView()).isChecked();
-	}
-
-	public void setChecked(boolean check) {
-		((CheckBox) getNativeView()).setChecked(check);
+		proxy.setProperty("value", value);
+		proxy.fireEvent("change", data);
 	}
 }
