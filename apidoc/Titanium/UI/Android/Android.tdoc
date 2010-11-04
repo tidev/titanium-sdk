@@ -50,6 +50,6 @@ SWITCH_STYLE_TOGGLEBUTTON[int]: Display Switch as an Android Toggle Button (defa
 
 - methods
 
-None
+openPreferences: open Android native preferences UI activity. You need to place your preferences.xml file in the platform/android/res/xml/ folder of your project. Documentation on the file format may be found in the Android documentation http://developer.android.com/resources/samples/ApiDemos/res/xml/preferences.html
 
 
