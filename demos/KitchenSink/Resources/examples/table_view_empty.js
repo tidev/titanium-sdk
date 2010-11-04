@@ -12,7 +12,7 @@ var b1 = Ti.UI.createButton({
 win.add(b1);
 b1.addEventListener('click',function()
 {
-	tableView.appendRow({title:'Foo'},{animationStyle:Titanium.UI.iPhone.RowAnimationStyle.LEFT} )
+	tableView.appendRow({title:'Foo'},{animationStyle:Titanium.UI.iPhone.RowAnimationStyle.LEFT} );
 
 	//NOTE: since we're appending 2 different row layouts, we need to give one of them
 	//a table className otherwise the tableview will assume they're the same layout and
@@ -39,7 +39,7 @@ b2.addEventListener('click',function()
 		{title:'Row 4'}
 	];
 	tableView.setData(data,{animationStyle:Titanium.UI.iPhone.RowAnimationStyle.LEFT});
-	
+
 });
 win.add(tableView);
 

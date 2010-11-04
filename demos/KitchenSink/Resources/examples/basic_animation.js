@@ -22,12 +22,12 @@ var label = Titanium.UI.createLabel({
 
 win.add(label);
 
-circle.addEventListener('touchmove', function(e) 
-{ 
-	Ti.API.debug('Our event tells us the center is ' + e.x + ', ' + e.y ); 
-	var newX = e.x + circle.animatedCenter.x - circle.width/2; 
-	var newY = e.y + circle.animatedCenter.y - circle.height/2; 
-	circle.animate({center:{x:newX,y:newY}, duration:1}); 
+circle.addEventListener('touchmove', function(e)
+{
+	Ti.API.debug('Our event tells us the center is ' + e.x + ', ' + e.y );
+	var newX = e.x + circle.animatedCenter.x - circle.width/2;
+	var newY = e.y + circle.animatedCenter.y - circle.height/2;
+	circle.animate({center:{x:newX,y:newY}, duration:1});
 });
 
 var mode = 0;
@@ -44,13 +44,13 @@ circle.addEventListener('click', function()
 		case 1:
 		{
 			secondAnimation();
-			mode++
+			mode++;
 			break;
 		}
 		case 2:
 		{
 			thirdAnimation();
-			mode++
+			mode++;
 			break;
 		}
 		case 3:
@@ -81,7 +81,7 @@ function firstAnimation()
 	{
 		var t = Ti.UI.create2DMatrix();
 
-		circle.animate({opacity:1,transform:t,duration:500})
+		circle.animate({opacity:1,transform:t,duration:500});
 	});
 };
 
@@ -106,21 +106,21 @@ function secondAnimation()
 		Ti.API.info('IN START');
 		label.text = 'Animation started';
 
-	})
+	});
 
 	//
 	// ANIMATIONS SUPPORT A COMPLETE EVENT
 	//
 	a.addEventListener('complete', function()
 	{
-		Ti.API.info('IN COMPLETE')
+		Ti.API.info('IN COMPLETE');
 		label.text = 'Animation completed';
 		circle.animate(b);
 
 		setTimeout(function()
 		{
-			label.text = 'Click circle repeatedly to animate or drag window'
-		},2000)
+			label.text = 'Click circle repeatedly to animate or drag window';
+		},2000);
 	});
 };
 
@@ -144,6 +144,6 @@ function fourthAnimation()
 			{
 				circle.animate({center:{x:150,y:60, duration:1000}});
 			});
-		})
+		});
 	});
 };

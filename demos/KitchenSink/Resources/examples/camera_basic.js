@@ -9,8 +9,12 @@ Titanium.Media.showCamera({
 		Ti.API.debug('Our type was: '+event.mediaType);
 		if(event.mediaType == Ti.Media.MEDIA_TYPE_PHOTO)
 		{
-			var imageView = Ti.UI.createImageView({width:win.width,height:win.height,image:event.media});
-			win.add(imageView);  
+			var imageView = Ti.UI.createImageView({
+				width:win.width,
+				height:win.height,
+				image:event.media
+			});
+			win.add(imageView);
 		}
 		else
 		{
@@ -40,5 +44,5 @@ Titanium.Media.showCamera({
 	},
 	saveToPhotoGallery:true,
 	allowEditing:true,
-	mediaTypes:[Ti.Media.MEDIA_TYPE_VIDEO,Ti.Media.MEDIA_TYPE_PHOTO],
+	mediaTypes:[Ti.Media.MEDIA_TYPE_VIDEO,Ti.Media.MEDIA_TYPE_PHOTO]
 });

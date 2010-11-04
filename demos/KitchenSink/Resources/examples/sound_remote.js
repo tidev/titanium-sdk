@@ -61,7 +61,7 @@ streamButton.addEventListener('click',function()
 		progressLabel.text = 'Stopped';
 		streamer.stop();
 		pauseButton.enabled = false;
-		pauseButton.title = 'Pause Streaming'
+		pauseButton.title = 'Pause Streaming';
 		streamButton.title = "Start Streaming";
 	}
 	else
@@ -70,7 +70,7 @@ streamButton.addEventListener('click',function()
 		streamer.url = url.value;
 		streamer.start();
 		pauseButton.enabled = true;
-		pauseButton.title = 'Pause Streaming'
+		pauseButton.title = 'Pause Streaming';
 		streamButton.title = "Stop Stream";
 	}
 });
@@ -106,7 +106,7 @@ Ti.App.idleTimerDisabled = true;
 win.addEventListener('close',function()
 {
 	Ti.API.info("window was closed, idleTimer reset to = "+idleTimer);
-	
+
 	// restore previous idle state when closed
 	Ti.App.idleTimerDisabled = idleTimer;
 });

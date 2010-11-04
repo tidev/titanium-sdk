@@ -112,7 +112,7 @@ volumeDown.addEventListener('click', function()
 		if (sound.volume < 0.1)
 			sound.volume = 0;
 		else
-			sound.volume -= 0.1;		
+			sound.volume -= 0.1;
 		var roundedVolume = Math.round(sound.volume*1000)/1000;
 		volumeDown.title = 'Volume-- (' + roundedVolume + ')';
 		volumeUp.title = 'Volume++';
@@ -172,7 +172,7 @@ var i = setInterval(function()
 {
 	if (sound.isPlaying())
 	{
-		Ti.API.info('time ' + sound.time)
+		Ti.API.info('time ' + sound.time);
 		pb.value = sound.time;
 
 	}

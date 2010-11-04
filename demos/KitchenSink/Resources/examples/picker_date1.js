@@ -1,26 +1,26 @@
 var win = Titanium.UI.currentWindow;
 win.backgroundColor = 'black';
 
-var minDate = new Date()
+var minDate = new Date();
 minDate.setFullYear(2009);
 minDate.setMonth(0);
-minDate.setDate(1)
+minDate.setDate(1);
 
-var maxDate = new Date()
+var maxDate = new Date();
 maxDate.setFullYear(2009);
 maxDate.setMonth(11);
-maxDate.setDate(31)
+maxDate.setDate(31);
 
 var value = new Date();
 value.setFullYear(2009);
 value.setMonth(0);
 value.setDate(1);
-		
+
 var picker = Ti.UI.createPicker({
 	type:Ti.UI.PICKER_TYPE_DATE,
 	minDate:minDate,
 	maxDate:maxDate,
-	value:value,
+	value:value
 });
 
 // turn on the selection indicator (off by default)
@@ -43,7 +43,7 @@ picker.addEventListener('change',function(e)
 	label.text = e.value;
 });
 
-var locale = false
+var locale = false;
 var localebutton = Ti.UI.createButton({
 	title:'Change locale',
 	bottom:20,

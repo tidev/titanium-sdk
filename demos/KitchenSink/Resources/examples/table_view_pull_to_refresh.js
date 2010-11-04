@@ -33,7 +33,7 @@ var border = Ti.UI.createView({
 	backgroundColor:"#576c89",
 	height:2,
 	bottom:0
-})
+});
 
 var tableHeader = Ti.UI.createView({
 	backgroundColor:"#e2e7ed",
@@ -105,13 +105,13 @@ function beginReloading()
 
 function endReloading()
 {
-	// simulate loading 
+	// simulate loading
 	for (var c=lastRow;c<lastRow+10;c++)
 	{
 		tableView.appendRow({title:"Row "+c});
 	}
 	lastRow += 10;
-	
+
 	// when you're done, just reset
 	tableView.setContentInsets({top:0},{animated:true});
 	reloading = false;

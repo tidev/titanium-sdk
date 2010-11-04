@@ -51,7 +51,7 @@ var tableview = Titanium.UI.createTableView({
 	data:data,
 	style: Titanium.UI.iPhone.TableViewStyle.GROUPED,
 	//rowHeight:80,
-	minRowHeight:80,
+	minRowHeight:80
 	//maxRowHeight:500,
 });
 
@@ -72,7 +72,7 @@ tableview.addEventListener('click', function(e)
 Titanium.UI.currentWindow.add(tableview);
 
 
-// this is simply a little window we show 
+// this is simply a little window we show
 // that displays the time it took to build the table and show it
 
 var messageWin = Titanium.UI.createWindow({

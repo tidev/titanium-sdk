@@ -25,7 +25,7 @@ var startAudio = Titanium.UI.createButton({
 startAudio.addEventListener('click', function()
 {
 	Ti.API.info('streaming with mode ' + modeArray[count].desc + ' count ' + count);
-	audio.start()
+	audio.start();
 });
 
 var stopAudio = Titanium.UI.createButton({
@@ -48,7 +48,7 @@ var startSound = Titanium.UI.createButton({
 startSound.addEventListener('click', function()
 {
 	Ti.API.info('playing sound with mode ' + modeArray[count].desc + ' count ' + count);
-	sound.play()
+	sound.play();
 });
 
 var stopSound = Titanium.UI.createButton({
@@ -59,7 +59,7 @@ var stopSound = Titanium.UI.createButton({
 });
 stopSound.addEventListener('click', function()
 {
-	sound.stop()
+	sound.stop();
 });
 
 var changeMode = Titanium.UI.createButton({
@@ -73,9 +73,9 @@ changeMode.addEventListener('click', function()
 	audio.stop();
 	sound.stop();
 
-	if (count == modeArray.length-1)count=0; else count++
+	if (count == modeArray.length-1)count=0; else count++;
 	Titanium.Media.audioSessionMode = modeArray[count].mode;
-	l.text = modeArray[count].desc
+	l.text = modeArray[count].desc;
 });
 
 var l = Ti.UI.createLabel({

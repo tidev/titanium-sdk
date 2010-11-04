@@ -65,5 +65,5 @@ annotation.addEventListener('click',function()
 mapview.addEventListener('click',function(evt)
 {
 	var clickSource = evt.clicksource;
-	Ti.API.info('mapview click clicksource = ' + clickSource)
+	Ti.API.info('mapview click clicksource = ' + clickSource);
 });

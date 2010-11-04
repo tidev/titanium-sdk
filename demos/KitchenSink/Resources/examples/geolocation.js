@@ -198,7 +198,7 @@ if (Titanium.Geolocation.locationServicesEnabled==false)
 }
 else
 {
-	
+
 	//
 	// IF WE HAVE COMPASS GET THE HEADING
 	//
@@ -231,7 +231,7 @@ else
 			var accuracy = e.heading.accuracy;
 			var trueHeading = e.heading.trueHeading;
 			var timestamp = e.heading.timestamp;
-			
+
 			currentHeading.text = 'x:' + x + ' y: ' + y + ' z:' + z;
 			Titanium.API.info('geo - current heading: ' + new Date(timestamp) + ' x ' + x + ' y ' + y + ' z ' + z);
 		});
@@ -263,9 +263,9 @@ else
 			{
 				updatedHeading.color = '#444';
 				updatedHeadingTime.color = '#444';
-				
+
 			},100);
-			
+
 			Titanium.API.info('geo - heading updated: ' + new Date(timestamp) + ' x ' + x + ' y ' + y + ' z ' + z);
 		});
 	}
@@ -301,7 +301,7 @@ else
 		if (e.error)
 		{
 			currentLocation.text = 'error: ' + JSON.stringify(e.error);
-			alert('error ' + JSON.stringify(e.error))
+			alert('error ' + JSON.stringify(e.error));
 			return;
 		}
 
@@ -313,9 +313,9 @@ else
 		var speed = e.coords.speed;
 		var timestamp = e.coords.timestamp;
 		var altitudeAccuracy = e.coords.altitudeAccuracy;
-		Ti.API.info('speed ' + speed)
+		Ti.API.info('speed ' + speed);
 		currentLocation.text = 'long:' + longitude + ' lat: ' + latitude;
-		
+
 		Titanium.API.info('geo - current location: ' + new Date(timestamp) + ' long ' + longitude + ' lat ' + latitude + ' accuracy ' + accuracy);
 	});
 
@@ -342,8 +342,8 @@ else
 		var timestamp = e.coords.timestamp;
 		var altitudeAccuracy = e.coords.altitudeAccuracy;
 
-		//Titanium.Geolocation.distanceFilter = 100; //changed after first location event 
-		
+		//Titanium.Geolocation.distanceFilter = 100; //changed after first location event
+
 		updatedLocation.text = 'long:' + longitude;
 		updatedLatitude.text = 'lat: '+ latitude;
 		updatedLocationAccuracy.text = 'accuracy:' + accuracy;
@@ -359,9 +359,9 @@ else
 			updatedLocation.color = '#444';
 			updatedLocationAccuracy.color = '#444';
 			updatedLocationTime.color = '#444';
-			
+
 		},100);
-		
+
 		// reverse geo
 		Titanium.Geolocation.reverseGeocoder(latitude,longitude,function(evt)
 		{
@@ -369,24 +369,24 @@ else
 			reverseGeo.text = places[0].address;
 			Ti.API.debug("reverse geolocation result = "+JSON.stringify(evt));
 		});
-		
-		
+
+
 		Titanium.API.info('geo - location updated: ' + new Date(timestamp) + ' long ' + longitude + ' lat ' + latitude + ' accuracy ' + accuracy);
 	});
 
-	
+
 }
 var addr = "2065 Hamilton Avenue San Jose California 95125";
 
 Titanium.Geolocation.forwardGeocoder(addr,function(evt)
 {
-	Ti.API.info('in forward ')
+	Ti.API.info('in forward ');
 	forwardGeo.text = "lat:"+evt.latitude+", long:"+evt.longitude;
 	Titanium.Geolocation.reverseGeocoder(evt.latitude,evt.longitude,function(evt)
 	{
 		var text = "";
 		for (var i = 0; i < evt.places.length; i++) {
-			text += "" + i + ") " + evt.places[i].address + "\n"; 
+			text += "" + i + ") " + evt.places[i].address + "\n";
 		}
 		Ti.API.info('Reversed forward: '+text);
 	});

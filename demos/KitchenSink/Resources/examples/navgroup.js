@@ -18,7 +18,7 @@ var modal = Ti.UI.createWindow({
 });
 
 var modalWin = Ti.UI.createWindow({
-	backgroundColor:"red",
+	backgroundColor:"red"
 });
 
 var nav = Ti.UI.iPhone.createNavigationGroup({

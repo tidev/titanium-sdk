@@ -8,7 +8,7 @@ var label = Ti.UI.createLabel({
 });
 
 var act = Ti.UI.createActivityIndicator({
-	bottom:10,
+	bottom:10
 });
 act.style = Titanium.UI.iPhone.ActivityIndicatorStyle.DARK;
 act.font = {fontFamily:'Helvetica Neue', fontSize:15,fontWeight:'bold'};
@@ -27,4 +27,4 @@ setTimeout(function()
 
 	label.text = "3 sec timer fired in\n" + (new Date().getTime()-started)/1000 + " seconds";
 },3000);
-	
+
