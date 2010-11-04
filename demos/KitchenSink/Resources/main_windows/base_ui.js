@@ -30,6 +30,12 @@ if (Titanium.Platform.name == 'iPhone OS')
 	}
 }
 
+// add android specific tests
+if (Titanium.Platform.osname == 'android')
+{
+        data.push({title:'Preferences', hasChild:true, test:'../examples/preferences.js'});
+}
+
 // create table view
 var tableview = Titanium.UI.createTableView({
 	data:data
