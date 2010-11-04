@@ -156,10 +156,12 @@ pause.addEventListener('click', function() {
 	if (recording.paused) {
 		pause.title = 'Pause recording';
 		recording.resume();
+		timer = setInterval(showLevels,1000);
 	}
 	else {
 		pause.title = 'Unpause recording';
 		recording.pause();
+		clearInterval(timer);
 	}
 });
 
