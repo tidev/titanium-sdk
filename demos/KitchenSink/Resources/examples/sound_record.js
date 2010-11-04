@@ -147,7 +147,7 @@ var pause = Titanium.UI.createButton({
 	title:'Pause recording',
 	width:200,
 	height:40,
-	top:80,
+	top:80
 });
 win.add(pause);
 pause.hide();
@@ -204,7 +204,7 @@ var switchLabel = Titanium.UI.createLabel({
 });
 var switcher = Titanium.UI.createSwitch({
 	value:false,
-	bottom:80,
+	bottom:80
 });
 
 switcher.addEventListener('change',function(e)

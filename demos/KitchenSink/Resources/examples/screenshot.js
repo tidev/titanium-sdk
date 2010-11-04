@@ -13,7 +13,7 @@ win.add(imageView);
 Titanium.Media.takeScreenshot(function(event)
 {
 	// set blob on image view
-	imageView.image = event.media
+	imageView.image = event.media;
 	win.setBackgroundColor('red');
 
 	var a = Titanium.UI.createAlertDialog();

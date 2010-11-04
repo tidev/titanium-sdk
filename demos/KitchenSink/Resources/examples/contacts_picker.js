@@ -36,7 +36,7 @@ var v1 = Ti.UI.createView({
 if (Ti.Platform.osname !== 'android') {
 	var l1 = Ti.UI.createLabel({
 		text:'Animated:',
-		left:0,
+		left:0
 	});
 	var s1 = Ti.UI.createSwitch({
 		value:true,
@@ -62,7 +62,7 @@ if (Ti.Platform.osname !== 'android') {
 	});
 	var l2 = Ti.UI.createLabel({
 		text:'Address only:',
-		left:0,
+		left:0
 	});
 	var s2 = Ti.UI.createSwitch({
 		value:false,
@@ -99,7 +99,7 @@ if (Ti.Platform.osname !== 'android') {
 		if (s3.value) {
 			values.selectedPerson = function(e) {
 				info.text = e.person.fullName;
-			}
+			};
 			if (s4.value) {
 				s4.value = false;
 			}
@@ -131,12 +131,12 @@ if (Ti.Platform.osname !== 'android') {
 			values.selectedProperty = function(e) {
 				if (e.property == 'address') {
 					Ti.API.log(e.value);
-					info.text = e.value.Street
+					info.text = e.value.Street;
 				}
 				else {
 					info.text = e.value;
 				}
-			}
+			};
 			if (s3.value) {
 				s3.value = false;
 			}

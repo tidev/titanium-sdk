@@ -32,7 +32,7 @@ tableview.addEventListener('click', function(e)
 	row.hasCheck = true;
 	var color = '#' + String(Math.round(Math.random()*9)) + String(Math.round(Math.random()*9)) + String(Math.round(Math.random()*9));
 	row.title = "Color is now: "+color;
-	row.backgroundColor = color
+	row.backgroundColor = color;
 	//Titanium.UI.createAlertDialog({title:'Table View',message:'row ' + row + ' index ' + index + ' section ' + section  + ' row data ' + rowdata}).show();
 });
 

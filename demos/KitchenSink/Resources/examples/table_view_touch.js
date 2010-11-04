@@ -19,7 +19,7 @@ for (var x=0;x<4;x++)
 
 // create table view
 var tableview = Titanium.UI.createTableView({
-	data:data,
+	data:data
 });
 
 tableview.addEventListener('touchstart', function(e)

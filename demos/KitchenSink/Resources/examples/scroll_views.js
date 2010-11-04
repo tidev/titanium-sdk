@@ -38,7 +38,7 @@ tableview.addEventListener('click', function(e)
 		{
 			win.backgroundImage = e.rowData.bgImage;
 		}
-		Titanium.UI.currentTab.open(win,{animated:true})
+		Titanium.UI.currentTab.open(win,{animated:true});
 	}
 });
 

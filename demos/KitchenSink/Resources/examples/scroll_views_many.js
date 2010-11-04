@@ -1,4 +1,4 @@
-var win = Titanium.UI.currentWindow
+var win = Titanium.UI.currentWindow;
 
 //
 // SCROLL VIEW 1
@@ -31,7 +31,7 @@ var l1 = Ti.UI.createLabel({
 	width:'auto',
 	height:'auto'
 });
-view1.add(l1)
+view1.add(l1);
 scrollView1.add(view1);
 win.add(scrollView1);
 
@@ -66,7 +66,7 @@ var l2 = Ti.UI.createLabel({
 	width:'auto',
 	height:'auto'
 });
-view2.add(l2)
+view2.add(l2);
 scrollView2.add(view2);
 win.add(scrollView2);
 
@@ -108,10 +108,10 @@ if (Titanium.Platform.name == 'iPhone OS')
 		width:'auto',
 		height:'auto'
 	});
-	view3.add(l3)
+	view3.add(l3);
 	scrollView3.add(view3);
 	win.add(scrollView3);
-	
+
 
 	//
 	// SCROLL VIEW 4
@@ -143,7 +143,7 @@ if (Titanium.Platform.name == 'iPhone OS')
 		width:'auto',
 		height:'auto'
 	});
-	view4.add(l4)
+	view4.add(l4);
 	scrollView4.add(view4);
 	win.add(scrollView4);
 }

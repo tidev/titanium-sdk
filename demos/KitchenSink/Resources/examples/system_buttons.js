@@ -13,7 +13,7 @@ var fixedSpace = Titanium.UI.createButton({
 
 // system buttons
 var action = Titanium.UI.createButton({
-	systemButton:Titanium.UI.iPhone.SystemButton.ACTION,
+	systemButton:Titanium.UI.iPhone.SystemButton.ACTION
 });
 action.addEventListener('click', function()
 {
@@ -21,7 +21,7 @@ action.addEventListener('click', function()
 });
 
 var camera = Titanium.UI.createButton({
-	systemButton:Titanium.UI.iPhone.SystemButton.CAMERA,
+	systemButton:Titanium.UI.iPhone.SystemButton.CAMERA
 });
 camera.addEventListener('click', function()
 {
@@ -29,7 +29,7 @@ camera.addEventListener('click', function()
 });
 
 var compose = Titanium.UI.createButton({
-	systemButton:Titanium.UI.iPhone.SystemButton.COMPOSE,
+	systemButton:Titanium.UI.iPhone.SystemButton.COMPOSE
 });
 compose.addEventListener('click', function()
 {
@@ -37,7 +37,7 @@ compose.addEventListener('click', function()
 });
 
 var bookmarks = Titanium.UI.createButton({
-	systemButton:Titanium.UI.iPhone.SystemButton.BOOKMARKS,
+	systemButton:Titanium.UI.iPhone.SystemButton.BOOKMARKS
 });
 bookmarks.addEventListener('click', function()
 {
@@ -45,7 +45,7 @@ bookmarks.addEventListener('click', function()
 });
 
 var search = Titanium.UI.createButton({
-	systemButton:Titanium.UI.iPhone.SystemButton.SEARCH,
+	systemButton:Titanium.UI.iPhone.SystemButton.SEARCH
 });
 search.addEventListener('click', function()
 {
@@ -53,7 +53,7 @@ search.addEventListener('click', function()
 });
 
 var add = Titanium.UI.createButton({
-	systemButton:Titanium.UI.iPhone.SystemButton.ADD,
+	systemButton:Titanium.UI.iPhone.SystemButton.ADD
 });
 add.addEventListener('click', function()
 {
@@ -61,7 +61,7 @@ add.addEventListener('click', function()
 });
 
 var trash = Titanium.UI.createButton({
-	systemButton:Titanium.UI.iPhone.SystemButton.TRASH,
+	systemButton:Titanium.UI.iPhone.SystemButton.TRASH
 });
 trash.addEventListener('click', function()
 {
@@ -69,7 +69,7 @@ trash.addEventListener('click', function()
 });
 
 var reply = Titanium.UI.createButton({
-	systemButton:Titanium.UI.iPhone.SystemButton.REPLY,
+	systemButton:Titanium.UI.iPhone.SystemButton.REPLY
 });
 reply.addEventListener('click', function()
 {
@@ -77,7 +77,7 @@ reply.addEventListener('click', function()
 });
 
 var stop = Titanium.UI.createButton({
-	systemButton:Titanium.UI.iPhone.SystemButton.STOP,
+	systemButton:Titanium.UI.iPhone.SystemButton.STOP
 });
 stop.addEventListener('click', function()
 {
@@ -85,7 +85,7 @@ stop.addEventListener('click', function()
 });
 
 var refresh = Titanium.UI.createButton({
-	systemButton:Titanium.UI.iPhone.SystemButton.REFRESH,
+	systemButton:Titanium.UI.iPhone.SystemButton.REFRESH
 });
 refresh.addEventListener('click', function()
 {
@@ -93,7 +93,7 @@ refresh.addEventListener('click', function()
 });
 
 var play = Titanium.UI.createButton({
-	systemButton:Titanium.UI.iPhone.SystemButton.PLAY,
+	systemButton:Titanium.UI.iPhone.SystemButton.PLAY
 });
 play.addEventListener('click', function()
 {
@@ -101,7 +101,7 @@ play.addEventListener('click', function()
 });
 
 var pause = Titanium.UI.createButton({
-	systemButton:Titanium.UI.iPhone.SystemButton.PAUSE,
+	systemButton:Titanium.UI.iPhone.SystemButton.PAUSE
 });
 pause.addEventListener('click', function()
 {
@@ -109,7 +109,7 @@ pause.addEventListener('click', function()
 });
 
 var fastforward = Titanium.UI.createButton({
-	systemButton:Titanium.UI.iPhone.SystemButton.FAST_FORWARD,
+	systemButton:Titanium.UI.iPhone.SystemButton.FAST_FORWARD
 });
 fastforward.addEventListener('click', function()
 {
@@ -117,7 +117,7 @@ fastforward.addEventListener('click', function()
 });
 
 var rewind = Titanium.UI.createButton({
-	systemButton:Titanium.UI.iPhone.SystemButton.REWIND,
+	systemButton:Titanium.UI.iPhone.SystemButton.REWIND
 });
 rewind.addEventListener('click', function()
 {
@@ -125,7 +125,7 @@ rewind.addEventListener('click', function()
 });
 
 var edit = Titanium.UI.createButton({
-	systemButton:Titanium.UI.iPhone.SystemButton.EDIT,
+	systemButton:Titanium.UI.iPhone.SystemButton.EDIT
 });
 edit.addEventListener('click', function()
 {
@@ -133,7 +133,7 @@ edit.addEventListener('click', function()
 });
 
 var cancel = Titanium.UI.createButton({
-	systemButton:Titanium.UI.iPhone.SystemButton.CANCEL,
+	systemButton:Titanium.UI.iPhone.SystemButton.CANCEL
 });
 cancel.addEventListener('click', function()
 {
@@ -141,7 +141,7 @@ cancel.addEventListener('click', function()
 });
 
 var save = Titanium.UI.createButton({
-	systemButton:Titanium.UI.iPhone.SystemButton.SAVE,
+	systemButton:Titanium.UI.iPhone.SystemButton.SAVE
 });
 save.addEventListener('click', function()
 {
@@ -149,7 +149,7 @@ save.addEventListener('click', function()
 });
 
 var organize = Titanium.UI.createButton({
-	systemButton:Titanium.UI.iPhone.SystemButton.ORGANIZE,
+	systemButton:Titanium.UI.iPhone.SystemButton.ORGANIZE
 });
 organize.addEventListener('click', function()
 {
@@ -157,7 +157,7 @@ organize.addEventListener('click', function()
 });
 
 var done = Titanium.UI.createButton({
-	systemButton:Titanium.UI.iPhone.SystemButton.DONE,
+	systemButton:Titanium.UI.iPhone.SystemButton.DONE
 });
 done.addEventListener('click', function()
 {
@@ -165,16 +165,16 @@ done.addEventListener('click', function()
 });
 
 var disclosure = Titanium.UI.createButton({
-	systemButton:Titanium.UI.iPhone.SystemButton.DISCLOSURE,
+	systemButton:Titanium.UI.iPhone.SystemButton.DISCLOSURE
 });
 disclosure.addEventListener('click', function()
 {
-	Ti.API.info('FOO')
+	Ti.API.info('FOO');
 	Titanium.UI.createAlertDialog({title:'System Button', message:'DISCLOSURE'}).show();
 });
 
 var contactadd = Titanium.UI.createButton({
-	systemButton:Titanium.UI.iPhone.SystemButton.CONTACT_ADD,
+	systemButton:Titanium.UI.iPhone.SystemButton.CONTACT_ADD
 });
 contactadd.addEventListener('click', function()
 {
@@ -182,7 +182,7 @@ contactadd.addEventListener('click', function()
 });
 
 var nativespinner = Titanium.UI.createButton({
-	systemButton:Titanium.UI.iPhone.SystemButton.SPINNER,
+	systemButton:Titanium.UI.iPhone.SystemButton.SPINNER
 });
 nativespinner.addEventListener('click', function()
 {
@@ -190,7 +190,7 @@ nativespinner.addEventListener('click', function()
 });
 
 var infolight = Titanium.UI.createButton({
-	systemButton:Titanium.UI.iPhone.SystemButton.INFO_LIGHT,
+	systemButton:Titanium.UI.iPhone.SystemButton.INFO_LIGHT
 });
 infolight.addEventListener('click', function()
 {
@@ -198,7 +198,7 @@ infolight.addEventListener('click', function()
 });
 
 var infodark = Titanium.UI.createButton({
-	systemButton:Titanium.UI.iPhone.SystemButton.INFO_DARK,
+	systemButton:Titanium.UI.iPhone.SystemButton.INFO_DARK
 });
 infodark.addEventListener('click', function()
 {

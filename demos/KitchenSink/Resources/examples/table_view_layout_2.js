@@ -5,20 +5,20 @@ win.barColor = '#385292';
 // CREATE SEARCH BAR
 //
 var search = Titanium.UI.createSearchBar({
-	barColor:'#385292', 
+	barColor:'#385292',
 	showCancel:false
 });
 search.addEventListener('change', function(e)
 {
-   e.value // search string as user types
+e.value; // search string as user types
 });
 search.addEventListener('return', function(e)
 {
-   search.blur();
+search.blur();
 });
 search.addEventListener('cancel', function(e)
 {
-   search.blur();
+search.blur();
 });
 
 var tableView;
@@ -44,7 +44,7 @@ data.push(row);
 // when you click the header, scroll to the bottom
 row.addEventListener('click',function()
 {
-	tableView.scrollToIndex(40,{animated:true,position:Ti.UI.iPhone.TableViewScrollPosition.TOP})
+	tableView.scrollToIndex(40,{animated:true,position:Ti.UI.iPhone.TableViewScrollPosition.TOP});
 });
 
 // create update row (used when the user clicks on the row)
@@ -86,11 +86,11 @@ for (var c=1;c<50;c++)
 		left:10,
 		width:50,
 		height:50,
-		clickName:'photo',
+		clickName:'photo'
 	});
 	row.add(photo);
-	
-	
+
+
 	var user = Ti.UI.createLabel({
 		color:'#576996',
 		font:{fontSize:16,fontWeight:'bold', fontFamily:'Arial'},
@@ -140,7 +140,7 @@ for (var c=1;c<50;c++)
 		height:34
 	});
 	row.add(button);
-	
+
 	var date = Ti.UI.createLabel({
 		color:'#999',
 		font:{fontSize:13,fontWeight:'normal', fontFamily:'Arial'},
@@ -152,8 +152,8 @@ for (var c=1;c<50;c++)
 		text:'posted on 3/11'
 	});
 	row.add(date);
-	
-    data.push(row);
+
+	data.push(row);
 }
 
 
@@ -173,8 +173,8 @@ tableView.addEventListener('click', function(e)
 	// use rowNum property on object to get row number
 	var rowNum = e.index;
 	var updateRow = createUpdateRow('You clicked on the '+e.source.clickName);
-	tableView.updateRow(rowNum,updateRow,{animationStyle:Titanium.UI.iPhone.RowAnimationStyle.LEFT});	
-})
+	tableView.updateRow(rowNum,updateRow,{animationStyle:Titanium.UI.iPhone.RowAnimationStyle.LEFT});
+});
 
 win.add(tableView);
 

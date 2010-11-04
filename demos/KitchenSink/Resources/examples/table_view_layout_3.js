@@ -19,7 +19,7 @@ var item1 = Ti.UI.createLabel({
 	left:10,
 	height:30,
 	width:100
-});	
+});
 row1.add(item1);
 
 var cost1 = Ti.UI.createLabel({
@@ -30,7 +30,7 @@ var cost1 = Ti.UI.createLabel({
 	left:10,
 	height:25,
 	width:150
-});	
+});
 row1.add(cost1);
 
 var add1 = Ti.UI.createButton({
@@ -50,7 +50,7 @@ add1.addEventListener('click', function()
 	add1.hide();
 	cost1.animate({left:50, duration:100});
 	item1.animate({left:50, duration:100});
-	
+
 });
 row1.add(add1);
 
@@ -69,7 +69,7 @@ delete1.addEventListener('click', function()
 	add1.show();
 	cost1.animate({left:10, duration:100});
 	item1.animate({left:10, duration:100});
-	
+
 });
 row1.add(delete1);
 
@@ -88,7 +88,7 @@ var item2 = Ti.UI.createLabel({
 	left:10,
 	height:30,
 	width:100
-});	
+});
 row2.add(item2);
 
 var cost2 = Ti.UI.createLabel({
@@ -99,7 +99,7 @@ var cost2 = Ti.UI.createLabel({
 	left:10,
 	height:25,
 	width:150
-})	
+});
 row2.add(cost2);
 
 var add2 = Ti.UI.createButton({
@@ -121,7 +121,7 @@ add2.addEventListener('click', function()
 	add2.hide();
 	cost2.animate({left:50, duration:100});
 	item2.animate({left:50, duration:100});
-	
+
 });
 row2.add(add2);
 
@@ -135,12 +135,12 @@ var delete2 = Ti.UI.createButton({
 });
 delete2.addEventListener('click', function()
 {
-	row2.backgroundColor = '#670000';	
+	row2.backgroundColor = '#670000';
 	delete2.hide();
 	add2.show();
 	cost2.animate({left:10, duration:100});
 	item2.animate({left:10, duration:100});
-	
+
 });
 row2.add(delete2);
 

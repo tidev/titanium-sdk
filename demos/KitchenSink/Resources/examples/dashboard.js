@@ -51,7 +51,7 @@ dashboard.addEventListener('commit',function()
 	Ti.API.info('data ' + dashboard.data);
 	for (var i=0;i<dashboard.data.length;i++)
 	{
-		Ti.API.info('label ' + dashboard.data[i].label)
+		Ti.API.info('label ' + dashboard.data[i].label);
 	}
 });
 

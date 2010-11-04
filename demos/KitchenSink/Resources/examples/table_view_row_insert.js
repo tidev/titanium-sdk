@@ -27,15 +27,15 @@ var tableView = Titanium.UI.createTableView({data:data});
 
 tableView.addEventListener('click', function(e)
 {
-	
+
 	switch(e.rowData.title)
 	{
 		case 'Insert Row Above (no anim)':
 		{
 			var row = Ti.UI.createTableViewRow();
 			var label = Ti.UI.createLabel({text:'New Row Object Row'});
-			row.add(label)
-			tableView.insertRowBefore(0,row);				
+			row.add(label);
+			tableView.insertRowBefore(0,row);
 			break;
 		}
 		case 'Insert Row Below - 1':
@@ -84,7 +84,7 @@ tableView.addEventListener('click', function(e)
 			break;
 		}
 	}
-	
+
 });
 
 win.add(tableView);

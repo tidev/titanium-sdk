@@ -1,17 +1,17 @@
-var win = Titanium.UI.currentWindow
+var win = Titanium.UI.currentWindow;
 
 var scrollView = Titanium.UI.createScrollView({
 	contentWidth:'auto',
 	contentHeight:'auto',
-	
+
 	top:0,
 	bottom:50,
-	
+
 	backgroundColor:'red',
-	
+
 	showVerticalScrollIndicator:true,
 	showHorizontalScrollIndicator:true,
-	
+
 	maxZoomScale:100,
 	minZoomScale:0.1
 });
