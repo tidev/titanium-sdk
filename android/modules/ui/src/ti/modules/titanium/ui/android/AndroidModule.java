@@ -38,6 +38,9 @@ public class AndroidModule extends KrollModule
 	@Kroll.constant public static final int LINKIFY_PHONE_NUMBERS = Linkify.PHONE_NUMBERS;
 	@Kroll.constant public static final int LINKIFY_WEB_URLS = Linkify.WEB_URLS;
 	
+	@Kroll.constant public static final int SWITCH_STYLE_CHECKBOX     = 0;
+	@Kroll.constant public static final int SWITCH_STYLE_TOGGLEBUTTON = 1;
+	
 	public AndroidModule(TiContext tiContext) 
 	{
 		super(tiContext);
