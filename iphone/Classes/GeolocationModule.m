@@ -155,7 +155,9 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 
 -(void)shutdownLocationManager
 {
+	[lock lock];
 	if (locationManager == nil) {
+		[lock unlock];
 		return;
 	}
 	
@@ -166,11 +168,13 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 		[locationManager stopUpdatingLocation];
 	}
 	RELEASE_TO_NIL(locationManager);
+	[lock unlock];
 }
 
 -(void)_destroy
 {
 	[self shutdownLocationManager];
+	RELEASE_TO_NIL(tempManager);
 	RELEASE_TO_NIL(singleHeading);
 	RELEASE_TO_NIL(singleLocation);
 	RELEASE_TO_NIL(purpose);
@@ -240,6 +244,7 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 	[lock lock];
 	if (locationManager==nil)
 	{
+		RELEASE_TO_NIL(tempManager);
 		locationManager = [[CLLocationManager alloc] init];
 		locationManager.delegate = self;
 		if (accuracy!=-1)
@@ -289,7 +294,11 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 		// if we have an instance, just use it
 		return locationManager;
 	}
-	return [[[CLLocationManager alloc] init] autorelease];
+	
+	if (tempManager == nil) {
+		tempManager = [[CLLocationManager alloc] init];
+	}
+	return tempManager;
 }
 
 -(void)startStopLocationManagerIfNeeded
@@ -410,9 +419,9 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 		return [CLLocationManager headingAvailable];
 	}
 	else {
-		CLLocationManager* tempManager = [self tempLocationManager];
-		if ([tempManager respondsToSelector:@selector(headingAvailable)]) {
-			return [tempManager headingAvailable];
+		CLLocationManager* tempManager_ = [self tempLocationManager];
+		if ([tempManager_ respondsToSelector:@selector(headingAvailable)]) {
+			return [tempManager_ headingAvailable];
 		}
 	}
 	
