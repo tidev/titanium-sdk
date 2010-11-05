@@ -925,7 +925,6 @@
 		TiViewProxy *proxy = [self.proxy valueForUndefinedKey:@"headerView"];
 		if (proxy!=nil)
 		{
-			[TiUtils setView:[proxy view] positionRect:bounds];
 			[proxy windowWillOpen];
 			[proxy layoutChildren:NO];
 		}
@@ -936,7 +935,6 @@
 		TiViewProxy *proxy = [self.proxy valueForUndefinedKey:@"footerView"];
 		if (proxy!=nil)
 		{
-			[TiUtils setView:[proxy view] positionRect:bounds];
 			[proxy windowWillOpen];
 			[proxy layoutChildren:NO];
 		}
