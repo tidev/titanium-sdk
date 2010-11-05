@@ -41,6 +41,8 @@ public class FacebookModule extends KrollModule implements FBActivityDelegate,
 		TiActivityResultHandler {
 	private static final String LCAT = "TiFacebook";
 	private static final boolean DBG = TiConfig.LOGD;
+	
+	protected static boolean usingOauth = true;
 
 	@Kroll.constant public static final String LOGIN_BUTTON_STYLE_WIDE = "wide";
 	@Kroll.constant public static final String LOGIN_BUTTON_STYLE_NORMAL = "normal";
@@ -168,8 +170,8 @@ public class FacebookModule extends KrollModule implements FBActivityDelegate,
 		}
 	}
 	
-	public void executeLogin() {
-		
+	protected void executeLogin(String permissionsList)
+	{
 		Log.d(LCAT, "EXECUTE LOGIN CALLED");
 		
 		Activity activity = getTiContext().getActivity();
@@ -179,8 +181,18 @@ public class FacebookModule extends KrollModule implements FBActivityDelegate,
 		Intent intent = new Intent(activity, FBActivity.class);
 		intent.setAction("login_dialog");
 		intent.putExtra("uid", resultCode);
+		if (permissionsList == null) {
+			intent.putExtra("permissions", "publish_stream");
+		} else {
+			intent.putExtra("permissions", permissionsList);
+		}
 		activitySupport.launchActivityForResult(intent, resultCode,
 				(TiActivityResultHandler) this);
+	}
+	
+	public void executeLogin() {
+		
+		executeLogin("publish_stream");
 	}
 
 	@Kroll.method
@@ -215,17 +227,31 @@ public class FacebookModule extends KrollModule implements FBActivityDelegate,
 			event.put("permission", permission);
 			callback.call(event);
 		} else {
-			Log.d(LCAT, "making remote permission call for: " + permission);
-			Activity activity = getTiContext().getActivity();
-			TiActivitySupport activitySupport = (TiActivitySupport) activity;
-			final int resultCode = activitySupport.getUniqueResultCode();
-			Intent intent = new Intent(activity, FBActivity.class);
-			callbacks.put(resultCode, callback);
-			intent.setAction("permission_dialog");
-			intent.putExtra("permission", permission);
-			intent.putExtra("uid", resultCode);
-			activitySupport.launchActivityForResult(intent, resultCode,
-					(TiActivityResultHandler) this);
+			if (usingOauth){
+				Log.d(LCAT, "making remote permission call via oauth login for: " + permission);
+				Activity activity = getTiContext().getActivity();
+				TiActivitySupport activitySupport = (TiActivitySupport) activity;
+				final int resultCode = activitySupport.getUniqueResultCode();
+				Intent intent = new Intent(activity, FBActivity.class);
+				callbacks.put(resultCode, callback);
+				intent.setAction("login_dialog");
+				intent.putExtra("permissions", permission); // In the case of oauth, the permission param should be comma-sep list of _all_ desired permissions
+				intent.putExtra("uid", resultCode);
+				activitySupport.launchActivityForResult(intent, resultCode,
+						(TiActivityResultHandler) this);
+			} else {
+				Log.d(LCAT, "making remote permission call for: " + permission);
+				Activity activity = getTiContext().getActivity();
+				TiActivitySupport activitySupport = (TiActivitySupport) activity;
+				final int resultCode = activitySupport.getUniqueResultCode();
+				Intent intent = new Intent(activity, FBActivity.class);
+				callbacks.put(resultCode, callback);
+				intent.setAction("permission_dialog");
+				intent.putExtra("permission", permission);
+				intent.putExtra("uid", resultCode);
+				activitySupport.launchActivityForResult(intent, resultCode,
+						(TiActivityResultHandler) this);
+			}
 		}
 	}
 
@@ -293,6 +319,11 @@ public class FacebookModule extends KrollModule implements FBActivityDelegate,
 						event.put("permission", permission);
 					}
 				}
+				if (resultCode == FBActivity.RESULT_ERROR) {
+					if (data.hasExtra("error")) {
+						event.put("error", data.getStringExtra("error"));
+					}
+				}
 				callback.call(event);
 				Log.d(LCAT, "Calling post activity event = " + event + " to "
 						+ callback);
@@ -321,6 +352,7 @@ public class FacebookModule extends KrollModule implements FBActivityDelegate,
 		
 		setProperty("loggedIn", isLoggedIn());
 		setProperty("userId", getUserId());
+		setProperty("permissions", session.getPermissions());
 
 		KrollDict sessionDict = new KrollDict();
 		if (isLoggedIn()) {
@@ -371,7 +403,8 @@ public class FacebookModule extends KrollModule implements FBActivityDelegate,
 			String permission = data.getStringExtra("permission");
 			dialog = new FBPermissionDialog(activity, session, new String[]{permission});
 		} else if (action.equals("login_dialog")) {
-			dialog = new FBLoginDialog(activity, session);
+			String permissions = data.getStringExtra("permissions");
+			dialog = new FBLoginDialog(activity, session, permissions);
 		} else if (action.equals("feed_dialog")) {
 			Long templateId = data.getLongExtra("templateId", 0L);
 			String templateData = data.getStringExtra("templateData");
@@ -421,7 +454,7 @@ public class FacebookModule extends KrollModule implements FBActivityDelegate,
 
 		String fql = "select uid,name from user where uid == "
 				+ session.getUid();
-		String fql2 = "select status_update,photo_upload,sms,email,create_event,rsvp_event,publish_stream,read_stream,share_item,create_note from permissions where uid == "
+		String fql2 = "select status_update,photo_upload,sms,email,create_event,rsvp_event,publish_stream,read_stream,share_item,create_note,offline_access from permissions where uid == "
 				+ session.getUid();
 
 		String json = null;

@@ -22,7 +22,7 @@ for (var i=0;i<20;i++)
 	var row = Titanium.UI.createTableViewRow();
 	row.height = 69;
 	row.backgroundImage = '../images/scrollable_view/table_view_row.png';
-	
+
 	var label = Titanium.UI.createLabel({
 		color:'#fff',
 		font:{fontSize:14},
@@ -30,7 +30,7 @@ for (var i=0;i<20;i++)
 		top:5,
 		left:10
 	});
-	
+
 	row.add(label);
 	data.push(row);
 }
@@ -50,7 +50,7 @@ for (var i=0;i<20;i++)
 	var row = Titanium.UI.createTableViewRow();
 	row.height = 69;
 	row.backgroundImage = '../images/scrollable_view/table_view_row.png';
-	
+
 	var label = Titanium.UI.createLabel({
 		color:'#fff',
 		font:{fontSize:14},
@@ -58,7 +58,7 @@ for (var i=0;i<20;i++)
 		top:5,
 		left:10
 	});
-	
+
 	row.add(label);
 	data2.push(row);
 }
@@ -77,7 +77,7 @@ for (var i=0;i<20;i++)
 	var row = Titanium.UI.createTableViewRow();
 	row.height = 69;
 	row.backgroundImage = '../images/scrollable_view/table_view_row.png';
-	
+
 	var label = Titanium.UI.createLabel({
 		color:'#fff',
 		font:{fontSize:14},
@@ -95,7 +95,7 @@ var tableview3 = Titanium.UI.createTableView({
 	backgroundColor:'transparent',
 	separatorStyle:0,
 	transform:t3,
-	visible:true,
+	visible:true
 
 });
 
@@ -122,7 +122,7 @@ var scrollView = Titanium.UI.createScrollableView({
 	top:10,
 	left:30,
 	right:30,
-	height:330,
+	height:330
 });
 win.add(scrollView);
 
@@ -145,7 +145,7 @@ function showTableView()
 	scrollView.visible=false;
 	var t = Ti.UI.create2DMatrix();
 	tableview.animate({transform:t,duration:100});
-	
+
 };
 
 

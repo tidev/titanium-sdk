@@ -323,6 +323,10 @@ public class FBDialog extends FrameLayout {
                     return true;
                 } else if (mLoadingURL.toExternalForm().equals(url)) {
 					return false;
+                } else if (uri.getPath().contains("login.php")) {
+                	return false;
+                } else if (uri.getQuery().contains("permissions.request")) {
+                	return false;
 				} else {
 					if (mDelegate != null
 							&& !mDelegate.dialogShouldOpenUrlInExternalBrowser(

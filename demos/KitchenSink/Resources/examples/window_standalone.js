@@ -72,7 +72,7 @@ b2.addEventListener('click', function()
 	}
 	var w = Titanium.UI.createWindow(options);
 	var a = Titanium.UI.createAnimation();
-	
+
 	// NOTE: good example of making dynamic platform height / width values
 	// iPad vs. iPhone vs Android etc.
 	a.height = Titanium.Platform.displayCaps.platformHeight;
@@ -112,7 +112,7 @@ b3.addEventListener('click', function()
 		backgroundColor:'#336699',
 		title:'Modal Window',
 		barColor:'black',
-		url:'vibrate.js',
+		url:'vibrate.js'
 	});
 	var b = Titanium.UI.createButton({
 		title:'Close',
@@ -188,7 +188,7 @@ b4.addEventListener('click', function()
 
 });
 
-// 
+//
 // OPEN (ANIMATE FROM BOTTOM)
 //
 var b5 = Titanium.UI.createButton({
@@ -383,7 +383,7 @@ if (Titanium.Platform.name == 'iPhone OS')
 	var flexSpace = Titanium.UI.createButton({
 		systemButton:Titanium.UI.iPhone.SystemButton.FLEXIBLE_SPACE
 	});
-	
+
 
 	var b8 = Titanium.UI.createButton({
 		title:'Open Tab Animation',

@@ -43,6 +43,7 @@
 			android:configChanges="keyboardHidden|orientation"
 			android:theme="@android:style/Theme.NoTitleBar.Fullscreen"
 		/>
+		<activity android:name="ti.modules.titanium.ui.android.TiPreferencesActivity" />
 
 		<service
 			android:name="org.appcelerator.titanium.analytics.TiAnalyticsService"

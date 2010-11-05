@@ -253,12 +253,18 @@ void AQRecorder::SetupAudioFormat(UInt32 inFormatID)
 
 void AQRecorder::PauseRecord()
 {
-	mIsPaused = true;
+	if (!mIsPaused && mIsRunning) {
+		XThrowIfError(AudioQueuePause(mQueue),"unable to pause audio queue");
+		mIsPaused = true;
+	}
 }
 
 void AQRecorder::ResumeRecord()
 {
-	mIsPaused = false;
+	if (mIsPaused && mIsRunning) {
+		mIsPaused = false;
+		XThrowIfError(AudioQueueStart(mQueue,NULL),"unable to resume audio queue");
+	}
 }
 
 void AQRecorder::StartRecord(CFStringRef inRecordFile, UInt32 fileFormatID)

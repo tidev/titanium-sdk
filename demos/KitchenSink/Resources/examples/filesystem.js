@@ -38,12 +38,12 @@ Ti.API.info('spaceAvailable = ' + dir.spaceAvailable());
 
 var newDir = Titanium.Filesystem.getFile(Titanium.Filesystem.applicationDataDirectory,'mydir');
 Ti.API.info("Created mydir: " + newDir.createDirectory());
-Ti.API.info('newdir ' + newDir)
+Ti.API.info('newdir ' + newDir);
 var newFile = Titanium.Filesystem.getFile(newDir.nativePath,'newfile.txt');
 newFile.write(f.read());
 Ti.API.info('directoryListing for newDir = ' + newDir.getDirectoryListing());
 Ti.API.info("newfile.txt created: " + String(new Date(newFile.createTimestamp())));
-Ti.API.info("newfile.txt modified: " + String(new Date(newFile.modificationTimestamp())));	
+Ti.API.info("newfile.txt modified: " + String(new Date(newFile.modificationTimestamp())));
 
 Ti.API.info("newfile.txt deleted: " + newFile.deleteFile());
 Ti.API.info("mydir deleted: " + newDir.deleteDirectory());
@@ -53,12 +53,12 @@ if (Ti.Platform.name == 'android') {
 	var dir = Titanium.Filesystem.getFile(Titanium.Filesystem.externalStorageDirectory);
 	Ti.API.info('external directoryListing = ' + dir.getParent().getDirectoryListing());
 }
-	
+
 var l = Titanium.UI.createLabel({text:'Check Log for details', width:300, height:'auto', textAlign:'center'});
 win.add(l);
 
 // test to make sure we can still access compiled JS files
 var jsfile = Titanium.Filesystem.getFile(Titanium.Filesystem.resourcesDirectory,'app.js');
-Ti.API.info("app.js exists? " + f.exists())
-Ti.API.info("app.js size? " + f.size)
+Ti.API.info("app.js exists? " + f.exists());
+Ti.API.info("app.js size? " + f.size);
 

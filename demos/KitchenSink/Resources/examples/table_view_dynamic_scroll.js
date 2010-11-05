@@ -33,7 +33,7 @@ function beginUpdate()
 	navActInd.show();
 
 	tableView.appendRow(loadingRow);
-	
+
 	// just mock out the reload
 	setTimeout(endUpdate,2000);
 }
@@ -43,17 +43,17 @@ function endUpdate()
 	updating = false;
 
 	tableView.deleteRow(lastRow,{animationStyle:Titanium.UI.iPhone.RowAnimationStyle.NONE});
-	
-	// simulate loading 
+
+	// simulate loading
 	for (var c=lastRow;c<lastRow+10;c++)
 	{
 		tableView.appendRow({title:"Row "+(c+1)},{animationStyle:Titanium.UI.iPhone.RowAnimationStyle.NONE});
 	}
 	lastRow += 10;
-	
+
 	// just scroll down a bit to the new rows to bring them into view
-	tableView.scrollToIndex(lastRow-9,{animated:true,position:Ti.UI.iPhone.TableViewScrollPosition.BOTTOM})
-	
+	tableView.scrollToIndex(lastRow-9,{animated:true,position:Ti.UI.iPhone.TableViewScrollPosition.BOTTOM});
+
 	navActInd.hide();
 }
 
@@ -66,15 +66,15 @@ tableView.addEventListener('scroll',function(e)
 	var total = offset + height;
 	var theEnd = e.contentSize.height;
 	var distance = theEnd - total;
-	
+
 	// going down is the only time we dynamically load,
-	// going up we can safely ignore -- note here that 
+	// going up we can safely ignore -- note here that
 	// the values will be negative so we do the opposite
 	if (distance < lastDistance)
 	{
 		// adjust the % of rows scrolled before we decide to start fetching
-		var nearEnd = theEnd * .75; 
-		
+		var nearEnd = theEnd * .75;
+
 		if (!updating && (total >= nearEnd))
 		{
 			beginUpdate();

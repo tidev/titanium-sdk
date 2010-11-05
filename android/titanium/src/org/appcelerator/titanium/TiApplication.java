@@ -50,6 +50,8 @@ public abstract class TiApplication extends Application
 	public static final String DEPLOY_TYPE_PRODUCTION = "production";
 	public static final int DEFAULT_THREAD_STACK_SIZE = 16 * 1024; // 16K as a "sane" default
 	
+	public static final String APPLICATION_PREFERENCES_NAME = "titanium";
+	
 	private static final String PROPERTY_DEPLOY_TYPE = "ti.deploytype";
 	private static final String PROPERTY_THREAD_STACK_SIZE = "ti.android.threadstacksize";
 	private static final String PROPERTY_COMPILE_JS = "ti.android.compilejs";
@@ -197,7 +199,7 @@ public abstract class TiApplication extends Application
 
 		TiPlatformHelper.initialize(this);
 		
-		appProperties = new TiProperties(getApplicationContext(), "titanium", false);
+		appProperties = new TiProperties(getApplicationContext(), APPLICATION_PREFERENCES_NAME, false);
 		systemProperties = new TiProperties(getApplicationContext(), "system", true);
 
 		//systemProperties.setString("ti.version", buildVersion); // was always setting "1.0"

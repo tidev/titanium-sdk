@@ -11,7 +11,7 @@ var l1 = Ti.UI.createLabel({
 	text:'I am the first label',
 	left:5,
 	width:'auto',
-	height:20,
+	height:20
 });
 
 view.add(l1);
