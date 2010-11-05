@@ -66,7 +66,7 @@ var customSlider = Titanium.UI.createSlider({
 	top:90,
 	leftTrackImage:'../images/slider_orangebar.png',
 	rightTrackImage:'../images/slider_lightbar.png',
-	thumbImage:'../images/slider_thumb.png'	
+	thumbImage:'../images/slider_thumb.png'
 });
 customSlider.addEventListener('change',function(e)
 {
@@ -119,7 +119,7 @@ toggleButton.addEventListener('click', function()
 		customSlider.show();
 		visible=true;
 	}
-	
+
 });
 
 
@@ -161,7 +161,7 @@ var toolbarButton = Titanium.UI.createButton({
 	height:40,
 	width:200,
 	top:270
-	
+
 });
 var inToolbar = false;
 toolbarButton.addEventListener('click', function()
@@ -185,7 +185,7 @@ toolbarButton.addEventListener('click', function()
 });
 
 //
-// SLIDER TO TITLE CONTROL 
+// SLIDER TO TITLE CONTROL
 //
 var titleButton = Titanium.UI.createButton({
 	title:'Toggle Slider in Title',
@@ -221,7 +221,7 @@ titleButton.addEventListener('click', function()
 win.add(basicSliderLabel);
 win.add(basicSlider);
 win.add(toggleButton);
-Ti.API.info('platform = ' + Titanium.Platform.osname)
+Ti.API.info('platform = ' + Titanium.Platform.osname);
 if (Titanium.Platform.osname == 'iphone' || Titanium.Platform.osname == 'ipad')
 {
 	win.add(navbarButton);

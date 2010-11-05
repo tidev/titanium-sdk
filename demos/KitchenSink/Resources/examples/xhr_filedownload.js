@@ -53,9 +53,9 @@ b1.addEventListener('click', function()
 	};
 	c.onerror = function(e)
 	{
-		Ti.API.info('XHR Error ' + e.error)
+		Ti.API.info('XHR Error ' + e.error);
 	};
-	
+
 	// open the client
 	if (Titanium.Platform.name == 'android') {
 		//android's WebView doesn't support embedded PDF content
@@ -66,7 +66,7 @@ b1.addEventListener('click', function()
 
 	// send the data
 	c.send();
-	
+
 });
 
 
@@ -108,7 +108,7 @@ b2.addEventListener('click', function()
 
 	// send the data
 	c.send();
-	
+
 });
 win.add(b2);
 
@@ -122,7 +122,7 @@ win.add(abort);
 abort.addEventListener('click', function()
 {
 	c.abort();
-		
+
 	c = Titanium.Network.createHTTPClient();
 	ind.value = 0;
 });
@@ -152,7 +152,7 @@ largeFile.addEventListener('click', function()
 	{
 		Ti.UI.createAlertDialog({title:'XHR', message:'Error: ' + e.error}).show();
 	};
-	
+
 	c.open('GET','http://www.appcelerator.com/download-win32');
 	c.send();
 });

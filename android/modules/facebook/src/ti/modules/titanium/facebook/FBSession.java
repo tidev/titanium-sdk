@@ -8,6 +8,7 @@ package ti.modules.titanium.facebook;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -45,12 +46,17 @@ import android.webkit.CookieSyncManager;
 public class FBSession {
 
 	private static final String PREFS_NAME = "FBSessionPreferences";
+	private static final String LCAT = "TiFBSession";
 
 	// /////////////////////////////////////////////////////////////////////////////////////////////////
 	// global
 
-	private static final String APIRESTURL = "http://api.facebook.com/restserver.php";
-	private static final String APIRESTSECUREURL = "https://api.facebook.com/restserver.php";
+	//private static final String APIRESTURL = "http://api.facebook.com/restserver.php";
+	//private static final String APIRESTSECUREURL = "https://api.facebook.com/restserver.php";
+	private static final String APIRESTURL = "http://api.facebook.com/method/";
+	private static final String APIRESTSECUREURL = "https://api.facebook.com/method/";
+	private static final String APIGRAPHSECUREURL = "https://graph.facebook.com/";
+	
 
 	private static final int MAXBURSTREQUESTS = 3;
 	private static final long BURSTDURATION = 2;
@@ -72,6 +78,7 @@ public class FBSession {
 	private Date mLastRequestTime;
 	private int mRequestBurstCount;
 	private Timer mRequestTimer;
+	private String mAccessToken; //OAUTH
 
 	// /////////////////////////////////////////////////////////////////////////////////////////////////
 	// constructor
@@ -89,6 +96,7 @@ public class FBSession {
 		mLastRequestTime = new Date();
 		mRequestBurstCount = 0;
 		mRequestTimer = null;
+		mAccessToken = null;
 	}
 
 	/**
@@ -172,6 +180,12 @@ public class FBSession {
 		} else {
 			editor.remove("FBUserId");
 		}
+		
+		if (mAccessToken != null) {
+			editor.putString("FBAccessToken", mAccessToken);
+		} else {
+			editor.remove("FBAccessToken");
+		}
 
 		if (mSessionKey != null) {
 			editor.putString("FBSessionKey", mSessionKey);
@@ -202,6 +216,7 @@ public class FBSession {
 		}
 		editor.commit();
 	}
+	
 
 	public void unsave(Context context) {
 		Editor defaults = context.getSharedPreferences(PREFS_NAME,
@@ -212,6 +227,7 @@ public class FBSession {
 		defaults.remove("FBSessionSecret");
 		defaults.remove("FBSessionExpires");
 		defaults.remove("FBPermissions");
+		defaults.remove("FBAccessToken");
 		defaults.commit();
 		if (permissions != null) {
 			permissions.clear();
@@ -301,24 +317,51 @@ public class FBSession {
 	public String getApiSecureURL() {
 		return APIRESTSECUREURL;
 	}
+	
+	public String getGraphApiSecureURL() {
+		return APIGRAPHSECUREURL;
+	}
 
 	/**
 	 * Determines if the session is active and connected to a user.
 	 */
 	public boolean isConnected() {
-		return mSessionKey != null && mUid.longValue() != 0;
+		if (FacebookModule.usingOauth) {
+			return mAccessToken != null && !hasExpired() ;
+		} else {
+			return mSessionKey != null && mUid.longValue() != 0;
+		}
+	}
+	
+	private boolean hasExpired() {
+		if (mExpirationDate == null) {
+			return false;
+		}
+		Calendar c = Calendar.getInstance();
+		c.setTime(mExpirationDate);
+		return (c.before(Calendar.getInstance()));
+		
 	}
 
 	/**
 	 * Begins a session for a user with a given key and secret.
+	 * 2010-11-02 added accessToken for OAUTH
 	 */
 	public void begin(Context context, Long uid, String sessionKey,
-			String sessionSecret, Date expires) {
+			String sessionSecret, Date expires, String accessToken) {
 		mUid = uid;
 		mSessionKey = sessionKey;
 		mSessionSecret = sessionSecret;
 		mExpirationDate = (Date) expires.clone();
+		mAccessToken = accessToken;
 		save(context);
+	}
+	
+	// OAUTH version of begin()
+	public void begin_oauth(Context context, Long uid)
+	{
+		mUid = uid;
+		begin(context, uid, null, null, mExpirationDate, mAccessToken);
 	}
 
 	/**
@@ -329,23 +372,27 @@ public class FBSession {
 		SharedPreferences defaults = context.getSharedPreferences(PREFS_NAME,
 				Context.MODE_PRIVATE);
 		Long uid = defaults.getLong("FBUserId", 0);
+		mAccessToken = defaults.getString("FBAccessToken", null);
+		if (FacebookModule.usingOauth && mAccessToken == null) {
+			return false; 
+		}
 		Log.d("FBSession", "FBUserId = " + uid);
 		if (uid != 0) {
 			boolean loadSession = false;
 			long expires = defaults.getLong("FBSessionExpires", 0);
 			if (expires > 0) {
-				Date expirationDate = new Date(expires);
+				mExpirationDate = new Date(expires);
 				Log.d(
 								"FBSession",
-								"expirationDate = " + expirationDate != null ? expirationDate
+								"expirationDate = " + mExpirationDate != null ? mExpirationDate
 										.toString()
 										: "null");
 				long timeIntervalSinceNow = CcDate
-						.timeIntervalSinceNow(expirationDate);
+						.timeIntervalSinceNow(mExpirationDate);
 				Log.d("FBSession", "Time interval since now = "
 						+ timeIntervalSinceNow);
 
-				if (expirationDate == null || timeIntervalSinceNow <= 0) {
+				if (mExpirationDate == null || timeIntervalSinceNow <= 0) {
 					loadSession = true;
 				}
 			} else {
@@ -362,14 +409,14 @@ public class FBSession {
 						FBUtil.jsonToMap(new JSONObject(fbPerms),
 								this.permissions);
 					} catch (JSONException ex) {
-						ex.printStackTrace();
+						Log.e(LCAT, "Failed loading cached permissions: " + ex.getMessage(), ex);
 					}
 				}
 				Log.d("FBSession", "Session can be loaded.  Loading...");
 				mUid = uid;
 				mSessionKey = defaults.getString("FBSessionKey", null);
 				mSessionSecret = defaults.getString("FBSessionSecret", null);
-
+				
 				for (FBSessionDelegate delegate : mDelegates) {
 					delegate.sessionDidLogin(this, uid);
 				}
@@ -378,6 +425,7 @@ public class FBSession {
 		}
 		return false;
 	}
+	
 
 	/**
 	 * Ends the current session and deletes the uid, session key, and secret
@@ -385,7 +433,7 @@ public class FBSession {
 	 */
 	public void logout(Context context) {
 
-		if (mSessionKey != null) {
+		if (mSessionKey != null || mAccessToken != null) {
 
 			// Execute will logout
 			for (FBSessionDelegate delegate : mDelegates) {
@@ -396,7 +444,8 @@ public class FBSession {
 			mUid = Long.valueOf(0);
 			mSessionKey = null;
 			mSessionSecret = null;
-			mExpirationDate = null;
+			mExpirationDate = null; 
+			mAccessToken = null;
 		}
 
 		// Remove session cookies from the web view. We create the
@@ -503,6 +552,15 @@ public class FBSession {
 		}
 		return false;
 	}
+	
+	public Map<String, String> getPermissions()
+	{
+		if (this.permissions == null) {
+			return new HashMap<String, String>();
+		} else {
+			return permissions;
+		}
+	}
 
 	public void addPermissions(Context ctx, String name, String value) {
 		if (this.permissions == null) {
@@ -511,6 +569,26 @@ public class FBSession {
 		}
 		this.permissions.put(name, value);
 		this.save(ctx);
+	}
+	
+	public String getAccessToken() {
+		return mAccessToken;
+	}
+	
+	public void setFutureExpiration(Context context, String expires_in_seconds) {
+		long seconds = Integer.parseInt(expires_in_seconds);
+		if (seconds <= 0) {
+			// occurs if offline_access permission exists
+			seconds = Integer.MAX_VALUE;
+		}
+		Calendar c = Calendar.getInstance();
+		long addMs = seconds * 1000L;
+		c.setTimeInMillis(System.currentTimeMillis() + addMs);
+		mExpirationDate = c.getTime();
+	}
+	
+	public void setAccessToken(String token) {
+		this.mAccessToken = token;
 	}
 
 	// /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -536,5 +614,5 @@ public class FBSession {
 		}
 
 	}
-
+	
 }

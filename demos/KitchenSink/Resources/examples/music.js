@@ -23,7 +23,7 @@ var timeBar = Ti.UI.createProgressBar({
 	height:40,
 	top:240,
 	color:'#888',
-	style:Titanium.UI.iPhone.ProgressBarStyle.PLAIN,
+	style:Titanium.UI.iPhone.ProgressBarStyle.PLAIN
 });
 win.add(timeBar);
 
@@ -35,7 +35,7 @@ var barUpdate = function () {
 
 try {
 	player = Titanium.Media.systemMusicPlayer;
-	
+
 	if (player.playbackState == Titanium.Media.MUSIC_PLAYER_STATE_PLAYING) {
 		info.text = player.nowPlaying.artist + ' : ' + player.nowPlaying.albumTitle;
 		title.text = player.nowPlaying.title;
@@ -46,7 +46,7 @@ try {
 			playback = setInterval(barUpdate, 500);
 		}
 	}
-	
+
 	player.addEventListener('stateChange', function() {
 		if (player.playbackState == Titanium.Media.MUSIC_PLAYER_STATE_STOPPED) {
 			title.text = '';
@@ -109,7 +109,7 @@ var b2 = Ti.UI.createButton({
 	title:'Pause',
 	width:80,
 	height:40,
-	top:20,
+	top:20
 });
 b2.addEventListener('click', function() {
 	player.pause();
@@ -179,7 +179,7 @@ var b8 = Ti.UI.createButton({
 	title:'Skip |>',
 	width:80,
 	height:40,
-	top:140,
+	top:140
 });
 b8.addEventListener('click', function() {
 	player.skipToBeginning();
@@ -201,7 +201,7 @@ win.add(b9);
 // MODAL SETTINGS BIT...
 var settingsWindow = Ti.UI.createWindow({
 	backgroundColor:'#fff',
-	title:'Picker settings',
+	title:'Picker settings'
 });
 
 var settings = {
@@ -315,7 +315,7 @@ for (var i=0; i < 5; i++) {
 		width:250,
 		height:30
 	});
-	
+
 	var text;
 	var type;
 	switch (i) {
@@ -340,7 +340,7 @@ for (var i=0; i < 5; i++) {
 			type = Ti.Media.MUSIC_MEDIA_TYPE_ALL;
 			break;
 	}
-	
+
 	var l = Ti.UI.createLabel({
 		top:0,
 		left:0,
@@ -356,13 +356,13 @@ for (var i=0; i < 5; i++) {
 	if (i == 4) {
 		s.value = true;
 	}
-	
+
 	s.addEventListener('change', function(e) {
 		var type = e.source.type;
 		var index = e.source.index;
-		
+
 		Ti.API.log('Setting media type: '+type+' to '+e.source.value);
-		
+
 		if (e.source.value) {
 			settings.mediaTypes |= type;
 		}
@@ -376,7 +376,7 @@ for (var i=0; i < 5; i++) {
 		}
 	});
 	switches.push(s);
-	
+
 	v.add(l);
 	v.add(s);
 	settingsWindow.add(v);
@@ -397,7 +397,7 @@ var b10 = Ti.UI.createButton({
 	width:120,
 	height:40,
 	bottom:20,
-	left:20,
+	left:20
 });
 b10.addEventListener('click', function() {
 	settingsWindow.open({modal:true});

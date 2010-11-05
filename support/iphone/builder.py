@@ -435,6 +435,9 @@ def main(args):
 				cwd = os.getcwd()
 				os.chdir(titanium_dir)
 				for entry in glob.glob('%s/*.zip' % titanium_dir):
+					filename = os.path.basename(entry)
+					if filename.startswith('mobilesdk-'): continue
+					
 					print "[INFO] installing module: %s" % entry
 					run.run(['/usr/bin/unzip','-o',entry])
 					os.remove(entry)
@@ -454,7 +457,7 @@ def main(args):
 				if os.path.exists(local_tp):
 					tp_modules.append(local_tp)
 					tp_lib_search_path.append([libname,local_tp])
-					local = True	
+					local = True
 					print "[INFO] Detected third-party module: %s" % (local_tp)
 					o.write("Detected third-party module: %s\n" % (local_tp))
 				else:

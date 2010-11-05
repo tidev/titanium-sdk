@@ -45,8 +45,11 @@ LINKIFY_MAP_ADDRESSES[int]: Auto link physical addresses.
 LINKIFY_PHONE_NUMBERS[int]: Auto link phone numbers.
 LINKIFY_WEB_URLS[int]: Auto link web urls.
 
+SWITCH_STYLE_CHECKBOX[int]: Display Switch as an Android Checkbox
+SWITCH_STYLE_TOGGLEBUTTON[int]: Display Switch as an Android Toggle Button (default)
+
 - methods
 
-None
+openPreferences: open Android native preferences UI activity. You need to place your preferences.xml file in the platform/android/res/xml/ folder of your project. Documentation on the file format may be found in the Android documentation http://developer.android.com/resources/samples/ApiDemos/res/xml/preferences.html
 
 

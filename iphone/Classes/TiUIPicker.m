@@ -83,11 +83,13 @@ USE_PROXY_FOR_VERIFY_AUTORESIZING
 
 -(void)reloadColumn:(id)column
 {
-	ENSURE_SINGLE_ARG(column,TiUIPickerColumnProxy);
-	if ([self isDatePicker]==NO)
+//TODO: DatePicker checking should have been done long before the main thread.
+	if ([self isDatePicker])
 	{
-		[(UIPickerView*)[self picker] reloadComponent:((TiUIPickerColumnProxy*)column).column];
+		return;
 	}
+//Because the other logic checking and massaging is done in the proxy, we can jump to the chase.
+	[(UIPickerView*)[self picker] reloadComponent:[(NSNumber *)column intValue]];
 }
 
 -(NSArray*)columns 
@@ -348,10 +350,15 @@ USE_PROXY_FOR_VERIFY_AUTORESIZING
 			{
 				[selected addObject:title];
 			}
-			else 
+			else if(rowSelected!=nil)
 			{
 				[selected addObject:rowSelected];
 			}
+			else
+			{
+				[selected addObject:[NSNull null]];
+			}
+
 			colIndex++;
 		}
 		NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:

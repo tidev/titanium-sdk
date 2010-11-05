@@ -242,6 +242,25 @@ class Builder(object):
 					error("Error locating JDK: set $JAVA_HOME or put javac and jarsigner on your $PATH")
 					sys.exit(1)
 
+	def wait_for_home(self, type):
+		max_wait = 20
+		attempts = 0
+		while True:
+			processes = self.sdk.list_processes(['-%s' % type])
+			found_home = False
+			for process in processes:
+				if process["name"] == "android.process.acore":
+					found_home = True
+					break
+			if found_home:
+				break
+			attempts += 1
+			if attempts == max_wait:
+				error("Timed out waiting for android.process.acore")
+				return False
+			time.sleep(1)
+		return True
+	
 	def wait_for_device(self,type):
 		print "[DEBUG] Waiting for device to be ready ..."
 		sys.stdout.flush()
@@ -292,7 +311,8 @@ class Builder(object):
 		debug("waited %f seconds on emulator to get ready" % duration)
 		if duration > 1.0:
 			info("Waiting for the Android Emulator to become available")
-			time.sleep(20) # give it a little more time to get installed
+			return self.wait_for_home(type)
+			#time.sleep(20) # give it a little more time to get installed
 		return True
 	
 	def create_avd(self,avd_id,avd_skin):
@@ -861,11 +881,14 @@ class Builder(object):
 			manifest_changed = True
 		
 		res_dir = os.path.join(self.project_dir, 'res')
-		output = run.run([self.aapt, 'package', '-m', '-J', self.project_gen_dir, '-M', android_manifest, '-S', res_dir, '-I', self.android_jar])
-		if output == None:
+		output = run.run([self.aapt, 'package', '-m', '-J', self.project_gen_dir, '-M', android_manifest, '-S', res_dir, '-I', self.android_jar],
+			warning_regex=r'skipping')
+		
+		r_file = os.path.join(self.project_gen_dir, self.app_id.replace('.', os.sep), 'R.java')
+		if not os.path.exists(r_file) or output == None:
 			error("Error generating R.java from manifest")
 			sys.exit(1)
-		r_file = os.path.join(self.project_gen_dir, self.app_id.replace('.', os.sep), 'R.java')
+		
 		ra_file = os.path.join(self.project_gen_dir, self.app_id.replace('.', os.sep), 'RA.java')
 		package, map = parse_r(r_file)
 		ra_out = generate_appc_r(package, map)
@@ -942,7 +965,8 @@ class Builder(object):
 	def package_and_deploy(self):
 		ap_ = os.path.join(self.project_dir, 'bin', 'app.ap_')
 		rhino_jar = os.path.join(self.support_dir, 'js.jar')
-		run.run([self.aapt, 'package', '-f', '-M', 'AndroidManifest.xml', '-A', self.assets_dir, '-S', 'res', '-I', self.android_jar, '-I', self.titanium_jar, '-F', ap_])
+		run.run([self.aapt, 'package', '-f', '-M', 'AndroidManifest.xml', '-A', self.assets_dir, '-S', 'res', '-I', self.android_jar, '-I', self.titanium_jar, '-F', ap_],
+			warning_regex=r'skipping')
 	
 		unsigned_apk = os.path.join(self.project_dir, 'bin', 'app-unsigned.apk')
 		apk_build_cmd = [self.apkbuilder, unsigned_apk, '-u', '-z', ap_, '-f', self.classes_dex, '-rf', self.project_src_dir]

@@ -23,7 +23,7 @@ var cameraFlash = Ti.UI.createButton({
 	height:40,
 	width:80,
 	backgroundImage:"../images/BUTT_drk_on.png",
-	font:{fontSize:16,fontWeight:'bold',fontFamily:'Helvetica Neue'},
+	font:{fontSize:16,fontWeight:'bold',fontFamily:'Helvetica Neue'}
 });
 overlay.add(cameraFlash);
 
@@ -56,7 +56,7 @@ var cameraType = Ti.UI.createButton({
 	height:40,
 	width:80,
 	backgroundImage:"../images/BUTT_drk_on.png",
-	font:{fontSize:16,fontWeight:'bold',fontFamily:'Helvetica Neue'},
+	font:{fontSize:16,fontWeight:'bold',fontFamily:'Helvetica Neue'}
 });
 
 var cameras = Ti.Media.availableCameras;
@@ -99,10 +99,10 @@ Titanium.Media.showCamera({
 	success:function(event)
 	{
 		Ti.API.debug("video was taken");
-		
+
 		// programatically hide the camera
 		Ti.Media.hideCamera();
-		
+
 		var activeMovie = Titanium.Media.createVideoPlayer({
 			media:event.media,
 			backgroundColor:'#111',

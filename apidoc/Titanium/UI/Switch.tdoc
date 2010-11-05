@@ -26,6 +26,10 @@ android, iphone, ipad
 
 enabled[boolean]: boolean for the state of the switch
 value[boolean]: boolean value of the switch where true is the switch is `on` and false the switch if `off`
+style[int]: one of Ti.UI.Android.SWITCH_STYLE_CHECKBOX or Ti.UI.Android.SWITCH_STYLE_TOGGLEBUTTON (default). (Android only)
+title[string]: text to display with checkbox. Used if style is Ti.UI.Android.SWITCH_STYLE_CHECKBOX (Android only)
+titleOff[string]: text to display when value is `false`. used if style is Ti.UI.Android.SWITCH_STYLE_TOGGLEBUTTON (Android only)
+titleOn[string]: text to display when value is `true`. used if style is Ti.UI.Android.SWITCH_STYLE_TOGGLEBUTTON (Android only)
 
 - methods
 

@@ -1037,9 +1037,7 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 				}				
 			}
 		}
-		RELEASE_TO_NIL(pool); // Clean up all of our autorelease so that long-running contexts don't devour everything
 
-		
 		// TODO: experiment, attempt to collect more often than usual given our environment
 		if (loopCount == GC_LOOP_COUNT)
 		{
@@ -1049,6 +1047,8 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 			TiGarbageCollect(context);
 			loopCount = 0;
 		}
+		
+		RELEASE_TO_NIL(pool); // Clean up all of our autorelease so that long-running contexts don't devour everything
 		
 		// check to see if we're already stopped and in the flush queue state, in which case,
 		// we can now immediately exit
@@ -1083,6 +1083,10 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 #if CONTEXT_DEBUG == 1	
 	NSLog(@"CONTEXT<%@>: is shutting down",self);
 #endif
+	
+	if (pool == nil) {
+		pool = [[NSAutoreleasePool alloc] init];
+	}
 	
 	// call before we start the shutdown while context and timers are alive
 	if (delegate!=nil && [delegate respondsToSelector:@selector(willStopNewContext:)])

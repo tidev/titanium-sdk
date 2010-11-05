@@ -10,7 +10,7 @@
 try: import json
 except: import simplejson as json
 
-import os, sys, re
+import os, sys, re, optparse
 from os.path import join, splitext, split, exists
 from htmlentitydefs import name2codepoint 
 
@@ -97,9 +97,9 @@ class API(object):
 	
 	def build_search_index(self):
 		index = []
-		index.append(obj.namespace)	
-		index.append(" ".join(obj.namespace.split('.')))
-		index.append(obj.description)
+		index.append(self.namespace)	
+		index.append(" ".join(self.namespace.split('.')))
+		index.append(self.description)
 		for o in self.events:
 			index.append(o['name'])
 		for o in self.methods:
@@ -175,12 +175,12 @@ class API(object):
 			self.add_property('visible','boolean','a boolean of the visibility of the view')
 			self.add_property('touchEnabled','boolean','a boolean indicating if the view should receive touch events (true, default) or forward them to peers (false)')
 			self.add_property('size','object','the size of the view as a dictionary of width and height properties')
-			self.add_property('width','float,string','property for the view width. can either be `auto`, a float value or a string of the width.')
-			self.add_property('height','float,string','property for the view height. can be either float value or a string of the width.')
-			self.add_property('top','float,string','property for the view top position. this position is relative to the views parent. can be either a float value or a string of the width.')
-			self.add_property('left','float,string','property for the view left position. this position is relative to the views parent. can be either a float value or a string of the width.')
-			self.add_property('right','float,string','property for the view right position. this position is relative to the views parent. can be either a float value or a string of the width.')
-			self.add_property('bottom','float,string','property for the view bottom position. this position is relative to the views parent. can be either a float value or a string of the width.')
+			self.add_property('width','float,string','property for the view width. Can be either a float value or a dimension string ie \'auto\' (default), \'50%\' (iPhone only).')
+			self.add_property('height','float,string','property for the view height. Can be either a float value or a dimension string ie \'auto\' (default), \'50%\' (iPhone only).')
+			self.add_property('top','float,string','property for the view top position. This position is relative to the view\'s parent. Can be either a float value or a dimension string ie \'auto\' (default), \'50%\' (iPhone only).')
+			self.add_property('left','float,string','property for the view left position. This position is relative to the view\'s parent. Can be either a float value or a dimension string ie \'auto\' (default), \'50%\' (iPhone only).')
+			self.add_property('right','float,string','property for the view right position. This position is relative to the view\'s parent. Can be either a float value or a dimension string ie \'auto\' (default), \'50%\' (iPhone only).')
+			self.add_property('bottom','float,string','property for the view bottom position. This position is relative to the view\'s parent. Can be either a float value or a dimension string ie \'auto\' (default), \'50%\' (iPhone only).')
 			self.add_property('softKeyboardOnFocus','int','One of Titanium.UI.Android.SOFT_KEYBOARD_DEFAULT_ON_FOCUS, Titanium.UI.Android.SOFT_KEYBOARD_HIDE_ON_FOCUS, or Titanium.UI.Android.SOFT_KEYBOARD_SHOW_ON_FOCUS. (Android only)')
 			self.add_property('focusable','boolean','Set true if you want a view to be focusable when navigating with the trackball or D-Pad. Default: false. (Android Only)')
 			# these are common methods
@@ -559,58 +559,57 @@ def start_marker(line):
 	state_states[state]=False
 	
 
-for root, dirs, files in os.walk(template_dir):
-	for name in ignoreDirs:
-		if name in dirs:
-			dirs.remove(name)	# don't visit ignored directories			  
-	for file in files:
-		if splitext(file)[-1] != '.tdoc' or file=='template.tdoc':
-			continue
-		from_ = join(root, file)
-		current_file = from_
-		print "Processing: %s" % file
-		content = open(from_).readlines()
-		buffer = ''
-		current_line = 0
-		for line in content:
-			current_line = current_line + 1
-			ln = line.strip()
-			if ln[0:1] == '#' and line[1:2] == ' ':
-				continue
-			if ln[0:1] == '-' and line[1:2] == ' ':
-				emit_buffer(buffer)
-				buffer = ''
-				start_marker(ln)
-			else:
-				buffer+='%s' % line
-		emit_buffer(buffer)
-
-
 search_json = []
+def process_tdoc():
+	for root, dirs, files in os.walk(template_dir):
+		for name in ignoreDirs:
+			if name in dirs:
+				dirs.remove(name)	# don't visit ignored directories			  
+		for file in files:
+			if splitext(file)[-1] != '.tdoc' or file=='template.tdoc':
+				continue
+			from_ = join(root, file)
+			current_file = from_
+			print "Processing: %s" % file
+			content = open(from_).readlines()
+			buffer = ''
+			current_line = 0
+			for line in content:
+				current_line = current_line + 1
+				ln = line.strip()
+				if ln[0:1] == '#' and line[1:2] == ' ':
+					continue
+				if ln[0:1] == '-' and line[1:2] == ' ':
+					emit_buffer(buffer)
+					buffer = ''
+					start_marker(ln)
+				else:
+					buffer+='%s' % line
+			emit_buffer(buffer)
 
-# gather all the child objects into their parents
-for name in apis:
-	obj = apis[name]
-	if obj.typestr == 'object' or obj.typestr == 'proxy':
-		tokens = name.split('.')
-		parent = ''
-		c = 0
-		t = len(tokens)-1
-		while c < t:
-			parent+=tokens[c]
-			c+=1
-			if c < t:
-				parent+='.'
-		parentobj = apis[parent]
-		parentobj.add_object(obj)
+	# gather all the child objects into their parents
+	for name in apis:
+		obj = apis[name]
+		if obj.typestr == 'object' or obj.typestr == 'proxy':
+			tokens = name.split('.')
+			parent = ''
+			c = 0
+			t = len(tokens)-1
+			while c < t:
+				parent+=tokens[c]
+				c+=1
+				if c < t:
+					parent+='.'
+			parentobj = apis[parent]
+			parentobj.add_object(obj)
 	
 		
-	# simply create a search index of tokens that the webserver will use to do doc searchs against
-	search_json.append({
-		'filename':obj.namespace,
-		'content':obj.build_search_index(),
-		'type':obj.typestr
-	})
+		# simply create a search index of tokens that the webserver will use to do doc searchs against
+		search_json.append({
+			'filename':obj.namespace,
+			'content':obj.build_search_index(),
+			'type':obj.typestr
+		})
 
 def clean_links(text):
 	link1 = re.compile(r'"([^"]*?)\.html"')
@@ -804,40 +803,66 @@ def produce_devhtml(config):
 	out.write(produce_json(config,False));
 	out.close()
 	
-	changelog = open(os.path.join(template_dir,'Titanium','CHANGELOG','%s.mdoc'%version)).read()
+	changelog_mdoc = os.path.join(template_dir,'Titanium','CHANGELOG','%s.mdoc'%version)
+	if not exists(changelog_mdoc):
+		print 'Warning: %s wasn\'t found, skipping changelog.html generation' % changelog_mdoc
+		return
+	
+	changelog = open(changelog_mdoc).read()
 	out = open(os.path.join(outdir,'changelog.html'),'w+')
 	out.write(htmlerize(changelog))
 	out.close()
 
 
-def main(args):
-	if len(args) == 1:
-		print "Usage: %s <format>" % os.path.basename(args[0])
-		sys.exit(1)
-	format = args[1]
+def main():
+	parser = optparse.OptionParser()
+	parser.add_option('-f', '--format', dest='format', help='Format of output: json or devhtml (default)', default='devhtml')
+	parser.add_option('--css', dest='css', help='Path to a custom CSS stylesheet to use in each HTML page', default=None)
+	parser.add_option('-o', '--output', dest='output', help='Output directory for generated documentation', default=None)
+	parser.add_option('-v', '--version', dest='version', help='Version of the API to generate documentation for', default=None)
+	parser.add_option('--colorize', dest='colorize', action='store_true', help='Colorize code in examples', default=False)
+	(options, args) = parser.parse_args()
+	
 	other_args = {}
-	c = 2
+	
+	titanium_dir = os.path.dirname(template_dir)
+	dist_apidoc_dir = join(titanium_dir, 'dist', 'apidoc')
+	sys.path.append(join(titanium_dir, 'build'))
+	import titanium_version
+	
+	other_args['output'] = options.output or dist_apidoc_dir
+	other_args['version'] = options.version or titanium_version.version
+	
+	if options.css != None:
+		other_args['css'] = options.css
+	
+	if options.colorize:
+		other_args['colorize'] = True
+	
+	"""c = 2
 	while c < len(args):
 		kv = args[c].split("=")
 		if len(kv) > 1:
 			other_args[kv[0].strip()]=kv[1].strip()
 		else:
 			other_args[kv[0].strip()]=True
-		c+=1
-		
-	if format == 'json':
-		produce_json(other_args)
-	elif format == 'devhtml':
-		produce_devhtml(other_args)
+		c+=1"""
+	
+	format_handlers = {'json': produce_json, 'devhtml': produce_devhtml}
+	if options.format in format_handlers:
+		print 'Generating Documentation for Titanium version %s to %s...' % (other_args['version'], other_args['output'])
+		process_tdoc()
+		format_handlers[options.format](other_args)
 	else:
-		print "Uh.... I don't understand that format: %s" % format
+		print "Uh.... I don't understand that format: %s" % options.format
 		sys.exit(1)
 	sys.exit(0)
-						  
+
 if __name__ == "__main__":
+	main()
 #	main(sys.argv)
 #	main([sys.argv[0],'json','output=~/tmp/doc'])	
 #	main([sys.argv[0],'devhtml','output=~/work/appcelerator_network/new/public/devcenter/application/apidoc/mobile/1.0.0'])
-	main([sys.argv[0],'devhtml','version=1.4','output=~/work/appcelerator_network/new/public/devcenter/application/apidoc/mobile/1.4'])
+#	main([sys.argv[0],'devhtml','version=1.4','output=~/work/appcelerator_network/new/public/devcenter/application/apidoc/mobile/1.4'])
 #	main([sys.argv[0],'devhtml','colorize','css=page.css','output=~/work/titanium_mobile/demos/KitchenSink_iPad/Resources/apidoc'])
 	

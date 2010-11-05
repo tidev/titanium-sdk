@@ -17,7 +17,7 @@ var basicSwitchLabel = Titanium.UI.createLabel({
 
 var basicSwitch = Titanium.UI.createSwitch({
 	value:false,
-	top:30,
+	top:30
 });
 
 basicSwitch.addEventListener('change',function(e)
@@ -85,15 +85,15 @@ toolbarButton.addEventListener('click', function()
 	if (!inToolbar)
 	{
 		var toolbarSwitch = Titanium.UI.createSwitch({
-			value:false,
+			value:false
 		});
-		win.setToolbar([toolbarSwitch])
+		win.setToolbar([toolbarSwitch]);
 		inToolbar = true;
 	}
 	else
 	{
 		inToolbar = false;
-		win.setToolbar(null,{animated:true})
+		win.setToolbar(null,{animated:true});
 	}
 });
 
@@ -125,7 +125,7 @@ navbarButton.addEventListener('click', function()
 });
 
 //
-// SWITCH TO TITLE CONTROL 
+// SWITCH TO TITLE CONTROL
 //
 var titleButton = Titanium.UI.createButton({
 	title:'Toggle Swtich in Title',
@@ -147,13 +147,37 @@ titleButton.addEventListener('click', function()
 	else
 	{
 		var titleSwitch = Titanium.UI.createSwitch({
-			value:false,
+			value:false
 		});
 		win.titleControl = titleSwitch;
 		inTitle=true;
 	}
 });
 
+//
+// CHECKBOX
+//
+var checkBox = Titanium.UI.createSwitch({
+        style:Titanium.UI.Android.SWITCH_STYLE_CHECKBOX,
+        title:"CheckBox: " + false,
+        value:false,
+        top:190,
+        left:60
+});
+checkBox.addEventListener('change', function(e) {
+	checkBox.title = "CheckBox: " + e.value;
+});
+
+//
+// TOGGLEBUTTON W/ TITLE
+//
+var titleSwitch = Titanium.UI.createSwitch({
+        style:Titanium.UI.Android.SWITCH_STYLE_TOGGLEBUTTON,
+        titleOff:"LO",
+        titleOn:"HI",
+        value:false,
+        top:240,
+});
 
 
 win.add(basicSwitchLabel);
@@ -166,4 +190,10 @@ if (Titanium.Platform.name == 'iPhone OS')
 	win.add(toolbarButton);
 	win.add(navbarButton);
 	win.add(titleButton);
+}
+
+if (Titanium.Platform.osname == 'android')
+{
+	win.add(checkBox);
+	win.add(titleSwitch);
 }

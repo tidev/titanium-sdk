@@ -2,7 +2,8 @@
 import os, sys, platform, subprocess, shutil, zipfile
 
 drillbit_dir = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
-mobile_dir = os.path.abspath(os.path.join(drillbit_dir, '..'))
+drillbit_app_dir = os.path.join(drillbit_dir, 'app')
+mobile_dir = os.path.dirname(drillbit_dir)
 
 def error_no_desktop_sdk():
 	print >>sys.stderr, "ERROR: Couldn't find Titanium Desktop SDK, which is needed for running Drillbit"
@@ -27,7 +28,7 @@ def cmp_versions(a, b):
 				return b_version[2]
 			else: return 0
 				
-def build_and_run(android_sdk=None):
+def build_and_run(args=None):
 	# first we need to find the desktop SDK for tibuild.py
 	if platform.system() == 'Darwin':
 		base_sdk = '/Library/Application Support/Titanium/sdk/osx'
@@ -69,27 +70,35 @@ def build_and_run(android_sdk=None):
 	mobilesdk_zip.close()
 	
 	if not os.path.exists(drillbit_build_dir):
-		os.mkdirs(drillbit_build_dir)
+		os.makedirs(drillbit_build_dir)
 	
 	sys.path.append(desktop_sdk)
 	import env
 	
 	# use the desktop SDK API to stage and run drillbit (along w/ it's custom modules)
 	environment = env.PackagingEnvironment(platform_name, False)
-	app = environment.create_app(drillbit_dir)
+	app = environment.create_app(drillbit_app_dir)
 	stage_dir = os.path.join(drillbit_build_dir, app.name)
 	app.stage(stage_dir, bundle=False)
 	app.install()
 	
 	app_modules_dir = os.path.join(app.get_contents_dir(), 'modules')
+	app_tests_dir = os.path.join(app.get_contents_dir(), 'Resources', 'tests')
+	
 	if os.path.exists(app_modules_dir):
 		shutil.rmtree(app_modules_dir)
 	
+	if os.path.exists(app_tests_dir):
+		shutil.rmtree(app_tests_dir)
+	
 	shutil.copytree(os.path.join(drillbit_dir, 'modules'), app_modules_dir)
-	app.env.run([app.executable_path, '--debug', '--mobile-sdk=' + mobilesdk_dir, '--android-sdk=' + android_sdk])
+	shutil.copytree(os.path.join(drillbit_dir, 'tests'), app_tests_dir)
+	
+	drillbit_args = [app.executable_path, '--debug', '--mobile-sdk=%s' % mobilesdk_dir]
+	if args != None:
+		drillbit_args.extend(args)
+	
+	app.env.run(drillbit_args)
 
 if __name__ == "__main__":
-	if len(sys.argv) == 1:
-		print "Usage: %s <path/to/android-sdk>" % sys.argv[0]
-		sys.exit(1)
-	build_and_run(sys.argv[1])
+	build_and_run(sys.argv[1:])

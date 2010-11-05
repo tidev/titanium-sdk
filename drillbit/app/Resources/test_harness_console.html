@@ -1,0 +1,73 @@
+<html>
+<head>
+<style>
+	body {
+		padding: 0px;
+		margin: 0px;
+	}
+	
+	#messages {
+		border: #ccc 5px solid;
+		-webkit-border-radius: 5px;
+		background-color: black;
+		overflow: scroll;
+		width: 100%;
+		height: 100%;
+		padding: 0px;
+		margin: 0px;
+	}
+	
+	.message {
+		white-space: pre pre-line;
+		font-family: monospace;
+		font-size: 10px;
+		background-color: black;
+		color: #ccc;
+		padding: 0px;
+		margin: 0px;
+	}
+	
+	.red {
+		color: red;
+	}
+	
+	.green {
+		color: green;
+	}
+	
+	.test {
+		color: #1B6299;
+	}
+	
+	.suite {
+		color: #C5660D;
+	}
+</style>
+<script type="text/javascript">
+	function tiReady() {
+		var messages = document.getElementById("messages");
+		Ti.App.addEventListener("message", function(e) {
+			var messageEl = document.createElement("span");
+			var classNames = "message";
+			if ('fail' in e) {
+				classNames += " red";
+			} else if ('pass' in e) {
+				classNames += " green";
+			}
+			messageEl.setAttribute("class", classNames);
+			messageEl.innerHTML = e.message;
+			//messageEl.appendChild(document.createTextNode(e.message));
+			
+			messages.appendChild(messageEl);
+			messages.appendChild(document.createElement("br"));
+			messages.scrollTop = messages.scrollHeight;
+		});
+	}
+</script>
+</head>
+<body>
+	<div id="messages">
+		<div class="message" style="font-weight: bold;">--- drillbit test console ---</div>
+	</div>
+</body>
+</html>

@@ -65,14 +65,14 @@ b2.addEventListener('click', function()
 		l2.shadowColor = '#336699';
 		l2.font = {fontSize:20};
 		changed=true;
-		size.text = l2.size.height + ' ' + l2.size.width
+		size.text = l2.size.height + ' ' + l2.size.width;
 	}
 	else
 	{
 		l2.color = '#900';
 		l2.shadowColor = '#aaa';
 		l2.font = {fontSize:48};
-		size.text = l2.size.height + ' ' + l2.size.width
+		size.text = l2.size.height + ' ' + l2.size.width;
 		changed=false;
 	}
 });
@@ -109,4 +109,4 @@ var size = Ti.UI.createLabel({
 	color:'#777',
 	bottom:10
 });
-win.add(size)
+win.add(size);

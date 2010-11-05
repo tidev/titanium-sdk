@@ -672,6 +672,7 @@ DEFINE_EXCEPTIONS
 	}
 	
 	[imageview setImage:image];
+	[(TiViewProxy*)[self proxy] setNeedsReposition]; // Have to resize the proxy view to fit new subview size, if necessary
 	
 	if (currentImage!=image)
 	{

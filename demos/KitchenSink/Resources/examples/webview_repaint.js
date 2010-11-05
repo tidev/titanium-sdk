@@ -2,8 +2,8 @@ var win = Ti.UI.currentWindow;
 
 var webView = Ti.UI.createWebView({
 	url:'webview_repaint_source.html',
-	height:'auto',
-	
+	height:'auto'
+
 });
 
 win.add(webView);
@@ -12,7 +12,7 @@ win.add(webView);
 var bb1 = Titanium.UI.createButtonBar({
 	labels:['+', '-'],
 	backgroundColor:'#336699',
-	style:Titanium.UI.iPhone.SystemButtonStyle.BAR,
+	style:Titanium.UI.iPhone.SystemButtonStyle.BAR
 });
 
 win.rightNavButton = bb1;
@@ -32,4 +32,4 @@ bb1.addEventListener('click', function(e)
 		Ti.App.fireEvent('fontchange', {amount:size});
 		webView.repaint();
 	}
-})
+});

@@ -1,4 +1,4 @@
-var win = Titanium.UI.currentWindow
+var win = Titanium.UI.currentWindow;
 
 var scrollView = Titanium.UI.createScrollView({
 	contentWidth:'auto',
@@ -48,7 +48,7 @@ button2.addEventListener('click', function()
 		top:2020
 	});
 	scrollView.add(view);
-	
+
 });
 
 win.add(scrollView);

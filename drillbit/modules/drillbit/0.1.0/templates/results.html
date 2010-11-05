@@ -1,0 +1,110 @@
+<html>
+<head>
+<style>
+	.failed {
+		background-color: yellow;
+	}
+	
+	.header {
+		background-color: #999;
+		text-align: center;
+	}
+	
+	.platform {
+		background-color: #ccc;
+	}
+	
+	body {
+		background-color: white;
+		font-family: sans-serif;
+	}
+	
+	td {
+		font-family: sans-serif;
+	}
+	
+	.code {
+		font-family: monospace;
+		font-size: 10pt;
+		background-color: #ccc;
+	}
+	
+	.lineNumber {
+		width: 50px;
+	}
+	
+	.codeline {
+		white-space: pre;
+	}
+</style>
+</head>
+<body>
+<table>
+	<tr class="header">
+		<td><b>Test name</b></td>
+		<td><b>Passed?</b></td>
+		<td><b>Line number</b></td>
+		<td><b>Message</b></td>
+	</tr>
+
+<%
+var failed = false, failedLines = [];
+Object.keys(test.results).forEach(function(platform) {
+%>
+
+	<tr><td colspan="4" class="platform"><b><%= platform %> results</b></td></tr>
+
+<%
+	for (var i = 0; i < test.results[platform].results.length; i++) {
+		var testResults = test.results[platform].results[i];
+		var lineno = testResults.lineNumber;
+		if (!testResults.passed) {
+			failed = true;
+			failedLines.push(lineno);
+		}
+%>
+
+	<tr>
+		<td><%= testResults.name %></td>
+		<td><%= testResults.passed %></td>
+		<td><a href="#l<%= lineno %>"><%= lineno %></a></td>
+		<td><%= testResults.message %></td>
+	</tr>
+
+<%
+	}
+});
+%>
+
+</table>
+
+<%
+if (failed) {
+	var app = ti.api.getApplication();
+	var scriptText = test.sourceFile.read();
+	var lines = scriptText.toString().split("\n");
+%>
+	<table class="code">
+<%
+	for (var i = 0; i < lines.length; i++) {
+		var num = i + 1;
+		var line = lines[i].replace(/&/g,'&amp;').replace(/>/g,'&gt;').replace(/</g,'&lt;').replace(/"/g,'&quot;');
+		var failed = failedLines.indexOf(num)!=-1;
+		var cls = failed ? 'failed':'passed';
+%>
+		<tr>
+			<td class="<%= cls %> lineNumber">
+				<a name="l<%= num %>"><%= num %></a>
+			</td>
+			<td class="<%= cls %> codeLine"><%= line %></td>
+		</tr>
+<%
+	}
+%>
+	<table>
+<%
+}
+%>
+
+</body>
+</html>

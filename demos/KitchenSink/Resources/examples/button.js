@@ -51,13 +51,13 @@ b3.addEventListener('click', function()
 			b3.enabled=false;
 			b3.title = 'I am Disabled';
 			state++;
-			
+
 			setTimeout(function()
 			{
 				b3.enabled=true;
 				b3.title = 'I am Enabled';
 			},1000);
-			
+
 			break;
 		}
 		case 1:
@@ -148,7 +148,7 @@ var bhleft = Titanium.UI.createButton({
 	width : 50,
 	height: 40,
 	top : 300,
-	left : 60,
+	left : 60
 });
 bhleft.addEventListener('click', function() {
 	b1.textAlign = Titanium.UI.TEXT_ALIGNMENT_LEFT;
