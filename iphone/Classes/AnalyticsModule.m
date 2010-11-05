@@ -12,6 +12,7 @@
 #import "SBJSON.h"
 #import <sys/utsname.h>
 #import "NSData+Additions.h"
+#import "Reachability.h"
 
 //TODO:
 //
@@ -89,12 +90,13 @@ NSString * const TI_DB_VERSION = @"1";
 	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 	[lock lock];
 	
-	id online = [[self network] valueForKey:@"online"];
+	// Can't use network module since pageContext/host may have shut down when sending 'final' events,
+	// giving us bad reachability info.
+	NetworkStatus status = [[Reachability reachabilityForInternetConnection] currentReachabilityStatus];
 	
 	// when we can't reach the network, we need to log our attempt, 
 	// set a retry timer and just bail...
-	
-	if ([TiUtils boolValue:online]==NO)
+	if (status != ReachableViaWiFi && status != ReachableViaWWAN)
 	{
 		NSError *error = nil;
 
@@ -190,7 +192,7 @@ NSString * const TI_DB_VERSION = @"1";
 	{
 		// run synchronous ... we are either in a sync call or
 		// we're on a background timer thread
-		[request start];
+		[request startSynchronous];
 		
 		NSData *data = [request responseData];
 		if (data!=nil && [data length]>0) 

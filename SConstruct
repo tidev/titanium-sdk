@@ -121,10 +121,6 @@ def package_sdk(target, source, env):
 	else:
 		package.Packager().build(os.path.abspath('dist'), version, android, iphone, ipad)
 
-package_builder = Builder(action = package_sdk)
-env.Append(BUILDERS = {'PackageMobileSDK': package_builder})
-env.PackageMobileSDK("#dummy-sdk-target", [])
-
 def drillbit_builder(target, source, env):
 	sys.path.append("drillbit")
 	import drillbit
@@ -135,6 +131,10 @@ if run_drillbit:
 	env.Append(BUILDERS = {'BuildAndRunDrillbit': drillbit})
 	env.BuildAndRunDrillbit('#dummy-drillbit-target', [])
 
+package_builder = Builder(action = package_sdk)
+env.Append(BUILDERS = {'PackageMobileSDK': package_builder})
+env.PackageMobileSDK("#dummy-sdk-target", [])
+	
 if clean:
 	# don't error 
 	Exit(0)

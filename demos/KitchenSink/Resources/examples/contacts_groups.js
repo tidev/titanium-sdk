@@ -16,7 +16,7 @@ if (groups.length == 0) {
 	var testGroup = Titanium.Contacts.createGroup();
 	testGroup.name = '__KSTESTGROUP';
 	Titanium.Contacts.save();
-	
+
 	groups = Titanium.Contacts.getAllGroups();
 }
 
@@ -36,14 +36,14 @@ var updatePeople = function() {
 		people = [];
 	}
 	infoLabel.text = text;
-}
+};
 
 for (var i=0; i < groups.length; i++) {
 	data[i] = Ti.UI.createPickerRow({title:groups[i].name});
 }
 
 var groupPicker = Ti.UI.createPicker({
-	top:50,
+	top:50
 });
 groupPicker.addEventListener('change', function(e) {
 	selectedGroup = groups[e.rowIndex];

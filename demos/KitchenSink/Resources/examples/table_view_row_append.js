@@ -4,7 +4,7 @@ var data = [
 	{title:'Row 2', hasDetail:true},
 	{title:'Append Row with Header'},
 	{title:'Append Row & height=100'}
-	
+
 
 ];
 
@@ -19,7 +19,7 @@ var newSectionCount = 1;
 // create table view event listener
 tableview.addEventListener('click', function(e)
 {
-	Ti.API.info('clicked received for row ' + e.index)
+	Ti.API.info('clicked received for row ' + e.index);
 	// event data
 	var index = e.index;
 	var section = e.section;
@@ -37,7 +37,7 @@ tableview.addEventListener('click', function(e)
 		// row.add(l);
 		var data = {title:'New Row ' + newRowCount, header:'New Header '+newSectionCount};
 
-		tableview.appendRow(data)
+		tableview.appendRow(data);
 		newSectionCount++;
 		newRowCount++;
 	}
@@ -52,11 +52,11 @@ tableview.addEventListener('click', function(e)
 		{
 			tableview.appendRow(data,{animationStyle:Titanium.UI.iPhone.RowAnimationStyle.LEFT});
 		}
-		newRowCount++;				
+		newRowCount++;
 	}
 	else
 	{
-		Titanium.UI.createAlertDialog({title:'Table View',message:'row ' + row + ' index ' + index + ' section ' + section  + ' row data ' + rowdata}).show();		
+		Titanium.UI.createAlertDialog({title:'Table View',message:'row ' + row + ' index ' + index + ' section ' + section  + ' row data ' + rowdata}).show();
 	}
 
 });

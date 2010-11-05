@@ -1,5 +1,9 @@
 var win = Titanium.UI.currentWindow;
 
+var flexSpace = Titanium.UI.createButton({
+	systemButton:Titanium.UI.iPhone.SystemButton.FLEXIBLE_SPACE
+});
+
 var b = Titanium.UI.createButton({
 	title:'Start Progress',
 	height:40,
@@ -116,7 +120,7 @@ if (Titanium.Platform.name == 'iPhone OS')
 	win.add(ind);
 	win.add(ind2);
 	win.setTitleControl(ind3);
-	win.setToolbar([ind4]);
+	win.setToolbar([flexSpace,ind4,flexSpace]);
 }
 
 // create Android Progress Indicator

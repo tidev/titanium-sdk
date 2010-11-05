@@ -1,6 +1,6 @@
 var win = Titanium.UI.currentWindow;
 
-var data = []
+var data = [];
 // create the rest of the rows
 for (var c=0;c<50;c++)
 {
@@ -31,8 +31,8 @@ for (var c=0;c<50;c++)
 	comment.rowNum = c;
 	row.add(comment);
 
-	
-    data.push(row);
+
+	data.push(row);
 }
 var tableView = Titanium.UI.createTableView({
 	data:data,

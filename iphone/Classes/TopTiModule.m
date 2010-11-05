@@ -47,4 +47,23 @@
 	}
 }
 
+#ifdef DEBUG
+// an internal include that works with absolute URLs (debug mode only)
+-(void)includeAbsolute:(NSArray*)jsfiles
+{
+	for (id file in jsfiles)
+	{
+		NSLog(@"[DEBUG] absolute url: %@", file);
+
+		NSURL *url = nil;
+		if (![file hasPrefix:@"file:"]) {
+			url = [NSURL URLWithString:file];
+		} else {
+			url = [[NSURL fileURLWithPath:file] standardizedURL];
+		}
+		NSLog(@"[DEBUG] include absolute url: %@", [url absoluteString]);
+		[[self executionContext] evalFile:[url absoluteString]];
+	}
+}
+#endif
 @end

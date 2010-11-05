@@ -242,6 +242,25 @@ class Builder(object):
 					error("Error locating JDK: set $JAVA_HOME or put javac and jarsigner on your $PATH")
 					sys.exit(1)
 
+	def wait_for_home(self, type):
+		max_wait = 20
+		attempts = 0
+		while True:
+			processes = self.sdk.list_processes(['-%s' % type])
+			found_home = False
+			for process in processes:
+				if process["name"] == "android.process.acore":
+					found_home = True
+					break
+			if found_home:
+				break
+			attempts += 1
+			if attempts == max_wait:
+				error("Timed out waiting for android.process.acore")
+				return False
+			time.sleep(1)
+		return True
+	
 	def wait_for_device(self,type):
 		print "[DEBUG] Waiting for device to be ready ..."
 		sys.stdout.flush()
@@ -292,7 +311,8 @@ class Builder(object):
 		debug("waited %f seconds on emulator to get ready" % duration)
 		if duration > 1.0:
 			info("Waiting for the Android Emulator to become available")
-			time.sleep(20) # give it a little more time to get installed
+			return self.wait_for_home(type)
+			#time.sleep(20) # give it a little more time to get installed
 		return True
 	
 	def create_avd(self,avd_id,avd_skin):

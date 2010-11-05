@@ -101,4 +101,13 @@ public class KrollObject extends ScriptableObject implements Function {
 	public Object getDefaultValue(Class<?> typeHint) {
 		return proxy.toString();
 	}
+	
+	@Override
+	protected Object equivalentValues(Object value) {
+		if (value instanceof KrollObject) {
+			KrollObject other = (KrollObject)value;
+			return proxy.equals(other.getProxy()) ? Boolean.TRUE : Boolean.FALSE;
+		}
+		return super.equivalentValues(value);
+	}
 }

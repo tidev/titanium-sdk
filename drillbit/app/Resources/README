@@ -1,0 +1,142 @@
+------------
++ DRILLBIT +
+------------
+
+Drillbit is a Titanium unit test framework.
+
+============================
+How to write a drillbit test
+============================
+
+Drillbit resembles a JSSpec test and uses some of their convention.
+
+To define a test, you have 3 options:
+- Create a test file, i.e. "foo.js" under the tests folder
+- Create a test folder with a JS test file under it (i.e. foo/foo.js). Non-test resources get recursively copied into the Test Harness before being deployed (i.e foo/tiapp.xml, foo/otherResources)
+- Create a test file or folder and file under the special platform folders: (i.e. for an android-only test, android/foo.js, or android/foo/foo.js)
+
+Inside your test file, define the following:
+
+describe("description of your test",{
+
+});
+
+The first parameter is the description for your test.  The second
+parameter is your test spec.
+
+There are a number of magic properties that can be defined (optional):
+
+before_all : function is called before all tests are run
+after_all  : function is called after all tests are run
+before     : function is called before each and every test method
+after      : function is called after each and every test method
+timeout    : property in milliseconds for the max time the test should take
+
+All other properties that are functions will be considered tests.  If
+the test is asynchronous, the test should end in the name "_as_async" and
+will receive one argument for the callback object.
+
+The callback objective has 2 main functions to control test completion:
+
+passed : called to indicate that the test passed
+failed : called to indicate that the test failed. the arg is the exception or message
+
+Async Example:
+
+describe("test",{
+
+	"test_as_async":function(callback)
+	{
+		setTimeout(function()
+		{
+			callback.passed();
+		},1000);
+	}
+});
+
+Sync Example:
+
+describe("test",{
+
+	"before":function()
+	{
+		this.abc = '123';
+	},
+	"after":function()
+	{
+		this.abc = null;
+	},
+	"test":function()
+	{
+		value_of(this.abc).should_be('123');
+	}
+});
+
+To make test assertions, wrap your values in a 'value_of' method and then
+you'll have a bunch of convenience methods (all starting with 'should_').
+
+Here's a few examples, the rest can be found in drillbit_func.js:
+
+- should_be 				: equality test
+- should_be_exactly			: exact match test
+- should_not_be				: negative test
+- should_be_true			: value must be true (boolean)
+- should_be_false			: value must be false (boolean)
+- should_be_null			: value must be null
+- should_not_be_null		: value must not be null
+- should_be_undefined		: value must be undefined
+- should_not_be_undefined	: value must not be undefined
+- should_be_function		: value must be a function
+- should_be_object			: value must be an object
+- should_be_number			: value must be a number
+- should_contain			: value must be contained (indexof)
+- should_be_one_of			: value must be found in array
+- should_be_zero			: value must be 0 (number)
+
+
+Examples:
+
+value_of(Titanium.App.getVersion()).should_be_number();
+value_of(Titanium.userAgent).should_contain('Titanium/');
+value_of('a').should_be_one_of(['a','b','c']);
+
+
+------------------------
+Special cases for async:
+------------------------
+
+If you run async, you must catch exceptions inside code that isn't
+part of the test execution path.  For example, if you're inside a 
+method such as:
+
+setTimeout(function()
+{
+	try
+	{
+		value_of('a').should_be('b');
+		callback.passed();
+	}
+	catch(e)
+	{
+		callback.failed(e);
+	}
+},100);
+
+You'll need to surround any value_of tests around a try/catch and
+call the appropriate passed/failed yourself.  
+
+---------------------------
+Staging custom files
+---------------------------
+
+Any file or directory that lives under a test's directory other than the test script will be recursively copied into the Test Harness app at the top level directory.
+
+-----------------------
+Results from your test:
+-----------------------
+
+The following files will be written into the Resources/test_results folder:
+
+<testname>.json		- json result for test
+
+

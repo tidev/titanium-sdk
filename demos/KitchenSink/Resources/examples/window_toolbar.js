@@ -38,7 +38,7 @@ b2.addEventListener('click', function()
 {
 	var b = Titanium.UI.createButton({
 		title:'Button',
-		style:Titanium.UI.iPhone.SystemButtonStyle.DONE		
+		style:Titanium.UI.iPhone.SystemButtonStyle.DONE
 	});
 	var flexSpace = Titanium.UI.createButton({
 		systemButton:Titanium.UI.iPhone.SystemButton.FLEXIBLE_SPACE
@@ -63,7 +63,7 @@ b3.addEventListener('click', function()
 {
 	var b = Titanium.UI.createButton({
 		title:'Button',
-		style:Titanium.UI.iPhone.SystemButtonStyle.DONE		
+		style:Titanium.UI.iPhone.SystemButtonStyle.DONE
 	});
 	var flexSpace = Titanium.UI.createButton({
 		systemButton:Titanium.UI.iPhone.SystemButton.FLEXIBLE_SPACE
@@ -86,12 +86,12 @@ b4.addEventListener('click', function()
 	var a = Titanium.UI.createButton({
 		title:'Left',
 		width:75,
-		style:Titanium.UI.iPhone.SystemButtonStyle.BORDERED		
+		style:Titanium.UI.iPhone.SystemButtonStyle.BORDERED
 	});
 	var b = Titanium.UI.createButton({
 		title:'Right',
 		width:75,
-		style:Titanium.UI.iPhone.SystemButtonStyle.BORDERED		
+		style:Titanium.UI.iPhone.SystemButtonStyle.BORDERED
 	});
 	var flexSpace = Titanium.UI.createButton({
 		systemButton:Titanium.UI.iPhone.SystemButton.FLEXIBLE_SPACE
@@ -127,7 +127,7 @@ var b7 = Titanium.UI.createButton({
 	title:'Button With Image',
 	height:40,
 	width:200,
-	top:260,
+	top:260
 });
 b7.addEventListener('click', function()
 {
@@ -139,7 +139,7 @@ b7.addEventListener('click', function()
 	var flexSpace = Titanium.UI.createButton({
 		systemButton:Titanium.UI.iPhone.SystemButton.FLEXIBLE_SPACE
 	});
-	
+
 	win.setToolbar([flexSpace,b,flexSpace]);
 });
 win.add(b7);
@@ -148,7 +148,7 @@ var b8 = Titanium.UI.createButton({
 	title:'Set Label',
 	height:40,
 	width:200,
-	top:310,
+	top:310
 });
 
 b8.addEventListener('click', function()
@@ -161,7 +161,7 @@ b8.addEventListener('click', function()
 	var flexSpace = Titanium.UI.createButton({
 		systemButton:Titanium.UI.iPhone.SystemButton.FLEXIBLE_SPACE
 	});
-	
+
 	win.setToolbar([flexSpace,l,flexSpace]);
 
 });

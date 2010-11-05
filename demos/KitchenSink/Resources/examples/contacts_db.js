@@ -28,7 +28,7 @@ var makeTable = function() {
 				backroundColor:'white',
 				title:e.row.person.fullName
 			});
-		
+
 			var top = 0;
 			var showedSomething = false;
 			for (var label in e.row.person.address) {
@@ -40,7 +40,7 @@ var makeTable = function() {
 						top:top,
 						left:20,
 						height:'auto',
-						width:'auto',
+						width:'auto'
 					});
 					display.add(info);
 					showedSomething = true;
@@ -49,12 +49,12 @@ var makeTable = function() {
 			if (!showedSomething){
 				display.add(Ti.UI.createLabel({text: 'No addresses to show'}));
 			}
-			
+
 			Titanium.UI.currentTab.open(display,{animated:true});
 		});
 	}
 	return rows;
-}
+};
 
 var tableview = Ti.UI.createTableView({
 	data:makeTable()

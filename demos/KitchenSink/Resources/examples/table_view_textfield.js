@@ -8,9 +8,9 @@ function addRow(addTextArea)
 	{
 		tf1 = Titanium.UI.createTextArea({
 			color:'#336699',
-			width:250,
-		});	
-		
+			width:250
+		});
+
 	}
 	else
 	{
@@ -22,8 +22,8 @@ function addRow(addTextArea)
 			width:250,
 			hintText:'hint',
 			borderStyle:Titanium.UI.INPUT_BORDERSTYLE_NONE
-		});	
-		
+		});
+
 	}
 	row.add(tf1);
 	row.selectionStyle = Ti.UI.iPhone.TableViewCellSelectionStyle.NONE;
@@ -40,15 +40,15 @@ for (var x=0;x<10;x++)
 		data[x] = addRow(true);
 	else
 		data[x] = addRow();
-	
+
 }
 
 var tableView = Ti.UI.createTableView({
-	data:data, 	
+	data:data,
 	style: Titanium.UI.iPhone.TableViewStyle.GROUPED
 });
 win.addEventListener('focus', function()
 {
-	Ti.API.info('window focus fired')
-})
+	Ti.API.info('window focus fired');
+});
 win.add(tableView);

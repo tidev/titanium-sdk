@@ -9,21 +9,21 @@ data[2] = Ti.UI.createTableViewRow({hasCheck:true,title:'Row 3'});
 data[3] = Ti.UI.createTableViewRow({title:'Row 4'});
 
 var search = Titanium.UI.createSearchBar({
-	barColor:'#385292', 
+	barColor:'#385292',
 	showCancel:false,
 	hintText:'search'
 });
 search.addEventListener('change', function(e)
 {
-   e.value // search string as user types
+e.value; // search string as user types
 });
 search.addEventListener('return', function(e)
 {
-   search.blur();
+search.blur();
 });
 search.addEventListener('cancel', function(e)
 {
-   search.blur();
+search.blur();
 });
 
 // create table view

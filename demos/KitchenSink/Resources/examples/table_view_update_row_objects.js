@@ -9,7 +9,7 @@ function setData()
 	var data = [];
 	for (var i=0;i<30;i++)	
 	{
-		var row = Ti.UI.createTableViewRow({heigth:50});
+		var row = Ti.UI.createTableViewRow({height:50});
 		var l1 = Ti.UI.createLabel({text:'Label ' +  i, font:{fontSize:14}, color:'#888', left:5});
 		row.add(l1);
 		var image1 = Ti.UI.createImageView({url:'../images/chat.png', right:5,height:23, width:29});

@@ -13,7 +13,7 @@ var data = [
 
 // create table view
 var tableview = Titanium.UI.createTableView({
-	data:data, editable:true, moveable:true,
+	data:data, editable:true, moveable:true
 });
 
 

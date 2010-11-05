@@ -115,11 +115,7 @@ NSArray* pickerKeySequence;
 			[row windowDidOpen];
 		}
 		
-		if ([self viewAttached])
-		{
-			TiUIPicker *picker = [self picker];
-			[picker performSelectorOnMainThread:@selector(reloadColumn:) withObject:column waitUntilDone:NO];
-		}
+		[self reloadColumn:column];
 		if ([TiUtils boolValue:[row valueForUndefinedKey:@"selected"] def:NO])
 		{
 			TiUIPicker *picker = [self picker];
@@ -141,11 +137,7 @@ NSArray* pickerKeySequence;
 		}
 		
 		[columns addObject:column];
-		if ([self viewAttached])
-		{
-			TiUIPicker *picker = [self picker];
-			[picker performSelectorOnMainThread:@selector(reloadColumn:) withObject:data waitUntilDone:NO];
-		}
+		[self reloadColumn:data];
 	}
 	else if ([data isKindOfClass:[NSArray class]])
 	{
@@ -186,11 +178,7 @@ NSArray* pickerKeySequence;
 				
 				[row release];
 				
-				if ([self viewAttached])
-				{
-					TiUIPicker *picker = [self picker];
-					[picker performSelectorOnMainThread:@selector(reloadColumn:) withObject:column waitUntilDone:NO];
-				}
+				[self reloadColumn:column];
 				if ([TiUtils boolValue:[row valueForUndefinedKey:@"selected"] def:NO])
 				{
 					[[self view] performSelectorOnMainThread:@selector(selectRow:) withObject:[NSArray arrayWithObjects:NUMINT(0),rowIndex,nil] waitUntilDone:NO];
@@ -211,11 +199,7 @@ NSArray* pickerKeySequence;
 				
 				[column addRow:item];
 			}
-			if ([self viewAttached])
-			{
-				TiUIPicker *picker = [self picker];
-				[picker performSelectorOnMainThread:@selector(reloadColumn:) withObject:column waitUntilDone:NO];
-			}
+			[self reloadColumn:column];
 		}
 	}
 }
@@ -261,9 +245,31 @@ NSArray* pickerKeySequence;
 
 USE_VIEW_FOR_VERIFY_HEIGHT
 
+
 -(void)reloadColumn:(id)column
 {
-	[self makeViewPerformSelector:@selector(reloadColumn:) withObject:column createIfNeeded:YES waitUntilDone:NO];
+	ENSURE_SINGLE_ARG(column,NSObject);
+
+	if (![self viewAttached])
+	{
+		return;
+	}
+	
+	//TODO: This is playing with fire here.
+	NSArray * columnArray = [self columns];
+
+	int columnIndex = NSNotFound;
+	if([column isKindOfClass:[TiUIPickerColumnProxy class]])
+	{
+		columnIndex = [columnArray indexOfObject:column];
+	}
+	else
+	{
+		columnIndex = [TiUtils intValue:column def:NSNotFound];
+	}
+
+	ENSURE_VALUE_RANGE(columnIndex,0,[columnArray count]-1);
+	[self makeViewPerformSelector:@selector(reloadColumn:) withObject:NUMINT(columnIndex) createIfNeeded:YES waitUntilDone:NO];
 }
 
 @end

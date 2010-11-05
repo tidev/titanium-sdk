@@ -15,22 +15,22 @@ function addRow()
 		right:10,
 		value:false
 	});
-	
+
 	row.add(sw);
-	
+
 	sw.addEventListener('change', function(e)
 	{
-		Ti.API.info('parent for switch ' + e.source.parent)
+		Ti.API.info('parent for switch ' + e.source.parent);
 		clickLabel.text = 'Switch changed to ' + e.value + ' at ' + new Date();
 	});
-	
+
 	var button = Ti.UI.createButton({
 		style:Titanium.UI.iPhone.SystemButton.DISCLOSURE,
 		left:10
 	});
-	
+
 	row.add(button);
-	
+
 	button.addEventListener('click', function(e)
 	{
 		clickLabel.text = 'Button clicked at ' + new Date();
@@ -46,15 +46,15 @@ var row = Ti.UI.createTableViewRow({height:50});
 var l = Ti.UI.createLabel({
 	text:'Append Row',
 	color:'#999',
-	textAlign:'center',
+	textAlign:'center'
 
 });
 row.add(l);
-row.className = 'header'
+row.className = 'header';
 row.addEventListener('click', function()
 {
 	tableView.appendRow(addRow());
-})
+});
 data[0] = row;
 
 for (var x=1;x<3;x++)
@@ -63,7 +63,7 @@ for (var x=1;x<3;x++)
 }
 
 var tableView = Ti.UI.createTableView({
-	data:data, 	
+	data:data,
 	style: Titanium.UI.iPhone.TableViewStyle.GROUPED,
 	top:50
 });
@@ -71,4 +71,4 @@ tableView.addEventListener('click', function(e)
 {
 	clickLabel.text = 'row clicked at ' + new Date()+', source='+e.source;
 });
-win.add(tableView);	
+win.add(tableView);

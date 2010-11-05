@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ti:app xmlns:ti="http://ti.appcelerator.org">
+    <id>org.appcelerator.titanium.testharness</id>
+    <name>test_harness</name>
+    <version>1.0.1</version>
+    <publisher>test publisher</publisher>
+    <url>http://www.test.com</url>
+    <description>test description</description>
+    <copyright>copyright 2010 test</copyright>
+    <icon>appicon.png</icon>
+    <persistent-wifi>false</persistent-wifi>
+    <prerendered-icon>false</prerendered-icon>
+    <statusbar-style>default</statusbar-style>
+    <statusbar-hidden>false</statusbar-hidden>
+    <fullscreen>false</fullscreen>
+    <navbar-hidden>false</navbar-hidden>
+    <analytics>false</analytics>
+    <guid></guid>
+	<android>
+		<screens small="false" normal="true" large="true" anyDensity="false"/>
+	</android>
+	<property name="ti.android.include_all_modules" type="bool">true</property>
+</ti:app>

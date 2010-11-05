@@ -93,7 +93,7 @@ var closeLabel = Titanium.UI.createLabel({
 
 win.add(closeLabel);
 
- 	
+
 var l0 = Titanium.UI.createLabel({
 	text:'try to trigger each event',
 	bottom:50,
@@ -258,7 +258,7 @@ win.addEventListener('blur', function()
 	var date = formatTime();
 	Titanium.App.Properties.setString('window_blur_event',  date);
 	blurLabel.text = 'Blur fired ' + date;
-	Ti.API.info('BLUR fired in window')
+	Ti.API.info('BLUR fired in window');
 });
 
 win.addEventListener('touchstart', function(e)

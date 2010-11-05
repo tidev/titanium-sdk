@@ -51,7 +51,11 @@ public class FBStreamDialog extends FBDialog {
 		try {
 			Map<String, String> postParams = new HashMap<String, String>(8);
 			postParams.put("api_key", mSession.getApiKey());
-			postParams.put("session_key", mSession.getSessionKey());
+			if (FacebookModule.usingOauth) {
+				postParams.put("access_token", mSession.getAccessToken());
+			} else {
+				postParams.put("session_key", mSession.getSessionKey());
+			}
 			postParams.put("preview", "1");
 			postParams.put("attachment", attachment);
 			postParams.put("action_links", actionLinks);

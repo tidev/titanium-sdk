@@ -15,7 +15,7 @@ var l = Titanium.UI.createLabel({
 win.add(l);
 
 //
-// BUTTON TO SET ACTIVE INDEX 
+// BUTTON TO SET ACTIVE INDEX
 //
 var b = Titanium.UI.createButton({
 	title:'Set Tab 0 Active',
@@ -31,12 +31,12 @@ b.addEventListener('click', function()
 	tb2.index = 0;
 	tb3.index = 0;
 	tb4.index = 0;
-	
+
 });
 
 //
 // BASIC TABBED BAR
-// 
+//
 var tb1 = Titanium.UI.createTabbedBar({
 	labels:['One', 'Two', 'Three'],
 	backgroundColor:'#336699',
@@ -70,7 +70,7 @@ tb1.addEventListener('click', function(e)
 
 //
 // TOOLBAR
-// 
+//
 var tb2 = Titanium.UI.createTabbedBar({
 	labels:['One', 'Two', 'Three', 'Four', 'Five'],
 	backgroundColor:'maroon',
@@ -89,12 +89,12 @@ tb2.addEventListener('click', function(e)
 
 //
 // NAVBAR
-// 
+//
 var tb3 = Titanium.UI.createTabbedBar({
 	labels:['One', 'Two'],
 	index:0,
 	backgroundColor:'#336699'
-	
+
 });
 
 win.setRightNavButton(tb3);
@@ -121,11 +121,11 @@ tb4.addEventListener('click', function(e)
 
 //
 // CUSTOM TABBED BAR
-// 
+//
 var buttonObjects = [
 	{title:'Toggle Style', width:110, enabled:false},
 	{image:'../images/slider_thumb.png', width:50},
-	{title:'Toggle Enabled', width:140},	
+	{title:'Toggle Enabled', width:140},
 ];
 var tb4 = Titanium.UI.createTabbedBar({
 	labels:buttonObjects,
@@ -133,7 +133,7 @@ var tb4 = Titanium.UI.createTabbedBar({
 	top:100,
 	style:Titanium.UI.iPhone.SystemButtonStyle.BAR,
 	height:40,
-	index:1,
+	index:1
 });
 
 win.add(tb4);
@@ -154,12 +154,12 @@ tb4.addEventListener('click', function(e)
 			plain=true;
 		}
 	}
-	
+
 	// toggle enabled
 	else if (e.index == 2)
 	{
 		buttonObjects[0].enabled = (buttonObjects[0].enabled==false)?true:false;
-		tb4.labels = buttonObjects;		
+		tb4.labels = buttonObjects;
 	}
 	l.text = 'You clicked index = ' + e.index;
 });
