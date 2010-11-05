@@ -207,6 +207,8 @@
 	BOOL animated = args!=nil && [args count] > 1 ? [TiUtils boolValue:@"animated" properties:[args objectAtIndex:1] def:YES] : YES;
 	TiUITabController *root = [[TiUITabController alloc] initWithProxy:window tab:self];
 	[window setParentOrientationController:self];
+	// TODO: Slap patch.  Views, when opening/added, should check parent visibility (and parent/parent visibility, if possible)
+	[window parentWillShow];
 
 	[self controller];
 	[[rootController navigationController] pushViewController:root animated:animated];
