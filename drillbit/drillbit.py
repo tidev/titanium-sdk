@@ -52,7 +52,7 @@ def build_and_run(args=None):
 	
 	# use the latest version in the system
 	versions.sort(cmp_versions)
-	use_version = versions[0]
+	use_version = versions[len(versions) - 1]
 	
 	desktop_sdk = os.path.join(base_sdk, use_version)
 	tibuild = os.path.join(desktop_sdk, 'tibuild.py')
