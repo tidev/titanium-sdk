@@ -557,7 +557,8 @@ NSArray * tableKeySequence;
 
 -(NSArray*)data
 {
-	if (![self viewAttached]) {
+	// viewAttached now checks for windowOpened in addition to attachment, so we have to check just the view here
+	if (view == nil) {
 		return nil;
 	}
 	return [(TiUITableView*)[self view] sections];
