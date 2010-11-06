@@ -137,11 +137,11 @@
 
 	[children removeObject:arg];
 
-		[self contentsWillChange];
-		if(parentVisible && !hidden)
-		{
-			[arg parentWillShow];
-		}
+	[self contentsWillChange];
+	if(parentVisible && !hidden)
+	{
+		[arg parentWillHide];
+	}
 
 	if ([children count]==0)
 	{
@@ -617,6 +617,9 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
 
 -(void)windowWillOpen
 {
+	//TODO: This should be properly handled and moved, but for now, let's force it (Redundantly, I know.)
+	[self parentWillShow];
+
 	pthread_rwlock_rdlock(&childrenLock);
 	
 	// this method is called just before the top level window
@@ -1164,6 +1167,15 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
 	[TiLayoutQueue addViewProxy:self];
 }
 
+-(void)willEnqueueIfVisible
+{
+	if(parentVisible && !hidden)
+	{
+		[self willEnqueue];
+	}
+}
+
+
 -(void)willChangeSize
 {
 	SET_AND_PERFORM(TiRefreshViewSize,return);
@@ -1178,6 +1190,7 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
 		[self willChangePosition];
 	}
 
+	[self willEnqueueIfVisible];
 	[parent contentsWillChange];
 	pthread_rwlock_rdlock(&childrenLock);
 	[children makeObjectsPerformSelector:@selector(parentSizeWillChange)];
@@ -1193,6 +1206,7 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
 	{//The only time size can be changed by the margins is if the margins define the size.
 		[self willChangeSize];
 	}
+	[self willEnqueueIfVisible];
 	[parent contentsWillChange];
 }
 
@@ -1200,6 +1214,7 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
 {
 	SET_AND_PERFORM(TiRefreshViewZIndex,);
 	//Nothing cascades from here.
+	[self willEnqueueIfVisible];
 }
 
 -(void)willShow;
@@ -1233,10 +1248,7 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
 {
 	SET_AND_PERFORM(TiRefreshViewChildrenPosition,return);
 
-	if(parentVisible && !hidden)
-	{
-		[self willEnqueue];
-	}
+	[self willEnqueueIfVisible];
 
 	pthread_rwlock_rdlock(&childrenLock);
 	[children makeObjectsPerformSelector:@selector(parentWillRelay)];
