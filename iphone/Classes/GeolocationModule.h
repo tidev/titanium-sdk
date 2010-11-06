@@ -12,6 +12,8 @@
 
 @interface GeolocationModule : TiModule<CLLocationManagerDelegate> {
 	CLLocationManager *locationManager;
+	CLLocationManager *tempManager; // Our 'fakey' manager for handling certain <=3.2 requests
+	
 	CLLocationAccuracy accuracy;
 	CLLocationDistance distance;
 	CLLocationDegrees heading;

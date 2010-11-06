@@ -881,11 +881,14 @@ class Builder(object):
 			manifest_changed = True
 		
 		res_dir = os.path.join(self.project_dir, 'res')
-		output = run.run([self.aapt, 'package', '-m', '-J', self.project_gen_dir, '-M', android_manifest, '-S', res_dir, '-I', self.android_jar])
-		if output == None:
+		output = run.run([self.aapt, 'package', '-m', '-J', self.project_gen_dir, '-M', android_manifest, '-S', res_dir, '-I', self.android_jar],
+			warning_regex=r'skipping')
+		
+		r_file = os.path.join(self.project_gen_dir, self.app_id.replace('.', os.sep), 'R.java')
+		if not os.path.exists(r_file) or output == None:
 			error("Error generating R.java from manifest")
 			sys.exit(1)
-		r_file = os.path.join(self.project_gen_dir, self.app_id.replace('.', os.sep), 'R.java')
+		
 		ra_file = os.path.join(self.project_gen_dir, self.app_id.replace('.', os.sep), 'RA.java')
 		package, map = parse_r(r_file)
 		ra_out = generate_appc_r(package, map)
@@ -934,7 +937,8 @@ class Builder(object):
 		self.module_jars = []
 		
 		for java_file in self.recurse([self.project_src_dir, self.project_gen_dir], '*.java'):
-			src_list.append(java_file)
+			# the file list file still needs each file escaped apparently
+			src_list.append('"%s"' % java_file)
 	
 		classpath = os.pathsep.join([self.android_jar, os.pathsep.join(self.android_jars)])
 	
@@ -962,7 +966,8 @@ class Builder(object):
 	def package_and_deploy(self):
 		ap_ = os.path.join(self.project_dir, 'bin', 'app.ap_')
 		rhino_jar = os.path.join(self.support_dir, 'js.jar')
-		run.run([self.aapt, 'package', '-f', '-M', 'AndroidManifest.xml', '-A', self.assets_dir, '-S', 'res', '-I', self.android_jar, '-I', self.titanium_jar, '-F', ap_])
+		run.run([self.aapt, 'package', '-f', '-M', 'AndroidManifest.xml', '-A', self.assets_dir, '-S', 'res', '-I', self.android_jar, '-I', self.titanium_jar, '-F', ap_],
+			warning_regex=r'skipping')
 	
 		unsigned_apk = os.path.join(self.project_dir, 'bin', 'app-unsigned.apk')
 		apk_build_cmd = [self.apkbuilder, unsigned_apk, '-u', '-z', ap_, '-f', self.classes_dex, '-rf', self.project_src_dir]
