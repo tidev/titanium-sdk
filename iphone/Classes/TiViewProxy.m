@@ -26,7 +26,7 @@
 
 #pragma mark public API
 
-@synthesize zIndex;
+@synthesize zIndex, parentVisible;
 -(void)setZIndex:(int)newZindex
 {
 	if(newZindex == zIndex)

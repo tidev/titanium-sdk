@@ -77,6 +77,7 @@ enum
 
 #pragma mark public API
 @property(nonatomic,readwrite,assign) int zIndex;
+@property(nonatomic,readwrite,assign) BOOL parentVisible; // For tableview magic ONLY
 @property(nonatomic,readonly) NSArray *children;
 @property(nonatomic,readonly) TiPoint *center;
 

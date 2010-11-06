@@ -809,11 +809,25 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 	return (table!=nil) && ([self parent]!=nil);
 }
 
+// TODO: SUPER MEGA UGLY but it's the only workaround for now.  zindex does NOT work with table rows.
+// TODO: Add child locking methods for whenever we have to touch children outside TiViewProxy
+-(void)willShow
+{
+	pthread_rwlock_rdlock(&childrenLock);
+	for (TiViewProxy* child in [self children]) {
+		[child setParentVisible:YES];
+	}
+	pthread_rwlock_unlock(&childrenLock);
+}
+
 -(void)triggerAttach
 {
-	attaching = YES;
-	[self windowWillOpen];
-	attaching = NO;
+	if (!attaching && ![self viewAttached]) {
+		attaching = YES;
+		[self windowWillOpen];
+		[self willShow];
+		attaching = NO;
+	}
 }
 
 -(void)triggerRowUpdate
