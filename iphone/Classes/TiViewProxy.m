@@ -618,7 +618,9 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
 -(void)windowWillOpen
 {
 	//TODO: This should be properly handled and moved, but for now, let's force it (Redundantly, I know.)
-	[self parentWillShow];
+	if (parent != nil) {
+		[self parentWillShow];
+	}
 
 	pthread_rwlock_rdlock(&childrenLock);
 	
