@@ -48,7 +48,7 @@ public class TiWebViewBinding {
 	public void insertApiBindings() 
 	{
 		evalJS(getClass().getClassLoader().getResourceAsStream("ti/modules/titanium/ui/widget/webview/json2.js"));
-		evalJS(getClass().getClassLoader().getResourceAsStream("ti/modules/titanium/ui/widget/webview/binding.js"));	
+		evalJS(getClass().getClassLoader().getResourceAsStream("ti/modules/titanium/ui/widget/webview/binding.js"));
 	}
 	
 	public void destroy() {
