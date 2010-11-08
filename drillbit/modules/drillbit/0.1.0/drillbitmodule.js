@@ -8,6 +8,9 @@
  * Delegates to a "frontend" object to show status
  */
 var ti = Ti = Titanium;
+// This should always list all available test platforms
+var ALL_PLATFORMS = ['android', 'iphone'];
+
 Drillbit = function() {
 	this.module = ti.api.findModule('drillbit', '0.1.0');
 	this.frontend = null;
@@ -90,15 +93,15 @@ Drillbit.prototype.processArgv = function() {
 	}
 	
 	this.extraTests = [];
-	if ('tests' in this.argv) {
-		if (Array.isArray(this.argv.tests)) {
-			this.extraTests = this.argv.tests;
+	if ('testsDir' in this.argv) {
+		if (Array.isArray(this.argv.testsDir)) {
+			this.extraTests = this.argv.testsDir;
 		} else {
-			this.extraTests = [this.argv.tests];
+			this.extraTests = [this.argv.testsDir];
 		}
 	}
-	if ('DRILLBIT_TESTS' in env) {
-		this.extraTests = this.extraTests.concat(env['DRILLBIT_TESTS'].split(ti.path.pathsep));
+	if ('DRILLBIT_TESTS_DIR' in env) {
+		this.extraTests = this.extraTests.concat(env['DRILLBIT_TESTS_DIR'].split(ti.path.pathsep));
 	}
 	
 	if ('resultsDir' in this.argv) {
@@ -114,7 +117,7 @@ Drillbit.prototype.initPlatforms = function() {
 	var platformsArg = 'platforms' in this.argv ? this.argv.platforms.split(',') : null;
 	
 	if (ti.Platform.isOSX()) {
-		if (platformsArg == null || platformsArg.contains('iphone')) {
+		if (platformsArg == null || platformsArg.indexOf('iphone') != -1) {
 			// Default to 4.0 iPhone SDK
 			var iphoneVersion = 'iphoneVersion' in this.argv ? this.argv.iphoneVersion : "4.0";
 			ti.api.info('Adding iPhone SDK to list of drillbit target platforms: ' + iphoneVersion);
@@ -125,7 +128,7 @@ Drillbit.prototype.initPlatforms = function() {
 		}
 	}
 	
-	if (platformsArg == null || platformsArg.contains('android')) {
+	if (platformsArg == null || platformsArg.indexOf('android') != -1) {
 		// Try to detect the Android SDK
 		var androidSdkScript = ti.path.join(this.mobileSdk, 'android', 'androidsdk.py');
 		var androidSdk = 'androidSdk' in this.argv ? this.argv.androidSdk : '-';
@@ -397,14 +400,18 @@ Drillbit.prototype.loadTests = function(testDir)
 	var testFiles = ti.fs.getFile(testDir).getDirectoryListing();
 	for (var c = 0; c < testFiles.length; c++) {
 		var file = ti.fs.getFile(testFiles[c]);
+		var name = file.name();
 		ti.api.debug("Trying to load tests from: " + file.nativePath());
 		if (file.isDirectory()) {
-			if (this.platforms.indexOf(file.name()) != -1) {
+			if (this.platforms.indexOf(name) != -1) {
 				// platform specific tests
 				this.loadPlatformTestDir(file);
 			} else {
-				// all platforms
-				this.loadTestDir(file);
+				if (ALL_PLATFORMS.indexOf(name) == -1) {
+					this.loadTestDir(file);
+				} else {
+					ti.api.debug("Excluding " + name + " specific test: " + file.nativePath());
+				}
 			}
 		} else {
 			this.loadTestFile(file);
