@@ -274,27 +274,24 @@ $(window).ready(function()
 		}
 	});
 	
-	// if you pass in --autorun, just go ahead and start
-	for (var c=0;c<Titanium.App.arguments.length;c++)
-	{
-		var arg = Titanium.App.arguments[c];
-		
-		if (arg == '--autorun')
-		{
-			run_link.click();
-		}
-		else if (arg == '--autoclose')
-		{
-			Drillbit.autoClose = true;
-		}
-		else if (arg == '--debug-tests')
-		{
-			Drillbit.debugTests = true;
-		}
-		else if (arg == '--console')
-		{
-			Titanium.UI.currentWindow.showInspector(true);
-		}
+	if ('tests' in Drillbit.argv) {
+		toggle_test_includes();
+		Drillbit.argv.tests.split(",").forEach(function(test) {
+			var suiteId = genSuiteId(test);
+			$('#'+suiteId+'>div.suite-status>div>img.platform-check').attr('src', 'images/check_on.png');
+		});
+	}
+	
+	if ('webConsole' in Drillbit.argv) {
+		Titanium.UI.currentWindow.showInspector(true);
+	}
+	
+	if ('autoclose' in Drillbit.argv) {
+		Drillbit.autoClose = true;
+	}
+	
+	if ('autorun' in Drillbit.argv) {
+		run_link.click();
 	}
 });
 

@@ -94,7 +94,7 @@ var DrillbitTest =
 	
 	runNextTest: function() {
 		if (this.tests.length == 0) {
-			this.complete();
+			this.onComplete();
 		} else {
 			var t = this.tests.shift();
 			t();
