@@ -932,12 +932,26 @@ if (![TiUtils isIOS4OrGreater]) { \
 		if (mediaList!=nil) {
 			if ([mediaList isKindOfClass:[NSArray class]]) {
 				for (NSNumber* type in mediaList) {
-					mediaTypes |= [type integerValue];
+					switch ([mediaList integerValue]) {
+						case MPMediaTypeMusic:
+						case MPMediaTypeAnyAudio:
+						case MPMediaTypeAudioBook:
+						case MPMediaTypePodcast:
+						case MPMediaTypeAny:
+							mediaTypes |= [type integerValue];
+					}
 				}
 			}
 			else {
 				ENSURE_TYPE(mediaList, NSNumber);
-				mediaTypes = [mediaList integerValue];
+				switch ([mediaList integerValue]) {
+					case MPMediaTypeMusic:
+					case MPMediaTypeAnyAudio:
+					case MPMediaTypeAudioBook:
+					case MPMediaTypePodcast:
+					case MPMediaTypeAny:
+						mediaTypes = [mediaList integerValue];
+				}
 			}
 		}
 		

@@ -162,7 +162,7 @@ NSString * const TI_DB_VERSION = @"1";
 	while ([rs next])
 	{
 		NSString *event = [rs stringForColumn:@"data"];
-		NSError* jsonError;
+		NSError* jsonError = nil;
 		id frag = [json fragmentWithString:event error:&jsonError];
 		if (jsonError) {
 			NSLog(@"[ERROR] Problem sending analytics: %@", [jsonError localizedDescription]);
