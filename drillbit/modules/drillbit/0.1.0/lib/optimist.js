@@ -32,7 +32,18 @@
                 self.argv[key] = value;
             }
         }
-    
+        
+        function camelCase(name) {
+            if (name.indexOf('-') > -1) {
+                var words = name.split('-');
+                words.slice(1).forEach(function(word, index) {
+                    words[index+1] = word.charAt(0).toUpperCase() + word.substring(1);
+                });
+                return words.join('');
+            }
+            return name;
+        }
+        
         for (var i = 0; i < args.length; i++) {
             var arg = args[i];
         
@@ -44,22 +55,15 @@
                 var m = arg.match(/^--([^=]+)=(.*)/);
                 var name = m[1];
                 var value = m[2];
-                if (name.indexOf('-') > -1) {
-                    var words = name.split('-');
-                    words.slice(1).forEach(function(word, index) {
-                        words[index+1] = word.charAt(0).toUpperCase() + word.substring(1);
-                    });
-                    name = words.join('');
-                }
-                set(name, value);
+                set(camelCase(name), value);
             }
             else if (arg.match(/^--no-.+/)) {
                 var key = arg.match(/^--no-(.+)/)[1];
-                set(key, false);
+                set(camelCase(key), false);
             }
             else if (arg.match(/^--.+/)) {
                 var key = arg.match(/^--(.+)/)[1];
-                set(key, true);
+                set(camelCase(key), true);
             }
             else if (arg.match(/^-[^-]+/)) {
                 arg.slice(1,-1).split('').forEach(function (letter) {

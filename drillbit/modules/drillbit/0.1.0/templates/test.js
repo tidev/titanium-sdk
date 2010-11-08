@@ -9,12 +9,17 @@
  */
 
 var testName = "<%= entry.name %>";
-
-function runTests() {
 <%
-	var TFS = Titanium.Filesystem;
-	var TA = Titanium.App;
-	
+methodWrap = typeof(methodWrap) == 'undefined' ? false : methodWrap;
+autoRun = typeof(autoRun) == 'undefined' ? true : autoRun;
+%>
+
+// top level method wrap is inverted
+<% if (!methodWrap) { %>
+function runTests() {
+<% } %>
+
+<%	
 	function addLineNumbers(entry, fname) {
 		var code = String(entry.test[fname]);
 		var lines = code.split("\n");
@@ -50,6 +55,12 @@ function runTests() {
 				expr += '})();\n';
 				return expr;
 			}
+		} else if (typeof(f) != 'undefined' && f.async) {
+			var expr = '(function(){var _scope = ' + scope + ';\n';
+			expr += 'var _asyncTest = ' + addLineNumbers(entry, fname) + ';\n';
+			expr += '_asyncTest.start(_scope,_scope);\n';
+			expr += '})();\n';
+			return expr;
 		}
 		return '';
 	};
@@ -59,8 +70,11 @@ function runTests() {
 
 DrillbitTest.NAME = "<%= entry.name %>";
 DrillbitTest.SOURCE = "<%= entry.sourceFile.nativePath().replace(/\\/g, "\\\\") %>";
-DrillbitTest.RESULTS_DIR  = "<%= Drillbit.resultsDir %>";
+DrillbitTest.autoRun = <%= autoRun %>;
 
+<% if (methodWrap) { %>
+DrillbitTest.BEFORE_ALL = function() {
+<% } %>
 try
 {
 	appendMessage('running suite <span class="suite">' + DrillbitTest.NAME + '</span> before_all');
@@ -71,15 +85,16 @@ catch (e)
 	Titanium.API.error('before_all caught error:'+e+' at line: '+e.line);
 }
 
-appendMessage('running tests on suite <span class="suite">' + DrillbitTest.NAME + '</span>');
+<% if (methodWrap) { %>
+};
+<% } %>
 
 <% for (var f in entry.test) {
 	var i = excludes.indexOf(f);
 	var run = (entry.testsToRun == "all" || entry.testsToRun.indexOf(f) != -1);
 	if (i == -1 && run) { %>
 
-		DrillbitTest.tests.push(function(){
-			// <%= f %>
+		var <%= f %>_wrapper = function() {
 			var xscope = new DrillbitTest.Scope('<%= f %>');
 			<%= makeFunction(entry, 'before', 'xscope') %>;
 
@@ -89,7 +104,7 @@ appendMessage('running tests on suite <span class="suite">' + DrillbitTest.NAME 
 				<%= makeFunction(entry, f, 'xscope') %>;
 				<%
 				i = f.indexOf('_as_async');
-				if (i==-1)
+				if (i == -1 && typeof(entry.test[f].async) == 'undefined')
 				{ %>
 					DrillbitTest.testPassed('<%= f %>',DrillbitTest.currentSubject.lineNumber);
 				<% } %>
@@ -98,7 +113,7 @@ appendMessage('running tests on suite <span class="suite">' + DrillbitTest.NAME 
 			{
 				// wrap the exception message so we can report the failed test's line number
 				var ___err = {
-					message: ___e.message || "Non-assertion exception: " + String(___e),
+					message: ___e.message || ("Non-assertion exception: " + String(___e)),
 					line: ___e.constructor == DrillbitTest.Error ? ___e.line : <%= entry.lineOffsets[f] %>,
 					toString: function() { return this.message; }
 				};
@@ -107,11 +122,14 @@ appendMessage('running tests on suite <span class="suite">' + DrillbitTest.NAME 
 
 			<%= makeFunction(entry, 'after', 'xscope') %>
 			// --- <%= f %> ---
-		});
+		};
+		
+		<%= f %>_wrapper.testName = "<%= f %>";
+		DrillbitTest.tests.push(<%= f %>_wrapper);
 <%	}
 } %>
 
-	DrillbitTest.onComplete = function() {
+	DrillbitTest.AFTER_ALL = DrillbitTest.onComplete = function() {
 		try {
 			appendMessage('running suite <span class="suite">' + DrillbitTest.NAME + '</span> after_all');
 			<%= makeFunction(entry, 'after_all', 'DrillbitTest.gscope') %>;
@@ -121,5 +139,10 @@ appendMessage('running tests on suite <span class="suite">' + DrillbitTest.NAME 
 		DrillbitTest.complete();
 	};
 
+    <% if (autoRun) { %>
 	DrillbitTest.runNextTest();
+	<% } %>
+
+<% if (!methodWrap) { %>
 }
+<% } %>

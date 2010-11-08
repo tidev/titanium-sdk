@@ -39,6 +39,7 @@ Drillbit = function() {
 	this.currentPassed = 0;
 	this.currentFailed = 0;
 	this.currentTimer = 0;
+	this.sdkTimestamp = null;
 	
 	this.resultsDir = ti.fs.getFile(ti.path.fromurl('app://test_results'));
 	this.initPython();
@@ -82,6 +83,10 @@ Drillbit.prototype.processArgv = function() {
 	if (this.mobileSdk == null) {
 		ti.api.error("No MobileSDK found, please specify with --mobile-sdk, or install MobileSDK 1.5.0 or greater");
 		ti.app.exit(1);
+	}
+	
+	if ('mobileRepository' in this.argv) {
+		this.mobileRepository = this.argv.mobileRepository;
 	}
 	
 	this.extraTests = [];
@@ -226,10 +231,12 @@ Drillbit.prototype.frontendDo = function()
 	}
 };
 
-Drillbit.prototype.findLine = function(needle, haystack)
+Drillbit.prototype.findLine = function(needle, haystack, fromIndex)
 {
+	fromIndex = fromIndex || 0;
+	
 	var lines = haystack.split('\n');
-	for (var i = 0; i < lines.length; i++)
+	for (var i = fromIndex; i < lines.length; i++)
 	{
 		if (needle.test(lines[i]))
 		{
@@ -247,7 +254,7 @@ Drillbit.prototype.findLine = function(needle, haystack)
 
 Drillbit.prototype.describe = function(description, test)
 {
-	ti.api.debug('describing test: ' + description);
+	ti.api.debug('describing test: ' + description + ', test = ' + test);
 	this.loadingTest.description = description;
 	this.loadingTest.test = test;
 	this.loadingTest.lineOffsets = {};
@@ -256,25 +263,67 @@ Drillbit.prototype.describe = function(description, test)
 	this.loadingTest.assertionCount = 0;
 	var testSource = this.loadingTest.sourceFile.read().toString();
 	
-	for (var p in test)
-	{
-		if (this.excludes.indexOf(p)==-1)
-		{
+	for (var p in test) {
+		if (this.excludes.indexOf(p)==-1) {
 			var fn = test[p];
-			if (typeof fn == 'function')
-			{
+			if (typeof fn == 'function') {
 				this.totalTests++;
 				this.loadingTest.assertionCount++;
 				this.loadingTest.assertions[p] = false;
 				
 				var r = new RegExp(p+" *: *function *\\(");
 				this.loadingTest.lineOffsets[p] = this.findLine(r, testSource);
+			} else if (fn instanceof AsyncTest) {
+				this.totalTests++;
+				this.loadingTest.assertionCount++;
+				this.loadingTest.assertions[p] = false;
+				
+				if (typeof(fn.args) == 'function') {
+					var r = new RegExp(p+" *: *asyncTest *\\( *function *\\(");
+					this.loadingTest.lineOffsets[p] = this.findLine(r, testSource);
+				} else if (typeof(fn.args.start) == 'function') {
+					var objectRegex = new RegExp(p+" *: *asyncTest *\\( *\\{");
+					var startRegex = new RegExp("start *: *function *\\(");
+					var objectStart = this.findLine(objectRegex, testSource);
+					this.loadingTest.lineOffsets[p] = this.findLine(startRegex, testSource, objectStart);
+				}
 			}
 		}
 	}
 
 	this.totalFiles++;
 	this.loadingTest = null;
+};
+
+// This API is just a wrapper, the real asyncTest lives in drillbitTest.js
+function AsyncTest(args) {
+	this.args = args;
+	this.async = true;
+	if (typeof(args) == 'function') {
+		this.source = String(args);
+	} else {
+		this.source = "{\n";
+		var keys = Object.keys(args);
+		keys.forEach(function(key, index) {
+			var obj = args[key];
+			var src = typeof(obj) == 'function' ? String(obj) : JSON.stringify(obj);
+			this.source += key + ": " + src;
+			if (index < keys.length - 1) {
+				this.source += ",\n";
+			} else {
+				this.source += "\n";
+			}
+		}, this);
+		this.source += "}";
+	}
+}
+
+AsyncTest.prototype.toString = function() {
+	return "asyncTest(" + this.source + ")";
+}
+
+Drillbit.prototype.asyncTest = function(args) {
+	return new AsyncTest(args);
 };
 
 Drillbit.prototype.loadTestFile = function(testFile, platform)
@@ -367,7 +416,12 @@ Drillbit.prototype.loadTests = function(testDir)
 
 Drillbit.prototype.loadAllTests = function()
 {
-	this.loadTests(ti.path.fromurl('app://tests'));
+	if (typeof(this.mobileRepository) != 'undefined') {
+		this.loadTests(ti.path.join(this.mobileRepository, 'drillbit', 'tests'));
+	} else {
+		this.loadTests(ti.path.fromurl('app://tests'));
+	}
+	
 	if (this.extraTests != null) {
 		this.extraTests.forEach(function(extraTestDir) {
 			if (ti.path.exists(extraTestDir)) {
@@ -585,6 +639,45 @@ Drillbit.prototype.runTests = function(testsToRun)
 	}
 };
 
+Drillbit.prototype.stageSDK = function() {
+	if (this.sdkTimestamp == null) {
+		var versionTxt = ti.fs.getFile(this.mobileSdk, 'version.txt').read().toString();
+		var version = {};
+		versionTxt.split(/\n/).forEach(function(line) {
+			var tokens = line.split('=');
+			version[tokens[0]] = tokens[1];
+		});
+	
+		this.sdkTimestamp = new Date(version.timestamp);
+	}
+
+	var mobileSupport = ti.path.join(this.mobileRepository, 'support');
+	
+	var stagedFiles = [];
+	var self = this;
+	// Stage support
+	ti.path.recurse(mobileSupport, function(file) {
+		var timestamp = new Date(file.modificationTimestamp());
+		if (timestamp <= this.sdkTimestamp) return;
+		
+		var relativePath = ti.path.relpath(file.nativePath(), mobileSupport);
+		var destFile = ti.fs.getFile(self.mobileSdk, relativePath);
+		
+		file.copy(destFile);
+		stagedFiles.push(destFile);
+	});
+	
+	// Ask each emulator to stage it's binaries
+	this.eachEmulator(function(emulator, platform) {
+		stagedFiles = stagedFiles.concat(emulator.stageSDK(this.sdkTimestamp));
+	});
+	
+	if (stagedFiles.length > 0) {
+		this.sdkTimestamp = new Date();
+	}
+	return stagedFiles;
+};
+
 Drillbit.prototype.stageTest = function(entry) {
 	var stagedFiles = [];
 	if (!entry.hasDir) return stagedFiles;
@@ -606,7 +699,7 @@ Drillbit.prototype.stageTest = function(entry) {
 
 Drillbit.prototype.runTest = function(entry)
 {
-	var data = {entry: entry, Titanium: Titanium, excludes: this.excludes, Drillbit: this};
+	var data = {entry: entry, Titanium: Titanium, excludes: this.excludes, Drillbit: this, AsyncTest: AsyncTest};
 	var testScript = this.renderTemplate(ti.path.join(this.templatesDir, 'test.js'), data);
 
 	var self = this;
@@ -618,6 +711,9 @@ Drillbit.prototype.runTest = function(entry)
 	});
 	
 	var stagedFiles = this.stageTest(entry);
+	if (typeof(this.mobileRepository) != 'undefined') {
+		stagedFiles = stagedFiles.concat(this.stageSDK());
+	}
 	
 	var profilePath = ti.fs.getFile(this.resultsDir, entry.name+'.prof');
 	var logPath = ti.fs.getFile(this.resultsDir, entry.name+'.log');
@@ -699,6 +795,18 @@ Drillbit.prototype.reset = function()
 	this.runningTests = 0;
 	this.runningCompleted = 0;
 	this.runningPassed = this.runningFailed = this.totalAssertions = 0;
+};
+
+Drillbit.prototype.rescan = function()
+{
+	this.reset();
+	this.tests = {};
+	this.testNames = [];
+	this.totalTests = 0;
+	this.totalFiles = 0;
+	this.testsStarted = 0;
+	
+	this.loadAllTests();
 };
 
 Titanium.Drillbit = new Drillbit();

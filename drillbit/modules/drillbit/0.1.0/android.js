@@ -26,8 +26,7 @@ function AndroidEmulator(drillbit, androidSdk, apiLevel, platform, googleApis) {
 	this.waitForDevice = ti.path.join(drillbit.mobileSdk, 'android', 'wait_for_device.py');
 	this.testHarnessRunning = false;
 	
-	// Set to true when changing test harness app so changes always get built in
-	this.needsBuild = false;
+	this.needsBuild = 'androidForceBuild' in drillbit.argv;
 };
 
 AndroidEmulator.prototype.createADBProcess = function(args) {
@@ -164,7 +163,21 @@ AndroidEmulator.prototype.pushTestJS = function(testScript) {
 	this.runADB(['push', testJS.nativePath(), '/sdcard/' + this.drillbit.testHarnessId + '/test.js']);
 };
 
-var buildTriggers = [
+AndroidEmulator.prototype.stageSDK = function(sdkTimestamp) {
+	var distAndroidDir = ti.fs.getFile(this.drillbit.mobileRepository, 'dist', 'android');
+	var stagedFiles = [];
+	distAndroidDir.getDirectoryListing().forEach(function(file) {
+		if (file.extension() != 'jar') return;
+		if (file.modificationTimestamp() <= sdkTimestamp) return;
+		
+		var destFile = ti.fs.getFile(this.drillbit.mobileSdk, 'android', file.name());
+		file.copy(destFile);
+		stagedFiles.push(file);
+	}, this);
+	return stagedFiles;
+};
+
+var harnessBuildTriggers = [
 	// File triggers
 	'tiapp.xml', 'AndroidManifest.xml',
 	ti.path.join('build', 'android', 'AndroidManifest.xml'),
@@ -176,29 +189,59 @@ var buildTriggers = [
 	ti.path.join('build', 'android', 'res')
 ];
 
+var sdkBuildTriggers = [
+	'titanium.py', 'tiapp.py', 'manifest.py', 'project.py',
+	'android' // anything under android
+]
+
+AndroidEmulator.prototype.isBuildTrigger = function(triggers, path) {
+	// file triggers
+	if (triggers.indexOf(path) != -1) {
+		return true;
+	}
+	
+	// directory triggers
+	for (var i = 0; i < triggers.length; i++) {
+		var trigger = triggers[i];
+		if (path.indexOf(trigger) != -1) {
+			return true;
+		}
+	}
+	return false;
+};
+
+AndroidEmulator.prototype.isHarnessBuildTrigger = function(file) {
+	var path = file.nativePath();
+	if (path.indexOf(this.drillbit.testHarnessDir) == -1) {
+		return false;
+	}
+	
+	var relativePath = ti.path.relpath(file.nativePath(), this.drillbit.testHarnessDir);
+	return this.isBuildTrigger(harnessBuildTriggers, relativePath);
+};
+
+AndroidEmulator.prototype.isSDKBuildTrigger = function(file) {
+	var path = file.nativePath();
+	if (path.indexOf(this.drillbit.mobileSdk) == -1) {
+		return false;
+	}
+	
+	var relativePath = ti.path.relpath(path, this.drillbit.mobileSdk);
+	return this.isBuildTrigger(sdkBuildTriggers, relativePath);
+};
+
 AndroidEmulator.prototype.testHarnessNeedsBuild = function(stagedFiles) {
 	for (var i = 0; i < stagedFiles.length; i++) {
 		var stagedFile = stagedFiles[i];
-		var relativePath = ti.path.relpath(stagedFile.nativePath(), this.drillbit.testHarnessDir);
-		
-		// file triggers
-		if (buildTriggers.indexOf(relativePath) != -1) {
+		if (this.isHarnessBuildTrigger(stagedFile) || this.isSDKBuildTrigger(stagedFile)) {
 			return true;
-		}
-		
-		// directory triggers
-		for (var j = 0; j < buildTriggers.length; j++) {
-			var buildTrigger = buildTriggers[j];
-			if (relativePath.indexOf(buildTrigger) != -1) {
-				return true;
-			}
 		}
 	}
 	return false;
 };
 
 AndroidEmulator.prototype.runTestHarness = function(suite, stagedFiles) {
-	if (!this.testHarnessRunning || this.testHarnessNeedsBuild(stagedFiles)) {
+	if (!this.testHarnessRunning || this.needsBuild || this.testHarnessNeedsBuild(stagedFiles)) {
 		var process = this.createTestHarnessBuilderProcess("simulator", ['4', 'HVGA']);	
 		this.drillbit.frontendDo('building_test_harness', suite, 'android');
 		
