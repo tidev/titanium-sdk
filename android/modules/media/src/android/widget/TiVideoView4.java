@@ -17,6 +17,10 @@
 package android.widget;
 
 import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.URL;
+
+import org.apache.http.client.ClientProtocolException;
 
 import android.app.AlertDialog;
 import android.content.Context;
@@ -167,6 +171,46 @@ public class TiVideoView4 extends SurfaceView implements MediaPlayerControl {
         }
     }
 
+    // Added to detect HTTP redirects before we hand off to MediaPlayer
+    // See: http://code.google.com/p/android/issues/detail?id=10810
+    private void setDataSource() {
+    	try {
+			if (mUri.getScheme().equals("http") || mUri.getScheme().equals("https")) {
+				// Media player doesn't handle redirects, try to follow them here
+				while (true) {
+					// java.net.URL doesn't handle rtsp
+					if (mUri.getScheme().equals("rtsp")) break;
+					
+					URL url = new URL(mUri.toString());
+					HttpURLConnection cn = (HttpURLConnection)url.openConnection();
+					cn.setInstanceFollowRedirects(false);
+					String location = cn.getHeaderField("Location");
+					if (location != null) {
+						mUri = Uri.parse(location);
+					} else {
+						break;
+					}
+				}
+			}
+			mMediaPlayer.setDataSource(getContext(), mUri);
+		} catch (ClientProtocolException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IllegalArgumentException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (SecurityException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IllegalStateException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+    }
+
     private void openVideo() {
         if (mUri == null || mSurfaceHolder == null) {
             // not ready for playback just yet, will try again later
@@ -206,7 +250,7 @@ public class TiVideoView4 extends SurfaceView implements MediaPlayerControl {
             		}
             	}
             } else {
-                mMediaPlayer.setDataSource(getContext(), mUri);
+                setDataSource();
             }
             mMediaPlayer.setDisplay(mSurfaceHolder);
             mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
