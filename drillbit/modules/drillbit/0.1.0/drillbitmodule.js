@@ -697,8 +697,13 @@ Drillbit.prototype.stageTest = function(entry) {
 		
 		var relativePath = ti.path.relpath(file.nativePath(), entry.dir);
 		var destFile = ti.fs.getFile(self.testHarnessDir, relativePath);
+		var parent = destFile.parent();
 		
 		ti.api.debug("copying " + file.nativePath() + " to " + destFile.nativePath());
+		if (!parent.exists()) {
+			parent.createDirectory(true);
+		}
+		
 		file.copy(destFile);
 		stagedFiles.push(destFile);
 	});
