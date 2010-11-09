@@ -1,6 +1,6 @@
-describe("Avoid OOM loading res images (lh 2313)",
+describe("Android UI.ImageView tests",
 {
-	test_images: function() {
+	bug2313_resImageOOM: function() {
 		var win = Ti.UI.createWindow();
 		win.open();
 		var tv = Ti.UI.createTableView();

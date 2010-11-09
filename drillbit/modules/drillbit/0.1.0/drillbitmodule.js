@@ -347,9 +347,10 @@ Drillbit.prototype.loadTestFile = function(testFile, platform)
 	var entry = this.tests[name];
 	if (!entry)
 	{
-		var platforms = typeof(platform) != 'undefined' ? [platform] : this.platforms;
+		var platformSpecific = typeof(platform) != 'undefined';
+		var platforms = platformSpecific ? [platform] : this.platforms;
 		Ti.API.info("found test: " + testName + ', platforms: ' + platforms + ", dir: " + dir);
-		entry = {name: testName, dir: dir, sourceFile: testFile, hasDir: hasDir, platforms: platforms};
+		entry = {name: testName, dir: dir, sourceFile: testFile, hasDir: hasDir, platforms: platforms, platformSpecific: platformSpecific};
 		this.tests[testName] = entry;
 		this.testNames.push(testName);
 	}

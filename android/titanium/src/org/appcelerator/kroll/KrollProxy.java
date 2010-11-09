@@ -351,21 +351,37 @@ public class KrollProxy implements Handler.Callback, OnEventListenerChange {
 		return (KrollMethod) getBinding(name);
 	}
 	
+	
 	@SuppressWarnings("serial")
+	public class ThisMethod extends KrollMethod {
+		protected String name;
+		protected KrollMethod delegate;
+		
+		public ThisMethod(String name, KrollMethod delegate) {
+			super(name);
+			this.name = name;
+			this.delegate = delegate;
+		}
+		
+		@Override
+		public Object invoke(KrollInvocation invocation, Object[] args)
+				throws Exception {
+			invocation.proxy = KrollProxy.this;
+			invocation.thisObj = new KrollObject(KrollProxy.this);
+			return delegate.invoke(invocation, args);
+		}
+		
+		public KrollMethod getDelegate() {
+			return delegate;
+		}
+	}
+	
 	public KrollMethod getBoundMethodForThis(String name) {
 		// This generates a wrapper that always invokes the given bound method
 		// using this proxy as the "thisObj"
 		final KrollMethod delegate = getBoundMethod(name);
 		if (delegate != null) {
-			return new KrollMethod(name) {
-				@Override
-				public Object invoke(KrollInvocation invocation, Object[] args)
-						throws Exception {
-					invocation.proxy = KrollProxy.this;
-					invocation.thisObj = new KrollObject(KrollProxy.this);
-					return delegate.invoke(invocation, args);
-				}
-			};
+			return new ThisMethod(name, delegate);
 		}
 		return null;
 	}
