@@ -28,13 +28,21 @@
 
 -(void)makeDynamicProperty:(SEL)selector key:(NSString*)key
 {
-	KrollPropertyDelegate *prop = [[KrollPropertyDelegate alloc] initWithTarget:delegate selector:selector];
-	
-	pthread_rwlock_wrlock(&dynpropsLock);
-	[dynprops setObject:prop forKey:key];
-	pthread_rwlock_unlock(&dynpropsLock);
-	
-	[prop release];
+	if ([delegate status] == [delegate DONE]) {
+		// Solidify arguments when we're DONE so that the response info can be released
+		pthread_rwlock_wrlock(&dynpropsLock);
+		[dynprops setObject:[delegate valueForUndefinedKey:key] forKey:key];
+		pthread_rwlock_unlock(&dynpropsLock);
+	}
+	else {
+		KrollPropertyDelegate *prop = [[KrollPropertyDelegate alloc] initWithTarget:delegate selector:selector];
+		
+		pthread_rwlock_wrlock(&dynpropsLock);
+		[dynprops setObject:prop forKey:key];
+		pthread_rwlock_unlock(&dynpropsLock);
+		
+		[prop release];
+	}
 }
 
 -(id)initWithDelegate:(TiNetworkHTTPClientProxy*)proxy
@@ -57,7 +65,7 @@
 		[dynprops setObject:NUMINT([delegate LOADING]) forKey:@"LOADING"];
 		[dynprops setObject:NUMINT([delegate DONE]) forKey:@"DONE"];
 		
-		[self makeMethod:@selector(abort) args:NO key:@"abort"];
+		[self makeMethod:@selector(abort:) args:YES key:@"abort"];
 		[self makeMethod:@selector(open:) args:YES key:@"open"];
 		[self makeMethod:@selector(setRequestHeader:) args:YES key:@"setRequestHeader"];
 		[self makeMethod:@selector(setTimeout:) args:YES key:@"setTimeout"];
