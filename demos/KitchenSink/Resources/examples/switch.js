@@ -154,32 +154,6 @@ titleButton.addEventListener('click', function()
 	}
 });
 
-//
-// CHECKBOX
-//
-var checkBox = Titanium.UI.createSwitch({
-        style:Titanium.UI.Android.SWITCH_STYLE_CHECKBOX,
-        title:"CheckBox: " + false,
-        value:false,
-        top:190,
-        left:60
-});
-checkBox.addEventListener('change', function(e) {
-	checkBox.title = "CheckBox: " + e.value;
-});
-
-//
-// TOGGLEBUTTON W/ TITLE
-//
-var titleSwitch = Titanium.UI.createSwitch({
-        style:Titanium.UI.Android.SWITCH_STYLE_TOGGLEBUTTON,
-        titleOff:"LO",
-        titleOn:"HI",
-        value:false,
-        top:240,
-});
-
-
 win.add(basicSwitchLabel);
 win.add(basicSwitch);
 win.add(changeButton);
@@ -194,6 +168,31 @@ if (Titanium.Platform.name == 'iPhone OS')
 
 if (Titanium.Platform.osname == 'android')
 {
+	//
+	// CHECKBOX
+	//
+	var checkBox = Titanium.UI.createSwitch({
+			style:Titanium.UI.Android.SWITCH_STYLE_CHECKBOX,
+			title:"CheckBox: " + false,
+			value:false,
+			top:190,
+			left:60
+	});
+	checkBox.addEventListener('change', function(e) {
+		checkBox.title = "CheckBox: " + e.value;
+	});
+	
+	//
+	// TOGGLEBUTTON W/ TITLE
+	//
+	var titleSwitch = Titanium.UI.createSwitch({
+			style:Titanium.UI.Android.SWITCH_STYLE_TOGGLEBUTTON,
+			titleOff:"LO",
+			titleOn:"HI",
+			value:false,
+			top:240,
+	});
+
 	win.add(checkBox);
 	win.add(titleSwitch);
 }
