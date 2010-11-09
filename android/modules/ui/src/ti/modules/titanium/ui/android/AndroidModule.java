@@ -9,6 +9,7 @@ package ti.modules.titanium.ui.android;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiContext;
+import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.ui.UIModule;
@@ -55,5 +56,13 @@ public class AndroidModule extends KrollModule
 		if (act == null) return;
 		
 		act.startActivity(new Intent(act, TiPreferencesActivity.class));
+	}
+	
+	@Kroll.method
+	public void hideSoftKeyboard() {
+		Activity a = getTiContext().getActivity();
+		if (a != null) {
+			TiUIHelper.showSoftKeyboard(a.getWindow().getDecorView(), false);
+		}
 	}
 }
