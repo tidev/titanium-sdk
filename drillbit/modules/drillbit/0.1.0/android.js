@@ -166,11 +166,19 @@ AndroidEmulator.prototype.pushTestJS = function(testScript) {
 AndroidEmulator.prototype.stageSDK = function(sdkTimestamp) {
 	var distAndroidDir = ti.fs.getFile(this.drillbit.mobileRepository, 'dist', 'android');
 	var stagedFiles = [];
+	var rootJars = ['titanium.jar', 'ant-tasks.jar', 'kroll-apt.jar'];
+	
 	distAndroidDir.getDirectoryListing().forEach(function(file) {
 		if (file.extension() != 'jar') return;
 		if (file.modificationTimestamp() <= sdkTimestamp) return;
 		
-		var destFile = ti.fs.getFile(this.drillbit.mobileSdk, 'android', file.name());
+		var destFile = null;
+		if (rootJars.indexOf(file.name()) != -1) {
+			destFile = ti.fs.getFile(this.drillbit.mobileSdk, 'android', file.name());
+		} else {
+			destFile = ti.fs.getFile(this.drillbit.mobileSdk, 'android', 'modules', file.name());
+		}
+		
 		file.copy(destFile);
 		stagedFiles.push(file);
 	}, this);
