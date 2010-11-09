@@ -20,8 +20,6 @@ describe("Avoid OOM loading res images (lh 2313)",
 			tv.appendRow(tr);
 		}
 		win.close();
-		var x = Ti.Filesystem.createFile('test.txt');
-		valueOf(x.exists()).shouldBe(true);
 		// If you make it here, you're golden
 		valueOf(1).shouldBe(1);
 	}
