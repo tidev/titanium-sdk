@@ -116,7 +116,7 @@ public class FileProxy extends TiFile
 	}
 
 	@Kroll.method
-	public boolean createDirectory(Object arg) {
+	public boolean createDirectory(@Kroll.argument(optional=true) Object arg) {
 		boolean recursive = true;
 
 		if (arg != null) {
@@ -126,7 +126,7 @@ public class FileProxy extends TiFile
 	}
 
 	@Kroll.method
-	public boolean deleteDirectory(Object arg) {
+	public boolean deleteDirectory(@Kroll.argument(optional=true) Object arg) {
 		boolean recursive = false;
 
 		if (arg != null) {

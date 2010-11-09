@@ -94,4 +94,18 @@ public abstract class KrollMethod extends BaseFunction implements Function {
 	public String getName() {
 		return name;
 	}
+	
+	@Override
+	public Object getDefaultValue(Class<?> typeHint) {
+		return "[KrollMethod " + name + "]";
+	}
+	
+	@Override
+	protected Object equivalentValues(Object value) {
+		if (value instanceof KrollProxy.ThisMethod) {
+			KrollProxy.ThisMethod other = (KrollProxy.ThisMethod) value;
+			return this.equals(other.getDelegate());
+		}
+		return super.equivalentValues(value);
+	}
 }

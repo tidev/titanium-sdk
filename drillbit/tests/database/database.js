@@ -1,11 +1,11 @@
-describe("test database APIs", {
-	test_module_methods: function() {
+describe("Ti.Database tests", {
+	testModuleMethods: function() {
 		valueOf(Ti.Database).shouldNotBeNull();
 		valueOf(Ti.Database).shouldBeObject();
 		valueOf(Ti.Database.open).shouldBeFunction();
 		valueOf(Ti.Database.install).shouldBeFunction();
 	},
-	test_database_methods : function() {
+	testDatabaseMethods : function() {
 		var db = Ti.Database.open("Test");
 		try {
 			valueOf(db).shouldNotBeNull();
@@ -26,7 +26,8 @@ describe("test database APIs", {
 			db.close();
 		}
 	},
-	test_database_lh_2147 : function() {
+	// https://appcelerator.lighthouseapp.com/projects/32238-titanium-mobile/tickets/2147-android-pragma-and-non-select-statements-return-null-from-tidatabasedbexecute-instead-of-resultset
+	testDatabaseLH2147 : function() {
 		var db = Ti.Database.open("Test");
 		try {
 			valueOf(db).shouldNotBeNull();
@@ -55,7 +56,7 @@ describe("test database APIs", {
 		var f = Ti.Filesystem.getFile("file:///data/data/org.appcelerator.titanium.testharness/databases/Test");
 		valueOf(f.exists()).shouldBeFalse();
 	},
-	test_database_insert : function() {
+	testDatabaseInsert : function() {
 		var db = Ti.Database.open("Test");
 		try {
 			valueOf(db).shouldNotBeNull();

@@ -198,7 +198,7 @@ class AndroidSDK:
 		args = [self.get_adb()]
 		if adb_args != None:
 			args.extend(adb_args)
-		args.extend['shell', 'ps']
+		args.extend('shell', 'ps')
 		(out, err) = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
 		if type(err) != types.NoneType and len(err) > 0:
 			raise Exception(err)

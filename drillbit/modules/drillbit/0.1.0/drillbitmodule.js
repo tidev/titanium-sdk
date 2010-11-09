@@ -347,9 +347,10 @@ Drillbit.prototype.loadTestFile = function(testFile, platform)
 	var entry = this.tests[name];
 	if (!entry)
 	{
-		var platforms = typeof(platform) != 'undefined' ? [platform] : this.platforms;
+		var platformSpecific = typeof(platform) != 'undefined';
+		var platforms = platformSpecific ? [platform] : this.platforms;
 		Ti.API.info("found test: " + testName + ', platforms: ' + platforms + ", dir: " + dir);
-		entry = {name: testName, dir: dir, sourceFile: testFile, hasDir: hasDir, platforms: platforms};
+		entry = {name: testName, dir: dir, sourceFile: testFile, hasDir: hasDir, platforms: platforms, platformSpecific: platformSpecific};
 		this.tests[testName] = entry;
 		this.testNames.push(testName);
 	}
@@ -696,8 +697,13 @@ Drillbit.prototype.stageTest = function(entry) {
 		
 		var relativePath = ti.path.relpath(file.nativePath(), entry.dir);
 		var destFile = ti.fs.getFile(self.testHarnessDir, relativePath);
+		var parent = destFile.parent();
 		
 		ti.api.debug("copying " + file.nativePath() + " to " + destFile.nativePath());
+		if (!parent.exists()) {
+			parent.createDirectory(true);
+		}
+		
 		file.copy(destFile);
 		stagedFiles.push(destFile);
 	});

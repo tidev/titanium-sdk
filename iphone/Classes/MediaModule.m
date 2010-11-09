@@ -932,7 +932,7 @@ if (![TiUtils isIOS4OrGreater]) { \
 		if (mediaList!=nil) {
 			if ([mediaList isKindOfClass:[NSArray class]]) {
 				for (NSNumber* type in mediaList) {
-					switch ([mediaList integerValue]) {
+					switch ([type integerValue]) {
 						case MPMediaTypeMusic:
 						case MPMediaTypeAnyAudio:
 						case MPMediaTypeAudioBook:
