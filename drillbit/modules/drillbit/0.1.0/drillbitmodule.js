@@ -329,7 +329,7 @@ Drillbit.prototype.asyncTest = function(args) {
 	return new AsyncTest(args);
 };
 
-Drillbit.prototype.loadTestFile = function(testFile, platform)
+Drillbit.prototype.loadTestFile = function(testFile, platform, hasDir)
 {
 	var name = testFile.name();
 	var ext = testFile.extension();
@@ -337,17 +337,20 @@ Drillbit.prototype.loadTestFile = function(testFile, platform)
 		return;
 	}
 	
+	var platformSpecific = typeof(platform) != 'undefined';
 	var testName = name.substring(0, name.indexOf('.'+ext));
 	var dir = testFile.parent().nativePath();
-	var hasDir = false;
-	if (testFile.parent().name() == testName) {
-		hasDir = true;
+	if (typeof(hasDir) == 'undefined') {
+		if (testFile.parent().name() == testName) {
+			hasDir = true;
+		} else {
+			hasDir = false;
+		}
 	}
 	
 	var entry = this.tests[name];
 	if (!entry)
 	{
-		var platformSpecific = typeof(platform) != 'undefined';
 		var platforms = platformSpecific ? [platform] : this.platforms;
 		Ti.API.info("found test: " + testName + ', platforms: ' + platforms + ", dir: " + dir);
 		entry = {name: testName, dir: dir, sourceFile: testFile, hasDir: hasDir, platforms: platforms, platformSpecific: platformSpecific};
@@ -379,7 +382,7 @@ Drillbit.prototype.loadPlatformTestDir = function(testDir)
 		if (file.isDirectory()) {
 			this.loadTestDir(file, platform);
 		} else {
-			this.loadTestFile(file, platform);
+			this.loadTestFile(file, platform, false);
 		}
 	}
 };
