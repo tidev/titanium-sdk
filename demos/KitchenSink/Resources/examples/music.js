@@ -86,11 +86,10 @@ try {
 }
 catch (e) {
 	// create alert
-	var a = Titanium.UI.createAlertDialog({title:'Music Player'});
-	a.setMessage('Please run this test on device: Inoperative on simulator');
-
-	// show alert
-	a.show();
+	Titanium.UI.createAlertDialog({
+		title:'Music Player',
+		message:'Please run this test on device: Inoperative on simulator'
+	}).show();
 }
 
 var b1 = Ti.UI.createButton({
@@ -198,7 +197,9 @@ b9.addEventListener('click', function() {
 });
 win.add(b9);
 
+//
 // MODAL SETTINGS BIT...
+//	
 var settingsWindow = Ti.UI.createWindow({
 	backgroundColor:'#fff',
 	title:'Picker settings'
@@ -231,7 +232,7 @@ var settings = {
 		// show alert
 		a.show();
 	},
-	mediaTypes:Ti.Media.MUSIC_MEDIA_TYPE_ALL,
+	mediaTypes:[Ti.Media.MUSIC_MEDIA_TYPE_ALL],
 	autohide:true
 };
 
@@ -347,7 +348,7 @@ for (var i=0; i < 5; i++) {
 		text:text
 	});
 	var s = Ti.UI.createSwitch({
-		value:false,
+		value:(i == 4),
 		top:0,
 		right:10,
 		index:i,
@@ -359,19 +360,18 @@ for (var i=0; i < 5; i++) {
 
 	s.addEventListener('change', function(e) {
 		var type = e.source.type;
-		var index = e.source.index;
 
 		Ti.API.log('Setting media type: '+type+' to '+e.source.value);
 
+		var index = settings.mediaTypes.indexOf(type);
 		if (e.source.value) {
-			settings.mediaTypes |= type;
+			if (index == -1) {
+				settings.mediaTypes.push(type);
+			}
 		}
 		else {
-			settings.mediaTypes ^= type;
-			for (var i=0; i < 5; i++) {
-				if (index != i && switches[i].value) {
-					settings.mediaTypes |= switches[i].type;
-				}
+			if (index != -1) {
+				settings.mediaTypes.splice(index,1);
 			}
 		}
 	});
@@ -390,7 +390,9 @@ back.addEventListener('click', function() {
 	settingsWindow.close();
 });
 settingsWindow.setLeftNavButton(back);
+//
 /// ... END MODAL SETTINGS BIT
+//
 
 var b10 = Ti.UI.createButton({
 	title:'Picker settings',
