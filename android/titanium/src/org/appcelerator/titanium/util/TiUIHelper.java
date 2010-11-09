@@ -615,23 +615,31 @@ public class TiUIHelper
 		}
 
 		if (focusState > TiUIView.SOFT_KEYBOARD_DEFAULT_ON_FOCUS) {
-			InputMethodManager imm = (InputMethodManager) view.getContext().getSystemService(Activity.INPUT_METHOD_SERVICE);
-			if (imm != null) {
-				boolean useForce = (Build.VERSION.SDK_INT <= Build.VERSION_CODES.DONUT || Build.VERSION.SDK_INT >= 8) ? true : false;
-				String model = TiPlatformHelper.getModel(); 
-				if (model != null && model.toLowerCase().startsWith("droid")) {
-					useForce = true;
-				}
-				if (DBG) {
-					Log.i(LCAT, "soft input change request: flag: " + focusState + " useForce: " + useForce);
-				}
-				if (focusState == TiUIView.SOFT_KEYBOARD_SHOW_ON_FOCUS) {
-					imm.showSoftInput(view, useForce ? InputMethodManager.SHOW_FORCED : InputMethodManager.SHOW_IMPLICIT);
-				} else if (focusState == TiUIView.SOFT_KEYBOARD_HIDE_ON_FOCUS) {
-					imm.hideSoftInputFromWindow(view.getWindowToken(), useForce ? 0 : InputMethodManager.HIDE_IMPLICIT_ONLY);
-				} else {
-					Log.w(LCAT, "Unknown onFocus state: " + focusState);
-				}
+			if (focusState == TiUIView.SOFT_KEYBOARD_SHOW_ON_FOCUS) {
+				showSoftKeyboard(view, true);
+			} else if (focusState == TiUIView.SOFT_KEYBOARD_HIDE_ON_FOCUS) {
+				showSoftKeyboard(view, false);
+			} else {
+				Log.w(LCAT, "Unknown onFocus state: " + focusState);
+			}
+		}
+	}
+	
+	public static void showSoftKeyboard(View view, boolean show) 
+	{
+		InputMethodManager imm = (InputMethodManager) view.getContext().getSystemService(Activity.INPUT_METHOD_SERVICE);
+
+		if (imm != null) {
+			boolean useForce = (Build.VERSION.SDK_INT <= Build.VERSION_CODES.DONUT || Build.VERSION.SDK_INT >= 8) ? true : false;
+			String model = TiPlatformHelper.getModel(); 
+			if (model != null && model.toLowerCase().startsWith("droid")) {
+				useForce = true;
+			}
+			
+			if (show) {
+				imm.showSoftInput(view, useForce ? InputMethodManager.SHOW_FORCED : InputMethodManager.SHOW_IMPLICIT);
+			} else {
+				imm.hideSoftInputFromWindow(view.getWindowToken(), useForce ? 0 : InputMethodManager.HIDE_IMPLICIT_ONLY);
 			}
 		}
 	}
