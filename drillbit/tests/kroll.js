@@ -1,8 +1,12 @@
 describe("Kroll Tests",
 {
-	ti_sanity: function() {
+	tiSanity: function() {
 		valueOf(Ti).shouldNotBeNull();
 		valueOf(Titanium).shouldNotBeNull();
 		valueOf(Ti).shouldBe(Titanium);
+	},
+	
+	functionSanity: function() {
+		valueOf(Ti.API.info).shouldBeFunction();
 	}
 });
