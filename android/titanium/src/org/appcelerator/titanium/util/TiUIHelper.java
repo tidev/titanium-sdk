@@ -539,8 +539,17 @@ public class TiUIHelper
 		if (id == 0) {
 			return null;
 		}
+
+		BitmapFactory.Options opts = new BitmapFactory.Options();
+		opts.inPurgeable = true;
+		opts.inInputShareable = true;
 		
-		Bitmap bitmap = BitmapFactory.decodeResource(context.getActivity().getResources(), id);
+		Bitmap bitmap = null;
+		try {
+			bitmap = BitmapFactory.decodeResource(context.getActivity().getResources(), id, opts);
+		} catch (OutOfMemoryError e) {
+			Log.e(LCAT, "Unable to load bitmap. Not enough memory: " + e.getMessage());
+		}
 		return bitmap;
 	}
 	
