@@ -23,6 +23,7 @@ import org.mozilla.javascript.Function;
 import org.mozilla.javascript.NativeJavaObject;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
+import org.mozilla.javascript.Undefined;
 
 public class KrollConverter implements KrollNativeConverter,
 	KrollJavascriptConverter, KrollDefaultValueProvider {
@@ -129,6 +130,9 @@ public class KrollConverter implements KrollNativeConverter,
 		if (value instanceof KrollProxy) {
 			return new KrollObject((KrollProxy)value);
 		}
+		else if (value instanceof KrollCallback) {
+			return ((KrollCallback)value).toJSFunction();
+		}
 		else if (value == null || value instanceof String ||
 				value instanceof Number ||
 				value instanceof Boolean ||
@@ -163,9 +167,6 @@ public class KrollConverter implements KrollNativeConverter,
 		else if (value == JSONObject.NULL || value.getClass().equals(JSONObject.NULL.getClass()))
 		{
 			return Context.javaToJS(null, invocation.getScope());
-		}
-		else if (value instanceof KrollCallback) {
-			return ((KrollCallback)value).toJSFunction();
 		}
 		else if (value == KrollProxy.UNDEFINED) {
 			return Context.getUndefinedValue();
@@ -248,6 +249,8 @@ public class KrollConverter implements KrollNativeConverter,
 			return Context.jsToJava(value, target);
 		} else if (value == null) {
 			return null;
+		} else if (value instanceof Undefined) {
+			return KrollProxy.UNDEFINED;
 		} else {
 			if (value.getClass().isArray()) {
 				Object[] values = (Object[]) value;
