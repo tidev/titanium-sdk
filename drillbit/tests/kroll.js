@@ -24,5 +24,20 @@ describe("Kroll tests",
 		
 		var result = Ti.testFunction();
 		valueOf(result).shouldBe(2);
+	},
+	
+	customProxyMethods: function() {
+		// You should be able to add custom proxy instance methods and use "this" to refer to the proxy instance
+		// https://appcelerator.lighthouseapp.com/projects/32238/tickets/1005-functions-and-currentwindow-on-android-broken
+		
+		var x = Ti.Filesystem.getFile("app://app.js");
+		x.customMethod = function() {
+			return this.getNativePath();
+		};
+		
+		valueOf(x.customMethod).shouldBeFunction();
+		
+		var path = x.customMethod();
+		valueOf(path).shouldBe(x.getNativePath());
 	}
 });
