@@ -466,6 +466,10 @@ public class TiUIImageView extends TiUIView
 			if (image instanceof String) {
 				String imageURL = TiConvert.toString(d, "image");
 				if (URLUtil.isNetworkUrl(imageURL)) {
+					
+					if (d.containsKey("defaultImage")) {
+						setImage(createBitmap(d.get("defaultImage")));
+					}
 					synchronized(imageTokenGenerator) {
 						token = imageTokenGenerator.incrementAndGet();
 						getView().setImageDrawable(null);
@@ -480,6 +484,9 @@ public class TiUIImageView extends TiUIView
 			
 		} else {
 			getProxy().setProperty("image", null);
+			if (d.containsKey("defaultImage")) {
+				setImage(createBitmap(d.get("defaultImage")));
+			}
 		}
 
 		super.processProperties(d);
