@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollInvocation;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
@@ -85,9 +86,12 @@ public class ContactsModule extends KrollModule
 	}
 	
 	@Kroll.method
-	public void showContacts(@Kroll.argument(optional=true) KrollDict d)
+	public void showContacts(KrollInvocation invocation, @Kroll.argument(optional=true) KrollDict d)
 	{
-		KrollProxy proxyForActivity = this;
+		Activity launchingActivity = invocation.getTiContext().getActivity();
+		if (launchingActivity == null) { // Not sure if that's even possible
+			launchingActivity = this.getTiContext().getActivity();
+		}
 		Intent intent = contactsApi.getIntentForContactsPicker();
 		if (DBG) {
 			Log.d(LCAT, "Launching content picker activity");
@@ -112,12 +116,12 @@ public class ContactsModule extends KrollModule
 			if (d.containsKey("proxy")) {
 				Object test = d.get("proxy");
 				if (test != null && test instanceof KrollProxy) {
-					proxyForActivity = (KrollProxy) test;
+					launchingActivity = ((KrollProxy) test).getTiContext().getActivity();
 				}
 			}
 		}
 		
-		TiActivitySupport activitySupport = (TiActivitySupport) proxyForActivity.getTiContext().getActivity();
+		TiActivitySupport activitySupport = (TiActivitySupport) launchingActivity;
 		
 		activitySupport.launchActivityForResult(intent, requestCode, this);
 	}
