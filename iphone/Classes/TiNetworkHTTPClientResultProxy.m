@@ -10,6 +10,7 @@
 #import "KrollMethod.h"
 #import "KrollMethodDelegate.h"
 #import "KrollPropertyDelegate.h"
+#import "TiUtils.h"
 
 @implementation TiNetworkHTTPClientResultProxy
 
@@ -28,13 +29,31 @@
 
 -(void)makeDynamicProperty:(SEL)selector key:(NSString*)key
 {
-	KrollPropertyDelegate *prop = [[KrollPropertyDelegate alloc] initWithTarget:delegate selector:selector];
-	
-	pthread_rwlock_wrlock(&dynpropsLock);
-	[dynprops setObject:prop forKey:key];
-	pthread_rwlock_unlock(&dynpropsLock);
-	
-	[prop release];
+	if ([delegate readyState] == [delegate DONE]) {
+		// Solidify arguments when we're DONE so that the response info can be released
+		// ... But be wary of exceptions from DOM parsing.  We might be violating the XHR standard here, as well.
+		id value = nil;
+		@try {
+			value = [delegate valueForKey:key];
+		}
+		@catch (NSException* e) {
+			// TODO: Fail silently for now; should only affect XML.  Come back when we standardize to XHR
+			//NSLog(@"[ERROR] Exception getting property %@: %@", key, [TiUtils exceptionMessage:e]);
+			value = [NSNull null];
+		}
+		pthread_rwlock_wrlock(&dynpropsLock);
+		[dynprops setObject:value forKey:key];
+		pthread_rwlock_unlock(&dynpropsLock);
+	}
+	else {
+		KrollPropertyDelegate *prop = [[KrollPropertyDelegate alloc] initWithTarget:delegate selector:selector];
+		
+		pthread_rwlock_wrlock(&dynpropsLock);
+		[dynprops setObject:prop forKey:key];
+		pthread_rwlock_unlock(&dynpropsLock);
+		
+		[prop release];
+	}
 }
 
 -(id)initWithDelegate:(TiNetworkHTTPClientProxy*)proxy
@@ -57,7 +76,7 @@
 		[dynprops setObject:NUMINT([delegate LOADING]) forKey:@"LOADING"];
 		[dynprops setObject:NUMINT([delegate DONE]) forKey:@"DONE"];
 		
-		[self makeMethod:@selector(abort) args:NO key:@"abort"];
+		[self makeMethod:@selector(abort:) args:YES key:@"abort"];
 		[self makeMethod:@selector(open:) args:YES key:@"open"];
 		[self makeMethod:@selector(setRequestHeader:) args:YES key:@"setRequestHeader"];
 		[self makeMethod:@selector(setTimeout:) args:YES key:@"setTimeout"];
@@ -71,13 +90,19 @@
 	return self;
 }
 
--(void)dealloc
+-(void)_destroy
 {
 	pthread_rwlock_wrlock(&dynpropsLock);
 	[dynprops removeAllObjects];
 	pthread_rwlock_unlock(&dynpropsLock);
 	
 	RELEASE_TO_NIL(delegate);
+	[super _destroy];
+}
+
+-(void)dealloc
+{
+	[self _destroy];
 	[super dealloc];
 }
 

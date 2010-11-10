@@ -4,6 +4,8 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
+
+// TODO: Here's a big one... we need to conform to the SHOULD, MUST, SHOULD NOT, MUST NOT in XHR standard.  See http://www.w3.org/TR/XMLHttpRequest/
 #ifdef USE_TI_NETWORK
 
 #import "TiBase.h"
@@ -371,6 +373,12 @@ extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 
 -(void)send:(id)args
 {
+	if ([self status] == [self DONE]) {
+		// TODO: Throw an exception here as per XHR standard
+		NSLog(@"[ERROR] Attempt to re-send over DONE connection");
+		return;
+	}
+	
 	// args are optional
 	if (args!=nil)
 	{
@@ -474,6 +482,7 @@ extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 		connected = NO;
 		[[TiApp app] stopNetwork];
 	}
+	RELEASE_TO_NIL(request);
 }
 
 -(void)requestFailed:(ASIHTTPRequest *)request_
@@ -486,6 +495,7 @@ extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 	
 	NSError *error = [request error];
 	
+	// TODO: Conform to XHR 'DONE' on error
 	[self _fireReadyStateChange:NetworkClientStateDone];
 	
 	if (onerror!=nil)
@@ -494,6 +504,7 @@ extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 		NSDictionary *event = [NSDictionary dictionaryWithObject:[error description] forKey:@"error"];
 		[self _fireEventToListener:@"error" withObject:event listener:onerror thisObject:thisPointer];
 	}
+	RELEASE_TO_NIL(request);
 }
 
 // Called when the request receives some data - bytes is the length of that data
