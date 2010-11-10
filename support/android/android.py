@@ -182,11 +182,12 @@ class Android(object):
 					break
 			
 			if module_apiName == None: continue # module wasn't found
-			self.app_modules.append({
-				'api_name': module_apiName,
-				'class_name': module_class,
-				'bindings': bindings
-			})
+			if '.' not in module:
+				self.app_modules.append({
+					'api_name': module_apiName,
+					'class_name': module_class,
+					'bindings': bindings
+				})
 		
 		# discover app modules
 		detector = ModuleDetector(self.project_dir)
