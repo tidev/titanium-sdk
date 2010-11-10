@@ -1,6 +1,8 @@
 package org.appcelerator.titanium.util;
 
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.Map;
 
 import org.appcelerator.titanium.TiApplication;
 
@@ -15,8 +17,10 @@ import android.util.Pair;
 public class TiRHelper {
 	private static final String LCAT = "TiRHelper";
 	
-	private static HashMap<String, Class<?>>                       clsCache = new HashMap<String, Class<?>>();
-	private static HashMap<Pair<TiRHelper.RType, String>, Integer> valCache = new HashMap<Pair<TiRHelper.RType, String>, Integer>();
+	private static Map<String, Class<?>> clsCache = 
+		Collections.synchronizedMap(new HashMap<String, Class<?>>());
+	private static Map<Pair<TiRHelper.RType, String>, Integer> valCache = 
+		Collections.synchronizedMap(new HashMap<Pair<TiRHelper.RType, String>, Integer>());
 	
 	public static final class ResourceNotFoundException extends ClassNotFoundException {
 		private static final long serialVersionUID = 119234857198273641L;
