@@ -50,12 +50,15 @@ public class AndroidModule extends KrollModule
 	}
 	
 	@Kroll.method
-	public void openPreferences()
+	public void openPreferences(@Kroll.argument(optional=true) String prefsName)
 	{
 		Activity act = getTiContext().getActivity();
 		if (act == null) return;
 		
-		act.startActivity(new Intent(act, TiPreferencesActivity.class));
+		Intent i = new Intent(act, TiPreferencesActivity.class);
+		if (prefsName != null)
+			i.putExtra("prefsName", prefsName);
+		act.startActivity(i);
 	}
 	
 	@Kroll.method
