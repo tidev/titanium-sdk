@@ -39,10 +39,11 @@
 		@catch (NSException* e) {
 			// TODO: Fail silently for now; should only affect XML.  Come back when we standardize to XHR
 			//NSLog(@"[ERROR] Exception getting property %@: %@", key, [TiUtils exceptionMessage:e]);
-			value = [NSNull null];
 		}
 		pthread_rwlock_wrlock(&dynpropsLock);
-		[dynprops setObject:value forKey:key];
+		if (value != nil) {
+			[dynprops setObject:value forKey:key];
+		}
 		pthread_rwlock_unlock(&dynpropsLock);
 	}
 	else {
@@ -98,12 +99,6 @@
 	
 	RELEASE_TO_NIL(delegate);
 	[super _destroy];
-}
-
--(void)dealloc
-{
-	[self _destroy];
-	[super dealloc];
 }
 
 - (id) valueForUndefinedKey: (NSString *) key

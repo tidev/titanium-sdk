@@ -11,8 +11,8 @@ template_dir = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filena
 
 # sort by the latest version first
 def version_sort(a,b):
-	x = float(a[0:2]) # ignore more than 2 places
-	y = float(b[0:2]) # ignore more than 2 places
+	x = float(a[0:3]) # ignore more than 2 places
+	y = float(b[0:3]) # ignore more than 2 places
 	if x > y:
 		return -1
 	if x < y:
@@ -34,13 +34,18 @@ def get_sdks():
 				cmd = line[i+5:]
 				if cmd.find("iphoneos")==0:
 					ver = cmd[8:]
-					major = int(ver[0])
-					if major>=3 and ver!='3.0':
+				elif cmd.find("iphonesimulator")==0:
+					ver = cmd[15:]
+				else:
+					continue
+				major = int(ver[0])
+				if major>=3 and ver!='3.0':
+					if not (ver in found):
 						found.append(ver)
-					# ipad is anything 3.2+
-					if major>3 or ver.startswith('3.2'):
-						ipad=True
-						
+				# ipad is anything 3.2+
+				if major>3 or ver.startswith('3.2'):
+					ipad=True
+					
 	return (sorted(found,version_sort),ipad)
 	
 def check_iphone3():
