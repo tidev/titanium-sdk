@@ -553,6 +553,8 @@
 		DAA905CE11A359F10030B119 /* TiMediaItem.m in Sources */ = {isa = PBXBuildFile; fileRef = DAA905CD11A359F10030B119 /* TiMediaItem.m */; };
 		DAA905CF11A35A010030B119 /* TiMediaMusicPlayer.m in Sources */ = {isa = PBXBuildFile; fileRef = DA864E3111A2314A00B9CD68 /* TiMediaMusicPlayer.m */; };
 		DAA905D011A35A010030B119 /* TiMediaItem.m in Sources */ = {isa = PBXBuildFile; fileRef = DAA905CD11A359F10030B119 /* TiMediaItem.m */; };
+		DABDEB07128B5A8F00C85FEA /* AudioStreamerBC.m in Sources */ = {isa = PBXBuildFile; fileRef = DA9FF580128A1F3600457759 /* AudioStreamerBC.m */; };
+		DABDEB08128B5A8F00C85FEA /* AudioStreamerCUR.m in Sources */ = {isa = PBXBuildFile; fileRef = DA9FF582128A1F3600457759 /* AudioStreamerCUR.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -3045,6 +3047,8 @@
 				D4AB36F6123DE20200DED4A0 /* TiUIClipboardProxy.m in Sources */,
 				B473FBA5126FB2DF00E29C73 /* TiPublicAPI.m in Sources */,
 				B48050201278AB170030AA3F /* TiThreading.m in Sources */,
+				DABDEB07128B5A8F00C85FEA /* AudioStreamerBC.m in Sources */,
+				DABDEB08128B5A8F00C85FEA /* AudioStreamerCUR.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
