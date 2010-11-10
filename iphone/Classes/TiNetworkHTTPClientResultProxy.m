@@ -10,6 +10,7 @@
 #import "KrollMethod.h"
 #import "KrollMethodDelegate.h"
 #import "KrollPropertyDelegate.h"
+#import "TiUtils.h"
 
 @implementation TiNetworkHTTPClientResultProxy
 
@@ -28,10 +29,20 @@
 
 -(void)makeDynamicProperty:(SEL)selector key:(NSString*)key
 {
-	if ([delegate status] == [delegate DONE]) {
+	if ([delegate readyState] == [delegate DONE]) {
 		// Solidify arguments when we're DONE so that the response info can be released
+		// ... But be wary of exceptions from DOM parsing.  We might be violating the XHR standard here, as well.
+		id value = nil;
+		@try {
+			value = [delegate valueForKey:key];
+		}
+		@catch (NSException* e) {
+			// TODO: Fail silently for now; should only affect XML.  Come back when we standardize to XHR
+			//NSLog(@"[ERROR] Exception getting property %@: %@", key, [TiUtils exceptionMessage:e]);
+			value = [NSNull null];
+		}
 		pthread_rwlock_wrlock(&dynpropsLock);
-		[dynprops setObject:[delegate valueForUndefinedKey:key] forKey:key];
+		[dynprops setObject:value forKey:key];
 		pthread_rwlock_unlock(&dynpropsLock);
 	}
 	else {
@@ -79,13 +90,19 @@
 	return self;
 }
 
--(void)dealloc
+-(void)_destroy
 {
 	pthread_rwlock_wrlock(&dynpropsLock);
 	[dynprops removeAllObjects];
 	pthread_rwlock_unlock(&dynpropsLock);
 	
 	RELEASE_TO_NIL(delegate);
+	[super _destroy];
+}
+
+-(void)dealloc
+{
+	[self _destroy];
 	[super dealloc];
 }
 
