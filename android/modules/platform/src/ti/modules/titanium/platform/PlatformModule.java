@@ -139,6 +139,11 @@ public class PlatformModule extends KrollModule
 	}
 	
 	@Kroll.getProperty @Kroll.method
+	public String getAddress() {
+		return TiPlatformHelper.getAddress();
+	}
+	
+	@Kroll.getProperty @Kroll.method
 	public String getId() {
 		return TiPlatformHelper.getMobileId();
 	}
