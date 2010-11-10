@@ -1,8 +1,11 @@
-package ti.modules.titanium.ui.android;
+package org.appcelerator.titanium.util;
+
+import java.util.HashMap;
 
 import org.appcelerator.titanium.TiApplication;
 
 import android.util.Log;
+import android.util.Pair;
 
 /*
  * A Class which allows us to pull resource integers 
@@ -11,6 +14,9 @@ import android.util.Log;
  */
 public class TiRHelper {
 	private static final String LCAT = "TiRHelper";
+	
+	private static HashMap<String, Class<?>>                       clsCache = new HashMap<String, Class<?>>();
+	private static HashMap<Pair<TiRHelper.RType, String>, Integer> valCache = new HashMap<Pair<TiRHelper.RType, String>, Integer>();
 	
 	public static final class ResourceNotFoundException extends ClassNotFoundException {
 		private static final long serialVersionUID = 119234857198273641L;
@@ -27,6 +33,11 @@ public class TiRHelper {
 	}
 	
 	public static int getResource(RType type, String path) throws ResourceNotFoundException {
+		// Check the cache for this value
+		Pair<TiRHelper.RType, String> tp = new Pair<TiRHelper.RType, String>(type, path);
+		Integer i = valCache.get(tp);
+		if (i != null) return i;
+		
 		// Figure out what the base classname is based on the type of R we will query
 		String classname = "";
 		String fieldname = "";
@@ -48,14 +59,28 @@ public class TiRHelper {
 			fieldname = path.substring(path.lastIndexOf('.')+1);
 		}
 
-	
-		// Get the resource int id
+		// Get the Class, from the cache if possible
+		Class<?> cls = clsCache.get(classname);
+		if (cls == null) {
+			try {
+				cls = Class.forName(classname);
+				clsCache.put(classname, cls);
+			} catch (ClassNotFoundException e) {
+				Log.w(LCAT, "Unable to find resource: " + e.getMessage());
+				throw new TiRHelper.ResourceNotFoundException(path);
+			}
+		}
+		
+		// Load the field
 		try {
-			return Class.forName(classname).getDeclaredField(fieldname).getInt(null);
+			i = cls.getDeclaredField(fieldname).getInt(null);
 		} catch (Exception e) {
 			Log.w(LCAT, "Unable to find resource: " + e.getMessage());
-			throw new ResourceNotFoundException(path);
+			throw new TiRHelper.ResourceNotFoundException(path);
 		}
+		
+		valCache.put(tp, i);
+		return i;
 	}
 	
 	public static int getResource(String path) throws ResourceNotFoundException {
@@ -65,5 +90,9 @@ public class TiRHelper {
 		catch (ResourceNotFoundException e) {
 			return getResource(RType.ANDROID, path);
 		}
+	}
+	
+	public static int getString(String path) throws ResourceNotFoundException {
+		return getResource("string." + path);
 	}
 }
