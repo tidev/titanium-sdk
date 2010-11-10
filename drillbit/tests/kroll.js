@@ -39,5 +39,30 @@ describe("Kroll tests",
 		
 		var path = x.customMethod();
 		valueOf(path).shouldBe(x.getNativePath());
+	},
+	
+	customObjects: function() {
+		// ensure custom objects work when wrapped/unwrapped by Kroll
+		// https://appcelerator.lighthouseapp.com/projects/32238/tickets/2027-android-weird-behavior-when-setting-custom-sub-properties-on-proxies
+		var view = Ti.UI.createView();
+		view.customObj = "hello";
+		valueOf(view.customObj).shouldBe("hello");
+		view.customObj = {};
+		view.customObj.test = "hello";
+		valueOf(view.customObj.test).shouldBe("hello");
+		view.customObj = { test: "hello" };
+		valueOf(view.customObj.test).shouldBe("hello");
+		
+		var X = function() { this.y = 1; };
+		X.prototype.getY = function() {
+			return this.y;
+		};
+
+		var x = new X();
+		var row = Ti.UI.createTableViewRow();
+		row.x = x;
+
+		valueOf(x.getY()).shouldBe(1);
+		valueOf(row.x.getY()).shouldBe(1);
 	}
 });

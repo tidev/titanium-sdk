@@ -205,13 +205,16 @@ var sdkBuildTriggers = [
 AndroidEmulator.prototype.isBuildTrigger = function(triggers, path) {
 	// file triggers
 	if (triggers.indexOf(path) != -1) {
+		ti.api.debug("file build trigger found: " + path);
 		return true;
 	}
 	
 	// directory triggers
 	for (var i = 0; i < triggers.length; i++) {
 		var trigger = triggers[i];
-		if (path.indexOf(trigger) != -1) {
+		// starts with the directory
+		if (path.indexOf(trigger) == 0) {
+			ti.api.debug("dir build trigger found, dir:" + trigger + ", trigger: " + path);
 			return true;
 		}
 	}
