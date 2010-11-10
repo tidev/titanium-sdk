@@ -1,6 +1,11 @@
+/**
+ * Appcelerator Titanium Mobile
+ * Copyright (c) 2010 by Appcelerator, Inc. All Rights Reserved.
+ * Licensed under the terms of the Apache Public License
+ * Please see the LICENSE included with this distribution for details.
+ */
 package org.appcelerator.kroll;
 
-import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
@@ -9,7 +14,8 @@ import java.util.TreeSet;
 
 import org.mozilla.javascript.Scriptable;
 
-// An implementation of KrollDict that is backed by a Rhino Scriptable
+// An implementation of KrollDict backed by a Rhino Scriptable
+@SuppressWarnings("serial")
 public class KrollScriptableDict extends KrollDict {
 	protected Scriptable scriptable;
 	
