@@ -95,4 +95,8 @@ public class TiRHelper {
 	public static int getString(String path) throws ResourceNotFoundException {
 		return getResource("string." + path);
 	}
+
+	public static int getDrawable(String path) throws ResourceNotFoundException {
+		return getResource("drawable." + path);
+	}
 }
