@@ -23,7 +23,7 @@ import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiAnimationBuilder;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiConvert;
-import org.appcelerator.titanium.util.TiResourceHelper;
+import org.appcelerator.titanium.util.TiRHelper;
 import org.appcelerator.titanium.view.TiAnimation;
 import org.appcelerator.titanium.view.TiUIView;
 
@@ -104,11 +104,10 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 					String convertKey = (String) langTable.get(key);
 					String langKey = (String) options.get(convertKey);
 					if (langKey != null) {
-						int value = TiResourceHelper.getString(langKey);
-						if (value != 0) {
-							String convertValue = activity.getString(value);
-							options.put(key, convertValue);
+						try {
+							options.put(key, activity.getString(TiRHelper.getString(langKey)));
 						}
+						catch (TiRHelper.ResourceNotFoundException e) {}
 					}
 				}
 			}

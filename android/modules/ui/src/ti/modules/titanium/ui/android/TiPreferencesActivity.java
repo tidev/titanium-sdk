@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.preference.PreferenceActivity;
 
 import org.appcelerator.titanium.TiApplication;
+import org.appcelerator.titanium.util.TiRHelper;
 
 public class TiPreferencesActivity extends PreferenceActivity {
 	private static final String DEFAULT_PREFS_RNAME = "preferences";

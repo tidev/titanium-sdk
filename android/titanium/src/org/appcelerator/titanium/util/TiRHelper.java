@@ -7,7 +7,6 @@ import java.util.Map;
 import org.appcelerator.titanium.TiApplication;
 
 import android.util.Log;
-import android.util.Pair;
 
 /*
  * A Class which allows us to pull resource integers 
@@ -17,10 +16,8 @@ import android.util.Pair;
 public class TiRHelper {
 	private static final String LCAT = "TiRHelper";
 	
-	private static Map<String, Class<?>> clsCache = 
-		Collections.synchronizedMap(new HashMap<String, Class<?>>());
-	private static Map<Pair<TiRHelper.RType, String>, Integer> valCache = 
-		Collections.synchronizedMap(new HashMap<Pair<TiRHelper.RType, String>, Integer>());
+	private static Map<String, Class<?>> clsCache = Collections.synchronizedMap(new HashMap<String, Class<?>>());
+	private static Map<String, Integer>  valCache = Collections.synchronizedMap(new HashMap<String, Integer>());
 	
 	public static final class ResourceNotFoundException extends ClassNotFoundException {
 		private static final long serialVersionUID = 119234857198273641L;
@@ -38,7 +35,7 @@ public class TiRHelper {
 	
 	public static int getResource(RType type, String path) throws ResourceNotFoundException {
 		// Check the cache for this value
-		Pair<TiRHelper.RType, String> tp = new Pair<TiRHelper.RType, String>(type, path);
+		String tp = type.toString() + "/" + path;
 		Integer i = valCache.get(tp);
 		if (i != null) return i;
 		
