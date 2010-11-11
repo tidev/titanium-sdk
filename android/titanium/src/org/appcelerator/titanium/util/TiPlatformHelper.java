@@ -245,7 +245,7 @@ public class TiPlatformHelper
 	                }
 	            }
 	        }
-	    } catch (SocketException ex) {
+	    } catch (Exception ex) {
 			if (DBG) {
 				Log.d(LCAT, ex.toString());
 			}
