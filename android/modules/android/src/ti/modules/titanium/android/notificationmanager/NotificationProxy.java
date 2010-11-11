@@ -59,7 +59,7 @@ public class NotificationProxy extends KrollProxy
 					Log.d(LCAT, "Resolved Icon URL: " + iconFullUrl);
 				}
 				
-				iconId = TiUIHelper.getResourceId(getTiContext(), iconFullUrl);
+				iconId = TiUIHelper.getResourceId(iconFullUrl);
 				if (iconId == 0) {
 					Log.w(LCAT, "No image found for " + iconUrl);
 				}

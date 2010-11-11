@@ -519,7 +519,7 @@ public class TiUIHelper
 		return sResult;
 	}
 	
-	public static int getResourceId(TiContext context, String url)
+	public static int getResourceId(String url)
 	{
 		if (!url.contains("Resources/images/")) {
 			return 0;
@@ -532,21 +532,26 @@ public class TiUIHelper
 		
 		return TiResourceHelper.getDrawable(key);
 	}
-
+	
 	public static Bitmap getResourceBitmap(TiContext context, String url)
 	{
-		int id = getResourceId(context, url);
+		int id = getResourceId(url);
 		if (id == 0) {
 			return null;
+		} else {
+			return getResourceBitmap(context, id);
 		}
-
+	}
+	
+	public static Bitmap getResourceBitmap(TiContext context, int res_id)
+	{
 		BitmapFactory.Options opts = new BitmapFactory.Options();
 		opts.inPurgeable = true;
 		opts.inInputShareable = true;
 		
 		Bitmap bitmap = null;
 		try {
-			bitmap = BitmapFactory.decodeResource(context.getActivity().getResources(), id, opts);
+			bitmap = BitmapFactory.decodeResource(context.getActivity().getResources(), res_id, opts);
 		} catch (OutOfMemoryError e) {
 			Log.e(LCAT, "Unable to load bitmap. Not enough memory: " + e.getMessage());
 		}
@@ -555,12 +560,17 @@ public class TiUIHelper
 	
 	public static Drawable getResourceDrawable(TiContext context, String url)
 	{
-		int id = getResourceId(context, url);
+		int id = getResourceId(url);
 		if (id == 0) {
 			return null;
 		}
 		
-		return context.getActivity().getResources().getDrawable(id);
+		return getResourceDrawable(context, id);
+	}
+	
+	public static Drawable getResourceDrawable(TiContext context, int res_id)
+	{
+		return context.getActivity().getResources().getDrawable(res_id);
 	}
 	
 	
