@@ -35,7 +35,7 @@ NSString* const DATA_IFACE = @"pdp_ip0";
 		name = [[theDevice systemName] retain];
 		version = [[theDevice systemVersion] retain];
 		processorCount = [[NSNumber numberWithInt:1] retain];
-		username = [theDevice name];
+		username = [[theDevice name] retain];
 		ostype = [@"32bit" retain];
 		
 		if ([TiUtils isIPad])

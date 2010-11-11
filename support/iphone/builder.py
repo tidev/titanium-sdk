@@ -28,6 +28,36 @@ ignoreDirs = ['.git','.svn', 'CVS']
 # need this so unicode works
 sys.stdout = codecs.getwriter('utf-8')(sys.stdout)
 
+def version_sort(a,b):
+	x = float(a[0:3]) # ignore more than 2 places
+	y = float(b[0:3]) # ignore more than 2 places
+	if x > y:
+		return -1
+	if x < y:
+		return 1
+	return 0
+
+def check_iphone_sdk(s):
+	found = []
+	output = run.run(["xcodebuild","-showsdks"],True,False)
+	#print output
+	if output:
+		for line in output.split("\n"):
+			if line[0:1] == '\t':
+				line = line.strip()
+				i = line.find('-sdk')
+				if i < 0: continue
+				type = line[0:i]
+				cmd = line[i+5:]
+				if cmd.find("iphoneos")==0:
+					ver = cmd[8:]
+					found.append(ver)
+	# The sanity check doesn't have to be as thorough as prereq.
+	if s in found:
+		return s
+	# Sanity check failed. Let's find something close.
+	return sorted(found,version_sort)[0]
+
 def dequote(s):
 	if s[0:1] == '"':
 		return s[1:-1]
@@ -287,7 +317,7 @@ def main(args):
 				deploytype = 'test'
 			else:
 				# non-simulator + release build indicates package for distribution
-				deploytype = 'production' 
+				deploytype = 'production'
 		compiler = Compiler(project_dir,appid,name,deploytype,xcode_build,devicefamily,iphone_version)
 		script_ok = True
 		sys.exit(0)
@@ -297,7 +327,7 @@ def main(args):
 				print "Usage: %s run <project_dir> [ios_version]" % os.path.basename(args[0])
 				sys.exit(1)
 			if argc == 3:
-				iphone_version = '4.0'
+				iphone_version = check_iphone_sdk('4.0')
 			else:
 				iphone_version = dequote(args[3].decode("utf-8"))
 			project_dir = os.path.expanduser(dequote(args[2].decode("utf-8")))
@@ -337,6 +367,7 @@ def main(args):
 			
 		
 		if command == 'distribute':
+			iphone_version = check_iphone_sdk(iphone_version)
 			appuuid = dequote(args[6].decode("utf-8"))
 			dist_name = dequote(args[7].decode("utf-8"))
 			output_dir = os.path.expanduser(dequote(args[8].decode("utf-8")))
@@ -352,6 +383,7 @@ def main(args):
 			if argc > 6:
 				devicefamily = dequote(args[6].decode("utf-8"))
 		elif command == 'install':
+			iphone_version = check_iphone_sdk(iphone_version)
 			appuuid = dequote(args[6].decode("utf-8"))
 			dist_name = dequote(args[7].decode("utf-8"))
 			if argc > 8:
