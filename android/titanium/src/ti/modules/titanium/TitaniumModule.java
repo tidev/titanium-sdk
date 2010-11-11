@@ -280,7 +280,7 @@ public class TitaniumModule extends KrollModule implements TiContext.OnLifecycle
 	{
 		String key = (String) args[0];
 		try {
-			return invocation.getTiContext().getActivity().getString(TiRHelper.getString(key));
+			return invocation.getTiContext().getActivity().getString(TiRHelper.getResource("string." + key));
 		}
 		catch (TiRHelper.ResourceNotFoundException e) {
 			return args.length > 1 ? (String) args[1] : null;

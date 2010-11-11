@@ -68,8 +68,4 @@ public class TiRHelper {
 		valCache.put(path, i);
 		return i;
 	}
-	
-	public static int getString(String path) throws ResourceNotFoundException {
-		return getResource("string." + path);
-	}
 }

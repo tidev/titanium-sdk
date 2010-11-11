@@ -82,7 +82,7 @@ public class LocaleModule extends KrollModule
 	public String getString(KrollInvocation invocation, String key, @Kroll.argument(optional=true) String defaultValue)
 	{
 		try {
-			return invocation.getTiContext().getActivity().getString(TiRHelper.getString(key));
+			return invocation.getTiContext().getActivity().getString(TiRHelper.getResource("string." + key));
 		} catch (TiRHelper.ResourceNotFoundException e) {
 			return defaultValue;
 		}
