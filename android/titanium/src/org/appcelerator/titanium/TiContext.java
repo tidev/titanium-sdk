@@ -516,6 +516,10 @@ public class TiContext implements TiEvaluator, ITiMenuDispatcherListener, ErrorR
 			Log.w(LCAT, "Wanted to display an alert dialog in Javascript, but activity is finished.  Details: " + title  + " / " + message + " / " + sourceName + " / " + line + " / " + lineSource);
 			return;
 		}
+		Log.e(LCAT, "Rhino Error: " + sourceName + ":" + line + "," + lineOffset);
+		Log.e(LCAT, " Message: " + message);
+		Log.e(LCAT, " Source: " + lineSource);
+		
 		activity.runOnUiThread(new Runnable(){
 
 			@Override

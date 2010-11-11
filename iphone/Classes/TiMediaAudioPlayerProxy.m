@@ -9,6 +9,7 @@
 #import "TiMediaAudioPlayerProxy.h"
 #import "TiUtils.h"
 #import "TiMediaAudioSession.h"
+#include <AudioToolbox/AudioToolbox.h>
 
 @implementation TiMediaAudioPlayerProxy
 

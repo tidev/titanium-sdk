@@ -36,7 +36,10 @@ b1.addEventListener('click', function()
 
 		var filename = Titanium.Platform.name == 'android' ? 'test.png' : 'test.pdf';
 		var f = Titanium.Filesystem.getFile(Titanium.Filesystem.applicationDataDirectory,filename);
-		f.write(this.responseData);
+		if (Titanium.Platform.name == 'android') {
+			f.write(this.responseData);
+		}
+
 		var wv = Ti.UI.createWebView({
 			url:f.nativePath,
 			bottom:0,
@@ -62,6 +65,7 @@ b1.addEventListener('click', function()
 		c.open('GET', 'http://www.appcelerator.com/wp-content/uploads/2009/06/titanium_desk.png');
 	} else {
 		c.open('GET','http://www.appcelerator.com/assets/The_iPad_App_Wave.pdf');
+		c.file = Titanium.Filesystem.getFile(Titanium.Filesystem.applicationDataDirectory,'test.pdf');
 	}
 
 	// send the data

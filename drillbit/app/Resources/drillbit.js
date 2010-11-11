@@ -8,12 +8,12 @@ var TFS = Titanium.Filesystem;
 var TA  = Titanium.App;
 var Drillbit = Titanium.Drillbit;
 
-var run_link_disabled = false;
+var runLinkDisabled = false;
 var frontend = {
 	passed: 0, failed: 0,
 	
 	setup_finished: function() {
-		run_link_disabled = false;
+		runLinkDisabled = false;
 		$("#run-link").removeClass("disabled");
 	},
 	
@@ -30,7 +30,8 @@ var frontend = {
 	
 	test_platform_status: function(name, classname, platform)
 	{
-		var el = $('#suite_'+name+'_'+platform+'_status');
+		var id = genSuiteId(name);
+		var el = $('#'+id+'_'+platform+'_status');
 		el.html(classname);
 		el.removeClass('untested').removeClass('failed').removeClass('running')
 			.removeClass('passed').removeClass('init').addClass(classname.toLowerCase());
@@ -38,7 +39,8 @@ var frontend = {
 	
 	test_status: function(name, classname)
 	{
-		$('#suite_'+name).removeClass('suite-untested').removeClass('suite-failed')
+		var id = genSuiteId(name);
+		$('#'+id).removeClass('suite-untested').removeClass('suite-failed')
 			.removeClass('suite-running').removeClass('suite-passed').addClass('suite-'+classname.toLowerCase());
 	},
 	
@@ -98,12 +100,12 @@ var frontend = {
 	all_finished: function()
 	{
 		$("#run-link").removeClass("disabled");
-		run_link_disabled = false;
+		runLinkDisabled = false;
 		$('#current-test').html('<b>Finished.</b> Took ' + Drillbit.testDuration + 's');
 	}
 };
 
-function show_test_details(name)
+function showTestDetails(name)
 {
 	var w = Titanium.UI.currentWindow.createWindow();
 	w.setHeight(600);
@@ -112,7 +114,7 @@ function show_test_details(name)
 	w.open();
 }
 
-function toggle_test_includes()
+function toggleTestIncludes()
 {	
 	$.each($("img.platform-check"),function()
 	{
@@ -127,24 +129,12 @@ function toggle_test_includes()
 	});
 }
 
-function select_tests(tests)
-{
-	// clear the table
-	$("div.suites img").attr('src', 'images/check_off.png');
-	
-	//select tests
-	for (var t = 0; t < tests.length; t++) {
-		var test = tests[t];
-		$('#suite_'+test+' img').attr('src', 'images/check_on.png');
-	}
-}
-
-function clear_current_test()
+function clearCurrentTest()
 {
 	$('#current-test').html('<span style="color: #ccc">&lt;no tests currently running&gt;</span>')	
 }
 
-function reset_all()
+function resetAll()
 {	
 	$('img.platform-check').attr('src', 'images/check_on.png');
 	$('div[id^=suite_]').removeClass().addClass('suite');
@@ -152,26 +142,27 @@ function reset_all()
 	$('#assertion-count').html('0 assertions');
 	$('#passed-count').html('<img src="images/check_on.png"/>&nbsp;&nbsp;0 passed');
 	$('#failed-count').html('<img src="images/check_off.png"/>&nbsp;&nbsp;0 failed');
-	clear_current_test();
+	clearCurrentTest();
 	Drillbit.reset();
 }
 
-var tests = {};
-$(window).ready(function()
-{
-	Drillbit.runTestsAsync = true;
-	Drillbit.frontend = frontend;
-	Drillbit.window = window;
-	
-	clear_current_test();
+var suiteIds = {};
+function genSuiteId(suite) {
+	var id = "suite_" + suite.replace(/\./g, "_").replace(/\#/g, "_");
+	suiteIds[id] = suite;
+	return id;
+}
+
+function initUI() {
+	clearCurrentTest();
 	$("#test-count").html(Drillbit.totalTests + ' tests in ' + Drillbit.totalFiles + ' files');
 	
 	var suites_html = '';
 	Drillbit.testNames.forEach(function(name) {
 		var entry = Drillbit.tests[name];
-	
+		var id = genSuiteId(name);
 		suites_html +=
-		'<div class="suite" id="suite_'+name+'">'+
+		'<div class="suite" id="'+id+'">'+
 			'<span class="suite-name">'+name+'</span><br/>'+
 			'<span class="description">'+entry.description+'</span><br/>'+
 			'<div class="suite-status">';
@@ -179,7 +170,7 @@ $(window).ready(function()
 		entry.platforms.forEach(function(platform) {
 			suites_html += '<div class="'+platform+'-status platform-status">'+
 				'<img class="'+platform+'-check platform-check" src="images/check_on.png"/>'+
-				'<img src="images/'+platform+'.png"/><span id="suite_'+name+'_'+platform+'_status" class="untested">untested</span></div>';
+				'<img src="images/'+platform+'.png"/><span id="'+id+'_'+platform+'_status" class="untested">untested</span></div>';
 		});
 			
 		suites_html += '</div></div>';
@@ -196,30 +187,79 @@ $(window).ready(function()
 	});
 	$('div[id^=suite_]').dblclick(function()
 	{
-		var suite_name = $(this).attr('id').substr(6);
-		show_test_details(suite_name);
+		var suite = suiteIds[$(this).attr('id')];
+		showTestDetails(suite);
+	});
+}
+
+function reloadUI() {
+	// try to preserve checkbox state
+	var checks = {};
+	$.each($("img.platform-check"), function() {
+		var platformClass = $(this).attr("class");
+		var platform = platformClass.substring(0, platformClass.indexOf('-'));
+		
+		var suiteDivId = $(this).parent().parent().parent().attr("id");
+		var suite = suiteIds[suiteDivId];
+		if (!(suiteDivId in checks)) {
+			checks[suiteDivId] = {};
+		}
+		var checked = $(this).attr('src').indexOf('check_on') != -1;
+		checks[suiteDivId][platform] = checked;
 	});
 	
-	var run_link = $('#run-link');
+	initUI();
+	for (var suiteId in checks) {
+		for (var platform in checks[suiteId]) {
+			var check = $('#'+suiteId+'>div.suite-status>div>img.'+platform+'-check');
+			var checked = checks[suiteId][platform];
+			var src = checked ? 'images/check_on.png' : 'images/check_off.png';
+			Titanium.API.debug("set src: " + suiteId + "/" + platform + "="+src);
+			$(check).attr('src', src);
+		}
+	}
+}
+
+function reloadTests() {
+	Drillbit.rescan();
+	reloadUI();
+}
+
+$(window).ready(function()
+{
+	if ('webConsole' in Drillbit.argv) {
+		Titanium.UI.currentWindow.showInspector(true);
+	}
+
+	Drillbit.runTestsAsync = true;
+	Drillbit.frontend = frontend;
+	Drillbit.window = window;
+	initUI();
+	
+	var runLink = $('#run-link');
 	$('#toggle-link').click(function() {
-		toggle_test_includes();
+		toggleTestIncludes();
 	});
 	$('#reset-link').click(function() {
-		reset_all();
+		resetAll();
+	});
+	$('#reload-link').click(function() {
+		reloadTests();
 	});
 	
-	run_link.click(function ()
+	runLink.click(function ()
 	{
-		if (!run_link_disabled)
+		if (!runLinkDisabled)
 		{
-			Drillbit.reset();
-			run_link_disabled = true;
+			reloadTests();
+			
+			runLinkDisabled = true;
 			$("#run-link").addClass("disabled");
 			
 			var tests = [];
 			$.each($('div[id^=suite_]'),function()
 			{
-				var name = $(this).attr('id').substr(6);
+				var name = suiteIds[$(this).attr('id')];
 				frontend.test_status(name, 'untested');
 				
 				var test = {suite: name, tests: 'all', platforms: []};
@@ -227,7 +267,9 @@ $(window).ready(function()
 				$(this).find('div.suite-status > div > img[class$=\'-check\']').each(function() {
 					if ($(this).attr('src').indexOf('check_on') != -1) {
 						var className = $(this).attr('class');
-						test.platforms.push(className.substring(0, className.indexOf('-')));
+						var platform = className.substring(0, className.indexOf('-'));
+						Titanium.API.debug("checked: " + name + " platform: " + platform);
+						test.platforms.push(platform);
 						add_test = true;
 					}
 				});
@@ -236,6 +278,7 @@ $(window).ready(function()
 				}
 			});
 			
+			Titanium.API.debug("running tests: " + tests.length);
 			Drillbit.runTests(tests, true);
 		}
 		else
@@ -244,32 +287,20 @@ $(window).ready(function()
 		}
 	});
 	
-	// if you pass in --autorun, just go ahead and start
-	for (var c=0;c<Titanium.App.arguments.length;c++)
-	{
-		var arg = Titanium.App.arguments[c];
-		
-		if (arg == '--autorun')
-		{
-			run_link.click();
-		}
-		else if (arg == '--autoclose')
-		{
-			Drillbit.autoClose = true;
-		}
-		else if (arg == '--debug-tests')
-		{
-			Drillbit.debugTests = true;
-		}
-		else if (arg == '--console')
-		{
-			Titanium.UI.currentWindow.showInspector(true);
-		}
-		else if (arg.indexOf('--tests=')==0)
-		{
-			specific_tests = arg.substring(8).split(',');
-			select_tests(specific_tests);
-		}
+	if ('tests' in Drillbit.argv) {
+		toggleTestIncludes();
+		Drillbit.argv.tests.split(",").forEach(function(test) {
+			var suiteId = genSuiteId(test);
+			$('#'+suiteId+'>div.suite-status>div>img.platform-check').attr('src', 'images/check_on.png');
+		});
+	}
+	
+	if ('autoclose' in Drillbit.argv) {
+		Drillbit.autoClose = true;
+	}
+	
+	if ('autorun' in Drillbit.argv) {
+		runLink.click();
 	}
 });
 

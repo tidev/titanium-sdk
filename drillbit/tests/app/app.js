@@ -1,4 +1,4 @@
-describe("test tiapp.xml against API", {
+describe("Ti.App tests", {
 	test_custom_values: function() {
 		valueOf(Ti.App.id).shouldBe('org.appcelerator.titanium.testharness');
 		valueOf(Ti.App.name).shouldBe('test_harness');

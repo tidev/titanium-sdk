@@ -8,6 +8,9 @@
  * Delegates to a "frontend" object to show status
  */
 var ti = Ti = Titanium;
+// This should always list all available test platforms
+var ALL_PLATFORMS = ['android', 'iphone'];
+
 Drillbit = function() {
 	this.module = ti.api.findModule('drillbit', '0.1.0');
 	this.frontend = null;
@@ -39,6 +42,7 @@ Drillbit = function() {
 	this.currentPassed = 0;
 	this.currentFailed = 0;
 	this.currentTimer = 0;
+	this.sdkTimestamp = null;
 	
 	this.resultsDir = ti.fs.getFile(ti.path.fromurl('app://test_results'));
 	this.initPython();
@@ -84,16 +88,20 @@ Drillbit.prototype.processArgv = function() {
 		ti.app.exit(1);
 	}
 	
+	if ('mobileRepository' in this.argv) {
+		this.mobileRepository = this.argv.mobileRepository;
+	}
+	
 	this.extraTests = [];
-	if ('tests' in this.argv) {
-		if (Array.isArray(this.argv.tests)) {
-			this.extraTests = this.argv.tests;
+	if ('testsDir' in this.argv) {
+		if (Array.isArray(this.argv.testsDir)) {
+			this.extraTests = this.argv.testsDir;
 		} else {
-			this.extraTests = [this.argv.tests];
+			this.extraTests = [this.argv.testsDir];
 		}
 	}
-	if ('DRILLBIT_TESTS' in env) {
-		this.extraTests = this.extraTests.concat(env['DRILLBIT_TESTS'].split(ti.path.pathsep));
+	if ('DRILLBIT_TESTS_DIR' in env) {
+		this.extraTests = this.extraTests.concat(env['DRILLBIT_TESTS_DIR'].split(ti.path.pathsep));
 	}
 	
 	if ('resultsDir' in this.argv) {
@@ -109,7 +117,7 @@ Drillbit.prototype.initPlatforms = function() {
 	var platformsArg = 'platforms' in this.argv ? this.argv.platforms.split(',') : null;
 	
 	if (ti.Platform.isOSX()) {
-		if (platformsArg == null || platformsArg.contains('iphone')) {
+		if (platformsArg == null || platformsArg.indexOf('iphone') != -1) {
 			// Default to 4.0 iPhone SDK
 			var iphoneVersion = 'iphoneVersion' in this.argv ? this.argv.iphoneVersion : "4.0";
 			ti.api.info('Adding iPhone SDK to list of drillbit target platforms: ' + iphoneVersion);
@@ -120,7 +128,7 @@ Drillbit.prototype.initPlatforms = function() {
 		}
 	}
 	
-	if (platformsArg == null || platformsArg.contains('android')) {
+	if (platformsArg == null || platformsArg.indexOf('android') != -1) {
 		// Try to detect the Android SDK
 		var androidSdkScript = ti.path.join(this.mobileSdk, 'android', 'androidsdk.py');
 		var androidSdk = 'androidSdk' in this.argv ? this.argv.androidSdk : '-';
@@ -226,10 +234,12 @@ Drillbit.prototype.frontendDo = function()
 	}
 };
 
-Drillbit.prototype.findLine = function(needle, haystack)
+Drillbit.prototype.findLine = function(needle, haystack, fromIndex)
 {
+	fromIndex = fromIndex || 0;
+	
 	var lines = haystack.split('\n');
-	for (var i = 0; i < lines.length; i++)
+	for (var i = fromIndex; i < lines.length; i++)
 	{
 		if (needle.test(lines[i]))
 		{
@@ -247,7 +257,7 @@ Drillbit.prototype.findLine = function(needle, haystack)
 
 Drillbit.prototype.describe = function(description, test)
 {
-	ti.api.debug('describing test: ' + description);
+	ti.api.debug('describing test: ' + description + ', test = ' + test);
 	this.loadingTest.description = description;
 	this.loadingTest.test = test;
 	this.loadingTest.lineOffsets = {};
@@ -256,19 +266,30 @@ Drillbit.prototype.describe = function(description, test)
 	this.loadingTest.assertionCount = 0;
 	var testSource = this.loadingTest.sourceFile.read().toString();
 	
-	for (var p in test)
-	{
-		if (this.excludes.indexOf(p)==-1)
-		{
+	for (var p in test) {
+		if (this.excludes.indexOf(p)==-1) {
 			var fn = test[p];
-			if (typeof fn == 'function')
-			{
+			if (typeof fn == 'function') {
 				this.totalTests++;
 				this.loadingTest.assertionCount++;
 				this.loadingTest.assertions[p] = false;
 				
 				var r = new RegExp(p+" *: *function *\\(");
 				this.loadingTest.lineOffsets[p] = this.findLine(r, testSource);
+			} else if (fn instanceof AsyncTest) {
+				this.totalTests++;
+				this.loadingTest.assertionCount++;
+				this.loadingTest.assertions[p] = false;
+				
+				if (typeof(fn.args) == 'function') {
+					var r = new RegExp(p+" *: *asyncTest *\\( *function *\\(");
+					this.loadingTest.lineOffsets[p] = this.findLine(r, testSource);
+				} else if (typeof(fn.args.start) == 'function') {
+					var objectRegex = new RegExp(p+" *: *asyncTest *\\( *\\{");
+					var startRegex = new RegExp("start *: *function *\\(");
+					var objectStart = this.findLine(objectRegex, testSource);
+					this.loadingTest.lineOffsets[p] = this.findLine(startRegex, testSource, objectStart);
+				}
 			}
 		}
 	}
@@ -277,7 +298,38 @@ Drillbit.prototype.describe = function(description, test)
 	this.loadingTest = null;
 };
 
-Drillbit.prototype.loadTestFile = function(testFile, platform)
+// This API is just a wrapper, the real asyncTest lives in drillbitTest.js
+function AsyncTest(args) {
+	this.args = args;
+	this.async = true;
+	if (typeof(args) == 'function') {
+		this.source = String(args);
+	} else {
+		this.source = "{\n";
+		var keys = Object.keys(args);
+		keys.forEach(function(key, index) {
+			var obj = args[key];
+			var src = typeof(obj) == 'function' ? String(obj) : JSON.stringify(obj);
+			this.source += key + ": " + src;
+			if (index < keys.length - 1) {
+				this.source += ",\n";
+			} else {
+				this.source += "\n";
+			}
+		}, this);
+		this.source += "}";
+	}
+}
+
+AsyncTest.prototype.toString = function() {
+	return "asyncTest(" + this.source + ")";
+}
+
+Drillbit.prototype.asyncTest = function(args) {
+	return new AsyncTest(args);
+};
+
+Drillbit.prototype.loadTestFile = function(testFile, platform, hasDir)
 {
 	var name = testFile.name();
 	var ext = testFile.extension();
@@ -285,19 +337,23 @@ Drillbit.prototype.loadTestFile = function(testFile, platform)
 		return;
 	}
 	
+	var platformSpecific = typeof(platform) != 'undefined';
 	var testName = name.substring(0, name.indexOf('.'+ext));
 	var dir = testFile.parent().nativePath();
-	var hasDir = false;
-	if (testFile.parent().name() == testName) {
-		hasDir = true;
+	if (typeof(hasDir) == 'undefined') {
+		if (testFile.parent().name() == testName) {
+			hasDir = true;
+		} else {
+			hasDir = false;
+		}
 	}
 	
 	var entry = this.tests[name];
 	if (!entry)
 	{
-		var platforms = typeof(platform) != 'undefined' ? [platform] : this.platforms;
+		var platforms = platformSpecific ? [platform] : this.platforms;
 		Ti.API.info("found test: " + testName + ', platforms: ' + platforms + ", dir: " + dir);
-		entry = {name: testName, dir: dir, sourceFile: testFile, hasDir: hasDir, platforms: platforms};
+		entry = {name: testName, dir: dir, sourceFile: testFile, hasDir: hasDir, platforms: platforms, platformSpecific: platformSpecific};
 		this.tests[testName] = entry;
 		this.testNames.push(testName);
 	}
@@ -326,7 +382,7 @@ Drillbit.prototype.loadPlatformTestDir = function(testDir)
 		if (file.isDirectory()) {
 			this.loadTestDir(file, platform);
 		} else {
-			this.loadTestFile(file, platform);
+			this.loadTestFile(file, platform, false);
 		}
 	}
 };
@@ -348,14 +404,18 @@ Drillbit.prototype.loadTests = function(testDir)
 	var testFiles = ti.fs.getFile(testDir).getDirectoryListing();
 	for (var c = 0; c < testFiles.length; c++) {
 		var file = ti.fs.getFile(testFiles[c]);
+		var name = file.name();
 		ti.api.debug("Trying to load tests from: " + file.nativePath());
 		if (file.isDirectory()) {
-			if (this.platforms.indexOf(file.name()) != -1) {
+			if (this.platforms.indexOf(name) != -1) {
 				// platform specific tests
 				this.loadPlatformTestDir(file);
 			} else {
-				// all platforms
-				this.loadTestDir(file);
+				if (ALL_PLATFORMS.indexOf(name) == -1) {
+					this.loadTestDir(file);
+				} else {
+					ti.api.debug("Excluding " + name + " specific test: " + file.nativePath());
+				}
 			}
 		} else {
 			this.loadTestFile(file);
@@ -367,7 +427,12 @@ Drillbit.prototype.loadTests = function(testDir)
 
 Drillbit.prototype.loadAllTests = function()
 {
-	this.loadTests(ti.path.fromurl('app://tests'));
+	if (typeof(this.mobileRepository) != 'undefined') {
+		this.loadTests(ti.path.join(this.mobileRepository, 'drillbit', 'tests'));
+	} else {
+		this.loadTests(ti.path.fromurl('app://tests'));
+	}
+	
 	if (this.extraTests != null) {
 		this.extraTests.forEach(function(extraTestDir) {
 			if (ti.path.exists(extraTestDir)) {
@@ -585,6 +650,46 @@ Drillbit.prototype.runTests = function(testsToRun)
 	}
 };
 
+Drillbit.prototype.stageSDK = function() {
+	if (this.sdkTimestamp == null) {
+		var versionTxt = ti.fs.getFile(this.mobileSdk, 'version.txt').read().toString();
+		var version = {};
+		versionTxt.split(/\n/).forEach(function(line) {
+			var tokens = line.split('=');
+			version[tokens[0]] = tokens[1];
+		});
+	
+		this.sdkTimestamp = new Date(version.timestamp);
+	}
+
+	var mobileSupport = ti.path.join(this.mobileRepository, 'support');
+	
+	var stagedFiles = [];
+	var self = this;
+	// Stage support
+	ti.path.recurse(mobileSupport, function(file) {
+		var timestamp = new Date(file.modificationTimestamp());
+		if (timestamp <= this.sdkTimestamp) return;
+		
+		var relativePath = ti.path.relpath(file.nativePath(), mobileSupport);
+		var destFile = ti.fs.getFile(self.mobileSdk, relativePath);
+		
+		ti.api.debug("staging " + destFile.nativePath());
+		file.copy(destFile);
+		stagedFiles.push(destFile);
+	});
+	
+	// Ask each emulator to stage it's binaries
+	this.eachEmulator(function(emulator, platform) {
+		stagedFiles = stagedFiles.concat(emulator.stageSDK(this.sdkTimestamp));
+	});
+	
+	if (stagedFiles.length > 0) {
+		this.sdkTimestamp = new Date();
+	}
+	return stagedFiles;
+};
+
 Drillbit.prototype.stageTest = function(entry) {
 	var stagedFiles = [];
 	if (!entry.hasDir) return stagedFiles;
@@ -596,8 +701,13 @@ Drillbit.prototype.stageTest = function(entry) {
 		
 		var relativePath = ti.path.relpath(file.nativePath(), entry.dir);
 		var destFile = ti.fs.getFile(self.testHarnessDir, relativePath);
+		var parent = destFile.parent();
 		
 		ti.api.debug("copying " + file.nativePath() + " to " + destFile.nativePath());
+		if (!parent.exists()) {
+			parent.createDirectory(true);
+		}
+		
 		file.copy(destFile);
 		stagedFiles.push(destFile);
 	});
@@ -606,7 +716,7 @@ Drillbit.prototype.stageTest = function(entry) {
 
 Drillbit.prototype.runTest = function(entry)
 {
-	var data = {entry: entry, Titanium: Titanium, excludes: this.excludes, Drillbit: this};
+	var data = {entry: entry, Titanium: Titanium, excludes: this.excludes, Drillbit: this, AsyncTest: AsyncTest};
 	var testScript = this.renderTemplate(ti.path.join(this.templatesDir, 'test.js'), data);
 
 	var self = this;
@@ -618,6 +728,9 @@ Drillbit.prototype.runTest = function(entry)
 	});
 	
 	var stagedFiles = this.stageTest(entry);
+	if (typeof(this.mobileRepository) != 'undefined') {
+		stagedFiles = stagedFiles.concat(this.stageSDK());
+	}
 	
 	var profilePath = ti.fs.getFile(this.resultsDir, entry.name+'.prof');
 	var logPath = ti.fs.getFile(this.resultsDir, entry.name+'.log');
@@ -699,6 +812,18 @@ Drillbit.prototype.reset = function()
 	this.runningTests = 0;
 	this.runningCompleted = 0;
 	this.runningPassed = this.runningFailed = this.totalAssertions = 0;
+};
+
+Drillbit.prototype.rescan = function()
+{
+	this.reset();
+	this.tests = {};
+	this.testNames = [];
+	this.totalTests = 0;
+	this.totalFiles = 0;
+	this.testsStarted = 0;
+	
+	this.loadAllTests();
 };
 
 Titanium.Drillbit = new Drillbit();

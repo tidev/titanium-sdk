@@ -39,6 +39,9 @@ iPhoneSimulator.prototype.pushTestJS = function(testScript) {
 	this.testJSFile.write(testScript);
 };
 
+iPhoneSimulator.prototype.stageSDK = function(sdkTimestamp) {
+};
+
 iPhoneSimulator.prototype.runTestHarness = function(suite, stagedFiles) {
 	if (this.simulatorProcess != null) {
 		this.simulatorProcess.terminate();

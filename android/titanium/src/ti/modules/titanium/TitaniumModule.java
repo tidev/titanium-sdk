@@ -36,6 +36,7 @@ import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Scriptable;
 
 import android.app.Activity;
+import android.net.Uri;
 
 @Kroll.module @Kroll.topLevel({"Ti", "Titanium"})
 public class TitaniumModule extends KrollModule implements TiContext.OnLifecycleEvent
@@ -356,7 +357,7 @@ public class TitaniumModule extends KrollModule implements TiContext.OnLifecycle
 			}
 		}
 		
-		//the spec says we are required to through an exception
+		//the spec says we are required to throw an exception
 		Context.reportError("couldn't find module: "+path);
 		return null;
 	}

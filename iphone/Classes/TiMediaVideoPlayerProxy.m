@@ -18,6 +18,7 @@
 #import "TiViewProxy.h"
 #import "TiBlob.h"
 #import "TiMediaAudioSession.h"
+#import "TiApp.h"
 
 /** 
  * Design Notes:
@@ -1018,6 +1019,7 @@ NSArray* moviePlayerKeys = nil;
 		[event setObject:NUMBOOL(YES) forKey:@"entering"];
 		[self fireEvent:@"fullscreen" withObject:event];
 	}	
+	enterFullscreenOrientation = [[UIApplication sharedApplication] statusBarOrientation];
 }
 
 -(void)handleFullscreenExitNotification:(NSNotification*)note
@@ -1030,6 +1032,10 @@ NSArray* moviePlayerKeys = nil;
 		[event setObject:NUMBOOL(NO) forKey:@"entering"];
 		[self fireEvent:@"fullscreen" withObject:event];
 	}	
+	if (enterFullscreenOrientation != [[UIApplication sharedApplication] statusBarOrientation]) {
+		[[[TiApp app] controller] resizeView];
+		[[[TiApp app] controller] repositionSubviews];
+	}
 }
 
 -(void)handleSourceTypeNotification:(NSNotification*)note

@@ -162,7 +162,13 @@ NSString * const TI_DB_VERSION = @"1";
 	while ([rs next])
 	{
 		NSString *event = [rs stringForColumn:@"data"];
-		id frag = [json fragmentWithString:event error:nil];
+		NSError* jsonError = nil;
+		id frag = [json fragmentWithString:event error:&jsonError];
+		if (jsonError) {
+			NSLog(@"[ERROR] Problem sending analytics: %@", [jsonError localizedDescription]);
+			NSLog(@"[ERROR] Dropped event was: %@", event);
+			continue;
+		}
 		[data addObject:frag];
 	}
 	[rs close];
@@ -277,7 +283,6 @@ NSString * const TI_DB_VERSION = @"1";
 		[dict setObject:remoteDeviceUUID forKey:@"rdu"];
 	}
 
-	
 	id value = [SBJSON stringify:dict];
 	
 	NSString *sql = [NSString stringWithFormat:@"INSERT INTO pending_events VALUES (?)"];

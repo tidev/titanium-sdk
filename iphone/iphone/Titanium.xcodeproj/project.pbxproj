@@ -547,10 +547,14 @@
 		DA4E12D711C0A55F00A55BAB /* TiContactsGroup.m in Sources */ = {isa = PBXBuildFile; fileRef = DA4E12D611C0A55F00A55BAB /* TiContactsGroup.m */; };
 		DA864E3211A2314A00B9CD68 /* TiMediaMusicPlayer.m in Sources */ = {isa = PBXBuildFile; fileRef = DA864E3111A2314A00B9CD68 /* TiMediaMusicPlayer.m */; };
 		DA9BE36F127F8F6C000FE9E1 /* UIImageExtras.m in Sources */ = {isa = PBXBuildFile; fileRef = DA9BE36E127F8F6C000FE9E1 /* UIImageExtras.m */; };
+		DA9FF583128A1F3600457759 /* AudioStreamerBC.m in Sources */ = {isa = PBXBuildFile; fileRef = DA9FF580128A1F3600457759 /* AudioStreamerBC.m */; };
+		DA9FF584128A1F3600457759 /* AudioStreamerCUR.m in Sources */ = {isa = PBXBuildFile; fileRef = DA9FF582128A1F3600457759 /* AudioStreamerCUR.m */; };
 		DAA17BE411C15A0000957ED1 /* TiContactsGroup.m in Sources */ = {isa = PBXBuildFile; fileRef = DA4E12D611C0A55F00A55BAB /* TiContactsGroup.m */; };
 		DAA905CE11A359F10030B119 /* TiMediaItem.m in Sources */ = {isa = PBXBuildFile; fileRef = DAA905CD11A359F10030B119 /* TiMediaItem.m */; };
 		DAA905CF11A35A010030B119 /* TiMediaMusicPlayer.m in Sources */ = {isa = PBXBuildFile; fileRef = DA864E3111A2314A00B9CD68 /* TiMediaMusicPlayer.m */; };
 		DAA905D011A35A010030B119 /* TiMediaItem.m in Sources */ = {isa = PBXBuildFile; fileRef = DAA905CD11A359F10030B119 /* TiMediaItem.m */; };
+		DABDEB07128B5A8F00C85FEA /* AudioStreamerBC.m in Sources */ = {isa = PBXBuildFile; fileRef = DA9FF580128A1F3600457759 /* AudioStreamerBC.m */; };
+		DABDEB08128B5A8F00C85FEA /* AudioStreamerCUR.m in Sources */ = {isa = PBXBuildFile; fileRef = DA9FF582128A1F3600457759 /* AudioStreamerCUR.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -1117,6 +1121,10 @@
 		DA864E3111A2314A00B9CD68 /* TiMediaMusicPlayer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiMediaMusicPlayer.m; sourceTree = "<group>"; };
 		DA9BE36D127F8F6C000FE9E1 /* UIImageExtras.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UIImageExtras.h; sourceTree = "<group>"; };
 		DA9BE36E127F8F6C000FE9E1 /* UIImageExtras.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = UIImageExtras.m; sourceTree = "<group>"; };
+		DA9FF57F128A1F3600457759 /* AudioStreamerBC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AudioStreamerBC.h; sourceTree = "<group>"; };
+		DA9FF580128A1F3600457759 /* AudioStreamerBC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AudioStreamerBC.m; sourceTree = "<group>"; };
+		DA9FF581128A1F3600457759 /* AudioStreamerCUR.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AudioStreamerCUR.h; sourceTree = "<group>"; };
+		DA9FF582128A1F3600457759 /* AudioStreamerCUR.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AudioStreamerCUR.m; sourceTree = "<group>"; };
 		DAA905CC11A359F10030B119 /* TiMediaItem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiMediaItem.h; sourceTree = "<group>"; };
 		DAA905CD11A359F10030B119 /* TiMediaItem.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiMediaItem.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -1318,6 +1326,10 @@
 		24CA8927111161050084E2DE /* AudioStreamer */ = {
 			isa = PBXGroup;
 			children = (
+				DA9FF57F128A1F3600457759 /* AudioStreamerBC.h */,
+				DA9FF580128A1F3600457759 /* AudioStreamerBC.m */,
+				DA9FF581128A1F3600457759 /* AudioStreamerCUR.h */,
+				DA9FF582128A1F3600457759 /* AudioStreamerCUR.m */,
 				24CA8928111161050084E2DE /* AudioStreamer.h */,
 				24CA8929111161050084E2DE /* AudioStreamer.m */,
 			);
@@ -2780,6 +2792,8 @@
 				B473FBA4126FB2DF00E29C73 /* TiPublicAPI.m in Sources */,
 				B480501F1278AB010030AA3F /* TiThreading.m in Sources */,
 				DA9BE36F127F8F6C000FE9E1 /* UIImageExtras.m in Sources */,
+				DA9FF583128A1F3600457759 /* AudioStreamerBC.m in Sources */,
+				DA9FF584128A1F3600457759 /* AudioStreamerCUR.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3033,6 +3047,8 @@
 				D4AB36F6123DE20200DED4A0 /* TiUIClipboardProxy.m in Sources */,
 				B473FBA5126FB2DF00E29C73 /* TiPublicAPI.m in Sources */,
 				B48050201278AB170030AA3F /* TiThreading.m in Sources */,
+				DABDEB07128B5A8F00C85FEA /* AudioStreamerBC.m in Sources */,
+				DABDEB08128B5A8F00C85FEA /* AudioStreamerCUR.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

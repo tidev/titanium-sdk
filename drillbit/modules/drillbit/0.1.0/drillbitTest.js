@@ -12,6 +12,7 @@ var DrillbitTest =
 	success:0,
 	failed:0,
 	totalAssertions:0,
+	autoRun: true,
 	
 	fireEvent: function(name, event) {
 		event.name = name;
@@ -42,7 +43,9 @@ var DrillbitTest =
 		});
 		this.fireEvent('testStatus', {test: name, lineNumber: lineNumber, passed: true, error: null});
 		appendMessage('>> test <span class=\"test\">' + name + '</span> passed', 'pass');
-		DrillbitTest.runNextTest();
+		if (DrillbitTest.autoRun) {
+			DrillbitTest.runNextTest();
+		}
 	},
 	
 	testFailed: function(name,e)
@@ -59,7 +62,9 @@ var DrillbitTest =
 		this.fireEvent('testStatus', {test: name, lineNumber: e.line, passed: false, error: errorMessage});
 		
 		appendMessage('>> test <span class=\"test\">' + name + '</span> failed: line ' + e.line + ", error: " + errorMessage, 'fail');
-		DrillbitTest.runNextTest();
+		if (DrillbitTest.autoRun) {
+			DrillbitTest.runNextTest();
+		}
 	},
 	
 	complete: function() {
@@ -89,7 +94,7 @@ var DrillbitTest =
 	
 	runNextTest: function() {
 		if (this.tests.length == 0) {
-			this.complete();
+			this.onComplete();
 		} else {
 			var t = this.tests.shift();
 			t();
@@ -212,6 +217,16 @@ DrillbitTest.Subject.prototype.shouldBeExactly = function(expected,lineNumber)
 	if (this.target !== expected)
 	{
 		throw new DrillbitTest.Error('should be exactly: '+expected+', was: '+this.target,lineNumber);
+	}
+};
+
+DrillbitTest.Subject.prototype.shouldNotBeExactly = function(expected,lineNumber)
+{
+	this.lineNumber = lineNumber;
+	DrillbitTest.assertion(this);
+	if (this.target === expected)
+	{
+		throw new DrillbitTest.Error('should not be exactly: '+expected+', was: '+this.target,lineNumber);
 	}
 };
 
@@ -430,4 +445,59 @@ DrillbitTest.Subject.prototype.shouldNotThrowException = function(expected,lineN
 		}
 	}
 	else throw new DrillbitTest.Error("should not throw exception, but target isn't a function",lineNumber);
+};
+
+function AsyncTest(args) {
+	this.startFn = args.start;
+	this.timeout = args.timeout || null;
+	this.timeoutError = args.timeoutError || null;
+	this.onTimeoutFn = args.onTimeout || null;
+	this.timer = null;
+};
+
+AsyncTest.prototype.async = function(fn) {
+	var self = this;
+	return function() {
+		try {
+			if (self.timer != null) {
+				clearTimeout(self.timer);
+			}
+			
+			fn.apply(this, arguments);
+			self.callback.passed();
+		} catch (e) {
+			self.callback.failed(e);
+		}
+	};
+};
+
+AsyncTest.prototype.start = function(callback) {
+	this.callback = callback;
+	try {
+		this.result = this.startFn.apply(this, [callback]);
+		if (this.timeout != null) {
+			var self = this;
+			this.timer = setTimeout(function() {
+				if (self.onTimeoutFn != null) {
+					try {
+						this.onTimeoutFn.apply(this, [this.result]);
+						callback.passed();
+					} catch (e) {
+						callback.failed(e);
+					}
+				} else {
+					var message = self.timeoutError || "Error: Timed out (" + self.timeout + "ms)";
+					callback.failed(message);
+				}
+			}, this.timeout);
+		}
+	} catch (e) {
+		callback.failed(e);
+		return;
+	}
+};
+
+function asyncTest(args) {
+	args = typeof(args) == 'function' ? {start: args} : args;
+	return new AsyncTest(args);
 };

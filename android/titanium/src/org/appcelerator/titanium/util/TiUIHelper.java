@@ -519,7 +519,7 @@ public class TiUIHelper
 		return sResult;
 	}
 	
-	public static int getResourceId(TiContext context, String url)
+	public static int getResourceId(String url)
 	{
 		if (!url.contains("Resources/images/")) {
 			return 0;
@@ -532,26 +532,45 @@ public class TiUIHelper
 		
 		return TiResourceHelper.getDrawable(key);
 	}
-
+	
 	public static Bitmap getResourceBitmap(TiContext context, String url)
 	{
-		int id = getResourceId(context, url);
+		int id = getResourceId(url);
 		if (id == 0) {
 			return null;
+		} else {
+			return getResourceBitmap(context, id);
 		}
+	}
+	
+	public static Bitmap getResourceBitmap(TiContext context, int res_id)
+	{
+		BitmapFactory.Options opts = new BitmapFactory.Options();
+		opts.inPurgeable = true;
+		opts.inInputShareable = true;
 		
-		Bitmap bitmap = BitmapFactory.decodeResource(context.getActivity().getResources(), id);
+		Bitmap bitmap = null;
+		try {
+			bitmap = BitmapFactory.decodeResource(context.getActivity().getResources(), res_id, opts);
+		} catch (OutOfMemoryError e) {
+			Log.e(LCAT, "Unable to load bitmap. Not enough memory: " + e.getMessage());
+		}
 		return bitmap;
 	}
 	
 	public static Drawable getResourceDrawable(TiContext context, String url)
 	{
-		int id = getResourceId(context, url);
+		int id = getResourceId(url);
 		if (id == 0) {
 			return null;
 		}
 		
-		return context.getActivity().getResources().getDrawable(id);
+		return getResourceDrawable(context, id);
+	}
+	
+	public static Drawable getResourceDrawable(TiContext context, int res_id)
+	{
+		return context.getActivity().getResources().getDrawable(res_id);
 	}
 	
 	
@@ -615,23 +634,31 @@ public class TiUIHelper
 		}
 
 		if (focusState > TiUIView.SOFT_KEYBOARD_DEFAULT_ON_FOCUS) {
-			InputMethodManager imm = (InputMethodManager) view.getContext().getSystemService(Activity.INPUT_METHOD_SERVICE);
-			if (imm != null) {
-				boolean useForce = (Build.VERSION.SDK_INT <= Build.VERSION_CODES.DONUT || Build.VERSION.SDK_INT >= 8) ? true : false;
-				String model = TiPlatformHelper.getModel(); 
-				if (model != null && model.toLowerCase().startsWith("droid")) {
-					useForce = true;
-				}
-				if (DBG) {
-					Log.i(LCAT, "soft input change request: flag: " + focusState + " useForce: " + useForce);
-				}
-				if (focusState == TiUIView.SOFT_KEYBOARD_SHOW_ON_FOCUS) {
-					imm.showSoftInput(view, useForce ? InputMethodManager.SHOW_FORCED : InputMethodManager.SHOW_IMPLICIT);
-				} else if (focusState == TiUIView.SOFT_KEYBOARD_HIDE_ON_FOCUS) {
-					imm.hideSoftInputFromWindow(view.getWindowToken(), useForce ? 0 : InputMethodManager.HIDE_IMPLICIT_ONLY);
-				} else {
-					Log.w(LCAT, "Unknown onFocus state: " + focusState);
-				}
+			if (focusState == TiUIView.SOFT_KEYBOARD_SHOW_ON_FOCUS) {
+				showSoftKeyboard(view, true);
+			} else if (focusState == TiUIView.SOFT_KEYBOARD_HIDE_ON_FOCUS) {
+				showSoftKeyboard(view, false);
+			} else {
+				Log.w(LCAT, "Unknown onFocus state: " + focusState);
+			}
+		}
+	}
+	
+	public static void showSoftKeyboard(View view, boolean show) 
+	{
+		InputMethodManager imm = (InputMethodManager) view.getContext().getSystemService(Activity.INPUT_METHOD_SERVICE);
+
+		if (imm != null) {
+			boolean useForce = (Build.VERSION.SDK_INT <= Build.VERSION_CODES.DONUT || Build.VERSION.SDK_INT >= 8) ? true : false;
+			String model = TiPlatformHelper.getModel(); 
+			if (model != null && model.toLowerCase().startsWith("droid")) {
+				useForce = true;
+			}
+			
+			if (show) {
+				imm.showSoftInput(view, useForce ? InputMethodManager.SHOW_FORCED : InputMethodManager.SHOW_IMPLICIT);
+			} else {
+				imm.hideSoftInputFromWindow(view.getWindowToken(), useForce ? 0 : InputMethodManager.HIDE_IMPLICIT_ONLY);
 			}
 		}
 	}

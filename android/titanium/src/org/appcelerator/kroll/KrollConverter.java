@@ -10,6 +10,7 @@ import java.lang.reflect.Array;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 
 import org.appcelerator.titanium.kroll.KrollCallback;
 import org.appcelerator.titanium.kroll.KrollContext;
@@ -23,6 +24,7 @@ import org.mozilla.javascript.Function;
 import org.mozilla.javascript.NativeJavaObject;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
+import org.mozilla.javascript.Undefined;
 
 public class KrollConverter implements KrollNativeConverter,
 	KrollJavascriptConverter, KrollDefaultValueProvider {
@@ -79,11 +81,33 @@ public class KrollConverter implements KrollNativeConverter,
 	
 	@SuppressWarnings("serial")
 	public class ScriptableMap extends ScriptableObject {
+		protected Map<String, Object> map;
+		
 		public ScriptableMap(KrollInvocation invocation, Map<String, Object> map) {
 			super(invocation.getScope(), ScriptableObject.getObjectPrototype(invocation.getScope()));
-			for (String key: map.keySet()) {
-				put(key, this, convertNative(invocation, map.get(key)));
-			}
+			this.map = map;
+		}
+		
+		@Override
+		public Object get(String name, Scriptable start) {
+			KrollInvocation invocation = KrollInvocation.createPropertyGetInvocation(start, this, name, null, null);
+			return convertNative(invocation, map.get(name));
+		}
+		
+		@Override
+		public Object get(int index, Scriptable start) {
+			return get(""+index, start);
+		}
+		
+		@Override
+		public void put(String name, Scriptable start, Object value) {
+			KrollInvocation invocation = KrollInvocation.createPropertySetInvocation(start, this, name, null, null);
+			map.put(name, convertJavascript(invocation, value, Object.class));
+		}
+		
+		@Override
+		public void put(int index, Scriptable start, Object value) {
+			put(""+index, start, value);
 		}
 		
 		@Override
@@ -95,14 +119,13 @@ public class KrollConverter implements KrollNativeConverter,
 		{
 			StringBuilder sb = new StringBuilder();
 			sb.append("{ ");
-
-			Object[] ids = (Object[]) getIds();
-			String sep = "";
-			if (ids == null) ids = new Object[0];
 			
-			for(Object id : ids) {
-				sb.append(" '").append(id).append("' : ");
-				Object o = get(id.toString(), this);
+			Set<String> keys = map.keySet();
+			String sep = "";
+			
+			for(String key : keys) {
+				sb.append(" '").append(key).append("' : ");
+				Object o = map.get(key);
 				if (o == null) {
 					sb.append("null");
 				} else if (o instanceof String) {
@@ -128,6 +151,12 @@ public class KrollConverter implements KrollNativeConverter,
 	public Object convertNative(KrollInvocation invocation, Object value) {
 		if (value instanceof KrollProxy) {
 			return new KrollObject((KrollProxy)value);
+		}
+		else if (value instanceof KrollCallback) {
+			return ((KrollCallback)value).toJSFunction();
+		}
+		else if (value instanceof KrollScriptableDict) {
+			return ((KrollScriptableDict)value).getScriptable();
 		}
 		else if (value == null || value instanceof String ||
 				value instanceof Number ||
@@ -163,9 +192,6 @@ public class KrollConverter implements KrollNativeConverter,
 		else if (value == JSONObject.NULL || value.getClass().equals(JSONObject.NULL.getClass()))
 		{
 			return Context.javaToJS(null, invocation.getScope());
-		}
-		else if (value instanceof KrollCallback) {
-			return ((KrollCallback)value).toJSFunction();
 		}
 		else if (value == KrollProxy.UNDEFINED) {
 			return Context.getUndefinedValue();
@@ -223,21 +249,7 @@ public class KrollConverter implements KrollNativeConverter,
 			}
 			return new KrollCallback(ctx, invocation.getScope(), invocation.getThisObj(), (Function) scriptable);
 		} else {
-			KrollDict args = new KrollDict();
-			for(Object key : scriptable.getIds()) {
-				Object v;
-				if (key instanceof String) {
-					v = scriptable.get((String)key, scriptable);
-				} else {
-					v = scriptable.get((Integer)key, scriptable);
-				}
-				v = convertJavascript(invocation, v, Object.class);
-				if (DBG) {
-					Log.i(TAG, "Key: " + key + " value: " + v + " type: " + v.getClass().getName());
-				}
-				args.put(key.toString(), v);
-			}
-			return args;
+			return new KrollScriptableDict(scriptable);
 		}
 	}
 	
@@ -248,6 +260,8 @@ public class KrollConverter implements KrollNativeConverter,
 			return Context.jsToJava(value, target);
 		} else if (value == null) {
 			return null;
+		} else if (value instanceof Undefined) {
+			return KrollProxy.UNDEFINED;
 		} else {
 			if (value.getClass().isArray()) {
 				Object[] values = (Object[]) value;

@@ -511,6 +511,10 @@ public abstract class TiUIView
 				}
 				d = null;
 			}
+			nativeView = null;
+			if (proxy != null) {
+				proxy.setModelListener(null);
+			}
 		}
 		
 	}

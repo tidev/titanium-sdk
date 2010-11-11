@@ -54,9 +54,12 @@
 	BOOL animated = !reproxying;
 	UISwitch * ourSwitch = [self switchView];
 	[ourSwitch setOn:newValue animated:animated];
-	if (reproxying==NO)
+	
+	// Don't rely on switchChanged: - isOn can report erroneous values immediately after the value is changed!  
+	// This only seems to happen in 4.2+ - could be an Apple bug.
+	if (reproxying==NO && [self.proxy _hasListeners:@"change"])
 	{
-		[self switchChanged:ourSwitch];
+		[self.proxy fireEvent:@"change" withObject:[NSDictionary dictionaryWithObject:value forKey:@"value"]];
 	}
 }
 

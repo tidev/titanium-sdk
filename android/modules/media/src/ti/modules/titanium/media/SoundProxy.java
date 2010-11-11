@@ -53,6 +53,7 @@ public class SoundProxy extends KrollProxy
 		}
 	}
 
+	@Kroll.method @Kroll.getProperty
 	public boolean isPlaying() {
 		TiSound s = getSound();
 		if (s != null) {
@@ -61,6 +62,7 @@ public class SoundProxy extends KrollProxy
 		return false;
 	}
 
+	@Kroll.method @Kroll.getProperty
 	public boolean isPaused() {
 		TiSound s = getSound();
 		if (s != null) {
@@ -69,6 +71,7 @@ public class SoundProxy extends KrollProxy
 		return false;
 	}
 
+	@Kroll.method @Kroll.getProperty
 	public boolean isLooping() {
 		TiSound s = getSound();
 		if (s != null) {
@@ -76,15 +79,8 @@ public class SoundProxy extends KrollProxy
 		}
 		return false;
 	}
-
-	public boolean getLooping() {
-		TiSound s = getSound();
-		if (s != null) {
-			return s.isLooping();
-		}
-		return false;
-	}
-
+	
+	@Kroll.method @Kroll.setProperty
 	public void setLooping(boolean looping) {
 		TiSound s = getSound();
 		if (s != null) {
@@ -92,11 +88,13 @@ public class SoundProxy extends KrollProxy
 		}
 	}
 
+	@Kroll.method
 	// An alias for play so that sound can be used instead of an audioplayer
 	public void start() {
 		play();
 	}
 
+	@Kroll.method
 	public void play() {
 		TiSound s = getSound();
 		if (s != null) {
@@ -104,6 +102,7 @@ public class SoundProxy extends KrollProxy
 		}
 	}
 
+	@Kroll.method
 	public void pause() {
 		TiSound s = getSound();
 		if (s != null) {
@@ -111,6 +110,7 @@ public class SoundProxy extends KrollProxy
 		}
 	}
 
+	@Kroll.method
 	public void reset() {
 		TiSound s = getSound();
 		if (s != null) {
@@ -118,6 +118,7 @@ public class SoundProxy extends KrollProxy
 		}
 	}
 
+	@Kroll.method
 	public void release() {
 		TiSound s = getSound();
 		if (s != null) {
@@ -126,10 +127,12 @@ public class SoundProxy extends KrollProxy
 		}
 	}
 
+	@Kroll.method
 	public void destroy() {
 		release();
 	}
 
+	@Kroll.method
 	public void stop() {
 		TiSound s = getSound();
 		if (s != null) {
@@ -137,6 +140,7 @@ public class SoundProxy extends KrollProxy
 		}
 	}
 
+	@Kroll.method @Kroll.getProperty
 	public int getDuration() {
 		TiSound s = getSound();
 		if (s != null) {
@@ -146,6 +150,7 @@ public class SoundProxy extends KrollProxy
 		return 0;
 	}
 
+	@Kroll.method @Kroll.getProperty
 	public int getTime() {
 		TiSound s = getSound();
 		if (s != null) {
@@ -154,6 +159,7 @@ public class SoundProxy extends KrollProxy
 		return 0;
 	}
 
+	@Kroll.method @Kroll.setProperty
 	public void setTime(Object pos) {
 		if (pos != null) {
 			TiSound s = getSound();
@@ -162,6 +168,7 @@ public class SoundProxy extends KrollProxy
 			}
 		}
 	}
+	
 	protected TiSound getSound()
 	{
 		if (snd == null) {

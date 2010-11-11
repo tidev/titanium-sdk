@@ -57,7 +57,8 @@ public class FilesystemModule extends KrollModule
 		return new FileProxy(getTiContext(), parts);
 	}
 
-	public boolean getIsExternalStoragePresent() {
+	@Kroll.getProperty @Kroll.method
+	public boolean isExternalStoragePresent() {
 		return android.os.Environment.getExternalStorageState().equals(android.os.Environment.MEDIA_MOUNTED);
 	}
 

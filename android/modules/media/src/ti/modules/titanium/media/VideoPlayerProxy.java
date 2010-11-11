@@ -48,8 +48,17 @@ public class VideoPlayerProxy extends KrollProxy
 		final TiContext tiContext = getTiContext();
 		final Intent intent = new Intent(tiContext.getActivity(), TiVideoActivity.class);
 
+		String url = null;
+		
 		if (options.containsKey("contentURL")) {
-			String url = tiContext.resolveUrl(null, TiConvert.toString(options, "contentURL"));
+			url = TiConvert.toString(options, "contentURL");
+			Log.w(LCAT, "contentURL is deprecated, use url instead");
+		} else if (options.containsKey("url")) {
+			url = TiConvert.toString(options, "url");
+		}
+		
+		if (url != null) {
+			url = tiContext.resolveUrl(null, url);
 			if (DBG) {
 				Log.d(LCAT, "Video source: " + url);
 			}

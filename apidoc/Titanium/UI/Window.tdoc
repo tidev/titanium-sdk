@@ -161,7 +161,7 @@ window.fireEvent('foo',{a:'b'});
 
 It's worth noting two important limitations of the example above:
 
-* You must open the event before you can send events to it. You also may have to fire the event after a specified amount of time if you intend to immediately send data to the window.  This is because windows are opened asynchronously and on a separate thread than the caller thread.
+* You must open the window before you can send events to it. You also may have to fire the event after a specified amount of time if you intend to immediately send data to the window.  This is because windows are opened asynchronously and on a separate thread than the caller thread.
 * You can only send JSON-serializable data in a fireEvent.  If you attempt to send objects that have function references, they will be null.
 
 

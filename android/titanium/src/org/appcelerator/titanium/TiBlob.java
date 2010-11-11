@@ -61,6 +61,9 @@ public class TiBlob extends KrollProxy
 
 	public static TiBlob blobFromFile(TiContext tiContext, TiBaseFile file, String mimeType)
 	{
+		if (mimeType == null) {
+			mimeType = TiMimeTypeHelper.getMimeType(file.nativePath());
+		}
 		return new TiBlob(tiContext, TYPE_FILE, file, mimeType);
 	}
 

@@ -8,15 +8,15 @@ package org.appcelerator.kroll;
 
 import org.appcelerator.titanium.util.AsyncResult;
 import org.appcelerator.titanium.util.Log;
+import org.mozilla.javascript.BaseFunction;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Function;
 import org.mozilla.javascript.Scriptable;
-import org.mozilla.javascript.ScriptableObject;
 
 import android.app.Activity;
 
 @SuppressWarnings("serial")
-public abstract class KrollMethod extends ScriptableObject implements Function {
+public abstract class KrollMethod extends BaseFunction implements Function {
 	
 	private static final String TAG = "KrollMethod";
 	
@@ -93,5 +93,19 @@ public abstract class KrollMethod extends ScriptableObject implements Function {
 	
 	public String getName() {
 		return name;
+	}
+	
+	@Override
+	public Object getDefaultValue(Class<?> typeHint) {
+		return "[KrollMethod " + name + "]";
+	}
+	
+	@Override
+	protected Object equivalentValues(Object value) {
+		if (value instanceof KrollProxy.ThisMethod) {
+			KrollProxy.ThisMethod other = (KrollProxy.ThisMethod) value;
+			return this.equals(other.getDelegate());
+		}
+		return super.equivalentValues(value);
 	}
 }
