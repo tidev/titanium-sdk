@@ -62,6 +62,7 @@ responseData[object]: the response data as a Blob object.
 connectionType[string]: the connection type, normally either `GET` or `POST`.
 location[string]: the absolute URL of the request
 timeout[int]: timeout is milliseconds when the connection should be aborted
+file[string]: file to download contents to.  Can only be set after calling open.  iOS only
 
 UNSENT[int]: the UNSET readyState constant
 OPENED[int]: the OPENED readyState constant
