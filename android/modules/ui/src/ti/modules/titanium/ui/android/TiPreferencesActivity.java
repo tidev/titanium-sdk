@@ -4,26 +4,26 @@ import android.os.Bundle;
 import android.preference.PreferenceActivity;
 
 import org.appcelerator.titanium.TiApplication;
+import org.appcelerator.titanium.util.TiRHelper;
 
 public class TiPreferencesActivity extends PreferenceActivity {
-	private static final String PREFS_RES_NAME = "preferences";
+	private static final String DEFAULT_PREFS_RNAME = "preferences";
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		
+		String prefsName = DEFAULT_PREFS_RNAME;
+		if (getIntent().hasExtra("prefsName"))
+			prefsName = getIntent().getExtras().getString("prefsName");
+		
 		// Find the layout file, do nothing if not found
-		int layout = 0;
 		try {
-			String xmlClass = getApplication().getApplicationInfo().packageName + ".R$xml";
-			layout = Class.forName(xmlClass).getDeclaredField(PREFS_RES_NAME).getInt(null);
-		} catch (Exception e) {
-			e.printStackTrace();
+			getPreferenceManager().setSharedPreferencesName(TiApplication.APPLICATION_PREFERENCES_NAME);
+			addPreferencesFromResource(TiRHelper.getResource("xml." + prefsName));
+		} catch (TiRHelper.ResourceNotFoundException e) {
 			finish();
 			return;
 		}
-		
-		getPreferenceManager().setSharedPreferencesName(TiApplication.APPLICATION_PREFERENCES_NAME);
-		addPreferencesFromResource(layout);
 	}
 }
