@@ -12,10 +12,9 @@ Video.init = function()
 		top:100,
 		movieControlStyle:Titanium.Media.VIDEO_CONTROL_EMBEDDED,
 		height:300,
-		width:400
-
+		width:400,
+		autoplay:false
 	});
 
 	Video.view.add(Video.videoObject);
-	
 };
