@@ -38,34 +38,31 @@ public class TiRHelper {
 		String tp = type.toString() + "/" + path;
 		Integer i = valCache.get(tp);
 		if (i != null) return i;
-		
-		// Figure out what the base classname is based on the type of R we will query
-		String classname = "";
-		String fieldname = "";
-		switch (type) {
-		case ANDROID:
-			classname = "android.R";
-			break;
-		case APPLICATION:
-		default:
-			classname = TiApplication.getInstance().getApplicationInfo().packageName + ".R";
-			break;
-		}
-		
-		// Get the fieldname and any extra path (as internal classes)
-		if (path.lastIndexOf('.') < 0)
-			fieldname = path;
-		else {
-			classname = classname + "$" + path.substring(0, path.lastIndexOf('.')).replace('.', '$');
-			fieldname = path.substring(path.lastIndexOf('.')+1);
-		}
 
-		// Get the Class, from the cache if possible
-		Class<?> cls = clsCache.get(classname);
+		// Get the classname / fieldname
+		int lastseg = path.lastIndexOf('.');
+		String classname = lastseg < 0 ? ""   : path.substring(0, lastseg < 0 ? 1 : lastseg).replace('.', '$');
+		String fieldname = lastseg < 0 ? path : path.substring(lastseg + 1);
+		
+		// Check the cache for the class value
+		String tc = type.toString() + "/" + classname;
+		Class<?> cls = clsCache.get(tc);
 		if (cls == null) {
+			// Figure out what the base classname is based on the type of R we will query
+			switch (type) {
+			case ANDROID:
+				classname = "android.R$" + classname;
+				break;
+			case APPLICATION:
+			default:
+				classname = TiApplication.getInstance().getApplicationInfo().packageName + ".R$" + classname;
+				break;
+			}
+			
+			// Get the Class
 			try {
 				cls = Class.forName(classname);
-				clsCache.put(classname, cls);
+				clsCache.put(tc, cls);
 			} catch (ClassNotFoundException e) {
 				Log.w(LCAT, "Unable to find resource: " + e.getMessage());
 				throw new TiRHelper.ResourceNotFoundException(path);
