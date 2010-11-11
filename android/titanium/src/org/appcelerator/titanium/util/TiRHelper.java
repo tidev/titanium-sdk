@@ -68,4 +68,13 @@ public class TiRHelper {
 		valCache.put(path, i);
 		return i;
 	}
+	
+	/*
+	 * Clears the cache.  Should only be used in low memory situations
+	 * as clearing the cache will adversely affect performance.
+	 */
+	public static void clearCache() {
+		valCache.clear();
+		clsCache.clear();
+	}
 }
