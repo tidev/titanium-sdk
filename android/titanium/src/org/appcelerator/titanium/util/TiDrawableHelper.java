@@ -28,7 +28,7 @@ public class TiDrawableHelper {
 		context = ctx;
 	}
 
-	public Drawable getFromURL(URL url) throws IOException {
+	public Drawable get(URL url) throws IOException {
 		InputStream lis = url.openStream();
 		ByteArrayOutputStream bos = new ByteArrayOutputStream(8192);
 		try {
@@ -52,37 +52,35 @@ public class TiDrawableHelper {
 		}
 	}
 	
-	public Drawable getFromResource(int resid) {
+	public Drawable get(int resid) {
 		return context.getActivity().getResources().getDrawable(resid);
 	}
 	
-	public Drawable getFromPath(String path) throws ResourceNotFoundException {
-		if (path.startsWith("/")) path = path.substring(1); // Remove leading slash
+	public Drawable get(String path) throws ResourceNotFoundException, IOException {
+		if (path.startsWith("R.")) // Try Resource string
+			return get(TiRHelper.getResource(path));
+
+		// Try URL
+		if (URLUtil.isNetworkUrl(path)) {
+			try {
+				return get(new URL(path));
+			}
+			catch (MalformedURLException e) {
+				assert false : "Never get here";
+			}
+		}
+		
+		if (path.startsWith("/")) // Remove leading slash
+			path = path.substring(1);
+		
 		try {
 			byte hash[] = MessageDigest.getInstance("MD5").digest(path.getBytes("UTF-8"));
 			String hexhash = String.format("%1$032x", new BigInteger(1, hash));
 			// We prefix with 'ti' since fields must begin with a letter
-			return getFromResource(TiRHelper.getResource("R.drawable.ti" + hexhash));
+			return get(TiRHelper.getResource("R.drawable.ti" + hexhash));
 		}
 		catch (NoSuchAlgorithmException e)     { assert false : e.getMessage(); }
 		catch (UnsupportedEncodingException e) { assert false : e.getMessage(); }
 		return null; // Never get here
-	}
-	
-	public Drawable get(String spec) throws ResourceNotFoundException, IOException {
-		// Try Resource string
-		if (spec.startsWith("R."))
-			return getFromResource(TiRHelper.getResource(spec));
-		
-		// Try URL
-		if (URLUtil.isNetworkUrl(spec)) {
-			try { return getFromURL(new URL(spec)); }
-			catch (MalformedURLException e) { }
-		}
-		
-		// TODO: NinePatch?
-		
-		// Fall back to path
-		return getFromPath(spec);
 	}
 }
