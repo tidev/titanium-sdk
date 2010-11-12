@@ -489,7 +489,6 @@ public class TiTableView extends FrameLayout
 		if (adapter != null) {
 			tiContext.getActivity().runOnUiThread(new Runnable() {
 				public void run() {
-					Log.d(LCAT, "*************  weird thing ********");
 					dataSetChanged();
 				}
 			});
