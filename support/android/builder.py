@@ -109,7 +109,7 @@ class Builder(object):
 			android_creator = Android(name, app_id, self.sdk, None, self.java)
 			parent_dir = os.path.dirname(self.top_dir)
 			if os.path.exists(self.top_dir):
-				android_creator.create(parent_dir, project_dir=self.top_dir)
+				android_creator.create(parent_dir, project_dir=self.top_dir, build_time=True)
 			else:
 				android_creator.create(parent_dir)
 			
