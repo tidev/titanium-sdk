@@ -124,14 +124,7 @@
 -(void)setText_:(id)text
 {
 	[[self label] setText:[TiUtils stringValue:text]];
-	if (requiresLayout)
-	{
-		[(TiViewProxy *)[self proxy] setNeedsReposition];
-	}
-	else
-	{
-		[(TiViewProxy *)[self proxy] setNeedsRepositionIfAutoSized];
-	}	
+	[(TiViewProxy *)[self proxy] contentsWillChange];
 }
 
 -(void)setColor_:(id)color
@@ -149,14 +142,7 @@
 -(void)setFont_:(id)font
 {
 	[[self label] setFont:[[TiUtils fontValue:font] font]];
-	if (requiresLayout)
-	{
-		[(TiViewProxy *)[self proxy] setNeedsReposition];
-	}
-	else
-	{
-		[(TiViewProxy *)[self proxy] setNeedsRepositionIfAutoSized];
-	}
+	[(TiViewProxy *)[self proxy] contentsWillChange];
 }
 
 -(void)setMinimumFontSize_:(id)size

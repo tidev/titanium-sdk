@@ -24,80 +24,22 @@
 
 @implementation TiViewProxy
 
-@synthesize children, parent;
-@synthesize barButtonItem;
+#pragma mark public API
 
-#pragma mark Internal
-
--(id)init
+@synthesize zIndex, parentVisible;
+-(void)setZIndex:(int)newZindex
 {
-	if ((self = [super init]))
+	if(newZindex == zIndex)
 	{
-		destroyLock = [[NSRecursiveLock alloc] init];
-		pthread_rwlock_init(&childrenLock, NULL);
+		return;
 	}
-	return self;
+
+	zIndex = newZindex;
+	[self replaceValue:NUMINT(zIndex) forKey:@"zIndex" notification:NO];
+	[self willChangeZIndex];
 }
 
--(void)_initWithProperties:(NSDictionary*)properties
-{
-	if (properties!=nil)
-	{
-		NSString *objectId = [properties objectForKey:@"id"];
-		if (objectId!=nil)
-		{
-			TiStylesheet *stylesheet = [[[self pageContext] host] stylesheet];
-			NSString *density = [TiUtils isRetinaDisplay] ? @"high" : @"medium";
-			NSString *basename = [[self pageContext] basename];
-			NSString *type = [NSStringFromClass([self class]) stringByReplacingOccurrencesOfString:@"TiUI" withString:@""];
-			type = [[type stringByReplacingOccurrencesOfString:@"Proxy" withString:@""] lowercaseString];
-			NSDictionary *merge = [stylesheet stylesheet:objectId type:type density:density basename:basename];
-			if (merge!=nil)
-			{
-				// incoming keys take precendence over existing stylesheet keys
-				NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithDictionary:merge];
-				[dict addEntriesFromDictionary:properties];
-                
-				properties = dict;
-			}
-		}
-		// do a translation of language driven keys to their converted counterparts
-		// for example titleid should look up the title in the Locale
-		NSMutableDictionary *table = [self langConversionTable];
-		if (table!=nil)
-		{
-			for (id key in table)
-			{
-				// determine which key in the lang table we need to use
-				// from the lang property conversion key
-				id langKey = [properties objectForKey:key];
-				if (langKey!=nil)
-				{
-					// eg. titleid -> title
-					id convertKey = [table objectForKey:key];
-					// check and make sure we don't already have that key
-					// since you can't override it if already present
-					if ([properties objectForKey:convertKey]==nil)
-					{
-						id newValue = [TiLocale getString:langKey comment:nil];
-						if (newValue!=nil)
-						{
-							[(NSMutableDictionary*)properties setObject:newValue forKey:convertKey];
-						}
-					}
-				}
-			}
-		}
-	}
-	[super _initWithProperties:properties];
-}
-
--(NSMutableDictionary*)langConversionTable
-{
-    return nil;
-}
-
-
+@synthesize children;
 -(NSArray*)children
 {
 	pthread_rwlock_rdlock(&childrenLock);
@@ -111,56 +53,16 @@
 	return children;
 }
 
--(void)dealloc
+-(void)setVisible:(NSNumber *)newVisible withObject:(id)args
 {
-	[self _destroy];
-	
-	RELEASE_TO_NIL(pendingAdds);
-	RELEASE_TO_NIL(destroyLock);
-	pthread_rwlock_destroy(&childrenLock);
-	
-	//Dealing with children is in _destroy, which is called by super dealloc.
-	
-	[super dealloc];
+	[self replaceValue:newVisible forKey:@"visible" notification:YES];
+	[self setHidden:![TiUtils boolValue:newVisible def:YES] withArgs:args];
 }
 
--(BOOL)windowHasOpened
+
+-(TiPoint*)center
 {
-	return windowOpened;
-}
-
-#pragma mark Subclass Callbacks 
-
--(void)childAdded:(id)child
-{
-}
-
--(void)childRemoved:(id)child
-{
-}
-
--(void)layoutChildOnMainThread:(id)arg
-{
-	ENSURE_UI_THREAD(layoutChildOnMainThread,arg);
-	IGNORE_IF_NOT_OPENED
-	[self layoutChild:arg optimize:NO]; 
-}
-
-#pragma mark Misc
-
-// TODO: Re-evaluate this along with the other controller propagation mechanisms, post 1.3.0.
-// Returns YES for anything that can have a UIController object in its parent view
--(BOOL)canHaveControllerParent
-{
-	return YES;
-}
-
-#pragma mark Public
-
--(void)setBackgroundGradient:(id)arg
-{
-	TiGradient * newGradient = [TiGradient gradientFromObject:arg proxy:self];
-	[self replaceValue:newGradient forKey:@"backgroundGradient" notification:YES];
+	return [[[TiPoint alloc] initWithPoint:[self view].center] autorelease];
 }
 
 -(void)add:(id)arg
@@ -175,7 +77,6 @@
 		return;
 	}
 	
-	[self setNeedsZIndexRepositioning];
 	if ([NSThread isMainThread])
 	{
 		pthread_rwlock_wrlock(&childrenLock);
@@ -189,15 +90,14 @@
 		}
 		pthread_rwlock_unlock(&childrenLock);
 		[arg setParent:self];
-		[self childAdded:arg];
 		[self contentsWillChange];
-		if(parentVisible && [self visible])
+		if(parentVisible && !hidden)
 		{
 			[arg parentWillShow];
 		}
 		
 		// only call layout if the view is attached
-		[self layoutChildOnMainThread:arg];
+		[self layoutChild:arg optimize:NO]; 
 	}
 	else
 	{
@@ -235,15 +135,13 @@
 		return;
 	}
 
-	[self childRemoved:arg];
-
 	[children removeObject:arg];
 
-		[self contentsWillChange];
-		if(parentVisible && [self visible])
-		{
-			[arg parentWillShow];
-		}
+	[self contentsWillChange];
+	if(parentVisible && !hidden)
+	{
+		[arg parentWillHide];
+	}
 
 	if ([children count]==0)
 	{
@@ -276,35 +174,23 @@
 	}
 }
 
--(TiPoint*)center
-{
-	return [[[TiPoint alloc] initWithPoint:[self view].center] autorelease];
-}
-
 -(void)show:(id)arg
 {
-	//TODO: animate
-	[self replaceValue:[NSNumber numberWithBool:YES] forKey:@"visible" notification:YES];
-	if(parentVisible)	//We actually care about showing or hiding now.
-	{
-		[self willShow];
-	}
+	[self replaceValue:NUMBOOL(YES) forKey:@"visible" notification:YES];
+	[self setHidden:NO withArgs:arg];
 }
  
 -(void)hide:(id)arg
 {
-	//TODO: animate
-	[self replaceValue:[NSNumber numberWithBool:NO] forKey:@"visible" notification:YES];
-		
-	if(parentVisible)	//We actually care about showing or hiding now.
-	{
-		[self willHide];
-	}
+	[self replaceValue:NUMBOOL(NO) forKey:@"visible" notification:YES];
+	[self setHidden:NO withArgs:arg];
 }
 
 -(void)animate:(id)arg
 {
 	ENSURE_UI_THREAD(animate,arg);
+	[parent contentsWillChange];
+
 	if ([view superview]==nil)
 	{
 		VerboseLog(@"Entering animation without a superview Parent is %@, props are %@",parent,dynprops);
@@ -315,52 +201,27 @@
 	[[self view] animate:arg];
 }
 
--(void)addImageToBlob:(NSArray*)args
-{
-	TiBlob *blob = [args objectAtIndex:0];
-	[self windowWillOpen];
-	TiUIView *myview = [self view];
-	CGSize size = myview.bounds.size;
-	if (CGSizeEqualToSize(size, CGSizeZero) || size.width==0 || size.height==0)
-	{
-		CGFloat width = [self autoWidthForWidth:1000];
-		CGFloat height = [self autoHeightForWidth:width];
-		if (width > 0 && height > 0)
-		{
-			size = CGSizeMake(width, height);
-		}
-		if (CGSizeEqualToSize(size, CGSizeZero) || width==0 || height == 0)
-		{
-			size = [UIScreen mainScreen].bounds.size;
-		}
-		CGRect rect = CGRectMake(0, 0, size.width, size.height);
-		[TiUtils setView:myview positionRect:rect];
-	}
-	UIGraphicsBeginImageContext(size);
-	[myview.layer renderInContext:UIGraphicsGetCurrentContext()];
-	UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
-	[blob setImage:image];
-	UIGraphicsEndImageContext();
-	if ([args count] > 1)
-	{
-		KrollCallback *callback = [args objectAtIndex:1];
-		NSDictionary *event = [NSDictionary dictionaryWithObject:blob forKey:@"blob"];
-		[self _fireEventToListener:@"blob" withObject:event listener:callback thisObject:nil];
-	}
+#define LAYOUTPROPERTIES_SETTER(methodName,layoutName,converter,postaction)	\
+-(void)methodName:(id)value	\
+{	\
+	layoutProperties.layoutName = converter(value);	\
+	[self replaceValue:value forKey:@#layoutName notification:YES];	\
+	postaction; \
 }
 
--(TiBlob*)toImage:(id)args
-{
-	KrollCallback *callback = [args count] > 0 ? [args objectAtIndex:0] : nil;
-	TiBlob *blob = [[[TiBlob alloc] init] autorelease];
-	// we spin on the UI thread and have him convert and then add back to the blob
-	// if you pass a callback function, we'll run the render asynchronously, if you
-	// don't, we'll do it synchronously
-	[self performSelectorOnMainThread:@selector(addImageToBlob:) withObject:[NSArray arrayWithObjects:blob,callback,nil] waitUntilDone:callback==nil ? YES : NO];
-	return blob;
-}
+LAYOUTPROPERTIES_SETTER(setTop,top,TiDimensionFromObject,[self willChangePosition])
+LAYOUTPROPERTIES_SETTER(setBottom,bottom,TiDimensionFromObject,[self willChangePosition])
 
-#pragma mark View
+LAYOUTPROPERTIES_SETTER(setLeft,left,TiDimensionFromObject,[self willChangePosition])
+LAYOUTPROPERTIES_SETTER(setRight,right,TiDimensionFromObject,[self willChangePosition])
+
+LAYOUTPROPERTIES_SETTER(setWidth,width,TiDimensionFromObject,[self willChangeSize])
+LAYOUTPROPERTIES_SETTER(setHeight,height,TiDimensionFromObject,[self willChangeSize])
+
+LAYOUTPROPERTIES_SETTER(setLayout,layout,TiLayoutRuleFromObject,[self willChangeLayout])
+
+LAYOUTPROPERTIES_SETTER(setMinWidth,minimumWidth,TiFixedValueRuleFromObject,[self willChangeSize])
+LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[self willChangeSize])
 
 
 -(TiRect*)size
@@ -384,312 +245,30 @@
 	return [self size].height;
 }
 
--(void)setParent:(TiViewProxy*)parent_
+-(void)setSize:(id)value
 {
-	parent = parent_;
-	
-	if (view!=nil)
-	{
-		[view setParent:parent_];
-	}
-	
-	if (parent_!=nil && [parent windowHasOpened])
-	{
-		[self windowWillOpen];
-	}
+	ENSURE_DICT(value);
+	layoutProperties.width = TiDimensionFromObject([value objectForKey:@"width"]);
+ 	layoutProperties.height = TiDimensionFromObject([value objectForKey:@"height"]);
+	[self willChangeSize];
 }
 
--(void)animationCompleted:(TiAnimation*)animation
+-(void)setCenter:(id)value
 {
-	[[self view] animationCompleted];
-}
-
--(TiUIView*)newView
-{
-	NSString * proxyName = NSStringFromClass([self class]);
-	if ([proxyName hasSuffix:@"Proxy"]) 
+	if (![value isKindOfClass:[NSDictionary class]])
 	{
-		Class viewClass = nil;
-		NSString * className = [proxyName substringToIndex:[proxyName length]-5];
-		viewClass = NSClassFromString(className);
-		if (viewClass != nil)
-		{
-			return [[viewClass alloc] init];
-		}
+		layoutProperties.centerX = TiDimensionUndefined;
+		layoutProperties.centerY = TiDimensionUndefined;
 	}
 	else
 	{
-		NSLog(@"[WARN] No TiView for Proxy: %@, couldn't find class: %@",self,proxyName);
+		layoutProperties.centerX = TiDimensionFromObject([value objectForKey:@"x"]);
+		layoutProperties.centerY = TiDimensionFromObject([value objectForKey:@"y"]);
 	}
-	return [[TiUIView alloc] initWithFrame:[self appFrame]];
+	[self willChangePosition];
 }
 
--(BOOL)viewAttached
-{
-	return view!=nil && windowOpened;
-}
-
-//CAUTION: TO BE USED ONLY WITH TABLEVIEW MAGIC
--(void)setView:(TiUIView *)newView
-{
-	if (view != newView) {
-		[view removeFromSuperview];
-		[view release];
-		view = [newView retain];
-	}
-	
-	if (self.modelDelegate != newView) {
-		if (self.modelDelegate!=nil && [self.modelDelegate respondsToSelector:@selector(detachProxy)])
-		{
-			[self.modelDelegate detachProxy];
-			self.modelDelegate=nil;
-		}
-		self.modelDelegate = newView;
-	}
-}
-
--(BOOL)shouldDetachViewOnUnload
-{
-	return YES;
-}
-
--(void)detachView
-{
-	[destroyLock lock];
-	if (view!=nil)
-	{
-		[self viewWillDetach];
-		// hold the view during detachment
-		[[view retain] autorelease];
-		view.proxy = nil;
-		if (self.modelDelegate!=nil && [self.modelDelegate respondsToSelector:@selector(detachProxy)])
-		{
-			[self.modelDelegate detachProxy];
-		}
-		self.modelDelegate = nil;
-		[view removeFromSuperview];
-		RELEASE_TO_NIL(view);
-		[self viewDidDetach];
-	}
-	[destroyLock unlock];
-}
-
--(void)windowWillOpen
-{
-	pthread_rwlock_rdlock(&childrenLock);
-	
-	// this method is called just before the top level window
-	// that this proxy is part of will open and is ready for
-	// the views to be attached
-	
-	if (windowOpened==YES)
-	{
-		pthread_rwlock_unlock(&childrenLock);
-		return;
-	}
-	
-	windowOpened = YES;
-	windowOpening = YES;
-	
-	// If the window was previously opened, it may need to have
-	// its existing children redrawn
-	if (children != nil) {
-		for (TiViewProxy* child in children) {
-			[self layoutChild:child optimize:NO];
-			[child windowWillOpen];
-		}
-	}
-	
-	pthread_rwlock_unlock(&childrenLock);
-	
-	if (pendingAdds!=nil)
-	{
-		for (id child in pendingAdds)
-		{
-			[self add:child];
-			[child windowWillOpen];
-		}
-		RELEASE_TO_NIL(pendingAdds);
-	}
-}
-
--(void)windowDidOpen
-{
-	windowOpening = NO;
-	pthread_rwlock_rdlock(&childrenLock);
-	for (TiViewProxy *child in children)
-	{
-		[child windowDidOpen];
-	}
-	pthread_rwlock_unlock(&childrenLock);
-}
-
--(void)windowDidClose
-{
-	pthread_rwlock_rdlock(&childrenLock);
-	for (TiViewProxy *child in children)
-	{
-		[child windowDidClose];
-	}
-	pthread_rwlock_unlock(&childrenLock);
-	[self detachView];
-	windowOpened=NO;
-}
-
--(void)windowWillClose
-{
-	pthread_rwlock_rdlock(&childrenLock);
-	[children makeObjectsPerformSelector:@selector(windowWillClose)];
-	pthread_rwlock_unlock(&childrenLock);
-}
-
--(void)viewWillAttach
-{
-	// for subclasses
-}
-
--(void)viewDidAttach
-{
-	// for subclasses
-}
-
--(void)viewWillDetach
-{
-	// for subclasses
-}
-
--(void)viewDidDetach
-{
-	// for subclasses
-}
-
--(void)willFirePropertyChanges
-{
-	// for subclasses
-	if ([view respondsToSelector:@selector(willFirePropertyChanges)])
-	{
-		[view performSelector:@selector(willFirePropertyChanges)];
-	}
-}
-
--(void)didFirePropertyChanges
-{
-	// for subclasses
-	if ([view respondsToSelector:@selector(didFirePropertyChanges)])
-	{
-		[view performSelector:@selector(didFirePropertyChanges)];
-	}
-}
-
--(BOOL)windowIsOpening
-{
-	return windowOpening;
-}
-
--(BOOL)viewReady
-{
-	return view!=nil && 
-			CGRectIsEmpty(view.bounds)==NO && 
-			CGRectIsNull(view.bounds)==NO &&
-			[view superview] != nil;
-}
-
-//TODO: When swapping about proxies, views are uninitialized, aren't they?
--(BOOL)viewInitialized
-{
-	return viewInitialized && (view != nil);
-}
-
--(void)firePropertyChanges
-{
-	[self willFirePropertyChanges];
-	
-	id<NSFastEnumeration> values = [self allKeys];
-	
-	[view readProxyValuesWithKeys:values];
-
-	[self didFirePropertyChanges];
-}
-
--(TiUIView*)view
-{
-	if (view == nil)
-	{
-		WARN_IF_BACKGROUND_THREAD_OBJ
-#ifdef VERBOSE
-		if(![NSThread isMainThread])
-		{
-			NSLog(@"[WARN] Break here");
-		}
-#endif
-		[self viewWillAttach];
-		
-		// on open we need to create a new view
-		view = [self newView];
-		
-		view.proxy = self;
-		view.parent = parent;
-		view.layer.transform = CATransform3DIdentity;
-		view.transform = CGAffineTransformIdentity;
-
-		[view initializeState];
-
-		[view willSendConfiguration];
-
-		// fire property changes for all properties to our delegate
-		[self firePropertyChanges];
-
-
-		[view didSendConfiguration];
-
-		[view configurationSet];
-
-		pthread_rwlock_rdlock(&childrenLock);
-		for (id child in self.children)
-		{
-			TiUIView *childView = [(TiViewProxy*)child view];
-			[view addSubview:childView];
-		}
-		pthread_rwlock_unlock(&childrenLock);
-		[self viewDidAttach];
-
-		// make sure we do a layout of ourselves
-		[view updateLayout:NULL withBounds:view.bounds];
-		viewInitialized = YES;
-	}
-
-	CGRect bounds = [view bounds];
-	if (!CGPointEqualToPoint(bounds.origin, CGPointZero))
-	{
-		[view setBounds:CGRectMake(0, 0, bounds.size.width, bounds.size.height)];
-	}
-	
-	return view;
-}
-
-#pragma mark Layout 
-
--(void)getAnimatedCenterPoint:(NSMutableDictionary *)resultDict
-{
-	UIView * ourView = view;
-	CALayer * ourLayer = [ourView layer];
-	CALayer * animatedLayer = [ourLayer presentationLayer];
-	
-	CGPoint result;
-	if (animatedLayer !=nil)
-	{
-		result = [animatedLayer position];
-	}
-	else
-	{
-		result = [ourLayer position];
-	}
-
-	[resultDict setObject:NUMFLOAT(result.x) forKey:@"x"];
-	[resultDict setObject:NUMFLOAT(result.y) forKey:@"y"];
-}
-
--(id)animatedCenter;
+-(id)animatedCenter
 {
 	if (![self viewAttached])
 	{
@@ -701,384 +280,67 @@
 	return result;
 }
 
--(BOOL)needsZIndexRepositioning
+-(void)setBackgroundGradient:(id)arg
 {
-	return needsZIndexRepositioning;
+	TiGradient * newGradient = [TiGradient gradientFromObject:arg proxy:self];
+	[self replaceValue:newGradient forKey:@"backgroundGradient" notification:YES];
 }
 
--(void)setNeedsZIndexRepositioning
+-(TiBlob*)toImage:(id)args
 {
-	needsZIndexRepositioning = YES;
-	if (!windowOpened||[self viewAttached]==NO)
-	{
-		[[self parent] setNeedsZIndexRepositioning];
-	}
-	else
-	{
-		[(TiUIView*)[self view] performZIndexRepositioning];
-		//[self layoutChildren:NO];
-	}
+	KrollCallback *callback = [args count] > 0 ? [args objectAtIndex:0] : nil;
+	TiBlob *blob = [[[TiBlob alloc] init] autorelease];
+	// we spin on the UI thread and have him convert and then add back to the blob
+	// if you pass a callback function, we'll run the render asynchronously, if you
+	// don't, we'll do it synchronously
+	[self performSelectorOnMainThread:@selector(addImageToBlob:) withObject:[NSArray arrayWithObjects:blob,callback,nil] waitUntilDone:callback==nil ? YES : NO];
+	return blob;
 }
 
 
--(UIView *)parentViewForChild:(TiViewProxy *)child
-{
-	return view;
-}
+#pragma mark nonpublic accessors not related to Housecleaning
 
--(void)layoutChild:(TiViewProxy*)child optimize:(BOOL)optimize
+@synthesize parent, barButtonItem;
+
+-(void)setParent:(TiViewProxy*)parent_
 {
-	IGNORE_IF_NOT_OPENED
+	parent = parent_;
 	
-	UIView * ourView = [self parentViewForChild:child];
-
-	if (ourView==nil)
+	if (parent_!=nil && [parent windowHasOpened])
 	{
-		return;
-	}
-
-	CGRect bounds = [ourView bounds];
-	
-	// layout out ourself
-
-	if(TiLayoutRuleIsVertical(layoutProperties.layout))
-	{
-		bounds.origin.y += verticalLayoutBoundary;
-		bounds.size.height = [child minimumParentHeightForWidth:bounds.size.width];
-		verticalLayoutBoundary += bounds.size.height;
-	}
-	else if(TiLayoutRuleIsHorizontal(layoutProperties.layout))
-	{
-		CGFloat desiredWidth = [child minimumParentWidthForWidth:bounds.size.width-horizontalLayoutBoundary];
-		if ((horizontalLayoutBoundary + desiredWidth) > bounds.size.width) //No room! Start over!
-		{
-			horizontalLayoutBoundary = 0.0;
-			verticalLayoutBoundary += horizontalLayoutRowHeight;
-			horizontalLayoutRowHeight = 0;
-			desiredWidth = [child minimumParentWidthForWidth:bounds.size.width];
-		}
-		else
-		{
-			bounds.origin.x += horizontalLayoutBoundary;
-		}
-
-		horizontalLayoutBoundary += desiredWidth;
-		bounds.size.width = desiredWidth;
-		
-		CGFloat desiredHeight = [child minimumParentHeightForWidth:desiredWidth];
-		if (desiredHeight > horizontalLayoutRowHeight)
-		{
-			horizontalLayoutRowHeight = desiredHeight;
-		}
-		bounds.origin.y += verticalLayoutBoundary;
-		bounds.size.height = desiredHeight;
-	}
-
-#if DONTSHOWHIDDEN
-	BOOL isVisible = [TiUtils boolValue:[child valueForKey:@"visible"] def:YES];
-
-	if (!isVisible)
-	{
-		//TODO: Return early for speed
-	}
-#endif
-	
-	if (optimize==NO)
-	{
-		TiUIView *childView = [child view];
-		if ([childView superview]!=ourView)
-		{	
-			//TODO: Optimize!
-			int insertPosition = 0;
-			CGFloat zIndex = [childView zIndex];
-			
-			pthread_rwlock_rdlock(&childrenLock);
-			int childProxyIndex = [children indexOfObject:child];
-
-			for (TiUIView * thisView in [ourView subviews])
-			{
-				if (![thisView isKindOfClass:[TiUIView class]])
-				{
-					insertPosition ++;
-					continue;
-				}
-				
-				CGFloat thisZIndex=[thisView zIndex];
-				if (zIndex < thisZIndex) //We've found our stop!
-				{
-					break;
-				}
-				if (zIndex == thisZIndex)
-				{
-					TiProxy * thisProxy = [thisView proxy];
-					if (childProxyIndex <= [children indexOfObject:thisProxy])
-					{
-						break;
-					}
-				}
-				insertPosition ++;
-			}
-			
-			[ourView insertSubview:childView atIndex:insertPosition];
-			pthread_rwlock_unlock(&childrenLock); // must release before calling resize
-			
-			[self childWillResize:child];
-		}
-	}
-	[[child view] updateLayout:NULL withBounds:bounds];
-	
-	// tell our children to also layout
-	[child layoutChildren:optimize];
-}
-
--(void)layoutChildren:(BOOL)optimize
-{
-	IGNORE_IF_NOT_OPENED
-	
-	verticalLayoutBoundary = 0.0;
-	horizontalLayoutBoundary = 0.0;
-	horizontalLayoutRowHeight = 0.0;
-	
-	if (optimize==NO)
-	{
-		OSAtomicTestAndSetBarrier(NEEDS_LAYOUT_CHILDREN, &dirtyflags);
-	}
-	pthread_rwlock_rdlock(&childrenLock);
-	for (id child in self.children)
-	{
-		[self layoutChild:child optimize:optimize];
-	}
-	pthread_rwlock_unlock(&childrenLock);
-	if (optimize==NO)
-	{
-		OSAtomicTestAndClearBarrier(NEEDS_LAYOUT_CHILDREN, &dirtyflags);
+		[self windowWillOpen];
 	}
 }
-
--(CGRect)appFrame
-{
-	CGRect result=[[UIScreen mainScreen] applicationFrame];
-	switch ([[UIApplication sharedApplication] statusBarOrientation])
-	{
-		case UIInterfaceOrientationLandscapeLeft:
-		case UIInterfaceOrientationLandscapeRight:
-		{
-			CGFloat leftMargin = result.origin.y;
-			CGFloat topMargin = result.origin.x;
-			CGFloat newHeight = result.size.width;
-			CGFloat newWidth = result.size.height;
-			result = CGRectMake(leftMargin, topMargin, newWidth, newHeight);
-			break;
-		}
-	}
-	return result;
-}
-
-#pragma mark Memory Management
-
--(void)_destroy
-{
-	[destroyLock lock];
-	if ([self destroyed])
-	{
-		// not safe to do multiple times given rwlock
-		[destroyLock unlock];
-		return;
-	}
-	// _destroy is called during a JS context shutdown, to inform the object to 
-	// release all its memory and references.  this will then cause dealloc 
-	// on objects that it contains (assuming we don't have circular references)
-	// since some of these objects are registered in the context and thus still
-	// reachable, we need _destroy to help us start the unreferencing part
-
-
-	pthread_rwlock_wrlock(&childrenLock);
-	RELEASE_TO_NIL(children);
-	pthread_rwlock_unlock(&childrenLock);
-	[super _destroy];
-
-	//Part of super's _destroy is to release the modelDelegate, which in our case is ALSO the view.
-	//As such, we need to have the super happen before we release the view, so that we can insure that the
-	//release that triggers the dealloc happens on the main thread.
-	
-	if (barButtonItem != nil)
-	{
-		if ([NSThread isMainThread])
-		{
-			RELEASE_TO_NIL(barButtonItem);
-		}
-		else
-		{
-			[barButtonItem performSelectorOnMainThread:@selector(release) withObject:nil waitUntilDone:NO];
-			barButtonItem = nil;
-		}
-	}
-
-	if (view!=nil)
-	{
-		if ([NSThread isMainThread])
-		{
-			[self detachView];
-		}
-		else
-		{
-			view.proxy = nil;
-			[view performSelectorOnMainThread:@selector(release) withObject:nil waitUntilDone:NO];
-			view = nil;
-		}
-	}
-	[destroyLock unlock];
-}
-
--(void)destroy
-{
-	//FIXME- me already have a _destroy, refactor this
-	[self _destroy];
-}
-
--(void)didReceiveMemoryWarning:(NSNotification*)notification
-{
-	// Only release a view if we're the only living reference for it
-	// WARNING: do not call [self view] here as that will create the
-	// view if it doesn't yet exist (thus defeating the purpose of
-	// this method)
-	
-	//NOTE: for now, we're going to have to turn this off until post
-	//1.4 where we can figure out why the drawing is screwed up since
-	//the views aren't reattaching.  
-	/*
-	if (view!=nil && [view retainCount]==1)
-	{
-		[self detachView];
-	}*/
-	[super didReceiveMemoryWarning:notification];
-}
-
-#pragma mark Listener Management
-
--(BOOL)_hasListeners:(NSString *)type
-{
-	if ([super _hasListeners:type])
-	{
-		return YES;
-	}
-	// check our parent since we optimize the fire with
-	// the check
-	if (parent!=nil)
-	{
-		// walk up the chain
-		return [parent _hasListeners:type];
-	}
-	return NO;
-}
-
--(void)fireEvent:(NSString*)type withObject:(id)obj withSource:(id)source propagate:(BOOL)propagate
-{
-	TiUIView* proxyView = [self view];
-	
-	// Have to handle the situation in which the proxy's view might be nil... like, for example,
-	// with table rows.  Automagically assume any nil view we're firing an event for is A-OK.
-	if (proxyView == nil || [proxyView interactionEnabled]) {
-		[super fireEvent:type withObject:obj withSource:source propagate:YES];
-		
-		// views support event propagation. we need to check our
-		// parent and if he has the same named listener, we fire
-		// an event and set the source of the event to ourself
-		
-		if (parent!=nil && propagate==YES)
-		{
-			[parent fireEvent:type withObject:obj withSource:source];
-		}
-	}
-}
-
--(void)_listenerAdded:(NSString*)type count:(int)count
-{
-	if (self.modelDelegate!=nil && [(NSObject*)self.modelDelegate respondsToSelector:@selector(listenerAdded:count:)])
-	{
-		[self.modelDelegate listenerAdded:type count:count];
-	}
-	else if(view!=nil)  // don't create the view if not already realized
-	{
-		[self.view listenerAdded:type count:count];
-	}
-}
-
--(void)_listenerRemoved:(NSString*)type count:(int)count
-{
-	if (self.modelDelegate!=nil && [(NSObject*)self.modelDelegate respondsToSelector:@selector(listenerRemoved:count:)])
-	{
-		[self.modelDelegate listenerRemoved:type count:count];
-	}
-	else if(view!=nil) // don't create the view if not already realized
-	{
-		[self.view listenerRemoved:type count:count];
-	}
-}
-
-#pragma mark For Nav Bar Support
-
--(BOOL)supportsNavBarPositioning
-{
-	return YES;
-}
-
-- (TiUIView *)barButtonViewForSize:(CGSize)bounds
-{
-	TiUIView * barButtonView = [self view];
-	//TODO: This logic should have a good place in case that refreshLayout is used.
-	LayoutConstraint barButtonLayout = layoutProperties;
-	if (TiDimensionIsUndefined(barButtonLayout.width))
-	{
-		barButtonLayout.width = TiDimensionAuto;
-	}
-	if (TiDimensionIsUndefined(barButtonLayout.height))
-	{
-		barButtonLayout.height = TiDimensionAuto;
-	}
-	CGRect barBounds;
-	barBounds.origin = CGPointZero;
-	barBounds.size = SizeConstraintViewWithSizeAddingResizing(&barButtonLayout, self, bounds, NULL);
-	
-	[TiUtils setView:barButtonView positionRect:barBounds];
-	[barButtonView setAutoresizingMask:UIViewAutoresizingNone];
-	
-	return barButtonView;
-}
-
--(UIBarButtonItem*)barButtonItem
-{
-	if (barButtonItem == nil)
-	{
-		isUsingBarButtonItem = YES;
-		barButtonItem = [[UIBarButtonItem alloc] initWithCustomView:[self barButtonViewForSize:CGSizeZero]];
-	}
-	return barButtonItem;
-}
-
--(void)removeBarButtonView
-{
-	isUsingBarButtonItem = NO;
-	[self setBarButtonItem:nil];
-}
-
-- (BOOL) isUsingBarButtonItem
-{
-	return isUsingBarButtonItem;
-}
-
-#pragma mark For autosizing of table views
 
 -(LayoutConstraint *)layoutProperties
 {
 	return &layoutProperties;
 }
 
--(void)setLayoutProperties:(LayoutConstraint *)newLayout
-{
-	layoutProperties = *newLayout;
-}
+@synthesize sandboxBounds;
 
+-(void)setHidden:(BOOL)newHidden withArgs:(id)args
+{
+	if(hidden == newHidden)
+	{
+		return;
+	}
+	hidden = newHidden;
+	
+	//TODO: If we have an animated show, hide, or setVisible, here's the spot for it.
+	
+	if(parentVisible)
+	{
+		if (hidden)
+		{
+			[self willHide];
+		}
+		else
+		{
+			[self willShow];
+		}
+	}
+}
 
 -(CGFloat)autoWidthForWidth:(CGFloat)suggestedWidth
 {
@@ -1214,159 +476,590 @@
 	return result;
 }
 
--(void)layoutChildrenIfNeeded
+
+
+-(UIBarButtonItem*)barButtonItem
 {
-	IGNORE_IF_NOT_OPENED
-	
-	// if not attached, ignore layout
-	if ([self viewAttached])
+	if (barButtonItem == nil)
 	{
-		// if not visible, ignore layout
-		if (view.hidden)
+		isUsingBarButtonItem = YES;
+		barButtonItem = [[UIBarButtonItem alloc] initWithCustomView:[self barButtonViewForSize:CGSizeZero]];
+	}
+	return barButtonItem;
+}
+
+- (TiUIView *)barButtonViewForSize:(CGSize)bounds
+{
+	TiUIView * barButtonView = [self view];
+	//TODO: This logic should have a good place in case that refreshLayout is used.
+	LayoutConstraint barButtonLayout = layoutProperties;
+	if (TiDimensionIsUndefined(barButtonLayout.width))
+	{
+		barButtonLayout.width = TiDimensionAuto;
+	}
+	if (TiDimensionIsUndefined(barButtonLayout.height))
+	{
+		barButtonLayout.height = TiDimensionAuto;
+	}
+	CGRect barBounds;
+	barBounds.origin = CGPointZero;
+	barBounds.size = SizeConstraintViewWithSizeAddingResizing(&barButtonLayout, self, bounds, NULL);
+	
+	[TiUtils setView:barButtonView positionRect:barBounds];
+	[barButtonView setAutoresizingMask:UIViewAutoresizingNone];
+	
+	return barButtonView;
+}
+
+-(TiUIView*)view
+{
+	if (view == nil)
+	{
+		WARN_IF_BACKGROUND_THREAD_OBJ
+#ifdef VERBOSE
+		if(![NSThread isMainThread])
 		{
-			return;
+			NSLog(@"[WARN] Break here");
 		}
+#endif		
+		// on open we need to create a new view
+		view = [self newView];
 		
-		[self repositionIfNeeded];
+		view.proxy = self;
+		view.layer.transform = CATransform3DIdentity;
+		view.transform = CGAffineTransformIdentity;
 
-		BOOL wasSet=OSAtomicTestAndClearBarrier(NEEDS_LAYOUT_CHILDREN, &dirtyflags);
-		if (wasSet && [self viewAttached])
+		[view initializeState];
+
+		// fire property changes for all properties to our delegate
+		[self firePropertyChanges];
+
+		[view configurationSet];
+
+		pthread_rwlock_rdlock(&childrenLock);
+		for (id child in self.children)
 		{
-			[self layoutChildren:NO];
+			TiUIView *childView = [(TiViewProxy*)child view];
+			[self insertSubview:childView forProxy:child];
 		}
+		pthread_rwlock_unlock(&childrenLock);
+		[self viewDidAttach];
+
+		// make sure we do a layout of ourselves
+		[self setSandboxBounds:view.bounds];
+		[self relayout];
+		viewInitialized = YES;
+	}
+
+	CGRect bounds = [view bounds];
+	if (!CGPointEqualToPoint(bounds.origin, CGPointZero))
+	{
+		[view setBounds:CGRectMake(0, 0, bounds.size.width, bounds.size.height)];
+	}
+	
+	return view;
+}
+
+//CAUTION: TO BE USED ONLY WITH TABLEVIEW MAGIC
+-(void)setView:(TiUIView *)newView
+{
+	if (view != newView) {
+		[view removeFromSuperview];
+		[view release];
+		view = [newView retain];
+	}
+	
+	if (self.modelDelegate != newView) {
+		if (self.modelDelegate!=nil && [self.modelDelegate respondsToSelector:@selector(detachProxy)])
+		{
+			[self.modelDelegate detachProxy];
+			self.modelDelegate=nil;
+		}
+		self.modelDelegate = newView;
 	}
 }
 
--(BOOL)willBeRelaying
+-(NSMutableDictionary*)langConversionTable
 {
-	return dirtyflags != 0;
+    return nil;
 }
 
--(void)childWillResize:(TiViewProxy *)child
+#pragma mark Methods subclasses should override for behavior changes
+
+-(BOOL)suppressesRelayout
 {
-	IGNORE_IF_NOT_OPENED
-	
+	return NO;
+}
+
+-(BOOL)supportsNavBarPositioning
+{
+	return YES;
+}
+
+// TODO: Re-evaluate this along with the other controller propagation mechanisms, post 1.3.0.
+// Returns YES for anything that can have a UIController object in its parent view
+-(BOOL)canHaveControllerParent
+{
+	return YES;
+}
+
+-(BOOL)shouldDetachViewOnUnload
+{
+	return YES;
+}
+
+-(UIView *)parentViewForChild:(TiViewProxy *)child
+{
+	return view;
+}
+
+#pragma mark Event trigger methods
+
+-(void)windowWillOpen
+{
+	//TODO: This should be properly handled and moved, but for now, let's force it (Redundantly, I know.)
+	if (parent != nil) {
+		[self parentWillShow];
+	}
+
 	pthread_rwlock_rdlock(&childrenLock);
-	BOOL containsChild = [children containsObject:child];
-	pthread_rwlock_unlock(&childrenLock);
-
-	ENSURE_VALUE_CONSISTENCY(containsChild,YES);
-	[self setNeedsRepositionIfAutoSized];
-
-	if (!TiLayoutRuleIsAbsolute(layoutProperties.layout))
+	
+	// this method is called just before the top level window
+	// that this proxy is part of will open and is ready for
+	// the views to be attached
+	
+	if (windowOpened==YES)
 	{
-		BOOL alreadySet = OSAtomicTestAndSetBarrier(NEEDS_LAYOUT_CHILDREN, &dirtyflags);
-		if (!alreadySet)
-		{
-			[self willEnqueue];
+		pthread_rwlock_unlock(&childrenLock);
+		return;
+	}
+	
+	windowOpened = YES;
+	windowOpening = YES;
+	
+	// If the window was previously opened, it may need to have
+	// its existing children redrawn
+	if (children != nil) {
+		for (TiViewProxy* child in children) {
+			[self layoutChild:child optimize:NO];
+			[child windowWillOpen];
 		}
 	}
-}
-
--(void)reposition
-{
-	IGNORE_IF_NOT_OPENED
 	
-	UIView* superview = [[self view] superview];
-	if (![self viewAttached] || view.hidden || superview == nil)
-	{
-		return;
-	}
-	if ([NSThread isMainThread])
-	{	//NOTE: This will cause problems with ScrollableView, or is a new wrapper needed?		
-		[self refreshView:nil];
-
-		[self repositionWithBounds:superview.bounds];
-	}
-	else 
-	{
-		[self performSelectorOnMainThread:@selector(reposition) withObject:nil waitUntilDone:NO];
-	}
-
-}
-
--(void)repositionIfNeeded
-{
-	IGNORE_IF_NOT_OPENED
+	pthread_rwlock_unlock(&childrenLock);
 	
-	BOOL wasSet=OSAtomicTestAndClearBarrier(NEEDS_REPOSITION, &dirtyflags);
-	if (wasSet && [self viewAttached])
+	if (pendingAdds!=nil)
 	{
-		[self reposition];
+		for (id child in pendingAdds)
+		{
+			[self add:child];
+			[child windowWillOpen];
+		}
+		RELEASE_TO_NIL(pendingAdds);
 	}
 }
 
--(void)setNeedsReposition
+-(void)windowDidOpen
 {
-	IGNORE_IF_NOT_OPENED
+	windowOpening = NO;
+	pthread_rwlock_rdlock(&childrenLock);
+	for (TiViewProxy *child in children)
+	{
+		[child windowDidOpen];
+	}
+	pthread_rwlock_unlock(&childrenLock);
+}
+
+-(void)windowWillClose
+{
+	pthread_rwlock_rdlock(&childrenLock);
+	[children makeObjectsPerformSelector:@selector(windowWillClose)];
+	pthread_rwlock_unlock(&childrenLock);
+}
+
+-(void)windowDidClose
+{
+	pthread_rwlock_rdlock(&childrenLock);
+	for (TiViewProxy *child in children)
+	{
+		[child windowDidClose];
+	}
+	pthread_rwlock_unlock(&childrenLock);
+	[self detachView];
+	windowOpened=NO;
+}
+
+
+-(void)willFirePropertyChanges
+{
+	// for subclasses
+	if ([view respondsToSelector:@selector(willFirePropertyChanges)])
+	{
+		[view performSelector:@selector(willFirePropertyChanges)];
+	}
+}
+
+-(void)didFirePropertyChanges
+{
+	// for subclasses
+	if ([view respondsToSelector:@selector(didFirePropertyChanges)])
+	{
+		[view performSelector:@selector(didFirePropertyChanges)];
+	}
+}
+
+
+-(void)viewDidAttach
+{
+	// for subclasses
+}
+
+-(void)viewWillDetach
+{
+	// for subclasses
+}
+
+-(void)viewDidDetach
+{
+	// for subclasses
+}
+
+
+#pragma mark Housecleaning state accessors
+
+-(BOOL)viewHasSuperview:(UIView *)superview
+{
+	return [(UIView *)view superview] == superview;
+}
+
+-(BOOL)viewAttached
+{
+	return view!=nil && windowOpened;
+}
+
+//TODO: When swapping about proxies, views are uninitialized, aren't they?
+-(BOOL)viewInitialized
+{
+	return viewInitialized && (view != nil);
+}
+
+-(BOOL)viewReady
+{
+	return view!=nil && 
+			CGRectIsEmpty(view.bounds)==NO && 
+			CGRectIsNull(view.bounds)==NO &&
+			[view superview] != nil;
+}
+
+-(BOOL)windowHasOpened
+{
+	return windowOpened;
+}
+
+-(BOOL)windowIsOpening
+{
+	return windowOpening;
+}
+
+- (BOOL) isUsingBarButtonItem
+{
+	return isUsingBarButtonItem;
+}
+
+-(CGRect)appFrame	//TODO: Why is this here? It doesn't have anything to do with a specific instance.
+{
+	CGRect result=[[UIScreen mainScreen] applicationFrame];
+	switch ([[UIApplication sharedApplication] statusBarOrientation])
+	{
+		case UIInterfaceOrientationLandscapeLeft:
+		case UIInterfaceOrientationLandscapeRight:
+		{
+			CGFloat leftMargin = result.origin.y;
+			CGFloat topMargin = result.origin.x;
+			CGFloat newHeight = result.size.width;
+			CGFloat newWidth = result.size.height;
+			result = CGRectMake(leftMargin, topMargin, newWidth, newHeight);
+			break;
+		}
+	}
+	return result;
+}
+
+
+#pragma mark Building up and Tearing down
+
+-(id)init
+{
+	if ((self = [super init]))
+	{
+		destroyLock = [[NSRecursiveLock alloc] init];
+		pthread_rwlock_init(&childrenLock, NULL);
+	}
+	return self;
+}
+
+-(void)_initWithProperties:(NSDictionary*)properties
+{
+	if (properties!=nil)
+	{
+		NSString *objectId = [properties objectForKey:@"id"];
+		if (objectId!=nil)
+		{
+			TiStylesheet *stylesheet = [[[self pageContext] host] stylesheet];
+			NSString *density = [TiUtils isRetinaDisplay] ? @"high" : @"medium";
+			NSString *basename = [[self pageContext] basename];
+			NSString *type = [NSStringFromClass([self class]) stringByReplacingOccurrencesOfString:@"TiUI" withString:@""];
+			type = [[type stringByReplacingOccurrencesOfString:@"Proxy" withString:@""] lowercaseString];
+			NSDictionary *merge = [stylesheet stylesheet:objectId type:type density:density basename:basename];
+			if (merge!=nil)
+			{
+				// incoming keys take precendence over existing stylesheet keys
+				NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithDictionary:merge];
+				[dict addEntriesFromDictionary:properties];
+                
+				properties = dict;
+			}
+		}
+		// do a translation of language driven keys to their converted counterparts
+		// for example titleid should look up the title in the Locale
+		NSMutableDictionary *table = [self langConversionTable];
+		if (table!=nil)
+		{
+			for (id key in table)
+			{
+				// determine which key in the lang table we need to use
+				// from the lang property conversion key
+				id langKey = [properties objectForKey:key];
+				if (langKey!=nil)
+				{
+					// eg. titleid -> title
+					id convertKey = [table objectForKey:key];
+					// check and make sure we don't already have that key
+					// since you can't override it if already present
+					if ([properties objectForKey:convertKey]==nil)
+					{
+						id newValue = [TiLocale getString:langKey comment:nil];
+						if (newValue!=nil)
+						{
+							[(NSMutableDictionary*)properties setObject:newValue forKey:convertKey];
+						}
+					}
+				}
+			}
+		}
+	}
+	[super _initWithProperties:properties];
+}
+
+-(void)dealloc
+{
+	[self _destroy];
 	
-	BOOL alreadySet = OSAtomicTestAndSetBarrier(NEEDS_REPOSITION, &dirtyflags);
-	if (alreadySet || [parent willBeRelaying])
+	RELEASE_TO_NIL(pendingAdds);
+	RELEASE_TO_NIL(destroyLock);
+	pthread_rwlock_destroy(&childrenLock);
+	
+	//Dealing with children is in _destroy, which is called by super dealloc.
+	
+	[super dealloc];
+}
+
+-(void)firePropertyChanges
+{
+	[self willFirePropertyChanges];
+	
+	id<NSFastEnumeration> values = [self allKeys];
+	
+	[view readProxyValuesWithKeys:values];
+
+	[self didFirePropertyChanges];
+}
+
+-(TiUIView*)newView
+{
+	NSString * proxyName = NSStringFromClass([self class]);
+	if ([proxyName hasSuffix:@"Proxy"]) 
 	{
-		return;
-	}
-
-	[parent childWillResize:self];
-	[self willEnqueue];
-}
-
--(void)clearNeedsReposition
-{
-	OSAtomicTestAndClearBarrier(NEEDS_REPOSITION, &dirtyflags);
-}
-
--(void)setNeedsRepositionIfAutoSized
-{
-	if (TiDimensionIsAuto(layoutProperties.width) || TiDimensionIsAuto(layoutProperties.height))
-	{
-		[self setNeedsReposition];
-	}
-}
-
-#define LAYOUTPROPERTIES_SETTER(methodName,layoutName,converter,postaction)	\
--(void)methodName:(id)value	\
-{	\
-	layoutProperties.layoutName = converter(value);	\
-	[self setNeedsReposition];	\
-	[self replaceValue:value forKey:@#layoutName notification:YES];	\
-	postaction; \
-}
-
-LAYOUTPROPERTIES_SETTER(setTop,top,TiDimensionFromObject,)
-LAYOUTPROPERTIES_SETTER(setBottom,bottom,TiDimensionFromObject,)
-
-LAYOUTPROPERTIES_SETTER(setLeft,left,TiDimensionFromObject,)
-LAYOUTPROPERTIES_SETTER(setRight,right,TiDimensionFromObject,)
-
-LAYOUTPROPERTIES_SETTER(setWidth,width,TiDimensionFromObject,)
-LAYOUTPROPERTIES_SETTER(setHeight,height,TiDimensionFromObject,)
-
-LAYOUTPROPERTIES_SETTER(setLayout,layout,TiLayoutRuleFromObject,)
-
-LAYOUTPROPERTIES_SETTER(setMinWidth,minimumWidth,TiFixedValueRuleFromObject,)
-LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,)
-
--(void)setSize:(id)value
-{
-	ENSURE_DICT(value);
-	layoutProperties.width = TiDimensionFromObject([value objectForKey:@"width"]);
- 	layoutProperties.height = TiDimensionFromObject([value objectForKey:@"height"]);
-	[self setNeedsReposition];
-}
-
--(void)setCenter:(id)value
-{
-	if (![value isKindOfClass:[NSDictionary class]])
-	{
-		layoutProperties.centerX = TiDimensionUndefined;
-		layoutProperties.centerY = TiDimensionUndefined;
+		Class viewClass = nil;
+		NSString * className = [proxyName substringToIndex:[proxyName length]-5];
+		viewClass = NSClassFromString(className);
+		if (viewClass != nil)
+		{
+			return [[viewClass alloc] init];
+		}
 	}
 	else
 	{
-		layoutProperties.centerX = TiDimensionFromObject([value objectForKey:@"x"]);
-		layoutProperties.centerY = TiDimensionFromObject([value objectForKey:@"y"]);
+		NSLog(@"[WARN] No TiView for Proxy: %@, couldn't find class: %@",self,proxyName);
 	}
-	[self setNeedsReposition];
+	return [[TiUIView alloc] initWithFrame:[self appFrame]];
+}
+
+
+-(void)detachView
+{
+	[destroyLock lock];
+	if (view!=nil)
+	{
+		[self viewWillDetach];
+		// hold the view during detachment
+		[[view retain] autorelease];
+		view.proxy = nil;
+		if (self.modelDelegate!=nil && [self.modelDelegate respondsToSelector:@selector(detachProxy)])
+		{
+			[self.modelDelegate detachProxy];
+		}
+		self.modelDelegate = nil;
+		[view removeFromSuperview];
+		RELEASE_TO_NIL(view);
+		[self viewDidDetach];
+	}
+	[destroyLock unlock];
+}
+
+-(void)_destroy
+{
+	[destroyLock lock];
+	if ([self destroyed])
+	{
+		// not safe to do multiple times given rwlock
+		[destroyLock unlock];
+		return;
+	}
+	// _destroy is called during a JS context shutdown, to inform the object to 
+	// release all its memory and references.  this will then cause dealloc 
+	// on objects that it contains (assuming we don't have circular references)
+	// since some of these objects are registered in the context and thus still
+	// reachable, we need _destroy to help us start the unreferencing part
+
+
+	pthread_rwlock_wrlock(&childrenLock);
+	RELEASE_TO_NIL(children);
+	pthread_rwlock_unlock(&childrenLock);
+	[super _destroy];
+
+	//Part of super's _destroy is to release the modelDelegate, which in our case is ALSO the view.
+	//As such, we need to have the super happen before we release the view, so that we can insure that the
+	//release that triggers the dealloc happens on the main thread.
+	
+	if (barButtonItem != nil)
+	{
+		if ([NSThread isMainThread])
+		{
+			RELEASE_TO_NIL(barButtonItem);
+		}
+		else
+		{
+			[barButtonItem performSelectorOnMainThread:@selector(release) withObject:nil waitUntilDone:NO];
+			barButtonItem = nil;
+		}
+	}
+
+	if (view!=nil)
+	{
+		if ([NSThread isMainThread])
+		{
+			[self detachView];
+		}
+		else
+		{
+			view.proxy = nil;
+			[view performSelectorOnMainThread:@selector(release) withObject:nil waitUntilDone:NO];
+			view = nil;
+		}
+	}
+	[destroyLock unlock];
+}
+
+-(void)destroy
+{
+	//FIXME- me already have a _destroy, refactor this
+	[self _destroy];
+}
+
+-(void)removeBarButtonView
+{
+	isUsingBarButtonItem = NO;
+	[self setBarButtonItem:nil];
+}
+
+#pragma mark Callbacks
+
+-(void)didReceiveMemoryWarning:(NSNotification*)notification
+{
+	// Only release a view if we're the only living reference for it
+	// WARNING: do not call [self view] here as that will create the
+	// view if it doesn't yet exist (thus defeating the purpose of
+	// this method)
+	
+	//NOTE: for now, we're going to have to turn this off until post
+	//1.4 where we can figure out why the drawing is screwed up since
+	//the views aren't reattaching.  
+	/*
+	if (view!=nil && [view retainCount]==1)
+	{
+		[self detachView];
+	}*/
+	[super didReceiveMemoryWarning:notification];
+}
+
+-(void)getAnimatedCenterPoint:(NSMutableDictionary *)resultDict
+{
+	UIView * ourView = view;
+	CALayer * ourLayer = [ourView layer];
+	CALayer * animatedLayer = [ourLayer presentationLayer];
+	
+	CGPoint result;
+	if (animatedLayer !=nil)
+	{
+		result = [animatedLayer position];
+	}
+	else
+	{
+		result = [ourLayer position];
+	}
+
+	[resultDict setObject:NUMFLOAT(result.x) forKey:@"x"];
+	[resultDict setObject:NUMFLOAT(result.y) forKey:@"y"];
+}
+
+-(void)addImageToBlob:(NSArray*)args
+{
+	TiBlob *blob = [args objectAtIndex:0];
+	[self windowWillOpen];
+	TiUIView *myview = [self view];
+	CGSize size = myview.bounds.size;
+	if (CGSizeEqualToSize(size, CGSizeZero) || size.width==0 || size.height==0)
+	{
+		CGFloat width = [self autoWidthForWidth:1000];
+		CGFloat height = [self autoHeightForWidth:width];
+		if (width > 0 && height > 0)
+		{
+			size = CGSizeMake(width, height);
+		}
+		if (CGSizeEqualToSize(size, CGSizeZero) || width==0 || height == 0)
+		{
+			size = [UIScreen mainScreen].bounds.size;
+		}
+		CGRect rect = CGRectMake(0, 0, size.width, size.height);
+		[TiUtils setView:myview positionRect:rect];
+	}
+	UIGraphicsBeginImageContext(size);
+	[myview.layer renderInContext:UIGraphicsGetCurrentContext()];
+	UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
+	[blob setImage:image];
+	UIGraphicsEndImageContext();
+	if ([args count] > 1)
+	{
+		KrollCallback *callback = [args objectAtIndex:1];
+		NSDictionary *event = [NSDictionary dictionaryWithObject:blob forKey:@"blob"];
+		[self _fireEventToListener:@"blob" withObject:event listener:callback thisObject:nil];
+	}
+}
+
+-(void)animationCompleted:(TiAnimation*)animation
+{
+	[[self view] animationCompleted];
 }
 
 -(void)makeViewPerformAction:(TiAction *)action
@@ -1400,169 +1093,69 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,)
 	[ourAction release];
 }
 
-@synthesize sandboxBounds;
+#pragma mark Listener Management
 
--(void)refreshView:(TiUIView *)transferView
+-(BOOL)_hasListeners:(NSString *)type
 {
-	WARN_IF_BACKGROUND_THREAD_OBJ;
-	OSAtomicTestAndClearBarrier(TiRefreshViewEnqueued, &dirtyflags);
+	if ([super _hasListeners:type])
+	{
+		return YES;
+	}
+	// check our parent since we optimize the fire with
+	// the check
+	if (parent!=nil)
+	{
+		// walk up the chain
+		return [parent _hasListeners:type];
+	}
+	return NO;
+}
+
+-(void)fireEvent:(NSString*)type withObject:(id)obj withSource:(id)source propagate:(BOOL)propagate
+{
+	TiUIView* proxyView = [self view];
 	
-	if(!parentVisible)
-	{
-		VerboseLog(@"[INFO] Parent Invisible");
-//		return;
-	}
-	
-	if(![self visible] && parent != nil)
-	{
-		VerboseLog(@"Removing from superview");
-		if([self viewAttached])
-		{
-			[[self view] removeFromSuperview];
-		}
-		return;
-	}
-
-	BOOL changedFrame = NO;
-
-//BUG BARRIER: Code in this block is legacy code that should be factored out.
-	[parent childWillResize:self];
-	if (needsZIndexRepositioning)
-	{
-		[(TiUIView*)[self view] performZIndexRepositioning];
-		needsZIndexRepositioning=NO;
-	}
-
-	OSAtomicTestAndClearBarrier(NEEDS_REPOSITION, &dirtyflags);
-
-	if (windowOpened && [self viewAttached])
-	{
+	// Have to handle the situation in which the proxy's view might be nil... like, for example,
+	// with table rows.  Automagically assume any nil view we're firing an event for is A-OK.
+	if (proxyView == nil || [proxyView interactionEnabled]) {
+		[super fireEvent:type withObject:obj withSource:source propagate:YES];
 		
-		if(![self suppressesRelayout])
-		{
-			CGRect newBounds = [[[self view] superview] bounds];
-			[[self view] relayout:newBounds];
-		}
-		[self layoutChildren:NO];
-
-	}
-
-//END BUG BARRIER
-
-	if(OSAtomicTestAndClearBarrier(TiRefreshViewSize, &dirtyflags))
-	{
-		[self refreshSize];
-		if(TiLayoutRuleIsAbsolute(layoutProperties.layout))
-		{
-			pthread_rwlock_rdlock(&childrenLock);
-			for (TiViewProxy * thisChild in children)
-			{
-				[thisChild setSandboxBounds:sizeCache];
-			}
-			pthread_rwlock_unlock(&childrenLock);
-		}
-		changedFrame = YES;
-	}
-	else if(transferView != nil)
-	{
-		[transferView setBounds:sizeCache];
-	}
-
-	if(OSAtomicTestAndClearBarrier(TiRefreshViewPosition, &dirtyflags))
-	{
-		[self refreshPosition];
-		changedFrame = YES;
-	}
-	else if(transferView != nil)
-	{
-		[transferView setCenter:positionCache];
-	}
-
-//We should only recurse if we're a non-absolute layout. Otherwise, the views can take care of themselves.
-	if((transferView == nil) && OSAtomicTestAndClearBarrier(TiRefreshViewChildrenPosition, &dirtyflags))
-	//If transferView is non-nil, this will be managed by the table row.
-	{
+		// views support event propagation. we need to check our
+		// parent and if he has the same named listener, we fire
+		// an event and set the source of the event to ourself
 		
-	}
-
-	if(transferView != nil)
-	{
-	//TODO: Better handoff of view
-		[self setView:transferView];
-	}
-
-//By now, we MUST have our view set to transferView.
-	if(changedFrame || (transferView != nil))
-	{
-//		[view setAutoresizingMask:autoresizeCache];
-	}
-
-
-	if(OSAtomicTestAndClearBarrier(TiRefreshViewZIndex, &dirtyflags) || (transferView != nil))
-	{
-		[self refreshZIndex];
-	}
-
-}
-
--(void)repositionWithBounds:(CGRect)bounds
-{
-  IGNORE_IF_NOT_OPENED
-  
-  OSAtomicTestAndClearBarrier(NEEDS_REPOSITION, &dirtyflags);
-  [[self view] relayout:bounds];
-  [self layoutChildren:NO];
-}
-
-
--(void)refreshZIndex
-{
-	OSAtomicTestAndClearBarrier(TiRefreshViewZIndex, &dirtyflags);
-	
-	UIView * parentView = [parent parentViewForChild:self];
-	UIView * ourView = [self view];
-	
-	int newPosition = 0;
-	int ourZIndex = [ourView zIndex];
-	
-	for (UIView * childView in [parentView subviews])
-	{
-	//TODO: Use reverse object enumerator and compensate accordingly so that
-	//We can add to the tail faster.
-		if(childView == ourView)
+		if (parent!=nil && propagate==YES)
 		{
-			continue;
+			[parent fireEvent:type withObject:obj withSource:source];
 		}
-		if([childView isKindOfClass:[TiUIView class]])
-		{
-			if(ourZIndex < [(TiUIView *)childView zIndex])
-			{
-				break;
-			}
-		}
-		newPosition ++;
-	}
-	if (newPosition == [[parentView subviews] count]) {
-		[parentView addSubview:ourView];
-	}
-	else {
-		[parentView insertSubview:ourView atIndex:newPosition];
 	}
 }
 
--(void)refreshPosition
+-(void)_listenerAdded:(NSString*)type count:(int)count
 {
-	OSAtomicTestAndClearBarrier(TiRefreshViewPosition, &dirtyflags);
-
+	if (self.modelDelegate!=nil && [(NSObject*)self.modelDelegate respondsToSelector:@selector(listenerAdded:count:)])
+	{
+		[self.modelDelegate listenerAdded:type count:count];
+	}
+	else if(view!=nil)  // don't create the view if not already realized
+	{
+		[self.view listenerAdded:type count:count];
+	}
 }
 
--(void)refreshSize
+-(void)_listenerRemoved:(NSString*)type count:(int)count
 {
-	OSAtomicTestAndClearBarrier(TiRefreshViewSize, &dirtyflags);
-
-
+	if (self.modelDelegate!=nil && [(NSObject*)self.modelDelegate respondsToSelector:@selector(listenerRemoved:count:)])
+	{
+		[self.modelDelegate listenerRemoved:type count:count];
+	}
+	else if(view!=nil) // don't create the view if not already realized
+	{
+		[self.view listenerRemoved:type count:count];
+	}
 }
 
+#pragma mark Layout events, internal and external
 
 #define SET_AND_PERFORM(flagBit,action)	\
 if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
@@ -1572,10 +1165,18 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
 
 -(void)willEnqueue
 {
-//Todo: Find out why we need to add the proxy multiple times.
-//	SET_AND_PERFORM(TiRefreshViewEnqueued,return);
+	SET_AND_PERFORM(TiRefreshViewEnqueued,return);
 	[TiLayoutQueue addViewProxy:self];
 }
+
+-(void)willEnqueueIfVisible
+{
+	if(parentVisible && !hidden)
+	{
+		[self willEnqueue];
+	}
+}
+
 
 -(void)willChangeSize
 {
@@ -1591,6 +1192,7 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
 		[self willChangePosition];
 	}
 
+	[self willEnqueueIfVisible];
 	[parent contentsWillChange];
 	pthread_rwlock_rdlock(&childrenLock);
 	[children makeObjectsPerformSelector:@selector(parentSizeWillChange)];
@@ -1606,6 +1208,7 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
 	{//The only time size can be changed by the margins is if the margins define the size.
 		[self willChangeSize];
 	}
+	[self willEnqueueIfVisible];
 	[parent contentsWillChange];
 }
 
@@ -1613,6 +1216,7 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
 {
 	SET_AND_PERFORM(TiRefreshViewZIndex,);
 	//Nothing cascades from here.
+	[self willEnqueueIfVisible];
 }
 
 -(void)willShow;
@@ -1622,6 +1226,7 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
 		[self willEnqueue];
 	}
 
+	SET_AND_PERFORM(TiRefreshViewZIndex,);
 	[parent contentsWillChange];
 
 	pthread_rwlock_rdlock(&childrenLock);
@@ -1645,10 +1250,7 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
 {
 	SET_AND_PERFORM(TiRefreshViewChildrenPosition,return);
 
-	if(parentVisible && [self visible])
-	{
-		[self willEnqueue];
-	}
+	[self willEnqueueIfVisible];
 
 	pthread_rwlock_rdlock(&childrenLock);
 	[children makeObjectsPerformSelector:@selector(parentWillRelay)];
@@ -1701,12 +1303,13 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
 
 -(void)parentWillShow
 {
+	VerboseLog(@"[INFO] Parent Will Show for %@",self);
 	if(parentVisible)
 	{//Nothing to do here, we're already visible here.
 		return;
 	}
 	parentVisible = YES;
-	if([self visible])
+	if(!hidden)
 	{	//We should propagate this new status! Note this does not change the visible property.
 		[self willShow];
 	}
@@ -1714,25 +1317,418 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
 
 -(void)parentWillHide
 {
+	VerboseLog(@"[INFO] Parent Will Hide for %@",self);
 	if(!parentVisible)
 	{//Nothing to do here, we're already visible here.
 		return;
 	}
 	parentVisible = NO;
-	if([self visible])
+	if(!hidden)
 	{	//We should propagate this new status! Note this does not change the visible property.
 		[self willHide];
 	}
 }
 
--(BOOL) visible
+#pragma mark Layout actions
+
+-(void)refreshView:(TiUIView *)transferView
 {
-	return [TiUtils boolValue:[self valueForUndefinedKey:@"visible"] def:YES];
+	WARN_IF_BACKGROUND_THREAD_OBJ;
+	OSAtomicTestAndClearBarrier(TiRefreshViewEnqueued, &dirtyflags);
+	
+	if(!parentVisible)
+	{
+		VerboseLog(@"[INFO] Parent Invisible");
+		return;
+	}
+	
+	if(hidden)
+	{
+		VerboseLog(@"Removing from superview");
+		if([self viewAttached])
+		{
+			[[self view] removeFromSuperview];
+		}
+		return;
+	}
+
+	BOOL changedFrame = NO;
+
+//BUG BARRIER: Code in this block is legacy code that should be factored out.
+	[parent childWillResize:self];
+
+	if (windowOpened && [self viewAttached])
+	{
+		
+		if(![self suppressesRelayout])
+		{
+			sandboxBounds = [[[self view] superview] bounds];
+			[self relayout];
+		}
+		[self layoutChildren:NO];
+
+	}
+
+//END BUG BARRIER
+
+	if(OSAtomicTestAndClearBarrier(TiRefreshViewSize, &dirtyflags))
+	{
+		[self refreshSize];
+		if(TiLayoutRuleIsAbsolute(layoutProperties.layout))
+		{
+			pthread_rwlock_rdlock(&childrenLock);
+			for (TiViewProxy * thisChild in children)
+			{
+				[thisChild setSandboxBounds:sizeCache];
+			}
+			pthread_rwlock_unlock(&childrenLock);
+		}
+		changedFrame = YES;
+	}
+	else if(transferView != nil)
+	{
+		[transferView setBounds:sizeCache];
+	}
+
+	if(OSAtomicTestAndClearBarrier(TiRefreshViewPosition, &dirtyflags))
+	{
+		[self refreshPosition];
+		changedFrame = YES;
+	}
+	else if(transferView != nil)
+	{
+		[transferView setCenter:positionCache];
+	}
+
+//We should only recurse if we're a non-absolute layout. Otherwise, the views can take care of themselves.
+	if(OSAtomicTestAndClearBarrier(TiRefreshViewChildrenPosition, &dirtyflags) && (transferView == nil))
+	//If transferView is non-nil, this will be managed by the table row.
+	{
+		
+	}
+
+	if(transferView != nil)
+	{
+	//TODO: Better handoff of view
+		[self setView:transferView];
+	}
+
+//By now, we MUST have our view set to transferView.
+	if(changedFrame || (transferView != nil))
+	{
+		[view setAutoresizingMask:autoresizeCache];
+	}
+
+
+	if(OSAtomicTestAndClearBarrier(TiRefreshViewZIndex, &dirtyflags) || (transferView != nil))
+	{
+		[parent insertSubview:view forProxy:self];
+	}
+
 }
 
--(BOOL)suppressesRelayout
+-(void)refreshPosition
 {
-	return NO;
+	OSAtomicTestAndClearBarrier(TiRefreshViewPosition, &dirtyflags);
+
+}
+
+-(void)refreshSize
+{
+	OSAtomicTestAndClearBarrier(TiRefreshViewSize, &dirtyflags);
+
+
+}
+
+-(void)insertSubview:(UIView *)childView forProxy:(TiViewProxy *)childProxy
+{
+	int result = 0;
+	int childZindex = [childProxy zIndex];
+	BOOL earlierSibling = YES;
+	UIView * ourView = [self parentViewForChild:childProxy];
+	
+	pthread_rwlock_rdlock(&childrenLock);
+	for (TiViewProxy * thisChildProxy in self.children)
+	{
+		if(thisChildProxy == childProxy)
+		{
+			earlierSibling = NO;
+			continue;
+		}
+		
+		if(![thisChildProxy viewHasSuperview:ourView])
+		{
+			continue;
+		}
+		
+		int thisChildZindex = [thisChildProxy zIndex];
+		if((thisChildZindex < childZindex) ||
+				(earlierSibling && (thisChildZindex == zIndex)))
+		{
+			result ++;
+		}
+	}
+	pthread_rwlock_unlock(&childrenLock);
+
+	[ourView insertSubview:childView atIndex:result];
+}
+
+
+#pragma mark Layout commands that need refactoring out
+
+-(void)relayout
+{
+	if (!repositioning)
+	{
+		ENSURE_UI_THREAD_0_ARGS
+
+		repositioning = YES;
+
+
+		sizeCache.size = SizeConstraintViewWithSizeAddingResizing(&layoutProperties,self, sandboxBounds.size, &autoresizeCache);
+
+		positionCache = PositionConstraintGivenSizeBoundsAddingResizing(&layoutProperties, sizeCache.size,
+		[[view layer] anchorPoint], sandboxBounds.size, &autoresizeCache);
+
+		positionCache.x += sizeCache.origin.x + sandboxBounds.origin.x;
+		positionCache.y += sizeCache.origin.y + sandboxBounds.origin.y;
+
+		[view setAutoresizingMask:autoresizeCache];
+		[view setCenter:positionCache];
+		[view setBounds:sizeCache];
+
+		[parent insertSubview:view forProxy:self];
+
+
+		repositioning = NO;
+	}
+#ifdef VERBOSE
+	else
+	{
+		NSLog(@"[INFO] %@ Calling Relayout from within relayout.",self);
+	}
+#endif
+
+}
+
+-(void)insertIntoView:(UIView*)newSuperview bounds:(CGRect)bounds
+{
+	if (newSuperview==view)
+	{
+		NSLog(@"[ERROR] invalid call to insertIntoView, new super view is same as myself");
+		return;
+	}
+	ApplyConstraintToViewWithBounds(&layoutProperties, [self view], bounds);
+	if([view superview]!=newSuperview)	//TODO: Refactor out.
+	{
+		[newSuperview addSubview:view];
+	}
+}
+
+-(void)layoutChildrenIfNeeded
+{
+	IGNORE_IF_NOT_OPENED
+	
+	// if not attached, ignore layout
+	if ([self viewAttached])
+	{
+		// if not visible, ignore layout
+		if (view.hidden)
+		{
+			return;
+		}
+		
+		[self refreshView:nil];
+
+		BOOL wasSet=OSAtomicTestAndClearBarrier(NEEDS_LAYOUT_CHILDREN, &dirtyflags);
+		if (wasSet && [self viewAttached])
+		{
+			[self layoutChildren:NO];
+		}
+	}
+}
+
+-(BOOL)willBeRelaying
+{
+	return dirtyflags != 0;
+}
+
+-(void)childWillResize:(TiViewProxy *)child
+{
+	[self contentsWillChange];
+
+	IGNORE_IF_NOT_OPENED
+	
+	pthread_rwlock_rdlock(&childrenLock);
+	BOOL containsChild = [children containsObject:child];
+	pthread_rwlock_unlock(&childrenLock);
+
+	ENSURE_VALUE_CONSISTENCY(containsChild,YES);
+
+	if (!TiLayoutRuleIsAbsolute(layoutProperties.layout))
+	{
+		BOOL alreadySet = OSAtomicTestAndSetBarrier(NEEDS_LAYOUT_CHILDREN, &dirtyflags);
+		if (!alreadySet)
+		{
+			[self willEnqueue];
+		}
+	}
+}
+
+-(void)reposition
+{
+	IGNORE_IF_NOT_OPENED
+	
+	UIView* superview = [[self view] superview];
+	if (![self viewAttached] || view.hidden || superview == nil)
+	{
+		VerboseLog(@"[INFO] Reposition is exiting early in %@.",self);
+		return;
+	}
+	if ([NSThread isMainThread])
+	{	//NOTE: This will cause problems with ScrollableView, or is a new wrapper needed?		
+		[self willChangeSize];
+		[self willChangePosition];
+	
+		[self refreshView:nil];
+	}
+	else 
+	{
+		VerboseLog(@"[INFO] Reposition was called by a background thread in %@.",self);
+		[self performSelectorOnMainThread:@selector(reposition) withObject:nil waitUntilDone:NO];
+	}
+
+}
+
+-(void)layoutChild:(TiViewProxy*)child optimize:(BOOL)optimize
+{
+	IGNORE_IF_NOT_OPENED
+	
+	UIView * ourView = [self parentViewForChild:child];
+
+	if (ourView==nil)
+	{
+		return;
+	}
+
+	CGRect bounds = [ourView bounds];
+	
+	// layout out ourself
+
+	if(TiLayoutRuleIsVertical(layoutProperties.layout))
+	{
+		bounds.origin.y += verticalLayoutBoundary;
+		bounds.size.height = [child minimumParentHeightForWidth:bounds.size.width];
+		verticalLayoutBoundary += bounds.size.height;
+	}
+	else if(TiLayoutRuleIsHorizontal(layoutProperties.layout))
+	{
+		CGFloat desiredWidth = [child minimumParentWidthForWidth:bounds.size.width-horizontalLayoutBoundary];
+		if ((horizontalLayoutBoundary + desiredWidth) > bounds.size.width) //No room! Start over!
+		{
+			horizontalLayoutBoundary = 0.0;
+			verticalLayoutBoundary += horizontalLayoutRowHeight;
+			horizontalLayoutRowHeight = 0;
+			desiredWidth = [child minimumParentWidthForWidth:bounds.size.width];
+		}
+		else
+		{
+			bounds.origin.x += horizontalLayoutBoundary;
+		}
+
+		horizontalLayoutBoundary += desiredWidth;
+		bounds.size.width = desiredWidth;
+		
+		CGFloat desiredHeight = [child minimumParentHeightForWidth:desiredWidth];
+		if (desiredHeight > horizontalLayoutRowHeight)
+		{
+			horizontalLayoutRowHeight = desiredHeight;
+		}
+		bounds.origin.y += verticalLayoutBoundary;
+		bounds.size.height = desiredHeight;
+	}
+	
+	if (optimize==NO)
+	{
+		TiUIView *childView = [child view];
+		if ([childView superview]!=ourView)
+		{	
+			//TODO: Optimize!
+			int insertPosition = 0;
+			int childZIndex = [child zIndex];
+			
+			pthread_rwlock_rdlock(&childrenLock);
+			int childProxyIndex = [children indexOfObject:child];
+
+			for (TiUIView * thisView in [ourView subviews])
+			{
+				if (![thisView isKindOfClass:[TiUIView class]])
+				{
+					insertPosition ++;
+					continue;
+				}
+				
+				int thisZIndex=[(TiViewProxy *)[thisView proxy] zIndex];
+				if (childZIndex < thisZIndex) //We've found our stop!
+				{
+					break;
+				}
+				if (childZIndex == thisZIndex)
+				{
+					TiProxy * thisProxy = [thisView proxy];
+					if (childProxyIndex <= [children indexOfObject:thisProxy])
+					{
+						break;
+					}
+				}
+				insertPosition ++;
+			}
+			
+			[ourView insertSubview:childView atIndex:insertPosition];
+			pthread_rwlock_unlock(&childrenLock); // must release before calling resize
+			
+			[self childWillResize:child];
+		}
+	}
+	[child setSandboxBounds:bounds];
+	if ([[child view] animating])
+	{
+#ifdef DEBUG
+	// changing the layout while animating is bad, ignore for now
+		NSLog(@"[DEBUG] ignoring new layout while animating in layout Child..");
+#endif
+	}
+	else
+	{
+		[child relayout];
+	}
+
+	// tell our children to also layout
+	[child layoutChildren:optimize];
+}
+
+-(void)layoutChildren:(BOOL)optimize
+{
+	IGNORE_IF_NOT_OPENED
+	
+	verticalLayoutBoundary = 0.0;
+	horizontalLayoutBoundary = 0.0;
+	horizontalLayoutRowHeight = 0.0;
+	
+	if (optimize==NO)
+	{
+		OSAtomicTestAndSetBarrier(NEEDS_LAYOUT_CHILDREN, &dirtyflags);
+	}
+	pthread_rwlock_rdlock(&childrenLock);
+	for (id child in self.children)
+	{
+		[self layoutChild:child optimize:optimize];
+	}
+	pthread_rwlock_unlock(&childrenLock);
+	if (optimize==NO)
+	{
+		OSAtomicTestAndClearBarrier(NEEDS_LAYOUT_CHILDREN, &dirtyflags);
+	}
 }
 
 @end

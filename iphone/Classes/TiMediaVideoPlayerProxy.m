@@ -970,14 +970,12 @@ NSArray* moviePlayerKeys = nil;
 			// get the window background views surface and place it on there
 			// it's already rotated and will give us better positioning 
 			// on the right surface area
-			UIView *subview = [[[[window subviews] objectAtIndex:0] subviews] objectAtIndex:0];
-			
-			CGRect bounds = [subview bounds];
-			
+			legacyWindowView = [[[[window subviews] objectAtIndex:0] subviews] objectAtIndex:0];
+			CGRect bounds = [legacyWindowView bounds];
 			for (TiViewProxy *proxy in views)
 			{
-				TiUIView *view = [proxy view];
-				[view insertIntoView:subview bounds:bounds];
+				[proxy setSandboxBounds:bounds];
+				[proxy insertIntoView:legacyWindowView bounds:bounds];
 			}
 		}
 	}

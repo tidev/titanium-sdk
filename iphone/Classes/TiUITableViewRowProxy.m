@@ -619,7 +619,6 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 			[proxy windowWillOpen];
 			[proxy setReproxying:YES];
 			TiUIView *uiview = [proxy view];
-			uiview.parent = self;
 			[self redelegateViews:proxy toView:contentView];
 			[rowContainerView addSubview:uiview];
 			[proxy setReproxying:NO];
@@ -810,18 +809,32 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 	return (table!=nil) && ([self parent]!=nil);
 }
 
+// TODO: SUPER MEGA UGLY but it's the only workaround for now.  zindex does NOT work with table rows.
+// TODO: Add child locking methods for whenever we have to touch children outside TiViewProxy
+-(void)willShow
+{
+	pthread_rwlock_rdlock(&childrenLock);
+	for (TiViewProxy* child in [self children]) {
+		[child setParentVisible:YES];
+	}
+	pthread_rwlock_unlock(&childrenLock);
+}
+
 -(void)triggerAttach
 {
-	attaching = YES;
-	[self windowWillOpen];
-	attaching = NO;
+	if (!attaching && ![self viewAttached]) {
+		attaching = YES;
+		[self windowWillOpen];
+		[self willShow];
+		attaching = NO;
+	}
 }
 
 -(void)triggerRowUpdate
 {
 	if ([self isAttached] && !modifyingRow && !attaching)
 	{
-		TiUITableViewAction *action = [[[TiUITableViewAction alloc] initWithRow:self animation:nil section:section.section type:TiUITableViewActionRowReload] autorelease];
+		TiUITableViewAction *action = [[[TiUITableViewAction alloc] initWithObject:self animation:nil type:TiUITableViewActionRowReload] autorelease];
 		[table dispatchAction:action];
 	}
 }
@@ -833,17 +846,12 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 	attaching = NO;
 }
 
--(void)childAdded:(id)child
+-(void)contentsWillChange
 {
 	if (attaching==NO)
 	{
 		[self triggerRowUpdate];
 	}
-}
-
--(void)childRemoved:(id)child
-{
-	[self triggerRowUpdate];
 }
 
 -(void)childWillResize:(TiViewProxy *)child

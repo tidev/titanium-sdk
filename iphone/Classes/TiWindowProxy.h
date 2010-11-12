@@ -63,7 +63,7 @@ TiOrientationFlags TiOrientationFlagsFromObject(id args);
 	UIView *closeView;
 	UIViewController *tempController;
 
-	id<TiOrientationController> parentOrientationController;
+	NSObject<TiOrientationController> * parentOrientationController;
 	TiOrientationFlags orientationFlags;
 }
 
