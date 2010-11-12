@@ -6,6 +6,7 @@
  */
 package ti.modules.titanium.ui.android.optionmenu;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -13,7 +14,9 @@ import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.TiConvert;
+import org.appcelerator.titanium.util.TiDrawableHelper;
 import org.appcelerator.titanium.util.TiFileHelper;
+import org.appcelerator.titanium.util.TiRHelper.ResourceNotFoundException;
 
 import ti.modules.titanium.ui.android.AndroidModule;
 import android.graphics.drawable.Drawable;
@@ -78,12 +81,11 @@ public class OptionMenuModule extends KrollModule {
 
 							String iconPath = TiConvert.toString(mip.getProperty("icon"));
 							if (iconPath != null) {
-				     			Drawable d = null;
-								TiFileHelper tfh = new TiFileHelper(getTiContext().getActivity());
-								d = tfh.loadDrawable(getTiContext(), iconPath, false);
-								if (d != null) {
-									mi.setIcon(d);
+								try {
+									mi.setIcon(new TiDrawableHelper(getTiContext()).get(iconPath));
 								}
+								catch (ResourceNotFoundException e) {}
+								catch (IOException e) {}
 							}
 						}
 					}
