@@ -19,7 +19,7 @@ public class TiRHelper {
 	private static Map<String, Class<?>> clsCache = Collections.synchronizedMap(new HashMap<String, Class<?>>());
 	private static Map<String, Integer>  valCache = Collections.synchronizedMap(new HashMap<String, Integer>());
 	
-	private static String clsPrefixAndroid     = "android.R$";
+	private static String clsPrefixAndroid     = "android.";
 	private static String clsPrefixApplication = null;
 	
 	public static final class ResourceNotFoundException extends ClassNotFoundException {
@@ -51,7 +51,7 @@ public class TiRHelper {
 		
 		// Get the clsPrefixApplication if this is the first time
 		if (clsPrefixApplication == null)
-			clsPrefixApplication = TiApplication.getInstance().getApplicationInfo().packageName + ".R$";
+			clsPrefixApplication = TiApplication.getInstance().getApplicationInfo().packageName + ".";
 		
 		// Load the field
 		try {
