@@ -810,7 +810,7 @@ if (![TiUtils isIOS4OrGreater]) { \
 	NSObject* image = [arg objectAtIndex:0];
 	ENSURE_TYPE(image, NSObject)
 	
-	NSDictionary* saveCallbacks;
+	NSDictionary* saveCallbacks=nil;
 	if ([arg count] > 1) {
 		saveCallbacks = [arg objectAtIndex:1];
 		ENSURE_TYPE(saveCallbacks, NSDictionary);
