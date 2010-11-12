@@ -27,7 +27,7 @@ cancel[int]: an index to indicate which button should be the cancel button
 
 # 1.5
 titleid[string]: the key in the locale file to use for the title property
-
+button: boolean to indicate that the index refers to a button on the dialog and not an item. (Android)
 
 - methods
 
