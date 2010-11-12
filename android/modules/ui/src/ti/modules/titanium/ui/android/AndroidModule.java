@@ -56,7 +56,7 @@ public class AndroidModule extends KrollModule
 		if (act == null) return;
 		
 		Intent i = new Intent(act, TiPreferencesActivity.class);
-		if (prefsName != null)
+		if (prefsName != null && !prefsName.equals(""))
 			i.putExtra("prefsName", prefsName);
 		act.startActivity(i);
 	}
