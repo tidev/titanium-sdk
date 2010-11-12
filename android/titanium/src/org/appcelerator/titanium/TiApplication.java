@@ -34,7 +34,6 @@ import org.appcelerator.titanium.kroll.KrollBridge;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiPlatformHelper;
-import org.appcelerator.titanium.util.TiResourceHelper;
 import org.appcelerator.titanium.view.ITiWindowHandler;
 
 import android.app.Activity;
@@ -203,14 +202,6 @@ public abstract class TiApplication extends Application
 		systemProperties = new TiProperties(getApplicationContext(), "system", true);
 
 		//systemProperties.setString("ti.version", buildVersion); // was always setting "1.0"
-	}
-	
-	protected void onAfterCreate()
-	{
-	    // this is called from the applications onCreate (subclass)
-	    // once the appInfo has been set since this method has a dependency
-	    // on it
-    	TiResourceHelper.initialize(this);
 	}
 	
 	public void setRootActivity(TiRootActivity rootActivity)

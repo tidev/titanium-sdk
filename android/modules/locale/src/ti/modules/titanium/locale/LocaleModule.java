@@ -14,7 +14,7 @@ import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiPlatformHelper;
-import org.appcelerator.titanium.util.TiResourceHelper;
+import org.appcelerator.titanium.util.TiRHelper;
 
 import android.telephony.PhoneNumberUtils;
 
@@ -81,11 +81,10 @@ public class LocaleModule extends KrollModule
 	@Kroll.method
 	public String getString(KrollInvocation invocation, String key, @Kroll.argument(optional=true) String defaultValue)
 	{
-		int value = TiResourceHelper.getString(key);
-		if (value == 0)
-		{
+		try {
+			return invocation.getTiContext().getActivity().getString(TiRHelper.getResource("string." + key));
+		} catch (TiRHelper.ResourceNotFoundException e) {
 			return defaultValue;
 		}
-		return invocation.getTiContext().getActivity().getString(value);
 	}
 }
