@@ -13,7 +13,10 @@ if (Titanium.Platform.name == 'iPhone OS')
 	data.push({title:'Toolbar', hasChild:true, test:'../examples/textfield_toolbar.js'});
 	data.push({title:'Buttons on Textfields', hasChild:true, test:'../examples/textfield_buttons.js'});
 	data.push({title:'Textfield in scrollview', hasChild:true, test:'../examples/textfield_scrollview.js'});
+} else if (Titanium.Platform.name == 'android') {
+	data.push({title:'Soft Input Focus', hasChild:true, test:'../examples/textfield_softinputfocus.js'});
 }
+
 // create table view
 var tableview = Titanium.UI.createTableView({
 	data:data
