@@ -1,3 +1,5 @@
+// TODO: Prime target for migration to drillbit
+
 var win = Titanium.UI.currentWindow;
 win.backgroundColor = '#13386c';
 
@@ -132,7 +134,7 @@ result = result && testResult;
 
 testResult = true;
 var xmlstr4 = "<?xml version=\"1.0\" encoding=\"utf-8\"?>"+
-"<root>"+
+"<root id='here'>"+
 " <one>**"+
 "  <two>*"+
 "    <three/>"+
@@ -158,10 +160,13 @@ testResult = testResult && threeList.length==4;
 
 testResult = testResult && xml.documentElement.firstChild.nodeName == "one";
 
+testResult = testResult && xml.documentElement.attributes.getNamedItem("id").nodeValue=="here";
+
 testResult = testResult && xml.documentElement.firstChild.nextSibling.getAttribute("id")=="bar";
 
 testResult = testResult && xml.documentElement.firstChild.ownerDocument.documentElement.nodeName == xml.documentElement.ownerDocument.documentElement.nodeName;
 
+Ti.API.info('>>>> Test 4 Passed before NodeCount: '+testResult);
 
 var nodeCount = 0;
 function nodewalker(node) 
@@ -220,6 +225,8 @@ Ti.API.info("Script is: "+JSON.stringify(scriptList));
 testResult = testResult && scriptList.length==1;
 testResult = testResult && xml.documentElement.firstChild.nodeName == "root";
 
+Ti.API.info('>>>> Test 5 Passed before NodeCount: '+testResult);
+
 var nodeCount = 0;
 function nodewalker(node) 
 {
@@ -262,6 +269,8 @@ Ti.API.info("Script is: "+JSON.stringify(subdataList));
 
 testResult = testResult && dataList.length==3;
 testResult = testResult && xml.documentElement.firstChild.nodeName == "data";
+
+Ti.API.info('>>>> Test 6 Passed before NodeCount: '+testResult);
 
 var nodeCount = 0;
 function nodewalker(node) 
