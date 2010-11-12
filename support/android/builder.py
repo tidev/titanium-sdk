@@ -864,7 +864,7 @@ class Builder(object):
 		
 		for java_file in self.recurse([self.project_src_dir, self.project_gen_dir], '*.java'):
 			# the file list file still needs each file escaped apparently
-			src_list.append('"%s"' % java_file)
+			src_list.append('"%s"' % java_file.replace("\\", "\\\\"))
 	
 		classpath = os.pathsep.join([self.android_jar, os.pathsep.join(self.android_jars)])
 	
