@@ -18,7 +18,7 @@
 #endif
 #import "TiViewProxy.h"
 #import "TiApp.h"
-
+#import "UIImage+Resize.h"
 
 void ModifyScrollViewForKeyboardHeightAndContentHeightWithResponderRect(UIScrollView * scrollView,CGFloat keyboardTop,CGFloat minimumContentHeight,CGRect responderRect)
 {
@@ -343,6 +343,11 @@ DEFINE_EXCEPTIONS
 	{
 		// special case where we're asking for Default.png and it's in Bundle not path
 		resultImage = [UIImage imageNamed:image];
+	}
+	if((resultImage != nil) && ([resultImage imageOrientation] != UIImageOrientationUp))
+	{
+		resultImage = [UIImageResize resizedImage:[resultImage size] 
+				interpolationQuality:kCGInterpolationNone image:resultImage];
 	}
 	self.layer.contents = (id)resultImage.CGImage;
 	self.clipsToBounds = image!=nil;
