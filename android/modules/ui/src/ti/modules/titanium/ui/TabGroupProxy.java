@@ -6,6 +6,7 @@
  */
 package ti.modules.titanium.ui;
 
+import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 
@@ -18,7 +19,9 @@ import org.appcelerator.titanium.util.AsyncResult;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiConvert;
+import org.appcelerator.titanium.util.TiDrawableHelper;
 import org.appcelerator.titanium.util.TiFileHelper;
+import org.appcelerator.titanium.util.TiRHelper.ResourceNotFoundException;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiUIView;
 
@@ -167,13 +170,10 @@ public class TabGroupProxy extends TiWindowProxy
 
 		if (tag != null && vp != null) {
 			TabSpec tspec = tg.newTab(tag);
-			if (icon == null) {
+			try {
+				tspec.setIndicator(title, new TiDrawableHelper(getTiContext()).get(icon));
+			} catch (Exception e) {
 				tspec.setIndicator(title);
-			} else {
-				String path = getTiContext().resolveUrl(null, icon);
-				TiFileHelper tfh = new TiFileHelper(getTiContext().getRootActivity());
-				Drawable d = tfh.loadDrawable(getTiContext(), path, false);
-				tspec.setIndicator(title, d);
 			}
 
 			Intent intent = new Intent(tta, TiActivity.class);
