@@ -16,6 +16,8 @@ import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiConvert;
+import org.appcelerator.titanium.util.TiDrawableHelper;
+import org.appcelerator.titanium.util.TiRHelper.ResourceNotFoundException;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiUIView;
 
@@ -65,11 +67,9 @@ public class TiUIButton extends TiUIView
 			Object value = d.get("image");
 			if (value instanceof String) {
 				try {
-					String url = getProxy().getTiContext().resolveUrl(null, (String)value);
-					TiBaseFile file = TiFileFactory.createTitaniumFile(getProxy().getTiContext(), new String[] { url }, false);
-					Bitmap bitmap = TiUIHelper.createBitmap(file.getInputStream());
-
-					btn.setBackgroundDrawable(new BitmapDrawable(bitmap));
+					btn.setBackgroundDrawable(new TiDrawableHelper(getProxy().getTiContext()).get((String) value));
+				} catch (ResourceNotFoundException e) {
+					Log.e(LCAT, "Error setting button image", e);
 				} catch (IOException e) {
 					Log.e(LCAT, "Error setting button image", e);
 				}
