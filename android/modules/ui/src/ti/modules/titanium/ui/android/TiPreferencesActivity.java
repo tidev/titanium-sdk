@@ -20,7 +20,7 @@ public class TiPreferencesActivity extends PreferenceActivity {
 		// Find the layout file, do nothing if not found
 		try {
 			getPreferenceManager().setSharedPreferencesName(TiApplication.APPLICATION_PREFERENCES_NAME);
-			addPreferencesFromResource(TiRHelper.getResource("xml." + prefsName));
+			addPreferencesFromResource(TiRHelper.getResource("R.xml." + prefsName));
 		} catch (TiRHelper.ResourceNotFoundException e) {
 			finish();
 			return;
