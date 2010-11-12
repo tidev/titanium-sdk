@@ -137,7 +137,7 @@ public class TiDrawableReference
 			// Could still be a resource with an RA.java key
 			if (!raKeyChecked) {
 				raKeyChecked = true;
-				int id =  TiUIHelper.getResourceId(url);
+				int id =  TiUIHelper.getResourceId(context.resolveUrl(null, url));
 				if (id != 0) {
 					// This is a resource so handle it as such
 					this.type = DrawableReferenceType.RESOURCE_ID;
