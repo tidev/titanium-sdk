@@ -19,6 +19,9 @@ if (Titanium.Platform.name == 'iPhone OS')
 }
 
 data.push({title:'Image Rapid Update', hasChild:true, test:'../examples/image_view_updateimages.js'});
+if (Titanium.Platform.name == 'android') {
+	data.push({title:'Android drawable resource', hasChild:true, test:'image_view_resource.js'});
+}
 
 // create table view
 var tableview = Titanium.UI.createTableView({
