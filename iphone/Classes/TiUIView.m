@@ -18,7 +18,7 @@
 #endif
 #import "TiViewProxy.h"
 #import "TiApp.h"
-
+#import "UIImage+Resize.h"
 
 void ModifyScrollViewForKeyboardHeightAndContentHeightWithResponderRect(UIScrollView * scrollView,CGFloat keyboardTop,CGFloat minimumContentHeight,CGRect responderRect)
 {
@@ -74,74 +74,6 @@ void RestoreScrollViewFromKeyboard(UIScrollView * scrollView)
 	}
 }
 
-
-CGFloat AutoWidthForView(UIView * superView,CGFloat suggestedWidth)
-{
-	CGFloat result = 0.0;
-	for (TiUIView * thisChildView in [superView subviews])
-	{
-		//TODO: This should be an unnecessary check, but this happening means the child class didn't override AutoWidth when it should have.
-		if(![thisChildView respondsToSelector:@selector(minimumParentWidthForWidth:)])
-		{
-			NSLog(@"[WARN] %@ contained %@, but called AutoWidthForView was called for it anyways."
-					"This typically means that -[TIUIView autoWidthForWidth] should have been overridden.",superView,thisChildView);
-			//Treating this as if we had no autosize, and thus, 
-			return suggestedWidth;
-		}
-		//END TODO
-		result = MAX(result,[thisChildView minimumParentWidthForWidth:suggestedWidth]);
-	}
-	return result;
-}
-
-CGFloat AutoHeightForView(UIView * superView,CGFloat suggestedWidth,BOOL isVertical)
-{
-	CGFloat neededAbsoluteHeight=0.0;
-	CGFloat neededVerticalHeight=0.0;
-
-	for (TiUIView * thisChildView in [superView subviews])
-	{
-		if (![thisChildView respondsToSelector:@selector(minimumParentHeightForWidth:)])
-		{
-			continue;
-		}
-		CGFloat thisHeight = [thisChildView minimumParentHeightForWidth:suggestedWidth];
-		if (isVertical)
-		{
-			neededVerticalHeight += thisHeight;
-		}
-		else
-		{
-			neededAbsoluteHeight = MAX(neededAbsoluteHeight,thisHeight);
-		}
-	}
-	return MAX(neededVerticalHeight,neededAbsoluteHeight);
-}
-
-
-
-NSInteger zindexSort(TiUIView* view1, TiUIView* view2, void *reverse)
-{
-	int v1 = view1.zIndex;
-	int v2 = view2.zIndex;
-	
-	int result = 0;
-	
-	if (v1 < v2)
-	{
-		result = -1;
-	}
-	else if (v1 > v2)
-	{
-		result = 1;
-	}
-	
-	return result;
-}
-
-
-
-
 #define DOUBLE_TAP_DELAY		0.35
 #define HORIZ_SWIPE_DRAG_MIN	12
 #define VERT_SWIPE_DRAG_MAX		4
@@ -150,9 +82,23 @@ NSInteger zindexSort(TiUIView* view1, TiUIView* view2, void *reverse)
 
 DEFINE_EXCEPTIONS
 
-@synthesize proxy,parent,touchDelegate,backgroundImage;
+@synthesize proxy,touchDelegate,backgroundImage;
 
 #pragma mark Internal Methods
+
+#if VIEW_DEBUG
+-(id)retain
+{
+	[super retain];
+	NSLog(@"[VIEW %@] RETAIN: %d", self, [self retainCount]);
+}
+
+-(oneway void)release
+{
+	NSLog(@"[VIEW %@] RELEASE: %d", self, [self retainCount]-1);
+	[super release];
+}
+#endif
 
 -(void)dealloc
 {
@@ -161,7 +107,6 @@ DEFINE_EXCEPTIONS
     RELEASE_TO_NIL(backgroundImage);
 	RELEASE_TO_NIL(gradientLayer);
 	proxy = nil;
-	parent = nil;
 	touchDelegate = nil;
 	[super dealloc];
 }
@@ -241,34 +186,15 @@ DEFINE_EXCEPTIONS
     }
 }
 
--(void)willSendConfiguration
-{
-}
-
--(void)didSendConfiguration
-{
-	configured = YES;
-}
-
 -(void)configurationSet
 {
 	// can be used to trigger things after all properties are set
-}
-
--(BOOL)viewConfigured
-{
-	return configured;
 }
 
 -(void)setProxy:(TiProxy *)p
 {
 	proxy = p;
 	[proxy setModelDelegate:self];
-}
-
--(void)setParent:(TiViewProxy *)p
-{
-	parent = p;
 }
 
 -(UIImage*)loadImage:(id)image 
@@ -288,170 +214,7 @@ DEFINE_EXCEPTIONS
 	return transformMatrix;
 }
 
-#pragma mark Legacy layout calls
-/*	These methods are due to layoutProperties and such things origionally being a property of UIView
-	and not the proxy. To lessen dependance on UIView (In cases where layout is needed without views
-	such as TableViews), this was moved to the proxy. In order to degrade gracefully, these shims are
-	left here. They should not be relied upon, but instead used to find methods that still incorrectly
-	rely on the view, and fix those methods.
-*/
-
--(LayoutConstraint*)layoutProperties
-{
-	NSLog(@"[DEBUG] Using view proxy via redirection instead of directly for %@.",self);
-	return [(TiViewProxy *)proxy layoutProperties];
-}
-
--(void)setLayoutProperties:(LayoutConstraint *)layout_
-{
-	NSLog(@"[DEBUG] Using view proxy via redirection instead of directly for %@.",self);
-	[(TiViewProxy *)proxy setLayoutProperties:layout_];
-}
-
--(CGFloat)minimumParentWidthForWidth:(CGFloat)value
-{
-	NSLog(@"[DEBUG] Using view proxy via redirection instead of directly for %@.",self);
-	return [(TiViewProxy *)[self proxy] minimumParentWidthForWidth:value];
-}
-
--(CGFloat)minimumParentHeightForWidth:(CGFloat)value
-{
-	NSLog(@"[DEBUG] Using view proxy via redirection instead of directly for %@.",self);
-	return [(TiViewProxy *)[self proxy] minimumParentHeightForWidth:value];
-}
-
--(CGFloat)autoWidthForWidth:(CGFloat)value
-{
-	NSLog(@"[DEBUG] Using view proxy via redirection instead of directly for %@.",self);
-	return [(TiViewProxy *)[self proxy] autoWidthForWidth:value];
-}
-
--(CGFloat)autoHeightForWidth:(CGFloat)value
-{
-	NSLog(@"[DEBUG] Using view proxy via redirection instead of directly for %@.",self);
-	return [(TiViewProxy *)[self proxy] autoHeightForWidth:value];
-}
-
-
-
-
 #pragma mark Layout 
-
-
--(void)insertIntoView:(UIView*)newSuperview bounds:(CGRect)bounds
-{
-	if (newSuperview==self)
-	{
-		NSLog(@"[ERROR] invalid call to insertIntoView, new super view is same as myself");
-		return;
-	}
-	ApplyConstraintToViewWithinViewWithBounds([(TiViewProxy *)proxy layoutProperties], self, newSuperview, bounds,YES);
-	[(TiViewProxy *)[self proxy] clearNeedsReposition];
-}
-
--(void)relayout:(CGRect)bounds
-{
-	if (repositioning==NO)
-	{
-		repositioning = YES;
-		oldSize = CGSizeZero;
-		ApplyConstraintToViewWithinViewWithBounds([(TiViewProxy *)proxy layoutProperties], self, [self superview], bounds, YES);
-		[(TiViewProxy *)[self proxy] clearNeedsReposition];
-		repositioning = NO;
-	}
-#ifdef VERBOSE
-	else
-	{
-		NSLog(@"[INFO] %@ Calling Relayout from within relayout.",self);
-	}
-#endif
-
-}
-
--(void)relayoutOnUIThread:(NSValue*)value
-{
-	CGRect bounds = [value CGRectValue];
-	[self relayout:bounds];
-}
-
--(void)updateLayout:(LayoutConstraint*)layout_ withBounds:(CGRect)bounds
-{
-	if ([NSThread isMainThread]==NO)
-	{
-		[self performSelectorOnMainThread:@selector(relayoutOnUIThread:) withObject:[NSValue valueWithCGRect:bounds] waitUntilDone:NO];
-		return;
-	}
-	if (animating)
-	{
-#ifdef DEBUG		
-		// changing the layout while animating is bad, ignore for now
-		NSLog(@"[DEBUG] ignoring new layout while animating..");
-#endif		
-		return;
-	}
-	[self relayout:bounds];
-}
-
--(void)performZIndexRepositioning
-{
-	if ([[self subviews] count] == 0)
-	{
-		return;
-	}
-	
-	if (![NSThread isMainThread])
-	{
-		[self performSelectorOnMainThread:@selector(performZIndexRepositioning) withObject:nil waitUntilDone:NO];
-		return;
-	}
-	
-	// sort by zindex
-	
-	//TODO: This doesn't work with scrollable and scroll views. Really, this should be refactored out.
-	
-	NSMutableArray * validChildren = nil;
-	for (UIView * thisView in [self subviews])
-	{
-		if ([thisView isKindOfClass:[TiUIView class]])
-		{
-			if(validChildren == nil)
-			{
-				validChildren = [[NSMutableArray alloc] initWithObjects:thisView,nil];
-			}
-			else
-			{
-				[validChildren addObject:thisView];
-			}
-		}
-	}
-	
-	[validChildren sortUsingFunction:zindexSort context:NULL];
-	for (UIView * thisView in validChildren)
-	{
-		[thisView removeFromSuperview];
-		[self addSubview:thisView];
-	}
-
-	[validChildren release];
-}
-
--(unsigned int)zIndex
-{
-	return zIndex;
-}
-
--(void)repositionZIndexIfNeeded
-{
-	if ([(TiViewProxy*)proxy needsZIndexRepositioning])
-	{
-		[self repositionZIndex];
-	}
-}
-
--(void)repositionZIndex
-{
-	[[(TiViewProxy*)self.proxy parent] setNeedsZIndexRepositioning];
-}
 
 -(BOOL)animationFromArgument:(id)args
 {
@@ -581,6 +344,11 @@ DEFINE_EXCEPTIONS
 		// special case where we're asking for Default.png and it's in Bundle not path
 		resultImage = [UIImage imageNamed:image];
 	}
+	if((resultImage != nil) && ([resultImage imageOrientation] != UIImageOrientationUp))
+	{
+		resultImage = [UIImageResize resizedImage:[resultImage size] 
+				interpolationQuality:kCGInterpolationNone image:resultImage];
+	}
 	self.layer.contents = (id)resultImage.CGImage;
 	self.clipsToBounds = image!=nil;
     self.backgroundImage = image;
@@ -631,20 +399,11 @@ DEFINE_EXCEPTIONS
 {
 	self.hidden = ![TiUtils boolValue:visible];
     
-    // Redraw ourselves if changing from invisible to visible, to handle any changes made
-    if (!self.hidden) {
+//	Redraw ourselves if changing from invisible to visible, to handle any changes made
+	if (!self.hidden) {
 		TiViewProxy* viewProxy = (TiViewProxy*)[self proxy];
-		if ([self superview] == nil) {
-			[viewProxy refreshZIndex];  // Have to do this before the reposition to make sure we have a superview
-		}
-        [viewProxy reposition];
-    }
-}
-
--(void)setZIndex_:(id)z
-{
-	zIndex = [TiUtils intValue:z];
-	[self repositionZIndex];
+		[viewProxy reposition];
+	}
 }
 
 -(void)setAnimation_:(id)arg
@@ -725,6 +484,11 @@ DEFINE_EXCEPTIONS
 -(void)animationCompleted
 {
 	animating = NO;
+}
+
+-(BOOL)animating
+{
+	return animating;
 }
 
 #pragma mark Property Change Support

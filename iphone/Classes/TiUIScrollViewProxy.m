@@ -23,20 +23,13 @@
 }
 
 
--(void)childAdded:(id)child
+-(void)contentsWillChange
 {
 	if ([self viewAttached])
 	{
 		[(TiUIScrollView *)[self view] setNeedsHandleContentSize];
 	}
-}
-
--(void)childRemoved:(id)child
-{
-	if ([self viewAttached])
-	{
-		[(TiUIScrollView *)[self view] setNeedsHandleContentSize];
-	}
+	[super contentsWillChange];
 }
 
 -(void)layoutChildren:(BOOL)optimize
@@ -50,11 +43,6 @@
 	{
 		[super layoutChildren:optimize];
 	}
-}
-
--(BOOL)willBeRelaying
-{
-	return [super willBeRelaying];
 }
 
 -(void)childWillResize:(TiViewProxy *)child

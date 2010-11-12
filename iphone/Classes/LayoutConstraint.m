@@ -228,7 +228,7 @@ CGPoint PositionConstraintGivenSizeBoundsAddingResizing(LayoutConstraint * const
 	return CGPointMake(centerX, centerY);
 }
 
-void ApplyConstraintToViewWithinViewWithBounds(LayoutConstraint * constraint, TiUIView * subView, UIView * superView, CGRect viewBounds, BOOL addToSuperView)
+void ApplyConstraintToViewWithBounds(LayoutConstraint * constraint, TiUIView * subView, CGRect viewBounds)
 {
 	if(constraint == NULL)
 	{
@@ -250,11 +250,6 @@ void ApplyConstraintToViewWithinViewWithBounds(LayoutConstraint * constraint, Ti
 	[subView setAutoresizingMask:resultMask];
 	[subView setCenter:resultCenter];
 	[subView setBounds:resultBounds];
-	
-	if(addToSuperView && [subView superview]!=superView)
-	{
-		[superView addSubview:subView];
-	}
 }
 
 CGFloat WidthFromConstraintGivenWidth(LayoutConstraint * constraint, CGFloat viewWidth)

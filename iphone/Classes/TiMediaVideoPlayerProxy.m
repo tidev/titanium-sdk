@@ -18,6 +18,7 @@
 #import "TiViewProxy.h"
 #import "TiBlob.h"
 #import "TiMediaAudioSession.h"
+#import "TiApp.h"
 
 /** 
  * Design Notes:
@@ -969,14 +970,12 @@ NSArray* moviePlayerKeys = nil;
 			// get the window background views surface and place it on there
 			// it's already rotated and will give us better positioning 
 			// on the right surface area
-			UIView *subview = [[[[window subviews] objectAtIndex:0] subviews] objectAtIndex:0];
-			
-			CGRect bounds = [subview bounds];
-			
+			legacyWindowView = [[[[window subviews] objectAtIndex:0] subviews] objectAtIndex:0];
+			CGRect bounds = [legacyWindowView bounds];
 			for (TiViewProxy *proxy in views)
 			{
-				TiUIView *view = [proxy view];
-				[view insertIntoView:subview bounds:bounds];
+				[proxy setSandboxBounds:bounds];
+				[proxy insertIntoView:legacyWindowView bounds:bounds];
 			}
 		}
 	}
@@ -1020,6 +1019,7 @@ NSArray* moviePlayerKeys = nil;
 		[event setObject:NUMBOOL(YES) forKey:@"entering"];
 		[self fireEvent:@"fullscreen" withObject:event];
 	}	
+	enterFullscreenOrientation = [[UIApplication sharedApplication] statusBarOrientation];
 }
 
 -(void)handleFullscreenExitNotification:(NSNotification*)note
@@ -1032,6 +1032,10 @@ NSArray* moviePlayerKeys = nil;
 		[event setObject:NUMBOOL(NO) forKey:@"entering"];
 		[self fireEvent:@"fullscreen" withObject:event];
 	}	
+	if (enterFullscreenOrientation != [[UIApplication sharedApplication] statusBarOrientation]) {
+		[[[TiApp app] controller] resizeView];
+		[[[TiApp app] controller] repositionSubviews];
+	}
 }
 
 -(void)handleSourceTypeNotification:(NSNotification*)note

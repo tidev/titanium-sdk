@@ -8,7 +8,8 @@
 #import "TiUIView.h"
 #import <pthread.h>
 
-#define NEEDS_REPOSITION	0 
+
+#pragma mark dirtyflags used by TiViewProxy
 #define NEEDS_LAYOUT_CHILDREN	1
 
 enum
@@ -21,131 +22,160 @@ enum
 	TiRefreshViewEnqueued,
 };
 
-#define DONTSHOWHIDDEN 0 
-
+@class TiAction, TiBlob;
 //For TableRows, we need to have minimumParentHeightForWidth:
 @interface TiViewProxy : TiProxy<LayoutAutosizing> 
 {
 @protected
-	NSRecursiveLock *destroyLock;
+//TODO: Actually have a rhyme and reason on keeping things @protected vs @private.
+//For now, for sake of proper value grouping, we're all under one roof.
+
+#pragma mark Layout properties
+	LayoutConstraint layoutProperties;
+	int zIndex;
+	BOOL hidden;	//This is the boolean version of ![TiUtils boolValue:visible def:yes]
+		//And has nothing to do with whether or not it's onscreen or 
+
+#pragma mark Parent/Children relationships
+	TiViewProxy *parent;
+	pthread_rwlock_t childrenLock;
+	NSMutableArray *children;
+	NSMutableArray *pendingAdds;
+
+#pragma mark Visual components
+	TiUIView *view;
+	UIBarButtonItem * barButtonItem;
+
+#pragma mark Layout caches that can be recomputed
 	CGFloat verticalLayoutBoundary;
 	CGFloat horizontalLayoutBoundary;
 	CGFloat horizontalLayoutRowHeight;	//Note, this has nothing to do with table views.
+	int lastChildArranged;
 
-	LayoutConstraint layoutProperties;
-
-	BOOL windowOpened;
-	BOOL windowOpening;
-
-	int dirtyflags;	//For atomic actions, best to be explicit about the 32 bitness.
-
-	BOOL isUsingBarButtonItem;
-	UIBarButtonItem * barButtonItem;
-
-@private
-	pthread_rwlock_t childrenLock;
-	NSMutableArray *children;
-	TiUIView *view;
-	TiViewProxy *parent;
-	BOOL viewInitialized;
-	NSMutableArray *pendingAdds;
-	BOOL needsZIndexRepositioning;	//Todo: Replace
-	
 	CGRect sandboxBounds;
 	CGPoint positionCache;	//Recomputed and stored when position changes.
 	CGRect sizeCache;	//Recomputed and stored when size changes.
 	UIViewAutoresizing autoresizeCache;	//Changed by repositioning or resizing.
 
 	BOOL parentVisible;
-	//In most cases, this is the same as [parent parentVisible] && [parent visible]
+	//In most cases, this is the same as [parent parentVisible] && ![parent hidden]
 	//However, in the case of windows attached to the root view, the parent is ALWAYS visible.
 	//That is, will be true if and only if all parents are visible or are the root controller.
 	//Use parentWillShow and parentWillHide to set this.
+
+#pragma mark Housecleaning that is set and used
+	NSRecursiveLock *destroyLock;
+
+	BOOL windowOpened;
+	BOOL windowOpening;
+
+	int dirtyflags;	//For atomic actions, best to be explicit about the 32 bitness.
+	BOOL viewInitialized;
+	BOOL repositioning;
+	BOOL isUsingBarButtonItem;
 }
-@property(nonatomic,readonly) BOOL visible;
-@property(nonatomic,readwrite,assign) CGRect sandboxBounds;
-	//This is unaffected by parentVisible. So if something is truely visible, it'd be [self visible] && parentVisible.
 
-@property(nonatomic,readwrite,assign) LayoutConstraint * layoutProperties;
-
+#pragma mark public API
+@property(nonatomic,readwrite,assign) int zIndex;
+@property(nonatomic,readwrite,assign) BOOL parentVisible; // For tableview magic ONLY
 @property(nonatomic,readonly) NSArray *children;
-@property(nonatomic,readonly) TiViewProxy *parent;
 @property(nonatomic,readonly) TiPoint *center;
 
-@property(nonatomic,retain) UIBarButtonItem * barButtonItem;
-
-//NOTE: DO NOT SET VIEW UNLESS IN A TABLE VIEW, AND EVEN THEN.
-@property(nonatomic,readwrite,retain)TiUIView * view;
-
-#pragma mark Public
 -(void)add:(id)arg;
 -(void)remove:(id)arg;
 -(void)show:(id)arg;
 -(void)hide:(id)arg;
 -(void)animate:(id)arg;
 
-#pragma mark Framework
-
--(BOOL)viewAttached;
--(BOOL)viewInitialized;
--(void)layoutChildren:(BOOL)optimize;
--(void)layoutChildrenIfNeeded;
--(void)layoutChild:(TiViewProxy*)child optimize:(BOOL)optimize;
--(void)windowWillOpen;
--(void)windowDidOpen;
--(BOOL)windowHasOpened;
--(BOOL)windowIsOpening;
-
+-(void)setTop:(id)value;
+-(void)setBottom:(id)value;
+-(void)setLeft:(id)value;
+-(void)setRight:(id)value;
 -(void)setWidth:(id)value;
 -(void)setHeight:(id)value;
+-(void)setLayout:(id)value;
+-(void)setMinWidth:(id)value;
+-(void)setMinHeight:(id)value;
 
--(void)animationCompleted:(TiAnimation*)animation;
--(void)detachView;
--(BOOL)shouldDetachViewOnUnload;
--(void)destroy;
+-(void)setSize:(id)value;
+-(void)setCenter:(id)value;
+-(id)animatedCenter;
+
+-(void)setBackgroundGradient:(id)arg;
+-(TiBlob*)toImage:(id)args;
+
+
+#pragma mark nonpublic accessors not related to Housecleaning
+@property(nonatomic,readonly) TiViewProxy *parent;
+//TODO: make this a proper readwrite property declaration.
 -(void)setParent:(TiProxy*)parent;
 
--(BOOL)supportsNavBarPositioning;
--(UIBarButtonItem*)barButtonItem;
-- (TiUIView *)barButtonViewForSize:(CGSize)bounds;
--(void)removeBarButtonView;
-- (BOOL) isUsingBarButtonItem;
+@property(nonatomic,readonly,assign) LayoutConstraint * layoutProperties;
+@property(nonatomic,readwrite,assign) CGRect sandboxBounds;
+	//This is unaffected by parentVisible. So if something is truely visible, it'd be [self visible] && parentVisible.
+-(void)setHidden:(BOOL)newHidden withArgs:(id)args;
 
--(CGRect)appFrame;
--(void)firePropertyChanges;
--(void)willFirePropertyChanges;
--(void)didFirePropertyChanges;
--(TiUIView*)newView;
--(BOOL)viewReady;
--(void)windowDidClose;
--(void)windowWillClose;
--(void)viewWillAttach;
--(void)viewDidAttach;
--(void)viewWillDetach;
--(void)viewDidDetach;
+@property(nonatomic,retain) UIBarButtonItem * barButtonItem;
+-(TiUIView *)barButtonViewForSize:(CGSize)bounds;
 
--(void)reposition;	//Todo: Replace
--(void)repositionWithBounds:(CGRect)bounds;	//Todo: Replace
--(void)repositionIfNeeded;	//Todo: Replace
--(void)setNeedsReposition;	//Todo: Replace
--(void)clearNeedsReposition;	//Todo: Replace
--(void)setNeedsRepositionIfAutoSized;	//Todo: Replace
--(void)setNeedsZIndexRepositioning;	//Todo: Replace
--(BOOL)needsZIndexRepositioning;	//Todo: Replace
-
--(BOOL)willBeRelaying;	//Todo: Replace
--(void)childWillResize:(TiViewProxy *)child;	//Todo: Replace
--(BOOL)canHaveControllerParent;
+//NOTE: DO NOT SET VIEW UNLESS IN A TABLE VIEW, AND EVEN THEN.
+@property(nonatomic,readwrite,retain)TiUIView * view;
 
 -(NSMutableDictionary*)langConversionTable;
 -(NSDictionary*)cssConversionTable;
 
+#pragma mark Methods subclasses should override for behavior changes
+-(BOOL)suppressesRelayout;
+-(BOOL)supportsNavBarPositioning;
+-(BOOL)canHaveControllerParent;
+-(BOOL)shouldDetachViewOnUnload;
+-(UIView *)parentViewForChild:(TiViewProxy *)child;
+-(CGRect)sandboxBoundsForChild:(TiViewProxy *)child;
+
+#pragma mark Event trigger methods
+-(void)windowWillOpen;
+-(void)windowDidOpen;
+-(void)windowWillClose;
+-(void)windowDidClose;
+
+-(void)willFirePropertyChanges;
+-(void)didFirePropertyChanges;
+
+-(void)viewDidAttach;
+-(void)viewWillDetach;
+-(void)viewDidDetach;
+
+#pragma mark Housecleaning state accessors
+//TODO: Sounds like the redundancy department of redundancy was here.
+-(BOOL)viewAttached;
+-(BOOL)viewInitialized;
+-(BOOL)viewReady;
+-(BOOL)windowHasOpened;
+-(BOOL)windowIsOpening;
+
+-(BOOL)isUsingBarButtonItem;
+
+-(CGRect)appFrame;	//TODO: Why is this here? It doesn't have anything to do with a specific instance.
+
+#pragma mark Building up and tearing down
+-(void)firePropertyChanges;
+-(TiUIView*)newView;
+
+-(void)detachView;
+-(void)destroy;
+-(void)removeBarButtonView;
+
+#pragma mark Callbacks
+
+-(void)getAnimatedCenterPoint:(NSMutableDictionary *)resultDict;
+-(void)addImageToBlob:(NSArray*)args;
+
+-(void)animationCompleted:(TiAnimation*)animation;
+-(void)makeViewPerformAction:(TiAction *)action;
+
 -(void)makeViewPerformSelector:(SEL)selector withObject:(id)object createIfNeeded:(BOOL)create waitUntilDone:(BOOL)wait;
 
--(void)refreshView:(TiUIView *)transferView;
--(void)refreshZIndex;
--(void)refreshPosition;
--(void)refreshSize;
+#pragma mark Layout events, internal and external
 
 -(void)willChangeSize;
 -(void)willChangePosition;
@@ -161,7 +191,30 @@ enum
 -(void)parentWillShow;
 -(void)parentWillHide;
 
--(BOOL)suppressesRelayout;
+#pragma mark Layout actions
+
+-(void)refreshView:(TiUIView *)transferView;
+
+-(void)refreshSize;
+-(void)refreshPosition;
+
+//Unlike the other layout actions, this one is done by the parent of the one called by refreshView.
+//This is the effect of refreshing the Z index via careful view placement.
+-(void)insertSubview:(UIView *)childView forProxy:(TiViewProxy *)childProxy;
+
+
+#pragma mark Layout commands that need refactoring out
+
+-(void)layoutChildren:(BOOL)optimize;
+-(void)layoutChildrenIfNeeded;
+-(void)layoutChild:(TiViewProxy*)child optimize:(BOOL)optimize;
+
+-(void)relayout;
+-(void)insertIntoView:(UIView*)view bounds:(CGRect)bounds;
+-(void)reposition;	//Todo: Replace
+
+-(BOOL)willBeRelaying;	//Todo: Replace
+-(void)childWillResize:(TiViewProxy *)child;	//Todo: Replace
 
 @end
 
@@ -181,8 +234,6 @@ enum
 	}	\
 }
 
-
-
 #define USE_VIEW_FOR_VERIFY_WIDTH	USE_VIEW_FOR_METHOD(CGFloat,verifyWidth,CGFloat)
 #define USE_VIEW_FOR_VERIFY_HEIGHT	USE_VIEW_FOR_METHOD(CGFloat,verifyHeight,CGFloat)
 #define USE_VIEW_FOR_AUTO_WIDTH		USE_VIEW_FOR_METHOD(CGFloat,autoWidthForWidth,CGFloat)
@@ -193,3 +244,4 @@ enum
 {	\
 	return [[viewClass alloc] init];	\
 }
+

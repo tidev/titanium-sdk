@@ -312,7 +312,7 @@ DEFINE_EXCEPTIONS
 			}
 		}
 	}
-	else
+	else if (value != nil)
 	{
 		int index = [TiUtils intValue:value];
 		if (index >= 0 && index < [[self tabController].viewControllers count])

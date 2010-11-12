@@ -48,7 +48,7 @@
 	CGFloat height = ourBounds.size.height;	
 	if (height != [self verifyHeight:height])
 	{
-		[(TiViewProxy *)[self proxy] setNeedsReposition];
+		[(TiViewProxy *)[self proxy] willChangeSize];
 		return;
 	}
 
@@ -134,14 +134,14 @@
 -(void)setBorderTop_:(id)value
 {
 	hideTopBorder = ![TiUtils boolValue:value def:YES];
-	[(TiViewProxy *)[self proxy] setNeedsReposition];
+	[(TiViewProxy *)[self proxy] willChangeSize];
 	//The default is that a top border exists.
 }
 
 -(void)setBorderBottom_:(id)value
 {
 	showBottomBorder = [TiUtils boolValue:value def:NO];
-	[(TiViewProxy *)[self proxy] setNeedsReposition];
+	[(TiViewProxy *)[self proxy] willChangeSize];
 	//The default is that there is no bottom border.
 }
 
@@ -167,7 +167,7 @@
 	
 	if (height != [self verifyHeight:height])
 	{
-		[(TiViewProxy *)[self proxy] setNeedsReposition];
+		[(TiViewProxy *)[self proxy] willChangeSize];
 	}
 }
 

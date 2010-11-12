@@ -40,10 +40,8 @@ void performLayoutRefresh(CFRunLoopTimerRef timer, void *info)
 	
 	for (TiViewProxy *thisProxy in localLayoutArray)
 	{
-		[thisProxy repositionIfNeeded];
-		[thisProxy layoutChildrenIfNeeded];
-
 		[thisProxy refreshView:nil];
+		[thisProxy layoutChildrenIfNeeded];
 	}
 		
 	RELEASE_TO_NIL(localLayoutArray);

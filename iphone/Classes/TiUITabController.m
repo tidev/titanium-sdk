@@ -45,6 +45,7 @@
 -(void)viewDidUnload
 {
 	[(TiWindowProxy *)[self proxy] _associateTab:nil navBar:nil tab:nil];
+	[super viewDidUnload];
 }
 
 @end

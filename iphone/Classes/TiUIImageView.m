@@ -326,7 +326,7 @@ DEFINE_EXCEPTIONS
 		iv.contentMode = UIViewContentModeScaleAspectFit;
 		iv.alpha = 0;
 		
-		[(TiViewProxy *)[self proxy] setNeedsReposition];
+		[(TiViewProxy *)[self proxy] contentsWillChange];
 		
 		// do a nice fade in animation to replace the new incoming image
 		// with our placeholder
@@ -672,7 +672,7 @@ DEFINE_EXCEPTIONS
 	}
 	
 	[imageview setImage:image];
-	[(TiViewProxy*)[self proxy] setNeedsReposition]; // Have to resize the proxy view to fit new subview size, if necessary
+	[(TiViewProxy*)[self proxy] contentsWillChange]; // Have to resize the proxy view to fit new subview size, if necessary
 	
 	if (currentImage!=image)
 	{

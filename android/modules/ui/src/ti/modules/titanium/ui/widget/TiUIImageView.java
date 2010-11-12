@@ -6,7 +6,7 @@
  */
 package ti.modules.titanium.ui.widget;
 
-import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -18,8 +18,6 @@ import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiContext.OnLifecycleEvent;
-import org.appcelerator.titanium.io.TiBaseFile;
-import org.appcelerator.titanium.io.TiFileFactory;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.AsyncResult;
 import org.appcelerator.titanium.util.Log;
@@ -27,6 +25,7 @@ import org.appcelerator.titanium.util.TiBackgroundImageLoadTask;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUIHelper;
+import org.appcelerator.titanium.view.TiDrawableReference;
 import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.filesystem.FileProxy;
@@ -36,7 +35,6 @@ import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.os.Message;
 import android.view.View;
-import android.webkit.URLUtil;
 
 public class TiUIImageView extends TiUIView
 	implements OnLifecycleEvent, Handler.Callback
@@ -44,13 +42,10 @@ public class TiUIImageView extends TiUIView
 	private static final String LCAT = "TiUIImageView";
 	private static final boolean DBG = TiConfig.LOGD;
 
-	static final AtomicInteger imageTokenGenerator = new AtomicInteger(0);
-
-	private static final String EVENT_CLICK = "click";
-	private static final int MAX_BITMAPS = 3;
+	private static final AtomicInteger imageTokenGenerator = new AtomicInteger(0);
+	private static final int FRAME_QUEUE_SIZE = 5;
 
 	private Timer timer;
-	//private AnimationTask animationTask;
 	private Animator animator;
 	private Object[] images;
 	private Loader loader;
@@ -60,6 +55,9 @@ public class TiUIImageView extends TiUIView
 	private boolean paused = false;
 	private int token;
 	private boolean firedLoad;
+	
+	private ArrayList<TiDrawableReference> imageSources;
+	private TiDrawableReference defaultImageSource;
 
 	private class BgImageLoader extends TiBackgroundImageLoadTask
 	{
@@ -120,41 +118,6 @@ public class TiUIImageView extends TiUIView
 		}
 	}
 
-	public Bitmap createBitmap(Object image)
-	{
-		if (image instanceof TiBlob) {
-			TiBlob blob = (TiBlob)image;
-			return TiUIHelper.createBitmap(blob.getInputStream());
-		} else if (image instanceof FileProxy) {
-			FileProxy file = (FileProxy)image;
-			try {
-				return TiUIHelper.createBitmap(file.getBaseFile().getInputStream());
-			} catch (IOException e) {
-				Log.e(LCAT, "Error creating drawable from file: " + file.getBaseFile().getNativeFile().getName(), e);
-			}
-		} else if (image instanceof String) {
-			String url = proxy.getTiContext().resolveUrl(null, (String)image);
-			Bitmap b = TiUIHelper.getResourceBitmap(proxy.getTiContext(), url);
-			if (b != null) {
-				return b;
-			}
-			TiBaseFile file = TiFileFactory.createTitaniumFile(proxy.getTiContext(), new String[] { url }, false);
-			try {
-				return TiUIHelper.createBitmap(file.getInputStream());
-			} catch (IOException e) {
-				Log.e(LCAT, "Error creating drawable from path: " + image.toString(), e);
-			}
-		} else if (image instanceof KrollDict) {
-			TiBlob blob = TiUIHelper.getImageFromDict((KrollDict)image);
-			if (blob != null) {
-				return TiUIHelper.createBitmap(blob.getInputStream());
-			} else {
-				Log.e(LCAT, "Couldn't find valid image in object: " + image.toString());
-			}
-		}
-		return null;
-	}
-
 	private Handler handler = new Handler(this);
 	private static final int SET_IMAGE = 10001;
 
@@ -162,13 +125,16 @@ public class TiUIImageView extends TiUIView
 	public boolean handleMessage(Message msg) {
 		if (msg.what == SET_IMAGE) {
 			AsyncResult result = (AsyncResult)msg.obj;
-			getView().setImageBitmap((Bitmap)result.getArg());
-			result.setResult(null);
+			TiImageView view = getView();
+			if (view != null) {
+				view.setImageBitmap((Bitmap)result.getArg());
+				result.setResult(null);
+			}
 		}
 		return false;
 	}
 
-	public void setImage(final Bitmap bitmap)
+	private void setImage(final Bitmap bitmap)
 	{
 		if (bitmap != null) {
 			if (!proxy.getTiContext().isUIThread()) {
@@ -178,7 +144,10 @@ public class TiUIImageView extends TiUIView
 				msg.sendToTarget();
 				result.getResult();
 			} else {
-				getView().setImageBitmap(bitmap);
+				TiImageView view = getView();
+				if (view != null) {
+					view.setImageBitmap(bitmap);
+				}
 			}
 		}
 	}
@@ -202,7 +171,7 @@ public class TiUIImageView extends TiUIView
 
 		public Loader()
 		{
-			bitmapQueue = new ArrayBlockingQueue<BitmapWithIndex>(5);
+			bitmapQueue = new ArrayBlockingQueue<BitmapWithIndex>(FRAME_QUEUE_SIZE);
 		}
 
 		private int getRepeatCount() {
@@ -223,14 +192,14 @@ public class TiUIImageView extends TiUIView
 
 		private int getStart()
 		{
-			if (reverse) { return images.length-1; }
+			if (reverse) { return imageSources.size()-1; }
 			return 0;
 		}
 
 		private boolean isNotFinalFrame(int frame)
 		{
 			if (reverse) { return frame >= 0; }
-			return frame < images.length;
+			return frame < imageSources.size();
 		}
 		private int getCounter()
 		{
@@ -240,13 +209,22 @@ public class TiUIImageView extends TiUIView
 
 		public void run()
 		{
+			if (getProxy() == null) {
+				Log.d(LCAT, "Multi-image loader exiting early because proxy has been gc'd");
+				return;
+			}
+			TiContext context = getProxy().getTiContext();
+			if (context == null) {
+				Log.d(LCAT, "Multi-image loader exiting early because context has been gc'd");
+				return;
+			}
 			repeatIndex = 0;
 			animating.set(true);
 			firedLoad = false;
 			topLoop: while(isRepeating()) {
 				long time = System.currentTimeMillis();
 				for (int j = getStart(); isNotFinalFrame(j); j+=getCounter()) {
-					if (bitmapQueue.size() == 5 && !firedLoad) {
+					if (bitmapQueue.size() == FRAME_QUEUE_SIZE && !firedLoad) {
 						fireLoad("images");
 						firedLoad = true;
 					}
@@ -264,8 +242,7 @@ public class TiUIImageView extends TiUIView
 					if (!animating.get()) {
 						break topLoop;
 					}
-					Object image = images[j];
-					Bitmap b = createBitmap(image);
+					Bitmap b = imageSources.get(j).getBitmap(context);
 					try {
 						bitmapQueue.put(new BitmapWithIndex(b, j));
 					} catch (InterruptedException e) {
@@ -286,11 +263,11 @@ public class TiUIImageView extends TiUIView
 		}
 	}
 
-	public void setImages(final Object[] images)
+	private void setImages()
 	{
-		if (images == null) return;
-
-		TiUIImageView.this.images = images;
+		if (imageSources == null || imageSources.size() == 0) {
+			return;
+		}
 		if (loader == null) {
 			paused = false;
 			firedLoad = false;
@@ -390,7 +367,6 @@ public class TiUIImageView extends TiUIView
 					Log.d(LCAT, "STARTING LOADER THREAD "+loaderThread +" for "+this);
 				}
 			}
-//			loaderThread.start();
 
 			animator = new Animator(loader);
 			if (!animating.get()) {
@@ -398,6 +374,7 @@ public class TiUIImageView extends TiUIView
 			}
 
 			int duration = (int) getDuration();
+			fireStart();
 			timer.schedule(animator, duration, duration);
 		} else {
 			resume();
@@ -438,16 +415,82 @@ public class TiUIImageView extends TiUIView
 		fireStop();
 	}
 
+	private void setImageSource(Object object)
+	{
+		imageSources = new ArrayList<TiDrawableReference>();
+		if (object instanceof Object[]) {
+			for(Object o : (Object[])object) {
+				if (o instanceof FileProxy) {
+					imageSources.add( TiDrawableReference.fromFile(((FileProxy)o).getBaseFile()) );
+				} else {
+					imageSources.add( TiDrawableReference.fromObject(o));
+				}
+			}
+		} else if (object instanceof FileProxy) {
+			imageSources.add( TiDrawableReference.fromFile(((FileProxy)object).getBaseFile()));
+		} else {
+			imageSources.add( TiDrawableReference.fromObject(object) );
+		}
+	}
+	
+	private void setDefaultImageSource(Object object)
+	{
+		if (object instanceof FileProxy) {
+			defaultImageSource = TiDrawableReference.fromFile(((FileProxy)object).getBaseFile());
+		} else {
+			defaultImageSource = TiDrawableReference.fromObject(object);
+		}
+	}
+	
+	private void setImage()
+	{
+		if (imageSources == null || imageSources.size() == 0) {
+			setImage(null);
+			return;
+		}
+		
+		if (imageSources.size() == 1) {
+			TiDrawableReference imageref = imageSources.get(0);
+			if (imageref.isNetworkUrl()) {
+				if (defaultImageSource != null) {
+					setDefaultImage();
+				}
+				synchronized(imageTokenGenerator) {
+					token = imageTokenGenerator.incrementAndGet();
+					TiImageView view = getView();
+					if (view != null) {
+						view.setImageDrawable(null);
+						imageref.getBitmapAsync(new BgImageLoader(getProxy().getTiContext(), null, null, token));
+					}
+				}
+			} else {
+				setImage(imageref.getBitmap(getProxy().getTiContext()));
+			}
+		} else {
+			setImages();
+		}
+	}
+	
+	private void setDefaultImage()
+	{
+		if (defaultImageSource == null) {
+			setImage(null);
+			return;
+		}
+		setImage(defaultImageSource.getBitmap(getProxy().getTiContext()));
+	}
+	
 	@Override
 	public void processProperties(KrollDict d)
 	{
 		TiImageView view = getView();
+		if (view == null) {
+			return;
+		}
 
 		if (d.containsKey("images")) {
-			Object o = d.get("images");
-			if (o instanceof Object[]) {
-				setImages((Object[])o);
-			}
+			setImageSource(d.get("images"));
+			setImages();
 		}
 		else if (d.containsKey("url")) {
 			Log.w(LCAT, "The url property of ImageView is deprecated, use image instead.");
@@ -461,31 +504,16 @@ public class TiUIImageView extends TiUIView
 		if (d.containsKey("enableZoomControls")) {
 			view.setEnableZoomControls(TiConvert.toBoolean(d, "enableZoomControls"));
 		}
+		if (d.containsKey("defaultImage")) {
+			setDefaultImageSource(d.get("defaultImage"));
+		}
 		if (d.containsKey("image")) {
-			Object image = d.get("image");
-			if (image instanceof String) {
-				String imageURL = TiConvert.toString(d, "image");
-				if (URLUtil.isNetworkUrl(imageURL)) {
-					
-					if (d.containsKey("defaultImage")) {
-						setImage(createBitmap(d.get("defaultImage")));
-					}
-					synchronized(imageTokenGenerator) {
-						token = imageTokenGenerator.incrementAndGet();
-						getView().setImageDrawable(null);
-						new BgImageLoader(getProxy().getTiContext(), null, null, token).load(imageURL);
-					}
-				} else {
-					setImage(createBitmap(imageURL));
-				}
-			} else {
-				setImage(createBitmap(image));
-			}
-			
+			setImageSource(d.get("image"));
+			setImage();
 		} else {
 			getProxy().setProperty("image", null);
-			if (d.containsKey("defaultImage")) {
-				setImage(createBitmap(d.get("defaultImage")));
+			if (defaultImageSource != null) {
+				setDefaultImage();
 			}
 		}
 
@@ -496,37 +524,23 @@ public class TiUIImageView extends TiUIView
 	public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy proxy)
 	{
 		TiImageView view = getView();
-
+		if (view == null) {
+			return;
+		}
 		if (key.equals("canScale")) {
 			view.setCanScaleImage(TiConvert.toBoolean(newValue));
 		} else if (key.equals("enableZoomControls")) {
 			view.setEnableZoomControls(TiConvert.toBoolean(newValue));
 		} else if (key.equals("url")) {
-
-			synchronized(imageTokenGenerator) {
-				token = imageTokenGenerator.incrementAndGet();
-				getView().setImageDrawable(null);
-				new BgImageLoader(getProxy().getTiContext(), null, null, token).load(TiConvert.toString(newValue));
-			}
+			setImageSource(newValue);
+			setImage();
 		} else if (key.equals("image")) {
-			Object image = newValue;
-			if (image instanceof String) {
-				String imageURL = TiConvert.toString(newValue);
-				if (URLUtil.isNetworkUrl(imageURL)) {
-					synchronized(imageTokenGenerator) {
-						token = imageTokenGenerator.incrementAndGet();
-						getView().setImageDrawable(null);
-						new BgImageLoader(getProxy().getTiContext(), null, null, token).load(imageURL);
-					}
-				} else {
-					setImage(createBitmap(imageURL));
-				}
-			} else {
-				setImage(createBitmap(image));
-			}
+			setImageSource(newValue);
+			setImage();
 		} else if (key.equals("images")) {
 			if (newValue instanceof Object[]) {
-				setImages((Object[])newValue);
+				setImageSource(newValue);
+				setImages();
 			}
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
@@ -553,7 +567,7 @@ public class TiUIImageView extends TiUIView
 	}
 
 	public boolean isAnimating() {
-		return animating.get();
+		return animating.get() && !paused;
 	}
 
 	public boolean isReverse() {
@@ -566,10 +580,13 @@ public class TiUIImageView extends TiUIView
 
 	public TiBlob toBlob ()
 	{
-		Drawable drawable = getView().getImageDrawable();
-		if (drawable != null && drawable instanceof BitmapDrawable) {
-			Bitmap bitmap = ((BitmapDrawable)drawable).getBitmap();
-			return TiBlob.blobFromImage(proxy.getTiContext(), bitmap);
+		TiImageView view = getView();
+		if (view != null) {
+			Drawable drawable = view.getImageDrawable();
+			if (drawable != null && drawable instanceof BitmapDrawable) {
+				Bitmap bitmap = ((BitmapDrawable)drawable).getBitmap();
+				return TiBlob.blobFromImage(proxy.getTiContext(), bitmap);
+			}
 		}
 
 		return null;
@@ -577,13 +594,30 @@ public class TiUIImageView extends TiUIView
 	
 	@Override
 	public void setOpacity(float opacity) {
-		getView().setColorFilter(TiUIHelper.createColorFilterForOpacity(opacity));
-		super.setOpacity(opacity);
+		TiImageView view = getView();
+		if (view != null) {
+			view.setColorFilter(TiUIHelper.createColorFilterForOpacity(opacity));
+			super.setOpacity(opacity);
+		}
 	}
 	
 	@Override
 	public void clearOpacity(View view) {
 		super.clearOpacity(view);
-		getView().setColorFilter(null);
+		TiImageView iview = getView();
+		if (iview != null) {
+			iview.setColorFilter(null);
+		}
+	}
+
+	@Override
+	public void release()
+	{
+		super.release();
+		if (imageSources != null) {
+			imageSources.clear();
+		}
+		imageSources = null;
+		defaultImageSource = null;
 	}
 }

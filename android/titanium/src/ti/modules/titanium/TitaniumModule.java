@@ -30,13 +30,12 @@ import org.appcelerator.titanium.kroll.KrollCallback;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiPlatformHelper;
-import org.appcelerator.titanium.util.TiResourceHelper;
+import org.appcelerator.titanium.util.TiRHelper;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Scriptable;
 
 import android.app.Activity;
-import android.net.Uri;
 
 @Kroll.module @Kroll.topLevel({"Ti", "Titanium"})
 public class TitaniumModule extends KrollModule implements TiContext.OnLifecycleEvent
@@ -280,14 +279,12 @@ public class TitaniumModule extends KrollModule implements TiContext.OnLifecycle
 	public String localize(KrollInvocation invocation, Object args[])
 	{
 		String key = (String) args[0];
-		int value = TiResourceHelper.getString(key);
-		if (value == 0) {
-			if (args.length > 1) {
-				return (String) args[1];
-			}
-			return null;
+		try {
+			return invocation.getTiContext().getActivity().getString(TiRHelper.getResource("string." + key));
 		}
-		return invocation.getTiContext().getActivity().getString(value);
+		catch (TiRHelper.ResourceNotFoundException e) {
+			return args.length > 1 ? (String) args[1] : null;
+		}
 	}
 	
 	protected KrollModule requireNativeModule(TiContext context, String path) {

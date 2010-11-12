@@ -15,6 +15,7 @@
 #import "TiApp.h"
 #import "TiDOMDocumentProxy.h"
 #import "Mimetypes.h"
+#import "TiFilesystemFileProxy.h"
 
 int CaselessCompare(const char * firstString, const char * secondString, int size)
 {
@@ -470,6 +471,26 @@ extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 		return [[request responseHeaders] objectForKey:key];
 	}
 	return nil;
+}
+
+-(NSString*)file
+{
+	return [request downloadDestinationPath];
+}
+
+-(void)setFile:(id)file
+{
+	if ([file isKindOfClass:[NSString class]]) {
+		[request setDownloadDestinationPath:file];
+	}
+	else if ([file isKindOfClass:[TiFilesystemFileProxy class]]) {
+		[request setDownloadDestinationPath:[file nativePath]];
+	}
+	else {
+		[self throwException:[NSString stringWithFormat:@"Invalid class %@ for file: Expect %@ or %@",[file class],[NSString class], [TiFilesystemFileProxy class]]
+				   subreason:nil
+					location:CODELOCATION];
+	}
 }
 
 #pragma mark Delegates

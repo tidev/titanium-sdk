@@ -6,6 +6,8 @@ import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiContext;
 
+import ti.modules.titanium.android.AndroidModule;
+
 @Kroll.module
 public class CalendarModule extends KrollModule {
 	@Kroll.constant public static final int STATUS_TENTATIVE = EventProxy.STATUS_TENTATIVE;
