@@ -22,5 +22,25 @@ describe("Ti.Network.HTTPClient tests", {
 		},
 		timeout: 30000,
 		timeoutError: "Timed out waiting for HTTP download"
+	}),
+
+	// https://appcelerator.lighthouseapp.com/projects/32238-titanium-mobile/tickets/1649-android-httpclientsend-with-no-argument-causes-npe
+	emptyPOSTSend: asyncTest({
+		start: function() {
+			var xhr = Ti.Network.createHTTPClient();
+			xhr.setTimeout(30000);
+			xhr.onload = this.async(function(e) {
+				valueOf(1).shouldBe(1);
+			});
+			xhr.onerror = this.async(function(e) {
+				throw e.error;
+			});
+
+			xhr.open('POST','http://www.appcelerator.com');
+			xhr.send();
+		},
+		timeout: 30000,
+		timeoutError: "Timed out waiting for HTTP onload"
 	})
+
 });

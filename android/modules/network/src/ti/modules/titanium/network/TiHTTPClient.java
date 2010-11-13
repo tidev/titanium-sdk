@@ -974,15 +974,16 @@ public class TiHTTPClient
 			entity = form;
 		}
 		
-		Header header = request.getFirstHeader("Content-Type");
-		if(header == null) {
-			entity.setContentType("application/x-www-form-urlencoded");
-		} else {
-			entity.setContentType(header.getValue());
+		if (entity != null) {
+			Header header = request.getFirstHeader("Content-Type");
+			if(header == null) {
+				entity.setContentType("application/x-www-form-urlencoded");
+			} else {
+				entity.setContentType(header.getValue());
+			}
+			HttpEntityEnclosingRequest e = (HttpEntityEnclosingRequest)request;
+			e.setEntity(entity);
 		}
-		
-		HttpEntityEnclosingRequest e = (HttpEntityEnclosingRequest)request;
-		e.setEntity(entity);
 	}
 	
 	public String getLocation() {
