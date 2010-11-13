@@ -59,7 +59,7 @@ public class TiUIHelper
 	public static final Pattern SIZED_VALUE = Pattern.compile("([0-9]*\\.?[0-9]+)\\W*(px|dp|dip|sp|sip|mm|pt|in)?");
 
 	private static Method overridePendingTransition;
-	private static Map<String, String> raImageKeys = Collections.synchronizedMap(new HashMap<String, String>());
+	private static Map<String, String> resourceImageKeys = Collections.synchronizedMap(new HashMap<String, String>());
 	
 	public static OnClickListener createDoNothingListener() {
 		return new OnClickListener() {
@@ -477,10 +477,10 @@ public class TiUIHelper
 		return b;
 	}
 	
-	private static String getRAKeyForImage(String url)
+	private static String getResourceKeyForImage(String url)
 	{
-		if (raImageKeys.containsKey(url)) {
-			return raImageKeys.get(url);
+		if (resourceImageKeys.containsKey(url)) {
+			return resourceImageKeys.get(url);
 		}
 		
 		Pattern pattern = Pattern.compile("^.*/Resources/images/(.*$)");
@@ -515,7 +515,7 @@ public class TiUIHelper
 		result.append("_");
 		result.append(DigestUtils.md5Hex(forHash).substring(0, 10));
 		String sResult = result.toString();
-		raImageKeys.put(url, sResult);
+		resourceImageKeys.put(url, sResult);
 		return sResult;
 	}
 	
@@ -525,7 +525,7 @@ public class TiUIHelper
 			return 0;
 		}
 		
-		String key = getRAKeyForImage(url);
+		String key = getResourceKeyForImage(url);
 		if (key == null) {
 			return 0;
 		}
