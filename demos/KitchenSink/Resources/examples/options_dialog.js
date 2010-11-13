@@ -52,6 +52,7 @@ var button1 = Titanium.UI.createButton({
 button1.addEventListener('click', function()
 {
 	if (isAndroid) {
+		dialog.androidView = null;
 		applyButtons();
 	}
 	dialog.show();
@@ -71,6 +72,7 @@ button2.addEventListener('click', function()
 	dialog.destructive = 0;
 	dialog.cancel = 1;
 	if (isAndroid) {
+		dialog.androidView = null;
 		applyButtons();
 	}
 	dialog.show();
@@ -89,10 +91,46 @@ var label = Titanium.UI.createLabel({
 	width:300
 });
 
+if (isAndroid) {
+	// BUTTON TO MODIFY DIALOG TO USE A VIEW AND SHOW
+	var button3 = Titanium.UI.createButton({
+		title:'Modify and Show Dialog',
+		height:40,
+		width:200,
+		top:220
+	});
+	button3.addEventListener('click', function()
+	{
+		// For now, you must give the containing view dimensions in order for it to appear.
+		var root = Ti.UI.createView({});
+		
+		var view = Ti.UI.createView({
+			width : 300, height: '100'
+		});
+		root.add(view);
+		var l = Ti.UI.createLabel({
+			text : 'I am a label',
+			top: 10, left: 10, bottom: 10, right: 10,
+			color : 'white',
+			borderRadius : 10,
+			backgroundColor : 'blue'
+		}); 
+		view.add(l);
+		
+		dialog.title = 'Android with a View';
+		dialog.options = null;
+		dialog.buttonNames = ['OK'];
+		dialog.androidView = root;
+		dialog.show();
+	});
+}
+
+
 win.add(button1);
 win.add(button2);
 win.add(label);
 
 if (isAndroid) {
 	win.add(showCancel);
+	win.add(button3);
 }
