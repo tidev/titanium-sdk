@@ -522,9 +522,11 @@ public class TiUIImageView extends TiUIView
 			setImageSource(d.get("image"));
 			setImage();
 		} else {
-			getProxy().setProperty("image", null);
-			if (defaultImageSource != null) {
-				setDefaultImage();
+			if (!d.containsKey("images")) {
+				getProxy().setProperty("image", null);
+				if (defaultImageSource != null) {
+					setDefaultImage();
+				}
 			}
 		}
 		
