@@ -10,6 +10,16 @@
 
 @implementation TiUITabbedBarProxy
 
+NSArray* tabbedKeySequence;
+
+-(NSArray*)keySequence
+{
+	if (tabbedKeySequence == nil) {
+		tabbedKeySequence = [[NSArray alloc] initWithObjects:@"labels",@"style",nil];
+	}
+	return tabbedKeySequence;
+}
+
 -(TiUIView*)newView
 {
 	TiUIButtonBar * result = [[TiUIButtonBar alloc] init];

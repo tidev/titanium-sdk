@@ -540,6 +540,8 @@
 		B480501F1278AB010030AA3F /* TiThreading.m in Sources */ = {isa = PBXBuildFile; fileRef = B473FB67126F8F7900E29C73 /* TiThreading.m */; };
 		B48050201278AB170030AA3F /* TiThreading.m in Sources */ = {isa = PBXBuildFile; fileRef = B473FB67126F8F7900E29C73 /* TiThreading.m */; };
 		B4DE7E4E11823E990006DDE1 /* TiGradient.m in Sources */ = {isa = PBXBuildFile; fileRef = B4DE7E4D11823E990006DDE1 /* TiGradient.m */; };
+		B4E9A913128E24FB006A111B /* UIImageExtras.m in Sources */ = {isa = PBXBuildFile; fileRef = DA9BE36E127F8F6C000FE9E1 /* UIImageExtras.m */; };
+		B4E9A914128E2512006A111B /* TiDebuggerContext.mm in Sources */ = {isa = PBXBuildFile; fileRef = 242E8E1B11BA38DC0046A0D0 /* TiDebuggerContext.mm */; };
 		B4F97B6F111A41B600E2F72C /* TiUIScrollViewProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = B4F97B6E111A41B600E2F72C /* TiUIScrollViewProxy.m */; };
 		B4F97B73111A41C800E2F72C /* TiUIScrollView.m in Sources */ = {isa = PBXBuildFile; fileRef = B4F97B72111A41C800E2F72C /* TiUIScrollView.m */; };
 		D4AB36F5123DE20200DED4A0 /* TiUIClipboardProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = D4AB36F4123DE20200DED4A0 /* TiUIClipboardProxy.m */; };
@@ -3049,6 +3051,8 @@
 				B48050201278AB170030AA3F /* TiThreading.m in Sources */,
 				DABDEB07128B5A8F00C85FEA /* AudioStreamerBC.m in Sources */,
 				DABDEB08128B5A8F00C85FEA /* AudioStreamerCUR.m in Sources */,
+				B4E9A913128E24FB006A111B /* UIImageExtras.m in Sources */,
+				B4E9A914128E2512006A111B /* TiDebuggerContext.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
