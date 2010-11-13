@@ -1,5 +1,23 @@
 var win = Titanium.UI.currentWindow;
 
+var isAndroid = Ti.Platform.osname == 'android';
+
+if (isAndroid) {
+	var showCancel = Ti.UI.createSwitch({
+		style : Ti.UI.Android.SWITCH_STYLE_CHECKBOX,
+		title: 'Show Cancel Button',
+		top : 160
+	});
+	
+	var applyButtons = function() 
+	{
+		if (showCancel.value) {
+			dialog.buttonNames = [ 'Cancel'];
+		} else {
+			dialog.buttonNames = [];
+		}
+	}
+}
 //
 // BASIC OPTIONS DIALOG
 //
@@ -14,6 +32,14 @@ var dialog = Titanium.UI.createOptionDialog({
 dialog.addEventListener('click',function(e)
 {
 	label.text = 'You selected ' + e.index;
+	
+	if (isAndroid) {
+		if (e.button) {
+			label.text += ' button'
+		}  else {
+			label.text += ' option'
+		}
+	}
 });
 
 // BUTTON TO SHOW BASIC DIALOG
@@ -25,6 +51,9 @@ var button1 = Titanium.UI.createButton({
 });
 button1.addEventListener('click', function()
 {
+	if (isAndroid) {
+		applyButtons();
+	}
 	dialog.show();
 });
 
@@ -41,6 +70,9 @@ button2.addEventListener('click', function()
 	dialog.options = ['New Option 1', 'New Option 2', 'New Option 3', 'New Option 4'];
 	dialog.destructive = 0;
 	dialog.cancel = 1;
+	if (isAndroid) {
+		applyButtons();
+	}
 	dialog.show();
 });
 
@@ -61,3 +93,6 @@ win.add(button1);
 win.add(button2);
 win.add(label);
 
+if (isAndroid) {
+	win.add(showCancel);
+}

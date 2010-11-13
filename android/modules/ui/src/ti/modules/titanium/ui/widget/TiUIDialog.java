@@ -24,6 +24,7 @@ public class TiUIDialog extends TiUIView
 {
 	private static final String LCAT = "TiUIButton";
 	private static final boolean DBG = TiConfig.LOGD;
+	private static final int BUTTON_MASK = 0x10000000;
 
 	protected Builder builder;
 	protected AlertDialog dialog;
@@ -94,7 +95,7 @@ public class TiUIDialog extends TiUIView
 
 		for (int id = 0; id < buttonText.length; id++) {
 			String text = buttonText[id];
-			ClickHandler clicker = new ClickHandler(id);
+			ClickHandler clicker = new ClickHandler(id | BUTTON_MASK);
 			switch (id) {
 			case 0:
 				builder.setPositiveButton(text, clicker);
@@ -182,6 +183,12 @@ public class TiUIDialog extends TiUIView
 	{
 		int cancelIndex = (proxy.hasProperty("cancel")) ? TiConvert.toInt(proxy.getProperty("cancel")) : -1;
 		KrollDict data = new KrollDict();
+		if ((id & BUTTON_MASK) != 0) {
+			data.put("button", true);
+			id &= ~BUTTON_MASK;
+		} else {
+			data.put("button", false);
+		}
 		data.put("index", id);
 		data.put("cancel", id == cancelIndex);
 		proxy.fireEvent("click", data);
