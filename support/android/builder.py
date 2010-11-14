@@ -77,13 +77,22 @@ def error(msg):
 	sys.stdout.flush()
 
 def remove_orphaned_files(source_folder, target_folder):
+	is_res = source_folder.endswith('Resources') or source_folder.endswith('Resources' + os.sep)
 	for root, dirs, files in os.walk(target_folder):
 		for f in files:
 			full = os.path.join(root, f)
 			rel = full.replace(target_folder, '')
 			if rel[0] == os.sep:
 				rel = rel[1:]
+			is_orphan = False
 			if not os.path.exists(os.path.join(source_folder, rel)):
+				is_orphan = True
+			# But it could be under android/... too (platform-specific)
+			if is_orphan and is_res:
+				if os.path.exists(os.path.join(source_folder, 'android', rel)):
+					is_orphan = False
+
+			if is_orphan:
 				os.remove(full)
 
 class Builder(object):
@@ -697,6 +706,18 @@ class Builder(object):
 			resfile.close()
 		
 		# create our background image which acts as splash screen during load	
+		resources_dir = os.path.join(self.top_dir, 'Resources')
+		android_images_dir = os.path.join(resources_dir, 'android', 'images')
+		found_project_splash = False
+		# look for density-specific default.png's first
+		for density in ('high', 'medium', 'low'):
+			splashimage = os.path.join(android_images_dir, density, 'default.png')
+			background_png = os.path.join('res', 'drawable-%sdpi' % density[0], 'background.png')
+			if os.path.exists(splashimage):
+				found_project_splash = True
+				shutil.copy(splashimage, background_png)
+				debug('found %sdpi splash screen at %s' % (density[0], splashimage))
+
 		splashimage = os.path.join(self.assets_resources_dir,'default.png')
 		background_png = os.path.join('res','drawable','background.png')
 		if os.path.exists(splashimage):
