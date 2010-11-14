@@ -88,6 +88,11 @@ public class TiUISlider extends TiUIView
 		if (d.containsKey("thumbImage")) {
 			updateThumb(seekBar, d);
 		}
+
+		if (d.containsKey("thumbOffset")) {
+			// This could be pulled out into a separate function but I'm not sure it's really warranted.
+			seekBar.setThumbOffset(TiConvert.toInt(d, "thumbOffset"));
+		}
 		
 		if (d.containsKey("leftTrackImage") && d.containsKey("rightTrackImage")) {
 			updateTrackingImages(seekBar, d);
