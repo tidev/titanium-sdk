@@ -132,6 +132,7 @@ public class TiUISlider extends TiUIView
 		 	if (thumb != null) {
 				thumbDrawable = new SoftReference<Drawable>(thumb);
 				seekBar.setThumb(thumb);
+				seekBar.setThumbOffset(0);
 			} else {
 				Log.e(LCAT, "Unable to locate thumb image for progress bar: " + url);
 			}
