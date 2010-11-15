@@ -92,11 +92,7 @@ function runQuery()
 			data[c] = tvRow;
 		}
 		
-		if (Ti.Platform.osname == 'iPhone OS') {
-			tableView.setData(data, { animationStyle : Titanium.UI.iPhone.RowAnimationStyle.DOWN });
-		} else {
-			tableView.setData(data);
-		}
+		tableView.setData(data, { animationStyle : Titanium.UI.iPhone.RowAnimationStyle.DOWN });
 		
 		win.open({modal:true});
 		b1.title = 'Run Query';
