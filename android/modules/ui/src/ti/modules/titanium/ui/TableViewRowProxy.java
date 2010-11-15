@@ -82,7 +82,9 @@ public class TableViewRowProxy extends TiViewProxy
 	@Override
 	public boolean handleMessage(Message msg) {
 		if (msg.what == MSG_SET_DATA) {
-			tableViewItem.setRowData(this);
+			if (tableViewItem != null) {
+				tableViewItem.setRowData(this);
+			}
 			return true;
 		}
 		return super.handleMessage(msg);

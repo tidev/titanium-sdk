@@ -364,14 +364,18 @@ public class TableViewProxy extends TiViewProxy
 	@Kroll.setProperty @Kroll.method
 	public void setData(Object[] data, @Kroll.argument(optional=true) KrollDict options) {
 		TiContext ctx = getTiContext();
+		Object[] actualData = data;
+		if (data != null && data.length > 0 && data[0] instanceof Object[]) {
+			actualData = (Object[]) data[0];
+		}
 		if (ctx == null) {
 			Log.w(LCAT, "Context has been GC'd, not setting table data.");
 			return;
 		}
 		if (ctx.isUIThread()) {
-			handleSetData(data);
+			handleSetData(actualData);
 		} else {
-			AsyncResult result = new AsyncResult(data);
+			AsyncResult result = new AsyncResult(actualData);
 			Message msg = getUIHandler().obtainMessage(MSG_SET_DATA, result);
 			msg.sendToTarget();
 			result.getResult();
