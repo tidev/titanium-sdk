@@ -43,7 +43,7 @@ public class LocaleModule extends KrollModule
 	@Kroll.method @Kroll.getProperty
 	public String getCurrentLocale()
 	{
-		return Locale.getDefault().toString();
+		return TiPlatformHelper.getLocale();
 	}
 	
 	@Kroll.method
