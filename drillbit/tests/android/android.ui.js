@@ -7,5 +7,13 @@ describe("Ti.UI.Android tests", {
 		// cf https://appcelerator.lighthouseapp.com/projects/32238/tickets/2000
 		valueOf(Ti.UI.Android.SOFT_INPUT_ADJUST_PAN).shouldBe(32);
 		valueOf(Ti.Android.ACTION_ALL_APPS).shouldBe('android.intent.action.ALL_APPS');
+	},
+
+	// https://appcelerator.lighthouseapp.com/projects/32238-titanium-mobile/tickets/2340
+	uniqueTagTableViewException: function() {
+		Ti.UI.createTableView({top:0});
+		// If it doesn't crash, then you're ok
 	}
+		
+
 })

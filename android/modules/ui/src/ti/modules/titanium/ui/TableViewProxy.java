@@ -60,12 +60,13 @@ public class TableViewProxy extends TiViewProxy
 	
 	@Override
 	public void handleCreationDict(KrollDict dict) {
-		Object o = dict.get("data");
-		if (o != null) {
-			processData((Object[]) o);
-			dict.remove("data"); // don't override our data accessor
+		if (dict.containsKey("data")) {
+			Object o = dict.get("data");
+			if (o != null && o instanceof Object[]) {
+				processData((Object[]) o);
+				dict.remove("data"); // don't override our data accessor
+			}
 		}
-		
 		super.handleCreationDict(dict);
 	}
 
