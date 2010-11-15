@@ -572,6 +572,8 @@ Drillbit.prototype.readLine = function(data, platform)
 	var eventHandler = 'handle' + upperEventName + 'Event';
 	if (eventHandler in this) {
 		this[eventHandler](event, platform);
+	} else if (eventHandler in this.emulators[platform]){
+		this.emulators[platform][eventHandler](event, platform);
 	}
 };
 
@@ -674,7 +676,7 @@ Drillbit.prototype.stageSDK = function() {
 		var relativePath = ti.path.relpath(file.nativePath(), mobileSupport);
 		var destFile = ti.fs.getFile(self.mobileSdk, relativePath);
 		
-		ti.api.debug("staging " + destFile.nativePath());
+		ti.api.debug("staging SDK file: " + destFile.nativePath());
 		file.copy(destFile);
 		stagedFiles.push(destFile);
 	});

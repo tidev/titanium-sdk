@@ -69,9 +69,16 @@ var DrillbitTest =
 	
 	complete: function() {
 		try {
-			// we print the stringified result back over the process
-			// this lets us be platform/simulator/device independent (in theory)
-			this.fireEvent("complete", this.getResults());
+			var results = this.getResults();
+			// logcat has a character limit in Android, so we save to the sdcard and pull down from Drillbit
+			if (Ti.Platform.osname == "android") {
+				var resultsFile = Ti.Filesystem.getFile("appdata://results.json");
+				results.suite = DrillbitTest.NAME;
+				resultsFile.write(JSON.stringify(results));
+				this.fireEvent("completeAndroid", {});
+			} else {
+				this.fireEvent("complete", results);
+			}
 		} catch (e) {
 			Titanium.API.error("Exception on completion: "+e);
 		}
