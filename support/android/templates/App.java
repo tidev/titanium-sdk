@@ -29,14 +29,11 @@ public final class ${config['classname']}Application extends TiApplication {
 	protected void bootModules(TiContext context) {
 		%for module in app_modules:
 		// ${module['api_name']} module
-		%if module['class_name'] in external_child_modules:
-		%for child_module in external_child_modules[module['class_name']]:
+		modules.add(new ${module['class_name']}(context));
+		%for child_module in module['external_child_modules']:
 		// ${module['api_name']}.${child_module['name']}
 		KrollModule.addExternalChildModule(${module['class_name']}.class, ${child_module['proxyClassName']}.class);
 		%endfor
-		%endif
-
-		modules.add(new ${module['class_name']}(context));
 		%endfor
 		
 		%if len(custom_modules) > 0:

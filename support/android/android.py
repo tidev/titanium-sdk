@@ -137,7 +137,7 @@ class Android(object):
 	
 	def build_modules_info(self, resources_dir, app_bin_dir):
 		self.app_modules = []
-		(modules, self.external_child_modules) = bindings.get_all_module_bindings()
+		(modules, external_child_modules) = bindings.get_all_module_bindings()
 		
 		compiler = Compiler(self.tiapp, resources_dir, self.java, app_bin_dir, os.path.dirname(app_bin_dir))
 		compiler.compile(compile_bytecode=False)
@@ -158,10 +158,16 @@ class Android(object):
 			
 			if module_apiName == None: continue # module wasn't found
 			if '.' not in module:
+				ext_modules = []
+				if module_class in external_child_modules:
+					for child_module in external_child_modules[module_class]:
+						if child_module['fullAPIName'].lower() in compiler.modules:
+							ext_modules.append(child_module)
 				self.app_modules.append({
 					'api_name': module_apiName,
 					'class_name': module_class,
-					'bindings': module_bindings
+					'bindings': module_bindings,
+					'external_child_modules': ext_modules
 				})
 		
 		# discover app modules
@@ -233,7 +239,7 @@ class Android(object):
 		
 		self.render(template_dir, 'AndroidManifest.xml', app_dir, 'AndroidManifest.xml')
 		self.render(template_dir, 'App.java', app_package_dir, self.config['classname'] + 'Application.java',
-			app_modules = self.app_modules, custom_modules = self.custom_modules, external_child_modules = self.external_child_modules)
+			app_modules = self.app_modules, custom_modules = self.custom_modules)
 		self.render(template_dir, 'Activity.java', app_package_dir, self.config['classname'] + 'Activity.java')
 		self.render(template_dir, 'classpath', app_dir, '.classpath')
 		self.render(template_dir, 'project', app_dir, '.project')
