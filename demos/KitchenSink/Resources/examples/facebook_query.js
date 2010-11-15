@@ -34,12 +34,14 @@ function runQuery()
 	{
 		win.close();
 	});
-	win.setRightNavButton(close);
+	if (Ti.Platform.osname == 'iPhone OS') {
+		win.setRightNavButton(close);
+	}
 
 	// run query, populate table view and open window
 	var query = "SELECT uid, name, pic_square, status FROM user ";
 	query +=  "where uid IN (SELECT uid2 FROM friend WHERE uid1 = " + Titanium.Facebook.getUserId() + ")";
-	query += "order by last_name";
+	query += "order by last_name limit 20";
 	Ti.API.info('user id ' + Titanium.Facebook.getUserId());
 	Titanium.Facebook.query(query, function(r)
 	{
@@ -54,26 +56,13 @@ function runQuery()
 				backgroundColor:'#fff'
 			});
 			var imageView;
-			if (Titanium.Platform.name == 'android')
-			{
-				// iphone moved to a single image property - android needs to do the same
-				imageView = Ti.UI.createImageView({
-					url:row.pic_square == null ? '../images/custom_tableview/user.png' : row.pic_square,
-					left:10,
-					width:50,
-					height:50
-				});
-			}
-			else
-			{
-				imageView = Ti.UI.createImageView({
-					image:row.pic_square == null ? '../images/custom_tableview/user.png' : row.pic_square,
-					left:10,
-					width:50,
-					height:50
-				});
+			imageView = Ti.UI.createImageView({
+				image:row.pic_square == null ? '../images/custom_tableview/user.png' : row.pic_square,
+				left:10,
+				width:50,
+				height:50
+			});
 
-			}
 			tvRow.add(imageView);
 
 			var userLabel = Ti.UI.createLabel({
@@ -102,7 +91,13 @@ function runQuery()
 
 			data[c] = tvRow;
 		}
-		tableView.setData(data,{animationStyle:Titanium.UI.iPhone.RowAnimationStyle.DOWN});
+		
+		if (Ti.Platform.osname == 'iPhone OS') {
+			tableView.setData(data, { animationStyle : Titanium.UI.iPhone.RowAnimationStyle.DOWN });
+		} else {
+			tableView.setData(data);
+		}
+		
 		win.open({modal:true});
 		b1.title = 'Run Query';
 	});
