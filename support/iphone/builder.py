@@ -563,8 +563,10 @@ def main(args):
 				ti.properties['version']=version
 				pp = os.path.expanduser("~/Library/MobileDevice/Provisioning Profiles/%s.mobileprovision" % appuuid)
 				provisioning_profile = read_provisioning_profile(pp,o)
-				
-				
+					
+# TODO:				
+# This code is used elsewhere, as well.  We should move stuff like this to
+# a common file.
 			def write_info_plist(infoplist_tmpl):
 				plist = codecs.open(infoplist_tmpl, encoding='utf-8').read()
 				plist = plist.replace('__PROJECT_NAME__',name)

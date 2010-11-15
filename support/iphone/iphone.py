@@ -48,7 +48,6 @@ class IPhone(object):
 			plist = plist.replace('__URL__',self.id)
 			urlscheme = self.name.replace('.','_').replace(' ','').lower()
 			plist = plist.replace('__URLSCHEME__',urlscheme)
-
 			out_plist = open(os.path.join(iphone_dir,'Info.plist'),'w')
 			out_plist.write(plist)
 			out_plist.close()
