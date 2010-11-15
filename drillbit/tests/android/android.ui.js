@@ -11,8 +11,14 @@ describe("Ti.UI.Android tests", {
 
 	// https://appcelerator.lighthouseapp.com/projects/32238-titanium-mobile/tickets/2340
 	uniqueTagTableViewException: function() {
-		Ti.UI.createTableView({top:0});
-		// If it doesn't crash, then you're ok
+		var tableview = Ti.UI.createTableView({top:0});
+		valueOf(tableview).shouldBeObject();
+	},
+	
+	// https://appcelerator.lighthouseapp.com/projects/32238-titanium-mobile/tickets/2343-android-crash-when-creating-tableview#ticket-2343-3
+	noDataCrash: function() {
+		var tableview = Ti.UI.createTableView({});
+		valueOf(tableview).shouldBeObject();
 	},
 
 	// https://appcelerator.lighthouseapp.com/projects/32238-titanium-mobile/tickets/2065-android-behavior-change-in-set-row-data-test-case#ticket-2065-5
