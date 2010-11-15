@@ -22,8 +22,6 @@
 	<iphone>
 		<orientations device="iphone">
 			<orientation>Ti.UI.PORTRAIT</orientation>
-			<orientation>Ti.UI.LANDSCAPE_LEFT</orientation>
-			<orientation>Ti.UI.LANDSCAPE_RIGHT</orientation>
 		</orientations>
 		<orientations device="ipad">
 			<orientation>Ti.UI.PORTRAIT</orientation>

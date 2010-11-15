@@ -925,6 +925,9 @@ const CFStringRef charactersToNotEscape = CFSTR(":[]@!$ '()*+,;\"<>%{}|\\^~`#");
 	return arg;
 }
 
+#define RETURN_IF_ORIENTATION_STRING(str,orientation) \
+if ([str isEqualToString:@#orientation]) return orientation;
+
 +(UIDeviceOrientation)orientationValue:(id)value def:(UIDeviceOrientation)def
 {
 	if ([value isKindOfClass:[NSString class]])
@@ -937,6 +940,11 @@ const CFStringRef charactersToNotEscape = CFSTR(":[]@!$ '()*+,;\"<>%{}|\\^~`#");
 		{
 			return UIInterfaceOrientationLandscapeRight;
 		}
+		
+		RETURN_IF_ORIENTATION_STRING(value,UIInterfaceOrientationPortrait)
+		RETURN_IF_ORIENTATION_STRING(value,UIInterfaceOrientationPortraitUpsideDown)
+		RETURN_IF_ORIENTATION_STRING(value,UIInterfaceOrientationLandscapeLeft)
+		RETURN_IF_ORIENTATION_STRING(value,UIInterfaceOrientationLandscapeRight)
 	}
 
 	if ([value respondsToSelector:@selector(intValue)])

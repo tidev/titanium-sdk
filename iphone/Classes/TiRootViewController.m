@@ -276,6 +276,32 @@
 	[super willAnimateRotationToInterfaceOrientation:toInterfaceOrientation duration:duration];
 }
 
+-(TiOrientationFlags)getDefaultOrientations
+{
+	// Read the orientation values from the plist - if they exist.
+	TiOrientationFlags defaultFlags = TiOrientationPortrait;
+	NSString* property = @"UISupportedInterfaceOrientations";
+	if ([TiUtils isIPad]) {
+		defaultFlags = TiOrientationAny;
+		property = [property stringByAppendingString:@"~ipad"];
+	}
+	NSArray* orientations = [[NSBundle mainBundle] objectForInfoDictionaryKey:property];
+	if (orientations == nil || [orientations count] == 0) {
+		return defaultFlags;
+	}
+	else {
+		defaultFlags = TiOrientationNone;
+		for (NSString* orientationString in orientations) {
+			UIInterfaceOrientation orientation = [TiUtils orientationValue:orientationString def:-1];
+			if (orientation != -1) {
+				TI_ORIENTATION_SET(defaultFlags, orientation);
+			}
+		}
+	}
+	
+	return defaultFlags;
+}
+
 -(void)setOrientationModes:(NSArray *)newOrientationModes
 {
 	allowedOrientations = TiOrientationNone;
@@ -301,15 +327,7 @@
 	
 	if (allowedOrientations == TiOrientationNone)
 	{
-		if ([TiUtils isIPad])
-		{
-			allowedOrientations = TiOrientationAny;
-		}
-		else
-		{
-			allowedOrientations = TiOrientationPortrait;
-		}
-
+		allowedOrientations = [self getDefaultOrientations];
 	}
 }
 
@@ -567,11 +585,7 @@ What this does mean is that any
 		}
 	}
 	
-	if ([TiUtils isIPad])
-	{
-		return TiOrientationAny;
-	}
-	return TiOrientationPortrait;
+	return [self getDefaultOrientations];
 }
 
 
