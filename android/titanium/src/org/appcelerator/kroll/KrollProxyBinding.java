@@ -8,6 +8,7 @@ package org.appcelerator.kroll;
 
 import java.util.HashMap;
 
+import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.kroll.KrollBridge;
 
 public abstract class KrollProxyBinding {
@@ -17,6 +18,9 @@ public abstract class KrollProxyBinding {
 		// Subclasses will need to initialize all bindings to null
 		return bindings.containsKey(name);
 	}
+	
+	public abstract boolean isModule();
+	public abstract Class<? extends KrollProxy> getProxyClass();
 	
 	public abstract Object getBinding(String name);
 	

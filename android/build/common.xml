@@ -40,7 +40,7 @@ Common ant tasks and macros for building Android-based Titanium modules and proj
 	<property name="dist.classes.dir" value="${dist.dir}/classes"/>
 	<property name="gen.src.dir" value="${dist.dir}/generated"/>
 	<property name="build.version" value="1.0.0"/>
-
+	<property name="dependency.json" location="${ti.android.root}/dependency.json"/>
 	<property environment="env"/>
 	
 	<if>
@@ -272,6 +272,19 @@ Common ant tasks and macros for building Android-based Titanium modules and proj
 		<jar destfile="${dest.file}" basedir="${build.dir}"/>
 	</target>
 
+	<macrodef name="update.modules.properties">
+		<attribute name="name"/>
+		<attribute name="dir"/>
+		<sequential>
+			<var name="jarname" unset="true"/>
+			<condition property="jarname" value="@{name}.jar" else="titanium-@{name}.jar">
+				<equals arg1="@{name}" arg2="titanium"/>
+			</condition>
+			<ti.updateModulesJSON moduleJSON="@{dir}/org/appcelerator/titanium/bindings/@{name}.json"
+				modulesJSON="${dist.dir}/modules.json" jarname="${jarname}"/>
+		</sequential>
+	</macrodef>
+	
 	<macrodef name="generate.build.properties">
 		<attribute name="dir" default="${titanium.project.dir}/bin"/>
 		<sequential>
@@ -328,9 +341,11 @@ Common ant tasks and macros for building Android-based Titanium modules and proj
 	<target name="build.titanium.jar" depends="build.titanium">
 		<!-- TODO: retrieve git hash / value from titanium_version.py -->
 		<property name="build.githash" value="HEAD"/>
-		<generate.build.properties/>
-		
 		<property name="dest.file" value="${dist.dir}/titanium.jar"/>
+		
+		<generate.build.properties/>
+		<update.modules.properties dir="${build.dir}" name="titanium"/>
+		
 		<jar destfile="${dest.file}" basedir="${build.dir}"/>
 	</target>
 	
@@ -343,16 +358,19 @@ Common ant tasks and macros for building Android-based Titanium modules and proj
 					<classpath refid="dependencies"/>
 				</extra.javac.classpath>
 			</build.module.project>
+			<update.modules.properties dir="${modules.dir}/@{name}/bin" name="@{name}"/>
 			<jar destfile="${dist.dir}/titanium-@{name}.jar" basedir="${modules.dir}/@{name}/bin"/>
 		</sequential>
 	</macrodef>
 
 	<target name="build.all">
+		<build.ti.ant.tasks/>
+		<define.ti.ant.tasks/>
 		<antcall target="build.kroll.apt.jar"/>
 		<antcall target="build.titanium.jar"/>
 		<antcall target="build.all.modules"/>
 	</target>
-
+	
 	<macrodef name="clean.project">
 		<attribute name="name"/>
 		<attribute name="prefix" default=""/>
@@ -385,23 +403,19 @@ Common ant tasks and macros for building Android-based Titanium modules and proj
 			<taskdef classname="org.appcelerator.titanium.ant.GetModuleBuildOrderTask" name="ti.getModuleBuildOrder" classpathref="ti.build.path"/>
 			<taskdef classname="org.appcelerator.titanium.ant.ModulePathTask" name="ti.modulePath" classpathref="ti.build.path"/>
 			<taskdef classname="org.appcelerator.titanium.ant.StringTask" name="ti.string" classpathref="ti.build.path"/>
+			<taskdef classname="org.appcelerator.titanium.ant.UpdateModulesJSONTask" name="ti.updateModulesJSON" classpathref="ti.build.path"/>
 		</sequential>
 	</macrodef>
 	
 	<macrodef name="build.ti.ant.tasks">
 		<sequential>
 			<mkdir dir="${ti.build.dir}/bin"/>
-			<javac srcdir="${ti.build.dir}/src" destdir="${ti.build.dir}/bin" includes="**/*.java" classpathref="ti.build.lib.path" includeantruntime="false"/>
+			<javac srcdir="${ti.build.dir}/src" destdir="${ti.build.dir}/bin" includes="**/*.java" classpathref="ti.build.lib.path" includeantruntime="false" debug="true"/>
 			<jar basedir="${ti.build.dir}/bin" destfile="${dist.dir}/ant-tasks.jar"/>
 		</sequential>
 	</macrodef>
 	
 	<target name="build.all.modules">
-		<build.ti.ant.tasks/>
-		<define.ti.ant.tasks/>
-		
-		<property name="dependency.json" location="${ti.android.root}/dependency.json"/>
-		
 		<ti.getModuleBuildOrder json="${dependency.json}" property="modules"/>
 		
 		<for list="${modules}" param="module" delimiter=" ">

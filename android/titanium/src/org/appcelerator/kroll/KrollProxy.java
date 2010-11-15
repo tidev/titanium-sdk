@@ -53,6 +53,7 @@ public class KrollProxy implements Handler.Callback, OnEventListenerChange {
 	protected KrollProxyListener modelListener;
 	protected KrollEventManager eventManager;
 	protected KrollModule createdInModule;
+	protected KrollProxyBinding binding;
 	protected static HashMap<Class<? extends KrollProxy>, KrollProxyBinding> proxyBindings = new HashMap<Class<? extends KrollProxy>, KrollProxyBinding>();
 	
 	@Kroll.inject
@@ -100,25 +101,31 @@ public class KrollProxy implements Handler.Callback, OnEventListenerChange {
 		}
 	}
 	
-	public KrollProxyBinding getBinding() {
-		if (!proxyBindings.containsKey(getClass())) {
-			String bindingClassName = getClass().getName();
-			bindingClassName += "BindingGen";
+	public static KrollProxyBinding getBinding(Class<? extends KrollProxy> proxyClass) {
+		if (!proxyBindings.containsKey(proxyClass)) {
+			String bindingClassName = proxyClass.getName() + "BindingGen";
 			
 			try {
 				Class<?> bindingClass = Class.forName(bindingClassName);
 				KrollProxyBinding bindingInstance = (KrollProxyBinding) bindingClass.newInstance();
-				proxyBindings.put(getClass(), bindingInstance);
+				proxyBindings.put(proxyClass, bindingInstance);
 				return bindingInstance;
 			} catch (ClassNotFoundException e) {
-				Log.e(TAG, "Couldn't find binding class for proxy " + getClass().getName(), e);
+				Log.e(TAG, "Couldn't find binding class for proxy " + proxyClass.getName(), e);
 			} catch (IllegalAccessException e) {
 				Log.e(TAG, "Couldn't access constructor for binding class " + bindingClassName, e);
 			} catch (InstantiationException e) {
 				Log.e(TAG, "Couldn't insantiate binding class " + bindingClassName, e);
 			}
 		}
-		return proxyBindings.get(getClass());
+		return proxyBindings.get(proxyClass);
+	}
+	
+	public KrollProxyBinding getBinding() {
+		if (binding == null) {
+			binding = getBinding(getClass());
+		}
+		return binding;
 	}
 	
 	protected boolean hasBinding(String name) {

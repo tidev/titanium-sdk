@@ -6,6 +6,7 @@
  */
 package org.appcelerator.kroll;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -20,7 +21,9 @@ public class KrollModule extends KrollProxy
 	private static final String TAG = "KrollModule";
 	protected static HashMap<String, Object> constants = new HashMap<String, Object>();
 	protected static HashMap<String, KrollModuleInfo> customModuleInfo = new HashMap<String, KrollModuleInfo>();
-
+	protected static HashMap<Class<? extends KrollModule>, List<Class<? extends KrollModule>>> externalChildModules =
+		new HashMap<Class<? extends KrollModule>, List<Class<? extends KrollModule>>>();
+	
 	protected KrollModuleInfo moduleInfo;
 	
 	public static void addModuleInfo(KrollModuleInfo info) {
@@ -31,6 +34,13 @@ public class KrollModule extends KrollProxy
 		return customModuleInfo.get(id);
 	}
 
+	public static void addExternalChildModule(Class<? extends KrollModule> parent, Class<? extends KrollModule> child) {
+		if (!externalChildModules.containsKey(parent)) {
+			externalChildModules.put(parent, new ArrayList<Class<? extends KrollModule>>());
+		}
+		externalChildModules.get(parent).add(child);
+	}
+	
 	public KrollModule(TiContext context) {
 		super(context);
 		context.addOnLifecycleEventListener(this);
@@ -61,6 +71,29 @@ public class KrollModule extends KrollProxy
 		for (String name : constants.keySet()) {
 			setProperty(name, constants.get(name));
 		}
+	}
+	
+	public static KrollModule getExternalChildModule(KrollModuleBinding binding, Class<? extends KrollModule> moduleClass, String name) {
+		if (!externalChildModules.containsKey(moduleClass)) return null;
+		
+		if (binding.bindings.containsKey(name)) {
+			Object bindingObj = binding.getBinding(name);
+			if (bindingObj != null) {
+				return (KrollModule)bindingObj;
+			}
+		}
+		
+		for (Class<? extends KrollModule> childModuleClass : externalChildModules.get(moduleClass)) {
+			KrollModuleBinding childBinding = (KrollModuleBinding) KrollProxy.getBinding(childModuleClass);
+			if (childBinding != null) {
+				if (childBinding.getShortAPIName().equals(name)) {
+					KrollModule module = childBinding.newInstance(TiContext.getCurrentTiContext());
+					binding.bindings.put(name, module);
+					return module;
+				}
+			}
+		}
+		return null;
 	}
 	
 	@Override

@@ -7,11 +7,12 @@
 # Handles JS, CSS and HTML files only
 #
 import os, sys, re, shutil, tempfile, run, codecs, traceback, types
-import jspacker, json
+import jspacker, simplejson
 from xml.sax.saxutils import escape
 from sgmllib import SGMLParser
 from csspacker import CSSPacker
 from deltafy import Deltafy
+import bindings
 
 ignoreFiles = ['.gitignore', '.cvsignore', '.DS_Store']
 ignoreDirs = ['.git','.svn','_svn', 'CVS']
@@ -42,10 +43,10 @@ class Compiler(object):
 		self.root_dir = root_dir
 		self.project_dir = os.path.abspath(os.path.expanduser(project_dir))
 		self.modules = set()
-		self.jar_libraries = []
+		self.jar_libraries = set()
 		
 		json_contents = open(os.path.join(self.template_dir,'dependency.json')).read()
-		self.depends_map = json.read(json_contents)
+		self.depends_map = simplejson.loads(json_contents)
 		
 		# go ahead and slurp in any required modules
 		for required in self.depends_map['required']:
@@ -62,19 +63,19 @@ class Compiler(object):
 		self.js_files = {}
 		self.html_scripts = []
 		self.compiled_files = []
-
-
-	def add_required_module(self,name):
+		
+	def add_required_module(self, name):
 		name = name.lower()
 		if name in ('buildhash','builddate'): return # ignore these
 		if not name in self.modules:
 			self.modules.add(name)
-			mf = os.path.join(self.template_dir, 'modules', 'titanium-%s.jar' % name)
-			if os.path.exists(mf):
-				print "[DEBUG] detected module = %s" % name
-				self.jar_libraries.append(mf)
+			module_jar = bindings.find_module_jar(name)
+			print module_jar
+			if module_jar != None and os.path.exists(module_jar):
+				print "[DEBUG] detected module %s, path = %s" % (name, module_jar)
+				self.jar_libraries.add(module_jar)
 			else:
-				print "[INFO] unknown module = %s" % name
+				print "[WARN] unknown module = %s" % name
 				
 			if self.depends_map['libraries'].has_key(name):
 				for lib in self.depends_map['libraries'][name]:
@@ -82,7 +83,7 @@ class Compiler(object):
 					if os.path.exists(lf):
 						if not lf in self.jar_libraries:
 							print "[DEBUG] adding required library: %s" % lib
-							self.jar_libraries.append(lf) 
+							self.jar_libraries.add(lf) 
 
 			if self.depends_map['dependencies'].has_key(name):
 				for depend in self.depends_map['dependencies'][name]:
