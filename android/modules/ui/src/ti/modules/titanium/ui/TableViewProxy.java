@@ -60,12 +60,13 @@ public class TableViewProxy extends TiViewProxy
 	
 	@Override
 	public void handleCreationDict(KrollDict dict) {
-		Object o = dict.get("data");
-		if (o != null) {
-			processData((Object[]) o);
-			dict.remove("data"); // don't override our data accessor
+		if (dict.containsKey("data")) {
+			Object o = dict.get("data");
+			if (o != null && o instanceof Object[]) {
+				processData((Object[]) o);
+				dict.remove("data"); // don't override our data accessor
+			}
 		}
-		
 		super.handleCreationDict(dict);
 	}
 
@@ -363,14 +364,18 @@ public class TableViewProxy extends TiViewProxy
 	@Kroll.setProperty @Kroll.method
 	public void setData(Object[] data, @Kroll.argument(optional=true) KrollDict options) {
 		TiContext ctx = getTiContext();
+		Object[] actualData = data;
+		if (data != null && data.length > 0 && data[0] instanceof Object[]) {
+			actualData = (Object[]) data[0];
+		}
 		if (ctx == null) {
 			Log.w(LCAT, "Context has been GC'd, not setting table data.");
 			return;
 		}
 		if (ctx.isUIThread()) {
-			handleSetData(data);
+			handleSetData(actualData);
 		} else {
-			AsyncResult result = new AsyncResult(data);
+			AsyncResult result = new AsyncResult(actualData);
 			Message msg = getUIHandler().obtainMessage(MSG_SET_DATA, result);
 			msg.sendToTarget();
 			result.getResult();
