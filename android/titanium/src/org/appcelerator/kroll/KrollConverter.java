@@ -12,6 +12,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
+import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.kroll.KrollCallback;
 import org.appcelerator.titanium.kroll.KrollContext;
 import org.appcelerator.titanium.util.Log;
@@ -177,8 +178,13 @@ public class KrollConverter implements KrollNativeConverter,
 			return new ScriptableMap(invocation, (Map<String,Object>)value);
 		}
 		else if (value instanceof Date) {
+			if (value instanceof KrollDate) {
+				return ((KrollDate)value).getJSDate();
+			}
+			
 			Date date = (Date) value;
-			return Context.getCurrentContext().newObject(invocation.getScope(), "Date", new Object[] { date.getTime() });
+			TiContext tiContext = invocation.getTiContext();
+			return Context.getCurrentContext().newObject(tiContext.getKrollBridge().getScope(), "Date", new Object[] { date.getTime() });
 		}
 		else if (value.getClass().isArray()) {
 			int length = Array.getLength(value);
@@ -229,8 +235,7 @@ public class KrollConverter implements KrollNativeConverter,
 		} else if (isArrayLike(scriptable)) {
 			return toArray(invocation, scriptable);
 		} else if (scriptable.getClassName().equals("Date")) {
-			double time = (Double) ScriptableObject.callMethod(scriptable, "getTime", new Object[0]);
-			return new Date((long)time);
+			return new KrollDate(scriptable);
 		} else if (scriptable.getClassName().equals("Error")) {
 			if (scriptable.has("javaException", scriptable)) {
 				NativeJavaObject exception = (NativeJavaObject) scriptable.get("javaException", scriptable);

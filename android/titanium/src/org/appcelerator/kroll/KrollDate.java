@@ -1,0 +1,27 @@
+/**
+ * Appcelerator Titanium Mobile
+ * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Licensed under the terms of the Apache Public License
+ * Please see the LICENSE included with this distribution for details.
+ */
+package org.appcelerator.kroll;
+
+import java.util.Date;
+
+import org.mozilla.javascript.Scriptable;
+import org.mozilla.javascript.ScriptableObject;
+
+@SuppressWarnings("serial")
+public class KrollDate extends Date {
+
+	protected Scriptable jsDate;
+	
+	public KrollDate(Scriptable jsDate) {
+		this.jsDate = jsDate;
+		setTime(((Number)ScriptableObject.callMethod(jsDate, "getTime", new Object[0])).longValue());
+	}
+	
+	public Scriptable getJSDate() {
+		return jsDate;
+	}
+}
