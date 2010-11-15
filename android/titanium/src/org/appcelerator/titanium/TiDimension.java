@@ -92,7 +92,12 @@ public class TiDimension
 	public void setUnits(int units) {
 		this.units = units;
 	}
-
+	
+	public int getAsPixels() {
+		//TODO real conversion based on display.
+		return getIntValue();
+	}
+	
 	public boolean isUnitUndefined() {
 		return units == COMPLEX_UNIT_UNDEFINED;
 	}

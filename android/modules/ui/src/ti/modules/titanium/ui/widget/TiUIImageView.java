@@ -17,6 +17,7 @@ import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiContext;
+import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.TiContext.OnLifecycleEvent;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.AsyncResult;
@@ -56,6 +57,9 @@ public class TiUIImageView extends TiUIView
 	private int token;
 	private boolean firedLoad;
 	
+	private TiDimension requestedWidth;
+	private TiDimension requestedHeight;
+	
 	private ArrayList<TiDrawableReference> imageSources;
 	private TiDrawableReference defaultImageSource;
 
@@ -63,7 +67,7 @@ public class TiUIImageView extends TiUIView
 	{
 		private int token;
 
-		public BgImageLoader(TiContext tiContext, Integer imageWidth, Integer imageHeight, int token) {
+		public BgImageLoader(TiContext tiContext, TiDimension imageWidth, TiDimension imageHeight, int token) {
 			super(tiContext, imageWidth, imageHeight);
 			this.token = token;
 		}
@@ -242,7 +246,7 @@ public class TiUIImageView extends TiUIView
 					if (!animating.get()) {
 						break topLoop;
 					}
-					Bitmap b = imageSources.get(j).getBitmap(context);
+					Bitmap b = imageSources.get(j).getBitmap();
 					try {
 						bitmapQueue.put(new BitmapWithIndex(b, j));
 					} catch (InterruptedException e) {
@@ -421,24 +425,24 @@ public class TiUIImageView extends TiUIView
 		if (object instanceof Object[]) {
 			for(Object o : (Object[])object) {
 				if (o instanceof FileProxy) {
-					imageSources.add( TiDrawableReference.fromFile(((FileProxy)o).getBaseFile()) );
+					imageSources.add( TiDrawableReference.fromFile(getProxy().getTiContext(), ((FileProxy)o).getBaseFile()) );
 				} else {
-					imageSources.add( TiDrawableReference.fromObject(o));
+					imageSources.add( TiDrawableReference.fromObject(getProxy().getTiContext(), o));
 				}
 			}
 		} else if (object instanceof FileProxy) {
-			imageSources.add( TiDrawableReference.fromFile(((FileProxy)object).getBaseFile()));
+			imageSources.add( TiDrawableReference.fromFile(getProxy().getTiContext(), ((FileProxy)object).getBaseFile()));
 		} else {
-			imageSources.add( TiDrawableReference.fromObject(object) );
+			imageSources.add( TiDrawableReference.fromObject(getProxy().getTiContext(), object) );
 		}
 	}
 	
 	private void setDefaultImageSource(Object object)
 	{
 		if (object instanceof FileProxy) {
-			defaultImageSource = TiDrawableReference.fromFile(((FileProxy)object).getBaseFile());
+			defaultImageSource = TiDrawableReference.fromFile(getProxy().getTiContext(), ((FileProxy)object).getBaseFile());
 		} else {
-			defaultImageSource = TiDrawableReference.fromObject(object);
+			defaultImageSource = TiDrawableReference.fromObject(getProxy().getTiContext(), object);
 		}
 	}
 	
@@ -460,11 +464,11 @@ public class TiUIImageView extends TiUIView
 					TiImageView view = getView();
 					if (view != null) {
 						view.setImageDrawable(null);
-						imageref.getBitmapAsync(new BgImageLoader(getProxy().getTiContext(), null, null, token));
+						imageref.getBitmapAsync(new BgImageLoader(getProxy().getTiContext(), requestedWidth, requestedHeight, token));
 					}
 				}
 			} else {
-				setImage(imageref.getBitmap(getProxy().getTiContext()));
+				setImage(imageref.getBitmap(requestedWidth, requestedHeight));
 			}
 		} else {
 			setImages();
@@ -477,7 +481,7 @@ public class TiUIImageView extends TiUIView
 			setImage(null);
 			return;
 		}
-		setImage(defaultImageSource.getBitmap(getProxy().getTiContext()));
+		setImage(defaultImageSource.getBitmap(requestedWidth, requestedHeight));
 	}
 	
 	@Override
@@ -486,6 +490,13 @@ public class TiUIImageView extends TiUIView
 		TiImageView view = getView();
 		if (view == null) {
 			return;
+		}
+		
+		if (d.containsKey("width")) {
+			requestedWidth = TiConvert.toTiDimension(d, "width");
+		}
+		if (d.containsKey("height")) {
+			requestedWidth = TiConvert.toTiDimension(d, "height");
 		}
 
 		if (d.containsKey("images")) {
@@ -511,12 +522,14 @@ public class TiUIImageView extends TiUIView
 			setImageSource(d.get("image"));
 			setImage();
 		} else {
-			getProxy().setProperty("image", null);
-			if (defaultImageSource != null) {
-				setDefaultImage();
+			if (!d.containsKey("images")) {
+				getProxy().setProperty("image", null);
+				if (defaultImageSource != null) {
+					setDefaultImage();
+				}
 			}
 		}
-
+		
 		super.processProperties(d);
 	}
 

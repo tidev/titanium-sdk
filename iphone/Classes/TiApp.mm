@@ -120,38 +120,36 @@ void MyUncaughtExceptionHandler(NSException *exception)
 {
 	UIDeviceOrientation orientation = [[UIDevice currentDevice] orientation];
 	
-	if ([TiUtils isIPad]) {
-		UIImage* image = nil;
-		// Specific orientation check
-		switch (orientation) {
-			case UIDeviceOrientationPortrait:
-				image = [UIImage imageNamed:@"Default-Portrait.png"];
-				break;
-			case UIDeviceOrientationPortraitUpsideDown:
-				image = [UIImage imageNamed:@"Default-PortraitUpsideDown.png"];
-				break;
-			case UIDeviceOrientationLandscapeLeft:
-				image = [UIImage imageNamed:@"Default-LandscapeLeft.png"];
-				break;
-			case UIDeviceOrientationLandscapeRight:
-				image = [UIImage imageNamed:@"Default-LandscapeRight.png"];
-				break;
-		}
-		if (image != nil) {
-			return image;
-		}
-		
-		// Generic orientation check
-		if (UIDeviceOrientationIsPortrait(orientation)) {
+	UIImage* image = nil;
+	// Specific orientation check
+	switch (orientation) {
+		case UIDeviceOrientationPortrait:
 			image = [UIImage imageNamed:@"Default-Portrait.png"];
-		}
-		else if (UIDeviceOrientationIsLandscape(orientation)) {
-			image = [UIImage imageNamed:@"Default-Landscape.png"];
-		}
+			break;
+		case UIDeviceOrientationPortraitUpsideDown:
+			image = [UIImage imageNamed:@"Default-PortraitUpsideDown.png"];
+			break;
+		case UIDeviceOrientationLandscapeLeft:
+			image = [UIImage imageNamed:@"Default-LandscapeLeft.png"];
+			break;
+		case UIDeviceOrientationLandscapeRight:
+			image = [UIImage imageNamed:@"Default-LandscapeRight.png"];
+			break;
+	}
+	if (image != nil) {
+		return image;
+	}
 		
-		if (image != nil) {
-			return image;
-		}
+	// Generic orientation check
+	if (UIDeviceOrientationIsPortrait(orientation)) {
+		image = [UIImage imageNamed:@"Default-Portrait.png"];
+	}
+	else if (UIDeviceOrientationIsLandscape(orientation)) {
+		image = [UIImage imageNamed:@"Default-Landscape.png"];
+	}
+		
+	if (image != nil) {
+		return image;
 	}
 	
 	// Default 
@@ -167,7 +165,7 @@ void MyUncaughtExceptionHandler(NSException *exception)
 	}
 	RELEASE_TO_NIL(loadView);
 	CGRect viewFrame = [[UIScreen mainScreen] bounds];
-	BOOL flipLandscape = ([TiUtils isIPad] && UIDeviceOrientationIsLandscape([[UIDevice currentDevice] orientation]));
+	BOOL flipLandscape = UIDeviceOrientationIsLandscape([[UIDevice currentDevice] orientation]);
 	loadView = [[UIImageView alloc] initWithFrame:CGRectMake(0, splashY, 
 															 flipLandscape ? viewFrame.size.height : viewFrame.size.width, 
 															 flipLandscape ? viewFrame.size.width : viewFrame.size.height)];

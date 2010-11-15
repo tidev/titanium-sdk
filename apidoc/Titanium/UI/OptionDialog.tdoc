@@ -27,7 +27,7 @@ cancel[int]: an index to indicate which button should be the cancel button
 
 # 1.5
 titleid[string]: the key in the locale file to use for the title property
-
+androidView[object]: A Titanium.UI.View. Allows for arbitrary contents inside a native dialog. Works for any dialog. (Android)
 
 - methods
 
@@ -42,6 +42,7 @@ click: fired when a button in the dialog is clicked
 index: the button index that was pressed
 cancel: boolean to indicate if the cancel button was pressed
 destructive: boolean to indicate if the destructive button was pressed
+button: boolean to indicate that the index refers to a button on the dialog and not an item. (Android)
 
 - example : Simple Options Dialog with 2 Options
 

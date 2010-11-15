@@ -108,11 +108,13 @@ public class TiPlatformHelper
 	}
 
 	public static String getLocale() {
-		return Locale.getDefault().getLanguage();
+		return Locale.getDefault().toString().replace("_", "-");
 	}
 	
-	public static Locale getLocale(String code)
+	public static Locale getLocale(String localeCode)
     {
+		if (localeCode == null) { return null; }
+		String code = localeCode.replace('_', '-');
     	if (locales.containsKey(code)) {
     		return locales.get(code);
     	}

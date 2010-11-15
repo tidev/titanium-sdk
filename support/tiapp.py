@@ -63,6 +63,7 @@ class TiAppXML(object):
 		self.app_properties = {}
 		self.android = {}
 		self.android_manifest = {}
+		self.iphone = {}
 		
 		root = self.dom.documentElement
 		children = root.childNodes
@@ -84,6 +85,8 @@ class TiAppXML(object):
 							self.properties['modules'].append({'name':name,'version':ver})
 				elif child.nodeName == 'android':
 					self.parse_android(child)
+				elif child.nodeName == 'iphone':
+					self.parse_iphone(child)
 				elif child.nodeName == 'android:manifest':
 					self.parse_android_manifest(child)
 				elif child.nodeName == 'property':
@@ -166,6 +169,43 @@ class TiAppXML(object):
 			if child.nodeName in parse_tags:
 				local_objects['parse_'+child.nodeName](child)
 
+	def parse_iphone(self, node):
+		def translate_orientation(orientation):
+			info = orientation.split('.')
+			tokenMap = {'PORTRAIT':'UIInterfaceOrientationPortrait',
+						'UPSIDE_PORTRAIT':'UIInterfaceOrientationPortraitUpsideDown',
+						'LANDSCAPE_LEFT':'UIInterfaceOrientationLandscapeLeft',
+						'LANDSCAPE_RIGHT':'UIInterfaceOrientationLandscapeRight'}
+			
+			for token in tokenMap:
+				if token in info:
+					return tokenMap[token]
+			return None
+
+		def parse_orientations(node):
+			device = node.getAttribute('device').lower()
+			orientations = []
+			if (device == None):
+				print "[WARN] Orientations for unspecified device; assuming iphone"
+				device = 'iphone'
+			if device != 'iphone' and device != 'ipad':
+				print "[WARN] Unrecognized device %s for iphone, ignoring" % device
+				return
+			for child in node.childNodes:
+				if (child.nodeName == 'orientation'):
+					orientation = translate_orientation(getText(child.childNodes))
+					if orientation == None:
+						print "[WARN] Unrecognized orientation %s: Ignoring" % getText(node.childNodes)
+					else:
+						orientations.append(orientation)
+			self.iphone['orientations_'+device] = orientations
+			
+		local_objects = locals()
+		parse_tags = ['orientations']
+		for child in node.childNodes:
+			if child.nodeName in parse_tags:
+				local_objects['parse_'+child.nodeName](child)
+
 	def has_app_property(self, property):
 		return property in self.app_properties
 	
@@ -221,7 +261,18 @@ class TiAppXML(object):
 				else:	
 					status_bar_style = '<string>UIStatusBarStyleDefault</string>'
 				self.infoplist_properties['UIStatusBarStyle']=status_bar_style
-			
+
+		for prop in self.iphone:
+			if prop == 'orientations_iphone' or prop == 'orientations_ipad':
+				propertyName = 'UISupportedInterfaceOrientations'
+				if prop == 'orientations_ipad':
+					propertyName += '~ipad'
+				propertyValue = '<array>\n'
+				for orientation in self.iphone[prop]:
+					propertyValue += "                <string>%s</string>\n" % orientation
+				propertyValue += '        </array>'
+				self.infoplist_properties[propertyName]=propertyValue
+		
 		plist = codecs.open(file,'r','utf-8','replace').read()
 		plist = plist.replace('__APPICON__',icon)
 
