@@ -51,7 +51,9 @@ public class PropertiesModule extends KrollModule {
 			// pre-empt so we can correctly return null for primitive types
 			return defaultValue;
 		}
-		return appProperties.getBool(key, defaultValue);
+		// Can't pass null as defaultValue because it's an primitive parameter, so be careful...
+		boolean def = defaultValue == null ? false : defaultValue.booleanValue();
+		return appProperties.getBool(key, def);
 	}
 	
 	@Kroll.method
@@ -61,7 +63,9 @@ public class PropertiesModule extends KrollModule {
 			// pre-empt so we can correctly return null for primitive types
 			return defaultValue;
 		}
-		return appProperties.getDouble(key, defaultValue);
+		// Can't pass null as defaultValue because it's a primitive parameter, so be careful...
+		double def = defaultValue == null ? 0D : defaultValue.doubleValue();
+		return appProperties.getDouble(key, def);
 	}
 	
 	@Kroll.method
@@ -71,7 +75,9 @@ public class PropertiesModule extends KrollModule {
 			// pre-empt so we can correctly return null for primitive types
 			return defaultValue;
 		}
-		return appProperties.getInt(key, defaultValue);
+		// Can't pass null as defaultValue because it's a primitive paramater, so be careful...
+		int def = defaultValue == null ? 0 : defaultValue.intValue();
+		return appProperties.getInt(key, def);
 	}	
 	
 	@Kroll.method
