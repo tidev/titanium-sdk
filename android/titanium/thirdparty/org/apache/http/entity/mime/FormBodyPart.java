@@ -87,8 +87,10 @@ public class FormBodyPart extends BodyPart {
     }
     
     protected void generateContentType(final ContentDescriptor desc) {
-        if (desc.getMimeType() != null) {
-            StringBuilder buffer = new StringBuilder();
+	    // JGH NOTE: this seems to be a bug in RoR where it would puke if you
+	    // send a content-type of text/plain for key/value pairs in form-data
+        if (desc.getMimeType() != null && desc.getMimeType().equals("")==false) {
+                 StringBuilder buffer = new StringBuilder();
             buffer.append(MIME.CONTENT_TYPE);
             buffer.append(": ");
             buffer.append(desc.getMimeType());
