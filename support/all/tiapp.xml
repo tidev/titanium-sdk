@@ -30,4 +30,6 @@
 			<orientation>Ti.UI.LANDSCAPE_RIGHT</orientation>
 		</orientations>
 	</iphone>
+	<modules>
+	</modules>
 </ti:app>
