@@ -240,7 +240,7 @@ public class NodeProxy extends KrollProxy {
 	}
 	
 	@Kroll.method
-	public XPathUtil.XPathNodeListProxy evaluate(String xpath) {
+	public XPathNodeListProxy evaluate(String xpath) {
 		return XPathUtil.evaluate(this, xpath);
 	}
 }
