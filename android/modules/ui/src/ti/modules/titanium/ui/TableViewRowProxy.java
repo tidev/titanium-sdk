@@ -139,4 +139,8 @@ public class TableViewRowProxy extends TiViewProxy
 			controls.clear();
 		}
 	}
+	
+	public TiTableViewRowProxyItem getTableViewRowProxyItem() {
+		return tableViewItem;
+	}
 }

@@ -35,6 +35,46 @@ describe("Ti.UI.Android tests", {
 		valueOf(tv.data[0].rowCount).shouldBe(data.length);
 		w.close();
 	},
+	
+	// https://appcelerator.lighthouseapp.com/projects/32238-titanium-mobile/tickets/2344-android-crash-when-hiding-switch#ticket-2344-3
+	switchHasChildToggleCrash: asyncTest({
+		start: function() {
+			var w = Ti.UI.createWindow();
+			var row = Ti.UI.createTableViewRow({ hasChild: true });
+			row.add(Ti.UI.createLabel({text: "hello world"}));
+			var data = [ row ];
+			var tv = Ti.UI.createTableView({
+				data: data
+			});
+			w.add(tv);
+			w.open();
+			
+			var runAgain = true;
+			var toggleEdit = this.async(function() {
+				var row = tv.data[0].rowAtIndex(0);
+				if (!row.button) {
+					row.button = Ti.UI.createSwitch({
+						visible: !row.hasChild,
+						style: Ti.UI.Android.SWITCH_STYLE_CHECKBOX,
+						right: -5
+					});
+				}
+				row.hasChild = !row.hasChild;
+				row.button.visible = !row.button.visible;
+				if (runAgain) {
+					runAgain = false;
+					setTimeout(toggleEdit, 1000);
+				} else {
+					valueOf(row.hasChild).shouldBeTrue();
+					valueOf(row.button.visible).shouldBeFalse();
+				}
+			});
+			
+			toggleEdit();
+		},
+		timeout: 10000,
+		timeoutError: "Timed out drawing TableView"
+	}),
 
 	// https://appcelerator.lighthouseapp.com/projects/32238-titanium-mobile/tickets/2146
 	setDataReplacesExistingData: function() {

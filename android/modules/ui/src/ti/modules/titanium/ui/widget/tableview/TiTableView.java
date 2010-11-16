@@ -194,15 +194,24 @@ public class TiTableView extends FrameLayout
 				v = (TiBaseTableViewItem) convertView;
 				
 				// Default creates view for each Item
-				if (v.getClassName().equals(TableViewProxy.CLASSNAME_DEFAULT)) {
-					if (v.getRowData() != item) {
-						v = null;
+				boolean sameView = false;
+				if (item.proxy instanceof TableViewRowProxy) {
+					TableViewRowProxy row = (TableViewRowProxy)item.proxy;
+					if (row.getTableViewRowProxyItem() != null) {
+						sameView = row.getTableViewRowProxyItem().equals(convertView);
 					}
-				} else {
-					// otherwise compare class names
-					if (!v.getClassName().equals(item.className)) {
-						Log.w(LCAT, "Handed a view to convert with className " + v.getClassName() + " expected " + item.className);
-						v = null;
+				}
+				if (!sameView) {
+					if (v.getClassName().equals(TableViewProxy.CLASSNAME_DEFAULT)) {
+						if (v.getRowData() != item) {
+							v = null;
+						}
+					} else {
+						// otherwise compare class names
+						if (!v.getClassName().equals(item.className)) {
+							Log.w(LCAT, "Handed a view to convert with className " + v.getClassName() + " expected " + item.className);
+							v = null;
+						}
 					}
 				}
 			}
