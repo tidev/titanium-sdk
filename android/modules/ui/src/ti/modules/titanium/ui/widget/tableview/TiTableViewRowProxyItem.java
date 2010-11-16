@@ -50,15 +50,15 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 		this.handler = new Handler(this);
 		this.leftImage = new ImageView(tiContext.getActivity());
 		leftImage.setVisibility(GONE);
-		addView(leftImage,new LayoutParams(LayoutParams.WRAP_CONTENT,LayoutParams.WRAP_CONTENT));
+		addView(leftImage, new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
 
 		this.content = new TiCompositeLayout(tiContext.getActivity(), false);
 		content.setMinimumHeight(48);
-		addView(content, new LayoutParams(LayoutParams.FILL_PARENT,LayoutParams.WRAP_CONTENT));
+		addView(content, new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT));
 
 		this.rightImage = new ImageView(tiContext.getActivity());
 		rightImage.setVisibility(GONE);
-		addView(rightImage,new LayoutParams(LayoutParams.WRAP_CONTENT,LayoutParams.WRAP_CONTENT));
+		addView(rightImage, new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
 	}
 
 	public void setRowData(Item item)
@@ -72,7 +72,7 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 	public Item getRowData() {
 		return this.item;
 	}
-
+	
 	public void setRowData(TableViewRowProxy rp)
 	{
 		KrollDict props = rp.getProperties();
@@ -157,8 +157,15 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 			for (int i = 0; i < len; i++) {
 				TiUIView view = views[i];
 				TiViewProxy proxy = proxies.get(i);
-				if (view == null) {
+				if (view == null || !proxy.equals(view.getProxy())) {
 					if (proxy.peekView() != null) {
+						TiUIView proxyView = proxy.peekView();
+						if (proxyView.getNativeView() != null) {
+							View nativeView = proxyView.getNativeView();
+							if (nativeView.getParent().equals(content)) {
+								content.removeView(nativeView);
+							}
+						}
 						proxy.releaseViews();
 					}
 					view = proxy.getView(tiContext.getActivity());
