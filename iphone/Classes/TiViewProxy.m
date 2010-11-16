@@ -523,6 +523,7 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
 		}
 #endif		
 		// on open we need to create a new view
+		[self viewWillAttach];
 		view = [self newView];
 		
 		view.proxy = self;
@@ -706,6 +707,11 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
 	{
 		[view performSelector:@selector(didFirePropertyChanges)];
 	}
+}
+
+-(void)viewWillAttach
+{
+	// for subclasses
 }
 
 

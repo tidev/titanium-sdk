@@ -141,6 +141,7 @@ enum
 -(void)willFirePropertyChanges;
 -(void)didFirePropertyChanges;
 
+-(void)viewWillAttach; // Need this for video player & possibly other classes which override newView
 -(void)viewDidAttach;
 -(void)viewWillDetach;
 -(void)viewDidDetach;
