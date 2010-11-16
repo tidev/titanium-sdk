@@ -751,7 +751,7 @@ else{\
 
 -(void)_tabBeforeBlur
 {
-	[barImageView removeFromSuperview];
+//	[barImageView removeFromSuperview];
 	[super _tabBeforeBlur];
 }
 

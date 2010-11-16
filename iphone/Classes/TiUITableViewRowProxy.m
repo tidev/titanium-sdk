@@ -602,7 +602,7 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 		CGFloat rowWidth = [self sizeWidthForDecorations:rect.size.width forceResizing:NO];
 		CGFloat rowHeight = [self rowHeight:rowWidth];
 		rowHeight = [table tableRowHeight:rowHeight];
-		if (rect.size.height < rowHeight || rowWidth < rect.size.width)
+		if (rowHeight < rect.size.height || rowWidth < rect.size.width)
 		{
 			rect.size.height = rowHeight;
 			rect.size.width = rowWidth;
