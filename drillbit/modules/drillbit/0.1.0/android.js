@@ -148,6 +148,14 @@ AndroidEmulator.prototype.run = function(readLineCb) {
 	}
 };
 
+AndroidEmulator.prototype.handleCompleteAndroidEvent = function(event)
+{
+	var suite = event.suite;
+	var resultsData = this.runADB(['shell', 'cat', '/sdcard/' + this.drillbit.testHarnessId + '/results.json']);
+	var results = JSON.parse(resultsData);
+	this.drillbit.handleCompleteEvent(results, 'android');
+};
+
 AndroidEmulator.prototype.removeTestJS = function(testScript) {
 	var testJS = '/sdcard/'+this.drillbit.testHarnessId+'/test.js';
 	var results = this.runADB(['shell', 'ls', testJS]);

@@ -44,6 +44,7 @@ describe("Kroll tests",
 	customObjects: function() {
 		// ensure custom objects work when wrapped/unwrapped by Kroll
 		// https://appcelerator.lighthouseapp.com/projects/32238/tickets/2027-android-weird-behavior-when-setting-custom-sub-properties-on-proxies
+
 		var view = Ti.UI.createView();
 		view.customObj = "hello";
 		valueOf(view.customObj).shouldBe("hello");
@@ -64,5 +65,23 @@ describe("Kroll tests",
 
 		valueOf(x.getY()).shouldBe(1);
 		valueOf(row.x.getY()).shouldBe(1);
+
+		// https://appcelerator.lighthouseapp.com/projects/32238-titanium-mobile/tickets/2204-150-regression-errors-accessing-custom-attributes-off-of-tableviewrow-objects-includes-testcase
+		var testDate = new Date();
+		var dateObj = {bla:"foo", testDateObj:testDate};
+		var noDateObj = {bla:"foo"};
+
+		var row = Ti.UI.createTableViewRow({
+		    _dateObj: dateObj,
+		    _noDateObj: noDateObj,
+		    _testDate: testDate
+		});
+
+		valueOf(row._noDateObj.bla).shouldBe("foo");
+		valueOf(row._dateObj.bla).shouldBe("foo");
+		valueOf(row._dateObj.testDateObj).shouldBe(testDate);
+		
+		valueOf(row._testDate.getTime()).shouldBe(testDate.getTime());
+		valueOf(row._testDate).shouldBe(testDate);
 	}
 });

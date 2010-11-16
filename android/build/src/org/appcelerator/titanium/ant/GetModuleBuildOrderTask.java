@@ -36,6 +36,11 @@ public class GetModuleBuildOrderTask extends Task {
 				modules.get(dep).addDependent();
 			}
 		}
+		
+		@Override
+		public String toString() {
+			return name;
+		}
 	}
 	
 	@Override
@@ -78,17 +83,7 @@ public class GetModuleBuildOrderTask extends Task {
 				}
 			});
 			
-			String propertyValue = "";
-			ListIterator<Module> iter = buildOrder.listIterator();
-			while (iter.hasNext()) {
-				Module module = iter.next();
-				propertyValue += module.name;
-				if (iter.hasNext()) {
-					propertyValue += " ";
-				}
-			}
-			
-			getProject().setProperty(property, propertyValue);
+			getProject().setProperty(property, TiAntUtil.join(buildOrder, " "));
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

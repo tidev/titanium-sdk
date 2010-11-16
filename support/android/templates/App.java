@@ -30,6 +30,10 @@ public final class ${config['classname']}Application extends TiApplication {
 		%for module in app_modules:
 		// ${module['api_name']} module
 		modules.add(new ${module['class_name']}(context));
+		%for child_module in module['external_child_modules']:
+		// ${module['api_name']}.${child_module['name']}
+		KrollModule.addExternalChildModule(${module['class_name']}.class, ${child_module['proxyClassName']}.class);
+		%endfor
 		%endfor
 		
 		%if len(custom_modules) > 0:

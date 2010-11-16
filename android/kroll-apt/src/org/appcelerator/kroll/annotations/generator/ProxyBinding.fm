@@ -237,15 +237,17 @@ public class ${genClassName}
 	
 	public ${genClassName}() {
 		<#if superProxyBindingClassName??>super();</#if>
+		// Constants are pre-bound
+		<@listConstants ; isFirst, name, constant>
+		bindings.put("${name}", ${proxyClassName}.${constant.proxyName});
+		</@listConstants>
+		
 		<@listCreateProxies ; isFirst, createProxy>
 		bindings.put("create${createProxy.name}", null);
 		</@listCreateProxies>
 		<@listChildModules ; isFirst, childModule>
 		bindings.put("${childModule.name}", null);
 		</@listChildModules>
-		<@listConstants ; isFirst, name, constant>
-		bindings.put("${name}", null);
-		</@listConstants>
 		<@listProperties ; isFirst, name, property>
 		bindings.put("${name}", null);
 		</@listProperties>
@@ -308,13 +310,13 @@ public class ${genClassName}
 		}
 		</@listChildModules>
 		
-		<@listConstants ; isFirst, name, constant>
+		<#--@listConstants ; isFirst, name, constant>
 		<#if isFirst>// Constants</#if>
 		if (name.equals("${name}")) {
 			bindings.put("${name}", ${proxyClassName}.${constant.proxyName});
 			return ${proxyClassName}.${constant.proxyName};
 		}
-		</@listConstants>
+		</@listConstants-->
 		
 		<@listProperties ; isFirst, name, property>
 		<#if isFirst>// Properties</#if>
@@ -397,11 +399,7 @@ public class ${genClassName}
 		}
 		</#list>
 		
-		<#if proxyClassName != "KrollProxy">
-			return super.getBinding(name);
-		<#else>
-			return null;
-		</#if>
+		return super.getBinding(name);
 	}
 	
 	private static final String SHORT_API_NAME = "${proxyAttrs.name}";
@@ -418,5 +416,22 @@ public class ${genClassName}
 	
 	public String getId() {
 		return ID;
+	}
+	
+	<#-- for convenience so we can avoid reflection -->
+	public KrollModule newInstance(TiContext context) {
+		<#if isModule>
+		return new ${proxyClassName}(context);
+		<#else>
+		return null;
+		</#if>
+	}
+	
+	public Class<? extends KrollProxy> getProxyClass() {
+		return ${proxyClassName}.class;
+	}
+	
+	public boolean isModule() {
+		return ${isModule?string}; 
 	}
 }

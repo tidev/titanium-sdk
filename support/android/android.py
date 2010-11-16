@@ -13,6 +13,7 @@ from os.path import join, splitext, split, exists
 from shutil import copyfile
 from androidsdk import AndroidSDK
 from compiler import Compiler
+import bindings
 
 template_dir = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
 module_dir = os.path.join(os.path.dirname(template_dir), 'module')
@@ -134,44 +135,18 @@ class Android(object):
 			if value == None: value = ""
 			self.app_properties[name] = {"type": type, "value": value}
 	
-	def get_module_bindings(self, jar):
-		bindings_path = None
-		for name in jar.namelist():
-			if name.endswith('.json') and name.startswith('org/appcelerator/titanium/bindings/'):
-				bindings_path = name
-				break
-		
-		if bindings_path is None: return None
-		
-		return simplejson.loads(jar.read(bindings_path))
-	
 	def build_modules_info(self, resources_dir, app_bin_dir):
+		self.app_modules = []
+		(modules, external_child_modules) = bindings.get_all_module_bindings()
+		
 		compiler = Compiler(self.tiapp, resources_dir, self.java, app_bin_dir, os.path.dirname(app_bin_dir))
 		compiler.compile(compile_bytecode=False)
-		self.app_modules = []
-		template_dir = os.path.dirname(sys._getframe(0).f_code.co_filename)
-		android_modules_dir = os.path.abspath(os.path.join(template_dir, 'modules'))
-		
-		modules = {}
-		for jar in os.listdir(android_modules_dir):
-			if not jar.endswith('.jar'): continue
-			
-			module_path = os.path.join(android_modules_dir, jar)
-			module_jar = zipfile.ZipFile(module_path)
-			module_bindings = self.get_module_bindings(module_jar)
-			if module_bindings is None: continue
-			
-			for module_class in module_bindings['modules'].keys():
-				full_api_name = module_bindings['proxies'][module_class]['proxyAttrs']['fullAPIName']
-				modules[module_class] = module_bindings['modules'][module_class]
-				modules[module_class]['fullAPIName'] = full_api_name
-
 		for module in compiler.modules:
-			bindings = []
+			module_bindings = []
 			# TODO: we should also detect module properties
 			for method in compiler.module_methods:
 				if method.lower().startswith(module+'.') and '.' not in method:
-					bindings.append(method[len(module)+1:])
+					module_bindings.append(method[len(module)+1:])
 			
 			module_class = None
 			module_apiName = None
@@ -183,10 +158,16 @@ class Android(object):
 			
 			if module_apiName == None: continue # module wasn't found
 			if '.' not in module:
+				ext_modules = []
+				if module_class in external_child_modules:
+					for child_module in external_child_modules[module_class]:
+						if child_module['fullAPIName'].lower() in compiler.modules:
+							ext_modules.append(child_module)
 				self.app_modules.append({
 					'api_name': module_apiName,
 					'class_name': module_class,
-					'bindings': bindings
+					'bindings': module_bindings,
+					'external_child_modules': ext_modules
 				})
 		
 		# discover app modules
@@ -198,7 +179,7 @@ class Android(object):
 		for module in detected_modules:
 			if module.jar == None: continue
 			module_jar = zipfile.ZipFile(module.jar)
-			module_bindings = self.get_module_bindings(module_jar)
+			module_bindings = bindings.get_module_bindings(module_jar)
 			if module_bindings is None: continue
 			
 			for module_class in module_bindings['modules'].keys():

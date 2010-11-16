@@ -547,14 +547,47 @@ public class KrollBindingGenerator extends AbstractProcessor {
 		
 	}
 	
-	protected Map<String, Object> getParentModule(Map<String, Object> proxy) {
+	protected String getParentModuleClass(Map<String, Object> proxy) {
 		if (properties.containsKey("modules")) {
-			Map<String, Object> modules = (Map<String, Object>) properties.get("modules");
+			String moduleClass = null;
+			
 			if (proxy.containsKey("creatableInModule")) {
-				return (Map<String, Object>) modules.get(proxy.get("creatableInModule"));
+				moduleClass = (String) proxy.get("creatableInModule");
 			} else if (proxy.containsKey("parentModule")) {
-				return (Map<String, Object>) modules.get(proxy.get("parentModule"));
+				moduleClass = (String) proxy.get("parentModule");
 			}
+			return moduleClass;
+		}
+		return null;
+	}
+		
+	protected Map<String, Object> getParentModule(Map<String, Object> proxy) {
+		String parentModuleClass = getParentModuleClass(proxy);
+		if (parentModuleClass != null) {
+			Map<String, Object> modules = (Map<String, Object>) properties.get("modules");
+			return (Map<String, Object>) modules.get(parentModuleClass);
+		}
+		return null;
+	}
+	
+	protected String findParentModuleName(Map<String, Object> proxy) {
+		// Parent module name wasn't found because it exists in another source round (probably another module)
+		// We can manually pull the annotation name here instead
+		String parentModuleClass = getParentModuleClass(proxy);
+		if (parentModuleClass != null) {
+			TypeElement type = processingEnv.getElementUtils().getTypeElement(parentModuleClass);
+			HashMap<String, Object> moduleParams = utils.getAnnotationParams(type, Kroll_module);
+			
+			String apiName = parentModuleClass.substring(parentModuleClass.lastIndexOf(".")+1);
+			int moduleIdx;
+			if ((moduleIdx = apiName.indexOf("Module")) != -1) {
+				apiName = apiName.substring(0, moduleIdx);
+			}
+			
+			if (moduleParams.containsKey("name") && !moduleParams.get("name").equals(DEFAULT_NAME)) {
+				apiName = (String)moduleParams.get("name");
+			}
+			return apiName;
 		}
 		return null;
 	}
@@ -567,7 +600,11 @@ public class KrollBindingGenerator extends AbstractProcessor {
 			if (parentProxy == null) {
 				break;
 			}
-			fullAPIName = parentProxy.get("apiName") + "." + fullAPIName;
+			String apiName = (String) parentProxy.get("apiName");
+			if (apiName == null) {
+				apiName = findParentModuleName(childProxy);
+			}
+			fullAPIName = apiName + "." + fullAPIName;
 			childProxy = parentProxy;
 		}
 		proxy.put("fullAPIName", fullAPIName);
