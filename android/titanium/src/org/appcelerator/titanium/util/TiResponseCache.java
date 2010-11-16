@@ -59,7 +59,7 @@ public class TiResponseCache extends ResponseCache {
 		if (cacheDir == null) return null;
 		
 		// Get our key, which is a hash of the URI
-		String hash = DigestUtils.md5Hex(uri.toString());
+		String hash = DigestUtils.shaHex(uri.toString());
 		
 		// Make our cache files
 		File hFile = new File(cacheDir, hash + HEADER_SUFFIX);
@@ -95,7 +95,7 @@ public class TiResponseCache extends ResponseCache {
 		}
 		
 		// Get our key, which is a hash of the URI
-		String hash = DigestUtils.md5Hex(uri.toString());
+		String hash = DigestUtils.shaHex(uri.toString());
 		
 		// Make our cache files
 		File hFile = new File(cacheDir, hash + HEADER_SUFFIX);
