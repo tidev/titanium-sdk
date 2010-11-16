@@ -1478,7 +1478,7 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
 
 -(void)relayout
 {
-	if (!repositioning && ![view animating])
+	if (!repositioning)
 	{
 		ENSURE_UI_THREAD_0_ARGS
 
