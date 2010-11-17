@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -31,6 +32,7 @@ public class TiResponseCache extends ResponseCache {
 		private Map<String, List<String>> headers;
 		private InputStream               istream;
 		public TiCacheResponse(Map<String, List<String>> hdrs, InputStream istr) {
+			super();
 			headers = hdrs;
 			istream = istr;
 		}
@@ -43,6 +45,34 @@ public class TiResponseCache extends ResponseCache {
 		@Override
 		public InputStream getBody() throws IOException {
 			return istream;
+		}
+	}
+	
+	private static class TiCacheRequest extends CacheRequest {
+		private File hFile;
+		private File bFile;
+		private FileOutputStream ostream;
+		public TiCacheRequest(File headers, File body) throws IOException {
+			super();
+			this.hFile   = headers;
+			this.bFile   = body;
+			this.ostream = new FileOutputStream(body);
+		}
+
+		@Override
+		public OutputStream getBody() throws IOException {
+			return ostream;
+		}
+
+		@Override
+		public void abort() {
+			try {
+				ostream.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			hFile.delete();
+			bFile.delete();
 		}
 	}
 	
@@ -98,7 +128,7 @@ public class TiResponseCache extends ResponseCache {
 		String hash = DigestUtils.shaHex(uri.toString());
 		
 		// Make our cache files
-		File hFile = new File(cacheDir, hash + HEADER_SUFFIX);
+		File hFile = new File(cacheDir, hash + HEADER_SUFFIX); 
 		File bFile = new File(cacheDir, hash + BODY_SUFFIX);
 		
 		// Write out the headers
@@ -109,23 +139,7 @@ public class TiResponseCache extends ResponseCache {
 				wrtr.write(hdr + "=" + val + newl);
 		wrtr.close();
 		
-		// Write out the body
-		OutputStream bOutStream = new FileOutputStream(bFile);
-		InputStream  bInStream  = conn.getInputStream();
-		byte buffer[] = new byte[8192];
-		for (int i=bInStream.read(buffer) ; i >= 0 ; i=bInStream.read(buffer))
-			bOutStream.write(buffer, 0, i);
-		bOutStream.close();
-		
 		// Indicate our cache state
-		return new CacheRequest() {
-			@Override
-			public OutputStream getBody() throws IOException {
-				return new ByteArrayOutputStream();
-			}
-			
-			@Override
-			public void abort() {}
-		};
+		return new TiCacheRequest(hFile, bFile);
 	}
 }
