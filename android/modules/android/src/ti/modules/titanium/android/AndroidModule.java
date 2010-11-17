@@ -180,15 +180,7 @@ public class AndroidModule extends KrollModule
 		super(tiContext);
 	}
 
-	// Proxies are in titanium, but we expose the creators in Ti.Android
-	
-	@Kroll.method
-	public ActivityProxy createActivity(KrollInvocation invocation, Object[] args) {
-		ActivityProxy activity = new ActivityProxy(invocation.getTiContext());
-		activity.handleCreationArgs(this, args);
-		return activity;
-	}
-	
+	// Proxies is in titanium, but we expose the creator in Ti.Android
 	@Kroll.method
 	public IntentProxy createIntent(KrollInvocation invocation, Object[] args) {
 		IntentProxy intent = new IntentProxy(invocation.getTiContext());

@@ -20,19 +20,19 @@
 }
 
 -(void)scrollToView:(id)args
-{
+{	//TODO: Refactor this properly.
 	ENSURE_SINGLE_ARG(args,NSObject);
 	[[self view] performSelectorOnMainThread:@selector(scrollToView:) withObject:args waitUntilDone:NO];
 }
 
 -(void)addView:(id)args
-{
+{	//TODO: Refactor this properly.
 	ENSURE_SINGLE_ARG(args,TiViewProxy);
 	[[self view] performSelectorOnMainThread:@selector(addView:) withObject:args waitUntilDone:NO];
 }
 
 -(void)removeView:(id)args
-{
+{	//TODO: Refactor this properly.
 	ENSURE_SINGLE_ARG(args,NSObject);
 	[[self view] performSelectorOnMainThread:@selector(removeView:) withObject:args waitUntilDone:NO];
 }
@@ -49,7 +49,15 @@
 	[super childWillResize:child];
 }
 
-
+-(UIView *)parentViewForChild:(TiViewProxy *)child
+{	//TODO: Refactor this properly.
+	UIView * result = [(id)[self view] parentViewForChild:child];
+	if (result != nil)
+	{
+		return result; 
+	}
+	return [super parentViewForChild:child];
+}
 
 @end
 

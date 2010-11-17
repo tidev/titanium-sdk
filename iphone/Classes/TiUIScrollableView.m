@@ -99,6 +99,22 @@
 	}	
 }
 
+-(UIView *)parentViewForChild:(TiViewProxy *)child
+{	//TODO: Remove and put in the proxy where it belongs.
+	int index = [views indexOfObject:child];
+	if (index == NSNotFound)
+	{
+		return nil;
+	}
+	NSArray * scrollWrappers = [[self scrollview] subviews];
+	if (index < [scrollWrappers count])
+	{
+		return [scrollWrappers objectAtIndex:index];
+	}
+	//TODO: Generate the view?
+	return nil;
+}
+
 -(void)renderViewForIndex:(int)index
 {
 	UIScrollView *sv = [self scrollview];

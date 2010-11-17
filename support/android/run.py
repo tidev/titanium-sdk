@@ -25,7 +25,7 @@ def check_and_print_err(err, warning_regex):
 		sys.stderr.flush()
 	return errored
 
-def run(args, ignore_error=False, debug=True, ignore_output=False, warning_regex=None):
+def run(args, ignore_error=False, debug=True, ignore_output=False, warning_regex=None, return_error=False):
 	if debug:
 		print "[DEBUG] %s" % (subprocess.list2cmdline(args))
 		sys.stdout.flush()
@@ -44,4 +44,7 @@ def run(args, ignore_error=False, debug=True, ignore_output=False, warning_regex
 			else:
 				if (check_and_print_err(err, warning_regex)):
 					return None
-	return so
+	if return_error:
+		return so, se
+	else:
+		return so

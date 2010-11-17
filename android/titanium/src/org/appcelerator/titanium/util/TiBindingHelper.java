@@ -3,7 +3,6 @@ package org.appcelerator.titanium.util;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.kroll.KrollBridge;
 import org.appcelerator.titanium.proxy.ActivityProxy;
-import org.appcelerator.titanium.proxy.IntentProxy;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.proxy.TiWindowProxy;
 
@@ -16,13 +15,7 @@ public class TiBindingHelper {
 	}
 	
 	public static void bindCurrentActivity(TiContext context, ActivityProxy currentActivity) {
-		KrollBridge bridge = context.getKrollBridge();
-		bridge.bindContextSpecific("Android", "currentActivity", currentActivity);
-		
-		IntentProxy currentIntent = currentActivity.getIntent();
-		if (currentIntent != null) {
-			bridge.bindContextSpecific("Android", "currentIntent", currentIntent);
-		}
+		context.getKrollBridge().bindContextSpecific("Android", "currentActivity", currentActivity);
 	}
 	
 	public static void bindCurrentWindow(TiContext context, TiViewProxy currentWindow) {
