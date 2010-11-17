@@ -100,6 +100,7 @@ class Builder(object):
 	def __init__(self, name, sdk, project_dir, support_dir, app_id):
 		self.top_dir = project_dir
 		self.project_dir = os.path.join(project_dir,'build','android')
+		self.platform_dir = os.path.join(project_dir, 'platform', 'android')
 		self.project_src_dir = os.path.join(self.project_dir, 'src')
 		self.project_gen_dir = os.path.join(self.project_dir, 'gen')
 		# this is hardcoded for now
@@ -732,63 +733,26 @@ class Builder(object):
 		android_manifest_to_read = android_manifest
 
 		# NOTE: allow the user to use their own custom AndroidManifest if they put a file named
-		# AndroidManifest.custom.xml in their android project directory in which case all bets are
-		# off
+		# AndroidManifest.xml in platform/android, in which case all bets are off
 		is_custom = False
+		# Catch people who may have it in project root (un-released 1.4.x android_native_refactor branch users)
+		if os.path.exists(os.path.join(self.top_dir, 'AndroidManifest.xml')):
+			warn('AndroidManifest.xml file in the project root is ignored.  Move it to platform/android if you want it to be your custom manifest.')
 		android_custom_manifest = os.path.join(self.project_dir, 'AndroidManifest.custom.xml')
 		if not os.path.exists(android_custom_manifest):
-			android_custom_manifest = os.path.join(self.top_dir, 'AndroidManifest.xml')
+			android_custom_manifest = os.path.join(self.platform_dir, 'AndroidManifest.xml')
+		else:
+			warn('Use of AndroidManifest.custom.xml is deprecated. Please put your custom manifest as "AndroidManifest.xml" in the "platform/android" directory if you do not need to compile for versions < 1.5')
 		if os.path.exists(android_custom_manifest):
 			android_manifest_to_read = android_custom_manifest
 			is_custom = True
 			info("Detected custom ApplicationManifest.xml -- no Titanium version migration supported")
 		
-		if not is_custom:
-			manifest_contents = self.android.render_android_manifest()
-		else:
-			manifest_contents = open(android_manifest_to_read,'r').read()
-		
-		ti_activities = '<!-- TI_ACTIVITIES -->'
-		ti_permissions = '<!-- TI_PERMISSIONS -->'
-		ti_screens = '<!-- TI_SCREENS -->'
-		ti_services = '<!-- TI_SERVICES -->'
-		ti_manifest = '<!-- TI_MANIFEST -->'
-		ti_application = '<!-- TI_APPLICATION -->'
-		manifest_changed = False
-		
-		match = re.search('<uses-sdk android:minSdkVersion="(\d)" />', manifest_contents)
-		
-		# TODO pull this from the command line
-		android_sdk_version = '4'
-		manifest_sdk_version = None
-		if match != None:
-			manifest_sdk_version = match.group(1)
-			
-		manifest_contents = manifest_contents.replace(ti_activities,"\n\n\t\t".join(activities))
-		manifest_contents = manifest_contents.replace(ti_permissions,permissions_required_xml)
-		manifest_contents = manifest_contents.replace(ti_services, services_str)
-		manifest_contents = manifest_contents.replace('<uses-sdk android:minSdkVersion="4" />', '<uses-sdk android:minSdkVersion="%s" />' % android_sdk_version)
+		default_manifest_contents = self.android.render_android_manifest()
+		custom_manifest_contents = None
+		if is_custom:
+			custom_manifest_contents = open(android_manifest_to_read,'r').read()
 
-		# screens
-		if 'screens' in self.tiapp.android:
-			screens = self.tiapp.android['screens']
-		else:
-			screens = {}
-		for key in ('small', 'normal', 'large', 'anyDensity'):
-			if not key in screens:
-				if key in ('small', 'anyDensity'):
-					screens[key] = False
-				else:
-					screens[key] = True
-		screens_str = '<supports-screens '
-		for key in ('small', 'normal', 'large', 'anyDensity'):
-			value = unicode(screens[key]).lower()
-			if key != 'anyDensity':
-				key += "Screens"
-			screens_str += '\n\t\tandroid:%s="%s"' % (key, value)
-		screens_str += '\n\t/>'
-		manifest_contents = manifest_contents.replace(ti_screens, screens_str)
-		
 		manifest_xml = ''
 		def get_manifest_xml(tiapp):
 			xml = ''
@@ -816,21 +780,78 @@ class Builder(object):
 			if module.xml == None: continue
 			manifest_xml += get_manifest_xml(module.xml)
 			application_xml += get_application_xml(module.xml)
-		
-		if len(manifest_xml) > 0:
-			manifest_contents = manifest_contents.replace(ti_manifest, manifest_xml)
-		if len(application_xml) > 0:
-			manifest_contents = manifest_contents.replace(ti_application, application_xml)
-		
+
+		def fill_manifest(manifest_source):
+			ti_activities = '<!-- TI_ACTIVITIES -->'
+			ti_permissions = '<!-- TI_PERMISSIONS -->'
+			ti_screens = '<!-- TI_SCREENS -->'
+			ti_services = '<!-- TI_SERVICES -->'
+			ti_manifest = '<!-- TI_MANIFEST -->'
+			ti_application = '<!-- TI_APPLICATION -->'
+			match = re.search('<uses-sdk android:minSdkVersion="(\d)" />', manifest_source)
+			android_sdk_version = '4'
+			manifest_sdk_version = None
+			if match != None:
+				manifest_sdk_version = match.group(1)
+			manifest_source = manifest_source.replace(ti_activities,"\n\n\t\t".join(activities))
+			manifest_source = manifest_source.replace(ti_permissions,permissions_required_xml)
+			manifest_source = manifest_source.replace(ti_services, services_str)
+			manifest_source = manifest_source.replace('<uses-sdk android:minSdkVersion="4" />', '<uses-sdk android:minSdkVersion="%s" />' % android_sdk_version)
+
+			# screens
+			if 'screens' in self.tiapp.android:
+				screens = self.tiapp.android['screens']
+			else:
+				screens = {}
+			for key in ('small', 'normal', 'large', 'anyDensity'):
+				if not key in screens:
+					if key in ('small', 'anyDensity'):
+						screens[key] = False
+					else:
+						screens[key] = True
+			screens_str = '<supports-screens '
+			for key in ('small', 'normal', 'large', 'anyDensity'):
+				value = unicode(screens[key]).lower()
+				if key != 'anyDensity':
+					key += "Screens"
+				screens_str += '\n\t\tandroid:%s="%s"' % (key, value)
+			screens_str += '\n\t/>'
+			manifest_source = manifest_source.replace(ti_screens, screens_str)
+
+			if len(manifest_xml) > 0:
+				manifest_source = manifest_source.replace(ti_manifest, manifest_xml)
+			if len(application_xml) > 0:
+				manifest_source = manifest_source.replace(ti_application, application_xml)
+
+			return manifest_source
+
+		default_manifest_contents = fill_manifest(default_manifest_contents)
+		if custom_manifest_contents:
+			custom_manifest_contents = fill_manifest(custom_manifest_contents)
+
+		new_manifest_contents = None
+		android_manifest_gen = android_manifest + '.gen'
+		if custom_manifest_contents:
+			new_manifest_contents = custom_manifest_contents
+			# Write the would-be default as well so user can see
+			# some of the auto-gen'd insides of it if they need/want.
+			amf = open(android_manifest + '.gen', 'w')
+			amf.write(default_manifest_contents)
+			amf.close()
+		else:
+			new_manifest_contents = default_manifest_contents
+			if os.path.exists(android_manifest_gen):
+				os.remove(android_manifest_gen)
+
+		manifest_changed = False
 		old_contents = None
 		if os.path.exists(android_manifest):
 			old_contents = open(android_manifest, 'r').read()
 		
-		if manifest_contents != old_contents:
-			trace("Generating AndroidManifest.xml")
-			# we need to write out the new manifest
+		if new_manifest_contents != old_contents:
+			trace("Writing out AndroidManifest.xml")
 			amf = open(android_manifest,'w')
-			amf.write(manifest_contents)
+			amf.write(new_manifest_contents)
 			amf.close()
 			manifest_changed = True
 		
@@ -1135,13 +1156,15 @@ class Builder(object):
 			self.copy_density_images()
 
 			special_resources_dir = os.path.join(self.top_dir,'platform','android')
+			ignore_files = ignoreFiles
+			ignore_files.extend(['AndroidManifest.xml']) # don't want to overwrite build/android/AndroidManifest.xml yet
 			if os.path.exists(special_resources_dir):
 				info("found special resources dir = %s" % special_resources_dir)
 				for root, dirs, files in os.walk(special_resources_dir):
 					for name in ignoreDirs:
 						if name in dirs: dirs.remove(name)
 					for file in files:
-						if file in ignoreFiles : continue
+						if file in ignore_files : continue
 						from_ = os.path.join(root, file)           
 						to_ = from_.replace(special_resources_dir, self.project_dir, 1)
 						to_directory = os.path.split(to_)[0]
@@ -1152,7 +1175,6 @@ class Builder(object):
 			self.generate_stylesheet()
 			self.generate_aidl()
 			
-			# The next line does localization and RA generation stuff
 			manifest_changed = self.generate_android_manifest(compiler)
 
 			my_avd = None	

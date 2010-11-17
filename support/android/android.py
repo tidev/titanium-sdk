@@ -140,7 +140,7 @@ class Android(object):
 		(modules, external_child_modules) = bindings.get_all_module_bindings()
 		
 		compiler = Compiler(self.tiapp, resources_dir, self.java, app_bin_dir, os.path.dirname(app_bin_dir))
-		compiler.compile(compile_bytecode=False)
+		compiler.compile(compile_bytecode=False, info_message=None)
 		for module in compiler.modules:
 			module_bindings = []
 			# TODO: we should also detect module properties

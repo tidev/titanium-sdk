@@ -70,12 +70,11 @@ class Compiler(object):
 		if not name in self.modules:
 			self.modules.add(name)
 			module_jar = bindings.find_module_jar(name)
-			print module_jar
 			if module_jar != None and os.path.exists(module_jar):
 				print "[DEBUG] detected module %s, path = %s" % (name, module_jar)
 				self.jar_libraries.add(module_jar)
 			else:
-				print "[WARN] unknown module = %s" % name
+				print "[DEBUG] unknown module = %s" % name
 				
 			if self.depends_map['libraries'].has_key(name):
 				for lib in self.depends_map['libraries'][name]:
@@ -218,8 +217,9 @@ class Compiler(object):
 			p = os.path.abspath(os.path.join(os.path.join(path,'..'),script))
 			self.html_scripts.append(p)
 			
-	def compile(self, compile_bytecode=True):
-		print "[INFO] Compiling Javascript resources ..."
+	def compile(self, compile_bytecode=True, info_message="Compiling Javascript Resources ..."):
+		if info_message:
+			print "[INFO] %s" % info_message
 		sys.stdout.flush()
 		for root, dirs, files in os.walk(self.project_dir):
 			for dir in dirs:
