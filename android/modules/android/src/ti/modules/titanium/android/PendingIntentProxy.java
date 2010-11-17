@@ -8,18 +8,16 @@ import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiContext;
+import org.appcelerator.titanium.proxy.ActivityProxy;
+import org.appcelerator.titanium.proxy.IntentProxy;
 import org.appcelerator.titanium.util.TiConfig;
 
 import android.app.PendingIntent;
 
-/**
- * @author dthorp
- *
- */
 @Kroll.proxy(creatableInModule=AndroidModule.class)
 public class PendingIntentProxy extends KrollProxy 
 {
-	private static final String LCAT = "PendingIntentProxy";
+	private static final String TAG = "PendingIntentProxy";
 	private static boolean DBG = TiConfig.LOGD;
 	
 	private PendingIntent pendingIntent;
@@ -59,23 +57,25 @@ public class PendingIntentProxy extends KrollProxy
 		
 		if (activity == null || intent == null || flags == Integer.MIN_VALUE ||
 				(pendingIntentType < 0 || 
-					pendingIntentType > AndroidModule.PENDING_INTENT_MAX_VALUE)
-				) 
+					pendingIntentType > AndroidModule.PENDING_INTENT_MAX_VALUE)) 
 		{
 			throw new IllegalStateException("Creation arguments must contain activity, intent, type, flags");
 		}
 		
 		switch(pendingIntentType) {
 			case AndroidModule.PENDING_INTENT_FOR_ACTIVITY : {
-				pendingIntent = PendingIntent.getActivity(activity.getContext(), 0, intent.getIntent(), flags);
+				pendingIntent = PendingIntent.getActivity(
+					activity.getContext(), 0, intent.getIntent(), flags);
 				break;
 			}
 			case AndroidModule.PENDING_INTENT_FOR_BROADCAST : {
-				pendingIntent = PendingIntent.getBroadcast(activity.getContext(), 0, intent.getIntent(), flags);
+				pendingIntent = PendingIntent.getBroadcast(
+					activity.getContext(), 0, intent.getIntent(), flags);
 				break;
 			}
 			case AndroidModule.PENDING_INTENT_FOR_SERVICE : {
-				pendingIntent = PendingIntent.getService(activity.getContext(), 0, intent.getIntent(), flags);
+				pendingIntent = PendingIntent.getService(
+					activity.getContext(), 0, intent.getIntent(), flags);
 				break;
 			}
 		}

@@ -227,37 +227,38 @@ public class KrollEventManager implements OnLifecycleEvent {
 		boolean dispatched = false;
 		if (eventName != null) {
 			Map<Integer, KrollListener> listeners = eventListeners.get(eventName);
-			if (listeners != null) {
-				if (data == null) {
-					data = new KrollDict();
-				}
-				if (!data.containsKey("type")) {
-					data.put("type", eventName);
-				}
-
-				Set<Entry<Integer, KrollListener>> listenerSet = listeners.entrySet();
-				synchronized(eventListeners) {
-					for(Entry<Integer, KrollListener> entry : listenerSet) {
-						KrollListener listener = entry.getValue();
-						if (proxy == null || (proxy != null && listener.isSameProxy(proxy))) {
-							boolean invoked = false;
-							try {
-								if (listener.weakProxy.get() != null) {
-									if (!data.containsKey("source")) {
-										data.put("source", listener.weakProxy.get());
-									}
-									invoked = listener.invoke(eventName, data);
-								}
-							} catch (Exception e) {
-								Log.e(TAG, "Error invoking listener with id " + entry.getKey() + " on eventName '" + eventName + "'", e);
-							}
-							dispatched = dispatched || invoked;
-						}
-					}
-				}
-			} else {
+			if (listeners == null) {
 				if(TRACE) {
 					Log.w(TAG, "No listeners for eventName: " + eventName);
+				}
+				return false;
+			}
+			
+			if (data == null) {
+				data = new KrollDict();
+			}
+			if (!data.containsKey("type")) {
+				data.put("type", eventName);
+			}
+
+			Set<Entry<Integer, KrollListener>> listenerSet = listeners.entrySet();
+			synchronized(eventListeners) {
+				for(Entry<Integer, KrollListener> entry : listenerSet) {
+					KrollListener listener = entry.getValue();
+					if (proxy == null || (proxy != null && listener.isSameProxy(proxy))) {
+						boolean invoked = false;
+						try {
+							if (listener.weakProxy.get() != null) {
+								if (!data.containsKey("source")) {
+									data.put("source", listener.weakProxy.get());
+								}
+								invoked = listener.invoke(eventName, data);
+							}
+						} catch (Exception e) {
+							Log.e(TAG, "Error invoking listener with id " + entry.getKey() + " on eventName '" + eventName + "'", e);
+						}
+						dispatched = dispatched || invoked;
+					}
 				}
 			}
 		} else {

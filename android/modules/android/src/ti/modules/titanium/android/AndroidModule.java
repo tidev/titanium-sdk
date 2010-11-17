@@ -6,9 +6,12 @@
  */
 package ti.modules.titanium.android;
 
+import org.appcelerator.kroll.KrollInvocation;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiContext;
+import org.appcelerator.titanium.proxy.ActivityProxy;
+import org.appcelerator.titanium.proxy.IntentProxy;
 
 import android.app.Activity;
 import android.app.AlarmManager;
@@ -177,6 +180,22 @@ public class AndroidModule extends KrollModule
 		super(tiContext);
 	}
 
+	// Proxies are in titanium, but we expose the creators in Ti.Android
+	
+	@Kroll.method
+	public ActivityProxy createActivity(KrollInvocation invocation, Object[] args) {
+		ActivityProxy activity = new ActivityProxy(invocation.getTiContext());
+		activity.handleCreationArgs(this, args);
+		return activity;
+	}
+	
+	@Kroll.method
+	public IntentProxy createIntent(KrollInvocation invocation, Object[] args) {
+		IntentProxy intent = new IntentProxy(invocation.getTiContext());
+		intent.handleCreationArgs(this, args);
+		return intent;
+	};
+	
 	@Kroll.method
 	public void registerAlarm(PendingIntentProxy proxy) 
 	{

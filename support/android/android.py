@@ -135,6 +135,10 @@ class Android(object):
 			if value == None: value = ""
 			self.app_properties[name] = {"type": type, "value": value}
 	
+	def generate_activities(self):
+		for activity in self.tiapp.android.activities:
+			self.render(template_dir, 'JSActivity.java', app_dir, classname+'.java', activity=activity)
+	
 	def build_modules_info(self, resources_dir, app_bin_dir):
 		self.app_modules = []
 		(modules, external_child_modules) = bindings.get_all_module_bindings()

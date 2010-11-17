@@ -149,12 +149,30 @@ class TiAppXML(object):
 			screens = lazy_init('screens', {})
 			add_attrs(screens, node, self.to_bool)
 
+		def get_activity_classname(url):
+			parts = url.split('/')
+			if len(parts) == 0: continue
+			start = 0
+			if parts[0] == "app:" and len(parts) >= 3:
+				start = 2
+			
+			classname = parts[start:].join('_')
+			if len(classname) > 1:
+				classname = classname[0:1].upper() + classname[1:]
+			else: classname = classname.upper()
+			
+			escape_chars = ['\\', '/', ' ', '.', '$', '&', '@']
+			for escape_char in escape_chars:
+				classname = classname.replace(escape_char, '_')
+			return classname
+		
 		def parse_activities(node):
 			activities = lazy_init('activities', {})
 			for activity_el in node.getElementsByTagName('activity'):
 				name = get_text(activity_el)
 				activity = lazy_init(name, {}, activities, set_name=True)
 				add_attrs(activity, activity_el)
+				activity['classname'] = get_activity_classname(name)
 
 		def parse_services(node):
 			services = lazy_init('services', {})

@@ -20,7 +20,6 @@ import org.appcelerator.titanium.io.TiFileFactory;
 import org.appcelerator.titanium.kroll.KrollBridge;
 import org.appcelerator.titanium.kroll.KrollContext;
 import org.appcelerator.titanium.util.Log;
-import org.appcelerator.titanium.util.TiActivitySupport;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiFileHelper;
 import org.appcelerator.titanium.util.TiFileHelper2;
@@ -40,13 +39,11 @@ import android.os.Message;
 import android.os.Messenger;
 import android.os.Process;
 import android.os.RemoteException;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-public class TiContext implements TiEvaluator, ITiMenuDispatcherListener, ErrorReporter
+public class TiContext implements TiEvaluator, ErrorReporter
 {
 	private static final String LCAT = "TiContext";
 	private static final boolean DBG = TiConfig.LOGD;
@@ -64,7 +61,6 @@ public class TiContext implements TiEvaluator, ITiMenuDispatcherListener, ErrorR
 	protected KrollContext krollContext;
 	
 	private List<WeakReference<OnLifecycleEvent>> lifecycleListeners;
-	private OnMenuEvent menuEventListener;
 	private WeakReference<OnConfigurationChanged> weakConfigurationChangedListeners;
 
 	public static interface OnLifecycleEvent
@@ -79,13 +75,6 @@ public class TiContext implements TiEvaluator, ITiMenuDispatcherListener, ErrorR
 	public static interface OnConfigurationChanged
 	{
 		public void configurationChanged(Configuration newConfig);
-	}
-
-	public static interface OnMenuEvent
-	{
-		public boolean hasMenu();
-		public boolean prepareMenu(Menu menu);
-		public boolean menuItemSelected(MenuItem item);
 	}
 
 	public TiContext(Activity activity, String baseUrl)
@@ -329,49 +318,6 @@ public class TiContext implements TiEvaluator, ITiMenuDispatcherListener, ErrorR
 				}
 			}
 		}
-	}
-
-	public void setOnMenuEventListener(OnMenuEvent listener) {
-		if (listener != null) {
-			menuEventListener = listener;
-			TiActivitySupport tis = (TiActivitySupport) getActivity();
-			if (tis != null) {
-				tis.setMenuDispatchListener(this);
-			}
-		} else {
-			menuEventListener = null;
-			TiActivitySupport tis = (TiActivitySupport) getActivity();
-			if (tis != null) {
-				tis.setMenuDispatchListener(null);
-			}
-		}
-	}
-
-	public boolean dispatchHasMenu()
-	{
-		if (menuEventListener != null) {
-			return menuEventListener.hasMenu();
-		}
-
-		return false;
-	}
-
-	public boolean dispatchPrepareMenu(Menu menu)
-	{
-		if (menuEventListener != null) {
-			return menuEventListener.prepareMenu(menu);
-		}
-
-		return false;
-	}
-
-	public boolean dispatchMenuItemSelected(MenuItem item)
-	{
-		if (menuEventListener != null) {
-			return menuEventListener.menuItemSelected(item);
-		}
-
-		return false;
 	}
 
 	public void setOnConfigurationChangedListener(OnConfigurationChanged listener) {
@@ -627,7 +573,6 @@ public class TiContext implements TiEvaluator, ITiMenuDispatcherListener, ErrorR
 		if (lifecycleListeners != null) {
 			lifecycleListeners.clear();
 		}
-		menuEventListener = null;
 		
 	}
 }

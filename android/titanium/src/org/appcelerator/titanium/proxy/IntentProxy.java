@@ -1,7 +1,7 @@
 /**
  * 
  */
-package ti.modules.titanium.android;
+package org.appcelerator.titanium.proxy;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
@@ -14,16 +14,14 @@ import org.appcelerator.titanium.util.TiConvert;
 import android.content.Intent;
 import android.net.Uri;
 
-@Kroll.proxy(creatableInModule=AndroidModule.class)
 public class IntentProxy extends KrollProxy 
 {
-	private static final String LCAT = "TiIntent";
+	private static final String TAG = "TiIntent";
 	private static boolean DBG = TiConfig.LOGD;
 	
 	protected Intent intent;
 	
-	public IntentProxy(TiContext tiContext) 
-	{
+	public IntentProxy(TiContext tiContext) {
 		super(tiContext);
 	}
 	
@@ -44,21 +42,21 @@ public class IntentProxy extends KrollProxy
 
 		if (action != null) {
 			if (DBG) {
-				Log.d(LCAT, "Setting action: " + action);
+				Log.d(TAG, "Setting action: " + action);
 			}
 			intent.setAction(action);
 		}
 		
 		if (data != null) {
 			if (DBG) {
-				Log.d(LCAT, "Setting data uri: " + data);
+				Log.d(TAG, "Setting data uri: " + data);
 			}
 			intent.setData(Uri.parse(data));
 		}
 		
 		if (packageName != null) {
 			if (DBG) {
-				Log.d(LCAT, "Setting package: " + packageName);
+				Log.d(TAG, "Setting package: " + packageName);
 			}
 			intent.setPackage(packageName);
 		}
@@ -66,7 +64,7 @@ public class IntentProxy extends KrollProxy
 		if (classname != null) {
 			if (packageName != null) {
 				if (DBG) {
-					Log.d(LCAT, "Both className and packageName set, using intent.setClassName(packageName, className");
+					Log.d(TAG, "Both className and packageName set, using intent.setClassName(packageName, className");
 				}
 				intent.setClassName(packageName, classname);
 			} else {
@@ -74,7 +72,7 @@ public class IntentProxy extends KrollProxy
 					Class<?> c = getClass().getClassLoader().loadClass(classname);
 					intent.setClass(getTiContext().getActivity().getApplicationContext(), c);
 				} catch (ClassNotFoundException e) {
-					Log.e(LCAT, "Unable to locate class for name: " + classname);
+					Log.e(TAG, "Unable to locate class for name: " + classname);
 					throw new IllegalStateException("Missing class for name: " + classname, e);
 				}
 			}
@@ -82,13 +80,13 @@ public class IntentProxy extends KrollProxy
 		
 		if (type != null) {
 			if (DBG) {
-				Log.d(LCAT, "Setting type: " + type);
+				Log.d(TAG, "Setting type: " + type);
 			} 
 			intent.setType(type);
 		} else {
 			if (action != null && action.equals(Intent.ACTION_SEND)) {
 				if (DBG) {
-					Log.d(LCAT, "Intent type not set, defaulting to text/plain because action is a SEND action");
+					Log.d(TAG, "Intent type not set, defaulting to text/plain because action is a SEND action");
 				}
 				intent.setType("text/plain");
 			}
@@ -107,7 +105,7 @@ public class IntentProxy extends KrollProxy
 		} else if (value instanceof Integer) {
 			intent.putExtra(key, (Integer) value);
 		} else {
-			Log.w(LCAT, "Warning unimplemented put conversion for " + value.getClass().getCanonicalName() + " trying String");
+			Log.w(TAG, "Warning unimplemented put conversion for " + value.getClass().getCanonicalName() + " trying String");
 			intent.putExtra(key, TiConvert.toString(value));
 		}
 	}
@@ -116,7 +114,7 @@ public class IntentProxy extends KrollProxy
 	public void addCategory(String category) {
 		if (category != null) {
 			if (DBG) {
-				Log.d(LCAT, "Adding category: " + category);
+				Log.d(TAG, "Adding category: " + category);
 			}
 			intent.addCategory(category);
 		}

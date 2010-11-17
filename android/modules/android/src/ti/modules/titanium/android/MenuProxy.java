@@ -27,8 +27,12 @@ public class MenuProxy extends KrollProxy
 		menuItems.add(mip);
 	}
 
-	@Kroll.getProperty @Kroll.method
-	protected ArrayList<MenuItemProxy> getMenuItems() {
+	@Kroll.method @Kroll.getProperty
+	public MenuItemProxy[] getItems() {
+		return menuItems.toArray(new MenuItemProxy[menuItems.size()]);
+	}
+	
+	public ArrayList<MenuItemProxy> getMenuItems() {
 		return menuItems;
 	}
 }

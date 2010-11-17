@@ -20,7 +20,7 @@
 		"media":["filesystem"],
 		"network":["xml"],
 		"platform":[],
-		"ui":["app","api","filesystem","media"],
+		"ui":["android","app","api","filesystem","media"],
 		"utils":[],
 		"xml":[],
 		"yahoo":[]

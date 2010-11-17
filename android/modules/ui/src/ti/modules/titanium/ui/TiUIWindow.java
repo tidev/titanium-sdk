@@ -15,12 +15,16 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.titanium.TiActivity;
+import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiModalActivity;
 import org.appcelerator.titanium.kroll.KrollBridge;
+import org.appcelerator.titanium.proxy.ActivityProxy;
+import org.appcelerator.titanium.proxy.IntentProxy;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.proxy.TiWindowProxy;
 import org.appcelerator.titanium.util.Log;
+import org.appcelerator.titanium.util.TiBindingHelper;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiFileHelper;
@@ -151,16 +155,6 @@ public class TiUIWindow extends TiUIView
 
 		handlePostOpen();
 	}
-
-	protected void bindContextSpecific(TiContext context) {
-		KrollBridge bridge = (KrollBridge) context.getJSContext();
-		bridge.bindContextSpecific("UI", "currentWindow", proxy);
-		
-		if (proxy instanceof TiWindowProxy && ((TiWindowProxy) proxy).getTabProxy() != null) {
-			bridge.bindContextSpecific("UI", "currentTabGroup", ((TiWindowProxy) proxy).getTabGroupProxy());
-			bridge.bindContextSpecific("UI", "currentTab", ((TiWindowProxy) proxy).getTabProxy());
-		}
-	}
 	
 	protected void handlePostOpen() {
 		//TODO unique key per window, params for intent
@@ -267,25 +261,27 @@ public class TiUIWindow extends TiUIView
 			}
 			
 			TiContext tiContext = null;
+			Activity activity = null;
 			if (lightWeight) {
-				tiContext = TiContext.createTiContext(proxy.getTiContext().getActivity(), baseUrl);
+				activity = proxy.getTiContext().getActivity();
+				tiContext = TiContext.createTiContext(activity, baseUrl);
 			} else {
+				activity = windowActivity;
 				tiContext = TiContext.createTiContext(windowActivity, baseUrl);
 			}
-			bindContextSpecific(tiContext);
-
+			
+			TiBindingHelper.bindCurrentWindowAndActivity(tiContext, proxy, activity);
+			
 			final TiContext ftiContext = tiContext;
 			final String furl = url;
 
 			new Thread(new Runnable(){
-
 				@Override
 				public void run() {
 					try {
 						createdContext = new WeakReference<TiContext>(proxy.switchContext(ftiContext));
-						if (!lightWeight && windowActivity instanceof TiActivity) {
-							TiActivity tiActivity = (TiActivity)windowActivity;
-							tiActivity.setCreatedContext(createdContext.get());
+						if (!lightWeight && windowActivity instanceof TiBaseActivity) {
+							TiBaseActivity tiActivity = (TiBaseActivity)windowActivity;
 							tiActivity.setWindowProxy((TiWindowProxy)proxy);
 						}
 						Messenger m = new Messenger(handler);
@@ -297,9 +293,8 @@ public class TiUIWindow extends TiUIView
 		} else if (!lightWeight) {
 			TiContext tiContext = TiContext.createTiContext(windowActivity, proxy.getTiContext().getBaseUrl());
 			createdContext = new WeakReference<TiContext>(proxy.switchContext(tiContext));
-			if (windowActivity instanceof TiActivity) {
-				TiActivity tiActivity = (TiActivity)windowActivity;
-				tiActivity.setCreatedContext(createdContext.get());
+			if (windowActivity instanceof TiBaseActivity) {
+				TiBaseActivity tiActivity = (TiBaseActivity)windowActivity;
 				tiActivity.setWindowProxy((TiWindowProxy)proxy);
 			}
 			handleBooted();
