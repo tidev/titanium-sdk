@@ -28,6 +28,54 @@ public class TiResponseCache extends ResponseCache {
 	private static final String HEADER_SUFFIX = ".hdr";
 	private static final String BODY_SUFFIX   = ".bdy";
 	
+	private static class TiCacheCleanup implements Runnable {
+		private File cacheDir;
+		private long maxSize;
+		private long contentLength;
+		private File hdrFile;
+		
+		public TiCacheCleanup(File cacheDir, long maxSize, File hdrFile, long contentLength) {
+			this.cacheDir  = cacheDir;
+			this.maxSize = maxSize;
+			this.contentLength = contentLength;
+			this.hdrFile = hdrFile;
+		}
+
+		@Override
+		public void run() {
+			// Build up a list of access times
+			HashMap<Long, File> lastTime = new HashMap<Long, File>();
+			for (File hdrFile : cacheDir.listFiles(new FilenameFilter() {
+														@Override
+														public boolean accept(File dir, String name) {
+															return name.endsWith(HEADER_SUFFIX);
+														}
+													})) {
+				if (hdrFile.equals(this.hdrFile)) continue;
+				lastTime.put(hdrFile.lastModified(), hdrFile);
+			}
+			
+			// Ensure that the cache is under the required size
+			List<Long> sz = new ArrayList<Long>(lastTime.keySet());
+			Collections.sort(sz);
+			Collections.reverse(sz);
+			long cacheSize = contentLength;
+			for (Long last : sz) {
+				File hdrFile = lastTime.get(last);
+				String h = hdrFile.getName().substring(0, hdrFile.getName().lastIndexOf('.')); // Hash
+				File bdyFile = new File(cacheDir, h + BODY_SUFFIX);
+				
+				cacheSize += hdrFile.length();
+				cacheSize += bdyFile.length();
+				if (cacheSize > this.maxSize) {
+					hdrFile.delete();
+					bdyFile.delete();
+				}
+			}
+		}
+		
+	}
+	
 	private static class TiCacheBodyOutputStream extends FileOutputStream {
 		private File   hFile;
 		private File   bFile;
@@ -180,35 +228,9 @@ public class TiResponseCache extends ResponseCache {
 		// Make our cache files
 		File hFile = new File(cacheDir, hash + HEADER_SUFFIX); 
 		File bFile = new File(cacheDir, hash + BODY_SUFFIX);
-		
-		// Build up a list of access times
-		HashMap<Long, File> lastTime = new HashMap<Long, File>();
-		for (File hdrFile : cacheDir.listFiles(new FilenameFilter() {
-													@Override
-													public boolean accept(File dir, String name) {
-														return name.endsWith(HEADER_SUFFIX);
-													}
-												})) {
-			lastTime.put(hdrFile.lastModified(), hdrFile);
-		}
-		
-		// Ensure that the cache is under the required size
-		List<Long> sz = new ArrayList<Long>(lastTime.keySet());
-		Collections.sort(sz);
-		Collections.reverse(sz);
-		long cacheSize = contentLength;
-		for (Long last : sz) {
-			File hdrFile = lastTime.get(last);
-			String h = hdrFile.getName().substring(0, hdrFile.getName().lastIndexOf('.')); // Hash
-			File bdyFile = new File(cacheDir, h + BODY_SUFFIX);
-			
-			cacheSize += hdrFile.length();
-			cacheSize += bdyFile.length();
-			if (cacheSize > MAX_CACHE_SIZE) {
-				hdrFile.delete();
-				bdyFile.delete();
-			}
-		}
+
+		// Cleanup asynchronously
+		TiBackgroundExecutor.execute(new TiCacheCleanup(cacheDir, MAX_CACHE_SIZE, hFile, contentLength));
 		
 		synchronized (this) { // Don't add it to the cache if its already being written
 			if (!hFile.createNewFile())
