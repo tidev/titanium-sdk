@@ -114,8 +114,7 @@ class Builder(object):
 		self.set_java_commands()
 		# start in 1.4, you no longer need the build/android directory
 		# if missing, we'll create it on the fly
-		if not os.path.exists(self.project_dir) or (not os.path.exists(os.path.join(self.top_dir, 'AndroidManifest.xml')) and not os.path.exists(os.path.join(self.project_dir,'AndroidManifest.xml'))):
-			info("Detected missing project but that's OK. re-creating it... ")
+		if not os.path.exists(self.project_dir) or not os.path.exists(os.path.join(self.project_dir,'AndroidManifest.xml')):
 			android_creator = Android(name, app_id, self.sdk, None, self.java)
 			parent_dir = os.path.dirname(self.top_dir)
 			if os.path.exists(self.top_dir):
@@ -944,7 +943,12 @@ class Builder(object):
 		for jar in self.module_jars:
 			apk_build_cmd += ['-rj', jar]
 		
-		run.run(apk_build_cmd)
+		output, err_output = run.run(apk_build_cmd, ignore_error=True, return_error=True)
+		if err_output:
+			if 'THIS TOOL IS DEPRECATED' in err_output:
+				debug('apkbuilder deprecation warning received')
+			else:
+				run.check_and_print_err(err_output, None)
 
 		if self.dist_dir:
 			app_apk = os.path.join(self.dist_dir, self.name + '.apk')	
@@ -1137,7 +1141,7 @@ class Builder(object):
 
 			self.copy_project_resources()
 			
-			if self.tiapp_changed or self.deploy_type == "production":
+			if self.tiapp_changed or self.force_rebuild or self.deploy_type == "production":
 				trace("Generating Java Classes")
 				self.android.create(os.path.abspath(os.path.join(self.top_dir,'..')), True, project_dir=self.top_dir)
 			else:
@@ -1159,12 +1163,16 @@ class Builder(object):
 			ignore_files = ignoreFiles
 			ignore_files.extend(['AndroidManifest.xml']) # don't want to overwrite build/android/AndroidManifest.xml yet
 			if os.path.exists(special_resources_dir):
-				info("found special resources dir = %s" % special_resources_dir)
+				showed_info_msg = False
+				debug("found special platform files dir = %s" % special_resources_dir)
 				for root, dirs, files in os.walk(special_resources_dir):
 					for name in ignoreDirs:
 						if name in dirs: dirs.remove(name)
 					for file in files:
 						if file in ignore_files : continue
+						if not showed_info_msg:
+							info('Copying platform-specific files ...')
+							showed_info_msg = True
 						from_ = os.path.join(root, file)           
 						to_ = from_.replace(special_resources_dir, self.project_dir, 1)
 						to_directory = os.path.split(to_)[0]
