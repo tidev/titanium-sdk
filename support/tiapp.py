@@ -87,8 +87,6 @@ class TiAppXML(object):
 					self.parse_android(child)
 				elif child.nodeName == 'iphone':
 					self.parse_iphone(child)
-				elif child.nodeName == 'android:manifest':
-					self.parse_android_manifest(child)
 				elif child.nodeName == 'property':
 					name = child.getAttribute('name')
 					value = getText(child.childNodes)
@@ -109,23 +107,6 @@ class TiAppXML(object):
 			root.appendChild(self.dom.createTextNode("\n"))
 			self.dom.writexml(codecs.open(self.file, 'w+','utf-8','replace'), encoding="UTF-8")
 
-	def parse_android_manifest(self, node):
-		# android:manifest XML gets copied to the AndroidManifest.xml under the top level <manifest>
-		# anything under <application> will also get copied into the manifest's <application>
-		for child in node.childNodes:
-			if child.nodeType != child.ELEMENT_NODE: continue
-			if child.nodeName == 'application':
-				if 'application' not in self.android_manifest:
-					self.android_manifest['application'] = []
-				application = self.android_manifest['application']
-				application.extend([n for n in child.childNodes if n.nodeType == n.ELEMENT_NODE])
-				continue
-			
-			if 'manifest' not in self.android_manifest:
-				self.android_manifest['manifest'] = []
-			manifest = self.android_manifest['manifest']
-			manifest.append(child)
-	
 	def parse_android(self, node):
 		def get_text(node): return getText(node.childNodes)
 		
@@ -140,6 +121,23 @@ class TiAppXML(object):
 				if fn != None: value = fn(value)
 				map[attr] = value
 		
+		def parse_manifest(node):
+			# android:manifest XML gets copied to the AndroidManifest.xml under the top level <manifest>
+			# anything under <application> will also get copied into the manifest's <application>
+			for child in node.childNodes:
+				if child.nodeType != child.ELEMENT_NODE: continue
+				if child.nodeName == 'application':
+					if 'application' not in self.android_manifest:
+						self.android_manifest['application'] = []
+					application = self.android_manifest['application']
+					application.extend([n for n in child.childNodes if n.nodeType == n.ELEMENT_NODE])
+					continue
+				
+				if 'manifest' not in self.android_manifest:
+					self.android_manifest['manifest'] = []
+				manifest = self.android_manifest['manifest']
+				manifest.append(child)
+	
 		def parse_permissions(node):
 			permissions = lazy_init('permissions', [])
 			for permission in node.getElementsByTagName('permission'):
@@ -169,10 +167,14 @@ class TiAppXML(object):
 		def parse_activities(node):
 			activities = lazy_init('activities', {})
 			for activity_el in node.getElementsByTagName('activity'):
-				name = get_text(activity_el)
-				activity = lazy_init(name, {}, activities, set_name=True)
+				if activity_el.hasAttribute('url'):
+					url = activity_el.getAttribute('url')
+				else:
+					url = get_text(activity_el)
+				activity = lazy_init(url, {}, activities)
+				activity['url'] = url
 				add_attrs(activity, activity_el)
-				activity['classname'] = get_activity_classname(name)
+				activity['classname'] = get_activity_classname(url)
 
 		def parse_services(node):
 			services = lazy_init('services', {})
@@ -182,7 +184,7 @@ class TiAppXML(object):
 				add_attrs(service, service_el)
 		
 		local_objects = locals()
-		parse_tags = ['permissions', 'screens', 'activities', 'services']
+		parse_tags = ['activities', 'manifest']
 		for child in node.childNodes:
 			if child.nodeName in parse_tags:
 				local_objects['parse_'+child.nodeName](child)

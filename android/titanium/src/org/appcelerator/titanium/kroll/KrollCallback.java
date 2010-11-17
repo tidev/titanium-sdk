@@ -130,6 +130,10 @@ public class KrollCallback extends KrollMethod
 		return Context.javaToJS(method, kroll.getScope());
 	}
 	
+	public Function getMethod() {
+		return method;
+	}
+	
 	public void setThisObj(Scriptable thisObj) {
 		this.thisObj = thisObj;
 	}

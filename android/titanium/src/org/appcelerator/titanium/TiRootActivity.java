@@ -31,6 +31,10 @@ import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
+import android.os.Messenger;
+import android.os.RemoteException;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -72,6 +76,8 @@ public class TiRootActivity extends ActivityGroup
 		}
 		
 		Intent intent = getIntent();
+		Messenger messenger = null;
+		int messageId = -1;
 		if (intent != null) {
 			String action = intent.getAction();
 			if (action != null && action.equals(Intent.ACTION_MAIN)) {
@@ -92,6 +98,10 @@ public class TiRootActivity extends ActivityGroup
 					setContentView(rootLayout);
 					return;
 				}
+			}
+			if (intent.hasExtra("messenger")) {
+				messenger = (Messenger) intent.getParcelableExtra("messenger");
+				messageId = intent.getIntExtra("messageId", -1);
 			}
 		}
 		
@@ -116,6 +126,11 @@ public class TiRootActivity extends ActivityGroup
 		rootLayout = new TiCompositeLayout(this, false);
 		setContentView(rootLayout);
 
+		final TiRootActivity me = this;
+		final Messenger fMessenger = messenger;
+		final int fMessageId = messageId;
+		final Handler fHandler = fMessenger == null ? null : new Handler();
+		
 		new Thread(new Runnable(){
 
 			@Override
@@ -125,6 +140,23 @@ public class TiRootActivity extends ActivityGroup
 						Log.i(LCAT, "eval app.js");
 					}
 					tiContext.evalFile("app://app.js");
+					if (fMessenger == null) return;
+					
+					fHandler.post(new Runnable() {
+						@Override
+						public void run() {
+							try {
+								Message msg = Message.obtain();
+								msg.what = fMessageId;
+								msg.obj = me;
+								fMessenger.send(msg);
+							} catch (RemoteException e) {
+								me.finish();
+							} catch (RuntimeException e) {
+								me.finish();
+							}
+						}
+					});
 				} catch (IOException e) {
 					e.printStackTrace();
 					finish();
@@ -362,5 +394,9 @@ public class TiRootActivity extends ActivityGroup
 			tiContext.dispatchOnDestroy();
 			tiContext.release();
 		}
+	}
+	
+	public TiContext getTiContext() {
+		return tiContext;
 	}
 }

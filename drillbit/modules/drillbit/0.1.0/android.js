@@ -207,7 +207,9 @@ var harnessBuildTriggers = [
 
 var sdkBuildTriggers = [
 	'titanium.py', 'tiapp.py', 'manifest.py', 'project.py',
-	'android' // anything under android
+	ti.path.join('android', 'builder.py'),
+	ti.path.join('android', 'compiler.py')
+	// skip android/android.py? it always shows as changed for some reason
 ]
 
 AndroidEmulator.prototype.isBuildTrigger = function(triggers, path) {
@@ -250,6 +252,8 @@ AndroidEmulator.prototype.isSDKBuildTrigger = function(file) {
 };
 
 AndroidEmulator.prototype.testHarnessNeedsBuild = function(stagedFiles) {
+	ti.api.debug("staged files = " + stagedFiles);
+	
 	for (var i = 0; i < stagedFiles.length; i++) {
 		var stagedFile = stagedFiles[i];
 		if (this.isHarnessBuildTrigger(stagedFile) || this.isSDKBuildTrigger(stagedFile)) {
