@@ -16,9 +16,6 @@
     <navbar-hidden>false</navbar-hidden>
     <analytics>true</analytics>
     <guid></guid>
-	<android>
-		<screens small="false" normal="true" large="true" anyDensity="false"/>
-	</android>
 	<iphone>
 		<orientations device="iphone">
 			<orientation>Ti.UI.PORTRAIT</orientation>
@@ -30,6 +27,8 @@
 			<orientation>Ti.UI.LANDSCAPE_RIGHT</orientation>
 		</orientations>
 	</iphone>
+	<android xmlns:android="http://schemas.android.com/apk/res/android">
+	</android>
 	<modules>
 	</modules>
 </ti:app>

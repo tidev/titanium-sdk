@@ -631,18 +631,23 @@ class Builder(object):
 			except:
 				pass
 
-		# grab the activities explicitly stated in tiapp.xml
+		# Javascript-based activities defined in tiapp.xml
 		if self.tiapp and self.tiapp.android and 'activities' in self.tiapp.android:
 			tiapp_activities = self.tiapp.android['activities']
 			for key in tiapp_activities:
 				activity = tiapp_activities[key]
-				activity_str = '<activity '
-				if 'name' in activity:
-					activity_str += '\n\t\t\tandroid:name="%s"' % activity['name']
+				if not 'url' in activity:
+					continue
+				activity_name = self.app_id + '.' + activity['url'][0].upper() + activity['url'][1:]
+				if activity_name.lower().endswith('.js'):
+					activity_name = activity_name[:-3]
+				activity_str = '<activity \n\t\t\tandroid:name="%s"' % activity_name
 				for subkey in activity:
-					if subkey != 'name':
-						activity_str += '\n\t\t\tandroid:%s="%s"' % (subkey, activity[subkey])
+					if subkey not in ('name', 'url', 'options', 'android:name'):
+						activity_str += '\n\t\t\t%s="%s"' % (subkey, activity[subkey])
 
+				if 'android:config' not in activity:
+					activity_str += '\n\t\t\tandroid:configChanges="keyboardHidden|orientation"'
 				activities.append(activity_str + '\n\t\t/>\n')
 
 		activities = set(activities)
