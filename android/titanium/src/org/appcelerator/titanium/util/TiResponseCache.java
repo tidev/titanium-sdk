@@ -1,10 +1,8 @@
 package org.appcelerator.titanium.util;
 
 import java.io.BufferedReader;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -76,6 +74,9 @@ public class TiResponseCache extends ResponseCache {
 		}
 	}
 	
+	public long MAX_CACHE_SIZE = 25 * 1024 * 1024; // 25MB
+	public long MAX_CACHE_ITEM = 1024;
+	
 	private File cacheDir = null;
 	public TiResponseCache(File cachedir) {
 		super();
@@ -113,9 +114,14 @@ public class TiResponseCache extends ResponseCache {
 	@Override
 	public CacheRequest put(URI uri, URLConnection conn) throws IOException {
 		if (cacheDir == null) return null;
+		
 		String cacheControl = conn.getHeaderField("Cache-Control");
 		if (cacheControl != null && cacheControl.matches("(?i:(no-cache|no-store|must-revalidate))"))
 			return null; // See RFC-2616
+		
+		int contentLength = conn.getHeaderFieldInt("Content-Length", 0);
+		if (contentLength > 0 && contentLength > MAX_CACHE_SIZE)
+			return null;
 
 		// Work around an android bug which gives us the wrong URI
 		try {
