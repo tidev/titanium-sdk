@@ -23,10 +23,13 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.codec.digest.DigestUtils;
+import org.appcelerator.titanium.TiApplication;
 
 public class TiResponseCache extends ResponseCache {
 	private static final String HEADER_SUFFIX = ".hdr";
 	private static final String BODY_SUFFIX   = ".bdy";
+	private static final String CACHE_SIZE_KEY = "ti.android.cache.size.max";
+	private static final int    MAX_CACHE_SIZE = 25 * 1024 * 1024; // 25MB
 	
 	private static class TiCacheCleanup implements Runnable {
 		private File cacheDir;
@@ -153,9 +156,8 @@ public class TiResponseCache extends ResponseCache {
 		}
 	}
 	
-	public long MAX_CACHE_SIZE = 25 * 1024 * 1024; // 25MB
-	
 	private File cacheDir = null;
+	
 	public TiResponseCache(File cachedir) {
 		super();
 		assert cachedir.isDirectory() : "cachedir MUST be a directory";
@@ -230,7 +232,8 @@ public class TiResponseCache extends ResponseCache {
 		File bFile = new File(cacheDir, hash + BODY_SUFFIX);
 
 		// Cleanup asynchronously
-		TiBackgroundExecutor.execute(new TiCacheCleanup(cacheDir, MAX_CACHE_SIZE, hFile, contentLength));
+		int cacheSize = TiApplication.getInstance().getSystemProperties().getInt(CACHE_SIZE_KEY, MAX_CACHE_SIZE);
+		TiBackgroundExecutor.execute(new TiCacheCleanup(cacheDir, cacheSize, hFile, contentLength));
 		
 		synchronized (this) { // Don't add it to the cache if its already being written
 			if (!hFile.createNewFile())
