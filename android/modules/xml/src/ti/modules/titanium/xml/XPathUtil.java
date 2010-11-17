@@ -21,27 +21,6 @@ import org.w3c.dom.Node;
 public class XPathUtil {
 
 	private static final String LCAT = "XPath";
-	@Kroll.proxy
-	public static class XPathNodeListProxy extends KrollProxy
-	{
-		private List nodeList;
-		public XPathNodeListProxy(TiContext context, List nodeList)
-		{
-			super(context);
-			this.nodeList = nodeList;
-		}
-		
-		@Kroll.getProperty @Kroll.method
-		public int getLength() {
-			return nodeList.size();
-		}
-
-		@Kroll.method
-		public NodeProxy item(int index) {
-			Node node = (Node)nodeList.get(index);
-			return NodeProxy.getNodeProxy(getTiContext(), node);
-		}
-	}
 	
 	public static XPathNodeListProxy evaluate(NodeProxy start, String xpathExpr)
 	{
