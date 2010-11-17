@@ -13,6 +13,8 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Date;
@@ -24,6 +26,7 @@ import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiDict;
 import org.appcelerator.titanium.TiModule;
 import org.appcelerator.titanium.io.TiBaseFile;
+import org.appcelerator.titanium.io.TiFile;
 import org.appcelerator.titanium.io.TiFileFactory;
 import org.appcelerator.titanium.kroll.KrollCallback;
 import org.appcelerator.titanium.util.Log;
@@ -34,6 +37,8 @@ import org.appcelerator.titanium.util.TiFileHelper;
 import org.appcelerator.titanium.util.TiIntentWrapper;
 import org.appcelerator.titanium.util.TiUIHelper;
 
+import ti.modules.titanium.filesystem.FileProxy;
+
 import android.app.Activity;
 import android.content.ContentValues;
 import android.content.Context;
@@ -43,6 +48,7 @@ import android.content.pm.ResolveInfo;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Bitmap.CompressFormat;
 import android.hardware.Camera;
 import android.net.Uri;
 import android.os.Vibrator;
@@ -100,6 +106,77 @@ public class MediaModule extends TiModule
 		if (vibrator != null) {
 			vibrator.vibrate(pattern, -1);
 		}
+	}
+	
+	public TiBlob resizeImage(TiBlob image, FileProxy dest, int width, int height) 
+	{
+		TiBlob result = null;
+	
+		if (image != null && image.getMimeType().startsWith("image")) {
+			Object o = image.getData();
+			if (o instanceof TiFile) {
+				TiFile tif = (TiFile) o;
+				BitmapFactory.Options bmo= new BitmapFactory.Options();
+				bmo.inJustDecodeBounds = true;
+				
+				InputStream is = null;
+				OutputStream os = null;
+				try {
+					is = tif.getInputStream();
+					Bitmap b = BitmapFactory.decodeStream(is,null,bmo);
+					is.close();
+					is = null;
+		
+					if (bmo.outWidth > 0 && bmo.outHeight > 0) {
+						is = tif.getInputStream();
+						bmo.inJustDecodeBounds = false;
+						int srcWidth = bmo.outWidth;
+						int srcHeight = bmo.outHeight;
+						int destWidth = width;
+						int destHeight = height;
+						
+						bmo.inSampleSize = Math.max(srcWidth/destWidth,srcHeight/destHeight);
+						
+						b = BitmapFactory.decodeStream(is, null, bmo);
+						Bitmap sb = Bitmap.createScaledBitmap(b, destWidth, destHeight, true);
+						b.recycle();
+						b = null;
+						
+						String path = dest.getNativePath();
+						Bitmap.CompressFormat format = CompressFormat.JPEG;
+						if (path.endsWith(".png")) {
+							format = CompressFormat.PNG;
+						}
+						os = dest.getBaseFile().getOutputStream();
+						sb.compress(format, 80, os);
+						os.close();
+						os = null;
+						
+						result = TiBlob.blobFromFile(getTiContext(), dest.getBaseFile(), (format == CompressFormat.PNG ? "image/png" : "image/jpeg"));
+					}
+				} catch (IOException e) {
+					Log.e(LCAT, "Unable to access image: " + ((TiFile) o).getFile().toString());
+				} finally {
+					if (is != null) {
+						try {
+							is.close();
+						} catch (IOException ignore) {
+							
+						}
+					}
+					if (os != null) {
+						try {
+							os.close();
+						} catch (IOException ignore) {
+							
+						}
+					}
+				}
+
+			}
+		}
+		
+		return result;
 	}
 
 	public void showCamera(Object[] args)
@@ -251,7 +328,8 @@ public class MediaModule extends TiModule
 	
 							try {
 								if (fSuccessCallback != null) {
-									fSuccessCallback.callWithProperties(createDictForImage(imageUri.toString(), "image/jpeg"));
+									String localImageUrl = finalImageFile.getAbsolutePath();
+									fSuccessCallback.callWithProperties(createDictForImage(localImageUrl, "image/jpeg"));
 								}
 							} catch (OutOfMemoryError e) {
 								String msg = "Not enough memory to get image: " + e.getMessage();
