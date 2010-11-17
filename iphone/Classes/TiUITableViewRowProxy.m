@@ -728,7 +728,7 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 				TiUIView *uiview = [subviews objectAtIndex:x];
 				[self reproxyChildren:proxy view:uiview parent:self touchDelegate:contentView];
 			}
-			[self layoutChildren:NO];
+			[self willEnqueue];
 			found = YES;
 			// once we find the container we can break
 			break;
