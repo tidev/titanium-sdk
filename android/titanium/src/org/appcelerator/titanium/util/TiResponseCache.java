@@ -6,6 +6,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -16,6 +17,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLConnection;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -27,10 +29,10 @@ public class TiResponseCache extends ResponseCache {
 	private static final String BODY_SUFFIX   = ".bdy";
 	
 	private static class TiCacheBodyOutputStream extends FileOutputStream {
-		private File hFile;
-		private File bFile;
-		private Map<String, List<String>> headers;
-		public TiCacheBodyOutputStream(File bFile, File hFile, Map<String, List<String>> headers) throws IOException {
+		private File   hFile;
+		private File   bFile;
+		private String headers;
+		public TiCacheBodyOutputStream(File bFile, File hFile, String headers) throws IOException {
 			super(bFile);
 			this.bFile   = bFile;
 			this.hFile   = hFile;
@@ -47,11 +49,8 @@ public class TiResponseCache extends ResponseCache {
 			}
 			
 			// Write out the headers
-			String newl = System.getProperty("line.separator");
 			FileWriter wrtr = new FileWriter(hFile);
-			for (String hdr : headers.keySet())
-				for (String val : headers.get(hdr))
-					wrtr.write(hdr + "=" + val + newl);
+			wrtr.write(headers);
 			wrtr.close();
 		}
 		
@@ -107,7 +106,6 @@ public class TiResponseCache extends ResponseCache {
 	}
 	
 	public long MAX_CACHE_SIZE = 25 * 1024 * 1024; // 25MB
-	public long MAX_CACHE_ITEM = 1024;
 	
 	private File cacheDir = null;
 	public TiResponseCache(File cachedir) {
@@ -139,6 +137,9 @@ public class TiResponseCache extends ResponseCache {
 		}
 		rdr.close();
 		
+		// Update the access log
+		hFile.setLastModified(System.currentTimeMillis());
+		
 		// Respond with the cache
 		return new TiCacheResponse(headers, new FileInputStream(bFile));
 	}
@@ -151,10 +152,21 @@ public class TiResponseCache extends ResponseCache {
 		if (cacheControl != null && cacheControl.matches("(?i:(no-cache|no-store|must-revalidate))"))
 			return null; // See RFC-2616
 		
-		int contentLength = conn.getHeaderFieldInt("Content-Length", 0);
-		if (contentLength > 0 && contentLength > MAX_CACHE_SIZE)
+		// Form the headers and generate the content length
+		String newl = System.getProperty("line.separator");
+		long contentLength = conn.getHeaderFieldInt("Content-Length", 0);
+		StringBuilder sb = new StringBuilder();
+		for (String hdr : conn.getHeaderFields().keySet())
+			for (String val : conn.getHeaderFields().get(hdr)) {
+				sb.append(hdr);
+				sb.append("=");
+				sb.append(val);
+				sb.append(newl);
+			}
+		contentLength += sb.length();
+		if (contentLength > MAX_CACHE_SIZE)
 			return null;
-
+		
 		// Work around an android bug which gives us the wrong URI
 		try {
 			uri = conn.getURL().toURI();
@@ -169,10 +181,39 @@ public class TiResponseCache extends ResponseCache {
 		File hFile = new File(cacheDir, hash + HEADER_SUFFIX); 
 		File bFile = new File(cacheDir, hash + BODY_SUFFIX);
 		
+		// Build up a list of access times
+		HashMap<Long, File> lastTime = new HashMap<Long, File>();
+		for (File hdrFile : cacheDir.listFiles(new FilenameFilter() {
+													@Override
+													public boolean accept(File dir, String name) {
+														return name.endsWith(HEADER_SUFFIX);
+													}
+												})) {
+			lastTime.put(hdrFile.lastModified(), hdrFile);
+		}
+		
+		// Ensure that the cache is under the required size
+		List<Long> sz = new ArrayList<Long>(lastTime.keySet());
+		Collections.sort(sz);
+		Collections.reverse(sz);
+		long cacheSize = contentLength;
+		for (Long last : sz) {
+			File hdrFile = lastTime.get(last);
+			String h = hdrFile.getName().substring(0, hdrFile.getName().lastIndexOf('.')); // Hash
+			File bdyFile = new File(cacheDir, h + BODY_SUFFIX);
+			
+			cacheSize += hdrFile.length();
+			cacheSize += bdyFile.length();
+			if (cacheSize > MAX_CACHE_SIZE) {
+				hdrFile.delete();
+				bdyFile.delete();
+			}
+		}
+		
 		synchronized (this) { // Don't add it to the cache if its already being written
 			if (!hFile.createNewFile())
 				return null;
-			return new TiCacheRequest(new TiCacheBodyOutputStream(bFile, hFile, conn.getHeaderFields()));
+			return new TiCacheRequest(new TiCacheBodyOutputStream(bFile, hFile, sb.toString()));
 		}
 	}
 }
