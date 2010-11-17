@@ -12,8 +12,9 @@ public class TiBackgroundExecutor {
 	private static Executor executor = null;
 
 	public static void execute(Runnable command) {
-		if (executor == null)
+		if (executor == null) {
 			executor = Executors.newFixedThreadPool(MAX_THREADS);
+		}
 		executor.execute(command);
 	}
 }

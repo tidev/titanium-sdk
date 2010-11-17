@@ -54,7 +54,7 @@ public class TiResponseCache extends ResponseCache {
 															return name.endsWith(HEADER_SUFFIX);
 														}
 													})) {
-				if (hdrFile.equals(this.hdrFile)) continue;
+				if (hdrFile.equals(this.hdrFile)) { continue; }
 				lastTime.put(hdrFile.lastModified(), hdrFile);
 			}
 			
@@ -150,9 +150,7 @@ public class TiResponseCache extends ResponseCache {
 		public void abort() {
 			try {
 				ostream.abort();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
+			} catch (IOException e) {}
 		}
 	}
 	
@@ -181,8 +179,9 @@ public class TiResponseCache extends ResponseCache {
 		BufferedReader rdr = new BufferedReader(new FileReader(hFile));
 		for (String line=rdr.readLine() ; line != null ; line=rdr.readLine()) {
 			String keyval[] = line.split("=", 2);
-			if (!headers.containsKey(keyval[0]))
+			if (!headers.containsKey(keyval[0])) {
 				headers.put(keyval[0], new ArrayList<String>());
+			}
 			headers.get(keyval[0]).add(keyval[1]);
 		}
 		rdr.close();
@@ -199,30 +198,31 @@ public class TiResponseCache extends ResponseCache {
 		if (cacheDir == null) return null;
 		
 		String cacheControl = conn.getHeaderField("Cache-Control");
-		if (cacheControl != null && cacheControl.matches("(?i:(no-cache|no-store|must-revalidate))"))
+		if (cacheControl != null && cacheControl.matches("(?i:(no-cache|no-store|must-revalidate))")) {
 			return null; // See RFC-2616
+		}
 		
 		// Form the headers and generate the content length
 		String newl = System.getProperty("line.separator");
 		long contentLength = conn.getHeaderFieldInt("Content-Length", 0);
 		StringBuilder sb = new StringBuilder();
-		for (String hdr : conn.getHeaderFields().keySet())
+		for (String hdr : conn.getHeaderFields().keySet()) {
 			for (String val : conn.getHeaderFields().get(hdr)) {
 				sb.append(hdr);
 				sb.append("=");
 				sb.append(val);
 				sb.append(newl);
 			}
+		}
 		contentLength += sb.length();
-		if (contentLength > MAX_CACHE_SIZE)
+		if (contentLength > MAX_CACHE_SIZE) {
 			return null;
+		}
 		
 		// Work around an android bug which gives us the wrong URI
 		try {
 			uri = conn.getURL().toURI();
-		} catch (URISyntaxException e) {
-			e.printStackTrace();
-		}
+		} catch (URISyntaxException e) {}
 		
 		// Get our key, which is a hash of the URI
 		String hash = DigestUtils.shaHex(uri.toString());
@@ -235,9 +235,11 @@ public class TiResponseCache extends ResponseCache {
 		int cacheSize = TiApplication.getInstance().getSystemProperties().getInt(CACHE_SIZE_KEY, MAX_CACHE_SIZE);
 		TiBackgroundExecutor.execute(new TiCacheCleanup(cacheDir, cacheSize, hFile, contentLength));
 		
-		synchronized (this) { // Don't add it to the cache if its already being written
-			if (!hFile.createNewFile())
+		synchronized (this) {
+			// Don't add it to the cache if its already being written
+			if (!hFile.createNewFile()) {
 				return null;
+			}
 			return new TiCacheRequest(new TiCacheBodyOutputStream(bFile, hFile, sb.toString()));
 		}
 	}
