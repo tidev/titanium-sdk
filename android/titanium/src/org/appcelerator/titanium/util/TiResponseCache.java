@@ -26,6 +26,44 @@ public class TiResponseCache extends ResponseCache {
 	private static final String HEADER_SUFFIX = ".hdr";
 	private static final String BODY_SUFFIX   = ".bdy";
 	
+	private static class TiCacheBodyOutputStream extends FileOutputStream {
+		private File hFile;
+		private File bFile;
+		private Map<String, List<String>> headers;
+		public TiCacheBodyOutputStream(File bFile, File hFile, Map<String, List<String>> headers) throws IOException {
+			super(bFile);
+			this.bFile   = bFile;
+			this.hFile   = hFile;
+			this.headers = headers;
+		}
+
+		@Override
+		public void close() throws IOException {
+			super.close();
+
+			if (!hFile.createNewFile()) {
+				this.abort();
+				return;
+			}
+			
+			// Write out the headers
+			String newl = System.getProperty("line.separator");
+			FileWriter wrtr = new FileWriter(hFile);
+			for (String hdr : headers.keySet())
+				for (String val : headers.get(hdr))
+					wrtr.write(hdr + "=" + val + newl);
+			wrtr.close();
+		}
+		
+		public void abort() throws IOException {
+			try {
+				super.close();
+			} finally {
+				bFile.delete();
+			}
+		}
+	}
+	
 	private static class TiCacheResponse extends CacheResponse {
 		private Map<String, List<String>> headers;
 		private InputStream               istream;
@@ -47,14 +85,10 @@ public class TiResponseCache extends ResponseCache {
 	}
 	
 	private static class TiCacheRequest extends CacheRequest {
-		private File hFile;
-		private File bFile;
-		private FileOutputStream ostream;
-		public TiCacheRequest(File headers, File body) throws IOException {
+		private TiCacheBodyOutputStream ostream;
+		public TiCacheRequest(TiCacheBodyOutputStream ostream) {
 			super();
-			this.hFile   = headers;
-			this.bFile   = body;
-			this.ostream = new FileOutputStream(body);
+			this.ostream = ostream;
 		}
 
 		@Override
@@ -65,12 +99,10 @@ public class TiResponseCache extends ResponseCache {
 		@Override
 		public void abort() {
 			try {
-				ostream.close();
+				ostream.abort();
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
-			hFile.delete();
-			bFile.delete();
 		}
 	}
 	
@@ -137,15 +169,10 @@ public class TiResponseCache extends ResponseCache {
 		File hFile = new File(cacheDir, hash + HEADER_SUFFIX); 
 		File bFile = new File(cacheDir, hash + BODY_SUFFIX);
 		
-		// Write out the headers
-		String newl = System.getProperty("line.separator");
-		FileWriter wrtr = new FileWriter(hFile);
-		for (String hdr : conn.getHeaderFields().keySet())
-			for (String val : conn.getHeaderFields().get(hdr))
-				wrtr.write(hdr + "=" + val + newl);
-		wrtr.close();
-		
-		// Indicate our cache state
-		return new TiCacheRequest(hFile, bFile);
+		synchronized (this) { // Don't add it to the cache if its already being written
+			if (!hFile.createNewFile())
+				return null;
+			return new TiCacheRequest(new TiCacheBodyOutputStream(bFile, hFile, conn.getHeaderFields()));
+		}
 	}
 }
