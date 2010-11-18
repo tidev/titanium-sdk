@@ -1495,14 +1495,23 @@ if(ourTableView != tableview)	\
 	if (cell == nil)
 	{
 		cell = [[[TiUITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:row.tableClass row:row] autorelease];
-		[row initializeTableViewCell:cell];
 	}
 	else
 	{
+		// TODO: Right now, reproxying, redrawing, reloading, etc. is SLOWER than simply drawing in the new cell contents!
+		// So what we're going to do with this cell is clear its contents out, then redraw it as if it were a new cell.
+		// Keeps the cell pool small and reusable.
+		[TiUITableViewRowProxy clearTableRowCell:cell];
+		
+		/*
+		 * Old-school style:
 		// in the case of a reuse, we need to tell the row proxy to update the data
 		// in the re-used cell with this proxy's contents
 		[row renderTableViewCell:cell];
+		 *
+		 */
 	}
+	[row initializeTableViewCell:cell];
 	
 	return cell;
 }

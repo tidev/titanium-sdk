@@ -589,6 +589,18 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 	return nil;
 }
 
++(void)clearTableRowCell:(UITableViewCell *)cell
+{
+	NSArray* cellSubviews = [[cell contentView] subviews];
+	// Clear out the old cell view
+	for (UIView* view in cellSubviews) {
+		if ([view isKindOfClass:[TiUITableViewRowContainer class]]) {
+			[view removeFromSuperview];
+			break;
+		}
+	}
+}
+
 -(void)configureChildren:(UITableViewCell*)cell
 {
 	// this method is called when the cell is initially created
@@ -666,6 +678,7 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 				[self reproxyChildren:child 
 								 view:[oldChild view]
 							   parent:proxy touchDelegate:nil];
+				[proxy willEnqueue];
 			}
 		}
 	}
@@ -728,7 +741,6 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 				TiUIView *uiview = [subviews objectAtIndex:x];
 				[self reproxyChildren:proxy view:uiview parent:self touchDelegate:contentView];
 			}
-			[self willEnqueue];
 			found = YES;
 			// once we find the container we can break
 			break;
