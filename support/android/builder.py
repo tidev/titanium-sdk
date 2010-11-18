@@ -5,11 +5,12 @@
 # the Android Emulator or on the device
 #
 import os, sys, subprocess, shutil, time, signal, string, platform, re, glob, hashlib
-import run, avd, prereq, zipfile, tempfile, fnmatch
+import run, avd, prereq, zipfile, tempfile, fnmatch, codecs
 from os.path import splitext
 from compiler import Compiler
 from os.path import join, splitext, split, exists
 from shutil import copyfile
+from xml.dom.minidom import parseString
 
 template_dir = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
 top_support_dir = os.path.dirname(template_dir) 
@@ -652,32 +653,6 @@ class Builder(object):
 
 		activities = set(activities)
 
-		# grab the services explicitly stated in tiapp.xml
-		services_str = ''
-		if self.tiapp and self.tiapp.android and 'services' in self.tiapp.android:
-			tiapp_services = self.tiapp.android['services']
-			for key in tiapp_services:
-				service = tiapp_services[key]
-				service_str = '<service '
-				if 'name' in service:
-					service_str += '\n\t\t\tandroid:name="%s"' % service['name']
-				for subkey in service:
-					if subkey != 'name':
-						service_str += '\n\t\t\tandroid:%s="%s"' % (subkey, service[subkey])
-
-				services_str += service_str + '\n\t\t/>\n'
-
-		# grab the permissions explicitly stated in tiapp.xml
-		if self.tiapp and self.tiapp.android and 'permissions' in self.tiapp.android:
-			permissions_required.extend(self.tiapp.android['permissions'])
-
-		permissions_required = set(permissions_required)
-		
-		# build the permissions XML based on the permissions detected
-		permissions_required_xml = ""
-		for p in permissions_required:
-			permissions_required_xml+="<uses-permission android:name=\"android.permission.%s\"/>\n\t" % p
-		
 		self.use_maps = False
 		iconname = self.tiapp.properties['icon']
 		iconpath = os.path.join(self.assets_resources_dir,iconname)
@@ -762,7 +737,12 @@ class Builder(object):
 			xml = ''
 			if 'manifest' in tiapp.android_manifest:
 				for manifest_el in tiapp.android_manifest['manifest']:
-					xml += manifest_el.toprettyxml()
+					# since we already track permissions in another way, go ahead and us e that
+					if manifest_el.nodeName == 'uses-permission' and manifest_el.hasAttribute('android:name'):
+						if manifest_el.getAttribute('android:name').split('.')[-1] not in permissions_required:
+							permissions_required.append(manifest_el.getAttribute('android:name'))
+					elif manifest_el.nodeName not in ('supports-screens', 'uses-sdk'):
+						xml += manifest_el.toprettyxml()
 			return xml
 		
 		application_xml = ''
@@ -785,43 +765,22 @@ class Builder(object):
 			manifest_xml += get_manifest_xml(module.xml)
 			application_xml += get_application_xml(module.xml)
 
+		# build the permissions XML based on the permissions detected
+		permissions_required = set(permissions_required)
+		permissions_required_xml = ""
+		for p in permissions_required:
+			if '.' not in p:
+				permissions_required_xml+="<uses-permission android:name=\"android.permission.%s\"/>\n\t" % p
+			else:
+				permissions_required_xml+="<uses-permission android:name=\"%s\"/>\n\t" % p
+		
 		def fill_manifest(manifest_source):
 			ti_activities = '<!-- TI_ACTIVITIES -->'
 			ti_permissions = '<!-- TI_PERMISSIONS -->'
-			ti_screens = '<!-- TI_SCREENS -->'
-			ti_services = '<!-- TI_SERVICES -->'
 			ti_manifest = '<!-- TI_MANIFEST -->'
 			ti_application = '<!-- TI_APPLICATION -->'
-			match = re.search('<uses-sdk android:minSdkVersion="(\d)" />', manifest_source)
-			android_sdk_version = '4'
-			manifest_sdk_version = None
-			if match != None:
-				manifest_sdk_version = match.group(1)
 			manifest_source = manifest_source.replace(ti_activities,"\n\n\t\t".join(activities))
 			manifest_source = manifest_source.replace(ti_permissions,permissions_required_xml)
-			manifest_source = manifest_source.replace(ti_services, services_str)
-			manifest_source = manifest_source.replace('<uses-sdk android:minSdkVersion="4" />', '<uses-sdk android:minSdkVersion="%s" />' % android_sdk_version)
-
-			# screens
-			if 'screens' in self.tiapp.android:
-				screens = self.tiapp.android['screens']
-			else:
-				screens = {}
-			for key in ('small', 'normal', 'large', 'anyDensity'):
-				if not key in screens:
-					if key in ('small', 'anyDensity'):
-						screens[key] = False
-					else:
-						screens[key] = True
-			screens_str = '<supports-screens '
-			for key in ('small', 'normal', 'large', 'anyDensity'):
-				value = unicode(screens[key]).lower()
-				if key != 'anyDensity':
-					key += "Screens"
-				screens_str += '\n\t\tandroid:%s="%s"' % (key, value)
-			screens_str += '\n\t/>'
-			manifest_source = manifest_source.replace(ti_screens, screens_str)
-
 			if len(manifest_xml) > 0:
 				manifest_source = manifest_source.replace(ti_manifest, manifest_xml)
 			if len(application_xml) > 0:
@@ -830,6 +789,42 @@ class Builder(object):
 			return manifest_source
 
 		default_manifest_contents = fill_manifest(default_manifest_contents)
+		# if a custom uses-sdk or supports-screens has been specified via tiapp.xml
+		# <android><manifest>..., we need to replace the ones in the generated
+		# default manifest
+		supports_screens_node = None
+		uses_sdk_node = None
+		if 'manifest' in self.tiapp.android_manifest:
+			for node in self.tiapp.android_manifest['manifest']:
+				if node.nodeName == 'uses-sdk':
+					uses_sdk_node = node
+				elif node.nodeName == 'supports-screens':
+					supports_screens_node = node
+		if supports_screens_node or uses_sdk_node or self.tiapp.android_manifest['manifest-attributes'].length or self.tiapp.android_manifest['application-attributes'].length:
+			dom = parseString(default_manifest_contents)
+			def replace_node(olddom, newnode):
+				nodes = olddom.getElementsByTagName(newnode.nodeName)
+				if nodes:
+					olddom.documentElement.replaceChild(newnode, nodes[0])
+
+			if supports_screens_node:
+				replace_node(dom, supports_screens_node)
+			if uses_sdk_node:
+				replace_node(dom, uses_sdk_node)
+
+			def set_attrs(element, new_attr_set):
+				for k in new_attr_set.keys():
+					if element.hasAttribute(k):
+						element.removeAttribute(k)
+					element.setAttribute(k, new_attr_set.get(k).value)
+
+			if self.tiapp.android_manifest['manifest-attributes'].length:
+				set_attrs(dom.documentElement, self.tiapp.android_manifest['manifest-attributes'])
+			if self.tiapp.android_manifest['application-attributes'].length:
+				set_attrs(dom.getElementsByTagName('application')[0], self.tiapp.android_manifest['application-attributes'])
+
+			default_manifest_contents = dom.toxml()
+
 		if custom_manifest_contents:
 			custom_manifest_contents = fill_manifest(custom_manifest_contents)
 
@@ -1189,6 +1184,23 @@ class Builder(object):
 			self.generate_aidl()
 			
 			manifest_changed = self.generate_android_manifest(compiler)
+
+			# If density-specific images exist yet AndroidManifest does not have
+			# anyDensity="true" in <supports-screens>, show a warning
+			density_image_dir = os.path.join(resources_dir, 'android', 'images')
+			if os.path.exists(density_image_dir) and os.path.exists(os.path.join(self.project_dir, 'AndroidManifest.xml')):
+				using_density_images = False
+				for density in ('high', 'medium', 'low'):
+					if os.path.exists(os.path.join(density_image_dir, density)):
+						if os.listdir(os.path.join(density_image_dir, density)):
+							using_density_images = True
+							break
+				if using_density_images:
+					f = codecs.open(os.path.join(self.project_dir, 'AndroidManifest.xml'), 'r', 'utf-8')
+					xml = f.read()
+					f.close()
+					if not re.search(r'anyDensity="true"', xml):
+						warn('For your density-specific images (android/images/high|medium|low) to be effective, you should put a <supports-screens> element with anyDensity="true" in the <android><manifest> section of your tiapp.xml or in a custom AndroidManifest.xml')
 
 			my_avd = None	
 			self.google_apis_supported = False

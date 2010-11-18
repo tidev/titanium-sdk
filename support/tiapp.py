@@ -131,12 +131,15 @@ class TiAppXML(object):
 						self.android_manifest['application'] = []
 					application = self.android_manifest['application']
 					application.extend([n for n in child.childNodes if n.nodeType == n.ELEMENT_NODE])
+					self.android_manifest['application-attributes'] = child.attributes
 					continue
 				
 				if 'manifest' not in self.android_manifest:
 					self.android_manifest['manifest'] = []
 				manifest = self.android_manifest['manifest']
 				manifest.append(child)
+
+			self.android_manifest['manifest-attributes'] = node.attributes
 	
 		def parse_permissions(node):
 			permissions = lazy_init('permissions', [])
