@@ -74,12 +74,13 @@ void performLayoutRefresh(CFRunLoopTimerRef timer, void *info)
 	}
 	else if([layoutArray containsObject:[newViewProxy parent]])
 	{//For safety reasons, we do add this to the list. But since the parent's already here,
-	//We add it to the last so that it's likely the parent already call the child before we need to.
-		[layoutArray addObject:newViewProxy];
+	//We add it to the FIRST so that children draw before parents, giving us good layout values for later!
+		[layoutArray insertObject:newViewProxy atIndex:0];
 	}
 	else
-	{//We might be someone's parent, so let's add to to the front just incase.
-		[layoutArray insertObject:newViewProxy atIndex:0];
+	{//We might be someone's parent... but that means that children should draw FIRST.
+		// This is because in many cases, parent size is determined by child size (e.g. auto, vert. layout, etc.)
+		[layoutArray addObject:newViewProxy];
 	}
 
 	if (layoutTimer == NULL)
