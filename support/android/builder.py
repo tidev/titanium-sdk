@@ -800,30 +800,30 @@ class Builder(object):
 					uses_sdk_node = node
 				elif node.nodeName == 'supports-screens':
 					supports_screens_node = node
-		if supports_screens_node or uses_sdk_node or self.tiapp.android_manifest['manifest-attributes'].length or self.tiapp.android_manifest['application-attributes'].length:
-			dom = parseString(default_manifest_contents)
-			def replace_node(olddom, newnode):
-				nodes = olddom.getElementsByTagName(newnode.nodeName)
-				if nodes:
-					olddom.documentElement.replaceChild(newnode, nodes[0])
+			if supports_screens_node or uses_sdk_node or self.tiapp.android_manifest['manifest-attributes'].length or self.tiapp.android_manifest['application-attributes'].length:
+				dom = parseString(default_manifest_contents)
+				def replace_node(olddom, newnode):
+					nodes = olddom.getElementsByTagName(newnode.nodeName)
+					if nodes:
+						olddom.documentElement.replaceChild(newnode, nodes[0])
 
-			if supports_screens_node:
-				replace_node(dom, supports_screens_node)
-			if uses_sdk_node:
-				replace_node(dom, uses_sdk_node)
+				if supports_screens_node:
+					replace_node(dom, supports_screens_node)
+				if uses_sdk_node:
+					replace_node(dom, uses_sdk_node)
 
-			def set_attrs(element, new_attr_set):
-				for k in new_attr_set.keys():
-					if element.hasAttribute(k):
-						element.removeAttribute(k)
-					element.setAttribute(k, new_attr_set.get(k).value)
+				def set_attrs(element, new_attr_set):
+					for k in new_attr_set.keys():
+						if element.hasAttribute(k):
+							element.removeAttribute(k)
+						element.setAttribute(k, new_attr_set.get(k).value)
 
-			if self.tiapp.android_manifest['manifest-attributes'].length:
-				set_attrs(dom.documentElement, self.tiapp.android_manifest['manifest-attributes'])
-			if self.tiapp.android_manifest['application-attributes'].length:
-				set_attrs(dom.getElementsByTagName('application')[0], self.tiapp.android_manifest['application-attributes'])
+				if self.tiapp.android_manifest['manifest-attributes'].length:
+					set_attrs(dom.documentElement, self.tiapp.android_manifest['manifest-attributes'])
+				if self.tiapp.android_manifest['application-attributes'].length:
+					set_attrs(dom.getElementsByTagName('application')[0], self.tiapp.android_manifest['application-attributes'])
 
-			default_manifest_contents = dom.toxml()
+				default_manifest_contents = dom.toxml()
 
 		if custom_manifest_contents:
 			custom_manifest_contents = fill_manifest(custom_manifest_contents)
@@ -1186,9 +1186,9 @@ class Builder(object):
 			manifest_changed = self.generate_android_manifest(compiler)
 
 			# If density-specific images exist yet AndroidManifest does not have
-			# anyDensity="true" in <supports-screens>, show a warning
+			# anyDensity="true" in <supports-screens>, show a warning (but not for KitchenSink)
 			density_image_dir = os.path.join(resources_dir, 'android', 'images')
-			if os.path.exists(density_image_dir) and os.path.exists(os.path.join(self.project_dir, 'AndroidManifest.xml')):
+			if 'kitchensink' not in self.name.lower() and os.path.exists(density_image_dir) and os.path.exists(os.path.join(self.project_dir, 'AndroidManifest.xml')):
 				using_density_images = False
 				for density in ('high', 'medium', 'low'):
 					if os.path.exists(os.path.join(density_image_dir, density)):
