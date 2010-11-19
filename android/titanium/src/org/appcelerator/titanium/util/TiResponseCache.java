@@ -174,6 +174,10 @@ public class TiResponseCache extends ResponseCache {
 		File hFile = new File(cacheDir, hash + HEADER_SUFFIX);
 		File bFile = new File(cacheDir, hash + BODY_SUFFIX);
 		
+		if (!bFile.exists()) {
+			return null;
+		}
+
 		// Read in the headers
 		Map<String, List<String>> headers = new HashMap<String, List<String>>();
 		BufferedReader rdr = new BufferedReader(new FileReader(hFile));
