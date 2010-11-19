@@ -114,7 +114,7 @@ class Builder(object):
 		self.force_rebuild = False
 		
 		temp_tiapp = TiAppXML(self.project_tiappxml)
-		if temp_tiapp and temp_tiapp.android and temp_tiapp.android['tool-api-level']:
+		if temp_tiapp and temp_tiapp.android and 'tool-api-level' in temp_tiapp.android:
 			self.tool_api_level = int(temp_tiapp.android['tool-api-level'])
 		else:
 			self.tool_api_level = MIN_API_LEVEL
