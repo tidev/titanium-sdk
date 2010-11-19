@@ -141,15 +141,6 @@ class TiAppXML(object):
 
 			self.android_manifest['manifest-attributes'] = node.attributes
 	
-		def parse_permissions(node):
-			permissions = lazy_init('permissions', [])
-			for permission in node.getElementsByTagName('permission'):
-				permissions.append(get_text(permission))
-
-		def parse_screens(node):
-			screens = lazy_init('screens', {})
-			add_attrs(screens, node, self.to_bool)
-
 		def parse_activities(node):
 			activities = lazy_init('activities', {})
 			for activity_el in node.getElementsByTagName('activity'):
@@ -165,18 +156,15 @@ class TiAppXML(object):
 						continue
 					activity['options'][option.getAttribute('name')] = get_text(option)
 
-		def parse_services(node):
-			services = lazy_init('services', {})
-			for service_el in node.getElementsByTagName('service'):
-				name = get_text(service_el)
-				service = lazy_init(name, {}, services, set_name=True)
-				add_attrs(service, service_el)
-		
+		def parse_tool_api_level(node):
+			lazy_init('tool-api-level', get_text(node))
+
+
 		local_objects = locals()
-		parse_tags = ['activities', 'manifest']
+		parse_tags = ['activities', 'manifest', 'tool-api-level']
 		for child in node.childNodes:
 			if child.nodeName in parse_tags:
-				local_objects['parse_'+child.nodeName](child)
+				local_objects['parse_'+child.nodeName.replace('-', '_')](child)
 
 	def parse_iphone(self, node):
 		def translate_orientation(orientation):

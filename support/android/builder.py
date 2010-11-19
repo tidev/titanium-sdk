@@ -31,6 +31,8 @@ ignoreDirs = ['.git','.svn','_svn', 'CVS'];
 android_avd_hw = [['hw.camera', 'yes'],['hw.gps','yes']]
 res_skips = ['style']
 
+MIN_API_LEVEL = 4
+
 def dequote(s):
 	if s[0:1] == '"':
 		return s[1:-1]
@@ -100,18 +102,24 @@ class Builder(object):
 
 	def __init__(self, name, sdk, project_dir, support_dir, app_id):
 		self.top_dir = project_dir
+		self.project_tiappxml = os.path.join(self.top_dir,'tiapp.xml')
 		self.project_dir = os.path.join(project_dir,'build','android')
 		self.platform_dir = os.path.join(project_dir, 'platform', 'android')
 		self.project_src_dir = os.path.join(self.project_dir, 'src')
 		self.project_gen_dir = os.path.join(self.project_dir, 'gen')
-		# this is hardcoded for now
-		self.sdk = AndroidSDK(sdk, 4)
 		self.name = name
 		self.app_id = app_id
 		self.support_dir = support_dir
 		self.compiled_files = []
 		self.force_rebuild = False
 		
+		temp_tiapp = TiAppXML(self.project_tiappxml)
+		if temp_tiapp and temp_tiapp.android and temp_tiapp.android['tool-api-level']:
+			self.tool_api_level = int(temp_tiapp.android['tool-api-level'])
+		else:
+			self.tool_api_level = MIN_API_LEVEL
+		self.sdk = AndroidSDK(sdk, self.tool_api_level)
+
 		self.set_java_commands()
 		# start in 1.4, you no longer need the build/android directory
 		# if missing, we'll create it on the fly
@@ -967,7 +975,8 @@ class Builder(object):
 		zipalign = self.sdk.get_zipalign()
 		if os.path.exists(app_apk+'z'):
 			os.remove(app_apk+'z')
-		output = run.run([zipalign, '-v', '4', app_apk, app_apk+'z'])
+		ALIGN_32_BIT = 4
+		output = run.run([zipalign, '-v', str(ALIGN_32_BIT), app_apk, app_apk+'z'])
 		# TODO - Document Exit message
 		if output == None:
 			error("System Error while compiling Android classes.dex")
@@ -1124,8 +1133,6 @@ class Builder(object):
 			if not os.path.exists(self.assets_dir):
 				os.makedirs(self.assets_dir)
 			
-			self.project_tiappxml = os.path.join(self.top_dir,'tiapp.xml')
-
 			shutil.copy(self.project_tiappxml, self.assets_dir)
 			finalxml = os.path.join(self.assets_dir,'tiapp.xml')
 			self.tiapp = TiAppXML(finalxml)
