@@ -207,6 +207,9 @@ public abstract class TiApplication extends Application
 		
 		// Register the default cache handler
 		File cacheDir = new File(new TiFileHelper(this).getDataDirectory(false), "remote-image-cache");
+		if (!cacheDir.exists()) {
+			cacheDir.mkdirs();
+		}
 		TiResponseCache.setDefault(new TiResponseCache(cacheDir.getAbsoluteFile()));
 	}
 	
