@@ -518,48 +518,35 @@
             row.row = 0;
             TiUITableViewSectionProxy* newSection = row.section;
             
-            // Haven't inserted the new section yet
-            TiUITableViewSectionProxy* nextSection = [sections objectAtIndex:newSectionIndex];
+			
+			int updateSectionIndex = (rowIndex == 0) ? newSectionIndex : newSectionIndex - 1;
+            TiUITableViewSectionProxy* updateSection = [sections objectAtIndex:updateSectionIndex];
             
-            // ONLY shift rows around if we're not being inserted before the first row with a header.
             NSMutableArray* addRows = [NSMutableArray array];
-            if (!(rowIndex == 0 && ([nextSection valueForUndefinedKey:@"headerTitle"] != nil))) {
-                // If it's the first row, we need to NOT remove the rows, but rather the secton;
-                // although we still have to move them.
-                BOOL isFirstRow = (rowIndex == 0);
-                NSMutableArray* removeRows = [NSMutableArray array];
-                int numrows = [[nextSection rows] count];
-                for (int i=rowIndex+1; i < numrows; i++) {
-                    TiUITableViewRowProxy* moveRow = [[[nextSection rows] objectAtIndex:rowIndex+1] retain];
-                    
-                    if (!isFirstRow) {
-                        [removeRows addObject:[NSIndexPath indexPathForRow:i inSection:newSectionIndex]];
-                        [self deleteRow:moveRow];
-                    }
-                    
-                    moveRow.section = newSection;
-                    moveRow.row = (i-(rowIndex+1))+1;
-                    moveRow.parent = newSection;
-                    
-                    [addRows addObject:moveRow];
-                    [moveRow release];
-                }
-                
-                // Remove the stuff that needs to go
-                if (isFirstRow) {
-                    [tableview deleteSections:[NSIndexSet indexSetWithIndex:newSectionIndex] withRowAnimation:UITableViewRowAnimationNone];
-                    [sections removeObjectAtIndex:newSectionIndex];
-                }
-                else {
-                    [tableview deleteRowsAtIndexPaths:removeRows withRowAnimation:UITableViewRowAnimationNone];    
-                    // And, we also need to place the section after the current section - so that it appears in the right spot.
-                    newSectionIndex++;
-                    newSection.section = newSectionIndex;
-                }
-            }
-            
-            // 2nd (sometimes) stage of update: Add in those shiny new rows and update the section.
-            [sections insertObject:newSection atIndex:newSectionIndex];
+			
+			// If we're inserting before the first row, we can (and should!) skip all this stuff.
+			if (rowIndex != 0) {
+				NSMutableArray* removeRows = [NSMutableArray array];
+				int numrows = [[updateSection rows] count];
+				for (int i=rowIndex; i < numrows; i++) {
+					// Because rows are being bumped off, we need to keep grabbing the one in the initial index
+					TiUITableViewRowProxy* moveRow = [[[updateSection rows] objectAtIndex:rowIndex] retain];
+					
+					[removeRows addObject:[NSIndexPath indexPathForRow:i inSection:updateSectionIndex]];
+					[self deleteRow:moveRow];
+					
+					moveRow.section = newSection;
+					moveRow.row = (i-rowIndex)+1;
+					moveRow.parent = newSection;
+					
+					[addRows addObject:moveRow];
+					[moveRow release];
+				}
+				
+				[tableview deleteRowsAtIndexPaths:removeRows withRowAnimation:UITableViewRowAnimationNone];
+			}
+
+			[sections insertObject:newSection atIndex:newSectionIndex];
             [self appendRow:row];
             for (TiUITableViewRowProxy* moveRow in addRows) {
                 [self appendRow:moveRow];
@@ -614,7 +601,7 @@
             
             // 2nd stage of update: Add in those shiny new rows and update the section.
             [sections insertObject:newSection atIndex:newSectionIndex];
-            [self appendRow:action.obj];
+            [self appendRow:row];
             for (TiUITableViewRowProxy* moveRow in addRows) {
                 [self appendRow:moveRow];
             }
@@ -1495,14 +1482,23 @@ if(ourTableView != tableview)	\
 	if (cell == nil)
 	{
 		cell = [[[TiUITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:row.tableClass row:row] autorelease];
-		[row initializeTableViewCell:cell];
 	}
 	else
 	{
+		// TODO: Right now, reproxying, redrawing, reloading, etc. is SLOWER than simply drawing in the new cell contents!
+		// So what we're going to do with this cell is clear its contents out, then redraw it as if it were a new cell.
+		// Keeps the cell pool small and reusable.
+		[TiUITableViewRowProxy clearTableRowCell:cell];
+		
+		/*
+		 * Old-school style:
 		// in the case of a reuse, we need to tell the row proxy to update the data
 		// in the re-used cell with this proxy's contents
 		[row renderTableViewCell:cell];
+		 *
+		 */
 	}
+	[row initializeTableViewCell:cell];
 	
 	return cell;
 }

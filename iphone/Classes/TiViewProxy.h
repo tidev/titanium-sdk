@@ -198,6 +198,7 @@ enum
 
 -(void)refreshSize;
 -(void)refreshPosition;
+-(void)willEnqueue;
 
 //Unlike the other layout actions, this one is done by the parent of the one called by refreshView.
 //This is the effect of refreshing the Z index via careful view placement.

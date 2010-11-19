@@ -301,17 +301,18 @@ NSArray * tableKeySequence;
         [newSection replaceValue:header forKey:@"headerTitle" notification:NO];
         
         // Set up the new section
-        newSection.section = section.section;
         newSection.table = table;
         newSection.parent = [table proxy];
         
-        // Insert the new section into the array - but, exactly WHERE we insert it depends on
-        // whether or not we're inserting before the first row of a section.
+        // Insert the new section into the array - but, exactly WHERE we insert depends.
         int sectionIndex = [sections indexOfObject:section];
         if (row.row != 0) {
             sectionIndex++;
         }
         
+		// Set the section index here, so that it goes in the right place
+		newSection.section = sectionIndex;
+		
         // Thanks to how we track sections, we also need to manually update the index
         // of each section in the array after where the insert will be.
         for (int i=sectionIndex; i < [sections count]; i++) {
@@ -322,7 +323,7 @@ NSArray * tableKeySequence;
         // Configure the new row
         newrow.section = newSection;
         newrow.parent = newSection;      
-        newrow.row = (row.row == 0) ? 0 : row.row - 1; // HACK: Used to determine the row we're being placed after in the previous section; will be set to 0 later
+        newrow.row = row.row; // HACK: Used to determine the row we're being placed before in the old section
         
         // Configure the action
         actionType = TiUITableViewActionInsertSectionBefore;

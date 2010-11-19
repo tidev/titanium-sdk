@@ -1,4 +1,4 @@
-0#!/usr/bin/env python
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
 # tiapp parser
@@ -131,21 +131,14 @@ class TiAppXML(object):
 						self.android_manifest['application'] = []
 					application = self.android_manifest['application']
 					application.extend([n for n in child.childNodes if n.nodeType == n.ELEMENT_NODE])
+					self.android_manifest['application-attributes'] = child.attributes
 					continue
 				
 				if 'manifest' not in self.android_manifest:
 					self.android_manifest['manifest'] = []
 				manifest = self.android_manifest['manifest']
 				manifest.append(child)
-	
-		def parse_permissions(node):
-			permissions = lazy_init('permissions', [])
-			for permission in node.getElementsByTagName('permission'):
-				permissions.append(get_text(permission))
-
-		def parse_screens(node):
-			screens = lazy_init('screens', {})
-			add_attrs(screens, node, self.to_bool)
+				self.android_manifest['manifest-attributes'] = node.attributes
 
 		def get_activity_classname(url):
 			parts = url.split('/')
@@ -167,7 +160,7 @@ class TiAppXML(object):
 			for escape_char in escape_chars:
 				classname = classname.replace(escape_char, '_')
 			return classname+'Activity'
-		
+
 		def parse_activities(node):
 			activities = lazy_init('activities', {})
 			for activity_el in node.getElementsByTagName('activity'):
@@ -180,18 +173,15 @@ class TiAppXML(object):
 				add_attrs(activity, activity_el)
 				activity['classname'] = get_activity_classname(url)
 
-		def parse_services(node):
-			services = lazy_init('services', {})
-			for service_el in node.getElementsByTagName('service'):
-				name = get_text(service_el)
-				service = lazy_init(name, {}, services, set_name=True)
-				add_attrs(service, service_el)
-		
+		def parse_tool_api_level(node):
+			lazy_init('tool-api-level', get_text(node))
+
+
 		local_objects = locals()
-		parse_tags = ['activities', 'manifest']
+		parse_tags = ['activities', 'manifest', 'tool-api-level']
 		for child in node.childNodes:
 			if child.nodeName in parse_tags:
-				local_objects['parse_'+child.nodeName](child)
+				local_objects['parse_'+child.nodeName.replace('-', '_')](child)
 
 	def parse_iphone(self, node):
 		def translate_orientation(orientation):

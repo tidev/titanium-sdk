@@ -33,7 +33,9 @@ import org.appcelerator.titanium.analytics.TiAnalyticsService;
 import org.appcelerator.titanium.kroll.KrollBridge;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
+import org.appcelerator.titanium.util.TiFileHelper;
 import org.appcelerator.titanium.util.TiPlatformHelper;
+import org.appcelerator.titanium.util.TiResponseCache;
 import org.appcelerator.titanium.view.ITiWindowHandler;
 
 import android.app.Activity;
@@ -202,6 +204,10 @@ public abstract class TiApplication extends Application
 		systemProperties = new TiProperties(getApplicationContext(), "system", true);
 
 		//systemProperties.setString("ti.version", buildVersion); // was always setting "1.0"
+		
+		// Register the default cache handler
+		File cacheDir = new File(new TiFileHelper(this).getDataDirectory(false), "remote-image-cache");
+		TiResponseCache.setDefault(new TiResponseCache(cacheDir.getAbsoluteFile()));
 	}
 	
 	public void setRootActivity(TiRootActivity rootActivity)
