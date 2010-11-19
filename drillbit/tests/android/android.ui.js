@@ -1,3 +1,4 @@
+/*global describe, Ti, Titanium */
 describe("Ti.UI.Android tests", {
 	androidUIAPIs: function() {
 		valueOf(Ti.UI.Android).shouldNotBeNull();
@@ -89,6 +90,16 @@ describe("Ti.UI.Android tests", {
 		tv.setData(data, {animationStyle:Titanium.UI.iPhone.RowAnimationStyle.NONE});
 		valueOf(tv.data[0].rowCount).shouldBe(data.length);
 		w.close();
+	},
+
+	// https://appcelerator.lighthouseapp.com/projects/32238/tickets/1569-android-implement-image-cache
+	// see 11/19/2010 comments from bill
+	responseCacheRegression: function() {
+		var w = Ti.UI.createWindow();
+		w.open();
+		var im = Ti.UI.createImageView( { image: 'http://www.appcelerator.com/wp-content/uploads/2009/06/titanium_desk.png', height:10, width: 10} );
+		im.addEventListener('load', function() {w.close();});
+		w.add(im);
 	}
-		
+
 })
