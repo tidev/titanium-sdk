@@ -167,14 +167,10 @@ public class TitaniumModule extends KrollModule implements TiContext.OnLifecycle
 	}
 
 	@Kroll.method @Kroll.topLevel
-	public void alert(Object message) {
+	public void alert(KrollInvocation invocation, Object message) {
 		String msg = (message == null? null : message.toString());
 		Log.i("ALERT", msg);
-		Activity currentActivity = getTiContext().getTiApp().getCurrentActivity();
-		if (currentActivity == null) {
-		  currentActivity = getTiContext().getActivity();
-		}
-		TiUIHelper.doOkDialog(currentActivity, "Alert", msg, null);
+		TiUIHelper.doOkDialog(invocation.getTiContext().getActivity(), "Alert", msg, null);
 	}
 	
 	public void cancelTimers() {

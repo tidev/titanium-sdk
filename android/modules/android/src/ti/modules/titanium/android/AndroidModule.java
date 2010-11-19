@@ -6,21 +6,21 @@
  */
 package ti.modules.titanium.android;
 
+
 import org.appcelerator.kroll.KrollInvocation;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiContext;
-import org.appcelerator.titanium.proxy.ActivityProxy;
 import org.appcelerator.titanium.proxy.IntentProxy;
+import org.appcelerator.titanium.proxy.RProxy;
 
 import android.app.Activity;
-import android.app.AlarmManager;
 import android.content.Intent;
 
 @Kroll.module
 public class AndroidModule extends KrollModule
 {
-	private static final String LCAT = "TiAndroid";
+	private static final String TAG = "TiAndroid";
 
 	@Kroll.constant public static final String ACTION_AIRPLANE_MODE_CHANGED = Intent.ACTION_AIRPLANE_MODE_CHANGED;
 	@Kroll.constant public static final String ACTION_ALL_APPS = Intent.ACTION_ALL_APPS;
@@ -176,22 +176,33 @@ public class AndroidModule extends KrollModule
 	@Kroll.constant public static final int PENDING_INTENT_FOR_BROADCAST = 2;
 	@Kroll.constant public static final int PENDING_INTENT_MAX_VALUE = PENDING_INTENT_FOR_BROADCAST;
 
+	@Kroll.constant public static final int RESULT_OK = Activity.RESULT_OK;
+	@Kroll.constant public static final int RESULT_CANCELED = Activity.RESULT_CANCELED;
+	@Kroll.constant public static final int RESULT_FIRST_USER = Activity.RESULT_FIRST_USER;
+	
+	protected RProxy r;
+	
 	public AndroidModule(TiContext tiContext) {
 		super(tiContext);
 	}
 
-	// Proxies is in titanium, but we expose the creator in Ti.Android
 	@Kroll.method
 	public IntentProxy createIntent(KrollInvocation invocation, Object[] args) {
 		IntentProxy intent = new IntentProxy(invocation.getTiContext());
 		intent.handleCreationArgs(this, args);
 		return intent;
-	};
+	}
 	
 	@Kroll.method
-	public void registerAlarm(PendingIntentProxy proxy) 
-	{
-		AlarmManager am = (AlarmManager) getTiContext().getActivity().getApplication().getSystemService(Activity.ALARM_SERVICE);
-		am.set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + 5000, proxy.getPendingIntent());
+	public IntentProxy createIntentChooser(KrollInvocation invocation, IntentProxy target, String title) {
+		return new IntentProxy(invocation.getTiContext(), Intent.createChooser(target.getIntent(), title));
+	}
+	
+	@Kroll.getProperty(name="R")
+	public RProxy getR(KrollInvocation invocation) {
+		if (r == null) {
+			r = new RProxy(invocation.getTiContext(), RProxy.RESOURCE_TYPE_ANDROID);
+		}
+		return r;
 	}
 }

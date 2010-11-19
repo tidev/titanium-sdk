@@ -6,8 +6,6 @@ import java.util.Map;
 
 import org.appcelerator.titanium.TiApplication;
 
-import android.util.Log;
-
 /*
  * A Class which allows us to pull resource integers 
  * off of the various R class structures using
@@ -17,7 +15,7 @@ public class TiRHelper {
 	private static final String LCAT = "TiRHelper";
 	
 	private static Map<String, Class<?>> clsCache = Collections.synchronizedMap(new HashMap<String, Class<?>>());
-	private static Map<String, Integer>  valCache = Collections.synchronizedMap(new HashMap<String, Integer>());
+	private static Map<String, Integer> valCache = Collections.synchronizedMap(new HashMap<String, Integer>());
 	
 	private static String clsPrefixAndroid     = "android.R$";
 	private static String clsPrefixApplication = null;
@@ -39,34 +37,56 @@ public class TiRHelper {
 		return cls;
 	}
 	
-	public static int getResource(String path) throws ResourceNotFoundException {
-		// Check the cache for this value
+	protected static String[] getClassAndFieldNames(String path) {
+		int lastDot = path.lastIndexOf('.');
+		String className = lastDot < 0 ? "" : path.substring(0, lastDot < 0 ? 1 : lastDot).replace('.', '$');
+		String fieldName = lastDot < 0 ? path : path.substring(lastDot + 1);
+		return new String[] { className, fieldName };
+	}
+	
+	protected static int getResource(String prefix, String path) throws ResourceNotFoundException {
 		Integer i = valCache.get(path);
 		if (i != null) return i;
-
-		// Get the classname / fieldname
-		int lastseg = path.lastIndexOf('.');
-		String classname = lastseg < 0 ? ""   : path.substring(0, lastseg < 0 ? 1 : lastseg).replace('.', '$');
-		String fieldname = lastseg < 0 ? path : path.substring(lastseg + 1);
 		
+		return lookupResource(prefix, path, getClassAndFieldNames(path));
+	}
+	
+	protected static int lookupResource(String prefix, String path, String[] classAndFieldNames) throws ResourceNotFoundException {
 		// Get the clsPrefixApplication if this is the first time
 		if (clsPrefixApplication == null)
 			clsPrefixApplication = TiApplication.getInstance().getApplicationInfo().packageName + ".R$";
 		
+		Integer i = null;
 		// Load the field
 		try {
-			i = getClass(clsPrefixApplication + classname).getDeclaredField(fieldname).getInt(null);
+			i = getClass(prefix + classAndFieldNames[0]).getDeclaredField(classAndFieldNames[1]).getInt(null);
 		} catch (Exception e) {
-			try {
-				i = getClass(clsPrefixAndroid + classname).getDeclaredField(fieldname).getInt(null);
-			} catch (Exception ee) {
-				Log.w(LCAT, "Unable to find resource: " + path);
-				throw new TiRHelper.ResourceNotFoundException(path);
-			}
+			throw new ResourceNotFoundException(path);
 		}
 		
 		valCache.put(path, i);
 		return i;
+	}
+	
+	public static int getResource(String path) throws ResourceNotFoundException {
+		Integer i = valCache.get(path);
+		if (i != null) return i;
+		
+		String[] classAndFieldNames = getClassAndFieldNames(path);
+		
+		try {
+			return lookupResource(clsPrefixApplication, path, classAndFieldNames);
+		} catch (ResourceNotFoundException e) {
+			return lookupResource(clsPrefixAndroid, path, classAndFieldNames);
+		}
+	}
+	
+	public static int getApplicationResource(String path) throws ResourceNotFoundException {
+		return getResource(clsPrefixApplication, path);
+	}
+	
+	public static int getAndroidResource(String path) throws ResourceNotFoundException {
+		return getResource(clsPrefixAndroid, path);
 	}
 	
 	/*

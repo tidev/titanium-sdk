@@ -16,7 +16,7 @@ import org.mozilla.javascript.Scriptable;
 
 // An implementation of KrollDict backed by a Rhino Scriptable
 @SuppressWarnings("serial")
-public class KrollScriptableDict extends KrollDict {
+public class KrollScriptableDict extends KrollDict implements KrollConvertable {
 	protected Scriptable scriptable;
 	
 	public KrollScriptableDict(Scriptable scriptable) {
@@ -100,8 +100,14 @@ public class KrollScriptableDict extends KrollDict {
 	public Object get(Object key) {
 		if (key == null) return null;
 		
+		// Treat NOT_FOUND as null
+		Object value = scriptable.get(key.toString(), scriptable);
+		if (value == Scriptable.NOT_FOUND) {
+			return null;
+		}
+		
 		KrollInvocation invocation = KrollInvocation.createPropertyGetInvocation(scriptable, scriptable, key.toString(), null, null);
-		return KrollConverter.getInstance().convertJavascript(invocation, scriptable.get(key.toString(), scriptable), Object.class);
+		return KrollConverter.getInstance().convertJavascript(invocation, value, Object.class);
 	}
 	
 	@Override
@@ -149,5 +155,13 @@ public class KrollScriptableDict extends KrollDict {
 			values.add(get(key));
 		}
 		return values;
+	}
+	
+	public Object getJavascriptValue() {
+		return getScriptable();
+	}
+	
+	public Object getNativeValue() {
+		return this;
 	}
 }

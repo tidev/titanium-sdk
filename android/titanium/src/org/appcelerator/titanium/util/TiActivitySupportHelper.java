@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.appcelerator.titanium.ITiMenuDispatcherListener;
+import org.appcelerator.titanium.proxy.ActivityProxy;
 
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
@@ -19,7 +20,8 @@ public class TiActivitySupportHelper
 	implements TiActivitySupport
 {
 	private static final String LCAT = "TiActivitySupportHelper";
-
+	private static final boolean DBG = TiConfig.LOGD;
+	
 	private Activity activity;
 	private HashMap<Integer, TiActivityResultHandler> resultHandlers;
 	private AtomicInteger uniqueResultCodeAllocator;
@@ -63,16 +65,14 @@ public class TiActivitySupportHelper
 		TiActivityResultHandler handler = resultHandlers.get(requestCode);
 		if (handler != null) {
 			handler.onResult(activity, requestCode, resultCode, data);
-		} else {
-			Log.i(LCAT, "Received activity requestCode=" + requestCode + " but no handler was registered. Ignoring.");
 		}
 	}
 
-	private void removeResultHandler(int code) {
+	public void removeResultHandler(int code) {
 		resultHandlers.remove(code);
 	}
 
-	private void registerResultHandler(int code, TiActivityResultHandler resultHandler) {
+	public void registerResultHandler(int code, TiActivityResultHandler resultHandler) {
 		if (resultHandler == null) {
 			Log.w(LCAT, "Received a null result handler");
 		}

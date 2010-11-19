@@ -15,6 +15,7 @@ import org.appcelerator.kroll.KrollObject;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiEvaluator;
+import org.appcelerator.titanium.util.TiBindingHelper;
 import org.mozilla.javascript.Scriptable;
 
 import ti.modules.titanium.TitaniumModule;

@@ -50,7 +50,6 @@ public class KrollObject extends ScriptableObject implements Function {
 	@Override
 	public void put(String name, Scriptable start, Object value) {
 		try {
-			
 			KrollInvocation invocation = KrollInvocation.createPropertySetInvocation(start, null, name, null, proxy);
 			value = KrollConverter.getInstance().convertJavascript(invocation, value, Object.class);
 			proxy.set(start, name, value);
@@ -99,7 +98,7 @@ public class KrollObject extends ScriptableObject implements Function {
 	
 	@Override
 	public Object getDefaultValue(Class<?> typeHint) {
-		return proxy.toString();
+		return proxy.getDefaultValue(typeHint);
 	}
 	
 	@Override

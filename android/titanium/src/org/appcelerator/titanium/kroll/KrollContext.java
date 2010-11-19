@@ -160,13 +160,15 @@ public class KrollContext extends KrollHandlerThread implements Handler.Callback
 	
 	protected Object runCompiledScript(String filename) {
 		
-		if (filename.startsWith(APP_SCHEME)) {
-			filename = filename.substring(APP_SCHEME.length());
-		} else if (filename.startsWith(FILE_WITH_ASSET)) {
-			filename = filename.substring(FILE_WITH_ASSET.length());
-		} else {
-			// we can only handle pre-compiled app:// and file:///android_asset/Resources/ scripts here
-			return evaluateScript(filename);
+		if (filename.contains("://")) {
+			if (filename.startsWith(APP_SCHEME)) {
+				filename = filename.substring(APP_SCHEME.length());
+			} else if (filename.startsWith(FILE_WITH_ASSET)) {
+				filename = filename.substring(FILE_WITH_ASSET.length());
+			} else {
+				// we can only handle pre-compiled app:// and file:///android_asset/Resources/ scripts here
+				return evaluateScript(filename);
+			}
 		}
 		
 		Context context = enter(true);

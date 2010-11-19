@@ -175,4 +175,5 @@ public abstract class TiWindowProxy extends TiViewProxy
 	protected abstract void handleOpen(KrollDict options);
 	//public abstract void handlePostOpen(Activity activity);
 	protected abstract void handleClose(KrollDict options);
+	protected abstract Activity handleGetActivity();
 }

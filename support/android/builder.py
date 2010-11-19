@@ -638,12 +638,10 @@ class Builder(object):
 				activity = tiapp_activities[key]
 				if not 'url' in activity:
 					continue
-				activity_name = self.app_id + '.' + activity['url'][0].upper() + activity['url'][1:]
-				if activity_name.lower().endswith('.js'):
-					activity_name = activity_name[:-3]
+				activity_name = self.app_id + '.' + activity['classname']
 				activity_str = '<activity \n\t\t\tandroid:name="%s"' % activity_name
 				for subkey in activity:
-					if subkey not in ('name', 'url', 'options', 'android:name'):
+					if subkey not in ('name', 'url', 'options', 'classname', 'android:name'):
 						activity_str += '\n\t\t\t%s="%s"' % (subkey, activity[subkey])
 
 				if 'android:config' not in activity:

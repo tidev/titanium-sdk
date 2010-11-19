@@ -135,9 +135,13 @@ class Android(object):
 			if value == None: value = ""
 			self.app_properties[name] = {"type": type, "value": value}
 	
-	def generate_activities(self):
-		for activity in self.tiapp.android.activities:
-			self.render(template_dir, 'JSActivity.java', app_dir, classname+'.java', activity=activity)
+	def generate_activities(self, app_package_dir):
+		if not 'activities' in self.tiapp.android: return
+		for key in self.tiapp.android['activities'].keys():
+			activity = self.tiapp.android['activities'][key]
+			print '[DEBUG] generating activity class: ' + activity['classname']
+			
+			self.render(template_dir, 'JSActivity.java', app_package_dir, activity['classname']+'.java', activity=activity)
 	
 	def build_modules_info(self, resources_dir, app_bin_dir):
 		self.app_modules = []
@@ -245,6 +249,7 @@ class Android(object):
 		self.render(template_dir, 'App.java', app_package_dir, self.config['classname'] + 'Application.java',
 			app_modules = self.app_modules, custom_modules = self.custom_modules)
 		self.render(template_dir, 'Activity.java', app_package_dir, self.config['classname'] + 'Activity.java')
+		self.generate_activities(app_package_dir)
 		self.render(template_dir, 'classpath', app_dir, '.classpath')
 		self.render(template_dir, 'project', app_dir, '.project')
 		self.render(template_dir, 'default.properties', app_dir, 'default.properties')

@@ -3,7 +3,7 @@ package org.appcelerator.titanium;
 import java.lang.ref.SoftReference;
 
 import org.appcelerator.kroll.KrollDict;
-import org.appcelerator.titanium.kroll.KrollBridge;
+import org.appcelerator.titanium.kroll.KrollCallback;
 import org.appcelerator.titanium.proxy.ActivityProxy;
 import org.appcelerator.titanium.proxy.IntentProxy;
 import org.appcelerator.titanium.proxy.TiWindowProxy;
@@ -216,28 +216,28 @@ public class TiBaseActivity extends Activity
 		softMenuDispatcher = new SoftReference<ITiMenuDispatcherListener>(
 				dispatcher);
 	}
-
-	// Activity Support
-	public int getUniqueResultCode() {
+	
+	protected TiActivitySupportHelper getSupportHelper() {
 		if (supportHelper == null) {
 			this.supportHelper = new TiActivitySupportHelper(this);
 		}
-		return supportHelper.getUniqueResultCode();
+		return supportHelper;
+	}
+
+	// Activity Support
+	public int getUniqueResultCode() {
+		return getSupportHelper().getUniqueResultCode();
 	}
 
 	public void launchActivityForResult(Intent intent, int code, TiActivityResultHandler resultHandler)
 	{
-		if (supportHelper == null) {
-			this.supportHelper = new TiActivitySupportHelper(this);
-		}
-		supportHelper.launchActivityForResult(intent, code, resultHandler);
+		getSupportHelper().launchActivityForResult(intent, code, resultHandler);
 	}
 
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
-
-		supportHelper.onActivityResult(requestCode, resultCode, data);
+		getSupportHelper().onActivityResult(requestCode, resultCode, data);
 	}
 
 	@Override

@@ -150,14 +150,8 @@ public class KrollConverter implements KrollNativeConverter,
 	
 	@SuppressWarnings("unchecked")
 	public Object convertNative(KrollInvocation invocation, Object value) {
-		if (value instanceof KrollProxy) {
-			return new KrollObject((KrollProxy)value);
-		}
-		else if (value instanceof KrollCallback) {
-			return ((KrollCallback)value).toJSFunction();
-		}
-		else if (value instanceof KrollScriptableDict) {
-			return ((KrollScriptableDict)value).getScriptable();
+		if (value instanceof KrollConvertable) {
+			return ((KrollConvertable)value).getJavascriptValue();
 		}
 		else if (value == null || value instanceof String ||
 				value instanceof Number ||
@@ -231,7 +225,8 @@ public class KrollConverter implements KrollNativeConverter,
 	
 	public Object convertScriptable(KrollInvocation invocation, Scriptable scriptable) {
 		if (scriptable instanceof KrollObject) {
-			return ((KrollObject)scriptable).getProxy();
+			KrollProxy proxy = ((KrollObject)scriptable).getProxy();
+			return proxy.getNativeValue();
 		} else if (isArrayLike(scriptable)) {
 			return toArray(invocation, scriptable);
 		} else if (scriptable.getClassName().equals("Date")) {
@@ -346,7 +341,7 @@ public class KrollConverter implements KrollNativeConverter,
 	}
 
 	public static String toString(Object value) {
-		return value == null ? null : value.toString();
+		return value == null ? null : (value == Scriptable.NOT_FOUND ? "undefined" : value.toString());
 	}
 	public static String toString(KrollDict d, String key) {
 		return toString(d.get(key));

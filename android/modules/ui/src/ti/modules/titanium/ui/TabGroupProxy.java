@@ -326,5 +326,8 @@ public class TabGroupProxy extends TiWindowProxy
 		tabs.clear();
 	}
 
-	
+	@Override
+	protected Activity handleGetActivity() {
+		return weakActivity.get();
+	}
 }

@@ -11,10 +11,12 @@ import java.lang.ref.SoftReference;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.appcelerator.titanium.proxy.ActivityProxy;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiActivityResultHandler;
 import org.appcelerator.titanium.util.TiActivitySupport;
 import org.appcelerator.titanium.util.TiActivitySupportHelper;
+import org.appcelerator.titanium.util.TiBindingHelper;
 import org.appcelerator.titanium.util.TiColorHelper;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.view.ITiWindowHandler;
@@ -50,6 +52,7 @@ public class TiRootActivity extends ActivityGroup
 	private static AtomicInteger windowIdGenerator;
 
 	protected TiContext tiContext;
+	protected ActivityProxy activityProxy;
 	protected TiActivitySupportHelper supportHelper;
 	protected TiCompositeLayout rootLayout;
 	protected SoftReference<ITiMenuDispatcherListener> softMenuDispatcher;
@@ -108,7 +111,9 @@ public class TiRootActivity extends ActivityGroup
 		TiApplication host = getTiApp();
 		host.setRootActivity(this);
 		tiContext = TiContext.createTiContext(this, null);
-
+		activityProxy = new ActivityProxy(tiContext, this);
+		TiBindingHelper.bindCurrentActivity(tiContext, activityProxy);
+		
 		 if (host.getAppInfo().isFullscreen()) {
 			getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
 					WindowManager.LayoutParams.FLAG_FULLSCREEN);
@@ -132,7 +137,6 @@ public class TiRootActivity extends ActivityGroup
 		final Handler fHandler = fMessenger == null ? null : new Handler();
 		
 		new Thread(new Runnable(){
-
 			@Override
 			public void run() {
 				try {
@@ -207,26 +211,26 @@ public class TiRootActivity extends ActivityGroup
 		rootLayout.removeView(v);
 	}
 
+	protected TiActivitySupportHelper getSupportHelper() {
+		if (supportHelper == null) {
+			supportHelper = new TiActivitySupportHelper(this);
+		}
+		return supportHelper;
+	}
+	
 	// Activity Support
 	public int getUniqueResultCode() {
-		if (supportHelper == null) {
-			this.supportHelper = new TiActivitySupportHelper(this);
-		}
-		return supportHelper.getUniqueResultCode();
+		return getSupportHelper().getUniqueResultCode();
 	}
 
-	public void launchActivityForResult(Intent intent, int code, TiActivityResultHandler resultHandler)
-	{
-		if (supportHelper == null) {
-			this.supportHelper = new TiActivitySupportHelper(this);
-		}
-		supportHelper.launchActivityForResult(intent, code, resultHandler);
+	public void launchActivityForResult(Intent intent, int code, TiActivityResultHandler resultHandler) {
+		getSupportHelper().launchActivityForResult(intent, code, resultHandler);
 	}
 
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
-		supportHelper.onActivityResult(requestCode, resultCode, data);
+		getSupportHelper().onActivityResult(requestCode, resultCode, data);
 	}
 
 	@Override

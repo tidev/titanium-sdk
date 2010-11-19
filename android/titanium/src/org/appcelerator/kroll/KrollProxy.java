@@ -26,7 +26,7 @@ import android.os.Handler;
 import android.os.Message;
 
 @Kroll.proxy
-public class KrollProxy implements Handler.Callback, OnEventListenerChange {
+public class KrollProxy implements Handler.Callback, OnEventListenerChange, KrollConvertable {
 
 	private static final String TAG = "KrollProxy";
 	private static final boolean DBG = TiConfig.LOGD;
@@ -615,5 +615,17 @@ public class KrollProxy implements Handler.Callback, OnEventListenerChange {
 	@Kroll.method
 	public String toString() {
 		return "[Ti."+getAPIName() + "]";
+	}
+	
+	public Object getDefaultValue(Class<?> typeHint) {
+		return toString();
+	}
+	
+	public Object getJavascriptValue() {
+		return new KrollObject(this);
+	}
+	
+	public Object getNativeValue() {
+		return this;
 	}
 }

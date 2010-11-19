@@ -149,12 +149,16 @@ class TiAppXML(object):
 
 		def get_activity_classname(url):
 			parts = url.split('/')
-			if len(parts) == 0: continue
+			if len(parts) == 0: return None
+			
 			start = 0
 			if parts[0] == "app:" and len(parts) >= 3:
 				start = 2
 			
-			classname = parts[start:].join('_')
+			classname = '_'.join(parts[start:])
+			if classname.endswith('.js'):
+				classname = classname[:-3]
+			
 			if len(classname) > 1:
 				classname = classname[0:1].upper() + classname[1:]
 			else: classname = classname.upper()
@@ -162,7 +166,7 @@ class TiAppXML(object):
 			escape_chars = ['\\', '/', ' ', '.', '$', '&', '@']
 			for escape_char in escape_chars:
 				classname = classname.replace(escape_char, '_')
-			return classname
+			return classname+'Activity'
 		
 		def parse_activities(node):
 			activities = lazy_init('activities', {})

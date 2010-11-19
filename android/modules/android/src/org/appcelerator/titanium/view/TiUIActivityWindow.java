@@ -12,7 +12,6 @@ import ti.modules.titanium.android.TiJSActivity;
 
 public class TiUIActivityWindow extends TiUIView 
 {
-
 	protected TiJSActivity activity;
 	
 	public TiUIActivityWindow(TiActivityWindowProxy proxy, TiJSActivity activity, TiCompositeLayout layout) 
@@ -36,5 +35,9 @@ public class TiUIActivityWindow extends TiUIView
 	
 	public void close() {
 		activity.finish();
+	}
+	
+	public TiJSActivity getActivity() {
+		return activity;
 	}
 }

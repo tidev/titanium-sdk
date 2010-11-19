@@ -6,6 +6,7 @@
  */
 package org.appcelerator.titanium.kroll;
 
+import org.appcelerator.kroll.KrollConvertable;
 import org.appcelerator.kroll.KrollConverter;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollInvocation;
@@ -21,7 +22,7 @@ import org.mozilla.javascript.Function;
 import org.mozilla.javascript.Scriptable;
 
 @SuppressWarnings("serial")
-public class KrollCallback extends KrollMethod
+public class KrollCallback extends KrollMethod implements KrollConvertable
 {
 	private static final String LCAT = "KrollCallback";
 
@@ -140,5 +141,13 @@ public class KrollCallback extends KrollMethod
 	
 	public void setThisProxy(KrollProxy proxy) {
 		setThisObj(new KrollObject(proxy));
+	}
+	
+	public Object getJavascriptValue() {
+		return toJSFunction();
+	}
+	
+	public Object getNativeValue() {
+		return this;
 	}
 }

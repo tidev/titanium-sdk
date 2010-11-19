@@ -163,4 +163,11 @@ public class WindowProxy extends TiWindowProxy
 	public void setLeftNavButton(ButtonProxy button) {
 		Log.w(LCAT, "setLeftNavButton not supported in Android");
 	}
+	
+	@Override
+	protected Activity handleGetActivity() {
+		if (view == null) return null;
+		
+		return ((TiUIWindow)view).getActivity();
+	}
 }

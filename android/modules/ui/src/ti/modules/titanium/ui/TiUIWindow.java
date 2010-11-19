@@ -647,4 +647,8 @@ public class TiUIWindow extends TiUIView
 		handler = null;
 		windowActivity = null;
 	}
+	
+	public Activity getActivity() {
+		return windowActivity;
+	}
 }

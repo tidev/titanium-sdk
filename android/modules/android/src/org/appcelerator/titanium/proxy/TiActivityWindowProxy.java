@@ -14,6 +14,8 @@ import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.view.TiUIActivityWindow;
 import org.appcelerator.titanium.view.TiUIView;
 
+import android.app.Activity;
+
 import ti.modules.titanium.android.AndroidModule;
 
 @Kroll.proxy(creatableInModule=AndroidModule.class)
@@ -52,5 +54,11 @@ public class TiActivityWindowProxy extends TiWindowProxy
 
 	@Override
 	protected void handleOpen(KrollDict options) {
+	}
+	
+	@Override
+	protected Activity handleGetActivity() {
+		if (view == null) return null;
+		return ((TiUIActivityWindow)view).getActivity();
 	}
 }

@@ -3,9 +3,13 @@
  */
 package org.appcelerator.titanium.proxy;
 
+import java.util.Arrays;
+import java.util.List;
+
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
+import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
@@ -13,7 +17,9 @@ import org.appcelerator.titanium.util.TiConvert;
 
 import android.content.Intent;
 import android.net.Uri;
+import android.text.TextUtils;
 
+@Kroll.proxy
 public class IntentProxy extends KrollProxy 
 {
 	private static final String TAG = "TiIntent";
@@ -30,13 +36,45 @@ public class IntentProxy extends KrollProxy
 		this.intent = intent;
 	}
 	
+	protected static char[] escapeChars = new char[] {
+		'\\', '/', ' ', '.', '$', '&', '@'
+	};
+	
+	protected String getActivityURLClassName(String url) {
+		List<String> parts = Arrays.asList(url.split("/"));
+		if (parts.size() == 0) return null;
+		
+		int start = 0;
+		if (parts.get(0).equals("app:") && parts.size() >= 3) {
+			start = 2;
+		}
+		
+		String className = TextUtils.join("_", parts.subList(start, parts.size()));
+		if (className.endsWith(".js")) {
+			className = className.substring(0, className.length()-3);
+		}
+		
+		if (className.length() > 1) {
+			className = className.substring(0, 1).toUpperCase() + className.substring(1);
+		} else {
+			className = className.toUpperCase();
+		}
+		
+		for (char escapeChar : escapeChars) {
+			className = className.replace(escapeChar, '_');
+		}
+		
+		return className+"Activity";
+	}
+	
 	public void handleCreationDict(KrollDict dict) {
 		intent = new Intent();
 		
 		// See which set of options we have to work with.
 		String action = dict.getString("action");
+		String url = dict.getString("url");
 		String data = dict.getString("data");
-		String classname = dict.getString("className");
+		String className = dict.getString("className");
 		String packageName = dict.getString("packageName");
 		String type = dict.getString("type");
 
@@ -61,19 +99,27 @@ public class IntentProxy extends KrollProxy
 			intent.setPackage(packageName);
 		}
 		
-		if (classname != null) {
+		if (url != null) {
+			if (DBG) {
+				Log.d(TAG, "Creating intent for JS Activity @ " + url);
+			}
+			packageName = TiApplication.getInstance().getPackageName();
+			className = packageName + "." + getActivityURLClassName(url);
+		}
+		
+		if (className != null) {
 			if (packageName != null) {
 				if (DBG) {
 					Log.d(TAG, "Both className and packageName set, using intent.setClassName(packageName, className");
 				}
-				intent.setClassName(packageName, classname);
+				intent.setClassName(packageName, className);
 			} else {
 				try {
-					Class<?> c = getClass().getClassLoader().loadClass(classname);
+					Class<?> c = getClass().getClassLoader().loadClass(className);
 					intent.setClass(getTiContext().getActivity().getApplicationContext(), c);
 				} catch (ClassNotFoundException e) {
-					Log.e(TAG, "Unable to locate class for name: " + classname);
-					throw new IllegalStateException("Missing class for name: " + classname, e);
+					Log.e(TAG, "Unable to locate class for name: " + className);
+					throw new IllegalStateException("Missing class for name: " + className, e);
 				}
 			}
 		}
@@ -138,6 +184,11 @@ public class IntentProxy extends KrollProxy
 	@Kroll.method
 	public double getDoubleExtra(String name, double defaultValue) {
 		return intent.getDoubleExtra(name, defaultValue);
+	}
+	
+	@Kroll.method @Kroll.getProperty
+	public String getData() {
+		return intent.getDataString();
 	}
 	
 	public Intent getIntent() { 

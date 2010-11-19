@@ -80,7 +80,7 @@ public class KrollDict
 	}
 
 	public String getString(String key) {
-		return (String) get(key);
+		return KrollConverter.toString(get(key));
 	}
 
 	public String optString(String key, String defalt) {
