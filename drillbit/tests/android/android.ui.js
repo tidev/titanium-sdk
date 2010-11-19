@@ -100,6 +100,17 @@ describe("Ti.UI.Android tests", {
 		var im = Ti.UI.createImageView( { image: 'http://www.appcelerator.com/wp-content/uploads/2009/06/titanium_desk.png', height:10, width: 10} );
 		im.addEventListener('load', function() {w.close();});
 		w.add(im);
+	},
+
+	// https://appcelerator.lighthouseapp.com/projects/32238-titanium-mobile/tickets/2390-android-image-views-where-height-is-set-very-small-can-result-in-javalangarithmeticexception-divide-by-zero
+	shortHeightImageView: function() {
+		var w = Ti.UI.createWindow();
+		w.open();
+		var im = Ti.UI.createImageView( { image: 'http://www.appcelerator.com/wp-content/uploads/2009/06/titanium_desk.png', height:1, width: 1} );
+		im.addEventListener('load', function() {w.close();});
+		w.add(im);
 	}
+
+
 
 })
