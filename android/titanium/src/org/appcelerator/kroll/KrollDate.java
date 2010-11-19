@@ -18,7 +18,19 @@ public class KrollDate extends Date {
 	
 	public KrollDate(Scriptable jsDate) {
 		this.jsDate = jsDate;
-		setTime(((Number)ScriptableObject.callMethod(jsDate, "getTime", new Object[0])).longValue());
+		
+		long timezoneOffset = callLongMethod("getTimezoneOffset");
+		long millis = callLongMethod("getTime");
+		
+		// Convert to GMT
+		if (timezoneOffset != 0) {
+			millis += timezoneOffset*60*1000;
+		}
+		setTime(millis);
+	}
+	
+	protected long callLongMethod(String name) {
+		return ((Number)ScriptableObject.callMethod(jsDate, name, new Object[0])).longValue();
 	}
 	
 	public Scriptable getJSDate() {

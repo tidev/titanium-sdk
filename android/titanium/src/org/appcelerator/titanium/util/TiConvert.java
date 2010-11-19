@@ -6,6 +6,7 @@
  */
 package org.appcelerator.titanium.util;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.Map;
@@ -344,6 +345,8 @@ public class TiConvert
 					json.put(key, (String) o);
 				} else if (o instanceof Boolean) {
 					json.put(key, (Boolean) o);
+				} else if (o instanceof Date) {
+					json.put(key, toJSONString((Date)o));
 				} else if (o instanceof KrollDict) {
 					json.put(key, toJSON((KrollDict) o));
 				} else if (o.getClass().isArray()) {
@@ -376,6 +379,8 @@ public class TiConvert
 				ja.put((String) o);
 			} else if (o instanceof Boolean) {
 				ja.put((Boolean) o);
+			} else if (o instanceof Date) {
+				ja.put(toJSONString((Date)o));
 			} else if (o instanceof KrollDict) {
 				ja.put(toJSON((KrollDict) o));
 			} else if (o.getClass().isArray()) {
@@ -386,6 +391,12 @@ public class TiConvert
     	}
     	return ja;
     }
+	
+	public static String toJSONString(Object value) {
+		if (value instanceof Date) {
+			return new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'").format((Date)value);
+		} else return toString(value);
+	}
     
     public static Date toDate(Object value) {
 		if (value instanceof Date) {

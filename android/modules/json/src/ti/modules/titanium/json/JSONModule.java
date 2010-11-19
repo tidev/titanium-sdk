@@ -6,9 +6,12 @@
  */
 package ti.modules.titanium.json;
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollModule;
-import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.TiConvert;
@@ -41,7 +44,7 @@ public class JSONModule extends KrollModule {
 			sb.append("]");
 			return sb.toString();
 		} else {
-			return TiConvert.toString(data);
+			return "\"" + TiConvert.toJSONString(data) + "\"";
 		}
 	}
 
