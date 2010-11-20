@@ -676,7 +676,6 @@ Drillbit.prototype.stageSDK = function() {
 		var relativePath = ti.path.relpath(file.nativePath(), mobileSupport);
 		var destFile = ti.fs.getFile(self.mobileSdk, relativePath);
 		
-		ti.api.debug("staging SDK file: " + destFile.nativePath());
 		file.copy(destFile);
 		stagedFiles.push(destFile);
 	});

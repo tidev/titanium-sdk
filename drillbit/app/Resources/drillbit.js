@@ -214,7 +214,6 @@ function reloadUI() {
 			var check = $('#'+suiteId+'>div.suite-status>div>img.'+platform+'-check');
 			var checked = checks[suiteId][platform];
 			var src = checked ? 'images/check_on.png' : 'images/check_off.png';
-			Titanium.API.debug("set src: " + suiteId + "/" + platform + "="+src);
 			$(check).attr('src', src);
 		}
 	}

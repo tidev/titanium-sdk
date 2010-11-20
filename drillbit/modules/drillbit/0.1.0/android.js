@@ -45,6 +45,7 @@ AndroidEmulator.prototype.createADBProcess = function(args) {
 
 AndroidEmulator.prototype.runADB = function(args) {
 	var adbProcess = this.createADBProcess(args);
+	ti.api.debug("[adb] " + adbProcess);
 	var result = adbProcess().toString();
 	return result;
 };
@@ -167,7 +168,10 @@ AndroidEmulator.prototype.removeTestJS = function(testScript) {
 
 AndroidEmulator.prototype.pushTestJS = function(testScript) {
 	var testJS = ti.fs.createTempFile();
-	testJS.write(testScript);
+	var stream = testJS.open(ti.fs.MODE_WRITE);
+	stream.write(testScript);
+	stream.close();
+	
 	this.runADB(['push', testJS.nativePath(), '/sdcard/' + this.drillbit.testHarnessId + '/test.js']);
 };
 
@@ -252,8 +256,6 @@ AndroidEmulator.prototype.isSDKBuildTrigger = function(file) {
 };
 
 AndroidEmulator.prototype.testHarnessNeedsBuild = function(stagedFiles) {
-	ti.api.debug("staged files = " + stagedFiles);
-	
 	for (var i = 0; i < stagedFiles.length; i++) {
 		var stagedFile = stagedFiles[i];
 		if (this.isHarnessBuildTrigger(stagedFile) || this.isSDKBuildTrigger(stagedFile)) {

@@ -43,6 +43,15 @@ public class JSONModule extends KrollModule {
 			}
 			sb.append("]");
 			return sb.toString();
+		} else if (data instanceof Number) {
+			// Normalize whole numbers as ints
+			double d = ((Number)data).doubleValue();
+			double whole = d < 0 ? Math.ceil(d) : Math.floor(d);
+			if (d - whole == 0) {
+				return Integer.toString((int) d);
+			} else {
+				return Double.toString(d);
+			}
 		} else {
 			return "\"" + TiConvert.toJSONString(data) + "\"";
 		}
