@@ -109,8 +109,12 @@ describe("Ti.UI.Android tests", {
 		var im = Ti.UI.createImageView( { image: 'http://www.appcelerator.com/wp-content/uploads/2009/06/titanium_desk.png', height:1, width: 1} );
 		im.addEventListener('load', function() {w.close();});
 		w.add(im);
+	},
+
+	// https://appcelerator.lighthouseapp.com/projects/32238/tickets/2391-android-smoketest-map-view-test-crashes-on-load-with-illegalargumentexception#ticket-2391-3
+
+	androidOptionMenuIllegalArgs: function() {
+		valueOf( function() { Ti.UI.Android.OptionMenu.createMenu(); }).shouldNotThrowException();
 	}
-
-
 
 })
