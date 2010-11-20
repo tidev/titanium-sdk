@@ -1359,10 +1359,8 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
 	}
 
 	BOOL changedFrame = NO;
-
 //BUG BARRIER: Code in this block is legacy code that should be factored out.
-	[parent childWillResize:self];
-
+	CGRect oldFrame = [[self view] frame];
 	if (windowOpened && [self viewAttached])
 	{
 		
@@ -1372,7 +1370,9 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
 			[self relayout];
 		}
 		[self layoutChildren:NO];
-
+		if (!CGRectEqualToRect(oldFrame, [[self view] frame])) {
+			[parent childWillResize:self];
+		}
 	}
 
 //END BUG BARRIER

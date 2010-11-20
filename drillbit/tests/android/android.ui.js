@@ -1,3 +1,4 @@
+/*global describe, Ti, Titanium */
 describe("Ti.UI.Android tests", {
 	androidUIAPIs: function() {
 		valueOf(Ti.UI.Android).shouldNotBeNull();
@@ -89,6 +90,31 @@ describe("Ti.UI.Android tests", {
 		tv.setData(data, {animationStyle:Titanium.UI.iPhone.RowAnimationStyle.NONE});
 		valueOf(tv.data[0].rowCount).shouldBe(data.length);
 		w.close();
+	},
+
+	// https://appcelerator.lighthouseapp.com/projects/32238/tickets/1569-android-implement-image-cache
+	// see 11/19/2010 comments from bill
+	responseCacheRegression: function() {
+		var w = Ti.UI.createWindow();
+		w.open();
+		var im = Ti.UI.createImageView( { image: 'http://www.appcelerator.com/wp-content/uploads/2009/06/titanium_desk.png', height:10, width: 10} );
+		im.addEventListener('load', function() {w.close();});
+		w.add(im);
+	},
+
+	// https://appcelerator.lighthouseapp.com/projects/32238-titanium-mobile/tickets/2390-android-image-views-where-height-is-set-very-small-can-result-in-javalangarithmeticexception-divide-by-zero
+	shortHeightImageView: function() {
+		var w = Ti.UI.createWindow();
+		w.open();
+		var im = Ti.UI.createImageView( { image: 'http://www.appcelerator.com/wp-content/uploads/2009/06/titanium_desk.png', height:1, width: 1} );
+		im.addEventListener('load', function() {w.close();});
+		w.add(im);
+	},
+
+	// https://appcelerator.lighthouseapp.com/projects/32238/tickets/2391-android-smoketest-map-view-test-crashes-on-load-with-illegalargumentexception#ticket-2391-3
+
+	androidOptionMenuIllegalArgs: function() {
+		valueOf( function() { Ti.UI.Android.OptionMenu.createMenu(); }).shouldNotThrowException();
 	}
-		
+
 })

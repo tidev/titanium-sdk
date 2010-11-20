@@ -391,7 +391,7 @@ public class TiDrawableReference
 	 */
 	public int calcSampleSize(int srcWidth, int srcHeight, int destWidth, int destHeight)
 	{
-		if (srcWidth <= 0 || srcHeight <= 0) {
+		if (srcWidth <= 0 || srcHeight <= 0 || destWidth <= 0 || destHeight <= 0) {
 			return DEFAULT_SAMPLE_SIZE;
 		}
 		return Math.max(srcWidth / destWidth, srcHeight / destHeight);

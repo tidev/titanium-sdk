@@ -37,14 +37,14 @@ public class OptionMenuModule extends KrollModule {
 	// pre 1.5 API Compatibility
 	
 	@Kroll.method
-	public MenuItemProxy createMenuItem(KrollInvocation invocation, KrollDict options) {
+	public MenuItemProxy createMenuItem(KrollInvocation invocation, @Kroll.argument(optional=true) KrollDict options) {
 		MenuItemProxy menuItem = new MenuItemProxy(invocation.getTiContext());
 		menuItem.handleCreationArgs(this, new Object[] { options });
 		return menuItem;
 	}
 	
 	@Kroll.method
-	public MenuProxy createMenu(KrollInvocation invocation, KrollDict options) {
+	public MenuProxy createMenu(KrollInvocation invocation, @Kroll.argument(optional=true) KrollDict options) {
 		MenuProxy menu = new MenuProxy(invocation.getTiContext());
 		menu.handleCreationArgs(this, new Object[] { options });
 		return menu;

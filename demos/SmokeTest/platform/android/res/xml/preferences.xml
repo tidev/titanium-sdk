@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    android:title="Preferences">
+	<PreferenceScreen
+        android:title="Misc. Preferences"
+        android:summary="Click to see more options">
+		<EditTextPreference
+		    android:title="Edit Text Preference"
+		    android:summary="You may enter a string"
+		    android:defaultValue=""
+		    android:key="editText" />
+	</PreferenceScreen>
+	<PreferenceCategory android:title="Category One">
+        <CheckBoxPreference
+            android:title="CheckBox Preference"
+            android:defaultValue="false"
+            android:summary="You may enter a boolean"
+            android:key="checkbox" />
+        <RingtonePreference
+            android:title="Ringtone Preference"
+            android:summary="You may pick a ringtone"
+            android:defaultValue=""
+            android:key="ringtone" />
+	</PreferenceCategory>
+	<PreferenceCategory android:title="Category Two">
+        <ListPreference
+            android:title="List Preference"
+            android:summary="You may chose from multiple choices"
+            android:key="list" 
+		    android:entries="@array/listNames"
+		    android:entryValues="@array/listValues" 
+		    />
+	</PreferenceCategory>
+</PreferenceScreen>

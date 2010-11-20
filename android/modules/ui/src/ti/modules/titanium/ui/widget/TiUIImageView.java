@@ -496,7 +496,7 @@ public class TiUIImageView extends TiUIView
 			requestedWidth = TiConvert.toTiDimension(d, "width");
 		}
 		if (d.containsKey("height")) {
-			requestedWidth = TiConvert.toTiDimension(d, "height");
+			requestedHeight = TiConvert.toTiDimension(d, "height");
 		}
 
 		if (d.containsKey("images")) {
