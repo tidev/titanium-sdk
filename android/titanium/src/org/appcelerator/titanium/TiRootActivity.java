@@ -17,6 +17,7 @@ import org.appcelerator.titanium.util.TiActivitySupport;
 import org.appcelerator.titanium.util.TiActivitySupportHelper;
 import org.appcelerator.titanium.util.TiColorHelper;
 import org.appcelerator.titanium.util.TiConfig;
+import org.appcelerator.titanium.util.TiRHelper;
 import org.appcelerator.titanium.view.ITiWindowHandler;
 import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.titanium.view.TiCompositeLayout.LayoutParams;
@@ -28,8 +29,11 @@ import android.app.AlertDialog;
 import android.app.LocalActivityManager;
 import android.app.PendingIntent;
 import android.content.DialogInterface;
-import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
+import android.content.DialogInterface.OnClickListener;
+import android.content.res.Configuration;
+import android.content.res.Resources.Theme;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -304,6 +308,24 @@ public class TiRootActivity extends ActivityGroup
 		}
 	}
 	
+	@Override
+	public void onConfigurationChanged(Configuration newConfig) 
+	{
+		super.onConfigurationChanged(newConfig);
+		
+		try {
+			int backgroundId = TiRHelper.getResource("drawable.background");
+			Drawable d = this.getResources().getDrawable(backgroundId);
+			if (d != null) {
+				Drawable bg = getWindow().getDecorView().getBackground();
+				getWindow().setBackgroundDrawable(d);
+				bg.setCallback(null);
+			}
+		} catch (Exception e) {
+			Log.e(LCAT, "Resource not found 'drawable.background': " + e.getMessage());
+		}
+	}
+
 	private Intent buildLaunchIntent() 
 	{
 		Intent intent = new Intent(getApplicationContext(), getClass());
