@@ -6,12 +6,15 @@
  */
 package org.appcelerator.titanium.proxy;
 
+import java.lang.reflect.Array;
+
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.AsyncResult;
 import org.appcelerator.titanium.util.TiConfig;
+import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiAnimation;
 import org.appcelerator.titanium.view.TiUIView;
@@ -24,7 +27,7 @@ public abstract class TiWindowProxy extends TiViewProxy
 {
 	private static final String LCAT = "TiWindowProxy";
 	private static final boolean DBG = TiConfig.LOGD;
-
+	
 	private static final int MSG_FIRST_ID = KrollProxy.MSG_LAST_ID + 1;
 
 	private static final int MSG_OPEN = MSG_FIRST_ID + 100;
@@ -37,7 +40,8 @@ public abstract class TiWindowProxy extends TiViewProxy
 	protected boolean fullscreen;
 	protected boolean modal;
 	protected boolean restoreFullscreen;
-
+	protected int[] orientationModes;
+	
 	protected TiViewProxy tabGroup;
 	protected TiViewProxy tab;
 	protected boolean inTab;
@@ -170,6 +174,30 @@ public abstract class TiWindowProxy extends TiViewProxy
 
 	public KrollDict handleToImage() {
 		return TiUIHelper.viewToImage(getTiContext(), getTiContext().getActivity().getWindow().getDecorView());
+	}
+	
+	@Kroll.method @Kroll.setProperty
+	public void setOrientationModes(int[] modes) {
+		orientationModes = modes;
+	}
+	
+	@Kroll.method @Kroll.getProperty
+	public int[] getOrientationModes() {
+		return orientationModes;
+	}
+	
+	public boolean isOrientationMode(int orientation) {
+		if (orientationModes.length == 0) return true;
+		
+		boolean allowOrientationChange = false;
+		int currentMode = TiUIHelper.convertToTiOrientation(orientation);
+		for (int mode : orientationModes) {
+			if (mode == currentMode) {
+				allowOrientationChange = true;
+				break;
+			}
+		}
+		return allowOrientationChange;
 	}
 	
 	protected abstract void handleOpen(KrollDict options);

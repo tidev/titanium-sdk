@@ -17,6 +17,7 @@ import org.appcelerator.titanium.kroll.KrollCallback;
 import org.appcelerator.titanium.kroll.KrollContext;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
+import org.appcelerator.titanium.util.TiConvert;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -253,6 +254,39 @@ public class KrollConverter implements KrollNativeConverter,
 		}
 	}
 	
+	public Object convertArray(KrollInvocation invocation, Object[] array, Class<?> target) {
+		if (target.isArray()) {
+			// Handle casting native / box type arrays
+			Object converted = null;
+			Class<?> componentType = target.getComponentType();
+			if (!componentType.equals(Object.class)) {
+				if (componentType.equals(int.class)) {
+					converted = new int[array.length];
+				} else if (componentType.equals(Integer.class)) {
+					converted = new Integer[array.length];
+				} else if (componentType.equals(double.class)) {
+					converted = new double[array.length];
+				} else if (componentType.equals(Double.class)) {
+					converted = new Double[array.length];
+				} else if (componentType.equals(String.class)) {
+					converted = new String[array.length];
+				}
+				if (converted != null) {
+					for (int i = 0; i < array.length; i++) {
+						Array.set(converted, i, convertJavascript(invocation, array[i], componentType));
+					}
+					return converted;
+				}
+			}
+		}
+		
+		Object[] newValues = new Object[array.length];
+		for(int i = 0; i < array.length; i++) {
+			newValues[i] = convertJavascript(invocation, array[i], Object.class);
+		}
+		return newValues;
+	}
+	
 	public Object convertJavascript(KrollInvocation invocation, Object value, Class<?> target) {
 		if (value instanceof Scriptable) {
 			return convertScriptable(invocation, (Scriptable)value);
@@ -264,12 +298,7 @@ public class KrollConverter implements KrollNativeConverter,
 			return KrollProxy.UNDEFINED;
 		} else {
 			if (value.getClass().isArray()) {
-				Object[] values = (Object[]) value;
-				Object[] newValues = new Object[values.length];
-				for(int i = 0; i < values.length; i++) {
-					newValues[i] = convertJavascript(invocation, values[i], Object.class);
-				}
-				return newValues;
+				return convertArray(invocation, (Object[])value, target);
 			} else {
 				Log.w(TAG, "Unhandled type conversion: value: " + value.toString() + " type: " + value.getClass().getName() + ", invocation: " + invocation);
 			}

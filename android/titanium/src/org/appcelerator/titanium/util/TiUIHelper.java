@@ -20,6 +20,7 @@ import java.util.regex.Pattern;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
+import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.view.TiUIView;
@@ -29,6 +30,8 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
+import android.content.pm.ActivityInfo;
+import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.CompressFormat;
 import android.graphics.Bitmap.Config;
@@ -56,6 +59,13 @@ public class TiUIHelper
 	private static final String LCAT = "TiUIHelper";
 	private static final boolean DBG = TiConfig.LOGD;
 
+	public static final int PORTRAIT = 1;
+	public static final int UPSIDE_PORTRAIT = 2;
+	public static final int LANDSCAPE_LEFT = 3;
+	public static final int LANDSCAPE_RIGHT = 4;
+	public static final int FACE_UP = 5;
+	public static final int FACE_DOWN = 6;
+	public static final int UNKNOWN = 7;
 	public static final Pattern SIZED_VALUE = Pattern.compile("([0-9]*\\.?[0-9]+)\\W*(px|dp|dip|sp|sip|mm|pt|in)?");
 
 	private static Method overridePendingTransition;
@@ -665,5 +675,28 @@ public class TiUIHelper
 				imm.hideSoftInputFromWindow(view.getWindowToken(), useForce ? 0 : InputMethodManager.HIDE_IMPLICIT_ONLY);
 			}
 		}
+	}
+	
+	public static int convertToAndroidOrientation(int orientation) {
+		switch (orientation) {
+			case LANDSCAPE_LEFT :
+			case LANDSCAPE_RIGHT :
+				return ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE;
+			case PORTRAIT :
+			case UPSIDE_PORTRAIT :
+				return ActivityInfo.SCREEN_ORIENTATION_PORTRAIT;
+		}
+		return ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED;
+	}
+	
+	public static int convertToTiOrientation(int orientation) {
+		switch(orientation)
+		{
+			case Configuration.ORIENTATION_LANDSCAPE :
+				return LANDSCAPE_LEFT;
+			case Configuration.ORIENTATION_PORTRAIT :
+				return PORTRAIT;
+		}
+		return UNKNOWN;
 	}
 }

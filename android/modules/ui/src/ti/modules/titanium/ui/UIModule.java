@@ -11,6 +11,7 @@ import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.TiConvert;
+import org.appcelerator.titanium.util.TiUIHelper;
 
 import android.app.Activity;
 import android.content.pm.ActivityInfo;
@@ -69,13 +70,13 @@ public class UIModule extends KrollModule
 	@Kroll.constant public static final String TEXT_VERTICAL_ALIGNMENT_CENTER = "middle";
 	@Kroll.constant public static final String TEXT_VERTICAL_ALIGNMENT_TOP = "top";
 	
-	@Kroll.constant public static final int PORTRAIT = 1;
-	@Kroll.constant public static final int UPSIDE_PORTRAIT = 2;
-	@Kroll.constant public static final int LANDSCAPE_LEFT = 3;
-	@Kroll.constant public static final int LANDSCAPE_RIGHT = 4;
-	@Kroll.constant public static final int FACE_UP = 5;
-	@Kroll.constant public static final int FACE_DOWN = 6;
-	@Kroll.constant public static final int UNKNOWN = 7;
+	@Kroll.constant public static final int PORTRAIT = TiUIHelper.PORTRAIT;
+	@Kroll.constant public static final int UPSIDE_PORTRAIT = TiUIHelper.UPSIDE_PORTRAIT;
+	@Kroll.constant public static final int LANDSCAPE_LEFT = TiUIHelper.LANDSCAPE_LEFT;
+	@Kroll.constant public static final int LANDSCAPE_RIGHT = TiUIHelper.LANDSCAPE_RIGHT;
+	@Kroll.constant public static final int FACE_UP = TiUIHelper.FACE_UP;
+	@Kroll.constant public static final int FACE_DOWN = TiUIHelper.FACE_DOWN;
+	@Kroll.constant public static final int UNKNOWN = TiUIHelper.UNKNOWN;
 	
 	@Kroll.constant public static final int PICKER_TYPE_PLAIN = -1;
 	@Kroll.constant public static final int PICKER_TYPE_TIME = 0;
@@ -128,5 +129,4 @@ public class UIModule extends KrollModule
 		setProperty("orientation", null);
 		//internalSetDynamicValue("orientation", null, false);
 	}
-
 }

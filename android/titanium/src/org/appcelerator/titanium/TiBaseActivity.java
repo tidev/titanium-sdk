@@ -1,11 +1,10 @@
 package org.appcelerator.titanium;
 
 import java.lang.ref.SoftReference;
+import java.lang.reflect.Array;
 
 import org.appcelerator.kroll.KrollDict;
-import org.appcelerator.titanium.kroll.KrollCallback;
 import org.appcelerator.titanium.proxy.ActivityProxy;
-import org.appcelerator.titanium.proxy.IntentProxy;
 import org.appcelerator.titanium.proxy.TiWindowProxy;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiActivityResultHandler;
@@ -19,6 +18,7 @@ import org.appcelerator.titanium.view.TiCompositeLayout;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -52,6 +52,16 @@ public class TiBaseActivity extends Activity
 	public void setWindowProxy(TiWindowProxy proxy) {
 		this.window = proxy;
 		updateTitle();
+		if (proxy != null) {
+			// This forces orientation so that it won't change unless it's allowed
+			// when using the "orientationModes" property
+			int orientation = getResources().getConfiguration().orientation;
+			if (proxy.isOrientationMode(orientation)) {
+				setRequestedOrientation(orientation);
+			} else if (proxy.getOrientationModes().length > 0) {
+				setRequestedOrientation(proxy.getOrientationModes()[0]);
+			}
+		}
 	}
 	
 	public void setActivityProxy(ActivityProxy proxy) {
@@ -352,6 +362,20 @@ public class TiBaseActivity extends Activity
 			}
 		}
 		return super.onPrepareOptionsMenu(menu);
+	}
+	
+	@Override
+	public void onConfigurationChanged(Configuration newConfig) {
+		super.onConfigurationChanged(newConfig);
+		if (DBG) {
+			Log.d(TAG, "configuration changed, orientation: " + newConfig.orientation + ", screenLayout: " + newConfig.screenLayout);
+		}
+		
+		if (window != null) {
+			if (window.isOrientationMode(newConfig.orientation)) {
+				setRequestedOrientation(newConfig.orientation);
+			}
+		}
 	}
 
 	@Override

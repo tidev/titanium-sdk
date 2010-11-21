@@ -13,6 +13,7 @@ import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.ContextSpecific;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiContext.OnConfigurationChanged;
+import org.appcelerator.titanium.util.TiUIHelper;
 
 import ti.modules.titanium.ui.UIModule;
 import android.content.res.Configuration;
@@ -61,7 +62,7 @@ public class GestureModule extends KrollModule
 	public void configurationChanged(Configuration newConfig)
 	{
 		KrollDict data = new KrollDict();
-		data.put("orientation", convertToTiOrientation(newConfig.orientation));
+		data.put("orientation", TiUIHelper.convertToTiOrientation(newConfig.orientation));
 		fireEvent(EVENT_ONCONFIGCHANGE, data);
 	}
 
@@ -81,23 +82,7 @@ public class GestureModule extends KrollModule
 
 	@Kroll.getProperty @Kroll.method
 	public int getOrientation() {
-		return convertToTiOrientation(getConfiguration().orientation);
-	}
-
-	private int convertToTiOrientation(int orientation) {
-		int result = UIModule.UNKNOWN;
-
-		switch(orientation)
-		{
-			case Configuration.ORIENTATION_LANDSCAPE :
-				result = UIModule.LANDSCAPE_LEFT;
-				break;
-			case Configuration.ORIENTATION_PORTRAIT :
-				result = UIModule.PORTRAIT;
-				break;
-		}
-
-		return result;
+		return TiUIHelper.convertToTiOrientation(getConfiguration().orientation);
 	}
 
 	@Override
