@@ -6,15 +6,12 @@
  */
 package org.appcelerator.titanium.proxy;
 
-import java.lang.reflect.Array;
-
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.AsyncResult;
 import org.appcelerator.titanium.util.TiConfig;
-import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiAnimation;
 import org.appcelerator.titanium.view.TiUIView;
@@ -40,7 +37,7 @@ public abstract class TiWindowProxy extends TiViewProxy
 	protected boolean fullscreen;
 	protected boolean modal;
 	protected boolean restoreFullscreen;
-	protected int[] orientationModes;
+	protected int[] orientationModes = new int[0];
 	
 	protected TiViewProxy tabGroup;
 	protected TiViewProxy tab;
