@@ -15,10 +15,15 @@
 #import "Webcolor.h"
 #import "ImageLoader.h"
 
+#import <libkern/OSAtomic.h>
+
 NSString * const defaultRowTableClass = @"_default_";
 #define CHILD_ACCESSORY_WIDTH 20.0
 #define CHECK_ACCESSORY_WIDTH 20.0
 #define DETAIL_ACCESSORY_WIDTH 33.0
+
+// TODO: Clean this up a bit
+#define NEEDS_UPDATE_ROW 1
 
 static void addRoundedRectToPath(CGContextRef context, CGRect rect,
 								 float ovalWidth,float ovalHeight)
@@ -842,12 +847,24 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 	}
 }
 
--(void)triggerRowUpdate
+-(void)updateRow:(TiUITableViewAction*)action
 {
+	OSAtomicTestAndClearBarrier(NEEDS_UPDATE_ROW, &dirtyRowFlags);
+	[table dispatchAction:action];
+}
+
+-(void)triggerRowUpdate
+{	
 	if ([self isAttached] && !modifyingRow && !attaching)
 	{
-		TiUITableViewAction *action = [[[TiUITableViewAction alloc] initWithObject:self animation:nil type:TiUITableViewActionRowReload] autorelease];
-		[table dispatchAction:action];
+		if (OSAtomicTestAndSetBarrier(NEEDS_UPDATE_ROW, &dirtyRowFlags)) {
+			return;
+		}
+		
+		TiUITableViewAction *action = [[[TiUITableViewAction alloc] initWithObject:self 
+																		 animation:nil 
+																			  type:TiUITableViewActionRowReload] autorelease];
+		[self performSelectorOnMainThread:@selector(updateRow:) withObject:action waitUntilDone:NO];
 	}
 }
 
@@ -951,7 +968,7 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 	if (TableViewRowProperties==nil)
 	{
 		TableViewRowProperties = [[NSSet alloc] initWithObjects:
-					@"title", @"backgroundColor",@"backgroundImage",
+					@"title", @"backgroundImage",
 					@"leftImage",@"hasDetail",@"hasCheck",@"hasChild",	
 					@"indentionLevel",@"selectionStyle",@"color",@"selectedColor",
 					@"height",@"width",

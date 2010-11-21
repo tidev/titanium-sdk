@@ -29,7 +29,8 @@ typedef enum
 	TiUITableViewSectionProxy *section;
 	TiDimension height;
 	BOOL configuredChildren;
-	
+	int dirtyRowFlags;
+	BOOL subviewIsAnimating;
 	UIView * rowContainerView;
 	BOOL modifyingRow;
 	BOOL attaching;
