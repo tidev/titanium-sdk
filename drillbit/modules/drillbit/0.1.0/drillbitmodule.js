@@ -729,9 +729,9 @@ Drillbit.prototype.runTest = function(entry)
 	});
 	
 	var stagedFiles = this.stageTest(entry);
-	if (typeof(this.mobileRepository) != 'undefined') {
+	/*if (typeof(this.mobileRepository) != 'undefined') {
 		stagedFiles = stagedFiles.concat(this.stageSDK());
-	}
+	}*/
 	
 	var profilePath = ti.fs.getFile(this.resultsDir, entry.name+'.prof');
 	var logPath = ti.fs.getFile(this.resultsDir, entry.name+'.log');

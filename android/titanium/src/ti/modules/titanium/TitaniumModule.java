@@ -356,24 +356,14 @@ public class TitaniumModule extends KrollModule implements TiContext.OnLifecycle
 	}
 	
 	@Override
-	public void onDestroy() {
+	public void onDestroy(Activity activity) {
 		cancelTimers();
+		super.onDestroy(activity);
 	}
 	
 	@Override
-	public void onStop() {
+	public void onStop(Activity activity) {
 		cancelTimers();
-	}
-	
-	@Override
-	public void onStart() {
-	}
-	
-	@Override
-	public void onPause() {	
-	}
-	
-	@Override
-	public void onResume() {
+		super.onStop(activity);
 	}
 }

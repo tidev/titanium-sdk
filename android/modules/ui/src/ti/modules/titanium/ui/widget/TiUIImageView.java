@@ -17,8 +17,8 @@ import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiContext;
-import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.TiContext.OnLifecycleEvent;
+import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.AsyncResult;
 import org.appcelerator.titanium.util.Log;
@@ -30,6 +30,7 @@ import org.appcelerator.titanium.view.TiDrawableReference;
 import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.filesystem.FileProxy;
+import android.app.Activity;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
@@ -561,21 +562,21 @@ public class TiUIImageView extends TiUIView
 	}
 
 
-	public void onDestroy() {
+	public void onDestroy(Activity activity) {
 	}
 
-	public void onPause() {
+	public void onPause(Activity activity) {
 		pause();
 	}
 
-	public void onResume() {
+	public void onResume(Activity activity) {
 		resume();
 	}
 
-	public void onStart() {
+	public void onStart(Activity activity) {
 	}
 
-	public void onStop() {
+	public void onStop(Activity activity) {
 		stop();
 	}
 

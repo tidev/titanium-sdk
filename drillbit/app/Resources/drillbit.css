@@ -7,7 +7,7 @@ body, td {
 	margin:2px;
 }
 
-a {
+a, label {
 	color: #cc9;
 	font-weight: bold;
 }
@@ -18,16 +18,15 @@ a.disabled {
 	text-decoration: none;
 }
 
-#actions,#passed-count, #failed-count, #assertion-count, #test-count
-{
-	float: left;
-	width: 150px;
-	margin-bottom: 3px;
-	font-size: 12px;
+#results {
+	margin-top: 5px;
 }
 
-#actions {
-	width: 165px;
+#passed-count, #failed-count, #assertion-count, #test-count {
+	float: left;
+	margin-bottom: 3px;
+	font-size: 12px;
+	width: 150px;
 }
 
 #current-test

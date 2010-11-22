@@ -156,7 +156,7 @@ public class ViewProxy extends TiViewProxy
 		}
 	}
 
-	public void onDestroy() {
+	public void onDestroy(Activity activity) {
 		if (lam != null && !destroyed) {
 			destroyed = true;
 			lam.dispatchDestroy(true);
@@ -165,22 +165,22 @@ public class ViewProxy extends TiViewProxy
 		mapWindow = null;
 	}
 
-	public void onPause() {
+	public void onPause(Activity activity) {
 		if (lam != null) {
 			lam.dispatchPause(false);
 		}
 	}
 
-	public void onResume() {
+	public void onResume(Activity activity) {
 		if (lam != null) {
 			lam.dispatchResume();
 		}
 	}
 
-	public void onStart() {
+	public void onStart(Activity activity) {
 	}
 
-	public void onStop() {
+	public void onStop(Activity activity) {
 		if (lam != null) {
 			lam.dispatchStop();
 		}
@@ -190,6 +190,6 @@ public class ViewProxy extends TiViewProxy
 	public void releaseViews()
 	{
 		super.releaseViews();
-		onDestroy(); 
+		onDestroy(null);
 	}
 }

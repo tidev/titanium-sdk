@@ -20,7 +20,6 @@ import java.util.regex.Pattern;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
-import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.view.TiUIView;
@@ -50,6 +49,7 @@ import android.os.Build;
 import android.os.Process;
 import android.util.TypedValue;
 import android.view.Gravity;
+import android.view.OrientationEventListener;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.TextView;
@@ -692,10 +692,30 @@ public class TiUIHelper
 	public static int convertToTiOrientation(int orientation) {
 		switch(orientation)
 		{
-			case Configuration.ORIENTATION_LANDSCAPE :
+			case Configuration.ORIENTATION_LANDSCAPE:
+			case ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE:
 				return LANDSCAPE_LEFT;
-			case Configuration.ORIENTATION_PORTRAIT :
+			case Configuration.ORIENTATION_PORTRAIT:
+			// == case ActivityInfo.SCREEN_ORIENTATION_PORTRAIT:
 				return PORTRAIT;
+		}
+		return UNKNOWN;
+	}
+	
+	public static int convertToTiOrientation(int orientation, int degrees) {
+		if (degrees == OrientationEventListener.ORIENTATION_UNKNOWN) {
+			return convertToTiOrientation(orientation);
+		}
+		switch (orientation) {
+		case Configuration.ORIENTATION_LANDSCAPE:
+		case ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE:
+			if (degrees >= 270 && degrees <= 360) {
+				return LANDSCAPE_LEFT;
+			} else {
+				return LANDSCAPE_RIGHT;
+			}
+		case Configuration.ORIENTATION_PORTRAIT:
+			return PORTRAIT;
 		}
 		return UNKNOWN;
 	}

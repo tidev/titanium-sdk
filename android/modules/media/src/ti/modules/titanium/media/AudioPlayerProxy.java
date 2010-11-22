@@ -16,6 +16,7 @@ import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiConvert;
 
 import ti.modules.titanium.filesystem.FileProxy;
+import android.app.Activity;
 
 @Kroll.proxy(creatableInModule=MediaModule.class)
 public class AudioPlayerProxy extends KrollProxy
@@ -143,10 +144,10 @@ public class AudioPlayerProxy extends KrollProxy
 		return allow;
 	}
 
-	public void onStart() {
+	public void onStart(Activity activity) {
 	}
 
-	public void onResume() {
+	public void onResume(Activity activity) {
 		if (!allowBackground()) {
 			if (snd != null) {
 				snd.onResume();
@@ -154,7 +155,7 @@ public class AudioPlayerProxy extends KrollProxy
 		}
 	}
 
-	public void onPause() {
+	public void onPause(Activity activity) {
 		if (!allowBackground()) {
 			if (snd != null) {
 				snd.onPause();
@@ -162,10 +163,10 @@ public class AudioPlayerProxy extends KrollProxy
 		}
 	}
 
-	public void onStop() {
+	public void onStop(Activity activity) {
 	}
 
-	public void onDestroy() {
+	public void onDestroy(Activity activity) {
 		if (snd != null) {
 			snd.onDestroy();
 		}
