@@ -210,7 +210,7 @@ public class KrollProxy implements Handler.Callback, OnEventListenerChange, Krol
 		if (value != UNDEFINED && value instanceof KrollMethod) {
 			KrollMethod method = (KrollMethod) value;
 			KrollInvocation inv = KrollInvocation.createMethodInvocation(
-					getTiContext(), scope, new KrollObject(this), name, method, this);
+				TiContext.getCurrentTiContext(), scope, new KrollObject(this), name, method, this);
 
 			return method.invoke(inv, args);
 		} else
@@ -222,7 +222,7 @@ public class KrollProxy implements Handler.Callback, OnEventListenerChange, Krol
 			KrollProperty dynprop) throws NoSuchFieldException {
 		if (dynprop.supportsGet(name)) {
 			KrollInvocation inv = KrollInvocation.createPropertyGetInvocation(
-					getTiContext(), scope, new KrollObject(this), name, dynprop, this);
+				TiContext.getCurrentTiContext(), scope, new KrollObject(this), name, dynprop, this);
 			return dynprop.get(inv, name);
 		} else {
 			throw new NoSuchFieldException("dynamic property \"" + name
@@ -236,7 +236,7 @@ public class KrollProxy implements Handler.Callback, OnEventListenerChange, Krol
 			throws NoSuchFieldException {
 		if (dynprop.supportsSet(name)) {
 			KrollInvocation inv = KrollInvocation.createPropertySetInvocation(
-					getTiContext(), scope, new KrollObject(this), name, dynprop, this);
+				TiContext.getCurrentTiContext(), scope, new KrollObject(this), name, dynprop, this);
 			dynprop.set(inv, name, value);
 		} else {
 			throw new NoSuchFieldException("dynamic property \"" + name
@@ -518,7 +518,7 @@ public class KrollProxy implements Handler.Callback, OnEventListenerChange, Krol
 	// / Events
 
 	@Kroll.method
-	public int addEventListener(String eventName, Object listener) {
+	public int addEventListener(KrollInvocation invocation, String eventName, Object listener) {
 		int listenerId = -1;
 
 		if (DBG) {
@@ -531,7 +531,7 @@ public class KrollProxy implements Handler.Callback, OnEventListenerChange, Krol
 	}
 
 	@Kroll.method
-	public void removeEventListener(String eventName, Object listener) {
+	public void removeEventListener(KrollInvocation invocation, String eventName, Object listener) {
 		eventManager.removeEventListener(eventName, listener);
 	}
 

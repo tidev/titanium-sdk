@@ -9,6 +9,7 @@ package ti.modules.titanium.ui;
 import org.appcelerator.kroll.KrollInvocation;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
+import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUIHelper;
@@ -123,7 +124,11 @@ public class UIModule extends KrollModule
 		
 		Activity activity = invocation.getTiContext().getActivity();
 		if (activity != null) {
-			activity.setRequestedOrientation(requestedOrientation);
+			if (activity instanceof TiBaseActivity) {
+				((TiBaseActivity)activity).overrideOrientation(requestedOrientation);
+			} else {
+				activity.setRequestedOrientation(requestedOrientation);
+			}
 		}
 		// null out the value so a call to set will result in the orientation being set.
 		setProperty("orientation", null);

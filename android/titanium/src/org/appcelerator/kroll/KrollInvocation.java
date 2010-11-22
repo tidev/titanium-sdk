@@ -13,6 +13,8 @@ import java.util.List;
 import org.appcelerator.titanium.TiContext;
 import org.mozilla.javascript.Scriptable;
 
+import android.app.Activity;
+
 public class KrollInvocation {
 
 	protected Scriptable scope, thisObj;
@@ -164,6 +166,13 @@ public class KrollInvocation {
 
 	public TiContext getTiContext() {
 		return tiContext;
+	}
+	
+	public Activity getActivity() {
+		if (tiContext == null) {
+			return null;
+		}
+		return tiContext.getActivity();
 	}
 
 	public boolean isMethod() {
