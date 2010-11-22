@@ -14,6 +14,8 @@ import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiContext.OnLifecycleEvent;
 
+import android.app.Activity;
+
 @Kroll.module
 public class KrollModule extends KrollProxy
 	implements KrollProxyListener, OnLifecycleEvent
@@ -97,23 +99,23 @@ public class KrollModule extends KrollProxy
 	}
 	
 	@Override
-	public void onResume() {
+	public void onResume(Activity activity) {
 	}
 
 	@Override
-	public void onPause() {
+	public void onPause(Activity activity) {
 	}
 	
 	@Override
-	public void onDestroy() {
+	public void onDestroy(Activity activity) {
 	}
 	
 	@Override
-	public void onStart() {
+	public void onStart(Activity activity) {
 	}
 	
 	@Override
-	public void onStop() {	
+	public void onStop(Activity activity) {	
 	}
 	
 	@Override

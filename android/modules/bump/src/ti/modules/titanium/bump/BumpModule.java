@@ -194,47 +194,28 @@ public class BumpModule extends KrollModule implements TiActivityResultHandler, 
 					this.fireEvent("error", eventData);
 				}
 				
-				Log.e(LCAT, "--- Failed to connect (" + reason.toString() + ")---");				
+				Log.e(LCAT, "--- Failed to connect (" + reason.toString() + ")---");
 			} catch (Exception e) {
 				// TODO: handle exception
-				Log.e(LCAT, "--- Error: " + e.getMessage() + " ---");				
+				Log.e(LCAT, "--- Error: " + e.getMessage() + " ---");
 			}
 		}
 	}
 	
 	@Override
-	public void onStop() {
+	public void onStop(Activity activity) {
 		
 		if (conn != null) {
 			conn.disconnect();
 			conn = null;
 		}
 
-		super.onStop();
+		super.onStop(activity);
 		
 		if (DBG) {
 			Log.i(LCAT, "--- onStop ");			
 		}
 		
-	}	
-		
-	
-	@Override
-	public void onResume() {
-		super.onResume();
-		
-		if (DBG) {
-			Log.i(LCAT, "--- onResume ");
-		}
-	}
-
-	@Override
-	public void onPause() {
-		//super.onPause();
-		
-		if (DBG) {
-			Log.i(LCAT, "--- onPause ");
-		}
 	}
 
 	@Override

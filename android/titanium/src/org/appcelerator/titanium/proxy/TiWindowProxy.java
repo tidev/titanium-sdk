@@ -9,8 +9,10 @@ package org.appcelerator.titanium.proxy;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
+import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.AsyncResult;
+import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiAnimation;
@@ -176,6 +178,12 @@ public abstract class TiWindowProxy extends TiViewProxy
 	@Kroll.method @Kroll.setProperty
 	public void setOrientationModes(int[] modes) {
 		orientationModes = modes;
+		
+		Activity activity = handleGetActivity();
+		if (activity instanceof TiBaseActivity) {
+			TiBaseActivity tiActivity = (TiBaseActivity) activity;
+			tiActivity.updateOrientation();
+		}
 	}
 	
 	@Kroll.method @Kroll.getProperty

@@ -130,6 +130,14 @@ public class ActivityProxy extends KrollProxy
 		return intentProxy;
 	}
 	
+	@Kroll.method @Kroll.setProperty
+	public void setRequestedOrientation(KrollInvocation invocation, int orientation) {
+		Activity activity = getActivity(invocation);
+		if (activity != null) {
+			activity.setRequestedOrientation(orientation);
+		}
+	}
+	
 	@Override
 	public void onResult(Activity activity, int requestCode, int resultCode, Intent data) {
 		if (resultCallback == null) return;

@@ -289,7 +289,7 @@ public class TiRootActivity extends ActivityGroup
 		super.onStart();
 
 		if (tiContext != null) {
-			tiContext.dispatchOnStart();
+			tiContext.dispatchOnStart(this);
 		}
 	}
 
@@ -310,7 +310,7 @@ public class TiRootActivity extends ActivityGroup
 		super.onResume();
 		Log.checkpoint("checkpoint, on root activity resume. context = " + tiContext);
 		if (tiContext != null) {
-			tiContext.dispatchOnResume();
+			tiContext.dispatchOnResume(this);
 		} else {
 			// No context, we have a launch problem.
 			TiProperties systemProperties = getTiApp().getSystemProperties();
@@ -355,7 +355,7 @@ public class TiRootActivity extends ActivityGroup
 			PendingIntent pi = PendingIntent.getActivity(getApplicationContext(), 0, relaunch, PendingIntent.FLAG_ONE_SHOT);
 			am.set(AlarmManager.RTC, System.currentTimeMillis() + delay, pi);
 		}
-		finish();						
+		finish();
 	}
 	
 	@Override
@@ -366,7 +366,7 @@ public class TiRootActivity extends ActivityGroup
 		}
 		
 		if (tiContext != null) {
-			tiContext.dispatchOnPause();
+			tiContext.dispatchOnPause(this);
 		} else {
 			// Not in a good state. Let's get out.
 			if (b2373Alert != null && b2373Alert.isShowing()) {
@@ -382,7 +382,7 @@ public class TiRootActivity extends ActivityGroup
 		super.onStop();
 
 		if (tiContext != null) {
-			tiContext.dispatchOnStop();
+			tiContext.dispatchOnStop(this);
 		}
 	}
 
@@ -395,7 +395,7 @@ public class TiRootActivity extends ActivityGroup
 		
 		tiContext.getTiApp().releaseModules();
 		if (tiContext != null) {
-			tiContext.dispatchOnDestroy();
+			tiContext.dispatchOnDestroy(this);
 			tiContext.release();
 		}
 	}
