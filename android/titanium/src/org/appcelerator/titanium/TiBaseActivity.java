@@ -1,11 +1,10 @@
 package org.appcelerator.titanium;
 
 import java.lang.ref.SoftReference;
+import java.lang.ref.WeakReference;
 
 import org.appcelerator.kroll.KrollDict;
-import org.appcelerator.titanium.kroll.KrollCallback;
 import org.appcelerator.titanium.proxy.ActivityProxy;
-import org.appcelerator.titanium.proxy.IntentProxy;
 import org.appcelerator.titanium.proxy.TiWindowProxy;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiActivityResultHandler;
@@ -14,19 +13,25 @@ import org.appcelerator.titanium.util.TiActivitySupportHelper;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUIHelper;
+import org.appcelerator.titanium.util.TiWeakList;
 import org.appcelerator.titanium.view.ITiWindowHandler;
 import org.appcelerator.titanium.view.TiCompositeLayout;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
+import android.view.Display;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.OrientationEventListener;
+import android.view.Surface;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -44,7 +49,15 @@ public class TiBaseActivity extends Activity
 	protected SoftReference<ITiMenuDispatcherListener> softMenuDispatcher;
 	protected boolean mustFireInitialFocus;
 	protected Handler handler;
-
+	protected TiWeakList<ConfigurationChangedListener> configChangedListeners = new TiWeakList<ConfigurationChangedListener>();
+	protected OrientationEventListener orientationListener;
+	protected int orientationDegrees;
+	protected int orientationOverride = -1;
+	
+	public static interface ConfigurationChangedListener {
+		public void onConfigurationChanged(TiBaseActivity activity, Configuration newConfig);
+	}
+	
 	public TiApplication getTiApp() {
 		return (TiApplication) getApplication();
 	}
@@ -52,6 +65,21 @@ public class TiBaseActivity extends Activity
 	public void setWindowProxy(TiWindowProxy proxy) {
 		this.window = proxy;
 		updateTitle();
+		updateOrientation();
+	}
+	
+	public void updateOrientation() {
+		if (window == null) return;
+		// This forces orientation so that it won't change unless it's allowed
+		// when using the "orientationModes" property
+		if (window.getOrientationModes().length > 0) {
+			int orientation = getResources().getConfiguration().orientation;
+			if (window.isOrientationMode(orientation)) {
+				setRequestedOrientation(orientation);
+			} else {
+				setRequestedOrientation(TiUIHelper.convertToAndroidOrientation(window.getOrientationModes()[0]));
+			}
+		}
 	}
 	
 	public void setActivityProxy(ActivityProxy proxy) {
@@ -60,6 +88,14 @@ public class TiBaseActivity extends Activity
 
 	public TiCompositeLayout getLayout() {
 		return layout;
+	}
+	
+	public void addConfigurationChangedListener(ConfigurationChangedListener listener) {
+		configChangedListeners.add(new WeakReference<ConfigurationChangedListener>(listener));
+	}
+	
+	public void removeConfigurationChangedListener(ConfigurationChangedListener listener) {
+		configChangedListeners.remove(listener);
 	}
 	
 	protected boolean getIntentBoolean(String property, boolean defaultValue) {
@@ -160,6 +196,13 @@ public class TiBaseActivity extends Activity
 		if (DBG) {
 			Log.d(TAG, "Activity onCreate");
 		}
+		orientationListener = new OrientationEventListener(this) {
+			@Override
+			public void onOrientationChanged(int orientation) {
+				TiBaseActivity.this.onOrientationChanged(orientation);
+			}
+		};
+		orientationListener.enable();
 		
 		layout = createLayout();
 		super.onCreate(savedInstanceState);
@@ -353,6 +396,63 @@ public class TiBaseActivity extends Activity
 		}
 		return super.onPrepareOptionsMenu(menu);
 	}
+	
+	public int getOrientationDegrees() {
+		return orientationDegrees;
+	}
+	
+	public void overrideOrientation(int orientation) {
+		// override the orientation until it's matched, then go back to detecting
+		// this matches iPhone's behavior (hoop -> jump)
+		orientationOverride = orientation;
+		setRequestedOrientation(orientation);
+	}
+	
+	protected void onOrientationChanged(int degrees) {
+		// once setRequestedOrientation is called, onConfigurationChanged is no longer called
+		// with new orientation changes from the OS. OrientationEventListener goes through
+		// the SensorManager directly, and allows us to reset correctly
+		orientationDegrees = degrees;
+		if (degrees != OrientationEventListener.ORIENTATION_UNKNOWN) {
+			if (window != null) {
+				if (window.getOrientationModes().length > 0) {
+					int currentOrientation;
+					if (degrees >= 225 && degrees < 315) {
+						// disable "landscape left", there's no way to forcefully set it
+						//|| (degrees >= 45 && degrees < 135)) {
+						currentOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE;
+					} else {
+						currentOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT;
+					}
+					
+					if (orientationOverride != -1) {
+						if (orientationOverride != currentOrientation) {
+							return;
+						} else {
+							// the override has been be matched, switch it off to return to normal orientation tracking
+							orientationOverride = -1;
+						}
+					}
+					
+					if (window.isOrientationMode(currentOrientation)) {
+						setRequestedOrientation(currentOrientation);
+					} else {
+						setRequestedOrientation(TiUIHelper.convertToAndroidOrientation(window.getOrientationModes()[0]));
+					}
+				}
+			}
+		}
+	}
+	
+	@Override
+	public void onConfigurationChanged(Configuration newConfig) {
+		super.onConfigurationChanged(newConfig);
+		for (WeakReference<ConfigurationChangedListener> listener : configChangedListeners) {
+			if (listener.get() != null) {
+				listener.get().onConfigurationChanged(this, newConfig);
+			}
+		}
+	}
 
 	@Override
 	protected void onPause() {
@@ -430,6 +530,9 @@ public class TiBaseActivity extends Activity
 			activityProxy.fireEvent("destroy", null);
 			activityProxy.release();
 			activityProxy = null;
+		}
+		if (orientationListener != null) {
+			orientationListener.disable();
 		}
 		handler = null;
 	}

@@ -6,117 +6,103 @@
  */
 package ti.modules.titanium.gesture;
 
+import java.lang.ref.WeakReference;
+
 import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollInvocation;
 import org.appcelerator.kroll.KrollModule;
-import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.ContextSpecific;
+import org.appcelerator.titanium.TiBaseActivity;
+import org.appcelerator.titanium.TiBaseActivity.ConfigurationChangedListener;
 import org.appcelerator.titanium.TiContext;
-import org.appcelerator.titanium.TiContext.OnConfigurationChanged;
+import org.appcelerator.titanium.util.TiUIHelper;
+import org.appcelerator.titanium.util.TiWeakList;
 
-import ti.modules.titanium.ui.UIModule;
+import android.app.Activity;
+import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 
 @Kroll.module @ContextSpecific
 public class GestureModule extends KrollModule
-	implements OnConfigurationChanged
+	implements ConfigurationChangedListener
 {
 	public static final String EVENT_ONCONFIGCHANGE = "orientationchange";
 
-	protected boolean listeningForOrientation;
+	protected TiWeakList<TiBaseActivity> activities = new TiWeakList<TiBaseActivity>();
 
-	public GestureModule(TiContext tiContext)
-	{
+	public GestureModule(TiContext tiContext) {
 		super(tiContext);
-		listeningForOrientation = false;
 		eventManager.addOnEventChangeListener(this);
 	}
 
 	@Override
-	public void listenerAdded(String type, int count, KrollProxy proxy)
-	{
-		super.listenerAdded(type, count, proxy);
-
-		if (type != null && EVENT_ONCONFIGCHANGE.equals(type)) {
-			if (!listeningForOrientation) {
-				getTiContext().setOnConfigurationChangedListener(this);
-				listeningForOrientation = true;
+	public int addEventListener(KrollInvocation invocation, String eventName, Object listener) {
+		if (EVENT_ONCONFIGCHANGE.equals(eventName)) {
+			Activity activity = invocation.getTiContext().getActivity();
+			if (activity instanceof TiBaseActivity) {
+				TiBaseActivity tiActivity = (TiBaseActivity) activity;
+				tiActivity.addConfigurationChangedListener(this);
+				activities.add(new WeakReference<TiBaseActivity>(tiActivity));
 			}
 		}
+		return super.addEventListener(invocation, eventName, listener);
+	}
+	
+	@Override
+	public void removeEventListener(KrollInvocation invocation, String eventName, Object listener) {
+		if (EVENT_ONCONFIGCHANGE.equals(eventName) && activities.size() > 0) {
+			Activity activity = invocation.getTiContext().getActivity();
+			if (activity instanceof TiBaseActivity) {
+				TiBaseActivity tiActivity = (TiBaseActivity)activity;
+				tiActivity.removeConfigurationChangedListener(this);
+				activities.remove(tiActivity);
+			}
+		}
+		super.removeEventListener(invocation, eventName, listener);
 	}
 
 	@Override
-	public void listenerRemoved(String type, int count, KrollProxy proxy)
-	{
-		super.listenerRemoved(type, count, proxy);
-		if (type != null && EVENT_ONCONFIGCHANGE.equals(this)) {
-			if (count == 0) {
-				getTiContext().setOnConfigurationChangedListener(null);
-				listeningForOrientation = false;
-			}
-		}
-	}
-
-	@Override
-	public void configurationChanged(Configuration newConfig)
-	{
+	public void onConfigurationChanged(TiBaseActivity activity, Configuration newConfig) {
 		KrollDict data = new KrollDict();
-		data.put("orientation", convertToTiOrientation(newConfig.orientation));
+		data.put("orientation", TiUIHelper.convertToTiOrientation(newConfig.orientation, activity.getOrientationDegrees()));
 		fireEvent(EVENT_ONCONFIGCHANGE, data);
 	}
-
-	private Configuration getConfiguration() {
-		return getTiContext().getActivity().getResources().getConfiguration();
+	
+	protected int doGetOrientation(KrollInvocation invocation) {
+		return invocation.getActivity().getResources().getConfiguration().orientation;
+	}
+	
+	@Kroll.getProperty @Kroll.method
+	public boolean isPortrait(KrollInvocation invocation) {
+		return doGetOrientation(invocation) == Configuration.ORIENTATION_PORTRAIT;
 	}
 
 	@Kroll.getProperty @Kroll.method
-	public boolean isPortrait() {
-		return getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT;
+	public boolean isLandscape(KrollInvocation invocation) {
+		return doGetOrientation(invocation) == Configuration.ORIENTATION_LANDSCAPE;
 	}
 
 	@Kroll.getProperty @Kroll.method
-	public boolean isLandscape() {
-		return getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE;
-	}
-
-	@Kroll.getProperty @Kroll.method
-	public int getOrientation() {
-		return convertToTiOrientation(getConfiguration().orientation);
-	}
-
-	private int convertToTiOrientation(int orientation) {
-		int result = UIModule.UNKNOWN;
-
-		switch(orientation)
-		{
-			case Configuration.ORIENTATION_LANDSCAPE :
-				result = UIModule.LANDSCAPE_LEFT;
-				break;
-			case Configuration.ORIENTATION_PORTRAIT :
-				result = UIModule.PORTRAIT;
-				break;
-		}
-
-		return result;
+	public int getOrientation(KrollInvocation invocation) {
+		return TiUIHelper.convertToTiOrientation(doGetOrientation(invocation));
 	}
 
 	@Override
-	public void onResume()
-	{
-		super.onResume();
-
-		if (listeningForOrientation) {
-			getTiContext().setOnConfigurationChangedListener(this);
+	public void onResume(Activity activity) {
+		super.onResume(activity);
+		if (activities.contains(activity)) {
+			TiBaseActivity tiActivity = (TiBaseActivity)activity;
+			tiActivity.addConfigurationChangedListener(this);
 		}
 	}
 
 	@Override
-	public void onPause()
-	{
-		super.onPause();
-
-		if (listeningForOrientation) {
-			getTiContext().setOnConfigurationChangedListener(null);
+	public void onPause(Activity activity) {
+		super.onPause(activity);
+		if (activities.contains(activity)) {
+			TiBaseActivity tiActivity = (TiBaseActivity)activity;
+			tiActivity.removeConfigurationChangedListener(this);
 		}
 	}
 }

@@ -67,13 +67,9 @@ public class TiLocation
 		geoListener = new LocationListener() {
 
 			public void onLocationChanged(Location location) {
-				if (locationManager != null) {
-					LocationProvider provider = locationManager.getProvider(location.getProvider());
-					fproxy.fireEvent(EVENT_LOCATION, locationToKrollDict(location, provider));
-					doAnalytics(fproxy, location);
-				} else {
-					Log.i(LCAT, "onLocationChanged - Location Manager null");
-				}
+				LocationProvider provider = getLocationManager().getProvider(location.getProvider());
+				fproxy.fireEvent(EVENT_LOCATION, locationToKrollDict(location, provider));
+				doAnalytics(fproxy, location);
 			}
 
 			public void onProviderDisabled(String provider) {
@@ -113,15 +109,15 @@ public class TiLocation
 
 	public void getCurrentPosition(KrollCallback listener)
 	{
-		if (listener != null && locationManager != null) {
+		if (listener != null) {
 			// Prefer the user selected provider
 			String provider = fetchProvider();
 			
 			if (provider != null) {
 				// We should really query all active providers - one may have a more accurate fix
-				Location location = locationManager.getLastKnownLocation(provider);
+				Location location = getLocationManager().getLastKnownLocation(provider);
 				if (location != null) {
-					listener.call(locationToKrollDict(location, locationManager.getProvider(provider)));
+					listener.call(locationToKrollDict(location, getLocationManager().getProvider(provider)));
 					doAnalytics(proxy, location);
 				} else {
 					Log.i(LCAT, "getCurrentPosition - location is null");
@@ -149,13 +145,11 @@ public class TiLocation
 	}
 	
 	protected boolean isLocationProviderEnabled(String name) {
-		if (null != locationManager){
-			try {
-				return locationManager.isProviderEnabled(name);
-			} catch (Exception e) {
-				// Ignore - it's expected
-				e = null;
-			}
+		try {
+			return getLocationManager().isProviderEnabled(name);
+		} catch (Exception e) {
+			// Ignore - it's expected
+			e = null;
 		}
 		return false;
 	}
@@ -199,6 +193,9 @@ public class TiLocation
 	
 	protected void manageLocationListener(boolean register)
 	{
+		if (register && locationManager == null) {
+			getLocationManager(); // forces load of locationManager
+		}
 		if (locationManager != null) {
 			if (register) {
 				
@@ -314,24 +311,20 @@ public class TiLocation
 	public boolean isLocationEnabled() {
 		boolean enabled = false;
 
-		if (locationManager != null) {
-			List<String> providers = locationManager.getProviders(true);
-			if (providers != null && providers.size() > 0) {
-				if (DBG) {
-					Log.i(LCAT, "Enabled location provider count: " + providers.size());
-					// Extra debugging
-					for (Iterator<String> iter = providers.iterator(); iter
-							.hasNext();) {
-						String name = iter.next();
-						Log.i(LCAT, "Location ["+name+"] Service available ");
-					}					
-				}
-				enabled = true;
-			} else {
-				Log.i(LCAT, "No available providers");
+		List<String> providers = getLocationManager().getProviders(true);
+		if (providers != null && providers.size() > 0) {
+			if (DBG) {
+				Log.i(LCAT, "Enabled location provider count: " + providers.size());
+				// Extra debugging
+				for (Iterator<String> iter = providers.iterator(); iter
+						.hasNext();) {
+					String name = iter.next();
+					Log.i(LCAT, "Location ["+name+"] Service available ");
+				}					
 			}
+			enabled = true;
 		} else {
-			Log.i(LCAT, "Location Manager null");
+			Log.i(LCAT, "No available providers");
 		}
 
 		return enabled;
@@ -357,6 +350,13 @@ public class TiLocation
 		}
 
 		locationManager = null;
+	}
+	
+	private LocationManager getLocationManager() {
+		if (locationManager == null) {
+			locationManager = (LocationManager) proxy.getTiContext().getActivity().getSystemService(Context.LOCATION_SERVICE);
+		}
+		return locationManager;
 	}
 
 }

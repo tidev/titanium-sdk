@@ -178,12 +178,14 @@ USE_VIEW_FOR_AUTO_WIDTH
 	[(TiUIWebView*)[self view] fireEvent:listener withObject:obj remove:yn thisObject:thisObject_];
 }
 
-- (id)preloadForKey:(id)key
+- (id)preloadForKey:(id)key name:(id)name
 {
+	return nil;
 }
 
 - (KrollContext*)krollContext
 {
+	return nil;
 }
 
 - (void)registerProxy:(id)proxy

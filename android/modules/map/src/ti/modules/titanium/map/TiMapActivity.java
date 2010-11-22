@@ -8,7 +8,7 @@ package ti.modules.titanium.map;
 
 import org.appcelerator.titanium.TiContext.OnLifecycleEvent;
 
-import android.os.Bundle;
+import android.app.Activity;
 
 import com.google.android.maps.MapActivity;
 
@@ -29,18 +29,12 @@ public class TiMapActivity extends MapActivity
 		return false;
 	}
 
-
-	@Override
-	protected void onCreate(Bundle arg0) {
-		super.onCreate(arg0);
-	}
-
 	@Override
 	protected void onPause() {
 		super.onPause();
 
 		if (lifecyleListener != null) {
-			lifecyleListener.onPause();
+			lifecyleListener.onPause(this);
 		}
 	}
 
@@ -49,7 +43,7 @@ public class TiMapActivity extends MapActivity
 		super.onResume();
 
 		if (lifecyleListener != null) {
-			lifecyleListener.onResume();
+			lifecyleListener.onResume(this);
 		}
 	}
 
@@ -58,7 +52,7 @@ public class TiMapActivity extends MapActivity
 		super.onDestroy();
 
 		if (lifecyleListener != null) {
-			lifecyleListener.onDestroy();
+			lifecyleListener.onDestroy(this);
 		}
 	}
 

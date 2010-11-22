@@ -32,6 +32,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.app.Activity;
 import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Message;
@@ -328,19 +329,19 @@ public class GeolocationModule
 	// Lifecycle
 
 	@Override
-	public void onResume() {
+	public void onResume(Activity activity) {
 		Log.i(LCAT, "onResume");
 		
-		super.onResume();
+		super.onResume(activity);
 
 		tiLocation.onResume();
 		tiCompass.onResume();
 	}
 
 	@Override
-	public void onPause() {
+	public void onPause(Activity activity) {
 		Log.i(LCAT, "onPause");
-		super.onPause();
+		super.onPause(activity);
 
 		tiLocation.onPause();
 		tiCompass.onPause();

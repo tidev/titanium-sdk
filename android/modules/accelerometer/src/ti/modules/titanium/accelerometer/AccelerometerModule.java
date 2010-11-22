@@ -17,6 +17,7 @@ import org.appcelerator.titanium.TiContext.OnLifecycleEvent;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiSensorHelper;
 
+import android.app.Activity;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -134,8 +135,8 @@ public class AccelerometerModule extends KrollModule
 	}
 
 	@Override
-	public void onResume() {
-		super.onResume();
+	public void onResume(Activity activity) {
+		super.onResume(activity);
 		sensorAttached = sensorHelper.attach(getTiContext().getActivity());
 
 		if (sensorAttached) {
@@ -146,8 +147,8 @@ public class AccelerometerModule extends KrollModule
 	}
 
 	@Override
-	public void onPause() {
-		super.onPause();
+	public void onPause(Activity activity) {
+		super.onPause(activity);
 		if (sensorAttached) {
 			manageUpdateListener(false);
 

@@ -29,6 +29,8 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
+import android.content.pm.ActivityInfo;
+import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.CompressFormat;
 import android.graphics.Bitmap.Config;
@@ -47,6 +49,7 @@ import android.os.Build;
 import android.os.Process;
 import android.util.TypedValue;
 import android.view.Gravity;
+import android.view.OrientationEventListener;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.TextView;
@@ -56,6 +59,13 @@ public class TiUIHelper
 	private static final String LCAT = "TiUIHelper";
 	private static final boolean DBG = TiConfig.LOGD;
 
+	public static final int PORTRAIT = 1;
+	public static final int UPSIDE_PORTRAIT = 2;
+	public static final int LANDSCAPE_LEFT = 3;
+	public static final int LANDSCAPE_RIGHT = 4;
+	public static final int FACE_UP = 5;
+	public static final int FACE_DOWN = 6;
+	public static final int UNKNOWN = 7;
 	public static final Pattern SIZED_VALUE = Pattern.compile("([0-9]*\\.?[0-9]+)\\W*(px|dp|dip|sp|sip|mm|pt|in)?");
 
 	private static Method overridePendingTransition;
@@ -665,5 +675,48 @@ public class TiUIHelper
 				imm.hideSoftInputFromWindow(view.getWindowToken(), useForce ? 0 : InputMethodManager.HIDE_IMPLICIT_ONLY);
 			}
 		}
+	}
+	
+	public static int convertToAndroidOrientation(int orientation) {
+		switch (orientation) {
+			case LANDSCAPE_LEFT :
+			case LANDSCAPE_RIGHT :
+				return ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE;
+			case PORTRAIT :
+			case UPSIDE_PORTRAIT :
+				return ActivityInfo.SCREEN_ORIENTATION_PORTRAIT;
+		}
+		return ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED;
+	}
+	
+	public static int convertToTiOrientation(int orientation) {
+		switch(orientation)
+		{
+			case Configuration.ORIENTATION_LANDSCAPE:
+			case ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE:
+				return LANDSCAPE_LEFT;
+			case Configuration.ORIENTATION_PORTRAIT:
+			// == case ActivityInfo.SCREEN_ORIENTATION_PORTRAIT:
+				return PORTRAIT;
+		}
+		return UNKNOWN;
+	}
+	
+	public static int convertToTiOrientation(int orientation, int degrees) {
+		if (degrees == OrientationEventListener.ORIENTATION_UNKNOWN) {
+			return convertToTiOrientation(orientation);
+		}
+		switch (orientation) {
+		case Configuration.ORIENTATION_LANDSCAPE:
+		case ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE:
+			if (degrees >= 270 && degrees <= 360) {
+				return LANDSCAPE_LEFT;
+			} else {
+				return LANDSCAPE_RIGHT;
+			}
+		case Configuration.ORIENTATION_PORTRAIT:
+			return PORTRAIT;
+		}
+		return UNKNOWN;
 	}
 }

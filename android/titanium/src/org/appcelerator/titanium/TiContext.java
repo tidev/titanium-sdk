@@ -61,20 +61,13 @@ public class TiContext implements TiEvaluator, ErrorReporter
 	protected KrollContext krollContext;
 	
 	private List<WeakReference<OnLifecycleEvent>> lifecycleListeners;
-	private WeakReference<OnConfigurationChanged> weakConfigurationChangedListeners;
 
-	public static interface OnLifecycleEvent
-	{
-		void onStart();
-		void onResume();
-		void onPause();
-		void onStop();
-		void onDestroy();
-	}
-
-	public static interface OnConfigurationChanged
-	{
-		public void configurationChanged(Configuration newConfig);
+	public static interface OnLifecycleEvent {
+		void onStart(Activity activity);
+		void onResume(Activity activity);
+		void onPause(Activity activity);
+		void onStop(Activity activity);
+		void onDestroy(Activity activity);
 	}
 
 	public TiContext(Activity activity, String baseUrl)
@@ -320,31 +313,14 @@ public class TiContext implements TiEvaluator, ErrorReporter
 		}
 	}
 
-	public void setOnConfigurationChangedListener(OnConfigurationChanged listener) {
-		if (listener == null) {
-			weakConfigurationChangedListeners = null;
-		} else {
-			weakConfigurationChangedListeners = new WeakReference<OnConfigurationChanged>(listener);
-		}
-	}
-	public void dispatchOnConfigurationChanged(Configuration newConfig)
-	{
-		if (weakConfigurationChangedListeners != null) {
-			OnConfigurationChanged listener = weakConfigurationChangedListeners.get();
-			if (listener != null) {
-				listener.configurationChanged(newConfig);
-			}
-		}
-	}
-
-	public void dispatchOnStart()
+	public void dispatchOnStart(Activity activity)
 	{
 		synchronized(lifecycleListeners) {
 			for(WeakReference<OnLifecycleEvent> ref : lifecycleListeners) {
 				OnLifecycleEvent listener = ref.get();
 				if (listener != null) {
 					try {
-						listener.onStart();
+						listener.onStart(activity);
 					} catch (Throwable t) {
 						Log.e(LCAT, "Error dispatching onStart  event: " + t.getMessage(), t);
 					}
@@ -355,13 +331,13 @@ public class TiContext implements TiEvaluator, ErrorReporter
 		}
 	}
 
-	public void dispatchOnResume() {
+	public void dispatchOnResume(Activity activity) {
 		synchronized(lifecycleListeners) {
 			for(WeakReference<OnLifecycleEvent> ref : lifecycleListeners) {
 				OnLifecycleEvent listener = ref.get();
 				if (listener != null) {
 					try {
-						listener.onResume();
+						listener.onResume(activity);
 					} catch (Throwable t) {
 						Log.e(LCAT, "Error dispatching onResume  event: " + t.getMessage(), t);
 					}
@@ -372,13 +348,13 @@ public class TiContext implements TiEvaluator, ErrorReporter
 		}
 	}
 
-	public void dispatchOnPause() {
+	public void dispatchOnPause(Activity activity) {
 		synchronized (lifecycleListeners) {
 			for(WeakReference<OnLifecycleEvent> ref : lifecycleListeners) {
 				OnLifecycleEvent listener = ref.get();
 				if (listener != null) {
 					try {
-						listener.onPause();
+						listener.onPause(activity);
 					} catch (Throwable t) {
 						Log.e(LCAT, "Error dispatching onPause  event: " + t.getMessage(), t);
 					}
@@ -389,13 +365,13 @@ public class TiContext implements TiEvaluator, ErrorReporter
 		}
 	}
 
-	public void dispatchOnStop() {
+	public void dispatchOnStop(Activity activity) {
 		synchronized(lifecycleListeners) {
 			for(WeakReference<OnLifecycleEvent> ref : lifecycleListeners) {
 				OnLifecycleEvent listener = ref.get();
 				if (listener != null) {
 					try {
-						listener.onStop();
+						listener.onStop(activity);
 					} catch (Throwable t) {
 						Log.e(LCAT, "Error dispatching onStop  event: " + t.getMessage(), t);
 					}
@@ -406,13 +382,13 @@ public class TiContext implements TiEvaluator, ErrorReporter
 		}
 	}
 
-	public void dispatchOnDestroy() {
+	public void dispatchOnDestroy(Activity activity) {
 		synchronized(lifecycleListeners) {
 			for(WeakReference<OnLifecycleEvent> ref : lifecycleListeners) {
 				OnLifecycleEvent listener = ref.get();
 				if (listener != null) {
 					try {
-						listener.onDestroy();
+						listener.onDestroy(activity);
 					} catch (Throwable t) {
 						Log.e(LCAT, "Error dispatching onDestroy  event: " + t.getMessage(), t);
 					}

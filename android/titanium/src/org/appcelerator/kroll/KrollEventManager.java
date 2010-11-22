@@ -21,6 +21,8 @@ import org.appcelerator.titanium.bridge.OnEventListenerChange;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 
+import android.app.Activity;
+
 public class KrollEventManager implements OnLifecycleEvent {
 	private static final String TAG = "KrollEventManager";
 	private static final boolean DBG = TiConfig.LOGD;
@@ -267,14 +269,14 @@ public class KrollEventManager implements OnLifecycleEvent {
 		return dispatched;
 	}
 
-	public void onDestroy() {
+	public void onDestroy(Activity activity) {
 		release();
 	}
 	
-	public void onPause() {}
-	public void onResume() {}
-	public void onStart() {}
-	public void onStop() {}
+	public void onPause(Activity activity) {}
+	public void onResume(Activity activity) {}
+	public void onStart(Activity activity) {}
+	public void onStop(Activity activity) {}
 	
 	public void release() {
 		if (eventChangeListeners != null) {

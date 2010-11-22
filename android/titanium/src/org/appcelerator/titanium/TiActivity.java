@@ -35,11 +35,6 @@ public class TiActivity extends TiBaseActivity {
 	public void onConfigurationChanged(Configuration newConfig)
 	{
 		super.onConfigurationChanged(newConfig);
-		for (WeakReference<TiContext> contextRef : contexts) {
-			if (contextRef.get() != null) {
-				contextRef.get().dispatchOnConfigurationChanged(newConfig);
-			}
-		}
 	}
 
 	@Override
@@ -47,7 +42,7 @@ public class TiActivity extends TiBaseActivity {
 		super.onPause();
 		for (WeakReference<TiContext> contextRef : contexts) {
 			if (contextRef.get() != null) {
-				contextRef.get().dispatchOnPause();
+				contextRef.get().dispatchOnPause(this);
 			}
 		}
 	}
@@ -57,7 +52,7 @@ public class TiActivity extends TiBaseActivity {
 		super.onResume();
 		for (WeakReference<TiContext> contextRef : contexts) {
 			if (contextRef.get() != null) {
-				contextRef.get().dispatchOnResume();
+				contextRef.get().dispatchOnResume(this);
 			}
 		}
 	}
@@ -67,7 +62,7 @@ public class TiActivity extends TiBaseActivity {
 		super.onStart();
 		for (WeakReference<TiContext> contextRef : contexts) {
 			if (contextRef.get() != null) {
-				contextRef.get().dispatchOnStart();
+				contextRef.get().dispatchOnStart(this);
 			}
 		}
 	}
@@ -77,7 +72,7 @@ public class TiActivity extends TiBaseActivity {
 		super.onStop();
 		for (WeakReference<TiContext> contextRef : contexts) {
 			if (contextRef.get() != null) {
-				contextRef.get().dispatchOnStop();
+				contextRef.get().dispatchOnStop(this);
 			}
 		}
 	}
@@ -87,7 +82,7 @@ public class TiActivity extends TiBaseActivity {
 		for (WeakReference<TiContext> contextRef : contexts) {
 			TiContext ctx = contextRef.get();
 			if (ctx != null) {
-				ctx.dispatchOnDestroy();
+				ctx.dispatchOnDestroy(this);
 				ctx.release();
 			}
 		}

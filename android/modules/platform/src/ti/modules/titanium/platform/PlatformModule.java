@@ -273,9 +273,9 @@ public class PlatformModule extends KrollModule
 	}
 
 	@Override
-	public void onResume()
+	public void onResume(Activity activity)
 	{
-		super.onResume();
+		super.onResume(activity);
 
 		if (batteryStateReceiver != null) {
 			if (DBG) {
@@ -286,9 +286,9 @@ public class PlatformModule extends KrollModule
 	}
 
 	@Override
-	public void onPause()
+	public void onPause(Activity activity)
 	{
-		super.onPause();
+		super.onPause(activity);
 		if (batteryStateReceiver != null) {
 			if (DBG) {
 				Log.i(LCAT, "Unregistering battery changed receiver.");

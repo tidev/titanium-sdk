@@ -245,6 +245,11 @@ $(window).ready(function()
 	$('#reload-link').click(function() {
 		reloadTests();
 	});
+	$('#force-build-android').click(function() {
+		if ('android' in Drillbit.emulators) {
+			Drillbit.emulators.android.needsBuild = $(this).is(':checked');
+		}	
+	});
 	
 	runLink.click(function ()
 	{
