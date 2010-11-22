@@ -395,10 +395,7 @@ void MyUncaughtExceptionHandler(NSException *exception)
 
 - (void)applicationDidBecomeActive:(UIApplication *)application
 {
-	// you can get a resign when you have to show a system dialog or you get
-	// an incoming call, for example, and then you'll get this message afterwards
-	// this is slightly different than enter foreground
-	[[NSNotificationCenter defaultCenter] postNotificationName:kTiResumeNotification object:self];
+	//NOTE: don't fire resume here, fired below in applicationWillEnterForeground
 	
 	// resume any image loading
 	[[ImageLoader sharedLoader] resume];
@@ -407,12 +404,54 @@ void MyUncaughtExceptionHandler(NSException *exception)
 -(void)applicationDidEnterBackground:(UIApplication *)application
 {
 	[TiUtils queueAnalytics:@"ti.background" name:@"ti.background" data:nil];
+
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0
+	
+	if (backgroundServices==nil)
+	{
+		return;
+	}
+	
+	UIApplication* app = [UIApplication sharedApplication];
+	TiApp *tiapp = self;
+	bgTask = [app beginBackgroundTaskWithExpirationHandler:^{
+        // Synchronize the cleanup call on the main thread in case
+        // the task actually finishes at around the same time.
+        dispatch_async(dispatch_get_main_queue(), ^{
+            if (bgTask != UIBackgroundTaskInvalid)
+            {
+                [app endBackgroundTask:bgTask];
+                bgTask = UIBackgroundTaskInvalid;
+            }
+        });
+    }];
+	// Start the long-running task and return immediately.
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+		
+        // Do the work associated with the task.
+		[tiapp beginBackgrounding];
+    });
+#endif	
+	
 }
 
 -(void)applicationWillEnterForeground:(UIApplication *)application
 {
 	// According to docs, always followed by applicationDidBecomeActive; no reason to send notification here
+	[[NSNotificationCenter defaultCenter] postNotificationName:kTiResumeNotification object:self];
+	
 	[TiUtils queueAnalytics:@"ti.foreground" name:@"ti.foreground" data:nil];
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0
+	
+	if (backgroundServices==nil)
+	{
+		return;
+	}
+	
+	[self endBackgrounding];
+	
+#endif
+
 }
 
 -(id)remoteNotification
@@ -571,6 +610,10 @@ void MyUncaughtExceptionHandler(NSException *exception)
 #ifdef DEBUGGER_ENABLED
 	[[TiDebugger sharedDebugger] stop];
 #endif
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0
+	RELEASE_TO_NIL(backgroundServices);
+	RELEASE_TO_NIL(localNotification);
+#endif	
 	[super dealloc];
 }
 
@@ -618,5 +661,84 @@ void MyUncaughtExceptionHandler(NSException *exception)
 {
 	return kjsBridge;
 }
+
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0
+
+#pragma mark Backgrounding
+
+-(void)beginBackgrounding
+{
+	runningServices = [[NSMutableArray alloc] initWithCapacity:[backgroundServices count]];
+	
+	for (TiProxy *proxy in backgroundServices)
+	{
+		[runningServices addObject:proxy];
+		[proxy performSelector:@selector(beginBackground)];
+	}
+}
+
+-(void)endBackgrounding
+{
+	for (TiProxy *proxy in backgroundServices)
+	{
+		[proxy performSelector:@selector(endBackground)];
+		[runningServices removeObject:proxy];
+	}
+	
+	RELEASE_TO_NIL(runningServices);
+}
+
+- (void)application:(UIApplication *)application didReceiveLocalNotification:(UILocalNotification *)notification
+{
+	RELEASE_TO_NIL(localNotification);
+	localNotification = [notification retain];
+	[[NSNotificationCenter defaultCenter] postNotificationName:kTiLocalNotification object:notification userInfo:nil];
+}
+
+-(UILocalNotification*)localNotification
+{
+	return localNotification;
+}
+
+-(void)registerBackgroundService:(TiProxy*)proxy
+{
+	if (backgroundServices==nil)
+	{
+		backgroundServices = [[NSMutableArray alloc] initWithCapacity:1];
+	}
+	[backgroundServices addObject:proxy];
+}
+
+-(void)unregisterBackgroundService:(TiProxy*)proxy
+{
+	[backgroundServices removeObject:proxy];
+	if ([backgroundServices count]==0)
+	{
+		RELEASE_TO_NIL(backgroundServices);
+	}
+}
+
+-(void)stopBackgroundService:(TiProxy *)proxy
+{
+	[runningServices removeObject:proxy];
+	[backgroundServices removeObject:proxy];
+	
+	if ([runningServices count] == 0)
+	{
+		RELEASE_TO_NIL(runningServices);
+		
+		// Synchronize the cleanup call on the main thread in case
+		// the expiration handler is fired at the same time.
+		dispatch_async(dispatch_get_main_queue(), ^{
+			if (bgTask != UIBackgroundTaskInvalid)
+			{
+				[[UIApplication sharedApplication] endBackgroundTask:bgTask];
+				bgTask = UIBackgroundTaskInvalid;
+			}
+		});
+	}
+}
+
+#endif
 
 @end

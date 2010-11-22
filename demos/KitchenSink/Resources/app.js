@@ -317,3 +317,27 @@ Ti.API.info("should be 1.0, was = "+String.format('%1.1f',1));
 Ti.API.info("should be hello, was = "+String.format('%s','hello'));
 
 
+Ti.include("examples/version.js");
+
+if (isiOS4Plus())
+{
+	// register a background service. this JS will run when the app is backgrounded
+	var service = Ti.App.iOS.registerBackgroundService({url:'bg.js'});
+	
+	Ti.API.info("registered background service = "+service);
+
+	// listen for a local notification event
+	Ti.App.iOS.addEventListener('notification',function(e)
+	{
+		Ti.API.info("local notification received: "+JSON.stringify(e));
+	});
+
+	// fired when an app resumes for suspension
+	Ti.App.addEventListener('resume',function(e){
+		Ti.API.info("app was resumed from the background");
+	});
+
+	Ti.App.addEventListener('pause',function(e){
+		Ti.API.info("app was paused from the foreground");
+	});
+}

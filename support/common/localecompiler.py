@@ -34,8 +34,6 @@ class LocaleCompiler(object):
 		if self.outdir!=None: return self.outdir
 		if self.mode == 'simulator':
 			return os.path.join(self.iphone_dir,'Debug-iphonesimulator','%s.app' % self.name)
-		elif self.mode == 'install':
-			return os.path.join(self.iphone_dir,'Debug-iphoneos','%s.app' % self.name)
 		else:
 			return os.path.join(self.iphone_dir,'Release-iphoneos','%s.app' % self.name)
 

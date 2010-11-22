@@ -219,19 +219,19 @@
 	}
 	else
 	{
-		UIView *view = [popoverView view];
+		UIView *view_ = [popoverView view];
 		
 		CGRect rect;
 		if (CGRectIsEmpty(popoverRect))
 		{
-			rect = [view bounds];
+			rect = [view_ bounds];
 		}
 		else
 		{
 			rect = popoverRect;
 		}
 		
-		[[self popoverController] presentPopoverFromRect:rect inView:view permittedArrowDirections:directions animated:animated];
+		[[self popoverController] presentPopoverFromRect:rect inView:view_ permittedArrowDirections:directions animated:animated];
 	}
 }
 

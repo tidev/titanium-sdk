@@ -934,9 +934,7 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 	
 	while(1)
 	{
-		if (pool == nil) {
-			pool = [[NSAutoreleasePool alloc] init];
-		}
+		NSAutoreleasePool *innerpool = [[NSAutoreleasePool alloc] init];
 		loopCount++;
 		
 		// if we're suspended, we simply wait for resume
@@ -1048,12 +1046,11 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 			loopCount = 0;
 		}
 		
-		RELEASE_TO_NIL(pool); // Clean up all of our autorelease so that long-running contexts don't devour everything
-		
 		// check to see if we're already stopped and in the flush queue state, in which case,
 		// we can now immediately exit
 		if (exit_after_flush)
 		{
+			RELEASE_TO_NIL(innerpool);
 			break;
 		}
 		
@@ -1070,23 +1067,20 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 		{
 			// wait only 10 seconds and then loop, this will allow us to garbage
 			// collect every so often
-			//[condition waitUntilDate:[NSDate dateWithTimeIntervalSinceNow:60]];		
-			[condition wait];
+			[condition waitUntilDate:[NSDate dateWithTimeIntervalSinceNow:10]];		
 		}
 		[condition unlock]; 
 		
 #if CONTEXT_DEBUG == 1	
 		NSLog(@"CONTEXT<%@>: woke up for new event (count=%d)",self,KrollContextCount);
 #endif
+		
+		RELEASE_TO_NIL(innerpool);
 	}
 
 #if CONTEXT_DEBUG == 1	
 	NSLog(@"CONTEXT<%@>: is shutting down",self);
 #endif
-	
-	if (pool == nil) {
-		pool = [[NSAutoreleasePool alloc] init];
-	}
 	
 	// call before we start the shutdown while context and timers are alive
 	if (delegate!=nil && [delegate respondsToSelector:@selector(willStopNewContext:)])

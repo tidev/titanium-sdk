@@ -69,11 +69,8 @@ class IPhone(object):
 		# write .gitignore
 		gitignore = open(os.path.join(iphone_dir,'.gitignore'),'w')
 		# exclude generated files
-		gitignore.write("Classes\n")
-		gitignore.write("tmp\n")
-		gitignore.write("build\n")
-		gitignore.write("headers\n")
-		gitignore.write("lib\n")
+		for i in ["Classes","tmp","build","headers","lib","Resources","*.xcodeproj","*.xcconfig","main.m","*.plist","*.pch"]:
+			gitignore.write("%s\n" % i)
 		gitignore.close()
 
 		gitignore = open(os.path.join(iphone_dir,'%s.xcodeproj'%self.name,'.gitignore'),'w')

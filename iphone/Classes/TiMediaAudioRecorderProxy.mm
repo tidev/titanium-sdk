@@ -201,16 +201,16 @@
 {
     UInt32 newMode = [mode unsignedIntegerValue]; // Close as we can get to UInt32
     if (newMode != kAudioSessionCategory_RecordAudio && newMode != kAudioSessionCategory_PlayAndRecord) {
-        NSLog(@"Invalid mode for audio recorder... setting to default.");
+        NSLog(@"[WARN] Invalid mode for audio recorder... setting to default.");
         newMode = kAudioSessionCategory_RecordAudio;
     }
-	NSLog(@"'Titanium.Media.AudioRecorder.audioSessionMode' is deprecated; use 'Titanium.Media.audioSessionMode'");
+	NSLog(@"[WARN] 'Titanium.Media.AudioRecorder.audioSessionMode' is deprecated; use 'Titanium.Media.audioSessionMode'");
 	[[TiMediaAudioSession sharedSession] setSessionMode:newMode];
 }
 
 -(NSNumber*)audioSessionMode
 {
-	NSLog(@"'Titanium.Media.AudioRecorder.audioSessionMode' is deprecated; use 'Titanium.Media.audioSessionMode'");	
+	NSLog(@"[WARN] 'Titanium.Media.AudioRecorder.audioSessionMode' is deprecated; use 'Titanium.Media.audioSessionMode'");	
     return [NSNumber numberWithUnsignedInt:[[TiMediaAudioSession sharedSession] sessionMode]];
 }
 

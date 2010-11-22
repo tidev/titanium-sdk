@@ -122,7 +122,6 @@ enum
 @property(nonatomic,readwrite,retain)TiUIView * view;
 
 -(NSMutableDictionary*)langConversionTable;
--(NSDictionary*)cssConversionTable;
 
 #pragma mark Methods subclasses should override for behavior changes
 -(BOOL)suppressesRelayout;
@@ -130,7 +129,6 @@ enum
 -(BOOL)canHaveControllerParent;
 -(BOOL)shouldDetachViewOnUnload;
 -(UIView *)parentViewForChild:(TiViewProxy *)child;
--(CGRect)sandboxBoundsForChild:(TiViewProxy *)child;
 
 #pragma mark Event trigger methods
 -(void)windowWillOpen;

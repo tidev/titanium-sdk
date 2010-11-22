@@ -430,8 +430,8 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 		UIImage *image = [[ImageLoader sharedLoader] loadImmediateImage:url];
 		if ([cell.backgroundView isKindOfClass:[UIImageView class]]==NO)
 		{
-			UIImageView *view = [[[UIImageView alloc] initWithFrame:CGRectZero] autorelease];
-			cell.backgroundView = view;
+			UIImageView *view_ = [[[UIImageView alloc] initWithFrame:CGRectZero] autorelease];
+			cell.backgroundView = view_;
 		}
 		if (image!=((UIImageView*)cell.backgroundView).image)
 		{
@@ -450,8 +450,8 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 		UIImage *image = [[ImageLoader sharedLoader] loadImmediateImage:url];
 		if ([cell.selectedBackgroundView isKindOfClass:[UIImageView class]]==NO)
 		{
-			UIImageView *view = [[[UIImageView alloc] initWithFrame:CGRectZero] autorelease];
-			cell.selectedBackgroundView = view;
+			UIImageView *view_ = [[[UIImageView alloc] initWithFrame:CGRectZero] autorelease];
+			cell.selectedBackgroundView = view_;
 		}
 		if (image!=((UIImageView*)cell.selectedBackgroundView).image)
 		{
