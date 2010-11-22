@@ -415,7 +415,7 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 
 -(TiProxy*)currentWindow
 {
-	return [[self pageContext] preloadForKey:@"currentWindow"];
+	return [[self pageContext] preloadForKey:@"currentWindow" name:@"UI"];
 }
 
 -(NSURL*)_baseURL

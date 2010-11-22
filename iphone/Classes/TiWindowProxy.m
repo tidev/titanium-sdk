@@ -632,7 +632,7 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 	
 	UIView *rootView = [[TiApp app] controller].view;
 	
-	TiUIView *view = [self view];
+	TiUIView *view_ = [self view];
 	
 	if (![self _isChildOfTab])
 	{
@@ -643,7 +643,7 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 			tempController.view = rootView;
 			[[self _window] addSubview:rootView];
 		}
-		[rootView addSubview:view];
+		[rootView addSubview:view_];
 		
 		[self controller];
 
@@ -653,7 +653,7 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 
 	[self layoutChildren:YES];
 
-	[rootView bringSubviewToFront:view];
+	[rootView bringSubviewToFront:view_];
 
 	// make sure the splash is gone
 	[[TiApp app] hideSplash:nil];
