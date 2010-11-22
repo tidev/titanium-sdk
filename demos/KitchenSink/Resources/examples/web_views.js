@@ -73,6 +73,8 @@ tableview.addEventListener('click', function(e)
 	// handle xhr to filesystem case first
 	if (e.index == 2)
 	{
+		w.add(webview);
+		win.tab.open(w);
 		var xhr = Titanium.Network.createHTTPClient();
 
 		xhr.onload = function()
@@ -80,8 +82,6 @@ tableview.addEventListener('click', function(e)
 			var f = Titanium.Filesystem.getFile(Titanium.Filesystem.applicationDataDirectory,'test.html');
 			f.write(this.responseText);
 			webview.url = f.nativePath;
-			w.add(webview);
-			win.tab.open(w);
 		};
 
 		// open the client
