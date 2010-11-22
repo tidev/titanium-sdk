@@ -7,6 +7,8 @@
 
 #import "TiStylesheet.h"
 
+#define DEBUG_STYLESHEETS 0
+
 @implementation TiStylesheet
 
 -(id)init
@@ -22,7 +24,7 @@
 		idsDict = [[dictionary objectForKey:@"ids"] retain];
 		idsDictByDensity = [[dictionary objectForKey:@"ids_density"] retain];
 		
-#ifdef DEBUG
+#if defined(DEBUG) && DEBUG_STYLESHEETS==1
 		NSLog(@"[DEBUG] classesDict = %@",classesDict);
 		NSLog(@"[DEBUG] classesDictByDensity = %@",classesDictByDensity);
 		NSLog(@"[DEBUG] idsDict = %@",idsDict);
@@ -44,7 +46,7 @@
 
 -(id)stylesheet:(NSString*)objectId type:(NSString*)type density:(NSString*)density basename:(NSString*)basename
 {
-#ifdef DEBUG	
+#if defined(DEBUG) && DEBUG_STYLESHEETS==1
 	NSLog(@"[DEBUG] stylesheet -> objectId: %@, type: %@, density: %@, basename: %@",objectId,type,density,basename);
 #endif
 	
@@ -70,7 +72,7 @@
 		[result addEntriesFromDictionary:idsD];
 	}
 
-#ifdef DEBUG	
+#if defined(DEBUG) && DEBUG_STYLESHEETS==1
 	NSLog(@"[DEBUG] stylesheet -> %@",result);
 #endif
 	return result;
