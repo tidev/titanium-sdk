@@ -22,6 +22,7 @@ import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiContext;
+import org.appcelerator.titanium.view.TiBackgroundDrawable;
 import org.appcelerator.titanium.view.TiUIView;
 
 import android.app.Activity;
@@ -627,9 +628,8 @@ public class TiUIHelper
 	}
 	
 	public static void setDrawableOpacity(Drawable drawable, float opacity) {
-		if (drawable instanceof ColorDrawable) {
-			ColorDrawable colorDrawable = (ColorDrawable) drawable;
-			colorDrawable.setAlpha(Math.round(opacity * 255));
+		if (drawable instanceof ColorDrawable || drawable instanceof TiBackgroundDrawable) {
+			drawable.setAlpha(Math.round(opacity * 255));
 		} else if (drawable != null) {
 			drawable.setColorFilter(createColorFilterForOpacity(opacity));
 		}
