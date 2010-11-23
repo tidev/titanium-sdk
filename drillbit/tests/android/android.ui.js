@@ -117,4 +117,14 @@ describe("Ti.UI.Android tests", {
 		valueOf( function() { Ti.UI.Android.OptionMenu.createMenu(); }).shouldNotThrowException();
 	}
 
+	// https://appcelerator.lighthouseapp.com/projects/32238-titanium-mobile/tickets/937
+	removeMethodAddView: function() {
+		valueOf (Ti.UI.addView).shouldBeUndefined();
+	}
+	
+	// https://appcelerator.lighthouseapp.com/projects/32238-titanium-mobile/tickets/937
+	removeMethodRemoveView: function() {
+		valueOf (Ti.UI.removeView).shouldBeUndefined();
+	}
+
 })

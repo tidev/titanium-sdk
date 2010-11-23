@@ -118,25 +118,6 @@ public class WindowProxy extends TiWindowProxy
 		opened = false;
 	}
 
-	public void addView(TiViewProxy view)
-	{
-		if (views == null) {
-			views = new ArrayList<TiViewProxy>();
-		}
-		synchronized(views) {
-			views.add(view);
-		}
-	}
-
-	public void removeView(TiViewProxy view)
-	{
-		if (views != null) {
-			synchronized(views) {
-				views.remove(view);
-			}
-		}
-	}
-
 	public void showView(TiViewProxy view)
 	{
 
