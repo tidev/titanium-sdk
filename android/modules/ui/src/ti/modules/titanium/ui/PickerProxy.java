@@ -72,7 +72,7 @@ public class PickerProxy extends TiViewProxy
 			Log.w(LCAT, "Countdown timer not supported in Titanium for Android");
 			return null;
 		} else if (type == UIModule.PICKER_TYPE_DATE_AND_TIME) {
-			Log.w(LCAT, "Countdown timer not supported in Titanium for Android");
+			Log.w(LCAT, "Date+Time timer not supported in Titanium for Android");
 			return null;
 		} else if (type == UIModule.PICKER_TYPE_PLAIN ) {
 			return createPlainPicker(activity);
@@ -182,6 +182,7 @@ public class PickerProxy extends TiViewProxy
 		add((Object)child);
 	}
 	
+	@Kroll.method
 	public void add(Object child) 
 	{
 		if (!isPlainPicker()) {
@@ -249,7 +250,7 @@ public class PickerProxy extends TiViewProxy
 	}
 	
 	@Kroll.method
-	public void setSelectedRow(int column, int row, boolean animated)
+	public void setSelectedRow(int column, int row, @Kroll.argument(optional=true) boolean animated)
 	{
 		if (!isPlainPicker()) {
 			Log.w(LCAT, "Selecting row in date/time or countdown picker is not supported.");

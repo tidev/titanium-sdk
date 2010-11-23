@@ -29,7 +29,8 @@ typedef enum
 	TiUITableViewSectionProxy *section;
 	TiDimension height;
 	BOOL configuredChildren;
-	
+	int dirtyRowFlags;
+	BOOL subviewIsAnimating;
 	UIView * rowContainerView;
 	BOOL modifyingRow;
 	BOOL attaching;
@@ -53,7 +54,7 @@ typedef enum
 -(void)renderTableViewCell:(UITableViewCell*)cell;
 -(CGFloat)sizeWidthForDecorations:(CGFloat)oldWidth forceResizing:(BOOL)force;
 -(CGFloat)rowHeight:(CGFloat)width;
--(TiProxy *)touchedViewProxyInCell:(UITableViewCell *)targetCell;
+-(TiProxy *)touchedViewProxyInCell:(UITableViewCell *)targetCell atPoint:(CGPoint*)point;
 -(id)createEventObject:(id)initialObject;
 -(void)triggerAttach;
 -(void)updateRow:(NSDictionary*)data withObject:(NSDictionary*)properties;

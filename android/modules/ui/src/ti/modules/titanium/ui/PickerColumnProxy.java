@@ -51,10 +51,12 @@ public class PickerColumnProxy extends KrollProxy
 		Log.w(LCAT, "remove() not supported.  Use removeRow() to remove a row.");
 	}
 	
+	@Kroll.method
 	public void addRow(PickerRowProxy row)
 	{
 		addRow(row, true);
 	}
+
 	protected void addRow(PickerRowProxy row, boolean notifyListeners) 
 	{
 		rows.add(row);
@@ -84,6 +86,7 @@ public class PickerColumnProxy extends KrollProxy
 		}
 	}
 	
+	@Kroll.method
 	public void removeRow(PickerRowProxy row) 
 	{
 		if (rows != null) {
@@ -91,6 +94,7 @@ public class PickerColumnProxy extends KrollProxy
 		}
 	}
 	
+	@Kroll.getProperty @Kroll.method
 	public PickerRowProxy[] getRows()
 	{
 		if (rows == null || rows.size() == 0) {
@@ -99,6 +103,7 @@ public class PickerColumnProxy extends KrollProxy
 		return rows.toArray(new PickerRowProxy[rows.size()]);
 	}
 	
+	@Kroll.getProperty @Kroll.method
 	public int getRowCount()
 	{
 		if (rows == null) {

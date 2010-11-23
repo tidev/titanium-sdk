@@ -465,5 +465,6 @@ EJS.prototype = {
 	}
 //}
 
-
-Titanium.EJS = EJS;
+Titanium.createEJS = function(options) {
+	return new EJS(options);
+}

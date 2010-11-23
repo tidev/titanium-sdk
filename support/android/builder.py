@@ -28,7 +28,7 @@ import localecompiler
 
 ignoreFiles = ['.gitignore', '.cvsignore', '.DS_Store'];
 ignoreDirs = ['.git','.svn','_svn', 'CVS'];
-android_avd_hw = [['hw.camera', 'yes'],['hw.gps','yes']]
+android_avd_hw = {'hw.camera': 'yes', 'hw.gps':'yes'}
 res_skips = ['style']
 
 MIN_API_LEVEL = 4
@@ -285,8 +285,8 @@ class Builder(object):
 			inifiledata = open(inifile,'w')
 			inifiledata.write(inifilec)
 			# TODO - Document options
-			for hw_options in android_avd_hw:
-				inifiledata.write("{0[0]}={0[1]}".format(hw_options))
+			for hw_option in android_avd_hw.keys():
+				inifiledata.write("%s=%s" % (hw_option, android_avd_hw[hw_option]))
 			inifiledata.close()
 			
 		return name

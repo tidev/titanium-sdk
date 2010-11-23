@@ -114,7 +114,7 @@ public class TiPlatformHelper
 	public static Locale getLocale(String localeCode)
     {
 		if (localeCode == null) { return null; }
-		String code = localeCode.replace('_', '-');
+		String code = localeCode.replace('-', '_');
     	if (locales.containsKey(code)) {
     		return locales.get(code);
     	}

@@ -184,7 +184,7 @@ public class TiLocation
 			provider = preferredProvider;
 		} else {
 			Criteria criteria = createCriteria();
-			provider = locationManager.getBestProvider(criteria, true);
+			provider = getLocationManager().getBestProvider(criteria, true);
 		}		
 		
 		return provider;

@@ -15,10 +15,15 @@
 #import "Webcolor.h"
 #import "ImageLoader.h"
 
+#import <libkern/OSAtomic.h>
+
 NSString * const defaultRowTableClass = @"_default_";
 #define CHILD_ACCESSORY_WIDTH 20.0
 #define CHECK_ACCESSORY_WIDTH 20.0
 #define DETAIL_ACCESSORY_WIDTH 33.0
+
+// TODO: Clean this up a bit
+#define NEEDS_UPDATE_ROW 1
 
 static void addRoundedRectToPath(CGContextRef context, CGRect rect,
 								 float ovalWidth,float ovalHeight)
@@ -168,8 +173,10 @@ static void addRoundedRectToPath(CGContextRef context, CGRect rect,
 @interface TiUITableViewRowContainer : UIView
 {
 	TiProxy * hitTarget;
+	CGPoint hitPoint;
 }
 @property(nonatomic,retain,readwrite) TiProxy * hitTarget;
+@property(nonatomic,assign,readwrite) CGPoint hitPoint;
 -(void)clearHitTarget;
 
 @end
@@ -198,7 +205,15 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 }
 
 @implementation TiUITableViewRowContainer
-@synthesize hitTarget;
+@synthesize hitTarget, hitPoint;
+
+-(id)init
+{
+	if (self = [super init]) {
+		hitPoint = CGPointZero;
+	}
+	return self;
+}
 
 -(void)clearHitTarget
 {
@@ -216,7 +231,8 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 - (UIView *)hitTest:(CGPoint) point withEvent:(UIEvent *)event 
 {
     UIView * result = [super hitTest:point withEvent:event];
-
+	[self setHitPoint:point];
+	
 	if (result==nil)
 	{
 		[self setHitTarget:DeepScanForProxyOfViewContainingPoint(self,point)];
@@ -842,12 +858,24 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 	}
 }
 
--(void)triggerRowUpdate
+-(void)updateRow:(TiUITableViewAction*)action
 {
+	OSAtomicTestAndClearBarrier(NEEDS_UPDATE_ROW, &dirtyRowFlags);
+	[table dispatchAction:action];
+}
+
+-(void)triggerRowUpdate
+{	
 	if ([self isAttached] && !modifyingRow && !attaching)
 	{
-		TiUITableViewAction *action = [[[TiUITableViewAction alloc] initWithObject:self animation:nil type:TiUITableViewActionRowReload] autorelease];
-		[table dispatchAction:action];
+		if (OSAtomicTestAndSetBarrier(NEEDS_UPDATE_ROW, &dirtyRowFlags)) {
+			return;
+		}
+		
+		TiUITableViewAction *action = [[[TiUITableViewAction alloc] initWithObject:self 
+																		 animation:nil 
+																			  type:TiUITableViewActionRowReload] autorelease];
+		[self performSelectorOnMainThread:@selector(updateRow:) withObject:action waitUntilDone:NO];
 	}
 }
 
@@ -871,13 +899,14 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 	[self triggerRowUpdate];
 }
 
--(TiProxy *)touchedViewProxyInCell:(UITableViewCell *)targetCell
+-(TiProxy *)touchedViewProxyInCell:(UITableViewCell *)targetCell atPoint:(CGPoint*)point
 {
 	for (TiUITableViewRowContainer * thisContainer in [[targetCell contentView] subviews])
 	{
 		if ([thisContainer isKindOfClass:[TiUITableViewRowContainer class]])
 		{
 			TiProxy * result = [thisContainer hitTarget];
+			*point = [thisContainer hitPoint];
 			if (result != nil)
 			{
 				return result;
@@ -951,7 +980,7 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 	if (TableViewRowProperties==nil)
 	{
 		TableViewRowProperties = [[NSSet alloc] initWithObjects:
-					@"title", @"backgroundColor",@"backgroundImage",
+					@"title", @"backgroundImage",
 					@"leftImage",@"hasDetail",@"hasCheck",@"hasChild",	
 					@"indentionLevel",@"selectionStyle",@"color",@"selectedColor",
 					@"height",@"width",

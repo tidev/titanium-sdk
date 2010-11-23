@@ -138,7 +138,6 @@ AndroidEmulator.prototype.run = function(readLineCb) {
 			self.runADB(['install', '-r', unlockScreenAPK]);
 			self.runADB(['shell', 'am', 'start', '-n', 'org.appcelerator.titanium/.UnlockScreenActivity']);
 		
-			self.testHarnessRunning = true;
 			self.drillbit.frontendDo('status', 'screen unlocked, ready to run tests');
 			self.drillbit.frontendDo('setup_finished');
 		});
@@ -299,4 +298,6 @@ AndroidEmulator.prototype.runTestHarness = function(suite, stagedFiles) {
 	}
 };
 
-Titanium.AndroidEmulator = AndroidEmulator;
+Titanium.createAndroidEmulator = function(drillbit, androidSdk, apiLevel, platform, googleApis) {
+	return new AndroidEmulator(drillbit, androidSdk, apiLevel, platform, googleApis);
+}

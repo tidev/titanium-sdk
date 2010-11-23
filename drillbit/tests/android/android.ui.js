@@ -115,6 +115,19 @@ describe("Ti.UI.Android tests", {
 
 	androidOptionMenuIllegalArgs: function() {
 		valueOf( function() { Ti.UI.Android.OptionMenu.createMenu(); }).shouldNotThrowException();
+	},
+
+	// https://appcelerator.lighthouseapp.com/projects/32238-titanium-mobile/tickets/2337-android-picker-setselectedrow-method-causes-exception-when-third-bool-argument-omitted#ticket-2337-4
+	pickerSetSelectedRowCrash: function() {
+		var w = Ti.UI.createWindow();
+		w.open();
+		var rows = [];
+		rows.push(Ti.UI.createPickerRow({title: 'Row 0'}));
+		rows.push(Ti.UI.createPickerRow({title: 'Row 1'}));
+		var col = Ti.UI.createPickerColumn({rows: rows});
+		var picker = Ti.UI.createPicker({columns: [col], left: 0, top: 0, width: 1, height: 1});
+		w.add(picker);
+		valueOf( function() {picker.setSelectedRow(0, 1);}).shouldNotThrowException();
 	}
 
 })

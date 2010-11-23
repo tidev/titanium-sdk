@@ -50,7 +50,7 @@ index[int]: for the column index, return the row object or nil if not found
 
 column[int]: the column index
 row[int]: the row index
-animated[boolean]: boolean to indicate if the selection should be animated (default)
+animated[boolean]: boolean to indicate if the selection should be animated (default) (optional)
 
 - method : add
 
