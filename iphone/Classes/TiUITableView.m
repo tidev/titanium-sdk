@@ -763,8 +763,12 @@
 
 	UITableViewCell * thisCell = [ourTableView cellForRowAtIndexPath:indexPath];
 	
-	TiProxy * target = [row touchedViewProxyInCell:thisCell];
+	CGPoint point = CGPointZero;
+	TiProxy * target = [row touchedViewProxyInCell:thisCell atPoint:&point];
 
+	[eventObject setObject:NUMFLOAT(point.x) forKey:@"x"];
+	[eventObject setObject:NUMFLOAT(point.y) forKey:@"y"];
+	
 	if ([target _hasListeners:name])
 	{
 		[target fireEvent:name withObject:eventObject];

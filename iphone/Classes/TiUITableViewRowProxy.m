@@ -173,8 +173,10 @@ static void addRoundedRectToPath(CGContextRef context, CGRect rect,
 @interface TiUITableViewRowContainer : UIView
 {
 	TiProxy * hitTarget;
+	CGPoint hitPoint;
 }
 @property(nonatomic,retain,readwrite) TiProxy * hitTarget;
+@property(nonatomic,assign,readwrite) CGPoint hitPoint;
 -(void)clearHitTarget;
 
 @end
@@ -203,7 +205,15 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 }
 
 @implementation TiUITableViewRowContainer
-@synthesize hitTarget;
+@synthesize hitTarget, hitPoint;
+
+-(id)init
+{
+	if (self = [super init]) {
+		hitPoint = CGPointZero;
+	}
+	return self;
+}
 
 -(void)clearHitTarget
 {
@@ -221,7 +231,8 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 - (UIView *)hitTest:(CGPoint) point withEvent:(UIEvent *)event 
 {
     UIView * result = [super hitTest:point withEvent:event];
-
+	[self setHitPoint:point];
+	
 	if (result==nil)
 	{
 		[self setHitTarget:DeepScanForProxyOfViewContainingPoint(self,point)];
@@ -888,13 +899,14 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 	[self triggerRowUpdate];
 }
 
--(TiProxy *)touchedViewProxyInCell:(UITableViewCell *)targetCell
+-(TiProxy *)touchedViewProxyInCell:(UITableViewCell *)targetCell atPoint:(CGPoint*)point
 {
 	for (TiUITableViewRowContainer * thisContainer in [[targetCell contentView] subviews])
 	{
 		if ([thisContainer isKindOfClass:[TiUITableViewRowContainer class]])
 		{
 			TiProxy * result = [thisContainer hitTarget];
+			*point = [thisContainer hitPoint];
 			if (result != nil)
 			{
 				return result;
