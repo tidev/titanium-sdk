@@ -11,6 +11,9 @@ var row1 = Ti.UI.createTableViewRow();
 row1.backgroundColor = '#670000';
 row1.selectedBackgroundColor = '#670000';
 row1.height = 60;
+row1.addEventListener('click', function(e) {
+	Ti.API.log(e.source+" click at ("+e.x+","+e.y+")");
+});
 var item1 = Ti.UI.createLabel({
 	color:'#fff',
 	text:'Burger',
@@ -42,6 +45,7 @@ var add1 = Ti.UI.createButton({
 });
 add1.addEventListener('click', function()
 {
+	Ti.API.log("Adding...");
 	row1.backgroundColor = '#390A0E';
 	setTimeout(function()
 	{
@@ -64,6 +68,7 @@ var delete1 = Ti.UI.createButton({
 });
 delete1.addEventListener('click', function()
 {
+	Ti.API.log("Deleting...");
 	row1.backgroundColor = '#670000';
 	delete1.hide();
 	add1.show();
@@ -80,6 +85,9 @@ var row2 = Ti.UI.createTableViewRow();
 row2.backgroundColor = '#670000';
 row2.selectedBackgroundColor = '#670000';
 row2.height = 60;
+row2.addEventListener('click', function(e) {
+	Ti.API.log(e.source+" click at ("+e.x+","+e.y+")");
+});
 var item2 = Ti.UI.createLabel({
 	color:'#fff',
 	text:'Cheese Burger',

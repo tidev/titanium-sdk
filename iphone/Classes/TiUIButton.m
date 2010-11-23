@@ -23,7 +23,7 @@ const UIControlEvents unHighlightingTouches = UIControlEventTouchCancel|UIContro
 
 -(void)dealloc
 {
-	[button removeTarget:self action:@selector(clicked:) forControlEvents:UIControlEventTouchUpInside];
+	[button removeTarget:self action:@selector(clicked:event:) forControlEvents:UIControlEventTouchUpInside];
 	[button removeTarget:self action:@selector(highlightOn:) forControlEvents:highlightingTouches];
 	[button removeTarget:self action:@selector(highlightOff:) forControlEvents:unHighlightingTouches];
 	RELEASE_TO_NIL(button);
@@ -91,11 +91,17 @@ const UIControlEvents unHighlightingTouches = UIControlEventTouchCancel|UIContro
 	[button setFrame:bounds];
 }
 
--(void)clicked:(id)event
+-(void)clicked:(id)sender event:(UIEvent*)event
 {
 	if ([self.proxy _hasListeners:@"click"])
 	{
-		[self.proxy fireEvent:@"click" withObject:nil];
+		// TODO: This is not cool.  It COULD be that any control with 'specialized' handling like buttons does not report the same information as TiUIViews!
+		// For now, let's just hack in some x and y...
+		UITouch* touch = [[event touchesForView:sender] anyObject];
+		NSMutableDictionary *evt = [NSMutableDictionary dictionaryWithDictionary:[TiUtils pointToDictionary:[touch locationInView:self]]];
+		[evt setValue:[TiUtils pointToDictionary:[touch locationInView:nil]] forKey:@"globalPoint"];
+		
+		[self.proxy fireEvent:@"click" withObject:evt];
 	}
 }
 
@@ -114,7 +120,7 @@ const UIControlEvents unHighlightingTouches = UIControlEventTouchCancel|UIContro
 		{
 			[button setTitleColor:[UIColor whiteColor] forState:UIControlStateHighlighted];
 		}
-		[button addTarget:self action:@selector(clicked:) forControlEvents:UIControlEventTouchUpInside];
+		[button addTarget:self action:@selector(clicked:event:) forControlEvents:UIControlEventTouchUpInside];
 		[button addTarget:self action:@selector(highlightOn:) forControlEvents:highlightingTouches];
 		[button addTarget:self action:@selector(highlightOff:) forControlEvents:unHighlightingTouches];
 	}
