@@ -130,4 +130,10 @@ describe("Ti.UI.Android tests", {
 		valueOf( function() {picker.setSelectedRow(0, 1);}).shouldNotThrowException();
 	}
 
+	// https://appcelerator.lighthouseapp.com/projects/32238-titanium-mobile/tickets/937
+	removeMethodsAddRemoveView: function() {
+		valueOf (Ti.UI.addView).shouldBeUndefined();
+		valueOf (Ti.UI.removeView).shouldBeUndefined();
+	}
+
 })
