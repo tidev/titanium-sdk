@@ -16,6 +16,7 @@ import org.appcelerator.titanium.proxy.RProxy;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 
 @Kroll.module
 public class AndroidModule extends KrollModule
@@ -179,6 +180,14 @@ public class AndroidModule extends KrollModule
 	@Kroll.constant public static final int RESULT_OK = Activity.RESULT_OK;
 	@Kroll.constant public static final int RESULT_CANCELED = Activity.RESULT_CANCELED;
 	@Kroll.constant public static final int RESULT_FIRST_USER = Activity.RESULT_FIRST_USER;
+	
+	@Kroll.constant public static final int SCREEN_ORIENTATION_BEHIND = ActivityInfo.SCREEN_ORIENTATION_BEHIND;
+	@Kroll.constant public static final int SCREEN_ORIENTATION_LANDSCAPE = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE;
+	@Kroll.constant public static final int SCREEN_ORIENTATION_NOSENSOR = ActivityInfo.SCREEN_ORIENTATION_NOSENSOR;
+	@Kroll.constant public static final int SCREEN_ORIENTATION_PORTRAIT = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT;
+	@Kroll.constant public static final int SCREEN_ORIENTATION_SENSOR = ActivityInfo.SCREEN_ORIENTATION_SENSOR;
+	@Kroll.constant public static final int SCREEN_ORIENTATION_UNSPECIFIED = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED;
+	@Kroll.constant public static final int SCREEN_ORIENTATION_USER = ActivityInfo.SCREEN_ORIENTATION_USER;
 	
 	protected RProxy r;
 	

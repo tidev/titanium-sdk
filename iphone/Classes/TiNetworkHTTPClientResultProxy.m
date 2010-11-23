@@ -35,6 +35,16 @@
 		id value = nil;
 		@try {
 			value = [delegate valueForKey:key];
+			if ([key isEqual:@"responseXML"])
+			{
+				// check response content-type before trying to parse into XML - gets rid
+				// of the silent XML parse error when not XML content
+				id ct = [delegate getResponseHeader:[NSArray arrayWithObject:@"Content-Type"]];
+				if ([ct rangeOfString:@"xml"].location==NSNotFound)
+				{
+					return;
+				}
+			}
 		}
 		@catch (NSException* e) {
 			// TODO: Fail silently for now; should only affect XML.  Come back when we standardize to XHR

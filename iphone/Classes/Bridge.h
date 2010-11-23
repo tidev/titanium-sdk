@@ -29,4 +29,6 @@
 
 -(TiHost*)host;
 
+- (NSString*)basename;
+
 @end

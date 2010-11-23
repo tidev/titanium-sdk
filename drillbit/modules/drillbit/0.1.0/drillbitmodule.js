@@ -162,11 +162,12 @@ Drillbit.prototype.initPlatforms = function() {
 		googleApis = androidSdkResult['GOOGLE_APIS'];
 		apiLevel = androidSdkResult['ANDROID_API_LEVEL'];
 		
-		ti.api.info('Adding Android SDK to list of Drillbit target platforms. API Level: ' + apiLevel + ', SDK: ' + androidSdk);
+		ti.api.info('Adding Android SDK to list of Drillbit target platforms. API Level: ' + apiLevel + ', SDK: ' + androidSdk + ', Platform: ' + platform + ' Google APIs: ' + googleApis);
 		
 		ti.include(ti.path.join(this.module.getPath(), 'android.js'));
 		this.platforms.push('android');
-		this.emulators.android = new Titanium.AndroidEmulator(this, androidSdk, apiLevel, platform, googleApis);
+		//this.emulators.android = new Titanium.AndroidEmulator(this, androidSdk, apiLevel, platform, googleApis);
+		this.emulators.android = ti.createAndroidEmulator(this, androidSdk, apiLevel, platform, googleApis);
 	}
 };
 
@@ -194,7 +195,7 @@ Drillbit.prototype.eachEmulator = function(fn) {
 Drillbit.prototype.renderTemplate = function(path, data, toPath) {
 	var file = ti.fs.getFile(path);
 	try {
-		var output = new Titanium.EJS({text: file.read().toString(), name: path}).render(data);
+		var output = ti.createEJS({text: file.read().toString(), name: path}).render(data);
 		if (typeof(toPath) != 'undefined') {
 			var file = ti.fs.getFile(toPath);
 			var stream = file.open(ti.fs.MODE_WRITE);
@@ -729,9 +730,9 @@ Drillbit.prototype.runTest = function(entry)
 	});
 	
 	var stagedFiles = this.stageTest(entry);
-	if (typeof(this.mobileRepository) != 'undefined') {
+	/*if (typeof(this.mobileRepository) != 'undefined') {
 		stagedFiles = stagedFiles.concat(this.stageSDK());
-	}
+	}*/
 	
 	var profilePath = ti.fs.getFile(this.resultsDir, entry.name+'.prof');
 	var logPath = ti.fs.getFile(this.resultsDir, entry.name+'.log');

@@ -14,8 +14,8 @@ import java.util.List;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.titanium.TiApplication;
-import org.appcelerator.titanium.TiProperties;
 import org.appcelerator.titanium.TiContext.OnLifecycleEvent;
+import org.appcelerator.titanium.TiProperties;
 import org.appcelerator.titanium.io.TiBaseFile;
 import org.appcelerator.titanium.io.TiFileFactory;
 import org.appcelerator.titanium.proxy.TiViewProxy;
@@ -25,6 +25,7 @@ import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiUIView;
 
+import android.app.Activity;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
@@ -35,8 +36,8 @@ import android.os.Handler;
 import android.os.Message;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.Window;
 import android.view.ViewGroup.LayoutParams;
+import android.view.Window;
 import android.widget.Toast;
 
 import com.google.android.maps.GeoPoint;
@@ -297,35 +298,32 @@ public class TiMapView extends TiUIView
 		view = new LocalMapView(mapWindow.getContext(), apiKey);
 		TiMapActivity ma = (TiMapActivity) mapWindow.getContext();
 
-		ma.setLifecycleListener(new OnLifecycleEvent()
-			{
-				public void onPause() {
-					if (myLocation != null) {
-						if (DBG) {
-							Log.d(LCAT, "onPause: Disabling My Location");
-						}
-						myLocation.disableMyLocation();
+		ma.setLifecycleListener(new OnLifecycleEvent() {
+			public void onPause(Activity activity) {
+				if (myLocation != null) {
+					if (DBG) {
+						Log.d(LCAT, "onPause: Disabling My Location");
 					}
+					myLocation.disableMyLocation();
 				}
-
-				public void onResume() {
-					if (myLocation != null && userLocation) {
-						if (DBG) {
-							Log.d(LCAT, "onResume: Enabling My Location");
-						}
-						myLocation.enableMyLocation();
+			}
+			public void onResume(Activity activity) {
+				if (myLocation != null && userLocation) {
+					if (DBG) {
+						Log.d(LCAT, "onResume: Enabling My Location");
 					}
+					myLocation.enableMyLocation();
 				}
+			}
+			public void onDestroy(Activity activity) {
+			}
 
-				public void onDestroy() {
-				}
+			public void onStart(Activity activity) {
+			}
 
-				public void onStart() {
-				}
-
-				public void onStop() {
-				}
-			});
+			public void onStop(Activity activity) {
+			}
+		});
 		view.setBuiltInZoomControls(true);
 		view.setScrollable(true);
 		view.setClickable(true);

@@ -329,11 +329,11 @@
 	{
 		// we might be inside a different context than our tab group and if so, he takes precendence in
 		// url resolution
-		TiProxy* currentWindow = [self.executionContext preloadForKey:@"currentWindow"];
+		TiProxy* currentWindow = [self.executionContext preloadForKey:@"currentWindow" name:@"UI"];
 		if (currentWindow==nil)
 		{
 			// check our current window's context that we are owned by
-			currentWindow = [self.pageContext preloadForKey:@"currentWindow"];
+			currentWindow = [self.pageContext preloadForKey:@"currentWindow" name:@"UI"];
 		}
 		if (currentWindow==nil)
 		{
@@ -374,11 +374,11 @@
 	{
 		// we might be inside a different context than our tab group and if so, he takes precendence in
 		// url resolution
-		TiProxy* currentWindow = [self.executionContext preloadForKey:@"currentWindow"];
+		TiProxy* currentWindow = [self.executionContext preloadForKey:@"currentWindow" name:@"UI"];
 		if (currentWindow==nil)
 		{
 			// check our current window's context that we are owned by
-			currentWindow = [self.pageContext preloadForKey:@"currentWindow"];
+			currentWindow = [self.pageContext preloadForKey:@"currentWindow" name:@"UI"];
 		}
 		if (currentWindow==nil)
 		{

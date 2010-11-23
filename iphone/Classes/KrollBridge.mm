@@ -245,11 +245,15 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 	return context;
 }
 
-- (id)preloadForKey:(id)key
+- (id)preloadForKey:(id)key name:(id)name
 {
 	if (preload!=nil)
 	{
-		return [preload objectForKey:key];
+		NSDictionary* dict = [preload objectForKey:name];
+		if (dict!=nil)
+		{
+			return [dict objectForKey:key];
+		}
 	}
 	return nil;
 }
@@ -463,17 +467,20 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 	TiStringRelease(prop);
 	TiStringRelease(prop2);	
 	
-	//if we have a preload dictionary, register those static key/values into our UI namespace
-	//in the future we may support another top-level module but for now UI is only needed
+	//if we have a preload dictionary, register those static key/values into our namespace
 	if (preload!=nil)
 	{
-		KrollObject *ti = (KrollObject*)[titanium valueForKey:@"UI"];
-		for (id key in preload)
+		for (NSString *name in preload)
 		{
-			id target = [preload objectForKey:key];
-			KrollObject *ko = [[KrollObject alloc] initWithTarget:target context:context];
-			[ti setStaticValue:ko forKey:key purgable:NO];
-			[ko release];
+			KrollObject *ti = (KrollObject*)[titanium valueForKey:name];
+			NSDictionary *values = [preload valueForKey:name];
+			for (id key in values)
+			{
+				id target = [values objectForKey:key];
+				KrollObject *ko = [[KrollObject alloc] initWithTarget:target context:context];
+				[ti setStaticValue:ko forKey:key purgable:NO];
+				[ko release];
+			}
 		}
 		[self injectPatches];
 		[self evalFile:[url path] callback:self selector:@selector(booted)];	

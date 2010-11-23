@@ -14,6 +14,9 @@
 @private
 	NSMutableDictionary *appListeners;
 	TiAppPropertiesProxy *properties;
+#ifdef USE_TI_APPIOS
+	TiProxy *iOS;
+#endif
 }
 
 -(void)addEventListener:(NSArray*)args;
@@ -37,6 +40,10 @@
 @property(nonatomic,readwrite,assign) NSNumber *idleTimerDisabled;
 @property(nonatomic,readonly) NSNumber *proximityState;
 @property(nonatomic,readwrite,assign) NSNumber *proximityDetection;
+
+#ifdef USE_TI_APPIOS
+@property(nonatomic,readonly)			TiProxy* iOS;
+#endif
 
 @end
 

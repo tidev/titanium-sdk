@@ -19,6 +19,7 @@ import org.appcelerator.titanium.util.TiActivitySupportHelper;
 import org.appcelerator.titanium.util.TiBindingHelper;
 import org.appcelerator.titanium.util.TiColorHelper;
 import org.appcelerator.titanium.util.TiConfig;
+import org.appcelerator.titanium.util.TiRHelper;
 import org.appcelerator.titanium.view.ITiWindowHandler;
 import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.titanium.view.TiCompositeLayout.LayoutParams;
@@ -30,8 +31,11 @@ import android.app.AlertDialog;
 import android.app.LocalActivityManager;
 import android.app.PendingIntent;
 import android.content.DialogInterface;
-import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
+import android.content.DialogInterface.OnClickListener;
+import android.content.res.Configuration;
+import android.content.res.Resources.Theme;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -289,7 +293,7 @@ public class TiRootActivity extends ActivityGroup
 		super.onStart();
 
 		if (tiContext != null) {
-			tiContext.dispatchOnStart();
+			tiContext.dispatchOnStart(this);
 		}
 	}
 
@@ -310,7 +314,7 @@ public class TiRootActivity extends ActivityGroup
 		super.onResume();
 		Log.checkpoint("checkpoint, on root activity resume. context = " + tiContext);
 		if (tiContext != null) {
-			tiContext.dispatchOnResume();
+			tiContext.dispatchOnResume(this);
 		} else {
 			// No context, we have a launch problem.
 			TiProperties systemProperties = getTiApp().getSystemProperties();
@@ -340,6 +344,24 @@ public class TiRootActivity extends ActivityGroup
 		}
 	}
 	
+	@Override
+	public void onConfigurationChanged(Configuration newConfig) 
+	{
+		super.onConfigurationChanged(newConfig);
+		
+		try {
+			int backgroundId = TiRHelper.getResource("drawable.background");
+			Drawable d = this.getResources().getDrawable(backgroundId);
+			if (d != null) {
+				Drawable bg = getWindow().getDecorView().getBackground();
+				getWindow().setBackgroundDrawable(d);
+				bg.setCallback(null);
+			}
+		} catch (Exception e) {
+			Log.e(LCAT, "Resource not found 'drawable.background': " + e.getMessage());
+		}
+	}
+
 	private Intent buildLaunchIntent() 
 	{
 		Intent intent = new Intent(getApplicationContext(), getClass());
@@ -355,7 +377,7 @@ public class TiRootActivity extends ActivityGroup
 			PendingIntent pi = PendingIntent.getActivity(getApplicationContext(), 0, relaunch, PendingIntent.FLAG_ONE_SHOT);
 			am.set(AlarmManager.RTC, System.currentTimeMillis() + delay, pi);
 		}
-		finish();						
+		finish();
 	}
 	
 	@Override
@@ -366,7 +388,7 @@ public class TiRootActivity extends ActivityGroup
 		}
 		
 		if (tiContext != null) {
-			tiContext.dispatchOnPause();
+			tiContext.dispatchOnPause(this);
 		} else {
 			// Not in a good state. Let's get out.
 			if (b2373Alert != null && b2373Alert.isShowing()) {
@@ -382,7 +404,7 @@ public class TiRootActivity extends ActivityGroup
 		super.onStop();
 
 		if (tiContext != null) {
-			tiContext.dispatchOnStop();
+			tiContext.dispatchOnStop(this);
 		}
 	}
 
@@ -395,7 +417,7 @@ public class TiRootActivity extends ActivityGroup
 		
 		tiContext.getTiApp().releaseModules();
 		if (tiContext != null) {
-			tiContext.dispatchOnDestroy();
+			tiContext.dispatchOnDestroy(this);
 			tiContext.release();
 		}
 	}

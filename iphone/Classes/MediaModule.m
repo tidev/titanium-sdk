@@ -559,7 +559,7 @@ MAKE_SYSTEM_PROP(VIDEO_FINISH_REASON_USER_EXITED,MPMovieFinishReasonUserExited);
 
 #define ONLY_IN_IOS4_OR_GREATER(method,retval) \
 if (![TiUtils isIOS4OrGreater]) { \
-	NSLog(@"" #method " only available in iOS 4 and later");\
+	NSLog(@"[WARN] " #method " only available in iOS 4 and later");\
 	return retval;\
 }
 

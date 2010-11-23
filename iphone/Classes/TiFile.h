@@ -26,6 +26,7 @@
 
 +(TiFile*)createTempFile:(NSString*)extension;
 
+-(id)blob;
 -(id)toBlob:(id)args;
 
 @end

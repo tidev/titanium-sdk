@@ -306,6 +306,9 @@ public abstract class TiUIView
 						nativeView.postInvalidate();
 					}
 				} else {
+					if (key.equals("opacity")) {
+						setOpacity(TiConvert.toFloat(newValue));
+					}
 					if (nativeView != null) {
 						nativeView.setBackgroundDrawable(null);
 						nativeView.postInvalidate();
@@ -346,8 +349,6 @@ public abstract class TiUIView
 			if (nativeView != null) {
 				nativeView.postInvalidate();
 			}
-		} else if (key.equals("opacity")) {
-			setOpacity(TiConvert.toFloat(newValue));
 		} else if (key.equals("softKeyboardOnFocus")) {
 				Log.w(LCAT, "Focus state changed to " + TiConvert.toString(newValue) + " not honored until next focus event.");
 		} else {

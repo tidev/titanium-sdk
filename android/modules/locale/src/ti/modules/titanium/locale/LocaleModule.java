@@ -49,6 +49,9 @@ public class LocaleModule extends KrollModule
 	@Kroll.method
 	public String getCurrencyCode(String localeString) 
 	{
+		if (localeString == null) {
+			return null;
+		}
 		Locale locale = TiPlatformHelper.getLocale(localeString);
 		return TiPlatformHelper.getCurrencyCode(locale);
 	}
@@ -62,6 +65,9 @@ public class LocaleModule extends KrollModule
 	@Kroll.method
 	public String getLocaleCurrencySymbol(String localeString)
 	{
+		if (localeString == null) {
+			return null;
+		}
 		Locale locale = TiPlatformHelper.getLocale(localeString);
 		return TiPlatformHelper.getCurrencySymbol(locale);
 	}

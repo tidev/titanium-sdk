@@ -240,9 +240,9 @@ NSArray* moviePlayerKeys = nil;
 	
 	if (movie != nil) {
 		UIView *background = [[self player] backgroundView];
-		for (UIView *view in [background subviews])
+		for (UIView *view_ in [background subviews])
 		{
-			[view removeFromSuperview];
+			[view_ removeFromSuperview];
 		}
 		[background addSubview:[proxy view]];
 	}
