@@ -936,25 +936,72 @@ class Builder(object):
 		out = run.run(javac_command)
 		os.remove(src_list_filename)
 	
+	def create_unsigned_apk(self, resources_zip_file):
+		unsigned_apk = os.path.join(self.project_dir, 'bin', 'app-unsigned.apk')
+		debug("creating unsigned apk: " + unsigned_apk)
+		# copy existing resources into the APK
+		resources_zip = zipfile.ZipFile(resources_zip_file)
+		apk_zip = zipfile.ZipFile(unsigned_apk, 'w')
+
+		def skip_jar_path(path):
+			return path.endswith('/') or \
+				path.startswith('META-INF/') or \
+				path.split('/')[-1].startswith('.')
+			
+		for path in resources_zip.namelist():
+			if skip_jar_path(path): continue
+			debug("from resource zip => " + path)
+			apk_zip.writestr(path, resources_zip.read(path))
+		resources_zip.close()
+		
+		# add classes.dex
+		apk_zip.write(self.classes_dex, 'classes.dex')
+		
+		# add all resource files from the project
+		for root, dirs, files in os.walk(self.project_src_dir):
+			for file in files:
+				if os.path.splitext(file)[1] != '.java':
+					relative_path = os.path.join(root[len(self.project_src_dir)+1:], file)
+					debug("resource file => " + relative_path)
+					apk_zip.write(os.path.join(root, file), relative_path)
+		
+		def add_resource_jar(jar_file):
+			jar = zipfile.ZipFile(jar_file)
+			for path in jar.namelist():
+				if skip_jar_path(path): continue
+				if os.path.splitext(path)[1] != '.class':
+					debug("from JAR %s => %s" % (jar_file, path))
+					apk_zip.writestr(path, jar.read(path))
+			jar.close()
+		
+		for jar_file in self.module_jars:
+			add_resource_jar(jar_file)
+		for jar_file in self.android_jars:
+			add_resource_jar(jar_file)
+		
+		apk_zip.close()
+		return unsigned_apk
+
 	def package_and_deploy(self):
 		ap_ = os.path.join(self.project_dir, 'bin', 'app.ap_')
 		rhino_jar = os.path.join(self.support_dir, 'js.jar')
 		run.run([self.aapt, 'package', '-f', '-M', 'AndroidManifest.xml', '-A', self.assets_dir, '-S', 'res', '-I', self.android_jar, '-I', self.titanium_jar, '-F', ap_],
 			warning_regex=r'skipping')
 	
-		unsigned_apk = os.path.join(self.project_dir, 'bin', 'app-unsigned.apk')
-		apk_build_cmd = [self.apkbuilder, unsigned_apk, '-u', '-z', ap_, '-f', self.classes_dex, '-rf', self.project_src_dir]
-		for jar in self.android_jars:
-			apk_build_cmd += ['-rj', jar]
-		for jar in self.module_jars:
-			apk_build_cmd += ['-rj', jar]
+		unsigned_apk = self.create_unsigned_apk(ap_)
+		#unsigned_apk = os.path.join(self.project_dir, 'bin', 'app-unsigned.apk')
+		#apk_build_cmd = [self.apkbuilder, unsigned_apk, '-u', '-z', ap_, '-f', self.classes_dex, '-rf', self.project_src_dir]
+		#for jar in self.android_jars:
+		#	apk_build_cmd += ['-rj', jar]
+		#for jar in self.module_jars:
+		#	apk_build_cmd += ['-rj', jar]
 		
-		output, err_output = run.run(apk_build_cmd, ignore_error=True, return_error=True)
-		if err_output:
-			if 'THIS TOOL IS DEPRECATED' in err_output:
-				debug('apkbuilder deprecation warning received')
-			else:
-				run.check_and_print_err(err_output, None)
+		#output, err_output = run.run(apk_build_cmd, ignore_error=True, return_error=True)
+		#if err_output:
+		#	if 'THIS TOOL IS DEPRECATED' in err_output:
+		#		debug('apkbuilder deprecation warning received')
+		#	else:
+		#		run.check_and_print_err(err_output, None)
 
 		if self.dist_dir:
 			app_apk = os.path.join(self.dist_dir, self.name + '.apk')	
