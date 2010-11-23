@@ -8,7 +8,7 @@ module
 
 - description
 
-The top level Locale module.  The Locale module works with localization files to which are generated during compilation into the operating system specific localization formats. The Locale module provides locale-specific strings which can be referenced at runtime.
+The top level Locale module.  The Locale module works with localization files to which are generated during compilation into the operating system specific localization formats. The Locale module provides locale-specific strings which can be referenced at runtime.  Additionally, the module contains a few methods and properties for querying device locale information.
 
 - since
 
