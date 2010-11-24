@@ -298,7 +298,7 @@ else
 	//
 	Titanium.Geolocation.getCurrentPosition(function(e)
 	{
-		if (e.error)
+		if (!e.success || e.error)
 		{
 			currentLocation.text = 'error: ' + JSON.stringify(e.error);
 			alert('error ' + JSON.stringify(e.error));
@@ -324,7 +324,7 @@ else
 	//
 	Titanium.Geolocation.addEventListener('location',function(e)
 	{
-		if (e.error)
+		if (!e.success || e.error)
 		{
 			updatedLocation.text = 'error:' + JSON.stringify(e.error);
 			updatedLatitude.text = '';
@@ -365,9 +365,17 @@ else
 		// reverse geo
 		Titanium.Geolocation.reverseGeocoder(latitude,longitude,function(evt)
 		{
-			var places = evt.places;
-			reverseGeo.text = places[0].address;
-			Ti.API.debug("reverse geolocation result = "+JSON.stringify(evt));
+			if (evt.success) {
+				var places = evt.places;
+				reverseGeo.text = places[0].address;
+				Ti.API.debug("reverse geolocation result = "+JSON.stringify(evt));
+			}
+			else {
+				Ti.UI.createAlertDialog({
+					title:'Reverse geo error',
+					message:evt.error
+				}).show();
+			}
 		});
 
 
@@ -384,11 +392,19 @@ Titanium.Geolocation.forwardGeocoder(addr,function(evt)
 	forwardGeo.text = "lat:"+evt.latitude+", long:"+evt.longitude;
 	Titanium.Geolocation.reverseGeocoder(evt.latitude,evt.longitude,function(evt)
 	{
-		var text = "";
-		for (var i = 0; i < evt.places.length; i++) {
-			text += "" + i + ") " + evt.places[i].address + "\n";
+		if (evt.success) {
+			var text = "";
+			for (var i = 0; i < evt.places.length; i++) {
+				text += "" + i + ") " + evt.places[i].address + "\n";
+			}
+			Ti.API.info('Reversed forward: '+text);
 		}
-		Ti.API.info('Reversed forward: '+text);
+		else {
+			Ti.UI.createAlertDialog({
+				title:'Forward geo error',
+				message:evt.error
+			}).show();
+		}
 	});
 });
 
