@@ -85,6 +85,48 @@ NSString * const TI_DB_VERSION = @"1";
 	[NSThread detachNewThreadSelector:@selector(flushEventQueue) toTarget:self withObject:nil];
 }
 
+-(void)requeueEventsOnTimer
+{
+	[lock lock];
+	NSError *error = nil;
+	
+	[database beginTransaction];
+	
+	// get the number of attempts
+	PLSqliteResultSet *rs = (PLSqliteResultSet*)[database executeQuery:@"select attempts from last_attempt"];
+	BOOL found = [rs next];
+	int count = found ? [rs intForColumn:@"attempts"] : 0;
+	[rs close];
+	
+	if (count == TI_DB_WARN_ON_ATTEMPT_COUNT)
+	{
+		NSLog(@"[ERROR] %d analytics events attempted with no luck",count);
+	}
+	
+	NSString *sql = count == 0 ? @"insert into last_attempt VALUES (?,?)" : @"update last_attempt set date = ?, attempts = ?";
+	PLSqlitePreparedStatement * statement = (PLSqlitePreparedStatement *) [database prepareStatement:sql error:&error];
+	[statement bindParameters:[NSArray arrayWithObjects:[NSDate date],NUMINT(count+1),nil]];
+	[statement executeUpdate];
+	[database commitTransaction];
+	
+	[statement close];
+	
+	if (retryTimer==nil)
+	{
+		// start our re-attempt timer
+		NSLog(@"[DEBUG] attempt to send analytics event but no network. will try again in %d seconds",TI_DB_RETRY_INTERVAL_IN_SEC);
+		retryTimer = [[NSTimer timerWithTimeInterval:TI_DB_RETRY_INTERVAL_IN_SEC target:self selector:@selector(backgroundFlushEventQueue) userInfo:nil repeats:YES] retain];
+		[[NSRunLoop mainRunLoop] addTimer:retryTimer forMode:NSDefaultRunLoopMode];
+	}
+	
+	if (flushTimer!=nil)
+	{
+		[flushTimer invalidate];
+		RELEASE_TO_NIL(flushTimer);
+	}
+	[lock unlock];
+}
+
 -(void)flushEventQueue
 {
 	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
@@ -98,43 +140,7 @@ NSString * const TI_DB_VERSION = @"1";
 	// set a retry timer and just bail...
 	if (status != ReachableViaWiFi && status != ReachableViaWWAN)
 	{
-		NSError *error = nil;
-
-		[database beginTransaction];
-		
-		// get the number of attempts
-		PLSqliteResultSet *rs = (PLSqliteResultSet*)[database executeQuery:@"select attempts from last_attempt"];
-		BOOL found = [rs next];
-		int count = found ? [rs intForColumn:@"attempts"] : 0;
-		[rs close];
-		
-		if (count == TI_DB_WARN_ON_ATTEMPT_COUNT)
-		{
-			NSLog(@"[ERROR] %d analytics events attempted with no luck",count);
-		}
-		
-		NSString *sql = count == 0 ? @"insert into last_attempt VALUES (?,?)" : @"update last_attempt set date = ?, attempts = ?";
-		PLSqlitePreparedStatement * statement = (PLSqlitePreparedStatement *) [database prepareStatement:sql error:&error];
-		[statement bindParameters:[NSArray arrayWithObjects:[NSDate date],NUMINT(count+1),nil]];
-		[statement executeUpdate];
-		[database commitTransaction];
-		
-		[statement close];
-		
-		if (retryTimer==nil)
-		{
-			// start our re-attempt timer
-			NSLog(@"[DEBUG] attempt to send analytics event but no network. will try again in %d seconds",TI_DB_RETRY_INTERVAL_IN_SEC);
-			retryTimer = [[NSTimer timerWithTimeInterval:TI_DB_RETRY_INTERVAL_IN_SEC target:self selector:@selector(backgroundFlushEventQueue) userInfo:nil repeats:YES] retain];
-			[[NSRunLoop mainRunLoop] addTimer:retryTimer forMode:NSDefaultRunLoopMode];
-		}
-		
-		if (flushTimer!=nil)
-		{
-			[flushTimer invalidate];
-			RELEASE_TO_NIL(flushTimer);
-		}
-		
+		[self requeueEventsOnTimer];
 		[lock unlock];
 		[pool release];
 		return;
@@ -199,6 +205,16 @@ NSString * const TI_DB_VERSION = @"1";
 		// run synchronous ... we are either in a sync call or
 		// we're on a background timer thread
 		[request startSynchronous];
+		
+		NSString* error = [request error];
+		if (error != nil) {
+			NSLog(@"[ERROR] Analytics error sending request: %@", error);
+			NSLog(@"[ERROR] Will re-queue analytics");
+			[self requeueEventsOnTimer];
+			[lock unlock];
+			[pool release];
+			return;
+		}
 		
 		NSData *data = [request responseData];
 		if (data!=nil && [data length]>0) 
