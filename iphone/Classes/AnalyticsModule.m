@@ -206,9 +206,9 @@ NSString * const TI_DB_VERSION = @"1";
 		// we're on a background timer thread
 		[request startSynchronous];
 		
-		NSString* error = [request error];
+		NSError* error = [request error];
 		if (error != nil) {
-			NSLog(@"[ERROR] Analytics error sending request: %@", error);
+			NSLog(@"[ERROR] Analytics error sending request: %@", [error localizedDescription]);
 			NSLog(@"[ERROR] Will re-queue analytics");
 			[self requeueEventsOnTimer];
 			[lock unlock];
