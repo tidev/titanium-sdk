@@ -159,7 +159,7 @@ static char ctrl[0x24];
 + (NSString *) stringify: (id) inputObject;
 {
 	NSError * error = nil;
-	SBJSON * stringer = [[self alloc] init];
+	SBJSON * stringer = [[SBJSON alloc] init];
 	NSString * result = [stringer stringWithFragment:inputObject error:&error];
 	[stringer release];
 	if (error != nil) {
