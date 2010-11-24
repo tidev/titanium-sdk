@@ -128,7 +128,7 @@ describe("Ti.UI.Android tests", {
 		var picker = Ti.UI.createPicker({columns: [col], left: 0, top: 0, width: 1, height: 1});
 		w.add(picker);
 		valueOf( function() {picker.setSelectedRow(0, 1);}).shouldNotThrowException();
-	}
+	},
 
 	// https://appcelerator.lighthouseapp.com/projects/32238-titanium-mobile/tickets/937
 	removeMethodsAddRemoveView: function() {

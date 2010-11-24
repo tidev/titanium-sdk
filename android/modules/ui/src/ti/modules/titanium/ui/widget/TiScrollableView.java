@@ -393,6 +393,12 @@ public class TiScrollableView extends TiCompositeLayout
 				}
 			} else {
 				gallery.removeViewAt(index);
+				
+				// really for safety sake, you could just loop through all view resetting the position
+				// but for the sake of performance, just run over affected views for now
+				for (int i = index; i < gallery.getChildCount(); i++) {
+					((ViewWrapper) gallery.getChildAt (i)).position = i;
+				}
 			}
 		}
 	}
