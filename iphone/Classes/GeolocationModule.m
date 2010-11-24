@@ -142,7 +142,12 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 	NSError * error = nil;
 	id event = [json fragmentWithString:locationString error:&error];
 	[json release];
-	[context fireEvent:callback withObject:event remove:NO thisObject:nil];
+	if (error == nil) {
+		[self requestError:[error localizedDescription]];
+	}
+	else {
+		[context fireEvent:callback withObject:event remove:NO thisObject:nil];
+	}
 }
 
 @end
