@@ -36,6 +36,8 @@ public class TiBackgroundDrawable extends StateListDrawable {
 	private Drawable background;
 	private Border border;
 	private RectF outerRect, innerRect;
+	private static final int NOT_SET = -1;
+	private int alpha = NOT_SET;
 
 	public TiBackgroundDrawable()
 	{
@@ -77,6 +79,9 @@ public class TiBackgroundDrawable extends StateListDrawable {
 		}
 
 		if (background != null) {
+			if (alpha > NOT_SET) {
+				background.setAlpha(alpha);
+			}
 			background.draw(canvas);
 		}
 		
@@ -230,6 +235,13 @@ public class TiBackgroundDrawable extends StateListDrawable {
 		releaseDelegate();
 		this.background = drawable;
 		onStateChange(getState());
+	}
+
+	@Override
+	public void setAlpha(int alpha)
+	{
+		super.setAlpha(alpha);
+		this.alpha = alpha;
 	}
 
 //	public Drawable getBackgroundDrawable() {
