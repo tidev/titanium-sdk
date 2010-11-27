@@ -248,6 +248,23 @@ public class TiBlob extends KrollProxy
 		return "[object TiBlob]";
 	}
 
+	@Kroll.getProperty @Kroll.method
+	public String getNativePath()
+	{
+		if (data == null) {
+			return null;
+		}
+		if (this.type != TYPE_FILE) {
+			Log.w(LCAT, "getNativePath not supported for non-file blob types.");
+			return null;
+		} else if (!(data instanceof TiBaseFile)) {
+			Log.w(LCAT, "getNativePath unable to return value: underlying data is not file, rather " + data.getClass().getName());
+			return null;
+		} else {
+			return ((TiBaseFile)data).nativePath();
+		}
+	}
+
 	@Kroll.method
 	public String toBase64()
 	{

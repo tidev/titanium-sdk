@@ -452,7 +452,7 @@ public class MediaModule extends KrollModule
 
 		try {
 			String fpath = path;
-			if (!fpath.startsWith("file://")) {
+			if (!fpath.startsWith("file://") && !fpath.startsWith("content://")) {
 				fpath = "file://" + path;
 			}
 			BitmapFactory.Options opts = new BitmapFactory.Options();
