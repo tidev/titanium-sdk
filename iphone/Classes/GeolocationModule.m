@@ -142,7 +142,12 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 	NSError * error = nil;
 	id event = [json fragmentWithString:locationString error:&error];
 	[json release];
-	[context fireEvent:callback withObject:event remove:NO thisObject:nil];
+	if (error != nil) {
+		[self requestError:[error localizedDescription]];
+	}
+	else {
+		[context fireEvent:callback withObject:event remove:NO thisObject:nil];
+	}
 }
 
 @end
@@ -153,6 +158,7 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 
 #pragma mark Internal
 
+// TODO: Do we need to force this onto the main thread?
 -(void)shutdownLocationManager
 {
 	[lock lock];
@@ -167,7 +173,7 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 	if (trackingLocation) {
 		[locationManager stopUpdatingLocation];
 	}
-	RELEASE_TO_NIL(locationManager);
+	RELEASE_TO_NIL_AUTORELEASE(locationManager);
 	[lock unlock];
 }
 

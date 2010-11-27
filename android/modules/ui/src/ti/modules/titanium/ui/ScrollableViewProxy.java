@@ -156,6 +156,7 @@ public class ScrollableViewProxy extends TiViewProxy
 		result.getResult(); // Wait for it 
 	}
 	
+	@Kroll.method
 	public void removeView(Object viewObject) {
 		Message msg = getUIHandler().obtainMessage(MSG_REMOVE_VIEW);
 		AsyncResult result = new AsyncResult(viewObject);

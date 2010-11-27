@@ -10,6 +10,7 @@ package ti.modules.titanium.ui;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.annotations.Kroll;
@@ -29,6 +30,8 @@ import org.appcelerator.titanium.view.TiUIView;
 import ti.modules.titanium.filesystem.FileProxy;
 import android.app.Activity;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.net.Uri;
 import android.text.Html;
 
@@ -52,6 +55,28 @@ public class EmailDialogProxy extends TiViewProxy {
 	
 	public EmailDialogProxy(TiContext tiContext) {
 		super(tiContext);
+	}
+	
+	@Kroll.method
+	public boolean isSupported() {
+		boolean supported = false;
+		
+		Activity activity = getTiContext().getActivity();
+		if (activity != null) {
+			PackageManager pm = activity.getPackageManager();
+			if (pm != null) {
+				Intent intent = buildIntent();
+				List<ResolveInfo> activities = pm.queryIntentActivities(intent, PackageManager.MATCH_DEFAULT_ONLY);
+				if (activities != null && activities.size() > 0) {
+					supported = true;
+					if (DBG) {
+						Log.d(LCAT, "Number of activities that support ACTION_SEND: " + activities.size());
+					}
+				}
+			}
+		}
+		
+		return supported;
 	}
 	
 	@Kroll.method
@@ -84,8 +109,7 @@ public class EmailDialogProxy extends TiViewProxy {
 		return result;
 	}
 	
-	@Kroll.method
-	public void open(){
+	private Intent buildIntent() {
 		Intent sendIntent = new Intent(Intent.ACTION_SEND);
 		
 		boolean isHtml = false;
@@ -109,6 +133,13 @@ public class EmailDialogProxy extends TiViewProxy {
 		if (DBG) {
 			Log.d(LCAT, "Choosing for mime type " + sendIntent.getType());
 		}
+		
+		return sendIntent;
+	}
+	
+	@Kroll.method
+	public void open(){
+		Intent sendIntent = buildIntent();
 		Intent choosingIntent = Intent.createChooser(sendIntent, "Send");
 	
 		Activity activity = getTiContext().getActivity();
