@@ -185,6 +185,7 @@ public class EventProxy extends KrollProxy {
 		return reminders.toArray(new ReminderProxy[reminders.size()]);
 	}
 	
+	@Kroll.method
 	public ReminderProxy createReminder(KrollDict data) {
 		int minutes = TiConvert.toInt(data, "minutes");
 		int method = ReminderProxy.METHOD_DEFAULT;

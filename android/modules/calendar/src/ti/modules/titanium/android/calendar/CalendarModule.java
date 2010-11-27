@@ -25,7 +25,7 @@ public class CalendarModule extends KrollModule {
 	@Kroll.constant public static final int METHOD_SMS = ReminderProxy.METHOD_SMS;
 	
 	@Kroll.constant public static final int STATE_DISMISSED = AlertProxy.STATE_DISMISSED;
-	@Kroll.constant public static final int STATE_FIERD = AlertProxy.STATE_FIRED;
+	@Kroll.constant public static final int STATE_FIRED = AlertProxy.STATE_FIRED;
 	@Kroll.constant public static final int STATE_SCHEDULED = AlertProxy.STATE_SCHEDULED;
 	
 	public CalendarModule(TiContext context) {
