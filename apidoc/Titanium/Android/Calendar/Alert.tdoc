@@ -1,6 +1,6 @@
 - namespace
 
-Titanium.Android.Calendar
+Titanium.Android.Calendar.Alert
 
 - type
 

@@ -1,0 +1,30 @@
+- namespace
+
+Titanium.Android
+
+- type
+
+module
+
+- returns
+
+object
+
+- description
+
+The top level Android module.
+
+- since
+
+1.5
+
+- platforms
+
+android
+
+
+- methods
+
+
+- properties
+
