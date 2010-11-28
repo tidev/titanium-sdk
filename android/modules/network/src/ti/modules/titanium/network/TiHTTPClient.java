@@ -15,7 +15,9 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.lang.ref.WeakReference;
+import java.net.MalformedURLException;
 import java.net.URI;
+import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -88,6 +90,7 @@ public class TiHTTPClient
 	
 	private static final int DEFAULT_MAX_BUFFER_SIZE = 512 * 1024;
 	private static final String PROPERTY_MAX_BUFFER_SIZE = "ti.android.httpclient.maxbuffersize";
+	private static final int PROTOCOL_DEFAULT_PORT = -1;
 	
 	private static AtomicInteger httpClientThreadCounter;
 	public static final int READY_STATE_UNSENT = 0; // Unsent, open() has not yet been called
@@ -668,16 +671,28 @@ public class TiHTTPClient
 		return result;
 	}
 
-	private Uri getCleanUri(String uri)
+	private static Uri getCleanUri(String uri)
     {
     	Uri base = Uri.parse(uri);
     	
     	Uri.Builder builder = base.buildUpon();
 		builder.encodedQuery(Uri.encode(Uri.decode(base.getQuery()), "&="));
-    	builder.encodedAuthority(Uri.encode(Uri.decode(base.getAuthority()),"/:@"));
-    	builder.encodedPath(Uri.encode(Uri.decode(base.getPath()), "/"));
-    	
-    	return builder.build();
+		String encodedAuthority = Uri.encode(Uri.decode(base.getAuthority()),"/:@");
+		int firstAt = encodedAuthority.indexOf('@');
+		if (firstAt >= 0) {
+			int lastAt = encodedAuthority.lastIndexOf('@');
+			if (lastAt > firstAt) {
+				// We have a situation that might be like this:
+				// http://user@domain.com:password@api.mickey.com
+				// i.e., the user name is user@domain.com, and the host
+				// is api.mickey.com.  We need all at-signs prior to the final one (which
+				// indicates the host) to be encoded.
+				encodedAuthority = Uri.encode(encodedAuthority.substring(0, lastAt), "/:") + encodedAuthority.substring(lastAt);
+			}
+		}
+		builder.encodedAuthority(encodedAuthority);
+		builder.encodedPath(Uri.encode(Uri.decode(base.getPath()), "/"));
+		return builder.build();
     }
 	
 	public void open(String method, String url)
@@ -687,7 +702,7 @@ public class TiHTTPClient
 		}
 		this.uri = getCleanUri(url);
 		
-		// If the original url does not contained any
+		// If the original url does not contain any
 		// escaped query string (i.e., does not look
 		// pre-encoded), go ahead and reset it to the 
 		// clean uri. Else keep it as is so the user's
@@ -700,8 +715,36 @@ public class TiHTTPClient
 		}
 
 		this.method = method;
+		String hostString = uri.getHost();
+		int port = PROTOCOL_DEFAULT_PORT;
+
+		// The Android Uri doesn't seem to handle user ids with at-signs (@) in them
+		// properly, even if the @ is escaped.  It will set the host (uri.getHost()) to
+		// the part of the user name after the @.  For example, this Uri would get
+		// the host set to appcelerator.com when it should be mickey.com:
+		// http://testuser@appcelerator.com:password@mickey.com/xx
+		// ... even if that first one is escaped to ...
+		// http://testuser%40appcelerator.com:password@mickey.com/xx
+		// Tests show that Java URL handles it properly, however.  So revert to using Java URL.getHost()
+		// if we see that the Uri.getUserInfo has an at-sign in it.
+		// Also, uri.getPort() will throw an exception as it will try to parse what it thinks is the port
+		// part of the Uri (":password....") as an int.  So in this case we'll get the port number
+		// as well from Java URL.  See Lighthouse ticket 2150.
+		if (uri.getUserInfo() != null && uri.getUserInfo().contains("@")) {
+			URL javaUrl;
+			try {
+				javaUrl = new URL(uri.toString());
+				hostString = javaUrl.getHost();
+				port = javaUrl.getPort();
+			} catch (MalformedURLException e) {
+				Log.e(LCAT, "Error attempting to derive Java url from uri: " + e.getMessage(), e);
+			}
+
+		} else {
+			port = uri.getPort();
+		}
 		
-		host = new HttpHost(uri.getHost(), uri.getPort(), uri.getScheme());
+		host = new HttpHost(hostString, port, uri.getScheme());
 		if (uri.getUserInfo() != null) {
 			credentials = new UsernamePasswordCredentials(uri.getUserInfo());
 		}
@@ -709,7 +752,7 @@ public class TiHTTPClient
 		setRequestHeader("User-Agent", (String) proxy.getProperty("userAgent"));
 		// Causes Auth to Fail with twitter and other size apparently block X- as well
 		// Ticket #729, ignore twitter for now
-		if (!uri.getHost().contains("twitter.com")) {
+		if (!hostString.contains("twitter.com")) {
 			setRequestHeader("X-Requested-With","XMLHttpRequest");
 		} else {
 			Log.i(LCAT, "Twitter: not sending X-Requested-With header");
