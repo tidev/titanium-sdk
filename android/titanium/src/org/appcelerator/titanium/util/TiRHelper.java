@@ -13,6 +13,7 @@ import org.appcelerator.titanium.TiApplication;
  */
 public class TiRHelper {
 	private static final String LCAT = "TiRHelper";
+	private static final boolean DBG = TiConfig.LOGD;
 	
 	private static Map<String, Class<?>> clsCache = Collections.synchronizedMap(new HashMap<String, Class<?>>());
 	private static Map<String, Integer> valCache = Collections.synchronizedMap(new HashMap<String, Integer>());
@@ -55,12 +56,18 @@ public class TiRHelper {
 		// Get the clsPrefixApplication if this is the first time
 		if (clsPrefixApplication == null)
 			clsPrefixApplication = TiApplication.getInstance().getApplicationInfo().packageName + ".R$";
+		if (prefix == null) {
+			prefix = clsPrefixApplication;
+		}
 		
 		Integer i = null;
 		// Load the field
 		try {
 			i = getClass(prefix + classAndFieldNames[0]).getDeclaredField(classAndFieldNames[1]).getInt(null);
 		} catch (Exception e) {
+			if (DBG) {
+				Log.e(LCAT, "Error looking up resource: " + e.getMessage(), e);
+			}
 			throw new ResourceNotFoundException(path);
 		}
 		
@@ -75,7 +82,8 @@ public class TiRHelper {
 		String[] classAndFieldNames = getClassAndFieldNames(path);
 		
 		try {
-			return lookupResource(clsPrefixApplication, path, classAndFieldNames);
+			int resid = lookupResource(clsPrefixApplication, path, classAndFieldNames);
+			return resid;
 		} catch (ResourceNotFoundException e) {
 			return lookupResource(clsPrefixAndroid, path, classAndFieldNames);
 		}

@@ -98,12 +98,33 @@ def remove_orphaned_files(source_folder, target_folder):
 			if is_orphan:
 				os.remove(full)
 
+def is_resource_drawable(path):
+	if re.search("android/images/(high|medium|low|res-[^/]+)/", path.replace("\\", "/")):
+		return True
+	else:
+		return False
+
+def resource_drawable_folder(path):
+	if not is_resource_drawable(path):
+		return None
+	else:
+		pattern = r'/android/images/(high|medium|low|res-[^/]+)/'
+		match = re.search(pattern, path.replace("\\", "/"))
+		if not match.groups():
+			return None
+		folder = match.groups()[0]
+		if re.match('high|medium|low', folder):
+			return 'drawable-%sdpi' % folder[0]
+		else:
+			return 'drawable-%s' % folder.replace('res-', '')
+
 class Builder(object):
 
 	def __init__(self, name, sdk, project_dir, support_dir, app_id):
 		self.top_dir = project_dir
 		self.project_tiappxml = os.path.join(self.top_dir,'tiapp.xml')
 		self.project_dir = os.path.join(project_dir,'build','android')
+		self.res_dir = os.path.join(self.project_dir,'res')
 		self.platform_dir = os.path.join(project_dir, 'platform', 'android')
 		self.project_src_dir = os.path.join(self.project_dir, 'src')
 		self.project_gen_dir = os.path.join(self.project_dir, 'gen')
@@ -385,23 +406,12 @@ class Builder(object):
 		elif isfile and os.path.basename(path) in ignoreFiles: return False
 		return True
 
-	def copy_density_images(self):
-		debug('Processing density-specific images')
+	def copy_resource_drawables(self):
+		debug('Processing Android resource drawables')
 
-		def density_from_path(path):
-			normalized = path.replace("\\", "/")
-			density = 'm'
-			matches = re.search("/android/images/(?P<density>high|medium|low)/", normalized)
-			if matches and matches.groupdict() and 'density' in matches.groupdict():
-				density = matches.groupdict()['density'][0]
-			else:
-				trace('density_from_path did not find density for %s' % orig) # should be impossible
-			return density
-
-
-		def make_density_image_filename(orig):
+		def make_resource_drawable_filename(orig):
 			normalized = orig.replace("\\", "/")
-			matches = re.search("/android/images/(high|medium|low)/(?P<chopped>.*$)", normalized)
+			matches = re.search("/android/images/(high|medium|low|res-[^/]+)/(?P<chopped>.*$)", normalized)
 			if matches and matches.groupdict() and 'chopped' in matches.groupdict():
 				chopped = matches.groupdict()['chopped'].lower()
 				for_hash = chopped
@@ -423,22 +433,26 @@ class Builder(object):
 					result += "." + extension
 				return result
 			else:
-				trace("Regexp for density image file %s failed" % orig)
+				trace("Regexp for resource drawable file %s failed" % orig)
 				return None
 
-		def delete_density_image(orig):
-			density = density_from_path(orig)
-			res_file = os.path.join(self.res_dir, 'drawable-%sdpi' % density, make_density_image_filename(orig))
+		def delete_resource_drawable(orig):
+			folder = resource_drawable_folder(orig)
+			res_file = os.path.join(self.res_dir, folder, make_resource_drawable_filename(orig))
 			if os.path.exists(res_file):
 				try:
+					trace("DELETING FILE: %s" % res_file)
 					os.remove(res_file)
 				except:
 					warn('Unable to delete %s: %s. Execution will continue.' % (res_file, sys.exc_info()[0]))
 
-		def copy_density_image(orig):
-			density = density_from_path(orig)
-			dest_folder = os.path.join(self.res_dir, 'drawable-%sdpi' % density)
-			dest_filename = make_density_image_filename(orig)
+		def copy_resource_drawable(orig):
+			partial_folder = resource_drawable_folder(orig)
+			if not partial_folder:
+				trace("Could not copy %s; resource folder not determined" % orig)
+				return
+			dest_folder = os.path.join(self.res_dir, partial_folder)
+			dest_filename = make_resource_drawable_filename(orig)
 			if dest_filename is None:
 				return
 			dest = os.path.join(dest_folder, dest_filename)
@@ -453,19 +467,19 @@ class Builder(object):
 			for root, dirs, files in os.walk(os.path.join(self.top_dir, "Resources")):
 				for f in files:
 					path = os.path.join(root, f)
-					if re.search("android/images/(high|medium|low)/", path.replace("\\", "/")):
+					if is_resource_drawable(path):
 						fileset.append(path)
 		else:
 			if self.project_deltas:
 				for delta in self.project_deltas:
 					path = delta.get_path()
-					if re.search("android/images/(high|medium|low)/", path.replace("\\", "/")):
+					if is_resource_drawable(path):
 						if delta.get_status() == Delta.DELETED:
-							delete_density_image(path)
+							delete_resource_drawable(path)
 						else:
 							fileset.append(path)
 		for f in fileset:
-			copy_density_image(f)
+			copy_resource_drawable(f)
 
 	def copy_project_resources(self):
 		info("Copying project resources..")
@@ -497,7 +511,7 @@ class Builder(object):
 
 		for delta in self.project_deltas:
 			path = delta.get_path()
-			if re.search("android/images/(high|medium|low)/", path.replace("\\", "/")):
+			if re.search("android/images/(high|medium|low|res-[^/]+)/", path.replace("\\", "/")):
 				continue # density images are handled later
 
 			if delta.get_status() == Delta.DELETED and path.startswith(android_resources_dir):
@@ -695,15 +709,18 @@ class Builder(object):
 		# create our background image which acts as splash screen during load	
 		resources_dir = os.path.join(self.top_dir, 'Resources')
 		android_images_dir = os.path.join(resources_dir, 'android', 'images')
-		found_project_splash = False
 		# look for density-specific default.png's first
-		for density in ('high', 'medium', 'low'):
-			splashimage = os.path.join(android_images_dir, density, 'default.png')
-			background_png = os.path.join('res', 'drawable-%sdpi' % density[0], 'background.png')
-			if os.path.exists(splashimage):
-				found_project_splash = True
-				shutil.copy(splashimage, background_png)
-				debug('found %sdpi splash screen at %s' % (density[0], splashimage))
+		if os.path.exists(android_images_dir):
+			pattern = r'/android/images/(high|medium|low|res-[^/]+)/default.png'
+			for root, dirs, files in os.walk(android_images_dir):
+				for f in files:
+					path = os.path.join(root, f)
+					if re.search(pattern, path):
+						res_folder = resource_drawable_folder(path)
+						debug('found %s splash screen at %s' % (res_folder, path))
+						dest_path = os.path.join(self.res_dir, res_folder, 'background.png')
+						os.makedirs(dest_path)
+						shutil.copy(path, dest_path) 
 
 		splashimage = os.path.join(self.assets_resources_dir,'default.png')
 		background_png = os.path.join('res','drawable','background.png')
@@ -1218,7 +1235,6 @@ class Builder(object):
 
 			resources_dir = os.path.join(self.top_dir,'Resources')
 			self.assets_dir = os.path.join(self.project_dir,'bin','assets')
-			self.res_dir = os.path.join(self.project_dir,'res')
 			self.assets_resources_dir = os.path.join(self.assets_dir,'Resources')
 			
 			if not os.path.exists(self.assets_dir):
@@ -1255,7 +1271,7 @@ class Builder(object):
 			if not os.path.exists(self.assets_dir):
 				os.makedirs(self.assets_dir)
 
-			self.copy_density_images()
+			self.copy_resource_drawables()
 
 			special_resources_dir = os.path.join(self.top_dir,'platform','android')
 			ignore_files = ignoreFiles
@@ -1286,11 +1302,12 @@ class Builder(object):
 			# If density-specific images exist yet AndroidManifest does not have
 			# anyDensity="true" in <supports-screens>, show a warning (but not for KitchenSink)
 			density_image_dir = os.path.join(resources_dir, 'android', 'images')
-			if 'kitchensink' not in self.name.lower() and os.path.exists(density_image_dir) and os.path.exists(os.path.join(self.project_dir, 'AndroidManifest.xml')):
+			if 'smoketest' not in self.name.lower() and 'kitchensink' not in self.name.lower() and os.path.exists(density_image_dir) and os.path.exists(os.path.join(self.project_dir, 'AndroidManifest.xml')):
 				using_density_images = False
-				for density in ('high', 'medium', 'low'):
-					if os.path.exists(os.path.join(density_image_dir, density)):
-						if os.listdir(os.path.join(density_image_dir, density)):
+				for root, dirs, files in os.walk(density_image_dir):
+					for f in files:
+						path = os.path.join(root, f)
+						if is_resource_drawable(path):
 							using_density_images = True
 							break
 				if using_density_images:
@@ -1298,7 +1315,7 @@ class Builder(object):
 					xml = f.read()
 					f.close()
 					if not re.search(r'anyDensity="true"', xml):
-						warn('For your density-specific images (android/images/high|medium|low) to be effective, you should put a <supports-screens> element with anyDensity="true" in the <android><manifest> section of your tiapp.xml or in a custom AndroidManifest.xml')
+						warn('For your density-specific images (android/images/high|medium|low|res-*) to be effective, you should put a <supports-screens> element with anyDensity="true" in the <android><manifest> section of your tiapp.xml or in a custom AndroidManifest.xml')
 
 			my_avd = None	
 			self.google_apis_supported = False
