@@ -8,6 +8,7 @@ package org.appcelerator.titanium;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
@@ -85,6 +86,9 @@ public class TiBlob extends KrollProxy
 	}
 
 	public static TiBlob blobFromData(TiContext tiContext, byte[] data, String mimetype) {
+		if (mimetype == null || mimetype.length() == 0) {
+			return new TiBlob(tiContext, TYPE_DATA, data, "application/octet-stream");
+		}
 		return new TiBlob(tiContext, TYPE_DATA, data, mimetype);
 	}
 
@@ -197,8 +201,10 @@ public class TiBlob extends KrollProxy
 			case TYPE_DATA:
 			case TYPE_FILE:
 				// Don't try to return a string if we can see the 
-				// mimetype is binary
-				if (mimetype != null && TiMimeTypeHelper.isBinaryMimeType(mimetype)) {
+				// mimetype is binary, unless it's application/octet-stream, which means
+				// we don't really know what it is, so assume the user-developer knows
+				// what she's doing.
+				if (mimetype != null && TiMimeTypeHelper.isBinaryMimeType(mimetype) && mimetype != "application/octet-stream") {
 					return null;
 				}
 				try {
@@ -261,7 +267,17 @@ public class TiBlob extends KrollProxy
 			Log.w(LCAT, "getNativePath unable to return value: underlying data is not file, rather " + data.getClass().getName());
 			return null;
 		} else {
-			return ((TiBaseFile)data).nativePath();
+			String path = ((TiBaseFile)data).nativePath();
+			if (path != null && path.startsWith("content://")) {
+				File f = ((TiBaseFile)data).getNativeFile();
+				if (f != null) {
+					path = f.getAbsolutePath();
+					if (path != null && path.startsWith("/")) {
+						path = "file://" + path;
+					}
+				}
+			}
+			return path;
 		}
 	}
 

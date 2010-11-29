@@ -297,7 +297,7 @@ public class TiHTTPClient
 				byte[] blobData = new byte[size];
 				System.arraycopy(data, 0, blobData, 0, size);
 
-				TiBlob blob = TiBlob.blobFromData(proxy.getTiContext(), blobData);
+				TiBlob blob = TiBlob.blobFromData(proxy.getTiContext(), blobData, contentType);
 				o.put("blob", blob);
 				o.put("progress", ((double)totalSize)/((double)contentLength));
 
@@ -310,7 +310,7 @@ public class TiHTTPClient
 		{
 			if (responseOut instanceof ByteArrayOutputStream) {
 				ByteArrayOutputStream byteStream = (ByteArrayOutputStream) responseOut;
-				responseData = TiBlob.blobFromData(proxy.getTiContext(), byteStream.toByteArray());
+				responseData = TiBlob.blobFromData(proxy.getTiContext(), byteStream.toByteArray(), contentType);
 			}
 			responseOut.close();
 			responseOut = null;

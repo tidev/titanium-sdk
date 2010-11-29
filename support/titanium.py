@@ -145,6 +145,16 @@ def create_module_project(osname,project_dir,args):
 		return create_android_module(project_dir,osname,args)
 	else:
 		die("Unknown platform: %s" % osname)
+
+def create_plugin_project(project_dir,args):
+	script = os.path.join(template_dir,'plugin','plugin.py')
+	project_id = get_required(args,'id')
+	args = [script,'--id',project_id,'--directory',project_dir]
+	
+	fork(args,False)
+	print "Created plugin project"
+	return os.path.join(project_dir,project_id)
+	
 	
 ###################################################################################
 # COMMANDS
@@ -153,7 +163,7 @@ def create_module_project(osname,project_dir,args):
 		
 def create(args):
 	project_dir = get_required(args,'dir')
-	platform = get_required(args,'platform')
+	platform = get_optional(args,'platform')
 	atype = get_optional(args,'type','project')
 	dir = None
 	if type(platform)==types.ListType:
@@ -162,6 +172,8 @@ def create(args):
 				dir = create_mobile_project(osname,project_dir,args)
 			elif atype == 'module':
 				dir = create_module_project(osname,project_dir,args)
+			elif atype == 'plugin':
+				dir = create_plugin_project(project_dir,args)
 			else:
 				die("Unknown type: %s" % atype)
 	else:
@@ -169,6 +181,8 @@ def create(args):
 			dir = create_mobile_project(platform,project_dir,args)
 		elif atype == 'module':
 			dir = create_module_project(platform,project_dir,args)
+		elif atype == 'plugin':
+			dir = create_plugin_project(project_dir,args)
 		else:
 			die("Unknown type: %s" % atype)
 		
@@ -293,7 +307,7 @@ def help(args=[],suppress_banner=False):
 			print "Usage: %s create [--platform=p] [--type=t] [--dir=d] [--name=n] [--id=i] [--ver=v]" % os.path.basename(sys.argv[0])
 			print 
 			print "  --platform=p1,p2    	platform: iphone, ipad, android, blackberry, etc."
-			print "  --type=t            	type of project: project, module, template"
+			print "  --type=t            	type of project: project, module, plugin"
 			print "  --dir=d             	directory to create the new project"
 			print "  --name=n            	project name"
 			print "  --id=i              	project id (ie com.companyName.project"
