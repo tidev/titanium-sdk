@@ -86,6 +86,9 @@ public class TiBlob extends KrollProxy
 	}
 
 	public static TiBlob blobFromData(TiContext tiContext, byte[] data, String mimetype) {
+		if (mimetype == null || mimetype.length() == 0) {
+			return new TiBlob(tiContext, TYPE_DATA, data, "application/octet-stream");
+		}
 		return new TiBlob(tiContext, TYPE_DATA, data, mimetype);
 	}
 
@@ -198,8 +201,10 @@ public class TiBlob extends KrollProxy
 			case TYPE_DATA:
 			case TYPE_FILE:
 				// Don't try to return a string if we can see the 
-				// mimetype is binary
-				if (mimetype != null && TiMimeTypeHelper.isBinaryMimeType(mimetype)) {
+				// mimetype is binary, unless it's application/octet-stream, which means
+				// we don't really know what it is, so assume the user-developer knows
+				// what she's doing.
+				if (mimetype != null && TiMimeTypeHelper.isBinaryMimeType(mimetype) && mimetype != "application/octet-stream") {
 					return null;
 				}
 				try {
