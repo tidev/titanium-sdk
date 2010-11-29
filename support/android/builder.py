@@ -4,8 +4,8 @@
 # Android Simulator for building a project and launching
 # the Android Emulator or on the device
 #
-import os, sys, subprocess, shutil, time, signal, string, platform, re, glob, hashlib
-import run, avd, prereq, zipfile, tempfile, fnmatch, codecs
+import os, sys, subprocess, shutil, time, signal, string, platform, re, glob, hashlib, imp
+import run, avd, prereq, zipfile, tempfile, fnmatch, codecs, traceback
 from os.path import splitext
 from compiler import Compiler
 from os.path import join, splitext, split, exists
@@ -119,6 +119,7 @@ class Builder(object):
 		else:
 			self.tool_api_level = MIN_API_LEVEL
 		self.sdk = AndroidSDK(sdk, self.tool_api_level)
+		self.tiappxml = temp_tiapp
 
 		self.set_java_commands()
 		# start in 1.4, you no longer need the build/android directory
@@ -1094,6 +1095,51 @@ class Builder(object):
 		if java_failed:
 			error(java_status)
 			sys.exit(1)
+			
+		# attempt to load any compiler plugins
+		if len(self.tiappxml.properties['plugins']) > 0:
+			titanium_dir = os.path.abspath(os.path.join(template_dir,'..','..','..','..'))
+			local_compiler_dir = os.path.abspath(os.path.join(self.top_dir,'plugins'))
+			tp_compiler_dir = os.path.abspath(os.path.join(titanium_dir,'plugins'))
+			if not os.path.exists(tp_compiler_dir) and not os.path.exists(local_compiler_dir):
+				print "[ERROR] Build Failed (Missing plugins directory)"
+				sys.stdout.flush()
+				sys.exit(1)
+			compiler_config = {
+				'platform':'android',
+				'tiapp':self.tiappxml,
+				'project_dir':self.top_dir,
+				'titanium_dir':titanium_dir,
+				'appid':self.app_id,
+				'template_dir':template_dir,
+				'project_name':self.name,
+				'command':self.command,
+				'build_dir':s.project_dir,
+				'app_name':self.name,
+				'android_builder':self,
+				'deploy_type':deploy_type
+			}
+			for plugin in self.tiappxml.properties['plugins']:
+				local_plugin_file = os.path.join(local_compiler_dir,plugin['name'],'plugin.py')
+				plugin_file = os.path.join(tp_compiler_dir,plugin['name'],plugin['version'],'plugin.py')
+				print "[INFO] plugin=%s" % plugin_file
+				if not os.path.exists(local_plugin_file) and not os.path.exists(plugin_file):
+					print "[ERROR] Build Failed (Missing plugin for %s)" % plugin['name']
+					sys.stdout.flush()
+					sys.exit(1)
+				print "[INFO] Detected compiler plugin: %s/%s" % (plugin['name'],plugin['version'])
+				code_path = plugin_file
+				if os.path.exists(local_plugin_file):	
+					code_path = local_plugin_file
+				compiler_config['plugin']=plugin
+				fin = open(code_path, 'rb')
+				m = hashlib.md5()
+				m.update(open(code_path,'rb').read()) 
+				code_hash = m.hexdigest()
+				p = imp.load_source(code_hash, code_path, fin)
+				p.compile(compiler_config)
+				fin.close()
+			
 
 		# in Windows, if the adb server isn't running, calling "adb devices"
 		# will fork off a new adb server, and cause a lock-up when we 
@@ -1404,7 +1450,7 @@ if __name__ == "__main__":
 	else:
 		if argc < 6 or command == '--help' or (command=='distribute' and argc < 10):
 			usage()
-
+			
 	if get_values_from_tiapp:
 		tiappxml = TiAppXML(os.path.join(project_dir, 'tiapp.xml'))
 		app_id = tiappxml.properties['id']
@@ -1416,33 +1462,40 @@ if __name__ == "__main__":
 		app_id = dequote(sys.argv[5])
 	
 	s = Builder(project_name,sdk_dir,project_dir,template_dir,app_id)
-	
-	if command == 'run-emulator':
-		s.run_emulator(avd_id, avd_skin)
-	elif command == 'run':
-		s.build_and_run(False, avd_id)
-	elif command == 'emulator':
-		avd_id = dequote(sys.argv[6])
-		avd_skin = dequote(sys.argv[7])
-		s.run_emulator(avd_id,avd_skin)
-	elif command == 'simulator':
-		info("Building %s for Android ... one moment" % project_name)
-		avd_id = dequote(sys.argv[6])
-		s.build_and_run(False,avd_id)
-	elif command == 'install':
-		avd_id = dequote(sys.argv[6])
-		s.build_and_run(True,avd_id)
-	elif command == 'distribute':
-		key = os.path.abspath(os.path.expanduser(dequote(sys.argv[6])))
-		password = dequote(sys.argv[7])
-		alias = dequote(sys.argv[8])
-		output_dir = dequote(sys.argv[9])
-		avd_id = dequote(sys.argv[10])
-		s.build_and_run(True,avd_id,key,password,alias,output_dir)
-	elif command == 'build':
-		s.build_and_run(False, 1, build_only=True)
-	else:
-		error("Unknown command: %s" % command)
-		usage()
+	s.command = command
 
+	try:
+		if command == 'run-emulator':
+			s.run_emulator(avd_id, avd_skin)
+		elif command == 'run':
+			s.build_and_run(False, avd_id)
+		elif command == 'emulator':
+			avd_id = dequote(sys.argv[6])
+			avd_skin = dequote(sys.argv[7])
+			s.run_emulator(avd_id,avd_skin)
+		elif command == 'simulator':
+			info("Building %s for Android ... one moment" % project_name)
+			avd_id = dequote(sys.argv[6])
+			s.build_and_run(False,avd_id)
+		elif command == 'install':
+			avd_id = dequote(sys.argv[6])
+			s.build_and_run(True,avd_id)
+		elif command == 'distribute':
+			key = os.path.abspath(os.path.expanduser(dequote(sys.argv[6])))
+			password = dequote(sys.argv[7])
+			alias = dequote(sys.argv[8])
+			output_dir = dequote(sys.argv[9])
+			avd_id = dequote(sys.argv[10])
+			s.build_and_run(True,avd_id,key,password,alias,output_dir)
+		elif command == 'build':
+			s.build_and_run(False, 1, build_only=True)
+		else:
+			error("Unknown command: %s" % command)
+			usage()
+	except:
+		e = traceback.format_exc()
+		e = e.replace('\n','\t')
+		print "[ERROR] Error in compiler. %s" % e
+		sys.exit(1)
+		
 	sys.exit(0)
