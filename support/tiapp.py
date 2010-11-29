@@ -58,7 +58,8 @@ class TiAppXML(object):
 			'url':'not specified',
 			'icon':None,
 			'analytics':'true',
-			'modules' : []
+			'modules' : [],
+			'plugins' : []
 		}
 		self.app_properties = {}
 		self.android = {}
@@ -83,6 +84,13 @@ class TiAppXML(object):
 							ver = module.getAttribute('version')
 							name = getText(module.childNodes)
 							self.properties['modules'].append({'name':name,'version':ver})
+				# handle modules		
+				elif child.nodeName == 'plugins':
+					for plugin in child.childNodes:
+						if plugin.nodeType == 1:
+							ver = plugin.getAttribute('version')
+							name = getText(plugin.childNodes)
+							self.properties['plugins'].append({'name':name,'version':ver})
 				elif child.nodeName == 'android':
 					self.parse_android(child)
 				elif child.nodeName == 'iphone':
