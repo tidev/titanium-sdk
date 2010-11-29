@@ -1,0 +1,57 @@
+- namespace
+
+Titanium.Android.Calendar
+
+- type
+
+module
+
+- returns
+
+object
+
+- description
+
+The Android.Calendar module provides proxies and methods for accessing the native Android calendar functionality.
+
+- since
+
+1.5
+
+- platforms
+
+android
+
+- properties
+
+METHOD_ALERT[int]: constant for the `Titanium.Android.Calendar.Reminder` method property.
+METHOD_DEFAULT[int]: constant for the `Titanium.Android.Calendar.Reminder` method property.
+METHOD_EMAIL[int]: constant for the `Titanium.Android.Calendar.Reminder` method property.
+METHOD_SMS[int]: constant for the `Titanium.Android.Calendar.Reminder` method property.
+STATE_DISMISSED[int]: constant for the `Titanium.Android.Calendar.Alert` state property.
+STATE_FIRED[int]: constant for the `Titanium.Android.Calendar.Alert` state property.
+STATE_SCHEDULED[int]: constant for the `Titanium.Android.Calendar.Alert` state property.
+STATUS_TENTATIVE[int]: constant for the `Titanium.Android.Calendar.Event` status property.
+STATUS_CONFIRMED[int]: constant for the `Titanium.Android.Calendar.Event` status property.
+STATUS_CANCELED[int]: constant for the `Titanium.Android.Calendar.Event` status property.
+VISIBILITY_DEFAULT[int]: constant for the `Titanium.Android.Calendar.Event` visibility property.
+VISIBILITY_CONFIDENTIAL[int]: constant for the `Titanium.Android.Calendar.Event` visibility property.
+VISIBILITY_PRIVATE[int]: constant for the `Titanium.Android.Calendar.Event` visibility property.
+VISIBILITY_PUBLIC[int]: constant for the `Titanium.Android.Calendar.Event` visibility property.
+
+allAlerts[array]: Array of `Titanium.Android.Calendar.Alert` objects representing all alerts.
+
+allCalendars[array]: Array of `Titanium.Android.Calendar.Calendar` objects representing all the calendars registered within the native calendar app.
+
+selectableCalendars[array]: Array of `Titanium.Android.Calendar.Calendar` objects representing selectable calendars registered within the native calendar app.
+
+- methods
+
+getCalendarById: Returns the `Titanium.Android.Calendar.Calendar` object specified by the given integer id.
+
+- method : getCalendarById, object
+
+id[int]: The system id of the calendar to be retrieved. 
+
+- notes
+

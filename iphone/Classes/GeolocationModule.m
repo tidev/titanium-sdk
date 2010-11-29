@@ -158,6 +158,7 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 
 #pragma mark Internal
 
+// TODO: Do we need to force this onto the main thread?
 -(void)shutdownLocationManager
 {
 	[lock lock];
@@ -172,7 +173,7 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 	if (trackingLocation) {
 		[locationManager stopUpdatingLocation];
 	}
-	RELEASE_TO_NIL(locationManager);
+	RELEASE_TO_NIL_AUTORELEASE(locationManager);
 	[lock unlock];
 }
 

@@ -25,6 +25,7 @@ import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiCompositeLayout.LayoutParams;
 
 import android.content.Context;
+import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.view.GestureDetector;
 import android.view.KeyEvent;
@@ -654,7 +655,7 @@ public abstract class TiUIView
 		}
 	}
 
-	protected void registerForTouch(View touchable) {
+	protected void registerForTouch(final View touchable) {
 		if (touchable == null) {
 			return;
 		}
@@ -680,7 +681,17 @@ public abstract class TiUIView
 			public boolean onTouch(View view, MotionEvent event) {
 				boolean handled = detector.onTouchEvent(event);
 				if (!handled && motionEvents.containsKey(event.getAction())) {
-					handled = proxy.fireEvent(motionEvents.get(event.getAction()), dictFromEvent(event));
+					if (event.getAction() == MotionEvent.ACTION_UP) {
+						Rect r = new Rect(view.getLeft(), view.getTop(), view.getRight(), view.getBottom());
+						boolean inRect = r.contains((int) event.getX(), (int)event.getY());
+						if (!inRect) {
+							handled = proxy.fireEvent(motionEvents.get(MotionEvent.ACTION_CANCEL), dictFromEvent(event));
+						} else {
+							handled = proxy.fireEvent(motionEvents.get(MotionEvent.ACTION_UP), dictFromEvent(event));
+						}
+					} else {
+						handled = proxy.fireEvent(motionEvents.get(event.getAction()), dictFromEvent(event));
+					}
 				}
 				return handled;
 			}

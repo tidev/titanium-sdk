@@ -31,7 +31,7 @@ public class CalendarProxy extends KrollProxy {
 	}
 
 	public static String getBaseCalendarUri() {
-		if (Build.VERSION.RELEASE.contains("2.2")) {
+		if (Build.VERSION.SDK_INT >= 8) { // FROYO, 2.2
 			return "content://com.android.calendar";
 		}
 		

@@ -8,6 +8,7 @@ package org.appcelerator.titanium;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
@@ -246,6 +247,33 @@ public class TiBlob extends KrollProxy
 			return text;
 		}
 		return "[object TiBlob]";
+	}
+
+	@Kroll.getProperty @Kroll.method
+	public String getNativePath()
+	{
+		if (data == null) {
+			return null;
+		}
+		if (this.type != TYPE_FILE) {
+			Log.w(LCAT, "getNativePath not supported for non-file blob types.");
+			return null;
+		} else if (!(data instanceof TiBaseFile)) {
+			Log.w(LCAT, "getNativePath unable to return value: underlying data is not file, rather " + data.getClass().getName());
+			return null;
+		} else {
+			String path = ((TiBaseFile)data).nativePath();
+			if (path != null && path.startsWith("content://")) {
+				File f = ((TiBaseFile)data).getNativeFile();
+				if (f != null) {
+					path = f.getAbsolutePath();
+					if (path != null && path.startsWith("/")) {
+						path = "file://" + path;
+					}
+				}
+			}
+			return path;
+		}
 	}
 
 	@Kroll.method
