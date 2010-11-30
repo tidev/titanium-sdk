@@ -158,7 +158,7 @@ public class TiBaseActivity extends Activity
 	// Subclasses can override to handle post-creation (but pre-message fire) logic
 	protected void windowCreated() {
 		boolean fullscreen = getIntentBoolean("fullscreen", false);
-		boolean navbar = getIntentBoolean("navBarHidden", true);
+		boolean navbar = !getIntentBoolean("navBarHidden", true);
 		boolean modal = getIntentBoolean("modal", false);
 		int softInputMode = getIntentInt("windowSoftInputMode", -1);
 		boolean hasSoftInputMode = softInputMode != -1;

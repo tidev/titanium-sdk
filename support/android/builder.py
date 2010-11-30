@@ -406,6 +406,14 @@ class Builder(object):
 		elif isfile and os.path.basename(path) in ignoreFiles: return False
 		return True
 
+	def warn_dupe_drawable_folders(self):
+		tocheck = ('high', 'medium', 'low')
+		image_parent = os.path.join(self.top_dir, 'Resources', 'android', 'images')
+		for check in tocheck:
+			if os.path.exists(os.path.join(image_parent, check)) and os.path.exists(os.path.join(image_parent, 'res-%sdpi' % check[0])):
+				warn('You have both an android/images/%s folder and an android/images/res-%sdpi folder. Files from both of these folders will end up in res/drawable-%sdpi.  If two files are named the same, there is no guarantee which one will be copied last and therefore be the one the application uses.  You should use just one of these folders to avoid conflicts.' % (check, check[0], check[0]))
+
+
 	def copy_resource_drawables(self):
 		debug('Processing Android resource drawables')
 
@@ -824,7 +832,7 @@ class Builder(object):
 					uses_sdk_node = node
 				elif node.nodeName == 'supports-screens':
 					supports_screens_node = node
-			if supports_screens_node or uses_sdk_node or self.tiapp.android_manifest['manifest-attributes'].length or self.tiapp.android_manifest['application-attributes'].length:
+			if supports_screens_node or uses_sdk_node or ('manifest-attributes' in self.tiapp.android_manifest and self.tiapp.android_manifest['manifest-attributes'].length) or ('application-attributes' in self.tiapp.android_manifest and self.tiapp.android_manifest['application-attributes'].length):
 				dom = parseString(default_manifest_contents)
 				def replace_node(olddom, newnode):
 					nodes = olddom.getElementsByTagName(newnode.nodeName)
@@ -842,9 +850,9 @@ class Builder(object):
 							element.removeAttribute(k)
 						element.setAttribute(k, new_attr_set.get(k).value)
 
-				if self.tiapp.android_manifest['manifest-attributes'].length:
+				if 'manifest-attributes' in self.tiapp.android_manifest and self.tiapp.android_manifest['manifest-attributes'].length:
 					set_attrs(dom.documentElement, self.tiapp.android_manifest['manifest-attributes'])
-				if self.tiapp.android_manifest['application-attributes'].length:
+				if 'application-attributes' in self.tiapp.android_manifest and self.tiapp.android_manifest['application-attributes'].length:
 					set_attrs(dom.getElementsByTagName('application')[0], self.tiapp.android_manifest['application-attributes'])
 
 				default_manifest_contents = dom.toxml()
@@ -1272,6 +1280,8 @@ class Builder(object):
 				os.makedirs(self.assets_dir)
 
 			self.copy_resource_drawables()
+
+			self.warn_dupe_drawable_folders()
 
 			special_resources_dir = os.path.join(self.top_dir,'platform','android')
 			ignore_files = ignoreFiles
