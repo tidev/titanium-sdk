@@ -18,18 +18,11 @@
 
 - (id)density
 {
-	if ([TiUtils isIPad])
+	if ([TiUtils isRetinaDisplay] && ![TiUtils isIPad])
 	{
 		return @"high";
 	}
-	else if ([TiUtils isRetinaDisplay])
-	{
-		return @"high";
-	}
-	else
-	{
-		return @"low";
-	}
+	return @"medium";
 }
 
 - (id)dpi
