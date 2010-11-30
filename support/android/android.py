@@ -253,7 +253,12 @@ class Android(object):
 		self.render(template_dir, 'classpath', app_dir, '.classpath')
 		self.render(template_dir, 'project', app_dir, '.project')
 		self.render(template_dir, 'default.properties', app_dir, 'default.properties')
-		self.render(template_dir, 'gitignore', app_dir, '.gitignore')
+		# Don't override a pre-existing .gitignore in case users have their own preferences
+		# for what should be in it. (LH #2446)
+		if not os.path.exists(os.path.join(app_dir, '.gitignore')):
+			self.render(template_dir, 'gitignore', app_dir, '.gitignore')
+		else:
+			print "[TRACE] Skipping copying gitignore -> .gitignore because already exists"
 
 		android_project_resources = os.path.join(project_dir,'Resources','android')
 
