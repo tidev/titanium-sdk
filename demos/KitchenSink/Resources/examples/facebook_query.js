@@ -34,7 +34,7 @@ function runQuery()
 	{
 		win.close();
 	});
-	if (Ti.Platform.osname == 'iPhone OS') {
+	if (Ti.Platform.osname == 'iphone' || Ti.Platform.osname == 'ipad') {
 		win.setRightNavButton(close);
 	}
 
