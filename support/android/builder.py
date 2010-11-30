@@ -1519,10 +1519,13 @@ if __name__ == "__main__":
 		else:
 			error("Unknown command: %s" % command)
 			usage()
+	except SystemExit:
+		pass
 	except:
+		exctype, excvalue = sys.exc_info()[:2]
 		e = traceback.format_exc()
 		e = e.replace('\n','\t')
-		print "[ERROR] Error in compiler. %s" % e
+		print "[ERROR] Error in compiler. %s, %s; %s" % (exctype, excvalue, e)
 		sys.exit(1)
 		
 	sys.exit(0)
