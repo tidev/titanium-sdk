@@ -18,9 +18,9 @@ function addRow(idx,text)
 	}));
 }
 
-addRow(0,'This is some long text.  This is some long text.  This is some long text.  This is some long text.  This is some long text.  This is some long text.  This is some long text.  This is some long text.  This is some long text.  This is some long text.  This is some long text.  This is some long text.  This is some long text.  This is some long text.  This is some long text.  This is some long text.  This is some long text.  This is some long text.');
-addRow(1,'This is some long text.  This is some long text.  This is some long text.  This is some long text.');
-addRow(2,'This is some long text.  This is some long text.  This is some long text.  This is some long text.  This is some long text.  This is some long text.  This is some long text.  This is some long text.  This is some long text.  This is some long text.  This is some long text.  This is some long text.  This is some long text.  This is some long text.  This is some long text.  This is some long text.  This is some long text.  This is some long text.');
+addRow(0,'There should be 18 sentences: 1. This is some long text. 2. This is some long text. 3. This is some long text. 4. This is some long text. 5. This is some long text. 6. This is some long text. 7. This is some long text. 8. This is some long text. 9. This is some long text. 10. This is some long text. 11. This is some long text. 12. This is some long text. 13. This is some long text. 14. This is some long text. 15. This is some long text. 16. This is some long text. 17. This is some long text. 18. This is some long text.');
+addRow(1,'There should be 4 sentences: 1. This is some long text. 2. This is some long text. 3. This is some long text. 4. This is some long text.');
+addRow(2,'There should be 18 sentences: 1. This is some long text. 2. This is some long text. 3. This is some long text. 4. This is some long text. 5. This is some long text. 6. This is some long text. 7. This is some long text. 8. This is some long text. 9. This is some long text. 10. This is some long text. 11. This is some long text. 12. This is some long text. 13. This is some long text. 14. This is some long text. 15. This is some long text. 16. This is some long text. 17. This is some long text. 18. This is some long text.');
 
 
 // create table view
