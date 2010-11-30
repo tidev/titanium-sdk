@@ -11,11 +11,13 @@ import java.util.ArrayList;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.proxy.TiViewProxy;
+import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.titanium.view.TiUIView;
 
+import ti.modules.titanium.ui.TableViewProxy;
 import ti.modules.titanium.ui.TableViewRowProxy;
 import ti.modules.titanium.ui.widget.TiUILabel;
 import ti.modules.titanium.ui.widget.tableview.TableViewModel.Item;
@@ -23,6 +25,7 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -54,7 +57,7 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 
 		this.content = new TiCompositeLayout(tiContext.getActivity(), false);
 		content.setMinimumHeight(48);
-		addView(content, new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT));
+		addView(content, new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
 
 		this.rightImage = new ImageView(tiContext.getActivity());
 		rightImage.setVisibility(GONE);
@@ -141,13 +144,6 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 			}
 		}
 		
-		if (rp.getParent() != null) {
-			if (rp.getParent().hasProperty("minRowHeight")) {
-				height = Math.max(height, TiConvert.toInt(rp.getParent().getProperties(), "minRowHeight"));
-			}
-		}
-		
-
 		if (rp.hasControls()) {
 			ArrayList<TiViewProxy> proxies = rp.getControls();
 			int len = proxies.size();
@@ -214,12 +210,10 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 		int wMode = MeasureSpec.getMode(widthMeasureSpec);
 		int h = MeasureSpec.getSize(heightMeasureSpec);
 		int hMode = MeasureSpec.getMode(heightMeasureSpec);
-
 		int imageHMargin = 0;
 
 		int leftImageWidth = 0;
 		int leftImageHeight = 0;
-
 		if (leftImage != null && leftImage.getVisibility() != View.GONE) {
 			measureChild(leftImage, widthMeasureSpec, heightMeasureSpec);
 			leftImageWidth = leftImage.getMeasuredWidth();
@@ -229,7 +223,6 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 
 		int rightImageWidth = 0;
 		int rightImageHeight = 0;
-
 		if (rightImage != null && rightImage.getVisibility() != View.GONE) {
 			measureChild(rightImage, widthMeasureSpec, heightMeasureSpec);
 			rightImageWidth = rightImage.getMeasuredWidth();
@@ -243,12 +236,22 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 		measureChild(content, MeasureSpec.makeMeasureSpec(adjustedWidth, wMode), heightMeasureSpec);
 
 		if(hMode == MeasureSpec.UNSPECIFIED) {
+			TableViewProxy table = ((TableViewRowProxy)item.proxy).getTable();
+			int minRowHeight = 0;
+			if (table != null && table.hasProperty("minRowHeight")) {
+				minRowHeight = TiConvert.toInt(table.getProperty("minRowHeight"));
+			}
+			
 			if (height == -1) {
 				h = Math.max(h, Math.max(content.getMeasuredHeight(), Math.max(leftImageHeight, rightImageHeight)));
+				h = Math.max(h, minRowHeight);
 			} else {
-				h = height;
+				h = Math.max(minRowHeight, height);
 			}
-			measureChild(content, MeasureSpec.makeMeasureSpec(adjustedWidth, wMode), MeasureSpec.makeMeasureSpec(h, MeasureSpec.EXACTLY));
+			if (DBG) {
+				Log.d(LCAT, "Row content measure (" + adjustedWidth + "x" + h + ")");
+			}
+			measureChild(content, MeasureSpec.makeMeasureSpec(adjustedWidth, wMode), MeasureSpec.makeMeasureSpec(h, hMode));
 		}
 		
 		setMeasuredDimension(w, Math.max(h, Math.max(leftImageHeight, rightImageHeight)));

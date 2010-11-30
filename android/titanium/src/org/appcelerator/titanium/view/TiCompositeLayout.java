@@ -133,6 +133,29 @@ public class TiCompositeLayout extends ViewGroup
 		return params;
 	}
 
+	protected int getViewWidthPadding(View child) {
+		LayoutParams p = (LayoutParams) child.getLayoutParams();
+		int padding = 0;
+		if (p.optionLeft != NOT_SET) {
+			padding += p.optionLeft;
+		}
+		if (p.optionRight != NOT_SET) {
+			padding += p.optionRight;
+		}
+		return padding;
+	}
+	
+	protected int getViewHeightPadding(View child) {
+		LayoutParams p = (LayoutParams) child.getLayoutParams();
+		int padding = 0;
+		if (p.optionTop != NOT_SET) {
+			padding += p.optionTop;
+		}
+		if (p.optionBottom != NOT_SET) {
+			padding += p.optionBottom;
+		}
+		return padding;
+	}
 
 	@Override
 	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec)
@@ -151,15 +174,22 @@ public class TiCompositeLayout extends ViewGroup
 				constrainChild(child, w, wMode, h, hMode);
 			}
 
-			maxWidth = Math.max(maxWidth, child.getMeasuredWidth());
+			int childWidth = child.getMeasuredWidth();
+			int childHeight = child.getMeasuredHeight();
+			if (child.getVisibility() != View.GONE) {
+				childWidth += getViewWidthPadding(child);
+				childHeight += getViewHeightPadding(child);
+			}
+			
+			maxWidth = Math.max(maxWidth, childWidth);
 			if (vertical) {
-				maxHeight += child.getMeasuredHeight();
 				LayoutParams p = (LayoutParams) child.getLayoutParams();
+				maxHeight += childHeight;
 				if (p.optionTop != NOT_SET) {
 					maxHeight += p.optionTop;
 				}
 			} else {
-				maxHeight = Math.max(maxHeight, child.getMeasuredHeight());
+				maxHeight = Math.max(maxHeight, childHeight);
 			}
 		}
 
@@ -185,7 +215,6 @@ public class TiCompositeLayout extends ViewGroup
 	{
 		LayoutParams p =
 			(LayoutParams) child.getLayoutParams();
-
 		int childDimension = LayoutParams.WRAP_CONTENT;
 		if (p.optionWidth != NOT_SET) {
 			childDimension = p.optionWidth;
@@ -194,16 +223,8 @@ public class TiCompositeLayout extends ViewGroup
 				childDimension = LayoutParams.FILL_PARENT;
 			}
 		}
-
-		int padding = 0;
-		if (p.optionLeft != NOT_SET) {
-			padding += p.optionLeft;
-		}
-		if (p.optionRight != NOT_SET) {
-			padding += p.optionRight;
-		}
-		int widthSpec = ViewGroup.getChildMeasureSpec(MeasureSpec.makeMeasureSpec(width, wMode), padding, childDimension);
-
+		int widthPadding = getViewWidthPadding(child);
+		int widthSpec = ViewGroup.getChildMeasureSpec(MeasureSpec.makeMeasureSpec(width, wMode), widthPadding, childDimension);
 		childDimension = LayoutParams.WRAP_CONTENT;
 		if (p.optionHeight != NOT_SET) {
 			childDimension = p.optionHeight;
@@ -213,23 +234,12 @@ public class TiCompositeLayout extends ViewGroup
 			}
 		}
 
-		padding = 0;
-
-		if (p.optionTop != NOT_SET) {
-			padding += p.optionTop;
-		}
-		if (p.optionBottom != NOT_SET) {
-			padding += p.optionBottom;
-		}
-
-		int heightSpec = ViewGroup.getChildMeasureSpec(MeasureSpec.makeMeasureSpec(height, hMode), padding, childDimension);
-
+		int heightPadding = getViewHeightPadding(child);
+		int heightSpec = ViewGroup.getChildMeasureSpec(MeasureSpec.makeMeasureSpec(height, hMode), heightPadding, childDimension);
 		child.measure(widthSpec, heightSpec);
-
-//      Useful for debugging.
-//		int childWidth = child.getMeasuredWidth();
-//		int childHeight = child.getMeasuredHeight();
-
+		// Useful for debugging.
+		// int childWidth = child.getMeasuredWidth();
+		// int childHeight = child.getMeasuredHeight();
 	}
 
 	protected int getMeasuredWidth(int maxWidth, int widthSpec)
@@ -322,27 +332,26 @@ public class TiCompositeLayout extends ViewGroup
 	}
 
 	// 0 is left/top, 1 is right/bottom
-	public static void computePosition(int o0, int o1, int size, int p0, int p1, int[] pos)
+	public static void computePosition(int option0, int option1, int measuredSize, int layoutPosition0, int layoutPosition1, int[] pos)
 	{
-		int dist = p1 - p0;
-
-		if (o0 == NOT_SET && o1 == NOT_SET) {
+		int dist = layoutPosition1 - layoutPosition0;
+		if (option0 == NOT_SET && option1 == NOT_SET) {
 			// Center
-			int offset = (dist-size)/2;
-			pos[0] = p0 + offset;
-			pos[1] = pos[0] + size;
-		} else if (o0 == NOT_SET) {
+			int offset = (dist-measuredSize)/2;
+			pos[0] = layoutPosition0 + offset;
+			pos[1] = pos[0] + measuredSize;
+		} else if (option0 == NOT_SET) {
 			// peg right/bottom
-			pos[0] = dist - o1 - size;
-			pos[1] = dist - o1;
-		} else if (o1 == NOT_SET) {
+			pos[0] = dist - option1 - measuredSize;
+			pos[1] = dist - option1;
+		} else if (option1 == NOT_SET) {
 			// peg left/top
-			pos[0] = p0 + o0;
-			pos[1] = p0 + o0 + size;
+			pos[0] = layoutPosition0 + option0;
+			pos[1] = layoutPosition0 + option0 + measuredSize;
 		} else {
 			// pegged both. override and force.
-			pos[0] = p0 + o0;
-			pos[1] = p1 - o1;
+			pos[0] = layoutPosition0 + option0;
+			pos[1] = layoutPosition1 - option1;
 		}
 	}
 
@@ -359,12 +368,12 @@ public class TiCompositeLayout extends ViewGroup
 
 	protected int getWidthMeasureSpec(View child)
 	{
-		return MeasureSpec.AT_MOST;
+		return MeasureSpec.EXACTLY;
 	}
 
 	protected int getHeightMeasureSpec(View child)
 	{
-		return MeasureSpec.AT_MOST;
+		return MeasureSpec.EXACTLY;
 	}
 
 
