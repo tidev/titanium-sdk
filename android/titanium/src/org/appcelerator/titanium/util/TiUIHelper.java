@@ -32,6 +32,7 @@ import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.CompressFormat;
 import android.graphics.Bitmap.Config;
@@ -183,6 +184,24 @@ public class TiUIHelper
 
 		return value;
 	}
+	
+	public static float getRawSize(int unit, float size, Context context) {
+		Resources r;
+		if (context != null) {
+			r = context.getResources();
+		} else {
+			r = Resources.getSystem();
+		}
+		return TypedValue.applyDimension(unit, size, r.getDisplayMetrics());
+	}
+	
+	public static float getRawDIPSize(float size, Context context) {
+		return getRawSize(TypedValue.COMPLEX_UNIT_DIP, size, context);
+	}
+	
+	public static float getRawSize(String size, Context context) {
+		return getRawSize(getSizeUnits(size), getSize(size), context);
+	}
 
 	public static void styleText(TextView tv, KrollDict d) {
 		String fontSize = null;
@@ -298,6 +317,11 @@ public class TiUIHelper
 		tv.setGravity(gravity);
 	}
 
+	public static void setTextViewDIPPadding(TextView textView, int horizontalPadding, int verticalPadding) {
+		int rawHPadding = (int)getRawDIPSize(horizontalPadding, textView.getContext());
+		int rawVPadding = (int)getRawDIPSize(verticalPadding, textView.getContext());
+		textView.setPadding(rawHPadding, rawVPadding, rawHPadding, rawVPadding);
+	}
 
 	public static StateListDrawable buildBackgroundDrawable(TiContext tiContext,
 			String image,
