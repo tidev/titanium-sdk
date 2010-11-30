@@ -238,13 +238,15 @@ extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 -(void)_fireReadyStateChange:(NetworkClientState) state
 {
 	readyState = state;
-	TiNetworkHTTPClientResultProxy *thisPointer = [[[TiNetworkHTTPClientResultProxy alloc] initWithDelegate:self] autorelease];
+	TiNetworkHTTPClientResultProxy *thisPointer; 
 	if (onreadystatechange!=nil)
 	{
+		thisPointer = [[[TiNetworkHTTPClientResultProxy alloc] initWithDelegate:self] autorelease];
 		[self _fireEventToListener:@"readystatechange" withObject:nil listener:onreadystatechange thisObject:thisPointer];
 	}
 	if (onload!=nil && state==NetworkClientStateDone && connected)
 	{
+		thisPointer = [[[TiNetworkHTTPClientResultProxy alloc] initWithDelegate:self] autorelease];		
 		if (ondatastream && downloadProgress>0)
 		{
 			CGFloat progress = (CGFloat)((CGFloat)downloadProgress/(CGFloat)downloadLength);
@@ -491,6 +493,11 @@ extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 				   subreason:nil
 					location:CODELOCATION];
 	}
+}
+
+-(NSDictionary*)responseHeaders
+{
+	return [request responseHeaders];
 }
 
 #pragma mark Delegates
