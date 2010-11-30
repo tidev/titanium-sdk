@@ -16,6 +16,13 @@ def get_module_bindings(jar):
 	
 	return simplejson.loads(jar.read(bindings_path))
 
+def get_all_module_names():
+	module_names = []
+	for module_jar in module_jars.keys():
+		for module_name in module_jars[module_jar]:
+			module_names.append(module_name)
+	return module_names
+
 def find_module_jar(module):
 	for module_jar in module_jars.keys():
 		for module_name in module_jars[module_jar]:

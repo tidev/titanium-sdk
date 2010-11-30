@@ -56,7 +56,7 @@ class Compiler(object):
 			if tiapp.to_bool(tiapp.get_app_property('ti.android.include_all_modules')):
 				print '[INFO] Force including all modules...'
 				sys.stdout.flush()
-				for module in self.depends_map['dependencies'].keys():
+				for module in bindings.get_all_module_names():
 					self.add_required_module(module)
 
 		self.module_methods = set()
