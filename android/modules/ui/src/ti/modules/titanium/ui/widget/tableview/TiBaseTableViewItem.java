@@ -25,6 +25,7 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.os.Message;
+import android.util.DisplayMetrics;
 import android.view.ViewGroup;
 
 public abstract class TiBaseTableViewItem extends ViewGroup implements Handler.Callback
@@ -32,8 +33,8 @@ public abstract class TiBaseTableViewItem extends ViewGroup implements Handler.C
 	private static final String LCAT = "TitaniamBaseTableViewItem";
 	private static final boolean DBG = TiConfig.LOGD;
 	
-	private static final Bitmap childIndicatorBitmap = BitmapFactory.decodeStream(KrollDict.class.getResourceAsStream("/org/appcelerator/titanium/res/drawable/btn_more.png"));
-	private static final Bitmap checkIndicatorBitmap = BitmapFactory.decodeStream(KrollDict.class.getResourceAsStream("/org/appcelerator/titanium/res/drawable/btn_check_buttonless_on.png"));
+	private static Bitmap childIndicatorBitmap = null;
+	private static Bitmap checkIndicatorBitmap = null;
 	
 	protected Handler handler;
 	protected TiContext tiContext;
@@ -45,6 +46,31 @@ public abstract class TiBaseTableViewItem extends ViewGroup implements Handler.C
 		super(tiContext.getActivity());
 		this.tiContext = tiContext;
 		this.handler = new Handler(this);
+		
+		if (TiBaseTableViewItem.childIndicatorBitmap == null || TiBaseTableViewItem.checkIndicatorBitmap == null) {
+			synchronized(TiBaseTableViewItem.class) {
+				// recheck to so we don't leak a bitmap.
+				
+				DisplayMetrics dm = new DisplayMetrics();
+				tiContext.getActivity().getWindowManager().getDefaultDisplay().getMetrics(dm);
+				if (childIndicatorBitmap == null) {
+					String path = "/org/appcelerator/titanium/res/drawable/btn_more.png"; // default medium
+					switch (dm.densityDpi) {
+						case DisplayMetrics.DENSITY_HIGH : path = "/org/appcelerator/titanium/res/drawable/btn_more_48.png"; break;
+						case DisplayMetrics.DENSITY_LOW : path = "/org/appcelerator/titanium/res/drawable/btn_more_18.png"; break;
+					}
+					childIndicatorBitmap = BitmapFactory.decodeStream(KrollDict.class.getResourceAsStream(path));
+				}
+				if (checkIndicatorBitmap == null) {
+					String path = "/org/appcelerator/titanium/res/drawable/btn_check_buttonless_on.png"; // default medium
+					switch (dm.densityDpi) {
+						case DisplayMetrics.DENSITY_HIGH : path = "/org/appcelerator/titanium/res/drawable/btn_check_buttonless_on_48.png"; break;
+						case DisplayMetrics.DENSITY_LOW : path = "/org/appcelerator/titanium/res/drawable/btn_check_buttonless_on_18.png"; break;
+					}
+					checkIndicatorBitmap = BitmapFactory.decodeStream(KrollDict.class.getResourceAsStream(path));					
+				}
+			}
+		}
 	}
 
 	public abstract void setRowData(Item item);
