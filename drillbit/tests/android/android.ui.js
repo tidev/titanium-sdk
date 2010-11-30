@@ -134,6 +134,15 @@ describe("Ti.UI.Android tests", {
 	removeMethodsAddRemoveView: function() {
 		valueOf (Ti.UI.addView).shouldBeUndefined();
 		valueOf (Ti.UI.removeView).shouldBeUndefined();
+	},
+	
+	// https://appcelerator.lighthouseapp.com/projects/32238/tickets/2436
+	addViewToEmptyScrollableView: function() {
+		var scrollableView = Ti.UI.createScrollableView ();
+		var view = Ti.UI.createView();
+		
+		scrollableView.addView (view);
 	}
 
 })
+
