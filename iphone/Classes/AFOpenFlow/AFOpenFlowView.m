@@ -357,7 +357,6 @@ const static CGFloat kReflectionFraction = 0.85;
 			[onscreenCovers setObject:cover forKey:[NSNumber numberWithInt:i]];
 			[self updateCoverImage:cover];
 			[scrollView.layer addSublayer:cover.layer];
-			//[scrollView addSubview:cover];
 			[self layoutCover:cover selectedCover:newSelectedCover animated:NO];
 		}
 		
@@ -377,7 +376,7 @@ const static CGFloat kReflectionFraction = 0.85;
 		for (int i = lowerVisibleCover; i <= upperVisibleCover; i++) {
 			cover = (AFItemView *)[onscreenCovers objectForKey:[NSNumber numberWithInt:i]];
 			[offscreenCovers addObject:cover];
-			[cover removeFromSuperview];
+			[cover.layer removeFromSuperlayer];
 			[onscreenCovers removeObjectForKey:[NSNumber numberWithInt:cover.number]];
 		}
 			
@@ -410,7 +409,7 @@ const static CGFloat kReflectionFraction = 0.85;
 			} else {
 				// Recycle this cover.
 				[offscreenCovers addObject:cover];
-				[cover removeFromSuperview];
+				[cover.layer removeFromSuperlayer];
 			}
 			[onscreenCovers removeObjectForKey:[NSNumber numberWithInt:i]];
 		}
@@ -440,7 +439,7 @@ const static CGFloat kReflectionFraction = 0.85;
 			} else {
 				// Recycle this cover.
 				[offscreenCovers addObject:cover];
-				[cover removeFromSuperview];
+				[cover.layer removeFromSuperlayer];
 			}
 			[onscreenCovers removeObjectForKey:[NSNumber numberWithInt:i]];
 		}
@@ -452,7 +451,6 @@ const static CGFloat kReflectionFraction = 0.85;
 			[onscreenCovers setObject:cover forKey:[NSNumber numberWithInt:i]];
 			[self updateCoverImage:cover];
 			[scrollView.layer addSublayer:cover.layer];
-			//[scrollView addSubview:cover];
 			[self layoutCover:cover selectedCover:newSelectedCover animated:NO];
 		}
 		lowerVisibleCover = newLowerBound;
@@ -464,6 +462,12 @@ const static CGFloat kReflectionFraction = 0.85;
 		[self layoutCovers:newSelectedCover fromCover:selectedCoverView.number toCover:newSelectedCover];
 	
 	selectedCoverView = (AFItemView *)[onscreenCovers objectForKey:[NSNumber numberWithInt:newSelectedCover]];
+}
+
+-(void)layoutSubviews
+{
+	[self centerOnSelectedCover:NO];
+	[super layoutSubviews];
 }
 
 @end
