@@ -43,6 +43,8 @@ typedef enum {
 	KrollCallback *ondatastream;
 	KrollCallback *onsendstream;
 }
+// Internal
+-(NSDictionary*)responseHeaders;
 
 // event callbacks
 @property(nonatomic,retain) KrollCallback* onload;

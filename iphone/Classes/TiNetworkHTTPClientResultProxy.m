@@ -76,6 +76,7 @@
 		// back as a this pointer in JS land ... all others will be delegated directly
 		// to our delegate
 		
+		responseHeaders = [[delegate responseHeaders] retain];
 		pthread_rwlock_wrlock(&dynpropsLock);
 		dynprops = [[NSMutableDictionary alloc] init];
 		[dynprops setObject:NUMINT([delegate readyState]) forKey:@"readyState"];
@@ -108,7 +109,19 @@
 	pthread_rwlock_unlock(&dynpropsLock);
 	
 	RELEASE_TO_NIL(delegate);
+	RELEASE_TO_NIL(responseHeaders);
 	[super _destroy];
+}
+
+-(id)getResponseHeader:(id)args
+{
+	id result = [delegate getResponseHeader:args];
+	if (result == nil) {
+		id key = [args objectAtIndex:0];
+		ENSURE_TYPE(key,NSString);
+		result = [responseHeaders objectForKey:key];
+	}
+	return result;
 }
 
 - (id) valueForUndefinedKey: (NSString *) key

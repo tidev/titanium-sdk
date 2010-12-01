@@ -17,7 +17,6 @@ import org.appcelerator.titanium.kroll.KrollCallback;
 import org.appcelerator.titanium.kroll.KrollContext;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
-import org.appcelerator.titanium.util.TiConvert;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -147,6 +146,26 @@ public class KrollConverter implements KrollNativeConverter,
 			sb.append(" }");
 			return sb.toString();
 		}
+
+		@Override
+		public boolean has(String name, Scriptable start)
+		{
+			boolean exists = super.has(name, start);
+			if (!exists && this.map != null) {
+				exists = this.map.containsKey(name);
+			}
+			return exists;
+		}
+
+		@Override
+		public Object[] getIds()
+		{
+			if (this.map != null) {
+				return this.map.keySet().toArray();
+			}
+			return super.getIds();
+		}
+
 	}
 	
 	@SuppressWarnings("unchecked")
