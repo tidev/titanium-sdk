@@ -152,7 +152,7 @@ extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 
 -(NSString*)responseText
 {
-	if (request!=nil && [request error]==nil)
+	if (request!=nil)
 	{
 		NSData *data = [request responseData];
 		if (data==nil || [data length]==0) 

@@ -1220,6 +1220,10 @@ static BOOL isiPhoneOS2;
 	
 	[[self postBodyReadStream] close];
 	
+	// This block is commented out because sometimes we ARE interested in what's been retrieved already
+	// when a request is cancelled - but it might be appropriate in some situations, and not others.
+	
+	/*
     if ([self rawResponseData]) {
 		[self setRawResponseData:nil];
 	
@@ -1232,14 +1236,14 @@ static BOOL isiPhoneOS2;
 			[self removeTemporaryDownloadFile];
 		}
 	}
+	[self setResponseHeaders:nil];
+	 */
 	
 	// Clean up any temporary file used to store request body for streaming
 	if (![self authenticationNeeded] && [self didCreateTemporaryPostDataFile]) {
 		[self removePostDataFile];
 		[self setDidCreateTemporaryPostDataFile:NO];
 	}
-	
-	[self setResponseHeaders:nil];
 }
 
 
