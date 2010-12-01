@@ -161,6 +161,7 @@ public class ContactsApiLevel5 extends CommonContactsApi
 			person.addDataFromL5Cursor(cursor);
 		}
 		
+		cursor.close();
 		
 		return proxifyPeople(persons, tiContext);
 	}
