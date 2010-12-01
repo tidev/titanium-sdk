@@ -32,7 +32,7 @@ Drillbit = function() {
 	this.loadingTest = null;
 	
 	this.platformStatus = {};
-	this.excludes = ['before','before_all','after','after_all','timeout'];
+	this.excludes = ['before', 'before_all', 'after', 'after_all', 'timeout', 'options'];
 	this.runningTests = 0;
 	this.runningCompleted = 0;
 	this.runningPassed = 0;
@@ -265,32 +265,33 @@ Drillbit.prototype.describe = function(description, test)
 	this.loadingTest.timeout = test.timeout || 5000;
 	this.loadingTest.assertions = {};
 	this.loadingTest.assertionCount = 0;
+	this.loadingTest.options = 'options' in test ? test.options : {};
+	
 	var testSource = this.loadingTest.sourceFile.read().toString();
 	
 	for (var p in test) {
-		if (this.excludes.indexOf(p)==-1) {
-			var fn = test[p];
-			if (typeof fn == 'function') {
-				this.totalTests++;
-				this.loadingTest.assertionCount++;
-				this.loadingTest.assertions[p] = false;
-				
-				var r = new RegExp(p+" *: *function *\\(");
+		if (this.excludes.indexOf(p) != -1) continue;
+		var fn = test[p];
+		if (typeof fn == 'function') {
+			this.totalTests++;
+			this.loadingTest.assertionCount++;
+			this.loadingTest.assertions[p] = false;
+			
+			var r = new RegExp(p+" *: *function *\\(");
+			this.loadingTest.lineOffsets[p] = this.findLine(r, testSource);
+		} else if (fn instanceof AsyncTest) {
+			this.totalTests++;
+			this.loadingTest.assertionCount++;
+			this.loadingTest.assertions[p] = false;
+			
+			if (typeof(fn.args) == 'function') {
+				var r = new RegExp(p+" *: *asyncTest *\\( *function *\\(");
 				this.loadingTest.lineOffsets[p] = this.findLine(r, testSource);
-			} else if (fn instanceof AsyncTest) {
-				this.totalTests++;
-				this.loadingTest.assertionCount++;
-				this.loadingTest.assertions[p] = false;
-				
-				if (typeof(fn.args) == 'function') {
-					var r = new RegExp(p+" *: *asyncTest *\\( *function *\\(");
-					this.loadingTest.lineOffsets[p] = this.findLine(r, testSource);
-				} else if (typeof(fn.args.start) == 'function') {
-					var objectRegex = new RegExp(p+" *: *asyncTest *\\( *\\{");
-					var startRegex = new RegExp("start *: *function *\\(");
-					var objectStart = this.findLine(objectRegex, testSource);
-					this.loadingTest.lineOffsets[p] = this.findLine(startRegex, testSource, objectStart);
-				}
+			} else if (typeof(fn.args.start) == 'function') {
+				var objectRegex = new RegExp(p+" *: *asyncTest *\\( *\\{");
+				var startRegex = new RegExp("start *: *function *\\(");
+				var objectStart = this.findLine(objectRegex, testSource);
+				this.loadingTest.lineOffsets[p] = this.findLine(startRegex, testSource, objectStart);
 			}
 		}
 	}
@@ -747,7 +748,7 @@ Drillbit.prototype.runTest = function(entry)
 		var emulator = self.emulators[platform];
 		if (!emulator) return;
 		
-		emulator.runTestHarness(entry.name, stagedFiles);
+		emulator.runTestHarness(entry, stagedFiles);
 	});
 	
 	this.checkForTimeout();

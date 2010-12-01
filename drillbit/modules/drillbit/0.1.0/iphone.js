@@ -49,9 +49,9 @@ iPhoneSimulator.prototype.runTestHarness = function(suite, stagedFiles) {
 	
 	var buildDir = ti.fs.getFile(this.drillbit.testHarnessDir, 'build', 'iphone', 'build');
 	if (!buildDir.exists()) {
-		this.drillbit.frontendDo('building_test_harness', suite, 'iphone');
+		this.drillbit.frontendDo('building_test_harness', suite.name, 'iphone');
 	} else {
-		this.drillbit.frontendDo('running_test_harness', suite, 'iphone');
+		this.drillbit.frontendDo('running_test_harness', suite.name, 'iphone');
 	}
 	
 	this.simulatorProcess = this.createTestHarnessBuilderProcess('simulator');

@@ -265,9 +265,10 @@ AndroidEmulator.prototype.testHarnessNeedsBuild = function(stagedFiles) {
 };
 
 AndroidEmulator.prototype.runTestHarness = function(suite, stagedFiles) {
-	if (!this.testHarnessRunning || this.needsBuild || this.testHarnessNeedsBuild(stagedFiles)) {
+	var forceBuild = 'forceBuild' in suite.options && suite.options.forceBuild;
+	if (!this.testHarnessRunning || this.needsBuild || this.testHarnessNeedsBuild(stagedFiles) || forceBuild) {
 		var process = this.createTestHarnessBuilderProcess("simulator", ['4', 'HVGA']);	
-		this.drillbit.frontendDo('building_test_harness', suite, 'android');
+		this.drillbit.frontendDo('building_test_harness', suite.name, 'android');
 		
 		var self = this;
 		process.setOnReadLine(function(data) {
@@ -280,7 +281,7 @@ AndroidEmulator.prototype.runTestHarness = function(suite, stagedFiles) {
 		process.launch();
 	} else {
 		// restart the app
-		this.drillbit.frontendDo('running_test_harness', suite, 'android');
+		this.drillbit.frontendDo('running_test_harness', suite.name, 'android');
 		var pid = this.getTestHarnessPID();
 		if (pid != null && pid.length > 0) {
 			this.runADB(['shell', 'kill', pid]);
