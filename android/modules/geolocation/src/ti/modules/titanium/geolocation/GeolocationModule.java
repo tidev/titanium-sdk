@@ -7,8 +7,12 @@
 package ti.modules.titanium.geolocation;
 
 import java.io.UnsupportedEncodingException;
+import java.lang.ref.WeakReference;
 import java.net.URLEncoder;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Locale;
+import java.util.Map;
 
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.ResponseHandler;
@@ -19,19 +23,23 @@ import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollInvocation;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.ContextSpecific;
 import org.appcelerator.titanium.TiContext;
+import org.appcelerator.titanium.TiRootActivity;
 import org.appcelerator.titanium.kroll.KrollCallback;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiPlatformHelper;
+import org.appcelerator.titanium.util.TiWeakMap;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import ti.modules.titanium.geolocation.TiGeoHelper.GeoFeature;
 import android.app.Activity;
 import android.location.LocationManager;
 import android.os.AsyncTask;
@@ -57,72 +65,55 @@ public class GeolocationModule
 	private static final int MSG_LOOKUP = MSG_FIRST_ID + 100;
 	protected static final int MSG_LAST_ID = MSG_FIRST_ID + 999;
 
-	private TiLocation tiLocation;
-	private TiCompass tiCompass;
+	private Map<WeakReference<TiContext>, ArrayList<TiGeoHelper>> contextGeoHelpers;
 
 	public GeolocationModule(TiContext tiContext)
 	{
 		super(tiContext);
-
-		tiLocation = new TiLocation(this);
-		tiCompass = new TiCompass(this);
-
-		eventManager.addOnEventChangeListener(this);
+		contextGeoHelpers = Collections.synchronizedMap( new TiWeakMap<TiContext, ArrayList<TiGeoHelper>>() );
 	}
 	
 	@Kroll.getProperty @Kroll.method
-	public boolean getLocationServicesEnabled() {
-		return tiLocation.isLocationEnabled();
+	public boolean getLocationServicesEnabled(KrollInvocation invocation) {
+		TiLocation location = getTiLocationForContext(invocation, true);
+		if (location == null) {
+			return false;
+		}
+		return location.isLocationEnabled();
+	}
+
+	@Kroll.method @Kroll.getProperty
+	public boolean getHasCompass(KrollInvocation invocation) {
+		TiCompass compass = getTiCompassForContext(invocation, true);
+		if (compass == null) {
+			return false;
+		}
+		return compass.hasCompass();
 	}
 
 	@Kroll.method
-	public boolean hasCompass() {
-		return tiCompass.hasCompass();
-	}
-
-	@Kroll.method
-	public void getCurrentHeading(KrollCallback listener)
+	public void getCurrentHeading(KrollInvocation invocation, KrollCallback listener)
 	{
 		if(listener != null) {
-			tiCompass.getCurrentHeading(listener);
+			TiCompass compass = getTiCompassForContext(invocation, true);
+			if (compass == null) {
+				Log.w(LCAT, "Could not fetch/create TiCompass for activity requesting getCurrentHeading");
+				return;
+			}
+			compass.getCurrentHeading(listener);
 		}
 	}
 
 	@Kroll.method
-	public void getCurrentPosition(KrollCallback listener)
+	public void getCurrentPosition(KrollInvocation invocation, KrollCallback listener)
 	{
 		if (listener != null) {
+			TiLocation tiLocation = getTiLocationForContext(invocation, true);
+			if (tiLocation == null) {
+				Log.w(LCAT, "Could not fetch/create TiLocation for activity requesting getCurrentPosition");
+				return;
+			}
 			tiLocation.getCurrentPosition(listener);
-		}
-	}
-
-	@Override
-	public void listenerAdded(String eventName, int count, KrollProxy proxy) {
-		super.listenerAdded(eventName, count, proxy);
-
-		if (proxy != null && proxy.equals(this)) {
-			if (eventName != null) {
-				if (eventName.equals(TiLocation.EVENT_LOCATION)) {
-					tiLocation.manageLocationListener(true);
-				} else if (eventName.equals(TiCompass.EVENT_HEADING)) {
-					tiCompass.manageUpdateListener(true);
-				}
-			}
-		}
-	}
-
-	@Override
-	public void listenerRemoved(String eventName, int count, KrollProxy proxy) {
-		super.listenerRemoved(eventName, count, proxy);
-
-		if (proxy != null && proxy.equals(this)) {
-			if (eventName != null && count == 0) {
-				if (eventName.equals(TiLocation.EVENT_LOCATION)) {
-					tiLocation.manageLocationListener(false);
-				} else if (eventName.equals(TiCompass.EVENT_HEADING)) {
-					tiCompass.manageUpdateListener(false);
-				}
-			}
 		}
 	}
 
@@ -326,24 +317,191 @@ public class GeolocationModule
 		return super.handleMessage(msg);
 	}
 
-	// Lifecycle
-
-	@Override
-	public void onResume(Activity activity) {
-		Log.i(LCAT, "onResume");
+	private TiGeoHelper getHelperForContext(KrollInvocation invocation, String eventName, boolean createIfMissing)
+	{
+		if (invocation != null && invocation.getTiContext() != null) {
+			return getHelperForContext(invocation.getTiContext(), eventName, createIfMissing);
+		} else {
+			return null;
+		}
+	}
+	
+	private TiGeoHelper getHelperForContext(KrollInvocation invocation, String eventName)
+	{
+		return getHelperForContext(invocation, eventName, false);
+	}
+	
+	private TiGeoHelper getHelperForContext(TiContext context, String eventName, boolean createIfMissing)
+	{
+		if (!TiGeoHelper.isGeoEvent(eventName)) {
+			Log.w(LCAT, eventName + " is not a supported geo event (compass/location)");
+			return null;
+		}
+		return getHelperForContext(context, TiGeoHelper.getFeatureForEvent(eventName), createIfMissing);
+	}
+	
+	private TiGeoHelper getHelperForContext(TiContext context, GeoFeature feature, boolean createIfMissing)
+	{
+		ArrayList<TiGeoHelper> helpers = null;
+		if (contextGeoHelpers.containsKey(context)) {
+			helpers = contextGeoHelpers.get(context);
+			if (helpers == null) {
+				contextGeoHelpers.remove(context);
+			}
+		}
+		if (helpers == null && !createIfMissing) {
+			return null;
+		}
 		
-		super.onResume(activity);
+		if (helpers == null) {
+			helpers = new ArrayList<TiGeoHelper>(2);
+			contextGeoHelpers.put(new WeakReference<TiContext>(context), helpers);
+		}
+		
+		TiGeoHelper result = null;
+		for (TiGeoHelper helper: helpers) {
+			if (helper.getFeature() == feature) {
+				result = helper;
+				break;
+			}
+		}
+		
+		if (result == null && createIfMissing) {
+			result = TiGeoHelper.getInstance(context, this, feature);
+			helpers.add(result);
+		}
+		
+		return result;
+		
+	}
+	
+	private TiLocation getTiLocationForContext(KrollInvocation invocation, boolean createIfMissing)
+	{
+		if (invocation != null && invocation.getTiContext() != null) {
+			return getTiLocationForContext(invocation.getTiContext(), createIfMissing);
+		}
+		return null;
+	}
 
-		tiLocation.onResume();
-		tiCompass.onResume();
+	private TiLocation getTiLocationForContext(TiContext context, boolean createIfMissing)
+	{
+		return (TiLocation)getHelperForContext(context, GeoFeature.LOCATION, createIfMissing);
+	}
+	
+	private TiCompass getTiCompassForContext(KrollInvocation invocation, boolean createIfMissing)
+	{
+		if (invocation != null && invocation.getTiContext() != null) {
+			return getTiCompassForContext(invocation.getTiContext(), createIfMissing);
+		} else {
+			return null;
+		}
+	}
+
+	private TiCompass getTiCompassForContext(TiContext context, boolean createIfMissing)
+	{
+		return (TiCompass)getHelperForContext(context, GeoFeature.DIRECTION, createIfMissing);
+	}
+	
+	
+	@Override
+	public void removeEventListener(KrollInvocation invocation,	String eventName, Object listener)
+	{
+		if (!TiGeoHelper.isGeoEvent(eventName)) {
+			super.removeEventListener(invocation, eventName, listener);
+		} else {
+			TiGeoHelper helper = getHelperForContext(invocation, eventName);
+			if (helper != null) {
+				helper.removeEventListener(listener);
+			}
+		}
+	}
+	
+	@Override
+	public int addEventListener(KrollInvocation invocation, String eventName, Object listener)
+	{
+		if (!TiGeoHelper.isGeoEvent(eventName)) {
+			return super.addEventListener(invocation, eventName, listener);
+		}
+		
+		TiGeoHelper helper = getHelperForContext(invocation, eventName, true);
+		if (helper == null) {
+			Log.w(LCAT, "Unable to get geo helper (location/compass) for event " + eventName);
+			return 0;
+		} else {
+			return helper.addEventListener(listener);
+		}
+	}
+	
+	private ArrayList<TiGeoHelper> getGeoHelpersForActivity(Activity activity)
+	{
+		if (contextGeoHelpers != null && contextGeoHelpers.size() > 0)
+		{
+			for (WeakReference<TiContext> weakContext : contextGeoHelpers.keySet()) {
+				TiContext context = weakContext.get();
+				if (context != null && context.getActivity() != null && context.getActivity() == activity) {
+					return contextGeoHelpers.get(weakContext);
+				}
+			}
+				
+		}
+		return null;
 	}
 
 	@Override
-	public void onPause(Activity activity) {
-		Log.i(LCAT, "onPause");
-		super.onPause(activity);
-
-		tiLocation.onPause();
-		tiCompass.onPause();
+	public void onResume(Activity activity)
+	{
+		super.onResume(activity);
+		if (activity instanceof TiRootActivity) {
+			ArrayList<TiGeoHelper> helpers = getGeoHelpersForActivity(activity);
+			if (helpers != null) {
+				for (TiGeoHelper helper : helpers) {
+					helper.onResume(activity);
+				}
+			}
+		}
 	}
+
+	@Override
+	public void onPause(Activity activity)
+	{
+		super.onPause(activity);
+		if (activity instanceof TiRootActivity) {
+			ArrayList<TiGeoHelper> helpers = getGeoHelpersForActivity(activity);
+			if (helpers != null) {
+				for (TiGeoHelper helper : helpers) {
+					helper.onPause(activity);
+				}
+			}
+		}
+	}
+
+	@Override
+	public void onDestroy(Activity activity)
+	{
+		super.onDestroy(activity);
+		if (activity instanceof TiRootActivity) {
+			ArrayList<TiGeoHelper> helpers = getGeoHelpersForActivity(activity);
+			if (helpers != null) {
+				for (TiGeoHelper helper : helpers) {
+					helper.onDestroy(activity);
+				}
+			}
+		}
+		contextGeoHelpers.clear();
+	}
+
+	@Override
+	public void onStop(Activity activity)
+	{
+		super.onStop(activity);
+		if (activity instanceof TiRootActivity) {
+			ArrayList<TiGeoHelper> helpers = getGeoHelpersForActivity(activity);
+			if (helpers != null) {
+				for (TiGeoHelper helper : helpers) {
+					helper.onStop(activity);
+				}
+			}
+		}
+	}
+	
 }
