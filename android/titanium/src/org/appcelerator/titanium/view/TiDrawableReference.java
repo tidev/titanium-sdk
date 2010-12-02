@@ -267,6 +267,10 @@ public class TiDrawableReference
 			try {
 				oomOccurred = false;
 				bTemp = BitmapFactory.decodeStream(is, null, opts);
+				if (bTemp == null) {
+					Log.w(LCAT, "Decoded bitmap is null");
+					return null;
+				}
 				b = Bitmap.createScaledBitmap(bTemp, destWidth, destHeight, true);
 			} catch (OutOfMemoryError e) {
 				oomOccurred = true;

@@ -151,8 +151,7 @@ public abstract class TiBaseTableViewItem extends ViewGroup implements Handler.C
 		}
 	}
 	
-	public void release() 
-	{
+	public void release() {
 		handler = null;
 		tiContext = null;
 	}

@@ -397,7 +397,7 @@ public class TableViewProxy extends TiViewProxy
 			return sections.toArray();
 		}
 		
-		return new Object[0];		
+		return new Object[0];
 	}
 
 	private TableViewRowProxy rowProxyFor(Object row) {

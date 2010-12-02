@@ -480,18 +480,17 @@ public abstract class TiUIView
 
 	public void blur() {
 		if (nativeView != null) {
-	        InputMethodManager imm = getIMM();
-	        if (imm != null) {
-	        	imm.hideSoftInputFromWindow(nativeView.getWindowToken(), 0);
-	        }
+			InputMethodManager imm = getIMM();
+			if (imm != null) {
+				imm.hideSoftInputFromWindow(nativeView.getWindowToken(), 0);
+			}
 			nativeView.clearFocus();
 		}
 	}
 
-	public void release()
-	{
+	public void release() {
 		if (DBG) {
-			Log.i(LCAT, "Release: " + getClass().getSimpleName());
+			Log.d(LCAT, "Releasing: " + this);
 		}
 		View nv = getNativeView();
 		if (nv != null) {
@@ -518,7 +517,6 @@ public abstract class TiUIView
 				proxy.setModelListener(null);
 			}
 		}
-		
 	}
 
 	public void show()

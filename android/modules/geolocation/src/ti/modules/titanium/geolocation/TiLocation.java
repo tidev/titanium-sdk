@@ -6,12 +6,11 @@
  */
 package ti.modules.titanium.geolocation;
 
-import java.util.Iterator;
 import java.util.List;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollModule;
-import org.appcelerator.kroll.KrollProxy;
+import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.analytics.TiAnalyticsEvent;
 import org.appcelerator.titanium.analytics.TiAnalyticsEventFactory;
 import org.appcelerator.titanium.kroll.KrollCallback;
@@ -26,7 +25,7 @@ import android.location.LocationManager;
 import android.location.LocationProvider;
 import android.os.Bundle;
 
-public class TiLocation
+public class TiLocation extends TiGeoHelper
 {
 	private static final String LCAT = "TiLocation";
 	private static final Boolean DBG = true; //TiConfig.LOGD;
@@ -48,7 +47,7 @@ public class TiLocation
 
 	protected static final String OPTION_HIGH_ACCURACY = "enableHighAccuracy";
 
-	private KrollModule proxy;
+	//private KrollModule proxy;
 
 	protected LocationManager locationManager;
 	protected LocationListener geoListener;
@@ -58,23 +57,22 @@ public class TiLocation
 										// will arbitrate between other instances. Since only one activity
 										// at a time can be active, there shouldn't be any contention.
 
-	public TiLocation(KrollModule proxy)
+	public TiLocation(TiContext context, KrollModule proxy)
 	{
-		this.proxy = proxy;
-		final KrollModule fproxy = proxy;
+		super(context, proxy);
 		listeningForGeo = false;
 
 		geoListener = new LocationListener() {
 
 			public void onLocationChanged(Location location) {
 				LocationProvider provider = getLocationManager().getProvider(location.getProvider());
-				fproxy.fireEvent(EVENT_LOCATION, locationToKrollDict(location, provider));
-				doAnalytics(fproxy, location);
+				fireEvent(EVENT_LOCATION, locationToKrollDict(location, provider));
+				doAnalytics(location);
 			}
 
 			public void onProviderDisabled(String provider) {
 				Log.d(LCAT, "Provider disabled: " + provider);
-				fproxy.fireEvent(EVENT_LOCATION, TiConvert.toErrorObject(ERR_POSITION_UNAVAILABLE, provider + " disabled."));
+				fireEvent(EVENT_LOCATION, TiConvert.toErrorObject(ERR_POSITION_UNAVAILABLE, provider + " disabled."));
 			}
 
 			public void onProviderEnabled(String provider) {
@@ -86,10 +84,10 @@ public class TiLocation
 				Log.d(LCAT, "Status changed, provider = " + provider + " status=" + status);
 				switch (status) {
 					case LocationProvider.OUT_OF_SERVICE :
-						fproxy.fireEvent(EVENT_LOCATION, TiConvert.toErrorObject(ERR_POSITION_UNAVAILABLE, provider + " is out of service."));
+						fireEvent(EVENT_LOCATION, TiConvert.toErrorObject(ERR_POSITION_UNAVAILABLE, provider + " is out of service."));
 					break;
 					case LocationProvider.TEMPORARILY_UNAVAILABLE:
-						fproxy.fireEvent(EVENT_LOCATION, TiConvert.toErrorObject(ERR_POSITION_UNAVAILABLE, provider + " is currently unavailable."));
+						fireEvent(EVENT_LOCATION, TiConvert.toErrorObject(ERR_POSITION_UNAVAILABLE, provider + " is currently unavailable."));
 					break;
 					case LocationProvider.AVAILABLE :
 						if (DBG) {
@@ -103,7 +101,7 @@ public class TiLocation
 			}
 		};
 
-		locationManager = (LocationManager) proxy.getTiContext().getActivity().getSystemService(Context.LOCATION_SERVICE);
+		locationManager = (LocationManager) context.getActivity().getSystemService(Context.LOCATION_SERVICE);
 
 	}
 
@@ -118,7 +116,7 @@ public class TiLocation
 				Location location = getLocationManager().getLastKnownLocation(provider);
 				if (location != null) {
 					listener.call(locationToKrollDict(location, getLocationManager().getProvider(provider)));
-					doAnalytics(proxy, location);
+					doAnalytics(location);
 				} else {
 					Log.i(LCAT, "getCurrentPosition - location is null");
 					listener.call(TiConvert.toErrorObject(ERR_POSITION_UNAVAILABLE, "location is currently unavailable."));
@@ -127,18 +125,20 @@ public class TiLocation
 				Log.i(LCAT, "getCurrentPosition - no providers are available");
 				listener.call(TiConvert.toErrorObject(ERR_POSITION_UNAVAILABLE, "no providers are available."));
 			}
-		} else {
-			Log.i(LCAT, "getCurrentPosition - listener or locationManager null");
-			listener.call(TiConvert.toErrorObject(ERR_POSITION_UNAVAILABLE, "location is currently unavailable."));
 		}
 	}
 	
-	private void doAnalytics(KrollProxy proxy, Location location) {
+	private void doAnalytics(Location location) {
+		TiContext context = weakContext.get();
+		if (context == null) {
+			Log.w(LCAT, "Unable to report analytics location event; context has been GC'd");
+			return;
+		}
 		if (location.getTime() - lastEventTimestamp > MAX_GEO_ANALYTICS_FREQUENCY) {
 			// Null is returned if it's too early to send another event.
 			TiAnalyticsEvent event = TiAnalyticsEventFactory.createAppGeoEvent(location);
 			if (event != null) {
-				proxy.getTiContext().getTiApp().postAnalyticsEvent(event);
+				context.getTiApp().postAnalyticsEvent(event);
 				lastEventTimestamp = location.getTime();
 			}
 		}
@@ -177,7 +177,11 @@ public class TiLocation
 	
 	protected String fetchProvider() {
 		// Refactored for reuse
-		String preferredProvider = TiConvert.toString(proxy.getProperty("preferredProvider"));
+		KrollModule proxy = weakProxy.get();
+		String preferredProvider = null;
+		if (proxy != null) {
+			preferredProvider = TiConvert.toString(proxy.getProperty("preferredProvider"));
+		}
 		String provider;
 		
 		if (!(null == preferredProvider) && isValidProvider(preferredProvider)) {
@@ -197,7 +201,7 @@ public class TiLocation
 			getLocationManager(); // forces load of locationManager
 		}
 		if (locationManager != null) {
-			if (register) {
+			if (register && !listeningForGeo) {
 				
 				String provider = fetchProvider();
 
@@ -211,7 +215,13 @@ public class TiLocation
 					float updateDistance = 10;
 					int updateFrequency = 5000;
 
-					Object accuracy = proxy.getProperty("accuracy");
+					Object accuracy = null;
+					Object frequency = null;
+					KrollModule proxy = weakProxy.get();
+					if (proxy != null) {
+						accuracy = proxy.getProperty("accuracy");
+						frequency = proxy.getProperty("frequency");
+					}
 					if (accuracy != null) {
 						int value = TiConvert.toInt(accuracy);
 						switch(value) {
@@ -225,7 +235,6 @@ public class TiLocation
 						}
 					}
 
-					Object frequency = proxy.getProperty("frequency");
 					if (frequency != null) {
 						int value = TiConvert.toInt(frequency); // in seconds
 						updateFrequency = value * 1000; // to millis
@@ -238,10 +247,10 @@ public class TiLocation
 					Log.w(LCAT, "No providers available. Unable to turn on Location support");
 				}
 			} else {
-				if (listeningForGeo) {
+				if (listeningForGeo && locationManager != null) {
 					locationManager.removeUpdates(geoListener);
-					listeningForGeo = false;
 				}
+				listeningForGeo = false;
 			}
 		}
 	}
@@ -251,7 +260,12 @@ public class TiLocation
 		Criteria criteria = new Criteria();
 		criteria.setAccuracy(Criteria.NO_REQUIREMENT);
 
-		Object accuracy = proxy.getProperty("accuracy");
+		Object accuracy = null;
+		KrollModule proxy = weakProxy.get();
+		if (proxy != null) {
+			accuracy = proxy.getProperty("accuracy");
+		}
+		
 		if (accuracy != null) {
 			int value = TiConvert.toInt(accuracy);
 			switch(value) {
@@ -293,6 +307,7 @@ public class TiLocation
 		coords.put("timestamp", loc.getTime());
 
 		KrollDict pos = new KrollDict();
+		pos.put("success", true);
 		pos.put("coords", coords);
 
 		if (provider != null) {
@@ -316,9 +331,7 @@ public class TiLocation
 			if (DBG) {
 				Log.i(LCAT, "Enabled location provider count: " + providers.size());
 				// Extra debugging
-				for (Iterator<String> iter = providers.iterator(); iter
-						.hasNext();) {
-					String name = iter.next();
+				for (String name : providers) {
 					Log.i(LCAT, "Location ["+name+"] Service available ");
 				}					
 			}
@@ -330,33 +343,54 @@ public class TiLocation
 		return enabled;
 	}
 
-	public void onResume() {
-		
-		Log.i(LCAT, "onResume");
+	private LocationManager getLocationManager() {
+		if (locationManager == null) {
+			TiContext context = weakContext.get();
+			if (context != null) {
+				locationManager = (LocationManager) context.getActivity().getSystemService(Context.LOCATION_SERVICE);
+			}
+		}
+		return locationManager;
+	}
+	
+	@Override
+	protected void attach()
+	{
+		manageLocationListener(true);
+	}
+	
+	
+	@Override
+	protected void detach()
+	{
+		manageLocationListener(false);
+	}
 
-		locationManager = (LocationManager) proxy.getTiContext().getActivity().getSystemService(Context.LOCATION_SERVICE);
+	@Override
+	protected void resume()
+	{
+		TiContext context = weakContext.get();
+		if (context == null) {
+			Log.w(LCAT, "Could not properly resume, context has been GC'd");
+			return;
+		}
+		locationManager = (LocationManager) context.getActivity().getSystemService(Context.LOCATION_SERVICE);
 
-		if (proxy.hasListeners(EVENT_LOCATION)) {
+		if (hasListeners()) {
 			manageLocationListener(true);
 		}
 	}
 
-	public void onPause() {
-
-		Log.i(LCAT, "onPause");
-
-		if (listeningForGeo) {
-			manageLocationListener(false);
-		}
-
-		locationManager = null;
+	@Override
+	protected GeoFeature getFeature()
+	{
+		return GeoFeature.LOCATION;
 	}
-	
-	private LocationManager getLocationManager() {
-		if (locationManager == null) {
-			locationManager = (LocationManager) proxy.getTiContext().getActivity().getSystemService(Context.LOCATION_SERVICE);
-		}
-		return locationManager;
+
+	@Override
+	protected boolean supportsEvent(String eventName)
+	{
+		return eventName.equals(EVENT_LOCATION);
 	}
 
 }
