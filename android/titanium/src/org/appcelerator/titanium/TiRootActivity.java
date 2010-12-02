@@ -19,6 +19,7 @@ import org.appcelerator.titanium.util.TiActivitySupportHelper;
 import org.appcelerator.titanium.util.TiBindingHelper;
 import org.appcelerator.titanium.util.TiColorHelper;
 import org.appcelerator.titanium.util.TiConfig;
+import org.appcelerator.titanium.util.TiPlatformHelper;
 import org.appcelerator.titanium.util.TiRHelper;
 import org.appcelerator.titanium.view.ITiWindowHandler;
 import org.appcelerator.titanium.view.TiCompositeLayout;
@@ -81,7 +82,8 @@ public class TiRootActivity extends ActivityGroup
 		if (DBG) {
 			Log.e(LCAT, "Instance Count: " + getInstanceCount());
 		}
-		
+		TiPlatformHelper.intializeDisplayMetrics(this);
+
 		Intent intent = getIntent();
 		Messenger messenger = null;
 		int messageId = -1;

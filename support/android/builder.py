@@ -673,12 +673,18 @@ class Builder(object):
 				activity_name = self.app_id + '.' + activity['classname']
 				activity_str = '<activity \n\t\t\tandroid:name="%s"' % activity_name
 				for subkey in activity:
-					if subkey not in ('name', 'url', 'options', 'classname', 'android:name'):
+					if subkey not in ('nodes', 'name', 'url', 'options', 'classname', 'android:name'):
 						activity_str += '\n\t\t\t%s="%s"' % (subkey, activity[subkey])
 
 				if 'android:config' not in activity:
 					activity_str += '\n\t\t\tandroid:configChanges="keyboardHidden|orientation"'
-				activities.append(activity_str + '\n\t\t/>\n')
+				if 'nodes' in activity:
+					activity_str += '>'
+					for node in activity['nodes']:
+						activity_str += '\n\t\t\t\t' + node.toxml()
+					activities.append(activity_str + '\n\t\t</activity>\n')
+				else:
+					activities.append(activity_str + '\n\t\t/>\n')
 
 		activities = set(activities)
 

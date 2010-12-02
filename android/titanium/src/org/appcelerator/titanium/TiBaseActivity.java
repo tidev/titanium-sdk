@@ -12,6 +12,7 @@ import org.appcelerator.titanium.util.TiActivitySupport;
 import org.appcelerator.titanium.util.TiActivitySupportHelper;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiConvert;
+import org.appcelerator.titanium.util.TiPlatformHelper;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.util.TiWeakList;
 import org.appcelerator.titanium.view.ITiWindowHandler;
@@ -196,6 +197,10 @@ public class TiBaseActivity extends Activity
 		if (DBG) {
 			Log.d(TAG, "Activity onCreate");
 		}
+		
+		// Doing this on every create in case the activity is externally created.
+		TiPlatformHelper.intializeDisplayMetrics(this);
+		
 		orientationListener = new OrientationEventListener(this) {
 			@Override
 			public void onOrientationChanged(int orientation) {

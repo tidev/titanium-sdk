@@ -9,25 +9,29 @@ package org.appcelerator.titanium.util;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.lang.reflect.Method;
+import java.util.Currency;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.UUID;
-import java.util.Currency;
 
 import org.appcelerator.titanium.ITiAppInfo;
 import org.appcelerator.titanium.TiApplication;
 
 import android.Manifest;
+import android.app.Activity;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.content.res.Resources;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.provider.Settings;
+import android.util.DisplayMetrics;
 
 public class TiPlatformHelper
 {
@@ -41,6 +45,9 @@ public class TiPlatformHelper
 	public static String platformId;
 	public static String sessionId;
 	public static StringBuilder sb = new StringBuilder(256);
+	public static float applicationScaleFactor = 1.0F;
+	public static int applicationLogicalDensity = DisplayMetrics.DENSITY_MEDIUM;
+	private static boolean applicationDisplayInfoInitialized = false;
 
 	private static TiApplication tiApp;
 
@@ -60,6 +67,33 @@ public class TiPlatformHelper
 		}
 
 		sessionId = createUUID();
+	}
+	
+	public static synchronized void intializeDisplayMetrics(Activity activity) 
+	{	
+		if (!applicationDisplayInfoInitialized) {
+ 			DisplayMetrics dm = new DisplayMetrics();
+			activity.getWindowManager().getDefaultDisplay().getMetrics(dm);
+	
+			// Note: this isn't public API, so there should be lots of error checking here
+			try {
+				Method gciMethod = Resources.class.getMethod("getCompatibilityInfo");
+				Object compatInfo = gciMethod.invoke(activity.getResources());
+				applicationScaleFactor = (Float)compatInfo.getClass().getField("applicationScale").get(compatInfo);
+			} catch (Exception e) {
+				Log.w(LCAT, "Unable to get application scale factor, using reported density and it's factor");
+			}
+	
+			if (applicationScaleFactor == 1.0f) {
+				applicationLogicalDensity = dm.densityDpi;
+			} else if (applicationScaleFactor > 1.0f) {
+				applicationLogicalDensity = DisplayMetrics.DENSITY_MEDIUM;
+			} else {
+				applicationLogicalDensity = DisplayMetrics.DENSITY_LOW;
+			}
+			
+			applicationDisplayInfoInitialized = true;
+		}
 	}
 
 	public static ITiAppInfo getAppInfo() {
