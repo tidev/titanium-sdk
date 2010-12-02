@@ -92,7 +92,18 @@ public class KrollConverter implements KrollNativeConverter,
 		@Override
 		public Object get(String name, Scriptable start) {
 			KrollInvocation invocation = KrollInvocation.createPropertyGetInvocation(start, this, name, null, null);
-			return convertNative(invocation, map.get(name));
+			Object value = map.get(name);
+			if (value == null && (name.equals("valueOf") || name.equals("toString"))) {
+				value = new KrollMethod(name){
+					@Override
+					public Object invoke(KrollInvocation invocation,
+							Object[] args) throws Exception
+					{
+						return ScriptableMap.this.toString();
+					}
+				};
+			}
+			return convertNative(invocation, value);
 		}
 		
 		@Override

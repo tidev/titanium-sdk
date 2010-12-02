@@ -9,9 +9,11 @@ describe("Ti.Yahoo tests", {
 				var data = e.data;
 				valueOf(data).shouldNotBeNull();
 				valueOf(data.photo).shouldNotBeNull();
-				valueOf(data.photo.length).shouldBe(10);
+				var len = data.photo.length;
+				valueOf(len).shouldBeGreaterThan(0);
+				valueOf(len).shouldBeLessThanEqual(10);
 				
-				for (var i = 0; i < 10; i++) {
+				for (var i = 0; i < len; i++) {
 					valueOf(data.photo[i].id).shouldBeString();
 				}
 			}));

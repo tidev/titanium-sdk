@@ -1035,95 +1035,82 @@ if (![TiUtils isIOS4OrGreater]) { \
 		[self closeModalPicker:picker];
 	}
 	
-	NSMutableDictionary *dictionary = [NSMutableDictionary dictionary];
-	
-	TiBlob *media = nil;
-	TiBlob *media2 = nil;
-	
 	NSString *mediaType = [editingInfo objectForKey:UIImagePickerControllerMediaType];
 	if (mediaType==nil)
 	{
 		mediaType = (NSString*)kUTTypeImage; // default to in case older OS
 	}
-	
-	[dictionary setObject:mediaType forKey:@"mediaType"];
-	
-	BOOL imageWrittenToAlbum = NO;
-	BOOL isVideo = [mediaType isEqualToString:(NSString*)kUTTypeMovie];
-	
 	NSURL *mediaURL = [editingInfo objectForKey:UIImagePickerControllerMediaURL];
-	if (mediaURL!=nil)
+	NSValue * ourRectValue = [editingInfo objectForKey:UIImagePickerControllerCropRect];
+	
+	BOOL isVideo = [mediaType isEqualToString:(NSString*)kUTTypeMovie];
+	NSDictionary *cropRect = nil;
+	TiBlob *media = nil;
+	TiBlob *thumbnail = nil;
+
+	BOOL imageWrittenToAlbum = NO;
+	
+	if (isVideo)
 	{
-		// this is a video, get the path to the URL
 		media = [[[TiBlob alloc] initWithFile:[mediaURL path]] autorelease];
-		
-		if (isVideo)
-		{
-			[media setMimeType:@"video/mpeg" type:TiBlobTypeFile];
-		}
-		else 
-		{
-			[media setMimeType:@"image/jpeg" type:TiBlobTypeFile];
-		}
-		
+		[media setMimeType:@"video/mpeg" type:TiBlobTypeFile];
 		if (saveToRoll)
 		{
-			if (isVideo)
-			{
-				NSString *tempFilePath = [mediaURL absoluteString];
-				UISaveVideoAtPathToSavedPhotosAlbum(tempFilePath, nil, nil, NULL);
-			}
-			else 
+			NSString *tempFilePath = [mediaURL absoluteString];
+			UISaveVideoAtPathToSavedPhotosAlbum(tempFilePath, nil, nil, NULL);
+		}
+		UIImage *thumbnailImage = [editingInfo objectForKey:UIImagePickerControllerOriginalImage];
+		thumbnail = [[[TiBlob alloc] initWithImage:thumbnailImage] autorelease];
+	}
+	else
+	{
+		UIImage *editedImage = [editingInfo objectForKey:UIImagePickerControllerEditedImage];
+		if ((mediaURL!=nil) && (editedImage == nil))
+		{
+			// this is a video, get the path to the URL
+			media = [[[TiBlob alloc] initWithFile:[mediaURL path]] autorelease];
+			[media setMimeType:@"image/jpeg" type:TiBlobTypeFile];
+			
+			if (saveToRoll)
 			{
 				UIImage *image = [editingInfo objectForKey:UIImagePickerControllerOriginalImage];
 				UIImageWriteToSavedPhotosAlbum(image, nil, nil, NULL);
-				imageWrittenToAlbum = YES;
 			}
-			
 		}
-		
-		// this is the thumbnail of the video
-		if (isVideo)
+		else
 		{
-			UIImage *image = [editingInfo objectForKey:UIImagePickerControllerOriginalImage];
-			media2 = [[[TiBlob alloc] initWithImage:image] autorelease];
+			UIImage *image = (editedImage != nil)?editedImage:
+					[editingInfo objectForKey:UIImagePickerControllerOriginalImage];
+			media = [[[TiBlob alloc] initWithImage:image] autorelease];
+			if (saveToRoll)
+			{
+				UIImageWriteToSavedPhotosAlbum(image, nil, nil, NULL);
+			}
 		}
 	}
 	
-	if (media==nil)
-	{
-		UIImage *image = [editingInfo objectForKey:UIImagePickerControllerEditedImage];
-		if (image==nil)
-		{
-			image = [editingInfo objectForKey:UIImagePickerControllerOriginalImage];
-		}
-		media = [[[TiBlob alloc] initWithImage:image] autorelease];
-		if (saveToRoll && imageWrittenToAlbum==NO)
-		{
-			UIImageWriteToSavedPhotosAlbum(image, nil, nil, NULL);
-		}
-	}
-	
-	NSValue * ourRectValue = [editingInfo objectForKey:UIImagePickerControllerCropRect];
 	if (ourRectValue != nil)
 	{
 		CGRect ourRect = [ourRectValue CGRectValue];
-		[dictionary setObject:[NSDictionary dictionaryWithObjectsAndKeys:
+		cropRect = [NSDictionary dictionaryWithObjectsAndKeys:
 							   [NSNumber numberWithFloat:ourRect.origin.x],@"x",
 							   [NSNumber numberWithFloat:ourRect.origin.y],@"y",
 							   [NSNumber numberWithFloat:ourRect.size.width],@"width",
 							   [NSNumber numberWithFloat:ourRect.size.height],@"height",
-							   nil] forKey:@"cropRect"];
+							   nil];
 	}
-	
-	if (media!=nil)
+
+	NSMutableDictionary *dictionary = [NSMutableDictionary dictionaryWithObjectsAndKeys:
+			mediaType,@"mediaType",media,@"media",nil];
+
+	if (thumbnail!=nil)
 	{
-		[dictionary setObject:media forKey:@"media"];
+		[dictionary setObject:thumbnail forKey:@"thumbnail"];
 	}
-	
-	if (media2!=nil)
+
+	if (cropRect != nil)
 	{
-		[dictionary setObject:media2 forKey:@"thumbnail"];
+		[dictionary setObject:cropRect forKey:@"cropRect"];
 	}
 	
 	[self sendPickerSuccess:dictionary];
