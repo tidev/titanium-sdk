@@ -343,13 +343,20 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 		view = null;
 	}
 
-	public TiUIView peekView()
-	{
+	public TiUIView peekView() {
 		return view;
 	}
 
-	public TiUIView getView(Activity activity)
-	{
+	public void setView(TiUIView view) {
+		this.view = view;
+	}
+
+	public TiUIView forceCreateView(Activity activity) {
+		view = null;
+		return getView(activity);
+	}
+
+	public TiUIView getView(Activity activity) {
 		if (activity == null) {
 			activity = getTiContext().getActivity();
 		}
@@ -363,8 +370,7 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 		return (TiUIView) result.getResult();
 	}
 
-	protected TiUIView handleGetView(Activity activity)
-	{
+	protected TiUIView handleGetView(Activity activity) {
 		if (view == null) {
 			if (DBG) {
 				Log.i(LCAT, "getView: " + getClass().getSimpleName());
@@ -377,8 +383,7 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 		return view;
 	}
 
-	public void realizeViews(Activity activity, TiUIView view)
-	{
+	public void realizeViews(Activity activity, TiUIView view) {
 		setModelListener(view);
 
 		// Use a copy so bundle can be modified as it passes up the inheritance

@@ -49,6 +49,9 @@ public class TiTableView extends FrameLayout
 	private static final String LCAT = "TiTableView";
 	private static final boolean DBG = TiConfig.LOGD;
 
+	//TODO make this configurable
+	protected static final int MAX_CLASS_NAMES = 16;
+
 	private TableViewModel viewModel;
 	private ListView listView;
 	private TiTableViewItemOptions defaults;
@@ -79,38 +82,34 @@ public class TiTableView extends FrameLayout
 		TTVListAdapter(TableViewModel viewModel) {
 			this.viewModel = viewModel;
 			this.index = new ArrayList<Integer>(viewModel.getRowCount());
-			applyFilter();
+			reIndexItems();
 		}
 
-		public void applyFilter()
-		{
-			boolean classChange = false;
+		protected void registerClassName(String className) {
+			if (!rowTypes.containsKey(className)) {
+				if (DBG) {
+					Log.d(LCAT, "registering new className " + className);
+				}
+				rowTypes.put(className, rowTypeCounter.incrementAndGet());
+			}
+		}
 
+		public void reIndexItems() {
 			ArrayList<Item> items = viewModel.getViewModel();
 			int count = items.size();
-
 			index.clear();
-			filtered = false;
 
+			filtered = false;
 			if (filterAttribute != null && filterText != null && filterAttribute.length() > 0 && filterText.length() > 0) {
 				filtered = true;
-
 				String filter = filterText;
 				if (filterCaseInsensitive) {
 					filter = filterText.toLowerCase();
 				}
-
 				for(int i = 0; i < count; i++) {
 					boolean keep = true;
-
 					Item item = items.get(i);
-					if (!rowTypes.containsKey(item.className)) {
-						if (DBG) {
-							Log.i(LCAT, "Adding className " + item.className);
-						}
-						rowTypes.put(item.className, rowTypeCounter.incrementAndGet());
-						classChange = true;
-					}
+					registerClassName(item.className);
 					if (item.proxy.hasProperty(filterAttribute)) {
 						String t = TiConvert.toString(item.proxy.getProperty(filterAttribute));
 						if (filterCaseInsensitive) {
@@ -120,29 +119,16 @@ public class TiTableView extends FrameLayout
 							keep = false;
 						}
 					}
-
 					if (keep) {
 						index.add(i);
 					}
 				}
 			} else {
 				for(int i = 0; i < count; i++) {
-
 					Item item = items.get(i);
-					if (!rowTypes.containsKey(item.className)) {
-						if (DBG) {
-							Log.i(LCAT, "Adding className " + item.className);
-						}
-						rowTypes.put(item.className, rowTypeCounter.incrementAndGet());
-						classChange = true;
-					}
-
+					registerClassName(item.className);
 					index.add(i);
 				}
-			}
-
-			if (classChange) {
-				listView.setAdapter(this);
 			}
 		}
 
@@ -165,34 +151,22 @@ public class TiTableView extends FrameLayout
 
 		@Override
 		public int getViewTypeCount() {
-			Set<String> types = rowTypes.keySet();
-			return types.size();
+			return MAX_CLASS_NAMES;
 		}
 
 		@Override
 		public int getItemViewType(int position) {
-			Item o = (Item) getItem(position);
-			return typeForItem(o);
-		}
-
-		private int typeForItem(Item item) {
-			if(!rowTypes.containsKey(item.className)) {
-				rowTypes.put(item.className, rowTypeCounter.incrementAndGet());
-				if (DBG) {
-					Log.i(LCAT, "Adding row class type: " + item.className);
-				}
-			}
+			Item item = (Item) getItem(position);
+			registerClassName(item.className);
 			return rowTypes.get(item.className);
 		}
 
-		public View getView(int position, View convertView, ViewGroup parent)
-		{
+		public View getView(int position, View convertView, ViewGroup parent) {
 			Item item = (Item) getItem(position);
 			TiBaseTableViewItem v = null;
 			
 			if (convertView != null) {
 				v = (TiBaseTableViewItem) convertView;
-				
 				// Default creates view for each Item
 				boolean sameView = false;
 				if (item.proxy instanceof TableViewRowProxy) {
@@ -215,7 +189,6 @@ public class TiTableView extends FrameLayout
 					}
 				}
 			}
-
 			if (v == null) {
 				if (item.className.equals(TableViewProxy.CLASSNAME_HEADER)) {
 					v = new TiTableViewHeaderItem(tiContext);
@@ -230,11 +203,9 @@ public class TiTableView extends FrameLayout
 					v = new TiTableViewRowProxyItem(tiContext);
 					v.setClassName(item.className);
 				}
-
 				v.setLayoutParams(new AbsListView.LayoutParams(
 					AbsListView.LayoutParams.FILL_PARENT, AbsListView.LayoutParams.FILL_PARENT));
 			}
-
 			v.setRowData(item);
 			return v;
 		}
@@ -247,7 +218,6 @@ public class TiTableView extends FrameLayout
 		@Override
 		public boolean isEnabled(int position) {
 			Item item = (Item) getItem(position);
-
 			boolean enabled = true;
 			if (item != null && item.className.equals(TableViewProxy.CLASSNAME_HEADER)) {
 				enabled = false;
@@ -262,7 +232,7 @@ public class TiTableView extends FrameLayout
 
 		@Override
 		public void notifyDataSetChanged() {
-			applyFilter();
+			reIndexItems();
 			super.notifyDataSetChanged();
 		}
 
@@ -343,7 +313,6 @@ public class TiTableView extends FrameLayout
 
 		if (proxy.getProperties().containsKey("separatorColor")) {
 			setSeparatorColor(TiConvert.toString(proxy.getProperty("separatorColor")));
-
 		}
 
 		adapter = new TTVListAdapter(viewModel);
@@ -504,7 +473,6 @@ public class TiTableView extends FrameLayout
 		}
 	}
 
-
 	public void setFilterAttribute(String filterAttribute) {
 		this.filterAttribute = filterAttribute;
 	}
@@ -512,7 +480,7 @@ public class TiTableView extends FrameLayout
 	public void setFilterCaseInsensitive(boolean filterCaseInsensitive) {
 		this.filterCaseInsensitive  = filterCaseInsensitive;
 	}
-	
+
 	public void release() 
 	{
 		adapter = null;
@@ -528,10 +496,4 @@ public class TiTableView extends FrameLayout
 		itemClickListener = null;
 		tiContext = null;
 	}
-
-//	public void setData(Object[] rows) {
-//		viewModel.setData(rows);
-//		dataSetChanged();
-//	}
-
 }

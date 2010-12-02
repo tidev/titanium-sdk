@@ -15,8 +15,8 @@ import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.ui.widget.tableview.TableViewModel;
-import ti.modules.titanium.ui.widget.tableview.TiTableViewRowProxyItem;
 import ti.modules.titanium.ui.widget.tableview.TableViewModel.Item;
+import ti.modules.titanium.ui.widget.tableview.TiTableViewRowProxyItem;
 import android.app.Activity;
 import android.os.Message;
 
@@ -91,11 +91,6 @@ public class TableViewRowProxy extends TiViewProxy
 	}
 	
 	@Override
-	public String toString() {
-		return "[object TiUITableViewRow]";
-	}
-	
-	@Override
 	public boolean fireEvent(String eventName, KrollDict data) {
 		if (eventName.equals("click")) {
 			// inject row click data for events coming from row children
@@ -132,7 +127,7 @@ public class TableViewRowProxy extends TiViewProxy
 			tableViewItem.release();
 			tableViewItem = null;
 		}
-		if (controls != null){
+		if (controls != null) {
 			for (TiViewProxy control : controls) {
 				control.releaseViews();
 			}

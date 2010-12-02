@@ -18,7 +18,7 @@ import android.app.Activity;
 @Kroll.proxy(creatableInModule=UIModule.class)
 public class TableViewSectionProxy extends TiViewProxy
 {
-	ArrayList<TableViewRowProxy> rows;
+	protected ArrayList<TableViewRowProxy> rows;
 
 	public TableViewSectionProxy(TiContext tiContext) {
 		super(tiContext);
@@ -81,11 +81,8 @@ public class TableViewSectionProxy extends TiViewProxy
 	public void removeRowAt(int index) {
 		rows.remove(index);
 	}
-
 	@Kroll.method
-	public void updateRowAt(int index, TableViewRowProxy row)
-	{
-		//TODO this may not be the most efficient way to handle this model change
+	public void updateRowAt(int index, TableViewRowProxy row) {
 		rows.set(index, row);
 	}
 	

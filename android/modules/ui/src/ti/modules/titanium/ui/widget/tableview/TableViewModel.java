@@ -19,195 +19,192 @@ import ti.modules.titanium.ui.TableViewSectionProxy;
 
 public class TableViewModel
 {
-    private static final String LCAT = "TableViewModel";
-    private static final boolean DUMP = false;
+	private static final String LCAT = "TableViewModel";
+	private static final boolean DUMP = false;
 
-    // Flat view
+	// Flat view
 
-    public class Item {
-        public Item(int index) {
-            this.index = index;
-        }
-        public boolean hasHeader() {
-            return headerText != null;
-        }
-        
-        public int index;
-        public int sectionIndex;
-        public int indexInSection;
-        public String headerText;
-        public String footerText;
-        public String name;
-        public String className;
-        public TiViewProxy proxy;
-        public Object rowData;
-    }
+	public class Item {
+		public Item(int index) {
+			this.index = index;
+		}
+		public boolean hasHeader() {
+			return headerText != null;
+		}
 
-    private TiContext tiContext;
-    private TableViewProxy proxy;
+		public int index;
+		public int sectionIndex;
+		public int indexInSection;
+		public String headerText;
+		public String footerText;
+		public String name;
+		public String className;
+		public TiViewProxy proxy;
+		public Object rowData;
+	}
 
-    private boolean dirty;
+	private TiContext tiContext;
+	private TableViewProxy proxy;
 
-    private ArrayList<Item> viewModel;
+	private boolean dirty;
 
-    // The unstructured set of data. Modifier operations are treated as edits to this
-    // and the section structure.
+	private ArrayList<Item> viewModel;
 
-    public TableViewModel(TiContext tiContext, TableViewProxy proxy) {
-        this.tiContext = tiContext;
-        this.proxy = proxy;
+	// The unstructured set of data. Modifier operations are treated as edits to this
+	// and the section structure.
 
-        viewModel = new ArrayList<Item>();
-        dirty = true;
-    }
-    
-    public void release()
-    {
-    	if (viewModel != null) {
-    		viewModel.clear();
-    		viewModel = null;
-    	}
-    	tiContext = null;
-    	proxy = null;
-    }
+	public TableViewModel(TiContext tiContext, TableViewProxy proxy) {
+		this.tiContext = tiContext;
+		this.proxy = proxy;
 
-    private String classNameForRow(TableViewRowProxy rowProxy) {
-        String className = TiConvert.toString(rowProxy.getProperty("className"));
-        if (className == null) {
-        	className = TableViewProxy.CLASSNAME_DEFAULT;
-        }
-        return className;
-    }
+		viewModel = new ArrayList<Item>();
+		dirty = true;
+	}
 
-    private Item itemForObject(int index, Object data)
-    {
-        Item newItem = new Item(index);
-        TableViewRowProxy rowProxy = null;
+	public void release()
+	{
+		if (viewModel != null) {
+			viewModel.clear();
+			viewModel = null;
+		}
+		tiContext = null;
+		proxy = null;
+	}
 
-        if (data instanceof KrollDict) {
-            rowProxy = new TableViewRowProxy(tiContext);
-            rowProxy.handleCreationDict((KrollDict)data);
-            rowProxy.setProperty("className", TableViewProxy.CLASSNAME_NORMAL);
-            rowProxy.setProperty("rowData", data);
-            newItem.proxy = rowProxy;
-            newItem.rowData = data;
-            newItem.className = TableViewProxy.CLASSNAME_NORMAL;
-        } else if (data instanceof TableViewRowProxy) {
-            rowProxy = (TableViewRowProxy) data;
-            newItem.proxy = rowProxy;
-            newItem.rowData = rowProxy;
-            String className = TiConvert.toString(rowProxy.getProperty("className"));
-            if (className == null) {
-            	className = TableViewProxy.CLASSNAME_DEFAULT;
-            }
-            newItem.className = className;
-        } else if (data instanceof TableViewSectionProxy) {
-        	newItem.proxy = (TableViewSectionProxy) data;
-        } else {
-        	throw new IllegalStateException("Un-implemented type: " + (data != null ? data.getClass().getSimpleName() : null));
-        }
+	public static String classNameForRow(TableViewRowProxy rowProxy) {
+		String className = TiConvert.toString(rowProxy.getProperty("className"));
+		if (className == null) {
+			className = TableViewProxy.CLASSNAME_DEFAULT;
+		}
+		return className;
+	}
 
-        return newItem;
-    }
+	private Item itemForObject(int index, Object data)
+	{
+		Item newItem = new Item(index);
+		TableViewRowProxy rowProxy = null;
 
-    private Item itemForHeader(int index, TableViewSectionProxy proxy, String headerText, String footerText) {
-    	Item newItem = new Item(index);
-    	newItem.className = TableViewProxy.CLASSNAME_HEADER;
-    	if (headerText != null) {
-    		newItem.headerText = headerText;
-    	} else if (footerText != null) {
-    		newItem.footerText = footerText;
-    	}
-    	newItem.proxy = proxy;
+		if (data instanceof KrollDict) {
+			rowProxy = new TableViewRowProxy(tiContext);
+			rowProxy.handleCreationDict((KrollDict)data);
+			rowProxy.setProperty("className", TableViewProxy.CLASSNAME_NORMAL);
+			rowProxy.setProperty("rowData", data);
+			newItem.proxy = rowProxy;
+			newItem.rowData = data;
+			newItem.className = TableViewProxy.CLASSNAME_NORMAL;
+		} else if (data instanceof TableViewRowProxy) {
+			rowProxy = (TableViewRowProxy) data;
+			newItem.proxy = rowProxy;
+			newItem.rowData = rowProxy;
+			String className = TiConvert.toString(rowProxy.getProperty("className"));
+			if (className == null) {
+				className = TableViewProxy.CLASSNAME_DEFAULT;
+			}
+			newItem.className = className;
+		} else if (data instanceof TableViewSectionProxy) {
+			newItem.proxy = (TableViewSectionProxy) data;
+		} else {
+			throw new IllegalStateException("Un-implemented type: " + (data != null ? data.getClass().getSimpleName() : null));
+		}
 
-    	return newItem;
-    }
+		return newItem;
+	}
 
-    public int getRowCount() {
-    	if (viewModel == null) {
-    		return 0;
-    	}
-    	return viewModel.size();
-    }
+	private Item itemForHeader(int index, TableViewSectionProxy proxy, String headerText, String footerText) {
+		Item newItem = new Item(index);
+		newItem.className = TableViewProxy.CLASSNAME_HEADER;
+		if (headerText != null) {
+			newItem.headerText = headerText;
+		} else if (footerText != null) {
+			newItem.footerText = footerText;
+		}
+		newItem.proxy = proxy;
 
-    public TableViewSectionProxy getSection(int index)
-    {
-    	return proxy.getSections().get(index);
-    }
-    
-    public ArrayList<Item> getViewModel()
-    {
-        if (dirty) {
+		return newItem;
+	}
 
-            viewModel = new ArrayList<Item>();
-            int sectionIndex = 0;
-            int indexInSection = 0;
-            int index = 0;
+	public int getRowCount() {
+		if (viewModel == null) {
+			return 0;
+		}
+		return viewModel.size();
+	}
 
-            ArrayList<TableViewSectionProxy> sections = proxy.getSections();
-            if (sections != null) {
+	public TableViewSectionProxy getSection(int index)
+	{
+		return proxy.getSections().get(index);
+	}
 
-	            for (TableViewSectionProxy section : sections) {
-	            	String headerTitle = TiConvert.toString(section.getProperty("headerTitle"));
-	            	if (headerTitle != null) {
-	            		viewModel.add(itemForHeader(index, section, headerTitle, null));
-	            	}
-	            	for (TableViewRowProxy row : section.getRows()) {
-	            		Item item = new Item(index);
-	            		item.sectionIndex = sectionIndex;
-	            		item.indexInSection = indexInSection;
-	            		item.proxy = row;
-	            		item.rowData = row; // TODO capture dictionary?
-	            		item.className = classNameForRow(row);
+	public ArrayList<Item> getViewModel()
+	{
+		if (dirty) {
+			viewModel = new ArrayList<Item>();
+			int sectionIndex = 0;
+			int indexInSection = 0;
+			int index = 0;
+			ArrayList<TableViewSectionProxy> sections = proxy.getSections();
+			if (sections != null) {
+				for (TableViewSectionProxy section : sections) {
+					String headerTitle = TiConvert.toString(section.getProperty("headerTitle"));
+					if (headerTitle != null) {
+						viewModel.add(itemForHeader(index, section, headerTitle, null));
+					}
+					for (TableViewRowProxy row : section.getRows()) {
+						Item item = new Item(index);
+						item.sectionIndex = sectionIndex;
+						item.indexInSection = indexInSection;
+						item.proxy = row;
+						item.rowData = row; // TODO capture dictionary?
+						item.className = classNameForRow(row);
 
-	            		viewModel.add(item);
-	            		index++;
-	            		indexInSection++;
-	            	}
+						viewModel.add(item);
+						index++;
+						indexInSection++;
+					}
 
-	            	String footerTitle = TiConvert.toString(section.getProperty("footerTitle"));
-	            	if (footerTitle != null) {
-	            		viewModel.add(itemForHeader(index, section, null, footerTitle));
-	            	}
+					String footerTitle = TiConvert.toString(section.getProperty("footerTitle"));
+					if (footerTitle != null) {
+						viewModel.add(itemForHeader(index, section, null, footerTitle));
+					}
 
-	            	sectionIndex++;
-	            	indexInSection = 0;
-	            }
-	            dirty = false;
-	        }
-        }
-        return viewModel;
-    }
+					sectionIndex++;
+					indexInSection = 0;
+				}
+				dirty = false;
+			}
+		}
+		return viewModel;
+	}
 
-    public int getViewIndex(int index) {
-        int position = -1;
-        // the View index can be larger than model index if there are headers.
-        if (viewModel != null && index <= viewModel.size()) {
-            for(int i = 0; i < viewModel.size(); i++) {
-                Item item = viewModel.get(i);
-                if (index == item.index) {
-                    position = i;
-                    break;
-                }
-            }
-        }
+	public int getViewIndex(int index) {
+		int position = -1;
+		// the View index can be larger than model index if there are headers.
+		if (viewModel != null && index <= viewModel.size()) {
+			for(int i = 0; i < viewModel.size(); i++) {
+				Item item = viewModel.get(i);
+				if (index == item.index) {
+					position = i;
+					break;
+				}
+			}
+		}
 
-        return position;
-    }
+		return position;
+	}
 
-    public int getRowHeight(int position, int defaultHeight) {
-        int rowHeight = defaultHeight;
+	public int getRowHeight(int position, int defaultHeight) {
+		int rowHeight = defaultHeight;
 
-        Item item = viewModel.get(position);
-        Object rh = item.proxy.getProperty("rowHeight");
-        if (rh != null) {
-        	rowHeight = TiConvert.toInt(rh);
-        }
+		Item item = viewModel.get(position);
+		Object rh = item.proxy.getProperty("rowHeight");
+		if (rh != null) {
+			rowHeight = TiConvert.toInt(rh);
+		}
 
-        return rowHeight;
-    }
+		return rowHeight;
+	}
 
 	public void setDirty() {
 		dirty = true;
 	}
- }
+}
