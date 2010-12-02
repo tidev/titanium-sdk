@@ -180,6 +180,14 @@ class TiAppXML(object):
 				activity['url'] = url
 				add_attrs(activity, activity_el)
 				activity['classname'] = get_activity_classname(url)
+				for child in activity_el.childNodes:
+					if child.nodeType != child.ELEMENT_NODE:
+						continue
+					if 'nodes' not in activity:
+						activity['nodes'] = []
+					nodes = activity['nodes']
+					nodes.append(child)
+
 
 		def parse_tool_api_level(node):
 			lazy_init('tool-api-level', get_text(node))
