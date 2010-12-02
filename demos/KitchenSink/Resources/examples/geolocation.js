@@ -367,7 +367,11 @@ else
 		{
 			if (evt.success) {
 				var places = evt.places;
-				reverseGeo.text = places[0].address;
+				if (places && places.length) {
+					reverseGeo.text = places[0].address;
+				} else {
+					reverseGeo.text = "No address found";
+				}
 				Ti.API.debug("reverse geolocation result = "+JSON.stringify(evt));
 			}
 			else {

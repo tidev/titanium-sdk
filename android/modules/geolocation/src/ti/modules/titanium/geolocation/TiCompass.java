@@ -6,8 +6,11 @@
  */
 package ti.modules.titanium.geolocation;
 
+import java.util.Calendar;
+
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollModule;
+import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.kroll.KrollCallback;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
@@ -23,8 +26,9 @@ import android.hardware.SensorManager;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationManager;
+import android.os.SystemClock;
 
-public class TiCompass
+public class TiCompass extends TiGeoHelper
 {
 	private static final String LCAT = "TiCompass";
 	private static final boolean DBG = TiConfig.LOGD;
@@ -32,7 +36,6 @@ public class TiCompass
 	public static final String EVENT_HEADING = "heading";
 
 	private static final int[] SENSORS = {Sensor.TYPE_ORIENTATION};
-	private KrollModule proxy;
 	private TiSensorHelper sensorHelper;
 
 	protected SensorEventListener updateListener;
@@ -51,10 +54,12 @@ public class TiCompass
 
 	protected GeomagneticField geomagneticField;
 	protected float lastHeading = 0.0f;
+	private Calendar baseTime = Calendar.getInstance();
+	private long sensorTimerStart = SystemClock.uptimeMillis();
 
-	public TiCompass(KrollModule proxy)
+	public TiCompass(TiContext context, KrollModule proxy)
 	{
-		this.proxy = proxy;
+		super(context, proxy);
 
 		sensorHelper = new TiSensorHelper();
 		updateListener = createUpdateListener();
@@ -79,10 +84,15 @@ public class TiCompass
 
 				if (type == Sensor.TYPE_ORIENTATION) {
 					long ts = event.timestamp / 1000000; // nanos to millis
+					long tsActual = baseTime.getTimeInMillis() + (ts - sensorTimerStart);
 					if (ts - lastEventInUpdate > 250) {
 						lastEventInUpdate = ts;
 
-						Object filter = proxy.getProperty("headingFilter");
+						Object filter = null;
+						KrollModule proxy = weakProxy.get();
+						if (proxy != null) {
+							filter = proxy.getProperty("headingFilter");
+						}
 						if (filter != null) {
 							float headingFilter = TiConvert.toFloat(filter);
 
@@ -93,7 +103,7 @@ public class TiCompass
 							lastHeading = event.values[0];
 						}
 
-						proxy.fireEvent(EVENT_HEADING, eventToKrollDict(event, ts));
+						fireEvent(EVENT_HEADING, eventToKrollDict(event, tsActual));
 					}
 				}
 			}
@@ -115,31 +125,35 @@ public class TiCompass
 
 				if (type == Sensor.TYPE_ORIENTATION) {
 					long ts = event.timestamp / 1000000; // nanos to millis
-					listener.call(eventToKrollDict(event, ts));
+					long tsActual = baseTime.getTimeInMillis() + (ts - sensorTimerStart);
+					listener.call(eventToKrollDict(event, tsActual));
 
-					sensorHelper.unregisterListener(SENSORS, this);
-					manageUpdateListener(false, this);
+					manageUpdateListener(false, this, true);
 				}
 			}
 		};
 
-		manageUpdateListener(true, oneShotListener);
-		sensorHelper.registerListener(SENSORS, oneShotListener, 5000);
+		manageUpdateListener(true, oneShotListener, true);
 	}
 
 	protected void manageUpdateListener(boolean register) {
-		manageUpdateListener(register, updateListener);
+		manageUpdateListener(register, updateListener, false);
 	}
 
-	protected void manageUpdateListener(boolean register, SensorEventListener listener)
+	protected void manageUpdateListener(boolean register, SensorEventListener listener, boolean oneShot)
 	{
 		if (register) {
-			if (!listeningForUpdate) {
-				sensorAttached = sensorHelper.attach(proxy.getTiContext().getActivity());
+			if (!listeningForUpdate || oneShot) {
+				TiContext context = weakContext.get();
+				if (context == null) {
+					Log.w(LCAT, "Unable to register for compass events.  TiContext has been GC'd");
+					return;
+				}
+				sensorAttached = sensorHelper.attach(context.getActivity());
 
 				if(sensorAttached) {
 
-					LocationManager locationManager = (LocationManager) proxy.getTiContext().getActivity().getSystemService(Context.LOCATION_SERVICE);
+					LocationManager locationManager = (LocationManager) context.getActivity().getSystemService(Context.LOCATION_SERVICE);
 
 					Criteria criteria = new Criteria();
 					String provider = locationManager.getBestProvider(criteria, true);
@@ -151,16 +165,16 @@ public class TiCompass
 						}
 					}
 					sensorHelper.registerListener(SENSORS , listener, SensorManager.SENSOR_DELAY_UI);
-					listeningForUpdate = true;
+					listeningForUpdate = !oneShot;
 				}
 			}
 		} else {
-			if (listeningForUpdate) {
+			if (listeningForUpdate || oneShot) {
 				sensorHelper.unregisterListener(SENSORS, listener);
-				if (sensorHelper.isEmpty()) {
-					listeningForUpdate = false;
-					sensorHelper.detach();
-				}
+			}
+			if (sensorHelper.isEmpty()) {
+				listeningForUpdate = false;
+				sensorHelper.detach();
 			}
 		}
 	}
@@ -217,23 +231,48 @@ public class TiCompass
 		SensorManager sm = sensorHelper.getSensorManager();
 		if (sm != null) {
 			compass = sm.getDefaultSensor(Sensor.TYPE_ORIENTATION) != null;
+		} else {
+			// turn on sensor manager service just to get this info, then turn it off.
+			TiContext context = weakContext.get();
+			if (context != null) {
+				compass = sensorHelper.hasDefaultSensor(context.getActivity(), Sensor.TYPE_ORIENTATION);
+			}
 		}
 
 		return compass;
 	}
-	public void onResume() {
-
-		if (proxy.hasListeners(EVENT_HEADING)) {
-			manageUpdateListener(true, updateListener);
-		}
+	
+	@Override
+	protected void attach()
+	{
+		manageUpdateListener(true);
 	}
 
-	public void onPause() {
-		if (sensorAttached) {
-			manageUpdateListener(false, updateListener);
-
-			sensorHelper.detach();
-			sensorAttached = false;
-		}
+	@Override
+	protected void detach()
+	{
+		manageUpdateListener(false);
 	}
+
+	@Override
+	protected void resume()
+	{
+		if (hasListeners()) {
+			manageUpdateListener(true);
+		}
+		
+	}
+
+	@Override
+	protected GeoFeature getFeature()
+	{
+		return GeoFeature.DIRECTION;
+	}
+
+	@Override
+	protected boolean supportsEvent(String eventName)
+	{
+		return eventName.equals(EVENT_HEADING);
+	}
+
 }

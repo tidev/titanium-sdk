@@ -101,4 +101,23 @@ public class TiSensorHelper
 			}
 		}
 	}
+	
+	public boolean hasDefaultSensor(Activity activity, int type)
+	{
+		boolean oneShot = false;
+		boolean result = false;
+		if (sensorManager == null)
+		{
+			oneShot = true;
+			sensorManager = (SensorManager) activity.getSystemService(Context.SENSOR_SERVICE);
+		}
+		if (sensorManager != null)
+		{
+			result = (sensorManager.getDefaultSensor(type) != null);
+			if (oneShot) {
+				sensorManager = null;
+			}
+		}
+		return result;
+	}
 }
