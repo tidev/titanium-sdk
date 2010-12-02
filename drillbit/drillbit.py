@@ -1,5 +1,5 @@
 #!/usr/bin/python
-import os, sys, platform, subprocess, shutil, zipfile
+import os, sys, re, platform, subprocess, shutil, zipfile
 
 drillbit_dir = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
 drillbit_app_dir = os.path.join(drillbit_dir, 'app')
@@ -9,24 +9,46 @@ def error_no_desktop_sdk():
 	print >>sys.stderr, "ERROR: Couldn't find Titanium Desktop SDK, which is needed for running Drillbit"
 	sys.exit(-1)
 
-def cmp_versions(a, b):
-	a_version = [int(x) for x in a.split('.')]
-	b_version = [int(x) for x in b.split('.')]
+class versionPart(object):
+	def __init__(self, version, qualifier=None):
+		self.version = version
+		self.qualifier = qualifier
 	
-	if a_version[0] > b_version[0]: return 1
-	elif a_version[0] < b_version[0]: return -1
-	else:
-		if a_version[1] > b_version[1]: return 1
-		elif a_version[1] < b_version[1]: return -1
+	def __cmp__(self, other):
+		diff = self.version - other.version
+		if diff != 0:
+			return diff
+		return cmp(self.qualifier, other.qualifier)
+
+class version(object):
+	def __init__(self, version):
+		self.parts = []
+		for part in version.split('.'):
+			match = re.search(r'[^0-9]', part)
+			if match == None:
+				self.parts.append(int(part))
+			else:
+				version_str = part[0:match.start()]
+				version = 0
+				if len(version_str) != 0: version = int(version_str)
+				qualifier = part[match.start():]
+				self.parts.append((version, qualifier))
+	
+	def __cmp__(self, other):
+		if self.parts[0] > other.parts[0]: return 1
+		elif self.parts[0] < other.parts[0]: return -1
 		else:
-			if len(a_version) == 3:
-				if len(b_version) == 3:
-					return a_version[2]-b_version[2]
-				else:
-					return a_version[2]
-			elif len(b_version) == 3:
-				return b_version[2]
-			else: return 0
+			if self.parts[1] > other.parts[1]: return 1
+			elif self.parts[1] < other.parts[1]: return -1
+			else:
+				if len(self.parts) == 3:
+					if len(other.parts) == 3:
+						return self.parts[2]-other.parts[2]
+					else:
+						return self.parts[2]
+				elif len(other.parts) == 3:
+					return other.parts[2]
+				else: return 0
 				
 def build_and_run(args=None):
 	# first we need to find the desktop SDK for tibuild.py
@@ -46,13 +68,14 @@ def build_and_run(args=None):
 	if not os.path.exists(base_sdk):
 		error_no_desktop_sdk()
 	
-	versions = os.listdir(base_sdk)
+	versions = [dir for dir in os.listdir(base_sdk) if not dir.startswith(".")]
 	if len(versions) == 0:
 		error_no_desktop_sdk()
 	
 	# use the latest version in the system
-	versions.sort(cmp_versions)
+	versions.sort()
 	use_version = versions[len(versions) - 1]
+	print 'Using Desktop version %s' % use_version
 	
 	desktop_sdk = os.path.join(base_sdk, use_version)
 	tibuild = os.path.join(desktop_sdk, 'tibuild.py')
