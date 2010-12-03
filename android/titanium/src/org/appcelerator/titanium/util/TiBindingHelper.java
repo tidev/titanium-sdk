@@ -9,6 +9,7 @@ package org.appcelerator.titanium.util;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.kroll.KrollBridge;
 import org.appcelerator.titanium.proxy.ActivityProxy;
+import org.appcelerator.titanium.proxy.ServiceProxy;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.proxy.TiWindowProxy;
 
@@ -22,6 +23,10 @@ public class TiBindingHelper {
 	
 	public static void bindCurrentActivity(TiContext context, ActivityProxy currentActivity) {
 		context.getKrollBridge().bindContextSpecific("Android", "currentActivity", currentActivity);
+	}
+	
+	public static void bindCurrentService(TiContext context, ServiceProxy currentService) {
+		context.getKrollBridge().bindContextSpecific("Android", "currentService", currentService);
 	}
 	
 	public static void bindCurrentWindow(TiContext context, TiViewProxy currentWindow) {

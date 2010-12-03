@@ -1,5 +1,8 @@
 /**
- * 
+ * Appcelerator Titanium Mobile
+ * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Licensed under the terms of the Apache Public License
+ * Please see the LICENSE included with this distribution for details.
  */
 package org.appcelerator.titanium.proxy;
 
@@ -26,6 +29,7 @@ public class IntentProxy extends KrollProxy
 	private static boolean DBG = TiConfig.LOGD;
 	
 	protected Intent intent;
+	protected boolean forService = false;
 	
 	public IntentProxy(TiContext tiContext) {
 		super(tiContext);
@@ -40,7 +44,15 @@ public class IntentProxy extends KrollProxy
 		'\\', '/', ' ', '.', '$', '&', '@'
 	};
 	
-	protected String getActivityURLClassName(String url) {
+	protected static String getActivityURLClassName(String url) {
+		return getURLClassName(url, "Activity");
+	}
+	
+	protected static String getServiceURLClassName(String url) {
+		return getURLClassName(url, "Service");
+	}
+	
+	protected static String getURLClassName(String url, String appendage) {
 		List<String> parts = Arrays.asList(url.split("/"));
 		if (parts.size() == 0) return null;
 		
@@ -64,7 +76,7 @@ public class IntentProxy extends KrollProxy
 			className = className.replace(escapeChar, '_');
 		}
 		
-		return className+"Activity";
+		return className+appendage;
 	}
 	
 	public void handleCreationDict(KrollDict dict) {
@@ -101,7 +113,7 @@ public class IntentProxy extends KrollProxy
 		
 		if (url != null) {
 			if (DBG) {
-				Log.d(TAG, "Creating intent for JS Activity @ " + url);
+				Log.d(TAG, "Creating intent for JS Activity/Service @ " + url);
 			}
 			packageName = TiApplication.getInstance().getPackageName();
 			className = packageName + "." + getActivityURLClassName(url);
@@ -150,7 +162,10 @@ public class IntentProxy extends KrollProxy
 			intent.putExtra(key, (Double) value);
 		} else if (value instanceof Integer) {
 			intent.putExtra(key, (Integer) value);
-		} else {
+		} else if (value instanceof Long) {
+			intent.putExtra(key, (Long) value);
+		}
+		else {
 			Log.w(TAG, "Warning unimplemented put conversion for " + value.getClass().getCanonicalName() + " trying String");
 			intent.putExtra(key, TiConvert.toString(value));
 		}
@@ -182,6 +197,11 @@ public class IntentProxy extends KrollProxy
 	}
 	
 	@Kroll.method
+	public long getLongExtra(String name, long defaultValue) {
+		return intent.getLongExtra(name, defaultValue);
+	}
+	
+	@Kroll.method
 	public double getDoubleExtra(String name, double defaultValue) {
 		return intent.getDoubleExtra(name, defaultValue);
 	}
@@ -194,4 +214,9 @@ public class IntentProxy extends KrollProxy
 	public Intent getIntent() { 
 		return intent;
 	}
+	
+	public void setForService(boolean value) {
+		forService = value;
+	}
+
 }

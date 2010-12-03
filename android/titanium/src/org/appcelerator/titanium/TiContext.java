@@ -29,6 +29,9 @@ import org.mozilla.javascript.Scriptable;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.Application;
+import android.app.Service;
+import android.content.ContextWrapper;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.res.Configuration;
@@ -54,6 +57,7 @@ public class TiContext implements TiEvaluator, ErrorReporter
 
 	private String baseUrl;
 	private String currentUrl;
+	private boolean serviceContext; // Contexts created for Ti services won't have associated activities.
 
 	private WeakReference<Activity> weakActivity;
 	private TiEvaluator	tiEvaluator;
@@ -61,6 +65,7 @@ public class TiContext implements TiEvaluator, ErrorReporter
 	protected KrollContext krollContext;
 	
 	private List<WeakReference<OnLifecycleEvent>> lifecycleListeners;
+	private List<WeakReference<OnServiceLifecycleEvent>> serviceLifecycleListeners;
 
 	public static interface OnLifecycleEvent {
 		void onStart(Activity activity);
@@ -69,14 +74,17 @@ public class TiContext implements TiEvaluator, ErrorReporter
 		void onStop(Activity activity);
 		void onDestroy(Activity activity);
 	}
-
-	public TiContext(Activity activity, String baseUrl)
+	
+	public static interface OnServiceLifecycleEvent {
+		void onDestroy(Service service);
+	}
+	
+	public TiContext(Application application, String baseUrl)
 	{
 		this.mainThreadId = Looper.getMainLooper().getThread().getId();
-
-		this.tiApp = (TiApplication) activity.getApplication();
-		this.weakActivity = new WeakReference<Activity>(activity);
-		lifecycleListeners = Collections.synchronizedList(new ArrayList<WeakReference<OnLifecycleEvent>>());
+		if (application instanceof TiApplication) {
+			this.tiApp = (TiApplication)application;
+		}
 		if (baseUrl == null) {
 			this.baseUrl = "app://";
 		} else {
@@ -85,13 +93,29 @@ public class TiContext implements TiEvaluator, ErrorReporter
 				this.baseUrl += "/";
 			}
 		}
+		if (DBG) {
+			Log.e(LCAT, "BaseURL for context is " + baseUrl);
+		}
+		lifecycleListeners = Collections.synchronizedList(new ArrayList<WeakReference<OnLifecycleEvent>>());
+	}
 
+	public TiContext(Activity activity, String baseUrl)
+	{
+		this((TiApplication) activity.getApplication(), baseUrl);
+		this.weakActivity = new WeakReference<Activity>(activity);
+		
 		if (activity instanceof TiActivity) {
 			((TiActivity)activity).addTiContext(this);
 		}
-
-		if (DBG) {
-			Log.e(LCAT, "BaseURL for context is " + baseUrl);
+	}
+	
+	public TiContext(Service service, String baseUrl)
+	{
+		this((TiApplication) service.getApplication(), baseUrl);
+		this.serviceContext = true;
+		serviceLifecycleListeners = Collections.synchronizedList(new ArrayList<WeakReference<OnServiceLifecycleEvent>>());
+		if (service instanceof TiBaseService) {
+			((TiBaseService)service).addTiContext(this);
 		}
 	}
 
@@ -120,6 +144,7 @@ public class TiContext implements TiEvaluator, ErrorReporter
 	}
 
 	public Activity getActivity() {
+		if (weakActivity == null) return null;
 		Activity activity = weakActivity.get();
 		return activity;
 	}
@@ -297,6 +322,10 @@ public class TiContext implements TiEvaluator, ErrorReporter
 	public void addOnLifecycleEventListener(OnLifecycleEvent listener) {
 		lifecycleListeners.add(new WeakReference<OnLifecycleEvent>(listener));
 	}
+	
+	public void addOnServiceLifecycleEventListener(OnServiceLifecycleEvent listener) {
+		serviceLifecycleListeners.add(new WeakReference<OnServiceLifecycleEvent>(listener));
+	}
 
 	public void removeOnLifecycleEventListener(OnLifecycleEvent listener)
 	{
@@ -312,6 +341,23 @@ public class TiContext implements TiEvaluator, ErrorReporter
 			}
 		}
 	}
+	
+	public void removeOnServiceLifecycleEventListener(OnServiceLifecycleEvent listener)
+	{
+		synchronized(serviceLifecycleListeners) {
+			for (WeakReference<OnServiceLifecycleEvent> ref : serviceLifecycleListeners) {
+				OnServiceLifecycleEvent l = ref.get();
+				if (l != null) {
+					if (l.equals(listener)) {
+						lifecycleListeners.remove(ref);
+						break;
+					}
+				}
+			}
+		}
+	}
+	
+	
 
 	public void dispatchOnStart(Activity activity)
 	{
@@ -398,6 +444,23 @@ public class TiContext implements TiEvaluator, ErrorReporter
 			}
 		}
 	}
+	
+	public void dispatchOnServiceDestroy(Service service) {
+		synchronized(serviceLifecycleListeners) {
+			for(WeakReference<OnServiceLifecycleEvent> ref : serviceLifecycleListeners) {
+				OnServiceLifecycleEvent listener = ref.get();
+				if (listener != null) {
+					try {
+						listener.onDestroy(service);
+					} catch (Throwable t) {
+						Log.e(LCAT, "Error dispatching service onDestroy  event: " + t.getMessage(), t);
+					}
+				} else {
+					Log.w(LCAT, "serviceLifecycleListener has been garbage collected");
+				}
+			}
+		}
+	}
 
 
 	@Override
@@ -419,9 +482,20 @@ public class TiContext implements TiEvaluator, ErrorReporter
 		doRhinoDialog("Warning", message, sourceName, line, lineSource, lineOffset);
 	}
 
-	public static TiContext createTiContext(Activity activity, String baseUrl)
+	public static TiContext createTiContext(ContextWrapper androidContext, String baseUrl)
 	{
-		TiContext tic = new TiContext(activity, baseUrl);
+		TiContext tic;
+		if (androidContext instanceof Application)
+		{
+			tic = new TiContext((Application)androidContext, baseUrl);
+		} else if (androidContext instanceof Activity) {
+			tic = new TiContext((Activity)androidContext, baseUrl);
+		} else if (androidContext instanceof Service) {
+			tic = new TiContext((Service)androidContext, baseUrl);
+		} else {
+			Log.w(LCAT, "Cannot create Ticontext for android " + androidContext.getClass().getSimpleName() + " instance");
+			return null;
+		}
 		KrollContext kroll = KrollContext.createContext(tic);
 		tic.setKrollContext(kroll);
 		KrollBridge krollBridge = new KrollBridge(kroll);
@@ -432,6 +506,10 @@ public class TiContext implements TiEvaluator, ErrorReporter
 	private void doRhinoDialog(final String title, final String message, final String sourceName, final int line,
 			final String lineSource, final int lineOffset)
 	{
+		if (serviceContext) {
+			Log.w(LCAT, "Wanted to display an alert dialog in Javascript, but context is for a running service and therefore no attempt will be made to display a dialog in the user interface.  Details: " + title  + " / " + message + " / " + sourceName + " / " + line + " / " + lineSource);
+			return;
+		}
 		final Semaphore s = new Semaphore(0);
 		final Activity activity = getActivity();
 		if (activity == null || activity.isFinishing() ) {
@@ -550,5 +628,21 @@ public class TiContext implements TiEvaluator, ErrorReporter
 			lifecycleListeners.clear();
 		}
 		
+		if (serviceLifecycleListeners != null) {
+			serviceLifecycleListeners.clear();
+		}
+		
+	}
+	
+	public boolean isServiceContext() {
+		return serviceContext;
+	}
+	
+	public ContextWrapper getAndroidContext()
+	{
+		if (weakActivity.get() == null) {
+			return tiApp;
+		}
+		return weakActivity.get();
 	}
 }

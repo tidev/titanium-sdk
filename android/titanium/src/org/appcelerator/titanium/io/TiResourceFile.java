@@ -69,7 +69,7 @@ public class TiResourceFile extends TiBaseFile
 	{
 		InputStream in = null;
 
-		Context context = getTiContext().getActivity();
+		Context context = getTiContext().getAndroidContext();
 		if (context != null) {
 			String p = TiFileHelper2.joinSegments("Resources", path);
 			if (loadFromSDCard) {
@@ -175,7 +175,7 @@ public class TiResourceFile extends TiBaseFile
 		InputStream is = null;
 		try {
 			is = getInputStream();
-			result = true;
+			result = (is != null);
 		} catch (IOException e) {
 			// Ignore
 		} finally {
@@ -262,7 +262,7 @@ public class TiResourceFile extends TiBaseFile
 			if (lpath.endsWith("/")) {
 				lpath = lpath.substring(0, lpath.lastIndexOf("/"));
 			}
-			String[] names = getTiContext().getActivity().getAssets().list(lpath);
+			String[] names = getTiContext().getAndroidContext().getAssets().list(lpath);
 			if (names != null) {
 				int len = names.length;
 				for(int i = 0; i < len; i++) {
