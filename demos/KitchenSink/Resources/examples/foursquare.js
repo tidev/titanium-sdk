@@ -84,6 +84,8 @@ button.addEventListener('click', function()
 		if (e.error)
 		{
 			alert(e.error);
+			label.text = e.error.message;
+			navActInd.hide();
 			return;
 		}
 
