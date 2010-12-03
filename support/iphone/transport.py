@@ -6,11 +6,7 @@
 # 
 
 import os, sys, shutil, codecs, glob
-
 template_dir = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
-sys.path.append(os.path.join(template_dir,'../'))
-
-from tiapp import *
 
 def find_sdk(version):
 	dir = os.path.join(os.path.expanduser("~/Library/Application Support/Titanium"),"mobilesdk","osx",version)
