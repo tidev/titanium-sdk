@@ -10,7 +10,13 @@ describe("JSON tests", {
 	
 	// https://appcelerator.lighthouseapp.com/projects/32238/tickets/1976-android-jsonstringify-does-not-preserve-type
 	numberTypes: function() {
-		valueOf(JSON.stringify(['001', '002'])).shouldBe("[\"001\", \"002\"]");
-		valueOf(JSON.stringify([1, 2])).shouldBe("[1, 2]");
+		// iOS and android have different but equally valid output for stringify
+		var str = JSON.stringify(['001', '002']);
+		var result = ((str == "[\"001\", \"002\"]") || (str == "[\"001\",\"002\"]"));
+		valueOf(result).shouldBe(true);
+		
+		str = JSON.stringify([1, 2]);
+		result = ((str == "[1, 2]") || (str == "[1,2]"));
+		valueOf(result).shouldBe(true);
 	}
 })
