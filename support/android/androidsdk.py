@@ -50,7 +50,7 @@ class AndroidSDK:
 		if platform.system() == 'Windows':
 			default_dirs = ['C:\\android-sdk', 'C:\\android', 'C:\\Program Files\\android-sdk', 'C:\\Program Files\\android']
 		else:
-			default_dirs = ['/opt/android', '/opt/android-sdk', '/usr/android', '/usr/android-sdk']
+			default_dirs = ['/opt/android', '/opt/android-sdk', '/usr/android', '/usr/android-sdk', '/android-sdk']
 			
 		if 'ANDROID_SDK' in os.environ:
 			return os.environ['ANDROID_SDK']
