@@ -55,6 +55,7 @@
 			android:name="org.appcelerator.titanium.analytics.TiAnalyticsService"
 			android:exported="false"
 		/>
+		<!-- TI_SERVICES -->
 
 	</application>
 	

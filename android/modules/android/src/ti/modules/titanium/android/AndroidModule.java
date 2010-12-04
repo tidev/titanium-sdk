@@ -272,7 +272,7 @@ public class AndroidModule extends KrollModule
 			return false;
 		}
 		Context context = invocation.getTiContext().getAndroidContext();
-		ActivityManager am = (ActivityManager) context.getSystemService(context.ACTIVITY_SERVICE);
+		ActivityManager am = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
 		if (am != null) {
 			List<RunningServiceInfo> services = am.getRunningServices(Integer.MAX_VALUE);
 			for (RunningServiceInfo service : services) {

@@ -688,6 +688,29 @@ class Builder(object):
 
 		activities = set(activities)
 
+		services = []
+		# Javascript-based services defined in tiapp.xml
+		if self.tiapp and self.tiapp.android and 'services' in self.tiapp.android:
+			tiapp_services = self.tiapp.android['services']
+			for key in tiapp_services:
+				service = tiapp_services[key]
+				if not 'url' in service:
+					continue
+				service_name = self.app_id + '.' + service['classname']
+				service_str = '<service \n\t\t\tandroid:name="%s"' % service_name
+				for subkey in service:
+					if subkey not in ('nodes', 'type', 'name', 'url', 'options', 'classname', 'android:name'):
+						service_str += '\n\t\t\t%s="%s"' % (subkey, service[subkey])
+
+				if 'nodes' in service:
+					service_str += '>'
+					for node in service['nodes']:
+						service_str += '\n\t\t\t\t' + node.toxml()
+					services.append(service_str + '\n\t\t</service>\n')
+				else:
+					services.append(service_str + '\n\t\t/>\n')
+
+
 		self.use_maps = False
 		iconname = self.tiapp.properties['icon']
 		iconpath = os.path.join(self.assets_resources_dir,iconname)
@@ -817,7 +840,9 @@ class Builder(object):
 			ti_permissions = '<!-- TI_PERMISSIONS -->'
 			ti_manifest = '<!-- TI_MANIFEST -->'
 			ti_application = '<!-- TI_APPLICATION -->'
+			ti_services = '<!-- TI_SERVICES -->'
 			manifest_source = manifest_source.replace(ti_activities,"\n\n\t\t".join(activities))
+			manifest_source = manifest_source.replace(ti_services,"\n\n\t\t".join(services))
 			manifest_source = manifest_source.replace(ti_permissions,permissions_required_xml)
 			if len(manifest_xml) > 0:
 				manifest_source = manifest_source.replace(ti_manifest, manifest_xml)
