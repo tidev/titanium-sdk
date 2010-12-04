@@ -7,6 +7,8 @@
 package ti.modules.titanium.android;
 
 
+import java.util.List;
+
 import org.appcelerator.kroll.KrollInvocation;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
@@ -16,6 +18,9 @@ import org.appcelerator.titanium.proxy.RProxy;
 import org.appcelerator.titanium.util.Log;
 
 import android.app.Activity;
+import android.app.ActivityManager;
+import android.app.ActivityManager.RunningServiceInfo;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 
@@ -256,5 +261,26 @@ public class AndroidModule extends KrollModule
 			return;
 		}
 		Log.w(TAG, "Could not locate non-null activity/context/application with which to stop service.");
+	}
+	
+	@Kroll.method
+	public boolean isServiceRunning(KrollInvocation invocation, IntentProxy intentProxy)
+	{
+		Intent intent = intentProxy.getIntent();
+		if (intent == null) {
+			Log.w(TAG, "isServiceRunning called with empty intent.  Will return false, but value is meaningless.");
+			return false;
+		}
+		Context context = invocation.getTiContext().getAndroidContext();
+		ActivityManager am = (ActivityManager) context.getSystemService(context.ACTIVITY_SERVICE);
+		if (am != null) {
+			List<RunningServiceInfo> services = am.getRunningServices(Integer.MAX_VALUE);
+			for (RunningServiceInfo service : services) {
+				if (service.service.equals(intent.getComponent())) {
+					return true;
+				}
+			}
+		}
+		return false;
 	}
 }

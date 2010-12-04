@@ -640,7 +640,7 @@ public class TiContext implements TiEvaluator, ErrorReporter
 	
 	public ContextWrapper getAndroidContext()
 	{
-		if (weakActivity.get() == null) {
+		if (weakActivity == null || weakActivity.get() == null) {
 			return tiApp;
 		}
 		return weakActivity.get();

@@ -116,7 +116,7 @@ public class IntentProxy extends KrollProxy
 				Log.d(TAG, "Creating intent for JS Activity/Service @ " + url);
 			}
 			packageName = TiApplication.getInstance().getPackageName();
-			className = packageName + "." + getActivityURLClassName(url);
+			className = packageName + "." + (forService ? getServiceURLClassName(url) : getActivityURLClassName(url));
 		}
 		
 		if (className != null) {
