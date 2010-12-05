@@ -6,6 +6,7 @@
  */
 package ti.modules.titanium.android;
 
+import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.titanium.TiBaseService;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.proxy.ServiceProxy;
@@ -17,7 +18,7 @@ import android.content.Intent;
 
 public class TiJSService extends TiBaseService
 {
-	private String url = null;
+	protected String url = null;
 	private static final String LCAT = "TiJSService";
 	private static final boolean DBG = TiConfig.LOGD;
 	
@@ -27,11 +28,9 @@ public class TiJSService extends TiBaseService
 		super();
 		this.url = url;
 	}
-
-	@Override
-	public void onStart(Intent intent, int startId)
+	
+	private void finalizeUrl(Intent intent)
 	{
-		super.onStart(intent, startId);
 		if (url == null) {
 			if (intent != null && intent.getDataString() != null) {
 				url = intent.getDataString();
@@ -39,22 +38,22 @@ public class TiJSService extends TiBaseService
 				throw new IllegalStateException("Service url required.");
 			}
 		}
-		
-		int lastSlash = url.lastIndexOf('/');
-		String baseUrl = url.substring(0, lastSlash+1);
-		if (baseUrl.length() == 0) {
-			baseUrl = null;
-		}
-		TiContext context = createTiContext(baseUrl);
-		executeServiceCode(new ServiceProxy(context, this, intent, startId));
+	}
+
+	@Override
+	public void onStart(Intent intent, int startId)
+	{
+		super.onStart(intent, startId);
+		finalizeUrl(intent);
+		ServiceProxy proxy = createProxy(intent);
+		start(proxy);
 	}
 	
 	protected void executeServiceCode(ServiceProxy proxy)
 	{
-		TiBindingHelper.bindCurrentService(proxy.getTiContext(), proxy);
 		final TiContext ftiContext = proxy.getTiContext();
 		String fullUrl = url;
-		if (!fullUrl.contains("://") && !fullUrl.startsWith("/")) {
+		if (!fullUrl.contains("://") && !fullUrl.startsWith("/") && proxy.getTiContext().getBaseUrl() != null) {
 			fullUrl = ftiContext.getBaseUrl() + fullUrl;
 		}
 		if (DBG) {
@@ -65,16 +64,56 @@ public class TiJSService extends TiBaseService
 			}
 		}
 		final String ffullUrl = fullUrl;
+		final ServiceProxy fProxy = proxy;
 		new Thread(new Runnable(){
 			@Override
 			public void run() {
 				try {
+					fProxy.fireEvent("resume", new KrollDict());
 					ftiContext.evalFile(ffullUrl);
+					fProxy.fireEvent("pause", new KrollDict());
+					fProxy.fireEvent("stop", new KrollDict()); // this basic JS Service class only runs once.
 				} catch (Throwable e) {
 					Log.e(LCAT, "Failure evaluating service JS " + url + ": " + e.getMessage(), e);
 				}
 			}
 		}).start();
+	}
+
+	@Override
+	protected ServiceProxy createProxy(Intent intent)
+	{
+		finalizeUrl(intent);
+		int lastSlash = url.lastIndexOf('/');
+		String baseUrl = url.substring(0, lastSlash+1);
+		if (baseUrl.length() == 0) {
+			baseUrl = null;
+		}
+		TiContext context = createTiContext(intent, baseUrl);
+		ServiceProxy proxy = new ServiceProxy(context, this, intent, proxyCounter.incrementAndGet());
+		TiBindingHelper.bindCurrentService(context, proxy);
+		return proxy;
+	}
+	
+	@Override
+	public void start(ServiceProxy proxy)
+	{
+		proxy.fireEvent("start", new KrollDict());
+		executeServiceCode(proxy);
+	}
+
+	@Override
+	public int registerBoundTiContext(int serviceIntentId, TiContext tiContext)
+	{
+		if (url != null) {
+			int lastSlash = url.lastIndexOf('/');
+			String baseUrl = url.substring(0, lastSlash+1);
+			if (baseUrl.length() == 0) {
+				baseUrl = null;
+			}
+			tiContext.setBaseUrl(baseUrl);
+		}
+		return super.registerBoundTiContext(serviceIntentId, tiContext);
 	}
 	
 	

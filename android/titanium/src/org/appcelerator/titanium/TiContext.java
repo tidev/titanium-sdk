@@ -114,9 +114,6 @@ public class TiContext implements TiEvaluator, ErrorReporter
 		this((TiApplication) service.getApplication(), baseUrl);
 		this.serviceContext = true;
 		serviceLifecycleListeners = Collections.synchronizedList(new ArrayList<WeakReference<OnServiceLifecycleEvent>>());
-		if (service instanceof TiBaseService) {
-			((TiBaseService)service).addTiContext(this);
-		}
 	}
 
 	public boolean isUIThread() {
@@ -637,6 +634,14 @@ public class TiContext implements TiEvaluator, ErrorReporter
 	public boolean isServiceContext() {
 		return serviceContext;
 	}
+
+	public void setIsServiceContext(boolean value) 
+	{
+		serviceContext = true;
+		if (value && serviceLifecycleListeners == null ) {
+			serviceLifecycleListeners = Collections.synchronizedList(new ArrayList<WeakReference<OnServiceLifecycleEvent>>());
+		}
+	}
 	
 	public ContextWrapper getAndroidContext()
 	{
@@ -645,4 +650,13 @@ public class TiContext implements TiEvaluator, ErrorReporter
 		}
 		return weakActivity.get();
 	}
+	
+	public void setBaseUrl(String baseUrl)
+	{
+		this.baseUrl = baseUrl;
+		if (this.baseUrl == null) {
+			this.baseUrl = "app://";
+		}
+	}
+	
 }

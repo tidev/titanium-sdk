@@ -15,6 +15,7 @@ import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.proxy.IntentProxy;
 import org.appcelerator.titanium.proxy.RProxy;
+import org.appcelerator.titanium.proxy.ServiceProxy;
 import org.appcelerator.titanium.util.Log;
 
 import android.app.Activity;
@@ -282,5 +283,14 @@ public class AndroidModule extends KrollModule
 			}
 		}
 		return false;
+	}
+	
+	@Kroll.method
+	public ServiceProxy createService(KrollInvocation invocation, IntentProxy intentProxy)
+	{
+		// Create a new context for the service proxy
+		TiContext tiContext = TiContext.createTiContext(invocation.getTiContext().getActivity(), null);
+		tiContext.setIsServiceContext(true);
+		return new ServiceProxy(tiContext, intentProxy);
 	}
 }
