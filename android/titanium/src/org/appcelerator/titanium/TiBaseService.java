@@ -118,11 +118,13 @@ public class TiBaseService extends Service
 	}
 	
 	/**
-	 * Used only for contexts that are create from inside the service, for when the service is started "un-bound" via Android Context.startService()
+	 * Used only for contexts that are created from inside the service, for when the service is started "un-bound" via Android Context.startService()
 	 */
 	protected TiContext createTiContext(Intent intent, String baseUrl)
 	{
-		TiContext context = TiContext.createTiContext(this, baseUrl);
+		TiApplication tiApp = (TiApplication) this.getApplication();
+		TiContext context = TiContext.createTiContext(tiApp.getRootActivity(), baseUrl);
+		context.setIsServiceContext(true);
 		if (weakUnboundContexts == null) {
 			weakUnboundContexts = Collections.synchronizedList( new ArrayList<WeakReference<TiContext>>() );
 		}

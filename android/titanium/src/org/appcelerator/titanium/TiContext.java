@@ -79,12 +79,13 @@ public class TiContext implements TiEvaluator, ErrorReporter
 		void onDestroy(Service service);
 	}
 	
-	public TiContext(Application application, String baseUrl)
+	public TiContext(Activity activity, String baseUrl)
 	{
 		this.mainThreadId = Looper.getMainLooper().getThread().getId();
-		if (application instanceof TiApplication) {
-			this.tiApp = (TiApplication)application;
-		}
+
+		this.tiApp = (TiApplication) activity.getApplication();
+		this.weakActivity = new WeakReference<Activity>(activity);
+		lifecycleListeners = Collections.synchronizedList(new ArrayList<WeakReference<OnLifecycleEvent>>());
 		if (baseUrl == null) {
 			this.baseUrl = "app://";
 		} else {
@@ -93,27 +94,14 @@ public class TiContext implements TiEvaluator, ErrorReporter
 				this.baseUrl += "/";
 			}
 		}
-		if (DBG) {
-			Log.e(LCAT, "BaseURL for context is " + baseUrl);
-		}
-		lifecycleListeners = Collections.synchronizedList(new ArrayList<WeakReference<OnLifecycleEvent>>());
-	}
 
-	public TiContext(Activity activity, String baseUrl)
-	{
-		this((TiApplication) activity.getApplication(), baseUrl);
-		this.weakActivity = new WeakReference<Activity>(activity);
-		
 		if (activity instanceof TiActivity) {
 			((TiActivity)activity).addTiContext(this);
 		}
-	}
-	
-	public TiContext(Service service, String baseUrl)
-	{
-		this((TiApplication) service.getApplication(), baseUrl);
-		this.serviceContext = true;
-		serviceLifecycleListeners = Collections.synchronizedList(new ArrayList<WeakReference<OnServiceLifecycleEvent>>());
+
+		if (DBG) {
+			Log.e(LCAT, "BaseURL for context is " + baseUrl);
+		}
 	}
 
 	public boolean isUIThread() {
@@ -479,27 +467,16 @@ public class TiContext implements TiEvaluator, ErrorReporter
 		doRhinoDialog("Warning", message, sourceName, line, lineSource, lineOffset);
 	}
 
-	public static TiContext createTiContext(ContextWrapper androidContext, String baseUrl)
+	public static TiContext createTiContext(Activity activity, String baseUrl)
 	{
-		TiContext tic;
-		if (androidContext instanceof Application)
-		{
-			tic = new TiContext((Application)androidContext, baseUrl);
-		} else if (androidContext instanceof Activity) {
-			tic = new TiContext((Activity)androidContext, baseUrl);
-		} else if (androidContext instanceof Service) {
-			tic = new TiContext((Service)androidContext, baseUrl);
-		} else {
-			Log.w(LCAT, "Cannot create Ticontext for android " + androidContext.getClass().getSimpleName() + " instance");
-			return null;
-		}
+		TiContext tic = new TiContext(activity, baseUrl);
 		KrollContext kroll = KrollContext.createContext(tic);
 		tic.setKrollContext(kroll);
 		KrollBridge krollBridge = new KrollBridge(kroll);
 		tic.setJSContext(krollBridge);
 		return tic;
 	}
-
+	
 	private void doRhinoDialog(final String title, final String message, final String sourceName, final int line,
 			final String lineSource, final int lineOffset)
 	{

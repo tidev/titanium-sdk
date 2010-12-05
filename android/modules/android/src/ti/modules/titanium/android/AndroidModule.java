@@ -289,7 +289,7 @@ public class AndroidModule extends KrollModule
 	public ServiceProxy createService(KrollInvocation invocation, IntentProxy intentProxy)
 	{
 		// Create a new context for the service proxy
-		TiContext tiContext = TiContext.createTiContext(invocation.getTiContext().getActivity(), null);
+		TiContext tiContext = TiContext.createTiContext(invocation.getTiContext().getTiApp().getRootActivity(), null);
 		tiContext.setIsServiceContext(true);
 		return new ServiceProxy(tiContext, intentProxy);
 	}
