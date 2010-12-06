@@ -13,6 +13,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.appcelerator.kroll.annotations.Kroll;
+import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.bridge.OnEventListenerChange;
 import org.appcelerator.titanium.kroll.KrollBridge;
@@ -38,6 +39,8 @@ public class KrollProxy implements Handler.Callback, OnEventListenerChange, Krol
 	protected static final int MSG_LAST_ID = 999;
 	protected static AtomicInteger proxyCounter = new AtomicInteger();
 
+	public static final String PROXY_ID_PREFIX = "proxy$";
+	public static final String BINDING_SUFFIX = "BindingGen";
 	public static final Object UNDEFINED = new Object() {
 		public String toString() {
 			return "undefined";
@@ -58,22 +61,18 @@ public class KrollProxy implements Handler.Callback, OnEventListenerChange, Krol
 	
 	@Kroll.inject
 	protected KrollInvocation currentInvocation;
-	
+
 	public KrollProxy(TiContext context) {
 		this(context, true);
 	}
-	
+
 	public KrollProxy(TiContext context, boolean autoBind) {
 		this.context = context;
 		this.eventManager = new KrollEventManager(this);
-		
 		if (DBG) {
 			Log.d(TAG, "New: " + getClass().getSimpleName());
 		}
-		this.proxyId = "proxy$" + proxyCounter.incrementAndGet();
-		//if (autoBind) {
-		//	bindProperties();
-		//}
+		this.proxyId = PROXY_ID_PREFIX + proxyCounter.incrementAndGet();
 
 		final KrollProxy me = this;
 		waitForHandler = new CountDownLatch(1);
@@ -100,11 +99,10 @@ public class KrollProxy implements Handler.Callback, OnEventListenerChange, Krol
 			});
 		}
 	}
-	
+
 	public static KrollProxyBinding getBinding(Class<? extends KrollProxy> proxyClass) {
 		if (!proxyBindings.containsKey(proxyClass)) {
-			String bindingClassName = proxyClass.getName() + "BindingGen";
-			
+			String bindingClassName = proxyClass.getName() + BINDING_SUFFIX;
 			try {
 				Class<?> bindingClass = Class.forName(bindingClassName);
 				KrollProxyBinding bindingInstance = (KrollProxyBinding) bindingClass.newInstance();
@@ -120,32 +118,22 @@ public class KrollProxy implements Handler.Callback, OnEventListenerChange, Krol
 		}
 		return proxyBindings.get(proxyClass);
 	}
-	
+
 	public KrollProxyBinding getBinding() {
 		if (binding == null) {
 			binding = getBinding(getClass());
 		}
 		return binding;
 	}
-	
+
 	protected boolean hasBinding(String name) {
 		return getBinding().hasBinding(name);
 	}
-	
+
 	protected Object getBinding(String name) {
 		return getBinding().getBinding(name);
 	}
-	
-	/*public void bindProperties() {
-		KrollProxyBinding binding = getBinding();
-		String[] filteredBindings = null;
-		if (this instanceof KrollModule) {
-			filteredBindings = getTiContext().getTiApp().getFilteredBindings(binding.getAPIName());
-		}
-		
-		binding.bindProperties(this, filteredBindings == null ? new ArrayList<String>() : Arrays.asList(filteredBindings));
-	}*/
-	
+
 	public void bindContextSpecific(KrollBridge bridge) {
 		KrollProxyBinding binding = getBinding();
 		binding.bindContextSpecific(bridge, this);
@@ -274,7 +262,7 @@ public class KrollProxy implements Handler.Callback, OnEventListenerChange, Krol
 			}
 		}
 	}
-	
+
 	protected boolean shouldFireChange(Object oldValue, Object newValue) {
 		if (!(oldValue == null && newValue == null)) {
 			if ((oldValue == null && newValue != null)
@@ -285,7 +273,7 @@ public class KrollProxy implements Handler.Callback, OnEventListenerChange, Krol
 		}
 		return false;
 	}
-	
+
 	public void setProperty(String name, Object value, boolean fireChange) {
 		Object current = properties.get(name);
 		properties.put(name, value);
@@ -294,7 +282,7 @@ public class KrollProxy implements Handler.Callback, OnEventListenerChange, Krol
 			firePropertyChanged(name, current, value);
 		}
 	}
-	
+
 	// native extending support allows us to whole-sale apply properties and only fire one event / job
 	@Kroll.method
 	public void extend(KrollDict options) {
@@ -318,20 +306,20 @@ public class KrollProxy implements Handler.Callback, OnEventListenerChange, Krol
 			msg.sendToTarget();
 		}
 	}
-	
+
 	protected void firePropertiesChanged(List<KrollPropertyChange> changes) {
 		if (modelListener != null) {
 			modelListener.propertiesChanged(changes, this);
 		}
 	}
-	
+
 	public boolean hasBoundMethod(String methodName) {
 		if (hasBinding(methodName)) {
 			return getBinding(methodName) instanceof Function;
 		}
 		return false;
 	}
-	
+
 	public boolean hasBoundProperty(String propertyName) {
 		if (hasBinding(propertyName)) {
 			Object property = getBinding(propertyName);
@@ -341,24 +329,11 @@ public class KrollProxy implements Handler.Callback, OnEventListenerChange, Krol
 		}
 		return false;
 	}
-	
-	/*public void bindMethod(String name, Function method) {
-		bindValue(name, method);
-	}
-	
-	public void bindProperty(String name, KrollProperty property) {
-		bindValue(name, property);
-	}
-	
-	public void bindValue(String name, Object value) {
-		bindings.put(name, value);
-	}*/
 
 	public KrollMethod getBoundMethod(String name) {
 		return (KrollMethod) getBinding(name);
 	}
-	
-	
+
 	@SuppressWarnings("serial")
 	public class ThisMethod extends KrollMethod {
 		protected String name;
@@ -382,7 +357,7 @@ public class KrollProxy implements Handler.Callback, OnEventListenerChange, Krol
 			return delegate;
 		}
 	}
-	
+
 	public KrollMethod getBoundMethodForThis(String name) {
 		// This generates a wrapper that always invokes the given bound method
 		// using this proxy as the "thisObj"
@@ -392,11 +367,11 @@ public class KrollProxy implements Handler.Callback, OnEventListenerChange, Krol
 		}
 		return null;
 	}
-	
+
 	public KrollProperty getBoundProperty(String name) {
 		return (KrollProperty) getBinding(name);
 	}
-	
+
 	/**
 	 * Handle the arguments passed into the "create" method for this proxy.
 	 * If your proxy simply needs to handle a KrollDict, see {@link KrollProxy#handleCreationDict(KrollDict)}
@@ -408,7 +383,7 @@ public class KrollProxy implements Handler.Callback, OnEventListenerChange, Krol
 			handleCreationDict((KrollDict)args[0]);
 		}
 	}
-	
+
 	protected KrollDict creationDict = null;
 	/**
 	 * Handle the creation {@link KrollDict} passed into the create method for this proxy.
@@ -420,14 +395,13 @@ public class KrollProxy implements Handler.Callback, OnEventListenerChange, Krol
 			for (String key : dict.keySet()) {
 				setProperty(key, dict.get(key), true);
 			}
-
 			creationDict = (KrollDict)dict.clone();
 			if (modelListener != null) {
 				modelListener.processProperties(creationDict);
 			}
 		}
 	}
-	
+
 	public KrollDict getCreationDict() {
 		return creationDict;
 	}
@@ -435,34 +409,34 @@ public class KrollProxy implements Handler.Callback, OnEventListenerChange, Krol
 	public KrollModule getCreatedInModule() {
 		return createdInModule;
 	}
-	
-	// Handler.Callback
+
+	@SuppressWarnings("unchecked")
 	public boolean handleMessage(Message msg) {
 		switch (msg.what) {
-		case MSG_MODEL_PROPERTY_CHANGE: {
-			KrollPropertyChange pch = (KrollPropertyChange) msg.obj;
-			pch.fireEvent(this, modelListener);
-			return true;
-		}
-		case MSG_LISTENER_ADDED: {
-			if (modelListener != null) {
-				modelListener
-						.listenerAdded(msg.getData().getString("eventName"),
-								msg.arg1, (KrollProxy) msg.obj);
+			case MSG_MODEL_PROPERTY_CHANGE: {
+				KrollPropertyChange pch = (KrollPropertyChange) msg.obj;
+				pch.fireEvent(this, modelListener);
+				return true;
 			}
-			return true;
-		}
-		case MSG_LISTENER_REMOVED: {
-			if (modelListener != null) {
-				modelListener.listenerRemoved(msg.getData().getString(
-						"eventName"), msg.arg1, (KrollProxy) msg.obj);
+			case MSG_LISTENER_ADDED: {
+				if (modelListener != null) {
+					modelListener.listenerAdded(
+						msg.getData().getString(TiC.MSG_PROPERTY_EVENT_NAME),
+						msg.arg1, (KrollProxy) msg.obj);
+				}
+				return true;
 			}
-			return true;
-		}
-		case MSG_MODEL_PROPERTIES_CHANGED: {
-			firePropertiesChanged((List<KrollPropertyChange>)msg.obj);
-			return true;
-		}
+			case MSG_LISTENER_REMOVED: {
+				if (modelListener != null) {
+					modelListener.listenerRemoved(msg.getData().getString(
+						TiC.MSG_PROPERTY_EVENT_NAME), msg.arg1, (KrollProxy) msg.obj);
+				}
+				return true;
+			}
+			case MSG_MODEL_PROPERTIES_CHANGED: {
+				firePropertiesChanged((List<KrollPropertyChange>)msg.obj);
+				return true;
+			}
 		}
 		return false;
 	}
@@ -487,7 +461,7 @@ public class KrollProxy implements Handler.Callback, OnEventListenerChange, Krol
 		}
 		return oldContext;
 	}
-	
+
 	public void switchToCreatingContext() {
 		if (creatingContext != null && context != null && !creatingContext.equals(context)) {
 			switchContext(creatingContext);
@@ -510,23 +484,21 @@ public class KrollProxy implements Handler.Callback, OnEventListenerChange, Krol
 	public KrollBridge getKrollBridge() {
 		return (KrollBridge) context.getJSContext();
 	}
-	
+
 	public String getProxyId() {
 		return proxyId;
 	}
 
-	// / Events
+	// Events
 
 	@Kroll.method
 	public int addEventListener(KrollInvocation invocation, String eventName, Object listener) {
 		int listenerId = -1;
-
 		if (DBG) {
 			Log.i(TAG, "Adding listener for \"" + eventName + "\": "
 					+ listener.getClass().getName());
 		}
 		listenerId = eventManager.addEventListener(eventName, listener);
-		
 		return listenerId;
 	}
 
@@ -539,7 +511,7 @@ public class KrollProxy implements Handler.Callback, OnEventListenerChange, Krol
 		if (modelListener != null) {
 			Message m = getUIHandler().obtainMessage(MSG_LISTENER_ADDED, count,
 					-1, proxy);
-			m.getData().putString("eventName", eventName);
+			m.getData().putString(TiC.MSG_PROPERTY_EVENT_NAME, eventName);
 			m.sendToTarget();
 		}
 	}
@@ -549,7 +521,7 @@ public class KrollProxy implements Handler.Callback, OnEventListenerChange, Krol
 		if (modelListener != null) {
 			Message m = getUIHandler().obtainMessage(MSG_LISTENER_REMOVED,
 					count, -1, proxy);
-			m.getData().putString("eventName", eventName);
+			m.getData().putString(TiC.MSG_PROPERTY_EVENT_NAME, eventName);
 			m.sendToTarget();
 		}
 	}
@@ -582,7 +554,6 @@ public class KrollProxy implements Handler.Callback, OnEventListenerChange, Krol
 			if (data == null) {
 				data = new KrollDict();
 			}
-
 			try {
 				method.invoke(invocation, new Object[] { data });
 			} catch (Exception e) {
@@ -595,15 +566,10 @@ public class KrollProxy implements Handler.Callback, OnEventListenerChange, Krol
 		return eventManager.hasAnyEventListener(eventName);
 	}
 
-	public Object resultForUndefinedMethod(String name, Object[] args) {
-		throw new UnsupportedOperationException("Method: " + name
-				+ " not supported by " + getClass().getSimpleName());
-	}
-
 	protected KrollDict createErrorResponse(int code, String message) {
 		KrollDict error = new KrollDict();
-		error.put("code", code);
-		error.put("message", message);
+		error.put(TiC.ERROR_PROPERTY_CODE, code);
+		error.put(TiC.ERROR_PROPERTY_MESSAGE, message);
 
 		return error;
 	}
