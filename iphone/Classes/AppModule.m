@@ -308,6 +308,14 @@ extern NSString * const TI_APPLICATION_GUID;
 	}
 }
 
+-(void)resumed:(id)sender
+{
+	if ([self _hasListeners:@"resumed"])
+	{
+		[self fireEvent:@"resumed" withObject:nil];
+	}
+}
+
 #pragma mark Delegate stuff
 
 -(void)proximityDetectionChanged:(NSNotification*)note
