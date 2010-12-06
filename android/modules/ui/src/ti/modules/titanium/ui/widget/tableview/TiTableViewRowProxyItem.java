@@ -9,6 +9,7 @@ package ti.modules.titanium.ui.widget.tableview;
 import java.util.ArrayList;
 
 import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.Log;
@@ -27,7 +28,6 @@ import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.view.View;
 import android.widget.ImageView;
-import android.widget.TextView;
 
 public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 {
@@ -45,9 +45,10 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 	private boolean hasControls;
 	private int height = -1;
 	private Item item;
+	private Object selectorSource;
+	private Drawable selectorDrawable;
 
-	public TiTableViewRowProxyItem(TiContext tiContext)
-	{
+	public TiTableViewRowProxyItem(TiContext tiContext) {
 		super(tiContext);
 
 		this.handler = new Handler(this);
@@ -139,12 +140,8 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 
 	protected void refreshOldStyleRow() {
 		TableViewRowProxy rp = getRowProxy();
-		String title = "Missing title";
-		if (rp.getProperty("title") != null) {
-			title = TiConvert.toString(rp.getProperty("title"));
-		}
-		if (!rp.hasProperty("touchEnabled")) {
-			rp.setProperty("touchEnabled", false);
+		if (!rp.hasProperty(TiC.PROPERTY_TOUCH_ENABLED)) {
+			rp.setProperty(TiC.PROPERTY_TOUCH_ENABLED, false);
 		}
 		if (views == null) {
 			views = new ArrayList<TiUIView>();
@@ -155,8 +152,6 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 		t.processProperties(filterProperties(rp.getProperties()));
 		View v = t.getNativeView();
 		if (v.getParent() == null) {
-			TextView tv = (TextView) v;
-			//tv.setTextColor(Color.WHITE);
 			TiCompositeLayout.LayoutParams params = (TiCompositeLayout.LayoutParams) t.getLayoutParams();
 			params.optionLeft = 5;
 			params.optionRight = 5;
@@ -168,13 +163,26 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 	public void setRowData(TableViewRowProxy rp) {
 		KrollDict props = rp.getProperties();
 		hasControls = rp.hasControls();
+		
+		Object newSelectorSource = null;
+		if (rp.hasProperty(TiC.PROPERTY_BACKGROUND_SELECTED_IMAGE)) {
+			newSelectorSource = rp.getProperty(TiC.PROPERTY_BACKGROUND_SELECTED_IMAGE);
+		} else if (rp.hasProperty(TiC.PROPERTY_BACKGROUND_SELECTED_COLOR)) {
+			newSelectorSource = rp.getProperty(TiC.PROPERTY_BACKGROUND_SELECTED_COLOR);
+		}
+		if (newSelectorSource == null || selectorSource != null && !selectorSource.equals(newSelectorSource)) {
+			selectorDrawable = null;
+		}
+		selectorSource = newSelectorSource;
+		if (selectorSource != null) {
+			rp.getTable().getTableView().getTableView().enableCustomSelector();
+		}
 
 		setBackgroundFromProperties(props);
-
 		// Handle right image
 		boolean clearRightImage = true;
-		if (props.containsKey("hasChild")) {
-			if (TiConvert.toBoolean(props, "hasChild")) {
+		if (props.containsKey(TiC.PROPERTY_HAS_CHILD)) {
+			if (TiConvert.toBoolean(props, TiC.PROPERTY_HAS_CHILD)) {
 				if (hasChildDrawable == null) {
 					hasChildDrawable = createHasChildDrawable();
 				}
@@ -183,8 +191,8 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 				clearRightImage = false;
 			}
 		}
-		else if (props.containsKey("hasCheck")) {
-			if (TiConvert.toBoolean(props, "hasCheck")) {
+		else if (props.containsKey(TiC.PROPERTY_HAS_CHECK)) {
+			if (TiConvert.toBoolean(props, TiC.PROPERTY_HAS_CHECK)) {
 				if (hasCheckDrawable == null) {
 					hasCheckDrawable = createHasCheckDrawable();
 				}
@@ -194,10 +202,9 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 			}
 		}
 
-		if (props.containsKey("rightImage")) {
-			String path = TiConvert.toString(props, "rightImage");
+		if (props.containsKey(TiC.PROPERTY_RIGHT_IMAGE)) {
+			String path = TiConvert.toString(props, TiC.PROPERTY_RIGHT_IMAGE);
 			String url = tiContext.resolveUrl(null, path);
-
 			Drawable d = loadDrawable(url);
 			if (d != null) {
 				rightImage.setImageDrawable(d);
@@ -212,8 +219,8 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 		}
 
 		// Handle left image
-		if (props.containsKey("leftImage")) {
-			String path = TiConvert.toString(props, "leftImage");
+		if (props.containsKey(TiC.PROPERTY_LEFT_IMAGE)) {
+			String path = TiConvert.toString(props, TiC.PROPERTY_LEFT_IMAGE);
 			String url = tiContext.resolveUrl(null, path);
 
 			Drawable d = loadDrawable(url);
@@ -226,9 +233,9 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 			leftImage.setVisibility(GONE);
 		}
 
-		if (props.containsKey("height")) {
-			if (!props.get("height").equals("auto")) {
-				height = TiConvert.toInt(props, "height");
+		if (props.containsKey(TiC.PROPERTY_HEIGHT)) {
+			if (!props.get(TiC.PROPERTY_HEIGHT).equals(TiC.SIZE_AUTO)) {
+				height = TiConvert.toInt(props, TiC.PROPERTY_HEIGHT);
 			}
 		}
 		
@@ -284,8 +291,8 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 			if(hMode == MeasureSpec.UNSPECIFIED) {
 				TableViewProxy table = ((TableViewRowProxy)item.proxy).getTable();
 				int minRowHeight = 0;
-				if (table != null && table.hasProperty("minRowHeight")) {
-					minRowHeight = TiConvert.toInt(table.getProperty("minRowHeight"));
+				if (table != null && table.hasProperty(TiC.PROPERTY_MIN_ROW_HEIGHT)) {
+					minRowHeight = TiConvert.toInt(table.getProperty(TiC.PROPERTY_MIN_ROW_HEIGHT));
 				}
 
 				if (height == -1) {
@@ -345,10 +352,10 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 	}
 
 	private static String[] filteredProperties = new String[]{
-		"backgroundImage", "backgroundColor"
+		TiC.PROPERTY_BACKGROUND_IMAGE, TiC.PROPERTY_BACKGROUND_COLOR,
+		TiC.PROPERTY_BACKGROUND_SELECTED_IMAGE, TiC.PROPERTY_BACKGROUND_SELECTED_COLOR
 	};
-	private KrollDict filterProperties(KrollDict d)
-	{
+	private KrollDict filterProperties(KrollDict d) {
 		if (d == null) return new KrollDict();
 		
 		KrollDict filtered = new KrollDict(d);
@@ -361,8 +368,27 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 	}
 
 	@Override
-	public boolean providesOwnSelector() {
-		return true;
+	public boolean hasSelector() {
+		KrollDict d = getRowProxy().getProperties();
+		return d.containsKey(TiC.PROPERTY_BACKGROUND_SELECTED_IMAGE)
+			|| d.containsKey(TiC.PROPERTY_BACKGROUND_SELECTED_COLOR);
+	}
+	
+	@Override
+	public Drawable getSelectorDrawable() {
+		TableViewRowProxy rowProxy = getRowProxy();
+		if (selectorDrawable == null && selectorSource != null) {
+			if (rowProxy.hasProperty(TiC.PROPERTY_BACKGROUND_SELECTED_IMAGE)) {
+				String path = TiConvert.toString(
+					rowProxy.getProperty(TiC.PROPERTY_BACKGROUND_SELECTED_IMAGE));
+				String url = rowProxy.getTiContext().resolveUrl(null, path);
+				selectorDrawable = loadDrawable(url);
+			} else if (rowProxy.hasProperty(TiC.PROPERTY_BACKGROUND_SELECTED_COLOR)) {
+				int color = TiConvert.toColor(rowProxy.getProperties(), TiC.PROPERTY_BACKGROUND_SELECTED_COLOR);
+				selectorDrawable = new TiTableViewColorSelector(color);
+			}
+		}
+		return selectorDrawable;
 	}
 	
 	@Override

@@ -33,7 +33,6 @@ public class TiTableViewHeaderItem extends TiBaseTableViewItem
 
 		public RowView(Context context) {
 			super(context);
-
 			setGravity(Gravity.CENTER_VERTICAL);
 
 			textView = new TextView(context);
@@ -54,8 +53,7 @@ public class TiTableViewHeaderItem extends TiBaseTableViewItem
 			TiUIHelper.setTextViewDIPPadding(textView, 4, 2);
 		}
 
-		public void setRowData(Item item)
-		{
+		public void setRowData(Item item) {
 			this.item = item;
 			if (item.headerText != null) {
 				textView.setText(item.headerText, TextView.BufferType.NORMAL);
@@ -63,17 +61,15 @@ public class TiTableViewHeaderItem extends TiBaseTableViewItem
 				textView.setText(item.footerText, TextView.BufferType.NORMAL);
 			}
 		}
-		
+
 		public Item getRowData() {
 			return item;
 		}
 	}
 
 
-	public TiTableViewHeaderItem(TiContext tiContext)
-	{
+	public TiTableViewHeaderItem(TiContext tiContext) {
 		super(tiContext);
-
 		this.handler = new Handler(this);
 		rowView = new RowView(tiContext.getActivity());
 		this.addView(rowView, new LayoutParams(LayoutParams.FILL_PARENT,LayoutParams.FILL_PARENT));

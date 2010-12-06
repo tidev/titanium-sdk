@@ -6,12 +6,9 @@
  */
 package ti.modules.titanium.ui.widget.tableview;
 
-import java.io.IOException;
-
 import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
-import org.appcelerator.titanium.io.TiBaseFile;
-import org.appcelerator.titanium.io.TiFileFactory;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiConvert;
@@ -22,8 +19,11 @@ import org.appcelerator.titanium.util.TiUIHelper;
 import ti.modules.titanium.ui.widget.tableview.TableViewModel.Item;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.StateListDrawable;
 import android.os.Handler;
 import android.os.Message;
 import android.util.DisplayMetrics;
@@ -31,7 +31,7 @@ import android.view.ViewGroup;
 
 public abstract class TiBaseTableViewItem extends ViewGroup implements Handler.Callback
 {
-	private static final String LCAT = "TitaniamBaseTableViewItem";
+	private static final String LCAT = "TiBaseTableViewItem";
 	private static final boolean DBG = TiConfig.LOGD;
 	
 	private static Bitmap childIndicatorBitmap = null;
@@ -75,21 +75,23 @@ public abstract class TiBaseTableViewItem extends ViewGroup implements Handler.C
 	public abstract void setRowData(Item item);
 	public abstract Item getRowData();
 	
-	public boolean handleMessage(Message msg)
-	{
+	public boolean handleMessage(Message msg) {
 		return false;
 	}
 
-	public boolean providesOwnSelector() {
+	public boolean hasSelector() {
 		return false;
 	}
 
+	public Drawable getSelectorDrawable() {
+		return null;
+	}
+	
 	public String getLastClickedViewName() {
 		return null;
 	}
 
-	private BitmapDrawable createDrawable(Bitmap bitmap)
-	{
+	private BitmapDrawable createDrawable(Bitmap bitmap) {
 		try {
 			return new BitmapDrawable(bitmap);
 		} catch (Throwable t) {
@@ -126,29 +128,45 @@ public abstract class TiBaseTableViewItem extends ViewGroup implements Handler.C
 		this.className = className;
 	}
 	
-	public void setBackgroundImageProperty(KrollDict d, String property)
-	{
+	public Drawable getBackgroundImageDrawable(KrollDict d, String property) {
 		String path = TiConvert.toString(d, property);
 		String url = tiContext.resolveUrl(null, path);
-		TiBaseFile file = TiFileFactory.createTitaniumFile(tiContext, new String[] { url }, false);
-		try {
-			setBackgroundDrawable(new BitmapDrawable(TiUIHelper.createBitmap(file.getInputStream())));
-		} catch (IOException e) {
-			Log.e(LCAT, "Error creating background image from path: " + path.toString(), e);
+		return loadDrawable(url);
+	}
+	
+	public void setBackgroundDrawable(KrollDict d, Drawable drawable) {
+		if (d.containsKey(TiC.PROPERTY_BACKGROUND_SELECTED_IMAGE)
+			|| d.containsKey(TiC.PROPERTY_BACKGROUND_SELECTED_COLOR)) {
+			StateListDrawable stateDrawable = new StateListDrawable();
+			ColorDrawable transparent = new ColorDrawable(Color.TRANSPARENT);
+			stateDrawable.addState(new int[] {
+				android.R.attr.state_window_focused,
+				android.R.attr.state_enabled,
+				android.R.attr.state_pressed }, transparent);
+			stateDrawable.addState(new int[] { android.R.attr.state_selected }, transparent);
+			stateDrawable.addState(new int[] {
+				android.R.attr.state_focused,
+				android.R.attr.state_window_focused,
+				android.R.attr.state_enabled }, drawable);
+			stateDrawable.addState(new int[0], drawable);
+			setBackgroundDrawable(stateDrawable);
+		} else {
+			setBackgroundDrawable(drawable);
 		}
 	}
 	
-	public void setBackgroundFromProperties(KrollDict props)
-	{
-		if (props.containsKey("backgroundImage")) {
-			setBackgroundImageProperty(props, "backgroundImage");
-		} else if (props.containsKey("backgroundColor")) {
-			Integer bgColor = TiConvert.toColor(props, "backgroundColor");
-			setBackgroundColor(bgColor);
+	public void setBackgroundFromProperties(KrollDict props) {
+		Drawable background = null;
+		if (props.containsKey(TiC.PROPERTY_BACKGROUND_IMAGE)) {
+			background = getBackgroundImageDrawable(props, TiC.PROPERTY_BACKGROUND_IMAGE);
+		} else if (props.containsKey(TiC.PROPERTY_BACKGROUND_COLOR)) {
+			Integer bgColor = TiConvert.toColor(props, TiC.PROPERTY_BACKGROUND_COLOR);
+			background = new ColorDrawable(bgColor);
 		}
-		if (props.containsKey("opacity")) {
-			TiUIHelper.setDrawableOpacity(getBackground(), TiConvert.toFloat(props, "opacity"));
+		if (props.containsKey(TiC.PROPERTY_OPACITY)) {
+			TiUIHelper.setDrawableOpacity(background, TiConvert.toFloat(props, TiC.PROPERTY_OPACITY));
 		}
+		setBackgroundDrawable(props, background);
 	}
 	
 	public void release() {
