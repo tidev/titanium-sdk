@@ -22,6 +22,10 @@
 #define __IPHONE_4_0 40000
 #endif
 
+#ifndef __IPHONE_4_2
+#define __IPHONE_4_2 40200
+#endif
+
 #ifdef DEBUG
 	// Kroll memory debugging
 	#define KROLLBRIDGE_MEMORY_DEBUG MEMORY_DEBUG

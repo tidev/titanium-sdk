@@ -48,6 +48,14 @@ extern NSString * const TI_APPLICATION_RESOURCE_DIR;
 	return scale > 1.0;
 }
 
++(BOOL)isIOS4_2OrGreater
+{
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __iPHONE_4_2
+	return [UIView instancesRespondToSelector:@selector(drawRect:forViewPrintFormatter:)];
+#else
+	return NO;
+#endif
+}
 
 +(BOOL)isIOS4OrGreater
 {
