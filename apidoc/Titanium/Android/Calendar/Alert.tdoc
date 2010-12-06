@@ -27,5 +27,3 @@ end[date]: The date/time at which the corresponding event ends.
 alarmTime[date]: The date/time at which the alert's alarm is triggered.
 state[int]: The current state of the alert.  Possible values are the STATE_ constants in `Titanium.Android.Calendar`.
 minutes[int]: The minutes before the event when the alert should trigger.
-
-
