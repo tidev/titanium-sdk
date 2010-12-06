@@ -261,23 +261,24 @@ public class TiUIWindow extends TiUIView
 			}
 			
 			TiContext tiContext = null;
-			ActivityProxy activityProxy = null;
+			ActivityProxy activityProxy = (ActivityProxy) ((TiWindowProxy) proxy).getProperty("activity");
 			if (lightWeight) {			
 				Activity activity = proxy.getTiContext().getActivity();
 				tiContext = TiContext.createTiContext(activity, baseUrl);
-			} else {
-				tiContext = TiContext.createTiContext(windowActivity, baseUrl);
-			}
-			
-			if (windowActivity instanceof TiBaseActivity) {
-				TiBaseActivity tiActivity = (TiBaseActivity)windowActivity;
-				activityProxy = (ActivityProxy) ((TiWindowProxy) proxy).getProperty("activity");
 				if (activityProxy == null) {
-					activityProxy = new ActivityProxy(proxy.getTiContext(), tiActivity);
+					activityProxy = new ActivityProxy(proxy.getTiContext(), activity);
 					((TiWindowProxy) proxy).setActivity(activityProxy);
 				}
+			} else {
+				tiContext = TiContext.createTiContext(windowActivity, baseUrl);
+				if (windowActivity instanceof TiBaseActivity) {
+					TiBaseActivity tiActivity = (TiBaseActivity)windowActivity;
+					if (activityProxy == null) {
+						activityProxy = new ActivityProxy(proxy.getTiContext(), tiActivity);
+						((TiWindowProxy) proxy).setActivity(activityProxy);
+					}
+				}
 			}
-
 			TiBindingHelper.bindCurrentWindowAndActivity(tiContext, proxy, activityProxy);
 			
 			final TiContext ftiContext = tiContext;
