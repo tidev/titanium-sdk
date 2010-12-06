@@ -166,6 +166,10 @@
 				[loadLock lock];
 				[toLoad setValue:image forKey:[NUMINT(index) stringValue]];
 				[loadLock unlock];
+				
+				// Here's the ugly part; if it's a visible cover, we have to manually force a data source
+				// request to display the new image.
+				[self openFlowView:flow requestImageForIndex:index];
 			}
 			else {
 				[[self proxy] throwException:[NSString stringWithFormat:@"Bad image type (%@) for image at index %d",[image class], index]
