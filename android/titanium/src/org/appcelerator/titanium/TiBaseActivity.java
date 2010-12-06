@@ -368,17 +368,16 @@ public class TiBaseActivity extends Activity
 		if (!handled) {
 			handled = super.dispatchKeyEvent(event);
 		}
-		return handled; 
+		return handled;
 	}
 	
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu)
 	{
 		boolean created = super.onCreateOptionsMenu(menu);
-		
 		KrollCallback ocom = (KrollCallback) activityProxy.getProperty("onCreateOptionsMenu");
 		KrollCallback opom = (KrollCallback) activityProxy.getProperty("onPrepareOptionsMenu");
-		 
+
 		// If a callback exists then return true. There is no need for the Ti Developer to support
 		// both methods.
 		if (ocom != null || opom != null) {
@@ -395,40 +394,28 @@ public class TiBaseActivity extends Activity
 				}
 				d.put("menu", menuProxy);
 				
-				ocom.call(args);
+				ocom.callSync(args);
 			}
-			
 			created = true;
 		}
-		
 		return created;
 	}
 
 	@Override
-	public boolean onOptionsItemSelected(MenuItem item) 
-	{
-			MenuItemProxy mip = menuProxy.findItem(item);
-			if (mip != null) {
-				mip.fireEvent("click", null);
-				return true;
-			}
-			return false;
-//		if (softMenuDispatcher != null) {
-//			ITiMenuDispatcherListener dispatcher = softMenuDispatcher.get();
-//			if (dispatcher != null) {
-//				return dispatcher.dispatchMenuItemSelected(item);
-//			}
-//		}
-//		return super.onOptionsItemSelected(item);
+	public boolean onOptionsItemSelected(MenuItem item) {
+		MenuItemProxy mip = menuProxy.findItem(item);
+		if (mip != null) {
+			mip.fireEvent("click", null);
+			return true;
+		}
+		return false;
 	}
 
 	@Override
-	public boolean onPrepareOptionsMenu(Menu menu) 
-	{
+	public boolean onPrepareOptionsMenu(Menu menu) {
 		boolean prepared = super.onPrepareOptionsMenu(menu);
-		
 		KrollCallback opom = (KrollCallback) activityProxy.getProperty("onPrepareOptionsMenu");
-		 
+
 		// If a callback exists then return true. There is no need for the Ti Developer to support
 		// both methods.
 		if (opom != null) {
@@ -444,10 +431,9 @@ public class TiBaseActivity extends Activity
 			}
 			d.put("menu", menuProxy);
 			
-			opom.call(args);
-		}			
+			opom.callSync(args);
+		}
 		prepared = true;
-
 		return prepared;
 	}
 	
