@@ -221,6 +221,14 @@ NSString* const DATA_IFACE = @"pdp_ip0";
 	return [NSNumber numberWithBool:result];
 }
 
+
+-(NSNumber*)canOpenURL:(id)arg
+{
+	ENSURE_SINGLE_ARG(arg, NSString);
+	NSURL* url = [TiUtils toURL:arg proxy:self];
+	return NUMBOOL([[UIApplication sharedApplication] canOpenURL:url]);
+}
+
 -(PlatformModuleDisplayCapsProxy*)displayCaps
 {
 	if (capabilities == nil)

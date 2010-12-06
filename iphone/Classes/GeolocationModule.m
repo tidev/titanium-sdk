@@ -607,9 +607,8 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 	if ([TiUtils isIOS4_2OrGreater]) {
 		return NUMINT([CLLocationManager authorizationStatus]);
 	}
-#else
-	return [self AUTHORIZATION_UNKNOWN];
 #endif
+	return [self AUTHORIZATION_UNKNOWN];
 }
 
 -(void)restart:(id)arg

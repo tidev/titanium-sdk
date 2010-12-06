@@ -242,31 +242,35 @@ win.add(b);
 var openURL=1;
 b.addEventListener('click', function()
 {
-	switch(openURL)
+	var url;
+	switch(openURL % 3)
 	{
 		case 0:
 		{
-			Titanium.Platform.openURL('http://www.google.com');
+			url = 'http://www.google.com';
 			b.title='Open URL (web)';
-			openURL++;
 			break;
 		}
 		case 1:
 		{
-			Titanium.Platform.openURL('tel:4043332222');
+			url = 'tel:4043332222';
 			b.title='Open URL (tel)';
-			openURL++;
 			break;
 		}
 		case 2:
 		{
-			Titanium.Platform.openURL('sms:4043332222');
+			url = 'sms:4043332222'
 			b.title='Open URL (sms)';
-			openURL=0;
 			break;
 		}
-
 	}
+	if (Titanium.Platform.name != 'android') {
+		if (!Titanium.Platform.canOpenURL(url)) {
+			Ti.API.warn("Can't open url: "+url);
+		}
+	}
+	Titanium.Platform.openURL(url);
+	openURL++;
 });
 
 //
