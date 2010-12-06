@@ -7,14 +7,21 @@
 package ti.modules.titanium.android;
 
 
+import java.util.List;
+
 import org.appcelerator.kroll.KrollInvocation;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.proxy.IntentProxy;
 import org.appcelerator.titanium.proxy.RProxy;
+import org.appcelerator.titanium.proxy.ServiceProxy;
+import org.appcelerator.titanium.util.Log;
 
 import android.app.Activity;
+import android.app.ActivityManager;
+import android.app.ActivityManager.RunningServiceInfo;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 
@@ -203,6 +210,14 @@ public class AndroidModule extends KrollModule
 	}
 	
 	@Kroll.method
+	public IntentProxy createServiceIntent(KrollInvocation invocation, Object[] args) {
+		IntentProxy intent = new IntentProxy(invocation.getTiContext());
+		intent.setForService(true);
+		intent.handleCreationArgs(this, args);
+		return intent;
+	}
+	
+	@Kroll.method
 	public IntentProxy createIntentChooser(KrollInvocation invocation, IntentProxy target, String title) {
 		return new IntentProxy(invocation.getTiContext(), Intent.createChooser(target.getIntent(), title));
 	}
@@ -213,5 +228,69 @@ public class AndroidModule extends KrollModule
 			r = new RProxy(invocation.getTiContext(), RProxy.RESOURCE_TYPE_ANDROID);
 		}
 		return r;
+	}
+	
+	@Kroll.method
+	public void startService(KrollInvocation invocation, IntentProxy intentProxy)
+	{
+		Activity activity = invocation.getActivity();
+		if (activity != null) {
+			activity.startService(intentProxy.getIntent());
+			return;
+		}
+		// In case the activity was null, try context->application
+		TiContext tiContext = invocation.getTiContext();
+		if (tiContext != null && tiContext.getTiApp() != null) {
+			tiContext.getTiApp().startService(intentProxy.getIntent());
+			return;
+		}
+		Log.w(TAG, "Could not locate non-null activity/context/application with which to start service.");
+	}
+	
+	@Kroll.method
+	public void stopService(KrollInvocation invocation, IntentProxy intentProxy)
+	{
+		Activity activity = invocation.getActivity();
+		if (activity != null) {
+			activity.stopService(intentProxy.getIntent());
+			return;
+		}
+		// In case the activity was null, try context->application
+		TiContext tiContext = invocation.getTiContext();
+		if (tiContext != null && tiContext.getTiApp() != null) {
+			tiContext.getTiApp().stopService(intentProxy.getIntent());
+			return;
+		}
+		Log.w(TAG, "Could not locate non-null activity/context/application with which to stop service.");
+	}
+	
+	@Kroll.method
+	public boolean isServiceRunning(KrollInvocation invocation, IntentProxy intentProxy)
+	{
+		Intent intent = intentProxy.getIntent();
+		if (intent == null) {
+			Log.w(TAG, "isServiceRunning called with empty intent.  Will return false, but value is meaningless.");
+			return false;
+		}
+		Context context = invocation.getTiContext().getAndroidContext();
+		ActivityManager am = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
+		if (am != null) {
+			List<RunningServiceInfo> services = am.getRunningServices(Integer.MAX_VALUE);
+			for (RunningServiceInfo service : services) {
+				if (service.service.equals(intent.getComponent())) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+	
+	@Kroll.method
+	public ServiceProxy createService(KrollInvocation invocation, IntentProxy intentProxy)
+	{
+		// Create a new context for the service proxy
+		TiContext tiContext = TiContext.createTiContext(invocation.getTiContext().getTiApp().getRootActivity(), null);
+		tiContext.setIsServiceContext(true);
+		return new ServiceProxy(tiContext, intentProxy);
 	}
 }

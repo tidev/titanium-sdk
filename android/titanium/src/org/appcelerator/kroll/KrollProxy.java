@@ -82,9 +82,9 @@ public class KrollProxy implements Handler.Callback, OnEventListenerChange, Krol
 			waitForHandler.countDown();
 		} else {
 			Activity activity = context.getActivity();
-			if (activity == null || activity.isFinishing()) {
+			if ((activity == null || activity.isFinishing()) && !context.isServiceContext()) {
 				if (DBG) {
-					Log.w(TAG, "Proxy created in context with no activity.  Activity finished?  Context is effectively dead.");
+					Log.w(TAG, "Proxy created in context with no activity and no service.  Activity finished?  Context is effectively dead.");
 				}
 				return;
 			}

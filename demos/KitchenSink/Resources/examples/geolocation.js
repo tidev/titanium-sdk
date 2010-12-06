@@ -198,6 +198,22 @@ if (Titanium.Geolocation.locationServicesEnabled==false)
 }
 else
 {
+	if (Titanium.Platform.name != 'android') {
+		var authorization = Titanium.Geolocation.locationServicesAuthorization
+		Ti.API.log('Authorization: '+authorization);
+		if (authorization == Titanium.Geolocation.AUTHORIZATION_DENIED) {
+			Ti.UI.createAlertDialog({
+				title:'Kitchen Sink',
+				message:'You have disallowed Titanium from running geolocation services.'
+			}).show();
+		}
+		else if (authorization == Titanium.Geolocation.AUTHORIZATION_RESTRICTED) {
+			Ti.UI.createAlertDialog({
+				title:'Kitchen Sink',
+				message:'Your system has disallowed Titanium from running geolocation services.'
+			}).show();
+		}
+	}
 
 	//
 	// IF WE HAVE COMPASS GET THE HEADING
@@ -385,8 +401,6 @@ else
 
 		Titanium.API.info('geo - location updated: ' + new Date(timestamp) + ' long ' + longitude + ' lat ' + latitude + ' accuracy ' + accuracy);
 	});
-
-
 }
 var addr = "2065 Hamilton Avenue San Jose California 95125";
 

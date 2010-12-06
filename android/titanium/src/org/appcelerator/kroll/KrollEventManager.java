@@ -16,14 +16,17 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiContext.OnLifecycleEvent;
+import org.appcelerator.titanium.TiContext.OnServiceLifecycleEvent;
 import org.appcelerator.titanium.bridge.OnEventListenerChange;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 
 import android.app.Activity;
+import android.app.Service;
 
-public class KrollEventManager implements OnLifecycleEvent {
+public class KrollEventManager implements OnLifecycleEvent, OnServiceLifecycleEvent {
 	private static final String TAG = "KrollEventManager";
 	private static final boolean DBG = TiConfig.LOGD;
 	private static final boolean TRACE = TiConfig.LOGV;
@@ -35,7 +38,13 @@ public class KrollEventManager implements OnLifecycleEvent {
 	
 	public KrollEventManager(KrollProxy proxy) {
 		this.proxy = proxy;
-		proxy.getTiContext().addOnLifecycleEventListener(this);
+		TiContext tiContext = proxy.getTiContext();
+		
+		if (tiContext.isServiceContext()) {
+			tiContext.addOnServiceLifecycleEventListener(this);
+		} else {
+			tiContext.addOnLifecycleEventListener(this);
+		}
 		
 		this.eventChangeListeners = new ArrayList<WeakReference<OnEventListenerChange>>();
 		this.listenerIdGenerator = new AtomicInteger(0);
@@ -285,5 +294,11 @@ public class KrollEventManager implements OnLifecycleEvent {
 		if (eventListeners != null) {
 			eventListeners.clear();
 		}
+	}
+
+	@Override
+	public void onDestroy(Service service)
+	{
+		release();
 	}
 }

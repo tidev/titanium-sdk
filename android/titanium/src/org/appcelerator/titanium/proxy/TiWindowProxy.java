@@ -205,6 +205,14 @@ public abstract class TiWindowProxy extends TiViewProxy
 		return allowOrientationChange;
 	}
 	
+	public ActivityProxy getActivity() {
+		return (ActivityProxy) getProperty("activity");
+	}
+	
+	public void setActivity(ActivityProxy activity) {
+		setProperty("activity", activity);
+	}
+	
 	protected abstract void handleOpen(KrollDict options);
 	//public abstract void handlePostOpen(Activity activity);
 	protected abstract void handleClose(KrollDict options);

@@ -30,6 +30,7 @@ public class TiResponseCache extends ResponseCache {
 	private static final String BODY_SUFFIX   = ".bdy";
 	private static final String CACHE_SIZE_KEY = "ti.android.cache.size.max";
 	private static final int    MAX_CACHE_SIZE = 25 * 1024 * 1024; // 25MB
+	private static final String LCAT = "TiResponseCache"; 
 	
 	private static class TiCacheCleanup implements Runnable {
 		private File cacheDir;
@@ -79,41 +80,6 @@ public class TiResponseCache extends ResponseCache {
 		
 	}
 	
-	private static class TiCacheBodyOutputStream extends FileOutputStream {
-		private File   hFile;
-		private File   bFile;
-		private String headers;
-		public TiCacheBodyOutputStream(File bFile, File hFile, String headers) throws IOException {
-			super(bFile);
-			this.bFile   = bFile;
-			this.hFile   = hFile;
-			this.headers = headers;
-		}
-
-		@Override
-		public void close() throws IOException {
-			super.close();
-
-			if (!hFile.createNewFile()) {
-				this.abort();
-				return;
-			}
-			
-			// Write out the headers
-			FileWriter wrtr = new FileWriter(hFile);
-			wrtr.write(headers);
-			wrtr.close();
-		}
-		
-		public void abort() throws IOException {
-			try {
-				super.close();
-			} finally {
-				bFile.delete();
-			}
-		}
-	}
-	
 	private static class TiCacheResponse extends CacheResponse {
 		private Map<String, List<String>> headers;
 		private InputStream               istream;
@@ -135,22 +101,42 @@ public class TiResponseCache extends ResponseCache {
 	}
 	
 	private static class TiCacheRequest extends CacheRequest {
-		private TiCacheBodyOutputStream ostream;
-		public TiCacheRequest(TiCacheBodyOutputStream ostream) {
+		private File    hFile;
+		private File    bFile;
+		private String  headers;
+		private long    contentLength;
+		public TiCacheRequest(File bFile, File hFile, String headers, long contentLength) {
 			super();
-			this.ostream = ostream;
+			this.bFile   = bFile;
+			this.hFile   = hFile;
+			this.headers = headers;
+			this.contentLength = contentLength;
 		}
 
 		@Override
 		public OutputStream getBody() throws IOException {
-			return ostream;
+			return new FileOutputStream(bFile);
 		}
 
 		@Override
 		public void abort() {
+			// Only truly abort if we didn't write the whole length
+			// This works around a bug where Android calls abort()
+			// whenever the file is closed, successful writes or not
 			try {
-				ostream.abort();
-			} catch (IOException e) {}
+				if (bFile.length() != this.contentLength) {
+					throw new IOException("Invalid file length!");
+				} else {
+					// Write out the headers
+					FileWriter wrtr = new FileWriter(hFile);
+					try     {  wrtr.write(headers); }
+					finally {  wrtr.close();        }
+				}
+			} catch (IOException e) {
+				Log.e(LCAT, "Failed to add item to the cache!");
+				if (bFile.exists()) bFile.delete();
+				if (hFile.exists()) hFile.delete();
+			}
 		}
 	}
 	
@@ -174,7 +160,7 @@ public class TiResponseCache extends ResponseCache {
 		File hFile = new File(cacheDir, hash + HEADER_SUFFIX);
 		File bFile = new File(cacheDir, hash + BODY_SUFFIX);
 		
-		if (!bFile.exists()) {
+		if (!bFile.exists() || !hFile.exists()) {
 			return null;
 		}
 
@@ -218,8 +204,7 @@ public class TiResponseCache extends ResponseCache {
 				sb.append(newl);
 			}
 		}
-		contentLength += sb.length();
-		if (contentLength > MAX_CACHE_SIZE) {
+		if (contentLength + sb.length() > MAX_CACHE_SIZE) {
 			return null;
 		}
 		
@@ -237,14 +222,14 @@ public class TiResponseCache extends ResponseCache {
 
 		// Cleanup asynchronously
 		int cacheSize = TiApplication.getInstance().getSystemProperties().getInt(CACHE_SIZE_KEY, MAX_CACHE_SIZE);
-		TiBackgroundExecutor.execute(new TiCacheCleanup(cacheDir, cacheSize, hFile, contentLength));
+		TiBackgroundExecutor.execute(new TiCacheCleanup(cacheDir, cacheSize, hFile, contentLength + sb.length()));
 		
 		synchronized (this) {
 			// Don't add it to the cache if its already being written
-			if (!hFile.createNewFile()) {
+			if (!bFile.createNewFile()) {
 				return null;
 			}
-			return new TiCacheRequest(new TiCacheBodyOutputStream(bFile, hFile, sb.toString()));
+			return new TiCacheRequest(bFile, hFile, sb.toString(), contentLength);
 		}
 	}
 }

@@ -210,6 +210,7 @@ NSString * const TI_DB_VERSION = @"1";
 		if (error != nil) {
 			NSLog(@"[ERROR] Analytics error sending request: %@", [error localizedDescription]);
 			NSLog(@"[ERROR] Will re-queue analytics");
+			[database rollbackTransaction];
 			[self requeueEventsOnTimer];
 			[lock unlock];
 			[pool release];

@@ -148,7 +148,7 @@ class TiAppXML(object):
 				manifest.append(child)
 				self.android_manifest['manifest-attributes'] = node.attributes
 
-		def get_activity_classname(url):
+		def get_url_based_classname(url, appendage):
 			parts = url.split('/')
 			if len(parts) == 0: return None
 			
@@ -167,7 +167,13 @@ class TiAppXML(object):
 			escape_chars = ['\\', '/', ' ', '.', '$', '&', '@']
 			for escape_char in escape_chars:
 				classname = classname.replace(escape_char, '_')
-			return classname+'Activity'
+			return classname+appendage
+
+		def get_activity_classname(url):
+			return get_url_based_classname(url, 'Activity')
+
+		def get_service_classname(url):
+			return get_url_based_classname(url, 'Service')
 
 		def parse_activities(node):
 			activities = lazy_init('activities', {})
@@ -188,13 +194,35 @@ class TiAppXML(object):
 					nodes = activity['nodes']
 					nodes.append(child)
 
+		def parse_services(node):
+			services = lazy_init('services', {})
+			for service_el in node.getElementsByTagName('service'):
+				if service_el.hasAttribute('url'):
+					url = service_el.getAttribute('url')
+				else:
+					url = get_text(service_el)
+				service_type = 'standard'
+				if service_el.hasAttribute('type'):
+					service_type = service_el.getAttribute('type')
+				service = lazy_init(url, {}, services)
+				service['url'] = url
+				service['service_type'] = service_type
+				add_attrs(service, service_el)
+				service['classname'] = get_service_classname(url)
+				for child in service_el.childNodes:
+					if child.nodeType != child.ELEMENT_NODE:
+						continue
+					if 'nodes' not in service:
+						service['nodes'] = []
+					nodes = service['nodes']
+					nodes.append(child)
 
 		def parse_tool_api_level(node):
 			lazy_init('tool-api-level', get_text(node))
 
 
 		local_objects = locals()
-		parse_tags = ['activities', 'manifest', 'tool-api-level']
+		parse_tags = ['services', 'activities', 'manifest', 'tool-api-level']
 		for child in node.childNodes:
 			if child.nodeName in parse_tags:
 				local_objects['parse_'+child.nodeName.replace('-', '_')](child)

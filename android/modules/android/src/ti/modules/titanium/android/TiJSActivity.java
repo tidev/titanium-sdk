@@ -1,5 +1,8 @@
 /**
- * 
+ * Appcelerator Titanium Mobile
+ * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Licensed under the terms of the Apache Public License
+ * Please see the LICENSE included with this distribution for details.
  */
 package ti.modules.titanium.android;
 
@@ -53,6 +56,9 @@ public abstract class TiJSActivity extends TiBaseActivity
 		
 		int lastSlash = url.lastIndexOf('/');
 		String baseUrl = url.substring(0, lastSlash+1);
+		if (baseUrl.length() == 0) {
+			baseUrl = null;
+		}
 		tiContext = TiContext.createTiContext(this, baseUrl);
 
 		TiActivityWindowProxy window = new TiActivityWindowProxy(tiContext);
@@ -84,10 +90,18 @@ public abstract class TiJSActivity extends TiBaseActivity
 	
 	protected void loadActivityScript() {
 		try {
-			if (DBG) {
-				Log.d(LCAT, "Eval JS Activity:" + url);
+			String fullUrl = url;
+			if (!fullUrl.contains("://") && !fullUrl.startsWith("/") && tiContext.getBaseUrl() != null) {
+				fullUrl = tiContext.getBaseUrl() + fullUrl;
 			}
-			tiContext.evalFile(url);
+			if (DBG) {
+				if (url != fullUrl) {
+					Log.d(LCAT, "Eval JS Activity:" + url + " (" + fullUrl+ ")");
+				} else {
+					Log.d(LCAT, "Eval JS Activity:" + url);
+				}
+			}
+			tiContext.evalFile(fullUrl);
 		} catch (IOException e) {
 			e.printStackTrace();
 			finish();

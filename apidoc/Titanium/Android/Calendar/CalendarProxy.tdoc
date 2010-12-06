@@ -50,16 +50,18 @@ id[int]: The integer id of the event to return.
 - method : getEventsInDate, array
 
 year[int]: The year of the desired date.
-month[int]: The month of the desired date.
+month[int]: The month of the desired date.  The month is zero-based, therefore January is 0 and December is 11.
 day[int]: The day for which events should be returned.
 
 - method : getEventsInMonth, array
 
 year[int]: The year of the desired month.
-month[int]: The month for which events should be returned.
+month[int]: The month for which events should be returned.  The month is zero-based, therefore January is 0 and December is 11.
 
 - method : getEventsInYear, array
 
 year[int]: The year for which all events should be returned.
 
-- notes
+- example : Events on December 5, 2015
+
+See `Titanium.Android.Calendar` for examples.

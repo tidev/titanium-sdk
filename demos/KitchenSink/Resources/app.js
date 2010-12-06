@@ -334,7 +334,10 @@ if (isiOS4Plus())
 
 	// fired when an app resumes for suspension
 	Ti.App.addEventListener('resume',function(e){
-		Ti.API.info("app was resumed from the background");
+		Ti.API.info("app is resuming from the background");
+	});
+	Ti.App.addEventListener('resumed',function(e){
+		Ti.API.info("app has resumed from the background");
 	});
 
 	Ti.App.addEventListener('pause',function(e){

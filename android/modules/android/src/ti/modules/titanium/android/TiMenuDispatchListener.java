@@ -1,3 +1,9 @@
+/**
+ * Appcelerator Titanium Mobile
+ * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Licensed under the terms of the Apache Public License
+ * Please see the LICENSE included with this distribution for details.
+ */
 package ti.modules.titanium.android;
 
 import java.util.ArrayList;
@@ -6,6 +12,8 @@ import java.util.HashMap;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.titanium.ITiMenuDispatcherListener;
 import org.appcelerator.titanium.TiContext;
+import org.appcelerator.titanium.proxy.MenuItemProxy;
+import org.appcelerator.titanium.proxy.MenuProxy;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiFileHelper;
 

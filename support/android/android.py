@@ -143,6 +143,17 @@ class Android(object):
 			
 			self.render(template_dir, 'JSActivity.java', app_package_dir, activity['classname']+'.java', activity=activity)
 	
+	def generate_services(self, app_package_dir):
+		if not 'services' in self.tiapp.android: return
+		for key in self.tiapp.android['services'].keys():
+			service = self.tiapp.android['services'][key]
+			service_type = service['service_type']
+			print '[DEBUG] generating service type "%s", class "%s"' %(service_type, service['classname'])
+			if service_type == 'interval':
+				self.render(template_dir, 'JSIntervalService.java', app_package_dir, service['classname']+'.java', service=service)
+			else:
+				self.render(template_dir, 'JSService.java', app_package_dir, service['classname']+'.java', service=service)
+
 	def build_modules_info(self, resources_dir, app_bin_dir):
 		self.app_modules = []
 		(modules, external_child_modules) = bindings.get_all_module_bindings()
@@ -250,6 +261,7 @@ class Android(object):
 			app_modules = self.app_modules, custom_modules = self.custom_modules)
 		self.render(template_dir, 'Activity.java', app_package_dir, self.config['classname'] + 'Activity.java')
 		self.generate_activities(app_package_dir)
+		self.generate_services(app_package_dir)
 		self.render(template_dir, 'classpath', app_dir, '.classpath')
 		self.render(template_dir, 'project', app_dir, '.project')
 		self.render(template_dir, 'default.properties', app_dir, 'default.properties')

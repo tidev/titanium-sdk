@@ -36,9 +36,10 @@ import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Scriptable;
 
 import android.app.Activity;
+import android.app.Service;
 
 @Kroll.module @Kroll.topLevel({"Ti", "Titanium"})
-public class TitaniumModule extends KrollModule implements TiContext.OnLifecycleEvent
+public class TitaniumModule extends KrollModule implements TiContext.OnLifecycleEvent, TiContext.OnServiceLifecycleEvent
 {
 	private static final String LCAT = "TitaniumModule";
 	private Stack<String> basePath;
@@ -49,8 +50,11 @@ public class TitaniumModule extends KrollModule implements TiContext.OnLifecycle
 		super(tiContext);
 		basePath = new Stack<String>();
 		basePath.push(tiContext.getBaseUrl());
-		
-		tiContext.addOnLifecycleEventListener(this);
+		if (tiContext.isServiceContext()) {
+			tiContext.addOnServiceLifecycleEventListener(this);
+		} else {
+			tiContext.addOnLifecycleEventListener(this);
+		}
 	}
 	
 	@Kroll.getProperty @Kroll.method
@@ -170,6 +174,10 @@ public class TitaniumModule extends KrollModule implements TiContext.OnLifecycle
 	public void alert(KrollInvocation invocation, Object message) {
 		String msg = (message == null? null : message.toString());
 		Log.i("ALERT", msg);
+		if (invocation.getTiContext().isServiceContext()) {
+			Log.w(LCAT, "alert() called inside service -- no attempt will be made to display it to user interface.");
+			return;
+		}
 		TiUIHelper.doOkDialog(invocation.getTiContext().getActivity(), "Alert", msg, null);
 	}
 	
@@ -276,7 +284,7 @@ public class TitaniumModule extends KrollModule implements TiContext.OnLifecycle
 	{
 		String key = (String) args[0];
 		try {
-			return invocation.getTiContext().getActivity().getString(TiRHelper.getResource("string." + key));
+			return invocation.getTiContext().getAndroidContext().getString(TiRHelper.getResource("string." + key));
 		}
 		catch (TiRHelper.ResourceNotFoundException e) {
 			return args.length > 1 ? (String) args[1] : null;
@@ -365,5 +373,11 @@ public class TitaniumModule extends KrollModule implements TiContext.OnLifecycle
 	public void onStop(Activity activity) {
 		cancelTimers();
 		super.onStop(activity);
+	}
+
+	@Override
+	public void onDestroy(Service service)
+	{
+		cancelTimers();
 	}
 }

@@ -178,6 +178,8 @@
 
 +(BOOL)isIOS4OrGreater;
 
++(BOOL)isIOS4_2OrGreater;
+
 +(BOOL)isIPhone4;
 
 +(BOOL)isRetinaDisplay;
