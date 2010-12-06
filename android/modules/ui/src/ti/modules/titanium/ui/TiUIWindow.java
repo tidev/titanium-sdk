@@ -261,16 +261,24 @@ public class TiUIWindow extends TiUIView
 			}
 			
 			TiContext tiContext = null;
-			Activity activity = null;
-			if (lightWeight) {
-				activity = proxy.getTiContext().getActivity();
+			ActivityProxy activityProxy = null;
+			if (lightWeight) {			
+				Activity activity = proxy.getTiContext().getActivity();
 				tiContext = TiContext.createTiContext(activity, baseUrl);
 			} else {
-				activity = windowActivity;
 				tiContext = TiContext.createTiContext(windowActivity, baseUrl);
 			}
 			
-			TiBindingHelper.bindCurrentWindowAndActivity(tiContext, proxy, activity);
+			if (windowActivity instanceof TiBaseActivity) {
+				TiBaseActivity tiActivity = (TiBaseActivity)windowActivity;
+				activityProxy = (ActivityProxy) ((TiWindowProxy) proxy).getProperty("activity");
+				if (activityProxy == null) {
+					activityProxy = new ActivityProxy(proxy.getTiContext(), tiActivity);
+					((TiWindowProxy) proxy).setActivity(activityProxy);
+				}
+			}
+
+			TiBindingHelper.bindCurrentWindowAndActivity(tiContext, proxy, activityProxy);
 			
 			final TiContext ftiContext = tiContext;
 			final String furl = url;
@@ -280,9 +288,8 @@ public class TiUIWindow extends TiUIView
 				public void run() {
 					try {
 						createdContext = new WeakReference<TiContext>(proxy.switchContext(ftiContext));
-						if (!lightWeight && windowActivity instanceof TiBaseActivity) {
-							TiBaseActivity tiActivity = (TiBaseActivity)windowActivity;
-							tiActivity.setWindowProxy((TiWindowProxy)proxy);
+						if (!lightWeight) {
+							bindProxies();
 						}
 						Messenger m = new Messenger(handler);
 						ftiContext.evalFile(furl, m, MSG_BOOTED);
@@ -293,13 +300,31 @@ public class TiUIWindow extends TiUIView
 		} else if (!lightWeight) {
 			TiContext tiContext = TiContext.createTiContext(windowActivity, proxy.getTiContext().getBaseUrl());
 			createdContext = new WeakReference<TiContext>(proxy.switchContext(tiContext));
+			ActivityProxy activityProxy = null;
+			
 			if (windowActivity instanceof TiBaseActivity) {
 				TiBaseActivity tiActivity = (TiBaseActivity)windowActivity;
-				tiActivity.setWindowProxy((TiWindowProxy)proxy);
+				activityProxy = (ActivityProxy) ((TiWindowProxy) proxy).getProperty("activity");
+				if (activityProxy == null) {
+					activityProxy = new ActivityProxy(proxy.getTiContext(), tiActivity);
+					((TiWindowProxy) proxy).setActivity(activityProxy);
+				}
 			}
+
+			bindProxies();
 			handleBooted();
 		} else {
 			handleBooted();
+		}
+	}
+	
+	private void bindProxies() 
+	{
+		if (windowActivity instanceof TiBaseActivity) {
+			TiBaseActivity tiActivity = (TiBaseActivity)windowActivity;
+			TiWindowProxy windowProxy = (TiWindowProxy)proxy;
+			tiActivity.setActivityProxy(windowProxy.getActivity());
+			tiActivity.setWindowProxy(windowProxy);
 		}
 	}
 
