@@ -2,9 +2,13 @@ package org.appcelerator.titanium;
 
 import java.lang.ref.SoftReference;
 import java.lang.ref.WeakReference;
+import java.util.HashMap;
 
 import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.titanium.kroll.KrollCallback;
 import org.appcelerator.titanium.proxy.ActivityProxy;
+import org.appcelerator.titanium.proxy.MenuItemProxy;
+import org.appcelerator.titanium.proxy.MenuProxy;
 import org.appcelerator.titanium.proxy.TiWindowProxy;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiActivityResultHandler;
@@ -27,12 +31,10 @@ import android.os.Handler;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
-import android.view.Display;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.OrientationEventListener;
-import android.view.Surface;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -54,6 +56,7 @@ public class TiBaseActivity extends Activity
 	protected OrientationEventListener orientationListener;
 	protected int orientationDegrees;
 	protected int orientationOverride = -1;
+	protected MenuProxy menuProxy;
 	
 	public static interface ConfigurationChangedListener {
 		public void onConfigurationChanged(TiBaseActivity activity, Configuration newConfig);
@@ -371,35 +374,81 @@ public class TiBaseActivity extends Activity
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu)
 	{
-		if (softMenuDispatcher != null) {
-			ITiMenuDispatcherListener dispatcher = softMenuDispatcher.get();
-			if (dispatcher != null) {
-				return dispatcher.dispatchHasMenu();
+		boolean created = super.onCreateOptionsMenu(menu);
+		
+		KrollCallback ocom = (KrollCallback) activityProxy.getProperty("onCreateOptionsMenu");
+		KrollCallback opom = (KrollCallback) activityProxy.getProperty("onPrepareOptionsMenu");
+		 
+		// If a callback exists then return true. There is no need for the Ti Developer to support
+		// both methods.
+		if (ocom != null || opom != null) {
+			if (ocom != null) {
+				KrollDict d = new KrollDict();
+				Object[] args = { d };
+				
+				if (menuProxy != null) {
+					if (!menuProxy.getMenu().equals(menu)) {
+						menuProxy.setMenu(menu);
+					}
+				} else {
+					menuProxy = new MenuProxy(activityProxy.getTiContext(), menu);
+				}
+				d.put("menu", menuProxy);
+				
+				ocom.call(args);
 			}
+			
+			created = true;
 		}
-		return super.onCreateOptionsMenu(menu);
+		
+		return created;
 	}
 
 	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		if (softMenuDispatcher != null) {
-			ITiMenuDispatcherListener dispatcher = softMenuDispatcher.get();
-			if (dispatcher != null) {
-				return dispatcher.dispatchMenuItemSelected(item);
+	public boolean onOptionsItemSelected(MenuItem item) 
+	{
+			MenuItemProxy mip = menuProxy.findItem(item);
+			if (mip != null) {
+				mip.fireEvent("click", null);
+				return true;
 			}
-		}
-		return super.onOptionsItemSelected(item);
+			return false;
+//		if (softMenuDispatcher != null) {
+//			ITiMenuDispatcherListener dispatcher = softMenuDispatcher.get();
+//			if (dispatcher != null) {
+//				return dispatcher.dispatchMenuItemSelected(item);
+//			}
+//		}
+//		return super.onOptionsItemSelected(item);
 	}
 
 	@Override
-	public boolean onPrepareOptionsMenu(Menu menu) {
-		if (softMenuDispatcher != null) {
-			ITiMenuDispatcherListener dispatcher = softMenuDispatcher.get();
-			if (dispatcher != null) {
-				return dispatcher.dispatchPrepareMenu(menu);
+	public boolean onPrepareOptionsMenu(Menu menu) 
+	{
+		boolean prepared = super.onPrepareOptionsMenu(menu);
+		
+		KrollCallback opom = (KrollCallback) activityProxy.getProperty("onPrepareOptionsMenu");
+		 
+		// If a callback exists then return true. There is no need for the Ti Developer to support
+		// both methods.
+		if (opom != null) {
+			KrollDict d = new KrollDict();
+			Object[] args = { d };
+			
+			if (menuProxy != null) {
+				if (!menuProxy.getMenu().equals(menu)) {
+					menuProxy.setMenu(menu);
+				}
+			} else {
+				menuProxy = new MenuProxy(activityProxy.getTiContext(), menu);
 			}
-		}
-		return super.onPrepareOptionsMenu(menu);
+			d.put("menu", menuProxy);
+			
+			opom.call(args);
+		}			
+		prepared = true;
+
+		return prepared;
 	}
 	
 	public int getOrientationDegrees() {
@@ -521,6 +570,9 @@ public class TiBaseActivity extends Activity
 	@Override
 	protected void onDestroy() {
 		super.onDestroy();
+		if (orientationListener != null) {
+			orientationListener.disable();
+		}
 		if (layout != null) {
 			Log.e(TAG, "Layout cleanup.");
 			layout.removeAllViews();
@@ -531,13 +583,14 @@ public class TiBaseActivity extends Activity
 			window.closeFromActivity();
 			window = null;
 		}
+		if (menuProxy != null) {
+			menuProxy.release();
+			menuProxy = null;
+		}
 		if (activityProxy != null) {
 			activityProxy.fireEvent("destroy", null);
 			activityProxy.release();
 			activityProxy = null;
-		}
-		if (orientationListener != null) {
-			orientationListener.disable();
 		}
 		handler = null;
 	}
