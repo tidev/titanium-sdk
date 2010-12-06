@@ -12,6 +12,8 @@ import java.util.HashMap;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.titanium.ITiMenuDispatcherListener;
 import org.appcelerator.titanium.TiContext;
+import org.appcelerator.titanium.proxy.MenuItemProxy;
+import org.appcelerator.titanium.proxy.MenuProxy;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiFileHelper;
 

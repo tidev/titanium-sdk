@@ -91,7 +91,7 @@ public abstract class TiJSActivity extends TiBaseActivity
 	protected void loadActivityScript() {
 		try {
 			String fullUrl = url;
-			if (!fullUrl.contains("://") && !fullUrl.startsWith("/")) {
+			if (!fullUrl.contains("://") && !fullUrl.startsWith("/") && tiContext.getBaseUrl() != null) {
 				fullUrl = tiContext.getBaseUrl() + fullUrl;
 			}
 			if (DBG) {

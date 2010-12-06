@@ -218,5 +218,14 @@ public class IntentProxy extends KrollProxy
 	public void setForService(boolean value) {
 		forService = value;
 	}
+	
+	@Kroll.method
+	public boolean hasExtra(String name)
+	{
+		if (intent != null) {
+			return intent.hasExtra(name);
+		}
+		return false;
+	}
 
 }

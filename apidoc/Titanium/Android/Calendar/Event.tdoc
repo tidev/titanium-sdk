@@ -31,12 +31,9 @@ hasAlarm[boolean]: Whether an alarm is scheduled for the event.
 hasExtendedProperties[boolean]: 
 status[int]: The status of the event.  Possible values are the STATUS constants in `Titanium.Android.Calendar`.
 visibility[int]: The event's visibility.  Possible values are the VISIBILITY constants in `Titanium.Android.Calendar`.
-recurrenceRule[string]: 
-recurrenceDate[string]: 
-recurrenceExceptionRule[string]:
-recurrenceExceptionDate[string]:
-lastDate[date]: The final date of a recurring event.
 extendedProperties[object]: An object containing extended properties of the event.
+reminders[array]: An array of `Titanium.Android.Calendar.Reminder` objects which are the reminders - if any - for this event.
+alerts[array]: An array of `Titanium.Android.Calendar.Alert` objects which are the alerts - if any - for this event.
 
 - methods
 
@@ -64,3 +61,11 @@ name[string]: The name of the extended property whose value should be returned.
 
 name[string]: The name of the extended property whose value should be set.
 value[string]: The value to which to set the named extended property.
+
+- notes
+
+The API supports retrieving information about existing events and creating new events.  However, modifying or deleting existing events is not yet supported.  Additionally, recurring events are not yet supported.
+
+- example : Event API
+
+See `Titanium.Android.Calendar` for examples of retrieving event information and creating events.
