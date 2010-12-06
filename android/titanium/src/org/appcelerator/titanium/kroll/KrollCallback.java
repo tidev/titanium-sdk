@@ -39,9 +39,8 @@ public class KrollCallback extends KrollMethod implements KrollConvertable
 		this.thisObj = thisObj;
 		this.method = method;
 	}
-	
-	public boolean isWithinTiContext(TiContext context)
-	{
+
+	public boolean isWithinTiContext(TiContext context) {
 		if (kroll != null) {
 			TiContext krollTiContext = kroll.getTiContext();
 			if (krollTiContext != null) {
@@ -51,16 +50,7 @@ public class KrollCallback extends KrollMethod implements KrollConvertable
 		return false;
 	}
 
-	public void call()
-	{
-		call(new Object[0]);
-	}
-
-	public void call(KrollDict properties) {
-		call(new Object[] { properties });
-	}
-	
-	public void call(Object[] args) {
+	protected KrollInvocation createInvocation() {
 		String methodName = "(anonymous)";
 		Object methodNameObject = method.get("name", method);
 		if (methodNameObject != null && methodNameObject instanceof String) {
@@ -69,56 +59,90 @@ public class KrollCallback extends KrollMethod implements KrollConvertable
 				methodName = m;
 			}
 		}
-		
-		KrollInvocation inv = KrollInvocation.createMethodInvocation(kroll == null ? TiContext.getCurrentTiContext() : kroll.getTiContext(),
+		KrollInvocation inv = KrollInvocation.createMethodInvocation(
+			kroll == null ? TiContext.getCurrentTiContext() : kroll.getTiContext(),
 			scope, thisObj, methodName, this, (thisObj instanceof KrollObject) ? ((KrollObject)thisObj).getProxy() : null);
-		
-		invoke(inv, args);
+		return inv;
 	}
 	
-	@Override
-	public Object invoke(final KrollInvocation invocation, Object[] args) {
-		if (args == null) args = new Object[0];
-		final Object[] fArgs = args;
+	public void callAsync() {
+		callAsync(new Object[0]);
+	}
+
+	public void callAsync(KrollDict properties) {
+		callAsync(new Object[] { properties });
+	}
+
+	public void callAsync(Object[] args) {
+		callAsync(createInvocation(), args);
+	}
+	public void callSync(KrollDict properties) {
+		callSync(new Object[] { properties });
+	}
+
+	public void callSync() {
+		callSync(new Object[0]);
+	}
+
+	public void callSync(Object[] args) {
+		callSync(createInvocation(), args);
+	}
+
+	protected KrollContext getKrollContext(KrollInvocation invocation) {
 		KrollContext kroll = invocation.getTiContext().getKrollContext();
 		if (kroll == null) {
 			kroll = this.kroll;
 		}
-		final KrollContext fKroll = kroll;
-		fKroll.post(new Runnable(){
-			public void run() {
-				Context ctx = fKroll.enter();
+		return kroll;
+	}
 
-				try {
-					Object[] jsArgs = new Object[fArgs.length];
-					for (int i = 0; i < fArgs.length; i++) {
-						Object jsArg = KrollConverter.getInstance().convertNative(invocation, fArgs[i]);
-						jsArgs[i] = jsArg;
-					}
-					method.call(ctx, scope, thisObj, jsArgs);
-				} catch (EcmaError e) {
-					Log.e(LCAT, "ECMA Error evaluating source, invocation: " + invocation + ", message: "+ e.getMessage(), e);
-					Context.reportRuntimeError(e.getMessage(), e.sourceName(), e.lineNumber(), e.lineSource(), e.columnNumber());
-				} catch (EvaluatorException e) {
-					Log.e(LCAT, "Error evaluating source, invocation: " + invocation + ", message: " + e.getMessage(), e);
-					Context.reportRuntimeError(e.getMessage(), e.sourceName(), e.lineNumber(), e.lineSource(), e.columnNumber());
-				} catch (Exception e) {
-					Log.e(LCAT, "Error, invocation: " + invocation + ", message: " + e.getMessage(), e);
-					Context.throwAsScriptRuntimeEx(e);
-				} catch (Throwable e) {
-					Log.e(LCAT, "Unhandled throwable, invocation:" + invocation + ", message: " + e.getMessage(), e);
-					Context.throwAsScriptRuntimeEx(e);
-				} finally {
-					fKroll.exit();
-				}
+	public Object callSync(KrollInvocation invocation, Object[] args) {
+		if (args == null) args = new Object[0];
+		KrollContext kroll = getKrollContext(invocation);
+		Context ctx = kroll.enter();
+		try {
+			Object[] jsArgs = new Object[args.length];
+			for (int i = 0; i < args.length; i++) {
+				Object jsArg = KrollConverter.getInstance().convertNative(invocation, args[i]);
+				jsArgs[i] = jsArg;
+			}
+			return KrollConverter.getInstance().convertJavascript(invocation,
+				method.call(ctx, scope, thisObj, jsArgs), Object.class);
+		} catch (EcmaError e) {
+			Log.e(LCAT, "ECMA Error evaluating source, invocation: " + invocation + ", message: "+ e.getMessage(), e);
+			Context.reportRuntimeError(e.getMessage(), e.sourceName(), e.lineNumber(), e.lineSource(), e.columnNumber());
+		} catch (EvaluatorException e) {
+			Log.e(LCAT, "Error evaluating source, invocation: " + invocation + ", message: " + e.getMessage(), e);
+			Context.reportRuntimeError(e.getMessage(), e.sourceName(), e.lineNumber(), e.lineSource(), e.columnNumber());
+		} catch (Exception e) {
+			Log.e(LCAT, "Error, invocation: " + invocation + ", message: " + e.getMessage(), e);
+			Context.throwAsScriptRuntimeEx(e);
+		} catch (Throwable e) {
+			Log.e(LCAT, "Unhandled throwable, invocation:" + invocation + ", message: " + e.getMessage(), e);
+			Context.throwAsScriptRuntimeEx(e);
+		} finally {
+			kroll.exit();
+		}
+		return KrollProxy.UNDEFINED;
+	}
+
+	public void callAsync(final KrollInvocation invocation, final Object[] args) {
+		KrollContext kroll = getKrollContext(invocation);
+		kroll.post(new Runnable() {
+			public void run() {
+				callSync(invocation, args);
 			}
 		});
+	}
+
+	@Override
+	public Object invoke(KrollInvocation invocation, Object[] args) {
+		callAsync(invocation, args);
 		return KrollProxy.UNDEFINED;
 	}
 
 	@Override
-	public boolean equals(Object obj)
-	{
+	public boolean equals(Object obj) {
 		if (!(obj instanceof KrollCallback)) {
 			return false;
 		}
@@ -126,27 +150,27 @@ public class KrollCallback extends KrollMethod implements KrollConvertable
 		KrollCallback kb = (KrollCallback) obj;
 		return method.equals(kb.method);
 	}
-	
+
 	public Object toJSFunction() {
 		return Context.javaToJS(method, kroll.getScope());
 	}
-	
+
 	public Function getMethod() {
 		return method;
 	}
-	
+
 	public void setThisObj(Scriptable thisObj) {
 		this.thisObj = thisObj;
 	}
-	
+
 	public void setThisProxy(KrollProxy proxy) {
 		setThisObj(new KrollObject(proxy));
 	}
-	
+
 	public Object getJavascriptValue() {
 		return toJSFunction();
 	}
-	
+
 	public Object getNativeValue() {
 		return this;
 	}

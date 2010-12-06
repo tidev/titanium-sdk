@@ -301,7 +301,7 @@ public class TiHTTPClient
 				o.put("blob", blob);
 				o.put("progress", ((double)totalSize)/((double)contentLength));
 
-				onDataStreamCallback.call(o);
+				onDataStreamCallback.callAsync(o);
 			}
 		}
 		
@@ -465,7 +465,7 @@ public class TiHTTPClient
 		if (cb != null)
 		{
 			cb.setThisProxy(proxy);
-			cb.call(args);
+			cb.callAsync(args);
 		}
 	}
 

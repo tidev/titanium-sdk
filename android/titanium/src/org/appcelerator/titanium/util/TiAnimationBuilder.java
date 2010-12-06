@@ -344,7 +344,7 @@ public class TiAnimationBuilder
 				applyOpacity = false;
 			}
 			if (callback != null) {
-				callback.call();
+				callback.callAsync();
 			}
 			if (animationProxy != null) {
 				animationProxy.fireEvent("complete", null);

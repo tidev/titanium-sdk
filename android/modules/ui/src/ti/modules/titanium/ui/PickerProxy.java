@@ -456,7 +456,7 @@ public class PickerProxy extends TiViewProxy
 						KrollDict data = new KrollDict();
 						data.put("cancel", false);
 						data.put("value", value);
-						callback.call(new Object[]{ data });
+						callback.callAsync(new Object[]{ data });
 					}
 					
 				}
@@ -473,7 +473,7 @@ public class PickerProxy extends TiViewProxy
 						KrollDict data = new KrollDict();
 						data.put("cancel", true);
 						data.put("value", null);
-						callback.call(new Object[]{ data });
+						callback.callAsync(new Object[]{ data });
 					}
 				}
 			};
@@ -556,7 +556,7 @@ public class PickerProxy extends TiViewProxy
 						KrollDict data = new KrollDict();
 						data.put("cancel", false);
 						data.put("value", value);
-						callback.call(new Object[]{ data });
+						callback.callAsync(new Object[]{ data });
 					}
 					
 				}
@@ -572,7 +572,7 @@ public class PickerProxy extends TiViewProxy
 						KrollDict data = new KrollDict();
 						data.put("cancel", true);
 						data.put("value", null);
-						callback.call(new Object[]{ data });
+						callback.callAsync(new Object[]{ data });
 					}
 				}
 			};

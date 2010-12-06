@@ -123,7 +123,7 @@ public class MediaModule extends KrollModule
 				camera.release();
 			}
 			if (errorCallback != null) {
-				errorCallback.call(createErrorResponse(NO_CAMERA, "Camera not available."));
+				errorCallback.callAsync(createErrorResponse(NO_CAMERA, "Camera not available."));
 			}
 			return;
 		}
@@ -166,7 +166,7 @@ public class MediaModule extends KrollModule
 		} catch (IOException e) {
 			Log.e(LCAT, "Unable to create temp file", e);
 			if (errorCallback != null) {
-				errorCallback.call(createErrorResponse(UNKNOWN_ERROR, e.getMessage()));
+				errorCallback.callAsync(createErrorResponse(UNKNOWN_ERROR, e.getMessage()));
 			}
 			return;
 		}
@@ -213,7 +213,7 @@ public class MediaModule extends KrollModule
 							finalImageFile.delete();
 						}
 						if (fCancelCallback != null) {
-							fCancelCallback.call();
+							fCancelCallback.callAsync();
 						}
 					} else {
 						if (data == null) {
@@ -235,13 +235,13 @@ public class MediaModule extends KrollModule
 	
 							try {
 								if (fSuccessCallback != null) {
-									fSuccessCallback.call(createDictForImage(imageUri.toString(), "image/jpeg"));
+									fSuccessCallback.callAsync(createDictForImage(imageUri.toString(), "image/jpeg"));
 								}
 							} catch (OutOfMemoryError e) {
 								String msg = "Not enough memory to get image: " + e.getMessage();
 								Log.e(LCAT, msg);
 								if (fErrorCallback != null) {
-									fErrorCallback.call(createErrorResponse(UNKNOWN_ERROR, msg));
+									fErrorCallback.callAsync(createErrorResponse(UNKNOWN_ERROR, msg));
 								}
 							}
 						} else {
@@ -340,13 +340,13 @@ public class MediaModule extends KrollModule
 							
 							try {
 								if (fSuccessCallback != null) {
-									fSuccessCallback.call(createDictForImage(localImageUrl, "image/jpeg"));
+									fSuccessCallback.callAsync(createDictForImage(localImageUrl, "image/jpeg"));
 								}
 							} catch (OutOfMemoryError e) {
 								String msg = "Not enough memory to get image: " + e.getMessage();
 								Log.e(LCAT, msg);
 								if (fErrorCallback != null) {
-									fErrorCallback.call(createErrorResponse(UNKNOWN_ERROR, msg));
+									fErrorCallback.callAsync(createErrorResponse(UNKNOWN_ERROR, msg));
 								}
 							}
 						}
@@ -360,7 +360,7 @@ public class MediaModule extends KrollModule
 					String msg = "Camera problem: " + e.getMessage();
 					Log.e(LCAT, msg, e);
 					if (fErrorCallback != null) {
-						fErrorCallback.call(createErrorResponse(UNKNOWN_ERROR, msg));
+						fErrorCallback.callAsync(createErrorResponse(UNKNOWN_ERROR, msg));
 					}
 				}
 			});
@@ -409,19 +409,19 @@ public class MediaModule extends KrollModule
 					Log.e(LCAT, "OnResult called: " + resultCode);
 					if (resultCode == Activity.RESULT_CANCELED) {
 						if (fCancelCallback != null) {
-							fCancelCallback.call();
+							fCancelCallback.callAsync();
 						}
 					} else {
 						String path = data.getDataString();
 						try {
 							if (fSuccessCallback != null) {
-								fSuccessCallback.call(createDictForImage(path, "image/jpeg"));
+								fSuccessCallback.callAsync(createDictForImage(path, "image/jpeg"));
 							}
 						} catch (OutOfMemoryError e) {
 							String msg = "Not enough memory to get image: " + e.getMessage();
 							Log.e(LCAT, msg);
 							if (fErrorCallback != null) {
-								fErrorCallback.call(createErrorResponse(UNKNOWN_ERROR, msg));
+								fErrorCallback.callAsync(createErrorResponse(UNKNOWN_ERROR, msg));
 							}
 						}
 					}
@@ -432,7 +432,7 @@ public class MediaModule extends KrollModule
 					String msg = "Gallery problem: " + e.getMessage();
 					Log.e(LCAT, msg, e);
 					if (fErrorCallback != null) {
-						fErrorCallback.call(createErrorResponse(UNKNOWN_ERROR, msg));
+						fErrorCallback.callAsync(createErrorResponse(UNKNOWN_ERROR, msg));
 					}
 				}
 			});
@@ -525,7 +525,7 @@ public class MediaModule extends KrollModule
 
 		if (image == null) {
 			if (errorCallback != null) {
-				errorCallback.call(createErrorResponse(UNKNOWN_ERROR, "Missing image property"));
+				errorCallback.callAsync(createErrorResponse(UNKNOWN_ERROR, "Missing image property"));
 			}
 		}
 
@@ -555,7 +555,7 @@ public class MediaModule extends KrollModule
 				{
 					Log.e(LCAT, "OnResult called: " + resultCode);
 					if (fSuccessCallback != null) {
-						fSuccessCallback.call();
+						fSuccessCallback.callAsync();
 					}
 				}
 
@@ -564,7 +564,7 @@ public class MediaModule extends KrollModule
 					String msg = "Gallery problem: " + e.getMessage();
 					Log.e(LCAT, msg, e);
 					if (fErrorCallback != null) {
-						fErrorCallback.call(createErrorResponse(UNKNOWN_ERROR, msg));
+						fErrorCallback.callAsync(createErrorResponse(UNKNOWN_ERROR, msg));
 					}
 				}
 			});
@@ -586,7 +586,7 @@ public class MediaModule extends KrollModule
 
 		KrollDict image = TiUIHelper.viewToImage(getTiContext(), w.getDecorView());
 		if (callback != null && image != null) {
-			callback.call(new Object[] { image });
+			callback.callAsync(new Object[] { image });
 		}
 	}
 }
