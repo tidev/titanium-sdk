@@ -35,6 +35,7 @@ typedef enum {
 	long long uploadLength;
 	BOOL validatesSecureCertificate;
     NSNumber* timeout;
+	NSMutableDictionary* cookies;
 	
 	// callbacks
 	KrollCallback *onload;

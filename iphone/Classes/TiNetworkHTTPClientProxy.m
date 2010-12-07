@@ -103,6 +103,7 @@ extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 	{
 		readyState = NetworkClientStateUnsent;
 		validatesSecureCertificate = NO;
+		cookies = [[NSMutableDictionary alloc] init];
 	}
 	return self;
 }
@@ -120,6 +121,7 @@ extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 	RELEASE_TO_NIL(ondatastream);
 	RELEASE_TO_NIL(onsendstream);
 	RELEASE_TO_NIL(request);
+	RELEASE_TO_NIL(cookies);
 	[super _destroy];
 }
 
@@ -365,8 +367,27 @@ extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 		{
 			[self throwException:@"invalid arguments for setting cookie. value should be in the format 'name=value'" subreason:nil location:CODELOCATION];
 		}
-		NSHTTPCookie *cookie = [NSHTTPCookie cookieWithProperties:[NSDictionary dictionaryWithObjectsAndKeys:[tok objectAtIndex:0],NSHTTPCookieName,[tok objectAtIndex:1],NSHTTPCookieValue,@"/",NSHTTPCookiePath,[url host],NSHTTPCookieDomain,url,NSHTTPCookieOriginURL,nil]];
-		[[request requestCookies] addObject:cookie];
+		NSString* name = [tok objectAtIndex:0];
+		id cookieValue = [tok objectAtIndex:1];
+		NSHTTPCookie *currentCookie = [cookies objectForKey:name];
+		if (currentCookie != nil) {
+			// We're replacing a cookie value
+			if (cookieValue != nil) {
+				[[request requestCookies] removeObject:cookieValue];
+			}
+			// We're removing a cookie value
+			else {
+				[[request requestCookies] removeObject:cookieValue];
+				[cookies removeObjectForKey:name];
+			}
+		}
+
+		// Ignore 'nil' cookies for now; maybe we should interpret them as the empty string?
+		if (cookieValue != nil) {
+			NSHTTPCookie *cookie = [NSHTTPCookie cookieWithProperties:[NSDictionary dictionaryWithObjectsAndKeys:name,NSHTTPCookieName,cookieValue,NSHTTPCookieValue,@"/",NSHTTPCookiePath,[url host],NSHTTPCookieDomain,url,NSHTTPCookieOriginURL,nil]];
+			[cookies setValue:cookie forKey:name];
+			[[request requestCookies] addObject:cookie];
+		}
 	}
 	else 
 	{
