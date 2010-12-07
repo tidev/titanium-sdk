@@ -12,13 +12,10 @@ public class TiFileHelper2
 		return joinSegments("Resources", path);
 	}
 
-	public static String joinSegments(String... segments)
-	{
+	public static String joinSegments(String... segments) {
 		if (segments.length > 0) {
 			String s1 = segments[0];
-
-			for(int i = 1; i < segments.length; i++)
-			{
+			for(int i = 1; i < segments.length; i++) {
 				String s2 = segments[i];
 				if (s1.endsWith("/")) {
 					if (s2.startsWith("/")) {
@@ -34,7 +31,6 @@ public class TiFileHelper2
 					}
 				}
 			}
-
 			return s1;
 		} else {
 			return "";

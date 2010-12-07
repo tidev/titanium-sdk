@@ -18,22 +18,19 @@ import android.app.Activity;
 @Kroll.proxy(creatableInModule=UIModule.class)
 public class LabelProxy extends TiViewProxy
 {
-	public LabelProxy(TiContext tiContext)
-	{
+	public LabelProxy(TiContext tiContext) {
 		super(tiContext);
 	}
 
 	@Override
 	protected KrollDict getLangConversionTable() {
 		KrollDict table = new KrollDict();
-		table.put("text","textid");
+		table.put("text", "textid");
 		return table;
 	}
 
 	@Override
-	public TiUIView createView(Activity activity)
-	{
-		TiUILabel label = new TiUILabel(this);
-		return label;
+	public TiUIView createView(Activity activity) {
+		return new TiUILabel(this);
 	}
 }

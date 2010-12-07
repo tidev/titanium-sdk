@@ -8,35 +8,28 @@ package org.appcelerator.titanium;
 
 import java.io.IOException;
 import java.lang.ref.WeakReference;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Semaphore;
 
-import org.appcelerator.titanium.io.TiBaseFile;
-import org.appcelerator.titanium.io.TiFileFactory;
 import org.appcelerator.titanium.kroll.KrollBridge;
 import org.appcelerator.titanium.kroll.KrollContext;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiFileHelper;
-import org.appcelerator.titanium.util.TiFileHelper2;
+import org.appcelerator.titanium.util.TiUrl;
 import org.mozilla.javascript.ErrorReporter;
 import org.mozilla.javascript.EvaluatorException;
 import org.mozilla.javascript.Scriptable;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.Application;
 import android.app.Service;
 import android.content.ContextWrapper;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
-import android.content.res.Configuration;
 import android.graphics.Color;
-import android.net.Uri;
 import android.os.Looper;
 import android.os.Message;
 import android.os.Messenger;
@@ -55,7 +48,7 @@ public class TiContext implements TiEvaluator, ErrorReporter
 
 	private long mainThreadId;
 
-	private String baseUrl;
+	private TiUrl baseUrl;
 	private String currentUrl;
 	private boolean serviceContext; // Contexts created for Ti services won't have associated activities.
 
@@ -87,14 +80,12 @@ public class TiContext implements TiEvaluator, ErrorReporter
 		this.weakActivity = new WeakReference<Activity>(activity);
 		lifecycleListeners = Collections.synchronizedList(new ArrayList<WeakReference<OnLifecycleEvent>>());
 		if (baseUrl == null) {
-			this.baseUrl = "app://";
-		} else {
-			this.baseUrl = baseUrl;
-			if (!baseUrl.endsWith("/")) {
-				this.baseUrl += "/";
-			}
+			baseUrl = TiC.URL_APP_PREFIX;
+		} else if (!baseUrl.endsWith("/")) {
+			baseUrl += "/";
 		}
-
+		this.baseUrl = new TiUrl(baseUrl, null);
+		
 		if (activity instanceof TiActivity) {
 			((TiActivity)activity).addTiContext(this);
 		}
@@ -118,7 +109,7 @@ public class TiContext implements TiEvaluator, ErrorReporter
 		}
 		tiEvaluator = evaluator;
 	}
-	
+
 	public KrollBridge getKrollBridge() {
 		if (tiEvaluator instanceof KrollBridge) {
 			return (KrollBridge)tiEvaluator;
@@ -146,112 +137,22 @@ public class TiContext implements TiEvaluator, ErrorReporter
 		return new TiFileHelper(getTiApp());
 	}
 
-	public String absoluteUrl(String defaultScheme, String url)
-	{
-		try {
-			URI uri = new URI(url);
-			String scheme = uri.getScheme();
-			if (scheme == null) {
-				String path = uri.getPath();
-				String fname = null;
-				int lastIndex = path.lastIndexOf("/");
-				if (lastIndex > 0) {
-					fname = path.substring(lastIndex+1);
-					path = path.substring(0, lastIndex);
-				}
-
-				if (path.startsWith("../") || path.equals("..")) {
-					String[] right = path.split("/");
-					String[] left = null;
-					if (baseUrl.contains("://")) {
-						String[] tmp = baseUrl.split("://");
-						if (tmp.length > 1)
-						{
-							left = tmp[1].split("/");
-						}
-						else
-						{
-							left = new String[] {};
-						}
-					} else {
-						left = baseUrl.split("/");
-					}
-
-					int rIndex = 0;
-					int lIndex = left.length;
-
-					while(rIndex < right.length && right[rIndex].equals("..")) {
-						lIndex--;
-						rIndex++;
-					}
-					String sep = "";
-					StringBuilder sb = new StringBuilder();
-					for (int i = 0; i < lIndex; i++) {
-						sb.append(sep).append(left[i]);
-						sep = "/";
-					}
-					for (int i = rIndex; i < right.length; i++) {
-						sb.append(sep).append(right[i]);
-						sep = "/";
-					}
-					String bUrl = sb.toString();
-					if (!bUrl.endsWith("/")) {
-						bUrl = bUrl + "/";
-					}
-					url = TiFileHelper2.joinSegments(defaultScheme + "//",bUrl, fname);
-				}
-			}
-		} catch (URISyntaxException e) {
-			Log.w(LCAT, "Error parsing url: " + e.getMessage(), e);
-		}
-
-		return url;
+	public String resolveUrl(String path) {
+		return resolveUrl(null, path);
 	}
 
-	public String resolveUrl(String scheme, String path)
-	{
-		return resolveUrl(scheme, path, getBaseUrl());
+	public String resolveUrl(String scheme, String path) {
+		return baseUrl.resolve(this, baseUrl.baseUrl, path, scheme);
 	}
 
-	public String resolveUrl(String scheme, String path, String relativeTo)
-	{
-		if (!TiFileFactory.isLocalScheme(path)) {
-			return path;
-		}
-
-		String result = null;
-		if (scheme == null) {
-			scheme = "app:";
-		}
-
-		if (path.startsWith("../")) {
-			path = absoluteUrl(scheme, path);
-		}
-
-		Uri uri = Uri.parse(path);
-		if (uri.getScheme() == null) {
-			if (!path.startsWith("/")) {
-				result = relativeTo + path;
-			} else {
-				result = scheme + "/" + path;
-			}
-		} else {
-			result = path;
-		}
-
-		if (!result.startsWith("file:")) {
-			String[] p = { result };
-			TiBaseFile tbf = TiFileFactory.createTitaniumFile(this, p, false);
-			result = tbf.nativePath();
-		}
-
-		return result;
+	public String resolveUrl(String scheme, String path, String relativeTo) {
+		return baseUrl.resolve(this, relativeTo, path, scheme);
 	}
 
 	public String getBaseUrl() {
-		return baseUrl;
+		return baseUrl.baseUrl;
 	}
-	
+
 	public String getCurrentUrl() {
 		return currentUrl;
 	}
@@ -260,7 +161,6 @@ public class TiContext implements TiEvaluator, ErrorReporter
 
 	public Object evalFile(String filename, Messenger messenger, int messageId) throws IOException {
 		Object result = null;
-		
 		this.currentUrl = filename;
 		TiEvaluator jsContext = getJSContext();
 		if (jsContext == null) {
@@ -307,13 +207,12 @@ public class TiContext implements TiEvaluator, ErrorReporter
 	public void addOnLifecycleEventListener(OnLifecycleEvent listener) {
 		lifecycleListeners.add(new WeakReference<OnLifecycleEvent>(listener));
 	}
-	
+
 	public void addOnServiceLifecycleEventListener(OnServiceLifecycleEvent listener) {
 		serviceLifecycleListeners.add(new WeakReference<OnServiceLifecycleEvent>(listener));
 	}
 
-	public void removeOnLifecycleEventListener(OnLifecycleEvent listener)
-	{
+	public void removeOnLifecycleEventListener(OnLifecycleEvent listener) {
 		synchronized(lifecycleListeners) {
 			for (WeakReference<OnLifecycleEvent> ref : lifecycleListeners) {
 				OnLifecycleEvent l = ref.get();
@@ -326,9 +225,8 @@ public class TiContext implements TiEvaluator, ErrorReporter
 			}
 		}
 	}
-	
-	public void removeOnServiceLifecycleEventListener(OnServiceLifecycleEvent listener)
-	{
+
+	public void removeOnServiceLifecycleEventListener(OnServiceLifecycleEvent listener) {
 		synchronized(serviceLifecycleListeners) {
 			for (WeakReference<OnServiceLifecycleEvent> ref : serviceLifecycleListeners) {
 				OnServiceLifecycleEvent l = ref.get();
@@ -341,11 +239,8 @@ public class TiContext implements TiEvaluator, ErrorReporter
 			}
 		}
 	}
-	
-	
 
-	public void dispatchOnStart(Activity activity)
-	{
+	public void dispatchOnStart(Activity activity) {
 		synchronized(lifecycleListeners) {
 			for(WeakReference<OnLifecycleEvent> ref : lifecycleListeners) {
 				OnLifecycleEvent listener = ref.get();
@@ -449,26 +344,22 @@ public class TiContext implements TiEvaluator, ErrorReporter
 
 
 	@Override
-	public void error(String message, String sourceName, int line, String lineSource, int lineOffset)
-	{
+	public void error(String message, String sourceName, int line, String lineSource, int lineOffset) {
 		doRhinoDialog("Error", message, sourceName, line, lineSource, lineOffset);
 	}
 
 	@Override
-	public EvaluatorException runtimeError(String message, String sourceName, int line, String lineSource, int lineOffset)
-	{
+	public EvaluatorException runtimeError(String message, String sourceName, int line, String lineSource, int lineOffset) {
 		doRhinoDialog("Runtime Error", message, sourceName, line, lineSource, lineOffset);
 		return null;
 	}
 
 	@Override
-	public void warning(String message, String sourceName, int line, String lineSource, int lineOffset)
-	{
+	public void warning(String message, String sourceName, int line, String lineSource, int lineOffset) {
 		doRhinoDialog("Warning", message, sourceName, line, lineSource, lineOffset);
 	}
 
-	public static TiContext createTiContext(Activity activity, String baseUrl)
-	{
+	public static TiContext createTiContext(Activity activity, String baseUrl) {
 		TiContext tic = new TiContext(activity, baseUrl);
 		KrollContext kroll = KrollContext.createContext(tic);
 		tic.setKrollContext(kroll);
@@ -476,7 +367,7 @@ public class TiContext implements TiEvaluator, ErrorReporter
 		tic.setJSContext(krollBridge);
 		return tic;
 	}
-	
+
 	private void doRhinoDialog(final String title, final String message, final String sourceName, final int line,
 			final String lineSource, final int lineOffset)
 	{
@@ -495,12 +386,9 @@ public class TiContext implements TiEvaluator, ErrorReporter
 		Log.e(LCAT, " Source: " + lineSource);
 		
 		activity.runOnUiThread(new Runnable(){
-
 			@Override
-			public void run()
-			{
+			public void run() {
 				OnClickListener listener = new OnClickListener() {
-
 					public void onClick(DialogInterface dialog, int which) {
 						Process.killProcess(Process.myPid());
 					}
@@ -556,13 +444,13 @@ public class TiContext implements TiEvaluator, ErrorReporter
 				vlayout.addView(sourceView);
 
 				new AlertDialog.Builder(activity).setTitle(title)
-						.setView(layout).setPositiveButton("Kill", listener)
-						.setNeutralButton("Continue", new OnClickListener() {
-							@Override
-							public void onClick(DialogInterface arg0, int arg1) {
-								s.release();
-							}
-						}).setCancelable(false).create().show();
+					.setView(layout).setPositiveButton("Kill", listener)
+					.setNeutralButton("Continue", new OnClickListener() {
+						@Override
+						public void onClick(DialogInterface arg0, int arg1) {
+							s.release();
+						}
+					}).setCancelable(false).create().show();
 
 			}
 		});
@@ -573,15 +461,15 @@ public class TiContext implements TiEvaluator, ErrorReporter
 			// Ignore
 		}
 	}
-	
+
 	public KrollContext getKrollContext() {
 		return krollContext;
 	}
-	
+
 	public void setKrollContext(KrollContext krollContext) {
 		this.krollContext = krollContext;
 	}
-	
+
 	public static TiContext getCurrentTiContext() {
 		KrollContext currentCtx = KrollContext.getCurrentKrollContext();
 		if (currentCtx == null) {
@@ -589,51 +477,42 @@ public class TiContext implements TiEvaluator, ErrorReporter
 		}
 		return currentCtx.getTiContext();
 	}
-	
-	public void release()
-	{
-		if (tiEvaluator != null && tiEvaluator instanceof KrollBridge)
-		{
+
+	public void release() {
+		if (tiEvaluator != null && tiEvaluator instanceof KrollBridge) {
 			((KrollBridge)tiEvaluator).release();
 			tiEvaluator = null;
 		}
-		
 		if (lifecycleListeners != null) {
 			lifecycleListeners.clear();
 		}
-		
 		if (serviceLifecycleListeners != null) {
 			serviceLifecycleListeners.clear();
 		}
-		
 	}
-	
+
 	public boolean isServiceContext() {
 		return serviceContext;
 	}
 
-	public void setIsServiceContext(boolean value) 
-	{
+	public void setIsServiceContext(boolean value)  {
 		serviceContext = true;
 		if (value && serviceLifecycleListeners == null ) {
 			serviceLifecycleListeners = Collections.synchronizedList(new ArrayList<WeakReference<OnServiceLifecycleEvent>>());
 		}
 	}
-	
-	public ContextWrapper getAndroidContext()
-	{
+
+	public ContextWrapper getAndroidContext() {
 		if (weakActivity == null || weakActivity.get() == null) {
 			return tiApp;
 		}
 		return weakActivity.get();
 	}
-	
-	public void setBaseUrl(String baseUrl)
-	{
-		this.baseUrl = baseUrl;
-		if (this.baseUrl == null) {
-			this.baseUrl = "app://";
+
+	public void setBaseUrl(String baseUrl) {
+		this.baseUrl.baseUrl = baseUrl;
+		if (this.baseUrl.baseUrl == null) {
+			this.baseUrl.baseUrl = TiC.URL_APP_PREFIX;
 		}
 	}
-	
 }
