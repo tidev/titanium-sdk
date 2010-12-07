@@ -201,7 +201,6 @@ class AndroidSDK:
 
 	def list_devices(self):
 		adb = self.get_adb()
-		print 'adb: ' + adb
 		(out, err) = subprocess.Popen([adb, 'devices'], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
 		if type(err) != types.NoneType and len(err) > 0:
 			raise Exception(err)
