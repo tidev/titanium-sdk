@@ -289,7 +289,7 @@ class TiAppXML(object):
 			n.setAttribute('name','ti.deploytype')
 			n.appendChild(self.dom.createTextNode(deploy_type))
 			root.appendChild(n)
-			
+		self.app_properties['ti.deploytype'] = deploy_type
 		self.dom.writexml(codecs.open(self.file, 'w+','utf-8','replace'), encoding="UTF-8")
 
 	def generate_infoplist(self,file,appid,family,project_dir,iphone_version):

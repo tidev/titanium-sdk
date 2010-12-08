@@ -939,11 +939,11 @@ class Builder(object):
 		asf = codecs.open(app_stylesheet, 'w', 'utf-8')
 		asf.write(cssc.code)
 		asf.close()
-		
+
 	def generate_localizations(self):
 		# compile localization files
 		localecompiler.LocaleCompiler(self.name,self.top_dir,'android',sys.argv[1]).compile()
-	
+
 	def recurse(self, paths, file_glob=None):
 		if paths == None: yield None
 		if not isinstance(paths, list): paths = [paths]
@@ -954,24 +954,24 @@ class Builder(object):
 					if file_glob != None:
 						if not fnmatch.fnmatch(filename, file_glob): continue
 					yield os.path.join(root, filename)
-	
+
 	def generate_aidl(self):
 		# support for android remote interfaces in platform/android/src
 		framework_aidl = self.sdk.platform_path('framework.aidl')
 		aidl_args = [self.sdk.get_aidl(), '-p' + framework_aidl, '-I' + self.project_src_dir, '-o' + self.project_gen_dir]
 		for aidl_file in self.recurse(self.project_src_dir, '*.aidl'):
 			run.run(aidl_args + [aidl_file])
-			
+
 	def build_generated_classes(self):
 		src_list = []
 		self.module_jars = []
-		
+
 		for java_file in self.recurse([self.project_src_dir, self.project_gen_dir], '*.java'):
 			# the file list file still needs each file escaped apparently
 			src_list.append('"%s"' % java_file.replace("\\", "\\\\"))
-	
+
 		classpath = os.pathsep.join([self.android_jar, os.pathsep.join(self.android_jars)])
-	
+
 		project_module_dir = os.path.join(self.top_dir,'modules','android')
 		for module in self.modules:
 			if module.jar == None: continue
