@@ -10,6 +10,7 @@ import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollInvocation;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
+import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.kroll.KrollCallback;
 import org.appcelerator.titanium.util.TiActivityResultHandler;
@@ -158,23 +159,21 @@ public class ActivityProxy extends KrollProxy
 	@Override
 	public void onResult(Activity activity, int requestCode, int resultCode, Intent data) {
 		if (resultCallback == null) return;
-
 		KrollDict event = new KrollDict();
-		event.put("requestCode", requestCode);
-		event.put("resultCode", resultCode);
-		event.put("intent", new IntentProxy(getTiContext(), data));
-		event.put("source", this);
+		event.put(TiC.EVENT_PROPERTY_REQUEST_CODE, requestCode);
+		event.put(TiC.EVENT_PROPERTY_RESULT_CODE, resultCode);
+		event.put(TiC.EVENT_PROPERTY_INTENT, new IntentProxy(getTiContext(), data));
+		event.put(TiC.EVENT_PROPERTY_SOURCE, this);
 		resultCallback.callAsync(event);
 	}
 
 	@Override
 	public void onError(Activity activity, int requestCode, Exception e) {
 		if (resultCallback == null) return;
-
 		KrollDict event = new KrollDict();
-		event.put("requestCode", requestCode);
-		event.put("error", e.getMessage());
-		event.put("source", this);
+		event.put(TiC.EVENT_PROPERTY_REQUEST_CODE, requestCode);
+		event.put(TiC.EVENT_PROPERTY_ERROR, e.getMessage());
+		event.put(TiC.EVENT_PROPERTY_SOURCE, this);
 		resultCallback.callAsync(event);
 	}
 

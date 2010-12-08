@@ -13,6 +13,7 @@ import org.appcelerator.kroll.KrollInvocation;
 import org.appcelerator.kroll.KrollMethod;
 import org.appcelerator.kroll.KrollObject;
 import org.appcelerator.kroll.KrollProxy;
+import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.Log;
 import org.mozilla.javascript.Context;
@@ -25,6 +26,7 @@ import org.mozilla.javascript.Scriptable;
 public class KrollCallback extends KrollMethod implements KrollConvertable
 {
 	private static final String LCAT = "KrollCallback";
+	protected static final String ANONYMOUS_METHOD_NAME = "(anonymous)";
 
 	protected KrollContext kroll;
 	protected Scriptable scope;
@@ -51,20 +53,26 @@ public class KrollCallback extends KrollMethod implements KrollConvertable
 	}
 
 	protected KrollInvocation createInvocation() {
-		String methodName = "(anonymous)";
-		Object methodNameObject = method.get("name", method);
+		return createInvocation(null);
+	}
+
+	protected KrollInvocation createInvocation(TiContext context) {
+		String methodName = ANONYMOUS_METHOD_NAME;
+		Object methodNameObject = method.get(TiC.PROPERTY_NAME, method);
 		if (methodNameObject != null && methodNameObject instanceof String) {
 			String m = (String) methodNameObject;
 			if (m.length() > 0) {
 				methodName = m;
 			}
 		}
-		KrollInvocation inv = KrollInvocation.createMethodInvocation(
-			kroll == null ? TiContext.getCurrentTiContext() : kroll.getTiContext(),
-			scope, thisObj, methodName, this, (thisObj instanceof KrollObject) ? ((KrollObject)thisObj).getProxy() : null);
+		if (context == null) {
+			context = kroll == null ? TiContext.getCurrentTiContext() : kroll.getTiContext();
+		}
+		KrollProxy proxy = (thisObj instanceof KrollObject) ? ((KrollObject)thisObj).getProxy() : null;
+		KrollInvocation inv = KrollInvocation.createMethodInvocation(context, scope, thisObj, methodName, this, proxy);
 		return inv;
 	}
-	
+
 	public void callAsync() {
 		callAsync(new Object[0]);
 	}
@@ -74,22 +82,38 @@ public class KrollCallback extends KrollMethod implements KrollConvertable
 	}
 
 	public void callAsync(Object[] args) {
-		callAsync(createInvocation(), args);
-	}
-	public void callSync(KrollDict properties) {
-		callSync(new Object[] { properties });
+		callAsync(null, args);
 	}
 
-	public void callSync() {
-		callSync(new Object[0]);
+	public void callAsync(TiContext context, Object[] args) {
+		KrollInvocation invocation = createInvocation(context);
+		callAsync(invocation, args, true);
 	}
 
-	public void callSync(Object[] args) {
-		callSync(createInvocation(), args);
+	public Object callSync() {
+		return callSync(new Object[0]);
+	}
+
+	public Object callSync(KrollDict properties) {
+		return callSync(new Object[] { properties });
+	}
+
+	public Object callSync(Object[] args) {
+		return callSync((TiContext)null, args);
+	}
+
+	public Object callSync(TiContext context, Object[] args) {
+		KrollInvocation invocation = createInvocation(context);
+		Object result = callSync(invocation, args);
+		invocation.recycle();
+		return result;
 	}
 
 	protected KrollContext getKrollContext(KrollInvocation invocation) {
-		KrollContext kroll = invocation.getTiContext().getKrollContext();
+		KrollContext kroll = null;
+		if (invocation.getTiContext() != null) {
+			kroll = invocation.getTiContext().getKrollContext();
+		}
 		if (kroll == null) {
 			kroll = this.kroll;
 		}
@@ -126,18 +150,22 @@ public class KrollCallback extends KrollMethod implements KrollConvertable
 		return KrollProxy.UNDEFINED;
 	}
 
-	public void callAsync(final KrollInvocation invocation, final Object[] args) {
+	public void callAsync(final KrollInvocation invocation, final Object[] args, final boolean recycleInvocation) {
 		KrollContext kroll = getKrollContext(invocation);
 		kroll.post(new Runnable() {
 			public void run() {
 				callSync(invocation, args);
+				if (recycleInvocation) {
+					invocation.recycle();
+				}
 			}
 		});
 	}
 
 	@Override
 	public Object invoke(KrollInvocation invocation, Object[] args) {
-		callAsync(invocation, args);
+		KrollInvocation invocationCopy = invocation.copy();
+		callAsync(invocationCopy, args, true);
 		return KrollProxy.UNDEFINED;
 	}
 
@@ -146,7 +174,6 @@ public class KrollCallback extends KrollMethod implements KrollConvertable
 		if (!(obj instanceof KrollCallback)) {
 			return false;
 		}
-		
 		KrollCallback kb = (KrollCallback) obj;
 		return method.equals(kb.method);
 	}
@@ -164,7 +191,7 @@ public class KrollCallback extends KrollMethod implements KrollConvertable
 	}
 
 	public void setThisProxy(KrollProxy proxy) {
-		setThisObj(new KrollObject(proxy));
+		setThisObj(proxy.getKrollObject());
 	}
 
 	public Object getJavascriptValue() {

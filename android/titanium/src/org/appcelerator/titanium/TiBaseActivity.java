@@ -385,7 +385,7 @@ public class TiBaseActivity extends Activity
 				menuProxy = new MenuProxy(activityProxy.getTiContext(), menu);
 			}
 			event.put(TiC.EVENT_PROPERTY_MENU, menuProxy);
-			onCreate.callSync(event);
+			onCreate.callSync(activityProxy.getTiContext(), new Object[] { event });
 		}
 		// If a callback exists then return true.
 		// There is no need for the Ti Developer to support both methods.
@@ -419,7 +419,7 @@ public class TiBaseActivity extends Activity
 				menuProxy = new MenuProxy(activityProxy.getTiContext(), menu);
 			}
 			event.put(TiC.EVENT_PROPERTY_MENU, menuProxy);
-			onPrepare.callSync(event);
+			onPrepare.callSync(activityProxy.getTiContext(), new Object[] { event });
 		}
 		prepared = true;
 		return prepared;
@@ -580,7 +580,7 @@ public class TiBaseActivity extends Activity
 			window.fireEvent(TiC.EVENT_CLOSE, data);
 		}
 
-		boolean animate = getIntentBoolean(TiC.INTENT_PROPERTY_ANIMATE, true);
+		boolean animate = getIntentBoolean(TiC.PROPERTY_ANIMATE, true);
 		if (shouldFinishRootActivity()) {
 			TiApplication app = getTiApp();
 			if (app != null) {

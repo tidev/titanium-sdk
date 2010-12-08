@@ -8,13 +8,14 @@ package org.appcelerator.titanium.util;
 
 import org.appcelerator.kroll.KrollConverter;
 import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.kroll.KrollCallback;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.view.Ti2DMatrix;
 import org.appcelerator.titanium.view.TiAnimation;
 import org.appcelerator.titanium.view.TiCompositeLayout;
-import org.appcelerator.titanium.view.TiUIView;
 import org.appcelerator.titanium.view.TiCompositeLayout.LayoutParams;
+import org.appcelerator.titanium.view.TiUIView;
 
 import android.view.View;
 import android.view.ViewGroup;
@@ -31,6 +32,7 @@ import android.view.animation.TranslateAnimation;
 public class TiAnimationBuilder
 {
 	private static final String LCAT = "TiAnimationBuilder";
+	private static final boolean DBG = TiConfig.LOGD;
 	
 	protected double anchorX;
 	protected double anchorY;
@@ -53,60 +55,58 @@ public class TiAnimationBuilder
 	protected View view;
 	protected TiViewProxy viewProxy;
 	
-	public TiAnimationBuilder()
-	{
+	public TiAnimationBuilder() {
 		// Defaults
 		anchorX = 0.5;
 		anchorY = 0.5;
 	}
 
-	public void applyOptions(KrollDict options)
-	{
+	public void applyOptions(KrollDict options) {
 		if (options == null) {
 			return;
 		}
 
-		if (options.containsKey("anchorPoint")) {
-			KrollDict point = (KrollDict) options.get("anchorPoint");
-			anchorX = KrollConverter.toDouble(point, "x");
-			anchorY = KrollConverter.toDouble(point, "y");
+		if (options.containsKey(TiC.PROPERTY_ANCHOR_POINT)) {
+			KrollDict point = (KrollDict) options.get(TiC.PROPERTY_ANCHOR_POINT);
+			anchorX = KrollConverter.toDouble(point, TiC.PROPERTY_X);
+			anchorY = KrollConverter.toDouble(point, TiC.PROPERTY_Y);
 		}
 
-		if (options.containsKey("transform")) {
-			tdm = (Ti2DMatrix) options.get("transform");
+		if (options.containsKey(TiC.PROPERTY_TRANSFORM)) {
+			tdm = (Ti2DMatrix) options.get(TiC.PROPERTY_TRANSFORM);
 		}
-		if (options.containsKey("delay")) {
-			delay = KrollConverter.toDouble(options, "delay");
+		if (options.containsKey(TiC.PROPERTY_DELAY)) {
+			delay = KrollConverter.toDouble(options, TiC.PROPERTY_DELAY);
 		}
-		if (options.containsKey("duration")) {
-			duration = KrollConverter.toDouble(options, "duration");
+		if (options.containsKey(TiC.PROPERTY_DURATION)) {
+			duration = KrollConverter.toDouble(options, TiC.PROPERTY_DURATION);
 		}
-		if (options.containsKey("opacity")) {
-			toOpacity = KrollConverter.toDouble(options, "opacity");
+		if (options.containsKey(TiC.PROPERTY_OPACITY)) {
+			toOpacity = KrollConverter.toDouble(options, TiC.PROPERTY_OPACITY);
 		}
-		if (options.containsKey("repeat")) {
-			repeat = KrollConverter.toDouble(options, "repeat");
+		if (options.containsKey(TiC.PROPERTY_REPEAT)) {
+			repeat = KrollConverter.toDouble(options, TiC.PROPERTY_REPEAT);
 		}
-		if (options.containsKey("autoreverse")) {
-			autoreverse = KrollConverter.toBoolean(options, "autoreverse");
+		if (options.containsKey(TiC.PROPERTY_AUTOREVERSE)) {
+			autoreverse = KrollConverter.toBoolean(options, TiC.PROPERTY_AUTOREVERSE);
 		}
-		if (options.containsKey("top")) {
-			top = KrollConverter.toInt(options, "top");
+		if (options.containsKey(TiC.PROPERTY_TOP)) {
+			top = KrollConverter.toInt(options, TiC.PROPERTY_TOP);
 		}
-		if (options.containsKey("bottom")) {
-			bottom = KrollConverter.toInt(options, "bottom");
+		if (options.containsKey(TiC.PROPERTY_BOTTOM)) {
+			bottom = KrollConverter.toInt(options, TiC.PROPERTY_BOTTOM);
 		}
-		if (options.containsKey("left")) {
-			left = KrollConverter.toInt(options, "left");
+		if (options.containsKey(TiC.PROPERTY_LEFT)) {
+			left = KrollConverter.toInt(options, TiC.PROPERTY_LEFT);
 		}
-		if (options.containsKey("right")) {
-			right = KrollConverter.toInt(options, "right");
+		if (options.containsKey(TiC.PROPERTY_RIGHT)) {
+			right = KrollConverter.toInt(options, TiC.PROPERTY_RIGHT);
 		}
-		if (options.containsKey("width")) {
-			width = TiConvert.toInt(options, "width");
+		if (options.containsKey(TiC.PROPERTY_WIDTH)) {
+			width = TiConvert.toInt(options, TiC.PROPERTY_WIDTH);
 		}
-		if (options.containsKey("height")) {
-			height = TiConvert.toInt(options, "height");
+		if (options.containsKey(TiC.PROPERTY_HEIGHT)) {
+			height = TiConvert.toInt(options, TiC.PROPERTY_HEIGHT);
 		}
 		
 		this.options = options;
@@ -160,8 +160,8 @@ public class TiAnimationBuilder
 		AnimationListener listener = new AnimationListener();
 		
 		if (toOpacity != null) {
-			if (viewProxy.hasProperty("opacity")) {
-				fromOpacity = TiConvert.toDouble(viewProxy.getProperty("opacity"));
+			if (viewProxy.hasProperty(TiC.PROPERTY_OPACITY)) {
+				fromOpacity = TiConvert.toDouble(viewProxy.getProperty(TiC.PROPERTY_OPACITY));
 			} else {
 				fromOpacity = 1.0 - toOpacity;
 			}
@@ -171,7 +171,7 @@ public class TiAnimationBuilder
 			addAnimation(as,a);
 			a.setAnimationListener(listener);
 			
-			if (viewProxy.hasProperty("opacity") && fromOpacity != null && toOpacity != null) {
+			if (viewProxy.hasProperty(TiC.PROPERTY_OPACITY) && fromOpacity != null && toOpacity != null) {
 				if (fromOpacity > 0 && fromOpacity < 1) {
 					TiUIView uiView = viewProxy.getView(null);
 					uiView.setOpacity(1);
@@ -248,8 +248,9 @@ public class TiAnimationBuilder
 
 			a.setAnimationListener(listener);
 			as.addAnimation(a);
-			
-			Log.d(LCAT, "animate " + viewProxy + " relative to self: " + (horizontal[0]-x) + ", " + (vertical[0]-y));
+			if (DBG) {
+				Log.d(LCAT, "animate " + viewProxy + " relative to self: " + (horizontal[0]-x) + ", " + (vertical[0]-y));
+			}
 			relayoutChild = true;
 		}
 
@@ -285,7 +286,9 @@ public class TiAnimationBuilder
 			this.fromHeight = fromHeight;
 			this.toWidth = toWidth;
 			this.toHeight = toHeight;
-			Log.d(LCAT, "animate view from ("+fromWidth+"x"+fromHeight+") to ("+toWidth+"x"+toHeight+")");
+			if (DBG) {
+				Log.d(LCAT, "animate view from ("+fromWidth+"x"+fromHeight+") to ("+toWidth+"x"+toHeight+")");
+			}
 		}
 		
 		@Override
@@ -347,7 +350,7 @@ public class TiAnimationBuilder
 				callback.callAsync();
 			}
 			if (animationProxy != null) {
-				animationProxy.fireEvent("complete", null);
+				animationProxy.fireEvent(TiC.EVENT_COMPLETE, null);
 			}
 		}
 
@@ -359,7 +362,7 @@ public class TiAnimationBuilder
 		public void onAnimationStart(Animation a)
 		{
 			if (animationProxy != null) {
-				animationProxy.fireEvent("start", null);
+				animationProxy.fireEvent(TiC.EVENT_START, null);
 			}
 		}
 	}
