@@ -34,7 +34,6 @@
 		// ... But be wary of exceptions from DOM parsing.  We might be violating the XHR standard here, as well.
 		id value = nil;
 		@try {
-			value = [delegate valueForKey:key];
 			if ([key isEqual:@"responseXML"])
 			{
 				// check response content-type before trying to parse into XML - gets rid
@@ -44,6 +43,9 @@
 				{
 					return;
 				}
+			}
+			else {
+				value = [delegate valueForKey:key];
 			}
 		}
 		@catch (NSException* e) {
