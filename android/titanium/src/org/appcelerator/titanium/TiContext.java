@@ -67,15 +67,14 @@ public class TiContext implements TiEvaluator, ErrorReporter
 		void onStop(Activity activity);
 		void onDestroy(Activity activity);
 	}
-	
+
 	public static interface OnServiceLifecycleEvent {
 		void onDestroy(Service service);
 	}
-	
+
 	public TiContext(Activity activity, String baseUrl)
 	{
 		this.mainThreadId = Looper.getMainLooper().getThread().getId();
-
 		this.tiApp = (TiApplication) activity.getApplication();
 		this.weakActivity = new WeakReference<Activity>(activity);
 		lifecycleListeners = Collections.synchronizedList(new ArrayList<WeakReference<OnLifecycleEvent>>());
@@ -85,7 +84,7 @@ public class TiContext implements TiEvaluator, ErrorReporter
 			baseUrl += "/";
 		}
 		this.baseUrl = new TiUrl(baseUrl, null);
-		
+
 		if (activity instanceof TiActivity) {
 			((TiActivity)activity).addTiContext(this);
 		}

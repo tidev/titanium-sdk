@@ -174,25 +174,9 @@ public class TiUIWindow extends TiUIView
 				Log.d(LCAT, "Window has URL: " + tiUrl.url);
 			}
 			
-			TiContext tiContext = null;
-			ActivityProxy activityProxy = (ActivityProxy) ((TiWindowProxy) proxy).getProperty(TiC.PROPERTY_ACTIVITY);
-			if (lightWeight) {
-				Activity activity = proxy.getTiContext().getActivity();
-				tiContext = TiContext.createTiContext(activity, tiUrl.baseUrl);
-				if (activityProxy == null) {
-					activityProxy = new ActivityProxy(proxy.getTiContext(), activity);
-					((TiWindowProxy) proxy).setActivity(activityProxy);
-				}
-			} else {
-				tiContext = TiContext.createTiContext(windowActivity, tiUrl.baseUrl);
-				if (windowActivity instanceof TiBaseActivity) {
-					TiBaseActivity tiActivity = (TiBaseActivity)windowActivity;
-					if (activityProxy == null) {
-						activityProxy = new ActivityProxy(proxy.getTiContext(), tiActivity);
-						((TiWindowProxy) proxy).setActivity(activityProxy);
-					}
-				}
-			}
+			Activity activity = lightWeight ? proxy.getTiContext().getActivity() : windowActivity;
+			TiContext tiContext = TiContext.createTiContext(activity, tiUrl.baseUrl);
+			ActivityProxy activityProxy = bindWindowActivity(tiContext, activity);
 			TiBindingHelper.bindCurrentWindowAndActivity(tiContext, proxy, activityProxy);
 
 			final TiContext ftiContext = tiContext;
@@ -202,7 +186,6 @@ public class TiUIWindow extends TiUIView
 				public void run() {
 					try {
 						createdContext = new WeakReference<TiContext>(proxy.switchContext(ftiContext));
-						bindWindowActivity();
 						if (!lightWeight) {
 							bindProxies();
 						}
@@ -216,52 +199,27 @@ public class TiUIWindow extends TiUIView
 			TiContext tiContext = TiContext.createTiContext(windowActivity, proxy.getTiContext().getBaseUrl());
 			createdContext = new WeakReference<TiContext>(proxy.switchContext(tiContext));
 			
-			bindWindowActivity();
+			ActivityProxy activityProxy = bindWindowActivity(tiContext, windowActivity);
+			TiBindingHelper.bindCurrentWindowAndActivity(tiContext, proxy, activityProxy);
 			bindProxies();
 			handleBooted();
 		} else {
-			bindWindowActivity();
+			bindWindowActivity(proxy.getTiContext(), proxy.getTiContext().getActivity());
 			handleBooted();
 		}
 	}
 
-	protected void createWindowActivity(Activity activity, KrollDict creationDict) {
-		ActivityProxy activityProxy = new ActivityProxy(proxy.getTiContext(), activity);
-		if (creationDict != null) {
-			activityProxy.handleCreationDict(creationDict);
-		}
-		((TiWindowProxy) proxy).setActivity(activityProxy);
-	}
-
-	protected void bindWindowActivity() {
-		Object activityObject = ((TiWindowProxy) proxy).getProperty(TiC.PROPERTY_ACTIVITY);
-		KrollDict creationDict = null;
-		ActivityProxy activityProxy = null;
-		if (activityObject instanceof KrollDict) {
-			creationDict = (KrollDict)activityObject;
-		} else if (activityObject instanceof ActivityProxy) {
-			activityProxy = (ActivityProxy) activityObject;
-		}
-		if (lightWeight) {
-			Activity activity = proxy.getTiContext().getActivity();
-			if (activityProxy == null) {
-				createWindowActivity(activity, creationDict);
-			}
-		} else {
-			if (windowActivity instanceof TiBaseActivity) {
-				TiBaseActivity tiActivity = (TiBaseActivity)windowActivity;
-				if (activityProxy == null) {
-					createWindowActivity(tiActivity, creationDict);
-				}
-			}
-		}
+	protected ActivityProxy bindWindowActivity(TiContext tiContext, Activity activity) {
+		ActivityProxy activityProxy = ((TiWindowProxy) proxy).getActivity(tiContext);
+		activityProxy.setActivity(tiContext, activity);
+		return activityProxy;
 	}
 
 	protected void bindProxies() {
 		if (windowActivity instanceof TiBaseActivity) {
 			TiBaseActivity tiActivity = (TiBaseActivity)windowActivity;
 			TiWindowProxy windowProxy = (TiWindowProxy)proxy;
-			tiActivity.setActivityProxy(windowProxy.getActivity());
+			tiActivity.setActivityProxy(windowProxy.getActivity(proxy.getTiContext()));
 			tiActivity.setWindowProxy(windowProxy);
 		}
 	}
