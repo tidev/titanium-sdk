@@ -21,7 +21,8 @@ import android.view.ViewGroup.OnHierarchyChangeListener;
 public class TiCompositeLayout extends ViewGroup
 	implements OnHierarchyChangeListener
 {
-	public static boolean DBG = TiConfig.LOGD && false;
+	protected static final String TAG = "TiCompositeLayout";
+	protected static final boolean DBG = TiConfig.LOGD && false;
 
 	public static final int NOT_SET = Integer.MIN_VALUE;
 
@@ -102,14 +103,14 @@ public class TiCompositeLayout extends ViewGroup
 	public void onChildViewAdded(View parent, View child) {
 		needsSort = true;
 		if (DBG && parent != null && child != null) {
-			Log.i("LAYOUT", "Attaching: " + viewToString(child) + " to " + viewToString(parent));
+			Log.d(TAG, "Attaching: " + viewToString(child) + " to " + viewToString(parent));
 		}
 	}
 
 	public void onChildViewRemoved(View parent, View child) {
 		needsSort = true;
 		if (DBG) {
-			Log.i("LAYOUT", "Removing: " + viewToString(child) + " from " + viewToString(parent));
+			Log.d(TAG, "Removing: " + viewToString(child) + " from " + viewToString(parent));
 		}
 	}
 
@@ -264,11 +265,7 @@ public class TiCompositeLayout extends ViewGroup
 
 		if (needsSort) {
 			if (count > 1) { // No need to sort one item.
-				if (DBG) {
-					Log.e("SORTING", "Sorting.....");
-				}
 				viewSorter.clear();
-
 				for(int i = 0; i < count; i++) {
 					View child = getChildAt(i);
 					TiCompositeLayout.LayoutParams params =
@@ -308,7 +305,7 @@ public class TiCompositeLayout extends ViewGroup
 				}
 
 				if (DBG) {
-					Log.d("LAYOUT", child.getClass().getName() + " {" + horizontal[0] + "," + vertical[0] + "," + horizontal[1] + "," + vertical[1] + "}");
+					Log.d(TAG, child.getClass().getName() + " {" + horizontal[0] + "," + vertical[0] + "," + horizontal[1] + "," + vertical[1] + "}");
 				}
 
 				int newWidth = horizontal[1] - horizontal[0];
@@ -332,7 +329,8 @@ public class TiCompositeLayout extends ViewGroup
 	}
 
 	// 0 is left/top, 1 is right/bottom
-	public static void computePosition(int option0, int option1, int measuredSize, int layoutPosition0, int layoutPosition1, int[] pos)
+	public static void computePosition(int option0, int option1,
+		int measuredSize, int layoutPosition0, int layoutPosition1, int[] pos)
 	{
 		int dist = layoutPosition1 - layoutPosition0;
 		if (option0 == NOT_SET && option1 == NOT_SET) {
@@ -355,7 +353,8 @@ public class TiCompositeLayout extends ViewGroup
 		}
 	}
 
-	private void computeVerticalLayoutPosition(int currentHeight, int optionTop, int optionBottom, int measuredHeight, int layoutTop, int layoutBottom, int[] pos)
+	private void computeVerticalLayoutPosition(int currentHeight,
+		int optionTop, int optionBottom, int measuredHeight, int layoutTop, int layoutBottom, int[] pos)
 	{
 		int top = layoutTop + currentHeight;
 		if (optionTop != NOT_SET) {
@@ -366,19 +365,15 @@ public class TiCompositeLayout extends ViewGroup
 		pos[1] = bottom;
 	}
 
-	protected int getWidthMeasureSpec(View child)
-	{
+	protected int getWidthMeasureSpec(View child) {
 		return MeasureSpec.EXACTLY;
 	}
 
-	protected int getHeightMeasureSpec(View child)
-	{
+	protected int getHeightMeasureSpec(View child) {
 		return MeasureSpec.EXACTLY;
 	}
 
-
-	public static class LayoutParams extends ViewGroup.LayoutParams
-	{
+	public static class LayoutParams extends ViewGroup.LayoutParams {
 		protected int index;
 
 		public int optionZIndex = NOT_SET;

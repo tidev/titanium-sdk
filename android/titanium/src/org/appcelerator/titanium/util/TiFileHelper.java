@@ -28,7 +28,6 @@ import java.util.TreeSet;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-import org.apache.http.entity.FileEntity;
 import org.appcelerator.titanium.TiContext;
 
 import android.content.Context;

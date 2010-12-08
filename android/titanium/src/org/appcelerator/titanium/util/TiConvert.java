@@ -15,6 +15,7 @@ import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollObject;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.titanium.TiBlob;
+import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.kroll.KrollCallback;
 import org.appcelerator.titanium.view.TiCompositeLayout;
@@ -33,11 +34,10 @@ public class TiConvert
 	private static final boolean DBG = TiConfig.LOGD;
 
 	public static final String ASSET_URL = "file:///android_asset/"; // class scope on URLUtil
+	public static final String JSON_DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
 
-	// Bundle
-
-	public static Object putInKrollDict(KrollDict d, String key, Object value)
-	{
+	// Bundle 
+	public static Object putInKrollDict(KrollDict d, String key, Object value) {
 		if (value instanceof String || value instanceof Number || value instanceof Boolean || value instanceof Date) {
 			d.put(key, value);
 		} else if (value instanceof KrollDict) {
@@ -110,19 +110,22 @@ public class TiConvert
 		} else {
 			throw new IllegalArgumentException("Unsupported property type " + value.getClass().getName());
 		}
-
 		return value;
 	}
+
 	// Color conversions
 	public static int toColor(String value) {
 		return TiColorHelper.parseColor(value);
 	}
+
 	public static int toColor(KrollDict d, String key) {
 		return toColor(d.getString(key));
 	}
+
 	public static ColorDrawable toColorDrawable(String value) {
 		return new ColorDrawable(toColor(value));
 	}
+
 	public static ColorDrawable toColorDrawable(KrollDict d, String key) {
 		return toColorDrawable(d.getString(key));
 	}
@@ -132,33 +135,33 @@ public class TiConvert
 		boolean dirty = false;
 		Object width = null;
 		Object height = null;
-		if (d.containsKey("size")) {
-			KrollDict size = (KrollDict)d.get("size");
-			width = size.get("width");
-			height = size.get("height");
+		if (d.containsKey(TiC.PROPERTY_SIZE)) {
+			KrollDict size = (KrollDict)d.get(TiC.PROPERTY_SIZE);
+			width = size.get(TiC.PROPERTY_WIDTH);
+			height = size.get(TiC.PROPERTY_HEIGHT);
 		}
-		if (d.containsKey("left")) {
-			layoutParams.optionLeft = toTiDimension(d, "left").getIntValue();
+		if (d.containsKey(TiC.PROPERTY_LEFT)) {
+			layoutParams.optionLeft = toTiDimension(d, TiC.PROPERTY_LEFT).getIntValue();
 			dirty = true;
 		}
-		if (d.containsKey("top")) {
-			layoutParams.optionTop = toTiDimension(d, "top").getIntValue();
+		if (d.containsKey(TiC.PROPERTY_TOP)) {
+			layoutParams.optionTop = toTiDimension(d, TiC.PROPERTY_TOP).getIntValue();
 			dirty = true;
 		}
-		if (d.containsKey("right")) {
-			layoutParams.optionRight = toTiDimension(d, "right").getIntValue();
+		if (d.containsKey(TiC.PROPERTY_RIGHT)) {
+			layoutParams.optionRight = toTiDimension(d, TiC.PROPERTY_RIGHT).getIntValue();
 			dirty = true;
 		}
-		if (d.containsKey("bottom")) {
-			layoutParams.optionBottom = toTiDimension(d, "bottom").getIntValue();
+		if (d.containsKey(TiC.PROPERTY_BOTTOM)) {
+			layoutParams.optionBottom = toTiDimension(d, TiC.PROPERTY_BOTTOM).getIntValue();
 			dirty = true;
 		}
-		if (width != null || d.containsKey("width")) {
+		if (width != null || d.containsKey(TiC.PROPERTY_WIDTH)) {
 			if (width == null)
 			{
-				width = d.get("width");
+				width = d.get(TiC.PROPERTY_WIDTH);
 			}
-			if (width == null || width.equals("auto")) {
+			if (width == null || width.equals(TiC.SIZE_AUTO)) {
 				layoutParams.optionWidth = TiCompositeLayout.NOT_SET;
 				layoutParams.autoWidth = true;
 			} else {
@@ -167,12 +170,12 @@ public class TiConvert
 			}
 			dirty = true;
 		}
-		if (height != null || d.containsKey("height")) {
+		if (height != null || d.containsKey(TiC.PROPERTY_HEIGHT)) {
 			if (height == null)
 			{
-				height = d.get("height");
+				height = d.get(TiC.PROPERTY_HEIGHT);
 			}
-			if (height == null || height.equals("auto")) {
+			if (height == null || height.equals(TiC.SIZE_AUTO)) {
 				layoutParams.optionHeight = TiCompositeLayout.NOT_SET;
 				layoutParams.autoHeight = true;
 			} else {
@@ -181,8 +184,8 @@ public class TiConvert
 			}
 			dirty = true;
 		}
-		if (d.containsKey("zIndex")) {
-			Object zIndex = d.get("zIndex");
+		if (d.containsKey(TiC.PROPERTY_ZINDEX)) {
+			Object zIndex = d.get(TiC.PROPERTY_ZINDEX);
 			if (zIndex != null) {
 				layoutParams.optionZIndex = toInt(zIndex);
 			} else {
@@ -190,14 +193,11 @@ public class TiConvert
 			}
 			dirty = true;
 		}
-
 		return dirty;
 	}
 
 	// Values
-
-	public static boolean toBoolean(Object value)
-	{
+	public static boolean toBoolean(Object value) {
 		if (value instanceof Boolean) {
 			return (Boolean) value;
 		} else if (value instanceof String) {
@@ -264,11 +264,8 @@ public class TiConvert
 
 	public static String[] toStringArray(Object[] parts) {
 		String[] sparts = (parts != null ? new String[parts.length] : new String[0]);
-
 		if (parts != null) {
-			for (int i = 0; i < parts.length; i++) {
-				sparts[i] = (String) parts[i];
-			}
+			System.arraycopy(parts, 0, sparts, 0, parts.length);
 		}
 		return sparts;
 	}
@@ -290,9 +287,7 @@ public class TiConvert
 	}
 
 	// URL
-	public static String toURL(Uri uri)
-	{
-		//TODO handle Ti URLs.
+	public static String toURL(Uri uri) {
 		String url = null;
 		if (uri.isRelative()) {
 			url = uri.toString();
@@ -312,10 +307,9 @@ public class TiConvert
 	public static KrollDict toErrorObject(int code, String msg) {
 		KrollDict d = new KrollDict(1);
 		KrollDict e = new KrollDict();
-		e.put("code", code);
-		e.put("message", msg);
-
-		d.put("error", e);
+		e.put(TiC.ERROR_PROPERTY_CODE, code);
+		e.put(TiC.ERROR_PROPERTY_MESSAGE, msg);
+		d.put(TiC.EVENT_PROPERTY_ERROR, e);
 		return d;
 	}
 
@@ -388,17 +382,17 @@ public class TiConvert
 			} else {
 				Log.w(LCAT, "Unsupported type " + o.getClass());
 			}
-    	}
-    	return ja;
-    }
+		}
+		return ja;
+	}
 	
 	public static String toJSONString(Object value) {
 		if (value instanceof Date) {
-			return new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'").format((Date)value);
+			return new SimpleDateFormat(JSON_DATE_FORMAT).format((Date)value);
 		} else return toString(value);
 	}
-    
-    public static Date toDate(Object value) {
+
+	public static Date toDate(Object value) {
 		if (value instanceof Date) {
 			return (Date)value;
 		} else if (value instanceof Number) {

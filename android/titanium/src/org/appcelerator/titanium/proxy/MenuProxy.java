@@ -12,6 +12,7 @@ import java.util.HashMap;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
+import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
@@ -25,9 +26,7 @@ public class MenuProxy extends KrollProxy
 {
 	private static final String LCAT = "MenuProxy";
 	private final boolean DBG = TiConfig.LOGD;
-	
-	private static final String PROPERTY_TITLE = "title";
-	
+
 	protected Menu menu;
 	protected ArrayList<MenuItemProxy> menuItems;
 	protected HashMap<MenuItem, MenuItemProxy> menuMap;
@@ -45,20 +44,20 @@ public class MenuProxy extends KrollProxy
 	{
 		MenuItemProxy mip = null;
 		
-		if(d.containsKey("title")) {
-			String title = TiConvert.toString(d, PROPERTY_TITLE);
+		if(d.containsKey(TiC.PROPERTY_TITLE)) {
+			String title = TiConvert.toString(d, TiC.PROPERTY_TITLE);
 			int itemId = Menu.NONE;
 			int groupId = Menu.NONE;
 			int order = Menu.NONE;
 			
-			if (d.containsKey("itemId")) {
-				itemId = TiConvert.toInt(d, "itemId");
+			if (d.containsKey(TiC.PROPERTY_ITEM_ID)) {
+				itemId = TiConvert.toInt(d, TiC.PROPERTY_ITEM_ID);
 			}
-			if (d.containsKey("groupId")) {
-				groupId = TiConvert.toInt(d, "groupId");
+			if (d.containsKey(TiC.PROPERTY_GROUP_ID)) {
+				groupId = TiConvert.toInt(d, TiC.PROPERTY_GROUP_ID);
 			}
-			if (d.containsKey("order")) {
-				order = TiConvert.toInt(d, "order");
+			if (d.containsKey(TiC.PROPERTY_ORDER)) {
+				order = TiConvert.toInt(d, TiC.PROPERTY_ORDER);
 			}
 			
 			MenuItem item = menu.add(groupId, itemId, order, title);

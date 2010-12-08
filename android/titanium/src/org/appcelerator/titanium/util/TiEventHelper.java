@@ -11,19 +11,15 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 
 public class TiEventHelper {
-
-	public static final String EVENT_CLICK = "click";
-	public static final String EVENT_FOCUSED = "focused";
-	public static final String EVENT_UNFOCUSED = "unfocused";
-	
 	public static void fireViewEvent(TiViewProxy view, String type, Map<String,Object> extraProperties)
 	{
 		KrollDict event = new KrollDict();
-		event.put("source", view);
-		event.put("type", type);
+		event.put(TiC.EVENT_PROPERTY_SOURCE, view);
+		event.put(TiC.EVENT_PROPERTY_TYPE, type);
 		
 		if (extraProperties != null) {
 			for (Entry<String,Object> entry : extraProperties.entrySet()) {
@@ -49,14 +45,14 @@ public class TiEventHelper {
 	}
 	
 	public static void fireClicked(TiViewProxy view) {
-		fireViewEvent(view, EVENT_CLICK);
+		fireViewEvent(view, TiC.EVENT_CLICK);
 	}
 	
 	public static void fireFocused(TiViewProxy view) {
-		fireViewEvent(view, EVENT_FOCUSED);
+		fireViewEvent(view, TiC.EVENT_FOCUSED);
 	}
 	
 	public static void fireUnfocused(TiViewProxy view) {
-		fireViewEvent(view, EVENT_UNFOCUSED);
+		fireViewEvent(view, TiC.EVENT_UNFOCUSED);
 	}
 }
