@@ -40,6 +40,7 @@ import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.os.Message;
 import android.view.View;
+import android.webkit.URLUtil;
 
 public class TiUIImageView extends TiUIView
 	implements OnLifecycleEvent, Handler.Callback
@@ -522,8 +523,13 @@ public class TiUIImageView extends TiUIView
 		}
 		if (d.containsKey("defaultImage")) {
 			try {
-				if (!d.containsKey("image") || !TiResponseCache.peek(new URI(d.getString("image"))))
-					throw new URISyntaxException(d.getString("image"), "Image in Cache");
+				if (!d.containsKey("image"))
+					throw new URISyntaxException(d.getString("image"), "Image not defined");
+				if (URLUtil.isNetworkUrl(d.getString("image"))) {
+					URI uri = new URI(d.getString("image"));
+					if (!TiResponseCache.peek(uri))
+						throw new URISyntaxException(d.getString("image"), "Image in Cache");
+				}
 			} catch (URISyntaxException e) {
 				setDefaultImageSource(d.get("defaultImage"));
 			}
