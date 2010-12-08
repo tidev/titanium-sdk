@@ -372,12 +372,12 @@ extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 		NSHTTPCookie *currentCookie = [cookies objectForKey:name];
 		if (currentCookie != nil) {
 			// We're replacing a cookie value
-			if (cookieValue != nil) {
-				[[request requestCookies] removeObject:cookieValue];
+			if (currentCookie != nil) {
+				[[request requestCookies] removeObject:currentCookie];
 			}
 			// We're removing a cookie value
 			else {
-				[[request requestCookies] removeObject:cookieValue];
+				[[request requestCookies] removeObject:currentCookie];
 				[cookies removeObjectForKey:name];
 			}
 		}
