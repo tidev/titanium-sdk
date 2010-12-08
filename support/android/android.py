@@ -60,7 +60,7 @@ class Android(object):
 		# android requires at least one dot in packageid
 		if len(re.findall(r'\.',myid))==0:
 			myid = 'com.%s' % myid
-		
+
 		self.id = myid
 		self.sdk = sdk
 
