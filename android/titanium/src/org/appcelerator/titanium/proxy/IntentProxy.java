@@ -13,6 +13,7 @@ import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiApplication;
+import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
@@ -83,12 +84,12 @@ public class IntentProxy extends KrollProxy
 		intent = new Intent();
 		
 		// See which set of options we have to work with.
-		String action = dict.getString("action");
-		String url = dict.getString("url");
-		String data = dict.getString("data");
-		String className = dict.getString("className");
-		String packageName = dict.getString("packageName");
-		String type = dict.getString("type");
+		String action = dict.getString(TiC.PROPERTY_ACTION);
+		String url = dict.getString(TiC.PROPERTY_URL);
+		String data = dict.getString(TiC.PROPERTY_DATA);
+		String className = dict.getString(TiC.PROPERTY_CLASS_NAME);
+		String packageName = dict.getString(TiC.PROPERTY_PACKAGE_NAME);
+		String type = dict.getString(TiC.PROPERTY_TYPE);
 
 		if (action != null) {
 			if (DBG) {

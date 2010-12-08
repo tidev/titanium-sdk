@@ -10,6 +10,7 @@ import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiBaseActivity;
+import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.AsyncResult;
 import org.appcelerator.titanium.util.Log;
@@ -45,8 +46,7 @@ public abstract class TiWindowProxy extends TiViewProxy
 	protected TiViewProxy tab;
 	protected boolean inTab;
 
-	public TiWindowProxy(TiContext tiContext)
-	{
+	public TiWindowProxy(TiContext tiContext) {
 		super(tiContext);
 		inTab = false;
 	}
@@ -57,8 +57,7 @@ public abstract class TiWindowProxy extends TiViewProxy
 	}
 
 	@Override
-	public boolean handleMessage(Message msg)
-	{
+	public boolean handleMessage(Message msg) {
 		switch(msg.what) {
 			case MSG_OPEN : {
 				AsyncResult result = (AsyncResult) msg.obj;
@@ -79,8 +78,7 @@ public abstract class TiWindowProxy extends TiViewProxy
 	}
 
 	@Kroll.method
-	public void open(@Kroll.argument(optional=true) Object arg)
-	{
+	public void open(@Kroll.argument(optional=true) Object arg) {
 		if (opened) {
 			return;
 		}
@@ -109,8 +107,7 @@ public abstract class TiWindowProxy extends TiViewProxy
 	}
 
 	@Kroll.method
-	public void close(@Kroll.argument(optional=true) Object arg)
-	{
+	public void close(@Kroll.argument(optional=true) Object arg) {
 		if (!opened) {
 			return;
 		}
@@ -148,7 +145,6 @@ public abstract class TiWindowProxy extends TiViewProxy
 		if (creatingContext != null && context != null && !creatingContext.equals(context)) {
 			switchToCreatingContext();
 		}
-
 	}
 	
 	public void setTabProxy(TiViewProxy tabProxy) {
@@ -178,7 +174,6 @@ public abstract class TiWindowProxy extends TiViewProxy
 	@Kroll.method @Kroll.setProperty
 	public void setOrientationModes(int[] modes) {
 		orientationModes = modes;
-		
 		Activity activity = handleGetActivity();
 		if (activity instanceof TiBaseActivity) {
 			TiBaseActivity tiActivity = (TiBaseActivity) activity;
@@ -206,15 +201,14 @@ public abstract class TiWindowProxy extends TiViewProxy
 	}
 	
 	public ActivityProxy getActivity() {
-		return (ActivityProxy) getProperty("activity");
+		return (ActivityProxy) getProperty(TiC.PROPERTY_ACTIVITY);
 	}
 	
 	public void setActivity(ActivityProxy activity) {
-		setProperty("activity", activity);
+		setProperty(TiC.PROPERTY_ACTIVITY, activity);
 	}
 	
 	protected abstract void handleOpen(KrollDict options);
-	//public abstract void handlePostOpen(Activity activity);
 	protected abstract void handleClose(KrollDict options);
 	protected abstract Activity handleGetActivity();
 }

@@ -70,7 +70,7 @@ public class KrollBridge implements TiEvaluator
 	
 	public void bindToTopLevel(String topLevelName, Object value) {
 		if (value instanceof KrollProxy) {
-			value = new KrollObject((KrollProxy)value);
+			value = ((KrollProxy)value).getKrollObject();
 		}
 		
 		Scriptable parent = kroll.getScope();
@@ -114,6 +114,7 @@ public class KrollBridge implements TiEvaluator
 			KrollInvocation invocation = KrollInvocation.createPropertySetInvocation(object, object, ctxSpecificName, null, null);
 			Object convertedValue = KrollConverter.getInstance().convertNative(invocation, value);
 			object.put(ctxSpecificName, object, convertedValue);
+			invocation.recycle();
 		}
 	}
 	

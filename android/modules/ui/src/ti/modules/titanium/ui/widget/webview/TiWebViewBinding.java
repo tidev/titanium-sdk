@@ -181,13 +181,16 @@ public class TiWebViewBinding {
 		public int addEventListener(String event, int id)
 		{
 			KrollInvocation invocation = KrollInvocation.createMethodInvocation(module.getTiContext(), module.getTiContext().getScope(), null, "addEventListener", null, module);
-			return module.addEventListener(invocation, event, new WebViewCallback(id));
+			int listenerId = module.addEventListener(invocation, event, new WebViewCallback(id));
+			invocation.recycle();
+			return listenerId;
 		}
 		
 		public void removeEventListener(String event, int id)
 		{
 			KrollInvocation invocation = KrollInvocation.createMethodInvocation(module.getTiContext(), module.getTiContext().getScope(), null, "removeEventListener", null, module);
 			module.removeEventListener(invocation, event, id);
+			invocation.recycle();
 		}
 	}
 }

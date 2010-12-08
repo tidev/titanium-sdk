@@ -11,13 +11,13 @@ import java.util.ArrayList;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.annotations.Kroll;
+import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.proxy.TiWindowProxy;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.view.TiUIView;
-import org.json.JSONObject;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -31,26 +31,23 @@ public class WindowProxy extends TiWindowProxy
 	private static final boolean DBG = TiConfig.LOGD;
 
 	private static final int MSG_FIRST_ID = TiWindowProxy.MSG_LAST_ID + 1;
-
 	private static final int MSG_FINISH_OPEN = MSG_FIRST_ID + 100;
 	private static final int MSG_TAB_OPEN = MSG_FIRST_ID + 101;
-
 	protected static final int MSG_LAST_ID = MSG_FIRST_ID + 999;
 
 	ArrayList<TiViewProxy> views;
 	WeakReference<Activity> weakActivity;
 	String windowId;
 
-	public WindowProxy(TiContext tiContext)
-	{
+	public WindowProxy(TiContext tiContext) {
 		super(tiContext);
 	}
 	
 	@Override
 	protected KrollDict getLangConversionTable() {
 		KrollDict table = new KrollDict();
-		table.put("title","titleid");
-		table.put("titlePrompt","titlepromptid");
+		table.put("title", "titleid");
+		table.put("titlePrompt", "titlepromptid");
 		return table;
 	}
 	
@@ -61,8 +58,7 @@ public class WindowProxy extends TiWindowProxy
 	}
 
 	@Override
-	public boolean handleMessage(Message msg)
-	{
+	public boolean handleMessage(Message msg) {
 		switch(msg.what) {
 			case MSG_FINISH_OPEN: {
 				realizeViews(getTiContext().getActivity(), view);
@@ -70,14 +66,14 @@ public class WindowProxy extends TiWindowProxy
 					//TODO attach window
 				}
 				opened = true;
-				fireEvent("open", null);
+				fireEvent(TiC.EVENT_OPEN, null);
 				return true;
 			}
 			case MSG_TAB_OPEN : {
 				view = new TiUIWindow(this, (Activity) msg.obj);
 				realizeViews(null, view);
 				opened = true;
-				fireEvent("open", null);
+				fireEvent(TiC.EVENT_OPEN, null);
 				return true;
 			}
 			default : {
@@ -87,10 +83,9 @@ public class WindowProxy extends TiWindowProxy
 	}
 
 	@Override
-	protected void handleOpen(KrollDict options)
-	{
+	protected void handleOpen(KrollDict options) {
 		if (DBG) {
-			Log.i(LCAT, "handleOpen");
+			Log.d(LCAT, "handleOpen");
 		}
 
 		Messenger messenger = new Messenger(getUIHandler());
@@ -99,17 +94,16 @@ public class WindowProxy extends TiWindowProxy
 
 	public void fillIntentForTab(Intent intent) {
 		Messenger messenger = new Messenger(getUIHandler());
-		intent.putExtra("messenger", messenger);
-		intent.putExtra("messageId", MSG_TAB_OPEN);
+		intent.putExtra(TiC.INTENT_PROPERTY_MESSENGER, messenger);
+		intent.putExtra(TiC.INTENT_PROPERTY_MESSAGE_ID, MSG_TAB_OPEN);
 	}
 
 	@Override
-	protected void handleClose(KrollDict options)
-	{
+	protected void handleClose(KrollDict options) {
 		if (DBG) {
-			Log.i(LCAT, "handleClose");
+			Log.d(LCAT, "handleClose");
 		}
-		fireEvent("close", null);
+		fireEvent(TiC.EVENT_CLOSE, null);
 
 		if (view != null) {
 			((TiUIWindow) view).close(options);
@@ -118,25 +112,13 @@ public class WindowProxy extends TiWindowProxy
 		opened = false;
 	}
 
-	public void showView(TiViewProxy view)
-	{
-
-	}
-
-	public void showView(TiViewProxy view, JSONObject options)
-	{
-
-	}
-
 	@Kroll.getProperty @Kroll.method
-	public TiViewProxy getTab()
-	{
+	public TiViewProxy getTab() {
 		return tab;
 	}
 
 	@Kroll.getProperty @Kroll.method
-	public TiViewProxy getTabGroup()
-	{
+	public TiViewProxy getTabGroup() {
 		return tabGroup;
 	}
 	
@@ -148,7 +130,6 @@ public class WindowProxy extends TiWindowProxy
 	@Override
 	protected Activity handleGetActivity() {
 		if (view == null) return null;
-		
 		return ((TiUIWindow)view).getActivity();
 	}
 }
