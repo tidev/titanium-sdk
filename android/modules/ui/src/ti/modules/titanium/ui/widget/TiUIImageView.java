@@ -6,6 +6,8 @@
  */
 package ti.modules.titanium.ui.widget;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -25,6 +27,7 @@ import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiBackgroundImageLoadTask;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiConvert;
+import org.appcelerator.titanium.util.TiResponseCache;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiDrawableReference;
 import org.appcelerator.titanium.view.TiUIView;
@@ -37,6 +40,7 @@ import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.os.Message;
 import android.view.View;
+import android.webkit.URLUtil;
 
 public class TiUIImageView extends TiUIView
 	implements OnLifecycleEvent, Handler.Callback
@@ -459,14 +463,15 @@ public class TiUIImageView extends TiUIView
 			if (imageref.isNetworkUrl()) {
 				if (defaultImageSource != null) {
 					setDefaultImage();
-				}
-				synchronized(imageTokenGenerator) {
-					token = imageTokenGenerator.incrementAndGet();
+				} else {
 					TiImageView view = getView();
 					if (view != null) {
 						view.setImageDrawable(null);
-						imageref.getBitmapAsync(new BgImageLoader(getProxy().getTiContext(), requestedWidth, requestedHeight, token));
 					}
+				}
+				synchronized(imageTokenGenerator) {
+					token = imageTokenGenerator.incrementAndGet();
+					imageref.getBitmapAsync(new BgImageLoader(getProxy().getTiContext(), requestedWidth, requestedHeight, token));
 				}
 			} else {
 				setImage(imageref.getBitmap(requestedWidth, requestedHeight));
@@ -517,7 +522,17 @@ public class TiUIImageView extends TiUIView
 			view.setEnableZoomControls(TiConvert.toBoolean(d, "enableZoomControls"));
 		}
 		if (d.containsKey("defaultImage")) {
-			setDefaultImageSource(d.get("defaultImage"));
+			try {
+				if (!d.containsKey("image"))
+					throw new URISyntaxException(d.getString("image"), "Image not defined");
+				if (URLUtil.isNetworkUrl(d.getString("image"))) {
+					URI uri = new URI(d.getString("image"));
+					if (!TiResponseCache.peek(uri))
+						throw new URISyntaxException(d.getString("image"), "Image in Cache");
+				}
+			} catch (URISyntaxException e) {
+				setDefaultImageSource(d.get("defaultImage"));
+			}
 		}
 		if (d.containsKey("image")) {
 			setImageSource(d.get("image"));

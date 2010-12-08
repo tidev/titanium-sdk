@@ -53,7 +53,8 @@ var win4 = Titanium.UI.createWindow({
 var tab4 = Titanium.UI.createTab({
     icon:'images/tabs/KS_nav_platform.png',
     titleid:'platform_win_title',
-	active:true,
+// Commented out as per 1773
+//	active:true,
     window:win4
 });
 
