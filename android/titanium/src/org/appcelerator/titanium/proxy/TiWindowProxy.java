@@ -7,6 +7,7 @@
 package org.appcelerator.titanium.proxy;
 
 import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollInvocation;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiBaseActivity;
@@ -200,12 +201,26 @@ public abstract class TiWindowProxy extends TiViewProxy
 		return allowOrientationChange;
 	}
 	
-	public ActivityProxy getActivity() {
-		return (ActivityProxy) getProperty(TiC.PROPERTY_ACTIVITY);
+	@Kroll.method @Kroll.getProperty
+	public ActivityProxy getActivity(KrollInvocation invocation) {
+		return getActivity(invocation.getTiContext());
 	}
 	
-	public void setActivity(ActivityProxy activity) {
-		setProperty(TiC.PROPERTY_ACTIVITY, activity);
+	public ActivityProxy getActivity(TiContext tiContext) {
+		Object activityObject = getProperty(TiC.PROPERTY_ACTIVITY);
+		ActivityProxy activityProxy = null;
+		if (activityObject == null) {
+			activityProxy = new ActivityProxy(tiContext);
+			setProperty(TiC.PROPERTY_ACTIVITY, activityProxy);
+		} else if (activityObject instanceof KrollDict) {
+			KrollDict options = (KrollDict) activityObject;
+			activityProxy = new ActivityProxy(tiContext);
+			activityProxy.handleCreationDict(options);
+			setProperty(TiC.PROPERTY_ACTIVITY, activityProxy);
+		} else if (activityObject instanceof ActivityProxy) {
+			activityProxy = (ActivityProxy) activityObject;
+		}
+		return activityProxy;
 	}
 	
 	protected abstract void handleOpen(KrollDict options);
