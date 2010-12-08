@@ -62,6 +62,7 @@ static unsigned short KrollContextCount = 0;
 	if (condition!=nil)
 	{
 		[condition lock];
+		VerboseLog(@"Signaling %@ %@",self,CODELOCATION);
 		[condition signal];
 		[condition unlock];
 	}
@@ -670,6 +671,7 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 			debugger = NULL;
 		}
 #endif
+		VerboseLog(@"Signaling %@ %@",self,CODELOCATION);
 		[condition signal];
 		[condition unlock];
 	}
@@ -678,14 +680,18 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 - (void)suspend:(id)note
 {
 	[condition lock];
+	VerboseLog(@"Will suspend %@ %@",self,CODELOCATION);
 	suspended = YES;
+	VerboseLog(@"Did suspend %@ %@",self,CODELOCATION);
 	[condition unlock];
 }
 
 - (void)resume:(id)note
 {
 	[condition lock];
+	VerboseLog(@"Will resume-signalling %@ %@",self,CODELOCATION);
 	suspended = NO;
+	VerboseLog(@"Did resume; signalling %@ %@",self,CODELOCATION);
 	[condition signal];
 	[condition unlock];
 }
@@ -735,6 +741,7 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 	if (!mythread)
 	{
 		[lock unlock];
+		VerboseLog(@"Signaling %@ %@",self,CODELOCATION);
 		[condition signal];
 	}
 	
@@ -818,6 +825,7 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 	// need to immediately force the thread to wake up
 	// and collect garbage asap
 	[condition lock];
+	VerboseLog(@"Signaling %@ %@",self,CODELOCATION);
 	[condition signal];
 	[condition unlock];
 }
@@ -941,9 +949,13 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 		if (suspended)
 		{
 			[condition lock];
-			if (suspended)
+			//TODO: Suspended currently only is set on app pause/resume. We should have it happen whenever a JS thread
+			//should be paused. Paused being no timers waiting, no events being triggered, no code to execute.
+			if (suspended && ([queue count] == 0))
 			{
+				VerboseLog(@"Waiting: %@",self);
 				[condition wait];
+				VerboseLog(@"Resumed! %@",self)
 			} 
 			[condition unlock];
 		}

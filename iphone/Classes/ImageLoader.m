@@ -678,6 +678,17 @@ DEFINE_EXCEPTIONS
 		
 		UIImage *image = [UIImage imageWithData:data];
 		
+		if (image == nil) 
+		{
+			NSMutableDictionary* errorDetail = [NSMutableDictionary dictionary];
+			[errorDetail setValue:@"Returned invalid image data" forKey:NSLocalizedDescriptionKey];
+			NSError* error = [NSError errorWithDomain:@"com.appcelerator.titanium.imageloader" code:1 userInfo:errorDetail];
+			[[req delegate] imageLoadFailed:req error:error];
+			[request setUserInfo:nil];
+			[request release];
+			return;
+		}
+		
 		if (cacheable)
 		{
 			[self cache:image forURL:[request url]];
