@@ -117,7 +117,7 @@ public class TiUIWindow extends TiUIView
 			}
 			if (!animate) {
 				intent.addFlags(INTENT_FLAG_ACTIVITY_NO_ANIMATION);
-				intent.putExtra(TiC.INTENT_PROPERTY_ANIMATE, false);
+				intent.putExtra(TiC.PROPERTY_ANIMATE, false);
 				activity.startActivity(intent);
 				TiUIHelper.overridePendingTransition(activity);
 			} else {
@@ -148,7 +148,6 @@ public class TiUIWindow extends TiUIView
 		lightWeight = false;
 
 		this.handler = new Handler(this);
-
 		handlePostOpen();
 	}
 
@@ -172,12 +171,12 @@ public class TiUIWindow extends TiUIView
 			String baseUrl = proxy.getTiContext().getBaseUrl();
 			TiUrl tiUrl = TiUrl.normalizeWindowUrl(baseUrl, url);
 			if (DBG) {
-				Log.i(LCAT, "Window has URL: " + tiUrl.url);
+				Log.d(LCAT, "Window has URL: " + tiUrl.url);
 			}
 			
 			TiContext tiContext = null;
 			ActivityProxy activityProxy = (ActivityProxy) ((TiWindowProxy) proxy).getProperty(TiC.PROPERTY_ACTIVITY);
-			if (lightWeight) {			
+			if (lightWeight) {
 				Activity activity = proxy.getTiContext().getActivity();
 				tiContext = TiContext.createTiContext(activity, tiUrl.baseUrl);
 				if (activityProxy == null) {
@@ -195,15 +194,15 @@ public class TiUIWindow extends TiUIView
 				}
 			}
 			TiBindingHelper.bindCurrentWindowAndActivity(tiContext, proxy, activityProxy);
-			
+
 			final TiContext ftiContext = tiContext;
 			final String furl = tiUrl.url;
-
 			new Thread(new Runnable(){
 				@Override
 				public void run() {
 					try {
 						createdContext = new WeakReference<TiContext>(proxy.switchContext(ftiContext));
+						bindWindowActivity();
 						if (!lightWeight) {
 							bindProxies();
 						}
@@ -216,26 +215,49 @@ public class TiUIWindow extends TiUIView
 		} else if (!lightWeight) {
 			TiContext tiContext = TiContext.createTiContext(windowActivity, proxy.getTiContext().getBaseUrl());
 			createdContext = new WeakReference<TiContext>(proxy.switchContext(tiContext));
-			ActivityProxy activityProxy = null;
 			
-			if (windowActivity instanceof TiBaseActivity) {
-				TiBaseActivity tiActivity = (TiBaseActivity)windowActivity;
-				activityProxy = (ActivityProxy) ((TiWindowProxy) proxy).getProperty(TiC.PROPERTY_ACTIVITY);
-				if (activityProxy == null) {
-					activityProxy = new ActivityProxy(proxy.getTiContext(), tiActivity);
-					((TiWindowProxy) proxy).setActivity(activityProxy);
-				}
-			}
-
+			bindWindowActivity();
 			bindProxies();
 			handleBooted();
 		} else {
+			bindWindowActivity();
 			handleBooted();
 		}
 	}
-	
-	private void bindProxies() 
-	{
+
+	protected void createWindowActivity(Activity activity, KrollDict creationDict) {
+		ActivityProxy activityProxy = new ActivityProxy(proxy.getTiContext(), activity);
+		if (creationDict != null) {
+			activityProxy.handleCreationDict(creationDict);
+		}
+		((TiWindowProxy) proxy).setActivity(activityProxy);
+	}
+
+	protected void bindWindowActivity() {
+		Object activityObject = ((TiWindowProxy) proxy).getProperty(TiC.PROPERTY_ACTIVITY);
+		KrollDict creationDict = null;
+		ActivityProxy activityProxy = null;
+		if (activityObject instanceof KrollDict) {
+			creationDict = (KrollDict)activityObject;
+		} else if (activityObject instanceof ActivityProxy) {
+			activityProxy = (ActivityProxy) activityObject;
+		}
+		if (lightWeight) {
+			Activity activity = proxy.getTiContext().getActivity();
+			if (activityProxy == null) {
+				createWindowActivity(activity, creationDict);
+			}
+		} else {
+			if (windowActivity instanceof TiBaseActivity) {
+				TiBaseActivity tiActivity = (TiBaseActivity)windowActivity;
+				if (activityProxy == null) {
+					createWindowActivity(tiActivity, creationDict);
+				}
+			}
+		}
+	}
+
+	protected void bindProxies() {
 		if (windowActivity instanceof TiBaseActivity) {
 			TiBaseActivity tiActivity = (TiBaseActivity)windowActivity;
 			TiWindowProxy windowProxy = (TiWindowProxy)proxy;
@@ -318,12 +340,11 @@ public class TiUIWindow extends TiUIView
 		}
 	}
 	@Override
-	public boolean handleMessage(Message msg)
-	{
+	public boolean handleMessage(Message msg) {
 		switch (msg.what) {
 			case MSG_ACTIVITY_CREATED :
 				if (DBG) {
-					Log.w(LCAT, "Received Activity creation message");
+					Log.d(LCAT, "Received Activity creation message");
 				}
 				windowActivity = (Activity) msg.obj;
 				proxy.setModelListener(this);
@@ -344,7 +365,7 @@ public class TiUIWindow extends TiUIView
 			}
 			case MSG_BOOTED : {
 				if (DBG) {
-					Log.i(LCAT, "Received booted notification");
+					Log.d(LCAT, "Received booted notification");
 				}
 				handleBooted();
 				return true;
@@ -374,8 +395,7 @@ public class TiUIWindow extends TiUIView
 		return layout;
 	}
 
-	private void handleBackgroundColor(KrollDict d)
-	{
+	private void handleBackgroundColor(KrollDict d) {
 		if (proxy.getProperty(TiC.PROPERTY_BACKGROUND_COLOR) != null) {
 			Integer bgColor = TiConvert.toColor(d, TiC.PROPERTY_BACKGROUND_COLOR);
 			Drawable cd = new ColorDrawable(bgColor);
@@ -391,8 +411,7 @@ public class TiUIWindow extends TiUIView
 	}
 
 	@Override
-	public void processProperties(KrollDict d)
-	{
+	public void processProperties(KrollDict d) {
 		// Prefer image to color.
 		if (d.containsKey(TiC.PROPERTY_BACKGROUND_IMAGE)) {
 			String path = proxy.getTiContext().resolveUrl(null, TiConvert.toString(d, TiC.PROPERTY_BACKGROUND_IMAGE));
@@ -412,7 +431,8 @@ public class TiUIWindow extends TiUIView
 			} else {
 				nativeView.setBackgroundDrawable(bgColor);
 			}
-		} else if (d.containsKey(TiC.PROPERTY_TITLE)) {
+		}
+		if (d.containsKey(TiC.PROPERTY_TITLE)) {
 			String title = TiConvert.toString(d, TiC.PROPERTY_TITLE);
 			proxy.getTiContext().getActivity().setTitle(title);
 		}
@@ -420,13 +440,11 @@ public class TiUIWindow extends TiUIView
 		// Don't allow default processing.
 		d.remove(TiC.PROPERTY_BACKGROUND_IMAGE);
 		d.remove(TiC.PROPERTY_BACKGROUND_COLOR);
-
 		super.processProperties(d);
 	}
 
 	@Override
-	public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy proxy)
-	{
+	public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy proxy) {
 		if (key.equals(TiC.PROPERTY_BACKGROUND_IMAGE)) {
 			if (newValue != null) {
 				String path = proxy.getTiContext().resolveUrl(null, TiConvert.toString(newValue));
