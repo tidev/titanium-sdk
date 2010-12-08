@@ -6,6 +6,8 @@
  */
 package ti.modules.titanium.ui.widget;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -25,6 +27,7 @@ import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiBackgroundImageLoadTask;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiConvert;
+import org.appcelerator.titanium.util.TiResponseCache;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiDrawableReference;
 import org.appcelerator.titanium.view.TiUIView;
@@ -518,7 +521,12 @@ public class TiUIImageView extends TiUIView
 			view.setEnableZoomControls(TiConvert.toBoolean(d, "enableZoomControls"));
 		}
 		if (d.containsKey("defaultImage")) {
-			setDefaultImageSource(d.get("defaultImage"));
+			try {
+				if (!d.containsKey("image") || !TiResponseCache.peek(new URI(d.getString("image"))))
+					throw new URISyntaxException(d.getString("image"), "Image in Cache");
+			} catch (URISyntaxException e) {
+				setDefaultImageSource(d.get("defaultImage"));
+			}
 		}
 		if (d.containsKey("image")) {
 			setImageSource(d.get("image"));
