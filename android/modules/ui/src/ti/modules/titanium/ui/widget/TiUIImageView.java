@@ -459,14 +459,15 @@ public class TiUIImageView extends TiUIView
 			if (imageref.isNetworkUrl()) {
 				if (defaultImageSource != null) {
 					setDefaultImage();
-				}
-				synchronized(imageTokenGenerator) {
-					token = imageTokenGenerator.incrementAndGet();
+				} else {
 					TiImageView view = getView();
 					if (view != null) {
 						view.setImageDrawable(null);
-						imageref.getBitmapAsync(new BgImageLoader(getProxy().getTiContext(), requestedWidth, requestedHeight, token));
 					}
+				}
+				synchronized(imageTokenGenerator) {
+					token = imageTokenGenerator.incrementAndGet();
+					imageref.getBitmapAsync(new BgImageLoader(getProxy().getTiContext(), requestedWidth, requestedHeight, token));
 				}
 			} else {
 				setImage(imageref.getBitmap(requestedWidth, requestedHeight));
