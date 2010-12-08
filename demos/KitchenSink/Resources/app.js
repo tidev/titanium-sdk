@@ -86,8 +86,7 @@ tabGroup.addEventListener('open',function()
 	Titanium.UI.setBackgroundColor('#fff');
 });
 
-// Commented out as per 1773
-//tabGroup.setActiveTab(1); 
+tabGroup.setActiveTab(1); 
 // open tab group with a transition animation
 tabGroup.open({
 	transition:Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT
