@@ -47,6 +47,22 @@
 	}
 }
 
+-(void)setRows_:(NSNumber *)rows
+{
+	if (rows) {
+		[self launcher];
+		launcher.rowCount = [rows intValue];
+	}
+}
+
+-(void)setColumns_:(NSNumber *)cols
+{
+	if (cols) {
+		[self launcher];
+		launcher.columnCount = [cols intValue];
+	}
+}
+
 -(void)setData_:(id)args
 {
 	[self launcher];
