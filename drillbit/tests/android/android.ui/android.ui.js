@@ -142,7 +142,11 @@ describe("Ti.UI.Android tests", {
 		var view = Ti.UI.createView();
 		
 		scrollableView.addView (view);
-	}
+	},
 
+	// https://appcelerator.lighthouseapp.com/projects/32238/tickets/2505
+	lightweightWindowCrash: function() {
+		valueOf( function() {Ti.UI.createWindow({url: 'lightweight.js'});}).shouldNotThrowException();
+	}
 })
 
