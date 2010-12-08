@@ -35,7 +35,6 @@ public class KrollCallback extends KrollMethod implements KrollConvertable
 
 	public KrollCallback(KrollContext context, Scriptable scope, Scriptable thisObj, Function method) {
 		super(null);
-		
 		this.kroll = context;
 		this.scope = scope;
 		this.thisObj = thisObj;
