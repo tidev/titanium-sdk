@@ -232,7 +232,7 @@ class AndroidSDK:
 		for line in out.splitlines():
 			line = line.strip()
 			tokens = re.split(r"\s+", line)
-			if len(tokens) == 0: continue
+			if len(tokens) < 2: continue
 			if tokens[0] == 'USER': continue
 			process = {"pid": tokens[1], "name": tokens[len(tokens)-1]}
 			processes.append(process)
