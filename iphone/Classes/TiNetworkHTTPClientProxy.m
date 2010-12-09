@@ -103,7 +103,6 @@ extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 	{
 		readyState = NetworkClientStateUnsent;
 		validatesSecureCertificate = NO;
-		cookies = [[NSMutableDictionary alloc] init];
 	}
 	return self;
 }
@@ -121,7 +120,6 @@ extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 	RELEASE_TO_NIL(ondatastream);
 	RELEASE_TO_NIL(onsendstream);
 	RELEASE_TO_NIL(request);
-	RELEASE_TO_NIL(cookies);
 	[super _destroy];
 }
 
@@ -362,6 +360,12 @@ extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 	// it since we assume that the app is "trusted" (thus, cross domain ,etc)
 	if ([key isEqualToString:@"Cookie"])
 	{
+		NSMutableArray* cookies = [request requestCookies];
+		if (value == nil) {
+			[cookies removeAllObjects];
+			return;
+		}
+		
 		NSArray *tok = [value componentsSeparatedByString:@"="];
 		if ([tok count]!=2)
 		{
@@ -369,25 +373,17 @@ extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 		}
 		NSString* name = [tok objectAtIndex:0];
 		id cookieValue = [tok objectAtIndex:1];
-		NSHTTPCookie *currentCookie = [cookies objectForKey:name];
-		if (currentCookie != nil) {
-			// We're replacing a cookie value
-			if (currentCookie != nil) {
-				[[request requestCookies] removeObject:currentCookie];
-			}
-			// We're removing a cookie value
-			else {
-				[[request requestCookies] removeObject:currentCookie];
-				[cookies removeObjectForKey:name];
+		
+		for (NSHTTPCookie* cookie in cookies) {
+			if ([name isEqualToString:[cookie name]])
+			{
+				[cookies removeObject:cookie];
+				break;
 			}
 		}
-
-		// Ignore 'nil' cookies for now; maybe we should interpret them as the empty string?
-		if (cookieValue != nil) {
-			NSHTTPCookie *cookie = [NSHTTPCookie cookieWithProperties:[NSDictionary dictionaryWithObjectsAndKeys:name,NSHTTPCookieName,cookieValue,NSHTTPCookieValue,@"/",NSHTTPCookiePath,[url host],NSHTTPCookieDomain,url,NSHTTPCookieOriginURL,nil]];
-			[cookies setValue:cookie forKey:name];
-			[[request requestCookies] addObject:cookie];
-		}
+		
+		NSHTTPCookie *cookie = [NSHTTPCookie cookieWithProperties:[NSDictionary dictionaryWithObjectsAndKeys:name,NSHTTPCookieName,cookieValue,NSHTTPCookieValue,@"/",NSHTTPCookiePath,[url host],NSHTTPCookieDomain,url,NSHTTPCookieOriginURL,nil]];
+		[cookies addObject:cookie];
 	}
 	else 
 	{
