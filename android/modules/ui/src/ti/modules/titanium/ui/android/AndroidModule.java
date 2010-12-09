@@ -17,11 +17,14 @@ import ti.modules.titanium.ui.UIModule;
 import android.app.Activity;
 import android.content.Intent;
 import android.text.util.Linkify;
+import android.util.Log;
 import android.view.WindowManager;
 
 @Kroll.module(parentModule=UIModule.class)
 public class AndroidModule extends KrollModule
 {
+	private static final String LCAT = "UIAndroidModule";
+	
 	@Kroll.constant public static final int SOFT_INPUT_ADJUST_PAN = WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN;
 	@Kroll.constant public static final int SOFT_INPUT_ADJUST_RESIZE = WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE;
 	@Kroll.constant public static final int SOFT_INPUT_ADJUST_UNSPECIFIED = WindowManager.LayoutParams.SOFT_INPUT_ADJUST_UNSPECIFIED;
@@ -51,15 +54,19 @@ public class AndroidModule extends KrollModule
 	}
 	
 	@Kroll.method
-	public void openPreferences(@Kroll.argument(optional=true) String prefsName)
+	public void openPreferences(KrollInvocation kroll, @Kroll.argument(optional=true) String prefsName)
 	{
-		Activity act = getTiContext().getActivity();
-		if (act == null) return;
-		
-		Intent i = new Intent(act, TiPreferencesActivity.class);
-		if (prefsName != null)
-			i.putExtra("prefsName", prefsName);
-		act.startActivity(i);
+		Activity act = kroll.getActivity();
+		if (act != null) {
+			
+			Intent i = new Intent(act, TiPreferencesActivity.class);
+			if (prefsName != null) {
+				i.putExtra("prefsName", prefsName);
+			}
+			act.startActivity(i);
+		} else {
+			Log.w(LCAT, "Unable to open preferences. Activity is null");
+		}
 	}
 	
 	@Kroll.method
