@@ -36,6 +36,7 @@ NSString * const kTiWillShutdownNotification = @"TiWillShutdown";
 NSString * const kTiShutdownNotification = @"TiShutdown";
 NSString * const kTiSuspendNotification = @"TiSuspend";
 NSString * const kTiResumeNotification = @"TiResume";
+NSString * const kTiResumedNotification = @"TiResumed";
 NSString * const kTiAnalyticsNotification = @"TiAnalytics";
 NSString * const kTiRemoteDeviceUUIDNotification = @"TiDeviceUUID";
 NSString * const kTiGestureShakeNotification = @"TiGestureShake";

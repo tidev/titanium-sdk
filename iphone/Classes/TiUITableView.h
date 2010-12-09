@@ -22,8 +22,9 @@
 	TiGradientLayer * gradientLayer;
 	TiGradient * backgroundGradient;
 	TiGradient * selectedBackgroundGradient;
+	CGPoint hitPoint;
 }
-
+@property (nonatomic,readonly) CGPoint hitPoint;
 -(id)initWithStyle:(UITableViewCellStyle)style_ reuseIdentifier:(NSString *)reuseIdentifier_ row:(TiUITableViewRowProxy*)row_;
 
 -(void)handleEvent:(NSString*)type;

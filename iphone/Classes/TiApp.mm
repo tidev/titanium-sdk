@@ -395,7 +395,9 @@ void MyUncaughtExceptionHandler(NSException *exception)
 
 - (void)applicationDidBecomeActive:(UIApplication *)application
 {
-	//NOTE: don't fire resume here, fired below in applicationWillEnterForeground
+	// NOTE: Have to fire a separate but non-'resume' event here because there is SOME information
+	// (like new URL) that is not passed through as part of the normal foregrounding process.
+	[[NSNotificationCenter defaultCenter] postNotificationName:kTiResumedNotification object:self];
 	
 	// resume any image loading
 	[[ImageLoader sharedLoader] resume];
@@ -437,7 +439,6 @@ void MyUncaughtExceptionHandler(NSException *exception)
 
 -(void)applicationWillEnterForeground:(UIApplication *)application
 {
-	// According to docs, always followed by applicationDidBecomeActive; no reason to send notification here
 	[[NSNotificationCenter defaultCenter] postNotificationName:kTiResumeNotification object:self];
 	
 	[TiUtils queueAnalytics:@"ti.foreground" name:@"ti.foreground" data:nil];

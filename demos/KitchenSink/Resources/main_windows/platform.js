@@ -29,6 +29,10 @@ if (Titanium.Platform.name == 'iPhone OS')
 	data.push({title:'Sockets', hasChild:true, test:'../examples/sockets.js'});
 }
 
+if (Titanium.Platform.osname === 'android') {
+	data.push({title: 'Android services', hasChild:true, test:'../examples/android_services.js'});
+}
+
 // create table view
 var tableview = Titanium.UI.createTableView({
 	data:data

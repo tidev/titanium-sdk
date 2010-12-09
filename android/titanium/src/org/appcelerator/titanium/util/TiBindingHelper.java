@@ -13,16 +13,10 @@ import org.appcelerator.titanium.proxy.ServiceProxy;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.proxy.TiWindowProxy;
 
-import android.app.Activity;
-
 public class TiBindingHelper {
 
-	public static void bindCurrentActivity(TiContext context, Activity currentActivity) {
-		bindCurrentActivity(context, new ActivityProxy(context, currentActivity));
-	}
-	
-	public static void bindCurrentActivity(TiContext context, ActivityProxy currentActivity) {
-		context.getKrollBridge().bindContextSpecific("Android", "currentActivity", currentActivity);
+	public static void bindCurrentActivity(TiContext context, ActivityProxy currentActivityProxy) {
+		context.getKrollBridge().bindContextSpecific("Android", "currentActivity", currentActivityProxy);
 	}
 	
 	public static void bindCurrentService(TiContext context, ServiceProxy currentService) {
@@ -43,9 +37,9 @@ public class TiBindingHelper {
 	}
 	
 	public static void bindCurrentWindowAndActivity(TiContext context,
-		TiViewProxy currentWindow, Activity currentActivity)
+		TiViewProxy currentWindow, ActivityProxy currentActivityProxy)
 	{
 		bindCurrentWindow(context, currentWindow);
-		bindCurrentActivity(context, currentActivity);
+		bindCurrentActivity(context, currentActivityProxy);
 	}
 }

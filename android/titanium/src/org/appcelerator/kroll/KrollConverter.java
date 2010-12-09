@@ -34,6 +34,16 @@ public class KrollConverter implements KrollNativeConverter,
 	private static final boolean DBG = TiConfig.DEBUG;
 	
 	public static final String DEFAULT_NAME = "__default_name__";
+	public static final String JS_CLASS_DATE = "Date";
+	public static final String JS_CLASS_ERROR = "Error";
+	public static final String JS_CLASS_OBJECT = "Object";
+	public static final String JS_METHOD_VALUE_OF = "valueOf";
+	public static final String JS_METHOD_TO_STRING = "toString";
+	public static final String JS_PROPERTY_JAVA_EXCEPTION = "javaException";
+	public static final String JS_PROPERTY_LENGTH = "length";
+	public static final String JS_PROPERTY_MESSAGE = "message";
+	public static final String JS_UNDEFINED = "undefined";
+	
 	protected static KrollConverter _instance = new KrollConverter();
 	
 	public static KrollConverter getInstance() {
@@ -65,15 +75,11 @@ public class KrollConverter implements KrollNativeConverter,
 	
 	public Object convertJSONArray(KrollInvocation invocation, JSONArray array) {
 		Object result[] = new Object[array.length()];
-		for (int i = 0; i < array.length(); i++) 
-		{
-			try
-			{
+		for (int i = 0; i < array.length(); i++) {
+			try {
 				Object r = array.get(i);
 				result[i] = convertNative(invocation, r);
-			}
-			catch(JSONException ig)
-			{
+			} catch(JSONException ig) {
 				ig.printStackTrace();
 			}
 		}
@@ -93,7 +99,7 @@ public class KrollConverter implements KrollNativeConverter,
 		public Object get(String name, Scriptable start) {
 			KrollInvocation invocation = KrollInvocation.createPropertyGetInvocation(start, this, name, null, null);
 			Object value = map.get(name);
-			if (value == null && (name.equals("valueOf") || name.equals("toString"))) {
+			if (value == null && (name.equals(JS_METHOD_VALUE_OF) || name.equals(JS_METHOD_TO_STRING))) {
 				value = new KrollMethod(name){
 					@Override
 					public Object invoke(KrollInvocation invocation,
@@ -103,7 +109,9 @@ public class KrollConverter implements KrollNativeConverter,
 					}
 				};
 			}
-			return convertNative(invocation, value);
+			Object result = convertNative(invocation, value);
+			invocation.recycle();
+			return result;
 		}
 		
 		@Override
@@ -115,6 +123,7 @@ public class KrollConverter implements KrollNativeConverter,
 		public void put(String name, Scriptable start, Object value) {
 			KrollInvocation invocation = KrollInvocation.createPropertySetInvocation(start, this, name, null, null);
 			map.put(name, convertJavascript(invocation, value, Object.class));
+			invocation.recycle();
 		}
 		
 		@Override
@@ -124,11 +133,10 @@ public class KrollConverter implements KrollNativeConverter,
 		
 		@Override
 		public String getClassName() {
-			return "Object";
+			return JS_CLASS_OBJECT;
 		}
 
-		public String toString()
-		{
+		public String toString() {
 			StringBuilder sb = new StringBuilder();
 			sb.append("{ ");
 			
@@ -159,8 +167,7 @@ public class KrollConverter implements KrollNativeConverter,
 		}
 
 		@Override
-		public boolean has(String name, Scriptable start)
-		{
+		public boolean has(String name, Scriptable start) {
 			boolean exists = super.has(name, start);
 			if (!exists && this.map != null) {
 				exists = this.map.containsKey(name);
@@ -169,14 +176,12 @@ public class KrollConverter implements KrollNativeConverter,
 		}
 
 		@Override
-		public Object[] getIds()
-		{
+		public Object[] getIds() {
 			if (this.map != null) {
 				return this.map.keySet().toArray();
 			}
 			return super.getIds();
 		}
-
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -209,7 +214,7 @@ public class KrollConverter implements KrollNativeConverter,
 			
 			Date date = (Date) value;
 			TiContext tiContext = invocation.getTiContext();
-			return Context.getCurrentContext().newObject(tiContext.getKrollBridge().getScope(), "Date", new Object[] { date.getTime() });
+			return Context.getCurrentContext().newObject(tiContext.getKrollBridge().getScope(), JS_CLASS_DATE, new Object[] { date.getTime() });
 		}
 		else if (value.getClass().isArray()) {
 			int length = Array.getLength(value);
@@ -217,7 +222,6 @@ public class KrollConverter implements KrollNativeConverter,
 			for (int i = 0; i < length; i++) {
 				jsArray[i] = convertNative(invocation, Array.get(value, i));
 			}
-
 			return Context.getCurrentContext().newArray(invocation.getScope(), jsArray);
 		}
 		else if (value == JSONObject.NULL || value.getClass().equals(JSONObject.NULL.getClass()))
@@ -234,15 +238,15 @@ public class KrollConverter implements KrollNativeConverter,
 	
 	public boolean isArrayLike(Scriptable scriptable) {
 		// some objects have length() methods, so just check the value?
-		return scriptable.has("length", scriptable) &&
-			scriptable.get("length", scriptable) instanceof Number &&
+		return scriptable.has(JS_PROPERTY_LENGTH, scriptable) &&
+			scriptable.get(JS_PROPERTY_LENGTH, scriptable) instanceof Number &&
 			!(scriptable instanceof KrollObject) &&
 			!(scriptable instanceof Function);
 	}
 
 	public Object[] toArray(KrollInvocation invocation, Scriptable scriptable)
 	{
-		int len = (Integer) Context.jsToJava(scriptable.get("length", scriptable), Integer.class);
+		int len = (Integer) Context.jsToJava(scriptable.get(JS_PROPERTY_LENGTH, scriptable), Integer.class);
 		Object[] a = new Object[len];
 		for(int i = 0; i < len; i++) {
 			Object v = scriptable.get(i, scriptable);
@@ -260,20 +264,20 @@ public class KrollConverter implements KrollNativeConverter,
 			return proxy.getNativeValue();
 		} else if (isArrayLike(scriptable)) {
 			return toArray(invocation, scriptable);
-		} else if (scriptable.getClassName().equals("Date")) {
+		} else if (scriptable.getClassName().equals(JS_CLASS_DATE)) {
 			return new KrollDate(scriptable);
-		} else if (scriptable.getClassName().equals("Error")) {
-			if (scriptable.has("javaException", scriptable)) {
-				NativeJavaObject exception = (NativeJavaObject) scriptable.get("javaException", scriptable);
+		} else if (scriptable.getClassName().equals(JS_CLASS_ERROR)) {
+			if (scriptable.has(JS_PROPERTY_JAVA_EXCEPTION, scriptable)) {
+				NativeJavaObject exception = (NativeJavaObject) scriptable.get(JS_PROPERTY_JAVA_EXCEPTION, scriptable);
 				return exception.unwrap();
 			} else {
-				return scriptable.get("message", scriptable);
+				return scriptable.get(JS_PROPERTY_MESSAGE, scriptable);
 			}
 		} else if (scriptable instanceof Function) {
 			if (scriptable instanceof KrollCallback) {
 				return scriptable;
 			}
-			
+
 			KrollContext ctx = null;
 			if (invocation.getTiContext() != null) {
 				ctx = invocation.getTiContext().getKrollContext();
@@ -283,7 +287,7 @@ public class KrollConverter implements KrollNativeConverter,
 			return new KrollScriptableDict(scriptable);
 		}
 	}
-	
+
 	public Object convertArray(KrollInvocation invocation, Object[] array, Class<?> target) {
 		if (target.isArray()) {
 			// Handle casting native / box type arrays
@@ -316,7 +320,7 @@ public class KrollConverter implements KrollNativeConverter,
 		}
 		return newValues;
 	}
-	
+
 	public Object convertJavascript(KrollInvocation invocation, Object value, Class<?> target) {
 		if (value instanceof Scriptable) {
 			return convertScriptable(invocation, (Scriptable)value);
@@ -330,16 +334,18 @@ public class KrollConverter implements KrollNativeConverter,
 			if (value.getClass().isArray()) {
 				return convertArray(invocation, (Object[])value, target);
 			} else {
-				Log.w(TAG, "Unhandled type conversion: value: " + value.toString() + " type: " + value.getClass().getName() + ", invocation: " + invocation);
+				if (DBG) {
+					Log.d(TAG, "Unhandled type conversion: value: " + value.toString() + " type: " + value.getClass().getName() + ", invocation: " + invocation);
+				}
 			}
 		}
 		return value;
 	}
-	
+
 	public Object getDefaultValue(Class<?> clazz) {
 		return KrollDefaultValues.getDefault(clazz);
 	}
-	
+
 	public static boolean toBoolean(Object value)
 	{
 		if (value instanceof Boolean) {
@@ -350,6 +356,7 @@ public class KrollConverter implements KrollNativeConverter,
 			throw new IllegalArgumentException("Unable to convert " + value.getClass().getName() + " to boolean.");
 		}
 	}
+
 	public static boolean toBoolean(KrollDict d, String key) {
 		return toBoolean(d.get(key));
 	}
@@ -365,6 +372,7 @@ public class KrollConverter implements KrollNativeConverter,
 			throw new NumberFormatException("Unable to convert " + value.getClass().getName());
 		}
 	}
+
 	public static int toInt(KrollDict d, String key) {
 		return toInt(d.get(key));
 	}
@@ -380,6 +388,7 @@ public class KrollConverter implements KrollNativeConverter,
 			throw new NumberFormatException("Unable to convert " + value.getClass().getName());
 		}
 	}
+
 	public static float toFloat(KrollDict d, String key) {
 		return toFloat(d.get(key));
 	}
@@ -395,24 +404,23 @@ public class KrollConverter implements KrollNativeConverter,
 			throw new NumberFormatException("Unable to convert " + value.getClass().getName());
 		}
 	}
+
 	public static double toDouble(KrollDict d, String key) {
 		return toDouble(d.get(key));
 	}
 
 	public static String toString(Object value) {
-		return value == null ? null : (value == Scriptable.NOT_FOUND ? "undefined" : value.toString());
+		return value == null ? null : (value == Scriptable.NOT_FOUND ? JS_UNDEFINED : value.toString());
 	}
+
 	public static String toString(KrollDict d, String key) {
 		return toString(d.get(key));
 	}
 
 	public static String[] toStringArray(Object[] parts) {
 		String[] sparts = (parts != null ? new String[parts.length] : new String[0]);
-
 		if (parts != null) {
-			for (int i = 0; i < parts.length; i++) {
-				sparts[i] = (String) parts[i];
-			}
+			System.arraycopy(parts, 0, sparts, 0, parts.length);
 		}
 		return sparts;
 	}

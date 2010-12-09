@@ -32,7 +32,6 @@ class ScriptProcessor(SGMLParser):
 					self.scripts.append(attr[1])
 
 class Compiler(object):
-	
 	def __init__(self,tiapp,project_dir,java,classes_dir,root_dir):
 		self.tiapp = tiapp
 		self.java = java
@@ -63,7 +62,7 @@ class Compiler(object):
 		self.js_files = {}
 		self.html_scripts = []
 		self.compiled_files = []
-		
+
 	def add_required_module(self, name):
 		name = name.lower()
 		if name in ('buildhash','builddate'): return # ignore these
@@ -87,14 +86,14 @@ class Compiler(object):
 			if self.depends_map['dependencies'].has_key(name):
 				for depend in self.depends_map['dependencies'][name]:
 					self.add_required_module(depend)
-	
+
 	def is_module(self, name):
 		if name.isupper(): return False # completely upper case signifies a constant
 		if not name[0].isupper() and name != "iPhone": return False
 		if 'iPhone.' in name: return False
 		
 		return True
-	
+
 	def extract_from_namespace(self, name, line):
 		modules = set()
 		methods = set()
@@ -118,24 +117,24 @@ class Compiler(object):
 			else:
 				methods.add(sym)
 		return modules, methods
-	
+
 	def extract_and_combine_modules(self, name, line):
 		modules, methods = self.extract_from_namespace(name, line)
 		for module in modules:
 			self.add_required_module(module)
 		for method in methods:
 			self.module_methods.add(method)
-			
+	
 	def extract_modules(self,out):
 		for line in out.split(';'):
 			self.extract_and_combine_modules('Titanium',line)
 			self.extract_and_combine_modules('Ti',line)
-	
+
 	def compile_javascript(self, fullpath):
 		js_jar = os.path.join(self.template_dir, 'js.jar')
 		# poor man's os.path.relpath (we don't have python 2.6 in windows)
 		resource_relative_path = fullpath[len(self.project_dir)+1:].replace("\\", "/")
-		
+
 		# chop off '.js'
 		js_class_name = resource_relative_path[:-3]
 		escape_chars = ['\\', '/', ' ', '.']
@@ -152,10 +151,9 @@ class Compiler(object):
 		sys.stdout.flush()
 		
 		run.run(jsc_args)
-		
+
 	def compile_into_bytecode(self, paths):
 		compile_js = False
-		
 		# we only optimize for production deploy type or if it's forcefully overridden with ti.android.compilejs
 		if self.tiapp.has_app_property("ti.android.compilejs"):
 			if self.tiapp.to_bool(self.tiapp.get_app_property('ti.android.compilejs')):

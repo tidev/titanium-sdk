@@ -34,12 +34,12 @@
 @property(nonatomic,readwrite,assign) NSNumber *distanceFilter;
 @property(nonatomic,readwrite,assign) NSNumber *headingFilter;
 @property(nonatomic,readonly) NSNumber *locationServicesEnabled;
+@property(nonatomic,readonly) NSNumber* locationServicesAuthorization;
 
 // the reason for using Location services - now required in 3.2+
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
 @property(nonatomic,readwrite,assign) NSString *purpose;
 #endif
-
 
 @property(nonatomic,readonly) NSNumber *ACCURACY_BEST;
 @property(nonatomic,readonly) NSNumber *ACCURACY_NEAREST_TEN_METERS;
@@ -47,6 +47,13 @@
 @property(nonatomic,readonly) NSNumber *ACCURACY_KILOMETER;
 @property(nonatomic,readonly) NSNumber *ACCURACY_THREE_KILOMETERS;
 
+// Authorization to use location, 4.2+ only
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_2
+@property(nonatomic,readonly) NSNumber* AUTHORIZATION_AUTHORIZED;
+@property(nonatomic,readonly) NSNumber* AUTHORIZATION_DENIED;
+@property(nonatomic,readonly) NSNumber* AUTHORIZATION_RESTRICTED;
+#endif
+@property(nonatomic,readonly) NSNumber* AUTHORIZATION_UNKNOWN; // We still need the 'authorization unknown' constant, though.
 
 @end
 

@@ -39,7 +39,9 @@ public abstract class KrollMethod extends BaseFunction implements Function {
 		if (thisObj instanceof KrollObject) {
 			proxy = ((KrollObject)thisObj).getProxy();
 		}
-		
+
+		Object methodResult = null;
+		Exception exception = null;
 		KrollInvocation inv = KrollInvocation.createMethodInvocation(scope, thisObj, name, this, proxy);
 		try {
 			if (!runOnUiThread) {
@@ -66,17 +68,23 @@ public abstract class KrollMethod extends BaseFunction implements Function {
 					
 					Object retVal = result.getResult();
 					if (retVal instanceof Exception) {
-						throw (Exception)retVal;
+						exception = (Exception)retVal;
+						methodResult = Context.getUndefinedValue();
 					} else {
-						return retVal;
+						methodResult = retVal;
 					}
 				}
 			}
 		} catch (Exception e) {
-			Log.e(TAG, "Exception calling kroll method " + name + ", invocation: " + inv, e);
-			Context.throwAsScriptRuntimeEx(e);
-			return Context.getUndefinedValue();
+			exception = e;
+			methodResult = Context.getUndefinedValue();
 		}
+		inv.recycle();
+		if (exception != null) {
+			Log.e(TAG, "Exception calling kroll method " + name + ", invocation: " + inv, exception);
+			Context.throwAsScriptRuntimeEx(exception);
+		}
+		return methodResult;
 	}
 	
 	@Override

@@ -162,7 +162,9 @@ var pb = Titanium.UI.createProgressBar({
 	width:200
 });
 
-win.setToolbar([flexSpace,pb,flexSpace]);
+if (Ti.Platform.name != 'android') {
+	win.setToolbar([flexSpace,pb,flexSpace]);
+}
 pb.show();
 
 //

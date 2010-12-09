@@ -180,6 +180,7 @@ public class EventProxy extends KrollProxy {
 		return queryEventsBetweenDates(context, date1, date2, "Calendars._id="+calendar.getId(), null);
 	}
 
+	@Kroll.method @Kroll.getProperty
 	public ReminderProxy[] getReminders() {
 		ArrayList<ReminderProxy> reminders = ReminderProxy.getRemindersForEvent(getTiContext(), this);
 		return reminders.toArray(new ReminderProxy[reminders.size()]);
@@ -196,6 +197,7 @@ public class EventProxy extends KrollProxy {
 		return ReminderProxy.createReminder(getTiContext(), this, minutes, method);
 	}
 	
+	@Kroll.method @Kroll.getProperty
 	public AlertProxy[] getAlerts() {
 		ArrayList<AlertProxy> alerts = AlertProxy.getAlertsForEvent(getTiContext(), this);
 		return alerts.toArray(new AlertProxy[alerts.size()]);

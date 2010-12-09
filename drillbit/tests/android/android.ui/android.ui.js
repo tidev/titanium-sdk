@@ -112,9 +112,9 @@ describe("Ti.UI.Android tests", {
 	},
 
 	// https://appcelerator.lighthouseapp.com/projects/32238/tickets/2391-android-smoketest-map-view-test-crashes-on-load-with-illegalargumentexception#ticket-2391-3
-
+	// this defect is no longer valid with https://appcelerator.lighthouseapp.com/projects/32238/tickets/1592-android-move-menu-to-tiandroidactivity an exception should be thrown now
 	androidOptionMenuIllegalArgs: function() {
-		valueOf( function() { Ti.UI.Android.OptionMenu.createMenu(); }).shouldNotThrowException();
+		valueOf( function() { Ti.UI.Android.OptionMenu.createMenu(); }).shouldThrowException();
 	},
 
 	// https://appcelerator.lighthouseapp.com/projects/32238-titanium-mobile/tickets/2337-android-picker-setselectedrow-method-causes-exception-when-third-bool-argument-omitted#ticket-2337-4
@@ -142,7 +142,11 @@ describe("Ti.UI.Android tests", {
 		var view = Ti.UI.createView();
 		
 		scrollableView.addView (view);
-	}
+	},
 
+	// https://appcelerator.lighthouseapp.com/projects/32238/tickets/2505
+	lightweightWindowCrash: function() {
+		valueOf( function() {Ti.UI.createWindow({url: 'lightweight.js'});}).shouldNotThrowException();
+	}
 })
 

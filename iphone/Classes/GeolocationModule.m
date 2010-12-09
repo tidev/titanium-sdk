@@ -601,6 +601,16 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 	return NUMBOOL([[self tempLocationManager] locationServicesEnabled]);
 }
 
+-(NSNumber*)locationServicesAuthorization
+{
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_2
+	if ([TiUtils isIOS4_2OrGreater]) {
+		return NUMINT([CLLocationManager authorizationStatus]);
+	}
+#endif
+	return [self AUTHORIZATION_UNKNOWN];
+}
+
 -(void)restart:(id)arg
 {
 	[lock lock];
@@ -617,7 +627,16 @@ MAKE_SYSTEM_PROP_DBL(ACCURACY_NEAREST_TEN_METERS,kCLLocationAccuracyNearestTenMe
 MAKE_SYSTEM_PROP_DBL(ACCURACY_HUNDRED_METERS,kCLLocationAccuracyHundredMeters);
 MAKE_SYSTEM_PROP_DBL(ACCURACY_KILOMETER,kCLLocationAccuracyKilometer);
 MAKE_SYSTEM_PROP_DBL(ACCURACY_THREE_KILOMETERS,kCLLocationAccuracyThreeKilometers);
-	
+
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_2
+MAKE_SYSTEM_PROP(AUTHORIZATION_UNKNOWN, kCLAuthorizationStatusNotDetermined);
+MAKE_SYSTEM_PROP(AUTHORIZATION_AUTHORIZED, kCLAuthorizationStatusAuthorized);
+MAKE_SYSTEM_PROP(AUTHORIZATION_DENIED, kCLAuthorizationStatusDenied);
+MAKE_SYSTEM_PROP(AUTHORIZATION_RESTRICTED, kCLAuthorizationStatusRestricted);
+#else
+// We only need auth unknown, because that's all the system will return.
+MAKE_SYSTEM_PROP(AUTHORIZATION_UNKNOWN, 0);
+#endif
 
 #pragma mark Internal
 

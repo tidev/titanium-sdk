@@ -115,15 +115,15 @@ public class TiLocation extends TiGeoHelper
 				// We should really query all active providers - one may have a more accurate fix
 				Location location = getLocationManager().getLastKnownLocation(provider);
 				if (location != null) {
-					listener.call(locationToKrollDict(location, getLocationManager().getProvider(provider)));
+					listener.callAsync(locationToKrollDict(location, getLocationManager().getProvider(provider)));
 					doAnalytics(location);
 				} else {
 					Log.i(LCAT, "getCurrentPosition - location is null");
-					listener.call(TiConvert.toErrorObject(ERR_POSITION_UNAVAILABLE, "location is currently unavailable."));
+					listener.callAsync(TiConvert.toErrorObject(ERR_POSITION_UNAVAILABLE, "location is currently unavailable."));
 				}
 			} else {
 				Log.i(LCAT, "getCurrentPosition - no providers are available");
-				listener.call(TiConvert.toErrorObject(ERR_POSITION_UNAVAILABLE, "no providers are available."));
+				listener.callAsync(TiConvert.toErrorObject(ERR_POSITION_UNAVAILABLE, "no providers are available."));
 			}
 		}
 	}

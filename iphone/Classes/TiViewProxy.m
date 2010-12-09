@@ -1360,10 +1360,9 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
 
 	BOOL changedFrame = NO;
 //BUG BARRIER: Code in this block is legacy code that should be factored out.
-	CGRect oldFrame = [[self view] frame];
 	if (windowOpened && [self viewAttached])
 	{
-		
+		CGRect oldFrame = [[self view] frame];
 		if(![self suppressesRelayout])
 		{
 			sandboxBounds = [[[self view] superview] bounds];
@@ -1452,6 +1451,16 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
 	int childZindex = [childProxy zIndex];
 	BOOL earlierSibling = YES;
 	UIView * ourView = [self parentViewForChild:childProxy];
+	
+	// Have to loop through the view first to find non-Ti views, and consider them
+	// to be on the "bottom" of the view drawing stack, so Ti-everything draws atop them
+	// TODO: This is probably slow - can we reliably cache this value?
+	for (UIView* subview in [ourView subviews]) 
+	{
+		if (![subview isKindOfClass:[TiUIView class]]) {
+			result++;
+		}
+	}
 	
 	pthread_rwlock_rdlock(&childrenLock);
 	for (TiViewProxy * thisChildProxy in self.children)

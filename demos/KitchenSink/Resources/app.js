@@ -53,7 +53,8 @@ var win4 = Titanium.UI.createWindow({
 var tab4 = Titanium.UI.createTab({
     icon:'images/tabs/KS_nav_platform.png',
     titleid:'platform_win_title',
-	active:true,
+// Commented out as per 1773
+//	active:true,
     window:win4
 });
 
@@ -334,7 +335,10 @@ if (isiOS4Plus())
 
 	// fired when an app resumes for suspension
 	Ti.App.addEventListener('resume',function(e){
-		Ti.API.info("app was resumed from the background");
+		Ti.API.info("app is resuming from the background");
+	});
+	Ti.App.addEventListener('resumed',function(e){
+		Ti.API.info("app has resumed from the background");
 	});
 
 	Ti.App.addEventListener('pause',function(e){

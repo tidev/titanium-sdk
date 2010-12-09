@@ -36,6 +36,7 @@ if (Titanium.Platform.osname == 'android')
 	data.push({title:'Preferences', hasChild:true, test:'../examples/preferences.js'});
     data.push({title:'Hide Soft Keyboard (Android)', hasChild:true, test:'../examples/android_hide_softkeyboard.js'});
     data.push({title: 'Window Soft Input (Android)', hasChild:true, test:'../examples/android_window_soft_input_mode.js'});
+    data.push({title: 'Menu (Android)', hasChild:true, test:'../examples/android_menus.js'});
 }
 
 // create table view

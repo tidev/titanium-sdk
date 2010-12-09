@@ -8,17 +8,16 @@ package ti.modules.titanium.ui.widget.tableview;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiColorHelper;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiConvert;
-import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.titanium.view.TiUIView;
 
@@ -26,21 +25,17 @@ import ti.modules.titanium.ui.TableViewProxy;
 import ti.modules.titanium.ui.TableViewRowProxy;
 import ti.modules.titanium.ui.widget.searchbar.TiUISearchBar.OnSearchChangeListener;
 import ti.modules.titanium.ui.widget.tableview.TableViewModel.Item;
-import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.Rect;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
-import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.BaseAdapter;
 import android.widget.FrameLayout;
 import android.widget.ListView;
-import android.widget.AdapterView.OnItemClickListener;
-import android.widget.AdapterView.OnItemSelectedListener;
 
 public class TiTableView extends FrameLayout
 	implements OnSearchChangeListener
@@ -50,13 +45,11 @@ public class TiTableView extends FrameLayout
 	private static final boolean DBG = TiConfig.LOGD;
 
 	//TODO make this configurable
-	protected static final int MAX_CLASS_NAMES = 16;
+	protected static final int MAX_CLASS_NAMES = 32;
 
 	private TableViewModel viewModel;
 	private ListView listView;
-	private TiTableViewItemOptions defaults;
 	private TTVListAdapter adapter;
-	private KrollDict rowTemplate;
 	private OnItemClickedListener itemClickListener;
 
 	private HashMap<String, Integer> rowTypes;
@@ -68,13 +61,13 @@ public class TiTableView extends FrameLayout
 	private TiContext tiContext;
 	private TableViewProxy proxy;
 	private boolean filterCaseInsensitive = true;
+	private TiTableViewSelector selector;
 
 	public interface OnItemClickedListener {
 		public void onClick(KrollDict item);
 	}
 
-	class TTVListAdapter extends BaseAdapter
-	{
+	class TTVListAdapter extends BaseAdapter {
 		TableViewModel viewModel;
 		ArrayList<Integer> index;
 		private boolean filtered;
@@ -244,172 +237,105 @@ public class TiTableView extends FrameLayout
 	public TiTableView(TiContext tiContext, TableViewProxy proxy)
 	{
 		super(tiContext.getActivity());
-
 		this.tiContext = tiContext;
 		this.proxy = proxy;
 
 		rowTypes = new HashMap<String, Integer>();
 		rowTypeCounter = new AtomicInteger(-1);
-
 		rowTypes.put(TableViewProxy.CLASSNAME_HEADER, rowTypeCounter.incrementAndGet());
 		rowTypes.put(TableViewProxy.CLASSNAME_NORMAL, rowTypeCounter.incrementAndGet());
 		rowTypes.put(TableViewProxy.CLASSNAME_DEFAULT, rowTypeCounter.incrementAndGet());
 
-//TODO bookmark
-		this.defaults = new TiTableViewItemOptions();
-//		defaults.put("rowHeight", "43");
-		defaults.put("fontSize", TiUIHelper.getDefaultFontSize(getContext()));
-		defaults.put("fontWeight", TiUIHelper.getDefaultFontWeight(getContext()));
-		defaults.put("marginLeft", "0");
-		defaults.put("marginTop", "0");
-		defaults.put("marginRight", "0");
-		defaults.put("marginBottom", "0");
-		defaults.put("scrollBar", "auto");
-		defaults.put("textAlign", "left");
-
 		this.viewModel = new TableViewModel(tiContext, proxy);
-
 		this.listView = new ListView(getContext()) {
-
-			@Override
-			public boolean dispatchKeyEvent(KeyEvent event) {
-				return super.dispatchKeyEvent(event);
+			public boolean onKeyDown(int keyCode, android.view.KeyEvent event) {
+				if (selector != null) {
+					selector.keyEvent(keyCode, 1, event);
+				}
+				return super.onKeyDown(keyCode, event);
+			}
+			public boolean onKeyMultiple(int keyCode, int repeatCount, android.view.KeyEvent event) {
+				if (selector != null) {
+					selector.keyEvent(keyCode, repeatCount, event);
+				}
+				return super.onKeyMultiple(keyCode, repeatCount, event);
+			}
+			public boolean onKeyUp(int keyCode, android.view.KeyEvent event) {
+				if (selector != null) {
+					selector.keyEvent(keyCode, 1, event);
+				}
+				return super.onKeyUp(keyCode, event);
 			}
 		};
 		listView.setId(TI_TABLE_VIEW_ID);
-
-		final Drawable defaultSelector = listView.getSelector();
-		final Drawable adaptableSelector = new ColorDrawable(Color.TRANSPARENT) {
-
-			@Override
-			public void draw(Canvas canvas) {
-				TiBaseTableViewItem v = (TiBaseTableViewItem) listView.getSelectedView();
-				boolean customTable = rowTemplate != null;
-
-				if (customTable || v != null) {
-					if (customTable || v.providesOwnSelector()) {
-						super.draw(canvas);
-					} else {
-						Rect r = getBounds();
-						defaultSelector.setBounds(r);
-						defaultSelector.setState(listView.getDrawableState());
-						defaultSelector.draw(canvas);
-					}
-				} else {
-					Rect r = getBounds();
-					defaultSelector.setBounds(r);
-					defaultSelector.setState(listView.getDrawableState());
-					defaultSelector.draw(canvas);
-				}
-			}
-
-		};
-		//listView.setSelector(adaptableSelector);
 
 		listView.setFocusable(true);
 		listView.setFocusableInTouchMode(true);
 		listView.setBackgroundColor(Color.TRANSPARENT);
 		listView.setCacheColorHint(Color.TRANSPARENT);
 
-		if (proxy.getProperties().containsKey("separatorColor")) {
-			setSeparatorColor(TiConvert.toString(proxy.getProperty("separatorColor")));
+		if (proxy.getProperties().containsKey(TableViewProxy.PROPERTY_SEPARATOR_COLOR)) {
+			setSeparatorColor(TiConvert.toString(proxy.getProperty(TableViewProxy.PROPERTY_SEPARATOR_COLOR)));
 		}
-
 		adapter = new TTVListAdapter(viewModel);
-
-		if (proxy.getProperties().containsKey("headerView")) {
-			TiViewProxy view = (TiViewProxy) proxy.getProperty("headerView");
-			listView.addHeaderView(layoutHeaderOrFooter(view), null, false);
+		if (proxy.getProperties().containsKey(TableViewProxy.PROPERTY_HEADER_VIEW)) {
+			TiViewProxy view = (TiViewProxy) proxy.getProperty(TableViewProxy.PROPERTY_HEADER_VIEW);
+		 	listView.addHeaderView(layoutHeaderOrFooter(view), null, false);
 		}
-		if (proxy.getProperties().containsKey("footerView")) {
-			TiViewProxy view = (TiViewProxy) proxy.getProperty("footerView");
+		if (proxy.getProperties().containsKey(TableViewProxy.PROPERTY_FOOTER_VIEW)) {
+			TiViewProxy view = (TiViewProxy) proxy.getProperty(TableViewProxy.PROPERTY_FOOTER_VIEW);
 			listView.addFooterView(layoutHeaderOrFooter(view), null, false);
 		}
 
-
 		listView.setAdapter(adapter);
-
 		listView.setOnItemClickListener(new OnItemClickListener() {
-			public void onItemClick(AdapterView<?> parent, View view, int position, long id)
-			{
+			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 				if (itemClickListener != null) {
 					if (!(view instanceof TiBaseTableViewItem)) {
 						return;
 					}
-
-					if (TiTableView.this.proxy.hasProperty("headerView")) {
+					if (TiTableView.this.proxy.hasProperty(TableViewProxy.PROPERTY_HEADER_VIEW)) {
 						position -= 1;
 					}
-					TiBaseTableViewItem v = (TiBaseTableViewItem) view;
-					String viewClicked = v.getLastClickedViewName();
-					Item item = viewModel.getViewModel().get(adapter.index.get(position));
-					KrollDict event = new KrollDict();
-
-					event.put("rowData", item.rowData);
-					event.put("section", viewModel.getSection(item.sectionIndex));
-					event.put("row", item.proxy);
-					event.put("index", item.index);
-					event.put("detail", false);
-
-					if (viewClicked != null) {
-						event.put("layoutName", viewClicked);
-					}
-
-					event.put("searchMode", adapter.isFiltered());
-
-					if(item.proxy != null && item.proxy instanceof TableViewRowProxy) {
-						TableViewRowProxy rp = (TableViewRowProxy) item.proxy;
-						if (rp.hasListeners("click")) {
-							rp.fireEvent("click", event);
-						}
-					}
-					itemClickListener.onClick(event);
+					rowClicked((TiBaseTableViewItem)view, position);
 				}
-			}
-		});
-		listView.setOnItemSelectedListener(new OnItemSelectedListener() {
-			private TiBaseTableViewItem lastSelected = null;
-			private KrollDict lastSelectedProperties = null;
-
-			public void onItemSelected(AdapterView<?> parent, View view,
-					int position, long id) {
-				if (!(view instanceof TiBaseTableViewItem)) {
-					return;
-				}
-
-				if (TiTableView.this.proxy.hasProperty("headerView")) {
-					position -= 1;
-				}
-				TiBaseTableViewItem v = (TiBaseTableViewItem) view;
-				KrollDict viewProperties = null;
-				Item item = viewModel.getViewModel().get(adapter.index.get(position));
-				if (item.proxy != null) {
-					viewProperties = item.proxy.getProperties();
-					if (viewProperties.containsKey("selectedBackgroundImage")) {
-						v.setBackgroundImageProperty(viewProperties, "selectedBackgroundImage");
-					} else if (viewProperties.containsKey("selectedBackgroundColor")) {
-						v.setBackgroundDrawable(new ColorDrawable(TiConvert.toColor(viewProperties, "selectedBackgroundColor")));
-					}
-				}
-				if (lastSelected != null && lastSelectedProperties != null) {
-					lastSelected.setBackgroundFromProperties(lastSelectedProperties);
-				}
-				lastSelected = v;
-				lastSelectedProperties = viewProperties;
-			}
-			public void onNothingSelected(AdapterView<?> parent) {
-				if (lastSelected != null && lastSelectedProperties != null) {
-					lastSelected.setBackgroundFromProperties(lastSelectedProperties);
-				}
-				lastSelected = null;
-				lastSelectedProperties = null;
 			}
 		});
 		addView(listView);
 	}
 
-	private View layoutHeaderOrFooter(TiViewProxy viewProxy)
-	{
+	public void enableCustomSelector() {
+		Drawable currentSelector = listView.getSelector();
+		if (currentSelector != selector) {
+			selector = new TiTableViewSelector(this);
+			listView.setSelector(selector);
+		}
+	}
+	
+	protected Item getItemAtPosition(int position) {
+		return viewModel.getViewModel().get(adapter.index.get(position));
+	}
+
+	protected void rowClicked(TiBaseTableViewItem rowView, int position) {
+		String viewClicked = rowView.getLastClickedViewName();
+		Item item = getItemAtPosition(position);
+		KrollDict event = new KrollDict();
+		TableViewRowProxy.fillClickEvent(event, viewModel, item);
+		if (viewClicked != null) {
+			event.put(TableViewProxy.EVENT_PROPERTY_LAYOUT_NAME, viewClicked);
+		}
+		event.put(TableViewProxy.EVENT_PROPERTY_SEARCH_MODE, adapter.isFiltered());
+
+		if(item.proxy != null && item.proxy instanceof TableViewRowProxy) {
+			TableViewRowProxy rp = (TableViewRowProxy) item.proxy;
+			if (rp.hasListeners(TiC.EVENT_CLICK)) {
+				rp.fireEvent(TiC.EVENT_CLICK, event);
+			}
+		}
+		itemClickListener.onClick(event);
+	}
+
+	private View layoutHeaderOrFooter(TiViewProxy viewProxy) {
 		TiUIView tiView = viewProxy.getView(tiContext.getActivity());
 		View nativeView = tiView.getNativeView();
 
@@ -481,10 +407,8 @@ public class TiTableView extends FrameLayout
 		this.filterCaseInsensitive  = filterCaseInsensitive;
 	}
 
-	public void release() 
-	{
+	public void release() {
 		adapter = null;
-		
 		if (listView != null) {
 			listView.setAdapter(null);
 		}

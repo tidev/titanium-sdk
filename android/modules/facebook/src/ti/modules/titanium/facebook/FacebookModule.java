@@ -225,7 +225,7 @@ public class FacebookModule extends KrollModule implements FBActivityDelegate,
 			KrollDict event = new KrollDict();
 			event.put("success", true);
 			event.put("permission", permission);
-			callback.call(event);
+			callback.callAsync(event);
 		} else {
 			if (usingOauth){
 				Log.d(LCAT, "making remote permission call via oauth login for: " + permission);
@@ -324,7 +324,7 @@ public class FacebookModule extends KrollModule implements FBActivityDelegate,
 						event.put("error", data.getStringExtra("error"));
 					}
 				}
-				callback.call(event);
+				callback.callAsync(event);
 				Log.d(LCAT, "Calling post activity event = " + event + " to "
 						+ callback);
 			}
@@ -364,11 +364,11 @@ public class FacebookModule extends KrollModule implements FBActivityDelegate,
 		setProperty("session", sessionDict);
 
 		if (loginCallback != null) {
-			loginCallback.call(event);
+			loginCallback.callAsync(event);
 			loginCallback = null; // one-shot
 		}
 		if (setupCallback != null)
-			setupCallback.call(event);
+			setupCallback.callAsync(event);
 		
 		fireEvent("login",sessionDict);
 	}
@@ -386,11 +386,11 @@ public class FacebookModule extends KrollModule implements FBActivityDelegate,
 		setProperty("session", new KrollDict());
 
 		if (logoutCallback != null) {
-			logoutCallback.call(event);
+			logoutCallback.callAsync(event);
 			logoutCallback = null; // one-shot
 		}
 		if (setupCallback != null)
-			setupCallback.call(event);
+			setupCallback.callAsync(event);
 		
 		fireEvent("logout",event);
 	}
@@ -472,7 +472,7 @@ public class FacebookModule extends KrollModule implements FBActivityDelegate,
 
 	private final class FBSessionDelegateImpl extends FBSessionDelegate {
 		@Override
-	    public void sessionDidLogin(FBSession session, Long uid){
+		public void sessionDidLogin(FBSession session, Long uid){
 			Log.i(LCAT, "++ Facebook session login for " + uid);
 			triggerLogIn();
 			if (session.hasUnsetPermissions()) {
@@ -489,7 +489,7 @@ public class FacebookModule extends KrollModule implements FBActivityDelegate,
 	private final class FBLoginRequestDelegateImpl extends FBRequestDelegate {
 		@SuppressWarnings("unchecked")
 		@Override
-        public void requestDidLoad(FBRequest request, String contentType, Object result) {
+		public void requestDidLoad(FBRequest request, String contentType, Object result) {
 			Log.d(LCAT, "FBLoginRequest finished with result=" + result);
 
 			if (result instanceof JSONArray) {
@@ -530,7 +530,7 @@ public class FacebookModule extends KrollModule implements FBActivityDelegate,
 		}
 
 		@Override
-        public void requestDidFailWithError(FBRequest request, Throwable error) {
+		public void requestDidFailWithError(FBRequest request, Throwable error) {
 			Log.e(LCAT, "FBLoginRequest failed", error);
 			KrollDict event = new KrollDict();
 			event.put("success", false);
@@ -553,19 +553,19 @@ public class FacebookModule extends KrollModule implements FBActivityDelegate,
 		}
 
 		@Override
-        public void requestDidLoad(FBRequest request, String contentType, Object result) {
+		public void requestDidLoad(FBRequest request, String contentType, Object result) {
 			KrollDict event = new KrollDict();
 			event.put("success", true);
 			event.put("data", result);
-			callback.call(event);
+			callback.callAsync(event);
 		}
 
 		@Override
-        public void requestDidFailWithError(FBRequest request, Throwable error) {
+		public void requestDidFailWithError(FBRequest request, Throwable error) {
 			KrollDict event = new KrollDict();
 			event.put("success", false);
 			event.put("message", error.getMessage());
-			callback.call(event);
+			callback.callAsync(event);
 		}
 	}
 }

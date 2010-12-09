@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.util.concurrent.CountDownLatch;
 
 import org.appcelerator.titanium.TiBaseActivity;
+import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.proxy.ActivityProxy;
 import org.appcelerator.titanium.proxy.TiActivityWindowProxy;
@@ -17,6 +18,7 @@ import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiBindingHelper;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiConvert;
+import org.appcelerator.titanium.util.TiUrl;
 import org.appcelerator.titanium.view.TiUIActivityWindow;
 
 import android.content.Intent;
@@ -29,17 +31,17 @@ public abstract class TiJSActivity extends TiBaseActivity
 
 	protected TiContext tiContext;
 	protected CountDownLatch jsLoadedLatch;
-	protected String url;
+	protected TiUrl url;
 	
 	public TiJSActivity(ActivityProxy proxy) {
 		setActivityProxy(proxy);
-		if (proxy.hasProperty("url")) {
-			this.url = TiConvert.toString(proxy.getProperty("url"));
+		if (proxy.hasProperty(TiC.PROPERTY_URL)) {
+			this.url = TiUrl.normalizeWindowUrl(TiConvert.toString(proxy.getProperty(TiC.PROPERTY_URL)));
 		}
 	}
 	
 	public TiJSActivity(String url) {
-		this.url = url;
+		this.url = TiUrl.normalizeWindowUrl(url);
 	}
 
 	@Override
@@ -48,19 +50,13 @@ public abstract class TiJSActivity extends TiBaseActivity
 		if (url == null) {
 			Intent intent = getIntent();
 			if (intent != null && intent.getDataString() != null) {
-				url = intent.getDataString();
+				url = TiUrl.normalizeWindowUrl(intent.getDataString());
 			} else {
 				throw new IllegalStateException("Activity url required.");
 			}
 		}
 		
-		int lastSlash = url.lastIndexOf('/');
-		String baseUrl = url.substring(0, lastSlash+1);
-		if (baseUrl.length() == 0) {
-			baseUrl = null;
-		}
-		tiContext = TiContext.createTiContext(this, baseUrl);
-
+		tiContext = TiContext.createTiContext(this, url.baseUrl);
 		TiActivityWindowProxy window = new TiActivityWindowProxy(tiContext);
 		TiBindingHelper.bindCurrentWindow(tiContext, window);
 		
@@ -70,7 +66,6 @@ public abstract class TiJSActivity extends TiBaseActivity
 		TiBindingHelper.bindCurrentActivity(tiContext, activityProxy);
 		
 		setWindowProxy(window);
-		setMenuDispatchListener(new TiMenuDispatchListener(tiContext, activityProxy));
 		super.onCreate(savedInstanceState);	
 	}
 	
@@ -90,16 +85,9 @@ public abstract class TiJSActivity extends TiBaseActivity
 	
 	protected void loadActivityScript() {
 		try {
-			String fullUrl = url;
-			if (!fullUrl.contains("://") && !fullUrl.startsWith("/") && tiContext.getBaseUrl() != null) {
-				fullUrl = tiContext.getBaseUrl() + fullUrl;
-			}
+			String fullUrl = url.resolve(tiContext);
 			if (DBG) {
-				if (url != fullUrl) {
-					Log.d(LCAT, "Eval JS Activity:" + url + " (" + fullUrl+ ")");
-				} else {
-					Log.d(LCAT, "Eval JS Activity:" + url);
-				}
+				Log.d(LCAT, "Eval JS Activity:" + fullUrl);
 			}
 			tiContext.evalFile(fullUrl);
 		} catch (IOException e) {
@@ -132,6 +120,6 @@ public abstract class TiJSActivity extends TiBaseActivity
 	
 	@Override
 	protected boolean shouldFinishRootActivity() {
-		return getIntentBoolean("closeOnExit", false) || super.shouldFinishRootActivity();
+		return getIntentBoolean(TiC.PROPERTY_EXIT_ON_CLOSE, false) || super.shouldFinishRootActivity();
 	}
 }

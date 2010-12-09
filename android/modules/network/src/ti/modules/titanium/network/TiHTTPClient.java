@@ -301,7 +301,7 @@ public class TiHTTPClient
 				o.put("blob", blob);
 				o.put("progress", ((double)totalSize)/((double)contentLength));
 
-				onDataStreamCallback.call(o);
+				onDataStreamCallback.callAsync(o);
 			}
 		}
 		
@@ -465,7 +465,7 @@ public class TiHTTPClient
 		if (cb != null)
 		{
 			cb.setThisProxy(proxy);
-			cb.call(args);
+			cb.callAsync(args);
 		}
 	}
 
@@ -621,11 +621,11 @@ public class TiHTTPClient
 
 	public String getAllResponseHeaders() {
 		String result = "";
-		if (readyState >= READY_STATE_HEADERS_RECEIVED)
+		if (readyState >= READY_STATE_HEADERS_RECEIVED && response != null)
 		{
 			StringBuilder sb = new StringBuilder(1024);
 
-			Header[] headers = request.getAllHeaders();
+			Header[] headers = response.getAllHeaders();
 			int len = headers.length;
 			for(int i = 0; i < len; i++) {
 				Header h = headers[i];

@@ -360,13 +360,30 @@ extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 	// it since we assume that the app is "trusted" (thus, cross domain ,etc)
 	if ([key isEqualToString:@"Cookie"])
 	{
+		NSMutableArray* cookies = [request requestCookies];
+		if (value == nil) {
+			[cookies removeAllObjects];
+			return;
+		}
+		
 		NSArray *tok = [value componentsSeparatedByString:@"="];
 		if ([tok count]!=2)
 		{
 			[self throwException:@"invalid arguments for setting cookie. value should be in the format 'name=value'" subreason:nil location:CODELOCATION];
 		}
-		NSHTTPCookie *cookie = [NSHTTPCookie cookieWithProperties:[NSDictionary dictionaryWithObjectsAndKeys:[tok objectAtIndex:0],NSHTTPCookieName,[tok objectAtIndex:1],NSHTTPCookieValue,@"/",NSHTTPCookiePath,[url host],NSHTTPCookieDomain,url,NSHTTPCookieOriginURL,nil]];
-		[[request requestCookies] addObject:cookie];
+		NSString* name = [tok objectAtIndex:0];
+		id cookieValue = [tok objectAtIndex:1];
+		
+		for (NSHTTPCookie* cookie in cookies) {
+			if ([name isEqualToString:[cookie name]])
+			{
+				[cookies removeObject:cookie];
+				break;
+			}
+		}
+		
+		NSHTTPCookie *cookie = [NSHTTPCookie cookieWithProperties:[NSDictionary dictionaryWithObjectsAndKeys:name,NSHTTPCookieName,cookieValue,NSHTTPCookieValue,@"/",NSHTTPCookiePath,[url host],NSHTTPCookieDomain,url,NSHTTPCookieOriginURL,nil]];
+		[cookies addObject:cookie];
 	}
 	else 
 	{
