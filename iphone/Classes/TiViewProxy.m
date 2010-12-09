@@ -1360,10 +1360,9 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
 
 	BOOL changedFrame = NO;
 //BUG BARRIER: Code in this block is legacy code that should be factored out.
-	CGRect oldFrame = [[self view] frame];
 	if (windowOpened && [self viewAttached])
 	{
-		
+		CGRect oldFrame = [[self view] frame];
 		if(![self suppressesRelayout])
 		{
 			sandboxBounds = [[[self view] superview] bounds];
