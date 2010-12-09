@@ -523,13 +523,10 @@ public class TiUIImageView extends TiUIView
 		}
 		if (d.containsKey("defaultImage")) {
 			try {
-				if (!d.containsKey("image"))
-					throw new URISyntaxException(d.getString("image"), "Image not defined");
-				if (URLUtil.isNetworkUrl(d.getString("image"))) {
-					URI uri = new URI(d.getString("image"));
-					if (!TiResponseCache.peek(uri))
-						throw new URISyntaxException(d.getString("image"), "Image in Cache");
-				}
+				if (!d.containsKey("image")
+						|| (URLUtil.isNetworkUrl(d.getString("image"))
+							&& !TiResponseCache.peek(new URI(d.getString("image")))))
+					setDefaultImageSource(d.get("defaultImage"));
 			} catch (URISyntaxException e) {
 				setDefaultImageSource(d.get("defaultImage"));
 			}
