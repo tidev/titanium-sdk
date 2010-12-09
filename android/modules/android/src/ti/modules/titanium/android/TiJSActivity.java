@@ -66,7 +66,6 @@ public abstract class TiJSActivity extends TiBaseActivity
 		TiBindingHelper.bindCurrentActivity(tiContext, activityProxy);
 		
 		setWindowProxy(window);
-		setMenuDispatchListener(new TiMenuDispatchListener(tiContext, activityProxy));
 		super.onCreate(savedInstanceState);	
 	}
 	
