@@ -60,6 +60,10 @@ public class PickerColumnProxy extends KrollProxy
 	protected void addRow(PickerRowProxy row, boolean notifyListeners) 
 	{
 		rows.add(row);
+		if (notifyListeners) {
+			// cheating here, just want to know if the row model changes, don't really care about old/new
+			this.firePropertyChanged("rows", rows, rows);
+		}
 	}
 	
 	protected void addRows(Object[] rows) 
@@ -85,15 +89,22 @@ public class PickerColumnProxy extends KrollProxy
 			rows.addAll(newRows);
 		}
 	}
-	
+
 	@Kroll.method
 	public void removeRow(PickerRowProxy row) 
 	{
+		removeRow(row, true);
+	}
+
+	public void removeRow(PickerRowProxy row, boolean notifyListeners)
+	{
 		if (rows != null) {
 			rows.remove(row);
+			// cheating here, just want to know if the row model changes, don't really care about old/new
+			this.firePropertyChanged("rows", rows, rows);
 		}
 	}
-	
+
 	@Kroll.getProperty @Kroll.method
 	public PickerRowProxy[] getRows()
 	{

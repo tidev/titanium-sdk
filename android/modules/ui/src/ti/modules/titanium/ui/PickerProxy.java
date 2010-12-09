@@ -10,9 +10,13 @@ package ti.modules.titanium.ui;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollPropertyChange;
+import org.appcelerator.kroll.KrollProxy;
+import org.appcelerator.kroll.KrollProxyListener;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.kroll.KrollCallback;
@@ -23,7 +27,9 @@ import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.ui.widget.picker.TiUIDatePicker;
 import ti.modules.titanium.ui.widget.picker.TiUIDateSpinner;
+import ti.modules.titanium.ui.widget.picker.TiUINativePicker;
 import ti.modules.titanium.ui.widget.picker.TiUIPicker;
+import ti.modules.titanium.ui.widget.picker.TiUISpinner;
 import ti.modules.titanium.ui.widget.picker.TiUITimePicker;
 import ti.modules.titanium.ui.widget.picker.TiUITimeSpinner;
 import android.app.Activity;
@@ -36,7 +42,7 @@ import android.widget.DatePicker;
 import android.widget.TimePicker;
 
 @Kroll.proxy(creatableInModule=UIModule.class)
-public class PickerProxy extends TiViewProxy 
+public class PickerProxy extends TiViewProxy implements KrollProxyListener
 {
 	private int type = UIModule.PICKER_TYPE_PLAIN;
 	private ArrayList<PickerColumnProxy>columns = new ArrayList<PickerColumnProxy>();
@@ -75,7 +81,7 @@ public class PickerProxy extends TiViewProxy
 			Log.w(LCAT, "Date+Time timer not supported in Titanium for Android");
 			return null;
 		} else if (type == UIModule.PICKER_TYPE_PLAIN ) {
-			return createPlainPicker(activity);
+			return createPlainPicker(activity, useSpinner);
 		} else if (type == UIModule.PICKER_TYPE_DATE ) {
 			if (useSpinner) {
 				return createDateSpinner(activity);
@@ -95,9 +101,9 @@ public class PickerProxy extends TiViewProxy
 		
 	}
 	
-	private TiUIView createPlainPicker(Activity activity)
+	private TiUIView createPlainPicker(Activity activity, boolean useSpinner)
 	{
-		TiUIPicker picker = new TiUIPicker(this);
+		TiUIPicker picker = useSpinner ? new TiUISpinner(this) : new TiUINativePicker(this);
 		if ((columns == null || columns.size() == 0) && hasProperty("columns") ) {
 			Object columnsAtCreation = getProperty("columns");
 			if (columnsAtCreation.getClass().isArray()) {
@@ -107,6 +113,7 @@ public class PickerProxy extends TiViewProxy
 				}
 				for (Object column : columnsArray) {
 					if (column instanceof PickerColumnProxy) {
+						((PickerColumnProxy)column).setModelListener(this);
 						this.columns.add((PickerColumnProxy) column);
 					}
 				}
@@ -332,7 +339,9 @@ public class PickerProxy extends TiViewProxy
 			} 
 			this.columns = new ArrayList<PickerColumnProxy>();
 			for (Object o : rawcolumns) {
-				this.columns.add((PickerColumnProxy) o);
+				PickerColumnProxy column = ((PickerColumnProxy) o);
+				column.setModelListener(this);
+				this.columns.add(column);
 			}
 		}
 		
@@ -401,6 +410,7 @@ public class PickerProxy extends TiViewProxy
 	{
 		TiUIView view = peekView();
 		columns.add(column);
+		column.setModelListener(this);
 		if (peekView() != null) {
 			((TiUIPicker)view).addColumn(column.getRowArrayList());
 		}
@@ -601,5 +611,38 @@ public class PickerProxy extends TiViewProxy
 			dialog.getButton(TimePickerDialog.BUTTON_POSITIVE).setText(TiConvert.toString(settings, "okButtonTitle"));
 		}
 	}
+
+
+	// Proxy Listener, just to listen for columns changes.  We only care about property changed.
+	@Override
+	public void propertyChanged(String key, Object oldValue, Object newValue,
+			KrollProxy proxy)
+	{
+		if (key.equals("rows") && proxy instanceof PickerColumnProxy)
+		{
+			TiUIPicker picker = (TiUIPicker)peekView();
+			if (picker == null) return;
+			if (!picker.isRedrawRequiredForModelChanges()) return;
+			// The picker needs to be reloaded when the model changes.
+			if (getTiContext().isUIThread()) {
+				handleReplaceViewModel();
+			} else {
+				AsyncResult result = new AsyncResult();
+				Message msg = getUIHandler().obtainMessage(MSG_REPLACE_MODEL, result);
+				msg.sendToTarget();
+				result.getResult();
+			}
+		}
+
+	}
+
+	@Override
+	public void processProperties(KrollDict d){}
+	@Override
+	public void propertiesChanged(List<KrollPropertyChange> changes, KrollProxy proxy){}
+	@Override
+	public void listenerAdded(String type, int count, KrollProxy proxy){}
+	@Override
+	public void listenerRemoved(String type, int count, KrollProxy proxy){}
 
 }
