@@ -66,7 +66,7 @@ public class ViewProxy extends TiViewProxy
 
 	@Kroll.method
 	public void zoom(int delta) {
-		TiMapView mv = (TiMapView) view;
+		TiMapView mv = (TiMapView) peekView();
 		if (mv != null) {
 			mv.changeZoomLevel(delta);
 		}
@@ -75,7 +75,7 @@ public class ViewProxy extends TiViewProxy
 	@Kroll.method
 	public void removeAllAnnotations()
 	{
-		TiMapView mv = (TiMapView) view;
+		TiMapView mv = (TiMapView) peekView();
 		if (mv != null) {
 			mv.removeAllAnnotations();
 		}
@@ -84,7 +84,11 @@ public class ViewProxy extends TiViewProxy
 	@Kroll.method
 	public void addAnnotation(AnnotationProxy annotation)
 	{
-		TiMapView mv = (TiMapView) view;
+		TiMapView mv = (TiMapView) peekView();
+		if (mv == null) {
+			Log.w(LCAT, "addAnnotation called with no view available");
+			return;
+		}
 		mv.addAnnotation(annotation);
 	}
 
@@ -101,7 +105,7 @@ public class ViewProxy extends TiViewProxy
 			}
 
 			if (title != null) {
-				TiMapView mv = (TiMapView) view;
+				TiMapView mv = (TiMapView) peekView();
 				if (mv != null) {
 					mv.removeAnnotation(title);
 				}
@@ -128,7 +132,7 @@ public class ViewProxy extends TiViewProxy
 				animate = TiConvert.toBoolean(args[1]);
 			}
 
-			TiMapView mv = (TiMapView) view;
+			TiMapView mv = (TiMapView) peekView();
 			if (mv != null) {
 				mv.selectAnnotation(true, title, animate);
 			}
@@ -154,7 +158,7 @@ public class ViewProxy extends TiViewProxy
 				animate = TiConvert.toBoolean(args[1]);
 			}
 
-			TiMapView mv = (TiMapView) view;
+			TiMapView mv = (TiMapView) peekView();
 			if (mv != null) {
 				mv.selectAnnotation(false, title, animate);
 			}
