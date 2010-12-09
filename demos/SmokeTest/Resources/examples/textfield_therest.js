@@ -109,15 +109,15 @@ b5.addEventListener('click', function()
 });
 win.add(b5);
 
-tf1.autocapitalization = true; // See autocorrect note
+tf1.autocapitalization = Titanium.UI.TEXT_AUTOCAPITALIZATION_NONE;
 var b6 = Titanium.UI.createButton({
-	title:'Capitals',
+	title:'Capital (none)',
 	height:40,
 	width:145,
 	right:10,
 	top:155
 });
-var auto = 0;
+var auto = 1;
 b6.addEventListener('click', function()
 {
 	Ti.API.info('autocapitalization ' + tf1.autocapitalization);
