@@ -23,6 +23,7 @@ import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.ui.widget.picker.TiUIDatePicker;
 import ti.modules.titanium.ui.widget.picker.TiUIDateSpinner;
+import ti.modules.titanium.ui.widget.picker.TiUINativePicker;
 import ti.modules.titanium.ui.widget.picker.TiUIPicker;
 import ti.modules.titanium.ui.widget.picker.TiUITimePicker;
 import ti.modules.titanium.ui.widget.picker.TiUITimeSpinner;
@@ -97,7 +98,7 @@ public class PickerProxy extends TiViewProxy
 	
 	private TiUIView createPlainPicker(Activity activity)
 	{
-		TiUIPicker picker = new TiUIPicker(this);
+		TiUIPicker picker = new TiUINativePicker(this);
 		if ((columns == null || columns.size() == 0) && hasProperty("columns") ) {
 			Object columnsAtCreation = getProperty("columns");
 			if (columnsAtCreation.getClass().isArray()) {
