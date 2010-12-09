@@ -6,11 +6,14 @@
  */
 package ti.modules.titanium.map;
 
+import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiApplication;
+import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiContext.OnLifecycleEvent;
 import org.appcelerator.titanium.proxy.TiViewProxy;
+import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiUIView;
 
@@ -26,6 +29,7 @@ public class ViewProxy extends TiViewProxy
 
 	private static LocalActivityManager lam;
 	private static Window mapWindow;
+	private static final String LCAT = "TiMapViewProxy";
 	
 	/*
 	 * Track whether the map activity has been destroyed (or told to destroy).
@@ -131,6 +135,7 @@ public class ViewProxy extends TiViewProxy
 		}
 	}
 
+	@Kroll.method
 	public void deselectAnnotation(Object[] args)
 	{
 		String title = null;
@@ -154,6 +159,23 @@ public class ViewProxy extends TiViewProxy
 				mv.selectAnnotation(false, title, animate);
 			}
 		}
+	}
+
+	@Kroll.method
+	public void setLocation(KrollDict location)
+	{
+		TiMapView mv = (TiMapView)peekView();
+		if (mv == null) {
+			Log.w(LCAT, "setLocation called with no view available.");
+			return;
+		}
+		mv.doSetLocation(location);
+	}
+
+	@Kroll.method
+	public void setMapType(int mapType)
+	{
+		this.setProperty(TiC.PROPERTY_MAP_TYPE, mapType, true);
 	}
 
 	public void onDestroy(Activity activity) {
