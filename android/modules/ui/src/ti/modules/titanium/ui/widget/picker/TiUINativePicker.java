@@ -24,10 +24,6 @@ public class TiUINativePicker extends TiUIPicker
 {
 	private static final String LCAT = "TiUINativePicker";
 	
-	// With this data structure we're prepared
-	// to handle multiple columns, though we
-	// don't support it yet (and may never with this native Android widget).
-
 	public TiUINativePicker(TiViewProxy proxy) 
 	{
 		super(proxy);
@@ -46,8 +42,6 @@ public class TiUINativePicker extends TiUIPicker
 		
 		((Spinner)getNativeView()).setSelection(rowIndex, animated);
 	}
-	
-	
 	
 	public PickerRowProxy getSelectedRow(int columnIndex)
 	{
@@ -119,4 +113,10 @@ public class TiUINativePicker extends TiUIPicker
 		
 	}
 	
+	@Override
+	public boolean isRedrawRequiredForModelChanges()
+	{
+		return false;
+	}
+
 }

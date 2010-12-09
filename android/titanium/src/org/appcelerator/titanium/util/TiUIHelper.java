@@ -222,7 +222,13 @@ public class TiUIHelper
 
 	public static void styleText(TextView tv, String fontFamily, String fontSize, String fontWeight) {
 		Typeface tf = tv.getTypeface();
-		tf = Typeface.SANS_SERIF; // default
+		tf = toTypeface(fontFamily);
+		tv.setTypeface(tf, toTypefaceStyle(fontWeight));
+		tv.setTextSize(getSizeUnits(fontSize), getSize(fontSize));
+	}
+
+	public static Typeface toTypeface(String fontFamily) {
+		Typeface tf = Typeface.SANS_SERIF; // default
 
 		if (fontFamily != null) {
 			if ("monospace".equals(fontFamily)) {
@@ -237,8 +243,7 @@ public class TiUIHelper
 				}
 			}
 		}
-		tv.setTypeface(tf, toTypefaceStyle(fontWeight));
-		tv.setTextSize(getSizeUnits(fontSize), getSize(fontSize));
+		return tf;
 	}
 
 	public static String getDefaultFontSize(Context context) {
