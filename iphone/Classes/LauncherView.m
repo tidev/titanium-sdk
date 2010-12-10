@@ -47,6 +47,7 @@ static const NSTimeInterval kLauncherViewEditHoldTimeInterval = 1;
 static const NSTimeInterval kLauncherViewSpringLoadTimeInterval = 0.5;
 static const NSTimeInterval kLauncherViewWobbleTime = 0.07;
 static const NSInteger kLauncherViewDefaultColumnCount = 3;
+static const NSInteger kLauncherViewDefaultRowCount = 3;
 static const NSTimeInterval kLauncherViewTransitionDuration = 0.3;
 static const NSTimeInterval kLauncherViewFastTransitionDuration = 0.2;
 
@@ -122,7 +123,7 @@ static const NSTimeInterval kLauncherViewFastTransitionDuration = 0.2;
 
 -(NSInteger)rowHeight
 {
-	return 103;
+	return floor(self.frame.size.height / self.rowCount);
 }
 
 - (NSMutableArray*)pageWithFreeSpace:(NSInteger)pageIndex 
@@ -145,7 +146,7 @@ static const NSTimeInterval kLauncherViewFastTransitionDuration = 0.2;
 {
 	if (!rowCount) 
 	{
-		rowCount = floor(self.frame.size.height / [self rowHeight]);
+		return kLauncherViewDefaultRowCount;
 	}
 	return rowCount;
 }
