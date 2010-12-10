@@ -12,7 +12,7 @@ object
 
 - description
 
-The top level Android module.
+The top level Android module. `Ti.Android.currentActivity` provides each context an Activity. This object cannot be created directly.
 
 - since
 
@@ -25,6 +25,28 @@ android
 
 - methods
 
+createIntent : Create an Intent. Used to start other Activities and for marshaling data.
+createIntentChooser : Display chooser interface to allow selection of desired target.
+createService : Create a simple service
+createServiceIntent : Create an Intent to be used to start a Service.
+isServiceRunning : Check on state of Service.
+startService : Start a simple service
+stopService : Stop a simple service.
+
+- method : createIntent, Intent
+
+- method : createIntentChooser, Intent
+
+- method : createService, XXXXX
+
+- method : createServiceIntent, Intent
+
+- method : isServiceRunning, boolean
+
+- method : startService
+
+- method : stopService
 
 - properties
 
+R[object] : Accessor for android resources
