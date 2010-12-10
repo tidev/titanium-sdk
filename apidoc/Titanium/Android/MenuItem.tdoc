@@ -1,0 +1,26 @@
+- namespace
+
+Titanium.Android
+
+- type
+
+module
+
+- returns
+
+object
+
+- description
+
+- since
+
+1.5
+
+- platforms
+
+android
+
+- methods
+
+- properties
+
