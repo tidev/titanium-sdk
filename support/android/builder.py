@@ -475,7 +475,7 @@ class Builder(object):
 			for root, dirs, files in os.walk(os.path.join(self.top_dir, "Resources")):
 				for f in files:
 					path = os.path.join(root, f)
-					if is_resource_drawable(path):
+					if is_resource_drawable(path) and f != 'default.png':
 						fileset.append(path)
 		else:
 			if self.project_deltas:
@@ -755,9 +755,11 @@ class Builder(object):
 					if re.search(pattern, path):
 						res_folder = resource_drawable_folder(path)
 						debug('found %s splash screen at %s' % (res_folder, path))
-						dest_path = os.path.join(self.res_dir, res_folder, 'background.png')
-						os.makedirs(dest_path)
-						shutil.copy(path, dest_path) 
+						dest_path = os.path.join(self.res_dir, res_folder)
+						dest_file = os.path.join(dest_path, 'background.png')
+						if not os.path.exists(dest_path):
+							os.makedirs(dest_path)
+						shutil.copy(path, dest_file)
 
 		splashimage = os.path.join(self.assets_resources_dir,'default.png')
 		background_png = os.path.join('res','drawable','background.png')
@@ -1348,7 +1350,7 @@ class Builder(object):
 				for root, dirs, files in os.walk(density_image_dir):
 					for f in files:
 						path = os.path.join(root, f)
-						if is_resource_drawable(path):
+						if is_resource_drawable(path) and f != 'default.png':
 							using_density_images = True
 							break
 				if using_density_images:
