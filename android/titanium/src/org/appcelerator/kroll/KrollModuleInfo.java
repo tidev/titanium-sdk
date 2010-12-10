@@ -10,8 +10,8 @@ package org.appcelerator.kroll;
  * Holds info about a Kroll module
  */
 public class KrollModuleInfo {
-	protected String name, id, guid, version, description, author, license, copyright;
-	
+	protected String name, id, guid, version, description, author, license, copyright, licenseKey;
+
 	public KrollModuleInfo(String name, String id, String guid, String version, String description, String author, String license, String copyright)
 	{
 		this.name = name;
@@ -22,12 +22,13 @@ public class KrollModuleInfo {
 		this.author = author;
 		this.license = license;
 		this.copyright = copyright;
+		this.licenseKey = null;
 	}
 
 	public String getName() {
 		return name;
 	}
-	
+
 	public String getId() {
 		return id;
 	}
@@ -54,5 +55,13 @@ public class KrollModuleInfo {
 
 	public String getCopyright() {
 		return copyright;
+	}
+
+	public String getLicenseKey() {
+		return licenseKey;
+	}
+
+	public void setLicenseKey(String licenseKey) {
+		this.licenseKey = licenseKey;
 	}
 }
