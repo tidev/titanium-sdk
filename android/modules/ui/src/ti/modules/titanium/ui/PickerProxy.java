@@ -41,7 +41,7 @@ import android.util.Log;
 import android.widget.DatePicker;
 import android.widget.TimePicker;
 
-@Kroll.proxy(creatableInModule=UIModule.class)
+@Kroll.proxy(creatableInModule=UIModule.class, propertyAccessors={"locale"})
 public class PickerProxy extends TiViewProxy implements KrollProxyListener
 {
 	private int type = UIModule.PICKER_TYPE_PLAIN;
