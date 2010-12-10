@@ -7,8 +7,10 @@
 package ti.modules.titanium.media;
 
 import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollInvocation;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
+import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiContext.OnLifecycleEvent;
 import org.appcelerator.titanium.util.Log;
@@ -37,20 +39,32 @@ public class SoundProxy extends KrollProxy
 	@Override
 	public void handleCreationDict(KrollDict options) {
 		super.handleCreationDict(options);
-		if (options.containsKey("url")) {
-			setProperty("url", getTiContext().resolveUrl(null, TiConvert.toString(options, "url")));
-		} else if (options.containsKey("sound")) {
-			FileProxy fp = (FileProxy) options.get("sound");
+		if (options.containsKey(TiC.PROPERTY_URL)) {
+			setProperty(TiC.PROPERTY_URL, getTiContext().resolveUrl(null, TiConvert.toString(options, TiC.PROPERTY_URL)));
+		} else if (options.containsKey(TiC.PROPERTY_SOUND)) {
+			FileProxy fp = (FileProxy) options.get(TiC.PROPERTY_SOUND);
 			if (fp != null) {
 				String url = fp.getNativePath();
-				setProperty("url", url);
+				setProperty(TiC.PROPERTY_URL, url);
 			}
 		}
-		if (options.containsKey("allowBackground")) {
-			setProperty("allowBackground", options.get("allowBackground"));
+		if (options.containsKey(TiC.PROPERTY_ALLOW_BACKGROUND)) {
+			setProperty(TiC.PROPERTY_ALLOW_BACKGROUND, options.get(TiC.PROPERTY_ALLOW_BACKGROUND));
 		}
 		if (DBG) {
-			Log.i(LCAT, "Creating sound proxy for url: " + TiConvert.toString(getProperty("url")));
+			Log.i(LCAT, "Creating sound proxy for url: " + TiConvert.toString(getProperty(TiC.PROPERTY_URL)));
+		}
+	}
+	
+	@Kroll.getProperty
+	public String getUrl() {
+		return TiConvert.toString(getProperty(TiC.PROPERTY_URL));
+	}
+	
+	@Kroll.setProperty
+	public void setUrl(KrollInvocation kroll, String url) {
+		if (url != null) {
+			setProperty(TiC.PROPERTY_URL, kroll.getTiContext().resolveUrl(null, TiConvert.toString(url)));
 		}
 	}
 
@@ -181,8 +195,8 @@ public class SoundProxy extends KrollProxy
 
 	private boolean allowBackground() {
 		boolean allow = false;
-		if (hasProperty("allowBackground")) {
-			allow = TiConvert.toBoolean(getProperty("allowBackground"));
+		if (hasProperty(TiC.PROPERTY_ALLOW_BACKGROUND)) {
+			allow = TiConvert.toBoolean(getProperty(TiC.PROPERTY_ALLOW_BACKGROUND));
 		}
 		return allow;
 	}

@@ -6,6 +6,7 @@
 
 #win1 {
 	url:'main_windows/base_ui.js';
+	titleid:'base_ui_title';
 	titleImage:'images/appcelerator_small.png';
 }
 

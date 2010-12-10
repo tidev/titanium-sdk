@@ -38,14 +38,23 @@ public final class ${config['classname']}Application extends TiApplication {
 		
 		%if len(custom_modules) > 0:
 		// Custom modules
+		KrollModuleInfo moduleInfo;
 		%endif
 		%for module in custom_modules:
 		<% manifest = module['manifest'] %>
-		KrollModule.addModuleInfo(new KrollModuleInfo(
+		moduleInfo = new KrollModuleInfo(
 			"${manifest.name}", "${manifest.moduleid}", "${manifest.guid}", "${manifest.version}",
-			"${manifest.description}", "${manifest.author}", "${manifest.license}", "${manifest.copyright}"
-		));
+			"${manifest.description}", "${manifest.author}", "${manifest.license}",
+			"${manifest.copyright}");
+		%if manifest.has_property("licensekey"):
+		moduleInfo.setLicenseKey("${manifest.licensekey}");
+		%endif
+		KrollModule.addModuleInfo(moduleInfo);
 		%endfor
+		%if config['deploy_type'] != 'production':
+		org.appcelerator.titanium.TiVerify verify = new org.appcelerator.titanium.TiVerify(context.getActivity(), this);
+		verify.verify();
+		%endif
 	}
 	
 	%if len(custom_modules) > 0:

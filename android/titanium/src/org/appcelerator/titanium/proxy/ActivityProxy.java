@@ -39,8 +39,11 @@ public class ActivityProxy extends KrollProxy
 
 	public ActivityProxy(TiContext tiContext, Activity activity) {
 		this(tiContext);
+		setActivity(tiContext, activity);
+	}
+	
+	public void setActivity(TiContext tiContext, Activity activity) {
 		this.activity = activity;
-		
 		Intent intent = activity.getIntent();
 		if (intent != null) {
 			intentProxy = new IntentProxy(tiContext, activity.getIntent());

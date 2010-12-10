@@ -12,7 +12,7 @@ object
 
 - description
 
-The top level Contacts module.  The Contacts module is used accessing the device Address Book.
+The top level Contacts module.  The Contacts module is used accessing the device Address Book.  (Read-only on Android.)
 
 - since
 
@@ -20,7 +20,7 @@ The top level Contacts module.  The Contacts module is used accessing the device
 
 - platforms
 
-iphone, ipad
+iphone, ipad, android
 
 - properties
 
@@ -36,14 +36,14 @@ getAllPeople: Returns an array of all `Titanium.Contacts.Person` objects in the 
 getPeopleWithName: Returns an array of `Titanium.Contacts.Person` objects who have a name (first, last, middle, composite) which matches the given name
 getPersonByID: Returns a `Titanium.Contacts.Person` object with the given ID
 showContacts: Displays the contact picker
-createPerson: Creates a new `Titanium.Contacts.Person` object.  There must not be any unsaved changes to the database when this function is called
-removePerson: Removes a person from the contacts database
+createPerson: Creates a new `Titanium.Contacts.Person` object.  There must not be any unsaved changes to the database when this function is called (NOTE: not supported on Android.)
+removePerson: Removes a person from the contacts database. (NOTE: not supported on Android.)
 getGroupByID: Returns a `Titanium.Contacts.Group` object with the given ID
 getAllGroups: Returns an of all `Titanium.Contacts.Group` objects in the contacts database
-createGroup: Creates a new `Titanium.Contacts.Group` object.  There must not be any unsaved changes to the database when this function is called
-removeGroup: Removes a group from the contacts database
-save: Saves all changes to contacts to the database
-revert: Reverts all changes made to the previous save of the database
+createGroup: Creates a new `Titanium.Contacts.Group` object.  There must not be any unsaved changes to the database when this function is called. (NOTE: not supported on Android.)
+removeGroup: Removes a group from the contacts database (NOTE: not supported on Android.)
+save: Saves all changes to contacts to the database (NOTE: not supported on Android.)
+revert: Reverts all changes made to the previous save of the database (NOTE: not supported on Android.)
 
 - method : getPeopleWithName, array
 
@@ -67,15 +67,17 @@ fields[array]: A list of field names to show when selecting properties, default 
 
 - method : removePerson
 
-person[object]: The `Titanium.Contacts.Person` object to remove from the database.
+person[object]: The `Titanium.Contacts.Person` object to remove from the database. (NOTE: not supported on Android.)
 
 - method : removeGroup
 
-group[object]: The `Titanium.Contacts.Group` object to remove from the database.
+group[object]: The `Titanium.Contacts.Group` object to remove from the database. (NOTE: not supported on Android.)
 
 ~~
 ~~
 
 - notes
+
+Contacts on Android are currently only read-only, so methods such as `createPerson`, `removePerson`, etc., are not supported.
 
 `Titanium.Contacts.Person` objects which have been removed from the database are invalidated after a save operation, whether from creating a new contact or explicitly calling `Titanium.Contacts.save()`.  Using them may result in unpredictable beavhior, including crashes.
