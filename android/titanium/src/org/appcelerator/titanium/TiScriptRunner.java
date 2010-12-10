@@ -6,6 +6,7 @@ import java.util.HashMap;
 
 import org.appcelerator.titanium.util.Log;
 import org.mozilla.javascript.Context;
+import org.mozilla.javascript.RhinoException;
 import org.mozilla.javascript.Script;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
@@ -47,7 +48,14 @@ public class TiScriptRunner {
 	
 	protected Object executeScript(TiScript script) {
 		Log.d(TAG, "Executing script: " + script.name);
-		Object returnValue = script.script.exec(script.context, script.scope);
+		Object returnValue = Scriptable.NOT_FOUND;
+		try {
+			returnValue = script.script.exec(script.context, script.scope);
+		} catch (RhinoException e) {
+			Log.e(TAG, "Javascript Exception: " + e.getMessage(), e);
+			Context.reportRuntimeError(e.getMessage(), e.sourceName(), e.lineNumber(), e.lineSource(), e.columnNumber());
+		}
+		
 		script.context = null;
 		script.scope = null;
 		
