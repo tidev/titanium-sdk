@@ -50,9 +50,9 @@ public abstract class TiApplication extends Application
 	public static final String DEPLOY_TYPE_TEST = "test";
 	public static final String DEPLOY_TYPE_PRODUCTION = "production";
 	public static final int DEFAULT_THREAD_STACK_SIZE = 16 * 1024; // 16K as a "sane" default
-	
+
 	public static final String APPLICATION_PREFERENCES_NAME = "titanium";
-	
+
 	private static final String PROPERTY_DEPLOY_TYPE = "ti.deploytype";
 	private static final String PROPERTY_THREAD_STACK_SIZE = "ti.android.threadstacksize";
 	private static final String PROPERTY_COMPILE_JS = "ti.android.compilejs";
@@ -62,7 +62,7 @@ public abstract class TiApplication extends Application
 	private static final long STATS_WAIT = 300000;
 
 	protected static TiApplication _instance = null;
-	
+
 	private String baseUrl;
 	private String startUrl;
 	private HashMap<Class<?>, HashMap<String, Method>> methodMap;
@@ -83,7 +83,7 @@ public abstract class TiApplication extends Application
 	private static long lastAnalyticsTriggered = 0;
 	private String buildVersion = "", buildTimestamp = "", buildHash = "";
 	protected ArrayList<KrollModule> modules = new ArrayList<KrollModule>();
-	
+
 	public TiApplication() {
 		Log.checkpoint("checkpoint, app created.");
 		_instance = this;
@@ -93,7 +93,7 @@ public abstract class TiApplication extends Application
 		loadBuildProperties();
 		Log.i(LCAT, "Titanium " + buildVersion + " (" + buildTimestamp + " " + buildHash + ")");
 	}
-	
+
 	public void bindModules(KrollBridge bridge, KrollProxy parent) {
 		if (modules.isEmpty()) {
 			bootModules(bridge.getKrollContext().getTiContext());
@@ -105,14 +105,18 @@ public abstract class TiApplication extends Application
 			module.bindContextSpecific(bridge);
 		}
 	}
-	
+
 	protected abstract void bootModules(TiContext context);
-	
+
 	// Apps with custom modules will override this with their own creation logic
 	public KrollModule requireModule(TiContext context, KrollModuleInfo info) {
 		return getModuleById(info.getId());
 	}
-	
+
+	public List<KrollModule> getModules() {
+		return modules;
+	}
+
 	public KrollModule getModuleById(String id) {
 		for (KrollModule module : modules) {
 			if (module.getId().equals(id)) {
@@ -122,7 +126,7 @@ public abstract class TiApplication extends Application
 		
 		return null;
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	public <T extends KrollModule> T getModuleByClass(Class<T> moduleClass) {
 		for (KrollModule module : modules) {
@@ -133,16 +137,16 @@ public abstract class TiApplication extends Application
 		
 		return null;
 	}
-	
+
 	public void releaseModules() {
 		modules.clear();
 	}
-	
+
 	public String[] getFilteredBindings(String moduleName) {
 		// TODO: re-enable filtered bindings when our compiler can better detect methods and properties
 		return null;
 	}
-	
+
 	public static TiApplication getInstance() {
 		return _instance;
 	}

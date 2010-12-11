@@ -9,7 +9,7 @@ describe("Ti.Network.HTTPClient tests", {
 	largeFileWithRedirect: asyncTest({
 		start: function() {
 			var xhr = Ti.Network.createHTTPClient();
-			xhr.setTimeout(30000);
+			xhr.setTimeout(60000);
 			xhr.onload = this.async(function(e) {
 				valueOf(this.responseData.length).shouldBeGreaterThan(0);
 			});
@@ -20,7 +20,7 @@ describe("Ti.Network.HTTPClient tests", {
 			xhr.open('GET','http://www.appcelerator.com/download-win32');
 			xhr.send();
 		},
-		timeout: 30000,
+		timeout: 60000,
 		timeoutError: "Timed out waiting for HTTP download"
 	}),
 

@@ -1,12 +1,15 @@
 package ti.modules.titanium.ui.android;
 
+import org.appcelerator.titanium.TiApplication;
+import org.appcelerator.titanium.util.Log;
+import org.appcelerator.titanium.util.TiRHelper;
+
 import android.os.Bundle;
 import android.preference.PreferenceActivity;
 
-import org.appcelerator.titanium.TiApplication;
-import org.appcelerator.titanium.util.TiRHelper;
-
-public class TiPreferencesActivity extends PreferenceActivity {
+public class TiPreferencesActivity extends PreferenceActivity 
+{
+	private static final String LCAT = "TiPreferencesActivity";
 	private static final String DEFAULT_PREFS_RNAME = "preferences";
 	
 	@Override
@@ -14,14 +17,19 @@ public class TiPreferencesActivity extends PreferenceActivity {
 		super.onCreate(savedInstanceState);
 		
 		String prefsName = DEFAULT_PREFS_RNAME;
-		if (getIntent().hasExtra("prefsName"))
-			prefsName = getIntent().getExtras().getString("prefsName");
+		if (getIntent().hasExtra("prefsName")) {
+			String name = getIntent().getExtras().getString("prefsName");
+			if (name != null && name.length() > 0) {
+				prefsName = name;
+			}
+		}
 		
 		// Find the layout file, do nothing if not found
 		try {
 			getPreferenceManager().setSharedPreferencesName(TiApplication.APPLICATION_PREFERENCES_NAME);
 			addPreferencesFromResource(TiRHelper.getResource("xml." + prefsName));
 		} catch (TiRHelper.ResourceNotFoundException e) {
+			Log.e(LCAT, "Error loading preferences: " + e.getMessage());
 			finish();
 			return;
 		}

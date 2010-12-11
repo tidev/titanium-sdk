@@ -32,6 +32,8 @@ addAnnotations: add one or more new annotation to the map
 removeAnnotation: remove an existing annotation from the map
 removeAnnotations: remove one or more existing annotations from the map
 removeAllAnnotations: removes all annotations added to the map
+setLocation: set and center the map location.
+setMapType: set the type of map (satellite, hybrid, standard)
 
 # 1.4
 addRoute: add a route. currently only supported on iphone
@@ -72,6 +74,14 @@ annotation[string,object]: either a string of the annotation title or a [Titaniu
 - method : zoom
 
 level[double]: zoom level (can be positive or negative)
+
+- method : setLocation
+
+location[object]: a dictionary that specifies the following properties specifying the location to set the map: `latitudeDelta`, `longitudeDelta`, `latitude`, `longitude`.
+
+- method : setMapType
+
+mapType[int]: the map type constant of either `Titanium.Map.STANDARD_TYPE`, `Titanium.Map.SATELLITE_TYPE` or `Titanium.Map.HYBRID_TYPE`.
 
 - properties
 

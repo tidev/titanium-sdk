@@ -62,6 +62,7 @@ public class TiC {
 	public static final String PROPERTY_ANDROID_VIEW = "androidView";
 	public static final String PROPERTY_ANIMATE = "animate";
 	public static final String PROPERTY_ANIMATED = "animated";
+	public static final String PROPERTY_ALLOW_BACKGROUND = "allowBackground";
 	public static final String PROPERTY_ANNOTATION = "annotation";
 	public static final String PROPERTY_ANNOTATIONS = "annotations";
 	public static final String PROPERTY_AUTO_LINK = "autoLink";
@@ -149,6 +150,7 @@ public class TiC {
 	public static final String PROPERTY_SELECTED_BACKGROUND_IMAGE = "selectedBackgroundImage";
 	public static final String PROPERTY_SIZE = "size";
 	public static final String PROPERTY_SOFT_KEYBOARD_ON_FOCUS = "softKeyboardOnFocus";
+	public static final String PROPERTY_SOUND = "sound";
 	public static final String PROPERTY_SUBTITLE = "subtitle";
 	public static final String PROPERTY_TAB_OPEN = "tabOpen";
 	public static final String PROPERTY_TEXT = "text";

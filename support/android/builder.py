@@ -475,7 +475,7 @@ class Builder(object):
 			for root, dirs, files in os.walk(os.path.join(self.top_dir, "Resources")):
 				for f in files:
 					path = os.path.join(root, f)
-					if is_resource_drawable(path):
+					if is_resource_drawable(path) and f != 'default.png':
 						fileset.append(path)
 		else:
 			if self.project_deltas:
@@ -755,9 +755,11 @@ class Builder(object):
 					if re.search(pattern, path):
 						res_folder = resource_drawable_folder(path)
 						debug('found %s splash screen at %s' % (res_folder, path))
-						dest_path = os.path.join(self.res_dir, res_folder, 'background.png')
-						os.makedirs(dest_path)
-						shutil.copy(path, dest_path) 
+						dest_path = os.path.join(self.res_dir, res_folder)
+						dest_file = os.path.join(dest_path, 'background.png')
+						if not os.path.exists(dest_path):
+							os.makedirs(dest_path)
+						shutil.copy(path, dest_file)
 
 		splashimage = os.path.join(self.assets_resources_dir,'default.png')
 		background_png = os.path.join('res','drawable','background.png')
@@ -981,7 +983,10 @@ class Builder(object):
 			for jar in glob.glob(os.path.join(module_lib, '*.jar')):
 				self.module_jars.append(jar)
 				classpath = os.pathsep.join([classpath, jar])
-		
+
+		if self.deploy_type != 'production':
+			classpath = os.pathsep.join([classpath, os.path.join(self.support_dir, 'lib', 'titanium-verify.jar')])
+
 		debug("Building Java Sources: " + " ".join(src_list))
 		javac_command = [self.javac, '-encoding', 'utf8', '-classpath', classpath, '-d', self.classes_dir, '-sourcepath', self.project_src_dir, '-sourcepath', self.project_gen_dir]
 		(src_list_osfile, src_list_filename) = tempfile.mkstemp()
@@ -1147,6 +1152,7 @@ class Builder(object):
 			else:
 				deploy_type = 'production'
 
+		self.deploy_type = deploy_type
 		(java_failed, java_status) = prereq.check_java()
 		if java_failed:
 			error(java_status)
@@ -1228,7 +1234,6 @@ class Builder(object):
 				self.wait_for_device('d')
 		
 		self.install = install
-		self.deploy_type = deploy_type
 		
 		self.device_type_arg = '-e'
 		if self.deploy_type == 'test':
@@ -1264,13 +1269,9 @@ class Builder(object):
 		try:
 			os.chdir(self.project_dir)
 			self.android = Android(self.name, self.app_id, self.sdk, deploy_type, self.java)
-			
+
 			if not os.path.exists('bin'):
 				os.makedirs('bin')
-			
-			# if os.path.exists('lib'):
-			# 	for jar in self.android_jars:
-			# 		shutil.copy(jar, 'lib')
 
 			resources_dir = os.path.join(self.top_dir,'Resources')
 			self.assets_dir = os.path.join(self.project_dir,'bin','assets')
@@ -1348,7 +1349,7 @@ class Builder(object):
 				for root, dirs, files in os.walk(density_image_dir):
 					for f in files:
 						path = os.path.join(root, f)
-						if is_resource_drawable(path):
+						if is_resource_drawable(path) and f != 'default.png':
 							using_density_images = True
 							break
 				if using_density_images:
@@ -1395,7 +1396,17 @@ class Builder(object):
 				dex_args += ['--dex', '--output='+self.classes_dex, self.classes_dir]
 				dex_args += self.android_jars
 				dex_args += self.module_jars
-		
+				if self.deploy_type != 'production':
+					dex_args.append(os.path.join(self.support_dir, 'lib', 'titanium-verify.jar'))
+					# the verifier depends on Ti.Network classes, so we may need to inject it
+					has_network_jar = False
+					for jar in self.android_jars:
+						if jar.endswith('titanium-network.jar'):
+							has_network_jar = True
+							break
+					if not has_network_jar:
+						dex_args.append(os.path.join(self.support_dir, 'modules', 'titanium-network.jar'))
+	
 				info("Compiling Android Resources... This could take some time")
 				sys.stdout.flush()
 				# TODO - Document Exit message

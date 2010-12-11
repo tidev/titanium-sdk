@@ -40,17 +40,28 @@ public class PickerColumnProxy extends KrollProxy
 		}
 	}
 	
-	// Put in warnings for add() and remove().  Docs say we support them,
-	// but this is not really a view.
+	@Kroll.method
 	public void add(Object o) 
 	{
-		Log.w(LCAT, "add() not supported. Use addRow() to add a row.");
+		if (o == null)return;
+		if (o instanceof PickerRowProxy) {
+			addRow((PickerRowProxy)o);
+		} else {
+			Log.w(LCAT, "add() unsupported argument type: " + o.getClass().getSimpleName());
+		}
 	}
+
+	@Kroll.method
 	public void remove(Object o)
 	{
-		Log.w(LCAT, "remove() not supported.  Use removeRow() to remove a row.");
+		if (o == null)return;
+		if (o instanceof PickerRowProxy) {
+			removeRow((PickerRowProxy)o);
+		} else {
+			Log.w(LCAT, "remove() unsupported argment type: " + o.getClass().getSimpleName());
+		}
 	}
-	
+
 	@Kroll.method
 	public void addRow(PickerRowProxy row)
 	{
@@ -65,7 +76,7 @@ public class PickerColumnProxy extends KrollProxy
 			this.firePropertyChanged("rows", rows, rows);
 		}
 	}
-	
+
 	protected void addRows(Object[] rows) 
 	{
 		ArrayList<PickerRowProxy> newrows = null;
@@ -82,7 +93,7 @@ public class PickerColumnProxy extends KrollProxy
 		
 		addRows(newrows);
 	}
-	
+
 	protected void addRows(ArrayList<PickerRowProxy> newRows)
 	{
 		if (newRows != null && newRows.size() > 0) {
@@ -113,7 +124,7 @@ public class PickerColumnProxy extends KrollProxy
 		}
 		return rows.toArray(new PickerRowProxy[rows.size()]);
 	}
-	
+
 	@Kroll.getProperty @Kroll.method
 	public int getRowCount()
 	{
@@ -123,7 +134,7 @@ public class PickerColumnProxy extends KrollProxy
 			return rows.size();
 		}
 	}
-	
+
 	protected ArrayList<PickerRowProxy> getRowArrayList()
 	{
 		return rows;
