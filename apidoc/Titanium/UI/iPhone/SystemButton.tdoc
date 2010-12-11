@@ -1,6 +1,6 @@
 - namespace
 
-Titanium.UI.iPhone.SystemIcon
+Titanium.UI.iPhone.SystemButton
 
 - type
 

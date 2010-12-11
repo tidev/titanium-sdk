@@ -1,10 +1,10 @@
 - namespace
 
-Titanium.Android
+Titanium.Android.PendingIntent
 
 - type
 
-module
+object
 
 - returns
 

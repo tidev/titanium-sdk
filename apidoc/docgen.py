@@ -418,6 +418,8 @@ def emit_namespace(line):
 	global apis, current_api
 	line = line.strip()
 	current_api = API(line)
+	if current_api.namespace in apis:
+		print "[WARN] %s info just got replaced.  There's probably a wrong '- namespace' entry either in the current file or another file (duplicate)." % current_api.namespace
 	apis[current_api.namespace] = current_api
 	
 def emit_description(line):
