@@ -6,10 +6,6 @@ Titanium.Android
 
 module
 
-- returns
-
-object
-
 - description
 
 The top level Android module. `Ti.Android.currentActivity` provides each context an Activity. This object cannot be created directly.
@@ -26,25 +22,32 @@ android
 
 createIntent : Create an Intent. Used to start other Activities and for marshaling data.
 createIntentChooser : Display chooser interface to allow selection of desired target.
-createService : Create a simple service
+createService : Create a proxy to a Service so you can start/stop it and listen for events from it.
 createServiceIntent : Create an Intent to be used to start a Service.
 isServiceRunning : Check on state of Service.
 startService : Start a simple service
-stopService : Stop a simple service.
+stopService : Stop a simple service that was started with `startService`.
 
 - method : createIntent, Intent
 
 - method : createIntentChooser, Intent
 
 - method : createService, Service
+intent[object]: A `Titanium.Android.Intent` object created with `Titanium.Android.createServiceIntent` which specifies the service to be instantiated.
+
 
 - method : createServiceIntent, Intent
+options[object]: Options dictionary -- pass in a `url` option to specify the path to a javascript-based service you create.
 
 - method : isServiceRunning, boolean
+intent[object]: A `Titanium.Android.Intent` object created with `Titanium.Android.createServiceIntent` which specifies the service to check.
 
 - method : startService
+intent[object]: A `Titanium.Android.Intent` object created with `Titanium.Android.createServiceIntent` which specifies the service to start.
+
 
 - method : stopService
+intent[object]: A `Titanium.Android.Intent` object created with `Titanium.Android.createServiceIntent` which specifies the service to stop.
 
 - properties
 
@@ -214,3 +217,9 @@ SCREEN_ORIENTATION_PORTRAIT[int] :
 SCREEN_ORIENTATION_SENSOR[int] : 
 SCREEN_ORIENTATION_UNSPECIFIED[int] : 
 SCREEN_ORIENTATION_USER[int] : 
+
+- notes
+
+Several (almost all) of the constants you see above are directly taken from Android.  So if we've failed to document all of them, have a look online at the [Android SDK reference pages](http://developer.android.com/reference/android/app/Service.html).
+
+The most important page there will be the [Intent reference](http://developer.android.com/reference/android/content/Intent.html), which will give you the meaning of those ACTION, EXTRA and CATEGORY constants.
