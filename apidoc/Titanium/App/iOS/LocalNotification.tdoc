@@ -1,0 +1,37 @@
+- namespace
+
+Titanium.App.iOS.LocalNotification
+
+- type
+
+object
+
+- subtype
+
+proxy
+
+- description
+
+The LocalNotification is created by `Titanium.App.iOS.scheduleLocalNotification`.  
+
+- since
+
+1.5
+
+- platforms
+
+iphone, ipad
+
+- methods
+
+cancel: cancel the pending notification
+
+- method : cancel, void
+
+
+
+
+
+
+
+
