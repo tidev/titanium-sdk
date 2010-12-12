@@ -1,0 +1,11 @@
+<%page args="method,dataObj"/>
+	## There's one method that has [object] in the name, remove it
+	${method['name'].replace('[object]','')} : function(${', '.join(map(lambda w: w['name'] if w['name']!='default' else 'defaultValue', method['parameters']))})
+	{
+		///<summary>${dataObj.remove_html_tags(method['value'])}</summary>
+		%for p in method['parameters']:
+		///<param name="${p['name'] if p['name'] !='default' else 'defaultValue'}" type="${p['type']}">${dataObj.remove_html_tags(p['description'])}</param>
+		%endfor
+		///<return type="${method['returntype']}"/>
+		return ${dataObj.vsdoc_return_type(method['returntype'])};
+	}

@@ -1,0 +1,27 @@
+${data.namespace} = {
+	## Module Properties
+	%for p in data.properties:
+	## Couple of properties have - in them. Remove it and capitalize the words after the -
+	${''.join(map(lambda w: w.capitalize() if w in p['name'].split('-')[1:] else w,p['name'].split('-')))} :\
+${data.vsdoc_return_type(p['type'])},
+	%endfor\
+	## Module Events
+	%if len(data.events)>0:
+	events : {\
+	%for e in data.events:
+'${e['name']}' : '${e['name']}'\
+	%if e['name'] != data.events[len(data.events)-1]['name']:
+,\
+	%endif
+	%endfor\
+},
+	%endif
+	## Module Methods
+	%for m in data.methods:
+	<%include file="method.vsdoc.html" args="method=m,dataObj=data"/>\
+	%if m['name'] != data.methods[len(data.methods)-1]['name']:
+, \
+	%endif
+	%endfor
+
+};
