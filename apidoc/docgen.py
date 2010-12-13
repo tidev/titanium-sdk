@@ -404,8 +404,8 @@ def emit_properties(line):
 			print "[ERROR] in file: %s at line: %d" % (current_file, current_line)
 			print "[ERROR] invalid property line: %s. Must be in the format [name[type]]:[description]" % line
 			sys.exit(1)
-		current_api.add_property(match.group(1), match.group(2), htmlerize(tokens[1]))
-	
+		current_api.add_property(match.group(1), tickerize(match.group(2)), htmlerize(tokens[1]))
+
 def emit_methods(line):
 	for tokens in tokenize_keyvalues(line):
 		current_api.add_method(tokens[0],htmlerize(tokens[1]))
@@ -490,7 +490,7 @@ def emit_method_parameter(state,line):
 	if len(t) > 1:
 		event = t[0].strip()
 		returntype = t[1].strip()
-	current_api.set_method_returntype(event,returntype)
+	current_api.set_method_returntype(event,tickerize(returntype))
 	for tokens in tokenize_keyvalues(line):
 		desc = tokens[1]
 		match = re.search('(.*)\[(.*)\]',tokens[0])
@@ -500,7 +500,7 @@ def emit_method_parameter(state,line):
 			sys.exit(1)
 		name = match.group(1)
 		thetype = match.group(2)
-		current_api.add_method_property(event,name,thetype,tickerize(desc))
+		current_api.add_method_property(event,name,tickerize(thetype),tickerize(desc))
 	
 def emit_buffer(line):
 	global state

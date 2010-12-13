@@ -4,13 +4,11 @@ Titanium.Android.MenuItem
 
 - type
 
-object
-
-- returns
-
-object
+proxy
 
 - description
+
+The Titanium binding of an [Android MenuItem](http://developer.android.com/reference/android/view/MenuItem.html)
 
 - since
 
