@@ -4,13 +4,11 @@ Titanium.Android.Menu
 
 - type
 
-object
-
-- returns
-
-object
+proxy
 
 - description
+
+The Titanium binding of an [Android Menu](http://developer.android.com/reference/android/view/Menu.html)
 
 - since
 
@@ -24,3 +22,38 @@ android
 
 - properties
 
+- example : Simple menu create
+~~~
+activity.onCreateOptionsMenu = function(e) {
+    var menu = e.menu;
+    var menuItem = menu.add({ title: "Item 1" });
+    menuItem.setIcon("item1.png");
+    menuItem.addEventListener("click", function(e) {
+        Ti.API.debug("I was clicked");
+    });
+};
+~~~
+
+- example : Dynamic menu create
+~~~
+var loggedIn = false;
+activity.onCreateOptionsMenu = function(e) {
+    var menu = e.menu;
+    var login = menu.add({ title: "Login", itemId: LOGIN });
+    login.setIcon("login.png");
+    login.addEventListener("click", function(e) {
+        loggedIn = true;
+    });
+    var logout = menu.add({ title: "Logout", itemId: LOGOUT });
+    logout.setIcon("logout.png");
+    logout.addEventListener("click", function(e) {
+        loggedIn = false;
+    });
+};
+
+activity.onPrepareOptionsMenu = function(e) {
+    var menu = e.menu;
+    menu.findItem(LOGIN).setVisible(!loggedIn);
+    menu.findItem(LOGOUT).setVisible(loggedIn);
+};
+~~~

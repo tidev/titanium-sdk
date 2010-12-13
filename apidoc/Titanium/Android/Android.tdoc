@@ -20,23 +20,23 @@ android
 
 - methods
 
-createIntent : Create an Intent. Used to start other Activities and for marshaling data.
+createIntent : Create a `Titanium.Android.Intent`. Used to start other Activities and for marshaling data.
 createIntentChooser : Display chooser interface to allow selection of desired target.
-createService : Create a proxy to a Service so you can start/stop it and listen for events from it.
+createService : Create a `Titanium.Android.Service` so you can start/stop it and listen for events from it.
 createServiceIntent : Create an Intent to be used to start a Service.
 isServiceRunning : Check on state of Service.
 startService : Start a simple service
 stopService : Stop a simple service that was started with `startService`.
 
-- method : createIntent, Intent
+- method : createIntent, `Titanium.Android.Intent`
 
-- method : createIntentChooser, Intent
+- method : createIntentChooser, `Titanium.Android.Intent`
 
-- method : createService, Service
+- method : createService, `Titanium.Android.Service`
 intent[object]: A `Titanium.Android.Intent` object created with `Titanium.Android.createServiceIntent` which specifies the service to be instantiated.
 
 
-- method : createServiceIntent, Intent
+- method : createServiceIntent, `Titanium.Android.Intent`
 options[object]: Options dictionary -- pass in a `url` option to specify the path to a javascript-based service you create.
 
 - method : isServiceRunning, boolean

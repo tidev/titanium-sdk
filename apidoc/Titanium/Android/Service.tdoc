@@ -4,13 +4,11 @@ Titanium.Android.Service
 
 - type
 
-object
-
-- returns
-
-object
+proxy
 
 - description
+
+The Titanium binding of an [Android Service](http://developer.android.com/reference/android/app/Service.html)
 
 - since
 

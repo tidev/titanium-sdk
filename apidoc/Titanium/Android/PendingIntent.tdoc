@@ -4,13 +4,11 @@ Titanium.Android.PendingIntent
 
 - type
 
-object
-
-- returns
-
-object
+proxy
 
 - description
+
+The Titanium binding of an [Android Pending Intent](http://developer.android.com/reference/android/app/PendingIntent.html)
 
 - since
 
