@@ -39,6 +39,13 @@ AUTHORIZATION_UNKNOWN[int]: authorization constant
 AUTHORIZATION_AUTHORIZED[int]: authorization constant
 AUTHORIZATION_DENIED[int]: authorization constant (user disabled authorization)
 AUTHORIZATION_RESTRICTED[int]: authorization constant (system disabled authorization)
+ERROR_LOCATION_UNKNOWN[int]: error constant (iOS only)
+ERROR_DENIED[int]: error constant (iOS only)
+ERROR_NETWORK[int]: error constant (iOS only)
+ERROR_HEADING_FAILURE[int]: error constant (iOS only)
+ERROR_REGION_MONITORING_DENIED[int]: error constant (iOS 4.0+ only)
+ERROR_REGION_MONITORING_FAILURE[int]: error constant (iOS 4.0+ only)
+ERROR_REGION_MONITORING_DELAYED[int]: error constant (iOS 4.0+ only)
 
 locationServicesEnabled[boolean]: returns true if the user has enabled or disable location services for the device (not the application). 
 showCalibration[boolean]: returns true if the calibration UI can show
@@ -57,11 +64,13 @@ location: fired when a location event is received
 
 success: boolean to indicate if the location event was successfully received or an error occurred
 error: if success is false, returns a string of the error description
+code: if success is false, the error code if available (iOS only)
 coords: location coordinates dictionary with the following sub-properties: `latitude`, `longitude`, `altitude`, `accuracy`, `altitudeAccuracy`, `heading`, `speed`, `timestamp`.
 
 - event : heading
 
 success: boolean to indicate if the heading event was successfully received or an error occurred
 error: if success is false, returns a string of the error description
+code: if success is false, the error code if available (iOS only)
 heading: heading results dictionary with the following sub-properties: `magneticHeading`, `trueHeading`, `accuracy`, `x`, `y`, `z`, `timestamp`.
 
