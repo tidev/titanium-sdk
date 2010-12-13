@@ -4,11 +4,7 @@ Titanium.Android.Service
 
 - type
 
-object
-
-- returns
-
-object
+proxy
 
 - description
 
