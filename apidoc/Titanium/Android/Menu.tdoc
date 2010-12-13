@@ -36,6 +36,9 @@ activity.onCreateOptionsMenu = function(e) {
 
 - example : Dynamic menu create
 ~~~
+var win = Ti.UI.createWindow({ fullscreen: true });
+
+var LOGIN = 1, LOGOUT = 2;
 var loggedIn = false;
 activity.onCreateOptionsMenu = function(e) {
     var menu = e.menu;
@@ -56,4 +59,5 @@ activity.onPrepareOptionsMenu = function(e) {
     menu.findItem(LOGIN).setVisible(!loggedIn);
     menu.findItem(LOGOUT).setVisible(loggedIn);
 };
+win.open();
 ~~~

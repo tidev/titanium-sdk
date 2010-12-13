@@ -1,0 +1,43 @@
+- namespace
+
+Titanium.App.Android
+
+- type
+
+module
+
+- description
+
+A module used to access the Android's [Application Resources](http://developer.android.com/guide/topics/resources/index.html)
+
+- since
+
+1.5
+
+- platforms
+
+android
+
+- properties
+
+R[`Titanium.App.Android.R`]: The R namespace for Application Resources
+
+- example : Custom String Resource
+
+In Titanium, you can specify custom Android resources by placing them in `platform/android` under the top directory of your project. For example, to create a custom strings.xml, You could create and populate `platform/android/res/values/mystrings.xml` with the following data:
+
+~~~
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<string name="mystring">testing 1 2 3</string>
+</resources>
+~~~
+
+And in Javascript, you could retrieve like this:
+~~~
+var activity = Ti.Android.currentActivity;
+var R = Ti.App.Android.R;
+
+var mystring = activity.getString(R.string.mystring);
+Ti.API.debug("mystring="+mystring);
+~~~
