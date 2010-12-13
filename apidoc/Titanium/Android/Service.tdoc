@@ -12,7 +12,7 @@ object
 
 - description
 
-Binding to an Android service.  Can be used to start/stop the service directly and listen for service-specific events.  In the Javascript-based services you write, this can be referenced with `Titanium.Android.currentService`.  You can create an instance of the service with `Titanium.Android.createService`.
+The Titanium binding of an [Android Service](http://developer.android.com/reference/android/app/Service.html).  Can be used to start/stop the service directly and listen for service-specific events.  In the Javascript-based services you write, this can be referenced with `Titanium.Android.currentService`.  You can create an instance of the service with `Titanium.Android.createService`.
 
 - since
 
