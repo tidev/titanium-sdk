@@ -699,7 +699,7 @@ class Builder(object):
 				service_name = self.app_id + '.' + service['classname']
 				service_str = '<service \n\t\t\tandroid:name="%s"' % service_name
 				for subkey in service:
-					if subkey not in ('nodes', 'type', 'name', 'url', 'options', 'classname', 'android:name'):
+					if subkey not in ('nodes', 'service_type', 'type', 'name', 'url', 'options', 'classname', 'android:name'):
 						service_str += '\n\t\t\t%s="%s"' % (subkey, service[subkey])
 
 				if 'nodes' in service:
