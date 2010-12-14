@@ -28,8 +28,9 @@ public class TiWebViewClient extends WebViewClient
 	private TiUIWebView webView;
 	private TiWebViewBinding binding;
 
+
 	private String username, password;
-	
+
 	public TiWebViewClient(TiUIWebView tiWebView, WebView webView) {
 		super();
 		this.webView = tiWebView;
@@ -38,7 +39,6 @@ public class TiWebViewClient extends WebViewClient
 
 	@Override
 	public void onPageFinished(WebView view, String url) {
-		binding.insertApiBindings();
 		super.onPageFinished(view, url);
 		webView.changeProxyUrl(url);
 		KrollDict data = new KrollDict();

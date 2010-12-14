@@ -6,10 +6,19 @@
  */
 package ti.modules.titanium.ui.widget.webview;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.titanium.TiBlob;
+import org.appcelerator.titanium.io.TiBaseFile;
+import org.appcelerator.titanium.io.TiFileFactory;
 import org.appcelerator.titanium.proxy.TiViewProxy;
+import org.appcelerator.titanium.util.Log;
+import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiMimeTypeHelper;
 import org.appcelerator.titanium.view.TiCompositeLayout;
@@ -23,7 +32,7 @@ import android.webkit.WebView;
 public class TiUIWebView extends TiUIView {
 
 	private static final String LCAT = "TiUIWebView";
-	private TiWebViewBinding binding;
+	private static final boolean DBG = TiConfig.LOGD;
 	private TiWebViewClient client;
 	private boolean changingUrl = false;
 
@@ -62,7 +71,6 @@ public class TiUIWebView extends TiUIView {
 		webView.setWebViewClient(client);
 		webView.client = client;
 
-		//binding = new TiWebViewBinding(proxy.getTiContext(), webView);
 		TiCompositeLayout.LayoutParams params = getLayoutParams();
 		params.autoFillsHeight = true;
 		params.autoFillsWidth = true;
@@ -106,16 +114,82 @@ public class TiUIWebView extends TiUIView {
 		}
 	}
 
+	private boolean mightBeHtml(String url)
+	{
+		String mime = TiMimeTypeHelper.getMimeType(url);
+		if (mime.equals("text/html")){
+			return true;
+		} else if (mime.equals("application/xhtml+xml")) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
 	public void setUrl(String url)
 	{
-		Uri uri = Uri.parse(url);
-		if (uri.getScheme() != null) {
-			//TODO bind our variables
-			getWebView().loadUrl(url);
-		} else {
-			String resolvedUrl = getProxy().getTiContext().resolveUrl(null, url);
-			getWebView().loadUrl(resolvedUrl);
+		String finalUrl = url;
+		Uri uri = Uri.parse(finalUrl);
+		boolean originalUrlHasScheme = (uri.getScheme() != null);
+
+		if (!originalUrlHasScheme) {
+			finalUrl = getProxy().getTiContext().resolveUrl(null, finalUrl);
 		}
+
+		if (TiFileFactory.isLocalScheme(finalUrl) && mightBeHtml(finalUrl) ) {
+			TiBaseFile tiFile = TiFileFactory.createTitaniumFile(getProxy().getTiContext(), finalUrl, false);
+			if (tiFile != null) {
+				StringBuilder out = new StringBuilder();
+				InputStream fis = null;
+				try {
+					fis = tiFile.getInputStream();
+					InputStreamReader reader = new InputStreamReader(fis, "utf-8");
+					BufferedReader breader = new BufferedReader(reader);
+					boolean injected = false;
+					String line = breader.readLine();
+					while (line != null) {
+						if (!injected) {
+							int pos = line.indexOf("<html");
+							if (pos >= 0) {
+								int posEnd = line.indexOf(">", pos);
+								if (posEnd > pos) {
+									out.append(line.substring(pos, posEnd+ 1));
+									out.append(TiWebViewBinding.INJECTION_CODE);
+									if ((posEnd + 1) < line.length() ) {
+										out.append(line.substring(posEnd + 1));
+									}
+									out.append("\n");
+									injected = true;
+									line = breader.readLine();
+									continue;
+								}
+							}
+						}
+						out.append(line);
+						out.append("\n");
+						line = breader.readLine();
+					}
+					setHtml(out.toString(), (originalUrlHasScheme ? url : finalUrl) ); // keep app:// etc. intact in case html in file contains links to JS that use app:// etc.
+					return;
+				} catch (IOException ioe) {
+					Log.e(LCAT, "Problem reading from " + url + ": " + ioe.getMessage() + ". Will let WebView try loading it directly.", ioe);
+				} finally {
+					if (fis != null) {
+						try {
+							fis.close();
+						} catch (IOException e) {
+							Log.w(LCAT, "Problem closing stream: " + e.getMessage(), e);
+						}
+					}
+				}
+			}
+		}
+
+		if (DBG) {
+			Log.d(LCAT, "WebView will load " + url + " directly without code injection.");
+		}
+		getWebView().loadUrl(finalUrl);
+
 	}
 
 	public void changeProxyUrl(String url) {
@@ -170,8 +244,31 @@ public class TiUIWebView extends TiUIView {
 		// 			//alert('AFTER: ' + imgs[i].src);
 		// 		}
 
+		setHtml(html, "file:///android_asset/Resources/");
+	}
 
-		getWebView().loadDataWithBaseURL("file:///android_asset/Resources/", html, "text/html", "utf-8", null);
+	private void setHtml(String html, String baseUrl)
+	{
+		if (html.contains(TiWebViewBinding.SCRIPT_INJECTION_ID)) {
+			// Our injection code is in there already, go ahead and show.
+			getWebView().loadDataWithBaseURL(baseUrl, html, "text/html", "utf-8", null);
+			return;
+		}
+
+		int tagStart = html.indexOf("<html");
+		int tagEnd = -1;
+		if (tagStart >= 0) {
+			tagEnd = html.indexOf(">", tagStart + 1);
+			if (tagEnd > tagStart) {
+				StringBuilder sb = new StringBuilder(html.length() + 2500);
+				sb.append(html.substring(0, tagEnd + 1));
+				sb.append(TiWebViewBinding.INJECTION_CODE);
+				sb.append(html.substring(tagEnd + 1));
+				getWebView().loadDataWithBaseURL(baseUrl, sb.toString(), "text/html", "utf-8", null);
+				return;
+			}
+		}
+		getWebView().loadDataWithBaseURL(baseUrl, html, "text/html", "utf-8", null);
 	}
 
 	public void setData(TiBlob blob)
