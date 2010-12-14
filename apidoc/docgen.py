@@ -34,7 +34,7 @@ except:
 try:
 	from pygments import highlight
 	from pygments.formatters import HtmlFormatter
-	from pygments.lexers import guess_lexer
+	from pygments.lexers import get_lexer_by_name
 except:
 	print "Crap, you don't have Pygments!\n"
 	print "Easy install that bitch:\n"
@@ -62,6 +62,8 @@ stats = {
 	'properties':0,
 	'methods':0
 }
+
+default_language = "javascript"
 
 def strip_tags(value):
 	return re.sub(r'<[^>]*?>', '', value)
@@ -642,7 +644,9 @@ def colorize_code(line):
 		return line
 	idx2 = line.find("</code>",idx)
 	code = line[idx+6:idx2]
-	lexer = guess_lexer(code)
+	# TODO: we need a way to override the source code language
+	# Using guess_lexer doesn't seem to be consistent
+	lexer = get_lexer_by_name(default_language)
 	formatter = HtmlFormatter()
 	result = highlight(code, lexer, formatter)
 	before = line[0:idx]
@@ -684,7 +688,7 @@ def produce_devhtml_output(config,templates,outdir,theobj):
 		f = open(filename,'w+')
 		if config.has_key('css'):
 			f.write("<link rel=\"stylesheet\" type=\"text/css\" href=\"%s\">\n" % config['css'])
-		if config.has_key('colorize'):			
+		if config.has_key('colorize'):
 			f.write(colorize_code(output))
 		else:
 			f.write(output)
