@@ -24,7 +24,7 @@
 	BOOL trackingHeading;
 	BOOL trackingLocation;
 	
-	NSLock* lock;
+	NSRecursiveLock* lock;
 }
 
 @property(nonatomic,readonly,getter=hasCompass) NSNumber *compass;
