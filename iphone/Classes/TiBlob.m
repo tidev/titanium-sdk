@@ -207,6 +207,12 @@
 	return path;
 }
 
+// For Android compatibility
+-(NSString*)nativePath
+{
+	return path;
+}
+
 -(void)setMimeType:(NSString*)mime type:(TiBlobType)type_
 {
 	RELEASE_TO_NIL(mimetype);

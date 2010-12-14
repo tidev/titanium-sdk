@@ -393,9 +393,10 @@ extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 
 -(void)send:(id)args
 {
-	if ([self status] == [self DONE]) {
+	// HACK: We are never actually in the "OPENED" state.  Needs to be fixed with XHR refactor.
+	if (readyState != NetworkClientStateHeaders && readyState != NetworkClientStateOpened) {
 		// TODO: Throw an exception here as per XHR standard
-		NSLog(@"[ERROR] Attempt to re-send over DONE connection");
+		NSLog(@"[ERROR] Must set a connection to OPENED before send()");
 		return;
 	}
 	
@@ -527,7 +528,6 @@ extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 		connected = NO;
 		[[TiApp app] stopNetwork];
 	}
-	RELEASE_TO_NIL(request);
 }
 
 -(void)requestFailed:(ASIHTTPRequest *)request_
@@ -549,7 +549,6 @@ extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 		NSDictionary *event = [NSDictionary dictionaryWithObject:[error description] forKey:@"error"];
 		[self _fireEventToListener:@"error" withObject:event listener:onerror thisObject:thisPointer];
 	}
-	RELEASE_TO_NIL(request);
 }
 
 // Called when the request receives some data - bytes is the length of that data
