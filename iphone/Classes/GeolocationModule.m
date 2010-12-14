@@ -240,7 +240,7 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 	// should we show heading calibration dialog? defaults to YES
 	calibration = YES; 
 	
-	lock = [[NSLock alloc] init];
+	lock = [[NSRecursiveLock alloc] init];
 	
 	[super _configure]; 
 }
