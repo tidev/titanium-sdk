@@ -1,5 +1,3 @@
-if (!this.Ti) {
-
 var Ti = {
 	_event_listeners: [],
 	
@@ -33,12 +31,12 @@ var Ti = {
 				TiApp.removeEventListener(eventName, listener);
 				
 				var l = Ti.getEventListenerByKey('systemId', listener);
-				if (l != null) {
+				if (l !== null) {
 					Ti._event_listeners.splice(l.index, 1);
 				}
 			} else {
-				var l = Ti.getEventListenerByKey('listener', listener);
-				if (l != null) {
+				l = Ti.getEventListenerByKey('listener', listener);
+				if (l !== null) {
 					TiApp.removeEventListener(eventName, l.systemId);
 					Ti._event_listeners.splice(l.index, 1);
 				}
@@ -54,10 +52,9 @@ var Ti = {
 	executeListener: function(id, data)
 	{
 		var listener = this.getEventListenerByKey('index', id);
-		if (listener != null) {
+		if (listener !== null) {
 			listener.listener.call(listener.listener, data);
 		}
 	}
 };
 var Titanium = Ti;
-}
