@@ -63,6 +63,7 @@ NSString * const AS_AUDIO_BUFFER_TOO_SMALL_STRING = @"Audio packets are larger t
 	}
 	return self;
 }
+
 //we have to listen here and the bubble this event up..
 -(void)playbackStateChanged:(NSNotification*)note
 {
