@@ -59,7 +59,7 @@ NSString * const AS_AUDIO_BUFFER_TOO_SMALL_STRING = @"Audio packets are larger t
 		}
 		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(playbackStateChanged:)
 													 name:ASStatusChangedNotification
-												   object:streamer];	}
+												   object:streamer];
 	}
 	return self;
 }
