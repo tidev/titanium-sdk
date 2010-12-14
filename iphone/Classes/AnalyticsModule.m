@@ -212,6 +212,7 @@ NSString * const TI_DB_VERSION = @"1";
 			NSLog(@"[ERROR] Will re-queue analytics");
 			[database rollbackTransaction];
 			[self requeueEventsOnTimer];
+			[json release];
 			[lock unlock];
 			[pool release];
 			return;
