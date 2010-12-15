@@ -23,7 +23,7 @@ android
 activity[`Titanium.Android.Activity`]: The Activity that the PendingIntent should be launched from
 intent[`Titanium.Android.Intent`]: The intent data to pass to the Activity launched by this PendingIntent
 type[int]: The type of Pending Intent. Possible values: `Titanium.Android.PENDING_INTENT_FOR_ACTIVITY`, `Titanium.Android.PENDING_INTENT_FOR_BROADCAST`, `Titanium.Android.PENDING_INTENT_FOR_SERVICE`
-flags[int]: Flags used for creating the Pending Intent. See [Pending Intent Flags](http://developer.android.com/reference/android/app/PendingIntent.html#constants)
+flags[int]: Flags used for creating the Pending Intent. Possible values are `Titanium.Android.FLAG_CANCEL_CURRENT`, `Titanium.Android.FLAG_NO_CREATE`, `Titanium.Android.FLAG_ONE_SHOT`, and `Titanium.Android.FLAG_UPDATE_CURRENT`.
 
 - notes
 
