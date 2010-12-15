@@ -109,7 +109,7 @@ public class TiWebViewBinding {
 	private String returnValue;
 	public String getJSValue(String expression)
 	{
-		String code = "javascript:_TiReturn.setValue((function(){return "+expression+"+\"\";})());";
+		String code = "javascript:_TiReturn.setValue((function(){try{return "+expression+"+\"\";}catch(ti_eval_err){return '';}})());";
 		Log.d(LCAT, "getJSValue:"+code);
 		webView.loadUrl(code);
 		try {

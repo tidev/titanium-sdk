@@ -64,11 +64,11 @@ Titanium.API.info("Hello World!  I am a Service.  I have this to say: " + messag
 Register the service in tiapp.xml:
 
 ~~~
-&lt;android xmlns:android="http://schemas.android.com/apk/res/android"&gt;
-	&lt;services&gt;
-		&lt;service url="myservice.js" type="interval"/&gt;
-	&lt;/services&gt;
-&lt;/android&gt;
+<android xmlns:android="http://schemas.android.com/apk/res/android">
+	<services>
+		<service url="myservice.js" type="interval"/>
+	</services>
+</android>
 ~~~
 
 Code in "regular" Titanium file to launch the service and listen for pause/resume events.  Code also stops the service after its code runs 3 times.
