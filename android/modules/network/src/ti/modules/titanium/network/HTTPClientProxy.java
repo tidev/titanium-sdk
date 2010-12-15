@@ -112,4 +112,16 @@ public class HTTPClientProxy extends KrollProxy {
 	public boolean getConnected() {
 		return client.isConnected();
 	}
+
+	@Kroll.getProperty @Kroll.method
+	public boolean getAutoEncodeUrl()
+	{
+		return client.getAutoEncodeUrl();
+	}
+
+	@Kroll.setProperty @Kroll.method
+	public void setAutoEncodeUrl(boolean value)
+	{
+		client.setAutoEncodeUrl(value);
+	}
 }
