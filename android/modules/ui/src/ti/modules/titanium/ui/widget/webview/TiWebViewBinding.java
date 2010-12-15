@@ -28,7 +28,35 @@ import android.webkit.WebView;
 public class TiWebViewBinding {
 
 	private static final String LCAT = "TiWebViewBinding";
-	
+	// This is based on binding.min.js.  If you have to change anything...
+	// - change binding.js
+	// - minify binding.js to create binding.min.js
+	protected final static String SCRIPT_INJECTION_ID = "__ti_injection";
+	protected final static String INJECTION_CODE;
+	static {
+		StringBuilder jsonCode = readResourceFile("json2.js");
+		StringBuilder tiCode = readResourceFile("binding.min.js");
+		StringBuilder allCode = new StringBuilder();
+		allCode.append("\n<script id=\"" + SCRIPT_INJECTION_ID + "\">\n");
+		if (jsonCode == null) {
+			Log.w(LCAT, "Unable to read JSON code for injection");
+		} else {
+			allCode.append(jsonCode);
+		}
+
+		if (tiCode == null) {
+			Log.w(LCAT, "Unable to read Titanium binding code for injection");
+		} else {
+			allCode.append("\n");
+			allCode.append(tiCode.toString());
+		}
+		allCode.append("\n</script>\n");
+		jsonCode = null;
+		tiCode = null;
+		INJECTION_CODE = allCode.toString();
+		allCode = null;
+	}
+
 	private WebView webView;
 	private APIBinding apiBinding;
 	private AppBinding appBinding;
@@ -42,30 +70,34 @@ public class TiWebViewBinding {
 		webView.addJavascriptInterface(apiBinding, "TiAPI");
 		webView.addJavascriptInterface(appBinding, "TiApp");
 		webView.addJavascriptInterface(new TiReturn(), "_TiReturn");
-		insertApiBindings();
-	}
 	
-	public void insertApiBindings() 
-	{
-		evalJS(getClass().getClassLoader().getResourceAsStream("ti/modules/titanium/ui/widget/webview/json2.js"));
-		evalJS(getClass().getClassLoader().getResourceAsStream("ti/modules/titanium/ui/widget/webview/binding.js"));
 	}
 	
 	public void destroy() {
 	}
 	
-	private void evalJS(InputStream stream)
+	private static StringBuilder readResourceFile(String fileName)
 	{
+		InputStream stream = TiWebViewBinding.class.getClassLoader().getResourceAsStream("ti/modules/titanium/ui/widget/webview/" + fileName);
 		BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
-		StringBuffer code = new StringBuffer();
+		StringBuilder code = new StringBuilder();
 		try {
 			for (String line = reader.readLine(); line != null; line = reader.readLine()) {
 				code.append(line+"\n");
 			}
-			evalJS(code.toString());
 		} catch (IOException e) {
 			Log.e(LCAT, "Error reading input stream", e);
+			return null;
+		} finally {
+			if (stream != null) {
+				try {
+					stream.close();
+				} catch (IOException e) {
+					Log.w(LCAT, "Problem closing input stream.", e);
+				}
+			}
 		}
+		return code;
 	}
 	
 	private void evalJS(String code)
@@ -77,7 +109,7 @@ public class TiWebViewBinding {
 	private String returnValue;
 	public String getJSValue(String expression)
 	{
-		String code = "javascript:_TiReturn.setValue((function(){return "+expression+"+\"\";})());";
+		String code = "javascript:_TiReturn.setValue((function(){try{return "+expression+"+\"\";}catch(ti_eval_err){return '';}})());";
 		Log.d(LCAT, "getJSValue:"+code);
 		webView.loadUrl(code);
 		try {

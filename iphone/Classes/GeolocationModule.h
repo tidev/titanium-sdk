@@ -24,7 +24,7 @@
 	BOOL trackingHeading;
 	BOOL trackingLocation;
 	
-	NSLock* lock;
+	NSRecursiveLock* lock;
 }
 
 @property(nonatomic,readonly,getter=hasCompass) NSNumber *compass;
@@ -35,6 +35,18 @@
 @property(nonatomic,readwrite,assign) NSNumber *headingFilter;
 @property(nonatomic,readonly) NSNumber *locationServicesEnabled;
 @property(nonatomic,readonly) NSNumber* locationServicesAuthorization;
+
+// Error codes
+@property(nonatomic, readonly) NSNumber* ERROR_LOCATION_UNKNOWN;
+@property(nonatomic, readonly) NSNumber* ERROR_DENIED;
+@property(nonatomic, readonly) NSNumber* ERROR_NETWORK;
+@property(nonatomic, readonly) NSNumber* ERROR_HEADING_FAILURE;
+// iOS 4.0+ only
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0
+@property(nonatomic, readonly) NSNumber* ERROR_REGION_MONITORING_DENIED;
+@property(nonatomic, readonly) NSNumber* ERROR_REGION_MONITORING_FAILURE;
+@property(nonatomic, readonly) NSNumber* ERROR_REGION_MONITORING_DELAYED;
+#endif
 
 // the reason for using Location services - now required in 3.2+
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2

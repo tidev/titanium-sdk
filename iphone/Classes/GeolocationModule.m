@@ -240,7 +240,7 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 	// should we show heading calibration dialog? defaults to YES
 	calibration = YES; 
 	
-	lock = [[NSLock alloc] init];
+	lock = [[NSRecursiveLock alloc] init];
 	
 	[super _configure]; 
 }
@@ -638,6 +638,17 @@ MAKE_SYSTEM_PROP(AUTHORIZATION_RESTRICTED, kCLAuthorizationStatusRestricted);
 MAKE_SYSTEM_PROP(AUTHORIZATION_UNKNOWN, 0);
 #endif
 
+MAKE_SYSTEM_PROP(ERROR_LOCATION_UNKNOWN, kCLErrorLocationUnknown);
+MAKE_SYSTEM_PROP(ERROR_DENIED, kCLErrorDenied);
+MAKE_SYSTEM_PROP(ERROR_NETWORK, kCLErrorNetwork);
+MAKE_SYSTEM_PROP(ERROR_HEADING_FAILURE, kCLErrorHeadingFailure);
+// iOS 4.0+ only
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0
+MAKE_SYSTEM_PROP(ERROR_REGION_MONITORING_DENIED, kCLErrorRegionMonitoringDenied);
+MAKE_SYSTEM_PROP(ERROR_REGION_MONITORING_FAILURE, kCLErrorRegionMonitoringFailure);
+MAKE_SYSTEM_PROP(ERROR_REGION_MONITORING_DELAYED, kCLErrorRegionMonitoringSetupDelayed);
+#endif
+
 #pragma mark Internal
 
 -(NSDictionary*)locationDictionary:(CLLocation*)newLocation;
@@ -779,6 +790,7 @@ MAKE_SYSTEM_PROP(AUTHORIZATION_UNKNOWN, 0);
 - (void)locationManager:(CLLocationManager *)manager didFailWithError:(NSError *)error
 {
 	NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:[error localizedDescription],@"error",
+						   NUMINT([error code]), @"code",
 						   NUMBOOL(NO),@"success",nil];
 	
 	if ([self _hasListeners:@"location"])

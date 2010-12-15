@@ -30,6 +30,22 @@ describe("Ti.Filesystem tests", {
 		valueOf(readText.length).shouldBe(TEXT.length);
 		valueOf(readText).shouldBe(TEXT);
 		file.deleteFile();
-	}
+	},
+	blobNativeFile: function() {
+		var filename = 'blobtest';
+		var testphrase = 'Revenge of the Blob';
+		var file = Ti.Filesystem.getFile(Ti.Filesystem.applicationDataDirectory, filename);
 
+		if (file.exists()) {
+			file.deleteFile();
+		}
+		file.write(testphrase);
+		var blob = file.read();
+		file = null;
+		var path = blob.nativePath;
+		file = Ti.Filesystem.getFile(path);
+		valueOf(file.exists()).shouldBeTrue();
+		var readphrase = file.read().text;
+		valueOf(readphrase).shouldBe(testphrase);
+	}
 });

@@ -192,6 +192,7 @@ void ASReadStreamCallBackCUR
 @synthesize state;
 @synthesize bitRate;
 @synthesize httpHeaders;
+@synthesize delegate;
 
 //
 // initWithURL
@@ -349,22 +350,6 @@ void ASReadStreamCallBackCUR
 }
 
 //
-// mainThreadStateNotification
-//
-// Method invoked on main thread to send notifications to the main thread's
-// notification center.
-//
-- (void)mainThreadStateNotification
-{
-	NSNotification *notification =
-		[NSNotification
-			notificationWithName:ASStatusChangedNotification
-			object:self];
-	[[NSNotificationCenter defaultCenter]
-		postNotification:notification];
-}
-
-//
 // setState:
 //
 // Sets the state and sends a notification that the state has changed.
@@ -381,18 +366,7 @@ void ASReadStreamCallBackCUR
 		if (state != aStatus)
 		{
 			state = aStatus;
-			
-			if ([[NSThread currentThread] isEqual:[NSThread mainThread]])
-			{
-				[self mainThreadStateNotification];
-			}
-			else
-			{
-				[self
-					performSelectorOnMainThread:@selector(mainThreadStateNotification)
-					withObject:nil
-					waitUntilDone:NO];
-			}
+			[delegate playbackStateChanged:self];
 		}
 	}
 }
@@ -775,8 +749,6 @@ cleanup:
 		{
 			NSAssert([[NSThread currentThread] isEqual:[NSThread mainThread]],
 				@"Playback can only be started from the main thread.");
-			notificationCenter =
-				[[NSNotificationCenter defaultCenter] retain];
 			self.state = AS_STARTING_FILE_THREAD;
 			internalThread =
 				[[NSThread alloc]

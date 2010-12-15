@@ -10,7 +10,7 @@
 #import "AudioStreamer/AudioStreamer.h"
 #import "TiProxy.h"
 
-@interface TiMediaAudioPlayerProxy : TiProxy {
+@interface TiMediaAudioPlayerProxy : TiProxy<AudioStreamerDelegate> {
 @private
 	NSURL *url;
 	AudioStreamer *player;
