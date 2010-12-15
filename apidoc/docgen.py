@@ -98,9 +98,10 @@ class API(object):
 			'int,string' : "''",
 			'string,int' : "''",
 			'date' : 'new Date()',
-			'long' : '0'
+			'long' : '0',
+			'callback' : 'function(){}'
 		}
-		return retTypes.get(str,str)
+		return retTypes.get(str,'function(){return '+str+'; }')
 	
 	def __init__(self,name):
 		self.namespace = name

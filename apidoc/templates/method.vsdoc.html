@@ -6,6 +6,6 @@
 		%for p in method['parameters']:
 		///<param name="${p['name'] if p['name'] !='default' else 'defaultValue'}" type="${p['type']}">${dataObj.remove_html_tags(p['description'])}</param>
 		%endfor
-		///<return type="${method['returntype']}"/>
-		return ${dataObj.vsdoc_return_type(method['returntype'])};
+		///<return type="${dataObj.remove_html_tags(method['returntype'])}"/>
+		return ${dataObj.remove_html_tags(dataObj.vsdoc_return_type(method['returntype']))};
 	}

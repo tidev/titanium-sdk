@@ -4,7 +4,7 @@ ${''.join(map(lambda w: '[\''+w+'\']' if re.match('^\d',w) else '.'+w if data.na
 	%for p in data.properties:
 	## Couple of properties have - in them. Remove it and capitalize the words after the -
 	${''.join(map(lambda w: w.capitalize() if w in p['name'].split('-')[1:] else w,p['name'].split('-')))} :\
-${data.vsdoc_return_type(p['type'])}\
+${data.vsdoc_return_type(data.remove_html_tags(p['type']))}\
 	%if (p['name'] != data.properties[len(data.properties)-1]['name'] or (len(data.events) != 0 or len(data.methods)!=0)):
 ,
 	%endif
