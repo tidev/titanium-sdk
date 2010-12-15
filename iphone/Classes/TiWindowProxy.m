@@ -423,7 +423,7 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 #endif			
 			[self setController:wc];
 			[self setNavController:nc];
-			BOOL animated = args!=nil && [args isKindOfClass:[NSDictionary class]] ? [TiUtils boolValue:@"animated" properties:[args objectAtIndex:0] def:YES] : YES;
+			BOOL animated = [TiUtils boolValue:@"animated" properties:dict def:YES];
 			[self setupWindowDecorations];
 			
 			if (rootViewAttached==NO)
