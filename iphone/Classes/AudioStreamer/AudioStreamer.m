@@ -45,6 +45,7 @@ NSString * const AS_AUDIO_BUFFER_TOO_SMALL_STRING = @"Audio packets are larger t
 
 
 @implementation AudioStreamer
+@synthesize delegate;
 
 - (id)initWithURL:(NSURL *)aURL
 {
@@ -57,14 +58,21 @@ NSString * const AS_AUDIO_BUFFER_TOO_SMALL_STRING = @"Audio packets are larger t
 		else {
 			streamer = [[AudioStreamerCUR alloc] initWithURL:aURL];
 		}
+		[streamer setDelegate:self];
 	}
 	return self;
 }
 
 - (void)dealloc
 {
+	[streamer setDelegate:nil];
 	RELEASE_TO_NIL(streamer);
 	[super dealloc];
+}
+
+-(void)playbackStateChanged:(id)sender;
+{
+	[delegate playbackStateChanged:self];
 }
 
 //

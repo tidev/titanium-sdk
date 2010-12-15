@@ -37,6 +37,7 @@
 @interface AudioStreamerCUR : NSObject<AudioStreamerProtocol>
 {
 	NSURL *url;
+	id<AudioStreamerDelegate> delegate;
 
 	//
 	// Special threading consideration:
@@ -70,7 +71,6 @@
 	pthread_cond_t queueBufferReadyCondition;	// a condition varable for handling the inuse flags
 
 	CFReadStreamRef stream;
-	NSNotificationCenter *notificationCenter;
 	
 	UInt32 bitRate;				// Bits per second in the file
 	NSInteger dataOffset;		// Offset of the first audio packet in the stream

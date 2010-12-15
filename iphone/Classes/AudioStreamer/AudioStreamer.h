@@ -84,11 +84,17 @@ typedef enum
 
 extern NSString * const ASStatusChangedNotification;
 
+@protocol AudioStreamerDelegate<NSObject>
+-(void)playbackStateChanged:(id)sender;
+@end
+
+
 @protocol AudioStreamerProtocol<NSObject>
 @property AudioStreamerErrorCode errorCode;
 @property (readonly) AudioStreamerState state;
 @property (readonly) double progress;
 @property (readwrite) UInt32 bitRate;
+@property (readwrite,assign) id<AudioStreamerDelegate> delegate;
 
 - (void)start;
 - (void)stop;
@@ -99,13 +105,15 @@ extern NSString * const ASStatusChangedNotification;
 - (BOOL)isIdle;
 @end
 
-@interface AudioStreamer : NSObject<AudioStreamerProtocol>
+@interface AudioStreamer : NSObject<AudioStreamerProtocol,AudioStreamerDelegate>
 {
 	id<AudioStreamerProtocol> streamer;
+	id<AudioStreamerDelegate> delegate;
 }
 
 - (id)initWithURL:(NSURL *)aURL;
 + (NSString*)stringForErrorCode:(AudioStreamerErrorCode)code;
+
 @end
 
 

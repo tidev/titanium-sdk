@@ -36,6 +36,7 @@
 @interface AudioStreamerBC : NSObject<AudioStreamerProtocol>
 {
 	NSURL *url;
+	id<AudioStreamerDelegate> delegate;
 
 	//
 	// Special threading consideration:
@@ -64,7 +65,6 @@
 	pthread_cond_t queueBufferReadyCondition;	// a condition varable for handling the inuse flags
 
 	CFReadStreamRef stream;
-	NSNotificationCenter *notificationCenter;
 	
 	NSUInteger dataOffset;
 	UInt32 bitRate;
