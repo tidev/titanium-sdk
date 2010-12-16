@@ -99,9 +99,11 @@ class API(object):
 			'string,int' : "''",
 			'date' : 'new Date()',
 			'long' : '0',
-			'callback' : 'function(){}'
+			'callback' : 'function(){}',
+			'Intent' : 'Titanium.Android.Intent',
+			'Titanium.App.Android.R':"function(){return Titanium.App.Android.R;}"
 		}
-		return retTypes.get(str,'function(){return '+str+'; }')
+		return retTypes.get(str,str)
 	
 	def __init__(self,name):
 		self.namespace = name
@@ -872,7 +874,7 @@ def produce_vsdoc_output(config,outdir,theobj):
 	
 def main():
 	parser = optparse.OptionParser()
-	parser.add_option('-f', '--format', dest='format', help='Format of output: json or devhtml (default)', default='devhtml')
+	parser.add_option('-f', '--format', dest='format', help='Format of output: json, vsdoc or devhtml (default)', default='devhtml')
 	parser.add_option('--css', dest='css', help='Path to a custom CSS stylesheet to use in each HTML page', default=None)
 	parser.add_option('-o', '--output', dest='output', help='Output directory for generated documentation', default=None)
 	parser.add_option('-v', '--version', dest='version', help='Version of the API to generate documentation for', default=None)
@@ -904,7 +906,7 @@ def main():
 			other_args[kv[0].strip()]=True
 		c+=1"""
 	
-	format_handlers = {'json': produce_json, 'devhtml': produce_devhtml, 'vsdoc':produce_vsdoc}
+	format_handlers = {'json': produce_json, 'devhtml': produce_devhtml, 'vsdoc' : produce_vsdoc}
 	if options.format in format_handlers:
 		print 'Generating Documentation for Titanium version %s to %s...' % (other_args['version'], other_args['output'])
 		process_tdoc()
