@@ -497,6 +497,7 @@ class Builder(object):
 		android_resources_dir = os.path.join(resources_dir, 'android')
 		self.project_deltafy = Deltafy(resources_dir, include_callback=self.include_path)
 		self.project_deltas = self.project_deltafy.scan()
+		self.js_changed = False
 		tiapp_delta = self.project_deltafy.scan_single_file(self.project_tiappxml)
 		self.tiapp_changed = tiapp_delta is not None
 		if self.tiapp_changed or self.force_rebuild:
@@ -529,7 +530,6 @@ class Builder(object):
 					trace("COPYING FILE: %s => %s (platform-specific file was removed)" % (shared_path, dest))
 					shutil.copy(shared_path, dest)
 
-
 			if delta.get_status() != Delta.DELETED:
 				if path.startswith(android_resources_dir):
 					dest = make_relative(path, android_resources_dir, self.assets_resources_dir)
@@ -547,6 +547,8 @@ class Builder(object):
 					os.makedirs(parent)
 				trace("COPYING %s FILE: %s => %s" % (delta.get_status_str(), path, dest))
 				shutil.copy(path, dest)
+				if (path.startswith(resources_dir) or path.startswith(android_resources_dir)) and path.endswith(".js"):
+					self.js_changed = True
 				# copy to the sdcard in development mode
 				if self.sdcard_copy and self.app_installed and (self.deploy_type == 'development' or self.deploy_type == 'test'):
 					if path.startswith(android_resources_dir):
@@ -1295,7 +1297,7 @@ class Builder(object):
 
 			self.copy_project_resources()
 			
-			if self.tiapp_changed or self.force_rebuild or self.deploy_type == "production":
+			if self.tiapp_changed or self.js_changed or self.force_rebuild or self.deploy_type == "production":
 				trace("Generating Java Classes")
 				self.android.create(os.path.abspath(os.path.join(self.top_dir,'..')), True, project_dir=self.top_dir)
 			else:
