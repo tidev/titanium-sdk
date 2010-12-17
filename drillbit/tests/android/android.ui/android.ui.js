@@ -147,6 +147,47 @@ describe("Ti.UI.Android tests", {
 	// https://appcelerator.lighthouseapp.com/projects/32238/tickets/2505
 	lightweightWindowCrash: function() {
 		valueOf( function() {Ti.UI.createWindow({url: 'lightweight.js'});}).shouldNotThrowException();
+	},
+
+	// https://appcelerator.lighthouseapp.com/projects/32238/tickets/1787-android-tableviews-disappear-in-scrollableview
+	tableViewDisappearInSV_as_async: function(callback) {
+		var w = Ti.UI.createWindow();
+		w.open();
+		var views = [];
+		for (var i = 0; i < 3; i++) {
+			views.push(
+				Ti.UI.createTableView({
+					data: [ Ti.UI.createTableViewRow({title: 'Row for view ' + i}) ]
+				})
+			);
+		}
+
+		var sv = Ti.UI.createScrollableView({ views: views , top: 0, left: 0, right: 0, height: 5});
+		w.add(sv);
+		var moves = 0;
+		var intervalId = -1;
+		intervalId = setInterval(
+			function(){
+				if (moves ===0) {
+					moves = moves + 1;
+					sv.moveNext();
+				} else if (moves === 1) {
+					moves = moves + 1;
+					sv.movePrevious();
+				} else if (moves === 2) {
+					moves = moves + 1;
+					clearInterval(intervalId);
+					var rows = sv.views[0].data.length;
+					w.close();
+					if (rows === 1) {
+						callback.passed();
+					}else {
+						callback.failed("Expected 1 row after move, but there are " + rows);
+					}
+				}
+		}, 2000);
+
 	}
+
 })
 
