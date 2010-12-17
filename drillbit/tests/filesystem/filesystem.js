@@ -47,5 +47,15 @@ describe("Ti.Filesystem tests", {
 		valueOf(file.exists()).shouldBeTrue();
 		var readphrase = file.read().text;
 		valueOf(readphrase).shouldBe(testphrase);
+	},
+	// https://appcelerator.lighthouseapp.com/projects/32238-titanium-mobile/tickets/2443-android-paths-beginning-with-are-not-recognised#ticket-2443-6
+	dotSlash: function() {
+		var f;
+		var blob;
+		valueOf(function(){f = Ti.Filesystem.getFile('./file.txt');}).shouldNotThrowException();
+		valueOf(function(){blob = f.read();}).shouldNotThrowException();
+		var text;
+		valueOf(function(){text = blob.text;}).shouldNotThrowException();
+		valueOf(text.length).shouldBeGreaterThan(0);
 	}
 });
