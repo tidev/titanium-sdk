@@ -1,0 +1,70 @@
+Titanium Mobile 1.5.0 - 12/10/2010
+==================================
+
+This release includes general bug fixes and enhancements for Android and iPhone.
+Please see the updated [Titanium Mobile Reference Documentation for 1.5.0](/apidoc/mobile/1.5.0) *These will be updated by Monday*
+
+We have [addressed](https://appcelerator.lighthouseapp.com/tickets?q=milestone:%22Release+1.5.0%22+tagged:android+state:resolved&filter=) almost 300 issues since 1.4.0. Thanks for everyone's reported issues and patience as we have worked a little longer on this release than we had original anticipated.
+
+Android Breaking Change
+---------------------------
+
+There is one breaking change. The `Ti.UI.Android.createOptionMenu` and `Ti.UI.Android.OptionMenu` had to be removed to add the new improved menu support. The new API maps almost 1 to 1 onto the native Android API. There are two methods on `Ti.Android.Activity`: `onCreateOptionsMenu` and `onPrepareOptionsMenu`. When the menu button is pressed the first time, the `onCreateOptionsMenu` callback will be invoked passing in the `Menu` to which you can add `Menu Items`. Examples are available in KitchenSink that show how to use the new menu APIs. The `map_view.js` example has also been refactored to use the new APIs.
+
+Android Changes
+---------------
+
+This is a big release for our Android platform. We added over 60 [features](https://appcelerator.lighthouseapp.com/tickets?q=milestone:%22Release+1.5.0%22+tagged:android+tagged:feature+state:resolved&filter=) and addressed over 200 [other issues](https://appcelerator.lighthouseapp.com/tickets?q=milestone:%22Release+1.5.0%22+tagged:android+tagged:defect+state:resolved&filter=). 
+
+- Android Activity exposed into each Javascript context as `Ti.Android.currentActivity`
+- Core Android Objects: Activity, Intent, PendingIntent, Service, Menu, and MenuItem
+- Extended `tiapp.xml` support for specifying entries for `AndroidManifest.xml`
+- Javascript Activities
+- Support for Multiple Density Resources
+- New `platform/android` folder for specifying files to be copied at build time
+- Android Preferences API
+- Pickers
+- ImageView scale by default
+- Open Database from SD Card
+- Dialogs support arbitrary views
+- Custom Sliders
+- Buffering of large XHR downloads
+- Auto Linking in Labels
+- Focusable view support allows keyboard and trackball navigation of UI 
+- Clipboard Support
+- Access to events from hardware buttons
+- Contacts Module (Read-only until we're API level 5 or greater)
+- Initial Animation Support
+- Optimization of bitmap usage to reduce Out of Memory errors
+- Cache for remote images
+- TableView improvements especially around scrambled data and className
+- Checkbox style on `Switch`
+- `Calendar`
+- Vertical Alignment in `TextField` and `TextArea`
+- Localization
+- Javascript Style Sheets (JSS)
+
+iOS Changes
+-----------
+In this release we've added a few new features, performance improvements, and fixed over 100 issues.
+
+- Improvements to tiapp.xml to allow default app orientations and a starting orientation
+- Improved memory management
+- Drawing performance improvements especially in TableViews
+- Coverflow Views
+- Localization
+- Improved backgrounding and local notification support
+- Clipboard support
+- Better HTTP/XHR support
+- Javascript Style Sheets (JSS)
+
+Platform Developer Changes
+--------------------------
+
+- New unit test framework: [Drillbit](http://developer.appcelerator.com/doc/mobile/drillbit)
+- Module development (Android)
+
+Continuous Builds
+-----------------
+
+The continuous build server now provides builds on multiple branches.

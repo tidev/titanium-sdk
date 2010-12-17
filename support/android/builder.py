@@ -699,7 +699,7 @@ class Builder(object):
 				service_name = self.app_id + '.' + service['classname']
 				service_str = '<service \n\t\t\tandroid:name="%s"' % service_name
 				for subkey in service:
-					if subkey not in ('nodes', 'type', 'name', 'url', 'options', 'classname', 'android:name'):
+					if subkey not in ('nodes', 'service_type', 'type', 'name', 'url', 'options', 'classname', 'android:name'):
 						service_str += '\n\t\t\t%s="%s"' % (subkey, service[subkey])
 
 				if 'nodes' in service:
@@ -865,30 +865,30 @@ class Builder(object):
 					uses_sdk_node = node
 				elif node.nodeName == 'supports-screens':
 					supports_screens_node = node
-			if supports_screens_node or uses_sdk_node or ('manifest-attributes' in self.tiapp.android_manifest and self.tiapp.android_manifest['manifest-attributes'].length) or ('application-attributes' in self.tiapp.android_manifest and self.tiapp.android_manifest['application-attributes'].length):
-				dom = parseString(default_manifest_contents)
-				def replace_node(olddom, newnode):
-					nodes = olddom.getElementsByTagName(newnode.nodeName)
-					if nodes:
-						olddom.documentElement.replaceChild(newnode, nodes[0])
+		if supports_screens_node or uses_sdk_node or ('manifest-attributes' in self.tiapp.android_manifest and self.tiapp.android_manifest['manifest-attributes'].length) or ('application-attributes' in self.tiapp.android_manifest and self.tiapp.android_manifest['application-attributes'].length):
+			dom = parseString(default_manifest_contents)
+			def replace_node(olddom, newnode):
+				nodes = olddom.getElementsByTagName(newnode.nodeName)
+				if nodes:
+					olddom.documentElement.replaceChild(newnode, nodes[0])
 
-				if supports_screens_node:
-					replace_node(dom, supports_screens_node)
-				if uses_sdk_node:
-					replace_node(dom, uses_sdk_node)
+			if supports_screens_node:
+				replace_node(dom, supports_screens_node)
+			if uses_sdk_node:
+				replace_node(dom, uses_sdk_node)
 
-				def set_attrs(element, new_attr_set):
-					for k in new_attr_set.keys():
-						if element.hasAttribute(k):
-							element.removeAttribute(k)
-						element.setAttribute(k, new_attr_set.get(k).value)
+			def set_attrs(element, new_attr_set):
+				for k in new_attr_set.keys():
+					if element.hasAttribute(k):
+						element.removeAttribute(k)
+					element.setAttribute(k, new_attr_set.get(k).value)
 
-				if 'manifest-attributes' in self.tiapp.android_manifest and self.tiapp.android_manifest['manifest-attributes'].length:
-					set_attrs(dom.documentElement, self.tiapp.android_manifest['manifest-attributes'])
-				if 'application-attributes' in self.tiapp.android_manifest and self.tiapp.android_manifest['application-attributes'].length:
-					set_attrs(dom.getElementsByTagName('application')[0], self.tiapp.android_manifest['application-attributes'])
+			if 'manifest-attributes' in self.tiapp.android_manifest and self.tiapp.android_manifest['manifest-attributes'].length:
+				set_attrs(dom.documentElement, self.tiapp.android_manifest['manifest-attributes'])
+			if 'application-attributes' in self.tiapp.android_manifest and self.tiapp.android_manifest['application-attributes'].length:
+				set_attrs(dom.getElementsByTagName('application')[0], self.tiapp.android_manifest['application-attributes'])
 
-				default_manifest_contents = dom.toxml()
+			default_manifest_contents = dom.toxml()
 
 		if custom_manifest_contents:
 			custom_manifest_contents = fill_manifest(custom_manifest_contents)

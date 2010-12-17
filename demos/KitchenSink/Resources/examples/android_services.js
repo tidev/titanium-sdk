@@ -11,7 +11,8 @@ win.add(title);
 
 var console = Ti.UI.createLabel({
 	top: 45, left: 5, right: 5, height: 200,
-	backgroundColor: 'white'
+	backgroundColor: 'white', color: 'black',
+	font: {fontSize: 12}, verticalAlign: 'top'
 });
 win.add(console);
 

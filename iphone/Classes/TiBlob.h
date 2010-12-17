@@ -48,6 +48,7 @@ typedef enum {
 -(NSData*)data;
 -(UIImage*)image;
 -(NSString*)path;
+-(NSString*)nativePath; // Android compatibility
 
 -(BOOL)writeTo:(NSString*)path error:(NSError**)error;
 

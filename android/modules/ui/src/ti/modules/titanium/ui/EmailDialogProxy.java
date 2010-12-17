@@ -297,8 +297,14 @@ public class EmailDialogProxy extends TiViewProxy {
 	
 	private void putAddressExtra(Intent intent, String extraType, String ourkey) {
 		Object testprop = this.getProperty(ourkey);
-		if (testprop instanceof String[]) {
-			intent.putExtra(extraType, (String[])testprop);
+		if (testprop instanceof Object[]) {
+			Object[] oaddrs = (Object[]) testprop;
+			int len = oaddrs.length;
+			String[] addrs = new String[len];
+			for (int i = 0; i < len; i++) {
+				addrs[i] = TiConvert.toString(oaddrs[i]);
+			}
+			intent.putExtra(extraType, addrs);
 		}		
 	}
 

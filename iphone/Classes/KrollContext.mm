@@ -62,7 +62,6 @@ static unsigned short KrollContextCount = 0;
 	if (condition!=nil)
 	{
 		[condition lock];
-		VerboseLog(@"Signaling %@ %@",self,CODELOCATION);
 		[condition signal];
 		[condition unlock];
 	}
@@ -671,7 +670,6 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 			debugger = NULL;
 		}
 #endif
-		VerboseLog(@"Signaling %@ %@",self,CODELOCATION);
 		[condition signal];
 		[condition unlock];
 	}
@@ -741,7 +739,6 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 	if (!mythread)
 	{
 		[lock unlock];
-		VerboseLog(@"Signaling %@ %@",self,CODELOCATION);
 		[condition signal];
 	}
 	
@@ -825,7 +822,6 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 	// need to immediately force the thread to wake up
 	// and collect garbage asap
 	[condition lock];
-	VerboseLog(@"Signaling %@ %@",self,CODELOCATION);
 	[condition signal];
 	[condition unlock];
 }

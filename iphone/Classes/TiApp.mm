@@ -288,6 +288,23 @@ void MyUncaughtExceptionHandler(NSException *exception)
 	[self boot];
 }
 
+- (void)generateNotification:(NSDictionary*)dict
+{
+	// Check and see if any keys from APS and the rest of the dictionary match; if they do, just
+	// bump out the dictionary as-is
+	remoteNotification = [[NSMutableDictionary alloc] initWithDictionary:dict];
+	NSDictionary* aps = [dict objectForKey:@"aps"];
+	for (id key in aps) 
+	{
+		if ([dict objectForKey:key] != nil) {
+			NSLog(@"[WARN] Conflicting keys in push APS dictionary and notification dictionary `%@`, not copying to toplevel from APS", key);
+			continue;
+		}
+		[remoteNotification setValue:[aps valueForKey:key] forKey:key];
+	}
+	NSLog(@"[WARN] Accessing APS keys from toplevel of notification is deprecated");
+}
+
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions_
 {
 	started = [NSDate timeIntervalSinceReferenceDate];
@@ -324,7 +341,7 @@ void MyUncaughtExceptionHandler(NSException *exception)
 	}
 	if (notification!=nil)
 	{
-		remoteNotification = [[notification objectForKey:@"aps"] retain];
+		[self generateNotification:notification];
 	}
 	
 	[self boot];
@@ -468,7 +485,7 @@ void MyUncaughtExceptionHandler(NSException *exception)
 	// otherwise, if the app is started from a push notification, this method will not be 
 	// called
 	RELEASE_TO_NIL(remoteNotification);
-	remoteNotification = [[userInfo objectForKey:@"aps"] retain];
+	[self generateNotification:userInfo];
 	
 	if (remoteNotificationDelegate!=nil)
 	{
