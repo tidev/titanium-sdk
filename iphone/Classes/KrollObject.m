@@ -790,15 +790,7 @@ bool KrollSetProperty(TiContextRef jsContext, TiObjectRef object, TiStringRef pr
 			[target performSelector:selector withObject:value withObject:nil];
 			return;
 		}
-		selector = NSSelectorFromString([NSString stringWithFormat:@"set%@:",name]);
-		if ([target respondsToSelector:selector])
-		{
-			[target performSelector:selector withObject:value];
-		}
-		else 
-		{
-			[target setValue:value forKey:key];
-		}
+		[target setValue:value forKey:key];
 	}
 	@finally 
 	{
