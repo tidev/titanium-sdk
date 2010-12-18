@@ -8,8 +8,8 @@ def run(args,ignore_error=False,debug=True,out=None):
 	results = ''
 	rc = None
 	while True:
-		line = unicode(proc.stdout.readline(), 'utf-8')
-		if line:
+		for line in proc.stdout.readlines():
+			line = unicode(line, 'utf-8')
 			if out!=None:
 				out.write(line)
 				out.flush()
@@ -24,7 +24,8 @@ def run(args,ignore_error=False,debug=True,out=None):
 			results+=line
 		rc = proc.poll()
 		if rc!=None: break
-	if rc!=0: 	
+	if rc!=0:
+		print '\n'.join(["[ERROR] %s" % line for line in results.split('\n')])
 		if out!=None: out.write("EXIT CODE WAS: %d\n" % rc)
 		if not ignore_error:
 			if debug: print "[ERROR] exitcode was: %d" % rc
