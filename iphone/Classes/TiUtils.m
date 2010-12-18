@@ -38,42 +38,44 @@ extern NSString * const TI_APPLICATION_RESOURCE_DIR;
 	static CGFloat scale = 0.0;
 	if (scale == 0.0)
 	{
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0
+#if __IPHONE_3_2 <= __IPHONE_OS_VERSION_MAX_ALLOWED
+// NOTE: iPad in iPhone compatibility mode will return a scale factor of 2.0
+// when in 2x zoom, which leads to false positives and bugs. This tries to
+// future proof against possible different model names, but in the event of
+// an iPad with a retina display, this will need to be fixed.
+// Credit to Brion on github for the origional fix.
+		if(UI_USER_INTERFACE_IDIOM()==UIUserInterfaceIdiomPhone)
+		{
+			NSRange iPadStringPosition = [[[UIDevice currentDevice] model] rangeOfString:@"iPad"];
+			if(iPadStringPosition.location != NSNotFound)
+			{
+				scale = 1.0;
+				return NO;
+			}
+		}
+#endif
 		if ([[UIScreen mainScreen] respondsToSelector:@selector(scale)])
 		{
-			scale = [UIScreen mainScreen].scale;
+			scale = [[UIScreen mainScreen] scale];
 		}
-#endif	
 	}
 	return scale > 1.0;
 }
 
 +(BOOL)isIOS4_2OrGreater
 {
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __iPHONE_4_2
 	return [UIView instancesRespondToSelector:@selector(drawRect:forViewPrintFormatter:)];
-#else
-	return NO;
-#endif
 }
 
 +(BOOL)isIOS4OrGreater
 {
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0
 	return [UIView instancesRespondToSelector:@selector(contentScaleFactor)];
-#else
-	return NO;
-#endif
 }
 
 +(BOOL)isiPhoneOS3_2OrGreater
 {
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
 	// Here's a cheap way to test for 3.2; does it respond to a selector that was introduced with that version?
 	return [[UIApplication sharedApplication] respondsToSelector:@selector(setStatusBarHidden:withAnimation:)];
-#else
-	return NO;
-#endif
 }
 
 +(BOOL)isIPad
