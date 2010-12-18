@@ -183,7 +183,7 @@
 -(void)hide:(id)arg
 {
 	[self replaceValue:NUMBOOL(NO) forKey:@"visible" notification:YES];
-	[self setHidden:NO withArgs:arg];
+	[self setHidden:YES withArgs:arg];
 }
 
 -(void)animate:(id)arg
