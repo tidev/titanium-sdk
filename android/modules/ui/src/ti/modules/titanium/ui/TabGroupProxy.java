@@ -99,6 +99,13 @@ public class TabGroupProxy extends TiWindowProxy
 		return tps;
 	}
 
+
+	public ArrayList<TabProxy> getTabList()
+	{
+		return tabs;
+	}
+
+
 	@Kroll.method
 	public void addTab(TabProxy tab)
 	{

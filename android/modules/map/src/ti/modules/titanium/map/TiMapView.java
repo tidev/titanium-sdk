@@ -395,6 +395,9 @@ public class TiMapView extends TiUIView
 				return true;
 			case MSG_REMOVE_ALL_ANNOTATIONS :
 				annotations.clear();
+				if (itemView != null && view != null && view.indexOfChild(itemView) != -1 ) {
+					hideAnnotation();
+				}
 				doSetAnnotations(annotations);
 				return true;
 		}

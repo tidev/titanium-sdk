@@ -63,5 +63,10 @@ describe("Ti.UI tests", {
 		},
 		timeout: 10000,
 		timeoutError: 'Timed out waiting for page to load and JS to eval'
-	})
+	}),
+	//https://appcelerator.lighthouseapp.com/projects/32238/tickets/2443-android-paths-beginning-with-are-not-recognised
+	dotslashWindow: function() {
+		var w = Ti.UI.createWindow({url:'./testwin.js'});
+		valueOf(function(){w.open();}).shouldNotThrowException();
+	}
 });

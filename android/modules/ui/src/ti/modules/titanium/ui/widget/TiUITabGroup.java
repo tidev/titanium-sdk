@@ -117,12 +117,15 @@ public class TiUITabGroup extends TiUIView
 	@Override
 	public void onTabChanged(String id)
 	{
+		TabGroupProxy tabGroupProxy = ((TabGroupProxy) proxy);
+		
 		if (DBG) {
-			Log.i(LCAT,"Tab change from " + lastTabId + " to " + id);
+			Log.d(LCAT,"Tab change from " + lastTabId + " to " + id);
 		}
 
+		proxy.setProperty("activeTab", tabGroupProxy.getTabList().get (tabHost.getCurrentTab()));
+		
 		if (!addingTab) {
-			TabGroupProxy tabGroupProxy = ((TabGroupProxy) proxy);
 			if (tabChangeEventData != null) {
 				proxy.fireEvent("blur", tabChangeEventData);
 			}
@@ -132,7 +135,6 @@ public class TiUITabGroup extends TiUIView
 		}
 		
 		lastTabId = id;
-		proxy.setProperty("activeTab", tabHost.getCurrentTab());
 	}
 
 	public void changeActiveTab(Object t) {

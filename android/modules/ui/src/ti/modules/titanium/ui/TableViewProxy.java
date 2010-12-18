@@ -91,7 +91,6 @@ public class TableViewProxy extends TiViewProxy
 				section.releaseViews();
 			}
 		}
-		localSections.clear();
 	}
 
 	@Override
@@ -164,10 +163,9 @@ public class TableViewProxy extends TiViewProxy
 			TableViewSectionProxy lastSection = sections.get(sections.size() - 1);
 			rowProxy.setProperty(TiC.PROPERTY_SECTION, lastSection);
 			rowProxy.setProperty(TiC.PROPERTY_PARENT, lastSection);
-
 			lastSection.insertRowAt((int) lastSection.getRowCount(), rowProxy);
-			getTableView().setModelDirty();
 		}
+		getTableView().setModelDirty();
 		updateView();
 	}
 

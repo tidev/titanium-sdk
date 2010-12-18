@@ -55,8 +55,8 @@
 
 -(void)setVisible:(NSNumber *)newVisible withObject:(id)args
 {
-	[self replaceValue:newVisible forKey:@"visible" notification:YES];
 	[self setHidden:![TiUtils boolValue:newVisible def:YES] withArgs:args];
+	[self replaceValue:newVisible forKey:@"visible" notification:YES];
 }
 
 

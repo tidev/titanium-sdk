@@ -106,6 +106,13 @@ public class TiUrl {
 			if (scheme == null) {
 				String path = uri.getPath();
 				String fname = null;
+				if (path != null && path.startsWith("./")) {
+					if (path.length() == 2) {
+						path = "";
+					} else {
+						path = path.substring(2);
+					}
+				}
 				int lastIndex = path.lastIndexOf("/");
 				if (lastIndex > 0) {
 					fname = path.substring(lastIndex+1);
@@ -158,6 +165,13 @@ public class TiUrl {
 		String result = null;
 		if (scheme == null) {
 			scheme = "app:";
+		}
+		if (path.startsWith("./")) {
+			if (path.length() == 2) {
+				path = "";
+			} else {
+				path = path.substring(2);
+			}
 		}
 		if (path.startsWith("../")) {
 			path = absoluteUrl(scheme, path, baseUrl);
