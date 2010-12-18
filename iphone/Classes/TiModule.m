@@ -132,8 +132,7 @@
 		CFDictionarySetValue(classNameLookup, name, resultClass);		
 	}
 
-	TiProxy *proxy = [resultClass alloc];
-	return [[proxy _initWithPageContext:context args:args] autorelease];
+	return [[[resultClass alloc] _initWithPageContext:context args:args] autorelease];
 }
 
 
