@@ -475,7 +475,7 @@ class Builder(object):
 			for root, dirs, files in os.walk(os.path.join(self.top_dir, "Resources")):
 				for f in files:
 					path = os.path.join(root, f)
-					if is_resource_drawable(path):
+					if is_resource_drawable(path) and f != 'default.png':
 						fileset.append(path)
 		else:
 			if self.project_deltas:
@@ -497,6 +497,7 @@ class Builder(object):
 		android_resources_dir = os.path.join(resources_dir, 'android')
 		self.project_deltafy = Deltafy(resources_dir, include_callback=self.include_path)
 		self.project_deltas = self.project_deltafy.scan()
+		self.js_changed = False
 		tiapp_delta = self.project_deltafy.scan_single_file(self.project_tiappxml)
 		self.tiapp_changed = tiapp_delta is not None
 		if self.tiapp_changed or self.force_rebuild:
@@ -529,7 +530,6 @@ class Builder(object):
 					trace("COPYING FILE: %s => %s (platform-specific file was removed)" % (shared_path, dest))
 					shutil.copy(shared_path, dest)
 
-
 			if delta.get_status() != Delta.DELETED:
 				if path.startswith(android_resources_dir):
 					dest = make_relative(path, android_resources_dir, self.assets_resources_dir)
@@ -547,6 +547,8 @@ class Builder(object):
 					os.makedirs(parent)
 				trace("COPYING %s FILE: %s => %s" % (delta.get_status_str(), path, dest))
 				shutil.copy(path, dest)
+				if (path.startswith(resources_dir) or path.startswith(android_resources_dir)) and path.endswith(".js"):
+					self.js_changed = True
 				# copy to the sdcard in development mode
 				if self.sdcard_copy and self.app_installed and (self.deploy_type == 'development' or self.deploy_type == 'test'):
 					if path.startswith(android_resources_dir):
@@ -699,7 +701,7 @@ class Builder(object):
 				service_name = self.app_id + '.' + service['classname']
 				service_str = '<service \n\t\t\tandroid:name="%s"' % service_name
 				for subkey in service:
-					if subkey not in ('nodes', 'type', 'name', 'url', 'options', 'classname', 'android:name'):
+					if subkey not in ('nodes', 'service_type', 'type', 'name', 'url', 'options', 'classname', 'android:name'):
 						service_str += '\n\t\t\t%s="%s"' % (subkey, service[subkey])
 
 				if 'nodes' in service:
@@ -755,9 +757,11 @@ class Builder(object):
 					if re.search(pattern, path):
 						res_folder = resource_drawable_folder(path)
 						debug('found %s splash screen at %s' % (res_folder, path))
-						dest_path = os.path.join(self.res_dir, res_folder, 'background.png')
-						os.makedirs(dest_path)
-						shutil.copy(path, dest_path) 
+						dest_path = os.path.join(self.res_dir, res_folder)
+						dest_file = os.path.join(dest_path, 'background.png')
+						if not os.path.exists(dest_path):
+							os.makedirs(dest_path)
+						shutil.copy(path, dest_file)
 
 		splashimage = os.path.join(self.assets_resources_dir,'default.png')
 		background_png = os.path.join('res','drawable','background.png')
@@ -863,30 +867,30 @@ class Builder(object):
 					uses_sdk_node = node
 				elif node.nodeName == 'supports-screens':
 					supports_screens_node = node
-			if supports_screens_node or uses_sdk_node or ('manifest-attributes' in self.tiapp.android_manifest and self.tiapp.android_manifest['manifest-attributes'].length) or ('application-attributes' in self.tiapp.android_manifest and self.tiapp.android_manifest['application-attributes'].length):
-				dom = parseString(default_manifest_contents)
-				def replace_node(olddom, newnode):
-					nodes = olddom.getElementsByTagName(newnode.nodeName)
-					if nodes:
-						olddom.documentElement.replaceChild(newnode, nodes[0])
+		if supports_screens_node or uses_sdk_node or ('manifest-attributes' in self.tiapp.android_manifest and self.tiapp.android_manifest['manifest-attributes'].length) or ('application-attributes' in self.tiapp.android_manifest and self.tiapp.android_manifest['application-attributes'].length):
+			dom = parseString(default_manifest_contents)
+			def replace_node(olddom, newnode):
+				nodes = olddom.getElementsByTagName(newnode.nodeName)
+				if nodes:
+					olddom.documentElement.replaceChild(newnode, nodes[0])
 
-				if supports_screens_node:
-					replace_node(dom, supports_screens_node)
-				if uses_sdk_node:
-					replace_node(dom, uses_sdk_node)
+			if supports_screens_node:
+				replace_node(dom, supports_screens_node)
+			if uses_sdk_node:
+				replace_node(dom, uses_sdk_node)
 
-				def set_attrs(element, new_attr_set):
-					for k in new_attr_set.keys():
-						if element.hasAttribute(k):
-							element.removeAttribute(k)
-						element.setAttribute(k, new_attr_set.get(k).value)
+			def set_attrs(element, new_attr_set):
+				for k in new_attr_set.keys():
+					if element.hasAttribute(k):
+						element.removeAttribute(k)
+					element.setAttribute(k, new_attr_set.get(k).value)
 
-				if 'manifest-attributes' in self.tiapp.android_manifest and self.tiapp.android_manifest['manifest-attributes'].length:
-					set_attrs(dom.documentElement, self.tiapp.android_manifest['manifest-attributes'])
-				if 'application-attributes' in self.tiapp.android_manifest and self.tiapp.android_manifest['application-attributes'].length:
-					set_attrs(dom.getElementsByTagName('application')[0], self.tiapp.android_manifest['application-attributes'])
+			if 'manifest-attributes' in self.tiapp.android_manifest and self.tiapp.android_manifest['manifest-attributes'].length:
+				set_attrs(dom.documentElement, self.tiapp.android_manifest['manifest-attributes'])
+			if 'application-attributes' in self.tiapp.android_manifest and self.tiapp.android_manifest['application-attributes'].length:
+				set_attrs(dom.getElementsByTagName('application')[0], self.tiapp.android_manifest['application-attributes'])
 
-				default_manifest_contents = dom.toxml()
+			default_manifest_contents = dom.toxml()
 
 		if custom_manifest_contents:
 			custom_manifest_contents = fill_manifest(custom_manifest_contents)
@@ -939,11 +943,11 @@ class Builder(object):
 		asf = codecs.open(app_stylesheet, 'w', 'utf-8')
 		asf.write(cssc.code)
 		asf.close()
-		
+
 	def generate_localizations(self):
 		# compile localization files
 		localecompiler.LocaleCompiler(self.name,self.top_dir,'android',sys.argv[1]).compile()
-	
+
 	def recurse(self, paths, file_glob=None):
 		if paths == None: yield None
 		if not isinstance(paths, list): paths = [paths]
@@ -954,24 +958,24 @@ class Builder(object):
 					if file_glob != None:
 						if not fnmatch.fnmatch(filename, file_glob): continue
 					yield os.path.join(root, filename)
-	
+
 	def generate_aidl(self):
 		# support for android remote interfaces in platform/android/src
 		framework_aidl = self.sdk.platform_path('framework.aidl')
 		aidl_args = [self.sdk.get_aidl(), '-p' + framework_aidl, '-I' + self.project_src_dir, '-o' + self.project_gen_dir]
 		for aidl_file in self.recurse(self.project_src_dir, '*.aidl'):
 			run.run(aidl_args + [aidl_file])
-			
+
 	def build_generated_classes(self):
 		src_list = []
 		self.module_jars = []
-		
+
 		for java_file in self.recurse([self.project_src_dir, self.project_gen_dir], '*.java'):
 			# the file list file still needs each file escaped apparently
 			src_list.append('"%s"' % java_file.replace("\\", "\\\\"))
-	
+
 		classpath = os.pathsep.join([self.android_jar, os.pathsep.join(self.android_jars)])
-	
+
 		project_module_dir = os.path.join(self.top_dir,'modules','android')
 		for module in self.modules:
 			if module.jar == None: continue
@@ -981,7 +985,10 @@ class Builder(object):
 			for jar in glob.glob(os.path.join(module_lib, '*.jar')):
 				self.module_jars.append(jar)
 				classpath = os.pathsep.join([classpath, jar])
-		
+
+		if self.deploy_type != 'production':
+			classpath = os.pathsep.join([classpath, os.path.join(self.support_dir, 'lib', 'titanium-verify.jar')])
+
 		debug("Building Java Sources: " + " ".join(src_list))
 		javac_command = [self.javac, '-encoding', 'utf8', '-classpath', classpath, '-d', self.classes_dir, '-sourcepath', self.project_src_dir, '-sourcepath', self.project_gen_dir]
 		(src_list_osfile, src_list_filename) = tempfile.mkstemp()
@@ -1147,6 +1154,7 @@ class Builder(object):
 			else:
 				deploy_type = 'production'
 
+		self.deploy_type = deploy_type
 		(java_failed, java_status) = prereq.check_java()
 		if java_failed:
 			error(java_status)
@@ -1228,7 +1236,6 @@ class Builder(object):
 				self.wait_for_device('d')
 		
 		self.install = install
-		self.deploy_type = deploy_type
 		
 		self.device_type_arg = '-e'
 		if self.deploy_type == 'test':
@@ -1264,13 +1271,9 @@ class Builder(object):
 		try:
 			os.chdir(self.project_dir)
 			self.android = Android(self.name, self.app_id, self.sdk, deploy_type, self.java)
-			
+
 			if not os.path.exists('bin'):
 				os.makedirs('bin')
-			
-			# if os.path.exists('lib'):
-			# 	for jar in self.android_jars:
-			# 		shutil.copy(jar, 'lib')
 
 			resources_dir = os.path.join(self.top_dir,'Resources')
 			self.assets_dir = os.path.join(self.project_dir,'bin','assets')
@@ -1294,7 +1297,7 @@ class Builder(object):
 
 			self.copy_project_resources()
 			
-			if self.tiapp_changed or self.force_rebuild or self.deploy_type == "production":
+			if self.tiapp_changed or self.js_changed or self.force_rebuild or self.deploy_type == "production":
 				trace("Generating Java Classes")
 				self.android.create(os.path.abspath(os.path.join(self.top_dir,'..')), True, project_dir=self.top_dir)
 			else:
@@ -1348,7 +1351,7 @@ class Builder(object):
 				for root, dirs, files in os.walk(density_image_dir):
 					for f in files:
 						path = os.path.join(root, f)
-						if is_resource_drawable(path):
+						if is_resource_drawable(path) and f != 'default.png':
 							using_density_images = True
 							break
 				if using_density_images:
@@ -1395,7 +1398,17 @@ class Builder(object):
 				dex_args += ['--dex', '--output='+self.classes_dex, self.classes_dir]
 				dex_args += self.android_jars
 				dex_args += self.module_jars
-		
+				if self.deploy_type != 'production':
+					dex_args.append(os.path.join(self.support_dir, 'lib', 'titanium-verify.jar'))
+					# the verifier depends on Ti.Network classes, so we may need to inject it
+					has_network_jar = False
+					for jar in self.android_jars:
+						if jar.endswith('titanium-network.jar'):
+							has_network_jar = True
+							break
+					if not has_network_jar:
+						dex_args.append(os.path.join(self.support_dir, 'modules', 'titanium-network.jar'))
+	
 				info("Compiling Android Resources... This could take some time")
 				sys.stdout.flush()
 				# TODO - Document Exit message

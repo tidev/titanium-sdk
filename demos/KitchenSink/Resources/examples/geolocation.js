@@ -10,6 +10,27 @@ if (isIPhone3_2_Plus())
 	Ti.Geolocation.purpose = "GPS demo";
 }
 
+function translateErrorCode(code) {
+	if (code == null) {
+		return null;
+	}
+	switch (code) {
+		case Ti.Geolocation.ERROR_LOCATION_UNKNOWN:
+			return "Location unknown";
+		case Ti.Geolocation.ERROR_DENIED:
+			return "Access denied";
+		case Ti.Geolocation.ERROR_NETWORK:
+			return "Network error";
+		case Ti.Geolocation.ERROR_HEADING_FAILURE:
+			return "Failure to detect heading";
+		case Ti.Geolocation.ERROR_REGION_MONITORING_DENIED:
+			return "Region monitoring access denied";
+		case Ti.Geolocation.ERROR_REGION_MONITORING_FAILURE:
+			return "Region monitoring access failure";
+		case Ti.Geolocation.ERROR_REGION_MONITORING_DELAYED:
+			return "Region monitoring setup delayed";
+	}
+}
 
 var currentHeadingLabel = Titanium.UI.createLabel({
 	text:'Current Heading (One Shot)',
@@ -198,6 +219,22 @@ if (Titanium.Geolocation.locationServicesEnabled==false)
 }
 else
 {
+	if (Titanium.Platform.name != 'android') {
+		var authorization = Titanium.Geolocation.locationServicesAuthorization
+		Ti.API.log('Authorization: '+authorization);
+		if (authorization == Titanium.Geolocation.AUTHORIZATION_DENIED) {
+			Ti.UI.createAlertDialog({
+				title:'Kitchen Sink',
+				message:'You have disallowed Titanium from running geolocation services.'
+			}).show();
+		}
+		else if (authorization == Titanium.Geolocation.AUTHORIZATION_RESTRICTED) {
+			Ti.UI.createAlertDialog({
+				title:'Kitchen Sink',
+				message:'Your system has disallowed Titanium from running geolocation services.'
+			}).show();
+		}
+	}
 
 	//
 	// IF WE HAVE COMPASS GET THE HEADING
@@ -222,6 +259,7 @@ else
 			if (e.error)
 			{
 				currentHeading.text = 'error: ' + e.error;
+				Ti.API.log("Code translation: "+translateErrorCode(e.code));
 				return;
 			}
 			var x = e.heading.x;
@@ -244,6 +282,7 @@ else
 			if (e.error)
 			{
 				updatedHeading.text = 'error: ' + e.error;
+				Ti.API.log("Code translation: "+translateErrorCode(e.code));
 				return;
 			}
 
@@ -301,6 +340,7 @@ else
 		if (!e.success || e.error)
 		{
 			currentLocation.text = 'error: ' + JSON.stringify(e.error);
+			Ti.API.log("Code translation: "+translateErrorCode(e.code));
 			alert('error ' + JSON.stringify(e.error));
 			return;
 		}
@@ -330,6 +370,7 @@ else
 			updatedLatitude.text = '';
 			updatedLocationAccuracy.text = '';
 			updatedLocationTime.text = '';
+			Ti.API.log("Code translation: "+translateErrorCode(e.code));
 			return;
 		}
 
@@ -379,14 +420,13 @@ else
 					title:'Reverse geo error',
 					message:evt.error
 				}).show();
+				Ti.API.log("Code translation: "+translateErrorCode(e.code));
 			}
 		});
 
 
 		Titanium.API.info('geo - location updated: ' + new Date(timestamp) + ' long ' + longitude + ' lat ' + latitude + ' accuracy ' + accuracy);
 	});
-
-
 }
 var addr = "2065 Hamilton Avenue San Jose California 95125";
 
@@ -408,6 +448,7 @@ Titanium.Geolocation.forwardGeocoder(addr,function(evt)
 				title:'Forward geo error',
 				message:evt.error
 			}).show();
+			Ti.API.log("Code translation: "+translateErrorCode(e.code));			
 		}
 	});
 });

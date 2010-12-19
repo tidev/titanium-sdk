@@ -99,6 +99,13 @@ public class TabGroupProxy extends TiWindowProxy
 		return tps;
 	}
 
+
+	public ArrayList<TabProxy> getTabList()
+	{
+		return tabs;
+	}
+
+
 	@Kroll.method
 	public void addTab(TabProxy tab)
 	{
@@ -201,6 +208,10 @@ public class TabGroupProxy extends TiWindowProxy
 		if (peekView() != null) {
 			TiUITabGroup tg = (TiUITabGroup) peekView();
 			tg.changeActiveTab(tab);
+		} else {
+			// handles the case where the setActiveTab is called before the TabGroup has finished opening
+			// and thus would prevent the initial tab from being set
+			initialActiveTab = tab;
 		}
 	}
 	

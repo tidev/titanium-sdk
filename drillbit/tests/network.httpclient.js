@@ -9,7 +9,7 @@ describe("Ti.Network.HTTPClient tests", {
 	largeFileWithRedirect: asyncTest({
 		start: function() {
 			var xhr = Ti.Network.createHTTPClient();
-			xhr.setTimeout(30000);
+			xhr.setTimeout(60000);
 			xhr.onload = this.async(function(e) {
 				valueOf(this.responseData.length).shouldBeGreaterThan(0);
 			});
@@ -20,7 +20,7 @@ describe("Ti.Network.HTTPClient tests", {
 			xhr.open('GET','http://www.appcelerator.com/download-win32');
 			xhr.send();
 		},
-		timeout: 30000,
+		timeout: 60000,
 		timeoutError: "Timed out waiting for HTTP download"
 	}),
 
@@ -37,6 +37,31 @@ describe("Ti.Network.HTTPClient tests", {
 			});
 
 			xhr.open('POST','http://www.appcelerator.com');
+			xhr.send();
+		},
+		timeout: 30000,
+		timeoutError: "Timed out waiting for HTTP onload"
+	}),
+
+	//https://appcelerator.lighthouseapp.com/projects/32238/tickets/2339
+	responseHeadersBug: asyncTest({
+		start: function() {
+			var xhr = Ti.Network.createHTTPClient();
+			xhr.setTimeout(30000);
+			xhr.onload = this.async(function(e) {
+				if (Ti.Platform.osname !== 'iphone') {
+					// not implemented yet for iOS, see https://appcelerator.lighthouseapp.com/projects/32238-titanium-mobile/tickets/2535
+					var allHeaders = xhr.getAllResponseHeaders();
+					valueOf(allHeaders.indexOf('Server:')).shouldBeGreaterThanEqual(0);
+					var header = xhr.getResponseHeader('Server');
+					valueOf(header.length).shouldBeGreaterThan(0);
+				}
+			});
+			xhr.onerror = this.async(function(e) {
+				throw e.error;
+			});
+
+			xhr.open('GET','http://www.appcelerator.com');
 			xhr.send();
 		},
 		timeout: 30000,

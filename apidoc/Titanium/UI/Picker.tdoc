@@ -25,20 +25,21 @@ android, iphone, ipad
 - properties
 
 columns[array]: array of column values
-type[int]: the type constant for the picker. One of `Titanium.UI.PICKER_TYPE_PLAIN` (default), `Titanium.UI.PICKER_TYPE_DATE_AND_TIME`, `Titanium.UI.PICKER_TYPE_DATE`, `Titanium.UI.PICKER_TYPE_TIME` or `Titanium.UI.PICKER_TYPE_COUNT_DOWN_TIMER`.
+type[int]: the type constant for the picker. One of `Titanium.UI.PICKER_TYPE_PLAIN` (default), `Titanium.UI.PICKER_TYPE_DATE_AND_TIME`, `Titanium.UI.PICKER_TYPE_DATE`, `Titanium.UI.PICKER_TYPE_TIME` or `Titanium.UI.PICKER_TYPE_COUNT_DOWN_TIMER`. (Note that Titanium's Android implementation does not support the countdown timer or date+time varieties.)
 selectionIndicator[boolean]: for basic picker, boolean value to indicate whether the visual selection style is shown. On the iPhone, this is a blue selected bar.
 minDate[date]: the minimum Date/Time for value for date pickers
 maxDate[date]:the maximum Date/Time for value for date pickers
 value[date]: the Date/Time value for date pickers
-countDownDuration[double]: the duration value in milliseconds for count down timer pickers
+countDownDuration[double]: the duration value in milliseconds for count down timer pickers. (Note that Titanium's Android implementation does not support the countdown timer.)
 locale[string]: the locale used for displaying Date/Time pickers values
-minuteInterval[int]: property to set the interval displayed by the minutes wheel (for example, 15 minutes). The interval value must be evenly divided into 60; if it is not, the default value is used. The default and minimum values are 1; the maximum value is 30.
-
+minuteInterval[int]: property to set the interval displayed by the minutes wheel (for example, 15 minutes). The interval value must be evenly divided into 60; if it is not, the default value is used. The default and minimum values are 1; the maximum value is 30.  (Not currently supported on Android.)
+useSpinner[boolean]: (Android only, default false.) An indicator that you wish to use a non-native Android control that looks and behaves more like the iOS picker in the sense that the user selects values by spinning a wheel.  (The native Android spinner is more like a conventional "dropdown".)  Note that this option works both plain pickers, date pickers and time pickers.  Set it preferably immediately when creating the picker, i.e., `Titanium.UI.createPicker({useSpinner:true});`, but definitely before `.add()`ing the picker to its parent.
+visibleItems[int]: (Android only.)  This is relevant only if you set `useSpinner` to `true`, and it is relevant only for the plain picker (not date/time).  By default, the spinner-style Android picker will show 5 rows: the one in the middle which is selected, and then 2 above and below.  You can set this to allow more (use an odd number to be sure the selected row is in the middle.)
 
 - methods
 
 add: add an array of rows, a single row or a column to the picker
-reloadColumn: causes the picker to reload the values from the new column
+reloadColumn: causes the picker to reload the values from the new column.
 getSelectedRow: get the selected row object for column
 setSelectedRow: set the column's row to the selected state
 
@@ -108,6 +109,9 @@ picker.add(row);
 
 - notes
 
-Android does not support the DateTime or Count Down Timer picker type.
+For Android, note the `useSpinner` property above.  By default, when you create a picker you will get Android's native picker control, which looks more like the classic "dropdown" widget.  If you'd prefer to use something that looks more like iOS's picker -- which looks like one or more spinning wheels --, you can set `useSpinner: true`.
+
+Titanium's Android picker control (both the native and the `useSpinner` variety) does not support/display views that are added to picker rows.  Only the `title` of the row will be displayed within the control.
+Titanium for Android does not support the DateTime or Count Down Timer picker type.
 
 

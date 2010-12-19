@@ -446,6 +446,14 @@ DEFINE_EXCEPTIONS
 	}
 }
 
+-(void)didAddSubview:(UIView*)view
+{
+	// So, it turns out that adding a subview places it beneath the gradient layer.
+	// Every time we add a new subview, we have to make sure the gradient stays where it belongs...
+	if (gradientLayer != nil) {
+		[[[self gradientWrapperView] layer] insertSublayer:gradientLayer atIndex:0];
+	}
+}
 
 -(void)animate:(id)arg
 {

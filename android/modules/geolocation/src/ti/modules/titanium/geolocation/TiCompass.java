@@ -126,7 +126,7 @@ public class TiCompass extends TiGeoHelper
 				if (type == Sensor.TYPE_ORIENTATION) {
 					long ts = event.timestamp / 1000000; // nanos to millis
 					long tsActual = baseTime.getTimeInMillis() + (ts - sensorTimerStart);
-					listener.call(eventToKrollDict(event, tsActual));
+					listener.callAsync(eventToKrollDict(event, tsActual));
 
 					manageUpdateListener(false, this, true);
 				}

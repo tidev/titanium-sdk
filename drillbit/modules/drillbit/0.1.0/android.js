@@ -17,6 +17,15 @@ function AndroidEmulator(drillbit, androidSdk, apiLevel, platform, googleApis) {
 		this.adb += ".exe";
 	}
 	
+	if (!ti.path.exists(this.adb)) {
+		this.adb = ti.path.join(androidSdk, 'platform-tools', 'adb');
+		if (ti.Platform.isWin32()) {
+			this.adb += ".exe";
+		}
+	}
+	
+	ti.api.debug('adb -> ' + this.adb);
+	
 	this.device = 'emulator';
 	if ('androidDevice' in drillbit.argv) {
 		this.device = drillbit.argv.androidDevice;

@@ -140,6 +140,18 @@ public class TiResponseCache extends ResponseCache {
 		}
 	}
 	
+	public static boolean peek(URI uri) {
+		TiResponseCache rc = (TiResponseCache) TiResponseCache.getDefault();
+		if (rc == null) return false;
+		if (rc.cacheDir == null) return false;
+		
+		String hash = DigestUtils.shaHex(uri.toString());
+		File hFile = new File(rc.cacheDir, hash + HEADER_SUFFIX);
+		File bFile = new File(rc.cacheDir, hash + BODY_SUFFIX);
+		if (!bFile.exists() || !hFile.exists()) return false;
+		return true;
+	}
+	
 	private File cacheDir = null;
 	
 	public TiResponseCache(File cachedir) {

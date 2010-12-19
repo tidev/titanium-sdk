@@ -17,7 +17,7 @@
 #define DEFAULT_SECTION_HEADERFOOTER_HEIGHT 20.0
 
 @implementation TiUITableViewCell
-
+@synthesize hitPoint;
 #pragma mark Touch event handling
 
 // TODO: Replace callback cells with blocks by changing fireEvent: to take special-case
@@ -40,6 +40,12 @@
 	RELEASE_TO_NIL(backgroundGradient);
 	RELEASE_TO_NIL(selectedBackgroundGradient);
 	[super dealloc];
+}
+
+- (UIView *)hitTest:(CGPoint) point withEvent:(UIEvent *)event 
+{
+	hitPoint = point;
+	return [super hitTest:point withEvent:event];
 }
 
 -(void)setHighlighted:(BOOL)yn animated:(BOOL)animated
@@ -763,7 +769,7 @@
 
 	UITableViewCell * thisCell = [ourTableView cellForRowAtIndexPath:indexPath];
 	
-	CGPoint point = CGPointZero;
+	CGPoint point = [(TiUITableViewCell*)thisCell hitPoint];
 	TiProxy * target = [row touchedViewProxyInCell:thisCell atPoint:&point];
 
 	[eventObject setObject:NUMFLOAT(point.x) forKey:@"x"];

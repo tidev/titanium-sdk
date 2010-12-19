@@ -1,0 +1,84 @@
+- namespace
+
+Titanium.Android.MenuItem
+
+- type
+
+proxy
+
+- description
+
+The Titanium binding of an [Android MenuItem](http://developer.android.com/reference/android/view/MenuItem.html)
+
+- since
+
+1.5
+
+- platforms
+
+android
+
+- methods
+
+getGroupId : retrieve the groupId for this item
+getItemId: retrieve the itemId for this item
+getOrder: retrieve the sort order
+getTitle: retrieve the title of the item
+getCondensedTitle: retrieve the condensed title of the item
+isEnabled: retrieve the enabled state of the menu
+isVisible: retrieve the visible state of the menu
+setEnabled: set the enabled state of the item
+setIcon: set the icon for the item
+setTitle: set the title for the item
+setCondensedTitle: set the condensed title for the item
+setVisible: set the visible state of the item
+
+- method : getGroupId, int
+
+- method : getItemId, int
+
+- method : getOrder, int
+
+- method : getTitle, string
+
+- method : getCondensedTitle, string
+
+- method : isEnabled, boolean
+
+- method : isVisible, boolean
+
+- method : setEnabled
+
+enabled[boolean]: true to enable item, false to disable
+
+- method : setIcon
+
+icon[object]: icon to use with the item
+
+- method : setTitle
+
+title[string]: new title
+
+- method : setCondensedTitle
+
+condensedTitle[string]: new condensed title
+
+- method : setVisible
+
+visible[boolean]: true to show the item, false to hide
+
+- properties
+
+enabled[boolean]: set the enabled state of the item
+groupId[int] : groupId for this item (Read-only)
+itemId[int] : itemId for this item (Read-only)
+order[int]: integer used for controlling sort order (Read-only)
+title[string]: item title
+titleCondensed[string]: condensed item title
+visible[boolean]: set the visible state of the item
+
+- events
+
+click: fired when the user presses the button
+
+- notes

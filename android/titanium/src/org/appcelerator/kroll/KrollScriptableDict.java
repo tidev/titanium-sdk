@@ -107,7 +107,9 @@ public class KrollScriptableDict extends KrollDict implements KrollConvertable {
 		}
 		
 		KrollInvocation invocation = KrollInvocation.createPropertyGetInvocation(scriptable, scriptable, key.toString(), null, null);
-		return KrollConverter.getInstance().convertJavascript(invocation, value, Object.class);
+		Object result = KrollConverter.getInstance().convertJavascript(invocation, value, Object.class);
+		invocation.recycle();
+		return result;
 	}
 	
 	@Override
@@ -131,6 +133,7 @@ public class KrollScriptableDict extends KrollDict implements KrollConvertable {
 		KrollInvocation invocation = KrollInvocation.createPropertySetInvocation(scriptable, scriptable, key, null, null);
 		value = KrollConverter.getInstance().convertNative(invocation, value);
 		scriptable.put(key.toString(), scriptable, value);
+		invocation.recycle();
 		return value;
 	}
 	

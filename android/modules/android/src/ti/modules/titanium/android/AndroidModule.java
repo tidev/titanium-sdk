@@ -21,6 +21,7 @@ import org.appcelerator.titanium.util.Log;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.ActivityManager.RunningServiceInfo;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
@@ -183,6 +184,10 @@ public class AndroidModule extends KrollModule
 	@Kroll.constant public static final int PENDING_INTENT_FOR_SERVICE = 1;
 	@Kroll.constant public static final int PENDING_INTENT_FOR_BROADCAST = 2;
 	@Kroll.constant public static final int PENDING_INTENT_MAX_VALUE = PENDING_INTENT_FOR_BROADCAST;
+	@Kroll.constant public static final int FLAG_CANCEL_CURRENT = PendingIntent.FLAG_CANCEL_CURRENT;
+	@Kroll.constant public static final int FLAG_NO_CREATE = PendingIntent.FLAG_NO_CREATE;
+	@Kroll.constant public static final int FLAG_ONE_SHOT = PendingIntent.FLAG_ONE_SHOT;
+	@Kroll.constant public static final int FLAG_UPDATE_CURRENT = PendingIntent.FLAG_UPDATE_CURRENT;
 
 	@Kroll.constant public static final int RESULT_OK = Activity.RESULT_OK;
 	@Kroll.constant public static final int RESULT_CANCELED = Activity.RESULT_CANCELED;

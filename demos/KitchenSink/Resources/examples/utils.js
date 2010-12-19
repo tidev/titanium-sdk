@@ -51,5 +51,5 @@ scrollView.add(Ti.UI.createLabel({
 	textAlign:'left',
 	width: Ti.Platform.displayCaps.platformWidth, 
 	height: 'auto',
-	text: "sha1 test => " +sha1 +" should be => a9993e364706816aba3e25717850c26c9cd0d89d"
+	text: "sha1 test => " +sha1 +" should be => a9993e364706816aba3e25717850c26c9cd0d89d: " + (sha1 == 'a9993e364706816aba3e25717850c26c9cd0d89d')
 }));

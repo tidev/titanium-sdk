@@ -10,6 +10,7 @@ import java.io.IOException;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
+import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.io.TiBaseFile;
 import org.appcelerator.titanium.io.TiFileFactory;
 import org.appcelerator.titanium.proxy.TiViewProxy;
@@ -45,7 +46,7 @@ public class TiUIButton extends TiUIView
 				if (event.getAction() == KeyEvent.ACTION_UP &&
 						(keyCode == KeyEvent.KEYCODE_DPAD_CENTER || keyCode == KeyEvent.KEYCODE_ENTER))
 				{
-					proxy.fireEvent("click", new KrollDict());
+					proxy.fireEvent(TiC.EVENT_CLICK, new KrollDict());
 				}
 				return super.onKeyUp(keyCode, event);
 			}
@@ -61,8 +62,8 @@ public class TiUIButton extends TiUIView
 		super.processProperties(d);
 
 		Button btn = (Button)getNativeView();
-		if (d.containsKey("image")) {
-			Object value = d.get("image");
+		if (d.containsKey(TiC.PROPERTY_IMAGE)) {
+			Object value = d.get(TiC.PROPERTY_IMAGE);
 			if (value instanceof String) {
 				try {
 					String url = getProxy().getTiContext().resolveUrl(null, (String)value);
@@ -75,21 +76,21 @@ public class TiUIButton extends TiUIView
 				}
 			}
 		}
-		if (d.containsKey("title")) {
-			btn.setText(d.getString("title"));
+		if (d.containsKey(TiC.PROPERTY_TITLE)) {
+			btn.setText(d.getString(TiC.PROPERTY_TITLE));
 		}
-		if (d.containsKey("color")) {
-			btn.setTextColor(TiConvert.toColor(d, "color"));
+		if (d.containsKey(TiC.PROPERTY_COLOR)) {
+			btn.setTextColor(TiConvert.toColor(d, TiC.PROPERTY_COLOR));
 		}
-		if (d.containsKey("font")) {
-			TiUIHelper.styleText(btn, d.getKrollDict("font"));
+		if (d.containsKey(TiC.PROPERTY_FONT)) {
+			TiUIHelper.styleText(btn, d.getKrollDict(TiC.PROPERTY_FONT));
 		}
-		if (d.containsKey("textAlign")) {
-			String textAlign = d.getString("textAlign");
+		if (d.containsKey(TiC.PROPERTY_TEXT_ALIGN)) {
+			String textAlign = d.getString(TiC.PROPERTY_TEXT_ALIGN);
 			TiUIHelper.setAlignment(btn, textAlign, null);
 		}
-		if (d.containsKey("verticalAlign")) {
-			String verticalAlign = d.getString("verticalAlign");
+		if (d.containsKey(TiC.PROPERTY_VERTICAL_ALIGN)) {
+			String verticalAlign = d.getString(TiC.PROPERTY_VERTICAL_ALIGN);
 			TiUIHelper.setAlignment(btn, null, verticalAlign);
 		}
 		btn.invalidate();
@@ -102,16 +103,16 @@ public class TiUIButton extends TiUIView
 			Log.d(LCAT, "Property: " + key + " old: " + oldValue + " new: " + newValue);
 		}
 		Button btn = (Button) getNativeView();
-		if (key.equals("title")) {
+		if (key.equals(TiC.PROPERTY_TITLE)) {
 			btn.setText((String) newValue);
-		} else if (key.equals("color")) {
+		} else if (key.equals(TiC.PROPERTY_COLOR)) {
 			btn.setTextColor(TiConvert.toColor(TiConvert.toString(newValue)));
-		} else if (key.equals("font")) {
+		} else if (key.equals(TiC.PROPERTY_FONT)) {
 			TiUIHelper.styleText(btn, (KrollDict) newValue);
-		} else if (key.equals("textAlign")) {
+		} else if (key.equals(TiC.PROPERTY_TEXT_ALIGN)) {
 			TiUIHelper.setAlignment(btn, TiConvert.toString(newValue), null);
 			btn.requestLayout();
-		} else if (key.equals("verticalAlign")) {
+		} else if (key.equals(TiC.PROPERTY_VERTICAL_ALIGN)) {
 			TiUIHelper.setAlignment(btn, null, TiConvert.toString(newValue));
 			btn.requestLayout();
 		} else {

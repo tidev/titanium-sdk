@@ -292,8 +292,10 @@ MAKE_SYSTEM_PROP(NOTIFICATION_TYPE_SOUND,3);
 	// called by TiApp
 	if (pushNotificationSuccess!=nil)
 	{
-		TiBlob* tokenBlob = [[[TiBlob alloc] initWithData:deviceToken mimetype:@"application/octet-stream"] autorelease];
-		NSDictionary *event = [NSDictionary dictionaryWithObject:tokenBlob forKey:@"deviceToken"];
+		NSString *token = [[[[deviceToken description] stringByReplacingOccurrencesOfString:@"<"withString:@""] 
+							stringByReplacingOccurrencesOfString:@">" withString:@""] 
+						   stringByReplacingOccurrencesOfString: @" " withString: @""];
+		NSDictionary *event = [NSDictionary dictionaryWithObject:token forKey:@"deviceToken"];
 		[self _fireEventToListener:@"remote" withObject:event listener:pushNotificationSuccess thisObject:nil];
 	}
 }

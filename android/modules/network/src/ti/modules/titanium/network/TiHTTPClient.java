@@ -135,6 +135,7 @@ public class TiHTTPClient
 	Thread clientThread;
 	private boolean aborted;
 	private int timeout = -1;
+	private boolean autoEncodeUrl = true;
 	
 	class RedirectHandler extends DefaultRedirectHandler {
 		@Override
@@ -301,7 +302,7 @@ public class TiHTTPClient
 				o.put("blob", blob);
 				o.put("progress", ((double)totalSize)/((double)contentLength));
 
-				onDataStreamCallback.call(o);
+				onDataStreamCallback.callAsync(o);
 			}
 		}
 		
@@ -465,7 +466,7 @@ public class TiHTTPClient
 		if (cb != null)
 		{
 			cb.setThisProxy(proxy);
-			cb.call(args);
+			cb.callAsync(args);
 		}
 	}
 
@@ -621,11 +622,11 @@ public class TiHTTPClient
 
 	public String getAllResponseHeaders() {
 		String result = "";
-		if (readyState >= READY_STATE_HEADERS_RECEIVED)
+		if (readyState >= READY_STATE_HEADERS_RECEIVED && response != null)
 		{
 			StringBuilder sb = new StringBuilder(1024);
 
-			Header[] headers = request.getAllHeaders();
+			Header[] headers = response.getAllHeaders();
 			int len = headers.length;
 			for(int i = 0; i < len; i++) {
 				Header h = headers[i];
@@ -700,15 +701,20 @@ public class TiHTTPClient
 		if (DBG) {
 			Log.d(LCAT, "open request method=" + method + " url=" + url);
 		}
-		this.uri = getCleanUri(url);
-		
+
+		if (autoEncodeUrl) {
+			this.uri = getCleanUri(url);
+		} else {
+			this.uri = Uri.parse(url);
+		}
+
 		// If the original url does not contain any
 		// escaped query string (i.e., does not look
 		// pre-encoded), go ahead and reset it to the 
 		// clean uri. Else keep it as is so the user's
 		// escaping stays in effect.  The users are on their own
 		// at that point.
-		if (!url.matches(".*\\?.*\\%\\d\\d.*$")) {
+		if (autoEncodeUrl && !url.matches(".*\\?.*\\%\\d\\d.*$")) {
 			this.url = this.uri.toString();
 		} else {
 			this.url = url;
@@ -743,7 +749,11 @@ public class TiHTTPClient
 		} else {
 			port = uri.getPort();
 		}
-		
+
+		if (DBG) {
+			Log.d(LCAT, "Instantiating host with hostString='" + hostString + "', port='" + port + "', scheme='" + uri.getScheme() + "'");
+		}
+
 		host = new HttpHost(hostString, port, uri.getScheme());
 		if (uri.getUserInfo() != null) {
 			credentials = new UsernamePasswordCredentials(uri.getUserInfo());
@@ -864,6 +874,10 @@ public class TiHTTPClient
 			}
 		}
 
+		if (DBG) {
+			Log.d(LCAT, "Instantiating http request with method='" + method + "' and this url:");
+			Log.d(LCAT, this.url);
+		}
 		request = new DefaultHttpRequestFactory().newHttpRequest(method, this.url);
 		for (String header : headers.keySet()) {
 			request.setHeader(header, headers.get(header));
@@ -1043,5 +1057,15 @@ public class TiHTTPClient
 	
 	public void setTimeout(int millis) {
 		timeout = millis;
+	}
+
+	protected void setAutoEncodeUrl(boolean value)
+	{
+		autoEncodeUrl = value;
+	}
+
+	protected boolean getAutoEncodeUrl()
+	{
+		return autoEncodeUrl;
 	}
 }

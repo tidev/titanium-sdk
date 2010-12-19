@@ -38,5 +38,6 @@
 -(void)shutdown:(id)sender;
 -(void)suspend:(id)sender;
 -(void)resume:(id)sender;
+-(void)resumed:(id)sender;
 
 @end

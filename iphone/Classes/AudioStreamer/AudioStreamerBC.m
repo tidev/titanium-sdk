@@ -186,6 +186,7 @@ void ASReadStreamCallBackBC
 @synthesize state;
 @synthesize bitRate;
 @dynamic progress;
+@synthesize delegate;
 
 //
 // initWithURL
@@ -210,7 +211,6 @@ void ASReadStreamCallBackBC
 - (void)dealloc
 {
 	[self stop];
-	[notificationCenter release];
 	[url release];
 	[super dealloc];
 }
@@ -345,16 +345,7 @@ void ASReadStreamCallBackBC
 		if (state != aStatus)
 		{
 			state = aStatus;
-			
-			NSNotification *notification =
-				[NSNotification
-					notificationWithName:ASStatusChangedNotification
-					object:self];
-			[notificationCenter
-				performSelector:@selector(postNotification:)
-				onThread:[NSThread mainThread]
-				withObject:notification
-				waitUntilDone:NO];
+			[delegate playbackStateChanged:self];
 		}
 	}
 }
@@ -760,8 +751,6 @@ cleanup:
 		{
 			NSAssert([[NSThread currentThread] isEqual:[NSThread mainThread]],
 				@"Playback can only be started from the main thread.");
-			notificationCenter =
-				[[NSNotificationCenter defaultCenter] retain];
 			self.state = AS_STARTING_FILE_THREAD;
 			[NSThread
 				detachNewThreadSelector:@selector(startInternal)

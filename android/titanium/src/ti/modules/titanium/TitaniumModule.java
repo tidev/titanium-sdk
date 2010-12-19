@@ -128,7 +128,7 @@ public class TitaniumModule extends KrollModule implements TiContext.OnLifecycle
 				@Override
 				public void run() {
 					Log.d(LCAT, "calling " + (interval?"interval":"timeout") + " timer " + timerId + " @" + new Date().getTime());
-					callback.call(args);
+					callback.callAsync(args);
 				}
 			};
 

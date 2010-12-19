@@ -142,6 +142,73 @@ describe("Ti.UI.Android tests", {
 		var view = Ti.UI.createView();
 		
 		scrollableView.addView (view);
+	},
+
+	// https://appcelerator.lighthouseapp.com/projects/32238/tickets/2505
+	lightweightWindowCrash: function() {
+		valueOf( function() {Ti.UI.createWindow({url: 'lightweight.js'});}).shouldNotThrowException();
+	},
+
+	// https://appcelerator.lighthouseapp.com/projects/32238/tickets/1787-android-tableviews-disappear-in-scrollableview
+	tableViewDisappearInSV_as_async: function(callback) {
+		var w = Ti.UI.createWindow();
+		w.open();
+		var views = [];
+		for (var i = 0; i < 3; i++) {
+			views.push(
+				Ti.UI.createTableView({
+					data: [ Ti.UI.createTableViewRow({title: 'Row for view ' + i}) ]
+				})
+			);
+		}
+
+		var sv = Ti.UI.createScrollableView({ views: views , top: 0, left: 0, right: 0, height: 5});
+		w.add(sv);
+		var moves = 0;
+		var intervalId = -1;
+		intervalId = setInterval(
+			function(){
+				if (moves ===0) {
+					moves = moves + 1;
+					sv.moveNext();
+				} else if (moves === 1) {
+					moves = moves + 1;
+					sv.movePrevious();
+				} else if (moves === 2) {
+					moves = moves + 1;
+					clearInterval(intervalId);
+					var rows = sv.views[0].data.length;
+					w.close();
+					if (rows === 1) {
+						callback.passed();
+					}else {
+						callback.failed("Expected 1 row after move, but there are " + rows);
+					}
+				}
+		}, 2000);
+
+	},
+
+	//https://appcelerator.lighthouseapp.com/projects/32238/tickets/1829-android-tableview-doesnt-fire-scrollend
+	tableViewFireScroll_as_async: function(callback) {
+		var w = Ti.UI.createWindow();
+		w.open();
+		var data = [];
+		for (var i = 0; i < 80; i++) {
+			data.push(Ti.UI.createTableViewRow({title: 'row ' + i}));
+		}
+		var tv = Ti.UI.createTableView({data: data, top: 0, left: 0, right: 0, height: 100});
+		var timeoutId;
+		tv.addEventListener('scroll', function(e) {
+			if (e.firstVisibleItem == 60) {
+				clearTimeout(timeoutId);
+				w.close();
+				callback.passed();
+			}
+		});
+		w.add(tv);
+		setTimeout(function(){tv.scrollToIndex(60);},2000);
+		timeoutId = setTimeout(function(){w.close(); callback.failed('Timed out waiting for scroll event');}, 5000);
 	}
 
 })

@@ -218,6 +218,12 @@ def read_provisioning_profile(f,o):
 	dict = dom.getElementsByTagName('dict')[0]
 	props = make_map(dict)
 	return props
+
+def get_aps_env(provisioning_profile):
+	entitlements = provisioning_profile['Entitlements']
+	if entitlements.has_key('aps-environment'):
+		return entitlements['aps-environment']
+	return None
 	
 def get_task_allow(provisioning_profile):
 	entitlements = provisioning_profile['Entitlements']
@@ -233,6 +239,7 @@ def get_profile_uuid(provisioning_profile):
 def generate_customized_entitlements(provisioning_profile,appid,uuid,command,out):
 	
 	get_task_value = get_task_allow(provisioning_profile)
+	aps_env = get_aps_env(provisioning_profile)
 	
 	buffer = """<?xml version="1.0" encoding="UTF-8"?> 	
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
@@ -251,6 +258,9 @@ def generate_customized_entitlements(provisioning_profile,appid,uuid,command,out
 		""" % (app_prefix,appid)
 	
 	buffer+="<key>get-task-allow</key>\n		<%s/>" % get_task_value
+	
+	if aps_env!=None:
+		buffer+="\n<key>aps-environment</key>\n		<string>%s</string>" % aps_env
 	
 	if command=='distribute':
 		buffer+="""

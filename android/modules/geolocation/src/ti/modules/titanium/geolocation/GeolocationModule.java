@@ -296,7 +296,7 @@ public class GeolocationModule
 
 						if (event != null) {
 							event.put("source", this);
-							callback.call(event);
+							callback.callAsync(event);
 						}
 					} catch (Throwable t) {
 						Log.e(LCAT, "Error retrieving geocode information: "

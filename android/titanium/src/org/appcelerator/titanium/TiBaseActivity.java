@@ -2,7 +2,6 @@ package org.appcelerator.titanium;
 
 import java.lang.ref.SoftReference;
 import java.lang.ref.WeakReference;
-import java.util.HashMap;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.titanium.kroll.KrollCallback;
@@ -44,7 +43,7 @@ public class TiBaseActivity extends Activity
 {
 	private static final String TAG = "TiBaseActivity";
 	private static final boolean DBG = TiConfig.LOGD;
-	
+
 	protected TiCompositeLayout layout;
 	protected TiActivitySupportHelper supportHelper;
 	protected TiWindowProxy window;
@@ -57,21 +56,21 @@ public class TiBaseActivity extends Activity
 	protected int orientationDegrees;
 	protected int orientationOverride = -1;
 	protected MenuProxy menuProxy;
-	
+
 	public static interface ConfigurationChangedListener {
 		public void onConfigurationChanged(TiBaseActivity activity, Configuration newConfig);
 	}
-	
+
 	public TiApplication getTiApp() {
 		return (TiApplication) getApplication();
 	}
-	
+
 	public void setWindowProxy(TiWindowProxy proxy) {
 		this.window = proxy;
 		updateTitle();
 		updateOrientation();
 	}
-	
+
 	public void updateOrientation() {
 		if (window == null) return;
 		// This forces orientation so that it won't change unless it's allowed
@@ -85,7 +84,7 @@ public class TiBaseActivity extends Activity
 			}
 		}
 	}
-	
+
 	public void setActivityProxy(ActivityProxy proxy) {
 		this.activityProxy = proxy;
 	}
@@ -93,15 +92,15 @@ public class TiBaseActivity extends Activity
 	public TiCompositeLayout getLayout() {
 		return layout;
 	}
-	
+
 	public void addConfigurationChangedListener(ConfigurationChangedListener listener) {
 		configChangedListeners.add(new WeakReference<ConfigurationChangedListener>(listener));
 	}
-	
+
 	public void removeConfigurationChangedListener(ConfigurationChangedListener listener) {
 		configChangedListeners.remove(listener);
 	}
-	
+
 	protected boolean getIntentBoolean(String property, boolean defaultValue) {
 		Intent intent = getIntent();
 		if (intent != null) {
@@ -111,7 +110,7 @@ public class TiBaseActivity extends Activity
 		}
 		return defaultValue;
 	}
-	
+
 	protected int getIntentInt(String property, int defaultValue) {
 		Intent intent = getIntent();
 		if (intent != null) {
@@ -121,20 +120,20 @@ public class TiBaseActivity extends Activity
 		}
 		return defaultValue;
 	}
-	
+
 	public void fireInitialFocus() {
 		if (mustFireInitialFocus && window != null) {
 			mustFireInitialFocus = false;
-			window.fireEvent("focus", null);
+			window.fireEvent(TiC.EVENT_FOCUS, null);
 		}
 	}
-	
+
 	protected void updateTitle() {
 		if (window == null) return;
-		
-		if (window.hasProperty("title")) {
+
+		if (window.hasProperty(TiC.PROPERTY_TITLE)) {
 			String oldTitle = (String) getTitle();
-			String newTitle = TiConvert.toString(window.getProperty("title"));
+			String newTitle = TiConvert.toString(window.getProperty(TiC.PROPERTY_TITLE));
 			if (oldTitle == null) {
 				oldTitle = "";
 			}
@@ -152,19 +151,19 @@ public class TiBaseActivity extends Activity
 			}
 		}
 	}
-	
+
 	// Subclasses can override to provide a custom layout
 	protected TiCompositeLayout createLayout() {
-		boolean vertical = getIntentBoolean("vertical", false);
+		boolean vertical = getIntentBoolean(TiC.LAYOUT_VERTICAL, false);
 		return new TiCompositeLayout(this, vertical);
 	}
-	
+
 	// Subclasses can override to handle post-creation (but pre-message fire) logic
 	protected void windowCreated() {
-		boolean fullscreen = getIntentBoolean("fullscreen", false);
-		boolean navbar = !getIntentBoolean("navBarHidden", false);
-		boolean modal = getIntentBoolean("modal", false);
-		int softInputMode = getIntentInt("windowSoftInputMode", -1);
+		boolean fullscreen = getIntentBoolean(TiC.PROPERTY_FULLSCREEN, false);
+		boolean navbar = !getIntentBoolean(TiC.PROPERTY_NAV_BAR_HIDDEN, false);
+		boolean modal = getIntentBoolean(TiC.PROPERTY_MODAL, false);
+		int softInputMode = getIntentInt(TiC.PROPERTY_WINDOW_SOFT_INPUT_MODE, -1);
 		boolean hasSoftInputMode = softInputMode != -1;
 
 		if (!modal) {
@@ -194,16 +193,16 @@ public class TiBaseActivity extends Activity
 			getWindow().setSoftInputMode(softInputMode);
 		}
 	}
-	
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		if (DBG) {
 			Log.d(TAG, "Activity onCreate");
 		}
-		
+
 		// Doing this on every create in case the activity is externally created.
 		TiPlatformHelper.intializeDisplayMetrics(this);
-		
+
 		orientationListener = new OrientationEventListener(this) {
 			@Override
 			public void onOrientationChanged(int orientation) {
@@ -211,13 +210,13 @@ public class TiBaseActivity extends Activity
 			}
 		};
 		orientationListener.enable();
-		
+
 		layout = createLayout();
 		super.onCreate(savedInstanceState);
 		windowCreated();
 
 		if (activityProxy != null) {
-			activityProxy.fireEvent("create", null);
+			activityProxy.fireEvent(TiC.EVENT_CREATE, null);
 		}
 		
 		setContentView(layout);
@@ -228,12 +227,12 @@ public class TiBaseActivity extends Activity
 		Integer messageId = null;
 		Intent intent = getIntent();
 		if (intent != null) {
-			if (intent.hasExtra("messenger")) {
-				messenger = (Messenger) intent.getParcelableExtra("messenger");
-				messageId = intent.getIntExtra("messageId", -1);
+			if (intent.hasExtra(TiC.INTENT_PROPERTY_MESSENGER)) {
+				messenger = (Messenger) intent.getParcelableExtra(TiC.INTENT_PROPERTY_MESSENGER);
+				messageId = intent.getIntExtra(TiC.INTENT_PROPERTY_MESSAGE_ID, -1);
 			}
 		}
-		
+
 		if (messenger != null) {
 			final TiBaseActivity me = this;
 			final Messenger fMessenger = messenger;
@@ -262,12 +261,12 @@ public class TiBaseActivity extends Activity
 			});
 		}
 	}
-	
+
 	public void setMenuDispatchListener(ITiMenuDispatcherListener dispatcher) {
 		softMenuDispatcher = new SoftReference<ITiMenuDispatcherListener>(
-				dispatcher);
+			dispatcher);
 	}
-	
+
 	protected TiActivitySupportHelper getSupportHelper() {
 		if (supportHelper == null) {
 			this.supportHelper = new TiActivitySupportHelper(this);
@@ -300,7 +299,7 @@ public class TiBaseActivity extends Activity
 	public void removeWindow(View v) {
 		layout.removeView(v);
 	}
-	
+
 	@Override
 	public boolean dispatchKeyEvent(KeyEvent event) 
 	{
@@ -310,54 +309,54 @@ public class TiBaseActivity extends Activity
 		}
 		switch(event.getKeyCode()) {
 			case KeyEvent.KEYCODE_BACK : {
-				if (window.hasListeners("android:back")) {
+				if (window.hasListeners(TiC.EVENT_ANDROID_BACK)) {
 					if (event.getAction() == KeyEvent.ACTION_UP) {
-						window.fireEvent("android:back", null);
+						window.fireEvent(TiC.EVENT_ANDROID_BACK, null);
 					}
 					handled = true;
 				}
 				break;
 			}
 			case KeyEvent.KEYCODE_CAMERA : {
-				if (window.hasListeners("android:camera")) {
+				if (window.hasListeners(TiC.EVENT_ANDROID_CAMERA)) {
 					if (event.getAction() == KeyEvent.ACTION_UP) {
-						window.fireEvent("android:camera", null);
+						window.fireEvent(TiC.EVENT_ANDROID_CAMERA, null);
 					}
 					handled = true;
 				}
 				break;
 			}
 			case KeyEvent.KEYCODE_FOCUS : {
-				if (window.hasListeners("android:focus")) {
+				if (window.hasListeners(TiC.EVENT_ANDROID_FOCUS)) {
 					if (event.getAction() == KeyEvent.ACTION_UP) {
-						window.fireEvent("android:focus", null);
+						window.fireEvent(TiC.EVENT_ANDROID_FOCUS, null);
 					}
 					handled = true;
 				}
 				break;
 			}
 			case KeyEvent.KEYCODE_SEARCH : {
-				if (window.hasListeners("android:search")) {
+				if (window.hasListeners(TiC.EVENT_ANDROID_SEARCH)) {
 					if (event.getAction() == KeyEvent.ACTION_UP) {
-						window.fireEvent("android:search", null);
+						window.fireEvent(TiC.EVENT_ANDROID_SEARCH, null);
 					}
 					handled = true;
 				}
 				break;
 			}
 			case KeyEvent.KEYCODE_VOLUME_UP : {
-				if (window.hasListeners("android:volup")) {
+				if (window.hasListeners(TiC.EVENT_ANDROID_VOLUP)) {
 					if (event.getAction() == KeyEvent.ACTION_UP) {
-						window.fireEvent("android:volup", null);
+						window.fireEvent(TiC.EVENT_ANDROID_VOLUP, null);
 					}
 					handled = true;
 				}
 				break;
 			}
 			case KeyEvent.KEYCODE_VOLUME_DOWN : {
-				if (window.hasListeners("android:voldown")) {
+				if (window.hasListeners(TiC.EVENT_ANDROID_VOLDOWN)) {
 					if (event.getAction() == KeyEvent.ACTION_UP) {
-						window.fireEvent("android:voldown", null);
+						window.fireEvent(TiC.EVENT_ANDROID_VOLDOWN, null);
 					}
 					handled = true;
 				}
@@ -368,73 +367,16 @@ public class TiBaseActivity extends Activity
 		if (!handled) {
 			handled = super.dispatchKeyEvent(event);
 		}
-		return handled; 
+		return handled;
 	}
-	
+
 	@Override
-	public boolean onCreateOptionsMenu(Menu menu)
-	{
+	public boolean onCreateOptionsMenu(Menu menu) {
 		boolean created = super.onCreateOptionsMenu(menu);
-		
-		KrollCallback ocom = (KrollCallback) activityProxy.getProperty("onCreateOptionsMenu");
-		KrollCallback opom = (KrollCallback) activityProxy.getProperty("onPrepareOptionsMenu");
-		 
-		// If a callback exists then return true. There is no need for the Ti Developer to support
-		// both methods.
-		if (ocom != null || opom != null) {
-			if (ocom != null) {
-				KrollDict d = new KrollDict();
-				Object[] args = { d };
-				
-				if (menuProxy != null) {
-					if (!menuProxy.getMenu().equals(menu)) {
-						menuProxy.setMenu(menu);
-					}
-				} else {
-					menuProxy = new MenuProxy(activityProxy.getTiContext(), menu);
-				}
-				d.put("menu", menuProxy);
-				
-				ocom.call(args);
-			}
-			
-			created = true;
-		}
-		
-		return created;
-	}
-
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) 
-	{
-			MenuItemProxy mip = menuProxy.findItem(item);
-			if (mip != null) {
-				mip.fireEvent("click", null);
-				return true;
-			}
-			return false;
-//		if (softMenuDispatcher != null) {
-//			ITiMenuDispatcherListener dispatcher = softMenuDispatcher.get();
-//			if (dispatcher != null) {
-//				return dispatcher.dispatchMenuItemSelected(item);
-//			}
-//		}
-//		return super.onOptionsItemSelected(item);
-	}
-
-	@Override
-	public boolean onPrepareOptionsMenu(Menu menu) 
-	{
-		boolean prepared = super.onPrepareOptionsMenu(menu);
-		
-		KrollCallback opom = (KrollCallback) activityProxy.getProperty("onPrepareOptionsMenu");
-		 
-		// If a callback exists then return true. There is no need for the Ti Developer to support
-		// both methods.
-		if (opom != null) {
-			KrollDict d = new KrollDict();
-			Object[] args = { d };
-			
+		KrollCallback onCreate = (KrollCallback) activityProxy.getProperty(TiC.PROPERTY_ON_CREATE_OPTIONS_MENU);
+		KrollCallback onPrepare = (KrollCallback) activityProxy.getProperty(TiC.PROPERTY_ON_PREPARE_OPTIONS_MENU);
+		if (onCreate != null) {
+			KrollDict event = new KrollDict();
 			if (menuProxy != null) {
 				if (!menuProxy.getMenu().equals(menu)) {
 					menuProxy.setMenu(menu);
@@ -442,26 +384,58 @@ public class TiBaseActivity extends Activity
 			} else {
 				menuProxy = new MenuProxy(activityProxy.getTiContext(), menu);
 			}
-			d.put("menu", menuProxy);
-			
-			opom.call(args);
-		}			
-		prepared = true;
+			event.put(TiC.EVENT_PROPERTY_MENU, menuProxy);
+			onCreate.callSync(activityProxy.getTiContext(), new Object[] { event });
+		}
+		// If a callback exists then return true.
+		// There is no need for the Ti Developer to support both methods.
+		if (onCreate != null || onPrepare != null) {
+			created = true;
+		}
+		return created;
+	}
 
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		MenuItemProxy mip = menuProxy.findItem(item);
+		if (mip != null) {
+			mip.fireEvent(TiC.EVENT_CLICK, null);
+			return true;
+		}
+		return false;
+	}
+
+	@Override
+	public boolean onPrepareOptionsMenu(Menu menu) {
+		boolean prepared = super.onPrepareOptionsMenu(menu);
+		KrollCallback onPrepare = (KrollCallback) activityProxy.getProperty(TiC.PROPERTY_ON_PREPARE_OPTIONS_MENU);
+		if (onPrepare != null) {
+			KrollDict event = new KrollDict();
+			if (menuProxy != null) {
+				if (!menuProxy.getMenu().equals(menu)) {
+					menuProxy.setMenu(menu);
+				}
+			} else {
+				menuProxy = new MenuProxy(activityProxy.getTiContext(), menu);
+			}
+			event.put(TiC.EVENT_PROPERTY_MENU, menuProxy);
+			onPrepare.callSync(activityProxy.getTiContext(), new Object[] { event });
+		}
+		prepared = true;
 		return prepared;
 	}
-	
+
 	public int getOrientationDegrees() {
 		return orientationDegrees;
 	}
-	
+
 	public void overrideOrientation(int orientation) {
 		// override the orientation until it's matched, then go back to detecting
 		// this matches iPhone's behavior (hoop -> jump)
 		orientationOverride = orientation;
 		setRequestedOrientation(orientation);
 	}
-	
+
 	protected void onOrientationChanged(int degrees) {
 		// once setRequestedOrientation is called, onConfigurationChanged is no longer called
 		// with new orientation changes from the OS. OrientationEventListener goes through
@@ -497,7 +471,7 @@ public class TiBaseActivity extends Activity
 			}
 		}
 	}
-	
+
 	@Override
 	public void onConfigurationChanged(Configuration newConfig) {
 		super.onConfigurationChanged(newConfig);
@@ -517,7 +491,7 @@ public class TiBaseActivity extends Activity
 		getTiApp().setWindowHandler(null);
 		getTiApp().setCurrentActivity(this, null);
 		if (activityProxy != null) {
-			activityProxy.fireEvent("pause", null);
+			activityProxy.fireEvent(TiC.EVENT_PAUSE, null);
 		}
 	}
 
@@ -527,11 +501,11 @@ public class TiBaseActivity extends Activity
 		if (DBG) {
 			Log.d(TAG, "Activity onResume");
 		}
-		
+
 		getTiApp().setWindowHandler(this);
 		getTiApp().setCurrentActivity(this, this);
 		if (activityProxy != null) {
-			activityProxy.fireEvent("resume", null);
+			activityProxy.fireEvent(TiC.EVENT_RESUME, null);
 		}
 	}
 
@@ -544,12 +518,12 @@ public class TiBaseActivity extends Activity
 		updateTitle();
 		
 		if (window != null) {
-			window.fireEvent("focus", null);
+			window.fireEvent(TiC.EVENT_FOCUS, null);
 		} else {
 			mustFireInitialFocus = true;
 		}
 		if (activityProxy != null) {
-			activityProxy.fireEvent("start", null);
+			activityProxy.fireEvent(TiC.EVENT_START, null);
 		}
 	}
 
@@ -560,10 +534,10 @@ public class TiBaseActivity extends Activity
 			Log.d(TAG, "Activity onStop");
 		}
 		if (window != null) {
-			window.fireEvent("blur", null);
+			window.fireEvent(TiC.EVENT_BLUR, null);
 		}
 		if (activityProxy != null) {
-			activityProxy.fireEvent("stop", null);
+			activityProxy.fireEvent(TiC.EVENT_STOP, null);
 		}
 	}
 
@@ -588,7 +562,7 @@ public class TiBaseActivity extends Activity
 			menuProxy = null;
 		}
 		if (activityProxy != null) {
-			activityProxy.fireEvent("destroy", null);
+			activityProxy.fireEvent(TiC.EVENT_DESTROY, null);
 			activityProxy.release();
 			activityProxy = null;
 		}
@@ -596,18 +570,17 @@ public class TiBaseActivity extends Activity
 	}
 
 	protected boolean shouldFinishRootActivity() {
-		return getIntentBoolean("finishRoot", false);
+		return getIntentBoolean(TiC.INTENT_PROPERTY_FINISH_ROOT, false);
 	}
 	
 	@Override
-	public void finish()
-	{
+	public void finish() {
 		if (window != null) {
 			KrollDict data = new KrollDict();
-			window.fireEvent("close", data);
+			window.fireEvent(TiC.EVENT_CLOSE, data);
 		}
-		
-		boolean animate = getIntentBoolean("animate", true);
+
+		boolean animate = getIntentBoolean(TiC.PROPERTY_ANIMATE, true);
 		if (shouldFinishRootActivity()) {
 			TiApplication app = getTiApp();
 			if (app != null) {

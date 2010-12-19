@@ -6,10 +6,6 @@
  */
 package ti.modules.titanium.json;
 
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
-
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
@@ -48,9 +44,9 @@ public class JSONModule extends KrollModule {
 			double d = ((Number)data).doubleValue();
 			double whole = d < 0 ? Math.ceil(d) : Math.floor(d);
 			if (d - whole == 0) {
-				return Integer.toString((int) d);
+				return "" + ((int) d);
 			} else {
-				return Double.toString(d);
+				return "" + d;
 			}
 		} else {
 			return "\"" + TiConvert.toJSONString(data) + "\"";
@@ -62,7 +58,6 @@ public class JSONModule extends KrollModule {
 		throws JSONException
 	{
 		Object parsed = null;
-
 		if (json == null || json.length() == 0) {
 			return parsed;
 		}

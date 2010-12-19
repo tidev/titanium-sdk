@@ -34,7 +34,7 @@ except:
 try:
 	from pygments import highlight
 	from pygments.formatters import HtmlFormatter
-	from pygments.lexers import guess_lexer
+	from pygments.lexers import get_lexer_by_name
 except:
 	print "Crap, you don't have Pygments!\n"
 	print "Easy install that bitch:\n"
@@ -62,6 +62,8 @@ stats = {
 	'properties':0,
 	'methods':0
 }
+
+default_language = "javascript"
 
 def strip_tags(value):
 	return re.sub(r'<[^>]*?>', '', value)
@@ -404,8 +406,8 @@ def emit_properties(line):
 			print "[ERROR] in file: %s at line: %d" % (current_file, current_line)
 			print "[ERROR] invalid property line: %s. Must be in the format [name[type]]:[description]" % line
 			sys.exit(1)
-		current_api.add_property(match.group(1), match.group(2), htmlerize(tokens[1]))
-	
+		current_api.add_property(match.group(1), tickerize(match.group(2)), htmlerize(tokens[1]))
+
 def emit_methods(line):
 	for tokens in tokenize_keyvalues(line):
 		current_api.add_method(tokens[0],htmlerize(tokens[1]))
@@ -418,6 +420,8 @@ def emit_namespace(line):
 	global apis, current_api
 	line = line.strip()
 	current_api = API(line)
+	if current_api.namespace in apis:
+		print "[WARN] %s info just got replaced.  There's probably a wrong '- namespace' entry either in the current file or another file (duplicate)." % current_api.namespace
 	apis[current_api.namespace] = current_api
 	
 def emit_description(line):
@@ -488,7 +492,7 @@ def emit_method_parameter(state,line):
 	if len(t) > 1:
 		event = t[0].strip()
 		returntype = t[1].strip()
-	current_api.set_method_returntype(event,returntype)
+	current_api.set_method_returntype(event,tickerize(returntype))
 	for tokens in tokenize_keyvalues(line):
 		desc = tokens[1]
 		match = re.search('(.*)\[(.*)\]',tokens[0])
@@ -498,7 +502,7 @@ def emit_method_parameter(state,line):
 			sys.exit(1)
 		name = match.group(1)
 		thetype = match.group(2)
-		current_api.add_method_property(event,name,thetype,tickerize(desc))
+		current_api.add_method_property(event,name,tickerize(thetype),tickerize(desc))
 	
 def emit_buffer(line):
 	global state
@@ -640,7 +644,9 @@ def colorize_code(line):
 		return line
 	idx2 = line.find("</code>",idx)
 	code = line[idx+6:idx2]
-	lexer = guess_lexer(code)
+	# TODO: we need a way to override the source code language
+	# Using guess_lexer doesn't seem to be consistent
+	lexer = get_lexer_by_name(default_language)
 	formatter = HtmlFormatter()
 	result = highlight(code, lexer, formatter)
 	before = line[0:idx]
@@ -682,7 +688,7 @@ def produce_devhtml_output(config,templates,outdir,theobj):
 		f = open(filename,'w+')
 		if config.has_key('css'):
 			f.write("<link rel=\"stylesheet\" type=\"text/css\" href=\"%s\">\n" % config['css'])
-		if config.has_key('colorize'):			
+		if config.has_key('colorize'):
 			f.write(colorize_code(output))
 		else:
 			f.write(output)

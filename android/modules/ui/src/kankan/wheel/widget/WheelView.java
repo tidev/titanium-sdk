@@ -31,6 +31,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
+import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.graphics.drawable.LayerDrawable;
@@ -50,6 +51,8 @@ import android.view.View;
  * @author Yuri Kanivets
  */
 public class WheelView extends View {
+	private static final int NOVAL = -1;
+
 	/** Current value & label text color */
 	private static final int VALUE_TEXT_COLOR = 0xE0000000;
 
@@ -117,6 +120,9 @@ public class WheelView extends View {
 	private WheelView.OnItemSelectedListener itemSelectedListener;
 	
 	private boolean measured = false;
+
+	private int textColor = NOVAL;
+	private Typeface typeface = Typeface.DEFAULT;
 
 	/**
 	 * Constructor
@@ -234,6 +240,7 @@ public class WheelView extends View {
 					| Paint.FAKE_BOLD_TEXT_FLAG);
 			//itemsPaint.density = getResources().getDisplayMetrics().density;
 			itemsPaint.setTextSize(textSize);
+			itemsPaint.setTypeface(typeface);
 		}
 
 		if (valuePaint == null) {
@@ -242,6 +249,7 @@ public class WheelView extends View {
 			//valuePaint.density = getResources().getDisplayMetrics().density;
 			valuePaint.setTextSize(textSize);
 			valuePaint.setShadowLayer(0.5f, 0, 0.5f, 0xFFFFFFFF);
+			itemsPaint.setTypeface(typeface);
 		}
 
 		if (centerDrawable == null) {
@@ -553,7 +561,7 @@ public class WheelView extends View {
 	 * @param canvas the canvas for drawing
 	 */
 	private void drawValue(Canvas canvas) {
-		valuePaint.setColor(VALUE_TEXT_COLOR);
+		valuePaint.setColor( (textColor == NOVAL) ? VALUE_TEXT_COLOR : textColor);
 		valuePaint.drawableState = getDrawableState();
 
 		Rect bounds = new Rect();
@@ -579,7 +587,7 @@ public class WheelView extends View {
 	 * @param canvas the canvas for drawing
 	 */
 	private void drawItems(Canvas canvas) {
-		itemsPaint.setColor(ITEMS_TEXT_COLOR);
+		itemsPaint.setColor((textColor == NOVAL) ? ITEMS_TEXT_COLOR : textColor);
 		itemsPaint.drawableState = getDrawableState();
 		itemsLayout.draw(canvas);
 	}
@@ -655,6 +663,16 @@ public class WheelView extends View {
 	public int getTextSize()
 	{
 		return textSize;
+	}
+
+	public void setTextColor(int color)
+	{
+		this.textColor = color;
+	}
+
+	public void setTypeface(Typeface tf)
+	{
+		this.typeface = tf;
 	}
 }
 

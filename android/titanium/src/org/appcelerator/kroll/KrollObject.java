@@ -27,18 +27,19 @@ public class KrollObject extends ScriptableObject implements Function {
 	
 	@Override
 	public Object get(String name, Scriptable start) {
+		Object value = null;
 		try {
-			Object value = proxy.get(start, name);
+			value = proxy.get(start, name);
 			if (value != null && value.equals(KrollProxy.UNDEFINED)) {
 				return Scriptable.NOT_FOUND;
 			}
-			
-			KrollInvocation invocation = KrollInvocation.createPropertyGetInvocation(start, null, name, null, proxy);
-			return KrollConverter.getInstance().convertNative(invocation, value);
-			
 		} catch (NoSuchFieldException e) {
 			return Scriptable.NOT_FOUND;
 		}
+		KrollInvocation invocation = KrollInvocation.createPropertyGetInvocation(start, null, name, null, proxy);
+		Object result = KrollConverter.getInstance().convertNative(invocation, value);
+		invocation.recycle();
+		return result;
 	}
 	
 	@Override
@@ -49,13 +50,14 @@ public class KrollObject extends ScriptableObject implements Function {
 	
 	@Override
 	public void put(String name, Scriptable start, Object value) {
+		KrollInvocation invocation = KrollInvocation.createPropertySetInvocation(start, null, name, null, proxy);
 		try {
-			KrollInvocation invocation = KrollInvocation.createPropertySetInvocation(start, null, name, null, proxy);
 			value = KrollConverter.getInstance().convertJavascript(invocation, value, Object.class);
 			proxy.set(start, name, value);
 		} catch (NoSuchFieldException e) {
 			Context.throwAsScriptRuntimeEx(e);
 		}
+		invocation.recycle();
 	}
 	
 	public void superPut(String name, Scriptable start, Object value) {

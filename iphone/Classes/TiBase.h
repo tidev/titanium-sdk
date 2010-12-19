@@ -22,6 +22,10 @@
 #define __IPHONE_4_0 40000
 #endif
 
+#ifndef __IPHONE_4_2
+#define __IPHONE_4_2 40200
+#endif
+
 #ifdef DEBUG
 	// Kroll memory debugging
 	#define KROLLBRIDGE_MEMORY_DEBUG MEMORY_DEBUG
@@ -387,6 +391,7 @@ extern NSString * const kTiWillShutdownNotification;
 extern NSString * const kTiShutdownNotification;
 extern NSString * const kTiSuspendNotification;
 extern NSString * const kTiResumeNotification;
+extern NSString * const kTiResumedNotification;
 extern NSString * const kTiAnalyticsNotification;
 extern NSString * const kTiRemoteDeviceUUIDNotification;
 extern NSString * const kTiGestureShakeNotification;

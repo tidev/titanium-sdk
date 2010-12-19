@@ -39,6 +39,7 @@
 			[[TiMediaAudioSession sharedSession] stopAudioSession];
 		}
 	}
+	[player setDelegate:nil];
 	RELEASE_TO_NIL(player);
 	RELEASE_TO_NIL(timer);
     [super _destroy];
@@ -69,10 +70,7 @@
 			[self throwException:@"invalid url" subreason:@"url has not been set" location:CODELOCATION];
 		}
 		player = [[AudioStreamer alloc] initWithURL:url];
-		WARN_IF_BACKGROUND_THREAD_OBJ;	//NSNotificationCenter is not threadsafe!
-		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(playbackStateChanged:)
-												name:ASStatusChangedNotification
-												object:player];
+		[player setDelegate:self];
 		
 		if (progress)
 		{
@@ -93,13 +91,12 @@
 	}
 	if (player!=nil)
 	{
-		WARN_IF_BACKGROUND_THREAD_OBJ;	//NSNotificationCenter is not threadsafe!
-		[[NSNotificationCenter defaultCenter] removeObserver:self name:ASStatusChangedNotification object:player];
 		if ([player isPlaying] || [player isPaused] || [player isWaiting])
 		{
 			[player stop];
 			[[TiMediaAudioSession sharedSession] stopAudioSession];
 		}
+		[player setDelegate:nil];
 		RELEASE_TO_NIL(player);
 	}
 }
@@ -285,7 +282,7 @@ MAKE_SYSTEM_PROP(STATE_PAUSED,AS_PAUSED);
 
 #pragma mark Delegates
 
--(void)playbackStateChanged:(NSNotification*)note
+-(void)playbackStateChanged:(id)sender
 {
 	if ([self _hasListeners:@"change"])
 	{

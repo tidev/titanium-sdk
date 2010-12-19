@@ -8,6 +8,7 @@ package ti.modules.titanium.ui.widget;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
+import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
@@ -48,40 +49,40 @@ public class TiUILabel extends TiUIView
 
 		TextView tv = (TextView) getNativeView();
 		// Only accept one, prefer text to title.
-		if (d.containsKey("html")) {
-			tv.setText(Html.fromHtml(TiConvert.toString(d, "html")), TextView.BufferType.SPANNABLE);
-		} else if (d.containsKey("text")) {
-			tv.setText(TiConvert.toString(d,"text"));
-		} else if (d.containsKey("title")) { //TODO this may not need to be supported.
-			tv.setText(TiConvert.toString(d,"title"));
+		if (d.containsKey(TiC.PROPERTY_HTML)) {
+			tv.setText(Html.fromHtml(TiConvert.toString(d, TiC.PROPERTY_HTML)), TextView.BufferType.SPANNABLE);
+		} else if (d.containsKey(TiC.PROPERTY_TEXT)) {
+			tv.setText(TiConvert.toString(d,TiC.PROPERTY_TEXT));
+		} else if (d.containsKey(TiC.PROPERTY_TITLE)) { //TODO this may not need to be supported.
+			tv.setText(TiConvert.toString(d,TiC.PROPERTY_TITLE));
 		}
 
-		if (d.containsKey("color")) {
-			tv.setTextColor(TiConvert.toColor(d, "color"));
+		if (d.containsKey(TiC.PROPERTY_COLOR)) {
+			tv.setTextColor(TiConvert.toColor(d, TiC.PROPERTY_COLOR));
 		}
-		if (d.containsKey("highlightedColor")) {
-			tv.setHighlightColor(TiConvert.toColor(d, "highlightedColor"));
+		if (d.containsKey(TiC.PROPERTY_HIGHLIGHTED_COLOR)) {
+			tv.setHighlightColor(TiConvert.toColor(d, TiC.PROPERTY_HIGHLIGHTED_COLOR));
 		}
-		if (d.containsKey("font")) {
-			TiUIHelper.styleText(tv, d.getKrollDict("font"));
+		if (d.containsKey(TiC.PROPERTY_FONT)) {
+			TiUIHelper.styleText(tv, d.getKrollDict(TiC.PROPERTY_FONT));
 		}
-		if (d.containsKey("textAlign")) {
-			String textAlign = d.getString("textAlign");
+		if (d.containsKey(TiC.PROPERTY_TEXT_ALIGN)) {
+			String textAlign = d.getString(TiC.PROPERTY_TEXT_ALIGN);
 			TiUIHelper.setAlignment(tv, textAlign, null);
 		}
-		if (d.containsKey("verticalAlign")) {
-			String verticalAlign = d.getString("verticalAlign");
+		if (d.containsKey(TiC.PROPERTY_VERTICAL_ALIGN)) {
+			String verticalAlign = d.getString(TiC.PROPERTY_VERTICAL_ALIGN);
 			TiUIHelper.setAlignment(tv, null, verticalAlign);
 		}
-		if (d.containsKey("ellipsize")) {
-			if (TiConvert.toBoolean(d, "ellipsize")) {
+		if (d.containsKey(TiC.PROPERTY_ELLIPSIZE)) {
+			if (TiConvert.toBoolean(d, TiC.PROPERTY_ELLIPSIZE)) {
 				tv.setEllipsize(TruncateAt.END);
 			} else {
 				tv.setEllipsize(null);
 			}
 		}
-		if (d.containsKey("wordWrap")) {
-			tv.setSingleLine(!TiConvert.toBoolean(d, "wordWrap"));
+		if (d.containsKey(TiC.PROPERTY_WORD_WRAP)) {
+			tv.setSingleLine(!TiConvert.toBoolean(d, TiC.PROPERTY_WORD_WRAP));
 		}
 		// This needs to be the last operation.
 		linkifyIfEnabled(tv, d);
@@ -90,8 +91,8 @@ public class TiUILabel extends TiUIView
 
 	private void linkifyIfEnabled(TextView tv, KrollDict d)
 	{
-		if (d.containsKey("autoLink")) {
-			Linkify.addLinks(tv,TiConvert.toInt(d, "autoLink"));
+		if (d.containsKey(TiC.PROPERTY_AUTO_LINK)) {
+			Linkify.addLinks(tv,TiConvert.toInt(d, TiC.PROPERTY_AUTO_LINK));
 		}
 	}
 	
@@ -102,36 +103,36 @@ public class TiUILabel extends TiUIView
 			Log.d(LCAT, "Property: " + key + " old: " + oldValue + " new: " + newValue);
 		}
 		TextView tv = (TextView) getNativeView();
-		if (key.equals("html")) {
+		if (key.equals(TiC.PROPERTY_HTML)) {
 			tv.setText(Html.fromHtml(TiConvert.toString(newValue)), TextView.BufferType.SPANNABLE);
 			linkifyIfEnabled(tv, proxy.getProperties());
 			tv.requestLayout();
-		} else if (key.equals("text") || key.equals("title")) {
+		} else if (key.equals(TiC.PROPERTY_TEXT) || key.equals(TiC.PROPERTY_TITLE)) {
 			tv.setText(TiConvert.toString(newValue));
 			linkifyIfEnabled(tv, proxy.getProperties());
 			tv.requestLayout();
-		} else if (key.equals("color")) {
+		} else if (key.equals(TiC.PROPERTY_COLOR)) {
 			tv.setTextColor(TiConvert.toColor((String) newValue));
-		} else if (key.equals("highlightedColor")) {
+		} else if (key.equals(TiC.PROPERTY_HIGHLIGHTED_COLOR)) {
 			tv.setHighlightColor(TiConvert.toColor((String) newValue));
-		} else if (key.equals("textAlign")) {
+		} else if (key.equals(TiC.PROPERTY_TEXT_ALIGN)) {
 			TiUIHelper.setAlignment(tv, TiConvert.toString(newValue), null);
 			tv.requestLayout();
-		} else if (key.equals("verticalAlign")) {
+		} else if (key.equals(TiC.PROPERTY_VERTICAL_ALIGN)) {
 			TiUIHelper.setAlignment(tv, null, TiConvert.toString(newValue));
 			tv.requestLayout();
-		} else if (key.equals("font")) {
+		} else if (key.equals(TiC.PROPERTY_FONT)) {
 			TiUIHelper.styleText(tv, (KrollDict) newValue);
 			tv.requestLayout();
-		} else if (key.equals("ellipsize")) {
+		} else if (key.equals(TiC.PROPERTY_ELLIPSIZE)) {
 			if (TiConvert.toBoolean(newValue)) {
 				tv.setEllipsize(TruncateAt.END);
 			} else {
 				tv.setEllipsize(null);
 			}
-		} else if (key.equals("wordWrap")) {
+		} else if (key.equals(TiC.PROPERTY_WORD_WRAP)) {
 			tv.setSingleLine(!TiConvert.toBoolean(newValue));
-		} else if (key.equals("autoLink")) {
+		} else if (key.equals(TiC.PROPERTY_AUTO_LINK)) {
 			Linkify.addLinks(tv, TiConvert.toInt(newValue));
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);

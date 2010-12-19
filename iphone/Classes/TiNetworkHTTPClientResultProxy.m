@@ -7,6 +7,7 @@
 #ifdef USE_TI_NETWORK
 
 #import "TiNetworkHTTPClientResultProxy.h"
+#import "TiDOMDocumentProxy.h"
 #import "KrollMethod.h"
 #import "KrollMethodDelegate.h"
 #import "KrollPropertyDelegate.h"
@@ -32,24 +33,8 @@
 	if ([delegate readyState] == [delegate DONE]) {
 		// Solidify arguments when we're DONE so that the response info can be released
 		// ... But be wary of exceptions from DOM parsing.  We might be violating the XHR standard here, as well.
-		id value = nil;
-		@try {
-			value = [delegate valueForKey:key];
-			if ([key isEqual:@"responseXML"])
-			{
-				// check response content-type before trying to parse into XML - gets rid
-				// of the silent XML parse error when not XML content
-				id ct = [delegate getResponseHeader:[NSArray arrayWithObject:@"Content-Type"]];
-				if ([ct rangeOfString:@"xml"].location==NSNotFound)
-				{
-					return;
-				}
-			}
-		}
-		@catch (NSException* e) {
-			// TODO: Fail silently for now; should only affect XML.  Come back when we standardize to XHR
-			//NSLog(@"[ERROR] Exception getting property %@: %@", key, [TiUtils exceptionMessage:e]);
-		}
+		id value = [delegate valueForKey:key];
+		
 		pthread_rwlock_wrlock(&dynpropsLock);
 		if (value != nil) {
 			[dynprops setObject:value forKey:key];
@@ -72,6 +57,7 @@
 	if (self = [super _initWithPageContext:[proxy pageContext]])
 	{
 		delegate = [proxy retain];
+		[[proxy pageContext] unregisterProxy:self]; // Force unregister so that request is cleaned up ASAP
 		// set the immutable properties we want to be set when this result is proxied
 		// back as a this pointer in JS land ... all others will be delegated directly
 		// to our delegate
@@ -95,7 +81,7 @@
 		[self makeMethod:@selector(getResponseHeader:) args:YES key:@"getResponseHeader"];
 		
 		[self makeDynamicProperty:@selector(responseText) key:@"responseText"];
-		[self makeDynamicProperty:@selector(responseXML) key:@"responseXML"];
+		// responseXML is special!
 		[self makeDynamicProperty:@selector(responseData) key:@"responseData"];
 		pthread_rwlock_unlock(&dynpropsLock);
 	}
@@ -111,6 +97,19 @@
 	RELEASE_TO_NIL(delegate);
 	RELEASE_TO_NIL(responseHeaders);
 	[super _destroy];
+}
+
+// Annoying workaround for parser idiocy.
+-(TiDOMDocumentProxy*)responseXML
+{
+	NSString* responseText = [self valueForKey:@"responseText"];
+	if (responseText!=nil)
+	{
+		TiDOMDocumentProxy *dom = [[[TiDOMDocumentProxy alloc] _initWithPageContext:[self executionContext]] autorelease];
+		[dom parseString:responseText];
+		return dom;
+	}
+	return nil;
 }
 
 -(id)getResponseHeader:(id)args
