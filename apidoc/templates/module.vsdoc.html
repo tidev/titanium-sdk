@@ -1,0 +1,32 @@
+<%! import re 
+%>${''.join(map(lambda w: '[\''+w+'\']' if re.match('^\d',w) else '.'+w if data.namespace.split('.')[0]!=w else w, data.namespace.split('.')))} = {
+%for p in data.properties:
+	'${''.join(map(lambda w: w.capitalize() if w in p['name'].split('-')[1:] else w,p['name'].split('-')))}' : ${data.vsdoc_return_type(data.remove_html_tags(p['type']))}\
+	%if (p['name'] != data.properties[-1]['name'] or (len(data.events) != 0 or len(data.methods)!=0)): # Don't add a comma if it's the last property and there are no events or methods
+,
+	%else:
+	
+	%endif
+%endfor
+%if len(data.events)>0:
+	events : {\
+	%for e in data.events:
+'${e['name']}':''\
+		%if e['name'] != data.events[-1]['name']:
+,\
+		%endif
+	%endfor
+}\
+	%if len(data.methods)!=0:
+,
+	%endif
+%endif
+%for m in data.methods:
+	<%include file="method.vsdoc.html" args="m=m,d=data"/>\
+	%if m['name'] != data.methods[-1]['name']:
+,
+	%else:
+	
+	%endif
+%endfor
+};
