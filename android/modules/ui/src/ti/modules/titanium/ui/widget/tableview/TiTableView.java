@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.proxy.TiViewProxy;
@@ -31,6 +32,7 @@ import android.graphics.drawable.Drawable;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
+import android.widget.AbsListView.OnScrollListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.BaseAdapter;
@@ -273,6 +275,36 @@ public class TiTableView extends FrameLayout
 		listView.setFocusableInTouchMode(true);
 		listView.setBackgroundColor(Color.TRANSPARENT);
 		listView.setCacheColorHint(Color.TRANSPARENT);
+		final KrollProxy fProxy = proxy;
+		listView.setOnScrollListener(new OnScrollListener()
+		{
+			@Override
+			public void onScrollStateChanged(AbsListView view, int scrollState)
+			{
+				if (scrollState == OnScrollListener.SCROLL_STATE_IDLE){
+					KrollDict eventArgs = new KrollDict();
+					KrollDict size = new KrollDict();
+					size.put("width", TiTableView.this.getWidth());
+					size.put("height", TiTableView.this.getHeight());
+					eventArgs.put("size", size);
+					fProxy.fireEvent("scrollEnd", eventArgs);
+				}
+			}
+
+			@Override
+			public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount)
+			{
+				KrollDict eventArgs = new KrollDict();
+				eventArgs.put("firstVisibleItem", firstVisibleItem);
+				eventArgs.put("visibleItemCount", visibleItemCount);
+				eventArgs.put("totalItemCount", totalItemCount);
+				KrollDict size = new KrollDict();
+				size.put("width", TiTableView.this.getWidth());
+				size.put("height", TiTableView.this.getHeight());
+				eventArgs.put("size", size);
+				fProxy.fireEvent("scroll", eventArgs);
+			}
+		});
 
 		if (proxy.getProperties().containsKey(TableViewProxy.PROPERTY_SEPARATOR_COLOR)) {
 			setSeparatorColor(TiConvert.toString(proxy.getProperty(TableViewProxy.PROPERTY_SEPARATOR_COLOR)));

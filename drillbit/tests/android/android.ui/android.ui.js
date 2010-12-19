@@ -187,6 +187,28 @@ describe("Ti.UI.Android tests", {
 				}
 		}, 2000);
 
+	},
+
+	//https://appcelerator.lighthouseapp.com/projects/32238/tickets/1829-android-tableview-doesnt-fire-scrollend
+	tableViewFireScroll_as_async: function(callback) {
+		var w = Ti.UI.createWindow();
+		w.open();
+		var data = [];
+		for (var i = 0; i < 80; i++) {
+			data.push(Ti.UI.createTableViewRow({title: 'row ' + i}));
+		}
+		var tv = Ti.UI.createTableView({data: data, top: 0, left: 0, right: 0, height: 100});
+		var timeoutId;
+		tv.addEventListener('scroll', function(e) {
+			if (e.firstVisibleItem == 60) {
+				clearTimeout(timeoutId);
+				w.close();
+				callback.passed();
+			}
+		});
+		w.add(tv);
+		setTimeout(function(){tv.scrollToIndex(60);},2000);
+		timeoutId = setTimeout(function(){w.close(); callback.failed('Timed out waiting for scroll event');}, 5000);
 	}
 
 })
