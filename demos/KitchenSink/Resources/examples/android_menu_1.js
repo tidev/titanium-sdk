@@ -11,7 +11,7 @@ var m4 = null;
 
 var l1 = Ti.UI.createLabel({
 	color : 'black',
-	text : 'The Android menu is only created on demand. You must click it once. Item 1 toggles between enabled and disabled every time menu is pressed.',
+	text : 'The Android menu is only created on demand. You must click it once. Item 1 toggles between enabled and disabled every time menu is pressed. Item 1 should have an icon.',
 	left : 10, top : 10, height : 80, right : 10
 });
 win.add(l1);
@@ -124,7 +124,7 @@ activity.onCreateOptionsMenu = function(e) {
 		groupId : 0,
 		order : 0
 	});
-	m1.setIcon("/images/appcelerator_small.png");
+	m1.setIcon("/images/appc_small.png");
 }
 
 activity.onPrepareOptionsMenu = function(e) {
