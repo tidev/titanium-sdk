@@ -73,7 +73,7 @@ public class AudioPlayerProxy extends KrollProxy
 		return TiConvert.toString(getProperty(TiC.PROPERTY_URL));
 	}
 	
-	@Kroll.setProperty
+	@Kroll.setProperty @Kroll.method
 	public void setUrl(KrollInvocation kroll, String url) {
 		if (url != null) {
 			setProperty(TiC.PROPERTY_URL, kroll.getTiContext().resolveUrl(null, TiConvert.toString(url)));
