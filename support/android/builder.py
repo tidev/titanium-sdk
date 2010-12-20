@@ -471,7 +471,7 @@ class Builder(object):
 		
 		fileset = []
 
-		if self.force_rebuild or self.deploy_type == 'production':
+		if self.force_rebuild or self.deploy_type == 'production' or self.js_changed:
 			for root, dirs, files in os.walk(os.path.join(self.top_dir, "Resources")):
 				for f in files:
 					path = os.path.join(root, f)
