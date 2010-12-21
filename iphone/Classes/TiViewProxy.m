@@ -227,7 +227,7 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
 -(TiRect*)size
 {
 	TiRect *rect = [[[TiRect alloc] init] autorelease];
-	[[self view] performSelectorOnMainThread:@selector(fillBoundsToRect:) withObject:rect waitUntilDone:YES];
+	[self makeViewPerformSelector:@selector(fillBoundsToRect:) withObject:rect createIfNeeded:YES waitUntilDone:YES];
 	return rect;
 }
 
@@ -1447,6 +1447,7 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
 
 -(void)insertSubview:(UIView *)childView forProxy:(TiViewProxy *)childProxy
 {
+	
 	int result = 0;
 	int childZindex = [childProxy zIndex];
 	BOOL earlierSibling = YES;
