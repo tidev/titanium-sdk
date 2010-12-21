@@ -71,6 +71,9 @@ class LocaleCompiler(object):
 		if locale == 'en' or locale.lower() == 'en-us':
 			dir = os.path.join(self.android_dir,'values')
 		else:
+			if len(locale) == 5 and locale[2] == '-':
+				# Android en-US -> en-rUS (need the r)
+				locale = locale[0:3] + 'r' + locale[-2:]
 			dir = os.path.join(self.android_dir,'values-%s' % locale)
 		if not os.path.exists(dir): os.makedirs(dir)
 		shutil.copy(file,os.path.join(dir,'strings.xml'))
