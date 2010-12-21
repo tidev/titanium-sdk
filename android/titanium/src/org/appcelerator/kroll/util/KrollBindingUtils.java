@@ -79,12 +79,11 @@ public class KrollBindingUtils {
 	}
 	
 	@SuppressWarnings("serial")
-	public static KrollMethod createAccessorMethod(final String accessor) {
+	public static KrollMethod createAccessorMethod(final String accessor, final boolean isSet) {
 		return new KrollMethod(accessor) {
 			public Object invoke(KrollInvocation invocation, Object[] args) throws Exception
 			{
-				String name = invocation.getMethod().getName(); 
-				if (name.startsWith("get") || name.startsWith("is")) {
+				if (!isSet) {
 					return KrollConverter.getInstance().convertNative(invocation,
 						invocation.getProxy().getProperty(accessor));
 				} else {
