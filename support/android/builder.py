@@ -947,6 +947,42 @@ class Builder(object):
 	def generate_localizations(self):
 		# compile localization files
 		localecompiler.LocaleCompiler(self.name,self.top_dir,'android',sys.argv[1]).compile()
+		# fix un-escaped single-quotes and full-quotes
+		offending_pattern = '[^\\\\][\'"]'
+		for root, dirs, files in os.walk(self.res_dir):
+			for f in files:
+				if not f.endswith('.xml'):
+					continue
+				full_path = os.path.join(root, f)
+				f = codecs.open(full_path, 'r', 'utf-8')
+				contents = f.read()
+				f.close()
+				if not re.search(r"<string ", contents):
+					continue
+				doc = parseString(contents.encode("utf-8"))
+				string_nodes = doc.getElementsByTagName('string')
+				if len(string_nodes) == 0:
+					continue
+				made_change = False
+				for string_node in string_nodes:
+					if not string_node.hasChildNodes():
+						continue
+					string_child = string_node.firstChild
+					if string_child.nodeType == string_child.CDATA_SECTION_NODE or string_child.nodeType == string_child.TEXT_NODE:
+						string_value = string_child.nodeValue
+						if not re.search(offending_pattern, string_value):
+							continue
+						offenders = re.findall(offending_pattern, string_value)
+						if offenders:
+							for offender in offenders:
+								string_value = string_value.replace(offender, offender[0] + "\\" + offender[-1:])
+								made_change = True
+						string_child.nodeValue = string_value
+				if made_change:
+					new_contents = doc.toxml()
+					f = codecs.open(full_path, 'w', 'utf-8')
+					f.write(new_contents)
+					f.close()
 
 	def recurse(self, paths, file_glob=None):
 		if paths == None: yield None
