@@ -1,7 +1,4 @@
-// NOTE: This suite won't succeed for iOS until after #2401 is done
 describe("Ti.Locale tests", {
-
-	// https://appcelerator.lighthouseapp.com/projects/32238/tickets/1870
 	localePPEnhancements: function() {
 		valueOf(Ti.Locale.getCurrentLanguage()).shouldBe('en');
 		valueOf(Ti.Locale.getCurrentCountry().search(/^[A-Z]{2}$/)).shouldBeGreaterThanEqual(0);
