@@ -162,8 +162,9 @@ public class TiResponseCache extends ResponseCache {
 
 	@Override
 	public CacheResponse get(URI uri, String rqstMethod,
-			Map<String, List<String>> rqstHeaders) throws IOException {
-		if (cacheDir == null) return null;
+			Map<String, List<String>> rqstHeaders) throws IOException 
+	{
+		if (uri == null || cacheDir == null) return null;
 		
 		// Get our key, which is a hash of the URI
 		String hash = DigestUtils.shaHex(uri.toString());
