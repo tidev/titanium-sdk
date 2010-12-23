@@ -139,7 +139,7 @@ FILENOOP(setHidden:(id)x);
 	NSError *error = nil; 
 	NSDictionary * resultDict = [fm attributesOfFileSystemForPath:path error:&error];
 	if (error!=nil) return NUMBOOL(NO);
-	return NUMBOOL([resultDict objectForKey:NSFileSystemFreeSize]!=nil);
+	return [resultDict objectForKey:NSFileSystemFreeSize];
 }
 
 -(id)createDirectory:(id)args
