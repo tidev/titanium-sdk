@@ -59,6 +59,7 @@ typedef enum _MGSplitViewDividerStyle {
 - (IBAction)toggleMasterBeforeDetail:(id)sender; // toggles position of master view relative to detail view.
 - (IBAction)toggleMasterView:(id)sender; // toggles display of the master view in the current orientation.
 - (IBAction)showMasterPopover:(id)sender; // shows the master view in a popover spawned from the provided barButtonItem, if it's currently hidden.
+- (IBAction)hideMasterPopover:(id)sender;
 - (void)notePopoverDismissed; // should rarely be needed, because you should not change the popover's delegate. If you must, then call this when it's dismissed.
 
 // Conveniences for you, because I care.
