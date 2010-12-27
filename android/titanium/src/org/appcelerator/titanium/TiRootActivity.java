@@ -417,8 +417,11 @@ public class TiRootActivity extends ActivityGroup
 			Log.d(LCAT, "root activity onDestroy, context = " + tiContext);
 		}
 		
-		tiContext.getTiApp().releaseModules();
 		if (tiContext != null) {
+			TiApplication app = tiContext.getTiApp();
+			if (app != null) {
+				app.releaseModules();
+			}
 			tiContext.dispatchOnDestroy(this);
 			tiContext.release();
 		}
