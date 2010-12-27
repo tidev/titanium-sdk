@@ -27,6 +27,7 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ImageView;
 
 public class TiTableViewRowProxyItem extends TiBaseTableViewItem
@@ -122,6 +123,7 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 				// In some cases the TiUIView for this proxy has been reassigned to another proxy
 				// We don't want to actually release it though, just reassign by creating a new view
 				view = proxy.forceCreateView(tiContext.getActivity());
+				clearChildViews(proxy);
 				if (i >= views.size()) {
 					views.add(view);
 				} else {
@@ -135,6 +137,13 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 			if (v.getParent() == null) {
 				content.addView(v, view.getLayoutParams());
 			}
+		}
+	}
+
+	protected void clearChildViews(TiViewProxy parent) {
+		for (TiViewProxy childProxy : parent.getChildren()) {
+			childProxy.setView(null);
+			clearChildViews(childProxy);
 		}
 	}
 

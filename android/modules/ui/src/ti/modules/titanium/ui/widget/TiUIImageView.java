@@ -18,6 +18,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.titanium.TiBlob;
+import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiContext.OnLifecycleEvent;
 import org.appcelerator.titanium.TiDimension;
@@ -86,8 +87,8 @@ public class TiUIImageView extends TiUIView
 			} else {
 				if (DBG) {
 					String traceMsg = "Background image load returned null";
-					if (proxy.hasProperty("image")) {
-						Object image = proxy.getProperty("image");
+					if (proxy.hasProperty(TiC.PROPERTY_IMAGE)) {
+						Object image = proxy.getProperty(TiC.PROPERTY_IMAGE);
 						if (image instanceof String) {
 							traceMsg += " (" + TiConvert.toString(image) + ")";
 						}
@@ -184,8 +185,8 @@ public class TiUIImageView extends TiUIView
 		}
 
 		private int getRepeatCount() {
-			if (proxy.hasProperty("repeatCount")) {
-				return TiConvert.toInt(proxy.getProperty("repeatCount"));
+			if (proxy.hasProperty(TiC.PROPERTY_REPEAT_COUNT)) {
+				return TiConvert.toInt(proxy.getProperty(TiC.PROPERTY_REPEAT_COUNT));
 			}
 			return INFINITE;
 		}
@@ -234,7 +235,7 @@ public class TiUIImageView extends TiUIView
 				long time = System.currentTimeMillis();
 				for (int j = getStart(); isNotFinalFrame(j); j+=getCounter()) {
 					if (bitmapQueue.size() == FRAME_QUEUE_SIZE && !firedLoad) {
-						fireLoad("images");
+						fireLoad(TiC.PROPERTY_IMAGES);
 						firedLoad = true;
 					}
 					if (paused && !Thread.currentThread().isInterrupted()) {
@@ -291,8 +292,8 @@ public class TiUIImageView extends TiUIView
 
 	public double getDuration()
 	{
-		if (proxy.getProperty("duration") != null) {
-			return TiConvert.toDouble(proxy.getProperty("duration"));
+		if (proxy.getProperty(TiC.PROPERTY_DURATION) != null) {
+			return TiConvert.toDouble(proxy.getProperty(TiC.PROPERTY_DURATION));
 		}
 
 		if (images != null) {
@@ -304,27 +305,27 @@ public class TiUIImageView extends TiUIView
 	private void fireLoad(String state)
 	{
 		KrollDict data = new KrollDict();
-		data.put("state", state);
-		proxy.fireEvent("load", data);
+		data.put(TiC.EVENT_PROPERTY_STATE, state);
+		proxy.fireEvent(TiC.EVENT_LOAD, data);
 	}
 
 	private void fireStart()
 	{
 		KrollDict data = new KrollDict();
-		proxy.fireEvent("start", data);
+		proxy.fireEvent(TiC.EVENT_START, data);
 	}
 
 	private void fireChange(int index)
 	{
 		KrollDict data = new KrollDict();
-		data.put("index", index);
-		proxy.fireEvent("change", data);
+		data.put(TiC.EVENT_PROPERTY_INDEX, index);
+		proxy.fireEvent(TiC.EVENT_CHANGE, data);
 	}
 
 	private void fireStop()
 	{
 		KrollDict data = new KrollDict();
-		proxy.fireEvent("stop", data);
+		proxy.fireEvent(TiC.EVENT_STOP, data);
 	}
 
 	private class Animator extends TimerTask
@@ -498,45 +499,45 @@ public class TiUIImageView extends TiUIView
 			return;
 		}
 		
-		if (d.containsKey("width")) {
-			requestedWidth = TiConvert.toTiDimension(d, "width");
+		if (d.containsKey(TiC.PROPERTY_WIDTH)) {
+			requestedWidth = TiConvert.toTiDimension(d, TiC.PROPERTY_WIDTH);
 		}
-		if (d.containsKey("height")) {
-			requestedHeight = TiConvert.toTiDimension(d, "height");
+		if (d.containsKey(TiC.PROPERTY_HEIGHT)) {
+			requestedHeight = TiConvert.toTiDimension(d, TiC.PROPERTY_HEIGHT);
 		}
 
-		if (d.containsKey("images")) {
-			setImageSource(d.get("images"));
+		if (d.containsKey(TiC.PROPERTY_IMAGES)) {
+			setImageSource(d.get(TiC.PROPERTY_IMAGES));
 			setImages();
 		}
-		else if (d.containsKey("url")) {
+		else if (d.containsKey(TiC.PROPERTY_URL)) {
 			Log.w(LCAT, "The url property of ImageView is deprecated, use image instead.");
-			if (!d.containsKey("image")) {
-				d.put("image", d.get("url"));
+			if (!d.containsKey(TiC.PROPERTY_IMAGE)) {
+				d.put(TiC.PROPERTY_IMAGE, d.get(TiC.PROPERTY_URL));
 			}
 		}
-		if (d.containsKey("canScale")) {
-			view.setCanScaleImage(TiConvert.toBoolean(d, "canScale"));
+		if (d.containsKey(TiC.PROPERTY_CAN_SCALE)) {
+			view.setCanScaleImage(TiConvert.toBoolean(d, TiC.PROPERTY_CAN_SCALE));
 		}
-		if (d.containsKey("enableZoomControls")) {
-			view.setEnableZoomControls(TiConvert.toBoolean(d, "enableZoomControls"));
+		if (d.containsKey(TiC.PROPERTY_ENABLE_ZOOM_CONTROLS)) {
+			view.setEnableZoomControls(TiConvert.toBoolean(d, TiC.PROPERTY_ENABLE_ZOOM_CONTROLS));
 		}
-		if (d.containsKey("defaultImage")) {
+		if (d.containsKey(TiC.PROPERTY_DEFAULT_IMAGE)) {
 			try {
-				if (!d.containsKey("image")
-						|| (URLUtil.isNetworkUrl(d.getString("image"))
-							&& !TiResponseCache.peek(new URI(d.getString("image")))))
-					setDefaultImageSource(d.get("defaultImage"));
+				if (!d.containsKey(TiC.PROPERTY_IMAGE)
+						|| (URLUtil.isNetworkUrl(d.getString(TiC.PROPERTY_IMAGE))
+							&& !TiResponseCache.peek(new URI(d.getString(TiC.PROPERTY_IMAGE)))))
+					setDefaultImageSource(d.get(TiC.PROPERTY_DEFAULT_IMAGE));
 			} catch (URISyntaxException e) {
-				setDefaultImageSource(d.get("defaultImage"));
+				setDefaultImageSource(d.get(TiC.PROPERTY_DEFAULT_IMAGE));
 			}
 		}
-		if (d.containsKey("image")) {
-			setImageSource(d.get("image"));
+		if (d.containsKey(TiC.PROPERTY_IMAGE)) {
+			setImageSource(d.get(TiC.PROPERTY_IMAGE));
 			setImage();
 		} else {
-			if (!d.containsKey("images")) {
-				getProxy().setProperty("image", null);
+			if (!d.containsKey(TiC.PROPERTY_IMAGES)) {
+				getProxy().setProperty(TiC.PROPERTY_IMAGE, null);
 				if (defaultImageSource != null) {
 					setDefaultImage();
 				}
@@ -553,17 +554,17 @@ public class TiUIImageView extends TiUIView
 		if (view == null) {
 			return;
 		}
-		if (key.equals("canScale")) {
+		if (key.equals(TiC.PROPERTY_CAN_SCALE)) {
 			view.setCanScaleImage(TiConvert.toBoolean(newValue));
-		} else if (key.equals("enableZoomControls")) {
+		} else if (key.equals(TiC.PROPERTY_ENABLE_ZOOM_CONTROLS)) {
 			view.setEnableZoomControls(TiConvert.toBoolean(newValue));
-		} else if (key.equals("url")) {
+		} else if (key.equals(TiC.PROPERTY_URL)) {
 			setImageSource(newValue);
 			setImage();
-		} else if (key.equals("image")) {
+		} else if (key.equals(TiC.PROPERTY_IMAGE)) {
 			setImageSource(newValue);
 			setImage();
-		} else if (key.equals("images")) {
+		} else if (key.equals(TiC.PROPERTY_IMAGES)) {
 			if (newValue instanceof Object[]) {
 				setImageSource(newValue);
 				setImages();
