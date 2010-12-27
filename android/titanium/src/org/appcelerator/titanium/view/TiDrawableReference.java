@@ -489,5 +489,8 @@ public class TiDrawableReference
 	public boolean outOfMemoryOccurred() {
 		return oomOccurred;
 	}
-	
+
+	public String getUrl() {
+		return url;
+	}
 }

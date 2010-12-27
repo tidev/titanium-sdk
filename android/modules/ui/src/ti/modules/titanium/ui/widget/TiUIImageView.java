@@ -470,9 +470,22 @@ public class TiUIImageView extends TiUIView
 						view.setImageDrawable(null);
 					}
 				}
-				synchronized(imageTokenGenerator) {
-					token = imageTokenGenerator.incrementAndGet();
-					imageref.getBitmapAsync(new BgImageLoader(getProxy().getTiContext(), requestedWidth, requestedHeight, token));
+				boolean getAsync = true;
+				try {
+					URI uri = new URI(imageref.getUrl());
+					if (TiResponseCache.peek(uri)) {
+						getAsync = false;
+						setImage(imageref.getBitmap(requestedWidth, requestedHeight));
+					}
+				} catch (URISyntaxException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				if (getAsync) {
+					synchronized(imageTokenGenerator) {
+						token = imageTokenGenerator.incrementAndGet();
+						imageref.getBitmapAsync(new BgImageLoader(getProxy().getTiContext(), requestedWidth, requestedHeight, token));
+					}
 				}
 			} else {
 				setImage(imageref.getBitmap(requestedWidth, requestedHeight));
