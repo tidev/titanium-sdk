@@ -121,10 +121,37 @@ UIViewController * ControllerForProxy(TiViewProxy * proxy)
 	}
 }
 
+#pragma mark Split Window properties
+
+-(void)setMasterPopupVisible_:(id)value
+{
+	BOOL showPopover = [TiUtils boolValue:value def:NO];
+	MGSplitViewController * splitController = (MGSplitViewController *)[self controller];
+	BOOL masterInSplit = [splitController isShowingMaster];
+
+	if (masterInSplit)
+	{
+		[[self proxy] replaceValue:NUMBOOL(NO) forKey:@"masterPopupVisibile" notification:NO];
+		return;
+	}
+
+	if (showPopover)
+	{
+		[splitController showMasterPopover:self];
+	}
+	else
+	{
+		[splitController hideMasterPopover:self];
+	}
+}
+
+
+
 #pragma mark Delegate 
 
 - (void)splitViewController:(UISplitViewController*)svc willHideViewController:(UIViewController *)aViewController withBarButtonItem:(UIBarButtonItem*)barButtonItem forPopoverController:(UIPopoverController*)pc
 {
+	[[self proxy] replaceValue:NUMBOOL(NO) forKey:@"masterPopupVisibile" notification:NO];
 	if ([self.proxy _hasListeners:@"visible"])
 	{
 		NSMutableDictionary *event = [NSMutableDictionary dictionaryWithObject:@"detail" forKey:@"view"];
@@ -139,6 +166,7 @@ UIViewController * ControllerForProxy(TiViewProxy * proxy)
 
 - (void)splitViewController:(UISplitViewController*)svc willShowViewController:(UIViewController *)aViewController invalidatingBarButtonItem:(UIBarButtonItem *)button
 {
+	[[self proxy] replaceValue:NUMBOOL(NO) forKey:@"masterPopupVisibile" notification:NO];
 	if ([self.proxy _hasListeners:@"visible"])
 	{
 		NSDictionary *event = [NSDictionary dictionaryWithObject:@"master" forKey:@"view"];
@@ -148,6 +176,7 @@ UIViewController * ControllerForProxy(TiViewProxy * proxy)
 
 - (void)splitViewController:(UISplitViewController*)svc popoverController:(UIPopoverController*)pc willPresentViewController:(UIViewController *)aViewController
 {
+	[[self proxy] replaceValue:NUMBOOL(YES) forKey:@"masterPopupVisibile" notification:NO];
 	if ([self.proxy _hasListeners:@"visible"])
 	{
 		NSMutableDictionary *event = [NSMutableDictionary dictionaryWithObject:@"popover" forKey:@"view"];
