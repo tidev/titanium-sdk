@@ -577,6 +577,7 @@ public class TiBaseActivity extends Activity
 	public void finish() {
 		if (window != null) {
 			KrollDict data = new KrollDict();
+			data.put(TiC.EVENT_PROPERTY_SOURCE, window);
 			window.fireEvent(TiC.EVENT_CLOSE, data);
 		}
 

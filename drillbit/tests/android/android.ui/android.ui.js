@@ -209,6 +209,25 @@ describe("Ti.UI.Android tests", {
 		w.add(tv);
 		setTimeout(function(){tv.scrollToIndex(60);},2000);
 		timeoutId = setTimeout(function(){w.close(); callback.failed('Timed out waiting for scroll event');}, 5000);
+	},
+	// https://appcelerator.lighthouseapp.com/projects/32238/tickets/1827
+	windowCloseMultiFire_as_async: function(callback) {
+		var w = Ti.UI.createWindow();
+		var closecount = 0;
+		w.addEventListener('close', function() {
+			closecount++;
+		});
+		w.open();
+		var masterTimeout = setTimeout(function() {w.close(); callback.failed("Timed out waiting for test to complete.");}, 10000);
+		setTimeout(function() {w.close();}, 2000);
+		setTimeout(function() {
+			clearTimeout(masterTimeout);
+			if (closecount !== 1) {
+				callback.failed('Expected close event to fire 1 time, but it fired ' + closecount + ' times');
+			} else {
+				callback.passed();
+			}
+		}, 4000);
 	}
 
 })
