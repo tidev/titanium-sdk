@@ -16,6 +16,12 @@
 // and AudioStreamerCUR (iOS 3.2+), as well as a proxy which shunts messages to the appropriate AudioStreamer.
 // - SPT
 
+// Also note that we've had to change enumeration and class names here - this is because
+// some modules may require the use of AudioStreamer in external libraries and the
+// symbols cannot be changed on that end.  The use of common symbols in Titanium without
+// namespaces is a recurring problem, and we can thank Objective-C for it.
+// - SPT
+
 #ifdef USE_TI_MEDIA
 
 #define LOG_QUEUED_BUFFERS 0
@@ -45,7 +51,7 @@ typedef enum
 	AS_STOPPED,
 	AS_PAUSED,
 	AS_FLUSHING_EOF
-} AudioStreamerState;
+} TI_AudioStreamerState;
 
 typedef enum
 {
@@ -54,7 +60,7 @@ typedef enum
 	AS_STOPPING_USER_ACTION,
 	AS_STOPPING_ERROR,
 	AS_STOPPING_TEMPORARILY
-} AudioStreamerStopReason;
+} TI_AudioStreamerStopReason;
 
 typedef enum
 {
@@ -80,7 +86,7 @@ typedef enum
 	AS_AUDIO_STREAMER_FAILED,
 	AS_GET_AUDIO_TIME_FAILED,
 	AS_AUDIO_BUFFER_TOO_SMALL
-} AudioStreamerErrorCode;
+} TI_AudioStreamerErrorCode;
 
 extern NSString * const ASStatusChangedNotification;
 
@@ -90,8 +96,8 @@ extern NSString * const ASStatusChangedNotification;
 
 
 @protocol AudioStreamerProtocol<NSObject>
-@property AudioStreamerErrorCode errorCode;
-@property (readonly) AudioStreamerState state;
+@property TI_AudioStreamerErrorCode errorCode;
+@property (readonly) TI_AudioStreamerState state;
 @property (readonly) double progress;
 @property (readwrite) UInt32 bitRate;
 @property (readwrite,assign) id<AudioStreamerDelegate> delegate;
@@ -105,16 +111,17 @@ extern NSString * const ASStatusChangedNotification;
 - (BOOL)isIdle;
 @end
 
-@interface AudioStreamer : NSObject<AudioStreamerProtocol,AudioStreamerDelegate>
+@interface TI_AudioStreamer : NSObject<AudioStreamerProtocol,AudioStreamerDelegate>
 {
 	id<AudioStreamerProtocol> streamer;
 	id<AudioStreamerDelegate> delegate;
 }
 
 - (id)initWithURL:(NSURL *)aURL;
-+ (NSString*)stringForErrorCode:(AudioStreamerErrorCode)code;
++ (NSString*)stringForErrorCode:(TI_AudioStreamerErrorCode)code;
 
 @end
 
+@compatibility_alias AudioStreamer TI_AudioStreamer;
 
 #endif

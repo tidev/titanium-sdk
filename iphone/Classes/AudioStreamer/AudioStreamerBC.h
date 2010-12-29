@@ -54,9 +54,9 @@
 	bool inuse[kNumAQBufs];			// flags to indicate that a buffer is still in use
 	NSInteger buffersUsed;
 	
-	AudioStreamerState state;
-	AudioStreamerStopReason stopReason;
-	AudioStreamerErrorCode errorCode;
+	TI_AudioStreamerState state;
+	TI_AudioStreamerStopReason stopReason;
+	TI_AudioStreamerErrorCode errorCode;
 	OSStatus err;
 	
 	bool discontinuous;			// flag to indicate middle of the stream
@@ -75,8 +75,8 @@
 	double lastProgress;
 }
 
-@property AudioStreamerErrorCode errorCode;
-@property (readonly) AudioStreamerState state;
+@property TI_AudioStreamerErrorCode errorCode;
+@property (readonly) TI_AudioStreamerState state;
 @property (readonly) double progress;
 @property (readwrite) UInt32 bitRate;
 
