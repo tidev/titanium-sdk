@@ -19,7 +19,7 @@
 #endif
 
 @interface AudioStreamerBC ()
-@property (readwrite) AudioStreamerState state;
+@property (readwrite) TI_AudioStreamerState state;
 
 - (void)handlePropertyChangeForFileStream:(AudioFileStreamID)inAudioFileStream
 	fileStreamPropertyID:(AudioFileStreamPropertyID)inPropertyID
@@ -263,7 +263,7 @@ void ASReadStreamCallBackBC
 // Parameters:
 //    anErrorCode - the error condition
 //
-- (void)failWithErrorCode:(AudioStreamerErrorCode)anErrorCode
+- (void)failWithErrorCode:(TI_AudioStreamerErrorCode)anErrorCode
 {
 	@synchronized(self)
 	{
@@ -338,7 +338,7 @@ void ASReadStreamCallBackBC
 // Parameters:
 //    anErrorCode - the error condition
 //
-- (void)setState:(AudioStreamerState)aStatus
+- (void)setState:(TI_AudioStreamerState)aStatus
 {
 	@synchronized(self)
 	{
