@@ -42,7 +42,7 @@ extern NSString * TI_APPLICATION_RESOURCE_DIR;
 	return NUMINT((int)'W');
 }
 
--(id)isExternalStoragePresent
+-(id)isExternalStoragePresent:(id)unused
 {
 	//IOS treats the camera connection kit as just that, and does not allow
 	//R/W access to it, which is just as well as it'd mess up cameras.
