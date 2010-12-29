@@ -105,6 +105,8 @@ public class TiHTTPClient
 	private static final String ON_DATA_STREAM = "ondatastream";
 	private static final String ON_SEND_STREAM = "onsendstream";
 
+	private static DefaultHttpClient client;
+	
 	private KrollProxy proxy;
 	private int readyState;
 	private String responseText;
@@ -117,7 +119,6 @@ public class TiHTTPClient
 	private HttpResponse response;
 	private String method;
 	private HttpHost host;
-	private DefaultHttpClient client;
 	private LocalResponseHandler handler;
 	private Credentials credentials;
 
@@ -457,7 +458,10 @@ public class TiHTTPClient
 
 	public void fireCallback(String name)
 	{
-		fireCallback(name, new Object[0]);
+		KrollDict eventProperties = new KrollDict();
+		eventProperties.put ("source", proxy);
+		
+		fireCallback (name, new Object [] {eventProperties});
 	}
 
 	public void fireCallback(String name, Object[] args)
@@ -928,11 +932,16 @@ public class TiHTTPClient
 				
 				
 				ThreadSafeClientConnManager manager = new ThreadSafeClientConnManager(params, registry);
-				client = new DefaultHttpClient(manager, params);
+				if (client == null) {
+					client = new DefaultHttpClient(manager, params);
+				}
 				
 				if (credentials != null) {
-					client.getCredentialsProvider().setCredentials(
-							new AuthScope(null, -1), credentials);
+					client.getCredentialsProvider().setCredentials (
+						new AuthScope(uri.getHost(), -1),
+						credentials
+					);
+					
 					credentials = null;
 				}
 				HttpProtocolParams.setUseExpectContinue(client.getParams(), false);
