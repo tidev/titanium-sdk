@@ -235,7 +235,7 @@ extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 	return NetworkClientStateDone;
 }
 
--(void)_fireReadyStateChange:(NetworkClientState) state
+-(void)_fireReadyStateChange:(NetworkClientState)state failed:(BOOL)failed
 {
 	readyState = state;
 	TiNetworkHTTPClientResultProxy *thisPointer; 
@@ -244,7 +244,7 @@ extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 		thisPointer = [[[TiNetworkHTTPClientResultProxy alloc] initWithDelegate:self] autorelease];
 		[self _fireEventToListener:@"readystatechange" withObject:nil listener:onreadystatechange thisObject:thisPointer];
 	}
-	if (onload!=nil && state==NetworkClientStateDone && connected)
+	if (onload!=nil && state==NetworkClientStateDone && !failed)
 	{
 		thisPointer = [[[TiNetworkHTTPClientResultProxy alloc] initWithDelegate:self] autorelease];		
 		if (ondatastream && downloadProgress>0)
@@ -344,8 +344,8 @@ extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 	[request setShouldAttemptPersistentConnection:keepAlive];
 	[request setShouldRedirect:YES];
 	[request setShouldPerformCallbacksOnMainThread:NO];
-	[self _fireReadyStateChange:NetworkClientStateOpened];
-	[self _fireReadyStateChange:NetworkClientStateHeaders];
+	[self _fireReadyStateChange:NetworkClientStateOpened failed:NO];
+	[self _fireReadyStateChange:NetworkClientStateHeaders failed:NO];
 }
 
 -(void)setRequestHeader:(id)args
@@ -464,7 +464,7 @@ extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 	downloadProgress = 0;
 	uploadProgress = 0;
 	[[TiApp app] startNetwork];
-	[self _fireReadyStateChange:NetworkClientStateLoading];
+	[self _fireReadyStateChange:NetworkClientStateLoading failed:NO];
 	[request setAllowCompressedResponse:YES];
 	
 	// allow self-signed certs (NO) or required valid SSL (YES)
@@ -522,26 +522,20 @@ extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 
 -(void)requestFinished:(ASIHTTPRequest *)request_
 {
-	[self _fireReadyStateChange:NetworkClientStateDone];
-	if (connected)
-	{
-		connected = NO;
-		[[TiApp app] stopNetwork];
-	}
+	[self _fireReadyStateChange:NetworkClientStateDone failed:NO];
+	connected = NO;
+	[[TiApp app] stopNetwork];
 }
 
 -(void)requestFailed:(ASIHTTPRequest *)request_
 {
-	if (connected)
-	{
-		[[TiApp app] stopNetwork];
-		connected=NO;
-	}
+	[[TiApp app] stopNetwork];
+	connected=NO;
 	
 	NSError *error = [request error];
 	
 	// TODO: Conform to XHR 'DONE' on error
-	[self _fireReadyStateChange:NetworkClientStateDone];
+	[self _fireReadyStateChange:NetworkClientStateDone failed:YES];
 	
 	if (onerror!=nil)
 	{

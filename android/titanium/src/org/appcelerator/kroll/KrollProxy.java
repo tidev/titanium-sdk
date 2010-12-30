@@ -171,7 +171,9 @@ public class KrollProxy implements Handler.Callback, OnEventListenerChange, Krol
 			} else {
 				return value;
 			}
-		} else if (properties.containsKey(name)) {
+		}
+
+		if (properties.containsKey(name)) {
 			return properties.get(name);
 		}
 		return UNDEFINED;

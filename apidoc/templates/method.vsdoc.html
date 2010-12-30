@@ -1,0 +1,14 @@
+<%!
+safeWord = { 'default' : 'defaultValue' }
+def getSafeWord(str):
+	return safeWord.get(str,str)
+%><%page args="m,d"
+/>${m['name'].replace('[object]','')} : function(${', '.join(map(lambda w: getSafeWord(w['name']), m['parameters']))})
+	{
+		///<summary>${d.remove_html_tags(m['value'])}</summary>
+	%for p in m['parameters']:
+		///<param name="${getSafeWord(p['name'])}" type="${d.remove_html_tags(p['type'])}">${d.remove_html_tags(p['description'])}</param>
+	%endfor
+		///<return type="${d.remove_html_tags(m['returntype'])}"/>
+		return ${d.remove_html_tags(d.vsdoc_return_type(m['returntype']))};
+	}

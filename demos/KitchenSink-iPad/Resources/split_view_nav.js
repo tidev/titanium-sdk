@@ -94,16 +94,17 @@ SplitViewNav.detailButton.addEventListener('click', function()
 SplitViewNav.detailWindow.add(SplitViewNav.detailButton);
 
 var done = Titanium.UI.createButton({
- 	systemButton:Titanium.UI.iPhone.SystemButton.DONE
+ 	title:'Flash Popover'
 });
 
 SplitViewNav.detailWindow.setRightNavButton(done);
 done.addEventListener('click',function()
 {
-	Titanium.UI.createAlertDialog({
-		title:'Clicked!', 
-		message:'You clicked the right nav button!'
-	}).show();
+	SplitViewNav.splitView.setMasterPopupVisible(true);
+	setTimeout(function()
+	{
+		SplitViewNav.splitView.setMasterPopupVisible(false);
+	},3000);
 });
 
 

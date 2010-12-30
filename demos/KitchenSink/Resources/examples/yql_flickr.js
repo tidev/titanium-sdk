@@ -14,9 +14,6 @@ tableview.addEventListener('click', function(e)
 	Titanium.UI.createAlertDialog({title:'Table View',message:'row ' + row + ' index ' + index + ' section ' + section  + ' row data ' + rowdata}).show();
 });
 
-var navActInd = Titanium.UI.createActivityIndicator();
-navActInd.show();
-
 if (Titanium.Platform.name == 'iPhone OS') {
 	Titanium.UI.currentWindow.setRightNavButton(navActInd);
 }
@@ -72,7 +69,6 @@ Titanium.Yahoo.yql('select * from flickr.photos.search where text="Cat" limit 10
 		images[c] = row;
 	}
 	tableview.setData(images);
-	navActInd.hide();
 	Ti.App.fireEvent("hide_indicator");
 });
-				
+

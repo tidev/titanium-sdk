@@ -191,7 +191,8 @@ NSString * const TI_DB_VERSION = @"1";
 	[request addRequestHeader:@"Content-Type" value:@"text/json"];
 	[request addRequestHeader:@"User-Agent" value:[[TiApp app] userAgent]];
 	//TODO: need to update backend to accept compressed bodies. When done, use [request setShouldCompressRequestBody:YES]
-	[request setTimeOutSeconds:5];
+	// If we're on the main thread we need a shorter timeout to completion so things don't get held up - this happens during shutdown
+	[request setTimeOutSeconds:([NSThread isMainThread]) ? 1 : 5];
 	[request setShouldPresentAuthenticationDialog:NO];
 	[request setUseSessionPersistence:NO];
 	[request setUseCookiePersistence:YES];

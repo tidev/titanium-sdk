@@ -290,6 +290,7 @@ class Builder(object):
 	
 	def create_avd(self,avd_id,avd_skin):
 		name = "titanium_%s_%s" % (avd_id,avd_skin)
+		name = name.replace(' ', '_')
 		if not os.path.exists(self.home_dir):
 			os.makedirs(self.home_dir)
 		if not os.path.exists(self.sdcard):
@@ -471,7 +472,7 @@ class Builder(object):
 		
 		fileset = []
 
-		if self.force_rebuild or self.deploy_type == 'production':
+		if self.force_rebuild or self.deploy_type == 'production' or self.js_changed:
 			for root, dirs, files in os.walk(os.path.join(self.top_dir, "Resources")):
 				for f in files:
 					path = os.path.join(root, f)
@@ -497,6 +498,7 @@ class Builder(object):
 		android_resources_dir = os.path.join(resources_dir, 'android')
 		self.project_deltafy = Deltafy(resources_dir, include_callback=self.include_path)
 		self.project_deltas = self.project_deltafy.scan()
+		self.js_changed = False
 		tiapp_delta = self.project_deltafy.scan_single_file(self.project_tiappxml)
 		self.tiapp_changed = tiapp_delta is not None
 		if self.tiapp_changed or self.force_rebuild:
@@ -529,7 +531,6 @@ class Builder(object):
 					trace("COPYING FILE: %s => %s (platform-specific file was removed)" % (shared_path, dest))
 					shutil.copy(shared_path, dest)
 
-
 			if delta.get_status() != Delta.DELETED:
 				if path.startswith(android_resources_dir):
 					dest = make_relative(path, android_resources_dir, self.assets_resources_dir)
@@ -547,6 +548,8 @@ class Builder(object):
 					os.makedirs(parent)
 				trace("COPYING %s FILE: %s => %s" % (delta.get_status_str(), path, dest))
 				shutil.copy(path, dest)
+				if (path.startswith(resources_dir) or path.startswith(android_resources_dir)) and path.endswith(".js"):
+					self.js_changed = True
 				# copy to the sdcard in development mode
 				if self.sdcard_copy and self.app_installed and (self.deploy_type == 'development' or self.deploy_type == 'test'):
 					if path.startswith(android_resources_dir):
@@ -945,6 +948,42 @@ class Builder(object):
 	def generate_localizations(self):
 		# compile localization files
 		localecompiler.LocaleCompiler(self.name,self.top_dir,'android',sys.argv[1]).compile()
+		# fix un-escaped single-quotes and full-quotes
+		offending_pattern = '[^\\\\][\'"]'
+		for root, dirs, files in os.walk(self.res_dir):
+			for f in files:
+				if not f.endswith('.xml'):
+					continue
+				full_path = os.path.join(root, f)
+				f = codecs.open(full_path, 'r', 'utf-8')
+				contents = f.read()
+				f.close()
+				if not re.search(r"<string ", contents):
+					continue
+				doc = parseString(contents.encode("utf-8"))
+				string_nodes = doc.getElementsByTagName('string')
+				if len(string_nodes) == 0:
+					continue
+				made_change = False
+				for string_node in string_nodes:
+					if not string_node.hasChildNodes():
+						continue
+					string_child = string_node.firstChild
+					if string_child.nodeType == string_child.CDATA_SECTION_NODE or string_child.nodeType == string_child.TEXT_NODE:
+						string_value = string_child.nodeValue
+						if not re.search(offending_pattern, string_value):
+							continue
+						offenders = re.findall(offending_pattern, string_value)
+						if offenders:
+							for offender in offenders:
+								string_value = string_value.replace(offender, offender[0] + "\\" + offender[-1:])
+								made_change = True
+						string_child.nodeValue = string_value
+				if made_change:
+					new_contents = doc.toxml()
+					f = codecs.open(full_path, 'w', 'utf-8')
+					f.write(new_contents)
+					f.close()
 
 	def recurse(self, paths, file_glob=None):
 		if paths == None: yield None
@@ -1295,7 +1334,7 @@ class Builder(object):
 
 			self.copy_project_resources()
 			
-			if self.tiapp_changed or self.force_rebuild or self.deploy_type == "production":
+			if self.tiapp_changed or self.js_changed or self.force_rebuild or self.deploy_type == "production":
 				trace("Generating Java Classes")
 				self.android.create(os.path.abspath(os.path.join(self.top_dir,'..')), True, project_dir=self.top_dir)
 			else:

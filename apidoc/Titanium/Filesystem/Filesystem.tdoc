@@ -27,7 +27,7 @@ android, iphone, ipad
 
 createTempFile: create a temp file and return a [[Titanium.Filesystem.File]]
 createTempDirectory: create temp file and return a [[Titanium.Filesystem.File]]
-isExteralStoragePresent: returns true if the device supports external storage such as an SD card
+isExternalStoragePresent: returns true if the android device supports external storage such as an SD card. Returns false on iOS.
 getFile: return a fully formed file path as a [[Titanium.Filesystem.File]] object
 
 
@@ -35,7 +35,7 @@ getFile: return a fully formed file path as a [[Titanium.Filesystem.File]] objec
 
 - method : createTempDirectory, Titanium.Filesystem.File
 
-- method : isExteralStoragePresent, boolean
+- method : isExternalStoragePresent, boolean
 
 - method : getFile, Titanium.Filesystem.File
 

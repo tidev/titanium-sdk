@@ -110,7 +110,7 @@ public class TableViewRowProxy extends TiViewProxy
 			msg.sendToTarget();
 		}
 	}
-	
+
 	@Override
 	public boolean handleMessage(Message msg) {
 		if (msg.what == MSG_SET_DATA) {
@@ -129,7 +129,7 @@ public class TableViewRowProxy extends TiViewProxy
 		data.put(TiC.EVENT_PROPERTY_INDEX, item.index);
 		data.put(TiC.EVENT_PROPERTY_DETAIL, false);
 	}
-	
+
 	@Override
 	public boolean fireEvent(String eventName, KrollDict data) {
 		if (eventName.equals(TiC.EVENT_CLICK)) {

@@ -22,7 +22,7 @@ android, iphone, ipad
 - methods
 
 close: close the result set and release resources. once closed, this result set must no longer be used
-next:iterate to the next row in the result set. returns false if no more results are available
+next: iterate to the next row in the result set. returns false if no more results are available
 field: retrieve a row value by field index
 fieldByName: retrieve a row value by field name
 fieldCount: return the number of columns in the result set

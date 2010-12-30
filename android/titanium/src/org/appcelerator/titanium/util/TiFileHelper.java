@@ -235,7 +235,12 @@ public class TiFileHelper
 			return loadDrawable(path, report, checkForNinePatch);
 		}
 		
-		Drawable d = TiUIHelper.getResourceDrawable(context, path);
+		// getResourceDrawable wants a resolved url
+		String url = path;
+		if (!url.contains(":/")) {
+			url = context.resolveUrl(path);
+		}
+		Drawable d = TiUIHelper.getResourceDrawable(context, url);
 		if (d != null) {
 			return d;
 		}

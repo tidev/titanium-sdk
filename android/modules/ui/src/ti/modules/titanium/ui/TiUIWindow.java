@@ -258,10 +258,6 @@ public class TiUIWindow extends TiUIView
 	}
 	public void close(KrollDict options) 
 	{
-		KrollDict data = new KrollDict();
-		data.put(TiC.EVENT_PROPERTY_SOURCE, proxy);
-		proxy.fireEvent(TiC.EVENT_CLOSE, data);
-
 		KrollDict props = proxy.getProperties();
 		TiPropertyResolver resolver = new TiPropertyResolver(options, props);
 		props = resolver.findProperty(TiC.PROPERTY_ANIMATED);
@@ -283,6 +279,11 @@ public class TiUIWindow extends TiUIView
 			}
 		} else {
 			if (liteWindow != null) {
+				// Only fire close event for lightweights.  For heavyweights, the
+				// Activity finish will result in close firing.
+				KrollDict data = new KrollDict();
+				data.put(TiC.EVENT_PROPERTY_SOURCE, proxy);
+				proxy.fireEvent(TiC.EVENT_CLOSE, data);
 				ITiWindowHandler windowHandler = proxy.getTiContext().getTiApp().getWindowHandler();
 				if (windowHandler != null) {
 					windowHandler.removeWindow(liteWindow);

@@ -14,6 +14,7 @@ import java.io.InputStreamReader;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.titanium.TiBlob;
+import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.io.TiBaseFile;
 import org.appcelerator.titanium.io.TiFileFactory;
 import org.appcelerator.titanium.proxy.TiViewProxy;
@@ -87,12 +88,12 @@ public class TiUIWebView extends TiUIView {
 	public void processProperties(KrollDict d) {
 		super.processProperties(d);
 
-		if (d.containsKey("url")) {
-			setUrl(TiConvert.toString(d, "url"));
-		} else if (d.containsKey("html")) {
-			setHtml(TiConvert.toString(d, "html"));
-		} else if (d.containsKey("data")) {
-			Object value = d.get("data");
+		if (d.containsKey(TiC.PROPERTY_URL)) {
+			setUrl(TiConvert.toString(d, TiC.PROPERTY_URL));
+		} else if (d.containsKey(TiC.PROPERTY_HTML)) {
+			setHtml(TiConvert.toString(d, TiC.PROPERTY_HTML));
+		} else if (d.containsKey(TiC.PROPERTY_DATA)) {
+			Object value = d.get(TiC.PROPERTY_DATA);
 			if (value instanceof TiBlob) {
 				setData((TiBlob)value);
 			}
@@ -101,11 +102,11 @@ public class TiUIWebView extends TiUIView {
 
 	@Override
 	public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy proxy) {
-		if ("url".equals(key) && !changingUrl) {
+		if (TiC.PROPERTY_URL.equals(key) && !changingUrl) {
 			setUrl(TiConvert.toString(newValue));
-		} else if ("html".equals(key)) {
+		} else if (TiC.PROPERTY_HTML.equals(key)) {
 			setHtml(TiConvert.toString(newValue));
-		} else if ("data".equals(key)) {
+		} else if (TiC.PROPERTY_DATA.equals(key)) {
 			if (newValue instanceof TiBlob) {
 				setData((TiBlob)newValue);
 			}

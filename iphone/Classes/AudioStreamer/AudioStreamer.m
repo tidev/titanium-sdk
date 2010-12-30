@@ -86,7 +86,7 @@ NSString * const AS_AUDIO_BUFFER_TOO_SMALL_STRING = @"Audio packets are larger t
 //
 // returns the string representation of the error code
 //
-+ (NSString *)stringForErrorCode:(AudioStreamerErrorCode)anErrorCode
++ (NSString *)stringForErrorCode:(TI_AudioStreamerErrorCode)anErrorCode
 {
 	switch (anErrorCode)
 	{
@@ -160,12 +160,12 @@ NSString * const AS_AUDIO_BUFFER_TOO_SMALL_STRING = @"Audio packets are larger t
 }
 
 // Properties
-RUN_ON_STREAMER_SET(setErrorCode,AudioStreamerErrorCode)
+RUN_ON_STREAMER_SET(setErrorCode,TI_AudioStreamerErrorCode)
 RUN_ON_STREAMER_SET(setBitRate,UInt32)
 
-RUN_ON_STREAMER_RETURN(errorCode, AudioStreamerErrorCode)
+RUN_ON_STREAMER_RETURN(errorCode, TI_AudioStreamerErrorCode)
 RUN_ON_STREAMER_RETURN(bitRate, UInt32)
-RUN_ON_STREAMER_RETURN(state, AudioStreamerState)
+RUN_ON_STREAMER_RETURN(state, TI_AudioStreamerState)
 RUN_ON_STREAMER_RETURN(progress, double)
 
 // Functions

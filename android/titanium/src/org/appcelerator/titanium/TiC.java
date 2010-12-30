@@ -17,6 +17,7 @@ public class TiC {
 	public static final String EVENT_ANDROID_VOLUP = "android:volup";
 	public static final String EVENT_ANDROID_VOLDOWN = "android:voldown";
 	public static final String EVENT_BLUR = "blur";
+	public static final String EVENT_CHANGE = "change";
 	public static final String EVENT_CLICK = "click";
 	public static final String EVENT_CLOSE = "close";
 	public static final String EVENT_COMPLETE = "complete";
@@ -26,6 +27,7 @@ public class TiC {
 	public static final String EVENT_DOUBLE_TAP = "doubletap";
 	public static final String EVENT_FOCUS = "focus";
 	public static final String EVENT_FOCUSED = "focused";
+	public static final String EVENT_LOAD = "load";
 	public static final String EVENT_OPEN = "open";
 	public static final String EVENT_PAUSE = "pause";
 	public static final String EVENT_PROPERTY_CLICKSOURCE = "clicksource";
@@ -38,6 +40,7 @@ public class TiC {
 	public static final String EVENT_PROPERTY_REQUEST_CODE = "requestCode";
 	public static final String EVENT_PROPERTY_ROW = "row";
 	public static final String EVENT_PROPERTY_SOURCE = "source";
+	public static final String EVENT_PROPERTY_STATE = "state";
 	public static final String EVENT_PROPERTY_TYPE = "type";
 	public static final String EVENT_PROPERTY_X = "x";
 	public static final String EVENT_PROPERTY_Y = "y";
@@ -84,15 +87,18 @@ public class TiC {
 	public static final String PROPERTY_BOTTOM = "bottom";
 	public static final String PROPERTY_BUTTON_NAMES = "buttonNames";
 	public static final String PROPERTY_CANCEL = "cancel";
+	public static final String PROPERTY_CAN_SCALE = "canScale";
 	public static final String PROPERTY_CENTER = "center";
 	public static final String PROPERTY_CLASS_NAME = "className";
 	public static final String PROPERTY_CLASS_NAMES = "classNames";
 	public static final String PROPERTY_COLOR = "color";
 	public static final String PROPERTY_DATA = "data";
+	public static final String PROPERTY_DEFAULT_IMAGE = "defaultImage";
 	public static final String PROPERTY_DELAY = "delay";
 	public static final String PROPERTY_DURATION = "duration";
 	public static final String PROPERTY_ELLIPSIZE = "ellipsize";
 	public static final String PROPERTY_ENABLED = "enabled";
+	public static final String PROPERTY_ENABLE_ZOOM_CONTROLS = "enableZoomControls";
 	public static final String PROPERTY_EXIT_ON_CLOSE = "exitOnClose";
 	public static final String PROPERTY_FOCUSABLE = "focusable";
 	public static final String PROPERTY_FONT = "font";
@@ -110,6 +116,7 @@ public class TiC {
 	public static final String PROPERTY_ICON = "icon";
 	public static final String PROPERTY_ID = "id";
 	public static final String PROPERTY_IMAGE = "image";
+	public static final String PROPERTY_IMAGES = "images";
 	public static final String PROPERTY_ITEM_ID = "itemId";
 	public static final String PROPERTY_LATITUDE = "latitude";
 	public static final String PROPERTY_LATITUDE_DELTA = "latitudeDelta";
@@ -139,6 +146,7 @@ public class TiC {
 	public static final String PROPERTY_REGION = "region";
 	public static final String PROPERTY_REGION_FIT = "regionFit";
 	public static final String PROPERTY_REPEAT = "repeat";
+	public static final String PROPERTY_REPEAT_COUNT = "repeatCount";
 	public static final String PROPERTY_RIGHT = "right";
 	public static final String PROPERTY_RIGHT_BUTTON = "rightButton";
 	public static final String PROPERTY_RIGHT_IMAGE = "rightImage";

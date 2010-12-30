@@ -16,6 +16,7 @@ from htmlentitydefs import name2codepoint
 
 try:
 	from mako.template import Template
+	from mako.lookup import TemplateLookup
 except:
 	print "Crap, you don't have mako!\n"
 	print "Easy install that bitch:\n"
@@ -79,6 +80,31 @@ def remove_html_tags(data):
     return htmlr.sub('', data)
 
 class API(object):
+	def remove_html_tags(self,str):
+		return remove_html_tags(str)
+	def vsdoc_return_type(self, str):
+		retTypes = {
+			'bool' : 'true',
+			'boolean' : 'true',
+			'void' : '',
+			'string' : "''",
+			'double' : '0.0',
+			'int' : '0',
+			'array' : '[]',
+			'object' : '{}',
+			'function' : 'function(){}',
+			'float' : '0.0',
+			'float,string' : "''",
+			'int,string' : "''",
+			'string,int' : "''",
+			'date' : 'new Date()',
+			'long' : '0',
+			'callback' : 'function(){}',
+			'Intent' : 'Titanium.Android.Intent',
+			'Titanium.App.Android.R':"function(){return Titanium.App.Android.R;}"
+		}
+		return retTypes.get(str,str)
+	
 	def __init__(self,name):
 		self.namespace = name
 		self.description = None
@@ -819,10 +845,36 @@ def produce_devhtml(config):
 	out.write(htmlerize(changelog))
 	out.close()
 
-
+def produce_vsdoc(config):
+	if not config.has_key('output'):
+		print "Required command line argument 'output' not provided"
+		sys.exit(1)
+			
+	outdir = os.path.expanduser(config['output'])
+	
+	if not os.path.exists(outdir):
+		os.makedirs(outdir)
+	
+	produce_vsdoc_output(config,outdir,apis)
+	
+def produce_vsdoc_output(config,outdir,theobj):
+	lookupDir = TemplateLookup(directories=[os.path.join(template_dir,'templates')])
+	
+	filename = os.path.join(outdir,'Titanium-vsdoc.js')
+	f = open(filename,'w+')
+	
+	for name in sorted(theobj.iterkeys()):
+		obj = theobj[name]
+		# objects and modules have everything we need for the vsdoc
+		if obj.typestr == 'module' or obj.typestr == 'object':
+			output = lookupDir.get_template('module.vsdoc.html').render(config=config,data=obj)
+			f.write(output)
+	f.close()
+	print 'vsdoc created: ' + filename
+	
 def main():
 	parser = optparse.OptionParser()
-	parser.add_option('-f', '--format', dest='format', help='Format of output: json or devhtml (default)', default='devhtml')
+	parser.add_option('-f', '--format', dest='format', help='Format of output: json, vsdoc or devhtml (default)', default='devhtml')
 	parser.add_option('--css', dest='css', help='Path to a custom CSS stylesheet to use in each HTML page', default=None)
 	parser.add_option('-o', '--output', dest='output', help='Output directory for generated documentation', default=None)
 	parser.add_option('-v', '--version', dest='version', help='Version of the API to generate documentation for', default=None)
@@ -854,7 +906,7 @@ def main():
 			other_args[kv[0].strip()]=True
 		c+=1"""
 	
-	format_handlers = {'json': produce_json, 'devhtml': produce_devhtml}
+	format_handlers = {'json': produce_json, 'devhtml': produce_devhtml, 'vsdoc' : produce_vsdoc}
 	if options.format in format_handlers:
 		print 'Generating Documentation for Titanium version %s to %s...' % (other_args['version'], other_args['output'])
 		process_tdoc()

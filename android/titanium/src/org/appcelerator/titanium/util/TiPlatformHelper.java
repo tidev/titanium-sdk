@@ -26,11 +26,13 @@ import android.content.Context;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.net.ConnectivityManager;
+import android.net.DhcpInfo;
 import android.net.NetworkInfo;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.provider.Settings;
+import android.text.format.Formatter;
 import android.util.DisplayMetrics;
 
 public class TiPlatformHelper
@@ -319,6 +321,56 @@ public class TiPlatformHelper
 		return macaddr;
 	}
 
+	public static String getIpAddress() {
+		String ipAddress = null;
+
+		if(tiApp.getRootActivity().checkCallingOrSelfPermission(Manifest.permission.ACCESS_WIFI_STATE) == PackageManager.PERMISSION_GRANTED) {
+			WifiManager wifiManager = (WifiManager) tiApp.getRootActivity().getSystemService(Context.WIFI_SERVICE);
+			if (wifiManager != null) {
+				WifiInfo wifiInfo = wifiManager.getConnectionInfo();
+				if (wifiInfo != null) {
+					ipAddress = Formatter.formatIpAddress(wifiInfo.getIpAddress());
+					if (DBG) {
+						Log.d(LCAT, "Found IP address: " + ipAddress);
+					}
+				} else {
+					Log.e(LCAT, "Unable to access WifiInfo, failed to get IP address");
+				}
+			} else {
+				Log.e(LCAT, "Unable to access the WifiManager, failed to get IP address");
+			}
+		} else {
+			Log.e(LCAT, "Must have android.permission.ACCESS_WIFI_STATE, failed to get IP address");
+		}
+
+		return ipAddress;
+	}
+
+	public static String getNetmask() {
+		String netmask = null;
+
+		if(tiApp.getRootActivity().checkCallingOrSelfPermission(Manifest.permission.ACCESS_WIFI_STATE) == PackageManager.PERMISSION_GRANTED) {
+			WifiManager wifiManager = (WifiManager) tiApp.getRootActivity().getSystemService(Context.WIFI_SERVICE);
+			if (wifiManager != null) {
+				DhcpInfo dhcpInfo = wifiManager.getDhcpInfo();
+				if(dhcpInfo != null) {
+					netmask = Formatter.formatIpAddress(dhcpInfo.netmask);
+					if (DBG) {
+						Log.d(LCAT, "Found netmask: " + netmask);
+					}
+				} else {
+					Log.e(LCAT, "Unable to access DhcpInfo, failed to get netmask");
+				}
+			} else {
+				Log.e(LCAT, "Unable to access the WifiManager, failed to get netmask");
+			}
+		} else {
+			Log.e(LCAT, "Must have android.permission.ACCESS_WIFI_STATE, failed to get netmask");
+		}
+
+		return netmask;
+	}
+	
 	public static String getNetworkTypeName() {
 		return networkTypeToTypeName(getNetworkType());
 	}

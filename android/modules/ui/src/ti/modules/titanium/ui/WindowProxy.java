@@ -103,7 +103,6 @@ public class WindowProxy extends TiWindowProxy
 		if (DBG) {
 			Log.d(LCAT, "handleClose");
 		}
-		fireEvent(TiC.EVENT_CLOSE, null);
 
 		if (view != null) {
 			((TiUIWindow) view).close(options);

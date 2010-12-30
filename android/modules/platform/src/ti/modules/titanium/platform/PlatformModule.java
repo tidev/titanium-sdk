@@ -112,6 +112,17 @@ public class PlatformModule extends KrollModule
 		return TiPlatformHelper.getArchitecture();
 	}
 
+
+	@Kroll.getProperty @Kroll.method
+	public String getAddress() {
+		return TiPlatformHelper.getIpAddress();
+	}
+
+	@Kroll.getProperty @Kroll.method
+	public String getNetmask() {
+		return TiPlatformHelper.getNetmask();
+	}
+	
 	@Kroll.method
 	public String createUUID() {
 		return TiPlatformHelper.createUUID();

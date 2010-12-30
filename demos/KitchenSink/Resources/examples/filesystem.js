@@ -7,7 +7,7 @@ Titanium.API.info('Application Directory :' + Titanium.Filesystem.applicationDir
 Titanium.API.info('Application Data Directory :' + Titanium.Filesystem.applicationDataDirectory);
 Titanium.API.info('Application Support Directory :' + Titanium.Filesystem.applicationSupportDirectory);
 
-Titanium.API.info('External Storage Available :' + Titanium.Filesystem.isExteralStoragePresent);
+Titanium.API.info('External Storage Available :' + Titanium.Filesystem.isExternalStoragePresent());
 Titanium.API.info('Separator :' + Titanium.Filesystem.separator);
 Titanium.API.info('Line Ending :' + Titanium.Filesystem.lineEnding);
 

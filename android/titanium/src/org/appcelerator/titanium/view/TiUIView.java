@@ -166,19 +166,19 @@ public abstract class TiUIView
 			|| d.containsKeyAndNotNull(TiC.PROPERTY_BACKGROUND_FOCUSED_IMAGE)
 			|| d.containsKeyAndNotNull(TiC.PROPERTY_BACKGROUND_DISABLED_IMAGE);
 	}
-	
+
 	private boolean hasBorder(KrollDict d) {
 		return d.containsKeyAndNotNull(TiC.PROPERTY_BORDER_COLOR) 
 			|| d.containsKeyAndNotNull(TiC.PROPERTY_BORDER_RADIUS)
 			|| d.containsKeyAndNotNull(TiC.PROPERTY_BORDER_WIDTH);
 	}
-	
+
 	private boolean hasColorState(KrollDict d) {
 		return d.containsKeyAndNotNull(TiC.PROPERTY_BACKGROUND_SELECTED_COLOR)
 			|| d.containsKeyAndNotNull(TiC.PROPERTY_BACKGROUND_FOCUSED_COLOR)
 			|| d.containsKeyAndNotNull(TiC.PROPERTY_BACKGROUND_FOCUSED_COLOR);
 	}
-	
+
 	public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy proxy)
 	{
 		if (key.equals(TiC.PROPERTY_LEFT)) {

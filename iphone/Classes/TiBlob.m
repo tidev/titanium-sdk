@@ -315,6 +315,23 @@
 	return nil;
 }
 
+- (id)imageAsCropped:(id)args
+{
+	[self ensureImageLoaded];
+	if (image!=nil)
+	{
+		ENSURE_SINGLE_ARG(args,NSDictionary);
+		CGRect bounds;
+		CGSize imageSize = [image size];
+		bounds.size.width = [TiUtils floatValue:@"width" properties:args def:imageSize.width];
+		bounds.size.height = [TiUtils floatValue:@"height" properties:args def:imageSize.height];
+		bounds.origin.x = [TiUtils floatValue:@"x" properties:args def:(imageSize.width - bounds.size.width) / 2.0];
+		bounds.origin.y = [TiUtils floatValue:@"y" properties:args def:(imageSize.height - bounds.size.height) / 2.0];
+		return [[[TiBlob alloc] initWithImage:[UIImageResize croppedImage:bounds image:image]] autorelease];
+	}
+	return nil;
+}
+
 -(id)toString:(id)args
 {
 	id t = [self text];

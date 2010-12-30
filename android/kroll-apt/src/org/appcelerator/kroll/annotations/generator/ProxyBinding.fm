@@ -391,11 +391,14 @@ public class ${genClassName}
 		
 		<#list proxyAttrs.propertyAccessors as accessor>
 		<#assign upperCamel = accessor?substring(0, 1)?upper_case + accessor?substring(1)>
-		if (name.equals("get${upperCamel}") || name.equals("set${upperCamel}")) {
-			KrollMethod ${accessor}_accessor = KrollBindingUtils.createAccessorMethod("${accessor}"); 
-			bindings.put("get${upperCamel}", ${accessor}_accessor);
-			bindings.put("set${upperCamel}", ${accessor}_accessor);
-			return ${accessor}_accessor;
+		if (name.equals("set${upperCamel}")) {
+			KrollMethod ${accessor}_set_accessor = KrollBindingUtils.createAccessorMethod("${accessor}", true);
+			bindings.put("set${upperCamel}", ${accessor}_set_accessor);
+			return ${accessor}_set_accessor;
+		} else if (name.equals("get${upperCamel}")) {
+			KrollMethod ${accessor}_get_accessor = KrollBindingUtils.createAccessorMethod("${accessor}", false);
+			bindings.put("get${upperCamel}", ${accessor}_get_accessor);
+			return ${accessor}_get_accessor;
 		}
 		</#list>
 		

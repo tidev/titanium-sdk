@@ -57,6 +57,7 @@
 	if (self = [super _initWithPageContext:[proxy pageContext]])
 	{
 		delegate = [proxy retain];
+		[[proxy pageContext] unregisterProxy:self]; // Force unregister so that request is cleaned up ASAP
 		// set the immutable properties we want to be set when this result is proxied
 		// back as a this pointer in JS land ... all others will be delegated directly
 		// to our delegate

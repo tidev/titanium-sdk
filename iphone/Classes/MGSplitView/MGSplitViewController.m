@@ -726,6 +726,14 @@
 	}
 }
 
+- (IBAction)hideMasterPopover:(id)sender
+{
+	if (!_hiddenPopoverController || (_hiddenPopoverController.popoverVisible)) {
+		// TODO: Does this alert the delegate? More importantly, will this have ramifications in terms of race conditions if someone rotates while this
+		// is hiding? Hope this works.
+		[_hiddenPopoverController dismissPopoverAnimated:YES];
+	}
+}
 
 #pragma mark -
 #pragma mark Accessors and properties
