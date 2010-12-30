@@ -148,8 +148,16 @@
 	
 	if ([[result fieldNames] count]==0)
 	{
-		[result next]; // we need to do this to make sure lastInsertRowId and rowsAffected work
-		[result close];
+	  @try 
+		{
+		  [result next]; // we need to do this to make sure lastInsertRowId and rowsAffected work
+		  [result close];
+		}
+		@catch (NSException * e) 
+		{
+		  NSLog(@"[WARN] attempting to close result, returned error: %@",e);
+	  }
+		
 		return nil;
 	}
 	
