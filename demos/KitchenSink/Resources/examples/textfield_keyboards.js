@@ -157,8 +157,6 @@ b8.addEventListener('click', function()
 {
 	tf1.blur();
 	tf1.keyboardType = Titanium.UI.KEYBOARD_DECIMAL_PAD;
-	tf1.enableReturnKey = true;
-	tf1.returnKeyType = Titanium.UI.RETURNKEY_DONE;
 	tf1.focus();
 });
 win.add(b8);
