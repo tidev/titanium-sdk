@@ -33,6 +33,8 @@ keyboardToolbarColor[string]: the color of the keyboard toolbar
 keyboardToolbarHeight[float]: the height of the keyboard toolbar
 suppressReturn[boolean]: boolean to indicate if the return key should be suppressed during entry
 autocapitalization[int]: One of `Titanium.UI.TEXT_AUTOCAPITALIZATION_NONE`, `Titanium.UI.TEXT_AUTOCAPITALIZATION_WORDS`, `Titanium.UI.TEXT_AUTOCAPITALIZATION_SENTENCES`, or `Titanium.UI.TEXT_AUTOCAPITALIZATION_ALL` to indicate how the field should be capitalized during typing. (only Android)
+autoLink[int]: whether or not to convert text within this area to clickable links.  iOS only.
+
 - methods
 
 focus: force the field to gain focus

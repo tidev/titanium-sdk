@@ -62,6 +62,13 @@ TEXT_AUTOCAPITALIZATION_WORDS[int]: text capitalization constant
 TEXT_AUTOCAPITALIZATION_SENTENCES[int]: text capitalization constant
 TEXT_AUTOCAPITALIZATION_ALL[int]: text capitalization constant
 
+AUTODETECT_NONE[int]: text autodetection constant (iOS)
+AUTODETECT_ALL[int]: text autodetection constant (iOS)
+AUTODETECT_PHONE[int]: text autodetection constant (iOS)
+AUTODETECT_LINK[int]: text autodetection constant (iOS)
+AUTODETECT_ADDRESS[int]: text autodetection constant (iOS 4.0+)
+AUTODETECT_CALENDAR[int]: text autodetection constant (iOS 4.0+)
+
 INPUT_BUTTONMODE_NEVER[int]: input button mode constant
 INPUT_BUTTONMODE_ALWAYS[int]: input button mode constant
 INPUT_BUTTONMODE_ONFOCUS[int]: input button mode constant

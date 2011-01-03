@@ -35,6 +35,7 @@
 #import "TiApp.h"
 #import "ImageLoader.h"
 #import "Webcolor.h"
+#import "TiUtils.h"
 
 @implementation UIModule
 
@@ -138,11 +139,29 @@ MAKE_SYSTEM_PROP(BLEND_MODE_XOR,kCGBlendModeXOR);
 MAKE_SYSTEM_PROP(BLEND_MODE_PLUS_DARKER,kCGBlendModePlusDarker);
 MAKE_SYSTEM_PROP(BLEND_MODE_PLUS_LIGHTER,kCGBlendModePlusLighter);
 
+// TODO: Move these to a Ti.UI.iOS module
 MAKE_SYSTEM_PROP(AUTODETECT_NONE,UIDataDetectorTypeNone);
 MAKE_SYSTEM_PROP(AUTODETECT_ALL,UIDataDetectorTypeAll);
 MAKE_SYSTEM_PROP(AUTODETECT_PHONE,UIDataDetectorTypePhoneNumber);
 MAKE_SYSTEM_PROP(AUTODETECT_LINK,UIDataDetectorTypeLink);
 
+// TODO: Move to TiBase.h?
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0
+#define MAKE_SYSTEM_PROP_IOS4(name,map1,map2) \
+-(NSNumber*)name \
+{\
+return [NSNumber numberWithInt:([TiUtils isIOS4OrGreater] ? map1 : map2)];\
+}
+#else
+#define MAKE_SYSTEM_PROP_IOS4(name,map1,map2) \
+-(NSNumber*)name \
+{\
+return [NSNumber numberWithInt:map2];\
+}
+#endif
+
+MAKE_SYSTEM_PROP_IOS4(AUTODETECT_ADDRESS,UIDataDetectorTypeAddress,UIDataDetectorTypeAll);
+MAKE_SYSTEM_PROP_IOS4(AUTODETECT_CALENDAR,UIDataDetectorTypeCalendarEvent,UIDataDetectorTypeAll);
 
 
 -(void)setBackgroundColor:(id)color

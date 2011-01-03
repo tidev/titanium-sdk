@@ -16,22 +16,29 @@ var ta = Ti.UI.createTextArea({
 });
 
 var btn01 = Ti.UI.createButton({
-	height:50, bottom:5, left:5, right:5,
+	height:50, bottom:5, left:5, width:120,
 	title:'Detect Links', color:'#000'
 });
 
 var btn02 = Ti.UI.createButton({
-	height:50, bottom:60, left:5, right:5,
+	height:50, bottom:60, left:5, width:120,
 	title:'Detect Phone', color:'#000'
 });
 
 var btn03 = Ti.UI.createButton({
-	height:50, bottom:120, left:5, right:5,
+	height:50, bottom:120, left:5, width:120,
 	title:'Detect All', color:'#000'
 });
 
 var btn04 = Ti.UI.createButton({
 	height:50, bottom:180, left:5, right:5, type:'toggle', color:'#000'
+});
+
+// NO DOCS ON WHAT CONSTITUTES A "CALENDAR EVENT STRING" SO WE CAN'T TEST IT.
+
+var btn05 = Ti.UI.createButton({
+	height:50, bottom:120, right:5, width:120,
+	title:'Detect Adress', color:'#000'
 });
 
 var label = Ti.UI.createLabel({
@@ -70,6 +77,9 @@ function setDetection(e) {
 		case btn03.title: 
 			ta.autoLink = Ti.UI.AUTODETECT_ALL; // detect all, including email and addresses
 			break;
+		case btn05.title:
+			ta.autoLink = Ti.UI.AUTODETECT_ADDRESS;
+			break;
 		default: break;
 	}
 	
@@ -79,6 +89,7 @@ function setDetection(e) {
 btn01.addEventListener('click', setDetection);
 btn02.addEventListener('click', setDetection);
 btn03.addEventListener('click', setDetection);
+btn05.addEventListener('click', setDetection);
 
 btn04.addEventListener('click', toggleEditable);
 
@@ -88,6 +99,7 @@ win.add(btn01);
 win.add(btn02);
 win.add(btn03);
 win.add(btn04);
+win.add(btn05);
 win.add(label);
 
 // setup to improve visual feedback

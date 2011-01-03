@@ -131,6 +131,8 @@
 @property(nonatomic,readonly) NSNumber *AUTODETECT_ALL;
 @property(nonatomic,readonly) NSNumber *AUTODETECT_PHONE;
 @property(nonatomic,readonly) NSNumber *AUTODETECT_LINK;
+@property(nonatomic,readonly) NSNumber *AUTODETECT_ADDRESS;
+@property(nonatomic,readonly) NSNumber *AUTODETECT_CALENDAR;
 
 
 

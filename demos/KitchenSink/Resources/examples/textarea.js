@@ -1,148 +1,29 @@
-var win = Titanium.UI.currentWindow;
+// create label view data object
+var data = [
+	{title:'Basic', hasChild:true, test:'../examples/textarea_basic.js'}
+];
 
-var l = Titanium.UI.createLabel({
-	text:'Text area tests.',
-	font:{fontSize:14},
-	left:10,
-	top:10,
-	width:300,
-	height:'auto'
-});
-win.add(l);
-
-
-var ta1 = Titanium.UI.createTextArea({
-	value:'I am a textarea',
-	height:70,
-	width:300,
-	top:60,
-	font:{fontSize:20,fontFamily:'Marker Felt', fontWeight:'bold'},
-	color:'#888',
-	textAlign:'left',
-	appearance:Titanium.UI.KEYBOARD_APPEARANCE_ALERT,	
-	keyboardType:Titanium.UI.KEYBOARD_NUMBERS_PUNCTUATION,
-	returnKeyType:Titanium.UI.RETURNKEY_EMERGENCY_CALL,
-	borderWidth:2,
-	borderColor:'#bbb',
-	borderRadius:5,
-	suppressReturn:false
-	
-});
-win.add(ta1);
-
-
-
-
-//
-// Focus text area
-//
-var b1 = Titanium.UI.createButton({
-	title:'Focus',
-	height:40,
-	width:200,
-	top:140
-});
-win.add(b1);
-b1.addEventListener('click', function()
+if (Titanium.Platform.name == 'iPhone OS')
 {
-	ta1.focus();
+	data.push({title:'Auto Link', hasChild:true, test:'../examples/textarea_autodetect.js'});
+}
+// create table view
+var tableview = Titanium.UI.createTableView({
+	data:data
 });
 
-//
-// Blur text area
-//
-var b2 = Titanium.UI.createButton({
-	title:'Blur',
-	height:40,
-	width:200,
-	top:190
-});
-win.add(b2);
-b2.addEventListener('click', function()
+// create table view event listener
+tableview.addEventListener('click', function(e)
 {
-	ta1.blur();
-});
-
-
-//
-// Hide/Shw text area
-//
-var b3 = Titanium.UI.createButton({
-	title:'Hide/Show',
-	height:40,
-	width:200,
-	top:240
-});
-win.add(b3);
-var visible=true;
-b3.addEventListener('click', function()
-{
-	if (visible)
+	if (e.rowData.test)
 	{
-		ta1.hide();
-		visible=false;
-	}
-	else
-	{
-		ta1.show();
-		visible=true;
+		var win = Titanium.UI.createWindow({
+			url:e.rowData.test,
+			title:e.rowData.title
+		});
+		Titanium.UI.currentTab.open(win,{animated:true});
 	}
 });
 
-//
-// Toggle Text area properties
-//
-var b4 = Titanium.UI.createButton({
-	title:'Toggle Properties',
-	top:290,
-	height:40,
-	width:200
-});
-win.add(b4);
-var changed=false;
-b4.addEventListener('click', function()
-{
-	if (!changed)
-	{
-		ta1.backgroundColor = '#336699';
-		ta1.color = '#fff';
-		ta1.textAlign = 'center';
-		ta1.suppressReturn = true;
-		ta1.autocapitalization = Titanium.UI.TEXT_AUTOCAPITALIZATION_ALL;
-		changed=true;
-	}
-	else
-	{
-		ta1.backgroundColor = '#fff';
-		ta1.color = '#888';
-		ta1.textAlign = 'left';
-		ta1.autocapitalization = Titanium.UI.TEXT_AUTOCAPITALIZATION_NONE;
-		changed=false;
-		ta1.suppressReturn = false;
-	}
-});
-
-
-//
-// Text area events
-//
-ta1.addEventListener('change',function(e)
-{
-	l.text = 'change fired, value = ' + e.value + '\nfield value = ' + ta1.value;
-});
-
-ta1.addEventListener('blur',function(e)
-{
-	l.text = 'blur fired, value = ' + e.value;
-});
-ta1.addEventListener('focus',function(e)
-{
-	l.text = 'focus fired, value = ' + e.value;
-});
-ta1.addEventListener('return',function(e)
-{
-	l.text = 'return fired, value = ' + e.value;
-});
-
-
-
+// add table view to the window
+Titanium.UI.currentWindow.add(tableview);
