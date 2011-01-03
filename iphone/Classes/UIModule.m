@@ -82,6 +82,18 @@ MAKE_SYSTEM_PROP(KEYBOARD_ASCII,UIKeyboardTypeASCIICapable);
 MAKE_SYSTEM_PROP(KEYBOARD_NUMBERS_PUNCTUATION,UIKeyboardTypeNumbersAndPunctuation);
 MAKE_SYSTEM_PROP(KEYBOARD_URL,UIKeyboardTypeURL);
 MAKE_SYSTEM_PROP(KEYBOARD_NUMBER_PAD,UIKeyboardTypeNumberPad);
+
+/* Because this is a new feature in 4.1, we have to guard against it in both compiling AND runtime.*/
+-(NSNumber*)KEYBOARD_DECIMAL_PAD
+{
+#if __IPHONE_4_1 <= __IPHONE_OS_VERSION_MAX_ALLOWED
+	if([[[UIDevice currentDevice] systemVersion] floatValue] >= 4.1){
+		return [NSNumber numberWithInt:UIKeyboardTypeDecimalPad];
+	}
+#endif
+	return [NSNumber numberWithInt:UIKeyboardTypeNumbersAndPunctuation];
+}
+
 MAKE_SYSTEM_PROP(KEYBOARD_PHONE_PAD,UIKeyboardTypePhonePad);
 MAKE_SYSTEM_PROP(KEYBOARD_NAMEPHONE_PAD,UIKeyboardTypeNamePhonePad);
 MAKE_SYSTEM_PROP(KEYBOARD_EMAIL,UIKeyboardTypeEmailAddress);

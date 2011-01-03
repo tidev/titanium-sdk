@@ -207,11 +207,15 @@ public class TiHTTPClient
 				}
 
 				entity = response.getEntity();
-				if (entity.getContentType() != null) {
-					contentType = entity.getContentType().getValue();
+				if (entity != null) {
+					if (entity.getContentType() != null) {
+						contentType = entity.getContentType().getValue();
+					}
+					is = entity.getContent();
+					charset = EntityUtils.getContentCharSet(entity);
+				} else {
+					is = null;
 				}
-				is = entity.getContent();
-				charset = EntityUtils.getContentCharSet(entity);
 
 				responseData = null;
 

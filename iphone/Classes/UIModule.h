@@ -62,6 +62,7 @@
 @property(nonatomic,readonly) NSNumber *KEYBOARD_NUMBERS_PUNCTUATION;
 @property(nonatomic,readonly) NSNumber *KEYBOARD_URL;
 @property(nonatomic,readonly) NSNumber *KEYBOARD_NUMBER_PAD;
+@property(nonatomic,readonly) NSNumber *KEYBOARD_DECIMAL_PAD;
 @property(nonatomic,readonly) NSNumber *KEYBOARD_PHONE_PAD;
 @property(nonatomic,readonly) NSNumber *KEYBOARD_NAMEPHONE_PAD;
 @property(nonatomic,readonly) NSNumber *KEYBOARD_EMAIL;
