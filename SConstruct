@@ -58,6 +58,7 @@ if clean and os.path.exists('iphone/iphone/build'):
 # TEMP until android is merged
 build_type = 'full'
 build_dirs = ['iphone', 'android']
+force_iphone = False
 
 if ARGUMENTS.get('iphone',0):
 	build_type='iphone'
@@ -70,6 +71,9 @@ if ARGUMENTS.get('android',0):
 if ARGUMENTS.get('ipad',0):
 	build_type='ipad'
 	build_dirs=['ipad']
+
+if ARGUMENTS.get('force_iphone',0):
+	force_iphone = True
 
 if ARGUMENTS.get('COMPILER_FLAGS', 0):
 	flags = ARGUMENTS.get('COMPILER_FLAGS')
@@ -91,7 +95,7 @@ if build_type in ['full', 'android'] and not only_package:
 		os.chdir(d)
 
 if build_type in ['full', 'iphone', 'ipad'] and not only_package \
-	and platform.system() == "Darwin":
+	and (platform.system() == "Darwin" or force_iphone):
 	d = os.getcwd()
 	os.chdir('iphone')
 	try:
