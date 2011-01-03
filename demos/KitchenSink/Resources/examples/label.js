@@ -9,6 +9,10 @@ if (Titanium.Platform.name == 'android')
 	data.push({title:'Auto Link', hasChild:true, test:'../examples/label_linkify.js'});
 }
 
+if (Titanium.Platform.name == 'iPhone OS')
+{
+	data.push({title:'Auto Link', hasChild:true, test:'../examples/label_autodetect.js'});
+}
 // create table view
 var tableview = Titanium.UI.createTableView({
 	data:data

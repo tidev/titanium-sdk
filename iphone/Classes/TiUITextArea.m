@@ -50,6 +50,11 @@
 	[(UITextView *)[self textWidgetView] setEditable:[TiUtils boolValue:editable]];
 }
 
+-(void)setAutoLink_:(id)type_
+{
+	[(UITextView *)[self textWidgetView] setDataDetectorTypes:[TiUtils intValue:type_ def:UIDataDetectorTypeNone]];
+}
+
 -(void)setBorderStyle_:(id)value
 {
 	//TODO
