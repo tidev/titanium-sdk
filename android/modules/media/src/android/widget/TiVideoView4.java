@@ -179,14 +179,25 @@ public class TiVideoView4 extends SurfaceView implements MediaPlayerControl {
 				// Media player doesn't handle redirects, try to follow them here
 				while (true) {
 					// java.net.URL doesn't handle rtsp
-					if (mUri.getScheme().equals("rtsp")) break;
+					if (mUri.getScheme() != null && mUri.getScheme().equals("rtsp")) break;
 					
 					URL url = new URL(mUri.toString());
 					HttpURLConnection cn = (HttpURLConnection)url.openConnection();
 					cn.setInstanceFollowRedirects(false);
 					String location = cn.getHeaderField("Location");
 					if (location != null) {
+						String host = mUri.getHost();
+						int port = mUri.getPort();
+						String scheme = mUri.getScheme();
 						mUri = Uri.parse(location);
+						if (mUri.getScheme() == null) {
+							// Absolute URL on existing host/port/scheme
+							if (scheme == null) {
+								scheme = "http";
+							}
+							String authority = port == -1 ? host : host + ":" + port;
+							mUri = mUri.buildUpon().scheme(scheme).encodedAuthority(authority).build();
+						}
 					} else {
 						break;
 					}
