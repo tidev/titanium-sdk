@@ -58,15 +58,17 @@ static void addRoundedRectToPath(CGContextRef context, CGRect rect,
 {
     TiCellBackgroundViewPosition position;
 	UIColor *fillColor;
+	BOOL grouped;
 }
 @property(nonatomic) TiCellBackgroundViewPosition position;
 @property(nonatomic,retain) UIColor *fillColor;
+@property(nonatomic) BOOL grouped;
 @end
 
 #define ROUND_SIZE 10
 
 @implementation TiSelectedCellBackgroundView
-@synthesize position,fillColor;
+@synthesize position,fillColor,grouped;
 
 -(void)dealloc
 {
@@ -87,13 +89,10 @@ static void addRoundedRectToPath(CGContextRef context, CGRect rect,
     CGContextSetStrokeColorWithColor(ctx, [fillColor CGColor]);
     CGContextSetLineWidth(ctx, 2);
 	
-    if (position == TiCellBackgroundViewPositionTop) 
+    if (grouped && position == TiCellBackgroundViewPositionTop) 
 	{
         CGFloat minx = CGRectGetMinX(rect), midx = CGRectGetMidX(rect), maxx = CGRectGetMaxX(rect) ;
         CGFloat miny = CGRectGetMinY(rect), maxy = CGRectGetMaxY(rect);
-        minx = minx + 1;
-        miny = miny + 1;
-        maxx = maxx - 1;
 		
         CGContextMoveToPoint(ctx, minx, maxy);
         CGContextAddArcToPoint(ctx, minx, miny, midx, miny, ROUND_SIZE);
@@ -106,14 +105,10 @@ static void addRoundedRectToPath(CGContextRef context, CGRect rect,
 		CGContextDrawPath(ctx, kCGPathFill);
         return;
     } 
-	else if (position == TiCellBackgroundViewPositionBottom) 
+	else if (grouped && position == TiCellBackgroundViewPositionBottom) 
 	{
         CGFloat minx = CGRectGetMinX(rect) , midx = CGRectGetMidX(rect), maxx = CGRectGetMaxX(rect) ;
         CGFloat miny = CGRectGetMinY(rect) , maxy = CGRectGetMaxY(rect) ;
-        minx = minx + 1;
-        miny = miny + 1;
-        maxx = maxx - 1;
-        maxy = maxy - 1;
 		
         CGContextMoveToPoint(ctx, minx, miny);
         CGContextAddArcToPoint(ctx, minx, maxy, midx, maxy, ROUND_SIZE);
@@ -124,13 +119,10 @@ static void addRoundedRectToPath(CGContextRef context, CGRect rect,
 		CGContextDrawPath(ctx, kCGPathFill);
         return;
     } 
-	else if (position == TiCellBackgroundViewPositionMiddle) 
+	else if (!grouped || position == TiCellBackgroundViewPositionMiddle) 
 	{
         CGFloat minx = CGRectGetMinX(rect), maxx = CGRectGetMaxX(rect);
         CGFloat miny = CGRectGetMinY(rect), maxy = CGRectGetMaxY(rect);
-        minx = minx + 1;
-        miny = miny + 1;
-        maxx = maxx - 1;
         CGContextMoveToPoint(ctx, minx, miny);
         CGContextAddLineToPoint(ctx, maxx, miny);
         CGContextAddLineToPoint(ctx, maxx, maxy);
@@ -140,7 +132,7 @@ static void addRoundedRectToPath(CGContextRef context, CGRect rect,
 		CGContextDrawPath(ctx, kCGPathFill);
         return;
     }
-	else if (position == TiCellBackgroundViewPositionSingleLine)
+	else if (grouped && position == TiCellBackgroundViewPositionSingleLine)
 	{
 		CGContextBeginPath(ctx);
 		addRoundedRectToPath(ctx, rect, ROUND_SIZE*1.5, ROUND_SIZE*1.5);
@@ -479,7 +471,7 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 		cell.selectedBackgroundView = nil;
 	}
 	
-	if (selBgImage==nil && (selBgColor!=nil || [[table tableView]style]==UITableViewStyleGrouped))
+	if (selBgImage==nil && (selBgColor!=nil || [[table tableView] style]==UITableViewStyleGrouped))
 	{
 		if (selBgColor==nil)
 		{
@@ -525,6 +517,7 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 			}
 		}
 		selectedBGView.fillColor = [Webcolor webColorNamed:selBgColor];	
+		selectedBGView.grouped = [[table tableView] style]==UITableViewStyleGrouped;
 	}
 	else if (cell.selectedBackgroundView!=nil)
 	{
@@ -952,9 +945,31 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 	[super fireEvent:type withObject:obj withSource:source propagate:propagate];
 }
 
+-(void)setSelectedBackgroundColor:(id)arg
+{
+	[self replaceValue:arg forKey:@"selectedBackgroundColor" notification:NO];	
+	if (callbackCell != nil) {
+		[self configureBackground:callbackCell];
+	}
+}
 
-#pragma mark Delegate
--(void) setBackgroundGradient:(id)arg
+-(void)setBackgroundImage:(id)arg
+{
+	[self replaceValue:arg forKey:@"backgroundImage" notification:NO];	
+	if (callbackCell != nil) {
+		[self configureBackground:callbackCell];
+	}
+}
+
+-(void)setSelectedBackgroundImage:(id)arg
+{
+	[self replaceValue:arg forKey:@"selectedBackgroundImage" notification:NO];	
+	if (callbackCell != nil) {
+		[self configureBackground:callbackCell];
+	}
+}
+
+-(void)setBackgroundGradient:(id)arg
 {
 	TiGradient * newGradient = [TiGradient gradientFromObject:arg proxy:self];
 	[self replaceValue:newGradient forKey:@"backgroundGradient" notification:NO];
@@ -963,7 +978,7 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 			withObject:newGradient waitUntilDone:NO];
 }
 
--(void) setSelectedBackgroundGradient:(id)arg
+-(void)setSelectedBackgroundGradient:(id)arg
 {
 	TiGradient * newGradient = [TiGradient gradientFromObject:arg proxy:self];
 	[self replaceValue:newGradient forKey:@"selectedBackgroundGradient" notification:NO];
