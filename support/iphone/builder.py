@@ -929,7 +929,8 @@ def main(args):
 						print "[END_VERBOSE]"
 						sys.stdout.flush()
 
-					o.write(output)
+					# Output already written by run.run
+					#o.write(output)
 
 					# check to make sure the user doesn't have a custom build location 
 					# configured in Xcode which currently causes issues with titanium
