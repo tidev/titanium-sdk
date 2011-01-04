@@ -41,6 +41,7 @@ import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.os.Message;
 import android.view.View;
+import android.view.ViewParent;
 import android.webkit.URLUtil;
 
 public class TiUIImageView extends TiUIView
@@ -74,7 +75,7 @@ public class TiUIImageView extends TiUIView
 		private int token;
 
 		public BgImageLoader(TiContext tiContext, TiDimension imageWidth, TiDimension imageHeight, int token) {
-			super(tiContext, imageWidth, imageHeight);
+			super(tiContext, getParentView(), imageWidth, imageHeight);
 			this.token = token;
 		}
 
@@ -114,6 +115,16 @@ public class TiUIImageView extends TiUIView
 	private TiImageView getView() {
 		return (TiImageView) nativeView;
 	}
+
+	protected View getParentView() {
+		if (nativeView == null) return null;
+		ViewParent parent = nativeView.getParent();
+		if (parent instanceof View) {
+			return (View)parent;
+		}
+		return null;
+	}
+
 	// This method is intented to only be use from the background task, it's basically
 	// an optimistic commit.
 	private void setImageDrawable(Drawable d, int token) {
@@ -475,7 +486,9 @@ public class TiUIImageView extends TiUIView
 					URI uri = new URI(imageref.getUrl());
 					if (TiResponseCache.peek(uri)) {
 						getAsync = false;
-						setImage(imageref.getBitmap(requestedWidth, requestedHeight));
+						if (nativeView.getParent() instanceof View) {
+							setImage(imageref.getBitmap(getParentView(), requestedWidth, requestedHeight));
+						}
 					}
 				} catch (URISyntaxException e) {
 					// TODO Auto-generated catch block
@@ -488,7 +501,7 @@ public class TiUIImageView extends TiUIView
 					}
 				}
 			} else {
-				setImage(imageref.getBitmap(requestedWidth, requestedHeight));
+				setImage(imageref.getBitmap(getParentView(), requestedWidth, requestedHeight));
 			}
 		} else {
 			setImages();
@@ -501,7 +514,7 @@ public class TiUIImageView extends TiUIView
 			setImage(null);
 			return;
 		}
-		setImage(defaultImageSource.getBitmap(requestedWidth, requestedHeight));
+		setImage(defaultImageSource.getBitmap(getParentView(), requestedWidth, requestedHeight));
 	}
 	
 	@Override
@@ -513,10 +526,10 @@ public class TiUIImageView extends TiUIView
 		}
 		
 		if (d.containsKey(TiC.PROPERTY_WIDTH)) {
-			requestedWidth = TiConvert.toTiDimension(d, TiC.PROPERTY_WIDTH);
+			requestedWidth = TiConvert.toTiDimension(d, TiC.PROPERTY_WIDTH, TiDimension.TYPE_WIDTH);
 		}
 		if (d.containsKey(TiC.PROPERTY_HEIGHT)) {
-			requestedHeight = TiConvert.toTiDimension(d, TiC.PROPERTY_HEIGHT);
+			requestedHeight = TiConvert.toTiDimension(d, TiC.PROPERTY_HEIGHT, TiDimension.TYPE_HEIGHT);
 		}
 
 		if (d.containsKey(TiC.PROPERTY_IMAGES)) {

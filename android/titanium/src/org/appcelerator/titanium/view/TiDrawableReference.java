@@ -24,6 +24,7 @@ import org.appcelerator.titanium.util.TiUIHelper;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.view.View;
 import android.webkit.URLUtil;
 
 public class TiDrawableReference
@@ -208,7 +209,9 @@ public class TiDrawableReference
 	 */
 	public Bitmap getBitmap(int destWidth, int destHeight)
 	{
-		return getBitmap(TiConvert.toTiDimension(new Integer(destWidth)), TiConvert.toTiDimension(new Integer(destHeight)));
+		return getBitmap(null,
+			TiConvert.toTiDimension(new Integer(destWidth), TiDimension.TYPE_WIDTH),
+			TiConvert.toTiDimension(new Integer(destHeight), TiDimension.TYPE_HEIGHT));
 	}
 	
 	/**
@@ -220,10 +223,11 @@ public class TiDrawableReference
 	 * then the height will be the source height.  If destHeightDimension is null, then resulting height will
 	 * be at same ratio to the resulting width as the original height:width.
 	 * @return Bitmap, or null if any problem getting it.  Check logcat if null.
-	 */public Bitmap getBitmap(TiDimension destWidthDimension, TiDimension destHeightDimension)
+	 */
+	public Bitmap getBitmap(View parent, TiDimension destWidthDimension, TiDimension destHeightDimension)
 	{
 		int srcWidth, srcHeight, destWidth, destHeight;
-		
+
 		Bounds bounds = peakBounds();
 		srcWidth = bounds.width;
 		srcHeight = bounds.height;
@@ -232,30 +236,29 @@ public class TiDrawableReference
 			Log.w(LCAT, "Bitmap bounds could not be determined.  If bitmap is loaded, it won't be scaled.");
 			return getBitmap(); // fallback
 		}
-		
+
 		InputStream is = getInputStream();
 		if (is == null) {
 			Log.w(LCAT, "Could not open stream to get bitmap");
 			return null;
 		}
-		
+
 		Bitmap b = null;
-		
 		try {
 			if (destWidthDimension == null) {
 				destWidth = srcWidth; // default, but try harder below
 				TiContext context = softContext.get();
 				if (context != null && context.getActivity() != null && context.getActivity().getWindow() != null) {
 					destWidth = context.getActivity().getWindow().getDecorView().getWidth();
-				} 
+				}
 			} else {
-				destWidth = destWidthDimension.isUnitAuto() ? srcWidth : destWidthDimension.getAsPixels();
+				destWidth = destWidthDimension.isUnitAuto() ? srcWidth : destWidthDimension.getAsPixels(parent);
 			}
 			
 			if (destHeightDimension == null) {
 				destHeight = (int)(((float) srcHeight / (float) srcWidth)*(float)destWidth);
 			} else {
-				destHeight = destHeightDimension.isUnitAuto() ? srcHeight : destHeightDimension.getAsPixels();	
+				destHeight = destHeightDimension.isUnitAuto() ? srcHeight : destHeightDimension.getAsPixels(parent);
 			}
 			
 			BitmapFactory.Options opts = new BitmapFactory.Options();
@@ -429,7 +432,7 @@ public class TiDrawableReference
 	 * is to srcWidth.
 	 * @return max of srcWidth/destWidth or srcHeight/destHeight
 	 */
-	public int calcSampleSize(int srcWidth, int srcHeight, TiDimension destWidthDimension, TiDimension destHeightDimension) 
+	public int calcSampleSize(View parent, int srcWidth, int srcHeight, TiDimension destWidthDimension, TiDimension destHeightDimension) 
 	{
 		int destWidth;
 		if (destWidthDimension == null) {
@@ -437,17 +440,17 @@ public class TiDrawableReference
 			TiContext context = softContext.get();
 			if (context != null && context.getActivity() != null && context.getActivity().getWindow() != null) {
 				destWidth = context.getActivity().getWindow().getDecorView().getWidth();
-			} 
+			}
 		} else {
-			destWidth = destWidthDimension.isUnitAuto() ? srcWidth : destWidthDimension.getAsPixels();
+			destWidth = destWidthDimension.isUnitAuto() ? srcWidth : destWidthDimension.getAsPixels(parent);
 		}
 		int destHeight;
 		if (destHeightDimension == null) {
 			destHeight = (int)(((float) srcHeight / (float) srcWidth)*(float)destWidth);
 		} else {
-			destHeight = destHeightDimension.isUnitAuto() ? srcHeight : destHeightDimension.getAsPixels();	
+			destHeight = destHeightDimension.isUnitAuto() ? srcHeight : destHeightDimension.getAsPixels(parent);
 		}
-		
+
 		return calcSampleSize(srcWidth, srcHeight, destWidth, destHeight);
 	}
 	
@@ -462,13 +465,13 @@ public class TiDrawableReference
 	 * is to srcWidth.
 	 * @return max of srcWidth/destWidth or srcHeight/destHeight
 	 */
-	public int calcSampleSize(TiDimension destWidthDimension, TiDimension destHeightDimension) 
+	public int calcSampleSize(View parent, TiDimension destWidthDimension, TiDimension destHeightDimension) 
 	{
 		Bounds bounds = peakBounds();
 		int srcWidth = bounds.width;
 		int srcHeight = bounds.height;
 		
-		return calcSampleSize(srcWidth, srcHeight, destWidthDimension, destHeightDimension);
+		return calcSampleSize(parent, srcWidth, srcHeight, destWidthDimension, destHeightDimension);
 		
 	}
 	

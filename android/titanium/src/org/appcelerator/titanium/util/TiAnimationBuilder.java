@@ -9,6 +9,7 @@ package org.appcelerator.titanium.util;
 import org.appcelerator.kroll.KrollConverter;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.titanium.TiC;
+import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.kroll.KrollCallback;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.view.Ti2DMatrix;
@@ -214,26 +215,32 @@ public class TiAnimationBuilder
 		
 		// ignore translate/resize if we have a matrix.. we need to eventually collect to/from properly
 		if (tdm == null && (top != null || bottom != null || left != null || right != null)) {
-			int optionTop = TiCompositeLayout.NOT_SET, optionBottom = TiCompositeLayout.NOT_SET;
-			int optionLeft = TiCompositeLayout.NOT_SET, optionRight = TiCompositeLayout.NOT_SET;
+			TiDimension optionTop = null, optionBottom = null;
+			TiDimension optionLeft = null, optionRight = null;
 			
 			if (top != null) {
-				optionTop = top;
+				optionTop = new TiDimension(top, TiDimension.TYPE_TOP);
 			}
 			if (bottom != null) {
-				optionBottom = bottom;
+				optionBottom = new TiDimension(bottom, TiDimension.TYPE_BOTTOM);
 			}
 			if (left != null) {
-				optionLeft = left;
+				optionLeft = new TiDimension(left, TiDimension.TYPE_LEFT);
 			}
 			if (right != null) {
-				optionRight = right;
+				optionRight = new TiDimension(right, TiDimension.TYPE_RIGHT);
 			}
 			
 			int horizontal[] = new int[2];
 			int vertical[] = new int[2];
-			TiCompositeLayout.computePosition(optionLeft, optionRight, w, 0, parentWidth, horizontal);
-			TiCompositeLayout.computePosition(optionTop, optionBottom, h, 0, parentHeight, vertical);
+			ViewParent parent = view.getParent();
+			View parentView = null;
+			if (parent instanceof View) {
+				parentView = (View) parent;
+			}
+			//TODO: center
+			TiCompositeLayout.computePosition(parentView, optionLeft, null, optionRight, w, 0, parentWidth, horizontal);
+			TiCompositeLayout.computePosition(parentView, optionTop, null, optionBottom, h, 0, parentHeight, vertical);
 			
 			Animation a = new TranslateAnimation(Animation.RELATIVE_TO_SELF, 0, Animation.ABSOLUTE, horizontal[0]-x,
 				Animation.RELATIVE_TO_SELF, 0, Animation.ABSOLUTE, vertical[0]-y);
@@ -313,8 +320,8 @@ public class TiAnimationBuilder
 			params.height = height;
 			if (params instanceof TiCompositeLayout.LayoutParams) {
 				TiCompositeLayout.LayoutParams tiParams = (TiCompositeLayout.LayoutParams)params;
-				tiParams.optionHeight = height;
-				tiParams.optionWidth = width;
+				tiParams.optionHeight = new TiDimension(height, TiDimension.TYPE_HEIGHT);
+				tiParams.optionWidth = new TiDimension(width, TiDimension.TYPE_WIDTH);
 			}
 			view.setLayoutParams(params);
 		}
