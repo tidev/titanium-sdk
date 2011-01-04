@@ -35,6 +35,7 @@ if (Titanium.Platform.name == 'iPhone OS')
 // add android specific tests
 if (Titanium.Platform.osname == 'android')
 {
+	data.push({title: 'Layout (Android)', hasChild: true, test:'../examples/android_layout.js'});
 /*
 	data.push({title:'Preferences', hasChild:true, test:'../examples/preferences.js'});
     data.push({title:'Hide Soft Keyboard (Android)', hasChild:true, test:'../examples/android_hide_softkeyboard.js'});
