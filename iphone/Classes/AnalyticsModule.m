@@ -129,7 +129,12 @@ NSString * const TI_DB_VERSION = @"1";
 
 -(void)flushEventQueue
 {
-	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+	// Have to set this storage type so that the pool is not sent a 'retain' message within the block
+	// execution handler - but only under iOS 4.0 support and later.  So this looks kinda ugly.
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0
+	__block 
+#endif 
+		NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 	[lock lock];
 	
 	// Can't use network module since pageContext/host may have shut down when sending 'final' events,
@@ -143,6 +148,7 @@ NSString * const TI_DB_VERSION = @"1";
 		[self requeueEventsOnTimer];
 		[lock unlock];
 		[pool release];
+		pool = nil;
 		return;
 	}
 
@@ -162,7 +168,38 @@ NSString * const TI_DB_VERSION = @"1";
 	
 	NSMutableArray *data = [NSMutableArray array];
 	
-	SBJSON *json = [[SBJSON alloc] init];
+	SBJSON *json = [[[SBJSON alloc] init] autorelease];
+	ASIHTTPRequest* request = nil;
+	
+	// We have a TOTAL of 5s to complete on shutdown, so take up as little of it as possible with analytics -
+	// analytics should be on the main thread only during shutdown (and if it is on the main thread otherwise we
+	// want it to not block)
+	NSTimeInterval timeout = [NSThread isMainThread] ? 2 : 5;
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0
+	UIBackgroundTaskIdentifier backgroundId = UIBackgroundTaskInvalid;
+	if ([TiUtils isIOS4OrGreater] && [[UIApplication sharedApplication] applicationState] == UIApplicationStateBackground) 
+	{
+		backgroundId = [[UIApplication sharedApplication] beginBackgroundTaskWithExpirationHandler:^{
+			NSLog(@"[WARN] Background analytics request may not have completed");
+			if (![request complete] || [request error] != nil) {
+				[database rollbackTransaction];
+			}
+			else {
+				[database executeUpdate:@"delete from pending_events"];
+				[database executeUpdate:@"delete from last_attempt"];
+				[database commitTransaction];
+			}
+			[lock unlock];
+			[pool release];
+			pool = nil;
+		}];
+		// Docs are vague about whether the application state is 'active' or 'background' while terminating.
+		// So we need to have this sanity check because docs say that we can't request extra time for BG tasks while in termination.
+		if (backgroundId != UIBackgroundTaskInvalid) {
+			timeout = [[UIApplication sharedApplication] backgroundTimeRemaining] * 0.75; // Give us a good chunk of time to complete
+		}
+	}
+#endif
 	
 	PLSqliteResultSet *rs = (PLSqliteResultSet*)[database executeQuery:@"SELECT data FROM pending_events"];
 	while ([rs next])
@@ -186,13 +223,12 @@ NSString * const TI_DB_VERSION = @"1";
 		url = [[NSURL URLWithString:kTiAnalyticsUrl] retain];
 	}
 	
-	ASIHTTPRequest *request = [ASIHTTPRequest requestWithURL:url];
+	request = [ASIHTTPRequest requestWithURL:url];
 	[request setRequestMethod:@"POST"];
 	[request addRequestHeader:@"Content-Type" value:@"text/json"];
 	[request addRequestHeader:@"User-Agent" value:[[TiApp app] userAgent]];
 	//TODO: need to update backend to accept compressed bodies. When done, use [request setShouldCompressRequestBody:YES]
-	// If we're on the main thread we need a shorter timeout to completion so things don't get held up - this happens during shutdown
-	[request setTimeOutSeconds:([NSThread isMainThread]) ? 1 : 5];
+	[request setTimeOutSeconds:timeout];
 	[request setShouldPresentAuthenticationDialog:NO];
 	[request setUseSessionPersistence:NO];
 	[request setUseCookiePersistence:YES];
@@ -213,9 +249,14 @@ NSString * const TI_DB_VERSION = @"1";
 			NSLog(@"[ERROR] Will re-queue analytics");
 			[database rollbackTransaction];
 			[self requeueEventsOnTimer];
-			[json release];
 			[lock unlock];
 			[pool release];
+			pool = nil;
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0
+			if (backgroundId != UIBackgroundTaskInvalid) {
+				[[UIApplication sharedApplication] endBackgroundTask:backgroundId];
+			}
+#endif
 			return;
 		}
 		
@@ -243,8 +284,11 @@ NSString * const TI_DB_VERSION = @"1";
 		NSLog(@"[ERROR] error sending analytics. %@",e);
 		[database rollbackTransaction];
 	}
-	[json release];
-	
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0
+	if (backgroundId != UIBackgroundTaskInvalid) {
+		[[UIApplication sharedApplication] endBackgroundTask:backgroundId];
+	}
+#endif
 	[lock unlock];
 	[pool release];
 	pool = nil;
