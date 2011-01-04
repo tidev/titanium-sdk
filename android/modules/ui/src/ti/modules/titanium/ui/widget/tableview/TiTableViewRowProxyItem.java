@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
+import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
@@ -27,7 +28,6 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.ImageView;
 
 public class TiTableViewRowProxyItem extends TiBaseTableViewItem
@@ -162,8 +162,8 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 		View v = t.getNativeView();
 		if (v.getParent() == null) {
 			TiCompositeLayout.LayoutParams params = (TiCompositeLayout.LayoutParams) t.getLayoutParams();
-			params.optionLeft = 5;
-			params.optionRight = 5;
+			params.optionLeft = new TiDimension(5, TiDimension.TYPE_LEFT);
+			params.optionRight = new TiDimension(5, TiDimension.TYPE_RIGHT);
 			params.autoFillsWidth = true;
 			content.addView(v, params);
 		}

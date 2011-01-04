@@ -7,6 +7,7 @@
 package ti.modules.titanium.ui.widget;
 
 import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConvert;
@@ -60,7 +61,7 @@ public class TiUIScrollView extends TiUIView {
 		private int getContentProperty(String property) {
 			Object value = getProxy().getProperty(property);
 			if (value != null) {
-				if (value.equals("auto")) {
+				if (value.equals(TiC.SIZE_AUTO)) {
 					return AUTO;
 				} else if (value instanceof Number) {
 					return ((Number)value).intValue();
@@ -76,13 +77,13 @@ public class TiUIScrollView extends TiUIView {
 			if (contentWidth == AUTO) {
 				int childMeasuredWidth = child.getMeasuredWidth();
 				if (!p.autoHeight) {
-					childMeasuredWidth = p.optionWidth;
+					childMeasuredWidth = p.optionWidth.getAsPixels(this);
 				}
-				if (p.optionLeft != NOT_SET) {
-					childMeasuredWidth += p.optionLeft;
+				if (p.optionLeft != null) {
+					childMeasuredWidth += p.optionLeft.getAsPixels(this);
 				}
-				if (p.optionRight != NOT_SET) {
-					childMeasuredWidth += p.optionRight;
+				if (p.optionRight != null) {
+					childMeasuredWidth += p.optionRight.getAsPixels(this);
 				}
 
 				measuredWidth = Math.max(childMeasuredWidth, measuredWidth);
@@ -101,13 +102,13 @@ public class TiUIScrollView extends TiUIView {
 			if (contentHeight == AUTO) {
 				int childMeasuredHeight = child.getMeasuredHeight();
 				if (!p.autoHeight) {
-					childMeasuredHeight = p.optionHeight;
+					childMeasuredHeight = p.optionHeight.getAsPixels(this);
 				}
-				if (p.optionTop != NOT_SET) {
-					childMeasuredHeight += p.optionTop;
+				if (p.optionTop != null) {
+					childMeasuredHeight += p.optionTop.getAsPixels(this);
 				}
-				if (p.optionBottom != NOT_SET) {
-					childMeasuredHeight += p.optionBottom;
+				if (p.optionBottom != null) {
+					childMeasuredHeight += p.optionBottom.getAsPixels(this);
 				}
 
 				measuredHeight = Math.max(childMeasuredHeight, measuredHeight);

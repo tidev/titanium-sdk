@@ -9,6 +9,7 @@ package org.appcelerator.titanium.view;
 import java.util.Comparator;
 import java.util.TreeSet;
 
+import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 
@@ -124,10 +125,10 @@ public class TiCompositeLayout extends ViewGroup
 	{
 		// Default is fill view
 		LayoutParams params = new LayoutParams();
-		params.optionLeft = NOT_SET;
-		params.optionRight = NOT_SET;
-		params.optionTop = NOT_SET;
-		params.optionBottom = NOT_SET;
+		params.optionLeft = null;
+		params.optionRight = null;
+		params.optionTop = null;
+		params.optionBottom = null;
 		params.optionZIndex = NOT_SET;
 		params.autoHeight = true;
 		params.autoWidth = true;
@@ -137,11 +138,11 @@ public class TiCompositeLayout extends ViewGroup
 	protected int getViewWidthPadding(View child) {
 		LayoutParams p = (LayoutParams) child.getLayoutParams();
 		int padding = 0;
-		if (p.optionLeft != NOT_SET) {
-			padding += p.optionLeft;
+		if (p.optionLeft != null) {
+			padding += p.optionLeft.getAsPixels(this);
 		}
-		if (p.optionRight != NOT_SET) {
-			padding += p.optionRight;
+		if (p.optionRight != null) {
+			padding += p.optionRight.getAsPixels(this);
 		}
 		return padding;
 	}
@@ -149,11 +150,11 @@ public class TiCompositeLayout extends ViewGroup
 	protected int getViewHeightPadding(View child) {
 		LayoutParams p = (LayoutParams) child.getLayoutParams();
 		int padding = 0;
-		if (p.optionTop != NOT_SET) {
-			padding += p.optionTop;
+		if (p.optionTop != null) {
+			padding += p.optionTop.getAsPixels(this);
 		}
-		if (p.optionBottom != NOT_SET) {
-			padding += p.optionBottom;
+		if (p.optionBottom != null) {
+			padding += p.optionBottom.getAsPixels(this);
 		}
 		return padding;
 	}
@@ -186,8 +187,8 @@ public class TiCompositeLayout extends ViewGroup
 			if (vertical) {
 				LayoutParams p = (LayoutParams) child.getLayoutParams();
 				maxHeight += childHeight;
-				if (p.optionTop != NOT_SET) {
-					maxHeight += p.optionTop;
+				if (p.optionTop != null) {
+					maxHeight += p.optionTop.getAsPixels(this);
 				}
 			} else {
 				maxHeight = Math.max(maxHeight, childHeight);
@@ -217,8 +218,8 @@ public class TiCompositeLayout extends ViewGroup
 		LayoutParams p =
 			(LayoutParams) child.getLayoutParams();
 		int childDimension = LayoutParams.WRAP_CONTENT;
-		if (p.optionWidth != NOT_SET) {
-			childDimension = p.optionWidth;
+		if (p.optionWidth != null) {
+			childDimension = p.optionWidth.getAsPixels(this);
 		} else {
 			if (p.autoWidth && p.autoFillsWidth) {
 				childDimension = LayoutParams.FILL_PARENT;
@@ -227,8 +228,8 @@ public class TiCompositeLayout extends ViewGroup
 		int widthPadding = getViewWidthPadding(child);
 		int widthSpec = ViewGroup.getChildMeasureSpec(MeasureSpec.makeMeasureSpec(width, wMode), widthPadding, childDimension);
 		childDimension = LayoutParams.WRAP_CONTENT;
-		if (p.optionHeight != NOT_SET) {
-			childDimension = p.optionHeight;
+		if (p.optionHeight != null) {
+			childDimension = p.optionHeight.getAsPixels(this);
 		} else {
 			if (p.autoHeight && p.autoFillsHeight && !vertical) {
 				childDimension = LayoutParams.FILL_PARENT;
@@ -296,12 +297,12 @@ public class TiCompositeLayout extends ViewGroup
 				int childMeasuredWidth = child.getMeasuredWidth();
 				int childMeasuredHeight = child.getMeasuredHeight();
 				
-				computePosition(params.optionLeft, params.optionRight, childMeasuredWidth, left, right, horizontal);
+				computePosition(this, params.optionLeft, params.optionCenterX, params.optionRight, childMeasuredWidth, left, right, horizontal);
 
 				if (this.vertical) {
 					computeVerticalLayoutPosition(currentHeight, params.optionTop, params.optionBottom, childMeasuredHeight, top, bottom, vertical);
 				} else {
-					computePosition(params.optionTop, params.optionBottom, childMeasuredHeight, top, bottom, vertical);
+					computePosition(this, params.optionTop, params.optionCenterY, params.optionBottom, childMeasuredHeight, top, bottom, vertical);
 				}
 
 				if (DBG) {
@@ -321,44 +322,49 @@ public class TiCompositeLayout extends ViewGroup
 				child.layout(horizontal[0], vertical[0], horizontal[1], vertical[1]);
 
 				currentHeight += newHeight;
-				if (params.optionTop != NOT_SET) {
-					currentHeight += params.optionTop;
+				if (params.optionTop != null) {
+					currentHeight += params.optionTop.getAsPixels(this);
 				}
 			}
 		}
 	}
 
 	// 0 is left/top, 1 is right/bottom
-	public static void computePosition(int option0, int option1,
+	public static void computePosition(View parent, TiDimension option0, TiDimension optionCenter, TiDimension option1,
 		int measuredSize, int layoutPosition0, int layoutPosition1, int[] pos)
 	{
 		int dist = layoutPosition1 - layoutPosition0;
-		if (option0 == NOT_SET && option1 == NOT_SET) {
+		if (optionCenter != null || (option0 == null && option1 == null)) {
 			// Center
 			int offset = (dist-measuredSize)/2;
+			if (optionCenter != null) {
+				offset += optionCenter.getAsPixels(parent);
+			}
 			pos[0] = layoutPosition0 + offset;
 			pos[1] = pos[0] + measuredSize;
-		} else if (option0 == NOT_SET) {
+		} else if (option0 == null) {
 			// peg right/bottom
-			pos[0] = dist - option1 - measuredSize;
-			pos[1] = dist - option1;
-		} else if (option1 == NOT_SET) {
+			int option1Pixels = option1.getAsPixels(parent);
+			pos[0] = dist - option1Pixels - measuredSize;
+			pos[1] = dist - option1Pixels;
+		} else if (option1 == null) {
 			// peg left/top
-			pos[0] = layoutPosition0 + option0;
-			pos[1] = layoutPosition0 + option0 + measuredSize;
+			int option0Pixels = option0.getAsPixels(parent);
+			pos[0] = layoutPosition0 + option0Pixels;
+			pos[1] = layoutPosition0 + option0Pixels + measuredSize;
 		} else {
 			// pegged both. override and force.
-			pos[0] = layoutPosition0 + option0;
-			pos[1] = layoutPosition1 - option1;
+			pos[0] = layoutPosition0 + option0.getAsPixels(parent);
+			pos[1] = layoutPosition1 - option1.getAsPixels(parent);
 		}
 	}
 
 	private void computeVerticalLayoutPosition(int currentHeight,
-		int optionTop, int optionBottom, int measuredHeight, int layoutTop, int layoutBottom, int[] pos)
+		TiDimension optionTop, TiDimension optionBottom, int measuredHeight, int layoutTop, int layoutBottom, int[] pos)
 	{
 		int top = layoutTop + currentHeight;
-		if (optionTop != NOT_SET) {
-			top += optionTop;
+		if (optionTop != null) {
+			top += optionTop.getAsPixels(this);
 		}
 		int bottom = top + measuredHeight;
 		pos[0] = top;
@@ -377,12 +383,14 @@ public class TiCompositeLayout extends ViewGroup
 		protected int index;
 
 		public int optionZIndex = NOT_SET;
-		public int optionLeft = NOT_SET;
-		public int optionTop = NOT_SET;
-		public int optionRight = NOT_SET;
-		public int optionBottom = NOT_SET;
-		public int optionWidth = NOT_SET;
-		public int optionHeight = NOT_SET;
+		public TiDimension optionLeft = null;
+		public TiDimension optionTop = null;
+		public TiDimension optionCenterX = null;
+		public TiDimension optionCenterY = null;
+		public TiDimension optionRight = null;
+		public TiDimension optionBottom = null;
+		public TiDimension optionWidth = null;
+		public TiDimension optionHeight = null;
 
 		public boolean autoHeight = true;
 		public boolean autoWidth = true;

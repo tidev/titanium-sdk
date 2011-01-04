@@ -141,19 +141,23 @@ public class TiConvert
 			height = size.get(TiC.PROPERTY_HEIGHT);
 		}
 		if (d.containsKey(TiC.PROPERTY_LEFT)) {
-			layoutParams.optionLeft = toTiDimension(d, TiC.PROPERTY_LEFT).getIntValue();
+			layoutParams.optionLeft = toTiDimension(d, TiC.PROPERTY_LEFT, TiDimension.TYPE_LEFT);
 			dirty = true;
 		}
 		if (d.containsKey(TiC.PROPERTY_TOP)) {
-			layoutParams.optionTop = toTiDimension(d, TiC.PROPERTY_TOP).getIntValue();
+			layoutParams.optionTop = toTiDimension(d, TiC.PROPERTY_TOP, TiDimension.TYPE_TOP);
+			dirty = true;
+		}
+		if (d.containsKey(TiC.PROPERTY_CENTER)) {
+			updateLayoutCenter(d.get(TiC.PROPERTY_CENTER), layoutParams);
 			dirty = true;
 		}
 		if (d.containsKey(TiC.PROPERTY_RIGHT)) {
-			layoutParams.optionRight = toTiDimension(d, TiC.PROPERTY_RIGHT).getIntValue();
+			layoutParams.optionRight = toTiDimension(d, TiC.PROPERTY_RIGHT, TiDimension.TYPE_RIGHT);
 			dirty = true;
 		}
 		if (d.containsKey(TiC.PROPERTY_BOTTOM)) {
-			layoutParams.optionBottom = toTiDimension(d, TiC.PROPERTY_BOTTOM).getIntValue();
+			layoutParams.optionBottom = toTiDimension(d, TiC.PROPERTY_BOTTOM, TiDimension.TYPE_BOTTOM);
 			dirty = true;
 		}
 		if (width != null || d.containsKey(TiC.PROPERTY_WIDTH)) {
@@ -162,10 +166,10 @@ public class TiConvert
 				width = d.get(TiC.PROPERTY_WIDTH);
 			}
 			if (width == null || width.equals(TiC.SIZE_AUTO)) {
-				layoutParams.optionWidth = TiCompositeLayout.NOT_SET;
+				layoutParams.optionWidth = null;
 				layoutParams.autoWidth = true;
 			} else {
-				layoutParams.optionWidth = toTiDimension(width).getIntValue();
+				layoutParams.optionWidth = toTiDimension(width, TiDimension.TYPE_WIDTH);
 				layoutParams.autoWidth = false;
 			}
 			dirty = true;
@@ -176,10 +180,10 @@ public class TiConvert
 				height = d.get(TiC.PROPERTY_HEIGHT);
 			}
 			if (height == null || height.equals(TiC.SIZE_AUTO)) {
-				layoutParams.optionHeight = TiCompositeLayout.NOT_SET;
+				layoutParams.optionHeight = null;
 				layoutParams.autoHeight = true;
 			} else {
-				layoutParams.optionHeight = toTiDimension(height).getIntValue();
+				layoutParams.optionHeight = toTiDimension(height, TiDimension.TYPE_HEIGHT);
 				layoutParams.autoHeight = false;
 			}
 			dirty = true;
@@ -194,6 +198,29 @@ public class TiConvert
 			dirty = true;
 		}
 		return dirty;
+	}
+
+	public static void updateLayoutCenter(Object value, LayoutParams layoutParams)
+	{
+		if (value instanceof KrollDict) {
+			KrollDict center = (KrollDict) value;
+			if (center.containsKeyAndNotNull(TiC.PROPERTY_X)) {
+				layoutParams.optionCenterX = toTiDimension(center, TiC.PROPERTY_X, TiDimension.TYPE_CENTER_X);
+			} else {
+				layoutParams.optionCenterX = null;
+			}
+			if (center.containsKeyAndNotNull(TiC.PROPERTY_Y)) {
+				layoutParams.optionCenterY = toTiDimension(center, TiC.PROPERTY_Y, TiDimension.TYPE_CENTER_Y);
+			} else {
+				layoutParams.optionCenterY = null;
+			}
+		} else if (value != null) {
+			layoutParams.optionCenterX = toTiDimension(value, TiDimension.TYPE_CENTER_X);
+			layoutParams.optionCenterY = null;
+		} else {
+			layoutParams.optionCenterX = null;
+			layoutParams.optionCenterY = null;
+		}
 	}
 
 	// Values
@@ -271,19 +298,19 @@ public class TiConvert
 	}
 
 	// Dimensions
-	public static TiDimension toTiDimension(String value) {
-		return new TiDimension(value);
+	public static TiDimension toTiDimension(String value, int valueType) {
+		return new TiDimension(value, valueType);
 	}
 
-	public static TiDimension toTiDimension(Object value) {
+	public static TiDimension toTiDimension(Object value, int valueType) {
 		if (value instanceof Number) {
 			value = value.toString() + "px";
 		}
-		return toTiDimension((String) value);
+		return toTiDimension((String) value, valueType);
 	}
 	
-	public static TiDimension toTiDimension(KrollDict d, String key) {
-		return toTiDimension(d.get(key));
+	public static TiDimension toTiDimension(KrollDict d, String key, int valueType) {
+		return toTiDimension(d.get(key), valueType);
 	}
 
 	// URL
