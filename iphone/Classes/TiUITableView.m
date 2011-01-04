@@ -240,8 +240,11 @@
 		tableview.delegate = self;
 		tableview.dataSource = self;
 		tableview.autoresizingMask = UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight;
-		tableview.backgroundColor = style == UITableViewStylePlain ? [UIColor whiteColor] : [UIColor groupTableViewBackgroundColor];
-		tableview.opaque = YES;
+		
+		UIColor* defaultColor = style == UITableViewStylePlain ? [UIColor whiteColor] : [UIColor groupTableViewBackgroundColor];
+		UIColor* bgColor = [Webcolor webColorNamed:[self valueForKey:@"backgroundColor"]];
+		tableview.backgroundColor = bgColor != nil ? bgColor : defaultColor;
+		tableview.opaque = ![tableview.backgroundColor isEqual:[UIColor clearColor]];
 		
 		[self updateSearchView];
 	}
