@@ -17,6 +17,7 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
+import android.view.View;
 
 /**
  *
@@ -32,12 +33,14 @@ public abstract class TiBackgroundImageLoadTask
 	private static final boolean DBG = TiConfig.LOGD;
 
 	protected SoftReference<TiContext> softTiContext;
+	protected SoftReference<View> parent;
 	protected TiDimension imageHeight;
 	protected TiDimension imageWidth;
 
-	public TiBackgroundImageLoadTask(TiContext tiContext, TiDimension imageWidth, TiDimension imageHeight)
+	public TiBackgroundImageLoadTask(TiContext tiContext, View parent, TiDimension imageWidth, TiDimension imageHeight)
 	{
 		this.softTiContext = new SoftReference<TiContext>(tiContext);
+		this.parent = new SoftReference<View>(parent);
 		this.imageWidth = imageWidth;
 		this.imageHeight = imageHeight;
 	}
@@ -53,7 +56,7 @@ public abstract class TiBackgroundImageLoadTask
 		String url = arg[0];
 		Drawable d = null;
 		TiContext context = softTiContext.get();
-		if (context == null) {
+		if (context == null || parent.get() == null) {
 			if (DBG) {
 				Log.d(LCAT, "doInBackground exiting early because context already gc'd");
 			}
@@ -68,7 +71,7 @@ public abstract class TiBackgroundImageLoadTask
 		while(retry) {
 			retry = false;
 
-			Bitmap b = ref.getBitmap(imageWidth, imageHeight);
+			Bitmap b = ref.getBitmap(parent.get(), imageWidth, imageHeight);
 			if (b != null) {
 				d = new BitmapDrawable(b);
 				

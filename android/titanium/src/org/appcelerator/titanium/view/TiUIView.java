@@ -17,6 +17,7 @@ import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.KrollProxyListener;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
+import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiAnimationBuilder;
@@ -29,14 +30,14 @@ import android.content.Context;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.view.GestureDetector;
+import android.view.GestureDetector.SimpleOnGestureListener;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewGroup;
-import android.view.GestureDetector.SimpleOnGestureListener;
 import android.view.View.OnFocusChangeListener;
 import android.view.View.OnKeyListener;
 import android.view.View.OnTouchListener;
+import android.view.ViewGroup;
 import android.view.animation.AnimationSet;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
@@ -183,36 +184,41 @@ public abstract class TiUIView
 	{
 		if (key.equals(TiC.PROPERTY_LEFT)) {
 			if (newValue != null) {
-				layoutParams.optionLeft = TiConvert.toTiDimension(TiConvert.toString(newValue)).getIntValue();
+				layoutParams.optionLeft = TiConvert.toTiDimension(TiConvert.toString(newValue), TiDimension.TYPE_LEFT);
 			} else {
-				layoutParams.optionLeft = TiCompositeLayout.NOT_SET;
+				layoutParams.optionLeft = null;
 			}
 			if (nativeView != null) {
 				nativeView.requestLayout();
 			}
 		} else if (key.equals(TiC.PROPERTY_TOP)) {
 			if (newValue != null) {
-				layoutParams.optionTop = TiConvert.toTiDimension(TiConvert.toString(newValue)).getIntValue();
+				layoutParams.optionTop = TiConvert.toTiDimension(TiConvert.toString(newValue), TiDimension.TYPE_TOP);
 			} else {
-				layoutParams.optionTop = TiCompositeLayout.NOT_SET;
+				layoutParams.optionTop = null;
 			}
+			if (nativeView != null) {
+				nativeView.requestLayout();
+			}
+		} else if (key.equals(TiC.PROPERTY_CENTER)) {
+			TiConvert.updateLayoutCenter(newValue, layoutParams);
 			if (nativeView != null) {
 				nativeView.requestLayout();
 			}
 		} else if (key.equals(TiC.PROPERTY_RIGHT)) {
 			if (newValue != null) {
-				layoutParams.optionRight = TiConvert.toTiDimension(TiConvert.toString(newValue)).getIntValue();
+				layoutParams.optionRight = TiConvert.toTiDimension(TiConvert.toString(newValue), TiDimension.TYPE_RIGHT);
 			} else {
-				layoutParams.optionRight = TiCompositeLayout.NOT_SET;
+				layoutParams.optionRight = null;
 			}
 			if (nativeView != null) {
 				nativeView.requestLayout();
 			}
 		} else if (key.equals(TiC.PROPERTY_BOTTOM)) {
 			if (newValue != null) {
-				layoutParams.optionBottom = TiConvert.toTiDimension(TiConvert.toString(newValue)).getIntValue();
+				layoutParams.optionBottom = TiConvert.toTiDimension(TiConvert.toString(newValue), TiDimension.TYPE_BOTTOM);
 			} else {
-				layoutParams.optionBottom = TiCompositeLayout.NOT_SET;
+				layoutParams.optionBottom = null;
 			}
 			if (nativeView != null) {
 				nativeView.requestLayout();
@@ -228,14 +234,14 @@ public abstract class TiUIView
 		} else if (key.equals(TiC.PROPERTY_HEIGHT)) {
 			if (newValue != null) {
 				if (!newValue.equals(TiC.SIZE_AUTO)) {
-					layoutParams.optionHeight = TiConvert.toTiDimension(TiConvert.toString(newValue)).getIntValue();
+					layoutParams.optionHeight = TiConvert.toTiDimension(TiConvert.toString(newValue), TiDimension.TYPE_HEIGHT);
 					layoutParams.autoHeight = false;
 				} else {
-					layoutParams.optionHeight = TiCompositeLayout.NOT_SET;
+					layoutParams.optionHeight = null;
 					layoutParams.autoHeight = true;
 				}
 			} else {
-				layoutParams.optionHeight = TiCompositeLayout.NOT_SET;
+				layoutParams.optionHeight = null;
 			}
 			if (nativeView != null) {
 				nativeView.requestLayout();
@@ -243,14 +249,14 @@ public abstract class TiUIView
 		} else if (key.equals(TiC.PROPERTY_WIDTH)) {
 			if (newValue != null) {
 				if (!newValue.equals(TiC.SIZE_AUTO)) {
-					layoutParams.optionWidth = TiConvert.toTiDimension(TiConvert.toString(newValue)).getIntValue();
+					layoutParams.optionWidth = TiConvert.toTiDimension(TiConvert.toString(newValue), TiDimension.TYPE_WIDTH);
 					layoutParams.autoWidth = false;
 				} else {
-					layoutParams.optionWidth = TiCompositeLayout.NOT_SET;
+					layoutParams.optionWidth = null;
 					layoutParams.autoWidth = true;
 				}
 			} else {
-				layoutParams.optionWidth = TiCompositeLayout.NOT_SET;
+				layoutParams.optionWidth = null;
 			}
 			if (nativeView != null) {
 				nativeView.requestLayout();
