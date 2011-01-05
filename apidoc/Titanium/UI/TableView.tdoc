@@ -37,16 +37,16 @@ searchHidden[boolean]: boolean to control the visibility of the search field
 filterAttribute[string]: the filter attribute to be used when searching. this property maps to your data object or a property on the row object
 filterCaseInsensitive[boolean]: boolean to indicate if the search should be case sensitive or case insensitive (default)
 index[array]: an array of objects (with title and index properties) to control the table view index
-editable[boolean]: allow the table view to be editable (this must be true for swipe-to-delete)
-editing[boolean]: boolean to control the editing state of the table view
-moving[boolean]: boolean to control the moveable state of the table view
+editable[boolean]: allow the table view to be editable (this must be true for swipe-to-delete) (iOS Only)
+editing[boolean]: boolean to control the editing state of the table view (iOS Only)
+moving[boolean]: boolean to control the moveable state of the table view (iOS Only)
 rowHeight[float]: default row height for table view rows
 minRowHeight[float]: min row height for table view rows
 maxRowHeight[float]: max row height for table view rows
 data[array]: the data array of objects to be used for the rows of the table view
 style[int]: iPhone only. the style of the table view. constant from [Titanium.UI.iPhone.TableViewStyle](Titanium.UI.iPhone.TableViewStyle)
 allowsSelection[boolean]: true if the rows can be selected
-allowsSelectionDuringEditing[boolean]: true if the rows can be selected while editing the table
+allowsSelectionDuringEditing[boolean]: true if the rows can be selected while editing the table (iOS Only)
 scrollable[boolean]: true (default) if tableview can be scrolled
 
 - methods
