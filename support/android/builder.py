@@ -1042,7 +1042,7 @@ class Builder(object):
 		debug("creating unsigned apk: " + unsigned_apk)
 		# copy existing resources into the APK
 		resources_zip = zipfile.ZipFile(resources_zip_file)
-		apk_zip = zipfile.ZipFile(unsigned_apk, 'w')
+		apk_zip = zipfile.ZipFile(unsigned_apk, 'w', zipfile.ZIP_DEFLATED)
 
 		def skip_jar_path(path):
 			return path.endswith('/') or \
