@@ -6808,6 +6808,20 @@
             }, 
             "since": "0.4"
         }, 
+        "carrierName": {
+            "deprecated": false, 
+            "description": "The human-readable name of kind of the network carrier that the device is connected to.", 
+            "name": "carrierName", 
+            "platforms": [
+                "android-1.5"
+            ], 
+            "property": true, 
+            "returns": {
+                "description": "Network Carrier Name.", 
+                "type": "string"
+            }, 
+            "since": "0.4"
+        }, 
         "online": {
             "deprecated": false, 
             "description": "Whether or not the system is connected to the internet", 

@@ -22,6 +22,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.telephony.TelephonyManager;
 
 @Kroll.module
 public class NetworkModule extends KrollModule {
@@ -106,7 +107,8 @@ public class NetworkModule extends KrollModule {
 			int titaniumType = networkTypeToTitanium(connected, type);
 			data.put("networkType", titaniumType);
 			data.put("networkTypeName", networkTypeToTypeName(titaniumType));
-			data.put("reason", reason);
+			data.put("carrierName", carrierName());
+      data.put("reason", reason);
 			fireEvent(EVENT_CONNECTIVITY, data);
 		}
 	};
@@ -212,6 +214,17 @@ public class NetworkModule extends KrollModule {
 	{
 		return networkTypeToTypeName(getNetworkType());
 	}
+
+	@Kroll.getProperty @Kroll.method
+	public String getCarrierName()
+	{
+		return carrierName();
+	}
+
+  private String carrierName()
+  {
+    return ((TelephonyManager) getTiContext().getTiApp().getSystemService(Context.TELEPHONY_SERVICE)).getNetworkOperatorName();
+  }
 
 	private String networkTypeToTypeName(int type)
 	{
