@@ -136,7 +136,7 @@
 		[wrapper addSubview:uiview];
 		[viewproxy reposition];
 	}
-	[viewproxy performSelector:@selector(parentWillShow) withObject:nil afterDelay:0.0];
+	[viewproxy parentWillShow];
 }
 
 -(void)loadNextFrames:(BOOL)forward
@@ -207,12 +207,12 @@
 	
 	if (currentPage==0)
 	{
-		[self loadNextFrames:true];
+		[self loadNextFrames:YES];
 	}
 	
 	if (readd)
 	{
-		[self renderViewForIndex:currentPage];
+		[self loadNextFrames:YES];
 	}
 	
 	CGRect contentBounds;
@@ -343,11 +343,11 @@
 	
 	if (pageNum >= existingPage)
 	{
-		[self loadNextFrames:true];
+		[self loadNextFrames:YES];
 	}
 	else
 	{
-		[self loadNextFrames:false];
+		[self loadNextFrames:NO];
 	}
 	
 	[self.proxy replaceValue:NUMINT(pageNum) forKey:@"currentPage" notification:NO];
@@ -405,11 +405,11 @@
 		
 		if (newPage > existingPage)
 		{
-			[self loadNextFrames:true];
+			[self loadNextFrames:YES];
 		}
 		else
 		{
-			[self loadNextFrames:false];
+			[self loadNextFrames:NO];
 		}
 		
 		[self.proxy replaceValue:NUMINT(newPage) forKey:@"currentPage" notification:NO];
@@ -439,11 +439,11 @@
 	
 	if (pageNum > existingPage)
 	{
-		[self loadNextFrames:true];
+		[self loadNextFrames:YES];
 	}
 	else
 	{
-		[self loadNextFrames:false];
+		[self loadNextFrames:NO];
 	}
 	
 	[self.proxy replaceValue:NUMINT(pageNum) forKey:@"currentPage" notification:NO];
@@ -461,9 +461,13 @@
 {
 	//switch page control at 50% across the center - this visually looks better
     CGFloat pageWidth = scrollview.frame.size.width;
+	int lastPage = [pageControl currentPage];
     int page = floor((scrollview.contentOffset.x - pageWidth / 2) / pageWidth) + 1;
-    pageControl.currentPage = page;
-	[self loadNextFrames:YES];
+	if (lastPage != page) {
+		[pageControl setCurrentPage:page];
+		currentPage = page;
+		[self loadNextFrames:(page > lastPage)];
+	}
 }
 
 -(void)scrollViewDidEndScrollingAnimation:(UIScrollView *)scrollView
