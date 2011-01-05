@@ -6,14 +6,13 @@ var data = [
 	{title:'Row 2', hasDetail:true, foo:'row2'},
 	{title:'Row 3', foo:'row3'},
 	{title:'Row 4', foo:'row4'}
-	
-
 ];
 
 // create table view
 var tableview = Titanium.UI.createTableView({
 	data:data,
-	editable:true
+	editable:true,
+	allowsSelectionDuringEditing:true
 });
 
 // create table view event listener

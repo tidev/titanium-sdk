@@ -17,7 +17,7 @@
 #define DEFAULT_SECTION_HEADERFOOTER_HEIGHT 20.0
 
 @implementation TiUITableViewCell
-@synthesize hitPoint;
+@synthesize hitPoint,proxy;
 #pragma mark Touch event handling
 
 // TODO: Replace callback cells with blocks by changing fireEvent: to take special-case
@@ -788,6 +788,17 @@
 	}
 }
 
+#pragma mark Overloaded view handling
+- (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event 
+{
+	// iOS idiom seems to indicate that you should never be able to interact with a table
+	// while the 'delete' button is showing for a row, but touchesBegan:withEvent: is still triggered.
+	// Turn it into a no-op while we're editing
+	if (!editing && !moving) {
+		[super touchesBegan:touches withEvent:event];
+	}
+}
+
 #pragma mark Searchbar-related accessors
 
 - (UIButton *) searchScreenView
@@ -1176,6 +1187,11 @@
 {
 	allowsSelectionSet = [TiUtils boolValue:arg];
 	[[self tableView] setAllowsSelection:allowsSelectionSet];
+}
+
+-(void)setAllowsSelectionDuringEditing_:(id)arg
+{
+	[[self tableView] setAllowsSelectionDuringEditing:[TiUtils boolValue:arg def:NO]];
 }
 
 -(void)setSeparatorStyle_:(id)arg
