@@ -245,6 +245,10 @@ $(window).ready(function()
 	$('#reload-link').click(function() {
 		reloadTests();
 	});
+	$('#clear-link').click(function() {
+		$("#console").html("");
+		return false;
+	});
 	$('#force-build-android').click(function() {
 		if ('android' in Drillbit.emulators) {
 			Drillbit.emulators.android.needsBuild = $(this).is(':checked');
@@ -259,6 +263,7 @@ $(window).ready(function()
 			
 			runLinkDisabled = true;
 			$("#run-link").addClass("disabled");
+			$("#clear-link").click();
 			
 			var tests = [];
 			$.each($('div[id^=suite_]'),function()
