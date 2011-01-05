@@ -14,7 +14,10 @@ tableview.addEventListener('click', function(e)
 	Titanium.UI.createAlertDialog({title:'Table View',message:'row ' + row + ' index ' + index + ' section ' + section  + ' row data ' + rowdata}).show();
 });
 
+var navActInd = null;
 if (Titanium.Platform.name == 'iPhone OS') {
+	navActInd = Titanium.UI.createActivityIndicator();
+	navActInd.show();
 	Titanium.UI.currentWindow.setRightNavButton(navActInd);
 }
 
@@ -69,6 +72,9 @@ Titanium.Yahoo.yql('select * from flickr.photos.search where text="Cat" limit 10
 		images[c] = row;
 	}
 	tableview.setData(images);
+	if(navActInd){
+		navActInd.hide();
+	}
 	Ti.App.fireEvent("hide_indicator");
 });
 
