@@ -237,7 +237,7 @@ public class TiFileHelper
 		
 		// getResourceDrawable wants a resolved url
 		String url = path;
-		if (!url.contains(":/")) {
+		if (!url.startsWith("file:")) {
 			url = context.resolveUrl(path);
 		}
 		Drawable d = TiUIHelper.getResourceDrawable(context, url);
