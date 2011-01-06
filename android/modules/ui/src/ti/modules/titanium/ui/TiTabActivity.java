@@ -7,6 +7,7 @@
 package ti.modules.titanium.ui;
 
 import org.appcelerator.titanium.TiApplication;
+import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiRootActivity;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
@@ -57,18 +58,18 @@ public class TiTabActivity extends ActivityGroup
 		boolean vertical = false;
 
 		if (intent != null) {
-			if (intent.hasExtra("fullscreen")) {
-				fullscreen = intent.getBooleanExtra("fullscreen", fullscreen);
+			if (intent.hasExtra(TiC.PROPERTY_FULLSCREEN)) {
+				fullscreen = intent.getBooleanExtra(TiC.PROPERTY_FULLSCREEN, fullscreen);
 			}
-			if (intent.hasExtra("navBarHidden")) {
-				navbar = !intent.getBooleanExtra("navBarHidden", navbar);
+			if (intent.hasExtra(TiC.PROPERTY_NAV_BAR_HIDDEN)) {
+				navbar = !intent.getBooleanExtra(TiC.PROPERTY_NAV_BAR_HIDDEN, navbar);
 			}
-			if (intent.hasExtra("messenger")) {
-				messenger = (Messenger) intent.getParcelableExtra("messenger");
-				messageId = intent.getIntExtra("messageId", -1);
+			if (intent.hasExtra(TiC.INTENT_PROPERTY_MESSENGER)) {
+				messenger = (Messenger) intent.getParcelableExtra(TiC.INTENT_PROPERTY_MESSENGER);
+				messageId = intent.getIntExtra(TiC.INTENT_PROPERTY_MESSAGE_ID, -1);
 			}
-			if (intent.hasExtra("vertical")) {
-				vertical = intent.getBooleanExtra("vertical", vertical);
+			if (intent.hasExtra(TiC.LAYOUT_VERTICAL)) {
+				vertical = intent.getBooleanExtra(TiC.LAYOUT_VERTICAL, vertical);
 			}
 		}
 
@@ -145,7 +146,7 @@ public class TiTabActivity extends ActivityGroup
 	{
 		Intent intent = getIntent();
 		if (intent != null) {
-			if (intent.getBooleanExtra("finishRoot", false)) {
+			if (intent.getBooleanExtra(TiC.INTENT_PROPERTY_FINISH_ROOT, false)) {
 				if (getApplication() != null) {
 					TiApplication tiApp = getTiApp();
 					if (tiApp != null) {

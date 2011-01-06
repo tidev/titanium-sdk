@@ -36,11 +36,14 @@ public class TiC {
 	public static final String EVENT_PROPERTY_INDEX = "index";
 	public static final String EVENT_PROPERTY_INTENT = "intent";
 	public static final String EVENT_PROPERTY_MENU = "menu";
+	public static final String EVENT_PROPERTY_PREVIOUS_INDEX = "previousIndex";
+	public static final String EVENT_PROPERTY_PREVIOUS_TAB = "previousTab";
 	public static final String EVENT_PROPERTY_RESULT_CODE = "resultCode";
 	public static final String EVENT_PROPERTY_REQUEST_CODE = "requestCode";
 	public static final String EVENT_PROPERTY_ROW = "row";
 	public static final String EVENT_PROPERTY_SOURCE = "source";
 	public static final String EVENT_PROPERTY_STATE = "state";
+	public static final String EVENT_PROPERTY_TAB = "tab";
 	public static final String EVENT_PROPERTY_TYPE = "type";
 	public static final String EVENT_PROPERTY_X = "x";
 	public static final String EVENT_PROPERTY_Y = "y";
@@ -60,6 +63,7 @@ public class TiC {
 	public static final String INTENT_PROPERTY_MESSENGER = "messenger";
 	public static final String MSG_PROPERTY_EVENT_NAME = "eventName";
 	public static final String PROPERTY_ACTION = "action";
+	public static final String PROPERTY_ACTIVE_TAB = "activeTab";
 	public static final String PROPERTY_ACTIVITY = "activity";
 	public static final String PROPERTY_ANCHOR_POINT = "anchorPoint";
 	public static final String PROPERTY_ANDROID_VIEW = "androidView";
@@ -161,6 +165,7 @@ public class TiC {
 	public static final String PROPERTY_SOUND = "sound";
 	public static final String PROPERTY_SUBTITLE = "subtitle";
 	public static final String PROPERTY_TAB_OPEN = "tabOpen";
+	public static final String PROPERTY_TAG = "tag";
 	public static final String PROPERTY_TEXT = "text";
 	public static final String PROPERTY_TEXT_ALIGN = "textAlign";
 	public static final String PROPERTY_TITLE = "title";
@@ -173,6 +178,7 @@ public class TiC {
 	public static final String PROPERTY_VERTICAL_ALIGN = "verticalAlign";
 	public static final String PROPERTY_VISIBLE = "visible";
 	public static final String PROPERTY_WIDTH = "width";
+	public static final String PROPERTY_WINDOW = "window";
 	public static final String PROPERTY_WINDOW_SOFT_INPUT_MODE = "windowSoftInputMode";
 	public static final String PROPERTY_WORD_WRAP = "wordWrap";
 	public static final String PROPERTY_X = "x";
