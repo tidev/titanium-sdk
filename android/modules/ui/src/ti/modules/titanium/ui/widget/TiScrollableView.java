@@ -87,7 +87,7 @@ public class TiScrollableView extends TiCompositeLayout
 
 	public TiScrollableView(ScrollableViewProxy proxy, Handler handler)
 	{
-		super(proxy.getContext(), false);
+		super(proxy.getContext());
 
 		this.proxy = proxy;
 		this.handler = handler;

@@ -9,6 +9,7 @@ package org.appcelerator.titanium.view;
 import java.util.Comparator;
 import java.util.TreeSet;
 
+import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
@@ -22,6 +23,8 @@ import android.view.ViewGroup.OnHierarchyChangeListener;
 public class TiCompositeLayout extends ViewGroup
 	implements OnHierarchyChangeListener
 {
+	public enum LayoutArrangement {DEFAULT, VERTICAL, HORIZONTAL}
+
 	protected static final String TAG = "TiCompositeLayout";
 	protected static final boolean DBG = TiConfig.LOGD && false;
 
@@ -29,12 +32,17 @@ public class TiCompositeLayout extends ViewGroup
 
 	private TreeSet<View> viewSorter;
 	private boolean needsSort;
-	protected boolean vertical;
+	protected LayoutArrangement arrangement;
 
-	public TiCompositeLayout(Context context, boolean vertical)
+	public TiCompositeLayout(Context context)
+	{
+		this(context, LayoutArrangement.DEFAULT);
+	}
+
+	public TiCompositeLayout(Context context, LayoutArrangement arrangement)
 	{
 		super(context);
-		this.vertical = vertical;
+		this.arrangement = arrangement;
 		this.viewSorter = new TreeSet<View>(new Comparator<View>(){
 
 			public int compare(View o1, View o2)
@@ -81,11 +89,6 @@ public class TiCompositeLayout extends ViewGroup
 
 		needsSort = true;
 		setOnHierarchyChangeListener(this);
-	}
-
-	public void setVerticalLayout(boolean vertical)
-	{
-		this.vertical = vertical;
 	}
 
 	public TiCompositeLayout(Context context, AttributeSet attrs) {
@@ -182,9 +185,18 @@ public class TiCompositeLayout extends ViewGroup
 				childWidth += getViewWidthPadding(child);
 				childHeight += getViewHeightPadding(child);
 			}
-			
-			maxWidth = Math.max(maxWidth, childWidth);
-			if (vertical) {
+
+			if (isHorizontalArrangement()) {
+				LayoutParams p = (LayoutParams) child.getLayoutParams();
+				maxWidth += childWidth;
+				if (p.optionLeft != null) {
+					maxWidth += p.optionLeft.getAsPixels(this);
+				}
+			} else {
+				maxWidth = Math.max(maxWidth, childWidth);
+			}
+
+			if (isVerticalArrangement()) {
 				LayoutParams p = (LayoutParams) child.getLayoutParams();
 				maxHeight += childHeight;
 				if (p.optionTop != null) {
@@ -221,7 +233,7 @@ public class TiCompositeLayout extends ViewGroup
 		if (p.optionWidth != null) {
 			childDimension = p.optionWidth.getAsPixels(this);
 		} else {
-			if (p.autoWidth && p.autoFillsWidth) {
+			if (p.autoWidth && p.autoFillsWidth && !isHorizontalArrangement()) {
 				childDimension = LayoutParams.FILL_PARENT;
 			}
 		}
@@ -231,7 +243,7 @@ public class TiCompositeLayout extends ViewGroup
 		if (p.optionHeight != null) {
 			childDimension = p.optionHeight.getAsPixels(this);
 		} else {
-			if (p.autoHeight && p.autoFillsHeight && !vertical) {
+			if (p.autoHeight && p.autoFillsHeight && !isVerticalArrangement()) {
 				childDimension = LayoutParams.FILL_PARENT;
 			}
 		}
@@ -288,6 +300,7 @@ public class TiCompositeLayout extends ViewGroup
 		int[] vertical = new int[2];
 
 		int currentHeight = 0;
+		int currentWidth = 0;
 		for (int i = 0; i < count; i++) {
 			View child = getChildAt(i);
 			TiCompositeLayout.LayoutParams params =
@@ -297,9 +310,13 @@ public class TiCompositeLayout extends ViewGroup
 				int childMeasuredWidth = child.getMeasuredWidth();
 				int childMeasuredHeight = child.getMeasuredHeight();
 				
-				computePosition(this, params.optionLeft, params.optionCenterX, params.optionRight, childMeasuredWidth, left, right, horizontal);
+				if (isHorizontalArrangement()) {
+					computeHorizontalLayoutPosition(currentWidth, params.optionLeft, params.optionRight, childMeasuredWidth, left, right, horizontal);
+				} else {
+					computePosition(this, params.optionLeft, params.optionCenterX, params.optionRight, childMeasuredWidth, left, right, horizontal);
+				}
 
-				if (this.vertical) {
+				if (isVerticalArrangement()) {
 					computeVerticalLayoutPosition(currentHeight, params.optionTop, params.optionBottom, childMeasuredHeight, top, bottom, vertical);
 				} else {
 					computePosition(this, params.optionTop, params.optionCenterY, params.optionBottom, childMeasuredHeight, top, bottom, vertical);
@@ -324,6 +341,10 @@ public class TiCompositeLayout extends ViewGroup
 				currentHeight += newHeight;
 				if (params.optionTop != null) {
 					currentHeight += params.optionTop.getAsPixels(this);
+				}
+				currentWidth += newWidth;
+				if (params.optionLeft != null) {
+					currentWidth += params.optionLeft.getAsPixels(this);
 				}
 			}
 		}
@@ -371,6 +392,18 @@ public class TiCompositeLayout extends ViewGroup
 		pos[1] = bottom;
 	}
 
+	private void computeHorizontalLayoutPosition(int currentWidth,
+			TiDimension optionLeft, TiDimension optionRight, int measuredWidth, int layoutLeft, int layoutRight, int[] pos)
+	{
+		int left = layoutLeft + currentWidth;
+		if (optionLeft != null) {
+			left += optionLeft.getAsPixels(this);
+		}
+		int right = left + measuredWidth;
+		pos[0] = left;
+		pos[1] = right;
+	}
+
 	protected int getWidthMeasureSpec(View child) {
 		return MeasureSpec.EXACTLY;
 	}
@@ -401,6 +434,32 @@ public class TiCompositeLayout extends ViewGroup
 			super(WRAP_CONTENT, WRAP_CONTENT);
 
 			index = Integer.MIN_VALUE;
+		}
+	}
+
+	protected boolean isVerticalArrangement()
+	{
+		return (arrangement == LayoutArrangement.VERTICAL);
+	}
+
+	protected boolean isHorizontalArrangement()
+	{
+		return (arrangement == LayoutArrangement.HORIZONTAL);
+	}
+
+	protected boolean isDefaultArrangement()
+	{
+		return (arrangement == LayoutArrangement.DEFAULT);
+	}
+
+	public void setLayoutArrangement(String arrangementProperty)
+	{
+		if (arrangementProperty != null && arrangementProperty.equals(TiC.LAYOUT_HORIZONTAL)) {
+			arrangement = LayoutArrangement.HORIZONTAL;
+		} else if (arrangementProperty != null && arrangementProperty.equals(TiC.LAYOUT_VERTICAL)) {
+			arrangement = LayoutArrangement.VERTICAL;
+		} else {
+			arrangement = LayoutArrangement.DEFAULT;
 		}
 	}
 }

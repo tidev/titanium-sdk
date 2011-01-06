@@ -7,11 +7,13 @@
 package ti.modules.titanium.ui;
 
 import org.appcelerator.titanium.TiApplication;
+import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiRootActivity;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.view.ITiWindowHandler;
 import org.appcelerator.titanium.view.TiCompositeLayout;
+import org.appcelerator.titanium.view.TiCompositeLayout.LayoutArrangement;
 import org.appcelerator.titanium.view.TiCompositeLayout.LayoutParams;
 
 import android.app.ActivityGroup;
@@ -54,25 +56,30 @@ public class TiTabActivity extends ActivityGroup
 		boolean navbar = false;
 		Messenger messenger = null;
 		Integer messageId = null;
-		boolean vertical = false;
+		String arrangementFromIntent =  "";
 
 		if (intent != null) {
-			if (intent.hasExtra("fullscreen")) {
-				fullscreen = intent.getBooleanExtra("fullscreen", fullscreen);
+			if (intent.hasExtra(TiC.PROPERTY_FULLSCREEN)) {
+				fullscreen = intent.getBooleanExtra(TiC.PROPERTY_FULLSCREEN, fullscreen);
 			}
-			if (intent.hasExtra("navBarHidden")) {
-				navbar = !intent.getBooleanExtra("navBarHidden", navbar);
+			if (intent.hasExtra(TiC.PROPERTY_NAV_BAR_HIDDEN)) {
+				navbar = !intent.getBooleanExtra(TiC.PROPERTY_NAV_BAR_HIDDEN, navbar);
 			}
-			if (intent.hasExtra("messenger")) {
-				messenger = (Messenger) intent.getParcelableExtra("messenger");
-				messageId = intent.getIntExtra("messageId", -1);
+			if (intent.hasExtra(TiC.INTENT_PROPERTY_MESSENGER)) {
+				messenger = (Messenger) intent.getParcelableExtra(TiC.INTENT_PROPERTY_MESSENGER);
+				messageId = intent.getIntExtra(TiC.INTENT_PROPERTY_MESSAGE_ID, -1);
 			}
-			if (intent.hasExtra("vertical")) {
-				vertical = intent.getBooleanExtra("vertical", vertical);
+			if (intent.hasExtra(TiC.INTENT_PROPERTY_LAYOUT)) {
+				arrangementFromIntent = intent.getStringExtra(TiC.INTENT_PROPERTY_LAYOUT);
 			}
 		}
-
-		layout = new TiCompositeLayout(this, vertical);
+		LayoutArrangement arrangement = LayoutArrangement.DEFAULT;
+		if (arrangementFromIntent.equals(TiC.LAYOUT_HORIZONTAL)) {
+			arrangement = LayoutArrangement.HORIZONTAL;
+		} else if (arrangementFromIntent.equals(TiC.LAYOUT_VERTICAL)) {
+			arrangement = LayoutArrangement.VERTICAL;
+		}
+		layout = new TiCompositeLayout(this, arrangement);
 
 		if (fullscreen) {
 			getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,

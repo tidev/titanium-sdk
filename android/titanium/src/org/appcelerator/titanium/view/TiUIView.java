@@ -372,10 +372,8 @@ public abstract class TiUIView
 	public void processProperties(KrollDict d) {
 		if (d.containsKey(TiC.PROPERTY_LAYOUT)) {
 			String layout = TiConvert.toString(d, TiC.PROPERTY_LAYOUT);
-			if (layout.equals(TiC.LAYOUT_VERTICAL)) {
-				if (nativeView instanceof TiCompositeLayout) {
-					((TiCompositeLayout)nativeView).setVerticalLayout(true);
-				}
+			if (nativeView instanceof TiCompositeLayout) {
+				((TiCompositeLayout)nativeView).setLayoutArrangement(layout);
 			}
 		}
 		if (TiConvert.fillLayout(d, layoutParams)) {

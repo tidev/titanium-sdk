@@ -20,6 +20,7 @@ import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.util.TiWeakList;
 import org.appcelerator.titanium.view.ITiWindowHandler;
 import org.appcelerator.titanium.view.TiCompositeLayout;
+import org.appcelerator.titanium.view.TiCompositeLayout.LayoutArrangement;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -121,6 +122,16 @@ public class TiBaseActivity extends Activity
 		return defaultValue;
 	}
 
+	protected String getIntentString(String property, String defaultValue) {
+		Intent intent = getIntent();
+		if (intent != null) {
+			if (intent.hasExtra(property)) {
+				return intent.getStringExtra(property);
+			}
+		}
+		return defaultValue;
+	}
+
 	public void fireInitialFocus() {
 		if (mustFireInitialFocus && window != null) {
 			mustFireInitialFocus = false;
@@ -154,8 +165,14 @@ public class TiBaseActivity extends Activity
 
 	// Subclasses can override to provide a custom layout
 	protected TiCompositeLayout createLayout() {
-		boolean vertical = getIntentBoolean(TiC.LAYOUT_VERTICAL, false);
-		return new TiCompositeLayout(this, vertical);
+		LayoutArrangement arrangement = LayoutArrangement.DEFAULT;
+		String layoutFromIntent = getIntentString(TiC.INTENT_PROPERTY_LAYOUT, "");
+		if (layoutFromIntent.equals(TiC.LAYOUT_HORIZONTAL)) {
+			arrangement = LayoutArrangement.HORIZONTAL;
+		} else if (layoutFromIntent.equals(TiC.LAYOUT_VERTICAL)) {
+			arrangement = LayoutArrangement.VERTICAL;
+		}
+		return new TiCompositeLayout(this, arrangement);
 	}
 
 	// Subclasses can override to handle post-creation (but pre-message fire) logic
