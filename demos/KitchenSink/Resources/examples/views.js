@@ -37,6 +37,7 @@ if (Titanium.Platform.name == 'iPhone OS')
 		data.push({title:'Hi-Res Image', wintitle:"Fence", hasChild:true, test:'../examples/hi_res_image.js'});
 		data.push({title:'Hi-Res Image 2', wintitle:"Dog", hasChild:true, test:'../examples/hi_res_image2.js'});
 	}
+	data.push({title:'Hi-Res Image remote', wintitle:"Remote dog", hasChild:true, test:'../examples/hi_res_image_remote.js'});
 }
 
 // create table view

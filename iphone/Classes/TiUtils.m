@@ -414,7 +414,7 @@ extern NSString * const TI_APPLICATION_RESOURCE_DIR;
 		}
 		if (!CGSizeEqualToSize(newSize, imageSize))
 		{
-			image = [UIImageResize resizedImage:newSize interpolationQuality:kCGInterpolationDefault image:image];
+			image = [UIImageResize resizedImage:newSize interpolationQuality:kCGInterpolationDefault image:image hires:NO];
 		}
 	}
 	return image;

@@ -225,7 +225,10 @@ DEFINE_EXCEPTIONS
 		
 		calculatedWidth = (calculatedWidth != 0.0) ? calculatedWidth : newImage.size.width;
 		calculatedHeight = (calculatedHeight != 0.0) ? calculatedHeight : newImage.size.height;
-		newImage = [UIImageResize resizedImage:CGSizeMake(calculatedWidth, calculatedHeight) interpolationQuality:kCGInterpolationDefault image:theimage];
+		newImage = [UIImageResize resizedImage:CGSizeMake(calculatedWidth, calculatedHeight) 
+						  interpolationQuality:kCGInterpolationDefault 
+										 image:theimage
+										 hires:[TiUtils boolValue:[[self proxy] valueForKey:@"hires"]]];
 	}
 	return newImage;
 }

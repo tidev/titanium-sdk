@@ -20,7 +20,8 @@
 
 + (UIImage *)resizedImage:(CGSize)newSize
      interpolationQuality:(CGInterpolationQuality)quality
-					image:(UIImage*)image;
+					image:(UIImage*)image
+					hires:(BOOL)hires;
 
 + (UIImage *)resizedImageWithContentMode:(UIViewContentMode)contentMode
                                   bounds:(CGSize)bounds

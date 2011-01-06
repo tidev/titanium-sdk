@@ -166,7 +166,8 @@
     if (url != nil) {
         UIImage* bgImage = [UIImageResize resizedImage:self.frame.size 
                                   interpolationQuality:kCGInterpolationDefault
-                                                 image:[self loadImage:url]];
+                                                 image:[self loadImage:url]
+												 hires:NO];
         
         // Resizing doesn't preserve stretchability.  Should we maybe fix this?
         bgImage = [self loadImage:url];
