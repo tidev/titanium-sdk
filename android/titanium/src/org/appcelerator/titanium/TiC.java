@@ -58,7 +58,9 @@ public class TiC {
 	public static final String EVENT_TOUCH_START = "touchstart";
 	public static final String EVENT_UNFOCUSED = "unfocused";
 	public static final String LAYOUT_VERTICAL = "vertical";
+	public static final String LAYOUT_HORIZONTAL = "horizontal";
 	public static final String INTENT_PROPERTY_FINISH_ROOT = "finishRoot";
+	public static final String INTENT_PROPERTY_LAYOUT = "layout";
 	public static final String INTENT_PROPERTY_MESSAGE_ID = "messageId";
 	public static final String INTENT_PROPERTY_MESSENGER = "messenger";
 	public static final String MSG_PROPERTY_EVENT_NAME = "eventName";

@@ -27,7 +27,7 @@ platformHeight[float]: the height of the device screen
 
 - notes
 
-On iPhone, the `density` property will return `low` and the `dpi` property will return `160`. For iPad, the `density` property will return `high` and the `dpi` property will return `130`.  For Android, these values are device specific.
+On iPhone, the `density` property will return `high` for retina devices and `medium` otherwise, the `dpi` property will return `160`. For iPad, the `density` property will return `medium` and the `dpi` property will return `130`.  For Android, these values are device specific.
 
 
 

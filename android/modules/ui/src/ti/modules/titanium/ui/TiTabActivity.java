@@ -13,6 +13,7 @@ import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.view.ITiWindowHandler;
 import org.appcelerator.titanium.view.TiCompositeLayout;
+import org.appcelerator.titanium.view.TiCompositeLayout.LayoutArrangement;
 import org.appcelerator.titanium.view.TiCompositeLayout.LayoutParams;
 
 import android.app.ActivityGroup;
@@ -55,7 +56,7 @@ public class TiTabActivity extends ActivityGroup
 		boolean navbar = false;
 		Messenger messenger = null;
 		Integer messageId = null;
-		boolean vertical = false;
+		String arrangementFromIntent =  "";
 
 		if (intent != null) {
 			if (intent.hasExtra(TiC.PROPERTY_FULLSCREEN)) {
@@ -68,12 +69,17 @@ public class TiTabActivity extends ActivityGroup
 				messenger = (Messenger) intent.getParcelableExtra(TiC.INTENT_PROPERTY_MESSENGER);
 				messageId = intent.getIntExtra(TiC.INTENT_PROPERTY_MESSAGE_ID, -1);
 			}
-			if (intent.hasExtra(TiC.LAYOUT_VERTICAL)) {
-				vertical = intent.getBooleanExtra(TiC.LAYOUT_VERTICAL, vertical);
+			if (intent.hasExtra(TiC.INTENT_PROPERTY_LAYOUT)) {
+				arrangementFromIntent = intent.getStringExtra(TiC.INTENT_PROPERTY_LAYOUT);
 			}
 		}
-
-		layout = new TiCompositeLayout(this, vertical);
+		LayoutArrangement arrangement = LayoutArrangement.DEFAULT;
+		if (arrangementFromIntent.equals(TiC.LAYOUT_HORIZONTAL)) {
+			arrangement = LayoutArrangement.HORIZONTAL;
+		} else if (arrangementFromIntent.equals(TiC.LAYOUT_VERTICAL)) {
+			arrangement = LayoutArrangement.VERTICAL;
+		}
+		layout = new TiCompositeLayout(this, arrangement);
 
 		if (fullscreen) {
 			getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,

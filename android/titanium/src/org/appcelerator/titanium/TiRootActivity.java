@@ -103,7 +103,7 @@ public class TiRootActivity extends ActivityGroup
 				
 				if(b2373Detected) {
 					Log.e(LCAT, "Android issue 2373 detected, restarting app. Instances: " + getInstanceCount());
-					rootLayout = new TiCompositeLayout(this, false);
+					rootLayout = new TiCompositeLayout(this);
 					setContentView(rootLayout);
 					return;
 				}
@@ -134,7 +134,7 @@ public class TiRootActivity extends ActivityGroup
 			this.requestWindowFeature(Window.FEATURE_NO_TITLE);
 		}
 
-		rootLayout = new TiCompositeLayout(this, false);
+		rootLayout = new TiCompositeLayout(this);
 		setContentView(rootLayout);
 
 		final TiRootActivity me = this;

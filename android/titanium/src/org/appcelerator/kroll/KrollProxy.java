@@ -459,7 +459,7 @@ public class KrollProxy implements Handler.Callback, OnEventListenerChange, Krol
 	public void setModelListener(KrollProxyListener modelListener) {
 		this.modelListener = modelListener;
 		if (modelListener != null) {
-			modelListener.processProperties(properties);
+			modelListener.processProperties((KrollDict) properties.clone());
 		}
 	}
 

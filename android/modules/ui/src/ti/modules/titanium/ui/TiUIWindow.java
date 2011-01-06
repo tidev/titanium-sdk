@@ -31,6 +31,7 @@ import org.appcelerator.titanium.util.TiUrl;
 import org.appcelerator.titanium.view.ITiWindowHandler;
 import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.titanium.view.TiUIView;
+import org.appcelerator.titanium.view.TiCompositeLayout.LayoutArrangement;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -103,8 +104,6 @@ public class TiUIWindow extends TiUIView
 			newActivity = TiConvert.toBoolean(options, TiC.PROPERTY_TAB_OPEN);
 		}
 
-		boolean vertical = isVerticalLayout(resolver);
-
 		if (newActivity) {
 			lightWeight = false;
 			Activity activity = proxy.getTiContext().getActivity();
@@ -125,7 +124,7 @@ public class TiUIWindow extends TiUIView
 			}
 		} else {
 			lightWeight = true;
-			liteWindow = new TiCompositeLayout(proxy.getContext(), vertical);
+			liteWindow = new TiCompositeLayout(proxy.getContext(), getLayoutArrangement(resolver));
 			layoutParams.autoFillsHeight = true;
 			layoutParams.autoFillsWidth = true;
 
@@ -450,7 +449,6 @@ public class TiUIWindow extends TiUIView
 			proxy.getTiContext().getActivity().setTitle(title);
 		} else if (key.equals(TiC.PROPERTY_LAYOUT)) {
 			if (!lightWeight) {
-				boolean vertical = TiConvert.toString(newValue).equals(TiC.LAYOUT_VERTICAL);
 				TiCompositeLayout layout = null;
 				if (windowActivity instanceof TiActivity) {
 					layout = ((TiActivity)windowActivity).getLayout();
@@ -458,7 +456,7 @@ public class TiUIWindow extends TiUIView
 					layout = ((TiTabActivity)windowActivity).getLayout();
 				}
 				if (layout != null) {
-					layout.setVerticalLayout(vertical);
+					layout.setLayoutArrangement(TiConvert.toString(newValue));
 				}
 			}
 		} else {
@@ -471,14 +469,18 @@ public class TiUIWindow extends TiUIView
 		return resolver.hasAnyOf(NEW_ACTIVITY_REQUIRED_KEYS);
 	}
 
-	protected boolean isVerticalLayout(TiPropertyResolver resolver)
+	protected LayoutArrangement getLayoutArrangement(TiPropertyResolver resolver)
 	{
-		boolean vertical = false;
+		LayoutArrangement arrangement = LayoutArrangement.DEFAULT;
 		KrollDict d = resolver.findProperty(TiC.PROPERTY_LAYOUT);
 		if (d != null) {
-			vertical = TiConvert.toString(d, TiC.PROPERTY_LAYOUT).equals(TiC.LAYOUT_VERTICAL);
+			if (TiConvert.toString(d, TiC.PROPERTY_LAYOUT).equals(TiC.LAYOUT_VERTICAL)) {
+				arrangement = LayoutArrangement.VERTICAL;
+			} else if (TiConvert.toString(d, TiC.PROPERTY_LAYOUT).equals(TiC.LAYOUT_HORIZONTAL)) {
+				arrangement = LayoutArrangement.HORIZONTAL;
+			}
 		}
-		return vertical;
+		return arrangement;
 	}
 
 	protected Intent createIntent(Activity activity, KrollDict options) {
@@ -504,7 +506,7 @@ public class TiUIWindow extends TiUIView
 		}
 		props = resolver.findProperty(TiC.PROPERTY_LAYOUT);
 		if (props != null && props.containsKey(TiC.PROPERTY_LAYOUT)) {
-			intent.putExtra(TiC.LAYOUT_VERTICAL, TiConvert.toString(props, TiC.PROPERTY_LAYOUT).equals(TiC.LAYOUT_VERTICAL));
+			intent.putExtra(TiC.INTENT_PROPERTY_LAYOUT, TiConvert.toString(props, TiC.PROPERTY_LAYOUT));
 		}
 		props = resolver.findProperty(TiC.PROPERTY_WINDOW_SOFT_INPUT_MODE);
 		if (props != null && props.containsKey(TiC.PROPERTY_WINDOW_SOFT_INPUT_MODE)) {

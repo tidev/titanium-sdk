@@ -347,7 +347,7 @@ DEFINE_EXCEPTIONS
 	if((resultImage != nil) && ([resultImage imageOrientation] != UIImageOrientationUp))
 	{
 		resultImage = [UIImageResize resizedImage:[resultImage size] 
-				interpolationQuality:kCGInterpolationNone image:resultImage];
+							 interpolationQuality:kCGInterpolationNone image:resultImage hires:NO];
 	}
 	self.layer.contents = (id)resultImage.CGImage;
 	self.clipsToBounds = image!=nil;

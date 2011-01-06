@@ -6,6 +6,7 @@
 #import "UIImage+Resize.h"
 #import "UIImage+RoundedCorner.h"
 #import "UIImage+Alpha.h"
+#import "TiUtils.h"
 
 @implementation UIImageResize
 
@@ -17,17 +18,28 @@
                 transform:(CGAffineTransform)transform
            drawTransposed:(BOOL)transpose
      interpolationQuality:(CGInterpolationQuality)quality 
-					image:(UIImage*)image {
+					image:(UIImage*)image 
+					hires:(BOOL)hires
+{
     CGRect newRect = CGRectIntegral(CGRectMake(0, 0, newSize.width, newSize.height));
     CGRect transposedRect = CGRectMake(0, 0, newRect.size.height, newRect.size.width);
     CGImageRef imageRef = image.CGImage;
 	
 	CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
     
+	CGFloat scale = 1.0;
+	if ([TiUtils isIOS4OrGreater]) {
+		scale = [image scale];
+		// Force scaling to 2.0
+		if ([TiUtils isRetinaDisplay] && hires) {
+			scale = 2.0;
+		}
+	}
+	
     // Build a context that's the same dimensions as the new size
     CGContextRef bitmap = CGBitmapContextCreate(NULL,
-                                                newRect.size.width,
-                                                newRect.size.height,
+                                                newRect.size.width * scale,
+                                                newRect.size.height * scale,
                                                 8,
                                                 0,
                                                 colorSpace,
@@ -44,7 +56,13 @@
     
     // Get the resized image from the context and a UIImage
     CGImageRef newImageRef = CGBitmapContextCreateImage(bitmap);
-    UIImage *newImage = [UIImage imageWithCGImage:newImageRef];
+    UIImage *newImage = nil;
+	if ([TiUtils isIOS4OrGreater]) {
+		newImage = [UIImage imageWithCGImage:newImageRef scale:scale orientation:UIImageOrientationUp];
+	}
+	else {
+		newImage = [UIImage imageWithCGImage:newImageRef];
+	}
     
     // Clean up
     CGContextRelease(bitmap);
@@ -142,6 +160,7 @@
 + (UIImage *)resizedImage:(CGSize)newSize 
 	 interpolationQuality:(CGInterpolationQuality)quality 
 					image:(UIImage*)image 
+					hires:(BOOL)hires
 {
     BOOL drawTransposed;
     
@@ -158,10 +177,11 @@
     }
     
     return [UIImageResize resizedImage:newSize
-                    transform:[UIImageResize transformForOrientation:newSize image:image]
-               drawTransposed:drawTransposed
-         interpolationQuality:quality
-						image:image];
+							 transform:[UIImageResize transformForOrientation:newSize image:image]
+						drawTransposed:drawTransposed
+				  interpolationQuality:quality
+								 image:image
+								 hires:hires];
 }
 
 // Resizes the image according to the given content mode, taking into account the image's orientation
@@ -189,7 +209,7 @@
     
     CGSize newSize = CGSizeMake(image.size.width * ratio, image.size.height * ratio);
     
-    return [UIImageResize resizedImage:newSize interpolationQuality:quality image:image];
+    return [UIImageResize resizedImage:newSize interpolationQuality:quality image:image hires:NO];
 }
 
 @end

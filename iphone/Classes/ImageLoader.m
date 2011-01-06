@@ -27,6 +27,7 @@
     TiDimension topCap;
     BOOL recapStretchableImage;
 	BOOL isLocalImage;
+	BOOL hires;
 }
 
 @property(nonatomic,readwrite,retain) UIImage * fullImage;
@@ -34,6 +35,7 @@
 @property(nonatomic,readwrite) TiDimension leftCap;
 @property(nonatomic,readwrite) TiDimension topCap;
 @property(nonatomic,readwrite) BOOL isLocalImage;
+@property(nonatomic,readwrite) BOOL hires;
 -(UIImage *)imageForSize:(CGSize)imageSize;
 -(UIImage *)stretchableImage;
 
@@ -42,7 +44,7 @@
 @end
 
 @implementation ImageCacheEntry
-@synthesize fullImage, recentlyResizedImage, leftCap, topCap, isLocalImage;
+@synthesize fullImage, recentlyResizedImage, leftCap, topCap, isLocalImage, hires;
 
 -(void)ensureFullImageForUrl:(NSURL *)url
 {
@@ -106,9 +108,10 @@
 	CGInterpolationQuality quality = kCGInterpolationDefault;
 
 	[self setRecentlyResizedImage:[UIImageResize
-			resizedImage:imageSize
-			interpolationQuality:quality
-			image:fullImage]];
+								   resizedImage:imageSize
+								   interpolationQuality:quality
+								   image:fullImage
+								   hires:hires]];
 	return recentlyResizedImage;
 }
 
@@ -691,7 +694,9 @@ DEFINE_EXCEPTIONS
 		
 		if (cacheable)
 		{
+			BOOL hires = [TiUtils boolValue:[[req userInfo] valueForKey:@"hires"] def:NO];
 			[self cache:image forURL:[request url]];
+			[[self entryForKey:[request url]] setHires:hires];
 		}
 		
 		[self notifyImageCompleted:[NSArray arrayWithObjects:req,image,nil]];

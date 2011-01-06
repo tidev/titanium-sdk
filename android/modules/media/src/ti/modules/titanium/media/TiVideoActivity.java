@@ -94,7 +94,7 @@ public class TiVideoActivity extends Activity
 			getWindow().setBackgroundDrawable(d);
 		}
 
-		layout = new TiCompositeLayout(this, false);
+		layout = new TiCompositeLayout(this);
 		videoView.setOnPreparedListener(new OnPreparedListener(){
 
 			@Override

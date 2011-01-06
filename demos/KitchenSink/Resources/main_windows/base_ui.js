@@ -7,7 +7,8 @@ var data = [
 	{title:'Views', hasChild:true, test:'../examples/views.js'},
 	{title:'Custom Events', hasChild:true, test:'../examples/custom_events.js'},
 	{title:'Window Events', hasChild:true, test:'../examples/window_events.js'},
-	{title:'Vertical Layout', hasChild:true, test:'../examples/vertical_layout.js'}
+	{title:'Vertical Layout', hasChild:true, test:'../examples/vertical_layout.js'},
+	{title:'Horizontal Layout', hasChild:true, test:'../examples/horizontal_layout.js'}
 ];
 
 // add iphone specific tests
@@ -18,7 +19,6 @@ if (Titanium.Platform.name == 'iPhone OS')
 	data.push({title:'Window Toolbar', hasChild:true, test:'../examples/window_toolbar.js'});
 	data.push({title:'Window Constructor', hasChild:true, test:'../examples/window_constructor.js'});
 	data.push({title:'Animation', hasChild:true, test:'../examples/animation.js'});
-	data.push({title:'Horizontal Layout', hasChild:true, test:'../examples/horizontal_layout.js'});
 	data.push({title:'Nav Group', hasChild:true, test:'../examples/navgroup.js'});
 
 	Ti.include("../examples/version.js");

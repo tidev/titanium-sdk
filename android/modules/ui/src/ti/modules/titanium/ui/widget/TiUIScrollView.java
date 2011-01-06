@@ -12,6 +12,7 @@ import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiCompositeLayout;
+import org.appcelerator.titanium.view.TiCompositeLayout.LayoutArrangement;
 import org.appcelerator.titanium.view.TiUIView;
 
 import android.content.Context;
@@ -37,8 +38,8 @@ public class TiUIScrollView extends TiUIView {
 		private static final int AUTO = Integer.MAX_VALUE;
 		protected int measuredWidth = 0, measuredHeight = 0;
 
-		public TiScrollViewLayout(Context context, boolean vertical) {
-			super(context, vertical);
+		public TiScrollViewLayout(Context context, LayoutArrangement arrangement) {
+			super(context, arrangement);
 		}
 
 		private LayoutParams getParams(View child) {
@@ -172,14 +173,14 @@ public class TiUIScrollView extends TiUIView {
 	{
 		private TiScrollViewLayout layout;
 
-		public TiVerticalScrollView(Context context, boolean vertical)
+		public TiVerticalScrollView(Context context, LayoutArrangement arrangement)
 		{
 			super(context);
 			setScrollBarStyle(SCROLLBARS_INSIDE_OVERLAY);
 			//setFillViewport(true);
 			//setScrollContainer(true);
 
-			layout = new TiScrollViewLayout(context, vertical);
+			layout = new TiScrollViewLayout(context, arrangement);
 			FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
 				ViewGroup.LayoutParams.FILL_PARENT,
 				ViewGroup.LayoutParams.FILL_PARENT);
@@ -208,14 +209,14 @@ public class TiUIScrollView extends TiUIView {
 	{
 		private TiScrollViewLayout layout;
 
-		public TiHorizontalScrollView(Context context, boolean vertical)
+		public TiHorizontalScrollView(Context context, LayoutArrangement arrangement)
 		{
 			super(context);
 			setScrollBarStyle(SCROLLBARS_INSIDE_OVERLAY);
 			setFillViewport(true);
 			setScrollContainer(true);
 
-			layout = new TiScrollViewLayout(context, vertical);
+			layout = new TiScrollViewLayout(context, arrangement);
 			FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
 				ViewGroup.LayoutParams.FILL_PARENT,
 				ViewGroup.LayoutParams.FILL_PARENT);
@@ -296,15 +297,21 @@ public class TiUIScrollView extends TiUIView {
 		
 		// we create the view here since we now know the potential widget type
 		View view = null;
+		LayoutArrangement arrangement = LayoutArrangement.DEFAULT;
+		if (d.containsKey(TiC.PROPERTY_LAYOUT) && d.getString(TiC.PROPERTY_LAYOUT).equals(TiC.LAYOUT_VERTICAL)) {
+			arrangement = LayoutArrangement.VERTICAL;
+		} else if (d.containsKey(TiC.PROPERTY_LAYOUT) && d.getString(TiC.PROPERTY_LAYOUT).equals(TiC.LAYOUT_HORIZONTAL)) {
+			arrangement = LayoutArrangement.HORIZONTAL;
+		}
 		switch (type) {
 			case TYPE_HORIZONTAL:
 				Log.d(LCAT, "creating horizontal scroll view");
-				view = new TiHorizontalScrollView(getProxy().getContext(), d.containsKey("layout") && d.getString("layout").equals("vertical"));
+				view = new TiHorizontalScrollView(getProxy().getContext(), arrangement);
 				break;
 			case TYPE_VERTICAL:
 			default:
 				Log.d(LCAT, "creating vertical scroll view");
-				view = new TiVerticalScrollView(getProxy().getContext(), d.containsKey("layout") && d.getString("layout").equals("vertical"));
+				view = new TiVerticalScrollView(getProxy().getContext(), arrangement);
 		}
 		setNativeView(view);
 
