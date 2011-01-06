@@ -86,7 +86,7 @@ MAKE_SYSTEM_PROP(KEYBOARD_NUMBER_PAD,UIKeyboardTypeNumberPad);
 /* Because this is a new feature in 4.1, we have to guard against it in both compiling AND runtime.*/
 -(NSNumber*)KEYBOARD_DECIMAL_PAD
 {
-#if __IPHONE_4_1 >= __IPHONE_OS_VERSION_MAX_ALLOWED
+#if __IPHONE_4_1 <= __IPHONE_OS_VERSION_MAX_ALLOWED
 	if([[[UIDevice currentDevice] systemVersion] floatValue] >= 4.1){
 		return [NSNumber numberWithInt:UIKeyboardTypeDecimalPad];
 	}
