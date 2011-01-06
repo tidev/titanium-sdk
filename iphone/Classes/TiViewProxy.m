@@ -176,14 +176,14 @@
 
 -(void)show:(id)arg
 {
-	[self replaceValue:NUMBOOL(YES) forKey:@"visible" notification:YES];
 	[self setHidden:NO withArgs:arg];
+	[self replaceValue:NUMBOOL(YES) forKey:@"visible" notification:YES];
 }
  
 -(void)hide:(id)arg
 {
-	[self replaceValue:NUMBOOL(NO) forKey:@"visible" notification:YES];
 	[self setHidden:YES withArgs:arg];
+	[self replaceValue:NUMBOOL(NO) forKey:@"visible" notification:YES];
 }
 
 -(void)animate:(id)arg
