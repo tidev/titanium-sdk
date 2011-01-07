@@ -195,12 +195,7 @@ public class TiAnimationBuilder
 				addAnimation(as, a);
 			}
 			if (tdm.hasTranslation()) {
-				Animation a = new TranslateAnimation(
-					0,
-					anchorPointX + tdm.getXTranslation(),
-					0,
-					anchorPointY + tdm.getYTranslation()
-					);
+				Animation a = new TranslateAnimation(0, tdm.getXTranslation(), 0, tdm.getYTranslation());
 				addAnimation(as, a);
 			}
 		}
