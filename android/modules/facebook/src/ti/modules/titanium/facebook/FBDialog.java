@@ -449,6 +449,7 @@ public class FBDialog extends FrameLayout {
 
 			try {
 				conn = (HttpURLConnection) mLoadingURL.openConnection();
+				conn.setUseCaches(false);
 				conn.setDoOutput(true);
 				conn.setDoInput(true);
 				conn.setConnectTimeout(15000);

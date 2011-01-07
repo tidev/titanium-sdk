@@ -228,6 +228,27 @@ describe("Ti.UI.Android tests", {
 				callback.passed();
 			}
 		}, 4000);
+	},
+	// https://appcelerator.lighthouseapp.com/projects/32238-titanium-mobile/tickets/2772
+	scrollViewChildAutoWidthCrash: function() {
+		var w = Ti.UI.createWindow();
+		w.open();
+		var sv = Ti.UI.createScrollView({
+			contentWidth: 'auto',
+			contentHeight: 'auto',
+			height: 'auto',
+			top: 0
+		});
+
+		var v = Ti.UI.createView({
+			top: 0,
+			height: 10
+		});
+
+		sv.add(v);
+		w.add(sv);
+		valueOf(true).shouldBeTrue();
+		w.close();
 	}
 
 })
