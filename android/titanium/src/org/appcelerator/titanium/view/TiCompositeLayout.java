@@ -355,12 +355,13 @@ public class TiCompositeLayout extends ViewGroup
 		int measuredSize, int layoutPosition0, int layoutPosition1, int[] pos)
 	{
 		int dist = layoutPosition1 - layoutPosition0;
-		if (optionCenter != null || (option0 == null && option1 == null)) {
+		if (optionCenter != null) {
+			int halfSize= measuredSize/2;
+			pos[0] = layoutPosition0 + optionCenter.getAsPixels(parent) - halfSize;
+			pos[1] = pos[0] + measuredSize;
+		} else if (option0 == null && option1 == null) {
 			// Center
 			int offset = (dist-measuredSize)/2;
-			if (optionCenter != null) {
-				offset += optionCenter.getAsPixels(parent);
-			}
 			pos[0] = layoutPosition0 + offset;
 			pos[1] = pos[0] + measuredSize;
 		} else if (option0 == null) {
