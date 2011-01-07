@@ -59,8 +59,8 @@ public class KrollBindingUtils {
 	}
 	
 	@SuppressWarnings("serial")
-	public static KrollMethod createCreateMethod(String proxyName, final KrollProxyCreator creator) {
-		return new KrollMethod("create" + proxyName) {
+	public static KrollMethod createCreateMethod(String methodName, final KrollProxyCreator creator) {
+		return new KrollMethod(methodName) {
 			public Object invoke(KrollInvocation invocation, Object[] args) throws Exception
 			{
 				KrollModule createdInModule = (KrollModule) invocation.getProxy();

@@ -75,7 +75,7 @@ import ${packageName}.${proxyClassName};
 	<#if hasArgArray>
 		<#local requiredArgs = countRequiredArguments(args)>
 		<#if requiredArgs &gt; 0>
-	KrollBindingUtils.assertRequiredArgs(__args, ${requiredArgs}, "${methodName}");
+	KrollBindingUtils.assertRequiredArgs(__args, ${requiredArgs}, METHOD_${methodName});
 		</#if>
 	</#if>
 	<#if returnType != "void">
@@ -234,82 +234,119 @@ public class ${genClassName}
 </#if>
 {
 	private static final String TAG = "${genClassName}";
-	
+
+	<@listConstants ; isFirst, name, constant>
+	private static final String CONST_${name} = "${name}";
+	</@listConstants>
+	<@listCreateProxies ; isFirst, createProxy>
+	private static final String CREATE_${createProxy.name} = "create${createProxy.name}";
+	</@listCreateProxies>
+	<@listChildModules ; isFirst, childModule>
+	private static final String CHILD_MODULE_${childModule.name} = "${childModule.name}";
+	</@listChildModules>
+	<@listProperties ; isFirst, name, property>
+	private static final String PROP_${name} = "${name}";
+	</@listProperties>
+	<@listDynamicProperties ; isFirst, name, property>
+	private static final String DYNPROP_${name} = "${name}";
+	</@listDynamicProperties>
+	<@listMethods ; isFirst, name, method>
+	private static final String METHOD_${method.apiName} = "${method.apiName}";
+	</@listMethods>
+	<#list proxyAttrs.propertyAccessors as accessor>
+		<#assign upperCamel = accessor?substring(0, 1)?upper_case + accessor?substring(1)>
+	private static final String ACCESSOR_${accessor} = "${accessor}";
+	private static final String PROP_GET_${accessor} = "get${upperCamel}";
+	private static final String PROP_SET_${accessor} = "set${upperCamel}";
+	</#list>
+	<#if proxyAttrs.isTopLevel>
+	<#list proxyAttrs.topLevelNames as topLevelName>
+	private static final String TOP_LEVEL_${topLevelName?replace(".","_")} = "${topLevelName}";
+	</#list>
+	</#if>
+	<#if topLevelMethods??>
+		<#list topLevelMethods?keys as methodName>
+			<#list topLevelMethods[methodName] as topLevelName>
+	private static final String TOP_LEVEL_${topLevelName?replace(".","_")} = "${topLevelName}";
+	private static final String TOP_LEVEL_METHOD_${methodName} = "${methodName}";
+			</#list>
+		</#list>
+	</#if>
+		
 	public ${genClassName}() {
 		<#if superProxyBindingClassName??>super();</#if>
 		// Constants are pre-bound
 		<@listConstants ; isFirst, name, constant>
-		bindings.put("${name}", ${proxyClassName}.${constant.proxyName});
+		bindings.put(CONST_${name}, ${proxyClassName}.${constant.proxyName});
 		</@listConstants>
 		
 		<@listCreateProxies ; isFirst, createProxy>
-		bindings.put("create${createProxy.name}", null);
+		bindings.put(CREATE_${createProxy.name}, null);
 		</@listCreateProxies>
 		<@listChildModules ; isFirst, childModule>
-		bindings.put("${childModule.name}", null);
+		bindings.put(CHILD_MODULE_${childModule.name}, null);
 		</@listChildModules>
 		<@listProperties ; isFirst, name, property>
-		bindings.put("${name}", null);
+		bindings.put(PROP_${name}, null);
 		</@listProperties>
 		<@listDynamicProperties ; isFirst, name, property>
-		bindings.put("${name}", null);
+		bindings.put(DYNPROP_${name}, null);
 		</@listDynamicProperties>
 		<@listMethods ; isFirst, name, method>
-		bindings.put("${name}", null);
+		bindings.put(METHOD_${method.apiName}, null);
 		</@listMethods>
 		<#list proxyAttrs.propertyAccessors as accessor>
-			<#assign upperCamel = accessor?substring(0, 1)?upper_case + accessor?substring(1)>
-		bindings.put("get${upperCamel}", null);
-		bindings.put("set${upperCamel}", null);
+		bindings.put(PROP_GET_${accessor}, null);
+		bindings.put(PROP_SET_${accessor}, null);
 		</#list>
 		
 	}
-	
+
 	public void bindContextSpecific(KrollBridge bridge, KrollProxy proxy) {
 		<#if proxyAttrs.isTopLevel>
 		<#list proxyAttrs.topLevelNames as topLevelName>
-		bridge.bindToTopLevel("${topLevelName}", proxy);
+		bridge.bindToTopLevel(TOP_LEVEL_${topLevelName?replace(".","_")}, proxy);
 		</#list>
 		</#if>
 		<#if topLevelMethods??>
 			<#list topLevelMethods?keys as methodName>
 				<#list topLevelMethods[methodName] as topLevelName>
-		bridge.bindToTopLevel("${topLevelName}", proxy.getBoundMethodForThis("${methodName}"));
+		bridge.bindToTopLevel(TOP_LEVEL_${topLevelName?replace(".","_")}, proxy.getBoundMethodForThis(TOP_LEVEL_METHOD_${methodName}));
 				</#list>
 			</#list>
 		</#if>
 	}
-	
+
 	<#if superProxyBindingClassName??>@Override</#if>
 	public Object getBinding(String name) {
 		Object value = bindings.get(name);
 		if (value != null) { 
 			return value;
 		}
-		
+
 		<@listCreateProxies ; isFirst, createProxy>
 		<#if isFirst>// Proxy create methods</#if>
-		if (name.equals("create${createProxy.name}")) {
+		if (name.equals(CREATE_${createProxy.name})) {
 			KrollBindingUtils.KrollProxyCreator creator = new KrollBindingUtils.KrollProxyCreator() {
 				public KrollProxy create(TiContext context) {
 					return new ${createProxy.proxyClassName}(context);
 				}
 			};
-			KrollMethod create${createProxy.name}_method = KrollBindingUtils.createCreateMethod("${createProxy.name}", creator);
-			bindings.put("create${createProxy.name}", create${createProxy.name}_method);
+			KrollMethod create${createProxy.name}_method = KrollBindingUtils.createCreateMethod(CREATE_${createProxy.name}, creator);
+			bindings.put(CREATE_${createProxy.name}, create${createProxy.name}_method);
 			return create${createProxy.name}_method;
 		}
 		</@listCreateProxies>
-		
+
 		<@listChildModules ; isFirst, childModule>
 		<#if isFirst>// Child modules</#if>
-		if (name.equals("${childModule.name}")) {
+		if (name.equals(CHILD_MODULE_${childModule.name})) {
 			KrollModule ${childModule.name}_module = new ${childModule.proxyClassName}(TiContext.getCurrentTiContext());
-			bindings.put("${childModule.name}", ${childModule.name}_module);
+			bindings.put(CHILD_MODULE_${childModule.name}, ${childModule.name}_module);
 			return ${childModule.name}_module;
 		}
 		</@listChildModules>
-		
+
 		<#--@listConstants ; isFirst, name, constant>
 		<#if isFirst>// Constants</#if>
 		if (name.equals("${name}")) {
@@ -317,23 +354,23 @@ public class ${genClassName}
 			return ${proxyClassName}.${constant.proxyName};
 		}
 		</@listConstants-->
-		
+
 		<@listProperties ; isFirst, name, property>
 		<#if isFirst>// Properties</#if>
-		if (name.equals("${name}")) {
-			KrollReflectionProperty ${name}_property = new KrollReflectionProperty("${name}",
+		if (name.equals(PROP_${name})) {
+			KrollReflectionProperty ${name}_property = new KrollReflectionProperty(PROP_${name},
 				${property.get?string}, ${property.set?string}, "${property.proxyName}");
 			${name}_property.setJavascriptConverter(${property.javascriptConverter}.getInstance());
 			${name}_property.setNativeConverter(${property.nativeConverter}.getInstance());
-			bindings.put("${name}", ${name}_property);
+			bindings.put(PROP_${name}, ${name}_property);
 			return ${name}_property;
 		}
 		</@listProperties>
-		
+
 		<@listDynamicProperties ; isFirst, name, property>
 		<#if isFirst>// Dynamic Properties</#if>
-		if (name.equals("${name}")) {
-			KrollDynamicProperty ${name}_property = new KrollDynamicProperty("${name}",
+		if (name.equals(DYNPROP_${name})) {
+			KrollDynamicProperty ${name}_property = new KrollDynamicProperty(DYNPROP_${name},
 				${property.get?string}, ${property.set?string},
 				<#if property.set>${property.retain?string}<#else>false</#if>) {
 				
@@ -348,7 +385,7 @@ public class ${genClassName}
 					return KrollProxy.UNDEFINED;
 					</#if>
 				}
-				
+
 				@Override
 				public void dynamicSet(KrollInvocation __invocation, Object __value) {
 					<#if property.set>
@@ -365,15 +402,15 @@ public class ${genClassName}
 			</#if>
 			${name}_property.setJavascriptConverter(${property.javascriptConverter}.getInstance());
 			${name}_property.setNativeConverter(${property.nativeConverter}.getInstance());
-			bindings.put("${name}", ${name}_property);
+			bindings.put(DYNPROP_${name}, ${name}_property);
 			return ${name}_property;
 		}
 		</@listDynamicProperties>
-		
+
 		<@listMethods ; isFirst, name, method>
 		<#if isFirst>// Methods</#if>
-		if (name.equals("${method.apiName}")) {
-			KrollMethod ${method.apiName}_method = new KrollMethod("${method.apiName}") {
+		if (name.equals(METHOD_${method.apiName})) {
+			KrollMethod ${method.apiName}_method = new KrollMethod(METHOD_${method.apiName}) {
 				public Object invoke(KrollInvocation __invocation, Object[] __args) throws Exception
 				{
 					<@generateMethodCall methodName=name args=method.args returnType=method.returnType
@@ -384,43 +421,43 @@ public class ${genClassName}
 			<#if method.runOnUiThread>
 			${method.apiName}_method.setRunOnUiThread(true);
 			</#if>
-			bindings.put("${method.apiName}", ${method.apiName}_method);
+			bindings.put(METHOD_${method.apiName}, ${method.apiName}_method);
 			return ${method.apiName}_method;
 		}
 		</@listMethods>
-		
+
 		<#list proxyAttrs.propertyAccessors as accessor>
 		<#assign upperCamel = accessor?substring(0, 1)?upper_case + accessor?substring(1)>
-		if (name.equals("set${upperCamel}")) {
-			KrollMethod ${accessor}_set_accessor = KrollBindingUtils.createAccessorMethod("${accessor}", true);
-			bindings.put("set${upperCamel}", ${accessor}_set_accessor);
+		if (name.equals(PROP_SET_${accessor})) {
+			KrollMethod ${accessor}_set_accessor = KrollBindingUtils.createAccessorMethod(ACCESSOR_${accessor}, true);
+			bindings.put(PROP_SET_${accessor}, ${accessor}_set_accessor);
 			return ${accessor}_set_accessor;
-		} else if (name.equals("get${upperCamel}")) {
-			KrollMethod ${accessor}_get_accessor = KrollBindingUtils.createAccessorMethod("${accessor}", false);
-			bindings.put("get${upperCamel}", ${accessor}_get_accessor);
+		} else if (name.equals(PROP_GET_${accessor})) {
+			KrollMethod ${accessor}_get_accessor = KrollBindingUtils.createAccessorMethod(ACCESSOR_${accessor}, false);
+			bindings.put(PROP_GET_${accessor}, ${accessor}_get_accessor);
 			return ${accessor}_get_accessor;
 		}
 		</#list>
-		
+
 		return super.getBinding(name);
 	}
-	
+
 	private static final String SHORT_API_NAME = "${proxyAttrs.name}";
 	private static final String FULL_API_NAME = "${proxyAttrs.fullAPIName}";
 	private static final String ID = "${proxyAttrs.id}";
-	
+
 	public String getAPIName() {
 		return FULL_API_NAME;
 	}
-		
+
 	public String getShortAPIName() {
 		return SHORT_API_NAME;
 	}
-	
+
 	public String getId() {
 		return ID;
 	}
-	
+
 	<#-- for convenience so we can avoid reflection -->
 	public KrollModule newInstance(TiContext context) {
 		<#if isModule>
@@ -429,11 +466,11 @@ public class ${genClassName}
 		return null;
 		</#if>
 	}
-	
+
 	public Class<? extends KrollProxy> getProxyClass() {
 		return ${proxyClassName}.class;
 	}
-	
+
 	public boolean isModule() {
 		return ${isModule?string}; 
 	}
