@@ -51,6 +51,8 @@ b2.addEventListener('click', function()
 	
 });
 
+var publishCount = 0;
+
 b1.addEventListener('click', function()
 {
 	if (Titanium.Facebook.isLoggedIn()==false)
@@ -59,12 +61,13 @@ b1.addEventListener('click', function()
 		return;
 	}
 
+	publishCount++;
 	// see http://wiki.developers.facebook.com/index.php/Attachment_(Streams)
 	// for description of the contents of this data object
 	var data = {
 		name:"Facebook Connect for Appcelerator Titanium",
 		href:"http://www.appcelerator.com",
-		caption:"Testing API",
+		caption:"Testing API (iteration " + publishCount + ")",
 		description: "Trying the Facebook Connect API ",
 		media:[
 			{
@@ -81,7 +84,7 @@ b1.addEventListener('click', function()
 			}
 		}
 	};
-	Titanium.Facebook.publishStream("Say something witty",data,null,function(r)
+	Titanium.Facebook.publishStream("Say something witty (iteration " + publishCount + ")",data,null,function(r)
 	{
 		Titanium.API.info("received publish stream response = "+JSON.stringify(r));
 		if (r.success)
@@ -97,3 +100,4 @@ b1.addEventListener('click', function()
 
 });
 
+win.add( Ti.UI.createLabel({ top: 140, left: 10, right: 10, text: 'Do "Publish Stream" at least two times, and make sure the "iteration n" increases each time.  This proves that the webview is not using cached responses, which is important.' }) );
