@@ -77,7 +77,7 @@ public class TiUIScrollView extends TiUIView {
 			int contentWidth = getContentProperty("contentWidth");
 			if (contentWidth == AUTO) {
 				int childMeasuredWidth = child.getMeasuredWidth();
-				if (!p.autoHeight) {
+				if (!p.autoWidth) {
 					childMeasuredWidth = p.optionWidth.getAsPixels(this);
 				}
 				if (p.optionLeft != null) {
