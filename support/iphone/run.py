@@ -32,9 +32,9 @@ def run(args,ignore_error=False,debug=True,out=None):
 		rc = proc.poll()
 		if rc!=None: break
 	if rc!=0:
-		print '\n'.join(["[ERROR] %s" % line for line in errors.split('\n')])
 		if out!=None: out.write("EXIT CODE WAS: %d\n" % rc)
 		if not ignore_error:
+			print '\n'.join(["[ERROR] %s" % line for line in errors.split('\n')])
 			if debug: print "[ERROR] exitcode was: %d" % rc
 			sys.exit(rc)
 		else:
