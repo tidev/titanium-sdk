@@ -357,6 +357,7 @@ public class FBRequest {
             String contentType = null;
             try {
                 conn = (HttpURLConnection)serverUrl.openConnection();
+                conn.setUseCaches(false);
                 conn.setRequestProperty("User-Agent", USER_AGENT);
     
                 byte[] body = null;
