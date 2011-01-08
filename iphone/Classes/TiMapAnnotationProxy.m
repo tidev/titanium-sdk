@@ -117,6 +117,11 @@
 	return result;
 }
 
+-(void) setCoordinate:(CLLocationCoordinate2D)coordinate {
+	[self setValue:[NSNumber numberWithDouble:coordinate.latitude] forUndefinedKey:@"latitude"];
+	[self setValue:[NSNumber numberWithDouble:coordinate.longitude] forUndefinedKey:@"longitude"];
+}
+
 // Title and subtitle for use by selection UI.
 - (NSString *)title
 {
