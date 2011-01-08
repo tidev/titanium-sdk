@@ -215,6 +215,15 @@ NSArray* moviePlayerKeys = nil;
 	return nil;
 }
 
+// TODO: Placing this in TiViewProxy would be better, but right now it screws up tableview.
+// So... move it there and fix tableview, when we have the time.
+-(void)relayout
+{
+	if (!CGRectEqualToRect(sandboxBounds, CGRectZero)) {
+		[super relayout];
+	}
+}
+
 -(void)viewWillAttach
 {
 	reallyAttached = YES;
