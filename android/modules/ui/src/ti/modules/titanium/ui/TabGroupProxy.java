@@ -239,6 +239,7 @@ public class TabGroupProxy extends TiWindowProxy
 		tg.changeActiveTab(initialActiveTab);
 
 		opened = true;
+		fireEvent(TiC.EVENT_OPEN, null);
 	}
 
 	@Override
