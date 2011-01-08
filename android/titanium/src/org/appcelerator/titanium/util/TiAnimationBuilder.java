@@ -51,7 +51,7 @@ public class TiAnimationBuilder
 	protected TiAnimation animationProxy;
 
 	protected KrollCallback callback;
-	protected boolean relayoutChild = false, applyOpacity = false;
+	protected boolean relayoutChild = false, applyOpacity = false, clearingAnimation = false;
 	protected KrollDict options;
 	protected View view;
 	protected TiViewProxy viewProxy;
@@ -195,12 +195,7 @@ public class TiAnimationBuilder
 				addAnimation(as, a);
 			}
 			if (tdm.hasTranslation()) {
-				Animation a = new TranslateAnimation(
-					0,
-					anchorPointX + tdm.getXTranslation(),
-					0,
-					anchorPointY + tdm.getYTranslation()
-					);
+				Animation a = new TranslateAnimation(0, tdm.getXTranslation(), 0, tdm.getYTranslation());
 				addAnimation(as, a);
 			}
 		}
@@ -326,16 +321,20 @@ public class TiAnimationBuilder
 			view.setLayoutParams(params);
 		}
 	}
-	
+
 	protected class AnimationListener implements Animation.AnimationListener {
 		@Override
 		public void onAnimationEnd(Animation a)
 		{
+			if (clearingAnimation) return;
+
 			if (relayoutChild) {
 				LayoutParams params = (LayoutParams) view.getLayoutParams();
 				TiConvert.fillLayout(options, params);
 				view.setLayoutParams(params);
+				clearingAnimation = true;
 				view.clearAnimation();
+				clearingAnimation = false;
 				relayoutChild = false;
 			}
 			if (applyOpacity) {

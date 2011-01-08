@@ -38,8 +38,12 @@ import org.json.simple.JSONValue;
 
 import freemarker.template.Configuration;
 import freemarker.template.DefaultObjectWrapper;
+import freemarker.template.SimpleNumber;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
+import freemarker.template.TemplateMethodModel;
+import freemarker.template.TemplateModel;
+import freemarker.template.TemplateModelException;
 
 @SupportedAnnotationTypes({
 	KrollBindingGenerator.Kroll_proxy,
@@ -632,13 +636,22 @@ public class KrollBindingGenerator extends AbstractProcessor {
 	
 	protected void generateProxies() {
 		Map<String,Object> proxies = (Map<String,Object>) properties.get("proxies");
-		
+		HashCodeMethod hashCodeMethod = new HashCodeMethod();
 		for (String proxyName : proxies.keySet()) {
 			Map<Object,Object> proxy = (Map<Object,Object>)proxies.get(proxyName);
 			HashMap<Object,Object> root = new HashMap<Object,Object>(proxy);
 			root.put("allModules", properties.get("modules"));
+			root.put("hashCode", hashCodeMethod);
 			
 			saveTypeTemplate(bindingTemplate, proxy.get("packageName")+"."+proxy.get("genClassName"), root);
+		}
+	}
+
+	protected class HashCodeMethod implements TemplateMethodModel {
+		@SuppressWarnings("rawtypes")
+		public TemplateModel exec(List args) throws TemplateModelException {
+			String arg = args.get(0).toString();
+			return new SimpleNumber(arg.hashCode());
 		}
 	}
 }
