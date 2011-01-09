@@ -43,6 +43,12 @@ public class TiUITableView extends TiUIView
 		proxy.fireEvent(TiC.EVENT_CLICK, data);
 	}
 	
+	@Override
+	public boolean onLongClick(KrollDict data) {
+		proxy.fireEvent(TiC.EVENT_LONG_CLICK, data);
+		return true;
+	}
+	
 	public void setModelDirty() {
 		tableView.getTableViewModel().setDirty();
 	}

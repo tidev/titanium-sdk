@@ -47,6 +47,7 @@ public class TableViewProxy extends TiViewProxy
 	public static final String PROPERTY_SEPARATOR_COLOR = "separatorColor";
 	public static final String PROPERTY_HEADER_VIEW = "headerView";
 	public static final String PROPERTY_FOOTER_VIEW = "footerView";
+	public static final String PROPERTY_LONG_CLICK = "longClick";
 	
 	public static final String EVENT_PROPERTY_LAYOUT_NAME = "layoutName";
 	public static final String EVENT_PROPERTY_SEARCH_MODE = "searchMode";

@@ -88,13 +88,32 @@ public class TiUIDialog extends TiUIView
 	}
 
 	private void processOptions(String[] optionText) {
-		getBuilder().setSingleChoiceItems(optionText, -1 , new DialogInterface.OnClickListener() {
-			public void onClick(DialogInterface dialog, int which) {
-				handleEvent(which);
-				dialog.dismiss();
+		if (proxy.hasProperty(TiC.PROPERTY_OPTIONS_STYLE)) {
+			String optionsStyle = TiConvert.toString(proxy.getProperty(TiC.PROPERTY_OPTIONS_STYLE));
+			if ( optionsStyle.equals("plain")) {
+				getBuilder().setItems(optionText, new DialogInterface.OnClickListener() {
+					public void onClick(DialogInterface dialog, int which) {
+						handleEvent(which);
+						dialog.dismiss();
+					}
+				});
+			} else {
+				getBuilder().setSingleChoiceItems(optionText, -1 , new DialogInterface.OnClickListener() {
+					public void onClick(DialogInterface dialog, int which) {
+						handleEvent(which);
+						dialog.dismiss();
+					}
+				});
 			}
-		});
-	}
+		} else {
+			getBuilder().setSingleChoiceItems(optionText, -1 , new DialogInterface.OnClickListener() {
+				public void onClick(DialogInterface dialog, int which) {
+					handleEvent(which);
+					dialog.dismiss();
+				}
+			});
+		}
+    }
 
 	private void processButtons(String[] buttonText) {
 		getBuilder().setPositiveButton(null, null);
