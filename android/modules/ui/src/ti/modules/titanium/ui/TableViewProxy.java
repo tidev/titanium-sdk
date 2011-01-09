@@ -92,7 +92,6 @@ public class TableViewProxy extends TiViewProxy
 				section.releaseViews();
 			}
 		}
-		localSections.clear();
 	}
 
 	@Override

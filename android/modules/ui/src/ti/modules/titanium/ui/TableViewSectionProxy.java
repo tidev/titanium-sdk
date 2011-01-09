@@ -101,6 +101,5 @@ public class TableViewSectionProxy extends TiViewProxy
 				row.releaseViews();
 			}
 		}
-		rows.clear();
 	}
 }
