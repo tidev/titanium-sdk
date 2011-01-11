@@ -19,6 +19,7 @@ var data = [
 if (Titanium.Platform.name == 'iPhone OS')
 {
 	data.push({title:'Map View with Routing', hasChild:true, test:'../examples/map_view2.js'});
+	data.push({title:'Map View with Pin Drag and Drop', hasChild:true, test:'../examples/map_view3.js'});	
 	data.push({title:'Events', hasChild:true, test:'../examples/view_events.js'});
 	data.push({title:'Events with Views', hasChild:true, test:'../examples/view_events_2.js'});
 	data.push({title:'Coverflow View', hasChild:true, test:'../examples/coverflow.js'});
