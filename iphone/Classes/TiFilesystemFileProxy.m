@@ -209,13 +209,19 @@ FILENOOP(setHidden:(id)x);
 	return NUMBOOL(result);
 }
 
+-(NSString *)_grabFirstArgumentAsFileName_:(id)args {
+    NSString * arg = [args objectAtIndex:0];
+    NSString * file = FILE_TOSTR(arg);
+    NSString * dest = [file stringByStandardizingPath];
+
+    return dest;
+}
+
 -(id)move:(id)args
 {
 	ENSURE_TYPE(args,NSArray);
 	NSError * error=nil;
-	NSString * arg = [args objectAtIndex:0];
-	NSString * file = FILE_TOSTR(arg);
-	NSString * dest = [file stringByStandardizingPath];
+	NSString * dest = [self _grabFirstArgumentAsFileName_:args];
     
     if (![dest isAbsolutePath]) {
         NSString * subpath = [path stringByDeletingLastPathComponent];
@@ -228,7 +234,19 @@ FILENOOP(setHidden:(id)x);
 
 -(id)rename:(id)args
 {
-	return [self move:args];
+    ENSURE_TYPE(args,NSArray);
+	NSString * dest = [self _grabFirstArgumentAsFileName_:args];
+    NSString * ourSubpath = [path stringByDeletingLastPathComponent];
+    
+    if ([dest isAbsolutePath]) {
+        NSString * destSubpath = [dest stringByDeletingLastPathComponent];
+
+        if (![ourSubpath isEqualToString:destSubpath]) {
+            return NUMBOOL(NO); // rename is not move
+        }
+    }
+    
+    return [self move:args];
 }
 
 -(id)read:(id)args
