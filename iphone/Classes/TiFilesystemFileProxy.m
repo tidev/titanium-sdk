@@ -216,6 +216,12 @@ FILENOOP(setHidden:(id)x);
 	NSString * arg = [args objectAtIndex:0];
 	NSString * file = FILE_TOSTR(arg);
 	NSString * dest = [file stringByStandardizingPath];
+    
+    if (![dest isAbsolutePath]) {
+        NSString * subpath = [path stringByDeletingLastPathComponent];
+        dest = [subpath stringByAppendingPathComponent:dest];
+    }
+    
 	BOOL result = [fm moveItemAtPath:path toPath:dest error:&error];
 	return NUMBOOL(result);	
 }
