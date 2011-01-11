@@ -1119,7 +1119,9 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
 
 -(void)fireEvent:(NSString*)type withObject:(id)obj withSource:(id)source propagate:(BOOL)propagate
 {
-	TiUIView* proxyView = [self view];
+	// Note that some events (like movie 'complete') are fired after the view is removed/dealloc'd.
+	// Because of the handling below, we can safely set the view to 'nil' in this case.
+	TiUIView* proxyView = [self viewAttached] ? [self view] : nil;
 	
 	// Have to handle the situation in which the proxy's view might be nil... like, for example,
 	// with table rows.  Automagically assume any nil view we're firing an event for is A-OK.

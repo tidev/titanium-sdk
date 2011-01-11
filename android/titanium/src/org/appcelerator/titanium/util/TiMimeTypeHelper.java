@@ -13,9 +13,12 @@ import android.webkit.MimeTypeMap;
 public class TiMimeTypeHelper
 {
 	public static final String MIME_TYPE_JAVASCRIPT = "text/javascript";
+	public static final String MIME_TYPE_HTML = "text/html";
 	public static final HashMap<String, String> EXTRA_MIMETYPES = new HashMap<String, String>();
 	static {
 		EXTRA_MIMETYPES.put("js", MIME_TYPE_JAVASCRIPT);
+		EXTRA_MIMETYPES.put("html", MIME_TYPE_HTML);
+		EXTRA_MIMETYPES.put("htm", MIME_TYPE_HTML);
 	}
 	
 	public static String getMimeType(String url) {

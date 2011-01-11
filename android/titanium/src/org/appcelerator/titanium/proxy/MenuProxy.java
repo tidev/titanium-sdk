@@ -14,10 +14,12 @@ import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
+import org.appcelerator.titanium.util.AsyncResult;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiConvert;
 
+import android.os.Message;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -26,6 +28,16 @@ public class MenuProxy extends KrollProxy
 {
 	private static final String LCAT = "MenuProxy";
 	private final boolean DBG = TiConfig.LOGD;
+
+	private static final int MSG_FIRST_ID = KrollProxy.MSG_LAST_ID + 1;
+	private static final int MSG_ADD = MSG_FIRST_ID + 100;
+	private static final int MSG_CLOSE = MSG_FIRST_ID + 101;
+	private static final int MSG_CLEAR = MSG_FIRST_ID + 102;
+	private static final int MSG_REMOVE_GROUP = MSG_FIRST_ID + 103;
+	private static final int MSG_REMOVE_ITEM = MSG_FIRST_ID + 104;
+	private static final int MSG_SET_GROUP_ENABLED = MSG_FIRST_ID + 105;
+	private static final int MSG_SET_GROUP_VISIBLE = MSG_FIRST_ID + 106;
+	protected static final int MSG_LAST_ID = MSG_FIRST_ID + 999;
 
 	protected Menu menu;
 	protected HashMap<MenuItem, MenuItemProxy> menuMap;
@@ -37,8 +49,68 @@ public class MenuProxy extends KrollProxy
 		menuMap = new HashMap<MenuItem,MenuItemProxy>();
 	}
 
+	@Override
+	public boolean handleMessage(Message msg) {
+		switch(msg.what) {
+			case MSG_ADD: {
+				AsyncResult result = (AsyncResult) msg.obj;
+				result.setResult(handleAdd((KrollDict) result.getArg()));
+				return true;
+			}
+			case MSG_CLOSE: {
+				AsyncResult result = (AsyncResult) msg.obj;
+				handleClose();
+				return true;
+			}
+			case MSG_CLEAR: {
+				AsyncResult result = (AsyncResult) msg.obj;
+				handleClear();
+				return true;
+			}
+			case MSG_REMOVE_GROUP: {
+				AsyncResult result = (AsyncResult) msg.obj;
+				handleRemoveGroup(((Integer) result.getArg()).intValue());
+				return true;
+			}
+			case MSG_REMOVE_ITEM: {
+				AsyncResult result = (AsyncResult) msg.obj;
+				handleRemoveItem(((Integer) result.getArg()).intValue());
+				return true;
+			}
+			case MSG_SET_GROUP_ENABLED: {
+				AsyncResult result = (AsyncResult) msg.obj;
+				handleSetGroupEnabled((HashMap) result.getArg());
+				return true;
+			}
+			case MSG_SET_GROUP_VISIBLE: {
+				AsyncResult result = (AsyncResult) msg.obj;
+				handleSetGroupVisible((HashMap) result.getArg());
+				return true;
+			}
+			default : {
+				return super.handleMessage(msg);
+			}
+		}
+	}
+
 	@Kroll.method
-	public MenuItemProxy add(KrollDict d) 
+	public MenuItemProxy add(KrollDict d)
+	{
+		MenuItemProxy mip = null;
+
+		if (getTiContext().isUIThread()) {
+			mip = handleAdd(d);
+			return mip;
+		}
+
+		AsyncResult result = new AsyncResult(d);
+		Message msg = getUIHandler().obtainMessage(MSG_ADD, result);
+		msg.sendToTarget();
+
+		return ((MenuItemProxy) result.getResult());
+	}
+
+	public MenuItemProxy handleAdd(KrollDict d) 
 	{
 		MenuItemProxy mip = null;
 		
@@ -70,7 +142,19 @@ public class MenuProxy extends KrollProxy
 	}
 
 	@Kroll.method
-	public void clear() {
+	public void clear()
+	{
+		if (getTiContext().isUIThread()) {
+			handleClear();
+			return;
+		}
+
+		AsyncResult result = new AsyncResult();
+		Message msg = getUIHandler().obtainMessage(MSG_CLEAR, result);
+		msg.sendToTarget();
+	}
+
+	public void handleClear() {
 		if (menu != null) {
 			menu.clear();
 			synchronized(menuMap) {
@@ -78,9 +162,21 @@ public class MenuProxy extends KrollProxy
 			}
 		}
 	}
-	
+
 	@Kroll.method
-	public void close() {
+	public void close()
+	{
+		if (getTiContext().isUIThread()) {
+			handleClose();
+			return;
+		}
+
+		AsyncResult result = new AsyncResult();
+		Message msg = getUIHandler().obtainMessage(MSG_CLOSE, result);
+		msg.sendToTarget();
+	}
+
+	public void handleClose() {
 		if (menu != null) {
 			menu.close();
 		}
@@ -123,9 +219,21 @@ public class MenuProxy extends KrollProxy
 	public boolean hasVisibleItems() {
 		return menu.hasVisibleItems();
 	}
-	
+
 	@Kroll.method
-	public void removeGroup(int groupId) {
+	public void removeGroup(int groupId)
+	{
+		if (getTiContext().isUIThread()) {
+			handleRemoveGroup(groupId);
+			return;
+		}
+
+		AsyncResult result = new AsyncResult(groupId);
+		Message msg = getUIHandler().obtainMessage(MSG_REMOVE_GROUP, result);
+		msg.sendToTarget();
+	}
+
+	public void handleRemoveGroup(int groupId) {
 		//TODO will get to get items in the group and remove them from our map
 		synchronized(menuMap) {
 			menu.removeGroup(groupId);
@@ -140,9 +248,21 @@ public class MenuProxy extends KrollProxy
 			menuMap = mm;
 		}
 	}
-	
+
 	@Kroll.method
-	public void removeItem(int itemId) {
+	public void removeItem(int itemId)
+	{
+		if (getTiContext().isUIThread()) {
+			handleRemoveItem(itemId);
+			return;
+		}
+
+		AsyncResult result = new AsyncResult(itemId);
+		Message msg = getUIHandler().obtainMessage(MSG_REMOVE_ITEM, result);
+		msg.sendToTarget();
+	}
+
+	public void handleRemoveItem(int itemId) {
 		//TODO remove item from list too
 		synchronized(menuMap) {
 			MenuItem mi = menu.findItem(itemId);
@@ -159,17 +279,49 @@ public class MenuProxy extends KrollProxy
 	@Kroll.method
 	public void setGroupCheckable(int groupId, boolean checkable, boolean exclusive) {
 	}
-	
+
 	@Kroll.method
-	public void setGroupEnabled(int groupId, boolean enabled) {
-		menu.setGroupEnabled(groupId, enabled);
+	public void setGroupEnabled(int groupId, boolean enabled)
+	{
+		HashMap args = new HashMap();
+		args.put("groupId", groupId);
+		args.put("enabled", enabled);
+
+		if (getTiContext().isUIThread()) {
+			handleSetGroupEnabled(args);
+			return;
+		}
+
+		AsyncResult result = new AsyncResult(args);
+		Message msg = getUIHandler().obtainMessage(MSG_SET_GROUP_ENABLED, result);
+		msg.sendToTarget();
+	}
+
+	public void handleSetGroupEnabled(HashMap args) {
+		menu.setGroupEnabled(((Integer)args.get("groupId")).intValue(), ((Boolean)args.get("enabled")).booleanValue());
 	}
 
 	@Kroll.method
-	public void setGroupVisible(int groupId, boolean visible) {
-		menu.setGroupVisible(groupId, visible);
+	public void setGroupVisible(int groupId, boolean visible)
+	{
+		HashMap args = new HashMap();
+		args.put("groupId", groupId);
+		args.put("visible", visible);
+
+		if (getTiContext().isUIThread()) {
+			handleSetGroupVisible(args);
+			return;
+		}
+
+		AsyncResult result = new AsyncResult(args);
+		Message msg = getUIHandler().obtainMessage(MSG_SET_GROUP_VISIBLE, result);
+		msg.sendToTarget();
 	}
-	
+
+	public void handleSetGroupVisible(HashMap args) {
+		menu.setGroupVisible(((Integer)args.get("groupId")).intValue(), ((Boolean)args.get("visible")).booleanValue());
+	}
+
 	@Kroll.method
 	public int size() {
 		return menu.size();
