@@ -938,6 +938,8 @@ public class TiHTTPClient
 				ThreadSafeClientConnManager manager = new ThreadSafeClientConnManager(params, registry);
 				if (client == null) {
 					client = new DefaultHttpClient(manager, params);
+				} else {
+					client.setParams(params);
 				}
 				
 				if (credentials != null) {
