@@ -194,21 +194,23 @@
 
 -(void)open:(NSArray*)args
 {
-	[self performSelectorOnMainThread:@selector(openOnUIThread:) withObject:args waitUntilDone:YES];
-}
-
--(void)openOnUIThread:(NSArray*)args
-{
 	TiWindowProxy *window = [args objectAtIndex:0];
 	ENSURE_TYPE(window,TiWindowProxy);
 	// since the didShow notification above happens on both a push and pop, i need to keep a flag
 	// to let me know which state i'm in so i only close the current window on a pop
 	opening = YES;
-	BOOL animated = args!=nil && [args count] > 1 ? [TiUtils boolValue:@"animated" properties:[args objectAtIndex:1] def:YES] : YES;
-	TiUITabController *root = [[TiUITabController alloc] initWithProxy:window tab:self];
 	[window setParentOrientationController:self];
 	// TODO: Slap patch.  Views, when opening/added, should check parent visibility (and parent/parent visibility, if possible)
 	[window parentWillShow];
+
+	[self performSelectorOnMainThread:@selector(openOnUIThread:) withObject:args waitUntilDone:NO];
+}
+
+-(void)openOnUIThread:(NSArray*)args
+{
+	TiWindowProxy *window = [args objectAtIndex:0];
+	BOOL animated = args!=nil && [args count] > 1 ? [TiUtils boolValue:@"animated" properties:[args objectAtIndex:1] def:YES] : YES;
+	TiUITabController *root = [[TiUITabController alloc] initWithProxy:window tab:self];
 
 	[self controller];
 	[[rootController navigationController] pushViewController:root animated:animated];
