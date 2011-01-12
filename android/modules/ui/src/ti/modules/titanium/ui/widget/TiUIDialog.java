@@ -82,7 +82,13 @@ public class TiUIDialog extends TiUIView
 			processView((TiViewProxy) proxy.getProperty(TiC.PROPERTY_ANDROID_VIEW));
 		} else if (d.containsKey(TiC.PROPERTY_OPTIONS)) {
 			String[] optionText = d.getStringArray(TiC.PROPERTY_OPTIONS);
-			processOptions(optionText);
+			int selectedIndex = d.containsKey(TiC.PROPERTY_SELECTED_INDEX) ? d.getInt(TiC.PROPERTY_SELECTED_INDEX) : -1; 
+			if(selectedIndex > optionText.length){
+				Log.d(LCAT, "Ooops invalid selected index specified: " + selectedIndex);
+				selectedIndex = -1;
+			}
+			
+			processOptions(optionText, selectedIndex);
 		}
 		super.processProperties(d);
 	}
@@ -96,6 +102,15 @@ public class TiUIDialog extends TiUIView
 		});
 	}
 
+	private void processOptions(String[] optionText,int selectedIndex) {
+		getBuilder().setSingleChoiceItems(optionText, selectedIndex , new DialogInterface.OnClickListener() {
+			public void onClick(DialogInterface dialog, int which) {
+				handleEvent(which);
+				dialog.dismiss();
+			}
+		});
+	}
+	
 	private void processButtons(String[] buttonText) {
 		getBuilder().setPositiveButton(null, null);
 		getBuilder().setNegativeButton(null, null);
