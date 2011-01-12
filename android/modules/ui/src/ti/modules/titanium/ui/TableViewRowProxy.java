@@ -88,6 +88,11 @@ public class TableViewRowProxy extends TiViewProxy
 		return (TableViewProxy)parent;
 	}
 
+  @Kroll.setProperty @Kroll.method
+  public void setHasCheck(boolean check) { 
+     Log.w(LCAT, "Trigger hasCheck set");
+  }
+
 	@Override
 	public void set(Scriptable scope, String name, Object value)
 			throws NoSuchFieldException {
