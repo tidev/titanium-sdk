@@ -131,6 +131,8 @@ def copy_module_resources(source, target, copy_all=False, force=False):
 				if os.path.exists(to_): os.remove(to_)
 				shutil.copyfile(from_, to_)
 
+# WARNING: This could be a time bomb waiting to happen, because it mangles
+# the app bundle name for NO REASON.  Or... does it?
 def make_app_name(s):
 	r = re.compile('[0-9a-zA-Z_]')
 	buf = ''
@@ -853,7 +855,8 @@ def main(args):
 				if not os.path.exists(app_dir): os.makedirs(app_dir)
 
 				# compile localization files
-				localecompiler.LocaleCompiler(app_name,project_dir,devicefamily,command).compile()
+				# Using app_name here will cause the locale to be put in the WRONG bundle!!
+				localecompiler.LocaleCompiler(name,project_dir,devicefamily,command).compile()
 				
 				# copy any module resources
 				if len(tp_module_asset_dirs)>0:
