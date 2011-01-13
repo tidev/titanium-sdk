@@ -195,6 +195,14 @@ NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._listeners={
 	// attempt to make well-formed HTML and inject in our Titanium bridge code
 	// However, we only do this if the content looks like HTML
 	NSRange range = [content rangeOfString:@"<html"];
+	if (range.location==NSNotFound)
+	{
+		//TODO: Someone did a DOCTYPE, and our search wouldn't find it. This search is tailored for him
+		//to cause the bug to go away, but is this really the right thing to do? Shouldn't we have a better
+		//way to check?
+		range = [content rangeOfString:@"<!DOCTYPE html"];
+	}
+
 	if (range.location!=NSNotFound)
 	{
 		[self prepareInjection];
