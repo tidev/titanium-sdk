@@ -12,10 +12,8 @@ import java.util.concurrent.RejectedExecutionException;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.view.TiDrawableReference;
+import org.appcelerator.titanium.view.TiDrawableReference.Bounds;
 
-import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.view.View;
 
@@ -27,26 +25,20 @@ import android.view.View;
  *
  */
 public abstract class TiBackgroundImageLoadTask
-	extends AsyncTask<String, Long, Drawable>
+	extends AsyncTask<String, Long, Boolean>
 {
 	private static final String LCAT = "TiBackgroundImageLoadTask";
 	private static final boolean DBG = TiConfig.LOGD;
 
 	protected SoftReference<TiContext> softTiContext;
-	protected SoftReference<View> parent;
-	protected TiDimension imageHeight;
-	protected TiDimension imageWidth;
 
-	public TiBackgroundImageLoadTask(TiContext tiContext, View parent, TiDimension imageWidth, TiDimension imageHeight)
+	public TiBackgroundImageLoadTask(TiContext tiContext)
 	{
 		this.softTiContext = new SoftReference<TiContext>(tiContext);
-		this.parent = new SoftReference<View>(parent);
-		this.imageWidth = imageWidth;
-		this.imageHeight = imageHeight;
 	}
 
 	@Override
-	protected Drawable doInBackground(String... arg) {
+	protected Boolean doInBackground(String... arg) {
 
 		if (arg.length == 0) {
 			Log.w(LCAT, "url argument is missing.  Returning null drawable");
@@ -54,9 +46,9 @@ public abstract class TiBackgroundImageLoadTask
 		}
 		
 		String url = arg[0];
-		Drawable d = null;
+		boolean downloaded = false;
 		TiContext context = softTiContext.get();
-		if (context == null || parent.get() == null) {
+		if (context == null) {
 			if (DBG) {
 				Log.d(LCAT, "doInBackground exiting early because context already gc'd");
 			}
@@ -71,10 +63,9 @@ public abstract class TiBackgroundImageLoadTask
 		while(retry) {
 			retry = false;
 
-			Bitmap b = ref.getBitmap(parent.get(), imageWidth, imageHeight);
-			if (b != null) {
-				d = new BitmapDrawable(b);
-				
+			Bounds bounds = ref.peakBounds();
+			if (bounds.getWidth() > 0 && bounds.getHeight() > 0) {
+				downloaded = true;
 			} else if (ref.outOfMemoryOccurred()) {
 				Log.e(LCAT, "Not enough memory left to load image: " + url);
 				retryCount -= 1;
@@ -95,11 +86,10 @@ public abstract class TiBackgroundImageLoadTask
 				if (DBG) {
 					Log.d(LCAT, "TiDrawableReference.getBitmap() (url '" + url + "') returned null");
 				}
-				return null;
 			}
 		}
 		
-		return d;
+		return downloaded;
 	}
 
 	public void load(String url) {
