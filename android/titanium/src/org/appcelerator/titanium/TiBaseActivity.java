@@ -233,7 +233,7 @@ public class TiBaseActivity extends Activity
 		windowCreated();
 
 		if (activityProxy != null) {
-			activityProxy.fireEvent(TiC.EVENT_CREATE, null);
+			activityProxy.fireSyncEvent(TiC.EVENT_CREATE, null);
 		}
 		
 		setContentView(layout);
@@ -508,7 +508,7 @@ public class TiBaseActivity extends Activity
 		getTiApp().setWindowHandler(null);
 		getTiApp().setCurrentActivity(this, null);
 		if (activityProxy != null) {
-			activityProxy.fireEvent(TiC.EVENT_PAUSE, null);
+			activityProxy.fireSyncEvent(TiC.EVENT_PAUSE, null);
 		}
 	}
 
@@ -522,7 +522,7 @@ public class TiBaseActivity extends Activity
 		getTiApp().setWindowHandler(this);
 		getTiApp().setCurrentActivity(this, this);
 		if (activityProxy != null) {
-			activityProxy.fireEvent(TiC.EVENT_RESUME, null);
+			activityProxy.fireSyncEvent(TiC.EVENT_RESUME, null);
 		}
 	}
 
@@ -540,7 +540,7 @@ public class TiBaseActivity extends Activity
 			mustFireInitialFocus = true;
 		}
 		if (activityProxy != null) {
-			activityProxy.fireEvent(TiC.EVENT_START, null);
+			activityProxy.fireSyncEvent(TiC.EVENT_START, null);
 		}
 	}
 
@@ -554,7 +554,7 @@ public class TiBaseActivity extends Activity
 			window.fireEvent(TiC.EVENT_BLUR, null);
 		}
 		if (activityProxy != null) {
-			activityProxy.fireEvent(TiC.EVENT_STOP, null);
+			activityProxy.fireSyncEvent(TiC.EVENT_STOP, null);
 		}
 	}
 
@@ -579,7 +579,7 @@ public class TiBaseActivity extends Activity
 			menuProxy = null;
 		}
 		if (activityProxy != null) {
-			activityProxy.fireEvent(TiC.EVENT_DESTROY, null);
+			activityProxy.fireSyncEvent(TiC.EVENT_DESTROY, null);
 			activityProxy.release();
 			activityProxy = null;
 		}

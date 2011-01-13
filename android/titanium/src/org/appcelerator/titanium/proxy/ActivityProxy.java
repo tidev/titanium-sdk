@@ -33,16 +33,19 @@ public class ActivityProxy extends KrollProxy
 	protected IntentProxy intentProxy;
 	protected KrollCallback resultCallback;
 
-	public ActivityProxy(TiContext tiContext) {
+	public ActivityProxy(TiContext tiContext)
+	{
 		super(tiContext);
 	}
 
-	public ActivityProxy(TiContext tiContext, Activity activity) {
+	public ActivityProxy(TiContext tiContext, Activity activity)
+	{
 		this(tiContext);
 		setActivity(tiContext, activity);
 	}
 	
-	public void setActivity(TiContext tiContext, Activity activity) {
+	public void setActivity(TiContext tiContext, Activity activity)
+	{
 		this.activity = activity;
 		Intent intent = activity.getIntent();
 		if (intent != null) {
@@ -50,7 +53,8 @@ public class ActivityProxy extends KrollProxy
 		}
 	}
 
-	protected Activity getActivity(KrollInvocation invocation) {
+	protected Activity getActivity(KrollInvocation invocation)
+	{
 		Activity activity = this.activity;
 		if (activity != null) return activity;
 
@@ -69,7 +73,8 @@ public class ActivityProxy extends KrollProxy
 	}
 
 	@Kroll.method
-	public void startActivity(KrollInvocation invocation, IntentProxy intent) {
+	public void startActivity(KrollInvocation invocation, IntentProxy intent)
+	{
 		Activity activity = getActivity(invocation);
 		if (activity != null) {
 			activity.startActivity(intent.getIntent());
@@ -77,7 +82,9 @@ public class ActivityProxy extends KrollProxy
 	}
 
 	@Kroll.method
-	public void startActivityForResult(KrollInvocation invocation, IntentProxy intent, KrollCallback callback) {
+	public void startActivityForResult(KrollInvocation invocation,
+		IntentProxy intent, KrollCallback callback)
+	{
 		Activity activity = getActivity(invocation);
 		if (activity != null) {
 			TiActivitySupport support = null;
@@ -94,7 +101,9 @@ public class ActivityProxy extends KrollProxy
 	}
 
 	@Kroll.method
-	public void startActivityFromChild(KrollInvocation invocation, ActivityProxy child, IntentProxy intent, int requestCode) {
+	public void startActivityFromChild(KrollInvocation invocation,
+		ActivityProxy child, IntentProxy intent, int requestCode)
+	{
 		Activity activity = getActivity(invocation);
 		if (activity != null) {
 			activity.startActivityFromChild(child.getActivity(), intent.getIntent(), requestCode);
@@ -102,7 +111,8 @@ public class ActivityProxy extends KrollProxy
 	}
 
 	@Kroll.method
-	public boolean startActivityIfNeeded(KrollInvocation invocation, IntentProxy intent, int requestCode) {
+	public boolean startActivityIfNeeded(KrollInvocation invocation, IntentProxy intent, int requestCode)
+	{
 		Activity activity = getActivity(invocation);
 		if (activity != null) {
 			return activity.startActivityIfNeeded(intent.getIntent(), requestCode);
@@ -111,7 +121,8 @@ public class ActivityProxy extends KrollProxy
 	}
 
 	@Kroll.method
-	public boolean startNextMatchingActivity(KrollInvocation invocation, IntentProxy intent) {
+	public boolean startNextMatchingActivity(KrollInvocation invocation, IntentProxy intent)
+	{
 		Activity activity = getActivity(invocation);
 		if (activity != null) {
 			return activity.startNextMatchingActivity(intent.getIntent());
@@ -120,7 +131,8 @@ public class ActivityProxy extends KrollProxy
 	}
 
 	@Kroll.method
-	public String getString(KrollInvocation invocation, int resId, Object[] formatArgs) {
+	public String getString(KrollInvocation invocation, int resId, Object[] formatArgs)
+	{
 		Activity activity = getActivity(invocation);
 		if (activity != null) {
 			if (formatArgs == null || formatArgs.length == 0) {
@@ -133,12 +145,14 @@ public class ActivityProxy extends KrollProxy
 	}
 
 	@Kroll.method @Kroll.getProperty
-	public IntentProxy getIntent() {
+	public IntentProxy getIntent()
+	{
 		return intentProxy;
 	}
 
 	@Kroll.method @Kroll.setProperty
-	public void setRequestedOrientation(KrollInvocation invocation, int orientation) {
+	public void setRequestedOrientation(KrollInvocation invocation, int orientation)
+	{
 		Activity activity = getActivity(invocation);
 		if (activity != null) {
 			activity.setRequestedOrientation(orientation);
@@ -159,8 +173,18 @@ public class ActivityProxy extends KrollProxy
 		}
 	}
 
+	@Kroll.method
+	public void finish(KrollInvocation invocation)
+	{
+		Activity activity = getActivity(invocation);
+		if (activity != null) {
+			activity.finish();
+		}
+	}
+
 	@Override
-	public void onResult(Activity activity, int requestCode, int resultCode, Intent data) {
+	public void onResult(Activity activity, int requestCode, int resultCode, Intent data)
+	{
 		if (resultCallback == null) return;
 		KrollDict event = new KrollDict();
 		event.put(TiC.EVENT_PROPERTY_REQUEST_CODE, requestCode);
@@ -171,7 +195,8 @@ public class ActivityProxy extends KrollProxy
 	}
 
 	@Override
-	public void onError(Activity activity, int requestCode, Exception e) {
+	public void onError(Activity activity, int requestCode, Exception e)
+	{
 		if (resultCallback == null) return;
 		KrollDict event = new KrollDict();
 		event.put(TiC.EVENT_PROPERTY_REQUEST_CODE, requestCode);
@@ -180,18 +205,21 @@ public class ActivityProxy extends KrollProxy
 		resultCallback.callAsync(event);
 	}
 
-	public Context getContext() {
+	public Context getContext()
+	{
 		if (activity == null) {
 			return getTiContext().getActivity().getApplication();
 		}
 		return activity;
 	}
 
-	public Activity getActivity() {
+	public Activity getActivity()
+	{
 		return activity;
 	}
 
-	public void release() {
+	public void release()
+	{
 		activity = null;
 	}
 }

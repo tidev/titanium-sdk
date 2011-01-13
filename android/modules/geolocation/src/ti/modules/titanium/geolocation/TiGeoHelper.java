@@ -145,7 +145,7 @@ public abstract class TiGeoHelper implements OnLifecycleEvent
 			}
 			synchronized(listeners) {
 				for (KrollMethod listener : listeners) {
-					proxy.fireSingleEvent(eventName, listener, data);
+					proxy.fireSingleEvent(eventName, listener, data, true);
 				}
 			}
 		}
