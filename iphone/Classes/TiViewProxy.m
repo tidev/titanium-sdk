@@ -1121,7 +1121,11 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
 {
 	// Note that some events (like movie 'complete') are fired after the view is removed/dealloc'd.
 	// Because of the handling below, we can safely set the view to 'nil' in this case.
-	TiUIView* proxyView = [self viewAttached] ? [self view] : nil;
+	TiUIView* proxyView = [self viewAttached] ? view : nil;
+	//TODO: We have to do view instead of [self view] because of a freaky race condition that can
+	//happen in the background (See bug 2809). This assumes that view == [self view], which may
+	//not always be the case in the future. Then again, we shouldn't be dealing with view in the BG...
+	
 	
 	// Have to handle the situation in which the proxy's view might be nil... like, for example,
 	// with table rows.  Automagically assume any nil view we're firing an event for is A-OK.
