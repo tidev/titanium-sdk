@@ -30,8 +30,17 @@ public class KrollScriptableDict extends KrollDict implements KrollConvertable {
 	@Override
 	public boolean containsKey(Object key) {
 		if (key == null) return false;
-		
-		return scriptable.has(key.toString(), scriptable);
+		if (key instanceof Integer) {
+			return scriptable.has((Integer)key, scriptable);
+		}
+		if (!scriptable.has(key.toString(), scriptable)) {
+			try {
+				Integer i = Integer.valueOf(key.toString());
+				return scriptable.has(i, scriptable);
+			} catch (NumberFormatException e) {}
+			return false;
+		}
+		return true;
 	}
 	
 	@Override
@@ -103,7 +112,13 @@ public class KrollScriptableDict extends KrollDict implements KrollConvertable {
 		// Treat NOT_FOUND as null
 		Object value = scriptable.get(key.toString(), scriptable);
 		if (value == Scriptable.NOT_FOUND) {
-			return null;
+			try {
+				Integer i = Integer.valueOf(key.toString());
+				value = scriptable.get(i, scriptable);
+			} catch (NumberFormatException e) {}
+			if (value == Scriptable.NOT_FOUND) {
+				return null;
+			}
 		}
 		
 		KrollInvocation invocation = KrollInvocation.createPropertyGetInvocation(scriptable, scriptable, key.toString(), null, null);
