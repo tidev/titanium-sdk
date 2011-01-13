@@ -292,7 +292,9 @@ public class TiConvert
 	public static String[] toStringArray(Object[] parts) {
 		String[] sparts = (parts != null ? new String[parts.length] : new String[0]);
 		if (parts != null) {
-			System.arraycopy(parts, 0, sparts, 0, parts.length);
+			for (int i = 0; i < parts.length; i++) {
+				sparts[i] = parts[i] == null ? null : parts[i].toString();
+			}
 		}
 		return sparts;
 	}

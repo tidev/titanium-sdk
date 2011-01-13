@@ -67,7 +67,7 @@ import ${packageName}.${proxyClassName};
 <#macro generateMethodCall methodName args returnType converter hasInvocation hasArgArray firstArgValue returnUndefinedForVoid>
 	<#local varArgsIndex = -1>
 	<#list args as arg>
-		<#if arg.type == "java.lang.Object[]">
+		<#if arg.type == "java.lang.Object[]" && arg_index = args?size - 1>
 			<#local varArgsIndex = arg_index>
 		</#if>
 	</#list>

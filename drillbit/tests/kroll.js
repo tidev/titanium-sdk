@@ -83,5 +83,15 @@ describe("Kroll tests",
 		
 		valueOf(row._testDate.getTime()).shouldBe(testDate.getTime());
 		valueOf(row._testDate).shouldBe(testDate);
+	},
+	
+	// https://appcelerator.lighthouseapp.com/projects/32238/tickets/2341-android-incorrect-method-parameter-binding-if-first-parameter-is-object-and-a-value-is-passed-for-second-parameter
+	// https://appcelerator.lighthouseapp.com/projects/32238-titanium-mobile/tickets/2065-android-behavior-change-in-set-row-data-test-case#ticket-2065-5
+	varArgs: function() {
+		valueOf(Ti.App.Properties.getList("x.y.z", ["abcdefg"])).shouldMatchArray(["abcdefg"]);
+		var tv = Ti.UI.createTableView();
+		valueOf(function() {
+			tv.setData([{ title: "test" }], {options: "x"});
+		}).shouldNotThrowException();
 	}
 });
