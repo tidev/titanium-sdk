@@ -13,15 +13,14 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
-import org.appcelerator.titanium.TiContext.OnLifecycleEvent;
 import org.appcelerator.titanium.TiDimension;
+import org.appcelerator.titanium.TiContext.OnLifecycleEvent;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.AsyncResult;
 import org.appcelerator.titanium.util.Log;
@@ -34,6 +33,7 @@ import org.appcelerator.titanium.view.TiDrawableReference;
 import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.filesystem.FileProxy;
+import ti.modules.titanium.ui.widget.TiImageView.OnSizeChangeListener;
 import android.app.Activity;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
@@ -50,7 +50,6 @@ public class TiUIImageView extends TiUIView
 	private static final String LCAT = "TiUIImageView";
 	private static final boolean DBG = TiConfig.LOGD;
 
-	private static final AtomicInteger imageTokenGenerator = new AtomicInteger(0);
 	private static final int FRAME_QUEUE_SIZE = 5;
 
 	private Timer timer;
@@ -61,7 +60,6 @@ public class TiUIImageView extends TiUIView
 	private AtomicBoolean animating = new AtomicBoolean(false);
 	private boolean reverse = false;
 	private boolean paused = false;
-	private int token;
 	private boolean firedLoad;
 	
 	private TiDimension requestedWidth;
@@ -72,19 +70,16 @@ public class TiUIImageView extends TiUIView
 
 	private class BgImageLoader extends TiBackgroundImageLoadTask
 	{
-		private int token;
-
-		public BgImageLoader(TiContext tiContext, TiDimension imageWidth, TiDimension imageHeight, int token) {
-			super(tiContext, getParentView(), imageWidth, imageHeight);
-			this.token = token;
+		public BgImageLoader(TiContext tiContext) {
+			super(tiContext);
 		}
 
 		@Override
-		protected void onPostExecute(Drawable d) {
-			super.onPostExecute(d);
+		protected void onPostExecute(Boolean downloaded) {
+			super.onPostExecute(downloaded);
 
-			if (d != null) {
-				setImageDrawable(d, token);
+			if (downloaded) {
+				setImage();
 			} else {
 				if (DBG) {
 					String traceMsg = "Background image load returned null";
@@ -108,6 +103,14 @@ public class TiUIImageView extends TiUIView
 		}
 
 		TiImageView view = new TiImageView(proxy.getContext());
+		view.setOnSizeChangeListener(new OnSizeChangeListener() {
+			
+			@Override
+			public void sizeChanged(int w, int h, int oldWidth, int oldHeight) {
+				setImage();
+			}
+		});
+		
 		setNativeView(view);
 		proxy.getTiContext().addOnLifecycleEventListener(this);
 	}
@@ -123,20 +126,6 @@ public class TiUIImageView extends TiUIView
 			return (View)parent;
 		}
 		return null;
-	}
-
-	// This method is intented to only be use from the background task, it's basically
-	// an optimistic commit.
-	private void setImageDrawable(Drawable d, int token) {
-		TiImageView view = getView();
-		if (view != null) {
-			synchronized(imageTokenGenerator) {
-				if (this.token == token) {
-					view.setImageDrawable(d, false);
-					token = -1;
-				}
-			}
-		}
 	}
 
 	private Handler handler = new Handler(this);
@@ -488,6 +477,8 @@ public class TiUIImageView extends TiUIView
 						getAsync = false;
 						if (nativeView.getParent() instanceof View) {
 							setImage(imageref.getBitmap(getParentView(), requestedWidth, requestedHeight));
+						} else {
+							setImage(imageref.getBitmap(getParentView(), requestedWidth, requestedHeight));
 						}
 					}
 				} catch (URISyntaxException e) {
@@ -495,10 +486,7 @@ public class TiUIImageView extends TiUIView
 					e.printStackTrace();
 				}
 				if (getAsync) {
-					synchronized(imageTokenGenerator) {
-						token = imageTokenGenerator.incrementAndGet();
-						imageref.getBitmapAsync(new BgImageLoader(getProxy().getTiContext(), requestedWidth, requestedHeight, token));
-					}
+					imageref.getBitmapAsync(new BgImageLoader(getProxy().getTiContext()));
 				}
 			} else {
 				setImage(imageref.getBitmap(getParentView(), requestedWidth, requestedHeight));
@@ -573,6 +561,8 @@ public class TiUIImageView extends TiUIView
 		super.processProperties(d);
 	}
 
+	
+	
 	@Override
 	public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy proxy)
 	{
