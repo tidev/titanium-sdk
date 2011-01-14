@@ -171,7 +171,13 @@ public class IntentProxy extends KrollProxy
 			intent.putExtra(key, TiConvert.toString(value));
 		}
 	}
-	
+
+	@Kroll.method
+	public void putExtraUri(String key, String uri)
+	{
+		intent.putExtra(key, Uri.parse(uri));
+	}
+
 	@Kroll.method
 	public void addCategory(String category) {
 		if (category != null) {
