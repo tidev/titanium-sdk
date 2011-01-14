@@ -22,12 +22,15 @@ import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.io.TiBaseFile;
 import org.appcelerator.titanium.kroll.KrollCallback;
 import org.appcelerator.titanium.util.Log;
+import org.appcelerator.titanium.util.TiActivityResultHandler;
+import org.appcelerator.titanium.util.TiActivitySupport;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiConvert;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 
 import com.facebook.android.AsyncFacebookRunner;
@@ -141,6 +144,18 @@ public class FacebookModule extends KrollModule
 		} else {
 			return new Date(0);
 		}
+	}
+	
+	private boolean forceDialogAuth = true;
+	@Kroll.getProperty
+	public boolean getForceDialogAuth()
+	{
+		return forceDialogAuth;
+	}
+	@Kroll.setProperty
+	public void setForceDialogAuth(boolean value)
+	{
+		this.forceDialogAuth = value;
 	}
 	
 	// Public Methods
@@ -318,7 +333,32 @@ public class FacebookModule extends KrollModule
 	
 	protected void executeAuthorize(Activity activity)
 	{
-		facebook.authorize(activity, permissions, Facebook.FORCE_DIALOG_AUTH, new LoginDialogListener());
+		int activityCode = Facebook.FORCE_DIALOG_AUTH;
+		if (forceDialogAuth) {
+			facebook.authorize(activity, permissions, activityCode, new LoginDialogListener());
+		} else {
+			// Single sign-on support
+			TiActivitySupport activitySupport  = (TiActivitySupport) activity;
+			activityCode = activitySupport.getUniqueResultCode();
+			TiActivityResultHandler resultHandler = new TiActivityResultHandler()
+			{
+				@Override
+				public void onResult(Activity activity, int requestCode, int resultCode, Intent data)
+				{
+					if (DBG) {
+						Log.d(LCAT, "onResult from Facebook single sign-on attempt. resultCode: " + resultCode);
+					}
+					facebook.authorizeCallback(requestCode, resultCode, data);
+				}
+				@Override
+				public void onError(Activity activity, int requestCode, Exception e)
+				{
+					Log.e(LCAT, e.getLocalizedMessage(), e);
+				}
+			};
+			facebook.authorize(activity, activitySupport, permissions, activityCode, new LoginDialogListener(), 
+					resultHandler);
+		}
 	}
 	
 	protected void executeLogout(Activity activity)

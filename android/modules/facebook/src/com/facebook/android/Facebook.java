@@ -13,12 +13,34 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+/*
+ * MODIFICATIONS
+ * 
+ * Appcelerator Titanium Mobile
+ * Copyright (c) 2011 by Appcelerator, Inc. All Rights Reserved.
+ * Licensed under the terms of the Apache Public License
+ * Please see the LICENSE included with this distribution for details.
+ */
+
+/*
+ * NOTES
+ * Modifications made for Titanium:
+ * - add versions of authorize() and startSingleSignOn() which accept
+ * TiActivitySupport and TiActivityResultHandler as arguments so that 
+ * we can hook into the activity's onActivityResult.
+ * 
+ * Original file this is based on:
+ * https://github.com/facebook/facebook-android-sdk/blob/ac14a5fe46e477d5503c95cea1c6db1c6d3e51cc/facebook/src/com/facebook/android/Facebook.java
+ */
 
 package com.facebook.android;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.MalformedURLException;
+
+import org.appcelerator.titanium.util.TiActivityResultHandler;
+import org.appcelerator.titanium.util.TiActivitySupport;
 
 import android.Manifest;
 import android.app.Activity;
@@ -195,7 +217,7 @@ public class Facebook {
             startDialogAuth(activity, permissions);
         }
     }
-
+    
     /**
      * Internal method to handle single sign-on backend for authorize().
      *
@@ -234,6 +256,66 @@ public class Facebook {
         mAuthActivityCode = activityCode;
         try {
             activity.startActivityForResult(intent, activityCode);
+        } catch (ActivityNotFoundException e) {
+            didSucceed = false;
+        }
+
+        return didSucceed;
+    }
+    
+ // *************** APPCELERATOR TITANIUM CUSTOMIZATION ***************************
+    /**
+     * Custom version of authorize() for Titanium, so that the TiActivitySupport
+     * can be used to call startActivityForResult and we can hook into the result
+     */
+    public void authorize(Activity activity, TiActivitySupport activitySupport, String[] permissions,
+            int activityCode, final DialogListener listener, TiActivityResultHandler resultHandler) {
+
+        boolean singleSignOnStarted = false;
+
+        mAuthDialogListener = listener;
+
+        // Prefer single sign-on, where available.
+        if (activityCode >= 0) {
+            singleSignOnStarted = startSingleSignOn(activity, activitySupport, mAppId,
+                    permissions, activityCode, resultHandler);
+        }
+        // Otherwise fall back to traditional dialog.
+        if (!singleSignOnStarted) {
+            startDialogAuth(activity, permissions);
+        }
+    }
+    
+ // *************** APPCELERATOR TITANIUM CUSTOMIZATION ***************************
+    /**
+     * Custom version of startSingleSignOn() for Titanium, so that the TiActivitySupport
+     * can be used to call startActivityForResult and we can hook into the result
+     */
+    private boolean startSingleSignOn(Activity activity, TiActivitySupport activitySupport,
+    		String applicationId, String[] permissions, int activityCode, 
+    		TiActivityResultHandler resultHandler) {
+        boolean didSucceed = true;
+        Intent intent = new Intent();
+
+        intent.setClassName("com.facebook.katana",
+                "com.facebook.katana.ProxyAuth");
+        intent.putExtra("client_id", applicationId);
+        if (permissions.length > 0) {
+            intent.putExtra("scope", TextUtils.join(",", permissions));
+        }
+
+        // Verify that the application whose package name is
+        // com.facebook.katana.ProxyAuth
+        // has the expected FB app signature.
+        if (!validateAppSignatureForIntent(activity, intent)) {
+            return false;
+        }
+
+        mAuthActivity = activity;
+        mAuthPermissions = permissions;
+        mAuthActivityCode = activityCode;
+        try {
+        	activitySupport.launchActivityForResult(intent, activityCode, resultHandler);
         } catch (ActivityNotFoundException e) {
             didSucceed = false;
         }
