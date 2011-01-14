@@ -274,7 +274,6 @@ public abstract class TiUIView
 			}
 		} else if (key.equals(TiC.PROPERTY_TOUCH_ENABLED)) {
 			nativeView.setClickable(TiConvert.toBoolean(newValue));
-			// nativeView.setLongClickable(TiConvert.toBoolean(newValue));
 		} else if (key.equals(TiC.PROPERTY_VISIBLE)) {
 			nativeView.setVisibility(TiConvert.toBoolean(newValue) ? View.VISIBLE : View.INVISIBLE);
 		} else if (key.equals(TiC.PROPERTY_ENABLED)) {
@@ -672,7 +671,7 @@ public abstract class TiUIView
 					return handledTap || handledClick;
 				}
 
-				@Override
+			   @Override
 				public boolean onSingleTapConfirmed(MotionEvent e) {
 					Log.d(LCAT, "TAP, TAP, TAP on " + proxy);
 					boolean handledTap = proxy.fireEvent(TiC.EVENT_SINGLE_TAP, dictFromEvent(e));
@@ -683,13 +682,15 @@ public abstract class TiUIView
 			});
 
 		touchable.setOnTouchListener(new OnTouchListener() {
-			public boolean onTouch(View view, MotionEvent event) {
+			public boolean onTouch(View view, MotionEvent event) { 
 				boolean handled = detector.onTouchEvent(event);
 				if (!handled && motionEvents.containsKey(event.getAction())) {
 					if (event.getAction() == MotionEvent.ACTION_UP) {
-						Rect r = new Rect(view.getLeft(), view.getTop(), view.getRight(), view.getBottom());
-						boolean inRect = r.contains((int) event.getX(), (int)event.getY());
-						if (!inRect) {
+						float viewWidth = view.getRight() - view.getLeft();
+						float viewHeigth = view.getBottom() - view.getTop();
+						Rect r = new Rect(view.getLeft(), view.getTop(), view.getRight(), view.getBottom()); 
+						boolean inView  = ((event.getX() >= 0 && event.getX() <= viewWidth) && (event.getY() >= 0 && event.getY() <= viewHeigth));
+						if (!inView) {
 							handled = proxy.fireEvent(motionEvents.get(MotionEvent.ACTION_CANCEL), dictFromEvent(event));
 						} else {
 							handled = proxy.fireEvent(motionEvents.get(MotionEvent.ACTION_UP), dictFromEvent(event));
