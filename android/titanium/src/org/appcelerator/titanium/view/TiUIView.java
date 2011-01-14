@@ -7,6 +7,7 @@
 package org.appcelerator.titanium.view;
 
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -58,6 +59,7 @@ public abstract class TiUIView
 
 	protected TiViewProxy proxy;
 	protected TiViewProxy parent;
+	protected ArrayList<TiUIView> children = new ArrayList<TiUIView>();
 
 	protected LayoutParams layoutParams;
 	protected int zIndex;
@@ -84,6 +86,7 @@ public abstract class TiUIView
 					if (cv.getParent() == null) {
 						((ViewGroup) nv).addView(cv, child.getLayoutParams());
 					}
+					children.add(child);
 				}
 			}
 		}
@@ -97,33 +100,54 @@ public abstract class TiUIView
 				View nv = getNativeView();
 				if (nv instanceof ViewGroup) {
 					((ViewGroup) nv).removeView(cv);
+					children.remove(child);
 				}
 			}
 		}
 	}
 
-	public TiViewProxy getProxy() {
+	public List<TiUIView> getChildren()
+	{
+		return children;
+	}
+
+	public TiViewProxy getProxy()
+	{
 		return proxy;
 	}
-	public void setProxy(TiViewProxy proxy) {
+
+	public void setProxy(TiViewProxy proxy)
+	{
 		this.proxy = proxy;
 	}
-	public TiViewProxy getParent() {
+
+	public TiViewProxy getParent()
+	{
 		return parent;
 	}
-	public void setParent(TiViewProxy parent) {
+
+	public void setParent(TiViewProxy parent)
+	{
 		this.parent = parent;
 	}
-	public LayoutParams getLayoutParams() {
+
+	public LayoutParams getLayoutParams()
+	{
 		return layoutParams;
 	}
-	public int getZIndex() {
+
+	public int getZIndex()
+	{
 		return zIndex;
 	}
-	public View getNativeView() {
+
+	public View getNativeView()
+	{
 		return nativeView;
 	}
-	protected void setNativeView(View view) {
+
+	protected void setNativeView(View view)
+	{
 		if (view.getId() == View.NO_ID) {
 			view.setId(idGenerator.incrementAndGet());
 		}
@@ -135,14 +159,19 @@ public abstract class TiUIView
 		nativeView.setClickable(clickable);
 		nativeView.setOnFocusChangeListener(this);
 	}
-	protected void setLayoutParams(LayoutParams layoutParams) {
+
+	protected void setLayoutParams(LayoutParams layoutParams)
+	{
 		this.layoutParams = layoutParams;
 	}
-	protected void setZIndex(int index) {
+
+	protected void setZIndex(int index)
+	{
 		zIndex = index;
 	}
 
-	public void animate() {
+	public void animate()
+	{
 		TiAnimationBuilder builder = proxy.getPendingAnimation();
 		if (builder != null && nativeView != null) {
 			AnimationSet as = builder.render(proxy, nativeView);
@@ -369,7 +398,8 @@ public abstract class TiUIView
 		}
 	}
 
-	public void processProperties(KrollDict d) {
+	public void processProperties(KrollDict d)
+	{
 		if (d.containsKey(TiC.PROPERTY_LAYOUT)) {
 			String layout = TiConvert.toString(d, TiC.PROPERTY_LAYOUT);
 			if (nativeView instanceof TiCompositeLayout) {
@@ -426,17 +456,20 @@ public abstract class TiUIView
 	}
 
 	@Override
-	public void propertiesChanged(List<KrollPropertyChange> changes, KrollProxy proxy) {
+	public void propertiesChanged(List<KrollPropertyChange> changes, KrollProxy proxy)
+	{
 		for (KrollPropertyChange change : changes) {
 			propertyChanged(change.getName(), change.getOldValue(), change.getNewValue(), proxy);
 		}
 	}
 	
-	private void applyCustomBackground() {
+	private void applyCustomBackground()
+	{
 		applyCustomBackground(true);
 	}
 
-	private void applyCustomBackground(boolean reuseCurrentDrawable) {
+	private void applyCustomBackground(boolean reuseCurrentDrawable)
+	{
 		if (nativeView != null) {
 			if (background == null) {
 				background = new TiBackgroundDrawable();
@@ -468,23 +501,27 @@ public abstract class TiUIView
 		}
 	}
 
-	protected KrollDict getFocusEventObject(boolean hasFocus) {
+	protected KrollDict getFocusEventObject(boolean hasFocus)
+	{
 		return null;
 	}
 
-	protected InputMethodManager getIMM() {
+	protected InputMethodManager getIMM()
+	{
 		InputMethodManager imm = null;
 		imm = (InputMethodManager) proxy.getTiContext().getTiApp().getSystemService(Context.INPUT_METHOD_SERVICE);
 		return imm;
 	}
 
-	public void focus() {
+	public void focus()
+	{
 		if (nativeView != null) {
 			nativeView.requestFocus();
 		}
 	}
 
-	public void blur() {
+	public void blur()
+	{
 		if (nativeView != null) {
 			InputMethodManager imm = getIMM();
 			if (imm != null) {
@@ -494,7 +531,8 @@ public abstract class TiUIView
 		}
 	}
 
-	public void release() {
+	public void release()
+	{
 		if (DBG) {
 			Log.d(LCAT, "Releasing: " + this);
 		}
@@ -546,6 +584,7 @@ public abstract class TiUIView
 			}
 		}
 	}
+
 	private void handleBackgroundImage(KrollDict d)
 	{
 		String bg = d.getString(TiC.PROPERTY_BACKGROUND_IMAGE);
@@ -636,14 +675,16 @@ public abstract class TiUIView
 	}
 
 	private static HashMap<Integer, String> motionEvents = new HashMap<Integer,String>();
-	static {
+	static
+	{
 		motionEvents.put(MotionEvent.ACTION_DOWN, TiC.EVENT_TOUCH_START);
 		motionEvents.put(MotionEvent.ACTION_UP, TiC.EVENT_TOUCH_END);
 		motionEvents.put(MotionEvent.ACTION_MOVE, TiC.EVENT_TOUCH_MOVE);
 		motionEvents.put(MotionEvent.ACTION_CANCEL, TiC.EVENT_TOUCH_CANCEL);
 	}
 
-	private KrollDict dictFromEvent(MotionEvent e) {
+	private KrollDict dictFromEvent(MotionEvent e)
+	{
 		KrollDict data = new KrollDict();
 		data.put(TiC.EVENT_PROPERTY_X, (double)e.getX());
 		data.put(TiC.EVENT_PROPERTY_Y, (double)e.getY());
@@ -651,17 +692,20 @@ public abstract class TiUIView
 		return data;
 	}
 
-	protected boolean allowRegisterForTouch() {
+	protected boolean allowRegisterForTouch()
+	{
 		return true;
 	}
 
-	public void registerForTouch() {
+	public void registerForTouch()
+	{
 		if (allowRegisterForTouch()) {
 			registerForTouch(getNativeView());
 		}
 	}
 
-	protected void registerForTouch(final View touchable) {
+	protected void registerForTouch(final View touchable)
+	{
 		if (touchable == null) {
 			return;
 		}
@@ -705,11 +749,13 @@ public abstract class TiUIView
 
 	}
 
-	public void setOpacity(float opacity) {
+	public void setOpacity(float opacity)
+	{
 		setOpacity(nativeView, opacity);
 	}
-	
-	protected void setOpacity(View view, float opacity) {
+
+	protected void setOpacity(View view, float opacity)
+	{
 		if (view != null) {
 			TiUIHelper.setDrawableOpacity(view.getBackground(), opacity);
 			if (opacity == 1) {
@@ -718,11 +764,12 @@ public abstract class TiUIView
 			view.invalidate();
 		}
 	}
-	
-	public void clearOpacity(View view) {
+
+	public void clearOpacity(View view)
+	{
 		view.getBackground().clearColorFilter();
 	}
-	
+
 	protected void registerForKeyClick(View clickable) 
 	{
 		clickable.setOnKeyListener(new OnKeyListener() {
@@ -744,8 +791,9 @@ public abstract class TiUIView
 			}
 		});
 	}
-	
-	public KrollDict toImage() {
+
+	public KrollDict toImage()
+	{
 		return TiUIHelper.viewToImage(proxy.getTiContext(), getNativeView());
 	}
 }
