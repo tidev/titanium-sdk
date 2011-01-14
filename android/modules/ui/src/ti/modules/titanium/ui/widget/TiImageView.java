@@ -6,6 +6,9 @@
  */
 package ti.modules.titanium.ui.widget;
 
+import java.lang.ref.SoftReference;
+
+import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 
 import android.content.Context;
@@ -56,12 +59,16 @@ public class TiImageView extends ViewGroup
 
 	private Matrix baseMatrix;
 	private Matrix changeMatrix;
-
+	
+	public interface OnSizeChangeListener {
+		public void sizeChanged(int w, int h, int oldWidth, int oldHeight);
+	};
 
 	public class NoLayoutImageView extends ImageView
 	{
 
 		public boolean allowLayoutRequest;
+		public SoftReference<OnSizeChangeListener> listener;
 
 		public NoLayoutImageView(Context context) {
 			super(context);
@@ -74,6 +81,36 @@ public class TiImageView extends ViewGroup
 				super.requestLayout();
 				allowLayoutRequest = false;
 			}
+		}
+
+		@Override
+		protected void onSizeChanged(int w, int h, int oldw, int oldh) 
+		{
+			super.onSizeChanged(w, h, oldw, oldh);
+			if (DBG) {
+				Log.d(LCAT, "ImageView size change: w: " + w + " h: " + h + " oldw: " + oldw + " oldh: " + oldh);
+			}
+			if (listener != null) {
+				OnSizeChangeListener l = listener.get();
+				if (l != null) {
+					l.sizeChanged(w, h, oldw, oldh);
+				}
+			}
+		}
+		
+		public void setOnSizeChangeListener(OnSizeChangeListener listener) {
+			if (listener != null) {
+				this.listener = new SoftReference<OnSizeChangeListener>(listener);
+			} else {
+				listener = null;
+			}
+		}
+		
+		public OnSizeChangeListener getOnSizeChangeListener() {
+			if (listener != null) {
+				return listener.get();
+			}
+			return null;
 		}
 	}
 
@@ -154,6 +191,12 @@ public class TiImageView extends ViewGroup
 			});
 
 			super.setOnClickListener(this);
+	}
+	
+	public void setOnSizeChangeListener(OnSizeChangeListener listener) {
+		if (imageView != null) {
+			((NoLayoutImageView) imageView).setOnSizeChangeListener(listener);
+		}
 	}
 
 	public void setCanScaleImage(boolean canScaleImage)

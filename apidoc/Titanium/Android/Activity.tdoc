@@ -26,6 +26,7 @@ startActivityForResult: The same as `startActivity`, but also accepts a callback
 setResult: Sets the result of this Activity using an Intent. This should be used in the case when the Activity responds to startActivityForResult. Also see Android's documentation for [setResult](http://developer.android.com/reference/android/app/Activity.html#setResult(int))
 getString: Get an Android or Application string using the passed-in Resource ID and optional format arguments. Also see Android's documentation for [getString](http://developer.android.com/reference/android/content/Context.html#getString(int)) and [String Resources](http://developer.android.com/guide/topics/resources/string-resource.html#String)
 setRequestedOrientation: Set the requested Activity orientation. Also see Android's documentation for [setRequestedOrientation](http://developer.android.com/reference/android/app/Activity.html#setRequestedOrientation(int))
+finish: Called when the activity is done and should be closed. Also see Android's documentation for [finish](http://developer.android.com/reference/android/app/Activity.html#finish())
 
 - method : getIntent, `Titanium.Android.Intent`
 
@@ -46,6 +47,8 @@ format[array,...]: Optional format arguments for the String resource
 
 - method : setRequestedOrientation
 orientation[int]: Can be one of `Titanium.Android.SCREEN_ORIENTATION_BEHIND`, `Titanium.Android.SCREEN_ORIENTATION_LANDSCAPE`, `Titanium.Android.SCREEN_ORIENTATION_NOSENSOR`, `Titanium.Android.SCREEN_ORIENTATION_PORTRAIT`, `Titanium.Android.SCREEN_ORIENTATION_SENSOR`, `Titanium.Android.SCREEN_ORIENTATION_UNSPECIFIED`, `Titanium.Android.SCREEN_ORIENTATION_USER`
+
+- method : finish
 
 - properties
 

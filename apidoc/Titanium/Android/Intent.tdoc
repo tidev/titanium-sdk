@@ -20,6 +20,7 @@ android
 
 - methods
 putExtra: Put an extra property on this Intent
+putExtraUri: Put a URI property on this Intent (useful for `Titanium.Android.EXTRA_STREAM`)
 hasExtra: Returns whether or not this Intent has a property
 addCategory: Add a category to this Intent. See the category constants in `Titanium.Android`.
 getStringExtra: Get a string property from this Intent
@@ -32,6 +33,10 @@ getData: Get the Data URI from this Intent
 - method : putExtra
 name[string]: The property name
 value[object]: The property value
+
+- method : putExtraUri
+name[string]: The property name
+value[string]: The URI string
 
 - method : hasExtra, boolean
 name[string]: The property name to check for

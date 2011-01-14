@@ -96,7 +96,8 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 		return label;
 	}
 
-	protected void refreshControls() {
+	protected void refreshControls()
+	{
 		ArrayList<TiViewProxy> proxies = getRowProxy().getControls();
 		int len = proxies.size();
 
@@ -134,20 +135,36 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 			View v = view.getNativeView();
 			view.setProxy(proxy);
 			view.processProperties(proxy.getProperties());
+			applyChildProxies(proxy, view);
 			if (v.getParent() == null) {
 				content.addView(v, view.getLayoutParams());
 			}
 		}
 	}
 
-	protected void clearChildViews(TiViewProxy parent) {
+	protected void clearChildViews(TiViewProxy parent)
+	{
 		for (TiViewProxy childProxy : parent.getChildren()) {
 			childProxy.setView(null);
 			clearChildViews(childProxy);
 		}
 	}
 
-	protected void refreshOldStyleRow() {
+	protected void applyChildProxies(TiViewProxy viewProxy, TiUIView view)
+	{
+		int i = 0;
+		TiViewProxy childProxies[] = viewProxy.getChildren();
+		for (TiUIView childView : view.getChildren()) {
+			TiViewProxy childProxy = childProxies[i];
+			childView.setProxy(childProxy);
+			childView.processProperties(childProxy.getProperties());
+			applyChildProxies(childProxy, childView);
+			i++;
+		}
+	}
+
+	protected void refreshOldStyleRow()
+	{
 		TableViewRowProxy rp = getRowProxy();
 		if (!rp.hasProperty(TiC.PROPERTY_TOUCH_ENABLED)) {
 			rp.setProperty(TiC.PROPERTY_TOUCH_ENABLED, false);
