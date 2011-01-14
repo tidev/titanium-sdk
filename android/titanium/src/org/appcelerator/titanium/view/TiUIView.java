@@ -688,7 +688,6 @@ public abstract class TiUIView
 					if (event.getAction() == MotionEvent.ACTION_UP) {
 						float viewWidth = view.getRight() - view.getLeft();
 						float viewHeigth = view.getBottom() - view.getTop();
-						Rect r = new Rect(view.getLeft(), view.getTop(), view.getRight(), view.getBottom()); 
 						boolean inView  = ((event.getX() >= 0 && event.getX() <= viewWidth) && (event.getY() >= 0 && event.getY() <= viewHeigth));
 						if (!inView) {
 							handled = proxy.fireEvent(motionEvents.get(MotionEvent.ACTION_CANCEL), dictFromEvent(event));
