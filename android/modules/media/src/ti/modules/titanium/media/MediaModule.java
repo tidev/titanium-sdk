@@ -584,7 +584,7 @@ public class MediaModule extends KrollModule
 			w = w.getContainer();
 		}
 
-		KrollDict image = TiUIHelper.viewToImage(getTiContext(), w.getDecorView());
+		KrollDict image = TiUIHelper.viewToImage(getTiContext(), null, w.getDecorView());
 		if (callback != null && image != null) {
 			callback.callAsync(new Object[] { image });
 		}

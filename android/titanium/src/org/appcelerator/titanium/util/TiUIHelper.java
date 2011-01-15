@@ -21,9 +21,12 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.titanium.TiBlob;
+import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
+import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.view.TiBackgroundDrawable;
 import org.appcelerator.titanium.view.TiUIView;
+import org.appcelerator.titanium.proxy.TiViewProxy;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -53,6 +56,7 @@ import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.OrientationEventListener;
 import android.view.View;
+import android.view.View.MeasureSpec;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.TextView;
 
@@ -477,13 +481,47 @@ public class TiUIHelper
 		return null;
 	}
 
-	public static KrollDict viewToImage(TiContext context, View view)
+	public static KrollDict viewToImage(TiContext context, KrollDict proxyDict, View view)
 	{
 		KrollDict image = new KrollDict();
 
 		if (view != null) {
 			int width = view.getWidth();
 			int height = view.getHeight();
+
+			// maybe move this out to a separate method once other refactor regarding "getWidth", etc is done
+			if(view.getWidth() == 0) {
+				if(proxyDict != null) {
+					if(proxyDict.containsKey(TiC.PROPERTY_WIDTH)) {
+						TiDimension widthDimension = new TiDimension(proxyDict.getString(TiC.PROPERTY_WIDTH), TiDimension.TYPE_WIDTH);
+						width = widthDimension.getAsPixels(view);
+					}
+				}
+			}
+			if(view.getHeight() == 0) {
+				if(proxyDict != null) {
+					if(proxyDict.containsKey(TiC.PROPERTY_HEIGHT)) {
+						TiDimension heightDimension = new TiDimension(proxyDict.getString(TiC.PROPERTY_HEIGHT), TiDimension.TYPE_HEIGHT);
+						height = heightDimension.getAsPixels(view);
+					}
+				}
+			}
+			view.measure(MeasureSpec.makeMeasureSpec(width, MeasureSpec.EXACTLY), MeasureSpec.makeMeasureSpec(height, MeasureSpec.EXACTLY));
+
+			// now that we have forced the view to layout itself, grab dimensions
+			width = view.getMeasuredWidth();
+			height = view.getMeasuredHeight();
+
+			// set a default BS value if the dimension is still 0 and log a warning
+			if(width == 0) {
+				width = 100;
+				Log.e(LCAT, "width property is 0 for view, display view before calling toImage()");
+			}
+			if(height == 0) {
+				height = 100;
+				Log.e(LCAT, "height property is 0 for view, display view before calling toImage()");
+			}
+
 			Bitmap bitmap = Bitmap.createBitmap(width, height, Config.RGB_565);
 			Canvas canvas = new Canvas(bitmap);
 

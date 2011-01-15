@@ -169,7 +169,7 @@ public abstract class TiWindowProxy extends TiViewProxy
 	}
 
 	public KrollDict handleToImage() {
-		return TiUIHelper.viewToImage(getTiContext(), getTiContext().getActivity().getWindow().getDecorView());
+		return TiUIHelper.viewToImage(getTiContext(), properties, getTiContext().getActivity().getWindow().getDecorView());
 	}
 	
 	@Kroll.method @Kroll.setProperty

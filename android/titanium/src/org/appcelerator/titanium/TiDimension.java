@@ -56,7 +56,7 @@ public class TiDimension
 	public TiDimension(String svalue, int valueType)
 	{
 		this.valueType = valueType;
-		this.units = TypedValue.COMPLEX_UNIT_SP;
+		this.units = TypedValue.COMPLEX_UNIT_PX;
 		if (svalue != null) {
 			Matcher m = DIMENSION_PATTERN.matcher(svalue.trim());
 			if (m.matches()) {
