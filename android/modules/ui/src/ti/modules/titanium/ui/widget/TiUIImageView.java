@@ -6,6 +6,7 @@
  */
 package ti.modules.titanium.ui.widget;
 
+import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -19,14 +20,15 @@ import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
-import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.TiContext.OnLifecycleEvent;
+import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.AsyncResult;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiBackgroundImageLoadTask;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiConvert;
+import org.appcelerator.titanium.util.TiDownloadListener;
 import org.appcelerator.titanium.util.TiResponseCache;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiDrawableReference;
@@ -67,6 +69,7 @@ public class TiUIImageView extends TiUIView
 	
 	private ArrayList<TiDrawableReference> imageSources;
 	private TiDrawableReference defaultImageSource;
+	private TiDownloadListener downloadListener;
 
 	private class BgImageLoader extends TiBackgroundImageLoadTask
 	{
@@ -111,6 +114,12 @@ public class TiUIImageView extends TiUIView
 			}
 		});
 		
+		downloadListener = new TiDownloadListener() {
+			@Override
+			public void downloadFinished(URI uri) {
+				setImage();
+			}
+		};
 		setNativeView(view);
 		proxy.getTiContext().addOnLifecycleEventListener(this);
 	}
@@ -458,7 +467,6 @@ public class TiUIImageView extends TiUIView
 			setImage(null);
 			return;
 		}
-		
 		if (imageSources.size() == 1) {
 			TiDrawableReference imageref = imageSources.get(0);
 			if (imageref.isNetworkUrl()) {
@@ -475,18 +483,14 @@ public class TiUIImageView extends TiUIView
 					URI uri = new URI(imageref.getUrl());
 					if (TiResponseCache.peek(uri)) {
 						getAsync = false;
-						if (nativeView.getParent() instanceof View) {
-							setImage(imageref.getBitmap(getParentView(), requestedWidth, requestedHeight));
-						} else {
-							setImage(imageref.getBitmap(getParentView(), requestedWidth, requestedHeight));
-						}
+						setImage(imageref.getBitmap(getParentView(), requestedWidth, requestedHeight));
 					}
 				} catch (URISyntaxException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 				if (getAsync) {
-					imageref.getBitmapAsync(new BgImageLoader(getProxy().getTiContext()));
+					imageref.getBitmapAsync(downloadListener);
 				}
 			} else {
 				setImage(imageref.getBitmap(getParentView(), requestedWidth, requestedHeight));
@@ -547,8 +551,18 @@ public class TiUIImageView extends TiUIView
 			}
 		}
 		if (d.containsKey(TiC.PROPERTY_IMAGE)) {
-			setImageSource(d.get(TiC.PROPERTY_IMAGE));
-			setImage();
+			// processProperties is also called from TableView, we need check if we changed before re-creating the bitmap
+			boolean changeImage = true;
+			Object newImage = d.get(TiC.PROPERTY_IMAGE);
+			if (imageSources != null && imageSources.size() == 1) {
+				if (imageSources.get(0).equals(newImage)) {
+					changeImage = false;
+				}
+			}
+			setImageSource(newImage);
+			if (changeImage) {
+				setImage();
+			}
 		} else {
 			if (!d.containsKey(TiC.PROPERTY_IMAGES)) {
 				getProxy().setProperty(TiC.PROPERTY_IMAGE, null);

@@ -10,6 +10,8 @@ package org.appcelerator.titanium.view;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.ref.SoftReference;
+import java.net.URI;
+import java.net.URISyntaxException;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.titanium.TiBlob;
@@ -17,8 +19,9 @@ import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.io.TiBaseFile;
 import org.appcelerator.titanium.util.Log;
-import org.appcelerator.titanium.util.TiBackgroundImageLoadTask;
 import org.appcelerator.titanium.util.TiConvert;
+import org.appcelerator.titanium.util.TiDownloadListener;
+import org.appcelerator.titanium.util.TiDownloadManager;
 import org.appcelerator.titanium.util.TiFileHelper;
 import org.appcelerator.titanium.util.TiUIHelper;
 
@@ -50,7 +53,8 @@ public class TiDrawableReference
 	private TiBlob blob;
 	private TiBaseFile file;
 	private DrawableReferenceType type;
-	private boolean oomOccurred = false; 
+	private boolean oomOccurred = false;
+	private boolean downloadAsync = false;
 	
 	private SoftReference<TiContext> softContext = null;
 	
@@ -291,21 +295,24 @@ public class TiDrawableReference
 				Log.e(LCAT, "Problem closing stream: " + e.getMessage(), e);
 			}
 		}
-		
 		return b;
-		
 	}
-	
+
 	/**
 	 * Just runs .load(url) on the passed TiBackgroundImageLoadTask.
 	 * @param asyncTask
 	 */
-	public void getBitmapAsync(TiBackgroundImageLoadTask asyncTask)
+	public void getBitmapAsync(TiDownloadListener listener)
 	{
 		if (!isNetworkUrl()) {
 			Log.w(LCAT, "getBitmapAsync called on non-network url.  Will attempt load.");
 		}
-		asyncTask.load(url);
+		
+		try {
+			TiDownloadManager.getInstance().download(new URI(url), listener);
+		} catch (URISyntaxException e) {
+			Log.e(LCAT, "URI Invalid: " + url, e);
+		}
 	}
 	
 	
