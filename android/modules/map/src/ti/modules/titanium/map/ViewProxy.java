@@ -6,6 +6,8 @@
  */
 package ti.modules.titanium.map;
 
+import java.util.ArrayList;
+
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiApplication;
@@ -13,6 +15,7 @@ import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiContext.OnLifecycleEvent;
 import org.appcelerator.titanium.proxy.TiViewProxy;
+import org.appcelerator.titanium.util.AsyncResult;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiUIView;
@@ -20,13 +23,13 @@ import org.appcelerator.titanium.view.TiUIView;
 import android.app.Activity;
 import android.app.LocalActivityManager;
 import android.content.Intent;
+import android.os.Message;
 import android.view.Window;
 
 @Kroll.proxy(creatableInModule=MapModule.class)
-public class ViewProxy extends TiViewProxy
-	implements OnLifecycleEvent
+public class ViewProxy extends TiViewProxy 
+	implements OnLifecycleEvent 
 {
-
 	private static LocalActivityManager lam;
 	private static Window mapWindow;
 	private static final String LCAT = "TiMapViewProxy";
@@ -37,11 +40,19 @@ public class ViewProxy extends TiViewProxy
 	 */
 	private boolean destroyed = false;
 
+	private TiMapView mapView;
+	private ArrayList<AnnotationProxy> annotations;
+	private ArrayList<TiMapView.SelectedAnnotation> selectedAnnotations;
+	private KrollDict location;
+	
 	public ViewProxy(TiContext tiContext) {
 		super(tiContext);
 
 		eventManager.addOnEventChangeListener(this);
 		tiContext.addOnLifecycleEventListener(this);
+
+		annotations = new ArrayList<AnnotationProxy>();
+		selectedAnnotations = new ArrayList<TiMapView.SelectedAnnotation>();
 	}
 
 	@Override
@@ -61,37 +72,64 @@ public class ViewProxy extends TiViewProxy
 		Intent intent = new Intent(tiApp, TiMapActivity.class);
 		mapWindow = lam.startActivity("TIMAP", intent);
 		lam.dispatchResume();
-		return new TiMapView(this, mapWindow);
+		mapView = new TiMapView(this, mapWindow, annotations, selectedAnnotations);
+
+		if(location != null) {
+			mapView.doSetLocation(location);
+		}
+		mapView.updateAnnotations();
+		
+		return mapView;
 	}
 
 	@Kroll.method
 	public void zoom(int delta) {
-		TiMapView mv = (TiMapView) peekView();
-		if (mv != null) {
-			mv.changeZoomLevel(delta);
+		if (mapView != null) {
+			mapView.changeZoomLevel(delta);
 		}
 	}
 
 	@Kroll.method
 	public void removeAllAnnotations()
 	{
-		TiMapView mv = (TiMapView) peekView();
-		if (mv != null) {
-			mv.removeAllAnnotations();
+		annotations.clear();
+		if(mapView != null) {
+			mapView.updateAnnotations();
 		}
 	}
 
 	@Kroll.method
 	public void addAnnotation(AnnotationProxy annotation)
 	{
-		TiMapView mv = (TiMapView) peekView();
-		if (mv == null) {
-			Log.w(LCAT, "addAnnotation called with no view available");
-			return;
+		annotations.add(annotation);
+		if(mapView != null) {
+			mapView.updateAnnotations();
 		}
-		mv.addAnnotation(annotation);
 	}
 
+	protected int findAnnotation(String title)
+	{
+		int existsIndex = -1;
+		// Check for existence
+		int len = annotations.size();
+		for(int i = 0; i < len; i++) {
+			AnnotationProxy a = annotations.get(i);
+			String t = (String) a.getProperty(TiC.PROPERTY_TITLE);
+
+			if (t != null) {
+				if (title.equals(t)) {
+					//if (DBG) {
+					//	Log.d(LCAT, "Annotation found at index: " + " with title: " + title);
+					//}
+					existsIndex = i;
+					break;
+				}
+			}
+		}
+
+		return existsIndex;
+	}
+	
 	@Kroll.method
 	public void removeAnnotation(Object arg)
 	{
@@ -105,9 +143,13 @@ public class ViewProxy extends TiViewProxy
 			}
 
 			if (title != null) {
-				TiMapView mv = (TiMapView) peekView();
-				if (mv != null) {
-					mv.removeAnnotation(title);
+				int existsIndex = findAnnotation(title);
+				if (existsIndex > -1) {
+					annotations.remove(existsIndex);
+				}
+
+				if (mapView != null) {
+					mapView.updateAnnotations();
 				}
 			}
 		}
@@ -132,9 +174,12 @@ public class ViewProxy extends TiViewProxy
 				animate = TiConvert.toBoolean(args[1]);
 			}
 
-			TiMapView mv = (TiMapView) peekView();
-			if (mv != null) {
-				mv.selectAnnotation(true, title, animate);
+			if (mapView == null) {
+				Log.e(LCAT, "calling selectedAnnotations.add");
+				selectedAnnotations.add(new TiMapView.SelectedAnnotation(title, animate));
+			} else {
+				Log.e(LCAT, "calling selectedAnnotations.add2");
+				mapView.selectAnnotation(true, title, animate);
 			}
 		}
 	}
@@ -158,9 +203,15 @@ public class ViewProxy extends TiViewProxy
 				animate = TiConvert.toBoolean(args[1]);
 			}
 
-			TiMapView mv = (TiMapView) peekView();
-			if (mv != null) {
-				mv.selectAnnotation(false, title, animate);
+			if (mapView == null) {
+				int numSelectedAnnotations = selectedAnnotations.size();
+				for(int i = 0; i < numSelectedAnnotations; i++) {
+					if((selectedAnnotations.get(i)).title.equals(title)) {
+						selectedAnnotations.remove(i);
+					}
+				}
+			} else {
+				mapView.selectAnnotation(false, title, animate);
 			}
 		}
 	}
@@ -168,12 +219,11 @@ public class ViewProxy extends TiViewProxy
 	@Kroll.method
 	public void setLocation(KrollDict location)
 	{
-		TiMapView mv = (TiMapView)peekView();
-		if (mv == null) {
-			Log.w(LCAT, "setLocation called with no view available.");
-			return;
+		if(mapView == null) {
+			this.location = location;
+		} else {
+			mapView.doSetLocation(location);
 		}
-		mv.doSetLocation(location);
 	}
 
 	@Kroll.method
