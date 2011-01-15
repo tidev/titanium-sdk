@@ -32,6 +32,16 @@
 	[super contentsWillChange];
 }
 
+-(void)willChangeSize
+{
+	if ([self viewAttached])
+	{
+		[(TiUIScrollView *)[self view] setNeedsHandleContentSizeIfAutosizing];
+	}
+	[super willChangeSize];
+}
+
+
 -(void)layoutChildren:(BOOL)optimize
 {
 	if (![self viewAttached])

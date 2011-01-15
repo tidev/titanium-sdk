@@ -12,8 +12,33 @@
 #import "TiUtils.h"
 
 @implementation TiUITextWidgetProxy
-
 DEFINE_DEF_BOOL_PROP(suppressReturn,YES);
+
+- (void)windowWillClose
+{
+	NSLog(@"We got a windowWillClose! Main thread? %d",[NSThread isMainThread]);
+	if([self viewInitialized])
+	{
+		[[self view] resignFirstResponder];
+	}
+	[(TiViewProxy *)[keyboardTiView proxy] windowWillClose];
+	for (TiViewProxy * thisToolBarItem in keyboardToolbarItems)
+	{
+		[thisToolBarItem windowWillClose];
+	}
+	[super windowWillClose];
+}
+
+- (void) dealloc
+{	
+	[keyboardTiView removeFromSuperview];
+	[keyboardUIToolbar removeFromSuperview];
+	RELEASE_TO_NIL(keyboardTiView);
+	RELEASE_TO_NIL(keyboardToolbarItems);
+	RELEASE_TO_NIL(keyboardUIToolbar);
+	[super dealloc];
+}
+
 
 -(BOOL)hasText
 {
@@ -61,30 +86,123 @@ DEFINE_DEF_BOOL_PROP(suppressReturn,YES);
 	}
 }
 
--(void)fireHideNotification
+#pragma mark Toolbar
+
+- (CGFloat) keyboardAccessoryHeight
 {
-	WARN_IF_BACKGROUND_THREAD_OBJ;	//NSNotificationCenter is not threadsafe!
-	[[NSNotificationCenter defaultCenter] postNotificationName:TiKeyboardHideNotification 
-													object:nil 
-												  userInfo:[(TiUITextWidget*)[self view] keyboardUserInfo]];
+	return MAX(keyboardAccessoryHeight,40);
 }
 
--(void)fireShowNotification
-{	
-	WARN_IF_BACKGROUND_THREAD_OBJ;	//NSNotificationCenter is not threadsafe!
-	[[NSNotificationCenter defaultCenter] postNotificationName:TiKeyboardShowNotification 
-														object:nil
-													  userInfo:[(TiUITextWidget*)[self view] keyboardUserInfo]];
+-(void)setKeyboardToolbarHeight:(id)value
+{
+	ENSURE_UI_THREAD_1_ARG(value);
+	keyboardAccessoryHeight = [TiUtils floatValue:value];
+	//TODO: If we're focused or the toolbar is otherwise onscreen, we need to let the root view controller know and update.
 }
 
--(void)windowWillClose
+-(void)setKeyboardToolbarColor:(id)value
 {
-	if ([self viewAttached])
-	{
-		[[self view] performSelectorOnMainThread:@selector(windowClosing) withObject:nil waitUntilDone:[NSThread isMainThread]];
+	//Because views aren't lock-protected, ANY and all references, even checking if non-nil, should be done in the main thread.
+	ENSURE_UI_THREAD_1_ARG(value);
+	[self replaceValue:value forKey:@"keyboardToolbarColor" notification:YES];
+	if(keyboardUIToolbar != nil){ //It already exists, update it.
+		UIColor * newColor = [[TiUtils colorValue:value] _color];
+		[keyboardUIToolbar setTintColor:newColor];
 	}
-	[super windowWillClose];
 }
+
+-(void)updateUIToolbar
+{
+	NSMutableArray *items = [NSMutableArray arrayWithCapacity:[keyboardToolbarItems count]];
+	for (TiViewProxy *proxy in keyboardToolbarItems)
+	{
+		if ([proxy supportsNavBarPositioning])
+		{
+			UIBarButtonItem* button = [proxy barButtonItem];
+			[items addObject:button];
+		}
+	}
+	[keyboardUIToolbar setItems:items animated:YES];
+}
+
+-(UIToolbar *)keyboardUIToolbar
+{
+	if(keyboardUIToolbar == nil)
+	{
+		keyboardUIToolbar = [[UIToolbar alloc] initWithFrame:CGRectMake(0, 0, 320,[self keyboardAccessoryHeight])];
+		UIColor * newColor = [[TiUtils colorValue:[self valueForKey:@"keyboardToolbarColor"]] _color];
+		if(newColor != nil){
+			[keyboardUIToolbar setTintColor:newColor];
+		}
+		[self updateUIToolbar];
+	}
+	return keyboardUIToolbar;
+}
+
+-(void)setKeyboardToolbar:(id)value
+{
+	//Because views aren't lock-protected, ANY and all references, even checking if non-nil, should be done in the main thread.
+	ENSURE_UI_THREAD_1_ARG(value);
+	[self replaceValue:value forKey:@"keyboardToolbar" notification:YES];
+
+	if (value == nil)
+	{
+//TODO: Should we remove these gracefully?
+		[keyboardTiView removeFromSuperview];
+		[keyboardUIToolbar removeFromSuperview];
+		RELEASE_TO_NIL(keyboardTiView);
+		RELEASE_TO_NIL(keyboardToolbarItems);
+		[keyboardUIToolbar setItems:nil];
+		return;
+	}
+
+	if ([value isKindOfClass:[NSArray class]])
+	{
+//TODO: Should we remove these gracefully?
+		[keyboardTiView removeFromSuperview];
+		RELEASE_TO_NIL(keyboardTiView);
+
+//TODO: Make sure these are actually proxies.
+		[keyboardToolbarItems autorelease];
+		keyboardToolbarItems = [value copy];
+		if(keyboardUIToolbar != nil){
+			[self updateUIToolbar];
+		}
+//TODO: If we have focus while this happens, we need to signal an update.
+		return;
+	}
+
+	if ([value isKindOfClass:[TiViewProxy class]])
+	{
+		if (value == keyboardTiView)
+		{//Nothing to do here.
+			return;
+		}
+//TODO: Should we remove these gracefully?
+		[keyboardTiView removeFromSuperview];
+		[keyboardUIToolbar removeFromSuperview];
+		RELEASE_TO_NIL(keyboardTiView);
+		RELEASE_TO_NIL(keyboardToolbarItems);
+		[keyboardUIToolbar setItems:nil];
+	
+		keyboardTiView = [value retain];
+//TODO: If we have focus while this happens, we need to signal an update.
+	}
+}
+
+- (UIView *)keyboardAccessoryView;
+{
+	if(keyboardTiView != nil){
+		return keyboardTiView;
+	}
+
+	if([keyboardToolbarItems count] > 0){
+		return [self keyboardUIToolbar];
+	}
+
+	return nil;
+}
+
 
 @end
 

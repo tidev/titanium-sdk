@@ -8,6 +8,18 @@
 #import "TiUIView.h"
 #import <pthread.h>
 
+@protocol TiKeyboardFocusableView
+
+#pragma mark Public Titanium APIs.
+- (void)focus:(id)args;
+- (void)blur:(id)args;
+
+#pragma mark Private internal APIs.
+@property(nonatomic,readonly) UIView * keyboardAccessoryView;
+@property(nonatomic,readonly) CGFloat keyboardAccessoryHeight;
+
+@end
+
 
 #pragma mark dirtyflags used by TiViewProxy
 #define NEEDS_LAYOUT_CHILDREN	1

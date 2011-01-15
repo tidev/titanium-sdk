@@ -26,5 +26,7 @@
 - (void)willShowViewController:(UIViewController *)focusedViewController animated:(BOOL)animated;
 - (void)didShowViewController:(UIViewController *)focusedViewController animated:(BOOL)animated;
 
+-(void)didKeyboardFocusOnProxy:(TiViewProxy<TiKeyboardFocusableView> *)visibleProxy;
+-(void)didKeyboardBlurOnProxy:(TiViewProxy<TiKeyboardFocusableView> *)blurredProxy;
 
 @end

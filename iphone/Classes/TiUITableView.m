@@ -1939,6 +1939,28 @@ if(ourTableView != tableview)	\
 	return size;
 }
 
+-(void)keyboardDidShowAtHeight:(CGFloat)keyboardTop
+{
+	int lastSectionIndex = [sections count]-1;
+	ENSURE_CONSISTENCY(lastSectionIndex>=0);
+	CGRect minimumContentRect = [tableview rectForSection:lastSectionIndex];
+	InsetScrollViewForKeyboard(tableview,keyboardTop,minimumContentRect.size.height + minimumContentRect.origin.y);
+}
+
+-(void)scrollToShowView:(TiUIView *)firstResponderView withKeyboardHeight:(CGFloat)keyboardTop
+{
+	int lastSectionIndex = [sections count]-1;
+	ENSURE_CONSISTENCY(lastSectionIndex>=0);
+	CGRect minimumContentRect = [tableview rectForSection:lastSectionIndex];
+
+	CGRect responderRect = [self convertRect:[firstResponderView bounds] fromView:firstResponderView];
+	CGPoint offsetPoint = [tableview contentOffset];
+	responderRect.origin.x += offsetPoint.x;
+	responderRect.origin.y += offsetPoint.y;
+
+	OffsetScrollViewForRect(tableview,keyboardTop,minimumContentRect.size.height + minimumContentRect.origin.y,responderRect);
+}
+
 -(void)keyboardDidShowAtHeight:(CGFloat)keyboardTop forView:(TiUIView *)firstResponderView
 {
 	int lastSectionIndex = [sections count]-1;
@@ -1952,16 +1974,6 @@ if(ourTableView != tableview)	\
 
 	CGRect minimumContentRect = [tableview rectForSection:lastSectionIndex];
 	ModifyScrollViewForKeyboardHeightAndContentHeightWithResponderRect(tableview,keyboardTop,minimumContentRect.size.height + minimumContentRect.origin.y,responderRect);
-}
-
--(void)keyboardDidHideForView:(TiUIView *)hidingView
-{
-	if(hidingView != lastFocusedView)
-	{
-		return;
-	}
-
-	RestoreScrollViewFromKeyboard(tableview);
 }
 
 #pragma Scroll View Delegate

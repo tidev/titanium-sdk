@@ -91,6 +91,11 @@ void MyUncaughtExceptionHandler(NSException *exception)
 	return sharedApp;
 }
 
++(UIViewController<TiRootController>*)controller;
+{
+	return [sharedApp controller];
+}
+
 -(void)startNetwork
 {
 	ENSURE_UI_THREAD_0_ARGS;
@@ -252,12 +257,6 @@ void MyUncaughtExceptionHandler(NSException *exception)
 	kjsBridge = [[KrollBridge alloc] initWithHost:self];
 	
 	[kjsBridge boot:self url:nil preload:nil];
-
-	WARN_IF_BACKGROUND_THREAD;	//NSNotificationCenter is not threadsafe!
-	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardDidHide:) name:UIKeyboardDidHideNotification object:nil];
-	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardDidShow:) name:UIKeyboardDidShowNotification object:nil];
-	
-	
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0
 	if ([TiUtils isIOS4OrGreater])
 	{
@@ -611,9 +610,6 @@ void MyUncaughtExceptionHandler(NSException *exception)
 
 - (void)dealloc 
 {
-	WARN_IF_BACKGROUND_THREAD;	//NSNotificationCenter is not threadsafe!
-	[[NSNotificationCenter defaultCenter] removeObserver:self name:UIKeyboardDidHideNotification object:nil];
-	[[NSNotificationCenter defaultCenter] removeObserver:self name:UIKeyboardDidShowNotification object:nil];
 	RELEASE_TO_NIL(kjsBridge);
 #ifdef USE_TI_UIWEBVIEW
 	RELEASE_TO_NIL(xhrBridge);
@@ -648,11 +644,6 @@ void MyUncaughtExceptionHandler(NSException *exception)
 	return userAgent;
 }
 
--(BOOL)isKeyboardShowing
-{
-	return keyboardShowing;
-}
-
 -(NSString*)remoteDeviceUUID
 {
 	return remoteDeviceUUID;
@@ -661,18 +652,6 @@ void MyUncaughtExceptionHandler(NSException *exception)
 -(NSString*)sessionId
 {
 	return sessionId;
-}
-
-#pragma mark Keyboard Delegates
-
-- (void)keyboardDidHide:(NSNotification*)notification 
-{
-	keyboardShowing = NO;
-}
-
-- (void)keyboardDidShow:(NSNotification*)notification
-{
-	keyboardShowing = YES;
 }
 
 -(KrollBridge*)krollBridge

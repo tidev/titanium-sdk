@@ -444,6 +444,22 @@
 //	[super viewDidDisappear:animated];
 }
 
+-(void)willChangeSize
+{
+	[super willChangeSize];
+	
+	//TODO: Shouldn't this be not through UI? Shouldn't we retain the windows ourselves?
+	for (UIViewController * thisController in [controller viewControllers])
+	{
+		if ([thisController isKindOfClass:[TiViewController class]])
+		{
+			TiViewProxy * thisProxy = [(TiViewController *)thisController proxy];
+			[thisProxy willChangeSize];
+		}
+	}
+}
+
+
 @synthesize parentOrientationController;
 
 -(TiOrientationFlags)orientationFlags
