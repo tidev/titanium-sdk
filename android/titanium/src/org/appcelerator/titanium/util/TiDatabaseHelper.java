@@ -42,6 +42,27 @@ public class TiDatabaseHelper extends SQLiteOpenHelper
 			db.close();
 		}
 	}
+	public void updatePlatformParam (String key, String value)
+	{
+		deletePlatformParam(key);
+		setPlatformParam(key, value);
+	}
+	public void deletePlatformParam (String key)
+	{
+		String platformSQL = "delete from platform where name = ?";
+		SQLiteDatabase db = getWritableDatabase();
+		try
+		{
+			SQLiteStatement platformInsertStatement = db.compileStatement(platformSQL);
+			platformInsertStatement.bindString(1,key);
+			platformInsertStatement.executeInsert();
+			platformInsertStatement.close();
+		}
+		finally
+		{
+			db.close();
+		}
+	}
 	public String getPlatformParam (String key, String def)
 	{
 		String platformSQL = "select value from platform where name = ?";

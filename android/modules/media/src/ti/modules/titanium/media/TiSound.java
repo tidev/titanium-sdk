@@ -115,7 +115,7 @@ public class TiSound
 			mp.setOnErrorListener(this);
 			mp.setOnInfoListener(this);
 			mp.setOnBufferingUpdateListener(this);
-
+			
 			mp.prepare(); // Probably need to allow for Async
 			setState(STATE_INITIALIZED);
 
@@ -125,6 +125,8 @@ public class TiSound
 			}
 		} catch (Throwable t) {
 			Log.w(LCAT, "Issue while initializing : " , t);
+			release();
+			setState(STATE_STOPPED);
 		}
 	}
 
@@ -168,15 +170,7 @@ public class TiSound
 		try {
 			if (mp == null) {
 				setState(STATE_STARTING);
-				try {
-					initialize();
-				} catch (IOException e) {
-					Log.e(LCAT, "Error during initialization.",e);
-					if (mp != null) {
-						mp.release();
-						mp = null;
-					}
-				}
+				initialize();
 			}
 
 			if (mp != null) {
@@ -199,6 +193,7 @@ public class TiSound
 			}
 		} catch (Throwable t) {
 			Log.w(LCAT, "Issue while playing : " , t);
+			reset();
 		}
 	}
 

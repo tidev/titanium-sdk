@@ -56,16 +56,47 @@ public class TiPlatformHelper
 	public static void initialize(TiApplication app) {
 		tiApp = app;
 
+		// what is platform id?
 		platformId = Settings.Secure.getString(app.getContentResolver(), Settings.Secure.ANDROID_ID);
+
+		// this is a fix for the emulator only I think as a normal device should
+		// never return null
 		if (platformId == null) {
+			Log.e(LCAT, "platformId is null, setting to empty string");
 			platformId = "";
-			TiDatabaseHelper db = new TiDatabaseHelper(app);
-			platformId = db.getPlatformParam("unique_machine_id",null);
-			if (platformId == null)
-			{
-				platformId = createUUID();
-				db.setPlatformParam("unique_machine_id", platformId);
+		}
+
+		TiDatabaseHelper db = new TiDatabaseHelper(app);
+		String storedMachineId = db.getPlatformParam("unique_machine_id", "");
+		String hardwareMachineId = db.getPlatformParam("hardware_machine_id", "");
+
+		// which is the value we need to be concerned with?
+		String currentMachineId;
+		if (platformId != hardwareMachineId) {
+			currentMachineId = platformId;
+		} else {
+			currentMachineId = storedMachineId;
+		}
+
+		// is the value in question valid?
+		String[] badIds = {"9774d56d682e549c", "1234567890ABCDEF"};
+
+		// load in the bad ids from tiapp.xml and insert into badIds array
+
+		for (int i = 0; i < badIds.length; i++) {
+			if (currentMachineId.equals(badIds [i])) {
+				Log.e(LCAT, "renaming ID");
+				currentMachineId = createUUID();
+				break;
 			}
+		}
+
+		// set the new value
+		if (currentMachineId != storedMachineId) {
+			db.updatePlatformParam("unique_machine_id", currentMachineId);
+			db.updatePlatformParam("hardware_machine_id", platformId);
+			db.updatePlatformParam("previous_machine_id", storedMachineId);
+			platformId = currentMachineId;
 		}
 
 		sessionId = createUUID();

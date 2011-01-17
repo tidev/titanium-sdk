@@ -221,22 +221,23 @@
 
 #pragma mark Keyboard delegate stuff
 
+-(void)keyboardDidShowAtHeight:(CGFloat)keyboardTop
+{
+	InsetScrollViewForKeyboard(scrollView,keyboardTop,minimumContentHeight);
+}
+
+-(void)scrollToShowView:(TiUIView *)firstResponderView withKeyboardHeight:(CGFloat)keyboardTop
+{
+	CGRect responderRect = [wrapperView convertRect:[firstResponderView bounds] fromView:firstResponderView];
+	OffsetScrollViewForRect(scrollView,keyboardTop,minimumContentHeight,responderRect);
+}
+
 -(void)keyboardDidShowAtHeight:(CGFloat)keyboardTop forView:(TiUIView *)firstResponderView
 {
 	lastFocusedView = firstResponderView;
 	CGRect responderRect = [wrapperView convertRect:[firstResponderView bounds] fromView:firstResponderView];
 	
 	ModifyScrollViewForKeyboardHeightAndContentHeightWithResponderRect(scrollView,keyboardTop,minimumContentHeight,responderRect);
-}
-
--(void)keyboardDidHideForView:(TiUIView *)hidingView
-{
-	if(hidingView != lastFocusedView)
-	{
-		return;
-	}
-
-	RestoreScrollViewFromKeyboard(scrollView);
 }
 
 @end

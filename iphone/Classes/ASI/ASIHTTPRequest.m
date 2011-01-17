@@ -1809,7 +1809,10 @@ static BOOL isiPhoneOS2;
 			// See also:
 			// http://allseeing-i.lighthouseapp.com/projects/27881/tickets/27-302-redirection-issue
 							
-			if ([self responseStatusCode] != 307 && (![self shouldUseRFC2616RedirectBehaviour] || [self responseStatusCode] == 303)) {
+			BOOL isRedirectCode = ([self responseStatusCode] == 301) || 
+									([self responseStatusCode] == 302) || 
+									([self responseStatusCode] == 303);
+			if ([self responseStatusCode] != 307 && (![self shouldUseRFC2616RedirectBehaviour] || isRedirectCode)) {
 				[self setRequestMethod:@"GET"];
 				[self setPostBody:nil];
 				[self setPostLength:0];

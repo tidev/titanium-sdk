@@ -7,6 +7,9 @@ win.orientationModes = [
 	Titanium.UI.LANDSCAPE_RIGHT
 ]; 
 
+var scrolly = Titanium.UI.createScrollView({contentHeight:'auto'});
+win.add(scrolly);
+
 var tf1 = Titanium.UI.createTextField({
 	color:'#336699',
 	height:35,
@@ -25,7 +28,7 @@ var l = Titanium.UI.createLabel({
 	font:{fontSize:13},
 	text:'do something like click a button...'
 });
-win.add(l);
+scrolly.add(l);
 
 //
 // TEXT FIELD EVENTS (return, focus, blur, change)
@@ -48,7 +51,7 @@ tf1.addEventListener('change', function(e)
 	l.text = 'change received, event val = ' + e.value + '\nfield val = ' + tf1.value;	
 });
 
-win.add(tf1);
+scrolly.add(tf1);
 
 
 
@@ -61,7 +64,7 @@ var focusLabel = Titanium.UI.createButton({
 	width:200,
 	title:'Focus'
 });
-win.add(focusLabel);
+scrolly.add(focusLabel);
 focusLabel.addEventListener('click', function()
 {
 	tf1.focus();
@@ -76,7 +79,7 @@ var blurLabel = Titanium.UI.createButton({
 	width:200,
 	title:'Blur'
 });
-win.add(blurLabel);
+scrolly.add(blurLabel);
 blurLabel.addEventListener('click', function()
 {
 	tf1.blur();
@@ -91,7 +94,7 @@ var showHide = Titanium.UI.createButton({
 	width:200,
 	title:'Hide/Show'
 });
-win.add(showHide);
+scrolly.add(showHide);
 var visible = true;
 showHide.addEventListener('click', function()
 {
@@ -113,5 +116,5 @@ var instructions = Ti.UI.createLabel({
 	height:30,
 	color:'#777'
 });
-win.add(instructions);
+scrolly.add(instructions);
 

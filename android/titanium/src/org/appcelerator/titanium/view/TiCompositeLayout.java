@@ -33,6 +33,11 @@ public class TiCompositeLayout extends ViewGroup
 	private TreeSet<View> viewSorter;
 	private boolean needsSort;
 	protected LayoutArrangement arrangement;
+	
+	// Used by horizonal arrangement calculations
+	private int horizontalLayoutCurrentTop = 0;
+	private int horizontalLayoutCurrentLeft = 0;
+	private int horizontalLayoutLineHeight = 0;
 
 	public TiCompositeLayout(Context context)
 	{
@@ -165,15 +170,20 @@ public class TiCompositeLayout extends ViewGroup
 	@Override
 	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec)
 	{
-		int w = Math.max(MeasureSpec.getSize(widthMeasureSpec), getSuggestedMinimumWidth());
+		int childCount = getChildCount();
+		int wFromSpec = MeasureSpec.getSize(widthMeasureSpec);
+		int hFromSpec = MeasureSpec.getSize(heightMeasureSpec);
+		int wSuggested = getSuggestedMinimumWidth();
+		int hSuggested = getSuggestedMinimumHeight();
+		int w = Math.max(wFromSpec, wSuggested);
 		int wMode = MeasureSpec.getMode(widthMeasureSpec);
-		int h = Math.max(MeasureSpec.getSize(heightMeasureSpec), getSuggestedMinimumHeight());
+		int h = Math.max(hFromSpec, hSuggested);
 		int hMode = MeasureSpec.getMode(heightMeasureSpec);
 
 		int maxWidth = 0;
 		int maxHeight = 0;
 
-		for(int i = 0; i < getChildCount(); i++) {
+		for(int i = 0; i < childCount; i++) {
 			View child = getChildAt(i);
 			if (child.getVisibility() != View.GONE) {
 				constrainChild(child, w, wMode, h, hMode);
@@ -190,7 +200,7 @@ public class TiCompositeLayout extends ViewGroup
 				LayoutParams p = (LayoutParams) child.getLayoutParams();
 				maxWidth += childWidth;
 				if (p.optionLeft != null) {
-					maxWidth += p.optionLeft.getAsPixels(this);
+					maxWidth += p.optionLeft.getAsPixels(this);  // I think this is wrong -- getViewWidthPadding above has already done this, I believe
 				}
 			} else {
 				maxWidth = Math.max(maxWidth, childWidth);
@@ -299,8 +309,8 @@ public class TiCompositeLayout extends ViewGroup
 		int[] horizontal = new int[2];
 		int[] vertical = new int[2];
 
-		int currentHeight = 0;
-		int currentWidth = 0;
+		int currentHeight = 0; // Used by vertical arrangement calcs
+		
 		for (int i = 0; i < count; i++) {
 			View child = getChildAt(i);
 			TiCompositeLayout.LayoutParams params =
@@ -311,15 +321,21 @@ public class TiCompositeLayout extends ViewGroup
 				int childMeasuredHeight = child.getMeasuredHeight();
 				
 				if (isHorizontalArrangement()) {
-					computeHorizontalLayoutPosition(currentWidth, params.optionLeft, params.optionRight, childMeasuredWidth, left, right, horizontal);
+					if (i == 0)  {
+						horizontalLayoutCurrentLeft = 0;
+						horizontalLayoutLineHeight = 0;
+						// Calculate vertical position of first item in a horizontal layout
+						computePosition(this, params.optionTop, params.optionCenterY, params.optionBottom, childMeasuredHeight, top, bottom, vertical);
+						horizontalLayoutCurrentTop = vertical[0];
+					}
+					computeHorizontalLayoutPosition(params.optionLeft, childMeasuredWidth, childMeasuredHeight, left, right, horizontal, vertical);
 				} else {
 					computePosition(this, params.optionLeft, params.optionCenterX, params.optionRight, childMeasuredWidth, left, right, horizontal);
-				}
-
-				if (isVerticalArrangement()) {
-					computeVerticalLayoutPosition(currentHeight, params.optionTop, params.optionBottom, childMeasuredHeight, top, bottom, vertical);
-				} else {
-					computePosition(this, params.optionTop, params.optionCenterY, params.optionBottom, childMeasuredHeight, top, bottom, vertical);
+					if (isVerticalArrangement()) {
+						computeVerticalLayoutPosition(currentHeight, params.optionTop, params.optionBottom, childMeasuredHeight, top, bottom, vertical);
+					} else {
+						computePosition(this, params.optionTop, params.optionCenterY, params.optionBottom, childMeasuredHeight, top, bottom, vertical);
+					}
 				}
 
 				if (DBG) {
@@ -341,10 +357,6 @@ public class TiCompositeLayout extends ViewGroup
 				currentHeight += newHeight;
 				if (params.optionTop != null) {
 					currentHeight += params.optionTop.getAsPixels(this);
-				}
-				currentWidth += newWidth;
-				if (params.optionLeft != null) {
-					currentWidth += params.optionLeft.getAsPixels(this);
 				}
 			}
 		}
@@ -393,16 +405,26 @@ public class TiCompositeLayout extends ViewGroup
 		pos[1] = bottom;
 	}
 
-	private void computeHorizontalLayoutPosition(int currentWidth,
-			TiDimension optionLeft, TiDimension optionRight, int measuredWidth, int layoutLeft, int layoutRight, int[] pos)
+	private void computeHorizontalLayoutPosition(TiDimension optionLeft, int measuredWidth, int measuredHeight, int layoutLeft, int layoutRight, int[] hpos, int[] vpos)
 	{
-		int left = layoutLeft + currentWidth;
+		int left = horizontalLayoutCurrentLeft;
 		if (optionLeft != null) {
 			left += optionLeft.getAsPixels(this);
 		}
 		int right = left + measuredWidth;
-		pos[0] = left;
-		pos[1] = right;
+		if (right > layoutRight) {
+			// Too long for the current "line" that it's on.  Need to move it down.
+			left = 0;
+			right = measuredWidth;
+			horizontalLayoutCurrentTop = horizontalLayoutCurrentTop + horizontalLayoutLineHeight + 1;
+			horizontalLayoutLineHeight = 0;
+		}
+		horizontalLayoutLineHeight = Math.max(horizontalLayoutLineHeight, measuredHeight);
+		hpos[0] = left;
+		hpos[1] = right;
+		vpos[0] = horizontalLayoutCurrentTop;
+		vpos[1] = horizontalLayoutCurrentTop + horizontalLayoutLineHeight;
+		horizontalLayoutCurrentLeft = right + 1;
 	}
 
 	protected int getWidthMeasureSpec(View child) {

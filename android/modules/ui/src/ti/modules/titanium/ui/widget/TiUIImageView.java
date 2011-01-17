@@ -6,6 +6,7 @@
  */
 package ti.modules.titanium.ui.widget;
 
+import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -13,7 +14,6 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
@@ -28,12 +28,14 @@ import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiBackgroundImageLoadTask;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiConvert;
+import org.appcelerator.titanium.util.TiDownloadListener;
 import org.appcelerator.titanium.util.TiResponseCache;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiDrawableReference;
 import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.filesystem.FileProxy;
+import ti.modules.titanium.ui.widget.TiImageView.OnSizeChangeListener;
 import android.app.Activity;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
@@ -50,7 +52,6 @@ public class TiUIImageView extends TiUIView
 	private static final String LCAT = "TiUIImageView";
 	private static final boolean DBG = TiConfig.LOGD;
 
-	private static final AtomicInteger imageTokenGenerator = new AtomicInteger(0);
 	private static final int FRAME_QUEUE_SIZE = 5;
 
 	private Timer timer;
@@ -61,7 +62,6 @@ public class TiUIImageView extends TiUIView
 	private AtomicBoolean animating = new AtomicBoolean(false);
 	private boolean reverse = false;
 	private boolean paused = false;
-	private int token;
 	private boolean firedLoad;
 	
 	private TiDimension requestedWidth;
@@ -69,22 +69,20 @@ public class TiUIImageView extends TiUIView
 	
 	private ArrayList<TiDrawableReference> imageSources;
 	private TiDrawableReference defaultImageSource;
+	private TiDownloadListener downloadListener;
 
 	private class BgImageLoader extends TiBackgroundImageLoadTask
 	{
-		private int token;
-
-		public BgImageLoader(TiContext tiContext, TiDimension imageWidth, TiDimension imageHeight, int token) {
-			super(tiContext, getParentView(), imageWidth, imageHeight);
-			this.token = token;
+		public BgImageLoader(TiContext tiContext) {
+			super(tiContext);
 		}
 
 		@Override
-		protected void onPostExecute(Drawable d) {
-			super.onPostExecute(d);
+		protected void onPostExecute(Boolean downloaded) {
+			super.onPostExecute(downloaded);
 
-			if (d != null) {
-				setImageDrawable(d, token);
+			if (downloaded) {
+				setImage();
 			} else {
 				if (DBG) {
 					String traceMsg = "Background image load returned null";
@@ -108,6 +106,20 @@ public class TiUIImageView extends TiUIView
 		}
 
 		TiImageView view = new TiImageView(proxy.getContext());
+		view.setOnSizeChangeListener(new OnSizeChangeListener() {
+			
+			@Override
+			public void sizeChanged(int w, int h, int oldWidth, int oldHeight) {
+				setImage();
+			}
+		});
+		
+		downloadListener = new TiDownloadListener() {
+			@Override
+			public void downloadFinished(URI uri) {
+				setImage();
+			}
+		};
 		setNativeView(view);
 		proxy.getTiContext().addOnLifecycleEventListener(this);
 	}
@@ -123,20 +135,6 @@ public class TiUIImageView extends TiUIView
 			return (View)parent;
 		}
 		return null;
-	}
-
-	// This method is intented to only be use from the background task, it's basically
-	// an optimistic commit.
-	private void setImageDrawable(Drawable d, int token) {
-		TiImageView view = getView();
-		if (view != null) {
-			synchronized(imageTokenGenerator) {
-				if (this.token == token) {
-					view.setImageDrawable(d, false);
-					token = -1;
-				}
-			}
-		}
 	}
 
 	private Handler handler = new Handler(this);
@@ -469,7 +467,6 @@ public class TiUIImageView extends TiUIView
 			setImage(null);
 			return;
 		}
-		
 		if (imageSources.size() == 1) {
 			TiDrawableReference imageref = imageSources.get(0);
 			if (imageref.isNetworkUrl()) {
@@ -486,19 +483,14 @@ public class TiUIImageView extends TiUIView
 					URI uri = new URI(imageref.getUrl());
 					if (TiResponseCache.peek(uri)) {
 						getAsync = false;
-						if (nativeView.getParent() instanceof View) {
-							setImage(imageref.getBitmap(getParentView(), requestedWidth, requestedHeight));
-						}
+						setImage(imageref.getBitmap(getParentView(), requestedWidth, requestedHeight));
 					}
 				} catch (URISyntaxException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 				if (getAsync) {
-					synchronized(imageTokenGenerator) {
-						token = imageTokenGenerator.incrementAndGet();
-						imageref.getBitmapAsync(new BgImageLoader(getProxy().getTiContext(), requestedWidth, requestedHeight, token));
-					}
+					imageref.getBitmapAsync(downloadListener);
 				}
 			} else {
 				setImage(imageref.getBitmap(getParentView(), requestedWidth, requestedHeight));
@@ -559,8 +551,18 @@ public class TiUIImageView extends TiUIView
 			}
 		}
 		if (d.containsKey(TiC.PROPERTY_IMAGE)) {
-			setImageSource(d.get(TiC.PROPERTY_IMAGE));
-			setImage();
+			// processProperties is also called from TableView, we need check if we changed before re-creating the bitmap
+			boolean changeImage = true;
+			Object newImage = d.get(TiC.PROPERTY_IMAGE);
+			if (imageSources != null && imageSources.size() == 1) {
+				if (imageSources.get(0).equals(newImage)) {
+					changeImage = false;
+				}
+			}
+			setImageSource(newImage);
+			if (changeImage) {
+				setImage();
+			}
 		} else {
 			if (!d.containsKey(TiC.PROPERTY_IMAGES)) {
 				getProxy().setProperty(TiC.PROPERTY_IMAGE, null);
@@ -573,6 +575,8 @@ public class TiUIImageView extends TiUIView
 		super.processProperties(d);
 	}
 
+	
+	
 	@Override
 	public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy proxy)
 	{

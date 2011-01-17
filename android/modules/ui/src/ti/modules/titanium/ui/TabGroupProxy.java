@@ -325,7 +325,7 @@ public class TabGroupProxy extends TiWindowProxy
 	
 	@Override
 	public KrollDict handleToImage() {
-		return TiUIHelper.viewToImage(getTiContext(), getTiContext().getActivity().getWindow().getDecorView());
+		return TiUIHelper.viewToImage(getTiContext(), this.properties, getTiContext().getActivity().getWindow().getDecorView());
 	}
 
 	@Override

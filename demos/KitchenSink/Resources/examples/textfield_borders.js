@@ -1,5 +1,12 @@
 var win = Titanium.UI.currentWindow;
 
+win.orientationModes = [
+	Titanium.UI.PORTRAIT,
+	Titanium.UI.UPSIDE_PORTRAIT,
+	Titanium.UI.LANDSCAPE_LEFT,
+	Titanium.UI.LANDSCAPE_RIGHT,
+]; 
+
 var scrolly = Titanium.UI.createScrollView({contentHeight:'auto'});
 win.add(scrolly);
 
@@ -8,7 +15,7 @@ var tf1 = Titanium.UI.createTextField({
 	height:35,
 	top:10,
 	left:10,
-	width:250,
+	right:60,
 	borderStyle:Titanium.UI.INPUT_BORDERSTYLE_ROUNDED
 });
 
@@ -18,7 +25,7 @@ var tf2 = Titanium.UI.createTextField({
 	height:35,
 	top:55,
 	left:10,
-	width:250,
+	right:60,
 	font:{fontSize:25},
 	borderStyle:Titanium.UI.INPUT_BORDERSTYLE_BEZEL
 });
@@ -29,7 +36,7 @@ var tf3 = Titanium.UI.createTextField({
 	height:35,
 	top:100,
 	left:10,
-	width:250,
+	right:60,
 	font:{fontSize:15},
 	borderStyle:Titanium.UI.INPUT_BORDERSTYLE_LINE
 });
@@ -40,7 +47,7 @@ var tf4 = Titanium.UI.createTextField({
 	height:35,
 	top:145,
 	left:10,
-	width:250,
+	right:60,
 	borderStyle:Titanium.UI.INPUT_BORDERSTYLE_NONE
 });
 
@@ -52,7 +59,7 @@ var tf5 = Titanium.UI.createTextField({
 	backgroundImage:'../images/inputfield.png',
 	paddingLeft:10,
 	left:10,
-	width:250,
+	right:60,
 	font:{fontSize:13},
 	color:'#777',
 	clearOnEdit:true

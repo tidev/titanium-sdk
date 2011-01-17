@@ -20,6 +20,7 @@ import org.appcelerator.titanium.TiProperties;
 import org.appcelerator.titanium.io.TiBaseFile;
 import org.appcelerator.titanium.io.TiFileFactory;
 import org.appcelerator.titanium.proxy.TiViewProxy;
+import org.appcelerator.titanium.util.AsyncResult;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiConvert;
@@ -78,6 +79,7 @@ public class TiMapView extends TiUIView
 	private static final int MSG_REMOVE_ANNOTATION = 308;
 	private static final int MSG_SELECT_ANNOTATION = 309;
 	private static final int MSG_REMOVE_ALL_ANNOTATIONS = 310;
+	private static final int MSG_UPDATE_ANNOTATIONS = 311;
 
 	private boolean scrollEnabled;
 	private boolean regionFit;
@@ -90,6 +92,7 @@ public class TiMapView extends TiUIView
 	private MyLocationOverlay myLocation;
 	private TiOverlayItemView itemView;
 	private ArrayList<AnnotationProxy> annotations;
+	private ArrayList<SelectedAnnotation> selectedAnnotations;
 	private Handler handler;
 
 	class LocalMapView extends MapView
@@ -244,13 +247,24 @@ public class TiMapView extends TiUIView
 		}
 	}
 
-	public TiMapView(TiViewProxy proxy, Window mapWindow)
+	public static class SelectedAnnotation {
+		String title;
+		boolean animate;
+
+		public SelectedAnnotation(String title, boolean animate) {
+			this.title = title;
+			this.animate = animate;
+		}
+	}
+	
+	public TiMapView(TiViewProxy proxy, Window mapWindow, ArrayList<AnnotationProxy> annotations, ArrayList<SelectedAnnotation>selectedAnnotations)
 	{
 		super(proxy);
 
 		this.mapWindow = mapWindow;
 		this.handler = new Handler(this);
-		this.annotations = new ArrayList<AnnotationProxy>();
+		this.annotations = annotations;
+		this.selectedAnnotations = selectedAnnotations;
 
 		TiApplication app = proxy.getTiContext().getTiApp();
 		TiProperties systemProperties = app.getSystemProperties();
@@ -381,24 +395,14 @@ public class TiMapView extends TiUIView
 					mc.setZoom(view.getZoomLevel() + msg.arg1);
 				}
 				return true;
-			case MSG_ADD_ANNOTATION :
-				doAddAnnotation((AnnotationProxy) msg.obj);
-				return true;
-			case MSG_REMOVE_ANNOTATION :
-				doRemoveAnnotation((String) msg.obj);
-				return true;
 			case MSG_SELECT_ANNOTATION :
 				boolean select = msg.arg1 == 1 ? true : false;
 				boolean animate = msg.arg2 == 1 ? true : false;
 				String title = (String) msg.obj;
 				doSelectAnnotation(select, title, animate);
 				return true;
-			case MSG_REMOVE_ALL_ANNOTATIONS :
-				annotations.clear();
-				if (itemView != null && view != null && view.indexOfChild(itemView) != -1 ) {
-					hideAnnotation();
-				}
-				doSetAnnotations(annotations);
+			case MSG_UPDATE_ANNOTATIONS :
+				doUpdateAnnotations();
 				return true;
 		}
 
@@ -413,7 +417,9 @@ public class TiMapView extends TiUIView
 	}
 
 	private void showAnnotation(int index, TiOverlayItem item) {
+		Log.e(LCAT, "B:" + view + ":" + itemView + ":" + item);
 		if (view != null && itemView != null && item != null) {
+			Log.e(LCAT, "B2");
 			itemView.setItem(index, item);
 			//Make sure the atonnation is always on top of the marker
 			int y = -1*item.getMarker(TiOverlayItem.ITEM_STATE_FOCUSED_MASK).getIntrinsicHeight();
@@ -423,6 +429,17 @@ public class TiMapView extends TiUIView
 
 			view.addView(itemView, params);
 		}
+	}
+
+	public void updateAnnotations() {
+		handler.obtainMessage(MSG_UPDATE_ANNOTATIONS).sendToTarget();
+	}
+
+	public void doUpdateAnnotations() {
+		if (itemView != null && view != null && view.indexOfChild(itemView) != -1 ) {
+			hideAnnotation();
+		}
+		doSetAnnotations(annotations);
 	}
 
 	public void onTap(int index) {
@@ -562,6 +579,12 @@ public class TiMapView extends TiUIView
 					overlay = new TitaniumOverlay(makeMarker(Color.BLUE), this);
 					overlay.setAnnotations(annotations);
 					overlays.add(overlay);
+
+					int numSelectedAnnotations = selectedAnnotations.size();
+					for(int i = 0; i < numSelectedAnnotations; i++) {
+						Log.e(LCAT, "Executing internal call to selectAnnotation:" + (selectedAnnotations.get(i)).title);
+						selectAnnotation(true, (selectedAnnotations.get(i)).title, (selectedAnnotations.get(i)).animate);
+					}
 				}
 
 				view.invalidate();
@@ -569,74 +592,20 @@ public class TiMapView extends TiUIView
 		}
 	}
 
-	public void addAnnotation(AnnotationProxy annotation) {
-		handler.obtainMessage(MSG_ADD_ANNOTATION, annotation).sendToTarget();
-	};
-
-	public void doAddAnnotation(AnnotationProxy annotation)
-	{
-		if (annotation != null && view != null) {
-
-			annotations.add(annotation);
-			doSetAnnotations(annotations);
-		}
-	};
-
-	public void removeAnnotation(String title) {
-		handler.obtainMessage(MSG_REMOVE_ANNOTATION, title).sendToTarget();
-	};
-
-	public void removeAllAnnotations() {
-		handler.obtainMessage(MSG_REMOVE_ALL_ANNOTATIONS).sendToTarget();
-	}
-
-	private int findAnnotation(String title)
-	{
-		int existsIndex = -1;
-		// Check for existence
-		int len = annotations.size();
-		for(int i = 0; i < len; i++) {
-			AnnotationProxy a = annotations.get(i);
-			String t = (String) a.getProperty(TiC.PROPERTY_TITLE);
-
-			if (t != null) {
-				if (title.equals(t)) {
-					if (DBG) {
-						Log.d(LCAT, "Annotation found at index: " + " with title: " + title);
-					}
-					existsIndex = i;
-					break;
-				}
-			}
-		}
-
-		return existsIndex;
-	}
-
-	public void doRemoveAnnotation(String title)
-	{
-		if (title != null && view != null && annotations != null) {
-			int existsIndex = findAnnotation(title);
-			// If found, build a new annotation list
-			if (existsIndex > -1) {
-				annotations.remove(existsIndex);
-
-				doSetAnnotations(annotations);
-			}
-		}
-	};
-
 	public void selectAnnotation(boolean select, String title, boolean animate)
 	{
 		if (title != null) {
+			Log.e(LCAT, "calling obtainMessage");
 			handler.obtainMessage(MSG_SELECT_ANNOTATION, select ? 1 : 0, animate ? 1 : 0, title).sendToTarget();
 		}
 	}
 
 	public void doSelectAnnotation(boolean select, String title, boolean animate)
 	{
+		Log.e(LCAT, "A:" + title + ":" + view + ":" + annotations + ":" + overlay);
 		if (title != null && view != null && annotations != null && overlay != null) {
-			int index = findAnnotation(title);
+			int index = ((ViewProxy)proxy).findAnnotation(title);
+			Log.e(LCAT, "A2:" + index);
 			if (index > -1) {
 				if (overlay != null) {
 					synchronized(overlay) {
@@ -656,6 +625,7 @@ public class TiMapView extends TiUIView
 							} else {
 								controller.setCenter(item.getPoint());
 							}
+							Log.e(LCAT, "A3:" + index + ":" + item);
 							showAnnotation(index, item);
 						} else {
 							hideAnnotation();

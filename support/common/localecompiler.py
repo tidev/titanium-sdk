@@ -44,18 +44,31 @@ class LocaleCompiler(object):
 				rc = rc + node.data
 		return rc
 
+	def isApp(self,file):
+		return (os.path.basename(file) == "app.xml")
+
+	def localization_file_name_ios(self,file):
+		if self.isApp(file):
+			return "InfoPlist.strings"
+		return "Localizable.strings"
+
 	def compile_for_ios(self,file):
 		locale = self.get_locale(file)
 		build_dir = self.get_ios_dir()
 		lproj_dir = os.path.join(build_dir,'%s.lproj' % locale)
 		if not os.path.exists(lproj_dir): os.makedirs(lproj_dir)
-		locale_file = os.path.join(lproj_dir,'Localizable.strings')
+		locale_file = os.path.join(lproj_dir,self.localization_file_name_ios(file))
 		f = codecs.open(locale_file,'w','utf-16')
 		f.write(u'/**\n * Appcelerator Titanium\n * this is a generated file - DO NOT EDIT\n */\n\n')
 		dom = parse(file)
+		appkeys = { 'appname' : 'CFBundleDisplayName' }
 		for node in dom.documentElement.childNodes:
 			if node.nodeType != 1: continue
 			name = node.attributes['name'].nodeValue
+			if self.isApp(file):
+				name = appkeys[name]
+				if name is None:
+					pass
 			value = self.getText(node.childNodes)
 			# TODO: translate any more symbols?
 			value = value.replace("%s",'%@')
@@ -64,8 +77,11 @@ class LocaleCompiler(object):
 		if self.mode!='simulator': #only compile if not simulator
 			os.system("/usr/bin/plutil -convert binary1 \"%s\"" % locale_file)
 		print "[DEBUG] compiled ios file: %s" % locale_file
-		
+	
 	def compile_for_android(self,file):
+		#TODO: Add android support for app.xml
+		if self.isApp(file):
+			return
 		locale = self.get_locale(file)
 		# for andoird, we can simply copy into the right directory
 		if locale == 'en' or locale.lower() == 'en-us':

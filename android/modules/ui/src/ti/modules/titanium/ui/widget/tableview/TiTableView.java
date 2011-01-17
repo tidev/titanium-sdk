@@ -222,7 +222,7 @@ public class TiTableView extends FrameLayout
 
 		@Override
 		public boolean hasStableIds() {
-			return false;
+			return true;
 		}
 
 		@Override

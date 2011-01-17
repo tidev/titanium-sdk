@@ -80,9 +80,13 @@ public class TiUIScrollableView extends TiUIView
 
 	public void showPager()
 	{
-		boolean showPagingControl = TiConvert.toBoolean(proxy.getProperty("showPagingControl"));
-		if (showPagingControl) {
-			getView().showPager();
+		Object showPagingControlProperty = proxy.getProperty("showPagingControl");
+
+		if (showPagingControlProperty != null) {
+			boolean showPagingControl = TiConvert.toBoolean(showPagingControlProperty);
+			if (showPagingControl) {
+				getView().showPager();
+			}
 		}
 	}
 

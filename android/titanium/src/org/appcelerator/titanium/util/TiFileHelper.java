@@ -36,6 +36,7 @@ import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.webkit.URLUtil;
 
 public class TiFileHelper
@@ -255,7 +256,7 @@ public class TiFileHelper
 		InputStream is = null;
 		try
 		{
-			if (checkForNinePatch) {
+			if (checkForNinePatch && path != null && !URLUtil.isNetworkUrl(path)) {
 				if (path.endsWith(".png")) {
 					if (!path.endsWith(".9.png")) {
 						String apath = null;

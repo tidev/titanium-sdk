@@ -16,10 +16,12 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiContext.OnLifecycleEvent;
 import org.appcelerator.titanium.TiContext.OnServiceLifecycleEvent;
 import org.appcelerator.titanium.bridge.OnEventListenerChange;
+import org.appcelerator.titanium.kroll.KrollCallback;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 
@@ -134,11 +136,11 @@ public class KrollEventManager implements OnLifecycleEvent, OnServiceLifecycleEv
 			this.listener = listener;
 		}
 
-		public boolean invoke(String eventName, KrollDict data) {
+		public boolean invoke(String eventName, KrollDict data, boolean asyncCallback) {
 			boolean invoked = false;
 			KrollProxy p = weakProxy.get();
 			if (p != null && listener != null) {
-				p.fireSingleEvent(eventName, listener, data);
+				p.fireSingleEvent(eventName, listener, data, asyncCallback);
 				invoked = true;
 			} else {
 				if (DBG) {
@@ -232,8 +234,13 @@ public class KrollEventManager implements OnLifecycleEvent, OnServiceLifecycleEv
 
 		return result;
 	}
-	
+
 	public boolean dispatchEvent(String eventName, KrollDict data)
+	{
+		return dispatchEvent(eventName, data, true);
+	}
+
+	public boolean dispatchEvent(String eventName, KrollDict data, boolean asyncCallback)
 	{
 		boolean dispatched = false;
 		if (eventName != null) {
@@ -248,8 +255,8 @@ public class KrollEventManager implements OnLifecycleEvent, OnServiceLifecycleEv
 			if (data == null) {
 				data = new KrollDict();
 			}
-			if (!data.containsKey("type")) {
-				data.put("type", eventName);
+			if (!data.containsKey(TiC.EVENT_PROPERTY_TYPE)) {
+				data.put(TiC.EVENT_PROPERTY_TYPE, eventName);
 			}
 
 			Set<Entry<Integer, KrollListener>> listenerSet = listeners.entrySet();
@@ -260,10 +267,10 @@ public class KrollEventManager implements OnLifecycleEvent, OnServiceLifecycleEv
 						boolean invoked = false;
 						try {
 							if (listener.weakProxy.get() != null) {
-								if (!data.containsKey("source")) {
-									data.put("source", listener.weakProxy.get());
+								if (!data.containsKey(TiC.EVENT_PROPERTY_SOURCE)) {
+									data.put(TiC.EVENT_PROPERTY_SOURCE, listener.weakProxy.get());
 								}
-								invoked = listener.invoke(eventName, data);
+								invoked = listener.invoke(eventName, data, asyncCallback);
 							}
 						} catch (Exception e) {
 							Log.e(TAG, "Error invoking listener with id " + entry.getKey() + " on eventName '" + eventName + "'", e);

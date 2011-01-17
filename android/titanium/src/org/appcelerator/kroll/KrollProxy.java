@@ -17,6 +17,7 @@ import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.bridge.OnEventListenerChange;
 import org.appcelerator.titanium.kroll.KrollBridge;
+import org.appcelerator.titanium.kroll.KrollCallback;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 import org.mozilla.javascript.Function;
@@ -542,12 +543,19 @@ public class KrollProxy implements Handler.Callback, OnEventListenerChange, Krol
 	}
 
 	@Kroll.method
-	public boolean fireEvent(String eventName, @Kroll.argument(optional=true) KrollDict data) {
+	public boolean fireEvent(String eventName, @Kroll.argument(optional=true) KrollDict data)
+	{
 		return eventManager.dispatchEvent(eventName, data);
 	}
 
+	public boolean fireSyncEvent(String eventName, KrollDict data)
+	{
+		return eventManager.dispatchEvent(eventName, data, false);
+	}
+
 	// Convenience for internal code
-	public KrollInvocation createEventInvocation(String eventName) {
+	public KrollInvocation createEventInvocation(String eventName)
+	{
 		if (DBG) {
 			Log.d(TAG, "creating event invocation, context: " + getTiContext() + ", js context: " + getTiContext().getJSContext());
 		}
@@ -561,7 +569,8 @@ public class KrollProxy implements Handler.Callback, OnEventListenerChange, Krol
 
 	@Kroll.method
 	public void fireSingleEvent(String eventName, Object listener,
-			KrollDict data) {
+		KrollDict data, boolean asyncCallback)
+	{
 		if (listener != null) {
 			KrollInvocation invocation = currentInvocation == null ?
 				createEventInvocation(eventName) : currentInvocation;
@@ -570,7 +579,11 @@ public class KrollProxy implements Handler.Callback, OnEventListenerChange, Krol
 				data = new KrollDict();
 			}
 			try {
-				method.invoke(invocation, new Object[] { data });
+				if (method instanceof KrollCallback && !asyncCallback) {
+					((KrollCallback)method).callSync(data);
+				} else {
+					method.invoke(invocation, new Object[] { data });
+				}
 			} catch (Exception e) {
 				Log.e(TAG, e.getMessage(), e);
 			}
@@ -578,11 +591,13 @@ public class KrollProxy implements Handler.Callback, OnEventListenerChange, Krol
 		}
 	}
 
-	public boolean hasListeners(String eventName) {
+	public boolean hasListeners(String eventName)
+	{
 		return eventManager.hasAnyEventListener(eventName);
 	}
 
-	protected KrollDict createErrorResponse(int code, String message) {
+	protected KrollDict createErrorResponse(int code, String message)
+	{
 		KrollDict error = new KrollDict();
 		error.put(TiC.ERROR_PROPERTY_CODE, code);
 		error.put(TiC.ERROR_PROPERTY_MESSAGE, message);

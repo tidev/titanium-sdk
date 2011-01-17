@@ -13,14 +13,17 @@
 @class TiUIView;
 @protocol TiUIScrollView
 
+-(void)keyboardDidShowAtHeight:(CGFloat)keyboardTop;
+-(void)scrollToShowView:(TiUIView *)firstResponderView withKeyboardHeight:(CGFloat)keyboardTop;
+
 -(void)keyboardDidShowAtHeight:(CGFloat)keyboardTop forView:(TiUIView *)firstResponderView;
--(void)keyboardDidHideForView:(TiUIView *)hidingView;
 
 @end
 
-void ModifyScrollViewForKeyboardHeightAndContentHeightWithResponderRect(UIScrollView * scrollView,CGFloat keyboardTop,CGFloat minimumContentHeight,CGRect responderRect);
-void RestoreScrollViewFromKeyboard(UIScrollView * scrollView);
+void InsetScrollViewForKeyboard(UIScrollView * scrollView,CGFloat keyboardTop,CGFloat minimumContentHeight);
+void OffsetScrollViewForRect(UIScrollView * scrollView,CGFloat keyboardTop,CGFloat minimumContentHeight,CGRect responderRect);
 
+void ModifyScrollViewForKeyboardHeightAndContentHeightWithResponderRect(UIScrollView * scrollView,CGFloat keyboardTop,CGFloat minimumContentHeight,CGRect responderRect);
 
 @class TiViewProxy;
 

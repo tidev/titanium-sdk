@@ -215,6 +215,14 @@
 	return [super orientationFlags];
 }
 
+-(void)willChangeSize
+{
+	[super willChangeSize];
+
+	[tabs makeObjectsPerformSelector:@selector(willChangeSize)];
+	//TODO: Shouldn't tabs have a lock protecting them?
+}
+
 @end
 
 #endif

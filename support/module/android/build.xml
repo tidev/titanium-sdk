@@ -71,7 +71,10 @@
 	<target name="dist" depends="compile" description="Generate a distributable module JAR">
 		<ti.string property="module.id" string="${manifest.moduleid}" tolowercase="true"/>
 		<property name="module.jar" location="${dist}/${ant.project.name}.jar"/>
-		<jar destfile="${module.jar}" basedir="${classes}"/>
+		<jar destfile="${module.jar}">
+			<fileset dir="${classes}"/>
+			<fileset dir="${ti.module.root}" includes="assets/**" excludes="assets/README"/>
+		</jar>
 		<property name="zip.prefix" value="modules/android/${module.id}/${manifest.version}"/>
 		
 		<zip destfile="${dist}/${module.id}-android-${manifest.version}.zip">

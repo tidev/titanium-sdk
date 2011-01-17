@@ -38,7 +38,6 @@
 	NSString *userAgent;
 	NSString *remoteDeviceUUID;
 	
-	BOOL keyboardShowing;
 	id remoteNotificationDelegate;
 	NSDictionary* remoteNotification;
 	
@@ -58,6 +57,8 @@
 @property (nonatomic, retain) UIViewController<TiRootController>* controller;
 
 +(TiApp*)app;
+//Convenience method
++(UIViewController<TiRootController>*)controller;
 
 -(void)attachXHRBridgeIfRequired;
 
@@ -77,10 +78,9 @@
 -(void)showModalController:(UIViewController*)controller animated:(BOOL)animated;
 -(void)hideModalController:(UIViewController*)controller animated:(BOOL)animated;
 
+
 -(NSString*)userAgent;
 -(NSString*)sessionId;
-
--(BOOL)isKeyboardShowing;
 
 -(KrollBridge*)krollBridge;
 

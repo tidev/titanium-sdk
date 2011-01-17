@@ -7,7 +7,7 @@ var url = Titanium.UI.createTextField({
 	keyboardType:Titanium.UI.KEYBOARD_URL,
 	hintText:'url',
 	textAlign:'left',
-	clearOnEdit:true,
+	clearOnEdit:false, // this set to true was clearing the field on launch
 	height:35,
 	top:10,
 	width:300,
@@ -94,6 +94,12 @@ streamer.addEventListener('progress',function(e)
 streamer.addEventListener('change',function(e)
 {
 	stateLabel.text = 'State: '+e.description +' ('+e.state+')';
+	if(e.description == "stopped") {
+		progressLabel.text = 'Stopped';
+		pauseButton.enabled = false;
+		pauseButton.title = 'Pause Streaming';
+		streamButton.title = "Start Streaming";
+	}
 });
 
 // save off current idle timer state
