@@ -59,6 +59,13 @@ public class TiPlatformHelper
 		// what is platform id?
 		platformId = Settings.Secure.getString(app.getContentResolver(), Settings.Secure.ANDROID_ID);
 
+		// this is a fix for the emulator only I think as a normal device should
+		// never return null
+		if (platformId == null) {
+			Log.e(LCAT, "platformId is null, setting to empty string");
+			platformId = "";
+		}
+
 		TiDatabaseHelper db = new TiDatabaseHelper(app);
 		String storedMachineId = db.getPlatformParam("unique_machine_id", "");
 		String hardwareMachineId = db.getPlatformParam("hardware_machine_id", "");
