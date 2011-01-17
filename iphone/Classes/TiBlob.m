@@ -166,7 +166,8 @@
 		}
 		case TiBlobTypeImage:
 		{
-			return UIImageJPEGRepresentation(image,1.0);
+			id quality = [self valueForUndefinedKey:@"imageQuality"];
+			return UIImageJPEGRepresentation(image, quality == nil ? 1.0 : [TiUtils floatValue:quality]);
 		}
 	}
 	return data;
