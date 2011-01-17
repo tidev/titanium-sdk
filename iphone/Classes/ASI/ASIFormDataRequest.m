@@ -288,7 +288,10 @@
 	
 	NSString *charset = (NSString *)CFStringConvertEncodingToIANACharSetName(CFStringConvertNSStringEncodingToEncoding([self stringEncoding]));
 
-	[self addRequestHeader:@"Content-Type" value:[NSString stringWithFormat:@"application/x-www-form-urlencoded; charset=%@",charset]];
+	// Custom fix to allow users to set their own Content-Type - SPT
+	if (![[self requestHeaders] valueForKey:@"Content-Type"]) {
+		[self addRequestHeader:@"Content-Type" value:[NSString stringWithFormat:@"application/x-www-form-urlencoded; charset=%@",charset]];
+	}
 
 	
 	NSUInteger i=0;
