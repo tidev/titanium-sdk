@@ -14,8 +14,8 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.appcelerator.titanium.TiApplication;
+import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
-import org.appcelerator.titanium.TiProperties;
 import org.appcelerator.titanium.TiScriptRunner;
 import org.appcelerator.titanium.io.TiBaseFile;
 import org.appcelerator.titanium.io.TiFileFactory;
@@ -43,10 +43,11 @@ public class KrollContext extends KrollHandlerThread implements Handler.Callback
 	private static final int MSG_EVAL_FILE = 1001;
 
 	private static AtomicInteger instanceCounter;
-	
+
 	private static final String APP_SCHEME= "app://";
 	private static final String FILE_WITH_ASSET = "file:///android_asset/Resources/";
-	
+	private static final String STRING_SOURCE = "<anonymous>";
+
 	public static final String CONTEXT_KEY = "krollContext";
 	
 	private TiContext tiContext;
@@ -105,13 +106,13 @@ public class KrollContext extends KrollHandlerThread implements Handler.Callback
 		{
 			case MSG_EVAL_STRING : {
 				AsyncResult result = (AsyncResult) msg.obj;
-				String src = msg.getData().getString("src");
+				String src = msg.getData().getString(TiC.MSG_PROPERTY_SRC);
 				result.setResult(handleEval(src));
 				return true;
 			}
 			case MSG_EVAL_FILE : {
 				AsyncResult result = (AsyncResult) msg.obj;
-				String filename = msg.getData().getString("filename");
+				String filename = msg.getData().getString(TiC.MSG_PROPERTY_FILENAME);
 				result.setResult(handleEvalFile(filename));
 				return true;
 			}
@@ -119,22 +120,26 @@ public class KrollContext extends KrollHandlerThread implements Handler.Callback
 		return false;
 	}
 
-	public void post(Runnable r) {
+	public void post(Runnable r)
+	{
 		contextHandler.post(r);
 	}
 
-	protected boolean isOurThread() {
+	protected boolean isOurThread()
+	{
 		if (DBG) {
 			Log.i(LCAT, "ThreadId: " + getId() + " currentThreadId: " + Thread.currentThread().getId());
 		}
 		return getId() == Thread.currentThread().getId();
 	}
 
-	public TiContext getTiContext() {
+	public TiContext getTiContext()
+	{
 		return tiContext;
 	}
 
-	public Scriptable getScope() {
+	public Scriptable getScope()
+	{
 		requireInitialized();
 		return jsScope;
 	}
@@ -152,13 +157,14 @@ public class KrollContext extends KrollHandlerThread implements Handler.Callback
 		AsyncResult result = new AsyncResult();
 
 		Message msg = contextHandler.obtainMessage(MSG_EVAL_FILE, result);
-		msg.getData().putString("filename", filename);
+		msg.getData().putString(TiC.MSG_PROPERTY_FILENAME, filename);
 		msg.sendToTarget();
 
 		return result.getResult();
 	}
 	
-	protected Object runCompiledScript(String filename) {
+	protected Object runCompiledScript(String filename)
+	{
 		
 		if (filename.contains("://")) {
 			if (filename.startsWith(APP_SCHEME)) {
@@ -182,12 +188,12 @@ public class KrollContext extends KrollHandlerThread implements Handler.Callback
 		}
 		return ScriptableObject.NOT_FOUND;
 	}
-	
-	public Object evaluateScript(String filename) { 
+	public Object evaluateScript(String filename)
+	{
 		String[] parts = { filename };
 		TiBaseFile tbf = TiFileFactory.createTitaniumFile(tiContext, parts, false);
 		BufferedReader br = null;
-		
+
 		Context context = enter(false);
 		try {
 			br = new BufferedReader(new InputStreamReader(tbf.getInputStream()), 4000);
@@ -207,7 +213,7 @@ public class KrollContext extends KrollHandlerThread implements Handler.Callback
 		}
 		return ScriptableObject.NOT_FOUND;
 	}
-	
+
 	public Object handleEvalFile(String filename)
 	{
 		requireInitialized();
@@ -242,7 +248,7 @@ public class KrollContext extends KrollHandlerThread implements Handler.Callback
 		AsyncResult result = new AsyncResult();
 
 		Message msg = contextHandler.obtainMessage(MSG_EVAL_STRING, result);
-		msg.getData().putString("src", src);
+		msg.getData().putString(TiC.MSG_PROPERTY_SRC, src);
 		msg.sendToTarget();
 
 		return result.getResult();
@@ -255,7 +261,7 @@ public class KrollContext extends KrollHandlerThread implements Handler.Callback
 		Object result = null;
 		Context ctx = enter(false);
 		try {
-			result = ctx.evaluateString(jsScope, src, "", 0, null);
+			result = ctx.evaluateString(jsScope, src, STRING_SOURCE, 0, null);
 		} catch (EcmaError e) {
 			Log.e(LCAT, "ECMA Error evaluating source: " + e.getMessage(), e);
 			Context.reportRuntimeError(e.getMessage(), e.sourceName(), e.lineNumber(), e.lineSource(), e.columnNumber());
@@ -285,15 +291,18 @@ public class KrollContext extends KrollHandlerThread implements Handler.Callback
 		return is;
 	}
 
-	public void put(String name, Scriptable object) {
+	public void put(String name, Scriptable object)
+	{
 		jsScope.put(name, jsScope, object);
 	}
 
-	public Context enter() {
+	public Context enter()
+	{
 		return enter(this.useOptimization);
 	}
 	
-	public Context enter(boolean useOptimization) {
+	public Context enter(boolean useOptimization)
+	{
 		Context ctx = Context.enter();
 		
 		if (!useOptimization) {
@@ -305,15 +314,18 @@ public class KrollContext extends KrollHandlerThread implements Handler.Callback
 		return ctx;
 	}
 
-	public void exit() {
+	public void exit()
+	{
 		Context.exit();
 	}
 	
-	public static KrollContext getKrollContext(Context context) {
+	public static KrollContext getKrollContext(Context context)
+	{
 		return (KrollContext) context.getThreadLocal(CONTEXT_KEY);
 	}
 	
-	public static KrollContext getCurrentKrollContext() {
+	public static KrollContext getCurrentKrollContext()
+	{
 		Context ctx = Context.getCurrentContext();
 		if (ctx == null) {
 			return null;
@@ -321,7 +333,8 @@ public class KrollContext extends KrollHandlerThread implements Handler.Callback
 		return getKrollContext(ctx);
 	}
 
-	private void requireInitialized() {
+	private void requireInitialized()
+	{
 		try {
 			initialized.await();
 		} catch (InterruptedException e) {

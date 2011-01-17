@@ -19,23 +19,27 @@ import android.net.Uri;
 /**
  * A normalizer, resolver, and holder for Titanium URLs
  */
-public class TiUrl {
+public class TiUrl
+{
 	protected static final String TAG = "TiUrl";
 	protected static final boolean DBG = TiConfig.LOGD;
 
 	public String baseUrl;
 	public String url;
 
-	public TiUrl(String url) {
+	public TiUrl(String url)
+	{
 		this(TiC.URL_APP_PREFIX, url);
 	}
 
-	public TiUrl(String baseUrl, String url) {
+	public TiUrl(String baseUrl, String url)
+	{
 		this.baseUrl = baseUrl;
 		this.url = url;
 	}
 
-	protected static String parseRelativeBaseUrl(String path, String baseUrl, boolean checkAppPrefix) {
+	protected static String parseRelativeBaseUrl(String path, String baseUrl, boolean checkAppPrefix) 
+	{
 		String[] right = path.split("/");
 		String[] left = null;
 		if (baseUrl.contains("://")) {
@@ -84,7 +88,8 @@ public class TiUrl {
 		return bUrl;
 	}
 
-	public static TiUrl normalizeWindowUrl(String url) {
+	public static TiUrl normalizeWindowUrl(String url) 
+	{
 		int lastSlash = url.lastIndexOf('/');
 		String baseUrl = url.substring(0, lastSlash+1);
 		if (baseUrl.length() == 0) {
@@ -93,7 +98,8 @@ public class TiUrl {
 		return normalizeWindowUrl(baseUrl, url);
 	}
 
-	public static TiUrl normalizeWindowUrl(String baseUrl, String url) {
+	public static TiUrl normalizeWindowUrl(String baseUrl, String url)
+	{
 		if (DBG) {
 			Log.d(TAG, "Window Base URL: " + baseUrl);
 			if (url != null) {
@@ -123,7 +129,7 @@ public class TiUrl {
 				}
 
 				if (url.startsWith("/")) {
-					baseUrl = "app:/" + path;
+					baseUrl = path == null ? TiC.URL_APP_PREFIX : "app:/" + path;
 					url = TiFileHelper2.joinSegments(baseUrl, fname);
 				} else if (path == null && fname != null) {
 					url = TiFileHelper2.joinSegments(baseUrl, fname);
@@ -146,18 +152,23 @@ public class TiUrl {
 		return new TiUrl(baseUrl, url);
 	}
 
-	public String resolve(TiContext context) {
+	public String resolve(TiContext context)
+	{
 		return resolve(context, baseUrl, url, null);
 	}
-	public String resolve(TiContext context, String path) {
+
+	public String resolve(TiContext context, String path)
+	{
 		return resolve(context, baseUrl, path, null);
 	}
 
-	public String resolve(TiContext context, String baseUrl, String path) {
+	public String resolve(TiContext context, String baseUrl, String path)
+	{
 		return resolve(context, baseUrl, path, null);
 	}
 	
-	public String resolve(TiContext context, String baseUrl, String path, String scheme) {
+	public String resolve(TiContext context, String baseUrl, String path, String scheme)
+	{
 		if (!TiFileFactory.isLocalScheme(path)) {
 			return path;
 		}
@@ -196,7 +207,8 @@ public class TiUrl {
 		return result;
 	}
 
-	public String absoluteUrl(String defaultScheme, String url, String baseUrl) {
+	public String absoluteUrl(String defaultScheme, String url, String baseUrl)
+	{
 		try {
 			URI uri = new URI(url);
 			String scheme = uri.getScheme();

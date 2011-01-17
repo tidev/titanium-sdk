@@ -64,6 +64,8 @@ public class TiC {
 	public static final String INTENT_PROPERTY_MESSAGE_ID = "messageId";
 	public static final String INTENT_PROPERTY_MESSENGER = "messenger";
 	public static final String MSG_PROPERTY_EVENT_NAME = "eventName";
+	public static final String MSG_PROPERTY_FILENAME = "filename";
+	public static final String MSG_PROPERTY_SRC = "src";
 	public static final String PROPERTY_ACTION = "action";
 	public static final String PROPERTY_ACTIVE_TAB = "activeTab";
 	public static final String PROPERTY_ACTIVITY = "activity";

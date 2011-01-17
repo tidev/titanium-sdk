@@ -64,9 +64,23 @@ describe("Ti.UI tests", {
 		timeout: 10000,
 		timeoutError: 'Timed out waiting for page to load and JS to eval'
 	}),
+
 	//https://appcelerator.lighthouseapp.com/projects/32238/tickets/2443-android-paths-beginning-with-are-not-recognised
 	dotslashWindow: function() {
 		var w = Ti.UI.createWindow({url:'./testwin.js'});
 		valueOf(function(){w.open();}).shouldNotThrowException();
-	}
+	},
+
+	// https://appcelerator.lighthouseapp.com/projects/32238-titanium-mobile/tickets/2230-android-resolve-url-failing-from-event-context#ticket-2230-6
+	absoluteAndRelativeWinURLs: asyncTest( {
+		start: function(callback) {
+			var w = Ti.UI.createWindow({ url: 'dir/relative.js' });
+			w.addEventListener("close", this.async(function() {
+				valueOf(true).shouldBe(true);
+			}));
+			w.open();
+		},
+		timeout: 10000,
+		timeoutError: 'Timed out waiting for relative and absolute window to auto close'
+	})
 });
