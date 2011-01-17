@@ -186,6 +186,12 @@
 
  	    UIColor * thisColor = [[TiUtils colorValue:thisEntry] _color];
 	   
+	    if (thisColor == nil)
+		{
+		   [self throwException:TiExceptionInvalidType subreason:
+			@"Colors must be an array of colors or objects with a color property" location:CODELOCATION];
+		}	   
+
 	    //Bugfix for bug #2178 - Jacob Relkin
 	   	    
 	    CGColorSpaceRef colorspace = CGColorGetColorSpace([thisColor CGColor]);
@@ -203,12 +209,6 @@
 										green:components[0] 
 										 blue:components[0]
 										alpha:components[1]];
-		}
-
-  	    if (thisColor == nil)
-		{
-			[self throwException:TiExceptionInvalidType subreason:
-					@"Colors must be an array of colors or objects with a color property" location:CODELOCATION];
 		}
 
 		colorOffsets[currentIndex] = thisOffset;
