@@ -1888,10 +1888,7 @@ if(ourTableView != tableview)	\
 		hasTitle = YES;
 		size+=[tableview sectionHeaderHeight];
 	}
-	if ([tableview tableHeaderView]!=nil && searchField == nil)
-	{
-		size+=[tableview tableHeaderView].frame.size.height;
-	}
+	
 	if (hasTitle && size < DEFAULT_SECTION_HEADERFOOTER_HEIGHT)
 	{
 		size += DEFAULT_SECTION_HEADERFOOTER_HEIGHT;
