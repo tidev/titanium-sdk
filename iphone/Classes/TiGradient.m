@@ -184,31 +184,22 @@
 			thisEntry = [thisEntry objectForKey:@"color"];
 		}
 
- 	    UIColor * thisColor = [[TiUtils colorValue:thisEntry] _color];
-	   
-	    if (thisColor == nil)
+		UIColor * thisColor = [[TiUtils colorValue:thisEntry] _color];
+
+		if (thisColor == nil)
 		{
-		   [self throwException:TiExceptionInvalidType subreason:
-			@"Colors must be an array of colors or objects with a color property" location:CODELOCATION];
+			[self throwException:TiExceptionInvalidType subreason:
+					@"Colors must be an array of colors or objects with a color property"
+					location:CODELOCATION];
 		}	   
 
-	    //Bugfix for bug #2178 - Jacob Relkin
-	   	    
-	    CGColorSpaceRef colorspace = CGColorGetColorSpace([thisColor CGColor]);
-	    if(CGColorSpaceGetModel(colorspace) == kCGColorSpaceModelMonochrome) 
+
+		CGColorSpaceRef colorspace = CGColorGetColorSpace([thisColor CGColor]);
+		if(CGColorSpaceGetModel(colorspace) == kCGColorSpaceModelMonochrome) //Colorize this! Where's Ted Turner?
 		{
-			/*
-			 Transform colorspace to RGB.
-			 Monochrome colorspaces won't work in CAGradientLayer
-             so we have to use UIColor's colorWithRed:green:blue:alpha: method
-			 to transform it to the RGB colorspace.
-		    */
- 		    NSLog(@"colorspace is monochrome - transforming colorspace...");
-		    CGFloat *components = CGColorGetComponents([thisColor CGColor]);
-		    thisColor = [UIColor colorWithRed:components[0]
-										green:components[0] 
-										 blue:components[0]
-										alpha:components[1]];
+			const CGFloat *components = CGColorGetComponents([thisColor CGColor]);
+			thisColor = [UIColor colorWithRed:components[0] green:components[0]
+					blue:components[0] alpha:components[1]];
 		}
 
 		colorOffsets[currentIndex] = thisOffset;
@@ -216,7 +207,7 @@
 		{
 			offsetsDefined ++;
 		}
-        
+
 		CFArrayAppendValue(colorValues, [thisColor CGColor]);
 	    currentIndex ++;
 	}
