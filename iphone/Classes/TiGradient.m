@@ -185,10 +185,21 @@
 		}
 
 		UIColor * thisColor = [[TiUtils colorValue:thisEntry] _color];
+
 		if (thisColor == nil)
 		{
 			[self throwException:TiExceptionInvalidType subreason:
-					@"Colors must be an array of colors or objects with a color property" location:CODELOCATION];
+					@"Colors must be an array of colors or objects with a color property"
+					location:CODELOCATION];
+		}	   
+
+
+		CGColorSpaceRef colorspace = CGColorGetColorSpace([thisColor CGColor]);
+		if(CGColorSpaceGetModel(colorspace) == kCGColorSpaceModelMonochrome) //Colorize this! Where's Ted Turner?
+		{
+			const CGFloat *components = CGColorGetComponents([thisColor CGColor]);
+			thisColor = [UIColor colorWithRed:components[0] green:components[0]
+					blue:components[0] alpha:components[1]];
 		}
 
 		colorOffsets[currentIndex] = thisOffset;
@@ -198,7 +209,7 @@
 		}
 
 		CFArrayAppendValue(colorValues, [thisColor CGColor]);
-		currentIndex ++;
+	    currentIndex ++;
 	}
 	[self clearCache];
 }

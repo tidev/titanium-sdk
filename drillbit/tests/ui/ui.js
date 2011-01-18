@@ -8,7 +8,7 @@ describe("Ti.UI tests", {
 			var wv = Ti.UI.createWebView({top: 0, width: 10, height: 10, url: 'test.html'});
 			var listener = this.async(function(){
 				valueOf(wv.evalJS('Mickey')).shouldBe('');
-				w.close();
+				//w.close();
 			});
 			wv.addEventListener('load', listener);
 			w.add(wv);
@@ -24,7 +24,7 @@ describe("Ti.UI tests", {
 			var wv = Ti.UI.createWebView({top: 0, width: 10, height: 10, url: 'http://www.google.com'});
 			var listener = this.async(function(){
 				valueOf(wv.evalJS('Titanium')).shouldBe('');
-				w.close();
+				//w.close();
 			});
 			wv.addEventListener('load', listener);
 			w.add(wv);
@@ -40,7 +40,7 @@ describe("Ti.UI tests", {
 			var wv = Ti.UI.createWebView({top: 0, width: 10, height: 10, url: 'test.html'});
 			var listener = this.async(function(){
 				valueOf(wv.evalJS('typeof Titanium')).shouldBe('object');
-				w.close();
+				//w.close();
 			});
 			wv.addEventListener('load', listener);
 			w.add(wv);
@@ -55,7 +55,7 @@ describe("Ti.UI tests", {
 			var wv = Ti.UI.createWebView({top: 0, width: 10, height: 10});
 			var listener = this.async(function(){
 				valueOf(wv.evalJS('typeof Titanium')).shouldBe('object');
-				w.close();
+				//w.close();
 			});
 			wv.addEventListener('load', listener);
 			w.add(wv);
@@ -64,9 +64,23 @@ describe("Ti.UI tests", {
 		timeout: 10000,
 		timeoutError: 'Timed out waiting for page to load and JS to eval'
 	}),
+
 	//https://appcelerator.lighthouseapp.com/projects/32238/tickets/2443-android-paths-beginning-with-are-not-recognised
 	dotslashWindow: function() {
 		var w = Ti.UI.createWindow({url:'./testwin.js'});
 		valueOf(function(){w.open();}).shouldNotThrowException();
-	}
+	},
+
+	// https://appcelerator.lighthouseapp.com/projects/32238-titanium-mobile/tickets/2230-android-resolve-url-failing-from-event-context#ticket-2230-6
+	absoluteAndRelativeWinURLs: asyncTest( {
+		start: function(callback) {
+			var w = Ti.UI.createWindow({ url: 'dir/relative.js' });
+			w.addEventListener("close", this.async(function() {
+				valueOf(true).shouldBe(true);
+			}));
+			w.open();
+		},
+		timeout: 10000,
+		timeoutError: 'Timed out waiting for relative and absolute window to auto close'
+	})
 });

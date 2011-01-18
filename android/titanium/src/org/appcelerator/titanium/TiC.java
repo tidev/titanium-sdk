@@ -64,6 +64,8 @@ public class TiC {
 	public static final String INTENT_PROPERTY_MESSAGE_ID = "messageId";
 	public static final String INTENT_PROPERTY_MESSENGER = "messenger";
 	public static final String MSG_PROPERTY_EVENT_NAME = "eventName";
+	public static final String MSG_PROPERTY_FILENAME = "filename";
+	public static final String MSG_PROPERTY_SRC = "src";
 	public static final String PROPERTY_ACTION = "action";
 	public static final String PROPERTY_ACTIVE_TAB = "activeTab";
 	public static final String PROPERTY_ACTIVITY = "activity";
@@ -162,6 +164,7 @@ public class TiC {
 	public static final String PROPERTY_SECTION = "section";
 	public static final String PROPERTY_SELECTED_BACKGROUND_COLOR = "selectedBackgroundColor";
 	public static final String PROPERTY_SELECTED_BACKGROUND_IMAGE = "selectedBackgroundImage";
+	public static final String PROPERTY_SELECTED_INDEX = "selectedIndex";
 	public static final String PROPERTY_SIZE = "size";
 	public static final String PROPERTY_SOFT_KEYBOARD_ON_FOCUS = "softKeyboardOnFocus";
 	public static final String PROPERTY_SOUND = "sound";

@@ -16,7 +16,6 @@ DEFINE_DEF_BOOL_PROP(suppressReturn,YES);
 
 - (void)windowWillClose
 {
-	NSLog(@"We got a windowWillClose! Main thread? %d",[NSThread isMainThread]);
 	if([self viewInitialized])
 	{
 		[[self view] resignFirstResponder];
