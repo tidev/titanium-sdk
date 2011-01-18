@@ -83,8 +83,10 @@ public class TiUIDialog extends TiUIView
 		} else if (d.containsKey(TiC.PROPERTY_OPTIONS)) {
 			String[] optionText = d.getStringArray(TiC.PROPERTY_OPTIONS);
 			int selectedIndex = d.containsKey(TiC.PROPERTY_SELECTED_INDEX) ? d.getInt(TiC.PROPERTY_SELECTED_INDEX) : -1; 
-			if(selectedIndex > optionText.length){
-				Log.d(LCAT, "Ooops invalid selected index specified: " + selectedIndex);
+			if(selectedIndex >= optionText.length){
+				if (DBG) {
+					Log.d(LCAT, "Ooops invalid selected index specified: " + selectedIndex);
+				}
 				selectedIndex = -1;
 			}
 			
@@ -171,7 +173,22 @@ public class TiUIDialog extends TiUIView
 			}
 
 			getBuilder().setView(null);
-			processOptions(TiConvert.toStringArray((Object[]) newValue));
+			int selectedIndex = -1;
+			if (proxy.hasProperty(TiC.PROPERTY_SELECTED_INDEX)) {
+				selectedIndex = TiConvert.toInt(proxy.getProperty(TiC.PROPERTY_SELECTED_INDEX));
+			}
+			processOptions(TiConvert.toStringArray((Object[]) newValue), selectedIndex);
+		} else if (key.equals(TiC.PROPERTY_SELECTED_INDEX)) {
+			if (dialog != null) {
+				dialog.dismiss();
+				dialog = null;
+			}
+			
+			getBuilder().setView(null);
+			if (proxy.hasProperty(TiC.PROPERTY_OPTIONS)) {
+				processOptions(TiConvert.toStringArray((Object[]) proxy.getProperty(TiC.PROPERTY_OPTIONS)), TiConvert.toInt(newValue));
+
+			}
 		} else if (key.equals(TiC.PROPERTY_ANDROID_VIEW)) {
 			if (dialog != null) {
 				dialog.dismiss();
@@ -238,8 +255,13 @@ public class TiUIDialog extends TiUIView
 			id &= ~BUTTON_MASK;
 		} else {
 			data.put("button", false);
+			// If an option was selected and the user accepted it, update the proxy.
+			if (proxy.hasProperty(TiC.PROPERTY_OPTIONS)) {
+				proxy.setProperty(TiC.PROPERTY_SELECTED_INDEX, id, false);
+			}
 		}
 		data.put(TiC.EVENT_PROPERTY_INDEX, id);
+		
 		data.put(TiC.PROPERTY_CANCEL, id == cancelIndex);
 		proxy.fireEvent(TiC.EVENT_CLICK, data);
 	}

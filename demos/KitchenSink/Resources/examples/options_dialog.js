@@ -21,12 +21,19 @@ if (isAndroid) {
 //
 // BASIC OPTIONS DIALOG
 //
-var dialog = Titanium.UI.createOptionDialog({
+
+var optionsDialogOpts = {
 	options:['Option 1', 'Option 2', 'Option 3'],
 	destructive:2,
 	cancel:1,
 	title:'I am a title'
-});
+};
+
+if (isAndroid) {
+	optionsDialogOpts.selectedIndex = 3;
+}
+
+var dialog = Titanium.UI.createOptionDialog(optionsDialogOpts);
 
 // add event listener
 dialog.addEventListener('click',function(e)
