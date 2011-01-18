@@ -18,7 +18,7 @@ import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.kroll.KrollCallback;
-import org.appcelerator.titanium.view.TiCompositeLayout;
+import org.appcelerator.titanium.view.Ti2DMatrix;
 import org.appcelerator.titanium.view.TiCompositeLayout.LayoutParams;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -196,6 +196,9 @@ public class TiConvert
 				layoutParams.optionZIndex = 0;
 			}
 			dirty = true;
+		}
+		if (d.containsKey(TiC.PROPERTY_TRANSFORM)) {
+			layoutParams.optionTransform = (Ti2DMatrix) d.get(TiC.PROPERTY_TRANSFORM);
 		}
 		return dirty;
 	}

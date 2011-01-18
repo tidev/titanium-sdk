@@ -33,7 +33,8 @@ public class KrollCallback extends KrollMethod implements KrollConvertable
 	protected Scriptable thisObj;
 	protected Function method;
 
-	public KrollCallback(KrollContext context, Scriptable scope, Scriptable thisObj, Function method) {
+	public KrollCallback(KrollContext context, Scriptable scope, Scriptable thisObj, Function method)
+	{
 		super(null);
 		this.kroll = context;
 		this.scope = scope;
@@ -41,7 +42,8 @@ public class KrollCallback extends KrollMethod implements KrollConvertable
 		this.method = method;
 	}
 
-	public boolean isWithinTiContext(TiContext context) {
+	public boolean isWithinTiContext(TiContext context)
+	{
 		if (kroll != null) {
 			TiContext krollTiContext = kroll.getTiContext();
 			if (krollTiContext != null) {
@@ -51,11 +53,13 @@ public class KrollCallback extends KrollMethod implements KrollConvertable
 		return false;
 	}
 
-	protected KrollInvocation createInvocation() {
+	protected KrollInvocation createInvocation()
+	{
 		return createInvocation(null);
 	}
 
-	protected KrollInvocation createInvocation(TiContext context) {
+	protected KrollInvocation createInvocation(TiContext context)
+	{
 		String methodName = ANONYMOUS_METHOD_NAME;
 		Object methodNameObject = method.get(TiC.PROPERTY_NAME, method);
 		if (methodNameObject != null && methodNameObject instanceof String) {
@@ -72,15 +76,18 @@ public class KrollCallback extends KrollMethod implements KrollConvertable
 		return inv;
 	}
 
-	public void callAsync() {
+	public void callAsync() 
+	{
 		callAsync(new Object[0]);
 	}
 
-	public void callAsync(KrollDict properties) {
+	public void callAsync(KrollDict properties)
+	{
 		callAsync(new Object[] { properties });
 	}
 
-	public void callAsync(Object[] args) {
+	public void callAsync(Object[] args)
+	{
 		callAsync(null, args);
 	}
 

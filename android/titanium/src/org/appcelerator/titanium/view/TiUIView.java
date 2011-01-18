@@ -22,6 +22,7 @@ import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiAnimationBuilder;
+import org.appcelerator.titanium.util.TiAnimationBuilder.TiMatrixAnimation;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUIHelper;
@@ -39,6 +40,7 @@ import android.view.View.OnFocusChangeListener;
 import android.view.View.OnKeyListener;
 import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
 import android.view.animation.AnimationSet;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
@@ -187,26 +189,59 @@ public abstract class TiUIView
 	public void listenerAdded(String type, int count, KrollProxy proxy) {
 	}
 
-	public void listenerRemoved(String type, int count, KrollProxy proxy) {
+	public void listenerRemoved(String type, int count, KrollProxy proxy){
 	}
 
-	private boolean hasImage(KrollDict d) {
+	private boolean hasImage(KrollDict d)
+	{
 		return d.containsKeyAndNotNull(TiC.PROPERTY_BACKGROUND_IMAGE)
 			|| d.containsKeyAndNotNull(TiC.PROPERTY_BACKGROUND_SELECTED_IMAGE) 
 			|| d.containsKeyAndNotNull(TiC.PROPERTY_BACKGROUND_FOCUSED_IMAGE)
 			|| d.containsKeyAndNotNull(TiC.PROPERTY_BACKGROUND_DISABLED_IMAGE);
 	}
 
-	private boolean hasBorder(KrollDict d) {
+	private boolean hasBorder(KrollDict d)
+	{
 		return d.containsKeyAndNotNull(TiC.PROPERTY_BORDER_COLOR) 
 			|| d.containsKeyAndNotNull(TiC.PROPERTY_BORDER_RADIUS)
 			|| d.containsKeyAndNotNull(TiC.PROPERTY_BORDER_WIDTH);
 	}
 
-	private boolean hasColorState(KrollDict d) {
+	private boolean hasColorState(KrollDict d)
+	{
 		return d.containsKeyAndNotNull(TiC.PROPERTY_BACKGROUND_SELECTED_COLOR)
 			|| d.containsKeyAndNotNull(TiC.PROPERTY_BACKGROUND_FOCUSED_COLOR)
 			|| d.containsKeyAndNotNull(TiC.PROPERTY_BACKGROUND_FOCUSED_COLOR);
+	}
+
+	protected void applyTransform(Ti2DMatrix matrix)
+	{
+		layoutParams.optionTransform = matrix;
+		if (animBuilder == null) {
+			animBuilder = new TiAnimationBuilder();
+		}
+		if (nativeView != null) {
+			if (matrix != null) {
+				Animation matrixAnimation = animBuilder.createMatrixAnimation(matrix);
+				matrixAnimation.setDuration(1);
+				matrixAnimation.setFillAfter(true);
+				nativeView.startAnimation(matrixAnimation);
+			} else {
+				nativeView.clearAnimation();
+			}
+		}
+	}
+
+	protected void layoutNativeView()
+	{
+		if (nativeView != null) {
+			Animation a = nativeView.getAnimation();
+			if (a != null && a instanceof TiMatrixAnimation) {
+				TiMatrixAnimation matrixAnimation = (TiMatrixAnimation) a;
+				matrixAnimation.invalidateWithMatrix(nativeView);
+			}
+			nativeView.requestLayout();
+		}
 	}
 
 	public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy proxy)
@@ -217,41 +252,31 @@ public abstract class TiUIView
 			} else {
 				layoutParams.optionLeft = null;
 			}
-			if (nativeView != null) {
-				nativeView.requestLayout();
-			}
+			layoutNativeView();
 		} else if (key.equals(TiC.PROPERTY_TOP)) {
 			if (newValue != null) {
 				layoutParams.optionTop = TiConvert.toTiDimension(TiConvert.toString(newValue), TiDimension.TYPE_TOP);
 			} else {
 				layoutParams.optionTop = null;
 			}
-			if (nativeView != null) {
-				nativeView.requestLayout();
-			}
+			layoutNativeView();
 		} else if (key.equals(TiC.PROPERTY_CENTER)) {
 			TiConvert.updateLayoutCenter(newValue, layoutParams);
-			if (nativeView != null) {
-				nativeView.requestLayout();
-			}
+			layoutNativeView();
 		} else if (key.equals(TiC.PROPERTY_RIGHT)) {
 			if (newValue != null) {
 				layoutParams.optionRight = TiConvert.toTiDimension(TiConvert.toString(newValue), TiDimension.TYPE_RIGHT);
 			} else {
 				layoutParams.optionRight = null;
 			}
-			if (nativeView != null) {
-				nativeView.requestLayout();
-			}
+			layoutNativeView();
 		} else if (key.equals(TiC.PROPERTY_BOTTOM)) {
 			if (newValue != null) {
 				layoutParams.optionBottom = TiConvert.toTiDimension(TiConvert.toString(newValue), TiDimension.TYPE_BOTTOM);
 			} else {
 				layoutParams.optionBottom = null;
 			}
-			if (nativeView != null) {
-				nativeView.requestLayout();
-			}
+			layoutNativeView();
 		} else if (key.equals(TiC.PROPERTY_SIZE)) {
 			if (newValue instanceof KrollDict) {
 				KrollDict d = (KrollDict)newValue;
@@ -272,9 +297,7 @@ public abstract class TiUIView
 			} else {
 				layoutParams.optionHeight = null;
 			}
-			if (nativeView != null) {
-				nativeView.requestLayout();
-			}
+			layoutNativeView();
 		} else if (key.equals(TiC.PROPERTY_WIDTH)) {
 			if (newValue != null) {
 				if (!newValue.equals(TiC.SIZE_AUTO)) {
@@ -287,18 +310,14 @@ public abstract class TiUIView
 			} else {
 				layoutParams.optionWidth = null;
 			}
-			if (nativeView != null) {
-				nativeView.requestLayout();
-			}
+			layoutNativeView();
 		} else if (key.equals(TiC.PROPERTY_ZINDEX)) {
 			if (newValue != null) {
 				layoutParams.optionZIndex = TiConvert.toInt(TiConvert.toString(newValue));
 			} else {
 				layoutParams.optionZIndex = 0;
 			}
-			if (nativeView != null) {
-				nativeView.requestLayout();
-			}
+			layoutNativeView();
 		} else if (key.equals(TiC.PROPERTY_FOCUSABLE)) {
 			boolean focusable = TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_FOCUSABLE));
 			nativeView.setFocusable(focusable);
@@ -390,7 +409,11 @@ public abstract class TiUIView
 				nativeView.postInvalidate();
 			}
 		} else if (key.equals(TiC.PROPERTY_SOFT_KEYBOARD_ON_FOCUS)) {
-				Log.w(LCAT, "Focus state changed to " + TiConvert.toString(newValue) + " not honored until next focus event.");
+			Log.w(LCAT, "Focus state changed to " + TiConvert.toString(newValue) + " not honored until next focus event.");
+		} else if (key.equals(TiC.PROPERTY_TRANSFORM)) {
+			if (nativeView != null) {
+				applyTransform((Ti2DMatrix)newValue);
+			}
 		} else {
 			if (DBG) {
 				Log.d(LCAT, "Unhandled property key: " + key);
@@ -448,10 +471,10 @@ public abstract class TiUIView
 		initializeBorder(d, bgColor);
 
 		if (d.containsKey(TiC.PROPERTY_TRANSFORM)) {
-			animBuilder = new TiAnimationBuilder();
-			animBuilder.applyOptions(d);
-			AnimationSet as = animBuilder.render(proxy, nativeView);
-			nativeView.startAnimation(as);
+			Ti2DMatrix matrix = (Ti2DMatrix) d.get(TiC.PROPERTY_TRANSFORM);
+			if (matrix != null) {
+				applyTransform(matrix);
+			}
 		}
 	}
 

@@ -44,6 +44,8 @@ public class TiC {
 	public static final String EVENT_PROPERTY_SOURCE = "source";
 	public static final String EVENT_PROPERTY_STATE = "state";
 	public static final String EVENT_PROPERTY_TAB = "tab";
+	public static final String EVENT_PROPERTY_THUMB_OFFSET = "thumbOffset";
+	public static final String EVENT_PROPERTY_THUMB_SIZE = "thumbSize";
 	public static final String EVENT_PROPERTY_TYPE = "type";
 	public static final String EVENT_PROPERTY_X = "x";
 	public static final String EVENT_PROPERTY_Y = "y";
@@ -158,12 +160,15 @@ public class TiC {
 	public static final String PROPERTY_RIGHT = "right";
 	public static final String PROPERTY_RIGHT_BUTTON = "rightButton";
 	public static final String PROPERTY_RIGHT_IMAGE = "rightImage";
+	public static final String PROPERTY_ROTATE = "rotate";
 	public static final String PROPERTY_ROW_DATA = "rowData";
 	public static final String PROPERTY_ROW_HEIGHT = "rowHeight";
+	public static final String PROPERTY_SCALE = "scale";
 	public static final String PROPERTY_SCROLL_ENABLED = "scrollEnabled";
 	public static final String PROPERTY_SECTION = "section";
 	public static final String PROPERTY_SELECTED_BACKGROUND_COLOR = "selectedBackgroundColor";
 	public static final String PROPERTY_SELECTED_BACKGROUND_IMAGE = "selectedBackgroundImage";
+	public static final String PROPERTY_SELECTED_INDEX = "selectedIndex";
 	public static final String PROPERTY_SIZE = "size";
 	public static final String PROPERTY_SOFT_KEYBOARD_ON_FOCUS = "softKeyboardOnFocus";
 	public static final String PROPERTY_SOUND = "sound";
@@ -179,6 +184,7 @@ public class TiC {
 	public static final String PROPERTY_TYPE = "type";
 	public static final String PROPERTY_URL = "url";
 	public static final String PROPERTY_USER_LOCATION = "userLocation";
+	public static final String PROPERTY_VALUE = "value";
 	public static final String PROPERTY_VERTICAL_ALIGN = "verticalAlign";
 	public static final String PROPERTY_VISIBLE = "visible";
 	public static final String PROPERTY_WIDTH = "width";
