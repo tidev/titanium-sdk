@@ -548,7 +548,8 @@ public class KrollProxy implements Handler.Callback, OnEventListenerChange, Krol
 		return eventManager.dispatchEvent(eventName, data);
 	}
 
-	public boolean fireSyncEvent(String eventName, KrollDict data)
+  @Kroll.method 
+	public boolean fireSyncEvent(String eventName, @Kroll.argument(optional=true) KrollDict data)
 	{
 		return eventManager.dispatchEvent(eventName, data, false);
 	}
