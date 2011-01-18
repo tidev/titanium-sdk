@@ -19,13 +19,8 @@ public class KrollDate extends Date {
 	public KrollDate(Scriptable jsDate) {
 		this.jsDate = jsDate;
 		
-		long timezoneOffset = callLongMethod("getTimezoneOffset");
-		long millis = callLongMethod("getTime");
+		long millis = callLongMethod("getTime");//Already in UTC
 		
-		// Convert to GMT
-		if (timezoneOffset != 0) {
-			millis += timezoneOffset*60*1000;
-		}
 		setTime(millis);
 	}
 	
