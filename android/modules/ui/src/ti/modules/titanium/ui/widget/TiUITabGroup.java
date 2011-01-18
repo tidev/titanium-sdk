@@ -163,6 +163,14 @@ public class TiUITabGroup extends TiUIView
 		}
 	}
 
+	public int getActiveTab() {
+		if(tabHost != null) {
+			return tabHost.getCurrentTab();
+		} else {
+			return -1;
+		}
+	}
+
 	@Override
 	public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy proxy)
 	{
