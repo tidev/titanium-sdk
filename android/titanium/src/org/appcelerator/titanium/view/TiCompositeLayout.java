@@ -346,12 +346,10 @@ public class TiCompositeLayout extends ViewGroup
 				int newHeight = vertical[1] - vertical[0];
 				if (newWidth != childMeasuredWidth
 					|| newHeight != childMeasuredHeight) {
-					
 					int newWidthSpec = MeasureSpec.makeMeasureSpec(newWidth, MeasureSpec.EXACTLY);
 					int newHeightSpec = MeasureSpec.makeMeasureSpec(newHeight, MeasureSpec.EXACTLY);
 					child.measure(newWidthSpec, newHeightSpec);
 				}
-				
 				child.layout(horizontal[0], vertical[0], horizontal[1], vertical[1]);
 
 				currentHeight += newHeight;
@@ -447,6 +445,7 @@ public class TiCompositeLayout extends ViewGroup
 		public TiDimension optionBottom = null;
 		public TiDimension optionWidth = null;
 		public TiDimension optionHeight = null;
+		public Ti2DMatrix optionTransform = null;
 
 		public boolean autoHeight = true;
 		public boolean autoWidth = true;

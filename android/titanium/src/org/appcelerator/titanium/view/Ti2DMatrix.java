@@ -7,114 +7,132 @@
 package org.appcelerator.titanium.view;
 
 import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollInvocation;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
+import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.TiConvert;
+
+import android.graphics.Matrix;
 
 @Kroll.proxy
 public class Ti2DMatrix extends KrollProxy
 {
-	KrollDict options;
-	Double translateX;
-	Double translateY;
-	Double fromScaleX, fromScaleY, toScaleX, toScaleY;
-	Double rotateDegrees;
+	protected Matrix matrix;
 
 	public Ti2DMatrix(TiContext tiContext)
 	{
-		super(tiContext);
-	}
-	
-	@Override
-	public void handleCreationDict(KrollDict dict) {
-		super.handleCreationDict(dict);
-		options = dict;
+		// Default Identity Matrix
+		this(tiContext, new Matrix());
 	}
 
-	@Kroll.method
-	public Ti2DMatrix translate(double x, double y)
+	protected Ti2DMatrix(TiContext tiContext, Matrix matrix)
 	{
-		translateX = x;
-		translateY = y;
-		return this;
+		super(tiContext);
+		this.matrix = matrix;
+	}
+
+	@Override
+	public void handleCreationDict(KrollDict dict)
+	{
+		super.handleCreationDict(dict);
+		if (dict.containsKey(TiC.PROPERTY_ROTATE)) {
+			handleRotate(matrix, dict, TiConvert.toDouble(dict, TiC.PROPERTY_ROTATE));
+		}
+		if (dict.containsKey(TiC.PROPERTY_SCALE)) {
+			float scale = TiConvert.toFloat(dict, TiC.PROPERTY_SCALE);
+			handleScale(matrix, dict, scale, scale);
+		}
+	}
+
+	protected void handleRotate(Matrix m, KrollDict dict, double angle)
+	{
+		float degrees = (float) angle;
+		boolean rotateWithAnchorPoint = false;
+		if (dict.containsKey(TiC.PROPERTY_ANCHOR_POINT)) {
+			KrollDict anchorPoint = dict.getKrollDict(TiC.PROPERTY_ANCHOR_POINT);
+			if (anchorPoint != null) {
+				float px = TiConvert.toFloat(anchorPoint, TiC.PROPERTY_X);
+				float py = TiConvert.toFloat(anchorPoint, TiC.PROPERTY_Y);
+				m.preRotate(degrees, px, py);
+				rotateWithAnchorPoint = true;
+			}
+		}
+		if (!rotateWithAnchorPoint) {
+			m.preRotate(degrees, 0.5f, 0.5f);
+		}
+	}
+
+	protected void handleScale(Matrix m, KrollDict dict, float scaleX, float scaleY)
+	{
+		boolean scaleWithAnchorPoint = false;
+		if (dict.containsKey(TiC.PROPERTY_ANCHOR_POINT)) {
+			KrollDict anchorPoint = dict.getKrollDict(TiC.PROPERTY_ANCHOR_POINT);
+			if (anchorPoint != null) {
+				float px = TiConvert.toFloat(anchorPoint, TiC.PROPERTY_X);
+				float py = TiConvert.toFloat(anchorPoint, TiC.PROPERTY_Y);
+				m.preScale(scaleX, scaleY, px, py);
+				scaleWithAnchorPoint = true;
+			}
+		}
+		if (!scaleWithAnchorPoint) {
+			m.preScale(scaleX, scaleY, 0.5f, 0.5f);
+		}
 	}
 
 	@Kroll.method
-	public Ti2DMatrix scale(Object args[]) {
+	public Ti2DMatrix translate(KrollInvocation invocation, double x, double y)
+	{
+		Matrix m = new Matrix(matrix);
+		m.preTranslate((float)x, (float)y);
+		return new Ti2DMatrix(invocation.getTiContext(), m);
+	}
+
+	@Kroll.method
+	public Ti2DMatrix scale(KrollInvocation invocation, Object args[])
+	{
+		float scaleX = 1.0f, scaleY = 1.0f;
 		// varargs for API backwards compatibility
-		if (args.length == 4) {
-			// scale(fromX, fromY, toX, toY);
-			this.fromScaleX = TiConvert.toDouble(args[0]);
-			this.fromScaleY = TiConvert.toDouble(args[1]);
-			this.toScaleX = TiConvert.toDouble(args[2]);
-			this.toScaleY = TiConvert.toDouble(args[3]);
-		} else if (args.length == 2) {
+		if (args.length == 2) {
 			// scale(toX, toY)
-			this.fromScaleX = 1.0;
-			this.fromScaleY = 1.0;
-			this.toScaleX = TiConvert.toDouble(args[0]);
-			this.toScaleY = TiConvert.toDouble(args[1]);
+			scaleX = TiConvert.toFloat(args[0]);
+			scaleY = TiConvert.toFloat(args[1]);
 		} else if (args.length == 1) {
 			// scale(scaleFactor)
-			this.fromScaleX = 1.0;
-			this.fromScaleY = 1.0;
-			this.toScaleX = TiConvert.toDouble(args[0]);
-			this.toScaleY = this.toScaleX;
+			scaleX = scaleY = TiConvert.toFloat(args[0]);
 		}
-		return this;
+		Matrix m = new Matrix(matrix);
+		handleScale(m, getProperties(), scaleX, scaleY);
+		return new Ti2DMatrix(invocation.getTiContext(), m);
 	}
 
 	@Kroll.method
-	public Ti2DMatrix rotate(double degrees) {
-		this.rotateDegrees = degrees;
-		return this;
+	public Ti2DMatrix rotate(KrollInvocation invocation, double angle)
+	{
+		Matrix m = new Matrix(matrix);
+		handleRotate(m, getProperties(), angle);
+		return new Ti2DMatrix(invocation.getTiContext(), m);
 	}
 
 	@Kroll.method
-	public boolean hasTranslation() {
-		return translateX != null;
+	public Ti2DMatrix invert(KrollInvocation invocation)
+	{
+		Matrix m = new Matrix(matrix);
+		m.invert(m);
+		return new Ti2DMatrix(invocation.getTiContext(), m);
 	}
-	
-	@Kroll.getProperty @Kroll.method
-	public float getXTranslation() {
-		return translateX.floatValue();
-	}
-	
-	@Kroll.getProperty @Kroll.method
-	public float getYTranslation() {
-		return translateY.floatValue();
-	}
-	
+
 	@Kroll.method
-	public boolean hasScaleFactor() {
-		return toScaleX != null;
+	public Ti2DMatrix multiply(KrollInvocation invocation, Ti2DMatrix other)
+	{
+		Matrix m = new Matrix(matrix);
+		m.preConcat(other.matrix);
+		return new Ti2DMatrix(invocation.getTiContext(), m);
 	}
-	
-	@Kroll.getProperty @Kroll.method
-	public float getScaleFactor() {
-		return toScaleX.floatValue();
-	}
-	public float getToScaleX() {
-		return toScaleX.floatValue();
-	}
-	public float getToScaleY() {
-		return toScaleY.floatValue();
-	}
-	public float getFromScaleX() {
-		return fromScaleX.floatValue();
-	}
-	public float getFromScaleY() {
-		return fromScaleY.floatValue();
-	}
-	
-	@Kroll.method
-	public boolean hasRotation() {
-		return rotateDegrees != null;
-	}
-	
-	@Kroll.getProperty @Kroll.method
-	public float getRotation() {
-		return rotateDegrees.floatValue();
+
+	public Matrix getMatrix()
+	{
+		return matrix;
 	}
 }

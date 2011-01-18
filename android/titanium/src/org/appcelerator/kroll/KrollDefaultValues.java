@@ -9,6 +9,8 @@ package org.appcelerator.kroll;
 import java.lang.reflect.Array;
 import java.util.HashMap;
 
+import org.appcelerator.titanium.kroll.KrollCallback;
+
 public class KrollDefaultValues implements KrollDefaultValueProvider {
 	public static final HashMap<Class<?>, Object> defaultValues = new HashMap<Class<?>, Object>();
 	static {
@@ -21,6 +23,7 @@ public class KrollDefaultValues implements KrollDefaultValueProvider {
 		defaultValues.put(Character.class, -1);
 		defaultValues.put(Float.class, -1);
 		defaultValues.put(Object.class, null);
+		defaultValues.put(KrollCallback.class, null);
 	}
 	
 	public static Object getDefault(Class<?> clazz) {

@@ -10,6 +10,7 @@ import java.lang.ref.SoftReference;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
+import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
@@ -251,33 +252,36 @@ public class TiUISlider extends TiUIView
 		
 		Drawable thumb = (thumbDrawable != null) ? thumbDrawable.get() : null;
 		KrollDict offset = new KrollDict();
-		offset.put("x", 0);
-		offset.put("y", 0);
+		offset.put(TiC.EVENT_PROPERTY_X, 0);
+		offset.put(TiC.EVENT_PROPERTY_Y, 0);
 		KrollDict size = new KrollDict();
-		size.put("width", 0);
-		size.put("height", 0);
+		size.put(TiC.PROPERTY_WIDTH, 0);
+		size.put(TiC.PROPERTY_HEIGHT, 0);
 		if (thumb != null) {
 			Rect thumbBounds = thumb.getBounds();
 			if (thumbBounds != null) {
-				offset.put("x", thumbBounds.left - seekBar.getThumbOffset());
-				offset.put("y", thumbBounds.top);
-				size.put("width", thumbBounds.width());
-				size.put("height", thumbBounds.height());				
+				offset.put(TiC.EVENT_PROPERTY_X, thumbBounds.left - seekBar.getThumbOffset());
+				offset.put(TiC.EVENT_PROPERTY_Y, thumbBounds.top);
+				size.put(TiC.PROPERTY_WIDTH, thumbBounds.width());
+				size.put(TiC.PROPERTY_HEIGHT, thumbBounds.height());
 			}
 		}
 		KrollDict data = new KrollDict();
-		data.put("value", scaledValue());
-		data.put("thumbOffset", offset);
-		data.put("thumbSize", size);
-		proxy.setProperty("value", scaledValue(), false);
+		data.put(TiC.PROPERTY_VALUE, scaledValue());
+		data.put(TiC.EVENT_PROPERTY_THUMB_OFFSET, offset);
+		data.put(TiC.EVENT_PROPERTY_THUMB_SIZE, size);
+		proxy.setProperty(TiC.PROPERTY_VALUE, scaledValue(), false);
 
-		proxy.fireEvent("change", data);
+		proxy.fireEvent(TiC.EVENT_CHANGE, data);
 	}
 
 	public void onStartTrackingTouch(SeekBar seekBar) {
 	}
 
 	public void onStopTrackingTouch(SeekBar seekBar) {
+		KrollDict data = new KrollDict();
+		data.put(TiC.PROPERTY_VALUE, scaledValue());
+		proxy.fireEvent(TiC.EVENT_STOP, data);
 	}
 
 	private int scaledValue() {
