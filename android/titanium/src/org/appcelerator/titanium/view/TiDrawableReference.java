@@ -300,7 +300,6 @@ public class TiDrawableReference
 
 	/**
 	 * Just runs .load(url) on the passed TiBackgroundImageLoadTask.
-	 * @param asyncTask
 	 */
 	public void getBitmapAsync(TiDownloadListener listener)
 	{

@@ -8,7 +8,7 @@ describe("Ti.UI tests", {
 			var wv = Ti.UI.createWebView({top: 0, width: 10, height: 10, url: 'test.html'});
 			var listener = this.async(function(){
 				valueOf(wv.evalJS('Mickey')).shouldBe('');
-				w.close();
+				//w.close();
 			});
 			wv.addEventListener('load', listener);
 			w.add(wv);
@@ -24,7 +24,7 @@ describe("Ti.UI tests", {
 			var wv = Ti.UI.createWebView({top: 0, width: 10, height: 10, url: 'http://www.google.com'});
 			var listener = this.async(function(){
 				valueOf(wv.evalJS('Titanium')).shouldBe('');
-				w.close();
+				//w.close();
 			});
 			wv.addEventListener('load', listener);
 			w.add(wv);
@@ -40,7 +40,7 @@ describe("Ti.UI tests", {
 			var wv = Ti.UI.createWebView({top: 0, width: 10, height: 10, url: 'test.html'});
 			var listener = this.async(function(){
 				valueOf(wv.evalJS('typeof Titanium')).shouldBe('object');
-				w.close();
+				//w.close();
 			});
 			wv.addEventListener('load', listener);
 			w.add(wv);
@@ -55,7 +55,7 @@ describe("Ti.UI tests", {
 			var wv = Ti.UI.createWebView({top: 0, width: 10, height: 10});
 			var listener = this.async(function(){
 				valueOf(wv.evalJS('typeof Titanium')).shouldBe('object');
-				w.close();
+				//w.close();
 			});
 			wv.addEventListener('load', listener);
 			w.add(wv);

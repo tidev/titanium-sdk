@@ -48,7 +48,7 @@ public class TabGroupProxy extends TiWindowProxy
 	private ArrayList<TabProxy> tabs;
 	private WeakReference<TiTabActivity> weakActivity;
 	String windowId;
-	Object initialActiveTab;
+	Object initialActiveTab; // this can be index or tab object
 
 	public TabGroupProxy(TiContext tiContext) {
 		super(tiContext);
@@ -143,7 +143,10 @@ public class TabGroupProxy extends TiWindowProxy
 			
 			tab.setProperty(TiC.PROPERTY_TAG, tag, false); // store in proxy
 		}
-		
+
+		if (tabs.size() == 0) {
+			initialActiveTab = tab;
+		}
 		tabs.add(tab);
 
 		if (peekView() != null) {
@@ -207,6 +210,43 @@ public class TabGroupProxy extends TiWindowProxy
 			// and thus would prevent the initial tab from being set
 			initialActiveTab = tab;
 		}
+	}
+
+	@Kroll.getProperty @Kroll.method
+	public TabProxy getActiveTab() {
+		TabProxy activeTab = null;
+		
+		if (peekView() != null) {
+			TiUITabGroup tg = (TiUITabGroup) peekView();
+			int activeTabIndex = tg.getActiveTab();
+
+			if (activeTabIndex < 0) {
+				Log.e(LCAT, "unable to get active tab, invalid index returned: " + activeTabIndex);
+			} else if (activeTabIndex >= tabs.size()) {
+				Log.e(LCAT, "unable to get active tab, index is larger than tabs array: " + activeTabIndex);
+			}
+			activeTab = tabs.get(activeTabIndex);
+		} else {
+			if (initialActiveTab instanceof Number) {
+				int tabsIndex = TiConvert.toInt(initialActiveTab);
+				if (tabsIndex >= tabs.size()) {
+					activeTab = tabs.get(tabsIndex);
+				} else {
+					Log.e(LCAT, "Unable to get active tab, initialActiveTab index is larger than tabs array");
+				}
+			} else if (initialActiveTab instanceof TabProxy) {
+				activeTab = (TabProxy)initialActiveTab;
+			} else {
+				Log.e(LCAT, "Unable to get active tab, initialActiveTab is not recognized");
+			}
+		}
+
+		if (activeTab == null) {
+			String errorMessage = "Failed to get activeTab, make sure tabs are added first before calling getActiveTab()";
+			Log.e(LCAT, errorMessage);
+			throw new RuntimeException(errorMessage);
+		}
+		return activeTab;
 	}
 
 	@Override
