@@ -31,6 +31,11 @@
 	TiMapAnnotationProxy * pendingAnnotationSelection;
 	NSMutableDictionary *routes;
 	NSMutableDictionary *routeViews;
+	
+	// Click detection
+	id<MKAnnotation> hitAnnotation;
+	BOOL hitSelect;
+	BOOL manualSelect;
 }
 
 #pragma mark Public APIs

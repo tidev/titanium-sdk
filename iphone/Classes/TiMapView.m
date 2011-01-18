@@ -192,6 +192,9 @@
 -(void)flushPendingAnnotation
 {
 	if (pendingAnnotationSelection != nil) {
+		hitSelect = NO;
+		manualSelect = YES;
+		hitAnnotation = pendingAnnotationSelection;
 		[map selectAnnotation:pendingAnnotationSelection animated:animate];
 		if([map selectedAnnotations] != nil)
 		{
@@ -204,6 +207,9 @@
 {
 	if (loaded)
 	{
+		hitAnnotation = annotation;
+		hitSelect = NO;
+		manualSelect = YES;
 		[[self map] selectAnnotation:annotation animated:animate];
 	}
 	else {
@@ -219,6 +225,9 @@
 	
 	if (args == nil) {
 		for (id<MKAnnotation> annotation in [[self map] selectedAnnotations]) {
+			hitAnnotation = annotation;
+			hitSelect = NO;
+			manualSelect = YES;
 			[[self map] deselectAnnotation:annotation animated:animate];
 		}
 		return;
@@ -576,6 +585,7 @@
 	return nil;
 }
 
+// TODO: We can remove all this when we go to 4.0-only... including the click detection stuff, thanks to new delegates.
 - (void)observeValueForKeyPath:(NSString *)keyPath
                       ofObject:(id)object
                         change:(NSDictionary *)change
@@ -588,7 +598,17 @@
 		{
 			MKAnnotationView<TiMapAnnotation> *ann = (MKAnnotationView<TiMapAnnotation> *)object;
 			BOOL isSelected = [ann isSelected];
-			[self fireClickEvent:ann source:isSelected?@"pin":[ann lastHitName]];
+			
+			// Short-circuit on manual selection; we don't need to do all the expensive "which point did we hit" stuff
+			if (manualSelect || hitSelect && (hitAnnotation == [ann annotation] || hitAnnotation == nil)) {
+				[self fireClickEvent:ann source:isSelected?@"pin":[ann lastHitName]];
+				// Manual selection only fires once - but don't clear hitAnnotation until the next hit event/manual select
+				// hitSelect is necessary to avoid some internal madness where 'selected' will toggle rapidly when scrolling to
+				// show an annotation's accessory view
+				manualSelect = NO;
+				hitSelect = NO;
+				return;
+			}
 		}
 	}
 }
@@ -706,11 +726,59 @@
 	}
 }
 
+#pragma mark Click detection
+
+-(id<MKAnnotation>)wasHitOnAnnotation:(CGPoint)point inView:(UIView*)view
+{
+	id<MKAnnotation> result = nil;
+	for (UIView* subview in [view subviews]) {
+		if (![subview pointInside:[self convertPoint:point toView:subview] withEvent:nil]) {
+			continue;
+		}
+		
+		if ([subview isKindOfClass:[MKAnnotationView class]]) {
+			result = [(MKAnnotationView*)subview annotation];
+		}
+		else {
+			result = [self wasHitOnAnnotation:point inView:subview];
+		}
+		
+		if (result != nil) {
+			break;
+		}
+	}
+	return result;
+}
+
+-(UIView*)hitTest:(CGPoint)point withEvent:(UIEvent *)event
+{
+	UIView* result = [super hitTest:point withEvent:event];
+	if (result != nil) {
+		// OK, we hit something - if the result is an annotation... (3.2+)
+		if ([result isKindOfClass:[MKAnnotationView class]]) {
+			hitAnnotation = [(MKAnnotationView*)result annotation];
+		}
+		// .. But maybe it's in a subview.  (3.1.x)
+		else {
+			// We take advantage of some nonobvious magic here, based on information about
+			// the clicky bits of subviews:
+			UIView* containerView = [[result subviews] objectAtIndex:1];
+			hitAnnotation = [self wasHitOnAnnotation:point inView:containerView];
+		}
+	}
+	else {
+		hitAnnotation = nil;
+	}
+	hitSelect = YES;
+	manualSelect = NO;
+	return result;
+}
+
 #pragma mark Event generation
 
 - (void)fireClickEvent:(MKAnnotationView *) pinview source:(NSString *)source
 {
-	if(ignoreClicks || (source == nil))
+	if (ignoreClicks)
 	{
 		return;
 	}
@@ -736,9 +804,10 @@
 	}
 
 	NSNumber * indexNumber = NUMINT([pinview tag]);
-
+	id clicksource = source ? source : (id)[NSNull null];
+	
 	NSDictionary * event = [NSDictionary dictionaryWithObjectsAndKeys:
-			source,@"clicksource",	viewProxy,@"annotation",	ourProxy,@"map",
+			clicksource,@"clicksource",	viewProxy,@"annotation",	ourProxy,@"map",
 			title,@"title",			indexNumber,@"index",		nil];
 
 	if (parentWants)
