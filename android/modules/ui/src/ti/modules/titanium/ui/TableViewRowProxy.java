@@ -103,8 +103,8 @@ public class TableViewRowProxy extends TiViewProxy
 	}
 
 	@Override
-	public void setProperty(String name, Object value) {
-		super.setProperty(name, value);
+	public void setProperty(String name, Object value, boolean fireChange) {
+		super.setProperty(name, value, fireChange);
 		if (tableViewItem != null) {
 			Message msg = getUIHandler().obtainMessage(MSG_SET_DATA);
 			msg.sendToTarget();
