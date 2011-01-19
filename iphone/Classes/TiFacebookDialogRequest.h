@@ -5,14 +5,17 @@
  * and licensed under the Apache Public License (version 2)
  */
 #ifdef USE_TI_FACEBOOK
-#import "TiUIView.h"
-#import "FBConnect/FBLoginButton.h"
+#import "FBConnect/Facebook.h"
 #import "FacebookModule.h"
+#import "KrollCallback.h"
 
-@interface TiFacebookLoginButton : TiUIView<TiFacebookStateListener> {
+@interface TiFacebookDialogRequest : NSObject <FBDialogDelegate2> {
 
-	FBLoginButton2 *button;
+	KrollCallback *callback;
+	FacebookModule *module;
 }
+
+-(id)initWithCallback:(KrollCallback*)callback_ module:(FacebookModule*)module_;
 
 @end
 #endif

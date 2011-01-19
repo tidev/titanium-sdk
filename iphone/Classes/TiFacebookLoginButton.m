@@ -1,48 +1,19 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
- * Licensed under the terms of the Apache Public License
- * Please see the LICENSE included with this distribution for details.
+ * Appcelerator Commercial License. Copyright (c) 2010 by Appcelerator, Inc.
+ *
+ * Appcelerator Titanium is Copyright (c) 2009-2010 by Appcelerator, Inc.
+ * and licensed under the Apache Public License (version 2)
  */
-#ifdef USE_TI_FACEBOOK
 
+#ifdef USE_TI_FACEBOOK
 #import "TiFacebookLoginButton.h"
-#import "TiUtils.h"
+#import "TiFacebookLoginButtonProxy.h"
 
 @implementation TiFacebookLoginButton
-
--(void)dealloc
-{
-	if (button!=nil)
-	{
-		[button.session.delegates removeObject:self];
-		RELEASE_TO_NIL(button);
-	}
-	[super dealloc];
-}
 
 -(void)recenterButton
 {
 	[TiUtils setView:button positionRect:[TiUtils centerRect:[button frame] inRect:[self bounds]]];
-}
-
--(FBLoginButton*)button
-{
-	if (button==nil)
-	{
-		id style = [TiUtils stringValue:[self.proxy valueForKey:@"style"]];
-		int buttonStyle = [style isEqualToString:@"wide"] ? FBLoginButtonStyleWide : FBLoginButtonStyleNormal;
-		CGRect frame = buttonStyle == FBLoginButtonStyleNormal ? CGRectMake(0, 0, 92, 32) : CGRectMake(0, 0, 172, 32);
-		// we force a constrained size instead of letting the user or the layout engine decide
-		[self.proxy replaceValue:NUMINT(frame.size.width) forKey:@"width" notification:NO];
-		[self.proxy replaceValue:NUMINT(frame.size.height) forKey:@"height" notification:NO];
-		button = [[FBLoginButton alloc] initWithFrame:frame];
-		button.style = buttonStyle;
-		button.session = [self.proxy valueForKey:@"session"];
-		[self addSubview:button];
-		[button.session.delegates addObject:self];
-	}
-	return button;
 }
 
 -(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
@@ -52,55 +23,73 @@
 		[TiUtils setView:button positionRect:bounds];
 		[button sizeToFit];
 		[self recenterButton];
-
 	}
 }
 
--(void)setSession_:(id)session
+-(FacebookModule*)module
 {
-	[self button];
+	TiFacebookLoginButtonProxy *p = (TiFacebookLoginButtonProxy*)self.proxy;
+	return p._module;
 }
 
-#pragma mark Delegates
-
-/**
- * Called when a user has successfully logged in and begun a session.
- */
-- (void)session:(FBSession*)session didLogin:(FBUID)uid
+-(void)dealloc
 {
-	if ([self.proxy _hasListeners:@"login"])
+	[[self module] removeListener:self];
+	RELEASE_TO_NIL(button);
+	[super dealloc];
+}
+	 
+-(void)clicked:(id)sender
+{
+	if (button.isLoggedIn)
 	{
-		NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:[NSNull null],@"error",[NSNumber numberWithBool:false],@"success",[NSNumber numberWithBool:true],@"cancel",@"login",@"event",nil];
-		[self.proxy fireEvent:@"login" withObject:event];
+		[[self module] logout:nil];
 	}
+	else
+	{
+		[[self module] authorize:nil];
+	}
+}
+
+-(void)configurationSet
+{
+	[super configurationSet];
+	
+	id style = [TiUtils stringValue:[self.proxy valueForKey:@"style"]];
+	int buttonStyle = [style isEqualToString:@"wide"] ? FB_LOGIN_BUTTON_WIDE : FB_LOGIN_BUTTON_NORMAL;
+	CGRect frame = buttonStyle == FB_LOGIN_BUTTON_WIDE ? CGRectMake(0, 0, 79, 29) : CGRectMake(0, 0, 159, 29);
+	// we force a constrained size instead of letting the user or the layout engine decide
+	[self.proxy replaceValue:NUMINT(frame.size.width) forKey:@"width" notification:NO];
+	[self.proxy replaceValue:NUMINT(frame.size.height) forKey:@"height" notification:NO];
+	
+	[[self module] addListener:self];
+	
+	button = [[FBLoginButton2 alloc] initWithFrame:frame];
+	button.isLoggedIn = [[self module] isLoggedIn];
+	[button updateImage];
+	
+	[button addTarget:self action:@selector(clicked:) forControlEvents:UIControlEventTouchUpInside];
+	
+	[self addSubview:button];
 	[self recenterButton];
 }
 
-/**
- * Called when a user closes the login dialog without logging in.
- */
-- (void)sessionDidNotLogin:(FBSession*)session
+#pragma mark State Listener
+
+-(void)login
 {
-	if ([self.proxy _hasListeners:@"cancel"])
-	{
-		[self.proxy fireEvent:@"cancel" withObject:nil];
-	}
+	button.isLoggedIn = YES;
+	[button updateImage];
+	[self recenterButton];
 }
 
-/**
- * Called when a session has logged out.
- */
-- (void)sessionDidLogout:(FBSession*)session
+-(void)logout
 {
-	if ([self.proxy _hasListeners:@"logout"])
-	{
-		NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:[NSNull null],@"error",[NSNumber numberWithBool:true],@"success",[NSNumber numberWithBool:false],@"cancel",@"logout",@"event",nil];
-		[self.proxy fireEvent:@"logout" withObject:event];
-	}
+	button.isLoggedIn = NO;
+	[button updateImage];
 	[self recenterButton];
 }
 
 
 @end
-
 #endif
