@@ -538,12 +538,16 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
 		[view configurationSet];
 
 		pthread_rwlock_rdlock(&childrenLock);
-		for (id child in self.children)
+		NSArray * childrenArray = [[self children] copy];
+		pthread_rwlock_unlock(&childrenLock);
+		
+		for (id child in childrenArray)
 		{
 			TiUIView *childView = [(TiViewProxy*)child view];
 			[self insertSubview:childView forProxy:child];
 		}
-		pthread_rwlock_unlock(&childrenLock);
+		
+		[childrenArray release];
 		[self viewDidAttach];
 
 		// make sure we do a layout of ourselves
@@ -1741,12 +1745,18 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
 	{
 		OSAtomicTestAndSetBarrier(NEEDS_LAYOUT_CHILDREN, &dirtyflags);
 	}
+
+//TODO: This is really expensive, but what can you do? Laying out the child needs the lock again.
 	pthread_rwlock_rdlock(&childrenLock);
-	for (id child in self.children)
+	NSArray * childrenArray = [[self children] copy];
+	pthread_rwlock_unlock(&childrenLock);
+	
+	for (id child in childrenArray)
 	{
 		[self layoutChild:child optimize:optimize];
 	}
-	pthread_rwlock_unlock(&childrenLock);
+	[childrenArray release];
+	
 	if (optimize==NO)
 	{
 		OSAtomicTestAndClearBarrier(NEEDS_LAYOUT_CHILDREN, &dirtyflags);
