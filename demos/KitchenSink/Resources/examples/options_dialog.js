@@ -1,5 +1,11 @@
 var win = Titanium.UI.currentWindow;
 
+win.orientationModes = [
+	Titanium.UI.PORTRAIT,
+	Titanium.UI.LANDSCAPE_LEFT,
+	Titanium.UI.LANDSCAPE_RIGHT
+]; 
+
 var isAndroid = Ti.Platform.osname == 'android';
 
 if (isAndroid) {

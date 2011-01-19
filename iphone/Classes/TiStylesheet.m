@@ -44,25 +44,33 @@
 	[super dealloc];
 }
 
--(id)stylesheet:(NSString*)objectId type:(NSString*)type density:(NSString*)density basename:(NSString*)basename
+-(id)stylesheet:(NSString*)objectId density:(NSString*)density basename:(NSString*)basename classes:(NSArray*)classes
 {
-#if defined(DEBUG) && DEBUG_STYLESHEETS==1
-	NSLog(@"[DEBUG] stylesheet -> objectId: %@, type: %@, density: %@, basename: %@",objectId,type,density,basename);
+#if DEBUG_STYLESHEETS==1
+	NSLog(@"[DEBUG] stylesheet -> objectId: %@, density: %@, basename: %@",objectId,density,basename);
+	for (int i = 0; i < [classes count]; i++) {
+		NSLog(@"[DEBUG] -> class: %@",[classes objectAtIndex:i]);
+	}
 #endif
-	
-	NSDictionary* classes = [[classesDict objectForKey:basename] objectForKey:type];
-	NSDictionary* classesD = [[[classesDictByDensity objectForKey:basename] objectForKey:density] objectForKey:type];
+	NSMutableDictionary *result = [NSMutableDictionary dictionary];
+	NSEnumerator *classEnum = [classes objectEnumerator];
+	id className;
+	while (className = [classEnum nextObject])
+	{
+		NSDictionary* classes = [[classesDict objectForKey:basename] objectForKey:className];
+		NSDictionary* classesD = [[[classesDictByDensity objectForKey:basename] objectForKey:density] objectForKey:className];
+		if (classes!=nil)
+		{
+			[result addEntriesFromDictionary:classes];
+		}
+		if (classesD!=nil)
+		{
+			[result addEntriesFromDictionary:classesD];
+		}
+	}
+
 	NSDictionary* ids = [[idsDict objectForKey:basename] objectForKey:objectId];
 	NSDictionary* idsD = [[[idsDictByDensity objectForKey:basename] objectForKey:density] objectForKey:objectId];
-	NSMutableDictionary *result = [NSMutableDictionary dictionary];
-	if (classes!=nil)
-	{
-		[result addEntriesFromDictionary:classes];
-	}
-	if (classesD!=nil)
-	{
-		[result addEntriesFromDictionary:classesD];
-	}
 	if (ids!=nil)
 	{
 		[result addEntriesFromDictionary:ids];
@@ -72,7 +80,7 @@
 		[result addEntriesFromDictionary:idsD];
 	}
 
-#if defined(DEBUG) && DEBUG_STYLESHEETS==1
+#if DEBUG_STYLESHEETS==1
 	NSLog(@"[DEBUG] stylesheet -> %@",result);
 #endif
 	return result;
