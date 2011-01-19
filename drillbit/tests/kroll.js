@@ -93,5 +93,19 @@ describe("Kroll tests",
 		valueOf(function() {
 			tv.setData([{ title: "test" }], {options: "x"});
 		}).shouldNotThrowException();
+	},
+	
+	arrayMixedTypeAndConstructor: function() {
+		valueOf(function() {
+			Ti.a = ["abc", "def", 123];
+		}).shouldNotThrowException();
+
+		valueOf(Ti.a[0]).shouldBe("abc");
+		valueOf(Ti.a[1]).shouldBe("def");
+		valueOf(Ti.a[2]).shouldBe(123);
+
+		Ti.x = [1, 2, 3, 4, 5];
+		valueOf(Ti.x.constructor).shouldNotBeUndefined();
+		valueOf(Ti.x.constructor.toString()).shouldContain("Array");
 	}
 });

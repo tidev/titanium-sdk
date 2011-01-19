@@ -6,6 +6,7 @@
  */
 package org.appcelerator.kroll;
 
+import org.appcelerator.titanium.TiContext;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Function;
 import org.mozilla.javascript.Scriptable;
@@ -36,7 +37,12 @@ public class KrollObject extends ScriptableObject implements Function {
 		} catch (NoSuchFieldException e) {
 			return Scriptable.NOT_FOUND;
 		}
-		KrollInvocation invocation = KrollInvocation.createPropertyGetInvocation(start, null, name, null, proxy);
+		TiContext context = TiContext.getCurrentTiContext();
+		Scriptable scope = start;
+		if (context != null) {
+			scope = context.getScope();
+		}
+		KrollInvocation invocation = KrollInvocation.createPropertyGetInvocation(context, scope, start, name, null, proxy);
 		Object result = KrollConverter.getInstance().convertNative(invocation, value);
 		invocation.recycle();
 		return result;
@@ -50,7 +56,12 @@ public class KrollObject extends ScriptableObject implements Function {
 	
 	@Override
 	public void put(String name, Scriptable start, Object value) {
-		KrollInvocation invocation = KrollInvocation.createPropertySetInvocation(start, null, name, null, proxy);
+		TiContext context = TiContext.getCurrentTiContext();
+		Scriptable scope = start;
+		if (context != null) {
+			scope = context.getScope();
+		}
+		KrollInvocation invocation = KrollInvocation.createPropertyGetInvocation(context, scope, start, name, null, proxy);
 		try {
 			value = KrollConverter.getInstance().convertJavascript(invocation, value, Object.class);
 			proxy.set(start, name, value);
