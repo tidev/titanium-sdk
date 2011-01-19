@@ -26,7 +26,7 @@
  OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
+#ifdef USE_TI_FACEBOOK
 #import "SBJsonBase.h"
 NSString * FBSBJSONErrorDomain = @"org.brautaset.JSON.ErrorDomain";
 
@@ -76,3 +76,4 @@ NSString * FBSBJSONErrorDomain = @"org.brautaset.JSON.ErrorDomain";
 }
 
 @end
+#endif

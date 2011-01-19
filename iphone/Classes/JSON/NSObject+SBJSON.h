@@ -27,6 +27,8 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+// Only need this stuff (for now) if we're using facebook - SPT
+#ifdef USE_TI_FACEBOOK
 #import <Foundation/Foundation.h>
 
 
@@ -65,4 +67,4 @@
 - (NSString *)JSONRepresentation;
 
 @end
-
+#endif

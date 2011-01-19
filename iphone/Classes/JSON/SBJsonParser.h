@@ -26,7 +26,7 @@
  OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
+#ifdef USE_TI_FACEBOOK
 #import <Foundation/Foundation.h>
 #import "SBJsonBase.h"
 
@@ -84,4 +84,4 @@
 - (id)fragmentWithString:(id)repr;
 @end
 
-
+#endif

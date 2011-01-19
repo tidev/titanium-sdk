@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-
+#ifdef USE_TI_FACEBOOK
 #import "FBDialog.h"
 
 @protocol FBLoginDialogDelegate2;
@@ -44,5 +44,4 @@
 - (void) fbDialogNotLogin:(BOOL) cancelled;
 
 @end
-
-
+#endif

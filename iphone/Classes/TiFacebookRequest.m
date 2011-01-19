@@ -50,7 +50,7 @@
  */
 - (void)request:(FBRequest2*)request didFailWithError:(NSError*)error
 {
-	NSLog(@"[DEBUG] ti.facebook didFailWithError = %@",error);
+	NSLog(@"[DEBUG] facebook didFailWithError = %@",error);
 	NSMutableDictionary *event = [self eventParameters:NO];
 	[event setObject:[error localizedDescription] forKey:@"error"];
 	[module _fireEventToListener:@"result" withObject:event listener:callback thisObject:nil];
@@ -65,7 +65,7 @@
  */
 - (void)request:(FBRequest2*)request didLoad:(id)result
 {
-	NSLog(@"[DEBUG] ti.facebook didLoad");
+	NSLog(@"[DEBUG] facebook didLoad");
 	NSMutableDictionary *event = [self eventParameters:YES];
 	[event setObject:result forKey:@"result"];
 	[module _fireEventToListener:@"result" withObject:event listener:callback thisObject:nil];

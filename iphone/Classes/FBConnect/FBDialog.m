@@ -14,7 +14,7 @@
  * limitations under the License.
 */
 
-
+#ifdef USE_TI_FACEBOOK
 #import "FBDialog.h"
 #import "Facebook.h"
 
@@ -304,8 +304,8 @@ BOOL FBIsDeviceIPad() {
     self.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
     self.contentMode = UIViewContentModeRedraw;
 
-    UIImage* iconImage = [UIImage imageNamed:@"modules/ti.facebook/images/fbicon.png"];
-    UIImage* closeImage = [UIImage imageNamed:@"modules/ti.facebook/images/close.png"];
+    UIImage* iconImage = [UIImage imageNamed:@"modules/facebook/images/fbicon.png"];
+    UIImage* closeImage = [UIImage imageNamed:@"modules/facebook/images/close.png"];
     
     _iconView = [[UIImageView alloc] initWithImage:iconImage];
     [self addSubview:_iconView];
@@ -647,3 +647,4 @@ BOOL FBIsDeviceIPad() {
 }
 
 @end
+#endif

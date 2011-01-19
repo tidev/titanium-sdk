@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
 */
-
+#ifdef USE_TI_FACEBOOK
 #import <UIKit/UIKit.h>
 
 #define FB_LOGIN_BUTTON_NORMAL	0
@@ -38,3 +38,4 @@
 - (void) updateImage;
 
 @end
+#endif

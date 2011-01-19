@@ -36,14 +36,14 @@
 // this is generated for your module, please do not change it
 -(NSString*)moduleId
 {
-	return @"ti.facebook";
+	return @"facebook";
 }
 
 #pragma mark Sessions
 
 -(void)_save 
 {
-	NSLog(@"[DEBUG] ti.facebook _save");
+	NSLog(@"[DEBUG] facebook _save");
 	NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
 	if ((uid != (NSString *) [NSNull null]) && (uid.length > 0)) {
 		[defaults setObject:uid forKey:@"FBUserId"];
@@ -76,7 +76,7 @@
 
 -(void)_unsave 
 {
-	NSLog(@"[DEBUG] ti.facebook _unsave");
+	NSLog(@"[DEBUG] facebook _unsave");
 	NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
 	[defaults removeObjectForKey:@"FBUserId"];
 	[defaults removeObjectForKey:@"FBAccessToken"];
@@ -87,18 +87,18 @@
 
 -(id)_restore 
 {
-	NSLog(@"[DEBUG] ti.facebook _restore");
+	NSLog(@"[DEBUG] facebook _restore");
 	RELEASE_TO_NIL(uid);
 	RELEASE_TO_NIL(facebook);
 	RELEASE_TO_NIL(appid);
 	NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
 	NSString *uid_ = [defaults objectForKey:@"FBUserId"];
-	NSLog(@"[DEBUG] ti.facebook _restore, uid = %@",uid_);
+	NSLog(@"[DEBUG] facebook _restore, uid = %@",uid_);
 	facebook = [[Facebook alloc] init];
 	if (uid_) 
 	{
 		NSDate* expirationDate = [defaults objectForKey:@"FBSessionExpires"];
-		NSLog(@"[DEBUG] ti.facebook _restore, expirationDate = %@",expirationDate);
+		NSLog(@"[DEBUG] facebook _restore, expirationDate = %@",expirationDate);
 		if (!expirationDate || [expirationDate timeIntervalSinceNow] > 0) {
 			uid = [uid_ copy];
 			facebook.accessToken = [defaults stringForKey:@"FBAccessToken"];
@@ -147,14 +147,14 @@
 
 -(void)resumed:(id)note
 {
-	NSLog(@"[DEBUG] ti.facebook resumed");
+	NSLog(@"[DEBUG] facebook resumed");
 	
 	[self handleRelaunch];
 }
 
 -(void)startup
 {
-	NSLog(@"[DEBUG] ti.facebook startup");
+	NSLog(@"[DEBUG] facebook startup");
 	
 	[super startup];
 	[self _restore];
@@ -163,7 +163,7 @@
 
 -(void)shutdown:(id)sender
 {
-	NSLog(@"[DEBUG] ti.facebook shutdown");
+	NSLog(@"[DEBUG] facebook shutdown");
 
 	[[NSNotificationCenter defaultCenter] removeObserver:self];
 	[super shutdown:sender];
@@ -179,7 +179,7 @@
 /**
  * JS example:
  *
- * var facebook = require('ti.facebook');
+ * var facebook = require('facebook');
  * alert(facebook.uid);
  * 
  */
@@ -191,7 +191,7 @@
 /**
  * JS example:
  *
- * var facebook = require('ti.facebook');
+ * var facebook = require('facebook');
  * if (facebook.loggedIn) {
  * }
  * 
@@ -204,7 +204,7 @@
 /**
  * JS example:
  *
- * var facebook = require('ti.facebook');
+ * var facebook = require('facebook');
  * facebook.appid = '1234';
  * alert(facebook.appid);
  * 
@@ -217,7 +217,7 @@
 /**
  * JS example:
  *
- * var facebook = require('ti.facebook');
+ * var facebook = require('facebook');
  * facebook.permissions = ['publish_stream'];
  * alert(facebook.permissions);
  * 
@@ -230,7 +230,7 @@
 /**
  * JS example:
  *
- * var facebook = require('ti.facebook');
+ * var facebook = require('facebook');
  * alert(facebook.accessToken);
  * 
  */
@@ -242,7 +242,7 @@
 /**
  * JS example:
  *
- * var facebook = require('ti.facebook');
+ * var facebook = require('facebook');
  * alert(facebook.expirationDate);
  * 
  */
@@ -254,7 +254,7 @@
 /**
  * JS example:
  *
- * var facebook = require('ti.facebook');
+ * var facebook = require('facebook');
  * facebook.appid = '1234';
  * alert(facebook.appid);
  * 
@@ -268,7 +268,7 @@
 /**
  * JS example:
  *
- * var facebook = require('ti.facebook');
+ * var facebook = require('facebook');
  * facebook.permissions = ['publish_stream'];
  * alert(facebook.permissions);
  * 
@@ -282,7 +282,7 @@
 /**
  * JS example:
  *
- * var facebook = require('ti.facebook');
+ * var facebook = require('facebook');
  *
  * facebook.addEventListener('login',function(e) {
  *    if (e.success) {
@@ -307,7 +307,7 @@
  */
 -(void)authorize:(id)args
 {
-	NSLog(@"[DEBUG] ti.facebook authorize");
+	NSLog(@"[DEBUG] facebook authorize");
 
 	if ([self isLoggedIn])
 	{
@@ -330,13 +330,13 @@
 /**
  * JS example:
  *
- * var facebook = require('ti.facebook');
+ * var facebook = require('facebook');
  * facebook.logout();
  *
  */
 -(void)logout:(id)args
 {
-	NSLog(@"[DEBUG] ti.facebook logout");
+	NSLog(@"[DEBUG] facebook logout");
 	if ([self isLoggedIn])
 	{
 		[facebook logout:self];
@@ -346,7 +346,7 @@
 /**
  * JS example:
  *
- * var facebook = require('ti.facebook');
+ * var facebook = require('facebook');
  *
  * facebook.requestWithGraphPath('me',{},function(e) {
  *    if (e.success) {
@@ -360,7 +360,7 @@
  */
 -(void)requestWithGraphPath:(id)args
 {
-	NSLog(@"[DEBUG] ti.facebook requestWithGraphPath");
+	NSLog(@"[DEBUG] facebook requestWithGraphPath");
 
 	ENSURE_ARG_COUNT(args,3);
 	ENSURE_UI_THREAD_1_ARG(args);
@@ -376,7 +376,7 @@
 /**
  * JS example:
  *
- * var facebook = require('ti.facebook');
+ * var facebook = require('facebook');
  *
  * facebook.request('photos.upload',{picture:blob},function(e) {
  *    if (e.success) {
@@ -390,7 +390,7 @@
  */
 -(void)request:(id)args
 {
-	NSLog(@"[DEBUG] ti.facebook request");
+	NSLog(@"[DEBUG] facebook request");
 
 	ENSURE_ARG_COUNT(args,3);
 	ENSURE_UI_THREAD_1_ARG(args);
@@ -446,7 +446,7 @@
 /**
  * JS example:
  *
- * var facebook = require('ti.facebook');
+ * var facebook = require('facebook');
  * facebook.dialog('stream.publish',{'api_key':'1234'},function(e) {
  *    if (e.success) {
  *       Ti.API.info('result was = '+JSON.stringify(e.result));
@@ -459,7 +459,7 @@
 	ENSURE_ARG_COUNT(args,3);
 	ENSURE_UI_THREAD_1_ARG(args);
 
-	NSLog(@"[DEBUG] ti.facebook dialog");
+	NSLog(@"[DEBUG] facebook dialog");
 
 	NSString* action = [args objectAtIndex:0];
 	NSMutableDictionary* params = [args objectAtIndex:1];
@@ -472,7 +472,7 @@
 /**
  * JS example:
  *
- * var facebook = require('ti.facebook');
+ * var facebook = require('facebook');
  * var button = facebook.createLoginButton({bottom:10});
  * window.add(button);
  * 
@@ -510,7 +510,7 @@
  */
 - (void)fbDidLogin
 {
-	NSLog(@"[DEBUG] ti.facebook fbDidLogin");
+	NSLog(@"[DEBUG] facebook fbDidLogin");
 
 	[facebook requestWithGraphPath:@"me" andDelegate:self];
 }
@@ -520,7 +520,7 @@
  */
 - (void)fbDidNotLogin:(BOOL)cancelled
 {
-	NSLog(@"[DEBUG] ti.facebook fbDidNotLogin: cancelled=%d",cancelled);
+	NSLog(@"[DEBUG] facebook fbDidNotLogin: cancelled=%d",cancelled);
 	loggedIn = NO;
 	[self fireLoginChange];
 	NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:NUMBOOL(cancelled),@"cancelled",NUMBOOL(NO),@"success",nil];
@@ -532,7 +532,7 @@
  */
 - (void)fbDidLogout
 {
-	NSLog(@"[DEBUG] ti.facebook fbDidLogout");
+	NSLog(@"[DEBUG] facebook fbDidLogout");
 	
 	loggedIn = NO;
 	[self _unsave];
@@ -547,7 +547,7 @@
  */
 - (void)request:(FBRequest2*)request didLoad:(id)result
 {
-	NSLog(@"[DEBUG] ti.facebook didLoad");
+	NSLog(@"[DEBUG] facebook didLoad");
 	
 	RELEASE_TO_NIL(uid);
 	uid = [[result objectForKey:@"id"] copy]; 
@@ -561,7 +561,7 @@
 
 - (void)request:(FBRequest2*)request didFailWithError:(NSError*)error 
 {
-	NSLog(@"[DEBUG] ti.facebook didFailWithError: %@",error);
+	NSLog(@"[DEBUG] facebook didFailWithError: %@",error);
 	
 	RELEASE_TO_NIL(uid);
 	loggedIn = NO;
