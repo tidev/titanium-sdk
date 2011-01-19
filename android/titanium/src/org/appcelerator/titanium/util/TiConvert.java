@@ -6,10 +6,12 @@
  */
 package org.appcelerator.titanium.util;
 
+import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.TimeZone;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollObject;
@@ -420,7 +422,9 @@ public class TiConvert
 	
 	public static String toJSONString(Object value) {
 		if (value instanceof Date) {
-			return new SimpleDateFormat(JSON_DATE_FORMAT).format((Date)value);
+			DateFormat df = new SimpleDateFormat(JSON_DATE_FORMAT);
+			df.setTimeZone(TimeZone.getTimeZone("GMT"));
+			return df.format((Date)value);
 		} else return toString(value);
 	}
 
