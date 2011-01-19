@@ -1111,6 +1111,8 @@ class Builder(object):
 
 		output = run.run([self.jarsigner, '-storepass', self.keystore_pass, '-keystore', self.keystore, '-signedjar', app_apk, unsigned_apk, self.keystore_alias])
 		run.check_output_for_error(output, r'RuntimeException: (.*)', True)
+		run.check_output_for_error(output, r'^jarsigner: (.*)', True)
+
 		# TODO Document Exit message
 		#success = re.findall(r'RuntimeException: (.*)', output)
 		#if len(success) > 0:
@@ -1600,8 +1602,8 @@ if __name__ == "__main__":
 		else:
 			error("Unknown command: %s" % command)
 			usage()
-	except SystemExit:
-		pass
+	except SystemExit as n:
+		sys.exit(n)
 	except:
 		exctype, excvalue = sys.exc_info()[:2]
 		e = traceback.format_exc()
