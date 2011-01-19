@@ -72,7 +72,7 @@
 		[self updateOptionDialogNow];
 		return;
 	}
-	[actionSheet showInView:[[TiApp app] window]];
+	[actionSheet showInView:[[TiApp controller] view]];
 }
 
 #pragma mark AlertView Delegate
@@ -110,7 +110,7 @@
 	UIView *view = nil;
 	if (dialogView==nil)
 	{
-		view = [[TiApp app] controller].view;
+		view = [[TiApp controller] view];
 	}
 	else 
 	{
