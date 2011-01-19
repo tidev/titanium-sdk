@@ -69,6 +69,8 @@ public class MediaModule extends KrollModule
 	@Kroll.constant public static final int VIDEO_SCALING_MODE_FILL = 1;
 
 	@Kroll.constant public static final int VIDEO_CONTROL_DEFAULT = 0;
+	@Kroll.constant public static final String MEDIA_TYPE_PHOTO = "public.image";
+	@Kroll.constant public static final String MEDIA_TYPE_VIDEO = "public.video";
 	
 	public MediaModule(TiContext tiContext)
 	{
@@ -477,6 +479,7 @@ public class MediaModule extends KrollModule
 		d.put("cropRect", cropRect);
 
 		String[] parts = { path };
+		d.put("mediaType", MEDIA_TYPE_PHOTO);
 		d.put("media", TiBlob.blobFromFile(getTiContext(), TiFileFactory.createTitaniumFile(getTiContext(), parts, false), mimeType));
 
 		return d;
@@ -496,7 +499,7 @@ public class MediaModule extends KrollModule
 		cropRect.put("width", width);
 		cropRect.put("height", height);
 		d.put("cropRect", cropRect);
-
+		d.put("mediaType", MEDIA_TYPE_PHOTO);
 		d.put("media", TiBlob.blobFromData(getTiContext(), data, "image/png"));
 
 		return d;
