@@ -987,20 +987,19 @@ public class TiHTTPClient
 						HttpEntityEnclosingRequest e = (HttpEntityEnclosingRequest) request;
 						Log.d(LCAT, "totalLength="+totalLength);
 
-						/*ProgressEntity progressEntity = new ProgressEntity(mpe, new ProgressListener() {
+						ProgressEntity progressEntity = new ProgressEntity(mpe, new ProgressListener() {
 							public void progress(int progress) {
 								KrollCallback cb = getCallback(ON_SEND_STREAM);
 								if (cb != null) {
 									KrollDict data = new KrollDict();
-									data.put("progress", ((double)progress)/fTotalLength);
+									data.put("progress", ((double)progress)/totalLength);
 									data.put("source", proxy);
-									cb.callWithProperties(data);
+									cb.callSync(data);
 								}
 							}
-						});*/
-						//e.setEntity(progressEntity);
+						});
+						e.setEntity(progressEntity);
 
-						e.setEntity(mpe);
 						e.addHeader("Length", totalLength+"");
 					} else {
 						handleURLEncodedData(form);
