@@ -51,27 +51,55 @@
 	}
 }
 
+-(CGRect)frameForButtonStyle:(int)buttonStyle
+{
+	return buttonStyle == FB_LOGIN_BUTTON_WIDE ? CGRectMake(0, 0, 159, 29) : CGRectMake(0, 0, 79, 29);
+}
+
+-(int)getStyleAndChangeSize:(id)style
+{
+	int buttonStyle = [style isEqualToString:@"wide"] ? FB_LOGIN_BUTTON_WIDE : FB_LOGIN_BUTTON_NORMAL;
+	CGRect frame = [self frameForButtonStyle:buttonStyle];
+	
+	// we force a constrained size instead of letting the user or the layout engine decide -
+	// have to set these through their proper setters or else the layout is never updated!
+	// Note that we use 'internal' methods because we have to override the normal width/height setters.
+	[(TiFacebookLoginButtonProxy*)[self proxy] internalSetWidth:NUMINT(frame.size.width)];
+	[(TiFacebookLoginButtonProxy*)[self proxy] internalSetHeight:NUMINT(frame.size.height)];
+	
+	return buttonStyle;
+}
+
+// NOTE: This is actually called BEFORE any configuration is set!  We don't necessarily have any properties
+// before this is called... but who knows, maybe we do.
 -(void)configurationSet
 {
 	[super configurationSet];
 	
 	id style = [TiUtils stringValue:[self.proxy valueForKey:@"style"]];
-	int buttonStyle = [style isEqualToString:@"wide"] ? FB_LOGIN_BUTTON_WIDE : FB_LOGIN_BUTTON_NORMAL;
-	CGRect frame = buttonStyle == FB_LOGIN_BUTTON_WIDE ? CGRectMake(0, 0, 79, 29) : CGRectMake(0, 0, 159, 29);
-	// we force a constrained size instead of letting the user or the layout engine decide
-	[self.proxy replaceValue:NUMINT(frame.size.width) forKey:@"width" notification:NO];
-	[self.proxy replaceValue:NUMINT(frame.size.height) forKey:@"height" notification:NO];
-	
+	int buttonStyle = [self getStyleAndChangeSize:style];
+
+	// Create the default button, and set the default size
 	[[self module] addListener:self];
 	
-	button = [[FBLoginButton2 alloc] initWithFrame:frame];
+	button = [[FBLoginButton2 alloc] initWithFrame:[self frameForButtonStyle:buttonStyle]];
 	button.isLoggedIn = [[self module] isLoggedIn];
+	button.style = buttonStyle;
 	[button updateImage];
 	
 	[button addTarget:self action:@selector(clicked:) forControlEvents:UIControlEventTouchUpInside];
 	
 	[self addSubview:button];
 	[self recenterButton];
+}
+
+-(void)setStyle_:(id)style
+{
+	[self.proxy replaceValue:style forKey:@"style" notification:NO];
+	if (button != nil) {
+		button.style = [self getStyleAndChangeSize:style];
+		[button updateImage];
+	}
 }
 
 #pragma mark State Listener

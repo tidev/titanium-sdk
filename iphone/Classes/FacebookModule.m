@@ -25,20 +25,6 @@
 
 @synthesize facebook;
 
-#pragma mark Internal
-
-// this is generated for your module, please do not change it
--(id)moduleGUID
-{
-	return @"3d301561-c8b7-40a4-b57e-0367d2e32691";
-}
-
-// this is generated for your module, please do not change it
--(NSString*)moduleId
-{
-	return @"facebook";
-}
-
 #pragma mark Sessions
 
 -(void)_save 
@@ -479,7 +465,7 @@
  */
 -(id)createLoginButton:(id)args
 {
-	return [[[TiFacebookLoginButtonProxy alloc] initWithModule:self] autorelease];
+	return [[[TiFacebookLoginButtonProxy alloc] _initWithPageContext:[self pageContext] args:args module:self] autorelease];
 }
 
 #pragma mark Listener work

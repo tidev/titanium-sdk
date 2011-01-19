@@ -14,13 +14,16 @@
 	FacebookModule *module;
 }
 
--(id)initWithModule:(FacebookModule*)module_;
+-(id)_initWithPageContext:(id<TiEvaluator>)context_ args:(id)args module:(FacebookModule*)module_;
 
 @property(nonatomic,readonly) FacebookModule *_module;
 
 
 @property(nonatomic,readonly) NSNumber *STYLE_NORMAL;
 @property(nonatomic,readonly) NSNumber *STYLE_WIDE;
+
+-(void)internalSetWidth:(id)width;
+-(void)internalSetHeight:(id)height;
 
 @end
 #endif
