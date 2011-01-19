@@ -6,7 +6,7 @@ var data = [
 	{title:'Query', hasChild:true, test:'../examples/facebook_query.js'},
 	{title:'Properties', hasChild:true, test:'../examples/facebook_properties.js'},
 	{title:'Publish Stream', hasChild:true, test:'../examples/facebook_publish_stream.js'},
-	{title:'Execute', hasChild:true, test:'../examples/facebook_execute.js'}
+	{title:'Photos', hasChild:true, test:'../examples/facebook_photos.js'}
 
 ];
 
