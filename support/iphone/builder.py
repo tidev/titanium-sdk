@@ -767,7 +767,15 @@ def main(args):
 			asf = codecs.open(app_stylesheet,'w','utf-8')
 			asf.write(cssc.code)
 			asf.close()
-			
+
+			if command=='simulator':
+				debug_sim_dir = os.path.join(iphone_dir,'build','Debug-iphonesimulator','%s.app' % name)
+				if os.path.exists(debug_sim_dir):
+					app_stylesheet = os.path.join(iphone_dir,'build','Debug-iphonesimulator','%s.app' % name,'stylesheet.plist')
+					asf = codecs.open(app_stylesheet,'w','utf-8')
+					asf.write(cssc.code)
+					asf.close()
+
 			if command!='simulator':
 				# compile plist into binary format so it's faster to load
 				# we can be slow on simulator
