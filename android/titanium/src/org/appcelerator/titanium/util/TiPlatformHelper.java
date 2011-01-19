@@ -51,11 +51,8 @@ public class TiPlatformHelper
 	public static int applicationLogicalDensity = DisplayMetrics.DENSITY_MEDIUM;
 	private static boolean applicationDisplayInfoInitialized = false;
 
-	private static TiApplication tiApp;
-
-	public static void initialize(TiApplication app) {
-		tiApp = app;
-
+	public static void initialize() {
+		TiApplication app = TiApplication.getInstance();
 		// what is platform id?
 		platformId = Settings.Secure.getString(app.getContentResolver(), Settings.Secure.ANDROID_ID);
 
@@ -130,7 +127,7 @@ public class TiPlatformHelper
 	}
 
 	public static ITiAppInfo getAppInfo() {
-		return tiApp.getAppInfo();
+		return TiApplication.getInstance().getAppInfo();
 	}
 
 	public static String getName() {
@@ -302,6 +299,7 @@ public class TiPlatformHelper
 
 	public static String getMacaddress() {
 		String macaddr = null;
+		TiApplication tiApp = TiApplication.getInstance();
 
 		if(tiApp.getRootActivity().checkCallingOrSelfPermission(Manifest.permission.ACCESS_WIFI_STATE) == PackageManager.PERMISSION_GRANTED) {
 			WifiManager wm = (WifiManager) tiApp.getRootActivity().getSystemService(Context.WIFI_SERVICE);
@@ -354,6 +352,7 @@ public class TiPlatformHelper
 
 	public static String getIpAddress() {
 		String ipAddress = null;
+		TiApplication tiApp = TiApplication.getInstance();
 
 		if(tiApp.getRootActivity().checkCallingOrSelfPermission(Manifest.permission.ACCESS_WIFI_STATE) == PackageManager.PERMISSION_GRANTED) {
 			WifiManager wifiManager = (WifiManager) tiApp.getRootActivity().getSystemService(Context.WIFI_SERVICE);
@@ -379,6 +378,7 @@ public class TiPlatformHelper
 
 	public static String getNetmask() {
 		String netmask = null;
+		TiApplication tiApp = TiApplication.getInstance();
 
 		if(tiApp.getRootActivity().checkCallingOrSelfPermission(Manifest.permission.ACCESS_WIFI_STATE) == PackageManager.PERMISSION_GRANTED) {
 			WifiManager wifiManager = (WifiManager) tiApp.getRootActivity().getSystemService(Context.WIFI_SERVICE);
@@ -409,7 +409,8 @@ public class TiPlatformHelper
 	private static int getNetworkType() {
 		int type = -1;
 
-		ConnectivityManager connectivityManager = (ConnectivityManager) tiApp.getSystemService(Context.CONNECTIVITY_SERVICE);
+		ConnectivityManager connectivityManager = (ConnectivityManager)
+			TiApplication.getInstance().getSystemService(Context.CONNECTIVITY_SERVICE);
 		if (connectivityManager != null) {
 			try {
 				NetworkInfo ni = connectivityManager.getActiveNetworkInfo();

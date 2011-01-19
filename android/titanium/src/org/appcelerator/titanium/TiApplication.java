@@ -216,7 +216,7 @@ public abstract class TiApplication extends Application
 	}
 
 	public void postAppInfo() {
-		TiPlatformHelper.initialize(this);
+		TiPlatformHelper.initialize();
 	}
 
 	public void postOnCreate() {
