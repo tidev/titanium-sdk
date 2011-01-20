@@ -230,8 +230,7 @@ class ModuleDetector(object):
 			manifest = module.manifest
 			
 			matches = id == None or manifest.moduleid == id
-			matches = matches and name == None or manifest.name == name
-			matches = matches and version == None or manifest.version == version
+			matches = matches and (version == None or manifest.version == version)
 			
 			if matches:
 				return module
