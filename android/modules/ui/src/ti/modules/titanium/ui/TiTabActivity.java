@@ -25,6 +25,10 @@ import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 
+import ti.modules.titanium.ui.ViewProxy;
+
+import android.view.ViewGroup;
+
 public class TiTabActivity extends ActivityGroup
 	implements ITiWindowHandler
 {
@@ -41,7 +45,7 @@ public class TiTabActivity extends ActivityGroup
 	public void setTabGroupProxy(TabGroupProxy proxy) {
 		this.proxy = proxy;
 	}
-	
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
@@ -55,6 +59,7 @@ public class TiTabActivity extends ActivityGroup
 		Messenger messenger = null;
 		Integer messageId = null;
 		boolean vertical = false;
+		boolean titleControl = false;
 
 		if (intent != null) {
 			if (intent.hasExtra("fullscreen")) {
@@ -70,6 +75,9 @@ public class TiTabActivity extends ActivityGroup
 			if (intent.hasExtra("vertical")) {
 				vertical = intent.getBooleanExtra("vertical", vertical);
 			}
+			if (intent.hasExtra("titleControl")) {
+				titleControl = intent.getBooleanExtra("titleControl", titleControl);
+			}
 		}
 
 		layout = new TiCompositeLayout(this, vertical);
@@ -79,7 +87,9 @@ public class TiTabActivity extends ActivityGroup
 					WindowManager.LayoutParams.FLAG_FULLSCREEN);
 		}
 
-		if (navbar) {
+		if(titleControl){
+			this.requestWindowFeature(Window.FEATURE_CUSTOM_TITLE);
+		}else if (navbar) {
 			this.requestWindowFeature(Window.FEATURE_LEFT_ICON); // TODO Keep?
 			this.requestWindowFeature(Window.FEATURE_RIGHT_ICON);
 			this.requestWindowFeature(Window.FEATURE_PROGRESS);
@@ -129,6 +139,15 @@ public class TiTabActivity extends ActivityGroup
 		return layout;
 	}
 
+	public void setTitleControl(ViewProxy v){
+		try{
+			int titleContainerId = (Integer) Class.forName("com.android.internal.R$id").getField("title_container").get(null);
+			((ViewGroup) getWindow().findViewById(titleContainerId)).removeAllViews();
+			((ViewGroup) getWindow().findViewById(titleContainerId)).addView(v.getView(this).getNativeView());
+		}catch(Exception ex){
+				Log.d(LCAT, "couldn't set titleControl on tabGroup ", ex);
+		}
+	}
 
 	@Override
 	public void addWindow(View v, LayoutParams params) {
