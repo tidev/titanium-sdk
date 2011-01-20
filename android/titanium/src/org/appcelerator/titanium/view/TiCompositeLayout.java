@@ -35,7 +35,7 @@ public class TiCompositeLayout extends ViewGroup
 	protected LayoutArrangement arrangement;
 	
 	// Used by horizonal arrangement calculations
-	private int horizontalLayoutCurrentTop = 0;
+	private int horizontalLayoutTopBuffer = 0;
 	private int horizontalLayoutCurrentLeft = 0;
 	private int horizontalLayoutLineHeight = 0;
 
@@ -324,9 +324,9 @@ public class TiCompositeLayout extends ViewGroup
 					if (i == 0)  {
 						horizontalLayoutCurrentLeft = left;
 						horizontalLayoutLineHeight = 0;
-						horizontalLayoutCurrentTop = top;
+						horizontalLayoutTopBuffer = 0;
 					}
-					computeHorizontalLayoutPosition(params, childMeasuredWidth, childMeasuredHeight, right, bottom, horizontal, vertical);
+					computeHorizontalLayoutPosition(params, childMeasuredWidth, childMeasuredHeight, right, top, bottom, horizontal, vertical);
 				} else {
 					computePosition(this, params.optionLeft, params.optionCenterX, params.optionRight, childMeasuredWidth, left, right, horizontal);
 					if (isVerticalArrangement()) {
@@ -401,7 +401,7 @@ public class TiCompositeLayout extends ViewGroup
 		pos[1] = bottom;
 	}
 
-	private void computeHorizontalLayoutPosition(TiCompositeLayout.LayoutParams params, int measuredWidth, int measuredHeight, int layoutRight, int layoutBottom, int[] hpos, int[] vpos)
+	private void computeHorizontalLayoutPosition(TiCompositeLayout.LayoutParams params, int measuredWidth, int measuredHeight, int layoutRight, int layoutTop, int layoutBottom, int[] hpos, int[] vpos)
 	{
 		TiDimension optionLeft = params.optionLeft;
 		int left = horizontalLayoutCurrentLeft;
@@ -413,15 +413,18 @@ public class TiCompositeLayout extends ViewGroup
 			// Too long for the current "line" that it's on.  Need to move it down.
 			left = 0;
 			right = measuredWidth;
-			horizontalLayoutCurrentTop = horizontalLayoutCurrentTop + horizontalLayoutLineHeight;
+			horizontalLayoutTopBuffer = horizontalLayoutTopBuffer + horizontalLayoutLineHeight;
 			horizontalLayoutLineHeight = 0;
 		}
 		hpos[0] = left;
 		hpos[1] = right;
 		horizontalLayoutCurrentLeft = right;
 		// Get vertical position into vpos
-		computePosition(this, params.optionTop, params.optionCenterY, params.optionBottom, measuredHeight, horizontalLayoutCurrentTop, layoutBottom, vpos);
-		horizontalLayoutLineHeight = Math.max(horizontalLayoutLineHeight, vpos[1] - horizontalLayoutCurrentTop);
+		computePosition(this, params.optionTop, params.optionCenterY, params.optionBottom, measuredHeight, layoutTop, layoutBottom, vpos);
+		horizontalLayoutLineHeight = Math.max(horizontalLayoutLineHeight, vpos[1] - vpos[0]);
+		// account for moving the item "down" to later line(s) if there has been wrapping.
+		vpos[0] = vpos[0] + horizontalLayoutTopBuffer;
+		vpos[1] = vpos[1] + horizontalLayoutTopBuffer;
 	}
 
 	protected int getWidthMeasureSpec(View child) {
