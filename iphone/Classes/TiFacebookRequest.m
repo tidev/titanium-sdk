@@ -6,7 +6,7 @@
  */
 
 #import "TiFacebookRequest.h"
-
+#import "SBJSON.h"
 
 @implementation TiFacebookRequest
 
@@ -67,7 +67,13 @@
 {
 	VerboseLog(@"[DEBUG] facebook didLoad");
 	NSMutableDictionary *event = [self eventParameters:YES];
-	[event setObject:result forKey:@"result"];
+	
+	// On Android, Facebook is a little braindead and so it returns the stringified result without parsing the JSON.
+	// But here, we do the opposite.  So... we re-stringify and ship as a JSON string.
+	
+	NSString* resultString = [SBJSON stringify:result];
+	
+	[event setObject:resultString forKey:@"result"];
 	[module _fireEventToListener:@"result" withObject:event listener:callback thisObject:nil];
 	[self autorelease];
 }

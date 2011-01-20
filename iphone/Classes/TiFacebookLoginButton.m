@@ -86,6 +86,7 @@
 	button.isLoggedIn = [[self module] isLoggedIn];
 	button.style = buttonStyle;
 	[button updateImage];
+	[button sizeToFit];
 	
 	[button addTarget:self action:@selector(clicked:) forControlEvents:UIControlEventTouchUpInside];
 	
@@ -99,6 +100,8 @@
 	if (button != nil) {
 		button.style = [self getStyleAndChangeSize:style];
 		[button updateImage];
+		[button sizeToFit];
+		[self recenterButton];
 	}
 }
 
@@ -108,6 +111,7 @@
 {
 	button.isLoggedIn = YES;
 	[button updateImage];
+	[button sizeToFit];
 	[self recenterButton];
 }
 
@@ -115,6 +119,7 @@
 {
 	button.isLoggedIn = NO;
 	[button updateImage];
+	[button sizeToFit];
 	[self recenterButton];
 }
 
