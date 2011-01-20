@@ -1,0 +1,48 @@
+- namespace
+
+Titanium.Android.Notification
+
+- type
+
+proxy
+
+- description
+
+The Titanium binding of an [Android Notification](http://developer.android.com/reference/android/app/Notification.html). 
+
+- since
+
+1.5
+
+- platforms
+
+android
+
+- methods
+
+setLatestEventInfo: Sets the latest event info using the builtin Notification View for this notification. See Android's documentation for [setLatestEventInfo](http://developer.android.com/reference/android/app/Notification.html#setLatestEventInfo(android.content.Context, java.lang.CharSequence, java.lang.CharSequence, android.app.PendingIntent))
+
+- properties
+
+icon[int, string] : A resource id or URL to an icon (the URL must be an image located in Resources/android/images/<density> or an Android content URI)
+tickerText[string] : Text to scroll across the screen when this item is added to the status bar.
+when[date, int] : The timestamp for the notification (defaults to the current time)
+audioStreamType[int] : The audio stream type to use when playing the sound.
+defaults[int] : Specifies which values should be taken from the defaults.
+deleteIntent[object] : The `Titanium.Android.PendingIntent` to execute when the status entry is deleted by the user with the "Clear All Notifications" button.
+flags[int] : Set of flags for the notification, defaults to `Titanium.Android.FLAG_AUTO_CANCEL`. Possible values: `Titanium.Android.FLAG_AUTO_CANCEL`, `Titanium.Android.FLAG_INSISTENT`, `Titanium.Android.FLAG_NO_CLEAR`, `Titanium.Android.FLAG_ONGOING_EVENT`, `Titanium.Android.FLAG_ONLY_ALERT_ONCE`, `Titanium.Android.FLAG_SHOW_LIGHTS`
+ledOffMS[int] : The number of milliseconds for the LED to be off while it's flashing.
+ledOnMS[int] : The number of milliseconds for the LED to be on while it's flashing.
+ledARGB[int] : The color for the LED to blink
+number[int] : The number of events that this notification represents.
+sound[string]: A URL to the sound to play (supports Android + Titanium URLs)
+contentTitle[string] : Title of the notification.
+contentText[string] : Description text of the notification.
+contentIntent[object] : The `Titanium.Android.PendingIntent` to execute when the expanded status entry is clicked.
+contentView[`Titanium.Android.RemoteViews`]
+
+- notes
+
+If you pass contentTitle and/or contentText into `Titanium.Android.createNotification`, then setLatestEventInfo will automatically be called with those properties (there's no need to call it separately unless you want to). You can also use a custom layout.xml wrapped in a `Titanium.Android.RemoteViews` object in the contentView property, which gives more fine grained control and customization to how the notification actually behaves.
+
+Also see [Android's developer guide for Notifications](http://developer.android.com/guide/topics/ui/notifiers/notifications.html)

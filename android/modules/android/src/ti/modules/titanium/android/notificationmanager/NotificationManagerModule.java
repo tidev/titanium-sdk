@@ -6,12 +6,13 @@
  */
 package ti.modules.titanium.android.notificationmanager;
 
+import org.appcelerator.kroll.KrollInvocation;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
+import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiContext;
 
 import ti.modules.titanium.android.AndroidModule;
-
 import android.app.Activity;
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -19,7 +20,7 @@ import android.app.NotificationManager;
 @Kroll.module(parentModule=AndroidModule.class)
 public class NotificationManagerModule extends KrollModule
 {
-	private static final String LCAT = "TiAndroid";
+	private static final String LCAT = "TiNotificationManager";
 
 	protected static final int PENDING_INTENT_FOR_ACTIVITY = 0;
 	protected static final int PENDING_INTENT_FOR_SERVICE = 1;
@@ -38,26 +39,39 @@ public class NotificationManagerModule extends KrollModule
 	@Kroll.constant public static final int FLAG_SHOW_LIGHTS = Notification.FLAG_SHOW_LIGHTS;
 	@Kroll.constant public static final int STREAM_DEFAULT = Notification.STREAM_DEFAULT;
 	
-	public NotificationManagerModule(TiContext tiContext) {
+	public NotificationManagerModule(TiContext tiContext)
+	{
 		super(tiContext);
 	}
 
-	private NotificationManager getManager() {
-		return (NotificationManager) getTiContext().getActivity().getApplicationContext().getSystemService(Activity.NOTIFICATION_SERVICE);
+	// Kept for compatibility with 1.5.x
+	public NotificationProxy createNotification(KrollInvocation invocation, Object[] args)
+	{
+		NotificationProxy notification = new NotificationProxy(invocation.getTiContext());
+		notification.handleCreationArgs(this, args);
+		return notification;
+	}
+
+	private NotificationManager getManager(KrollInvocation invocation)
+	{
+		return (NotificationManager) invocation.getActivity().getSystemService(Activity.NOTIFICATION_SERVICE);
 	}
 	
 	@Kroll.method
-	public void cancel(int id) {
-		getManager().cancel(id);
+	public void cancel(KrollInvocation invocation, int id)
+	{
+		getManager(invocation).cancel(id);
 	}
 	
 	@Kroll.method
-	public void cancelAll() {
-		getManager().cancelAll();
+	public void cancelAll(KrollInvocation invocation)
+	{
+		getManager(invocation).cancelAll();
 	}
 	
 	@Kroll.method
-	public void notify(int id, NotificationProxy notificationProxy) {
-		getManager().notify(id, notificationProxy.getNotification());
+	public void notify(KrollInvocation invocation, int id, NotificationProxy notificationProxy)
+	{
+		getManager(invocation).notify(id, notificationProxy.getNotification());
 	}	
 }

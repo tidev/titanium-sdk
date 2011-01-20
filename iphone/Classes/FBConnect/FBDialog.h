@@ -1,5 +1,5 @@
 /*
- * Copyright 2009 Facebook
+ * Copyright 2010 Facebook
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,15 +14,21 @@
  * limitations under the License.
 */
 #ifdef USE_TI_FACEBOOK
+#import <Foundation/Foundation.h>
+#import <UIKit/UIKit.h>
 
-#import "FBConnectGlobal.h"
+@protocol FBDialogDelegate2;
 
-@protocol FBDialogDelegate;
-@class FBSession;
+/**
+ * Do not use this interface directly, instead, use dialog in Facebook.h
+ *
+ * Facebook dialog interface for start the facebook webView UIServer Dialog.
+ */
 
-@interface FBDialog : UIView <UIWebViewDelegate> {
-  id<FBDialogDelegate> _delegate;
-  FBSession* _session;
+@interface FBDialog2 : UIView <UIWebViewDelegate> {
+  id<FBDialogDelegate2> _delegate;
+  NSMutableDictionary *_params;
+  NSString * _serverURL;
   NSURL* _loadingURL;
   UIWebView* _webView;
   UIActivityIndicatorView* _spinner;
@@ -36,22 +42,23 @@
 /**
  * The delegate.
  */
-@property(nonatomic,assign) id<FBDialogDelegate> delegate;
+@property(nonatomic,assign) id<FBDialogDelegate2> delegate;
 
 /**
- * The session for which the login is taking place.
+ * The parameters.
  */
-@property(nonatomic,assign) FBSession* session;
+@property(nonatomic, retain) NSMutableDictionary* params;
 
 /**
- * The title that is shown in the header atop the view;
+ * The title that is shown in the header atop the view.
  */
 @property(nonatomic,copy) NSString* title;
 
-/**
- * Creates the view but does not display it.
- */
-- (id)initWithSession:(FBSession*)session;
+- (NSString *) getStringFromUrl: (NSString*) url needle:(NSString *) needle;
+
+- (id)initWithURL: (NSString *) loadingURL 
+           params: (NSMutableDictionary *) params  
+         delegate: (id <FBDialogDelegate2>) delegate;
 
 /**
  * Displays the view with an animation.
@@ -70,8 +77,8 @@
 /**
  * Displays a URL in the dialog.
  */
-- (void)loadURL:(NSString*)url method:(NSString*)method get:(NSDictionary*)getParams
-        post:(NSDictionary*)postParams;
+- (void)loadURL:(NSString*)url 
+            get:(NSDictionary*)getParams;
 
 /**
  * Hides the view and notifies delegates of success or cancellation.
@@ -98,30 +105,49 @@
  *
  * Implementations must call dismissWithSuccess:YES at some point to hide the dialog.
  */
-- (void)dialogDidSucceed:(NSURL*)url;
+- (void)dialogDidSucceed:(NSURL *)url;
 
+/**
+ * Subclasses should override to process data returned from the server in a 'fbconnect' url.
+ *
+ * Implementations must call dismissWithSuccess:YES at some point to hide the dialog.
+ */
+- (void)dialogDidCancel:(NSURL *)url;
 @end
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-@protocol FBDialogDelegate <NSObject>
+/*
+ *Your application should implement this delegate 
+ */
+@protocol FBDialogDelegate2 <NSObject>
 
 @optional
 
 /**
  * Called when the dialog succeeds and is about to be dismissed.
  */
-- (void)dialogDidSucceed:(FBDialog*)dialog;
+- (void)dialogDidComplete:(FBDialog2 *)dialog;
+
+/**
+ * Called when the dialog succeeds with a returning url.
+ */
+- (void)dialogCompleteWithUrl:(NSURL *)url;
+
+/**
+ * Called when the dialog get canceled by the user.
+ */
+- (void)dialogDidNotCompleteWithUrl:(NSURL *)url;
 
 /**
  * Called when the dialog is cancelled and is about to be dismissed.
  */
-- (void)dialogDidCancel:(FBDialog*)dialog;
+- (void)dialogDidNotComplete:(FBDialog2 *)dialog;
 
 /**
  * Called when dialog failed to load due to an error.
  */
-- (void)dialog:(FBDialog*)dialog didFailWithError:(NSError*)error;
+- (void)dialog:(FBDialog2*)dialog didFailWithError:(NSError *)error;
 
 /**
  * Asks if a link touched by a user should be opened in an external browser.
@@ -133,8 +159,7 @@
  * should hold onto the URL and once you have received their acknowledgement open the URL yourself
  * using [[UIApplication sharedApplication] openURL:].
  */
-- (BOOL)dialog:(FBDialog*)dialog shouldOpenURLInExternalBrowser:(NSURL*)url;
+- (BOOL)dialog:(FBDialog2*)dialog shouldOpenURLInExternalBrowser:(NSURL *)url;
 
 @end
-
 #endif

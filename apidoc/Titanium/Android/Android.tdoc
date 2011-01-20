@@ -22,32 +22,42 @@ android
 
 createIntent : Create a `Titanium.Android.Intent`. Used to start other Activities and for marshaling data.
 createIntentChooser : Display chooser interface to allow selection of desired target.
+createNotification : Crate a `Titanium.Android.Notification`. Used to notify the user of an event.
 createService : Create a `Titanium.Android.Service` so you can start/stop it and listen for events from it.
-createServiceIntent : Create an Intent to be used to start a Service.
+createServiceIntent : Create an `Titanium.Android.Intent` to be used to start a Service.
 isServiceRunning : Check on state of Service.
 startService : Start a simple service
 stopService : Stop a simple service that was started with `startService`.
+createBroadcastIntent : Create a `Titanium.Android.Intent` to be used to start a Broadcast.
+createPendingIntent : Create a `Titanium.Android.PendingIntent` to be used inside a `Titanium.Android.Notification`
 
 - method : createIntent, `Titanium.Android.Intent`
 
 - method : createIntentChooser, `Titanium.Android.Intent`
 
-- method : createService, `Titanium.Android.Service`
-intent[object]: A `Titanium.Android.Intent` object created with `Titanium.Android.createServiceIntent` which specifies the service to be instantiated.
+- method : createNotification, `Titanium.Android.Notification`
+options[object]: Options dictionary
 
+- method : createService, `Titanium.Android.Service`
+intent[`Titanium.Android.Intent`]: An Intent created with `Titanium.Android.createServiceIntent` which specifies the service to be instantiated.
 
 - method : createServiceIntent, `Titanium.Android.Intent`
 options[object]: Options dictionary -- pass in a `url` option to specify the path to a javascript-based service you create.
 
 - method : isServiceRunning, boolean
-intent[object]: A `Titanium.Android.Intent` object created with `Titanium.Android.createServiceIntent` which specifies the service to check.
+intent[`Titanium.Android.Intent`]: An Intent created with `Titanium.Android.createServiceIntent` which specifies the service to check.
 
 - method : startService
-intent[object]: A `Titanium.Android.Intent` object created with `Titanium.Android.createServiceIntent` which specifies the service to start.
-
+intent[`Titanium.Android.Intent`]: An Intent created with `Titanium.Android.createServiceIntent` which specifies the service to start.
 
 - method : stopService
-intent[object]: A `Titanium.Android.Intent` object created with `Titanium.Android.createServiceIntent` which specifies the service to stop.
+intent[`Titanium.Android.Intent`]: An Intent created with `Titanium.Android.createServiceIntent` which specifies the service to stop.
+
+- method : createBroadcastIntent, `Titanium.Android.Intent`
+
+- method : createPendingIntent, `Titanium.Android.PendingIntent`
+intent[`Titanium.Android.Intent`]: The Intent that will be executed
+flags[int]: (optional, default: 0) Can be any of `Titanium.Android.FLAG_CANCEL_CURRENT`, `Titanium.Android.FLAG_NO_CREATE`, `Titanium.Android.FLAG_ONE_SHOT`, `Titanium.Android.FLAG_UPDATE_CURRENT` 
 
 - properties
 
@@ -221,6 +231,18 @@ SCREEN_ORIENTATION_PORTRAIT[int] :
 SCREEN_ORIENTATION_SENSOR[int] : 
 SCREEN_ORIENTATION_UNSPECIFIED[int] : 
 SCREEN_ORIENTATION_USER[int] : 
+
+DEFAULT_ALL[int] : Use all default values (where applicable).
+DEFAULT_LIGHTS[int] : Use the default notification lights.
+DEFAULT_SOUND[int] : Use the default notification sound.
+DEFAULT_VIBRATE[int] : Use the default notification vibrate.
+FLAG_AUTO_CANCEL[int] : Bit to be bitwise-ored into the flags field that should be set if the notification should be canceled when it is clicked by the user.
+FLAG_INSISTENT[int] : Bit to be bitwise-ored into the flags field that if set, the audio will be repeated until the notification is cancelled or the notification window is opened.
+FLAG_NO_CLEAR[int] : Bit to be bitwise-ored into the flags field that should be set if the notification should not be canceled when the user clicks the Clear all button.
+FLAG_ONGOING_EVENT[int] : Bit to be bitwise-ored into the flags field that should be set if this notification is in reference to something that is ongoing, like a phone call.
+FLAG_ONLY_ALERT_ONCE[int] : Bit to be bitwise-ored into the flags field that should be set if you want the sound and/or vibration play each time the notification is sent, even if it has not been canceled before that.
+FLAG_SHOW_LIGHTS[int] : Bit to be bitwise-ored into the flags field that should be set if you want the LED on for this notification.
+STREAM_DEFAULT[int] : Use this constant as the value for audioStreamType to request that the default stream type for notifications be used.
 
 - notes
 

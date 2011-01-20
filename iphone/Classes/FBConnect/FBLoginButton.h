@@ -1,5 +1,5 @@
 /*
- * Copyright 2009 Facebook
+ * Copyright 2010 Facebook
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,13 +14,12 @@
  * limitations under the License.
 */
 #ifdef USE_TI_FACEBOOK
+#import <UIKit/UIKit.h>
 
-#import "FBSession.h"
+#define FB_LOGIN_BUTTON_NORMAL	0
+#define FB_LOGIN_BUTTON_WIDE	1
 
-typedef enum {
-  FBLoginButtonStyleNormal,
-  FBLoginButtonStyleWide,
-} FBLoginButtonStyle;
+
 
 /**
  * Standard button which lets the user log in or out of the session.
@@ -28,25 +27,15 @@ typedef enum {
  * The button will automatically change to reflect the state of the session, showing
  * "login" if the session is not connected, and "logout" if the session is connected.
  */
-@interface FBLoginButton : UIControl <FBSessionDelegate> {
-  FBLoginButtonStyle _style;
-  FBSession* _session;
-  UIImageView* _imageView;
+@interface FBLoginButton2 : UIButton {
+	BOOL  _isLoggedIn;
+	NSInteger _style;
 }
 
-/**
- * The visual style of the button.
- */
-@property(nonatomic) FBLoginButtonStyle style;
+@property(nonatomic) BOOL isLoggedIn; 
+@property(nonatomic,assign) NSInteger style;
 
-/**
- * The session object that the button will log in and out of.
- *
- * The default value is the global session singleton, so there is usually no need to
- * set this property yourself.
- */
-@property(nonatomic,retain) FBSession* session;
+- (void) updateImage;
 
 @end
-
 #endif

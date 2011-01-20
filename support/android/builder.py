@@ -1602,7 +1602,7 @@ if __name__ == "__main__":
 		else:
 			error("Unknown command: %s" % command)
 			usage()
-	except SystemExit as n:
+	except SystemExit, n:
 		sys.exit(n)
 	except:
 		exctype, excvalue = sys.exc_info()[:2]
