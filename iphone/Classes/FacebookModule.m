@@ -29,7 +29,7 @@
 
 -(void)_save 
 {
-	NSLog(@"[DEBUG] facebook _save");
+	VerboseLog(@"[DEBUG] facebook _save");
 	NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
 	if ((uid != (NSString *) [NSNull null]) && (uid.length > 0)) {
 		[defaults setObject:uid forKey:@"FBUserId"];
@@ -62,7 +62,7 @@
 
 -(void)_unsave 
 {
-	NSLog(@"[DEBUG] facebook _unsave");
+	VerboseLog(@"[DEBUG] facebook _unsave");
 	NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
 	[defaults removeObjectForKey:@"FBUserId"];
 	[defaults removeObjectForKey:@"FBAccessToken"];
@@ -73,18 +73,18 @@
 
 -(id)_restore 
 {
-	NSLog(@"[DEBUG] facebook _restore");
+	VerboseLog(@"[DEBUG] facebook _restore");
 	RELEASE_TO_NIL(uid);
 	RELEASE_TO_NIL(facebook);
 	RELEASE_TO_NIL(appid);
 	NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
 	NSString *uid_ = [defaults objectForKey:@"FBUserId"];
-	NSLog(@"[DEBUG] facebook _restore, uid = %@",uid_);
+	VerboseLog(@"[DEBUG] facebook _restore, uid = %@",uid_);
 	facebook = [[Facebook alloc] init];
 	if (uid_) 
 	{
 		NSDate* expirationDate = [defaults objectForKey:@"FBSessionExpires"];
-		NSLog(@"[DEBUG] facebook _restore, expirationDate = %@",expirationDate);
+		VerboseLog(@"[DEBUG] facebook _restore, expirationDate = %@",expirationDate);
 		if (!expirationDate || [expirationDate timeIntervalSinceNow] > 0) {
 			uid = [uid_ copy];
 			facebook.accessToken = [defaults stringForKey:@"FBAccessToken"];
@@ -133,14 +133,14 @@
 
 -(void)resumed:(id)note
 {
-	NSLog(@"[DEBUG] facebook resumed");
+	VerboseLog(@"[DEBUG] facebook resumed");
 	
 	[self handleRelaunch];
 }
 
 -(void)startup
 {
-	NSLog(@"[DEBUG] facebook startup");
+	VerboseLog(@"[DEBUG] facebook startup");
 	
 	[super startup];
 	[self _restore];
@@ -149,7 +149,7 @@
 
 -(void)shutdown:(id)sender
 {
-	NSLog(@"[DEBUG] facebook shutdown");
+	VerboseLog(@"[DEBUG] facebook shutdown");
 
 	[[NSNotificationCenter defaultCenter] removeObserver:self];
 	[super shutdown:sender];
@@ -158,6 +158,51 @@
 -(BOOL)isLoggedIn
 {
 	return (facebook!=nil) && ([facebook isSessionValid]) && loggedIn;
+}
+
+#pragma mark Internal
+
+-(NSString*)convertBlobParams:(NSMutableDictionary*)params
+{
+	NSString* httpMethod;
+	for (NSString *key in [params allKeys])
+	{
+		id param = [params objectForKey:key];
+		
+		// convert to blob
+		if ([param isKindOfClass:[TiFile class]])
+		{
+			TiFile *file = (TiFile*)param;
+			if ([file size] > 0)
+			{
+				param = [file toBlob:nil];
+			}
+			else 
+			{
+				// empty file?
+				param = [[[TiBlob alloc] initWithData:[NSData data] mimetype:@"text/plain"] autorelease];
+			}
+		}
+		
+		// this is an attachment, we need to convert to POST and switch to blob
+		if ([param isKindOfClass:[TiBlob class]])
+		{
+			httpMethod = @"POST";
+			TiBlob *blob = (TiBlob*)param;
+			VerboseLog(@"[DEBUG] detected blob with mime: %@",[blob mimeType]);
+			if ([[blob mimeType] hasPrefix:@"image/"])
+			{
+				UIImage *image = [blob image];
+				[params setObject:image forKey:key];
+			}
+			else
+			{
+				NSData *data = [blob data];
+				[params setObject:data forKey:key];
+			}
+		}
+	}
+	return httpMethod;
 }
 
 #pragma mark Public APIs
@@ -293,7 +338,7 @@
  */
 -(void)authorize:(id)args
 {
-	NSLog(@"[DEBUG] facebook authorize");
+	VerboseLog(@"[DEBUG] facebook authorize");
 
 	if ([self isLoggedIn])
 	{
@@ -322,7 +367,7 @@
  */
 -(void)logout:(id)args
 {
-	NSLog(@"[DEBUG] facebook logout");
+	VerboseLog(@"[DEBUG] facebook logout");
 	if ([self isLoggedIn])
 	{
 		[facebook logout:self];
@@ -346,17 +391,20 @@
  */
 -(void)requestWithGraphPath:(id)args
 {
-	NSLog(@"[DEBUG] facebook requestWithGraphPath");
+	VerboseLog(@"[DEBUG] facebook requestWithGraphPath");
 
-	ENSURE_ARG_COUNT(args,3);
+	ENSURE_ARG_COUNT(args,4);
 	ENSURE_UI_THREAD_1_ARG(args);
 	
 	NSString* path = [args objectAtIndex:0];
 	NSMutableDictionary* params = [args objectAtIndex:1];
-	KrollCallback* callback = [args objectAtIndex:2];
+	NSString* httpMethod = [args objectAtIndex:2];
+	KrollCallback* callback = [args objectAtIndex:3];
 
+	[self convertBlobParams:params];
+	
 	TiFacebookRequest* delegate = [[[TiFacebookRequest alloc] initWithPath:path callback:callback module:self graph:YES] autorelease];
-	[facebook requestWithGraphPath:path andParams:params andDelegate:delegate];
+	[facebook requestWithGraphPath:path andParams:params andHttpMethod:httpMethod andDelegate:delegate];
 }
 
 /**
@@ -376,7 +424,7 @@
  */
 -(void)request:(id)args
 {
-	NSLog(@"[DEBUG] facebook request");
+	VerboseLog(@"[DEBUG] facebook request");
 
 	ENSURE_ARG_COUNT(args,3);
 	ENSURE_UI_THREAD_1_ARG(args);
@@ -386,43 +434,9 @@
 	KrollCallback* callback = [args objectAtIndex:2];
 	
 	NSString *httpMethod = @"GET";
-	
-	for (NSString *key in [params allKeys])
-	{
-		id param = [params objectForKey:key];
-
-		// convert to blob
-		if ([param isKindOfClass:[TiFile class]])
-		{
-			TiFile *file = (TiFile*)param;
-			if ([file size] > 0)
-			{
-				param = [file toBlob:nil];
-			}
-			else 
-			{
-				// empty file?
-				param = [[[TiBlob alloc] initWithData:[NSData data] mimetype:@"text/plain"] autorelease];
-			}
-		}
-		
-		// this is an attachment, we need to convert to POST and switch to blob
-		if ([param isKindOfClass:[TiBlob class]])
-		{
-			httpMethod = @"POST";
-			TiBlob *blob = (TiBlob*)param;
-			NSLog(@"[DEBUG] detected blob with mime: %@",[blob mimeType]);
-			if ([[blob mimeType] hasPrefix:@"image/"])
-			{
-				UIImage *image = [blob image];
-				[params setObject:image forKey:key];
-			}
-			else
-			{
-				NSData *data = [blob data];
-				[params setObject:data forKey:key];
-			}
-		}
+	NSString* changedHttpMethod = [self convertBlobParams:params];
+	if (changedHttpMethod != nil) {
+		httpMethod = changedHttpMethod;
 	}
 	
 	TiFacebookRequest* delegate = [[[TiFacebookRequest alloc] initWithPath:method callback:callback module:self graph:NO] autorelease];
@@ -445,11 +459,13 @@
 	ENSURE_ARG_COUNT(args,3);
 	ENSURE_UI_THREAD_1_ARG(args);
 
-	NSLog(@"[DEBUG] facebook dialog");
+	VerboseLog(@"[DEBUG] facebook dialog");
 
 	NSString* action = [args objectAtIndex:0];
 	NSMutableDictionary* params = [args objectAtIndex:1];
 	KrollCallback* callback = [args objectAtIndex:2];
+	
+	[self convertBlobParams:params];
 	
 	TiFacebookDialogRequest *delegate = [[[TiFacebookDialogRequest alloc] initWithCallback:callback module:self] autorelease];
 	[facebook dialog:action andParams:params andDelegate:delegate];
@@ -496,7 +512,7 @@
  */
 - (void)fbDidLogin
 {
-	NSLog(@"[DEBUG] facebook fbDidLogin");
+	VerboseLog(@"[DEBUG] facebook fbDidLogin");
 
 	[facebook requestWithGraphPath:@"me" andDelegate:self];
 }
@@ -506,7 +522,7 @@
  */
 - (void)fbDidNotLogin:(BOOL)cancelled
 {
-	NSLog(@"[DEBUG] facebook fbDidNotLogin: cancelled=%d",cancelled);
+	VerboseLog(@"[DEBUG] facebook fbDidNotLogin: cancelled=%d",cancelled);
 	loggedIn = NO;
 	[self fireLoginChange];
 	NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:NUMBOOL(cancelled),@"cancelled",NUMBOOL(NO),@"success",nil];
@@ -518,7 +534,7 @@
  */
 - (void)fbDidLogout
 {
-	NSLog(@"[DEBUG] facebook fbDidLogout");
+	VerboseLog(@"[DEBUG] facebook fbDidLogout");
 	
 	loggedIn = NO;
 	[self _unsave];
@@ -533,7 +549,7 @@
  */
 - (void)request:(FBRequest2*)request didLoad:(id)result
 {
-	NSLog(@"[DEBUG] facebook didLoad");
+	VerboseLog(@"[DEBUG] facebook didLoad");
 	
 	RELEASE_TO_NIL(uid);
 	uid = [[result objectForKey:@"id"] copy]; 
@@ -547,7 +563,7 @@
 
 - (void)request:(FBRequest2*)request didFailWithError:(NSError*)error 
 {
-	NSLog(@"[DEBUG] facebook didFailWithError: %@",error);
+	VerboseLog(@"[DEBUG] facebook didFailWithError: %@",error);
 	
 	RELEASE_TO_NIL(uid);
 	loggedIn = NO;
