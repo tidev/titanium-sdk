@@ -322,13 +322,11 @@ public class TiCompositeLayout extends ViewGroup
 				
 				if (isHorizontalArrangement()) {
 					if (i == 0)  {
-						horizontalLayoutCurrentLeft = 0;
+						horizontalLayoutCurrentLeft = left;
 						horizontalLayoutLineHeight = 0;
-						// Calculate vertical position of first item in a horizontal layout
-						computePosition(this, params.optionTop, params.optionCenterY, params.optionBottom, childMeasuredHeight, top, bottom, vertical);
-						horizontalLayoutCurrentTop = vertical[0];
+						horizontalLayoutCurrentTop = top;
 					}
-					computeHorizontalLayoutPosition(params.optionLeft, childMeasuredWidth, childMeasuredHeight, left, right, horizontal, vertical);
+					computeHorizontalLayoutPosition(params, childMeasuredWidth, childMeasuredHeight, right, bottom, horizontal, vertical);
 				} else {
 					computePosition(this, params.optionLeft, params.optionCenterX, params.optionRight, childMeasuredWidth, left, right, horizontal);
 					if (isVerticalArrangement()) {
@@ -403,8 +401,9 @@ public class TiCompositeLayout extends ViewGroup
 		pos[1] = bottom;
 	}
 
-	private void computeHorizontalLayoutPosition(TiDimension optionLeft, int measuredWidth, int measuredHeight, int layoutLeft, int layoutRight, int[] hpos, int[] vpos)
+	private void computeHorizontalLayoutPosition(TiCompositeLayout.LayoutParams params, int measuredWidth, int measuredHeight, int layoutRight, int layoutBottom, int[] hpos, int[] vpos)
 	{
+		TiDimension optionLeft = params.optionLeft;
 		int left = horizontalLayoutCurrentLeft;
 		if (optionLeft != null) {
 			left += optionLeft.getAsPixels(this);
@@ -414,15 +413,15 @@ public class TiCompositeLayout extends ViewGroup
 			// Too long for the current "line" that it's on.  Need to move it down.
 			left = 0;
 			right = measuredWidth;
-			horizontalLayoutCurrentTop = horizontalLayoutCurrentTop + horizontalLayoutLineHeight + 1;
+			horizontalLayoutCurrentTop = horizontalLayoutCurrentTop + horizontalLayoutLineHeight;
 			horizontalLayoutLineHeight = 0;
 		}
-		horizontalLayoutLineHeight = Math.max(horizontalLayoutLineHeight, measuredHeight);
 		hpos[0] = left;
 		hpos[1] = right;
-		vpos[0] = horizontalLayoutCurrentTop;
-		vpos[1] = horizontalLayoutCurrentTop + horizontalLayoutLineHeight;
-		horizontalLayoutCurrentLeft = right + 1;
+		horizontalLayoutCurrentLeft = right;
+		// Get vertical position into vpos
+		computePosition(this, params.optionTop, params.optionCenterY, params.optionBottom, measuredHeight, horizontalLayoutCurrentTop, layoutBottom, vpos);
+		horizontalLayoutLineHeight = Math.max(horizontalLayoutLineHeight, vpos[1] - horizontalLayoutCurrentTop);
 	}
 
 	protected int getWidthMeasureSpec(View child) {
