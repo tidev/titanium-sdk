@@ -1,10 +1,10 @@
 /*
- * Copyright 2009 Facebook
+ * Copyright 2010 Facebook
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *    http://www.apache.org/licenses/LICENSE-2.0
 
  * Unless required by applicable law or agreed to in writing, software
@@ -12,149 +12,95 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
-*/
+ */
 #ifdef USE_TI_FACEBOOK
+#import <Foundation/Foundation.h>
+#import <UIKit/UIKit.h>
 
-#import "FBConnectGlobal.h"
+//JGH: renamed FBRequest2 since current Ti SDK has same class built-in
 
-@protocol FBRequestDelegate;
-@class FBSession;
 
-@interface FBRequest : NSObject {
-  FBSession*            _session;
-  id<FBRequestDelegate> _delegate;
+@protocol FBRequestDelegate2;
+
+/**
+ * Do not use this interface directly, instead, use method in Facebook.h
+ */
+@interface FBRequest2 : NSObject {
+  id<FBRequestDelegate2> _delegate;
   NSString*             _url;
-  NSString*             _method;
-  id                    _userInfo;
+  NSString*             _httpMethod;
   NSMutableDictionary*  _params;
-  NSObject*             _dataParam;
-  NSDate*               _timestamp;
   NSURLConnection*      _connection;
   NSMutableData*        _responseText;
-  NSString*				_filename;
 }
 
-/**
- * Creates a new API request for the global session.
- */
-+ (FBRequest*)request;
 
-/**
- * Creates a new API request for the global session with a delegate.
- */
-+ (FBRequest*)requestWithDelegate:(id<FBRequestDelegate>)delegate;
-
-/**
- * Creates a new API request for a particular session.
- */
-+ (FBRequest*)requestWithSession:(FBSession*)session;
-
-/**
- * Creates a new API request for the global session with a delegate.
- */
-+ (FBRequest*)requestWithSession:(FBSession*)session delegate:(id<FBRequestDelegate>)delegate;
-
-@property(nonatomic,assign) id<FBRequestDelegate> delegate;
+@property(nonatomic,assign) id<FBRequestDelegate2> delegate;
 
 /**
  * The URL which will be contacted to execute the request.
  */
-@property(nonatomic,readonly) NSString* url;
+@property(nonatomic,copy) NSString* url;
 
 /**
  * The API method which will be called.
  */
-@property(nonatomic,readonly) NSString* method;
-
-/**
- * An object used by the user of the request to help identify the meaning of the request.
- */
-@property(nonatomic,retain) id userInfo;
+@property(nonatomic,copy) NSString* httpMethod;
 
 /**
  * The dictionary of parameters to pass to the method.
  *
- * These values in the dictionary will be converted to strings using the 
+ * These values in the dictionary will be converted to strings using the
  * standard Objective-C object-to-string conversion facilities.
  */
-@property(nonatomic,readonly) NSDictionary* params;
+@property(nonatomic,assign) NSMutableDictionary* params;
 
-/**
- * A data parameter.
- *
- * Used for methods such as photos.upload, video.upload, events.create, and
- * events.edit.
- */
-@property(nonatomic,readonly) NSObject* dataParam;
 
-/**
- * The timestamp of when the request was sent to the server.
- */
-@property(nonatomic,readonly) NSDate* timestamp;
+@property(nonatomic,assign) NSURLConnection*  connection;
 
-/**
- * Indicates if the request has been sent and is awaiting a response.
- */
-@property(nonatomic,readonly) BOOL loading;
+@property(nonatomic,assign) NSMutableData* responseText;
 
-/**
- * set the data filename -- JGH
- */
-@property(nonatomic,readonly) NSString *filename;
 
-/**
- * Creates a new request paired to a session.
- */
-- (id)initWithSession:(FBSession*)session;
++ (NSString*)serializeURL:(NSString *)baseUrl
+                   params:(NSDictionary*)params;
 
-/**
- * Calls a method on the server asynchronously.
- *
- * The delegate will be called for each stage of the loading process.
- */ 
-- (void)call:(NSString*)method params:(NSDictionary*)params;
++ (NSString*)serializeURL:(NSString *)baseUrl
+                   params:(NSDictionary*)params
+               httpMethod:(NSString *)httpMethod;
 
-/**
- * Calls a method on the server asynchronously, with a file upload component.
- *
- * The delegate will be called for each stage of the loading process.
- */ 
-- (void)call:(NSString*)method params:(NSDictionary*)params dataParam:(NSData*)dataParam filename:(NSString*)filename;
++ (FBRequest2*)getRequestWithParams:(NSMutableDictionary *) params
+                        httpMethod:(NSString *) httpMethod
+                          delegate:(id<FBRequestDelegate2>)delegate
+                        requestURL:(NSString *) url;
+- (BOOL) loading;
 
-/**
- * Calls a URL on the server asynchronously.
- *
- * The delegate will be called for each stage of the loading process.
- */ 
-- (void)post:(NSString*)url params:(NSDictionary*)params;
-
-/**
- * Stops an active request before the response has returned.
- */
-- (void)cancel;
+- (void) connect;
 
 @end
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-@protocol FBRequestDelegate <NSObject>
+/*
+ *Your application should implement this delegate
+ */
+@protocol FBRequestDelegate2 <NSObject>
 
 @optional
 
 /**
  * Called just before the request is sent to the server.
  */
-- (void)requestLoading:(FBRequest*)request;
+- (void)requestLoading:(FBRequest2*)request;
 
 /**
  * Called when the server responds and begins to send back data.
  */
-- (void)request:(FBRequest*)request didReceiveResponse:(NSURLResponse*)response;
+- (void)request:(FBRequest2*)request didReceiveResponse:(NSURLResponse*)response;
 
 /**
  * Called when an error prevents the request from completing successfully.
  */
-- (void)request:(FBRequest*)request didFailWithError:(NSError*)error;
+- (void)request:(FBRequest2*)request didFailWithError:(NSError*)error;
 
 /**
  * Called when a request returns and its response has been parsed into an object.
@@ -162,13 +108,14 @@
  * The resulting object may be a dictionary, an array, a string, or a number, depending
  * on thee format of the API response.
  */
-- (void)request:(FBRequest*)request didLoad:(id)result;
+- (void)request:(FBRequest2*)request didLoad:(id)result;
 
 /**
- * Called when the request was cancelled.
+ * Called when a request returns a response.
+ *
+ * The result object is the raw response from the server of type NSData
  */
-- (void)requestWasCancelled:(FBRequest*)request;
+- (void)request:(FBRequest2*)request didLoadRawResponse:(NSData*)data;
 
 @end
-
 #endif

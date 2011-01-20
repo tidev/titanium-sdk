@@ -44,7 +44,7 @@ rowHeight[float]: default row height for table view rows
 minRowHeight[float]: min row height for table view rows
 maxRowHeight[float]: max row height for table view rows
 data[array]: the data array of objects to be used for the rows of the table view
-style[int]: iPhone only. the style of the table view. constant from [Titanium.UI.iPhone.TableViewStyle](Titanium.UI.iPhone.TableViewStyle)
+style[int]: iPhone only. the style of the table view. constant from `Titanium.UI.iPhone.TableViewStyle`
 allowsSelection[boolean]: true if the rows can be selected
 allowsSelectionDuringEditing[boolean]: true if the rows can be selected while editing the table (iOS Only)
 scrollable[boolean]: true (default) if tableview can be scrolled

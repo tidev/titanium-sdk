@@ -1,73 +1,39 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
- * Licensed under the terms of the Apache Public License
- * Please see the LICENSE included with this distribution for details.
+ * Appcelerator Commercial License. Copyright (c) 2010 by Appcelerator, Inc.
+ *
+ * Appcelerator Titanium is Copyright (c) 2009-2010 by Appcelerator, Inc.
+ * and licensed under the Apache Public License (version 2)
  */
-#import "TiModule.h"
-
 #ifdef USE_TI_FACEBOOK
+#import "TiModule.h"
+#import "Facebook.h"
 
-#import "FBConnect.h"
-#import "KrollCallback.h"
-
-@interface FacebookModule : TiModule<FBSessionDelegate,FBDialogDelegate,FBRequestDelegate> {
-@private
-	FBSession *session;
-	FBLoginDialog *dialog;
-	NSRecursiveLock *lock;
-	BOOL pendingPermissions;
-	NSMutableDictionary *permissions;
-	NSMutableArray *pendingPermission;
-}
-
--(void)fetchPermissions:(id)value;
--(void)addPermission:(NSString*)permission value:(NSNumber*)value;
--(void)setPermissions:(NSDictionary*)dict;
--(NSNumber*)userId;
-
-@property(nonatomic,readonly) NSNumber* LOGIN_BUTTON_STYLE_WIDE;
-@property(nonatomic,readonly) NSNumber* LOGIN_BUTTON_STYLE_NORMAL;
-
-
+@protocol TiFacebookStateListener
+@required
+-(void)login;
+-(void)logout;
 @end
 
-@interface FBRequestCallback : NSObject<FBRequestDelegate> {
-	FacebookModule *module;
-	KrollCallback *callback;
-	NSData *data;
-}
-@property (nonatomic,retain) NSData *data;
-@end
 
-@interface FBPermissionPrefetch : NSObject<FBRequestDelegate>{
-	FacebookModule *module;
-}
-@end
-
-@interface FBDialogCallback : NSObject<FBDialogDelegate> 
+@interface FacebookModule : TiModule <FBSessionDelegate2, FBRequestDelegate2>
 {
-	KrollCallback *callback;
-	FacebookModule *module;
-	FBDialog *dialog;
+	Facebook *facebook;
+	BOOL loggedIn;
+	NSString *uid;
+	NSString *url;
+	NSString *appid;
+	NSArray *permissions;
+	NSMutableArray *stateListeners;
 }
-- (void)show;
-- (id) initWithCallback:(KrollCallback*)callback module:(FacebookModule*)module_;
+
+@property(nonatomic,readonly) Facebook *facebook;
+
+-(BOOL)isLoggedIn;
+-(void)addListener:(id<TiFacebookStateListener>)listener;
+-(void)removeListener:(id<TiFacebookStateListener>)listener;
+
+-(void)authorize:(id)args;
+-(void)logout:(id)args;
+
 @end
-
-
-@interface FBPermissionCallback : FBDialogCallback {
-	NSString *permission;
-}
-@end
-
-@interface FBStreamCallback : FBDialogCallback {
-	NSString *title;
-	NSString *data;
-	NSString *targetId;
-	FBSession *session;
-}
-@end
-
-
 #endif

@@ -1,5 +1,5 @@
 /*
- * Copyright 2009 Facebook
+ * Copyright 2010 Facebook
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,16 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
 */
-#ifdef USE_TI_FACEBOOK
 
+#ifdef USE_TI_FACEBOOK
 #import "FBDialog.h"
-#import "FBSession.h"
+#import "Facebook.h"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // global
 
 static NSString* kDefaultTitle = @"Connect to Facebook";
-static NSString* kStringBoundary = @"3i2ndDfv2rTHiSisAbouNdArYfORhtTPEefj3q2f";
 
 static CGFloat kFacebookBlue[4] = {0.42578125, 0.515625, 0.703125, 1.0};
 static CGFloat kBorderGray[4] = {0.3, 0.3, 0.3, 0.8};
@@ -38,9 +37,21 @@ static CGFloat kBorderWidth = 10;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-@implementation FBDialog
+BOOL FBIsDeviceIPad() {
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 30200
+  if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad) {
+    return YES; 
+  }
+#endif
+  return NO;
+}
 
-@synthesize session = _session, delegate = _delegate;
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+@implementation FBDialog2
+
+@synthesize delegate = _delegate,
+            params   = _params;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // private
@@ -99,23 +110,23 @@ static CGFloat kBorderWidth = 10;
   CGContextSetLineWidth(context, 1.0);
     
   {
-    CGPoint points[] = {rect.origin.x+0.5, rect.origin.y-0.5,
-      rect.origin.x+rect.size.width, rect.origin.y-0.5};
+    CGPoint points[] = {{rect.origin.x+0.5, rect.origin.y-0.5},
+      {rect.origin.x+rect.size.width, rect.origin.y-0.5}};
     CGContextStrokeLineSegments(context, points, 2);
   }
   {
-    CGPoint points[] = {rect.origin.x+0.5, rect.origin.y+rect.size.height-0.5,
-      rect.origin.x+rect.size.width-0.5, rect.origin.y+rect.size.height-0.5};
+    CGPoint points[] = {{rect.origin.x+0.5, rect.origin.y+rect.size.height-0.5},
+      {rect.origin.x+rect.size.width-0.5, rect.origin.y+rect.size.height-0.5}};
     CGContextStrokeLineSegments(context, points, 2);
   }
   {
-    CGPoint points[] = {rect.origin.x+rect.size.width-0.5, rect.origin.y,
-      rect.origin.x+rect.size.width-0.5, rect.origin.y+rect.size.height};
+    CGPoint points[] = {{rect.origin.x+rect.size.width-0.5, rect.origin.y},
+      {rect.origin.x+rect.size.width-0.5, rect.origin.y+rect.size.height}};
     CGContextStrokeLineSegments(context, points, 2);
   }
   {
-    CGPoint points[] = {rect.origin.x+0.5, rect.origin.y,
-      rect.origin.x+0.5, rect.origin.y+rect.size.height};
+    CGPoint points[] = {{rect.origin.x+0.5, rect.origin.y},
+      {rect.origin.x+0.5, rect.origin.y+rect.size.height}};
     CGContextStrokeLineSegments(context, points, 2);
   }
   
@@ -157,10 +168,16 @@ static CGFloat kBorderWidth = 10;
   CGPoint center = CGPointMake(
     frame.origin.x + ceil(frame.size.width/2),
     frame.origin.y + ceil(frame.size.height/2));
-  
-  CGFloat width = frame.size.width - kPadding * 2;
-  CGFloat height = frame.size.height - kPadding * 2;
-  
+
+  CGFloat scale_factor = 1.0f;
+  if (FBIsDeviceIPad()) {
+    // On the iPad the dialog's dimensions should only be 60% of the screen's
+    scale_factor = 0.6f;
+  }
+
+  CGFloat width = floor(scale_factor * frame.size.width) - kPadding * 2;
+  CGFloat height = floor(scale_factor * frame.size.height) - kPadding * 2;
+
   _orientation = [UIApplication sharedApplication].statusBarOrientation;
   if (UIInterfaceOrientationIsLandscape(_orientation)) {
     self.frame = CGRectMake(kPadding, kPadding, height, width);
@@ -206,9 +223,15 @@ static CGFloat kBorderWidth = 10;
     NSMutableArray* pairs = [NSMutableArray array];
     for (NSString* key in params.keyEnumerator) {
       NSString* value = [params objectForKey:key];
-      NSString* val = [value stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
-      NSString* pair = [NSString stringWithFormat:@"%@=%@", key, val];
-      [pairs addObject:pair];
+      NSString* escaped_value = (NSString *)CFURLCreateStringByAddingPercentEscapes(
+                                  NULL, /* allocator */
+                                  (CFStringRef)value,
+                                  NULL, /* charactersToLeaveUnescaped */
+                                  (CFStringRef)@"!*'();:@&=+$,/?%#[]",
+                                  kCFStringEncodingUTF8);
+
+      [pairs addObject:[NSString stringWithFormat:@"%@=%@", key, escaped_value]];
+      [escaped_value release];
     }
       
     NSString* query = [pairs componentsJoinedByString:@"&"];
@@ -219,45 +242,23 @@ static CGFloat kBorderWidth = 10;
   }
 }
 
-- (NSMutableData*)generatePostBody:(NSDictionary*)params {
-  if (!params) {
-    return nil;
-  }
-  
-  NSMutableData* body = [NSMutableData data];
-  NSString* endLine = [NSString stringWithFormat:@"\r\n--%@\r\n", kStringBoundary];
-
-  [body appendData:[[NSString stringWithFormat:@"--%@\r\n", kStringBoundary]
-    dataUsingEncoding:NSUTF8StringEncoding]];
-  
-  for (id key in [params keyEnumerator]) {
-    [body appendData:[[NSString
-      stringWithFormat:@"Content-Disposition: form-data; name=\"%@\"\r\n\r\n", key]
-        dataUsingEncoding:NSUTF8StringEncoding]];
-    [body appendData:[[params valueForKey:key] dataUsingEncoding:NSUTF8StringEncoding]];
-    [body appendData:[endLine dataUsingEncoding:NSUTF8StringEncoding]];        
-  }
-
-  return body;
-}
-
 - (void)addObservers {
   [[NSNotificationCenter defaultCenter] addObserver:self
     selector:@selector(deviceOrientationDidChange:)
-    name:UIDeviceOrientationDidChangeNotification object:nil];
+    name:@"UIDeviceOrientationDidChangeNotification" object:nil];
   [[NSNotificationCenter defaultCenter] addObserver:self
-    selector:@selector(keyboardWillShow:) name:UIKeyboardWillShowNotification object:nil];
+    selector:@selector(keyboardWillShow:) name:@"UIKeyboardWillShowNotification" object:nil];
   [[NSNotificationCenter defaultCenter] addObserver:self
-    selector:@selector(keyboardWillHide:) name:UIKeyboardWillHideNotification object:nil];
+    selector:@selector(keyboardWillHide:) name:@"UIKeyboardWillHideNotification" object:nil];
 }
 
 - (void)removeObservers {
   [[NSNotificationCenter defaultCenter] removeObserver:self
-    name:UIDeviceOrientationDidChangeNotification object:nil];
+    name:@"UIDeviceOrientationDidChangeNotification" object:nil];
   [[NSNotificationCenter defaultCenter] removeObserver:self
-    name:UIKeyboardWillShowNotification object:nil];
+    name:@"UIKeyboardWillShowNotification" object:nil];
   [[NSNotificationCenter defaultCenter] removeObserver:self
-    name:UIKeyboardWillHideNotification object:nil];
+    name:@"UIKeyboardWillHideNotification" object:nil];
 }
 
 - (void)postDismissCleanup {
@@ -284,6 +285,7 @@ static CGFloat kBorderWidth = 10;
 }
 
 - (void)cancel {
+  [self dialogDidCancel:nil];
   [self dismissWithSuccess:NO animated:YES];
 }
 
@@ -291,13 +293,8 @@ static CGFloat kBorderWidth = 10;
 // NSObject
 
 - (id)init {
-  return [self initWithSession:[FBSession session]];
-}
-
-- (id)initWithSession:(FBSession*)session {
   if (self = [super initWithFrame:CGRectZero]) {
     _delegate = nil;
-    _session = [session retain];
     _loadingURL = nil;
     _orientation = UIDeviceOrientationUnknown;
     _showingKeyboard = NO;
@@ -306,7 +303,7 @@ static CGFloat kBorderWidth = 10;
     self.autoresizesSubviews = YES;
     self.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
     self.contentMode = UIViewContentModeRedraw;
-    
+
     UIImage* iconImage = [UIImage imageNamed:@"modules/facebook/images/fbicon.png"];
     UIImage* closeImage = [UIImage imageNamed:@"modules/facebook/images/close.png"];
     
@@ -320,22 +317,30 @@ static CGFloat kBorderWidth = 10;
     [_closeButton setTitleColor:[UIColor whiteColor] forState:UIControlStateHighlighted];
     [_closeButton addTarget:self action:@selector(cancel)
       forControlEvents:UIControlEventTouchUpInside];
-    _closeButton.titleLabel.font = [UIFont boldSystemFontOfSize:12];
+    
+    // To be compatible with OS 2.x
+    #if __IPHONE_OS_VERSION_MAX_ALLOWED <= __IPHONE_2_2
+      _closeButton.font = [UIFont boldSystemFontOfSize:12];
+    #else
+      _closeButton.titleLabel.font = [UIFont boldSystemFontOfSize:12];
+    #endif
+    
     _closeButton.showsTouchWhenHighlighted = YES;
     _closeButton.autoresizingMask = UIViewAutoresizingFlexibleLeftMargin
       | UIViewAutoresizingFlexibleBottomMargin;
     [self addSubview:_closeButton];
     
+    CGFloat titleLabelFontSize = (FBIsDeviceIPad() ? 18 : 14);
     _titleLabel = [[UILabel alloc] initWithFrame:CGRectZero];
     _titleLabel.text = kDefaultTitle;
     _titleLabel.backgroundColor = [UIColor clearColor];
     _titleLabel.textColor = [UIColor whiteColor];
-    _titleLabel.font = [UIFont boldSystemFontOfSize:14];
+    _titleLabel.font = [UIFont boldSystemFontOfSize:titleLabelFontSize];
     _titleLabel.autoresizingMask = UIViewAutoresizingFlexibleRightMargin
       | UIViewAutoresizingFlexibleBottomMargin;
     [self addSubview:_titleLabel];
-        
-    _webView = [[UIWebView alloc] initWithFrame:CGRectZero];
+       
+    _webView = [[UIWebView alloc] initWithFrame:CGRectMake(kPadding, kPadding, 480, 480)];
     _webView.delegate = self;
     _webView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
     [self addSubview:_webView];
@@ -353,12 +358,13 @@ static CGFloat kBorderWidth = 10;
 - (void)dealloc {
   _webView.delegate = nil;
   [_webView release];
+  [_params release];
+  [_serverURL release];
   [_spinner release];
   [_titleLabel release];
   [_iconView release];
   [_closeButton release];
   [_loadingURL release];
-  [_session release];
   [super dealloc];
 }
 
@@ -387,9 +393,20 @@ static CGFloat kBorderWidth = 10;
 - (BOOL)webView:(UIWebView *)webView shouldStartLoadWithRequest:(NSURLRequest *)request
     navigationType:(UIWebViewNavigationType)navigationType {
   NSURL* url = request.URL;
+
   if ([url.scheme isEqualToString:@"fbconnect"]) {
-    if ([url.resourceSpecifier isEqualToString:@"cancel"]) {
-      [self dismissWithSuccess:NO animated:YES];
+    if ([[url.resourceSpecifier substringToIndex:8] isEqualToString:@"//cancel"]) {
+      NSString * errorCode = [self getStringFromUrl:[url absoluteString] needle:@"error_code="];
+      NSString * errorStr = [self getStringFromUrl:[url absoluteString] needle:@"error_msg="];
+      if (errorCode) {
+        NSDictionary * errorData = [NSDictionary dictionaryWithObject:errorStr forKey:@"error_msg"];
+        NSError * error = [NSError errorWithDomain:@"facebookErrDomain" 
+                                              code:[errorCode intValue]
+                                          userInfo:errorData];
+        [self dismissWithError:error animated:YES];
+      } else {
+        [self dialogDidCancel:url];
+      }
     } else {
       [self dialogDidSucceed:url];
     }
@@ -416,9 +433,6 @@ static CGFloat kBorderWidth = 10;
   
   self.title = [_webView stringByEvaluatingJavaScriptFromString:@"document.title"];
   [self updateWebOrientation];
-
-  //JGH: this is patch fix for the current cancel URL not getting set properly
-  [_webView stringByEvaluatingJavaScriptFromString:@"document.getElementById('cancel').onclick=function(){window.location.href='fbconnect:cancel'};"];
 }
 
 - (void)webView:(UIWebView *)webView didFailLoadWithError:(NSError *)error {
@@ -448,29 +462,69 @@ static CGFloat kBorderWidth = 10;
 // UIKeyboardNotifications
 
 - (void)keyboardWillShow:(NSNotification*)notification {
+  
+  _showingKeyboard = YES;
+  
+  if (FBIsDeviceIPad()) {
+    // On the iPad the screen is large enough that we don't need to 
+    // resize the dialog to accomodate the keyboard popping up
+    return;
+  }
+
   UIInterfaceOrientation orientation = [UIApplication sharedApplication].statusBarOrientation;
   if (UIInterfaceOrientationIsLandscape(orientation)) {
     _webView.frame = CGRectInset(_webView.frame,
       -(kPadding + kBorderWidth),
       -(kPadding + kBorderWidth) - _titleLabel.frame.size.height);
   }
-
-  _showingKeyboard = YES;
 }
 
 - (void)keyboardWillHide:(NSNotification*)notification {
+  _showingKeyboard = NO;
+  
+  if (FBIsDeviceIPad()) {
+    return;
+  }
   UIInterfaceOrientation orientation = [UIApplication sharedApplication].statusBarOrientation;
   if (UIInterfaceOrientationIsLandscape(orientation)) {
     _webView.frame = CGRectInset(_webView.frame,
       kPadding + kBorderWidth,
       kPadding + kBorderWidth + _titleLabel.frame.size.height);
   }
+}
 
-  _showingKeyboard = NO;
+//////////////////////////////////////////////////////////////////////////////////////////////////
+// public
+
+/**
+ * Find a specific parameter from the url
+ */
+- (NSString *) getStringFromUrl: (NSString*) url needle:(NSString *) needle {
+  NSString * str = nil;
+  NSRange start = [url rangeOfString:needle];
+  if (start.location != NSNotFound) {
+    NSRange end = [[url substringFromIndex:start.location+start.length] rangeOfString:@"&"];
+    NSUInteger offset = start.location+start.length;
+    str = end.location == NSNotFound
+    ? [url substringFromIndex:offset]
+    : [url substringWithRange:NSMakeRange(offset, end.location)];  
+    str = [str stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding]; 
+  }
+  
+  return str;
 }
  
-///////////////////////////////////////////////////////////////////////////////////////////////////
-// public
+- (id)initWithURL: (NSString *) serverURL 
+           params: (NSMutableDictionary *) params  
+         delegate: (id <FBDialogDelegate2>) delegate {
+  
+  self = [self init];
+  _serverURL = [serverURL retain];
+  _params = [params retain];
+  _delegate = delegate;
+  
+  return self;
+}
 
 - (NSString*)title {
   return _titleLabel.text;
@@ -478,6 +532,19 @@ static CGFloat kBorderWidth = 10;
 
 - (void)setTitle:(NSString*)title {
   _titleLabel.text = title;
+}
+
+- (void)load {
+  [self loadURL:_serverURL get:_params];
+}
+
+- (void)loadURL:(NSString*)url get:(NSDictionary*)getParams {
+  
+  [_loadingURL release];
+  _loadingURL = [[self generateURL:url params:getParams] retain];
+  NSMutableURLRequest* request = [NSMutableURLRequest requestWithURL:_loadingURL];
+
+  [_webView loadRequest:request];
 }
 
 - (void)show {
@@ -538,15 +605,15 @@ static CGFloat kBorderWidth = 10;
 
 - (void)dismissWithSuccess:(BOOL)success animated:(BOOL)animated {
   if (success) {
-    if ([_delegate respondsToSelector:@selector(dialogDidSucceed:)]) {
-      [_delegate dialogDidSucceed:self];
+    if ([_delegate respondsToSelector:@selector(dialogDidComplete:)]) {
+      [_delegate dialogDidComplete:self];
     }
   } else {
-    if ([_delegate respondsToSelector:@selector(dialogDidCancel:)]) {
-      [_delegate dialogDidCancel:self];
+    if ([_delegate respondsToSelector:@selector(dialogDidNotComplete:)]) {
+      [_delegate dialogDidNotComplete:self]; 
     }
   }
-
+  
   [self dismiss:animated];
 }
 
@@ -554,47 +621,8 @@ static CGFloat kBorderWidth = 10;
   if ([_delegate respondsToSelector:@selector(dialog:didFailWithError:)]) {
     [_delegate dialog:self didFailWithError:error];
   }
-
-  [self dismiss:animated];
-}
-
-- (void)load {
-  // Intended for subclasses to override
-}
-
-- (void)loadURL:(NSString*)url method:(NSString*)method get:(NSDictionary*)getParams
-        post:(NSDictionary*)postParams {
-  // This "test cookie" is required by login.php, or it complains that you need to enable JavaScript
-  NSHTTPCookieStorage* cookies = [NSHTTPCookieStorage sharedHTTPCookieStorage];
-  NSHTTPCookie* testCookie = [NSHTTPCookie cookieWithProperties:
-    [NSDictionary dictionaryWithObjectsAndKeys:
-      @"1", NSHTTPCookieValue,
-      @"test_cookie", NSHTTPCookieName,
-      @".facebook.com", NSHTTPCookieDomain,
-      @"/", NSHTTPCookiePath,
-      nil]];
-  [cookies setCookie:testCookie];
-
-  [_loadingURL release];
-  _loadingURL = [[self generateURL:url params:getParams] retain];
-  NSMutableURLRequest* request = [NSMutableURLRequest requestWithURL:_loadingURL];
   
-  if (method) {
-    [request setHTTPMethod:method];
-
-    if ([[method uppercaseString] isEqualToString:@"POST"]) {
-      NSString* contentType = [NSString
-        stringWithFormat:@"multipart/form-data; boundary=%@", kStringBoundary];
-      [request setValue:contentType forHTTPHeaderField:@"Content-Type"];
-
-      NSData* body = [self generatePostBody:postParams];
-      if (body) {
-        [request setHTTPBody:body];
-      }
-    }
-  }
-
-  [_webView loadRequest:request];
+  [self dismiss:animated];
 }
 
 - (void)dialogWillAppear {
@@ -603,10 +631,20 @@ static CGFloat kBorderWidth = 10;
 - (void)dialogWillDisappear {
 }
 
-- (void)dialogDidSucceed:(NSURL*)url {
-  [self dismissWithSuccess:YES animated:YES];
+- (void)dialogDidSucceed:(NSURL *)url {
+  
+  if ([_delegate respondsToSelector:@selector(dialogCompleteWithUrl:)]) {
+    [_delegate dialogCompleteWithUrl:url];
+  }
+  [self dismissWithSuccess:YES animated:YES];  
+}
+
+- (void)dialogDidCancel:(NSURL *)url {
+  if ([_delegate respondsToSelector:@selector(dialogDidNotCompleteWithUrl:)]) {
+    [_delegate dialogDidNotCompleteWithUrl:url];
+  }
+  [self dismissWithSuccess:NO animated:YES];
 }
 
 @end
-
 #endif

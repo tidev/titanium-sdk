@@ -1,5 +1,5 @@
 /*
- * Copyright 2009 Facebook
+ * Copyright 2010 Facebook
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,152 +14,79 @@
  * limitations under the License.
 */
 #ifdef USE_TI_FACEBOOK
-
 #import "FBLoginButton.h"
-#import "FBLoginDialog.h"
+#import "Facebook.h"
+
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-@implementation FBLoginButton
+@implementation FBLoginButton2
 
-@synthesize session = _session, style = _style;
+@synthesize isLoggedIn = _isLoggedIn;
+@synthesize style = _style;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // private
 
-- (UIImage*)buttonImage {
-  if (_session.isConnected) {
-	  return [UIImage imageNamed:@"modules/facebook/images/logout.png"];
-  } else {
-    if (_style == FBLoginButtonStyleNormal) {
-		return [UIImage imageNamed:@"modules/facebook/images/login.png"];
-    } else if (_style == FBLoginButtonStyleWide) {
-		return [UIImage imageNamed:@"modules/facebook/images/login2.png"];
-    } else {
-      return nil;
-    }
+/**
+ * return the regular button image according to the login status
+ */
+- (UIImage*)buttonImage 
+{
+  if (_isLoggedIn) 
+  {
+	  return [UIImage imageNamed:@"modules/facebook/images/LogoutNormal.png"];
+  } 
+  else 
+  {
+	  if (_style == FB_LOGIN_BUTTON_NORMAL)
+	  {
+		  return [UIImage imageNamed:@"modules/facebook/images/LoginNormal.png"];
+	  }
+	  else
+	  {
+		  return [UIImage imageNamed:@"modules/facebook/images/LoginWithFacebookNormal.png"];
+	  }
   }
 }
 
-- (UIImage*)buttonHighlightedImage {
-  if (_session.isConnected) {
-	  return [UIImage imageNamed:@"modules/facebook/images/logout_down.png"];
-  } else {
-    if (_style == FBLoginButtonStyleNormal) {
-      return [UIImage imageNamed:@"modules/facebook/images/login_down.png"];
-    } else if (_style == FBLoginButtonStyleWide) {
-      return [UIImage imageNamed:@"modules/facebook/images/login2_down.png"];
-    } else {
-      return nil;
-    }
+/**
+ * return the highlighted button image according to the login status
+ */
+- (UIImage*)buttonHighlightedImage 
+{
+  if (_isLoggedIn) 
+  {
+    return [UIImage imageNamed:@"modules/facebook/images/LogoutPressed.png"];
+  } 
+  else 
+  {
+	  if (_style == FB_LOGIN_BUTTON_NORMAL)
+	  {
+		  return [UIImage imageNamed:@"modules/facebook/images/LoginPressed.png"];
+	  }
+	  else 
+	  {
+		  return [UIImage imageNamed:@"modules/facebook/images/LoginWithFacebookPressed.png"];
+	  }
   }
 }
 
-- (void)updateImage {
-  if (self.highlighted) {
-    _imageView.image = [self buttonHighlightedImage];
-  } else {
-    _imageView.image = [self buttonImage];
-  }
-}
-
-- (void)touchUpInside {
-  if (_session.isConnected) {
-    [_session logout];
-  } else {
-    FBLoginDialog* dialog = [[[FBLoginDialog alloc] initWithSession:_session] autorelease];
-    [dialog show];
-  }
-}
-
-- (void)initButton {
-  _style = FBLoginButtonStyleNormal;
-
-  _imageView = [[UIImageView alloc] initWithFrame:CGRectZero];
-  _imageView.contentMode = UIViewContentModeCenter;
-  [self addSubview:_imageView];
-
-  self.backgroundColor = [UIColor clearColor];
-  [self addTarget:self action:@selector(touchUpInside)
-    forControlEvents:UIControlEventTouchUpInside];
-
-  self.session = [FBSession session];
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-// NSObject
-
-- (id)initWithFrame:(CGRect)frame {
-  if (self = [super initWithFrame:frame]) {
-    [self initButton];
-    if (CGRectIsEmpty(frame)) {
-      [self sizeToFit];
-    }
-  }
-  return self;
-}
-
-- (void)awakeFromNib {
-  [self initButton];
-}
-
-- (void)dealloc {
-  [_session.delegates removeObject:self];
-  [_session release];
-  [_imageView release];
-  [super dealloc];
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-// UIView
-
-- (CGSize)sizeThatFits:(CGSize)size {
-  return _imageView.image.size;
-}
-
-- (void)layoutSubviews {
-  _imageView.frame = self.bounds;
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-// UIControl
-
-- (void)setHighlighted:(BOOL)highlighted {
-  [super setHighlighted:highlighted];
-  [self updateImage];
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-// FBSessionDelegate
-
-- (void)session:(FBSession*)session didLogin:(FBUID)uid {
-  [self updateImage];
-}
-
-- (void)sessionDidLogout:(FBSession*)session {
-  [self updateImage];
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////
 // public
 
-- (void)setSession:(FBSession*)session {
-  if (session != _session) {
-    [_session.delegates removeObject:self];
-    [_session release];
-    _session = [session retain];
-    [_session.delegates addObject:self];
-    
-    [self updateImage];
-  }
+/**
+ * To be called whenever the login status is changed
+ */
+- (void)updateImage {
+  self.imageView.image = [self buttonImage];
+  [self setImage: [self buttonImage]
+                  forState: UIControlStateNormal];
+
+  [self setImage: [self buttonHighlightedImage]
+                  forState: UIControlStateHighlighted |UIControlStateSelected];
+
 }
 
-- (void)setStyle:(FBLoginButtonStyle)style {
-  _style = style;
-  
-  [self updateImage];
-}
-
-@end
-
+@end 
 #endif
