@@ -20,15 +20,13 @@ android
 
 - properties
 
-activity[`Titanium.Android.Activity`]: The Activity that the PendingIntent should be launched from
 intent[`Titanium.Android.Intent`]: The intent data to pass to the Activity launched by this PendingIntent
-type[int]: The type of Pending Intent. Possible values: `Titanium.Android.PENDING_INTENT_FOR_ACTIVITY`, `Titanium.Android.PENDING_INTENT_FOR_BROADCAST`, `Titanium.Android.PENDING_INTENT_FOR_SERVICE`
 flags[int]: Flags used for creating the Pending Intent. Possible values are `Titanium.Android.FLAG_CANCEL_CURRENT`, `Titanium.Android.FLAG_NO_CREATE`, `Titanium.Android.FLAG_ONE_SHOT`, and `Titanium.Android.FLAG_UPDATE_CURRENT`.
 
 - notes
 
-The type of Pending Intent you choose will effect what kind of PendingIntent is created. Each type corresponds directly with a get method on Android's PendingIntent:
+The type of Intent you choose will effect what kind of PendingIntent is created. Each type corresponds directly with a get method on Android's PendingIntent:
 
-* `Titanium.Android.PENDING_INTENT_FOR_ACTIVITY` uses [PendingIntent.getActivity](http://developer.android.com/reference/android/app/PendingIntent.html#getActivity(android.content.Context, int, android.content.Intent, int))
-* `Titanium.Android.PENDING_INTENT_FOR_BROADCAST` uses [PendingIntent.getBroadcast](http://developer.android.com/reference/android/app/PendingIntent.html#getBroadcast(android.content.Context, int, android.content.Intent, int))
-* `Titanium.Android.PENDING_INTENT_FOR_SERVICE` uses [PendingIntent.getService](http://developer.android.com/reference/android/app/PendingIntent.html#getService(android.content.Context, int, android.content.Intent, int))
+* `Titanium.Android.createIntent` uses [PendingIntent.getActivity](http://developer.android.com/reference/android/app/PendingIntent.html#getActivity(android.content.Context, int, android.content.Intent, int))
+* `Titanium.Android.createBroadcastIntent` uses [PendingIntent.getBroadcast](http://developer.android.com/reference/android/app/PendingIntent.html#getBroadcast(android.content.Context, int, android.content.Intent, int))
+* `Titanium.Android.createServiceIntent` uses [PendingIntent.getService](http://developer.android.com/reference/android/app/PendingIntent.html#getService(android.content.Context, int, android.content.Intent, int))
