@@ -233,4 +233,12 @@ public class ScrollableViewProxy extends TiViewProxy
 	public void onAnimationStart(Animation anim) {
 		inAnimation.set(true);
 	}
+
+	@Override
+	public void releaseViews()
+	{
+		getUIHandler().removeMessages(MSG_SHOW_PAGER);
+		getUIHandler().removeMessages(MSG_HIDE_PAGER);
+		super.releaseViews();
+	}
 }
