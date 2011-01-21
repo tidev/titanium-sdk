@@ -107,7 +107,7 @@ class LocaleCompiler(object):
 				if f in ignoreFiles: continue
 				if not f.endswith('.xml'): continue
 				file = os.path.join(dirname,f)
-				if self.platform == 'ios' or self.platform == 'iphone' or self.platform == 'ipad':
+				if self.platform == 'ios' or self.platform == 'iphone' or self.platform == 'ipad' or self.platform == 'universal':
 					self.compile_for_ios(file)
 				elif self.platform == 'android':
 					self.compile_for_android(file)

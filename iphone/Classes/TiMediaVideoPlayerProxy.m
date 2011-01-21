@@ -264,8 +264,10 @@ NSArray* moviePlayerKeys = nil;
 -(void)setInitialPlaybackTime:(id)time
 {
 	if (movie != nil) {
-		if ([TiUtils doubleValue:time] > 0) {
-			[[self player] performSelectorOnMainThread:@selector(setInitialPlaybackTime:) withObject:time waitUntilDone:NO];
+		CGFloat ourTime = [TiUtils doubleValue:time];
+		if (ourTime > 0) {
+			ENSURE_UI_THREAD_1_ARG(time);
+			[[self player] setInitialPlaybackTime:ourTime];
 		}
 	}
 	else {
