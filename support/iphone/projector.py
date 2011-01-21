@@ -152,6 +152,8 @@ class Projector(object):
 		content = content.replace('PRODUCT_NAME = %s'%self.namespace,'PRODUCT_NAME = "%s"'%self.name)
 		content = content.replace('PRODUCT_NAME = %s-iPad'%self.namespace,'PRODUCT_NAME = "%s"'%self.name)
 		content = content.replace('PRODUCT_NAME = "%s-iPad"'%self.namespace,'PRODUCT_NAME = "%s"'%self.name)
+		content = content.replace('PRODUCT_NAME = %s-universal'%self.namespace,'PRODUCT_NAME = "%s"'%self.name)
+		content = content.replace('PRODUCT_NAME = "%s-universal"'%self.namespace,'PRODUCT_NAME = "%s"'%self.name)		
 		content = content.replace('Resources-iPad','Resources')
 		content = content.replace('%s.app'%self.namespace,'%s.app'%self.name)
 		content = content.replace('path = %s_Prefix.pch;'%self.namespace,'path = "%s_Prefix.pch";'%self.name)

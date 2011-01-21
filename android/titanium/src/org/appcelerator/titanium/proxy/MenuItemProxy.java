@@ -11,6 +11,7 @@ import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiFileHelper;
+import org.appcelerator.titanium.util.TiUIHelper;
 
 import android.graphics.drawable.Drawable;
 import android.view.MenuItem;
@@ -106,6 +107,11 @@ public class MenuItemProxy extends KrollProxy
 					if (d != null) {
 						item.setIcon(d);
 					}
+				}
+			} else if (icon instanceof Number) {
+				Drawable d = TiUIHelper.getResourceDrawable(getTiContext(), TiConvert.toInt(icon));
+				if (d != null) {
+					item.setIcon(d);
 				}
 			}
 		}
