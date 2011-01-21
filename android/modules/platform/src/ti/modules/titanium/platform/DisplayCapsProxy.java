@@ -53,6 +53,8 @@ public class DisplayCapsProxy extends KrollProxy
 				return "high";
 			case DisplayMetrics.DENSITY_MEDIUM :
 				return "medium";
+			case 320 : // DisplayMetrics.DENSITY_XHIGH (API 9)
+				return "xhigh";
 			case DisplayMetrics.DENSITY_LOW :
 				return "low";
 			default :
