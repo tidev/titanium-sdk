@@ -18,6 +18,7 @@ import org.appcelerator.titanium.util.TiActivitySupportHelper;
 import org.appcelerator.titanium.util.TiBindingHelper;
 import org.appcelerator.titanium.util.TiColorHelper;
 import org.appcelerator.titanium.util.TiConfig;
+import org.appcelerator.titanium.util.TiMenuSupport;
 import org.appcelerator.titanium.util.TiPlatformHelper;
 import org.appcelerator.titanium.util.TiRHelper;
 import org.appcelerator.titanium.view.ITiWindowHandler;
@@ -58,6 +59,7 @@ public class TiRootActivity extends ActivityGroup
 	protected ActivityProxy activityProxy;
 	protected TiActivitySupportHelper supportHelper;
 	protected TiCompositeLayout rootLayout;
+	protected TiMenuSupport menuHelper;
 	
 	private AlertDialog b2373Alert;
 
@@ -243,20 +245,23 @@ public class TiRootActivity extends ActivityGroup
 	}
 
 	@Override
-	public boolean onCreateOptionsMenu(Menu menu)
-	{
-		return super.onCreateOptionsMenu(menu);
+	public boolean onCreateOptionsMenu(Menu menu) {
+		if (menuHelper == null) {
+			menuHelper = new TiMenuSupport(activityProxy);
+		}
+		return menuHelper.onCreateOptionsMenu(super.onCreateOptionsMenu(menu), menu);
 	}
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-		return super.onOptionsItemSelected(item);
+		return menuHelper.onOptionsItemSelected(item);
 	}
 
 	@Override
 	public boolean onPrepareOptionsMenu(Menu menu) {
-		return super.onPrepareOptionsMenu(menu);
+		return menuHelper.onPrepareOptionsMenu(super.onPrepareOptionsMenu(menu), menu);
 	}
+
 
 //	@Override
 //	public void finishFromChild(Activity child) {
@@ -399,6 +404,15 @@ public class TiRootActivity extends ActivityGroup
 			}
 			tiContext.dispatchOnDestroy(this);
 			tiContext.release();
+		}
+		if (menuHelper != null) {
+			menuHelper.destroy();
+			menuHelper = null;
+		}
+		if (activityProxy != null) {
+			activityProxy.fireSyncEvent(TiC.EVENT_DESTROY, null);
+			activityProxy.release();
+			activityProxy = null;
 		}
 	}
 	
