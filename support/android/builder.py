@@ -1488,7 +1488,7 @@ class Builder(object):
 				info("Compiling Android Resources... This could take some time")
 				sys.stdout.flush()
 				# TODO - Document Exit message
-				run_result = run.run(dex_args)
+				run_result = run.run(dex_args, warning_regex=r'warning: ')
 				if (run_result == None):
 					dex_built = False
 					error("System Error while compiling Android classes.dex")

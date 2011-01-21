@@ -35,7 +35,7 @@ def run(args, ignore_error=False, debug=True, ignore_output=False, warning_regex
 
 	(so,se) = subprocess.Popen(args, stderr=subprocess.PIPE, stdout=subprocess.PIPE).communicate()
 	
-	if type(se)!=types.NoneType and len(se)>0:
+	if type(se) != types.NoneType and len(se) > 0:
 		if not ignore_error:
 			err = str(se)
 			if 'adb' in args[0] and ' bytes in ' in err:
