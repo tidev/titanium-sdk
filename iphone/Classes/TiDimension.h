@@ -129,7 +129,31 @@ TI_INLINE CGFloat TiDimensionCalculateValue(TiDimension dimension,CGFloat boundi
 	return 0.0;
 }
 
+TI_INLINE CGFloat TiDimensionCalculateRatio(TiDimension dimension,CGFloat boundingValue)
+{
+	switch (dimension.type)
+	{
+		case TiDimensionTypePercent:
+			return dimension.value;
+		case TiDimensionTypePixels:
+			return dimension.value / boundingValue;
+	}
+	return 0.0;
+}
+
 TI_INLINE CGFloat TiDimensionCalculateMargins(TiDimension dimension1, TiDimension dimension2, CGFloat boundingValue)
 {
 	return boundingValue - (TiDimensionCalculateValue(dimension1, boundingValue) + TiDimensionCalculateValue(dimension2, boundingValue));
+}
+
+//TODO: Do these ALL have to be TI_INLINE?
+TI_INLINE CGRect TiDimensionLayerContentCenter(TiDimension top, TiDimension left, TiDimension bottom, TiDimension right, CGSize imageSize)
+{
+	CGRect result;
+	result.origin.y = TiDimensionCalculateRatio(top,imageSize.height);
+	result.size.height = 1.0 - TiDimensionCalculateRatio(bottom,imageSize.height) - result.origin.y;
+	result.origin.x = TiDimensionCalculateRatio(left,imageSize.width);
+	result.size.width = 1.0 - TiDimensionCalculateRatio(right,imageSize.width) - result.origin.x;
+
+	return result;
 }

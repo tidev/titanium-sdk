@@ -107,21 +107,14 @@ public class IntentProxy extends KrollProxy
 			}
 			intent.setAction(action);
 		}
-		
-		if (data != null) {
-			if (DBG) {
-				Log.d(TAG, "Setting data uri: " + data);
-			}
-			intent.setData(Uri.parse(data));
-		}
-		
+
 		if (packageName != null) {
 			if (DBG) {
 				Log.d(TAG, "Setting package: " + packageName);
 			}
 			intent.setPackage(packageName);
 		}
-		
+
 		if (url != null) {
 			if (DBG) {
 				Log.d(TAG, "Creating intent for JS Activity/Service @ " + url);
@@ -129,7 +122,7 @@ public class IntentProxy extends KrollProxy
 			packageName = TiApplication.getInstance().getPackageName();
 			className = packageName + "." + getURLClassName(url, this.type);
 		}
-		
+
 		if (className != null) {
 			if (packageName != null) {
 				if (DBG) {
@@ -146,21 +139,29 @@ public class IntentProxy extends KrollProxy
 				}
 			}
 		}
-		
+
+		if (type == null) {
+			if (action != null && action.equals(Intent.ACTION_SEND)) {
+				type = "text/plain";
+			}
+		}
+
+		// setType and setData are inexplicably intertwined
+		// calling setType by itself clears the type and vice-versa
+		// if you have both you _must_ call setDataAndType
 		if (type != null) {
 			if (DBG) {
 				Log.d(TAG, "Setting type: " + type);
-			} 
-			intent.setType(type);
-		} else {
-			if (action != null && action.equals(Intent.ACTION_SEND)) {
-				if (DBG) {
-					Log.d(TAG, "Intent type not set, defaulting to text/plain because action is a SEND action");
-				}
-				intent.setType("text/plain");
 			}
+			if (data != null) {
+				intent.setDataAndType(Uri.parse(data), type);
+			} else {
+				intent.setType(type);
+			}
+		} else if (data != null) {
+			intent.setData(Uri.parse(data));
 		}
-	}	
+	}
 
 	@Kroll.method
 	public void putExtra(String key, Object value)
