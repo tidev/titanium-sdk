@@ -336,6 +336,8 @@ def main(args):
 			devicefamily = 'iphone'
 		elif target_device == '2':
 			devicefamily = 'ipad'
+		elif target_device == '1,2':
+			devicefamily = 'universal'
 		if arch == 'i386': 
 			# simulator always indicates simulator
 			deploytype = 'development'
@@ -899,7 +901,8 @@ def main(args):
 				extra_args = None
 
 				if devicefamily!=None:
-					if devicefamily == 'ipad':
+					# Meet the minimum requirements for ipad when necessary
+					if devicefamily == 'ipad' or devicefamily == 'universal':
 						device_target="TARGETED_DEVICE_FAMILY=2"
 						# iPad requires at a minimum 3.2 (not 3.1 default)
 						deploy_target = "IPHONEOS_DEPLOYMENT_TARGET=3.2"
@@ -907,12 +910,17 @@ def main(args):
 						# xcode warns that 3.2 needs only armv7, but if we don't pass in 
 						# armv6 we get crashes on device
 						extra_args = ["VALID_ARCHS=armv6 armv7 i386"]
+					# Additionally, if we're universal, change the device family target
+					if devicefamily == 'universal':
+						device_target="TARGETED_DEVICE_FAMILY=1,2"
 
 				def execute_xcode(sdk,extras,print_output=True):
 
 					config = name
 					if devicefamily=='ipad':
 						config = "%s-iPad" % config
+					if devicefamily=='universal':
+						config = "%s-universal" % config
 
 					# these are the arguments for running a command line xcode build
 					args = ["xcodebuild","-target",config,"-configuration",target,"-sdk",sdk]
