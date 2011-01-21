@@ -7,7 +7,6 @@
 package org.appcelerator.titanium;
 
 import java.io.IOException;
-import java.lang.ref.SoftReference;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -19,6 +18,7 @@ import org.appcelerator.titanium.util.TiActivitySupportHelper;
 import org.appcelerator.titanium.util.TiBindingHelper;
 import org.appcelerator.titanium.util.TiColorHelper;
 import org.appcelerator.titanium.util.TiConfig;
+import org.appcelerator.titanium.util.TiMenuSupport;
 import org.appcelerator.titanium.util.TiPlatformHelper;
 import org.appcelerator.titanium.util.TiRHelper;
 import org.appcelerator.titanium.view.ITiWindowHandler;
@@ -35,7 +35,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.DialogInterface.OnClickListener;
 import android.content.res.Configuration;
-import android.content.res.Resources.Theme;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
@@ -60,7 +59,7 @@ public class TiRootActivity extends ActivityGroup
 	protected ActivityProxy activityProxy;
 	protected TiActivitySupportHelper supportHelper;
 	protected TiCompositeLayout rootLayout;
-	protected SoftReference<ITiMenuDispatcherListener> softMenuDispatcher;
+	protected TiMenuSupport menuHelper;
 	
 	private AlertDialog b2373Alert;
 
@@ -245,43 +244,24 @@ public class TiRootActivity extends ActivityGroup
 		super.finish();
 	}
 
-	public void setMenuDispatchListener(ITiMenuDispatcherListener dispatcher) {
-		softMenuDispatcher = new SoftReference<ITiMenuDispatcherListener>(dispatcher);
-	}
-
 	@Override
-	public boolean onCreateOptionsMenu(Menu menu)
-	{
-		if (softMenuDispatcher != null) {
-			ITiMenuDispatcherListener dispatcher = softMenuDispatcher.get();
-			if (dispatcher != null) {
-				return dispatcher.dispatchHasMenu();
-			}
+	public boolean onCreateOptionsMenu(Menu menu) {
+		if (menuHelper == null) {
+			menuHelper = new TiMenuSupport(activityProxy);
 		}
-		return super.onCreateOptionsMenu(menu);
+		return menuHelper.onCreateOptionsMenu(super.onCreateOptionsMenu(menu), menu);
 	}
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-		if (softMenuDispatcher != null) {
-			ITiMenuDispatcherListener dispatcher = softMenuDispatcher.get();
-			if (dispatcher != null) {
-				return dispatcher.dispatchMenuItemSelected(item);
-			}
-		}
-		return super.onOptionsItemSelected(item);
+		return menuHelper.onOptionsItemSelected(item);
 	}
 
 	@Override
 	public boolean onPrepareOptionsMenu(Menu menu) {
-		if (softMenuDispatcher != null) {
-			ITiMenuDispatcherListener dispatcher = softMenuDispatcher.get();
-			if (dispatcher != null) {
-				return dispatcher.dispatchPrepareMenu(menu);
-			}
-		}
-		return super.onPrepareOptionsMenu(menu);
+		return menuHelper.onPrepareOptionsMenu(super.onPrepareOptionsMenu(menu), menu);
 	}
+
 
 //	@Override
 //	public void finishFromChild(Activity child) {
@@ -424,6 +404,15 @@ public class TiRootActivity extends ActivityGroup
 			}
 			tiContext.dispatchOnDestroy(this);
 			tiContext.release();
+		}
+		if (menuHelper != null) {
+			menuHelper.destroy();
+			menuHelper = null;
+		}
+		if (activityProxy != null) {
+			activityProxy.fireSyncEvent(TiC.EVENT_DESTROY, null);
+			activityProxy.release();
+			activityProxy = null;
 		}
 	}
 	
