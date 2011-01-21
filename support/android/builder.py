@@ -1101,12 +1101,21 @@ class Builder(object):
 		for jar_file in self.android_jars:
 			add_resource_jar(jar_file)
 
-		# add any native libraries : libs/armeabi/*.so -> lib/armeabi/*.so
-		armeabi_libs_dir = os.path.join(self.project_dir, 'libs', 'armeabi')
-		if os.path.exists(armeabi_libs_dir):
-			for file in os.listdir(armeabi_libs_dir):
-				if file.endswith('.so'):
-					apk_zip.write(os.path.join(armeabi_libs_dir, file), '/'.join(['lib', 'armeabi', file]))
+		def add_native_libs(libs_dir):
+			if os.path.exists(libs_dir):
+				for abi_dir in os.listdir(libs_dir):
+					libs_abi_dir = os.path.join(libs_dir, abi_dir)
+					if not os.path.isdir(libs_abi_dir): continue
+					for file in os.listdir(libs_abi_dir):
+						if file.endswith('.so'):
+							apk_zip.write(os.path.join(libs_abi_dir, file), '/'.join(['lib', abi_dir, file]))
+
+		# add any native libraries : libs/**/*.so -> lib/**/*.so
+		add_native_libs(os.path.join(self.project_dir, 'libs'))
+
+		# add module native libraries
+		for module in self.modules:
+			add_native_libs(module.get_resource('libs'))
 
 		apk_zip.close()
 		return unsigned_apk
