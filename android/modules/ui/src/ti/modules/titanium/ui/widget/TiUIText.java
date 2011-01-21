@@ -61,6 +61,7 @@ public class TiUIText extends TiUIView
 	private static final int KEYBOARD_EMAIL_ADDRESS = 5;
 	private static final int KEYBOARD_NAMEPHONE_PAD = 6;
 	private static final int KEYBOARD_DEFAULT = 7;
+	private static final int KEYBOARD_DECIMAL_PAD = 8;
 	
 	// UIModule also has these as values - there's a chance they won't stay in sync if somebody changes one without changing these
 	private static final int TEXT_AUTOCAPITALIZATION_NONE = 0;
@@ -356,6 +357,7 @@ public class TiUIText extends TiUIView
 				tv.setImeOptions(EditorInfo.IME_ACTION_GO);
 				tv.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_URI | typeModifiers);
 				break;
+			case KEYBOARD_DECIMAL_PAD :
 			case KEYBOARD_NUMBER_PAD :
 				tv.setKeyListener(DigitsKeyListener.getInstance(true,true));
 				tv.setInputType(InputType.TYPE_CLASS_NUMBER | typeModifiers);
