@@ -246,7 +246,7 @@ public class TiFileHelper
 			return d;
 		}
 		
-		return loadDrawable(path, report, checkForNinePatch);
+		return loadDrawable(url, report, checkForNinePatch);
 		
 	}
 

@@ -19,6 +19,7 @@ b1.addEventListener('click', function(e) {
 				var menu = e.menu;
 				
 				var m1 = menu.add({ title : 'Close Window' });
+				m1.setIcon(Titanium.Android.R.drawable.ic_menu_close_clear_cancel);
 				m1.addEventListener('click', function(e) {
 					Ti.UI.currentWindow.close();
 				});
@@ -29,7 +30,7 @@ b1.addEventListener('click', function(e) {
 	var l = Ti.UI.createLabel({
 		backgroundColor : 'white', color : 'black',
 		width : 'auto', height : 'auto',
-		text : 'Press the menu button, then select Close Window'
+		text : 'Press the menu button, then select Close Window. You should see a graphic w/ the menu text.'
 	});
 	w.add (l);
 	
