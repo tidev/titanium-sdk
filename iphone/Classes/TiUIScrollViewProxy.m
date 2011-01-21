@@ -77,6 +77,13 @@
 	[offset release];
 }
 
+- (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView_               // scrolling has ended
+{
+	if ([self _hasListeners:@"scrollEnd"])
+	{
+		[self fireEvent:@"scrollEnd" withObject:nil];
+	}
+}
 
 -(void)scrollViewDidScroll:(UIScrollView *)scrollView
 {

@@ -203,6 +203,11 @@
 #pragma mark scrollView delegate stuff
 
 
+- (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView_               // any offset changes
+{
+	[(id<UIScrollViewDelegate>)[self proxy] scrollViewDidEndDecelerating:scrollView_];
+}
+
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView_               // any offset changes
 {
 	[(id<UIScrollViewDelegate>)[self proxy] scrollViewDidScroll:scrollView_];
