@@ -278,8 +278,8 @@ public class TiScrollableView extends TiCompositeLayout
 				gallery.setDisplayedChild(to);
 				TiEventHelper.fireUnfocused(views.get(to));
 				onScrolled(from, to);
-				if (pager.getVisibility() == View.VISIBLE) {
-					proxy.setPagerTimeout();
+				if (showPagingControl) {
+					showPager();
 				}
 			}
 //		}
@@ -312,8 +312,8 @@ public class TiScrollableView extends TiCompositeLayout
 				gallery.setDisplayedChild(to);
 				TiEventHelper.fireUnfocused(views.get(to));
 				onScrolled(from, to);
-				if (pager.getVisibility() == View.VISIBLE) {
-					proxy.setPagerTimeout();
+				if (showPagingControl) {
+					showPager();
 				}
 			}
 //		}
@@ -332,6 +332,7 @@ public class TiScrollableView extends TiCompositeLayout
 		}
 
 		pager.setVisibility(View.VISIBLE);
+		proxy.setPagerTimeout();
 	}
 
 	public void hidePager() {
@@ -445,6 +446,9 @@ public class TiScrollableView extends TiCompositeLayout
 
 				if (fromWrapper != null && (fromWrapper != toWrapper)) {
 					fromWrapper.doDetachView();
+				}
+				if (showPagingControl) {
+					showPager();
 				}
 			}
 		}

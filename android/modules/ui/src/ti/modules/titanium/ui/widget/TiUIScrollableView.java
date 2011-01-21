@@ -40,8 +40,12 @@ public class TiUIScrollableView extends TiUIView
 		if (d.containsKey("views")) {
 			getView().setViews(d.get("views"));
 		} 
-		if (d.containsKey("showPagingControls")) {
-			getView().setShowPagingControl(TiConvert.toBoolean(d, "showPagingControls"));
+		if (d.containsKey("showPagingControl")) {
+			boolean showPager = TiConvert.toBoolean(d, "showPagingControl");
+			getView().setShowPagingControl(showPager);
+			if (showPager) {
+				showPager();
+			}
 		} 
 		if (d.containsKey("currentPage")) {
 			setCurrentPage(TiConvert.toInt(d, "currentPage"));
