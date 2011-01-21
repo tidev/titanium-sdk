@@ -31,6 +31,17 @@ ignoreDirs = ['.git','.svn','_svn', 'CVS'];
 android_avd_hw = {'hw.camera': 'yes', 'hw.gps':'yes'}
 res_skips = ['style']
 
+# Copied from frameworks/base/tools/aapt/Package.cpp
+uncompressed_types = [
+	".jpg", ".jpeg", ".png", ".gif",
+	".wav", ".mp2", ".mp3", ".ogg", ".aac",
+	".mpg", ".mpeg", ".mid", ".midi", ".smf", ".jet",
+	".rtttl", ".imy", ".xmf", ".mp4", ".m4a",
+	".m4v", ".3gp", ".3gpp", ".3g2", ".3gpp2",
+	".amr", ".awb", ".wma", ".wmv"
+]
+
+
 MIN_API_LEVEL = 4
 
 def dequote(s):
@@ -413,7 +424,6 @@ class Builder(object):
 		for check in tocheck:
 			if os.path.exists(os.path.join(image_parent, check)) and os.path.exists(os.path.join(image_parent, 'res-%sdpi' % check[0])):
 				warn('You have both an android/images/%s folder and an android/images/res-%sdpi folder. Files from both of these folders will end up in res/drawable-%sdpi.  If two files are named the same, there is no guarantee which one will be copied last and therefore be the one the application uses.  You should use just one of these folders to avoid conflicts.' % (check, check[0], check[0]))
-
 
 	def copy_resource_drawables(self):
 		debug('Processing Android resource drawables')
@@ -1048,11 +1058,22 @@ class Builder(object):
 			return path.endswith('/') or \
 				path.startswith('META-INF/') or \
 				path.split('/')[-1].startswith('.')
-			
+		
+		def compression_type(path):
+			ext = os.path.splitext(path)[1]
+			if ext in uncompressed_types:
+				return zipfile.ZIP_STORED
+			return zipfile.ZIP_DEFLATED
+
+		def zipinfo(path):
+			info = zipfile.ZipInfo(path)
+			info.compress_type = compression_type(path)
+			return info
+
 		for path in resources_zip.namelist():
 			if skip_jar_path(path): continue
 			debug("from resource zip => " + path)
-			apk_zip.writestr(path, resources_zip.read(path))
+			apk_zip.writestr(zipinfo(path), resources_zip.read(path))
 		resources_zip.close()
 		
 		# add classes.dex
@@ -1064,7 +1085,7 @@ class Builder(object):
 				if os.path.splitext(file)[1] != '.java':
 					relative_path = os.path.join(root[len(self.project_src_dir)+1:], file)
 					debug("resource file => " + relative_path)
-					apk_zip.write(os.path.join(root, file), relative_path)
+					apk_zip.write(os.path.join(root, file), relative_path, compression_type(file))
 		
 		def add_resource_jar(jar_file):
 			jar = zipfile.ZipFile(jar_file)
@@ -1072,14 +1093,30 @@ class Builder(object):
 				if skip_jar_path(path): continue
 				if os.path.splitext(path)[1] != '.class':
 					debug("from JAR %s => %s" % (jar_file, path))
-					apk_zip.writestr(path, jar.read(path))
+					apk_zip.writestr(zipinfo(path), jar.read(path))
 			jar.close()
 		
 		for jar_file in self.module_jars:
 			add_resource_jar(jar_file)
 		for jar_file in self.android_jars:
 			add_resource_jar(jar_file)
-		
+
+		def add_native_libs(libs_dir):
+			if os.path.exists(libs_dir):
+				for abi_dir in os.listdir(libs_dir):
+					libs_abi_dir = os.path.join(libs_dir, abi_dir)
+					if not os.path.isdir(libs_abi_dir): continue
+					for file in os.listdir(libs_abi_dir):
+						if file.endswith('.so'):
+							apk_zip.write(os.path.join(libs_abi_dir, file), '/'.join(['lib', abi_dir, file]))
+
+		# add any native libraries : libs/**/*.so -> lib/**/*.so
+		add_native_libs(os.path.join(self.project_dir, 'libs'))
+
+		# add module native libraries
+		for module in self.modules:
+			add_native_libs(module.get_resource('libs'))
+
 		apk_zip.close()
 		return unsigned_apk
 
