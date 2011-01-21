@@ -15,6 +15,7 @@ import org.appcelerator.titanium.util.TiActivitySupport;
 import org.appcelerator.titanium.util.TiActivitySupportHelper;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiConvert;
+import org.appcelerator.titanium.util.TiMenuSupport;
 import org.appcelerator.titanium.util.TiPlatformHelper;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.util.TiWeakList;
@@ -49,14 +50,13 @@ public class TiBaseActivity extends Activity
 	protected TiActivitySupportHelper supportHelper;
 	protected TiWindowProxy window;
 	protected ActivityProxy activityProxy;
-	protected SoftReference<ITiMenuDispatcherListener> softMenuDispatcher;
 	protected boolean mustFireInitialFocus;
 	protected Handler handler;
 	protected TiWeakList<ConfigurationChangedListener> configChangedListeners = new TiWeakList<ConfigurationChangedListener>();
 	protected OrientationEventListener orientationListener;
 	protected int orientationDegrees;
 	protected int orientationOverride = -1;
-	protected MenuProxy menuProxy;
+	protected TiMenuSupport menuHelper;
 
 	public static interface ConfigurationChangedListener {
 		public void onConfigurationChanged(TiBaseActivity activity, Configuration newConfig);
@@ -279,11 +279,6 @@ public class TiBaseActivity extends Activity
 		}
 	}
 
-	public void setMenuDispatchListener(ITiMenuDispatcherListener dispatcher) {
-		softMenuDispatcher = new SoftReference<ITiMenuDispatcherListener>(
-			dispatcher);
-	}
-
 	protected TiActivitySupportHelper getSupportHelper() {
 		if (supportHelper == null) {
 			this.supportHelper = new TiActivitySupportHelper(this);
@@ -389,57 +384,20 @@ public class TiBaseActivity extends Activity
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-		boolean created = super.onCreateOptionsMenu(menu);
-		KrollCallback onCreate = (KrollCallback) activityProxy.getProperty(TiC.PROPERTY_ON_CREATE_OPTIONS_MENU);
-		KrollCallback onPrepare = (KrollCallback) activityProxy.getProperty(TiC.PROPERTY_ON_PREPARE_OPTIONS_MENU);
-		if (onCreate != null) {
-			KrollDict event = new KrollDict();
-			if (menuProxy != null) {
-				if (!menuProxy.getMenu().equals(menu)) {
-					menuProxy.setMenu(menu);
-				}
-			} else {
-				menuProxy = new MenuProxy(activityProxy.getTiContext(), menu);
-			}
-			event.put(TiC.EVENT_PROPERTY_MENU, menuProxy);
-			onCreate.callSync(activityProxy.getTiContext(), new Object[] { event });
+		if (menuHelper == null) {
+			menuHelper = new TiMenuSupport(activityProxy);
 		}
-		// If a callback exists then return true.
-		// There is no need for the Ti Developer to support both methods.
-		if (onCreate != null || onPrepare != null) {
-			created = true;
-		}
-		return created;
+		return menuHelper.onCreateOptionsMenu(super.onCreateOptionsMenu(menu), menu);
 	}
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-		MenuItemProxy mip = menuProxy.findItem(item);
-		if (mip != null) {
-			mip.fireEvent(TiC.EVENT_CLICK, null);
-			return true;
-		}
-		return false;
+		return menuHelper.onOptionsItemSelected(item);
 	}
 
 	@Override
 	public boolean onPrepareOptionsMenu(Menu menu) {
-		boolean prepared = super.onPrepareOptionsMenu(menu);
-		KrollCallback onPrepare = (KrollCallback) activityProxy.getProperty(TiC.PROPERTY_ON_PREPARE_OPTIONS_MENU);
-		if (onPrepare != null) {
-			KrollDict event = new KrollDict();
-			if (menuProxy != null) {
-				if (!menuProxy.getMenu().equals(menu)) {
-					menuProxy.setMenu(menu);
-				}
-			} else {
-				menuProxy = new MenuProxy(activityProxy.getTiContext(), menu);
-			}
-			event.put(TiC.EVENT_PROPERTY_MENU, menuProxy);
-			onPrepare.callSync(activityProxy.getTiContext(), new Object[] { event });
-		}
-		prepared = true;
-		return prepared;
+		return menuHelper.onPrepareOptionsMenu(super.onPrepareOptionsMenu(menu), menu);
 	}
 
 	public int getOrientationDegrees() {
@@ -574,9 +532,9 @@ public class TiBaseActivity extends Activity
 			window.closeFromActivity();
 			window = null;
 		}
-		if (menuProxy != null) {
-			menuProxy.release();
-			menuProxy = null;
+		if (menuHelper != null) {
+			menuHelper.destroy();
+			menuHelper = null;
 		}
 		if (activityProxy != null) {
 			activityProxy.fireSyncEvent(TiC.EVENT_DESTROY, null);
