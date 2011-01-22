@@ -25,6 +25,7 @@ import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiUIView;
 
+import android.app.Activity;
 import android.widget.LinearLayout;
 
 public class TiUIDateSpinner extends TiUIView
@@ -52,19 +53,23 @@ public class TiUIDateSpinner extends TiUIView
 	public TiUIDateSpinner(TiViewProxy proxy)
 	{
 		super(proxy);
-		createNativeView();
+	}
+	public TiUIDateSpinner(TiViewProxy proxy, Activity activity)
+	{
+		this(proxy);
+		createNativeView(activity);
 	}
 	
-	private void createNativeView()
+	private void createNativeView(Activity activity)
 	{
 		// defaults
 		maxDate.set(calendar.get(Calendar.YEAR) + 100, 11, 31);
 		minDate.set(calendar.get(Calendar.YEAR) - 100, 0, 1);
 		
 		
-		monthWheel = new WheelView(proxy.getContext());
-		dayWheel = new WheelView(proxy.getContext());
-		yearWheel = new WheelView(proxy.getContext());
+		monthWheel = new WheelView(activity);
+		dayWheel = new WheelView(activity);
+		yearWheel = new WheelView(activity);
 		
 		monthWheel.setTextSize(20);
 		dayWheel.setTextSize(monthWheel.getTextSize());
@@ -74,7 +79,7 @@ public class TiUIDateSpinner extends TiUIView
 		dayWheel.setItemSelectedListener(this);
 		yearWheel.setItemSelectedListener(this);
 		
-		LinearLayout layout = new LinearLayout(proxy.getContext());
+		LinearLayout layout = new LinearLayout(activity);
 		layout.setOrientation(LinearLayout.HORIZONTAL);
 		
 		if (proxy.hasProperty("dayBeforeMonth")) {

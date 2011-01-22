@@ -16,6 +16,7 @@ import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.view.TiUIView;
 
+import android.app.Activity;
 import android.widget.DatePicker;
 import android.widget.DatePicker.OnDateChangedListener;
 
@@ -32,11 +33,15 @@ public class TiUIDatePicker extends TiUIView
 	public TiUIDatePicker(TiViewProxy proxy)
 	{
 		super(proxy);
+	}
+	public TiUIDatePicker(TiViewProxy proxy, Activity activity)
+	{
+		this(proxy);
 		if (DBG) {
 			Log.d(LCAT, "Creating a date picker");
 		}
 		
-		DatePicker picker = new DatePicker(proxy.getContext());
+		DatePicker picker = new DatePicker(activity);
 		setNativeView(picker);
 	}
 	
