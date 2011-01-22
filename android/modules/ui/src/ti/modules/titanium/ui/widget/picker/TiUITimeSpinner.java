@@ -18,6 +18,7 @@ import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.view.TiUIView;
 
+import android.app.Activity;
 import android.widget.LinearLayout;
 
 public class TiUITimeSpinner extends TiUIView
@@ -30,20 +31,23 @@ public class TiUITimeSpinner extends TiUIView
 	
 	private Calendar calendar = Calendar.getInstance();
 	
-	
 	public TiUITimeSpinner(TiViewProxy proxy)
 	{
 		super(proxy);
-		createNativeView();
+	}
+	public TiUITimeSpinner(TiViewProxy proxy, Activity activity)
+	{
+		this(proxy);
+		createNativeView(activity);
 	}
 	
-	private void createNativeView()
+	private void createNativeView(Activity activity)
 	{
 		DecimalFormat formatter = new DecimalFormat("00");
 		FormatNumericWheelAdapter hours = new FormatNumericWheelAdapter(0, 23, formatter, 8);
 		FormatNumericWheelAdapter minutes = new FormatNumericWheelAdapter(0, 59, formatter, 8);
-		hoursWheel = new WheelView(proxy.getContext());
-		minutesWheel = new WheelView(proxy.getContext());
+		hoursWheel = new WheelView(activity);
+		minutesWheel = new WheelView(activity);
 		hoursWheel.setTextSize(20);
 		minutesWheel.setTextSize(hoursWheel.getTextSize());
 		hoursWheel.setAdapter(hours);
@@ -52,7 +56,7 @@ public class TiUITimeSpinner extends TiUIView
     	hoursWheel.setItemSelectedListener(this);
     	minutesWheel.setItemSelectedListener(this);
         
-		LinearLayout layout = new LinearLayout(proxy.getContext());
+		LinearLayout layout = new LinearLayout(activity);
 		layout.setOrientation(LinearLayout.HORIZONTAL);
 		layout.addView(hoursWheel);
 		layout.addView(minutesWheel);

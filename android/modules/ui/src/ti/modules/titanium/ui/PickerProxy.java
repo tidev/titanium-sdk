@@ -103,7 +103,7 @@ public class PickerProxy extends TiViewProxy implements KrollProxyListener
 	
 	private TiUIView createPlainPicker(Activity activity, boolean useSpinner)
 	{
-		TiUIPicker picker = useSpinner ? new TiUISpinner(this) : new TiUINativePicker(this);
+		TiUIPicker picker = useSpinner ? new TiUISpinner(this, activity) : new TiUINativePicker(this, activity);
 		if ((columns == null || columns.size() == 0) && hasProperty("columns") ) {
 			Object columnsAtCreation = getProperty("columns");
 			if (columnsAtCreation.getClass().isArray()) {
@@ -131,22 +131,22 @@ public class PickerProxy extends TiViewProxy implements KrollProxyListener
 	
 	private TiUIView createDatePicker(Activity activity)
 	{
-		return new TiUIDatePicker(this);
+		return new TiUIDatePicker(this, activity);
 	}
 	
 	private TiUIView createTimePicker(Activity activity)
 	{
-		return new TiUITimePicker(this);
+		return new TiUITimePicker(this, activity);
 	}
 	
 	private TiUIView createTimeSpinner(Activity activity)
 	{
-		return new TiUITimeSpinner(this);
+		return new TiUITimeSpinner(this, activity);
 	}
 	
 	private TiUIView createDateSpinner(Activity activity)
 	{
-		return new TiUIDateSpinner(this);
+		return new TiUIDateSpinner(this, activity);
 	}
 	
 	@Kroll.getProperty @Kroll.method

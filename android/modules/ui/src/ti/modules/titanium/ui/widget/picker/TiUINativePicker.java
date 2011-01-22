@@ -6,6 +6,7 @@
  */
 package ti.modules.titanium.ui.widget.picker;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 
 import org.appcelerator.kroll.KrollDict;
@@ -13,6 +14,7 @@ import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.Log;
 
 import ti.modules.titanium.ui.PickerRowProxy;
+import android.app.Activity;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
@@ -27,7 +29,11 @@ public class TiUINativePicker extends TiUIPicker
 	public TiUINativePicker(TiViewProxy proxy) 
 	{
 		super(proxy);
-		Spinner spinner = new Spinner(proxy.getContext());
+	}
+	public TiUINativePicker(TiViewProxy proxy, Activity activity)
+	{
+		this(proxy);
+		Spinner spinner = new Spinner(activity);
 		setNativeView(spinner);
 		refreshNativeView();
 		spinner.setOnItemSelectedListener(this);
