@@ -314,6 +314,7 @@ def main(args):
 	simulator = False
 	xcode_build = False
 	force_xcode = False
+	simtype = devicefamily
 
 	# when you run from xcode, we'll pass xcode as the command and the 
 	# xcode script will simply pass some additional args as well as xcode
@@ -417,6 +418,8 @@ def main(args):
 			ostype = 'simulator'
 			if argc > 6:
 				devicefamily = dequote(args[6].decode("utf-8"))
+			if argc > 7:
+				simtype = dequote(args[7].decode("utf-8"))
 		elif command == 'install':
 			iphone_version = check_iphone_sdk(iphone_version)
 			appuuid = dequote(args[6].decode("utf-8"))
@@ -574,6 +577,7 @@ def main(args):
 			print "[INFO] iPhone SDK version: %s" % iphone_version
 			
 			if simulator:
+				print "[INFO] iPhone simulator device: %s" % simtype
 				# during simulator we need to copy in standard built-in module files
 				# since we might not run the compiler on subsequent launches
 				for module_name in ('facebook','ui'):
@@ -809,6 +813,7 @@ def main(args):
 				compiler_config = {
 					'platform':'ios',
 					'devicefamily':devicefamily,
+					'simtype':simtype,
 					'tiapp':ti,
 					'project_dir':project_dir,
 					'titanium_dir':titanium_dir,
@@ -1099,7 +1104,7 @@ def main(args):
 					if devicefamily==None:
 						sim = subprocess.Popen("\"%s\" launch \"%s\" %s iphone" % (iphonesim,app_dir,iphone_version),shell=True)
 					else:
-						sim = subprocess.Popen("\"%s\" launch \"%s\" %s %s" % (iphonesim,app_dir,iphone_version,devicefamily),shell=True)
+						sim = subprocess.Popen("\"%s\" launch \"%s\" %s %s" % (iphonesim,app_dir,iphone_version,simtype),shell=True)
 
 					# activate the simulator window - we use a OSA script to 
 					# cause the simulator window to come into the foreground (otherwise
