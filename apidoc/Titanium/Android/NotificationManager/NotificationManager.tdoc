@@ -30,7 +30,7 @@ id[int]: The id you assigned to a notification.
 
 - method : notify
 id[int] : An id that may be used to cancel a shown notification.
-notification[object] : An instance of `Titanium.Android.NotificationManager.Notification` created with `Titanium.Android.NotificationManager.createNotification`.
+notification[`Titanium.Android.Notification`] : An instance of `Titanium.Android.Notification` created with `Titanium.Android.createNotification`.
 
 - properties
 

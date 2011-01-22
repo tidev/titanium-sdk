@@ -24,6 +24,13 @@ public class TiUrl
 	protected static final String TAG = "TiUrl";
 	protected static final boolean DBG = TiConfig.LOGD;
 
+	public static final String PATH_SEPARATOR = "/";
+	public static final String SCHEME_SUFFIX = "://";
+	public static final String PARENT_PATH = "..";
+	public static final String CURRENT_PATH = ".";
+	public static final String PARENT_PATH_WITH_SEPARATOR = "../";
+	public static final String CURRENT_PATH_WITH_SEPARATOR = "./";
+
 	public String baseUrl;
 	public String url;
 
@@ -40,31 +47,31 @@ public class TiUrl
 
 	protected static String parseRelativeBaseUrl(String path, String baseUrl, boolean checkAppPrefix) 
 	{
-		String[] right = path.split("/");
+		String[] right = path.split(PATH_SEPARATOR);
 		String[] left = null;
-		if (baseUrl.contains("://")) {
+		if (baseUrl.contains(SCHEME_SUFFIX)) {
 			if (checkAppPrefix) {
 				if (baseUrl.equals(TiC.URL_APP_PREFIX)) {
 					left = new String[0];
 				} else {
-					int idx = baseUrl.indexOf("://");
-					left = baseUrl.substring(idx+3).split("/");
+					int idx = baseUrl.indexOf(SCHEME_SUFFIX);
+					left = baseUrl.substring(idx+3).split(PATH_SEPARATOR);
 				}
 			} else {
-				String[] tmp = baseUrl.split("://");
+				String[] tmp = baseUrl.split(SCHEME_SUFFIX);
 				if (tmp.length > 1) {
-					left = tmp[1].split("/");
+					left = tmp[1].split(PATH_SEPARATOR);
 				} else {
 					left = new String[0];
 				}
 			}
 		} else {
-			left = baseUrl.split("/");
+			left = baseUrl.split(PATH_SEPARATOR);
 		}
 
 		int rIndex = 0;
 		int lIndex = left.length;
-		while(right[rIndex].equals("..")) {
+		while(right[rIndex].equals(PARENT_PATH)) {
 			lIndex--;
 			rIndex++;
 			if (rIndex > right.length-1) {
@@ -75,22 +82,22 @@ public class TiUrl
 		StringBuilder sb = new StringBuilder();
 		for (int i = 0; i < lIndex; i++) {
 			sb.append(sep).append(left[i]);
-			sep = "/";
+			sep = PATH_SEPARATOR;
 		}
 		for (int i = rIndex; i < right.length; i++) {
 			sb.append(sep).append(right[i]);
-			sep = "/";
+			sep = PATH_SEPARATOR;
 		}
 		String bUrl = sb.toString();
-		if (!bUrl.endsWith("/")) {
-			bUrl = bUrl + "/";
+		if (!bUrl.endsWith(PATH_SEPARATOR)) {
+			bUrl = bUrl + PATH_SEPARATOR;
 		}
 		return bUrl;
 	}
 
 	public static TiUrl normalizeWindowUrl(String url) 
 	{
-		int lastSlash = url.lastIndexOf('/');
+		int lastSlash = url.lastIndexOf(PATH_SEPARATOR);
 		String baseUrl = url.substring(0, lastSlash+1);
 		if (baseUrl.length() == 0) {
 			baseUrl = TiC.URL_APP_PREFIX;
@@ -112,14 +119,14 @@ public class TiUrl
 			if (scheme == null) {
 				String path = uri.getPath();
 				String fname = null;
-				if (path != null && path.startsWith("./")) {
+				if (path != null && path.startsWith(CURRENT_PATH_WITH_SEPARATOR)) {
 					if (path.length() == 2) {
 						path = "";
 					} else {
 						path = path.substring(2);
 					}
 				}
-				int lastIndex = path.lastIndexOf("/");
+				int lastIndex = path.lastIndexOf(PATH_SEPARATOR);
 				if (lastIndex > 0) {
 					fname = path.substring(lastIndex+1);
 					path = path.substring(0, lastIndex);
@@ -128,12 +135,12 @@ public class TiUrl
 					path = null;
 				}
 
-				if (url.startsWith("/")) {
+				if (url.startsWith(PATH_SEPARATOR)) {
 					baseUrl = path == null ? TiC.URL_APP_PREFIX : "app:/" + path;
 					url = TiFileHelper2.joinSegments(baseUrl, fname);
 				} else if (path == null && fname != null) {
 					url = TiFileHelper2.joinSegments(baseUrl, fname);
-				} else if (path.startsWith("../")) {
+				} else if (path.startsWith(PARENT_PATH_WITH_SEPARATOR)) {
 					baseUrl = parseRelativeBaseUrl(path, baseUrl, true);
 					baseUrl = TiC.URL_APP_PREFIX + baseUrl;
 					url = TiFileHelper2.joinSegments(baseUrl, fname);
@@ -177,23 +184,23 @@ public class TiUrl
 		if (scheme == null) {
 			scheme = "app:";
 		}
-		if (path.startsWith("./")) {
+		if (path.startsWith(CURRENT_PATH_WITH_SEPARATOR)) {
 			if (path.length() == 2) {
 				path = "";
 			} else {
 				path = path.substring(2);
 			}
 		}
-		if (path.startsWith("../")) {
+		if (path.startsWith(PARENT_PATH_WITH_SEPARATOR)) {
 			path = absoluteUrl(scheme, path, baseUrl);
 		}
 
 		Uri uri = Uri.parse(path);
 		if (uri.getScheme() == null) {
-			if (!path.startsWith("/")) {
+			if (!path.startsWith(PATH_SEPARATOR)) {
 				result = baseUrl + path;
 			} else {
-				result = scheme + "/" + path;
+				result = scheme + PATH_SEPARATOR + path;
 			}
 		} else {
 			result = path;
@@ -215,12 +222,12 @@ public class TiUrl
 			if (scheme == null) {
 				String path = uri.getPath();
 				String fname = null;
-				int lastIndex = path.lastIndexOf("/");
+				int lastIndex = path.lastIndexOf(PATH_SEPARATOR);
 				if (lastIndex > 0) {
 					fname = path.substring(lastIndex+1);
 					path = path.substring(0, lastIndex);
 				}
-				if (path.startsWith("../") || path.equals("..")) {
+				if (path.startsWith(PARENT_PATH_WITH_SEPARATOR) || path.equals(PARENT_PATH)) {
 					String bUrl = parseRelativeBaseUrl(path, baseUrl, false);
 					url = TiFileHelper2.joinSegments(defaultScheme + "//", bUrl, fname);
 				}

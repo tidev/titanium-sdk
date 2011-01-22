@@ -314,6 +314,7 @@ def main(args):
 	simulator = False
 	xcode_build = False
 	force_xcode = False
+	simtype = devicefamily
 
 	# when you run from xcode, we'll pass xcode as the command and the 
 	# xcode script will simply pass some additional args as well as xcode
@@ -336,6 +337,8 @@ def main(args):
 			devicefamily = 'iphone'
 		elif target_device == '2':
 			devicefamily = 'ipad'
+		elif target_device == '1,2':
+			devicefamily = 'universal'
 		if arch == 'i386': 
 			# simulator always indicates simulator
 			deploytype = 'development'
@@ -415,6 +418,8 @@ def main(args):
 			ostype = 'simulator'
 			if argc > 6:
 				devicefamily = dequote(args[6].decode("utf-8"))
+			if argc > 7:
+				simtype = dequote(args[7].decode("utf-8"))
 		elif command == 'install':
 			iphone_version = check_iphone_sdk(iphone_version)
 			appuuid = dequote(args[6].decode("utf-8"))
@@ -572,6 +577,7 @@ def main(args):
 			print "[INFO] iPhone SDK version: %s" % iphone_version
 			
 			if simulator:
+				print "[INFO] iPhone simulator device: %s" % simtype
 				# during simulator we need to copy in standard built-in module files
 				# since we might not run the compiler on subsequent launches
 				for module_name in ('facebook','ui'):
@@ -807,6 +813,7 @@ def main(args):
 				compiler_config = {
 					'platform':'ios',
 					'devicefamily':devicefamily,
+					'simtype':simtype,
 					'tiapp':ti,
 					'project_dir':project_dir,
 					'titanium_dir':titanium_dir,
@@ -899,7 +906,8 @@ def main(args):
 				extra_args = None
 
 				if devicefamily!=None:
-					if devicefamily == 'ipad':
+					# Meet the minimum requirements for ipad when necessary
+					if devicefamily == 'ipad' or devicefamily == 'universal':
 						device_target="TARGETED_DEVICE_FAMILY=2"
 						# iPad requires at a minimum 3.2 (not 3.1 default)
 						deploy_target = "IPHONEOS_DEPLOYMENT_TARGET=3.2"
@@ -907,12 +915,17 @@ def main(args):
 						# xcode warns that 3.2 needs only armv7, but if we don't pass in 
 						# armv6 we get crashes on device
 						extra_args = ["VALID_ARCHS=armv6 armv7 i386"]
+					# Additionally, if we're universal, change the device family target
+					if devicefamily == 'universal':
+						device_target="TARGETED_DEVICE_FAMILY=1,2"
 
 				def execute_xcode(sdk,extras,print_output=True):
 
 					config = name
 					if devicefamily=='ipad':
 						config = "%s-iPad" % config
+					if devicefamily=='universal':
+						config = "%s-universal" % config
 
 					# these are the arguments for running a command line xcode build
 					args = ["xcodebuild","-target",config,"-configuration",target,"-sdk",sdk]
@@ -1091,7 +1104,7 @@ def main(args):
 					if devicefamily==None:
 						sim = subprocess.Popen("\"%s\" launch \"%s\" %s iphone" % (iphonesim,app_dir,iphone_version),shell=True)
 					else:
-						sim = subprocess.Popen("\"%s\" launch \"%s\" %s %s" % (iphonesim,app_dir,iphone_version,devicefamily),shell=True)
+						sim = subprocess.Popen("\"%s\" launch \"%s\" %s %s" % (iphonesim,app_dir,iphone_version,simtype),shell=True)
 
 					# activate the simulator window - we use a OSA script to 
 					# cause the simulator window to come into the foreground (otherwise

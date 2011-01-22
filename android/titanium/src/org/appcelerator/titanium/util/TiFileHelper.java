@@ -37,6 +37,7 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.os.Environment;
 import android.webkit.URLUtil;
 
 public class TiFileHelper
@@ -246,7 +247,7 @@ public class TiFileHelper
 			return d;
 		}
 		
-		return loadDrawable(path, report, checkForNinePatch);
+		return loadDrawable(url, report, checkForNinePatch);
 		
 	}
 
@@ -609,7 +610,8 @@ public class TiFileHelper
 			}
 			else
 			{
-				f = new File("/sdcard/" + context.getPackageName());
+				File storageDir = Environment.getExternalStorageDirectory();
+				f = new File(storageDir, context.getPackageName());
 				if (!f.exists())
 				{
 					f.mkdirs();

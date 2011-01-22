@@ -17,6 +17,7 @@ import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiUIView;
 
+import android.app.Activity;
 import android.widget.TimePicker;
 import android.widget.TimePicker.OnTimeChangedListener;
 
@@ -33,11 +34,15 @@ public class TiUITimePicker extends TiUIView
 	public TiUITimePicker(TiViewProxy proxy)
 	{
 		super(proxy);
+	}
+	public TiUITimePicker(TiViewProxy proxy, Activity activity)
+	{
+		this(proxy);
 		if (DBG) {
 			Log.d(LCAT, "Creating a time picker");
 		}
 		
-		TimePicker picker = new TimePicker(proxy.getContext());
+		TimePicker picker = new TimePicker(activity);
 		picker.setIs24HourView(false);
 		picker.setOnTimeChangedListener(this);
 		setNativeView(picker);

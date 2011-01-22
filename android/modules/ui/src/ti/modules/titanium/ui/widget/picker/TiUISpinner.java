@@ -7,6 +7,7 @@
 
 package ti.modules.titanium.ui.widget.picker;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 
 import kankan.wheel.widget.WheelView;
@@ -21,6 +22,8 @@ import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUIHelper;
 
 import ti.modules.titanium.ui.PickerRowProxy;
+import android.app.Activity;
+import android.content.Context;
 import android.graphics.Typeface;
 import android.widget.LinearLayout;
 
@@ -35,15 +38,33 @@ public class TiUISpinner extends TiUIPicker
 	private Float fontSize = null;
 	private Integer color = null;
 	private Integer visibleItemsCount = new Integer(5);
+	private WeakReference<Activity> weakViewActivity = null;
 	
 	public TiUISpinner(TiViewProxy proxy)
 	{
 		super(proxy);
-		layout = new LinearLayout(proxy.getContext());
+	}
+	public TiUISpinner(TiViewProxy proxy, Activity activity)
+	{
+		this(proxy);
+		weakViewActivity = new WeakReference<Activity>(activity);
+		layout = new LinearLayout(activity);
 		layout.setOrientation(LinearLayout.HORIZONTAL);
 		setNativeView(layout);
 	}
 	
+	private Context getViewContext()
+	{
+		Context ctx = null;
+		if (weakViewActivity != null) {
+			ctx = weakViewActivity.get();
+		}
+		if (ctx == null){
+			ctx = proxy.getContext();
+		}
+		return ctx;
+	}
+
 	@Override
 	protected void refreshNativeView()
 	{
@@ -56,7 +77,7 @@ public class TiUISpinner extends TiUIPicker
 			boolean doSetNative = false;
 			if (layout == null) {
 				doSetNative = true;
-				layout = new LinearLayout(proxy.getContext());
+				layout = new LinearLayout(getViewContext());
 				layout.setOrientation(LinearLayout.HORIZONTAL);
 			} else {
 				layout.removeAllViews();
@@ -71,7 +92,7 @@ public class TiUISpinner extends TiUIPicker
 
 				for (ArrayList<PickerRowProxy> rowset : columns) {
 					TextWheelAdapter adapter = new TextWheelAdapter(rowset.toArray());
-					WheelView view = new WheelView(proxy.getContext());
+					WheelView view = new WheelView(getViewContext());
 					view.setVisibleItems(visibleItemsCount.intValue());
 					applyStyle(view);
 					view.setAdapter(adapter);
@@ -99,7 +120,7 @@ public class TiUISpinner extends TiUIPicker
 	private void applyStyle(WheelView view)
 	{
 		if (fontSize == null) {
-			String sFontSize = TiUIHelper.getDefaultFontSize(proxy.getContext());
+			String sFontSize = TiUIHelper.getDefaultFontSize(getViewContext());
 			fontSize = new Float(TiUIHelper.getSize(sFontSize));
 		}
 		view.setTextSize(fontSize.intValue());

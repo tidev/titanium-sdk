@@ -408,9 +408,7 @@ DEFINE_EXCEPTIONS
 -(void)setBackgroundImage_:(id)image
 {
 	NSURL *bgURL = [TiUtils toURL:image proxy:proxy];
-	UIImage *resultImage = [[ImageLoader sharedLoader] loadImmediateStretchableImage:bgURL
-                                                                         withLeftCap:leftCap
-                                                                          topCap:topCap];
+	UIImage *resultImage = [[ImageLoader sharedLoader] loadImmediateImage:bgURL];
 	if (resultImage==nil && [image isEqualToString:@"Default.png"])
 	{
 		// special case where we're asking for Default.png and it's in Bundle not path
@@ -421,7 +419,9 @@ DEFINE_EXCEPTIONS
 		resultImage = [UIImageResize resizedImage:[resultImage size] 
 							 interpolationQuality:kCGInterpolationNone image:resultImage hires:NO];
 	}
+
 	self.layer.contents = (id)resultImage.CGImage;
+	self.layer.contentsCenter = TiDimensionLayerContentCenter(topCap, leftCap, topCap, leftCap, [resultImage size]);
 	self.clipsToBounds = image!=nil;
     self.backgroundImage = image;
 }

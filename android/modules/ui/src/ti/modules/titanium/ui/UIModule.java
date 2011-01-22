@@ -46,6 +46,7 @@ public class UIModule extends KrollModule
 	@Kroll.constant public static final int KEYBOARD_EMAIL = 5;
 	@Kroll.constant public static final int KEYBOARD_NAMEPHONE_PAD = 6;
 	@Kroll.constant public static final int KEYBOARD_DEFAULT = 7;
+	@Kroll.constant public static final int KEYBOARD_DECIMAL_PAD = 8;
 
 	@Kroll.constant public static final int INPUT_BORDERSTYLE_NONE = 0;
 	@Kroll.constant public static final int INPUT_BORDERSTYLE_ROUNDED = 1;

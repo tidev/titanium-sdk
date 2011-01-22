@@ -1,0 +1,36 @@
+- namespace
+
+Titanium.Blob
+
+- type
+
+object
+
+- description
+
+The blob is an abstract data type that represents binary information, often obtained through HTTPClient or via files. It often is used to store text or the actual data of an image.
+
+- since
+
+0.9
+
+- platforms
+
+android, iphone, ipad
+
+- properties
+
+- methods
+
+imageAsThumbnail: Generate a thumbnail version of an image, optionally with a border and rounded corners (currently iPhone/iPad only)
+
+- method : imageAsThumbnail, object
+
+size[int]: the size of the thumbnail, in either width or height
+borderSize[int]: the optional width of the thumbnail's border. The default is 1.
+cornerRadius[int]: the radius of the thumbnail's corners. The default is 0.
+
+- events
+
+- notes
+

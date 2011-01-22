@@ -67,6 +67,8 @@ class CSSCompiler(object):
 			return key == 'ios' or key == 'iphone'
 		if self.platform == 'ipad':
 			return key == 'ios' or key == 'ipad'
+		if self.platform == 'universal':
+			return key == 'ios' or key == 'ipad' or key == 'iphone'
 		return self.platform == key
 	
 	def __init__(self,dir,platform,appid):
@@ -129,7 +131,7 @@ class CSSCompiler(object):
 		
 		self.transform_properties()
 		
-		if self.platform == 'iphone' or self.platform == 'ipad' or self.platform == 'ios':
+		if self.platform == 'iphone' or self.platform == 'ipad' or self.platform == 'ios' or self.platform == 'universal':
 			self.code = self.generate_ios_code(self.classes,self.classes_density,self.ids,self.ids_density)
 		elif self.platform == 'android':
 			self.code = self.generate_android_code(self.classes,self.classes_density,self.ids,self.ids_density)
@@ -395,7 +397,7 @@ if __name__ == "__main__":
 		asf.write(c.code)
 		asf.close()
 		print "[INFO] wrote %s" % app_stylesheet
-	elif platform in ('iphone','ipad','ios'):
+	elif platform in ('iphone','ipad','ios','universal'):
 		if output_dir==None:
 			iphone_dir = os.path.abspath(os.path.join(path,'build','iphone'))
 			app_stylesheet = os.path.join(iphone_dir,'Resources','stylesheet.plist')

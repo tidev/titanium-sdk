@@ -1,0 +1,104 @@
+- namespace
+
+Titanium.Android.RemoteViews
+
+- type
+
+proxy
+
+- description
+
+The Titanium binding of [Android RemoteViews](http://developer.android.com/reference/android/widget/RemoteViews.html). RemoteViews are an API for referencing and updating views that live in another process (i.e. in a `Titanium.Android.Notification`)
+
+- since
+
+1.6
+
+- platforms
+
+android
+
+- methods
+
+setBoolean: Call a method taking one boolean on a view in the layout for this RemoteViews. See Android's documentation for [setBoolean](http://developer.android.com/reference/android/widget/RemoteViews.html#setBoolean(int, java.lang.String, boolean))
+setDouble: Call a method taking one double on a view in the layout for this RemoteViews. See Android's documentation for [setDouble](http://developer.android.com/reference/android/widget/RemoteViews.html#setDouble(int, java.lang.String, double))
+setInt: Call a method taking one int on a view in the layout for this RemoteViews. See Android's documentation for [setInt](http://developer.android.com/reference/android/widget/RemoteViews.html#setInt(int, java.lang.String, int))
+setString: Call a method taking one String on a view in the layout for this RemoteViews. See Android's documentation for [setString](http://developer.android.com/reference/android/widget/RemoteViews.html#setString(int, java.lang.String, java.lang.String))
+setUri: Call a method taking one Uri on a view in the layout for this RemoteViews. See Android's documentation for [setUri](http://developer.android.com/reference/android/widget/RemoteViews.html#setUri(int, java.lang.String, android.net.Uri))
+setImageViewResource: Sets an ImageView's source given a Resource ID. See Android's documentation for [setImageViewResource](http://developer.android.com/reference/android/widget/RemoteViews.html#setImageViewResource(int, int))
+setImageViewUri: Sets an ImageView's source given a URI (supports both Android and Titanium URLs). See Android's documentation for [setImageViewUri](http://developer.android.com/reference/android/widget/RemoteViews.html#setImageViewUri(int, android.net.Uri))
+setOnClickPendingIntent: Launches a `Titanium.Android.PendingIntent` when the specified view is clicked. See Android's documentation for [setOnClickPendingIntent](http://developer.android.com/reference/android/widget/RemoteViews.html#setOnClickPendingIntent(int, android.app.PendingIntent))
+setProgressBar: Sets the progress, max value, and indeterminate flag of a ProgressBar. See Android's documentation for [setProgressBar](http://developer.android.com/reference/android/widget/RemoteViews.html#setProgressBar(int, int, int, boolean))
+setTextColor: Sets the text color of a view. See Android's documentation for [setTextColor](http://developer.android.com/reference/android/widget/RemoteViews.html#setTextColor(int, int))
+setTextViewText: Sets the text of a TextView. See Android's documentation for [setTextViewText](http://developer.android.com/reference/android/widget/RemoteViews.html#setTextViewText(int, java.lang.CharSequence))
+setViewVisibility: Sets the visibility of a View. See Android's documentation for [setViewVisibility](http://developer.android.com/reference/android/widget/RemoteViews.html#setViewVisibility(int, int))
+setChronometer: Sets a chronometer's base, format, and started flag. See Android's documentation for [setChronometer](http://developer.android.com/reference/android/widget/RemoteViews.html#setChronometer(int, long, java.lang.String, boolean))
+
+- method : setBoolean
+viewId[int]: The resource id of the View (also see `Titanium.App.Android.R`)
+methodName[string]: The name of the method to call
+value[boolean]: The boolean to pass to the method
+
+- method : setDouble
+viewId[int]: The resource id of the View (also see `Titanium.App.Android.R`)
+methodName[string]: The name of the method to call
+value[double]: The double to pass to the method
+
+- method : setInt
+viewId[int]: The resource id of the View (also see `Titanium.App.Android.R`)
+methodName[string]: The name of the method to call
+value[int]: The int to pass to the method
+
+- method : setString
+viewId[int]: The resource id of the View (also see `Titanium.App.Android.R`)
+methodName[string]: The name of the method to call
+value[string]: The String to pass to the method
+
+- method : setUri
+viewId[int]: The resource id of the View (also see `Titanium.App.Android.R`)
+methodName[string]: The name of the method to call
+value[string]: The URI (as a string) to pass to the method
+
+- method : setImageViewResource
+viewId[int]: The resource id of the ImageView whose image should change (also see `Titanium.App.Android.R`)
+srcId[int]: The resource id of the image
+
+- method : setImageViewUri
+viewId[int]: The resource id of the ImageView whose image should change (also see `Titanium.App.Android.R`)
+uri[string]: The URI of the image (both Android and Titanium URLs are supported)
+
+- method : setOnClickPendingIntent
+viewId[int]: The resource id of the View to add a click listener to (also see `Titanium.App.Android.R`)
+pendingIntent[`Ti.Android.PendingIntent`]: The PendingIntent to execute when this view is clicked
+
+- method : setProgressBar
+viewId[int]: The resource id of the ProgressBar to change (also see `Titanium.App.Android.R`)
+max[int]: The new max value of the ProgressBar
+progress[int]: The new progress value of the ProgressBar (from 0..max)
+indeterminate[boolean]: Whether or not the progress in indeterminate
+
+- method : setTextColor
+viewId[int]: The resource id of the View whose text color will change (also see `Titanium.App.Android.R`)
+color[int]: A color as an integer
+
+- method : setTextViewText
+viewId[int]: The resource id of the TextView whose text will change (also see `Titanium.App.Android.R`)
+text[string]: The new text of the TextView
+
+- method : setViewVisibility
+viewId[int]: The resource id of the View whose visibility will change (also see `Titanium.App.Android.R`)
+visibility[int]: The visibility, one of `Titanium.Android.VISIBLE`, `Titanium.Android.INVISIBLE`, or `Titanium.Android.GONE`
+
+- method : setChronometer
+viewId[int]: The resource id of the Chronometer whose values will change (also see `Titanium.App.Android.R`)
+base[date]: The time at which the timer would have read 0:00
+format[string]: The Chronometer format string, or null to simply display the timer value
+started[boolean]: True if you want the clock to be started, false if not
+
+
+- example : Create a RemoteViews based on a custom layout called "custom_layout.xml", and set a label's text.
+~~~
+var AppR = Ti.App.Android.R;
+var customLayout = Ti.Android.createRemoteViews(AppR.layout.custom_layout);
+customLayout.setTextViewText(AppR.id.custom_text, "Hello World");
+~~~

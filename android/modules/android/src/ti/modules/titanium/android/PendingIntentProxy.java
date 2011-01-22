@@ -10,82 +10,86 @@ import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
+import org.appcelerator.titanium.TiApplication;
+import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
-import org.appcelerator.titanium.proxy.ActivityProxy;
 import org.appcelerator.titanium.proxy.IntentProxy;
 import org.appcelerator.titanium.util.TiConfig;
+import org.appcelerator.titanium.util.TiConvert;
 
 import android.app.PendingIntent;
+import android.content.Context;
 
 @Kroll.proxy(creatableInModule=AndroidModule.class)
 public class PendingIntentProxy extends KrollProxy 
 {
-	private static final String TAG = "PendingIntentProxy";
+	private static final String TAG = "TiPendingIntent";
 	private static boolean DBG = TiConfig.LOGD;
-	
-	private PendingIntent pendingIntent;
-	
-	public PendingIntentProxy(TiContext tiContext) 
+
+	protected PendingIntent pendingIntent;
+	protected IntentProxy intent;
+	protected Context pendingIntentContext;
+	protected int flags;
+
+	public PendingIntentProxy(TiContext tiContext)
 	{
 		super(tiContext);
 	}
-	
+
 	@Override
-	public void handleCreationArgs(KrollModule createdInModule, Object[] args) {
-		if (args.length == 0 || !(args[0] instanceof KrollDict)) {
-			throw new IllegalStateException("Missing creation arguments.");
+	public void handleCreationArgs(KrollModule createdInModule, Object[] args)
+	{
+		if (args.length >= 1 && args[0] instanceof IntentProxy) {
+			intent = (IntentProxy) args[0];
+			if (args.length >= 2) {
+				flags = TiConvert.toInt(args[1]);
+			}
 		}
-		
+
 		super.handleCreationArgs(createdInModule, args);
-	}
-	
-	public void handleCreationDict(KrollDict dict) {
-		ActivityProxy activity = null;
-		IntentProxy intent = null;
-		int pendingIntentType = -1;
-		int flags = Integer.MIN_VALUE;
-		
-		if (dict.containsKey("activity")) {
-			activity = (ActivityProxy) dict.get("activity");
+
+		pendingIntentContext = this.context.getActivity();
+		if (context == null) {
+			pendingIntentContext = this.context.getRootActivity();
 		}
-		if (dict.containsKey("intent")) {
-			intent = (IntentProxy) dict.get("intent");
+		if (context == null) {
+			pendingIntentContext = TiApplication.getInstance().getApplicationContext();
 		}
-		if (dict.containsKey("type")) {
-			pendingIntentType = dict.getInt("type");
+		if (pendingIntentContext == null || intent == null) {
+			throw new IllegalStateException("Creation arguments must contain intent");
 		}
-		if (dict.containsKey("flags")) {
-			flags = dict.getInt("flags");
-		}
-		
-		if (activity == null || intent == null || flags == Integer.MIN_VALUE ||
-				(pendingIntentType < 0 || 
-					pendingIntentType > AndroidModule.PENDING_INTENT_MAX_VALUE)) 
-		{
-			throw new IllegalStateException("Creation arguments must contain activity, intent, type, flags");
-		}
-		
-		switch(pendingIntentType) {
-			case AndroidModule.PENDING_INTENT_FOR_ACTIVITY : {
+		switch (intent.getType()) {
+			case IntentProxy.TYPE_ACTIVITY : {
 				pendingIntent = PendingIntent.getActivity(
-					activity.getContext(), 0, intent.getIntent(), flags);
+					pendingIntentContext, 0, intent.getIntent(), flags);
 				break;
 			}
-			case AndroidModule.PENDING_INTENT_FOR_BROADCAST : {
+			case IntentProxy.TYPE_BROADCAST : {
 				pendingIntent = PendingIntent.getBroadcast(
-					activity.getContext(), 0, intent.getIntent(), flags);
+					pendingIntentContext, 0, intent.getIntent(), flags);
 				break;
 			}
-			case AndroidModule.PENDING_INTENT_FOR_SERVICE : {
+			case IntentProxy.TYPE_SERVICE : {
 				pendingIntent = PendingIntent.getService(
-					activity.getContext(), 0, intent.getIntent(), flags);
+					pendingIntentContext, 0, intent.getIntent(), flags);
 				break;
 			}
 		}
-	}
-	
-	public PendingIntent getPendingIntent() {
-		return pendingIntent;
 	}
 
+	public void handleCreationDict(KrollDict dict)
+	{
+		if (dict.containsKey(TiC.PROPERTY_INTENT)) {
+			intent = (IntentProxy) dict.get(TiC.PROPERTY_INTENT);
+		}
+		if (dict.containsKey(TiC.PROPERTY_FLAGS)) {
+			flags = dict.getInt(TiC.PROPERTY_FLAGS);
+		}
+		super.handleCreationDict(dict);
+	}
+
+	public PendingIntent getPendingIntent()
+	{
+		return pendingIntent;
+	}
 }
