@@ -22,7 +22,7 @@ android, iphone, ipad
 - methods
 
 open: open the request and ready the connection
-send: send the request
+send: send the request (Only async is currently supported)
 abort: abort a pending request
 setRequestHeader: set the request header. Must be called after `open` but before `send`.
 setTimeout: set the request timeout
