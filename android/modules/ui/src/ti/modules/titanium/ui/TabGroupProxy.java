@@ -162,6 +162,8 @@ public class TabGroupProxy extends TiWindowProxy
 		String icon = (String) tab.getProperty("icon");
 		String tag = (String) tab.getProperty("tag");
 
+		ViewProxy tView = (ViewProxy) tab.getProperty("tabView");
+
 		if (title == null) {
 			title = "";
 		}
@@ -173,7 +175,9 @@ public class TabGroupProxy extends TiWindowProxy
 
 		if (tag != null && vp != null) {
 			TabSpec tspec = tg.newTab(tag);
-			if (icon == null) {
+			if (tView != null){
+				tspec.setIndicator(tView.getView(null).getNativeView());
+			}else if (icon == null) {
 				tspec.setIndicator(title);
 			} else {
 				String path = getTiContext().resolveUrl(null, icon);
