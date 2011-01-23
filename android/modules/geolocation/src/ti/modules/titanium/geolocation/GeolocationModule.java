@@ -422,7 +422,7 @@ public class GeolocationModule
 		if (!TiGeoHelper.isGeoEvent(eventName)) {
 			return super.addEventListener(invocation, eventName, listener);
 		}
-		
+
 		TiGeoHelper helper = getHelperForContext(invocation, eventName, true);
 		if (helper == null) {
 			Log.w(LCAT, "Unable to get geo helper (location/compass) for event " + eventName);

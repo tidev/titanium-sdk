@@ -7,15 +7,20 @@
 
 package ti.modules.titanium.accelerometer;
 
+import java.lang.ref.WeakReference;
+
 import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollInvocation;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.KrollProxyListener;
 import org.appcelerator.kroll.annotations.Kroll;
+import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiContext.OnLifecycleEvent;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiSensorHelper;
+import org.appcelerator.titanium.util.TiWeakList;
 
 import android.app.Activity;
 import android.hardware.Sensor;
@@ -25,135 +30,54 @@ import android.hardware.SensorManager;
 
 @Kroll.module
 public class AccelerometerModule extends KrollModule
-	implements KrollProxyListener, OnLifecycleEvent
+	implements KrollProxyListener, OnLifecycleEvent, SensorEventListener
 {
+	public static final String EVENT_UPDATE = "update";
+	
 	private static final String LCAT = "TiAccelerometer";
 	private static final boolean DBG = TiConfig.LOGD;
 
-	public static final String EVENT_UPDATE = "update";
-
-	protected TiSensorHelper sensorHelper;
-
-	protected SensorEventListener updateListener;
-
-	protected boolean sensorAttached;
-	protected boolean listeningForUpdate;
-
-	protected long lastEventInUpdate;
-
-	protected float last_x;
-	protected float last_y;
-	protected float last_z;
-
-	public AccelerometerModule(TiContext tiContext)
-	{
+	private long lastSensorEventTimestamp = 0;
+	
+	public AccelerometerModule(TiContext tiContext) {
 		super(tiContext);
-		sensorHelper = new TiSensorHelper();
-		updateListener = createUpdateListener();
-
-		sensorAttached = false;
-		listeningForUpdate = false;
-
-		eventManager.addOnEventChangeListener(this);
-	}
-
-	protected SensorEventListener createUpdateListener() {
-		return new SensorEventListener()
-		{
-
-			public void onAccuracyChanged(Sensor sensor, int accuracy)
-			{
-
-			}
-
-			public void onSensorChanged(SensorEvent event)
-			{
-				if (event.timestamp - lastEventInUpdate > 100) {
-					lastEventInUpdate = event.timestamp;
-
-					float x = event.values[SensorManager.DATA_X];
-					float y = event.values[SensorManager.DATA_Y];
-					float z = event.values[SensorManager.DATA_Z];
-
-					KrollDict data = new KrollDict();
-					data.put("type", EVENT_UPDATE);
-					data.put("timestamp", lastEventInUpdate);
-					data.put("x", x);
-					data.put("y", y);
-					data.put("z", z);
-					fireEvent(EVENT_UPDATE, data);
-				}
-			}
-		};
 	}
 
 	@Override
-	public void listenerAdded(String eventName, int count, KrollProxy proxy) {
-		super.listenerAdded(eventName, count, proxy);
-		if (eventName != null && eventName.equals(EVENT_UPDATE)) {
-			if (proxy != null && proxy.equals(this)) {
-				if (!listeningForUpdate) {
-					sensorAttached = sensorHelper.attach(getTiContext().getActivity());
-
-					manageUpdateListener(true);
-				}
-			}
+	public int addEventListener(KrollInvocation invocation, String eventName, Object listener) {
+		if (EVENT_UPDATE.equals(eventName)) {
+			TiSensorHelper.registerListener(Sensor.TYPE_ACCELEROMETER, this, SensorManager.SENSOR_DELAY_UI);
 		}
+		return super.addEventListener(invocation, eventName, listener);
 	}
 
 	@Override
-	public void listenerRemoved(String eventName, int count, KrollProxy proxy) {
-		super.listenerRemoved(eventName, count, proxy);
-		if (eventName != null && eventName.equals(EVENT_UPDATE)) {
-			if (proxy != null && proxy.equals(this)) {
-				if (count == 0) {
-					if (sensorAttached) {
-						manageUpdateListener(false);
-
-						sensorHelper.detach();
-						sensorAttached = false;
-					}
-				}
-			}
+	public void removeEventListener(KrollInvocation invocation, String eventName, Object listener) {
+		if (EVENT_UPDATE.equals(eventName)) {
+			TiSensorHelper.unregisterListener(Sensor.TYPE_ACCELEROMETER, this);
 		}
+		super.removeEventListener(invocation, eventName, listener);
 	}
 
-	protected void manageUpdateListener(boolean register)
-	{
-		if (sensorAttached) {
-			if (register) {
-				sensorHelper.registerListener(Sensor.TYPE_ACCELEROMETER,
-						updateListener, SensorManager.SENSOR_DELAY_UI);
-				listeningForUpdate = true;
-			} else {
-				if (listeningForUpdate) {
-					sensorHelper.unregisterListener(Sensor.TYPE_ACCELEROMETER, updateListener);
-					listeningForUpdate = false;
-				}
-			}
-		}
+	public void onAccuracyChanged(Sensor sensor, int accuracy) {
 	}
 
-	@Override
-	public void onResume(Activity activity) {
-		super.onResume(activity);
-		sensorAttached = sensorHelper.attach(getTiContext().getActivity());
+	public void onSensorChanged(SensorEvent event) {
+		if (event.timestamp - lastSensorEventTimestamp > 100) {
+			lastSensorEventTimestamp = event.timestamp;
 
-		if (sensorAttached) {
-			if (hasListeners(EVENT_UPDATE)) {
-				manageUpdateListener(true);
-			}
-		}
-	}
+			float x = event.values[SensorManager.DATA_X];
+			float y = event.values[SensorManager.DATA_Y];
+			float z = event.values[SensorManager.DATA_Z];
 
-	@Override
-	public void onPause(Activity activity) {
-		super.onPause(activity);
-		if (sensorAttached) {
-			manageUpdateListener(false);
-
-			sensorHelper.detach();
-			sensorAttached = false;
+			KrollDict data = new KrollDict();
+			data.put("type", EVENT_UPDATE);
+			data.put("timestamp", lastSensorEventTimestamp);
+			data.put("x", x);
+			data.put("y", y);
+			data.put("z", z);
+			fireEvent(EVENT_UPDATE, data);
 		}
 	}
 }
+

@@ -9,6 +9,8 @@ package org.appcelerator.titanium.util;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.appcelerator.titanium.TiApplication;
+
 import android.app.Activity;
 import android.content.Context;
 import android.hardware.Sensor;
@@ -18,94 +20,81 @@ import android.os.Build;
 
 public class TiSensorHelper
 {
-	private static final String LCAT = "TiSensorHlpr";
+	private static final String LCAT = "TiSensorHelper";
 	private static final boolean DBG = TiConfig.LOGD;
 
 	private static boolean warningDisplayed = false;
+	private static AtomicInteger listenerCount = new AtomicInteger();
+	private static SensorManager sensorManager;
 
-	private SensorManager sensorManager;
-	private AtomicInteger listenerCount;
-
-	public TiSensorHelper()
-	{
-		listenerCount = new AtomicInteger();
-	}
-
-	public SensorManager getSensorManager() {
+	public static SensorManager getSensorManager() {
 		return sensorManager;
 	}
 
-	public boolean isEmpty() {
-		return listenerCount.get() == 0;
-	}
-
-	public boolean attach(Activity activity) {
-		if (! Build.MODEL.equals("sdk"))
-		{
-			sensorManager = (SensorManager) activity.getSystemService(Context.SENSOR_SERVICE);
-		} else {
-			if (!TiSensorHelper.warningDisplayed) {
-				Log.w(LCAT, "Sensors disabled on Emulator. Bug in 1.5 emulator hangs");
-				TiSensorHelper.warningDisplayed = true;
-			}
-		}
-
-		return sensorManager != null;
-	}
-
-	public void detach()
-	{
-		if (sensorManager != null) {
-			if (listenerCount.get() == 0) {
-				sensorManager = null;
-			} else {
-				throw new IllegalStateException("Detaching not allowed with registered listeners.");
-			}
-		}
-	}
-	public void registerListener(int[] types, SensorEventListener listener, int rate)
+	public static void registerListener(int[] types, SensorEventListener listener, int rate)
 	{
 		for (int type : types) {
 			registerListener(type, listener, rate);
 		}
 	}
-	public void registerListener(int type, SensorEventListener listener, int rate) {
-		if (sensorManager != null) {
-			Sensor s  = sensorManager.getDefaultSensor(type);
-			if (s != null) {
-				if (DBG) {
-					Log.d(LCAT, "Enabling Listener: " + s.getName());
-				}
-				sensorManager.registerListener(listener, s, rate);
-				listenerCount.incrementAndGet();
+
+	public static void registerListener(int type, SensorEventListener listener, int rate)
+	{
+		if (listenerCount.get() == 0) {
+			if (sensorManager == null) {
+				sensorManager = (SensorManager) TiApplication.getInstance().getSystemService(Context.SENSOR_SERVICE);
 			}
+		}
+
+		if (sensorManager != null) {
+			Sensor sensor  = sensorManager.getDefaultSensor(type);
+			if (sensor != null) {
+				if (DBG) {
+					Log.d(LCAT, "Enabling Listener: " + sensor.getName());
+				}
+				sensorManager.registerListener(listener, sensor, rate);
+				listenerCount.incrementAndGet();
+			} else {
+				Log.e(LCAT, "unable to register, sensor is null");
+			}
+		} else {
+			Log.e(LCAT, "unable to register, sensorManager is null");
 		}
 	}
 
-	public void unregisterListener(int[] types, SensorEventListener listener)
+	public static void unregisterListener(int[] types, SensorEventListener listener)
 	{
 		for (int type : types) {
 			unregisterListener(type, listener);
 		}
 	}
 
-	public void unregisterListener(int type, SensorEventListener listener) {
+	public static void unregisterListener(int type, SensorEventListener listener)
+	{
 		if (sensorManager != null) {
-			Sensor s = sensorManager.getDefaultSensor(type);
-			if (s != null) {
+			Sensor sensor = sensorManager.getDefaultSensor(type);
+			if (sensor != null) {
 				if (DBG) {
-					Log.d(LCAT, "Disabling Listener: " + s.getName());
+					Log.d(LCAT, "Disabling Listener: " + sensor.getName());
 				}
-				sensorManager.unregisterListener(listener, s);
-				listenerCount.decrementAndGet();
+				sensorManager.unregisterListener(listener, sensor);
+
+				if (listenerCount.decrementAndGet() == 0) {
+					sensorManager = null;
+				}
+			} else {
+				Log.e(LCAT, "unable to unregister, sensor is null");
 			}
+		} else {
+			Log.e(LCAT, "unable to unregister, sensorManager is null");
 		}
 	}
-	
-	public boolean hasDefaultSensor(Activity activity, int type)
+
+	public static boolean hasDefaultSensor(Activity activity, int type)
 	{
 		boolean oneShot = false;
 		boolean result = false;
+
 		if (sensorManager == null)
 		{
 			oneShot = true;
@@ -118,6 +107,7 @@ public class TiSensorHelper
 				sensorManager = null;
 			}
 		}
+
 		return result;
 	}
 }

@@ -382,6 +382,12 @@ public class TiLocation extends TiGeoHelper
 	}
 
 	@Override
+	protected void pause()
+	{
+		detach();
+	}
+
+	@Override
 	protected GeoFeature getFeature()
 	{
 		return GeoFeature.LOCATION;

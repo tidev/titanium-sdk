@@ -56,7 +56,7 @@ public abstract class TiGeoHelper implements OnLifecycleEvent
 	public void onPause(Activity activity)
 	{
 		Log.d(LCAT, this.getClass().getSimpleName() + " onPause");
-		detach();
+		pause();
 	}
 
 	@Override
@@ -154,6 +154,7 @@ public abstract class TiGeoHelper implements OnLifecycleEvent
 	protected abstract void detach();
 	protected abstract void attach();
 	protected abstract void resume();
+	protected abstract void pause();
 	protected abstract GeoFeature getFeature();
 	protected abstract boolean supportsEvent(String eventName);
 
