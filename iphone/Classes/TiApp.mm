@@ -163,17 +163,24 @@ void MyUncaughtExceptionHandler(NSException *exception)
 
 - (UIView*)attachSplash
 {
-	CGFloat splashY = -TI_STATUSBAR_HEIGHT;
-	if ([[UIApplication sharedApplication] isStatusBarHidden])
-	{
-		splashY = 0;
-	}
+	UIView * controllerView = [controller view];
+	
 	RELEASE_TO_NIL(loadView);
-	CGRect viewFrame = [[UIScreen mainScreen] bounds];
-	BOOL flipLandscape = UIDeviceOrientationIsLandscape([[UIDevice currentDevice] orientation]);
-	loadView = [[UIImageView alloc] initWithFrame:CGRectMake(0, splashY, 
-															 flipLandscape ? viewFrame.size.height : viewFrame.size.width, 
-															 flipLandscape ? viewFrame.size.width : viewFrame.size.height)];
+
+	CGRect destRect;
+
+	if([TiUtils isIPad]) //iPad, 1024*748 or 748*1004, under the status bar.
+	{
+		destRect = [controllerView bounds];
+	}
+	else //iPhone: 320*480, placing behind the statusBar.
+	{
+		destRect = [controllerView convertRect:[[UIScreen mainScreen] bounds] fromView:nil];
+		destRect.origin.y -= [[UIApplication sharedApplication] statusBarFrame].size.height;
+	}
+
+	loadView = [[UIImageView alloc] initWithFrame:destRect];
+	[loadView setContentMode:UIViewContentModeScaleAspectFill];
 	loadView.image = [self loadAppropriateSplash];
 	[controller.view addSubview:loadView];
 	splashAttached = YES;
