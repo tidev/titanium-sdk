@@ -55,7 +55,7 @@ public class TiAnimationBuilder
 	protected TiAnimation animationProxy;
 
 	protected KrollCallback callback;
-	protected boolean relayoutChild = false, applyOpacity = false, clearingAnimation = false;
+	protected boolean relayoutChild = false, applyOpacity = false;
 	protected KrollDict options;
 	protected View view;
 	protected TiViewProxy viewProxy;
@@ -381,15 +381,11 @@ public class TiAnimationBuilder
 		@Override
 		public void onAnimationEnd(Animation a)
 		{
-			if (clearingAnimation) return;
-
 			if (relayoutChild) {
 				LayoutParams params = (LayoutParams) view.getLayoutParams();
 				TiConvert.fillLayout(options, params);
 				view.setLayoutParams(params);
-				clearingAnimation = true;
 				view.clearAnimation();
-				clearingAnimation = false;
 				relayoutChild = false;
 			}
 			if (applyOpacity) {
@@ -407,11 +403,13 @@ public class TiAnimationBuilder
 				}
 				applyOpacity = false;
 			}
-			if (callback != null) {
-				callback.callAsync();
-			}
-			if (animationProxy != null) {
-				animationProxy.fireEvent(TiC.EVENT_COMPLETE, null);
+			if (a instanceof AnimationSet) {
+				if (callback != null) {
+					callback.callAsync();
+				}
+				if (animationProxy != null) {
+					animationProxy.fireEvent(TiC.EVENT_COMPLETE, null);
+				}
 			}
 		}
 
