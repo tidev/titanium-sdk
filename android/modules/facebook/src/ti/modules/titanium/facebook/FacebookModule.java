@@ -323,7 +323,9 @@ public class FacebookModule extends KrollModule
 	
 	protected void addListener(TiFacebookStateListener listener)
 	{
-		stateListeners.add(listener);
+		if (!stateListeners.contains(listener)) {
+			stateListeners.add(listener);
+		}
 	}
 	
 	protected void removeListener(TiFacebookStateListener listener)

@@ -27,7 +27,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ImageButton;
 
-public class LoginButton extends TiUIView
+public class LoginButton extends TiUIView implements TiFacebookStateListener
 {
 	private static final String LCAT = "TiLoginButton";
 	private FacebookModule facebook = null;
@@ -107,6 +107,9 @@ public class LoginButton extends TiUIView
 	{
 		boolean loggedIn = facebook.loggedIn();
 		ImageButton btn = (ImageButton) getNativeView();
+		if (btn == null) {
+			return;
+		}
 		String path = "ti/modules/titanium/facebook/resources/log"
 				+ (!loggedIn ? "in" : "out") + (wide && !loggedIn ? "2" : "")
 				+ (pressed ? "_down" : "") + ".png";
@@ -123,19 +126,7 @@ public class LoginButton extends TiUIView
 	public void processProperties(KrollDict d) {
 		super.processProperties(d);
 
-		facebook.addListener(new TiFacebookStateListener() 
-		{
-			@Override
-		    public void login()
-		    {
-				updateButtonImage(false);
-		    }
-			@Override
-		    public void logout()
-		    {
-				updateButtonImage(false);
-		    }
-		});
+		facebook.addListener(this);
 
 		if (d.containsKey("style")) {
 			String style = TiConvert.toString(d, "style");
@@ -143,6 +134,27 @@ public class LoginButton extends TiUIView
 				wide = true;
 				updateButtonImage(false);
 			}
+		}
+	}
+
+	// TiFacebookStateListener implementation
+	@Override
+    public void login()
+    {
+		updateButtonImage(false);
+    }
+	@Override
+    public void logout()
+    {
+		updateButtonImage(false);
+    }
+
+	@Override
+	public void release()
+	{
+		super.release();
+		if (facebook != null) {
+			facebook.removeListener(this);
 		}
 	}
 }
