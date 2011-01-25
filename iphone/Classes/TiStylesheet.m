@@ -86,5 +86,10 @@
 	return result;
 }
 
+-(BOOL)basename:(NSString *)basename density:(NSString *)density hasClass:(NSString *)className
+{
+	return ([[classesDict objectForKey:basename] objectForKey:className] != nil ||
+			[[[classesDictByDensity objectForKey:basename] objectForKey:density] objectForKey:className]);
+}
 
 @end
