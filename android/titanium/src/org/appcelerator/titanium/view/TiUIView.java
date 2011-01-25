@@ -222,7 +222,8 @@ public abstract class TiUIView
 		}
 		if (nativeView != null) {
 			if (matrix != null) {
-				Animation matrixAnimation = animBuilder.createMatrixAnimation(matrix);
+				TiMatrixAnimation matrixAnimation = animBuilder.createMatrixAnimation(matrix);
+				matrixAnimation.interpolate = false;
 				matrixAnimation.setDuration(1);
 				matrixAnimation.setFillAfter(true);
 				nativeView.startAnimation(matrixAnimation);

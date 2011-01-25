@@ -164,7 +164,7 @@ public class TiAnimationBuilder
 		as.addAnimation(a);
 	}
 
-	public Animation createMatrixAnimation(Ti2DMatrix matrix)
+	public TiMatrixAnimation createMatrixAnimation(Ti2DMatrix matrix)
 	{
 		return new TiMatrixAnimation(matrix, anchorX, anchorY);
 	}
@@ -341,6 +341,7 @@ public class TiAnimationBuilder
 		protected Ti2DMatrix matrix;
 		protected int childWidth, childHeight;
 		protected float anchorX = -1, anchorY = -1;
+		public boolean interpolate = true;
 
 		public TiMatrixAnimation(Ti2DMatrix matrix, float anchorX, float anchorY)
 		{
@@ -360,8 +361,12 @@ public class TiAnimationBuilder
 		protected void applyTransformation(float interpolatedTime, Transformation t)
 		{
 			super.applyTransformation(interpolatedTime, t);
-			Matrix m = matrix.interpolate(interpolatedTime, childWidth, childHeight, anchorX, anchorY);
-			t.getMatrix().set(m);
+			if (interpolate) {
+				Matrix m = matrix.interpolate(interpolatedTime, childWidth, childHeight, anchorX, anchorY);
+				t.getMatrix().set(m);
+			} else {
+				t.getMatrix().set(getFinalMatrix(childWidth, childHeight));
+			}
 		}
 
 		public Matrix getFinalMatrix(int childWidth, int childHeight)

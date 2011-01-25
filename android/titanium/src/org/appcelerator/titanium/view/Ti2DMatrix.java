@@ -179,9 +179,10 @@ public class Ti2DMatrix extends KrollProxy
 	public Matrix interpolate(float interpolatedTime, int childWidth, int childHeight, float anchorX, float anchorY)
 	{
 		Ti2DMatrix first = this;
-		do {
+		while (first.prev != null)
+		{
 			first = first.prev;
-		} while (first.prev != null);
+		}
 
 		Matrix matrix = new Matrix();
 		for (Ti2DMatrix current = first; current != this; current = current.next) {
