@@ -22,10 +22,12 @@ import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiMimeTypeHelper;
+import org.appcelerator.titanium.view.TiBackgroundDrawable;
 import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.titanium.view.TiUIView;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.net.Uri;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
@@ -98,6 +100,13 @@ public class TiUIWebView extends TiUIView {
 				setData((TiBlob)value);
 			}
 		}
+
+		// If TiUIView's processProperties ended up making a TiBackgroundDrawable
+		// for the background, we must set the WebView background color to transparent
+		// in order to see any of it.
+		if (nativeView != null && nativeView.getBackground() instanceof TiBackgroundDrawable) {
+			nativeView.setBackgroundColor(Color.TRANSPARENT);
+		}
 	}
 
 	@Override
@@ -112,6 +121,13 @@ public class TiUIWebView extends TiUIView {
 			}
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
+		}
+		// If TiUIView's propertyChanged ended up making a TiBackgroundDrawable
+		// for the background, we must set the WebView background color to transparent
+		// in order to see any of it.
+		boolean isBgRelated = (key.startsWith(TiC.PROPERTY_BACKGROUND_PREFIX) || key.startsWith(TiC.PROPERTY_BORDER_PREFIX));
+		if (isBgRelated && nativeView != null && nativeView.getBackground() instanceof TiBackgroundDrawable) {
+			nativeView.setBackgroundColor(Color.TRANSPARENT);
 		}
 	}
 
