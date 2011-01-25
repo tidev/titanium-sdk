@@ -38,8 +38,8 @@ public class TiAnimationBuilder
 	private static final String LCAT = "TiAnimationBuilder";
 	private static final boolean DBG = TiConfig.LOGD;
 	
-	protected double anchorX;
-	protected double anchorY;
+	protected float anchorX;
+	protected float anchorY;
 
 	protected Ti2DMatrix tdm = null;
 	protected Double delay = null;
@@ -55,16 +55,15 @@ public class TiAnimationBuilder
 	protected TiAnimation animationProxy;
 
 	protected KrollCallback callback;
-	protected boolean relayoutChild = false, applyOpacity = false, clearingAnimation = false;
+	protected boolean relayoutChild = false, applyOpacity = false;
 	protected KrollDict options;
 	protected View view;
 	protected TiViewProxy viewProxy;
 	
 	public TiAnimationBuilder() 
 	{
-		// Defaults
-		anchorX = 0.5;
-		anchorY = 0.5;
+		anchorX = Ti2DMatrix.DEFAULT_ANCHOR_VALUE;
+		anchorY = Ti2DMatrix.DEFAULT_ANCHOR_VALUE;
 	}
 
 	public void applyOptions(KrollDict options)
@@ -75,8 +74,8 @@ public class TiAnimationBuilder
 
 		if (options.containsKey(TiC.PROPERTY_ANCHOR_POINT)) {
 			KrollDict point = (KrollDict) options.get(TiC.PROPERTY_ANCHOR_POINT);
-			anchorX = KrollConverter.toDouble(point, TiC.PROPERTY_X);
-			anchorY = KrollConverter.toDouble(point, TiC.PROPERTY_Y);
+			anchorX = KrollConverter.toFloat(point, TiC.PROPERTY_X);
+			anchorY = KrollConverter.toFloat(point, TiC.PROPERTY_Y);
 		}
 
 		if (options.containsKey(TiC.PROPERTY_TRANSFORM)) {
@@ -167,7 +166,7 @@ public class TiAnimationBuilder
 
 	public Animation createMatrixAnimation(Ti2DMatrix matrix)
 	{
-		return new TiMatrixAnimation(matrix.getMatrix());
+		return new TiMatrixAnimation(matrix, anchorX, anchorY);
 	}
 
 	public AnimationSet render(TiViewProxy viewProxy, View view, int x, int y, int w, int h, int parentWidth, int parentHeight)
@@ -201,7 +200,11 @@ public class TiAnimationBuilder
 		if (tdm != null) {
 			as.setFillAfter(true);
 			as.setFillEnabled(true);
-			addAnimation(as, new TiMatrixAnimation(tdm.getMatrix()));
+			TiMatrixAnimation matrixAnimation = new TiMatrixAnimation(tdm, anchorX, anchorY);
+			if (duration != null) {
+				matrixAnimation.setDuration(duration.longValue());
+			}
+			addAnimation(as, matrixAnimation);
 		}
 
 		// Set duration after adding children.
@@ -335,36 +338,43 @@ public class TiAnimationBuilder
 
 	public static class TiMatrixAnimation extends Animation
 	{
-		protected float matrix[] = new float[9];
-		protected float interpolatedMatrix[] = new float[9];
-		public TiMatrixAnimation(Matrix m)
+		protected Ti2DMatrix matrix;
+		protected int childWidth, childHeight;
+		protected float anchorX = -1, anchorY = -1;
+
+		public TiMatrixAnimation(Ti2DMatrix matrix, float anchorX, float anchorY)
 		{
-			m.getValues(matrix);
+			this.matrix = matrix;
+			this.anchorX = anchorX;
+			this.anchorY = anchorY;
+		}
+
+		@Override
+		public void initialize(int width, int height, int parentWidth, int parentHeight) {
+			super.initialize(width, height, parentWidth, parentHeight);
+			this.childWidth = width;
+			this.childHeight = height;
 		}
 
 		@Override
 		protected void applyTransformation(float interpolatedTime, Transformation t)
 		{
 			super.applyTransformation(interpolatedTime, t);
-			for (int i = 0; i < 9; i++) {
-				interpolatedMatrix[i] = matrix[i] * interpolatedTime;
-			}
-			Matrix copy = new Matrix();
-			copy.setValues(interpolatedMatrix);
-			t.getMatrix().set(copy);
+			Matrix m = matrix.interpolate(interpolatedTime, childWidth, childHeight, anchorX, anchorY);
+			t.getMatrix().set(m);
 		}
 
-		public Matrix getFinalMatrix()
+		public Matrix getFinalMatrix(int childWidth, int childHeight)
 		{
-			Matrix m = new Matrix();
-			m.setValues(matrix);
-			return m;
+			return matrix.interpolate(1.0f, childWidth, childHeight, anchorX, anchorY);
 		}
 
 		public void invalidateWithMatrix(View view)
 		{
-			Matrix m = getFinalMatrix();
-			RectF rectF = new RectF(0, 0, view.getWidth(), view.getHeight());
+			int width = view.getWidth();
+			int height = view.getHeight();
+			Matrix m = getFinalMatrix(width, height);
+			RectF rectF = new RectF(0, 0, width, height);
 			m.mapRect(rectF);
 			rectF.inset(-1.0f, -1.0f);
 			Rect rect = new Rect();
@@ -381,15 +391,11 @@ public class TiAnimationBuilder
 		@Override
 		public void onAnimationEnd(Animation a)
 		{
-			if (clearingAnimation) return;
-
 			if (relayoutChild) {
 				LayoutParams params = (LayoutParams) view.getLayoutParams();
 				TiConvert.fillLayout(options, params);
 				view.setLayoutParams(params);
-				clearingAnimation = true;
 				view.clearAnimation();
-				clearingAnimation = false;
 				relayoutChild = false;
 			}
 			if (applyOpacity) {
@@ -407,11 +413,13 @@ public class TiAnimationBuilder
 				}
 				applyOpacity = false;
 			}
-			if (callback != null) {
-				callback.callAsync();
-			}
-			if (animationProxy != null) {
-				animationProxy.fireEvent(TiC.EVENT_COMPLETE, null);
+			if (a instanceof AnimationSet) {
+				if (callback != null) {
+					callback.callAsync();
+				}
+				if (animationProxy != null) {
+					animationProxy.fireEvent(TiC.EVENT_COMPLETE, null);
+				}
 			}
 		}
 

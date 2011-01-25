@@ -74,6 +74,22 @@ public class TableViewRowProxy extends TiViewProxy
 		}
 		controls.add(control);
 		control.setParent(this);
+		if (tableViewItem != null) {
+			Message msg = getUIHandler().obtainMessage(MSG_SET_DATA);
+			msg.sendToTarget();
+		}
+	}
+
+	@Override
+	public void remove(TiViewProxy control) {
+		if (controls == null) {
+			return;
+		}
+		controls.remove(control);
+		if (tableViewItem != null) {
+			Message msg = getUIHandler().obtainMessage(MSG_SET_DATA);
+			msg.sendToTarget();
+		}
 	}
 
 	public void setTableViewItem(TiTableViewRowProxyItem item) {

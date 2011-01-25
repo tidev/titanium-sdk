@@ -22,6 +22,7 @@ import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.titanium.view.TiUIView;
 
+import ti.modules.titanium.ui.LabelProxy;
 import ti.modules.titanium.ui.TableViewProxy;
 import ti.modules.titanium.ui.TableViewRowProxy;
 import ti.modules.titanium.ui.widget.searchbar.TiUISearchBar.OnSearchChangeListener;
@@ -306,16 +307,16 @@ public class TiTableView extends FrameLayout
 			}
 		});
 
-		if (proxy.getProperties().containsKey(TableViewProxy.PROPERTY_SEPARATOR_COLOR)) {
-			setSeparatorColor(TiConvert.toString(proxy.getProperty(TableViewProxy.PROPERTY_SEPARATOR_COLOR)));
+		if (proxy.getProperties().containsKey(TiC.PROPERTY_SEPARATOR_COLOR)) {
+			setSeparatorColor(TiConvert.toString(proxy.getProperty(TiC.PROPERTY_SEPARATOR_COLOR)));
 		}
 		adapter = new TTVListAdapter(viewModel);
-		if (proxy.getProperties().containsKey(TableViewProxy.PROPERTY_HEADER_VIEW)) {
-			TiViewProxy view = (TiViewProxy) proxy.getProperty(TableViewProxy.PROPERTY_HEADER_VIEW);
-		 	listView.addHeaderView(layoutHeaderOrFooter(view), null, false);
+		if (proxy.hasProperty(TiC.PROPERTY_HEADER_VIEW)) {
+			TiViewProxy view = (TiViewProxy) proxy.getProperty(TiC.PROPERTY_HEADER_VIEW);
+			listView.addHeaderView(layoutHeaderOrFooter(view), null, false);
 		}
-		if (proxy.getProperties().containsKey(TableViewProxy.PROPERTY_FOOTER_VIEW)) {
-			TiViewProxy view = (TiViewProxy) proxy.getProperty(TableViewProxy.PROPERTY_FOOTER_VIEW);
+		if (proxy.hasProperty(TiC.PROPERTY_FOOTER_VIEW)) {
+			TiViewProxy view = (TiViewProxy) proxy.getProperty(TiC.PROPERTY_FOOTER_VIEW);
 			listView.addFooterView(layoutHeaderOrFooter(view), null, false);
 		}
 
@@ -326,7 +327,7 @@ public class TiTableView extends FrameLayout
 					if (!(view instanceof TiBaseTableViewItem)) {
 						return;
 					}
-					if (TiTableView.this.proxy.hasProperty(TableViewProxy.PROPERTY_HEADER_VIEW)) {
+					if (TiTableView.this.proxy.hasProperty(TiC.PROPERTY_HEADER_VIEW)) {
 						position -= 1;
 					}
 					rowClicked((TiBaseTableViewItem)view, position);
@@ -354,9 +355,9 @@ public class TiTableView extends FrameLayout
 		KrollDict event = new KrollDict();
 		TableViewRowProxy.fillClickEvent(event, viewModel, item);
 		if (viewClicked != null) {
-			event.put(TableViewProxy.EVENT_PROPERTY_LAYOUT_NAME, viewClicked);
+			event.put(TiC.EVENT_PROPERTY_LAYOUT_NAME, viewClicked);
 		}
-		event.put(TableViewProxy.EVENT_PROPERTY_SEARCH_MODE, adapter.isFiltered());
+		event.put(TiC.EVENT_PROPERTY_SEARCH_MODE, adapter.isFiltered());
 
 		if(item.proxy != null && item.proxy instanceof TableViewRowProxy) {
 			TableViewRowProxy rp = (TableViewRowProxy) item.proxy;
@@ -367,28 +368,28 @@ public class TiTableView extends FrameLayout
 		itemClickListener.onClick(event);
 	}
 
-	private View layoutHeaderOrFooter(TiViewProxy viewProxy) {
+	private View layoutHeaderOrFooter(TiViewProxy viewProxy)
+	{
 		TiUIView tiView = viewProxy.getView(tiContext.getActivity());
 		View nativeView = tiView.getNativeView();
+		TiCompositeLayout.LayoutParams params = tiView.getLayoutParams();
 
-		TiCompositeLayout.LayoutParams tiParams = tiView.getLayoutParams();
 		int width = AbsListView.LayoutParams.WRAP_CONTENT;
 		int height = AbsListView.LayoutParams.WRAP_CONTENT;
-		if (tiParams.autoHeight) {
-			if (tiParams.autoFillsHeight) {
+		if (params.autoHeight) {
+			if (params.autoFillsHeight) {
 				height = AbsListView.LayoutParams.FILL_PARENT;
 			}
 		} else {
-			height = tiParams.optionHeight.getAsPixels(listView);
+			height = params.optionHeight.getAsPixels(listView);
 		}
-		if (tiParams.autoWidth) {
-			if (tiParams.autoFillsWidth) {
+		if (params.autoWidth) {
+			if (params.autoFillsWidth) {
 				width = AbsListView.LayoutParams.FILL_PARENT;
 			}
 		} else {
-			width = tiParams.optionWidth.getAsPixels(listView);
+			width = params.optionWidth.getAsPixels(listView);
 		}
-
 		AbsListView.LayoutParams p = new AbsListView.LayoutParams(width, height);
 		nativeView.setLayoutParams(p);
 		return nativeView;

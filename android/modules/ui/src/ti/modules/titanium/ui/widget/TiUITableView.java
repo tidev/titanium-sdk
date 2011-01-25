@@ -72,12 +72,12 @@ public class TiUITableView extends TiUIView
 		tableView = new TiTableView(proxy.getTiContext(), (TableViewProxy) proxy);
 		tableView.setOnItemClickListener(this);
 	
-		if (d.containsKey(TableViewProxy.PROPERTY_SEARCH)) {
+		if (d.containsKey(TiC.PROPERTY_SEARCH)) {
 			RelativeLayout layout = new RelativeLayout(proxy.getTiContext().getActivity());
 			layout.setGravity(Gravity.NO_GRAVITY);
 			layout.setPadding(0, 0, 0, 0);
 			
-			TiViewProxy searchView = (TiViewProxy) d.get(TableViewProxy.PROPERTY_SEARCH);
+			TiViewProxy searchView = (TiViewProxy) d.get(TiC.PROPERTY_SEARCH);
 			TiUISearchBar searchBar = (TiUISearchBar)searchView.getView(proxy.getTiContext().getActivity());
 			searchBar.setOnSearchChangeListener(tableView);
 			searchBar.getNativeView().setId(102);
@@ -105,17 +105,17 @@ public class TiUITableView extends TiUIView
 			setNativeView(tableView);
 		}
 
-		if (d.containsKey(TableViewProxy.PROPERTY_FILTER_ATTRIBUTE)) {
-			tableView.setFilterAttribute(TiConvert.toString(d, TableViewProxy.PROPERTY_FILTER_ATTRIBUTE));
+		if (d.containsKey(TiC.PROPERTY_FILTER_ATTRIBUTE)) {
+			tableView.setFilterAttribute(TiConvert.toString(d, TiC.PROPERTY_FILTER_ATTRIBUTE));
 		} else {
 			// Default to title to match iPhone default.
-			proxy.setProperty(TableViewProxy.PROPERTY_FILTER_ATTRIBUTE, TiC.PROPERTY_TITLE, false);
+			proxy.setProperty(TiC.PROPERTY_FILTER_ATTRIBUTE, TiC.PROPERTY_TITLE, false);
 			tableView.setFilterAttribute(TiC.PROPERTY_TITLE);
 		}
 
 		boolean filterCaseInsensitive = true;
-		if (d.containsKey(TableViewProxy.PROPERTY_FILTER_CASE_INSENSITIVE)) {
-			filterCaseInsensitive = TiConvert.toBoolean(d, TableViewProxy.PROPERTY_FILTER_CASE_INSENSITIVE);
+		if (d.containsKey(TiC.PROPERTY_FILTER_CASE_INSENSITIVE)) {
+			filterCaseInsensitive = TiConvert.toBoolean(d, TiC.PROPERTY_FILTER_CASE_INSENSITIVE);
 		}
 		tableView.setFilterCaseInsensitive(filterCaseInsensitive);
 		super.processProperties(d);
@@ -137,7 +137,7 @@ public class TiUITableView extends TiUIView
 		if (DBG) {
 			Log.d(LCAT, "Property: " + key + " old: " + oldValue + " new: " + newValue);
 		}
-		if (key.equals(TableViewProxy.PROPERTY_SEPARATOR_COLOR)) {
+		if (key.equals(TiC.PROPERTY_SEPARATOR_COLOR)) {
 			tableView.setSeparatorColor(TiConvert.toString(newValue));
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);

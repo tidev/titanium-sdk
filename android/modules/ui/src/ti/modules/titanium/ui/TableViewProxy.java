@@ -40,17 +40,6 @@ public class TableViewProxy extends TiViewProxy
 	private static final int MSG_INSERT_ROW = TiViewProxy.MSG_LAST_ID + 5005;
 	private static final int MSG_APPEND_ROW = TiViewProxy.MSG_LAST_ID + 5006;
 
-	public static final String PROPERTY_DATA = "data";
-	public static final String PROPERTY_SEARCH = "search";
-	public static final String PROPERTY_FILTER_ATTRIBUTE = "filterAttribute";
-	public static final String PROPERTY_FILTER_CASE_INSENSITIVE = "filterCaseInsensitive";
-	public static final String PROPERTY_SEPARATOR_COLOR = "separatorColor";
-	public static final String PROPERTY_HEADER_VIEW = "headerView";
-	public static final String PROPERTY_FOOTER_VIEW = "footerView";
-	
-	public static final String EVENT_PROPERTY_LAYOUT_NAME = "layoutName";
-	public static final String EVENT_PROPERTY_SEARCH_MODE = "searchMode";
-	
 	public static final String CLASSNAME_DEFAULT = "__default__";
 	public static final String CLASSNAME_HEADER = "__header__";
 	public static final String CLASSNAME_NORMAL = "__normal__";
@@ -72,14 +61,18 @@ public class TableViewProxy extends TiViewProxy
 	
 	@Override
 	public void handleCreationDict(KrollDict dict) {
-		if (dict.containsKey(PROPERTY_DATA)) {
-			Object o = dict.get(PROPERTY_DATA);
+		Object data[] = null;
+		if (dict.containsKey(TiC.PROPERTY_DATA)) {
+			Object o = dict.get(TiC.PROPERTY_DATA);
 			if (o != null && o instanceof Object[]) {
-				processData((Object[]) o);
-				dict.remove(PROPERTY_DATA); // don't override our data accessor
+				data = (Object[]) o;
+				dict.remove(TiC.PROPERTY_DATA); // don't override our data accessor
 			}
 		}
 		super.handleCreationDict(dict);
+		if (data != null) {
+			processData(data);
+		}
 	}
 
 	@Override
@@ -306,11 +299,24 @@ public class TableViewProxy extends TiViewProxy
 		return sections;
 	}
 	
-	public void processData(Object[] data) {
+	public void processData(Object[] data)
+	{
 		ArrayList<TableViewSectionProxy> sections = getSections();
 		sections.clear();
 
 		TableViewSectionProxy currentSection = null;
+		if (hasProperty(TiC.PROPERTY_HEADER_TITLE)) {
+			currentSection = new TableViewSectionProxy(context);
+			sections.add(currentSection);
+			currentSection.setProperty(TiC.PROPERTY_HEADER_TITLE, getProperty(TiC.PROPERTY_HEADER_TITLE));
+		}
+		if (hasProperty(TiC.PROPERTY_FOOTER_TITLE)) {
+			if (currentSection == null) {
+				currentSection = new TableViewSectionProxy(context);
+				sections.add(currentSection);
+			}
+			currentSection.setProperty(TiC.PROPERTY_FOOTER_TITLE, getProperty(TiC.PROPERTY_FOOTER_TITLE));
+		}
 
 		for (int i = 0; i < data.length; i++) {
 			Object o = data[i];
