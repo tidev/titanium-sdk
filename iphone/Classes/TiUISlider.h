@@ -12,6 +12,8 @@
 @interface TiUISlider : TiUIView<LayoutAutosizing> {
 @private
 	UISlider *sliderView;
+	NSDate* lastTouchUp;
+	NSTimeInterval lastTimeInterval;
 }
 
 - (IBAction)sliderChanged:(id)sender;

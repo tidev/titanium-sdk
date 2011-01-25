@@ -18,6 +18,7 @@
 	[sliderView removeTarget:self action:@selector(sliderBegin:) forControlEvents:UIControlEventTouchDown];
 	[sliderView removeTarget:self action:@selector(sliderEnd:) forControlEvents:(UIControlEventTouchUpInside | UIControlEventTouchUpOutside)];
 	RELEASE_TO_NIL(sliderView);
+	RELEASE_TO_NIL(lastTouchUp);
 	[super dealloc];
 }
 
@@ -38,6 +39,8 @@
 		[sliderView addTarget:self action:@selector(sliderBegin:) forControlEvents:UIControlEventTouchDown];
 		[sliderView addTarget:self action:@selector(sliderEnd:) forControlEvents:(UIControlEventTouchUpInside | UIControlEventTouchUpOutside)];
 		[self addSubview:sliderView];
+		lastTouchUp = [[NSDate alloc] init];
+		lastTimeInterval = 1.0; // Short-circuit so that we don't ignore the first fire
 	}
 	return sliderView;
 }
@@ -190,11 +193,23 @@ USE_PROXY_FOR_VERIFY_AUTORESIZING
 
 -(IBAction)sliderEnd:(id)sender
 {
-	NSNumber * newValue = [NSNumber numberWithFloat:[(UISlider*)sender value]];
-	if ([[self proxy] _hasListeners:@"touchend"])
-	{
-		[[self proxy] fireEvent:@"touchend" withObject:[NSDictionary dictionaryWithObject:newValue forKey:@"value"]];
+	// APPLE BUG: Sometimes in a double-click our 'UIControlEventTouchUpInside' event is fired more than once.  This is
+	// ALWAYS indicated by a sub-0.1s difference between the clicks, and results in an additional fire of the event.
+	// We have to track the PREVIOUS (not current) inverval and prevent these ugly misfires!
+	
+	NSDate* now = [[NSDate alloc] init];
+	NSTimeInterval currentTimeInterval = [now timeIntervalSinceDate:lastTouchUp];
+	if (!(lastTimeInterval < 0.1 && currentTimeInterval < 0.1)) {
+		NSNumber * newValue = [NSNumber numberWithFloat:[(UISlider*)sender value]];
+		if ([[self proxy] _hasListeners:@"touchend"])
+		{
+			[[self proxy] fireEvent:@"touchend" withObject:[NSDictionary dictionaryWithObject:newValue forKey:@"value"]];
+		}	
 	}
+	lastTimeInterval = currentTimeInterval;
+	RELEASE_TO_NIL(lastTouchUp);
+	lastTouchUp = now;
+
 }
 
 @end
