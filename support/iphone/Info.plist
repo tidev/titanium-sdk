@@ -23,6 +23,7 @@
 			<key>CFBundleURLSchemes</key>
 			<array>
 				<string>__URLSCHEME__</string>
+				__ADDITIONAL_URL_SCHEMES__
 			</array>
 		</dict>
 	</array>

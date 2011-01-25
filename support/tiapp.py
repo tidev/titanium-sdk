@@ -257,9 +257,39 @@ class TiAppXML(object):
 					else:
 						orientations.append(orientation)
 			self.iphone['orientations_'+device] = orientations
-			
+		
+		def parse_backgroundModes(node):
+			valid_modes = ['audio', 'location', 'voip']
+			self.iphone['background'] = []
+			for child in node.childNodes:
+				if child.nodeName == 'mode':
+					mode = getText(child.childNodes)
+					if mode not in valid_modes:
+						print "[WARN] Invalid background mode %s: ignoring" % mode
+						continue
+					self.iphone['background'].append(mode)
+		
+		def parse_requires(node):
+			# Note that some of these are meaningless right now, but are
+			# included for The Future.
+			valid_reqs = ['telephony', 'wifi', 'sms', 'still-camera', 
+						  'auto-focus-camera', 'front-facing-camera',
+						  'camera-flash', 'video-camera', 'accelerometer',
+						  'gyroscope', 'location-services', 'gps', 'magnetometer',
+						  'gamekit', 'microphone', 'opengles-1', 'opengles-2',
+						  'armv6', 'armv7', 'peer-peer']
+			self.iphone['requires'] = []
+			for child in node.childNodes:
+				if child.nodeName == 'feature':
+					feature = getText(child.childNodes)
+					if feature not in valid_reqs:
+						print "[WARN] Invalid feature %s: ignoring" % feature
+						continue
+					self.iphone['requires'].append(feature)
+		
+		
 		local_objects = locals()
-		parse_tags = ['orientations']
+		parse_tags = ['orientations', 'backgroundModes', 'requires']
 		for child in node.childNodes:
 			if child.nodeName in parse_tags:
 				local_objects['parse_'+child.nodeName](child)
@@ -327,8 +357,22 @@ class TiAppXML(object):
 					propertyName += '~ipad'
 				propertyValue = '<array>\n'
 				for orientation in self.iphone[prop]:
-					propertyValue += "                <string>%s</string>\n" % orientation
-				propertyValue += '        </array>'
+					propertyValue += "	<string>%s</string>\n" % orientation
+				propertyValue += '	</array>'
+				self.infoplist_properties[propertyName]=propertyValue
+			if prop == 'background':
+				propertyName = 'UIBackgroundModes'
+				propertyValue = '<array>\n'
+				for mode in self.iphone[prop]:
+					propertyValue += "	<string>%s</string>\n" % mode
+				propertyValue += '	</array>'
+				self.infoplist_properties[propertyName]=propertyValue
+			if prop == 'requires':
+				propertyName = 'UIRequiredDeviceCapabilities'
+				propertyValue = '<array>\n'
+				for feature in self.iphone[prop]:
+					propertyValue += "	<string>%s</string>\n" % feature
+				propertyValue += '	</array>'
 				self.infoplist_properties[propertyName]=propertyValue
 		
 		plist = codecs.open(file,'r','utf-8','replace').read()

@@ -420,6 +420,9 @@ def main(args):
 				devicefamily = dequote(args[6].decode("utf-8"))
 			if argc > 7:
 				simtype = dequote(args[7].decode("utf-8"))
+			else:
+				# 'universal' helpfully translates into iPhone here... just in case.
+				simtype = devicefamily
 		elif command == 'install':
 			iphone_version = check_iphone_sdk(iphone_version)
 			appuuid = dequote(args[6].decode("utf-8"))
@@ -577,7 +580,7 @@ def main(args):
 			print "[INFO] iPhone SDK version: %s" % iphone_version
 			
 			if simulator:
-				print "[INFO] iPhone simulator device: %s" % simtype
+				print "[INFO] iPhone simulated device: %s" % simtype
 				# during simulator we need to copy in standard built-in module files
 				# since we might not run the compiler on subsequent launches
 				for module_name in ('facebook','ui'):
@@ -616,6 +619,11 @@ def main(args):
 				plist = plist.replace('__URL__',appid)
 				urlscheme = name.replace('.','_').replace(' ','').lower()
 				plist = plist.replace('__URLSCHEME__',urlscheme)
+				if ti.has_app_property('ti.facebook.appid'):
+					fbid = ti.get_app_property('ti.facebook.appid')
+					plist = plist.replace('__ADDITIONAL_URL_SCHEMES__', '<string>fb%s</string>' % fbid)
+				else:
+					plist = plist.replace('__ADDITIONAL_URL_SCHEMES__','')
 				pf = codecs.open(infoplist,'w', encoding='utf-8')
 				pf.write(plist)
 				pf.close()			
@@ -910,7 +918,8 @@ def main(args):
 					if devicefamily == 'ipad' or devicefamily == 'universal':
 						device_target="TARGETED_DEVICE_FAMILY=2"
 						# iPad requires at a minimum 3.2 (not 3.1 default)
-						deploy_target = "IPHONEOS_DEPLOYMENT_TARGET=3.2"
+						if devicefamily == 'ipad':
+							deploy_target = "IPHONEOS_DEPLOYMENT_TARGET=3.2"
 						# NOTE: this is very important to run on device -- i dunno why
 						# xcode warns that 3.2 needs only armv7, but if we don't pass in 
 						# armv6 we get crashes on device
@@ -1133,8 +1142,15 @@ def main(args):
 						iphone_version
 					])	
 
-					# wait (blocking this script) until the simulator exits
-					os.waitpid(sim.pid,0)
+					# wait (blocking this script) until the simulator exits	
+					try:
+						os.waitpid(sim.pid,0)
+					except SystemExit:
+						# If the user terminates the app here, it's via a
+						# soft kill of some kind (i.e. like what TiDev does)
+						# and so we should suppress the usual error message.
+						# Fixes #2086
+						pass
 
 					print "[INFO] Application has exited from Simulator"
 
