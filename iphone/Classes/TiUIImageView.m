@@ -424,6 +424,11 @@ DEFINE_EXCEPTIONS
 		// NOTE: Loading from URL means we can't pre-determine any % value.
 		CGSize imageSize = CGSizeMake(TiDimensionCalculateValue(width, 0.0), 
 									  TiDimensionCalculateValue(height,0.0));
+		if ([TiUtils boolValue:[[self proxy] valueForKey:@"hires"]])
+		{
+			imageSize.width *= 2;
+			imageSize.height *= 2;
+		}
 		
 		UIImage *image = [[ImageLoader sharedLoader] loadImmediateImage:url_ withSize:imageSize];
 		if (image==nil)
@@ -759,6 +764,11 @@ DEFINE_EXCEPTIONS
 	
 	CGFloat computedWidth = TiDimensionCalculateValue(width, autoWidth);
 	CGFloat computedHeight = TiDimensionCalculateValue(height, autoHeight);
+	if ([TiUtils boolValue:[[self proxy] valueForKey:@"hires"]])
+	{
+		computedWidth *= 2;
+		computedHeight *= 2;
+	}
 	
 	UIImage * bestImage = [[ImageLoader sharedLoader] loadImmediateImage:[request url] withSize:CGSizeMake(computedWidth, computedHeight)];
 	if (bestImage != nil)
