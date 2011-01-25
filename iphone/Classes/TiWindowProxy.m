@@ -410,7 +410,7 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 			}
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
 			style = [TiUtils intValue:@"modalStyle" properties:dict def:-1];
-			if (style!=-1)
+			if (style!=-1 && [nc respondsToSelector:@selector(setModalPresentationStyle:)])
 			{
 				// modal transition style page curl must be done only in fullscreen
 				// so only allow if not page curl
