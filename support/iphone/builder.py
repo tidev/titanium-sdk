@@ -918,7 +918,8 @@ def main(args):
 					if devicefamily == 'ipad' or devicefamily == 'universal':
 						device_target="TARGETED_DEVICE_FAMILY=2"
 						# iPad requires at a minimum 3.2 (not 3.1 default)
-						deploy_target = "IPHONEOS_DEPLOYMENT_TARGET=3.2"
+						if devicefamily == 'ipad':
+							deploy_target = "IPHONEOS_DEPLOYMENT_TARGET=3.2"
 						# NOTE: this is very important to run on device -- i dunno why
 						# xcode warns that 3.2 needs only armv7, but if we don't pass in 
 						# armv6 we get crashes on device
