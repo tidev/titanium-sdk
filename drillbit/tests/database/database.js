@@ -82,5 +82,35 @@ describe("Ti.Database tests", {
 		
 		var f = Ti.Filesystem.getFile("file:///data/data/org.appcelerator.titanium.testharness/databases/Test");
 		valueOf(f.exists()).shouldBeFalse();
+	},
+	testDatabaseCount : function() {
+		var testRowCount = 1500;
+		var db = Ti.Database.open('Test');
+		try {
+			valueOf(db).shouldNotBeNull();
+			
+			var rs = db.execute("drop table if exists data");
+			valueOf(rs).shouldBeNull();
+			
+			db.execute('CREATE TABLE IF NOT EXISTS data (id INTEGER PRIMARY KEY, val TEXT)');
+			for (var i = 1; i <= testRowCount; i++) {
+			    db.execute('INSERT INTO data (val) VALUES(?)','our value:' + i);
+			}
+
+		    rs = db.execute("SELECT * FROM data");
+		    var rowCount = rs.rowCount;
+		    var realCount = 0;
+		    while (rs.isValidRow()) {
+		        realCount += 1;
+		        rs.next();
+		    }
+
+		    valueOf(realCount).shouldBe(testRowCount);
+		    valueOf(rowCount).shouldBe(testRowCount);
+		    valueOf(rowCount).shouldBe(realCount);
+		} finally {
+			db.close();
+			db.remove();
+		}
 	}
 });

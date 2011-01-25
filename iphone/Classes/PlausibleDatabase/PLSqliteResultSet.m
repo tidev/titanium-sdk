@@ -127,7 +127,7 @@
 - (int) fullCount {
     [self assertNotClosed];
 	int result = 0;
-	while (result < 1000){
+	while (YES){
 		int ret = sqlite3_step(_sqlite_stmt);
 		if (ret==SQLITE_ROW){
 			result ++;
