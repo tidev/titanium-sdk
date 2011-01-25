@@ -1142,8 +1142,15 @@ def main(args):
 						iphone_version
 					])	
 
-					# wait (blocking this script) until the simulator exits
-					os.waitpid(sim.pid,0)
+					# wait (blocking this script) until the simulator exits	
+					try:
+						os.waitpid(sim.pid,0)
+					except SystemExit:
+						# If the user terminates the app here, it's via a
+						# soft kill of some kind (i.e. like what TiDev does)
+						# and so we should suppress the usual error message.
+						# Fixes #2086
+						pass
 
 					print "[INFO] Application has exited from Simulator"
 
