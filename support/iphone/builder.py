@@ -616,6 +616,11 @@ def main(args):
 				plist = plist.replace('__URL__',appid)
 				urlscheme = name.replace('.','_').replace(' ','').lower()
 				plist = plist.replace('__URLSCHEME__',urlscheme)
+				if ti.has_app_property('ti.facebook.appid'):
+					fbid = ti.get_app_property('ti.facebook.appid')
+					plist = plist.replace('__ADDITIONAL_URL_SCHEMES__', '<string>fb%s</string>' % fbid)
+				else:
+					plist = plist.replace('__ADDITIONAL_URL_SCHEMES__','')
 				pf = codecs.open(infoplist,'w', encoding='utf-8')
 				pf.write(plist)
 				pf.close()			
