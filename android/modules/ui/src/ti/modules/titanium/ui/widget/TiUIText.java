@@ -271,7 +271,7 @@ public class TiUIText extends TiUIView
 	public void handleKeyboard(KrollDict d) 
 	{
 		int type = KEYBOARD_ASCII;
-		int passwordMask = 0;
+		boolean passwordMask = false;
 		int autocorrect = InputType.TYPE_TEXT_FLAG_AUTO_CORRECT | InputType.TYPE_TEXT_FLAG_AUTO_CORRECT;
 		int autoCapValue = 0;
 		
@@ -310,16 +310,14 @@ public class TiUIText extends TiUIView
 		}
 				
 		if (d.containsKey("passwordMask")) {
-			if(TiConvert.toBoolean(d,"passwordMask")) {
-				passwordMask = InputType.TYPE_TEXT_VARIATION_PASSWORD;
-			}
+			passwordMask = TiConvert.toBoolean(d, "passwordMask");
 		}		
 
 		if (d.containsKey("keyboardType")) {
 			type = TiConvert.toInt(d, "keyboardType");
 		}
 		
-		int typeModifiers = autocorrect | passwordMask | autoCapValue;
+		int typeModifiers = autocorrect | autoCapValue;
 		
 		switch(type) {
 			case KEYBOARD_ASCII :
@@ -347,9 +345,6 @@ public class TiUIText extends TiUIView
 					}
 				});
 				//tv.setKeyListener(DigitsKeyListener.getInstance());
-				if (passwordMask != 0) {
-					tv.setTransformationMethod(PasswordTransformationMethod.getInstance());
-				}
 				break;
 			case KEYBOARD_URL :
 				Log.i(LCAT, "Setting keyboard type URL-3");
@@ -361,16 +356,10 @@ public class TiUIText extends TiUIView
 			case KEYBOARD_NUMBER_PAD :
 				tv.setKeyListener(DigitsKeyListener.getInstance(true,true));
 				tv.setInputType(InputType.TYPE_CLASS_NUMBER | typeModifiers);
-				if (passwordMask != 0) {
-					tv.setTransformationMethod(PasswordTransformationMethod.getInstance());
-				}
 				break;
 			case KEYBOARD_PHONE_PAD :
 				tv.setKeyListener(DialerKeyListener.getInstance());
 				tv.setInputType(InputType.TYPE_CLASS_PHONE | typeModifiers);
-				if (passwordMask != 0) {
-					tv.setTransformationMethod(PasswordTransformationMethod.getInstance());
-				}
 				break;
 			case KEYBOARD_EMAIL_ADDRESS :
 				tv.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS | typeModifiers);
@@ -380,7 +369,9 @@ public class TiUIText extends TiUIView
 				tv.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_NORMAL | typeModifiers);
 				break;
 		}
-
+		if (passwordMask) {
+			tv.setTransformationMethod(PasswordTransformationMethod.getInstance());
+		}
 		if (!field) {
 			tv.setSingleLine(false);
 		}
