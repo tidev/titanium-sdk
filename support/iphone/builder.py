@@ -420,6 +420,9 @@ def main(args):
 				devicefamily = dequote(args[6].decode("utf-8"))
 			if argc > 7:
 				simtype = dequote(args[7].decode("utf-8"))
+			else:
+				# 'universal' helpfully translates into iPhone here... just in case.
+				simtype = devicefamily
 		elif command == 'install':
 			iphone_version = check_iphone_sdk(iphone_version)
 			appuuid = dequote(args[6].decode("utf-8"))
@@ -577,7 +580,7 @@ def main(args):
 			print "[INFO] iPhone SDK version: %s" % iphone_version
 			
 			if simulator:
-				print "[INFO] iPhone simulator device: %s" % simtype
+				print "[INFO] iPhone simulated device: %s" % simtype
 				# during simulator we need to copy in standard built-in module files
 				# since we might not run the compiler on subsequent launches
 				for module_name in ('facebook','ui'):
