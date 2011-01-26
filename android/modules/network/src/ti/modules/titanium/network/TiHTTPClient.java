@@ -254,7 +254,9 @@ public class TiHTTPClient
 								e.printStackTrace();
 							}
 						}
-						finishedReceivingEntityData(totalSize);
+						if (totalSize > 0) {
+							finishedReceivingEntityData(totalSize);
+						}
 					}
 				}
 			}
