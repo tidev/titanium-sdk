@@ -507,6 +507,10 @@ public class TiUIHelper
 				}
 			}
 			view.measure(MeasureSpec.makeMeasureSpec(width, MeasureSpec.EXACTLY), MeasureSpec.makeMeasureSpec(height, MeasureSpec.EXACTLY));
+			if (view.getParent() == null) {
+				Log.i(LCAT, "view does not have parent, calling layout");
+				view.layout(0, 0, width, height);
+			}
 
 			// now that we have forced the view to layout itself, grab dimensions
 			width = view.getMeasuredWidth();
