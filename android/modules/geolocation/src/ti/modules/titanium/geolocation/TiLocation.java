@@ -22,6 +22,7 @@ import org.apache.http.params.HttpParams;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollInvocation;
 import org.appcelerator.titanium.TiApplication;
+import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.analytics.TiAnalyticsEvent;
 import org.appcelerator.titanium.analytics.TiAnalyticsEventFactory;
 import org.appcelerator.titanium.kroll.KrollCallback;
@@ -49,10 +50,11 @@ public class TiLocation
 	private static final String LCAT = "TiLocation";
 	private static final boolean DBG = TiConfig.LOGD;
 	private static final String BASE_GEO_URL = "http://api.appcelerator.net/p/v1/geo?";
+	private static final String DIRECTION_R = "r";
+	private static final String DIRECTION_F = "f";
 
 	private long lastEventTimestamp = 0;
 	private GeolocationModule geolocationModule;
-
 
 	public TiLocation(GeolocationModule geolocationModule)
 	{
@@ -62,14 +64,14 @@ public class TiLocation
 	public void onLocationChanged(Location location)
 	{
 		LocationProvider provider = TiLocationHelper.getLocationManager().getProvider(location.getProvider());
-		geolocationModule.fireEvent(GeolocationModule.EVENT_LOCATION, locationToKrollDict(location, provider));
+		geolocationModule.fireEvent(TiC.EVENT_LOCATION, locationToKrollDict(location, provider));
 		doAnalytics(location);
 	}
 
 	public void onProviderDisabled(String provider)
 	{
 		Log.d(LCAT, "Provider disabled: " + provider);
-		geolocationModule.fireEvent(GeolocationModule.EVENT_LOCATION, TiConvert.toErrorObject(TiLocationHelper.ERR_POSITION_UNAVAILABLE, provider + " disabled."));
+		geolocationModule.fireEvent(TiC.EVENT_LOCATION, TiConvert.toErrorObject(TiLocationHelper.ERR_POSITION_UNAVAILABLE, provider + " disabled."));
 	}
 
 	public void onProviderEnabled(String provider)
@@ -82,10 +84,10 @@ public class TiLocation
 		Log.d(LCAT, "Status changed, provider = " + provider + " status=" + status);
 		switch (status) {
 			case LocationProvider.OUT_OF_SERVICE :
-				geolocationModule.fireEvent(GeolocationModule.EVENT_LOCATION, TiConvert.toErrorObject(TiLocationHelper.ERR_POSITION_UNAVAILABLE, provider + " is out of service."));
+				geolocationModule.fireEvent(TiC.EVENT_LOCATION, TiConvert.toErrorObject(TiLocationHelper.ERR_POSITION_UNAVAILABLE, provider + " is out of service."));
 			break;
 			case LocationProvider.TEMPORARILY_UNAVAILABLE:
-				geolocationModule.fireEvent(GeolocationModule.EVENT_LOCATION, TiConvert.toErrorObject(TiLocationHelper.ERR_POSITION_UNAVAILABLE, provider + " is currently unavailable."));
+				geolocationModule.fireEvent(TiC.EVENT_LOCATION, TiConvert.toErrorObject(TiLocationHelper.ERR_POSITION_UNAVAILABLE, provider + " is currently unavailable."));
 			break;
 			case LocationProvider.AVAILABLE :
 				if (DBG) {
@@ -101,27 +103,27 @@ public class TiLocation
 	private KrollDict locationToKrollDict(Location location, LocationProvider locationProvider)
 	{
 		KrollDict coordinates = new KrollDict();
-		coordinates.put("latitude", location.getLatitude());
-		coordinates.put("longitude", location.getLongitude());
-		coordinates.put("altitude", location.getAltitude());
-		coordinates.put("accuracy", location.getAccuracy());
-		coordinates.put("altitudeAccuracy", null); // Not provided
-		coordinates.put("heading", location.getBearing());
-		coordinates.put("speed", location.getSpeed());
-		coordinates.put("timestamp", location.getTime());
+		coordinates.put(TiC.PROPERTY_LATITUDE, location.getLatitude());
+		coordinates.put(TiC.PROPERTY_LONGITUDE, location.getLongitude());
+		coordinates.put(TiC.PROPERTY_ALTITUDE, location.getAltitude());
+		coordinates.put(TiC.PROPERTY_ACCURACY, location.getAccuracy());
+		coordinates.put(TiC.PROPERTY_ALTITUDE_ACCURACY, null); // Not provided
+		coordinates.put(TiC.PROPERTY_HEADING, location.getBearing());
+		coordinates.put(TiC.PROPERTY_SPEED, location.getSpeed());
+		coordinates.put(TiC.PROPERTY_TIMESTAMP, location.getTime());
 
 		KrollDict position = new KrollDict();
-		position.put("success", true);
-		position.put("coords", coordinates);
+		position.put(TiC.PROPERTY_SUCCESS, true);
+		position.put(TiC.PROPERTY_COORDS, coordinates);
 
 		if (locationProvider != null) {
 			KrollDict provider = new KrollDict();
 
-			provider.put("name", locationProvider.getName());
-			provider.put("accuracy", locationProvider.getAccuracy());
-			provider.put("power", locationProvider.getPowerRequirement());
+			provider.put(TiC.PROPERTY_NAME, locationProvider.getName());
+			provider.put(TiC.PROPERTY_ACCURACY, locationProvider.getAccuracy());
+			provider.put(TiC.PROPERTY_POWER, locationProvider.getPowerRequirement());
 
-			position.put("provider", provider);
+			position.put(TiC.PROPERTY_PROVIDER, provider);
 		}
 
 		return position;
@@ -171,7 +173,6 @@ public class TiLocation
 		String url = null;
 		try {
 			StringBuilder sb = new StringBuilder();
-
 			sb.append(BASE_GEO_URL)
 				.append("d=r")
 				.append("&mid=")
@@ -181,8 +182,7 @@ public class TiLocation
 				.append("&sid=")
 				.append(sid)
 				.append("&q=")
-				.append(URLEncoder.encode(query, "utf-8"))
-				;
+				.append(URLEncoder.encode(query, "utf-8"));
 
 			url = sb.toString();
 		} catch (UnsupportedEncodingException e) {
@@ -222,8 +222,8 @@ public class TiLocation
 					if (response != null) {
 						try {
 							JSONObject jsonObject = new JSONObject(response);
-							if (jsonObject.getBoolean("success")) {
-								if (direction.equals("r")) {
+							if (jsonObject.getBoolean(TiC.PROPERTY_SUCCESS)) {
+								if (direction.equals(DIRECTION_R)) {
 									event = buildReverseResponse(jsonObject);
 								} else {
 									event = buildForwardResponse(jsonObject);
@@ -231,10 +231,10 @@ public class TiLocation
 							} else {
 								event = new KrollDict();
 								KrollDict errorDict = new KrollDict();
-								String errorCode = jsonObject.getString("errorcode");
-								errorDict.put("message", "Unable to resolve message: Code (" + errorCode + ")");
-								errorDict.put("code", errorCode);
-								event.put("error", errorDict);
+								String errorCode = jsonObject.getString(TiC.ERROR_PROPERTY_ERRORCODE);
+								errorDict.put(TiC.PROPERTY_MESSAGE, "Unable to resolve message: Code (" + errorCode + ")");
+								errorDict.put(TiC.PROPERTY_CODE, errorCode);
+								event.put(TiC.EVENT_PROPERTY_ERROR, errorDict);
 							}
 						} catch (JSONException e) {
 							Log.e(LCAT, "Error converting geo response to JSONObject: " + e.getMessage(), e);
@@ -242,7 +242,7 @@ public class TiLocation
 					}
 
 					if (event != null) {
-						event.put("source", this);
+						event.put(TiC.EVENT_PROPERTY_SOURCE, this);
 						callback.callAsync(event);
 					}
 				} catch (Throwable t) {
@@ -264,12 +264,12 @@ public class TiLocation
 			String aguid = geolocationModule.getTiContext().getTiApp().getAppInfo().getGUID();
 			String sid = TiPlatformHelper.getSessionId();
 			String countryCode = Locale.getDefault().getCountry();
-			String url = buildGeoURL("f", mid, aguid, sid, address, countryCode);
+			String url = buildGeoURL(DIRECTION_F, mid, aguid, sid, address, countryCode);
 
 			if (url != null) {
 				Message msg = geolocationModule.getUIHandler().obtainMessage(GeolocationModule.MSG_LOOKUP);
-				msg.getData().putString("direction", "f");
-				msg.getData().putString("url", url);
+				msg.getData().putString(TiC.PROPERTY_DIRECTION, DIRECTION_F);
+				msg.getData().putString(TiC.PROPERTY_URL, url);
 				msg.obj = listener;
 				msg.sendToTarget();
 			}
@@ -284,12 +284,12 @@ public class TiLocation
 		String aguid = geolocationModule.getTiContext().getTiApp().getAppInfo().getGUID();
 		String sid = TiPlatformHelper.getSessionId();
 		String countryCode = Locale.getDefault().getCountry();
-		String url = buildGeoURL("r", mid, aguid, sid, latitude + "," + longitude, countryCode);
+		String url = buildGeoURL(DIRECTION_R, mid, aguid, sid, latitude + "," + longitude, countryCode);
 
 		if (url != null) {
 			Message msg = geolocationModule.getUIHandler().obtainMessage(GeolocationModule.MSG_LOOKUP);
-			msg.getData().putString("direction", "r");
-			msg.getData().putString("url", url);
+			msg.getData().putString(TiC.PROPERTY_DIRECTION, DIRECTION_R);
+			msg.getData().putString(TiC.PROPERTY_URL, url);
 			msg.obj = callback;
 			msg.sendToTarget();
 		}
@@ -298,19 +298,18 @@ public class TiLocation
 	private KrollDict placeToAddress(JSONObject place)
 	{
 		KrollDict address = new KrollDict();
-		address.put("street1", place.optString("street", ""));
-		address.put("street", place.optString("street", ""));
-		address.put("city", place.optString("city", ""));
-		address.put("region1", ""); // AdminArea
-		address.put("region2", ""); // SubAdminArea
-		address.put("postalCode", place.optString("zipcode", ""));
-		address.put("country", place.optString("country", ""));
-		address.put("countryCode", place.optString("country_code", ""));
-		address.put("country_code", place.optString("country_code", ""));
-		address.put("longitude", place.optString("longitude", ""));
-		address.put("latitude", place.optString("latitude", ""));
-		address.put("displayAddress", place.optString("address"));
-		address.put("address", place.optString("address"));
+		address.put(TiC.PROPERTY_STREET1, place.optString(TiC.PROPERTY_STREET, ""));
+		address.put(TiC.PROPERTY_STREET, place.optString(TiC.PROPERTY_STREET, ""));
+		address.put(TiC.PROPERTY_CITY, place.optString(TiC.PROPERTY_CITY, ""));
+		address.put(TiC.PROPERTY_REGION1, ""); // AdminArea
+		address.put(TiC.PROPERTY_REGION2, ""); // SubAdminArea
+		address.put(TiC.PROPERTY_POSTAL_CODE, place.optString("zipcode", ""));
+		address.put(TiC.PROPERTY_COUNTRY, place.optString(TiC.PROPERTY_COUNTRY, ""));
+		address.put(TiC.PROPERTY_COUNTRY_CODE, place.optString("country_code", ""));
+		address.put(TiC.PROPERTY_LONGITUDE, place.optString(TiC.PROPERTY_LONGITUDE, ""));
+		address.put(TiC.PROPERTY_LATITUDE, place.optString(TiC.PROPERTY_LATITUDE, ""));
+		address.put(TiC.PROPERTY_DISPLAY_ADDRESS, place.optString(TiC.PROPERTY_ADDRESS));
+		address.put(TiC.PROPERTY_ADDRESS, place.optString(TiC.PROPERTY_ADDRESS));
 
 		return address;
 	}
@@ -319,15 +318,15 @@ public class TiLocation
 		throws JSONException
 	{
 		KrollDict response = new KrollDict();
-		response.put("success", true);
+		response.put(TiC.PROPERTY_SUCCESS, true);
 
-		JSONArray places = jsonObject.getJSONArray("places");
+		JSONArray places = jsonObject.getJSONArray(TiC.PROPERTY_PLACES);
 		int count = places.length();
 		KrollDict[] newPlaces = new KrollDict[count];
 		for (int i = 0; i < count; i++) {
 			newPlaces[i] = placeToAddress(places.getJSONObject(i));
 		}
-		response.put("places", newPlaces);
+		response.put(TiC.PROPERTY_PLACES, newPlaces);
 
 		return response;
 	}
@@ -336,7 +335,7 @@ public class TiLocation
 		throws JSONException
 	{
 		KrollDict response = new KrollDict();
-		JSONArray places = jsonObject.getJSONArray("places");
+		JSONArray places = jsonObject.getJSONArray(TiC.PROPERTY_PLACES);
 		if (places.length() > 0) {
 			response = placeToAddress(places.getJSONObject(0));
 		}

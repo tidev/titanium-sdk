@@ -12,6 +12,7 @@ import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.ContextSpecific;
+import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.analytics.TiAnalyticsEventFactory;
 import org.appcelerator.titanium.kroll.KrollCallback;
@@ -37,8 +38,6 @@ public class GeolocationModule extends KrollModule
 	@Kroll.constant public static final String PROVIDER_GPS = LocationManager.GPS_PROVIDER;
 	@Kroll.constant public static final String PROVIDER_NETWORK = LocationManager.NETWORK_PROVIDER;
 
-	public static final String EVENT_HEADING = "heading";
-	public static final String EVENT_LOCATION = "location";
 	public static final long MAX_GEO_ANALYTICS_FREQUENCY = TiAnalyticsEventFactory.MAX_GEO_ANALYTICS_FREQUENCY;
 	public static final int MSG_FIRST_ID = KrollProxy.MSG_LAST_ID + 1;
 	public static final int MSG_LOOKUP = MSG_FIRST_ID + 100;
@@ -63,12 +62,12 @@ public class GeolocationModule extends KrollModule
 	@Override
 	public int addEventListener(KrollInvocation invocation, String eventName, Object listener)
 	{
-		if (EVENT_HEADING.equals(eventName)) {
+		if (TiC.EVENT_HEADING.equals(eventName)) {
 			if (!compassRegistered) {
 				TiSensorHelper.registerListener(Sensor.TYPE_ORIENTATION, tiCompass, SensorManager.SENSOR_DELAY_UI);
 				compassRegistered = true;
 			}
-		} else if (EVENT_LOCATION.equals(eventName)) {
+		} else if (TiC.EVENT_LOCATION.equals(eventName)) {
 			if (!locationRegistered) {
 				TiLocationHelper.registerListener(this, tiLocation);
 				locationRegistered = true;
@@ -80,12 +79,12 @@ public class GeolocationModule extends KrollModule
 	@Override
 	public void removeEventListener(KrollInvocation invocation, String eventName, Object listener)
 	{
-		if (EVENT_HEADING.equals(eventName)) {
+		if (TiC.EVENT_HEADING.equals(eventName)) {
 			if (compassRegistered) {
 				TiSensorHelper.unregisterListener(Sensor.TYPE_ORIENTATION, tiCompass);
 				compassRegistered = false;
 			}
-		} else if (EVENT_LOCATION.equals(eventName)) {
+		} else if (TiC.EVENT_LOCATION.equals(eventName)) {
 			if (locationRegistered) {
 				TiLocationHelper.unregisterListener(tiLocation);
 				locationRegistered = false;
@@ -135,7 +134,7 @@ public class GeolocationModule extends KrollModule
 	{
 		if (msg.what == MSG_LOOKUP) {
 			AsyncTask<Object, Void, Integer> task = tiLocation.getLookUpTask();
-			task.execute(msg.getData().getString("url"), msg.getData().getString("direction"), msg.obj);
+			task.execute(msg.getData().getString(TiC.PROPERTY_URL), msg.getData().getString(TiC.PROPERTY_DIRECTION), msg.obj);
 
 			return true;
 		}
