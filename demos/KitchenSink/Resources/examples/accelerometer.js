@@ -1,4 +1,5 @@
 var win = Titanium.UI.currentWindow;
+var accelerometerAdded = false;
 
 var x = Titanium.UI.createLabel({
 	text:'x:',
@@ -44,14 +45,15 @@ var ts = Titanium.UI.createLabel({
 });
 win.add(ts);
 
-
-Ti.Accelerometer.addEventListener('update',function(e)
-{
+var accelerometerCallback = function(e) {
 	ts.text = e.timestamp;
 	x.text = 'x: ' + e.x;
 	y.text = 'y:' + e.y;
 	z.text = 'z:' + e.z;
-});
+}
+
+Ti.Accelerometer.addEventListener('update', accelerometerCallback);
+accelerometerAdded = true;
 
 if (Titanium.Platform.name == 'iPhone OS' && Titanium.Platform.model == 'Simulator')
 {
@@ -65,3 +67,16 @@ if (Titanium.Platform.name == 'iPhone OS' && Titanium.Platform.model == 'Simulat
 	});
 	win.add(notice);
 }
+
+Ti.Android.currentActivity.addEventListener('pause', function(e) {
+	if (accelerometerAdded) {
+		Ti.API.info("removing accelerometer callback on pause");
+		Ti.Accelerometer.removeEventListener('update', accelerometerCallback);
+	}
+});
+Ti.Android.currentActivity.addEventListener('resume', function(e) {
+	if (accelerometerAdded) {
+		Ti.API.info("adding accelerometer callback on resume");
+		Ti.Accelerometer.addEventListener('update', accelerometerCallback);
+	}
+});
