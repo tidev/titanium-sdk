@@ -210,6 +210,10 @@ var reverseGeo = Titanium.UI.createLabel({
 });
 win.add(reverseGeo);
 
+// state vars used by resume/pause
+var headingAdded = false;
+var locationAdded = false;
+
 //
 //  SHOW CUSTOM ALERT IF DEVICE HAS GEO TURNED OFF
 //
@@ -277,7 +281,7 @@ else
 		//
 		// EVENT LISTENER FOR COMPASS EVENTS - THIS WILL FIRE REPEATEDLY (BASED ON HEADING FILTER)
 		//
-		Titanium.Geolocation.addEventListener('heading',function(e)
+		var headingCallback = function(e)
 		{
 			if (e.error)
 			{
@@ -306,7 +310,9 @@ else
 			},100);
 
 			Titanium.API.info('geo - heading updated: ' + new Date(timestamp) + ' x ' + x + ' y ' + y + ' z ' + z);
-		});
+		};
+		Titanium.Geolocation.addEventListener('heading', headingCallback);
+		headingAdded = true;
 	}
 	else
 	{
@@ -362,7 +368,7 @@ else
 	//
 	// EVENT LISTENER FOR GEO EVENTS - THIS WILL FIRE REPEATEDLY (BASED ON DISTANCE FILTER)
 	//
-	Titanium.Geolocation.addEventListener('location',function(e)
+	var locationCallback = function(e)
 	{
 		if (!e.success || e.error)
 		{
@@ -426,7 +432,9 @@ else
 
 
 		Titanium.API.info('geo - location updated: ' + new Date(timestamp) + ' long ' + longitude + ' lat ' + latitude + ' accuracy ' + accuracy);
-	});
+	};
+	Titanium.Geolocation.addEventListener('location', locationCallback);
+	locationAdded = true;
 }
 var addr = "2065 Hamilton Avenue San Jose California 95125";
 
@@ -451,5 +459,26 @@ Titanium.Geolocation.forwardGeocoder(addr,function(evt)
 			Ti.API.log("Code translation: "+translateErrorCode(e.code));			
 		}
 	});
+});
+
+Ti.Android.currentActivity.addEventListener('pause', function(e) {
+	if (headingAdded) {
+		Ti.API.info("removing heading callback on pause");
+		Titanium.Geolocation.removeEventListener('heading', headingCallback);
+	}
+	if (locationAdded) {
+		Ti.API.info("removing location callback on pause");
+		Titanium.Geolocation.removeEventListener('location', locationCallback);
+	}
+});
+Ti.Android.currentActivity.addEventListener('resume', function(e) {
+	if (headingAdded) {
+		Ti.API.info("adding heading callback on resume");
+		Titanium.Geolocation.addEventListener('heading', headingCallback);
+	}
+	if (locationAdded) {
+		Ti.API.info("adding location callback on resume");
+		Titanium.Geolocation.addEventListener('location', locationCallback);
+	}
 });
 

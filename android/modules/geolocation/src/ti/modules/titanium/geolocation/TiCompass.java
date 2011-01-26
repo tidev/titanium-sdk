@@ -4,23 +4,20 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
+
 package ti.modules.titanium.geolocation;
 
 import java.util.Calendar;
 
 import org.appcelerator.kroll.KrollDict;
-import org.appcelerator.kroll.KrollModule;
-import org.appcelerator.kroll.KrollProxyListener;
-import org.appcelerator.titanium.TiContext;
-import org.appcelerator.titanium.TiContext.OnLifecycleEvent;
+import org.appcelerator.kroll.KrollInvocation;
 import org.appcelerator.titanium.kroll.KrollCallback;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiConvert;
+import org.appcelerator.titanium.util.TiLocationHelper;
 import org.appcelerator.titanium.util.TiSensorHelper;
 
-import android.app.Activity;
-import android.content.Context;
 import android.hardware.GeomagneticField;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -31,36 +28,24 @@ import android.location.Location;
 import android.location.LocationManager;
 import android.os.SystemClock;
 
-public class TiCompass extends TiGeoHelper
+
+public class TiCompass
 	implements SensorEventListener
 {
 	private static final String LCAT = "TiCompass";
 	private static final boolean DBG = TiConfig.LOGD;
 
-	public static final String EVENT_HEADING = "heading";
-
-	private static final int[] SENSORS = {Sensor.TYPE_ORIENTATION};
-
-	protected boolean sensorAttached;
-	protected boolean listeningForUpdate;
-
-	protected long lastEventInUpdate;
-
-	protected float last_x;
-	protected float last_y;
-	protected float last_z;
-
-	protected float[] gravity;
-	protected float[] geomagnetic;
-
-	protected GeomagneticField geomagneticField;
-	protected float lastHeading = 0.0f;
+	private GeolocationModule geolocationModule;
 	private Calendar baseTime = Calendar.getInstance();
 	private long sensorTimerStart = SystemClock.uptimeMillis();
+	private long lastEventInUpdate;
+	private float lastHeading = 0.0f;
+	private GeomagneticField geomagneticField;
 
-	public TiCompass(TiContext context, KrollModule proxy)
+
+	public TiCompass(GeolocationModule geolocationModule)
 	{
-		super(context, proxy);
+		this.geolocationModule = geolocationModule;
 	}
 
 	public void onAccuracyChanged(Sensor sensor, int accuracy)
@@ -69,19 +54,15 @@ public class TiCompass extends TiGeoHelper
 
 	public void onSensorChanged(SensorEvent event)
 	{
-		int type = event.sensor.getType();
+		if (event.sensor.getType() == Sensor.TYPE_ORIENTATION) {
+			long eventTimestamp = event.timestamp / 1000000;
+			
+			if (eventTimestamp - lastEventInUpdate > 250) {
+				long actualTimestamp = baseTime.getTimeInMillis() + (eventTimestamp - sensorTimerStart);
+				
+				lastEventInUpdate = eventTimestamp;
 
-		if (type == Sensor.TYPE_ORIENTATION) {
-			long ts = event.timestamp / 1000000; // nanos to millis
-			long tsActual = baseTime.getTimeInMillis() + (ts - sensorTimerStart);
-			if (ts - lastEventInUpdate > 250) {
-				lastEventInUpdate = ts;
-
-				Object filter = null;
-				KrollModule proxy = weakProxy.get();
-				if (proxy != null) {
-					filter = proxy.getProperty("headingFilter");
-				}
+				Object filter = geolocationModule.getProperty("headingFilter");
 				if (filter != null) {
 					float headingFilter = TiConvert.toFloat(filter);
 
@@ -92,70 +73,26 @@ public class TiCompass extends TiGeoHelper
 					lastHeading = event.values[0];
 				}
 
-				fireEvent(EVENT_HEADING, eventToKrollDict(event, tsActual));
+				geolocationModule.fireEvent(GeolocationModule.EVENT_HEADING, eventToKrollDict(event, actualTimestamp));
 			}
 		}
 	}
 
-	public void getCurrentHeading(final KrollCallback listener) {
-		final SensorEventListener oneShotHeadingListener = new SensorEventListener()
-		{
-			public void onAccuracyChanged(Sensor sensor, int accuracy) {
-
-			}
-
-			public void onSensorChanged(SensorEvent event) {
-				int type = event.sensor.getType();
-
-				if (type == Sensor.TYPE_ORIENTATION) {
-					long ts = event.timestamp / 1000000; // nanos to millis
-					long tsActual = baseTime.getTimeInMillis() + (ts - sensorTimerStart);
-					listener.callAsync(eventToKrollDict(event, tsActual));
-
-					TiSensorHelper.unregisterListener(SENSORS, this);
-				}
-			}
-		};
-
-		registerCompassUpdateListener(oneShotHeadingListener);
-	}
-
-	protected void registerCompassUpdateListener(SensorEventListener sensorEventListener)
-	{
-		TiContext context = weakContext.get();
-		if (context == null) {
-			Log.w(LCAT, "Unable to register for compass events.  TiContext has been GC'd");
-			return;
-		}
-
-		LocationManager locationManager = (LocationManager) context.getActivity().getSystemService(Context.LOCATION_SERVICE);
-
-		Criteria criteria = new Criteria();
-		String provider = locationManager.getBestProvider(criteria, true);
-		if (provider != null) {
-			Location location = locationManager.getLastKnownLocation(provider);
-			if (location != null) {
-				geomagneticField = new GeomagneticField((float)location.getLatitude(), (float)location.getLongitude(), (float)(location.getAltitude()), System.currentTimeMillis());
-			}
-		}
-
-		TiSensorHelper.registerListener(SENSORS , sensorEventListener, SensorManager.SENSOR_DELAY_UI);
-	}
-
-	protected KrollDict eventToKrollDict(SensorEvent event, long ts)
+	private KrollDict eventToKrollDict(SensorEvent event, long timestamp)
 	{
 		float x = event.values[0];
 		float y = event.values[1];
 		float z = event.values[2];
 
 		KrollDict heading = new KrollDict();
-		heading.put("type", EVENT_HEADING);
-		heading.put("timestamp", ts);
+		heading.put("type", GeolocationModule.EVENT_HEADING);
+		heading.put("timestamp", timestamp);
 		heading.put("x", x);
 		heading.put("y", y);
 		heading.put("z", z);
 		heading.put("magneticHeading", x);
 		heading.put("accuracy", event.accuracy);
+
 		if (DBG) {
 			switch(event.accuracy) {
 			case SensorManager.SENSOR_STATUS_UNRELIABLE :
@@ -174,6 +111,7 @@ public class TiCompass extends TiGeoHelper
 				Log.w(LCAT, "Unknown compass accuracy value: " + event.accuracy);
 			}
 		}
+
 		if (geomagneticField != null) {
 			float trueHeading = x - geomagneticField.getDeclination();
 			if (trueHeading < 0) {
@@ -182,60 +120,61 @@ public class TiCompass extends TiGeoHelper
 
 			heading.put("trueHeading", trueHeading);
 		}
+
 		KrollDict data = new KrollDict();
 		data.put("heading", heading);
-
 		return data;
 	}
 
-	public boolean hasCompass() {
+	public boolean getHasCompass(KrollInvocation invocation)
+	{
 		boolean compass = false;
 
 		SensorManager sensorManager = TiSensorHelper.getSensorManager();
 		if (sensorManager != null) {
 			compass = sensorManager.getDefaultSensor(Sensor.TYPE_ORIENTATION) != null;
 		} else {
-			TiContext context = weakContext.get();
-			if (context != null) {
-				compass = TiSensorHelper.hasDefaultSensor(context.getActivity(), Sensor.TYPE_ORIENTATION);
-			}
+			compass = TiSensorHelper.hasDefaultSensor(geolocationModule.getTiContext().getActivity(), Sensor.TYPE_ORIENTATION);
 		}
 
 		return compass;
 	}
 
-	@Override
-	protected void detach()
+	public void getCurrentHeading(KrollInvocation invocation, final KrollCallback listener)
 	{
-		TiSensorHelper.unregisterListener(SENSORS, this);
-	}
+		if(listener != null) {
+			final SensorEventListener oneShotHeadingListener = new SensorEventListener()
+			{
+				public void onAccuracyChanged(Sensor sensor, int accuracy) {
 
-	@Override
-	protected void attach()
-	{
-		TiSensorHelper.registerListener(SENSORS , this, SensorManager.SENSOR_DELAY_UI);
-	}
+				}
 
-	@Override
-	protected void resume()
-	{
-	}
+				public void onSensorChanged(SensorEvent event) {
+					if (event.sensor.getType() == Sensor.TYPE_ORIENTATION) {
+						long eventTimestamp = event.timestamp / 1000000;
+						long actualTimestamp = baseTime.getTimeInMillis() + (eventTimestamp - sensorTimerStart);
 
-	@Override
-	protected void pause()
-	{
-	}
+						listener.callAsync(eventToKrollDict(event, actualTimestamp));
+						TiSensorHelper.unregisterListener(Sensor.TYPE_ORIENTATION, this);
+					}
+				}
+			};
 
-	@Override
-	protected GeoFeature getFeature()
-	{
-		return GeoFeature.DIRECTION;
-	}
+			LocationManager locationManager = TiLocationHelper.getLocationManager();
+			Criteria criteria = new Criteria();
+			
+			String provider = locationManager.getBestProvider(criteria, true);
+			if (provider != null) {
+				Location location = locationManager.getLastKnownLocation(provider);
+				if (location != null) {
+					geomagneticField = new GeomagneticField((float)location.getLatitude(), (float)location.getLongitude(), (float)(location.getAltitude()), System.currentTimeMillis());
+				}
+			}
 
-	@Override
-	protected boolean supportsEvent(String eventName)
-	{
-		return eventName.equals(EVENT_HEADING);
-	}
+			locationManager = null;
 
+			TiSensorHelper.registerListener(Sensor.TYPE_ORIENTATION, oneShotHeadingListener, SensorManager.SENSOR_DELAY_UI);
+		}
+	}
 }
+

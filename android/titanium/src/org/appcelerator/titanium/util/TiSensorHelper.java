@@ -16,20 +16,15 @@ import android.content.Context;
 import android.hardware.Sensor;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
-import android.os.Build;
 
 public class TiSensorHelper
 {
 	private static final String LCAT = "TiSensorHelper";
 	private static final boolean DBG = TiConfig.LOGD;
 
-	private static boolean warningDisplayed = false;
 	private static AtomicInteger listenerCount = new AtomicInteger();
 	private static SensorManager sensorManager;
 
-	public static SensorManager getSensorManager() {
-		return sensorManager;
-	}
 
 	public static void registerListener(int[] types, SensorEventListener listener, int rate)
 	{
@@ -40,25 +35,19 @@ public class TiSensorHelper
 
 	public static void registerListener(int type, SensorEventListener listener, int rate)
 	{
-		if (listenerCount.get() == 0) {
-			if (sensorManager == null) {
-				sensorManager = (SensorManager) TiApplication.getInstance().getSystemService(Context.SENSOR_SERVICE);
-			}
+		if (sensorManager == null) {
+			sensorManager = (SensorManager) TiApplication.getInstance().getSystemService(Context.SENSOR_SERVICE);
 		}
 
-		if (sensorManager != null) {
-			Sensor sensor  = sensorManager.getDefaultSensor(type);
-			if (sensor != null) {
-				if (DBG) {
-					Log.d(LCAT, "Enabling Listener: " + sensor.getName());
-				}
-				sensorManager.registerListener(listener, sensor, rate);
-				listenerCount.incrementAndGet();
-			} else {
-				Log.e(LCAT, "unable to register, sensor is null");
+		Sensor sensor  = sensorManager.getDefaultSensor(type);
+		if (sensor != null) {
+			if (DBG) {
+				Log.d(LCAT, "Enabling Listener: " + sensor.getName());
 			}
+			sensorManager.registerListener(listener, sensor, rate);
+			listenerCount.incrementAndGet();
 		} else {
-			Log.e(LCAT, "unable to register, sensorManager is null");
+			Log.e(LCAT, "unable to register, sensor is null");
 		}
 	}
 
@@ -110,4 +99,9 @@ public class TiSensorHelper
 
 		return result;
 	}
+
+	public static SensorManager getSensorManager() {
+		return sensorManager;
+	}
 }
+

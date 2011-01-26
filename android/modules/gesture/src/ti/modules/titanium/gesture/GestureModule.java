@@ -4,6 +4,7 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
+
 package ti.modules.titanium.gesture;
 
 import java.lang.ref.WeakReference;
@@ -25,7 +26,6 @@ import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.util.TiWeakList;
 
 import android.app.Activity;
-import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -36,25 +36,22 @@ import android.hardware.SensorManager;
 public class GestureModule extends KrollModule
 	implements ConfigurationChangedListener, SensorEventListener
 {
-	public static final String EVENT_ORIENTATION_CHANGE = "orientationchange";
-	public static final String EVENT_SHAKE = "shake";
-
-	private static final String LCAT = "TiGesture";
+	private static final String LCAT = "GestureModule";
 	private static final boolean DBG = TiConfig.LOGD;
+	private static final String EVENT_ORIENTATION_CHANGE = "orientationchange";
+	private static final String EVENT_SHAKE = "shake";
 
 	private TiWeakList<TiBaseActivity> configChangeActivities = new TiWeakList<TiBaseActivity>();
-	
-	protected long firstEventInShake;
-	protected long lastEventInShake;
-	protected boolean shakeInitialized = false;
-	protected boolean inShake = false;
-	protected double threshold;
-	protected double shakeFactor;
-	protected int postShakePeriod;
-	protected int inShakePeriod;
-	protected float last_x;
-	protected float last_y;
-	protected float last_z;
+	private boolean shakeRegistered = false;
+	private long firstEventInShake;
+	private long lastEventInShake;
+	private boolean shakeInitialized = false;
+	private boolean inShake = false;
+	private double threshold;
+	private double shakeFactor;
+	private int postShakePeriod;
+	private int inShakePeriod;
+
 
 	public GestureModule(TiContext tiContext) {
 		super(tiContext);
@@ -76,13 +73,18 @@ public class GestureModule extends KrollModule
 	public int addEventListener(KrollInvocation invocation, String eventName, Object listener) {
 		if (EVENT_ORIENTATION_CHANGE.equals(eventName)) {
 			Activity activity = invocation.getTiContext().getActivity();
-			if (activity instanceof TiBaseActivity) {
-				TiBaseActivity tiActivity = (TiBaseActivity) activity;
-				tiActivity.addConfigurationChangedListener(this);
-				configChangeActivities.add(new WeakReference<TiBaseActivity>(tiActivity));
+			if (!configChangeActivities.contains(activity)) {
+				if (activity instanceof TiBaseActivity) {
+					TiBaseActivity tiActivity = (TiBaseActivity) activity;
+					tiActivity.addConfigurationChangedListener(this);
+					configChangeActivities.add(new WeakReference<TiBaseActivity>(tiActivity));
+				}
 			}
 		} else if (EVENT_SHAKE.equals(eventName)) {
-			TiSensorHelper.registerListener(Sensor.TYPE_ACCELEROMETER, this, SensorManager.SENSOR_DELAY_UI);
+			if (!shakeRegistered) {
+				TiSensorHelper.registerListener(Sensor.TYPE_ACCELEROMETER, this, SensorManager.SENSOR_DELAY_UI);
+				shakeRegistered = true;
+			}
 		}
 		return super.addEventListener(invocation, eventName, listener);
 	}
@@ -91,13 +93,18 @@ public class GestureModule extends KrollModule
 	public void removeEventListener(KrollInvocation invocation, String eventName, Object listener) {
 		if (EVENT_ORIENTATION_CHANGE.equals(eventName) && configChangeActivities.size() > 0) {
 			Activity activity = invocation.getTiContext().getActivity();
-			if (activity instanceof TiBaseActivity) {
-				TiBaseActivity tiActivity = (TiBaseActivity) activity;
-				tiActivity.removeConfigurationChangedListener(this);
-				configChangeActivities.remove(tiActivity);
+			if (configChangeActivities.contains(activity)) {
+				if (activity instanceof TiBaseActivity) {
+					TiBaseActivity tiActivity = (TiBaseActivity) activity;
+					tiActivity.removeConfigurationChangedListener(this);
+					configChangeActivities.remove(tiActivity);
+				}
 			}
 		} else if (EVENT_SHAKE.equals(eventName)) {
-			TiSensorHelper.unregisterListener(Sensor.TYPE_ACCELEROMETER, this);
+			if (shakeRegistered) {
+				TiSensorHelper.unregisterListener(Sensor.TYPE_ACCELEROMETER, this);
+				shakeRegistered = false;
+			}
 		}
 		super.removeEventListener(invocation, eventName, listener);
 	}
@@ -149,32 +156,24 @@ public class GestureModule extends KrollModule
 			}
 		}
 
-		last_x = x;
-		last_y = y;
-		last_z = z;
-
 		if (!shakeInitialized) {
 			shakeInitialized = true;
 		}
 	}
-
-	private int doGetOrientation(KrollInvocation invocation) {
-		return invocation.getActivity().getResources().getConfiguration().orientation;
-	}
 	
 	@Kroll.getProperty @Kroll.method
 	public boolean isPortrait(KrollInvocation invocation) {
-		return doGetOrientation(invocation) == Configuration.ORIENTATION_PORTRAIT;
+		return invocation.getActivity().getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT;
 	}
 
 	@Kroll.getProperty @Kroll.method
 	public boolean isLandscape(KrollInvocation invocation) {
-		return doGetOrientation(invocation) == Configuration.ORIENTATION_LANDSCAPE;
+		return invocation.getActivity().getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE;
 	}
 
 	@Kroll.getProperty @Kroll.method
 	public int getOrientation(KrollInvocation invocation) {
-		return TiUIHelper.convertToTiOrientation(doGetOrientation(invocation));
+		return TiUIHelper.convertToTiOrientation(invocation.getActivity().getResources().getConfiguration().orientation);
 	}
 
 	@Override
