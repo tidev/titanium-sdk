@@ -12,12 +12,12 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.titanium.TiApplication;
+import org.appcelerator.titanium.TiC;
 
 import android.content.Context;
 import android.location.Criteria;
 import android.location.LocationListener;
 import android.location.LocationManager;
-
 
 public class TiLocationHelper
 {
@@ -30,14 +30,13 @@ public class TiLocationHelper
 	public static final int ACCURACY_HUNDRED_METERS = 2;
 	public static final int ACCURACY_KILOMETER = 3;
 	public static final int ACCURACY_THREE_KILOMETERS = 4;
-	
+
 	private static final String LCAT = "TiLocationHelper";
 	private static final Boolean DBG = true; //TiConfig.LOGD;
-	
+
 	private static AtomicInteger listenerCount = new AtomicInteger();
 	private static KrollProxy proxy = null;
 	private static LocationManager locationManager;
-
 
 	public static LocationManager getLocationManager()
 	{
@@ -58,8 +57,8 @@ public class TiLocationHelper
 
 			TiLocationHelper.proxy = proxy;
 			if (proxy != null) {
-				Object accuracy = proxy.getProperty("accuracy");
-				Object frequency = proxy.getProperty("frequency");
+				Object accuracy = proxy.getProperty(TiC.PROPERTY_ACCURACY);
+				Object frequency = proxy.getProperty(TiC.PROPERTY_FREQUENCY);
 
 				if (accuracy != null) {
 					int value = TiConvert.toInt(accuracy);
@@ -113,9 +112,8 @@ public class TiLocationHelper
 
 	protected static boolean isValidProvider(String name)
 	{
-		
 		boolean enabled = (name.equals(LocationManager.GPS_PROVIDER) || name.equals(LocationManager.NETWORK_PROVIDER));
-		
+
 		if (enabled) {
 			// So far we have a valid name but let's check to see if the provider is enabled on this device
 			enabled = false;
@@ -129,15 +127,15 @@ public class TiLocationHelper
 				}
 			}
 		}
-		
-		return enabled;		
+
+		return enabled;
 	}
 
 	public static String fetchProvider()
 	{
 		String preferredProvider = null;
 		if (proxy != null) {
-			preferredProvider = TiConvert.toString(proxy.getProperty("preferredProvider"));
+			preferredProvider = TiConvert.toString(proxy.getProperty(TiC.PROPERTY_PREFERRED_PROVIDER));
 		}
 
 		String provider;		
@@ -159,7 +157,7 @@ public class TiLocationHelper
 		if (proxy != null) {
 			Object accuracy = null;
 
-			accuracy = proxy.getProperty("accuracy");
+			accuracy = proxy.getProperty(TiC.PROPERTY_ACCURACY);
 
 			if (accuracy != null) {
 				int value = TiConvert.toInt(accuracy);
@@ -199,7 +197,7 @@ public class TiLocationHelper
 				// Extra debugging
 				for (String name : providers) {
 					Log.i(LCAT, "Location ["+name+"] Service available ");
-				}					
+				}
 			}
 			enabled = true;
 		} else {

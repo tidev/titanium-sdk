@@ -11,6 +11,7 @@ import java.util.Calendar;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollInvocation;
+import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.kroll.KrollCallback;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
@@ -62,7 +63,7 @@ public class TiCompass
 				
 				lastEventInUpdate = eventTimestamp;
 
-				Object filter = geolocationModule.getProperty("headingFilter");
+				Object filter = geolocationModule.getProperty(TiC.PROPERTY_HEADING_FILTER);
 				if (filter != null) {
 					float headingFilter = TiConvert.toFloat(filter);
 
@@ -73,7 +74,7 @@ public class TiCompass
 					lastHeading = event.values[0];
 				}
 
-				geolocationModule.fireEvent(GeolocationModule.EVENT_HEADING, eventToKrollDict(event, actualTimestamp));
+				geolocationModule.fireEvent(TiC.EVENT_HEADING, eventToKrollDict(event, actualTimestamp));
 			}
 		}
 	}
@@ -85,13 +86,13 @@ public class TiCompass
 		float z = event.values[2];
 
 		KrollDict heading = new KrollDict();
-		heading.put("type", GeolocationModule.EVENT_HEADING);
-		heading.put("timestamp", timestamp);
-		heading.put("x", x);
-		heading.put("y", y);
-		heading.put("z", z);
-		heading.put("magneticHeading", x);
-		heading.put("accuracy", event.accuracy);
+		heading.put(TiC.EVENT_PROPERTY_TYPE, TiC.EVENT_HEADING);
+		heading.put(TiC.PROPERTY_TIMESTAMP, timestamp);
+		heading.put(TiC.PROPERTY_X, x);
+		heading.put(TiC.PROPERTY_Y, y);
+		heading.put(TiC.PROPERTY_Z, z);
+		heading.put(TiC.PROPERTY_MAGNETIC_HEADING, x);
+		heading.put(TiC.PROPERTY_ACCURACY, event.accuracy);
 
 		if (DBG) {
 			switch(event.accuracy) {
@@ -118,11 +119,11 @@ public class TiCompass
 				trueHeading = 360 - trueHeading;
 			}
 
-			heading.put("trueHeading", trueHeading);
+			heading.put(TiC.PROPERTY_TRUE_HEADING, trueHeading);
 		}
 
 		KrollDict data = new KrollDict();
-		data.put("heading", heading);
+		data.put(TiC.PROPERTY_HEADING, heading);
 		return data;
 	}
 
