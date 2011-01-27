@@ -1027,7 +1027,9 @@ NSArray* moviePlayerKeys = nil;
 -(void)handleRotationNotification:(NSNotification*)note
 {
 	// Only track if we're fullscreen
-	hasRotated = [[self player] isFullscreen];
+	if (movie != nil) {
+		hasRotated = [[self player] isFullscreen];
+	}
 }
 
 -(void)handleFullscreenEnterNotification:(NSNotification*)note
