@@ -401,23 +401,8 @@ public class TiHTTPClient
 			// filter to 512 bytes of granularity
 			if (transferred - lastTransferred >= 512) {
 				lastTransferred = transferred;
-				new Thread(new Runnable() {
-					public void run() {
-						proxy.getTiContext().getActivity().runOnUiThread(new Runnable() {
-							public void run() {
-								listener.progress(transferred);
-							}
-						});
-					}
-				}).start();
+				listener.progress(transferred);
 			}
-		}
-
-		@Override
-		public void write(byte[] b, int off, int len) throws IOException {
-			super.write(b, off, len);
-			transferred += len;
-			fireProgress();
 		}
 
 		@Override
@@ -968,7 +953,7 @@ public class TiHTTPClient
 						}
 					}
 
-					if(parts.size() > 0 && needMultipart) {
+					if (parts.size() > 0 && needMultipart) {
 						mpe = new MultipartEntity();
 						for(String name : parts.keySet()) {
 							Log.d(LCAT, "adding part " + name + ", part type: " + parts.get(name).getMimeType() + ", len: " + parts.get(name).getContentLength());
@@ -996,7 +981,7 @@ public class TiHTTPClient
 									KrollDict data = new KrollDict();
 									data.put("progress", ((double)progress)/totalLength);
 									data.put("source", proxy);
-									cb.callSync(data);
+									cb.callAsync(data);
 								}
 							}
 						});

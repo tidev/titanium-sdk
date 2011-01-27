@@ -32,7 +32,7 @@ NSArray * tableKeySequence;
 {
 	if (tableKeySequence == nil)
 	{
-		tableKeySequence = [[NSArray arrayWithObjects:@"style",@"search",@"data",nil] retain];
+		tableKeySequence = [[NSArray arrayWithObjects:@"style",@"search",@"data",@"backgroundColor",nil] retain];
 	}
 	return tableKeySequence;
 }
