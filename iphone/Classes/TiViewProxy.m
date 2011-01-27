@@ -551,7 +551,9 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
 		[self viewDidAttach];
 
 		// make sure we do a layout of ourselves
-		[self setSandboxBounds:view.bounds];
+		if(CGRectIsEmpty(sandboxBounds)){
+			[self setSandboxBounds:view.bounds];
+		}
 		[self relayout];
 		viewInitialized = YES;
 	}
