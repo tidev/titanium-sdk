@@ -297,6 +297,12 @@
 	{
 		[UIView commitAnimations];
 	}
+	
+	// NOTE: This is fired even though the animation isn't completed.  This is because we can't set
+	// the didStopAnimating selector - it's replaced somewhere along the way before the animation is complete
+	// (probably as part of the transform).
+	// TODO: Make this part of animation completion once we can use blocks.
+	[[NSNotificationCenter defaultCenter] postNotificationName:kTiDidRotateNotification object:nil];
 }
 
 -(void)manuallyRotateToOrientation:(UIInterfaceOrientation) newOrientation

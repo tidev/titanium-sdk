@@ -35,7 +35,7 @@
 	BOOL reallyAttached;
 	
 	// On rotate in fullscreen mode on iPad, we need to check if the orientation changed so we can redraw.
-	UIInterfaceOrientation enterFullscreenOrientation;
+	BOOL hasRotated;
 }
 
 @property(nonatomic,readwrite,assign) id url;
