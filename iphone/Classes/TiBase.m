@@ -41,7 +41,6 @@ NSString * const kTiAnalyticsNotification = @"TiAnalytics";
 NSString * const kTiRemoteDeviceUUIDNotification = @"TiDeviceUUID";
 NSString * const kTiGestureShakeNotification = @"TiGestureShake";
 NSString * const kTiRemoteControlNotification = @"TiRemoteControl";
-NSString * const kTiDidRotateNotification = @"TiDidRotate";
 
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0
 NSString * const kTiLocalNotification = @"TiLocalNotification";

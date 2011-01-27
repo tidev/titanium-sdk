@@ -400,7 +400,7 @@ extern NSString * const kTiAnalyticsNotification;
 extern NSString * const kTiRemoteDeviceUUIDNotification;
 extern NSString * const kTiGestureShakeNotification;
 extern NSString * const kTiRemoteControlNotification;
-extern NSString * const kTiDidRotateNotification;
+
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0
 extern NSString * const kTiLocalNotification;
 #endif

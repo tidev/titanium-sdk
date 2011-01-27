@@ -149,7 +149,7 @@ NSArray* moviePlayerKeys = nil;
 				 object:movie];
 		
 		[nc addObserver:self selector:@selector(handleRotationNotification:)
-				   name:kTiDidRotateNotification
+				   name:UIApplicationDidChangeStatusBarOrientationNotification
 				 object:nil];
 		
 		//FIXME: add to replace preload for 3.2
