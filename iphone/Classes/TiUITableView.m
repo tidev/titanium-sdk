@@ -223,6 +223,24 @@
 	return height < 1 ? tableview.rowHeight : height;
 }
 
+-(void)setBackgroundColor:(TiColor*)color onTable:(UITableView*)table
+{
+	UIColor* defaultColor = [table style] == UITableViewStylePlain ? [UIColor whiteColor] : [UIColor groupTableViewBackgroundColor];
+	UIColor* bgColor = [color _color];
+	
+	// WORKAROUND FOR APPLE BUG: 4.2 and lower don't like setting background color for grouped table views on iPad.
+	// So, we check the table style and device, and if they match up wrong, we replace the background view with our own.
+	if ([table style] == UITableViewStyleGrouped && [TiUtils isIPad]) {
+		UIView* bgView = [[[UIView alloc] initWithFrame:[table frame]] autorelease];
+		[table setBackgroundView:bgView];
+	}
+
+	[table setBackgroundColor:(bgColor != nil ? bgColor : defaultColor)];
+	[[table backgroundView] setBackgroundColor:[table backgroundColor]];
+	
+	[table setOpaque:![[table backgroundColor] isEqual:[UIColor clearColor]]];
+}
+
 -(UITableView*)tableView
 {
 	if (tableview==nil)
@@ -241,10 +259,7 @@
 		tableview.dataSource = self;
 		tableview.autoresizingMask = UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight;
 		
-		UIColor* defaultColor = style == UITableViewStylePlain ? [UIColor whiteColor] : [UIColor groupTableViewBackgroundColor];
-		UIColor* bgColor = [Webcolor webColorNamed:[self valueForKey:@"backgroundColor"]];
-		tableview.backgroundColor = bgColor != nil ? bgColor : defaultColor;
-		tableview.opaque = ![tableview.backgroundColor isEqual:[UIColor clearColor]];
+		[self setBackgroundColor:[TiUtils colorValue:[[self proxy] valueForKey:@"backgroundColor"]] onTable:tableview];
 		
 		[self updateSearchView];
 	}
@@ -1170,8 +1185,10 @@
 
 -(void)setBackgroundColor_:(id)arg
 {
-	TiColor *color = [TiUtils colorValue:arg];
-	[[self tableView] setBackgroundColor:[color _color]];
+	[[self proxy] replaceValue:arg forKey:@"backgroundColor" notification:NO];
+	if (tableview != nil) {
+		[self setBackgroundColor:[TiUtils colorValue:arg] onTable:[self tableView]];
+	}
 }
 
 -(void)setBackgroundImage_:(id)arg
