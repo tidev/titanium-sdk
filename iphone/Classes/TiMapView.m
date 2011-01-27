@@ -759,11 +759,20 @@
 			hitAnnotation = [(MKAnnotationView*)result annotation];
 		}
 		// .. But maybe it's in a subview.  (3.1.x)
-		else {
+		else if (![TiUtils isiPhoneOS3_2OrGreater]) {
 			// We take advantage of some nonobvious magic here, based on information about
-			// the clicky bits of subviews:
-			UIView* containerView = [[result subviews] objectAtIndex:1];
-			hitAnnotation = [self wasHitOnAnnotation:point inView:containerView];
+			// the clicky bits of subviews... if the subview is in fact a map view.
+			// Otherwise, we're on an annotation view or overlay, and didn't hit an annotation.
+			if ([[result subviews] count] >= 2) {
+				UIView* containerView = [[result subviews] objectAtIndex:1];
+				hitAnnotation = [self wasHitOnAnnotation:point inView:containerView];
+			}
+			else {
+				hitAnnotation = nil;
+			}
+		}
+		else {
+			hitAnnotation = nil;
 		}
 	}
 	else {
