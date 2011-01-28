@@ -1,10 +1,13 @@
+/*globals Titanium, Ti, alert, JSON */
 var win = Ti.UI.currentWindow;
+Titanium.Facebook.appid = "134793934930";
+Titanium.Facebook.permissions = ['publish_stream', 'read_stream'];
 
 //
 // Login Status
 //
 var label = Ti.UI.createLabel({
-	text:'Logged In = ' + Titanium.Facebook.isLoggedIn(),
+	text:'Logged In = ' + Titanium.Facebook.loggedIn,
 	font:{fontSize:14},
 	height:'auto',
 	top:10,
@@ -12,33 +15,18 @@ var label = Ti.UI.createLabel({
 });
 win.add(label);
 
+function updateLoginStatus() {
+	label.text = 'Logged In = ' + Titanium.Facebook.loggedIn;
+}
+
 // capture
-Titanium.Facebook.addEventListener('login', function()
-{
-	label.text = 'Logged In = ' + Titanium.Facebook.isLoggedIn();
-});
+Titanium.Facebook.addEventListener('login', updateLoginStatus);
+Titanium.Facebook.addEventListener('logout', updateLoginStatus);
 
 //
 // Login Button
 //
-var fbButton = Titanium.Facebook.createLoginButton({
+win.add ( Titanium.Facebook.createLoginButton({
 	'style':'wide',
-	'apikey':'9494e611f2a93b8d7bfcdfa8cefdaf9f',
-	'sessionProxy':'http://api.appcelerator.net/p/fbconnect/',
-	bottom:30,
-	height:30,
-	width:300
-});
-win.add(fbButton);
-
-fbButton.addEventListener('login',function()
-{
-	label.text = 'Logged In = ' + Titanium.Facebook.isLoggedIn();
-	Ti.API.info('fbButton login event fired');	
-});
-fbButton.addEventListener('logout', function()
-{
-	label.text = 'Logged In = ' + Titanium.Facebook.isLoggedIn();	
-	Ti.API.info('fbButton logout event fired');	
-});
-
+	bottom:30
+}) );
