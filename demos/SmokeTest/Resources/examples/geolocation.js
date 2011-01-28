@@ -10,6 +10,27 @@ if (isIPhone3_2_Plus())
 	Ti.Geolocation.purpose = "GPS demo";
 }
 
+function translateErrorCode(code) {
+	if (code == null) {
+		return null;
+	}
+	switch (code) {
+		case Ti.Geolocation.ERROR_LOCATION_UNKNOWN:
+			return "Location unknown";
+		case Ti.Geolocation.ERROR_DENIED:
+			return "Access denied";
+		case Ti.Geolocation.ERROR_NETWORK:
+			return "Network error";
+		case Ti.Geolocation.ERROR_HEADING_FAILURE:
+			return "Failure to detect heading";
+		case Ti.Geolocation.ERROR_REGION_MONITORING_DENIED:
+			return "Region monitoring access denied";
+		case Ti.Geolocation.ERROR_REGION_MONITORING_FAILURE:
+			return "Region monitoring access failure";
+		case Ti.Geolocation.ERROR_REGION_MONITORING_DELAYED:
+			return "Region monitoring setup delayed";
+	}
+}
 
 var currentHeadingLabel = Titanium.UI.createLabel({
 	text:'Current Heading (One Shot)',
@@ -189,6 +210,10 @@ var reverseGeo = Titanium.UI.createLabel({
 });
 win.add(reverseGeo);
 
+// state vars used by resume/pause
+var headingAdded = false;
+var locationAdded = false;
+
 //
 //  SHOW CUSTOM ALERT IF DEVICE HAS GEO TURNED OFF
 //
@@ -198,6 +223,22 @@ if (Titanium.Geolocation.locationServicesEnabled==false)
 }
 else
 {
+	if (Titanium.Platform.name != 'android') {
+		var authorization = Titanium.Geolocation.locationServicesAuthorization
+		Ti.API.info('Authorization: '+authorization);
+		if (authorization == Titanium.Geolocation.AUTHORIZATION_DENIED) {
+			Ti.UI.createAlertDialog({
+				title:'Kitchen Sink',
+				message:'You have disallowed Titanium from running geolocation services.'
+			}).show();
+		}
+		else if (authorization == Titanium.Geolocation.AUTHORIZATION_RESTRICTED) {
+			Ti.UI.createAlertDialog({
+				title:'Kitchen Sink',
+				message:'Your system has disallowed Titanium from running geolocation services.'
+			}).show();
+		}
+	}
 
 	//
 	// IF WE HAVE COMPASS GET THE HEADING
@@ -222,6 +263,7 @@ else
 			if (e.error)
 			{
 				currentHeading.text = 'error: ' + e.error;
+				Ti.API.info("Code translation: "+translateErrorCode(e.code));
 				return;
 			}
 			var x = e.heading.x;
@@ -239,11 +281,12 @@ else
 		//
 		// EVENT LISTENER FOR COMPASS EVENTS - THIS WILL FIRE REPEATEDLY (BASED ON HEADING FILTER)
 		//
-		Titanium.Geolocation.addEventListener('heading',function(e)
+		var headingCallback = function(e)
 		{
 			if (e.error)
 			{
 				updatedHeading.text = 'error: ' + e.error;
+				Ti.API.info("Code translation: "+translateErrorCode(e.code));
 				return;
 			}
 
@@ -267,7 +310,9 @@ else
 			},100);
 
 			Titanium.API.info('geo - heading updated: ' + new Date(timestamp) + ' x ' + x + ' y ' + y + ' z ' + z);
-		});
+		};
+		Titanium.Geolocation.addEventListener('heading', headingCallback);
+		headingAdded = true;
 	}
 	else
 	{
@@ -298,9 +343,10 @@ else
 	//
 	Titanium.Geolocation.getCurrentPosition(function(e)
 	{
-		if (e.error)
+		if (!e.success || e.error)
 		{
 			currentLocation.text = 'error: ' + JSON.stringify(e.error);
+			Ti.API.info("Code translation: "+translateErrorCode(e.code));
 			alert('error ' + JSON.stringify(e.error));
 			return;
 		}
@@ -322,14 +368,15 @@ else
 	//
 	// EVENT LISTENER FOR GEO EVENTS - THIS WILL FIRE REPEATEDLY (BASED ON DISTANCE FILTER)
 	//
-	Titanium.Geolocation.addEventListener('location',function(e)
+	var locationCallback = function(e)
 	{
-		if (e.error)
+		if (!e.success || e.error)
 		{
 			updatedLocation.text = 'error:' + JSON.stringify(e.error);
 			updatedLatitude.text = '';
 			updatedLocationAccuracy.text = '';
 			updatedLocationTime.text = '';
+			Ti.API.info("Code translation: "+translateErrorCode(e.code));
 			return;
 		}
 
@@ -365,16 +412,29 @@ else
 		// reverse geo
 		Titanium.Geolocation.reverseGeocoder(latitude,longitude,function(evt)
 		{
-			var places = evt.places;
-			reverseGeo.text = places[0].address;
-			Ti.API.debug("reverse geolocation result = "+JSON.stringify(evt));
+			if (evt.success) {
+				var places = evt.places;
+				if (places && places.length) {
+					reverseGeo.text = places[0].address;
+				} else {
+					reverseGeo.text = "No address found";
+				}
+				Ti.API.debug("reverse geolocation result = "+JSON.stringify(evt));
+			}
+			else {
+				Ti.UI.createAlertDialog({
+					title:'Reverse geo error',
+					message:evt.error
+				}).show();
+				Ti.API.info("Code translation: "+translateErrorCode(e.code));
+			}
 		});
 
 
 		Titanium.API.info('geo - location updated: ' + new Date(timestamp) + ' long ' + longitude + ' lat ' + latitude + ' accuracy ' + accuracy);
-	});
-
-
+	};
+	Titanium.Geolocation.addEventListener('location', locationCallback);
+	locationAdded = true;
 }
 var addr = "2065 Hamilton Avenue San Jose California 95125";
 
@@ -384,11 +444,41 @@ Titanium.Geolocation.forwardGeocoder(addr,function(evt)
 	forwardGeo.text = "lat:"+evt.latitude+", long:"+evt.longitude;
 	Titanium.Geolocation.reverseGeocoder(evt.latitude,evt.longitude,function(evt)
 	{
-		var text = "";
-		for (var i = 0; i < evt.places.length; i++) {
-			text += "" + i + ") " + evt.places[i].address + "\n";
+		if (evt.success) {
+			var text = "";
+			for (var i = 0; i < evt.places.length; i++) {
+				text += "" + i + ") " + evt.places[i].address + "\n";
+			}
+			Ti.API.info('Reversed forward: '+text);
 		}
-		Ti.API.info('Reversed forward: '+text);
+		else {
+			Ti.UI.createAlertDialog({
+				title:'Forward geo error',
+				message:evt.error
+			}).show();
+			Ti.API.info("Code translation: "+translateErrorCode(e.code));
+		}
 	});
+});
+
+Ti.Android.currentActivity.addEventListener('pause', function(e) {
+	if (headingAdded) {
+		Ti.API.info("removing heading callback on pause");
+		Titanium.Geolocation.removeEventListener('heading', headingCallback);
+	}
+	if (locationAdded) {
+		Ti.API.info("removing location callback on pause");
+		Titanium.Geolocation.removeEventListener('location', locationCallback);
+	}
+});
+Ti.Android.currentActivity.addEventListener('resume', function(e) {
+	if (headingAdded) {
+		Ti.API.info("adding heading callback on resume");
+		Titanium.Geolocation.addEventListener('heading', headingCallback);
+	}
+	if (locationAdded) {
+		Ti.API.info("adding location callback on resume");
+		Titanium.Geolocation.addEventListener('location', locationCallback);
+	}
 });
 

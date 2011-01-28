@@ -21,10 +21,7 @@
 					image:(UIImage*)image 
 					hires:(BOOL)hires
 {
-    CGRect newRect = CGRectIntegral(CGRectMake(0, 0, newSize.width, newSize.height));
-    CGRect transposedRect = CGRectMake(0, 0, newRect.size.height, newRect.size.width);
     CGImageRef imageRef = image.CGImage;
-	
 	CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
     
 	CGFloat scale = 1.0;
@@ -37,11 +34,14 @@
 		}
 	}
 #endif 
+
+    CGRect newRect = CGRectIntegral(CGRectMake(0, 0, newSize.width*scale, newSize.height*scale));
+    CGRect transposedRect = CGRectMake(0, 0, newRect.size.height, newRect.size.width);
 	
     // Build a context that's the same dimensions as the new size
     CGContextRef bitmap = CGBitmapContextCreate(NULL,
-                                                newRect.size.width * scale,
-                                                newRect.size.height * scale,
+                                                newRect.size.width,
+                                                newRect.size.height,
                                                 8,
                                                 0,
                                                 colorSpace,

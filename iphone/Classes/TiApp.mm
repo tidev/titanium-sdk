@@ -27,7 +27,7 @@ extern NSString * const TI_APPLICATION_VERSION;
 
 extern void UIColorFlushCache();
 
-#define SHUTDOWN_TIMEOUT_IN_SEC	10
+#define SHUTDOWN_TIMEOUT_IN_SEC	3
 #define TIV @"TiVerify"
 
 //
@@ -376,11 +376,16 @@ void MyUncaughtExceptionHandler(NSException *exception)
 
 	//These shutdowns return immediately, yes, but the main will still run the close that's in their queue.	
 	[kjsBridge shutdown:condition];
-	
+
+	// THE CODE BELOW IS WRONG.
+	// It only waits until ONE context has signialed that it has shut down; then we proceed along our merry way.
+	// This might lead to problems like contexts not getting cleaned up properly due to premature app termination.
+	// Plus, it blocks the main thread... meaning that we can have deadlocks if any context is currently executing
+	// a request that requires operations on the main thread.
 	[condition lock];
 	[condition waitUntilDate:[NSDate dateWithTimeIntervalSinceNow:SHUTDOWN_TIMEOUT_IN_SEC]];
 	[condition unlock];
-	
+
 	//This will shut down the modules.
 	[theNotificationCenter postNotificationName:kTiShutdownNotification object:self];
 	
