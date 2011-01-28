@@ -225,7 +225,7 @@ else
 {
 	if (Titanium.Platform.name != 'android') {
 		var authorization = Titanium.Geolocation.locationServicesAuthorization
-		Ti.API.log('Authorization: '+authorization);
+		Ti.API.info('Authorization: '+authorization);
 		if (authorization == Titanium.Geolocation.AUTHORIZATION_DENIED) {
 			Ti.UI.createAlertDialog({
 				title:'Kitchen Sink',
@@ -263,7 +263,7 @@ else
 			if (e.error)
 			{
 				currentHeading.text = 'error: ' + e.error;
-				Ti.API.log("Code translation: "+translateErrorCode(e.code));
+				Ti.API.info("Code translation: "+translateErrorCode(e.code));
 				return;
 			}
 			var x = e.heading.x;
@@ -286,7 +286,7 @@ else
 			if (e.error)
 			{
 				updatedHeading.text = 'error: ' + e.error;
-				Ti.API.log("Code translation: "+translateErrorCode(e.code));
+				Ti.API.info("Code translation: "+translateErrorCode(e.code));
 				return;
 			}
 
@@ -346,7 +346,7 @@ else
 		if (!e.success || e.error)
 		{
 			currentLocation.text = 'error: ' + JSON.stringify(e.error);
-			Ti.API.log("Code translation: "+translateErrorCode(e.code));
+			Ti.API.info("Code translation: "+translateErrorCode(e.code));
 			alert('error ' + JSON.stringify(e.error));
 			return;
 		}
@@ -376,7 +376,7 @@ else
 			updatedLatitude.text = '';
 			updatedLocationAccuracy.text = '';
 			updatedLocationTime.text = '';
-			Ti.API.log("Code translation: "+translateErrorCode(e.code));
+			Ti.API.info("Code translation: "+translateErrorCode(e.code));
 			return;
 		}
 
@@ -426,7 +426,7 @@ else
 					title:'Reverse geo error',
 					message:evt.error
 				}).show();
-				Ti.API.log("Code translation: "+translateErrorCode(e.code));
+				Ti.API.info("Code translation: "+translateErrorCode(e.code));
 			}
 		});
 
@@ -456,7 +456,7 @@ Titanium.Geolocation.forwardGeocoder(addr,function(evt)
 				title:'Forward geo error',
 				message:evt.error
 			}).show();
-			Ti.API.log("Code translation: "+translateErrorCode(e.code));			
+			Ti.API.info("Code translation: "+translateErrorCode(e.code));
 		}
 	});
 });
