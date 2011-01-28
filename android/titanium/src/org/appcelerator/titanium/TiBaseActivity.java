@@ -427,20 +427,27 @@ public class TiBaseActivity extends Activity
 					} else {
 						currentOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT;
 					}
-					
-					if (orientationOverride != -1) {
-						if (orientationOverride != currentOrientation) {
-							return;
-						} else {
-							// the override has been be matched, switch it off to return to normal orientation tracking
+					if (window.isOrientationMode(currentOrientation)) {
+						// Orientation fits with allowed -- setting it
+						setRequestedOrientation(currentOrientation);
+						if (orientationOverride != -1) {
+							// And now that we're in an allowable orientation, we can clear the override.
 							orientationOverride = -1;
 						}
-					}
-					
-					if (window.isOrientationMode(currentOrientation)) {
-						setRequestedOrientation(currentOrientation);
 					} else {
-						setRequestedOrientation(TiUIHelper.convertToAndroidOrientation(window.getOrientationModes()[0]));
+						// The current orientation is not one of the allowable ones.  If it's also not
+						// the override orientation, need to set to one of the allowables.
+						if (currentOrientation == orientationOverride) {
+							setRequestedOrientation(currentOrientation);
+						} else {
+							// current orientation is neither allowable nor the override.  Set
+							// to first allowable.
+							setRequestedOrientation(TiUIHelper.convertToAndroidOrientation(window.getOrientationModes()[0]));
+							if (orientationOverride != -1) {
+								// And again we can clear the override since we're now in an allowable
+								orientationOverride = -1;
+							}
+						}
 					}
 				}
 			}

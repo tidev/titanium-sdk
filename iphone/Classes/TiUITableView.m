@@ -236,7 +236,9 @@
 	}
 
 	[table setBackgroundColor:(bgColor != nil ? bgColor : defaultColor)];
-	[[table backgroundView] setBackgroundColor:[table backgroundColor]];
+	if ([TiUtils isiPhoneOS3_2OrGreater]) {
+		[[table backgroundView] setBackgroundColor:[table backgroundColor]];
+	}
 	
 	[table setOpaque:![[table backgroundColor] isEqual:[UIColor clearColor]]];
 }
