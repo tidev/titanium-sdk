@@ -164,7 +164,7 @@
 
 -(NSString*)convertBlobParams:(NSMutableDictionary*)params
 {
-	NSString* httpMethod;
+	NSString* httpMethod = nil;
 	for (NSString *key in [params allKeys])
 	{
 		id param = [params objectForKey:key];
