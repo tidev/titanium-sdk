@@ -27,6 +27,7 @@
 			<key>CFBundleURLSchemes</key>
 			<array>
 				<string>kitchensink</string>
+				<string>fb134793934930</string>
 			</array>
 		</dict>
 	</array>
