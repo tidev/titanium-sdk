@@ -11,7 +11,7 @@
 #import "SBJSON.h"
 #import "ListenerEntry.h"
 #import "TiApp.h"
-#ifdef USE_TI_APPIOS
+#if defined(USE_TI_APPIOS) && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0
 #import "TiAppiOSProxy.h"
 #endif
 
@@ -399,7 +399,7 @@ extern NSString * const TI_APPLICATION_GUID;
 	return TI_APPLICATION_GUID;
 }
 
-#ifdef USE_TI_APPIOS
+#if defined(USE_TI_APPIOS) && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0
 -(id)iOS
 {
 	if (iOS==nil)

@@ -28,6 +28,7 @@
 	CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
     
 	CGFloat scale = 1.0;
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0
 	if ([TiUtils isIOS4OrGreater]) {
 		scale = [image scale];
 		// Force scaling to 2.0
@@ -35,6 +36,7 @@
 			scale = 2.0;
 		}
 	}
+#endif 
 	
     // Build a context that's the same dimensions as the new size
     CGContextRef bitmap = CGBitmapContextCreate(NULL,
