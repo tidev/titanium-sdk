@@ -126,25 +126,16 @@ def stage(platform, project_dir, manifest, callback):
 		if not os.path.exists(module_dir):
 			os.makedirs(module_dir)
 
-		buildfile = None
+		module_zip_name = '%s-%s-%s.zip' % (moduleid.lower(), platform, version)
+		module_zip = os.path.join(project_dir, 'dist', module_zip_name)
 		if is_ios(platform):
-			buildfile = os.path.join(project_dir,'build','lib%s.a' % moduleid)
-			# copy our custom module xcconfig
-			module_config = os.path.join(project_dir,'module.xcconfig')
-			module_target = os.path.join(module_dir,'%s.xcconfig' % moduleid)
-			shutil.copyfile(module_config,module_target)
-
-			# build the module
+			module_zip = os.path.join(project_dir, module_zip_name)
 			script = os.path.join(project_dir,'build.py')
 			run_python([script])
 		elif is_android(platform):
-			module_zip = os.path.join(project_dir, 'dist', '%s-android-%s.zip' % (moduleid.lower(), version))
-			shutil.copy(module_zip, gen_project_dir)
 			run_ant(project_dir)
+		shutil.copy(module_zip, gen_project_dir)
 
-		if buildfile:
-			shutil.copy(buildfile,module_dir)
-			
 		callback(gen_project_dir)
 	except:
 		dont_delete = True

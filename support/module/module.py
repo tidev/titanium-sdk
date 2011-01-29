@@ -141,11 +141,17 @@ class Module(object):
 	def __init__(self, path, manifest):
 		self.path = path
 		self.manifest = manifest
+
 		self.jar = None
 		module_jar = self.get_resource(manifest.name+'.jar')
 		if os.path.exists(module_jar):
 			self.jar = module_jar
-		
+		self.lib = None
+
+		module_lib = self.get_resource('lib%s.a' % manifest.moduleid)
+		if os.path.exists(module_lib):
+			self.lib = module_lib
+
 		self.xml = None
 		module_xml = self.get_resource('timodule.xml')
 		if os.path.exists(module_xml):
@@ -158,12 +164,8 @@ class ModuleDetector(object):
 	def __init__(self, project_dir):
 		self.project_dir = project_dir
 		self.modules = self.detect_modules()
-	
-	def get_modules(self, dir):
-		print '[DEBUG] Detecting modules in %s' % dir
-		modules = []
-		if not os.path.exists(dir): return modules
-		
+
+	def auto_install_modules(self, dir):
 		for module_zip in glob.glob(os.path.join(dir, '*-*-*.zip')):
 			# in development we store mobilesdk zips in the same place that module zips go
 			if os.path.basename(module_zip).startswith('mobilesdk-'):
@@ -180,10 +182,16 @@ class ModuleDetector(object):
 				destfile.close()
 			module_zf.close()
 			os.remove(module_zip)
-		
-		modules_dir = os.path.join(dir, 'modules')
+
+	def get_modules(self, modules_dir, auto_install=True):
+		print '[DEBUG] Detecting modules in %s' % modules_dir
+		modules = []
+		if auto_install:
+			parent_dir = os.path.dirname(os.path.abspath(modules_dir))
+			self.auto_install_modules(parent_dir)
+
 		if not os.path.exists(modules_dir): return modules
-		
+
 		for platform in os.listdir(modules_dir):
 			platform_dir = os.path.join(modules_dir, platform)
 			if not os.path.isdir(platform_dir): continue
@@ -197,43 +205,53 @@ class ModuleDetector(object):
 					if not os.path.exists(manifest_file): continue
 					
 					manifest = Manifest(manifest_file)
-					print '[DEBUG] Detected module: %s %s @ %s' % (manifest.moduleid, manifest.version, module_dir)
+					print '[DEBUG] Detected module for %s: %s %s @ %s' % (manifest.platform, manifest.moduleid, manifest.version, module_dir)
 					modules.append(Module(module_dir, manifest))
 		return modules
 	
 	def detect_modules(self):
-		app_modules_dir = os.path.join(self.project_dir)
-		system_modules_dir = os.path.abspath(os.path.join(sdk_dir, '..', '..', '..'))
-		
-		modules = self.get_modules(app_modules_dir)
-		modules.extend(self.get_modules(system_modules_dir))
-		
+		system_modules_dir = os.path.abspath(os.path.join(sdk_dir, '..', '..', '..', 'modules'))
+		modules = self.get_modules(os.path.join(self.project_dir, 'modules'))
+		modules.extend(self.get_modules(system_modules_dir, auto_install=False))
 		return modules
-	
-	def find_app_modules(self, tiapp):
+
+	def is_any(self, module_dep, property):
+		value = module_dep[property]
+		return value == None or value == ''
+
+	def get_desc(self, module_dep, property):
+		if self.is_any(module_dep, property):
+			return '<any %s>' % property
+		return module_dep[property]
+
+	def find_app_modules(self, tiapp, platform):
 		missing = []
 		modules = []
 		if 'modules' not in tiapp.properties: return missing, modules
 		
-		for dependency in tiapp.properties['modules']:
-			print '[DEBUG] Looking for %s/%s' % (dependency['name'], dependency['version'])
-			module = self.find_module(id=dependency['name'], version=dependency['version'])
+		for module_dep in tiapp.properties['modules']:
+			if not self.is_any(module_dep, 'platform') and platform != module_dep['platform']:
+				continue
+			version_desc = self.get_desc(module_dep, 'version')
+			platform_desc = self.get_desc(module_dep, 'platform')
+			print '[DEBUG] Looking for Titanium Module id: %s, version: %s, platform: %s' % (module_dep['id'], version_desc, platform_desc)
+			module = self.find_module(id=module_dep['id'], version=module_dep['version'], platform=module_dep['platform'])
 			if module == None:
-				missing.append(dependency)
+				missing.append(module_dep)
 			else:
 				modules.append(module)
-		
+
 		return missing, modules
 
-	def find_module(self, id=None, name=None, version=None):
+	def find_module(self, id, name=None, version=None, platform=None):
 		for module in self.modules:
 			manifest = module.manifest
-			
-			matches = id == None or manifest.moduleid == id
-			matches = matches and name == None or manifest.name == name
-			matches = matches and version == None or manifest.version == version
-			
-			if matches:
+			id_matches = manifest.moduleid == id
+			name_matches = name == None or name == "" or manifest.name == name
+			version_matches = version == None or version == "" or manifest.version == version
+			platform_matches = platform == None or platform == "" or manifest.platform == platform
+
+			if id_matches and name_matches and version_matches and platform_matches:
 				return module
 		return None
 	

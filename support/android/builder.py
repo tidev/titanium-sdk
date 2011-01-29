@@ -835,7 +835,7 @@ class Builder(object):
 		
 		# add manifest / application entries from modules
 		detector = ModuleDetector(self.top_dir)
-		self.missing_modules, self.modules = detector.find_app_modules(self.tiapp)
+		self.missing_modules, self.modules = detector.find_app_modules(self.tiapp, 'android')
 		for module in self.modules:
 			if module.xml == None: continue
 			manifest_xml += get_manifest_xml(module.xml)

@@ -8,10 +8,12 @@ import os, sys, re, shutil, time, base64, run, sgmllib, codecs
 
 template_dir = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
 sys.path.append(os.path.join(template_dir,'../'))
+sys.path.append(os.path.join(template_dir,'../module'))
 
 from tiapp import *
 import jspacker 
 from csspacker import CSSPacker
+from module import ModuleDetector
 
 ignoreFiles = ['.gitignore', '.cvsignore', '.DS_Store'];
 ignoreDirs = ['.git','.svn','_svn','CVS','android','iphone'];
@@ -109,7 +111,9 @@ class Compiler(object):
 		tiapp_xml = os.path.join(project_dir,'tiapp.xml')
 		ti = TiAppXML(tiapp_xml)
 		sdk_version = os.path.basename(os.path.abspath(os.path.join(template_dir,'../')))
-		
+		detector = ModuleDetector(project_dir)
+		missing_modules, modules = detector.find_app_modules(ti, 'iphone')
+
 		if xcode:
 			app_name = os.environ['FULL_PRODUCT_NAME']
 			app_dir = os.path.join(os.environ['TARGET_BUILD_DIR'],os.environ['CONTENTS_FOLDER_PATH'])
@@ -172,55 +176,44 @@ class Compiler(object):
 
 		# generate the includes for all compiled modules
 		xcconfig_c = "// this is a generated file - DO NOT EDIT\n\n"
-		module_root = os.path.abspath(os.path.join(template_dir,"..","..","..","..","modules","iphone"))
 		has_modules = False
-		
-		if os.path.exists(module_root):
-			modules = ti.properties['modules']
-			if len(modules) > 0:
-				mods = open(os.path.join(self.classes_dir,'ApplicationMods.m'),'w+')
-				mods.write(MODULE_IMPL_HEADER)
-				for module in modules:
-					tp_name = module['name'].lower()
-					tp_version = module['version']
-					tp_dir = os.path.join(module_root,tp_name,tp_version)
-					if os.path.exists(tp_dir):
-						tp_props = read_module_properties(tp_dir)
-					else:
-						# must be a local module, just fudge
-						tp_props = {'name':tp_name,'moduleid':tp_name}
-					tp_module_name = tp_props['name']
-					tp_module_id = tp_props['moduleid']
-					tp_guid = ''
-					tp_licensekey = ''
-					if tp_props.has_key('guid'):
-						tp_guid = tp_props['guid']
-					if tp_props.has_key('licensekey'):
-						tp_licensekey = tp_props['licensekey']
-					self.modules_metadata.append({'guid':tp_guid,'name':tp_module_name,'id':tp_module_id,'dir':tp_dir,'version':tp_version,'licensekey':tp_licensekey})
-					xcfile = os.path.join(module_root,tp_name,tp_version,"module.xcconfig")
-					if os.path.exists(xcfile):
-						xcconfig_c+="#include \"%s\"\n" % xcfile
-					xcfile = os.path.join(self.project_dir,'modules','iphone',"%s.xcconfig" % tp_name)
-					if os.path.exists(xcfile):
-						xcconfig_c+="#include \"%s\"\n" % xcfile
-					mods.write("	[modules addObject:[NSDictionary dictionaryWithObjectsAndKeys:@\"%s\",@\"name\",@\"%s\",@\"moduleid\",@\"%s\",@\"version\",@\"%s\",@\"guid\",@\"%s\",@\"licensekey\",nil]];\n" % (tp_module_name,tp_module_id,tp_version,tp_guid,tp_licensekey));
-				mods.write("	return modules;\n")	
-				mods.write("}\n")
-				mods.write(FOOTER)		
-				mods.close()
-				has_modules = True
-				xcconfig = os.path.join(self.iphone_dir,"module.xcconfig")
-				make_xcc = True
-				if os.path.exists(xcconfig):
-					existing_xcc = open(xcconfig).read()
-					# only copy if different so we don't trigger re-compile in xcode
-					make_xcc = existing_xcc!=xcconfig_c
-				if make_xcc:		
-					xcconfig = open(xcconfig,'w')
-					xcconfig.write(xcconfig_c)
-					xcconfig.close()
-			
+
+		if len(modules) > 0:
+			mods = open(os.path.join(self.classes_dir,'ApplicationMods.m'),'w+')
+			mods.write(MODULE_IMPL_HEADER)
+			for module in modules:
+				module_id = module.manifest.moduleid.lower()
+				module_name = module.manifest.name.lower()
+				module_version = module.manifest.version
+				module_guid = ''
+				module_licensekey = ''
+				if module.manifest.has_property('guid'):
+					module_guid = module.manifest.guid
+				if module.manifest.has_property('licensekey'):
+					module_licensekey = module.manifest.licensekey
+				self.modules_metadata.append({'guid':module_guid,'name':module_name,'id':module_id,'dir':module.path,'version':module_version,'licensekey':module_licensekey})
+				xcfile = module.get_resource('module.xcconfig')
+				if os.path.exists(xcfile):
+					xcconfig_c+="#include \"%s\"\n" % xcfile
+				xcfile = os.path.join(self.project_dir,'modules','iphone',"%s.xcconfig" % module_name)
+				if os.path.exists(xcfile):
+					xcconfig_c+="#include \"%s\"\n" % xcfile
+				mods.write("	[modules addObject:[NSDictionary dictionaryWithObjectsAndKeys:@\"%s\",@\"name\",@\"%s\",@\"moduleid\",@\"%s\",@\"version\",@\"%s\",@\"guid\",@\"%s\",@\"licensekey\",nil]];\n" % (module_name,module_id,module_version,module_guid,module_licensekey));
+			mods.write("	return modules;\n")	
+			mods.write("}\n")
+			mods.write(FOOTER)
+			mods.close()
+			has_modules = True
+			xcconfig = os.path.join(self.iphone_dir,"module.xcconfig")
+			make_xcc = True
+			if os.path.exists(xcconfig):
+				existing_xcc = open(xcconfig).read()
+				# only copy if different so we don't trigger re-compile in xcode
+				make_xcc = existing_xcc!=xcconfig_c
+			if make_xcc:
+				xcconfig = open(xcconfig,'w')
+				xcconfig.write(xcconfig_c)
+				xcconfig.close()
 
 		if deploytype=='simulator':
 			shutil.copy(os.path.join(template_dir,'Classes','defines.h'),os.path.join(self.classes_dir,'defines.h'))
