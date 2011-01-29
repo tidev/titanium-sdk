@@ -77,14 +77,19 @@ class TiAppXML(object):
 				# multiple windows rooted by <windows>
 				elif child.nodeName == 'windows':
 					print "[WARN] windows in tiapp.xml no longer supported. this will be ignored"
-				# handle modules		
+				# handle modules
 				elif child.nodeName == 'modules':
 					for module in child.childNodes:
 						if module.nodeType == 1:
-							ver = module.getAttribute('version')
-							name = getText(module.childNodes)
-							self.properties['modules'].append({'name':name,'version':ver})
-				# handle modules		
+							version = module.getAttribute('version')
+							platform = module.getAttribute('platform')
+							module_id = getText(module.childNodes)
+							self.properties['modules'].append({
+								'id': module_id,
+								'version': version,
+								'platform': platform
+							})
+				# handle plugins
 				elif child.nodeName == 'plugins':
 					for plugin in child.childNodes:
 						if plugin.nodeType == 1:
