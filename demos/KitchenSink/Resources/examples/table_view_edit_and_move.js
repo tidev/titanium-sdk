@@ -4,9 +4,9 @@ var win = Titanium.UI.currentWindow;
 var data = [
 	{title:'Row 1', hasChild:true},
 	{title:'Row 2', hasDetail:true},
-	{title:'Row 3'},
-	{title:'Row 4'},
-	{title:'Row 5'},
+	{title:'Delete only', moveable:false},
+	{title:'Move only', editable:false},
+	{title:'Neither', moveable:false, editable:false},
 	{title:'Row 6'},
 	{title:'Row 7'}
 ];

@@ -236,7 +236,9 @@
 	}
 
 	[table setBackgroundColor:(bgColor != nil ? bgColor : defaultColor)];
-	[[table backgroundView] setBackgroundColor:[table backgroundColor]];
+	if ([TiUtils isiPhoneOS3_2OrGreater]) {
+		[[table backgroundView] setBackgroundColor:[table backgroundColor]];
+	}
 	
 	[table setOpaque:![[table backgroundColor] isEqual:[UIColor clearColor]]];
 }
@@ -2031,9 +2033,15 @@ if(ourTableView != tableview)	\
 {
 	if (decelerate==NO)
 	{
-		// resume image loader when we're done scrolling
-		[[ImageLoader sharedLoader] resume];
+		//Treat this the same as animated.
+		[self scrollViewDidEndDecelerating:scrollView];
 	}
+}
+
+- (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView 
+{
+	// resume image loader when we're done scrolling
+	[[ImageLoader sharedLoader] resume];
 	if ([self.proxy _hasListeners:@"scrollEnd"])
 	{
 		NSMutableDictionary *event = [NSMutableDictionary dictionary];
@@ -2042,12 +2050,6 @@ if(ourTableView != tableview)	\
 		[event setObject:[TiUtils sizeToDictionary:tableview.bounds.size] forKey:@"size"];
 		[self.proxy fireEvent:@"scrollEnd" withObject:event];
 	}
-}
-
-- (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView 
-{
-	// resume image loader when we're done scrolling
-	[[ImageLoader sharedLoader] resume];
 }
 
 #pragma mark Search Display Controller Delegates

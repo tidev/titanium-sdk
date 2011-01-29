@@ -277,6 +277,9 @@ public class TiRootActivity extends ActivityGroup
 		if (tiContext != null) {
 			tiContext.dispatchOnStart(this);
 		}
+		if (activityProxy != null) {
+			activityProxy.fireSyncEvent(TiC.EVENT_START, null);
+		}
 	}
 
 	
@@ -297,6 +300,9 @@ public class TiRootActivity extends ActivityGroup
 		Log.checkpoint("checkpoint, on root activity resume. context = " + tiContext);
 		if (tiContext != null) {
 			tiContext.dispatchOnResume(this);
+			if (activityProxy != null) {
+				activityProxy.fireSyncEvent(TiC.EVENT_RESUME, null);
+			}
 		} else {
 			// No context, we have a launch problem.
 			TiProperties systemProperties = getTiApp().getSystemProperties();
@@ -371,6 +377,9 @@ public class TiRootActivity extends ActivityGroup
 		
 		if (tiContext != null) {
 			tiContext.dispatchOnPause(this);
+			if (activityProxy != null) {
+				activityProxy.fireSyncEvent(TiC.EVENT_PAUSE, null);
+			}
 		} else {
 			// Not in a good state. Let's get out.
 			if (b2373Alert != null && b2373Alert.isShowing()) {
@@ -388,6 +397,9 @@ public class TiRootActivity extends ActivityGroup
 		if (tiContext != null) {
 			tiContext.dispatchOnStop(this);
 		}
+		if (activityProxy != null) {
+			activityProxy.fireSyncEvent(TiC.EVENT_STOP, null);
+		}
 	}
 
 	@Override
@@ -396,7 +408,9 @@ public class TiRootActivity extends ActivityGroup
 		if (DBG) {
 			Log.d(LCAT, "root activity onDestroy, context = " + tiContext);
 		}
-		
+		if (activityProxy != null) {
+			activityProxy.fireSyncEvent(TiC.EVENT_DESTROY, null);
+		}
 		if (tiContext != null) {
 			TiApplication app = tiContext.getTiApp();
 			if (app != null) {
@@ -410,7 +424,6 @@ public class TiRootActivity extends ActivityGroup
 			menuHelper = null;
 		}
 		if (activityProxy != null) {
-			activityProxy.fireSyncEvent(TiC.EVENT_DESTROY, null);
 			activityProxy.release();
 			activityProxy = null;
 		}

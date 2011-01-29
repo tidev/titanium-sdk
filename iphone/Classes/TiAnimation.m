@@ -557,7 +557,9 @@ else \
 			// and then we need to add our new view
 			for (UIView *subview in [transitionView subviews])
 			{
-				[subview removeFromSuperview];
+				if (subview != view_) {
+					[subview removeFromSuperview];
+				}
 			}
 			[transitionView addSubview:view_];
 		}

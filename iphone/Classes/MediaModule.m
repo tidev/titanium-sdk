@@ -50,6 +50,18 @@ enum
 
 #pragma mark Internal
 
+-(void)destroyPickerCallbacks
+{
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0
+	RELEASE_TO_NIL(editorSuccessCallback);
+	RELEASE_TO_NIL(editorErrorCallback);
+	RELEASE_TO_NIL(editorCancelCallback);
+#endif
+	RELEASE_TO_NIL(pickerSuccessCallback);
+	RELEASE_TO_NIL(pickerErrorCallback);
+	RELEASE_TO_NIL(pickerCancelCallback);
+}
+
 -(void)destroyPicker
 {
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
@@ -893,6 +905,8 @@ if (![TiUtils isIOS4OrGreater]) { \
 
 -(void)hideCamera:(id)args
 {
+	[self destroyPickerCallbacks];
+	//Hopefully, if we remove the callbacks before going to the main thread, we may reduce deadlock.
 	ENSURE_UI_THREAD(hideCamera,args);
 	if (picker!=nil)
 	{

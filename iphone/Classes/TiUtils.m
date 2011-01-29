@@ -54,10 +54,12 @@ extern NSString * const TI_APPLICATION_RESOURCE_DIR;
 			}
 		}
 #endif
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0
 		if ([[UIScreen mainScreen] respondsToSelector:@selector(scale)])
 		{
 			scale = [[UIScreen mainScreen] scale];
 		}
+#endif
 	}
 	return scale > 1.0;
 }
