@@ -10,9 +10,7 @@ package org.appcelerator.titanium.util;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.titanium.TiApplication;
-import org.appcelerator.titanium.TiC;
 
 import android.content.Context;
 import android.location.Criteria;
@@ -30,13 +28,15 @@ public class TiLocationHelper
 	public static final int ACCURACY_HUNDRED_METERS = 2;
 	public static final int ACCURACY_KILOMETER = 3;
 	public static final int ACCURACY_THREE_KILOMETERS = 4;
+	public static final int DEFAULT_UPDATE_FREQUENCY = 5000;
+	public static final float DEFAULT_UPDATE_DISTANCE = 10;
 
 	private static final String LCAT = "TiLocationHelper";
-	private static final Boolean DBG = true; //TiConfig.LOGD;
+	private static final Boolean DBG = TiConfig.LOGD;
 
 	private static AtomicInteger listenerCount = new AtomicInteger();
-	private static KrollProxy proxy = null;
 	private static LocationManager locationManager;
+
 
 	public static LocationManager getLocationManager()
 	{
@@ -46,40 +46,46 @@ public class TiLocationHelper
 		return locationManager;
 	}
 
-	public static void registerListener(KrollProxy proxy, LocationListener listener)
+	private static int buildUpdateFrequency(Integer frequency)
+	{
+		if (frequency != null) {
+			return frequency.intValue() * 1000;
+		} else {
+			return DEFAULT_UPDATE_FREQUENCY;
+		}
+	}
+
+	private static float buildUpdateDistance(Integer accuracy)
+	{
+		float updateDistance = DEFAULT_UPDATE_DISTANCE;
+
+		if (accuracy != null) {
+			switch(accuracy.intValue()) {
+				case ACCURACY_BEST : updateDistance = 1.0f; break;
+				case ACCURACY_NEAREST_TEN_METERS : updateDistance = 10.0f; break;
+				case ACCURACY_HUNDRED_METERS : updateDistance = 100.0f; break;
+				case ACCURACY_KILOMETER : updateDistance = 1000.0f; break;
+				case ACCURACY_THREE_KILOMETERS : updateDistance = 3000.0f; break;
+				default :
+					Log.w(LCAT, "Ignoring unknown accuracy value [" + accuracy.intValue() + "]");
+			}
+		}
+
+		return updateDistance;
+	}
+
+	public static void registerListener(String preferredProvider, Integer accuracy, Integer frequency, LocationListener listener)
 	{
 		getLocationManager();
 
-		String provider = fetchProvider();
+		String provider = fetchProvider(preferredProvider, accuracy);
 		if (provider != null) {
-			float updateDistance = 10;
-			int updateFrequency = 5000;
+			int updateFrequency = buildUpdateFrequency(frequency);
+			float updateDistance = buildUpdateDistance(accuracy);
 
-			TiLocationHelper.proxy = proxy;
-			if (proxy != null) {
-				Object accuracy = proxy.getProperty(TiC.PROPERTY_ACCURACY);
-				Object frequency = proxy.getProperty(TiC.PROPERTY_FREQUENCY);
+			Log.i(LCAT, "registering listener with provider [" + provider + "], frequency [" + updateFrequency + "], distance [" + updateDistance + "]");
 
-				if (accuracy != null) {
-					int value = TiConvert.toInt(accuracy);
-					switch(value) {
-						case ACCURACY_BEST : updateDistance = 1.0f; break;
-						case ACCURACY_NEAREST_TEN_METERS : updateDistance = 10.0f; break;
-						case ACCURACY_HUNDRED_METERS : updateDistance = 100.0f; break;
-						case ACCURACY_KILOMETER : updateDistance = 1000.0f; break;
-						case ACCURACY_THREE_KILOMETERS : updateDistance = 3000.0f; break;
-						default :
-							Log.w(LCAT, "Ignoring unknown accuracy value " + value);
-					}
-				}
-
-				if (frequency != null) {
-					int value = TiConvert.toInt(frequency); // in seconds
-					updateFrequency = value * 1000; // to millis
-				}
-			}
-
-			locationManager.requestLocationUpdates(provider, updateFrequency, updateDistance, listener);  // locationListener should be module that implements, etc
+			locationManager.requestLocationUpdates(provider, updateFrequency, updateDistance, listener);
 			listenerCount.incrementAndGet();
 		} else {
 			Log.e(LCAT, "unable to register, provider is null");
@@ -99,6 +105,25 @@ public class TiLocationHelper
 		}
 	}
 
+	public static void updateProvider(String preferredProvider, Integer accuracy, String provider, Integer frequency, LocationListener listener)
+	{
+		if (locationManager != null) {
+			String currentProvider = fetchProvider(preferredProvider, accuracy);
+
+			if (!(provider.equals(currentProvider))) {
+				int updateFrequency = buildUpdateFrequency(frequency);
+				float updateDistance = buildUpdateDistance(accuracy);
+
+				Log.i(LCAT, "updating listener with provider [" + currentProvider + "], frequency [" + updateFrequency + "], distance [" + updateDistance + "]");
+
+				locationManager.removeUpdates(listener);
+				locationManager.requestLocationUpdates(currentProvider, updateFrequency, updateDistance, listener);
+			}
+		} else {
+			Log.e(LCAT, "unable to update provider, locationManager is null");
+		}
+	}
+
 	protected static boolean isLocationProviderEnabled(String name)
 	{
 		try {
@@ -115,15 +140,15 @@ public class TiLocationHelper
 		boolean enabled = (name.equals(LocationManager.GPS_PROVIDER) || name.equals(LocationManager.NETWORK_PROVIDER));
 
 		if (enabled) {
-			// So far we have a valid name but let's check to see if the provider is enabled on this device
 			enabled = false;
+
 			try{
 				enabled = isLocationProviderEnabled(name);
 			} catch(Exception ex){
 				ex = null;
 			} finally {
 				if (!enabled) {
-					Log.w(LCAT, "Preferred provider ["+name+"] isn't enabled on this device.  Will default to auto-select of GPS provider.");
+					Log.w(LCAT, "Preferred provider [" + name + "] isn't enabled on this device.  Will default to auto-select of GPS provider.");
 				}
 			}
 		}
@@ -131,55 +156,46 @@ public class TiLocationHelper
 		return enabled;
 	}
 
-	public static String fetchProvider()
+	public static String fetchProvider(String preferredProvider, Integer accuracy)
 	{
-		String preferredProvider = null;
-		if (proxy != null) {
-			preferredProvider = TiConvert.toString(proxy.getProperty(TiC.PROPERTY_PREFERRED_PROVIDER));
-		}
+		String provider;
 
-		String provider;		
 		if ((preferredProvider != null) && isValidProvider(preferredProvider)) {
 			provider = preferredProvider;
 		} else {
-			Criteria criteria = createCriteria();
+			Criteria criteria = createCriteria(accuracy);
 			provider = getLocationManager().getBestProvider(criteria, true);
 		}		
-		
+
 		return provider;
 	}
 
-	protected static Criteria createCriteria()
+	protected static Criteria createCriteria(Integer accuracy)
 	{
 		Criteria criteria = new Criteria();
 		criteria.setAccuracy(Criteria.NO_REQUIREMENT);
 
-		if (proxy != null) {
-			Object accuracy = null;
+		if (accuracy != null) {
+			int value = accuracy.intValue();
 
-			accuracy = proxy.getProperty(TiC.PROPERTY_ACCURACY);
-
-			if (accuracy != null) {
-				int value = TiConvert.toInt(accuracy);
-				switch(value) {
-					case ACCURACY_BEST :
-					case ACCURACY_NEAREST_TEN_METERS :
-					case ACCURACY_HUNDRED_METERS :
-						criteria.setAccuracy(Criteria.ACCURACY_FINE);
-						criteria.setAltitudeRequired(true);
-						criteria.setBearingRequired(true);
-						criteria.setSpeedRequired(true);
-						break;
-					case ACCURACY_KILOMETER :
-					case ACCURACY_THREE_KILOMETERS :
-						criteria.setAccuracy(Criteria.ACCURACY_COARSE);
-						criteria.setAltitudeRequired(false);
-						criteria.setBearingRequired(false);
-						criteria.setSpeedRequired(false);
-						break;
-					default :
-						Log.w(LCAT, "Ignoring unknown accuracy value " + value);
-				}
+			switch(value) {
+				case ACCURACY_BEST :
+				case ACCURACY_NEAREST_TEN_METERS :
+				case ACCURACY_HUNDRED_METERS :
+					criteria.setAccuracy(Criteria.ACCURACY_FINE);
+					criteria.setAltitudeRequired(true);
+					criteria.setBearingRequired(true);
+					criteria.setSpeedRequired(true);
+					break;
+				case ACCURACY_KILOMETER :
+				case ACCURACY_THREE_KILOMETERS :
+					criteria.setAccuracy(Criteria.ACCURACY_COARSE);
+					criteria.setAltitudeRequired(false);
+					criteria.setBearingRequired(false);
+					criteria.setSpeedRequired(false);
+					break;
+				default :
+					Log.w(LCAT, "Ignoring unknown accuracy value [" + value + "]");
 			}
 		}
 
@@ -194,9 +210,8 @@ public class TiLocationHelper
 		if (providers != null && providers.size() > 0) {
 			if (DBG) {
 				Log.i(LCAT, "Enabled location provider count: " + providers.size());
-				// Extra debugging
 				for (String name : providers) {
-					Log.i(LCAT, "Location ["+name+"] Service available ");
+					Log.i(LCAT, "Location [" + name + "] service available");
 				}
 			}
 			enabled = true;
