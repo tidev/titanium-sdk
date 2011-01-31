@@ -55,6 +55,7 @@ public class TiC {
 	public static final String EVENT_PROPERTY_X = "x";
 	public static final String EVENT_PROPERTY_Y = "y";
 	public static final String EVENT_REGION_CHANGED = "regionChanged";
+	public static final String EVENT_RESTART = "restart";
 	public static final String EVENT_RESUME = "resume";
 	public static final String EVENT_SINGLE_TAP = "singletap";
 	public static final String EVENT_START = "start";
@@ -66,8 +67,10 @@ public class TiC {
 	public static final String EVENT_UNFOCUSED = "unfocused";
 	public static final String INTENT_PROPERTY_FINISH_ROOT = "finishRoot";
 	public static final String INTENT_PROPERTY_LAYOUT = "layout";
-	public static final String INTENT_PROPERTY_MESSAGE_ID = "messageId";
 	public static final String INTENT_PROPERTY_MESSENGER = "messenger";
+	public static final String INTENT_PROPERTY_MSG_ACTIVITY_CREATED_ID = "msgActivityCreatedId";
+	public static final String INTENT_PROPERTY_MSG_ID = "messageId";
+	public static final String INTENT_PROPERTY_MSG_WINDOW_CREATED_ID = "msgWindowCreatedId";
 	public static final String LAYOUT_HORIZONTAL = "horizontal";
 	public static final String LAYOUT_VERTICAL = "vertical";
 	public static final String MSG_PROPERTY_EVENT_NAME = "eventName";

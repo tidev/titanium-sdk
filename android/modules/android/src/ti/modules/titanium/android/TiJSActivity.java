@@ -32,15 +32,17 @@ public abstract class TiJSActivity extends TiBaseActivity
 	protected TiContext tiContext;
 	protected CountDownLatch jsLoadedLatch;
 	protected TiUrl url;
-	
-	public TiJSActivity(ActivityProxy proxy) {
+
+	public TiJSActivity(ActivityProxy proxy)
+	{
 		setActivityProxy(proxy);
 		if (proxy.hasProperty(TiC.PROPERTY_URL)) {
 			this.url = TiUrl.normalizeWindowUrl(TiConvert.toString(proxy.getProperty(TiC.PROPERTY_URL)));
 		}
 	}
-	
-	public TiJSActivity(String url) {
+
+	public TiJSActivity(String url)
+	{
 		this.url = TiUrl.normalizeWindowUrl(url);
 	}
 
@@ -68,8 +70,15 @@ public abstract class TiJSActivity extends TiBaseActivity
 		setWindowProxy(window);
 		super.onCreate(savedInstanceState);	
 	}
-	
-	protected void waitForJS() {
+
+	@Override
+	public boolean hasTiContext()
+	{
+		return tiContext != null;
+	}
+
+	protected void waitForJS()
+	{
 		try {
 			if (DBG) {
 				Log.d(LCAT, "Waiting for JS Activity @ " + url + " to load");
@@ -82,8 +91,9 @@ public abstract class TiJSActivity extends TiBaseActivity
 			Log.d(LCAT, "Loaded JS Activity @ " + url);
 		}
 	}
-	
-	protected void loadActivityScript() {
+
+	protected void loadActivityScript()
+	{
 		try {
 			String fullUrl = url.resolve(tiContext);
 			if (DBG) {
@@ -100,8 +110,9 @@ public abstract class TiJSActivity extends TiBaseActivity
 			jsLoadedLatch.countDown(); // Release UI thread
 		}
 	}
-	
-	protected void windowCreated() {
+
+	protected void windowCreated()
+	{
 		super.windowCreated();
 		TiUIActivityWindow win = new TiUIActivityWindow((TiActivityWindowProxy)window, this, layout);
 		
@@ -117,9 +128,10 @@ public abstract class TiJSActivity extends TiBaseActivity
 		waitForJS();
 		win.open();
 	}
-	
+
 	@Override
-	protected boolean shouldFinishRootActivity() {
+	protected boolean shouldFinishRootActivity()
+	{
 		return getIntentBoolean(TiC.PROPERTY_EXIT_ON_CLOSE, false) || super.shouldFinishRootActivity();
 	}
 }

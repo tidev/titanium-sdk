@@ -7,16 +7,15 @@
 package org.appcelerator.titanium;
 
 import java.lang.ref.WeakReference;
-import java.util.ArrayList;
 
-import android.content.res.Configuration;
+import org.appcelerator.titanium.util.TiWeakList;
 
 public class TiActivity extends TiBaseActivity {
-	protected ArrayList<WeakReference<TiContext>> contexts;
-	
+	protected TiWeakList<TiContext> contexts;
+
 	public TiActivity() {
 		super();
-		contexts = new ArrayList<WeakReference<TiContext>>();
+		contexts = new TiWeakList<TiContext>();
 	}
 	
 	public void addTiContext(TiContext context) {
@@ -32,59 +31,48 @@ public class TiActivity extends TiBaseActivity {
 	}
 
 	@Override
-	public void onConfigurationChanged(Configuration newConfig)
+	public boolean hasTiContext()
 	{
-		super.onConfigurationChanged(newConfig);
+		return contexts.size() > 0;
 	}
 
 	@Override
 	protected void onPause() {
 		super.onPause();
-		for (WeakReference<TiContext> contextRef : contexts) {
-			if (contextRef.get() != null) {
-				contextRef.get().dispatchOnPause(this);
-			}
+		for (TiContext context : contexts.nonNull()) {
+			context.fireLifecycleEvent(this, TiContext.LIFECYCLE_ON_PAUSE);
 		}
 	}
 
 	@Override
 	protected void onResume() {
 		super.onResume();
-		for (WeakReference<TiContext> contextRef : contexts) {
-			if (contextRef.get() != null) {
-				contextRef.get().dispatchOnResume(this);
-			}
+		for (TiContext context : contexts.nonNull()) {
+			context.fireLifecycleEvent(this, TiContext.LIFECYCLE_ON_RESUME);
 		}
 	}
 
 	@Override
 	protected void onStart() {
 		super.onStart();
-		for (WeakReference<TiContext> contextRef : contexts) {
-			if (contextRef.get() != null) {
-				contextRef.get().dispatchOnStart(this);
-			}
+		for (TiContext context : contexts.nonNull()) {
+			context.fireLifecycleEvent(this, TiContext.LIFECYCLE_ON_START);
 		}
 	}
 
 	@Override
 	protected void onStop() {
 		super.onStop();
-		for (WeakReference<TiContext> contextRef : contexts) {
-			if (contextRef.get() != null) {
-				contextRef.get().dispatchOnStop(this);
-			}
+		for (TiContext context : contexts.nonNull()) {
+			context.fireLifecycleEvent(this, TiContext.LIFECYCLE_ON_STOP);
 		}
 	}
 
 	@Override
 	protected void onDestroy() {
-		for (WeakReference<TiContext> contextRef : contexts) {
-			TiContext ctx = contextRef.get();
-			if (ctx != null) {
-				ctx.dispatchOnDestroy(this);
-				ctx.release();
-			}
+		for (TiContext context : contexts.nonNull()) {
+			context.fireLifecycleEvent(this, TiContext.LIFECYCLE_ON_DESTROY);
+			context.release();
 		}
 		super.onDestroy();
 	}

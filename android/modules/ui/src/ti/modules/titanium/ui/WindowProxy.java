@@ -95,7 +95,7 @@ public class WindowProxy extends TiWindowProxy
 	public void fillIntentForTab(Intent intent) {
 		Messenger messenger = new Messenger(getUIHandler());
 		intent.putExtra(TiC.INTENT_PROPERTY_MESSENGER, messenger);
-		intent.putExtra(TiC.INTENT_PROPERTY_MESSAGE_ID, MSG_TAB_OPEN);
+		intent.putExtra(TiC.INTENT_PROPERTY_MSG_ID, MSG_TAB_OPEN);
 	}
 
 	@Override

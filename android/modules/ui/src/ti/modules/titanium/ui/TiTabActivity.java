@@ -67,7 +67,7 @@ public class TiTabActivity extends ActivityGroup
 			}
 			if (intent.hasExtra(TiC.INTENT_PROPERTY_MESSENGER)) {
 				messenger = (Messenger) intent.getParcelableExtra(TiC.INTENT_PROPERTY_MESSENGER);
-				messageId = intent.getIntExtra(TiC.INTENT_PROPERTY_MESSAGE_ID, -1);
+				messageId = intent.getIntExtra(TiC.INTENT_PROPERTY_MSG_ID, -1);
 			}
 			if (intent.hasExtra(TiC.INTENT_PROPERTY_LAYOUT)) {
 				arrangementFromIntent = intent.getStringExtra(TiC.INTENT_PROPERTY_LAYOUT);
