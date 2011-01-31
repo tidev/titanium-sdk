@@ -1,45 +1,23 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2011 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 
 package ti.modules.titanium.ui.widget.picker;
 
-import java.lang.ref.WeakReference;
-import java.util.ArrayList;
-
-import kankan.wheel.widget.WheelView;
-
-import org.appcelerator.kroll.KrollDict;
-import org.appcelerator.kroll.KrollProxy;
-import org.appcelerator.kroll.KrollProxyListener;
-import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.Log;
-import org.appcelerator.titanium.util.TiConvert;
-import org.appcelerator.titanium.util.TiUIHelper;
+import org.appcelerator.titanium.view.TiCompositeLayout;
+import org.appcelerator.titanium.view.TiCompositeLayout.LayoutArrangement;
+import org.appcelerator.titanium.view.TiUIView;
 
-import ti.modules.titanium.ui.PickerRowProxy;
 import android.app.Activity;
-import android.content.Context;
-import android.graphics.Typeface;
-import android.widget.LinearLayout;
 
 public class TiUISpinner extends TiUIPicker
-		implements WheelView.OnItemSelectedListener, KrollProxyListener
 {
 	private static final String LCAT = "TiUISpinner";
-	private boolean ignoreItemSelection = false;
-	private ArrayList<WheelView> wheels;
-	private LinearLayout layout;
-	private Typeface typeface = null;
-	private Float fontSize = null;
-	private Integer color = null;
-	private Integer visibleItemsCount = new Integer(5);
-	private WeakReference<Activity> weakViewActivity = null;
-	
 	public TiUISpinner(TiViewProxy proxy)
 	{
 		super(proxy);
@@ -47,226 +25,75 @@ public class TiUISpinner extends TiUIPicker
 	public TiUISpinner(TiViewProxy proxy, Activity activity)
 	{
 		this(proxy);
-		weakViewActivity = new WeakReference<Activity>(activity);
-		layout = new LinearLayout(activity);
-		layout.setOrientation(LinearLayout.HORIZONTAL);
+		TiCompositeLayout layout = new TiCompositeLayout(activity, LayoutArrangement.HORIZONTAL);
+		layout.setDisableHorizontalWrap(true);
 		setNativeView(layout);
-	}
-	
-	private Context getViewContext()
-	{
-		Context ctx = null;
-		if (weakViewActivity != null) {
-			ctx = weakViewActivity.get();
-		}
-		if (ctx == null){
-			ctx = proxy.getContext();
-		}
-		return ctx;
 	}
 
 	@Override
 	protected void refreshNativeView()
 	{
-		ignoreItemSelection = true;
-		try {
-			// Remember selected indices, to set them back
-			ArrayList<Integer> selectedIndices = getSelectedRowIndices();
-			LinearLayout layout = (LinearLayout)getNativeView();
-
-			boolean doSetNative = false;
-			if (layout == null) {
-				doSetNative = true;
-				layout = new LinearLayout(getViewContext());
-				layout.setOrientation(LinearLayout.HORIZONTAL);
-			} else {
-				layout.removeAllViews();
-			}
-			if (wheels != null) {
-				wheels.clear();
-			}
-			if (columns != null) {
-				if (wheels == null) {
-					wheels = new ArrayList<WheelView>(columns.size());
-				}
-
-				for (ArrayList<PickerRowProxy> rowset : columns) {
-					TextWheelAdapter adapter = new TextWheelAdapter(rowset.toArray());
-					WheelView view = new WheelView(getViewContext());
-					view.setVisibleItems(visibleItemsCount.intValue());
-					applyStyle(view);
-					view.setAdapter(adapter);
-					view.setItemSelectedListener(this);
-					wheels.add(view);
-					layout.addView(view);
-				}
-			}
-			if (doSetNative) {
-				setNativeView(layout);
-			}
-
-			// Reselect the selected indices, if applicable
-			if (selectedIndices != null && selectedIndices.size() == wheels.size()) {
-				for (int colnum = 0; colnum < wheels.size(); colnum++) {
-					int rowIndex = selectedIndices.get(colnum).intValue();
-					selectRow(colnum, rowIndex, false);
-				}
-			}
-		} finally {
-			ignoreItemSelection = false;
-		}
-	}
-
-	private void applyStyle(WheelView view)
-	{
-		if (fontSize == null) {
-			String sFontSize = TiUIHelper.getDefaultFontSize(getViewContext());
-			fontSize = new Float(TiUIHelper.getSize(sFontSize));
-		}
-		view.setTextSize(fontSize.intValue());
-		if (color != null) {
-			view.setTextColor(color.intValue());
-		}
-		if (typeface != null) {
-			view.setTypeface(typeface);
-		}
-		
-	}
-	
-	@Override
-	public void processProperties(KrollDict d) {
-		super.processProperties(d);
-		if (d.containsKey(TiC.PROPERTY_FONT)) {
-			setFontProperties(d.getKrollDict(TiC.PROPERTY_FONT));
-		}
-		if (d.containsKey(TiC.PROPERTY_COLOR)) {
-			color = new Integer(TiConvert.toColor(d, "color"));
-		}
-		if (d.containsKey("visibleItems")) {
-			visibleItemsCount = new Integer(TiConvert.toInt(d, "visibleItems"));
-		}
-		refreshNativeView();
-	}
-
-	private void setFontProperties(KrollDict font)
-	{
-		if (font.containsKey("fontSize")) {
-			String sFontSize = TiConvert.toString(font, "fontSize");
-			fontSize = new Float(TiUIHelper.getSize(sFontSize));
-		}
-		if (font.containsKey("fontFamily")) {
-			String fontFamily = TiConvert.toString(font, "fontFamily");
-			typeface = TiUIHelper.toTypeface(fontFamily);
-		}
-	}
-
-	@Override
-	public void propertyChanged(String key, Object oldValue, Object newValue,
-			KrollProxy proxy)
-	{
-		boolean mustRefresh = false;
-		if (key == TiC.PROPERTY_FONT && newValue instanceof KrollDict) {
-			setFontProperties((KrollDict)newValue);
-			mustRefresh = true;
-		} else if (key == TiC.PROPERTY_COLOR) {
-			color = new Integer(TiConvert.toColor(TiConvert.toString(newValue)));
-			mustRefresh = true;
-		} else if (key == "visibleItems") {
-			visibleItemsCount = new Integer(TiConvert.toInt(newValue));
-			mustRefresh = true;
-		} else {
-			super.propertyChanged(key, oldValue, newValue, proxy);	
-		}
-		if (mustRefresh) {
-			refreshNativeView();
-		}
-	}
-	
-	@Override
-	public void onItemSelected(WheelView view, int index)
-	{
-		if (ignoreItemSelection) {
+		if (children == null || children.size() == 0) {
 			return;
 		}
-		int columnIndex = wheels.indexOf(view);
-
-		KrollDict d = new KrollDict();
-		d.put("rowIndex", index);
-		d.put("columnIndex", columnIndex);
-		d.put("row", columns.get(columnIndex).get(index));
-		d.put("column", columns.get(columnIndex));
-		// selectedValue is an array of _all_ of the selected values
-		ArrayList<String> selectedValues = new ArrayList<String>(columns.size());
-		for (int i = 0; i < columns.size(); i++) {
-			PickerRowProxy row = getSelectedRow(i);
-			if (row != null) {
-				selectedValues.add(row.toString());
-			} else {
-				selectedValues.add(null);
-			}
+		for (TiUIView child : children) {
+			refreshColumn((TiUISpinnerColumn)child);
 		}
-		d.put("selectedValue", selectedValues.toArray());
-		proxy.fireEvent("change", d);
+	}
+	
+	private void refreshColumn(int columnIndex)
+	{
+		if (columnIndex < 0 || children == null || children.size() == 0 || columnIndex > (children.size() + 1)) {
+			return;
+		}
+		refreshColumn((TiUISpinnerColumn)children.get(columnIndex));
+	}
+	private void refreshColumn(TiUISpinnerColumn column)
+	{
+		if (column == null) {
+			return;
+		}
+		column.refreshNativeView();
 	}
 
+	@Override
+	public int getSelectedRowIndex(int columnIndex)
+	{
+		if (columnIndex < 0 || children == null || children.size() == 0 || columnIndex >= children.size()) {
+			Log.w(LCAT, "Ignoring effort to get selected row index for out-of-bounds columnIndex " + columnIndex);
+			return -1;
+		}
+		TiUIView child = children.get(columnIndex);
+		if (child instanceof TiUISpinnerColumn) {
+			return ((TiUISpinnerColumn)child).getSelectedRowIndex();
+		} else {
+			Log.w(LCAT, "Could not locate column " + columnIndex + ".  Ignoring effort to get selected row index in that column.");
+			return -1;
+		}
+	}
 	@Override
 	public void selectRow(int columnIndex, int rowIndex, boolean animated)
 	{
-		if ( (1 + columnIndex) > getColumnCount()) {
-			Log.w(LCAT, "selectRow ignored - columnIndex " + columnIndex + " does not exist.");
+		if (children == null || columnIndex >= children.size()) {
+			Log.w(LCAT, "Column " + columnIndex + " does not exist.  Ignoring effort to select a row in that column.");
 			return;
 		}
-
-		if ( (1 + rowIndex) > columns.get(columnIndex).size()) {
-			Log.w(LCAT, "selectRow ignored - rowIndex " + rowIndex + " does not exist in column " + columnIndex);
-			return;
-		}
-
-		wheels.get(columnIndex).setCurrentItem(rowIndex);
-
-	}
-
-	@Override
-	public PickerRowProxy getSelectedRow(int columnIndex)
-	{
-		int colCount = getColumnCount();
-		if (colCount == 0 || (1 + columnIndex) > colCount) {
-			Log.w(LCAT, "getSelectedRow - there is no column with index " + columnIndex);
-			return null;
-		}
-		int selectedIndex = wheels.get(columnIndex).getCurrentItem();
-		if (selectedIndex >= 0) {
-			return columns.get(columnIndex).get(selectedIndex);
+		TiUIView child = children.get(columnIndex);
+		if (child instanceof TiUISpinnerColumn) {
+			((TiUISpinnerColumn)child).selectRow(rowIndex);
 		} else {
-			Log.w(LCAT, "getSelectedRow - there is no row selected in column " + columnIndex);
-			return null;
+			Log.w(LCAT, "Could not locate column " + columnIndex + ".  Ignoring effort to select a row in that column.");
 		}
 	}
 
 	@Override
-	public boolean isRedrawRequiredForModelChanges()
+	public void onColumnModelChanged(int columnIndex)
 	{
-		return true;
+		refreshColumn(columnIndex);
 	}
-
-	private ArrayList<Integer> getSelectedRowIndices()
-	{
-		if (wheels == null || wheels.size() == 0) return null;
-		ArrayList<Integer> indices = new ArrayList<Integer>(wheels.size());
-		for (WheelView view : wheels) {
-			indices.add(new Integer(view.getCurrentItem()));
-		}
-		return indices;
-	}
-
 	@Override
-	public void release()
+	public void onRowChanged(int columnIndex, int rowIndex)
 	{
-		super.release();
-		if (wheels != null) {
-			wheels.clear();
-			wheels = null;
-		}
-		layout = null;
+		refreshColumn(columnIndex);
 	}
 }

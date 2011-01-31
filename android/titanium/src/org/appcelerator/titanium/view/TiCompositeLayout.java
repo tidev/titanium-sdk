@@ -38,6 +38,7 @@ public class TiCompositeLayout extends ViewGroup
 	private int horizontalLayoutTopBuffer = 0;
 	private int horizontalLayoutCurrentLeft = 0;
 	private int horizontalLayoutLineHeight = 0;
+	private boolean disableHorizontalWrap = false;
 
 	public TiCompositeLayout(Context context)
 	{
@@ -409,7 +410,7 @@ public class TiCompositeLayout extends ViewGroup
 			left += optionLeft.getAsPixels(this);
 		}
 		int right = left + measuredWidth;
-		if (right > layoutRight) {
+		if (right > layoutRight && !disableHorizontalWrap) {
 			// Too long for the current "line" that it's on.  Need to move it down.
 			left = 0;
 			right = measuredWidth;
@@ -485,5 +486,10 @@ public class TiCompositeLayout extends ViewGroup
 		} else {
 			arrangement = LayoutArrangement.DEFAULT;
 		}
+	}
+
+	public void setDisableHorizontalWrap(boolean disable)
+	{
+		disableHorizontalWrap = disable;
 	}
 }

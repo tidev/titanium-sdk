@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2011 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -10,13 +10,10 @@ package ti.modules.titanium.ui;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.appcelerator.kroll.KrollDict;
-import org.appcelerator.kroll.KrollPropertyChange;
-import org.appcelerator.kroll.KrollProxy;
-import org.appcelerator.kroll.KrollProxyListener;
+import org.appcelerator.kroll.KrollInvocation;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.kroll.KrollCallback;
@@ -25,6 +22,7 @@ import org.appcelerator.titanium.util.AsyncResult;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiUIView;
 
+import ti.modules.titanium.ui.PickerColumnProxy.PickerColumnListener;
 import ti.modules.titanium.ui.widget.picker.TiUIDatePicker;
 import ti.modules.titanium.ui.widget.picker.TiUIDateSpinner;
 import ti.modules.titanium.ui.widget.picker.TiUINativePicker;
@@ -42,38 +40,43 @@ import android.widget.DatePicker;
 import android.widget.TimePicker;
 
 @Kroll.proxy(creatableInModule=UIModule.class, propertyAccessors={"locale"})
-public class PickerProxy extends TiViewProxy implements KrollProxyListener
+public class PickerProxy extends TiViewProxy implements PickerColumnListener
 {
 	private int type = UIModule.PICKER_TYPE_PLAIN;
-	private ArrayList<PickerColumnProxy>columns = new ArrayList<PickerColumnProxy>();
 	private ArrayList<Integer> preselectedRows = new ArrayList<Integer>();
 	private static final String LCAT = "PickerProxy";
 	
 	private static final int MSG_FIRST_ID = TiViewProxy.MSG_LAST_ID + 1;
-	private static final int MSG_APPEND_VIEW_COLUMN = MSG_FIRST_ID + 100;
 	private static final int MSG_SELECT_ROW = MSG_FIRST_ID + 101;
-	private static final int MSG_REPLACE_MODEL = MSG_FIRST_ID + 102;
-	
+	private static final int MSG_SET_COLUMNS = MSG_FIRST_ID + 102;
+	private static final int MSG_ADD = MSG_FIRST_ID + 103;
+	private static final int MSG_REMOVE = MSG_FIRST_ID + 104;
+	private static final int MSG_FIRE_COL_CHANGE = MSG_FIRST_ID + 105;
+	private static final int MSG_FIRE_ROW_CHANGE = MSG_FIRST_ID + 106;
+	private boolean useSpinner = false;
+
 	public PickerProxy(TiContext tiContext)
 	{
 		super(tiContext);
 	}
-	
+
 	@Override
 	public void handleCreationDict(KrollDict dict) {
 		super.handleCreationDict(dict);
+		if (dict.containsKey("useSpinner")) {
+			useSpinner = TiConvert.toBoolean(dict, "useSpinner");
+		}
 		if (hasProperty("type")) {
 			type = getProperties().getInt("type");
 		}
+		if (dict.containsKey("columns")) {
+			setColumns(dict.get("columns"));
+		}
 	}
-	
+
 	@Override
 	public TiUIView createView(Activity activity) 
 	{
-		boolean useSpinner = false;
-		if (hasProperty("useSpinner")) {
-			useSpinner = (TiConvert.toBoolean(getProperty("useSpinner")));
-		}
 		if (type == UIModule.PICKER_TYPE_COUNT_DOWN_TIMER ) {
 			Log.w(LCAT, "Countdown timer not supported in Titanium for Android");
 			return null;
@@ -98,47 +101,24 @@ public class PickerProxy extends TiViewProxy implements KrollProxyListener
 			Log.w(LCAT, "Unknown picker type");
 			return null;
 		}
-		
 	}
-	
+
 	private TiUIView createPlainPicker(Activity activity, boolean useSpinner)
 	{
-		TiUIPicker picker = useSpinner ? new TiUISpinner(this, activity) : new TiUINativePicker(this, activity);
-		if ((columns == null || columns.size() == 0) && hasProperty("columns") ) {
-			Object columnsAtCreation = getProperty("columns");
-			if (columnsAtCreation.getClass().isArray()) {
-				Object[] columnsArray = (Object[]) columnsAtCreation;
-				if (this.columns == null) {
-					this.columns = new ArrayList<PickerColumnProxy>();
-				}
-				for (Object column : columnsArray) {
-					if (column instanceof PickerColumnProxy) {
-						((PickerColumnProxy)column).setModelListener(this);
-						this.columns.add((PickerColumnProxy) column);
-					}
-				}
-			}
-		}
-		if (columns != null && columns.size() > 0) {
-			picker.addColumns( getColumnsAsListOfLists() );
-			if (preselectedRows != null && preselectedRows.size() > 0) {
-				picker.selectRows(preselectedRows);
-			}
-		}
-		
+		TiUIPicker picker = useSpinner ? new TiUISpinner(this, activity) : new TiUINativePicker(this,activity);
 		return picker;
 	}
-	
+
 	private TiUIView createDatePicker(Activity activity)
 	{
 		return new TiUIDatePicker(this, activity);
 	}
-	
+
 	private TiUIView createTimePicker(Activity activity)
 	{
 		return new TiUITimePicker(this, activity);
 	}
-	
+
 	private TiUIView createTimeSpinner(Activity activity)
 	{
 		return new TiUITimeSpinner(this, activity);
@@ -150,11 +130,33 @@ public class PickerProxy extends TiViewProxy implements KrollProxyListener
 	}
 	
 	@Kroll.getProperty @Kroll.method
+	public boolean getUseSpinner()
+	{
+		return useSpinner;
+	}
+	@Kroll.setProperty @Kroll.method
+	public void setUseSpinner(boolean value)
+	{
+		if (peekView() != null) {
+			Log.w(LCAT, "Attempt to change useSpinner property after view has already been created. Ignoring.");
+		} else {
+			useSpinner = value;
+			if (children != null && children.size() > 0) {
+				for (TiViewProxy child : children) {
+					if (child instanceof PickerColumnProxy) {
+						((PickerColumnProxy)child).setUseSpinner(value);
+					}
+				}
+			}
+		}
+	}
+
+	@Kroll.getProperty @Kroll.method
 	public int getType()
 	{
 		return type;
 	}
-	
+
 	@Kroll.setProperty @Kroll.method
 	public void setType(int type)
 	{
@@ -164,31 +166,46 @@ public class PickerProxy extends TiViewProxy implements KrollProxyListener
 		}
 		this.type = type;
 	}
-	
+
 	private boolean isPlainPicker()
 	{
 		return (type == UIModule.PICKER_TYPE_PLAIN);
 	}
-	
-	
-	private ArrayList<ArrayList<PickerRowProxy>> getColumnsAsListOfLists()
+
+	@Override
+	public void remove(TiViewProxy child)
 	{
-		ArrayList<ArrayList<PickerRowProxy>> rowLists = new ArrayList<ArrayList<PickerRowProxy>>();
-		if (columns != null && columns.size() > 0) {
-			for (PickerColumnProxy column : columns) {
-				rowLists.add(column.getRowArrayList());
-			}
+		if (getTiContext().isUIThread() || peekView() == null) {
+			handleRemoveColumn(child);
+		} else {
+			AsyncResult result = new AsyncResult(child);
+			Message msg = getUIHandler().obtainMessage(MSG_REMOVE, result);
+			msg.sendToTarget();
+			result.getResult();
 		}
-		return rowLists;
+		
 	}
 
-	// We need special handling because can also accept array
+	private void handleRemoveColumn(TiViewProxy child)
+	{
+		int index = -1;
+		if (children.contains(child)){
+			index = children.indexOf(child);
+		}
+		super.remove(child);
+		if (peekView() instanceof TiUIPicker){
+			((TiUIPicker)peekView()).onColumnRemoved(index);
+		}
+	}
+
 	@Override
 	public void add(TiViewProxy child)
 	{
-		add((Object)child);
+		this.add((Object)child);
 	}
-	
+
+	// We need a special add() method above and beyond the TiViewProxy add() because
+	// because we can also accept array of PickerRowProxys
 	@Kroll.method
 	public void add(Object child) 
 	{
@@ -196,66 +213,75 @@ public class PickerProxy extends TiViewProxy implements KrollProxyListener
 			Log.w(LCAT, "Attempt to add to date/time or countdown picker ignored.");
 			return;
 		}
-		boolean firstColumnExists = (columns != null && columns.size() > 0);
-		boolean columnAdded = false;
-		if (child instanceof PickerRowProxy) {
-			getFirstColumn(true).addRow((PickerRowProxy)child);
-			columnAdded = !firstColumnExists;
-		} else if (child.getClass().isArray()) {
-			getFirstColumn(true).addRows((Object[]) child);
-			columnAdded = !firstColumnExists;
-		} else if (child instanceof PickerColumnProxy) {
-			addColumn((PickerColumnProxy)child);
-			columnAdded = true;
+		if (getTiContext().isUIThread() || peekView() == null) {
+			handleAddObject(child);
 		} else {
-			Log.w(LCAT, "Unexpected type not added to picker: " + child.getClass().getName());
-			return;
-		}
-		
-		if (columnAdded && peekView() != null) {
-			appendViewColumn();
-		}
-	}
-	
-	private void appendViewColumn()
-	{
-		if (peekView() == null) {
-			return;
-		}
-		if (getTiContext().isUIThread()) {
-			handleAppendViewColumn(peekView());
-			return;
-		} else {
-			AsyncResult result = new AsyncResult(peekView());
-			Message msg = getUIHandler().obtainMessage(MSG_APPEND_VIEW_COLUMN, result);
+			AsyncResult result = new AsyncResult(child);
+			Message msg = getUIHandler().obtainMessage(MSG_ADD, result);
 			msg.sendToTarget();
 			result.getResult();
 		}
 	}
-	
+
+	private void handleAddObject(Object child)
+	{
+		if (child instanceof PickerColumnProxy) {
+			PickerColumnProxy column = (PickerColumnProxy)child;
+			column.setUseSpinner(useSpinner);
+			column.setColumnListener(this);
+			super.add(column);
+			if (peekView() instanceof TiUIPicker) {
+				((TiUIPicker)peekView()).onColumnAdded(children.indexOf(column));
+			}
+		} else if (child instanceof PickerRowProxy) {
+			getFirstColumn(true).add((PickerRowProxy)child);
+		} else if (child.getClass().isArray()) {
+			getFirstColumn(true).addRows((Object[])child);
+		} else {
+			Log.w(LCAT, "Unexpected type not added to picker: " + child.getClass().getName());
+		}
+	}
+
 	@Override
 	public boolean handleMessage(Message msg)
 	{
-		if (msg.what == MSG_APPEND_VIEW_COLUMN) {
-			AsyncResult result = (AsyncResult)msg.obj;
-			handleAppendViewColumn( (TiUIView)result.getArg() );
-			result.setResult(null);
-			return true;
-		} else if (msg.what == MSG_SELECT_ROW) {
-			AsyncResult result = (AsyncResult)msg.obj;
-			handleSelectRow( (KrollDict)result.getArg() );
-			result.setResult(null);
-			return true;
-		} else if (msg.what == MSG_REPLACE_MODEL) {
-			AsyncResult result = (AsyncResult)msg.obj;
-			handleReplaceViewModel();
-			result.setResult(null);
-			return true;
-		} else {
-			return super.handleMessage(msg);
+		switch(msg.what){
+			case MSG_SELECT_ROW : {
+				AsyncResult result = (AsyncResult)msg.obj;
+				handleSelectRow( (KrollDict)result.getArg() );
+				result.setResult(null);
+				return true;
+			}
+			case MSG_SET_COLUMNS: {
+				AsyncResult result = (AsyncResult)msg.obj;
+				handleSetColumns(result.getArg());
+				result.setResult(null);
+				return true;
+			}
+			case MSG_ADD: {
+				AsyncResult result = (AsyncResult)msg.obj;
+				handleAddObject(result.getArg());
+				result.setResult(null);
+				return true;
+			}
+			case MSG_REMOVE: {
+				AsyncResult result = (AsyncResult)msg.obj;
+				handleRemoveColumn((TiViewProxy)result.getArg());
+				result.setResult(null);
+				return true;
+			}
+			case MSG_FIRE_COL_CHANGE: {
+				handleFireColumnModelChange(msg.arg1);
+				return true;
+			}
+			case MSG_FIRE_ROW_CHANGE: {
+				handleFireRowChange(msg.arg1, msg.arg2);
+				return true;
+			}
 		}
+		return super.handleMessage(msg);
 	}
-	
+
 	@Kroll.method
 	public void setSelectedRow(int column, int row, @Kroll.argument(optional=true) boolean animated)
 	{
@@ -278,7 +304,7 @@ public class PickerProxy extends TiViewProxy implements KrollProxyListener
 			preselectedRows.add(column, new Integer(row));
 			return;
 		}
-		
+
 		// View exists
 		if (getTiContext().isUIThread()) {
 			handleSelectRow(column, row, animated);			
@@ -292,9 +318,8 @@ public class PickerProxy extends TiViewProxy implements KrollProxyListener
 			msg.sendToTarget();
 			result.getResult();
 		}
-		
 	}
-	
+
 	@Kroll.method
 	public PickerRowProxy getSelectedRow(int columnIndex)
 	{
@@ -302,13 +327,19 @@ public class PickerProxy extends TiViewProxy implements KrollProxyListener
 			Log.w(LCAT, "Cannot get selected row in date/time or countdown picker.");
 			return null;
 		}
-		if (peekView() == null) {
+		if (!(peekView() instanceof TiUIPicker)) {
 			return null;
 		}
-		
-		return ((TiUIPicker)peekView()).getSelectedRow(columnIndex);
+		PickerRowProxy row = null;
+		if (peekView() instanceof TiUIPicker) {
+			int rowIndex = ((TiUIPicker)peekView()).getSelectedRowIndex(columnIndex);
+			if (rowIndex >= 0) {
+				row = getRow(columnIndex, rowIndex);
+			}
+		}
+		return row;
 	}
-	
+
 	@Kroll.getProperty @Kroll.method
 	public PickerColumnProxy[] getColumns()
 	{
@@ -316,61 +347,77 @@ public class PickerProxy extends TiViewProxy implements KrollProxyListener
 			Log.w(LCAT, "Cannot get columns from date/time or countdown picker.");
 			return null;
 		}
-		if (columns == null) {
+		if (children == null) {
 			return new PickerColumnProxy[]{};
 		} else {
-			return columns.toArray(new PickerColumnProxy[columns.size()]);
+			return children.toArray(new PickerColumnProxy[children.size()]);
 		}
 	}
-	
+
 	@Kroll.setProperty @Kroll.method
-	public void setColumns(Object[] rawcolumns)
+	public void setColumns(Object passedColumns)
 	{
 		if (!isPlainPicker()) {
 			Log.w(LCAT, "Cannot set columns in date/time or countdown picker.");
 			return;
 		}
-		if (rawcolumns == null || rawcolumns.length == 0) {
-			this.columns = new ArrayList<PickerColumnProxy>();
+		if (getTiContext().isUIThread() || peekView() == null) {
+			handleSetColumns(passedColumns);
 		} else {
-			if (!(rawcolumns[0] instanceof PickerColumnProxy)) {
-				Log.w(LCAT, "Unexpected object type ignored for setColumns");
-				return;
-			} 
-			this.columns = new ArrayList<PickerColumnProxy>();
-			for (Object o : rawcolumns) {
-				PickerColumnProxy column = ((PickerColumnProxy) o);
-				column.setModelListener(this);
-				this.columns.add(column);
-			}
+			AsyncResult result = new AsyncResult(passedColumns);
+			Message msg = getUIHandler().obtainMessage(MSG_SET_COLUMNS, result);
+			msg.sendToTarget();
+			result.getResult();
 		}
-		
-		if (peekView() != null) {
-			if (getTiContext().isUIThread()) {
-				handleReplaceViewModel();
+	}
+
+	private void handleSetColumns(Object passedColumns) {
+		boolean dirty = false;
+		try {
+			if (peekView() instanceof TiUIPicker){
+				((TiUIPicker)peekView()).batchModelChange = true;
+			}
+			if (children != null && children.size() > 0) {
+				int count = children.size();
+				for (int i = (count - 1); i >= 0; i--) {
+					remove(children.get(i));
+					dirty = true;
+				}
+			}
+			Object[] columns = null;
+			if (passedColumns.getClass().isArray()) {
+				columns = (Object[]) passedColumns;
 			} else {
-				AsyncResult result = new AsyncResult();
-				Message msg = getUIHandler().obtainMessage(MSG_REPLACE_MODEL, result);
-				msg.sendToTarget();
-				result.getResult();
+				columns = new Object[]{passedColumns};
+			}
+			if (!(columns[0] instanceof PickerColumnProxy)) {
+				Log.w(LCAT, "Unexpected object type ignored for setColumns");
+			} else { 
+				for (Object o : columns) {
+					if (o instanceof PickerColumnProxy) {
+						add((PickerColumnProxy)o);
+						dirty = true;
+					}
+				}
+			}
+		} finally{
+			if (peekView() instanceof TiUIPicker){
+				((TiUIPicker)peekView()).batchModelChange = false;
+			}
+		}
+		if (dirty) {
+			TiUIPicker pickerView = (TiUIPicker) peekView();
+			if (pickerView != null) {
+				pickerView.onModelReplaced();
 			}
 		}
 	}
-	
-	private void handleReplaceViewModel() 
-	{
-		TiUIPicker picker = (TiUIPicker) peekView();
-		if (picker == null){
-			return;
-		}
-		picker.replaceColumns(getColumnsAsListOfLists());
-	}
-	
+
 	private void handleSelectRow(KrollDict dict)
 	{
 		handleSelectRow(dict.getInt("column"), dict.getInt("row"), dict.getBoolean("animated"));
 	}
-	
+
 	private void handleSelectRow(int column, int row, boolean animated)
 	{
 		if (peekView() == null) {
@@ -379,61 +426,73 @@ public class PickerProxy extends TiViewProxy implements KrollProxyListener
 		((TiUIPicker)peekView()).selectRow(column, row, animated);
 	}
 
-	private void handleAppendViewColumn(TiUIView view) 
+	public int getColumnCount()
 	{
-		if (view == null) {
-			return;
+		TiViewProxy[] columns = getColumns();
+		if (columns == null) {
+			return 0;
+		} else {
+			return columns.length;
 		}
-		TiUIPicker picker = (TiUIPicker) view;
-		picker.addColumn(columns.get(columns.size() - 1).getRowArrayList());
+	}
+
+	public PickerColumnProxy getColumn(int index)
+	{
+		if (children == null || index >= children.size() || (!(children.get(index) instanceof PickerColumnProxy))) {
+			return null;
+		} else {
+			return (PickerColumnProxy)children.get(index);
+		}
 	}
 	
-	private PickerColumnProxy getFirstColumn(boolean createIfMissing) 
+	public int getColumnIndex(PickerColumnProxy column)
 	{
-		PickerColumnProxy column = null;
-		
-		if (columns == null) {
-			columns = new ArrayList<PickerColumnProxy>();
-		}
-		
-		if (columns.size() == 0 && createIfMissing) {
-			column = new PickerColumnProxy(getTiContext());
-			columns.add(column);
+		if (children != null && children.size() > 0) {
+			return children.indexOf(column);
 		} else {
-			column = columns.get(0);
+			return -1;
 		}
-		
+	}
+
+	public PickerRowProxy getRow(int columnIndex, int rowIndex)
+	{
+		PickerColumnProxy column = getColumn(columnIndex);
+		if (column == null) {
+			return null;
+		}
+		TiViewProxy[] rowArray = column.getChildren();
+		if (rowArray == null || rowIndex >= rowArray.length || (!(rowArray[rowIndex] instanceof PickerRowProxy))){
+			return null;
+		} else {
+			return (PickerRowProxy)rowArray[rowIndex];
+		}
+	}
+
+	public PickerColumnProxy getFirstColumn(boolean createIfMissing) 
+	{
+		PickerColumnProxy column = getColumn(0);
+		if (column == null && createIfMissing) {
+			column = new PickerColumnProxy(getTiContext());
+			add(column);
+		}
 		return column;
 	}
-	
-	private void addColumn(PickerColumnProxy column)
-	{
-		TiUIView view = peekView();
-		columns.add(column);
-		column.setModelListener(this);
-		if (peekView() != null) {
-			((TiUIPicker)view).addColumn(column.getRowArrayList());
-		}
-	}
-	
+
 	// This is meant to be a kind of "static" method, in the sense that
 	// it doesn't use any state except for context.  It's a quick hit way
 	// of getting a date dialog up, in other words.
 	@Kroll.method
-	public void showDatePickerDialog(Object[] args)
+	public void showDatePickerDialog(KrollInvocation invocation, Object[] args)
 	{
 		KrollDict settings = new KrollDict();
 		final AtomicInteger callbackCount = new AtomicInteger(0); // just a flag to be sure dismiss doesn't fire callback if ondateset did already.
-		
 		if (args.length > 0) {
 			settings = (KrollDict) args[0];
 		}
-		
 		Calendar calendar = Calendar.getInstance();
 		if (settings.containsKey("value")) {
 			calendar.setTime(TiConvert.toDate(settings, "value"));
 		}
-		
 		final KrollCallback callback;
 		if (settings.containsKey("callback")) {
 			Object typeTest = settings.get("callback");
@@ -445,14 +504,11 @@ public class PickerProxy extends TiViewProxy implements KrollProxyListener
 		} else {
 			callback = null;
 		}
-		
 		DatePickerDialog.OnDateSetListener dateSetListener = null;
 		DialogInterface.OnDismissListener dismissListener = null;
-		
 		if (callback != null) {
 			dateSetListener = new DatePickerDialog.OnDateSetListener()
 			{
-				
 				@Override
 				public void onDateSet(DatePicker picker, int year, int monthOfYear, int dayOfMonth)
 				{
@@ -468,13 +524,10 @@ public class PickerProxy extends TiViewProxy implements KrollProxyListener
 						data.put("value", value);
 						callback.callAsync(new Object[]{ data });
 					}
-					
 				}
 			};
-
 			dismissListener = new DialogInterface.OnDismissListener()
 			{
-				
 				@Override
 				public void onDismiss(DialogInterface dialog)
 				{
@@ -487,11 +540,9 @@ public class PickerProxy extends TiViewProxy implements KrollProxyListener
 					}
 				}
 			};
-						
 		}
-		
 		DatePickerDialog dialog = new DatePickerDialog(
-					getTiContext().getActivity(),
+					invocation.getActivity(),
 					dateSetListener,
 					calendar.get(Calendar.YEAR),
 					calendar.get(Calendar.MONTH),
@@ -501,41 +552,34 @@ public class PickerProxy extends TiViewProxy implements KrollProxyListener
 		if (dismissListener != null) {
 			dialog.setOnDismissListener(dismissListener);
 		}
-		
 		if (settings.containsKey("title")) {
 			dialog.setTitle(TiConvert.toString(settings, "title"));
 		}
-		
 		dialog.show();
-		
 		if (settings.containsKey("okButtonTitle")) {
 			dialog.getButton(DatePickerDialog.BUTTON_POSITIVE).setText(TiConvert.toString(settings, "okButtonTitle"));
 		}
 	}
-	
+
 	// This is meant to be a kind of "static" method, in the sense that
 	// it doesn't use any state except for context.  It's a quick hit way
 	// of getting a date dialog up, in other words.
 	@Kroll.method
-	public void showTimePickerDialog(Object[] args)
+	public void showTimePickerDialog(KrollInvocation invocation, Object[] args)
 	{
 		KrollDict settings = new KrollDict();
 		boolean is24HourView = false;
 		final AtomicInteger callbackCount = new AtomicInteger(0); // just a flag to be sure dismiss doesn't fire callback if ondateset did already.
-		
 		if (args.length > 0) {
 			settings = (KrollDict) args[0];
 		}
-		
 		if (settings.containsKey("format24")) {
 			is24HourView = TiConvert.toBoolean(settings, "format24");
 		}
-		
 		Calendar calendar = Calendar.getInstance();
 		if (settings.containsKey("value")) {
 			calendar.setTime(TiConvert.toDate(settings, "value"));
 		}
-		
 		final KrollCallback callback;
 		if (settings.containsKey("callback")) {
 			Object typeTest = settings.get("callback");
@@ -547,10 +591,8 @@ public class PickerProxy extends TiViewProxy implements KrollProxyListener
 		} else {
 			callback = null;
 		}
-		
 		TimePickerDialog.OnTimeSetListener timeSetListener = null;
 		DialogInterface.OnDismissListener dismissListener = null;
-		
 		if (callback != null) {
 			timeSetListener = new TimePickerDialog.OnTimeSetListener()
 			{
@@ -568,10 +610,8 @@ public class PickerProxy extends TiViewProxy implements KrollProxyListener
 						data.put("value", value);
 						callback.callAsync(new Object[]{ data });
 					}
-					
 				}
 			};
-
 			dismissListener = new DialogInterface.OnDismissListener()
 			{
 				@Override
@@ -586,63 +626,119 @@ public class PickerProxy extends TiViewProxy implements KrollProxyListener
 					}
 				}
 			};
-						
 		}
-		
 		TimePickerDialog dialog = new TimePickerDialog(
-					getTiContext().getActivity(),
+					invocation.getActivity(),
 					timeSetListener,
 					calendar.get(Calendar.HOUR_OF_DAY),
 					calendar.get(Calendar.MINUTE),
 					is24HourView);
-			
 		dialog.setCancelable(true);
 		if (dismissListener != null) {
 			dialog.setOnDismissListener(dismissListener);
 		}
-		
 		if (settings.containsKey("title")) {
 			dialog.setTitle(TiConvert.toString(settings, "title"));
 		}
-		
 		dialog.show();
-		
 		if (settings.containsKey("okButtonTitle")) {
 			dialog.getButton(TimePickerDialog.BUTTON_POSITIVE).setText(TiConvert.toString(settings, "okButtonTitle"));
 		}
 	}
-
-
-	// Proxy Listener, just to listen for columns changes.  We only care about property changed.
-	@Override
-	public void propertyChanged(String key, Object oldValue, Object newValue,
-			KrollProxy proxy)
+	
+	private void fireColumnModelChange(int columnIndex)
 	{
-		if (key.equals("rows") && proxy instanceof PickerColumnProxy)
-		{
-			TiUIPicker picker = (TiUIPicker)peekView();
-			if (picker == null) return;
-			if (!picker.isRedrawRequiredForModelChanges()) return;
-			// The picker needs to be reloaded when the model changes.
-			if (getTiContext().isUIThread()) {
-				handleReplaceViewModel();
+		if (!(peekView() instanceof TiUIPicker)) {
+			return;
+		}
+		if (getTiContext().isUIThread()) {
+			handleFireColumnModelChange(columnIndex);
+		} else {
+			Message msg = getUIHandler().obtainMessage(MSG_FIRE_COL_CHANGE);
+			msg.arg1 = columnIndex;
+			msg.sendToTarget();
+		}
+	}
+	
+	private void handleFireColumnModelChange(int columnIndex)
+	{
+		if (peekView() instanceof TiUIPicker) {
+			((TiUIPicker)peekView()).onColumnModelChanged(columnIndex);
+		}
+	}
+	
+	private void fireRowChange(int columnIndex, int rowIndex)
+	{
+		if (!(peekView() instanceof TiUIPicker)) {
+			return;
+		}
+		if (getTiContext().isUIThread()) {
+			handleFireRowChange(columnIndex, rowIndex);
+		} else {
+			Message msg = getUIHandler().obtainMessage(MSG_FIRE_ROW_CHANGE);
+			msg.arg1 = columnIndex;
+			msg.arg2 = rowIndex;
+			msg.sendToTarget();
+		}
+	}
+	
+	private void handleFireRowChange(int columnIndex, int rowIndex)
+	{
+		if (peekView() instanceof TiUIPicker) {
+			((TiUIPicker)peekView()).onRowChanged(columnIndex, rowIndex);
+		}
+	}
+	
+	public void fireSelectionChange(int columnIndex, int rowIndex)
+	{
+		KrollDict d = new KrollDict();
+		d.put("columnIndex", columnIndex);
+		d.put("rowIndex", rowIndex);
+		PickerColumnProxy column = getColumn(columnIndex);
+		PickerRowProxy row = getRow(columnIndex, rowIndex);
+		d.put("column", column);
+		d.put("row", row);
+		int columnCount = getColumnCount();
+		ArrayList<String> selectedValues = new ArrayList<String>(columnCount);
+		for (int i = 0; i < columnCount; i++) {
+			PickerRowProxy rowInColumn = getSelectedRow(i);
+			if (rowInColumn != null) {
+				selectedValues.add(rowInColumn.toString());
 			} else {
-				AsyncResult result = new AsyncResult();
-				Message msg = getUIHandler().obtainMessage(MSG_REPLACE_MODEL, result);
-				msg.sendToTarget();
-				result.getResult();
+				selectedValues.add(null);
 			}
 		}
-
+		d.put("selectedValue", selectedValues.toArray());
+		fireEvent("change", d);
 	}
 
 	@Override
-	public void processProperties(KrollDict d){}
-	@Override
-	public void propertiesChanged(List<KrollPropertyChange> changes, KrollProxy proxy){}
-	@Override
-	public void listenerAdded(String type, int count, KrollProxy proxy){}
-	@Override
-	public void listenerRemoved(String type, int count, KrollProxy proxy){}
+	public void rowAdded(PickerColumnProxy column, int rowIndex)
+	{
+		fireColumnModelChange(children.indexOf(column));
+	}
 
+	@Override
+	public void rowRemoved(PickerColumnProxy column, int oldRowIndex)
+	{
+		fireColumnModelChange(children.indexOf(column));
+	}
+
+	@Override
+	public void rowChanged(PickerColumnProxy column, int rowIndex)
+	{
+		fireRowChange(children.indexOf(column), rowIndex);
+	}
+	
+	@Override
+	public void rowSelected(PickerColumnProxy column, int rowIndex)
+	{
+		int columnIndex = children.indexOf(column);
+		fireSelectionChange(columnIndex, rowIndex);
+	}
+	
+	public ArrayList<Integer> getPreselectedRows()
+	{
+		return preselectedRows;
+	}
 }
