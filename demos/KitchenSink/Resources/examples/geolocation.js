@@ -3,6 +3,8 @@ win.backgroundColor = '#fff';
 
 Ti.include("version.js");
 
+Ti.Geolocation.preferredProvider = "gps";
+
 if (isIPhone3_2_Plus())
 {
 	//NOTE: starting in 3.2+, you'll need to set the applications
@@ -465,20 +467,24 @@ Ti.Android.currentActivity.addEventListener('pause', function(e) {
 	if (headingAdded) {
 		Ti.API.info("removing heading callback on pause");
 		Titanium.Geolocation.removeEventListener('heading', headingCallback);
+		headingAdded = false;
 	}
 	if (locationAdded) {
 		Ti.API.info("removing location callback on pause");
 		Titanium.Geolocation.removeEventListener('location', locationCallback);
+		locationAdded = false;
 	}
 });
 Ti.Android.currentActivity.addEventListener('resume', function(e) {
-	if (headingAdded) {
+	if (!headingAdded) {
 		Ti.API.info("adding heading callback on resume");
 		Titanium.Geolocation.addEventListener('heading', headingCallback);
+		headingAdded = true;
 	}
-	if (locationAdded) {
+	if (!locationAdded) {
 		Ti.API.info("adding location callback on resume");
 		Titanium.Geolocation.addEventListener('location', locationCallback);
+		locationAdded = true;
 	}
 });
 

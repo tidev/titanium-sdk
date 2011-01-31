@@ -19,6 +19,7 @@
 	KrollBridge *context;
 	BOOL hasToolbar;
 	BOOL contextReady;
+	BOOL animating;
 	UIImageView *barImageView;
 	NSURL *oldBaseURL;
 	id latch;

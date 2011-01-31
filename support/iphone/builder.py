@@ -19,11 +19,13 @@ template_dir = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filena
 # add the parent and the common directory so we can load libraries from those paths too
 sys.path.append(os.path.join(template_dir,'../'))
 sys.path.append(os.path.join(template_dir,'../common'))
+sys.path.append(os.path.join(template_dir, '../module'))
 script_ok = False
 
 from tiapp import *
 from css import csscompiler
 import localecompiler
+from module import ModuleDetector
 
 ignoreFiles = ['.gitignore', '.cvsignore']
 ignoreDirs = ['.git','.svn', 'CVS']
@@ -451,6 +453,9 @@ def main(args):
 			os.makedirs(build_out_dir)
 		# write out the build log, useful for debugging
 		o = codecs.open(os.path.join(build_out_dir,'build.log'),'w',encoding='utf-8')
+		def log(msg):
+			print msg
+			o.write(msg)
 		try:
 			buildtime = datetime.datetime.now()
 			o.write("%s\n" % ("="*80))
@@ -488,91 +493,49 @@ def main(args):
 			# find the module directory relative to the root of the SDK	
 			titanium_dir = os.path.abspath(os.path.join(template_dir,'..','..','..','..'))
 			tp_module_dir = os.path.abspath(os.path.join(titanium_dir,'modules','iphone'))
-			tp_modules = []
-			tp_depends = []
-			
 			force_destroy_build = command!='simulator'
 
-			def find_depends(config,depends):
-				for line in open(config).readlines():
-					if line.find(':')!=-1:
-						(token,value)=line.split(':')
-						for entry in value.join(','):
-							entry = entry.strip()
-							try:
-								depends.index(entry)
-							except:
-								depends.append(entry)
-
-			# check to see if we have any uninstalled modules/plugins
-			# if we detect any zips, unzip them
-			if ti.properties.has_key('modules') or ti.properties.has_key('plugins'):
-				cwd = os.getcwd()
-				os.chdir(titanium_dir)
-				for entry in glob.glob('%s/*.zip' % titanium_dir):
-					filename = os.path.basename(entry)
-					if filename.startswith('mobilesdk-'): continue
-					print "[INFO] installing %s" % entry
-					run.run(['/usr/bin/unzip','-o',entry])
-					os.remove(entry)
-				os.chdir(cwd)
-
-			tp_lib_search_path = []
-			tp_module_asset_dirs = []
+			detector = ModuleDetector(project_dir)
+			missing_modules, modules = detector.find_app_modules(ti, 'iphone')
+			module_lib_search_path = []
+			module_asset_dirs = []
 			
 			# search for modules that the project is using
 			# and make sure we add them to the compile
-			for module in ti.properties['modules']:
-				tp_name = module['name'].lower()
-				tp_version = module['version']
-				libname = 'lib%s.a' % tp_name
+			for module in modules:
+				module_id = module.manifest.moduleid.lower()
+				module_version = module.manifest.version
+				module_lib_name = 'lib%s.a' % module_id
 				# check first in the local project
-				local_tp = os.path.join(project_dir,'modules','iphone',libname)
+				local_module_lib = os.path.join(project_dir, 'modules', 'iphone', module_lib_name)
 				local = False
-				tp_dir = None
-				if os.path.exists(local_tp):
-					tp_modules.append(local_tp)
-					tp_lib_search_path.append([libname,local_tp])
+				if os.path.exists(local_module_lib):
+					module_lib_search_path.append([module_lib_name, local_module_lib])
 					local = True
-					print "[INFO] Detected third-party module: %s" % (local_tp)
-					o.write("Detected third-party module: %s\n" % (local_tp))
+					log("[INFO] Detected third-party module: %s" % (local_module_lib))
 				else:
-					tp_dir = os.path.join(tp_module_dir,tp_name,tp_version)
-					if not os.path.exists(tp_dir):
-						print "[ERROR] Third-party module: %s/%s detected in tiapp.xml but not found at %s" % (tp_name,tp_version,tp_dir)
-						o.write("[ERROR] Third-party module: %s/%s detected in tiapp.xml but not found at %s\n" % (tp_name,tp_version,tp_dir))
+					if module.lib is None:
+						module_lib_path = module.get_resource(module_lib_name)
+						log("[ERROR] Third-party module: %s/%s missing library at %s" % (module_id, module_version, module_lib_path))
 						sys.exit(1)
-					tp_module = os.path.join(tp_dir,libname)
-					if not os.path.exists(tp_module):
-						print "[ERROR] Third-party module: %s/%s missing library at %s" % (tp_name,tp_version,tp_module)
-						o.write("[ERROR] Third-party module: %s/%s missing library at %s\n" % (tp_name,tp_version,tp_module))
-						sys.exit(1)
-					tp_config = os.path.join(tp_dir,'manifest')
-					if not os.path.exists(tp_config):
-						print "[ERROR] Third-party module: %s/%s missing manifest at %s" % (tp_name,tp_version,tp_config)
-						o.write("[ERROR] Third-party module: %s/%s missing manifest at %s\n" % (tp_name,tp_version,tp_config))
-						sys.exit(1)
-					find_depends(tp_config,tp_depends)	
-					tp_modules.append(tp_module)
-					tp_lib_search_path.append([libname,os.path.abspath(tp_module)])	
-					print "[INFO] Detected third-party module: %s/%s" % (tp_name,tp_version)
-					o.write("Detected third-party module: %s/%s\n" % (tp_name,tp_version))
+					module_lib_search_path.append([module_lib_name, os.path.abspath(module.lib)])
+					log("[INFO] Detected third-party module: %s/%s" % (module_id, module_version))
 				force_xcode = True
 
 				if not local:
 					# copy module resources
-					img_dir = os.path.join(tp_dir,'assets','images')
+					img_dir = module.get_resource('assets', 'images')
 					if os.path.exists(img_dir):
-						dest_img_dir = os.path.join(app_dir,'modules',tp_name,'images')
+						dest_img_dir = os.path.join(app_dir, 'modules', module_id, 'images')
 						if not os.path.exists(dest_img_dir):
 							os.makedirs(dest_img_dir)
-						tp_module_asset_dirs.append([img_dir,dest_img_dir])
+						module_asset_dirs.append([img_dir, dest_img_dir])
 
 					# copy in any module assets
-					tp_assets_dir = os.path.join(tp_dir,'assets')
-					if os.path.exists(tp_assets_dir): 
-						module_dir = os.path.join(app_dir,'modules',tp_name)
-						tp_module_asset_dirs.append([tp_assets_dir,module_dir])
+					module_assets_dir = module.get_resource('assets')
+					if os.path.exists(module_assets_dir): 
+						module_dir = os.path.join(app_dir, 'modules', module_id)
+						module_asset_dirs.append([module_assets_dir, module_dir])
 
 
 			print "[INFO] Titanium SDK version: %s" % sdk_version
@@ -588,13 +551,13 @@ def main(args):
 					dest_img_dir = os.path.join(app_dir,'modules',module_name,'images')
 					if not os.path.exists(dest_img_dir):
 						os.makedirs(dest_img_dir)
-					tp_module_asset_dirs.append([img_dir,dest_img_dir])
+					module_asset_dirs.append([img_dir,dest_img_dir])
 
 				# when in simulator since we point to the resources directory, we need
 				# to explicitly copy over any files
 				ird = os.path.join(project_dir,'Resources','iphone')
 				if os.path.exists(ird): 
-					tp_module_asset_dirs.append([ird,app_dir])
+					module_asset_dirs.append([ird,app_dir])
 				
 				for ext in ('ttf','otf'):
 					for f in glob.glob('%s/*.%s' % (os.path.join(project_dir,'Resources'),ext)):
@@ -731,11 +694,11 @@ def main(args):
 
 			# write out any modules into the xcode project
 			# this must be done after project create above or this will be overriden
-			if len(tp_lib_search_path)>0:
+			if len(module_lib_search_path)>0:
 				proj = PBXProj()
 				xcode_proj = os.path.join(iphone_dir,'%s.xcodeproj'%name,'project.pbxproj')
 				current_xcode = open(xcode_proj).read()
-				for tp in tp_lib_search_path:
+				for tp in module_lib_search_path:
 					proj.add_static_library(tp[0],tp[1])
 				out = proj.parse(xcode_proj)
 				# since xcode changes can be destructive, only write as necessary (if changed)
@@ -882,8 +845,8 @@ def main(args):
 				localecompiler.LocaleCompiler(name,project_dir,devicefamily,command).compile()
 				
 				# copy any module resources
-				if len(tp_module_asset_dirs)>0:
-					for e in tp_module_asset_dirs:
+				if len(module_asset_dirs)>0:
+					for e in module_asset_dirs:
 						copy_module_resources(e[0],e[1],True)
 				
 				# copy any custom fonts in (only runs in simulator)

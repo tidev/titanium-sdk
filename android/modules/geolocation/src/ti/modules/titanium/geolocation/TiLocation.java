@@ -55,10 +55,50 @@ public class TiLocation
 
 	private long lastEventTimestamp = 0;
 	private GeolocationModule geolocationModule;
+	private Integer accuracy = null;
+	private Integer frequency = null;
+	private String preferredProvider;
 
 	public TiLocation(GeolocationModule geolocationModule)
 	{
 		this.geolocationModule = geolocationModule;
+	}
+
+	private void refreshProperties()
+	{
+		Object frequencyProp = geolocationModule.getProperty(TiC.PROPERTY_FREQUENCY);
+		Object accuracyProp = geolocationModule.getProperty(TiC.PROPERTY_ACCURACY);
+
+		preferredProvider = TiConvert.toString(geolocationModule.getProperty(TiC.PROPERTY_PREFERRED_PROVIDER));
+		Log.d(LCAT, "preferredProvider property found [" + preferredProvider + "]");
+
+		if (frequencyProp != null)
+		{
+			frequency = new Integer(TiConvert.toInt(frequencyProp));
+			Log.d(LCAT, "frequency property found [" + frequency.intValue() + "]");
+		}
+		if (accuracyProp != null)
+		{
+			accuracy = new Integer(TiConvert.toInt(accuracyProp));
+			Log.d(LCAT, "accuracy property found [" + accuracy.intValue() + "]");
+		}
+	}
+
+	public void registerListener()
+	{
+		refreshProperties();
+		TiLocationHelper.registerListener(preferredProvider, accuracy, frequency, this);
+	}
+
+	public void unregisterListener()
+	{
+		TiLocationHelper.unregisterListener(this);
+	}
+
+	private void updateProvider(String provider)
+	{
+		refreshProperties();
+		TiLocationHelper.updateProvider(preferredProvider, accuracy, provider, frequency, this);
 	}
 
 	public void onLocationChanged(Location location)
@@ -66,37 +106,41 @@ public class TiLocation
 		LocationProvider provider = TiLocationHelper.getLocationManager().getProvider(location.getProvider());
 		geolocationModule.fireEvent(TiC.EVENT_LOCATION, locationToKrollDict(location, provider));
 		doAnalytics(location);
+		updateProvider(provider.getName());
 	}
 
 	public void onProviderDisabled(String provider)
 	{
-		Log.d(LCAT, "Provider disabled: " + provider);
+		Log.i(LCAT, "Provider disabled:" + provider);
 		geolocationModule.fireEvent(TiC.EVENT_LOCATION, TiConvert.toErrorObject(TiLocationHelper.ERR_POSITION_UNAVAILABLE, provider + " disabled."));
+		updateProvider(provider);
 	}
 
 	public void onProviderEnabled(String provider)
 	{
-		Log.d(LCAT, "Provider enabled: " + provider);
+		Log.d(LCAT, "Provider enabled:" + provider);
 	}
 
 	public void onStatusChanged(String provider, int status, Bundle extras)
 	{
-		Log.d(LCAT, "Status changed, provider = " + provider + " status=" + status);
+		Log.d(LCAT, "Status changed, provider:" + provider + " status:" + status);
 		switch (status) {
 			case LocationProvider.OUT_OF_SERVICE :
 				geolocationModule.fireEvent(TiC.EVENT_LOCATION, TiConvert.toErrorObject(TiLocationHelper.ERR_POSITION_UNAVAILABLE, provider + " is out of service."));
-			break;
+				updateProvider(provider);
+				break;
 			case LocationProvider.TEMPORARILY_UNAVAILABLE:
 				geolocationModule.fireEvent(TiC.EVENT_LOCATION, TiConvert.toErrorObject(TiLocationHelper.ERR_POSITION_UNAVAILABLE, provider + " is currently unavailable."));
-			break;
+				updateProvider(provider);
+				break;
 			case LocationProvider.AVAILABLE :
 				if (DBG) {
-					Log.i(LCAT, provider + " is available.");
+					Log.i(LCAT, "[" + provider + "] is available");
 				}
-			break;
+				break;
 			default:
-				Log.w(LCAT, "Unknown status update from ["+provider+"] - passed code: "+status);
-			break;
+				Log.w(LCAT, "Unknown status update from [" + provider + "], passed code [" + status + "]");
+				break;
 		}
 	}
 
@@ -148,7 +192,7 @@ public class TiLocation
 	public void getCurrentPosition(KrollInvocation invocation, final KrollCallback listener)
 	{
 		if (listener != null) {
-			String provider = TiLocationHelper.fetchProvider();
+			String provider = TiLocationHelper.fetchProvider(preferredProvider, accuracy);
 			
 			if (provider != null) {
 				LocationManager locationManager = TiLocationHelper.getLocationManager();
@@ -158,11 +202,11 @@ public class TiLocation
 					listener.callAsync(locationToKrollDict(location, locationManager.getProvider(provider)));
 					doAnalytics(location);
 				} else {
-					Log.i(LCAT, "getCurrentPosition - location is null");
+					Log.i(LCAT, "unable to get current position, location is null");
 					listener.callAsync(TiConvert.toErrorObject(TiLocationHelper.ERR_POSITION_UNAVAILABLE, "location is currently unavailable."));
 				}
 			} else {
-				Log.i(LCAT, "getCurrentPosition - no providers are available");
+				Log.i(LCAT, "unable to get current position, no providers are available");
 				listener.callAsync(TiConvert.toErrorObject(TiLocationHelper.ERR_POSITION_UNAVAILABLE, "no providers are available."));
 			}
 		}
@@ -186,7 +230,7 @@ public class TiLocation
 
 			url = sb.toString();
 		} catch (UnsupportedEncodingException e) {
-			Log.w(LCAT, "Unable to encode query to utf-8: " + e.getMessage());
+			Log.w(LCAT, "unable to encode query to utf-8 [" + e.getMessage() + "]");
 		}
 
 		return url;
@@ -203,12 +247,12 @@ public class TiLocation
 					KrollCallback callback = (KrollCallback) args[2];
 
 					if (DBG) {
-						Log.d(LCAT, "GEO URL: " + url);
+						Log.d(LCAT, "GEO URL [" + url + "]");
 					}
 					HttpGet httpGet = new HttpGet(url);
 
 					HttpParams httpParams = new BasicHttpParams();
-					HttpConnectionParams.setConnectionTimeout(httpParams, 5000); // TODO use property
+					HttpConnectionParams.setConnectionTimeout(httpParams, 5000);
 
 					HttpClient client = new DefaultHttpClient(httpParams);
 					client.getParams().setBooleanParameter("http.protocol.expect-continue", false);
@@ -216,7 +260,7 @@ public class TiLocation
 					String response = client.execute(httpGet, responseHandler);
 
 					if (DBG) {
-						Log.i(LCAT, "Received Geo: " + response);
+						Log.i(LCAT, "received Geo [" + response + "]");
 					}
 					KrollDict event = null;
 					if (response != null) {
@@ -237,7 +281,7 @@ public class TiLocation
 								event.put(TiC.EVENT_PROPERTY_ERROR, errorDict);
 							}
 						} catch (JSONException e) {
-							Log.e(LCAT, "Error converting geo response to JSONObject: " + e.getMessage(), e);
+							Log.e(LCAT, "error converting geo response to JSONObject [" + e.getMessage() + "]", e);
 						}
 					}
 
@@ -246,7 +290,7 @@ public class TiLocation
 						callback.callAsync(event);
 					}
 				} catch (Throwable t) {
-					Log.e(LCAT, "Error retrieving geocode information: " + t.getMessage(), t);
+					Log.e(LCAT, "error retrieving geocode information [" + t.getMessage() + "]", t);
 				}
 
 				return -1;
@@ -274,7 +318,7 @@ public class TiLocation
 				msg.sendToTarget();
 			}
 		} else {
-			Log.w(LCAT, "Address should not be null.");
+			Log.w(LCAT, "address should not be null");
 		}
 	}
 

@@ -64,12 +64,12 @@ public class GeolocationModule extends KrollModule
 	{
 		if (TiC.EVENT_HEADING.equals(eventName)) {
 			if (!compassRegistered) {
-				TiSensorHelper.registerListener(Sensor.TYPE_ORIENTATION, tiCompass, SensorManager.SENSOR_DELAY_UI);
+				tiCompass.registerListener();
 				compassRegistered = true;
 			}
 		} else if (TiC.EVENT_LOCATION.equals(eventName)) {
 			if (!locationRegistered) {
-				TiLocationHelper.registerListener(this, tiLocation);
+				tiLocation.registerListener();
 				locationRegistered = true;
 			}
 		}
@@ -81,12 +81,12 @@ public class GeolocationModule extends KrollModule
 	{
 		if (TiC.EVENT_HEADING.equals(eventName)) {
 			if (compassRegistered) {
-				TiSensorHelper.unregisterListener(Sensor.TYPE_ORIENTATION, tiCompass);
+				tiCompass.unregisterListener();
 				compassRegistered = false;
 			}
 		} else if (TiC.EVENT_LOCATION.equals(eventName)) {
 			if (locationRegistered) {
-				TiLocationHelper.unregisterListener(tiLocation);
+				tiLocation.unregisterListener();
 				locationRegistered = false;
 			}
 		}

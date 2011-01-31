@@ -49,6 +49,16 @@ public class TiCompass
 		this.geolocationModule = geolocationModule;
 	}
 
+	public void registerListener()
+	{
+		TiSensorHelper.registerListener(Sensor.TYPE_ORIENTATION, this, SensorManager.SENSOR_DELAY_UI);
+	}
+
+	public void unregisterListener()
+	{
+		TiSensorHelper.unregisterListener(Sensor.TYPE_ORIENTATION, this);
+	}
+
 	public void onAccuracyChanged(Sensor sensor, int accuracy)
 	{
 	}
