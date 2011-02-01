@@ -1,4 +1,5 @@
 var win = Ti.UI.currentWindow;
+
 function makeNameRows() {
 	var names = ['Joanie', 'Mickey', 'Jean Pierre', 'Gustav', 'Raul', 'Mimi', 'Emily', 'Sandra', 'Carrie', 'Chachi'];
 	var rows = [];
@@ -33,20 +34,23 @@ win.add(Ti.UI.createLabel({
 	text: "SOME LAYOUT EXAMPLES",
 	textAlign: Ti.UI.TEXT_ALIGNMENT_CENTER
 }));
-win.add(Ti.UI.createLabel({
+var l = Ti.UI.createLabel({
 	text: 'Defaults:',
 	left: 5, top: 40, height: 35
-}));
+});
+win.add(l);
 
-win.add(Ti.UI.createPicker({
+var picker = Ti.UI.createPicker({
 	top: 80, 
 	columns: [makeNameColumn(), makeVerbColumn(), makeNameColumn()],
 	useSpinner: true
-}));
+});
+win.add(picker);
 
 win.add(Ti.UI.createLabel({
-	text: 'visibleItems: 3, explicit col. widths',
-	left: 5, top: 200, height: 35
+	text: 'visibleItems: 3, explicit col. widths, selectionIndicator: false',
+	left: 5, top: 200, height: 35,
+	font: {fontSize: 12}
 }));
 
 var nameColumn1 = makeNameColumn();
@@ -59,7 +63,8 @@ win.add(Ti.UI.createPicker({
 	top: 240,
 	useSpinner: true,
 	columns: [nameColumn1, verbColumn, nameColumn2],
-	visibleItems: 3
+	visibleItems: 3,
+	selectionIndicator: false
 }));
 
 win.add(Ti.UI.createLabel({
