@@ -47,6 +47,24 @@ var picker = Ti.UI.createPicker({
 });
 win.add(picker);
 
+var btnChangeVisible = Ti.UI.createButton({
+	title: '(chg visibleItems to 3)',
+	font: {fontSize: 12},
+	top: 40, left: 80, right: 5, height: 35, toggle: 3
+});
+btnChangeVisible.addEventListener('click', function() {
+	var newval = btnChangeVisible.toggle;
+	if (newval === 3) {
+		btnChangeVisible.toggle = 5;
+		btnChangeVisible.title = "(chg visibleItems to 5)";
+	} else {
+		btnChangeVisible.toggle = 3;
+		btnChangeVisible.title = "(chg visibleItems to 3)";
+	}
+	picker.visibleItems = newval;
+});
+win.add(btnChangeVisible);
+
 win.add(Ti.UI.createLabel({
 	text: 'visibleItems: 3, explicit col. widths, selectionIndicator: false',
 	left: 5, top: 200, height: 35,

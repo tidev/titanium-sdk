@@ -262,4 +262,11 @@ public class PickerColumnProxy extends TiViewProxy implements PickerRowListener
 	{
 		return ((PickerProxy)getParent()).getColumnIndex(this);
 	}
+
+	public void parentShouldRequestLayout()
+	{
+		if (getParent() instanceof PickerProxy) {
+			((PickerProxy)getParent()).forceRequestLayout();
+		}
+	}
 }

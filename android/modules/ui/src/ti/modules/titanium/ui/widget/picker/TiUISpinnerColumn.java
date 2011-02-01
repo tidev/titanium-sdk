@@ -116,14 +116,22 @@ public class TiUISpinnerColumn extends TiUIView implements WheelView.OnItemSelec
 			typefaceWeight = new Integer(TiUIHelper.toTypefaceStyle(fontWeight));
 		}
 		
+		boolean dirty = false;
 		if (typeface != null) {
+			dirty = dirty || !typeface.equals(view.getTypeface());
 			view.setTypeface(typeface);
 		}
 		if (typefaceWeight != null) {
+			dirty = dirty || typefaceWeight.intValue() != view.getTypefaceWeight();
 			view.setTypefaceWeight(typefaceWeight);
 		}
 		if (fontSize != null) {
+			int fontSizeInt = fontSize.intValue();
+			dirty = dirty || fontSizeInt != view.getTextSize();
 			view.setTextSize(fontSize.intValue());
+		}
+		if (dirty) {
+			((PickerColumnProxy)proxy).parentShouldRequestLayout();
 		}
 	}
 
@@ -200,6 +208,13 @@ public class TiUISpinnerColumn extends TiUIView implements WheelView.OnItemSelec
 			result = ((WheelView)nativeView).getCurrentItem();
 		}
 		return result;
+	}
+
+	public void forceRequestLayout()
+	{
+		if (nativeView instanceof WheelView) {
+			((WheelView)nativeView).fullLayoutReset();
+		}
 	}
 
 }
