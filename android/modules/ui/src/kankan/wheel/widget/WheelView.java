@@ -123,6 +123,7 @@ public class WheelView extends View {
 	private int textColor = NOVAL;
 	private Typeface typeface = Typeface.DEFAULT;
 	private int typefaceWeight = Typeface.NORMAL;
+	private boolean showSelectionIndicator = true;
 
 	/**
 	 * Constructor
@@ -180,8 +181,11 @@ public class WheelView extends View {
 	 *            the new count
 	 */
 	public void setVisibleItems(int count) {
+		int oldvalue = visibleItems;
 		visibleItems = count;
-		invalidate();
+		if (oldvalue != visibleItems) {
+			invalidate();
+		}
 	}
 
 	/**
@@ -632,6 +636,9 @@ public class WheelView extends View {
 	 * @param canvas the canvas for drawing
 	 */
 	private void drawCenterRect(Canvas canvas) {
+		if (!showSelectionIndicator) {
+			return;
+		}
 		int center = getHeight() / 2;
 		int offset = getHeight() / visibleItems / 2;
 		centerDrawable.setBounds(0, center - offset, getWidth(), center + offset);
@@ -719,6 +726,20 @@ public class WheelView extends View {
 		this.typefaceWeight = weight;
 		resetTextPainters();
 		invalidate();
+	}
+
+	public void setShowSelectionIndicator(boolean show)
+	{
+		boolean oldval = showSelectionIndicator;
+		showSelectionIndicator = show;
+		if (oldval != show) {
+			invalidate();
+		}
+	}
+
+	public boolean getShowSelectionIndicator()
+	{
+		return showSelectionIndicator;
 	}
 }
 

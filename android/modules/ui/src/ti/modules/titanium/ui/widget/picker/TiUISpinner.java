@@ -9,8 +9,10 @@ package ti.modules.titanium.ui.widget.picker;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
+import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.Log;
+import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.titanium.view.TiCompositeLayout.LayoutArrangement;
 import org.appcelerator.titanium.view.TiUIView;
@@ -97,5 +99,48 @@ public class TiUISpinner extends TiUIPicker
 	public void onRowChanged(int columnIndex, int rowIndex)
 	{
 		refreshColumn(columnIndex);
+	}
+	@Override
+	public void propertyChanged(String key, Object oldValue, Object newValue,
+			KrollProxy proxy)
+	{
+		if (TiC.PROPERTY_VISIBLE_ITEMS.equals(key) || TiC.PROPERTY_SELECTION_INDICATOR.equals(key)) {
+			propagateProperty(key, newValue);
+		} else {
+			super.propertyChanged(key, oldValue, newValue, proxy);
+		}
+	}
+
+	private void propagateProperty(String key, Object value)
+	{
+		if (children != null && children.size() > 0) {
+			for (TiUIView child : children) {
+				if (child instanceof TiUISpinnerColumn) {
+					child.getProxy().setProperty(key, value, true);
+				}
+			}
+		}
+	}
+	@Override
+	public void processProperties(KrollDict d)
+	{
+		super.processProperties(d);
+		if (d.containsKey(TiC.PROPERTY_VISIBLE_ITEMS)) {
+			propagateProperty(TiC.PROPERTY_VISIBLE_ITEMS, TiConvert.toInt(d, TiC.PROPERTY_VISIBLE_ITEMS));
+		}
+		if (d.containsKey(TiC.PROPERTY_SELECTION_INDICATOR)) {
+			propagateProperty(TiC.PROPERTY_SELECTION_INDICATOR, TiConvert.toBoolean(d, TiC.PROPERTY_SELECTION_INDICATOR));
+		}
+	}
+	@Override
+	public void add(TiUIView child)
+	{
+		if (proxy.hasProperty(TiC.PROPERTY_VISIBLE_ITEMS)) {
+			child.getProxy().setProperty(TiC.PROPERTY_VISIBLE_ITEMS, TiConvert.toInt(proxy.getProperty(TiC.PROPERTY_VISIBLE_ITEMS)), true);
+		}
+		if (proxy.hasProperty(TiC.PROPERTY_SELECTION_INDICATOR)) {
+			child.getProxy().setProperty(TiC.PROPERTY_SELECTION_INDICATOR, TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_SELECTION_INDICATOR)), true);
+		}
+		super.add(child);
 	}
 }

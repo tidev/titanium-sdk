@@ -26,8 +26,6 @@ public class TiUINativePicker extends TiUIPicker
 		implements OnItemSelectedListener
 {
 	private static final String LCAT = "TiUINativePicker";
-	private boolean initialSelectionDone = false;
-	private boolean suppressChangeEvent = false;
 	
 	public TiUINativePicker(TiViewProxy proxy) 
 	{
@@ -49,12 +47,19 @@ public class TiUINativePicker extends TiUIPicker
 		if (preselectedRows == null || preselectedRows.size() == 0) {
 			return;
 		}
-		for (int i = 0; i < preselectedRows.size(); i++) {
-			Integer rowIndex = preselectedRows.get(i);
-			if (rowIndex == 0 || rowIndex.intValue() < 0) {
-				continue;
+		Spinner spinner = (Spinner)nativeView;
+		if (spinner == null)return;
+		try {
+			spinner.setOnItemSelectedListener(null);
+			for (int i = 0; i < preselectedRows.size(); i++) {
+				Integer rowIndex = preselectedRows.get(i);
+				if (rowIndex == 0 || rowIndex.intValue() < 0) {
+					continue;
+				}
+				selectRow(i, rowIndex, false);
 			}
-			selectRow(i, rowIndex, false);
+		} finally {
+			spinner.setOnItemSelectedListener(this);
 		}
 	}
 
@@ -90,10 +95,13 @@ public class TiUINativePicker extends TiUIPicker
 	{
 		// Don't allow change events here
 		suppressChangeEvent = true;
-		initialSelectionDone = false;
-		int rememberSelectedRow = getSelectedRowIndex(0);
+		Spinner spinner = (Spinner)nativeView;
+		if (spinner == null) {
+			return;
+		}
 		try {
-			Spinner spinner = (Spinner) getNativeView();
+			spinner.setOnItemSelectedListener(null);
+			int rememberSelectedRow = getSelectedRowIndex(0);
 			spinner.setAdapter(new ArrayAdapter<String>(spinner.getContext(), android.R.layout.simple_spinner_item, new ArrayList<String>()));
 			// Just one column - the first column - for now.  
 			// Maybe someday we'll support multiple columns.
@@ -125,6 +133,7 @@ public class TiUINativePicker extends TiUIPicker
 			Log.e(LCAT, "Unable to refresh native spinner control: " + t.getMessage(), t);
 		} finally {
 			suppressChangeEvent = false;
+			spinner.setOnItemSelectedListener(this);
 		}
 	}
 	
@@ -133,10 +142,6 @@ public class TiUINativePicker extends TiUIPicker
 	public void onItemSelected(AdapterView<?> parent, View view, int position,
 			long itemId)
 	{
-		if (!initialSelectionDone) {
-			initialSelectionDone = true;
-			return;
-		}
 		fireSelectionChange(0, position);
 	}
 
@@ -183,7 +188,6 @@ public class TiUINativePicker extends TiUIPicker
 	}
 	protected void fireSelectionChange(int columnIndex, int rowIndex)
 	{
-		if (suppressChangeEvent)return;
 		((PickerProxy)proxy).fireSelectionChange(columnIndex, rowIndex);
 	}
 }

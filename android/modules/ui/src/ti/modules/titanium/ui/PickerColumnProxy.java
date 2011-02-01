@@ -25,7 +25,6 @@ import android.util.Log;
 public class PickerColumnProxy extends TiViewProxy implements PickerRowListener
 {
 	private static final String LCAT = "PickerColumnProxy";
-	private int visibleItems = PickerProxy.DEFAULT_VISIBLE_ITEMS_COUNT;
 	private static final int MSG_FIRST_ID = TiViewProxy.MSG_LAST_ID + 1;
 	private static final int MSG_ADD = MSG_FIRST_ID + 100;
 	private static final int MSG_REMOVE = MSG_FIRST_ID + 101;
@@ -46,20 +45,6 @@ public class PickerColumnProxy extends TiViewProxy implements PickerRowListener
 	{
 		useSpinner = value;
 	}
-	public void setVisibleItems(int count)
-	{
-		boolean changed = (count != visibleItems);
-		visibleItems = count;
-		// Relevant if we're using the spinner style of picker control.
-		if (changed && peekView() != null && useSpinner) {
-			((TiUISpinnerColumn)view).refreshNativeView();
-		}
-	}
-	public int getVisibleItems()
-	{
-		return visibleItems;
-	}
-
 	@Override
 	public boolean handleMessage(Message msg)
 	{

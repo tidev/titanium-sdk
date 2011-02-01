@@ -64,7 +64,15 @@ public class TiUISpinnerColumn extends TiUIView implements WheelView.OnItemSelec
 			setFontProperties();
 		}
 		if (d.containsKey(TiC.PROPERTY_COLOR)) {
-			((WheelView)nativeView).setTextColor(new Integer(TiConvert.toColor(d, "color")));
+			((WheelView)nativeView).setTextColor(new Integer(TiConvert.toColor(d, TiC.PROPERTY_COLOR)));
+		}
+		if (d.containsKey(TiC.PROPERTY_VISIBLE_ITEMS)) {
+			((WheelView)nativeView).setVisibleItems(TiConvert.toInt(d, TiC.PROPERTY_VISIBLE_ITEMS));
+		} else {
+			((WheelView)nativeView).setVisibleItems(PickerProxy.DEFAULT_VISIBLE_ITEMS_COUNT);
+		}
+		if (d.containsKey(TiC.PROPERTY_SELECTION_INDICATOR)) {
+			((WheelView)nativeView).setShowSelectionIndicator(TiConvert.toBoolean(d, TiC.PROPERTY_SELECTION_INDICATOR));
 		}
 		refreshNativeView();
 	}
@@ -127,6 +135,10 @@ public class TiUISpinnerColumn extends TiUIView implements WheelView.OnItemSelec
 			setFontProperties();
 		} else if (key.equals(TiC.PROPERTY_COLOR)) {
 			((WheelView)nativeView).setTextColor(new Integer(TiConvert.toColor(TiConvert.toString(newValue))));
+		} else if (key.equals(TiC.PROPERTY_VISIBLE_ITEMS)) {
+			((WheelView)nativeView).setVisibleItems(TiConvert.toInt(newValue));
+		} else if (key.equals(TiC.PROPERTY_SELECTION_INDICATOR)) {
+			((WheelView)nativeView).setShowSelectionIndicator(TiConvert.toBoolean(newValue));
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);	
 		}
@@ -143,7 +155,6 @@ public class TiUISpinnerColumn extends TiUIView implements WheelView.OnItemSelec
 			Float defaultFontSize = new Float(TiUIHelper.getSize(TiUIHelper.getDefaultFontSize(proxy.getContext())));
 			view.setTextSize(defaultFontSize.intValue());
 			setNativeView(view);
-			view.setVisibleItems(((PickerColumnProxy)proxy).getVisibleItems());
 		}
 		int selectedRow = view.getCurrentItem();
 		PickerRowProxy[] rows = ((PickerColumnProxy)proxy).getRows();

@@ -26,20 +26,20 @@ for (i = (names.length -1); i >=0; i--) {
 }
 
 var column1 = Ti.UI.createPickerColumn( {
-	rows: rows1
+	rows: rows1, font: {fontSize: "12"}
 });
 var column2 = Ti.UI.createPickerColumn( {
-	rows: rows2
+	rows: rows2, font: {fontSize: "12"}
 });
 var column3 = Ti.UI.createPickerColumn( {
-	rows: rows3
+	rows: rows3, font: {fontSize: "12"}
 });
 
 var picker = Ti.UI.createPicker({
 	useSpinner: true, visibleItems: 7,
 	type : Ti.UI.PICKER_TYPE_PLAIN,
 	top: 150, height: 200,
-	columns: [ column1, column2, column3 ], font: {fontSize: "12"}
+	columns: [ column1, column2, column3 ]
 });
 
 picker.addEventListener('change', function(e) {
