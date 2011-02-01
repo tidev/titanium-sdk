@@ -53,6 +53,7 @@ public class PickerProxy extends TiViewProxy implements PickerColumnListener
 	private static final int MSG_REMOVE = MSG_FIRST_ID + 104;
 	private static final int MSG_FIRE_COL_CHANGE = MSG_FIRST_ID + 105;
 	private static final int MSG_FIRE_ROW_CHANGE = MSG_FIRST_ID + 106;
+	private static final int MSG_FORCE_LAYOUT = MSG_FIRST_ID + 107;
 	private boolean useSpinner = false;
 
 	public PickerProxy(TiContext tiContext)
@@ -280,6 +281,10 @@ public class PickerProxy extends TiViewProxy implements PickerColumnListener
 			}
 			case MSG_FIRE_ROW_CHANGE: {
 				handleFireRowChange(msg.arg1, msg.arg2);
+				return true;
+			}
+			case MSG_FORCE_LAYOUT: {
+				handleForceRequestLayout();
 				return true;
 			}
 		}
@@ -750,5 +755,22 @@ public class PickerProxy extends TiViewProxy implements PickerColumnListener
 	public ArrayList<Integer> getPreselectedRows()
 	{
 		return preselectedRows;
+	}
+
+	public void forceRequestLayout()
+	{
+		if (!(peekView() instanceof TiUISpinner)) {
+			return;
+		}
+		if (getTiContext().isUIThread()) {
+			handleForceRequestLayout();
+		} else {
+			getUIHandler().obtainMessage(MSG_FORCE_LAYOUT).sendToTarget();
+		}
+	}
+
+	private void handleForceRequestLayout()
+	{
+		((TiUISpinner)view).forceRequestLayout();
 	}
 }

@@ -106,6 +106,9 @@ public class TiUISpinner extends TiUIPicker
 	{
 		if (TiC.PROPERTY_VISIBLE_ITEMS.equals(key) || TiC.PROPERTY_SELECTION_INDICATOR.equals(key)) {
 			propagateProperty(key, newValue);
+			if (TiC.PROPERTY_VISIBLE_ITEMS.equals(key)) {
+				forceRequestLayout();
+			}
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}
@@ -142,5 +145,16 @@ public class TiUISpinner extends TiUIPicker
 			child.getProxy().setProperty(TiC.PROPERTY_SELECTION_INDICATOR, TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_SELECTION_INDICATOR)), true);
 		}
 		super.add(child);
+	}
+	public void forceRequestLayout()
+	{
+		if (children != null && children.size() > 0) {
+			for (TiUIView child : children) {
+				if (child instanceof TiUISpinnerColumn) {
+					((TiUISpinnerColumn)child).forceRequestLayout();
+				}
+			}
+		}
+		layoutNativeView();
 	}
 }

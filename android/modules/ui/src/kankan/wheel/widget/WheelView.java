@@ -181,11 +181,7 @@ public class WheelView extends View {
 	 *            the new count
 	 */
 	public void setVisibleItems(int count) {
-		int oldvalue = visibleItems;
 		visibleItems = count;
-		if (oldvalue != visibleItems) {
-			invalidate();
-		}
 	}
 
 	/**
@@ -694,11 +690,20 @@ public class WheelView extends View {
 		return (int) (textSize / 5);
 	}
 	
+	public void fullLayoutReset()
+	{
+		itemsLayout = null;
+		valueLayout = null;
+		requestLayout();
+	}
+	
 	public void setTextSize(int size)
 	{
+		int orig = textSize;
 		textSize = size;
-		resetTextPainters();
-		invalidate();
+		if (orig != textSize) {
+			resetTextPainters();
+		}
 	}
 	
 	public int getTextSize()
@@ -711,21 +716,34 @@ public class WheelView extends View {
 		this.textColor = color;
 		resetTextPainters();
 		invalidate();
-		
 	}
 
 	public void setTypeface(Typeface tf)
 	{
+		Typeface old = this.typeface;
 		this.typeface = tf;
-		resetTextPainters();
-		invalidate();
+		if (!old.equals(tf)) {
+			resetTextPainters();
+		}
+	}
+
+	public Typeface getTypeface()
+	{
+		return this.typeface;
 	}
 
 	public void setTypefaceWeight(int weight)
 	{
+		int old = this.typefaceWeight;
 		this.typefaceWeight = weight;
-		resetTextPainters();
-		invalidate();
+		if (old != weight) {
+			resetTextPainters();
+		}
+	}
+
+	public int getTypefaceWeight()
+	{
+		return this.typefaceWeight;
 	}
 
 	public void setShowSelectionIndicator(boolean show)
