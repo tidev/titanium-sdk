@@ -136,7 +136,12 @@ NSString * const TI_DB_VERSION = @"1";
 -(void)flushEventQueue
 {
 	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-	[lock lock];
+	if (![lock tryLock]) {
+		// We're currently in the middle of flushing the event queue, but didn't block on actually ADDING an event -
+		// this means that we don't need to run a second flush.
+		[pool release];
+		return;
+	}
 	
 	// Can't use network module since pageContext/host may have shut down when sending 'final' events,
 	// giving us bad reachability info.
