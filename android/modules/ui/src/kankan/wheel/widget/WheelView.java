@@ -39,6 +39,7 @@ import android.graphics.drawable.GradientDrawable.Orientation;
 import android.text.Layout;
 import android.text.StaticLayout;
 import android.text.TextPaint;
+import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.FloatMath;
 import android.util.TypedValue;
@@ -75,7 +76,7 @@ public class WheelView extends View {
 	//private static final int ITEM_OFFSET = TEXT_SIZE / 5;
 
 	/** Additional width for items layout */
-	private static final int ADDITIONAL_ITEMS_SPACE = 10;
+	private static final int ADDITIONAL_ITEMS_SPACE = 5;
 
 	/** Label offset */
 	private static final int LABEL_OFFSET = 8;
@@ -119,10 +120,9 @@ public class WheelView extends View {
 	
 	private WheelView.OnItemSelectedListener itemSelectedListener;
 	
-	private boolean measured = false;
-
 	private int textColor = NOVAL;
 	private Typeface typeface = Typeface.DEFAULT;
+	private int typefaceWeight = Typeface.NORMAL;
 
 	/**
 	 * Constructor
@@ -231,25 +231,57 @@ public class WheelView extends View {
 		}
 	}
 
+	private void resetTextPainters()
+	{
+		TextPaint[] painters = new TextPaint[]{itemsPaint, valuePaint};
+		for (int i = 0; i < painters.length; i++) {
+			TextPaint painter = painters[i];
+			if (painter != null) {
+				int flags = Paint.ANTI_ALIAS_FLAG;
+				if (typefaceWeight == Typeface.BOLD) {
+					flags = flags | Paint.FAKE_BOLD_TEXT_FLAG;
+				}
+				if (i == 1) {
+					flags = flags | Paint.DITHER_FLAG;
+				}
+				painter.setFlags(flags);
+				painter.setColor((textColor == NOVAL) ? ITEMS_TEXT_COLOR : textColor);
+				painter.setTypeface(typeface);
+				painter.setTextSize(textSize);
+			}
+		}
+	}
+	
 	/**
 	 * Initializes resources
 	 */
 	private void initResourcesIfNecessary() {
 		if (itemsPaint == null) {
-			itemsPaint = new TextPaint(Paint.ANTI_ALIAS_FLAG
-					| Paint.FAKE_BOLD_TEXT_FLAG);
+			if (typefaceWeight == Typeface.BOLD) {
+				itemsPaint = new TextPaint(Paint.ANTI_ALIAS_FLAG
+						| Paint.FAKE_BOLD_TEXT_FLAG);
+			} else {
+				itemsPaint = new TextPaint(Paint.ANTI_ALIAS_FLAG);
+			}
 			//itemsPaint.density = getResources().getDisplayMetrics().density;
 			itemsPaint.setTextSize(textSize);
 			itemsPaint.setTypeface(typeface);
+			itemsPaint.setColor((textColor == NOVAL) ? ITEMS_TEXT_COLOR : textColor);
 		}
 
 		if (valuePaint == null) {
-			valuePaint = new TextPaint(Paint.ANTI_ALIAS_FLAG
-					| Paint.FAKE_BOLD_TEXT_FLAG | Paint.DITHER_FLAG);
+			if (typefaceWeight == Typeface.BOLD) {
+				valuePaint = new TextPaint(Paint.ANTI_ALIAS_FLAG
+						| Paint.FAKE_BOLD_TEXT_FLAG | Paint.DITHER_FLAG);
+			} else {
+				valuePaint = new TextPaint(Paint.ANTI_ALIAS_FLAG
+						| Paint.DITHER_FLAG);
+			}
 			//valuePaint.density = getResources().getDisplayMetrics().density;
 			valuePaint.setTextSize(textSize);
 			valuePaint.setShadowLayer(0.5f, 0, 0.5f, 0xFFFFFFFF);
-			itemsPaint.setTypeface(typeface);
+			valuePaint.setTypeface(typeface);
+			valuePaint.setColor((textColor == NOVAL) ? ITEMS_TEXT_COLOR : textColor);
 		}
 
 		if (centerDrawable == null) {
@@ -465,9 +497,13 @@ public class WheelView extends View {
 	 */
 	private void createLayouts(int widthItems, int widthLabel) {
 		if (itemsLayout == null || itemsLayout.getWidth() > widthItems) {
-			itemsLayout = new StaticLayout(buildText(), itemsPaint, widthItems,
+			String text = buildText();
+			if (text == null) {
+				text = "";
+			}
+			itemsLayout = new StaticLayout(text, 0, text.length(), itemsPaint, widthItems,
 					widthLabel > 0 ? Layout.Alignment.ALIGN_OPPOSITE : Layout.Alignment.ALIGN_CENTER,
-					1, getAdditionalItemHeight(), false);
+					1, getAdditionalItemHeight(), false, TextUtils.TruncateAt.END, widthItems);
 		} else {
 			itemsLayout.increaseWidthTo(widthItems);
 		}
@@ -475,9 +511,10 @@ public class WheelView extends View {
 		if (valueLayout == null || valueLayout.getWidth() > widthItems) {
 			String text = getAdapter() != null ? getAdapter().getItem(currentItem) : null;
 			valueLayout = new StaticLayout(text != null ? text : "",
+					0, text != null ? text.length() : 0,
 					valuePaint, widthItems, widthLabel > 0 ?
 							Layout.Alignment.ALIGN_OPPOSITE : Layout.Alignment.ALIGN_CENTER,
-							1, getAdditionalItemHeight(), false);
+							1, getAdditionalItemHeight(), false, TextUtils.TruncateAt.END, widthItems);
 		} else {
 			valueLayout.increaseWidthTo(widthItems);
 		}
@@ -495,7 +532,6 @@ public class WheelView extends View {
 
 	@Override
 	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-		measured = true;
 		int widthMode = MeasureSpec.getMode(widthMeasureSpec);
 		int heightMode = MeasureSpec.getMode(heightMeasureSpec);
 		int widthSize = MeasureSpec.getSize(widthMeasureSpec);
@@ -587,7 +623,6 @@ public class WheelView extends View {
 	 * @param canvas the canvas for drawing
 	 */
 	private void drawItems(Canvas canvas) {
-		itemsPaint.setColor((textColor == NOVAL) ? ITEMS_TEXT_COLOR : textColor);
 		itemsPaint.drawableState = getDrawableState();
 		itemsLayout.draw(canvas);
 	}
@@ -654,10 +689,9 @@ public class WheelView extends View {
 	
 	public void setTextSize(int size)
 	{
-		if (measured) {
-			throw new IllegalStateException("Cannot change text size after view has been measured.");
-		}
-		textSize= size;
+		textSize = size;
+		resetTextPainters();
+		invalidate();
 	}
 	
 	public int getTextSize()
@@ -668,11 +702,23 @@ public class WheelView extends View {
 	public void setTextColor(int color)
 	{
 		this.textColor = color;
+		resetTextPainters();
+		invalidate();
+		
 	}
 
 	public void setTypeface(Typeface tf)
 	{
 		this.typeface = tf;
+		resetTextPainters();
+		invalidate();
+	}
+
+	public void setTypefaceWeight(int weight)
+	{
+		this.typefaceWeight = weight;
+		resetTextPainters();
+		invalidate();
 	}
 }
 

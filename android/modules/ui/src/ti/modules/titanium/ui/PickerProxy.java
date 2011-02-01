@@ -45,7 +45,7 @@ public class PickerProxy extends TiViewProxy implements PickerColumnListener
 	private int type = UIModule.PICKER_TYPE_PLAIN;
 	private ArrayList<Integer> preselectedRows = new ArrayList<Integer>();
 	private static final String LCAT = "PickerProxy";
-	
+	public static final int DEFAULT_VISIBLE_ITEMS_COUNT = 5;
 	private static final int MSG_FIRST_ID = TiViewProxy.MSG_LAST_ID + 1;
 	private static final int MSG_SELECT_ROW = MSG_FIRST_ID + 101;
 	private static final int MSG_SET_COLUMNS = MSG_FIRST_ID + 102;
@@ -53,7 +53,9 @@ public class PickerProxy extends TiViewProxy implements PickerColumnListener
 	private static final int MSG_REMOVE = MSG_FIRST_ID + 104;
 	private static final int MSG_FIRE_COL_CHANGE = MSG_FIRST_ID + 105;
 	private static final int MSG_FIRE_ROW_CHANGE = MSG_FIRST_ID + 106;
+	private static final int MSG_SET_VISIBLE_ITEMS = MSG_FIRST_ID + 107;
 	private boolean useSpinner = false;
+	private int visibleItems = DEFAULT_VISIBLE_ITEMS_COUNT;
 
 	public PickerProxy(TiContext tiContext)
 	{
@@ -63,6 +65,9 @@ public class PickerProxy extends TiViewProxy implements PickerColumnListener
 	@Override
 	public void handleCreationDict(KrollDict dict) {
 		super.handleCreationDict(dict);
+		if (dict.containsKey("visibleItems")) {
+			visibleItems = TiConvert.toInt(dict, "visibleItems");
+		}
 		if (dict.containsKey("useSpinner")) {
 			useSpinner = TiConvert.toBoolean(dict, "useSpinner");
 		}
@@ -227,6 +232,7 @@ public class PickerProxy extends TiViewProxy implements PickerColumnListener
 	{
 		if (child instanceof PickerColumnProxy) {
 			PickerColumnProxy column = (PickerColumnProxy)child;
+			column.setVisibleItems(visibleItems);
 			column.setUseSpinner(useSpinner);
 			column.setColumnListener(this);
 			super.add(column);
@@ -276,6 +282,10 @@ public class PickerProxy extends TiViewProxy implements PickerColumnListener
 			}
 			case MSG_FIRE_ROW_CHANGE: {
 				handleFireRowChange(msg.arg1, msg.arg2);
+				return true;
+			}
+			case MSG_SET_VISIBLE_ITEMS : {
+				handleSetVisibleItems(msg.arg1);
 				return true;
 			}
 		}
@@ -723,6 +733,12 @@ public class PickerProxy extends TiViewProxy implements PickerColumnListener
 	{
 		fireColumnModelChange(children.indexOf(column));
 	}
+	
+	@Override
+	public void rowsReplaced(PickerColumnProxy column)
+	{
+		fireColumnModelChange(children.indexOf(column));
+	}
 
 	@Override
 	public void rowChanged(PickerColumnProxy column, int rowIndex)
@@ -740,5 +756,35 @@ public class PickerProxy extends TiViewProxy implements PickerColumnListener
 	public ArrayList<Integer> getPreselectedRows()
 	{
 		return preselectedRows;
+	}
+
+	@Kroll.getProperty @Kroll.method
+	public int getVisibleItems()
+	{
+		return visibleItems;
+	}
+
+	@Kroll.setProperty @Kroll.method
+	public void setVisibleItems(int visible)
+	{
+		if (getTiContext().isUIThread() || peekView() == null) {
+			handleSetVisibleItems(visible);
+		} else {
+			Message msg = getUIHandler().obtainMessage(MSG_SET_VISIBLE_ITEMS);
+			msg.arg1 = visible;
+			msg.sendToTarget();
+		}
+	}
+
+	private void handleSetVisibleItems(int visible)
+	{
+		visibleItems = visible;
+		if (isPlainPicker() && useSpinner && children != null && children.size() > 0) {
+			for (TiViewProxy child : children) {
+				if (child instanceof PickerColumnProxy) {
+					((PickerColumnProxy)child).setVisibleItems(visible);
+				}
+			}
+		}
 	}
 }

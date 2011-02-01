@@ -138,6 +138,9 @@ public class TiC {
 	public static final String PROPERTY_FLAGS = "flags";
 	public static final String PROPERTY_FOCUSABLE = "focusable";
 	public static final String PROPERTY_FONT = "font";
+	public static final String PROPERTY_FONT_FAMILY = "font-family";
+	public static final String PROPERTY_FONT_WEIGHT = "font-weight";
+	public static final String PROPERTY_FONT_SIZE = "font-size";
 	public static final String PROPERTY_FOOTER = "footer";
 	public static final String PROPERTY_FOOTER_TITLE = "footerTitle";
 	public static final String PROPERTY_FOOTER_VIEW = "footerView";

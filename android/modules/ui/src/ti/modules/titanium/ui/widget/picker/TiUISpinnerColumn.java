@@ -29,9 +29,6 @@ import ti.modules.titanium.ui.PickerProxy;
 public class TiUISpinnerColumn extends TiUIView implements WheelView.OnItemSelectedListener
 {
 	
-	private Typeface typeface = null;
-	private Float fontSize = null;
-	private Integer color = null;
 	private static final String LCAT = "TiUISpinnerColumn";
 	private boolean suppressItemSelected = false;
 	
@@ -60,42 +57,65 @@ public class TiUISpinnerColumn extends TiUIView implements WheelView.OnItemSelec
 		}
 	}
 
-	private void applyStyle(WheelView view)
-	{
-		if (fontSize == null) {
-			String sFontSize = TiUIHelper.getDefaultFontSize(proxy.getContext());
-			fontSize = new Float(TiUIHelper.getSize(sFontSize));
-		}
-		view.setTextSize(fontSize.intValue());
-		if (color != null) {
-			view.setTextColor(color.intValue());
-		}
-		if (typeface != null) {
-			view.setTypeface(typeface);
-		}
-	}
-	
 	@Override
 	public void processProperties(KrollDict d) {
 		super.processProperties(d);
-		if (d.containsKey(TiC.PROPERTY_FONT)) {
-			setFontProperties(d.getKrollDict(TiC.PROPERTY_FONT));
+		if (d.containsKeyStartingWith("font")) {
+			setFontProperties();
 		}
 		if (d.containsKey(TiC.PROPERTY_COLOR)) {
-			color = new Integer(TiConvert.toColor(d, "color"));
+			((WheelView)nativeView).setTextColor(new Integer(TiConvert.toColor(d, "color")));
 		}
 		refreshNativeView();
 	}
 
-	private void setFontProperties(KrollDict font)
+	private void setFontProperties()
 	{
-		if (font.containsKey("fontSize")) {
-			String sFontSize = TiConvert.toString(font, "fontSize");
+		WheelView view = (WheelView)nativeView;
+		String fontFamily = null;
+		Float fontSize = null;
+		String fontWeight = null;
+		Typeface typeface = null;
+		KrollDict d = proxy.getProperties();
+		if (d.containsKey(TiC.PROPERTY_FONT) && d.get(TiC.PROPERTY_FONT) instanceof KrollDict) {
+			KrollDict font = d.getKrollDict(TiC.PROPERTY_FONT);
+			if (font.containsKey("fontSize")) {
+				String sFontSize = TiConvert.toString(font, "fontSize");
+				fontSize = new Float(TiUIHelper.getSize(sFontSize));
+			}
+			if (font.containsKey("fontFamily")) {
+				fontFamily = TiConvert.toString(font, "fontFamily");
+			}
+			if (font.containsKey("fontWeight")) {
+				fontWeight = TiConvert.toString(font, "fontWeight");
+			}
+		}
+		if (d.containsKeyAndNotNull(TiC.PROPERTY_FONT_FAMILY)) {
+			fontFamily = TiConvert.toString(d, TiC.PROPERTY_FONT_FAMILY);
+		}
+		if (d.containsKeyAndNotNull(TiC.PROPERTY_FONT_SIZE)) {
+			String sFontSize = TiConvert.toString(d, TiC.PROPERTY_FONT_SIZE);
 			fontSize = new Float(TiUIHelper.getSize(sFontSize));
 		}
-		if (font.containsKey("fontFamily")) {
-			String fontFamily = TiConvert.toString(font, "fontFamily");
+		if (d.containsKeyAndNotNull(TiC.PROPERTY_FONT_WEIGHT)) {
+			fontWeight = TiConvert.toString(d, TiC.PROPERTY_FONT_WEIGHT);
+		}
+		if (fontFamily != null) {
 			typeface = TiUIHelper.toTypeface(fontFamily);
+		}
+		Integer typefaceWeight = null;
+		if (fontWeight != null) {
+			typefaceWeight = new Integer(TiUIHelper.toTypefaceStyle(fontWeight));
+		}
+		
+		if (typeface != null) {
+			view.setTypeface(typeface);
+		}
+		if (typefaceWeight != null) {
+			view.setTypefaceWeight(typefaceWeight);
+		}
+		if (fontSize != null) {
+			view.setTextSize(fontSize.intValue());
 		}
 	}
 
@@ -103,18 +123,12 @@ public class TiUISpinnerColumn extends TiUIView implements WheelView.OnItemSelec
 	public void propertyChanged(String key, Object oldValue, Object newValue,
 			KrollProxy proxy)
 	{
-		boolean reapplyStyle = false;
-		if (key == TiC.PROPERTY_FONT && newValue instanceof KrollDict) {
-			setFontProperties((KrollDict)newValue);
-			reapplyStyle = true;
-		} else if (key == TiC.PROPERTY_COLOR) {
-			color = new Integer(TiConvert.toColor(TiConvert.toString(newValue)));
-			reapplyStyle = true;
+		if (key.startsWith("font")) {
+			setFontProperties();
+		} else if (key.equals(TiC.PROPERTY_COLOR)) {
+			((WheelView)nativeView).setTextColor(new Integer(TiConvert.toColor(TiConvert.toString(newValue))));
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);	
-		}
-		if (reapplyStyle) {
-			applyStyle((WheelView)getNativeView());
 		}
 	}
 	
@@ -126,9 +140,10 @@ public class TiUISpinnerColumn extends TiUIView implements WheelView.OnItemSelec
 			view = (WheelView)nativeView;
 		} else {
 			view = new WheelView(proxy.getContext());
+			Float defaultFontSize = new Float(TiUIHelper.getSize(TiUIHelper.getDefaultFontSize(proxy.getContext())));
+			view.setTextSize(defaultFontSize.intValue());
 			setNativeView(view);
 			view.setVisibleItems(((PickerColumnProxy)proxy).getVisibleItems());
-			applyStyle(view);
 		}
 		int selectedRow = view.getCurrentItem();
 		PickerRowProxy[] rows = ((PickerColumnProxy)proxy).getRows();

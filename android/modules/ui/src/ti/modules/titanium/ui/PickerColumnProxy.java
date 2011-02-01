@@ -25,13 +25,14 @@ import android.util.Log;
 public class PickerColumnProxy extends TiViewProxy implements PickerRowListener
 {
 	private static final String LCAT = "PickerColumnProxy";
-	private static final int DEFAULT_VISIBLE_ITEMS_COUNT = 5;
-	private int visibleItems = DEFAULT_VISIBLE_ITEMS_COUNT;
+	private int visibleItems = PickerProxy.DEFAULT_VISIBLE_ITEMS_COUNT;
 	private static final int MSG_FIRST_ID = TiViewProxy.MSG_LAST_ID + 1;
 	private static final int MSG_ADD = MSG_FIRST_ID + 100;
 	private static final int MSG_REMOVE = MSG_FIRST_ID + 101;
+	private static final int MSG_SET_ROWS = MSG_FIRST_ID + 102;
 	private PickerColumnListener columnListener  = null;
 	private boolean useSpinner = false;
+	private boolean suppressListenerEvents = false;
 
 	public PickerColumnProxy(TiContext tiContext)
 	{
@@ -75,6 +76,12 @@ public class PickerColumnProxy extends TiViewProxy implements PickerRowListener
 				result.setResult(null);
 				return true;
 			}
+			case MSG_SET_ROWS: {
+				AsyncResult result = (AsyncResult)msg.obj;
+				handleSetRows((Object[])result.getArg());
+				result.setResult(null);
+				return true;
+			}
 		}
 		return super.handleMessage(msg);
 	}
@@ -110,7 +117,7 @@ public class PickerColumnProxy extends TiViewProxy implements PickerRowListener
 		if (o instanceof PickerRowProxy) {
 			((PickerRowProxy)o).setRowListener(this);
 			super.add((PickerRowProxy)o);
-			if (columnListener != null) {
+			if (columnListener != null && !suppressListenerEvents) {
 				int index = children.indexOf(o);
 				columnListener.rowAdded(this, index);
 			}
@@ -139,7 +146,7 @@ public class PickerColumnProxy extends TiViewProxy implements PickerRowListener
 		if (o instanceof PickerRowProxy) {
 			int index = children.indexOf(o);
 			super.remove((PickerRowProxy)o);
-			if (columnListener != null) {
+			if (columnListener != null && !suppressListenerEvents) {
 				columnListener.rowRemoved(this, index);
 			}
 		} else {
@@ -178,6 +185,38 @@ public class PickerColumnProxy extends TiViewProxy implements PickerRowListener
 		}
 		return children.toArray(new PickerRowProxy[children.size()]);
 	}
+	
+	@Kroll.setProperty @Kroll.method
+	public void setRows(Object[] rows)
+	{
+		if (getTiContext().isUIThread() || peekView() == null) {
+			handleSetRows(rows);
+		} else {
+			AsyncResult result = new AsyncResult(rows);
+			Message msg = getUIHandler().obtainMessage(MSG_SET_ROWS, result);
+			msg.sendToTarget();
+			result.getResult();
+		}
+	}
+
+	private void handleSetRows(Object[] rows)
+	{
+		try {
+			suppressListenerEvents = true;
+			if (children != null && children.size() > 0) {
+				int count = children.size();
+				for (int i = (count - 1); i >= 0; i--) {
+					remove(children.get(i));
+				}
+			}
+			addRows(rows);
+		} finally {
+			suppressListenerEvents = false;
+		}
+		if (columnListener != null) {
+			columnListener.rowsReplaced(this);
+		}
+	}
 
 	@Kroll.getProperty @Kroll.method
 	public int getRowCount()
@@ -201,12 +240,13 @@ public class PickerColumnProxy extends TiViewProxy implements PickerRowListener
 		void rowRemoved(PickerColumnProxy column, int oldRowIndex);
 		void rowChanged(PickerColumnProxy column, int rowIndex);
 		void rowSelected(PickerColumnProxy column, int rowIndex);
+		void rowsReplaced(PickerColumnProxy column); // wholesale replace of rows
 	}
 
 	@Override
 	public void rowChanged(PickerRowProxy row)
 	{
-		if (columnListener != null) {
+		if (columnListener != null && !suppressListenerEvents) {
 			int index = children.indexOf(row);
 			columnListener.rowChanged(this, index);
 		}
@@ -215,7 +255,7 @@ public class PickerColumnProxy extends TiViewProxy implements PickerRowListener
 	
 	public void onItemSelected(int rowIndex)
 	{
-		if (columnListener != null) {
+		if (columnListener != null && !suppressListenerEvents) {
 			columnListener.rowSelected(this, rowIndex);
 		}
 	}

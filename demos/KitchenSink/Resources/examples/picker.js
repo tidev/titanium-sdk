@@ -29,6 +29,7 @@ if (isAndroid) {
 		}
 	}
 	data.push({title:'Android "useSpinner" - text', hasChild:true, test:'../examples/picker_android_spinner_text.js'});
+	data.push({title:'Android "useSpinner" - text 2', hasChild:true, test:'../examples/picker_android_spinner_text2.js'});
 	data.push({title:'Android "useSpinner" - date', hasChild:true, test:'../examples/picker_android_spinner_date.js'});
 	data.push({title:'Android "useSpinner" - time', hasChild:true, test:'../examples/picker_android_spinner_time.js'});
 }

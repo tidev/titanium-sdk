@@ -7,6 +7,8 @@
 
 package ti.modules.titanium.ui.widget.picker;
 
+import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.view.TiCompositeLayout;
