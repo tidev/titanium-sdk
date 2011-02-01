@@ -90,6 +90,18 @@
 		</exec>
 	</target>
 
+	<target name="libs.check">
+		<condition property="libs.exists">
+			<available file="${libs}" type="dir"/>
+		</condition>
+	</target>
+
+	<target name="zip.libs" depends="libs.check" if="libs.exists">
+		<zip destfile="${dist}/${module.id}-android-${manifest.version}.zip" update="true">
+			<zipfileset dir="${libs}" includes="**/*.so" prefix="${zip.prefix}/libs"/>
+		</zip>
+	</target>
+
 	<target name="dist" depends="compile" description="Generate a distributable module JAR">
 		<ti.string property="module.id" string="${manifest.moduleid}" tolowercase="true"/>
 		<property name="module.jar" location="${dist}/${ant.project.name}.jar"/>
@@ -104,8 +116,8 @@
 			<zipfileset file="manifest" prefix="${zip.prefix}"/>
 			<zipfileset file="timodule.xml" prefix="${zip.prefix}"/>
 			<zipfileset dir="${lib}" includes="**/*.jar" prefix="${zip.prefix}/lib"/>
-			<zipfileset dir="${libs}" includes="**/*.so" prefix="${zip.prefix}/libs"/>
 		</zip>
+		<antcall target="zip.libs"/>
 		<delete dir="${lib.expand.dir}" includeemptydirs="true" failonerror="false" deleteonexit="true"/>
 	</target>
 
