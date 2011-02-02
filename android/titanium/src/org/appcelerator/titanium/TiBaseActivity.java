@@ -7,7 +7,6 @@
 package org.appcelerator.titanium;
 
 import java.lang.ref.WeakReference;
-import java.util.Set;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.titanium.proxy.ActivityProxy;
@@ -17,7 +16,6 @@ import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiActivityResultHandler;
 import org.appcelerator.titanium.util.TiActivitySupport;
 import org.appcelerator.titanium.util.TiActivitySupportHelper;
-import org.appcelerator.titanium.util.TiColorHelper;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiMenuSupport;
@@ -29,12 +27,7 @@ import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.titanium.view.TiCompositeLayout.LayoutArrangement;
 
 import android.app.Activity;
-import android.app.AlarmManager;
-import android.app.AlertDialog;
-import android.app.PendingIntent;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.DialogInterface.OnClickListener;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.os.Bundle;
@@ -72,8 +65,6 @@ public abstract class TiBaseActivity extends Activity
 	protected int msgWindowCreatedId = -1;
 	protected int msgId = -1;
 
-	protected AlertDialog b2373Alert;
-
 	public static interface ConfigurationChangedListener
 	{
 		public void onConfigurationChanged(TiBaseActivity activity, Configuration newConfig);
@@ -109,8 +100,6 @@ public abstract class TiBaseActivity extends Activity
 	{
 		this.activityProxy = proxy;
 	}
-
-	public abstract boolean hasTiContext();
 
 	public TiCompositeLayout getLayout()
 	{
@@ -206,7 +195,8 @@ public abstract class TiBaseActivity extends Activity
 		return new TiCompositeLayout(this, arrangement);
 	}
 
-	protected void setFullscreen(boolean fullscreen) {
+	protected void setFullscreen(boolean fullscreen)
+	{
 		if (fullscreen) {
 			getWindow().setFlags(
 				WindowManager.LayoutParams.FLAG_FULLSCREEN,
@@ -214,7 +204,8 @@ public abstract class TiBaseActivity extends Activity
 		}
 	}
 
-	protected void setNavBarHidden(boolean hidden) {
+	protected void setNavBarHidden(boolean hidden)
+	{
 		if (!hidden) {
 			this.requestWindowFeature(Window.FEATURE_LEFT_ICON); // TODO Keep?
 			this.requestWindowFeature(Window.FEATURE_RIGHT_ICON);
@@ -252,16 +243,14 @@ public abstract class TiBaseActivity extends Activity
 	}
 
 	@Override
-	protected void onCreate(Bundle savedInstanceState) {
+	protected void onCreate(Bundle savedInstanceState)
+	{
 		if (DBG) {
 			Log.d(TAG, "Activity onCreate");
 		}
 
 		Intent intent = getIntent();
 		if (intent != null) {
-			if (checkMissingLauncher(intent)) {
-				return;
-			}
 			if (intent.hasExtra(TiC.INTENT_PROPERTY_MESSENGER)) {
 				messenger = (Messenger) intent.getParcelableExtra(TiC.INTENT_PROPERTY_MESSENGER);
 				msgActivityCreatedId = intent.getIntExtra(TiC.INTENT_PROPERTY_MSG_ACTIVITY_CREATED_ID, -1);
@@ -286,9 +275,9 @@ public abstract class TiBaseActivity extends Activity
 		if (activityProxy != null) {
 			activityProxy.fireSyncEvent(TiC.EVENT_CREATE, null);
 		}
-		
+
 		setContentView(layout);
-		
+
 		handler = new Handler();
 		sendMessage(msgActivityCreatedId, false);
 		// for backwards compatibility
@@ -334,7 +323,8 @@ public abstract class TiBaseActivity extends Activity
 		}
 	}
 
-	protected TiActivitySupportHelper getSupportHelper() {
+	protected TiActivitySupportHelper getSupportHelper()
+	{
 		if (supportHelper == null) {
 			this.supportHelper = new TiActivitySupportHelper(this);
 		}
@@ -342,7 +332,8 @@ public abstract class TiBaseActivity extends Activity
 	}
 
 	// Activity Support
-	public int getUniqueResultCode() {
+	public int getUniqueResultCode()
+	{
 		return getSupportHelper().getUniqueResultCode();
 	}
 
@@ -352,18 +343,21 @@ public abstract class TiBaseActivity extends Activity
 	}
 
 	@Override
-	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+	protected void onActivityResult(int requestCode, int resultCode, Intent data)
+	{
 		super.onActivityResult(requestCode, resultCode, data);
 		getSupportHelper().onActivityResult(requestCode, resultCode, data);
 	}
 
 	@Override
-	public void addWindow(View v, TiCompositeLayout.LayoutParams params) {
+	public void addWindow(View v, TiCompositeLayout.LayoutParams params)
+	{
 		layout.addView(v, params);
 	}
 
 	@Override
-	public void removeWindow(View v) {
+	public void removeWindow(View v)
+	{
 		layout.removeView(v);
 	}
 
@@ -438,7 +432,8 @@ public abstract class TiBaseActivity extends Activity
 	}
 
 	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
+	public boolean onCreateOptionsMenu(Menu menu)
+	{
 		if (menuHelper == null) {
 			menuHelper = new TiMenuSupport(activityProxy);
 		}
@@ -446,20 +441,24 @@ public abstract class TiBaseActivity extends Activity
 	}
 
 	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
+	public boolean onOptionsItemSelected(MenuItem item)
+	{
 		return menuHelper.onOptionsItemSelected(item);
 	}
 
 	@Override
-	public boolean onPrepareOptionsMenu(Menu menu) {
+	public boolean onPrepareOptionsMenu(Menu menu)
+	{
 		return menuHelper.onPrepareOptionsMenu(super.onPrepareOptionsMenu(menu), menu);
 	}
 
-	public int getOrientationDegrees() {
+	public int getOrientationDegrees()
+	{
 		return orientationDegrees;
 	}
 
-	public void overrideOrientation(int orientation) {
+	public void overrideOrientation(int orientation)
+	{
 		// override the orientation until it's matched, then go back to detecting
 		// this matches iPhone's behavior (hoop -> jump)
 		orientationOverride = orientation;
@@ -476,7 +475,8 @@ public abstract class TiBaseActivity extends Activity
 		orientationListener.disable();
 	}
 
-	protected void onOrientationChanged(int degrees) {
+	protected void onOrientationChanged(int degrees)
+	{
 		// once setRequestedOrientation is called, onConfigurationChanged is no longer called
 		// with new orientation changes from the OS. OrientationEventListener goes through
 		// the SensorManager directly, and allows us to reset correctly
@@ -520,7 +520,8 @@ public abstract class TiBaseActivity extends Activity
 	}
 
 	@Override
-	public void onConfigurationChanged(Configuration newConfig) {
+	public void onConfigurationChanged(Configuration newConfig)
+	{
 		super.onConfigurationChanged(newConfig);
 		for (WeakReference<ConfigurationChangedListener> listener : configChangedListeners) {
 			if (listener.get() != null) {
@@ -530,19 +531,11 @@ public abstract class TiBaseActivity extends Activity
 	}
 
 	@Override
-	protected void onPause() {
+	protected void onPause() 
+	{
 		super.onPause();
 		if (DBG) {
 			Log.d(TAG, "Activity onPause");
-		}
-
-		if (!hasTiContext()) {
-			// Not in a good state. Let's get out.
-			if (b2373Alert != null && b2373Alert.isShowing()) {
-				b2373Alert.cancel();
-				b2373Alert = null;
-			}
-			finish();
 		}
 
 		getTiApp().setWindowHandler(null);
@@ -552,81 +545,15 @@ public abstract class TiBaseActivity extends Activity
 		}
 	}
 
-	protected boolean checkMissingLauncher(Intent intent)
-	{
-		String action = intent.getAction();
-		if (action != null && action.equals(Intent.ACTION_MAIN)) {
-			Set<String> categories = intent.getCategories();
-			boolean b2373Detected = true; // Absence of LAUNCHER is the problem.
-			if (categories != null) {
-				for(String category : categories) {
-					if (category.equals(Intent.CATEGORY_LAUNCHER)) {
-						b2373Detected = false;
-						break;
-					}
-				}
-			}
-			
-			if(b2373Detected) {
-				Log.e(TAG, "Android issue 2373 detected (missing intent CATEGORY_LAUNCHER), restarting app. Instances: " + getInstanceCount());
-				layout = new TiCompositeLayout(this);
-				setContentView(layout);
-				return true;
-			}
-		}
-		return false;
-	}
-
-	protected void alertMissingLauncher()
-	{
-		// No context, we have a launch problem.
-		TiProperties systemProperties = getTiApp().getSystemProperties();
-		String backgroundColor = systemProperties.getString("ti.android.bug2373.backgroundColor", "black");
-		layout.setBackgroundColor(TiColorHelper.parseColor(backgroundColor));
-
-		OnClickListener restartListener = new OnClickListener() {	
-			@Override
-			public void onClick(DialogInterface arg0, int arg1) {
-				restartActivity(500);
-			}
-		};
-
-		String title = systemProperties.getString("ti.android.bug2373.title", "Restart Required");
-		String message = systemProperties.getString("ti.android.bug2373.message", "An application restart is required");
-		String buttonText = systemProperties.getString("ti.android.bug2373.buttonText", "Continue");
-		b2373Alert = new AlertDialog.Builder(this)
-			.setTitle(title)
-			.setMessage(message)
-			.setPositiveButton(buttonText, restartListener)
-			.setCancelable(false).create();
-		b2373Alert.show();
-	}
-
-	protected void restartActivity(int delay)
-	{
-		Intent relaunch = new Intent(getApplicationContext(), getClass());
-		relaunch.setAction(Intent.ACTION_MAIN);
-		relaunch.addCategory(Intent.CATEGORY_LAUNCHER);
-
-		AlarmManager am = (AlarmManager) getSystemService(ALARM_SERVICE);
-		if (am != null) {
-			PendingIntent pi = PendingIntent.getActivity(getApplicationContext(), 0, relaunch, PendingIntent.FLAG_ONE_SHOT);
-			am.set(AlarmManager.RTC, System.currentTimeMillis() + delay, pi);
-		}
-		finish();
-	}
+	
 
 	@Override
-	protected void onResume() {
+	protected void onResume()
+	{
 		super.onResume();
 		if (DBG) {
 			Log.d(TAG, "Activity onResume");
 		}
-
-		if (!hasTiContext()) {
-			alertMissingLauncher();
-		}
-
 		getTiApp().setWindowHandler(this);
 		getTiApp().setCurrentActivity(this, this);
 		if (activityProxy != null) {
@@ -635,22 +562,8 @@ public abstract class TiBaseActivity extends Activity
 	}
 
 	@Override
-	protected void onRestart() {
-		super.onRestart();
-		TiProperties systemProperties = getTiApp().getSystemProperties();
-		boolean restart = systemProperties.getBool("ti.android.root.reappears.restart", false);
-		if (restart) {
-			Log.w(TAG, "Tasks may have been destroyed by Android OS for inactivity. Restarting.");
-			restartActivity(250);
-		} else {
-			if (activityProxy != null) {
-				activityProxy.fireSyncEvent(TiC.EVENT_RESTART, null);
-			}
-		}
-	}
-	
-	@Override
-	protected void onStart() {
+	protected void onStart()
+	{
 		super.onStart();
 		if (DBG) {
 			Log.d(TAG, "Activity onStart");
@@ -668,7 +581,8 @@ public abstract class TiBaseActivity extends Activity
 	}
 
 	@Override
-	protected void onStop() {
+	protected void onStop()
+	{
 		super.onStop();
 		if (DBG) {
 			Log.d(TAG, "Activity onStop");
@@ -678,6 +592,15 @@ public abstract class TiBaseActivity extends Activity
 		}
 		if (activityProxy != null) {
 			activityProxy.fireSyncEvent(TiC.EVENT_STOP, null);
+		}
+	}
+
+	@Override
+	protected void onRestart()
+	{
+		super.onRestart();
+		if (activityProxy != null) {
+			activityProxy.fireSyncEvent(TiC.EVENT_RESTART, null);
 		}
 	}
 
@@ -709,12 +632,14 @@ public abstract class TiBaseActivity extends Activity
 		handler = null;
 	}
 
-	protected boolean shouldFinishRootActivity() {
+	protected boolean shouldFinishRootActivity()
+	{
 		return getIntentBoolean(TiC.INTENT_PROPERTY_FINISH_ROOT, false);
 	}
-	
+
 	@Override
-	public void finish() {
+	public void finish()
+	{
 		if (window != null) {
 			KrollDict data = new KrollDict();
 			data.put(TiC.EVENT_PROPERTY_SOURCE, window);

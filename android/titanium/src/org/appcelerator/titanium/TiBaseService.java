@@ -124,7 +124,7 @@ public class TiBaseService extends Service
 	{
 		TiApplication tiApp = (TiApplication) this.getApplication();
 		TiContext context = TiContext.createTiContext(tiApp.getRootActivity(), baseUrl);
-		context.setIsServiceContext(true);
+		context.setServiceContext(true);
 		if (weakUnboundContexts == null) {
 			weakUnboundContexts = Collections.synchronizedList( new ArrayList<WeakReference<TiContext>>() );
 		}

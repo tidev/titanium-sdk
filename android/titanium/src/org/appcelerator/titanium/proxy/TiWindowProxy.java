@@ -13,6 +13,7 @@ import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
+import org.appcelerator.titanium.TiLaunchActivity;
 import org.appcelerator.titanium.util.AsyncResult;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiUIHelper;
@@ -102,7 +103,12 @@ public abstract class TiWindowProxy extends TiViewProxy
 
 		AsyncResult result = new AsyncResult(options);
 		Message msg = getUIHandler().obtainMessage(MSG_OPEN, result);
-		msg.sendToTarget();
+		if (getTiContext().isLaunchContext()) {
+			TiLaunchActivity launchActivity = (TiLaunchActivity) getTiContext().getActivity();
+			launchActivity.sendMessage(msg);
+		} else {
+			msg.sendToTarget();
+		}
 		result.getResult(); // Don't care about result, just synchronizing.
 	}
 

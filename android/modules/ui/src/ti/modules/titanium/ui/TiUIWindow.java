@@ -103,7 +103,9 @@ public class TiUIWindow extends TiUIView
 		}
 		lightWeight = !newActivity;
 		initContext();
-		if (!newActivity) {
+		if (newActivity) {
+			createNewActivity();
+		} else {
 			lightWindow = new TiCompositeLayout(proxy.getContext(), getLayoutArrangement());
 			layoutParams.autoFillsHeight = true;
 			layoutParams.autoFillsWidth = true;
@@ -122,6 +124,7 @@ public class TiUIWindow extends TiUIView
 			idGenerator = new AtomicInteger(0);
 		}
 
+		newActivity = false;
 		windowActivity = activity;
 		lightWeight = false;
 
@@ -139,7 +142,14 @@ public class TiUIWindow extends TiUIView
 			String baseUrl = proxy.getTiContext().getBaseUrl();
 			TiUrl tiUrl = TiUrl.normalizeWindowUrl(baseUrl, url);
 			windowUrl = tiUrl.url;
-			windowContext = TiContext.createTiContext(null, tiUrl.baseUrl);
+			Activity activity = null;
+			if (!newActivity) {
+				activity = windowActivity;
+				if (activity == null) {
+					activity = proxy.getTiContext().getActivity();
+				}
+			}
+			windowContext = TiContext.createTiContext(activity, tiUrl.baseUrl);
 
 			ActivityProxy activityProxy = ((TiWindowProxy) proxy).getActivity(windowContext);
 			TiBindingHelper.bindCurrentWindowAndActivity(windowContext, proxy, activityProxy);
@@ -307,6 +317,7 @@ public class TiUIWindow extends TiUIView
 					Log.d(LCAT, "Received Activity creation message");
 				}
 				windowActivity = (Activity) msg.obj;
+				windowContext.setActivity(windowActivity);
 				proxy.setModelListener(this);
 				handleBooted();
 				return true;

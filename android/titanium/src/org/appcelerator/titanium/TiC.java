@@ -259,4 +259,5 @@ public class TiC {
 	public static final String SIZE_AUTO = "auto";
 	public static final String URL_APP_PREFIX = "app://";
 	public static final String URL_APP_SCHEME = "app";
+	public static final String URL_APP_JS = "app://app.js";
 }

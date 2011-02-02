@@ -46,6 +46,7 @@ public class TiContext implements TiEvaluator, ErrorReporter
 
 	private TiUrl baseUrl;
 	private String currentUrl;
+	private boolean launchContext;
 	private boolean serviceContext; // Contexts created for Ti services won't have associated activities.
 
 	private WeakReference<Activity> weakActivity;
@@ -71,7 +72,11 @@ public class TiContext implements TiEvaluator, ErrorReporter
 	public TiContext(Activity activity, String baseUrl)
 	{
 		this.mainThreadId = Looper.getMainLooper().getThread().getId();
-		this.tiApp = (TiApplication) activity.getApplication();
+		if (activity != null) {
+			this.tiApp = (TiApplication) activity.getApplication();
+		} else {
+			this.tiApp = TiApplication.getInstance();
+		}
 		this.weakActivity = new WeakReference<Activity>(activity);
 		lifecycleListeners = new TiWeakList<OnLifecycleEvent>(true);
 		if (baseUrl == null) {
@@ -123,6 +128,11 @@ public class TiContext implements TiEvaluator, ErrorReporter
 
 	public void setActivity(Activity activity)
 	{
+		if (weakActivity == null || weakActivity.get() == null) {
+			if (activity instanceof TiActivity) {
+				((TiActivity)activity).addTiContext(this);
+			}
+		}
 		weakActivity = new WeakReference<Activity>(activity);
 	}
 
@@ -351,12 +361,22 @@ public class TiContext implements TiEvaluator, ErrorReporter
 		return serviceContext;
 	}
 
-	public void setIsServiceContext(boolean value)
+	public void setServiceContext(boolean value)
 	{
 		serviceContext = true;
 		if (value && serviceLifecycleListeners == null ) {
 			serviceLifecycleListeners = new TiWeakList<OnServiceLifecycleEvent>(true);
 		}
+	}
+
+	public boolean isLaunchContext()
+	{
+		return launchContext;
+	}
+
+	public void setLaunchContext(boolean launchContext)
+	{
+		this.launchContext = launchContext;
 	}
 
 	public ContextWrapper getAndroidContext()

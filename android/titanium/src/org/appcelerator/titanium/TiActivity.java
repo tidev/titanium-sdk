@@ -10,34 +10,33 @@ import java.lang.ref.WeakReference;
 
 import org.appcelerator.titanium.util.TiWeakList;
 
-public class TiActivity extends TiBaseActivity {
+public class TiActivity extends TiBaseActivity
+{
 	protected TiWeakList<TiContext> contexts;
 
-	public TiActivity() {
+	public TiActivity()
+	{
 		super();
 		contexts = new TiWeakList<TiContext>();
 	}
-	
-	public void addTiContext(TiContext context) {
+
+	public void addTiContext(TiContext context)
+	{
 		if (!contexts.contains(context)) {
 			contexts.add(new WeakReference<TiContext>(context));
 		}
 	}
 
-	public void removeTiContext(TiContext context) {
+	public void removeTiContext(TiContext context)
+	{
 		if (contexts.contains(context)) {
 			contexts.remove(context);
 		}
 	}
 
 	@Override
-	public boolean hasTiContext()
+	protected void onPause()
 	{
-		return contexts.size() > 0;
-	}
-
-	@Override
-	protected void onPause() {
 		super.onPause();
 		for (TiContext context : contexts.nonNull()) {
 			context.fireLifecycleEvent(this, TiContext.LIFECYCLE_ON_PAUSE);
@@ -45,7 +44,8 @@ public class TiActivity extends TiBaseActivity {
 	}
 
 	@Override
-	protected void onResume() {
+	protected void onResume()
+	{
 		super.onResume();
 		for (TiContext context : contexts.nonNull()) {
 			context.fireLifecycleEvent(this, TiContext.LIFECYCLE_ON_RESUME);
@@ -53,7 +53,8 @@ public class TiActivity extends TiBaseActivity {
 	}
 
 	@Override
-	protected void onStart() {
+	protected void onStart()
+	{
 		super.onStart();
 		for (TiContext context : contexts.nonNull()) {
 			context.fireLifecycleEvent(this, TiContext.LIFECYCLE_ON_START);
@@ -61,7 +62,8 @@ public class TiActivity extends TiBaseActivity {
 	}
 
 	@Override
-	protected void onStop() {
+	protected void onStop()
+	{
 		super.onStop();
 		for (TiContext context : contexts.nonNull()) {
 			context.fireLifecycleEvent(this, TiContext.LIFECYCLE_ON_STOP);
@@ -69,7 +71,8 @@ public class TiActivity extends TiBaseActivity {
 	}
 
 	@Override
-	protected void onDestroy() {
+	protected void onDestroy()
+	{
 		for (TiContext context : contexts.nonNull()) {
 			context.fireLifecycleEvent(this, TiContext.LIFECYCLE_ON_DESTROY);
 			context.release();
