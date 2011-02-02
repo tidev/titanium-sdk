@@ -42,6 +42,20 @@
 	[super dealloc];
 }
 
+-(void)prepareForReuse
+{
+	[super prepareForReuse];
+	
+	// TODO: HACK: In the case of abnormally large table view cells, we have to reset the size.
+	// This is because the view drawing subsystem takes the cell frame to be the sandbox bounds when drawing views,
+	// and if its frame is too big... the view system allocates way too much memory/pixels and doesn't appear to let
+	// them go.
+
+	// Until we can properly revisit this... just size the cell to 320x44.  The standard size.
+	CGRect oldFrame = [[self contentView] frame];
+	[[self contentView] setFrame:CGRectMake(oldFrame.origin.x, oldFrame.origin.y, 320, 44)];
+}
+
 - (UIView *)hitTest:(CGPoint) point withEvent:(UIEvent *)event 
 {
 	hitPoint = point;
@@ -2033,15 +2047,9 @@ if(ourTableView != tableview)	\
 {
 	if (decelerate==NO)
 	{
-		//Treat this the same as animated.
-		[self scrollViewDidEndDecelerating:scrollView];
+		// resume image loader when we're done scrolling
+		[[ImageLoader sharedLoader] resume];
 	}
-}
-
-- (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView 
-{
-	// resume image loader when we're done scrolling
-	[[ImageLoader sharedLoader] resume];
 	if ([self.proxy _hasListeners:@"scrollEnd"])
 	{
 		NSMutableDictionary *event = [NSMutableDictionary dictionary];
@@ -2050,6 +2058,12 @@ if(ourTableView != tableview)	\
 		[event setObject:[TiUtils sizeToDictionary:tableview.bounds.size] forKey:@"size"];
 		[self.proxy fireEvent:@"scrollEnd" withObject:event];
 	}
+}
+
+- (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView 
+{
+	// resume image loader when we're done scrolling
+	[[ImageLoader sharedLoader] resume];
 }
 
 #pragma mark Search Display Controller Delegates

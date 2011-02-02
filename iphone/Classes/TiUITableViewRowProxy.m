@@ -637,7 +637,9 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 		
 		for (TiViewProxy *proxy in self.children)
 		{
-			[proxy setSandboxBounds:rect];
+			if (!CGRectEqualToRect([proxy sandboxBounds], rect)) {
+				[proxy setSandboxBounds:rect];
+			}
 			[proxy windowWillOpen];
 			[proxy setReproxying:YES];
 			TiUIView *uiview = [proxy view];
