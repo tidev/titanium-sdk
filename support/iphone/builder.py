@@ -406,6 +406,7 @@ def main(args):
 		# pluck those out here
 		if command == 'distribute':
 			iphone_version = check_iphone_sdk(iphone_version)
+			link_version = iphone_version
 			appuuid = dequote(args[6].decode("utf-8"))
 			dist_name = dequote(args[7].decode("utf-8"))
 			output_dir = os.path.expanduser(dequote(args[8].decode("utf-8")))
@@ -413,6 +414,7 @@ def main(args):
 				devicefamily = dequote(args[9].decode("utf-8"))
 			deploytype = 'production'
 		elif command == 'simulator':
+			link_version = check_iphone_sdk(iphone_version)
 			deploytype = 'development'
 			debug = True
 			simulator = True
@@ -427,6 +429,7 @@ def main(args):
 				simtype = devicefamily
 		elif command == 'install':
 			iphone_version = check_iphone_sdk(iphone_version)
+			link_version = iphone_version
 			appuuid = dequote(args[6].decode("utf-8"))
 			dist_name = dequote(args[7].decode("utf-8"))
 			if argc > 8:
@@ -997,7 +1000,7 @@ def main(args):
 				if command == 'simulator':
 
 					if force_rebuild or force_xcode or not os.path.exists(binary):
-						execute_xcode("iphonesimulator%s" % iphone_version,["GCC_PREPROCESSOR_DEFINITIONS=__LOG__ID__=%s DEPLOYTYPE=development TI_DEVELOPMENT=1 DEBUG=1 TI_VERSION=%s" % (log_id,sdk_version)],False)
+						execute_xcode("iphonesimulator%s" % link_version,["GCC_PREPROCESSOR_DEFINITIONS=__LOG__ID__=%s DEPLOYTYPE=development TI_DEVELOPMENT=1 DEBUG=1 TI_VERSION=%s" % (log_id,sdk_version)],False)
 
 					# first make sure it's not running
 					kill_simulator()
