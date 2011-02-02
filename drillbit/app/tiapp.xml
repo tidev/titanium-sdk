@@ -11,10 +11,10 @@
 <id>initial</id>
 <title>Titanium Unit Test Driver (aka Drillbit)</title>
 <url>app://index.html</url>
-<width>800</width>
+<width>950</width>
 <max-width>3000</max-width>
 <min-width>0</min-width>
-<height>600</height>
+<height>768</height>
 <max-height>3000</max-height>
 <min-height>0</min-height>
 <fullscreen>false</fullscreen>

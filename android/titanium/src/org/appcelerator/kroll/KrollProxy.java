@@ -25,6 +25,7 @@ import org.mozilla.javascript.Scriptable;
 
 import android.app.Activity;
 import android.os.Handler;
+import android.os.Looper;
 import android.os.Message;
 
 @Kroll.proxy
@@ -54,7 +55,6 @@ public class KrollProxy
 	protected TiContext context, creatingContext;
 
 	protected Handler uiHandler;
-	protected CountDownLatch waitForHandler;
 	protected String proxyId;
 	protected KrollProxyListener modelListener;
 	protected KrollEventManager eventManager;
@@ -79,13 +79,8 @@ public class KrollProxy
 		}
 		this.proxyId = PROXY_ID_PREFIX + proxyCounter.incrementAndGet();
 
-		final KrollProxy me = this;
-		waitForHandler = new CountDownLatch(1);
-
-		if (context.isUIThread()) {
-			uiHandler = new Handler(me);
-			waitForHandler.countDown();
-		} else {
+		uiHandler = new Handler(Looper.getMainLooper(), this);
+		if (!context.isUIThread()) {
 			Activity activity = context.getActivity();
 			if ((activity == null || activity.isFinishing()) && !context.isServiceContext()) {
 				if (DBG) {
@@ -93,15 +88,6 @@ public class KrollProxy
 				}
 				return;
 			}
-			activity.runOnUiThread(new Runnable() {
-				public void run() {
-					if (DBG) {
-						Log.i(TAG, "Creating handler on UI thread for Proxy");
-					}
-					uiHandler = new Handler(me);
-					waitForHandler.countDown();
-				}
-			});
 		}
 	}
 
@@ -522,11 +508,6 @@ public class KrollProxy
 
 	public Handler getUIHandler()
 	{
-		try {
-			waitForHandler.await();
-		} catch (InterruptedException e) {
-			// ignore
-		}
 		return uiHandler;
 	}
 
