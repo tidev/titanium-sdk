@@ -55,7 +55,7 @@ public class TiUITimeSpinner extends TiUIView
 			}			
 		}		
 		
-		FormatNumericWheelAdapter minutes = new FormatNumericWheelAdapter(0, 59, formatter, 8);
+		FormatNumericWheelAdapter minutes = new FormatNumericWheelAdapter(0, 59, formatter, 8, minuteInterval);
 		hoursWheel = new WheelView(activity);
 		minutesWheel = new WheelView(activity);
 		hoursWheel.setTextSize(20);
