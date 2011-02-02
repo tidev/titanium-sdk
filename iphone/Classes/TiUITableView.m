@@ -2047,15 +2047,9 @@ if(ourTableView != tableview)	\
 {
 	if (decelerate==NO)
 	{
-		//Treat this the same as animated.
-		[self scrollViewDidEndDecelerating:scrollView];
+		// resume image loader when we're done scrolling
+		[[ImageLoader sharedLoader] resume];
 	}
-}
-
-- (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView 
-{
-	// resume image loader when we're done scrolling
-	[[ImageLoader sharedLoader] resume];
 	if ([self.proxy _hasListeners:@"scrollEnd"])
 	{
 		NSMutableDictionary *event = [NSMutableDictionary dictionary];
@@ -2064,6 +2058,12 @@ if(ourTableView != tableview)	\
 		[event setObject:[TiUtils sizeToDictionary:tableview.bounds.size] forKey:@"size"];
 		[self.proxy fireEvent:@"scrollEnd" withObject:event];
 	}
+}
+
+- (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView 
+{
+	// resume image loader when we're done scrolling
+	[[ImageLoader sharedLoader] resume];
 }
 
 #pragma mark Search Display Controller Delegates
