@@ -868,30 +868,30 @@ class Builder(object):
 					uses_sdk_node = node
 				elif node.nodeName == 'supports-screens':
 					supports_screens_node = node
-			if supports_screens_node or uses_sdk_node or ('manifest-attributes' in self.tiapp.android_manifest and self.tiapp.android_manifest['manifest-attributes'].length) or ('application-attributes' in self.tiapp.android_manifest and self.tiapp.android_manifest['application-attributes'].length):
-				dom = parseString(default_manifest_contents)
-				def replace_node(olddom, newnode):
-					nodes = olddom.getElementsByTagName(newnode.nodeName)
-					if nodes:
-						olddom.documentElement.replaceChild(newnode, nodes[0])
+		if supports_screens_node or uses_sdk_node or ('manifest-attributes' in self.tiapp.android_manifest and self.tiapp.android_manifest['manifest-attributes'].length) or ('application-attributes' in self.tiapp.android_manifest and self.tiapp.android_manifest['application-attributes'].length):
+			dom = parseString(default_manifest_contents)
+			def replace_node(olddom, newnode):
+				nodes = olddom.getElementsByTagName(newnode.nodeName)
+				if nodes:
+					olddom.documentElement.replaceChild(newnode, nodes[0])
 
-				if supports_screens_node:
-					replace_node(dom, supports_screens_node)
-				if uses_sdk_node:
-					replace_node(dom, uses_sdk_node)
+			if supports_screens_node:
+				replace_node(dom, supports_screens_node)
+			if uses_sdk_node:
+				replace_node(dom, uses_sdk_node)
 
-				def set_attrs(element, new_attr_set):
-					for k in new_attr_set.keys():
-						if element.hasAttribute(k):
-							element.removeAttribute(k)
-						element.setAttribute(k, new_attr_set.get(k).value)
+			def set_attrs(element, new_attr_set):
+				for k in new_attr_set.keys():
+					if element.hasAttribute(k):
+						element.removeAttribute(k)
+					element.setAttribute(k, new_attr_set.get(k).value)
 
-				if 'manifest-attributes' in self.tiapp.android_manifest and self.tiapp.android_manifest['manifest-attributes'].length:
-					set_attrs(dom.documentElement, self.tiapp.android_manifest['manifest-attributes'])
-				if 'application-attributes' in self.tiapp.android_manifest and self.tiapp.android_manifest['application-attributes'].length:
-					set_attrs(dom.getElementsByTagName('application')[0], self.tiapp.android_manifest['application-attributes'])
+			if 'manifest-attributes' in self.tiapp.android_manifest and self.tiapp.android_manifest['manifest-attributes'].length:
+				set_attrs(dom.documentElement, self.tiapp.android_manifest['manifest-attributes'])
+			if 'application-attributes' in self.tiapp.android_manifest and self.tiapp.android_manifest['application-attributes'].length:
+				set_attrs(dom.getElementsByTagName('application')[0], self.tiapp.android_manifest['application-attributes'])
 
-				default_manifest_contents = dom.toxml()
+			default_manifest_contents = dom.toxml()
 
 		if custom_manifest_contents:
 			custom_manifest_contents = fill_manifest(custom_manifest_contents)
@@ -1006,7 +1006,7 @@ class Builder(object):
 		debug("creating unsigned apk: " + unsigned_apk)
 		# copy existing resources into the APK
 		resources_zip = zipfile.ZipFile(resources_zip_file)
-		apk_zip = zipfile.ZipFile(unsigned_apk, 'w')
+		apk_zip = zipfile.ZipFile(unsigned_apk, 'w', zipfile.ZIP_DEFLATED)
 
 		def skip_jar_path(path):
 			return path.endswith('/') or \
@@ -1075,6 +1075,8 @@ class Builder(object):
 
 		output = run.run([self.jarsigner, '-storepass', self.keystore_pass, '-keystore', self.keystore, '-signedjar', app_apk, unsigned_apk, self.keystore_alias])
 		run.check_output_for_error(output, r'RuntimeException: (.*)', True)
+		run.check_output_for_error(output, r'^jarsigner: (.*)', True)
+
 		# TODO Document Exit message
 		#success = re.findall(r'RuntimeException: (.*)', output)
 		#if len(success) > 0:
@@ -1564,8 +1566,8 @@ if __name__ == "__main__":
 		else:
 			error("Unknown command: %s" % command)
 			usage()
-	except SystemExit:
-		pass
+	except SystemExit as n:
+		sys.exit(n)
 	except:
 		exctype, excvalue = sys.exc_info()[:2]
 		e = traceback.format_exc()

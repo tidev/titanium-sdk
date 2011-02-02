@@ -983,7 +983,7 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 					@"title", @"backgroundImage",
 					@"leftImage",@"hasDetail",@"hasCheck",@"hasChild",	
 					@"indentionLevel",@"selectionStyle",@"color",@"selectedColor",
-					@"height",@"width",
+					@"height",@"width",@"backgroundColor",
 					nil];
 	}
 	

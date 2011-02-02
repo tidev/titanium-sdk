@@ -305,8 +305,7 @@ public class TitaniumModule extends KrollModule implements TiContext.OnLifecycle
 		// 1. look for a TiPlus module first
 		// 2. then look for a cached module
 		// 3. then attempt to load from resources
-		TiContext ctx = invocation.getTiContext();
-		
+		TiContext ctx = invocation.getTiContext().getRootActivity().getTiContext();
 		KrollModule module = requireNativeModule(ctx, path);
 		if (module != null) {
 			KrollModuleInfo info = module.getModuleInfo();

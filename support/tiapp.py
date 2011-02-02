@@ -146,6 +146,7 @@ class TiAppXML(object):
 					self.android_manifest['manifest'] = []
 				manifest = self.android_manifest['manifest']
 				manifest.append(child)
+			if node.attributes.length > 0:
 				self.android_manifest['manifest-attributes'] = node.attributes
 
 		def get_url_based_classname(url, appendage):
