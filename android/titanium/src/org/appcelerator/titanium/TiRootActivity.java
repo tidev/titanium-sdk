@@ -22,8 +22,6 @@ public class TiRootActivity extends TiLaunchActivity
 	private static final String LCAT = "TiRootActivity";
 	private static final boolean DBG = TiConfig.LOGD;
 
-	protected TiContext tiContext;
-
 	@Override
 	public String getUrl()
 	{

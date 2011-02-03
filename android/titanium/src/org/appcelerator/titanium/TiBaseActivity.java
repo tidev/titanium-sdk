@@ -31,7 +31,6 @@ import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
@@ -54,15 +53,14 @@ public abstract class TiBaseActivity extends Activity
 	protected TiWindowProxy window;
 	protected ActivityProxy activityProxy;
 	protected boolean mustFireInitialFocus;
-	protected Handler handler;
 	protected TiWeakList<ConfigurationChangedListener> configChangedListeners = new TiWeakList<ConfigurationChangedListener>();
 	protected OrientationEventListener orientationListener;
 	protected int orientationDegrees;
 	protected int orientationOverride = -1;
 	protected TiMenuSupport menuHelper;
+	protected TiMessageQueue messageQueue;
 	protected Messenger messenger;
 	protected int msgActivityCreatedId = -1;
-	protected int msgWindowCreatedId = -1;
 	protected int msgId = -1;
 
 	public static interface ConfigurationChangedListener
@@ -70,7 +68,8 @@ public abstract class TiBaseActivity extends Activity
 		public void onConfigurationChanged(TiBaseActivity activity, Configuration newConfig);
 	}
 
-	public TiApplication getTiApp() {
+	public TiApplication getTiApp()
+	{
 		return (TiApplication) getApplication();
 	}
 
@@ -224,7 +223,7 @@ public abstract class TiBaseActivity extends Activity
 		boolean modal = getIntentBoolean(TiC.PROPERTY_MODAL, false);
 		int softInputMode = getIntentInt(TiC.PROPERTY_WINDOW_SOFT_INPUT_MODE, -1);
 		boolean hasSoftInputMode = softInputMode != -1;
-
+		
 		if (!modal) {
 			setFullscreen(fullscreen);
 			setNavBarHidden(navBarHidden);
@@ -239,12 +238,18 @@ public abstract class TiBaseActivity extends Activity
 			}
 			getWindow().setSoftInputMode(softInputMode);
 		}
-		sendMessage(msgWindowCreatedId, true);
+
+		boolean useActivityWindow = getIntentBoolean(TiC.INTENT_PROPERTY_USE_ACTIVITY_WINDOW, false);
+		if (useActivityWindow) {
+			int windowId = getIntentInt(TiC.INTENT_PROPERTY_WINDOW_ID, -1);
+			TiActivityWindows.windowCreated(this, windowId);
+		}
 	}
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
+		messageQueue = TiMessageQueue.getMessageQueue();
 		if (DBG) {
 			Log.d(TAG, "Activity onCreate");
 		}
@@ -254,7 +259,6 @@ public abstract class TiBaseActivity extends Activity
 			if (intent.hasExtra(TiC.INTENT_PROPERTY_MESSENGER)) {
 				messenger = (Messenger) intent.getParcelableExtra(TiC.INTENT_PROPERTY_MESSENGER);
 				msgActivityCreatedId = intent.getIntExtra(TiC.INTENT_PROPERTY_MSG_ACTIVITY_CREATED_ID, -1);
-				msgWindowCreatedId = intent.getIntExtra(TiC.INTENT_PROPERTY_MSG_WINDOW_CREATED_ID, -1);
 				msgId = intent.getIntExtra(TiC.INTENT_PROPERTY_MSG_ID, -1);
 			}
 		}
@@ -278,47 +282,34 @@ public abstract class TiBaseActivity extends Activity
 
 		setContentView(layout);
 
-		handler = new Handler();
-		sendMessage(msgActivityCreatedId, false);
+		sendMessage(msgActivityCreatedId);
 		// for backwards compatibility
-		sendMessage(msgId, false);
+		sendMessage(msgId);
 	}
 
-	protected void sendMessage(final int msgId, final boolean sync)
+	protected void sendMessage(final int msgId)
 	{
 		if (messenger == null || msgId == -1) return;
-
-		if (!sync) {
-			// fire an async message on this thread's queue
-			// so we don't block onCreate() from returning
-			handler.post(new Runnable() {
-				@Override
-				public void run() {
-					handleSendMessage(msgId, sync);
-				}
-			});
-		} else {
-			handleSendMessage(msgId, sync);
-		}
+		// fire an async message on this thread's queue
+		// so we don't block onCreate() from returning
+		messageQueue.post(new Runnable() {
+			@Override
+			public void run() {
+				handleSendMessage(msgId);
+			}
+		});
 	}
 
-	protected void handleSendMessage(int msgId, boolean sync)
+	protected void handleSendMessage(int msgId)
 	{
 		try {
-			Object arg = this;
-			if (sync) {
-				arg = new AsyncResult(this);
-			}
-			Message msg = handler.obtainMessage(msgId, arg);
+			Message msg = messageQueue.getHandler().obtainMessage(msgId, this);
 			messenger.send(msg);
-			if (sync) {
-				((AsyncResult) arg).getResult();
-			}
 		} catch (RemoteException e) {
-			Log.e(TAG, "Unable to message creator. finishing.");
+			Log.e(TAG, "Unable to message creator. finishing.", e);
 			finish();
 		} catch (RuntimeException e) {
-			Log.e(TAG, "Unable to message creator. finishing.");
+			Log.e(TAG, "Unable to message creator. finishing.", e);
 			finish();
 		}
 	}
@@ -545,8 +536,6 @@ public abstract class TiBaseActivity extends Activity
 		}
 	}
 
-	
-
 	@Override
 	protected void onResume()
 	{
@@ -629,7 +618,6 @@ public abstract class TiBaseActivity extends Activity
 			activityProxy.release();
 			activityProxy = null;
 		}
-		handler = null;
 	}
 
 	protected boolean shouldFinishRootActivity()

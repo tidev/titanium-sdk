@@ -6,6 +6,8 @@
  */
 package org.appcelerator.kroll;
 
+import org.appcelerator.titanium.TiBaseActivity;
+import org.appcelerator.titanium.TiMessageQueue;
 import org.appcelerator.titanium.util.AsyncResult;
 import org.appcelerator.titanium.util.Log;
 import org.mozilla.javascript.Context;
@@ -42,7 +44,6 @@ public abstract class KrollDynamicProperty implements KrollProperty {
 					return null;
 				}
 			} else {
-				Activity activity = invocation.getTiContext().getActivity();
 				if (invocation.getTiContext().isUIThread()) {
 					if (method.equals(GET)) {
 						return dynamicGet(invocation);
@@ -55,8 +56,7 @@ public abstract class KrollDynamicProperty implements KrollProperty {
 					final Object fValue = value;
 					final String fMethod = method;
 					final AsyncResult result = new AsyncResult();
-					
-					activity.runOnUiThread(new Runnable() {
+					TiMessageQueue.getMainMessageQueue().post(new Runnable() {
 						public void run() {
 							try {
 								if (fMethod.equals(GET)) {
@@ -71,7 +71,6 @@ public abstract class KrollDynamicProperty implements KrollProperty {
 							}
 						}
 					});
-					
 					return result.getResult();
 				}
 			}

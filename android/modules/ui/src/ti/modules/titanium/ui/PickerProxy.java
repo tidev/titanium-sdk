@@ -179,10 +179,7 @@ public class PickerProxy extends TiViewProxy implements PickerColumnListener
 		if (getTiContext().isUIThread() || peekView() == null) {
 			handleRemoveColumn(child);
 		} else {
-			AsyncResult result = new AsyncResult(child);
-			Message msg = getUIHandler().obtainMessage(MSG_REMOVE, result);
-			msg.sendToTarget();
-			result.getResult();
+			sendBlockingUiMessage(MSG_REMOVE, child);
 		}
 	}
 
@@ -216,10 +213,7 @@ public class PickerProxy extends TiViewProxy implements PickerColumnListener
 		if (getTiContext().isUIThread() || peekView() == null) {
 			handleAddObject(child);
 		} else {
-			AsyncResult result = new AsyncResult(child);
-			Message msg = getUIHandler().obtainMessage(MSG_ADD, result);
-			msg.sendToTarget();
-			result.getResult();
+			sendBlockingUiMessage(MSG_ADD, child);
 		}
 	}
 
@@ -316,16 +310,13 @@ public class PickerProxy extends TiViewProxy implements PickerColumnListener
 
 		// View exists
 		if (getTiContext().isUIThread()) {
-			handleSelectRow(column, row, animated);			
+			handleSelectRow(column, row, animated);
 		} else {
 			KrollDict dict = new KrollDict();
 			dict.put("column", new Integer(column));
 			dict.put("row", new Integer(row));
 			dict.put("animated", new Boolean(animated));
-			AsyncResult result = new AsyncResult(dict);
-			Message msg = getUIHandler().obtainMessage(MSG_SELECT_ROW, result);
-			msg.sendToTarget();
-			result.getResult();
+			sendBlockingUiMessage(MSG_SELECT_ROW, dict);
 		}
 	}
 
@@ -373,10 +364,7 @@ public class PickerProxy extends TiViewProxy implements PickerColumnListener
 		if (getTiContext().isUIThread() || peekView() == null) {
 			handleSetColumns(passedColumns);
 		} else {
-			AsyncResult result = new AsyncResult(passedColumns);
-			Message msg = getUIHandler().obtainMessage(MSG_SET_COLUMNS, result);
-			msg.sendToTarget();
-			result.getResult();
+			sendBlockingUiMessage(MSG_SET_COLUMNS, passedColumns);
 		}
 	}
 

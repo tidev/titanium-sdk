@@ -128,10 +128,8 @@ public class TiContext implements TiEvaluator, ErrorReporter
 
 	public void setActivity(Activity activity)
 	{
-		if (weakActivity == null || weakActivity.get() == null) {
-			if (activity instanceof TiActivity) {
-				((TiActivity)activity).addTiContext(this);
-			}
+		if (activity instanceof TiActivity) {
+			((TiActivity)activity).addTiContext(this);
 		}
 		weakActivity = new WeakReference<Activity>(activity);
 	}
@@ -226,7 +224,10 @@ public class TiContext implements TiEvaluator, ErrorReporter
 	@Override
 	public Scriptable getScope()
 	{
-		return getJSContext().getScope();
+		if (tiEvaluator != null) {
+			return tiEvaluator.getScope();
+		}
+		return null;
 	}
 
 	public void addOnLifecycleEventListener(OnLifecycleEvent listener)

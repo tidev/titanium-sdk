@@ -53,7 +53,7 @@ public class TiWeakList<T> extends ArrayList<WeakReference<T>> {
 				return true;
 			}
 		}
-		return true;
+		return false;
 	}
 
 	@Override

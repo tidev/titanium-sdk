@@ -11,8 +11,12 @@ import java.util.ArrayList;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.annotations.Kroll;
+import org.appcelerator.titanium.TiActivityWindow;
+import org.appcelerator.titanium.TiActivityWindows;
+import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
+import org.appcelerator.titanium.TiMessageQueue;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.proxy.TiWindowProxy;
 import org.appcelerator.titanium.util.Log;
@@ -32,7 +36,6 @@ public class WindowProxy extends TiWindowProxy
 
 	private static final int MSG_FIRST_ID = TiWindowProxy.MSG_LAST_ID + 1;
 	private static final int MSG_FINISH_OPEN = MSG_FIRST_ID + 100;
-	private static final int MSG_TAB_OPEN = MSG_FIRST_ID + 101;
 	protected static final int MSG_LAST_ID = MSG_FIRST_ID + 999;
 
 	ArrayList<TiViewProxy> views;
@@ -69,13 +72,6 @@ public class WindowProxy extends TiWindowProxy
 				fireEvent(TiC.EVENT_OPEN, null);
 				return true;
 			}
-			case MSG_TAB_OPEN : {
-				view = new TiUIWindow(this, (Activity) msg.obj);
-				realizeViews(null, view);
-				opened = true;
-				fireEvent(TiC.EVENT_OPEN, null);
-				return true;
-			}
 			default : {
 				return super.handleMessage(msg);
 			}
@@ -93,9 +89,19 @@ public class WindowProxy extends TiWindowProxy
 	}
 
 	public void fillIntentForTab(Intent intent) {
-		Messenger messenger = new Messenger(getUIHandler());
-		intent.putExtra(TiC.INTENT_PROPERTY_MESSENGER, messenger);
-		intent.putExtra(TiC.INTENT_PROPERTY_MSG_ID, MSG_TAB_OPEN);
+		intent.putExtra(TiC.INTENT_PROPERTY_USE_ACTIVITY_WINDOW, true);
+		int windowId = TiActivityWindows.addWindow(new TiActivityWindow() {
+			@Override
+			public void windowCreated(TiBaseActivity activity)
+			{
+				view = new TiUIWindow(WindowProxy.this, activity);
+				realizeViews(null, view);
+				opened = true;
+				fireEvent(TiC.EVENT_OPEN, null);
+				TiMessageQueue.getMainMessageQueue().stopBlocking();
+			}
+		});
+		intent.putExtra(TiC.INTENT_PROPERTY_WINDOW_ID, windowId);
 	}
 
 	@Override

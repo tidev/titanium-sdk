@@ -12,14 +12,16 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.titanium.TiActivity;
+import org.appcelerator.titanium.TiActivityWindow;
+import org.appcelerator.titanium.TiActivityWindows;
 import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
+import org.appcelerator.titanium.TiMessageQueue;
 import org.appcelerator.titanium.TiModalActivity;
 import org.appcelerator.titanium.proxy.ActivityProxy;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.proxy.TiWindowProxy;
-import org.appcelerator.titanium.util.AsyncResult;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiBindingHelper;
 import org.appcelerator.titanium.util.TiConfig;
@@ -38,6 +40,7 @@ import android.content.Intent;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
+import android.os.Looper;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
@@ -47,14 +50,13 @@ import android.view.ViewGroup.LayoutParams;
 import android.view.Window;
 
 public class TiUIWindow extends TiUIView
-	implements Handler.Callback
+	implements Handler.Callback, TiActivityWindow
 {
 	private static final String LCAT = "TiUIWindow";
 	private static final boolean DBG = TiConfig.LOGD;
 
 	private static final int WINDOW_ZINDEX = Integer.MAX_VALUE - 2; // Arbitrary number;
 	private static final int MSG_ACTIVITY_CREATED = 1000;
-	private static final int MSG_WINDOW_CREATED = 1001;
 	private static final int MSG_ANIMATE = 100;
 
 	// Intent.FLAG_ACTIVITY_NO_ANIMATION not available in API 4
@@ -69,6 +71,7 @@ public class TiUIWindow extends TiUIView
 	protected Activity windowActivity;
 	protected TiContext windowContext;
 	protected String windowUrl;
+	protected int windowId;
 	protected TiCompositeLayout lightWindow;
 
 	protected boolean lightWeight, newActivity, animate;
@@ -91,7 +94,7 @@ public class TiUIWindow extends TiUIView
 		}
 		this.messenger = messenger;
 		this.messageId = messageId;
-		this.handler = new Handler(this);
+		this.handler = new Handler(Looper.getMainLooper(), this);
 
 		this.lastWidth = LayoutParams.FILL_PARENT;
 		this.lastHeight = LayoutParams.FILL_PARENT;
@@ -128,7 +131,7 @@ public class TiUIWindow extends TiUIView
 		windowActivity = activity;
 		lightWeight = false;
 
-		this.handler = new Handler(this);
+		this.handler = new Handler(Looper.getMainLooper(), this);
 		initContext();
 		handleWindowCreated();
 		handleBooted();
@@ -138,6 +141,9 @@ public class TiUIWindow extends TiUIView
 	{
 		// if url, create a new context.
 		if (proxy.hasProperty(TiC.PROPERTY_URL)) {
+			if (newActivity) {
+				windowId = TiActivityWindows.addWindow(this);
+			}
 			String url = TiConvert.toString(proxy.getProperty(TiC.PROPERTY_URL));
 			String baseUrl = proxy.getTiContext().getBaseUrl();
 			TiUrl tiUrl = TiUrl.normalizeWindowUrl(baseUrl, url);
@@ -152,12 +158,20 @@ public class TiUIWindow extends TiUIView
 			windowContext = TiContext.createTiContext(activity, tiUrl.baseUrl);
 
 			ActivityProxy activityProxy = ((TiWindowProxy) proxy).getActivity(windowContext);
+			if (windowActivity != null) {
+				bindWindowActivity(windowContext, windowActivity);
+			}
 			TiBindingHelper.bindCurrentWindowAndActivity(windowContext, proxy, activityProxy);
 		} else if (!lightWeight) {
 			windowContext = TiContext.createTiContext(windowActivity, proxy.getTiContext().getBaseUrl());
-			proxy.switchContext(windowContext);
-
-			ActivityProxy activityProxy = bindWindowActivity(windowContext, windowActivity);
+			ActivityProxy activityProxy = ((TiWindowProxy) proxy).getActivity(windowContext);
+			if (windowActivity != null) {
+				proxy.switchContext(windowContext);
+				bindWindowActivity(windowContext, windowActivity);
+			}
+			if (newActivity) {
+				windowId = TiActivityWindows.addWindow(this);
+			}
 			TiBindingHelper.bindCurrentWindowAndActivity(windowContext, proxy, activityProxy);
 			bindProxies();
 		} else {
@@ -183,19 +197,17 @@ public class TiUIWindow extends TiUIView
 		}
 	}
 
+	public void windowCreated(TiBaseActivity activity)
+	{
+		windowActivity = activity;
+		windowContext.setActivity(windowActivity);
+		bindWindowActivity(windowContext, windowActivity);
+		handleWindowCreated();
+		TiMessageQueue.getMainMessageQueue().stopBlocking();
+	}
+	
 	protected void handleWindowCreated()
 	{
-		//TODO unique key per window, params for intent
-		activityKey = WINDOW_ID_PREFIX + idGenerator.incrementAndGet();
-		View layout = getLayout();
-		layout.setClickable(true);
-		registerForTouch(layout);
-		layout.setOnFocusChangeListener(new OnFocusChangeListener() {
-			public void onFocusChange(View view, boolean hasFocus) {
-				proxy.fireEvent(hasFocus ? TiC.EVENT_FOCUS : TiC.EVENT_BLUR, new KrollDict());
-			}
-		});
-
 		if (windowUrl != null) {
 			try {
 				windowContext.evalFile(windowUrl);
@@ -209,6 +221,9 @@ public class TiUIWindow extends TiUIView
 	{
 		ActivityProxy activityProxy = ((TiWindowProxy) proxy).getActivity(tiContext);
 		activityProxy.setActivity(tiContext, activity);
+		if (activity instanceof TiBaseActivity) {
+			((TiBaseActivity)activity).setActivityProxy(activityProxy);
+		}
 		return activityProxy;
 	}
 
@@ -224,6 +239,17 @@ public class TiUIWindow extends TiUIView
 
 	protected void handleBooted()
 	{
+		//TODO unique key per window, params for intent
+		activityKey = WINDOW_ID_PREFIX + idGenerator.incrementAndGet();
+		View layout = getLayout();
+		layout.setClickable(true);
+		registerForTouch(layout);
+		layout.setOnFocusChangeListener(new OnFocusChangeListener() {
+			public void onFocusChange(View view, boolean hasFocus) {
+				proxy.fireEvent(hasFocus ? TiC.EVENT_FOCUS : TiC.EVENT_BLUR, new KrollDict());
+			}
+		});
+
 		if (messenger != null) {
 			Message msg = Message.obtain();
 			msg.what = messageId;
@@ -244,13 +270,6 @@ public class TiUIWindow extends TiUIView
 			}
 			handler.obtainMessage(MSG_ANIMATE).sendToTarget();
 		} else if (windowActivity != null && windowActivity instanceof TiActivity) {
-			View layout = getLayout();
-			if (layout == null) {
-				if (DBG) {
-					Log.w(LCAT, "Layout for booted window is gone. User maybe backed out quickly.");
-				}
-				return;
-			}
 			layout.requestFocus();
 			((TiActivity) windowActivity).fireInitialFocus(); 
 		}
@@ -303,21 +322,13 @@ public class TiUIWindow extends TiUIView
 	public boolean handleMessage(Message msg)
 	{
 		switch (msg.what) {
-			case MSG_WINDOW_CREATED :
-				AsyncResult result = (AsyncResult) msg.obj;
-				try {
-					handleWindowCreated();
-				} catch (Exception e) {
-					Log.e(LCAT, "Exception occurred after window created", e);
-				}
-				result.setResult(null);
-				return true;
 			case MSG_ACTIVITY_CREATED :
 				if (DBG) {
 					Log.d(LCAT, "Received Activity creation message");
 				}
-				windowActivity = (Activity) msg.obj;
-				windowContext.setActivity(windowActivity);
+				if (windowActivity == null) {
+					windowActivity = (Activity) msg.obj;
+				}
 				proxy.setModelListener(this);
 				handleBooted();
 				return true;
@@ -525,7 +536,8 @@ public class TiUIWindow extends TiUIView
 		Messenger messenger = new Messenger(handler);
 		intent.putExtra(TiC.INTENT_PROPERTY_MESSENGER, messenger);
 		intent.putExtra(TiC.INTENT_PROPERTY_MSG_ACTIVITY_CREATED_ID, MSG_ACTIVITY_CREATED);
-		intent.putExtra(TiC.INTENT_PROPERTY_MSG_WINDOW_CREATED_ID, MSG_WINDOW_CREATED);
+		intent.putExtra(TiC.INTENT_PROPERTY_USE_ACTIVITY_WINDOW, true);
+		intent.putExtra(TiC.INTENT_PROPERTY_WINDOW_ID, windowId);
 		return intent;
 	}
 

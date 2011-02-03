@@ -60,7 +60,7 @@ public class ImageViewProxy extends ViewProxy {
 		return getImageView().isReverse();
 	}
 	
-	@Kroll.setProperty @Kroll.method
+	@Kroll.setProperty(runOnUiThread=true) @Kroll.method(runOnUiThread=true)
 	public void setReverse(boolean reverse) {
 		getImageView().setReverse(reverse);
 	}

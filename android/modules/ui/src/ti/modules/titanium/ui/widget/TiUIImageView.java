@@ -6,7 +6,6 @@
  */
 package ti.modules.titanium.ui.widget;
 
-import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -41,6 +40,7 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
+import android.os.Looper;
 import android.os.Message;
 import android.view.View;
 import android.view.ViewParent;
@@ -53,6 +53,7 @@ public class TiUIImageView extends TiUIView
 	private static final boolean DBG = TiConfig.LOGD;
 
 	private static final int FRAME_QUEUE_SIZE = 5;
+	public static final int INFINITE = 0;
 
 	private Timer timer;
 	private Animator animator;
@@ -137,7 +138,7 @@ public class TiUIImageView extends TiUIView
 		return null;
 	}
 
-	private Handler handler = new Handler(this);
+	private Handler handler = new Handler(Looper.getMainLooper(), this);
 	private static final int SET_IMAGE = 10001;
 
 	@Override
@@ -157,11 +158,8 @@ public class TiUIImageView extends TiUIView
 	{
 		if (bitmap != null) {
 			if (!proxy.getTiContext().isUIThread()) {
-				Message msg = Message.obtain(handler, SET_IMAGE);
 				AsyncResult result = new AsyncResult(bitmap);
-				msg.obj = result;
-				msg.sendToTarget();
-				result.getResult();
+				proxy.sendBlockingUiMessage(handler.obtainMessage(SET_IMAGE, result), result);
 			} else {
 				TiImageView view = getView();
 				if (view != null) {
@@ -183,21 +181,12 @@ public class TiUIImageView extends TiUIView
 
 	private class Loader implements Runnable
 	{
-		public static final int INFINITE = 0;
-
 		private ArrayBlockingQueue<BitmapWithIndex> bitmapQueue;
 		private int repeatIndex = 0;
 
 		public Loader()
 		{
 			bitmapQueue = new ArrayBlockingQueue<BitmapWithIndex>(FRAME_QUEUE_SIZE);
-		}
-
-		private int getRepeatCount() {
-			if (proxy.hasProperty(TiC.PROPERTY_REPEAT_COUNT)) {
-				return TiConvert.toInt(proxy.getProperty(TiC.PROPERTY_REPEAT_COUNT));
-			}
-			return INFINITE;
 		}
 
 		private boolean isRepeating()
@@ -311,6 +300,13 @@ public class TiUIImageView extends TiUIView
 		return 100;
 	}
 
+	public int getRepeatCount() {
+		if (proxy.hasProperty(TiC.PROPERTY_REPEAT_COUNT)) {
+			return TiConvert.toInt(proxy.getProperty(TiC.PROPERTY_REPEAT_COUNT));
+		}
+		return INFINITE;
+	}
+
 	private void fireLoad(String state)
 	{
 		KrollDict data = new KrollDict();
@@ -373,12 +369,11 @@ public class TiUIImageView extends TiUIView
 			handleStart();
 		}
 	}
-
 	public void handleStart()
 	{
 		if (animator == null) {
 			timer = new Timer();
-			
+
 			if (loader == null) {
 				loader = new Loader();
 				loaderThread = new Thread(loader);
@@ -604,30 +599,36 @@ public class TiUIImageView extends TiUIView
 		}
 	}
 
-
-	public void onDestroy(Activity activity) {
+	public void onDestroy(Activity activity)
+	{
 	}
 
-	public void onPause(Activity activity) {
+	public void onPause(Activity activity)
+	{
 		pause();
 	}
 
-	public void onResume(Activity activity) {
+	public void onResume(Activity activity)
+	{
 		resume();
 	}
 
-	public void onStart(Activity activity) {
+	public void onStart(Activity activity)
+	{
 	}
 
-	public void onStop(Activity activity) {
+	public void onStop(Activity activity)
+	{
 		stop();
 	}
 
-	public boolean isAnimating() {
+	public boolean isAnimating()
+	{
 		return animating.get() && !paused;
 	}
 
-	public boolean isReverse() {
+	public boolean isReverse()
+	{
 		return reverse;
 	}
 
@@ -650,16 +651,18 @@ public class TiUIImageView extends TiUIView
 	}
 	
 	@Override
-	public void setOpacity(float opacity) {
+	public void setOpacity(float opacity)
+	{
 		TiImageView view = getView();
 		if (view != null) {
 			view.setColorFilter(TiUIHelper.createColorFilterForOpacity(opacity));
 			super.setOpacity(opacity);
 		}
 	}
-	
+
 	@Override
-	public void clearOpacity(View view) {
+	public void clearOpacity(View view)
+	{
 		super.clearOpacity(view);
 		TiImageView iview = getView();
 		if (iview != null) {

@@ -276,10 +276,7 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 
 	@Kroll.getProperty @Kroll.method
 	public KrollDict getSize() {
-		AsyncResult result = new AsyncResult(getTiContext().getActivity());
-		Message msg = getUIHandler().obtainMessage(MSG_GETSIZE, result);
-		msg.sendToTarget();
-		return (KrollDict) result.getResult();
+		return (KrollDict) sendBlockingUiMessage(MSG_GETSIZE, getTiContext().getActivity());
 	}
 	
 	@Kroll.getProperty @Kroll.method
@@ -314,10 +311,7 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 
 	@Kroll.getProperty @Kroll.method
 	public KrollDict getCenter() {
-		AsyncResult result = new AsyncResult(getTiContext().getActivity());
-		Message msg = getUIHandler().obtainMessage(MSG_GETCENTER, result);
-		msg.sendToTarget();
-		return (KrollDict) result.getResult();
+		return (KrollDict) sendBlockingUiMessage(MSG_GETCENTER, getTiContext().getActivity());
 	}
 
 	public void clearView() {
@@ -348,10 +342,7 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 			return handleGetView(activity);
 		}
 
-		AsyncResult result = new AsyncResult(activity);
-		Message msg = getUIHandler().obtainMessage(MSG_GETVIEW, result);
-		msg.sendToTarget();
-		return (TiUIView) result.getResult();
+		return (TiUIView) sendBlockingUiMessage(MSG_GETVIEW, activity);
 	}
 
 	protected TiUIView handleGetView(Activity activity) {
@@ -410,10 +401,7 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 				return;
 			}
 
-			AsyncResult result = new AsyncResult(child);
-			Message msg = getUIHandler().obtainMessage(MSG_ADD_CHILD, result);
-			msg.sendToTarget();
-			result.getResult(); // We don't care about the result, just synchronizing.
+			sendBlockingUiMessage(MSG_ADD_CHILD, child);
 		} else {
 			children.add(child);
 			child.parent = new WeakReference<TiViewProxy>(this);
@@ -440,10 +428,7 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 				return;
 			}
 
-			AsyncResult result = new AsyncResult(child);
-			Message msg = getUIHandler().obtainMessage(MSG_REMOVE_CHILD, result);
-			msg.sendToTarget();
-			result.getResult(); // We don't care about the result, just synchronizing.
+			sendBlockingUiMessage(MSG_REMOVE_CHILD, child);
 		} else {
 			if (children != null) {
 				children.remove(child);
@@ -575,11 +560,7 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 		if (getTiContext().isUIThread()) {
 			return handleToImage();
 		} else {
-			AsyncResult result = new AsyncResult(getTiContext().getActivity());
-			Message msg = getUIHandler().obtainMessage(MSG_TOIMAGE);
-			msg.obj = result;
-			msg.sendToTarget();
-			return (KrollDict) result.getResult();
+			return (KrollDict) sendBlockingUiMessage(MSG_TOIMAGE, getTiContext().getActivity());
 		}
 	}
 

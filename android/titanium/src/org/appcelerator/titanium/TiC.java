@@ -70,7 +70,8 @@ public class TiC {
 	public static final String INTENT_PROPERTY_MESSENGER = "messenger";
 	public static final String INTENT_PROPERTY_MSG_ACTIVITY_CREATED_ID = "msgActivityCreatedId";
 	public static final String INTENT_PROPERTY_MSG_ID = "messageId";
-	public static final String INTENT_PROPERTY_MSG_WINDOW_CREATED_ID = "msgWindowCreatedId";
+	public static final String INTENT_PROPERTY_USE_ACTIVITY_WINDOW = "useActivityWindow";
+	public static final String INTENT_PROPERTY_WINDOW_ID = "windowId";
 	public static final String LAYOUT_HORIZONTAL = "horizontal";
 	public static final String LAYOUT_VERTICAL = "vertical";
 	public static final String MSG_PROPERTY_EVENT_NAME = "eventName";
@@ -103,6 +104,7 @@ public class TiC {
 	public static final String PROPERTY_BACKGROUND_PREFIX = "background";
 	public static final String PROPERTY_BACKGROUND_SELECTED_COLOR = "backgroundSelectedColor";
 	public static final String PROPERTY_BACKGROUND_SELECTED_IMAGE = "backgroundSelectedImage";
+	public static final String PROPERTY_BASE_URL = "baseUrl";
 	public static final String PROPERTY_BORDER_COLOR = "borderColor";
 	public static final String PROPERTY_BORDER_PREFIX = "border";
 	public static final String PROPERTY_BORDER_RADIUS = "borderRadius";

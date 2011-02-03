@@ -118,11 +118,7 @@ public class TabGroupProxy extends TiWindowProxy
 			handleAddTab(tab);
 			return;
 		}
-
-		AsyncResult result = new AsyncResult(tab);
-		Message msg = getUIHandler().obtainMessage(MSG_ADD_TAB, result);
-		msg.sendToTarget();
-		result.getResult(); // Don't care about return, just synchronization.
+		sendBlockingUiMessage(MSG_ADD_TAB, tab);
 	}
 
 	private void handleAddTab(TabProxy tab)

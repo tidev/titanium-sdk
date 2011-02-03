@@ -8,9 +8,7 @@ package org.appcelerator.titanium;
 
 import java.io.IOException;
 import java.util.Set;
-import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 
 import org.appcelerator.titanium.proxy.ActivityProxy;
 import org.appcelerator.titanium.util.Log;
@@ -27,7 +25,6 @@ import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Message;
 
 /**
  * Titanium launch activites have a single TiContext and launch an associated
@@ -40,9 +37,7 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 
 	protected TiContext tiContext;
 	protected TiUrl url;
-	protected CountDownLatch scriptLoadedLatch;
 	protected AlertDialog noLaunchCategoryAlert;
-	protected ArrayBlockingQueue<Message> messageQueue = new ArrayBlockingQueue<Message>(10);
 
 	/**
 	 * @return The Javascript URL that this Activity should run
@@ -62,35 +57,12 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 	 */
 	protected void contextCreated() { }
 
-	public void sendMessage(Message msg)
-	{
-		if (scriptLoadedLatch.getCount() > 0) {
-			messageQueue.add(msg);
-		} else {
-			msg.sendToTarget();
-		}
-	}
-
-	protected void dispatchMessages()
-	{
-		for (Message msg = messageQueue.poll(); msg != null; msg = messageQueue.poll()) {
-			msg.getTarget().dispatchMessage(msg);
-		}
-	}
-
 	protected void waitForScript()
 	{
-		try {
-			if (DBG) {
-				Log.d(TAG, "Waiting for JS Activity @ " + url.url + " to load");
-			}
-			while (!scriptLoadedLatch.await(250, TimeUnit.MILLISECONDS)) {
-				dispatchMessages();
-			}
-			dispatchMessages();
-		} catch (InterruptedException e) {
-			Log.w(TAG, "Wait for JS Load interrupted.");
+		if (DBG) {
+			Log.d(TAG, "Waiting for JS Activity @ " + url.url + " to load");
 		}
+		messageQueue.startBlocking();
 		if (DBG) {
 			Log.d(TAG, "Loaded JS Activity @ " + url.url);
 		}
@@ -111,7 +83,7 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 			if (DBG) {
 				Log.d(TAG, "Signal JS loaded");
 			}
-			scriptLoadedLatch.countDown(); // Release UI thread
+			messageQueue.stopBlocking();
 		}
 	}
 
@@ -141,7 +113,6 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 	{
 		super.windowCreated();
 		// Load the activity JS
-		scriptLoadedLatch = new CountDownLatch(1);
 		new Thread(new Runnable(){
 			@Override
 			public void run() {

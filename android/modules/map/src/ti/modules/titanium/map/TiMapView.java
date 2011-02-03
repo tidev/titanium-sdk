@@ -35,6 +35,7 @@ import android.graphics.drawable.Drawable;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.OvalShape;
 import android.os.Handler;
+import android.os.Looper;
 import android.os.Message;
 import android.view.MotionEvent;
 import android.view.View;
@@ -262,7 +263,7 @@ public class TiMapView extends TiUIView
 		super(proxy);
 
 		this.mapWindow = mapWindow;
-		this.handler = new Handler(this);
+		this.handler = new Handler(Looper.getMainLooper(), this);
 		this.annotations = annotations;
 		this.selectedAnnotations = selectedAnnotations;
 

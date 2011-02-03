@@ -16,6 +16,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
+import org.appcelerator.titanium.TiMessageQueue;
 import org.appcelerator.titanium.TiScriptRunner;
 import org.appcelerator.titanium.io.TiBaseFile;
 import org.appcelerator.titanium.io.TiFileFactory;
@@ -55,7 +56,7 @@ public class KrollContext implements Handler.Callback
 	private ScriptableObject jsScope;
 
 	private CountDownLatch initialized;
-	private Handler contextHandler;
+	private TiMessageQueue messageQueue;
 	private String loadFile;
 	private boolean useOptimization;
 
@@ -85,7 +86,8 @@ public class KrollContext implements Handler.Callback
 		if (DBG) {
 			Log.d(LCAT, "Context Thread: " + Thread.currentThread().getName());
 		}
-		contextHandler = new Handler(this);
+		messageQueue = TiMessageQueue.getMessageQueue();
+		messageQueue.setCallback(this);
 		Context ctx = enter();
 		try {
 			if (DBG) {
@@ -126,7 +128,8 @@ public class KrollContext implements Handler.Callback
 
 	public void post(Runnable r)
 	{
-		contextHandler.post(r);
+		messageQueue.post(r);
+		//contextHandler.post(r);
 	}
 
 	protected boolean isOurThread()
@@ -159,14 +162,11 @@ public class KrollContext implements Handler.Callback
 		}
 
 		AsyncResult result = new AsyncResult();
-
-		Message msg = contextHandler.obtainMessage(MSG_EVAL_FILE, result);
+		Message msg = messageQueue.getHandler().obtainMessage(MSG_EVAL_FILE, result);
 		msg.getData().putString(TiC.MSG_PROPERTY_FILENAME, filename);
-		msg.sendToTarget();
-
-		return result.getResult();
+		return TiMessageQueue.getMessageQueue().sendBlockingMessage(msg, messageQueue, result);
 	}
-	
+
 	protected Object runCompiledScript(String filename)
 	{
 		
@@ -192,6 +192,7 @@ public class KrollContext implements Handler.Callback
 		}
 		return ScriptableObject.NOT_FOUND;
 	}
+
 	public Object evaluateScript(String filename)
 	{
 		String[] parts = { filename };
@@ -250,12 +251,9 @@ public class KrollContext implements Handler.Callback
 		}
 
 		AsyncResult result = new AsyncResult();
-
-		Message msg = contextHandler.obtainMessage(MSG_EVAL_STRING, result);
+		Message msg = messageQueue.getHandler().obtainMessage(MSG_EVAL_STRING, result);
 		msg.getData().putString(TiC.MSG_PROPERTY_SRC, src);
-		msg.sendToTarget();
-
-		return result.getResult();
+		return TiMessageQueue.getMessageQueue().sendBlockingMessage(msg, messageQueue, result);
 	}
 
 	public Object handleEval(String src)
@@ -358,7 +356,12 @@ public class KrollContext implements Handler.Callback
 	{
 		return new KrollContext(tiContext, loadFile);
 	}
-	
+
+	public TiMessageQueue getMessageQueue()
+	{
+		return messageQueue;
+	}
+
 	public void release()
 	{
 		if (thread.getLooper() != null) {

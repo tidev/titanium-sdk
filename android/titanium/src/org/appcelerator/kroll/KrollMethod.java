@@ -6,6 +6,8 @@
  */
 package org.appcelerator.kroll;
 
+import org.appcelerator.titanium.TiBaseActivity;
+import org.appcelerator.titanium.TiMessageQueue;
 import org.appcelerator.titanium.util.AsyncResult;
 import org.appcelerator.titanium.util.Log;
 import org.mozilla.javascript.BaseFunction;
@@ -51,15 +53,13 @@ public abstract class KrollMethod
 			if (!runOnUiThread) {
 				return invoke(inv, args);
 			} else {
-				Activity activity = inv.getTiContext().getActivity();
 				if (inv.getTiContext().isUIThread()) {
 					return invoke(inv, args);
 				} else {
 					final KrollInvocation fInv = inv;
 					final Object[] fArgs = args;
 					final AsyncResult result = new AsyncResult();
-					
-					activity.runOnUiThread(new Runnable() {
+					TiMessageQueue.getMainMessageQueue().post(new Runnable() {
 						public void run() {
 							try {
 								Object retVal = invoke(fInv, fArgs);
@@ -69,7 +69,6 @@ public abstract class KrollMethod
 							}
 						}
 					});
-					
 					Object retVal = result.getResult();
 					if (retVal instanceof Exception) {
 						exception = (Exception)retVal;
