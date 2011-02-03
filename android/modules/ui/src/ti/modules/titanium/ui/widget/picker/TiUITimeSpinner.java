@@ -16,6 +16,7 @@ import kankan.wheel.widget.WheelView;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.titanium.proxy.TiViewProxy;
+import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiUIView;
 
 import android.app.Activity;
@@ -45,7 +46,16 @@ public class TiUITimeSpinner extends TiUIView
 	{
 		DecimalFormat formatter = new DecimalFormat("00");
 		FormatNumericWheelAdapter hours = new FormatNumericWheelAdapter(0, 23, formatter, 8);
-		FormatNumericWheelAdapter minutes = new FormatNumericWheelAdapter(0, 59, formatter, 8);
+		
+		int minuteInterval = 1;
+		if (proxy.hasProperty("minuteInterval")) {
+			int dirtyMinuteInterval = TiConvert.toInt(proxy.getProperty("minuteInterval"));
+			if( (dirtyMinuteInterval <= 30) && (60 % dirtyMinuteInterval == 0)  ){
+				minuteInterval = dirtyMinuteInterval;
+			}			
+		}		
+		
+		FormatNumericWheelAdapter minutes = new FormatNumericWheelAdapter(0, 59, formatter, 8, minuteInterval);
 		hoursWheel = new WheelView(activity);
 		minutesWheel = new WheelView(activity);
 		hoursWheel.setTextSize(20);
@@ -117,7 +127,7 @@ public class TiUITimeSpinner extends TiUIView
 		hoursWheel.setCurrentItem(calendar.get(Calendar.HOUR_OF_DAY));
 		suppressChangeEvent = suppressEvent;
 		ignoreItemSelection = false;
-		minutesWheel.setCurrentItem(calendar.get(Calendar.MINUTE));
+		minutesWheel.setCurrentItem( ((FormatNumericWheelAdapter) minutesWheel.getAdapter()).getIndex(calendar.get(Calendar.MINUTE)));
 		suppressChangeEvent = false;
 	}
 	
@@ -127,7 +137,7 @@ public class TiUITimeSpinner extends TiUIView
 		if (ignoreItemSelection) {
 			return;
 		}
-		calendar.set(Calendar.MINUTE, minutesWheel.getCurrentItem());
+		calendar.set(Calendar.MINUTE, ((FormatNumericWheelAdapter) minutesWheel.getAdapter()).getValue(minutesWheel.getCurrentItem()));
 		calendar.set(Calendar.HOUR_OF_DAY, hoursWheel.getCurrentItem());
 		Date dateval = calendar.getTime();
 		proxy.setProperty("value", dateval);
