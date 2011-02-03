@@ -100,8 +100,13 @@ wallDialog.addEventListener('click', function() {
 });
 actionsView.add(wallDialog);
 
-var description = "FYI, the 'Publish wall post with GRAPH API' button will publish a post with a link to the Mozilla MDN JavaScript page, saying 'Best online Javascript reference'.\n\nDo the 'Publish wall post with DIALOG' option more than once, and be sure the 'iteration n' gets incremented each time.  This proves that cached post data is *not* being re-used, which is important.";
-actionsView.add(Ti.UI.createLabel({bottom: 10, text: description}));
+// iOS BUG: Android does some kind of layout magic here which:
+// 1. Positions the text correctly so that it doesn't overlap with other UI elements
+// 2. Possibly even SIZES the text.
+if (Titanium.Platform.name == 'android') {
+	var description = "FYI, the 'Publish wall post with GRAPH API' button will publish a post with a link to the Mozilla MDN JavaScript page, saying 'Best online Javascript reference'.\n\nDo the 'Publish wall post with DIALOG' option more than once, and be sure the 'iteration n' gets incremented each time.  This proves that cached post data is *not* being re-used, which is important.";
+	actionsView.add(Ti.UI.createLabel({bottom: 10, text: description}));
+}
 
 win.add(actionsView);
 

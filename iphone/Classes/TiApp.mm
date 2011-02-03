@@ -126,35 +126,39 @@ void MyUncaughtExceptionHandler(NSException *exception)
 	UIDeviceOrientation orientation = [[UIDevice currentDevice] orientation];
 	
 	UIImage* image = nil;
-	// Specific orientation check
-	switch (orientation) {
-		case UIDeviceOrientationPortrait:
+
+	if([TiUtils isIPad])
+	{
+		// Specific orientation check
+		switch (orientation) {
+			case UIDeviceOrientationPortrait:
+				image = [UIImage imageNamed:@"Default-Portrait.png"];
+				break;
+			case UIDeviceOrientationPortraitUpsideDown:
+				image = [UIImage imageNamed:@"Default-PortraitUpsideDown.png"];
+				break;
+			case UIDeviceOrientationLandscapeLeft:
+				image = [UIImage imageNamed:@"Default-LandscapeLeft.png"];
+				break;
+			case UIDeviceOrientationLandscapeRight:
+				image = [UIImage imageNamed:@"Default-LandscapeRight.png"];
+				break;
+		}
+		if (image != nil) {
+			return image;
+		}
+			
+		// Generic orientation check
+		if (UIDeviceOrientationIsPortrait(orientation)) {
 			image = [UIImage imageNamed:@"Default-Portrait.png"];
-			break;
-		case UIDeviceOrientationPortraitUpsideDown:
-			image = [UIImage imageNamed:@"Default-PortraitUpsideDown.png"];
-			break;
-		case UIDeviceOrientationLandscapeLeft:
-			image = [UIImage imageNamed:@"Default-LandscapeLeft.png"];
-			break;
-		case UIDeviceOrientationLandscapeRight:
-			image = [UIImage imageNamed:@"Default-LandscapeRight.png"];
-			break;
-	}
-	if (image != nil) {
-		return image;
-	}
-		
-	// Generic orientation check
-	if (UIDeviceOrientationIsPortrait(orientation)) {
-		image = [UIImage imageNamed:@"Default-Portrait.png"];
-	}
-	else if (UIDeviceOrientationIsLandscape(orientation)) {
-		image = [UIImage imageNamed:@"Default-Landscape.png"];
-	}
-		
-	if (image != nil) {
-		return image;
+		}
+		else if (UIDeviceOrientationIsLandscape(orientation)) {
+			image = [UIImage imageNamed:@"Default-Landscape.png"];
+		}
+			
+		if (image != nil) {
+			return image;
+		}
 	}
 	
 	// Default 
