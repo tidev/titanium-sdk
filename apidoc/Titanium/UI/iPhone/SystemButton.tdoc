@@ -20,28 +20,30 @@ iphone, ipad
 
 - properties
 
-ACTION[int]: action icon
-CAMERA[int]: camera icon
-COMPOSE[int]: compose icon
-BOOKMARKS[int]: bookmarks icon
-ADD[int]: add icon
-TRASH[int]: trash icon
-REPLY[int]: reply icon
-STOP[int]: stop icon
-REFRESH[int]: refresh icon
-PLAY[int]: play icon
-PAUSE[int]: pause icon
-FAST_FORWARD[int]: fast forward icon
-REWIND[int]: rewind icon
-EDIT[int]: edit icon. localized.
-CANCEL[int]: cancel icon. localized.
-SAVE[int]: save icon. localized.
-ORGANIZE[int]: organize icon
-DONE[int]: done icon. localized.
+ACTION[int]: action icon. Usable in nav bars and toolbars only.
+CAMERA[int]: camera icon. Usable in nav bars and toolbars only.
+COMPOSE[int]: compose icon. Usable in nav bars and toolbars only.
+BOOKMARKS[int]: bookmarks icon. Usable in nav bars and toolbars only.
+ADD[int]: add icon. Usable in nav bars and toolbars only.
+TRASH[int]: trash icon. Usable in nav bars and toolbars only.
+REPLY[int]: reply icon. Usable in nav bars and toolbars only.
+STOP[int]: stop icon. Usable in nav bars and toolbars only.
+REFRESH[int]: refresh icon. Usable in nav bars and toolbars only.
+PLAY[int]: play icon. Usable in nav bars and toolbars only.
+PAUSE[int]: pause icon. Usable in nav bars and toolbars only.
+FAST_FORWARD[int]: fast forward icon. Usable in nav bars and toolbars only.
+REWIND[int]: rewind icon. Usable in nav bars and toolbars only.
+EDIT[int]: edit icon. localized. Usable in nav bars and toolbars only.
+CANCEL[int]: cancel icon. localized. Usable in nav bars and toolbars only.
+SAVE[int]: save icon. localized. Usable in nav bars and toolbars only.
+ORGANIZE[int]: organize icon. Usable in nav bars and toolbars only.
+DONE[int]: done icon. localized. Usable in nav bars and toolbars only.
 FLEXIBLE_SPACE[int]: Blank space to add between other items. The space is distributed equally between the other items. Other item properties are ignored when this value is set.
 FIXED_SPACE[int]: Blank space to add between other items. Only the `width` property is used when this value is set.
 
 ACTIVITY[int]: special style that shows an activity indicator. when visible, the activity indicator is already started.
+
+SPINNER[int]: same as ACTIVITY
 
 INFO_LIGHT[int]: a light style info circle icon
 INFO_DARK[int]: a dark style info circle icon
