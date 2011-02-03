@@ -51,7 +51,7 @@ public class TiRHelper {
 		
 		return lookupResource(prefix, path, getClassAndFieldNames(path));
 	}
-	
+
 	protected static int lookupResource(String prefix, String path, String[] classAndFieldNames) throws ResourceNotFoundException {
 		// Get the clsPrefixApplication if this is the first time
 		if (clsPrefixApplication == null)
@@ -68,6 +68,7 @@ public class TiRHelper {
 			if (DBG) {
 				Log.e(LCAT, "Error looking up resource: " + e.getMessage(), e);
 			}
+			valCache.put(path, 0);
 			throw new ResourceNotFoundException(path);
 		}
 		
@@ -75,7 +76,7 @@ public class TiRHelper {
 		return i;
 	}
 	
-	public static int getResource(String path) throws ResourceNotFoundException {
+	public static int getResource(String path, boolean includeSystemResources) throws ResourceNotFoundException {
 		Integer i = valCache.get(path);
 		if (i != null) return i;
 		
@@ -85,8 +86,16 @@ public class TiRHelper {
 			int resid = lookupResource(clsPrefixApplication, path, classAndFieldNames);
 			return resid;
 		} catch (ResourceNotFoundException e) {
+			if (!includeSystemResources) {
+				throw e;
+			}
 			return lookupResource(clsPrefixAndroid, path, classAndFieldNames);
 		}
+	}
+
+	public static int getResource(String path) throws ResourceNotFoundException
+	{
+		return getResource(path, true);
 	}
 	
 	public static int getApplicationResource(String path) throws ResourceNotFoundException {
