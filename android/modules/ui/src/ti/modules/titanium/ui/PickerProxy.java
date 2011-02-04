@@ -106,7 +106,7 @@ public class PickerProxy extends TiViewProxy implements PickerColumnListener
 
 	private TiUIView createPlainPicker(Activity activity, boolean useSpinner)
 	{
-		TiUIPicker picker = useSpinner ? new TiUISpinner(this, activity) : new TiUINativePicker(this,activity);
+		TiUIPicker picker = useSpinner ? new TiUISpinner(this, activity) : new TiUINativePicker(this, activity);
 		return picker;
 	}
 
