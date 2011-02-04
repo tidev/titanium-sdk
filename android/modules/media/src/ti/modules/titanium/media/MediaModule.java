@@ -95,6 +95,7 @@ public class MediaModule extends KrollModule
 		KrollCallback successCallback = null;
 		KrollCallback cancelCallback = null;
 		KrollCallback errorCallback = null;
+		String type = MEDIA_TYPE_PHOTO;
 
 		if (options.containsKey("success")) {
 			successCallback = (KrollCallback) options.get("success");
@@ -105,10 +106,14 @@ public class MediaModule extends KrollModule
 		if (options.containsKey("error")) {
 			errorCallback = (KrollCallback) options.get("error");
 		}
+		if (options.containsKey("mediaTypes")) {
+			type = MEDIA_TYPE_VIDEO;
+		}
 
 		final KrollCallback fSuccessCallback = successCallback;
 		final KrollCallback fCancelCallback = cancelCallback;
 		final KrollCallback fErrorCallback = errorCallback;
+		final String fType = type;
 
 		if (DBG) {
 			Log.d(LCAT, "showCamera called");
@@ -163,7 +168,7 @@ public class MediaModule extends KrollModule
 					imageDir = tfh.getDataDirectory(false);
 				}
 			}
-			imageFile = tfh.getTempFile(imageDir, ".jpg");
+			imageFile = tfh.getTempFile(imageDir, type.equals(MEDIA_TYPE_PHOTO) ? ".jpg" : ".3gp");
 
 		} catch (IOException e) {
 			Log.e(LCAT, "Unable to create temp file", e);
@@ -177,7 +182,7 @@ public class MediaModule extends KrollModule
 		final String imageUrl = "file://" + imageFile.getAbsolutePath();
 		
 		TiIntentWrapper cameraIntent = new TiIntentWrapper(new Intent());
-		cameraIntent.getIntent().setAction(MediaStore.ACTION_IMAGE_CAPTURE);
+		cameraIntent.getIntent().setAction(fType.equals(MEDIA_TYPE_PHOTO) ? MediaStore.ACTION_IMAGE_CAPTURE : MediaStore.ACTION_VIDEO_CAPTURE);
 		cameraIntent.getIntent().addCategory(Intent.CATEGORY_DEFAULT);
 		cameraIntent.setWindowId(TiIntentWrapper.createActivityName("CAMERA"));
 
@@ -223,7 +228,7 @@ public class MediaModule extends KrollModule
 							values.put(Images.Media.TITLE, finalImageFile.getName());
 							values.put(Images.Media.DISPLAY_NAME, finalImageFile.getName());
 							values.put(Images.Media.DATE_TAKEN, new Date().getTime());
-							values.put(Images.Media.MIME_TYPE, "image/jpeg");
+							values.put(Images.Media.MIME_TYPE, fType.equals(MEDIA_TYPE_PHOTO) ? "image/jpeg" : "video/3gpp");
 							if (finalSaveToPhotoGallery) {
 								values.put(Images.ImageColumns.BUCKET_ID, PHOTO_DCIM_CAMERA.toLowerCase().hashCode());
 								values.put(Images.ImageColumns.BUCKET_DISPLAY_NAME, "Camera");
@@ -237,7 +242,16 @@ public class MediaModule extends KrollModule
 	
 							try {
 								if (fSuccessCallback != null) {
-									fSuccessCallback.callAsync(createDictForImage(imageUri.toString(), "image/jpeg"));
+									if(fType.equals(MEDIA_TYPE_PHOTO)) {
+										fSuccessCallback.callAsync(createDictForImage(imageUri.toString(), "image/jpeg"));
+									}
+									else {
+										String[] parts = { imageUri.toString() };
+										KrollDict d = new KrollDict();
+										d.put("mediaType", MEDIA_TYPE_VIDEO);
+										d.put("media", TiBlob.blobFromFile(getTiContext(), TiFileFactory.createTitaniumFile(getTiContext(), parts, false), "video/3gpp"));
+										fSuccessCallback.callAsync(d);
+									}
 								}
 							} catch (OutOfMemoryError e) {
 								String msg = "Not enough memory to get image: " + e.getMessage();
@@ -342,7 +356,16 @@ public class MediaModule extends KrollModule
 							
 							try {
 								if (fSuccessCallback != null) {
-									fSuccessCallback.callAsync(createDictForImage(localImageUrl, "image/jpeg"));
+									if(fType.equals(MEDIA_TYPE_PHOTO)) {
+										fSuccessCallback.callAsync(createDictForImage(localImageUrl, "image/jpeg"));
+									}
+									else {
+										String[] parts = { localImageUrl };
+										KrollDict d = new KrollDict();
+										d.put("mediaType", MEDIA_TYPE_VIDEO);
+										d.put("media", TiBlob.blobFromFile(getTiContext(), TiFileFactory.createTitaniumFile(getTiContext(), parts, false), "video/3gpp"));
+										fSuccessCallback.callAsync(d);
+									}
 								}
 							} catch (OutOfMemoryError e) {
 								String msg = "Not enough memory to get image: " + e.getMessage();
