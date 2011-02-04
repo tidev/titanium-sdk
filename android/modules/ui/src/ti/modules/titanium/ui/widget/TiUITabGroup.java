@@ -8,6 +8,7 @@ package ti.modules.titanium.ui.widget;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
+import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
@@ -45,21 +46,19 @@ public class TiUITabGroup extends TiUIView
 	public TiUITabGroup(TiViewProxy proxy, TiTabActivity activity)
 	{
 		super(proxy);
-
 		tabHost = new TabHost(activity);
-
 		tabHost.setOnTabChangedListener(this);
 
 		tabWidget = new TabWidget(proxy.getContext());
 		tabWidget.setId(android.R.id.tabs); // Required by contract w/ host
 
 		tabContent = new FrameLayout(proxy.getContext()) {
-
 			@Override
-			protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+			protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec)
+			{
 				tabContent.setPadding(0, tabWidget.getMeasuredHeight(), 0, 0);
 				super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-			}			
+			}
 		};
 		tabContent.setId(android.R.id.tabcontent);
 
@@ -86,20 +85,23 @@ public class TiUITabGroup extends TiUIView
 		return tabHost.newTabSpec(id);
 	}
 
-	public void addTab(TabSpec tab) {
+	public void addTab(TabSpec tab)
+	{
 		addingTab = true;
 		tabHost.addTab(tab);
 		addingTab = false;
 	}
 
-	public void setActiveTab(int index) {
+	public void setActiveTab(int index)
+	{
 		if (tabHost != null) {
 			tabHost.setCurrentTab(index);
 		}
 	}
 
 	@Override
-	protected KrollDict getFocusEventObject(boolean hasFocus) {
+	protected KrollDict getFocusEventObject(boolean hasFocus)
+	{
 		if (tabChangeEventData == null) {
 			TabHost th = (TabHost) getNativeView();
 			return ((TabGroupProxy) proxy).buildFocusEvent(th.getCurrentTabTag(), lastTabId);
@@ -109,7 +111,8 @@ public class TiUITabGroup extends TiUIView
 	}
 
 	@Override
-	public void onFocusChange(View v, boolean hasFocus) {
+	public void onFocusChange(View v, boolean hasFocus)
+	{
 		// ignore focus change for tab group.
 		// we can simply fire focus/blur from onTabChanged (to avoid chicken/egg event problems)
 	}
@@ -118,26 +121,26 @@ public class TiUITabGroup extends TiUIView
 	public void onTabChanged(String id)
 	{
 		TabGroupProxy tabGroupProxy = ((TabGroupProxy) proxy);
-		
 		if (DBG) {
 			Log.d(LCAT,"Tab change from " + lastTabId + " to " + id);
 		}
 
-		proxy.setProperty("activeTab", tabGroupProxy.getTabList().get (tabHost.getCurrentTab()));
-		
+		proxy.setProperty(TiC.PROPERTY_ACTIVE_TAB, tabGroupProxy.getTabList().get (tabHost.getCurrentTab()));
+
 		if (!addingTab) {
 			if (tabChangeEventData != null) {
-				proxy.fireEvent("blur", tabChangeEventData);
+				proxy.fireEvent(TiC.EVENT_BLUR, tabChangeEventData);
 			}
 			
 			tabChangeEventData = tabGroupProxy.buildFocusEvent(id, lastTabId);
-			proxy.fireEvent("focus", tabChangeEventData);
+			proxy.fireEvent(TiC.EVENT_FOCUS, tabChangeEventData);
 		}
 		
 		lastTabId = id;
 	}
 
-	public void changeActiveTab(Object t) {
+	public void changeActiveTab(Object t)
+	{
 		if (t != null) {
 			Integer index = null;
 			if (t instanceof Number) {
@@ -163,7 +166,8 @@ public class TiUITabGroup extends TiUIView
 		}
 	}
 
-	public int getActiveTab() {
+	public int getActiveTab()
+	{
 		if(tabHost != null) {
 			return tabHost.getCurrentTab();
 		} else {

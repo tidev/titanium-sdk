@@ -155,7 +155,6 @@ tabGroup.addEventListener('close', function(e)
 	setTimeout(function()
 	{
 		messageWin.close({opacity:0,duration:500});
-		tabGroup.open();
 	},1000);
 });
 

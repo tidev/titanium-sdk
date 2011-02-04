@@ -260,7 +260,7 @@ public class KrollEventManager implements OnLifecycleEvent, OnServiceLifecycleEv
 			}
 
 			Set<Entry<Integer, KrollListener>> listenerSet = listeners.entrySet();
-			synchronized(eventListeners) {
+			synchronized (eventListeners) {
 				for(Entry<Integer, KrollListener> entry : listenerSet) {
 					KrollListener listener = entry.getValue();
 					if (proxy == null || (proxy != null && listener.isSameProxy(proxy))) {

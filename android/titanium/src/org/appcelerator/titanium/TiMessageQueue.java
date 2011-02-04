@@ -76,7 +76,11 @@ public class TiMessageQueue implements Handler.Callback
 	public static TiMessageQueue getMessageQueue()
 	{
 		if (Looper.myLooper() == null) {
-			Looper.prepare();
+			synchronized (threadLocalQueue) {
+				if (Looper.myLooper() == null) {
+					Looper.prepare();
+				}
+			}
 		}
 		return threadLocalQueue.get();
 	}
@@ -101,12 +105,18 @@ public class TiMessageQueue implements Handler.Callback
 	 * it's Handler normally by using msg.sendToTarget()</li>
 	 * </ul>
 	 * 
-	 * @param msg
+	 * @param msg The message to send
 	 */
 	public void sendMessage(Message msg)
 	{
-		if (Thread.currentThread().getId() == msg.getTarget().getLooper().getThread().getId()) {
-			msg.getTarget().dispatchMessage(msg);
+		Handler target = msg.getTarget();
+		long currentThreadId = Thread.currentThread().getId();
+		long targetThreadId = -1;
+		if (target != null) {
+			targetThreadId = target.getLooper().getThread().getId();
+		}
+		if (target != null && currentThreadId == targetThreadId) {
+			target.dispatchMessage(msg);
 		} else {
 			if (blocking) {
 				messageQueue.add(msg);
@@ -250,13 +260,21 @@ public class TiMessageQueue implements Handler.Callback
 	}
 
 	/**
-	 * Dispatch a message using a default poll timeout of 50 milliseconds
+	 * Try to process and dispatch a message without polling
 	 * 
 	 * @return Whether or not a message was processed and dispatched
 	 */
 	public boolean dispatchMessage()
 	{
-		return dispatchMessage(DEFAULT_TIMEOUT, TimeUnit.MILLISECONDS);
+		Message msg = messageQueue.poll();
+		if (msg == null) {
+			return false;
+		}
+		if (msg.getTarget() != null) {
+			msg.getTarget().dispatchMessage(msg);
+			return true;
+		}
+		return false;
 	}
 
 	/**
@@ -275,8 +293,11 @@ public class TiMessageQueue implements Handler.Callback
 				if (DBG) {
 					Log.d(TAG, "Dispatching message: " + msg);
 				}
-				msg.getTarget().dispatchMessage(msg);
-				return true;
+				if (msg.getTarget() != null) {
+					msg.getTarget().dispatchMessage(msg);
+					return true;
+				}
+				return false;
 			}
 		} catch (InterruptedException e) {
 			// ignore
