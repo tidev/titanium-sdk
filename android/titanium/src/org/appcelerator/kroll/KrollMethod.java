@@ -6,7 +6,6 @@
  */
 package org.appcelerator.kroll;
 
-import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiMessageQueue;
 import org.appcelerator.titanium.util.AsyncResult;
 import org.appcelerator.titanium.util.Log;
@@ -14,8 +13,6 @@ import org.mozilla.javascript.BaseFunction;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Function;
 import org.mozilla.javascript.Scriptable;
-
-import android.app.Activity;
 
 @SuppressWarnings("serial")
 public abstract class KrollMethod

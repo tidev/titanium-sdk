@@ -158,7 +158,8 @@ public class KrollCallback extends KrollMethod implements KrollConvertable
 
 	public void callAsync(final KrollInvocation invocation, final Object[] args, final boolean recycleInvocation) {
 		KrollContext kroll = getKrollContext(invocation);
-		kroll.post(new Runnable() {
+		// Force using the handler here, listeners should post after the top level has stopped blocking
+		kroll.getMessageQueue().getHandler().post(new Runnable() {
 			public void run() {
 				callSync(invocation, args);
 				if (recycleInvocation) {

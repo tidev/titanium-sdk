@@ -135,6 +135,7 @@ public class TitaniumModule extends KrollModule implements TiContext.OnLifecycle
 		protected KrollCallback callback;
 		protected Handler handler;
 		protected int id;
+		protected boolean canceled;
 	
 		public Timer(int id, Handler handler, KrollCallback callback, long timeout, Object[] args, boolean interval)
 		{
@@ -154,10 +155,11 @@ public class TitaniumModule extends KrollModule implements TiContext.OnLifecycle
 		@Override
 		public void run()
 		{
+			if (canceled) return;
 			Log.d(LCAT, "calling " + (interval?"interval":"timeout") + " timer " + id + " @" + new Date().getTime());
 			long start = System.currentTimeMillis();
 			callback.callSync(args);
-			if (interval) {
+			if (interval && !canceled) {
 				handler.postDelayed(this, timeout - (System.currentTimeMillis() - start));
 			}
 		}
@@ -165,6 +167,7 @@ public class TitaniumModule extends KrollModule implements TiContext.OnLifecycle
 		public void cancel()
 		{
 			handler.removeCallbacks(this);
+			canceled = true;
 		}
 	}
 

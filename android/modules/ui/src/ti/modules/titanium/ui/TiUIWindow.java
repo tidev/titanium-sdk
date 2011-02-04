@@ -285,7 +285,6 @@ public class TiUIWindow extends TiUIView
 			animateOnClose = props.getBoolean(TiC.PROPERTY_ANIMATED);
 		}
 
-		boolean revertToCreatedContext = false;
 		if (!lightWeight) {
 			if (windowActivity != null) {
 				if (!animateOnClose) {
@@ -309,11 +308,6 @@ public class TiUIWindow extends TiUIView
 				}
 				lightWindow.removeAllViews();
 				lightWindow = null;
-			}
-		}
-		if (revertToCreatedContext) {
-			if (proxy instanceof TiWindowProxy) {
-				((TiWindowProxy)proxy).switchToCreatingContext();
 			}
 		}
 	}
@@ -404,7 +398,11 @@ public class TiUIWindow extends TiUIView
 		}
 		if (d.containsKey(TiC.PROPERTY_TITLE)) {
 			String title = TiConvert.toString(d, TiC.PROPERTY_TITLE);
-			proxy.getTiContext().getActivity().setTitle(title);
+			if (windowActivity != null) {
+				windowActivity.setTitle(title);
+			} else {
+				proxy.getTiContext().getActivity().setTitle(title);
+			}
 		}
 
 		// Don't allow default processing.
@@ -459,7 +457,11 @@ public class TiUIWindow extends TiUIView
 			lastHeight = height;
 		} else if (key.equals(TiC.PROPERTY_TITLE)) {
 			String title = TiConvert.toString(newValue);
-			proxy.getTiContext().getActivity().setTitle(title);
+			if (windowActivity != null) {
+				windowActivity.setTitle(title);
+			} else {
+				proxy.getTiContext().getActivity().setTitle(title);
+			}
 		} else if (key.equals(TiC.PROPERTY_LAYOUT)) {
 			if (!lightWeight) {
 				TiCompositeLayout layout = null;

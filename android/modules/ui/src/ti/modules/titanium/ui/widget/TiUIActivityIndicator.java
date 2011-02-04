@@ -121,8 +121,7 @@ public class TiUIActivityIndicator extends TiUIView
 		if (visible) {
 			return;
 		}
-
-		handler.sendEmptyMessage(MSG_SHOW);
+		handleShow();
 	}
 
 	protected void handleShow() {

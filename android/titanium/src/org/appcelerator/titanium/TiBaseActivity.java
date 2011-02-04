@@ -251,7 +251,7 @@ public abstract class TiBaseActivity extends Activity
 	{
 		messageQueue = TiMessageQueue.getMessageQueue();
 		if (DBG) {
-			Log.d(TAG, "Activity onCreate");
+			Log.d(TAG, "Activity " + this + " onCreate");
 		}
 
 		Intent intent = getIntent();
@@ -526,7 +526,7 @@ public abstract class TiBaseActivity extends Activity
 	{
 		super.onPause();
 		if (DBG) {
-			Log.d(TAG, "Activity onPause");
+			Log.d(TAG, "Activity " + this + " onPause");
 		}
 
 		getTiApp().setWindowHandler(null);
@@ -541,7 +541,7 @@ public abstract class TiBaseActivity extends Activity
 	{
 		super.onResume();
 		if (DBG) {
-			Log.d(TAG, "Activity onResume");
+			Log.d(TAG, "Activity " + this + " onResume");
 		}
 		getTiApp().setWindowHandler(this);
 		getTiApp().setCurrentActivity(this, this);
@@ -555,7 +555,7 @@ public abstract class TiBaseActivity extends Activity
 	{
 		super.onStart();
 		if (DBG) {
-			Log.d(TAG, "Activity onStart");
+			Log.d(TAG, "Activity " + this + " onStart");
 		}
 		updateTitle();
 		
@@ -574,7 +574,7 @@ public abstract class TiBaseActivity extends Activity
 	{
 		super.onStop();
 		if (DBG) {
-			Log.d(TAG, "Activity onStop");
+			Log.d(TAG, "Activity " + this + " onStop");
 		}
 		if (window != null) {
 			window.fireEvent(TiC.EVENT_BLUR, null);
@@ -588,6 +588,9 @@ public abstract class TiBaseActivity extends Activity
 	protected void onRestart()
 	{
 		super.onRestart();
+		if (DBG) {
+			Log.d(TAG, "Activity " + this + " onRestart");
+		}
 		if (activityProxy != null) {
 			activityProxy.fireSyncEvent(TiC.EVENT_RESTART, null);
 		}
@@ -596,6 +599,9 @@ public abstract class TiBaseActivity extends Activity
 	@Override
 	protected void onDestroy()
 	{
+		if (DBG) {
+			Log.d(TAG, "Activity " + this + " onDestroy");
+		}
 		super.onDestroy();
 		if (orientationListener != null) {
 			orientationListener.disable();
