@@ -62,13 +62,12 @@ public class KrollContext implements Handler.Callback
 	protected KrollContext(TiContext tiContext, String label)
 	{
 		this.tiContext = tiContext;
-		// allow a configurable stack size to avoid StackOverflowErrors in some larger apps
 		StringBuilder threadName= new StringBuilder();
-		threadName.append("kroll(").append(getInstanceCounter().incrementAndGet());
+		threadName.append("kroll$").append(getInstanceCounter().incrementAndGet());
 		if (label != null) {
-			threadName.append(":").append(label);
+			threadName.append(": ").append(label);
 		}
-		threadName.append(")");
+		// allow a configurable stack size to avoid StackOverflowErrors in some larger apps
 		thread = new KrollHandlerThread(
 			threadName.toString(),
 			Process.THREAD_PRIORITY_DEFAULT,
