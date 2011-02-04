@@ -402,7 +402,7 @@ public class MediaModule extends KrollModule
 					mime = "video/*";
 				}
 				if(types[0].equals(MEDIA_TYPE_PHOTO)) {
-					mime = "photo/*";
+					mime = "image/*";
 				}
 				if(types[0].equals(MEDIA_TYPE_ALL)) {
 					mime = "*/*";
