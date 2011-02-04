@@ -219,10 +219,16 @@ public class TiUIWindow extends TiUIView
 
 	protected ActivityProxy bindWindowActivity(TiContext tiContext, Activity activity)
 	{
-		ActivityProxy activityProxy = ((TiWindowProxy) proxy).getActivity(tiContext);
-		activityProxy.setActivity(tiContext, activity);
+		ActivityProxy activityProxy = null;
 		if (activity instanceof TiBaseActivity) {
-			((TiBaseActivity)activity).setActivityProxy(activityProxy);
+			activityProxy = ((TiBaseActivity)activity).getActivityProxy();
+		}
+		if (activityProxy == null) {
+			activityProxy = ((TiWindowProxy) proxy).getActivity(tiContext);
+			activityProxy.setActivity(tiContext, activity);
+			if (activity instanceof TiBaseActivity) {
+				((TiBaseActivity)activity).setActivityProxy(activityProxy);
+			}
 		}
 		return activityProxy;
 	}

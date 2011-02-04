@@ -95,6 +95,11 @@ public abstract class TiBaseActivity extends Activity
 		}
 	}
 
+	public ActivityProxy getActivityProxy()
+	{
+		return activityProxy;
+	}
+
 	public void setActivityProxy(ActivityProxy proxy)
 	{
 		this.activityProxy = proxy;
