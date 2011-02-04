@@ -424,10 +424,10 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 	public void handleAdd(TiViewProxy child)
 	{
 		children.add(child);
+		child.parent = new WeakReference<TiViewProxy>(this);
 		if (view != null) {
 			TiUIView cv = child.getView(getTiContext().getActivity());
 			view.add(cv);
-			child.parent = new WeakReference<TiViewProxy>(this);
 		}
 	}
 

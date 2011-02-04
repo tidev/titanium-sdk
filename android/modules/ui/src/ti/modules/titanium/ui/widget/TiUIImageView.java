@@ -134,6 +134,15 @@ public class TiUIImageView extends TiUIView
 		if (parent instanceof View) {
 			return (View)parent;
 		}
+		if (parent == null) {
+			TiViewProxy parentProxy = proxy.getParent();
+			if (parentProxy != null) {
+				TiUIView parentTiUi = parentProxy.peekView();
+				if (parentTiUi != null) {
+					return parentTiUi.getNativeView();
+				}
+			}
+		}
 		return null;
 	}
 
