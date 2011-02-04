@@ -198,7 +198,6 @@ public class PlatformModule extends KrollModule
 	protected void unregisterBatteryStateReceiver()
 	{
 		getTiContext().getActivity().unregisterReceiver(batteryStateReceiver);
-		batteryStateReceiver = null;
 	}
 
 	@Override
@@ -271,10 +270,17 @@ public class PlatformModule extends KrollModule
 	{
 		super.onPause(activity);
 		if (batteryStateReceiver != null) {
-			if (DBG) {
-				Log.i(LCAT, "Unregistering battery changed receiver.");
-			}
-			getTiContext().getActivity().unregisterReceiver(batteryStateReceiver);
+			unregisterBatteryStateReceiver();
+		}
+	}
+
+	@Override
+	public void onDestroy(Activity activity)
+	{
+		super.onDestroy(activity);
+		if (batteryStateReceiver != null) {
+			unregisterBatteryStateReceiver();
+			batteryStateReceiver = null;
 		}
 	}
 }
