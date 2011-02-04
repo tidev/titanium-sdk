@@ -18,9 +18,9 @@ import android.util.Config;
  */
 public class TiConfig
 {
-	public static boolean LOGD = Config.LOGD;
-	public static boolean LOGV = Config.LOGV;
+	public static boolean LOGD = Config.DEBUG;
+	public static boolean LOGV = Config.DEBUG;
 	public static boolean DEBUG = Config.DEBUG;
-	public static boolean RELEASE = Config.RELEASE;
+	public static boolean RELEASE = !Config.DEBUG;
 	public static boolean PROFILE = Config.PROFILE;
 }
