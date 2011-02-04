@@ -72,6 +72,7 @@ public class MediaModule extends KrollModule
 	@Kroll.constant public static final String MEDIA_TYPE_PHOTO = "public.image";
 	@Kroll.constant public static final String MEDIA_TYPE_VIDEO = "public.video";
 	@Kroll.constant public static final String MEDIA_TYPE_UNKNOWN = "public.unknown";
+	@Kroll.constant public static final String MEDIA_TYPE_ALL = "public.all";
 	
 	public MediaModule(TiContext tiContext)
 	{
@@ -394,6 +395,21 @@ public class MediaModule extends KrollModule
 		if (options.containsKey("mimeType")) {
 			mime = options.getString("mimeType");
 		}
+		else if(options.containsKey("mediaTypes")) {
+			String[] types = options.getStringArray("mediaTypes");
+			if(types.length == 1) {
+				if(types[0].equals(MEDIA_TYPE_VIDEO)) {
+					mime = "video/*";
+				}
+				if(types[0].equals(MEDIA_TYPE_PHOTO)) {
+					mime = "photo/*";
+				}
+				if(types[0].equals(MEDIA_TYPE_ALL)) {
+					mime = "*/*";
+				}
+			}
+		}
+
 
 		if (DBG) {
 			Log.d(LCAT, "openPhotoGallery called");
