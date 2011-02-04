@@ -6,12 +6,11 @@
  */
 package ti.modules.titanium.platform;
 
-import java.util.concurrent.Semaphore;
-
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
+import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
@@ -41,6 +40,7 @@ public class PlatformModule extends KrollModule
 
 	protected int batteryState;
 	protected double batteryLevel;
+	protected boolean batteryStateReady;
 
 	protected BroadcastReceiver batteryStateReceiver;
 
@@ -49,8 +49,7 @@ public class PlatformModule extends KrollModule
 		super(context);
 
 		eventManager.addOnEventChangeListener(this);
-
-		batteryState = -1;
+		batteryState = BATTERY_STATE_UNKNOWN;
 		batteryLevel = -1;
 	}
 
@@ -154,140 +153,111 @@ public class PlatformModule extends KrollModule
 		return TiPlatformHelper.getMobileId();
 	}
 
+	@Kroll.setProperty @Kroll.method
+	public void setBatteryMonitoring(boolean monitor)
+	{
+		if (monitor && batteryStateReceiver == null) {
+			registerBatteryStateReceiver();
+		} else if (!monitor && batteryStateReceiver != null) {
+			unregisterBatteryStateReceiver();
+		}
+	}
+
 	@Kroll.getProperty @Kroll.method
 	public int getBatteryState()
 	{
-		Semaphore lock = new Semaphore(0);
-		updateBatteryState(lock);
-
-		try {
-			lock.acquire();
-		} catch (InterruptedException e) {
-			// Ignore
-		}
-
 		return batteryState;
 	}
 
 	@Kroll.getProperty @Kroll.method
 	public double getBatteryLevel()
 	{
-		Semaphore lock = new Semaphore(0);
-		updateBatteryState(lock);
-
-		try {
-			lock.acquire();
-		} catch (InterruptedException e) {
-			// Ignore
-		}
 		return batteryLevel;
 	}
 
+	protected void registerBatteryStateReceiver()
+	{
+		batteryStateReceiver = new BroadcastReceiver() {
+			@Override
+			public void onReceive(Context context, Intent intent)
+			{
+				int scale = intent.getIntExtra(TiC.PROPERTY_SCALE, -1);
+				batteryLevel = convertBatteryLevel(intent.getIntExtra(TiC.PROPERTY_LEVEL, -1), scale);
+				batteryState = convertBatteryStatus(intent.getIntExtra(TiC.PROPERTY_STATUS, -1));
+
+				KrollDict event = new KrollDict();
+				event.put(TiC.PROPERTY_LEVEL, batteryLevel);
+				event.put(TiC.PROPERTY_STATE, batteryState);
+				fireEvent(TiC.EVENT_BATTERY, event);
+			}
+		};
+
+		registerBatteryReceiver(batteryStateReceiver);
+	}
+
+	protected void unregisterBatteryStateReceiver()
+	{
+		getTiContext().getActivity().unregisterReceiver(batteryStateReceiver);
+		batteryStateReceiver = null;
+	}
 
 	@Override
 	public void listenerAdded(String type, int count, final KrollProxy proxy)
 	{
-		if ("battery".equals(type) && batteryStateReceiver == null) {
-
-			batteryStateReceiver = new BroadcastReceiver()
-			{
-				@Override
-				public void onReceive(Context context, Intent intent)
-				{
-	                int level = intent.getIntExtra("level", -1);
-	                int scale = intent.getIntExtra("scale", -1);
-	                int status = intent.getIntExtra("status", -1);
-
-	                KrollDict event = new KrollDict();
-	                event.put("level", convertBatteryLevel(level, scale));
-	                event.put("state", convertBatteryStatus(status));
-
-	                proxy.fireEvent("battery", event);
-				}
-			};
-
-			registerBatteryReceiver(batteryStateReceiver);
+		if (TiC.EVENT_BATTERY.equals(type) && batteryStateReceiver == null) {
+			registerBatteryStateReceiver();
 		}
 	}
 
 	@Override
 	public void listenerRemoved(String type, int count, KrollProxy proxy)
 	{
-		if ("battery".equals(type) && count == 0 && batteryStateReceiver != null) {
-			getTiContext().getActivity().unregisterReceiver(batteryStateReceiver);
-			batteryStateReceiver = null;
+		if (TiC.EVENT_BATTERY.equals(type) && count == 0 && batteryStateReceiver != null) {
+			unregisterBatteryStateReceiver();
 		}
-	}
-
-	private void updateBatteryState(final Semaphore lock)
-	{
-		Activity a = getTiContext().getActivity();
-
-		BroadcastReceiver batteryReceiver = new BroadcastReceiver()
-		{
-			@Override
-			public void onReceive(Context context, Intent intent)
-			{
-				// One-shot
-                context.unregisterReceiver(this);
-
-                try {
-	                int level = intent.getIntExtra("level", -1);
-	                int scale = intent.getIntExtra("scale", -1);
-	                int status = intent.getIntExtra("status", -1);
-
-	                batteryState = convertBatteryStatus(status);
-	                batteryLevel = convertBatteryLevel(level, scale);
-                } finally {
-                	lock.release();
-                }
-			}
-		};
-		registerBatteryReceiver(batteryReceiver);
 	}
 
 	private int convertBatteryStatus(int status)
 	{
 		int state = BATTERY_STATE_UNKNOWN;
-        switch(status) {
-	        case BatteryManager.BATTERY_STATUS_CHARGING : {
-	        	state = BATTERY_STATE_CHARGING;
-	        	break;
-	        }
-	        case BatteryManager.BATTERY_STATUS_FULL : {
-	        	state = BATTERY_STATE_FULL;
-	        	break;
-	        }
-	        case BatteryManager.BATTERY_STATUS_DISCHARGING :
-	        case BatteryManager.BATTERY_STATUS_NOT_CHARGING : {
-	        	state = BATTERY_STATE_UNPLUGGED;
-	        	break;
-	        }
-        }
-        return state;
+		switch (status) {
+			case BatteryManager.BATTERY_STATUS_CHARGING: {
+				state = BATTERY_STATE_CHARGING;
+				break;
+			}
+			case BatteryManager.BATTERY_STATUS_FULL: {
+				state = BATTERY_STATE_FULL;
+				break;
+			}
+			case BatteryManager.BATTERY_STATUS_DISCHARGING:
+			case BatteryManager.BATTERY_STATUS_NOT_CHARGING: {
+				state = BATTERY_STATE_UNPLUGGED;
+				break;
+			}
+		}
+		return state;
 	}
 
-	private double convertBatteryLevel(int level, int scale) {
+	private double convertBatteryLevel(int level, int scale)
+	{
 		int l = -1;
-
-        if (level >= 0 && scale > 0) {
-            l = (level * 100) / scale;
-        }
-
-        return l;
+		if (level >= 0 && scale > 0) {
+			l = (level * 100) / scale;
+		}
+		return l;
 	}
 
-	private void registerBatteryReceiver(BroadcastReceiver batteryReceiver) {
+	private void registerBatteryReceiver(BroadcastReceiver batteryReceiver)
+	{
 		Activity a = getTiContext().getActivity();
-        IntentFilter batteryFilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
-        a.registerReceiver(batteryReceiver, batteryFilter);
+		IntentFilter batteryFilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
+		a.registerReceiver(batteryReceiver, batteryFilter);
 	}
 
 	@Override
 	public void onResume(Activity activity)
 	{
 		super.onResume(activity);
-
 		if (batteryStateReceiver != null) {
 			if (DBG) {
 				Log.i(LCAT, "Reregistering battery changed receiver");

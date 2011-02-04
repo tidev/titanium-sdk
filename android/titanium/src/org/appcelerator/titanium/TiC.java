@@ -17,6 +17,7 @@ public class TiC {
 	public static final String EVENT_ANDROID_SEARCH = "android:search";
 	public static final String EVENT_ANDROID_VOLDOWN = "android:voldown";
 	public static final String EVENT_ANDROID_VOLUP = "android:volup";
+	public static final String EVENT_BATTERY = "battery";
 	public static final String EVENT_BLUR = "blur";
 	public static final String EVENT_CHANGE = "change";
 	public static final String EVENT_CLICK = "click";
@@ -179,6 +180,7 @@ public class TiC {
 	public static final String PROPERTY_LEFT = "left";
 	public static final String PROPERTY_LEFT_BUTTON = "leftButton";
 	public static final String PROPERTY_LEFT_IMAGE = "leftImage";
+	public static final String PROPERTY_LEVEL = "level";
 	public static final String PROPERTY_LOCATION = "location";
 	public static final String PROPERTY_LONGITUDE = "longitude";
 	public static final String PROPERTY_LONGITUDE_DELTA = "longitudeDelta";
@@ -230,6 +232,8 @@ public class TiC {
 	public static final String PROPERTY_SOFT_KEYBOARD_ON_FOCUS = "softKeyboardOnFocus";
 	public static final String PROPERTY_SOUND = "sound";
 	public static final String PROPERTY_SPEED = "speed";
+	public static final String PROPERTY_STATE = "state";
+	public static final String PROPERTY_STATUS = "status";
 	public static final String PROPERTY_STREET = "street";
 	public static final String PROPERTY_STREET1 = "street1";
 	public static final String PROPERTY_SUBTITLE = "subtitle";

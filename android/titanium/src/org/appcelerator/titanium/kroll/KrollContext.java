@@ -57,16 +57,20 @@ public class KrollContext implements Handler.Callback
 
 	private CountDownLatch initialized;
 	private TiMessageQueue messageQueue;
-	private String loadFile;
 	private boolean useOptimization;
 
-	protected KrollContext(TiContext tiContext, String loadFile)
+	protected KrollContext(TiContext tiContext, String label)
 	{
 		this.tiContext = tiContext;
-		this.loadFile = loadFile;
 		// allow a configurable stack size to avoid StackOverflowErrors in some larger apps
+		StringBuilder threadName= new StringBuilder();
+		threadName.append("kroll(").append(getInstanceCounter().incrementAndGet());
+		if (label != null) {
+			threadName.append(":").append(label);
+		}
+		threadName.append(")");
 		thread = new KrollHandlerThread(
-			"kroll$" + getInstanceCounter().incrementAndGet(),
+			threadName.toString(),
 			Process.THREAD_PRIORITY_DEFAULT,
 			tiContext.getTiApp().getThreadStackSize(), this);
 		initialized = new CountDownLatch(1);
@@ -98,9 +102,6 @@ public class KrollContext implements Handler.Callback
 				Log.d(LCAT, "Initialized scope: " + jsScope);
 			}
 			initialized.countDown();
-			if (loadFile != null) {
-				handleEvalFile(loadFile);
-			}
 		} finally {
 			exit();
 		}

@@ -98,7 +98,7 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 		}
 
 		url = TiUrl.normalizeWindowUrl(getUrl());
-		tiContext = TiContext.createTiContext(this, url.baseUrl);
+		tiContext = TiContext.createTiContext(this, url.baseUrl, url.url);
 		tiContext.setLaunchContext(true);
 		if (activityProxy == null) {
 			setActivityProxy(new ActivityProxy(tiContext, this));

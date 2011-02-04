@@ -155,7 +155,7 @@ public class TiUIWindow extends TiUIView
 					activity = proxy.getTiContext().getActivity();
 				}
 			}
-			windowContext = TiContext.createTiContext(activity, tiUrl.baseUrl);
+			windowContext = TiContext.createTiContext(activity, tiUrl.baseUrl, tiUrl.url);
 
 			ActivityProxy activityProxy = ((TiWindowProxy) proxy).getActivity(windowContext);
 			if (windowActivity != null) {
@@ -163,7 +163,7 @@ public class TiUIWindow extends TiUIView
 			}
 			TiBindingHelper.bindCurrentWindowAndActivity(windowContext, proxy, activityProxy);
 		} else if (!lightWeight) {
-			windowContext = TiContext.createTiContext(windowActivity, proxy.getTiContext().getBaseUrl());
+			windowContext = TiContext.createTiContext(windowActivity, proxy.getTiContext().getBaseUrl(), proxy.getTiContext().getCurrentUrl());
 			ActivityProxy activityProxy = ((TiWindowProxy) proxy).getActivity(windowContext);
 			if (windowActivity != null) {
 				proxy.switchContext(windowContext);
