@@ -1,14 +1,17 @@
+/**
+ * Appcelerator Titanium Mobile
+ * Copyright (c) 2009-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Licensed under the terms of the Apache Public License
+ * Please see the LICENSE included with this distribution for details.
+ */
 package org.appcelerator.titanium;
 
-import java.lang.ref.SoftReference;
 import java.lang.ref.WeakReference;
 
 import org.appcelerator.kroll.KrollDict;
-import org.appcelerator.titanium.kroll.KrollCallback;
 import org.appcelerator.titanium.proxy.ActivityProxy;
-import org.appcelerator.titanium.proxy.MenuItemProxy;
-import org.appcelerator.titanium.proxy.MenuProxy;
 import org.appcelerator.titanium.proxy.TiWindowProxy;
+import org.appcelerator.titanium.util.AsyncResult;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiActivityResultHandler;
 import org.appcelerator.titanium.util.TiActivitySupport;
@@ -28,7 +31,6 @@ import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
@@ -40,7 +42,7 @@ import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 
-public class TiBaseActivity extends Activity 
+public abstract class TiBaseActivity extends Activity 
 	implements TiActivitySupport, ITiWindowHandler
 {
 	private static final String TAG = "TiBaseActivity";
@@ -51,28 +53,35 @@ public class TiBaseActivity extends Activity
 	protected TiWindowProxy window;
 	protected ActivityProxy activityProxy;
 	protected boolean mustFireInitialFocus;
-	protected Handler handler;
 	protected TiWeakList<ConfigurationChangedListener> configChangedListeners = new TiWeakList<ConfigurationChangedListener>();
 	protected OrientationEventListener orientationListener;
 	protected int orientationDegrees;
 	protected int orientationOverride = -1;
 	protected TiMenuSupport menuHelper;
+	protected TiMessageQueue messageQueue;
+	protected Messenger messenger;
+	protected int msgActivityCreatedId = -1;
+	protected int msgId = -1;
 
-	public static interface ConfigurationChangedListener {
+	public static interface ConfigurationChangedListener
+	{
 		public void onConfigurationChanged(TiBaseActivity activity, Configuration newConfig);
 	}
 
-	public TiApplication getTiApp() {
+	public TiApplication getTiApp()
+	{
 		return (TiApplication) getApplication();
 	}
 
-	public void setWindowProxy(TiWindowProxy proxy) {
+	public void setWindowProxy(TiWindowProxy proxy)
+	{
 		this.window = proxy;
 		updateTitle();
 		updateOrientation();
 	}
 
-	public void updateOrientation() {
+	public void updateOrientation()
+	{
 		if (window == null) return;
 		// This forces orientation so that it won't change unless it's allowed
 		// when using the "orientationModes" property
@@ -86,23 +95,33 @@ public class TiBaseActivity extends Activity
 		}
 	}
 
-	public void setActivityProxy(ActivityProxy proxy) {
+	public ActivityProxy getActivityProxy()
+	{
+		return activityProxy;
+	}
+
+	public void setActivityProxy(ActivityProxy proxy)
+	{
 		this.activityProxy = proxy;
 	}
 
-	public TiCompositeLayout getLayout() {
+	public TiCompositeLayout getLayout()
+	{
 		return layout;
 	}
 
-	public void addConfigurationChangedListener(ConfigurationChangedListener listener) {
+	public void addConfigurationChangedListener(ConfigurationChangedListener listener)
+	{
 		configChangedListeners.add(new WeakReference<ConfigurationChangedListener>(listener));
 	}
 
-	public void removeConfigurationChangedListener(ConfigurationChangedListener listener) {
+	public void removeConfigurationChangedListener(ConfigurationChangedListener listener)
+	{
 		configChangedListeners.remove(listener);
 	}
 
-	protected boolean getIntentBoolean(String property, boolean defaultValue) {
+	protected boolean getIntentBoolean(String property, boolean defaultValue)
+	{
 		Intent intent = getIntent();
 		if (intent != null) {
 			if (intent.hasExtra(property)) {
@@ -112,7 +131,8 @@ public class TiBaseActivity extends Activity
 		return defaultValue;
 	}
 
-	protected int getIntentInt(String property, int defaultValue) {
+	protected int getIntentInt(String property, int defaultValue)
+	{
 		Intent intent = getIntent();
 		if (intent != null) {
 			if (intent.hasExtra(property)) {
@@ -122,7 +142,8 @@ public class TiBaseActivity extends Activity
 		return defaultValue;
 	}
 
-	protected String getIntentString(String property, String defaultValue) {
+	protected String getIntentString(String property, String defaultValue)
+	{
 		Intent intent = getIntent();
 		if (intent != null) {
 			if (intent.hasExtra(property)) {
@@ -132,14 +153,16 @@ public class TiBaseActivity extends Activity
 		return defaultValue;
 	}
 
-	public void fireInitialFocus() {
+	public void fireInitialFocus()
+	{
 		if (mustFireInitialFocus && window != null) {
 			mustFireInitialFocus = false;
 			window.fireEvent(TiC.EVENT_FOCUS, null);
 		}
 	}
 
-	protected void updateTitle() {
+	protected void updateTitle()
+	{
 		if (window == null) return;
 
 		if (window.hasProperty(TiC.PROPERTY_TITLE)) {
@@ -164,7 +187,8 @@ public class TiBaseActivity extends Activity
 	}
 
 	// Subclasses can override to provide a custom layout
-	protected TiCompositeLayout createLayout() {
+	protected TiCompositeLayout createLayout()
+	{
 		LayoutArrangement arrangement = LayoutArrangement.DEFAULT;
 		String layoutFromIntent = getIntentString(TiC.INTENT_PROPERTY_LAYOUT, "");
 		if (layoutFromIntent.equals(TiC.LAYOUT_HORIZONTAL)) {
@@ -175,29 +199,39 @@ public class TiBaseActivity extends Activity
 		return new TiCompositeLayout(this, arrangement);
 	}
 
+	protected void setFullscreen(boolean fullscreen)
+	{
+		if (fullscreen) {
+			getWindow().setFlags(
+				WindowManager.LayoutParams.FLAG_FULLSCREEN,
+				WindowManager.LayoutParams.FLAG_FULLSCREEN);
+		}
+	}
+
+	protected void setNavBarHidden(boolean hidden)
+	{
+		if (!hidden) {
+			this.requestWindowFeature(Window.FEATURE_LEFT_ICON); // TODO Keep?
+			this.requestWindowFeature(Window.FEATURE_RIGHT_ICON);
+			this.requestWindowFeature(Window.FEATURE_PROGRESS);
+			this.requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
+		} else {
+			this.requestWindowFeature(Window.FEATURE_NO_TITLE);
+		}
+	}
+
 	// Subclasses can override to handle post-creation (but pre-message fire) logic
-	protected void windowCreated() {
+	protected void windowCreated()
+	{
 		boolean fullscreen = getIntentBoolean(TiC.PROPERTY_FULLSCREEN, false);
-		boolean navbar = !getIntentBoolean(TiC.PROPERTY_NAV_BAR_HIDDEN, false);
+		boolean navBarHidden = getIntentBoolean(TiC.PROPERTY_NAV_BAR_HIDDEN, false);
 		boolean modal = getIntentBoolean(TiC.PROPERTY_MODAL, false);
 		int softInputMode = getIntentInt(TiC.PROPERTY_WINDOW_SOFT_INPUT_MODE, -1);
 		boolean hasSoftInputMode = softInputMode != -1;
-
+		
 		if (!modal) {
-			if (fullscreen) {
-				getWindow().setFlags(
-					WindowManager.LayoutParams.FLAG_FULLSCREEN,
-					WindowManager.LayoutParams.FLAG_FULLSCREEN);
-			}
-
-			if (navbar) {
-				this.requestWindowFeature(Window.FEATURE_LEFT_ICON); // TODO Keep?
-				this.requestWindowFeature(Window.FEATURE_RIGHT_ICON);
-				this.requestWindowFeature(Window.FEATURE_PROGRESS);
-				this.requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
-			} else {
-				this.requestWindowFeature(Window.FEATURE_NO_TITLE);
-			}
+			setFullscreen(fullscreen);
+			setNavBarHidden(navBarHidden);
 		} else {
 			int flags = WindowManager.LayoutParams.FLAG_BLUR_BEHIND;
 			getWindow().setFlags(flags, flags);
@@ -209,24 +243,39 @@ public class TiBaseActivity extends Activity
 			}
 			getWindow().setSoftInputMode(softInputMode);
 		}
+
+		boolean useActivityWindow = getIntentBoolean(TiC.INTENT_PROPERTY_USE_ACTIVITY_WINDOW, false);
+		if (useActivityWindow) {
+			int windowId = getIntentInt(TiC.INTENT_PROPERTY_WINDOW_ID, -1);
+			TiActivityWindows.windowCreated(this, windowId);
+		}
 	}
 
 	@Override
-	protected void onCreate(Bundle savedInstanceState) {
+	protected void onCreate(Bundle savedInstanceState)
+	{
+		messageQueue = TiMessageQueue.getMessageQueue();
 		if (DBG) {
-			Log.d(TAG, "Activity onCreate");
+			Log.d(TAG, "Activity " + this + " onCreate");
+		}
+
+		Intent intent = getIntent();
+		if (intent != null) {
+			if (intent.hasExtra(TiC.INTENT_PROPERTY_MESSENGER)) {
+				messenger = (Messenger) intent.getParcelableExtra(TiC.INTENT_PROPERTY_MESSENGER);
+				msgActivityCreatedId = intent.getIntExtra(TiC.INTENT_PROPERTY_MSG_ACTIVITY_CREATED_ID, -1);
+				msgId = intent.getIntExtra(TiC.INTENT_PROPERTY_MSG_ID, -1);
+			}
 		}
 
 		// Doing this on every create in case the activity is externally created.
 		TiPlatformHelper.intializeDisplayMetrics(this);
-
 		orientationListener = new OrientationEventListener(this) {
 			@Override
 			public void onOrientationChanged(int orientation) {
 				TiBaseActivity.this.onOrientationChanged(orientation);
 			}
 		};
-		orientationListener.enable();
 
 		layout = createLayout();
 		super.onCreate(savedInstanceState);
@@ -235,51 +284,43 @@ public class TiBaseActivity extends Activity
 		if (activityProxy != null) {
 			activityProxy.fireSyncEvent(TiC.EVENT_CREATE, null);
 		}
-		
+
 		setContentView(layout);
-		
-		handler = new Handler();
 
-		Messenger messenger = null;
-		Integer messageId = null;
-		Intent intent = getIntent();
-		if (intent != null) {
-			if (intent.hasExtra(TiC.INTENT_PROPERTY_MESSENGER)) {
-				messenger = (Messenger) intent.getParcelableExtra(TiC.INTENT_PROPERTY_MESSENGER);
-				messageId = intent.getIntExtra(TiC.INTENT_PROPERTY_MESSAGE_ID, -1);
+		sendMessage(msgActivityCreatedId);
+		// for backwards compatibility
+		sendMessage(msgId);
+	}
+
+	protected void sendMessage(final int msgId)
+	{
+		if (messenger == null || msgId == -1) return;
+		// fire an async message on this thread's queue
+		// so we don't block onCreate() from returning
+		messageQueue.post(new Runnable() {
+			@Override
+			public void run() {
+				handleSendMessage(msgId);
 			}
-		}
+		});
+	}
 
-		if (messenger != null) {
-			final TiBaseActivity me = this;
-			final Messenger fMessenger = messenger;
-			final int fMessageId = messageId;
-			handler.post(new Runnable() {
-				@Override
-				public void run() {
-					if (fMessenger != null) {
-						try {
-							Message msg = Message.obtain();
-							msg.what = fMessageId;
-							msg.obj = me;
-							fMessenger.send(msg);
-							if (DBG) {
-								Log.d(TAG, "Notifying Window, activity is created");
-							}
-						} catch (RemoteException e) {
-							Log.e(TAG, "Unable to message creator. finishing.");
-							me.finish();
-						} catch (RuntimeException e) {
-							Log.e(TAG, "Unable to message creator. finishing.");
-							me.finish();
-						}
-					}
-				}
-			});
+	protected void handleSendMessage(int msgId)
+	{
+		try {
+			Message msg = messageQueue.getHandler().obtainMessage(msgId, this);
+			messenger.send(msg);
+		} catch (RemoteException e) {
+			Log.e(TAG, "Unable to message creator. finishing.", e);
+			finish();
+		} catch (RuntimeException e) {
+			Log.e(TAG, "Unable to message creator. finishing.", e);
+			finish();
 		}
 	}
 
-	protected TiActivitySupportHelper getSupportHelper() {
+	protected TiActivitySupportHelper getSupportHelper()
+	{
 		if (supportHelper == null) {
 			this.supportHelper = new TiActivitySupportHelper(this);
 		}
@@ -287,7 +328,8 @@ public class TiBaseActivity extends Activity
 	}
 
 	// Activity Support
-	public int getUniqueResultCode() {
+	public int getUniqueResultCode()
+	{
 		return getSupportHelper().getUniqueResultCode();
 	}
 
@@ -297,18 +339,21 @@ public class TiBaseActivity extends Activity
 	}
 
 	@Override
-	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+	protected void onActivityResult(int requestCode, int resultCode, Intent data)
+	{
 		super.onActivityResult(requestCode, resultCode, data);
 		getSupportHelper().onActivityResult(requestCode, resultCode, data);
 	}
 
 	@Override
-	public void addWindow(View v, TiCompositeLayout.LayoutParams params) {
+	public void addWindow(View v, TiCompositeLayout.LayoutParams params)
+	{
 		layout.addView(v, params);
 	}
 
 	@Override
-	public void removeWindow(View v) {
+	public void removeWindow(View v)
+	{
 		layout.removeView(v);
 	}
 
@@ -383,7 +428,8 @@ public class TiBaseActivity extends Activity
 	}
 
 	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
+	public boolean onCreateOptionsMenu(Menu menu)
+	{
 		if (menuHelper == null) {
 			menuHelper = new TiMenuSupport(activityProxy);
 		}
@@ -391,27 +437,42 @@ public class TiBaseActivity extends Activity
 	}
 
 	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
+	public boolean onOptionsItemSelected(MenuItem item)
+	{
 		return menuHelper.onOptionsItemSelected(item);
 	}
 
 	@Override
-	public boolean onPrepareOptionsMenu(Menu menu) {
+	public boolean onPrepareOptionsMenu(Menu menu)
+	{
 		return menuHelper.onPrepareOptionsMenu(super.onPrepareOptionsMenu(menu), menu);
 	}
 
-	public int getOrientationDegrees() {
+	public int getOrientationDegrees()
+	{
 		return orientationDegrees;
 	}
 
-	public void overrideOrientation(int orientation) {
+	public void overrideOrientation(int orientation)
+	{
 		// override the orientation until it's matched, then go back to detecting
 		// this matches iPhone's behavior (hoop -> jump)
 		orientationOverride = orientation;
 		setRequestedOrientation(orientation);
 	}
 
-	protected void onOrientationChanged(int degrees) {
+	public void enableOrientationListener()
+	{
+		orientationListener.enable();
+	}
+
+	public void disableOrientationListener()
+	{
+		orientationListener.disable();
+	}
+
+	protected void onOrientationChanged(int degrees)
+	{
 		// once setRequestedOrientation is called, onConfigurationChanged is no longer called
 		// with new orientation changes from the OS. OrientationEventListener goes through
 		// the SensorManager directly, and allows us to reset correctly
@@ -455,7 +516,8 @@ public class TiBaseActivity extends Activity
 	}
 
 	@Override
-	public void onConfigurationChanged(Configuration newConfig) {
+	public void onConfigurationChanged(Configuration newConfig)
+	{
 		super.onConfigurationChanged(newConfig);
 		for (WeakReference<ConfigurationChangedListener> listener : configChangedListeners) {
 			if (listener.get() != null) {
@@ -465,11 +527,13 @@ public class TiBaseActivity extends Activity
 	}
 
 	@Override
-	protected void onPause() {
+	protected void onPause() 
+	{
 		super.onPause();
 		if (DBG) {
-			Log.d(TAG, "Activity onPause");
+			Log.d(TAG, "Activity " + this + " onPause");
 		}
+
 		getTiApp().setWindowHandler(null);
 		getTiApp().setCurrentActivity(this, null);
 		if (activityProxy != null) {
@@ -478,12 +542,12 @@ public class TiBaseActivity extends Activity
 	}
 
 	@Override
-	protected void onResume() {
+	protected void onResume()
+	{
 		super.onResume();
 		if (DBG) {
-			Log.d(TAG, "Activity onResume");
+			Log.d(TAG, "Activity " + this + " onResume");
 		}
-
 		getTiApp().setWindowHandler(this);
 		getTiApp().setCurrentActivity(this, this);
 		if (activityProxy != null) {
@@ -492,10 +556,11 @@ public class TiBaseActivity extends Activity
 	}
 
 	@Override
-	protected void onStart() {
+	protected void onStart()
+	{
 		super.onStart();
 		if (DBG) {
-			Log.d(TAG, "Activity onStart");
+			Log.d(TAG, "Activity " + this + " onStart");
 		}
 		updateTitle();
 		
@@ -510,10 +575,11 @@ public class TiBaseActivity extends Activity
 	}
 
 	@Override
-	protected void onStop() {
+	protected void onStop()
+	{
 		super.onStop();
 		if (DBG) {
-			Log.d(TAG, "Activity onStop");
+			Log.d(TAG, "Activity " + this + " onStop");
 		}
 		if (window != null) {
 			window.fireEvent(TiC.EVENT_BLUR, null);
@@ -524,7 +590,23 @@ public class TiBaseActivity extends Activity
 	}
 
 	@Override
-	protected void onDestroy() {
+	protected void onRestart()
+	{
+		super.onRestart();
+		if (DBG) {
+			Log.d(TAG, "Activity " + this + " onRestart");
+		}
+		if (activityProxy != null) {
+			activityProxy.fireSyncEvent(TiC.EVENT_RESTART, null);
+		}
+	}
+
+	@Override
+	protected void onDestroy()
+	{
+		if (DBG) {
+			Log.d(TAG, "Activity " + this + " onDestroy");
+		}
 		super.onDestroy();
 		if (orientationListener != null) {
 			orientationListener.disable();
@@ -534,7 +616,6 @@ public class TiBaseActivity extends Activity
 			layout.removeAllViews();
 			layout = null;
 		}
-		
 		if (window != null) {
 			window.closeFromActivity();
 			window = null;
@@ -548,15 +629,16 @@ public class TiBaseActivity extends Activity
 			activityProxy.release();
 			activityProxy = null;
 		}
-		handler = null;
 	}
 
-	protected boolean shouldFinishRootActivity() {
+	protected boolean shouldFinishRootActivity()
+	{
 		return getIntentBoolean(TiC.INTENT_PROPERTY_FINISH_ROOT, false);
 	}
-	
+
 	@Override
-	public void finish() {
+	public void finish()
+	{
 		if (window != null) {
 			KrollDict data = new KrollDict();
 			data.put(TiC.EVENT_PROPERTY_SOURCE, window);

@@ -85,7 +85,7 @@ public abstract class TiApplication extends Application
 	protected ArrayList<KrollModule> modules = new ArrayList<KrollModule>();
 
 	public TiApplication() {
-		Log.checkpoint("checkpoint, app created.");
+		Log.checkpoint(LCAT, "checkpoint, app created.");
 		_instance = this;
 		
 		needsEnrollEvent = false; // test is after DB is available

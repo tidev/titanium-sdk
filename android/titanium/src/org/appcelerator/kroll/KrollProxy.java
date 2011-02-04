@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2011 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -9,15 +9,16 @@ package org.appcelerator.kroll;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
+import org.appcelerator.titanium.TiMessageQueue;
 import org.appcelerator.titanium.bridge.OnEventListenerChange;
 import org.appcelerator.titanium.kroll.KrollBridge;
 import org.appcelerator.titanium.kroll.KrollCallback;
+import org.appcelerator.titanium.util.AsyncResult;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 import org.mozilla.javascript.Function;
@@ -25,6 +26,7 @@ import org.mozilla.javascript.Scriptable;
 
 import android.app.Activity;
 import android.os.Handler;
+import android.os.Looper;
 import android.os.Message;
 
 @Kroll.proxy
@@ -54,7 +56,6 @@ public class KrollProxy
 	protected TiContext context, creatingContext;
 
 	protected Handler uiHandler;
-	protected CountDownLatch waitForHandler;
 	protected String proxyId;
 	protected KrollProxyListener modelListener;
 	protected KrollEventManager eventManager;
@@ -79,13 +80,8 @@ public class KrollProxy
 		}
 		this.proxyId = PROXY_ID_PREFIX + proxyCounter.incrementAndGet();
 
-		final KrollProxy me = this;
-		waitForHandler = new CountDownLatch(1);
-
-		if (context.isUIThread()) {
-			uiHandler = new Handler(me);
-			waitForHandler.countDown();
-		} else {
+		uiHandler = new Handler(Looper.getMainLooper(), this);
+		if (!context.isUIThread()) {
 			Activity activity = context.getActivity();
 			if ((activity == null || activity.isFinishing()) && !context.isServiceContext()) {
 				if (DBG) {
@@ -93,15 +89,6 @@ public class KrollProxy
 				}
 				return;
 			}
-			activity.runOnUiThread(new Runnable() {
-				public void run() {
-					if (DBG) {
-						Log.i(TAG, "Creating handler on UI thread for Proxy");
-					}
-					uiHandler = new Handler(me);
-					waitForHandler.countDown();
-				}
-			});
 		}
 	}
 
@@ -522,12 +509,27 @@ public class KrollProxy
 
 	public Handler getUIHandler()
 	{
-		try {
-			waitForHandler.await();
-		} catch (InterruptedException e) {
-			// ignore
-		}
 		return uiHandler;
+	}
+
+	public Object sendBlockingUiMessage(int what, Object asyncArg)
+	{
+		AsyncResult result = new AsyncResult(asyncArg);
+		return sendBlockingUiMessage(
+			getUIHandler().obtainMessage(what, result), result);
+	}
+
+	public Object sendBlockingUiMessage(int what, Object asyncArg, int arg1, int arg2)
+	{
+		AsyncResult result = new AsyncResult(asyncArg);
+		return sendBlockingUiMessage(
+			getUIHandler().obtainMessage(what, arg1, arg2, result), result);
+	}
+
+	public Object sendBlockingUiMessage(Message msg, AsyncResult result)
+	{
+		return TiMessageQueue.getMessageQueue().sendBlockingMessage(
+			msg, TiMessageQueue.getMainMessageQueue(), result);
 	}
 
 	public TiContext getTiContext()

@@ -55,6 +55,7 @@ public class TiC {
 	public static final String EVENT_PROPERTY_X = "x";
 	public static final String EVENT_PROPERTY_Y = "y";
 	public static final String EVENT_REGION_CHANGED = "regionChanged";
+	public static final String EVENT_RESTART = "restart";
 	public static final String EVENT_RESUME = "resume";
 	public static final String EVENT_SINGLE_TAP = "singletap";
 	public static final String EVENT_START = "start";
@@ -66,8 +67,11 @@ public class TiC {
 	public static final String EVENT_UNFOCUSED = "unfocused";
 	public static final String INTENT_PROPERTY_FINISH_ROOT = "finishRoot";
 	public static final String INTENT_PROPERTY_LAYOUT = "layout";
-	public static final String INTENT_PROPERTY_MESSAGE_ID = "messageId";
 	public static final String INTENT_PROPERTY_MESSENGER = "messenger";
+	public static final String INTENT_PROPERTY_MSG_ACTIVITY_CREATED_ID = "msgActivityCreatedId";
+	public static final String INTENT_PROPERTY_MSG_ID = "messageId";
+	public static final String INTENT_PROPERTY_USE_ACTIVITY_WINDOW = "useActivityWindow";
+	public static final String INTENT_PROPERTY_WINDOW_ID = "windowId";
 	public static final String LAYOUT_HORIZONTAL = "horizontal";
 	public static final String LAYOUT_VERTICAL = "vertical";
 	public static final String MSG_PROPERTY_EVENT_NAME = "eventName";
@@ -100,6 +104,7 @@ public class TiC {
 	public static final String PROPERTY_BACKGROUND_PREFIX = "background";
 	public static final String PROPERTY_BACKGROUND_SELECTED_COLOR = "backgroundSelectedColor";
 	public static final String PROPERTY_BACKGROUND_SELECTED_IMAGE = "backgroundSelectedImage";
+	public static final String PROPERTY_BASE_URL = "baseUrl";
 	public static final String PROPERTY_BORDER_COLOR = "borderColor";
 	public static final String PROPERTY_BORDER_PREFIX = "border";
 	public static final String PROPERTY_BORDER_RADIUS = "borderRadius";
@@ -236,6 +241,7 @@ public class TiC {
 	public static final String PROPERTY_TICKER_TEXT = "tickerText";
 	public static final String PROPERTY_TIMESTAMP = "timestamp";
 	public static final String PROPERTY_TITLE = "title";
+	public static final String PROPERTY_TITLEID = "titleid";
 	public static final String PROPERTY_TOP = "top";
 	public static final String PROPERTY_TOUCH_ENABLED = "touchEnabled";
 	public static final String PROPERTY_TRANSFORM = "transform";
@@ -261,4 +267,5 @@ public class TiC {
 	public static final String SIZE_AUTO = "auto";
 	public static final String URL_APP_PREFIX = "app://";
 	public static final String URL_APP_SCHEME = "app";
+	public static final String URL_APP_JS = "app://app.js";
 }

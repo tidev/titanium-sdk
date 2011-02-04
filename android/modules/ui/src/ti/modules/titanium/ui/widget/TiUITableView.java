@@ -9,6 +9,7 @@ package ti.modules.titanium.ui.widget;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.titanium.TiC;
+import org.appcelerator.titanium.TiContext.OnLifecycleEvent;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
@@ -20,68 +21,80 @@ import ti.modules.titanium.ui.widget.searchbar.TiUISearchBar;
 import ti.modules.titanium.ui.widget.tableview.TableViewModel;
 import ti.modules.titanium.ui.widget.tableview.TiTableView;
 import ti.modules.titanium.ui.widget.tableview.TiTableView.OnItemClickedListener;
+import android.app.Activity;
 import android.view.Gravity;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 
 public class TiUITableView extends TiUIView
-	implements OnItemClickedListener
+	implements OnItemClickedListener, OnLifecycleEvent
 {
 	private static final String LCAT = "TitaniumTableView";	
 	private static final boolean DBG = TiConfig.LOGD;
-	
+
 	protected TiTableView tableView;
-	
-	public TiUITableView(TiViewProxy proxy) {
+
+	public TiUITableView(TiViewProxy proxy)
+	{
 		super(proxy);
 		getLayoutParams().autoFillsHeight = true;
 		getLayoutParams().autoFillsWidth = true;
 	}
 
 	@Override
-	public void onClick(KrollDict data) {
+	public void onClick(KrollDict data)
+	{
 		proxy.fireEvent(TiC.EVENT_CLICK, data);
 	}
-	
-	public void setModelDirty() {
+
+	public void setModelDirty()
+	{
 		tableView.getTableViewModel().setDirty();
 	}
 	
-	public TableViewModel getModel() {
+	public TableViewModel getModel()
+	{
 		return tableView.getTableViewModel();
 	}
-	
-	public void updateView() {
-		tableView.dataSetChanged();
-	}	
 
-	public void scrollToIndex(final int index) {
+	public void updateView()
+	{
+		tableView.dataSetChanged();
+	}
+
+	public void scrollToIndex(final int index)
+	{
 		tableView.getListView().setSelection(index);
 	}
 
-	public TiTableView getTableView() {
+	public TiTableView getTableView()
+	{
 		return tableView;
 	}
-	
-	public ListView getListView() {
+
+	public ListView getListView()
+	{
 		return tableView.getListView();
 	}
 
 	@Override
-	public void processProperties(KrollDict d) {
+	public void processProperties(KrollDict d)
+	{
 		tableView = new TiTableView(proxy.getTiContext(), (TableViewProxy) proxy);
+		proxy.getTiContext().addOnLifecycleEventListener(this);
+
 		tableView.setOnItemClickListener(this);
-	
+
 		if (d.containsKey(TiC.PROPERTY_SEARCH)) {
 			RelativeLayout layout = new RelativeLayout(proxy.getTiContext().getActivity());
 			layout.setGravity(Gravity.NO_GRAVITY);
 			layout.setPadding(0, 0, 0, 0);
-			
+
 			TiViewProxy searchView = (TiViewProxy) d.get(TiC.PROPERTY_SEARCH);
 			TiUISearchBar searchBar = (TiUISearchBar)searchView.getView(proxy.getTiContext().getActivity());
 			searchBar.setOnSearchChangeListener(tableView);
 			searchBar.getNativeView().setId(102);
-			
+
 			RelativeLayout.LayoutParams p = new RelativeLayout.LayoutParams(
 					RelativeLayout.LayoutParams.FILL_PARENT,
 					RelativeLayout.LayoutParams.FILL_PARENT);
@@ -89,9 +102,9 @@ public class TiUITableView extends TiUIView
 			p.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
 			p.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
 			p.height = 52;
-			
+
 			layout.addView(searchBar.getNativeView(), p);
-			
+
 			p = new RelativeLayout.LayoutParams(
 				RelativeLayout.LayoutParams.FILL_PARENT,
 				RelativeLayout.LayoutParams.FILL_PARENT);
@@ -122,18 +135,34 @@ public class TiUITableView extends TiUIView
 	}
 
 	@Override
-	public void release() {
+	public void onResume(Activity activity) {
+		if (tableView != null) {
+			tableView.dataSetChanged();
+		}
+	}
+
+	@Override public void onStop(Activity activity) {}
+	@Override public void onStart(Activity activity) {}
+	@Override public void onPause(Activity activity) {}
+	@Override public void onDestroy(Activity activity) {}
+
+	@Override
+	public void release()
+	{
 		if (tableView != null) {
 			tableView.release();
 			tableView  = null;
+		}
+		if (proxy != null && proxy.getTiContext() != null) {
+			proxy.getTiContext().removeOnLifecycleEventListener(this);
 		}
 		nativeView  = null;
 		super.release();
 	}
 
 	@Override
-	public void propertyChanged(String key, Object oldValue, Object newValue,
-			KrollProxy proxy) {
+	public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy proxy)
+	{
 		if (DBG) {
 			Log.d(LCAT, "Property: " + key + " old: " + oldValue + " new: " + newValue);
 		}

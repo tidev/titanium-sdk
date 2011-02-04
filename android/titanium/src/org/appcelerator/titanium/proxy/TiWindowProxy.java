@@ -14,7 +14,6 @@ import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.AsyncResult;
-import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiAnimation;
@@ -36,7 +35,7 @@ public abstract class TiWindowProxy extends TiViewProxy
 
 	protected static final int MSG_LAST_ID = MSG_FIRST_ID + 999;
 
-	protected boolean opened;
+	protected boolean opened, opening;
 	protected boolean focused;
 	protected boolean fullscreen;
 	protected boolean modal;
@@ -47,43 +46,46 @@ public abstract class TiWindowProxy extends TiViewProxy
 	protected TiViewProxy tab;
 	protected boolean inTab;
 
-	public TiWindowProxy(TiContext tiContext) {
+	public TiWindowProxy(TiContext tiContext)
+	{
 		super(tiContext);
 		inTab = false;
 	}
 
 	@Override
-	public TiUIView createView(Activity activity) {
+	public TiUIView createView(Activity activity)
+	{
 		throw new IllegalStateException("Windows are created during open");
 	}
 
 	@Override
-	public boolean handleMessage(Message msg) {
-		switch(msg.what) {
-			case MSG_OPEN : {
+	public boolean handleMessage(Message msg)
+	{
+		switch (msg.what) {
+			case MSG_OPEN: {
 				AsyncResult result = (AsyncResult) msg.obj;
 				handleOpen((KrollDict) result.getArg());
 				result.setResult(null); // signal opened
 				return true;
 			}
-			case MSG_CLOSE : {
+			case MSG_CLOSE: {
 				AsyncResult result = (AsyncResult) msg.obj;
 				handleClose((KrollDict) result.getArg());
 				result.setResult(null); // signal closed
 				return true;
 			}
-			default : {
+			default: {
 				return super.handleMessage(msg);
 			}
 		}
 	}
 
 	@Kroll.method
-	public void open(@Kroll.argument(optional=true) Object arg) {
-		if (opened) {
-			return;
-		}
+	public void open(@Kroll.argument(optional = true) Object arg)
+	{
+		if (opened || opening) { return; }
 
+		opening = true;
 		KrollDict options = null;
 		TiAnimation animation = null;
 
@@ -100,18 +102,14 @@ public abstract class TiWindowProxy extends TiViewProxy
 			handleOpen(options);
 			return;
 		}
-
-		AsyncResult result = new AsyncResult(options);
-		Message msg = getUIHandler().obtainMessage(MSG_OPEN, result);
-		msg.sendToTarget();
-		result.getResult(); // Don't care about result, just synchronizing.
+		sendBlockingUiMessage(MSG_OPEN, options);
+		opening = false;
 	}
 
 	@Kroll.method
-	public void close(@Kroll.argument(optional=true) Object arg) {
-		if (!opened) {
-			return;
-		}
+	public void close(@Kroll.argument(optional = true) Object arg)
+	{
+		if (!opened) { return; }
 
 		KrollDict options = null;
 		TiAnimation animation = null;
@@ -130,16 +128,12 @@ public abstract class TiWindowProxy extends TiViewProxy
 			return;
 		}
 
-		AsyncResult result = new AsyncResult(options);
-		Message msg = getUIHandler().obtainMessage(MSG_CLOSE, result);
-		msg.sendToTarget();
-		result.getResult(); // Don't care about result, just synchronizing.
+		sendBlockingUiMessage(MSG_CLOSE, options);
 	}
 
-	public void closeFromActivity() {
-		if (!opened) {
-			return;
-		}
+	public void closeFromActivity()
+	{
+		if (!opened) { return; }
 		releaseViews();
 		opened = false;
 		TiContext context = getTiContext();
@@ -147,33 +141,42 @@ public abstract class TiWindowProxy extends TiViewProxy
 			switchToCreatingContext();
 		}
 	}
-	
-	public void setTabProxy(TiViewProxy tabProxy) {
+
+	public void setTabProxy(TiViewProxy tabProxy)
+	{
 		this.tab = tabProxy;
 	}
 
-	public TiViewProxy getTabProxy() {
+	public TiViewProxy getTabProxy()
+	{
 		return this.tab;
 	}
 
-	public void setTabGroupProxy(TiViewProxy tabGroupProxy) {
+	public void setTabGroupProxy(TiViewProxy tabGroupProxy)
+	{
 		this.tabGroup = tabGroupProxy;
 	}
-	public TiViewProxy getTabGroupProxy() {
+
+	public TiViewProxy getTabGroupProxy()
+	{
 		return this.tabGroup;
 	}
 
 	@Kroll.method
-	public void hideTabBar() {
+	public void hideTabBar()
+	{
 		// iPhone only right now.
 	}
 
-	public KrollDict handleToImage() {
-		return TiUIHelper.viewToImage(getTiContext(), properties, getTiContext().getActivity().getWindow().getDecorView());
+	public KrollDict handleToImage()
+	{
+		return TiUIHelper.viewToImage(getTiContext(), properties, getTiContext().getActivity().getWindow()
+			.getDecorView());
 	}
-	
+
 	@Kroll.method @Kroll.setProperty
-	public void setOrientationModes(int[] modes) {
+	public void setOrientationModes(int[] modes)
+	{
 		orientationModes = modes;
 		Activity activity = handleGetActivity();
 		if (activity instanceof TiBaseActivity) {
@@ -181,15 +184,17 @@ public abstract class TiWindowProxy extends TiViewProxy
 			tiActivity.updateOrientation();
 		}
 	}
-	
+
 	@Kroll.method @Kroll.getProperty
-	public int[] getOrientationModes() {
+	public int[] getOrientationModes()
+	{
 		return orientationModes;
 	}
-	
-	public boolean isOrientationMode(int orientation) {
+
+	public boolean isOrientationMode(int orientation)
+	{
 		if (orientationModes.length == 0) return true;
-		
+
 		boolean allowOrientationChange = false;
 		int currentMode = TiUIHelper.convertToTiOrientation(orientation);
 		for (int mode : orientationModes) {
@@ -200,13 +205,15 @@ public abstract class TiWindowProxy extends TiViewProxy
 		}
 		return allowOrientationChange;
 	}
-	
+
 	@Kroll.method @Kroll.getProperty
-	public ActivityProxy getActivity(KrollInvocation invocation) {
+	public ActivityProxy getActivity(KrollInvocation invocation)
+	{
 		return getActivity(invocation.getTiContext());
 	}
-	
-	public ActivityProxy getActivity(TiContext tiContext) {
+
+	public ActivityProxy getActivity(TiContext tiContext)
+	{
 		Object activityObject = getProperty(TiC.PROPERTY_ACTIVITY);
 		ActivityProxy activityProxy = null;
 		if (activityObject == null) {
@@ -222,7 +229,7 @@ public abstract class TiWindowProxy extends TiViewProxy
 		}
 		return activityProxy;
 	}
-	
+
 	protected abstract void handleOpen(KrollDict options);
 	protected abstract void handleClose(KrollDict options);
 	protected abstract Activity handleGetActivity();
