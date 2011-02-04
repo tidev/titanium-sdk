@@ -107,7 +107,10 @@ public class MediaModule extends KrollModule
 			errorCallback = (KrollCallback) options.get("error");
 		}
 		if (options.containsKey("mediaTypes")) {
-			type = MEDIA_TYPE_VIDEO;
+			String[] types = options.getStringArray("mediaTypes");
+			if(types.length == 1 && types[0].equals(MEDIA_TYPE_VIDEO)) {
+				type = MEDIA_TYPE_VIDEO;
+			}
 		}
 
 		final KrollCallback fSuccessCallback = successCallback;
