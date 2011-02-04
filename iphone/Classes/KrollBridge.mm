@@ -530,7 +530,7 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 	[proxyLock lock];
 	if (proxies==nil)
 	{ 
-		proxies = [[NSMutableArray alloc] initWithCapacity:50];
+		proxies = TiCreateNonRetainingArray();
 	}
 	[proxies addObject:proxy];
 	[proxyLock unlock];
