@@ -253,7 +253,12 @@ public class TiDrawableReference
 				destWidth = srcWidth; // default, but try harder below
 				TiContext context = softContext.get();
 				if (context != null && context.getActivity() != null && context.getActivity().getWindow() != null) {
-					destWidth = context.getActivity().getWindow().getDecorView().getWidth();
+					int parentWidth = context.getActivity().getWindow().getDecorView().getWidth();
+					if (parentWidth > 0) {
+						// the parent may not be finished laying out yet
+						// we'll take the natural width as the best guess in that case
+						destWidth = parentWidth;
+					}
 				}
 			} else {
 				destWidth = destWidthDimension.isUnitAuto() ? srcWidth : destWidthDimension.getAsPixels(parent);

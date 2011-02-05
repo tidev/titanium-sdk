@@ -22,7 +22,7 @@ public abstract class TiUIPicker extends TiUIView
 	{
 		super(proxy);
 	}
-	
+
 	public abstract void selectRow(int columnIndex, int rowIndex, boolean animated);
 	public abstract int getSelectedRowIndex(int columnIndex);
 	protected abstract void refreshNativeView();
@@ -34,7 +34,7 @@ public abstract class TiUIPicker extends TiUIView
 			refreshNativeView();
 		}
 	}
-	
+
 	// When a column has been added.
 	public void onColumnAdded(int columnIndex) {}
 	// When a column has been removed.
@@ -43,12 +43,12 @@ public abstract class TiUIPicker extends TiUIView
 	public void onColumnModelChanged(int columnIndex) {}
 	// When a row value has been changed.
 	public void onRowChanged(int columnIndex, int rowIndex) {}
-	
+
 	protected PickerProxy getPickerProxy()
 	{
 		return (PickerProxy)proxy;
 	}
-	
+
 	public void selectRows(ArrayList<Integer> selectionIndexes)
 	{
 		if (selectionIndexes == null || selectionIndexes.size() == 0) {
