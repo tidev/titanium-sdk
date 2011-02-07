@@ -86,7 +86,7 @@ message: error message
 Simple example of playing a WAVE file from the Resources directory.
 
 ~~~
-var player = Ti.UI.createSound({url:"sound.wav"});
+var player = Ti.Media.createSound({url:"sound.wav"});
 player.play();
 ~~~
 
