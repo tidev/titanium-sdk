@@ -204,6 +204,7 @@ public class TiUIWindow extends TiUIView
 		windowActivity = activity;
 		windowContext.setActivity(windowActivity);
 		bindWindowActivity(windowContext, windowActivity);
+		bindProxies();
 		handleWindowCreated();
 		TiMessageQueue.getMainMessageQueue().stopBlocking();
 	}
