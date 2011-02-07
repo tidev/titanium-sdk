@@ -7,7 +7,8 @@
 package org.appcelerator.titanium;
 
 // Global Titanium constants- Try to keep these sorted alphabetically
-public class TiC {
+public class TiC
+{
 	public static final String ERROR_PROPERTY_CODE = "code";
 	public static final String ERROR_PROPERTY_ERRORCODE = "errorcode";
 	public static final String ERROR_PROPERTY_MESSAGE = "message";
@@ -139,6 +140,7 @@ public class TiC {
 	public static final String PROPERTY_ENABLE_ZOOM_CONTROLS = "enableZoomControls";
 	public static final String PROPERTY_ENABLED = "enabled";
 	public static final String PROPERTY_EXIT_ON_CLOSE = "exitOnClose";
+	public static final String PROPERTY_FILE = "file";
 	public static final String PROPERTY_FILTER_ATTRIBUTE = "filterAttribute";
 	public static final String PROPERTY_FILTER_CASE_INSENSITIVE = "filterCaseInsensitive";
 	public static final String PROPERTY_FLAGS = "flags";
@@ -243,6 +245,7 @@ public class TiC {
 	public static final String PROPERTY_TEXT = "text";
 	public static final String PROPERTY_TEXT_ALIGN = "textAlign";
 	public static final String PROPERTY_TICKER_TEXT = "tickerText";
+	public static final String PROPERTY_TIME = "time";
 	public static final String PROPERTY_TIMESTAMP = "timestamp";
 	public static final String PROPERTY_TITLE = "title";
 	public static final String PROPERTY_TITLEID = "titleid";
