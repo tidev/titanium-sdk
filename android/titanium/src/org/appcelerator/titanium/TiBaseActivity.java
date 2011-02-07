@@ -279,6 +279,8 @@ public abstract class TiBaseActivity extends Activity
 
 		layout = createLayout();
 		super.onCreate(savedInstanceState);
+		getTiApp().setWindowHandler(this);
+		getTiApp().setCurrentActivity(this, this);
 		windowCreated();
 
 		if (activityProxy != null) {
