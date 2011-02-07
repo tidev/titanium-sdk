@@ -26,22 +26,22 @@ import android.os.Message;
  * 
  * TiMessageQueues have one instance per thread tied by a ThreadLocal. The main
  * thread's TiMessageQueue can be retrieved by calling {@link
- * getMainMessageQueue()}, or a TiMessageQueue can be lazily created/queried for
- * the current Thread by calling {@link getMessageQueue()}.
+ * #getMainMessageQueue()}, or a TiMessageQueue can be lazily created/queried for
+ * the current Thread by calling {@link #getMessageQueue()}.
  * 
- * To simply send a message, see {@link sendMessage(Message)} and {@link
- * post(Runnable)}.
+ * To simply send a message, see {@link #sendMessage(Message)} and {@link
+ * #post(Runnable)}.
  * 
  * In situations where the current thread needs to be blocked while waiting on
- * another thread to process a message, see {@link sendBlockingMesssage(Message,
+ * another thread to process a message, see {@link #sendBlockingMesssage(Message,
  * TiMessageQueue, AsyncResult)}.
  * 
  * If the thread blocking is simply a busy loop, a simple 1-count CountDownLatch
  * is stored internally that can be used in multiple places by calling {@link
- * startBlocking()} and {@link stopBlocking()}.
+ * #startBlocking()} and {@link #stopBlocking()}.
  * 
  * To process and dispatch a single message from the message queue, see {@link
- * dispatchMessage()}.
+ * #dispatchMessage()}.
  */
 public class TiMessageQueue implements Handler.Callback
 {
@@ -119,7 +119,12 @@ public class TiMessageQueue implements Handler.Callback
 			target.dispatchMessage(msg);
 		} else {
 			if (blocking) {
-				messageQueue.add(msg);
+				try {
+					messageQueue.put(msg);
+				} catch (InterruptedException e) {
+					Log.w(TAG, "interrupted trying to put new message, sending to handler", e);
+					msg.sendToTarget();
+				}
 			} else {
 				msg.sendToTarget();
 			}
@@ -155,8 +160,20 @@ public class TiMessageQueue implements Handler.Callback
 			@Override
 			public Object getResult()
 			{
-				while (!tryAcquire()) {
-					dispatchMessage();
+				int timeout = 0;
+				try {
+					// TODO: create a multi-semaphore condition
+					// here so we don't unnecessarily poll
+					while (!tryAcquire(timeout, TimeUnit.MILLISECONDS)) {
+						if (messageQueue.size() == 0) {
+							timeout = 50;
+						} else {
+							dispatchPendingMessages();
+						}
+					}
+				} catch (InterruptedException e) {
+					Log.e(TAG, "interrupted waiting for async result", e);
+					dispatchPendingMessages();
 				}
 				if (exception != null) {
 					throw new RuntimeException(exception);
@@ -177,6 +194,7 @@ public class TiMessageQueue implements Handler.Callback
 
 		Object o = blockingResult.getResult();
 		blocking = false;
+		dispatchPendingMessages();
 		return o;
 	}
 
@@ -241,9 +259,9 @@ public class TiMessageQueue implements Handler.Callback
 			blocking = true;
 		}
 		while (blockingLatch.getCount() != 0) {
-			dispatchMessage();
+			dispatchPendingMessages();
 		}
-		dispatchMessage();
+		dispatchPendingMessages();
 	}
 
 	/**
@@ -256,6 +274,16 @@ public class TiMessageQueue implements Handler.Callback
 				blockingLatch.countDown();
 			}
 			blocking = false;
+		}
+	}
+
+	/**
+	 * Dispatch all pending messages
+	 */
+	public void dispatchPendingMessages()
+	{
+		while (true) {
+			if (!dispatchMessage()) break;
 		}
 	}
 
