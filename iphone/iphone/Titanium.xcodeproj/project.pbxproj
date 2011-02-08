@@ -850,6 +850,8 @@
 		DABB37B712E8CB280026A6EA /* libtiverify.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 24D5C75811E6364F00F097E2 /* libtiverify.a */; };
 		DABDEB07128B5A8F00C85FEA /* AudioStreamerBC.m in Sources */ = {isa = PBXBuildFile; fileRef = DA9FF580128A1F3600457759 /* AudioStreamerBC.m */; };
 		DABDEB08128B5A8F00C85FEA /* AudioStreamerCUR.m in Sources */ = {isa = PBXBuildFile; fileRef = DA9FF582128A1F3600457759 /* AudioStreamerCUR.m */; };
+		DAF8E8861300DDD600C06BC6 /* CoreMedia.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DAF8E8851300DDD600C06BC6 /* CoreMedia.framework */; };
+		DAF8E8881300DDD600C06BC6 /* CoreVideo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DAF8E8871300DDD600C06BC6 /* CoreVideo.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -1437,6 +1439,8 @@
 		DABA10BF12E676A1007DD791 /* FBRequest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FBRequest.h; sourceTree = "<group>"; };
 		DABA10C012E676A1007DD791 /* FBRequest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FBRequest.m; sourceTree = "<group>"; };
 		DABB37BC12E8CB280026A6EA /* Titanium.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Titanium.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		DAF8E8851300DDD600C06BC6 /* CoreMedia.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMedia.framework; path = System/Library/Frameworks/CoreMedia.framework; sourceTree = SDKROOT; };
+		DAF8E8871300DDD600C06BC6 /* CoreVideo.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreVideo.framework; path = System/Library/Frameworks/CoreVideo.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -1467,6 +1471,8 @@
 				242E8E3111BA39FD0046A0D0 /* libTiCore.a in Frameworks */,
 				242EA11611BD956F0046A0D0 /* ExternalAccessory.framework in Frameworks */,
 				24D5C75911E6364F00F097E2 /* libtiverify.a in Frameworks */,
+				DAF8E8861300DDD600C06BC6 /* CoreMedia.framework in Frameworks */,
+				DAF8E8881300DDD600C06BC6 /* CoreVideo.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2687,6 +2693,8 @@
 				24EB0A57111E1BAE001DC2D1 /* libxml2.dylib */,
 				24597034118FF66300519F79 /* StoreKit.framework */,
 				242EA11511BD956F0046A0D0 /* ExternalAccessory.framework */,
+				DAF8E8851300DDD600C06BC6 /* CoreMedia.framework */,
+				DAF8E8871300DDD600C06BC6 /* CoreVideo.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
