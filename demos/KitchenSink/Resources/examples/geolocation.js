@@ -463,7 +463,9 @@ Titanium.Geolocation.forwardGeocoder(addr,function(evt)
 	});
 });
 
+//  as the destroy handler will remove the listener, only set the pause handler to remove if you need battery savings
 Ti.Android.currentActivity.addEventListener('pause', function(e) {
+	Ti.API.info("pause event received");
 	if (headingAdded) {
 		Ti.API.info("removing heading callback on pause");
 		Titanium.Geolocation.removeEventListener('heading', headingCallback);
@@ -475,7 +477,21 @@ Ti.Android.currentActivity.addEventListener('pause', function(e) {
 		locationAdded = false;
 	}
 });
+Ti.Android.currentActivity.addEventListener('destroy', function(e) {
+	Ti.API.info("destroy event received");
+	if (headingAdded) {
+		Ti.API.info("removing heading callback on destroy");
+		Titanium.Geolocation.removeEventListener('heading', headingCallback);
+		headingAdded = false;
+	}
+	if (locationAdded) {
+		Ti.API.info("removing location callback on destroy");
+		Titanium.Geolocation.removeEventListener('location', locationCallback);
+		locationAdded = false;
+	}
+});
 Ti.Android.currentActivity.addEventListener('resume', function(e) {
+	Ti.API.info("resume event received");
 	if (!headingAdded) {
 		Ti.API.info("adding heading callback on resume");
 		Titanium.Geolocation.addEventListener('heading', headingCallback);
