@@ -181,7 +181,7 @@ NSArray* pickerKeySequence;
 				[self reloadColumn:column];
 				if ([TiUtils boolValue:[row valueForUndefinedKey:@"selected"] def:NO])
 				{
-					[[self view] performSelectorOnMainThread:@selector(selectRow:) withObject:[NSArray arrayWithObjects:NUMINT(0),rowIndex,nil] waitUntilDone:NO];
+					[self setSelectedRow:[NSArray arrayWithObjects:NUMINT(0),rowIndex,NUMBOOL(NO),nil]];
 				}
 			}
 		}
@@ -233,7 +233,16 @@ NSArray* pickerKeySequence;
 	else {
 		if (selectOnLoad != args) {
 			RELEASE_TO_NIL(selectOnLoad);
-			selectOnLoad = [args retain];
+			// Hilarious!  selectOnLoad CAN'T be animated - otherwise the picker doesn't actually set the row.
+			// This is a tasty classic of an Apple bug.  So, we manually set the 'animated' value to NO, 100 of the time.
+			NSMutableArray* mutableArgs = [NSMutableArray arrayWithArray:args];
+			if ([mutableArgs count] > 2) {
+				[mutableArgs replaceObjectAtIndex:2 withObject:NUMBOOL(NO)];
+			}
+			else {
+				[mutableArgs addObject:NUMBOOL(NO)];
+			}
+			selectOnLoad = [mutableArgs retain];
 		}
 	}
 }
