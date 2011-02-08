@@ -258,8 +258,17 @@ public class TiMessageQueue implements Handler.Callback
 			resetLatch();
 			blocking = true;
 		}
-		while (blockingLatch.getCount() != 0) {
-			dispatchPendingMessages();
+		int timeout = 0;
+		try {
+			while (!blockingLatch.await(timeout, TimeUnit.MILLISECONDS)) {
+				if (messageQueue.size() == 0) {
+					timeout = 50;
+				} else {
+					dispatchPendingMessages();
+				}
+			}
+		} catch (InterruptedException e) {
+			Log.e(TAG, "interrupted while blocking", e);
 		}
 		dispatchPendingMessages();
 	}
@@ -275,6 +284,14 @@ public class TiMessageQueue implements Handler.Callback
 			}
 			blocking = false;
 		}
+	}
+
+	/**
+	 * @return whether or not this message queue is currently blocking
+	 */
+	public boolean isBlocking()
+	{
+		return blocking;
 	}
 
 	/**
