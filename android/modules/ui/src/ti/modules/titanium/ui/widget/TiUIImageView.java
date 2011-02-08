@@ -248,7 +248,7 @@ public class TiUIImageView extends TiUIView
 			firedLoad = false;
 			topLoop: while (isRepeating()) {
 				long time = System.currentTimeMillis();
-				for (int j = getStart(); isNotFinalFrame(j); j+=getCounter()) {
+				for (int j = getStart(); imageSources != null && isNotFinalFrame(j); j+=getCounter()) {
 					if (bitmapQueue.size() == FRAME_QUEUE_SIZE && !firedLoad) {
 						fireLoad(TiC.PROPERTY_IMAGES);
 						firedLoad = true;
