@@ -48,6 +48,8 @@ public abstract class TiBaseActivity extends Activity
 	private static final String TAG = "TiBaseActivity";
 	private static final boolean DBG = TiConfig.LOGD;
 
+	private boolean onDestroyFired = false;
+
 	protected TiCompositeLayout layout;
 	protected TiActivitySupportHelper supportHelper;
 	protected TiWindowProxy window;
@@ -610,6 +612,8 @@ public abstract class TiBaseActivity extends Activity
 			Log.d(TAG, "Activity " + this + " onDestroy");
 		}
 		super.onDestroy();
+		fireOnDestroy();
+
 		if (orientationListener != null) {
 			orientationListener.disable();
 		}
@@ -627,9 +631,19 @@ public abstract class TiBaseActivity extends Activity
 			menuHelper = null;
 		}
 		if (activityProxy != null) {
-			activityProxy.fireSyncEvent(TiC.EVENT_DESTROY, null);
 			activityProxy.release();
 			activityProxy = null;
+		}
+	}
+
+	// called in order to ensure that the onDestroy call is only acted upon once.
+	// should be called by any subclass
+	protected void fireOnDestroy()
+	{
+		if (!onDestroyFired)
+		{
+			activityProxy.fireSyncEvent(TiC.EVENT_DESTROY, null);
+			onDestroyFired = true;
 		}
 	}
 

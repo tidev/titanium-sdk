@@ -73,6 +73,8 @@ public class TiActivity extends TiBaseActivity
 	@Override
 	protected void onDestroy()
 	{
+		fireOnDestroy();
+
 		for (TiContext context : contexts.nonNull()) {
 			context.fireLifecycleEvent(this, TiContext.LIFECYCLE_ON_DESTROY);
 			context.release();
