@@ -640,9 +640,10 @@ public abstract class TiBaseActivity extends Activity
 	// should be called by any subclass
 	protected void fireOnDestroy()
 	{
-		if (!onDestroyFired)
-		{
-			activityProxy.fireSyncEvent(TiC.EVENT_DESTROY, null);
+		if (!onDestroyFired) {
+			if (activityProxy != null) {
+				activityProxy.fireSyncEvent(TiC.EVENT_DESTROY, null);
+			}
 			onDestroyFired = true;
 		}
 	}
