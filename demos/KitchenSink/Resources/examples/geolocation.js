@@ -486,19 +486,6 @@ Ti.Android.currentActivity.addEventListener('destroy', function(e) {
 	Ti.API.info("destroy event received");
 	removeGeolocationListeners('destroy');
 });
-Ti.Android.currentActivity.addEventListener('destroy', function(e) {
-	Ti.API.info("destroy event received");
-	if (headingAdded) {
-		Ti.API.info("removing heading callback on destroy");
-		Titanium.Geolocation.removeEventListener('heading', headingCallback);
-		headingAdded = false;
-	}
-	if (locationAdded) {
-		Ti.API.info("removing location callback on destroy");
-		Titanium.Geolocation.removeEventListener('location', locationCallback);
-		locationAdded = false;
-	}
-});
 Ti.Android.currentActivity.addEventListener('resume', function(e) {
 	Ti.API.info("resume event received");
 	if (!headingAdded) {
