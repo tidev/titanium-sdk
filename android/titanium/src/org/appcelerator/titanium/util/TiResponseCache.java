@@ -22,6 +22,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.appcelerator.titanium.TiApplication;
@@ -268,7 +269,6 @@ public class TiResponseCache extends ResponseCache
 		}
 		return values.get(values.size() - 1);
 	}
-
 	protected int getHeaderInt(Map<String, List<String>> headers, String header, int defaultValue)
 	{
 		String value = getHeader(headers, header);
@@ -281,7 +281,14 @@ public class TiResponseCache extends ResponseCache
 			return defaultValue;
 		}
 	}
-
+	private Map<String, List<String>> makeLowerCaseHeaders(Map<String, List<String>> origHeaders)
+	{
+		Map<String, List<String>> headers = new HashMap<String, List<String>>(origHeaders.size());
+		for (String key : origHeaders.keySet()) {
+			headers.put(key.toLowerCase(), origHeaders.get(key));
+		}
+		return headers;
+	}
 	@Override
 	public CacheRequest put(URI uri, URLConnection conn) throws IOException
 	{
@@ -289,22 +296,30 @@ public class TiResponseCache extends ResponseCache
 		
 		// Gingerbread 2.3 bug: getHeaderField tries re-opening the InputStream
 		// getHeaderFields() just checks the response itself
-		Map<String, List<String>> headers = conn.getHeaderFields();
-		String cacheControl = getHeader(headers, "Cache-Control");
-		if (cacheControl != null && cacheControl.matches("(?i:(no-cache|no-store|must-revalidate))")) {
+		Map<String, List<String>> headers = makeLowerCaseHeaders(conn.getHeaderFields());
+		String cacheControl = getHeader(headers, "cache-control");
+		if (cacheControl != null && cacheControl.matches("^.*(no-cache|no-store|must-revalidate).*")) {
 			return null; // See RFC-2616
+		}
+
+		boolean skipTransferEncodingHeader = false;
+		String tEncoding = getHeader(headers, "transfer-encoding");
+		if (tEncoding != null && tEncoding.toLowerCase().equals("chunked")) {
+			skipTransferEncodingHeader = true; // don't put "chunked" transfer-encoding into our header file, else the http connection object that gets our header information will think the data starts with a chunk length specification
 		}
 		
 		// Form the headers and generate the content length
 		String newl = System.getProperty("line.separator");
-		long contentLength = getHeaderInt(headers, "Content-Length", 0);
+		long contentLength = getHeaderInt(headers, "content-length", 0);
 		StringBuilder sb = new StringBuilder();
 		for (String hdr : headers.keySet()) {
-			for (String val : headers.get(hdr)) {
-				sb.append(hdr);
-				sb.append("=");
-				sb.append(val);
-				sb.append(newl);
+			if (!skipTransferEncodingHeader || !hdr.equals("transfer-encoding")) {
+				for (String val : headers.get(hdr)) {
+					sb.append(hdr);
+					sb.append("=");
+					sb.append(val);
+					sb.append(newl);
+				}
 			}
 		}
 		if (contentLength + sb.length() > MAX_CACHE_SIZE) {

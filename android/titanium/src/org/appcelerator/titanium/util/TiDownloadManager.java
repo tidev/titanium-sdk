@@ -126,7 +126,7 @@ public class TiDownloadManager implements Handler.Callback
 				stream = uri.toURL().openStream();
 				TiStreamHelper.pump(stream, null);
 				synchronized (downloadingURIs) {
-					downloadingURIs.remove(uri);
+					downloadingURIs.remove(DigestUtils.shaHex(uri.toString()));
 				}
 				fireDownloadFinished(uri);
 			} catch (Exception e) {
