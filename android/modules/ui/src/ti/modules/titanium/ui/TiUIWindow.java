@@ -413,6 +413,19 @@ public class TiUIWindow extends TiUIView
 				proxy.getTiContext().getActivity().setTitle(title);
 			}
 		}
+		if (d.containsKey(TiC.PROPERTY_LAYOUT)) {
+			if (!lightWeight) {
+				TiCompositeLayout layout = null;
+				if (windowActivity instanceof TiActivity) {
+					layout = ((TiActivity)windowActivity).getLayout();
+				} else if (windowActivity instanceof TiTabActivity) {
+					layout = ((TiTabActivity)windowActivity).getLayout();
+				}
+				if (layout != null) {
+					layout.setLayoutArrangement(TiConvert.toString(d, TiC.PROPERTY_LAYOUT));
+				}
+			}
+		}
 
 		// Don't allow default processing.
 		d.remove(TiC.PROPERTY_BACKGROUND_IMAGE);
