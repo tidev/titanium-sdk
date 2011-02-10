@@ -9,6 +9,7 @@ package org.appcelerator.kroll;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiContext;
@@ -34,6 +35,10 @@ public class KrollModule extends KrollProxy
 	
 	public static KrollModuleInfo getModuleInfo(String id) {
 		return customModuleInfo.get(id);
+	}
+
+	public static Set<String> getCustomModuleIds() {
+		return customModuleInfo.keySet();
 	}
 
 	public static void addExternalChildModule(Class<? extends KrollModule> parent, Class<? extends KrollModule> child) {
