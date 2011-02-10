@@ -366,19 +366,46 @@ public class TiUIWindow extends TiUIView
 		return layout;
 	}
 
-	private void handleBackgroundColor(KrollDict d)
+	protected void setActivityBackground(final Drawable drawable, boolean post)
 	{
-		if (proxy.getProperty(TiC.PROPERTY_BACKGROUND_COLOR) != null) {
-			Integer bgColor = TiConvert.toColor(d, TiC.PROPERTY_BACKGROUND_COLOR);
-			Drawable cd = new ColorDrawable(bgColor);
+		if (post) {
+			proxy.getUIHandler().post(new Runnable() {
+				public void run() {
+					windowActivity.getWindow().setBackgroundDrawable(drawable);
+				}
+			});
+		} else {
+			windowActivity.getWindow().setBackgroundDrawable(drawable);
+		}
+	}
+
+	private void handleBackgroundColor(Object value, boolean post)
+	{
+		if (value != null) {
+			Drawable cd = TiConvert.toColorDrawable(TiConvert.toString(value));
 			if (lightWeight) {
 				nativeView.setBackgroundDrawable(cd);
 			} else {
-				Window w = windowActivity.getWindow();
-				w.setBackgroundDrawable(cd);
+				setActivityBackground(cd, post);
 			}
 		} else {
 			Log.w(LCAT, "Unable to set opacity w/o a backgroundColor");
+		}
+	}
+
+	private void handleBackgroundImage(Object value, boolean post)
+	{
+		if (value != null) {
+			String path = proxy.getTiContext().resolveUrl(null, TiConvert.toString(value));
+			TiFileHelper tfh = new TiFileHelper(proxy.getContext().getApplicationContext());
+			Drawable bd = tfh.loadDrawable(proxy.getTiContext(), path, false);
+			if (bd != null) {
+				if (lightWeight) {
+					nativeView.setBackgroundDrawable(bd);
+				} else {
+					setActivityBackground(bd, post);
+				}
+			}
 		}
 	}
 
@@ -387,23 +414,9 @@ public class TiUIWindow extends TiUIView
 	{
 		// Prefer image to color.
 		if (d.containsKey(TiC.PROPERTY_BACKGROUND_IMAGE)) {
-			String path = proxy.getTiContext().resolveUrl(null, TiConvert.toString(d, TiC.PROPERTY_BACKGROUND_IMAGE));
-			TiFileHelper tfh = new TiFileHelper(proxy.getContext().getApplicationContext());
-			Drawable bd = tfh.loadDrawable(proxy.getTiContext(), path, false);
-			if (bd != null) {
-				if (!lightWeight) {
-					windowActivity.getWindow().setBackgroundDrawable(bd);
-				} else {
-					nativeView.setBackgroundDrawable(bd);
-				}
-			}
+			handleBackgroundImage(d.get(TiC.PROPERTY_BACKGROUND_IMAGE), true);
 		} else if (d.containsKey(TiC.PROPERTY_BACKGROUND_COLOR)) {
-			ColorDrawable bgColor = TiConvert.toColorDrawable(d, TiC.PROPERTY_BACKGROUND_COLOR);
-			if (!lightWeight) {
-				windowActivity.getWindow().setBackgroundDrawable(bgColor);
-			} else {
-				nativeView.setBackgroundDrawable(bgColor);
-			}
+			handleBackgroundColor(d.get(TiC.PROPERTY_BACKGROUND_COLOR), true);
 		}
 		if (d.containsKey(TiC.PROPERTY_TITLE)) {
 			String title = TiConvert.toString(d, TiC.PROPERTY_TITLE);
@@ -438,22 +451,12 @@ public class TiUIWindow extends TiUIView
 	{
 		if (key.equals(TiC.PROPERTY_BACKGROUND_IMAGE)) {
 			if (newValue != null) {
-				String path = proxy.getTiContext().resolveUrl(null, TiConvert.toString(newValue));
-				TiFileHelper tfh = new TiFileHelper(proxy.getTiContext().getTiApp());
-				Drawable bd = tfh.loadDrawable(proxy.getTiContext(), path, false);
-				if (bd != null) {
-					if (!lightWeight) {
-						windowActivity.getWindow().setBackgroundDrawable(bd);
-					} else {
-						nativeView.setBackgroundDrawable(bd);
-					}
-				}
+				handleBackgroundImage(newValue, false);
 			} else {
-				handleBackgroundColor(proxy.getProperties());
+				handleBackgroundColor(proxy.getProperty(TiC.PROPERTY_BACKGROUND_COLOR), false);
 			}
 		} else if (key.equals(TiC.PROPERTY_BACKGROUND_COLOR)) {
-			KrollDict d = proxy.getProperties();
-			handleBackgroundColor(d);
+			handleBackgroundColor(newValue, false);
 		} else if (key.equals(TiC.PROPERTY_WIDTH) || key.equals(TiC.PROPERTY_HEIGHT)) {
 			Window w = proxy.getTiContext().getActivity().getWindow();
 			int width = lastWidth;
@@ -590,8 +593,9 @@ public class TiUIWindow extends TiUIView
 		handler = null;
 		windowActivity = null;
 	}
-	
-	public Activity getActivity() {
+
+	public Activity getActivity()
+	{
 		return windowActivity;
 	}
 }
