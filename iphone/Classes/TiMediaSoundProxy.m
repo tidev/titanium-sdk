@@ -75,13 +75,16 @@
 
 -(AVAudioPlayer*)player
 {
-	if (player==nil)
+	if (player==nil || NO==playerMatchesURL)
 	{
+        playerMatchesURL=YES;
+        
 		// We do the same thing as the video player and fail silently, now.
 		if (url == nil) {
 			return nil;
 		}
 		NSError *error = nil;
+        RELEASE_TO_NIL(player);
 		player = [[AVAudioPlayer alloc] initWithContentsOfURL:url error:(NSError **)&error];
 		if (error != nil)
 		{
@@ -93,7 +96,8 @@
 		[player setVolume:volume];
 		[player setNumberOfLoops:(looping?-1:0)];
 		[player setCurrentTime:resumeTime];
-	}
+	
+    }
 	return player;
 }
 
@@ -116,7 +120,8 @@
 	if (player == nil || !([player isPlaying] || paused)) {
 		[[TiMediaAudioSession sharedSession] startAudioSession];
 	}
-	[[self player] play];
+    
+    [[self player] play];
 	paused = NO;
 }
 
@@ -306,6 +311,8 @@
 			RELEASE_TO_NIL(url);
 			url = [[NSURL fileURLWithPath:[tempFile path]] retain];
 		}
+        
+        playerMatchesURL=NO;
 	}
 	else if ([url_ isKindOfClass:[TiBlob class]])
 	{
@@ -314,11 +321,13 @@
 		if ([blob type]==TiBlobTypeFile)
 		{
 			url = [[NSURL fileURLWithPath:[blob path]] retain];
+            playerMatchesURL = NO;
 		}
 	}
 	else if ([url_ isKindOfClass:[TiFile class]])
 	{
 		url = [[NSURL fileURLWithPath:[(TiFile*)url_ path]] retain];
+        playerMatchesURL = NO;
 	}
 }
 
