@@ -45,7 +45,7 @@
 
 @implementation TiUIWindowProxyLatch
 
--(id)initWithWindow:(id)window_ args:(id)args_
+-(id)initWithTiWindow:(id)window_ args:(id)args_
 {
 	if (self = [super init])
 	{
@@ -180,7 +180,7 @@
 				context = [[KrollBridge alloc] initWithHost:[self _host]];
 				NSDictionary *values = [NSDictionary dictionaryWithObjectsAndKeys:self,@"currentWindow",[self.tab tabGroup],@"currentTabGroup",self.tab,@"currentTab",nil];
 				NSDictionary *preload = [NSDictionary dictionaryWithObjectsAndKeys:values,@"UI",nil];
-				latch = [[TiUIWindowProxyLatch alloc] initWithWindow:self args:args];
+				latch = [[TiUIWindowProxyLatch alloc] initWithTiWindow:self args:args];
 				[context boot:latch url:url preload:preload];
 				if ([latch waitForBoot])
 				{
