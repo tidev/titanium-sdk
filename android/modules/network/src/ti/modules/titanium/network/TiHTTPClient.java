@@ -934,7 +934,7 @@ public class TiHTTPClient
 				String proxyHost = Proxy.getHost(act);
 				
 				ConnectivityManager cm = (ConnectivityManager) act.getSystemService(android.content.Context.CONNECTIVITY_SERVICE);
-				boolean isMobile = cm.getActiveNetworkInfo().getType() == ConnectivityManager.TYPE_MOBILE;
+				boolean isMobile = (proxyHost != null) && (cm.getActiveNetworkInfo().getType() == ConnectivityManager.TYPE_MOBILE);
 				
 				if (isMobile) {
 					int proxyPort = Proxy.getPort(act);
