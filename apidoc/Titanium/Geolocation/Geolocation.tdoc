@@ -12,7 +12,7 @@ object
 
 - description
 
-The top level Geolocation module.  The Geolocation module is used for accessing device location based information.
+The top level Geolocation module. The Geolocation module is used for accessing device location based information.
 
 - since
 
@@ -24,7 +24,26 @@ android, iphone, ipad
 
 - methods
 
-setShowCalibration: configure the calibration UI. set the false to disable the calibration display.
+forwardGeocoder: tries to resolve an address to a location.
+getCurrentHeading: retrieve the current compass heading.
+getCurrentPosition: retrieve the last known location from the device. On Android, the radios are not turned on to update the location. On iOS the radios MAY be used if the location is too "old".
+reverseGeocoder:  tries to resolve a location to an address.
+setShowCalibration: configure the calibration UI. set the false to disable the calibration display. (iOS only)
+
+- method : forwardGeocoder
+address[string] : address to resolve.
+callback[function] : function to invoke on success or failure. The event object contains the properties described as the `place` dictionary in `Titanium.Geolocation.reverseGeocoder`.
+
+- method : getCurrentHeading
+callback[function] : function to invoke on success or failure of obtaining the current heading. See heading event in `Titanium.Geolocation`.
+
+- method : getCurrentPosition
+callback[function] : function to invoke on success or failure of obtaining the current location. See location event in `Titanium.Geolocation`.
+
+- method : reverseGeocoder
+latitude[double] : latitude to search
+longitude[double] : longitude to search
+callback[function] : function to invoke on success or failure. The event object passed contains a `places` array of zero or more place dictionaries. Each `place` dictionary contains the following properties: `street`, `street1`, `city`, `region1`, `region2`, `postalCode`, `country`, `countryCode`, `longitude`, `latitude`, `displayAddress`, `address`.
 
 - properties
 
@@ -66,6 +85,7 @@ success: boolean to indicate if the location event was successfully received or 
 error: if success is false, returns a string of the error description
 code: if success is false, the error code if available (iOS only)
 coords: location coordinates dictionary with the following sub-properties: `latitude`, `longitude`, `altitude`, `accuracy`, `altitudeAccuracy`, `heading`, `speed`, `timestamp`.
+provider: (Android only) location provider dictionary with the following sub-properties: `name`, `accuracy`, `power`, and `provider`.
 
 - event : heading
 
