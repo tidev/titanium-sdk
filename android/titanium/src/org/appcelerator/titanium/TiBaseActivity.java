@@ -70,6 +70,11 @@ public abstract class TiBaseActivity extends Activity
 		public void onConfigurationChanged(TiBaseActivity activity, Configuration newConfig);
 	}
 
+	public void activityOnCreate(Bundle savedInstanceState)
+	{
+		super.onCreate(savedInstanceState);
+	}
+
 	public TiApplication getTiApp()
 	{
 		return (TiApplication) getApplication();
