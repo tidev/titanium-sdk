@@ -9,6 +9,7 @@ package org.appcelerator.titanium;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.appcelerator.titanium.util.AsyncResult;
 import org.appcelerator.titanium.util.Log;
@@ -64,7 +65,7 @@ public class TiMessageQueue implements Handler.Callback
 
 	protected ArrayBlockingQueue<Message> messageQueue = new ArrayBlockingQueue<Message>(10);
 	protected CountDownLatch blockingLatch;
-	protected boolean blocking = false;
+	protected AtomicInteger blockCount = new AtomicInteger(0);
 	protected Handler handler = new Handler(this);
 	protected Handler.Callback callback;
 
@@ -118,7 +119,7 @@ public class TiMessageQueue implements Handler.Callback
 		if (target != null && currentThreadId == targetThreadId) {
 			target.dispatchMessage(msg);
 		} else {
-			if (blocking) {
+			if (isBlocking()) {
 				try {
 					messageQueue.put(msg);
 				} catch (InterruptedException e) {
@@ -188,12 +189,12 @@ public class TiMessageQueue implements Handler.Callback
 				asyncResult.setResult(result);
 			}
 		};
-		blocking = true;
+		blockCount.incrementAndGet();
 		msg.obj = blockingResult;
 		blockQueue.sendMessage(msg);
 
 		Object o = blockingResult.getResult();
-		blocking = false;
+		blockCount.decrementAndGet();
 		dispatchPendingMessages();
 		return o;
 	}
@@ -254,9 +255,9 @@ public class TiMessageQueue implements Handler.Callback
 	public void startBlocking()
 	{
 		synchronized (this) {
-			if (blocking) return;
+			if (isBlocking()) return;
 			resetLatch();
-			blocking = true;
+			blockCount.incrementAndGet();
 		}
 		int timeout = 0;
 		try {
@@ -271,6 +272,7 @@ public class TiMessageQueue implements Handler.Callback
 			Log.e(TAG, "interrupted while blocking", e);
 		}
 		dispatchPendingMessages();
+		blockCount.decrementAndGet();
 	}
 
 	/**
@@ -282,7 +284,6 @@ public class TiMessageQueue implements Handler.Callback
 			if (blockingLatch != null) {
 				blockingLatch.countDown();
 			}
-			blocking = false;
 		}
 	}
 
@@ -291,7 +292,7 @@ public class TiMessageQueue implements Handler.Callback
 	 */
 	public boolean isBlocking()
 	{
-		return blocking;
+		return blockCount.get() > 0;
 	}
 
 	/**
