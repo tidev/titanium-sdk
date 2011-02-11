@@ -3788,6 +3788,20 @@
 					"\"$(SRCROOT)/../../../../tmp/staticlib/build/Debug-iphonesimulator\"",
 					"\"$(SRCROOT)/../../../tijs/TiCore/TiCore/build/Release-iphonesimulator\"",
 				);
+				"OTHER_LDFLAGS[sdk=iphoneos4*]" = (
+					"$(inherited)",
+					"-weak_framework",
+					iAd,
+					"-weak_framework",
+					CoreMedia,
+					"-weak_framework",
+					CoreVideo,
+				);
+				"OTHER_LDFLAGS[sdk=iphonesimulator4*]" = (
+					"$(inherited)",
+					"-weak_framework",
+					iAd,
+				);
 				PRODUCT_NAME = Titanium;
 				TARGETED_DEVICE_FAMILY = 1;
 			};
@@ -3838,6 +3852,15 @@
 					"-DIPAD",
 					"-DTI_POST_1_2",
 					"-DDEBUG",
+				);
+				"OTHER_LDFLAGS[sdk=iphoneos4*]" = (
+					"$(inherited)",
+					"-weak_framework",
+					iAd,
+					"-weak_framework",
+					CoreMedia,
+					"-weak_framework",
+					CoreVideo,
 				);
 				PRODUCT_NAME = Titanium;
 				TARGETED_DEVICE_FAMILY = 2;
@@ -3969,6 +3992,15 @@
 					"-DIPAD",
 					"-DTI_POST_1_2",
 					"-DDEBUG",
+				);
+				"OTHER_LDFLAGS[sdk=iphoneos4*]" = (
+					"$(inherited)",
+					"-weak_framework",
+					iAd,
+					"-weak_framework",
+					CoreVideo,
+					"-weak_framework",
+					CoreMedia,
 				);
 				PRODUCT_NAME = Titanium;
 				TARGETED_DEVICE_FAMILY = "1,2";
