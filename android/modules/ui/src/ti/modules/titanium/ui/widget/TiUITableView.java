@@ -10,6 +10,7 @@ import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext.OnLifecycleEvent;
+import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
@@ -101,7 +102,14 @@ public class TiUITableView extends TiUIView
 			p.addRule(RelativeLayout.ALIGN_PARENT_TOP);
 			p.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
 			p.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
-			p.height = 52;
+
+			TiDimension rawHeight;
+			if (searchView.hasProperty("height")) {
+				rawHeight = TiConvert.toTiDimension(searchView.getProperty("height"), 0);
+			} else {
+				rawHeight = TiConvert.toTiDimension("52dp", 0);
+			}
+			p.height = rawHeight.getAsPixels(layout);
 
 			layout.addView(searchBar.getNativeView(), p);
 
