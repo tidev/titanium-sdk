@@ -71,6 +71,7 @@ describe("Ti.Database tests", {
 		
 			rs = db.execute("select * from Test");
 			valueOf(rs).shouldNotBeNull();
+			valueOf(rs.isValidRow()).shouldBe(true);
 			valueOf(rs.getFieldCount()).shouldBe(1);
 			valueOf(rs.rowCount).shouldBe(1);
 			valueOf(rs.getField(0)).shouldBe("My TestRow");
