@@ -56,18 +56,7 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 	 * This happens before the script is loaded.
 	 */
 	protected void contextCreated() { }
-
-	protected void waitForScript()
-	{
-		if (DBG) {
-			Log.d(TAG, "Waiting for JS Activity @ " + url.url + " to load");
-		}
-		messageQueue.startBlocking();
-		if (DBG) {
-			Log.d(TAG, "Loaded JS Activity @ " + url.url);
-		}
-	}
-
+	
 	protected void loadActivityScript()
 	{
 		try {
@@ -112,14 +101,7 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 	protected void windowCreated()
 	{
 		super.windowCreated();
-		// Load the activity JS
-		new Thread(new Runnable(){
-			@Override
-			public void run() {
-				loadActivityScript();
-			}
-		}).start();
-		waitForScript();
+		loadActivityScript();
 		scriptLoaded();
 	}
 
