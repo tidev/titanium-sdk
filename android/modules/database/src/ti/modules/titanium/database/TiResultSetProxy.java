@@ -29,17 +29,18 @@ public class TiResultSetProxy extends KrollProxy
 	private static Method isNull;
 	private static Class  args[];
 	static {
-		args = new Class[1];
-		args[0] = Integer.TYPE;
-		
-		try {
-			isFloat = AbstractWindowedCursor.class.getMethod("isFloat", args);
-			isLong  = AbstractWindowedCursor.class.getMethod("isLong",  args);
-			isNull  = AbstractWindowedCursor.class.getMethod("isNull",  args);
-		} catch (Exception e) {
-			isFloat = null;
-			isLong  = null;
-			isNull  = null;
+		isFloat = null;
+		isLong  = null;
+		isNull  = null;
+		if (android.os.Build.VERSION.SDK_INT > 4) {
+			args = new Class[1];
+			args[0] = Integer.TYPE;
+			
+			try {
+				isFloat = AbstractWindowedCursor.class.getMethod("isFloat", args);
+				isLong  = AbstractWindowedCursor.class.getMethod("isLong",  args);
+				isNull  = AbstractWindowedCursor.class.getMethod("isNull",  args);
+			} catch (Exception e) {}
 		}
 	}
 
@@ -87,7 +88,7 @@ public class TiResultSetProxy extends KrollProxy
 		if (rs != null) {
 			try {
 				result = rs.getString(index);
-				if (isFloat != null && rs instanceof AbstractWindowedCursor) {
+				if (isNull != null && rs instanceof AbstractWindowedCursor) {
 					AbstractWindowedCursor awc = (AbstractWindowedCursor) rs;
 					
 					Object arguments[] = new Object[1];
