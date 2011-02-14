@@ -19,6 +19,7 @@ import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.io.TiBaseFile;
 import org.appcelerator.titanium.util.Log;
+import org.appcelerator.titanium.util.TiBackgroundImageLoadTask;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiDownloadListener;
 import org.appcelerator.titanium.util.TiDownloadManager;
@@ -304,7 +305,7 @@ public class TiDrawableReference
 	}
 
 	/**
-	 * Just runs .load(url) on the passed TiBackgroundImageLoadTask.
+	 * Just runs TiDownloadManager.download(URI, listener) giving it the passed listener.
 	 */
 	public void getBitmapAsync(TiDownloadListener listener)
 	{
@@ -318,8 +319,17 @@ public class TiDrawableReference
 			Log.e(LCAT, "URI Invalid: " + url, e);
 		}
 	}
-	
-	
+	/**
+	 * Just runs .load(url) on the passed TiBackgroundImageLoadTask.
+	 * @param asyncTask
+	 */
+	public void getBitmapAsync(TiBackgroundImageLoadTask asyncTask)
+	{
+		if (!isNetworkUrl()) {
+			Log.w(LCAT, "getBitmapAsync called on non-network url.  Will attempt load.");
+		}
+		asyncTask.load(url);
+	}
 	/**
 	 * Uses BitmapFactory.Options' 'inJustDecodeBounds' to peak at the bitmap's bounds
 	 * (height & width) so we can do some sampling and scaling.
