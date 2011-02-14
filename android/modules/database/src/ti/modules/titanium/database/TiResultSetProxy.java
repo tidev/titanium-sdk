@@ -28,7 +28,7 @@ public class TiResultSetProxy extends KrollProxy
 	private static Method isLong;
 	private static Method isNull;
 	private static Class  args[];
-	{
+	static {
 		args = new Class[1];
 		args[0] = Integer.TYPE;
 		
