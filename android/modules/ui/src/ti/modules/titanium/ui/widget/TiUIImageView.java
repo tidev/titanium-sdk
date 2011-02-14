@@ -244,12 +244,14 @@ public class TiUIImageView extends TiUIView
 
 		private int getStart()
 		{
+			if (imageSources == null) { return 0; }
 			if (reverse) { return imageSources.size()-1; }
 			return 0;
 		}
 
 		private boolean isNotFinalFrame(int frame)
 		{
+			if (imageSources == null) { return false; }
 			if (reverse) { return frame >= 0; }
 			return frame < imageSources.size();
 		}
@@ -274,6 +276,7 @@ public class TiUIImageView extends TiUIView
 			animating.set(true);
 			firedLoad = false;
 			topLoop: while (isRepeating()) {
+				if (imageSources == null) { break; }
 				long time = System.currentTimeMillis();
 				for (int j = getStart(); imageSources != null && isNotFinalFrame(j); j+=getCounter()) {
 					if (bitmapQueue.size() == FRAME_QUEUE_SIZE && !firedLoad) {
@@ -283,6 +286,7 @@ public class TiUIImageView extends TiUIView
 					if (paused && !Thread.currentThread().isInterrupted()) {
 						try {
 							Log.i(LCAT, "Pausing");
+							if (loader == null) { break; } // User backed-out while animation running
 							synchronized (loader) {
 								loader.wait();
 							}
