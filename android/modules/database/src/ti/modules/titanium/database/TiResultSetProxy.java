@@ -99,7 +99,7 @@ public class TiResultSetProxy extends KrollProxy
 							result = awc.getDouble(index);
 						else if (((Boolean) isLong.invoke(awc, arguments)).booleanValue())
 							result = awc.getLong(index);
-						else if (((Boolean) isFloat.invoke(awc, arguments)).booleanValue())
+						else if (((Boolean) isNull.invoke(awc, arguments)).booleanValue())
 							result = null;
 					} catch (Exception e) {}
 				}
