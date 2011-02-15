@@ -479,6 +479,8 @@ public class KrollProxy
 
 	public void setModelListener(KrollProxyListener modelListener)
 	{
+		// Double-setting the same modelListener can potentially have weird side-effects.
+		if (this.modelListener != null && this.modelListener.equals(modelListener)) { return; }
 		this.modelListener = modelListener;
 		if (modelListener != null) {
 			modelListener.processProperties((KrollDict) properties.clone());
