@@ -14,6 +14,7 @@ import java.util.TimerTask;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
@@ -52,7 +53,7 @@ public class TiUIImageView extends TiUIView
 {
 	private static final String LCAT = "TiUIImageView";
 	private static final boolean DBG = TiConfig.LOGD;
-
+	private static final AtomicInteger imageTokenGenerator = new AtomicInteger(0);
 	private static final int FRAME_QUEUE_SIZE = 5;
 	public static final int INFINITE = 0;
 
@@ -64,6 +65,7 @@ public class TiUIImageView extends TiUIView
 	private AtomicBoolean animating = new AtomicBoolean(false);
 	private boolean reverse = false;
 	private boolean paused = false;
+	private int token;
 	private boolean firedLoad;
 	
 	private TiDimension requestedWidth;
@@ -75,17 +77,19 @@ public class TiUIImageView extends TiUIView
 
 	private class BgImageLoader extends TiBackgroundImageLoadTask
 	{
-		public BgImageLoader(TiContext tiContext)
-		{
-			super(tiContext);
+		private int token;
+
+		public BgImageLoader(TiContext tiContext, TiDimension imageWidth, TiDimension imageHeight, int token) {
+			super(tiContext, getParentView(), imageWidth, imageHeight);
+			this.token = token;
 		}
 
 		@Override
-		protected void onPostExecute(Boolean downloaded)
-		{
-			super.onPostExecute(downloaded);
-			if (downloaded) {
-				setImage();
+		protected void onPostExecute(Drawable d) {
+			super.onPostExecute(d);
+
+			if (d != null) {
+				setImageDrawable(d, token);
 			} else {
 				if (DBG) {
 					String traceMsg = "Background image load returned null";
@@ -100,6 +104,7 @@ public class TiUIImageView extends TiUIView
 			}
 		}
 	}
+
 
 	public TiUIImageView(TiViewProxy proxy)
 	{
@@ -121,7 +126,17 @@ public class TiUIImageView extends TiUIView
 		downloadListener = new TiDownloadListener() {
 			@Override
 			public void downloadFinished(URI uri) {
-				setImage();
+				if (!TiResponseCache.peek(uri)) {
+					// The requested image did not make it into our TiResponseCache,
+					// possibly because it had a header forbidding that.  Now get it
+					// via the "old way" (not relying on cache).
+					synchronized(imageTokenGenerator) {
+						token = imageTokenGenerator.incrementAndGet();
+						imageSources.get(0).getBitmapAsync(new BgImageLoader(getProxy().getTiContext(), requestedWidth, requestedHeight, token));
+					}
+				} else {
+					setImage();
+				}
 			}
 		};
 		setNativeView(view);
@@ -151,7 +166,19 @@ public class TiUIImageView extends TiUIView
 		}
 		return null;
 	}
-
+	// This method is intended to only be use from the background task, it's basically
+	// an optimistic commit.
+	private void setImageDrawable(Drawable d, int token) {
+		TiImageView view = getView();
+		if (view != null) {
+			synchronized(imageTokenGenerator) {
+				if (this.token == token) {
+					view.setImageDrawable(d, false);
+					this.token = -1;
+				}
+			}
+		}
+	}
 	private Handler handler = new Handler(Looper.getMainLooper(), this);
 	private static final int SET_IMAGE = 10001;
 
@@ -217,12 +244,14 @@ public class TiUIImageView extends TiUIView
 
 		private int getStart()
 		{
+			if (imageSources == null) { return 0; }
 			if (reverse) { return imageSources.size()-1; }
 			return 0;
 		}
 
 		private boolean isNotFinalFrame(int frame)
 		{
+			if (imageSources == null) { return false; }
 			if (reverse) { return frame >= 0; }
 			return frame < imageSources.size();
 		}
@@ -247,6 +276,7 @@ public class TiUIImageView extends TiUIView
 			animating.set(true);
 			firedLoad = false;
 			topLoop: while (isRepeating()) {
+				if (imageSources == null) { break; }
 				long time = System.currentTimeMillis();
 				for (int j = getStart(); imageSources != null && isNotFinalFrame(j); j+=getCounter()) {
 					if (bitmapQueue.size() == FRAME_QUEUE_SIZE && !firedLoad) {
@@ -256,6 +286,7 @@ public class TiUIImageView extends TiUIView
 					if (paused && !Thread.currentThread().isInterrupted()) {
 						try {
 							Log.i(LCAT, "Pausing");
+							if (loader == null) { break; } // User backed-out while animation running
 							synchronized (loader) {
 								loader.wait();
 							}
@@ -499,16 +530,15 @@ public class TiUIImageView extends TiUIView
 				boolean getAsync = true;
 				try {
 					URI uri = new URI(imageref.getUrl());
-					if (TiResponseCache.peek(uri)) {
-						getAsync = false;
-						setImage(imageref.getBitmap(getParentView(), requestedWidth, requestedHeight));
-					}
+					getAsync = !TiResponseCache.peek(uri);
 				} catch (URISyntaxException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+					Log.e(LCAT, "URISyntaxException for url " + imageref.getUrl(), e);
+					getAsync = false;
 				}
 				if (getAsync) {
 					imageref.getBitmapAsync(downloadListener);
+				} else {
+					setImage(imageref.getBitmap(getParentView(), requestedWidth, requestedHeight));
 				}
 			} else {
 				setImage(imageref.getBitmap(getParentView(), requestedWidth, requestedHeight));
