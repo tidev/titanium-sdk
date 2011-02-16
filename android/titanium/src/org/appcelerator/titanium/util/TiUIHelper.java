@@ -747,7 +747,19 @@ public class TiUIHelper
 			}
 		}
 	}
-	
+
+	public static int convertConfigToActivityOrientation(int orientation)
+	{
+		switch(orientation) {
+			case Configuration.ORIENTATION_PORTRAIT:
+				return ActivityInfo.SCREEN_ORIENTATION_PORTRAIT;
+			case Configuration.ORIENTATION_LANDSCAPE:
+				return ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE;
+			default:
+				return -1;
+		}
+	}
+
 	public static int convertToAndroidOrientation(int orientation) {
 		switch (orientation) {
 			case LANDSCAPE_LEFT :

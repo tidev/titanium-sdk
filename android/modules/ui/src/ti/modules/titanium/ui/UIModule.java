@@ -111,28 +111,18 @@ public class UIModule extends KrollModule
 	@Kroll.setProperty(runOnUiThread=true) @Kroll.method(runOnUiThread=true)
 	public void setOrientation(KrollInvocation invocation, int orientation)
 	{
-		int requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED;
-		switch (orientation) {
-			case LANDSCAPE_LEFT :
-			case LANDSCAPE_RIGHT :
-				requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE;
-				break;
-			case PORTRAIT :
-			case UPSIDE_PORTRAIT :
-				requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT;
-				break;
-		}
-		
+		int requestedOrientation = TiUIHelper.convertToAndroidOrientation(orientation);
+
 		Activity activity = invocation.getTiContext().getActivity();
 		if (activity != null) {
 			if (activity instanceof TiBaseActivity) {
-				((TiBaseActivity)activity).overrideOrientation(requestedOrientation);
+				((TiBaseActivity)activity).requestOrientation(requestedOrientation);
 			} else {
 				activity.setRequestedOrientation(requestedOrientation);
 			}
 		}
 		// null out the value so a call to set will result in the orientation being set.
-		setProperty("orientation", null);
+		//setProperty("orientation", null);
 		//internalSetDynamicValue("orientation", null, false);
 	}
 }
