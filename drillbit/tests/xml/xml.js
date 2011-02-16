@@ -95,7 +95,7 @@ describe("Ti.XML tests", {
 		valueOf(node.getAttribute("id")).shouldBe("node 1");
 		
 		var subnodes = node.getElementsByTagName("node");
-		valueOf(subnodes.item(1).getAttribute("id")).shouldBe("node 2");
+		valueOf(subnodes.item(0).getAttribute("id")).shouldBe("node 2");
 	},
 	
 	xmlNodeCount: function() {
@@ -128,13 +128,11 @@ describe("Ti.XML tests", {
 	
 	xmlCData: function() {
 		var xml = Ti.XML.parseString(this.testSource["cdata.xml"]);
-		var rootList = xml.documentElement.getElementsByTagName("root");
 		var scriptList = xml.documentElement.getElementsByTagName("script");
 		valueOf(scriptList.length).shouldBe(1);
-		valueOf(rootList.length).shouldBe(1);
 		
-		valueOf(rootList.item(0).nodeName).shouldBe("root");
-		var nodeCount = this.countNodes(rootList.item(0), 1);
+		valueOf(xml.documentElement.nodeName).shouldBe("root");
+		var nodeCount = this.countNodes(xml.documentElement, 1);
 		valueOf(nodeCount).shouldBe(1);
 	},
 	
