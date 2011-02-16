@@ -372,6 +372,10 @@
 {
 	UIInterfaceOrientation requestedOrientation = [[UIApplication sharedApplication] statusBarOrientation];
 	NSTimeInterval latestRequest = 0.0;
+	if(!TI_ORIENTATION_ALLOWED(allowedOrientations,requestedOrientation))
+	{
+		latestRequest = -1.0;
+	}
 	for (int i=0; i<MAX_ORIENTATIONS; i++)
 	{
 		if (TI_ORIENTATION_ALLOWED(allowedOrientations,i) && (orientationRequestTimes[i]>latestRequest))
