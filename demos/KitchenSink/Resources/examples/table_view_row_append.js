@@ -43,7 +43,7 @@ tableview.addEventListener('click', function(e)
 	}
 	else if (index == 3)
 	{
-		var data = {title:'New Row ' + newRowCount};
+		var data = Ti.UI.createTableViewRow({title:'New Row ' + newRowCount});
 		if (newRowCount == 1)
 		{
 			tableview.appendRow(data);
