@@ -142,7 +142,6 @@ public class TiUIImageView extends TiUIView
 		setNativeView(view);
 		proxy.getTiContext().addOnLifecycleEventListener(this);
 	}
-
 	private TiImageView getView()
 	{
 		return (TiImageView) nativeView;
@@ -488,16 +487,24 @@ public class TiUIImageView extends TiUIView
 		imageSources = new ArrayList<TiDrawableReference>();
 		if (object instanceof Object[]) {
 			for(Object o : (Object[])object) {
-				if (o instanceof FileProxy) {
-					imageSources.add( TiDrawableReference.fromFile(getProxy().getTiContext(), ((FileProxy)o).getBaseFile()) );
-				} else {
-					imageSources.add( TiDrawableReference.fromObject(getProxy().getTiContext(), o));
-				}
+				imageSources.add(makeImageSource(o));
 			}
-		} else if (object instanceof FileProxy) {
-			imageSources.add( TiDrawableReference.fromFile(getProxy().getTiContext(), ((FileProxy)object).getBaseFile()));
 		} else {
-			imageSources.add( TiDrawableReference.fromObject(getProxy().getTiContext(), object) );
+			imageSources.add( makeImageSource(object) );
+		}
+	}
+	private void setImageSource(TiDrawableReference source)
+	{
+		imageSources = new ArrayList<TiDrawableReference>();
+		imageSources.add(source);
+	}
+
+	private TiDrawableReference makeImageSource(Object object)
+	{
+		if (object instanceof FileProxy) {
+			return TiDrawableReference.fromFile(getProxy().getTiContext(), ((FileProxy)object).getBaseFile());
+		} else {
+			return TiDrawableReference.fromObject(getProxy().getTiContext(), object);
 		}
 	}
 	
@@ -602,13 +609,14 @@ public class TiUIImageView extends TiUIView
 			// processProperties is also called from TableView, we need check if we changed before re-creating the bitmap
 			boolean changeImage = true;
 			Object newImage = d.get(TiC.PROPERTY_IMAGE);
+			TiDrawableReference source = makeImageSource(newImage);
 			if (imageSources != null && imageSources.size() == 1) {
-				if (imageSources.get(0).equals(newImage)) {
+				if (imageSources.get(0).equals(source)) {
 					changeImage = false;
 				}
 			}
-			setImageSource(newImage);
 			if (changeImage) {
+				setImageSource(source);
 				setImage();
 			}
 		} else {
