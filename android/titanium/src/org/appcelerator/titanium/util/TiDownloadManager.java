@@ -27,7 +27,7 @@ public class TiDownloadManager implements Handler.Callback
 	private static final String TAG = "TiDownloadManager";
 	private static final int MSG_FIRE_DOWNLOAD_FINISHED = 1000;
 	protected static TiDownloadManager _instance;
-	public static final int THREAD_POOL_SIZE = 5; 
+	public static final int THREAD_POOL_SIZE = 2; 
 
 	protected HashMap<String, ArrayList<SoftReference<TiDownloadListener>>> listeners =
 		new HashMap<String, ArrayList<SoftReference<TiDownloadListener>>>();
