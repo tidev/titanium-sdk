@@ -7,7 +7,6 @@
 #ifdef USE_TI_FACEBOOK
 #import "TiFacebookDialogRequest.h"
 
-
 @implementation TiFacebookDialogRequest
 
 #pragma mark Lifecycle
@@ -38,11 +37,13 @@
  */
 - (void)dialogCompleteWithUrl:(NSURL *)url
 {
-	NSLog(@"[INFO] dialogCompleteWithUrl = %@",url);
+	VerboseLog(@"[INFO] dialogCompleteWithUrl = %@",url);
 	
 	[self autorelease];
 
-	NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:NUMBOOL(NO),@"cancelled",NUMBOOL(YES),@"success",url,@"url",nil];
+	// Based on the Android code, they return ONLY the query part of the URL as 'result'.  Let's do the same.
+	// TODO: Android also attempts to parse the ref... but why would the ref ever contain a query...?
+	NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:NUMBOOL(NO),@"cancelled",NUMBOOL(YES),@"success",[url query],@"result",nil];
 	[module _fireEventToListener:@"result" withObject:event listener:callback thisObject:nil];
 }
 
@@ -51,11 +52,13 @@
  */
 - (void)dialogDidNotCompleteWithUrl:(NSURL *)url
 {
-	NSLog(@"[INFO] dialogDidNotCompleteWithUrl = %@",url);
+	VerboseLog(@"[INFO] dialogDidNotCompleteWithUrl = %@",url);
 
 	[self autorelease];
-
-	NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:NUMBOOL(YES),@"cancelled",NUMBOOL(NO),@"success",nil];
+	
+	// Based on the Android code, they return ONLY the query part of the URL as 'result'.  Let's do the same.
+	// TODO: Android also attempts to parse the ref... but why would the ref ever contain a query...?
+	NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:NUMBOOL(YES),@"cancelled",NUMBOOL(NO),@"success",[url query],@"result",nil];
 	[module _fireEventToListener:@"result" withObject:event listener:callback thisObject:nil];
 }
 
@@ -64,7 +67,7 @@
  */
 - (void)dialog:(FBDialog2*)dialog didFailWithError:(NSError *)error
 {
-	NSLog(@"[INFO] didFailWithError = %@",error);
+	VerboseLog(@"[INFO] didFailWithError = %@",error);
 	
 	[self autorelease];
 	
