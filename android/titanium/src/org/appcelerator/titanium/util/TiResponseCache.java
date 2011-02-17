@@ -22,10 +22,11 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.codec.digest.DigestUtils;
-import org.appcelerator.titanium.TiApplication;
 
 public class TiResponseCache extends ResponseCache
 {
@@ -35,8 +36,12 @@ public class TiResponseCache extends ResponseCache
 	private static final String BODY_SUFFIX   = ".bdy";
 	private static final String CACHE_SIZE_KEY = "ti.android.cache.size.max";
 	private static final int MAX_CACHE_SIZE = 25 * 1024 * 1024; // 25MB
+	private static final int INITIAL_DELAY = 10000;
+	private static final int CLEANUP_DELAY = 60000;
 	private static final String LCAT = "TiResponseCache"; 
 	private static HashMap<String, ArrayList<CompleteListener>> completeListeners = new HashMap<String, ArrayList<CompleteListener>>();
+
+	private static ScheduledExecutorService cleanupExecutor = null;
 
 	public static interface CompleteListener
 	{
@@ -47,15 +52,10 @@ public class TiResponseCache extends ResponseCache
 	{
 		private File cacheDir;
 		private long maxSize;
-		private long contentLength;
-		private File hdrFile;
-		
-		public TiCacheCleanup(File cacheDir, long maxSize, File hdrFile, long contentLength)
+		public TiCacheCleanup(File cacheDir, long maxSize)
 		{
 			this.cacheDir  = cacheDir;
 			this.maxSize = maxSize;
-			this.contentLength = contentLength;
-			this.hdrFile = hdrFile;
 		}
 
 		@Override
@@ -70,7 +70,6 @@ public class TiResponseCache extends ResponseCache
 					}
 				}))
 			{
-				if (hdrFile.equals(this.hdrFile)) { continue; }
 				lastTime.put(hdrFile.lastModified(), hdrFile);
 			}
 			
@@ -78,7 +77,7 @@ public class TiResponseCache extends ResponseCache
 			List<Long> sz = new ArrayList<Long>(lastTime.keySet());
 			Collections.sort(sz);
 			Collections.reverse(sz);
-			long cacheSize = contentLength;
+			long cacheSize = 0;
 			for (Long last : sz) {
 				File hdrFile = lastTime.get(last);
 				String h = hdrFile.getName().substring(0, hdrFile.getName().lastIndexOf('.')); // Hash
@@ -223,6 +222,10 @@ public class TiResponseCache extends ResponseCache
 		super();
 		assert cachedir.isDirectory() : "cachedir MUST be a directory";
 		cacheDir = cachedir;
+
+		cleanupExecutor = Executors.newSingleThreadScheduledExecutor();
+		TiCacheCleanup command = new TiCacheCleanup(cacheDir, MAX_CACHE_SIZE);
+		cleanupExecutor.scheduleWithFixedDelay(command, INITIAL_DELAY, CLEANUP_DELAY, TimeUnit.MILLISECONDS);
 	}
 
 	@Override
@@ -244,7 +247,7 @@ public class TiResponseCache extends ResponseCache
 
 		// Read in the headers
 		Map<String, List<String>> headers = new HashMap<String, List<String>>();
-		BufferedReader rdr = new BufferedReader(new FileReader(hFile));
+		BufferedReader rdr = new BufferedReader(new FileReader(hFile), 1024);
 		for (String line=rdr.readLine() ; line != null ; line=rdr.readLine()) {
 			String keyval[] = line.split("=", 2);
 			if (!headers.containsKey(keyval[0])) {
@@ -269,6 +272,7 @@ public class TiResponseCache extends ResponseCache
 		}
 		return values.get(values.size() - 1);
 	}
+
 	protected int getHeaderInt(Map<String, List<String>> headers, String header, int defaultValue)
 	{
 		String value = getHeader(headers, header);
@@ -281,6 +285,7 @@ public class TiResponseCache extends ResponseCache
 			return defaultValue;
 		}
 	}
+
 	private Map<String, List<String>> makeLowerCaseHeaders(Map<String, List<String>> origHeaders)
 	{
 		Map<String, List<String>> headers = new HashMap<String, List<String>>(origHeaders.size());
@@ -289,6 +294,7 @@ public class TiResponseCache extends ResponseCache
 		}
 		return headers;
 	}
+
 	@Override
 	public CacheRequest put(URI uri, URLConnection conn) throws IOException
 	{
@@ -345,11 +351,7 @@ public class TiResponseCache extends ResponseCache
 		} finally { 
 			hWriter.close();
 		}
-		
-		// Cleanup asynchronously
-		int cacheSize = TiApplication.getInstance().getSystemProperties().getInt(CACHE_SIZE_KEY, MAX_CACHE_SIZE);
-		TiBackgroundExecutor.execute(new TiCacheCleanup(cacheDir, cacheSize, hFile, contentLength + sb.length()));
-		
+
 		synchronized (this) {
 			// Don't add it to the cache if its already being written
 			if (!bFile.createNewFile()) {
