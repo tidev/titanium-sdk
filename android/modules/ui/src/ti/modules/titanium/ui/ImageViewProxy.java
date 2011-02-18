@@ -37,7 +37,14 @@ public class ImageViewProxy extends ViewProxy {
 
 	public Bitmap getBitmap()
 	{
-		return (Bitmap) getProperty(PROPERTY_INTERNAL_BITMAP);
+		Bitmap bitmap = (Bitmap) getProperty(PROPERTY_INTERNAL_BITMAP);
+		if (bitmap != null && bitmap.isRecycled())
+		{
+			// Cleanup after recycled bitmaps
+			properties.remove(PROPERTY_INTERNAL_BITMAP);
+			return null;
+		}
+		return bitmap;
 	}
 
 	@SuppressWarnings("unchecked")
