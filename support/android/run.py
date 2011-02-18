@@ -4,7 +4,7 @@ def check_output_for_error(output, match, error_in_first_match):
 	success = re.findall(match, output)
 	if len(success) > 0:
 		if (error_in_first_match):
-			error(success[0])
+			print "[ERROR] %s" % success[0]
 			sys.exit(1)
 		else:
 			return True

@@ -22,7 +22,9 @@ public final class ${config['classname']}Application extends TiApplication {
 		super.onCreate();
 		
 		appInfo = new ${config['classname']}AppInfo(this);
+		postAppInfo();
 		stylesheet = new ApplicationStylesheet();
+		postOnCreate();
 	}
 	
 	@Override

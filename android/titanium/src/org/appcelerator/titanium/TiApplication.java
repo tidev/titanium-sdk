@@ -201,8 +201,6 @@ public abstract class TiApplication extends Application
 
 		methodMap = new HashMap<Class<?>, HashMap<String,Method>>(25);
 		proxyMap = new HashMap<String, SoftReference<KrollProxy>>(5);
-
-		TiPlatformHelper.initialize(this);
 		
 		appProperties = new TiProperties(getApplicationContext(), APPLICATION_PREFERENCES_NAME, false);
 		systemProperties = new TiProperties(getApplicationContext(), "system", true);
@@ -216,7 +214,15 @@ public abstract class TiApplication extends Application
 		}
 		TiResponseCache.setDefault(new TiResponseCache(cacheDir.getAbsoluteFile()));
 	}
-	
+
+	public void postAppInfo() {
+		TiPlatformHelper.initialize(this);
+	}
+
+	public void postOnCreate() {
+		// stick stuff in here as needed
+	}
+
 	public void setRootActivity(TiRootActivity rootActivity)
 	{
 		// Chicken and Egg problem. Set debugging here since I don't want to

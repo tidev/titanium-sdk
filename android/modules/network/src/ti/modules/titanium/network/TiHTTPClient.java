@@ -46,6 +46,7 @@ import org.apache.http.conn.scheme.Scheme;
 import org.apache.http.conn.scheme.SchemeRegistry;
 import org.apache.http.conn.scheme.SocketFactory;
 import org.apache.http.conn.ssl.SSLSocketFactory;
+import org.apache.http.conn.params.ConnRoutePNames;
 import org.apache.http.entity.AbstractHttpEntity;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.entity.mime.MultipartEntity;
@@ -80,7 +81,12 @@ import org.mozilla.javascript.Context;
 
 import ti.modules.titanium.xml.DocumentProxy;
 import ti.modules.titanium.xml.XMLModule;
+
+import android.app.Activity;
 import android.net.Uri;
+import android.net.Proxy;
+import android.net.ConnectivityManager;
+
 
 public class TiHTTPClient
 {
@@ -909,6 +915,7 @@ public class TiHTTPClient
 					//Log.e(LCAT, "HEADER: " + hdr.toString());
 				}
 				 */
+				
 				handler = new LocalResponseHandler(TiHTTPClient.this);
 				SchemeRegistry registry = new SchemeRegistry();
 				registry.register(new Scheme("http", PlainSocketFactory.getSocketFactory(), 80));
@@ -920,6 +927,20 @@ public class TiHTTPClient
 				}
 				registry.register(new Scheme("https", sslFactory, 443));
 				HttpParams params = new BasicHttpParams();
+				
+				// Mobile Proxy handling
+				Activity act = proxy.getTiContext().getActivity();
+				
+				String proxyHost = Proxy.getHost(act);
+				
+				ConnectivityManager cm = (ConnectivityManager) act.getSystemService(android.content.Context.CONNECTIVITY_SERVICE);
+				boolean isMobile = (proxyHost != null) && (cm.getActiveNetworkInfo().getType() == ConnectivityManager.TYPE_MOBILE);
+				
+				if (isMobile) {
+					int proxyPort = Proxy.getPort(act);
+					Log.d(LCAT, "Using Proxy Settings - Host: " + proxyHost + " Port: " + proxyPort);
+					params.setParameter(ConnRoutePNames.DEFAULT_PROXY, new HttpHost(proxyHost, proxyPort));
+				}
 				
 				if (timeout != -1) {
 					HttpConnectionParams.setConnectionTimeout(params, timeout);

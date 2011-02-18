@@ -23,7 +23,7 @@
 		"ui":["android","app","api","filesystem","media"],
 		"utils":[],
 		"xml":[],
-		"yahoo":[]
+		"yahoo":["network"]
 	},
 	"required": ["analytics","android","ui","json","locale"],
 	"libraries": 
