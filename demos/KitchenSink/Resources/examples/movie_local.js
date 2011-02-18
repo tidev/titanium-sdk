@@ -24,7 +24,7 @@ if (parseFloat(Titanium.Platform.version) >= 3.2)
 var movieLabel = Titanium.UI.createLabel({
 	text:'Do not try this at home',
 	width:'auto',
-	height:25,
+	height:35,
 	color:'white',
 	font:{fontSize:24,fontFamily:'Helvetica Neue'}
 });

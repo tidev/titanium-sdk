@@ -140,10 +140,7 @@ public class TableViewProxy extends TiViewProxy
 			return;
 		}
 
-		AsyncResult result = new AsyncResult(row);
-		Message msg = getUIHandler().obtainMessage(MSG_APPEND_ROW, result);
-		msg.sendToTarget();
-		result.getResult();
+		sendBlockingUiMessage(MSG_APPEND_ROW, row);
 	}
 
 	private void handleAppendRow(Object row) {
@@ -224,12 +221,8 @@ public class TableViewProxy extends TiViewProxy
 			handleInsertRowBefore(index, data);
 			return;
 		}
-		AsyncResult result = new AsyncResult(data);
-		Message msg = getUIHandler().obtainMessage(MSG_INSERT_ROW, result);
-		msg.arg1 = INSERT_ROW_BEFORE;
-		msg.arg2 = index;
-		msg.sendToTarget();
-		result.getResult();
+
+		sendBlockingUiMessage(MSG_INSERT_ROW, data, INSERT_ROW_BEFORE, index);
 	}
 	
 	private void handleInsertRowBefore(int index, Object data) {
@@ -266,12 +259,7 @@ public class TableViewProxy extends TiViewProxy
 			handleInsertRowAfter(index, data);
 			return;
 		}
-		AsyncResult result = new AsyncResult(data);
-		Message msg = getUIHandler().obtainMessage(MSG_INSERT_ROW, result);
-		msg.arg1 = INSERT_ROW_AFTER;
-		msg.arg2 = index;
-		msg.sendToTarget();
-		result.getResult();
+		sendBlockingUiMessage(MSG_INSERT_ROW, data, INSERT_ROW_AFTER, index);
 	}
 	
 	private void handleInsertRowAfter(int index, Object data) {
@@ -379,10 +367,7 @@ public class TableViewProxy extends TiViewProxy
 		if (ctx.isUIThread()) {
 			handleSetData(actualData);
 		} else {
-			AsyncResult result = new AsyncResult(actualData);
-			Message msg = getUIHandler().obtainMessage(MSG_SET_DATA, result);
-			msg.sendToTarget();
-			result.getResult();
+			sendBlockingUiMessage(MSG_SET_DATA, actualData);
 		}
 	}
 	
@@ -449,11 +434,7 @@ public class TableViewProxy extends TiViewProxy
 			getTableView().updateView();
 			return;
 		}
-		AsyncResult result = new AsyncResult();
-		Message msg = getUIHandler().obtainMessage(MSG_UPDATE_VIEW);
-		msg.obj = result;
-		msg.sendToTarget();
-		result.getResult();
+		sendBlockingUiMessage(MSG_UPDATE_VIEW, null);
 	}
 
 	@Kroll.method

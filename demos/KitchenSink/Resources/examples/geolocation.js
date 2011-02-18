@@ -463,19 +463,31 @@ Titanium.Geolocation.forwardGeocoder(addr,function(evt)
 	});
 });
 
-Ti.Android.currentActivity.addEventListener('pause', function(e) {
+var removeGeolocationListeners = function(eventType)
+{
 	if (headingAdded) {
-		Ti.API.info("removing heading callback on pause");
+		Ti.API.info("removing heading callback on " + eventType);
 		Titanium.Geolocation.removeEventListener('heading', headingCallback);
 		headingAdded = false;
 	}
 	if (locationAdded) {
-		Ti.API.info("removing location callback on pause");
+		Ti.API.info("removing location callback on " + eventType);
 		Titanium.Geolocation.removeEventListener('location', locationCallback);
 		locationAdded = false;
 	}
+}
+
+// as the destroy handler will remove the listener, only set the pause handler to remove if you need battery savings
+Ti.Android.currentActivity.addEventListener('pause', function(e) {
+	Ti.API.info("pause event received");
+	removeGeolocationListeners('pause');
+});
+Ti.Android.currentActivity.addEventListener('destroy', function(e) {
+	Ti.API.info("destroy event received");
+	removeGeolocationListeners('destroy');
 });
 Ti.Android.currentActivity.addEventListener('resume', function(e) {
+	Ti.API.info("resume event received");
 	if (!headingAdded) {
 		Ti.API.info("adding heading callback on resume");
 		Titanium.Geolocation.addEventListener('heading', headingCallback);

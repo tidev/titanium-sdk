@@ -71,6 +71,7 @@ describe("Ti.Database tests", {
 		
 			rs = db.execute("select * from Test");
 			valueOf(rs).shouldNotBeNull();
+			valueOf(rs.isValidRow()).shouldBe(true);
 			valueOf(rs.getFieldCount()).shouldBe(1);
 			valueOf(rs.rowCount).shouldBe(1);
 			valueOf(rs.getField(0)).shouldBe("My TestRow");
@@ -108,6 +109,39 @@ describe("Ti.Database tests", {
 		    valueOf(realCount).shouldBe(testRowCount);
 		    valueOf(rowCount).shouldBe(testRowCount);
 		    valueOf(rowCount).shouldBe(realCount);
+		} finally {
+			db.close();
+			db.remove();
+		}
+	},
+	testDatabaseRollback : function () {
+		var db = Ti.Database.open('Test');
+		var testRowCount = 30;
+		try {
+			valueOf(db).shouldNotBeNull();
+			
+			var rs = db.execute("drop table if exists data");
+			valueOf(rs).shouldBeNull();
+			
+			db.execute('BEGIN DEFERRED TRANSACTION');
+			db.execute('CREATE TABLE IF NOT EXISTS data (id INTEGER PRIMARY KEY, val TEXT)');
+			db.execute('SAVEPOINT FOO');
+			for (var i = 1; i <= testRowCount; i++) {
+			    db.execute('INSERT INTO data (val) VALUES(?)','our value:' + i);
+			}
+			db.execute('ROLLBACK TRANSACTION TO SAVEPOINT FOO');
+			db.execute('COMMIT TRANSACTION');
+			
+			rs = db.execute("SELECT * FROM data");
+			valueOf(rs.rowCount).shouldBe(0);
+			
+			db.execute('BEGIN TRANSACTION');
+			db.execute('drop table if exists data');
+			db.execute('ROLLBACK TRANSACTION');
+			
+			rs = db.execute("SELECT * FROM data");
+			valueOf(rs).shouldNotBeNull();
+			
 		} finally {
 			db.close();
 			db.remove();

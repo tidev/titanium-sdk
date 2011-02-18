@@ -18,6 +18,7 @@ import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.Handler;
+import android.os.Looper;
 import android.os.Message;
 
 public class TiUIActivityIndicator extends TiUIView
@@ -52,7 +53,7 @@ public class TiUIActivityIndicator extends TiUIView
 		if (DBG) {
 			Log.d(LCAT, "Creating an activity indicator");
 		}
-		handler = new Handler(this);
+		handler = new Handler(Looper.getMainLooper(), this);
 	}
 
 	public boolean handleMessage(Message msg)
@@ -120,8 +121,7 @@ public class TiUIActivityIndicator extends TiUIView
 		if (visible) {
 			return;
 		}
-
-		handler.sendEmptyMessage(MSG_SHOW);
+		handleShow();
 	}
 
 	protected void handleShow() {

@@ -7,7 +7,8 @@
 package org.appcelerator.titanium;
 
 // Global Titanium constants- Try to keep these sorted alphabetically
-public class TiC {
+public class TiC
+{
 	public static final String ERROR_PROPERTY_CODE = "code";
 	public static final String ERROR_PROPERTY_ERRORCODE = "errorcode";
 	public static final String ERROR_PROPERTY_MESSAGE = "message";
@@ -17,6 +18,7 @@ public class TiC {
 	public static final String EVENT_ANDROID_SEARCH = "android:search";
 	public static final String EVENT_ANDROID_VOLDOWN = "android:voldown";
 	public static final String EVENT_ANDROID_VOLUP = "android:volup";
+	public static final String EVENT_BATTERY = "battery";
 	public static final String EVENT_BLUR = "blur";
 	public static final String EVENT_CHANGE = "change";
 	public static final String EVENT_CLICK = "click";
@@ -55,6 +57,7 @@ public class TiC {
 	public static final String EVENT_PROPERTY_X = "x";
 	public static final String EVENT_PROPERTY_Y = "y";
 	public static final String EVENT_REGION_CHANGED = "regionChanged";
+	public static final String EVENT_RESTART = "restart";
 	public static final String EVENT_RESUME = "resume";
 	public static final String EVENT_SINGLE_TAP = "singletap";
 	public static final String EVENT_START = "start";
@@ -66,8 +69,11 @@ public class TiC {
 	public static final String EVENT_UNFOCUSED = "unfocused";
 	public static final String INTENT_PROPERTY_FINISH_ROOT = "finishRoot";
 	public static final String INTENT_PROPERTY_LAYOUT = "layout";
-	public static final String INTENT_PROPERTY_MESSAGE_ID = "messageId";
 	public static final String INTENT_PROPERTY_MESSENGER = "messenger";
+	public static final String INTENT_PROPERTY_MSG_ACTIVITY_CREATED_ID = "msgActivityCreatedId";
+	public static final String INTENT_PROPERTY_MSG_ID = "messageId";
+	public static final String INTENT_PROPERTY_USE_ACTIVITY_WINDOW = "useActivityWindow";
+	public static final String INTENT_PROPERTY_WINDOW_ID = "windowId";
 	public static final String LAYOUT_HORIZONTAL = "horizontal";
 	public static final String LAYOUT_VERTICAL = "vertical";
 	public static final String MSG_PROPERTY_EVENT_NAME = "eventName";
@@ -100,6 +106,7 @@ public class TiC {
 	public static final String PROPERTY_BACKGROUND_PREFIX = "background";
 	public static final String PROPERTY_BACKGROUND_SELECTED_COLOR = "backgroundSelectedColor";
 	public static final String PROPERTY_BACKGROUND_SELECTED_IMAGE = "backgroundSelectedImage";
+	public static final String PROPERTY_BASE_URL = "baseUrl";
 	public static final String PROPERTY_BORDER_COLOR = "borderColor";
 	public static final String PROPERTY_BORDER_PREFIX = "border";
 	public static final String PROPERTY_BORDER_RADIUS = "borderRadius";
@@ -133,6 +140,7 @@ public class TiC {
 	public static final String PROPERTY_ENABLE_ZOOM_CONTROLS = "enableZoomControls";
 	public static final String PROPERTY_ENABLED = "enabled";
 	public static final String PROPERTY_EXIT_ON_CLOSE = "exitOnClose";
+	public static final String PROPERTY_FILE = "file";
 	public static final String PROPERTY_FILTER_ATTRIBUTE = "filterAttribute";
 	public static final String PROPERTY_FILTER_CASE_INSENSITIVE = "filterCaseInsensitive";
 	public static final String PROPERTY_FLAGS = "flags";
@@ -174,6 +182,7 @@ public class TiC {
 	public static final String PROPERTY_LEFT = "left";
 	public static final String PROPERTY_LEFT_BUTTON = "leftButton";
 	public static final String PROPERTY_LEFT_IMAGE = "leftImage";
+	public static final String PROPERTY_LEVEL = "level";
 	public static final String PROPERTY_LOCATION = "location";
 	public static final String PROPERTY_LONGITUDE = "longitude";
 	public static final String PROPERTY_LONGITUDE_DELTA = "longitudeDelta";
@@ -225,6 +234,8 @@ public class TiC {
 	public static final String PROPERTY_SOFT_KEYBOARD_ON_FOCUS = "softKeyboardOnFocus";
 	public static final String PROPERTY_SOUND = "sound";
 	public static final String PROPERTY_SPEED = "speed";
+	public static final String PROPERTY_STATE = "state";
+	public static final String PROPERTY_STATUS = "status";
 	public static final String PROPERTY_STREET = "street";
 	public static final String PROPERTY_STREET1 = "street1";
 	public static final String PROPERTY_SUBTITLE = "subtitle";
@@ -234,8 +245,10 @@ public class TiC {
 	public static final String PROPERTY_TEXT = "text";
 	public static final String PROPERTY_TEXT_ALIGN = "textAlign";
 	public static final String PROPERTY_TICKER_TEXT = "tickerText";
+	public static final String PROPERTY_TIME = "time";
 	public static final String PROPERTY_TIMESTAMP = "timestamp";
 	public static final String PROPERTY_TITLE = "title";
+	public static final String PROPERTY_TITLEID = "titleid";
 	public static final String PROPERTY_TOP = "top";
 	public static final String PROPERTY_TOUCH_ENABLED = "touchEnabled";
 	public static final String PROPERTY_TRANSFORM = "transform";
@@ -261,4 +274,5 @@ public class TiC {
 	public static final String SIZE_AUTO = "auto";
 	public static final String URL_APP_PREFIX = "app://";
 	public static final String URL_APP_SCHEME = "app";
+	public static final String URL_APP_JS = "app://app.js";
 }

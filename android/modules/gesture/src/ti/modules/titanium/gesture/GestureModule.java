@@ -52,8 +52,8 @@ public class GestureModule extends KrollModule
 	private int postShakePeriod;
 	private int inShakePeriod;
 
-
-	public GestureModule(TiContext tiContext) {
+	public GestureModule(TiContext tiContext)
+	{
 		super(tiContext);
 		
 		TiProperties props = TiApplication.getInstance().getAppProperties();
@@ -70,12 +70,14 @@ public class GestureModule extends KrollModule
 	}
 
 	@Override
-	public int addEventListener(KrollInvocation invocation, String eventName, Object listener) {
+	public int addEventListener(KrollInvocation invocation, String eventName, Object listener)
+	{
 		if (EVENT_ORIENTATION_CHANGE.equals(eventName)) {
 			Activity activity = invocation.getTiContext().getActivity();
 			if (!configChangeActivities.contains(activity)) {
 				if (activity instanceof TiBaseActivity) {
 					TiBaseActivity tiActivity = (TiBaseActivity) activity;
+					tiActivity.enableOrientationListener();
 					tiActivity.addConfigurationChangedListener(this);
 					configChangeActivities.add(new WeakReference<TiBaseActivity>(tiActivity));
 				}
@@ -90,7 +92,8 @@ public class GestureModule extends KrollModule
 	}
 
 	@Override
-	public void removeEventListener(KrollInvocation invocation, String eventName, Object listener) {
+	public void removeEventListener(KrollInvocation invocation, String eventName, Object listener)
+	{
 		if (EVENT_ORIENTATION_CHANGE.equals(eventName) && configChangeActivities.size() > 0) {
 			Activity activity = invocation.getTiContext().getActivity();
 			if (configChangeActivities.contains(activity)) {
@@ -110,16 +113,19 @@ public class GestureModule extends KrollModule
 	}
 
 	@Override
-	public void onConfigurationChanged(TiBaseActivity activity, Configuration newConfig) {
+	public void onConfigurationChanged(TiBaseActivity activity, Configuration newConfig)
+	{
 		KrollDict data = new KrollDict();
 		data.put("orientation", TiUIHelper.convertToTiOrientation(newConfig.orientation, activity.getOrientationDegrees()));
 		fireEvent(EVENT_ORIENTATION_CHANGE, data);
 	}
 
-	public void onAccuracyChanged(Sensor sensor, int accuracy) {
+	public void onAccuracyChanged(Sensor sensor, int accuracy)
+	{
 	}
 
-	public void onSensorChanged(SensorEvent event) {
+	public void onSensorChanged(SensorEvent event)
+	{
 		long currentEventInShake = System.currentTimeMillis();
 		long difftime = currentEventInShake - lastEventInShake;
 
@@ -162,22 +168,26 @@ public class GestureModule extends KrollModule
 	}
 	
 	@Kroll.getProperty @Kroll.method
-	public boolean isPortrait(KrollInvocation invocation) {
+	public boolean isPortrait(KrollInvocation invocation)
+	{
 		return invocation.getActivity().getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT;
 	}
 
 	@Kroll.getProperty @Kroll.method
-	public boolean isLandscape(KrollInvocation invocation) {
+	public boolean isLandscape(KrollInvocation invocation)
+	{
 		return invocation.getActivity().getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE;
 	}
 
 	@Kroll.getProperty @Kroll.method
-	public int getOrientation(KrollInvocation invocation) {
+	public int getOrientation(KrollInvocation invocation)
+	{
 		return TiUIHelper.convertToTiOrientation(invocation.getActivity().getResources().getConfiguration().orientation);
 	}
 
 	@Override
-	public void onResume(Activity activity) {
+	public void onResume(Activity activity)
+	{
 		super.onResume(activity);
 		if (configChangeActivities.contains(activity)) {
 			((TiBaseActivity)activity).addConfigurationChangedListener(this);
@@ -185,7 +195,8 @@ public class GestureModule extends KrollModule
 	}
 
 	@Override
-	public void onPause(Activity activity) {
+	public void onPause(Activity activity)
+	{
 		super.onPause(activity);
 		if (configChangeActivities.contains(activity)) {
 			((TiBaseActivity)activity).removeConfigurationChangedListener(this);

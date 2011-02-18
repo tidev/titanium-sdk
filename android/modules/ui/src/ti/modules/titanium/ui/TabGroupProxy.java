@@ -118,11 +118,7 @@ public class TabGroupProxy extends TiWindowProxy
 			handleAddTab(tab);
 			return;
 		}
-
-		AsyncResult result = new AsyncResult(tab);
-		Message msg = getUIHandler().obtainMessage(MSG_ADD_TAB, result);
-		msg.sendToTarget();
-		result.getResult(); // Don't care about return, just synchronization.
+		sendBlockingUiMessage(MSG_ADD_TAB, tab);
 	}
 
 	private void handleAddTab(TabProxy tab)
@@ -303,7 +299,11 @@ public class TabGroupProxy extends TiWindowProxy
 	{
 		int toIndex = indexForId(to);
 		int fromIndex = indexForId(from);
+		return buildFocusEvent(toIndex, fromIndex);
+	}
 
+	public KrollDict buildFocusEvent(int toIndex, int fromIndex)
+	{
 		KrollDict e = new KrollDict();
 
 		e.put(TiC.EVENT_PROPERTY_INDEX, toIndex);
@@ -360,7 +360,7 @@ public class TabGroupProxy extends TiWindowProxy
 		
 		Messenger messenger = new Messenger(getUIHandler());
 		intent.putExtra(TiC.INTENT_PROPERTY_MESSENGER, messenger);
-		intent.putExtra(TiC.INTENT_PROPERTY_MESSAGE_ID, MSG_FINISH_OPEN);
+		intent.putExtra(TiC.INTENT_PROPERTY_MSG_ID, MSG_FINISH_OPEN);
 	}
 	
 	@Override

@@ -11,7 +11,8 @@ function AndroidEmulator(drillbit, androidSdk, apiLevel, platform, googleApis) {
 	this.apiLevel = apiLevel;
 	this.platform = platform
 	this.googleApis = googleApis;
-	
+	this.avdId = '4';
+
 	this.adb = ti.path.join(androidSdk, 'tools', 'adb');
 	if (ti.Platform.isWin32()) {
 		this.adb += ".exe";
@@ -29,6 +30,9 @@ function AndroidEmulator(drillbit, androidSdk, apiLevel, platform, googleApis) {
 	this.device = 'emulator';
 	if ('androidDevice' in drillbit.argv) {
 		this.device = drillbit.argv.androidDevice;
+	}
+	if ('avdId' in drillbit.argv) {
+		this.avdId = drillbit.argv.avdId;
 	}
 	
 	this.androidBuilder = ti.path.join(drillbit.mobileSdk, 'android', 'builder.py');
@@ -66,7 +70,6 @@ AndroidEmulator.prototype.createTestHarnessBuilderProcess = function(command, ar
 	if (args) {
 		builderArgs = builderArgs.concat(args);
 	}
-	
 	return this.drillbit.createPythonProcess(builderArgs);
 };
 
@@ -104,7 +107,7 @@ AndroidEmulator.prototype.run = function(readLineCb) {
 	var androidEmulatorProcess = null;
 
 	var emulatorRunning = this.isEmulatorRunning();
-	if (emulatorRunning) {
+	if (emulatorRunning || this.device.indexOf('emulator') != 0) {
 		// just launch logcat on the existing emulator, we need to clear it first though or we get tons of backscroll
 		this.runADB(['logcat', '-c']);
 		
@@ -113,7 +116,7 @@ AndroidEmulator.prototype.run = function(readLineCb) {
 	} else {
 		// launch the (si|e)mulator async
 		this.drillbit.frontendDo('status', 'launching android emulator', true);
-		androidEmulatorProcess = this.createTestHarnessBuilderProcess('emulator', ['4', 'HVGA']);
+		androidEmulatorProcess = this.createTestHarnessBuilderProcess('emulator', [this.avdId, 'HVGA']);
 	}
 
 	androidEmulatorProcess.setOnReadLine(readLineCb);
@@ -134,7 +137,7 @@ AndroidEmulator.prototype.run = function(readLineCb) {
 
 	if (!emulatorRunning) {
 		this.drillbit.frontendDo('status', 'pre-building initial APK', true);
-		var prebuildLaunchProcess = this.createTestHarnessBuilderProcess('simulator', ['4', 'HVGA']);
+		var prebuildLaunchProcess = this.createTestHarnessBuilderProcess('simulator', [this.avdId, 'HVGA']);
 		var self = this;
 		prebuildLaunchProcess.setOnExit(function(e) {
 			ti.api.info("==> Finished waiting for android emualtor to boot");
@@ -273,17 +276,38 @@ AndroidEmulator.prototype.testHarnessNeedsBuild = function(stagedFiles) {
 	return false;
 };
 
+AndroidEmulator.prototype.launchTestHarness = function() {
+	this.runADB(['shell', 'am', 'start',
+		'-a', 'android.intent.action.MAIN',
+		'-c', 'android.intent.category.LAUNCHER',
+		'-n', this.drillbit.testHarnessId + '/.Test_harnessActivity']);
+};
+
 AndroidEmulator.prototype.runTestHarness = function(suite, stagedFiles) {
 	var forceBuild = 'forceBuild' in suite.options && suite.options.forceBuild;
 	if (!this.testHarnessRunning || this.needsBuild || this.testHarnessNeedsBuild(stagedFiles) || forceBuild) {
-		var process = this.createTestHarnessBuilderProcess("simulator", ['4', 'HVGA']);	
+		var command = 'simulator';
+		var commandArgs = [this.avdId, 'HVGA'];
+		var needsLaunch = false;
+		if (this.device.indexOf('emulator') != 0) {
+			command = 'install';
+			commandArgs = [this.avdId, this.device];
+			needsLaunch = true;
+		}
+		var process = this.createTestHarnessBuilderProcess(command, commandArgs);
 		this.drillbit.frontendDo('building_test_harness', suite.name, 'android');
 		
 		var self = this;
 		process.setOnReadLine(function(data) {
-			self.drillbit.frontendDo('process_data', data);
+			var lines = data.split("\n");
+			lines.forEach(function(line) {
+				self.drillbit.frontendDo('process_data', line);
+			});
 		});
 		process.setOnExit(function(e) {
+			if (needsLaunch) {
+				self.launchTestHarness();
+			}
 			self.testHarnessRunning = true;
 			self.needsBuild = false;
 		});
@@ -291,19 +315,22 @@ AndroidEmulator.prototype.runTestHarness = function(suite, stagedFiles) {
 	} else {
 		// restart the app
 		this.drillbit.frontendDo('running_test_harness', suite.name, 'android');
-		var pid = this.getTestHarnessPID();
-		if (pid != null && pid.length > 0) {
-			this.runADB(['shell', 'kill', pid]);
+		if (this.device.indexOf('emulator') == 0) {
+			var pid = this.getTestHarnessPID();
+			if (pid != null && pid.length > 0) {
+				this.runADB(['shell', 'kill', pid]);
+			}
+		} else {
+			var jdwpKill = ti.path.join(this.drillbit.mobileSdk, 'android', 'jdwp_kill.py');
+			var jdwpKillProcess = this.drillbit.createPythonProcess([jdwpKill, this.androidSdk, this.device, this.drillbit.testHarnessId]);
+			jdwpKillProcess();
 		}
 		
 		// wait a few seconds after kill, every now and then the proc will still
 		// be hanging up when we try to start it after kill returns
 		var self = this;
 		this.drillbit.window.setTimeout(function() {
-			self.runADB(['shell', 'am', 'start',
-				'-a', 'android.intent.action.MAIN',
-				'-c', 'android.intent.category.LAUNCHER',
-				'-n', self.drillbit.testHarnessId + '/.Test_harnessActivity']);
+			self.launchTestHarness();
 		}, 2000);
 	}
 };

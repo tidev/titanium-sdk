@@ -285,6 +285,15 @@ def emulator_args(args, script, project_dir, platform):
 def emulator(args):
 	dyn_run(args, emulator_args, emulator_args)
 
+def docgen_args(args, script, project_dir, platform):
+	if platform == 'android':
+		default_dest_dir = os.path.join(project_dir, 'build', 'docs')
+		dest_dir = get_optional(args, 'dest-dir', default_dest_dir)
+		return [script, 'docgen', platform, project_dir, dest_dir]
+
+def docgen(args):
+	dyn_run(args, docgen_args, docgen_args)
+
 def help(args=[],suppress_banner=False):
 	if not suppress_banner:
 		print "Appcelerator Titanium"
@@ -298,6 +307,7 @@ def help(args=[],suppress_banner=False):
 #		print "  build       - build/compile project"
 		print "  run         - run an existing project"
 		print "  emulator    - start the emulator (android)"
+		print "  docgen      - generate html docs for a module (android)"
 #		print "  install     - install a project"
 #		print "  package     - package a project for distribution"
 		print "  help        - get help"
@@ -329,6 +339,11 @@ def help(args=[],suppress_banner=False):
 			print "Usage: %s package [--dir=d]" % os.path.basename(sys.argv[0])
 			print 
 			print "  --dir=d    project directory"
+		elif cmd == 'docgen':
+			print "Usage %s docgen [--dir=d] [--dest-dir=d]" % os.path.basename(sys.argv[0])
+			print
+			print "  --dir=d         project directory"
+			print "  --dest-dir=d    destination directory"
 		else:
 			print "Unknown command: %s" % cmd
 	print

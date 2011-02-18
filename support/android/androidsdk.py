@@ -220,14 +220,18 @@ class AndroidSDK:
 				devices.append(Device(name))
 		return devices
 
-	def list_processes(self, adb_args=None):
-		args = [self.get_adb()]
-		if adb_args != None:
-			args.extend(adb_args)
-		args.extend(['shell', 'ps'])
-		(out, err) = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
+	def run_adb(self, args, device_args=None):
+		adb_args = [self.get_adb()]
+		if device_args != None:
+			adb_args.extend(device_args)
+		adb_args.extend(args)
+		(out, err) = subprocess.Popen(adb_args, stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
 		if type(err) != types.NoneType and len(err) > 0:
 			raise Exception(err)
+		return out
+
+	def list_processes(self, adb_args=None):
+		out = self.run_adb(['shell', 'ps'], adb_args)
 		processes = []
 		for line in out.splitlines():
 			line = line.strip()
@@ -237,6 +241,56 @@ class AndroidSDK:
 			process = {"pid": tokens[1], "name": tokens[len(tokens)-1]}
 			processes.append(process)
 		return processes
+
+	def jdwp_kill(self, app_id, adb_args=None, forward_port=51111):
+		import socket, struct, uuid
+		pid = None
+		for process in self.list_processes(adb_args):
+			if process['name'] == app_id:
+				pid = process['pid']
+				break
+		if pid == None:
+			raise Exception("No processes running with the name: %s" % app_id)
+
+		out = self.run_adb(['jdwp'], adb_args)
+		found_pid = False
+		for line in out.splitlines():
+			if line == pid:
+				found_pid = True
+				break
+	
+		if not found_pid:
+			raise Exception("The application %s (PID %s) is not debuggable, and cannot be killed via JDWP" % (app_id, pid))
+
+		self.run_adb(['forward', 'tcp:%d' % forward_port, 'jdwp:%s' % pid], adb_args)
+		jdwp_socket = socket.create_connection(('', forward_port))
+		jdwp_socket.settimeout(5.0)
+		jdwp_socket.send('JDWP-Handshake')
+		try:
+			handshake = jdwp_socket.recv(14)
+		except:
+			jdwp_socket.close()
+			raise Exception('Timeout when waiting for handshake, make sure no other DDMS debuggers are running (i.e. Eclipse)')
+
+		if handshake != 'JDWP-Handshake':
+			jdwp_socket.close()
+			raise Exception('Incorrect handshake, make sure the process is still running')
+
+		# Taken from Android ddmlib
+		DDMS_CMD = 0x01
+		DDMS_CMD_SET = 0xc7
+		# just a random 32 bit integer should be good enough
+		packetId = uuid.uuid4().time_low
+		packetLen = 23
+
+		# the string EXIT bitshifted into an integer
+		EXIT = 1163413844
+		EXIT_LEN = 4
+		exitCode = 1
+
+		packet = struct.pack('!2I3B3I', packetLen, packetId, 0, DDMS_CMD_SET, DDMS_CMD, EXIT, EXIT_LEN, exitCode)
+		jdwp_socket.send(packet)
+		jdwp_socket.close()
 
 if __name__ == "__main__":
 	if len(sys.argv) < 2:

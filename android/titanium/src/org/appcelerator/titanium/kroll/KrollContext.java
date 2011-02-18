@@ -16,6 +16,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
+import org.appcelerator.titanium.TiMessageQueue;
 import org.appcelerator.titanium.TiScriptRunner;
 import org.appcelerator.titanium.io.TiBaseFile;
 import org.appcelerator.titanium.io.TiFileFactory;
@@ -34,7 +35,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.os.Process;
 
-public class KrollContext extends KrollHandlerThread implements Handler.Callback
+public class KrollContext implements Handler.Callback
 {
 	private static final String LCAT = "KrollContext";
 	private static boolean DBG = TiConfig.DEBUG;
@@ -49,55 +50,60 @@ public class KrollContext extends KrollHandlerThread implements Handler.Callback
 	private static final String STRING_SOURCE = "<anonymous>";
 
 	public static final String CONTEXT_KEY = "krollContext";
-	
+
+	private KrollHandlerThread thread;
 	private TiContext tiContext;
 	private ScriptableObject jsScope;
 
 	private CountDownLatch initialized;
-	private Handler contextHandler;
+	private TiMessageQueue messageQueue;
 	private boolean useOptimization;
 
-	protected KrollContext(TiContext tiContext)
+	protected KrollContext(TiContext tiContext, String label)
 	{
-		// allow a configurable stack size to avoid StackOverflowErrors in some larger apps
-		super("kroll$" + instanceCounter.incrementAndGet(),
-			Process.THREAD_PRIORITY_DEFAULT,
-			tiContext.getTiApp().getThreadStackSize());
-
 		this.tiContext = tiContext;
-		this.initialized = new CountDownLatch(1);
-		
+		StringBuilder threadName= new StringBuilder();
+		threadName.append("kroll$").append(getInstanceCounter().incrementAndGet());
+		if (label != null) {
+			threadName.append(": ").append(label);
+		}
+		// allow a configurable stack size to avoid StackOverflowErrors in some larger apps
+		thread = new KrollHandlerThread(
+			threadName.toString(),
+			Process.THREAD_PRIORITY_DEFAULT,
+			tiContext.getTiApp().getThreadStackSize(), this);
+		initialized = new CountDownLatch(1);
+
 		// force to true to test compiled JS
 		// this.useOptimization = true;
 		TiApplication app = tiContext.getTiApp();
 		this.useOptimization =
 			app.getDeployType() == TiApplication.DEPLOY_TYPE_PRODUCTION || app.forceCompileJS();
+
+		thread.start();
+		requireInitialized();
 	}
 
-	@Override
-	protected void onLooperPrepared()
+	protected void initContext()
 	{
-		super.onLooperPrepared();
-
 		if (DBG) {
-			Log.e("KrollContext", "Context Thread: " + Thread.currentThread().getName());
+			Log.d(LCAT, "Context Thread: " + Thread.currentThread().getName());
 		}
-
-		contextHandler = new Handler(this);
+		messageQueue = TiMessageQueue.getMessageQueue();
+		messageQueue.setCallback(this);
 		Context ctx = enter();
 		try {
 			if (DBG) {
-				Log.i(LCAT, "Preparing scope");
+				Log.d(LCAT, "Context entered, preparing scope");
 			}
 			this.jsScope = ctx.initStandardObjects();
 			if (DBG) {
-				Log.i(LCAT, "Scope prepared");
+				Log.d(LCAT, "Initialized scope: " + jsScope);
 			}
 			initialized.countDown();
 		} finally {
 			exit();
 		}
-
 	}
 
 	public boolean handleMessage(Message msg)
@@ -122,15 +128,16 @@ public class KrollContext extends KrollHandlerThread implements Handler.Callback
 
 	public void post(Runnable r)
 	{
-		contextHandler.post(r);
+		messageQueue.post(r);
+		//contextHandler.post(r);
 	}
 
 	protected boolean isOurThread()
 	{
 		if (DBG) {
-			Log.i(LCAT, "ThreadId: " + getId() + " currentThreadId: " + Thread.currentThread().getId());
+			Log.d(LCAT, "ThreadId: " + thread.getId() + " currentThreadId: " + Thread.currentThread().getId());
 		}
-		return getId() == Thread.currentThread().getId();
+		return thread.getId() == Thread.currentThread().getId();
 	}
 
 	public TiContext getTiContext()
@@ -155,14 +162,11 @@ public class KrollContext extends KrollHandlerThread implements Handler.Callback
 		}
 
 		AsyncResult result = new AsyncResult();
-
-		Message msg = contextHandler.obtainMessage(MSG_EVAL_FILE, result);
+		Message msg = messageQueue.getHandler().obtainMessage(MSG_EVAL_FILE, result);
 		msg.getData().putString(TiC.MSG_PROPERTY_FILENAME, filename);
-		msg.sendToTarget();
-
-		return result.getResult();
+		return TiMessageQueue.getMessageQueue().sendBlockingMessage(msg, messageQueue, result);
 	}
-	
+
 	protected Object runCompiledScript(String filename)
 	{
 		
@@ -188,6 +192,7 @@ public class KrollContext extends KrollHandlerThread implements Handler.Callback
 		}
 		return ScriptableObject.NOT_FOUND;
 	}
+
 	public Object evaluateScript(String filename)
 	{
 		String[] parts = { filename };
@@ -246,12 +251,9 @@ public class KrollContext extends KrollHandlerThread implements Handler.Callback
 		}
 
 		AsyncResult result = new AsyncResult();
-
-		Message msg = contextHandler.obtainMessage(MSG_EVAL_STRING, result);
+		Message msg = messageQueue.getHandler().obtainMessage(MSG_EVAL_STRING, result);
 		msg.getData().putString(TiC.MSG_PROPERTY_SRC, src);
-		msg.sendToTarget();
-
-		return result.getResult();
+		return TiMessageQueue.getMessageQueue().sendBlockingMessage(msg, messageQueue, result);
 	}
 
 	public Object handleEval(String src)
@@ -342,22 +344,28 @@ public class KrollContext extends KrollHandlerThread implements Handler.Callback
 		}
 	}
 
-	public static final KrollContext createContext(TiContext tiContext)
+	protected static AtomicInteger getInstanceCounter()
 	{
 		if (instanceCounter == null) {
 			instanceCounter = new AtomicInteger();
 		}
-
-		KrollContext kc = new KrollContext(tiContext);
-		kc.start();
-		kc.requireInitialized();
-		return kc;
+		return instanceCounter;
 	}
-	
+
+	public static final KrollContext createContext(TiContext tiContext, String loadFile)
+	{
+		return new KrollContext(tiContext, loadFile);
+	}
+
+	public TiMessageQueue getMessageQueue()
+	{
+		return messageQueue;
+	}
+
 	public void release()
 	{
-		if (getLooper() != null) {
-			getLooper().quit();
+		if (thread.getLooper() != null) {
+			thread.getLooper().quit();
 		}
 	}
 }

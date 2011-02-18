@@ -106,10 +106,6 @@ public class MediaModule extends KrollModule
 			errorCallback = (KrollCallback) options.get("error");
 		}
 
-		final KrollCallback fSuccessCallback = successCallback;
-		final KrollCallback fCancelCallback = cancelCallback;
-		final KrollCallback fErrorCallback = errorCallback;
-
 		if (DBG) {
 			Log.d(LCAT, "showCamera called");
 		}
@@ -173,9 +169,7 @@ public class MediaModule extends KrollModule
 			return;
 		}
 
-		final File finalImageFile = imageFile;
-		final String imageUrl = "file://" + imageFile.getAbsolutePath();
-		
+		String imageUrl = "file://" + imageFile.getAbsolutePath();
 		TiIntentWrapper cameraIntent = new TiIntentWrapper(new Intent());
 		cameraIntent.getIntent().setAction(MediaStore.ACTION_IMAGE_CAPTURE);
 		cameraIntent.getIntent().addCategory(Intent.CATEGORY_DEFAULT);
@@ -202,170 +196,194 @@ public class MediaModule extends KrollModule
 			cameraIntent.getIntent().putExtra(MediaStore.EXTRA_OUTPUT, Uri.parse(imageUrl));
 		} 
 
-		final int code = activitySupport.getUniqueResultCode();
-		final boolean finalSaveToPhotoGallery = saveToPhotoGallery;
+		CameraResultHandler resultHandler = new CameraResultHandler();
+		resultHandler.imageFile = imageFile;
+		resultHandler.imageUrl = imageUrl;
+		resultHandler.saveToPhotoGallery = saveToPhotoGallery;
+		resultHandler.successCallback = successCallback;
+		resultHandler.cancelCallback = cancelCallback;
+		resultHandler.errorCallback = errorCallback;
+		resultHandler.activitySupport = activitySupport;
+		resultHandler.cameraIntent = cameraIntent.getIntent();
+		activity.runOnUiThread(resultHandler);
+	}
 
-		activitySupport.launchActivityForResult(cameraIntent.getIntent(), code,
-			new TiActivityResultHandler() {
+	protected class CameraResultHandler implements TiActivityResultHandler, Runnable
+	{
+		protected File imageFile;
+		protected String imageUrl;
+		protected boolean saveToPhotoGallery;
+		protected int code;
+		protected KrollCallback successCallback, cancelCallback, errorCallback;
+		protected TiActivitySupport activitySupport;
+		protected Intent cameraIntent;
 
-				public void onResult(Activity activity, int requestCode, int resultCode, Intent data)
-				{
-					if (resultCode == Activity.RESULT_CANCELED) {
-						if (finalImageFile != null) {
-							finalImageFile.delete();
-						}
-						if (fCancelCallback != null) {
-							fCancelCallback.callAsync();
-						}
+		@Override
+		public void run()
+		{
+			code = activitySupport.getUniqueResultCode();
+			activitySupport.launchActivityForResult(cameraIntent, code, this);
+		}
+
+		@Override
+		public void onResult(Activity activity, int requestCode, int resultCode, Intent data)
+		{
+			if (resultCode == Activity.RESULT_CANCELED) {
+				if (imageFile != null) {
+					imageFile.delete();
+				}
+				if (cancelCallback != null) {
+					cancelCallback.callAsync();
+				}
+			} else {
+				if (data == null) {
+					ContentValues values = new ContentValues(7);
+					values.put(Images.Media.TITLE, imageFile.getName());
+					values.put(Images.Media.DISPLAY_NAME, imageFile.getName());
+					values.put(Images.Media.DATE_TAKEN, new Date().getTime());
+					values.put(Images.Media.MIME_TYPE, "image/jpeg");
+					if (saveToPhotoGallery) {
+						values.put(Images.ImageColumns.BUCKET_ID, PHOTO_DCIM_CAMERA.toLowerCase().hashCode());
+						values.put(Images.ImageColumns.BUCKET_DISPLAY_NAME, "Camera");
 					} else {
-						if (data == null) {
-							ContentValues values = new ContentValues(7);
-							values.put(Images.Media.TITLE, finalImageFile.getName());
-							values.put(Images.Media.DISPLAY_NAME, finalImageFile.getName());
-							values.put(Images.Media.DATE_TAKEN, new Date().getTime());
-							values.put(Images.Media.MIME_TYPE, "image/jpeg");
-							if (finalSaveToPhotoGallery) {
-								values.put(Images.ImageColumns.BUCKET_ID, PHOTO_DCIM_CAMERA.toLowerCase().hashCode());
-								values.put(Images.ImageColumns.BUCKET_DISPLAY_NAME, "Camera");
-							} else {
-								values.put(Images.ImageColumns.BUCKET_ID, finalImageFile.getPath().toLowerCase().hashCode());
-								values.put(Images.ImageColumns.BUCKET_DISPLAY_NAME, finalImageFile.getName());
-							}
-							values.put("_data", finalImageFile.getAbsolutePath());
-	
-							Uri imageUri = activity.getContentResolver().insert(Images.Media.EXTERNAL_CONTENT_URI, values);
-	
-							try {
-								if (fSuccessCallback != null) {
-									fSuccessCallback.callAsync(createDictForImage(imageUri.toString(), "image/jpeg"));
-								}
-							} catch (OutOfMemoryError e) {
-								String msg = "Not enough memory to get image: " + e.getMessage();
-								Log.e(LCAT, msg);
-								if (fErrorCallback != null) {
-									fErrorCallback.callAsync(createErrorResponse(UNKNOWN_ERROR, msg));
-								}
-							}
-						} else {
-							// Get the content information about the saved image
-							String[] projection = {
-								Images.Media.TITLE,
-								Images.Media.DISPLAY_NAME,
-								Images.Media.MIME_TYPE,
-								Images.ImageColumns.BUCKET_ID,
-								Images.ImageColumns.BUCKET_DISPLAY_NAME,
-								"_data"
-							};
+						values.put(Images.ImageColumns.BUCKET_ID, imageFile.getPath().toLowerCase().hashCode());
+						values.put(Images.ImageColumns.BUCKET_DISPLAY_NAME, imageFile.getName());
+					}
+					values.put("_data", imageFile.getAbsolutePath());
 
-							String title = null;
-							String displayName = null;
-							String mimeType = null;
-							String bucketId = null;
-							String bucketDisplayName = null;
-							String dataPath = null;
+					Uri imageUri = activity.getContentResolver().insert(Images.Media.EXTERNAL_CONTENT_URI, values);
 
-							Cursor c = activity.getContentResolver().query(data.getData(), projection, null, null, null);
-							if (c != null) {
-								try {
-									if (c.moveToNext()) {
-										title = c.getString(0);
-										displayName = c.getString(1);
-										mimeType = c.getString(2);
-										bucketId = c.getString(3);
-										bucketDisplayName = c.getString(4);
-										dataPath = c.getString(5);
-										
-										if (DBG) {
-											Log.d(LCAT,"Image { title: " + title + " displayName: " + displayName + " mimeType: " + mimeType +
-												" bucketId: " + bucketId + " bucketDisplayName: " + bucketDisplayName +
-												" path: " + dataPath + " }");
-										}
-									}
-								} finally {
-									if (c != null) {
-										c.close();
-										c = null;
-									}
-								}
-							}
-							
-							String localImageUrl = dataPath;
-							
-							if (!finalSaveToPhotoGallery) {
+					try {
+						if (successCallback != null) {
+							successCallback.callAsync(createDictForImage(imageUri.toString(), "image/jpeg"));
+						}
+					} catch (OutOfMemoryError e) {
+						String msg = "Not enough memory to get image: " + e.getMessage();
+						Log.e(LCAT, msg);
+						if (errorCallback != null) {
+							errorCallback.callAsync(createErrorResponse(UNKNOWN_ERROR, msg));
+						}
+					}
+				} else {
+					// Get the content information about the saved image
+					String[] projection = {
+						Images.Media.TITLE,
+						Images.Media.DISPLAY_NAME,
+						Images.Media.MIME_TYPE,
+						Images.ImageColumns.BUCKET_ID,
+						Images.ImageColumns.BUCKET_DISPLAY_NAME,
+						"_data"
+					};
+
+					String title = null;
+					String displayName = null;
+					String mimeType = null;
+					String bucketId = null;
+					String bucketDisplayName = null;
+					String dataPath = null;
+
+					Cursor c = activity.getContentResolver().query(data.getData(), projection, null, null, null);
+					if (c != null) {
+						try {
+							if (c.moveToNext()) {
+								title = c.getString(0);
+								displayName = c.getString(1);
+								mimeType = c.getString(2);
+								bucketId = c.getString(3);
+								bucketDisplayName = c.getString(4);
+								dataPath = c.getString(5);
 								
-								// We need to move the image from dataPath to imageUrl
-								try {
-									URL url = new URL(imageUrl);
-									
-									File src = new File(dataPath);
-									File dst = new File(url.getPath());
-									
-									BufferedInputStream bis = null;
-									BufferedOutputStream bos = null;
-									
-									try {
-										bis = new BufferedInputStream(new FileInputStream(src), 8096);
-										bos = new BufferedOutputStream(new FileOutputStream(dst), 8096);
-										
-										byte[] buf = new byte[8096];
-										int len = 0;
-										
-										while((len = bis.read(buf)) != -1) {
-											bos.write(buf, 0, len);
-										}
-									} finally {
-										if (bis != null) {
-											bis.close();
-										}
-										if (bos != null) {
-											bos.close();
-										}
-									}
-									
-									// Update Content
-									ContentValues values = new ContentValues();
-									values.put(Images.ImageColumns.BUCKET_ID, finalImageFile.getPath().toLowerCase().hashCode());
-									values.put(Images.ImageColumns.BUCKET_DISPLAY_NAME, finalImageFile.getName());
-									values.put("_data", finalImageFile.getAbsolutePath());
-		
-									activity.getContentResolver().update(data.getData(), values, null, null);
-
-									src.delete();
-									localImageUrl = imageUrl; // make sure it's a good URL before setting it to pass back.
-
-								} catch (MalformedURLException e) {
-									Log.e(LCAT, "Invalid URL not moving image: " + e.getMessage());
-								} catch (IOException e) {
-									Log.e(LCAT, "Unable to move file: " + e.getMessage(), e);
+								if (DBG) {
+									Log.d(LCAT,"Image { title: " + title + " displayName: " + displayName + " mimeType: " + mimeType +
+										" bucketId: " + bucketId + " bucketDisplayName: " + bucketDisplayName +
+										" path: " + dataPath + " }");
 								}
 							}
-							
-							try {
-								if (fSuccessCallback != null) {
-									fSuccessCallback.callAsync(createDictForImage(localImageUrl, "image/jpeg"));
-								}
-							} catch (OutOfMemoryError e) {
-								String msg = "Not enough memory to get image: " + e.getMessage();
-								Log.e(LCAT, msg);
-								if (fErrorCallback != null) {
-									fErrorCallback.callAsync(createErrorResponse(UNKNOWN_ERROR, msg));
-								}
+						} finally {
+							if (c != null) {
+								c.close();
+								c = null;
 							}
 						}
 					}
-				}
+					
+					String localImageUrl = dataPath;
+					
+					if (!saveToPhotoGallery) {
+						
+						// We need to move the image from dataPath to imageUrl
+						try {
+							URL url = new URL(imageUrl);
+							
+							File src = new File(dataPath);
+							File dst = new File(url.getPath());
+							
+							BufferedInputStream bis = null;
+							BufferedOutputStream bos = null;
+							
+							try {
+								bis = new BufferedInputStream(new FileInputStream(src), 8096);
+								bos = new BufferedOutputStream(new FileOutputStream(dst), 8096);
+								
+								byte[] buf = new byte[8096];
+								int len = 0;
+								
+								while((len = bis.read(buf)) != -1) {
+									bos.write(buf, 0, len);
+								}
+							} finally {
+								if (bis != null) {
+									bis.close();
+								}
+								if (bos != null) {
+									bos.close();
+								}
+							}
+							
+							// Update Content
+							ContentValues values = new ContentValues();
+							values.put(Images.ImageColumns.BUCKET_ID, imageFile.getPath().toLowerCase().hashCode());
+							values.put(Images.ImageColumns.BUCKET_DISPLAY_NAME, imageFile.getName());
+							values.put("_data", imageFile.getAbsolutePath());
 
-				public void onError(Activity activity, int requestCode, Exception e) {
-					if (finalImageFile != null) {
-						finalImageFile.delete();
+							activity.getContentResolver().update(data.getData(), values, null, null);
+
+							src.delete();
+							localImageUrl = imageUrl; // make sure it's a good URL before setting it to pass back.
+
+						} catch (MalformedURLException e) {
+							Log.e(LCAT, "Invalid URL not moving image: " + e.getMessage());
+						} catch (IOException e) {
+							Log.e(LCAT, "Unable to move file: " + e.getMessage(), e);
+						}
 					}
-					String msg = "Camera problem: " + e.getMessage();
-					Log.e(LCAT, msg, e);
-					if (fErrorCallback != null) {
-						fErrorCallback.callAsync(createErrorResponse(UNKNOWN_ERROR, msg));
+					
+					try {
+						if (successCallback != null) {
+							successCallback.callAsync(createDictForImage(localImageUrl, "image/jpeg"));
+						}
+					} catch (OutOfMemoryError e) {
+						String msg = "Not enough memory to get image: " + e.getMessage();
+						Log.e(LCAT, msg);
+						if (errorCallback != null) {
+							errorCallback.callAsync(createErrorResponse(UNKNOWN_ERROR, msg));
+						}
 					}
 				}
-			});
+			}
+		}
+
+		@Override
+		public void onError(Activity activity, int requestCode, Exception e) {
+			if (imageFile != null) {
+				imageFile.delete();
+			}
+			String msg = "Camera problem: " + e.getMessage();
+			Log.e(LCAT, msg, e);
+			if (errorCallback != null) {
+				errorCallback.callAsync(createErrorResponse(UNKNOWN_ERROR, msg));
+			}
+		}
 	}
 
 	@Kroll.method

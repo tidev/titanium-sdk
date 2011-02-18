@@ -379,7 +379,7 @@
  *
  * var facebook = require('facebook');
  *
- * facebook.requestWithGraphPath('me',{},function(e) {
+ * facebook.requestWithGraphPath('me',{}, 'post', function(e) {
  *    if (e.success) {
  *      alert('success! welcome userid: '+e.id);
  *    }

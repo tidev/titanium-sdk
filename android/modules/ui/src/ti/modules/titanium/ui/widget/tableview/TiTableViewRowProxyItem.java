@@ -264,7 +264,11 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 				height = TiConvert.toInt(props, TiC.PROPERTY_HEIGHT);
 			}
 		}
-		
+
+		if (props.containsKey(TiC.PROPERTY_LAYOUT)) {
+			content.setLayoutArrangement(TiConvert.toString(props, TiC.PROPERTY_LAYOUT));
+		}
+
 		if (rp.hasControls()) {
 			refreshControls();
 		} else {
