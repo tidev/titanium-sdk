@@ -152,6 +152,15 @@ tabGroup.addEventListener('close', function(e)
 {
 	messageLabel.text = 'tab group close event';
 	messageWin.open();
+	if (Ti.Platform.osname == "iphone") {
+//On iOS, when we're closing the tab group, this is a result
+//of the tab group example of 'Close/Animate Tab Group' and
+//we want to reopen the tab group so the user can continue with
+//using Kitchen Sink. HOWEVER, on Android, this is also triggered
+//when the app is being closed via back button, where reopening
+//the tab group is not desired. This is purely a quirk of the tests.
+		tabGroup.open();
+	}
 	setTimeout(function()
 	{
 		messageWin.close({opacity:0,duration:500});
