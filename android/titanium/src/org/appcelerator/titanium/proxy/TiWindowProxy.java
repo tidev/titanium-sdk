@@ -191,19 +191,19 @@ public abstract class TiWindowProxy extends TiViewProxy
 		return orientationModes;
 	}
 
+	// orientation must be Titanium orientation value
 	public boolean isOrientationMode(int orientation)
 	{
-		if (orientationModes.length == 0) return true;
-
-		boolean allowOrientationChange = false;
-		int currentMode = TiUIHelper.convertToTiOrientation(orientation);
-		for (int mode : orientationModes) {
-			if (mode == currentMode) {
-				allowOrientationChange = true;
-				break;
+		if (orientationModes.length > 0) {
+			for (int mode : orientationModes) {
+				if (mode == orientation) {
+					return true;
+				}
 			}
+			return false;
+		} else {
+			return true;
 		}
-		return allowOrientationChange;
 	}
 
 	@Kroll.method @Kroll.getProperty

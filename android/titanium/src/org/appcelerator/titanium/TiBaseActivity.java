@@ -89,7 +89,12 @@ public abstract class TiBaseActivity extends Activity
 	{
 		if (window != null) {
 			if (window.getOrientationModes().length > 0) {
-				setRequestedOrientation(TiUIHelper.convertConfigToActivityOrientation(getResources().getConfiguration().orientation));
+				int currentOrientation = getResources().getConfiguration().orientation;
+				if (window.isOrientationMode(TiUIHelper.convertToTiOrientation(currentOrientation))) {
+					setRequestedOrientation(TiUIHelper.convertConfigToActivityOrientation(currentOrientation));
+				} else {
+					setRequestedOrientation(TiUIHelper.convertTiToActivityOrientation(window.getOrientationModes()[0]));
+				}
 			}
 		}
 	}
@@ -464,10 +469,11 @@ public abstract class TiBaseActivity extends Activity
 		orientationListener.disable();
 	}
 
-	public void requestOrientation(int requestedOrientation) {
-		// is the orientation valid?
-		if (window.isOrientationMode(requestedOrientation)) {
-			setRequestedOrientation(requestedOrientation);
+	// orientation must be Titanium orientation value
+	public void requestOrientation(int orientation)
+	{
+		if (window.isOrientationMode(orientation)) {
+			setRequestedOrientation(TiUIHelper.convertTiToActivityOrientation(orientation));
 		}
 	}
 
@@ -499,8 +505,9 @@ public abstract class TiBaseActivity extends Activity
 
 					if (newOrientation != -1) {
 						// only set the orientation if it is not the current orientation
-						if (newOrientation != TiUIHelper.convertConfigToActivityOrientation(getResources().getConfiguration().orientation)) {
-							requestOrientation(newOrientation);
+						int currentOrientation = getResources().getConfiguration().orientation;
+						if (newOrientation != TiUIHelper.convertConfigToActivityOrientation(currentOrientation)) {
+							requestOrientation(TiUIHelper.convertToTiOrientation(newOrientation));
 						}
 					}
 				}
