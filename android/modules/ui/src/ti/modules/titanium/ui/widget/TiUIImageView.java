@@ -122,7 +122,7 @@ public class TiUIImageView extends TiUIView
 			
 			@Override
 			public void sizeChanged(int w, int h, int oldWidth, int oldHeight) {
-				setImage();
+				setImage(true);
 			}
 		});
 		
@@ -138,7 +138,7 @@ public class TiUIImageView extends TiUIView
 						imageSources.get(0).getBitmapAsync(new BgImageLoader(getProxy().getTiContext(), requestedWidth, requestedHeight, token));
 					}
 				} else {
-					setImage();
+					setImage(true);
 				}
 			}
 		};
@@ -539,7 +539,7 @@ public class TiUIImageView extends TiUIView
 		}
 	}
 	
-	private void setImage()
+	private void setImage(boolean recycle)
 	{
 		if (imageSources == null || imageSources.size() == 0) {
 			setImage(null);
@@ -560,7 +560,7 @@ public class TiUIImageView extends TiUIView
 				} else {
 					TiImageView view = getView();
 					if (view != null) {
-						view.setImageDrawable(null);
+						view.setImageDrawable(null, recycle);
 					}
 				}
 				boolean getAsync = true;
@@ -646,7 +646,7 @@ public class TiUIImageView extends TiUIView
 			}
 			if (changeImage) {
 				setImageSource(source);
-				setImage();
+				setImage(false);
 			}
 		} else {
 			if (!d.containsKey(TiC.PROPERTY_IMAGES)) {
@@ -675,10 +675,10 @@ public class TiUIImageView extends TiUIView
 			view.setEnableZoomControls(TiConvert.toBoolean(newValue));
 		} else if (key.equals(TiC.PROPERTY_URL)) {
 			setImageSource(newValue);
-			setImage();
+			setImage(true);
 		} else if (key.equals(TiC.PROPERTY_IMAGE)) {
 			setImageSource(newValue);
-			setImage();
+			setImage(true);
 		} else if (key.equals(TiC.PROPERTY_IMAGES)) {
 			if (newValue instanceof Object[]) {
 				setImageSource(newValue);
