@@ -25,6 +25,11 @@ Read the answer to this [Q&A](http://developer.appcelerator.com/question/112581/
 - Shake gesture. [Ticket 992](https://appcelerator.lighthouseapp.com/projects/32238/tickets/992-shake-gesture-not-implemented)
 - Install to SD card support. [Ticket 1450](https://appcelerator.lighthouseapp.com/projects/32238/tickets/1450-support-installing-to-sd-card-on-android-22)
 
+*Lifecycle Note*
+
+The Android Lifecycle changes in 1.6.0 mean that your Window's URL (and app.js) are executed synchronously as part of the Activity's onCreate().
+Try to keep your initial code light, and don't count on window.open() being synchronous, especially if the window is launching a new Activity.
+Use a listener on the Window's "open" event to ensure that code gets executed after the new Activity has been opened.
 
 
 iOS Changes
