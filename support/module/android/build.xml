@@ -13,6 +13,7 @@
 	<property name="build" location="${ti.module.root}/build"/>
 	<property name="gen" location="${build}/.apt_generated"/>
 	<property name="classes" location="${build}/classes"/>
+	<property name="docs" location="${build}/docs"/>
 	<property name="dist" location="${ti.module.root}/dist"/>
 	<property name="lib" location="${ti.module.root}/lib"/>
 	<property name="jni" location="${ti.module.root}/jni"/>
@@ -110,11 +111,12 @@
 			<fileset dir="${ti.module.root}" includes="assets/**" excludes="assets/README"/>
 		</jar>
 		<property name="zip.prefix" value="modules/android/${module.id}/${manifest.version}"/>
-		
+		<antcall target="docgen"/>
 		<zip destfile="${dist}/${module.id}-android-${manifest.version}.zip">
 			<zipfileset file="${module.jar}" prefix="${zip.prefix}"/>
 			<zipfileset file="manifest" prefix="${zip.prefix}"/>
 			<zipfileset file="timodule.xml" prefix="${zip.prefix}"/>
+			<zipfileset dir="${docs}" prefix="${zip.prefix}/documentation"/>
 			<zipfileset dir="${lib}" includes="**/*.jar" prefix="${zip.prefix}/lib"/>
 		</zip>
 		<antcall target="zip.libs"/>
@@ -160,8 +162,12 @@
 	<target name="run.emulator" depends="clean,dist" description="Run the android emulator">
 		<titanium command="emulator"/>
 	</target>
-	
+
 	<target name="run" depends="clean,dist" description="Run the module's test project">
 		<titanium command="run"/>
+	</target>
+
+	<target name="docgen" description="Generate HTML documentation from Markdown">
+		<titanium command="docgen"/>
 	</target>
 </project>
