@@ -760,7 +760,7 @@ public class TiUIHelper
 		}
 	}
 
-	public static int convertToAndroidOrientation(int orientation) {
+	public static int convertTiToActivityOrientation(int orientation) {
 		switch (orientation) {
 			case LANDSCAPE_LEFT :
 			case LANDSCAPE_RIGHT :
