@@ -28,6 +28,15 @@ Titanium.Yahoo.yql('select * from flickr.photos.search where text="Cat" limit 10
 {
 	var images = [];
 	var data = e.data;
+	if (data == null)
+	{
+		Titanium.UI.createAlertDialog({
+			title: 'Error querying YQL',
+			message: 'No data could be retrieved using YQL' }).show();
+		Ti.App.fireEvent('hide_indicator');
+		return;
+	}
+
 	for (var c=0;c<data.photo.length;c++)
 	{
 		var photo = data.photo[c];
