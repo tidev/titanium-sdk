@@ -9,6 +9,7 @@ package ti.modules.titanium.ui.widget;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -36,6 +37,7 @@ import org.appcelerator.titanium.view.TiDrawableReference;
 import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.filesystem.FileProxy;
+import ti.modules.titanium.ui.ImageViewProxy;
 import ti.modules.titanium.ui.widget.TiImageView.OnSizeChangeListener;
 import android.app.Activity;
 import android.graphics.Bitmap;
@@ -67,10 +69,11 @@ public class TiUIImageView extends TiUIView
 	private boolean paused = false;
 	private int token;
 	private boolean firedLoad;
-	
+	private ImageViewProxy imageViewProxy;
+
 	private TiDimension requestedWidth;
 	private TiDimension requestedHeight;
-	
+
 	private ArrayList<TiDrawableReference> imageSources;
 	private TiDrawableReference defaultImageSource;
 	private TiDownloadListener downloadListener;
@@ -105,10 +108,10 @@ public class TiUIImageView extends TiUIView
 		}
 	}
 
-
 	public TiUIImageView(TiViewProxy proxy)
 	{
 		super(proxy);
+		imageViewProxy = (ImageViewProxy) proxy;
 
 		if (DBG) {
 			Log.d(LCAT, "Creating an ImageView");
@@ -119,7 +122,7 @@ public class TiUIImageView extends TiUIView
 			
 			@Override
 			public void sizeChanged(int w, int h, int oldWidth, int oldHeight) {
-				setImage();
+				setImage(true);
 			}
 		});
 		
@@ -135,13 +138,21 @@ public class TiUIImageView extends TiUIView
 						imageSources.get(0).getBitmapAsync(new BgImageLoader(getProxy().getTiContext(), requestedWidth, requestedHeight, token));
 					}
 				} else {
-					setImage();
+					setImage(true);
 				}
 			}
 		};
 		setNativeView(view);
 		proxy.getTiContext().addOnLifecycleEventListener(this);
 	}
+
+	@Override
+	public void setProxy(TiViewProxy proxy)
+	{
+		super.setProxy(proxy);
+		imageViewProxy = (ImageViewProxy) proxy;
+	}
+
 	private TiImageView getView()
 	{
 		return (TiImageView) nativeView;
@@ -207,6 +218,7 @@ public class TiUIImageView extends TiUIView
 					view.setImageBitmap(bitmap);
 				}
 			}
+			imageViewProxy.onBitmapChanged(this, bitmap);
 		}
 	}
 
@@ -484,6 +496,14 @@ public class TiUIImageView extends TiUIView
 
 	private void setImageSource(Object object)
 	{
+		if (imageViewProxy.inTableView()) {
+			ArrayList<TiDrawableReference> currentSources = imageViewProxy.getImageSources();
+			if (currentSources != null) {
+				imageSources = currentSources;
+				return;
+			}
+		}
+
 		imageSources = new ArrayList<TiDrawableReference>();
 		if (object instanceof Object[]) {
 			for(Object o : (Object[])object) {
@@ -492,7 +512,9 @@ public class TiUIImageView extends TiUIView
 		} else {
 			imageSources.add( makeImageSource(object) );
 		}
+		imageViewProxy.onImageSourcesChanged(this, imageSources);
 	}
+
 	private void setImageSource(TiDrawableReference source)
 	{
 		imageSources = new ArrayList<TiDrawableReference>();
@@ -517,13 +539,20 @@ public class TiUIImageView extends TiUIView
 		}
 	}
 	
-	private void setImage()
+	private void setImage(boolean recycle)
 	{
 		if (imageSources == null || imageSources.size() == 0) {
 			setImage(null);
 			return;
 		}
 		if (imageSources.size() == 1) {
+			if (imageViewProxy.inTableView()) {
+				Bitmap currentBitmap = imageViewProxy.getBitmap();
+				if (currentBitmap != null) {
+					setImage(currentBitmap);
+					return;
+				}
+			}
 			TiDrawableReference imageref = imageSources.get(0);
 			if (imageref.isNetworkUrl()) {
 				if (defaultImageSource != null) {
@@ -531,7 +560,7 @@ public class TiUIImageView extends TiUIView
 				} else {
 					TiImageView view = getView();
 					if (view != null) {
-						view.setImageDrawable(null);
+						view.setImageDrawable(null, recycle);
 					}
 				}
 				boolean getAsync = true;
@@ -571,7 +600,7 @@ public class TiUIImageView extends TiUIView
 		if (view == null) {
 			return;
 		}
-		
+
 		if (d.containsKey(TiC.PROPERTY_WIDTH)) {
 			requestedWidth = TiConvert.toTiDimension(d, TiC.PROPERTY_WIDTH, TiDimension.TYPE_WIDTH);
 		}
@@ -617,7 +646,7 @@ public class TiUIImageView extends TiUIView
 			}
 			if (changeImage) {
 				setImageSource(source);
-				setImage();
+				setImage(false);
 			}
 		} else {
 			if (!d.containsKey(TiC.PROPERTY_IMAGES)) {
@@ -646,10 +675,10 @@ public class TiUIImageView extends TiUIView
 			view.setEnableZoomControls(TiConvert.toBoolean(newValue));
 		} else if (key.equals(TiC.PROPERTY_URL)) {
 			setImageSource(newValue);
-			setImage();
+			setImage(true);
 		} else if (key.equals(TiC.PROPERTY_IMAGE)) {
 			setImageSource(newValue);
-			setImage();
+			setImage(true);
 		} else if (key.equals(TiC.PROPERTY_IMAGES)) {
 			if (newValue instanceof Object[]) {
 				setImageSource(newValue);
