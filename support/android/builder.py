@@ -1258,7 +1258,9 @@ class Builder(object):
 				'build_dir':s.project_dir,
 				'app_name':self.name,
 				'android_builder':self,
-				'deploy_type':deploy_type
+				'deploy_type':deploy_type,
+				'dist_dir':dist_dir,
+				'logger':log
 			}
 			for plugin in self.tiappxml.properties['plugins']:
 				local_plugin_file = os.path.join(local_compiler_dir,plugin['name'],'plugin.py')
