@@ -246,8 +246,7 @@ class Builder(object):
 		return True
 	
 	def wait_for_device(self, type):
-		print "[DEBUG] Waiting for device to be ready ..."
-		sys.stdout.flush()
+		debug("Waiting for device to be ready ...")
 		t = time.time()
 		max_wait = 30
 		max_zero = 6
@@ -502,7 +501,6 @@ class Builder(object):
 
 	def copy_project_resources(self):
 		info("Copying project resources..")
-		sys.stdout.flush()
 		
 		resources_dir = os.path.join(self.top_dir, 'Resources')
 		android_resources_dir = os.path.join(resources_dir, 'android')
@@ -1249,8 +1247,7 @@ class Builder(object):
 			local_compiler_dir = os.path.abspath(os.path.join(self.top_dir,'plugins'))
 			tp_compiler_dir = os.path.abspath(os.path.join(titanium_dir,'plugins'))
 			if not os.path.exists(tp_compiler_dir) and not os.path.exists(local_compiler_dir):
-				print "[ERROR] Build Failed (Missing plugins directory)"
-				sys.stdout.flush()
+				error("Build Failed (Missing plugins directory)")
 				sys.exit(1)
 			compiler_config = {
 				'platform':'android',
@@ -1269,12 +1266,11 @@ class Builder(object):
 			for plugin in self.tiappxml.properties['plugins']:
 				local_plugin_file = os.path.join(local_compiler_dir,plugin['name'],'plugin.py')
 				plugin_file = os.path.join(tp_compiler_dir,plugin['name'],plugin['version'],'plugin.py')
-				print "[INFO] plugin=%s" % plugin_file
+				info("plugin=%s" % plugin_file)
 				if not os.path.exists(local_plugin_file) and not os.path.exists(plugin_file):
-					print "[ERROR] Build Failed (Missing plugin for %s)" % plugin['name']
-					sys.stdout.flush()
+					error("Build Failed (Missing plugin for %s)" % plugin['name'])
 					sys.exit(1)
-				print "[INFO] Detected compiler plugin: %s/%s" % (plugin['name'],plugin['version'])
+				info("Detected compiler plugin: %s/%s" % (plugin['name'],plugin['version']))
 				code_path = plugin_file
 				if os.path.exists(local_plugin_file):	
 					code_path = local_plugin_file
@@ -1488,7 +1484,6 @@ class Builder(object):
 						dex_args.append(os.path.join(self.support_dir, 'modules', 'titanium-network.jar'))
 	
 				info("Compiling Android Resources... This could take some time")
-				sys.stdout.flush()
 				# TODO - Document Exit message
 				run_result = run.run(dex_args, warning_regex=r'warning: ')
 				if (run_result == None):
@@ -1497,6 +1492,7 @@ class Builder(object):
 					sys.exit(1)
 				else:
 					dex_built = True
+					debug("Android classes.dex built")
 			
 			if self.sdcard_copy and not build_only and \
 				(not self.resources_installed or not self.app_installed) and \
