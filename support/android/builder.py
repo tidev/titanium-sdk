@@ -11,6 +11,7 @@ from compiler import Compiler
 from os.path import join, splitext, split, exists
 from shutil import copyfile
 from xml.dom.minidom import parseString
+from tilogger import *
 
 template_dir = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
 top_support_dir = os.path.dirname(template_dir) 
@@ -30,6 +31,7 @@ ignoreFiles = ['.gitignore', '.cvsignore', '.DS_Store'];
 ignoreDirs = ['.git','.svn','_svn', 'CVS'];
 android_avd_hw = {'hw.camera': 'yes', 'hw.gps':'yes'}
 res_skips = ['style']
+log = None
 
 # Copied from frameworks/base/tools/aapt/Package.cpp
 uncompressed_types = [
@@ -71,25 +73,20 @@ def read_properties(propFile, separator=":= "):
 	return propDict
 
 def info(msg):
-	print "[INFO] "+msg
-	sys.stdout.flush()
+	log.info(msg)
 
 def debug(msg):
-	print "[DEBUG] "+msg
-	sys.stdout.flush()
+	log.debug(msg)
 
 def warn(msg):
-	print "[WARN] "+msg
-	sys.stdout.flush()
+	log.warn(msg)
 
 def trace(msg):
-	print "[TRACE] "+msg
-	sys.stdout.flush()
-
+	log.trace(msg)
+	
 def error(msg):
-	print "[ERROR] "+msg
-	sys.stdout.flush()
-
+	log.error(msg)
+	
 def remove_orphaned_files(source_folder, target_folder):
 	is_res = source_folder.endswith('Resources') or source_folder.endswith('Resources' + os.sep)
 	for root, dirs, files in os.walk(target_folder):
@@ -1565,7 +1562,7 @@ if __name__ == "__main__":
 		usage()
 	
 	command = sys.argv[1]
-	
+	log = TiLogger(os.path.join(os.path.abspath(os.path.expanduser(dequote(sys.argv[4]))), 'build.log'))
 	template_dir = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
 	get_values_from_tiapp = False
 	
