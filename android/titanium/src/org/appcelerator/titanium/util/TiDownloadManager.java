@@ -6,7 +6,6 @@
  */
 package org.appcelerator.titanium.util;
 
-import java.io.InputStream;
 import java.lang.ref.SoftReference;
 import java.net.URI;
 import java.util.ArrayList;
@@ -19,12 +18,16 @@ import org.apache.commons.codec.digest.DigestUtils;
 import android.os.Handler;
 import android.os.Message;
 
+/**
+ * Manages the asynchronous opening of InputStreams from URIs so that
+ * the resources get put into our TiResponseCache. 
+ */
 public class TiDownloadManager implements Handler.Callback
 {
 	private static final String TAG = "TiDownloadManager";
 	private static final int MSG_FIRE_DOWNLOAD_FINISHED = 1000;
 	protected static TiDownloadManager _instance;
-	public static final int THREAD_POOL_SIZE = 5; 
+	public static final int THREAD_POOL_SIZE = 2; 
 
 	protected HashMap<String, ArrayList<SoftReference<TiDownloadListener>>> listeners =
 		new HashMap<String, ArrayList<SoftReference<TiDownloadListener>>>();
@@ -91,12 +94,17 @@ public class TiDownloadManager implements Handler.Callback
 
 	protected void handleFireDownloadFinished(URI uri)
 	{
+		ArrayList<SoftReference<TiDownloadListener>> toRemove = new ArrayList<SoftReference<TiDownloadListener>>();
 		synchronized (listeners) {
 			String hash = DigestUtils.shaHex(uri.toString());
 			for (SoftReference<TiDownloadListener> listener : listeners.get(hash)) {
 				if (listener.get() != null) {
 					fireDownloadFinished(uri, listener.get());
+					toRemove.add(listener);
 				}
+			}
+			for (SoftReference<TiDownloadListener> listener : toRemove) {
+				listeners.get(hash).remove(listener);
 			}
 		}
 	}
@@ -111,7 +119,6 @@ public class TiDownloadManager implements Handler.Callback
 	protected class DownloadJob implements Runnable
 	{
 		protected URI uri;
-		protected InputStream stream;
 		public DownloadJob(URI uri)
 		{
 			this.uri = uri;
@@ -120,13 +127,12 @@ public class TiDownloadManager implements Handler.Callback
 		@Override
 		public void run()
 		{
-			// The cache will take care of saving this, we don't need to actually do anything with it
-			// Wasteful?
 			try {
-				stream = uri.toURL().openStream();
-				TiStreamHelper.pump(stream, null);
+				// all we want to do is instigate putting this into the cache, and this 
+				// is enough for that:
+				TiStreamHelper.pump(uri.toURL().openStream(), null);
 				synchronized (downloadingURIs) {
-					downloadingURIs.remove(uri);
+					downloadingURIs.remove(DigestUtils.shaHex(uri.toString()));
 				}
 				fireDownloadFinished(uri);
 			} catch (Exception e) {

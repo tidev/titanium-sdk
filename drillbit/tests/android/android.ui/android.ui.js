@@ -249,6 +249,16 @@ describe("Ti.UI.Android tests", {
 		w.add(sv);
 		valueOf(true).shouldBeTrue();
 		w.close();
+	},
+	// https://appcelerator.lighthouseapp.com/projects/32238-titanium-mobile/tickets/3039
+	imageViewDpUnitCrash: function() {
+		var w = Ti.UI.createWindow();
+		w.open();
+		w.add(Ti.UI.createImageView({
+			image: 'KS_nav_ui.png',
+			height: '5dp',
+			width: '5dp'
+		}));
 	}
 
 })

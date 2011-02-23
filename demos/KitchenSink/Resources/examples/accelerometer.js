@@ -68,15 +68,18 @@ if (Titanium.Platform.name == 'iPhone OS' && Titanium.Platform.model == 'Simulat
 	win.add(notice);
 }
 
-Ti.Android.currentActivity.addEventListener('pause', function(e) {
-	if (accelerometerAdded) {
-		Ti.API.info("removing accelerometer callback on pause");
-		Ti.Accelerometer.removeEventListener('update', accelerometerCallback);
-	}
-});
-Ti.Android.currentActivity.addEventListener('resume', function(e) {
-	if (accelerometerAdded) {
-		Ti.API.info("adding accelerometer callback on resume");
-		Ti.Accelerometer.addEventListener('update', accelerometerCallback);
-	}
-});
+if (Titanium.Platform.name == 'android')
+{
+	Ti.Android.currentActivity.addEventListener('pause', function(e) {
+		if (accelerometerAdded) {
+			Ti.API.info("removing accelerometer callback on pause");
+			Ti.Accelerometer.removeEventListener('update', accelerometerCallback);
+		}
+	});
+	Ti.Android.currentActivity.addEventListener('resume', function(e) {
+		if (accelerometerAdded) {
+			Ti.API.info("adding accelerometer callback on resume");
+			Ti.Accelerometer.addEventListener('update', accelerometerCallback);
+		}
+	});
+}

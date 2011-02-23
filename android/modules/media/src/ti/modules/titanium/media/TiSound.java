@@ -15,6 +15,7 @@ import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollPropertyChange;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.KrollProxyListener;
+import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiConvert;
@@ -42,7 +43,7 @@ public class TiSound
 	public static final int STATE_WAITING_FOR_DATA = 7;  // current playback is in the waiting for audio data from the network state
 	public static final int STATE_WAITING_FOR_QUEUE	= 8; //	current playback is in the waiting for audio data to fill the queue state
 
-	public static final String STATE_BUFFERING_DESC	= "buffering";	// current playback is in the buffering from the network state
+	public static final String STATE_BUFFERING_DESC = "buffering";	// current playback is in the buffering from the network state
 	public static final String STATE_INITIALIZED_DESC = "initialized";	// current playback is in the initialization state
 	public static final String STATE_PAUSED_DESC = "paused";	// current playback is in the paused state
 	public static final String STATE_PLAYING_DESC = "playing";	// current playback is in the playing state
@@ -83,7 +84,7 @@ public class TiSound
 	{
 		try {
 			mp = new MediaPlayer();
-			String url = TiConvert.toString(proxy.getProperty("url"));
+			String url = TiConvert.toString(proxy.getProperty(TiC.PROPERTY_URL));
 			if (URLUtil.isAssetUrl(url)) {
 				Context context = proxy.getTiContext().getTiApp();
 				String path = url.substring(TiConvert.ASSET_URL.length());
@@ -102,7 +103,7 @@ public class TiSound
 				}
 			} else {
 				Uri uri = Uri.parse(url);
-				if (uri.getScheme().equals("file")) {
+				if (uri.getScheme().equals(TiC.PROPERTY_FILE)) {
 					mp.setDataSource(uri.getPath());
 				} else {
 					remote = true;
@@ -120,8 +121,8 @@ public class TiSound
 			setState(STATE_INITIALIZED);
 
 			setVolume(volume);
-			if (proxy.hasProperty("time")) {
-				setTime(TiConvert.toInt(proxy.getProperty("time")));
+			if (proxy.hasProperty(TiC.PROPERTY_TIME)) {
+				setTime(TiConvert.toInt(proxy.getProperty(TiC.PROPERTY_TIME)));
 			}
 		} catch (Throwable t) {
 			Log.w(LCAT, "Issue while initializing : " , t);
@@ -130,15 +131,18 @@ public class TiSound
 		}
 	}
 
-	public boolean isLooping() {
+	public boolean isLooping()
+	{
 		return looping;
 	}
 
-	public boolean isPaused() {
+	public boolean isPaused()
+	{
 		return paused;
 	}
 
-	public boolean isPlaying() {
+	public boolean isPlaying()
+	{
 		boolean result = false;
 		if (mp != null) {
 			result = mp.isPlaying();
@@ -146,7 +150,8 @@ public class TiSound
 		return result;
 	}
 
-	public void pause() {
+	public void pause()
+	{
 		try {
 			if (mp != null) {
 				if(mp.isPlaying()) {
@@ -166,7 +171,8 @@ public class TiSound
 		}
 	}
 
-	public void play() {
+	public void play()
+	{
 		try {
 			if (mp == null) {
 				setState(STATE_STARTING);
@@ -174,7 +180,7 @@ public class TiSound
 			}
 
 			if (mp != null) {
-				if(!isPlaying()) {
+				if (!isPlaying()) {
 					if (DBG) {
 						Log.d(LCAT,"audio is not playing, starting.");
 					}
@@ -197,7 +203,8 @@ public class TiSound
 		}
 	}
 
-	public void reset() {
+	public void reset()
+	{
 		try {
 			if (mp != null) {
 				if (remote) {
@@ -237,7 +244,8 @@ public class TiSound
 		}
 	}
 
-	public void setLooping(boolean loop) {
+	public void setLooping(boolean loop)
+	{
 		try {
 			if(loop != looping) {
 				if (mp != null) {
@@ -272,7 +280,8 @@ public class TiSound
 		}
 	}
 
-	public int getDuration() {
+	public int getDuration()
+	{
 		int duration = 0;
 		if (mp != null) {
 			duration = mp.getDuration();
@@ -280,7 +289,8 @@ public class TiSound
 		return duration;
 	}
 
-	public int getTime() {
+	public int getTime()
+	{
 		int time = 0;
 
 		if (mp != null) {
@@ -308,7 +318,8 @@ public class TiSound
 		proxy.setProperty("time", position);
 	}
 
-	private void setState(int state) {
+	private void setState(int state)
+	{
 		proxy.setProperty("state", state);
 		String stateDescription = "";
 
@@ -354,7 +365,8 @@ public class TiSound
 
 	}
 
-	public void stop() {
+	public void stop()
+	{
 		try {
 			if (mp != null) {
 
@@ -386,7 +398,8 @@ public class TiSound
 		}
 	}
 
-	public void onCompletion(MediaPlayer mp) {
+	public void onCompletion(MediaPlayer mp)
+	{
 		proxy.fireEvent(EVENT_COMPLETE, null);
 		stop();
 	}
@@ -445,7 +458,8 @@ public class TiSound
 		}
 	}
 
-	private void startProgressTimer() {
+	private void startProgressTimer()
+	{
 		if (progressTimer == null) {
 			progressTimer = new Timer(true);
 		} else {
@@ -484,7 +498,8 @@ public class TiSound
 		// TitaniumMedia clears out the references after onDestroy.
 	}
 
-	public void onPause() {
+	public void onPause()
+	{
 		if (mp != null) {
 			if (isPlaying()) {
 				pause();
@@ -493,7 +508,8 @@ public class TiSound
 		}
 	}
 
-	public void onResume() {
+	public void onResume()
+	{
 		if (mp != null) {
 			if (playOnResume) {
 				play();
@@ -503,15 +519,14 @@ public class TiSound
 	}
 
 	@Override
-	public void listenerAdded(String type, int count, KrollProxy proxy) {
-	}
+	public void listenerAdded(String type, int count, KrollProxy proxy) { }
 
 	@Override
-	public void listenerRemoved(String type, int count, KrollProxy proxy) {
-	}
+	public void listenerRemoved(String type, int count, KrollProxy proxy) { }
 
 	@Override
-	public void processProperties(KrollDict d) {
+	public void processProperties(KrollDict d)
+	{
 		if (d.containsKey("volume")) {
 			setVolume(TiConvert.toFloat(d, "volume"));
 		} else {
@@ -532,9 +547,10 @@ public class TiSound
 			setTime(TiConvert.toInt(newValue));
 		}
 	}
-	
+
 	@Override
-	public void propertiesChanged(List<KrollPropertyChange> changes, KrollProxy proxy) {
+	public void propertiesChanged(List<KrollPropertyChange> changes, KrollProxy proxy)
+	{
 		for (KrollPropertyChange change : changes) {
 			propertyChanged(change.getName(), change.getOldValue(), change.getNewValue(), proxy);
 		}

@@ -21,6 +21,7 @@ import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.http.Header;
@@ -41,6 +42,8 @@ import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.HttpResponseException;
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.conn.params.ConnManagerParams;
+import org.apache.http.conn.params.ConnPerRouteBean;
 import org.apache.http.conn.scheme.PlainSocketFactory;
 import org.apache.http.conn.scheme.Scheme;
 import org.apache.http.conn.scheme.SchemeRegistry;
@@ -428,6 +431,28 @@ public class TiHTTPClient
 		this.parts = new HashMap<String,ContentBody>();
 		this.maxBufferSize = proxy.getTiContext().getTiApp()
 			.getSystemProperties().getInt(PROPERTY_MAX_BUFFER_SIZE, DEFAULT_MAX_BUFFER_SIZE);
+
+		if (client == null) {
+			SchemeRegistry registry = new SchemeRegistry();
+			registry.register(new Scheme("http", PlainSocketFactory.getSocketFactory(), 80));
+			SocketFactory sslFactory;
+			if (validatesSecureCertificate()) {
+				sslFactory = SSLSocketFactory.getSocketFactory();
+			} else {
+				sslFactory = new NonValidatingSSLSocketFactory();
+			}
+			registry.register(new Scheme("https", sslFactory, 443));
+
+			HttpParams params = new BasicHttpParams();
+			ConnManagerParams.setMaxTotalConnections(params, 200);
+			ConnPerRouteBean connPerRoute = new ConnPerRouteBean(20);
+			ConnManagerParams.setMaxConnectionsPerRoute(params, connPerRoute);
+
+			HttpProtocolParams.setUseExpectContinue(params, false);
+			HttpProtocolParams.setVersion(params, HttpVersion.HTTP_1_1);
+
+			client = new DefaultHttpClient(new ThreadSafeClientConnManager(params, registry), params);
+		}
 	}
 
 	public int getReadyState() {
@@ -823,7 +848,6 @@ public class TiHTTPClient
 		throws MethodNotSupportedException
 	{
 		// TODO consider using task manager
-		final TiHTTPClient me = this;
 		double totalLength = 0;
 		needMultipart = false;
 		
@@ -877,7 +901,7 @@ public class TiHTTPClient
 		for (String header : headers.keySet()) {
 			request.setHeader(header, headers.get(header));
 		}
-		
+
 		clientThread = new Thread(new ClientRunnable(totalLength), "TiHttpClient-" + httpClientThreadCounter.incrementAndGet());
 		clientThread.setPriority(Thread.MIN_PRIORITY);
 		clientThread.start();
@@ -905,40 +929,11 @@ public class TiHTTPClient
 				}
 				 */
 				handler = new LocalResponseHandler(TiHTTPClient.this);
-				SchemeRegistry registry = new SchemeRegistry();
-				registry.register(new Scheme("http", PlainSocketFactory.getSocketFactory(), 80));
-				SocketFactory sslFactory;
-				if (validatesSecureCertificate()) {
-					sslFactory = SSLSocketFactory.getSocketFactory();
-				} else {
-					sslFactory = new NonValidatingSSLSocketFactory();
-				}
-				registry.register(new Scheme("https", sslFactory, 443));
-				HttpParams params = new BasicHttpParams();
-				
-				if (timeout != -1) {
-					HttpConnectionParams.setConnectionTimeout(params, timeout);
-					HttpConnectionParams.setSoTimeout(params, timeout);
-				}
-				
-				
-				ThreadSafeClientConnManager manager = new ThreadSafeClientConnManager(params, registry);
-				if (client == null) {
-					client = new DefaultHttpClient(manager, params);
-				} else {
-					client.setParams(params);
-				}
-				
+
 				if (credentials != null) {
-					client.getCredentialsProvider().setCredentials (
-						new AuthScope(uri.getHost(), -1),
-						credentials
-					);
-					
+					client.getCredentialsProvider().setCredentials (new AuthScope(uri.getHost(), -1), credentials);
 					credentials = null;
 				}
-				HttpProtocolParams.setUseExpectContinue(client.getParams(), false);
-				HttpProtocolParams.setVersion(client.getParams(), HttpVersion.HTTP_1_1);
 				client.setRedirectHandler(new RedirectHandler());
 				if(request instanceof BasicHttpEntityEnclosingRequest) {
 
@@ -992,6 +987,13 @@ public class TiHTTPClient
 						handleURLEncodedData(form);
 					}
 				}
+
+				// set request specific parameters
+				if (timeout != -1) {
+					HttpConnectionParams.setConnectionTimeout(request.getParams(), timeout);
+					HttpConnectionParams.setSoTimeout(request.getParams(), timeout);
+				}
+
 				if (DBG) {
 					Log.d(LCAT, "Preparing to execute request");
 				}
@@ -1003,6 +1005,10 @@ public class TiHTTPClient
 				setResponseText(result);
 				setReadyState(READY_STATE_DONE);
 			} catch(Throwable t) {
+				Log.d(LCAT, "clearing the expired and idle connections");
+				client.getConnectionManager().closeExpiredConnections();
+				client.getConnectionManager().closeIdleConnections(0, TimeUnit.NANOSECONDS);
+
 				String msg = t.getMessage();
 				if (msg == null && t.getCause() != null) {
 					msg = t.getCause().getMessage();

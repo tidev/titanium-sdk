@@ -6,7 +6,9 @@
  */
 package ti.modules.titanium.media;
 
-import java.util.concurrent.CountDownLatch;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
@@ -20,7 +22,6 @@ import org.appcelerator.titanium.util.TiConvert;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.HandlerThread;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
@@ -37,19 +38,20 @@ public class VideoPlayerProxy extends KrollProxy
 
 	private Handler controlHandler;
 	private Messenger activityMessenger;
-	private CountDownLatch activityLatch;
+	private List<TiViewProxy> children = Collections.synchronizedList(new ArrayList<TiViewProxy>());
+	private boolean play;
 
 	public VideoPlayerProxy(TiContext tiContext)
 	{
 		super(tiContext);
 	}
-	
-	public void handleCreationDict(KrollDict options) {
+
+	public void handleCreationDict(KrollDict options)
+	{
 		final TiContext tiContext = getTiContext();
 		final Intent intent = new Intent(tiContext.getActivity(), TiVideoActivity.class);
 
 		String url = null;
-		
 		if (options.containsKey("contentURL")) {
 			url = TiConvert.toString(options, "contentURL");
 			Log.w(LCAT, "contentURL is deprecated, use url instead");
@@ -74,76 +76,54 @@ public class VideoPlayerProxy extends KrollProxy
 		controlHandler = createControlHandler();
 		intent.putExtra("messenger", new Messenger(controlHandler));
 
-		activityLatch = new CountDownLatch(1);
-
-		HandlerThread launchThread = new HandlerThread("TiVideoLaunchThread")
-		{
-			private Handler handler;
-
+		ResultReceiver messengerReceiver = new ResultReceiver(controlHandler) {
 			@Override
-			protected void onLooperPrepared()
-			{
-				super.onLooperPrepared();
-
-				handler = new Handler(getLooper());
-			}
-
-			@Override
-			public void run() {
-
+			protected void onReceiveResult(int resultCode, Bundle resultData) {
+				super.onReceiveResult(resultCode, resultData);
+				setActivityMessenger((Messenger)resultData.getParcelable("messenger"));
 				if (DBG) {
-					Log.i(LCAT, "Launching TiVideoActivity");
+					Log.d(LCAT, "TiVideoActivity messenger received. Releasing latch");
 				}
-				ResultReceiver messengerReceiver = new ResultReceiver(handler){
-
-					@Override
-					protected void onReceiveResult(int resultCode, Bundle resultData) {
-						super.onReceiveResult(resultCode, resultData);
-
-						activityMessenger = resultData.getParcelable("messenger");
-						if (DBG) {
-							Log.d(LCAT, "TiVideoActivity messenger received. Releasing latch");
-						}
-						activityLatch.countDown();
-					}
-
-				};
-
-				intent.putExtra("messengerReceiver", messengerReceiver);
-				tiContext.getActivity().startActivity(intent);
-
-				super.run();
 			}
 		};
-
-		launchThread.start();
-
-		try {
-			activityLatch.await();
-		} catch (InterruptedException ig) {
-			// ignore
-		}
-
-		if (DBG) {
-			Log.d(LCAT, "after latch.");
-		}
-
-		launchThread.getLooper().quit();
+		intent.putExtra("messengerReceiver", messengerReceiver);
+		tiContext.getActivity().startActivity(intent);
 	}
 
+	protected void setActivityMessenger(Messenger messenger)
+	{
+		activityMessenger = messenger;
+		synchronized (children) {
+			for (TiViewProxy child : children) {
+				sendAddMessage(child);
+			}
+		}
+		if (play) {
+			sendPlayMessage();
+		}
+	}
 
 	@Kroll.method
 	public void add(TiViewProxy proxy)
 	{
 		if (activityMessenger != null) {
-			Message msg = Message.obtain();
-			msg.what = TiVideoActivity.MSG_ADD_VIEW;
-			msg.obj = proxy;
-			try {
-				activityMessenger.send(msg);
-			} catch (RemoteException e) {
-				Log.w(LCAT, "Unable to add view, Activity is no longer available: " + e.getMessage());
+			sendAddMessage(proxy);
+		} else {
+			synchronized (children) {
+				children.add(proxy);
 			}
+		}
+	}
+
+	protected void sendAddMessage(TiViewProxy proxy)
+	{
+		Message msg = Message.obtain();
+		msg.what = TiVideoActivity.MSG_ADD_VIEW;
+		msg.obj = proxy;
+		try {
+			activityMessenger.send(msg);
+		} catch (RemoteException e) {
+			Log.w(LCAT, "Unable to add view, Activity is no longer available: " + e.getMessage());
 		}
 	}
 
@@ -151,13 +131,20 @@ public class VideoPlayerProxy extends KrollProxy
 	public void play()
 	{
 		if (activityMessenger != null) {
-			try {
-				Message msg = Message.obtain();
-				msg.what = TiVideoActivity.MSG_PLAY;
-				activityMessenger.send(msg);
-			} catch (RemoteException e) {
-				Log.w(LCAT, "Unable to send play message: " + e.getMessage());
-			}
+			sendPlayMessage();
+		} else {
+			play = true;
+		}
+	}
+
+	protected void sendPlayMessage()
+	{
+		try {
+			Message msg = Message.obtain();
+			msg.what = TiVideoActivity.MSG_PLAY;
+			activityMessenger.send(msg);
+		} catch (RemoteException e) {
+			Log.w(LCAT, "Unable to send play message: " + e.getMessage());
 		}
 	}
 	
@@ -172,6 +159,8 @@ public class VideoPlayerProxy extends KrollProxy
 			} catch (RemoteException e) {
 				Log.w(LCAT, "Unable to send stop message: " + e.getMessage());
 			}
+		} else {
+			play = false;
 		}
 	}
 
@@ -189,9 +178,9 @@ public class VideoPlayerProxy extends KrollProxy
 		}
 	}
 	
-	private Handler createControlHandler() {
-		return new Handler(new Handler.Callback(){
-
+	private Handler createControlHandler()
+	{
+		return new Handler(new Handler.Callback() {
 			@Override
 			public boolean handleMessage(Message msg)
 			{

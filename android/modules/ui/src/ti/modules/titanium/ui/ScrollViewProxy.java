@@ -45,12 +45,7 @@ public class ScrollViewProxy extends TiViewProxy
 	@Kroll.method
 	public void scrollTo(int x, int y) {
 		if (!getTiContext().isUIThread()) {
-			AsyncResult result = new AsyncResult(getTiContext().getActivity());
-			Message msg = getUIHandler().obtainMessage(MSG_SCROLL_TO, result);
-			msg.arg1 = x;
-			msg.arg2 = y;
-			msg.sendToTarget();
-			result.getResult(); // wait for scroll
+			sendBlockingUiMessage(MSG_SCROLL_TO, getTiContext().getActivity(), x, y);
 		} else {
 			handleScrollTo(x,y);
 		}
@@ -59,10 +54,7 @@ public class ScrollViewProxy extends TiViewProxy
 	@Kroll.method
 	public void scrollToBottom() {
 		if (!getTiContext().isUIThread()) {
-			AsyncResult result = new AsyncResult(getTiContext().getActivity());
-			Message msg = getUIHandler().obtainMessage(MSG_SCROLL_TO_BOTTOM, result);
-			msg.sendToTarget();
-			result.getResult(); // wait for scroll
+			sendBlockingUiMessage(MSG_SCROLL_TO_BOTTOM, getTiContext().getActivity());
 		} else {
 			handleScrollToBottom();
 		}

@@ -51,11 +51,7 @@ public class WebViewProxy extends ViewProxy
 		if (getTiContext().isUIThread()) {
 			return getWebView().getJSValue(code);
 		} else {
-			AsyncResult result = new AsyncResult(code);
-			Message msg = getUIHandler().obtainMessage(MSG_EVAL_JS, result);
-			msg.obj = result;
-			msg.sendToTarget();
-			return result.getResult();
+			return sendBlockingUiMessage(MSG_EVAL_JS, code);
 		}
 	}
 
