@@ -81,27 +81,34 @@ public class TiResultSetProxy extends KrollProxy
 	}
 
 	@Kroll.method
-	public Object getField(int index) 
+	public Object getField(int index)
 	{
 		Object result = null;
-		
 		if (rs != null) {
 			try {
-				result = rs.getString(index);
+				boolean fromString = true;
 				if (isNull != null && rs instanceof AbstractWindowedCursor) {
 					AbstractWindowedCursor awc = (AbstractWindowedCursor) rs;
-					
-					Object arguments[] = new Object[1];
-					arguments[0] = new Integer(index);
+					Object arguments[] = new Object[] { index };
 					try {
 						
-						if (((Boolean) isFloat.invoke(awc, arguments)).booleanValue())
+						if (((Boolean) isFloat.invoke(awc, arguments)).booleanValue()) {
 							result = awc.getDouble(index);
-						else if (((Boolean) isLong.invoke(awc, arguments)).booleanValue())
+							fromString = false;
+						} else if (((Boolean) isLong.invoke(awc, arguments)).booleanValue()) {
 							result = awc.getLong(index);
-						else if (((Boolean) isNull.invoke(awc, arguments)).booleanValue())
+							fromString = false;
+						} else if (((Boolean) isNull.invoke(awc, arguments)).booleanValue()) {
 							result = null;
-					} catch (Exception e) {}
+							fromString = false;
+						}
+					} catch (Exception e) {
+						Log.e(LCAT, "Error querying type from cursor", e);
+					}
+				}
+
+				if (fromString) {
+					result = rs.getString(index);
 				}
 			} catch (Exception e) {
 				String msg = "No field at index " + index + ". msg=" + e.getMessage();
