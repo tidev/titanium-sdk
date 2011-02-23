@@ -338,6 +338,8 @@
  */
 -(void)authorize:(id)args
 {
+	ENSURE_UI_THREAD(authorize, args);
+	
 	VerboseLog(@"[DEBUG] facebook authorize");
 
 	if ([self isLoggedIn])
