@@ -8,7 +8,7 @@ proxy
 
 - description
 
-The Titanium binding of [android.R](http://developer.android.com/reference/android/R.html)
+The Titanium binding of [android.R](http://developer.android.com/reference/android/R.html).  Note that this accesses Android system-wide resources, not your application's resources.  To access your application's resources, you want `Titanium.App.Android.R`.
 
 - since
 
