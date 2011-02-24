@@ -49,6 +49,7 @@ import org.apache.http.conn.scheme.Scheme;
 import org.apache.http.conn.scheme.SchemeRegistry;
 import org.apache.http.conn.scheme.SocketFactory;
 import org.apache.http.conn.ssl.SSLSocketFactory;
+import org.apache.http.conn.params.ConnRoutePNames;
 import org.apache.http.entity.AbstractHttpEntity;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.entity.mime.MultipartEntity;
@@ -83,7 +84,12 @@ import org.mozilla.javascript.Context;
 
 import ti.modules.titanium.xml.DocumentProxy;
 import ti.modules.titanium.xml.XMLModule;
+
+import android.app.Activity;
 import android.net.Uri;
+import android.net.Proxy;
+import android.net.ConnectivityManager;
+
 
 public class TiHTTPClient
 {
@@ -450,7 +456,21 @@ public class TiHTTPClient
 
 			HttpProtocolParams.setUseExpectContinue(params, false);
 			HttpProtocolParams.setVersion(params, HttpVersion.HTTP_1_1);
-
+            
+   			// Mobile Proxy handling			
+			Activity act = proxy.getTiContext().getActivity();
+			
+			String proxyHost = Proxy.getHost(act);
+			
+			ConnectivityManager cm = (ConnectivityManager) act.getSystemService(android.content.Context.CONNECTIVITY_SERVICE);
+			boolean isMobile = (proxyHost != null) && (cm.getActiveNetworkInfo().getType() == ConnectivityManager.TYPE_MOBILE);	
+						
+			if (isMobile) {
+				int proxyPort = Proxy.getPort(act);
+				Log.d(LCAT, "Using Proxy Settings - Host: " + proxyHost + " Port: " + proxyPort);
+				params.setParameter(ConnRoutePNames.DEFAULT_PROXY, new HttpHost(proxyHost, proxyPort));
+			} 
+			          
 			client = new DefaultHttpClient(new ThreadSafeClientConnManager(params, registry), params);
 		}
 	}
@@ -928,6 +948,7 @@ public class TiHTTPClient
 					//Log.e(LCAT, "HEADER: " + hdr.toString());
 				}
 				 */
+				
 				handler = new LocalResponseHandler(TiHTTPClient.this);
 
 				if (credentials != null) {
@@ -987,7 +1008,7 @@ public class TiHTTPClient
 						handleURLEncodedData(form);
 					}
 				}
-
+                				
 				// set request specific parameters
 				if (timeout != -1) {
 					HttpConnectionParams.setConnectionTimeout(request.getParams(), timeout);
