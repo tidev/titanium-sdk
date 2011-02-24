@@ -772,7 +772,7 @@ public abstract class TiUIView
 				}
 				@Override
 				public boolean onSingleTapConfirmed(MotionEvent e) {
-					if (DBG) { Log.d(LCAT, "TAP, TAP, TAP on " + proxy); }
+					if (DBG) { Log.d(LCAT, "TAP, TAP, TAP on " + proxy); } 
 					boolean handledTap = proxy.fireEvent(TiC.EVENT_SINGLE_TAP, dictFromEvent(e));
 					// Moved click handling to the onTouch listener, because a single tap is not the
 					// same as a click.  A single tap is a quick tap only, whereas clicks can be held
