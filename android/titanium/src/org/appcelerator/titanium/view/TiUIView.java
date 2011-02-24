@@ -776,7 +776,7 @@ public abstract class TiUIView
 					boolean handledTap = proxy.fireEvent(TiC.EVENT_SINGLE_TAP, dictFromEvent(e));
 					// Moved click handling to the onTouch listener, because a single tap is not the
 					// same as a click.  A single tap is a quick tap only, whereas clicks can be held
-					// before lifting.
+					// before lifting. 
 					// boolean handledClick = proxy.fireEvent(TiC.EVENT_CLICK, dictFromEvent(event));
 					// Note: this return value is irrelevant in our case.  We "want" to use it
 					// in onTouch below, when we call detector.onTouchEvent(event);  But, in fact,
