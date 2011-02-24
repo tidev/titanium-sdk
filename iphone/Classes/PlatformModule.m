@@ -70,7 +70,7 @@ NSString* const DATA_IFACE = @"pdp_ip0";
 			model = [[NSString stringWithFormat:@"%@ 3GS",themodel] retain];
 		}
 		// detect iPhone 4 model
-		else if (!strcmp(u.machine, "iPhone3,1")) 
+		else if (!strcmp(u.machine, "iPhone3,1") || !strcmp(u.machine, "iPhone3,2") || !strcmp(u.machine, "iPhone3,3")) 
 		{
 			model = [[NSString stringWithFormat:@"%@ 4",themodel] retain];
 		}
