@@ -24,6 +24,7 @@ import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.ui.widget.TiUITabGroup;
+import ti.modules.titanium.ui.ViewProxy;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
@@ -274,6 +275,10 @@ public class TabGroupProxy extends TiWindowProxy
 		}
 		tg.changeActiveTab(initialActiveTab);
 
+		if (hasProperty("titleControl")){
+			((TiTabActivity)activity).setTitleControl((ViewProxy) getProperty("titleControl"));
+		}
+
 		opened = true;
 		fireEvent(TiC.EVENT_OPEN, null);
 	}
@@ -349,6 +354,9 @@ public class TabGroupProxy extends TiWindowProxy
 			}
 			if (props.containsKey(TiC.PROPERTY_NAV_BAR_HIDDEN)) {
 				intent.putExtra(TiC.PROPERTY_NAV_BAR_HIDDEN, TiConvert.toBoolean(props, TiC.PROPERTY_NAV_BAR_HIDDEN));
+			}
+			if (props.containsKey("titleControl")) {
+				intent.putExtra("titleControl", true);
 			}
 		}
 
