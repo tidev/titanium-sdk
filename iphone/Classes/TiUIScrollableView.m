@@ -37,10 +37,21 @@
 
 -(void)dealloc
 {
+	[[NSNotificationCenter defaultCenter] removeObserver:self];
 	RELEASE_TO_NIL(views);
 	RELEASE_TO_NIL(scrollview);
 	RELEASE_TO_NIL(pageControl);
 	[super dealloc];
+}
+
+-(id)init
+{
+	if (self = [super init]) {
+		[[NSNotificationCenter defaultCenter] addObserver:self 
+												 selector:@selector(didRotate:) name:UIApplicationDidChangeStatusBarOrientationNotification
+												   object:nil];
+	}
+	return self;
 }
 
 -(void)initializerState
@@ -426,6 +437,15 @@
 	minScale = [TiUtils floatValue:scale];
 }
 
+#pragma mark Notifications
+
+-(void)didRotate:(NSNotification*)note
+{
+	if ([scrollview isDecelerating]) {
+		rotatedWhileScrolling = YES;
+	}
+}
+
 #pragma mark Delegate calls
 
 -(void)pageControlTouched:(id)sender
@@ -478,6 +498,11 @@
 
 -(void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView
 {
+	if (rotatedWhileScrolling) {
+		rotatedWhileScrolling = NO;
+		[[self scrollview] setContentOffset:CGPointMake([self bounds].size.width * currentPage, 0) animated:YES];
+		return;
+	}
 	// At the end of scroll animation, reset the boolean used when scrolls originate from the UIPageControl
 	int pageNum = [self currentPage];
 	handlingPageControlEvent = NO;
