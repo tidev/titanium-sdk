@@ -329,6 +329,7 @@ public abstract class TiUIView
 			}
 		} else if (key.equals(TiC.PROPERTY_TOUCH_ENABLED)) {
 			nativeView.setClickable(TiConvert.toBoolean(newValue));
+			// nativeView.setLongClickable(TiConvert.toBoolean(newValue));
 		} else if (key.equals(TiC.PROPERTY_VISIBLE)) {
 			nativeView.setVisibility(TiConvert.toBoolean(newValue) ? View.VISIBLE : View.INVISIBLE);
 		} else if (key.equals(TiC.PROPERTY_ENABLED)) {
@@ -735,6 +736,7 @@ public abstract class TiUIView
 		}
 		final GestureDetector detector = new GestureDetector(proxy.getTiContext().getActivity(),
 			new SimpleOnGestureListener() {
+			    
 				@Override
 				public boolean onDoubleTap(MotionEvent e) {
 					boolean handledTap = proxy.fireEvent(TiC.EVENT_DOUBLE_TAP, dictFromEvent(e));
@@ -744,11 +746,12 @@ public abstract class TiUIView
 
 				@Override
 				public boolean onSingleTapConfirmed(MotionEvent e) {
-					Log.e(LCAT, "TAP, TAP, TAP on " + proxy);
+					Log.d(LCAT, "TAP, TAP, TAP on " + proxy);
 					boolean handledTap = proxy.fireEvent(TiC.EVENT_SINGLE_TAP, dictFromEvent(e));
 					boolean handledClick = proxy.fireEvent(TiC.EVENT_CLICK, dictFromEvent(e));
 					return handledTap || handledClick;
 				}
+			
 			});
 
 		touchable.setOnTouchListener(new OnTouchListener() {

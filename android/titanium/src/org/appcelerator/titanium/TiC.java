@@ -33,6 +33,7 @@ public class TiC
 	public static final String EVENT_HEADING = "heading";
 	public static final String EVENT_LOAD = "load";
 	public static final String EVENT_LOCATION = "location";
+	public static final String EVENT_LONG_CLICK = "longclick";
 	public static final String EVENT_OPEN = "open";
 	public static final String EVENT_PAUSE = "pause";
 	public static final String EVENT_PROPERTY_CLICKSOURCE = "clicksource";
@@ -186,6 +187,7 @@ public class TiC
 	public static final String PROPERTY_LOCATION = "location";
 	public static final String PROPERTY_LONGITUDE = "longitude";
 	public static final String PROPERTY_LONGITUDE_DELTA = "longitudeDelta";
+	public static final String PROPERTY_LONG_CLICK = "longClick";
 	public static final String PROPERTY_MAGNETIC_HEADING = "magneticHeading";
 	public static final String PROPERTY_MAP_TYPE = "mapType";
 	public static final String PROPERTY_MENU = EVENT_PROPERTY_MENU;
@@ -199,6 +201,7 @@ public class TiC
 	public static final String PROPERTY_ON_PREPARE_OPTIONS_MENU = "onPrepareOptionsMenu";
 	public static final String PROPERTY_OPACITY = "opacity";
 	public static final String PROPERTY_OPTIONS = "options";
+	public static final String PROPERTY_OPTIONS_STYLE = "optionsStyle";
 	public static final String PROPERTY_ORDER = "order";
 	public static final String PROPERTY_PACKAGE_NAME = "packageName";
 	public static final String PROPERTY_PARENT = "parent";
