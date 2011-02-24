@@ -98,6 +98,10 @@ import ${packageName}.${proxyClassName};
 			<#if isBoxType>
 				<#local castType = primitiveBoxTypes[arg.type]>
 			</#if>
+			<#local convertType = castType>
+			<#if castType?contains("<")>
+				<#local convertType = castType?substring(0, castType?index_of("<"))>
+			</#if>
 			<#if optional && hasArgArray>
 			if (__args.length >= ${arg_index+1}) {
 			</#if>
@@ -115,7 +119,7 @@ import ${packageName}.${proxyClassName};
 			</#if>
 			<#if argNeedsConvert>
 				${arg.name} = (${castType})
-					${arg.converter}.getInstance().convertJavascript(__invocation, ${argValue}, ${castType}.class);
+					${arg.converter}.getInstance().convertJavascript(__invocation, ${argValue}, ${convertType}.class);
 			<#else>
 				__${arg.name}_argument.setValueDefault(true);
 				${arg.name} = (${castType})
