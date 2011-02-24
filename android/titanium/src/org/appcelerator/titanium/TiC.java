@@ -191,6 +191,7 @@ public class TiC
 	public static final String PROPERTY_MENU = EVENT_PROPERTY_MENU;
 	public static final String PROPERTY_MESSAGE = "message";
 	public static final String PROPERTY_MIN_ROW_HEIGHT = "minRowHeight";
+	public static final String PROPERTY_MINUTE_INTERVAL = "minuteInterval";
 	public static final String PROPERTY_MODAL = "modal";
 	public static final String PROPERTY_NAME = "name";
 	public static final String PROPERTY_NAV_BAR_HIDDEN = "navBarHidden";

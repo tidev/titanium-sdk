@@ -34,8 +34,8 @@ import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
-import android.graphics.drawable.LayerDrawable;
 import android.graphics.drawable.GradientDrawable.Orientation;
+import android.graphics.drawable.LayerDrawable;
 import android.text.Layout;
 import android.text.StaticLayout;
 import android.text.TextPaint;
@@ -155,7 +155,7 @@ public class WheelView extends View {
 	}
 	
 	/**
-	 * Sets whell adapter
+	 * Sets wheel adapter
 	 * @param adapter the new wheel adapter
 	 */
 	public void setAdapter(WheelAdapter adapter) {

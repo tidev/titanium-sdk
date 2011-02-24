@@ -22,7 +22,6 @@
  */
 package kankan.wheel.widget;
 
-import org.appcelerator.titanium.util.Log;
 
 
 /**
@@ -116,5 +115,9 @@ public class NumericWheelAdapter implements WheelAdapter {
 	
 	public int getIndex(int value) {
 		return (value - minValue) / stepValue;
+	}
+	public void setStepValue(int value)
+	{
+		this.stepValue = value;
 	}
 }

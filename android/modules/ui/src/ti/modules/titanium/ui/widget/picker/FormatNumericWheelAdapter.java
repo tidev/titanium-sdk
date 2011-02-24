@@ -10,14 +10,11 @@ package ti.modules.titanium.ui.widget.picker;
 import java.text.NumberFormat;
 
 import kankan.wheel.widget.NumericWheelAdapter;
-import org.appcelerator.titanium.util.Log;
 
 public class FormatNumericWheelAdapter extends NumericWheelAdapter
 {
 	private NumberFormat formatter;
 	private int maxCharacterLength = 2;
-	private int stepValue = 1;
-	private static final String LCAT = "FormatNumbericWheelAdapter";
 	
 	public FormatNumericWheelAdapter(int minValue, int maxValue, NumberFormat formatter, int maxCharLength)
 	{
@@ -29,7 +26,6 @@ public class FormatNumericWheelAdapter extends NumericWheelAdapter
 		super(minValue, maxValue, stepValue);
 		this.formatter = formatter;
 		this.maxCharacterLength = maxCharLength;
-		this.stepValue = stepValue;
 	}
 	
 	public void setFormatter(NumberFormat formatter) {
@@ -38,7 +34,7 @@ public class FormatNumericWheelAdapter extends NumericWheelAdapter
 	@Override
 	public String getItem(int index)
 	{
-		int actualValue = getMinValue() + (index * stepValue);
+		int actualValue = getValue(index);
 		if (formatter == null) {
 			return Integer.toString(actualValue);
 		} else {
