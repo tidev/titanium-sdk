@@ -6,6 +6,7 @@
  */
 package ti.modules.titanium.database;
 
+import java.lang.reflect.Method;
 import java.util.HashMap;
 
 import org.appcelerator.kroll.KrollProxy;
@@ -14,6 +15,7 @@ import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 
+import android.database.AbstractWindowedCursor;
 import android.database.Cursor;
 
 @Kroll.proxy
@@ -21,6 +23,26 @@ public class TiResultSetProxy extends KrollProxy
 {
 	private static final String LCAT = "TiResultSet";
 	private static final boolean DBG = TiConfig.LOGD;
+	
+	private static Method isFloat;
+	private static Method isLong;
+	private static Method isNull;
+	private static Class  args[];
+	static {
+		isFloat = null;
+		isLong  = null;
+		isNull  = null;
+		if (android.os.Build.VERSION.SDK_INT > 4) {
+			args = new Class[1];
+			args[0] = Integer.TYPE;
+			
+			try {
+				isFloat = AbstractWindowedCursor.class.getMethod("isFloat", args);
+				isLong  = AbstractWindowedCursor.class.getMethod("isLong",  args);
+				isNull  = AbstractWindowedCursor.class.getMethod("isNull",  args);
+			} catch (Exception e) {}
+		}
+	}
 
 	protected Cursor rs;
 	protected String lastException;
@@ -53,19 +75,41 @@ public class TiResultSetProxy extends KrollProxy
 	}
 
 	@Kroll.method
-	public String field(int index) 
+	public Object field(int index) 
 	{
 		return getField(index);
 	}
 
 	@Kroll.method
-	public String getField(int index) 
+	public Object getField(int index)
 	{
-		String result = null;
-		
+		Object result = null;
 		if (rs != null) {
 			try {
-				result = rs.getString(index);
+				boolean fromString = true;
+				if (isNull != null && rs instanceof AbstractWindowedCursor) {
+					AbstractWindowedCursor awc = (AbstractWindowedCursor) rs;
+					Object arguments[] = new Object[] { index };
+					try {
+						
+						if (((Boolean) isFloat.invoke(awc, arguments)).booleanValue()) {
+							result = awc.getDouble(index);
+							fromString = false;
+						} else if (((Boolean) isLong.invoke(awc, arguments)).booleanValue()) {
+							result = awc.getLong(index);
+							fromString = false;
+						} else if (((Boolean) isNull.invoke(awc, arguments)).booleanValue()) {
+							result = null;
+							fromString = false;
+						}
+					} catch (Exception e) {
+						Log.e(LCAT, "Error querying type from cursor", e);
+					}
+				}
+
+				if (fromString) {
+					result = rs.getString(index);
+				}
 			} catch (Exception e) {
 				String msg = "No field at index " + index + ". msg=" + e.getMessage();
 				Log.e(LCAT, msg, e);
@@ -76,23 +120,20 @@ public class TiResultSetProxy extends KrollProxy
 	}
 
 	@Kroll.method
-	public String fieldByName(String fieldName) 
+	public Object fieldByName(String fieldName) 
 	{
 		return getFieldByName(fieldName);
 	}
 
 	@Kroll.method
-	public String getFieldByName(String fieldName) 
+	public Object getFieldByName(String fieldName) 
 	{
-		int index = 0;
-		String result = "0";
+		Object result = null;
 		if (rs != null) {
 			try {
 				Integer ndx = columnNames.get(fieldName.toLowerCase());
-				if (ndx != null) {
-					index = ndx;
-					result = rs.getString(index);
-				}
+				if (ndx != null)
+					result = getField(ndx.intValue());
 			} catch (Exception e) {
 				String msg = "Field name " + fieldName + " not found. msg=" + e.getMessage();
 				Log.e(LCAT, msg);
