@@ -191,6 +191,7 @@ public class TiC
 	public static final String PROPERTY_MAGNETIC_HEADING = "magneticHeading";
 	public static final String PROPERTY_MAP_TYPE = "mapType";
 	public static final String PROPERTY_MENU = EVENT_PROPERTY_MENU;
+	public static final String PROPERTY_MAX_LINES = "maxLines";
 	public static final String PROPERTY_MESSAGE = "message";
 	public static final String PROPERTY_MIN_ROW_HEIGHT = "minRowHeight";
 	public static final String PROPERTY_MODAL = "modal";
