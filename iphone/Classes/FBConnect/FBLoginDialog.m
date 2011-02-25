@@ -16,6 +16,7 @@
 #ifdef USE_TI_FACEBOOK
 #import "FBDialog.h"
 #import "FBLoginDialog.h"
+#import "Facebook.h"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -87,8 +88,12 @@
 - (BOOL)webView:(UIWebView *)webView shouldStartLoadWithRequest:(NSURLRequest *)request navigationType:(UIWebViewNavigationType)navigationType {
 	NSURL* url = [request URL];
 	if (![[url scheme] isEqual:@"http"] && ![[url scheme] isEqual:@"https"]) {
-		if ([[UIApplication sharedApplication] canOpenURL:url] &&
-			[[UIApplication sharedApplication] openURL:url]) {
+		// Check for one of two conditions:
+		// 1. URL is a redirect to our app
+		// 2. URL is the legacy fbconnect://... type
+		if (([[UIApplication sharedApplication] canOpenURL:url] &&
+			 [[UIApplication sharedApplication] openURL:url]) ||
+			[[url absoluteString] rangeOfString:kRedirectURL].location != NSNotFound) {
 			[self dialogDidSucceed:url];
 			return NO;
 		}

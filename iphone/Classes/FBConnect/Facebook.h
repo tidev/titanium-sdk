@@ -16,6 +16,7 @@
 #ifdef USE_TI_FACEBOOK
 #import "FBLoginDialog.h"
 #import "FBRequest.h"
+#import "Facebook.h"
 
 @protocol FBSessionDelegate2;
 
@@ -107,4 +108,6 @@
 - (void)fbDidLogout;
 
 @end
+
+extern NSString* kRedirectURL;
 #endif
