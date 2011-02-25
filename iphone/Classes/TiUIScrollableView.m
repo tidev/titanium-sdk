@@ -20,7 +20,10 @@
 
 - (UIView *)viewForZoomingInScrollView:(UIScrollView *)scrollView
 {
-	return [[self subviews] objectAtIndex:0];
+	if ([[self subviews] count] > 0) {
+		return [[self subviews] objectAtIndex:0];
+	}
+	return nil;
 }
 
 - (void)scrollViewDidEndZooming:(UIScrollView *)scrollView_ withView:(UIView *)view atScale:(float)scale 
