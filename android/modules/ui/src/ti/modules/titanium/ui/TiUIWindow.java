@@ -156,7 +156,19 @@ public class TiUIWindow extends TiUIView
 				}
 			}
 			windowContext = TiContext.createTiContext(activity, tiUrl.baseUrl, tiUrl.url);
-			ActivityProxy activityProxy = ((TiWindowProxy) proxy).getActivity(windowContext);
+
+			// if LW window, use the existing activityProxy from the activity rather than
+			// creating a new one which will cause the listeners on the duplicate activityProxy
+			// to not fire
+			ActivityProxy activityProxy = null;
+			if (!newActivity) {
+				if (activity instanceof TiBaseActivity) {
+					activityProxy = ((TiBaseActivity)activity).getActivityProxy();
+				}
+			} else {
+				activityProxy = ((TiWindowProxy) proxy).getActivity(windowContext);
+			}
+
 			if (windowActivity != null) {
 				bindWindowActivity(windowContext, windowActivity);
 			}
