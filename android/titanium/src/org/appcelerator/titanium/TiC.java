@@ -95,6 +95,8 @@ public class TiC
 	public static final String PROPERTY_ANNOTATIONS = "annotations";
 	public static final String PROPERTY_AUDIO_STREAM_TYPE = "audioStreamType";
 	public static final String PROPERTY_AUTO_LINK = "autoLink";
+	public static final String PROPERTY_AUTOCAPITALIZATION = "autocapitalization";
+	public static final String PROPERTY_AUTOCORRECT = "autocorrect";
 	public static final String PROPERTY_AUTOREVERSE = "autoreverse";
 	public static final String PROPERTY_BACKGROUND_COLOR = "backgroundColor";
 	public static final String PROPERTY_BACKGROUND_DISABLED_COLOR = "backgroundDisabledColor";
@@ -136,6 +138,7 @@ public class TiC
 	public static final String PROPERTY_DIRECTION = "direction";
 	public static final String PROPERTY_DISPLAY_ADDRESS = "displayAddress";
 	public static final String PROPERTY_DURATION = "duration";
+	public static final String PROPERTY_EDITABLE = "editable";
 	public static final String PROPERTY_ELLIPSIZE = "ellipsize";
 	public static final String PROPERTY_ENABLE_ZOOM_CONTROLS = "enableZoomControls";
 	public static final String PROPERTY_ENABLED = "enabled";
@@ -164,6 +167,7 @@ public class TiC
 	public static final String PROPERTY_HEADING_FILTER = "headingFilter";
 	public static final String PROPERTY_HEIGHT = "height";
 	public static final String PROPERTY_HIGHLIGHTED_COLOR = "highlightedColor";
+	public static final String PROPERTY_HINT_TEXT = "hintText";
 	public static final String PROPERTY_HTML = "html";
 	public static final String PROPERTY_ICON = "icon";
 	public static final String PROPERTY_ICON_LEVEL = "iconLevel";
@@ -172,6 +176,7 @@ public class TiC
 	public static final String PROPERTY_IMAGES = "images";
 	public static final String PROPERTY_INTENT = "intent";
 	public static final String PROPERTY_ITEM_ID = "itemId";
+	public static final String PROPERTY_KEYBOARD_TYPE = "keyboardType";
 	public static final String PROPERTY_LATITUDE = "latitude";
 	public static final String PROPERTY_LATITUDE_DELTA = "latitudeDelta";
 	public static final String PROPERTY_LAYOUT = "layout";
@@ -203,6 +208,7 @@ public class TiC
 	public static final String PROPERTY_ORDER = "order";
 	public static final String PROPERTY_PACKAGE_NAME = "packageName";
 	public static final String PROPERTY_PARENT = "parent";
+	public static final String PROPERTY_PASSWORD_MASK = "passwordMask";
 	public static final String PROPERTY_PIN_IMAGE = "pinImage";
 	public static final String PROPERTY_PINCOLOR = "pincolor";
 	public static final String PROPERTY_PLACES = "places";
@@ -216,6 +222,7 @@ public class TiC
 	public static final String PROPERTY_REGION_FIT = "regionFit";
 	public static final String PROPERTY_REPEAT = "repeat";
 	public static final String PROPERTY_REPEAT_COUNT = "repeatCount";
+	public static final String PROPERTY_RETURN_KEY_TYPE = "returnKeyType";
 	public static final String PROPERTY_RIGHT = "right";
 	public static final String PROPERTY_RIGHT_BUTTON = "rightButton";
 	public static final String PROPERTY_RIGHT_IMAGE = "rightImage";
