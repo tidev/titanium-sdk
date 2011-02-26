@@ -196,6 +196,16 @@ USE_VIEW_FOR_AUTO_WIDTH
 {
 }
 
+- (BOOL)usesProxy:(id)proxy;
+{
+	return NO;
+}
+
+- (id)krollObjectForProxy:(id)proxy
+{
+	return nil;
+}
+
 -(void)evalJSWithoutResult:(NSString*)code
 {
 	[self evalJS:code];
