@@ -52,6 +52,7 @@ bool KrollDeleteProperty(TiContextRef ctx, TiObjectRef object, TiStringRef prope
 -(void)setStaticValue:(id)value forKey:(NSString*)key purgable:(BOOL)purgable;
 -(KrollContext*)context;
 -(id)target;
+-(TiObjectRef)jsobject;
 
 @end
 

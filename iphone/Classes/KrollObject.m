@@ -12,6 +12,7 @@
 #import "KrollMethodDelegate.h"
 #import "KrollPropertyDelegate.h"
 #import "KrollContext.h"
+#import "KrollBridge.h"
 
 TiClassRef KrollObjectClassRef = NULL;
 TiClassRef JSObjectClassRef = NULL;
@@ -295,10 +296,22 @@ TiValueRef ConvertIdTiValue(KrollContext *context, id obj)
 	}
 	else if ([obj isKindOfClass:[KrollMethod class]])
 	{
+		KrollContext * ourContext = [(KrollMethod *)obj context];
+		if (context == ourContext)
+		{
+//			return [(KrollMethod *)obj jsobject];
+		}
+		VerboseLog(@"[WARN] Generating a new TiObject for KrollMethod %@ because the contexts %@ and its context %@ differed.",obj,context,ourContext);
 		return TiObjectMake(jsContext,KrollMethodClassRef,obj);
 	}
 	else if ([obj isKindOfClass:[KrollObject class]])
 	{
+		KrollContext * ourContext = [(KrollObject *)obj context];
+		if (context == ourContext)
+		{
+//			return [(KrollObject *)obj jsobject];
+		}
+		VerboseLog(@"[WARN] Generating a new TiObject for KrollObject %@ because the contexts %@ and its context %@ differed.",obj,context,ourContext);
 		return TiObjectMake(jsContext,KrollObjectClassRef,obj);
 	}
 	else if ([obj isKindOfClass:[KrollCallback class]])
@@ -315,6 +328,20 @@ TiValueRef ConvertIdTiValue(KrollContext *context, id obj)
 	}
 	else
 	{
+		KrollBridge * ourBridge = (KrollBridge *)[context delegate];
+		if (ourBridge != nil)
+		{
+			if (![ourBridge usesProxy:obj])
+			{
+				NSLog(@"[INFO] Registering %@ to %@",obj,ourBridge);
+//				[ourBridge registerProxy:obj];
+			}
+			KrollObject * objKrollObject = [ourBridge krollObjectForProxy:obj];
+//			return [objKrollObject jsobject];
+		}
+		
+		VerboseLog(@"[WARN] Generating a new TiObject for KrollObject %@ because the contexts %@ and its context %@ differed.",obj,context,ourContext);
+
 		KrollObject *o = [[[KrollObject alloc] initWithTarget:obj context:context] autorelease];
 		return TiObjectMake(jsContext,KrollObjectClassRef,o);
 	}
@@ -339,7 +366,18 @@ void KrollFinalizer(TiObjectRef ref)
 #if KOBJECT_MEMORY_DEBUG == 1
 	NSLog(@"KROLL FINALIZER: %@, retain:%d",o,[o retainCount]);
 #endif
-	
+
+	KrollContext * ourContext = [(KrollObject *)o context];
+	KrollBridge * ourBridge = (KrollBridge *)[ourContext delegate];
+	if (ourBridge != nil)
+	{
+		if ([ourBridge usesProxy:o])
+		{
+			NSLog(@"[INFO] Unregistering %@ to %@",o,ourBridge);
+//			[ourBridge unregisterProxy:o];
+		}
+	}
+
 	[o release];
 	o = nil;
 }
