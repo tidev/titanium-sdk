@@ -180,12 +180,19 @@ public class TiContext implements TiEvaluator, ErrorReporter
 		throws IOException
 	{
 		Object result = null;
+		String setUrlBackTo = null;
+		if (this.currentUrl != null && this.currentUrl.length() > 0 && !this.currentUrl.equals(filename)) {
+			// A new file is being eval'd.  Must be from an include() statement.  Remember to set back
+			// the original url, else things like JSS which depend on context's filename will break.
+			setUrlBackTo = this.currentUrl;
+		}
 		this.currentUrl = filename;
 		TiEvaluator jsContext = getJSContext();
 		if (jsContext == null) {
 			if (DBG) {
 				Log.w(LCAT, "Cannot eval file '" + filename + "'. Context has been released already.");
 			}
+			if (setUrlBackTo != null) { this.currentUrl = setUrlBackTo; }
 			return null;
 		}
 
@@ -202,6 +209,7 @@ public class TiContext implements TiEvaluator, ErrorReporter
 				Log.w(LCAT, "Failed to notify caller that eval completed");
 			}
 		}
+		if (setUrlBackTo != null) { this.currentUrl = setUrlBackTo; }
 		return result;
 	}
 
