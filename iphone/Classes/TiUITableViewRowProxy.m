@@ -376,6 +376,14 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 	{
 		[textLabel setText:title]; //UILabel already checks to see if it hasn't changed.
 		
+		id fontValue = [self valueForKey:@"font"];
+		UIFont *font = nil;
+		if (fontValue!=nil)
+		{
+			font = [[TiUtils fontValue:[self valueForKey:@"font"]] font];
+			textLabel.font = font;
+		}
+		
 		UIColor * textColor = [[TiUtils colorValue:[self valueForKey:@"color"]] _color];
 		[textLabel setTextColor:(textColor==nil)?[UIColor blackColor]:textColor];
 		
