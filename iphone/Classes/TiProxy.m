@@ -253,7 +253,6 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 	}
 	
 	[self _destroy];
-	[self _contextDestroyed];
 	[self contextWasShutdown:context];
 }
 
@@ -313,10 +312,6 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 		}
 	}
 	return self;
-}
-
--(void)_contextDestroyed
-{
 }
 
 -(void)_destroy
@@ -548,6 +543,7 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 	NSMutableArray *l = [listeners objectForKey:type];
 	if (l==nil)
 	{
+//		l = TiCreateNonRetainingArray();
 		l = [[NSMutableArray alloc] init];
 		[listeners setObject:l forKey:type];
 		[l release];
