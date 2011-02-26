@@ -35,6 +35,9 @@
 	TitaniumObject *titanium;
 	BOOL shutdown;
 	NSMutableArray *proxies;
+	//NOTE: Do NOT treat registeredProxies like a mutableDictionary; mutable dictionaries copy keys,
+	//CFMutableDictionaryRefs only retain keys, which lets them work with proxies properly.
+	CFMutableDictionaryRef registeredProxies;
 	NSCondition *shutdownCondition;
 	NSLock *proxyLock;
 }

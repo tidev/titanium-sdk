@@ -213,6 +213,12 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 			}
 		}
 	}
+	if (registeredProxies!= NULL)
+	{
+		CFRelease(registeredProxies);
+		//Registered proxies will handle the memory issues.
+	}
+	
 	[proxyLock unlock];
 	RELEASE_TO_NIL(proxies);
 }
@@ -533,6 +539,16 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 		proxies = TiCreateNonRetainingArray();
 	}
 	[proxies addObject:proxy];
+
+	if (registeredProxies==NULL)
+	{
+		registeredProxies = CFDictionaryCreateMutable(NULL, 1, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
+	}
+	//NOTE: Do NOT treat registeredProxies like a mutableDictionary; mutable dictionaries copy keys,
+	//CFMutableDictionaryRefs only retain keys, which lets them work with proxies properly.
+	KrollObject * ourKrollObject = [[KrollObject alloc] initWithTarget:proxy context:context];
+//	CFDictionaryAddValue(registeredProxies, proxy, ourKrollObject);
+	
 	[proxyLock unlock];
 }
 
@@ -547,7 +563,36 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 			RELEASE_TO_NIL(proxies);
 		}
 	}
+	if (registeredProxies != NULL)
+	{
+		CFDictionaryRemoveValue(registeredProxies, proxy);
+		//Don't bother with removing the empty registry. It's small and leaves on dealloc anyways.
+	}
 	[proxyLock unlock];
+}
+
+- (BOOL)usesProxy:(id)proxy
+{
+	BOOL result=NO;
+	[proxyLock lock];
+	if (registeredProxies != NULL)
+	{
+		result = (CFDictionaryGetCountOfKey(registeredProxies, proxy) != 0);
+	}
+	[proxyLock unlock];
+	return result;
+}
+
+- (id)krollObjectForProxy:(id)proxy
+{
+	id result=nil;
+	[proxyLock lock];
+	if (registeredProxies != NULL)
+	{
+		result = (id)CFDictionaryGetValue(registeredProxies, proxy);
+	}
+	[proxyLock unlock];
+	return result;
 }
 
 -(id)loadCommonJSModule:(NSString*)code withPath:(NSString*)path
