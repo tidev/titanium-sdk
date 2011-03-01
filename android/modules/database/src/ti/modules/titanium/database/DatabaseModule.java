@@ -17,7 +17,7 @@ import java.io.OutputStream;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiContext;
-import org.appcelerator.titanium.TiFile;
+import org.appcelerator.titanium.TiFileProxy;
 import org.appcelerator.titanium.io.TiBaseFile;
 import org.appcelerator.titanium.io.TiFileFactory;
 import org.appcelerator.titanium.util.Log;
@@ -43,9 +43,9 @@ public class DatabaseModule extends KrollModule
 		TiDatabaseProxy dbp = null;
 
 		try {
-			if (file instanceof TiFile) {
+			if (file instanceof TiFileProxy) {
 				// File support is read-only for now. The NO_LOCALIZED_COLLATORS flag means the database doesn't have Android metadata (i.e. vanilla)
-				TiFile tiFile = (TiFile) file;
+				TiFileProxy tiFile = (TiFileProxy) file;
 				String absolutePath = tiFile.getBaseFile().getNativeFile().getAbsolutePath();
 				Log.d(LCAT, "Opening database from filesystem: " + absolutePath);
 				
