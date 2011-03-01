@@ -82,5 +82,20 @@ describe("Ti.UI tests", {
 		},
 		timeout: 10000,
 		timeoutError: 'Timed out waiting for relative and absolute window to auto close'
-	})
+	}),
+	// https://appcelerator.lighthouseapp.com/projects/32238-titanium-mobile/tickets/873
+	appendRowWithHeader_as_async: function(callback) {
+		var w = Ti.UI.createWindow();
+		w.open();
+		var data = [Ti.UI.createTableViewRow({title: 'blah'})];
+		var tv = Ti.UI.createTableView({data:data});
+		w.add(tv);
+		setTimeout(function(){
+			tv.appendRow( Ti.UI.createTableViewRow({title:'blah2', header:'header1'}) );
+			setTimeout(function() {
+				valueOf(tv.data.length).shouldBe(2);
+				callback.passed();
+			}, 1000);
+		},1000);
+	}
 });
