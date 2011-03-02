@@ -8,7 +8,6 @@ package org.appcelerator.titanium;
 
 import java.io.IOException;
 import java.util.Set;
-import java.util.concurrent.CountDownLatch;
 
 import org.appcelerator.titanium.proxy.ActivityProxy;
 import org.appcelerator.titanium.util.Log;
@@ -121,7 +120,8 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 			}
 			
 			if(b2373Detected) {
-				Log.e(TAG, "Android issue 2373 detected (missing intent CATEGORY_LAUNCHER), restarting app. Instances: " + getInstanceCount());
+				// removed call to setInstanceCount in log statement below.  Method is gone beginning in api 11.
+				Log.e(TAG, "Android issue 2373 detected (missing intent CATEGORY_LAUNCHER), restarting app.");
 				layout = new TiCompositeLayout(this);
 				setContentView(layout);
 				activityOnCreate(savedInstanceState);
