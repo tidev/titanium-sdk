@@ -151,9 +151,12 @@ public class TableViewProxy extends TiViewProxy
 			processData(data);
 		} else {
 			TableViewSectionProxy lastSection = sections.get(sections.size() - 1);
-			rowProxy.setProperty(TiC.PROPERTY_SECTION, lastSection);
-			rowProxy.setProperty(TiC.PROPERTY_PARENT, lastSection);
-			lastSection.insertRowAt((int) lastSection.getRowCount(), rowProxy);
+			TableViewSectionProxy addedToSection = addRowToSection(rowProxy, lastSection);
+			if (lastSection == null || !lastSection.equals(addedToSection)) {
+				sections.add(addedToSection);
+			}
+			rowProxy.setProperty(TiC.PROPERTY_SECTION, addedToSection);
+			rowProxy.setProperty(TiC.PROPERTY_PARENT, addedToSection);
 		}
 		getTableView().setModelDirty();
 		updateView();
@@ -286,7 +289,31 @@ public class TableViewProxy extends TiViewProxy
 		}
 		return sections;
 	}
-	
+
+	/**
+	 * If the row does not carry section information, it will be added
+	 * to the currentSection.  If it does carry section information (i.e., a header), 
+	 * that section will be created and the row added to it.  Either way,
+	 * whichever section the row gets added to will be returned.
+	 */
+	private TableViewSectionProxy addRowToSection(TableViewRowProxy row, TableViewSectionProxy currentSection)
+	{
+		KrollDict d = row.getProperties();
+		TableViewSectionProxy addedToSection = null;
+		if (currentSection == null || d.containsKey(TiC.PROPERTY_HEADER)) {
+			addedToSection = new TableViewSectionProxy(getTiContext());
+		} else {
+			addedToSection = currentSection;
+		}
+		if (d.containsKey(TiC.PROPERTY_HEADER)) {
+			addedToSection.setProperty(TiC.PROPERTY_HEADER_TITLE, d.get(TiC.PROPERTY_HEADER));
+		}
+		if (d.containsKey(TiC.PROPERTY_FOOTER)) {
+			addedToSection.setProperty(TiC.PROPERTY_FOOTER_TITLE, d.get(TiC.PROPERTY_FOOTER));
+		}
+		addedToSection.add(row);
+		return addedToSection;
+	}
 	public void processData(Object[] data)
 	{
 		ArrayList<TableViewSectionProxy> sections = getSections();
@@ -308,43 +335,13 @@ public class TableViewProxy extends TiViewProxy
 
 		for (int i = 0; i < data.length; i++) {
 			Object o = data[i];
-
-			if (o instanceof KrollDict) {
-				KrollDict d = (KrollDict) o;
-				TableViewRowProxy rowProxy = new TableViewRowProxy(getTiContext());
-				rowProxy.handleCreationDict(d);
-				rowProxy.setProperty(TiC.PROPERTY_CLASS_NAME, CLASSNAME_NORMAL);
-				rowProxy.setProperty(TiC.PROPERTY_ROW_DATA, data);
-				rowProxy.setParent(this);
-
-				if (currentSection == null || d.containsKey(TiC.PROPERTY_HEADER)) {
-					currentSection = new TableViewSectionProxy(getTiContext());
+			if (o instanceof KrollDict || o instanceof TableViewRowProxy) {
+				TableViewRowProxy rowProxy = rowProxyFor(o);
+				TableViewSectionProxy addedToSection = addRowToSection(rowProxy, currentSection);
+				if (currentSection == null || !currentSection.equals(addedToSection)) {
+					currentSection = addedToSection;
 					sections.add(currentSection);
 				}
-				if (d.containsKey(TiC.PROPERTY_HEADER)) {
-					currentSection.setProperty(TiC.PROPERTY_HEADER_TITLE, d.get(TiC.PROPERTY_HEADER));
-				}
-				if (d.containsKey(TiC.PROPERTY_FOOTER)) {
-					currentSection.setProperty(TiC.PROPERTY_FOOTER_TITLE, d.get(TiC.PROPERTY_FOOTER));
-				}
-				currentSection.add(rowProxy);
-			} else if (o instanceof TableViewRowProxy) {
-				TableViewRowProxy rowProxy = (TableViewRowProxy) o;
-				KrollDict d = rowProxy.getProperties();
-				rowProxy.setParent(this);
-
-				if (currentSection == null || d.containsKey(TiC.PROPERTY_HEADER)) {
-					currentSection = new TableViewSectionProxy(getTiContext());
-					sections.add(currentSection);
-				}
-				if (d.containsKey(TiC.PROPERTY_HEADER)) {
-					currentSection.setProperty(TiC.PROPERTY_HEADER_TITLE, d.get(TiC.PROPERTY_HEADER));
-				}
-				if (d.containsKey(TiC.PROPERTY_FOOTER)) {
-					currentSection.setProperty(TiC.PROPERTY_FOOTER_TITLE, d.get(TiC.PROPERTY_FOOTER));
-				}
-
-				currentSection.add((TableViewRowProxy) o);
 			} else if (o instanceof TableViewSectionProxy) {
 				currentSection = (TableViewSectionProxy) o;
 				sections.add(currentSection);
