@@ -160,7 +160,16 @@
 	[self renderViewForIndex:currentPage-1];
 	[self renderViewForIndex:currentPage];
 	[self renderViewForIndex:currentPage+1];
-	[self renderViewForIndex:currentPage+(forward?2:-2)];
+    //[self renderViewForIndex:currentPage+(forward?2:-2)];
+}
+
+-(void)clearOffscreenFrames
+{
+    for (int i=0; i < [views count]; i++) {
+        if (i < currentPage-1 || i > currentPage+1) {
+            [(TiViewProxy*)[views objectAtIndex:i] detachView];
+        }
+    }
 }
 
 -(void)listenerAdded:(NSString*)event count:(int)count
@@ -490,6 +499,7 @@
 		[pageControl setCurrentPage:page];
 		currentPage = page;
 		[self loadNextFrames:(page > lastPage)];
+        [self clearOffscreenFrames];
 	}
 }
 
