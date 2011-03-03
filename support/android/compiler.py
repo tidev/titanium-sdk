@@ -142,7 +142,7 @@ class Compiler(object):
 			js_class_name = js_class_name.replace(escape_char, '_')
 		
 		# TODO: add closure compiling too?
-		jsc_args = [self.java, '-classpath', js_jar, 'org.mozilla.javascript.tools.jsc.Main',
+		jsc_args = [self.java, '-Dfile.encoding=utf-8', '-classpath', js_jar, 'org.mozilla.javascript.tools.jsc.Main',
 			'-main-method-class', 'org.appcelerator.titanium.TiScriptRunner',
 			'-package', self.appid + '.js', '-o', js_class_name,
 			'-d', self.classes_dir, fullpath]
