@@ -72,6 +72,48 @@ def strip_tags(value):
 def namesort(a,b):
 	return cmp(a['name'],b['name'])
 
+def map_properties(srcobj, destobj, srcprops, destprops):
+	for i in range(len(srcprops)):
+		srcprop = srcprops[i]
+		destprop = destprops[i]
+		destobj[destprop] = srcobj[srcprop]
+	return destobj
+
+def to_newjson_example(example):
+	return map_properties(example, {}, ('description', 'code'), ('name', 'code'))
+
+def to_newjson_property(prop):
+	result = map_properties(prop, {}, ('name', 'type', 'value'), ('name', 'type', 'description'))
+	result['isClassProperty'] = result['name'].upper() == result['name']
+	result['isInstanceProperty'] = not result['isClassProperty']
+	return result
+
+def to_newjson_param(param):
+	result = map_properties(param, {}, ('name', 'description'), ('name', 'description'))
+	if param['type']:
+		the_type = param['type']
+		m = re.search(r'\>(.*)\<', the_type)
+		if m and len(m.groups()) == 1:
+			the_type = m.groups()[0]
+		result['types'] = [ the_type ]
+	return result
+
+def to_newjson_function(method):
+	result = map_properties(method, {}, ('name', 'value'), ('name', 'description'))
+	if method['returntype'] and method['returntype'].lower() != 'void':
+		result['returnTypes'] = [ { 'name': method['returntype'] }]
+	if method['parameters']:
+		result['parameters'] = [to_newjson_param(x) for x in method['parameters']]
+	return result
+
+def to_newjson_event(event):
+	result = map_properties(event, {}, ('name', 'value'), ('name', 'description'))
+	result['properties'] = []
+	if event['properties']:
+		for key in event['properties']:
+			result['properties'].append( { 'name': key, 'description': event['properties'][key] } )
+	return result
+
 def apisort(a,b):
 	return cmp(a.namespace,b.namespace)
 
@@ -303,6 +345,18 @@ class API(object):
 	def add_parameter(self,name,typestr,desc):
 		self.parameters.append({'name':name,'type':typestr,'description':desc})
 		self.parameters.sort(namesort)
+	def to_newjson(self):
+		result = {
+				'name': self.namespace,
+				'description': self.description,
+				'deprecated' : True if self.deprecated else False,
+				'examples' : [ to_newjson_example(x) for x in self.examples ] if self.examples else [],
+				'properties' : [ to_newjson_property(x) for x in self.properties ] if self.properties else [],
+				'functions' : [ to_newjson_function(x) for x in self.methods] if self.methods else [],
+				'events' : [ to_newjson_event(x) for x in self.events] if self.events else [],
+				'remarks' : [ self.notes ] if self.notes else []
+				}
+		return result
 	def to_json(self):
 		subs = []
 		for s in self.objects:
@@ -647,6 +701,18 @@ def clean_links(text):
 	repl = lambda match: '"%s.html"' % find_filename(match.group(1))
 	return link2.sub(repl, link1.sub(repl, text))
 
+def produce_new_json(config,dump=True):
+	result = {'aliases': [ {'name': 'Ti', 'type': 'Titanium'} ]}
+	types = []
+	result['types'] = types
+
+	for key in apis:
+		types.append( apis[key].to_newjson() )
+	if dump:
+		print json.dumps(result,sort_keys=False,indent=4)
+	else:
+		return json.dumps(result,sort_keys=False,indent=4)
+
 def produce_json(config,dump=True):
 	result = {}
 	for key in apis:
@@ -835,6 +901,10 @@ def produce_devhtml(config):
 	out.write(produce_json(config,False));
 	out.close()
 	
+	out = open(os.path.join(outdir,'api_new.json'),'w+')
+	out.write(produce_new_json(config,False));
+	out.close()
+	
 	changelog_mdoc = os.path.join(template_dir,'Titanium','CHANGELOG','%s.mdoc'%version)
 	if not exists(changelog_mdoc):
 		print 'Warning: %s wasn\'t found, skipping changelog.html generation' % changelog_mdoc
@@ -906,7 +976,7 @@ def main():
 			other_args[kv[0].strip()]=True
 		c+=1"""
 	
-	format_handlers = {'json': produce_json, 'devhtml': produce_devhtml, 'vsdoc' : produce_vsdoc}
+	format_handlers = {'json': produce_json, 'devhtml': produce_devhtml, 'vsdoc' : produce_vsdoc, 'newjson' : produce_new_json}
 	if options.format in format_handlers:
 		print 'Generating Documentation for Titanium version %s to %s...' % (other_args['version'], other_args['output'])
 		process_tdoc()
