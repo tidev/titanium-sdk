@@ -53,6 +53,7 @@
 		[[NSNotificationCenter defaultCenter] addObserver:self 
 												 selector:@selector(didRotate:) name:UIApplicationDidChangeStatusBarOrientationNotification
 												   object:nil];
+        cacheSize = 3;
 	}
 	return self;
 }
@@ -153,14 +154,62 @@
 	[viewproxy parentWillShow];
 }
 
--(void)loadNextFrames:(BOOL)forward
+-(NSRange)cachedFrames
 {
 	//At minimum, we should have three views.
 	//However, we shouldn't need to remove a view until it's necessary from memory panics.
-	[self renderViewForIndex:currentPage-1];
-	[self renderViewForIndex:currentPage];
-	[self renderViewForIndex:currentPage+1];
-	[self renderViewForIndex:currentPage+(forward?2:-2)];
+    
+    int startPage = (currentPage - (cacheSize - 1) / 2);
+    int endPage = (currentPage + (cacheSize - 1) / 2);
+    
+    
+    // Step 1: Check to see if we're actually smaller than the cache range:
+    if (cacheSize > [views count]) {
+        startPage = 0;
+        endPage = [views count] - 1;
+    }
+    else {
+        // Step 2: Check to see if we're rendering outside the bounds of the array, and if so, adjust accordingly.
+        if (startPage < 0) {
+            endPage -= startPage;
+            startPage = 0;
+        }
+        if (endPage >= [views count]) {
+            int diffPage = endPage - [views count];
+            endPage = [views count] -  1;
+            startPage += diffPage;
+        }
+    }
+    
+    NSRange cacheRange;
+    cacheRange.location = startPage;
+    cacheRange.length = endPage - startPage;
+    return cacheRange;
+}
+
+-(void)prerenderFrames;
+{
+    if (views == nil || [views count] == 0) {
+        return;
+    }
+
+    NSRange renderRange = [self cachedFrames];
+    for (int i=renderRange.location; i <= renderRange.location + renderRange.length; i++) {
+        [self renderViewForIndex:i];
+    }
+}
+
+-(void)clearOffscreenFrames
+{
+    NSRange renderedRange = [self cachedFrames];
+    for (int i=0; i < [views count]; i++) {
+        if (i < renderedRange.location || i > renderedRange.location + renderedRange.length) {
+            TiViewProxy* viewProxy = [views objectAtIndex:i];
+            if ([viewProxy viewAttached]) {
+                [(TiViewProxy*)[views objectAtIndex:i] detachView];
+            }
+        }
+    }
 }
 
 -(void)listenerAdded:(NSString*)event count:(int)count
@@ -218,15 +267,10 @@
 			view.frame = viewBounds;
 		}
 	}
-	
-	if (currentPage==0)
+    
+	if (currentPage==0 || readd)
 	{
-		[self loadNextFrames:YES];
-	}
-	
-	if (readd)
-	{
-		[self loadNextFrames:YES];
+		[self prerenderFrames];
 	}
 	
 	CGRect contentBounds;
@@ -254,6 +298,26 @@
 }
 
 #pragma mark Public APIs
+
+-(void)setCacheSize_:(id)args
+{
+    ENSURE_SINGLE_ARG(args, NSNumber);
+    int newCacheSize = [args intValue];
+    if (newCacheSize == 0) {
+        // WHAT.  Let's make it something sensible.
+        newCacheSize = 3;
+    }
+    if (newCacheSize % 2 == 0) {
+        NSLog(@"[WARN] Even scrollable cache size %d; setting to %d", newCacheSize, newCacheSize-1);
+        newCacheSize -= 1;
+    }
+    cacheSize = newCacheSize;
+    
+    // After setting the cache size, we should immediately re-render the new number of cached views (if necessary!) and then
+    // drop old views.
+    [self prerenderFrames];
+    [self clearOffscreenFrames];
+}
 
 -(void)setViews_:(id)args
 {
@@ -355,14 +419,7 @@
 	int existingPage = currentPage;
 	currentPage = pageNum;
 	
-	if (pageNum >= existingPage)
-	{
-		[self loadNextFrames:YES];
-	}
-	else
-	{
-		[self loadNextFrames:NO];
-	}
+    [self prerenderFrames];
 	
 	[self.proxy replaceValue:NUMINT(pageNum) forKey:@"currentPage" notification:NO];
 }
@@ -417,15 +474,8 @@
 		currentPage = newPage;
 		pageControl.currentPage = newPage;
 		
-		if (newPage > existingPage)
-		{
-			[self loadNextFrames:YES];
-		}
-		else
-		{
-			[self loadNextFrames:NO];
-		}
-		
+        [self prerenderFrames];
+        
 		[self.proxy replaceValue:NUMINT(newPage) forKey:@"currentPage" notification:NO];
 	}
 }
@@ -460,14 +510,7 @@
 	int existingPage = currentPage;
 	currentPage = pageNum;
 	
-	if (pageNum > existingPage)
-	{
-		[self loadNextFrames:YES];
-	}
-	else
-	{
-		[self loadNextFrames:NO];
-	}
+    [self prerenderFrames];
 	
 	[self.proxy replaceValue:NUMINT(pageNum) forKey:@"currentPage" notification:NO];
 	
@@ -489,7 +532,8 @@
 	if (lastPage != page) {
 		[pageControl setCurrentPage:page];
 		currentPage = page;
-		[self loadNextFrames:(page > lastPage)];
+        [self prerenderFrames];
+        [self clearOffscreenFrames];
 	}
 }
 
@@ -520,7 +564,6 @@
 	}
 	currentPage=pageNum;
 	[pageControl setCurrentPage:pageNum];
-	[self loadNextFrames:YES];
 }
 
 @end
