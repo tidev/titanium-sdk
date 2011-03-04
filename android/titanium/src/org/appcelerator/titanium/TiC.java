@@ -230,6 +230,7 @@ public class TiC
 	public static final String PROPERTY_ROW_DATA = "rowData";
 	public static final String PROPERTY_ROW_HEIGHT = "rowHeight";
 	public static final String PROPERTY_SCALE = "scale";
+	public static final String PROPERTY_SCALES_PAGE_TO_FIT = "scalesPageToFit";
 	public static final String PROPERTY_SCROLL_ENABLED = "scrollEnabled";
 	public static final String PROPERTY_SEARCH = "search";
 	public static final String PROPERTY_SECTION = "section";
