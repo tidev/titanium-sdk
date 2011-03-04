@@ -42,7 +42,7 @@ uncompressed_types = [
 ]
 
 
-MIN_API_LEVEL = 4
+MIN_API_LEVEL = 7
 
 def dequote(s):
 	if s[0:1] == '"':

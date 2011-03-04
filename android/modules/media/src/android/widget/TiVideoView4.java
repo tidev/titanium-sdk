@@ -623,4 +623,19 @@ public class TiVideoView4 extends SurfaceView implements MediaPlayerControl {
         }
         return 0;
     }
+
+    // adding stub in order to satisfy building against API level 7
+    public boolean canPause() {
+    	return true;
+    }
+
+    // adding stub in order to satisfy building against API level 7
+    public boolean canSeekBackward() {
+    	return true;
+    }
+
+    // adding stub in order to satisfy building against API level 7
+    public boolean canSeekForward() {
+    	return true;
+    }
 }

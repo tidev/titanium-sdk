@@ -84,7 +84,7 @@ if build_type in ['full', 'android'] and not only_package:
 	d = os.getcwd()
 	os.chdir('android')
 	try:
-		sdk = AndroidSDK(ARGUMENTS.get("android_sdk", None), 4)
+		sdk = AndroidSDK(ARGUMENTS.get("android_sdk", None), 7)
 		targets = ["full.build", "build.titanium.javadoc"]
 		if clean: targets = ["clean"]
 		elif "ant_targets" in ARGUMENTS: targets = ARGUMENTS["ant_targets"].split(",")
