@@ -303,7 +303,7 @@
 {
     ENSURE_SINGLE_ARG(args, NSNumber);
     int newCacheSize = [args intValue];
-    if (newCacheSize == 0) {
+    if (newCacheSize < 3) {
         // WHAT.  Let's make it something sensible.
         newCacheSize = 3;
     }
