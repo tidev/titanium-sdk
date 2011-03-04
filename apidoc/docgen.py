@@ -65,6 +65,7 @@ stats = {
 }
 
 default_language = "javascript"
+default_platforms = ('android','iphone')
 
 def strip_tags(value):
 	return re.sub(r'<[^>]*?>', '', value)
@@ -79,29 +80,38 @@ def map_properties(srcobj, destobj, srcprops, destprops):
 		destobj[destprop] = srcobj[srcprop]
 	return destobj
 
+def clean_type(the_type):
+	type_out = the_type
+	m = re.search(r'\>(.*)\<', the_type)
+	if m and len(m.groups()) == 1:
+		type_out = m.groups()[0]
+	return type_out
+
 def to_newjson_example(example):
 	return map_properties(example, {}, ('description', 'code'), ('name', 'code'))
 
 def to_newjson_property(prop):
-	result = map_properties(prop, {}, ('name', 'type', 'value'), ('name', 'type', 'description'))
+	result = map_properties(prop, {}, ('name', 'type', 'value', 'isClassProperty'), ('name', 'type', 'description', 'isClassProperty'))
+	if result['type']:
+		result['type'] = clean_type(result['type'])
 	result['isClassProperty'] = result['name'].upper() == result['name']
 	result['isInstanceProperty'] = not result['isClassProperty']
+	result['userAgents'] = []
+	if prop['platforms']:
+		for p in prop['platforms']:
+			result['userAgents'].append( { 'platform' : p } )
 	return result
 
 def to_newjson_param(param):
 	result = map_properties(param, {}, ('name', 'description'), ('name', 'description'))
 	if param['type']:
-		the_type = param['type']
-		m = re.search(r'\>(.*)\<', the_type)
-		if m and len(m.groups()) == 1:
-			the_type = m.groups()[0]
-		result['types'] = [ the_type ]
+		result['types'] = [ clean_type(param['type']) ]
 	return result
 
 def to_newjson_function(method):
 	result = map_properties(method, {}, ('name', 'value'), ('name', 'description'))
 	if method['returntype'] and method['returntype'].lower() != 'void':
-		result['returnTypes'] = [ { 'name': method['returntype'] }]
+		result['returnTypes'] = [ { 'type': clean_type(method['returntype']) }]
 	if method['parameters']:
 		result['parameters'] = [to_newjson_param(x) for x in method['parameters']]
 	return result
@@ -308,13 +318,31 @@ class API(object):
 			if m['name']==key:
 				m['returntype']=value
 				return
-	def add_property(self,key,typev,value):
+	def add_property(self,key,specs,value):
+		# specs example: [int;classproperty;deprecated].  The type is always specs[0]
+		classprop = True if 'classproperty' in specs else (key.upper() == key) # assume all upper case props are class constants
+		deprecated = 'deprecated' in specs
+		platforms = list(default_platforms)
+		for p in default_platforms:
+			if '-'+p in specs:
+				platforms.remove(p)
 		for prop in self.properties:
 			if prop['name']==key:
-				prop['type']=typev
+				prop['type']=specs[0]
 				prop['value']=value
+				prop['isClassProperty']=classprop
+				prop['deprecated'] = deprecated
+				prop['platforms'] = platforms
 				return
-		self.properties.append({'name':key,'type':typev,'value':value,'filename':make_filename('property',self.namespace,key)})
+		self.properties.append({
+			'name':key,
+			'type':specs[0],
+			'value':value,
+			'isClassProperty':classprop,
+			'deprecated':deprecated,
+			'platforms':platforms,
+			'filename':make_filename('property',self.namespace,key)
+			})
 		self.properties.sort(namesort)
 	def add_event(self,key,value):
 		props = {}
@@ -486,7 +514,8 @@ def emit_properties(line):
 			print "[ERROR] in file: %s at line: %d" % (current_file, current_line)
 			print "[ERROR] invalid property line: %s. Must be in the format [name[type]]:[description]" % line
 			sys.exit(1)
-		current_api.add_property(match.group(1), tickerize(match.group(2)), htmlerize(tokens[1]))
+		specs = match.group(2).split(';')
+		current_api.add_property(match.group(1), specs, htmlerize(tokens[1]))
 
 def emit_methods(line):
 	for tokens in tokenize_keyvalues(line):
