@@ -14,33 +14,36 @@ import os, sys, re, optparse
 from os.path import join, splitext, split, exists
 from htmlentitydefs import name2codepoint 
 
+def err(s):
+	print >> sys.stderr, s
+
 try:
 	from mako.template import Template
 	from mako.lookup import TemplateLookup
 except:
-	print "Crap, you don't have mako!\n"
-	print "Easy install that bitch:\n"
-	print ">  easy_install Mako"
-	print
+	err("Crap, you don't have mako!\n")
+	err("Easy install that bitch:\n")
+	err(">  easy_install Mako")
+	err("")
 	sys.exit(1)
 try:
 	import markdown
 except:
-	print "Crap, you don't have markdown!\n"
-	print "Easy install that bitch:\n"
-	print ">  easy_install ElementTree"
-	print ">  easy_install Markdown"
-	print
+	err("Crap, you don't have markdown!\n")
+	err("Easy install that bitch:\n")
+	err(">  easy_install ElementTree")
+	err(">  easy_install Markdown")
+	err("")
 	sys.exit(1)
 try:
 	from pygments import highlight
 	from pygments.formatters import HtmlFormatter
 	from pygments.lexers import get_lexer_by_name
 except:
-	print "Crap, you don't have Pygments!\n"
-	print "Easy install that bitch:\n"
-	print ">  easy_install Pygments"
-	print
+	err("Crap, you don't have Pygments!\n")
+	err("Easy install that bitch:\n")
+	err(">  easy_install Pygments")
+	err("")
 	sys.exit(1)
 	
 template_dir = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
@@ -65,7 +68,6 @@ stats = {
 }
 
 default_language = "javascript"
-default_platforms = ('android','iphone')
 
 def strip_tags(value):
 	return re.sub(r'<[^>]*?>', '', value)
@@ -79,6 +81,13 @@ def map_properties(srcobj, destobj, srcprops, destprops):
 		destprop = destprops[i]
 		destobj[destprop] = srcobj[srcprop]
 	return destobj
+
+def resolve_supported_platforms(parent_platforms, object_specs):
+	platforms = [x.lower() for x in parent_platforms]
+	for p in parent_platforms:
+		if '-'+p.lower() in object_specs and p.lower() in platforms:
+			platforms.remove(p.lower())
+	return platforms
 
 def clean_type(the_type):
 	type_out = the_type
@@ -94,12 +103,9 @@ def to_newjson_property(prop):
 	result = map_properties(prop, {}, ('name', 'type', 'value', 'isClassProperty'), ('name', 'type', 'description', 'isClassProperty'))
 	if result['type']:
 		result['type'] = clean_type(result['type'])
-	result['isClassProperty'] = result['name'].upper() == result['name']
 	result['isInstanceProperty'] = not result['isClassProperty']
-	result['userAgents'] = []
-	if prop['platforms']:
-		for p in prop['platforms']:
-			result['userAgents'].append( { 'platform' : p } )
+	result['since'] = [ { 'name': 'Titanium Mobile SDK', 'version' : prop['since'] } ]
+	result['userAgents'] = [ { 'platform' : x } for x in prop['platforms'] ]
 	return result
 
 def to_newjson_param(param):
@@ -114,6 +120,8 @@ def to_newjson_function(method):
 		result['returnTypes'] = [ { 'type': clean_type(method['returntype']) }]
 	if method['parameters']:
 		result['parameters'] = [to_newjson_param(x) for x in method['parameters']]
+	result['since'] = [ { 'name': 'Titanium Mobile SDK', 'version' : method['since'] } ]
+	result['userAgents'] = [ { 'platform' : x } for x in method['platforms'] ]
 	return result
 
 def to_newjson_event(event):
@@ -221,118 +229,125 @@ class API(object):
 		self.add_method_property('removeEventListener','name','string','name of the event')
 		self.add_method_property('removeEventListener','callback','function','callback function passed in addEventListener')
 		
+	def add_common_viewproxy_stuff(self):
+		# these are common properties that all views inherit
+		self.add_property('backgroundColor','string','the background color of the view')
+		self.add_property('backgroundSelectedColor', 'string', 'the selected background color of the view. focusable must be true for normal views. (Android)')
+		self.add_property('backgroundFocusedColor', 'string', 'the focused background color of the view. focusable must be true for normal views. (Android)')
+		self.add_property('backgroundDisabledColor', 'string', 'the disabled background color of the view. (Android)')
+		self.add_property('backgroundGradient','object','a background gradient for the view with the properties: type,startPoint,endPoint,startRadius,endRadius,backfillStart,backfillEnd,colors.')
+		self.add_property('backgroundLeftCap','float','End caps specify the portion of an image that should not be resized when an image is stretched. This technique is used to implement buttons and other resizable image-based interface elements. When a button with end caps is resized, the resizing occurs only in the middle of the button, in the region between the end caps. The end caps themselves keep their original size and appearance. This property specifies the size of the left end cap. The middle (stretchable) portion is assumed to be 1 pixel wide. The right end cap is therefore computed by adding the size of the left end cap and the middle portion together and then subtracting that value from the width of the image')
+		self.add_property('backgroundTopCap','float','End caps specify the portion of an image that should not be resized when an image is stretched. This technique is used to implement buttons and other resizable image-based interface elements. When a button with end caps is resized, the resizing occurs only in the middle of the button, in the region between the end caps. The end caps themselves keep their original size and appearance. This property specifies the size of the top end cap. The middle (stretchable) portion is assumed to be 1 pixel wide. The bottom end cap is therefore computed by adding the size of the top end cap and the middle portion together and then subtracting that value from the height of the image')
+		self.add_property('animatedCenterPoint','object','read-only object with x and y properties of where the view is during animation')
+		self.add_property('borderColor','string','the border color of the view')
+		self.add_property('borderWidth','float','the border width of the view')
+		self.add_property('borderRadius','float','the border radius of the view')
+		self.add_property('backgroundImage','string','the background image url of the view')
+		self.add_property('backgroundSelectedImage', 'string', 'the selected background image url of the view. focusable must be true for normal views. (Android)')
+		self.add_property('backgroundFocusedImage', 'string', 'the focused background image url of the view. focusable must be true for normal views. (Android)')
+		self.add_property('backgroundDisabledImage', 'string', 'the disabled background image url of the view. (Android)')
+		self.add_property('zIndex','int','the z index position relative to other sibling views')
+		self.add_property('opacity','float','the opacity from 0.0-1.0')
+		self.add_property('anchorPoint','object','a dictionary with properties x and y to indicate the anchor point value. anchor specifies the position by which animation should occur. center is 0.5, 0.5')
+		self.add_property('transform','object','the transformation matrix to apply to the view')
+		self.add_property('center','object','a dictionary with properties x and y to indicate the center of the views position relative to the parent view')
+		self.add_property('visible','boolean','a boolean of the visibility of the view')
+		self.add_property('touchEnabled','boolean','a boolean indicating if the view should receive touch events (true, default) or forward them to peers (false)')
+		self.add_property('size','object','the size of the view as a dictionary of width and height properties')
+		self.add_property('width','float,string','property for the view width. Can be either a float value or a dimension string ie \'auto\' (default).')
+		self.add_property('height','float,string','property for the view height. Can be either a float value or a dimension string ie \'auto\' (default).')
+		self.add_property('top','float,string','property for the view top position. This position is relative to the view\'s parent. Can be either a float value or a dimension string ie \'auto\' (default).')
+		self.add_property('left','float,string','property for the view left position. This position is relative to the view\'s parent. Can be either a float value or a dimension string ie \'auto\' (default).')
+		self.add_property('right','float,string','property for the view right position. This position is relative to the view\'s parent. Can be either a float value or a dimension string ie \'auto\' (default).')
+		self.add_property('bottom','float,string','property for the view bottom position. This position is relative to the view\'s parent. Can be either a float value or a dimension string ie \'auto\' (default).')
+		self.add_property('softKeyboardOnFocus','int','One of Titanium.UI.Android.SOFT_KEYBOARD_DEFAULT_ON_FOCUS, Titanium.UI.Android.SOFT_KEYBOARD_HIDE_ON_FOCUS, or Titanium.UI.Android.SOFT_KEYBOARD_SHOW_ON_FOCUS. (Android only)')
+		self.add_property('focusable','boolean','Set true if you want a view to be focusable when navigating with the trackball or D-Pad. Default: false. (Android Only)')
+		# these are common methods
+		self.add_method('add','add a child to the view hierarchy')
+		self.add_method_property('add','view','object','the view to add to this views hiearchy')
+		self.add_method('remove','remove a previously add view from the view hiearchy')
+		self.add_method_property('remove','view','object','the view to remove from this views hiearchy')
+		self.add_method('show','make the view visible')
+		self.add_method('hide','hide the view')
+		self.add_method('animate','animate the view')
+		self.add_method_property('animate','obj','object','either a dictionary of animation properties or an Animation object')
+		self.add_method_property('animate','callback','function','function to be invoked upon completion of the animation')
+		self.add_method('toImage','return a Blob image of the rendered view','object')
+		self.add_method_property('toImage','f','function','function to be invoked upon completion. if non-null, this method will be performed asynchronously. if null, it will be performed immediately')
+		# these are common events
+		self.add_event('swipe','fired when the device detects a swipe (left or right) against the view')
+		self.add_event('singletap','fired when the device detects a single tap against the view')
+		self.add_event('doubletap','fired when the device detects a double tap against the view')
+		self.add_event('twofingertap','fired when the device detects a two-finger tap against the view')
+		self.add_event('click','fired when the device detects a click (longer than touch) against the view')
+		self.add_event('dblclick','fired when the device detects a double click against the view')
+		self.add_event('touchstart','fired as soon as the device detects a gesture')
+		self.add_event('touchmove','fired as soon as the device detects movement of a touch.  Event coordinates are always relative to the view in which the initial touch occurred')
+		self.add_event('touchcancel','fired when a touch event is interrupted by the device. this happens in circumenstances such as an incoming call to allow the UI to clean up state.')
+		self.add_event('touchend','fired when a touch event is completed')
+		# font specials
+		self.add_property('font-weight','string','the font weight, either normal or bold')
+		self.add_property('font-size','string','the font size')
+		self.add_property('font-style','string','the font style, either normal or italics')
+		self.add_property('font-family','string','the font family')
+		# common event properties
+		self.add_event_property('swipe','direction','direction of the swipe - either left or right');
+		for x in self.events:
+			self.add_event_property(x['name'],'x','the x point of the event in receiving view coordiantes')
+			self.add_event_property(x['name'],'y','the y point of the event, in receiving view coordinates')
+			self.add_event_property(x['name'],'globalPoint','a dictionary with properties x and y describing the point of the event in screen coordinates')
 	def set_type(self,typestr):
 		self.typestr = typestr
-		if self.typestr == 'module':
-			self.add_common_proxy_methods()
-			
+	
 	def set_subtype(self,typestr):
 		self.subtype = typestr
-		if self.subtype == 'view' or self.subtype == 'proxy':
-			self.add_common_proxy_methods()
-		if self.subtype == 'view':
-			# these are common properties that all views inherit
-			self.add_property('backgroundColor','string','the background color of the view')
-			self.add_property('backgroundSelectedColor', 'string', 'the selected background color of the view. focusable must be true for normal views. (Android)')
-			self.add_property('backgroundFocusedColor', 'string', 'the focused background color of the view. focusable must be true for normal views. (Android)')
-			self.add_property('backgroundDisabledColor', 'string', 'the disabled background color of the view. (Android)')
-			self.add_property('backgroundGradient','object','a background gradient for the view with the properties: type,startPoint,endPoint,startRadius,endRadius,backfillStart,backfillEnd,colors.')
-			self.add_property('backgroundLeftCap','float','End caps specify the portion of an image that should not be resized when an image is stretched. This technique is used to implement buttons and other resizable image-based interface elements. When a button with end caps is resized, the resizing occurs only in the middle of the button, in the region between the end caps. The end caps themselves keep their original size and appearance. This property specifies the size of the left end cap. The middle (stretchable) portion is assumed to be 1 pixel wide. The right end cap is therefore computed by adding the size of the left end cap and the middle portion together and then subtracting that value from the width of the image')
-			self.add_property('backgroundTopCap','float','End caps specify the portion of an image that should not be resized when an image is stretched. This technique is used to implement buttons and other resizable image-based interface elements. When a button with end caps is resized, the resizing occurs only in the middle of the button, in the region between the end caps. The end caps themselves keep their original size and appearance. This property specifies the size of the top end cap. The middle (stretchable) portion is assumed to be 1 pixel wide. The bottom end cap is therefore computed by adding the size of the top end cap and the middle portion together and then subtracting that value from the height of the image')
-			self.add_property('animatedCenterPoint','object','read-only object with x and y properties of where the view is during animation')
-			self.add_property('borderColor','string','the border color of the view')
-			self.add_property('borderWidth','float','the border width of the view')
-			self.add_property('borderRadius','float','the border radius of the view')
-			self.add_property('backgroundImage','string','the background image url of the view')
-			self.add_property('backgroundSelectedImage', 'string', 'the selected background image url of the view. focusable must be true for normal views. (Android)')
-			self.add_property('backgroundFocusedImage', 'string', 'the focused background image url of the view. focusable must be true for normal views. (Android)')
-			self.add_property('backgroundDisabledImage', 'string', 'the disabled background image url of the view. (Android)')
-			self.add_property('zIndex','int','the z index position relative to other sibling views')
-			self.add_property('opacity','float','the opacity from 0.0-1.0')
-			self.add_property('anchorPoint','object','a dictionary with properties x and y to indicate the anchor point value. anchor specifies the position by which animation should occur. center is 0.5, 0.5')
-			self.add_property('transform','object','the transformation matrix to apply to the view')
-			self.add_property('center','object','a dictionary with properties x and y to indicate the center of the views position relative to the parent view')
-			self.add_property('visible','boolean','a boolean of the visibility of the view')
-			self.add_property('touchEnabled','boolean','a boolean indicating if the view should receive touch events (true, default) or forward them to peers (false)')
-			self.add_property('size','object','the size of the view as a dictionary of width and height properties')
-			self.add_property('width','float,string','property for the view width. Can be either a float value or a dimension string ie \'auto\' (default).')
-			self.add_property('height','float,string','property for the view height. Can be either a float value or a dimension string ie \'auto\' (default).')
-			self.add_property('top','float,string','property for the view top position. This position is relative to the view\'s parent. Can be either a float value or a dimension string ie \'auto\' (default).')
-			self.add_property('left','float,string','property for the view left position. This position is relative to the view\'s parent. Can be either a float value or a dimension string ie \'auto\' (default).')
-			self.add_property('right','float,string','property for the view right position. This position is relative to the view\'s parent. Can be either a float value or a dimension string ie \'auto\' (default).')
-			self.add_property('bottom','float,string','property for the view bottom position. This position is relative to the view\'s parent. Can be either a float value or a dimension string ie \'auto\' (default).')
-			self.add_property('softKeyboardOnFocus','int','One of Titanium.UI.Android.SOFT_KEYBOARD_DEFAULT_ON_FOCUS, Titanium.UI.Android.SOFT_KEYBOARD_HIDE_ON_FOCUS, or Titanium.UI.Android.SOFT_KEYBOARD_SHOW_ON_FOCUS. (Android only)')
-			self.add_property('focusable','boolean','Set true if you want a view to be focusable when navigating with the trackball or D-Pad. Default: false. (Android Only)')
-			# these are common methods
-			self.add_method('add','add a child to the view hierarchy')
-			self.add_method_property('add','view','object','the view to add to this views hiearchy')
-			self.add_method('remove','remove a previously add view from the view hiearchy')
-			self.add_method_property('remove','view','object','the view to remove from this views hiearchy')
-			self.add_method('show','make the view visible')
-			self.add_method('hide','hide the view')
-			self.add_method('animate','animate the view')
-			self.add_method_property('animate','obj','object','either a dictionary of animation properties or an Animation object')
-			self.add_method_property('animate','callback','function','function to be invoked upon completion of the animation')
-			self.add_method('toImage','return a Blob image of the rendered view','object')
-			self.add_method_property('toImage','f','function','function to be invoked upon completion. if non-null, this method will be performed asynchronously. if null, it will be performed immediately')
-			# these are common events
-			self.add_event('swipe','fired when the device detects a swipe (left or right) against the view')
-			self.add_event('singletap','fired when the device detects a single tap against the view')
-			self.add_event('doubletap','fired when the device detects a double tap against the view')
-			self.add_event('twofingertap','fired when the device detects a two-finger tap against the view')
-			self.add_event('click','fired when the device detects a click (longer than touch) against the view')
-			self.add_event('dblclick','fired when the device detects a double click against the view')
-			self.add_event('touchstart','fired as soon as the device detects a gesture')
-			self.add_event('touchmove','fired as soon as the device detects movement of a touch.  Event coordinates are always relative to the view in which the initial touch occurred')
-			self.add_event('touchcancel','fired when a touch event is interrupted by the device. this happens in circumenstances such as an incoming call to allow the UI to clean up state.')
-			self.add_event('touchend','fired when a touch event is completed')
-			# font specials
-			self.add_property('font-weight','string','the font weight, either normal or bold')
-			self.add_property('font-size','string','the font size')
-			self.add_property('font-style','string','the font style, either normal or italics')
-			self.add_property('font-family','string','the font family')
-			# common event properties
-			self.add_event_property('swipe','direction','direction of the swipe - either left or right');
-			for x in self.events:
-				self.add_event_property(x['name'],'x','the x point of the event in receiving view coordiantes')
-				self.add_event_property(x['name'],'y','the y point of the event, in receiving view coordinates')
-				self.add_event_property(x['name'],'globalPoint','a dictionary with properties x and y describing the point of the event in screen coordinates')
-			
+
 	def set_returns(self,returns):
 		self.returns = returns
 	def set_notes(self,notes):
 		self.notes = notes
-	def add_method(self,key,value,returntype='void'):
+	def add_method(self,key,value,returntype='void', orig_specs=[]):
+		specs = [x.lower() for x in orig_specs]
 		found = False
 		for e in self.methods:
 			if e['name'] == key:
 				found = True
 				e['value']=value
 				e['returntype']=returntype
+				e['platforms']=resolve_supported_platforms(self.platforms, specs)
+				e['since']=self.since
+				e['deprecated'] = 'deprecated' in specs
 				break
 		if found==False:
-			self.methods.append({'name':key,'value':value,'parameters':[],'returntype':returntype,'filename':make_filename('method',self.namespace,key)})
+			self.methods.append({
+				'name':key,
+				'value':value,
+				'parameters':[],
+				'returntype':returntype,
+				'platforms':resolve_supported_platforms(self.platforms, specs),
+				'since':self.since,
+				'deprecated':'deprecated' in specs,
+				'filename':make_filename('method',self.namespace,key)})
 		self.methods.sort(namesort)
 	def set_method_returntype(self,key,value):
 		for m in self.methods:
 			if m['name']==key:
 				m['returntype']=value
 				return
-	def add_property(self,key,specs,value):
+	def add_property(self,key,orig_specs,value):
+		# in case someone put a spec in with case
+		specs = [x.lower() for x in orig_specs]
 		# specs example: [int;classproperty;deprecated].  The type is always specs[0]
 		classprop = True if 'classproperty' in specs else (key.upper() == key) # assume all upper case props are class constants
 		deprecated = 'deprecated' in specs
-		platforms = list(default_platforms)
-		for p in default_platforms:
-			if '-'+p in specs:
-				platforms.remove(p)
 		for prop in self.properties:
 			if prop['name']==key:
 				prop['type']=specs[0]
 				prop['value']=value
 				prop['isClassProperty']=classprop
 				prop['deprecated'] = deprecated
-				prop['platforms'] = platforms
+				prop['platforms'] = resolve_supported_platforms(self.platforms, specs)
+				prop['since'] = self.since
 				return
 		self.properties.append({
 			'name':key,
@@ -340,7 +355,8 @@ class API(object):
 			'value':value,
 			'isClassProperty':classprop,
 			'deprecated':deprecated,
-			'platforms':platforms,
+			'platforms':resolve_supported_platforms(self.platforms, specs),
+			'since':self.since,
 			'filename':make_filename('property',self.namespace,key)
 			})
 		self.properties.sort(namesort)
@@ -382,7 +398,9 @@ class API(object):
 				'properties' : [ to_newjson_property(x) for x in self.properties ] if self.properties else [],
 				'functions' : [ to_newjson_function(x) for x in self.methods] if self.methods else [],
 				'events' : [ to_newjson_event(x) for x in self.events] if self.events else [],
-				'remarks' : [ self.notes ] if self.notes else []
+				'remarks' : [ self.notes ] if self.notes else [],
+				'userAgents' : [ { 'platform' : x } for x in self.platforms ],
+				'since' : [ { 'name': 'Titanium Mobile SDK', 'version' : self.since } ]
 				}
 		return result
 	def to_json(self):
@@ -411,6 +429,11 @@ class API(object):
 	def get_parent_filename(self):
 		if self.parent_namespace in apis:
 			return apis[self.parent_namespace].get_filename()
+	def finish_api_definition(self):
+		if self.typestr == 'module' or self.subtype == 'view' or self.subtype == 'proxy':
+			self.add_common_proxy_methods()
+		if self.subtype == 'view':
+			self.add_common_viewproxy_stuff()
 
 def make_filename(objtype, namespace, name=None):
 	fullname = name and '.'.join([namespace,name]) or namespace
@@ -452,7 +475,7 @@ def tickerize(line):
 	idx2 = line.find('`',idx+1)
 	# Prevent infinite loops of doooooooom.
 	if idx2 < idx:
-		print("Malformed doc file! Missing a second backtick in: %s" % line)
+		err("Malformed doc file! Missing a second backtick in: %s" % line)
 		sys.exit(1)
 	token = line[idx+1:idx2]
 	if token.startswith("Titanium."):
@@ -511,15 +534,16 @@ def emit_properties(line):
 	for tokens in tokenize_keyvalues(line):
 		match = re.search('(.*)\[(.*)\]',tokens[0])
 		if match == None:
-			print "[ERROR] in file: %s at line: %d" % (current_file, current_line)
-			print "[ERROR] invalid property line: %s. Must be in the format [name[type]]:[description]" % line
+			err("[ERROR] in file: %s at line: %d" % (current_file, current_line))
+			err("[ERROR] invalid property line: %s. Must be in the format [name[type]]:[description]" % line)
 			sys.exit(1)
 		specs = match.group(2).split(';')
 		current_api.add_property(match.group(1), specs, htmlerize(tokens[1]))
 
 def emit_methods(line):
 	for tokens in tokenize_keyvalues(line):
-		current_api.add_method(tokens[0],htmlerize(tokens[1]))
+		specs = tokens[1].split(';')
+		current_api.add_method(tokens[0],htmlerize(specs[0]), orig_specs=specs)
 	
 def emit_events(line):
 	for tokens in tokenize_keyvalues(line):
@@ -530,7 +554,7 @@ def emit_namespace(line):
 	line = line.strip()
 	current_api = API(line)
 	if current_api.namespace in apis:
-		print "[WARN] %s info just got replaced.  There's probably a wrong '- namespace' entry either in the current file or another file (duplicate)." % current_api.namespace
+		err("[WARN] %s info just got replaced.  There's probably a wrong '- namespace' entry either in the current file or another file (duplicate)." % current_api.namespace)
 	apis[current_api.namespace] = current_api
 	
 def emit_description(line):
@@ -559,8 +583,8 @@ def emit_deprecated(line):
 	line = line.strip()
 	idx = line.find(':')
 	if idx == -1:
-		print "[ERROR] in file: %s at line: %d" % (current_file, current_line)
-		print "[ERROR] invalid deprecation line: %s. Must be in the format [version]:[description]" % line
+		err("[ERROR] in file: %s at line: %d" % (current_file, current_line))
+		err("[ERROR] invalid deprecation line: %s. Must be in the format [version]:[description]" % line)
 		sys.exit(1)
 	current_api.set_deprecated(tickerize(line[0:idx].strip()),htmlerize(line[idx+1:].strip()))
 	
@@ -570,15 +594,15 @@ def emit_parameters(lines):
 		if line == '': continue
 		idx = line.find(':')
 		if idx == -1:
-			print "[ERROR] in file: %s at line: %d" % (current_file, current_line)
-			print "[ERROR] invalid parameters line: %s. Must be in the format [name[type]]:[description]" % line
+			err("[ERROR] in file: %s at line: %d" % (current_file, current_line))
+			err("[ERROR] invalid parameters line: %s. Must be in the format [name[type]]:[description]" % line)
 			sys.exit(1)
 		key = line[0:idx].strip()
 		desc = line[idx+1:].strip()
 		match = re.search('(.*)\[(.*)\]',key)
 		if match == None:
-			print "[ERROR] in file: %s at line: %d" % (current_file, current_line)
-			print "[ERROR] invalid parameters line: %s. Must be in the format [name[type]]:[description]" % line
+			err("[ERROR] in file: %s at line: %d" % (current_file, current_line))
+			err("[ERROR] invalid parameters line: %s. Must be in the format [name[type]]:[description]" % line)
 			sys.exit(1)
 		current_api.add_parameter(match.group(1), tickerize(match.group(2)), htmlerize(desc))
 					
@@ -606,8 +630,8 @@ def emit_method_parameter(state,line):
 		desc = tokens[1]
 		match = re.search('(.*)\[(.*)\]',tokens[0])
 		if match == None:
-			print "[ERROR] in file: %s at line: %d" % (current_file, current_line)
-			print "[ERROR] invalid method line: %s. Must be in the format [name[type][returntype]]:[description]" % line
+			err("[ERROR] in file: %s at line: %d" % (current_file, current_line))
+			err("[ERROR] invalid method line: %s. Must be in the format [name[type][returntype]]:[description]" % line)
 			sys.exit(1)
 		name = match.group(1)
 		thetype = match.group(2)
@@ -650,8 +674,8 @@ def emit_buffer(line):
 	elif state.find('example : ')!=-1:
 		emit_example_parameter(state,line)
 	else:
-		print "[ERROR] in file: %s at line: %d" % (current_file, current_line)
-		print "Huh? [%s]. current state: %s" % (line,state)
+		err("[ERROR] in file: %s at line: %d" % (current_file, current_line))
+		err("Huh? [%s]. current state: %s" % (line,state))
 		sys.exit(1)
 	state_states[state]=True
 
@@ -683,7 +707,7 @@ def process_tdoc():
 				continue
 			from_ = join(root, file)
 			current_file = from_
-			print "Processing: %s" % file
+			err("Processing: %s" % file) # write to stderr to not get into useful, redirected output in json mode
 			content = open(from_).readlines()
 			buffer = ''
 			current_line = 0
@@ -699,6 +723,7 @@ def process_tdoc():
 				else:
 					buffer+='%s' % line
 			emit_buffer(buffer)
+			current_api.finish_api_definition()
 
 	# gather all the child objects into their parents
 	for name in apis:
@@ -754,8 +779,8 @@ def produce_json(config,dump=True):
 def load_template(type):
 	template = os.path.join(template_dir,'templates','%s.html' % type)
 	if not os.path.exists(template):
-		print "[ERROR] in file: %s at line: %d" % (current_file, current_line)
-		print "Couldn't find template %s" % template
+		err("[ERROR] in file: %s at line: %d" % (current_file, current_line))
+		err("Couldn't find template %s" % template)
 		sys.exit(1)
 	return open(template).read()
 
@@ -802,7 +827,6 @@ def produce_devhtml_output(config,templates,outdir,theobj):
 			template = load_template(typestr)
 			templates[typestr] = template
 		
-#		print obj.namespace	
 		output = Template(template).render(config=config,apis=apis,data=obj)
 		output = clean_links(output)
 		filename = os.path.join(outdir,'%s.html' % obj.get_filename())
@@ -818,7 +842,7 @@ def produce_devhtml_output(config,templates,outdir,theobj):
 			if not modules_found.has_key(obj.namespace):
 				stats['modules']+=1
 				modules_found[obj.namespace]=True
-				print obj.namespace
+				err(obj.namespace)
 		if obj.typestr == 'object':
 			stats['objects']+=1
 		
@@ -831,7 +855,6 @@ def produce_devhtml_output(config,templates,outdir,theobj):
 				am.parameters = me['parameters']
 				o = generate_template_output(config,templates,outdir,'method',am)
 				mo = os.path.join(outdir,'%s.html'%me['filename'])
-#				print "  + %s" % n
 				out = open(mo,'w+')
 				if config.has_key('css'):
 					out.write("<link rel=\"stylesheet\" type=\"text/css\" href=\"%s\">\n" % config['css'])
@@ -844,7 +867,6 @@ def produce_devhtml_output(config,templates,outdir,theobj):
 				am.description = me['value']
 				am.type = me['type']
 				o = generate_template_output(config,templates,outdir,'property',am)
-#				print "  + %s" % n
 				mo = os.path.join(outdir,'%s.html'%me['filename'])
 				out = open(mo,'w+')
 				if config.has_key('css'):
@@ -881,7 +903,6 @@ def produce_devhtml_output(config,templates,outdir,theobj):
 				am.type = me['type']
 				o = generate_template_output(config,templates,outdir,'property',am)
 				mo = os.path.join(outdir,'%s.html'%me['filename'])
-#				print "  %s" % n
 				out = open(mo,'w+')
 				if config.has_key('css'):
 					out.write("<link rel=\"stylesheet\" type=\"text/css\" href=\"%s\">\n" % config['css'])
@@ -894,10 +915,10 @@ def produce_devhtml_output(config,templates,outdir,theobj):
 def produce_devhtml(config):
 	
 	if not config.has_key('output'):
-		print "Required command line argument 'output' not provided"
+		err("Required command line argument 'output' not provided")
 		sys.exit(1)
 	if not config.has_key('version'):
-		print "Required command line argument 'version' not provided"
+		err("Required command line argument 'version' not provided")
 		sys.exit(1)
 			
 	version = config['version']
@@ -936,7 +957,7 @@ def produce_devhtml(config):
 	
 	changelog_mdoc = os.path.join(template_dir,'Titanium','CHANGELOG','%s.mdoc'%version)
 	if not exists(changelog_mdoc):
-		print 'Warning: %s wasn\'t found, skipping changelog.html generation' % changelog_mdoc
+		err('Warning: %s wasn\'t found, skipping changelog.html generation' % changelog_mdoc)
 		return
 	
 	changelog = open(changelog_mdoc).read()
@@ -946,7 +967,7 @@ def produce_devhtml(config):
 
 def produce_vsdoc(config):
 	if not config.has_key('output'):
-		print "Required command line argument 'output' not provided"
+		err("Required command line argument 'output' not provided")
 		sys.exit(1)
 			
 	outdir = os.path.expanduser(config['output'])
@@ -969,7 +990,7 @@ def produce_vsdoc_output(config,outdir,theobj):
 			output = lookupDir.get_template('module.vsdoc.html').render(config=config,data=obj)
 			f.write(output)
 	f.close()
-	print 'vsdoc created: ' + filename
+	err('vsdoc created: ' + filename)
 	
 def main():
 	parser = optparse.OptionParser()
@@ -1007,11 +1028,11 @@ def main():
 	
 	format_handlers = {'json': produce_json, 'devhtml': produce_devhtml, 'vsdoc' : produce_vsdoc, 'newjson' : produce_new_json}
 	if options.format in format_handlers:
-		print 'Generating Documentation for Titanium version %s to %s...' % (other_args['version'], other_args['output'])
+		err('Generating Documentation for Titanium version %s to %s...' % (other_args['version'], other_args['output']))
 		process_tdoc()
 		format_handlers[options.format](other_args)
 	else:
-		print "Uh.... I don't understand that format: %s" % options.format
+		err("Uh.... I don't understand that format: %s" % options.format)
 		sys.exit(1)
 	sys.exit(0)
 
