@@ -341,11 +341,6 @@
 	{
 		[self refreshScrollView:[self bounds] readd:YES];
 	}
-	
-	for (int c=0;c<MIN(3,[views count]);c++)
-	{
-		[self renderViewForIndex:c];
-	}
 }
 
 -(void)setShowPagingControl_:(id)args
@@ -527,9 +522,8 @@
 {
 	//switch page control at 50% across the center - this visually looks better
     CGFloat pageWidth = scrollview.frame.size.width;
-	int lastPage = [pageControl currentPage];
     int page = floor((scrollview.contentOffset.x - pageWidth / 2) / pageWidth) + 1;
-	if (lastPage != page) {
+	if (currentPage != page) {
 		[pageControl setCurrentPage:page];
 		currentPage = page;
         [self prerenderFrames];
