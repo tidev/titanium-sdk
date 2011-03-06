@@ -29,8 +29,12 @@ import org.appcelerator.titanium.util.TiDownloadManager;
 import org.appcelerator.titanium.util.TiFileHelper;
 import org.appcelerator.titanium.util.TiUIHelper;
 
+import android.content.Context;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.view.View;
 import android.webkit.URLUtil;
 
@@ -145,7 +149,6 @@ public class TiDrawableReference
 			return fromObject(context, null);
 		}
 	}
-	
 	/**
 	 * Does its best to determine the type of reference (url, blob, etc) based on object parameter.
 	 * @param context
@@ -169,7 +172,7 @@ public class TiDrawableReference
 		} else if (object instanceof Number) {
 			return fromResourceId(context, ((Number)object).intValue());
 		} else {
-			Log.w(LCAT, "Unknown image reesource type: " + object.getClass().getSimpleName() + ". Returning null drawable reference");
+			Log.w(LCAT, "Unknown image resource type: " + object.getClass().getSimpleName() + ". Returning null drawable reference");
 			return fromObject(context, null);
 		}
 	}
@@ -194,7 +197,6 @@ public class TiDrawableReference
 	public boolean isTypeResourceId() {
 		return type == DrawableReferenceType.RESOURCE_ID;
 	}
-	
 	public boolean isTypeNull() {
 		return type == DrawableReferenceType.NULL;
 	}
@@ -235,8 +237,39 @@ public class TiDrawableReference
 		}
 		return b;
 	}
-	
-	
+
+
+	/**
+	 * Gets a resource drawable directly if the reference is to a resource, else
+	 * makes a BitmapDrawable with default attributes.
+	 */
+	public Drawable getDrawable()
+	{
+		Drawable drawable = null;
+		if (isTypeResourceId()) {
+			Resources resources = null;
+			TiContext tiContext = softContext.get();
+			if (tiContext != null) {
+				Context context = tiContext.getAndroidContext();
+				if (context != null) {
+					resources = context.getResources();
+				}
+			}
+			if (resources != null && resourceId > 0) {
+				try {
+					drawable = resources.getDrawable(resourceId);
+				} catch (Resources.NotFoundException e) {
+					drawable = null;
+				}
+			}
+		} else {
+			Bitmap bitmap = getBitmap();
+			if (bitmap != null) {
+				drawable = new BitmapDrawable(bitmap);
+			}
+		}
+		return drawable;
+	}
 	/**
 	 * Gets the bitmap, scaled to a specific width & height.
 	 * @param destWidth Width in pixels of resulting scaled bitmap
@@ -437,7 +470,7 @@ public class TiDrawableReference
 		} else if (isTypeResourceId() && resourceId != UNKNOWN && context != null) {
 			stream = context.getTiApp().getResources().openRawResource(resourceId);
 		}
-		
+
 		return stream;
 	}
 	
