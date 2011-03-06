@@ -237,35 +237,74 @@ public class TiDrawableReference
 		}
 		return b;
 	}
-
-
+	private Resources getResources()
+	{
+		TiContext tiContext = softContext.get();
+		if (tiContext != null) {
+			Context context = tiContext.getAndroidContext();
+			if (context != null) {
+				return context.getResources();
+			}
+		}
+		return null;
+	}
+	private Drawable getResourceDrawable()
+	{
+		if (!isTypeResourceId()) {
+			return null;
+		}
+		Drawable drawable = null;
+		Resources resources = getResources();
+		if (resources != null && resourceId > 0) {
+			try {
+				drawable = resources.getDrawable(resourceId);
+			} catch (Resources.NotFoundException e) {
+				drawable = null;
+			}
+		}
+		return drawable;
+	}
+	/**
+	 * Gets a resource drawable directly if the reference is to a resource, else
+	 * makes a BitmapDrawable with the given attributes.
+	 */
+	public Drawable getDrawable(View parent, TiDimension destWidthDimension, TiDimension destHeightDimension)
+	{
+		Drawable drawable = getResourceDrawable();
+		if (drawable == null) {
+			Bitmap b = getBitmap(parent, destWidthDimension, destHeightDimension);
+			if (b != null) {
+				drawable = new BitmapDrawable(b);
+			}
+		}
+		return drawable;
+	}
+	/**
+	 * Gets a resource drawable directly if the reference is to a resource, else
+	 * makes a BitmapDrawable with the given attributes.
+	 */
+	public Drawable getDrawable(int destWidth, int destHeight)
+	{
+		Drawable drawable = getResourceDrawable();
+		if (drawable == null) {
+			Bitmap b = getBitmap(destWidth, destHeight);
+			if (b != null) {
+				drawable = new BitmapDrawable(b);
+			}
+		}
+		return drawable;
+	}
 	/**
 	 * Gets a resource drawable directly if the reference is to a resource, else
 	 * makes a BitmapDrawable with default attributes.
 	 */
 	public Drawable getDrawable()
 	{
-		Drawable drawable = null;
-		if (isTypeResourceId()) {
-			Resources resources = null;
-			TiContext tiContext = softContext.get();
-			if (tiContext != null) {
-				Context context = tiContext.getAndroidContext();
-				if (context != null) {
-					resources = context.getResources();
-				}
-			}
-			if (resources != null && resourceId > 0) {
-				try {
-					drawable = resources.getDrawable(resourceId);
-				} catch (Resources.NotFoundException e) {
-					drawable = null;
-				}
-			}
-		} else {
-			Bitmap bitmap = getBitmap();
-			if (bitmap != null) {
-				drawable = new BitmapDrawable(bitmap);
+		Drawable drawable = getResourceDrawable();
+		if (drawable == null) {
+			Bitmap b = getBitmap();
+			if (b != null) {
+				drawable = new BitmapDrawable(b);
 			}
 		}
 		return drawable;
