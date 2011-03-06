@@ -156,19 +156,18 @@
 
 -(NSRange)cachedFrames
 {
-	//At minimum, we should have three views.
-	//However, we shouldn't need to remove a view until it's necessary from memory panics.
-    
-    int startPage = (currentPage - (cacheSize - 1) / 2);
-    int endPage = (currentPage + (cacheSize - 1) / 2);
-    
+    int startPage;
+    int endPage;
     
     // Step 1: Check to see if we're actually smaller than the cache range:
-    if (cacheSize > [views count]) {
+    if (cacheSize >= [views count]) {
         startPage = 0;
         endPage = [views count] - 1;
     }
     else {
+		startPage = (currentPage - (cacheSize - 1) / 2);
+		endPage = (currentPage + (cacheSize - 1) / 2);
+		
         // Step 2: Check to see if we're rendering outside the bounds of the array, and if so, adjust accordingly.
         if (startPage < 0) {
             endPage -= startPage;
@@ -179,35 +178,29 @@
             endPage = [views count] -  1;
             startPage += diffPage;
         }
+		if (startPage > endPage) {
+			startPage = endPage;
+		}
     }
     
-    NSRange cacheRange;
-    cacheRange.location = startPage;
-    cacheRange.length = endPage - startPage;
-    return cacheRange;
+	return NSMakeRange(startPage, endPage - startPage + 1);
 }
 
--(void)prerenderFrames;
+-(void)manageCache
 {
     if (views == nil || [views count] == 0) {
         return;
     }
-
+    
     NSRange renderRange = [self cachedFrames];
-    for (int i=renderRange.location; i <= renderRange.location + renderRange.length; i++) {
-        [self renderViewForIndex:i];
-    }
-}
-
--(void)clearOffscreenFrames
-{
-    NSRange renderedRange = [self cachedFrames];
     for (int i=0; i < [views count]; i++) {
-        if (i < renderedRange.location || i > renderedRange.location + renderedRange.length) {
-            TiViewProxy* viewProxy = [views objectAtIndex:i];
-            if ([viewProxy viewAttached]) {
-                [(TiViewProxy*)[views objectAtIndex:i] detachView];
-            }
+		NSDate* startProcess = [NSDate date];
+        TiViewProxy* viewProxy = [views objectAtIndex:i];
+        if (i >= renderRange.location && i < NSMaxRange(renderRange)) {
+            [self renderViewForIndex:i];
+        }
+        else if ([viewProxy viewAttached]) {
+            [viewProxy detachView];
         }
     }
 }
@@ -270,7 +263,7 @@
     
 	if (currentPage==0 || readd)
 	{
-		[self prerenderFrames];
+        [self manageCache];
 	}
 	
 	CGRect contentBounds;
@@ -312,11 +305,7 @@
         newCacheSize -= 1;
     }
     cacheSize = newCacheSize;
-    
-    // After setting the cache size, we should immediately re-render the new number of cached views (if necessary!) and then
-    // drop old views.
-    [self prerenderFrames];
-    [self clearOffscreenFrames];
+    [self manageCache];
 }
 
 -(void)setViews_:(id)args
@@ -408,13 +397,10 @@
 -(void)scrollToView:(id)args
 {
 	int pageNum = [self pageNumFromArg:args];
-	
 	[[self scrollview] setContentOffset:CGPointMake([self bounds].size.width * pageNum, 0) animated:YES];
-
-	int existingPage = currentPage;
 	currentPage = pageNum;
 	
-    [self prerenderFrames];
+    [self manageCache];
 	
 	[self.proxy replaceValue:NUMINT(pageNum) forKey:@"currentPage" notification:NO];
 }
@@ -465,11 +451,10 @@
 	if (newPage >=0 && newPage < [views count])
 	{
 		[scrollview setContentOffset:CGPointMake([self bounds].size.width * newPage, 0) animated:NO];
-		int existingPage = currentPage;
 		currentPage = newPage;
 		pageControl.currentPage = newPage;
 		
-        [self prerenderFrames];
+        [self manageCache];
         
 		[self.proxy replaceValue:NUMINT(newPage) forKey:@"currentPage" notification:NO];
 	}
@@ -502,10 +487,8 @@
 	[scrollview setContentOffset:CGPointMake([self bounds].size.width * pageNum, 0) animated:YES];
 	handlingPageControlEvent = YES;
 	
-	int existingPage = currentPage;
 	currentPage = pageNum;
-	
-    [self prerenderFrames];
+	[self manageCache];
 	
 	[self.proxy replaceValue:NUMINT(pageNum) forKey:@"currentPage" notification:NO];
 	
@@ -526,8 +509,7 @@
 	if (currentPage != page) {
 		[pageControl setCurrentPage:page];
 		currentPage = page;
-        [self prerenderFrames];
-        [self clearOffscreenFrames];
+        [self manageCache];
 	}
 }
 
@@ -542,8 +524,8 @@
 	if (rotatedWhileScrolling) {
 		rotatedWhileScrolling = NO;
 		[[self scrollview] setContentOffset:CGPointMake([self bounds].size.width * currentPage, 0) animated:YES];
-		return;
 	}
+		
 	// At the end of scroll animation, reset the boolean used when scrolls originate from the UIPageControl
 	int pageNum = [self currentPage];
 	handlingPageControlEvent = NO;
@@ -553,7 +535,7 @@
 	if ([self.proxy _hasListeners:@"scroll"])
 	{
 		[self.proxy fireEvent:@"scroll" withObject:[NSDictionary dictionaryWithObjectsAndKeys:
-											  NUMINT(pageNum),@"currentPage",
+											  NUMINT(currentPage),@"currentPage",
 											  [views objectAtIndex:pageNum],@"view",nil]]; 
 	}
 	currentPage=pageNum;
