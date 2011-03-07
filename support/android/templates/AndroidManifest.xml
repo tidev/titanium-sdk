@@ -4,7 +4,7 @@
       android:versionCode="${config['appversion']}"
       android:versionName="${config['appversion']}"
 >
-	<uses-sdk android:minSdkVersion="4" />
+	<uses-sdk android:minSdkVersion="7" />
 	<supports-screens 
 		android:smallScreens="false"
 		android:normalScreens="true"
