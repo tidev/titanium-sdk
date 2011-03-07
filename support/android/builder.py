@@ -5,7 +5,7 @@
 # the Android Emulator or on the device
 #
 import os, sys, subprocess, shutil, time, signal, string, platform, re, glob, hashlib, imp
-import run, avd, prereq, zipfile, tempfile, fnmatch, codecs, traceback
+import run, avd, prereq, zipfile, tempfile, fnmatch, codecs, traceback, simplejson
 from os.path import splitext
 from compiler import Compiler
 from os.path import join, splitext, split, exists
@@ -1223,7 +1223,17 @@ class Builder(object):
 			'-n', '%s/.%sActivity' % (self.app_id , self.classname))
 		trace("Launch output: %s" % output)
 
-	def build_and_run(self, install, avd_id, keystore=None, keystore_pass='tirocks', keystore_alias='tidev', dist_dir=None, build_only=False, device_args=None):
+	def enable_debugger(self, debugger_host):
+		info("Enabling Debugger at %s" % debugger_host)
+		hostport = debugger_host.split(":")
+		debugger_config = { "host": hostport[0], "port": hostport[1] }
+		debug_json = os.path.join(self.project_dir, 'bin', 'debug.json')
+		open(debug_json, 'w+').write(simplejson.dumps(debugger_config))
+		self.run_adb('shell', 'mkdir /sdcard/%s || echo' % self.app_id)
+		self.run_adb('push', debug_json, '/sdcard/%s/debug.json' % self.app_id)
+		os.unlink(debug_json)
+
+	def build_and_run(self, install, avd_id, keystore=None, keystore_pass='tirocks', keystore_alias='tidev', dist_dir=None, build_only=False, device_args=None, debugger_host=None):
 		deploy_type = 'development'
 		self.build_only = build_only
 		self.device_args = device_args
@@ -1242,7 +1252,7 @@ class Builder(object):
 		if java_failed:
 			error(java_status)
 			sys.exit(1)
-			
+
 		# attempt to load any compiler plugins
 		if len(self.tiappxml.properties['plugins']) > 0:
 			titanium_dir = os.path.abspath(os.path.join(template_dir,'..','..','..','..'))
@@ -1373,8 +1383,11 @@ class Builder(object):
 			if not os.path.exists(self.classes_dir):
 				os.makedirs(self.classes_dir)
 
+			if debugger_host != None:
+				self.enable_debugger(debugger_host)
+
 			self.copy_project_resources()
-			
+
 			if self.tiapp_changed or self.js_changed or self.force_rebuild or self.deploy_type == "production":
 				trace("Generating Java Classes")
 				self.android.create(os.path.abspath(os.path.join(self.top_dir,'..')), True, project_dir=self.top_dir)
@@ -1478,6 +1491,7 @@ class Builder(object):
 				dex_args += self.module_jars
 				if self.deploy_type != 'production':
 					dex_args.append(os.path.join(self.support_dir, 'lib', 'titanium-verify.jar'))
+					dex_args.append(os.path.join(self.support_dir, 'lib', 'titanium-debug.jar'))
 					# the verifier depends on Ti.Network classes, so we may need to inject it
 					has_network_jar = False
 					for jar in self.android_jars:
@@ -1623,7 +1637,10 @@ if __name__ == "__main__":
 		elif command == 'simulator':
 			info("Building %s for Android ... one moment" % project_name)
 			avd_id = dequote(sys.argv[6])
-			s.build_and_run(False, avd_id)
+			debugger_host = None
+			if len(sys.argv) > 8:
+				debugger_host = dequote(sys.argv[8])
+			s.build_and_run(False, avd_id, debugger_host=debugger_host)
 		elif command == 'install':
 			avd_id = dequote(sys.argv[6])
 			device_args = ['-d']
