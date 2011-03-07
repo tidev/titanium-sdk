@@ -29,6 +29,7 @@ getIntExtra: Get a int property from this Intent
 getLongExtra: Get a long property from this Intent
 getDoubleExtra: Get a double property from this Intent
 getData: Get the Data URI from this Intent
+addFlags: augment the existing flags on the Intent.
 
 - method : putExtra
 name[string]: The property name
@@ -59,6 +60,9 @@ name[string]: The long property to get
 - method : getDoubleExtra, double
 name[string]: The double property to get
 
+- method : addFlags
+flags[int]: the flags to add to the existing set.
+
 - properties
 action[string]: An action constant from [[Titanium.Android]]
 url[string]: The URL to a Titanium Javascript Activity
@@ -66,6 +70,7 @@ data[string]: The Intent's Data URI. See also Android's [Intent.setData](http://
 className[string]: The Java class name of the activity (packageName must also be set)
 packageName[string]: The fully-qualified Java package name of the activity
 type[string]: The mime type for this Intent. See also Android's [Intent.setType](http://developer.android.com/reference/android/content/Intent.html#setType(java.lang.String))
+flags[int]: Intent flags. See the flags constants in `Titanium.Android`.
 
 - example : Create an Intent for Launching an Activity
 ~~~

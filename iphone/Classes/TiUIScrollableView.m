@@ -315,7 +315,7 @@
 	{
 		for (TiViewProxy *proxy in views)
 		{
-			[[proxy view] removeFromSuperview];
+			[proxy detachView];
 		}
 	}
 	RELEASE_TO_NIL(views);
