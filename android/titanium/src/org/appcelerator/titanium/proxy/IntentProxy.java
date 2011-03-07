@@ -108,6 +108,8 @@ public class IntentProxy extends KrollProxy
 				Log.d(TAG, "Setting flags: " + Integer.toString(flags));
 			}
 			intent.setFlags(flags);
+		} else {
+			setProperty("flags", intent.getFlags(), false);
 		}
 
 		if (action != null) {
@@ -202,13 +204,13 @@ public class IntentProxy extends KrollProxy
 		intent.addFlags(flags);
 	}
 
-	@Kroll.method
+	@Kroll.setProperty @Kroll.method
 	public void setFlags(int flags)
 	{
 		intent.setFlags(flags);
 	}
 
-	@Kroll.method
+	@Kroll.getProperty @Kroll.method
 	public int getFlags()
 	{
 		return intent.getFlags();
