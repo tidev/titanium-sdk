@@ -106,6 +106,8 @@ def to_newjson_property(prop):
 	result['isInstanceProperty'] = not result['isClassProperty']
 	result['since'] = [ { 'name': 'Titanium Mobile SDK', 'version' : prop['since'] } ]
 	result['userAgents'] = [ { 'platform' : x } for x in prop['platforms'] ]
+	result['isInternal'] = False # we don't make this distinction (yet anyway)
+	result['examples'] = [] # we don't have examples at the property level (yet anyway)
 	return result
 
 def to_newjson_param(param):
