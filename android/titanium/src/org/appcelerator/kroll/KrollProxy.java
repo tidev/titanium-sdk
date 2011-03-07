@@ -541,7 +541,7 @@ public class KrollProxy
 
 	public KrollBridge getKrollBridge()
 	{
-		return (KrollBridge) context.getJSContext();
+		return context.getKrollBridge();
 	}
 
 	public String getProxyId()
@@ -604,11 +604,11 @@ public class KrollProxy
 	public KrollInvocation createEventInvocation(String eventName)
 	{
 		if (DBG) {
-			Log.d(TAG, "creating event invocation, context: " + getTiContext() + ", js context: " + getTiContext().getJSContext());
+			Log.d(TAG, "creating event invocation, context: " + getTiContext() + ", js context: " + getTiContext().getKrollBridge());
 		}
 		KrollInvocation inv = KrollInvocation.createMethodInvocation(
 			getTiContext(),
-			getTiContext().getJSContext().getScope(),
+			getTiContext().getKrollBridge().getScope(),
 			null,
 			getAPIName() + ":event:" + eventName, null, this);
 		return inv;
