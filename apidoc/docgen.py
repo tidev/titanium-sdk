@@ -122,6 +122,14 @@ def to_newjson_function(method):
 		result['parameters'] = [to_newjson_param(x) for x in method['parameters']]
 	result['since'] = [ { 'name': 'Titanium Mobile SDK', 'version' : method['since'] } ]
 	result['userAgents'] = [ { 'platform' : x } for x in method['platforms'] ]
+	result['isInstanceProperty'] = True # we don't have class static methods
+	result['isClassProperty'] = False # we don't have class static methods
+	result['isInternal'] = False # we don't make this distinction (yet anyway)
+	result['examples'] = [] # we don't have examples at the method level (yet anyway)
+	result['references'] = [] # we don't use the notion of 'references' (yet anyway)
+	result['exceptions'] = [] # we don't specify exceptions (yet anyway)
+	result['isConstructor'] = False # we don't expose native class constructors
+	result['isMethod'] = True # all of our functions are class instance functions, ergo methods
 	return result
 
 def to_newjson_event(event):
