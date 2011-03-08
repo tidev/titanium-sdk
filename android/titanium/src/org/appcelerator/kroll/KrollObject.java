@@ -7,6 +7,7 @@
 package org.appcelerator.kroll;
 
 import java.util.ArrayList;
+import java.util.Set;
 
 import org.appcelerator.titanium.TiContext;
 import org.mozilla.javascript.Context;
