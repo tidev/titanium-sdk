@@ -13,6 +13,7 @@
 #import "TiUtils.h"
 #import "TiApp.h"
 #import "ApplicationMods.h"
+#import <libkern/OSAtomic.h>
 
 #ifdef DEBUGGER_ENABLED
 #import "TiDebuggerContext.h"
@@ -146,8 +147,21 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 
 @end
 
+OSSpinLock krollBridgeRegistryLock = OS_SPINLOCK_INIT;
+CFMutableSetRef	krollBridgeRegistry = nil;
 
 @implementation KrollBridge
+
++(void)initialize
+{
+	if (krollBridgeRegistry == nil)
+	{
+		CFSetCallBacks doNotRetain = kCFTypeSetCallBacks;
+		doNotRetain.retain = NULL;
+		doNotRetain.release = NULL;
+		krollBridgeRegistry = CFSetCreateMutable(NULL, 3, &doNotRetain);
+	}
+}
 
 -(id)init
 {
@@ -163,6 +177,9 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 												   object:nil]; 
 		
 		proxyLock = [[NSRecursiveLock alloc] init];
+		OSSpinLockLock(&krollBridgeRegistryLock);
+		CFSetAddValue(krollBridgeRegistry, self);
+		OSSpinLockUnlock(&krollBridgeRegistryLock);
 	}
 	return self;
 }
@@ -238,6 +255,9 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 	RELEASE_TO_NIL(titanium);
 	RELEASE_TO_NIL(modules);
 	RELEASE_TO_NIL(proxyLock);
+	OSSpinLockLock(&krollBridgeRegistryLock);
+	CFSetRemoveValue(krollBridgeRegistry, self);
+	OSSpinLockUnlock(&krollBridgeRegistryLock);
 	[super dealloc];
 }
 
@@ -406,6 +426,20 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 	
 }
 
+-(void)enqueueEvent:(NSString*)type forProxy:(TiProxy *)proxy withObject:(id)obj withSource:(id)source
+{
+	KrollObject * eventKrollObject = [self krollObjectForProxy:proxy];
+	KrollObject * sourceObject = [self krollObjectForProxy:source];
+	if (sourceObject == nil)
+	{
+		sourceObject = eventKrollObject;
+	}
+	KrollEvent * newEvent = [[KrollEvent alloc] initWithType:type ForKrollObject:eventKrollObject
+			 eventObject:obj thisObject:sourceObject];
+	[context enqueue:newEvent];
+	[newEvent release];
+}
+
 -(void)injectPatches
 {
 	// called to inject any Titanium patches in JS before a context is loaded... nice for 
@@ -547,7 +581,10 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 	//NOTE: Do NOT treat registeredProxies like a mutableDictionary; mutable dictionaries copy keys,
 	//CFMutableDictionaryRefs only retain keys, which lets them work with proxies properly.
 	KrollObject * ourKrollObject = [[KrollObject alloc] initWithTarget:proxy context:context];
-//	CFDictionaryAddValue(registeredProxies, proxy, ourKrollObject);
+
+	VerboseLog(@"%@ is adding %@ %X for %@ %X",self,proxy,proxy,ourKrollObject,ourKrollObject);
+	CFDictionaryAddValue(registeredProxies, proxy, ourKrollObject);
+	[ourKrollObject release];
 	
 	[proxyLock unlock];
 }
@@ -565,6 +602,7 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 	}
 	if (registeredProxies != NULL)
 	{
+		VerboseLog(@"%@ is removing %@ %X for",self,proxy,proxy);
 		CFDictionaryRemoveValue(registeredProxies, proxy);
 		//Don't bother with removing the empty registry. It's small and leaves on dealloc anyways.
 	}
@@ -573,6 +611,10 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 
 - (BOOL)usesProxy:(id)proxy
 {
+	if (proxy == nil)
+	{
+		return NO;
+	}
 	BOOL result=NO;
 	[proxyLock lock];
 	if (registeredProxies != NULL)
@@ -702,6 +744,36 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 	}
 	
 	@throw [NSException exceptionWithName:@"org.appcelerator.kroll" reason:[NSString stringWithFormat:@"Couldn't find module: %@",path] userInfo:nil];
+}
+
++ (NSArray *)krollBridgesUsingProxy:(id)proxy
+{
+	NSMutableArray * results = nil;
+
+	OSSpinLockLock(&krollBridgeRegistryLock);
+	int bridgeCount = CFSetGetCount(krollBridgeRegistry);
+	KrollBridge * registryObjects[bridgeCount];
+	CFSetGetValues(krollBridgeRegistry, (const void **)registryObjects);
+	
+	for (int currentBridgeIndex = 0; currentBridgeIndex < bridgeCount; currentBridgeIndex++)
+	{
+		KrollBridge * currentBridge = registryObjects[currentBridgeIndex];
+		if (![currentBridge usesProxy:proxy])
+		{
+			continue;
+		}
+		if (results == nil)
+		{
+			results = [NSMutableArray arrayWithObject:currentBridge];
+			continue;
+		}
+		[results addObject:currentBridge];
+	}
+
+	//Why do we wait so long? In case someone tries to dealloc the krollBridge while we're looking at it.
+	//registryObjects nor the registry does a retain here!
+	OSSpinLockUnlock(&krollBridgeRegistryLock);
+	return results;
 }
 
 @end

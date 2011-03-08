@@ -523,26 +523,28 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 
 @implementation KrollEvent
 
--(id)initWithCallback:(KrollCallback*)callback_ args:(NSArray*)args_ thisObject:(id)thisObject_
+-(id)initWithType:(NSString *)newType ForKrollObject:(KrollObject*)newCallbackObject eventObject:(NSDictionary*)newEventObject thisObject:(id)newThisObject;
 {
 	if (self = [super init])
 	{
-		callback = [callback_ retain];
-		args = [args_ retain];
-		thisObject = [thisObject_ retain];
+		type = [newType copy];
+		callbackObject = [newCallbackObject retain];
+		eventObject = [newEventObject retain];
+		thisObject = [newThisObject retain];
 	}
 	return self;
 }
 -(void)dealloc
 {
+	[type release];
 	[thisObject release];
-	[callback release];
-	[args release];
+	[callbackObject release];
+	[eventObject release];
 	[super dealloc];
 }
 -(void)invoke:(KrollContext*)context
 {
-	[callback call:args thisObject:thisObject];
+	[callbackObject triggerEvent:type withObject:eventObject thisObject:thisObject];
 }
 @end
 
@@ -823,6 +825,7 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 
 -(void)invokeEvent:(KrollCallback*)callback_ args:(NSArray*)args_ thisObject:(id)thisObject_
 {
+	NSLog(@"We shouldn't be here!");
 	KrollEvent *event = [[KrollEvent alloc] initWithCallback:callback_ args:args_ thisObject:thisObject_];
 	[self enqueue:event];
 	[event release];
@@ -1016,12 +1019,14 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 		// we have a pending GC request to try and reclaim memory
 		if (gcrequest)
 		{
+			NSAutoreleasePool * garbagePool = [[NSAutoreleasePool alloc] init];
 #if CONTEXT_DEBUG == 1	
 			NSLog(@"CONTEXT<%@>: forced garbage collection requested",self);
 #endif
 			TiGarbageCollect(context);
 			loopCount = 0;
 			gcrequest = NO;
+			[garbagePool drain];
 		}
 		
 		BOOL stuff_in_queue = YES;
@@ -1079,11 +1084,13 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 		// TODO: experiment, attempt to collect more often than usual given our environment
 		if (loopCount == GC_LOOP_COUNT)
 		{
+			NSAutoreleasePool * garbagePool = [[NSAutoreleasePool alloc] init];
 #if CONTEXT_DEBUG == 1	
 			NSLog(@"CONTEXT<%@>: garbage collecting after loop count of %d exceeded (count=%d)",self,loopCount,KrollContextCount);
 #endif
 			TiGarbageCollect(context);
 			loopCount = 0;
+			[garbagePool drain];
 		}
 		
 		// check to see if we're already stopped and in the flush queue state, in which case,
@@ -1107,7 +1114,7 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 		{
 			// wait only 10 seconds and then loop, this will allow us to garbage
 			// collect every so often
-			[condition waitUntilDate:[NSDate dateWithTimeIntervalSinceNow:10]];		
+			[condition waitUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.1]];		
 		}
 		[condition unlock]; 
 		

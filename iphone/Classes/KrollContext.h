@@ -67,6 +67,9 @@
 -(void)invokeOnThread:(id)callback_ method:(SEL)method_ withObject:(id)obj callback:(id)callback selector:(SEL)selector_;
 -(void)evalJS:(NSString*)code;
 -(id)evalJSAndWait:(NSString*)code;
+
+-(void)enqueue:(id)obj;
+
 -(void)invokeEvent:(KrollCallback*)callback_ args:(NSArray*)args_ thisObject:(id)thisObject_;
 -(void)registerTimer:(id)timer timerId:(double)timerId;
 -(void)unregisterTimer:(double)timerId;
@@ -98,13 +101,15 @@
 -(id)invokeWithResult:(KrollContext*)context;
 @end
 
+@class KrollObject;
 @interface KrollEvent : NSObject {
 @private
-	KrollCallback *callback;
-	NSArray *args;
+	NSString * type;
+	KrollObject * callbackObject;
+	NSDictionary *eventObject;
 	id thisObject;
 }
--(id)initWithCallback:(KrollCallback*)callback_ args:(NSArray*)args_ thisObject:(id)thisObject_;
+-(id)initWithType:(NSString *)newType ForKrollObject:(KrollObject*)newCallbackObject eventObject:(NSDictionary*)newEventObject thisObject:(id)newThisObject;
 -(void)invoke:(KrollContext*)context;
 @end
 

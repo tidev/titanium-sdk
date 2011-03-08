@@ -8,7 +8,7 @@
 #import "TiCore.h"
 #import "TiBase.h"
 
-@class KrollContext;
+@class KrollContext, KrollCallback;
 extern TiClassRef KrollObjectClassRef;
 
 void KrollFinalizer(TiObjectRef ref);
@@ -53,6 +53,11 @@ bool KrollDeleteProperty(TiContextRef ctx, TiObjectRef object, TiStringRef prope
 -(KrollContext*)context;
 -(id)target;
 -(TiObjectRef)jsobject;
+
+
+-(void)storeCallback:(KrollCallback *)eventCallback forEvent:(NSString *)eventName;
+-(void)removeCallback:(KrollCallback *)eventCallback forEvent:(NSString *)eventName;
+-(void)triggerEvent:(NSString *)eventName withObject:(NSDictionary *)eventData thisObject:(KrollObject *)thisObject;
 
 @end
 

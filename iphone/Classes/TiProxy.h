@@ -110,6 +110,9 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 -(void)setReproxying:(BOOL)yn;
 -(BOOL)inReproxy;
 
+#pragma mark Utility
+-(KrollObject *)krollObjectForContext:(KrollContext *)context;
+
 #pragma mark Public 
 -(id<NSFastEnumeration>)allKeys;
 -(NSArray *)keySequence;
