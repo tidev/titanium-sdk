@@ -52,7 +52,7 @@ describe("Ti.Android tests", {
 		valueOf(Ti.Android.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY).shouldBeNumber();
 		valueOf(Ti.Android.FLAG_ACTIVITY_MULTIPLE_TASK).shouldBeNumber();
 		valueOf(Ti.Android.FLAG_ACTIVITY_NEW_TASK).shouldBeNumber();
-		valueOf(Ti.Android.FLAG_ACTIVITY_NO_ANIMATION).shouldBeNumber();
+		//API 7 valueOf(Ti.Android.FLAG_ACTIVITY_NO_ANIMATION).shouldBeNumber();
 		valueOf(Ti.Android.FLAG_ACTIVITY_NO_HISTORY).shouldBeNumber();
 		valueOf(Ti.Android.FLAG_ACTIVITY_NO_USER_ACTION).shouldBeNumber();
 		valueOf(Ti.Android.FLAG_ACTIVITY_PREVIOUS_IS_TOP).shouldBeNumber();

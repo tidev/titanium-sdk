@@ -170,7 +170,7 @@ public class AndroidModule extends KrollModule
 	@Kroll.constant public static final int FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY = Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY;
 	@Kroll.constant public static final int FLAG_ACTIVITY_MULTIPLE_TASK = Intent.FLAG_ACTIVITY_MULTIPLE_TASK;
 	@Kroll.constant public static final int FLAG_ACTIVITY_NEW_TASK = Intent.FLAG_ACTIVITY_NEW_TASK;
-	@Kroll.constant public static final int FLAG_ACTIVITY_NO_ANIMATION = Intent.FLAG_ACTIVITY_NO_ANIMATION;
+	//API 7 @Kroll.constant public static final int FLAG_ACTIVITY_NO_ANIMATION = Intent.FLAG_ACTIVITY_NO_ANIMATION;
 	@Kroll.constant public static final int FLAG_ACTIVITY_NO_HISTORY = Intent.FLAG_ACTIVITY_NO_HISTORY;
 	@Kroll.constant public static final int FLAG_ACTIVITY_NO_USER_ACTION = Intent.FLAG_ACTIVITY_NO_USER_ACTION;
 	@Kroll.constant public static final int FLAG_ACTIVITY_PREVIOUS_IS_TOP = Intent.FLAG_ACTIVITY_PREVIOUS_IS_TOP;
