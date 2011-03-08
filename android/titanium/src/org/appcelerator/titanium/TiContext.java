@@ -29,7 +29,7 @@ import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
 
-public class TiContext implements TiEvaluator, ErrorReporter
+public class TiContext implements ErrorReporter
 {
 	private static final String LCAT = "TiContext";
 	private static final boolean DBG = TiConfig.LOGD;
@@ -50,9 +50,9 @@ public class TiContext implements TiEvaluator, ErrorReporter
 	private boolean serviceContext; // Contexts created for Ti services won't have associated activities.
 
 	private WeakReference<Activity> weakActivity;
-	private TiEvaluator	tiEvaluator;
 	private TiApplication tiApp;
 	protected KrollContext krollContext;
+	protected KrollBridge krollBridge;
 
 	private TiWeakList<OnLifecycleEvent> lifecycleListeners;
 	private TiWeakList<OnServiceLifecycleEvent> serviceLifecycleListeners;
@@ -95,28 +95,19 @@ public class TiContext implements TiEvaluator, ErrorReporter
 		}
 	}
 
-	public boolean isUIThread() {
+	public boolean isUIThread()
+	{
 		return Thread.currentThread().getId() == mainThreadId;
 	}
 
-	public TiEvaluator getJSContext() {
-		return tiEvaluator;
+	public KrollBridge getKrollBridge()
+	{
+		return krollBridge;
 	}
 
-	public void setJSContext(TiEvaluator evaluator) {
-		if (DBG) {
-			Log.d(LCAT, "Setting JS Context on " + this + " to " + evaluator);
-		}
-		tiEvaluator = evaluator;
-	}
-
-	public KrollBridge getKrollBridge() {
-		if (tiEvaluator instanceof KrollBridge) {
-			return (KrollBridge)tiEvaluator;
-		} else if (tiEvaluator instanceof TiContext) {
-			return ((TiContext)tiEvaluator).getKrollBridge();
-		}
-		return null;
+	public void setKrollBridge(KrollBridge bridge)
+	{
+		this.krollBridge = bridge;
 	}
 
 	public Activity getActivity()
@@ -180,16 +171,22 @@ public class TiContext implements TiEvaluator, ErrorReporter
 		throws IOException
 	{
 		Object result = null;
+		String setUrlBackTo = null;
+		if (this.currentUrl != null && this.currentUrl.length() > 0 && !this.currentUrl.equals(filename)) {
+			// A new file is being eval'd.  Must be from an include() statement.  Remember to set back
+			// the original url, else things like JSS which depend on context's filename will break.
+			setUrlBackTo = this.currentUrl;
+		}
 		this.currentUrl = filename;
-		TiEvaluator jsContext = getJSContext();
-		if (jsContext == null) {
+		if (krollBridge == null) {
 			if (DBG) {
 				Log.w(LCAT, "Cannot eval file '" + filename + "'. Context has been released already.");
 			}
+			if (setUrlBackTo != null) { this.currentUrl = setUrlBackTo; }
 			return null;
 		}
 
-		result = jsContext.evalFile(filename);
+		result = krollBridge.evalFile(filename);
 		if (messenger != null) {
 			try {
 				Message msg = Message.obtain();
@@ -202,6 +199,7 @@ public class TiContext implements TiEvaluator, ErrorReporter
 				Log.w(LCAT, "Failed to notify caller that eval completed");
 			}
 		}
+		if (setUrlBackTo != null) { this.currentUrl = setUrlBackTo; }
 		return result;
 	}
 
@@ -213,19 +211,17 @@ public class TiContext implements TiEvaluator, ErrorReporter
 
 	public Object evalJS(String src)
 	{
-		TiEvaluator evaluator = getJSContext();
-		if (evaluator == null)
+		if (krollBridge == null)
 		{
 			Log.e(LCAT,"on evalJS, evaluator is null and shouldn't be");
 		}
-		return evaluator.evalJS(src);
+		return krollBridge.evalJS(src);
 	}
 
-	@Override
 	public Scriptable getScope()
 	{
-		if (tiEvaluator != null) {
-			return tiEvaluator.getScope();
+		if (krollBridge != null) {
+			return krollBridge.getScope();
 		}
 		return null;
 	}
@@ -320,7 +316,7 @@ public class TiContext implements TiEvaluator, ErrorReporter
 		KrollContext kroll = KrollContext.createContext(tic, loadFile);
 		tic.setKrollContext(kroll);
 		KrollBridge krollBridge = new KrollBridge(kroll);
-		tic.setJSContext(krollBridge);
+		tic.setKrollBridge(krollBridge);
 		return tic;
 	}
 
@@ -345,9 +341,9 @@ public class TiContext implements TiEvaluator, ErrorReporter
 
 	public void release()
 	{
-		if (tiEvaluator != null && tiEvaluator instanceof KrollBridge) {
-			((KrollBridge)tiEvaluator).release();
-			tiEvaluator = null;
+		if (krollBridge != null) {
+			krollBridge.release();
+			krollBridge = null;
 		}
 		if (lifecycleListeners != null) {
 			lifecycleListeners.clear();

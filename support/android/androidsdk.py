@@ -296,7 +296,7 @@ if __name__ == "__main__":
 	if len(sys.argv) < 2:
 		print "Usage: %s ANDROID_SDK [API]" % sys.argv[0]
 		print "  ANDROID_SDK is the default path to the Android SDK. Use '-' if there is no default path"
-		print "  API (optional) is an Android API version (i.e. 4, 5, 6, 7, 8). The default is 4."
+		print "  API (optional) is an Android API version (i.e. 4, 5, 6, 7, 8). The default is 7."
 		print ""
 		print "Prints the SDK directory, Android Platform directory, and Google APIs directory"
 		sys.exit(1)
@@ -305,7 +305,7 @@ if __name__ == "__main__":
 	if sdk_path == '-':
 		sdk_path = None
 
-	api_level = 4
+	api_level = 7
 	if len(sys.argv) > 2:
 		api_level = int(sys.argv[2])
 	try:

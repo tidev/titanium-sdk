@@ -14,9 +14,9 @@ import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.io.TiBaseFile;
 
 @Kroll.proxy
-public abstract class TiFile extends KrollProxy
+public abstract class TiFileProxy extends KrollProxy
 {
-	public TiFile(TiContext tiContext)
+	public TiFileProxy(TiContext tiContext)
 	{
 		super(tiContext);
 	}
@@ -30,6 +30,6 @@ public abstract class TiFile extends KrollProxy
 
 	public String toString()
 	{
-		return "[object TiFile]";
+		return "[object TiFileProxy]";
 	}
 }

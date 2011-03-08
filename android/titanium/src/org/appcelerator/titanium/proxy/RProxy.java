@@ -17,7 +17,7 @@ import org.appcelerator.titanium.util.TiRHelper.ResourceNotFoundException;
 import org.mozilla.javascript.Scriptable;
 
 public class RProxy extends KrollProxy {
-	private static final String TAG = "AndroidRProxy";
+	private static final String TAG = "TiAndroidRProxy";
 	private static final boolean DBG = TiConfig.LOGD;
 	
 	public static final int RESOURCE_TYPE_ANDROID = 0;
@@ -69,5 +69,9 @@ public class RProxy extends KrollProxy {
 		} catch (ResourceNotFoundException e) {
 			return super.getNativeValue();
 		}
+	}
+	public int getResourceType()
+	{
+		return this.resourceType;
 	}
 }

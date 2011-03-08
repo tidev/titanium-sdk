@@ -66,8 +66,8 @@ Common ant tasks and macros for building Android-based Titanium modules and proj
 					<property name="android.sdk" location="/opt/android-sdk"/>
 				</else>
 			</if>
-			<property name="android.platform" location="${android.sdk}/platforms/android-4"/>
-			<property name="google.apis" location="${android.sdk}/add-ons/google_apis-4_r02"/>
+			<property name="android.platform" location="${android.sdk}/platforms/android-7"/>
+			<property name="google.apis" location="${android.sdk}/add-ons/google_apis-7_r01"/>
 		</else>
 	</if>
 

@@ -16,6 +16,7 @@
 #ifdef USE_TI_FACEBOOK
 #import "FBDialog.h"
 #import "FBLoginDialog.h"
+#import "Facebook.h"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -79,6 +80,25 @@
   if ([_loginDelegate respondsToSelector:@selector(fbDialogNotLogin:)]) {
     [_loginDelegate fbDialogNotLogin:YES];
   }
+}
+
+/** 
+ * SPT HOTFIX: Special thanks to http://stackoverflow.com/questions/4299403/how-to-handle-app-urls-in-a-uiwebview.
+ */
+- (BOOL)webView:(UIWebView *)webView shouldStartLoadWithRequest:(NSURLRequest *)request navigationType:(UIWebViewNavigationType)navigationType {
+	NSURL* url = [request URL];
+	if (![[url scheme] isEqual:@"http"] && ![[url scheme] isEqual:@"https"]) {
+		// Check for one of two conditions:
+		// 1. URL is a redirect to our app
+		// 2. URL is the legacy fbconnect://... type
+		if (([[UIApplication sharedApplication] canOpenURL:url] &&
+			 [[UIApplication sharedApplication] openURL:url]) ||
+			[[url absoluteString] rangeOfString:kRedirectURL].location != NSNotFound) {
+			[self dialogDidSucceed:url];
+			return NO;
+		}
+	}
+	return YES;
 }
 
 - (void)webView:(UIWebView *)webView didFailLoadWithError:(NSError *)error {

@@ -69,7 +69,7 @@ class Android(object):
 			'appid': self.id,
 			'appname' : self.name,
 			'appversion' : '1',
-			'apiversion' : '4', #Android 1.6
+			'apiversion' : '7', #Android 2.1
 			'deploy_type': deploy_type
 		}
 		self.config['classname'] = Android.strip_classname(self.name)

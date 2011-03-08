@@ -20,7 +20,7 @@
 
 static NSString* kOAuthURL = @"https://www.facebook.com/dialog/oauth";
 static NSString* kFBAppAuthURL = @"fbauth://authorize";
-static NSString* kRedirectURL = @"fbconnect://success";
+NSString* kRedirectURL = @"fbconnect://success";
 static NSString* kGraphBaseURL = @"https://graph.facebook.com/";
 static NSString* kRestApiURL = @"https://api.facebook.com/method/";
 static NSString* kUIServerBaseURL = @"http://www.facebook.com/connect/uiserver.php";

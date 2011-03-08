@@ -72,6 +72,7 @@ import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBlob;
+import org.appcelerator.titanium.TiFileProxy;
 import org.appcelerator.titanium.io.TiBaseFile;
 import org.appcelerator.titanium.io.TiFile;
 import org.appcelerator.titanium.kroll.KrollCallback;
@@ -861,6 +862,12 @@ public class TiHTTPClient
 				// first time through check if we need multipart for POST
 				for (String key : data.keySet()) {
 					Object value = data.get(key);
+
+					// if the value is a proxy, we need to get the actual file object
+					if (value instanceof TiFileProxy) {
+						value = ((TiFileProxy) value).getBaseFile();
+					}
+
 					if (value instanceof TiBaseFile || value instanceof TiBlob) {
 						needMultipart = true;
 						break;
@@ -872,6 +879,11 @@ public class TiHTTPClient
 					Object value = data.get(key);
 
 					if (isPostOrPut) {
+						// if the value is a proxy, we need to get the actual file object
+						if (value instanceof TiFileProxy) {
+							value = ((TiFileProxy) value).getBaseFile();
+						}
+
 						if (value instanceof TiBaseFile || value instanceof TiBlob) {
 							totalLength += addTitaniumFileAsPostData(key, value);
 						} else {

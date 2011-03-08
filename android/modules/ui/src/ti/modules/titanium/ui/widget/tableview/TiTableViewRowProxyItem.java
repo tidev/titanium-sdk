@@ -207,6 +207,17 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 		setBackgroundFromProperties(props);
 		// Handle right image
 		boolean clearRightImage = true;
+		// It's one or the other, check or child.  If you set them both, child's gonna win.
+		if (props.containsKey(TiC.PROPERTY_HAS_CHECK)) {
+			if (TiConvert.toBoolean(props, TiC.PROPERTY_HAS_CHECK)) {
+				if (hasCheckDrawable == null) {
+					hasCheckDrawable = createHasCheckDrawable();
+				}
+				rightImage.setImageDrawable(hasCheckDrawable);
+				rightImage.setVisibility(VISIBLE);
+				clearRightImage = false;
+			}
+		}
 		if (props.containsKey(TiC.PROPERTY_HAS_CHILD)) {
 			if (TiConvert.toBoolean(props, TiC.PROPERTY_HAS_CHILD)) {
 				if (hasChildDrawable == null) {
@@ -217,17 +228,6 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 				clearRightImage = false;
 			}
 		}
-		else if (props.containsKey(TiC.PROPERTY_HAS_CHECK)) {
-			if (TiConvert.toBoolean(props, TiC.PROPERTY_HAS_CHECK)) {
-				if (hasCheckDrawable == null) {
-					hasCheckDrawable = createHasCheckDrawable();
-				}
-				rightImage.setImageDrawable(hasCheckDrawable);
-				rightImage.setVisibility(VISIBLE);
-				clearRightImage = false;
-			}
-		}
-
 		if (props.containsKey(TiC.PROPERTY_RIGHT_IMAGE)) {
 			String path = TiConvert.toString(props, TiC.PROPERTY_RIGHT_IMAGE);
 			String url = tiContext.resolveUrl(null, path);

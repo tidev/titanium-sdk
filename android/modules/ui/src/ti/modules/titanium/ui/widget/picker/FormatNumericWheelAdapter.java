@@ -18,20 +18,27 @@ public class FormatNumericWheelAdapter extends NumericWheelAdapter
 	
 	public FormatNumericWheelAdapter(int minValue, int maxValue, NumberFormat formatter, int maxCharLength)
 	{
-		super(minValue, maxValue);
+		this(minValue,maxValue,formatter,maxCharLength, 1);
+	}
+	
+	public FormatNumericWheelAdapter(int minValue, int maxValue, NumberFormat formatter, int maxCharLength, int stepValue)
+	{
+		super(minValue, maxValue, stepValue);
 		this.formatter = formatter;
 		this.maxCharacterLength = maxCharLength;
 	}
+	
 	public void setFormatter(NumberFormat formatter) {
 		this.formatter = formatter;
 	}
 	@Override
 	public String getItem(int index)
 	{
+		int actualValue = getValue(index);
 		if (formatter == null) {
-			return Integer.toString(getMinValue() + index);
+			return Integer.toString(actualValue);
 		} else {
-			return formatter.format(getMinValue() + index);
+			return formatter.format(actualValue);
 		}
 	}
 	@Override
