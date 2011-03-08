@@ -153,6 +153,12 @@ def zip_iphone_ipad(zf,basepath,platform,version):
 		if not os.path.exists(os.path.join(ticore_lib,'libtiverify.a')):
 			print "[ERROR] missing libtiverify.a!  make sure you checkout iphone/lib or edit your iphone/.gitignore and remove the lib entry"
 			sys.exit(1)
+
+	if not os.path.exists(os.path.join(ticore_lib,'libti_ios_debugger.a')):
+		os.system("git checkout iphone/lib")
+		if not os.path.exists(os.path.join(ticore_lib,'libti_ios_debugger.a')):
+			print "[ERROR] missing libti_ios_debugger.a!  make sure you checkout iphone/lib or edit your iphone/.gitignore and remove the lib entry"
+			sys.exit(1)
 		
 	if not os.path.exists(os.path.join(ticore_lib,'libTiCore.a')):
 		print "[ERROR] missing libTiCore.a!"
@@ -160,6 +166,7 @@ def zip_iphone_ipad(zf,basepath,platform,version):
 	
 	zf.write(os.path.join(ticore_lib,'libTiCore.a'),'%s/%s/libTiCore.a'%(basepath,platform))
 	zf.write(os.path.join(ticore_lib,'libtiverify.a'),'%s/%s/libtiverify.a'%(basepath,platform))
+	zf.write(os.path.join(ticore_lib,'libti_ios_debugger.a'),'%s/%s/libti_ios_debugger.a'%(basepath,platform))
 	
 	zip_dir(zf,osx_dir,basepath)
 	

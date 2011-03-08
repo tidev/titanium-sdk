@@ -13,11 +13,7 @@
 #import "TiUtils.h"
 #import "TiApp.h"
 #import "ApplicationMods.h"
-
-#ifdef DEBUGGER_ENABLED
-#import "TiDebuggerContext.h"
 #import "TiDebugger.h"
-#endif
 
 extern BOOL const TI_APPLICATION_ANALYTICS;
 
@@ -350,20 +346,13 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 	if (exception == NULL)
 	{
 #ifdef DEBUGGER_ENABLED
-		Ti::TiDebuggerContext* debugger = static_cast<Ti::TiDebuggerContext*>([context_ debugger]);
-		if (debugger!=NULL)
-		{
-			debugger->beginScriptEval(urlCString);
-		}
+		TiDebuggerBeginScript(context_,urlCString);
 #endif
 		
 		TiEvalScript(jsContext, jsCode, NULL, jsURL, 1, &exception);
 		
 #ifdef DEBUGGER_ENABLED		
-		if (debugger!=NULL)
-		{
-			debugger->endScriptEval();
-		}
+		TiDebuggerEndScript(context_);
 #endif		
 		if (exception!=NULL)
 		{

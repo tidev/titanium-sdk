@@ -11,11 +11,8 @@
 #import "KrollCallback.h"
 #import "TiUtils.h"
 #import "TiLocale.h"
+#import "TiDebugger.h"
 
-#ifdef DEBUGGER_ENABLED
-	#import "TiDebuggerContext.h"
-	#import "TiDebugger.h"
-#endif
 
 static unsigned short KrollContextIdCounter = 0;
 static unsigned short KrollContextCount = 0;
@@ -696,9 +693,7 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 		if (debugger!=NULL)
 		{
 			TiObjectRef globalRef = TiContextGetGlobalObject(context);
-			static_cast<Ti::TiDebuggerContext*>(debugger)->detach((TI::TiGlobalObject*)globalRef);
-			[[TiDebugger sharedDebugger] detach:self];
-			delete static_cast<Ti::TiDebuggerContext*>(debugger);
+			TiDebuggerDestroy(self,globalRef,debugger);
 			debugger = NULL;
 		}
 #endif
@@ -869,9 +864,7 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 	TiGlobalContextRetain(context);
 
 #ifdef DEBUGGER_ENABLED
-	debugger = new Ti::TiDebuggerContext(self);
-	[[TiDebugger sharedDebugger] attach:self];
-	static_cast<Ti::TiDebuggerContext*>(debugger)->attach((TI::TiGlobalObject*)globalRef);
+	debugger = TiDebuggerCreate(self,globalRef);
 #endif
 	
 	// we register an empty kroll string that allows us to pluck out this instance

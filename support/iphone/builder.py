@@ -392,6 +392,8 @@ def main(args):
 		version_file = None
 		log_id = None
 		provisioning_profile = None
+		debug_host = None
+		debug_port = None
 		
 		# starting in 1.4, you don't need to actually keep the build/iphone directory
 		# if we don't find it, we'll just simply re-generate it
@@ -427,6 +429,10 @@ def main(args):
 			else:
 				# 'universal' helpfully translates into iPhone here... just in case.
 				simtype = devicefamily
+			if argc > 8:
+				# this is host:port from the debugger
+				debughost = dequote(args[8].decode("utf-8"))
+				debughost,debugport = debughost.split(":")
 		elif command == 'install':
 			iphone_version = check_iphone_sdk(iphone_version)
 			link_version = iphone_version
@@ -434,6 +440,10 @@ def main(args):
 			dist_name = dequote(args[7].decode("utf-8"))
 			if argc > 8:
 				devicefamily = dequote(args[8].decode("utf-8"))
+			if argc > 9:
+				# this is host:port from the debugger
+				debughost = dequote(args[9].decode("utf-8"))
+				debughost,debugport = debughost.split(":")
 			deploytype = 'test'
 		
 		# setup up the useful directories we need in the script
@@ -741,6 +751,9 @@ def main(args):
 			if not os.path.exists(os.path.join(iphone_dir,'lib','libtiverify.a')):
 				shutil.copy(os.path.join(template_dir,'libtiverify.a'),os.path.join(iphone_dir,'lib','libtiverify.a'))
 
+			if not os.path.exists(os.path.join(iphone_dir,'lib','libti_ios_debugger.a')):
+				shutil.copy(os.path.join(template_dir,'libti_ios_debugger.a'),os.path.join(iphone_dir,'lib','libti_ios_debugger.a'))
+
 			# compile JSS files
 			cssc = csscompiler.CSSCompiler(os.path.join(project_dir,'Resources'),devicefamily,appid)
 			app_stylesheet = os.path.join(iphone_dir,'Resources','stylesheet.plist')
@@ -1000,7 +1013,10 @@ def main(args):
 				if command == 'simulator':
 
 					if force_rebuild or force_xcode or not os.path.exists(binary):
-						execute_xcode("iphonesimulator%s" % link_version,["GCC_PREPROCESSOR_DEFINITIONS=__LOG__ID__=%s DEPLOYTYPE=development TI_DEVELOPMENT=1 DEBUG=1 TI_VERSION=%s" % (log_id,sdk_version)],False)
+						debugstr = ''
+						if debughost!=None:
+							debugstr+='DEBUGGER_ENABLED=1 TI_APPLICATION_DEBUG_HOST=%s TI_APPLICATION_DEBUG_PORT=%s' % (debughost,debugport)
+						execute_xcode("iphonesimulator%s" % link_version,["GCC_PREPROCESSOR_DEFINITIONS=__LOG__ID__=%s DEPLOYTYPE=development TI_DEVELOPMENT=1 DEBUG=1 TI_VERSION=%s %s" % (log_id,sdk_version,debugstr)],False)
 
 					# first make sure it's not running
 					kill_simulator()
@@ -1141,8 +1157,12 @@ def main(args):
 				#
 				elif command == 'install':
 
+					debugstr = ''
+					if debughost!=None:
+						debugstr+='DEBUGGER_ENABLED=1 TI_APPLICATION_DEBUG_HOST=%s TI_APPLICATION_DEBUG_PORT=%s' % (debughost,debugport)
+						
 					args += [
-						"GCC_PREPROCESSOR_DEFINITIONS=DEPLOYTYPE=test TI_TEST=1",
+						"GCC_PREPROCESSOR_DEFINITIONS=DEPLOYTYPE=test TI_TEST=1 %s" % debugstr,
 						"PROVISIONING_PROFILE[sdk=iphoneos*]=%s" % appuuid,
 						"CODE_SIGN_IDENTITY[sdk=iphoneos*]=iPhone Developer: %s" % dist_name,
 						"DEPLOYMENT_POSTPROCESSING=YES"

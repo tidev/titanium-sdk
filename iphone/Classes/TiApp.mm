@@ -12,14 +12,16 @@
 #import "TiBase.h"
 #import "TiErrorController.h"
 #import "NSData+Additions.h"
-#import "TiDebugger.h"
 #import "ImageLoader.h"
+#import "TiDebugger.h"
 #import <QuartzCore/QuartzCore.h>
 #import <AVFoundation/AVFoundation.h>
 
 #import <libkern/OSAtomic.h>
 
 TiApp* sharedApp;
+
+int TiDebugPort = 2525;
 
 extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 extern NSString * const TI_APPLICATION_NAME;
@@ -262,7 +264,7 @@ void MyUncaughtExceptionHandler(NSException *exception)
 	sessionId = [[TiUtils createUUID] retain];
 
 #ifdef DEBUGGER_ENABLED
-	[[TiDebugger sharedDebugger] start];
+	TiDebuggerStart(TI_APPLICATION_DEBUG_HOST_STR,TI_APPLICATION_DEBUG_PORT);
 #endif
 	
 	kjsBridge = [[KrollBridge alloc] initWithHost:self];
@@ -638,7 +640,7 @@ void MyUncaughtExceptionHandler(NSException *exception)
 	RELEASE_TO_NIL(remoteDeviceUUID);
 	RELEASE_TO_NIL(remoteNotification);
 #ifdef DEBUGGER_ENABLED
-	[[TiDebugger sharedDebugger] stop];
+	TiDebuggerStop();
 #endif
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0
 	RELEASE_TO_NIL(backgroundServices);
