@@ -902,6 +902,26 @@ class Builder(object):
 
 			default_manifest_contents = dom.toxml()
 
+		if application_xml:
+			# If the tiapp.xml <manifest><application> section was not empty, it could be
+			# that user put in <activity> entries that duplicate our own,
+			# such as if they want a custom theme on TiActivity.  So we should delete any dupes.
+			dom = parseString(default_manifest_contents)
+			manifest_activities = dom.getElementsByTagName('activity')
+			activity_names = []
+			nodes_to_delete = []
+			for manifest_activity in manifest_activities:
+				if manifest_activity.hasAttribute('android:name'):
+					activity_name = manifest_activity.getAttribute('android:name')
+					if activity_name in activity_names:
+						nodes_to_delete.append(manifest_activity)
+					else:
+						activity_names.append(activity_name)
+			if nodes_to_delete:
+				for node_to_delete in nodes_to_delete:
+					node_to_delete.parentNode.removeChild(node_to_delete)
+				default_manifest_contents = dom.toxml()
+
 		if custom_manifest_contents:
 			custom_manifest_contents = fill_manifest(custom_manifest_contents)
 
