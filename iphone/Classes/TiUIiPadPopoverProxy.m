@@ -248,6 +248,20 @@
 	[self performSelector:@selector(popoverControllerDidDismissPopover:) withObject:popoverController afterDelay:0.5];
 }
 
+-(void)setPassthroughViews:(id)args
+{
+    NSMutableArray* views = [NSMutableArray arrayWithCapacity:[args count]];
+    for (TiViewProxy* proxy in args) {
+        if (![proxy isKindOfClass:[TiViewProxy class]]) {
+            [self throwException:[NSString stringWithFormat:@"Passed non-view object %@ as passthrough view",proxy] 
+					   subreason:nil
+						location:CODELOCATION];
+        }
+        [views addObject:[proxy view]];
+    }
+    [[self popoverController] setPassthroughViews:views];
+}
+
 #pragma mark Delegate methods
 - (void)popoverControllerDidDismissPopover:(UIPopoverController *)thisPopoverController
 {
