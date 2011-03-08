@@ -515,7 +515,7 @@
 	if (currentPage != page) {
 		[pageControl setCurrentPage:page];
 		currentPage = page;
-        [self manageCache];
+        //[self manageCache];
 	}
 }
 
@@ -546,6 +546,7 @@
 	}
 	currentPage=pageNum;
 	[pageControl setCurrentPage:pageNum];
+	[self manageCache];
 }
 
 @end
