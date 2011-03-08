@@ -729,13 +729,6 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
 -(void)viewWillDetach
 {
 	// for subclasses
-	pthread_rwlock_rdlock(&childrenLock);
-	if (children != nil) {
-		for (TiViewProxy* child in children) {
-			[child detachView];
-		}
-	}
-	pthread_rwlock_unlock(&childrenLock);
 }
 
 -(void)viewDidDetach
@@ -953,6 +946,10 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
 		RELEASE_TO_NIL(view);
 		[self viewDidDetach];
 	}
+
+    pthread_rwlock_rdlock(&childrenLock);
+    [[self children] makeObjectsPerformSelector:@selector(detachView)];
+    pthread_rwlock_unlock(&childrenLock);
 	[destroyLock unlock];
 }
 
