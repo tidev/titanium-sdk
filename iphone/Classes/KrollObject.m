@@ -364,9 +364,9 @@ void KrollFinalizer(TiObjectRef ref)
 		NSLog(@"[WARN] object: %@ was not of the right class: %@",o,[o class]);
 		return;
 	}
-#if KOBJECT_MEMORY_DEBUG == 1
+//#if KOBJECT_MEMORY_DEBUG == 1
 	NSLog(@"KROLL FINALIZER: %@, retain:%d",o,[o retainCount]);
-#endif
+//#endif
 
 	if ([o isMemberOfClass:[KrollObject class]])
 	{
@@ -884,44 +884,48 @@ bool KrollSetProperty(TiContextRef jsContext, TiObjectRef object, TiStringRef pr
 
 -(void)storeCallback:(KrollCallback *)eventCallback forEvent:(NSString *)eventName
 {
+	TiValueRef exception=NULL;
+
 	TiContextRef jsContext = [context context];
 	TiStringRef jsEventHashString = TiStringCreateWithUTF8CString("_EVT");
-	TiObjectRef jsEventHash = TiObjectGetProperty(jsContext, jsobject, jsEventHashString, NULL);
-	jsEventHash = TiValueToObject(jsContext, jsEventHash, NULL);
-	if ((jsEventHash == NULL) || (TiValueGetType(jsContext,jsEventHash) != kTITypeObject))
-	{
-		NSLog(@"New hash!");
-		jsEventHash = TiObjectMake(jsContext, NULL, NULL);
-		TiObjectSetProperty(jsContext, jsobject, jsEventHashString, jsEventHash,
-				kTiPropertyAttributeDontEnum | kTiPropertyAttributeDontDelete, NULL);
-		jsEventHash = TiObjectGetProperty(jsContext, jsobject, jsEventHashString, NULL);
-	}
-	TiStringRelease(jsEventHashString);
+	TiObjectRef jsEventHash = TiObjectGetProperty(jsContext, jsobject, jsEventHashString, &exception);
+//	jsEventHash = TiValueToObject(jsContext, jsEventHash, &exception);
+//	if ((jsEventHash == NULL) || (TiValueGetType(jsContext,jsEventHash) != kTITypeObject))
+//	{
+//		NSLog(@"New hash!");
+//		jsEventHash = TiObjectMake(jsContext, NULL, &exception);
+//	}
+
+	jsEventHash = jsobject;
 
 	TiStringRef jsEventTypeString = TiStringCreateWithUTF8CString([eventName UTF8String]);
-	TiObjectRef jsCallbackArray = TiObjectGetProperty(jsContext, jsEventHash, jsEventTypeString, NULL);
+	TiObjectRef jsCallbackArray = TiObjectGetProperty(jsContext, jsEventHash, jsEventTypeString, &exception);
 	TiObjectRef callbackFunction = [eventCallback function];
-	jsCallbackArray = TiValueToObject(jsContext, jsCallbackArray, NULL);
+	jsCallbackArray = TiValueToObject(jsContext, jsCallbackArray, &exception);
 
 	if ((jsCallbackArray == NULL) || (TiValueGetType(jsContext,jsCallbackArray) != kTITypeObject))
 	{
 		NSLog(@"New Array!");
-		jsCallbackArray = TiObjectMakeArray(jsContext, 1, &callbackFunction, NULL);
-		TiObjectSetProperty(jsContext, jsEventHash, jsEventTypeString, jsCallbackArray,
-				kTiPropertyAttributeDontEnum | kTiPropertyAttributeDontDelete, NULL);
+		jsCallbackArray = TiObjectMakeArray(jsContext, 1, &callbackFunction, &exception);
 	}
 	else
 	{
 		TiStringRef jsLengthString = TiStringCreateWithUTF8CString("length");
-		TiValueRef jsCallbackArrayLength = TiObjectGetProperty(jsContext, jsCallbackArray, jsLengthString, NULL);
-		int arrayLength = (int)TiValueToNumber(jsContext, jsCallbackArrayLength, NULL);
+		TiValueRef jsCallbackArrayLength = TiObjectGetProperty(jsContext, jsCallbackArray, jsLengthString, &exception);
+		int arrayLength = (int)TiValueToNumber(jsContext, jsCallbackArrayLength, &exception);
 		TiStringRelease(jsLengthString);
 		
-		TiObjectSetPropertyAtIndex(jsContext, jsCallbackArray, arrayLength, callbackFunction, NULL);
+		TiObjectSetPropertyAtIndex(jsContext, jsCallbackArray, arrayLength, callbackFunction, &exception);
 	}
+
+	TiObjectSetProperty(jsContext, jsEventHash, jsEventTypeString, jsCallbackArray,
+			kTiPropertyAttributeDontEnum , &exception);
+//	TiObjectSetProperty(jsContext, jsobject, jsEventHashString, jsEventHash,
+//			kTiPropertyAttributeDontEnum , &exception);
 
 	//TODO: Call back to the proxy?
 	TiStringRelease(jsEventTypeString);
+	TiStringRelease(jsEventHashString);
 	NSLog(@"Added %@ %X(%X)%X event: %X, %X, %X",eventName,self,target,jsobject,jsEventHash,jsCallbackArray,callbackFunction);
 }
 
@@ -969,11 +973,13 @@ bool KrollSetProperty(TiContextRef jsContext, TiObjectRef object, TiStringRef pr
 	TiObjectRef jsEventHash = TiObjectGetProperty(jsContext, jsobject, jsEventHashString, NULL);
 
 	NSLog(@"Calling %@ %X(%X)%X event: %X...",eventName,self,target,jsobject,jsEventHash);
-	if ((jsEventHash == NULL) || (TiValueGetType(jsContext,jsEventHash) != kTITypeObject))
-	{	//We did not have any event listeners on this proxy. Perfectly normal.
-		return;
-	}
+//	if ((jsEventHash == NULL) || (TiValueGetType(jsContext,jsEventHash) != kTITypeObject))
+//	{	//We did not have any event listeners on this proxy. Perfectly normal.
+//		return;
+//	}
 	TiStringRelease(jsEventHashString);
+
+	jsEventHash = jsobject;
 
 	TiStringRef jsEventTypeString = TiStringCreateWithUTF8CString([eventName UTF8String]);
 	TiObjectRef jsCallbackArray = TiObjectGetProperty(jsContext, jsEventHash, jsEventTypeString, NULL);
@@ -995,7 +1001,7 @@ bool KrollSetProperty(TiContextRef jsContext, TiObjectRef object, TiStringRef pr
 		return;
 	}
 
-	TiValueRef jsEventData = ConvertIdTiValue(jsContext, eventData);
+	TiValueRef jsEventData = ConvertIdTiValue(context, eventData);
 
 	for (int currentCallbackIndex=0; currentCallbackIndex<arrayLength; currentCallbackIndex++)
 	{
