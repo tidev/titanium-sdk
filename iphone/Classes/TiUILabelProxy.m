@@ -10,7 +10,7 @@
 #import "TiUILabel.h"
 #import "TiUtils.h"
 
-#define LABEL_TRACKING
+//#define LABEL_TRACKING
 
 #ifdef LABEL_TRACKING
 id blessedObject = nil;
@@ -21,7 +21,7 @@ id blessedObject = nil;
 #ifdef LABEL_TRACKING
 -(void)markProgress:(id)comment
 {
-	if (blessedObject == self)
+//	if (blessedObject == self)
 	{
 		NSLog(@"%X (%@) during %@ is currently at retain count %d",self,self,comment,[self retainCount]);
 	}
@@ -52,6 +52,13 @@ id blessedObject = nil;
 	[self markProgress:@"release"];
 	[super release];
 }
+
+- (void) dealloc
+{
+	[self markProgress:@"dealloc"];
+	[super dealloc];
+}
+
 #endif
 
 
