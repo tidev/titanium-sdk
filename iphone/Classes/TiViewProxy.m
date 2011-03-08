@@ -729,6 +729,13 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
 -(void)viewWillDetach
 {
 	// for subclasses
+	pthread_rwlock_rdlock(&childrenLock);
+	if (children != nil) {
+		for (TiViewProxy* child in children) {
+			[child detachView];
+		}
+	}
+	pthread_rwlock_unlock(&childrenLock);
 }
 
 -(void)viewDidDetach
