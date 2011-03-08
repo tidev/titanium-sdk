@@ -40,7 +40,6 @@
 
 -(void)dealloc
 {
-	[[NSNotificationCenter defaultCenter] removeObserver:self];
 	RELEASE_TO_NIL(views);
 	RELEASE_TO_NIL(scrollview);
 	RELEASE_TO_NIL(pageControl);
@@ -50,9 +49,6 @@
 -(id)init
 {
 	if (self = [super init]) {
-		[[NSNotificationCenter defaultCenter] addObserver:self 
-												 selector:@selector(didRotate:) name:UIApplicationDidChangeStatusBarOrientationNotification
-												   object:nil];
         cacheSize = 3;
 	}
 	return self;
@@ -277,21 +273,31 @@
 	[sv setFrame:CGRectMake(0, 0, visibleBounds.size.width, visibleBounds.size.height)];
 }
 
+// We have to cache the current page because we need to scroll to the new (logical) position of the view
+// within the scrollable view.  Doing so, if we're resizing to a SMALLER frame, causes a content offset
+// reset internally, which screws with the currentPage number (since -[self scrollViewDidScroll:] is called).
+// Unfortunately it still looks ugly... but them's the breaks.
+-(void)setFrame:(CGRect)frame_
+{
+    lastPage = currentPage;
+    [super setFrame:frame_];
+}
+
+-(void)setBounds:(CGRect)bounds_
+{
+    lastPage = currentPage;
+    [super setBounds:bounds_];
+}
+
 -(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)visibleBounds
 {
 	if (!CGRectIsEmpty(visibleBounds))
 	{
-        // We have to cache the current page because we need to scroll to the new (logical) position of the view
-        // within the scrollable view.  Doing so, if we're resizing to a SMALLER frame, causes a content offset
-        // reset internally, which screws with the currentPage number (since -[self scrollViewDidScroll:] is called).
-        // Unfortunately it still looks ugly... but them's the breaks.
-        
-        int page = currentPage;
 		[self refreshScrollView:visibleBounds readd:YES];
 		
 		if (![scrollview isDecelerating] && ![scrollview isDragging] && ![scrollview isTracking])
 		{
-			[scrollview setContentOffset:CGPointMake(page*visibleBounds.size.width,0)];
+			[scrollview setContentOffset:CGPointMake(lastPage*visibleBounds.size.width,0)];
 		}
 	}
 }
@@ -476,9 +482,9 @@
 	minScale = [TiUtils floatValue:scale];
 }
 
-#pragma mark Notifications
+#pragma mark Rotation
 
--(void)didRotate:(NSNotification*)note
+-(void)manageRotation
 {
 	if ([scrollview isDecelerating]) {
 		rotatedWhileScrolling = YES;
