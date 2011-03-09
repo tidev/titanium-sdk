@@ -534,6 +534,19 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 	}
 	return self;
 }
+
+-(id)initWithCallback:(KrollCallback*)newCallback eventObject:(NSDictionary*)newEventObject thisObject:(id)newThisObject
+{
+	if (self = [super init])
+	{
+		callback = [newCallback retain];
+		eventObject = [newEventObject retain];
+		thisObject = [newThisObject retain];
+	}
+	return self;
+}
+
+
 -(void)dealloc
 {
 	[type release];
@@ -544,7 +557,15 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 }
 -(void)invoke:(KrollContext*)context
 {
-	[callbackObject triggerEvent:type withObject:eventObject thisObject:thisObject];
+	if(callbackObject != nil)
+	{
+		[callbackObject triggerEvent:type withObject:eventObject thisObject:thisObject];
+	}
+
+	if(callback != nil)
+	{
+		[callback call:[NSArray arrayWithObject:eventObject] thisObject:thisObject];
+	}
 }
 @end
 
@@ -821,14 +842,6 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 		return;
 	}
 	[self enqueue:invocation];
-}
-
--(void)invokeEvent:(KrollCallback*)callback_ args:(NSArray*)args_ thisObject:(id)thisObject_
-{
-	NSLog(@"We shouldn't be here!");
-	KrollEvent *event = [[KrollEvent alloc] initWithCallback:callback_ args:args_ thisObject:thisObject_];
-	[self enqueue:event];
-	[event release];
 }
 
 - (void)bindCallback:(NSString*)name callback:(TiObjectCallAsFunctionCallback)fn

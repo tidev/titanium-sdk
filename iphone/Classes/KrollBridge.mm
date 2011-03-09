@@ -415,15 +415,15 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 
 - (void)fireEvent:(id)listener withObject:(id)obj remove:(BOOL)yn thisObject:(TiProxy*)thisObject_
 {
-	if ([listener isKindOfClass:[KrollCallback class]])
-	{
-		[context invokeEvent:listener args:[NSArray arrayWithObject:obj] thisObject:thisObject_];
-	}
-	else 
+	if (![listener isKindOfClass:[KrollCallback class]])
 	{
 		NSLog(@"[ERROR] listener callback is of a non-supported type: %@",[listener class]);
+		return;
 	}
-	
+
+	KrollEvent *event = [[KrollEvent alloc] initWithCallback:listener eventObject:obj thisObject:thisObject_];
+	[context enqueue:event];
+	[event release];
 }
 
 -(void)enqueueEvent:(NSString*)type forProxy:(TiProxy *)proxy withObject:(id)obj withSource:(id)source
