@@ -62,7 +62,7 @@
 - (void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
 {
     if ([self viewAttached]) {
-        [[self view] manageRotation];
+        [(TiUIScrollableView*)[self view] manageRotation];
     }
 }
 
