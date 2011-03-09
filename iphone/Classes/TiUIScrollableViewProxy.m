@@ -59,6 +59,13 @@
 	return [super parentViewForChild:child];
 }
 
+- (void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
+{
+    if ([self viewAttached]) {
+        [(TiUIScrollableView*)[self view] manageRotation];
+    }
+}
+
 @end
 
 #endif
