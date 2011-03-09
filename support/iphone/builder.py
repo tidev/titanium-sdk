@@ -986,7 +986,7 @@ def main(args):
 					f=open(os.path.join(iphone_resources_dir,'Entitlements.plist'),'w+')
 					f.write(entitlements_contents)
 					f.close()
-					args+=["CODE_SIGN_ENTITLEMENTS = Resources/Entitlements.plist"]
+					args+=["CODE_SIGN_ENTITLEMENTS=Resources/Entitlements.plist"]
 
 				# only build if force rebuild (different version) or 
 				# the app hasn't yet been built initially
