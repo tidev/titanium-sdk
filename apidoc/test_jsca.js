@@ -19,7 +19,12 @@ var assert = require('assert');
 var spawn = require('child_process').spawn;
 var jsca = '';
 var errout = '';
-var breadcrumbs = [];
+var verbose = process.argv.indexOf('-v') > -1 || process.argv.indexOf('--verbose') > -1;
+var breadcrumbs = {
+	_array : [],
+	push: function(s){this._array.push(s); if(verbose){console.log(s);}},
+	pop: function(){return this._array.pop();}
+};
 
 function isArray(x) {
 	return x && typeof x === 'object' && x.constructor === Array;
@@ -93,6 +98,7 @@ var templates = {
 };
 templates.userAgents_template = [ templates.userAgent_template ];
 templates.sinces_template = [ templates.since_template ];
+templates.returnType_template = { 'type' : '', 'description' : '' };
 templates.type_template = {
 	'name' : '',
 	'description': '',
@@ -134,6 +140,12 @@ templates.property_template = {
 	'examples' : [],
 	'_optional' : ['_optional']
 };
+templates.parameter_template = {
+	'name' : '',
+	'type' : '',
+	'usage' : '',
+	'description' : ''
+};
 
 function test_array_against_member_template(the_array, member_type_name) {
 	assert.ok(isArray(the_array) && the_array.length, member_type_name + " array should be non-empty");
@@ -148,16 +160,68 @@ function test_array_against_member_template(the_array, member_type_name) {
 	}
 }
 
+function test_type(the_type) {
+	var pattern = /^(DOMNode|Function|RegExp|Date|Object|Boolean|Null|Number|String|Ti(tanium)?\.\S+|Array|Array<\S+>)$/;
+	var parts = the_type.split(',');
+	for (var i = 0; i < parts.length; i++) {
+		var onepart = parts[i];
+		assert.ok(onepart.match(pattern) !== null, "Unknown type spec: " + the_type);
+	}
+}	
+
 function test_functions(functions) {
 	assert.ok(isArray(functions) && functions.length, 'functions should be a non-empty array');
-	test_array_against_member_template(functions, "function");
+	for (var i = 0; i < functions.length; i++) {
+		var onefunc = functions[i];
+		var funcname = resolveName(onefunc);
+		breadcrumbs.push('Testing function ' + funcname);
+		test_array_against_member_template([ onefunc ], "function");
+		if (onefunc.parameters && onefunc.parameters.length) {
+			for (var j = 0; j < onefunc.parameters.length; j++) {
+				var oneparam = onefunc.parameters[j];
+				var paramname = resolveName(oneparam);
+				breadcrumbs.push('Testing parameter ' + paramname);
+				test_array_against_member_template([ oneparam ], 'parameter');
+				if (oneparam.type) {
+					test_type(oneparam.type);
+				}
+				breadcrumbs.pop();
+			}
+		}
+		if (onefunc.returnTypes && onefunc.returnTypes.length) {
+			breadcrumbs.push('Testing return types');
+			for (var k = 0; k < onefunc.returnTypes.length; k++) {
+				var onert = onefunc.returnTypes[k];
+				test_array_against_member_template([ onert ], 'returnType');
+				test_type(onert.type);
+			}
+			breadcrumbs.pop();
+		}
+
+		breadcrumbs.pop();
+	}
 }
+
 
 function test_properties(properties) {
 	assert.ok(isArray(properties) && properties.length, 'properties should be a non-empty array');
-	test_array_against_member_template(properties, "property");
+	for (var i = 0; i < properties.length; i++) {
+		var oneprop = properties[i];
+		var propname = resolveName(oneprop);
+		breadcrumbs.push('Testing property ' + propname);
+		test_array_against_member_template([ oneprop ], 'property');
+		test_type(oneprop.type);
+		breadcrumbs.pop();
+	}
 }
 
+function test_function_parameters(functions) {
+	for (var i = 0; i < functions.length; i++) {
+		if (functions[i].parameters && functions[i].parameters.length) {
+			test_array_against_member_template(functions[i].parameters, "parameter");
+		}
+	}
+}
 function test_types(types) {
 	assert.ok(isArray(types) && types.length, 'types should be a non-empty array');
 	breadcrumbs.push('testing all type definitions');
@@ -221,10 +285,10 @@ docgen.on('exit', function(code) {
 		test_types(api.types);
 		breadcrumbs.pop();
 	} catch(e) {
-		if (breadcrumbs && breadcrumbs.length) {
+		if (breadcrumbs && breadcrumbs._array.length) {
 			console.error('Breadcrumbs (most recent last):');
-			for (var i = 0; i < breadcrumbs.length; i++) {
-				console.error(breadcrumbs[i]);
+			for (var i = 0; i < breadcrumbs._array.length; i++) {
+				console.error(breadcrumbs._array[i]);
 			}
 		}
 		throw e;

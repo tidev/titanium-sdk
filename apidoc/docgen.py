@@ -10,7 +10,7 @@
 try: import json
 except: import simplejson as json
 
-import os, sys, re, optparse
+import os, sys, re, optparse, string
 from os.path import join, splitext, split, exists
 from htmlentitydefs import name2codepoint 
 
@@ -90,10 +90,23 @@ def resolve_supported_platforms(parent_platforms, object_specs):
 	return platforms
 
 def clean_type(the_type):
-	type_out = the_type
-	m = re.search(r'\>(.*)\<', the_type)
-	if m and len(m.groups()) == 1:
-		type_out = m.groups()[0]
+	type_out = the_type.replace('`', '')
+	type_out = type_out.replace('|', ',') # settle on one of two of the valid type separators
+	type_out = ','.join( [s.strip() for s in type_out.split(',') if len(s)] )
+	m = re.search(r'(href.*>|tt>)+(.*)\<', the_type)
+	if m and len(m.groups()) == 2:
+		type_out = m.groups()[1]
+	type_out = string.capwords(type_out, '.')
+	type_out = '<'.join( [ s[0].upper() + s[1:] for s in type_out.split('<') if len(s) ])
+	type_out = ','.join( [ s[0].upper() + s[1:] for s in type_out.split(',') if len(s) ])
+	if ',' in type_out:
+		type_out = ','.join( [ clean_type(s) for s in type_out.split(',') if len(s) ] )
+	if type_out.lower() in ['int','integer','float','double','long']:
+		type_out = 'Number'
+	if type_out.lower() == 'bool':
+		type_out = 'Boolean'
+	if type_out.lower() == 'domnode':
+		type_out = 'DOMNode'
 	return type_out
 
 def to_newjson_example(example):
@@ -113,13 +126,15 @@ def to_newjson_property(prop):
 def to_newjson_param(param):
 	result = map_properties(param, {}, ('name', 'description'), ('name', 'description'))
 	if param['type']:
-		result['types'] = [ clean_type(param['type']) ]
+		result['type'] = clean_type(param['type'])
+	# we don't have data for this yet in our tdocs:
+	result['usage'] = ''
 	return result
 
 def to_newjson_function(method):
 	result = map_properties(method, {}, ('name', 'value'), ('name', 'description'))
 	if method['returntype'] and method['returntype'].lower() != 'void':
-		result['returnTypes'] = [ { 'type': clean_type(method['returntype']) }]
+		result['returnTypes'] = [ { 'type': clean_type(method['returntype']), 'description' : '' }]
 	if method['parameters']:
 		result['parameters'] = [to_newjson_param(x) for x in method['parameters']]
 	result['since'] = [ { 'name': 'Titanium Mobile SDK', 'version' : method['since'] } ]
@@ -345,8 +360,11 @@ class API(object):
 				m['returntype']=value
 				return
 	def add_property(self,key,orig_specs,value):
-		# in case someone put a spec in with case
-		specs = [x.lower() for x in orig_specs]
+		if isinstance(orig_specs, basestring):
+			specs = [ orig_specs.lower() ]
+		else:
+			# in case someone put a spec in with case
+			specs = [x.lower() for x in orig_specs]
 		# specs example: [int;classproperty;deprecated].  The type is always specs[0]
 		classprop = True if 'classproperty' in specs else (key.upper() == key) # assume all upper case props are class constants
 		deprecated = 'deprecated' in specs
