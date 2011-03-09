@@ -28,7 +28,7 @@ remove: remove the database files for this instance from disk. WARNING: this is 
 - method : execute, object
 
 sql[string]: the SQL to execute
-vararg[array,...]: one or more optional variable arguments passed to this function or an array of objects to be replaced in the query using `?` substitution.
+vararg[Array<Object>]: one or more optional variable arguments passed to this function or an array of objects to be replaced in the query using `?` substitution.
 
 - properties
 
