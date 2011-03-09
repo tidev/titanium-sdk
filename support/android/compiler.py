@@ -144,7 +144,7 @@ class Compiler(object):
 		# TODO: add closure compiling too?
 		jsc_args = [self.java, '-classpath', js_jar, 'org.mozilla.javascript.tools.jsc.Main',
 			'-main-method-class', 'org.appcelerator.titanium.TiScriptRunner',
-			'-package', self.appid + '.js', '-o', js_class_name,
+			'-package', self.appid + '.js', '-encoding', 'utf8', '-o', js_class_name,
 			'-d', self.classes_dir, fullpath]
 			
 		print "[INFO] Compiling javascript: %s" % resource_relative_path
