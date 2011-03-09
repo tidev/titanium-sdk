@@ -9,11 +9,9 @@
 
 #include "TiBase.h"
 
-#define TI_APPLICATION_DEBUG_HOST_STR STRING(TI_APPLICATION_DEBUG_HOST)
-
 extern "C" void* TiDebuggerCreate(KrollContext*,TiObjectRef);
 extern "C" void  TiDebuggerDestroy(KrollContext*,TiObjectRef,void*);
-extern "C" void  TiDebuggerStart(const char*,int);
+extern "C" void  TiDebuggerStart(NSString*,int);
 extern "C" void  TiDebuggerStop();
 extern "C" void  TiDebuggerBeginScript(KrollContext*,const char*);
 extern "C" void  TiDebuggerEndScript(KrollContext*);

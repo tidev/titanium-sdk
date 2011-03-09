@@ -16,14 +16,15 @@
 {
 	if (self = [super init])
 	{
-		proxy = [window_ retain];
+		proxy = window_;
+	//	proxy = [window_ retain];
 	}
 	return self;
 }
 
 -(void)dealloc
 {
-    RELEASE_TO_NIL(proxy);
+//    RELEASE_TO_NIL(proxy);
     [super dealloc];
 }
 

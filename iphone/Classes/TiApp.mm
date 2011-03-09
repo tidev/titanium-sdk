@@ -264,7 +264,11 @@ void MyUncaughtExceptionHandler(NSException *exception)
 	sessionId = [[TiUtils createUUID] retain];
 
 #ifdef DEBUGGER_ENABLED
-	TiDebuggerStart(TI_APPLICATION_DEBUG_HOST_STR,TI_APPLICATION_DEBUG_PORT);
+	NSString *filePath = [[NSBundle mainBundle] pathForResource:@"debugger" ofType:@"plist"];
+	NSMutableDictionary *params = [[NSMutableDictionary alloc] initWithContentsOfFile:filePath];
+	NSString *host = [params objectForKey:@"host"];
+	NSString *port = [params objectForKey:@"port"];
+	TiDebuggerStart(host,[port intValue]);
 #endif
 	
 	kjsBridge = [[KrollBridge alloc] initWithHost:self];

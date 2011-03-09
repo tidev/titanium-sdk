@@ -584,7 +584,23 @@ def main(args):
 				ti.properties['version']=version
 				pp = os.path.expanduser("~/Library/MobileDevice/Provisioning Profiles/%s.mobileprovision" % appuuid)
 				provisioning_profile = read_provisioning_profile(pp,o)
-					
+			
+			
+			def write_debugger_plist(debuggerplist):
+				debugger_tmpl = os.path.join(template_dir,'debugger.plist')
+				plist = codecs.open(debugger_tmpl, encoding='utf-8').read()
+				plist = plist.replace('__DEBUGGER_HOST__',debughost)
+				plist = plist.replace('__DEBUGGER_PORT__',debugport)
+				pf = codecs.open(debuggerplist,'w', encoding='utf-8')
+				pf.write(plist)
+				pf.close()	
+				o.write("+ writing debugger plist:\n\n")
+				pf = codecs.open(debuggerplist,'r', encoding='utf-8')
+				o.write(pf.read())
+				pf.close()
+				o.write("\n\n")
+				
+				
 # TODO:				
 # This code is used elsewhere, as well.  We should move stuff like this to
 # a common file.
@@ -761,6 +777,11 @@ def main(args):
 			asf.write(cssc.code)
 			asf.close()
 
+			# compile debugger file
+			if debughost:
+				debug_plist = os.path.join(iphone_dir,'Resources','debugger.plist')
+				write_debugger_plist(debug_plist)
+
 			if command=='simulator':
 				debug_sim_dir = os.path.join(iphone_dir,'build','Debug-iphonesimulator','%s.app' % name)
 				if os.path.exists(debug_sim_dir):
@@ -768,7 +789,10 @@ def main(args):
 					asf = codecs.open(app_stylesheet,'w','utf-8')
 					asf.write(cssc.code)
 					asf.close()
-
+					
+					if debughost:
+						shutil.copy(debug_plist,os.path.join(iphone_dir,'build','Debug-iphonesimulator','%s.app' % name, 'debugger.plist'))
+					
 			if command!='simulator':
 				# compile plist into binary format so it's faster to load
 				# we can be slow on simulator
@@ -1012,10 +1036,11 @@ def main(args):
 				# this is a simulator build
 				if command == 'simulator':
 
+					debugstr = ''
+					if debughost:
+						debugstr = 'DEBUGGER_ENABLED=1'
+						
 					if force_rebuild or force_xcode or not os.path.exists(binary):
-						debugstr = ''
-						if debughost!=None:
-							debugstr+='DEBUGGER_ENABLED=1 TI_APPLICATION_DEBUG_HOST=%s TI_APPLICATION_DEBUG_PORT=%s' % (debughost,debugport)
 						execute_xcode("iphonesimulator%s" % link_version,["GCC_PREPROCESSOR_DEFINITIONS=__LOG__ID__=%s DEPLOYTYPE=development TI_DEVELOPMENT=1 DEBUG=1 TI_VERSION=%s %s" % (log_id,sdk_version,debugstr)],False)
 
 					# first make sure it's not running
@@ -1158,8 +1183,8 @@ def main(args):
 				elif command == 'install':
 
 					debugstr = ''
-					if debughost!=None:
-						debugstr+='DEBUGGER_ENABLED=1 TI_APPLICATION_DEBUG_HOST=%s TI_APPLICATION_DEBUG_PORT=%s' % (debughost,debugport)
+					if debughost:
+						debugstr = 'DEBUGGER_ENABLED=1'
 						
 					args += [
 						"GCC_PREPROCESSOR_DEFINITIONS=DEPLOYTYPE=test TI_TEST=1 %s" % debugstr,

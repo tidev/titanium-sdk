@@ -104,6 +104,22 @@
 
 @implementation TiUIWindowProxy
 
+-(id)retain
+{
+	[super retain];
+}
+
+-(void)release
+{
+	NSLog(@"release called  %d",[self retainCount]-1);
+	[super release];
+}
+
+-(void)dealloc
+{
+	[super dealloc];
+}
+
 -(void)_destroy
 {
     if (![self closing]) {
