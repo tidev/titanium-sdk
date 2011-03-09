@@ -220,20 +220,6 @@
     return 0;
 }
 
--(CGFloat)visiblePercent
-{
-    CGPoint offset = [[self scrollview] contentOffset];
-    CGSize scrollFrame = [self bounds].size;
-    
-    if (scrollFrame.width > 0) {
-        if (offset.x >= 0) {
-            return (offset.x - ([self currentPage] * scrollFrame.width)) / scrollFrame.width;
-        }
-        return offset.x / scrollFrame.width;
-    }
-    return 0;
-}
-
 -(void)refreshScrollView:(CGRect)visibleBounds readd:(BOOL)readd
 {
 	CGRect viewBounds;
@@ -305,14 +291,12 @@
 -(void)setFrame:(CGRect)frame_
 {
     lastPage = [self currentPage];
-    visiblePercent = [self visiblePercent];
     [super setFrame:frame_];
 }
 
 -(void)setBounds:(CGRect)bounds_
 {
     lastPage = [self currentPage];
-    visiblePercent = [self visiblePercent];
     [super setBounds:bounds_];
 }
 
