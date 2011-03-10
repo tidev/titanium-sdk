@@ -100,6 +100,17 @@ public class IntentProxy extends KrollProxy
 		String className = dict.getString(TiC.PROPERTY_CLASS_NAME);
 		String packageName = dict.getString(TiC.PROPERTY_PACKAGE_NAME);
 		String type = dict.getString(TiC.PROPERTY_TYPE);
+		int flags = 0;
+
+		if (dict.containsKey(TiC.PROPERTY_FLAGS)) {
+			flags = TiConvert.toInt(dict, TiC.PROPERTY_FLAGS);
+			if (DBG) {
+				Log.d(TAG, "Setting flags: " + Integer.toString(flags));
+			}
+			intent.setFlags(flags);
+		} else {
+			setProperty("flags", intent.getFlags(), false);
+		}
 
 		if (action != null) {
 			if (DBG) {
@@ -140,6 +151,7 @@ public class IntentProxy extends KrollProxy
 			}
 		}
 
+
 		if (type == null) {
 			if (action != null && action.equals(Intent.ACTION_SEND)) {
 				type = "text/plain";
@@ -163,6 +175,8 @@ public class IntentProxy extends KrollProxy
 		}
 	}
 
+
+
 	@Kroll.method
 	public void putExtra(String key, Object value)
 	{
@@ -181,6 +195,25 @@ public class IntentProxy extends KrollProxy
 			Log.w(TAG, "Warning unimplemented put conversion for " + value.getClass().getCanonicalName() + " trying String");
 			intent.putExtra(key, TiConvert.toString(value));
 		}
+	}
+
+
+	@Kroll.method
+	public void addFlags(int flags)
+	{
+		intent.addFlags(flags);
+	}
+
+	@Kroll.setProperty @Kroll.method
+	public void setFlags(int flags)
+	{
+		intent.setFlags(flags);
+	}
+
+	@Kroll.getProperty @Kroll.method
+	public int getFlags()
+	{
+		return intent.getFlags();
 	}
 
 	@Kroll.method

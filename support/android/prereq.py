@@ -27,14 +27,14 @@ def check_java():
 	
 	return (failed, status)
 
-def check_android1_6():
+def check_android_sdk():
 	failed = False
 	status = "OK"
 	try:
-		sdk = AndroidSDK(None, 4)
+		sdk = AndroidSDK(None, 7)
 		status = sdk.get_android_sdk()
 	except Exception, e:
-		status = "Missing Android 1.6 SDK: %s" % e
+		status = "Missing Android 2.1 SDK: %s" % e
 		failed = True
 	
 	return (failed, status)
@@ -45,7 +45,7 @@ def main(args):
 		print java_status
 		sys.exit(1)
 	
-	(android_failed, android_status) = check_android1_6()
+	(android_failed, android_status) = check_android_sdk()
 	if android_failed:
 		print android_status
 		sys.exit(2)

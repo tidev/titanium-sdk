@@ -986,7 +986,7 @@ def main(args):
 					f=open(os.path.join(iphone_resources_dir,'Entitlements.plist'),'w+')
 					f.write(entitlements_contents)
 					f.close()
-					args+=["CODE_SIGN_ENTITLEMENTS = Resources/Entitlements.plist"]
+					args+=["CODE_SIGN_ENTITLEMENTS=Resources/Entitlements.plist"]
 
 				# only build if force rebuild (different version) or 
 				# the app hasn't yet been built initially
@@ -1143,8 +1143,8 @@ def main(args):
 
 					args += [
 						"GCC_PREPROCESSOR_DEFINITIONS=DEPLOYTYPE=test TI_TEST=1",
-						"PROVISIONING_PROFILE[sdk=iphoneos*]=%s" % appuuid,
-						"CODE_SIGN_IDENTITY[sdk=iphoneos*]=iPhone Developer: %s" % dist_name,
+						"PROVISIONING_PROFILE=%s" % appuuid,
+						"CODE_SIGN_IDENTITY=iPhone Developer: %s" % dist_name,
 						"DEPLOYMENT_POSTPROCESSING=YES"
 					]
 					execute_xcode("iphoneos%s" % iphone_version,args,False)
@@ -1205,8 +1205,8 @@ def main(args):
 
 					args += [
 						"GCC_PREPROCESSOR_DEFINITIONS=DEPLOYTYPE=%s TI_PRODUCTION=1" % deploytype,
-						"PROVISIONING_PROFILE[sdk=iphoneos*]=%s" % appuuid,
-						"CODE_SIGN_IDENTITY[sdk=iphoneos*]=iPhone Distribution: %s" % dist_name,
+						"PROVISIONING_PROFILE=%s" % appuuid,
+						"CODE_SIGN_IDENTITY=iPhone Distribution: %s" % dist_name,
 						"DEPLOYMENT_POSTPROCESSING=YES"
 					]
 					execute_xcode("iphoneos%s" % iphone_version,args,False)

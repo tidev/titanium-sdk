@@ -19,6 +19,8 @@
 	<property name="jni" location="${ti.module.root}/jni"/>
 	<property name="libs" location="${ti.module.root}/libs"/>
 
+	<property name="javac.debug" value="true"/>
+
 	<path id="project.classpath">
 		<fileset dir="${lib}">
 			<include name="**/*.jar"/>
@@ -42,7 +44,7 @@
 		<javac 
 			srcdir="${src}" 
 			destdir="${classes}"
-			debug="true"
+			debug="${javac.debug}"
 			includeantruntime="false">
 				<compilerarg value="-processor"/>
 				<compilerarg value="org.appcelerator.kroll.annotations.generator.KrollBindingGenerator"/>
@@ -54,11 +56,14 @@
 		</javac>
 	</target>
 
-	<target name="compile" depends="process.annotations,ndk.build"
+	<target name="pre.compile">
+	</target>
+
+	<target name="compile" depends="process.annotations,ndk.build,pre.compile"
 		description="Compile this module's source code">
 		<javac 
 			destdir="${classes}"
-			debug="true"
+			debug="${javac.debug}"
 			includeantruntime="false">
 			<src path="${src}" />
 			<src path="${gen}" />
@@ -69,6 +74,10 @@
 		<copy todir="${classes}">
 			<fileset dir="${gen}" includes="**/*.json"/>
 		</copy>
+		<antcall target="post.compile"/>
+	</target>
+
+	<target name="post.compile">
 	</target>
 
 	<macrodef name="check.ndk">
@@ -103,13 +112,20 @@
 		</zip>
 	</target>
 
-	<target name="dist" depends="compile" description="Generate a distributable module JAR">
+	<target name="pre.dist">
+	</target>
+
+	<target name="post.jar">
+	</target>
+
+	<target name="dist" depends="compile,pre.dist" description="Generate a distributable module JAR">
 		<ti.string property="module.id" string="${manifest.moduleid}" tolowercase="true"/>
 		<property name="module.jar" location="${dist}/${ant.project.name}.jar"/>
 		<jar destfile="${module.jar}">
 			<fileset dir="${classes}"/>
 			<fileset dir="${ti.module.root}" includes="assets/**" excludes="assets/README"/>
 		</jar>
+		<antcall target="post.jar"/>
 		<property name="zip.prefix" value="modules/android/${module.id}/${manifest.version}"/>
 		<antcall target="docgen"/>
 		<zip destfile="${dist}/${module.id}-android-${manifest.version}.zip">
@@ -121,14 +137,25 @@
 		</zip>
 		<antcall target="zip.libs"/>
 		<delete dir="${lib.expand.dir}" includeemptydirs="true" failonerror="false" deleteonexit="true"/>
+		<antcall target="post.dist"/>
 	</target>
 
-	<target name="clean" description="Cleans classes and dist files" depends="ndk.clean">
+	<target name="post.dist">
+	</target>
+
+	<target name="pre.clean">
+	</target>
+
+	<target name="clean" description="Cleans classes and dist files" depends="ndk.clean,pre.clean">
 		<delete dir="${classes}"/>
 		<delete dir="${dist}"/>
 		<delete includeemptydirs="true" failonerror="false">
 			<fileset dir="${gen}" includes="**/*"/>
 		</delete>
+		<antcall target="post.clean"/>
+	</target>
+
+	<target name="post.clean">
 	</target>
 
 	<target name="ndk.clean" if="module.ndkbuild">
@@ -167,7 +194,14 @@
 		<titanium command="run"/>
 	</target>
 
-	<target name="docgen" description="Generate HTML documentation from Markdown">
+	<target name="pre.docgen">
+	</target>
+
+	<target name="docgen" depends="pre.docgen" description="Generate HTML documentation from Markdown">
 		<titanium command="docgen"/>
+		<antcall target="post.docgen"/>
+	</target>
+
+	<target name="post.docgen">
 	</target>
 </project>

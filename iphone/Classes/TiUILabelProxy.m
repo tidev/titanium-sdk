@@ -10,7 +10,57 @@
 #import "TiUILabel.h"
 #import "TiUtils.h"
 
+//#define LABEL_TRACKING
+
+#ifdef LABEL_TRACKING
+id blessedObject = nil;
+#endif
+
 @implementation TiUILabelProxy
+
+#ifdef LABEL_TRACKING
+-(void)markProgress:(id)comment
+{
+//	if (blessedObject == self)
+	{
+		NSLog(@"%X (%@) during %@ is currently at retain count %d",self,self,comment,[self retainCount]);
+	}
+}
+
+- (id) init
+{
+	self = [super init];
+	if (self != nil)
+	{
+		if (blessedObject == nil)
+		{
+			blessedObject = self;
+		}
+		[self markProgress:@"init"];
+	}
+	return self;
+}
+
+-(id)retain
+{
+	[self markProgress:@"retain"];
+	return [super retain];
+}
+
+-(void)release
+{
+	[self markProgress:@"release"];
+	[super release];
+}
+
+- (void) dealloc
+{
+	[self markProgress:@"dealloc"];
+	[super dealloc];
+}
+
+#endif
+
 
 USE_VIEW_FOR_AUTO_WIDTH
 

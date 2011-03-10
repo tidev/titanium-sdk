@@ -69,7 +69,11 @@ public class TiUITabGroup extends TiUIView
 		//tabHost.setup(proxy.getTiContext().getRootActivity().getLocalActivityManager());
 		tabHost.setup(activity.getLocalActivityManager());
 
-		tabHost.setBackgroundDrawable(new ColorDrawable(TiConvert.toColor("#ff1a1a1a")));
+		if (proxy.hasProperty(TiC.PROPERTY_BACKGROUND_COLOR)) {
+			tabHost.setBackgroundColor(TiConvert.toColor(proxy.getProperties(),TiC.PROPERTY_BACKGROUND_COLOR));
+		} else {
+			tabHost.setBackgroundDrawable(new ColorDrawable(TiConvert.toColor("#ff1a1a1a")));
+		}
 
 		setNativeView(tabHost);
 		TiCompositeLayout.LayoutParams params = new TiCompositeLayout.LayoutParams();

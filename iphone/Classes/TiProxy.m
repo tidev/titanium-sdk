@@ -10,6 +10,7 @@
 #import "TiProxy.h"
 #import "TiHost.h"
 #import "KrollCallback.h"
+#import "KrollContext.h"
 #import "KrollBridge.h"
 #import "TiModule.h"
 #import "ListenerEntry.h"
@@ -218,7 +219,7 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 	if (self = [self init])
 	{   
 		pageContext = (id)context; // do not retain 
-		[pageContext registerProxy:self];
+//		[pageContext registerProxy:self];
 		// allow subclasses to configure themselves
 		[self _configure];
 	}
@@ -240,20 +241,8 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 	id<TiEvaluator> context = (id<TiEvaluator>)sender;
 	// remove any listeners that match this context being destroyed that we have registered
 	//TODO: This listeners needs a lock around it, but not deadlock with the removeEventListener inside.
-	if (listeners!=nil)
-	{
-		for (id type in listeners)
-		{
-			NSArray *a = [listeners objectForKey:type];
-			for (KrollCallback *callback in a)
-			{
-				[self removeEventListener:[NSArray arrayWithObjects:type,callback,type,nil]];
-			}
-		}
-	}
 	
 	[self _destroy];
-	[self _contextDestroyed];
 	[self contextWasShutdown:context];
 }
 
@@ -315,10 +304,6 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 	return self;
 }
 
--(void)_contextDestroyed
-{
-}
-
 -(void)_destroy
 {
 	if (destroyed)
@@ -344,25 +329,7 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 	
 	// remove all listeners JS side proxy
 	pthread_rwlock_wrlock(&listenerLock);
-	if (listeners!=nil)
-	{
-		if (pageContext!=nil)
-		{
-			TiHost *host = [self _host];
-			if (host!=nil)
-			{
-				for (id type in listeners)
-				{
-					NSArray *array = [listeners objectForKey:type];
-					for (id listener in array)
-					{
-						[host removeListener:listener context:pageContext];
-					}
-				}
-			}
-		}
-		RELEASE_TO_NIL(listeners);
-	}
+	RELEASE_TO_NIL(listeners);
 	pthread_rwlock_unlock(&listenerLock);
 	
 	pthread_rwlock_wrlock(&dynpropsLock);
@@ -458,7 +425,7 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 {
 	pthread_rwlock_rdlock(&listenerLock);
 	//If listeners is nil at this point, result is still false.
-	BOOL result = [listeners objectForKey:type]!=nil;
+	BOOL result = [[listeners objectForKey:type] intValue]>0;
 	pthread_rwlock_unlock(&listenerLock);
 	return result;
 }
@@ -530,87 +497,61 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 	return nil;
 }
 
+-(KrollObject *)krollObjectForContext:(KrollContext *)context
+{
+	KrollBridge * ourBridge = (KrollBridge *)[context delegate];
+#ifdef DEBUG
+	if(![ourBridge usesProxy:self])
+	{
+		NSLog(@"[ERROR] Adding an event listener to a proxy that isn't already in the context!!!");
+	}
+#endif
+	return [ourBridge krollObjectForProxy:self];
+}
+
 -(void)addEventListener:(NSArray*)args
 {
-	pthread_rwlock_wrlock(&listenerLock);
-	
 	NSString *type = [args objectAtIndex:0];
 	KrollCallback* listener = [args objectAtIndex:1];
 	ENSURE_TYPE(listener,KrollCallback);
-	
-	listener.type = type;
-	
-	if (listeners==nil)
-	{
-		listeners = [[NSMutableDictionary alloc] init];
-	}
 
-	NSMutableArray *l = [listeners objectForKey:type];
-	if (l==nil)
-	{
-		l = [[NSMutableArray alloc] init];
-		[listeners setObject:l forKey:type];
-		[l release];
-	}
+	KrollObject * ourObject = [self krollObjectForContext:[listener context]];
+	[ourObject storeCallback:listener forEvent:type];
 
-	[l addObject:listener];
-	
+	//TODO: You know, we can probably nip this in the bud and do this at a lower level,
+	//Or make this less onerous.
+	int ourCallbackCount = 0;
+
+	pthread_rwlock_wrlock(&listenerLock);
+	ourCallbackCount = [[listeners objectForKey:type] intValue] + 1;
+	if(listeners==nil){
+		listeners = [[NSMutableDictionary alloc] initWithCapacity:3];
+	}
+	[listeners setObject:NUMINT(ourCallbackCount) forKey:type];
 	pthread_rwlock_unlock(&listenerLock);
-	
-	[self _listenerAdded:type count:[l count]];
+
+	[self _listenerAdded:type count:ourCallbackCount];
 }
 	  
 -(void)removeEventListener:(NSArray*)args
 {
 	NSString *type = [args objectAtIndex:0];
-	KrollCallback *listener = [args objectAtIndex:1];
-	
-	// if we pass a third-arg, that means we shouldn't
-	// mutate the array and we're in a destroy
-	BOOL inDestroy = [args count] > 2;
-	int count = 0;
-	
-	if (inDestroy==NO)
-	{
-		// hold during event
-		[listener retain];
+	KrollCallback* listener = [args objectAtIndex:1];
+	ENSURE_TYPE(listener,KrollCallback);
 
-		pthread_rwlock_wrlock(&listenerLock);
-		
-		NSMutableArray *l = [listeners objectForKey:type];
+	KrollObject * ourObject = [self krollObjectForContext:[listener context]];
+	[ourObject removeCallback:listener forEvent:type];
 
-		if (l!=nil && [l count]>0)
-		{
-			[l removeObject:listener];
-			
-			count = [l count];
-			
-			// once empty, remove the object
-			if (count==0)
-			{
-				[listeners removeObjectForKey:type];
-			}
-			
-			// once we have no more listeners, release memory!
-			if ([listeners count]==0)
-			{
-				[listeners autorelease];
-				listeners = nil;
-			}
-		}
-		pthread_rwlock_unlock(&listenerLock);
+	//TODO: You know, we can probably nip this in the bud and do this at a lower level,
+	//Or make this less onerous.
+	int ourCallbackCount = 0;
 
-	}
-	
-	id<TiEvaluator> ctx = (id<TiEvaluator>)[listener context];
-	[[self _host] removeListener:listener context:ctx];
-	[self _listenerRemoved:type count:count];
-	
-	
-	if (inDestroy==NO)
-	{
-		[listener release];
-	}
+	pthread_rwlock_wrlock(&listenerLock);
+	ourCallbackCount = [[listeners objectForKey:type] intValue] - 1;
+	[listeners setObject:NUMINT(ourCallbackCount) forKey:type];
+	pthread_rwlock_unlock(&listenerLock);
+
+	[self _listenerRemoved:type count:ourCallbackCount];
 }
 
 -(void)fireEvent:(id)args
@@ -654,35 +595,26 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 		return;
 	}
 
-	pthread_rwlock_rdlock(&listenerLock);
-	if (listeners!=nil)
+	//TODO: This can be optimized later on.
+	NSMutableDictionary* eventObject = nil;
+	if ([obj isKindOfClass:[NSDictionary class]])
 	{
-		NSMutableArray *l = [listeners objectForKey:type];
-		if (l!=nil)
-		{
-			TiHost *host = [self _host];
-			
-			NSMutableDictionary* eventObject = nil;
-			if ([obj isKindOfClass:[NSDictionary class]])
-			{
-				eventObject = [NSMutableDictionary dictionaryWithDictionary:obj];
-			}
-			else 
-			{
-				eventObject = [NSMutableDictionary dictionary];
-			}
-			
-			// common event properties for all events we fire
-			[eventObject setObject:type forKey:@"type"];
-			[eventObject setObject:source forKey:@"source"];
-			
-			for (KrollCallback *listener in l)
-			{
-				[host fireEvent:listener withObject:eventObject remove:NO context:self.pageContext thisObject:nil];
-			}
-		}
+		eventObject = [NSMutableDictionary dictionaryWithDictionary:obj];
+		[eventObject setObject:type forKey:@"type"];
+		[eventObject setObject:source forKey:@"source"];
 	}
-	pthread_rwlock_unlock(&listenerLock);
+	else 
+	{
+		eventObject = [NSMutableDictionary dictionaryWithObjectsAndKeys:type,@"type",source,@"source",nil];
+	}
+
+	//Since listeners are now at the object level, we have to wait in line.
+	NSArray * bridges = [KrollBridge krollBridgesUsingProxy:self];
+
+	for (KrollBridge * currentBridge in bridges)
+	{
+		[currentBridge enqueueEvent:type forProxy:self withObject:eventObject withSource:source];
+	}
 }
 
 - (void)setValuesForKeysWithDictionary:(NSDictionary *)keyedValues

@@ -13,6 +13,7 @@ import java.io.InputStreamReader;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.appcelerator.kroll.KrollEvaluator;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
@@ -43,13 +44,14 @@ public class KrollContext implements Handler.Callback
 	private static final int MSG_EVAL_STRING = 1000;
 	private static final int MSG_EVAL_FILE = 1001;
 
-	private static AtomicInteger instanceCounter;
-
 	private static final String APP_SCHEME= "app://";
 	private static final String FILE_WITH_ASSET = "file:///android_asset/Resources/";
 	private static final String STRING_SOURCE = "<anonymous>";
 
 	public static final String CONTEXT_KEY = "krollContext";
+
+	private static AtomicInteger instanceCounter;
+	private static KrollEvaluator evaluator = new DefaultEvaluator();
 
 	private KrollHandlerThread thread;
 	private TiContext tiContext;
@@ -82,6 +84,51 @@ public class KrollContext implements Handler.Callback
 
 		thread.start();
 		requireInitialized();
+	}
+
+	public static final class DefaultEvaluator implements KrollEvaluator
+	{
+		@Override
+		public Object evaluateFile(Context context, Scriptable scope,
+			TiBaseFile file, String filename, int lineNo, Object securityDomain)
+		{
+			BufferedReader br = null;
+			Object result = Scriptable.NOT_FOUND;
+			try {
+				br = new BufferedReader(new InputStreamReader(file.getInputStream()), 4000);
+				Log.d(LCAT, "Running evaluated script: " + filename);
+				result = context.evaluateReader(scope, br, filename, 1, null);
+			} catch (IOException e) {
+				Log.e(LCAT, "IOException reading file: " + filename, e);
+				Context.throwAsScriptRuntimeEx(e);
+			} finally {
+				if (br != null) {
+					try {
+						br.close();
+					} catch (IOException e) {
+						// Ignore
+					}
+				}
+			}
+			return result;
+		}
+
+		@Override
+		public Object evaluateString(Context context, Scriptable scope,
+			String src, String sourceName, int lineNo, Object securityDomain)
+		{
+			return context.evaluateString(scope, src, sourceName, lineNo, securityDomain);
+		}
+	}
+
+	public static KrollEvaluator getKrollEvaluator()
+	{
+		return evaluator;
+	}
+
+	public static void setKrollEvaluator(KrollEvaluator e)
+	{
+		evaluator = e;
 	}
 
 	protected void initContext()
@@ -169,10 +216,15 @@ public class KrollContext implements Handler.Callback
 
 	protected Object runCompiledScript(String filename)
 	{
-		
 		if (filename.contains("://")) {
 			if (filename.startsWith(APP_SCHEME)) {
 				filename = filename.substring(APP_SCHEME.length());
+
+				// In some cases we might have a leading slash after the app:// URL
+				// normalize by trimming the leading slash
+				if (filename.length() > 0 && filename.charAt(0) == '/') {
+					filename = filename.substring(1);
+				}
 			} else if (filename.startsWith(FILE_WITH_ASSET)) {
 				filename = filename.substring(FILE_WITH_ASSET.length());
 			} else {
@@ -197,26 +249,9 @@ public class KrollContext implements Handler.Callback
 	{
 		String[] parts = { filename };
 		TiBaseFile tbf = TiFileFactory.createTitaniumFile(tiContext, parts, false);
-		BufferedReader br = null;
-
+		
 		Context context = enter(false);
-		try {
-			br = new BufferedReader(new InputStreamReader(tbf.getInputStream()), 4000);
-			Log.d(LCAT, "Running evaluated script: " + filename);
-			return context.evaluateReader(jsScope, br, filename, 0, null);
-		} catch (IOException e) {
-			Log.e(LCAT, "IOException reading file: " + filename, e);
-			Context.throwAsScriptRuntimeEx(e);
-		} finally {
-			if (br != null) {
-				try {
-					br.close();
-				} catch (IOException e) {
-					// Ignore
-				}
-			}
-		}
-		return ScriptableObject.NOT_FOUND;
+		return evaluator.evaluateFile(context, jsScope, tbf, filename, 1, null);
 	}
 
 	public Object handleEvalFile(String filename)
@@ -263,7 +298,7 @@ public class KrollContext implements Handler.Callback
 		Object result = null;
 		Context ctx = enter(false);
 		try {
-			result = ctx.evaluateString(jsScope, src, STRING_SOURCE, 0, null);
+			result = evaluator.evaluateString(ctx, jsScope, src, STRING_SOURCE, 1, null);
 		} catch (EcmaError e) {
 			Log.e(LCAT, "ECMA Error evaluating source: " + e.getMessage(), e);
 			Context.reportRuntimeError(e.getMessage(), e.sourceName(), e.lineNumber(), e.lineSource(), e.columnNumber());

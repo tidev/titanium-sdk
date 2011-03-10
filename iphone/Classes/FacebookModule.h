@@ -24,6 +24,7 @@
 	NSString *appid;
 	NSArray *permissions;
 	NSMutableArray *stateListeners;
+    BOOL forceDialogAuth;
 }
 
 @property(nonatomic,readonly) Facebook *facebook;

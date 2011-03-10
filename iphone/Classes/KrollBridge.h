@@ -35,6 +35,9 @@
 	TitaniumObject *titanium;
 	BOOL shutdown;
 	NSMutableArray *proxies;
+	//NOTE: Do NOT treat registeredProxies like a mutableDictionary; mutable dictionaries copy keys,
+	//CFMutableDictionaryRefs only retain keys, which lets them work with proxies properly.
+	CFMutableDictionaryRef registeredProxies;
 	NSCondition *shutdownCondition;
 	NSLock *proxyLock;
 }
@@ -45,6 +48,11 @@
 - (void)fireEvent:(id)listener withObject:(id)obj remove:(BOOL)yn thisObject:(TiProxy*)thisObject;
 - (id)preloadForKey:(id)key name:(id)name;
 - (KrollContext*)krollContext;
+
++ (NSArray *)krollBridgesUsingProxy:(id)proxy;
+-(void)enqueueEvent:(NSString*)type forProxy:(TiProxy *)proxy withObject:(id)obj withSource:(id)source;
+
+-(int)forceGarbageCollectNow;
 
 @end
 

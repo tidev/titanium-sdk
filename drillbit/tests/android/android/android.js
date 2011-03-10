@@ -37,7 +37,61 @@ describe("Ti.Android tests", {
 		valueOf(Ti.Android.FLAG_ONE_SHOT).shouldBeNumber();
 		valueOf(Ti.Android.FLAG_UPDATE_CURRENT).shouldBeNumber();
 	},
-
+	// https://appcelerator.lighthouseapp.com/projects/32238/tickets/3248-android-support-intent-flags
+	intentFlags : function() {
+		valueOf(Ti.Android.FLAG_GRANT_READ_URI_PERMISSION).shouldBeNumber();
+		valueOf(Ti.Android.FLAG_GRANT_WRITE_URI_PERMISSION).shouldBeNumber();
+		valueOf(Ti.Android.FLAG_DEBUG_LOG_RESOLUTION).shouldBeNumber();
+		valueOf(Ti.Android.FLAG_FROM_BACKGROUND).shouldBeNumber();
+		valueOf(Ti.Android.FLAG_ACTIVITY_BROUGHT_TO_FRONT).shouldBeNumber();
+		//API 11 valueOf(Ti.Android.FLAG_ACTIVITY_CLEAR_TASK).shouldBeNumber();
+		valueOf(Ti.Android.FLAG_ACTIVITY_CLEAR_TOP).shouldBeNumber();
+		valueOf(Ti.Android.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET).shouldBeNumber();
+		valueOf(Ti.Android.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS).shouldBeNumber();
+		valueOf(Ti.Android.FLAG_ACTIVITY_FORWARD_RESULT).shouldBeNumber();
+		valueOf(Ti.Android.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY).shouldBeNumber();
+		valueOf(Ti.Android.FLAG_ACTIVITY_MULTIPLE_TASK).shouldBeNumber();
+		valueOf(Ti.Android.FLAG_ACTIVITY_NEW_TASK).shouldBeNumber();
+		valueOf(Ti.Android.FLAG_ACTIVITY_NO_ANIMATION).shouldBeNumber();
+		valueOf(Ti.Android.FLAG_ACTIVITY_NO_HISTORY).shouldBeNumber();
+		valueOf(Ti.Android.FLAG_ACTIVITY_NO_USER_ACTION).shouldBeNumber();
+		valueOf(Ti.Android.FLAG_ACTIVITY_PREVIOUS_IS_TOP).shouldBeNumber();
+		valueOf(Ti.Android.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED).shouldBeNumber();
+		valueOf(Ti.Android.FLAG_ACTIVITY_REORDER_TO_FRONT).shouldBeNumber();
+		valueOf(Ti.Android.FLAG_ACTIVITY_SINGLE_TOP).shouldBeNumber();
+		//API 11 sconsvalueOf(Ti.Android.FLAG_ACTIVITY_TASK_ON_HOME).shouldBeNumber();
+		valueOf(Ti.Android.FLAG_RECEIVER_REGISTERED_ONLY).shouldBeNumber();		
+	},
+	intentFlagAccessors : function() {
+		var intent = Ti.Android.createIntent({
+			action : Ti.Android.ACTION_MAIN,
+			flags : Ti.Android.FLAG_ACTIVITY_NEW_TASK
+		});
+		// Test presence of methods
+		valueOf(intent.getFlags).shouldBeFunction();
+		valueOf(intent.setFlags).shouldBeFunction();
+		valueOf(intent.addFlags).shouldBeFunction();
+		
+		// Check flags from create args
+		valueOf(intent.flags).shouldBeNumber();
+		valueOf(intent.getFlags()).shouldBe(Ti.Android.FLAG_ACTIVITY_NEW_TASK);
+		
+		intent.flags = Ti.Android.FLAG_ACTIVITY_NO_HISTORY;
+		valueOf(intent.flags).shouldBe(Ti.Android.FLAG_ACTIVITY_NO_HISTORY);
+		
+		intent.addFlags(Ti.Android.FLAG_ACTIVITY_NEW_TASK);
+		valueOf(intent.getFlags()).shouldBe(Ti.Android.FLAG_ACTIVITY_NEW_TASK + Ti.Android.FLAG_ACTIVITY_NO_HISTORY);
+		
+		intent = Ti.Android.createIntent({
+			action : Ti.Android.ACTION_MAIN
+		});
+		
+		valueOf(intent.flags).shouldBeNumber();
+		valueOf(intent.flags).shouldBe(0);
+		intent.setFlags(Ti.Android.FLAG_ACTIVITY_NEW_TASK);
+		valueOf(intent.getFlags()).shouldBe(Ti.Android.FLAG_ACTIVITY_NEW_TASK);
+	},
+	
 	options: {
 		forceBuild: true
 	}

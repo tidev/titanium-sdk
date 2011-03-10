@@ -40,6 +40,7 @@ show: show the popover
 hide: hide the popover
 setWidth: change the width of the popover
 setHeight: change the height of the popover
+setPassthroughViews: set the passthrough views for the popover
 
 - method : show
 
@@ -56,6 +57,10 @@ width[int,string]: width of the popover
 - method : setHeight
 
 height[int,string]: height of the popover
+
+- method : setPassthroughViews
+
+passthroughViews[array]: array of views which the user can interact with while the popover is open (i.e. clicking on these views will interact with these views, and not dismiss the popover).
 
 - events
 
