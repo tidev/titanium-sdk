@@ -216,10 +216,15 @@ public class KrollContext implements Handler.Callback
 
 	protected Object runCompiledScript(String filename)
 	{
-		
 		if (filename.contains("://")) {
 			if (filename.startsWith(APP_SCHEME)) {
 				filename = filename.substring(APP_SCHEME.length());
+
+				// In some cases we might have a leading slash after the app:// URL
+				// normalize by trimming the leading slash
+				if (filename.length() > 0 && filename.charAt(0) == '/') {
+					filename = filename.substring(1);
+				}
 			} else if (filename.startsWith(FILE_WITH_ASSET)) {
 				filename = filename.substring(FILE_WITH_ASSET.length());
 			} else {

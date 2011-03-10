@@ -20,6 +20,7 @@ var spawn = require('child_process').spawn;
 var jsca = '';
 var errout = '';
 var verbose = process.argv.indexOf('-v') > -1 || process.argv.indexOf('--verbose') > -1;
+var js_valid_identifier = /^[a-zA-Z_$][0-9a-zA-Z_$]*$/;
 var breadcrumbs = {
 	_array : [],
 	push: function(s){this._array.push(s); if(verbose){console.log(s);}},
@@ -160,9 +161,19 @@ function test_array_against_member_template(the_array, member_type_name) {
 	}
 }
 
+function test_js_identifier(s) {
+	assert.ok(s.match(js_valid_identifier) !== null, "Not a valid JS identifier: " + s);
+}
+
 function test_type(the_type) {
+	// make sure letter case didn't break anything (a single sanity check for this):
+	var correctCase = 'Titanium.UI';
+	if (the_type.length >= correctCase.length && the_type.toLowerCase().substr(0, correctCase.length) === correctCase.toLowerCase()) {
+		assert.equal(the_type.substr(0, correctCase.length), correctCase, "Proper casing seems to have screwed up a namespace. " + the_type + " should start with " + correctCase);
+	}
+
 	var pattern = /^(DOMNode|Function|RegExp|Date|Object|Boolean|Null|Number|String|Ti(tanium)?\.\S+|Array|Array<\S+>)$/;
-	var parts = the_type.split(',');
+	var parts = the_type.split(','); // returnType can have a comma-sep list of types
 	for (var i = 0; i < parts.length; i++) {
 		var onepart = parts[i];
 		assert.ok(onepart.match(pattern) !== null, "Unknown type spec: " + the_type);
@@ -175,12 +186,14 @@ function test_functions(functions) {
 		var onefunc = functions[i];
 		var funcname = resolveName(onefunc);
 		breadcrumbs.push('Testing function ' + funcname);
+		test_js_identifier(funcname);
 		test_array_against_member_template([ onefunc ], "function");
 		if (onefunc.parameters && onefunc.parameters.length) {
 			for (var j = 0; j < onefunc.parameters.length; j++) {
 				var oneparam = onefunc.parameters[j];
 				var paramname = resolveName(oneparam);
 				breadcrumbs.push('Testing parameter ' + paramname);
+				test_js_identifier(paramname);
 				test_array_against_member_template([ oneparam ], 'parameter');
 				if (oneparam.type) {
 					test_type(oneparam.type);
@@ -209,19 +222,36 @@ function test_properties(properties) {
 		var oneprop = properties[i];
 		var propname = resolveName(oneprop);
 		breadcrumbs.push('Testing property ' + propname);
+		test_js_identifier(propname);
 		test_array_against_member_template([ oneprop ], 'property');
 		test_type(oneprop.type);
 		breadcrumbs.pop();
 	}
 }
 
-function test_function_parameters(functions) {
-	for (var i = 0; i < functions.length; i++) {
-		if (functions[i].parameters && functions[i].parameters.length) {
-			test_array_against_member_template(functions[i].parameters, "parameter");
+function test_events(events) {
+	assert.ok(isArray(events) && events.length, 'events should be a non-empty array');
+	for (var i = 0; i < events.length; i++) {
+		var oneevent = events[i];
+		var eventname = resolveName(oneevent);
+		breadcrumbs.push('Testing event ' + eventname);
+		if (oneevent.properties && oneevent.properties.length) {
+			for (var j = 0; j < oneevent.properties.length; j++) {
+				var oneprop = oneevent.properties[j];
+				var propname = resolveName(oneprop);
+				breadcrumbs.push('Testing event property ' + propname);
+				test_js_identifier(propname);
+				if (oneprop.type) {
+					test_type(oneprop.type);
+				}
+				breadcrumbs.pop();
+			}
 		}
+		breadcrumbs.pop();
 	}
 }
+
+
 function test_types(types) {
 	assert.ok(isArray(types) && types.length, 'types should be a non-empty array');
 	breadcrumbs.push('testing all type definitions');
@@ -229,6 +259,13 @@ function test_types(types) {
 	for (var i = 0; i < types.length; i++) {
 		var onetype = types[i];
 		var tname = resolveName(onetype);
+		breadcrumbs.push('Testing type ' + tname);
+		var parts = tname.split('.');
+		for (var j = 0; j < parts.length; j++) {
+			var onepart = parts[j];
+			test_js_identifier(onepart);
+		}
+
 		if (onetype.functions && onetype.functions.length) {
 			breadcrumbs.push('testing function definitions for ' + tname);
 			test_functions(onetype.functions);
@@ -239,6 +276,12 @@ function test_types(types) {
 			test_properties(onetype.properties);
 			breadcrumbs.pop();
 		}
+		if (onetype.events && onetype.events.length) {
+			breadcrumbs.push('testing event definitions for ' + tname);
+			test_events(onetype.events);
+		}
+
+		breadcrumbs.pop();
 	}
 	breadcrumbs.pop();
 }
@@ -254,7 +297,7 @@ function sanityChecks(api) {
 		eventCount += api.types[i].events.length;
 	}
 	assert.ok(methodCount > 800, 'Expected well over 800 function definitions, found only ' + methodCount);
-	assert.ok(propertyCount > 2200, 'Expected well over 2200 property definitions, found only ' + propertyCount);
+	assert.ok(propertyCount > 2000, 'Expected well over 2000 property definitions, found only ' + propertyCount);
 	assert.ok(eventCount > 400, 'Expected well over 400 event definitions, found only ' + eventCount);
 }
 

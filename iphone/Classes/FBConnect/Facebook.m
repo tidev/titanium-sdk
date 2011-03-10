@@ -17,6 +17,7 @@
 #import "Facebook.h"
 #import "FBLoginDialog.h"
 #import "FBRequest.h"
+#import "TiUtils.h"
 
 static NSString* kOAuthURL = @"https://www.facebook.com/dialog/oauth";
 static NSString* kFBAppAuthURL = @"fbauth://authorize";
@@ -55,6 +56,14 @@ static NSString* kSDKVersion = @"ios";
   [_appId release];
   [_permissions release];
   [super dealloc];
+}
+
+-(id)init
+{
+    if (self = [super init]) {
+        appSupportsBackgrounding = ![TiUtils boolValue:@"UIApplicationExitsOnSuspend" properties:[[NSBundle mainBundle] infoDictionary] def:NO];
+    }
+    return self;
 }
 
 /**
@@ -117,7 +126,7 @@ static NSString* kSDKVersion = @"ios";
   // her credentials in order to authorize the application.
   BOOL didOpenOtherApp = NO;
   UIDevice *device = [UIDevice currentDevice];
-  if ([device respondsToSelector:@selector(isMultitaskingSupported)] && [device isMultitaskingSupported]) {
+  if ([device respondsToSelector:@selector(isMultitaskingSupported)] && [device isMultitaskingSupported] && appSupportsBackgrounding) {
     if (tryFBAppAuth) {
       NSString *fbAppUrl = [FBRequest2 serializeURL:kFBAppAuthURL params:params];
       didOpenOtherApp = [[UIApplication sharedApplication] openURL:[NSURL URLWithString:fbAppUrl]];
@@ -201,6 +210,7 @@ static NSString* kSDKVersion = @"ios";
  */
 - (void)authorize:(NSString*)application_id
       permissions:(NSArray*)permissions
+      forceDialog:(BOOL)forceDialog
          delegate:(id<FBSessionDelegate2>)delegate {
 
   [_appId release];
@@ -211,7 +221,7 @@ static NSString* kSDKVersion = @"ios";
 
   _sessionDelegate = delegate;
 
-  [self authorizeWithFBAppAuth:YES safariAuth:YES];
+  [self authorizeWithFBAppAuth:!forceDialog safariAuth:!forceDialog];
 }
 
 /**

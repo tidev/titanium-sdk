@@ -143,6 +143,7 @@
 	VerboseLog(@"[DEBUG] facebook startup");
 	
 	[super startup];
+    forceDialogAuth = YES;
 	[self _restore];
 	[self handleRelaunch];
 }
@@ -262,6 +263,18 @@
  * JS example:
  *
  * var facebook = require('facebook');
+ * alert(facebook.forceDialogAuth);
+ * 
+ */
+-(id)forceDialogAuth
+{
+    return [NSNumber numberWithBool:forceDialogAuth];
+}
+
+/**
+ * JS example:
+ *
+ * var facebook = require('facebook');
  * alert(facebook.accessToken);
  * 
  */
@@ -314,6 +327,19 @@
  * JS example:
  *
  * var facebook = require('facebook');
+ * facebook.forceDialogAuth = true;
+ * alert(facebook.forceDialogAuth);
+ * 
+ */
+-(void)setForceDialogAuth:(id)arg
+{
+    forceDialogAuth = [TiUtils boolValue:arg def:NO];
+}
+
+/**
+ * JS example:
+ *
+ * var facebook = require('facebook');
  *
  * facebook.addEventListener('login',function(e) {
  *    if (e.success) {
@@ -357,7 +383,7 @@
 	[self _unsave];
 	
 	NSArray *permissions_ = permissions == nil ? [NSArray array] : permissions;
-	[facebook authorize:appid permissions:permissions_ delegate:self];
+	[facebook authorize:appid permissions:permissions_ forceDialog:forceDialogAuth delegate:self];
 }
 
 /**
