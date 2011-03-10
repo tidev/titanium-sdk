@@ -118,9 +118,8 @@ enum
 
 
 #pragma mark nonpublic accessors not related to Housecleaning
-@property(nonatomic,readonly) TiViewProxy *parent;
+@property(assign) TiViewProxy *parent;
 //TODO: make this a proper readwrite property declaration.
--(void)setParent:(TiProxy*)parent;
 
 @property(nonatomic,readonly,assign) LayoutConstraint * layoutProperties;
 @property(nonatomic,readwrite,assign) CGRect sandboxBounds;
