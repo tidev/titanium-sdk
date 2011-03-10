@@ -27,6 +27,8 @@ extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 extern NSString * const TI_APPLICATION_NAME;
 extern NSString * const TI_APPLICATION_VERSION;
 
+NSString * TITANIUM_VERSION;
+
 extern void UIColorFlushCache();
 
 #define SHUTDOWN_TIMEOUT_IN_SEC	3
@@ -262,6 +264,7 @@ void MyUncaughtExceptionHandler(NSException *exception)
 	NSLog(@"[INFO] %@/%@ (%s.__GITHASH__)",TI_APPLICATION_NAME,TI_APPLICATION_VERSION,TI_VERSION_STR);
 	
 	sessionId = [[TiUtils createUUID] retain];
+	TITANIUM_VERSION = [[NSString stringWithCString:TI_VERSION_STR encoding:NSUTF8StringEncoding] retain];
 
 #ifdef DEBUGGER_ENABLED
 	NSString *filePath = [[NSBundle mainBundle] pathForResource:@"debugger" ofType:@"plist"];
