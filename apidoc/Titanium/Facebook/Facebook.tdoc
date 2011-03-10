@@ -58,7 +58,7 @@ callback[function]: A callback for when dialog is completed/cancelled.  The call
 
 accessToken[string]: OAuth token set after a successful `authorize`.
 expirationDate[date]: Time at which the `accessToken` expires.
-forceDialogAuth[boolean]: (Android only).  Set to false to enable "Single-Sign-On" in cases where the official Facebook app is on the device.  Default is true, meaning the traditional, dialog-based authentication is used rather than Single-Sign-On.  See [Facebook Mobile Guide](http://developers.facebook.com/docs/guides/mobile) for details of their Single-Sign-On schem.
+forceDialogAuth[boolean]: Set to false to enable "Single-Sign-On" in cases where the official Facebook app is on the device.  Default is true, meaning the traditional, dialog-based authentication is used rather than Single-Sign-On.  See [Facebook Mobile Guide](http://developers.facebook.com/docs/guides/mobile) for details of their Single-Sign-On schem.
 appid[string]: your Facebook application id.  You need to set this for anything to work.
 loggedIn[boolean]: returns true if the user has logged in
 uid[string]: the unique user id returned from Facebook. 
