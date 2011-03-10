@@ -11,6 +11,10 @@
 #ifndef TI_BASE_H
 #define TI_BASE_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define MEMORY_DEBUG 0
 #define VIEW_DEBUG 0
 
@@ -415,5 +419,9 @@ extern NSString * const kTiLocalNotification;
 
 #include "TiThreading.h"
 #include "TiPublicAPI.h"
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

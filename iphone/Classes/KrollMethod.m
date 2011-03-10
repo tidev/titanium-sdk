@@ -86,6 +86,7 @@ TiValueRef KrollCallAsFunction(TiContextRef jsContext, TiObjectRef func, TiObjec
 {
 	if (self = [super initWithTarget:target_ context:context_])
 	{
+		[target_ release];
 		selector = selector_;
 		argcount = argcount_;
 		type = type_;
@@ -96,6 +97,7 @@ TiValueRef KrollCallAsFunction(TiContextRef jsContext, TiObjectRef func, TiObjec
 
 -(void)dealloc
 {
+	target = nil;
 	[name release];
 	name = nil;
 	[super dealloc];
