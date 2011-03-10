@@ -35,6 +35,7 @@
   FBDialog2* _fbDialog;
   NSString* _appId;
   NSArray* _permissions;
+  BOOL appSupportsBackgrounding;
 }
 
 @property(nonatomic, copy) NSString* accessToken;
