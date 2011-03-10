@@ -121,14 +121,17 @@ def clean_type(the_type):
 	type_out = the_type.replace('`', '')
 	type_out = type_out.replace('|', ',') # settle on one of two of the valid type separators
 	type_out = ','.join( [s.strip() for s in type_out.split(',') if len(s)] )
-	m = re.search(r'(href.*>|tt>)+(.*)\<', the_type)
+	m = re.search(r'(href.*>|tt>)+(.*)\<', type_out)
 	if m and len(m.groups()) == 2:
 		type_out = m.groups()[1]
-	type_out = string.capwords(type_out, '.')
+	type_out = type_out[0].upper() + type_out[1:]
+#	type_out = string.capwords(type_out, '.')
 	type_out = '<'.join( [ s[0].upper() + s[1:] for s in type_out.split('<') if len(s) ])
 	type_out = ','.join( [ s[0].upper() + s[1:] for s in type_out.split(',') if len(s) ])
 	if ',' in type_out:
 		type_out = ','.join( [ clean_type(s) for s in type_out.split(',') if len(s) ] )
+	if '.' in type_out:
+		type_out = '.'.join( [ clean_type(s) for s in type_out.split('.') if len(s) ] )
 	if type_out.lower() in ['int','integer','float','double','long']:
 		type_out = 'Number'
 	if type_out.lower() == 'bool':
