@@ -46,6 +46,7 @@
 
 - (void)authorize:(NSString *)application_id
       permissions:(NSArray *)permissions
+      forceDialog:(BOOL)forceDialog
          delegate:(id<FBSessionDelegate2>)delegate;
 
 - (BOOL)handleOpenURL:(NSURL *)url;

@@ -201,6 +201,7 @@ static NSString* kSDKVersion = @"ios";
  */
 - (void)authorize:(NSString*)application_id
       permissions:(NSArray*)permissions
+      forceDialog:(BOOL)forceDialog
          delegate:(id<FBSessionDelegate2>)delegate {
 
   [_appId release];
@@ -211,7 +212,7 @@ static NSString* kSDKVersion = @"ios";
 
   _sessionDelegate = delegate;
 
-  [self authorizeWithFBAppAuth:YES safariAuth:YES];
+  [self authorizeWithFBAppAuth:!forceDialog safariAuth:!forceDialog];
 }
 
 /**
