@@ -17,6 +17,17 @@ from htmlentitydefs import name2codepoint
 def err(s):
 	print >> sys.stderr, s
 
+use_ordered_dict = False
+try:
+	from collections import OrderedDict
+	use_ordered_dict = True
+except:
+	try:
+		from odict import odict as OrderedDict
+		use_ordered_dict = True
+	except:
+		pass
+
 try:
 	from mako.template import Template
 	from mako.lookup import TemplateLookup
@@ -69,6 +80,23 @@ stats = {
 
 default_language = "javascript"
 
+def to_ordered_dict(orig_dict, key_order):
+	if not use_ordered_dict:
+		return orig_dict
+	already_added = []
+	odict = OrderedDict()
+	for key in key_order:
+		if key in orig_dict:
+			odict[key] = orig_dict[key]
+			already_added.append(key)
+
+	# Possible that not all keys were provided, so go thru orig
+	# dict and make sure all elements get in new, ordered dict
+	for key in orig_dict:
+		if not key in already_added:
+			odict[key] = orig_dict[key]
+	return odict
+
 def strip_tags(value):
 	return re.sub(r'<[^>]*?>', '', value)
 
@@ -107,7 +135,12 @@ def clean_type(the_type):
 		type_out = 'Boolean'
 	if type_out.lower() == 'domnode':
 		type_out = 'DOMNode'
+	if type_out[0].isdigit():
+		type_out = '_' + type_out # this handles 2DMatrix and 3DMatrix, which are invalid JS names
 	return type_out
+
+def clean_namespace(ns_in):
+	return '.'.join( [ '_' + s if len(s) and s[0].isdigit() else s for s in ns_in.split('.') ])
 
 def to_newjson_example(example):
 	return map_properties(example, {}, ('description', 'code'), ('name', 'code'))
@@ -121,7 +154,7 @@ def to_newjson_property(prop):
 	result['userAgents'] = [ { 'platform' : x } for x in prop['platforms'] ]
 	result['isInternal'] = False # we don't make this distinction (yet anyway)
 	result['examples'] = [] # we don't have examples at the property level (yet anyway)
-	return result
+	return to_ordered_dict(result, ('name',)) 
 
 def to_newjson_param(param):
 	result = map_properties(param, {}, ('name', 'description'), ('name', 'description'))
@@ -129,7 +162,7 @@ def to_newjson_param(param):
 		result['type'] = clean_type(param['type'])
 	# we don't have data for this yet in our tdocs:
 	result['usage'] = ''
-	return result
+	return to_ordered_dict(result, ('name',))
 
 def to_newjson_function(method):
 	result = map_properties(method, {}, ('name', 'value'), ('name', 'description'))
@@ -147,7 +180,7 @@ def to_newjson_function(method):
 	result['exceptions'] = [] # we don't specify exceptions (yet anyway)
 	result['isConstructor'] = False # we don't expose native class constructors
 	result['isMethod'] = True # all of our functions are class instance functions, ergo methods
-	return result
+	return to_ordered_dict(result, ('name',))
 
 def to_newjson_event(event):
 	result = map_properties(event, {}, ('name', 'value'), ('name', 'description'))
@@ -155,7 +188,7 @@ def to_newjson_event(event):
 	if event['properties']:
 		for key in event['properties']:
 			result['properties'].append( { 'name': key, 'description': event['properties'][key] } )
-	return result
+	return to_ordered_dict(result, ('name',))
 
 def apisort(a,b):
 	return cmp(a.namespace,b.namespace)
@@ -401,7 +434,7 @@ class API(object):
 		if found==False:			
 			self.events.append({'name':key,'value':value,'properties':props,'filename':make_filename('event',self.namespace,key)})
 		self.events.sort(namesort)
-	def add_event_property(self,event,key,value):
+	def add_event_property(self,event,key,value, orig_spec=None):
 		for e in self.events:
 			if e['name'] == event:
 				e['properties'][key]=value
@@ -419,18 +452,18 @@ class API(object):
 		self.parameters.sort(namesort)
 	def to_newjson(self):
 		result = {
-				'name': self.namespace,
+				'name': clean_namespace(self.namespace),
 				'description': self.description,
 				'deprecated' : True if self.deprecated else False,
 				'examples' : [ to_newjson_example(x) for x in self.examples ] if self.examples else [],
-				'properties' : [ to_newjson_property(x) for x in self.properties ] if self.properties else [],
+				'properties' : [ to_newjson_property(x) for x in self.properties if not x['name'].startswith('font-')] if self.properties else [],
 				'functions' : [ to_newjson_function(x) for x in self.methods] if self.methods else [],
 				'events' : [ to_newjson_event(x) for x in self.events] if self.events else [],
 				'remarks' : [ self.notes ] if self.notes else [],
 				'userAgents' : [ { 'platform' : x } for x in self.platforms ],
 				'since' : [ { 'name': 'Titanium Mobile SDK', 'version' : self.since } ]
 				}
-		return result
+		return to_ordered_dict(result, ('name',))
 	def to_json(self):
 		subs = []
 		for s in self.objects:
@@ -638,7 +671,13 @@ def emit_event_parameter(state,line):
 	idx = state.find(":")
 	event = state[idx+1:].strip()
 	for tokens in tokenize_keyvalues(line):
-		current_api.add_event_property(event,tickerize(tokens[0]),htmlerize(tokens[1]))
+		paramname = tokens[0]
+		type_info = []
+		match = re.search('(.*)\[(.*)\]',tokens[0])
+		if match:
+			paramname = match.group(1)
+			type_info = match.group(2).split(';')
+		current_api.add_event_property(event,tickerize(paramname),htmlerize(tokens[1]), orig_spec=type_info)
 
 def emit_example_parameter(state,line):
 	idx = state.find(":")
@@ -1056,6 +1095,12 @@ def main():
 	
 	format_handlers = {'json': produce_json, 'devhtml': produce_devhtml, 'vsdoc' : produce_vsdoc, 'newjson' : produce_new_json}
 	if options.format in format_handlers:
+		if options.format == 'newjson' and not use_ordered_dict:
+			err("Crap, you don't have an ordered dictionary module which you need for the newjson format!\n")
+			err("But you can get one easily via easy_install:\n")
+			err(">  easy_install odict")
+			err("")
+			sys.exit(1)
 		err('Generating Documentation for Titanium version %s to %s...' % (other_args['version'], other_args['output']))
 		process_tdoc()
 		format_handlers[options.format](other_args)
