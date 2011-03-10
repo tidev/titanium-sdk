@@ -774,4 +774,9 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 	return results;
 }
 
+-(int)forceGarbageCollectNow;
+{
+	return [context forceGarbageCollectNow];
+}
+
 @end

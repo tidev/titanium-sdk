@@ -73,6 +73,8 @@
 -(void)registerTimer:(id)timer timerId:(double)timerId;
 -(void)unregisterTimer:(double)timerId;
 
+-(int)forceGarbageCollectNow;
+
 @end
 
 //====================================================================================================================

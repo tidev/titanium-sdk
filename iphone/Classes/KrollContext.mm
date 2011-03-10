@@ -874,6 +874,12 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 	[condition unlock];
 }
 
+-(int)forceGarbageCollectNow
+{
+	TiGarbageCollect(context);
+	return 0;
+}
+
 -(void)main
 {
 	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];

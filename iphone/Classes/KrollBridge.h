@@ -52,5 +52,7 @@
 + (NSArray *)krollBridgesUsingProxy:(id)proxy;
 -(void)enqueueEvent:(NSString*)type forProxy:(TiProxy *)proxy withObject:(id)obj withSource:(id)source;
 
+-(int)forceGarbageCollectNow;
+
 @end
 
