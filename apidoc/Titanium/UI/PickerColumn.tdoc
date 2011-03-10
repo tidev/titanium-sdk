@@ -28,8 +28,11 @@ rowCount[int]: number of rows in the column (readonly)
 rows[array]: an array of rows
 
 - methods
+addRow: add a row to the column.
+removeRow: remove a row from the column.
 
-addRow[object]: a [Titanium.UI.PickerRow](Titanium.UI.PickerRow) object to add to the column
-removeRow[object]: a [Titanium.UI.PickerRow](Titanium.UI.PickerRow) object to remove
+- method : addRow
+row[`Titanium.UI.PickerRow`]: The row to add.
 
-
+- method : removeRow
+row[`Titanium.UI.PickerRow`]: The row to remove.
