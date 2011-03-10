@@ -196,11 +196,13 @@ USE_VIEW_FOR_AUTO_WIDTH
 {
 }
 
+//TODO: Is this correct?
 - (BOOL)usesProxy:(id)proxy;
 {
 	return NO;
 }
 
+//TODO: Is this correct?
 - (id)krollObjectForProxy:(id)proxy
 {
 	return nil;

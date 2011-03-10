@@ -1133,7 +1133,7 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 		{
 			// wait only 10 seconds and then loop, this will allow us to garbage
 			// collect every so often
-			[condition waitUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.1]];		
+			[condition waitUntilDate:[NSDate dateWithTimeIntervalSinceNow:10]];		
 		}
 		[condition unlock]; 
 		

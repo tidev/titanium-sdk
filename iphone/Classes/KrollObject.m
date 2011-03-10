@@ -491,13 +491,13 @@ bool KrollSetProperty(TiContextRef jsContext, TiObjectRef object, TiStringRef pr
 {
 	if (self = [self init])
 	{
+		//TODO: See if this actually happens, and if not, remove this extra check.
 		if ([(KrollBridge *)[context_ delegate] usesProxy:target_] && [self isMemberOfClass:[KrollObject class]])
 		{
 			NSLog(@"[WARN] %@ already has %@!",[context_ delegate],target_);
 		}
 		
 		target = [target_ retain];
-		target = target_;
 		context = context_; // don't retain
 		jsobject = TiObjectMake([context context],KrollObjectClassRef,self);
 		targetable = [target conformsToProtocol:@protocol(KrollTargetable)];
@@ -880,6 +880,8 @@ bool KrollSetProperty(TiContextRef jsContext, TiObjectRef object, TiStringRef pr
 	TiContextRef jsContext = [context context];
 	TiStringRef jsEventHashString = TiStringCreateWithUTF8CString("_EVT");
 	TiObjectRef jsEventHash = TiObjectGetProperty(jsContext, jsobject, jsEventHashString, &exception);
+
+	//TODO: Figure out why this object was not remembering its properties.
 //	jsEventHash = TiValueToObject(jsContext, jsEventHash, &exception);
 //	if ((jsEventHash == NULL) || (TiValueGetType(jsContext,jsEventHash) != kTITypeObject))
 //	{
@@ -993,7 +995,6 @@ bool KrollSetProperty(TiContextRef jsContext, TiObjectRef object, TiStringRef pr
 	for (int currentCallbackIndex=0; currentCallbackIndex<arrayLength; currentCallbackIndex++)
 	{
 		TiValueRef currentCallback = TiObjectGetPropertyAtIndex(jsContext, jsCallbackArray, currentCallbackIndex, NULL);
-		NSLog(@"...%X",currentCallback);
 		TiValueRef exception = NULL;
 		TiObjectCallAsFunction(jsContext, currentCallback, [thisObject jsobject], 1, &jsEventData,&exception);
 		if (exception!=NULL)
