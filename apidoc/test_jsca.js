@@ -166,8 +166,14 @@ function test_js_identifier(s) {
 }
 
 function test_type(the_type) {
+	// make sure letter case didn't break anything (a single sanity check for this):
+	var correctCase = 'Titanium.UI';
+	if (the_type.length >= correctCase.length && the_type.toLowerCase().substr(0, correctCase.length) === correctCase.toLowerCase()) {
+		assert.equal(the_type.substr(0, correctCase.length), correctCase, "Proper casing seems to have screwed up a namespace. " + the_type + " should start with " + correctCase);
+	}
+
 	var pattern = /^(DOMNode|Function|RegExp|Date|Object|Boolean|Null|Number|String|Ti(tanium)?\.\S+|Array|Array<\S+>)$/;
-	var parts = the_type.split(',');
+	var parts = the_type.split(','); // returnType can have a comma-sep list of types
 	for (var i = 0; i < parts.length; i++) {
 		var onepart = parts[i];
 		assert.ok(onepart.match(pattern) !== null, "Unknown type spec: " + the_type);
