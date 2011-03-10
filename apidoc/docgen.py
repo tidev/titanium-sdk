@@ -321,8 +321,8 @@ class API(object):
 		self.add_property('left','float,string','property for the view left position. This position is relative to the view\'s parent. Can be either a float value or a dimension string ie \'auto\' (default).')
 		self.add_property('right','float,string','property for the view right position. This position is relative to the view\'s parent. Can be either a float value or a dimension string ie \'auto\' (default).')
 		self.add_property('bottom','float,string','property for the view bottom position. This position is relative to the view\'s parent. Can be either a float value or a dimension string ie \'auto\' (default).')
-		self.add_property('softKeyboardOnFocus','int','One of Titanium.UI.Android.SOFT_KEYBOARD_DEFAULT_ON_FOCUS, Titanium.UI.Android.SOFT_KEYBOARD_HIDE_ON_FOCUS, or Titanium.UI.Android.SOFT_KEYBOARD_SHOW_ON_FOCUS. (Android only)')
-		self.add_property('focusable','boolean','Set true if you want a view to be focusable when navigating with the trackball or D-Pad. Default: false. (Android Only)')
+		self.add_property('softKeyboardOnFocus',['int', '-iphone','-ipad'],'One of Titanium.UI.Android.SOFT_KEYBOARD_DEFAULT_ON_FOCUS, Titanium.UI.Android.SOFT_KEYBOARD_HIDE_ON_FOCUS, or Titanium.UI.Android.SOFT_KEYBOARD_SHOW_ON_FOCUS. (Android only)')
+		self.add_property('focusable',['boolean', '-iphone','-ipad'],'Set true if you want a view to be focusable when navigating with the trackball or D-Pad. Default: false. (Android Only)')
 		# these are common methods
 		self.add_method('add','add a child to the view hierarchy')
 		self.add_method_property('add','view','object','the view to add to this views hiearchy')
@@ -367,17 +367,14 @@ class API(object):
 		self.returns = returns
 	def set_notes(self,notes):
 		self.notes = notes
-	def add_method(self,key,value,returntype='void', orig_specs=[]):
-		specs = [x.lower() for x in orig_specs]
+	def add_method(self,key,value,returntype='void'):
 		found = False
 		for e in self.methods:
 			if e['name'] == key:
 				found = True
 				e['value']=value
 				e['returntype']=returntype
-				e['platforms']=resolve_supported_platforms(self.platforms, specs)
 				e['since']=self.since
-				e['deprecated'] = 'deprecated' in specs
 				break
 		if found==False:
 			self.methods.append({
@@ -385,15 +382,18 @@ class API(object):
 				'value':value,
 				'parameters':[],
 				'returntype':returntype,
-				'platforms':resolve_supported_platforms(self.platforms, specs),
 				'since':self.since,
-				'deprecated':'deprecated' in specs,
+				'platforms':self.platforms,
 				'filename':make_filename('method',self.namespace,key)})
 		self.methods.sort(namesort)
 	def set_method_returntype(self,key,value):
+		tokens = value.split(';')
+		the_type = tickerize(tokens[0])
 		for m in self.methods:
 			if m['name']==key:
-				m['returntype']=value
+				m['returntype'] = the_type
+				m['deprecated'] = 'deprecated' in tokens
+				m['platforms'] = resolve_supported_platforms(self.platforms, tokens)
 				return
 	def add_property(self,key,orig_specs,value):
 		if isinstance(orig_specs, basestring):
@@ -404,26 +404,28 @@ class API(object):
 		# specs example: [int;classproperty;deprecated].  The type is always specs[0]
 		classprop = True if 'classproperty' in specs else (key.upper() == key) # assume all upper case props are class constants
 		deprecated = 'deprecated' in specs
-		for prop in self.properties:
-			if prop['name']==key:
-				prop['type']=specs[0]
-				prop['value']=value
-				prop['isClassProperty']=classprop
-				prop['deprecated'] = deprecated
-				prop['platforms'] = resolve_supported_platforms(self.platforms, specs)
-				prop['since'] = self.since
-				return
-		self.properties.append({
-			'name':key,
-			'type':specs[0],
-			'value':value,
-			'isClassProperty':classprop,
-			'deprecated':deprecated,
-			'platforms':resolve_supported_platforms(self.platforms, specs),
-			'since':self.since,
-			'filename':make_filename('property',self.namespace,key)
-			})
-		self.properties.sort(namesort)
+		platforms = resolve_supported_platforms(self.platforms, specs)
+		if len(platforms): # if not valid for any platform, don't add it.
+			for prop in self.properties:
+				if prop['name']==key:
+					prop['type']=specs[0]
+					prop['value']=value
+					prop['isClassProperty']=classprop
+					prop['deprecated'] = deprecated
+					prop['platforms'] = resolve_supported_platforms(self.platforms, specs)
+					prop['since'] = self.since
+					return
+			self.properties.append({
+				'name':key,
+				'type':specs[0],
+				'value':value,
+				'isClassProperty':classprop,
+				'deprecated':deprecated,
+				'platforms':resolve_supported_platforms(self.platforms, specs),
+				'since':self.since,
+				'filename':make_filename('property',self.namespace,key)
+				})
+			self.properties.sort(namesort)
 	def add_event(self,key,value):
 		props = {}
 		props['type'] = 'the name of the event fired'
@@ -606,8 +608,7 @@ def emit_properties(line):
 
 def emit_methods(line):
 	for tokens in tokenize_keyvalues(line):
-		specs = tokens[1].split(';')
-		current_api.add_method(tokens[0],htmlerize(specs[0]), orig_specs=specs)
+		current_api.add_method(tokens[0],htmlerize(tokens[1]))
 	
 def emit_events(line):
 	for tokens in tokenize_keyvalues(line):
@@ -695,7 +696,7 @@ def emit_method_parameter(state,line):
 	if len(t) > 1:
 		event = t[0].strip()
 		returntype = t[1].strip()
-	current_api.set_method_returntype(event,tickerize(returntype))
+	current_api.set_method_returntype(event,returntype)
 	for tokens in tokenize_keyvalues(line):
 		desc = tokens[1]
 		match = re.search('(.*)\[(.*)\]',tokens[0])
