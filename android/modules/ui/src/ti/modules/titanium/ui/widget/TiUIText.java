@@ -325,7 +325,7 @@ public class TiUIText extends TiUIView
 		}
 		
 		int typeModifiers = autocorrect | autoCapValue;
-
+		tv.setCursorVisible(true);
 		switch(type) {
 			case KEYBOARD_ASCII :
 				tv.setKeyListener(TextKeyListener.getInstance(autocorrect != 0, Capitalize.NONE));
@@ -378,6 +378,7 @@ public class TiUIText extends TiUIView
 		}
 		if (!editable) {
 			tv.setKeyListener(null);
+			tv.setCursorVisible(false);
 		}
 		if (passwordMask) {
 			tv.setTransformationMethod(PasswordTransformationMethod.getInstance());
