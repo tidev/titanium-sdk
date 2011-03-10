@@ -313,10 +313,6 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
 
 -(void)setParent:(TiViewProxy*)parent_
 {
-	if(![NSThread isMainThread])
-	{
-		NSLog(@"[WARN] %@%@ was not running on the main thread.",NSStringFromClass([self class]),CODELOCATION);
-	}
 @synchronized(self){
 	parent = parent_;
 	

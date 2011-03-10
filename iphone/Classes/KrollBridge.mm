@@ -582,7 +582,6 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 	//CFMutableDictionaryRefs only retain keys, which lets them work with proxies properly.
 	KrollObject * ourKrollObject = [[KrollObject alloc] initWithTarget:proxy context:context];
 
-	VerboseLog(@"%@ is adding %@ %X for %@ %X",self,proxy,proxy,ourKrollObject,ourKrollObject);
 	CFDictionaryAddValue(registeredProxies, proxy, ourKrollObject);
 	[ourKrollObject release];
 	
@@ -602,7 +601,6 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 	}
 	if (registeredProxies != NULL)
 	{
-		VerboseLog(@"%@ is removing %@ %X for",self,proxy,proxy);
 		CFDictionaryRemoveValue(registeredProxies, proxy);
 		//Don't bother with removing the empty registry. It's small and leaves on dealloc anyways.
 	}

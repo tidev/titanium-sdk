@@ -666,7 +666,6 @@ DEFINE_EXCEPTIONS
 
 - (id) valueForUndefinedKey: (NSString *) key
 {
-	VerboseLog(@"Value for Undefined Key: %@",key);
 	if ([key isEqualToString:@"toString"] || [key isEqualToString:@"valueOf"])
 	{
 		return [self description];

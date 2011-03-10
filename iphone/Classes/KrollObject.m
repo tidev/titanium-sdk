@@ -296,23 +296,20 @@ TiValueRef ConvertIdTiValue(KrollContext *context, id obj)
 	}
 	else if ([obj isKindOfClass:[KrollMethod class]])
 	{
-		KrollContext * ourContext = [(KrollMethod *)obj context];
-		if (context == ourContext)
-		{
-			VerboseLog(@"");
+//		KrollContext * ourContext = [(KrollMethod *)obj context];
+//		if (context == ourContext)
+//		{
 //			return [(KrollMethod *)obj jsobject];
-		}
-		VerboseLog(@"[WARN] Generating a new TiObject for KrollMethod %@ because the contexts %@ and its context %@ differed.",obj,context,ourContext);
+//		}
 		return TiObjectMake(jsContext,KrollMethodClassRef,obj);
 	}
 	else if ([obj isKindOfClass:[KrollObject class]])
 	{
-		KrollContext * ourContext = [(KrollObject *)obj context];
-		if (context == ourContext)
-		{
+//		KrollContext * ourContext = [(KrollObject *)obj context];
+//		if (context == ourContext)
+//		{
 //			return [(KrollObject *)obj jsobject];
-		}
-		VerboseLog(@"[WARN] Generating a new TiObject for KrollObject %@ because the contexts %@ and its context %@ differed.",obj,context,ourContext);
+//		}
 		return TiObjectMake(jsContext,KrollObjectClassRef,obj);
 	}
 	else if ([obj isKindOfClass:[KrollCallback class]])
@@ -340,7 +337,7 @@ TiValueRef ConvertIdTiValue(KrollContext *context, id obj)
 			return [objKrollObject jsobject];
 		}
 		
-		VerboseLog(@"[WARN] Generating a new TiObject for KrollObject %@ because the contexts %@ and its context %@ differed.",obj,context,ourContext);
+//		VerboseLog(@"[WARN] Generating a new TiObject for KrollObject %@ because the contexts %@ and its context %@ differed.",obj,context,ourContext);
 
 		KrollObject *o = [[[KrollObject alloc] initWithTarget:obj context:context] autorelease];
 		return TiObjectMake(jsContext,KrollObjectClassRef,o);
