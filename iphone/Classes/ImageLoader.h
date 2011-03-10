@@ -10,13 +10,14 @@
 #import "ASINetworkQueue.h"
 #import "TiDimension.h"
 
+#define IMAGE_CACHE_DIR [NSString stringWithFormat:@"%@/Temp/image_cache", NSTemporaryDirectory()];
+
 typedef enum {
 	TiImageScalingDefault,
 	TiImageScalingThumbnail,
 	TiImageScalingNonProportional,
 	TiImageScalingStretch,
 }	TiImageScalingStyle;
-
 
 
 @class ImageLoaderRequest;
@@ -32,7 +33,7 @@ typedef enum {
 @interface ImageLoaderRequest : NSObject {
 @private
 	ASIHTTPRequest *request;
-	NSObject<ImageLoaderDelegate>* delegate;
+	id<ImageLoaderDelegate>* delegate;
 	NSDictionary* userInfo;
 	NSURL *url;
 	CGSize imageSize;
@@ -44,7 +45,7 @@ typedef enum {
 
 @property(nonatomic,readwrite,assign) BOOL completed;
 @property(nonatomic,readwrite,assign) CGSize imageSize;
-@property(nonatomic,readonly) NSObject<ImageLoaderDelegate>* delegate;
+@property(nonatomic,readonly) id<ImageLoaderDelegate>* delegate;
 
 -(void)cancel;
 -(BOOL)cancelled;
