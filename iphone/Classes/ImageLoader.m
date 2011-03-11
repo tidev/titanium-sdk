@@ -16,14 +16,12 @@
 #import <mach/mach.h>
 #endif
 
-
-
 @interface ImageCacheEntry : NSObject
 {
 	UIImage * fullImage;
 	UIImage * stretchableImage;
 	UIImage * recentlyResizedImage;
-	NSString *fullPath;
+	NSString * fullPath;
 	
     TiDimension leftCap;
     TiDimension topCap;
@@ -32,7 +30,7 @@
 	BOOL hires;
 }
 
-@property (nonatomic,readonly,copy) NSString *fullPath;
+@property (nonatomic,readonly,copy) NSString * fullPath;
 @property(nonatomic,readwrite,retain) UIImage * fullImage;
 @property(nonatomic,readwrite,retain) UIImage * recentlyResizedImage;
 @property(nonatomic,readwrite) TiDimension leftCap;
@@ -52,12 +50,13 @@
 @synthesize fullPath;
 
 - (UIImage *) fullImage {
-	if(fullPath == nil) {
-		NSLog(@"fullPath is N I L!!!");
-	}
 	if(fullImage == nil) {
-		fullImage = [[UIImage imageWithContentsOfFile:fullPath] retain];
-	}	
+		if(fullPath == nil) {
+			return nil;
+		}
+		NSLog(@"retrieving image from local file: %@", fullPath);
+		fullImage = [[UIImage alloc] initWithContentsOfFile:fullPath];
+	}
 	return fullImage;
 }
 
@@ -67,53 +66,32 @@
 		fullPath = [[url absoluteString] retain];
 	} else {
 		fullPath = [[NSString alloc] initWithFormat:@"%@%x.%@", NSTemporaryDirectory(), self, [[url absoluteString] pathExtension]];
-		NSLog(@"fullPath is now %@", fullPath);
 		NSFileManager *fm = [[NSFileManager alloc] init];
-		NSError *error;
+		NSError *error = nil;
 		if([fm fileExistsAtPath:fullPath]) {
 			[fm removeItemAtPath:fullPath error:&error];
-			if(error) {
-				NSLog(@"[WARN] Error deleting cache file %@: %@", fullPath, error);
-//				@throw [NSException exceptionWithName:NSInternalInconsistencyException 
-//											   reason:[error description]
-//											 userInfo:nil];
+			if(error != nil) {
+				NSLog(@"Error deleting cache file %@: %@", fullPath, error);
 			}
 		}
 		[fm release];
 	}
 }
 
-- (void) setFullImage:(UIImage *) newImage {
-	NSLog(@"[WARN] setting full image");
-	if(fullImage != newImage) {
-		[fullImage release];
-		fullImage = [newImage retain];
-	}
-}
-
-- (void) setData:(NSData *) newData {
-	NSLog(@"setData: called");
+- (void) setData:(NSData *) newData {	
 	NSFileManager *fm = [[NSFileManager alloc] init];
 	if(![fm fileExistsAtPath:fullPath]) {
-		NSError *error;
+		NSError *error = nil;
 		NSLog(@"saving image data to file: %@", fullPath);
+		
 		[newData writeToFile:fullPath options:0 error:&error];
+
 		if(error != nil) {
-			NSLog(@"[WARN] Error occurred while saving image data to file: %@", fullPath);
+			NSLog(@"Error occurred while saving image data to file: %@\n%@", fullPath, error);
 		}
 	}
 	[fm release];
 }
-
-
-//-(void)ensureFullImageForUrl:(NSURL *)url
-//{
-//	NSLog(@"[INFO] ensureFullImageForUrl: called");
-//	if (isLocalImage && (fullImage == nil))
-//	{
-//		[self setFullImage:[UIImage imageWithContentsOfFile:[url path]]];
-//	}
-//}
 
 -(void)setLeftCap:(TiDimension)cap
 {
@@ -159,9 +137,6 @@
 	{
 	   return [self stretchableImage];
 	}
-
-	NSLog(@"%@", fullImage);
-	
 	
 	CGSize fullImageSize = [[self fullImage] size];
 	
@@ -243,20 +218,12 @@
 	{
 		canPurge = NO;
 	}
-
-	if (canPurge && [fullImage retainCount]<2)
+	
+	if([fullImage retainCount]<2)
 	{
 		RELEASE_TO_NIL(fullImage);
-		return YES;
 	}
-	else if([fullImage retainCount]<2)
-	{
-		RELEASE_TO_NIL(fullImage);
-	} else {
-		
-	}
-
-	return NO;
+	return canPurge;
 }
 
 - (void) dealloc
@@ -422,7 +389,7 @@ DEFINE_EXCEPTIONS
 	
 	if (doCache)
 	{
-		VerboseLog(@"[DEBUG] Caching image %@: %@",urlString,image);
+		NSLog(@"Caching image %@: %@",urlString,image);
 		[cache setObject:newEntry forKey:urlString];
 	}
 	return newEntry;
@@ -487,10 +454,6 @@ DEFINE_EXCEPTIONS
 		    result = [self setImage:resultImage forKey:url cache:NO];
 			[result setIsLocalImage:YES];
 		}
-		else
-		{
-			[result ensureFullImageForUrl:url];
-		}
 	}
 	
 	return result;
@@ -527,8 +490,7 @@ DEFINE_EXCEPTIONS
 	if (req!=nil && [req error]==nil)
 	{
 	   NSData *data = [req responseData];
-	   NSLog(@"Looks like responseData is FUCKING NIL");
-	   UIImage * resultImage = [UIImage imageWithData:data];
+	   UIImage *resultImage = [UIImage imageWithData:data];
 	   ImageCacheEntry *result = [self setImage:resultImage forKey:url];
 	   [result setData:data];
 	   return [result imageForSize:CGSizeZero];

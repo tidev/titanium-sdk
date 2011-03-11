@@ -233,7 +233,8 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 	if (registeredProxies!= NULL)
 	{
 		CFRelease(registeredProxies);
-		//Registered proxies will handle the memory issues.
+	    registeredProxies = nil;
+	    //Registered proxies will handle the memory issues.
 	}
 	
 	[proxyLock unlock];
