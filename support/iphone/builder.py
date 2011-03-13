@@ -432,7 +432,10 @@ def main(args):
 			if argc > 8:
 				# this is host:port from the debugger
 				debughost = dequote(args[8].decode("utf-8"))
-				debughost,debugport = debughost.split(":")
+				if debughost=='':
+					debughost = None
+				else:
+					debughost,debugport = debughost.split(":")
 		elif command == 'install':
 			iphone_version = check_iphone_sdk(iphone_version)
 			link_version = iphone_version
@@ -443,7 +446,10 @@ def main(args):
 			if argc > 9:
 				# this is host:port from the debugger
 				debughost = dequote(args[9].decode("utf-8"))
-				debughost,debugport = debughost.split(":")
+				if debughost=='':
+					debughost=None
+				else:
+					debughost,debugport = debughost.split(":")
 			deploytype = 'test'
 		
 		# setup up the useful directories we need in the script
@@ -589,8 +595,12 @@ def main(args):
 			def write_debugger_plist(debuggerplist):
 				debugger_tmpl = os.path.join(template_dir,'debugger.plist')
 				plist = codecs.open(debugger_tmpl, encoding='utf-8').read()
-				plist = plist.replace('__DEBUGGER_HOST__',debughost)
-				plist = plist.replace('__DEBUGGER_PORT__',debugport)
+				if debughost:
+					plist = plist.replace('__DEBUGGER_HOST__',debughost)
+					plist = plist.replace('__DEBUGGER_PORT__',debugport)
+				else:
+					plist = plist.replace('__DEBUGGER_HOST__','')
+					plist = plist.replace('__DEBUGGER_PORT__','')
 				pf = codecs.open(debuggerplist,'w', encoding='utf-8')
 				pf.write(plist)
 				pf.close()	
@@ -778,9 +788,8 @@ def main(args):
 			asf.close()
 
 			# compile debugger file
-			if debughost:
-				debug_plist = os.path.join(iphone_dir,'Resources','debugger.plist')
-				write_debugger_plist(debug_plist)
+			debug_plist = os.path.join(iphone_dir,'Resources','debugger.plist')
+			write_debugger_plist(debug_plist)
 
 			if command=='simulator':
 				debug_sim_dir = os.path.join(iphone_dir,'build','Debug-iphonesimulator','%s.app' % name)

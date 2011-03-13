@@ -271,7 +271,10 @@ void MyUncaughtExceptionHandler(NSException *exception)
 	NSMutableDictionary *params = [[NSMutableDictionary alloc] initWithContentsOfFile:filePath];
 	NSString *host = [params objectForKey:@"host"];
 	NSString *port = [params objectForKey:@"port"];
-	TiDebuggerStart(host,[port intValue]);
+	if (![host isEqual:@""])
+	{
+		TiDebuggerStart(host,[port intValue]);
+	}
 #endif
 	
 	kjsBridge = [[KrollBridge alloc] initWithHost:self];
