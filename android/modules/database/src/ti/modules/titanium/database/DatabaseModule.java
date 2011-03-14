@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import org.appcelerator.kroll.KrollInvocation;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiContext;
@@ -71,9 +72,10 @@ public class DatabaseModule extends KrollModule
 	}
 
 	@Kroll.method
-	public TiDatabaseProxy install(String url, String name)
+	public TiDatabaseProxy install(KrollInvocation invocation, String url, String name)
 	{
 		try {
+			TiContext tiContext = invocation.getTiContext();
 			Context ctx = getTiContext().getTiApp();
 			for (String dbname : ctx.databaseList())
 			{
@@ -90,7 +92,7 @@ public class DatabaseModule extends KrollModule
 				Log.d(LCAT,"db url is = "+url);
 			}
 
-			String path = getTiContext().resolveUrl(null, url);
+			String path = tiContext.resolveUrl(null, url);
 			TiBaseFile srcDb = TiFileFactory.createTitaniumFile(getTiContext(), path, false);
 
 			if (DBG) {

@@ -191,7 +191,7 @@ public class TiUrl
 				path = path.substring(2);
 			}
 		}
-		if (path.startsWith(PARENT_PATH_WITH_SEPARATOR)) {
+		if (path.contains(PARENT_PATH_WITH_SEPARATOR) || path.contains(CURRENT_PATH_WITH_SEPARATOR)) {
 			path = absoluteUrl(scheme, path, baseUrl);
 		}
 
@@ -217,24 +217,54 @@ public class TiUrl
 	public String absoluteUrl(String defaultScheme, String url, String baseUrl)
 	{
 		try {
-			URI uri = new URI(url);
-			String scheme = uri.getScheme();
-			if (scheme == null) {
-				String path = uri.getPath();
-				String fname = null;
-				int lastIndex = path.lastIndexOf(PATH_SEPARATOR);
-				if (lastIndex > 0) {
-					fname = path.substring(lastIndex+1);
-					path = path.substring(0, lastIndex);
+			if ((baseUrl == null || baseUrl.length() == 0) && (url == null || url.length() == 0)) {
+				return defaultScheme == null ? "" : defaultScheme + "//";
+			}
+			String combined = "";
+			if (baseUrl == null || baseUrl.length() == 0) {
+				combined = url;
+			} else if (url == null || url.length() == 0) {
+				combined = baseUrl;
+			} else {
+				URI uri = new URI(url);
+				if (uri.getScheme() != null) {
+					// the url already has a scheme, so we ignore the
+					// baseUrl completely.
+					combined = url;
+				} else if (baseUrl.endsWith(PATH_SEPARATOR) && url.startsWith(PATH_SEPARATOR) 
+						&& !baseUrl.equals("file://")) {
+					if (baseUrl.length() == 1 && url.length() == 1) {
+						combined = PATH_SEPARATOR;
+					} else if (baseUrl.length() == 1) {
+						combined = url;
+					} else if (url.length() == 1) {
+						combined = baseUrl;
+					} else {
+						combined = baseUrl + url.substring(1);
+					}
+				} else if (!baseUrl.endsWith(PATH_SEPARATOR) && !url.startsWith(PATH_SEPARATOR)) {
+					combined = baseUrl + PATH_SEPARATOR + url;
+				} else {
+					combined = baseUrl + url;
 				}
-				if (path.startsWith(PARENT_PATH_WITH_SEPARATOR) || path.equals(PARENT_PATH)) {
-					String bUrl = parseRelativeBaseUrl(path, baseUrl, false);
-					url = TiFileHelper2.joinSegments(defaultScheme + "//", bUrl, fname);
-				}
+			}
+			URI uri = new URI(combined);
+			if (uri.getScheme() == null) {
+				uri = uri.normalize();
+			} else {
+				String scheme = uri.getScheme() + "://";
+				combined = combined.replace(scheme, "");
+				uri = new URI(combined).normalize();
+				uri = new URI(scheme + uri.toString());
+			}
+			if (uri.getScheme() == null) {
+				return defaultScheme != null ? defaultScheme + "//" + uri.toString() : uri.toString();
+			} else {
+				return uri.toString();
 			}
 		} catch (URISyntaxException e) {
 			Log.w(TAG, "Error parsing url: " + e.getMessage(), e);
+			return url;
 		}
-		return url;
 	}
 }
