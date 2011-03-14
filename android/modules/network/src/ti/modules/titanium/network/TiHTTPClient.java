@@ -436,13 +436,6 @@ public class TiHTTPClient
 		if (client == null) {
 			SchemeRegistry registry = new SchemeRegistry();
 			registry.register(new Scheme("http", PlainSocketFactory.getSocketFactory(), 80));
-			SocketFactory sslFactory;
-			if (validatesSecureCertificate()) {
-				sslFactory = SSLSocketFactory.getSocketFactory();
-			} else {
-				sslFactory = new NonValidatingSSLSocketFactory();
-			}
-			registry.register(new Scheme("https", sslFactory, 443));
 
 			HttpParams params = new BasicHttpParams();
 			ConnManagerParams.setMaxTotalConnections(params, 200);
@@ -941,6 +934,15 @@ public class TiHTTPClient
 				}
 				 */
 				handler = new LocalResponseHandler(TiHTTPClient.this);
+
+				// check this with every request since technically this can be changed per request
+				SocketFactory sslFactory;
+				if (validatesSecureCertificate()) {
+					sslFactory = SSLSocketFactory.getSocketFactory();
+				} else {
+					sslFactory = new NonValidatingSSLSocketFactory();
+				}
+				client.getConnectionManager().getSchemeRegistry().register(new Scheme("https", sslFactory, 443));
 
 				if (credentials != null) {
 					client.getCredentialsProvider().setCredentials (new AuthScope(uri.getHost(), -1), credentials);
