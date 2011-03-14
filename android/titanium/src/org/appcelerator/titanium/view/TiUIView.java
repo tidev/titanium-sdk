@@ -36,6 +36,7 @@ import android.view.GestureDetector.SimpleOnGestureListener;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.View.OnFocusChangeListener;
 import android.view.View.OnKeyListener;
 import android.view.View.OnTouchListener;
@@ -744,10 +745,15 @@ public abstract class TiUIView
 
 				@Override
 				public boolean onSingleTapConfirmed(MotionEvent e) {
-					Log.e(LCAT, "TAP, TAP, TAP on " + proxy);
+					if (DBG) {
+						Log.d(LCAT, "TAP, TAP, TAP on " + proxy);
+					}
 					boolean handledTap = proxy.fireEvent(TiC.EVENT_SINGLE_TAP, dictFromEvent(e));
-					boolean handledClick = proxy.fireEvent(TiC.EVENT_CLICK, dictFromEvent(e));
-					return handledTap || handledClick;
+					// Moved click handling to the onTouch listener, because a single tap is not the
+					// same as a click.  A single tap is a quick tap only, whereas clicks can be held
+					// before lifting.
+					// boolean handledClick = proxy.fireEvent(TiC.EVENT_CLICK, dictFromEvent(event));
+					return handledTap;// || handledClick;
 				}
 			});
 
@@ -760,6 +766,15 @@ public abstract class TiUIView
 						int actualAction = r.contains((int)event.getX(), (int)event.getY())
 							? MotionEvent.ACTION_UP : MotionEvent.ACTION_CANCEL;
 						handled = proxy.fireEvent(motionEvents.get(actualAction), dictFromEvent(event));
+						if (handled && actualAction == MotionEvent.ACTION_UP) {
+							// If this listener returns true, a click event does not occur,
+							// because part of the Android View's default ACTION_UP handling
+							// is to call performClick() which leads to invoking the click
+							// listener.  If we return true, that won't run, so we're doing it
+							// here instead.
+							touchable.performClick();
+						}
+						return handled;
 					} else {
 						handled = proxy.fireEvent(motionEvents.get(event.getAction()), dictFromEvent(event));
 					}
@@ -767,9 +782,16 @@ public abstract class TiUIView
 				return handled;
 			}
 		});
+		touchable.setOnClickListener(new OnClickListener()
+		{
+			@Override
+			public void onClick(View view)
+			{
+				proxy.fireEvent(TiC.EVENT_CLICK, null);
+			}
+		});
 
 	}
-
 	public void setOpacity(float opacity)
 	{
 		setOpacity(nativeView, opacity);
