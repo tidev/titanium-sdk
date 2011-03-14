@@ -284,12 +284,13 @@ def xcode_version():
 	output = run.run(['xcodebuild','-version'],True,False)
 	if output:
 		versionLine = output.split('\n')[0]
-		return versionLine.split(' ')[1]
+		return float(versionLine.split(' ')[1].rpartition('.')[0])
 
-def distribute_xc3(uuid, name, log):
+def distribute_xc3(uuid, provisioning_profile, name, log):
 	# starting in 4.0, apple now requires submission through XCode
 	# this code mimics what xcode does on its own to package the 
 	# application for the app uploader process
+	log.write("Creating distribution for xcode3...\n");
 	archive_uuid = str(uuid.uuid4()).upper()
 	archive_dir = os.path.join(os.path.expanduser("~/Library/MobileDevice/Archived Applications"),archive_uuid)
 	archive_app_dir = os.path.join(archive_dir,"%s.app" % name)
@@ -323,6 +324,7 @@ def distribute_xc3(uuid, name, log):
 
 def distribute_xc4(name, log):
 	# Locations of bundle, app binary, dsym info
+	log.write("Creating distribution for xcode4...\n");	
 	archive_bundle = os.path.join(os.path.expanduser("~/Library/Developer/Xcode/Archives"),"%s.xcarchive" % name)
 	archive_app = os.path.join(archive_bundle,"Products","Applications","%s.app" % name)
 	archive_dsym = os.path.join(archive_bundle,"dSYM")
@@ -1305,9 +1307,14 @@ def main(args):
 					if xcode_version() >= 4.0:
 						distribute_xc4(name, o)
 					else:
-						distribute_xc3(uuid, name, o)
+						distribute_xc3(uuid, provisioning_profile, name, o)
 
 					# open xcode + organizer after packaging
+					# Have to force the right xcode open...
+					xc_path = os.path.join(run.run(['xcode-select','-print-path'],True,False).rstrip(),'Applications','Xcode.app')
+					o.write("Launching xcode: %s\n" % xc_path)
+					os.system('open -a %s' % xc_path)
+					
 					ass = os.path.join(template_dir,'xcode_organizer.scpt')
 					cmd = "osascript \"%s\"" % ass
 					os.system(cmd)
