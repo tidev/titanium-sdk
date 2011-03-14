@@ -19,6 +19,11 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 
 @implementation TitaniumObject
 
+-(NSDictionary*)modules
+{
+	return modules;
+}
+
 -(id)initWithContext:(KrollContext*)context_ host:(TiHost*)host_ context:(id<TiEvaluator>)pageContext_ baseURL:(NSURL*)baseURL_
 {
 	TopTiModule *module = [[[TopTiModule alloc] _initWithPageContext:pageContext_] autorelease];
