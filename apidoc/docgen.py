@@ -145,10 +145,10 @@ def clean_type(the_type):
 def clean_namespace(ns_in):
 	return '.'.join( [ '_' + s if len(s) and s[0].isdigit() else s for s in ns_in.split('.') ])
 
-def to_newjson_example(example):
+def to_jsca_example(example):
 	return map_properties(example, {}, ('description', 'code'), ('name', 'code'))
 
-def to_newjson_property(prop):
+def to_jsca_property(prop):
 	result = map_properties(prop, {}, ('name', 'type', 'value', 'isClassProperty'), ('name', 'type', 'description', 'isClassProperty'))
 	if result['type']:
 		result['type'] = clean_type(result['type'])
@@ -159,7 +159,7 @@ def to_newjson_property(prop):
 	result['examples'] = [] # we don't have examples at the property level (yet anyway)
 	return to_ordered_dict(result, ('name',)) 
 
-def to_newjson_param(param):
+def to_jsca_param(param):
 	result = map_properties(param, {}, ('name', 'description'), ('name', 'description'))
 	if param['type']:
 		result['type'] = clean_type(param['type'])
@@ -167,12 +167,12 @@ def to_newjson_param(param):
 	result['usage'] = ''
 	return to_ordered_dict(result, ('name',))
 
-def to_newjson_function(method):
+def to_jsca_function(method):
 	result = map_properties(method, {}, ('name', 'value'), ('name', 'description'))
 	if method['returntype'] and method['returntype'].lower() != 'void':
 		result['returnTypes'] = [ { 'type': clean_type(method['returntype']), 'description' : '' }]
 	if method['parameters']:
-		result['parameters'] = [to_newjson_param(x) for x in method['parameters']]
+		result['parameters'] = [to_jsca_param(x) for x in method['parameters']]
 	result['since'] = [ { 'name': 'Titanium Mobile SDK', 'version' : method['since'] } ]
 	result['userAgents'] = [ { 'platform' : x } for x in method['platforms'] ]
 	result['isInstanceProperty'] = True # we don't have class static methods
@@ -185,7 +185,7 @@ def to_newjson_function(method):
 	result['isMethod'] = True # all of our functions are class instance functions, ergo methods
 	return to_ordered_dict(result, ('name',))
 
-def to_newjson_event(event):
+def to_jsca_event(event):
 	result = map_properties(event, {}, ('name', 'value'), ('name', 'description'))
 	result['properties'] = []
 	if event['properties']:
@@ -455,15 +455,15 @@ class API(object):
 	def add_parameter(self,name,typestr,desc):
 		self.parameters.append({'name':name,'type':typestr,'description':desc})
 		self.parameters.sort(namesort)
-	def to_newjson(self):
+	def to_jsca(self):
 		result = {
 				'name': clean_namespace(self.namespace),
 				'description': self.description,
 				'deprecated' : True if self.deprecated else False,
-				'examples' : [ to_newjson_example(x) for x in self.examples ] if self.examples else [],
-				'properties' : [ to_newjson_property(x) for x in self.properties if not x['name'].startswith('font-')] if self.properties else [],
-				'functions' : [ to_newjson_function(x) for x in self.methods] if self.methods else [],
-				'events' : [ to_newjson_event(x) for x in self.events] if self.events else [],
+				'examples' : [ to_jsca_example(x) for x in self.examples ] if self.examples else [],
+				'properties' : [ to_jsca_property(x) for x in self.properties if not x['name'].startswith('font-')] if self.properties else [],
+				'functions' : [ to_jsca_function(x) for x in self.methods] if self.methods else [],
+				'events' : [ to_jsca_event(x) for x in self.events] if self.events else [],
 				'remarks' : [ self.notes ] if self.notes else [],
 				'userAgents' : [ { 'platform' : x } for x in self.platforms ],
 				'since' : [ { 'name': 'Titanium Mobile SDK', 'version' : self.since } ]
@@ -826,7 +826,7 @@ def clean_links(text):
 	repl = lambda match: '"%s.html"' % find_filename(match.group(1))
 	return link2.sub(repl, link1.sub(repl, text))
 
-def produce_new_json(config,dump=True):
+def produce_jsca(config,dump=True):
 	result = {'aliases': [ {'name': 'Ti', 'type': 'Titanium'} ]}
 	types = []
 	result['types'] = types
@@ -838,7 +838,7 @@ def produce_new_json(config,dump=True):
 		return False
 
 	for key in apis:
-		types.append( apis[key].to_newjson() )
+		types.append( apis[key].to_jsca() )
 
 	# Cleanup our frequent use of "object" as parameter and return type of the createXXX proxy
 	# creation methods.  Set them instead to the proxies themselves as hints.
@@ -1049,7 +1049,7 @@ def produce_devhtml(config):
 	out.close()
 	
 	out = open(os.path.join(outdir,'api_new.json'),'w+')
-	out.write(produce_new_json(config,False));
+	out.write(produce_jsca(config,False));
 	out.close()
 	
 	changelog_mdoc = os.path.join(template_dir,'Titanium','CHANGELOG','%s.mdoc'%version)
@@ -1123,10 +1123,10 @@ def main():
 			other_args[kv[0].strip()]=True
 		c+=1"""
 	
-	format_handlers = {'json': produce_json, 'devhtml': produce_devhtml, 'vsdoc' : produce_vsdoc, 'newjson' : produce_new_json}
+	format_handlers = {'json': produce_json, 'devhtml': produce_devhtml, 'vsdoc' : produce_vsdoc, 'jsca' : produce_jsca}
 	if options.format in format_handlers:
-		if options.format == 'newjson' and not use_ordered_dict:
-			err("Crap, you don't have an ordered dictionary module which you need for the newjson format!\n")
+		if options.format == 'jsca' and not use_ordered_dict:
+			err("Crap, you don't have an ordered dictionary module which you need for the jsca format!\n")
 			err("But you can get one easily via easy_install:\n")
 			err(">  easy_install odict")
 			err("")

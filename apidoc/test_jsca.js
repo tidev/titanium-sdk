@@ -5,7 +5,7 @@
 * 
 * Requires node.js.
 * 
-* Quasi-unit test for generating the "newjson" output of 
+* Quasi-unit test for generating the "jsca" output of 
 * apidoc's docgen.py.
 * 
 * Usage: 
@@ -330,7 +330,7 @@ function sanityChecks(api) {
 	assert.ok(eventCount > 400, 'Expected well over 400 event definitions, found only ' + eventCount);
 }
 
-var docgen = spawn('python', ['docgen.py', '-f', 'newjson']);
+var docgen = spawn('python', ['docgen.py', '-f', 'jsca']);
 docgen.stdout.on('data', function(data) {
 	jsca += data;
 });
