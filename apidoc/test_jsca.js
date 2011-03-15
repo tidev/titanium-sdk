@@ -251,6 +251,14 @@ function test_events(events) {
 	}
 }
 
+function type_exists(type_name, types) {
+	for (var i = 0; i < types.length; i++) {
+		if (types[i].name === type_name) {
+			return true;
+		}
+	}
+	return false;
+}
 
 function test_types(types) {
 	assert.ok(isArray(types) && types.length, 'types should be a non-empty array');
@@ -270,6 +278,28 @@ function test_types(types) {
 			breadcrumbs.push('testing function definitions for ' + tname);
 			test_functions(onetype.functions);
 			breadcrumbs.pop();
+			breadcrumbs.push('testing createXXX functions for ' + tname);
+			var p = /^create(([A-Z]|[12]).*)$/;
+			for (var k = 0; k < onetype.functions.length; k++) {
+				var onefunc = onetype.functions[k];
+				var onefuncname = onefunc.name;
+				var matches = onefuncname.match(p);
+				if (matches && matches.length) {
+					var partial_type_name = matches[1];
+					var full_name = tname + "." + partial_type_name;
+					if (type_exists(full_name, types)) {
+						if (onefunc.parameters && onefunc.parameters.length) {
+							assert.ok(onefunc.parameters[0].type.toLowerCase() !== 'object',
+								"Expected parameter to " + onefuncname + " to be " + full_name + " but is " + onefunc.parameters[0].type);
+						}
+						assert.ok(onefunc.returnTypes, 'Expected ' + onefuncname + ' to have a return type');
+						assert.ok(onefunc.returnTypes.length > 0, 'Expected ' + onefuncname + ' to have a return type');
+						assert.ok(onefunc.returnTypes[0].type === full_name, 'Expected return type of ' + 
+								  onefuncname + ' to be ' + full_name + ' but it is ' + onefunc.returnTypes[0].type);
+					}
+				}
+			}
+			breadcrumbs.pop();
 		}
 		if (onetype.properties && onetype.properties.length) {
 			breadcrumbs.push('testing property definitions for ' + tname);
@@ -280,7 +310,6 @@ function test_types(types) {
 			breadcrumbs.push('testing event definitions for ' + tname);
 			test_events(onetype.events);
 		}
-
 		breadcrumbs.pop();
 	}
 	breadcrumbs.pop();
