@@ -136,7 +136,7 @@ def clean_type(the_type):
 		type_out = 'Number'
 	if type_out.lower() == 'bool':
 		type_out = 'Boolean'
-	if type_out.lower() == 'domnode':
+	if type_out.lower() == 'domnode': # special case
 		type_out = 'DOMNode'
 	if type_out[0].isdigit():
 		type_out = '_' + type_out # this handles 2DMatrix and 3DMatrix, which are invalid JS names
@@ -831,8 +831,34 @@ def produce_new_json(config,dump=True):
 	types = []
 	result['types'] = types
 
+	def type_exists(type_name):
+		for onetype in types:
+			if onetype['name'] == type_name:
+				return True
+		return False
+
 	for key in apis:
 		types.append( apis[key].to_newjson() )
+
+	# Cleanup our frequent use of "object" as parameter and return type of the createXXX proxy
+	# creation methods.  Set them instead to the proxies themselves as hints.
+	for onetype in types:
+		if onetype['functions']:
+			for onefunc in onetype['functions']:
+				match = re.search(r'^create(([A-Z]|[12]).*)$', onefunc['name'])
+				if match:
+					parent_name = onetype['name']
+					type_name = match.group(1)
+					full_name = parent_name + '.' + type_name
+					if type_exists(full_name):
+						if 'parameters' in onefunc and len(onefunc['parameters']) > 0:
+							paramType = onefunc['parameters'][0]['type']
+							if paramType.lower() == 'object':
+								onefunc['parameters'][0]['type'] = full_name
+						if 'returnTypes' in onefunc and len(onefunc['returnTypes']) > 0:
+							returnType = onefunc['returnTypes'][0]['type']
+							if returnType.lower() == 'object':
+								onefunc['returnTypes'][0]['type'] = full_name
 	if dump:
 		print json.dumps(result,sort_keys=False,indent=4)
 	else:
