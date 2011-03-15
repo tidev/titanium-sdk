@@ -166,7 +166,7 @@
 		}
 		case TiBlobTypeImage:
 		{
-			return UIImageJPEGRepresentation(image,1.0);
+			return UIImageJPEGRepresentation(image,0.6);
 		}
 	}
 	return data;
