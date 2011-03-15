@@ -174,7 +174,7 @@ NSArray* moviePlayerKeys = nil;
 	// properties in certain cases and when we go to create it again after setting
 	// url we will need to set the new controller to the already created view
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
-	if ([TiUtils isiPhoneOS3_2OrGreater]) {
+	if ([TiUtils isiPhoneOS3_2OrGreater] && [self viewAttached]) {
 		TiMediaVideoPlayer *vp = (TiMediaVideoPlayer*)[self view];
 		[vp setMovie:movie];
 	}
@@ -217,15 +217,6 @@ NSArray* moviePlayerKeys = nil;
 #endif
 	}
 	return nil;
-}
-
-// TODO: Placing this in TiViewProxy would be better, but right now it screws up tableview.
-// So... move it there and fix tableview, when we have the time.
--(void)relayout
-{
-	if (!CGRectEqualToRect(sandboxBounds, CGRectZero)) {
-		[super relayout];
-	}
 }
 
 -(void)viewWillAttach
