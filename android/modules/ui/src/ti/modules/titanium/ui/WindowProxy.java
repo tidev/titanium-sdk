@@ -121,12 +121,24 @@ public class WindowProxy extends TiWindowProxy
 		if (DBG) {
 			Log.d(LCAT, "handleClose");
 		}
+
 		TiUIWindow window = getWindow();
+
+		// store before as the call to window.close will set the view to
+		// null and making checking after close is called impossible
+		boolean isLightweight = false;
+		if(window.lightWeight) {
+			isLightweight = true;
+		}
+
 		if (window != null) {
 			window.close(options);
 		}
 		releaseViews();
-		opened = false;
+
+		if(isLightweight) {
+			opened = false;
+		}
 	}
 
 	@Kroll.getProperty @Kroll.method

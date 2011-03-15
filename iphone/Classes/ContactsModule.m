@@ -395,7 +395,13 @@ MAKE_SYSTEM_PROP(CONTACTS_SORT_LAST_NAME,kABPersonSortByLastName);
 			CFRelease(val);
 			
 			CFStringRef CFlabel = ABMultiValueCopyLabelAtIndex(multival, index);
-			label = [NSString stringWithString:[[[TiContactsPerson multiValueLabels] allKeysForObject:(NSString*)CFlabel] objectAtIndex:0]];
+            NSArray* labelKeys = [[TiContactsPerson multiValueLabels] allKeysForObject:(NSString*)CFlabel];
+            if ([labelKeys count] > 0) {
+                label = [NSString stringWithString:[labelKeys objectAtIndex:0]];
+            }
+            else {
+                label = [NSString stringWithString:(NSString*)CFlabel];
+            }
 			CFRelease(CFlabel);
 			
 			CFRelease(multival);
