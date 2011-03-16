@@ -3,7 +3,32 @@
 # zip up the titanium mobile SDKs into suitable distribution formats
 #
 import os, types, glob, shutil, sys, platform
-import zipfile, datetime, subprocess
+import zipfile, datetime, subprocess, tempfile, time
+
+try:
+	import markdown
+except:
+	print >> sys.stderr, """
+WARNING: you are unable to generate the JSCA file (api.jsca) because you do 
+not have markdown installed.  If you are packaging for release, you should 
+*not* accept this package because it is required that api.jsca be included 
+in the sdk that is packaged for GA.
+
+To get the python markdown module, you can use a python package manager such
+as setuptools (easy_install) or pip.
+
+Examples:
+
+	> easy_install markdown
+
+	> pip install markdown
+
+Resuming in 5 seconds...
+
+"""
+	time.sleep(5);
+	markdown = None
+
 
 if platform.system() == 'Darwin':
 	import importresolver
@@ -11,6 +36,7 @@ if platform.system() == 'Darwin':
 cur_dir = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
 top_dir = os.path.abspath(os.path.join(os.path.dirname(sys._getframe(0).f_code.co_filename),'..'))
 template_dir = os.path.join(top_dir,'support')
+doc_dir = os.path.abspath(os.path.join(top_dir, 'apidoc'))
 all_dir = os.path.abspath(os.path.join(template_dir,'all'))
 android_dir = os.path.abspath(os.path.join(template_dir,'android'))
 iphone_dir = os.path.abspath(os.path.join(template_dir,'iphone'))
@@ -33,6 +59,22 @@ def ignore(file):
 		if file == f:
 			return True
 	 return False
+def generate_jsca():
+	 process_args = ['python', os.path.join(doc_dir, 'docgen.py'), '-f', 'jsca']
+	 jsca_temp_file = tempfile.TemporaryFile()
+	 try:
+		 process = subprocess.Popen(process_args, stdout=jsca_temp_file, stderr=subprocess.PIPE)
+		 process_return_code = process.wait()
+		 if process_return_code != 0:
+			 err_output = process.stderr.read()
+			 print >> sys.stderr, "Failed to generate JSCA JSON.  Output:"
+			 print >> sys.stderr, err_output
+			 sys.exit(1)
+		 jsca_temp_file.seek(0)
+		 jsca_json = jsca_temp_file.read()
+		 return jsca_json
+	 finally:
+		 jsca_temp_file.close()
 
 def zip_dir(zf,dir,basepath,subs=None,cb=None):
 	for root, dirs, files in os.walk(dir):
@@ -188,6 +230,9 @@ githash=%s
 """ % (version,ts,githash)
 
 	zf.writestr('%s/version.txt' % basepath,version_txt)
+	if markdown:
+		jsca = generate_jsca()
+		zf.writestr('%s/api.jsca' % basepath, jsca)
 	
 	zip_dir(zf,all_dir,basepath)
 	zip_dir(zf,template_dir,basepath)

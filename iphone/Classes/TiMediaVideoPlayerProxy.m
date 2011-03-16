@@ -174,7 +174,7 @@ NSArray* moviePlayerKeys = nil;
 	// properties in certain cases and when we go to create it again after setting
 	// url we will need to set the new controller to the already created view
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
-	if ([TiUtils isiPhoneOS3_2OrGreater]) {
+	if ([TiUtils isiPhoneOS3_2OrGreater] && [self viewAttached]) {
 		TiMediaVideoPlayer *vp = (TiMediaVideoPlayer*)[self view];
 		[vp setMovie:movie];
 	}
@@ -206,7 +206,7 @@ NSArray* moviePlayerKeys = nil;
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
 		if ([TiUtils isiPhoneOS3_2OrGreater]) {
 			// override since we're constructing ourselfs
-			TiUIView *v = [[TiMediaVideoPlayer alloc] initWithPlayer:[self player] proxy:self];
+			TiUIView *v = [[TiMediaVideoPlayer alloc] initWithPlayer:[self player] proxy:self loaded:loaded];
 			return v;
 		}
 		else {
@@ -217,15 +217,6 @@ NSArray* moviePlayerKeys = nil;
 #endif
 	}
 	return nil;
-}
-
-// TODO: Placing this in TiViewProxy would be better, but right now it screws up tableview.
-// So... move it there and fix tableview, when we have the time.
--(void)relayout
-{
-	if (!CGRectEqualToRect(sandboxBounds, CGRectZero)) {
-		[super relayout];
-	}
 }
 
 -(void)viewWillAttach
@@ -443,7 +434,7 @@ NSArray* moviePlayerKeys = nil;
 	RELEASE_TO_NIL_AUTORELEASE(movie);
 	
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
-	if ([TiUtils isiPhoneOS3_2OrGreater]) {
+	if ([TiUtils isiPhoneOS3_2OrGreater] && [self viewAttached]) {
 		TiMediaVideoPlayer *video = (TiMediaVideoPlayer*)[self view];
 		[video setMovie:[self player]];
 		[video frameSizeChanged:[video frame] bounds:[video bounds]];
@@ -461,6 +452,7 @@ NSArray* moviePlayerKeys = nil;
 	ENSURE_UI_THREAD(setUrl,url_);
 	RELEASE_TO_NIL(url);
 	url = [[TiUtils toURL:url_ proxy:self] retain];
+    loaded = NO;
 	
 	if (movie!=nil)
 	{
@@ -582,7 +574,7 @@ NSArray* moviePlayerKeys = nil;
 
 -(void)setBackgroundColor:(id)color
 {
-	[self replaceValue:color forKey:color notification:NO];
+	[self replaceValue:color forKey:@"backgroundColor" notification:NO];
 	
 	RELEASE_TO_NIL(backgroundColor);
 	backgroundColor = [[TiUtils colorValue:color] retain];
@@ -597,18 +589,20 @@ NSArray* moviePlayerKeys = nil;
 				return;
 			}
 		}
+        else {
+#endif
+            // Have to make sure the view is created on the main thread, and that all properties are set there.
+            [self makeViewPerformSelector:@selector(setBackgroundColor:) 
+                               withObject:[backgroundColor _color] 
+                           createIfNeeded:YES
+                            waitUntilDone:NO];
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
+        }
 #endif
 	}
 	else {
 		[loadProperties setValue:color forKey:@"backgroundColor"];
 	}
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
-	// Have to make sure the view is created on the main thread, and that all properties are set there.
-	[self makeViewPerformSelector:@selector(setBackgroundColor:) 
-					   withObject:[backgroundColor _color] 
-				   createIfNeeded:YES
-					waitUntilDone:NO];
-#endif
 }
 
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
@@ -737,6 +731,7 @@ NSArray* moviePlayerKeys = nil;
 	if (movie != nil) {
 		return NUMINT([[self player] playbackState]);
 	}
+    return NUMINT(MPMoviePlaybackStateStopped);
 }
 
 -(void)setRepeatMode:(id)value
@@ -1110,10 +1105,13 @@ NSArray* moviePlayerKeys = nil;
 		(player.playbackState == MPMoviePlaybackStateStopped||
 		player.playbackState == MPMoviePlaybackStatePlaying)) 
 	{
-		if ([TiUtils isiPhoneOS3_2OrGreater]) {
+		if ([TiUtils isiPhoneOS3_2OrGreater] && [self viewAttached]) {
 			TiMediaVideoPlayer *vp = (TiMediaVideoPlayer*)[self view];
 			[vp movieLoaded];
 		}
+        else {
+            loaded = YES;
+        }
 	}
 	if ([self _hasListeners:@"loadstate"])
 	{

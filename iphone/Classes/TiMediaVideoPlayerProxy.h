@@ -36,6 +36,9 @@
 	
 	// On rotate in fullscreen mode on iPad, we need to check if the orientation changed so we can redraw.
 	BOOL hasRotated;
+    
+    // Have to track loading in the proxy in addition to the view, in case we load before the view should be rendered
+    BOOL loaded;
 }
 
 @property(nonatomic,readwrite,assign) id url;
