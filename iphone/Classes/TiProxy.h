@@ -94,6 +94,7 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 -(BOOL)_hasListeners:(NSString*)type;
 -(void)_fireEventToListener:(NSString*)type withObject:(id)obj listener:(KrollCallback*)listener thisObject:(TiProxy*)thisObject_;
 -(id)_proxy:(TiProxyBridgeType)type;
+-(void)_contextDestroyed;
 -(void)contextWasShutdown:(id<TiEvaluator>)context;
 -(TiHost*)_host;
 -(NSURL*)_baseURL;
@@ -109,9 +110,6 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 -(BOOL)destroyed;
 -(void)setReproxying:(BOOL)yn;
 -(BOOL)inReproxy;
-
-#pragma mark Utility
--(KrollObject *)krollObjectForContext:(KrollContext *)context;
 
 #pragma mark Public 
 -(id<NSFastEnumeration>)allKeys;

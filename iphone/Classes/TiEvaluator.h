@@ -28,16 +28,9 @@
 
 - (KrollContext*)krollContext;
 
-//Creates a kroll object to be used with the proxy.
 - (void)registerProxy:(id)proxy;
 
-//Removes the kroll object and the proxy.
 - (void)unregisterProxy:(id)proxy;
 
-//Returns YES if and only iff the proxy has been registered.
-- (BOOL)usesProxy:(id)proxy;
-
-//Returns the kroll object created iff the proxy has been registered. Otherwise, returns nil.
-- (id)krollObjectForProxy:(id)proxy;
 
 @end

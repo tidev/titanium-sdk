@@ -166,12 +166,6 @@ extern NSString * const TI_APPLICATION_GUID;
 	[self fireEvent:[NSArray arrayWithObjects:type,obj,nil]];
 }
 
--(int)garbageCollect:(NSArray*)args
-{
-	KrollBridge * ourBridge = [self executionContext];
-	return [ourBridge forceGarbageCollectNow];
-}
-
 -(TiAppPropertiesProxy*)Properties
 {
 	if (properties == nil)
