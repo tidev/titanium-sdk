@@ -856,22 +856,24 @@ public class TiHTTPClient
 				for (String key : data.keySet()) {
 					Object value = data.get(key);
 
-					// if the value is a proxy, we need to get the actual file object
-					if (value instanceof TiFileProxy) {
-						value = ((TiFileProxy) value).getBaseFile();
-					}
+					if(value != null) {
+						// if the value is a proxy, we need to get the actual file object
+						if (value instanceof TiFileProxy) {
+							value = ((TiFileProxy) value).getBaseFile();
+						}
 
-					if (value instanceof TiBaseFile || value instanceof TiBlob) {
-						needMultipart = true;
-						break;
+						if (value instanceof TiBaseFile || value instanceof TiBlob) {
+							needMultipart = true;
+							break;
+						}
 					}
 				}
-				
+
 				boolean queryStringAltered = false;
 				for (String key : data.keySet()) {
 					Object value = data.get(key);
 
-					if (isPostOrPut) {
+					if (isPostOrPut && (value != null)) {
 						// if the value is a proxy, we need to get the actual file object
 						if (value instanceof TiFileProxy) {
 							value = ((TiFileProxy) value).getBaseFile();
