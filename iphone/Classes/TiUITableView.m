@@ -191,6 +191,7 @@
 
 -(void)dealloc
 {
+    [self detachContents];
 	if (searchField!=nil)
 	{
 		[searchField setDelegate:nil];
@@ -210,6 +211,16 @@
 	RELEASE_TO_NIL(initialSelection);
 	RELEASE_TO_NIL(tableHeaderPullView);
 	[super dealloc];
+}
+
+-(void)detachContents
+{
+    for (TiUITableViewSectionProxy* section in sections) {
+        for (TiUITableViewRowProxy* row in [section rows]) {
+            [row detachView];
+        }
+        [section detachView];
+    }
 }
 
 -(BOOL)isScrollable

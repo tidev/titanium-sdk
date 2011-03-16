@@ -77,6 +77,7 @@
 -(void)updateSearchView;
 -(NSMutableArray*)sections;
 -(void)replaceData:(NSArray*)data animation:(UITableViewRowAnimation)animation;
+-(void)detachContents;
 
 -(void)dispatchAction:(TiUITableViewAction*)action;
 -(void)scrollToIndex:(NSInteger)index position:(UITableViewScrollPosition)position animated:(BOOL)animated;
