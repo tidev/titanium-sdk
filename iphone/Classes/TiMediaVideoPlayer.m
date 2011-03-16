@@ -15,10 +15,11 @@
 
 @implementation TiMediaVideoPlayer
 
--(id)initWithPlayer:(MPMoviePlayerController*)controller_ proxy:(TiProxy*)proxy_
+-(id)initWithPlayer:(MPMoviePlayerController*)controller_ proxy:(TiProxy*)proxy_ loaded:(BOOL)loaded_
 {
-	if (self = [super initWithFrame:[(TiViewProxy*)proxy_ appFrame]])
+	if (self = [super init])
 	{
+        loaded = loaded_;
 		[self setProxy:proxy_];
 		[self setMovie:controller_];
 	}
