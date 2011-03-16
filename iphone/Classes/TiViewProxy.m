@@ -102,12 +102,12 @@
 	else
 	{
 		pthread_rwlock_wrlock(&childrenLock);
-//		if (windowOpened)
-//		{
+		if (windowOpened)
+		{
 			pthread_rwlock_unlock(&childrenLock);
 			[self performSelectorOnMainThread:@selector(add:) withObject:arg waitUntilDone:NO];
 			return;
-//		}
+		}
 		if (pendingAdds==nil)
 		{
 			pendingAdds = [[NSMutableArray arrayWithObject:arg] retain];
@@ -189,15 +189,15 @@
 -(void)animate:(id)arg
 {
 	ENSURE_UI_THREAD(animate,arg);
-	[[self parent] contentsWillChange];
+	[parent contentsWillChange];
 
 	if ([view superview]==nil)
 	{
 		VerboseLog(@"Entering animation without a superview Parent is %@, props are %@",parent,dynprops);
-		[[self parent] childWillResize:self];
+		[parent childWillResize:self];
 	}
 	[self windowWillOpen]; // we need to manually attach the window if you're animating
-	[[self parent] layoutChildrenIfNeeded];
+	[parent layoutChildrenIfNeeded];
 	[[self view] animate:arg];
 }
 
@@ -302,25 +302,14 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
 
 @synthesize parent, barButtonItem;
 
--(TiViewProxy *)parent
-{
-	TiViewProxy * result;
-	@synchronized(self){
-		result = [[parent retain] autorelease];
-	}
-	return result;
-}
-
 -(void)setParent:(TiViewProxy*)parent_
 {
-@synchronized(self){
 	parent = parent_;
 	
-	if (parent_!=nil && [[self parent] windowHasOpened])
+	if (parent_!=nil && [parent windowHasOpened])
 	{
 		[self windowWillOpen];
 	}
-}
 }
 
 -(LayoutConstraint *)layoutProperties
@@ -636,7 +625,7 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
 -(void)windowWillOpen
 {
 	//TODO: This should be properly handled and moved, but for now, let's force it (Redundantly, I know.)
-	if ([self parent] != nil) {
+	if (parent != nil) {
 		[self parentWillShow];
 	}
 
@@ -981,7 +970,6 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
 
 
 	pthread_rwlock_wrlock(&childrenLock);
-	[children makeObjectsPerformSelector:@selector(setParent:) withObject:nil];
 	RELEASE_TO_NIL(children);
 	pthread_rwlock_unlock(&childrenLock);
 	[super _destroy];
@@ -1151,10 +1139,10 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
 	}
 	// check our parent since we optimize the fire with
 	// the check
-	if ([self parent]!=nil)
+	if (parent!=nil)
 	{
 		// walk up the chain
-		return [[self parent] _hasListeners:type];
+		return [parent _hasListeners:type];
 	}
 	return NO;
 }
@@ -1178,9 +1166,9 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
 		// parent and if he has the same named listener, we fire
 		// an event and set the source of the event to ourself
 		
-		if ([self parent]!=nil && propagate==YES)
+		if (parent!=nil && propagate==YES)
 		{
-			[[self parent] fireEvent:type withObject:obj withSource:source];
+			[parent fireEvent:type withObject:obj withSource:source];
 		}
 	}
 }
@@ -1247,7 +1235,7 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
 	}
 
 	[self willEnqueueIfVisible];
-	[[self parent] contentsWillChange];
+	[parent contentsWillChange];
 	pthread_rwlock_rdlock(&childrenLock);
 	[children makeObjectsPerformSelector:@selector(parentSizeWillChange)];
 	pthread_rwlock_unlock(&childrenLock);
@@ -1263,7 +1251,7 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
 		[self willChangeSize];
 	}
 	[self willEnqueueIfVisible];
-	[[self parent] contentsWillChange];
+	[parent contentsWillChange];
 }
 
 -(void)willChangeZIndex
@@ -1281,7 +1269,7 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
 	}
 
 	SET_AND_PERFORM(TiRefreshViewZIndex,);
-	[[self parent] contentsWillChange];
+	[parent contentsWillChange];
 
 	pthread_rwlock_rdlock(&childrenLock);
 	[children makeObjectsPerformSelector:@selector(parentWillShow)];
@@ -1291,7 +1279,7 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
 -(void)willHide;
 {
 	SET_AND_PERFORM(TiRefreshViewZIndex,);
-	[[self parent] contentsWillChange];
+	[parent contentsWillChange];
 
 	[self willEnqueue];
 
@@ -1418,7 +1406,7 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
 		}
 		[self layoutChildren:NO];
 		if (!CGRectEqualToRect(oldFrame, [[self view] frame])) {
-			[[self parent] childWillResize:self];
+			[parent childWillResize:self];
 		}
 	}
 
@@ -1475,7 +1463,7 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
 
 	if(OSAtomicTestAndClearBarrier(TiRefreshViewZIndex, &dirtyflags) || (transferView != nil))
 	{
-		[[self parent] insertSubview:view forProxy:self];
+		[parent insertSubview:view forProxy:self];
 	}
 
 }
@@ -1561,7 +1549,7 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
 		[view setCenter:positionCache];
 		[view setBounds:sizeCache];
 
-		[[self parent] insertSubview:view forProxy:self];
+		[parent insertSubview:view forProxy:self];
 
 
 		repositioning = NO;
