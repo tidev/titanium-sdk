@@ -3,7 +3,32 @@
 # zip up the titanium mobile SDKs into suitable distribution formats
 #
 import os, types, glob, shutil, sys, platform
-import zipfile, datetime, subprocess, tempfile
+import zipfile, datetime, subprocess, tempfile, time
+
+try:
+	import markdown
+except:
+	print >> sys.stderr, """
+WARNING: you are unable to generate the JSCA file (api.jsca) because you do 
+not have markdown installed.  If you are packaging for release, you should 
+*not* accept this package because it is required that api.jsca be included 
+in the sdk that is packaged for GA.
+
+To get the python markdown module, you can use a python package manager such
+as setuptools (easy_install) or pip.
+
+Examples:
+
+	> easy_install markdown
+
+	> pip install markdown
+
+Resuming in 5 seconds...
+
+"""
+	time.sleep(5);
+	markdown = None
+
 
 if platform.system() == 'Darwin':
 	import importresolver
@@ -34,12 +59,6 @@ def ignore(file):
 		if file == f:
 			return True
 	 return False
-def generate_jsca():
-	 for f in ignoreDirs:
-		if file == f:
-			return True
-	 return False
-
 def generate_jsca():
 	 process_args = ['python', os.path.join(doc_dir, 'docgen.py'), '-f', 'jsca']
 	 jsca_temp_file = tempfile.TemporaryFile()
@@ -211,8 +230,9 @@ githash=%s
 """ % (version,ts,githash)
 
 	zf.writestr('%s/version.txt' % basepath,version_txt)
-	jsca = generate_jsca()
-	zf.writestr('%s/api.jsca' % basepath, jsca)
+	if markdown:
+		jsca = generate_jsca()
+		zf.writestr('%s/api.jsca' % basepath, jsca)
 	
 	zip_dir(zf,all_dir,basepath)
 	zip_dir(zf,template_dir,basepath)
