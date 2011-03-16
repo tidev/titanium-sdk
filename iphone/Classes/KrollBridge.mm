@@ -135,7 +135,12 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 
 -(KrollObject*)addModule:(NSString*)name module:(TiModule*)module
 {
-	KrollObject *ko = [[[KrollObject alloc] initWithTarget:module context:context] autorelease];
+	KrollBridge *ourBridge = (KrollBridge *)[context delegate];
+	KrollObject *ko = [ourBridge registerProxy:module];
+	//TODO: come up with something more elegant than this hideous hack.
+	TiValueProtect([context context], [ko jsobject]);
+//	[[[KrollObject alloc] initWithTarget:module context:context] autorelease];
+	NSLog(@"Adding module %@ to context %@",module,context);
 	[modules setObject:ko forKey:name];
 	return ko;
 }
@@ -518,9 +523,13 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 			for (id key in values)
 			{
 				id target = [values objectForKey:key];
-				KrollObject *ko = [[KrollObject alloc] initWithTarget:target context:context];
+				KrollObject *ko = [self registerProxy:target];
+				//TODO: come up with something more elegant than this hideous hack.
+				TiValueProtect(jsContext, [ko jsobject]);
+				//[[KrollObject alloc] initWithTarget:target context:context];
+				NSLog(@"Adding object %@ in didStartNewContext to context %@",target,context);
 				[ti setStaticValue:ko forKey:key purgable:NO];
-				[ko release];
+			//	[ko release];
 			}
 		}
 		[self injectPatches];
@@ -566,8 +575,10 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 	[self autorelease]; // Safe to release now that the context is done
 }
 
-- (void)registerProxy:(id)proxy 
+- (id)registerProxy:(id)proxy 
 {
+	KrollObject * ourKrollObject = [[KrollObject alloc] initWithTarget:proxy context:context];
+
 	[proxyLock lock];
 	if (proxies==nil)
 	{ 
@@ -577,16 +588,14 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 
 	if (registeredProxies==NULL)
 	{
-		registeredProxies = CFDictionaryCreateMutable(NULL, 1, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
+		registeredProxies = CFDictionaryCreateMutable(NULL, 10, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
 	}
 	//NOTE: Do NOT treat registeredProxies like a mutableDictionary; mutable dictionaries copy keys,
 	//CFMutableDictionaryRefs only retain keys, which lets them work with proxies properly.
-	KrollObject * ourKrollObject = [[KrollObject alloc] initWithTarget:proxy context:context];
 
-	CFDictionaryAddValue(registeredProxies, proxy, ourKrollObject);
-	[ourKrollObject release];
-	
+	CFDictionaryAddValue(registeredProxies, proxy, ourKrollObject);	
 	[proxyLock unlock];
+	return [ourKrollObject autorelease];
 }
 
 - (void)unregisterProxy:(id)proxy

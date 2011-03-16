@@ -188,8 +188,9 @@ USE_VIEW_FOR_AUTO_WIDTH
 	return nil;
 }
 
-- (void)registerProxy:(id)proxy
+- (id)registerProxy:(id)proxy
 {
+	return nil;
 }
 
 - (void)unregisterProxy:(id)proxy

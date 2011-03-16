@@ -29,7 +29,7 @@
 - (KrollContext*)krollContext;
 
 //Creates a kroll object to be used with the proxy.
-- (void)registerProxy:(id)proxy;
+- (id)registerProxy:(id)proxy;
 
 //Removes the kroll object and the proxy.
 - (void)unregisterProxy:(id)proxy;

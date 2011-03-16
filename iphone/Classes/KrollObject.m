@@ -331,13 +331,13 @@ TiValueRef ConvertIdTiValue(KrollContext *context, id obj)
 		{
 			if (![ourBridge usesProxy:obj])
 			{
-				[ourBridge registerProxy:obj];
+				return [[ourBridge registerProxy:obj] jsobject];
 			}
 			KrollObject * objKrollObject = [ourBridge krollObjectForProxy:obj];
 			return [objKrollObject jsobject];
 		}
 		
-//		VerboseLog(@"[WARN] Generating a new TiObject for KrollObject %@ because the contexts %@ and its context %@ differed.",obj,context,ourContext);
+		NSLog(@"[WARN] Generating a new TiObject for KrollObject %@ because the contexts %@ and its context %@ differed.",obj,context,ourBridge);
 
 		KrollObject *o = [[[KrollObject alloc] initWithTarget:obj context:context] autorelease];
 		return TiObjectMake(jsContext,KrollObjectClassRef,o);
@@ -371,9 +371,10 @@ void KrollFinalizer(TiObjectRef ref)
 		if (ourBridge != nil)
 		{
 			TiProxy * ourTarget = [o target];
-			if ([ourBridge usesProxy:ourTarget])
+			if ((ourTarget != nil) && ([ourBridge krollObjectForProxy:ourTarget] == o))
 			{
 				[ourBridge unregisterProxy:ourTarget];
+				[(KrollObject *)o invalidateJsobject];
 			}
 		}
 	}
@@ -510,6 +511,12 @@ bool KrollSetProperty(TiContextRef jsContext, TiObjectRef object, TiStringRef pr
 	return jsobject;
 }
 
+-(void)invalidateJsobject;
+{
+	jsobject = NULL;
+	context = nil;
+}
+
 - (BOOL)isEqual:(id)anObject
 {
 	if ([anObject isKindOfClass:[KrollObject class]])
@@ -556,7 +563,10 @@ bool KrollSetProperty(TiContextRef jsContext, TiObjectRef object, TiStringRef pr
 //
 +(TiValueRef)create:(id)object context:(KrollContext*)context
 {
-	KrollObject *ko = [[[KrollObject alloc] initWithTarget:object context:context] autorelease];
+	KrollBridge * ourBridge = (KrollBridge *)[context delegate];
+	KrollObject *ko = [ourBridge registerProxy:object];
+//	[[[KrollObject alloc] initWithTarget:object context:context] autorelease];
+	NSLog(@"Create: %@ context: %@",object,context);
 	return [ko jsobject];
 }
 
@@ -875,6 +885,12 @@ bool KrollSetProperty(TiContextRef jsContext, TiObjectRef object, TiStringRef pr
 
 -(void)storeCallback:(KrollCallback *)eventCallback forEvent:(NSString *)eventName
 {
+	if (jsobject == NULL)
+	{
+		NSLog(@"[WARN] Trying to trigger an event without a JS object");
+		return;
+	}
+
 	TiValueRef exception=NULL;
 
 	TiContextRef jsContext = [context context];
@@ -922,6 +938,11 @@ bool KrollSetProperty(TiContextRef jsContext, TiObjectRef object, TiStringRef pr
 
 -(void)removeCallback:(KrollCallback *)eventCallback forEvent:(NSString *)eventName
 {
+	if (jsobject == NULL)
+	{
+		NSLog(@"[WARN] Trying to trigger an event without a JS object");
+		return;
+	}
 	TiContextRef jsContext = [context context];
 	TiStringRef jsEventHashString = TiStringCreateWithUTF8CString("_EVT");
 	TiObjectRef jsEventHash = TiObjectGetProperty(jsContext, jsobject, jsEventHashString, NULL);
@@ -959,6 +980,11 @@ bool KrollSetProperty(TiContextRef jsContext, TiObjectRef object, TiStringRef pr
 
 -(void)triggerEvent:(NSString *)eventName withObject:(NSDictionary *)eventData thisObject:(KrollObject *)thisObject
 {
+	if (jsobject == NULL)
+	{
+		NSLog(@"[WARN] Trying to trigger an event without a JS object");
+		return;
+	}
 	TiContextRef jsContext = [context context];
 	TiStringRef jsEventHashString = TiStringCreateWithUTF8CString("_EVT");
 	TiObjectRef jsEventHash = TiObjectGetProperty(jsContext, jsobject, jsEventHashString, NULL);
