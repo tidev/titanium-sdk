@@ -68,6 +68,11 @@ public class TiUITableView extends TiUIView
 		tableView.getListView().setSelection(index);
 	}
 
+	public void scrollToTop(final int index)
+	{
+		tableView.getListView().setSelectionFromTop(index, 0);
+	}
+
 	public TiTableView getTableView()
 	{
 		return tableView;

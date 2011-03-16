@@ -39,6 +39,7 @@ public class TableViewProxy extends TiViewProxy
 	private static final int MSG_DELETE_ROW = TiViewProxy.MSG_LAST_ID + 5004;
 	private static final int MSG_INSERT_ROW = TiViewProxy.MSG_LAST_ID + 5005;
 	private static final int MSG_APPEND_ROW = TiViewProxy.MSG_LAST_ID + 5006;
+	private static final int MSG_SCROLL_TO_TOP = TiViewProxy.MSG_LAST_ID + 5007;
 
 	public static final String CLASSNAME_DEFAULT = "__default__";
 	public static final String CLASSNAME_HEADER = "__header__";
@@ -441,6 +442,13 @@ public class TableViewProxy extends TiViewProxy
 		msg.sendToTarget();
 	}
 
+	@Kroll.method
+	public void scrollToTop(int index) {
+		Message msg = getUIHandler().obtainMessage(MSG_SCROLL_TO_TOP);
+		msg.arg1 = index;
+		msg.sendToTarget();
+	}
+
 	@Override
 	public boolean handleMessage(Message msg) {
 		if (msg.what == MSG_UPDATE_VIEW) {
@@ -473,11 +481,13 @@ public class TableViewProxy extends TiViewProxy
 		} else if (msg.what == MSG_DELETE_ROW) {
 			handleDeleteRow(msg.arg1);
 			return true;
+		} else if (msg.what == MSG_SCROLL_TO_TOP) {
+			getTableView().scrollToTop(msg.arg1);
+			return true;
 		}
 
 		return super.handleMessage(msg);
 	}
-	
 
 	// labels only send out click events when they are explicitly told to do so.
 	// we need to tell each label child to enable clicks when a click listener is added
