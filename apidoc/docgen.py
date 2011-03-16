@@ -32,30 +32,41 @@ try:
 	from mako.template import Template
 	from mako.lookup import TemplateLookup
 except:
-	err("Crap, you don't have mako!\n")
-	err("Easy install that bitch:\n")
-	err(">  easy_install Mako")
-	err("")
-	sys.exit(1)
+	Template = None
+	TemplateLookup = None
 try:
 	import markdown
 except:
-	err("Crap, you don't have markdown!\n")
-	err("Easy install that bitch:\n")
-	err(">  easy_install ElementTree")
-	err(">  easy_install Markdown")
-	err("")
-	sys.exit(1)
+	markdown = None
 try:
 	from pygments import highlight
 	from pygments.formatters import HtmlFormatter
 	from pygments.lexers import get_lexer_by_name
 except:
-	err("Crap, you don't have Pygments!\n")
-	err("Easy install that bitch:\n")
-	err(">  easy_install Pygments")
-	err("")
-	sys.exit(1)
+	highlight = None
+	HtmlFormatter = None
+	get_lexer_by_name = None
+
+def template_dependencies():
+	if not Template or not TemplateLookup:
+		err("Crap, you don't have mako!\n")
+		err("Easy install that bitch:\n")
+		err(">  easy_install Mako")
+		err("")
+		sys.exit(1)
+	if not markdown:
+		err("Crap, you don't have markdown!\n")
+		err("Easy install that bitch:\n")
+		err(">  easy_install ElementTree")
+		err(">  easy_install Markdown")
+		err("")
+		sys.exit(1)
+	if not highlight or not HtmlFormatter or not get_lexer_by_name:
+		err("Crap, you don't have Pygments!\n")
+		err("Easy install that bitch:\n")
+		err(">  easy_install Pygments")
+		err("")
+		sys.exit(1)
 	
 template_dir = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
 
@@ -1131,6 +1142,8 @@ def main():
 			err(">  easy_install odict")
 			err("")
 			sys.exit(1)
+		if options.format != 'jsca':
+			template_dependencies()
 		err('Generating Documentation for Titanium version %s to %s...' % (other_args['version'], other_args['output']))
 		process_tdoc()
 		format_handlers[options.format](other_args)
