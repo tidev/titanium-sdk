@@ -29,15 +29,21 @@ except:
 		pass
 
 try:
+	import markdown
+except:
+	err("Crap, you don't have markdown!\n")
+	err("Easy install that bitch:\n")
+	err(">  easy_install ElementTree")
+	err(">  easy_install Markdown")
+	err("")
+	sys.exit(1)
+
+try:
 	from mako.template import Template
 	from mako.lookup import TemplateLookup
 except:
 	Template = None
 	TemplateLookup = None
-try:
-	import markdown
-except:
-	markdown = None
 try:
 	from pygments import highlight
 	from pygments.formatters import HtmlFormatter
@@ -52,13 +58,6 @@ def template_dependencies():
 		err("Crap, you don't have mako!\n")
 		err("Easy install that bitch:\n")
 		err(">  easy_install Mako")
-		err("")
-		sys.exit(1)
-	if not markdown:
-		err("Crap, you don't have markdown!\n")
-		err("Easy install that bitch:\n")
-		err(">  easy_install ElementTree")
-		err(">  easy_install Markdown")
 		err("")
 		sys.exit(1)
 	if not highlight or not HtmlFormatter or not get_lexer_by_name:
