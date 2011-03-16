@@ -756,13 +756,10 @@ public abstract class TiUIView
 				boolean handled = detector.onTouchEvent(event);
 				if (!handled && motionEvents.containsKey(event.getAction())) {
 					if (event.getAction() == MotionEvent.ACTION_UP) {
-						Rect r = new Rect(view.getLeft(), view.getTop(), view.getRight(), view.getBottom());
-						boolean inRect = r.contains((int) event.getX(), (int)event.getY());
-						if (!inRect) {
-							handled = proxy.fireEvent(motionEvents.get(MotionEvent.ACTION_CANCEL), dictFromEvent(event));
-						} else {
-							handled = proxy.fireEvent(motionEvents.get(MotionEvent.ACTION_UP), dictFromEvent(event));
-						}
+						Rect r = new Rect(0, 0, view.getWidth(), view.getHeight());
+						int actualAction = r.contains((int)event.getX(), (int)event.getY())
+							? MotionEvent.ACTION_UP : MotionEvent.ACTION_CANCEL;
+						handled = proxy.fireEvent(motionEvents.get(actualAction), dictFromEvent(event));
 					} else {
 						handled = proxy.fireEvent(motionEvents.get(event.getAction()), dictFromEvent(event));
 					}
