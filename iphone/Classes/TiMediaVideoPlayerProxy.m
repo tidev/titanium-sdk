@@ -731,6 +731,7 @@ NSArray* moviePlayerKeys = nil;
 	if (movie != nil) {
 		return NUMINT([[self player] playbackState]);
 	}
+    return NUMINT(MPMoviePlaybackStateStopped);
 }
 
 -(void)setRepeatMode:(id)value
