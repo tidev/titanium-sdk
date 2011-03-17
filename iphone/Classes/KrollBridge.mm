@@ -149,6 +149,8 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 
 @implementation KrollBridge
 
+@synthesize currentURL;
+
 -(id)init
 {
 	if (self = [super init])
