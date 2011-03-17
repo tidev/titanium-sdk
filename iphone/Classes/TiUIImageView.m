@@ -659,6 +659,9 @@ DEFINE_EXCEPTIONS
 		// called within this class
 		image = (UIImage*)arg;
 		image = [self scaleImageIfRequired:image];
+        
+        autoWidth = image.size.width;
+        autoHeight = image.size.height;
 	}
 	else 
 	{
