@@ -54,14 +54,14 @@
 		if(fullPath == nil) {
 			return nil;
 		}
-		NSLog(@"retrieving image from local file: %@", fullPath);
+		VerboseLog(@"retrieving image from local file: %@", fullPath);
 		fullImage = [[UIImage alloc] initWithContentsOfFile:fullPath];
 	}
 	return fullImage;
 }
 
 - (void) setFullURL:(NSURL *) url {
-	NSLog(@"setting new URL for image cache entry: %@", [url absoluteString]);
+	VerboseLog(@"setting new URL for image cache entry: %@", [url absoluteString]);
 	if([url isFileURL]) {
 		fullPath = [[url absoluteString] retain];
 	} else {
@@ -71,7 +71,7 @@
 		if([fm fileExistsAtPath:fullPath]) {
 			[fm removeItemAtPath:fullPath error:&error];
 			if(error != nil) {
-				NSLog(@"Error deleting cache file %@: %@", fullPath, error);
+				NSLog(@"[ERROR] problem deleting cache file %@: %@", fullPath, error);
 			}
 		}
 		[fm release];
@@ -82,12 +82,12 @@
 	NSFileManager *fm = [[NSFileManager alloc] init];
 	if(![fm fileExistsAtPath:fullPath]) {
 		NSError *error = nil;
-		NSLog(@"saving image data to file: %@", fullPath);
+		VerboseLog(@"saving image data to file: %@", fullPath);
 		
 		[newData writeToFile:fullPath options:0 error:&error];
 
 		if(error != nil) {
-			NSLog(@"Error occurred while saving image data to file: %@\n%@", fullPath, error);
+			NSLog(@"[ERROR] Problem saving image data to file: %@\n%@", fullPath, error);
 		}
 	}
 	[fm release];
@@ -389,7 +389,7 @@ DEFINE_EXCEPTIONS
 	
 	if (doCache)
 	{
-		NSLog(@"Caching image %@: %@",urlString,image);
+		VerboseLog(@"Caching image %@: %@",urlString,image);
 		[cache setObject:newEntry forKey:urlString];
 	}
 	return newEntry;
