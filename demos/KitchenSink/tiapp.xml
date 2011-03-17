@@ -22,6 +22,9 @@
 	<plugin version="0.1">ti.log</plugin>
 </plugins>
 <android xmlns:android="http://schemas.android.com/apk/res/android">
+	<manifest>
+		<supports-screens android:anyDensity="false"/>
+	</manifest>
 	<activity android:name="ti.modules.titanium.ui.android.TiPreferencesActivity" />
 	<services>
 		<service type="interval" url="testservice.js" />
