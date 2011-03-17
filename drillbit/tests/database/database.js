@@ -165,7 +165,7 @@ describe("Ti.Database tests", {
 
 		  //test that the execute method works with and without an array as the second argument
 
-			for(i = 1; i <= rowCount / 2; ++id) {
+			for(i = 1; i <= rowCount / 2; ++i) {
 				 db.execute('INSERT INTO stuff (id, val) VALUES(?, ?)', i, 'our value' + i);
 			}
 
