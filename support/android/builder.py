@@ -881,11 +881,15 @@ class Builder(object):
 			dom = parseString(default_manifest_contents)
 			def replace_node(olddom, newnode):
 				nodes = olddom.getElementsByTagName(newnode.nodeName)
+				retval = False
 				if nodes:
 					olddom.documentElement.replaceChild(newnode, nodes[0])
+					retval = True
+				return retval
 
 			if supports_screens_node:
-				replace_node(dom, supports_screens_node)
+				if not replace_node(dom, supports_screens_node):
+					dom.documentElement.insertBefore(supports_screens_node, dom.documentElement.firstChild.nextSibling)
 			if uses_sdk_node:
 				replace_node(dom, uses_sdk_node)
 
