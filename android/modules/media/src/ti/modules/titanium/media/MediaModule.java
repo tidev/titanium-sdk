@@ -35,14 +35,17 @@ import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiFileHelper;
 import org.appcelerator.titanium.util.TiIntentWrapper;
 import org.appcelerator.titanium.util.TiUIHelper;
+import org.appcelerator.titanium.view.TiDrawableReference;
 
 import android.app.Activity;
+import android.app.WallpaperManager;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.database.Cursor;
+import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.hardware.Camera;
 import android.net.Uri;
@@ -608,6 +611,28 @@ public class MediaModule extends KrollModule
 		KrollDict image = TiUIHelper.viewToImage(getTiContext(), null, w.getDecorView());
 		if (callback != null && image != null) {
 			callback.callAsync(new Object[] { image });
+		}
+	}
+	@Kroll.method
+	public void setSystemWallpaper(KrollInvocation invocation, TiBlob image, boolean scale)
+	{
+		Context ctx = invocation.getActivity();
+		WallpaperManager wm = WallpaperManager.getInstance(ctx);
+		TiDrawableReference ref = TiDrawableReference.fromBlob(invocation.getTiContext(), image);
+		Bitmap b = null;
+		if (scale) {
+			b = ref.getBitmap(wm.getDesiredMinimumWidth());
+		} else {
+			b = ref.getBitmap();
+		}
+		if (b != null) {
+			try {
+				wm.setBitmap(b);
+			} catch (IOException e) {
+				Log.e(LCAT, "Unable to set wallpaper bitmap", e);
+			}
+		} else {
+			Log.w(LCAT, "Unable to get bitmap to set wallpaper");
 		}
 	}
 }
