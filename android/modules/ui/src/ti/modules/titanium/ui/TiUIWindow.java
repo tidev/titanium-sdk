@@ -48,6 +48,7 @@ import android.view.View;
 import android.view.View.OnFocusChangeListener;
 import android.view.ViewGroup.LayoutParams;
 import android.view.Window;
+import android.view.ViewGroup;
 
 public class TiUIWindow extends TiUIView
 	implements Handler.Callback, TiActivityWindow
@@ -63,10 +64,10 @@ public class TiUIWindow extends TiUIView
 	private static final int INTENT_FLAG_ACTIVITY_NO_ANIMATION = 65536;
 	private static final String[] NEW_ACTIVITY_REQUIRED_KEYS = {
 		TiC.PROPERTY_FULLSCREEN, TiC.PROPERTY_NAV_BAR_HIDDEN,
-		TiC.PROPERTY_MODAL, TiC.PROPERTY_WINDOW_SOFT_INPUT_MODE
+		TiC.PROPERTY_MODAL, TiC.PROPERTY_WINDOW_SOFT_INPUT_MODE, "titleControl"
 	};
 	private static final String WINDOW_ID_PREFIX = "window$";
-	
+		
 	protected String activityKey;
 	protected Activity windowActivity;
 	protected TiContext windowContext;
@@ -104,6 +105,11 @@ public class TiUIWindow extends TiUIView
 		if (!newActivity && options != null && options.containsKey(TiC.PROPERTY_TAB_OPEN)) {
 			newActivity = TiConvert.toBoolean(options, TiC.PROPERTY_TAB_OPEN);
 		}
+		
+		if (options.containsKey(TiC.PROPERTY_TITLE_CONTROL)){
+			options.put(TiC.PROPERTY_CUSTOM_TITLE_VIEW,true);
+		}
+		
 		lightWeight = !newActivity;
 		initContext();
 		if (newActivity) {
@@ -141,6 +147,7 @@ public class TiUIWindow extends TiUIView
 	{
 		// if url, create a new context.
 		if (proxy.hasProperty(TiC.PROPERTY_URL)) {
+			
 			if (newActivity) {
 				windowId = TiActivityWindows.addWindow(this);
 			}
@@ -363,6 +370,18 @@ public class TiUIWindow extends TiUIView
 		}
 		return v;
 	}
+	
+    protected void setTitleControl(ViewProxy v){
+		try{
+			int titleContainerId = (Integer) Class.forName("com.android.internal.R$id").getField("title_container").get(null);
+			((ViewGroup) windowActivity.getWindow().findViewById(titleContainerId)).removeAllViews();
+			((ViewGroup) windowActivity.getWindow().findViewById(titleContainerId)).setPadding(0, 0, 0, 0);
+			((ViewGroup) windowActivity.getWindow().findViewById(titleContainerId)).setBackgroundResource(android.R.color.transparent);
+			((ViewGroup) windowActivity.getWindow().findViewById(titleContainerId)).addView(v.getView(windowActivity).getNativeView());
+		}catch(Exception ex){
+				Log.d(LCAT, "couldn't set titleControl on Window ", ex);
+		}
+	}
 
 	public View getLayout()
 	{
@@ -429,7 +448,9 @@ public class TiUIWindow extends TiUIView
 		} else if (d.containsKey(TiC.PROPERTY_BACKGROUND_COLOR)) {
 			handleBackgroundColor(d.get(TiC.PROPERTY_BACKGROUND_COLOR), true);
 		}
-		if (d.containsKey(TiC.PROPERTY_TITLE)) {
+		if (d.containsKey("titleControl")){
+			setTitleControl((ViewProxy) d.get("titleControl"));
+		}else if (d.containsKey(TiC.PROPERTY_TITLE)) {
 			String title = TiConvert.toString(d, TiC.PROPERTY_TITLE);
 			if (windowActivity != null) {
 				windowActivity.setTitle(title);
@@ -541,6 +562,10 @@ public class TiUIWindow extends TiUIView
 		KrollDict props = resolver.findProperty(TiC.PROPERTY_FULLSCREEN);
 		if (props != null && props.containsKey(TiC.PROPERTY_FULLSCREEN)) {
 			intent.putExtra(TiC.PROPERTY_FULLSCREEN, TiConvert.toBoolean(props, TiC.PROPERTY_FULLSCREEN));
+		}
+		props = resolver.findProperty(TiC.PROPERTY_TITLE_CONTROL);
+		if (props != null && props.containsKey(TiC.PROPERTY_TITLE_CONTROL)) {
+			intent.putExtra(TiC.PROPERTY_CUSTOM_TITLE_VIEW, true);
 		}
 		props = resolver.findProperty(TiC.PROPERTY_NAV_BAR_HIDDEN);
 		if (props != null && props.containsKey(TiC.PROPERTY_NAV_BAR_HIDDEN)) {

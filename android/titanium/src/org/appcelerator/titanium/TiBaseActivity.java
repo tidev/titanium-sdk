@@ -215,6 +215,10 @@ public abstract class TiBaseActivity extends Activity
 		}
 	}
 
+	protected void setCustomTitle(){
+		this.requestWindowFeature(Window.FEATURE_CUSTOM_TITLE);
+	}
+	
 	protected void setNavBarHidden(boolean hidden)
 	{
 		if (!hidden) {
@@ -232,11 +236,15 @@ public abstract class TiBaseActivity extends Activity
 	{
 		boolean fullscreen = getIntentBoolean(TiC.PROPERTY_FULLSCREEN, false);
 		boolean navBarHidden = getIntentBoolean(TiC.PROPERTY_NAV_BAR_HIDDEN, false);
+		boolean customTitle = getIntentBoolean(TiC.PROPERTY_CUSTOM_TITLE_VIEW, false);
 		boolean modal = getIntentBoolean(TiC.PROPERTY_MODAL, false);
 		int softInputMode = getIntentInt(TiC.PROPERTY_WINDOW_SOFT_INPUT_MODE, -1);
 		boolean hasSoftInputMode = softInputMode != -1;
 		
-		if (!modal) {
+		if (customTitle){
+			setFullscreen(fullscreen);
+			setCustomTitle();
+		}else if (!modal) {
 			setFullscreen(fullscreen);
 			setNavBarHidden(navBarHidden);
 		} else {
