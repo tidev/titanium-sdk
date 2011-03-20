@@ -124,6 +124,7 @@
 		<jar destfile="${module.jar}">
 			<fileset dir="${classes}"/>
 			<fileset dir="${ti.module.root}" includes="assets/**" excludes="assets/README"/>
+			<fileset dir="${ti.module.root}" includes="platform/**" excludes="platform/README"/>
 		</jar>
 		<antcall target="post.jar"/>
 		<property name="zip.prefix" value="modules/android/${module.id}/${manifest.version}"/>
