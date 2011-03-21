@@ -351,10 +351,13 @@ results: verify the activity indicator appears as expected and then dismisses af
 
 \b0 1.Tap the large button\
 results:"text changes to "I am disabled" for a short period before showing "I am enabled"\
+results:Label on button turns green (highlighting color)\
 2.tap it again\
 results: "I am red"\
+results:Label on button turns green (highlighting color)\
 3.tap it again\
 results: "white text" on a red background\
+results:Label on button turns green (highlighting color)\
 \
 \
 
@@ -364,6 +367,11 @@ results: "white text" on a red background\
 results:labels disappear\
 2.tap it again\
 results:labels appear\
+\
+3. Tap 'Change label 2'\
+results: Second label should be redrawn in smaller font; yellow, w/blue shadow\
+4. Tap 'Change label 2'\
+results: Second label should be redrawn to look as initially did, but w/o italics\
 \
 \
 
