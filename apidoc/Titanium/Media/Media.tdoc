@@ -25,7 +25,6 @@ android, iphone, ipad
 
 - methods
 
-setSystemWallpaper: (Android only) Set the system homescreen wallpaper
 isMediaTypeSupported: return boolean to indicate if the media type is supported
 showCamera: show the camera
 openPhotoGallery: open the photo gallery picker
@@ -39,10 +38,6 @@ showMusicLibrary: show the music library.  iPhone and iPad only.
 hideMusicLibrary: hide the music library.  This must be called after calling `showMusicLibrary` and only when `autohide` is set to false.  iPhone and iPad only.
 startMicrophoneMonitor: start the monitoring of microphone sound level
 stopMicrophoneMonitor: stop the monitoring of microphone sound level
-
-- method : setSystemWallpaper, void
-image[object]: Image blob such as what can be retrieved via callbacks for `Titanium.Media.openPhotoGallery` and `Titanium.Media.showCamera`, as well as from the return value of `Titanium.Filesystem.File.read`.
-scale[boolean]: Set to true if you want the image to be scaled with respect to the system wallpaper desired width, or false to leave it as-is.
 
 - method : isMediaTypeSupported, boolean
 
