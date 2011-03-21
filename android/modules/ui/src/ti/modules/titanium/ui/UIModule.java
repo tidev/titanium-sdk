@@ -9,14 +9,18 @@ package ti.modules.titanium.ui;
 import org.appcelerator.kroll.KrollInvocation;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
+import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUIHelper;
+import org.appcelerator.titanium.view.TiDrawableReference;
 
 import android.app.Activity;
 import android.content.pm.ActivityInfo;
+import android.content.res.Resources;
 import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.view.Window;
 import android.widget.Toast;
 
@@ -93,6 +97,7 @@ public class UIModule extends KrollModule
 	@Kroll.constant public static final int TEXT_AUTOCAPITALIZATION_SENTENCES = 1;
 	@Kroll.constant public static final int TEXT_AUTOCAPITALIZATION_WORDS = 2;
 	@Kroll.constant public static final int TEXT_AUTOCAPITALIZATION_ALL = 3;
+	private static final String LCAT = "TiUIModule";
 	
 	public UIModule(TiContext tiContext)
 	{
@@ -107,7 +112,27 @@ public class UIModule extends KrollModule
 			w.setBackgroundDrawable(new ColorDrawable(TiConvert.toColor((String)color)));
 		}
 	}
-	
+	@Kroll.setProperty(runOnUiThread=true) @Kroll.method(runOnUiThread=true)
+	public void setBackgroundImage(Object image)
+	{
+		Window w = getTiContext().getRootActivity().getWindow();
+		if (w != null) {
+			if (image instanceof Number) {
+				try {
+					w.setBackgroundDrawableResource(((Number)image).intValue());
+				} catch (Resources.NotFoundException e) {
+					Log.w(LCAT , "Unable to set background drawable for root window.  An integer id was provided but no such drawable resource exists.");
+				}
+				return;
+			}
+			TiContext context = getTiContext().getRootActivity().getTiContext();
+			TiDrawableReference drawableRef = TiDrawableReference.fromObject(context, image);
+			Drawable d = drawableRef.getDrawable();
+			if (d != null) {
+				w.setBackgroundDrawable(d);
+			}
+		}
+	}
 	@Kroll.setProperty(runOnUiThread=true) @Kroll.method(runOnUiThread=true)
 	public void setOrientation(KrollInvocation invocation, int orientation)
 	{

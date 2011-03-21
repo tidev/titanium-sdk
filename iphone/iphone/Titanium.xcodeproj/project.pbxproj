@@ -3823,6 +3823,15 @@
 					"\"$(SRCROOT)/../../../../tmp/staticlib/build/Debug-iphonesimulator\"",
 					"\"$(SRCROOT)/../../../tijs/TiCore/TiCore/build/Release-iphonesimulator\"",
 				);
+				"OTHER_LDFLAGS[sdk=iphoneos4*]" = (
+					"$(inherited)",
+					"-weak_framework",
+					iAd,
+					"-weak_framework",
+					CoreMedia,
+					"-weak_framework",
+					CoreVideo,
+				);
 				PRODUCT_NAME = Titanium;
 				TARGETED_DEVICE_FAMILY = 1;
 				VALIDATE_PRODUCT = YES;
@@ -3834,7 +3843,7 @@
 			baseConfigurationReference = 241EAEC5118E2BA90081A5BE /* project.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				ARCHS = "$(ARCHS_UNIVERSAL_IPHONE_OS)";
 				COPY_PHASE_STRIP = NO;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_OPTIMIZATION_LEVEL = 0;
@@ -3873,7 +3882,7 @@
 			baseConfigurationReference = 241EAEC5118E2BA90081A5BE /* project.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				ARCHS = "$(ARCHS_UNIVERSAL_IPHONE_OS)";
 				COPY_PHASE_STRIP = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = Titanium_Prefix.pch;
@@ -3888,6 +3897,15 @@
 				OTHER_CFLAGS = (
 					"-DIPAD",
 					"-DTI_POST_1_2",
+				);
+				"OTHER_LDFLAGS[sdk=iphoneos4*]" = (
+					"$(inherited)",
+					"-weak_framework",
+					iAd,
+					"-weak_framework",
+					CoreMedia,
+					"-weak_framework",
+					CoreVideo,
 				);
 				PRODUCT_NAME = Titanium;
 				TARGETED_DEVICE_FAMILY = 2;
@@ -4028,6 +4046,15 @@
 				OTHER_CFLAGS = (
 					"-DIPAD",
 					"-DTI_POST_1_2",
+				);
+				"OTHER_LDFLAGS[sdk=iphoneos4*]" = (
+					"$(inherited)",
+					"-weak_framework",
+					iAd,
+					"-weak_framework",
+					CoreVideo,
+					"-weak_framework",
+					CoreMedia,
 				);
 				PRODUCT_NAME = Titanium;
 				TARGETED_DEVICE_FAMILY = "1,2";
