@@ -881,11 +881,15 @@ class Builder(object):
 			dom = parseString(default_manifest_contents)
 			def replace_node(olddom, newnode):
 				nodes = olddom.getElementsByTagName(newnode.nodeName)
+				retval = False
 				if nodes:
 					olddom.documentElement.replaceChild(newnode, nodes[0])
+					retval = True
+				return retval
 
 			if supports_screens_node:
-				replace_node(dom, supports_screens_node)
+				if not replace_node(dom, supports_screens_node):
+					dom.documentElement.insertBefore(supports_screens_node, dom.documentElement.firstChild.nextSibling)
 			if uses_sdk_node:
 				replace_node(dom, uses_sdk_node)
 
@@ -1453,25 +1457,6 @@ class Builder(object):
 			self.generate_aidl()
 			
 			manifest_changed = self.generate_android_manifest(compiler)
-
-			# If density-specific images exist yet AndroidManifest does not have
-			# anyDensity="true" in <supports-screens>, show a warning (but not for KitchenSink)
-			density_image_dir = os.path.join(resources_dir, 'android', 'images')
-			if 'smoketest' not in self.name.lower() and 'kitchensink' not in self.name.lower() and os.path.exists(density_image_dir) and os.path.exists(os.path.join(self.project_dir, 'AndroidManifest.xml')):
-				using_density_images = False
-				for root, dirs, files in os.walk(density_image_dir):
-					for f in files:
-						path = os.path.join(root, f)
-						if is_resource_drawable(path) and f != 'default.png':
-							using_density_images = True
-							break
-				if using_density_images:
-					f = codecs.open(os.path.join(self.project_dir, 'AndroidManifest.xml'), 'r', 'utf-8')
-					xml = f.read()
-					f.close()
-					if not re.search(r'anyDensity="true"', xml):
-						warn('For your density-specific images (android/images/high|medium|low|res-*) to be effective, you should put a <supports-screens> element with anyDensity="true" in the <android><manifest> section of your tiapp.xml or in a custom AndroidManifest.xml')
-
 			my_avd = None	
 			self.google_apis_supported = False
 				

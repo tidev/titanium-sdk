@@ -8,12 +8,14 @@ package ti.modules.titanium.ui.widget.searchbar;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
+import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
 
 import ti.modules.titanium.ui.widget.TiUIText;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -41,11 +43,11 @@ public class TiUISearchBar extends TiUIText
 		cancelBtn = new ImageButton(proxy.getContext());
 		cancelBtn.isFocusable();
 		cancelBtn.setId(101);
-		cancelBtn.setPadding(0,0,0,0);
-		Drawable d = new BitmapDrawable(this.getClass().getResourceAsStream("cancel.png"));
-		cancelBtn.setImageDrawable(d);
-		cancelBtn.setMinimumWidth(48);
-		cancelBtn.setMinimumHeight(20);
+		cancelBtn.setImageResource(android.R.drawable.ic_input_delete);
+		// set some minimum dimensions for the cancel button, in a density-independent way.
+		final float scale = cancelBtn.getContext().getResources().getDisplayMetrics().density;
+		cancelBtn.setMinimumWidth((int) (48 * scale));
+		cancelBtn.setMinimumHeight((int) (20 * scale));
 		cancelBtn.setOnClickListener(new OnClickListener()
 		{
 			public void onClick(View view)

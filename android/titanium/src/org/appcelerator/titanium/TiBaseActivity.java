@@ -10,6 +10,7 @@ import java.lang.ref.WeakReference;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.titanium.proxy.ActivityProxy;
+import org.appcelerator.titanium.proxy.IntentProxy;
 import org.appcelerator.titanium.proxy.TiWindowProxy;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiActivityResultHandler;
@@ -28,11 +29,11 @@ import org.appcelerator.titanium.view.TiCompositeLayout.LayoutArrangement;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.res.Configuration;
-import android.os.Build.VERSION;
 import android.os.Bundle;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
+import android.os.Build.VERSION;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -523,6 +524,22 @@ public abstract class TiBaseActivity extends Activity
 			if (listener.get() != null) {
 				listener.get().onConfigurationChanged(this, newConfig);
 			}
+		}
+	}
+
+	@Override
+	protected void onNewIntent(Intent intent) 
+	{
+		super.onNewIntent(intent);
+		if (DBG) {
+			Log.d(TAG, "Activity " + this + " onNewIntent");
+		}
+		
+		if (activityProxy != null) {
+			IntentProxy ip = new IntentProxy(activityProxy.getTiContext(),intent);
+			KrollDict data = new KrollDict();
+			data.put(TiC.PROPERTY_INTENT, ip);
+			activityProxy.fireSyncEvent(TiC.EVENT_NEW_INTENT, data);
 		}
 	}
 

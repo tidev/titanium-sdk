@@ -15,6 +15,8 @@
 
 - (NSString*)basename;
 
+@property(nonatomic,readwrite,retain)	NSURL * currentURL;
+
 - (void)evalJSWithoutResult:(NSString*)code;
 
 - (void)evalFile:(NSString*)file;

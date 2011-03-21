@@ -1163,6 +1163,12 @@ def main(args):
 					sys.stdout.flush()
 					sys.stderr.flush()
 
+					# set the DYLD_FRAMEWORK_PATH environment variable for the following Popen iphonesim command
+					# this allows the XCode developer folder to be arbitrarily named
+					xcodeselectpath = os.popen("/usr/bin/xcode-select -print-path").readline().rstrip('\n')
+					iphoneprivateframeworkspath = xcodeselectpath + '/Platforms/iPhoneSimulator.platform/Developer/Library/PrivateFrameworks'
+					os.putenv('DYLD_FRAMEWORK_PATH', iphoneprivateframeworkspath)
+
 					# launch the simulator
 					if devicefamily==None:
 						sim = subprocess.Popen("\"%s\" launch \"%s\" %s iphone" % (iphonesim,app_dir,iphone_version),shell=True)

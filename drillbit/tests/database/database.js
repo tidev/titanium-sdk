@@ -146,5 +146,53 @@ describe("Ti.Database tests", {
 			db.close();
 			db.remove();
 		}
+	},
+	// https://appcelerator.lighthouseapp.com/projects/32238-titanium-mobile/tickets/2917-api-doc-dbexecute
+	testDatabaseLH2917: function() {
+		var db = Titanium.Database.open('Test'),
+		    rowCount = 10,
+				resultSet, i, counter;
+
+		
+		valueOf(db).shouldBeObject();
+		valueOf(resultSet).shouldBeUndefined();
+		valueOf(i).shouldBeUndefined();
+		valueOf(counter).shouldBeUndefined();
+
+		try {
+			db.execute('CREATE TABLE IF NOT EXISTS stuff (id INTEGER, val TEXT)');
+			db.execute('DELETE FROM stuff'); //clear table of all existing data
+
+		  //test that the execute method works with and without an array as the second argument
+
+			for(i = 1; i <= rowCount / 2; ++i) {
+				 db.execute('INSERT INTO stuff (id, val) VALUES(?, ?)', i, 'our value' + i);
+			}
+
+			while(i <= rowCount) {
+				 db.execute('INSERT INTO stuff (id, val) VALUES(?, ?)', [i, 'our value' + i]);
+				 ++i;
+			}
+
+			resultSet = db.execute('SELECT * FROM stuff');
+			
+			valueOf(resultSet).shouldNotBeNull();
+			valueOf(resultSet).shouldBeObject();
+			valueOf(resultSet.rowCount).shouldBe(rowCount);
+
+			counter = 1;
+			while(resultSet.isValidRow()) {
+				valueOf(resultSet.fieldByName('id')).shouldBe(counter);
+			  valueOf(resultSet.fieldByName('val')).shouldBe('our value' + counter);
+			  ++counter;
+
+				resultSet.next();
+			}
+		} catch(e) {
+			Titanium.API.debug('error occurred: ' + e);
+		} finally {
+			db.close();
+			db.remove();
+	 	}
 	}
 });

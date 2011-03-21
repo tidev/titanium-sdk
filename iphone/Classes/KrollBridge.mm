@@ -167,6 +167,7 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 		krollBridgeRegistry = CFSetCreateMutable(NULL, 3, &doNotRetain);
 	}
 }
+@synthesize currentURL;
 
 -(id)init
 {

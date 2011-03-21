@@ -662,32 +662,35 @@ public abstract class TiUIView
 		if (d.containsKey(TiC.PROPERTY_BORDER_RADIUS)
 			|| d.containsKey(TiC.PROPERTY_BORDER_COLOR)
 			|| d.containsKey(TiC.PROPERTY_BORDER_WIDTH)) {
-			if (background == null) {
-				applyCustomBackground();
-			}
 
-			if (background.getBorder() == null) {
-				background.setBorder(new TiBackgroundDrawable.Border());
-			}
+			if(nativeView != null) {
+				if (background == null) {
+					applyCustomBackground();
+				}
 
-			TiBackgroundDrawable.Border border = background.getBorder();
+				if (background.getBorder() == null) {
+					background.setBorder(new TiBackgroundDrawable.Border());
+				}
 
-			if (d.containsKey(TiC.PROPERTY_BORDER_RADIUS)) {
-				border.setRadius(TiConvert.toFloat(d, TiC.PROPERTY_BORDER_RADIUS));
-			}
-			if (d.containsKey(TiC.PROPERTY_BORDER_COLOR) || d.containsKey(TiC.PROPERTY_BORDER_WIDTH)) {
-				if (d.containsKey(TiC.PROPERTY_BORDER_COLOR)) {
-					border.setColor(TiConvert.toColor(d, TiC.PROPERTY_BORDER_COLOR));
-				} else {
-					if (bgColor != null) {
-						border.setColor(bgColor);
+				TiBackgroundDrawable.Border border = background.getBorder();
+
+				if (d.containsKey(TiC.PROPERTY_BORDER_RADIUS)) {
+					border.setRadius(TiConvert.toFloat(d, TiC.PROPERTY_BORDER_RADIUS));
+				}
+				if (d.containsKey(TiC.PROPERTY_BORDER_COLOR) || d.containsKey(TiC.PROPERTY_BORDER_WIDTH)) {
+					if (d.containsKey(TiC.PROPERTY_BORDER_COLOR)) {
+						border.setColor(TiConvert.toColor(d, TiC.PROPERTY_BORDER_COLOR));
+					} else {
+						if (bgColor != null) {
+							border.setColor(bgColor);
+						}
+					}
+					if (d.containsKey(TiC.PROPERTY_BORDER_WIDTH)) {
+						border.setWidth(TiConvert.toFloat(d, TiC.PROPERTY_BORDER_WIDTH));
 					}
 				}
-				if (d.containsKey(TiC.PROPERTY_BORDER_WIDTH)) {
-					border.setWidth(TiConvert.toFloat(d, TiC.PROPERTY_BORDER_WIDTH));
-				}
+				//applyCustomBackground();
 			}
-			//applyCustomBackground();
 		}
 	}
 
