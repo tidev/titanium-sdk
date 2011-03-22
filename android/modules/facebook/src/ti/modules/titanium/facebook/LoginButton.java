@@ -10,6 +10,7 @@ package ti.modules.titanium.facebook;
 import java.io.InputStream;
 
 import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConvert;
@@ -51,33 +52,8 @@ public class LoginButton extends TiUIView implements TiFacebookStateListener
 				}
 			}
 		};
-		btn.setBackgroundColor(Color.TRANSPARENT);
-		final ImageButton fBtn = btn;
-		btn.setOnClickListener(new OnClickListener() {
-			public void onClick(View arg0) {
-				Activity activity = null;
-				if (fBtn.getContext() instanceof Activity) {
-					activity = (Activity) fBtn.getContext();
-				} else {
-					Context context = getProxy().getContext();
-					if (context instanceof Activity) {
-						activity = (Activity) context;
-					}
-				}
-				if (activity == null) {
-					// Fallback on the root activity if possible
-					if (getProxy().getTiContext() != null) {
-						activity = getProxy().getTiContext().getRootActivity();
-					}
-				}
-				if (facebook.loggedIn()) {
-					facebook.executeLogout(activity);
-				} else {
-					facebook.executeAuthorize(activity);
-				}
-			}
-		});
 		setNativeView(btn);
+		btn.setBackgroundColor(Color.TRANSPARENT);
 		updateButtonImage(false);
 	}
 	
@@ -155,6 +131,38 @@ public class LoginButton extends TiUIView implements TiFacebookStateListener
 		super.release();
 		if (facebook != null) {
 			facebook.removeListener(this);
+		}
+	}
+
+	@Override
+	protected void setOnClickListener(View view)
+	{
+		if (view == nativeView) {
+			final ImageButton btn = (ImageButton) view;
+			btn.setOnClickListener(new OnClickListener() {
+				public void onClick(View arg0) {
+					Activity activity = null;
+					if (btn.getContext() instanceof Activity) {
+						activity = (Activity) btn.getContext();
+					} else {
+						Context context = getProxy().getContext();
+						if (context instanceof Activity) {
+							activity = (Activity) context;
+						}
+					}
+					if (activity == null) {
+						// Fallback on the root activity if possible
+						if (getProxy().getTiContext() != null) {
+							activity = getProxy().getTiContext().getRootActivity();
+						}
+					}
+					if (facebook.loggedIn()) {
+						facebook.executeLogout(activity);
+					} else {
+						facebook.executeAuthorize(activity);
+					}
+				}
+			});
 		}
 	}
 }
