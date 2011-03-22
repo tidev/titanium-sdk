@@ -106,8 +106,8 @@ public class TiUIWindow extends TiUIView
 			newActivity = TiConvert.toBoolean(options, TiC.PROPERTY_TAB_OPEN);
 		}
 		
-		if (options.containsKey(TiC.PROPERTY_TITLE_CONTROL)){
-			options.put(TiC.PROPERTY_CUSTOM_TITLE_VIEW,true);
+		if (options != null && options.containsKey(TiC.PROPERTY_TITLE_CONTROL)){
+			options.put(TiC.PROPERTY_CUSTOM_TITLE_VIEW, true);
 		}
 		
 		lightWeight = !newActivity;
