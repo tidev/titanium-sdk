@@ -1289,6 +1289,19 @@ class Builder(object):
 		self.run_adb('push', debug_json, '/sdcard/%s/debug.json' % self.app_id)
 		os.unlink(debug_json)
 
+	def merge_internal_module_resources(self):
+		if not self.android_jars:
+			return
+		for jar in self.android_jars:
+			if not os.path.exists(jar):
+				continue
+			res_zip = jar[:-4] + '.res.zip'
+			if not os.path.exists(res_zip):
+				continue
+			res_zip_file = zipfile.ZipFile(res_zip)
+			res_zip_file.extractall(self.project_dir)
+
+
 	def build_and_run(self, install, avd_id, keystore=None, keystore_pass='tirocks', keystore_alias='tidev', dist_dir=None, build_only=False, device_args=None, debugger_host=None):
 		deploy_type = 'development'
 		self.build_only = build_only
@@ -1456,6 +1469,7 @@ class Builder(object):
 			compiler.compile()
 			self.compiled_files = compiler.compiled_files
 			self.android_jars = compiler.jar_libraries
+			self.merge_internal_module_resources()
 			
 			if not os.path.exists(self.assets_dir):
 				os.makedirs(self.assets_dir)
