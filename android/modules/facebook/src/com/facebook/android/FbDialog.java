@@ -17,12 +17,12 @@
 /*
  * NOTES
  * This file was modified from the Facebook original.  Modifications:
- * - Remove (by commenting out parts of setUpTitle() )
- * FB icon from top of the dialog, since it was fetched via R and
- * we are not including this source as part of an Android project.
+ * - Fetch the FB icon drawable resource id using Resources.getIdentifier
+ * since we merge resources into Titanium project and don't have access to R here.
+ *
  * The original is based on tree ac14a5fe46e477d5503c in the facebook-android-sdk
  * github repository:
- * 
+ *
  */
 
 package com.facebook.android;
@@ -73,6 +73,9 @@ public class FbDialog extends Dialog {
     private WebView mWebView;
     private LinearLayout mContent;
     private TextView mTitle;
+    // ** TITANIUM
+    private int mIconId = -1;
+    // ***********
 
     public FbDialog(Context context, String url, DialogListener listener) {
         super(context);
@@ -107,15 +110,14 @@ public class FbDialog extends Dialog {
         //        R.drawable.facebook_icon);
         /** TITANIUM **/
         Drawable icon = null;
-        InputStream is = getClass().getClassLoader().getResourceAsStream("ti/modules/titanium/facebook/resources/fbicon.png");
-        if (is != null) {
-        	Bitmap bitmap = TiUIHelper.createBitmap(is);
-        	if (bitmap != null) {
-        		icon = new BitmapDrawable(bitmap);
-        	}
+        if (mIconId == -1) {
+        	// First attempt at looking it up.
+        	mIconId = getContext().getResources().getIdentifier("facebook_icon", "drawable", getContext().getPackageName());
+        }
+        if (mIconId > 0) {
+        	icon = getContext().getResources().getDrawable(mIconId);
         }
         /**************/
-        
         mTitle = new TextView(getContext());
         mTitle.setText("Facebook");
         mTitle.setTextColor(Color.WHITE);
