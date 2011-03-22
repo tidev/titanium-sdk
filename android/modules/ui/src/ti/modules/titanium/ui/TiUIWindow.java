@@ -379,7 +379,7 @@ public class TiUIWindow extends TiUIView
 			((ViewGroup) windowActivity.getWindow().findViewById(titleContainerId)).setBackgroundResource(android.R.color.transparent);
 			((ViewGroup) windowActivity.getWindow().findViewById(titleContainerId)).addView(v.getView(windowActivity).getNativeView());
 		}catch(Exception ex){
-				Log.d(LCAT, "couldn't set titleControl on Window ", ex);
+				Log.e(LCAT, "couldn't set titleControl on Window ", ex);
 		}
 	}
 
@@ -567,6 +567,7 @@ public class TiUIWindow extends TiUIView
 		if (props != null && props.containsKey(TiC.PROPERTY_TITLE_CONTROL)) {
 			intent.putExtra(TiC.PROPERTY_CUSTOM_TITLE_VIEW, true);
 		}
+		
 		props = resolver.findProperty(TiC.PROPERTY_NAV_BAR_HIDDEN);
 		if (props != null && props.containsKey(TiC.PROPERTY_NAV_BAR_HIDDEN)) {
 			intent.putExtra(TiC.PROPERTY_NAV_BAR_HIDDEN, TiConvert.toBoolean(props, TiC.PROPERTY_NAV_BAR_HIDDEN));
