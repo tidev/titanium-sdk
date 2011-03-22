@@ -53,6 +53,13 @@
 	}
 #endif
 	NSMutableDictionary *result = [NSMutableDictionary dictionary];
+
+	// NOTE: order here is important. We load globals first then by basename afterwards
+	//       this effectively lets basename implementations to override globals
+	if (basename != @"global") {
+		[result addEntriesFromDictionary:[self stylesheet:objectId density:density basename:@"global" classes:classes]];
+	}
+
 	NSEnumerator *classEnum = [classes objectEnumerator];
 	id className;
 	while (className = [classEnum nextObject])
