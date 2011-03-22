@@ -90,6 +90,25 @@ def error(msg):
 	print "[ERROR] "+msg
 	sys.stdout.flush()
 
+def copy_all(source_folder, dest_folder, ignore_dirs=[], ignore_files=[], one_time_msg=""):
+	msg_shown = False
+	for root, dirs, files in os.walk(source_folder):
+		for d in dirs:
+			if d in ignore_dirs:
+				dirs.remove(d)
+		for f in files:
+			if f in ignore_files:
+				continue
+			if one_time_msg and not msg_shown:
+				info(one_time_msg)
+				msg_shown = True
+			from_ = os.path.join(root, f)
+			to_ = from_.replace(source_folder, dest_folder, 1)
+			to_directory = os.path.split(to_)[0]
+			if not os.path.exists(to_directory):
+				os.makedirs(to_directory)
+			shutil.copyfile(from_, to_)
+
 def remove_orphaned_files(source_folder, target_folder):
 	is_res = source_folder.endswith('Resources') or source_folder.endswith('Resources' + os.sep)
 	for root, dirs, files in os.walk(target_folder):
@@ -424,6 +443,21 @@ class Builder(object):
 		for check in tocheck:
 			if os.path.exists(os.path.join(image_parent, check)) and os.path.exists(os.path.join(image_parent, 'res-%sdpi' % check[0])):
 				warn('You have both an android/images/%s folder and an android/images/res-%sdpi folder. Files from both of these folders will end up in res/drawable-%sdpi.  If two files are named the same, there is no guarantee which one will be copied last and therefore be the one the application uses.  You should use just one of these folders to avoid conflicts.' % (check, check[0], check[0]))
+
+	def copy_module_platform_folders(self):
+		module_dir = os.path.join(self.top_dir, 'modules', 'android')
+		if not os.path.exists(module_dir):
+			return
+		for module in self.modules:
+			platform_folder = os.path.join(module.path, 'platform', 'android')
+			if os.path.exists(platform_folder):
+				copy_all(platform_folder, self.project_dir, one_time_msg="Copying platform-specific files for '%s' module" % module.manifest.name)
+
+
+	def copy_project_platform_folder(self, ignore_dirs=[], ignore_files=[]):
+		if not os.path.exists(self.platform_dir):
+			return
+		copy_all(self.platform_dir, self.project_dir, ignore_dirs, ignore_files, "Copying platform-specific files ...")
 
 	def copy_resource_drawables(self):
 		debug('Processing Android resource drawables')
@@ -833,8 +867,6 @@ class Builder(object):
 		application_xml += get_application_xml(self.tiapp)
 		
 		# add manifest / application entries from modules
-		detector = ModuleDetector(self.top_dir)
-		self.missing_modules, self.modules = detector.find_app_modules(self.tiapp, 'android')
 		for module in self.modules:
 			if module.xml == None: continue
 			manifest_xml += get_manifest_xml(module.xml)
@@ -1432,27 +1464,21 @@ class Builder(object):
 
 			self.warn_dupe_drawable_folders()
 
+			# Detect which modules are being used.
+			# We need to know this info in a few places, so the info is saved
+			# in self.missing_modules and self.modules
+			detector = ModuleDetector(self.top_dir)
+			self.missing_modules, self.modules = detector.find_app_modules(self.tiapp, 'android')
+
+			self.copy_module_platform_folders()
+
 			special_resources_dir = os.path.join(self.top_dir,'platform','android')
-			ignore_files = ignoreFiles
-			ignore_files.extend(['AndroidManifest.xml']) # don't want to overwrite build/android/AndroidManifest.xml yet
 			if os.path.exists(special_resources_dir):
-				showed_info_msg = False
 				debug("found special platform files dir = %s" % special_resources_dir)
-				for root, dirs, files in os.walk(special_resources_dir):
-					for name in ignoreDirs:
-						if name in dirs: dirs.remove(name)
-					for file in files:
-						if file in ignore_files : continue
-						if not showed_info_msg:
-							info('Copying platform-specific files ...')
-							showed_info_msg = True
-						from_ = os.path.join(root, file)           
-						to_ = from_.replace(special_resources_dir, self.project_dir, 1)
-						to_directory = os.path.split(to_)[0]
-						if not os.path.exists(to_directory):
-							os.makedirs(to_directory)
-						shutil.copyfile(from_, to_)
-			
+				ignore_files = ignoreFiles
+				ignore_files.extend(['AndroidManifest.xml']) # don't want to overwrite build/android/AndroidManifest.xml yet
+				self.copy_project_platform_folder(ignoreDirs, ignore_files)
+
 			self.generate_stylesheet()
 			self.generate_aidl()
 			

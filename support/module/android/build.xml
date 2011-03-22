@@ -134,6 +134,7 @@
 			<zipfileset file="timodule.xml" prefix="${zip.prefix}"/>
 			<zipfileset dir="${docs}" prefix="${zip.prefix}/documentation"/>
 			<zipfileset dir="${lib}" includes="**/*.jar" prefix="${zip.prefix}/lib"/>
+			<zipfileset dir="${ti.module.root}" includes="platform/**" excludes="platform/README" prefix="${zip.prefix}"/>
 		</zip>
 		<antcall target="zip.libs"/>
 		<delete dir="${lib.expand.dir}" includeemptydirs="true" failonerror="false" deleteonexit="true"/>
