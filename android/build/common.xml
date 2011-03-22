@@ -432,7 +432,13 @@ Common ant tasks and macros for building Android-based Titanium modules and proj
 		<sequential>
 			<ti.modulePath json="${dependency.json}" module="@{module}" modulesdir="${modules.dir}" pathid="dependencies"/>
 			<build.module.jar name="@{module}"/>
-			<zip.module.res name="@{module}"/>
+			<available type="dir" file="${modules.dir}/@{module}/res" property="@{module}.res.avail"/>
+			<if>
+				<istrue value="${@{module}.res.avail}"/>
+				<then>
+					<zip.module.res name="@{module}"/>
+				</then>
+			</if>
 		</sequential>
 		</for>
 	</target>
