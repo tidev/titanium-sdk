@@ -779,13 +779,16 @@ class Builder(object):
 		resfilepath = os.path.join(resfiledir,'theme.xml')
 		if not os.path.exists(resfilepath):
 			resfile = open(resfilepath,'w')
+			theme_flags = "Theme"
+			if self.tiapp.properties.get("fullscreen") == "true":
+				theme_flags = theme_flags + ".NoTitleBar.Fullscreen"
 			TITANIUM_THEME="""<?xml version="1.0" encoding="utf-8"?>
 <resources>
-<style name="Theme.Titanium" parent="android:Theme.NoTitleBar.Fullscreen">
+<style name="Theme.Titanium" parent="android:%s">
     <item name="android:windowBackground">@drawable/background</item>
 </style>
 </resources>
-"""
+""" % theme_flags
 			resfile.write(TITANIUM_THEME)
 			resfile.close()
 		
