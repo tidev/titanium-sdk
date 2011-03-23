@@ -14,6 +14,14 @@ import os, sys, re, optparse, string
 from os.path import join, splitext, split, exists
 from htmlentitydefs import name2codepoint 
 
+# We package the python markdown module already in the sdk source tree,
+# namely in /support/module/support/markdown.  So go ahead and  use it
+# rather than rely on it being easy_installed.
+this_dir = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
+module_support_dir = os.path.abspath(os.path.join(this_dir, '..', 'support', 'module', 'support'))
+if os.path.exists(module_support_dir):
+	sys.path.append(module_support_dir)
+
 def err(s):
 	print >> sys.stderr, s
 
