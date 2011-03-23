@@ -946,6 +946,10 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
 		RELEASE_TO_NIL(view);
 		[self viewDidDetach];
 	}
+
+    pthread_rwlock_rdlock(&childrenLock);
+    [[self children] makeObjectsPerformSelector:@selector(detachView)];
+    pthread_rwlock_unlock(&childrenLock);
 	[destroyLock unlock];
 }
 

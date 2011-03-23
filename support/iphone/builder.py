@@ -280,6 +280,94 @@ def generate_customized_entitlements(provisioning_profile,appid,uuid,command,out
 	
 	return buffer
 
+def xcode_version():
+	output = run.run(['xcodebuild','-version'],True,False)
+	if output:
+		versionLine = output.split('\n')[0]
+		return float(versionLine.split(' ')[1].rpartition('.')[0])
+
+def distribute_xc3(uuid, provisioning_profile, name, log):
+	# starting in 4.0, apple now requires submission through XCode
+	# this code mimics what xcode does on its own to package the 
+	# application for the app uploader process
+	log.write("Creating distribution for xcode3...\n");
+	archive_uuid = str(uuid.uuid4()).upper()
+	archive_dir = os.path.join(os.path.expanduser("~/Library/MobileDevice/Archived Applications"),archive_uuid)
+	archive_app_dir = os.path.join(archive_dir,"%s.app" % name)
+	archive_appdsym_dir = os.path.join(archive_dir,"%s.app.dSYM" % name)
+	os.makedirs(archive_app_dir)
+	os.makedirs(archive_appdsym_dir)
+	
+	os.system('ditto "%s.app" "%s"' % (name,archive_app_dir))
+	os.system('ditto "%s.app.dSYM" "%s"' % (name,archive_appdsym_dir))
+	
+	archive_plist = os.path.join(archive_dir,'ArchiveInfo.plist')
+	log.write("Writing archive plist to: %s\n\n" % archive_plist)
+	
+	profile_uuid = get_profile_uuid(provisioning_profile)
+	
+	os.system("/usr/bin/plutil -convert xml1 -o \"%s\" \"%s\"" % (os.path.join(archive_dir,'Info.xml.plist'),os.path.join(archive_app_dir,'Info.plist')))
+	p = plistlib.readPlist(os.path.join(archive_dir,'Info.xml.plist'))
+	archive_metadata = {
+		'CFBundleIdentifier':p['CFBundleIdentifier'],
+		'CFBundleVersion':p['CFBundleVersion'],
+		'XCApplicationFilename':'%s.app' %name,
+		'XCApplicationName':name,
+		'XCArchivedDate': time.time() - 978307200.0,
+		'XCArchiveUUID':archive_uuid,
+		'XCInfoPlist' : p,
+		'XCProfileUUID': profile_uuid
+	}
+	log.write("%s\n\n" % archive_metadata)
+	plistlib.writePlist(archive_metadata,archive_plist)
+	os.remove(os.path.join(archive_dir,'Info.xml.plist'))	
+
+def distribute_xc4(name, log):
+	# Locations of bundle, app binary, dsym info
+	log.write("Creating distribution for xcode4...\n");	
+	archive_bundle = os.path.join(os.path.expanduser("~/Library/Developer/Xcode/Archives"),"%s.xcarchive" % name)
+	archive_app = os.path.join(archive_bundle,"Products","Applications","%s.app" % name)
+	archive_dsym = os.path.join(archive_bundle,"dSYM")
+	
+	# create directories
+	if not os.access(archive_bundle, os.F_OK): os.makedirs(archive_bundle)
+	if not os.access(archive_app, os.F_OK): os.makedirs(archive_app)
+	if not os.access(archive_dsym, os.F_OK): os.makedirs(archive_dsym)
+
+	# copy app bundles into the approps. places
+	os.system('ditto "%s.app" "%s"' % (name,archive_app))
+	os.system('ditto "%s.app.dSYM" "%s"' % (name,archive_dsym))
+	
+	# plist processing time - this is the biggest difference from XC3.
+	archive_info_plist = os.path.join(archive_bundle,'Info.plist')
+	log.write("Writing archive plist to: %s\n\n" % archive_info_plist)
+	
+	# load existing plist values so that we can use them in generating the archive
+	# plist
+	os.system('/usr/bin/plutil -convert xml1 -o "%s" "%s"' % (os.path.join(archive_bundle,'Info.xml.plist'),os.path.join(archive_app,'Info.plist')))
+	project_info_plist = plistlib.readPlist(os.path.join(archive_bundle,'Info.xml.plist'))
+	archive_info = {
+		'ApplicationProperties' : {
+			'ApplicationPath' : 'Applications/%s.app' % name,
+			'CFBundleIdentifier' : project_info_plist['CFBundleIdentifier']
+		},
+		'ArchiveVersion' : float(1),
+		'CreationDate' : datetime.datetime.fromtimestamp(time.mktime(time.gmtime())),
+		'Name' : name,
+		'SchemeName' : name
+	}
+	
+	# write out the archive plist and clean up
+	log.write("%s\n\n" % archive_info)
+	plistlib.writePlist(archive_info,archive_info_plist)
+	os.remove(os.path.join(archive_bundle,'Info.xml.plist'))
+	
+	# Workaround for dumb xcode4 bug that doesn't update the organizer unless
+	# files are touched in a very specific manner
+	temp = os.path.join(os.path.expanduser("~/Library/Developer/Xcode/Archives"),"temp")
+	os.rename(archive_bundle,temp)
+	os.rename(temp,archive_bundle)
+
 #
 # this script is invoked from our tooling but you can run from command line too if 
 # you know the arguments
@@ -986,7 +1074,7 @@ def main(args):
 					f=open(os.path.join(iphone_resources_dir,'Entitlements.plist'),'w+')
 					f.write(entitlements_contents)
 					f.close()
-					args+=["CODE_SIGN_ENTITLEMENTS = Resources/Entitlements.plist"]
+					args+=["CODE_SIGN_ENTITLEMENTS=Resources/Entitlements.plist"]
 
 				# only build if force rebuild (different version) or 
 				# the app hasn't yet been built initially
@@ -1075,6 +1163,12 @@ def main(args):
 					sys.stdout.flush()
 					sys.stderr.flush()
 
+					# set the DYLD_FRAMEWORK_PATH environment variable for the following Popen iphonesim command
+					# this allows the XCode developer folder to be arbitrarily named
+					xcodeselectpath = os.popen("/usr/bin/xcode-select -print-path").readline().rstrip('\n')
+					iphoneprivateframeworkspath = xcodeselectpath + '/Platforms/iPhoneSimulator.platform/Developer/Library/PrivateFrameworks'
+					os.putenv('DYLD_FRAMEWORK_PATH', iphoneprivateframeworkspath)
+
 					# launch the simulator
 					if devicefamily==None:
 						sim = subprocess.Popen("\"%s\" launch \"%s\" %s iphone" % (iphonesim,app_dir,iphone_version),shell=True)
@@ -1143,8 +1237,8 @@ def main(args):
 
 					args += [
 						"GCC_PREPROCESSOR_DEFINITIONS=DEPLOYTYPE=test TI_TEST=1",
-						"PROVISIONING_PROFILE[sdk=iphoneos*]=%s" % appuuid,
-						"CODE_SIGN_IDENTITY[sdk=iphoneos*]=iPhone Developer: %s" % dist_name,
+						"PROVISIONING_PROFILE=%s" % appuuid,
+						"CODE_SIGN_IDENTITY=iPhone Developer: %s" % dist_name,
 						"DEPLOYMENT_POSTPROCESSING=YES"
 					]
 					execute_xcode("iphoneos%s" % iphone_version,args,False)
@@ -1205,50 +1299,28 @@ def main(args):
 
 					args += [
 						"GCC_PREPROCESSOR_DEFINITIONS=DEPLOYTYPE=%s TI_PRODUCTION=1" % deploytype,
-						"PROVISIONING_PROFILE[sdk=iphoneos*]=%s" % appuuid,
-						"CODE_SIGN_IDENTITY[sdk=iphoneos*]=iPhone Distribution: %s" % dist_name,
+						"PROVISIONING_PROFILE=%s" % appuuid,
+						"CODE_SIGN_IDENTITY=iPhone Distribution: %s" % dist_name,
 						"DEPLOYMENT_POSTPROCESSING=YES"
 					]
 					execute_xcode("iphoneos%s" % iphone_version,args,False)
-
+					
+					# In their infinite wisdom, Apple drastically changed how archives are presented
+					# in XC4 - bundle the distribution based on the version info
+					
 					# switch to app_bundle for zip
 					os.chdir(build_dir)
-
-					# starting in 4.0, apple now requires submission through XCode
-					# this code mimics what xcode does on its own to package the 
-					# application for the app uploader process
-					archive_uuid = str(uuid.uuid4()).upper()
-					archive_dir = os.path.join(os.path.expanduser("~/Library/MobileDevice/Archived Applications"),archive_uuid)
-					archive_app_dir = os.path.join(archive_dir,"%s.app" % name)
-					archive_appdsym_dir = os.path.join(archive_dir,"%s.app.dSYM" % name)
-					os.makedirs(archive_app_dir)
-					os.makedirs(archive_appdsym_dir)
-	
-					os.system('ditto "%s.app" "%s"' % (name,archive_app_dir))
-					os.system('ditto "%s.app.dSYM" "%s"' % (name,archive_appdsym_dir))
-					
-					archive_plist = os.path.join(archive_dir,'ArchiveInfo.plist')
-					o.write("Writing archive plist to: %s\n\n" % archive_plist)
-					
-					profile_uuid = get_profile_uuid(provisioning_profile)
-
-					os.system("/usr/bin/plutil -convert xml1 -o \"%s\" \"%s\"" % (os.path.join(archive_dir,'Info.xml.plist'),os.path.join(archive_app_dir,'Info.plist')))
-					p = plistlib.readPlist(os.path.join(archive_dir,'Info.xml.plist'))
-					archive_metadata = {
-						'CFBundleIdentifier':p['CFBundleIdentifier'],
-						'CFBundleVersion':p['CFBundleVersion'],
-						'XCApplicationFilename':'%s.app' %name,
-						'XCApplicationName':name,
-						'XCArchivedDate': time.time() - 978307200.0,
-						'XCArchiveUUID':archive_uuid,
-						'XCInfoPlist' : p,
-						'XCProfileUUID': profile_uuid
-					}
-					o.write("%s\n\n" % archive_metadata)
-					plistlib.writePlist(archive_metadata,archive_plist)
-					os.remove(os.path.join(archive_dir,'Info.xml.plist'))
+					if xcode_version() >= 4.0:
+						distribute_xc4(name, o)
+					else:
+						distribute_xc3(uuid, provisioning_profile, name, o)
 
 					# open xcode + organizer after packaging
+					# Have to force the right xcode open...
+					xc_path = os.path.join(run.run(['xcode-select','-print-path'],True,False).rstrip(),'Applications','Xcode.app')
+					o.write("Launching xcode: %s\n" % xc_path)
+					os.system('open -a %s' % xc_path)
+					
 					ass = os.path.join(template_dir,'xcode_organizer.scpt')
 					cmd = "osascript \"%s\"" % ass
 					os.system(cmd)

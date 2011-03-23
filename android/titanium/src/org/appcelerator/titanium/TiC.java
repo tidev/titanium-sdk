@@ -7,7 +7,8 @@
 package org.appcelerator.titanium;
 
 // Global Titanium constants- Try to keep these sorted alphabetically
-public class TiC {
+public class TiC
+{
 	public static final String ERROR_PROPERTY_CODE = "code";
 	public static final String ERROR_PROPERTY_ERRORCODE = "errorcode";
 	public static final String ERROR_PROPERTY_MESSAGE = "message";
@@ -17,6 +18,7 @@ public class TiC {
 	public static final String EVENT_ANDROID_SEARCH = "android:search";
 	public static final String EVENT_ANDROID_VOLDOWN = "android:voldown";
 	public static final String EVENT_ANDROID_VOLUP = "android:volup";
+	public static final String EVENT_BATTERY = "battery";
 	public static final String EVENT_BLUR = "blur";
 	public static final String EVENT_CHANGE = "change";
 	public static final String EVENT_CLICK = "click";
@@ -31,6 +33,7 @@ public class TiC {
 	public static final String EVENT_HEADING = "heading";
 	public static final String EVENT_LOAD = "load";
 	public static final String EVENT_LOCATION = "location";
+	public static final String EVENT_NEW_INTENT = "newIntent";
 	public static final String EVENT_OPEN = "open";
 	public static final String EVENT_PAUSE = "pause";
 	public static final String EVENT_PROPERTY_CLICKSOURCE = "clicksource";
@@ -55,6 +58,7 @@ public class TiC {
 	public static final String EVENT_PROPERTY_X = "x";
 	public static final String EVENT_PROPERTY_Y = "y";
 	public static final String EVENT_REGION_CHANGED = "regionChanged";
+	public static final String EVENT_RESTART = "restart";
 	public static final String EVENT_RESUME = "resume";
 	public static final String EVENT_SINGLE_TAP = "singletap";
 	public static final String EVENT_START = "start";
@@ -66,8 +70,11 @@ public class TiC {
 	public static final String EVENT_UNFOCUSED = "unfocused";
 	public static final String INTENT_PROPERTY_FINISH_ROOT = "finishRoot";
 	public static final String INTENT_PROPERTY_LAYOUT = "layout";
-	public static final String INTENT_PROPERTY_MESSAGE_ID = "messageId";
 	public static final String INTENT_PROPERTY_MESSENGER = "messenger";
+	public static final String INTENT_PROPERTY_MSG_ACTIVITY_CREATED_ID = "msgActivityCreatedId";
+	public static final String INTENT_PROPERTY_MSG_ID = "messageId";
+	public static final String INTENT_PROPERTY_USE_ACTIVITY_WINDOW = "useActivityWindow";
+	public static final String INTENT_PROPERTY_WINDOW_ID = "windowId";
 	public static final String LAYOUT_HORIZONTAL = "horizontal";
 	public static final String LAYOUT_VERTICAL = "vertical";
 	public static final String MSG_PROPERTY_EVENT_NAME = "eventName";
@@ -89,6 +96,8 @@ public class TiC {
 	public static final String PROPERTY_ANNOTATIONS = "annotations";
 	public static final String PROPERTY_AUDIO_STREAM_TYPE = "audioStreamType";
 	public static final String PROPERTY_AUTO_LINK = "autoLink";
+	public static final String PROPERTY_AUTOCAPITALIZATION = "autocapitalization";
+	public static final String PROPERTY_AUTOCORRECT = "autocorrect";
 	public static final String PROPERTY_AUTOREVERSE = "autoreverse";
 	public static final String PROPERTY_BACKGROUND_COLOR = "backgroundColor";
 	public static final String PROPERTY_BACKGROUND_DISABLED_COLOR = "backgroundDisabledColor";
@@ -100,6 +109,7 @@ public class TiC {
 	public static final String PROPERTY_BACKGROUND_PREFIX = "background";
 	public static final String PROPERTY_BACKGROUND_SELECTED_COLOR = "backgroundSelectedColor";
 	public static final String PROPERTY_BACKGROUND_SELECTED_IMAGE = "backgroundSelectedImage";
+	public static final String PROPERTY_BASE_URL = "baseUrl";
 	public static final String PROPERTY_BORDER_COLOR = "borderColor";
 	public static final String PROPERTY_BORDER_PREFIX = "border";
 	public static final String PROPERTY_BORDER_RADIUS = "borderRadius";
@@ -129,10 +139,12 @@ public class TiC {
 	public static final String PROPERTY_DIRECTION = "direction";
 	public static final String PROPERTY_DISPLAY_ADDRESS = "displayAddress";
 	public static final String PROPERTY_DURATION = "duration";
+	public static final String PROPERTY_EDITABLE = "editable";
 	public static final String PROPERTY_ELLIPSIZE = "ellipsize";
 	public static final String PROPERTY_ENABLE_ZOOM_CONTROLS = "enableZoomControls";
 	public static final String PROPERTY_ENABLED = "enabled";
 	public static final String PROPERTY_EXIT_ON_CLOSE = "exitOnClose";
+	public static final String PROPERTY_FILE = "file";
 	public static final String PROPERTY_FILTER_ATTRIBUTE = "filterAttribute";
 	public static final String PROPERTY_FILTER_CASE_INSENSITIVE = "filterCaseInsensitive";
 	public static final String PROPERTY_FLAGS = "flags";
@@ -156,6 +168,7 @@ public class TiC {
 	public static final String PROPERTY_HEADING_FILTER = "headingFilter";
 	public static final String PROPERTY_HEIGHT = "height";
 	public static final String PROPERTY_HIGHLIGHTED_COLOR = "highlightedColor";
+	public static final String PROPERTY_HINT_TEXT = "hintText";
 	public static final String PROPERTY_HTML = "html";
 	public static final String PROPERTY_ICON = "icon";
 	public static final String PROPERTY_ICON_LEVEL = "iconLevel";
@@ -164,6 +177,7 @@ public class TiC {
 	public static final String PROPERTY_IMAGES = "images";
 	public static final String PROPERTY_INTENT = "intent";
 	public static final String PROPERTY_ITEM_ID = "itemId";
+	public static final String PROPERTY_KEYBOARD_TYPE = "keyboardType";
 	public static final String PROPERTY_LATITUDE = "latitude";
 	public static final String PROPERTY_LATITUDE_DELTA = "latitudeDelta";
 	public static final String PROPERTY_LAYOUT = "layout";
@@ -174,6 +188,7 @@ public class TiC {
 	public static final String PROPERTY_LEFT = "left";
 	public static final String PROPERTY_LEFT_BUTTON = "leftButton";
 	public static final String PROPERTY_LEFT_IMAGE = "leftImage";
+	public static final String PROPERTY_LEVEL = "level";
 	public static final String PROPERTY_LOCATION = "location";
 	public static final String PROPERTY_LONGITUDE = "longitude";
 	public static final String PROPERTY_LONGITUDE_DELTA = "longitudeDelta";
@@ -182,6 +197,7 @@ public class TiC {
 	public static final String PROPERTY_MENU = EVENT_PROPERTY_MENU;
 	public static final String PROPERTY_MESSAGE = "message";
 	public static final String PROPERTY_MIN_ROW_HEIGHT = "minRowHeight";
+	public static final String PROPERTY_MINUTE_INTERVAL = "minuteInterval";
 	public static final String PROPERTY_MODAL = "modal";
 	public static final String PROPERTY_NAME = "name";
 	public static final String PROPERTY_NAV_BAR_HIDDEN = "navBarHidden";
@@ -193,6 +209,7 @@ public class TiC {
 	public static final String PROPERTY_ORDER = "order";
 	public static final String PROPERTY_PACKAGE_NAME = "packageName";
 	public static final String PROPERTY_PARENT = "parent";
+	public static final String PROPERTY_PASSWORD_MASK = "passwordMask";
 	public static final String PROPERTY_PIN_IMAGE = "pinImage";
 	public static final String PROPERTY_PINCOLOR = "pincolor";
 	public static final String PROPERTY_PLACES = "places";
@@ -206,6 +223,7 @@ public class TiC {
 	public static final String PROPERTY_REGION_FIT = "regionFit";
 	public static final String PROPERTY_REPEAT = "repeat";
 	public static final String PROPERTY_REPEAT_COUNT = "repeatCount";
+	public static final String PROPERTY_RETURN_KEY_TYPE = "returnKeyType";
 	public static final String PROPERTY_RIGHT = "right";
 	public static final String PROPERTY_RIGHT_BUTTON = "rightButton";
 	public static final String PROPERTY_RIGHT_IMAGE = "rightImage";
@@ -213,6 +231,7 @@ public class TiC {
 	public static final String PROPERTY_ROW_DATA = "rowData";
 	public static final String PROPERTY_ROW_HEIGHT = "rowHeight";
 	public static final String PROPERTY_SCALE = "scale";
+	public static final String PROPERTY_SCALES_PAGE_TO_FIT = "scalesPageToFit";
 	public static final String PROPERTY_SCROLL_ENABLED = "scrollEnabled";
 	public static final String PROPERTY_SEARCH = "search";
 	public static final String PROPERTY_SECTION = "section";
@@ -225,6 +244,8 @@ public class TiC {
 	public static final String PROPERTY_SOFT_KEYBOARD_ON_FOCUS = "softKeyboardOnFocus";
 	public static final String PROPERTY_SOUND = "sound";
 	public static final String PROPERTY_SPEED = "speed";
+	public static final String PROPERTY_STATE = "state";
+	public static final String PROPERTY_STATUS = "status";
 	public static final String PROPERTY_STREET = "street";
 	public static final String PROPERTY_STREET1 = "street1";
 	public static final String PROPERTY_SUBTITLE = "subtitle";
@@ -234,8 +255,10 @@ public class TiC {
 	public static final String PROPERTY_TEXT = "text";
 	public static final String PROPERTY_TEXT_ALIGN = "textAlign";
 	public static final String PROPERTY_TICKER_TEXT = "tickerText";
+	public static final String PROPERTY_TIME = "time";
 	public static final String PROPERTY_TIMESTAMP = "timestamp";
 	public static final String PROPERTY_TITLE = "title";
+	public static final String PROPERTY_TITLEID = "titleid";
 	public static final String PROPERTY_TOP = "top";
 	public static final String PROPERTY_TOUCH_ENABLED = "touchEnabled";
 	public static final String PROPERTY_TRANSFORM = "transform";
@@ -261,4 +284,5 @@ public class TiC {
 	public static final String SIZE_AUTO = "auto";
 	public static final String URL_APP_PREFIX = "app://";
 	public static final String URL_APP_SCHEME = "app";
+	public static final String URL_APP_JS = "app://app.js";
 }

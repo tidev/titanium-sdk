@@ -67,7 +67,7 @@ public class TiTabActivity extends ActivityGroup
 			}
 			if (intent.hasExtra(TiC.INTENT_PROPERTY_MESSENGER)) {
 				messenger = (Messenger) intent.getParcelableExtra(TiC.INTENT_PROPERTY_MESSENGER);
-				messageId = intent.getIntExtra(TiC.INTENT_PROPERTY_MESSAGE_ID, -1);
+				messageId = intent.getIntExtra(TiC.INTENT_PROPERTY_MSG_ID, -1);
 			}
 			if (intent.hasExtra(TiC.INTENT_PROPERTY_LAYOUT)) {
 				arrangementFromIntent = intent.getStringExtra(TiC.INTENT_PROPERTY_LAYOUT);
@@ -128,22 +128,25 @@ public class TiTabActivity extends ActivityGroup
 		
 	}
 
-	public TiApplication getTiApp() {
+	public TiApplication getTiApp()
+	{
 		return (TiApplication) getApplication();
 	}
 
-	public TiCompositeLayout getLayout() {
+	public TiCompositeLayout getLayout()
+	{
 		return layout;
 	}
 
-
 	@Override
-	public void addWindow(View v, LayoutParams params) {
+	public void addWindow(View v, LayoutParams params)
+	{
 		layout.addView(v, params);
 	}
 
 	@Override
-	public void removeWindow(View v) {
+	public void removeWindow(View v)
+	{
 		layout.removeView(v);
 	}
 
@@ -169,20 +172,20 @@ public class TiTabActivity extends ActivityGroup
 	}
 
 	@Override
-	protected void onPause() {
+	protected void onPause()
+	{
 		super.onPause();
 		getTiApp().setWindowHandler(null);
 		((TiApplication) getApplication()).setCurrentActivity(this, null);
 	}
 
 	@Override
-	protected void onResume() {
+	protected void onResume()
+	{
 		super.onResume();
 		getTiApp().setWindowHandler(this);
 		((TiApplication) getApplication()).setCurrentActivity(this, this);
 	}
-
-
 
 	@Override
 	protected void onDestroy()
@@ -199,5 +202,4 @@ public class TiTabActivity extends ActivityGroup
 		
 		handler = null;
 	}
-
 }

@@ -19,21 +19,32 @@
 
 package org.appcelerator.titanium.kroll;
 
+import org.appcelerator.titanium.util.Log;
+import org.appcelerator.titanium.util.TiConfig;
+import org.mozilla.javascript.Context;
+
+import android.os.Handler;
 import android.os.Looper;
 import android.os.Process;
 
 /**
  * Handy class for starting a new thread that has a looper. The looper can then
  * be used to create handler classes. Note that start() must still be called.
+ * 
+ * Adopted from Android source and modified for integration w/ Rhino
  */
 public class KrollHandlerThread extends Thread {
+	private static final String TAG = "KrollHandlerThread";
+	private static final boolean DBG = TiConfig.DEBUG;
+
 	private int mPriority;
 	private int mTid = -1;
 	private Looper mLooper;
+	private KrollContext krollContext;
 
-	public KrollHandlerThread(String name) {
-		super(name);
-		mPriority = Process.THREAD_PRIORITY_DEFAULT;
+	public KrollHandlerThread(String name, KrollContext krollContext)
+	{
+		this(name, Process.THREAD_PRIORITY_DEFAULT, krollContext);
 	}
 
 	/**
@@ -44,14 +55,18 @@ public class KrollHandlerThread extends Thread {
 	 *	The priority to run the thread at. The value supplied must be
 	 *	from {@link android.os.Process} and not from java.lang.Thread.
 	 */
-	public KrollHandlerThread(String name, int priority) {
+	public KrollHandlerThread(String name, int priority, KrollContext krollContext)
+	{
 		super(name);
 		mPriority = priority;
+		this.krollContext = krollContext;
 	}
-	
-	public KrollHandlerThread(String name, int priority, int stackSize) {
+
+	public KrollHandlerThread(String name, int priority, int stackSize, KrollContext krollContext)
+	{
 		super(null, null, name, stackSize);
 		mPriority = priority;
+		this.krollContext = krollContext;
 	}
 
 	/**
@@ -59,6 +74,7 @@ public class KrollHandlerThread extends Thread {
 	 * some setup before Looper loops.
 	 */
 	protected void onLooperPrepared() {
+		krollContext.initContext();
 	}
 
 	public void run() {

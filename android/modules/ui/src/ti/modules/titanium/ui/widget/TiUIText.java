@@ -8,6 +8,7 @@ package ti.modules.titanium.ui.widget;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
+import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
@@ -18,8 +19,8 @@ import org.appcelerator.titanium.view.TiUIView;
 import android.graphics.Rect;
 import android.text.Editable;
 import android.text.InputType;
-import android.text.TextWatcher;
 import android.text.TextUtils.TruncateAt;
+import android.text.TextWatcher;
 import android.text.method.DialerKeyListener;
 import android.text.method.DigitsKeyListener;
 import android.text.method.NumberKeyListener;
@@ -59,6 +60,7 @@ public class TiUIText extends TiUIView
 	private static final int KEYBOARD_NUMBER_PAD = 3;
 	private static final int KEYBOARD_PHONE_PAD = 4;
 	private static final int KEYBOARD_EMAIL_ADDRESS = 5;
+	@SuppressWarnings("unused")
 	private static final int KEYBOARD_NAMEPHONE_PAD = 6;
 	private static final int KEYBOARD_DEFAULT = 7;
 	private static final int KEYBOARD_DECIMAL_PAD = 8;
@@ -104,43 +106,43 @@ public class TiUIText extends TiUIView
 	{
 		super.processProperties(d);
 
-		if (d.containsKey("enabled")) {
-			tv.setEnabled(d.getBoolean("enabled"));
+		if (d.containsKey(TiC.PROPERTY_ENABLED)) {
+			tv.setEnabled(d.getBoolean(TiC.PROPERTY_ENABLED));
 		}
-		if (d.containsKey("value")) {
-			tv.setText(d.getString("value"));
+		if (d.containsKey(TiC.PROPERTY_VALUE)) {
+			tv.setText(d.getString(TiC.PROPERTY_VALUE));
 		}
-		if (d.containsKey("color")) {
-			tv.setTextColor(TiConvert.toColor(d, "color"));
+		if (d.containsKey(TiC.PROPERTY_COLOR)) {
+			tv.setTextColor(TiConvert.toColor(d, TiC.PROPERTY_COLOR));
 		}
-		if (d.containsKey("hintText")) {
-			tv.setHint(d.getString("hintText"));
+		if (d.containsKey(TiC.PROPERTY_HINT_TEXT)) {
+			tv.setHint(d.getString(TiC.PROPERTY_HINT_TEXT));
 		}
-		if (d.containsKey("ellipsize")) {
-			if (TiConvert.toBoolean(d, "ellipsize")) {
+		if (d.containsKey(TiC.PROPERTY_ELLIPSIZE)) {
+			if (TiConvert.toBoolean(d, TiC.PROPERTY_ELLIPSIZE)) {
 				tv.setEllipsize(TruncateAt.END);
 			} else {
 				tv.setEllipsize(null);
 			}
 		}
-		if (d.containsKey("font")) {
-			TiUIHelper.styleText(tv, d.getKrollDict("font"));
+		if (d.containsKey(TiC.PROPERTY_FONT)) {
+			TiUIHelper.styleText(tv, d.getKrollDict(TiC.PROPERTY_FONT));
 		}
-		if (d.containsKey("textAlign") || d.containsKey("verticalAlign")) {
+		if (d.containsKey(TiC.PROPERTY_TEXT_ALIGN) || d.containsKey(TiC.PROPERTY_VERTICAL_ALIGN)) {
 			String textAlign = null;
 			String verticalAlign = null;
-			if (d.containsKey("textAlign")) {
-				textAlign = d.getString("textAlign");
+			if (d.containsKey(TiC.PROPERTY_TEXT_ALIGN)) {
+				textAlign = d.getString(TiC.PROPERTY_TEXT_ALIGN);
 			}
-			if (d.containsKey("verticalAlign")) {
-				verticalAlign = d.getString("verticalAlign");
+			if (d.containsKey(TiC.PROPERTY_VERTICAL_ALIGN)) {
+				verticalAlign = d.getString(TiC.PROPERTY_VERTICAL_ALIGN);
 			}
 			handleTextAlign(textAlign, verticalAlign);
 		}
-		if (d.containsKey("returnKeyType")) {
-			handleReturnKeyType(d.getInt("returnKeyType"));
+		if (d.containsKey(TiC.PROPERTY_RETURN_KEY_TYPE)) {
+			handleReturnKeyType(d.getInt(TiC.PROPERTY_RETURN_KEY_TYPE));
 		}
-		if (d.containsKey("keyboardType") || d.containsKey("autocorrect") || d.containsKey("passwordMask") || d.containsKey("autocapitalization"))
+		if (d.containsKey(TiC.PROPERTY_KEYBOARD_TYPE) || d.containsKey(TiC.PROPERTY_AUTOCORRECT) || d.containsKey(TiC.PROPERTY_PASSWORD_MASK) || d.containsKey(TiC.PROPERTY_AUTOCAPITALIZATION) || d.containsKey(TiC.PROPERTY_EDITABLE))
 		{
 			handleKeyboard(d);
 		}
@@ -153,40 +155,40 @@ public class TiUIText extends TiUIView
 		if (DBG) {
 			Log.d(LCAT, "Property: " + key + " old: " + oldValue + " new: " + newValue);
 		}
-		if (key.equals("enabled")) {
+		if (key.equals(TiC.PROPERTY_ENABLED)) {
 			tv.setEnabled(TiConvert.toBoolean(newValue));
-		} else if (key.equals("value")) {
+		} else if (key.equals(TiC.PROPERTY_VALUE)) {
 			tv.setText((String) newValue);
-		} else if (key.equals("color")) {
+		} else if (key.equals(TiC.PROPERTY_COLOR)) {
 			tv.setTextColor(TiConvert.toColor((String) newValue));
-		} else if (key.equals("hintText")) {
+		} else if (key.equals(TiC.PROPERTY_HINT_TEXT)) {
 			tv.setHint((String) newValue);
-		} else if (key.equals("ellipsize")) {
+		} else if (key.equals(TiC.PROPERTY_ELLIPSIZE)) {
 			if (TiConvert.toBoolean(newValue)) {
 				tv.setEllipsize(TruncateAt.END);
 			} else {
 				tv.setEllipsize(null);
 			}
-		} else if (key.equals("textAlign") || key.equals("verticalAlign")) {
+		} else if (key.equals(TiC.PROPERTY_TEXT_ALIGN) || key.equals(TiC.PROPERTY_VERTICAL_ALIGN)) {
 			String textAlign = null;
 			String verticalAlign = null;
-			if (key.equals("textAlign")) {
+			if (key.equals(TiC.PROPERTY_TEXT_ALIGN)) {
 				textAlign = TiConvert.toString(newValue);
-			} else if (proxy.hasProperty("textAlign")){
-				textAlign = TiConvert.toString(proxy.getProperty("textAlign"));
+			} else if (proxy.hasProperty(TiC.PROPERTY_TEXT_ALIGN)){
+				textAlign = TiConvert.toString(proxy.getProperty(TiC.PROPERTY_TEXT_ALIGN));
 			}
-			if (key.equals("verticalAlign")) {
+			if (key.equals(TiC.PROPERTY_VERTICAL_ALIGN)) {
 				verticalAlign = TiConvert.toString(newValue);
-			} else if (proxy.hasProperty("verticalAlign")){
-				verticalAlign = TiConvert.toString(proxy.getProperty("verticalAlign"));
+			} else if (proxy.hasProperty(TiC.PROPERTY_VERTICAL_ALIGN)){
+				verticalAlign = TiConvert.toString(proxy.getProperty(TiC.PROPERTY_VERTICAL_ALIGN));
 			}
 			handleTextAlign(textAlign, verticalAlign);
-		} else if (key.equals("keyboardType") || (key.equals("autocorrect") || key.equals("autocapitalization") || key.equals("passwordMask"))) {
+		} else if (key.equals(TiC.PROPERTY_KEYBOARD_TYPE) || (key.equals(TiC.PROPERTY_AUTOCORRECT) || key.equals(TiC.PROPERTY_AUTOCAPITALIZATION) || key.equals(TiC.PROPERTY_PASSWORD_MASK) || key.equals(TiC.PROPERTY_EDITABLE))) {
 			KrollDict d = proxy.getProperties();
 			handleKeyboard(d);
-		} else if (key.equals("returnKeyType")) {
+		} else if (key.equals(TiC.PROPERTY_RETURN_KEY_TYPE)) {
 			handleReturnKeyType(TiConvert.toInt(newValue));
-		} else if (key.equals("font")) {
+		} else if (key.equals(TiC.PROPERTY_FONT)) {
 			TiUIHelper.styleText(tv, (KrollDict) newValue);
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
@@ -272,20 +274,25 @@ public class TiUIText extends TiUIView
 	{
 		int type = KEYBOARD_ASCII;
 		boolean passwordMask = false;
+		boolean editable = true;
 		int autocorrect = InputType.TYPE_TEXT_FLAG_AUTO_CORRECT | InputType.TYPE_TEXT_FLAG_AUTO_CORRECT;
 		int autoCapValue = 0;
 		
-		if (d.containsKey("autocorrect")) {
-			if(TiConvert.toBoolean(d, "autocorrect")) {
+		if (d.containsKey(TiC.PROPERTY_AUTOCORRECT)) {
+			if(TiConvert.toBoolean(d, TiC.PROPERTY_AUTOCORRECT)) {
 				autocorrect = InputType.TYPE_TEXT_FLAG_AUTO_CORRECT | InputType.TYPE_TEXT_FLAG_AUTO_CORRECT;
 			} else {
 				autocorrect = 0;
 			}
 		}
 
-		if (d.containsKey("autocapitalization")) {
+		if (d.containsKey(TiC.PROPERTY_EDITABLE)) {
+			editable = TiConvert.toBoolean(d, TiC.PROPERTY_EDITABLE);
+		}
+
+		if (d.containsKey(TiC.PROPERTY_AUTOCAPITALIZATION)) {
 			
-			switch (TiConvert.toInt(d,"autocapitalization")) {
+			switch (TiConvert.toInt(d,TiC.PROPERTY_AUTOCAPITALIZATION)) {
 				case TEXT_AUTOCAPITALIZATION_NONE:
 					autoCapValue = 0;
 					break;
@@ -304,21 +311,21 @@ public class TiUIText extends TiUIView
 					break;
 	
 				default:
-					Log.w(LCAT, "Unknown AutoCapitalization Value ["+d.getString("autocapitalization")+"]");
+					Log.w(LCAT, "Unknown AutoCapitalization Value ["+d.getString(TiC.PROPERTY_AUTOCAPITALIZATION)+"]");
 				break;
 			}
 		}
 				
-		if (d.containsKey("passwordMask")) {
-			passwordMask = TiConvert.toBoolean(d, "passwordMask");
+		if (d.containsKey(TiC.PROPERTY_PASSWORD_MASK)) {
+			passwordMask = TiConvert.toBoolean(d, TiC.PROPERTY_PASSWORD_MASK);
 		}		
 
-		if (d.containsKey("keyboardType")) {
-			type = TiConvert.toInt(d, "keyboardType");
+		if (d.containsKey(TiC.PROPERTY_KEYBOARD_TYPE)) {
+			type = TiConvert.toInt(d, TiC.PROPERTY_KEYBOARD_TYPE);
 		}
 		
 		int typeModifiers = autocorrect | autoCapValue;
-		
+		tv.setCursorVisible(true);
 		switch(type) {
 			case KEYBOARD_ASCII :
 				tv.setKeyListener(TextKeyListener.getInstance(autocorrect != 0, Capitalize.NONE));
@@ -369,8 +376,16 @@ public class TiUIText extends TiUIView
 				tv.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_NORMAL | typeModifiers);
 				break;
 		}
+		if (!editable) {
+			tv.setKeyListener(null);
+			tv.setCursorVisible(false);
+		}
 		if (passwordMask) {
 			tv.setTransformationMethod(PasswordTransformationMethod.getInstance());
+		} else {
+			if (tv.getTransformationMethod() instanceof PasswordTransformationMethod) {
+				tv.setTransformationMethod(null);
+			}
 		}
 		if (!field) {
 			tv.setSingleLine(false);

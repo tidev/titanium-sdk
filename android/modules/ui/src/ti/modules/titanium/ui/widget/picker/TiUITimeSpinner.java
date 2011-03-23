@@ -15,7 +15,10 @@ import kankan.wheel.widget.WheelView;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
+import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
+import org.appcelerator.titanium.util.Log;
+import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiUIView;
 
 import android.app.Activity;
@@ -28,6 +31,7 @@ public class TiUITimeSpinner extends TiUIView
 	private WheelView minutesWheel;
 	private boolean suppressChangeEvent = false;
 	private boolean ignoreItemSelection = false;
+	private static final String LCAT = "TiUITimeSpinner";
 	
 	private Calendar calendar = Calendar.getInstance();
 	
@@ -45,7 +49,19 @@ public class TiUITimeSpinner extends TiUIView
 	{
 		DecimalFormat formatter = new DecimalFormat("00");
 		FormatNumericWheelAdapter hours = new FormatNumericWheelAdapter(0, 23, formatter, 8);
-		FormatNumericWheelAdapter minutes = new FormatNumericWheelAdapter(0, 59, formatter, 8);
+		
+		int minuteInterval = 1;
+		if (proxy.hasProperty(TiC.PROPERTY_MINUTE_INTERVAL)) {
+			int dirtyMinuteInterval = TiConvert.toInt(proxy.getProperty(TiC.PROPERTY_MINUTE_INTERVAL));
+			if((dirtyMinuteInterval > 0) && (dirtyMinuteInterval <= 30) && (60 % dirtyMinuteInterval == 0)  ){
+				minuteInterval = dirtyMinuteInterval;
+			} else {
+				Log.w(LCAT, "Clearing invalid minuteInterval property value of " + dirtyMinuteInterval);
+				proxy.setProperty(TiC.PROPERTY_MINUTE_INTERVAL, null);
+			}
+		}		
+		
+		FormatNumericWheelAdapter minutes = new FormatNumericWheelAdapter(0, 59, formatter, 8, minuteInterval);
 		hoursWheel = new WheelView(activity);
 		minutesWheel = new WheelView(activity);
 		hoursWheel.setTextSize(20);
@@ -70,8 +86,8 @@ public class TiUITimeSpinner extends TiUIView
 		
 		boolean valueExistsInProxy = false;
 	    
-        if (d.containsKey("value")) {
-            calendar.setTime((Date)d.get("value"));
+        if (d.containsKey(TiC.PROPERTY_VALUE)) {
+            calendar.setTime((Date)d.get(TiC.PROPERTY_VALUE));
             valueExistsInProxy = true;
         }   
       
@@ -85,7 +101,7 @@ public class TiUITimeSpinner extends TiUIView
         setValue(calendar.getTimeInMillis() , true);
         
         if (!valueExistsInProxy) {
-        	proxy.setProperty("value", calendar.getTime());
+        	proxy.setProperty(TiC.PROPERTY_VALUE, calendar.getTime());
         }
       
 	}
@@ -94,11 +110,22 @@ public class TiUITimeSpinner extends TiUIView
 	public void propertyChanged(String key, Object oldValue, Object newValue,
 			KrollProxy proxy)
 	{
-		if (key.equals("value")) {
+		if (key.equals(TiC.PROPERTY_VALUE)) {
 			Date date = (Date)newValue;
 			setValue(date.getTime());
 		} else if (key.equals("format24")) {
 			// TODO ((TimePicker)getNativeView()).setIs24HourView(TiConvert.toBoolean(newValue));
+		} else if (key.equals(TiC.PROPERTY_MINUTE_INTERVAL)) {
+			int interval = TiConvert.toInt(newValue);
+			if((interval > 0) && (interval <= 30) && (60 % interval == 0)  ){
+				FormatNumericWheelAdapter adapter = (FormatNumericWheelAdapter) minutesWheel.getAdapter();
+				adapter.setStepValue(interval);
+				minutesWheel.setAdapter(adapter); // forces the wheel to re-do its items listing
+			} else {
+				// Reject it
+				Log.w(LCAT, "Ignoring illegal minuteInterval value: " + interval);
+				proxy.setProperty(TiC.PROPERTY_MINUTE_INTERVAL, oldValue, false);
+			}
 		}
 		super.propertyChanged(key, oldValue, newValue, proxy);
 	}
@@ -117,7 +144,7 @@ public class TiUITimeSpinner extends TiUIView
 		hoursWheel.setCurrentItem(calendar.get(Calendar.HOUR_OF_DAY));
 		suppressChangeEvent = suppressEvent;
 		ignoreItemSelection = false;
-		minutesWheel.setCurrentItem(calendar.get(Calendar.MINUTE));
+		minutesWheel.setCurrentItem( ((FormatNumericWheelAdapter) minutesWheel.getAdapter()).getIndex(calendar.get(Calendar.MINUTE)));
 		suppressChangeEvent = false;
 	}
 	
@@ -127,7 +154,7 @@ public class TiUITimeSpinner extends TiUIView
 		if (ignoreItemSelection) {
 			return;
 		}
-		calendar.set(Calendar.MINUTE, minutesWheel.getCurrentItem());
+		calendar.set(Calendar.MINUTE, ((FormatNumericWheelAdapter) minutesWheel.getAdapter()).getValue(minutesWheel.getCurrentItem()));
 		calendar.set(Calendar.HOUR_OF_DAY, hoursWheel.getCurrentItem());
 		Date dateval = calendar.getTime();
 		proxy.setProperty("value", dateval);

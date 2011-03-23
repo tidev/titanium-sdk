@@ -4,13 +4,7 @@
       android:versionCode="${config['appversion']}"
       android:versionName="${config['appversion']}"
 >
-	<uses-sdk android:minSdkVersion="4" />
-	<supports-screens 
-		android:smallScreens="false"
-		android:normalScreens="true"
-		android:largeScreens="true"
-		android:anyDensity="false"
-	/>
+	<uses-sdk android:minSdkVersion="7" />
 
 	<!-- TI_MANIFEST -->
     

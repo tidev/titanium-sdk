@@ -89,10 +89,7 @@ public class PickerColumnProxy extends TiViewProxy implements PickerRowListener
 		if (getTiContext().isUIThread() || peekView() == null) {
 			handleAddRow(o);
 		} else {
-			AsyncResult result = new AsyncResult(o);
-			Message msg = getUIHandler().obtainMessage(MSG_ADD, result);
-			msg.sendToTarget();
-			result.getResult();
+			sendBlockingUiMessage(MSG_ADD, o);
 		}
 	}
 	
@@ -118,10 +115,7 @@ public class PickerColumnProxy extends TiViewProxy implements PickerRowListener
 		if (getTiContext().isUIThread() || peekView() == null) {
 			handleRemoveRow(o);
 		} else {
-			AsyncResult result = new AsyncResult(o);
-			Message msg = getUIHandler().obtainMessage(MSG_REMOVE, result);
-			msg.sendToTarget();
-			result.getResult();
+			sendBlockingUiMessage(MSG_REMOVE, o);
 		}
 	}
 
@@ -177,10 +171,7 @@ public class PickerColumnProxy extends TiViewProxy implements PickerRowListener
 		if (getTiContext().isUIThread() || peekView() == null) {
 			handleSetRows(rows);
 		} else {
-			AsyncResult result = new AsyncResult(rows);
-			Message msg = getUIHandler().obtainMessage(MSG_SET_ROWS, result);
-			msg.sendToTarget();
-			result.getResult();
+			sendBlockingUiMessage(MSG_SET_ROWS, rows);
 		}
 	}
 

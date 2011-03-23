@@ -58,10 +58,16 @@ public class TiUIWebView extends TiUIView {
 	{
 		super(proxy);
 
+		if (proxy.getProperty(TiC.PROPERTY_SCALES_PAGE_TO_FIT) == null) {
+			proxy.setProperty(TiC.PROPERTY_SCALES_PAGE_TO_FIT, true);
+		}
+
 		TiWebView webView = new TiWebView(proxy.getContext());
 		webView.setVerticalScrollbarOverlay(true);
 
 		WebSettings settings = webView.getSettings();
+		settings.setBuiltInZoomControls(true);
+		settings.setUseWideViewPort(true);
 		settings.setJavaScriptEnabled(true);
 		settings.setSupportMultipleWindows(true);
 		settings.setJavaScriptCanOpenWindowsAutomatically(true);
@@ -89,6 +95,11 @@ public class TiUIWebView extends TiUIView {
 	@Override
 	public void processProperties(KrollDict d) {
 		super.processProperties(d);
+
+		if (d.containsKey(TiC.PROPERTY_SCALES_PAGE_TO_FIT)) {
+			WebSettings settings = getWebView().getSettings();
+			settings.setLoadWithOverviewMode(TiConvert.toBoolean(d, TiC.PROPERTY_SCALES_PAGE_TO_FIT));
+		}
 
 		if (d.containsKey(TiC.PROPERTY_URL)) {
 			setUrl(TiConvert.toString(d, TiC.PROPERTY_URL));
@@ -119,9 +130,13 @@ public class TiUIWebView extends TiUIView {
 			if (newValue instanceof TiBlob) {
 				setData((TiBlob)newValue);
 			}
+		} else if (TiC.PROPERTY_SCALES_PAGE_TO_FIT.equals(key)) {
+			WebSettings settings = getWebView().getSettings();
+			settings.setLoadWithOverviewMode(TiConvert.toBoolean(newValue));
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}
+
 		// If TiUIView's propertyChanged ended up making a TiBackgroundDrawable
 		// for the background, we must set the WebView background color to transparent
 		// in order to see any of it.

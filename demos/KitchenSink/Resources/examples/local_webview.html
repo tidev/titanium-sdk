@@ -15,7 +15,8 @@
 	<a href="http://www.google.com">google</a>
 	<script>
 
-		Titanium.API.info('before image')
+		Titanium.API.info('before image');
+		Titanium.API.info("JSON injection: "+JSON.stringify(['foo','bar']));
 		var i = new Image();
 		Titanium.API.info('image '  + i);
 		window.my_global_variable = 10;

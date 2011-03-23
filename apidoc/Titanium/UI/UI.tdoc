@@ -125,6 +125,9 @@ BLEND_MODE_PLUS_LIGHTER[int]: image mode constant
 NOTIFICATION_DURATION_LONG[int]: Duration of the notification
 NOTIFICATION_DURATION_SHORT[int]: Duration of the notification
 
+backgroundColor[string]: this sets the background color of the master UIView (when there are no windows/tab groups on it)
+backgroundImage[string]: path/url to an image file for setting a background for the master UIView (when there are no windows/tab groups on it).
+
 - notes
 
 ### Design

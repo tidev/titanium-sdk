@@ -12,22 +12,34 @@ import org.appcelerator.titanium.TiContext;
 import org.w3c.dom.NodeList;
 
 @Kroll.proxy
-public class NodeListProxy extends KrollProxy {
-
+public class NodeListProxy extends KrollProxy
+{
+	// Support an offset so we can ignore the first "this"
+	// node which is returned by Android for getElementsByTagName
+	private int offset;
 	private NodeList list;
+
 	public NodeListProxy(TiContext context, NodeList list)
+	{
+		this(context, list, 0);
+	}
+
+	public NodeListProxy(TiContext context, NodeList list, int offset)
 	{
 		super(context);
 		this.list = list;
+		this.offset = offset;
 	}
 
 	@Kroll.getProperty @Kroll.method
-	public int getLength() {
-		return list.getLength();
+	public int getLength()
+	{
+		return list.getLength() - offset;
 	}
 
 	@Kroll.method
-	public NodeProxy item(int index) {
-		return NodeProxy.getNodeProxy(getTiContext(), list.item(index));
+	public NodeProxy item(int index)
+	{
+		return NodeProxy.getNodeProxy(getTiContext(), list.item(index + offset));
 	}
 }

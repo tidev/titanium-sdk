@@ -12,6 +12,7 @@ win.add(l);
 
 
 var ta1 = Titanium.UI.createTextArea({
+	editable: true,
 	value:'I am a textarea',
 	height:70,
 	width:300,
@@ -122,7 +123,16 @@ b4.addEventListener('click', function()
 	}
 });
 
-
+var b5 = Titanium.UI.createButton({
+	title:'Toggle "editable"',
+	top:340,
+	height:40,
+	width:200
+});
+win.add(b5);
+b5.addEventListener('click',function(){
+	ta1.editable = !ta1.editable;
+});
 //
 // Text area events
 //

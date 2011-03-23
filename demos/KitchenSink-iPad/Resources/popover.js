@@ -94,6 +94,8 @@ Popover.init = function()
 		picker.selectionIndicator = true;
 
 		popover.add(picker)
+		// TEST: #1282
+		picker.setSelectedRow(0,1,true);
 		popover.show({
 			view:b2,
 			animated:true,

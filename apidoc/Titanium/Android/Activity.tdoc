@@ -43,7 +43,7 @@ intent[`Titanium.Android.Intent`]: An optional `Titanium.Android.Intent` with ex
     
 - method : getString, string
 resourceId[int]: A Resource ID from the Application or Android.
-format[array,...]: Optional format arguments for the String resource
+format[Array<Object>]: Optional format arguments for the String resource
 
 - method : setRequestedOrientation
 orientation[int]: Can be one of `Titanium.Android.SCREEN_ORIENTATION_BEHIND`, `Titanium.Android.SCREEN_ORIENTATION_LANDSCAPE`, `Titanium.Android.SCREEN_ORIENTATION_NOSENSOR`, `Titanium.Android.SCREEN_ORIENTATION_PORTRAIT`, `Titanium.Android.SCREEN_ORIENTATION_SENSOR`, `Titanium.Android.SCREEN_ORIENTATION_UNSPECIFIED`, `Titanium.Android.SCREEN_ORIENTATION_USER`
@@ -53,8 +53,8 @@ orientation[int]: Can be one of `Titanium.Android.SCREEN_ORIENTATION_BEHIND`, `T
 - properties
 
 intent[`Titanium.Android.Intent`]: The Intent that was used to start this Activity
-onCreateOptionsMenu[callback]: A callback function that is called to initially create an Android [Options Menu](http://developer.android.com/guide/topics/ui/menus.html#options-menu) for this Activity when the user presses the Menu button. See the menu examples in [[Titanium.Android.Menu]]
-onPrepareOptionsMenu[callback]: A callback function that is called to prepare an [Options Menu](http://developer.android.com/guide/topics/ui/menus.html#options-menu) for displaying on this Activity when the user presses the Menu button. See the menu examples in [[Titanium.Android.Menu]]
+onCreateOptionsMenu[function]: A callback function that is called to initially create an Android [Options Menu](http://developer.android.com/guide/topics/ui/menus.html#options-menu) for this Activity when the user presses the Menu button. See the menu examples in [[Titanium.Android.Menu]]
+onPrepareOptionsMenu[function]: A callback function that is called to prepare an [Options Menu](http://developer.android.com/guide/topics/ui/menus.html#options-menu) for displaying on this Activity when the user presses the Menu button. See the menu examples in [[Titanium.Android.Menu]]
 requestedOrientation[int]: The requested orientation of this Activity. See possible constant values that begin with SCREEN_ORIENTATION in the [[Titanium.Android]] module.
 
 
@@ -66,6 +66,11 @@ pause : Fired from the Activity's [onPause](http://developer.android.com/referen
 resume : Fired from the Activity's [onResume](http://developer.android.com/reference/android/app/Activity.html#onResume())
 stop : Fired from the Activity's [onStop](http://developer.android.com/reference/android/app/Activity.html#onStop())
 destroy : Fired from the Activity's [onDestroy](http://developer.android.com/reference/android/app/Activity.html#onDestroy())
+newIntent : Fired when the application is already running and certain flags are set in the Intent. Fired from the Activity's [onNewIntent](http://developer.android.com/reference/android/app/Activity.html#onNewIntent(android.content.Intent)) 
+
+- event : newIntent
+
+intent: the [[Titanium.Android.Intent]] passed to the native `onNewIntent` method.
 
 - example : Callback example
 ~~~

@@ -163,18 +163,21 @@ public class AndroidModule extends KrollModule
 
 	@Kroll.constant public static final int FLAG_ACTIVITY_BROUGHT_TO_FRONT = Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT;
 	@Kroll.constant public static final int FLAG_ACTIVITY_CLEAR_TOP = Intent.FLAG_ACTIVITY_CLEAR_TOP;
+	//API 11 @Kroll.constant public static final int FLAG_ACTIVITY_CLEAR_TASK = Intent.FLAG_ACTIVITY_CLEAR_TASK;
 	@Kroll.constant public static final int FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET = Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET;
 	@Kroll.constant public static final int FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS = Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS;
 	@Kroll.constant public static final int FLAG_ACTIVITY_FORWARD_RESULT = Intent.FLAG_ACTIVITY_FORWARD_RESULT;
 	@Kroll.constant public static final int FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY = Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY;
 	@Kroll.constant public static final int FLAG_ACTIVITY_MULTIPLE_TASK = Intent.FLAG_ACTIVITY_MULTIPLE_TASK;
 	@Kroll.constant public static final int FLAG_ACTIVITY_NEW_TASK = Intent.FLAG_ACTIVITY_NEW_TASK;
+	@Kroll.constant public static final int FLAG_ACTIVITY_NO_ANIMATION = Intent.FLAG_ACTIVITY_NO_ANIMATION;
 	@Kroll.constant public static final int FLAG_ACTIVITY_NO_HISTORY = Intent.FLAG_ACTIVITY_NO_HISTORY;
 	@Kroll.constant public static final int FLAG_ACTIVITY_NO_USER_ACTION = Intent.FLAG_ACTIVITY_NO_USER_ACTION;
 	@Kroll.constant public static final int FLAG_ACTIVITY_PREVIOUS_IS_TOP = Intent.FLAG_ACTIVITY_PREVIOUS_IS_TOP;
 	@Kroll.constant public static final int FLAG_ACTIVITY_REORDER_TO_FRONT = Intent.FLAG_ACTIVITY_REORDER_TO_FRONT;
 	@Kroll.constant public static final int FLAG_ACTIVITY_RESET_TASK_IF_NEEDED = Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED;
 	@Kroll.constant public static final int FLAG_ACTIVITY_SINGLE_TOP = Intent.FLAG_ACTIVITY_SINGLE_TOP;
+	//API 11 @Kroll.constant public static final int FLAG_ACTIVITY_TASK_ON_HOME = Intent.FLAG_ACTIVITY_TASK_ON_HOME;
 	@Kroll.constant public static final int FLAG_DEBUG_LOG_RESOLUTION = Intent.FLAG_DEBUG_LOG_RESOLUTION;
 	@Kroll.constant public static final int FLAG_FROM_BACKGROUND = Intent.FLAG_FROM_BACKGROUND;
 	@Kroll.constant public static final int FLAG_GRANT_READ_URI_PERMISSION = Intent.FLAG_GRANT_READ_URI_PERMISSION;
@@ -329,7 +332,7 @@ public class AndroidModule extends KrollModule
 	{
 		// Create a new context for the service proxy
 		TiContext tiContext = TiContext.createTiContext(invocation.getTiContext().getTiApp().getRootActivity(), null);
-		tiContext.setIsServiceContext(true);
+		tiContext.setServiceContext(true);
 		return new ServiceProxy(tiContext, intentProxy);
 	}
 }

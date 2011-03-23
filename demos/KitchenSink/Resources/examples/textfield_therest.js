@@ -302,13 +302,38 @@ b9.addEventListener('click', function()
 });
 win.add(b9);
 
+// Only TextArea has 'editable' in iOS, not TextField
+if (Ti.Platform.osname === 'android') {
+	var b10 = Titanium.UI.createButton({
+		title:'Editable',
+		height:40,
+		width:145,
+		left:10,
+		top:305
+	});
+	var editable = true;
+	b10.addEventListener('click', function()
+	{
+		if (!editable) {
+			tf1.editable = true;
+			editable = true;
+		}
+		else {
+			tf1.editable=false;
+			editable = false;
+		}
+	});
+	win.add(b10);
+}
+
 var l = Titanium.UI.createLabel({
 	text:'Click buttons to toggle properties',
-	left:10,
+	left: (Ti.Platform.osname==='android') ? 165 : 10,
+	right:10,
 	top:305,
 	color:'#777',
-	width:'auto',
-	height:'auto'
+	height:'auto',
+	font:{fontHeight:10}
 });
 
 win.add(l);

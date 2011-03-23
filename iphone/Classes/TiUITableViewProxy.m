@@ -27,6 +27,15 @@ NSArray * tableKeySequence;
 
 #pragma mark Internal
 
+-(TiUITableView*)tableView
+{
+	return (TiUITableView*)[self view];
+}
+
+-(void)viewWillDetach
+{
+    [[self tableView] detachContents];
+}
 
 -(NSArray *)keySequence
 {
@@ -35,11 +44,6 @@ NSArray * tableKeySequence;
 		tableKeySequence = [[NSArray arrayWithObjects:@"style",@"search",@"data",@"backgroundColor",nil] retain];
 	}
 	return tableKeySequence;
-}
-
--(TiUITableView*)tableView
-{
-	return (TiUITableView*)[self view];
 }
 
 -(TiUITableViewRowProxy*)makeTableViewRowFromDict:(NSDictionary*)data

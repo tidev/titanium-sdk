@@ -206,6 +206,15 @@ USE_VIEW_FOR_AUTO_WIDTH
 	return nil;
 }
 
+- (NSURL *)currentURL
+{
+	return nil;
+}
+
+-(void)setCurrentURL:(NSURL *)unused
+{
+
+}
 
 @end
 

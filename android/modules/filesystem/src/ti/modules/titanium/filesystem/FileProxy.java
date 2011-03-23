@@ -15,18 +15,19 @@ import java.util.List;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiContext;
-import org.appcelerator.titanium.TiFile;
+import org.appcelerator.titanium.TiFileProxy;
 import org.appcelerator.titanium.io.TiBaseFile;
 import org.appcelerator.titanium.io.TiFileFactory;
+import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiFileHelper2;
 
 import android.net.Uri;
 
 @Kroll.proxy
-public class FileProxy extends TiFile
+public class FileProxy extends TiFileProxy
 {
-
+	private static final String LCAT = "FileProxy";
 	String path;
 	TiBaseFile tbf; // The base file object.
 
@@ -232,23 +233,33 @@ public class FileProxy extends TiFile
 	}
 
 	@Kroll.method
-	public void write(Object[] args)
-		throws IOException
+	public boolean write(Object[] args)
 	{
-		if (args != null && args.length > 0) {
-			boolean append = false;
-			if (args.length > 1 && args[1] instanceof Boolean) {
-				append = ((Boolean)args[1]).booleanValue();
+		try {
+			if (args != null && args.length > 0) {
+				boolean append = false;
+				if (args.length > 1 && args[1] instanceof Boolean) {
+					append = ((Boolean)args[1]).booleanValue();
+				}
+
+				if (args[0] instanceof TiBlob) {
+					tbf.write((TiBlob)args[0], append);
+				} else if (args[0] instanceof String) {
+					tbf.write((String)args[0], append);
+				} else if (args[0] instanceof FileProxy) {
+					tbf.write(((FileProxy)args[0]).read(), append);
+				} else {
+					Log.i(LCAT, "unable to write, unrecognized type");
+					return false;
+				}
+
+				return true;
 			}
-			if (args[0] instanceof TiBlob) {
-				tbf.write((TiBlob)args[0], append);
-			} else if (args[0] instanceof String) {
-				tbf.write((String)args[0], append);
-			} else if (args[0] instanceof FileProxy) {
-				tbf.write(((FileProxy)args[0]).read(), append);
-			} else {
-				throw new IOException("unable to write, unrecognized type");
-			}
+
+			return false;
+		} catch(IOException e) {
+			Log.e(LCAT, "IOException encountered");
+			return false;
 		}
 	}
 

@@ -90,7 +90,7 @@ void OffsetScrollViewForRect(UIScrollView * scrollView,CGFloat keyboardTop,CGFlo
 	
 	if(maxOffset < offsetPoint.y)
 	{
-		offsetPoint.y = maxOffset;
+		offsetPoint.y = MAX(0,maxOffset);
 	}
 
 	[scrollView setContentOffset:offsetPoint animated:YES];

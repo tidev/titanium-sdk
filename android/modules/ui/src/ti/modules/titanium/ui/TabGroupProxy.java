@@ -19,8 +19,8 @@ import org.appcelerator.titanium.util.AsyncResult;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiConvert;
-import org.appcelerator.titanium.util.TiFileHelper;
 import org.appcelerator.titanium.util.TiUIHelper;
+import org.appcelerator.titanium.view.TiDrawableReference;
 import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.ui.widget.TiUITabGroup;
@@ -118,11 +118,7 @@ public class TabGroupProxy extends TiWindowProxy
 			handleAddTab(tab);
 			return;
 		}
-
-		AsyncResult result = new AsyncResult(tab);
-		Message msg = getUIHandler().obtainMessage(MSG_ADD_TAB, result);
-		msg.sendToTarget();
-		result.getResult(); // Don't care about return, just synchronization.
+		sendBlockingUiMessage(MSG_ADD_TAB, tab);
 	}
 
 	private void handleAddTab(TabProxy tab)
@@ -163,28 +159,20 @@ public class TabGroupProxy extends TiWindowProxy
 				Log.w(LCAT, "Could not add tab because tab activity no longer exists");
 			}
 		}
-		String title = (String) tab.getProperty(TiC.PROPERTY_TITLE);
-		String icon = (String) tab.getProperty(TiC.PROPERTY_ICON);
-		String tag = (String) tab.getProperty(TiC.PROPERTY_TAG);
-
-		if (title == null) {
-			title = "";
-		}
-		
+		Drawable icon = TiDrawableReference.fromObject(getTiContext(), tab.getProperty(TiC.PROPERTY_ICON)).getDrawable();
+		String tag = TiConvert.toString(tab.getProperty(TiC.PROPERTY_TAG));
+		String title = TiConvert.toString(tab.getProperty(TiC.PROPERTY_TITLE));
+		if (title == null) { title = ""; }
 		tab.setTabGroup(this);
 		final WindowProxy vp = (WindowProxy) tab.getProperty(TiC.PROPERTY_WINDOW);
 		vp.setTabGroupProxy(this);
 		vp.setTabProxy(tab);
-
 		if (tag != null && vp != null) {
 			TabSpec tspec = tg.newTab(tag);
 			if (icon == null) {
 				tspec.setIndicator(title);
 			} else {
-				String path = getTiContext().resolveUrl(null, icon);
-				TiFileHelper tfh = new TiFileHelper(getTiContext().getRootActivity());
-				Drawable d = tfh.loadDrawable(getTiContext(), path, false);
-				tspec.setIndicator(title, d);
+				tspec.setIndicator(title, icon);
 			}
 
 			Intent intent = new Intent(tta, TiActivity.class);
@@ -303,7 +291,11 @@ public class TabGroupProxy extends TiWindowProxy
 	{
 		int toIndex = indexForId(to);
 		int fromIndex = indexForId(from);
+		return buildFocusEvent(toIndex, fromIndex);
+	}
 
+	public KrollDict buildFocusEvent(int toIndex, int fromIndex)
+	{
 		KrollDict e = new KrollDict();
 
 		e.put(TiC.EVENT_PROPERTY_INDEX, toIndex);
@@ -360,7 +352,7 @@ public class TabGroupProxy extends TiWindowProxy
 		
 		Messenger messenger = new Messenger(getUIHandler());
 		intent.putExtra(TiC.INTENT_PROPERTY_MESSENGER, messenger);
-		intent.putExtra(TiC.INTENT_PROPERTY_MESSAGE_ID, MSG_FINISH_OPEN);
+		intent.putExtra(TiC.INTENT_PROPERTY_MSG_ID, MSG_FINISH_OPEN);
 	}
 	
 	@Override

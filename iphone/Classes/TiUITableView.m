@@ -191,6 +191,7 @@
 
 -(void)dealloc
 {
+    [self detachContents];
 	if (searchField!=nil)
 	{
 		[searchField setDelegate:nil];
@@ -210,6 +211,16 @@
 	RELEASE_TO_NIL(initialSelection);
 	RELEASE_TO_NIL(tableHeaderPullView);
 	[super dealloc];
+}
+
+-(void)detachContents
+{
+    for (TiUITableViewSectionProxy* section in sections) {
+        for (TiUITableViewRowProxy* row in [section rows]) {
+            [row detachView];
+        }
+        [section detachView];
+    }
 }
 
 -(BOOL)isScrollable
@@ -1126,11 +1137,13 @@
 
 - (void)searchBar:(UISearchBar *)searchBar textDidChange:(NSString *)searchText
 {
+	[tableview reloadData];	// fix for 3289, reload the basic table data upon updating the search term
 	// called when text changes (including clear)
 	if([searchText length]==0)
 	{
 		// Redraw visible cells
-		[tableview reloadRowsAtIndexPaths:[tableview indexPathsForVisibleRows] withRowAnimation:UITableViewRowAnimationNone];
+        // In fixing 3289, the following line is no longer necessary
+        // [tableview reloadRowsAtIndexPaths:[tableview indexPathsForVisibleRows] withRowAnimation:UITableViewRowAnimationNone];
 		[searchTableView removeFromSuperview];
 		return;
 	}
@@ -1507,6 +1520,10 @@ if(ourTableView != tableview)	\
 
 - (NSInteger)tableView:(UITableView *)table numberOfRowsInSection:(NSInteger)section
 {
+	if (table == tableview && searchController.searchBar.text.length) { // fix for 3289, make the main tableview have no data while filtering via search
+		return 0;
+	}
+	
 	if(table != tableview)
 	{
 		int rowCount = 0;
@@ -1567,6 +1584,9 @@ if(ourTableView != tableview)	\
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)ourTableView
 {
+	if (ourTableView == tableview && searchController.searchBar.text.length) { // fix for 3289, make the main tableview have no data while filtering via search
+		return 1;
+	}
 	RETURN_IF_SEARCH_TABLE_VIEW(1);
 // One quirk of UITableView is that it really hates having 0 sections. Instead, supply 1 section, no rows.
 	return sections!=nil ? MAX(1,[sections count]) : 1;

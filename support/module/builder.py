@@ -5,13 +5,14 @@
 #
 import os, sys, shutil, tempfile, subprocess, platform
 template_dir = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
+support_dir = os.path.join(template_dir, 'support')
 sdk_dir = os.path.dirname(template_dir)
 android_support_dir = os.path.join(sdk_dir, 'android')
-sys.path.extend([sdk_dir, android_support_dir])
+sys.path.extend([sdk_dir, support_dir, android_support_dir])
 
 from androidsdk import AndroidSDK
 from manifest import Manifest
-import traceback, uuid, time, thread
+import traceback, uuid, time, thread, string, markdown2
 from os.path import join, splitext, split, exists
 
 def run_pipe(args, cwd=None):
@@ -144,13 +145,33 @@ def stage(platform, project_dir, manifest, callback):
 	finally:
 		if not dont_delete: shutil.rmtree(dir)
 
+def docgen(module_dir, dest_dir):
+	if not os.path.exists(dest_dir):
+		print "Creating dir: %s" % dest_dir
+		os.makedirs(dest_dir)
+
+	doc_dir = os.path.join(module_dir, 'documentation')
+
+	if not os.path.exists(doc_dir):
+		print "Couldn't find documentation file at: %s" % doc_dir
+		return
+
+	for file in os.listdir(doc_dir):
+		md = open(os.path.join(doc_dir, file), 'r').read()
+		html = markdown2.markdown(md)
+		filename = string.replace(file, '.md', '.html')
+		filepath = os.path.join(dest_dir, filename)
+		print 'Generating %s' % filepath
+		open(filepath, 'w+').write(html)
+
 # a simplified .properties file parser
 def read_properties(file):
 	properties = {}
 	for line in file.read().splitlines():
 		line = line.strip()
 		if len(line) > 0 and line[0] == '#': continue
-		
+		if len(line) == 0 or '=' not in line: continue
+
 		key, value = line.split('=', 1)
 		properties[key.strip()] = value.strip().replace('\\\\', '\\')
 	return properties
@@ -194,7 +215,11 @@ def main(args):
 				run_python([script, 'run-emulator', gen_project_dir, android_sdk.get_android_sdk()])
 			
 			stage(platform, project_dir, manifest, run_emulator_callback)
-	
+	elif command == 'docgen':
+		if is_android(platform):
+			dest_dir = args[4]
+			docgen(project_dir, dest_dir)
+
 	if error:
 		sys.exit(1)
 	else:

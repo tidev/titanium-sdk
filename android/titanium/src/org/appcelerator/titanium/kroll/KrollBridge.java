@@ -14,13 +14,11 @@ import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.KrollObject;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.titanium.TiContext;
-import org.appcelerator.titanium.TiEvaluator;
-import org.appcelerator.titanium.util.TiBindingHelper;
 import org.mozilla.javascript.Scriptable;
 
 import ti.modules.titanium.TitaniumModule;
 
-public class KrollBridge implements TiEvaluator
+public class KrollBridge
 {
 	private static TitaniumModule tiModule;
 	private KrollContext kroll;
@@ -30,7 +28,7 @@ public class KrollBridge implements TiEvaluator
 	{
 		this.kroll = kroll;
 		TiContext tiContext = kroll.getTiContext();
-		tiContext.setJSContext(this);
+		tiContext.setKrollBridge(this);
 
 		if (tiModule == null) {
 			tiModule = new TitaniumModule(kroll.getTiContext());
@@ -139,8 +137,7 @@ public class KrollBridge implements TiEvaluator
 	public KrollContext getKrollContext() {
 		return kroll;
 	}
-	
-	@Override
+
 	public Scriptable getScope() {
 		return kroll.getScope();
 	}

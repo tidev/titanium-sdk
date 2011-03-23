@@ -18,7 +18,6 @@ typedef enum {
 }	TiImageScalingStyle;
 
 
-
 @class ImageLoaderRequest;
 
 @protocol ImageLoaderDelegate

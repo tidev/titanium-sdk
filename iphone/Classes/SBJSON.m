@@ -230,6 +230,16 @@ static char ctrl[0x24];
     return [@"\n" stringByPaddingToLength:1 + 2 * depth withString:@" " startingAtIndex:0];
 }
 
+// SPT: We need this so that we can 'skip' over proxies, etc. in dictionaries and arrays by
+// performing a limited amount of lookahead.  Ridiculous, yes...
+-(BOOL)supportedFragment:(id)fragment
+{
+	return ([fragment isKindOfClass:[NSDictionary class]] || [fragment isKindOfClass:[NSArray class]] ||
+			[fragment isKindOfClass:[NSString class]] || [fragment isKindOfClass:[NSNumber class]] ||
+			[fragment isKindOfClass:[NSDate class]] || [fragment isKindOfClass:[NSNull class]] ||
+			fragment == nil);
+}
+
 - (BOOL)appendValue:(id)fragment into:(NSMutableString*)json error:(NSError**)error {
     if ([fragment isKindOfClass:[NSDictionary class]]) {
         if (![self appendDictionary:fragment into:json error:error])
@@ -264,6 +274,10 @@ static char ctrl[0x24];
     
     BOOL addComma = NO;    
     for (id value in fragment) {
+		if (![self supportedFragment:value]) {
+			continue;
+		}
+		
         if (addComma)
             [json appendString:@","];
         else
@@ -294,7 +308,12 @@ static char ctrl[0x24];
     if (self.sortKeys)
         keys = [keys sortedArrayUsingSelector:@selector(compare:)];
     
-    for (id value in keys) {
+    for (id key in keys) {
+		id value = [fragment objectForKey:key];
+		if (![self supportedFragment:value]) {
+			continue;
+		}
+		
         if (addComma)
             [json appendString:@","];
         else
@@ -303,16 +322,16 @@ static char ctrl[0x24];
         if ([self humanReadable])
             [json appendString:[self indent]];
         
-        if (![value isKindOfClass:[NSString class]]) {
+        if (![key isKindOfClass:[NSString class]]) {
             if(error) *error = err(EUNSUPPORTED, @"JSON object key must be string");
             return NO;
         }
         
-        if (![self appendString:value into:json error:error])
+        if (![self appendString:key into:json error:error])
             return NO;
 		
         [json appendString:colon];
-        if (![self appendValue:[fragment objectForKey:value] into:json error:error]) {
+        if (![self appendValue:value into:json error:error]) {
             if(error) *error = err(EUNSUPPORTED, [NSString stringWithFormat:@"Unsupported value for key %@ in object", value]);
             return NO;
         }

@@ -66,8 +66,8 @@ Common ant tasks and macros for building Android-based Titanium modules and proj
 					<property name="android.sdk" location="/opt/android-sdk"/>
 				</else>
 			</if>
-			<property name="android.platform" location="${android.sdk}/platforms/android-4"/>
-			<property name="google.apis" location="${android.sdk}/add-ons/google_apis-4_r02"/>
+			<property name="android.platform" location="${android.sdk}/platforms/android-7"/>
+			<property name="google.apis" location="${android.sdk}/add-ons/google_apis-7_r01"/>
 		</else>
 	</if>
 
@@ -349,6 +349,16 @@ Common ant tasks and macros for building Android-based Titanium modules and proj
 		<jar destfile="${dest.file}" basedir="${build.dir}"/>
 	</target>
 	
+	<macrodef name="zip.module.res">
+		<attribute name="name"/>
+		<sequential>
+			<zip destfile="${dist.dir}/titanium-@{name}.res.zip">
+				<zipfileset dir="${modules.dir}/@{name}" includes="res/**"/>
+			</zip>
+		</sequential>
+	</macrodef>
+
+
 	<macrodef name="build.module.jar">
 		<attribute name="name"/>
 		
@@ -422,6 +432,13 @@ Common ant tasks and macros for building Android-based Titanium modules and proj
 		<sequential>
 			<ti.modulePath json="${dependency.json}" module="@{module}" modulesdir="${modules.dir}" pathid="dependencies"/>
 			<build.module.jar name="@{module}"/>
+			<available type="dir" file="${modules.dir}/@{module}/res" property="@{module}.res.avail"/>
+			<if>
+				<istrue value="${@{module}.res.avail}"/>
+				<then>
+					<zip.module.res name="@{module}"/>
+				</then>
+			</if>
 		</sequential>
 		</for>
 	</target>

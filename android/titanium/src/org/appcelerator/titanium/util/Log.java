@@ -11,10 +11,10 @@ public class Log
 	private static long lastLog = System.currentTimeMillis();
 	private static long firstLog = lastLog;
 
-	public static synchronized void checkpoint(String msg) {
+	public static synchronized void checkpoint(String tag, String msg) {
 		lastLog = System.currentTimeMillis();
 		firstLog = lastLog;
-		i("Log", msg);
+		i(tag, msg);
 	}
 
 	protected String tag;

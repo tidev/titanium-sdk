@@ -69,7 +69,7 @@ class Android(object):
 			'appid': self.id,
 			'appname' : self.name,
 			'appversion' : '1',
-			'apiversion' : '4', #Android 1.6
+			'apiversion' : '7', #Android 2.1
 			'deploy_type': deploy_type
 		}
 		self.config['classname'] = Android.strip_classname(self.name)
@@ -192,7 +192,7 @@ class Android(object):
 		# discover app modules
 		detector = ModuleDetector(self.project_dir)
 		missing, detected_modules = detector.find_app_modules(self.tiapp, 'android')
-		for missing_module in missing: print '[WARN] Couldn\'t find app module: %s' % missing_module['name']
+		for missing_module in missing: print '[WARN] Couldn\'t find app module: %s' % missing_module['id']
 		
 		self.custom_modules = []
 		for module in detected_modules:

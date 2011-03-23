@@ -20,15 +20,16 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Handler;
+import android.os.Looper;
 import android.os.Message;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.ZoomControls;
 import android.widget.ImageView.ScaleType;
+import android.widget.ZoomControls;
 
 public class TiImageView extends ViewGroup
 	implements Handler.Callback, OnClickListener
@@ -119,7 +120,7 @@ public class TiImageView extends ViewGroup
 
 		final TiImageView me = this;
 
-		handler = new Handler(this);
+		handler = new Handler(Looper.getMainLooper(), this);
 
 		canScaleImage = false;
 		enableZoomControls = true; // to mimic original behavior.

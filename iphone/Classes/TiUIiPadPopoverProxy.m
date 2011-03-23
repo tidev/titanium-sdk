@@ -185,7 +185,7 @@
 	animated = [TiUtils boolValue:@"animated" properties:args def:YES];
 	directions = [TiUtils intValue:[self valueForKey:@"arrowDirection"] def:UIPopoverArrowDirectionAny];
 	[self setPopoverView:[args objectForKey:@"view"]];
-
+	
 	if (rectProps!=nil)
 	{
 		popoverRect = [TiUtils rectValue:rectProps];
@@ -220,6 +220,11 @@
 	else
 	{
 		UIView *view_ = [popoverView view];
+		if ([view_ window] == nil) {
+			// No window, so we can't display the popover...
+			NSLog(@"[WARN] Unable to display popover; view is not attached to the current window");
+            return;
+		}
 		
 		CGRect rect;
 		if (CGRectIsEmpty(popoverRect))
@@ -246,6 +251,20 @@
 
 //As of iPhone OS 3.2, calling dismissPopoverAnimated does NOT call didDismissPopover. So we have to do it ourselves...
 	[self performSelector:@selector(popoverControllerDidDismissPopover:) withObject:popoverController afterDelay:0.5];
+}
+
+-(void)setPassthroughViews:(id)args
+{
+    NSMutableArray* views = [NSMutableArray arrayWithCapacity:[args count]];
+    for (TiViewProxy* proxy in args) {
+        if (![proxy isKindOfClass:[TiViewProxy class]]) {
+            [self throwException:[NSString stringWithFormat:@"Passed non-view object %@ as passthrough view",proxy] 
+					   subreason:nil
+						location:CODELOCATION];
+        }
+        [views addObject:[proxy view]];
+    }
+    [[self popoverController] setPassthroughViews:views];
 }
 
 #pragma mark Delegate methods
