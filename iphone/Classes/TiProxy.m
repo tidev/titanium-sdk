@@ -327,7 +327,7 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 
 	if (pageContext!=nil)
 	{
-//		[pageContext unregisterProxy:self];
+		[pageContext unregisterProxy:self];
 	}
 	
 	if (executionContext!=nil)
@@ -513,8 +513,7 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 
 	if(![ourBridge usesProxy:self])
 	{
-		NSLog(@"[WARN] %@ was not found in bridge %@. Registering now...",self,ourBridge);
-		return [ourBridge registerProxy:self];
+		NSLog(@"[ERROR] Adding an event listener to a proxy that isn't already in the context!!!");
 	}
 
 	return [ourBridge krollObjectForProxy:self];

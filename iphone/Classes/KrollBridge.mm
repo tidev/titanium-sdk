@@ -135,12 +135,7 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 
 -(KrollObject*)addModule:(NSString*)name module:(TiModule*)module
 {
-	KrollBridge *ourBridge = (KrollBridge *)[context delegate];
-	KrollObject *ko = [ourBridge registerProxy:module];
-	//TODO: come up with something more elegant than this hideous hack.
-	TiValueProtect([context context], [ko jsobject]);
-//	[[[KrollObject alloc] initWithTarget:module context:context] autorelease];
-	NSLog(@"Adding module %@ to context %@",module,context);
+	KrollObject *ko = [[[KrollObject alloc] initWithTarget:module context:context] autorelease];
 	[modules setObject:ko forKey:name];
 	return ko;
 }
@@ -524,13 +519,9 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 			for (id key in values)
 			{
 				id target = [values objectForKey:key];
-				KrollObject *ko = [self registerProxy:target];
-				//TODO: come up with something more elegant than this hideous hack.
-				TiValueProtect(jsContext, [ko jsobject]);
-				//[[KrollObject alloc] initWithTarget:target context:context];
-				NSLog(@"Adding object %@ in didStartNewContext to context %@",target,context);
+				KrollObject *ko = [[KrollObject alloc] initWithTarget:target context:context];
 				[ti setStaticValue:ko forKey:key purgable:NO];
-			//	[ko release];
+				[ko release];
 			}
 		}
 		[self injectPatches];

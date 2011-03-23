@@ -374,7 +374,6 @@ void KrollFinalizer(TiObjectRef ref)
 			if ((ourTarget != nil) && ([ourBridge krollObjectForProxy:ourTarget] == o))
 			{
 				[ourBridge unregisterProxy:ourTarget];
-				[(KrollObject *)o invalidateJsobject];
 			}
 		}
 	}
@@ -563,10 +562,7 @@ bool KrollSetProperty(TiContextRef jsContext, TiObjectRef object, TiStringRef pr
 //
 +(TiValueRef)create:(id)object context:(KrollContext*)context
 {
-	KrollBridge * ourBridge = (KrollBridge *)[context delegate];
-	KrollObject *ko = [ourBridge registerProxy:object];
-//	[[[KrollObject alloc] initWithTarget:object context:context] autorelease];
-	NSLog(@"Create: %@ context: %@",object,context);
+	KrollObject *ko = [[[KrollObject alloc] initWithTarget:object context:context] autorelease];
 	return [ko jsobject];
 }
 
