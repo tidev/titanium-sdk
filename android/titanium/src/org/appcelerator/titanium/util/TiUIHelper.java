@@ -613,7 +613,7 @@ public class TiUIHelper
 		}
 		
 		try {
-			return TiRHelper.getResource("drawable." + key);
+			return TiRHelper.getResource("drawable." + key, false);
 		} catch (TiRHelper.ResourceNotFoundException e) {
 			return 0;
 		}
