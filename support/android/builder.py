@@ -44,6 +44,20 @@ uncompressed_types = [
 
 MIN_API_LEVEL = 7
 
+# ZipFile.extractall introduced in Python 2.6, so this is workaround for earlier
+# versions
+def zip_extractall(zfile, target_dir):
+	file_infos = zfile.infolist()
+	for info in file_infos:
+		if info.file_size > 0:
+			file_path = os.path.join(target_dir, os.path.normpath(info.filename))
+			parent_path = os.path.dirname(file_path)
+			if not os.path.exists(parent_path):
+				os.makedirs(parent_path)
+			out_file = open(file_path, "wb")
+			out_file.write(zfile.read(info.filename))
+			out_file.close()
+
 def dequote(s):
 	if s[0:1] == '"':
 		return s[1:-1]
@@ -1305,8 +1319,17 @@ class Builder(object):
 			res_zip = jar[:-4] + '.res.zip'
 			if not os.path.exists(res_zip):
 				continue
-			res_zip_file = zipfile.ZipFile(res_zip)
-			res_zip_file.extractall(self.project_dir)
+			res_zip_file = zipfile.ZipFile(res_zip, "r")
+			try:
+				if hasattr(res_zip_file, "extractall"):
+					res_zip_file.extractall(self.project_dir)
+				else:
+					# Python < 2.6
+					zip_extractall(res_zip_file, self.project_dir)
+			except:
+				raise
+			finally:
+				res_zip_file.close()
 
 
 	def build_and_run(self, install, avd_id, keystore=None, keystore_pass='tirocks', keystore_alias='tidev', dist_dir=None, build_only=False, device_args=None, debugger_host=None):
