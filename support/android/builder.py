@@ -780,8 +780,12 @@ class Builder(object):
 		if not os.path.exists(resfilepath):
 			resfile = open(resfilepath,'w')
 			theme_flags = "Theme"
-			if self.tiapp.properties.get("fullscreen") == "true":
+			if (self.tiapp.properties.get("fullscreen") == "true" or 
+					self.tiapp.properties.get("statusbar-hidden") == "true"):
 				theme_flags = theme_flags + ".NoTitleBar.Fullscreen"
+			elif self.tiapp.properties.get("navbar-hidden") == "true":
+				theme_flags = theme_flags + ".NoTitleBar"
+
 			TITANIUM_THEME="""<?xml version="1.0" encoding="utf-8"?>
 <resources>
 <style name="Theme.Titanium" parent="android:%s">
