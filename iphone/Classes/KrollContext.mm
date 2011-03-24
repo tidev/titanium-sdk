@@ -75,7 +75,7 @@ static unsigned short KrollContextCount = 0;
 
 TiValueRef ThrowException (TiContextRef ctx, NSString *message, TiValueRef *exception)
 {
-	TiStringRef jsString = TiStringCreateWithUTF8CString([message UTF8String]);
+	TiStringRef jsString = TiStringCreateWithCFString((CFStringRef)message);
 	*exception = TiValueMakeString(ctx,jsString);
 	TiStringRelease(jsString);
 	return TiValueMakeUndefined(ctx);
@@ -479,7 +479,7 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 
 -(void)invoke:(KrollContext*)context
 {
-	TiStringRef js = TiStringCreateWithUTF8CString([code UTF8String]); 
+	TiStringRef js = TiStringCreateWithCFString((CFStringRef) code);
 	TiObjectRef global = TiContextGetGlobalObject([context context]);
 	
 	TiValueRef exception = NULL;
@@ -498,7 +498,7 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 
 -(id)invokeWithResult:(KrollContext*)context
 {
-	TiStringRef js = TiStringCreateWithUTF8CString([code UTF8String]); 
+	TiStringRef js = TiStringCreateWithCFString((CFStringRef) code);
 	TiObjectRef global = TiContextGetGlobalObject([context context]);
 	
 	TiValueRef exception = NULL;
@@ -847,7 +847,7 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 - (void)bindCallback:(NSString*)name callback:(TiObjectCallAsFunctionCallback)fn
 {
 	// create the invoker bridge
-	TiStringRef invokerFnName = TiStringCreateWithUTF8CString([name UTF8String]);
+	TiStringRef invokerFnName = TiStringCreateWithCFString((CFStringRef) name);
 	TiValueRef invoker = TiObjectMakeFunctionWithCallback(context, invokerFnName, fn);
 	if (invoker)
 	{
@@ -917,7 +917,7 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 	prop = TiStringCreateWithUTF8CString("String");
 	
 	// create a special method -- String.format -- that will act as a string formatter
-	TiStringRef formatName = TiStringCreateWithUTF8CString([@"format" UTF8String]);
+	TiStringRef formatName = TiStringCreateWithUTF8CString("format");
 	TiValueRef invoker = TiObjectMakeFunctionWithCallback(context, formatName, &StringFormatCallback);
 	TiValueRef stringValueRef=TiObjectGetProperty(context, globalRef, prop, NULL);
 	TiObjectRef stringRef = TiValueToObject(context, stringValueRef, NULL);
@@ -929,7 +929,7 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 
 	
 	// create a special method -- String.formatDate -- that will act as a date formatter
-	formatName = TiStringCreateWithUTF8CString([@"formatDate" UTF8String]);
+	formatName = TiStringCreateWithUTF8CString("formatDate");
 	invoker = TiObjectMakeFunctionWithCallback(context, formatName, &StringFormatDateCallback);
 	stringValueRef=TiObjectGetProperty(context, globalRef, prop, NULL);
 	stringRef = TiValueToObject(context, stringValueRef, NULL);
@@ -940,7 +940,7 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 	TiStringRelease(formatName);	
 
 	// create a special method -- String.formatTime -- that will act as a time formatter
-	formatName = TiStringCreateWithUTF8CString([@"formatTime" UTF8String]);
+	formatName = TiStringCreateWithUTF8CString("formatTime");
 	invoker = TiObjectMakeFunctionWithCallback(context, formatName, &StringFormatTimeCallback);
 	stringValueRef=TiObjectGetProperty(context, globalRef, prop, NULL);
 	stringRef = TiValueToObject(context, stringValueRef, NULL);
@@ -951,7 +951,7 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 	TiStringRelease(formatName);	
 	
 	// create a special method -- String.formatDecimal -- that will act as a decimal formatter
-	formatName = TiStringCreateWithUTF8CString([@"formatDecimal" UTF8String]);
+	formatName = TiStringCreateWithUTF8CString("formatDecimal");
 	invoker = TiObjectMakeFunctionWithCallback(context, formatName, &StringFormatDecimalCallback);
 	stringValueRef=TiObjectGetProperty(context, globalRef, prop, NULL);
 	stringRef = TiValueToObject(context, stringValueRef, NULL);
@@ -962,7 +962,7 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 	TiStringRelease(formatName);	
 
 	// create a special method -- String.formatCurrency -- that will act as a currency formatter
-	formatName = TiStringCreateWithUTF8CString([@"formatCurrency" UTF8String]);
+	formatName = TiStringCreateWithUTF8CString("formatCurrency");
 	invoker = TiObjectMakeFunctionWithCallback(context, formatName, &StringFormatCurrencyCallback);
 	stringValueRef=TiObjectGetProperty(context, globalRef, prop, NULL);
 	stringRef = TiValueToObject(context, stringValueRef, NULL);

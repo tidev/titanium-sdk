@@ -203,10 +203,7 @@ id TiValueToId(KrollContext *context, TiValueRef v)
 			NSMutableArray *result = [[NSMutableArray alloc] initWithCapacity:len];
 			for (size_t c=0;c<len;c++)
 			{
-				NSString *prop = [NSString stringWithFormat:@"%d",c];
-				TiStringRef propRef = TiStringCreateWithUTF8CString([prop UTF8String]);
-				TiValueRef valueRef = TiObjectGetProperty(jsContext, obj, propRef, NULL);
-				TiStringRelease(propRef);
+				TiValueRef valueRef = TiObjectGetPropertyAtIndex(jsContext, obj, c, NULL);
 				id value = TiValueToId(context,valueRef);
 				[result addObject:value];
 			}
@@ -243,7 +240,7 @@ TiValueRef ConvertIdTiValue(KrollContext *context, id obj)
 	}
 	else if ([obj isKindOfClass:[NSString class]])
 	{
-		TiStringRef jsString = TiStringCreateWithUTF8CString([obj UTF8String]);
+		TiStringRef jsString = TiStringCreateWithCFString((CFStringRef) obj);
 		TiValueRef result = TiValueMakeString(jsContext,jsString);
 		TiStringRelease(jsString);
 		return result;
@@ -272,14 +269,14 @@ TiValueRef ConvertIdTiValue(KrollContext *context, id obj)
 	}
 	else if ([obj isKindOfClass:[NSDictionary class]])
 	{
-		NSString *code = @"new Object()";
-		TiStringRef jsString = TiStringCreateWithUTF8CString([code UTF8String]);
+		//Why not just make a blank object?
+		TiStringRef jsString = TiStringCreateWithUTF8CString("new Object()");
 		TiValueRef value = TiEvalScript(jsContext, jsString, NULL, NULL, 0, NULL);
 		TiStringRelease(jsString);
 		TiObjectRef objRef = TiValueToObject(jsContext, value, NULL);
 		for (id prop in obj)
 		{
-			TiStringRef key = TiStringCreateWithUTF8CString([prop UTF8String]);
+			TiStringRef key = TiStringCreateWithCFString((CFStringRef) prop);
 			TiValueRef value = ConvertIdTiValue(context,[obj objectForKey:prop]);
 			TiObjectSetProperty(jsContext, objRef, key, value, 0, NULL);
 			TiStringRelease(key);
@@ -288,11 +285,10 @@ TiValueRef ConvertIdTiValue(KrollContext *context, id obj)
 	}
 	else if ([obj isKindOfClass:[NSException class]])
 	{
-		TiStringRef jsString = TiStringCreateWithUTF8CString([[obj reason] UTF8String]);
+		TiStringRef jsString = TiStringCreateWithCFString((CFStringRef) [obj reason]);
 		TiValueRef result = TiValueMakeString(jsContext,jsString);
-		TiValueRef args[] = {result};
 		TiStringRelease(jsString);
-		return TiObjectMakeError(jsContext, 1, args, NULL);
+		return TiObjectMakeError(jsContext, 1, &result, NULL);
 	}
 	else if ([obj isKindOfClass:[KrollMethod class]])
 	{
@@ -909,7 +905,7 @@ bool KrollSetProperty(TiContextRef jsContext, TiObjectRef object, TiStringRef pr
 				kTiPropertyAttributeDontEnum , &exception);
 	}
 
-	TiStringRef jsEventTypeString = TiStringCreateWithUTF8CString([eventName UTF8String]);
+	TiStringRef jsEventTypeString = TiStringCreateWithCFString((CFStringRef) eventName);
 	TiObjectRef jsCallbackArray = TiObjectGetProperty(jsContext, jsEventHash, jsEventTypeString, &exception);
 	TiObjectRef callbackFunction = [eventCallback function];
 	jsCallbackArray = TiValueToObject(jsContext, jsCallbackArray, &exception);
@@ -952,7 +948,7 @@ bool KrollSetProperty(TiContextRef jsContext, TiObjectRef object, TiStringRef pr
 	}
 	TiStringRelease(jsEventHashString);
 
-	TiStringRef jsEventTypeString = TiStringCreateWithUTF8CString([eventName UTF8String]);
+	TiStringRef jsEventTypeString = TiStringCreateWithCFString((CFStringRef) eventName);
 	TiObjectRef jsCallbackArray = TiObjectGetProperty(jsContext, jsEventHash, jsEventTypeString, NULL);
 	TiObjectRef callbackFunction = [eventCallback function];
 
@@ -994,7 +990,7 @@ bool KrollSetProperty(TiContextRef jsContext, TiObjectRef object, TiStringRef pr
 	}
 	TiStringRelease(jsEventHashString);
 
-	TiStringRef jsEventTypeString = TiStringCreateWithUTF8CString([eventName UTF8String]);
+	TiStringRef jsEventTypeString = TiStringCreateWithCFString((CFStringRef) eventName);
 	TiObjectRef jsCallbackArray = TiObjectGetProperty(jsContext, jsEventHash, jsEventTypeString, NULL);
 
 	if ((jsCallbackArray == NULL) || (TiValueGetType(jsContext,jsCallbackArray) != kTITypeObject))

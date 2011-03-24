@@ -362,7 +362,7 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 	
 	const char *urlCString = [[url_ absoluteString] UTF8String];
 	
-	TiStringRef jsCode = TiStringCreateWithUTF8CString([jcode UTF8String]);
+	TiStringRef jsCode = TiStringCreateWithCFString((CFStringRef) jcode);
 	TiStringRef jsURL = TiStringCreateWithUTF8CString(urlCString);
 	
 	// validate script
@@ -501,8 +501,8 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 	TiValueRef tiRef = [KrollObject toValue:kroll value:titanium];
 	
 	NSString *titaniumNS = [NSString stringWithFormat:@"T%sanium","it"];
-	TiStringRef prop = TiStringCreateWithUTF8CString([titaniumNS UTF8String]);
-	TiStringRef prop2 = TiStringCreateWithUTF8CString([[NSString stringWithFormat:@"%si","T"] UTF8String]);
+	TiStringRef prop = TiStringCreateWithCFString((CFStringRef) titaniumNS);
+	TiStringRef prop2 = TiStringCreateWithCFString((CFStringRef) [NSString stringWithFormat:@"%si","T"]);
 	TiObjectRef globalRef = TiContextGetGlobalObject(jsContext);
 	TiObjectSetProperty(jsContext, globalRef, prop, tiRef, NULL, NULL);
 	TiObjectSetProperty(jsContext, globalRef, prop2, tiRef, NULL, NULL);
