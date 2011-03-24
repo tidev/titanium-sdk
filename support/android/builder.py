@@ -1321,11 +1321,7 @@ class Builder(object):
 				continue
 			res_zip_file = zipfile.ZipFile(res_zip, "r")
 			try:
-				if hasattr(res_zip_file, "extractall"):
-					res_zip_file.extractall(self.project_dir)
-				else:
-					# Python < 2.6
-					zip_extractall(res_zip_file, self.project_dir)
+				zip_extractall(res_zip_file, self.project_dir)
 			except:
 				raise
 			finally:
