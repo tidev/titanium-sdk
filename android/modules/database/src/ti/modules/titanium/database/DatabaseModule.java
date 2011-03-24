@@ -65,14 +65,14 @@ public class DatabaseModule extends KrollModule
 		} catch (SQLException e) {
 			String msg = "Error opening database: " + dbp.getName() + " msg=" + e.getMessage();
 			Log.e(LCAT, msg, e);
-			//TODO throw exception
+			throw e;
 		}
 
 		return dbp;
 	}
 
 	@Kroll.method
-	public TiDatabaseProxy install(KrollInvocation invocation, String url, String name)
+	public TiDatabaseProxy install(KrollInvocation invocation, String url, String name) throws IOException
 	{
 		try {
 			TiContext tiContext = invocation.getTiContext();
@@ -124,14 +124,12 @@ public class DatabaseModule extends KrollModule
 		} catch (SQLException e) {
 			String msg = "Error installing database: " + name + " msg=" + e.getMessage();
 			Log.e(LCAT, msg, e);
-			//TODO throw exception
+			throw e;
 		}
 		catch (IOException e) {
 			String msg = "Error installing database: " + name + " msg=" + e.getMessage();
 			Log.e(LCAT, msg, e);
-			//TODO throw exception
+			throw e;
 		}
-
-		return null;
 	}
 }

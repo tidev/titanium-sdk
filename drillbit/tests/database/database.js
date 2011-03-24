@@ -194,5 +194,41 @@ describe("Ti.Database tests", {
 			db.close();
 			db.remove();
 	 	}
+	}, 
+	testDatabaseExceptions : function() {
+		valueOf( function() { Ti.Database.open("fred://\\"); }).shouldThrowException();
+		var db = null;
+		try {
+			db = Titanium.Database.open('Test');
+			
+			valueOf( function() { 
+				Ti.Database.execute("select * from notATable"); 
+			}).shouldThrowException();
+			
+			db.execute('CREATE TABLE IF NOT EXISTS stuff (id INTEGER, val TEXT)');
+			db.execute('INSERT INTO stuff (id, val) values (1, "One")');
+			var rs = db.execute("SELECT id FROM stuff WHERE id = 1");
+				
+			valueOf( function() {
+				rs.field(2);
+			}).shouldThrowException();
+
+			valueOf( function() {
+				rs.field(2);
+			}).shouldThrowException();
+			
+			valueOf( function() {
+				rs.fieldName(2);
+			}).shouldThrowException();
+			
+			if (rs != null) {
+				rs.close();
+			}
+		} finally {
+			if (db != null) {
+				db.close();
+				db.remove();
+			}
+		}
 	}
 });
