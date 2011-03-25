@@ -35,6 +35,16 @@ from htmlentitydefs import name2codepoint
 def err(s):
 	print >> sys.stderr, s
 
+def rpartition(s, delim):
+	if not delim in s:
+		return ('', '', s)
+	i = s.rfind(delim)
+	if i == 0:
+		if len(s) == 1:
+			return ('', delim, '')
+		return ('', delim, s[i+1:])
+	return (s[:i], delim, s[i+1:])
+
 use_ordered_dict = False
 try:
 	from collections import OrderedDict
@@ -563,7 +573,8 @@ def find_filename(namespace):
 	if namespace in apis:
 		return apis[namespace].get_filename()
 	# Try finding the parent
-	(parent, delim, name) = namespace.rpartition('.')
+#	(parent, delim, name) = namespace.rpartition('.')
+	(parent, delim, name) = rpartition(namespace, '.')
 	if parent != '' and parent in apis:
 		parent = apis[parent]
 		for item in (parent.methods + parent.properties + parent.events):
