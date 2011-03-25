@@ -161,7 +161,12 @@ def clean_type(the_type):
 	return type_out
 
 def clean_namespace(ns_in):
-	return '.'.join( [ '_' + s if len(s) and s[0].isdigit() else s for s in ns_in.split('.') ])
+	def clean_part(part):
+		if len(part) and part[0].isdigit():
+			return '_' + part
+		else:
+			return part
+	return '.'.join( [ clean_part(s) for s in ns_in.split('.') ])
 
 def to_jsca_example(example):
 	return map_properties(example, {}, ('description', 'code'), ('name', 'code'))
