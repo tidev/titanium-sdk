@@ -425,7 +425,10 @@ class API(object):
 			# in case someone put a spec in with case
 			specs = [x.lower() for x in orig_specs]
 		# specs example: [int;classproperty;deprecated].  The type is always specs[0]
-		classprop = True if 'classproperty' in specs else (key.upper() == key) # assume all upper case props are class constants
+		if 'classproperty' in specs:
+			classprop = True
+		else:
+			classprop = (key.upper() == key) # assume all upper case props are class constants
 		deprecated = 'deprecated' in specs
 		platforms = resolve_supported_platforms(self.platforms, specs)
 		if len(platforms): # if not valid for any platform, don't add it.
@@ -479,15 +482,33 @@ class API(object):
 		self.parameters.append({'name':name,'type':typestr,'description':desc})
 		self.parameters.sort(namesort)
 	def to_jsca(self):
+		jsca_deprecated = False
+		if self.deprecated:
+			jsca_deprecated = True
+		jsca_examples = []
+		if self.examples:
+			jsca_examples = [to_jsca_example(x) for x in self.examples]
+		jsca_properties = []
+		if self.properties:
+			jsca_properties = [to_jsca_property(x) for x in self.properties if not x['name'].startswith('font-')]
+		jsca_functions = []
+		if self.methods:
+			jsca_functions = [to_jsca_function(x) for x in self.methods]
+		jsca_events = []
+		if self.events:
+			jsca_events = [to_jsca_event(x) for x in self.events]
+		jsca_remarks = []
+		if self.notes:
+			jsca_remarks = [ self.notes ]
 		result = {
 				'name': clean_namespace(self.namespace),
 				'description': self.description,
-				'deprecated' : True if self.deprecated else False,
-				'examples' : [ to_jsca_example(x) for x in self.examples ] if self.examples else [],
-				'properties' : [ to_jsca_property(x) for x in self.properties if not x['name'].startswith('font-')] if self.properties else [],
-				'functions' : [ to_jsca_function(x) for x in self.methods] if self.methods else [],
-				'events' : [ to_jsca_event(x) for x in self.events] if self.events else [],
-				'remarks' : [ self.notes ] if self.notes else [],
+				'deprecated' : jsca_deprecated,
+				'examples' : jsca_examples,
+				'properties' : jsca_properties,
+				'functions' : jsca_functions,
+				'events' : jsca_events,
+				'remarks' : jsca_remarks,
 				'userAgents' : [ { 'platform' : x } for x in self.platforms ],
 				'since' : [ { 'name': 'Titanium Mobile SDK', 'version' : self.since } ]
 				}
