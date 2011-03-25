@@ -1,19 +1,13 @@
 #!/usr/bin/env python
 #
-# Copyright (c) 2010 Appcelerator, Inc. All Rights Reserved.
+# Copyright (c) 2010-2011 Appcelerator, Inc. All Rights Reserved.
 # Licensed under the Apache Public License (version 2)
 #
 # parse out Titanium API documentation templates into a 
 # format that can be used by other documentation generators
 # such as PDF, etc.
 # 
-try: import json
-except: import simplejson as json
-
-import os, sys, re, optparse, string
-from os.path import join, splitext, split, exists
-from htmlentitydefs import name2codepoint 
-
+import os, sys
 # We package the python markdown module already in the sdk source tree,
 # namely in /support/module/support/markdown.  So go ahead and  use it
 # rather than rely on it being easy_installed.
@@ -22,8 +16,34 @@ module_support_dir = os.path.abspath(os.path.join(this_dir, '..', 'support', 'mo
 if os.path.exists(module_support_dir):
 	sys.path.append(module_support_dir)
 
+# We package simplejson under site_scons, so go ahead and add it to sys.path
+# in case this is running in Python < 2.6, in which case standard python json
+# module is not available
+sitescons_dir = os.path.abspath(os.path.join(this_dir, '..', 'site_scons'))
+if os.path.exists(sitescons_dir):
+	sys.path.append(sitescons_dir)
+
+try:
+	import json
+except:
+	import simplejson as json
+
+import re, optparse, string
+from os.path import join, splitext, split, exists
+from htmlentitydefs import name2codepoint 
+
 def err(s):
 	print >> sys.stderr, s
+
+def rpartition(s, delim):
+	if not delim in s:
+		return ('', '', s)
+	i = s.rfind(delim)
+	if i == 0:
+		if len(s) == 1:
+			return ('', delim, '')
+		return ('', delim, s[i+1:])
+	return (s[:i], delim, s[i+1:])
 
 use_ordered_dict = False
 try:
@@ -161,7 +181,12 @@ def clean_type(the_type):
 	return type_out
 
 def clean_namespace(ns_in):
-	return '.'.join( [ '_' + s if len(s) and s[0].isdigit() else s for s in ns_in.split('.') ])
+	def clean_part(part):
+		if len(part) and part[0].isdigit():
+			return '_' + part
+		else:
+			return part
+	return '.'.join( [ clean_part(s) for s in ns_in.split('.') ])
 
 def to_jsca_example(example):
 	return map_properties(example, {}, ('description', 'code'), ('name', 'code'))
@@ -420,7 +445,10 @@ class API(object):
 			# in case someone put a spec in with case
 			specs = [x.lower() for x in orig_specs]
 		# specs example: [int;classproperty;deprecated].  The type is always specs[0]
-		classprop = True if 'classproperty' in specs else (key.upper() == key) # assume all upper case props are class constants
+		if 'classproperty' in specs:
+			classprop = True
+		else:
+			classprop = (key.upper() == key) # assume all upper case props are class constants
 		deprecated = 'deprecated' in specs
 		platforms = resolve_supported_platforms(self.platforms, specs)
 		if len(platforms): # if not valid for any platform, don't add it.
@@ -474,15 +502,33 @@ class API(object):
 		self.parameters.append({'name':name,'type':typestr,'description':desc})
 		self.parameters.sort(namesort)
 	def to_jsca(self):
+		jsca_deprecated = False
+		if self.deprecated:
+			jsca_deprecated = True
+		jsca_examples = []
+		if self.examples:
+			jsca_examples = [to_jsca_example(x) for x in self.examples]
+		jsca_properties = []
+		if self.properties:
+			jsca_properties = [to_jsca_property(x) for x in self.properties if not x['name'].startswith('font-')]
+		jsca_functions = []
+		if self.methods:
+			jsca_functions = [to_jsca_function(x) for x in self.methods]
+		jsca_events = []
+		if self.events:
+			jsca_events = [to_jsca_event(x) for x in self.events]
+		jsca_remarks = []
+		if self.notes:
+			jsca_remarks = [ self.notes ]
 		result = {
 				'name': clean_namespace(self.namespace),
 				'description': self.description,
-				'deprecated' : True if self.deprecated else False,
-				'examples' : [ to_jsca_example(x) for x in self.examples ] if self.examples else [],
-				'properties' : [ to_jsca_property(x) for x in self.properties if not x['name'].startswith('font-')] if self.properties else [],
-				'functions' : [ to_jsca_function(x) for x in self.methods] if self.methods else [],
-				'events' : [ to_jsca_event(x) for x in self.events] if self.events else [],
-				'remarks' : [ self.notes ] if self.notes else [],
+				'deprecated' : jsca_deprecated,
+				'examples' : jsca_examples,
+				'properties' : jsca_properties,
+				'functions' : jsca_functions,
+				'events' : jsca_events,
+				'remarks' : jsca_remarks,
 				'userAgents' : [ { 'platform' : x } for x in self.platforms ],
 				'since' : [ { 'name': 'Titanium Mobile SDK', 'version' : self.since } ]
 				}
@@ -527,7 +573,8 @@ def find_filename(namespace):
 	if namespace in apis:
 		return apis[namespace].get_filename()
 	# Try finding the parent
-	(parent, delim, name) = namespace.rpartition('.')
+#	(parent, delim, name) = namespace.rpartition('.')
+	(parent, delim, name) = rpartition(namespace, '.')
 	if parent != '' and parent in apis:
 		parent = apis[parent]
 		for item in (parent.methods + parent.properties + parent.events):
