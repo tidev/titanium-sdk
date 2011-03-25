@@ -72,6 +72,15 @@ public class TiTabActivity extends ActivityGroup
 			if (intent.hasExtra(TiC.INTENT_PROPERTY_LAYOUT)) {
 				arrangementFromIntent = intent.getStringExtra(TiC.INTENT_PROPERTY_LAYOUT);
 			}
+			if (intent.hasExtra(TiC.PROPERTY_WINDOW_SOFT_INPUT_MODE)) {
+				int mode = intent.getIntExtra(TiC.PROPERTY_WINDOW_SOFT_INPUT_MODE, -1);
+				if (mode != -1) {
+					Window w = getWindow();
+					if (w != null) {
+						w.setSoftInputMode(mode);
+					}
+				}
+			}
 		}
 		LayoutArrangement arrangement = LayoutArrangement.DEFAULT;
 		if (arrangementFromIntent.equals(TiC.LAYOUT_HORIZONTAL)) {
