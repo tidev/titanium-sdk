@@ -1,19 +1,13 @@
 #!/usr/bin/env python
 #
-# Copyright (c) 2010 Appcelerator, Inc. All Rights Reserved.
+# Copyright (c) 2010-2011 Appcelerator, Inc. All Rights Reserved.
 # Licensed under the Apache Public License (version 2)
 #
 # parse out Titanium API documentation templates into a 
 # format that can be used by other documentation generators
 # such as PDF, etc.
 # 
-try: import json
-except: import simplejson as json
-
-import os, sys, re, optparse, string
-from os.path import join, splitext, split, exists
-from htmlentitydefs import name2codepoint 
-
+import os, sys
 # We package the python markdown module already in the sdk source tree,
 # namely in /support/module/support/markdown.  So go ahead and  use it
 # rather than rely on it being easy_installed.
@@ -21,6 +15,22 @@ this_dir = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
 module_support_dir = os.path.abspath(os.path.join(this_dir, '..', 'support', 'module', 'support'))
 if os.path.exists(module_support_dir):
 	sys.path.append(module_support_dir)
+
+# We package simplejson under site_scons, so go ahead and add it to sys.path
+# in case this is running in Python < 2.6, in which case standard python json
+# module is not available
+sitescons_dir = os.path.abspath(os.path.join(this_dir, '..', 'site_scons'))
+if os.path.exists(sitescons_dir):
+	sys.path.append(sitescons_dir)
+
+try:
+	import json
+except:
+	import simplejson as json
+
+import re, optparse, string
+from os.path import join, splitext, split, exists
+from htmlentitydefs import name2codepoint 
 
 def err(s):
 	print >> sys.stderr, s
