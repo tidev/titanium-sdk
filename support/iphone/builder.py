@@ -799,8 +799,7 @@ def main(args):
 					asf.write(cssc.code)
 					asf.close()
 					
-					if debughost:
-						shutil.copy(debug_plist,os.path.join(iphone_dir,'build','Debug-iphonesimulator','%s.app' % name, 'debugger.plist'))
+					shutil.copy(debug_plist,os.path.join(iphone_dir,'build','Debug-iphonesimulator','%s.app' % name, 'debugger.plist'))
 					
 			if command!='simulator':
 				# compile plist into binary format so it's faster to load
@@ -1048,7 +1047,7 @@ def main(args):
 					debugstr = ''
 					if debughost:
 						debugstr = 'DEBUGGER_ENABLED=1'
-						
+					
 					if force_rebuild or force_xcode or not os.path.exists(binary):
 						execute_xcode("iphonesimulator%s" % link_version,["GCC_PREPROCESSOR_DEFINITIONS=__LOG__ID__=%s DEPLOYTYPE=development TI_DEVELOPMENT=1 DEBUG=1 TI_VERSION=%s %s" % (log_id,sdk_version,debugstr)],False)
 
