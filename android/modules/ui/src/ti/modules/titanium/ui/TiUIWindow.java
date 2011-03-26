@@ -37,7 +37,6 @@ import org.appcelerator.titanium.view.TiUIView;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.os.Looper;
@@ -442,8 +441,6 @@ public class TiUIWindow extends TiUIView
 				TiCompositeLayout layout = null;
 				if (windowActivity instanceof TiActivity) {
 					layout = ((TiActivity)windowActivity).getLayout();
-				} else if (windowActivity instanceof TiTabActivity) {
-					layout = ((TiTabActivity)windowActivity).getLayout();
 				}
 				if (layout != null) {
 					layout.setLayoutArrangement(TiConvert.toString(d, TiC.PROPERTY_LAYOUT));
@@ -503,8 +500,6 @@ public class TiUIWindow extends TiUIView
 				TiCompositeLayout layout = null;
 				if (windowActivity instanceof TiActivity) {
 					layout = ((TiActivity)windowActivity).getLayout();
-				} else if (windowActivity instanceof TiTabActivity) {
-					layout = ((TiTabActivity)windowActivity).getLayout();
 				}
 				if (layout != null) {
 					layout.setLayoutArrangement(TiConvert.toString(newValue));
