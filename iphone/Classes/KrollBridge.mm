@@ -36,6 +36,7 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 	{
 		modules = [[NSMutableDictionary alloc] init];
 		host = [host_ retain];
+		[(KrollBridge *)pageContext_ registerProxy:module krollObject:self];
 		
 		// pre-cache a few modules we always use
 		TiModule *ui = [host moduleNamed:@"UI" context:pageContext_];
@@ -135,7 +136,12 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 
 -(KrollObject*)addModule:(NSString*)name module:(TiModule*)module
 {
-	KrollObject *ko = [[[KrollObject alloc] initWithTarget:module context:context] autorelease];
+	KrollObject *ko = [pageContext registerProxy:module];
+//	TiStringRef nameRef = TiStringCreateWithCFString((CFStringRef)name);
+//	[self noteObject:[ko jsobject] forTiString:nameRef context:[[(KrollBridge *)pageContext krollContext] context]];
+//	TiStringRelease(nameRef);
+
+	[self noteKrollObject:ko forKey:name];	
 	[modules setObject:ko forKey:name];
 	return ko;
 }
@@ -519,9 +525,20 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 			for (id key in values)
 			{
 				id target = [values objectForKey:key];
+
 				KrollObject *ko = [[KrollObject alloc] initWithTarget:target context:context];
 				[ti setStaticValue:ko forKey:key purgable:NO];
 				[ko release];
+
+//				if (![self usesProxy:target])
+//				{
+//					KrollObject *ko = [self registerProxy:target];
+//					[ti setStaticValue:ko forKey:key purgable:NO];
+//					[ti noteKrollObject:ko forKey:key];
+//				}
+//				TiStringRef keyRef = TiStringCreateWithCFString((CFStringRef)key);
+//				[ti noteObject:[ko jsobject] forTiString:keyRef context:context];
+//				TiStringRelease(keyRef);
 			}
 		}
 		[self injectPatches];
@@ -567,17 +584,9 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 	[self autorelease]; // Safe to release now that the context is done
 }
 
-- (id)registerProxy:(id)proxy 
+-(void)registerProxy:(id)proxy krollObject:(KrollObject *)ourKrollObject
 {
-	KrollObject * ourKrollObject = [[KrollObject alloc] initWithTarget:proxy context:context];
-
 	[proxyLock lock];
-	if (proxies==nil)
-	{ 
-		proxies = TiCreateNonRetainingArray();
-	}
-	[proxies addObject:proxy];
-
 	if (registeredProxies==NULL)
 	{
 		registeredProxies = CFDictionaryCreateMutable(NULL, 10, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
@@ -587,6 +596,20 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 
 	CFDictionaryAddValue(registeredProxies, proxy, ourKrollObject);	
 	[proxyLock unlock];
+}
+
+- (id)registerProxy:(id)proxy 
+{
+	KrollObject * ourKrollObject = [[KrollObject alloc] initWithTarget:proxy context:context];
+
+	[proxyLock lock];
+	if (proxies==nil)
+	{
+		proxies = TiCreateNonRetainingArray();
+	}
+	[proxies addObject:proxy];
+	[proxyLock unlock];
+	[self registerProxy:proxy krollObject:ourKrollObject];
 	return [ourKrollObject autorelease];
 }
 
