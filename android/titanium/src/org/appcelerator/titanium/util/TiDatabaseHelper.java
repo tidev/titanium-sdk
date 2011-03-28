@@ -8,6 +8,7 @@ package org.appcelerator.titanium.util;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteDoneException;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteStatement;
 
@@ -78,6 +79,11 @@ public class TiDatabaseHelper extends SQLiteOpenHelper
 				return def;
 			}
 			return result;
+		}
+		catch (SQLiteDoneException e) 
+		{
+			// This is not an error, so fallthrough and let it return the default.
+			Log.i(LCAT, "No value in database for platform key: '" + key + "' returning supplied default '" + def + "'");
 		}
 		catch (Exception e)
 		{

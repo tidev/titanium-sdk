@@ -897,14 +897,7 @@ public abstract class TiUIView
 		} else if ( ! (view instanceof AdapterView) ){
 			// n.b.: AdapterView throws if click listener set.
 			// n.b.: setting onclicklistener automatically sets clickable to true.
-			view.setOnClickListener(new OnClickListener()
-			{
-				@Override
-				public void onClick(View view)
-				{
-					proxy.fireEvent(TiC.EVENT_CLICK, dictFromEvent(lastUpEvent));
-				}
-			});
+			setOnClickListener(view);
 		}
 	}
 	private void doSetClickable(boolean clickable)
@@ -931,5 +924,21 @@ public abstract class TiUIView
 			return;
 		}
 		doSetClickable(view, view.isClickable());
+	}
+
+	/**
+	 * Can be overriden by inheriting views for special click handling.  For example,
+	 * the Facebook module's login button view needs special click handling.
+	 */
+	protected void setOnClickListener(View view)
+	{
+		view.setOnClickListener(new OnClickListener()
+		{
+			@Override
+			public void onClick(View view)
+			{
+				proxy.fireEvent(TiC.EVENT_CLICK, dictFromEvent(lastUpEvent));
+			}
+		});
 	}
 }

@@ -135,7 +135,7 @@ public class TiDatabaseProxy extends KrollProxy
 					// Ignore
 				}
 			}
-			//TODO throw exception
+			throw e;
 		}
 
 		return rs;

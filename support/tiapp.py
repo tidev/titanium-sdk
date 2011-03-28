@@ -58,6 +58,9 @@ class TiAppXML(object):
 			'url':'not specified',
 			'icon':None,
 			'analytics':'true',
+			'fullscreen':'true',
+			'navbar-hidden':'false',
+			'statusbar-hidden':'false',
 			'modules' : [],
 			'plugins' : []
 		}

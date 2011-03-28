@@ -44,6 +44,20 @@ uncompressed_types = [
 
 MIN_API_LEVEL = 7
 
+# ZipFile.extractall introduced in Python 2.6, so this is workaround for earlier
+# versions
+def zip_extractall(zfile, target_dir):
+	file_infos = zfile.infolist()
+	for info in file_infos:
+		if info.file_size > 0:
+			file_path = os.path.join(target_dir, os.path.normpath(info.filename))
+			parent_path = os.path.dirname(file_path)
+			if not os.path.exists(parent_path):
+				os.makedirs(parent_path)
+			out_file = open(file_path, "wb")
+			out_file.write(zfile.read(info.filename))
+			out_file.close()
+
 def dequote(s):
 	if s[0:1] == '"':
 		return s[1:-1]
@@ -779,13 +793,20 @@ class Builder(object):
 		resfilepath = os.path.join(resfiledir,'theme.xml')
 		if not os.path.exists(resfilepath):
 			resfile = open(resfilepath,'w')
+			theme_flags = "Theme"
+			if (self.tiapp.properties.get("fullscreen") == "true" or 
+					self.tiapp.properties.get("statusbar-hidden") == "true"):
+				theme_flags = theme_flags + ".NoTitleBar.Fullscreen"
+			elif self.tiapp.properties.get("navbar-hidden") == "true":
+				theme_flags = theme_flags + ".NoTitleBar"
+
 			TITANIUM_THEME="""<?xml version="1.0" encoding="utf-8"?>
 <resources>
-<style name="Theme.Titanium" parent="android:Theme.NoTitleBar.Fullscreen">
+<style name="Theme.Titanium" parent="android:%s">
     <item name="android:windowBackground">@drawable/background</item>
 </style>
 </resources>
-"""
+""" % theme_flags
 			resfile.write(TITANIUM_THEME)
 			resfile.close()
 		
@@ -1289,6 +1310,24 @@ class Builder(object):
 		self.run_adb('push', debug_json, '/sdcard/%s/debug.json' % self.app_id)
 		os.unlink(debug_json)
 
+	def merge_internal_module_resources(self):
+		if not self.android_jars:
+			return
+		for jar in self.android_jars:
+			if not os.path.exists(jar):
+				continue
+			res_zip = jar[:-4] + '.res.zip'
+			if not os.path.exists(res_zip):
+				continue
+			res_zip_file = zipfile.ZipFile(res_zip, "r")
+			try:
+				zip_extractall(res_zip_file, self.project_dir)
+			except:
+				raise
+			finally:
+				res_zip_file.close()
+
+
 	def build_and_run(self, install, avd_id, keystore=None, keystore_pass='tirocks', keystore_alias='tidev', dist_dir=None, build_only=False, device_args=None, debugger_host=None):
 		deploy_type = 'development'
 		self.build_only = build_only
@@ -1456,6 +1495,7 @@ class Builder(object):
 			compiler.compile()
 			self.compiled_files = compiler.compiled_files
 			self.android_jars = compiler.jar_libraries
+			self.merge_internal_module_resources()
 			
 			if not os.path.exists(self.assets_dir):
 				os.makedirs(self.assets_dir)

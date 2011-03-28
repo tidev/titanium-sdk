@@ -5,31 +5,6 @@
 import os, types, glob, shutil, sys, platform
 import zipfile, datetime, subprocess, tempfile, time
 
-try:
-	import markdown
-except:
-	print >> sys.stderr, """
-WARNING: you are unable to generate the JSCA file (api.jsca) because you do 
-not have markdown installed.  If you are packaging for release, you should 
-*not* accept this package because it is required that api.jsca be included 
-in the sdk that is packaged for GA.
-
-To get the python markdown module, you can use a python package manager such
-as setuptools (easy_install) or pip.
-
-Examples:
-
-	> easy_install markdown
-
-	> pip install markdown
-
-Resuming in 5 seconds...
-
-"""
-	time.sleep(5);
-	markdown = None
-
-
 if platform.system() == 'Darwin':
 	import importresolver
 
@@ -139,6 +114,11 @@ def zip_android(zf,basepath):
 	for android_module_jar in android_module_jars:
 		 jarname = os.path.split(android_module_jar)[1]
 		 zf.write(android_module_jar, '%s/android/modules/%s' % (basepath, jarname))
+
+	android_module_res_zips = glob.glob(os.path.join(android_dist_dir, 'titanium-*.res.zip'))
+	for android_module_res_zip in android_module_res_zips:
+		zipname = os.path.split(android_module_res_zip)[1]
+		zf.write(android_module_res_zip, '%s/android/modules/%s' % (basepath, zipname))
 	
 def resolve_source_imports(platform):
 	sys.path.append(iphone_dir)
@@ -230,9 +210,8 @@ githash=%s
 """ % (version,ts,githash)
 
 	zf.writestr('%s/version.txt' % basepath,version_txt)
-	if markdown:
-		jsca = generate_jsca()
-		zf.writestr('%s/api.jsca' % basepath, jsca)
+	jsca = generate_jsca()
+	zf.writestr('%s/api.jsca' % basepath, jsca)
 	
 	zip_dir(zf,all_dir,basepath)
 	zip_dir(zf,template_dir,basepath)

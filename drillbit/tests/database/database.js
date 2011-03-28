@@ -85,7 +85,7 @@ describe("Ti.Database tests", {
 		valueOf(f.exists()).shouldBeFalse();
 	},
 	testDatabaseCount : function() {
-		var testRowCount = 1500;
+		var testRowCount = 100;
 		var db = Ti.Database.open('Test');
 		try {
 			valueOf(db).shouldNotBeNull();
@@ -105,7 +105,8 @@ describe("Ti.Database tests", {
 		        realCount += 1;
 		        rs.next();
 		    }
-
+			rs.close();
+			
 		    valueOf(realCount).shouldBe(testRowCount);
 		    valueOf(rowCount).shouldBe(testRowCount);
 		    valueOf(rowCount).shouldBe(realCount);
@@ -123,25 +124,70 @@ describe("Ti.Database tests", {
 			var rs = db.execute("drop table if exists data");
 			valueOf(rs).shouldBeNull();
 			
-			db.execute('BEGIN DEFERRED TRANSACTION');
 			db.execute('CREATE TABLE IF NOT EXISTS data (id INTEGER PRIMARY KEY, val TEXT)');
-			db.execute('SAVEPOINT FOO');
+			
+			db.execute('BEGIN TRANSACTION');
 			for (var i = 1; i <= testRowCount; i++) {
 			    db.execute('INSERT INTO data (val) VALUES(?)','our value:' + i);
 			}
-			db.execute('ROLLBACK TRANSACTION TO SAVEPOINT FOO');
-			db.execute('COMMIT TRANSACTION');
+			rs = db.execute("SELECT * FROM data");
+		    valueOf(rs.rowCount).shouldBe(testRowCount);
+			rs.close();
 			
+			db.execute('ROLLBACK TRANSACTION');
+		
 			rs = db.execute("SELECT * FROM data");
 			valueOf(rs.rowCount).shouldBe(0);
-			
-			db.execute('BEGIN TRANSACTION');
+			rs.close();
+		
 			db.execute('drop table if exists data');
-			db.execute('ROLLBACK TRANSACTION');
+		} finally {
+			db.close();
+			db.remove();
+		}
+	},
+	testDatabaseSavepointRollback : function () {
+		var db = Ti.Database.open('Test');
+		var testRowCount = 30;
+		try {
+			valueOf(db).shouldNotBeNull();
 			
-			rs = db.execute("SELECT * FROM data");
-			valueOf(rs).shouldNotBeNull();
+			var rs = db.execute("drop table if exists data");
+			valueOf(rs).shouldBeNull();
 			
+			// Devices with Android API Levels before 8 don't support savepoints causing
+			// a false failure on those devices. Try and detect and only do
+			// this complex test if savepoints work 
+			var savepointSupported = true;
+			try {
+				db.execute('SAVEPOINT test');
+				db.execute('RELEASE SAVEPOINT test');
+			} catch (E) {
+				savepointSupported = false;
+			}
+			
+			if (savepointSupported) {
+				db.execute('BEGIN DEFERRED TRANSACTION');
+				db.execute('CREATE TABLE IF NOT EXISTS data (id INTEGER PRIMARY KEY, val TEXT)');
+				db.execute('SAVEPOINT FOO');
+				for (var i = 1; i <= testRowCount; i++) {
+				    db.execute('INSERT INTO data (val) VALUES(?)','our value:' + i);
+				}
+				db.execute('ROLLBACK TRANSACTION TO SAVEPOINT FOO');
+				db.execute('COMMIT TRANSACTION');
+			
+				rs = db.execute("SELECT * FROM data");
+				valueOf(rs.rowCount).shouldBe(0);
+				rs.close();
+			
+				db.execute('BEGIN TRANSACTION');
+				db.execute('drop table if exists data');
+				db.execute('ROLLBACK TRANSACTION');
+			
+				rs = db.execute("SELECT * FROM data");
+				valueOf(rs).shouldNotBeNull();
+				rs.close();
+			}
 		} finally {
 			db.close();
 			db.remove();
@@ -188,11 +234,48 @@ describe("Ti.Database tests", {
 
 				resultSet.next();
 			}
+			resultSet.close()
 		} catch(e) {
 			Titanium.API.debug('error occurred: ' + e);
 		} finally {
 			db.close();
 			db.remove();
 	 	}
+	}, 
+	testDatabaseExceptions : function() {
+		valueOf( function() { Ti.Database.open("fred://\\"); }).shouldThrowException();
+		var db = null;
+		try {
+			db = Titanium.Database.open('Test');
+			
+			valueOf( function() { 
+				Ti.Database.execute("select * from notATable"); 
+			}).shouldThrowException();
+			
+			db.execute('CREATE TABLE IF NOT EXISTS stuff (id INTEGER, val TEXT)');
+			db.execute('INSERT INTO stuff (id, val) values (1, "One")');
+			var rs = db.execute("SELECT id FROM stuff WHERE id = 1");
+				
+			valueOf( function() {
+				rs.field(2);
+			}).shouldThrowException();
+
+			valueOf( function() {
+				rs.field(2);
+			}).shouldThrowException();
+			
+			valueOf( function() {
+				rs.fieldName(2);
+			}).shouldThrowException();
+			
+			if (rs != null) {
+				rs.close();
+			}
+		} finally {
+			if (db != null) {
+				db.close();
+				db.remove();
+			}
+		}
 	}
 });
