@@ -569,6 +569,7 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 		[lock setName:[NSString stringWithFormat:@"%@ Lock",[self threadName]]];
 		stopped = YES;
 		KrollContextCount++;
+        debugger = NULL;
 		
 		WARN_IF_BACKGROUND_THREAD_OBJ;	//NSNotificationCenter is not threadsafe!
 		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(suspend:) name:kTiSuspendNotification object:nil];
@@ -689,14 +690,12 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 	{
 		[condition lock];
 		stopped = YES;
-#ifdef DEBUGGER_ENABLED
 		if (debugger!=NULL)
 		{
 			TiObjectRef globalRef = TiContextGetGlobalObject(context);
 			TiDebuggerDestroy(self,globalRef,debugger);
 			debugger = NULL;
 		}
-#endif
 		[condition signal];
 		[condition unlock];
 	}
@@ -863,9 +862,11 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 		
 	TiGlobalContextRetain(context);
 
-#ifdef DEBUGGER_ENABLED
-	debugger = TiDebuggerCreate(self,globalRef);
-#endif
+    // TODO: We might want to be smarter than this, and do some KVO on the delegate's
+    // 'debugMode' property or something... and start/stop the debugger as necessary.
+    if ([[self delegate] shouldDebugContext]) {
+        debugger = TiDebuggerCreate(self,globalRef);
+    }
 	
 	// we register an empty kroll string that allows us to pluck out this instance
 	KrollObject *kroll = [[KrollObject alloc] initWithTarget:nil context:self];
@@ -1156,11 +1157,9 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 	[pool release];
 }
 
-#ifdef DEBUGGER_ENABLED
 -(void*)debugger
 {
 	return debugger;
 }
-#endif
 
 @end

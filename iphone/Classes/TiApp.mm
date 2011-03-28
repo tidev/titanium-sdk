@@ -266,16 +266,17 @@ void MyUncaughtExceptionHandler(NSException *exception)
 	sessionId = [[TiUtils createUUID] retain];
 	TITANIUM_VERSION = [[NSString stringWithCString:TI_VERSION_STR encoding:NSUTF8StringEncoding] retain];
 
-#ifdef DEBUGGER_ENABLED
 	NSString *filePath = [[NSBundle mainBundle] pathForResource:@"debugger" ofType:@"plist"];
-	NSMutableDictionary *params = [[NSMutableDictionary alloc] initWithContentsOfFile:filePath];
-	NSString *host = [params objectForKey:@"host"];
-	NSString *port = [params objectForKey:@"port"];
-	if (![host isEqual:@""])
-	{
-		TiDebuggerStart(host,[port intValue]);
-	}
-#endif
+    if (filePath != nil) {
+        NSMutableDictionary *params = [[NSMutableDictionary alloc] initWithContentsOfFile:filePath];
+        NSString *host = [params objectForKey:@"host"];
+        NSString *port = [params objectForKey:@"port"];
+        if (![host isEqual:@""])
+        {
+            [self setDebugMode:YES];
+            TiDebuggerStart(host,[port intValue]);
+        }
+    }
 	
 	kjsBridge = [[KrollBridge alloc] initWithHost:self];
 	
@@ -649,9 +650,9 @@ void MyUncaughtExceptionHandler(NSException *exception)
 	RELEASE_TO_NIL(userAgent);
 	RELEASE_TO_NIL(remoteDeviceUUID);
 	RELEASE_TO_NIL(remoteNotification);
-#ifdef DEBUGGER_ENABLED
-	TiDebuggerStop();
-#endif
+    if ([self debugMode]) {
+        TiDebuggerStop();
+    }
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0
 	RELEASE_TO_NIL(backgroundServices);
 	RELEASE_TO_NIL(localNotification);

@@ -350,15 +350,16 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 	// only continue if we don't have any exceptions from above
 	if (exception == NULL)
 	{
-#ifdef DEBUGGER_ENABLED
-		TiDebuggerBeginScript(context_,urlCString);
-#endif
+        if ([[self host] debugMode]) {
+            TiDebuggerBeginScript(context_,urlCString);
+        }
 		
 		TiEvalScript(jsContext, jsCode, NULL, jsURL, 1, &exception);
 		
-#ifdef DEBUGGER_ENABLED		
-		TiDebuggerEndScript(context_);
-#endif		
+        if ([[self host] debugMode]) {
+            TiDebuggerEndScript(context_);
+        }
+
 		if (exception!=NULL)
 		{
 			id excm = [KrollObject toID:context value:exception];
@@ -651,6 +652,11 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 	}
 	
 	@throw [NSException exceptionWithName:@"org.appcelerator.kroll" reason:[NSString stringWithFormat:@"Couldn't find module: %@",path] userInfo:nil];
+}
+
+-(BOOL)shouldDebugContext
+{
+    return [[self host] debugMode];
 }
 
 @end
