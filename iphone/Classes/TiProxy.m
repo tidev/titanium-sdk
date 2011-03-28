@@ -325,9 +325,10 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 	NSLog(@"DESTROY: %@ (%d)",self,[self hash]);
 #endif
 
-	if (pageContext!=nil)
+	NSArray * pageContexts = [KrollBridge krollBridgesUsingProxy:self];
+	for (id thisPageContext in pageContexts)
 	{
-		[pageContext unregisterProxy:self];
+		[thisPageContext unregisterProxy:self];
 	}
 	
 	if (executionContext!=nil)
