@@ -281,10 +281,10 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 	}
 
 	@Kroll.getProperty @Kroll.method
-	public int getWidth()
+	public Object getWidth()
 	{
 		if (hasProperty(TiC.PROPERTY_WIDTH)) {
-			return TiConvert.toInt(getProperty(TiC.PROPERTY_WIDTH));
+			return getProperty(TiC.PROPERTY_WIDTH);
 		}
 		
 		KrollDict size = getSize();
@@ -298,10 +298,10 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 	}
 
 	@Kroll.getProperty @Kroll.method
-	public int getHeight()
+	public Object getHeight()
 	{
 		if (hasProperty(TiC.PROPERTY_HEIGHT)) {
-			return TiConvert.toInt(getProperty(TiC.PROPERTY_HEIGHT));
+			return getProperty(TiC.PROPERTY_HEIGHT);
 		}
 		
 		KrollDict size = getSize();
