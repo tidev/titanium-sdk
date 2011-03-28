@@ -226,7 +226,7 @@ class Compiler(object):
 			if deploytype == 'production':
 				debugger_plist = os.path.join(app_dir,'debugger.plist')
 				if os.path.exists(debugger_plist):
-					shutil.remove(debugger_plist)
+					os.remove(debugger_plist)
 					
 			if deploytype!='development':	
 				defines_file = os.path.join(self.classes_dir,'defines.h')

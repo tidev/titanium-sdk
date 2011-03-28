@@ -482,6 +482,7 @@ def main(args):
 		provisioning_profile = None
 		debug_host = None
 		debug_port = None
+		debughost = None
 		
 		# starting in 1.4, you don't need to actually keep the build/iphone directory
 		# if we don't find it, we'll just simply re-generate it
@@ -1119,7 +1120,7 @@ def main(args):
 					f=open(os.path.join(iphone_resources_dir,'Entitlements.plist'),'w+')
 					f.write(entitlements_contents)
 					f.close()
-					args+=["CODE_SIGN_ENTITLEMENTS = Resources/Entitlements.plist"]
+					args+=["CODE_SIGN_ENTITLEMENTS=Resources/Entitlements.plist"]
 
 				# only build if force rebuild (different version) or 
 				# the app hasn't yet been built initially
