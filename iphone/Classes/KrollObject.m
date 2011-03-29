@@ -348,11 +348,6 @@ TiValueRef ConvertIdTiValue(KrollContext *context, id obj)
 void KrollFinalizer(TiObjectRef ref)
 {
 	id o = (KrollObject*)TiObjectGetPrivate(ref);
-	NSLog(@"Finalizing: %X (%X) for %@ representing %@ on %@",[o jsobject],ref,o,[o target],[o context]);
-	if([[o target] isKindOfClass:[TiModule class]] && ![o isKindOfClass:[KrollMethod class]])
-	{
-		NSLog(@"Finalize trap here!");
-	}
 
 	if ([o isKindOfClass:[KrollContext class]])
 	{
@@ -412,11 +407,6 @@ void KrollInitializer(TiContextRef ctx, TiObjectRef object)
 #if KOBJECT_MEMORY_DEBUG == 1
 	NSLog(@"KROLL RETAINER: %@ (%@), retain:%d",o,[o class],[o retainCount]);
 #endif
-	NSLog(@"Retaining: %X (%X) for %@ representing %@ on %@",[o jsobject],object,o,[o target],[o context]);
-	if([[o target] isKindOfClass:[TiModule class]] && ![o isKindOfClass:[KrollMethod class]])
-	{
-		NSLog(@"Retain trap here!");
-	}
  
 	if ([o isKindOfClass:[KrollObject class]])
 	{
