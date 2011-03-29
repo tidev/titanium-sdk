@@ -1248,7 +1248,7 @@ class Builder(object):
 	def enable_debugger(self, enabled=True, debugger_host=''):
 		info("Enabling Debugger at %s" % debugger_host)
 		debugger_config = { "enabled": enabled }
-		if len(debugger_host) > 0:
+		if enabled and len(debugger_host) > 0:
 			hostport = debugger_host.split(":")
 			debugger_config["host"] = hostport[0]
 			debugger_config["port"] = int(hostport[1])
@@ -1410,7 +1410,8 @@ class Builder(object):
 			if not os.path.exists(self.classes_dir):
 				os.makedirs(self.classes_dir)
 
-			self.enable_debugger(len(debugger_host) > 0, debugger_host)
+			debugger_enabled = debugger_host != None and len(debugger_host) > 0
+			self.enable_debugger(debugger_enabled, debugger_host)
 
 			self.copy_project_resources()
 
