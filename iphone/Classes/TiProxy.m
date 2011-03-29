@@ -249,8 +249,9 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 	id<TiEvaluator> context = (id<TiEvaluator>)sender;
 	// remove any listeners that match this context being destroyed that we have registered
 	//TODO: This listeners needs a lock around it, but not deadlock with the removeEventListener inside.
-	
-	[self _destroy];
+
+//This should not be a destroy, because proxies can span multiple contexts.	
+//	[self _destroy];
 	[self contextWasShutdown:context];
 }
 
