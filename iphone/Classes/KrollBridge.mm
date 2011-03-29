@@ -137,10 +137,6 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 -(KrollObject*)addModule:(NSString*)name module:(TiModule*)module
 {
 	KrollObject *ko = [pageContext registerProxy:module];
-//	TiStringRef nameRef = TiStringCreateWithCFString((CFStringRef)name);
-//	[self noteObject:[ko jsobject] forTiString:nameRef context:[[(KrollBridge *)pageContext krollContext] context]];
-//	TiStringRelease(nameRef);
-
 	[self noteKrollObject:ko forKey:name];	
 	[modules setObject:ko forKey:name];
 	return ko;
@@ -526,9 +522,17 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 			{
 				id target = [values objectForKey:key];
 
-				KrollObject *ko = [[KrollObject alloc] initWithTarget:target context:context];
+//				KrollObject *ko = [[KrollObject alloc] initWithTarget:target context:context];
+//				[ti setStaticValue:ko forKey:key purgable:NO];
+//				[ko release];
+
+				KrollObject *ko = [self krollObjectForProxy:target];
+				if (ko==nil)
+				{
+					ko = [self registerProxy:target];
+				}
+				[ti noteKrollObject:ko forKey:key];
 				[ti setStaticValue:ko forKey:key purgable:NO];
-				[ko release];
 
 //				if (![self usesProxy:target])
 //				{
@@ -600,6 +604,11 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 
 - (id)registerProxy:(id)proxy 
 {
+	if ([self usesProxy:proxy])
+	{
+		NSLog(@"WHY OH WHY do we gotta repeat? %@ already has %X (%@)",self,proxy,proxy);
+	}
+
 	KrollObject * ourKrollObject = [[KrollObject alloc] initWithTarget:proxy context:context];
 
 	[proxyLock lock];

@@ -301,11 +301,12 @@ TiValueRef ConvertIdTiValue(KrollContext *context, id obj)
 	}
 	else if ([obj isKindOfClass:[KrollObject class]])
 	{
-//		KrollContext * ourContext = [(KrollObject *)obj context];
-//		if (context == ourContext)
-//		{
-//			return [(KrollObject *)obj jsobject];
-//		}
+		KrollContext * ourContext = [(KrollObject *)obj context];
+		TiObjectRef ourJsObject = [(KrollObject *)obj jsobject];
+		if ((context == ourContext) && (ourJsObject != NULL))
+		{
+			return ourJsObject;
+		}
 		return TiObjectMake(jsContext,KrollObjectClassRef,obj);
 	}
 	else if ([obj isKindOfClass:[KrollCallback class]])
@@ -347,6 +348,12 @@ TiValueRef ConvertIdTiValue(KrollContext *context, id obj)
 void KrollFinalizer(TiObjectRef ref)
 {
 	id o = (KrollObject*)TiObjectGetPrivate(ref);
+	NSLog(@"Finalizing: %X (%X) for %@ representing %@ on %@",[o jsobject],ref,o,[o target],[o context]);
+	if([[o target] isKindOfClass:[TiModule class]] && ![o isKindOfClass:[KrollMethod class]])
+	{
+		NSLog(@"Finalize trap here!");
+	}
+
 	if ([o isKindOfClass:[KrollContext class]])
 	{
 		return;
@@ -401,10 +408,16 @@ void KrollInitializer(TiContextRef ctx, TiObjectRef object)
 	if ([o isKindOfClass:[KrollContext class]])
 	{
 		return;
-	}	
+	}
 #if KOBJECT_MEMORY_DEBUG == 1
 	NSLog(@"KROLL RETAINER: %@ (%@), retain:%d",o,[o class],[o retainCount]);
 #endif
+	NSLog(@"Retaining: %X (%X) for %@ representing %@ on %@",[o jsobject],object,o,[o target],[o context]);
+	if([[o target] isKindOfClass:[TiModule class]] && ![o isKindOfClass:[KrollMethod class]])
+	{
+		NSLog(@"Retain trap here!");
+	}
+ 
 	if ([o isKindOfClass:[KrollObject class]])
 	{
 		[o retain];
@@ -908,6 +921,20 @@ bool KrollSetProperty(TiContextRef jsContext, TiObjectRef object, TiStringRef pr
 	}
 }
 
+-(void)noteKeylessKrollObject:(KrollObject *)value
+{
+	NSString * falseKey = [NSString stringWithFormat:@"__PX%X",value];
+	[self noteKrollObject:value forKey:falseKey];
+}
+
+-(void)forgetKeylessKrollObject:(KrollObject *)value
+{
+	NSString * falseKey = [NSString stringWithFormat:@"__PX%X",value];
+	TiStringRef nameRef = TiStringCreateWithCFString((CFStringRef)falseKey);
+	[self forgetObjectForTiString:nameRef context:[context context]];
+	TiStringRelease(nameRef);
+}
+
 -(void)noteKrollObject:(KrollObject *)value forKey:(NSString *)key
 {
 	TiStringRef nameRef = TiStringCreateWithCFString((CFStringRef)key);
@@ -928,7 +955,6 @@ bool KrollSetProperty(TiContextRef jsContext, TiObjectRef object, TiStringRef pr
 	TiStringRef jsEventHashString = TiStringCreateWithUTF8CString("__PR");
 	TiObjectRef jsProxyHash = TiObjectGetProperty(jsContext, propsObject, jsEventHashString, &exception);
 
-	//TODO: Figure out why this object was not remembering its properties.
 	jsProxyHash = TiValueToObject(jsContext, jsProxyHash, &exception);
 	if ((jsProxyHash == NULL) || (TiValueGetType(jsContext,jsProxyHash) != kTITypeObject))
 	{
