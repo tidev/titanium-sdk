@@ -342,6 +342,9 @@ public class TabGroupProxy extends TiWindowProxy
 			if (props.containsKey(TiC.PROPERTY_NAV_BAR_HIDDEN)) {
 				intent.putExtra(TiC.PROPERTY_NAV_BAR_HIDDEN, TiConvert.toBoolean(props, TiC.PROPERTY_NAV_BAR_HIDDEN));
 			}
+			if (props.containsKey(TiC.PROPERTY_WINDOW_SOFT_INPUT_MODE)) {
+				intent.putExtra(TiC.PROPERTY_WINDOW_SOFT_INPUT_MODE, TiConvert.toInt(props, TiC.PROPERTY_WINDOW_SOFT_INPUT_MODE));
+			}
 		}
 
 		if (props != null && props.containsKey(TiC.PROPERTY_EXIT_ON_CLOSE)) {

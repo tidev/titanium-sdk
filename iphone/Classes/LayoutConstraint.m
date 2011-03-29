@@ -133,7 +133,7 @@ CGPoint PositionConstraintGivenSizeBoundsAddingResizing(LayoutConstraint * const
 	*resultResizing &= ~(UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleRightMargin | UIViewAutoresizingFlexibleTopMargin | UIViewAutoresizingFlexibleBottomMargin);
 
 	BOOL ignoreMargins;
-	CGFloat centerX;
+	CGFloat centerX = 0.0f;
 
 	if(!flexibleSize)
 	{
@@ -180,7 +180,7 @@ CGPoint PositionConstraintGivenSizeBoundsAddingResizing(LayoutConstraint * const
 	}
 	
 	flexibleSize = *resultResizing & UIViewAutoresizingFlexibleHeight;
-	CGFloat centerY;
+	CGFloat centerY = 0.0f;
 
 	if(!flexibleSize)
 	{

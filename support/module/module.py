@@ -7,6 +7,7 @@
 import os, sys, shutil, string, uuid, re, zipfile, glob
 from string import capitalize
 from StringIO import StringIO
+from datetime import date
 
 template_dir = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
 sdk_dir = os.path.dirname(template_dir)
@@ -84,6 +85,7 @@ class ModuleProject(object):
 		string = string.replace('__SDK__',sdk_dir)
 		string = string.replace('__PLATFORM__',self.platform)
 		string = string.replace('__GUID__',self.guid)
+		string = string.replace('__YEAR__', str(date.today().year))
 		string = self.platform_delegate.replace_tokens(string)
 		return string
 	

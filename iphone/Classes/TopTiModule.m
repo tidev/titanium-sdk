@@ -34,23 +34,17 @@
 
 -(void)include:(NSArray*)jsfiles
 {
-	id<TiEvaluator> context = [self executionContext];
-	NSURL * oldUrl = [context currentURL];
-	NSURL * rootURL = (oldUrl != nil)?oldUrl:[self _baseURL];
-
 	for (id file in jsfiles)
 	{
 		// only allow includes that are local to our execution context url
 		// for security, refuse to load non-compiled in Javascript code
-		NSURL *url = [NSURL URLWithString:file relativeToURL:rootURL];
+		NSString *rootPath = [[self _baseURL] path];	 	
+		NSURL *url = [[NSURL fileURLWithPath:[NSString stringWithFormat:@"%@/%@",rootPath,file]] standardizedURL];
 #ifdef DEBUG
 		NSLog(@"[DEBUG] include url: %@",[url absoluteString]);
 #endif
-		[context setCurrentURL:url];
-		[context evalFile:[url absoluteString]];
+		[[self executionContext] evalFile:[url absoluteString]];
 	}
-	
-	[context setCurrentURL:oldUrl];
 }
 
 #ifdef DEBUG

@@ -89,8 +89,7 @@ def build_and_run(args=None):
 	mobilesdk_dir = os.path.join(mobile_dist_dir, 'mobilesdk', platform_name, titanium_version.version)
 	mobilesdk_zipfile = os.path.join(mobile_dist_dir, 'mobilesdk-%s-%s.zip' % (titanium_version.version, platform_name))
 	if platform.system() == 'Darwin':
-		zipextract_command = '/usr/bin/unzip -q -o -d \"' + mobile_dist_dir + '\" \"' + os.path.join(mobile_dist_dir, 'mobilesdk-%s-%s.zip' % (titanium_version.version, platform_name)) + '\"'
-		os.system(zipextract_command)
+		subprocess.Popen(['/usr/bin/unzip', '-q', '-o', '-d', mobile_dist_dir, os.path.join(mobile_dist_dir, 'mobilesdk-%s-%s.zip' % (titanium_version.version, platform_name))])
 	else:
 		# extract the mobilesdk zip so we can use it for testing
 		mobilesdk_zip = zipfile.ZipFile(mobilesdk_zipfile)
