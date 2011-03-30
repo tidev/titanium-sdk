@@ -51,7 +51,8 @@ public class KrollContext implements Handler.Callback
 	public static final String CONTEXT_KEY = "krollContext";
 
 	private static AtomicInteger instanceCounter;
-	private static KrollEvaluator evaluator = new DefaultEvaluator();
+	private static KrollEvaluator defaultEvaluator = new DefaultEvaluator();
+	private static KrollEvaluator evaluator = defaultEvaluator;
 	private static KrollThreadListener threadListener;
 
 	private KrollHandlerThread thread;
@@ -148,6 +149,11 @@ public class KrollContext implements Handler.Callback
 			Log.e(LCAT, "Error: " + ex.getMessage(), ex);
 			Context.throwAsScriptRuntimeEx(ex);
 		}
+	}
+
+	public static KrollEvaluator getDefaultKrollEvaluator()
+	{
+		return defaultEvaluator;
 	}
 
 	public static KrollEvaluator getKrollEvaluator()
