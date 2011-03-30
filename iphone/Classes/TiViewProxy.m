@@ -79,8 +79,6 @@
 	
 	if ([NSThread isMainThread])
 	{
-		//TODO: We should be doing this before we get to the UI thread.
-		[self rememberProxy:arg];
 		pthread_rwlock_wrlock(&childrenLock);
 		if (children==nil)
 		{
@@ -103,6 +101,7 @@
 	}
 	else
 	{
+		[self rememberProxy:arg];
 		pthread_rwlock_wrlock(&childrenLock);
 //		if (windowOpened)
 //		{
