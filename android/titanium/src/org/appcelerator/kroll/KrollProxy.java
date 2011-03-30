@@ -520,6 +520,13 @@ public class KrollProxy
 		return sendBlockingUiMessage(
 			getUIHandler().obtainMessage(what, result), result);
 	}
+	
+	public Object sendBlockingUiMessage(int what, int arg1)
+	{
+		AsyncResult result = new AsyncResult(null);
+		return sendBlockingUiMessage(
+			getUIHandler().obtainMessage(what, arg1, -1), result);		
+	}
 
 	public Object sendBlockingUiMessage(int what, Object asyncArg, int arg1, int arg2)
 	{
