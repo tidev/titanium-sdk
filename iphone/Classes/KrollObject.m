@@ -965,11 +965,9 @@ bool KrollSetProperty(TiContextRef jsContext, TiObjectRef object, TiStringRef pr
 	}
 	TiValueRef exception=NULL;
 
-//	TiContextRef jsContext = [context context];
 	TiStringRef jsEventHashString = TiStringCreateWithUTF8CString("__PR");
 	TiObjectRef jsProxyHash = TiObjectGetProperty(jsContext, propsObject, jsEventHashString, &exception);
 
-	//TODO: Figure out why this object was not remembering its properties.
 	jsProxyHash = TiValueToObject(jsContext, jsProxyHash, &exception);
 	if ((jsProxyHash == NULL) || (TiValueGetType(jsContext,jsProxyHash) != kTITypeObject))
 	{
@@ -993,11 +991,9 @@ bool KrollSetProperty(TiContextRef jsContext, TiObjectRef object, TiStringRef pr
 	TiStringRef jsEventHashString = TiStringCreateWithUTF8CString("__EV");
 	TiObjectRef jsEventHash = TiObjectGetProperty(jsContext, propsObject, jsEventHashString, &exception);
 
-	//TODO: Figure out why this object was not remembering its properties.
 	jsEventHash = TiValueToObject(jsContext, jsEventHash, &exception);
 	if ((jsEventHash == NULL) || (TiValueGetType(jsContext,jsEventHash) != kTITypeObject))
 	{
-//		NSLog(@"New Event hash!");
 		jsEventHash = TiObjectMake(jsContext, NULL, &exception);
 		TiObjectSetProperty(jsContext, propsObject, jsEventHashString, jsEventHash,
 				kTiPropertyAttributeDontEnum , &exception);
@@ -1033,7 +1029,6 @@ bool KrollSetProperty(TiContextRef jsContext, TiObjectRef object, TiStringRef pr
 {
 	if (propsObject == NULL)
 	{
-		NSLog(@"[WARN] Trying to trigger an event without a JS object");
 		return;
 	}
 	TiContextRef jsContext = [context context];
@@ -1041,7 +1036,6 @@ bool KrollSetProperty(TiContextRef jsContext, TiObjectRef object, TiStringRef pr
 	TiObjectRef jsEventHash = TiObjectGetProperty(jsContext, propsObject, jsEventHashString, NULL);
 	if ((jsEventHash == NULL) || (TiValueGetType(jsContext,jsEventHash) != kTITypeObject))
 	{
-		NSLog(@"[WARN] Trying to remove an event listener for %@, which never had it.",[self target]);
 		return;
 	}
 	TiStringRelease(jsEventHashString);
@@ -1052,30 +1046,35 @@ bool KrollSetProperty(TiContextRef jsContext, TiObjectRef object, TiStringRef pr
 
 	if ((jsCallbackArray == NULL) || (TiValueGetType(jsContext,jsCallbackArray) != kTITypeObject))
 	{
-		NSLog(@"[WARN] Trying to remove an event listener for %@, which never had it.",[self target]);
 		return;
 	}
-	else
+
+	TiStringRef jsLengthString = TiStringCreateWithUTF8CString("length");
+	TiValueRef jsCallbackArrayLength = TiObjectGetProperty(jsContext, jsCallbackArray, jsLengthString, NULL);
+	int arrayLength = (int)TiValueToNumber(jsContext, jsCallbackArrayLength, NULL);
+	TiStringRelease(jsLengthString);
+
+	if (arrayLength < 1)
 	{
-		NSLog(@"TODO: REMOVE THE EVENTLISTENER!");
-//		TiStringRef jsLengthString = TiStringCreateWithUTF8CString("length");
-//		TiValueRef jsCallbackArrayLength = TiObjectGetProperty(jsContext, jsCallbackArray, jsLengthString, NULL);
-//		int arrayLength = (int)TiValueToNumber(jsContext, jsCallbackArrayLength, NULL);
-//		TiStringRelease(jsLengthString);
-		
-//		TiObjectSetPropertyAtIndex(jsContext, jsCallbackArray, arrayLength, callbackFunction, NULL);
+		return;
 	}
 
-	//TODO: Call back to the proxy?
-
-
+	for (int currentCallbackIndex=0; currentCallbackIndex<arrayLength; currentCallbackIndex++)
+	{
+		TiValueRef currentCallback = TiObjectGetPropertyAtIndex(jsContext, jsCallbackArray, currentCallbackIndex, NULL);
+		if (currentCallback == callbackFunction)
+		{
+			TiStringRef propertyName = TiStringCreateWithCFString((CFStringRef) [NSString stringWithFormat:@"%d",currentCallbackIndex]);
+			TiObjectDeleteProperty(jsContext, jsCallbackArray, propertyName, NULL);
+			TiStringRelease(propertyName);
+		}
+	}
 }
 
 -(void)triggerEvent:(NSString *)eventName withObject:(NSDictionary *)eventData thisObject:(KrollObject *)thisObject
 {
 	if (propsObject == NULL)
 	{
-//		NSLog(@"[WARN] Trying to trigger an event without a JS object");
 		return;
 	}
 	TiContextRef jsContext = [context context];
@@ -1119,13 +1118,6 @@ bool KrollSetProperty(TiContextRef jsContext, TiObjectRef object, TiStringRef pr
 			NSLog(@"[WARN] Exception in event callback. %@",[KrollObject toID:context value:exception]);
 		}
 	}
-	
-	
-//		TiObjectSetPropertyAtIndex(jsContext, jsCallbackArray, arrayLength, callbackFunction, NULL);
-//	}
-
-	//TODO: Call back to the proxy?
-
 }
 
 @end
