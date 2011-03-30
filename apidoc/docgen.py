@@ -192,7 +192,7 @@ def to_jsca_example(example):
 	return map_properties(example, {}, ('description', 'code'), ('name', 'code'))
 
 def to_jsca_property(prop):
-	result = map_properties(prop, {}, ('name', 'type', 'value', 'isClassProperty'), ('name', 'type', 'description', 'isClassProperty'))
+	result = map_properties(prop, {}, ('name', 'type_jsca', 'value', 'isClassProperty'), ('name', 'type', 'description', 'isClassProperty'))
 	if result['type']:
 		result['type'] = clean_type(result['type'])
 	result['isInstanceProperty'] = not result['isClassProperty']
@@ -439,11 +439,17 @@ class API(object):
 				m['platforms'] = resolve_supported_platforms(self.platforms, tokens)
 				return
 	def add_property(self,key,orig_specs,value):
-		if isinstance(orig_specs, basestring):
-			specs = [ orig_specs.lower() ]
-		else:
-			# in case someone put a spec in with case
-			specs = [x.lower() for x in orig_specs]
+		specs = orig_specs
+		if isinstance(specs, basestring):
+			specs = [ specs ]
+		if len(specs) == 0:
+			# We need at least type, which should be the first member of specs
+			# Default to object
+			specs = [ 'object' ]
+		the_type = specs[0]
+
+		# in case someone put a spec in with case
+		specs = [x.lower() for x in orig_specs]
 		# specs example: [int;classproperty;deprecated].  The type is always specs[0]
 		if 'classproperty' in specs:
 			classprop = True
@@ -454,7 +460,8 @@ class API(object):
 		if len(platforms): # if not valid for any platform, don't add it.
 			for prop in self.properties:
 				if prop['name']==key:
-					prop['type']=specs[0]
+					prop['type']=tickerize(the_type)
+					prop['type_jsca'] = the_type
 					prop['value']=value
 					prop['isClassProperty']=classprop
 					prop['deprecated'] = deprecated
@@ -463,7 +470,8 @@ class API(object):
 					return
 			self.properties.append({
 				'name':key,
-				'type':specs[0],
+				'type':tickerize(the_type),
+				'type_jsca':the_type,
 				'value':value,
 				'isClassProperty':classprop,
 				'deprecated':deprecated,
@@ -567,7 +575,14 @@ class API(object):
 
 def make_filename(objtype, namespace, name=None):
 	fullname = name and '.'.join([namespace,name]) or namespace
-	return '%s-%s' % (fullname, objtype)
+	# "proxy" gets forcibly set to "object" at some point, so
+	# so don't write out "-proxy" as the filename, else we'll
+	# have broken links.
+	if objtype == 'proxy':
+		return '%s-object' % fullname
+	else:
+		return '%s-%s' % (fullname, objtype)
+
 
 def find_filename(namespace):
 	if namespace in apis:
