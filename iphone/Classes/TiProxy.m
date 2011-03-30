@@ -521,6 +521,31 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 	return [ourBridge krollObjectForProxy:self];
 }
 
+-(void)rememberProxy:(TiProxy *)rememberedProxy
+{
+	for (KrollBridge * thisBridge in [KrollBridge krollBridgesUsingProxy:self])
+	{
+		if(![thisBridge usesProxy:rememberedProxy])
+		{
+			continue;
+		}
+		[[thisBridge krollObjectForProxy:self] noteKeylessKrollObject:[thisBridge krollObjectForProxy:rememberedProxy]];
+	}
+}
+
+
+-(void)forgetProxy:(TiProxy *)forgottenProxy
+{
+	for (KrollBridge * thisBridge in [KrollBridge krollBridgesUsingProxy:self])
+	{
+		if(![thisBridge usesProxy:forgottenProxy])
+		{
+			continue;
+		}
+		[[thisBridge krollObjectForProxy:self] forgetKeylessKrollObject:[thisBridge krollObjectForProxy:forgottenProxy]];
+	}
+}
+
 -(void)addEventListener:(NSArray*)args
 {
 	NSString *type = [args objectAtIndex:0];

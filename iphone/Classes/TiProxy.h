@@ -113,6 +113,10 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 #pragma mark Utility
 -(KrollObject *)krollObjectForContext:(KrollContext *)context;
 
+//TODO: Find everywhere were we retain a proxy in a non-assignment way, and do remember/forget properly.
+-(void)rememberProxy:(TiProxy *)rememberedProxy;
+-(void)forgetProxy:(TiProxy *)forgottenProxy;
+
 #pragma mark Public 
 -(id<NSFastEnumeration>)allKeys;
 -(NSArray *)keySequence;
