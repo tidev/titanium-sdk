@@ -79,6 +79,8 @@
 	
 	if ([NSThread isMainThread])
 	{
+		//TODO: We should be doing this before we get to the UI thread.
+		[self rememberProxy:arg];
 		pthread_rwlock_wrlock(&childrenLock);
 		if (children==nil)
 		{
@@ -149,6 +151,8 @@
 	}
 	pthread_rwlock_unlock(&childrenLock);
 		
+	//TODO: We should be doing this before we get to the UI thread.
+	[self forgetProxy:arg];
 	[arg setParent:nil];
 	
 	if (view!=nil)
