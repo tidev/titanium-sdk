@@ -65,6 +65,7 @@ public class TiUIHelper
 {
 	private static final String LCAT = "TiUIHelper";
 	private static final boolean DBG = TiConfig.LOGD;
+	private static final String customFontPath = "Resources/fonts";
 
 	public static final int PORTRAIT = 1;
 	public static final int UPSIDE_PORTRAIT = 2;
@@ -274,10 +275,10 @@ public class TiUIHelper
 		}
 		AssetManager mgr = context.getAssets();
 		try {
-			String[] fontFiles = mgr.list("fonts");
+			String[] fontFiles = mgr.list(customFontPath);
 			for (String f : fontFiles) {
 				if (f.toLowerCase() == fontFamily.toLowerCase() || f.toLowerCase().startsWith(fontFamily.toLowerCase() + ".")) {
-					Typeface tf = Typeface.createFromAsset(mgr, "fonts/" + f);
+					Typeface tf = Typeface.createFromAsset(mgr, customFontPath + "/" + f);
 					synchronized(mCustomTypeFaces) {
 						mCustomTypeFaces.put(fontFamily, tf);
 					}
