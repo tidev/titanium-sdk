@@ -373,6 +373,7 @@ void KrollFinalizer(TiObjectRef ref)
 			{
 				[ourBridge unregisterProxy:ourTarget];
 			}
+			[(KrollObject *)o setFinalized:YES];
 		}
 	}
 
@@ -502,7 +503,7 @@ bool KrollSetProperty(TiContextRef jsContext, TiObjectRef object, TiStringRef pr
 
 @implementation KrollObject
 
-@synthesize propsObject;
+@synthesize propsObject, finalized;
 
 +(void)initialize
 {
@@ -544,6 +545,7 @@ bool KrollSetProperty(TiContextRef jsContext, TiObjectRef object, TiStringRef pr
 
 -(void)invalidateJsobject;
 {
+	propsObject = NULL;
 	jsobject = NULL;
 	context = nil;
 }
@@ -979,6 +981,11 @@ bool KrollSetProperty(TiContextRef jsContext, TiObjectRef object, TiStringRef pr
 
 -(void)storeCallback:(KrollCallback *)eventCallback forEvent:(NSString *)eventName
 {
+	if (finalized)
+	{
+		NSLog(@"We would crash here, wouldn't we? %@(%@) %@ %@ %@",target,self,eventName,eventCallback,CODELOCATION);
+	}
+
 	if (propsObject == NULL)
 	{
 		NSLog(@"[WARN] Trying to trigger an event without a JS object");
@@ -1027,6 +1034,11 @@ bool KrollSetProperty(TiContextRef jsContext, TiObjectRef object, TiStringRef pr
 
 -(void)removeCallback:(KrollCallback *)eventCallback forEvent:(NSString *)eventName
 {
+	if (finalized)
+	{
+		NSLog(@"We would crash here, wouldn't we? %@(%@) %@ %@ %@",target,self,eventName,eventCallback,CODELOCATION);
+	}
+
 	if (propsObject == NULL)
 	{
 		return;
@@ -1073,6 +1085,12 @@ bool KrollSetProperty(TiContextRef jsContext, TiObjectRef object, TiStringRef pr
 
 -(void)triggerEvent:(NSString *)eventName withObject:(NSDictionary *)eventData thisObject:(KrollObject *)thisObject
 {
+	if (finalized || [thisObject finalized])
+	{
+		VerboseLog(@"[WARN] We would crash here, wouldn't we? %@(%@), %@(%@) %@ %@ %@",target,self,[thisObject target],thisObject,eventName,eventData,CODELOCATION);
+		return;
+	}
+
 	if (propsObject == NULL)
 	{
 		return;

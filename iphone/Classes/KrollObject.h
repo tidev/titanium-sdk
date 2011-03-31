@@ -35,10 +35,13 @@ bool KrollDeleteProperty(TiContextRef ctx, TiObjectRef object, TiStringRef prope
 	TiObjectRef jsobject;
 	TiObjectRef propsObject;
 	BOOL targetable;
+	BOOL finalized;
 @protected
 	id target;
 	KrollContext *context;
 }
+@property(nonatomic,assign) BOOL finalized;
+
 -(id)initWithTarget:(id)target_ context:(KrollContext*)context_;
 
 +(TiValueRef)create:(id)object context:(KrollContext*)context_;
