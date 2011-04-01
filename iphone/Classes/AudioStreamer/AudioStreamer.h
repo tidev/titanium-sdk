@@ -120,6 +120,7 @@ extern NSString * const ASStatusChangedNotification;
 
 - (id)initWithURL:(NSURL *)aURL;
 + (NSString*)stringForErrorCode:(TI_AudioStreamerErrorCode)code;
+- (void)seekToTime:(double)time;
 
 @end
 
