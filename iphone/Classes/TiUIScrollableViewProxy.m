@@ -25,15 +25,27 @@
 	[[self view] performSelectorOnMainThread:@selector(scrollToView:) withObject:args waitUntilDone:NO];
 }
 
+-(void)setViews:(id)args
+{
+	ENSURE_ARRAY(args);
+	for (id newViewProxy in args)
+	{
+		[self rememberProxy:newViewProxy];
+	}
+	[self replaceValue:args forKey:@"views" notification:YES];
+}
+
 -(void)addView:(id)args
 {	//TODO: Refactor this properly.
 	ENSURE_SINGLE_ARG(args,TiViewProxy);
+	[self rememberProxy:args];
 	[[self view] performSelectorOnMainThread:@selector(addView:) withObject:args waitUntilDone:NO];
 }
 
 -(void)removeView:(id)args
 {	//TODO: Refactor this properly.
 	ENSURE_SINGLE_ARG(args,NSObject);
+	[self forgetProxy:args];
 	[[self view] performSelectorOnMainThread:@selector(removeView:) withObject:args waitUntilDone:NO];
 }
 
