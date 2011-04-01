@@ -589,7 +589,14 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 
 - (id)registerProxy:(id)proxy 
 {
-	KrollObject * ourKrollObject = [[KrollObject alloc] initWithTarget:proxy context:context];
+	KrollObject * ourKrollObject = [self krollObjectForProxy:proxy];
+	
+	if (ourKrollObject != nil)
+	{
+		return ourKrollObject;
+	}
+	
+	ourKrollObject = [[KrollObject alloc] initWithTarget:proxy context:context];
 
 	[proxyLock lock];
 	if (proxies==nil)
