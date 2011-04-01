@@ -171,18 +171,32 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 
 -(void)didReceiveMemoryWarning:(NSNotification*)notification
 {
-	if (proxies!=nil)
+	SEL sel = @selector(didReceiveMemoryWarning:);
+	BOOL keepWarning = YES;
+	int proxiesCount = [proxies count];
+
+	//During a memory panic, we may not get the chance to copy proxies.
+	while (keepWarning)
 	{
-		SEL sel = @selector(didReceiveMemoryWarning:);
-		// we have to copy during traversal since proxies can be removed during
-		for (id proxy in [NSArray arrayWithArray:proxies])
+		keepWarning = NO;
+		for (id proxy in proxies)
 		{
-			if ([proxy respondsToSelector:sel])
+			if (![proxy respondsToSelector:sel])
 			{
-				[proxy didReceiveMemoryWarning:notification];
+				continue;
+			}
+
+			[proxy didReceiveMemoryWarning:notification];
+			int newCount = [proxies count];
+			if (newCount != proxiesCount)
+			{
+				proxiesCount = newCount;
+				keepWarning = YES;
+				break;
 			}
 		}
 	}
+
 	[self gc];
 }
 
