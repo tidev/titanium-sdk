@@ -167,6 +167,7 @@ RUN_ON_STREAMER_RETURN(errorCode, TI_AudioStreamerErrorCode)
 RUN_ON_STREAMER_RETURN(bitRate, UInt32)
 RUN_ON_STREAMER_RETURN(state, TI_AudioStreamerState)
 RUN_ON_STREAMER_RETURN(progress, double)
+RUN_ON_STREAMER_RETURN(duration, double)
 
 // Functions
 RUN_ON_STREAMER_RETURN(isPlaying, BOOL)
