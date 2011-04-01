@@ -332,15 +332,50 @@ MAKE_SYSTEM_PROP(STATE_PAUSED,AS_PAUSED);
 
 - (void)updateProgress:(NSTimer *)updatedTimer
 {
-	if (player!=nil && [player isPlaying])
+    if (!player){
+        return;
+    }
+    
+    // need to keep firing progress updates for the last few seconds of the reported duration
+    // even if player has stopped streaming audio
+    if (player.state == AS_STOPPING || player.state == AS_STOPPED)
+    {
+        afterStopProgress = YES;
+        previousDuration = player.duration;
+    }
+    
+	if ([player isPlaying] || afterStopProgress)
 	{
-		double value = 0;
-		
-		if (player.bitRate != 0.0)
-		{
-			value = player.progress;
-		}
-		NSDictionary *event = [NSDictionary dictionaryWithObject:NUMDOUBLE(value) forKey:@"progress"];
+		if (afterStopProgress){
+            NSUInteger playerProgressInt = round(playerProgress);
+            NSUInteger previousDurationInt = round(previousDuration);
+            
+            // (1) stop firing progress updates if the player was stopped significantly before the end
+            // (most likely a manual stop versus the player ending a bit before its reported duration)
+            // (2) stop firing progress updates when the progress has reached the reported duration
+            if (playerProgressInt + 3 < previousDurationInt || playerProgressInt >= previousDurationInt){
+                afterStopProgress = false;
+                playerProgress = 0.0;
+            }
+            else
+            {
+                // simulate progress
+                playerProgress += 1.0;
+            }
+        }
+        else
+        {
+            if (player.bitRate != 0.0)
+            {
+                playerProgress = player.progress;
+            }
+            else
+            {
+                playerProgress = 0.0;
+            }
+        }
+        
+        NSDictionary *event = [NSDictionary dictionaryWithObject:NUMDOUBLE(playerProgress) forKey:@"progress"];
 		[self fireEvent:@"progress" withObject:event];
 	}
 }

@@ -16,6 +16,12 @@
 	AudioStreamer *player;
 	BOOL progress;
 	NSTimer *timer;
+    
+    // used to keep firing progress updates for the last few seconds of the reported duration
+    // even if player has stopped streaming audio
+    double playerProgress;
+    BOOL afterStopProgress;
+    double previousDuration;
 }
 
 @property (nonatomic,readonly) NSURL *url;
