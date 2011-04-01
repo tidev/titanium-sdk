@@ -26,6 +26,7 @@
 
 @property (nonatomic,readonly) NSURL *url;
 @property (nonatomic,readonly) NSNumber *time;
+@property (nonatomic,readonly) NSNumber *volume;
 @property (nonatomic,readwrite,assign,getter=isPaused)  NSNumber *paused;
 @property (nonatomic,readonly,getter=isPlaying) NSNumber *playing;
 @property (nonatomic,readonly,getter=isWaiting) NSNumber *waiting;

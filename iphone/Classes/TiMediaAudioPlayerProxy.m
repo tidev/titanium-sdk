@@ -11,6 +11,9 @@
 #import "TiMediaAudioSession.h"
 #include <AudioToolbox/AudioToolbox.h>
 
+// for MPMusicPlayerController for setting volume
+#import <MediaPlayer/MediaPlayer.h>
+
 @implementation TiMediaAudioPlayerProxy
 
 #pragma mark Internal
@@ -213,7 +216,26 @@ PLAYER_PROP_DOUBLE(duration,duration);
 
 -(NSNumber*)time
 {
-    return self.progress;
+    return [self progress];
+}
+
+-(void)setVolume:(id)args
+{
+    ENSURE_SINGLE_ARG(args,NSNumber);
+    float newVolume = [TiUtils floatValue:args];
+    
+    [[MPMusicPlayerController applicationMusicPlayer] setVolume:newVolume];
+}
+
+-(NSNumber*)volume
+{
+    if (player){
+        return NUMFLOAT([[TiMediaAudioSession sharedSession] volume]);
+    }
+    else
+    {
+        return NUMFLOAT(0.0f);
+    }
 }
 
 // Only need to ensure the UI thread when starting; and we should actually wait until it's finished so
@@ -389,7 +411,7 @@ MAKE_SYSTEM_PROP(STATE_PAUSED,AS_PAUSED);
 	{
 		case UIEventSubtypeRemoteControlTogglePlayPause:
 		{
-			if (player.isPaused)
+			if ([player isPaused])
 			{
 				[self start:nil];
 			}
