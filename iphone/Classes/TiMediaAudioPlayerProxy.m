@@ -61,6 +61,15 @@
 	}
 }
 
+-(void)createProgressTimer
+{
+    ENSURE_UI_THREAD_0_ARGS;
+    
+    // create progress callback timer that fires once per second. we might want to eventually make this
+    // more configurable but for now that's sufficient for most apps that want to display progress updates on the stream
+    timer = [[NSTimer scheduledTimerWithTimeInterval:1 target:self selector:@selector(updateProgress:) userInfo:nil repeats:YES] retain];
+}
+
 -(AudioStreamer*)player
 {
 	if (player==nil)
@@ -74,9 +83,7 @@
 		
 		if (progress)
 		{
-			// create progress callback timer that fires once per second. we might want to eventually make this
-			// more configurable but for now that's sufficient for most apps that want to display progress updates on the stream
-			timer = [[NSTimer scheduledTimerWithTimeInterval:1 target:self selector:@selector(updateProgress:) userInfo:nil repeats:YES] retain];
+			[self createProgressTimer];
 		}
 	}
 	return player;
@@ -101,6 +108,13 @@
 	}
 }
 
+-(void)startPlayer
+{
+    ENSURE_UI_THREAD_0_ARGS;
+    
+    [player start];
+}
+
 -(void)restart:(id)args
 {
 	BOOL playing = [player isPlaying] || [player isPaused] || [player isWaiting];
@@ -108,7 +122,7 @@
 	
 	if (playing)
 	{
-		[[self player] start];
+		[self startPlayer];
 	}
 	else 
 	{
@@ -130,7 +144,7 @@
 		}
 		else
 		{
-			[player start];
+			[self startPlayer];
 		}
 	}
 }
