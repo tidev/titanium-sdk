@@ -8,6 +8,7 @@
 package org.appcelerator.titanium.util;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -26,7 +27,6 @@ import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.view.TiBackgroundDrawable;
 import org.appcelerator.titanium.view.TiUIView;
-import org.appcelerator.titanium.proxy.TiViewProxy;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -34,6 +34,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.pm.ActivityInfo;
+import android.content.res.AssetManager;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
@@ -64,6 +65,7 @@ public class TiUIHelper
 {
 	private static final String LCAT = "TiUIHelper";
 	private static final boolean DBG = TiConfig.LOGD;
+	private static final String customFontPath = "Resources/fonts";
 
 	public static final int PORTRAIT = 1;
 	public static final int UPSIDE_PORTRAIT = 2;
@@ -76,6 +78,7 @@ public class TiUIHelper
 
 	private static Method overridePendingTransition;
 	private static Map<String, String> resourceImageKeys = Collections.synchronizedMap(new HashMap<String, String>());
+	private static Map<String, Typeface> mCustomTypeFaces = Collections.synchronizedMap(new HashMap<String, Typeface>());
 	
 	public static OnClickListener createDoNothingListener() {
 		return new OnClickListener() {
@@ -226,12 +229,13 @@ public class TiUIHelper
 
 	public static void styleText(TextView tv, String fontFamily, String fontSize, String fontWeight) {
 		Typeface tf = tv.getTypeface();
-		tf = toTypeface(fontFamily);
+		tf = toTypeface(tv.getContext(), fontFamily);
 		tv.setTypeface(tf, toTypefaceStyle(fontWeight));
 		tv.setTextSize(getSizeUnits(fontSize), getSize(fontSize));
 	}
 
-	public static Typeface toTypeface(String fontFamily) {
+	public static Typeface toTypeface(Context context, String fontFamily)
+	{
 		Typeface tf = Typeface.SANS_SERIF; // default
 
 		if (fontFamily != null) {
@@ -242,12 +246,51 @@ public class TiUIHelper
 			} else if ("sans-serif".equals(fontFamily)) {
 				tf = Typeface.SANS_SERIF;
 			} else {
-				if (DBG) {
-					Log.w(LCAT, "Unsupported font: '" + fontFamily + "' supported fonts are 'monospace', 'serif', 'sans-serif'.");
+				Typeface loadedTf = null;
+				if (context != null) {
+					loadedTf = loadTypeface(context, fontFamily);
+				}
+				if (loadedTf == null) {
+					if (DBG) {
+						Log.w(LCAT, "Unsupported font: '" + fontFamily + "' supported fonts are 'monospace', 'serif', 'sans-serif'.");
+					}
+				} else {
+					tf = loadedTf;
 				}
 			}
 		}
 		return tf;
+	}
+	public static Typeface toTypeface(String fontFamily) {
+		return toTypeface(null, fontFamily);
+	}
+
+	private static Typeface loadTypeface(Context context, String fontFamily)
+	{
+		if (context == null) {
+			return null;
+		}
+		if (mCustomTypeFaces.containsKey(fontFamily)) {
+			return mCustomTypeFaces.get(fontFamily);
+		}
+		AssetManager mgr = context.getAssets();
+		try {
+			String[] fontFiles = mgr.list(customFontPath);
+			for (String f : fontFiles) {
+				if (f.toLowerCase() == fontFamily.toLowerCase() || f.toLowerCase().startsWith(fontFamily.toLowerCase() + ".")) {
+					Typeface tf = Typeface.createFromAsset(mgr, customFontPath + "/" + f);
+					synchronized(mCustomTypeFaces) {
+						mCustomTypeFaces.put(fontFamily, tf);
+					}
+					return tf;
+				}
+			}
+		} catch (IOException e) {
+			if (DBG) {
+				Log.e(LCAT, "Unable to load 'fonts' assets. Perhaps doesn't exist? " + e.getMessage());
+			}
+		}
+		return null;
 	}
 
 	public static String getDefaultFontSize(Context context) {
