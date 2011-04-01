@@ -24,6 +24,14 @@
 	if (initialMode) {
 		[self setAudioSessionMode:[NSNumber numberWithInt:initialMode]];
 	}
+    
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0		
+    if ([TiUtils isIOS4OrGreater])
+    {
+        WARN_IF_BACKGROUND_THREAD_OBJ;	//NSNotificationCenter is not threadsafe!
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(remoteControlEvent:) name:kTiRemoteControlNotification object:nil];
+    }
+#endif
 }
 
 -(void)_destroy
@@ -112,7 +120,7 @@
 {
     ENSURE_UI_THREAD_0_ARGS;
     
-    [player start];
+    [[self player] start];
 }
 
 -(void)restart:(id)args
@@ -336,6 +344,44 @@ MAKE_SYSTEM_PROP(STATE_PAUSED,AS_PAUSED);
 		[self fireEvent:@"progress" withObject:event];
 	}
 }
+
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0
+
+- (void)remoteControlEvent:(NSNotification*)note
+{
+	UIEvent *event = [[note userInfo] objectForKey:@"event"];
+	switch(event.subtype)
+	{
+		case UIEventSubtypeRemoteControlTogglePlayPause:
+		{
+			if (player.isPaused)
+			{
+				[self start:nil];
+			}
+			else 
+			{
+				[self pause:nil];
+			}
+			break;
+		}
+		case UIEventSubtypeRemoteControlPause:
+		{
+			[self pause:nil];
+			break;
+		}
+		case UIEventSubtypeRemoteControlStop:
+		{
+			[self stop:nil];
+			break;
+		}
+		case UIEventSubtypeRemoteControlPlay:
+		{
+			[self start:nil];
+			break;
+		}
+	}
+}
+#endif
 
 @end
 
