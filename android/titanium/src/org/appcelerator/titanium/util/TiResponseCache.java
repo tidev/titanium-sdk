@@ -299,7 +299,9 @@ public class TiResponseCache extends ResponseCache
 	{
 		Map<String, List<String>> headers = new HashMap<String, List<String>>(origHeaders.size());
 		for (String key : origHeaders.keySet()) {
-			headers.put(key.toLowerCase(), origHeaders.get(key));
+			if (key != null) {
+				headers.put(key.toLowerCase(), origHeaders.get(key));
+			}
 		}
 		return headers;
 	}
