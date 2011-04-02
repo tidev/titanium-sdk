@@ -9,6 +9,7 @@
 #import "KrollBridge.h"
 #import "TiApp.h"
 #import "TiUtils.h"
+#import "TiBlob.h"
 
 @implementation TopTiModule
 
@@ -66,4 +67,14 @@
 	}
 }
 #endif
+
+// TODO: Does this belong here?  Where should we put blob creation?
+// TODO: Also, only creates blobs from strings right now
+-(TiBlob*)createBlob:(id)arg
+{
+    ENSURE_SINGLE_ARG(arg, NSString);
+    
+    TiBlob* newBlob = [[[TiBlob alloc] initWithData:[arg dataUsingEncoding:NSUTF8StringEncoding] mimetype:@"text/plain"] autorelease];
+    return newBlob;
+}
 @end
