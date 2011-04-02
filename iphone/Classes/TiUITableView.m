@@ -26,7 +26,7 @@
 -(id)initWithStyle:(UITableViewCellStyle)style_ reuseIdentifier:(NSString *)reuseIdentifier_ row:(TiUITableViewRowProxy *)row_
 {
 	if (self = [super initWithStyle:style_ reuseIdentifier:reuseIdentifier_]) {
-		proxy = [row_ retain];
+		proxy = row_;
 		[proxy setCallbackCell:self];
 	}
 	
@@ -35,7 +35,6 @@
 
 -(void)dealloc
 {
-	RELEASE_TO_NIL(proxy);
 	RELEASE_TO_NIL(gradientLayer);
 	RELEASE_TO_NIL(backgroundGradient);
 	RELEASE_TO_NIL(selectedBackgroundGradient);
@@ -199,6 +198,7 @@
 	}
 	RELEASE_TO_NIL(tableController);
 	RELEASE_TO_NIL(searchController);
+	[sections makeObjectsPerformSelector:@selector(setParent:) withObject:nil];
 	RELEASE_TO_NIL(sections);
 	RELEASE_TO_NIL(tableview);
 	RELEASE_TO_NIL(sectionIndex);
