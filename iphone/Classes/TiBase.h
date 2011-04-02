@@ -127,6 +127,34 @@ if (![x isKindOfClass:[t class]]) \
 }\
 }\
 
+#define ENSURE_ARG_AT_INDEX(out,args,index,type) \
+if ([args isKindOfClass:[NSArray class]] && [args count]>index) \
+{ \
+out = (type*)[args objectAtIndex:index]; \
+} \
+if (![out isKindOfClass:[type class]]) \
+{ \
+[self throwException:TiExceptionInvalidType subreason:[NSString stringWithFormat:@"expected: %@, was: %@",[out class],[type class]] location:CODELOCATION]; \
+} \
+
+
+#define ENSURE_ARG_OR_NIL_AT_INDEX(out,args,index,type) \
+if (args==nil || args==[NSNull null]) \
+{ \
+out = nil; \
+} \
+else if ([args isKindOfClass:[NSArray class]]) { \
+if ([args count]>index) {\
+out = [args objectAtIndex:index]; \
+}\
+else { \
+out = nil; \
+} \
+if (out && ![out isKindOfClass:[type class]]) { \
+[self throwException:TiExceptionInvalidType subreason:[NSString stringWithFormat:@"expected: %@, was: %@",[out class],[type class]] location:CODELOCATION]; \
+} \
+} \
+
 
 #define ENSURE_CLASS(x,t) \
 if (![x isKindOfClass:t]) \
