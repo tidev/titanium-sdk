@@ -20,6 +20,7 @@
 	BOOL looping;
 	CGFloat volume;
 	CGFloat resumeTime;
+    BOOL fireRemoteControlEvents;
 }
 
 @property (nonatomic,readwrite,assign) NSNumber *volume;

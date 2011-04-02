@@ -34,6 +34,18 @@
 	}
 }
 
+-(void)_initWithProperties:(NSDictionary *)properties
+{
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0
+    if ([TiUtils isIOS4OrGreater])
+    {
+        // default handlePlayRemoteControls to true
+        bool handlePlayRemoteControls = [TiUtils boolValue:@"handlePlayRemoteControls" properties:properties def:YES];
+        [self setValue:NUMBOOL(handlePlayRemoteControls) forKey:@"handlePlayRemoteControls"];
+    }
+#endif
+}
+
 -(void)_configure
 {
 	volume = 1.0;
@@ -71,6 +83,22 @@
 	RELEASE_TO_NIL(tempFile);
 	
 	[super _destroy];
+}
+
+-(void)_listenerAdded:(NSString *)type count:(int)count
+{
+	if (count == 1 && [type isEqualToString:@"remoteControl"])
+    {
+        fireRemoteControlEvents = YES;
+    }
+}
+
+-(void)_listenerRemoved:(NSString *)type count:(int)count
+{
+	if (count == 0 && [type isEqualToString:@"remoteControl"])
+	{
+		fireRemoteControlEvents = NO;
+	}
 }
 
 -(AVAudioPlayer*)player
@@ -408,8 +436,20 @@
 
 - (void)remoteControlEvent:(NSNotification*)note
 {
-	UIEvent *event = [[note userInfo]objectForKey:@"event"];
-	switch(event.subtype)
+	UIEvent *uiEvent = [[note userInfo] objectForKey:@"event"];
+	
+    if (fireRemoteControlEvents)
+    {
+        NSDictionary *event = [NSDictionary dictionaryWithObject:NUMINT(uiEvent.subtype) forKey:@"controlType"];
+        [self fireEvent:@"remoteControl" withObject:event];
+    }
+    
+    if (![TiUtils boolValue:[self valueForKey:@"handlePlayRemoteControls"]])
+    {
+        return;
+    }
+    
+    switch(uiEvent.subtype)
 	{
 		case UIEventSubtypeRemoteControlTogglePlayPause:
 		{
@@ -438,6 +478,8 @@
 			[self play:nil];
 			break;
 		}
+        default:
+            break;
 	}
 }
 #endif

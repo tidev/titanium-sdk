@@ -418,17 +418,6 @@ MAKE_SYSTEM_PROP(STATE_PAUSED,AS_PAUSED);
 
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0
 
-MAKE_SYSTEM_PROP(REMOTE_CONTROL_PLAY,UIEventSubtypeRemoteControlPlay);
-MAKE_SYSTEM_PROP(REMOTE_CONTROL_PAUSE,UIEventSubtypeRemoteControlPause);
-MAKE_SYSTEM_PROP(REMOTE_CONTROL_STOP,UIEventSubtypeRemoteControlStop);
-MAKE_SYSTEM_PROP(REMOTE_CONTROL_PLAY_PAUSE,UIEventSubtypeRemoteControlTogglePlayPause);
-MAKE_SYSTEM_PROP(REMOTE_CONTROL_NEXT,UIEventSubtypeRemoteControlNextTrack);
-MAKE_SYSTEM_PROP(REMOTE_CONTROL_PREV,UIEventSubtypeRemoteControlPreviousTrack);
-MAKE_SYSTEM_PROP(REMOTE_CONTROL_START_SEEK_BACK,UIEventSubtypeRemoteControlBeginSeekingBackward);
-MAKE_SYSTEM_PROP(REMOTE_CONTROL_END_SEEK_BACK,UIEventSubtypeRemoteControlEndSeekingBackward);
-MAKE_SYSTEM_PROP(REMOTE_CONTROL_START_SEEK_FORWARD,UIEventSubtypeRemoteControlBeginSeekingForward);
-MAKE_SYSTEM_PROP(REMOTE_CONTROL_END_SEEK_FORWARD,UIEventSubtypeRemoteControlEndSeekingForward);
-
 - (void)remoteControlEvent:(NSNotification*)note
 {
 	UIEvent *uiEvent = [[note userInfo] objectForKey:@"event"];
