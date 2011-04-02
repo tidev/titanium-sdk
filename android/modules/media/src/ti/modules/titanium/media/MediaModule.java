@@ -28,6 +28,7 @@ import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.io.TiBaseFile;
 import org.appcelerator.titanium.io.TiFileFactory;
 import org.appcelerator.titanium.kroll.KrollCallback;
+import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiActivityResultHandler;
 import org.appcelerator.titanium.util.TiActivitySupport;
@@ -105,6 +106,9 @@ public class MediaModule extends KrollModule
 		if (options.containsKey("error")) {
 			errorCallback = (KrollCallback) options.get("error");
 		}
+		if (options.containsKey("overlay")) {
+			TiCameraActivity.overlayProxy = (TiViewProxy) options.get("overlay");
+		}
 
 		if (DBG) {
 			Log.d(LCAT, "showCamera called");
@@ -171,8 +175,14 @@ public class MediaModule extends KrollModule
 
 		String imageUrl = "file://" + imageFile.getAbsolutePath();
 		TiIntentWrapper cameraIntent = new TiIntentWrapper(new Intent());
-		cameraIntent.getIntent().setAction(MediaStore.ACTION_IMAGE_CAPTURE);
-		cameraIntent.getIntent().addCategory(Intent.CATEGORY_DEFAULT);
+
+		if(TiCameraActivity.overlayProxy == null) {
+			cameraIntent.getIntent().setAction(MediaStore.ACTION_IMAGE_CAPTURE);
+			cameraIntent.getIntent().addCategory(Intent.CATEGORY_DEFAULT);
+		} else {
+			cameraIntent.getIntent().setClass(invocation.getTiContext().getAndroidContext().getBaseContext(), TiCameraActivity.class);
+		}
+
 		cameraIntent.setWindowId(TiIntentWrapper.createActivityName("CAMERA"));
 
 		PackageManager pm = (PackageManager) activity.getPackageManager();
@@ -610,4 +620,16 @@ public class MediaModule extends KrollModule
 			callback.callAsync(new Object[] { image });
 		}
 	}
+
+	@Kroll.method
+	public void takePicture()
+	{
+		// make sure the preview / camera are open before trying to take photo
+		if (TiCameraActivity.cameraActivity != null) {
+			TiCameraActivity.takePicture();
+		} else {
+			Log.e(LCAT, "camera preview is not open, unable to take photo");
+		}
+	}
 }
+
