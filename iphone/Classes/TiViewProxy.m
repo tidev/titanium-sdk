@@ -554,7 +554,7 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
 		[self viewDidAttach];
 
 		// make sure we do a layout of ourselves
-		if(CGRectIsEmpty(sandboxBounds)){
+		if(CGRectIsEmpty(sandboxBounds) && (view != nil)){
 			[self setSandboxBounds:view.bounds];
 		}
 		[self relayout];
