@@ -28,9 +28,13 @@
 		[self setAudioSessionMode:[NSNumber numberWithInt:initialMode]];
 	}
     
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0		
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0
     if ([TiUtils isIOS4OrGreater])
     {
+        // default handlePlayRemoteControls to true
+        bool handlePlayRemoteControls = [TiUtils boolValue:@"handlePlayRemoteControls" properties:properties def:YES];
+        [self setValue:NUMBOOL(handlePlayRemoteControls) forKey:@"handlePlayRemoteControls"];
+        
         WARN_IF_BACKGROUND_THREAD_OBJ;	//NSNotificationCenter is not threadsafe!
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(remoteControlEvent:) name:kTiRemoteControlNotification object:nil];
     }
@@ -62,6 +66,11 @@
 	{
 		progress = YES;
 	}
+    
+    if (count == 1 && [type isEqualToString:@"remoteControl"])
+    {
+        fireRemoteControlEvents = YES;
+    }
 }
 
 -(void)_listenerRemoved:(NSString *)type count:(int)count
@@ -69,6 +78,11 @@
 	if (count == 0 && [type isEqualToString:@"progress"])
 	{
 		progress = NO;
+	}
+    
+    if (count == 0 && [type isEqualToString:@"remoteControl"])
+	{
+		fireRemoteControlEvents = NO;
 	}
 }
 
@@ -404,10 +418,33 @@ MAKE_SYSTEM_PROP(STATE_PAUSED,AS_PAUSED);
 
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0
 
+MAKE_SYSTEM_PROP(REMOTE_CONTROL_PLAY,UIEventSubtypeRemoteControlPlay);
+MAKE_SYSTEM_PROP(REMOTE_CONTROL_PAUSE,UIEventSubtypeRemoteControlPause);
+MAKE_SYSTEM_PROP(REMOTE_CONTROL_STOP,UIEventSubtypeRemoteControlStop);
+MAKE_SYSTEM_PROP(REMOTE_CONTROL_PLAY_PAUSE,UIEventSubtypeRemoteControlTogglePlayPause);
+MAKE_SYSTEM_PROP(REMOTE_CONTROL_NEXT,UIEventSubtypeRemoteControlNextTrack);
+MAKE_SYSTEM_PROP(REMOTE_CONTROL_PREV,UIEventSubtypeRemoteControlPreviousTrack);
+MAKE_SYSTEM_PROP(REMOTE_CONTROL_START_SEEK_BACK,UIEventSubtypeRemoteControlBeginSeekingBackward);
+MAKE_SYSTEM_PROP(REMOTE_CONTROL_END_SEEK_BACK,UIEventSubtypeRemoteControlEndSeekingBackward);
+MAKE_SYSTEM_PROP(REMOTE_CONTROL_START_SEEK_FORWARD,UIEventSubtypeRemoteControlBeginSeekingForward);
+MAKE_SYSTEM_PROP(REMOTE_CONTROL_END_SEEK_FORWARD,UIEventSubtypeRemoteControlEndSeekingForward);
+
 - (void)remoteControlEvent:(NSNotification*)note
 {
-	UIEvent *event = [[note userInfo] objectForKey:@"event"];
-	switch(event.subtype)
+	UIEvent *uiEvent = [[note userInfo] objectForKey:@"event"];
+	
+    if (fireRemoteControlEvents)
+    {
+        NSDictionary *event = [NSDictionary dictionaryWithObject:NUMINT(uiEvent.subtype) forKey:@"controlType"];
+        [self fireEvent:@"remoteControl" withObject:event];
+    }
+    
+    if (![TiUtils boolValue:[self valueForKey:@"handlePlayRemoteControls"]])
+    {
+        return;
+    }
+    
+    switch(uiEvent.subtype)
 	{
 		case UIEventSubtypeRemoteControlTogglePlayPause:
 		{
