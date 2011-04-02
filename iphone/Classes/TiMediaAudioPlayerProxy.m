@@ -473,6 +473,8 @@ MAKE_SYSTEM_PROP(REMOTE_CONTROL_END_SEEK_FORWARD,UIEventSubtypeRemoteControlEndS
 			[self start:nil];
 			break;
 		}
+        default:
+            break;
 	}
 }
 #endif
