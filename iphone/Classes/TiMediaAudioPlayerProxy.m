@@ -140,22 +140,43 @@
     [[self player] start];
 }
 
+// Only need to ensure the UI thread when starting; and we should actually wait until it's finished so
+// that execution flow is correct (if we stop/pause immediately after)
+-(void)internalStart
+{
+	if (![NSThread isMainThread]) {
+		[self performSelectorOnMainThread:@selector(internalStart) withObject:nil waitUntilDone:YES];
+		return;
+	}
+	// indicate we're going to start playing
+	if (![[TiMediaAudioSession sharedSession] canPlayback]) {
+		[self throwException:@"Improper audio session mode for playback"
+				   subreason:[[NSNumber numberWithUnsignedInt:[[TiMediaAudioSession sharedSession] sessionMode]] description]
+					location:CODELOCATION];
+	}
+	
+	if (player == nil || !([player isPlaying] || [player isPaused] || [player isWaiting])) {
+		[[TiMediaAudioSession sharedSession] startAudioSession];
+	}
+	[[self player] start];
+}
+
 -(void)restart:(id)args
 {
 	BOOL playing = [player isPlaying] || [player isPaused] || [player isWaiting];
-	[self destroyPlayer];
 	
+    [self destroyPlayer];
+	
+    // recreate it
+    [self player];
+    
 	if (playing)
 	{
-		[self startPlayer];
-	}
-	else 
-	{
-		// just create it
-		[self player];
+        // restart the player this way to restart the audio session
+        // (since destroyPlayer stops the audio session)
+		[self internalStart];
 	}
 }
-
 
 #pragma mark Public APIs
 
@@ -252,25 +273,9 @@ PLAYER_PROP_DOUBLE(duration,duration);
     }
 }
 
-// Only need to ensure the UI thread when starting; and we should actually wait until it's finished so
-// that execution flow is correct (if we stop/pause immediately after)
 -(void)start:(id)args
 {
-	if (![NSThread isMainThread]) {
-		[self performSelectorOnMainThread:@selector(start:) withObject:args waitUntilDone:YES];
-		return;
-	}
-	// indicate we're going to start playing
-	if (![[TiMediaAudioSession sharedSession] canPlayback]) {
-		[self throwException:@"Improper audio session mode for playback"
-				   subreason:[[NSNumber numberWithUnsignedInt:[[TiMediaAudioSession sharedSession] sessionMode]] description]
-					location:CODELOCATION];
-	}
-	
-	if (player == nil || !([player isPlaying] || [player isPaused] || [player isWaiting])) {
-		[[TiMediaAudioSession sharedSession] startAudioSession];
-	}
-	[[self player] start];
+    [self internalStart];
 }
 
 -(void)stop:(id)args
