@@ -170,7 +170,7 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 	{
 		return;
 	}
-	
+	[self rememberSelf];
 	opened = YES;
 	
 	if (!navWindow) 
@@ -197,6 +197,7 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 	VerboseLog(@"%@ (modal:%d)%@",self,modalFlag,CODELOCATION);
 	[[[TiApp app] controller] didHideViewController:controller animated:YES];
 
+	[self forgetSelf];
 	opened = NO;
 	attached = NO;
 	opening = NO;

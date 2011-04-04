@@ -525,6 +525,13 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 {
 	for (KrollBridge * thisBridge in [KrollBridge krollBridgesUsingProxy:self])
 	{
+		if(rememberedProxy == self)
+		{
+			KrollObject * thisObject = [thisBridge krollObjectForProxy:self];
+			[thisObject protectJsobject];
+			continue;
+		}
+
 		if(![thisBridge usesProxy:rememberedProxy])
 		{
 			continue;
@@ -538,6 +545,13 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 {
 	for (KrollBridge * thisBridge in [KrollBridge krollBridgesUsingProxy:self])
 	{
+		if(forgottenProxy == self)
+		{
+			KrollObject * thisObject = [thisBridge krollObjectForProxy:self];
+			[thisObject unprotectJsobject];
+			continue;
+		}
+
 		if(![thisBridge usesProxy:forgottenProxy])
 		{
 			continue;
@@ -545,6 +559,17 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 		[[thisBridge krollObjectForProxy:self] forgetKeylessKrollObject:[thisBridge krollObjectForProxy:forgottenProxy]];
 	}
 }
+
+-(void)rememberSelf
+{
+	[self rememberProxy:self];
+}
+
+-(void)forgetSelf
+{
+	[self forgetProxy:self];
+}
+
 
 -(void)addEventListener:(NSArray*)args
 {

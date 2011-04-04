@@ -913,6 +913,26 @@ bool KrollSetProperty(TiContextRef jsContext, TiObjectRef object, TiStringRef pr
 	}
 }
 
+-(void)protectJsobject
+{
+	TiContextRef jscontext = [context context];
+	if (finalized || (jscontext == NULL) || (jsobject == NULL))
+	{
+		return;
+	}
+	TiValueProtect(jscontext,jsobject);
+}
+
+-(void)unprotectJsobject
+{
+	TiContextRef jscontext = [context context];
+	if (finalized || (jscontext == NULL) || (jsobject == NULL))
+	{
+		return;
+	}
+	TiValueUnprotect(jscontext,jsobject);
+}
+
 -(void)noteKeylessKrollObject:(KrollObject *)value
 {
 	NSString * falseKey = [NSString stringWithFormat:@"__PX%X",value];

@@ -116,6 +116,9 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 //TODO: Find everywhere were we retain a proxy in a non-assignment way, and do remember/forget properly.
 -(void)rememberProxy:(TiProxy *)rememberedProxy;
 -(void)forgetProxy:(TiProxy *)forgottenProxy;
+//These are when, say, a window is opened, so you want to do tiValueProtect to make SURE it doesn't go away.
+-(void)rememberSelf;
+-(void)forgetSelf;
 
 #pragma mark Public 
 -(id<NSFastEnumeration>)allKeys;
