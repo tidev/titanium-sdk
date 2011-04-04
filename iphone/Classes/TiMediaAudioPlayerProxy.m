@@ -264,13 +264,7 @@ PLAYER_PROP_DOUBLE(duration,duration);
 
 -(NSNumber*)volume
 {
-    if (player){
-        return NUMFLOAT([[TiMediaAudioSession sharedSession] volume]);
-    }
-    else
-    {
-        return NUMFLOAT(0.0f);
-    }
+    return NUMFLOAT([[TiMediaAudioSession sharedSession] volume]);
 }
 
 -(void)start:(id)args
