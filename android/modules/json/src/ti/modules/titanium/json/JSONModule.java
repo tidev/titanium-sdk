@@ -48,7 +48,10 @@ public class JSONModule extends KrollModule {
 			} else {
 				return "" + d;
 			}
-		} else {
+		} else if (data instanceof Boolean) {
+			return TiConvert.toJSONString(data);
+		} 
+		else {
 			return "\"" + TiConvert.toJSONString(data) + "\"";
 		}
 	}
