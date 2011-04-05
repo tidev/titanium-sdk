@@ -4,12 +4,12 @@ var connectedSockets = [];
 
 var acceptedCallbacks = {
 	read: function(e) {
-		messageLabel.text = "Read from: "+e.socket.host;
+		messageLabel.text = "Read from: "+e.socket.hostName;
 		readLabel.text = e.data.text;
 	},
 	error : function(e) {
 		Ti.UI.createAlertDialog({
-			title:"Socket error: "+e.socket.host,
+			title:"Socket error: "+e.socket.hostName,
 			message:e.error
 		}).show();
 		var index = connectedSockets.indexOf(e.socket);
@@ -19,13 +19,14 @@ var acceptedCallbacks = {
 	}
 };
 
-var socket = Titanium.Network.createTCPSocket({
+var socket = Titanium.Network.createSocket({
 	hostName:Ti.Platform.address,
 	port:40404,
 	type:Ti.Network.TCP,
 	accepted: function(e) {
-		var sock = e.connector;
+		var sock = e.inbound;
 		connectedSockets.push(sock);
+		messageLabel.text = 'ACCEPTED: '+sock.hostName+':'+sock.port;
 		socket.accept(acceptedCallbacks);
 	},
 	closed: function(e) {
@@ -68,8 +69,8 @@ win.add(connectButton);
 connectButton.addEventListener('click', function() {
 	try {
 		socket.listen();
-		messageLabel.text = "Listening on "+e.socket.host+":"+e.socket.port;
-		e.socket.accept(acceptedCallbacks);
+		messageLabel.text = "Listening on "+socket.hostName+":"+socket.port;
+		socket.accept(acceptedCallbacks);
 	} catch (e) {
 		messageLabel.text = 'Exception: '+e;
 	}
@@ -95,9 +96,9 @@ var stateButton = Titanium.UI.createButton({
 	width:200,
 	height:40,
 	top:110
-	});
-win.add(validButton);
-validButton.addEventListener('click', function() {
+});
+win.add(stateButton);
+stateButton.addEventListener('click', function() {
 	var stateString = "UNKNOWN";
 	switch (socket.state) {
 		case Ti.Network.SOCKET_INITIALIZED:
@@ -124,12 +125,14 @@ var writeButton = Titanium.UI.createButton({
 	width:200,
 	height:40,
 	top:160
-	});
+});
 win.add(writeButton);
 writeButton.addEventListener('click', function() {
 	var plBlob = Titanium.Filesystem.getFile(Titanium.Filesystem.resourcesDirectory, 'paradise_lost.txt').read();
 
-	for (var sock in connectedSockets) {
+	for (var index in connectedSockets) {
+		var sock = connectedSockets[index];
+		Ti.API.info('Writing to socket: '+sock);
 		sock.write(plBlob);
 	}
 	messageLabel.text = "I'm a writer!";

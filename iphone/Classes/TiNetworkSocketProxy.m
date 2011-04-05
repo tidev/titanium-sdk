@@ -9,6 +9,9 @@
 #import "NetworkModule.h"
 #import "TiBlob.h"
 
+static NSString* FD_KEY = @"fd";
+static NSString* ARG_KEY = @"arg";
+
 @interface TiNetworkSocketProxy (Private)
 -(void)cleanupSocket;
 @end
@@ -21,7 +24,7 @@
 -(id)init
 {
     if (self = [super init]) {
-        acceptCondition = [[NSCondition alloc] init];
+        listening = [[NSCondition alloc] init];
         readBuffer = [[NSMutableData alloc] initWithLength:1024]; // Read buffer size is 1pg
         internalState = SOCKET_INITIALIZED;
         socketThread = nil;
@@ -37,16 +40,10 @@
 
 -(void)_destroy
 {
-    // TODO: Make sure that we block on the kroll thread, not the socket's thread or main thread
-    // Signal, just in case we're blocking on an accept
-    [acceptCondition lock];
-    [acceptCondition signal];
-    [acceptCondition unlock];
-    RELEASE_TO_NIL(acceptCondition);
-    
     internalState = SOCKET_CLOSED;
     [self cleanupSocket];
     
+    RELEASE_TO_NIL(listening);
     RELEASE_TO_NIL(readBuffer);
     
     RELEASE_TO_NIL(connected);
@@ -66,12 +63,40 @@
     RELEASE_TO_NIL(socket);
 }
 
--(void)startSocket
+// _ prefix keeps setX: private
+-(void)_setConnectedSocket:(AsyncSocket*)sock
+{
+    [self cleanupSocket];
+    internalState = SOCKET_CONNECTED;
+    socket = [sock retain];
+    [socket setDelegate:self];
+    [socket moveToRunLoop:[NSRunLoop currentRunLoop]];
+    socketThread = [NSThread currentThread];
+}
+
+-(void)runSocketReadLoop
+{
+    // Begin the read process
+    [socket readDataWithTimeout:-1 
+                         buffer:readBuffer
+                   bufferOffset:0
+                      maxLength:[readBuffer length]
+                            tag:0];
+    
+    socketThread = [NSThread currentThread];
+    
+    // Begin the run loop for the socket
+    while (!(internalState & (SOCKET_CLOSED | SOCKET_ERROR)) &&
+           [[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode beforeDate:[NSDate distantFuture]])
+        ; // Keep on truckin'
+}
+
+-(void)startConnectingSocket
 {
     NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
     
     NSString* host = [self valueForUndefinedKey:@"hostName"];
-    NSNumber* port = [self valueForUndefinedKey:@"port"];
+    id port = [self valueForUndefinedKey:@"port"]; // Can be string or int
     NSNumber* type = [self valueForUndefinedKey:@"type"];
     NSNumber* timeout = [self valueForUndefinedKey:@"timeout"];  // TODO: SPEC: Add to spec
     
@@ -105,20 +130,87 @@
                    subreason:nil
                     location:CODELOCATION];
     }
-        
-    // Begin the read process
-    [socket readDataWithTimeout:-1 
-                         buffer:readBuffer
-                   bufferOffset:0
-                      maxLength:[readBuffer length]
-                            tag:0];
     
+    [self runSocketReadLoop];
+    
+    [pool release];
+}
+
+-(void)startListeningSocket
+{
+    NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
+    
+    NSString* host = [self valueForKey:@"hostName"];
+    id port = [self valueForKey:@"port"]; // Can be string or int
+    NSNumber* type = [self valueForKey:@"type"];
+    
+    if ([type intValue] != TCP) {
+        [self throwException:[NSString stringWithFormat:@"Attempt to listen with unrecognized protocol: %d",[type intValue]]
+                   subreason:nil
+                    location:CODELOCATION];
+    }
+    
+    if (host == nil || [host isEqual:@""]) {
+        [self throwException:@"Attempt to listen with bad host: nil or empty"
+                   subreason:nil
+                    location:CODELOCATION];
+    }
+    
+    socket = [[AsyncSocket alloc] initWithDelegate:self];
+    NSError* err = nil;
+    BOOL success = [socket acceptOnInterface:host port:[port intValue] autoaccept:NO error:&err];
+    
+    if (err || !success) {
+        [self cleanupSocket];
+        internalState = SOCKET_ERROR;
+        
+        [listening lock];
+        [listening signal];
+        [listening unlock];
+        
+        [self throwException:[NSString stringWithFormat:@"Listening attempt error: %@",(error ? error : @"<UNKNOWN ERROR>")]
+                   subreason:nil
+                    location:CODELOCATION];
+    }
+  
     socketThread = [NSThread currentThread];
+    
+    [listening lock];
+    [listening signal];
+    internalState = SOCKET_LISTENING;
+    [listening unlock];
     
     // Begin the run loop for the socket
     while (!(internalState & (SOCKET_CLOSED | SOCKET_ERROR)) &&
            [[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode beforeDate:[NSDate distantFuture]])
         ; // Keep on truckin'
+    
+    [pool release];
+}
+
+-(void)startAcceptedSocket:(NSDictionary*)info
+{
+    NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
+    
+    CFSocketNativeHandle fd = [[info objectForKey:FD_KEY] intValue];
+    NSArray* arg = [info objectForKey:ARG_KEY];
+    CFSocketRef sock = [socket getCFSocket];
+    
+    // TODO: Need to construct newly accepted socket on new thread
+    AsyncSocket* newSocket = [socket doAcceptFromSocket:sock withNewNativeSocket:fd];
+    TiNetworkSocketProxy* proxy = [[[TiNetworkSocketProxy alloc] _initWithPageContext:[self pageContext] args:arg] autorelease];
+    [proxy _setConnectedSocket:newSocket];
+    
+    // TODO: remoteHost/remotePort & host/port?
+    [proxy setValue:[newSocket connectedHost] forKey:@"hostName"];
+    [proxy setValue:NUMINT([newSocket connectedPort]) forKey:@"port"];
+    
+    if (accepted != nil) {
+        NSDictionary* event = [NSDictionary dictionaryWithObjectsAndKeys:self,@"socket",proxy,@"inbound",nil];
+        [self _fireEventToListener:@"accepted" withObject:event listener:accepted thisObject:self];
+    }
+    
+    [proxy runSocketReadLoop];
     
     [pool release];
 }
@@ -139,17 +231,54 @@ return; \
                     location:CODELOCATION];
     }
     
-    [self performSelectorInBackground:@selector(startSocket) withObject:nil];
+    [self performSelectorInBackground:@selector(startConnectingSocket) withObject:nil];
 }
 
 -(void)listen:(id)arg
 {
-    // TODO: Implement
+    if (!(internalState & SOCKET_INITIALIZED)) {
+        [self throwException:[NSString stringWithFormat:@"Attempt to listen with bad state: %d", internalState]
+                   subreason:nil
+                    location:CODELOCATION];
+    }
+    
+    [self performSelectorInBackground:@selector(startListeningSocket) withObject:nil];
+    
+    // Call should block until we're listening or have an error
+    [listening lock];
+    if (!(internalState & (SOCKET_LISTENING | SOCKET_ERROR))) {
+        [listening wait];
+    }
+    [listening unlock];
 }
 
+// TODO: Change spec to indicate accept() is asynch
 -(void)accept:(id)arg
 {
-    // TODO: Implement
+    ENSURE_SOCKET_THREAD(accept,arg);
+    NSDictionary* args = nil;
+    ENSURE_ARG_OR_NIL_AT_INDEX(args, arg, 0, NSDictionary);
+    
+    CFSocketRef sock = [socket getCFSocket];
+    CFSocketNativeHandle fd = CFSocketGetNative(sock);
+    
+    CFSocketNativeHandle newSockFd = accept(fd, NULL, NULL);
+    if (newSockFd == -1) {
+        // There was an error!
+        internalState = SOCKET_ERROR;
+        NSError* err = [socket getErrnoError];
+        [self onSocket:socket willDisconnectWithError:err];
+        [socket disconnect];
+        return;
+    }
+    
+    NSMutableDictionary* info = [NSMutableDictionary dictionary];
+    [info setObject:NUMINT(newSockFd) forKey:FD_KEY];
+    if (args != nil) {
+        // Set 'arg' because _initWithPageContext:args: expects NSArray*
+        [info setObject:arg forKey:ARG_KEY];
+    }
+    [self performSelectorInBackground:@selector(startAcceptedSocket:) withObject:info];
 }
 
 -(void)close:(id)_void
@@ -245,11 +374,16 @@ TYPESAFE_SETTER(setWrotedata, wrotedata, KrollCallback)
 
 -(void)onSocket:(AsyncSocket *)sock didConnectToHost:(NSString *)host port:(UInt16)port
 {
+    // This gets called for sockets created via accepting, so return if the connected socket is NOT us
+    if (sock != socket) {
+        return;
+    }
+
     internalState = SOCKET_CONNECTED;
- 
+    
     if (connected != nil) {
         NSDictionary* event = [NSDictionary dictionaryWithObjectsAndKeys:self,@"socket",nil];
-		[self _fireEventToListener:@"connected" withObject:event listener:connected thisObject:self];        
+        [self _fireEventToListener:@"connected" withObject:event listener:connected thisObject:self];        
     }
  }
 

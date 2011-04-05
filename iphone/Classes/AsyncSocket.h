@@ -665,6 +665,12 @@ typedef enum AsyncSocketError AsyncSocketError;
 - (NSArray *)runLoopModes;
 
 /**
+ * Returns a standard error object for the current errno value.
+ * Errno is used for low-level BSD socket errors.
+ **/
+- (NSError *)getErrnoError;
+
+/**
  * In the event of an error, this method may be called during onSocket:willDisconnectWithError: to read
  * any data that's left on the socket.
 **/

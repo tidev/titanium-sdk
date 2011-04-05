@@ -1612,7 +1612,7 @@ Failed:
 	struct sockaddr *pSockAddr = (struct sockaddr *)[addr bytes];
 	int addressFamily = pSockAddr->sa_family;
 	
-    CFOptionFlags acceptFlags = autoaccept ? kCFSocketAcceptCallBack : kCFSocketReadCallBack;
+    CFOptionFlags acceptFlags = autoaccept ? kCFSocketAcceptCallBack : kCFSocketNoCallBack;
 	CFSocketRef theSocket = CFSocketCreate(kCFAllocatorDefault,
 	                                       addressFamily,
 	                                       SOCK_STREAM,

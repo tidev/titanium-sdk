@@ -12,9 +12,9 @@
 
 @interface TiNetworkSocketProxy : TiProxy<AsyncSocketDelegate> {
     AsyncSocket* socket;
-    NSCondition* acceptCondition;
     SocketState internalState;
     NSMutableData* readBuffer;
+    NSCondition* listening;
     
     NSThread* socketThread;
     
