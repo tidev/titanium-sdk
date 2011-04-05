@@ -775,6 +775,13 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 
 -(void)invoke:(id)object
 {
+	//Mwahahaha! Pre-emptively putting in NSOperations before the Queue.
+	if([object isKindOfClass:[NSOperation class]])
+	{
+		[(NSOperation *)object start];
+		return;
+	}
+
 	[object invoke:self];
 }
 

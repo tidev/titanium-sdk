@@ -369,6 +369,7 @@ void KrollFinalizer(TiObjectRef ref)
 		if (ourBridge != nil)
 		{
 			TiProxy * ourTarget = [o target];
+			NSLog(@"FINALIZING %@%X",ourTarget,ourTarget);
 			if ((ourTarget != nil) && ([ourBridge krollObjectForProxy:ourTarget] == o))
 			{
 				[ourBridge unregisterProxy:ourTarget];
@@ -915,21 +916,41 @@ bool KrollSetProperty(TiContextRef jsContext, TiObjectRef object, TiStringRef pr
 
 -(void)protectJsobject
 {
+	if (protecting)
+	{
+		return;
+	}
+
 	TiContextRef jscontext = [context context];
 	if (finalized || (jscontext == NULL) || (jsobject == NULL))
 	{
 		return;
 	}
+	protecting = YES;
 	TiValueProtect(jscontext,jsobject);
 }
 
 -(void)unprotectJsobject
 {
+	if (!protecting)
+	{
+		return;
+	}
 	TiContextRef jscontext = [context context];
 	if (finalized || (jscontext == NULL) || (jsobject == NULL))
 	{
 		return;
 	}
+
+	if ([NSThread isMainThread])
+	{
+		NSOperation * safeUnprotect = [[NSInvocationOperation alloc] initWithTarget:self selector:@selector(unprotectJsobject) object:nil];
+		[context enqueue:safeUnprotect];
+		[safeUnprotect release];
+		return;
+	}
+
+	protecting = NO;
 	TiValueUnprotect(jscontext,jsobject);
 }
 

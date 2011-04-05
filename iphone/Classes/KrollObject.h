@@ -36,6 +36,7 @@ bool KrollDeleteProperty(TiContextRef ctx, TiObjectRef object, TiStringRef prope
 	TiObjectRef propsObject;
 	BOOL targetable;
 	BOOL finalized;
+	BOOL protecting;
 @protected
 	id target;
 	KrollContext *context;
