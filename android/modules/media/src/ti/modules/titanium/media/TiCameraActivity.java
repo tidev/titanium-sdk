@@ -10,6 +10,7 @@ import org.appcelerator.titanium.proxy.TiViewProxy;
 import android.app.Activity;
 import android.content.pm.ActivityInfo;
 import android.hardware.Camera;
+import android.hardware.Camera.Parameters;
 import android.hardware.Camera.PictureCallback;
 import android.hardware.Camera.ShutterCallback;
 import android.net.Uri;
@@ -63,6 +64,12 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 
 	public void surfaceCreated(SurfaceHolder previewHolder) {
 		camera = Camera.open();
+
+		// using default preview size may be causing problem on some devices, setting dimensions manually
+		Parameters cameraParams = camera.getParameters();
+		Camera.Size previewSize = cameraParams.getSupportedPreviewSizes().get((cameraParams.getSupportedPreviewSizes().size()) - 1);
+		cameraParams.setPreviewSize(previewSize.width, previewSize.height );
+		camera.setParameters(cameraParams);
 
 		try {
 			Log.i(LCAT, "setting preview display");
