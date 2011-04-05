@@ -170,7 +170,7 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 	{
 		return;
 	}
-	[self rememberSelf];
+//	[self rememberSelf];
 	opened = YES;
 	
 	if (!navWindow) 
@@ -335,6 +335,7 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 
 -(void)open:(id)args
 {
+	[self rememberSelf];
 	ENSURE_UI_THREAD(open,args);
 
 	// opening a window more than once does nothing
