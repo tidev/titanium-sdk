@@ -37,6 +37,7 @@ import org.appcelerator.titanium.util.TiFileHelper;
 import org.appcelerator.titanium.util.TiIntentWrapper;
 import org.appcelerator.titanium.util.TiUIHelper;
 
+import ti.modules.titanium.media.android.AndroidModule.MediaScannerClient;
 import android.app.Activity;
 import android.content.ContentValues;
 import android.content.Context;
@@ -262,6 +263,10 @@ public class MediaModule extends KrollModule
 					values.put("_data", imageFile.getAbsolutePath());
 
 					Uri imageUri = activity.getContentResolver().insert(Images.Media.EXTERNAL_CONTENT_URI, values);
+
+					// puts newly captured photo into the gallery
+					MediaScannerClient mediaScanner = new MediaScannerClient(getTiContext(), new String[] {imageFile.getAbsolutePath()}, null);
+					mediaScanner.scan();
 
 					try {
 						if (successCallback != null) {
