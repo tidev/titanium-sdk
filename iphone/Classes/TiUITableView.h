@@ -25,7 +25,7 @@
 	CGPoint hitPoint;
 }
 @property (nonatomic,readonly) CGPoint hitPoint;
-@property (nonatomic,readonly) TiUITableViewRowProxy* proxy;
+@property (nonatomic,readwrite) TiUITableViewRowProxy* proxy;
 
 -(id)initWithStyle:(UITableViewCellStyle)style_ reuseIdentifier:(NSString *)reuseIdentifier_ row:(TiUITableViewRowProxy*)row_;
 
