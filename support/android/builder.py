@@ -101,7 +101,7 @@ def trace(msg):
 def error(msg):
 	log.error(msg)
 
-def copy_all(source_folder, dest_folder, ignore_dirs=[], ignore_files=[], one_time_msg=""):
+def copy_all(source_folder, dest_folder, ignore_dirs=[], ignore_files=[], ignore_exts=[], one_time_msg=""):
 	msg_shown = False
 	for root, dirs, files in os.walk(source_folder):
 		for d in dirs:
@@ -109,6 +109,9 @@ def copy_all(source_folder, dest_folder, ignore_dirs=[], ignore_files=[], one_ti
 				dirs.remove(d)
 		for f in files:
 			if f in ignore_files:
+				continue
+			ext = os.path.splitext(f)[1]
+			if ext in ignore_exts:
 				continue
 			if one_time_msg and not msg_shown:
 				info(one_time_msg)
@@ -467,7 +470,7 @@ class Builder(object):
 	def copy_project_platform_folder(self, ignore_dirs=[], ignore_files=[]):
 		if not os.path.exists(self.platform_dir):
 			return
-		copy_all(self.platform_dir, self.project_dir, ignore_dirs, ignore_files, "Copying platform-specific files ...")
+		copy_all(self.platform_dir, self.project_dir, ignore_dirs, ignore_files, one_time_msg="Copying platform-specific files ...")
 
 	def copy_resource_drawables(self):
 		debug('Processing Android resource drawables')
@@ -1169,9 +1172,18 @@ class Builder(object):
 			jar = zipfile.ZipFile(jar_file)
 			for path in jar.namelist():
 				if skip_jar_path(path): continue
-				if os.path.splitext(path)[1] != '.class':
-					debug("from JAR %s => %s" % (jar_file, path))
-					apk_zip.writestr(zipinfo(path), jar.read(path))
+				ext = os.path.splitext(path)[1]
+				# Skip class files
+				if ext == '.class':
+					debug("Skipping %s" % path)
+					continue
+				# Skip binding JSON files
+				if "org/appcelerator/titanium/bindings" in path and ext == ".json":
+					debug("Skipping %s" % path)
+					continue
+
+				debug("from JAR %s => %s" % (jar_file, path))
+				apk_zip.writestr(zipinfo(path), jar.read(path))
 			jar.close()
 		
 		for jar_file in self.module_jars:
@@ -1207,9 +1219,23 @@ class Builder(object):
 	def package_and_deploy(self):
 		ap_ = os.path.join(self.project_dir, 'bin', 'app.ap_')
 		rhino_jar = os.path.join(self.support_dir, 'js.jar')
-		run.run([self.aapt, 'package', '-f', '-M', 'AndroidManifest.xml', '-A', self.assets_dir,
+
+		# This is only to check if this has been overridden in production
+		has_compile_js = self.tiappxml.has_app_property("ti.android.compilejs")
+		compile_js = not has_compile_js or (has_compile_js and \
+			self.tiappxml.to_bool(self.tiappxml.get_app_property('ti.android.compilejs')))
+
+		pkg_assets_dir = self.assets_dir
+		if self.deploy_type == "production" and compile_js:
+			non_js_assets = os.path.join(self.project_dir, 'bin', 'non-js-assets')
+			if not os.path.exists(non_js_assets):
+				os.mkdir(non_js_assets)
+			copy_all(self.assets_dir, non_js_assets, ignore_exts=[".js"])
+			pkg_assets_dir = non_js_assets
+
+		run.run([self.aapt, 'package', '-f', '-M', 'AndroidManifest.xml', '-A', pkg_assets_dir,
 			'-S', 'res', '-I', self.android_jar, '-I', self.titanium_jar, '-F', ap_], warning_regex=r'skipping')
-	
+
 		unsigned_apk = self.create_unsigned_apk(ap_)
 		#unsigned_apk = os.path.join(self.project_dir, 'bin', 'app-unsigned.apk')
 		#apk_build_cmd = [self.apkbuilder, unsigned_apk, '-u', '-z', ap_, '-f', self.classes_dex, '-rf', self.project_src_dir]
