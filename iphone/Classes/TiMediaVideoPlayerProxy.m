@@ -310,6 +310,36 @@ NSArray* moviePlayerKeys = nil;
 	}
 }
 
+-(void)setAllowsAirPlay:(NSNumber*)value
+{
+    if (movie != nil) {
+        if ([movie respondsToSelector:@selector(setAllowsAirPlay:)]) {
+            [movie setAllowsAirPlay:[value boolValue]];
+        }
+        else {
+            NSLog(@"[WARN] Canot use airplay; using pre-4.3 iOS");
+        }
+    }
+    else {
+        [loadProperties setValue:value forKey:@"allowsAirPlay"];
+    }
+}
+
+-(NSNumber*)allowsAirPlay
+{
+    if (movie != nil) {
+        if ([movie respondsToSelector:@selector(allowsAirPlay)]) {
+            return NUMBOOL([movie allowsAirPlay]);
+        }
+        else {
+            return NUMBOOL(NO);
+        }
+    }
+    else {
+        RETURN_FROM_LOAD_PROPERTIES(@"allowsAirPlay", NUMBOOL(NO));
+    }
+}
+
 // < 3.2 functions for controls
 -(void)updateControlMode:(id)value
 {
