@@ -42,7 +42,7 @@ else (width is invalid)
 CGSize SizeConstraintViewWithSizeAddingResizing(LayoutConstraint * constraint, NSObject<LayoutAutosizing> * autoSizer, CGSize boundSize, UIViewAutoresizing * resultResizing)
 {
 	//TODO: Refactor for elegance.
-	CGFloat width;
+	CGFloat width = 0.0f;
 
 	if(resultResizing != NULL)
 	{
