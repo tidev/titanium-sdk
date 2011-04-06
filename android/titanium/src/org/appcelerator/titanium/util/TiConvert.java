@@ -230,7 +230,9 @@ public class TiConvert
 
 	// Values
 	public static boolean toBoolean(Object value) {
-		if (value instanceof Boolean) {
+		if (value == null || value.equals(KrollProxy.UNDEFINED)) {
+			return false;
+		} else if (value instanceof Boolean) {
 			return (Boolean) value;
 		} else if (value instanceof String) {
 			return Boolean.parseBoolean(((String) value));
@@ -238,6 +240,7 @@ public class TiConvert
 			throw new IllegalArgumentException("Unable to convert " + value.getClass().getName() + " to boolean.");
 		}
 	}
+	
 	public static boolean toBoolean(KrollDict d, String key) {
 		return toBoolean(d.get(key));
 	}
@@ -253,6 +256,7 @@ public class TiConvert
 			throw new NumberFormatException("Unable to convert " + value.getClass().getName());
 		}
 	}
+	
 	public static int toInt(KrollDict d, String key) {
 		return toInt(d.get(key));
 	}
@@ -310,7 +314,10 @@ public class TiConvert
 	}
 
 	public static TiDimension toTiDimension(Object value, int valueType) {
-		if (value instanceof Number) {
+		if (value == null || value.equals(KrollProxy.UNDEFINED)){
+			return toTiDimension(null, valueType); 
+		}
+		else if (value instanceof Number) {
 			value = value.toString() + "px";
 		}
 		return toTiDimension((String) value, valueType);
