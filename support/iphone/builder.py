@@ -322,7 +322,7 @@ def distribute_xc3(uuid, provisioning_profile, name, log):
 	plistlib.writePlist(archive_metadata,archive_plist)
 	os.remove(os.path.join(archive_dir,'Info.xml.plist'))	
 
-def distribute_xc4(name, log):
+def distribute_xc4(name, icon, log):
 	# Locations of bundle, app binary, dsym info
 	log.write("Creating distribution for xcode4...\n");	
 	archive_bundle = os.path.join(os.path.expanduser("~/Library/Developer/Xcode/Archives"),"%s.xcarchive" % name)
@@ -346,10 +346,12 @@ def distribute_xc4(name, log):
 	# plist
 	os.system('/usr/bin/plutil -convert xml1 -o "%s" "%s"' % (os.path.join(archive_bundle,'Info.xml.plist'),os.path.join(archive_app,'Info.plist')))
 	project_info_plist = plistlib.readPlist(os.path.join(archive_bundle,'Info.xml.plist'))
+	appbundle = "Applications/%s.app" % name
 	archive_info = {
 		'ApplicationProperties' : {
-			'ApplicationPath' : 'Applications/%s.app' % name,
-			'CFBundleIdentifier' : project_info_plist['CFBundleIdentifier']
+			'ApplicationPath' : appbundle,
+			'CFBundleIdentifier' : project_info_plist['CFBundleIdentifier'],
+			'IconPaths' : [os.path.join(appbundle,icon), os.path.join(appbundle,icon)]
 		},
 		'ArchiveVersion' : float(1),
 		'CreationDate' : datetime.datetime.fromtimestamp(time.mktime(time.gmtime())),
@@ -1311,7 +1313,7 @@ def main(args):
 					# switch to app_bundle for zip
 					os.chdir(build_dir)
 					if xcode_version() >= 4.0:
-						distribute_xc4(name, o)
+						distribute_xc4(name, applogo, o)
 					else:
 						distribute_xc3(uuid, provisioning_profile, name, o)
 

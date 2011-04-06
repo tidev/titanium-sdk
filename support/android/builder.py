@@ -11,6 +11,7 @@ from compiler import Compiler
 from os.path import join, splitext, split, exists
 from shutil import copyfile
 from xml.dom.minidom import parseString
+from tilogger import *
 
 template_dir = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
 top_support_dir = os.path.dirname(template_dir) 
@@ -30,6 +31,7 @@ ignoreFiles = ['.gitignore', '.cvsignore', '.DS_Store'];
 ignoreDirs = ['.git','.svn','_svn', 'CVS'];
 android_avd_hw = {'hw.camera': 'yes', 'hw.gps':'yes'}
 res_skips = ['style']
+log = None
 
 # Copied from frameworks/base/tools/aapt/Package.cpp
 uncompressed_types = [
@@ -85,24 +87,19 @@ def read_properties(propFile, separator=":= "):
 	return propDict
 
 def info(msg):
-	print "[INFO] "+msg
-	sys.stdout.flush()
+	log.info(msg)
 
 def debug(msg):
-	print "[DEBUG] "+msg
-	sys.stdout.flush()
+	log.debug(msg)
 
 def warn(msg):
-	print "[WARN] "+msg
-	sys.stdout.flush()
+	log.warn(msg)
 
 def trace(msg):
-	print "[TRACE] "+msg
-	sys.stdout.flush()
-
+	log.trace(msg)
+	
 def error(msg):
-	print "[ERROR] "+msg
-	sys.stdout.flush()
+	log.error(msg)
 
 def copy_all(source_folder, dest_folder, ignore_dirs=[], ignore_files=[], one_time_msg=""):
 	msg_shown = False
@@ -279,8 +276,7 @@ class Builder(object):
 		return True
 	
 	def wait_for_device(self, type):
-		print "[DEBUG] Waiting for device to be ready ..."
-		sys.stdout.flush()
+		debug("Waiting for device to be ready ...")
 		t = time.time()
 		max_wait = 30
 		max_zero = 6
@@ -550,7 +546,6 @@ class Builder(object):
 
 	def copy_project_resources(self):
 		info("Copying project resources..")
-		sys.stdout.flush()
 		
 		resources_dir = os.path.join(self.top_dir, 'Resources')
 		android_resources_dir = os.path.join(resources_dir, 'android')
@@ -1354,8 +1349,7 @@ class Builder(object):
 			local_compiler_dir = os.path.abspath(os.path.join(self.top_dir,'plugins'))
 			tp_compiler_dir = os.path.abspath(os.path.join(titanium_dir,'plugins'))
 			if not os.path.exists(tp_compiler_dir) and not os.path.exists(local_compiler_dir):
-				print "[ERROR] Build Failed (Missing plugins directory)"
-				sys.stdout.flush()
+				error("Build Failed (Missing plugins directory)")
 				sys.exit(1)
 			compiler_config = {
 				'platform':'android',
@@ -1369,17 +1363,18 @@ class Builder(object):
 				'build_dir':s.project_dir,
 				'app_name':self.name,
 				'android_builder':self,
-				'deploy_type':deploy_type
+				'deploy_type':deploy_type,
+				'dist_dir':dist_dir,
+				'logger':log
 			}
 			for plugin in self.tiappxml.properties['plugins']:
 				local_plugin_file = os.path.join(local_compiler_dir,plugin['name'],'plugin.py')
 				plugin_file = os.path.join(tp_compiler_dir,plugin['name'],plugin['version'],'plugin.py')
-				print "[INFO] plugin=%s" % plugin_file
+				info("plugin=%s" % plugin_file)
 				if not os.path.exists(local_plugin_file) and not os.path.exists(plugin_file):
-					print "[ERROR] Build Failed (Missing plugin for %s)" % plugin['name']
-					sys.stdout.flush()
+					error("Build Failed (Missing plugin for %s)" % plugin['name'])
 					sys.exit(1)
-				print "[INFO] Detected compiler plugin: %s/%s" % (plugin['name'],plugin['version'])
+				info("Detected compiler plugin: %s/%s" % (plugin['name'],plugin['version']))
 				code_path = plugin_file
 				if os.path.exists(local_plugin_file):	
 					code_path = local_plugin_file
@@ -1573,7 +1568,6 @@ class Builder(object):
 						dex_args.append(os.path.join(self.support_dir, 'modules', 'titanium-network.jar'))
 	
 				info("Compiling Android Resources... This could take some time")
-				sys.stdout.flush()
 				# TODO - Document Exit message
 				run_result = run.run(dex_args, warning_regex=r'warning: ')
 				if (run_result == None):
@@ -1582,6 +1576,7 @@ class Builder(object):
 					sys.exit(1)
 				else:
 					dex_built = True
+					debug("Android classes.dex built")
 			
 			if self.sdcard_copy and not build_only and \
 				(not self.resources_installed or not self.app_installed) and \
@@ -1654,7 +1649,7 @@ if __name__ == "__main__":
 		usage()
 	
 	command = sys.argv[1]
-	
+	log = TiLogger(os.path.join(os.path.abspath(os.path.expanduser(dequote(sys.argv[4]))), 'build.log'))
 	template_dir = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
 	get_values_from_tiapp = False
 	
