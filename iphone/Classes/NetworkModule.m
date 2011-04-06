@@ -274,7 +274,7 @@ MAKE_SYSTEM_PROP(NOTIFICATION_TYPE_SOUND,3);
 	id currentNotification = [[TiApp app] remoteNotification];
 	if (currentNotification!=nil && pushNotificationCallback!=nil)
 	{
-		id event = [NSDictionary dictionaryWithObject:currentNotification forKey:@"data"];
+		id event = [NSDictionary dictionaryWithObjectsAndKeys:currentNotification, @"data", NUMBOOL(YES), @"firedFromRegister", nil];
 		[self _fireEventToListener:@"remote" withObject:event listener:pushNotificationCallback thisObject:nil];
 	}
 }
