@@ -325,7 +325,11 @@ def distribute_xc3(uuid, provisioning_profile, name, log):
 def distribute_xc4(name, icon, log):
 	# Locations of bundle, app binary, dsym info
 	log.write("Creating distribution for xcode4...\n");	
-	archive_bundle = os.path.join(os.path.expanduser("~/Library/Developer/Xcode/Archives"),"%s.xcarchive" % name)
+	timestamp = datetime.datetime.now()
+	date = timestamp.date().isoformat()
+	time = timestamp.time().strftime('%H-%M-%S')
+	archive_name = os.path.join(date,'%s_%s' % (name, time))
+	archive_bundle = os.path.join(os.path.expanduser("~/Library/Developer/Xcode/Archives"),"%s.xcarchive" % archive_name)
 	archive_app = os.path.join(archive_bundle,"Products","Applications","%s.app" % name)
 	archive_dsym = os.path.join(archive_bundle,"dSYM")
 	
@@ -347,14 +351,16 @@ def distribute_xc4(name, icon, log):
 	os.system('/usr/bin/plutil -convert xml1 -o "%s" "%s"' % (os.path.join(archive_bundle,'Info.xml.plist'),os.path.join(archive_app,'Info.plist')))
 	project_info_plist = plistlib.readPlist(os.path.join(archive_bundle,'Info.xml.plist'))
 	appbundle = "Applications/%s.app" % name
+	# NOTE: We chop off the end '.' of 'CFBundleVersion' to provide the 'short' version
 	archive_info = {
 		'ApplicationProperties' : {
 			'ApplicationPath' : appbundle,
 			'CFBundleIdentifier' : project_info_plist['CFBundleIdentifier'],
+			'CFBundleShortVersionString' : project_info_plist['CFBundleVersion'].rsplit('.',1)[0],
 			'IconPaths' : [os.path.join(appbundle,icon), os.path.join(appbundle,icon)]
 		},
 		'ArchiveVersion' : float(1),
-		'CreationDate' : datetime.datetime.fromtimestamp(time.mktime(time.gmtime())),
+		'CreationDate' : datetime.datetime.utcnow(),
 		'Name' : name,
 		'SchemeName' : name
 	}
