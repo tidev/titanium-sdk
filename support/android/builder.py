@@ -672,11 +672,18 @@ class Builder(object):
 		android:name="ti.modules.titanium.facebook.FBActivity"
 		android:theme="@android:style/Theme.Translucent.NoTitleBar"
     />"""
+
+		CAMERA_ACTIVITY = """<activity 
+		android:name="ti.modules.titanium.media.TiCameraActivity"
+		android:configChanges="keyboardHidden|orientation"
+		android:theme="@android:style/Theme.Translucent.NoTitleBar.Fullscreen"
+    />"""
 		
 		activity_mapping = {
 		
 			# MEDIA
 			'Media.createVideoPlayer' : VIDEO_ACTIVITY,
+			'Media.showCamera' : CAMERA_ACTIVITY,
 			
 			# MAPS
 			'Map.createView' : MAP_ACTIVITY,
