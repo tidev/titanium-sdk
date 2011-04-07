@@ -39,5 +39,21 @@ describe("Ti.Media tests", {
 		if (!isAndroid) valueOf(player.state).shouldBeNumber();
 		valueOf(player.paused).shouldBeBoolean();
 		if (!isAndroid) valueOf(player.waiting).shouldBeBoolean();
+	},
+	videoPlayerAPIs: function() {
+		var isAndroid = (Ti.Platform.osname === 'android');
+		
+		valueOf(Ti.Media.createVideoPlayer).shouldBeFunction();
+		var player = Ti.Media.createVideoPlayer();
+		valueOf(player).shouldNotBeNull();
+		valueOf(player.add).shouldBeFunction();
+		valueOf(player.pause).shouldBeFunction();
+		valueOf(player.start).shouldBeFunction();
+		valueOf(player.stop).shouldBeFunction();
+		if (!isAndroid) valueOf(player.setUrl).shouldBeFunction();
+		valueOf(player.hide).shouldBeFunction();
+		valueOf(player.setMediaControlStyle).shouldBeFunction();
+		valueOf(player.getMediaControlStyle).shouldBeFunction();
+		
 	}
 })

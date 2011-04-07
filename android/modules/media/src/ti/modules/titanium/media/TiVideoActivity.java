@@ -41,11 +41,15 @@ public class TiVideoActivity extends Activity
 	public static final int MSG_ADD_VIEW = 10001;
 	public static final int MSG_STOP_PLAYBACK = 10002;
 	public static final int MSG_HIDE = 10003;
+	public static final int MSG_MEDIA_CONTROL_STYLE_CHANGE = 10004;
+	public static final int MSG_PAUSE_PLAYBACK = 10005;
+	public static final int MSG_START_PLAYBACK = 10006;
 
 	private Handler handler;
 	private String contentUrl;
 	private Messenger proxyMessenger;
 	private ResultReceiver messengerReceiver;
+	private MediaController mediaController;
 
 	private TiCompositeLayout layout;
 	private TiVideoView4 videoView;
@@ -112,7 +116,12 @@ public class TiVideoActivity extends Activity
 			}
 		});
 
-		videoView.setMediaController(new MediaController(this));
+		int style = MediaModule.VIDEO_CONTROL_DEFAULT;
+		
+		if (intent.hasExtra("mediaControlStyle")) {
+			style = intent.getIntExtra("mediaControlStyle", MediaModule.VIDEO_CONTROL_DEFAULT);
+			handleControlVisibility(style);
+		}
 		videoView.requestFocus();
 
 		TiCompositeLayout.LayoutParams params = new TiCompositeLayout.LayoutParams();
@@ -132,8 +141,10 @@ public class TiVideoActivity extends Activity
 		switch (msg.what) {
 			case MSG_PLAY : {
 
-				Uri uri = Uri.parse(contentUrl);
-				videoView.setVideoURI(uri);
+				if (!started) {
+					Uri uri = Uri.parse(contentUrl);
+					videoView.setVideoURI(uri);
+				}
 				videoView.start();
 				started = true;
 
@@ -159,6 +170,22 @@ public class TiVideoActivity extends Activity
 				}
 				return false;
 			}
+			case MSG_PAUSE_PLAYBACK: {
+				if (videoView != null && started) {
+					videoView.pause();
+					started = false;
+					return true;
+				}
+				return false;
+			}
+			case MSG_START_PLAYBACK: {
+				if (videoView != null && !started) {
+					videoView.start();
+					started = true;
+					return true;
+				}
+				return false;				
+			}
 			case MSG_HIDE: {
 				if (videoView != null && started) {
 					videoView.stopPlayback();
@@ -166,11 +193,42 @@ public class TiVideoActivity extends Activity
 				}
 				finish();
 				return true;
+			} 
+			case MSG_MEDIA_CONTROL_STYLE_CHANGE : {
+				int style = msg.arg1;
+				handleControlVisibility(style);
+				return true;
 			}
 		}
 		return false;
 	}
 
+	private void handleControlVisibility(int style) 
+	{
+		boolean showController = true;
+		
+		switch(style) {
+		case MediaModule.VIDEO_CONTROL_DEFAULT:
+		case MediaModule.VIDEO_CONTROL_EMBEDDED:
+		case MediaModule.VIDEO_CONTROL_FULLSCREEN:
+			showController = true;
+			break;
+		case MediaModule.VIDEO_CONTROL_HIDDEN:
+		case MediaModule.VIDEO_CONTROL_NONE:
+			showController = false;
+			break;
+		}
+
+		if (showController) {
+			if (mediaController == null) {
+				mediaController = new MediaController(this);
+			}
+			videoView.setMediaController(mediaController);
+		} else {
+			videoView.setMediaController(null);
+		}
+	}
+	
 	@Override
 	protected void onStart() {
 		super.onStart();
