@@ -40,6 +40,7 @@ public class VideoPlayerProxy extends KrollProxy
 	private Messenger activityMessenger;
 	private List<TiViewProxy> children = Collections.synchronizedList(new ArrayList<TiViewProxy>());
 	private boolean play;
+	private int mediaControlStyle = MediaModule.VIDEO_CONTROL_DEFAULT;
 
 	public VideoPlayerProxy(TiContext tiContext)
 	{
@@ -72,6 +73,10 @@ public class VideoPlayerProxy extends KrollProxy
 		if (options.containsKey("play")) {
 			intent.putExtra("play", TiConvert.toBoolean(options, "play"));
 		}
+		if (options.containsKey("mediaControlStyle")) {
+			mediaControlStyle = TiConvert.toInt(options, "mediaControlStyle");
+		}
+		intent.putExtra("mediaControlStyle", mediaControlStyle);
 
 		controlHandler = createControlHandler();
 		intent.putExtra("messenger", new Messenger(controlHandler));
@@ -149,6 +154,34 @@ public class VideoPlayerProxy extends KrollProxy
 	}
 	
 	@Kroll.method
+	public void pause()
+	{
+		if (activityMessenger != null) {
+			try {
+				Message msg = Message.obtain();
+				msg.what = TiVideoActivity.MSG_PAUSE_PLAYBACK;
+				activityMessenger.send(msg);
+			} catch (RemoteException e) {
+				Log.w(LCAT, "Unable to send pause message: " + e.getMessage());
+			}
+		}
+	}
+
+	@Kroll.method
+	public void start()
+	{
+		if (activityMessenger != null) {
+			try {
+				Message msg = Message.obtain();
+				msg.what = TiVideoActivity.MSG_START_PLAYBACK;
+				activityMessenger.send(msg);
+			} catch (RemoteException e) {
+				Log.w(LCAT, "Unable to send start message: " + e.getMessage());
+			}
+		}
+	}
+
+	@Kroll.method
 	public void stop()
 	{
 		if (activityMessenger != null) {
@@ -174,6 +207,28 @@ public class VideoPlayerProxy extends KrollProxy
 				activityMessenger.send(msg);
 			} catch (RemoteException e) {
 				Log.w(LCAT, "Unable to send hide message: " + e.getMessage());
+			}
+		}
+	}
+	
+	@Kroll.getProperty @Kroll.method
+	public int getMediaControlStyle() {
+		return mediaControlStyle;
+	}
+	
+	@Kroll.setProperty @Kroll.method
+	public void setMediaControlStyle(int style) {
+		if (style != mediaControlStyle) {
+			mediaControlStyle = style;
+			if (activityMessenger != null) {
+				try {
+					Message msg = Message.obtain();
+					msg.what = TiVideoActivity.MSG_MEDIA_CONTROL_STYLE_CHANGE;
+					msg.arg1 = mediaControlStyle;
+					activityMessenger.send(msg);
+				} catch (RemoteException e) {
+					Log.w(LCAT, "Unable to send media control style change message: " + e.getMessage());
+				}
 			}
 		}
 	}
