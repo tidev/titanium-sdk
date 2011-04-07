@@ -369,7 +369,8 @@ void KrollFinalizer(TiObjectRef ref)
 		if (ourBridge != nil)
 		{
 			TiProxy * ourTarget = [o target];
-			NSLog(@"FINALIZING %@%X",ourTarget,ourTarget);
+			NSLog(@"FINALIZING %@[%X]->%@[%@==%@]->%@ %X (%@:%@)",ourContext,ref,ourBridge,o,[ourBridge krollObjectForProxy:ourTarget],
+					ourTarget,ourTarget,[ourTarget valueForKey:@"title"],[ourTarget valueForKey:@"text"]);
 			if ((ourTarget != nil) && ([ourBridge krollObjectForProxy:ourTarget] == o))
 			{
 				[ourBridge unregisterProxy:ourTarget];
@@ -926,6 +927,19 @@ bool KrollSetProperty(TiContextRef jsContext, TiObjectRef object, TiStringRef pr
 	{
 		return;
 	}
+
+	if (![context isKJSThread])
+	{
+		NSLog(@"Will protect %@[%X]->%@[%@]->%@ %X (%@:%@)",context,jsobject,[context delegate],self,
+				target,target,[target valueForKey:@"title"],[target valueForKey:@"text"]);
+		NSOperation * safeProtect = [[NSInvocationOperation alloc] initWithTarget:self selector:@selector(protectJsobject) object:nil];
+		[context enqueue:safeProtect];
+		[safeProtect release];
+		return;
+	}
+
+	NSLog(@"Will protect %@[%X]->%@[%@]->%@ %X (%@:%@) %d",context,jsobject,[context delegate],self,
+			target,target,[target valueForKey:@"title"],[target valueForKey:@"text"],[NSThread isMainThread]);
 	protecting = YES;
 	TiValueProtect(jscontext,jsobject);
 }
@@ -942,14 +956,18 @@ bool KrollSetProperty(TiContextRef jsContext, TiObjectRef object, TiStringRef pr
 		return;
 	}
 
-	if ([NSThread isMainThread])
+	if (![context isKJSThread])
 	{
+		NSLog(@"Will unprotect %@[%X]->%@[%@]->%@ %X (%@:%@)",context,jsobject,[context delegate],self,
+				target,target,[target valueForKey:@"title"],[target valueForKey:@"text"]);
 		NSOperation * safeUnprotect = [[NSInvocationOperation alloc] initWithTarget:self selector:@selector(unprotectJsobject) object:nil];
 		[context enqueue:safeUnprotect];
 		[safeUnprotect release];
 		return;
 	}
 
+	NSLog(@"UNPROTECTING %@[%X]->%@[%@]->%@ %X (%@:%@)",context,jsobject,[context delegate],self,
+			target,target,[target valueForKey:@"title"],[target valueForKey:@"text"]);
 	protecting = NO;
 	TiValueUnprotect(jscontext,jsobject);
 }
