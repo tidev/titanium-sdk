@@ -85,6 +85,7 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 
 @property(nonatomic,retain,readwrite)	id<TiProxyDelegate> modelDelegate;
 
++(BOOL)shouldRegisterOnInit;
 
 #pragma mark Private 
 

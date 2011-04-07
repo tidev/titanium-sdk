@@ -27,6 +27,11 @@
 	return @"__GITHASH__";
 }
 
++(BOOL)shouldRegisterOnInit
+{
+	return NO;
+}
+
 -(id)userAgent
 {
 	return [[TiApp app] userAgent];

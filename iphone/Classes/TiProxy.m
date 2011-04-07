@@ -214,13 +214,21 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 	return self;
 }
 
++(BOOL)shouldRegisterOnInit
+{
+	return YES;
+}
+
 -(id)_initWithPageContext:(id<TiEvaluator>)context
 {
 	if (self = [self init])
-	{   
+	{
 		pageContext = (id)context; // do not retain 
-		[pageContext registerProxy:self];
-		// allow subclasses to configure themselves
+		if([[self class] shouldRegisterOnInit]) // && ![NSThread isMainThread])
+		{
+			[pageContext registerProxy:self];
+			// allow subclasses to configure themselves
+		}
 		[self _configure];
 	}
 	return self;
@@ -253,6 +261,10 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 //This should not be a destroy, because proxies can span multiple contexts.	
 //	[self _destroy];
 	[self contextWasShutdown:context];
+	if(pageContext == context){
+		//One thing we missed from _destroy: Ensuring the page context stays gone.
+		pageContext = nil;
+	}
 }
 
 -(void)setExecutionContext:(id<TiEvaluator>)context
