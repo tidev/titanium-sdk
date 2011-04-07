@@ -3,13 +3,9 @@ var win = Titanium.UI.currentWindow;
 var connectedSockets = [];
 
 var acceptedCallbacks = {
-	read: function(e) {
-		messageLabel.text = "Read from: "+e.socket.hostName;
-		readLabel.text = e.data.text;
-	},
 	error : function(e) {
 		Ti.UI.createAlertDialog({
-			title:"Socket error: "+e.socket.hostName,
+			title:"Socket error: "+e.socket.host,
 			message:e.error
 		}).show();
 		var index = connectedSockets.indexOf(e.socket);
@@ -20,13 +16,13 @@ var acceptedCallbacks = {
 };
 
 var socket = Titanium.Network.createSocket({
-	hostName:Ti.Platform.address,
+	host:Ti.Platform.address,
 	port:40404,
 	type:Ti.Network.TCP,
 	accepted: function(e) {
 		var sock = e.inbound;
 		connectedSockets.push(sock);
-		messageLabel.text = 'ACCEPTED: '+sock.hostName+':'+sock.port;
+		messageLabel.text = 'ACCEPTED: '+sock.host+':'+sock.port;
 		socket.accept(acceptedCallbacks);
 	},
 	closed: function(e) {
@@ -69,7 +65,7 @@ win.add(connectButton);
 connectButton.addEventListener('click', function() {
 	try {
 		socket.listen();
-		messageLabel.text = "Listening on "+socket.hostName+":"+socket.port;
+		messageLabel.text = "Listening on "+socket.host+":"+socket.port;
 		socket.accept(acceptedCallbacks);
 	} catch (e) {
 		messageLabel.text = 'Exception: '+e;
@@ -129,11 +125,11 @@ var writeButton = Titanium.UI.createButton({
 win.add(writeButton);
 writeButton.addEventListener('click', function() {
 	var plBlob = Titanium.Filesystem.getFile(Titanium.Filesystem.resourcesDirectory, 'paradise_lost.txt').read();
+	var buff = Ti.createBuffer({data:plBlob});
 
 	for (var index in connectedSockets) {
 		var sock = connectedSockets[index];
-		Ti.API.info('Writing to socket: '+sock);
-		sock.write(plBlob);
+		sock.write(buff);
 	}
 	messageLabel.text = "I'm a writer!";
 });

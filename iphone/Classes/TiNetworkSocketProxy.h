@@ -6,55 +6,45 @@
  */
 #ifdef USE_TI_NETWORK
 #import <Foundation/Foundation.h>
-#import "TiProxy.h"
+#import "TiStreamProxy.h"
 #import "AsyncSocket.h"
 #import "NetworkModule.h"
 
-@interface TiNetworkSocketProxy : TiProxy<AsyncSocketDelegate> {
+@interface TiNetworkSocketProxy : TiStreamProxy<AsyncSocketDelegate> {
     AsyncSocket* socket;
     SocketState internalState;
     NSMutableData* readBuffer;
     NSCondition* listening;
     
     NSThread* socketThread;
+    // We have to have an explicit "host" property because of some 'fun' undocumented KVO
+    // behavior - it turns out that KVO 'getters' also look for '-(type)_key' signature
+    // selectors.  TiProxy has a '_host' function.
+    NSString* host;
+    
+    NSUInteger readDataLength;
     
     KrollCallback* connected;
     KrollCallback* accepted;
     KrollCallback* closed;
-    KrollCallback* read;
     KrollCallback* error;
-    KrollCallback* wrotedata;
 }
 // Properties:
 // -- Stored on TiProxy dynprops --
-// String hostName // TODO: Have to change spec to reflect new name
 // int port
-// int type
-// KrollCallback connected // TODO: Enforce type safety for KrollCallbacks
-// KrollCallback error
-// KrollCallback closed
-// KrollCallback accepted
-// KrollCallback read
-// KrollCallback wrotedata
 // ----
+@property (nonatomic, readwrite, retain) NSString* host;
 @property (nonatomic, readonly) NSNumber* state; // Req's local processing
-@property (nonatomic, readwrite, assign) NSNumber* readBufferSize; // TODO: replace w/a Buffer object?
 @property (nonatomic, readwrite, retain) KrollCallback* connected;
 @property (nonatomic, readwrite, retain) KrollCallback* accepted;
 @property (nonatomic, readwrite, retain) KrollCallback* closed;
-@property (nonatomic, readwrite, retain) KrollCallback* read;
 @property (nonatomic, readwrite, retain) KrollCallback* error;
-@property (nonatomic, readwrite, retain) KrollCallback* wrotedata;
 
 // Public API
 -(void)connect:(id)_void;
 -(void)listen:(id)arg; // arg[0]: int maxAcceptQueueSize : queue size
 -(void)accept:(id)arg; // arg[0]: Object params : callbacks for created socket
 -(void)close:(id)_void;
--(void)write:(id)arg; // arg[0]: Ti.Blob blob : blob to write
-
-
-
 
 @end
 #endif

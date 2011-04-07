@@ -853,6 +853,15 @@
 		DABB37B712E8CB280026A6EA /* libtiverify.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 24D5C75811E6364F00F097E2 /* libtiverify.a */; };
 		DABDEB07128B5A8F00C85FEA /* AudioStreamerBC.m in Sources */ = {isa = PBXBuildFile; fileRef = DA9FF580128A1F3600457759 /* AudioStreamerBC.m */; };
 		DABDEB08128B5A8F00C85FEA /* AudioStreamerCUR.m in Sources */ = {isa = PBXBuildFile; fileRef = DA9FF582128A1F3600457759 /* AudioStreamerCUR.m */; };
+		DABF3ECF134D210400836137 /* TiBuffer.m in Sources */ = {isa = PBXBuildFile; fileRef = DABF3ECE134D210400836137 /* TiBuffer.m */; };
+		DABF3ED0134D210400836137 /* TiBuffer.m in Sources */ = {isa = PBXBuildFile; fileRef = DABF3ECE134D210400836137 /* TiBuffer.m */; };
+		DABF3ED1134D210400836137 /* TiBuffer.m in Sources */ = {isa = PBXBuildFile; fileRef = DABF3ECE134D210400836137 /* TiBuffer.m */; };
+		DABF3ED7134D2CA100836137 /* TiStreamModule.m in Sources */ = {isa = PBXBuildFile; fileRef = DABF3ED6134D2CA100836137 /* TiStreamModule.m */; };
+		DABF3ED8134D2CA100836137 /* TiStreamModule.m in Sources */ = {isa = PBXBuildFile; fileRef = DABF3ED6134D2CA100836137 /* TiStreamModule.m */; };
+		DABF3ED9134D2CA100836137 /* TiStreamModule.m in Sources */ = {isa = PBXBuildFile; fileRef = DABF3ED6134D2CA100836137 /* TiStreamModule.m */; };
+		DABF3EDC134D2E4400836137 /* TiStreamProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = DABF3EDB134D2E4300836137 /* TiStreamProxy.m */; };
+		DABF3EDD134D2E4400836137 /* TiStreamProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = DABF3EDB134D2E4300836137 /* TiStreamProxy.m */; };
+		DABF3EDE134D2E4400836137 /* TiStreamProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = DABF3EDB134D2E4300836137 /* TiStreamProxy.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -1442,6 +1451,12 @@
 		DABA10BF12E676A1007DD791 /* FBRequest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FBRequest.h; sourceTree = "<group>"; };
 		DABA10C012E676A1007DD791 /* FBRequest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FBRequest.m; sourceTree = "<group>"; };
 		DABB37BC12E8CB280026A6EA /* Titanium.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Titanium.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		DABF3ECD134D210400836137 /* TiBuffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiBuffer.h; sourceTree = "<group>"; };
+		DABF3ECE134D210400836137 /* TiBuffer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiBuffer.m; sourceTree = "<group>"; };
+		DABF3ED5134D2CA100836137 /* TiStreamModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiStreamModule.h; sourceTree = "<group>"; };
+		DABF3ED6134D2CA100836137 /* TiStreamModule.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiStreamModule.m; sourceTree = "<group>"; };
+		DABF3EDA134D2E4300836137 /* TiStreamProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; path = TiStreamProxy.h; sourceTree = "<group>"; };
+		DABF3EDB134D2E4300836137 /* TiStreamProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiStreamProxy.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -1826,6 +1841,7 @@
 			children = (
 				24F6204D1199F1F400EEAD3C /* TopTiModule.h */,
 				24F6204E1199F1F400EEAD3C /* TopTiModule.m */,
+				DABF3ED3134D2A6400836137 /* Stream */,
 				245B3C3011375A4D00CE7530 /* Utils */,
 				24DEDAC21123719700398D86 /* XML */,
 				24CA8C58111165180084E2DE /* Accelerometer */,
@@ -1947,6 +1963,10 @@
 				24F29E2D12209C920099351D /* TiStylesheet.m */,
 				24F29E6E1220CE0A0099351D /* TiLocale.h */,
 				24F29E6F1220CE0A0099351D /* TiLocale.m */,
+				DABF3ECD134D210400836137 /* TiBuffer.h */,
+				DABF3ECE134D210400836137 /* TiBuffer.m */,
+				DABF3EDA134D2E4300836137 /* TiStreamProxy.h */,
+				DABF3EDB134D2E4300836137 /* TiStreamProxy.m */,
 			);
 			name = API;
 			sourceTree = "<group>";
@@ -2778,6 +2798,15 @@
 			path = ../Classes/JSON;
 			sourceTree = SOURCE_ROOT;
 		};
+		DABF3ED3134D2A6400836137 /* Stream */ = {
+			isa = PBXGroup;
+			children = (
+				DABF3ED5134D2CA100836137 /* TiStreamModule.h */,
+				DABF3ED6134D2CA100836137 /* TiStreamModule.m */,
+			);
+			name = Stream;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -3245,6 +3274,9 @@
 				DABA10C412E676A1007DD791 /* FBLoginDialog.m in Sources */,
 				DABA10C512E676A1007DD791 /* FBRequest.m in Sources */,
 				DA2B35C2134514FE00056705 /* TiNetworkSocketProxy.m in Sources */,
+				DABF3ECF134D210400836137 /* TiBuffer.m in Sources */,
+				DABF3ED7134D2CA100836137 /* TiStreamModule.m in Sources */,
+				DABF3EDC134D2E4400836137 /* TiStreamProxy.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3509,6 +3541,9 @@
 				DABA10C912E676A1007DD791 /* FBLoginDialog.m in Sources */,
 				DABA10CA12E676A1007DD791 /* FBRequest.m in Sources */,
 				DA2B35C3134514FE00056705 /* TiNetworkSocketProxy.m in Sources */,
+				DABF3ED0134D210400836137 /* TiBuffer.m in Sources */,
+				DABF3ED8134D2CA100836137 /* TiStreamModule.m in Sources */,
+				DABF3EDD134D2E4400836137 /* TiStreamProxy.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3773,6 +3808,9 @@
 				DABB379F12E8CB280026A6EA /* FBLoginDialog.m in Sources */,
 				DABB37A012E8CB280026A6EA /* FBRequest.m in Sources */,
 				DA2B35C4134514FE00056705 /* TiNetworkSocketProxy.m in Sources */,
+				DABF3ED1134D210400836137 /* TiBuffer.m in Sources */,
+				DABF3ED9134D2CA100836137 /* TiStreamModule.m in Sources */,
+				DABF3EDE134D2E4400836137 /* TiStreamProxy.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

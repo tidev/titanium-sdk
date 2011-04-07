@@ -8,6 +8,7 @@
 #import "TiNetworkSocketProxy.h"
 #import "NetworkModule.h"
 #import "TiBlob.h"
+#import "TiBuffer.h"
 
 static NSString* FD_KEY = @"fd";
 static NSString* ARG_KEY = @"arg";
@@ -17,7 +18,7 @@ static NSString* ARG_KEY = @"arg";
 @end
 
 @implementation TiNetworkSocketProxy
-@synthesize connected, accepted, closed, read, error, wrotedata;
+@synthesize host, connected, accepted, closed, error;
 
 #pragma mark Internals
 
@@ -49,9 +50,9 @@ static NSString* ARG_KEY = @"arg";
     RELEASE_TO_NIL(connected);
     RELEASE_TO_NIL(accepted);
     RELEASE_TO_NIL(closed);
-    RELEASE_TO_NIL(read);
     RELEASE_TO_NIL(error);
-    RELEASE_TO_NIL(wrotedata);
+    
+    RELEASE_TO_NIL(host);
     
     [super _destroy];
 }
@@ -95,7 +96,6 @@ static NSString* ARG_KEY = @"arg";
 {
     NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
     
-    NSString* host = [self valueForUndefinedKey:@"hostName"];
     id port = [self valueForUndefinedKey:@"port"]; // Can be string or int
     NSNumber* type = [self valueForUndefinedKey:@"type"];
     NSNumber* timeout = [self valueForUndefinedKey:@"timeout"];  // TODO: SPEC: Add to spec
@@ -140,7 +140,6 @@ static NSString* ARG_KEY = @"arg";
 {
     NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
     
-    NSString* host = [self valueForKey:@"hostName"];
     id port = [self valueForKey:@"port"]; // Can be string or int
     NSNumber* type = [self valueForKey:@"type"];
     
@@ -202,7 +201,7 @@ static NSString* ARG_KEY = @"arg";
     [proxy _setConnectedSocket:newSocket];
     
     // TODO: remoteHost/remotePort & host/port?
-    [proxy setValue:[newSocket connectedHost] forKey:@"hostName"];
+    [proxy setValue:[newSocket connectedHost] forKey:@"host"];
     [proxy setValue:NUMINT([newSocket connectedPort]) forKey:@"port"];
     
     if (accepted != nil) {
@@ -291,33 +290,7 @@ return; \
                     location:CODELOCATION];
     }
     
-    internalState = SOCKET_CLOSED;
     [self cleanupSocket];
-}
-
-// ARGS
-// arg[0] : Ti.Blob data - data to write
-// arg[1][optional] : int tag - tag for write op
-// arg[2][optional] : double timeout - timeout interval
--(void)write:(id)args
-{
-    ENSURE_SOCKET_THREAD(write,args);
-    
-    if (!(internalState & SOCKET_CONNECTED)) {
-        [self throwException:[NSString stringWithFormat:@"Attempt to write in invalid state: %d",internalState]
-                   subreason:nil
-                    location:CODELOCATION];
-    }
-    
-    TiBlob* blob;
-    NSNumber* tag;
-    NSNumber* timeout;
-    
-    ENSURE_ARG_AT_INDEX(blob, args, 0, TiBlob);
-    ENSURE_ARG_OR_NIL_AT_INDEX(tag, args, 1, NSNumber);
-    ENSURE_ARG_OR_NIL_AT_INDEX(timeout, args, 2, NSNumber);
-    
-    [socket writeData:[blob data] withTimeout:((timeout) ? [timeout doubleValue] : -1) tag:[tag longValue]];
 }
 
 #pragma mark Public API : Properties
@@ -325,31 +298,6 @@ return; \
 -(NSNumber*)state
 {
     return NUMINT(internalState);
-}
-
-// TODO: Add 'readBufferSize' to spec
--(void)setReadBufferSize:(NSNumber *)readBufferSize_
-{
-    // NOTE: Can't set this once CONNECTED; it's something that has to be
-    // pre-configured since we can't fuck with the read buffer once reads are ongoing,
-    // and this is the easiest way to handle that.
-    if (!(internalState & SOCKET_INITIALIZED)) {
-        [self throwException:[NSString stringWithFormat:@"Attempt to set buffer size in invalid state: %d",internalState]
-                   subreason:nil 
-                    location:CODELOCATION];
-    }
-    
-    NSUInteger newSize = [readBufferSize_ unsignedIntegerValue];
-    if (newSize <= 0) {
-        NSLog(@"[WARN] Bad size %ud for read buffer; setting to 1024",newSize);
-        newSize = 1024;
-    }
-    [readBuffer setLength:newSize];
-}
-
--(NSNumber*)readBufferSize
-{
-    return [NSNumber numberWithUnsignedInteger:[readBuffer length]];
 }
 
 // TODO: Move to TiBase?
@@ -363,12 +311,101 @@ prop = [val retain]; \
 }\
 }
 
+TYPESAFE_SETTER(setHost, host, NSString)
+
 TYPESAFE_SETTER(setConnected, connected, KrollCallback)
 TYPESAFE_SETTER(setAccepted, accepted, KrollCallback)
 TYPESAFE_SETTER(setClosed, closed, KrollCallback)
-TYPESAFE_SETTER(setRead, read, KrollCallback)
 TYPESAFE_SETTER(setError, error, KrollCallback)
-TYPESAFE_SETTER(setWrotedata, wrotedata, KrollCallback)
+
+#pragma mark TiStreamProxy overrides
+
+// Have to overload 'read' and 'write' behavior as well, because they need to be performed on the socket thread!
+// Note the retain/release magic.
+-(NSNumber*)read:(id)args
+{
+    if ([NSThread currentThread] != socketThread) {
+        NSInvocation* readInvoke = [NSInvocation invocationWithMethodSignature:[self methodSignatureForSelector:@selector(read:)]];
+        [readInvoke setTarget:self];
+        [readInvoke setSelector:@selector(read:)];
+        [readInvoke setArgument:&args atIndex:2];
+        [readInvoke performSelector:@selector(invoke) onThread:socketThread withObject:nil waitUntilDone:YES];
+        
+        NSNumber* result = nil;
+        [readInvoke getReturnValue:&result];
+        return [result autorelease];
+    }
+    else {
+        return [[super read:args] retain];
+    }
+}
+
+-(NSNumber*)write:(id)args
+{
+    if ([NSThread currentThread] != socketThread) {
+        NSInvocation* writeInvoke = [NSInvocation invocationWithMethodSignature:[self methodSignatureForSelector:@selector(write:)]];
+        [writeInvoke setTarget:self];
+        [writeInvoke setSelector:@selector(write:)];
+        [writeInvoke setArgument:&args atIndex:2];
+        [writeInvoke performSelector:@selector(invoke) onThread:socketThread withObject:nil waitUntilDone:YES];
+        
+        NSNumber* result = nil;
+        [writeInvoke getReturnValue:&result];
+        return [result autorelease];
+    }
+    else {
+        return [[super write:args] retain];
+    }
+}
+
+-(NSNumber*)isReadable:(id)_void
+{
+    return NUMBOOL(internalState & SOCKET_CONNECTED);
+}
+
+-(NSNumber*)isWritable:(id)_void
+{
+    return NUMBOOL(internalState & SOCKET_CONNECTED);
+}
+
+-(int)readToBuffer:(TiBuffer*)buffer
+{
+    [socket readDataWithTimeout:-1
+                         buffer:[buffer data]
+                   bufferOffset:0
+                      maxLength:[[buffer data] length]
+                            tag:0];
+    
+    return readDataLength;
+}
+
+-(int)readToBuffer:(TiBuffer*)buffer offset:(int)offset length:(int)length
+{
+    // TODO: Do we enforce/guarantee that 'length' bytes are read, or that AT MOST
+    // 'length' bytes are read?
+    [socket readDataWithTimeout:-1
+                         buffer:[buffer data]
+                   bufferOffset:offset
+                      maxLength:length
+                            tag:0];
+    
+    return readDataLength;
+}
+
+-(int)writeFromBuffer:(TiBuffer*)buffer
+{
+    [socket writeData:[buffer data] withTimeout:-1 tag:0];
+    
+    return [[buffer data] length];
+}
+
+-(int)writeFromBuffer:(TiBuffer*)buffer offset:(int)offset length:(int)length
+{
+    NSData* subdata = [[buffer data] subdataWithRange:NSMakeRange(offset, length)];
+    [socket writeData:subdata withTimeout:-1 tag:0];
+    
+    return [subdata length];
+}
 
 #pragma mark AsyncSocketDelegate methods
 
@@ -412,31 +449,17 @@ TYPESAFE_SETTER(setWrotedata, wrotedata, KrollCallback)
     }
 }
 
-// TODO: Add 'finishedwrite' to spec?
+// TODO: Implement partial write callback?
 -(void)onSocket:(AsyncSocket *)sock didWriteDataWithTag:(long)tag 
 {
-    if (wrotedata != nil) {
-        NSDictionary* event = [NSDictionary dictionaryWithObjectsAndKeys:self,@"socket",NUMLONG(tag),@"tag",nil];
-        [self _fireEventToListener:@"finishedwrite" withObject:event listener:wrotedata thisObject:self];
-    }
+    // Nada... for now.
 }
 
-// 'data' is the total amount of data read; maybe we should just postpone any data events until the read is complete?
+// TODO: Implement partial data read callback?
 -(void)onSocket:(AsyncSocket *)sock didReadData:(NSData *)data withTag:(long)tag
 {
-    if (read != nil) {
-        // The data points to the same bytes as our readbuffer, so we need to copy them
-        TiBlob* blob = [[[TiBlob alloc] initWithData:[[data copy] autorelease] mimetype:@"application/octet-stream"] autorelease];
-        NSDictionary* event = [NSDictionary dictionaryWithObjectsAndKeys:self,@"socket",[NSNumber numberWithUnsignedInteger:[data length]],@"bytes",blob,@"data", nil];
-        [self _fireEventToListener:@"read" withObject:event listener:read thisObject:self];
-    }
-    
-    // Set up the next read
-    [socket readDataWithTimeout:-1
-                         buffer:readBuffer
-                   bufferOffset:0
-                      maxLength:[readBuffer length]
-                            tag:0];
+    // The amount of data read is available only off of this 'data' object... not off the initial buffer we passed.
+    readDataLength = [data length];
 }
 
 @end
