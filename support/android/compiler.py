@@ -146,10 +146,9 @@ class Compiler(object):
 			'-main-method-class', 'org.appcelerator.titanium.TiScriptRunner',
 			'-nosource', '-package', self.appid + '.js', '-encoding', 'utf8',
 			'-o', js_class_name, '-d', self.classes_dir, fullpath]
-			
+
 		print "[INFO] Compiling javascript: %s" % resource_relative_path
 		sys.stdout.flush()
-		
 		run.run(jsc_args)
 
 	def compile_into_bytecode(self, paths):
