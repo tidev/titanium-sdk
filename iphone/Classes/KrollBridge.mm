@@ -13,15 +13,16 @@
 #import "TiUtils.h"
 #import "TiApp.h"
 #import "ApplicationMods.h"
-
-#ifdef DEBUGGER_ENABLED
-#import "TiDebuggerContext.h"
 #import "TiDebugger.h"
-#endif
 
 extern BOOL const TI_APPLICATION_ANALYTICS;
 
 @implementation TitaniumObject
+
+-(NSDictionary*)modules
+{
+	return modules;
+}
 
 -(id)initWithContext:(KrollContext*)context_ host:(TiHost*)host_ context:(id<TiEvaluator>)pageContext_ baseURL:(NSURL*)baseURL_
 {
@@ -365,22 +366,16 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 	// only continue if we don't have any exceptions from above
 	if (exception == NULL)
 	{
-#ifdef DEBUGGER_ENABLED
-		Ti::TiDebuggerContext* debugger = static_cast<Ti::TiDebuggerContext*>([context_ debugger]);
-		if (debugger!=NULL)
-		{
-			debugger->beginScriptEval(urlCString);
-		}
-#endif
+        if ([[self host] debugMode]) {
+            TiDebuggerBeginScript(context_,urlCString);
+        }
 		
 		TiEvalScript(jsContext, jsCode, NULL, jsURL, 1, &exception);
 		
-#ifdef DEBUGGER_ENABLED		
-		if (debugger!=NULL)
-		{
-			debugger->endScriptEval();
-		}
-#endif		
+        if ([[self host] debugMode]) {
+            TiDebuggerEndScript(context_);
+        }
+
 		if (exception!=NULL)
 		{
 			id excm = [KrollObject toID:context value:exception];
@@ -673,6 +668,11 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 	}
 	
 	@throw [NSException exceptionWithName:@"org.appcelerator.kroll" reason:[NSString stringWithFormat:@"Couldn't find module: %@",path] userInfo:nil];
+}
+
+-(BOOL)shouldDebugContext
+{
+    return [[self host] debugMode];
 }
 
 @end

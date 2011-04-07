@@ -22,6 +22,7 @@ extern NSString * const TI_APPLICATION_ID;
 
 
 @implementation TiHost
+@synthesize debugMode;
 
 +(NSURL*)resourceBasedURL:(NSString*)fn baseURL:(NSString**)base
 {
@@ -63,6 +64,7 @@ extern NSString * const TI_APPLICATION_ID;
 		startURL = [url retain];
 		baseURL = [[NSURL fileURLWithPath:base] retain];
 		stylesheet = [[TiStylesheet alloc] init];
+        debugMode = NO;
 	}
 	return self;
 }

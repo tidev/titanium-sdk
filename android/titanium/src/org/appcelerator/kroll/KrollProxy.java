@@ -120,12 +120,12 @@ public class KrollProxy
 		return binding;
 	}
 
-	protected boolean hasBinding(String name)
+	public boolean hasBinding(String name)
 	{
 		return getBinding().hasBinding(name);
 	}
 
-	protected Object getBinding(String name)
+	public Object getBinding(String name)
 	{
 		return getBinding().getBinding(name);
 	}

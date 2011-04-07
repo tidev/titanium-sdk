@@ -56,6 +56,7 @@ public final class ${config['classname']}Application extends TiApplication {
 		%if config['deploy_type'] != 'production':
 		org.appcelerator.titanium.TiVerify verify = new org.appcelerator.titanium.TiVerify(context.getActivity(), this);
 		verify.verify();
+		modules.add(new ti.modules.titanium.debug.DebugModule(context));
 		%endif
 	}
 	
