@@ -11,6 +11,7 @@
 #import "KrollCallback.h"
 #import "TiUtils.h"
 #import "TiLocale.h"
+//#import "TiApp.h"
 
 #ifdef DEBUGGER_ENABLED
 	#import "TiDebuggerContext.h"
@@ -892,6 +893,7 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 	[[NSThread currentThread] setName:[self threadName]];
 	
+//	context = TiGlobalContextCreateInGroup([TiApp contextGroup],NULL);
 	context = TiGlobalContextCreate(NULL);
 	TiObjectRef globalRef = TiContextGetGlobalObject(context);
 		

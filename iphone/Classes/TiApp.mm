@@ -96,6 +96,23 @@ void MyUncaughtExceptionHandler(NSException *exception)
 	return [sharedApp controller];
 }
 
+-(TiContextGroupRef)contextGroup
+{
+	if(contextGroup == nil)
+	{
+		contextGroup = TiContextGroupCreate();
+		TiContextGroupRetain(contextGroup);
+	}
+	return contextGroup;
+}
+
+
++(TiContextGroupRef)contextGroup
+{
+	return [sharedApp contextGroup];
+}
+
+
 -(void)startNetwork
 {
 	ENSURE_UI_THREAD_0_ARGS;
