@@ -18,10 +18,6 @@ typedef enum {
 } SocketMode;
 
 typedef enum {
-    TCP = 0 // Sneaky trick so that [type intValue] == nil will eval to [type intValue] == TCP for undefined type in socket
-} SocketType;
-
-typedef enum {
     SOCKET_INITIALIZED = 1<<0,
     SOCKET_CONNECTED = 1<<1,
     SOCKET_LISTENING = 1<<2,
@@ -59,8 +55,6 @@ typedef enum {
 @property(readonly, nonatomic) NSNumber* WRITE_MODE;
 @property(readonly, nonatomic) NSNumber* READ_WRITE_MODE;
 @property(readonly, nonatomic) NSString* INADDR_ANY;
-
-@property(readonly, nonatomic) NSNumber* TCP;
 
 @property(readonly, nonatomic) NSNumber* SOCKET_INITIALIZED;
 @property(readonly, nonatomic) NSNumber* SOCKET_CONNECTED;

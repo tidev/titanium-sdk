@@ -2,6 +2,18 @@ var win = Ti.UI.currentWindow;
 
 var connectingSocket = null;
 
+function readCallback(e) {
+	if (e.errorDescription == null) {
+		statusArea.value = "DATA: "+e.buffer.toString();
+	}
+	else {
+		statusArea.value = "READ ERROR: "+e.errorDescription;
+	}
+	
+	e.buffer.clear();
+	Ti.Stream.read(e.source,e.buffer,readCallback);
+}
+
 var hostField = Ti.UI.createTextField({
 	value:'HOSTNAME',
 	top:20,
@@ -72,6 +84,8 @@ connectButton.addEventListener('click', function() {
 				type:Ti.Network.TCP,
 				connected:function(e) {
 					e.socket.write(Ti.createBuffer({data:"Well, hello there!"}));
+					var readBuffer = Ti.createBuffer({length:1024});
+					Ti.Stream.read(e.socket,readBuffer,readCallback);
 				},
 				error:function(e) {
 					statusArea.value = "ERROR ("+e.errorCode+"): "+e.error;
@@ -87,7 +101,7 @@ connectButton.addEventListener('click', function() {
 		}
 	}
 	else {
-		statusArea.value = 'Already connected: '+connectingSocket.host +':'+connectingSocket.port;
+		statusArea.value = 'Already created: '+connectingSocket.host +':'+connectingSocket.port;
 	}
 });
 win.add(connectButton);

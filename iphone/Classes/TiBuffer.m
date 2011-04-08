@@ -29,6 +29,11 @@
 
 #pragma mark Public API : Functions
 
+-(void)clear:(id)_void
+{
+    [data resetBytesInRange:NSMakeRange(0, [data length])];
+}
+
 -(TiBlob*)toBlob:(id)_void
 {
     return [[[TiBlob alloc] initWithData:[data copy] mimetype:@"application/octet-stream"] autorelease];

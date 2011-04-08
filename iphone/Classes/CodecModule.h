@@ -7,8 +7,10 @@
 #import <Foundation/Foundation.h>
 #import "TiModule.h"
 
-@interface TiStreamModule : TiModule {
+#ifdef USE_TI_CODEC
+@interface CodecModule : TiModule {
     
 }
 
 @end
+#endif

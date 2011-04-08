@@ -17,6 +17,7 @@
 -(id)initWithData:(NSData*)data;
 
 // Public API
+-(void)clear:(id)_void;
 -(TiBlob*)toBlob:(id)_void;
 -(NSString*)toString:(id)_void;
 

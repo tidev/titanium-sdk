@@ -4,10 +4,15 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
+#import <Foundation/Foundation.h>
+#import "TiModule.h"
+#ifdef USE_TI_STREAM
+@interface StreamModule : TiModule {
+    
+}
 
-#import "TiStreamModule.h"
-
-
-@implementation TiStreamModule
+// Public API
+-(void)read:(id)args;
 
 @end
+#endif

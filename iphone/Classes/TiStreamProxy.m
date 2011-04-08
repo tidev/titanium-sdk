@@ -71,12 +71,14 @@
     }
     
     TiBuffer* buffer = nil;
-    NSNumber* offset = nil;
-    NSNumber* length = nil;
+    id offset = nil;
+    id length = nil;
     
     ENSURE_ARG_AT_INDEX(buffer, args, 0, TiBuffer);
-    ENSURE_ARG_OR_NIL_AT_INDEX(offset, args, 1, NSNumber);
-    ENSURE_ARG_OR_NIL_AT_INDEX(length, args, 2, NSNumber);
+    ENSURE_ARG_OR_NIL_AT_INDEX(offset, args, 1, NSObject);
+    ENSURE_INT_COERCION(offset);
+    ENSURE_ARG_OR_NIL_AT_INDEX(length, args, 2, NSObject);
+    ENSURE_INT_COERCION(length);
     
     if (offset == nil && length == nil) {
         return NUMINT([self readToBuffer:buffer]);
@@ -104,12 +106,14 @@
     }
     
     TiBuffer* buffer = nil;
-    NSNumber* offset = nil;
-    NSNumber* length = nil;
+    id offset = nil; // May need to perform type coercion from string->int
+    id length = nil;
     
     ENSURE_ARG_AT_INDEX(buffer, args, 0, TiBuffer);
-    ENSURE_ARG_OR_NIL_AT_INDEX(offset, args, 1, NSNumber);
-    ENSURE_ARG_OR_NIL_AT_INDEX(length, args, 2, NSNumber);
+    ENSURE_ARG_OR_NIL_AT_INDEX(offset, args, 1, NSObject);
+    ENSURE_INT_COERCION(offset);
+    ENSURE_ARG_OR_NIL_AT_INDEX(length, args, 2, NSObject);
+    ENSURE_INT_COERCION(offset);
     
     if (offset == nil && length == nil) {
         return NUMINT([self writeFromBuffer:buffer]);

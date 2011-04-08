@@ -13,7 +13,6 @@
 @interface TiNetworkSocketProxy : TiStreamProxy<AsyncSocketDelegate> {
     AsyncSocket* socket;
     SocketState internalState;
-    NSMutableData* readBuffer;
     NSCondition* listening;
     
     NSThread* socketThread;
@@ -22,6 +21,10 @@
     // selectors.  TiProxy has a '_host' function.
     NSString* host;
     
+    // We offer synchronous I/O.  The underlying socket implementation is asynchronous.
+    // So we need to ensure our own synchronicity by signaling a condition when operations
+    // complete.
+    NSCondition* ioCondition;
     NSUInteger readDataLength;
     
     KrollCallback* connected;

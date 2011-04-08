@@ -15,6 +15,10 @@ static NSString* ARG_KEY = @"arg";
 
 @interface TiNetworkSocketProxy (Private)
 -(void)cleanupSocket;
+-(void)_setConnectedSocket:(AsyncSocket*)sock;
+-(void)startConnectingSocket;
+-(void)startListeningSocket;
+-(void)startAcceptedSocket:(NSDictionary*)info;
 @end
 
 @implementation TiNetworkSocketProxy
@@ -26,7 +30,7 @@ static NSString* ARG_KEY = @"arg";
 {
     if (self = [super init]) {
         listening = [[NSCondition alloc] init];
-        readBuffer = [[NSMutableData alloc] initWithLength:1024]; // Read buffer size is 1pg
+        ioCondition = [[NSCondition alloc] init];
         internalState = SOCKET_INITIALIZED;
         socketThread = nil;
     }
@@ -44,8 +48,15 @@ static NSString* ARG_KEY = @"arg";
     internalState = SOCKET_CLOSED;
     [self cleanupSocket];
     
+    [listening lock];
+    [listening signal];
+    [listening unlock];
     RELEASE_TO_NIL(listening);
-    RELEASE_TO_NIL(readBuffer);
+    
+    [ioCondition lock];
+    [ioCondition signal];
+    [ioCondition unlock];
+    RELEASE_TO_NIL(ioCondition);
     
     RELEASE_TO_NIL(connected);
     RELEASE_TO_NIL(accepted);
@@ -75,36 +86,13 @@ static NSString* ARG_KEY = @"arg";
     socketThread = [NSThread currentThread];
 }
 
--(void)runSocketReadLoop
-{
-    // Begin the read process
-    [socket readDataWithTimeout:-1 
-                         buffer:readBuffer
-                   bufferOffset:0
-                      maxLength:[readBuffer length]
-                            tag:0];
-    
-    socketThread = [NSThread currentThread];
-    
-    // Begin the run loop for the socket
-    while (!(internalState & (SOCKET_CLOSED | SOCKET_ERROR)) &&
-           [[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode beforeDate:[NSDate distantFuture]])
-        ; // Keep on truckin'
-}
-
 -(void)startConnectingSocket
 {
     NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
     
     id port = [self valueForUndefinedKey:@"port"]; // Can be string or int
-    NSNumber* type = [self valueForUndefinedKey:@"type"];
-    NSNumber* timeout = [self valueForUndefinedKey:@"timeout"];  // TODO: SPEC: Add to spec
-    
-    if ([type intValue] != TCP) {
-        [self throwException:[NSString stringWithFormat:@"Attempt to connect with unrecognized protocol: %d",[type intValue]]
-                   subreason:nil
-                    location:CODELOCATION];
-    }
+    ENSURE_INT_COERCION(port);
+    NSNumber* timeout = [self valueForUndefinedKey:@"timeout"];
     
     if (host == nil || [host isEqual:@""]) {
         [self throwException:@"Attempt to connect with bad host: nil or empty"
@@ -113,6 +101,8 @@ static NSString* ARG_KEY = @"arg";
     }
     
     socket = [[AsyncSocket alloc] initWithDelegate:self];
+    socketThread = [NSThread currentThread];
+    
     NSError* err = nil;
     BOOL success;
     if (timeout == nil) {
@@ -131,7 +121,10 @@ static NSString* ARG_KEY = @"arg";
                     location:CODELOCATION];
     }
     
-    [self runSocketReadLoop];
+    // Begin the run loop for the socket
+    while (!(internalState & (SOCKET_CLOSED | SOCKET_ERROR)) &&
+           [[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode beforeDate:[NSDate distantFuture]])
+        ; // Keep on truckin'
     
     [pool release];
 }
@@ -175,8 +168,8 @@ static NSString* ARG_KEY = @"arg";
     socketThread = [NSThread currentThread];
     
     [listening lock];
-    [listening signal];
     internalState = SOCKET_LISTENING;
+    [listening signal];
     [listening unlock];
     
     // Begin the run loop for the socket
@@ -208,8 +201,11 @@ static NSString* ARG_KEY = @"arg";
         NSDictionary* event = [NSDictionary dictionaryWithObjectsAndKeys:self,@"socket",proxy,@"inbound",nil];
         [self _fireEventToListener:@"accepted" withObject:event listener:accepted thisObject:self];
     }
-    
-    [proxy runSocketReadLoop];
+
+    // Begin the run loop for the socket
+    while (!(internalState & (SOCKET_CLOSED | SOCKET_ERROR)) &&
+           [[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode beforeDate:[NSDate distantFuture]])
+        ; // Keep on truckin'
     
     [pool release];
 }
@@ -251,7 +247,6 @@ return; \
     [listening unlock];
 }
 
-// TODO: Change spec to indicate accept() is asynch
 -(void)accept:(id)arg
 {
     ENSURE_SOCKET_THREAD(accept,arg);
@@ -329,11 +324,26 @@ TYPESAFE_SETTER(setError, error, KrollCallback)
         [readInvoke setTarget:self];
         [readInvoke setSelector:@selector(read:)];
         [readInvoke setArgument:&args atIndex:2];
-        [readInvoke performSelector:@selector(invoke) onThread:socketThread withObject:nil waitUntilDone:YES];
+        [readInvoke performSelector:@selector(invoke) onThread:socketThread withObject:nil waitUntilDone:NO];
         
-        NSNumber* result = nil;
-        [readInvoke getReturnValue:&result];
-        return [result autorelease];
+        [ioCondition lock];
+        [ioCondition wait];
+        [ioCondition unlock];
+        
+        // Because of the things we have to do to enforce blocking, we don't know what the number of bytes read
+        // when the invoke actually returns IS.  We have to wait until the condition is unlocked and use the
+        // length of the read data... unless we're returning -1.
+        
+        NSNumber* readResult = nil;
+        [readInvoke getReturnValue:&readResult];
+        [readResult autorelease];
+        
+        if ([readResult intValue] == -1) {
+            return readResult;
+        }
+        else {
+            return NUMINT(readDataLength);
+        }
     }
     else {
         return [[super read:args] retain];
@@ -347,7 +357,11 @@ TYPESAFE_SETTER(setError, error, KrollCallback)
         [writeInvoke setTarget:self];
         [writeInvoke setSelector:@selector(write:)];
         [writeInvoke setArgument:&args atIndex:2];
-        [writeInvoke performSelector:@selector(invoke) onThread:socketThread withObject:nil waitUntilDone:YES];
+        [writeInvoke performSelector:@selector(invoke) onThread:socketThread withObject:nil waitUntilDone:NO];
+        
+        [ioCondition lock];
+        [ioCondition wait];
+        [ioCondition unlock];
         
         NSNumber* result = nil;
         [writeInvoke getReturnValue:&result];
@@ -381,15 +395,13 @@ TYPESAFE_SETTER(setError, error, KrollCallback)
 
 -(int)readToBuffer:(TiBuffer*)buffer offset:(int)offset length:(int)length
 {
-    // TODO: Do we enforce/guarantee that 'length' bytes are read, or that AT MOST
-    // 'length' bytes are read?
     [socket readDataWithTimeout:-1
                          buffer:[buffer data]
                    bufferOffset:offset
                       maxLength:length
                             tag:0];
     
-    return readDataLength;
+    return 0;
 }
 
 -(int)writeFromBuffer:(TiBuffer*)buffer
@@ -452,14 +464,19 @@ TYPESAFE_SETTER(setError, error, KrollCallback)
 // TODO: Implement partial write callback?
 -(void)onSocket:(AsyncSocket *)sock didWriteDataWithTag:(long)tag 
 {
-    // Nada... for now.
+    [ioCondition lock];
+    [ioCondition signal];
+    [ioCondition unlock];
 }
 
 // TODO: Implement partial data read callback?
 -(void)onSocket:(AsyncSocket *)sock didReadData:(NSData *)data withTag:(long)tag
 {
     // The amount of data read is available only off of this 'data' object... not off the initial buffer we passed.
+    [ioCondition lock];
     readDataLength = [data length];
+    [ioCondition signal];
+    [ioCondition unlock];
 }
 
 @end
