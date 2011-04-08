@@ -34,6 +34,24 @@
     [self makeViewPerformSelector:@selector(stopEditing) withObject:nil createIfNeeded:YES waitUntilDone:NO];    
 }
 
+-(void)addItem:(id)item
+{
+  ENSURE_UI_THREAD_1_ARG(item);
+  ENSURE_SINGLE_ARG(item, TiUIDashboardItemProxy);
+  TiUIDashboardView *v = (TiUIDashboardView*)[self view];
+  LauncherView *launcher = [v launcher];
+  [launcher addItem:((TiUIDashboardItemProxy *)item).item animated:YES];
+}
+
+-(void)removeItem:(id)item
+{
+  ENSURE_UI_THREAD_1_ARG(item);
+  ENSURE_SINGLE_ARG(item, TiUIDashboardItemProxy);
+  TiUIDashboardView *v = (TiUIDashboardView*)[self view];
+  LauncherView *launcher = [v launcher];
+  [launcher removeItem:((TiUIDashboardItemProxy *)item).item animated:YES];
+}
+
 -(void)fireEvent:(NSString *)type withObject:(id)obj withSource:(id)source propagate:(BOOL)propagate
 {
 	if ([type isEqual:@"click"])
