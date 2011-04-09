@@ -51,6 +51,7 @@ static BOOL alertShowing = NO;
 	// prevent more than one JS thread from showing an alert box at a time
 	if ([NSThread isMainThread]==NO)
 	{
+		[self rememberSelf];
 		[alertCondition lock];
 		if (alertShowing)
 		{
@@ -109,6 +110,7 @@ static BOOL alertShowing = NO;
 	alertShowing = NO;
 	[alertCondition broadcast];
 	[alertCondition unlock];
+	[self forgetSelf];
 	[self autorelease];
 	RELEASE_TO_NIL(alert);
 	[[NSNotificationCenter defaultCenter] removeObserver:self];
