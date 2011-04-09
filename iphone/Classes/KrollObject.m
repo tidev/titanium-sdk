@@ -369,8 +369,13 @@ void KrollFinalizer(TiObjectRef ref)
 		if (ourBridge != nil)
 		{
 			TiProxy * ourTarget = [o target];
+			NSString * ourTargetDesc = [ourTarget description];
+			if ([ourTargetDesc length] > 40)
+			{
+				ourTargetDesc = [ourTargetDesc substringToIndex:30];
+			}
 			NSLog(@"FINALIZING %@[%X]->%@[%@==%@]->%@ %X (%@:%@)",ourContext,ref,ourBridge,o,[ourBridge krollObjectForProxy:ourTarget],
-					ourTarget,ourTarget,[ourTarget valueForKey:@"title"],[ourTarget valueForKey:@"text"]);
+					ourTargetDesc,ourTarget,[ourTarget valueForKey:@"title"],[ourTarget valueForKey:@"text"]);
 			if ((ourTarget != nil) && ([ourBridge krollObjectForProxy:ourTarget] == o))
 			{
 				[ourBridge unregisterProxy:ourTarget];
