@@ -259,7 +259,7 @@ function showIndicator()
 	actInd = Titanium.UI.createActivityIndicator({
 		style:Titanium.UI.iPhone.ActivityIndicatorStyle.BIG,
 		height:30,
-		width:30,
+		width:30
 	});
 	
 	if (Ti.Platform.osname != 'android')
