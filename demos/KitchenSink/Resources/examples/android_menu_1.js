@@ -126,7 +126,7 @@ activity.onCreateOptionsMenu = function(e) {
 		order : 0
 	});
 	m1.setIcon("/images/appc_small.png");
-}
+};
 
 activity.onPrepareOptionsMenu = function(e) {
 	
@@ -140,4 +140,4 @@ activity.onPrepareOptionsMenu = function(e) {
 		}
 		m1a.setEnabled(!enabled);
 	}
-}
+};

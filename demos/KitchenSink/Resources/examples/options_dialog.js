@@ -22,7 +22,7 @@ if (isAndroid) {
 		} else {
 			dialog.buttonNames = [];
 		}
-	}
+	};
 }
 //
 // BASIC OPTIONS DIALOG
@@ -48,9 +48,9 @@ dialog.addEventListener('click',function(e)
 	
 	if (isAndroid) {
 		if (e.button) {
-			label.text += ' button'
+			label.text += ' button';
 		}  else {
-			label.text += ' option'
+			label.text += ' option';
 		}
 	}
 });
