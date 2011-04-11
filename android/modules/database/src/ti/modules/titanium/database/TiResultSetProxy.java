@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2011 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -17,6 +17,7 @@ import org.appcelerator.titanium.util.TiConfig;
 
 import android.database.AbstractWindowedCursor;
 import android.database.Cursor;
+import android.database.SQLException;
 
 @Kroll.proxy
 public class TiResultSetProxy extends KrollProxy
@@ -110,9 +111,10 @@ public class TiResultSetProxy extends KrollProxy
 				if (fromString) {
 					result = rs.getString(index);
 				}
-			} catch (Exception e) {
+			} catch (SQLException e) {
 				String msg = "No field at index " + index + ". msg=" + e.getMessage();
 				Log.e(LCAT, msg, e);
+				throw e;
 			}
 		}
 
@@ -134,9 +136,10 @@ public class TiResultSetProxy extends KrollProxy
 				Integer ndx = columnNames.get(fieldName.toLowerCase());
 				if (ndx != null)
 					result = getField(ndx.intValue());
-			} catch (Exception e) {
+			} catch (SQLException e) {
 				String msg = "Field name " + fieldName + " not found. msg=" + e.getMessage();
 				Log.e(LCAT, msg);
+				throw e;
 			}
 		}
 		
@@ -149,8 +152,9 @@ public class TiResultSetProxy extends KrollProxy
 		if (rs != null) {
 			try {
 				return rs.getColumnCount();
-			} catch (Exception e) {
+			} catch (SQLException e) {
 				Log.e(LCAT, "No fields");
+				throw e;
 			}
 		}
 		
@@ -170,8 +174,9 @@ public class TiResultSetProxy extends KrollProxy
 		if (rs != null) {
 			try {
 				return rs.getColumnName(index);
-			} catch (Exception e) {
+			} catch (SQLException e) {
 				Log.e(LCAT, "No column at index: " + index);
+				throw e;
 			}
 		}
 		return null;

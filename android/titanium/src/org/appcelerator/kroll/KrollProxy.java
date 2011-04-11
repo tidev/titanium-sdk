@@ -120,12 +120,12 @@ public class KrollProxy
 		return binding;
 	}
 
-	protected boolean hasBinding(String name)
+	public boolean hasBinding(String name)
 	{
 		return getBinding().hasBinding(name);
 	}
 
-	protected Object getBinding(String name)
+	public Object getBinding(String name)
 	{
 		return getBinding().getBinding(name);
 	}
@@ -520,6 +520,13 @@ public class KrollProxy
 		return sendBlockingUiMessage(
 			getUIHandler().obtainMessage(what, result), result);
 	}
+	
+	public Object sendBlockingUiMessage(int what, int arg1)
+	{
+		AsyncResult result = new AsyncResult(null);
+		return sendBlockingUiMessage(
+			getUIHandler().obtainMessage(what, arg1, -1), result);		
+	}
 
 	public Object sendBlockingUiMessage(int what, Object asyncArg, int arg1, int arg2)
 	{
@@ -595,7 +602,8 @@ public class KrollProxy
 		return eventManager.dispatchEvent(eventName, data);
 	}
 
-	public boolean fireSyncEvent(String eventName, KrollDict data)
+	@Kroll.method
+	public boolean fireSyncEvent(String eventName, @Kroll.argument(optional=true) KrollDict data)
 	{
 		return eventManager.dispatchEvent(eventName, data, false);
 	}

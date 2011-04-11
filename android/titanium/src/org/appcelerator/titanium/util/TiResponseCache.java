@@ -27,22 +27,26 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.codec.digest.DigestUtils;
+import org.appcelerator.titanium.TiApplication;
+import org.appcelerator.titanium.TiProperties;
 
 public class TiResponseCache extends ResponseCache
 {
+	private static final boolean DBG = TiConfig.LOGD;
 	private static final String TAG = "TiResponseCache";
 
 	private static final String HEADER_SUFFIX = ".hdr";
 	private static final String BODY_SUFFIX   = ".bdy";
 	private static final String CACHE_SIZE_KEY = "ti.android.cache.size.max";
-	private static final int MAX_CACHE_SIZE = 25 * 1024 * 1024; // 25MB
+	private static final int DEFAULT_CACHE_SIZE = 25 * 1024 * 1024; // 25MB
 	private static final int INITIAL_DELAY = 10000;
 	private static final int CLEANUP_DELAY = 60000;
 	private static final String LCAT = "TiResponseCache"; 
 	private static HashMap<String, ArrayList<CompleteListener>> completeListeners = new HashMap<String, ArrayList<CompleteListener>>();
+	private static long maxCacheSize = 0;
 
 	private static ScheduledExecutorService cleanupExecutor = null;
-
+	
 	public static interface CompleteListener
 	{
 		public void cacheCompleted(URI uri);
@@ -217,14 +221,19 @@ public class TiResponseCache extends ResponseCache
 	}
 
 	private File cacheDir = null;
-	
-	public TiResponseCache(File cachedir) {
+
+	public TiResponseCache(File cachedir, TiApplication tiApp) {
 		super();
 		assert cachedir.isDirectory() : "cachedir MUST be a directory";
 		cacheDir = cachedir;
 
+		maxCacheSize = tiApp.getSystemProperties().getInt(CACHE_SIZE_KEY, DEFAULT_CACHE_SIZE) * 1024;
+		if(DBG) {
+			Log.d(LCAT, "max cache size is:" + maxCacheSize);
+		}
+
 		cleanupExecutor = Executors.newSingleThreadScheduledExecutor();
-		TiCacheCleanup command = new TiCacheCleanup(cacheDir, MAX_CACHE_SIZE);
+		TiCacheCleanup command = new TiCacheCleanup(cacheDir, maxCacheSize);
 		cleanupExecutor.scheduleWithFixedDelay(command, INITIAL_DELAY, CLEANUP_DELAY, TimeUnit.MILLISECONDS);
 	}
 
@@ -290,7 +299,9 @@ public class TiResponseCache extends ResponseCache
 	{
 		Map<String, List<String>> headers = new HashMap<String, List<String>>(origHeaders.size());
 		for (String key : origHeaders.keySet()) {
-			headers.put(key.toLowerCase(), origHeaders.get(key));
+			if (key != null) {
+				headers.put(key.toLowerCase(), origHeaders.get(key));
+			}
 		}
 		return headers;
 	}
@@ -328,7 +339,7 @@ public class TiResponseCache extends ResponseCache
 				}
 			}
 		}
-		if (contentLength + sb.length() > MAX_CACHE_SIZE) {
+		if (contentLength + sb.length() > maxCacheSize) {
 			return null;
 		}
 		

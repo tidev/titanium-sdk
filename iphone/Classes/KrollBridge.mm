@@ -13,15 +13,16 @@
 #import "TiUtils.h"
 #import "TiApp.h"
 #import "ApplicationMods.h"
-
-#ifdef DEBUGGER_ENABLED
-#import "TiDebuggerContext.h"
 #import "TiDebugger.h"
-#endif
 
 extern BOOL const TI_APPLICATION_ANALYTICS;
 
 @implementation TitaniumObject
+
+-(NSDictionary*)modules
+{
+	return modules;
+}
 
 -(id)initWithContext:(KrollContext*)context_ host:(TiHost*)host_ context:(id<TiEvaluator>)pageContext_ baseURL:(NSURL*)baseURL_
 {
@@ -149,6 +150,8 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 
 @implementation KrollBridge
 
+@synthesize currentURL;
+
 -(id)init
 {
 	if (self = [super init])
@@ -169,18 +172,32 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 
 -(void)didReceiveMemoryWarning:(NSNotification*)notification
 {
-	if (proxies!=nil)
+	SEL sel = @selector(didReceiveMemoryWarning:);
+	BOOL keepWarning = YES;
+	int proxiesCount = [proxies count];
+
+	//During a memory panic, we may not get the chance to copy proxies.
+	while (keepWarning)
 	{
-		SEL sel = @selector(didReceiveMemoryWarning:);
-		// we have to copy during traversal since proxies can be removed during
-		for (id proxy in [NSArray arrayWithArray:proxies])
+		keepWarning = NO;
+		for (id proxy in proxies)
 		{
-			if ([proxy respondsToSelector:sel])
+			if (![proxy respondsToSelector:sel])
 			{
-				[proxy didReceiveMemoryWarning:notification];
+				continue;
+			}
+
+			[proxy didReceiveMemoryWarning:notification];
+			int newCount = [proxies count];
+			if (newCount != proxiesCount)
+			{
+				proxiesCount = newCount;
+				keepWarning = YES;
+				break;
 			}
 		}
 	}
+
 	[self gc];
 }
 
@@ -349,22 +366,16 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 	// only continue if we don't have any exceptions from above
 	if (exception == NULL)
 	{
-#ifdef DEBUGGER_ENABLED
-		Ti::TiDebuggerContext* debugger = static_cast<Ti::TiDebuggerContext*>([context_ debugger]);
-		if (debugger!=NULL)
-		{
-			debugger->beginScriptEval(urlCString);
-		}
-#endif
+        if ([[self host] debugMode]) {
+            TiDebuggerBeginScript(context_,urlCString);
+        }
 		
 		TiEvalScript(jsContext, jsCode, NULL, jsURL, 1, &exception);
 		
-#ifdef DEBUGGER_ENABLED		
-		if (debugger!=NULL)
-		{
-			debugger->endScriptEval();
-		}
-#endif		
+        if ([[self host] debugMode]) {
+            TiDebuggerEndScript(context_);
+        }
+
 		if (exception!=NULL)
 		{
 			id excm = [KrollObject toID:context value:exception];
@@ -657,6 +668,11 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 	}
 	
 	@throw [NSException exceptionWithName:@"org.appcelerator.kroll" reason:[NSString stringWithFormat:@"Couldn't find module: %@",path] userInfo:nil];
+}
+
+-(BOOL)shouldDebugContext
+{
+    return [[self host] debugMode];
 }
 
 @end

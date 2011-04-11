@@ -1,18 +1,29 @@
 var win = Titanium.UI.currentWindow;
 var android = (Titanium.Platform.name == 'android');
 
-var activeMovie = Titanium.Media.createVideoPlayer({
+var options = {
 	contentURL:'../movie.mp4',
 	backgroundColor:'#111',
-	movieControlMode:Titanium.Media.VIDEO_CONTROL_DEFAULT,
 	scalingMode:Titanium.Media.VIDEO_SCALING_MODE_FILL
-});
+};
+
+if (android) {
+	options.mediaControlStyle = Titanium.Media.VIDEO_CONTROL_DEFAULT;
+} else {
+	if (parseFloat(Titanium.Platform.version) >= 3.2) {
+		options.mediaControlStyle = Titanium.Media.VIDEO_CONTROL_NONE;
+	} else {
+		options.movieControlMode = Titanium.Media.VIDEO_CONTROL_NONE;
+	}
+}
+
+var activeMovie = Titanium.Media.createVideoPlayer(options);
 
 if (parseFloat(Titanium.Platform.version) >= 3.2)
 {
-	activeMovie.movieControlStyle = Titanium.Media.VIDEO_CONTROL_EMBEDDED;
-//	activeMovie.movieControlStyle = Titanium.Media.VIDEO_CONTROL_FULLSCREEN;
-//	activeMovie.movieControlStyle = Titanium.Media.VIDEO_CONTROL_NONE;
+	activeMovie.mediaControlStyle = Titanium.Media.VIDEO_CONTROL_EMBEDDED;
+//	activeMovie.mediaControlStyle = Titanium.Media.VIDEO_CONTROL_FULLSCREEN;
+//	activeMovie.mediaControlStyle = Titanium.Media.VIDEO_CONTROL_NONE;
 	if (Titanium.Platform.osname == "ipad") {
 		activeMovie.width = 400;
 		activeMovie.height = 300;
@@ -36,6 +47,9 @@ activeMovie.add(movieLabel);
 movieLabel.addEventListener('click',function()
 {
 	movieLabel.text = "You clicked the video label. Sweet!";
+	if (android) {
+		activeMovie.mediaControlStyle = Titanium.Media.VIDEO_CONTROL_NONE;
+	}
 });
 
 activeMovie.addEventListener('load',function()

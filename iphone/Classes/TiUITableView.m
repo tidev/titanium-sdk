@@ -191,6 +191,7 @@
 
 -(void)dealloc
 {
+    [self detachContents];
 	if (searchField!=nil)
 	{
 		[searchField setDelegate:nil];
@@ -210,6 +211,16 @@
 	RELEASE_TO_NIL(initialSelection);
 	RELEASE_TO_NIL(tableHeaderPullView);
 	[super dealloc];
+}
+
+-(void)detachContents
+{
+    for (TiUITableViewSectionProxy* section in sections) {
+        for (TiUITableViewRowProxy* row in [section rows]) {
+            [row detachView];
+        }
+        [section detachView];
+    }
 }
 
 -(BOOL)isScrollable
@@ -1130,7 +1141,7 @@
 	if([searchText length]==0)
 	{
 		// Redraw visible cells
-		[tableview reloadRowsAtIndexPaths:[tableview indexPathsForVisibleRows] withRowAnimation:UITableViewRowAnimationNone];
+        [tableview reloadRowsAtIndexPaths:[tableview indexPathsForVisibleRows] withRowAnimation:UITableViewRowAnimationNone];
 		[searchTableView removeFromSuperview];
 		return;
 	}

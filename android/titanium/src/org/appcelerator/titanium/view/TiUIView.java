@@ -662,32 +662,35 @@ public abstract class TiUIView
 		if (d.containsKey(TiC.PROPERTY_BORDER_RADIUS)
 			|| d.containsKey(TiC.PROPERTY_BORDER_COLOR)
 			|| d.containsKey(TiC.PROPERTY_BORDER_WIDTH)) {
-			if (background == null) {
-				applyCustomBackground();
-			}
 
-			if (background.getBorder() == null) {
-				background.setBorder(new TiBackgroundDrawable.Border());
-			}
+			if(nativeView != null) {
+				if (background == null) {
+					applyCustomBackground();
+				}
 
-			TiBackgroundDrawable.Border border = background.getBorder();
+				if (background.getBorder() == null) {
+					background.setBorder(new TiBackgroundDrawable.Border());
+				}
 
-			if (d.containsKey(TiC.PROPERTY_BORDER_RADIUS)) {
-				border.setRadius(TiConvert.toFloat(d, TiC.PROPERTY_BORDER_RADIUS));
-			}
-			if (d.containsKey(TiC.PROPERTY_BORDER_COLOR) || d.containsKey(TiC.PROPERTY_BORDER_WIDTH)) {
-				if (d.containsKey(TiC.PROPERTY_BORDER_COLOR)) {
-					border.setColor(TiConvert.toColor(d, TiC.PROPERTY_BORDER_COLOR));
-				} else {
-					if (bgColor != null) {
-						border.setColor(bgColor);
+				TiBackgroundDrawable.Border border = background.getBorder();
+
+				if (d.containsKey(TiC.PROPERTY_BORDER_RADIUS)) {
+					border.setRadius(TiConvert.toFloat(d, TiC.PROPERTY_BORDER_RADIUS));
+				}
+				if (d.containsKey(TiC.PROPERTY_BORDER_COLOR) || d.containsKey(TiC.PROPERTY_BORDER_WIDTH)) {
+					if (d.containsKey(TiC.PROPERTY_BORDER_COLOR)) {
+						border.setColor(TiConvert.toColor(d, TiC.PROPERTY_BORDER_COLOR));
+					} else {
+						if (bgColor != null) {
+							border.setColor(bgColor);
+						}
+					}
+					if (d.containsKey(TiC.PROPERTY_BORDER_WIDTH)) {
+						border.setWidth(TiConvert.toFloat(d, TiC.PROPERTY_BORDER_WIDTH));
 					}
 				}
-				if (d.containsKey(TiC.PROPERTY_BORDER_WIDTH)) {
-					border.setWidth(TiConvert.toFloat(d, TiC.PROPERTY_BORDER_WIDTH));
-				}
+				//applyCustomBackground();
 			}
-			//applyCustomBackground();
 		}
 	}
 
@@ -894,14 +897,7 @@ public abstract class TiUIView
 		} else if ( ! (view instanceof AdapterView) ){
 			// n.b.: AdapterView throws if click listener set.
 			// n.b.: setting onclicklistener automatically sets clickable to true.
-			view.setOnClickListener(new OnClickListener()
-			{
-				@Override
-				public void onClick(View view)
-				{
-					proxy.fireEvent(TiC.EVENT_CLICK, dictFromEvent(lastUpEvent));
-				}
-			});
+			setOnClickListener(view);
 		}
 	}
 	private void doSetClickable(boolean clickable)
@@ -928,5 +924,21 @@ public abstract class TiUIView
 			return;
 		}
 		doSetClickable(view, view.isClickable());
+	}
+
+	/**
+	 * Can be overriden by inheriting views for special click handling.  For example,
+	 * the Facebook module's login button view needs special click handling.
+	 */
+	protected void setOnClickListener(View view)
+	{
+		view.setOnClickListener(new OnClickListener()
+		{
+			@Override
+			public void onClick(View view)
+			{
+				proxy.fireEvent(TiC.EVENT_CLICK, dictFromEvent(lastUpEvent));
+			}
+		});
 	}
 }

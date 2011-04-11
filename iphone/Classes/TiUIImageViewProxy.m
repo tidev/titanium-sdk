@@ -190,7 +190,7 @@ USE_VIEW_FOR_AUTO_HEIGHT
 		return;
 	}
 	
-	if ([self viewAttached])
+	if (view != nil)
 	{
 		[(TiUIImageView *)[self view] imageLoadSuccess:request image:image];
 	}

@@ -9,6 +9,7 @@
 #import "KrollBridge.h"
 #import "TiApp.h"
 #import "TiUtils.h"
+#import "TiBuffer.h"
 
 @implementation TopTiModule
 
@@ -38,7 +39,7 @@
 	{
 		// only allow includes that are local to our execution context url
 		// for security, refuse to load non-compiled in Javascript code
-		NSString *rootPath = [[self _baseURL] path];
+		NSString *rootPath = [[self _baseURL] path];	 	
 		NSURL *url = [[NSURL fileURLWithPath:[NSString stringWithFormat:@"%@/%@",rootPath,file]] standardizedURL];
 #ifdef DEBUG
 		NSLog(@"[DEBUG] include url: %@",[url absoluteString]);
@@ -66,4 +67,27 @@
 	}
 }
 #endif
+
+// TODO: Temp for socket testing; remove/rework for release.
+-(TiBuffer*)createBuffer:(id)arg
+{
+    ENSURE_SINGLE_ARG(arg, NSDictionary);
+    
+    id data = [arg valueForKey:@"data"];
+    int length = [[arg valueForKey:@"length"] intValue];
+    
+    if (data != nil) {
+        if ([data isKindOfClass:[NSString class]]) {
+            return [[[TiBuffer alloc] initWithData:[data dataUsingEncoding:NSUTF8StringEncoding]] autorelease];
+        }
+        else if ([data isKindOfClass:[TiBlob class]]) {
+            return [[[TiBuffer alloc] initWithData:[data data]] autorelease];
+        }
+    }
+    else {
+        return [[[TiBuffer alloc] initWithData:[NSMutableData dataWithLength:length]] autorelease];
+    }
+    return [[[TiBuffer alloc] initWithData:[NSData data]] autorelease];
+}
+
 @end

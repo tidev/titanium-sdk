@@ -10,6 +10,7 @@ import java.lang.ref.WeakReference;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.titanium.proxy.ActivityProxy;
+import org.appcelerator.titanium.proxy.IntentProxy;
 import org.appcelerator.titanium.proxy.TiWindowProxy;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiActivityResultHandler;
@@ -28,11 +29,11 @@ import org.appcelerator.titanium.view.TiCompositeLayout.LayoutArrangement;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.res.Configuration;
-import android.os.Build.VERSION;
 import android.os.Bundle;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
+import android.os.Build.VERSION;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -527,6 +528,22 @@ public abstract class TiBaseActivity extends Activity
 	}
 
 	@Override
+	protected void onNewIntent(Intent intent) 
+	{
+		super.onNewIntent(intent);
+		if (DBG) {
+			Log.d(TAG, "Activity " + this + " onNewIntent");
+		}
+		
+		if (activityProxy != null) {
+			IntentProxy ip = new IntentProxy(activityProxy.getTiContext(),intent);
+			KrollDict data = new KrollDict();
+			data.put(TiC.PROPERTY_INTENT, ip);
+			activityProxy.fireSyncEvent(TiC.EVENT_NEW_INTENT, data);
+		}
+	}
+
+	@Override
 	protected void onPause() 
 	{
 		super.onPause();
@@ -608,6 +625,19 @@ public abstract class TiBaseActivity extends Activity
 			Log.d(TAG, "Activity " + this + " onDestroy");
 		}
 		super.onDestroy();
+		// Our Activities are currently unable to recover from Android-forced restarts,
+		// so we need to relaunch the application entirely.
+		if (!isFinishing())
+		{
+			if (!shouldFinishRootActivity()) {
+				// Put it in, because we want it to finish root in this case.
+				getIntent().putExtra(TiC.INTENT_PROPERTY_FINISH_ROOT, true);
+			}
+			getTiApp().scheduleRestart(250);
+			finish();
+			return;
+		}
+
 		fireOnDestroy();
 
 		if (orientationListener != null) {
@@ -663,7 +693,7 @@ public abstract class TiBaseActivity extends Activity
 			TiApplication app = getTiApp();
 			if (app != null) {
 				TiRootActivity rootActivity = app.getRootActivity();
-				if (rootActivity != null) {
+				if (rootActivity != null && !(rootActivity.equals(this))) {
 					rootActivity.finish();
 				}
 			}

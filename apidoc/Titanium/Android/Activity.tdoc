@@ -66,6 +66,11 @@ pause : Fired from the Activity's [onPause](http://developer.android.com/referen
 resume : Fired from the Activity's [onResume](http://developer.android.com/reference/android/app/Activity.html#onResume())
 stop : Fired from the Activity's [onStop](http://developer.android.com/reference/android/app/Activity.html#onStop())
 destroy : Fired from the Activity's [onDestroy](http://developer.android.com/reference/android/app/Activity.html#onDestroy())
+newIntent : Fired when the application is already running and certain flags are set in the Intent. Fired from the Activity's [onNewIntent](http://developer.android.com/reference/android/app/Activity.html#onNewIntent(android.content.Intent)) 
+
+- event : newIntent
+
+intent: the [[Titanium.Android.Intent]] passed to the native `onNewIntent` method.
 
 - example : Callback example
 ~~~

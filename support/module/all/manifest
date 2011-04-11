@@ -6,7 +6,7 @@ version: 0.1
 description: My module
 author: Your Name
 license: Specify your license
-copyright: Copyright (c) 2010 by Your Company
+copyright: Copyright (c) __YEAR__ by Your Company
 
 
 # these should not be edited

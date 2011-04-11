@@ -322,10 +322,14 @@ def distribute_xc3(uuid, provisioning_profile, name, log):
 	plistlib.writePlist(archive_metadata,archive_plist)
 	os.remove(os.path.join(archive_dir,'Info.xml.plist'))	
 
-def distribute_xc4(name, log):
+def distribute_xc4(name, icon, log):
 	# Locations of bundle, app binary, dsym info
 	log.write("Creating distribution for xcode4...\n");	
-	archive_bundle = os.path.join(os.path.expanduser("~/Library/Developer/Xcode/Archives"),"%s.xcarchive" % name)
+	timestamp = datetime.datetime.now()
+	date = timestamp.date().isoformat()
+	time = timestamp.time().strftime('%H-%M-%S')
+	archive_name = os.path.join(date,'%s_%s' % (name, time))
+	archive_bundle = os.path.join(os.path.expanduser("~/Library/Developer/Xcode/Archives"),"%s.xcarchive" % archive_name)
 	archive_app = os.path.join(archive_bundle,"Products","Applications","%s.app" % name)
 	archive_dsym = os.path.join(archive_bundle,"dSYM")
 	
@@ -346,13 +350,17 @@ def distribute_xc4(name, log):
 	# plist
 	os.system('/usr/bin/plutil -convert xml1 -o "%s" "%s"' % (os.path.join(archive_bundle,'Info.xml.plist'),os.path.join(archive_app,'Info.plist')))
 	project_info_plist = plistlib.readPlist(os.path.join(archive_bundle,'Info.xml.plist'))
+	appbundle = "Applications/%s.app" % name
+	# NOTE: We chop off the end '.' of 'CFBundleVersion' to provide the 'short' version
 	archive_info = {
 		'ApplicationProperties' : {
-			'ApplicationPath' : 'Applications/%s.app' % name,
-			'CFBundleIdentifier' : project_info_plist['CFBundleIdentifier']
+			'ApplicationPath' : appbundle,
+			'CFBundleIdentifier' : project_info_plist['CFBundleIdentifier'],
+			'CFBundleShortVersionString' : project_info_plist['CFBundleVersion'].rsplit('.',1)[0],
+			'IconPaths' : [os.path.join(appbundle,icon), os.path.join(appbundle,icon)]
 		},
 		'ArchiveVersion' : float(1),
-		'CreationDate' : datetime.datetime.fromtimestamp(time.mktime(time.gmtime())),
+		'CreationDate' : datetime.datetime.utcnow(),
 		'Name' : name,
 		'SchemeName' : name
 	}
@@ -480,6 +488,9 @@ def main(args):
 		version_file = None
 		log_id = None
 		provisioning_profile = None
+		debug_host = None
+		debug_port = None
+		debughost = None
 		
 		# starting in 1.4, you don't need to actually keep the build/iphone directory
 		# if we don't find it, we'll just simply re-generate it
@@ -515,6 +526,13 @@ def main(args):
 			else:
 				# 'universal' helpfully translates into iPhone here... just in case.
 				simtype = devicefamily
+			if argc > 8:
+				# this is host:port from the debugger
+				debughost = dequote(args[8].decode("utf-8"))
+				if debughost=='':
+					debughost = None
+				else:
+					debughost,debugport = debughost.split(":")
 		elif command == 'install':
 			iphone_version = check_iphone_sdk(iphone_version)
 			link_version = iphone_version
@@ -522,6 +540,13 @@ def main(args):
 			dist_name = dequote(args[7].decode("utf-8"))
 			if argc > 8:
 				devicefamily = dequote(args[8].decode("utf-8"))
+			if argc > 9:
+				# this is host:port from the debugger
+				debughost = dequote(args[9].decode("utf-8"))
+				if debughost=='':
+					debughost=None
+				else:
+					debughost,debugport = debughost.split(":")
 			deploytype = 'test'
 		
 		# setup up the useful directories we need in the script
@@ -662,7 +687,27 @@ def main(args):
 				ti.properties['version']=version
 				pp = os.path.expanduser("~/Library/MobileDevice/Provisioning Profiles/%s.mobileprovision" % appuuid)
 				provisioning_profile = read_provisioning_profile(pp,o)
-					
+			
+			
+			def write_debugger_plist(debuggerplist):
+				debugger_tmpl = os.path.join(template_dir,'debugger.plist')
+				plist = codecs.open(debugger_tmpl, encoding='utf-8').read()
+				if debughost:
+					plist = plist.replace('__DEBUGGER_HOST__',debughost)
+					plist = plist.replace('__DEBUGGER_PORT__',debugport)
+				else:
+					plist = plist.replace('__DEBUGGER_HOST__','')
+					plist = plist.replace('__DEBUGGER_PORT__','')
+				pf = codecs.open(debuggerplist,'w', encoding='utf-8')
+				pf.write(plist)
+				pf.close()	
+				o.write("+ writing debugger plist:\n\n")
+				pf = codecs.open(debuggerplist,'r', encoding='utf-8')
+				o.write(pf.read())
+				pf.close()
+				o.write("\n\n")
+				
+				
 # TODO:				
 # This code is used elsewhere, as well.  We should move stuff like this to
 # a common file.
@@ -829,12 +874,19 @@ def main(args):
 			if not os.path.exists(os.path.join(iphone_dir,'lib','libtiverify.a')):
 				shutil.copy(os.path.join(template_dir,'libtiverify.a'),os.path.join(iphone_dir,'lib','libtiverify.a'))
 
+			if not os.path.exists(os.path.join(iphone_dir,'lib','libti_ios_debugger.a')):
+				shutil.copy(os.path.join(template_dir,'libti_ios_debugger.a'),os.path.join(iphone_dir,'lib','libti_ios_debugger.a'))
+
 			# compile JSS files
 			cssc = csscompiler.CSSCompiler(os.path.join(project_dir,'Resources'),devicefamily,appid)
 			app_stylesheet = os.path.join(iphone_dir,'Resources','stylesheet.plist')
 			asf = codecs.open(app_stylesheet,'w','utf-8')
 			asf.write(cssc.code)
 			asf.close()
+
+			# compile debugger file
+			debug_plist = os.path.join(iphone_dir,'Resources','debugger.plist')
+			write_debugger_plist(debug_plist)
 
 			if command=='simulator':
 				debug_sim_dir = os.path.join(iphone_dir,'build','Debug-iphonesimulator','%s.app' % name)
@@ -843,7 +895,9 @@ def main(args):
 					asf = codecs.open(app_stylesheet,'w','utf-8')
 					asf.write(cssc.code)
 					asf.close()
-
+					
+					shutil.copy(debug_plist,os.path.join(iphone_dir,'build','Debug-iphonesimulator','%s.app' % name, 'debugger.plist'))
+					
 			if command!='simulator':
 				# compile plist into binary format so it's faster to load
 				# we can be slow on simulator
@@ -1087,8 +1141,12 @@ def main(args):
 				# this is a simulator build
 				if command == 'simulator':
 
+					debugstr = ''
+					if debughost:
+						debugstr = 'DEBUGGER_ENABLED=1'
+					
 					if force_rebuild or force_xcode or not os.path.exists(binary):
-						execute_xcode("iphonesimulator%s" % link_version,["GCC_PREPROCESSOR_DEFINITIONS=__LOG__ID__=%s DEPLOYTYPE=development TI_DEVELOPMENT=1 DEBUG=1 TI_VERSION=%s" % (log_id,sdk_version)],False)
+						execute_xcode("iphonesimulator%s" % link_version,["GCC_PREPROCESSOR_DEFINITIONS=__LOG__ID__=%s DEPLOYTYPE=development TI_DEVELOPMENT=1 DEBUG=1 TI_VERSION=%s %s" % (log_id,sdk_version,debugstr)],False)
 
 					# first make sure it's not running
 					kill_simulator()
@@ -1163,6 +1221,12 @@ def main(args):
 					sys.stdout.flush()
 					sys.stderr.flush()
 
+					# set the DYLD_FRAMEWORK_PATH environment variable for the following Popen iphonesim command
+					# this allows the XCode developer folder to be arbitrarily named
+					xcodeselectpath = os.popen("/usr/bin/xcode-select -print-path").readline().rstrip('\n')
+					iphoneprivateframeworkspath = xcodeselectpath + '/Platforms/iPhoneSimulator.platform/Developer/Library/PrivateFrameworks'
+					os.putenv('DYLD_FRAMEWORK_PATH', iphoneprivateframeworkspath)
+
 					# launch the simulator
 					if devicefamily==None:
 						sim = subprocess.Popen("\"%s\" launch \"%s\" %s iphone" % (iphonesim,app_dir,iphone_version),shell=True)
@@ -1229,8 +1293,12 @@ def main(args):
 				#
 				elif command == 'install':
 
+					debugstr = ''
+					if debughost:
+						debugstr = 'DEBUGGER_ENABLED=1'
+						
 					args += [
-						"GCC_PREPROCESSOR_DEFINITIONS=DEPLOYTYPE=test TI_TEST=1",
+						"GCC_PREPROCESSOR_DEFINITIONS=DEPLOYTYPE=test TI_TEST=1 %s" % debugstr,
 						"PROVISIONING_PROFILE=%s" % appuuid,
 						"CODE_SIGN_IDENTITY=iPhone Developer: %s" % dist_name,
 						"DEPLOYMENT_POSTPROCESSING=YES"
@@ -1298,14 +1366,11 @@ def main(args):
 						"DEPLOYMENT_POSTPROCESSING=YES"
 					]
 					execute_xcode("iphoneos%s" % iphone_version,args,False)
-					
-					# In their infinite wisdom, Apple drastically changed how archives are presented
-					# in XC4 - bundle the distribution based on the version info
-					
+
 					# switch to app_bundle for zip
 					os.chdir(build_dir)
 					if xcode_version() >= 4.0:
-						distribute_xc4(name, o)
+						distribute_xc4(name, applogo, o)
 					else:
 						distribute_xc3(uuid, provisioning_profile, name, o)
 

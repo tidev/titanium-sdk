@@ -86,11 +86,15 @@ def build_and_run(args=None):
 	sys.path.append(os.path.join(mobile_dir, 'build'))
 	import titanium_version
 	
-	# extract the mobilesdk zip so we can use it for testing
 	mobilesdk_dir = os.path.join(mobile_dist_dir, 'mobilesdk', platform_name, titanium_version.version)
-	mobilesdk_zip = zipfile.ZipFile(os.path.join(mobile_dist_dir, 'mobilesdk-%s-%s.zip' % (titanium_version.version, platform_name)))
-	mobilesdk_zip.extractall(mobile_dist_dir)
-	mobilesdk_zip.close()
+	mobilesdk_zipfile = os.path.join(mobile_dist_dir, 'mobilesdk-%s-%s.zip' % (titanium_version.version, platform_name))
+	if platform.system() == 'Darwin':
+		subprocess.Popen(['/usr/bin/unzip', '-q', '-o', '-d', mobile_dist_dir, os.path.join(mobile_dist_dir, 'mobilesdk-%s-%s.zip' % (titanium_version.version, platform_name))])
+	else:
+		# extract the mobilesdk zip so we can use it for testing
+		mobilesdk_zip = zipfile.ZipFile(mobilesdk_zipfile)
+		mobilesdk_zip.extractall(mobile_dist_dir)
+		mobilesdk_zip.close()
 	
 	if not os.path.exists(drillbit_build_dir):
 		os.makedirs(drillbit_build_dir)

@@ -43,6 +43,7 @@ activeMovie.addEventListener('load',function()
 });
 activeMovie.addEventListener('complete',function()
 {
+	Ti.API.debug('Completed!');
 	Titanium.UI.createAlertDialog({title:'Movie', message:'Completed!'}).show();
 	win.close();
 });

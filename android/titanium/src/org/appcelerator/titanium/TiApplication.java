@@ -177,7 +177,6 @@ public abstract class TiApplication extends Application
 	public void onCreate()
 	{
 		super.onCreate();
-
 		TiScriptRunner.getInstance().setAppPackageName(getPackageName());
 		if (DBG) {
 			Log.d(LCAT, "Application onCreate");
@@ -201,18 +200,11 @@ public abstract class TiApplication extends Application
 
 		methodMap = new HashMap<Class<?>, HashMap<String,Method>>(25);
 		proxyMap = new HashMap<String, SoftReference<KrollProxy>>(5);
-		
+
 		appProperties = new TiProperties(getApplicationContext(), APPLICATION_PREFERENCES_NAME, false);
 		systemProperties = new TiProperties(getApplicationContext(), "system", true);
 
 		//systemProperties.setString("ti.version", buildVersion); // was always setting "1.0"
-		
-		// Register the default cache handler
-		File cacheDir = new File(new TiFileHelper(this).getDataDirectory(false), "remote-image-cache");
-		if (!cacheDir.exists()) {
-			cacheDir.mkdirs();
-		}
-		TiResponseCache.setDefault(new TiResponseCache(cacheDir.getAbsoluteFile()));
 	}
 
 	public void postAppInfo() {
@@ -220,16 +212,18 @@ public abstract class TiApplication extends Application
 	}
 
 	public void postOnCreate() {
-		// stick stuff in here as needed
+		TiConfig.LOGD = systemProperties.getBool("ti.android.debug", false);
+
+		// Register the default cache handler
+		File cacheDir = new File(new TiFileHelper(this).getDataDirectory(false), "remote-image-cache");
+		if (!cacheDir.exists()) {
+			cacheDir.mkdirs();
+		}
+		TiResponseCache.setDefault(new TiResponseCache(cacheDir.getAbsoluteFile(), this));
 	}
 
 	public void setRootActivity(TiRootActivity rootActivity)
 	{
-		// Chicken and Egg problem. Set debugging here since I don't want to
-		// change the code generator query app info for properties.
-
-		TiConfig.LOGD = systemProperties.getBool("ti.android.debug", false);
-
 		//TODO consider weakRef
 		this.rootActivity = rootActivity;
 		this.windowHandler = rootActivity;
@@ -537,5 +531,16 @@ public abstract class TiApplication extends Application
 	
 	public boolean forceCompileJS() {
 		return getSystemProperties().getBool(PROPERTY_COMPILE_JS, false);
+	}
+	public void scheduleRestart(int delay)
+	{
+		Log.w(LCAT, "Scheduling application restart");
+		if (DBG) {
+			Log.d(LCAT, "Here is call stack leading to restart. (NOTE: this is not a real exception, just a stack trace.) :");
+			(new Exception()).printStackTrace();
+		}
+		if (getRootActivity() != null) {
+			getRootActivity().restartActivity(delay);
+		}
 	}
 }
