@@ -625,6 +625,19 @@ public abstract class TiBaseActivity extends Activity
 			Log.d(TAG, "Activity " + this + " onDestroy");
 		}
 		super.onDestroy();
+		// Our Activities are currently unable to recover from Android-forced restarts,
+		// so we need to relaunch the application entirely.
+		if (!isFinishing())
+		{
+			if (!shouldFinishRootActivity()) {
+				// Put it in, because we want it to finish root in this case.
+				getIntent().putExtra(TiC.INTENT_PROPERTY_FINISH_ROOT, true);
+			}
+			getTiApp().scheduleRestart(250);
+			finish();
+			return;
+		}
+
 		fireOnDestroy();
 
 		if (orientationListener != null) {
@@ -680,7 +693,7 @@ public abstract class TiBaseActivity extends Activity
 			TiApplication app = getTiApp();
 			if (app != null) {
 				TiRootActivity rootActivity = app.getRootActivity();
-				if (rootActivity != null) {
+				if (rootActivity != null && !(rootActivity.equals(this))) {
 					rootActivity.finish();
 				}
 			}

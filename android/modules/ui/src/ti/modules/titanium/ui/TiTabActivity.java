@@ -150,21 +150,17 @@ public class TiTabActivity extends TabActivity
 	@Override
 	public void finish()
 	{
-		Intent intent = getIntent();
-		if (intent != null) {
-			if (intent.getBooleanExtra(TiC.INTENT_PROPERTY_FINISH_ROOT, false)) {
-				if (getApplication() != null) {
-					TiApplication tiApp = getTiApp();
-					if (tiApp != null) {
-						TiRootActivity rootActivity = tiApp.getRootActivity();
-						if (rootActivity != null) {
-							rootActivity.finish();
-						}
+		if (shouldFinishRootActivity()) {
+			if (getApplication() != null) {
+				TiApplication tiApp = getTiApp();
+				if (tiApp != null) {
+					TiRootActivity rootActivity = tiApp.getRootActivity();
+					if (rootActivity != null) {
+						rootActivity.finish();
 					}
 				}
 			}
 		}
-		
 		super.finish();
 	}
 
@@ -186,11 +182,31 @@ public class TiTabActivity extends TabActivity
 	protected void onDestroy()
 	{
 		super.onDestroy();
+		if (!isFinishing())
+		{
+			// Our Activities are currently unable to recover from Android-forced restarts,
+			// so we need to relaunch the application entirely.
+			if (!shouldFinishRootActivity()) {
+				Intent intent = getIntent();
+				if (intent != null) {
+					// Put it in, because we want it to finish root in this case.
+					intent.putExtra(TiC.INTENT_PROPERTY_FINISH_ROOT, true);
+				}
+			}
+			getTiApp().scheduleRestart(250);
+			finish();
+			return;
+		}
 		if (proxy != null) {
 			proxy.closeFromActivity();
 			proxy = null;
 		}
 		
 		handler = null;
+	}
+	private boolean shouldFinishRootActivity()
+	{
+		Intent intent = getIntent();
+		return (intent.hasExtra(TiC.INTENT_PROPERTY_FINISH_ROOT) && intent.getBooleanExtra(TiC.INTENT_PROPERTY_FINISH_ROOT, false));
 	}
 }
