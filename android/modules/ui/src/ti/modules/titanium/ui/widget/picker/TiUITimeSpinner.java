@@ -52,7 +52,7 @@ public class TiUITimeSpinner extends TiUIView
 		DecimalFormat formatter = new DecimalFormat("00");
 		return new FormatNumericWheelAdapter(
 				format24 ? 0 : 1,
-				format24 ? 23 : 22,
+				format24 ? 23 : 12,
 				formatter, 6);
 	}
 
@@ -149,7 +149,8 @@ public class TiUITimeSpinner extends TiUIView
 			if (is24HourFormat && vg.indexOfChild(amPmWheel) >= 0) {
 				vg.removeView(amPmWheel);
 			} else if (!is24HourFormat && vg.getChildCount() < 3) {
-				vg.addView(makeAmPmWheel(hoursWheel.getContext(), hoursWheel.getTextSize()));
+				amPmWheel = makeAmPmWheel(hoursWheel.getContext(), hoursWheel.getTextSize());
+				vg.addView(amPmWheel);
 			}
 			setValue(calendar.getTimeInMillis() , true); // updates the time display
 			ignoreItemSelection = false;
@@ -210,20 +211,26 @@ public class TiUITimeSpinner extends TiUIView
 	@Override
 	public void onItemSelected(WheelView view, int index)
 	{
+		if (ignoreItemSelection) {
+			return;
+		}
 		boolean format24 = true;
 		if (proxy.hasProperty("format24")) {
 			format24 = TiConvert.toBoolean(proxy.getProperty("format24"));
 		}
-		if (ignoreItemSelection) {
-			return;
-		}
 		calendar.set(Calendar.MINUTE, ((FormatNumericWheelAdapter) minutesWheel.getAdapter()).getValue(minutesWheel.getCurrentItem()));
-		if ( format24 ) {
-			int val = hoursWheel.getCurrentItem();
-
-			if( val == 12 ) //correct 12pm for the last item in the wheel
-				val = 0;
-			calendar.set(Calendar.HOUR_OF_DAY, val + (12 * amPmWheel.getCurrentItem()) );
+		if ( !format24 ) {
+			int hourOfDay = 0;
+			if (hoursWheel.getCurrentItem() == 11) { // "12" on the dial
+				if (amPmWheel.getCurrentItem() == 0) { // "am"
+					hourOfDay = 0;
+				} else {
+					hourOfDay = 12;
+				}
+			} else {
+				hourOfDay = 1 + (12 * amPmWheel.getCurrentItem()) + hoursWheel.getCurrentItem();
+			}
+			calendar.set(Calendar.HOUR_OF_DAY, hourOfDay);
 		} else {
 			calendar.set(Calendar.HOUR_OF_DAY, hoursWheel.getCurrentItem());
 		}
@@ -234,7 +241,6 @@ public class TiUITimeSpinner extends TiUIView
 			data.put("value", dateval);
 			proxy.fireEvent("change", data);
 		}
-		
 	}
 
 }
