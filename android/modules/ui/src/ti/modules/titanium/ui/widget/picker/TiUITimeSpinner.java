@@ -8,13 +8,11 @@
 package ti.modules.titanium.ui.widget.picker;
 
 import java.text.DecimalFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.ArrayList;
-import java.util.Arrays;
 
 import kankan.wheel.widget.WheelView;
-import kankan.wheel.widget.WheelAdapter;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
@@ -25,9 +23,8 @@ import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiUIView;
 
 import android.app.Activity;
+import android.content.Context;
 import android.widget.LinearLayout;
-import android.view.View;
-import android.view.ViewGroup;
 
 public class TiUITimeSpinner extends TiUIView
 		implements WheelView.OnItemSelectedListener
@@ -41,8 +38,6 @@ public class TiUITimeSpinner extends TiUIView
 	
 	private Calendar calendar = Calendar.getInstance();
 	
-	protected boolean format24 = false;
-	
 	public TiUITimeSpinner(TiViewProxy proxy)
 	{
 		super(proxy);
@@ -53,41 +48,32 @@ public class TiUITimeSpinner extends TiUIView
 		createNativeView(activity);
 	}
 	
+	private FormatNumericWheelAdapter makeHoursAdapter(boolean format24) {
+		DecimalFormat formatter = new DecimalFormat("00");
+		return new FormatNumericWheelAdapter(
+				format24 ? 0 : 1,
+				format24 ? 23 : 22,
+				formatter, 6);
+	}
 
-	
+	private WheelView makeAmPmWheel(Context context, int textSize)
+	{
+		ArrayList<Object> amPmRows = new ArrayList<Object>();
+		amPmRows.add(" am ");
+		amPmRows.add(" pm ");
+		WheelView view = new WheelView(context);
+		view.setAdapter(new TextWheelAdapter(amPmRows));
+		view.setTextSize(textSize);
+		view.setItemSelectedListener(this);
+		return view;
+	}
 	private void createNativeView(Activity activity)
 	{
-		DecimalFormat formatter = new DecimalFormat("00");
-        
-        WheelAdapter hours = null;
-        TextWheelAdapter amPm = null;
-        
-        if ( proxy.hasProperty( "format24")  ) {
-            this.format24 = TiConvert.toBoolean( proxy.getProperty(  "format24" ) );
-        }	 
-        
-        if ( !this.format24 ) {
+		boolean format24 = true;
+		if ( proxy.hasProperty( "format24")  ) {
+			format24 = TiConvert.toBoolean( proxy.getProperty(  "format24" ) );
+		}
 
-            ArrayList<Object> rows = new ArrayList<Object>();
-
-            rows.add( 12 );
-            for( int i = 1; i<13;i++ ) {
-                rows.add( i );
-            }
-
-            hours = new TextWheelAdapter( rows );
-            ArrayList<Object> amPmRows = new ArrayList<Object>();
-            amPmRows.add(" am ");
-            amPmRows.add(" pm ");
-
-            amPm = new TextWheelAdapter( amPmRows );
-    		
-        } else {
-            hours = new FormatNumericWheelAdapter(0, 23, formatter, 8);
-        }
-    
-        
-		
 		int minuteInterval = 1;
 		if (proxy.hasProperty(TiC.PROPERTY_MINUTE_INTERVAL)) {
 			int dirtyMinuteInterval = TiConvert.toInt(proxy.getProperty(TiC.PROPERTY_MINUTE_INTERVAL));
@@ -97,68 +83,54 @@ public class TiUITimeSpinner extends TiUIView
 				Log.w(LCAT, "Clearing invalid minuteInterval property value of " + dirtyMinuteInterval);
 				proxy.setProperty(TiC.PROPERTY_MINUTE_INTERVAL, null);
 			}
-		}		
+		}
 		
-		FormatNumericWheelAdapter minutes = new FormatNumericWheelAdapter(0, 59, formatter, 8, minuteInterval);
+		DecimalFormat formatter = new DecimalFormat("00");
+		FormatNumericWheelAdapter hours = makeHoursAdapter(format24);
+		FormatNumericWheelAdapter minutes = new FormatNumericWheelAdapter(0, 59, formatter, 6, minuteInterval);
 		hoursWheel = new WheelView(activity);
 		minutesWheel = new WheelView(activity);
-		
 		hoursWheel.setTextSize(20);
-		if ( !this.format24 ) {
-		    amPmWheel = new WheelView( activity );
-	    	amPmWheel.setTextSize(hoursWheel.getTextSize());
-        }
-			
 		minutesWheel.setTextSize(hoursWheel.getTextSize());
 		hoursWheel.setAdapter(hours);
 		minutesWheel.setAdapter(minutes);
+		hoursWheel.setItemSelectedListener(this);
+		minutesWheel.setItemSelectedListener(this);
+
+		amPmWheel = null;
 		
-		if ( !this.format24 ) {
-		    amPmWheel.setAdapter(amPm);
-		    amPmWheel.setItemSelectedListener(this);
+		if ( !format24 ) {
+			amPmWheel = makeAmPmWheel(activity, hoursWheel.getTextSize());
 		}
-		
-    	hoursWheel.setItemSelectedListener(this);
-    	minutesWheel.setItemSelectedListener(this);
-        
-        
+
 		LinearLayout layout = new LinearLayout(activity);
 		layout.setOrientation(LinearLayout.HORIZONTAL);
 		layout.addView(hoursWheel);
 		layout.addView(minutesWheel);
-		
-		if ( !this.format24 ) {
-		    layout.addView(amPmWheel);
+		if ( !format24 ) {
+			layout.addView(amPmWheel);
 		}
 		
 		setNativeView(layout);
-		
 	}
-	
+
 	@Override
 	public void processProperties(KrollDict d) {
 		super.processProperties(d);
 		
 		boolean valueExistsInProxy = false;
-	    
-        if (d.containsKey(TiC.PROPERTY_VALUE)) {
-            calendar.setTime((Date)d.get(TiC.PROPERTY_VALUE));
-            valueExistsInProxy = true;
-        }   
-      
-        // Undocumented but maybe useful for Android
-        boolean is24HourFormat = false;
-        if (d.containsKey("format24")) {
-        	is24HourFormat = d.getBoolean("format24");
-        }
-    	this.format24 = is24HourFormat;
-        
-        setValue(calendar.getTimeInMillis() , true);
-        
-        if (!valueExistsInProxy) {
-        	proxy.setProperty(TiC.PROPERTY_VALUE, calendar.getTime());
-        }
-      
+
+		if (d.containsKey(TiC.PROPERTY_VALUE)) {
+			calendar.setTime((Date)d.get(TiC.PROPERTY_VALUE));
+			valueExistsInProxy = true;
+		}
+
+		setValue(calendar.getTimeInMillis() , true);
+
+		if (!valueExistsInProxy) {
+			proxy.setProperty(TiC.PROPERTY_VALUE, calendar.getTime());
+		}
+
 	}
 	
 	@Override
@@ -168,67 +140,20 @@ public class TiUITimeSpinner extends TiUIView
 		if (key.equals(TiC.PROPERTY_VALUE)) {
 			Date date = (Date)newValue;
 			setValue(date.getTime());
-		} else if (key.equals("format24")) {		    
-		    
-		    boolean is24HourFormat = TiConvert.toBoolean( newValue );
-		    boolean was24HourFormat = TiConvert.toBoolean( oldValue );
-		    
-		    if( is24HourFormat && !was24HourFormat ) {
-		        //switch to 24 hour format
-		        int val = hoursWheel.getCurrentItem();
-
-    		    if( val == 12 ) //correct 12pm for the last item in the wheel
-    		        val = 0;
-    		    calendar.set(Calendar.HOUR_OF_DAY, val + (12 * amPmWheel.getCurrentItem()) );
-		        
-		        
-		         DecimalFormat formatter = new DecimalFormat("00");
-		         FormatNumericWheelAdapter hours = new FormatNumericWheelAdapter(0, 23, formatter, 8);
-		         hoursWheel.setAdapter(hours );
-		        
-    			 View nv = getNativeView();
-				 if (nv instanceof ViewGroup) {
-					((ViewGroup) nv).removeView(amPmWheel);
-					children.remove(amPmWheel);
-			     }	
-			     
-			     hoursWheel.setCurrentItem(calendar.get(Calendar.HOUR_OF_DAY));
-		         this.format24 = is24HourFormat;
-		    } else if( !is24HourFormat && was24HourFormat ) {
-		        //switch to 12 hour format                
-                ArrayList<Object> rows = new ArrayList<Object>();
-
-                rows.add( 12 );
-                for( int i = 1; i<13;i++ ) {
-                   rows.add( i );
-                }
-
-                WheelAdapter hours = new TextWheelAdapter( rows );
-                hoursWheel.setAdapter(hours);
-                
-                ArrayList<Object> amPmRows = new ArrayList<Object>();
-                amPmRows.add(" am ");
-                amPmRows.add(" pm ");
-
-                TextWheelAdapter amPm = new TextWheelAdapter( amPmRows );
-              
-                amPmWheel = new WheelView( proxy.getTiContext().getActivity() );
-                amPmWheel.setTextSize(hoursWheel.getTextSize());
-                amPmWheel.setAdapter(amPm);
-                amPmWheel.setItemSelectedListener(this);
-
-                View nv = getNativeView();
-                if (nv instanceof ViewGroup) {
-                    ((ViewGroup) nv).addView(amPmWheel);
-                }
-                
-        		float t = calendar.get(Calendar.HOUR_OF_DAY) / 12;
-        		Integer modhour = Math.round( t );
-        		amPmWheel.setCurrentItem( modhour );
-        		hoursWheel.setCurrentItem(calendar.get(Calendar.HOUR_OF_DAY) % 12 );
-        		
-		    }
-            
+		} else if (key.equals("format24")) {
+			boolean is24HourFormat = TiConvert.toBoolean( newValue );
+			ignoreItemSelection = true;
+			suppressChangeEvent = true;
+			hoursWheel.setAdapter(makeHoursAdapter(is24HourFormat));
+			LinearLayout vg = (LinearLayout)nativeView;
+			if (is24HourFormat && vg.indexOfChild(amPmWheel) >= 0) {
+				vg.removeView(amPmWheel);
+			} else if (!is24HourFormat && vg.getChildCount() < 3) {
+				vg.addView(makeAmPmWheel(hoursWheel.getContext(), hoursWheel.getTextSize()));
+			}
+			setValue(calendar.getTimeInMillis() , true); // updates the time display
+			ignoreItemSelection = false;
+			suppressChangeEvent = false;
 		} else if (key.equals(TiC.PROPERTY_MINUTE_INTERVAL)) {
 			int interval = TiConvert.toInt(newValue);
 			if((interval > 0) && (interval <= 30) && (60 % interval == 0)  ){
@@ -251,19 +176,30 @@ public class TiUITimeSpinner extends TiUIView
 	
 	public void setValue(long value, boolean suppressEvent)
 	{
+		boolean format24 = true;
+		if (proxy.hasProperty("format24")) {
+			format24 = TiConvert.toBoolean(proxy.getProperty("format24"));
+		}
 		calendar.setTimeInMillis(value);
 		
 		suppressChangeEvent = true;
 		ignoreItemSelection = true;
 		
-    	if ( !this.format24 ) {
-    		hoursWheel.setCurrentItem(calendar.get(Calendar.HOUR_OF_DAY) % 12 );
-    		float t = calendar.get(Calendar.HOUR_OF_DAY) / 12;
-    		Integer modhour = Math.round( t );
-    		amPmWheel.setCurrentItem( modhour );
-    	} else {
-    	    hoursWheel.setCurrentItem(calendar.get(Calendar.HOUR_OF_DAY));
-    	}
+		if ( !format24 ) {
+			int hour = calendar.get(Calendar.HOUR);
+			if (hour == 0) {
+				hoursWheel.setCurrentItem(11); // 12
+			} else {
+				hoursWheel.setCurrentItem(hour - 1); // i.e., the visible "1" on the wheel is index 0.
+			}
+			if (calendar.get(Calendar.HOUR_OF_DAY) <= 11) {
+				amPmWheel.setCurrentItem(0);
+			} else {
+				amPmWheel.setCurrentItem(1);
+			}
+		} else {
+			hoursWheel.setCurrentItem(calendar.get(Calendar.HOUR_OF_DAY));
+		}
 		
 		suppressChangeEvent = suppressEvent;
 		ignoreItemSelection = false;
@@ -274,18 +210,22 @@ public class TiUITimeSpinner extends TiUIView
 	@Override
 	public void onItemSelected(WheelView view, int index)
 	{
+		boolean format24 = true;
+		if (proxy.hasProperty("format24")) {
+			format24 = TiConvert.toBoolean(proxy.getProperty("format24"));
+		}
 		if (ignoreItemSelection) {
 			return;
 		}
 		calendar.set(Calendar.MINUTE, ((FormatNumericWheelAdapter) minutesWheel.getAdapter()).getValue(minutesWheel.getCurrentItem()));
-		if ( !this.format24 ) {
-		    int val = hoursWheel.getCurrentItem();
-		    
-		    if( val == 12 ) //correct 12pm for the last item in the wheel
-		        val = 0;
-		    calendar.set(Calendar.HOUR_OF_DAY, val + (12 * amPmWheel.getCurrentItem()) );
+		if ( format24 ) {
+			int val = hoursWheel.getCurrentItem();
+
+			if( val == 12 ) //correct 12pm for the last item in the wheel
+				val = 0;
+			calendar.set(Calendar.HOUR_OF_DAY, val + (12 * amPmWheel.getCurrentItem()) );
 		} else {
-		    calendar.set(Calendar.HOUR_OF_DAY, hoursWheel.getCurrentItem());
+			calendar.set(Calendar.HOUR_OF_DAY, hoursWheel.getCurrentItem());
 		}
 		Date dateval = calendar.getTime();
 		proxy.setProperty("value", dateval);
