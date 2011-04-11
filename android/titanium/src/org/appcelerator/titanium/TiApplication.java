@@ -177,7 +177,6 @@ public abstract class TiApplication extends Application
 	public void onCreate()
 	{
 		super.onCreate();
-
 		TiScriptRunner.getInstance().setAppPackageName(getPackageName());
 		if (DBG) {
 			Log.d(LCAT, "Application onCreate");
@@ -532,5 +531,16 @@ public abstract class TiApplication extends Application
 	
 	public boolean forceCompileJS() {
 		return getSystemProperties().getBool(PROPERTY_COMPILE_JS, false);
+	}
+	public void scheduleRestart(int delay)
+	{
+		Log.w(LCAT, "Scheduling application restart");
+		if (DBG) {
+			Log.d(LCAT, "Here is call stack leading to restart. (NOTE: this is not a real exception, just a stack trace.) :");
+			(new Exception()).printStackTrace();
+		}
+		if (getRootActivity() != null) {
+			getRootActivity().restartActivity(delay);
+		}
 	}
 }
