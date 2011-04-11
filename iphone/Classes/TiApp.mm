@@ -271,7 +271,7 @@ void MyUncaughtExceptionHandler(NSException *exception)
         NSMutableDictionary *params = [[NSMutableDictionary alloc] initWithContentsOfFile:filePath];
         NSString *host = [params objectForKey:@"host"];
         NSString *port = [params objectForKey:@"port"];
-        if (![host isEqual:@""] && ![host isEqual:@"__DEBUGGER_HOST__"])
+        if (host != nil && ![host isEqual:@""] && ![host isEqual:@"__DEBUGGER_HOST__"])
         {
             [self setDebugMode:YES];
             TiDebuggerStart(host,[port intValue]);
