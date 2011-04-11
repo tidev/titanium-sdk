@@ -14,6 +14,8 @@
 #import "KrollContext.h"
 #import "KrollBridge.h"
 
+#define LOG_FINALIZE	0
+
 TiClassRef KrollObjectClassRef = NULL;
 TiClassRef JSObjectClassRef = NULL;
 
@@ -342,6 +344,25 @@ TiValueRef ConvertIdTiValue(KrollContext *context, id obj)
 	return TiValueMakeNull(jsContext);
 }
 
+#if LOG_FINALIZE
+void quickLogger(KrollContext * ourContext, TiObjectRef ref, TiProxy * ourTarget, KrollBridge * ourBridge, KrollObject * o)
+{
+	NSString * ourTargetDesc = [ourTarget description];
+	if ([ourTargetDesc length] > 40)
+	{
+		ourTargetDesc = [[ourTargetDesc substringToIndex:30] stringByAppendingString:@"..."];
+	}
+	NSString * textString = [[ourTarget valueForKey:@"text"] description];
+	if ([textString length] > 40)
+	{
+		textString = [[textString substringToIndex:30] stringByAppendingString:@"..."];
+	}
+	
+	NSLog(@"FINALIZING %@[%X]->%@[%@==%@]->%@ %X (%@:%@)",ourContext,ref,ourBridge,o,[ourBridge krollObjectForProxy:ourTarget],
+			ourTargetDesc,ourTarget,[ourTarget valueForKey:@"title"],textString);
+}
+#endif
+
 //
 // callback for handling finalization (in JS land)
 //
@@ -369,13 +390,9 @@ void KrollFinalizer(TiObjectRef ref)
 		if (ourBridge != nil)
 		{
 			TiProxy * ourTarget = [o target];
-			NSString * ourTargetDesc = [ourTarget description];
-			if ([ourTargetDesc length] > 40)
-			{
-				ourTargetDesc = [ourTargetDesc substringToIndex:30];
-			}
-			NSLog(@"FINALIZING %@[%X]->%@[%@==%@]->%@ %X (%@:%@)",ourContext,ref,ourBridge,o,[ourBridge krollObjectForProxy:ourTarget],
-					ourTargetDesc,ourTarget,[ourTarget valueForKey:@"title"],[ourTarget valueForKey:@"text"]);
+#if LOG_FINALIZE
+			quickLogger(ourContext,ref,ourTarget,ourBridge,o);
+#endif
 			if ((ourTarget != nil) && ([ourBridge krollObjectForProxy:ourTarget] == o))
 			{
 				[ourBridge unregisterProxy:ourTarget];
