@@ -879,6 +879,12 @@ NSArray* moviePlayerKeys = nil;
 	[[self player] play];
 }
 
+// Synonym for 'play' from the docs
+-(void)start:(id)args
+{
+    [self play:args];
+}
+
 -(void)pause:(id)args
 {
 	ENSURE_UI_THREAD(pause,args)	
