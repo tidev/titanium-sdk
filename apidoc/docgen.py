@@ -1206,7 +1206,7 @@ def main():
 	format_handlers = {'json': produce_json, 'devhtml': produce_devhtml, 'vsdoc' : produce_vsdoc, 'jsca' : produce_jsca}
 	if options.format in format_handlers:
 		if options.format == 'jsca' and not use_ordered_dict:
-			err("Crap, you don't have an ordered dictionary module which you need for the jsca format!\n")
+			err("You don't have an ordered dictionary module which you need for the jsca format!\n")
 			err("But you can get one easily via easy_install:\n")
 			err(">  easy_install odict")
 			err("")
