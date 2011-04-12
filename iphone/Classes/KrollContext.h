@@ -83,6 +83,19 @@
 
 //====================================================================================================================
 
+@interface KrollUnprotectOperation : NSOperation
+{
+	TiContextRef jsContext;
+	TiObjectRef firstObject;
+	TiObjectRef secondObject;
+}
+
+-(id)initWithContext: (TiContextRef)newContext withJsobject: (TiObjectRef) newFirst;
+-(id)initWithContext: (TiContextRef)newContext withJsobject: (TiObjectRef) newFirst andJsobject: (TiObjectRef) newSecond;
+
+@end
+
+
 @interface KrollInvocation : NSObject {
 @private
 	id target;

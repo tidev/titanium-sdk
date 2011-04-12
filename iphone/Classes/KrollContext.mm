@@ -25,6 +25,37 @@ static unsigned short KrollContextCount = 0;
 
 static pthread_rwlock_t KrollGarbageCollectionLock;
 
+@implementation KrollUnprotectOperation
+
+-(id)initWithContext: (TiContextRef)newContext withJsobject: (TiObjectRef) newFirst
+{
+	return [self initWithContext:newContext withJsobject:newFirst andJsobject:NULL];
+}
+
+-(id)initWithContext: (TiContextRef)newContext withJsobject: (TiObjectRef) newFirst andJsobject: (TiObjectRef) newSecond
+{
+	self = [super init];
+	if (self != nil)
+	{
+		jsContext = newContext;
+		firstObject = newFirst;
+		secondObject = newSecond;
+	}
+	return self;
+}
+
+-(void)main
+{
+	TiValueUnprotect(jsContext, firstObject);
+	if(secondObject != NULL)
+	{
+		TiValueUnprotect(jsContext, secondObject);
+	}
+}
+
+@end
+
+
 
 @implementation KrollInvocation
 
