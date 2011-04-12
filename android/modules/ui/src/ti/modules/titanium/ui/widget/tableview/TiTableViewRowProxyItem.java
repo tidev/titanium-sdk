@@ -136,7 +136,7 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 			view.setProxy(proxy);
 			view.processProperties(proxy.getProperties());
 			applyChildProxies(proxy, view);
-			if (v.getParent() == null) {
+			if (v != null && v.getParent() == null) {
 				content.addView(v, view.getLayoutParams());
 			}
 		}

@@ -216,6 +216,8 @@ public class TiSound
 				looping = false;
 				paused = false;
 				setState(STATE_STOPPED);
+				
+				mp.reset();
 			}
 		} catch (Throwable t) {
 			Log.w(LCAT, "Issue while resetting : " , t);
@@ -279,13 +281,20 @@ public class TiSound
 			Log.w(LCAT, "Issue while setting volume : " , t);
 		}
 	}
-
+	
+	public float getVolume()
+	{
+		return this.volume;
+	}
+	
 	public int getDuration()
 	{
 		int duration = 0;
+		
 		if (mp != null) {
 			duration = mp.getDuration();
 		}
+		
 		return duration;
 	}
 
