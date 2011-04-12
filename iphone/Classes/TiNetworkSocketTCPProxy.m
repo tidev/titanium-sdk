@@ -20,6 +20,8 @@ static NSString* ARG_KEY = @"arg";
 -(void)startListeningSocket;
 -(void)startAcceptedSocket:(NSDictionary*)info;
 -(void)socketRunLoop;
+-(void)asynchRead:(TiBuffer*)buffer offset:(int)offset length:(int)length callback:(KrollCallback*)callback;
+-(void)asynchWrite:(TiBuffer*)buffer offset:(int)offset length:(int)length callback:(KrollCallback*)callback;
 @end
 
 @implementation TiNetworkSocketTCPProxy
@@ -263,6 +265,36 @@ static NSString* ARG_KEY = @"arg";
     [pool release];
 }
 
+-(void)asynchRead:(TiBuffer*)buffer offset:(int)offset length:(int)length callback:(KrollCallback*)callback
+{
+    // As always, ensure that operations take place on the socket thread...
+    if ([NSThread currentThread] != socketThread) {
+        NSInvocation* asynchInvoke = [NSInvocation invocationWithMethodSignature:[self methodSignatureForSelector:@selector(asynchRead:offset:length:callback:)]];
+        [asynchInvoke setTarget:self];
+        [asynchInvoke setSelector:@selector(asynchRead:offset:length:callback:)];
+        [asynchInvoke setArgument:&buffer atIndex:2];
+        [asynchInvoke setArgument:&offset atIndex:3];
+        [asynchInvoke setArgument:&length atIndex:4];
+        [asynchInvoke setArgument:&callback atIndex:5];
+        [asynchInvoke performSelector:@selector(invoke) onThread:socketThread withObject:nil waitUntilDone:YES];
+    }
+    else {
+        asynchTagCount = asynchTagCount % INT_MAX;
+        NSDictionary* asynchInfo = [NSDictionary dictionaryWithObjectsAndKeys:buffer,@"buffer",callback,@"callback",nil];
+        [asynchCallbacks setObject:asynchInfo forKey:NUMINT(asynchTagCount)];
+        [socket readDataWithTimeout:-1
+                             buffer:[buffer data]
+                       bufferOffset:offset
+                          maxLength:length
+                                tag:asynchTagCount];
+        asynchTagCount++;
+    }
+}
+
+-(void)asynchWrite:(TiBuffer*)buffer offset:(int)offset length:(int)length callback:(KrollCallback*)callback
+{
+}
+
 #pragma mark Public API : Functions
 
 #define ENSURE_SOCKET_THREAD(f,x) \
@@ -428,6 +460,8 @@ TYPESAFE_SETTER(setError, error, KrollCallback)
     }
 }
 
+#pragma mark TiStreamInternal implementations
+
 -(NSNumber*)isReadable:(id)_void
 {
     return NUMBOOL(internalState & SOCKET_CONNECTED);
@@ -438,7 +472,7 @@ TYPESAFE_SETTER(setError, error, KrollCallback)
     return NUMBOOL(internalState & SOCKET_CONNECTED);
 }
 
--(int)readToBuffer:(TiBuffer*)buffer offset:(int)offset length:(int)length
+-(int)readToBuffer:(TiBuffer*)buffer offset:(int)offset length:(int)length callback:(KrollCallback *)callback
 {
     [socket readDataWithTimeout:-1
                          buffer:[buffer data]
@@ -449,42 +483,13 @@ TYPESAFE_SETTER(setError, error, KrollCallback)
     return 0;
 }
 
--(int)writeFromBuffer:(TiBuffer*)buffer offset:(int)offset length:(int)length
+-(int)writeFromBuffer:(TiBuffer*)buffer offset:(int)offset length:(int)length callback:(KrollCallback *)callback
 {
+    
     NSData* subdata = [[buffer data] subdataWithRange:NSMakeRange(offset, length)];
     [socket writeData:subdata withTimeout:-1 tag:-1];
     
     return [subdata length];
-}
-
--(int)asynchRead:(TiBuffer*)buffer offset:(int)offset length:(int)length callback:(KrollCallback*)callback
-{
-    // As always, ensure that operations take place on the socket thread...
-    if ([NSThread currentThread] != socketThread) {
-        NSInvocation* asynchInvoke = [NSInvocation invocationWithMethodSignature:[self methodSignatureForSelector:@selector(asynchRead:offset:length:callback:)]];
-        [asynchInvoke setTarget:self];
-        [asynchInvoke setSelector:@selector(asynchRead:offset:length:callback:)];
-        [asynchInvoke setArgument:&buffer atIndex:2];
-        [asynchInvoke setArgument:&offset atIndex:3];
-        [asynchInvoke setArgument:&length atIndex:4];
-        [asynchInvoke setArgument:&callback atIndex:5];
-        [asynchInvoke performSelector:@selector(invoke) onThread:socketThread withObject:nil waitUntilDone:YES];
-    }
-    else {
-        asynchTagCount = asynchTagCount % INT_MAX;
-        NSDictionary* asynchInfo = [NSDictionary dictionaryWithObjectsAndKeys:buffer,@"buffer",callback,@"callback",nil];
-        [asynchCallbacks setObject:asynchInfo forKey:NUMINT(asynchTagCount)];
-        [socket readDataWithTimeout:-1
-                             buffer:[buffer data]
-                       bufferOffset:offset
-                          maxLength:length
-                                tag:asynchTagCount];
-        asynchTagCount++;
-    }
-}
-
--(int)asynchWrite:(TiBuffer*)buffer offset:(int)offset length:(int)length callback:(KrollCallback*)callback
-{
 }
 
 #pragma mark AsyncSocketDelegate methods

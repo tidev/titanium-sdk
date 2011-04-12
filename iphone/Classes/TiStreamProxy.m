@@ -66,7 +66,7 @@
     ENSURE_INT_COERCION(offset);
     
     if (offset == nil && length == nil) {
-        return NUMINT([self writeFromBuffer:buffer offset:0 length:[[buffer data] length]]);
+        return NUMINT([self writeFromBuffer:buffer offset:0 length:[[buffer data] length] callback:nil]);
     }
     else {
         if (offset == nil || length == nil) {
@@ -75,7 +75,7 @@
                        subreason:@"Invalid OFFSET or LENGTH value"
                         location:CODELOCATION];
         }
-        return NUMINT([self writeFromBuffer:buffer offset:[offset intValue] length:[length intValue]]);
+        return NUMINT([self writeFromBuffer:buffer offset:[offset intValue] length:[length intValue] callback:nil]);
     }
     
     return NUMINT(-1);

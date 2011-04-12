@@ -10,7 +10,7 @@
 #import "AsyncSocket.h"
 #import "TiNetworkSocketProxy.h"
 
-@interface TiNetworkSocketTCPProxy : TiStreamProxy<AsyncSocketDelegate> {
+@interface TiNetworkSocketTCPProxy : TiStreamProxy<AsyncSocketDelegate, TiStreamInternal> {
     AsyncSocket* socket;
     SocketState internalState;
     NSCondition* listening;
