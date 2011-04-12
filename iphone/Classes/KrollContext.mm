@@ -13,6 +13,8 @@
 #import "TiLocale.h"
 //#import "TiApp.h"
 
+#include <pthread.h>
+
 #ifdef DEBUGGER_ENABLED
 	#import "TiDebuggerContext.h"
 	#import "TiDebugger.h"
@@ -20,6 +22,9 @@
 
 static unsigned short KrollContextIdCounter = 0;
 static unsigned short KrollContextCount = 0;
+
+static pthread_rwlock_t KrollGarbageCollectionLock;
+
 
 @implementation KrollInvocation
 
@@ -575,6 +580,14 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 
 @synthesize delegate;
 
++(void)initialize
+{
+	if(self == [KrollContext class])
+	{
+		pthread_rwlock_init(&KrollGarbageCollectionLock, NULL);
+	}
+}
+
 -(NSString*)threadName
 {
 	return [NSString stringWithFormat:@"KrollContext<%@>",contextId];
@@ -884,7 +897,16 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 
 -(int)forceGarbageCollectNow
 {
+	NSAutoreleasePool * garbagePool = [[NSAutoreleasePool alloc] init];
+#if CONTEXT_DEBUG == 1	
+	NSLog(@"CONTEXT<%@>: forced garbage collection requested",self);
+#endif
+	pthread_rwlock_wrlock(&KrollGarbageCollectionLock);
 	TiGarbageCollect(context);
+	pthread_rwlock_unlock(&KrollGarbageCollectionLock);
+	gcrequest = NO;
+	loopCount = 0;
+	[garbagePool drain];
 	return 0;
 }
 
@@ -892,7 +914,7 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 {
 	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 	[[NSThread currentThread] setName:[self threadName]];
-	
+	pthread_rwlock_rdlock(&KrollGarbageCollectionLock);
 //	context = TiGlobalContextCreateInGroup([TiApp contextGroup],NULL);
 	context = TiGlobalContextCreate(NULL);
 	TiObjectRef globalRef = TiContextGetGlobalObject(context);
@@ -989,13 +1011,14 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 		[delegate performSelector:@selector(willStartNewContext:) withObject:self];
 	}
 	
-	unsigned int loopCount = 0;
+	loopCount = 0;
 	#define GC_LOOP_COUNT 5
 	
 	if (delegate!=nil && [delegate respondsToSelector:@selector(didStartNewContext:)])
 	{
 		[delegate performSelector:@selector(didStartNewContext:) withObject:self];
 	}
+	pthread_rwlock_unlock(&KrollGarbageCollectionLock);
 	
 	BOOL exit_after_flush = NO;
 	
@@ -1047,14 +1070,7 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 		// we have a pending GC request to try and reclaim memory
 		if (gcrequest)
 		{
-			NSAutoreleasePool * garbagePool = [[NSAutoreleasePool alloc] init];
-#if CONTEXT_DEBUG == 1	
-			NSLog(@"CONTEXT<%@>: forced garbage collection requested",self);
-#endif
-			TiGarbageCollect(context);
-			loopCount = 0;
-			gcrequest = NO;
-			[garbagePool drain];
+			[self forceGarbageCollectNow];
 		}
 		
 		BOOL stuff_in_queue = YES;
@@ -1112,13 +1128,7 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 		// TODO: experiment, attempt to collect more often than usual given our environment
 		if (loopCount == GC_LOOP_COUNT)
 		{
-			NSAutoreleasePool * garbagePool = [[NSAutoreleasePool alloc] init];
-#if CONTEXT_DEBUG == 1	
-			NSLog(@"CONTEXT<%@>: garbage collecting after loop count of %d exceeded (count=%d)",self,loopCount,KrollContextCount);
-#endif
-			TiGarbageCollect(context);
-			loopCount = 0;
-			[garbagePool drain];
+			[self forceGarbageCollectNow];
 		}
 		
 		// check to see if we're already stopped and in the flush queue state, in which case,

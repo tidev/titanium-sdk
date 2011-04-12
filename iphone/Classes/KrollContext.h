@@ -35,7 +35,11 @@
 	NSCondition *condition;
 	NSMutableArray *queue;
 	BOOL stopped;
+
+//Garbage collection variables.
 	BOOL gcrequest;
+	unsigned int loopCount;
+
 	BOOL destroyed;
 	BOOL suspended;
 	TiGlobalContextRef context;

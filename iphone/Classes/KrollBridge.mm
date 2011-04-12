@@ -811,7 +811,9 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 
 -(int)forceGarbageCollectNow;
 {
-	return [context forceGarbageCollectNow];
+	[context gc];
+	//Actually forcing garbage collect now will cause a deadlock.
+	return 0;
 }
 
 @end
