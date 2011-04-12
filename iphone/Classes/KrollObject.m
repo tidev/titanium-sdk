@@ -952,16 +952,11 @@ bool KrollSetProperty(TiContextRef jsContext, TiObjectRef object, TiStringRef pr
 
 	if (![context isKJSThread])
 	{
-		NSLog(@"Will protect %@[%X]->%@[%@]->%@ %X (%@:%@)",context,jsobject,[context delegate],self,
-				target,target,[target valueForKey:@"title"],[target valueForKey:@"text"]);
 		NSOperation * safeProtect = [[NSInvocationOperation alloc] initWithTarget:self selector:@selector(protectJsobject) object:nil];
 		[context enqueue:safeProtect];
 		[safeProtect release];
 		return;
 	}
-
-	NSLog(@"Will protect %@[%X]->%@[%@]->%@ %X (%@:%@) %d",context,jsobject,[context delegate],self,
-			target,target,[target valueForKey:@"title"],[target valueForKey:@"text"],[NSThread isMainThread]);
 	protecting = YES;
 	TiValueProtect(jscontext,jsobject);
 }
@@ -980,16 +975,11 @@ bool KrollSetProperty(TiContextRef jsContext, TiObjectRef object, TiStringRef pr
 
 	if (![context isKJSThread])
 	{
-		NSLog(@"Will unprotect %@[%X]->%@[%@]->%@ %X (%@:%@)",context,jsobject,[context delegate],self,
-				target,target,[target valueForKey:@"title"],[target valueForKey:@"text"]);
 		NSOperation * safeUnprotect = [[NSInvocationOperation alloc] initWithTarget:self selector:@selector(unprotectJsobject) object:nil];
 		[context enqueue:safeUnprotect];
 		[safeUnprotect release];
 		return;
 	}
-
-	NSLog(@"UNPROTECTING %@[%X]->%@[%@]->%@ %X (%@:%@)",context,jsobject,[context delegate],self,
-			target,target,[target valueForKey:@"title"],[target valueForKey:@"text"]);
 	protecting = NO;
 	TiValueUnprotect(jscontext,jsobject);
 }
