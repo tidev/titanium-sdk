@@ -36,7 +36,8 @@
 -(void)showContacts:(id)args;
 -(TiContactsPerson*)getPersonByID:(id)arg;
 -(NSArray*)getPeopleWithName:(id)arg;
--(NSArray*)getAllPeople:(id)unused;
+-(NSArray*)getAllPeople:(id)arg;
+-(NSNumber*)getDefaultSortOrder:(id)unused;
 -(TiContactsPerson*)createPerson:(id)arg;
 -(void)removePerson:(id)arg;
 

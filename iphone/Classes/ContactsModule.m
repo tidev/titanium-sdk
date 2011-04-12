@@ -223,6 +223,11 @@
 	return people;
 }
 
+-(NSNumber*)getDefaultSortOrder:(id)unused
+{
+    return NUMINT(ABPersonGetSortOrdering());
+}
+
 -(NSArray*)getAllGroups:(id)unused
 {
 	if (![NSThread isMainThread]) {
