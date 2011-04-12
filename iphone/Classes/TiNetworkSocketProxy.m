@@ -10,7 +10,7 @@
 #import "TiBlob.h"
 #import "TiBuffer.h"
 
-static NSString* FD_KEY = @"fd";
+static NSString* SOCK_KEY = @"socket";
 static NSString* ARG_KEY = @"arg";
 
 @interface TiNetworkSocketProxy (Private)
@@ -19,6 +19,7 @@ static NSString* ARG_KEY = @"arg";
 -(void)startConnectingSocket;
 -(void)startListeningSocket;
 -(void)startAcceptedSocket:(NSDictionary*)info;
+-(void)socketRunLoop;
 @end
 
 @implementation TiNetworkSocketProxy
@@ -33,6 +34,10 @@ static NSString* ARG_KEY = @"arg";
         ioCondition = [[NSCondition alloc] init];
         internalState = SOCKET_INITIALIZED;
         socketThread = nil;
+        acceptArgs = [[NSMutableDictionary alloc] init];
+        acceptCondition = [[NSCondition alloc] init];
+        asynchTagCount = 0;
+        asynchCallbacks = [[NSMutableDictionary alloc] init];
     }
     return self;
 }
@@ -43,11 +48,9 @@ static NSString* ARG_KEY = @"arg";
     [super dealloc];
 }
 
+// TODO: Need to release our conditions safely
 -(void)_destroy
 {
-    internalState = SOCKET_CLOSED;
-    [self cleanupSocket];
-    
     [listening lock];
     [listening signal];
     [listening unlock];
@@ -57,6 +60,22 @@ static NSString* ARG_KEY = @"arg";
     [ioCondition signal];
     [ioCondition unlock];
     RELEASE_TO_NIL(ioCondition);
+ 
+    // Can't call 'cleanupSocket' because these operations have to be performed in a specific order,
+    // AND we have to guarantee that the disconnect is called on the socket thread while the run loop
+    // is still active
+    [socket setDelegate:nil];
+    if ([socketThread isExecuting]) {
+        [socket performSelector:@selector(disconnect) onThread:socketThread withObject:nil waitUntilDone:YES];
+    }
+    internalState = SOCKET_CLOSED;
+    RELEASE_TO_NIL(socket);
+    RELEASE_TO_NIL(socketThread);
+
+    RELEASE_TO_NIL(asynchCallbacks);
+    
+    RELEASE_TO_NIL(acceptArgs);
+    RELEASE_TO_NIL(acceptCondition);
     
     RELEASE_TO_NIL(connected);
     RELEASE_TO_NIL(accepted);
@@ -76,14 +95,34 @@ static NSString* ARG_KEY = @"arg";
 }
 
 // _ prefix keeps setX: private
+// TODO: Or does it?  KVC seems to like to "automatically" interpret _ prefixes sometimes.
 -(void)_setConnectedSocket:(AsyncSocket*)sock
 {
     [self cleanupSocket];
     internalState = SOCKET_CONNECTED;
     socket = [sock retain];
     [socket setDelegate:self];
-    [socket moveToRunLoop:[NSRunLoop currentRunLoop]];
-    socketThread = [NSThread currentThread];
+    socketThread = [[NSThread currentThread] retain];
+}
+
+// TODO: Build a better run loop
+#define AUTORELEASE_LOOP 5
+-(void)socketRunLoop
+{
+    NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
+    // Begin the run loop for the socket
+    int counter=0;
+    while (!(internalState & (SOCKET_CLOSED | SOCKET_ERROR)) &&
+           [[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode beforeDate:[NSDate distantFuture]]) 
+    {
+        if (++counter == AUTORELEASE_LOOP) {
+            [pool release];
+            pool = [[NSAutoreleasePool alloc] init];
+            counter = 0;
+        }
+    }
+
+    [pool release];
 }
 
 -(void)startConnectingSocket
@@ -95,13 +134,19 @@ static NSString* ARG_KEY = @"arg";
     NSNumber* timeout = [self valueForUndefinedKey:@"timeout"];
     
     if (host == nil || [host isEqual:@""]) {
+        // TODO: MASSIVE: FIX OUR BROKEN EXCEPTION HANDLING
+        /*
         [self throwException:@"Attempt to connect with bad host: nil or empty"
                    subreason:nil
                     location:CODELOCATION];
+         */
+        NSLog(@"[ERROR] Attempt to connect with bad host: nil or empty");
+        [pool release];
+        return;
     }
     
     socket = [[AsyncSocket alloc] initWithDelegate:self];
-    socketThread = [NSThread currentThread];
+    socketThread = [[NSThread currentThread] retain];
     
     NSError* err = nil;
     BOOL success;
@@ -116,15 +161,17 @@ static NSString* ARG_KEY = @"arg";
         [self cleanupSocket];
         internalState = SOCKET_ERROR;
         
-        [self throwException:[NSString stringWithFormat:@"Connection attempt error: %@",(error ? error : @"UNKNOWN ERROR")]
+        /*
+        [self throwException:[NSString stringWithFormat:@"Connection attempt error: %@",(err ? err : @"UNKNOWN ERROR")]
                    subreason:nil
                     location:CODELOCATION];
+         */
+        NSLog(@"[ERROR] Connection attempt error: %@", (err ? err : @"UNKNOWN ERROR"));
+        [pool release];
+        return;
     }
     
-    // Begin the run loop for the socket
-    while (!(internalState & (SOCKET_CLOSED | SOCKET_ERROR)) &&
-           [[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode beforeDate:[NSDate distantFuture]])
-        ; // Keep on truckin'
+    [self socketRunLoop];
     
     [pool release];
 }
@@ -134,21 +181,20 @@ static NSString* ARG_KEY = @"arg";
     NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
     
     id port = [self valueForKey:@"port"]; // Can be string or int
-    NSNumber* type = [self valueForKey:@"type"];
-    
-    if ([type intValue] != TCP) {
-        [self throwException:[NSString stringWithFormat:@"Attempt to listen with unrecognized protocol: %d",[type intValue]]
-                   subreason:nil
-                    location:CODELOCATION];
-    }
     
     if (host == nil || [host isEqual:@""]) {
+        /*
         [self throwException:@"Attempt to listen with bad host: nil or empty"
                    subreason:nil
                     location:CODELOCATION];
+         */
+        NSLog(@"[ERROR] Attempt to listen with bad host: nil or empty");
+        [pool release];
+        return;       
     }
     
     socket = [[AsyncSocket alloc] initWithDelegate:self];
+        
     NSError* err = nil;
     BOOL success = [socket acceptOnInterface:host port:[port intValue] autoaccept:NO error:&err];
     
@@ -160,22 +206,28 @@ static NSString* ARG_KEY = @"arg";
         [listening signal];
         [listening unlock];
         
-        [self throwException:[NSString stringWithFormat:@"Listening attempt error: %@",(error ? error : @"<UNKNOWN ERROR>")]
+        /*
+        [self throwException:[NSString stringWithFormat:@"Listening attempt error: %@",(err ? err : @"<UNKNOWN ERROR>")]
                    subreason:nil
                     location:CODELOCATION];
+         */
+        NSLog(@"[ERROR] Listening attempt error: %@", (err ? err : @"UNKNOWN ERROR"));
+        [pool release];
+        return;
     }
+    // Make sure that we 'accept' only when explicitly requested
+    CFSocketRef cfSocket = [socket getCFSocket];
+    CFOptionFlags options = CFSocketGetSocketFlags(cfSocket);
+    CFSocketSetSocketFlags(cfSocket, options & ~kCFSocketAutomaticallyReenableAcceptCallBack);
   
-    socketThread = [NSThread currentThread];
+    socketThread = [[NSThread currentThread] retain];
     
     [listening lock];
     internalState = SOCKET_LISTENING;
     [listening signal];
     [listening unlock];
     
-    // Begin the run loop for the socket
-    while (!(internalState & (SOCKET_CLOSED | SOCKET_ERROR)) &&
-           [[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode beforeDate:[NSDate distantFuture]])
-        ; // Keep on truckin'
+    [self socketRunLoop];
     
     [pool release];
 }
@@ -183,13 +235,16 @@ static NSString* ARG_KEY = @"arg";
 -(void)startAcceptedSocket:(NSDictionary*)info
 {
     NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
+
+    [acceptCondition lock];
+    acceptRunLoop = [NSRunLoop currentRunLoop];
+    [acceptCondition signal];
+    [acceptCondition wait];
+    [acceptCondition unlock];
     
-    CFSocketNativeHandle fd = [[info objectForKey:FD_KEY] intValue];
     NSArray* arg = [info objectForKey:ARG_KEY];
-    CFSocketRef sock = [socket getCFSocket];
+    AsyncSocket* newSocket = [info objectForKey:SOCK_KEY];
     
-    // TODO: Need to construct newly accepted socket on new thread
-    AsyncSocket* newSocket = [socket doAcceptFromSocket:sock withNewNativeSocket:fd];
     TiNetworkSocketProxy* proxy = [[[TiNetworkSocketProxy alloc] _initWithPageContext:[self pageContext] args:arg] autorelease];
     [proxy _setConnectedSocket:newSocket];
     
@@ -202,11 +257,9 @@ static NSString* ARG_KEY = @"arg";
         [self _fireEventToListener:@"accepted" withObject:event listener:accepted thisObject:self];
     }
 
-    // Begin the run loop for the socket
-    while (!(internalState & (SOCKET_CLOSED | SOCKET_ERROR)) &&
-           [[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode beforeDate:[NSDate distantFuture]])
-        ; // Keep on truckin'
-    
+    [proxy socketRunLoop];
+
+    [newSocket release];
     [pool release];
 }
 
@@ -214,27 +267,36 @@ static NSString* ARG_KEY = @"arg";
 
 #define ENSURE_SOCKET_THREAD(f,x) \
 if ([NSThread currentThread] != socketThread) { \
-[self performSelector:@selector(f:) onThread:socketThread withObject:x waitUntilDone:NO]; \
+[self performSelector:@selector(f:) onThread:socketThread withObject:x waitUntilDone:YES]; \
 return; \
 } \
 
 -(void)connect:(id)_void
 {
     if (!(internalState & SOCKET_INITIALIZED)) {
+        /*
         [self throwException:[NSString stringWithFormat:@"Attempt to connect with bad state: %d",internalState]
                    subreason:nil 
                     location:CODELOCATION];
+         */
+        NSLog(@"[ERROR] Attempt to connect with bad state: %d", internalState);
+        return;
     }
     
     [self performSelectorInBackground:@selector(startConnectingSocket) withObject:nil];
 }
 
+// TODO: Can we actually implement the max queue size...?
 -(void)listen:(id)arg
 {
     if (!(internalState & SOCKET_INITIALIZED)) {
+        /*
         [self throwException:[NSString stringWithFormat:@"Attempt to listen with bad state: %d", internalState]
                    subreason:nil
                     location:CODELOCATION];
+         */
+        NSLog(@"[ERROR] Attempt to listen with bad state: %d", internalState);
+        return;
     }
     
     [self performSelectorInBackground:@selector(startListeningSocket) withObject:nil];
@@ -249,40 +311,34 @@ return; \
 
 -(void)accept:(id)arg
 {
-    ENSURE_SOCKET_THREAD(accept,arg);
-    NSDictionary* args = nil;
-    ENSURE_ARG_OR_NIL_AT_INDEX(args, arg, 0, NSDictionary);
-    
-    CFSocketRef sock = [socket getCFSocket];
-    CFSocketNativeHandle fd = CFSocketGetNative(sock);
-    
-    CFSocketNativeHandle newSockFd = accept(fd, NULL, NULL);
-    if (newSockFd == -1) {
-        // There was an error!
-        internalState = SOCKET_ERROR;
-        NSError* err = [socket getErrnoError];
-        [self onSocket:socket willDisconnectWithError:err];
-        [socket disconnect];
+    // No-op if we have an accept in progress
+    if (accepting) {
         return;
     }
     
-    NSMutableDictionary* info = [NSMutableDictionary dictionary];
-    [info setObject:NUMINT(newSockFd) forKey:FD_KEY];
-    if (args != nil) {
-        // Set 'arg' because _initWithPageContext:args: expects NSArray*
-        [info setObject:arg forKey:ARG_KEY];
-    }
-    [self performSelectorInBackground:@selector(startAcceptedSocket:) withObject:info];
+    ENSURE_SOCKET_THREAD(accept,arg);
+    NSDictionary* args = nil;
+    ENSURE_ARG_OR_NIL_AT_INDEX(args, arg, 0, NSDictionary);
+    [acceptArgs setValue:arg forKey:ARG_KEY];
+    
+    CFSocketRef sock = [socket getCFSocket];
+    CFSocketEnableCallBacks(sock, kCFSocketAcceptCallBack);
+    accepting = YES;
 }
 
 -(void)close:(id)_void
 {
+    // TODO: Signal everything under the sun & close
     ENSURE_SOCKET_THREAD(close,_void);
     
     if (!(internalState & (SOCKET_CONNECTED | SOCKET_LISTENING | SOCKET_INITIALIZED))) {
+        /*
         [self throwException:[NSString stringWithFormat:@"Attempt to close in invalid state: %d",internalState]
                    subreason:nil
                     location:CODELOCATION];
+         */
+        NSLog(@"Attempt to close in invalid state: %d", internalState);
+        return;
     }
     
     [self cleanupSocket];
@@ -382,41 +438,53 @@ TYPESAFE_SETTER(setError, error, KrollCallback)
     return NUMBOOL(internalState & SOCKET_CONNECTED);
 }
 
--(int)readToBuffer:(TiBuffer*)buffer
-{
-    [socket readDataWithTimeout:-1
-                         buffer:[buffer data]
-                   bufferOffset:0
-                      maxLength:[[buffer data] length]
-                            tag:0];
-    
-    return readDataLength;
-}
-
 -(int)readToBuffer:(TiBuffer*)buffer offset:(int)offset length:(int)length
 {
     [socket readDataWithTimeout:-1
                          buffer:[buffer data]
                    bufferOffset:offset
                       maxLength:length
-                            tag:0];
+                            tag:-1];
     
     return 0;
-}
-
--(int)writeFromBuffer:(TiBuffer*)buffer
-{
-    [socket writeData:[buffer data] withTimeout:-1 tag:0];
-    
-    return [[buffer data] length];
 }
 
 -(int)writeFromBuffer:(TiBuffer*)buffer offset:(int)offset length:(int)length
 {
     NSData* subdata = [[buffer data] subdataWithRange:NSMakeRange(offset, length)];
-    [socket writeData:subdata withTimeout:-1 tag:0];
+    [socket writeData:subdata withTimeout:-1 tag:-1];
     
     return [subdata length];
+}
+
+-(int)asynchRead:(TiBuffer*)buffer offset:(int)offset length:(int)length callback:(KrollCallback*)callback
+{
+    // As always, ensure that operations take place on the socket thread...
+    if ([NSThread currentThread] != socketThread) {
+        NSInvocation* asynchInvoke = [NSInvocation invocationWithMethodSignature:[self methodSignatureForSelector:@selector(asynchRead:offset:length:callback:)]];
+        [asynchInvoke setTarget:self];
+        [asynchInvoke setSelector:@selector(asynchRead:offset:length:callback:)];
+        [asynchInvoke setArgument:&buffer atIndex:2];
+        [asynchInvoke setArgument:&offset atIndex:3];
+        [asynchInvoke setArgument:&length atIndex:4];
+        [asynchInvoke setArgument:&callback atIndex:5];
+        [asynchInvoke performSelector:@selector(invoke) onThread:socketThread withObject:nil waitUntilDone:YES];
+    }
+    else {
+        asynchTagCount = asynchTagCount % INT_MAX;
+        NSDictionary* asynchInfo = [NSDictionary dictionaryWithObjectsAndKeys:buffer,@"buffer",callback,@"callback",nil];
+        [asynchCallbacks setObject:asynchInfo forKey:NUMINT(asynchTagCount)];
+        [socket readDataWithTimeout:-1
+                             buffer:[buffer data]
+                       bufferOffset:offset
+                          maxLength:length
+                                tag:asynchTagCount];
+        asynchTagCount++;
+    }
+}
+
+-(int)asynchWrite:(TiBuffer*)buffer offset:(int)offset length:(int)length callback:(KrollCallback*)callback
+{
 }
 
 #pragma mark AsyncSocketDelegate methods
@@ -449,6 +517,32 @@ TYPESAFE_SETTER(setError, error, KrollCallback)
             }
         }
     }
+    
+    // Signal any waiting I/O
+    // TODO: Be sure to handle any signal on closing
+    [ioCondition lock];
+    [ioCondition signal];
+    [ioCondition unlock];
+}
+
+-(NSRunLoop*)onSocket:(AsyncSocket *)sock wantsRunLoopForNewSocket:(AsyncSocket *)newSocket
+{
+    // We start up the accepted socket thread, and wait for the run loop to be cached, and return it...
+    [acceptCondition lock];
+    if (acceptRunLoop == nil) {
+        [acceptCondition wait];
+    }
+    [acceptCondition signal];
+    [acceptCondition unlock];
+    return acceptRunLoop;
+}
+
+- (void)onSocket:(AsyncSocket *)sock didAcceptNewSocket:(AsyncSocket *)newSocket
+{
+    // ... And then over here, we signal the same condition, which gets waited on in the new socket thread.
+    [acceptArgs setValue:newSocket forKey:SOCK_KEY];
+    [self performSelectorInBackground:@selector(startAcceptedSocket:) withObject:acceptArgs];
+    accepting = NO;
 }
 
 // TODO: As per AsyncSocket docs, may want to call "unreadData" and return that information, or at least allow access to it via some other method
@@ -464,6 +558,18 @@ TYPESAFE_SETTER(setError, error, KrollCallback)
 // TODO: Implement partial write callback?
 -(void)onSocket:(AsyncSocket *)sock didWriteDataWithTag:(long)tag 
 {
+    // Result of asynch write
+    if (tag > -1) {
+        NSDictionary* info = [asynchCallbacks objectForKey:NUMINT(tag)];
+        KrollCallback* callback = [info valueForKey:@"callback"];
+        TiBuffer* buffer = [info valueForKey:@"buffer"];
+        
+        NSDictionary* event = [NSDictionary dictionaryWithObjectsAndKeys:buffer,@"buffer",[[buffer data] length],@"bytesProcessed",nil];
+        [self _fireEventToListener:@"write" withObject:event listener:callback thisObject:self];
+        [asynchCallbacks removeObjectForKey:NUMINT(tag)];
+        return;
+    }    
+    
     [ioCondition lock];
     [ioCondition signal];
     [ioCondition unlock];
@@ -472,6 +578,18 @@ TYPESAFE_SETTER(setError, error, KrollCallback)
 // TODO: Implement partial data read callback?
 -(void)onSocket:(AsyncSocket *)sock didReadData:(NSData *)data withTag:(long)tag
 {
+    // Result of asynch read
+    if (tag > -1) {
+        NSDictionary* info = [asynchCallbacks objectForKey:NUMINT(tag)];
+        KrollCallback* callback = [info valueForKey:@"callback"];
+        TiBuffer* buffer = [info valueForKey:@"buffer"];
+        
+        NSDictionary* event = [NSDictionary dictionaryWithObjectsAndKeys:buffer,@"buffer",NUMINT([data length]),@"bytesProcessed", nil];
+        [self _fireEventToListener:@"read" withObject:event listener:callback thisObject:self];
+        [asynchCallbacks removeObjectForKey:NUMINT(tag)];
+        return;
+    }
+    
     // The amount of data read is available only off of this 'data' object... not off the initial buffer we passed.
     [ioCondition lock];
     readDataLength = [data length];

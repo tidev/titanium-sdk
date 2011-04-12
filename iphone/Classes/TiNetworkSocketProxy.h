@@ -27,6 +27,17 @@
     NSCondition* ioCondition;
     NSUInteger readDataLength;
     
+    // In order to put the accepted socket on the right run loop, and make sure it's constructed
+    // properly, we need THESE as well...
+    NSMutableDictionary* acceptArgs;
+    NSRunLoop* acceptRunLoop;
+    NSCondition* acceptCondition;
+    BOOL accepting;
+    
+    // Information used to hash asynch callbacks to tags.
+    int asynchTagCount;
+    NSMutableDictionary* asynchCallbacks;
+    
     KrollCallback* connected;
     KrollCallback* accepted;
     KrollCallback* closed;

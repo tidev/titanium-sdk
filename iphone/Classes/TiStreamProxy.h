@@ -7,6 +7,8 @@
 
 #import <Foundation/Foundation.h>
 #import "TiProxy.h"
+#import "Tibuffer.h"
+#import "KrollCallback.h"
 
 // This is meant to be a largely "virtual" class which defines the following behaviors:
 // 1. Interprets read()/write() calls to the appropriate interal function
@@ -17,6 +19,18 @@
 @interface TiStreamProxy : TiProxy {
     
 }
+
+// Internal API
+// All of these methods are intended to be overloaded in subclasses!  They represent
+// the internal implementation of the stream.
+
+// These should probably never be called directly, but they are part of the internal declared API.
+-(int)readToBuffer:(TiBuffer*)buffer offset:(int)offset length:(int)length;
+-(int)writeFromBuffer:(TiBuffer*)buffer offset:(int)offset length:(int)length;
+
+// ASYNCH CALLBACKS MUST HAVE KEYS AS DEFINED BY SPEC.
+-(int)asynchRead:(TiBuffer*)buffer offset:(int)offset length:(int)length callback:(KrollCallback*)callback;
+-(int)asynchWrite:(TiBuffer*)buffer offset:(int)offset length:(int)length callback:(KrollCallback*)callback;
 
 // Public API
 -(NSNumber*)read:(id)args;

@@ -6,26 +6,15 @@
  */
 
 #import "TiStreamProxy.h"
-#import "TiBuffer.h"
-
-@interface TiStreamProxy (Private)
--(int)readToBuffer:(TiBuffer*)buffer;
--(int)readToBuffer:(TiBuffer*)buffer offset:(int)offset length:(int)length;
--(int)writeFromBuffer:(TiBuffer*)buffer;
--(int)writeFromBuffer:(TiBuffer*)buffer offset:(int)offset length:(int)length;
-@end
 
 @implementation TiStreamProxy
 
 #pragma mark Internals
 
-// Backend implementations - these correspond to the available args from read/write
--(int)readToBuffer:(TiBuffer*)buffer
-{
-    [self throwException:@"UNIMPLEMENTED STREAM METHOD"
-               subreason:@"readIntoBuffer:"
-                location:CODELOCATION];
-}
+// Backend implementations - we have a few:
+// 1. Read/write
+// 2. Asynch read/write (may require different behavior than simple read/write)
+// TODO: 3. readAll() ? / adjust buffer size / hasBytes() / etc.
 
 -(int)readToBuffer:(TiBuffer*)buffer offset:(int)offset length:(int)length
 {
@@ -34,17 +23,24 @@
                 location:CODELOCATION];
 }
 
--(int)writeFromBuffer:(TiBuffer*)buffer
-{
-    [self throwException:@"UNIMPLEMENTED STREAM METHOD"
-               subreason:@"writeFromBuffer:"
-                location:CODELOCATION];
-}
-
 -(int)writeFromBuffer:(TiBuffer*)buffer offset:(int)offset length:(int)length
 {
     [self throwException:@"UNIMPLEMENTED STREAM METHOD"
                subreason:@"writeFromBuffer:offset:length:"
+                location:CODELOCATION];
+}
+
+-(int)asynchRead:(TiBuffer *)buffer offset:(int)offset length:(int)length callback:(KrollCallback *)callback
+{
+    [self throwException:@"UNIMPLEMENTED STREAM METHOD"
+               subreason:@"asynchRead:offset:length:callback:"
+                location:CODELOCATION];
+}
+
+-(int)asynchWrite:(TiBuffer *)buffer offset:(int)offset length:(int)length callback:(KrollCallback *)callback 
+{
+    [self throwException:@"UNIMPLEMENTED STREAM METHOD"
+               subreason:@"asynchWrite:offset:length:callback:"
                 location:CODELOCATION];
 }
 
@@ -81,7 +77,7 @@
     ENSURE_INT_COERCION(length);
     
     if (offset == nil && length == nil) {
-        return NUMINT([self readToBuffer:buffer]);
+        return NUMINT([self readToBuffer:buffer offset:0 length:[[buffer data] length]]);
     }
     else {
         if (offset == nil || length == nil) {
@@ -116,7 +112,7 @@
     ENSURE_INT_COERCION(offset);
     
     if (offset == nil && length == nil) {
-        return NUMINT([self writeFromBuffer:buffer]);
+        return NUMINT([self writeFromBuffer:buffer offset:0 length:[[buffer data] length]]);
     }
     else {
         if (offset == nil || length == nil) {

@@ -532,6 +532,9 @@
 		DAA4B2AE134E3DBD00AB6011 /* libti_ios_debugger.a in Frameworks */ = {isa = PBXBuildFile; fileRef = DAA4B2AD134E3DBD00AB6011 /* libti_ios_debugger.a */; };
 		DAA4B2AF134E3DBD00AB6011 /* libti_ios_debugger.a in Frameworks */ = {isa = PBXBuildFile; fileRef = DAA4B2AD134E3DBD00AB6011 /* libti_ios_debugger.a */; };
 		DAA4B2B0134E3DBD00AB6011 /* libti_ios_debugger.a in Frameworks */ = {isa = PBXBuildFile; fileRef = DAA4B2AD134E3DBD00AB6011 /* libti_ios_debugger.a */; };
+		DAA4B2B4134E75AC00AB6011 /* CodecModule.m in Sources */ = {isa = PBXBuildFile; fileRef = DAA4B2B3134E75AC00AB6011 /* CodecModule.m */; };
+		DAA4B2B5134E75AC00AB6011 /* CodecModule.m in Sources */ = {isa = PBXBuildFile; fileRef = DAA4B2B3134E75AC00AB6011 /* CodecModule.m */; };
+		DAA4B2B6134E75AC00AB6011 /* CodecModule.m in Sources */ = {isa = PBXBuildFile; fileRef = DAA4B2B3134E75AC00AB6011 /* CodecModule.m */; };
 		DAA905CE11A359F10030B119 /* TiMediaItem.m in Sources */ = {isa = PBXBuildFile; fileRef = DAA905CD11A359F10030B119 /* TiMediaItem.m */; };
 		DAA905CF11A35A010030B119 /* TiMediaMusicPlayer.m in Sources */ = {isa = PBXBuildFile; fileRef = DA864E3111A2314A00B9CD68 /* TiMediaMusicPlayer.m */; };
 		DAA905D011A35A010030B119 /* TiMediaItem.m in Sources */ = {isa = PBXBuildFile; fileRef = DAA905CD11A359F10030B119 /* TiMediaItem.m */; };
@@ -850,9 +853,9 @@
 		DABF3ECF134D210400836137 /* TiBuffer.m in Sources */ = {isa = PBXBuildFile; fileRef = DABF3ECE134D210400836137 /* TiBuffer.m */; };
 		DABF3ED0134D210400836137 /* TiBuffer.m in Sources */ = {isa = PBXBuildFile; fileRef = DABF3ECE134D210400836137 /* TiBuffer.m */; };
 		DABF3ED1134D210400836137 /* TiBuffer.m in Sources */ = {isa = PBXBuildFile; fileRef = DABF3ECE134D210400836137 /* TiBuffer.m */; };
-		DABF3ED7134D2CA100836137 /* TiStreamModule.m in Sources */ = {isa = PBXBuildFile; fileRef = DABF3ED6134D2CA100836137 /* TiStreamModule.m */; };
-		DABF3ED8134D2CA100836137 /* TiStreamModule.m in Sources */ = {isa = PBXBuildFile; fileRef = DABF3ED6134D2CA100836137 /* TiStreamModule.m */; };
-		DABF3ED9134D2CA100836137 /* TiStreamModule.m in Sources */ = {isa = PBXBuildFile; fileRef = DABF3ED6134D2CA100836137 /* TiStreamModule.m */; };
+		DABF3ED7134D2CA100836137 /* StreamModule.m in Sources */ = {isa = PBXBuildFile; fileRef = DABF3ED6134D2CA100836137 /* StreamModule.m */; };
+		DABF3ED8134D2CA100836137 /* StreamModule.m in Sources */ = {isa = PBXBuildFile; fileRef = DABF3ED6134D2CA100836137 /* StreamModule.m */; };
+		DABF3ED9134D2CA100836137 /* StreamModule.m in Sources */ = {isa = PBXBuildFile; fileRef = DABF3ED6134D2CA100836137 /* StreamModule.m */; };
 		DABF3EDC134D2E4400836137 /* TiStreamProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = DABF3EDB134D2E4300836137 /* TiStreamProxy.m */; };
 		DABF3EDD134D2E4400836137 /* TiStreamProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = DABF3EDB134D2E4300836137 /* TiStreamProxy.m */; };
 		DABF3EDE134D2E4400836137 /* TiStreamProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = DABF3EDB134D2E4300836137 /* TiStreamProxy.m */; };
@@ -1403,6 +1406,8 @@
 		DA9FF581128A1F3600457759 /* AudioStreamerCUR.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AudioStreamerCUR.h; sourceTree = "<group>"; };
 		DA9FF582128A1F3600457759 /* AudioStreamerCUR.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AudioStreamerCUR.m; sourceTree = "<group>"; };
 		DAA4B2AD134E3DBD00AB6011 /* libti_ios_debugger.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libti_ios_debugger.a; path = ../lib/libti_ios_debugger.a; sourceTree = "<group>"; };
+		DAA4B2B2134E75AC00AB6011 /* CodecModule.h */ = {isa = PBXFileReference; fileEncoding = 4; path = CodecModule.h; sourceTree = "<group>"; };
+		DAA4B2B3134E75AC00AB6011 /* CodecModule.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CodecModule.m; sourceTree = "<group>"; };
 		DAA905CC11A359F10030B119 /* TiMediaItem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiMediaItem.h; sourceTree = "<group>"; };
 		DAA905CD11A359F10030B119 /* TiMediaItem.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiMediaItem.m; sourceTree = "<group>"; };
 		DABA102C12E67300007DD791 /* JSON.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JSON.h; sourceTree = "<group>"; };
@@ -1443,8 +1448,8 @@
 		DABB37BC12E8CB280026A6EA /* Titanium.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Titanium.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		DABF3ECD134D210400836137 /* TiBuffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiBuffer.h; sourceTree = "<group>"; };
 		DABF3ECE134D210400836137 /* TiBuffer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiBuffer.m; sourceTree = "<group>"; };
-		DABF3ED5134D2CA100836137 /* TiStreamModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiStreamModule.h; sourceTree = "<group>"; };
-		DABF3ED6134D2CA100836137 /* TiStreamModule.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiStreamModule.m; sourceTree = "<group>"; };
+		DABF3ED5134D2CA100836137 /* StreamModule.h */ = {isa = PBXFileReference; fileEncoding = 4; path = StreamModule.h; sourceTree = "<group>"; };
+		DABF3ED6134D2CA100836137 /* StreamModule.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = StreamModule.m; sourceTree = "<group>"; };
 		DABF3EDA134D2E4300836137 /* TiStreamProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiStreamProxy.h; sourceTree = "<group>"; };
 		DABF3EDB134D2E4300836137 /* TiStreamProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiStreamProxy.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -1830,6 +1835,7 @@
 				24F6204D1199F1F400EEAD3C /* TopTiModule.h */,
 				24F6204E1199F1F400EEAD3C /* TopTiModule.m */,
 				DABF3ED3134D2A6400836137 /* Stream */,
+				DAA4B2B1134E758B00AB6011 /* Codec */,
 				245B3C3011375A4D00CE7530 /* Utils */,
 				24DEDAC21123719700398D86 /* XML */,
 				24CA8C58111165180084E2DE /* Accelerometer */,
@@ -2765,6 +2771,15 @@
 			name = "Scroll View";
 			sourceTree = "<group>";
 		};
+		DAA4B2B1134E758B00AB6011 /* Codec */ = {
+			isa = PBXGroup;
+			children = (
+				DAA4B2B2134E75AC00AB6011 /* CodecModule.h */,
+				DAA4B2B3134E75AC00AB6011 /* CodecModule.m */,
+			);
+			name = Codec;
+			sourceTree = "<group>";
+		};
 		DABA102B12E67300007DD791 /* JSON */ = {
 			isa = PBXGroup;
 			children = (
@@ -2790,8 +2805,8 @@
 		DABF3ED3134D2A6400836137 /* Stream */ = {
 			isa = PBXGroup;
 			children = (
-				DABF3ED5134D2CA100836137 /* TiStreamModule.h */,
-				DABF3ED6134D2CA100836137 /* TiStreamModule.m */,
+				DABF3ED5134D2CA100836137 /* StreamModule.h */,
+				DABF3ED6134D2CA100836137 /* StreamModule.m */,
 			);
 			name = Stream;
 			sourceTree = "<group>";
@@ -3261,8 +3276,9 @@
 				DABA10C512E676A1007DD791 /* FBRequest.m in Sources */,
 				DA2B35C2134514FE00056705 /* TiNetworkSocketProxy.m in Sources */,
 				DABF3ECF134D210400836137 /* TiBuffer.m in Sources */,
-				DABF3ED7134D2CA100836137 /* TiStreamModule.m in Sources */,
+				DABF3ED7134D2CA100836137 /* StreamModule.m in Sources */,
 				DABF3EDC134D2E4400836137 /* TiStreamProxy.m in Sources */,
+				DAA4B2B4134E75AC00AB6011 /* CodecModule.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3525,8 +3541,9 @@
 				DABA10CA12E676A1007DD791 /* FBRequest.m in Sources */,
 				DA2B35C3134514FE00056705 /* TiNetworkSocketProxy.m in Sources */,
 				DABF3ED0134D210400836137 /* TiBuffer.m in Sources */,
-				DABF3ED8134D2CA100836137 /* TiStreamModule.m in Sources */,
+				DABF3ED8134D2CA100836137 /* StreamModule.m in Sources */,
 				DABF3EDD134D2E4400836137 /* TiStreamProxy.m in Sources */,
+				DAA4B2B5134E75AC00AB6011 /* CodecModule.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3789,8 +3806,9 @@
 				DABB37A012E8CB280026A6EA /* FBRequest.m in Sources */,
 				DA2B35C4134514FE00056705 /* TiNetworkSocketProxy.m in Sources */,
 				DABF3ED1134D210400836137 /* TiBuffer.m in Sources */,
-				DABF3ED9134D2CA100836137 /* TiStreamModule.m in Sources */,
+				DABF3ED9134D2CA100836137 /* StreamModule.m in Sources */,
 				DABF3EDE134D2E4400836137 /* TiStreamProxy.m in Sources */,
+				DAA4B2B6134E75AC00AB6011 /* CodecModule.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

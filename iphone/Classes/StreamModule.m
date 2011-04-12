@@ -11,31 +11,12 @@
 
 #ifdef USE_TI_STREAM
 @interface StreamModule(Private)
--(void)asynchRead:(TiStreamProxy*)stream args:(id)args callback:(KrollCallback*)callback;
 -(void)performInvocation:(NSInvocation*)invocation; // TODO: Move this somewhere common?
 @end
 
 @implementation StreamModule
 
 #pragma mark Internal
-
--(void)asynchRead:(TiStreamProxy*)stream args:(id)args callback:(KrollCallback *)callback
-{
-    NSMutableDictionary* event = [NSMutableDictionary dictionaryWithObjectsAndKeys:stream,@"source",[args objectAtIndex:0],@"buffer", nil];
-    
-    // TODO: Right now, ref to buffer is iOS-only; fix that
-    @try {
-        NSNumber* bytesRead = [stream read:args];
-        [event setValue:bytesRead forKey:@"bytesProcessed"];
-    }
-    @catch (NSException* e) {
-        [event setValue:[e reason] forKey:@"errorDescription"];
-        [event setValue:[[e userInfo] valueForKey:@"errorCode"] forKey:@"errorState"]; // TODO: What exactly IS errorState?
-    }
-    @finally {
-        [self _fireEventToListener:@"read" withObject:event listener:callback thisObject:nil];
-    }
-}
 
 // Need this wrapper method to avoid leaking some autorelease objects
 -(void)performInvocation:(NSInvocation*)invocation
@@ -74,12 +55,16 @@
         readArgs = [args subarrayWithRange:NSMakeRange(1, 1)];
     }
     
-    NSInvocation* invoke = [NSInvocation invocationWithMethodSignature:[self methodSignatureForSelector:@selector(asynchRead:args:callback:)]];
-    [invoke setTarget:self];
-    [invoke setSelector:@selector(asynchRead:args:callback:)];
-    [invoke setArgument:&stream atIndex:2];
-    [invoke setArgument:&readArgs atIndex:3];
-    [invoke setArgument:&callback atIndex:4];
+    int offsetValue = (offset) ? [offset intValue] : 0;
+    int lengthValue = (length) ? [length intValue] : [[buffer data] length];
+    
+    NSInvocation* invoke = [NSInvocation invocationWithMethodSignature:[stream methodSignatureForSelector:@selector(asynchRead:offset:length:callback:)]];
+    [invoke setTarget:stream];
+    [invoke setSelector:@selector(asynchRead:offset:length:callback:)];
+    [invoke setArgument:&buffer atIndex:2];
+    [invoke setArgument:&offsetValue atIndex:3];
+    [invoke setArgument:&lengthValue atIndex:4];
+    [invoke setArgument:&callback atIndex:5];
     [invoke retainArguments];
     
     [self performSelectorInBackground:@selector(performInvocation:) withObject:invoke];

@@ -2,6 +2,18 @@ var win = Titanium.UI.currentWindow;
 
 var connectedSockets = [];
 
+function readCallback(e) {
+	if (e.errorDescription == null) {
+		readLabel.text = e.buffer.toString();
+	}
+	else {
+		messageLabel.text = "READ ERROR: "+e.errorDescription;
+	}
+	
+	e.buffer.clear();
+	Ti.Stream.read(e.source,e.buffer,readCallback);
+}
+
 var acceptedCallbacks = {
 	error : function(e) {
 		Ti.UI.createAlertDialog({
@@ -23,6 +35,8 @@ var socket = Titanium.Network.createSocket({
 		var sock = e.inbound;
 		connectedSockets.push(sock);
 		messageLabel.text = 'ACCEPTED: '+sock.host+':'+sock.port;
+		var readBuffer = Ti.createBuffer({length:1024});
+		Ti.Stream.read(sock, readBuffer, readCallback);
 		socket.accept(acceptedCallbacks);
 	},
 	closed: function(e) {
@@ -82,6 +96,16 @@ win.add(closeButton);
 closeButton.addEventListener('click', function() {
 	try {
 		socket.close();
+		for (var index in connectedSockets) {
+			try {
+				var sock = connectedSockts[index];
+				sock.close();
+			}
+			catch (e) {
+				messageLabel.text = "Exception: " +e;
+			}
+		}
+		messageLabel.text = 'Closed socket';
 	} catch (e) {
 		messageLabel.text = 'Exception: '+e;
 	}
@@ -142,8 +166,9 @@ win.addEventListener('close', function(e) {
 	catch (e) {
 		// Don't care about exceptions; just means the socket was already closed
 	}
-	for (var sock in connectedSockets) {
+	for (var index in connectedSockets) {
 		try {
+			var sock = connectedSockets[index];
 			sock.close();
 		}
 		catch (e) {
