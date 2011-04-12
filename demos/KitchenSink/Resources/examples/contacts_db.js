@@ -11,7 +11,7 @@ if (android) {
 }
 
 var makeTable = function() {
-	var people = Titanium.Contacts.getAllPeople();
+	var people = Titanium.Contacts.getAllPeople({ sorted: true });
 	var rows = [];
 	for (var i = 0; i < people.length; i++) {
 		Ti.API.info("People object is: "+people[i]);

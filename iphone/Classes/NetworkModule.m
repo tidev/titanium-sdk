@@ -11,6 +11,7 @@
 #import "TiApp.h"
 #import "SBJSON.h"
 #import "TiBlob.h"
+#import "TiNetworkSocketProxy.h"
 
 NSString* const INADDR_ANY_token = @"INADDR_ANY";
 
@@ -72,6 +73,7 @@ NSString* const INADDR_ANY_token = @"INADDR_ANY";
 	RELEASE_TO_NIL(pushNotificationCallback);
 	RELEASE_TO_NIL(pushNotificationError);
 	RELEASE_TO_NIL(pushNotificationSuccess);
+    RELEASE_TO_NIL(socketProxy);
 	[super _destroy];
 }
 
@@ -151,6 +153,17 @@ NSString* const INADDR_ANY_token = @"INADDR_ANY";
 	[self removeEventListener:newargs];
 }
 
+// Socket submodule
+#ifdef USE_TI_NETWORKSOCKET
+-(TiProxy*)Socket
+{
+    if (socketProxy == nil) {
+        socketProxy = [[TiNetworkSocketProxy alloc] _initWithPageContext:[self pageContext]];
+    }
+    return socketProxy;
+}
+#endif
+
 - (NSNumber*)online
 {
 	if (state!=TiNetworkConnectionStateNone && state!=TiNetworkConnectionStateUnknown)
@@ -190,14 +203,6 @@ MAKE_SYSTEM_PROP(NETWORK_UNKNOWN,TiNetworkConnectionStateUnknown);
 MAKE_SYSTEM_PROP(NOTIFICATION_TYPE_BADGE,1);
 MAKE_SYSTEM_PROP(NOTIFICATION_TYPE_ALERT,2);
 MAKE_SYSTEM_PROP(NOTIFICATION_TYPE_SOUND,3);
-
-MAKE_SYSTEM_PROP(TCP,TCP);
-
-MAKE_SYSTEM_PROP(SOCKET_INITIALIZED,SOCKET_INITIALIZED);
-MAKE_SYSTEM_PROP(SOCKET_CONNECTED,SOCKET_CONNECTED);
-MAKE_SYSTEM_PROP(SOCKET_LISTENING,SOCKET_LISTENING);
-MAKE_SYSTEM_PROP(SOCKET_CLOSED,SOCKET_CLOSED);
-MAKE_SYSTEM_PROP(SOCKET_ERROR,SOCKET_ERROR);
 
 #pragma mark Push Notifications 
 

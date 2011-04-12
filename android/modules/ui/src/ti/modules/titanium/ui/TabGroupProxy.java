@@ -375,7 +375,8 @@ public class TabGroupProxy extends TiWindowProxy
 				}
 			}
 		}
-		tabs.clear();
+		// Don't clear the tabs collection -- it contains proxies, not views
+		//tabs.clear();
 	}
 
 	@Override

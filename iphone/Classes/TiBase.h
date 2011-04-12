@@ -155,6 +155,10 @@ if (out && ![out isKindOfClass:[type class]]) { \
 } \
 } \
 
+#define ENSURE_INT_COERCION(x) \
+if (x != nil && ![x respondsToSelector:@selector(intValue)]) { \
+[self throwException:TiExceptionInvalidType subreason:[NSString stringWithFormat:@"Cannot convert type %@ to int",[x class]] location:CODELOCATION]; \
+}
 
 #define ENSURE_CLASS(x,t) \
 if (![x isKindOfClass:t]) \

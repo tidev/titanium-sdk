@@ -461,24 +461,26 @@ Titanium.Geolocation.forwardGeocoder(addr,function(evt)
 	});
 });
 
-Ti.Android.currentActivity.addEventListener('pause', function(e) {
-	if (headingAdded) {
-		Ti.API.info("removing heading callback on pause");
-		Titanium.Geolocation.removeEventListener('heading', headingCallback);
-	}
-	if (locationAdded) {
-		Ti.API.info("removing location callback on pause");
-		Titanium.Geolocation.removeEventListener('location', locationCallback);
-	}
-});
-Ti.Android.currentActivity.addEventListener('resume', function(e) {
-	if (headingAdded) {
-		Ti.API.info("adding heading callback on resume");
-		Titanium.Geolocation.addEventListener('heading', headingCallback);
-	}
-	if (locationAdded) {
-		Ti.API.info("adding location callback on resume");
-		Titanium.Geolocation.addEventListener('location', locationCallback);
-	}
-});
+if (Titanium.Platform.name == 'android') {
+	Ti.Android.currentActivity.addEventListener('pause', function(e) {
+		if (headingAdded) {
+			Ti.API.info("removing heading callback on pause");
+			Titanium.Geolocation.removeEventListener('heading', headingCallback);
+		}
+		if (locationAdded) {
+			Ti.API.info("removing location callback on pause");
+			Titanium.Geolocation.removeEventListener('location', locationCallback);
+		}
+	});
+	Ti.Android.currentActivity.addEventListener('resume', function(e) {
+		if (headingAdded) {
+			Ti.API.info("adding heading callback on resume");
+			Titanium.Geolocation.addEventListener('heading', headingCallback);
+		}
+		if (locationAdded) {
+			Ti.API.info("adding location callback on resume");
+			Titanium.Geolocation.addEventListener('location', locationCallback);
+		}
+	});
+}
 

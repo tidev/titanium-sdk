@@ -1,0 +1,49 @@
+- namespace
+
+Titanium.Network.Socket.TCP
+
+- type
+
+object
+
+- subtype
+
+proxy
+
+- description
+
+An object which conforms to `Titanium.IOStream` and represents a connection through a network interface, whether it is intended to be used for data transfer (connected) or accepting new connections (listening).
+
+- since
+
+1.7.0
+
+- platforms
+
+android, iphone, ipad
+
+- properties
+
+host[string]: The host for the socket to connect to/listen on.  For listening, this should ALWAYS be the wifi address, unless you intend to use the loopback interface. Can only be modified when the socket is in the INITIALIZED state.
+port[int]: The port for the socket to connect to/listen on. Can only be modified when the socket is in the INITIALIZED state.  
+connected[function]: The callback to invoke when the socket transitions to the CONNECTED state. Note that it is not called for new sockets which are accepted. Can only be modified when the socket is in the INITIALIZED state.
+accepted[function]: The callback to invoke when the socket accepts a new connection. Can only be modified when the socket is in the INITIALIZED state.
+closed[function]: The callback to invoke when the socket closes. Can only be modified when the socket is in the INITIALIZED state.
+error[function]: The callback to invoke when the socket experiences an error (INCLUDING during any I/O operations). Can only be modified when the socket is in the INITIALIZED state.
+
+- methods
+
+connect: Connects the socket to the specified host/port endpoint.
+listen: Sets up the socket to listen on the specified host/port endpoint.
+accept: Tells the socket to accept the next available inbound connection. Note that unlike BSD, this function does NOT block.
+close: Closes the socket.
+
+
+~~~
+~~~
+
+- notes
+
+Sockets are nontrivial; it is recommended that anyone using them be familiar with the basics of BSD sockets and good network programming practices in general.  All I/O for sockets is performed either through the methods specified in `Titanium.IOStream` or by operations on `Titanium.Stream`.
+
+

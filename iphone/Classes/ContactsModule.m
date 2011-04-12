@@ -184,15 +184,28 @@
 	return people;
 }
 
--(NSArray*)getAllPeople:(id)unused
+-(NSArray*)getAllPeople:(id)arg
 {
+    ENSURE_SINGLE_ARG_OR_NIL(arg, NSDictionary)
+    
 	if (![NSThread isMainThread]) {
-		[self performSelectorOnMainThread:@selector(getAllPeople:) withObject:unused waitUntilDone:YES];
+		[self performSelectorOnMainThread:@selector(getAllPeople:) withObject:arg waitUntilDone:YES];
 		return [returnCache objectForKey:@"allPeople"];
 	}
+    
+    CFArrayRef peopleRefs = NULL;
+    
+    if ([TiUtils boolValue:@"sorted" properties:arg def:NO]) {
+        ABRecordRef source = ABAddressBookCopyDefaultSource([self addressBook]);
+        ABPersonSortOrdering sortOrder = [TiUtils intValue:@"sortOrder" properties:arg def:ABPersonGetSortOrdering()];
+        
+        peopleRefs = ABAddressBookCopyArrayOfAllPeopleInSourceWithSortOrdering([self addressBook], source, sortOrder);
+    }
+    else {
+        peopleRefs = ABAddressBookCopyArrayOfAllPeople([self addressBook]);
+    }
 	
-	CFArrayRef peopleRefs = ABAddressBookCopyArrayOfAllPeople([self addressBook]);
-	if (peopleRefs == NULL) {
+    if (peopleRefs == NULL) {
 		[returnCache setObject:[NSNull null] forKey:@"allPeople"];
 		return nil;
 	}
