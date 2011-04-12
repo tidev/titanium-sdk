@@ -241,7 +241,63 @@ describe("Ti.Database tests", {
 			db.close();
 			db.remove();
 	 	}
-	}, 
+	},
+
+	//https://appcelerator.lighthouseapp.com/projects/32238/tickets/3393-db-get-api-extended-to-support-typed-return-value 
+	testTypedGettersAndSetters: function() {
+		var db   = Ti.Database.open('Test'),
+		rowCount = 10,
+		resultSet = null, 
+		i, counter;
+		
+		valueOf(db).shouldBeObject();
+
+		try {
+			counter = 1;
+			i = 1;
+			
+			db.execute('CREATE TABLE IF NOT EXISTS stuff (id INTEGER, val TEXT)');
+			db.execute('DELETE FROM stuff'); //clear table of all existing data
+			
+			while(i <= rowCount) {
+				 db.execute('INSERT INTO stuff (id, val) VALUES(?, ?)', [i, 'our value' + i]);
+				 ++i;
+			}
+			
+			resultSet = db.execute('SELECT * FROM stuff');
+
+			valueOf(resultSet).shouldNotBeNull();
+			valueOf(resultSet).shouldBeObject();
+			valueOf(resultSet.rowCount).shouldBe(rowCount);
+
+			while(resultSet.isValidRow()) {
+				valueOf(resultSet.getInt('id')).shouldBe(counter);
+				valueOf(resultSet.getInt('val')).shouldBe(1); //string is not a number, will eval to 0
+				
+				valueOf(resultSet.getInt(0)).shouldBe(counter);
+				valueOf(resultSet.getInt(1)).shouldBe(0);
+				
+			  valueOf(resultSet.getString('val')).shouldBe('our value' + counter);
+			  valueOf(resultSet.getString('id')).shouldBe(counter.toString());
+				
+			  ++counter;
+
+				resultSet.next();
+			}
+			
+		} catch(e) {
+			Ti.API.warn('An error occurred!!\n');
+			Ti.API.warn(e.message);
+		} finally {
+			if(null != db) {
+				db.close();
+			}
+
+			if(null != resultSet) {
+				resultSet.close();
+			}
+		}
+	},
 	testDatabaseExceptions : function() {
 		valueOf( function() { Ti.Database.open("fred://\\"); }).shouldThrowException();
 		var db = null;
