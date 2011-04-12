@@ -65,6 +65,11 @@
 
 #pragma mark Public API : Functions
 
+-(TiStreamProxy*)createStream:(id)args
+{
+    return nil;
+}
+
 -(void)read:(id)args
 {
     [self invokeRWOperation:@selector(readToBuffer:offset:length:callback:) withArgs:args];
@@ -127,7 +132,24 @@
     ENSURE_ARG_AT_INDEX(chunkSize, args, 2, NSObject);
     ENSURE_ARG_OR_NIL_AT_INDEX(callback, args, 3, KrollCallback);
     
-    // Do stuff...
+    TiBuffer* tempBuffer = [[[TiBuffer alloc] _initWithPageContext:[self executionContext]] autorelease];
+    [tempBuffer setLength:chunkSize];
+    
+    if (callback != nil) {
+        NSInvocation* invoke = [NSInvocation invocationWithMethodSignature:[inputStream methodSignatureForSelector:@selector(writeToStream:buffer:callback:)]];
+        [invoke setTarget:inputStream];
+        [invoke setSelector:@selector(writeFromStream:toStream:buffer:callback:)];
+        [invoke setArgument:&inputStream atIndex:2];
+        [invoke setArgument:&outputStream atIndex:3];
+        [invoke setArgument:&tempBuffer atIndex:4];
+        [invoke setArgument:&callback atIndex:5];
+        [invoke retainArguments];
+        [self performSelectorInBackground:@selector(performInvocation:) withObject:invoke];
+        
+        return nil;
+    }
+    
+    return [inputStream writeToStream:outputStream buffer:tempBuffer callback:nil];
 }
 
 -(void)pump:(id)args
@@ -142,7 +164,22 @@
     ENSURE_ARG_AT_INDEX(chunkSize, args, 2, NSObject);
     ENSURE_ARG_OR_NIL_AT_INDEX(asynch, args, 3, NSObject);
     
-    // Do stuff...
+    TiBuffer* tempBuffer = [[[TiBuffer alloc] _initWithPageContext:[self executionContext]] autorelease];
+    [tempBuffer setLength:chunkSize];
+    
+    if ([TiUtils boolValue:asynch def:NO]) {
+        NSInvocation* invoke = [NSInvocation invocationWithMethodSignature:[stream methodSignatureForSelector:@selector(pumpToCallback:buffer:)]];
+        [invoke setTarget:stream];
+        [invoke setSelector:@selector(writeFromStream:toStream:buffer:callback:)];
+        [invoke setArgument:&callback atIndex:2];
+        [invoke setArgument:&tempBuffer atIndex:3];
+        [invoke retainArguments];
+        [self performSelectorInBackground:@selector(performInvocation:) withObject:invoke];
+        
+        return;
+    }
+    
+    [stream pumpToCallback:callback buffer:tempBuffer];
 }
 
 @end
