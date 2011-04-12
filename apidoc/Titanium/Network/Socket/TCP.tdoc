@@ -1,6 +1,6 @@
 - namespace
 
-Ti.Network.Socket.TCP
+Titanium.Network.Socket.TCP
 
 - type
 
