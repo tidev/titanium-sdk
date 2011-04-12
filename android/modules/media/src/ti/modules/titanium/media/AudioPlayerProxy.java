@@ -79,7 +79,50 @@ public class AudioPlayerProxy extends KrollProxy
 			setProperty(TiC.PROPERTY_URL, kroll.getTiContext().resolveUrl(null, TiConvert.toString(url)));
 		}
 	}
-
+	
+	@Kroll.getProperty @Kroll.method
+	public int getDuration() {
+		TiSound s = getSound();
+		if (s != null) {
+			return s.getDuration();
+		}
+		return 0;
+	}
+	
+	@Kroll.getProperty @Kroll.method
+	public int getTime() {
+		TiSound s = getSound();
+		if (s != null) {
+			return s.getTime();
+		}
+		return 0;
+	}
+	
+	@Kroll.setProperty @Kroll.method
+	public void setTime(int time) {
+		TiSound s = getSound();
+		if (s != null) {
+			s.setTime(time);
+		}
+	}
+	
+	@Kroll.getProperty @Kroll.method
+	public float getVolume(){
+		TiSound s= getSound();
+		if (s != null){
+			return s.getVolume();
+		}
+		return 0.0f;
+	}
+	
+	@Kroll.setProperty @Kroll.method
+	public void setVolume(float volume){
+		TiSound s = getSound();
+		if (s != null){
+			s.setVolume(volume);
+		}
+	}
+	
 	@Kroll.getProperty @Kroll.method
 	public boolean isPlaying() {
 		TiSound s = getSound();
@@ -119,7 +162,15 @@ public class AudioPlayerProxy extends KrollProxy
 			s.pause();
 		}
 	}
-
+	
+	@Kroll.method
+	public void reset(){
+		TiSound s = getSound();
+		if (s != null){
+			s.reset();
+		}
+	}
+	
 	@Kroll.method
 	public void release() {
 		TiSound s = getSound();
