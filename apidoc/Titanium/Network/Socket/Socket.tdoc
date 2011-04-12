@@ -6,6 +6,10 @@ Titanium.Network.Socket
 
 module
 
+- returns
+
+object
+
 - description
 
 This submodule contains constants relating to, and constructors for, socket objects.
