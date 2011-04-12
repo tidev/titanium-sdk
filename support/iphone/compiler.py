@@ -352,7 +352,7 @@ class Compiler(object):
 	@classmethod	
 	def make_function_from_file(cls,path,file,instance=None):
 		file_contents = open(os.path.expanduser(file)).read()
-		file_contents = jspacker.jsmin(file_contents)
+		# file_contents = jspacker.jsmin(file_contents)
 		file_contents = file_contents.replace('Titanium.','Ti.')
 		if instance: instance.compile_js(file_contents)
 		data = str(file_contents).encode("hex")
