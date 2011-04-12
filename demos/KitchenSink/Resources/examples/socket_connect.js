@@ -1,9 +1,18 @@
 var win = Ti.UI.currentWindow;
 
-/*
- * Assumes the existence of a `Ti.Blob Ti.createBlob(string text)` method
- */
 var connectingSocket = null;
+
+function readCallback(e) {
+	if (e.errorDescription == null) {
+		statusArea.value = "DATA: "+e.buffer.toString();
+	}
+	else {
+		statusArea.value = "READ ERROR: "+e.errorDescription;
+	}
+	
+	e.buffer.clear();
+	Ti.Stream.read(e.source,e.buffer,readCallback);
+}
 
 var hostField = Ti.UI.createTextField({
 	value:'HOSTNAME',
@@ -69,21 +78,19 @@ var connectButton = Ti.UI.createButton({
 connectButton.addEventListener('click', function() {
 	if (connectingSocket == null) {
 		try {
-			connectingSocket = Ti.Network.createSocket({
-				hostName:hostField.value,
+			connectingSocket = Ti.Network.Socket.createTCP({
+				host:hostField.value,
 				port:portField.value,
-				type:Ti.Network.TCP,
 				connected:function(e) {
-					e.socket.write(Ti.createBlob("Well, hello there!"));
+					e.socket.write(Ti.createBuffer({data:"Well, hello there!"}));
+					var readBuffer = Ti.createBuffer({length:1024});
+					Ti.Stream.read(e.socket,readBuffer,readCallback);
 				},
 				error:function(e) {
 					statusArea.value = "ERROR ("+e.errorCode+"): "+e.error;
 				},
 				closed:function(e) {
 					statusArea.value = "CLOSED CONNECTION TO: "+e.socket.host+":"+e.socket.port;
-				},
-				read:function(e) {
-					statusArea.value = "DATA: "+e.data.toString();
 				}
 			});
 			connectingSocket.connect();
@@ -93,7 +100,7 @@ connectButton.addEventListener('click', function() {
 		}
 	}
 	else {
-		statusArea.value = 'Already connected: '+connectingSocket.hostName +':'+connectingSocket.port;
+		statusArea.value = 'Already created: '+connectingSocket.host +':'+connectingSocket.port;
 	}
 });
 win.add(connectButton);
@@ -129,8 +136,8 @@ var writeButton = Ti.UI.createButton({
 	left:110
 });
 writeButton.addEventListener('click', function() {
-	if (connectingSocket != null && connectingSocket.state == Ti.Network.SOCKET_CONNECTED) {
-		connectingSocket.write(Ti.createBlob(writeArea.value));
+	if (connectingSocket != null && connectingSocket.isWritable()) {
+		connectingSocket.write(Ti.createBuffer({data:writeArea.value}));
 	}
 });
 win.add(writeButton);

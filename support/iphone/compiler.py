@@ -21,7 +21,7 @@ ignoreDirs = ['.git','.svn','_svn','CVS','android','iphone'];
 HEADER = """/**
  * Appcelerator Titanium Mobile
  * This is generated code. Do not modify. Your changes *will* be lost.
- * Generated code is Copyright (c) 2009-2010 by Appcelerator, Inc.
+ * Generated code is Copyright (c) 2009-2011 by Appcelerator, Inc.
  * All Rights Reserved.
  */
 #import <Foundation/Foundation.h>
@@ -119,7 +119,7 @@ class Compiler(object):
 			app_dir = os.path.join(os.environ['TARGET_BUILD_DIR'],os.environ['CONTENTS_FOLDER_PATH'])
 		else:
 			target = 'Debug'
-			if deploytype == 'install':
+			if deploytype == 'production':
 				target = 'Release'
 			app_name = name+'.app'
 			app_folder_name = '%s-iphoneos' % target
@@ -223,6 +223,11 @@ class Compiler(object):
 			if os.path.exists(app_dir):
 				self.copy_resources([resources_dir],app_dir)
 				
+			if deploytype == 'production':
+				debugger_plist = os.path.join(app_dir,'debugger.plist')
+				if os.path.exists(debugger_plist):
+					os.remove(debugger_plist)
+					
 			if deploytype!='development':	
 				defines_file = os.path.join(self.classes_dir,'defines.h')
 				defines_header = open(defines_file,'w+')

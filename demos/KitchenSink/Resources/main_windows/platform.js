@@ -18,15 +18,13 @@ var data = [
 	{title:'JSON', hasChild:true, test:'../examples/json.js'},
 	{title:'JS search', hasChild:true, test:'../examples/search_case_insensitive.js'},
 	{title:'Clipboard', hasChild:true, test:'../examples/clipboard.js'},
-	{title:'Connecting socket', hasChild:true, test:'../examples/socket_connect.js'},
-	{title:'Listening socket', hasChild:true, test:'../examples/socket_listener.js'}
+	{title:'Sockets', hasChild:true, test:'../examples/sockets.js'},
 ];
 
 if (Titanium.Platform.name == 'iPhone OS')
 {
 	data.push({title:'Passing Data (windows)', hasChild:true, test:'../examples/custom_properties.js'});
 	data.push({title:'Bonjour', hasChild:true, test:'../examples/bonjour.js'});
-	data.push({title:'iOS TCP Sockets [deprecated]', hasChild:true, test:'../examples/ios_sockets.js'});
 }
 
 if (Titanium.Platform.osname === 'android') {

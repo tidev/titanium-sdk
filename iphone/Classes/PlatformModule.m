@@ -79,6 +79,11 @@ NSString* const DATA_IFACE = @"pdp_ip0";
 		{
 			model = [[NSString stringWithFormat:@"%@ 2G",themodel] retain];
 		}
+		// detect iPad 2 model
+		else if (!strcmp(u.machine, "iPad2,1")) 
+		{
+			model = [[NSString stringWithFormat:@"%@ 2",themodel] retain];
+		}
 		// detect simulator
 		else if (!strcmp(u.machine, "i386")) 
 		{

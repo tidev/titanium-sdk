@@ -9,7 +9,7 @@
 #import "KrollBridge.h"
 #import "TiApp.h"
 #import "TiUtils.h"
-#import "TiBlob.h"
+#import "TiBuffer.h"
 
 @implementation TopTiModule
 
@@ -68,13 +68,26 @@
 }
 #endif
 
-// TODO: Does this belong here?  Where should we put blob creation?
-// TODO: Also, only creates blobs from strings right now
--(TiBlob*)createBlob:(id)arg
+// TODO: Temp for socket testing; remove/rework for release.
+-(TiBuffer*)createBuffer:(id)arg
 {
-    ENSURE_SINGLE_ARG(arg, NSString);
+    ENSURE_SINGLE_ARG(arg, NSDictionary);
     
-    TiBlob* newBlob = [[[TiBlob alloc] initWithData:[arg dataUsingEncoding:NSUTF8StringEncoding] mimetype:@"text/plain"] autorelease];
-    return newBlob;
+    id data = [arg valueForKey:@"data"];
+    int length = [[arg valueForKey:@"length"] intValue];
+    
+    if (data != nil) {
+        if ([data isKindOfClass:[NSString class]]) {
+            return [[[TiBuffer alloc] initWithData:[data dataUsingEncoding:NSUTF8StringEncoding]] autorelease];
+        }
+        else if ([data isKindOfClass:[TiBlob class]]) {
+            return [[[TiBuffer alloc] initWithData:[data data]] autorelease];
+        }
+    }
+    else {
+        return [[[TiBuffer alloc] initWithData:[NSMutableData dataWithLength:length]] autorelease];
+    }
+    return [[[TiBuffer alloc] initWithData:[NSData data]] autorelease];
 }
+
 @end
