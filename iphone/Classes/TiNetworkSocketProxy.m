@@ -7,7 +7,7 @@
 
 #import "TiNetworkSocketProxy.h"
 #import "TiNetworkSocketTCPProxy.h"
-
+#ifdef USE_TI_NETWORKSOCKET
 @implementation TiNetworkSocketProxy
 
 -(id)createTCP:(id)args
@@ -22,3 +22,4 @@ MAKE_SYSTEM_PROP(CLOSED,SOCKET_CLOSED);
 MAKE_SYSTEM_PROP(ERROR,SOCKET_ERROR);
 
 @end
+#endif

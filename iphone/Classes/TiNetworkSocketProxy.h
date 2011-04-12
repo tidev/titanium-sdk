@@ -7,7 +7,7 @@
 
 #import <Foundation/Foundation.h>
 #import "TiProxy.h"
-
+#ifdef USE_TI_NETWORKSOCKET
 typedef enum {
     SOCKET_INITIALIZED = 1<<0,
     SOCKET_CONNECTED = 1<<1,
@@ -32,3 +32,4 @@ typedef enum {
 
 
 @end
+#endif
