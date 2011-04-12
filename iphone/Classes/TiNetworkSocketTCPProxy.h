@@ -8,7 +8,7 @@
 #import <Foundation/Foundation.h>
 #import "TiStreamProxy.h"
 #import "AsyncSocket.h"
-#import "NetworkModule.h"
+#import "TiNetworkSocketProxy.h"
 
 @interface TiNetworkSocketTCPProxy : TiStreamProxy<AsyncSocketDelegate> {
     AsyncSocket* socket;

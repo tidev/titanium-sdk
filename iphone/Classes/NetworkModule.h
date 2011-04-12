@@ -17,14 +17,6 @@ typedef enum {
 	READ_WRITE_MODE = 3 // Alias for READ | WRITE
 } SocketMode;
 
-typedef enum {
-    SOCKET_INITIALIZED = 1<<0,
-    SOCKET_CONNECTED = 1<<1,
-    SOCKET_LISTENING = 1<<2,
-    SOCKET_CLOSED = 1<<3,
-    SOCKET_ERROR = 1<<4
-} SocketState;
-
 @interface NetworkModule : TiModule {
 @private
 	TiNetworkConnectionState state;
@@ -57,12 +49,6 @@ typedef enum {
 @property(readonly, nonatomic) NSNumber* WRITE_MODE;
 @property(readonly, nonatomic) NSNumber* READ_WRITE_MODE;
 @property(readonly, nonatomic) NSString* INADDR_ANY;
-
-@property(readonly, nonatomic) NSNumber* SOCKET_INITIALIZED;
-@property(readonly, nonatomic) NSNumber* SOCKET_CONNECTED;
-@property(readonly, nonatomic) NSNumber* SOCKET_LISTENING;
-@property(readonly, nonatomic) NSNumber* SOCKET_CLOSED;
-@property(readonly, nonatomic) NSNumber* SOCKET_ERROR;
 
 -(id)encodeURIComponent:(id)args;
 -(id)decodeURIComponent:(id)args;

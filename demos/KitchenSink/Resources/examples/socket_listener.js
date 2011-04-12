@@ -120,19 +120,19 @@ win.add(stateButton);
 stateButton.addEventListener('click', function() {
 	var stateString = "UNKNOWN";
 	switch (socket.state) {
-		case Ti.Network.SOCKET_INITIALIZED:
+		case Ti.Network.Socket.INITIALIZED:
 			stateString = "INITIALIZED";
 			break;
-		case Ti.Network.SOCKET_CONNECTED:
+		case Ti.Network.Socket.CONNECTED:
 			stateString = "CONNECTED";
 			break;
-		case Ti.Network.SOCKET_LISTENING:
+		case Ti.Network.Socket.LISTENING:
 			stateString = "LISTENING";
 			break;
-		case Ti.Network.SOCKET_CLOSED:
+		case Ti.Network.Socket.CLOSED:
 			stateString = "CLOSED";
 			break;
-		case Ti.Network.SOCKET_ERROR:
+		case Ti.Network.Socket.ERROR:
 			stateString = "ERROR";
 			break;
 	}
