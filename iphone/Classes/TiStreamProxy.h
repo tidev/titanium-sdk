@@ -15,8 +15,8 @@
 // 2. Provide protocol defining necessary internal functions; read/write, asynch read/write, readAll, 
 @protocol TiStreamInternal
 @required
-// DEFINED BEHAVIOR: callback != nil indicates an asynch operation.  These methods MAY be called by classes other than
-// the TiStreamProxy ducktype (i.e. Ti.Stream module methods)
+// DEFINED BEHAVIOR: callback != nil indicates an asynch operation.  length==0 indicates to read all available data into
+// the buffer (and grow it if necessary).  These methods MAY be called by classes other than the TiStreamProxy ducktype (i.e. Ti.Stream module methods)
 -(int)readToBuffer:(TiBuffer*)buffer offset:(int)offset length:(int)length callback:(KrollCallback*)callback;
 -(int)writeFromBuffer:(TiBuffer*)buffer offset:(int)offset length:(int)length callback:(KrollCallback*)callback;
 

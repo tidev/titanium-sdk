@@ -132,7 +132,6 @@ static NSString* ARG_KEY = @"arg";
     NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
     
     id port = [self valueForUndefinedKey:@"port"]; // Can be string or int
-    ENSURE_INT_COERCION(port);
     NSNumber* timeout = [self valueForUndefinedKey:@"timeout"];
     
     if (host == nil || [host isEqual:@""]) {
@@ -153,7 +152,7 @@ static NSString* ARG_KEY = @"arg";
     NSError* err = nil;
     BOOL success;
     if (timeout == nil) {
-        success = [socket connectToHost:host onPort:[port intValue] error:&err];
+        success = [socket connectToHost:host onPort:[TiUtils intValue:port] error:&err];
     }
     else {
         success = [socket connectToHost:host onPort:[port intValue] withTimeout:[timeout doubleValue] error:&err];
