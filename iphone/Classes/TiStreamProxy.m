@@ -9,53 +9,7 @@
 
 @implementation TiStreamProxy
 
-#pragma mark Internals
-
-// Backend implementations - we have a few:
-// 1. Read/write
-// 2. Asynch read/write (may require different behavior than simple read/write)
-// TODO: 3. readAll() ? / adjust buffer size / hasBytes() / etc.
-
--(int)readToBuffer:(TiBuffer*)buffer offset:(int)offset length:(int)length
-{
-    [self throwException:@"UNIMPLEMENTED STREAM METHOD"
-               subreason:@"readIntoBuffer:offset:length:"
-                location:CODELOCATION];
-}
-
--(int)writeFromBuffer:(TiBuffer*)buffer offset:(int)offset length:(int)length
-{
-    [self throwException:@"UNIMPLEMENTED STREAM METHOD"
-               subreason:@"writeFromBuffer:offset:length:"
-                location:CODELOCATION];
-}
-
--(int)asynchRead:(TiBuffer *)buffer offset:(int)offset length:(int)length callback:(KrollCallback *)callback
-{
-    [self throwException:@"UNIMPLEMENTED STREAM METHOD"
-               subreason:@"asynchRead:offset:length:callback:"
-                location:CODELOCATION];
-}
-
--(int)asynchWrite:(TiBuffer *)buffer offset:(int)offset length:(int)length callback:(KrollCallback *)callback 
-{
-    [self throwException:@"UNIMPLEMENTED STREAM METHOD"
-               subreason:@"asynchWrite:offset:length:callback:"
-                location:CODELOCATION];
-}
-
-
 #pragma mark Public API : Functions
-
--(NSNumber*)isReadable:(id)_void
-{
-    return NUMBOOL(NO);
-}
-
--(NSNumber*)isWritable:(id)_void
-{
-    return NUMBOOL(NO);
-}
 
 -(NSNumber*)read:(id)args
 {
@@ -77,7 +31,7 @@
     ENSURE_INT_COERCION(length);
     
     if (offset == nil && length == nil) {
-        return NUMINT([self readToBuffer:buffer offset:0 length:[[buffer data] length]]);
+        return NUMINT([self readToBuffer:buffer offset:0 length:[[buffer data] length] callback:nil]);
     }
     else {
         if (offset == nil || length == nil) {
@@ -86,7 +40,7 @@
                        subreason:@"Invalid OFFSET or LENGTH value"
                         location:CODELOCATION];
         }
-        return NUMINT([self readToBuffer:buffer offset:[offset intValue] length:[length intValue]]);
+        return NUMINT([self readToBuffer:buffer offset:[offset intValue] length:[length intValue] callback:nil]);
     }
     
     return NUMINT(-1);
