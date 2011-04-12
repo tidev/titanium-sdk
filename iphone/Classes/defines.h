@@ -23,6 +23,7 @@
 #define USE_TI_MAP
 #define USE_TI_MEDIA
 #define USE_TI_NETWORK
+#define USE_TI_NETWORKSOCKET
 #define USE_TI_PLATFORM
 #define USE_TI_YAHOO
 #define USE_TI_UI

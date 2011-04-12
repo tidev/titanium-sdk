@@ -27,10 +27,9 @@ var acceptedCallbacks = {
 	}
 };
 
-var socket = Titanium.Network.createSocket({
+var socket = Titanium.Network.Socket.createTCP({
 	host:Ti.Platform.address,
 	port:40404,
-	type:Ti.Network.TCP,
 	accepted: function(e) {
 		var sock = e.inbound;
 		connectedSockets.push(sock);

@@ -32,6 +32,8 @@ typedef enum {
 	KrollCallback *pushNotificationError;
 	KrollCallback *pushNotificationSuccess;
 	Reachability *reachability;
+    
+    TiProxy* socketProxy;
 }
 
 @property(nonatomic,readonly) NSNumber* online;

@@ -78,10 +78,9 @@ var connectButton = Ti.UI.createButton({
 connectButton.addEventListener('click', function() {
 	if (connectingSocket == null) {
 		try {
-			connectingSocket = Ti.Network.createSocket({
+			connectingSocket = Ti.Network.Socket.createTCP({
 				host:hostField.value,
 				port:portField.value,
-				type:Ti.Network.TCP,
 				connected:function(e) {
 					e.socket.write(Ti.createBuffer({data:"Well, hello there!"}));
 					var readBuffer = Ti.createBuffer({length:1024});
@@ -137,7 +136,7 @@ var writeButton = Ti.UI.createButton({
 	left:110
 });
 writeButton.addEventListener('click', function() {
-	if (connectingSocket != null && connectingSocket.state == Ti.Network.SOCKET_CONNECTED) {
+	if (connectingSocket != null && connectingSocket.isWritable()) {
 		connectingSocket.write(Ti.createBuffer({data:writeArea.value}));
 	}
 });
