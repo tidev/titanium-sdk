@@ -8,7 +8,7 @@ module
 
 - description
 
-The top level Network module.  The Network module is used accessing Networking related functionality.
+The top level Network module.  The Network module is used accessing Networking related functionality, including [Titanium.Network.Socket](Titanium.Network.Socket-module.html)
 
 - since
 
