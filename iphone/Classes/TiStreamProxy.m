@@ -6,7 +6,7 @@
  */
 
 #import "TiStreamProxy.h"
-
+#import "TiUtils.h"
 @implementation TiStreamProxy
 
 #pragma mark Public API : Functions
@@ -26,9 +26,7 @@
     
     ENSURE_ARG_AT_INDEX(buffer, args, 0, TiBuffer);
     ENSURE_ARG_OR_NIL_AT_INDEX(offset, args, 1, NSObject);
-    ENSURE_INT_COERCION(offset);
     ENSURE_ARG_OR_NIL_AT_INDEX(length, args, 2, NSObject);
-    ENSURE_INT_COERCION(length);
     
     if (offset == nil && length == nil) {
         return NUMINT([self readToBuffer:buffer offset:0 length:[[buffer data] length] callback:nil]);
@@ -37,10 +35,10 @@
         if (offset == nil || length == nil) {
             // TODO: Codify behavior
             [self throwException:@"StreamException"
-                       subreason:@"Invalid OFFSET or LENGTH value"
+                       subreason:@"Requires OFFSET or LENGTH value"
                         location:CODELOCATION];
         }
-        return NUMINT([self readToBuffer:buffer offset:[offset intValue] length:[length intValue] callback:nil]);
+        return NUMINT([self readToBuffer:buffer offset:[TiUtils intValue:offset] length:[TiUtils intValue:length def:[[buffer data] length]] callback:nil]);
     }
     
     return NUMINT(-1);
@@ -61,9 +59,7 @@
     
     ENSURE_ARG_AT_INDEX(buffer, args, 0, TiBuffer);
     ENSURE_ARG_OR_NIL_AT_INDEX(offset, args, 1, NSObject);
-    ENSURE_INT_COERCION(offset);
     ENSURE_ARG_OR_NIL_AT_INDEX(length, args, 2, NSObject);
-    ENSURE_INT_COERCION(offset);
     
     if (offset == nil && length == nil) {
         return NUMINT([self writeFromBuffer:buffer offset:0 length:[[buffer data] length] callback:nil]);
@@ -75,7 +71,7 @@
                        subreason:@"Invalid OFFSET or LENGTH value"
                         location:CODELOCATION];
         }
-        return NUMINT([self writeFromBuffer:buffer offset:[offset intValue] length:[length intValue] callback:nil]);
+        return NUMINT([self writeFromBuffer:buffer offset:[TiUtils intValue:offset] length:[TiUtils intValue:length def:[[buffer data] length]] callback:nil]);
     }
     
     return NUMINT(-1);
