@@ -21,8 +21,8 @@
 -(int)writeFromBuffer:(TiBuffer*)buffer offset:(int)offset length:(int)length callback:(KrollCallback*)callback;
 
 // Used for writeStream/pumping
--(NSNumber*)writeToStream:(id<TiStreamInternal>)output buffer:(TiBuffer*)buffer callback:(KrollCallback*)callback;
--(void)pumpToCallback:(KrollCallback*)callback buffer:(TiBuffer*)buffer;
+-(int)writeToStream:(id<TiStreamInternal>)output chunkSize:(int)size callback:(KrollCallback*)callback;
+-(void)pumpToCallback:(KrollCallback*)callback chunkSize:(int)size;
 
 // Public API : No defined behavior
 -(NSNumber*)isReadable:(id)_void; // PUBLIC API FUNCTION

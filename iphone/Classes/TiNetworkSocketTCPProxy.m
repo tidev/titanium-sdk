@@ -20,8 +20,6 @@ static NSString* ARG_KEY = @"arg";
 -(void)startListeningSocket;
 -(void)startAcceptedSocket:(NSDictionary*)info;
 -(void)socketRunLoop;
--(void)asynchRead:(TiBuffer*)buffer offset:(int)offset length:(int)length callback:(KrollCallback*)callback;
--(void)asynchWrite:(TiBuffer*)buffer offset:(int)offset length:(int)length callback:(KrollCallback*)callback;
 @end
 
 @implementation TiNetworkSocketTCPProxy
@@ -38,8 +36,8 @@ static NSString* ARG_KEY = @"arg";
         socketThread = nil;
         acceptArgs = [[NSMutableDictionary alloc] init];
         acceptCondition = [[NSCondition alloc] init];
+        operationInfo = [[NSMutableDictionary alloc] init];
         asynchTagCount = 0;
-        asynchCallbacks = [[NSMutableDictionary alloc] init];
     }
     return self;
 }
@@ -74,7 +72,7 @@ static NSString* ARG_KEY = @"arg";
     RELEASE_TO_NIL(socket);
     RELEASE_TO_NIL(socketThread);
 
-    RELEASE_TO_NIL(asynchCallbacks);
+    RELEASE_TO_NIL(operationInfo);
     
     RELEASE_TO_NIL(acceptArgs);
     RELEASE_TO_NIL(acceptCondition);
@@ -264,36 +262,6 @@ static NSString* ARG_KEY = @"arg";
     [pool release];
 }
 
--(void)asynchRead:(TiBuffer*)buffer offset:(int)offset length:(int)length callback:(KrollCallback*)callback
-{
-    // As always, ensure that operations take place on the socket thread...
-    if ([NSThread currentThread] != socketThread) {
-        NSInvocation* asynchInvoke = [NSInvocation invocationWithMethodSignature:[self methodSignatureForSelector:@selector(asynchRead:offset:length:callback:)]];
-        [asynchInvoke setTarget:self];
-        [asynchInvoke setSelector:@selector(asynchRead:offset:length:callback:)];
-        [asynchInvoke setArgument:&buffer atIndex:2];
-        [asynchInvoke setArgument:&offset atIndex:3];
-        [asynchInvoke setArgument:&length atIndex:4];
-        [asynchInvoke setArgument:&callback atIndex:5];
-        [asynchInvoke performSelector:@selector(invoke) onThread:socketThread withObject:nil waitUntilDone:YES];
-    }
-    else {
-        asynchTagCount = asynchTagCount % INT_MAX;
-        NSDictionary* asynchInfo = [NSDictionary dictionaryWithObjectsAndKeys:buffer,@"buffer",callback,@"callback",nil];
-        [asynchCallbacks setObject:asynchInfo forKey:NUMINT(asynchTagCount)];
-        [socket readDataWithTimeout:-1
-                             buffer:[buffer data]
-                       bufferOffset:offset
-                          maxLength:length
-                                tag:asynchTagCount];
-        asynchTagCount++;
-    }
-}
-
--(void)asynchWrite:(TiBuffer*)buffer offset:(int)offset length:(int)length callback:(KrollCallback*)callback
-{
-}
-
 #pragma mark Public API : Functions
 
 #define ENSURE_SOCKET_THREAD(f,x) \
@@ -342,9 +310,9 @@ return; \
 
 -(void)accept:(id)arg
 {
-    // No-op if we have an accept in progress
+    // Only change the accept args if we have an accept in progress
     if (accepting) {
-        return;
+        [acceptArgs setValue:arg forKey:ARG_KEY];
     }
     
     ENSURE_SOCKET_THREAD(accept,arg);
@@ -400,65 +368,6 @@ TYPESAFE_SETTER(setAccepted, accepted, KrollCallback)
 TYPESAFE_SETTER(setClosed, closed, KrollCallback)
 TYPESAFE_SETTER(setError, error, KrollCallback)
 
-#pragma mark TiStreamProxy overrides
-
-// Have to overload 'read' and 'write' behavior as well, because they need to be performed on the socket thread!
-// Note the retain/release magic.
--(NSNumber*)read:(id)args
-{
-    if ([NSThread currentThread] != socketThread) {
-        NSInvocation* readInvoke = [NSInvocation invocationWithMethodSignature:[self methodSignatureForSelector:@selector(read:)]];
-        [readInvoke setTarget:self];
-        [readInvoke setSelector:@selector(read:)];
-        [readInvoke setArgument:&args atIndex:2];
-        [readInvoke performSelector:@selector(invoke) onThread:socketThread withObject:nil waitUntilDone:NO];
-        
-        [ioCondition lock];
-        [ioCondition wait];
-        [ioCondition unlock];
-        
-        // Because of the things we have to do to enforce blocking, we don't know what the number of bytes read
-        // when the invoke actually returns IS.  We have to wait until the condition is unlocked and use the
-        // length of the read data... unless we're returning -1.
-        
-        NSNumber* readResult = nil;
-        [readInvoke getReturnValue:&readResult];
-        [readResult autorelease];
-        
-        if ([readResult intValue] == -1) {
-            return readResult;
-        }
-        else {
-            return NUMINT(readDataLength);
-        }
-    }
-    else {
-        return [[super read:args] retain];
-    }
-}
-
--(NSNumber*)write:(id)args
-{
-    if ([NSThread currentThread] != socketThread) {
-        NSInvocation* writeInvoke = [NSInvocation invocationWithMethodSignature:[self methodSignatureForSelector:@selector(write:)]];
-        [writeInvoke setTarget:self];
-        [writeInvoke setSelector:@selector(write:)];
-        [writeInvoke setArgument:&args atIndex:2];
-        [writeInvoke performSelector:@selector(invoke) onThread:socketThread withObject:nil waitUntilDone:NO];
-        
-        [ioCondition lock];
-        [ioCondition wait];
-        [ioCondition unlock];
-        
-        NSNumber* result = nil;
-        [writeInvoke getReturnValue:&result];
-        return [result autorelease];
-    }
-    else {
-        return [[super write:args] retain];
-    }
-}
-
 #pragma mark TiStreamInternal implementations
 
 -(NSNumber*)isReadable:(id)_void
@@ -473,22 +382,115 @@ TYPESAFE_SETTER(setError, error, KrollCallback)
 
 -(int)readToBuffer:(TiBuffer*)buffer offset:(int)offset length:(int)length callback:(KrollCallback *)callback
 {
-    [socket readDataWithTimeout:-1
-                         buffer:[buffer data]
-                   bufferOffset:offset
-                      maxLength:length
-                            tag:-1];
+    // As always, ensure that operations take place on the socket thread...
+    if ([NSThread currentThread] != socketThread) {
+        NSInvocation* invocation = [NSInvocation invocationWithMethodSignature:[self methodSignatureForSelector:@selector(readToBuffer:offset:length:callback:)]];
+        [invocation setTarget:self];
+        [invocation setSelector:@selector(readToBuffer:offset:length:callback:)];
+        [invocation setArgument:&buffer atIndex:2];
+        [invocation setArgument:&offset atIndex:3];
+        [invocation setArgument:&length atIndex:4];
+        [invocation setArgument:&callback atIndex:5];
+        [invocation performSelector:@selector(invoke) onThread:socketThread withObject:nil waitUntilDone:NO];
+        
+        [ioCondition lock];
+        [ioCondition wait];
+        [ioCondition unlock];
+        
+        return readDataLength;
+    }
+    else {
+        int tag = -1;
+        if (callback != nil) {
+            tag = asynchTagCount;
+            NSDictionary* asynchInfo = [NSDictionary dictionaryWithObjectsAndKeys:buffer,@"buffer",callback,@"callback",NUMINT(TO_BUFFER),@"type",nil];
+            [operationInfo setObject:asynchInfo forKey:NUMINT(tag)];
+            asynchTagCount = (asynchTagCount + 1) % INT_MAX;
+        }
+        
+        [socket readDataWithTimeout:-1
+                             buffer:[buffer data]
+                       bufferOffset:offset
+                          maxLength:length
+                                tag:tag];
+    }
     
-    return 0;
+    return 0; // Bogus return value; the real value is returned when we finish the read
 }
 
 -(int)writeFromBuffer:(TiBuffer*)buffer offset:(int)offset length:(int)length callback:(KrollCallback *)callback
 {
+    // As always, ensure that operations take place on the socket thread...
+    if ([NSThread currentThread] != socketThread) {
+        NSInvocation* invocation = [NSInvocation invocationWithMethodSignature:[self methodSignatureForSelector:@selector(writeFromBuffer:offset:length:callback:)]];
+        [invocation setTarget:self];
+        [invocation setSelector:@selector(writeFromBuffer:offset:length:callback:)];
+        [invocation setArgument:&buffer atIndex:2];
+        [invocation setArgument:&offset atIndex:3];
+        [invocation setArgument:&length atIndex:4];
+        [invocation setArgument:&callback atIndex:5];
+        [invocation performSelector:@selector(invoke) onThread:socketThread withObject:nil waitUntilDone:NO];
+        
+        [ioCondition lock];
+        [ioCondition wait];
+        [ioCondition unlock];
+        
+        int result = 0;
+        [invocation getReturnValue:&result];
+        
+        return result;
+    }
+    else {
+        NSData* subdata = [[buffer data] subdataWithRange:NSMakeRange(offset, length)];
+        int tag = -1;
+        if (callback != nil) {
+            tag = asynchTagCount;
+            NSDictionary* asynchInfo = [NSDictionary dictionaryWithObjectsAndKeys:NUMINT([subdata length]),@"bytesProcessed",callback,@"callback", nil];
+            [operationInfo setObject:asynchInfo forKey:NUMINT(tag)];
+            asynchTagCount = (asynchTagCount + 1) % INT_MAX;
+        }
+        [socket writeData:subdata withTimeout:-1 tag:-1];
+        
+        return [subdata length];
+    }
+}
+
+-(int)writeToStream:(id<TiStreamInternal>)output chunkSize:(int)size callback:(KrollCallback *)callback
+{
+    if ([NSThread currentThread] != socketThread) {
+        NSInvocation* invocation = [NSInvocation invocationWithMethodSignature:[self methodSignatureForSelector:@selector(writeToStream:chunkSize:callback:)]];
+        [invocation setTarget:self];
+        [invocation setSelector:@selector(writeToStream:chunkSize:callback:)];
+        [invocation setArgument:&output atIndex:2];
+        [invocation setArgument:&size atIndex:3];
+        [invocation setArgument:&callback atIndex:4];
+        [invocation performSelector:@selector(invoke) onThread:socketThread withObject:nil waitUntilDone:NO];
+        
+        [ioCondition lock];
+        [ioCondition wait];
+        [ioCondition unlock];
+        
+        return readDataLength;
+    }
+    else {
+        int tag = asynchTagCount;
+        NSDictionary* info = [NSDictionary dictionaryWithObjectsAndKeys:output,@"destination",NUMINT(size),@"chunkSize",callback,"@callback", nil];
+        [operationInfo setObject:info forKey:NUMINT(tag)];
+        asynchTagCount = (asynchTagCount + 1) % INT_MAX;
+        
+        [socket readDataWithTimeout:-1
+                             buffer:nil
+                       bufferOffset:0
+                          maxLength:size
+                                tag:tag];
+        
+        return readDataLength;
+    }
+}
+
+-(void)pumpToCallback:(KrollCallback *)callback chunkSize:(int)size
+{
     
-    NSData* subdata = [[buffer data] subdataWithRange:NSMakeRange(offset, length)];
-    [socket writeData:subdata withTimeout:-1 tag:-1];
-    
-    return [subdata length];
 }
 
 #pragma mark AsyncSocketDelegate methods
@@ -543,7 +545,6 @@ TYPESAFE_SETTER(setError, error, KrollCallback)
 
 - (void)onSocket:(AsyncSocket *)sock didAcceptNewSocket:(AsyncSocket *)newSocket
 {
-    // ... And then over here, we signal the same condition, which gets waited on in the new socket thread.
     [acceptArgs setValue:newSocket forKey:SOCK_KEY];
     [self performSelectorInBackground:@selector(startAcceptedSocket:) withObject:acceptArgs];
     accepting = NO;
@@ -559,46 +560,92 @@ TYPESAFE_SETTER(setError, error, KrollCallback)
     }
 }
 
-// TODO: Implement partial write callback?
 -(void)onSocket:(AsyncSocket *)sock didWriteDataWithTag:(long)tag 
 {
+    // Signal the IO condition
+    [ioCondition lock];
+    [ioCondition signal];
+    [ioCondition unlock];
+    
     // Result of asynch write
     if (tag > -1) {
-        NSDictionary* info = [asynchCallbacks objectForKey:NUMINT(tag)];
+        NSDictionary* info = [operationInfo objectForKey:NUMINT(tag)];
         KrollCallback* callback = [info valueForKey:@"callback"];
-        TiBuffer* buffer = [info valueForKey:@"buffer"];
         
-        NSDictionary* event = [NSDictionary dictionaryWithObjectsAndKeys:buffer,@"buffer",[[buffer data] length],@"bytesProcessed",nil];
+        NSDictionary* event = [NSDictionary dictionaryWithObjectsAndKeys:[info valueForKey:@"bytesProcessed"],@"bytesProcessed",nil];
         [self _fireEventToListener:@"write" withObject:event listener:callback thisObject:self];
-        [asynchCallbacks removeObjectForKey:NUMINT(tag)];
-        return;
-    }    
-    
-    [ioCondition lock];
-    [ioCondition signal];
-    [ioCondition unlock];
+        [operationInfo removeObjectForKey:NUMINT(tag)];
+    } 
 }
 
-// TODO: Implement partial data read callback?
+// 'Read' can also lead to a writeStream/pump operation
 -(void)onSocket:(AsyncSocket *)sock didReadData:(NSData *)data withTag:(long)tag
 {
-    // Result of asynch read
-    if (tag > -1) {
-        NSDictionary* info = [asynchCallbacks objectForKey:NUMINT(tag)];
-        KrollCallback* callback = [info valueForKey:@"callback"];
-        TiBuffer* buffer = [info valueForKey:@"buffer"];
-        
-        NSDictionary* event = [NSDictionary dictionaryWithObjectsAndKeys:buffer,@"buffer",NUMINT([data length]),@"bytesProcessed", nil];
-        [self _fireEventToListener:@"read" withObject:event listener:callback thisObject:self];
-        [asynchCallbacks removeObjectForKey:NUMINT(tag)];
-        return;
-    }
+    // We do NOT SIGNAL I/O if dealing with a tagged operation. The reason why? Because toStream/pump need to keep streaming and pumping...
+    // until the socket is closed, which fires the I/O condition signal.
     
-    // The amount of data read is available only off of this 'data' object... not off the initial buffer we passed.
-    [ioCondition lock];
-    readDataLength = [data length];
-    [ioCondition signal];
-    [ioCondition unlock];
+    // Specialized operation
+    if (tag > -1) {
+        NSDictionary* info = [[[operationInfo objectForKey:NUMINT(tag)] retain] autorelease];
+        [operationInfo removeObjectForKey:NUMINT(tag)];
+        ReadDestination type = [[info objectForKey:@"type"] intValue];
+        switch (type) {
+            case TO_BUFFER: {
+                // Signal the condition
+                [ioCondition lock];
+                [ioCondition signal];
+                [ioCondition unlock];
+                
+                KrollCallback* callback = [info valueForKey:@"callback"];
+                TiBuffer* buffer = [info valueForKey:@"buffer"];
+                
+                NSDictionary* event = [NSDictionary dictionaryWithObjectsAndKeys:buffer,@"buffer",NUMINT([data length]),@"bytesProcessed", nil];
+                [self _fireEventToListener:@"read" withObject:event listener:callback thisObject:self];
+                break;
+            }
+            case TO_STREAM: {
+                // Perform the write to stream
+                id<TiStreamInternal> stream = [info valueForKey:@"destination"];
+                int size = [TiUtils intValue:[info valueForKey:@"chunkSize"]];
+                KrollCallback* callback = [info valueForKey:@"callback"];
+                
+                TiBuffer* tempBuffer = [[[TiBuffer alloc] _initWithPageContext:[self executionContext]] autorelease];
+                [tempBuffer setData:[NSMutableData dataWithData:data]];
+                readDataLength += [data length];
+                
+                // TODO: We need to be able to monitor this stream for write errors, and then report back via an exception or the callback or whatever
+                [stream writeFromBuffer:tempBuffer offset:0 length:[data length] callback:nil];
+                
+                // ... And then set up the next read to it.
+                [self writeToStream:stream chunkSize:size callback:callback];
+                break;
+            }
+            case TO_CALLBACK: {
+                // Perform the pump to callback
+                KrollCallback* callback = [info valueForKey:@"callback"];
+                int size = [TiUtils intValue:[info valueForKey:@"chunkSize"]];
+                
+                TiBuffer* tempBuffer = [[[TiBuffer alloc] _initWithPageContext:[self executionContext]] autorelease];
+                [tempBuffer setData:[NSMutableData dataWithData:data]];
+                readDataLength += [data length];
+                
+                NSDictionary* event = [NSDictionary dictionaryWithObjectsAndKeys:self,@"source",tempBuffer,@"buffer",NUMINT([data length]),"@bytesProcessed",NUMINT(readDataLength),@"totalBytesProcessed", nil];
+                [self _fireEventToListener:@"pump" withObject:event listener:callback thisObject:nil];
+                
+                // ... And queue up the next pump.
+                [self pumpToCallback:callback chunkSize:size];
+                break;
+            }
+        }
+    }
+    else {
+        // Only signal the condition for your standard blocking read
+        // The amount of data read is available only off of this 'data' object... not off the initial buffer we passed.
+        [ioCondition lock];
+        readDataLength = [data length];
+        [ioCondition signal];
+        [ioCondition unlock];
+    }
 }
 
 @end

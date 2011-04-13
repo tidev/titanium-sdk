@@ -67,6 +67,7 @@
 
 -(TiStreamProxy*)createStream:(id)args
 {
+    // TODO: CREATE STREAMS
     return nil;
 }
 
@@ -131,25 +132,22 @@
     ENSURE_ARG_AT_INDEX(outputStream, args, 1, TiStreamProxy);
     ENSURE_ARG_AT_INDEX(chunkSize, args, 2, NSObject);
     ENSURE_ARG_OR_NIL_AT_INDEX(callback, args, 3, KrollCallback);
-    
-    TiBuffer* tempBuffer = [[[TiBuffer alloc] _initWithPageContext:[self executionContext]] autorelease];
-    [tempBuffer setLength:chunkSize];
-    
+
+    int size = [TiUtils intValue:chunkSize];
     if (callback != nil) {
-        NSInvocation* invoke = [NSInvocation invocationWithMethodSignature:[inputStream methodSignatureForSelector:@selector(writeToStream:buffer:callback:)]];
+        NSInvocation* invoke = [NSInvocation invocationWithMethodSignature:[inputStream methodSignatureForSelector:@selector(writeToStream:chunkSize:callback:)]];
         [invoke setTarget:inputStream];
-        [invoke setSelector:@selector(writeFromStream:toStream:buffer:callback:)];
-        [invoke setArgument:&inputStream atIndex:2];
-        [invoke setArgument:&outputStream atIndex:3];
-        [invoke setArgument:&tempBuffer atIndex:4];
-        [invoke setArgument:&callback atIndex:5];
+        [invoke setSelector:@selector(writeToStream:chunkSize:callback:)];
+        [invoke setArgument:&outputStream atIndex:2];
+        [invoke setArgument:&size atIndex:3];
+        [invoke setArgument:&callback atIndex:4];
         [invoke retainArguments];
         [self performSelectorInBackground:@selector(performInvocation:) withObject:invoke];
         
         return nil;
     }
     
-    return [inputStream writeToStream:outputStream buffer:tempBuffer callback:nil];
+    return NUMINT([inputStream writeToStream:outputStream chunkSize:size callback:nil]);
 }
 
 -(void)pump:(id)args
@@ -164,22 +162,21 @@
     ENSURE_ARG_AT_INDEX(chunkSize, args, 2, NSObject);
     ENSURE_ARG_OR_NIL_AT_INDEX(asynch, args, 3, NSObject);
     
-    TiBuffer* tempBuffer = [[[TiBuffer alloc] _initWithPageContext:[self executionContext]] autorelease];
-    [tempBuffer setLength:chunkSize];
-    
-    if ([TiUtils boolValue:asynch def:NO]) {
-        NSInvocation* invoke = [NSInvocation invocationWithMethodSignature:[stream methodSignatureForSelector:@selector(pumpToCallback:buffer:)]];
+    int size = [TiUtils intValue:chunkSize];
+
+    if ([TiUtils boolValue:asynch def:YES]) {
+        NSInvocation* invoke = [NSInvocation invocationWithMethodSignature:[stream methodSignatureForSelector:@selector(pumpToCallback:chunkSize:)]];
         [invoke setTarget:stream];
-        [invoke setSelector:@selector(writeFromStream:toStream:buffer:callback:)];
+        [invoke setSelector:@selector(pumpToCallback:chunkSize:)];
         [invoke setArgument:&callback atIndex:2];
-        [invoke setArgument:&tempBuffer atIndex:3];
+        [invoke setArgument:&size atIndex:3];
         [invoke retainArguments];
-        [self performSelectorInBackground:@selector(performInvocation:) withObject:invoke];
         
+        [self performSelectorInBackground:@selector(performInvocation:) withObject:invoke];
         return;
     }
     
-    [stream pumpToCallback:callback buffer:tempBuffer];
+    [stream pumpToCallback:callback chunkSize:size];
 }
 
 @end

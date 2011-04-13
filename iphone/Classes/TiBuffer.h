@@ -9,7 +9,7 @@
 #import "TiProxy.h"
 #import "TiBlob.h"
 
-// TODO: Finish implementation; this is just a skeleton for use w/TCP sockets
+// TODO: Support array-style access of bytes
 @interface TiBuffer : TiProxy {
     NSMutableData* data;
     
