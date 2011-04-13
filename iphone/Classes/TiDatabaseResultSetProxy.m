@@ -171,6 +171,42 @@
 	return [self validRow];
 }
 
+- (id) dynamicField:(id) args {
+	ENSURE_ARG_COUNT(args, 1)
+
+	id arg = [args objectAtIndex:0],
+	   ret = nil;
+	
+	if([arg isKindOfClass:[NSString class]]) {
+		ret = [self fieldByName:arg];
+	} else if([arg isKindOfClass:[NSNumber class]]) {
+		ret = [self field:arg];
+	} else {
+		[self throwException:@"Invalid parameter type passed to " subreason:nil location:CODELOCATION];
+	}
+	return ret;
+}
+
+#pragma mark -
+#pragma mark Public API - Typed Getters
+
+- (id) getString:(id) args {
+	return [TiUtils stringValue:[self dynamicField:args]];
+}
+
+- (id) getInt:(id) args {
+	return NUMINT([TiUtils intValue:[self dynamicField:args]]);
+}
+
+- (id) getFloat: (id) args {
+	return NUMFLOAT([TiUtils floatValue:[self dynamicField:args]]);
+}
+
+- (id) getDouble: (id) args {
+	return NUMDOUBLE([TiUtils doubleValue:[self dynamicField:args]]);
+}
+
+
 @end
 
 #endif
