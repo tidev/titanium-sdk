@@ -181,31 +181,54 @@
 		ret = [self fieldByName:arg];
 	} else if([arg isKindOfClass:[NSNumber class]]) {
 		ret = [self field:arg];
-	} else {
-		[self throwException:@"Invalid parameter type passed to " subreason:nil location:CODELOCATION];
 	}
+	
 	return ret;
+}
+
+#define THROW_IF_FAILED_CONVERSION(obj, type, location)\
+if(nil == obj) {\
+[NSException raise:TiExceptionInvalidType format:@"Conversion to %@ failed%@", type, location];\
+}\
+
+- (id) _baseNumericGetter:(NSArray *) args {
+	ENSURE_ARG_COUNT(args, 3)
+	
+	id value   = [self dynamicField:[args objectAtIndex:0]];
+	NSNumber *result = [TiUtils numberFromObject:value];
+	
+	THROW_IF_FAILED_CONVERSION(result, [args objectAtIndex:1], [args objectAtIndex:2])
+		
+	return result;
 }
 
 #pragma mark -
 #pragma mark Public API - Typed Getters
 
 - (id) getString:(id) args {
-	return [TiUtils stringValue:[self dynamicField:args]];
+	
+	id value = [self dynamicField:args];
+	NSString *result = [TiUtils stringValue:value];
+	
+	THROW_IF_FAILED_CONVERSION(result, @"string", CODELOCATION)
+
+	return result;
 }
 
 - (id) getInt:(id) args {
-	return NUMINT([TiUtils intValue:[self dynamicField:args]]);
+	NSNumber *number = [self _baseNumericGetter:[NSArray arrayWithObjects: args, @"int", CODELOCATION, nil]];
+	return NUMLONG([number longValue]);
 }
 
 - (id) getFloat: (id) args {
-	return NUMFLOAT([TiUtils floatValue:[self dynamicField:args]]);
+	NSNumber *number = [self _baseNumericGetter:[NSArray arrayWithObjects: args, @"float", CODELOCATION, nil]];
+	return NUMFLOAT([number floatValue]);
 }
 
 - (id) getDouble: (id) args {
-	return NUMDOUBLE([TiUtils doubleValue:[self dynamicField:args]]);
+	NSNumber *number = [self _baseNumericGetter:[NSArray arrayWithObjects: args, @"double", CODELOCATION, nil]];
+	return NUMDOUBLE([number doubleValue]);
 }
-
 
 @end
 
