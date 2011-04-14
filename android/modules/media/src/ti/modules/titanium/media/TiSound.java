@@ -28,11 +28,12 @@ import android.webkit.URLUtil;
 
 public class TiSound
 	implements MediaPlayer.OnCompletionListener, MediaPlayer.OnErrorListener, KrollProxyListener,
-	MediaPlayer.OnBufferingUpdateListener, MediaPlayer.OnInfoListener
+	MediaPlayer.OnBufferingUpdateListener, MediaPlayer.OnInfoListener, MediaPlayer.OnPreparedListener
 {
 	private static final String LCAT = "TiSound";
 	private static final boolean DBG = TiConfig.LOGD;
-
+	//private static final boolean DBG = true;
+	
 	public static final int STATE_BUFFERING	= 0;	// current playback is in the buffering from the network state
 	public static final int STATE_INITIALIZED = 1;	// current playback is in the initialization state
 	public static final int STATE_PAUSED = 2;	// current playback is in the paused state
@@ -57,14 +58,17 @@ public class TiSound
 	public static final String EVENT_ERROR = "error";
 	public static final String EVENT_CHANGE = "change";
 	public static final String EVENT_PROGRESS = "progress";
-
+	public static final String EVENT_PREPARED = "prepared";
+	
 	public static final String EVENT_COMPLETE_JSON = "{ type : '" + EVENT_COMPLETE + "' }";
 
 	private static final float VOLUME_SCALING_FACTOR = 3.0f;
 
 	private boolean paused = false;
 	private boolean looping = false;
-
+	private boolean prepared = false;
+	private String lastUrl;
+	
 	protected KrollProxy proxy;
 	protected MediaPlayer mp;
 	protected float volume;
@@ -72,58 +76,54 @@ public class TiSound
 	protected boolean remote;
 	protected Timer progressTimer;
 
+	// http://developer.android.com/reference/android/media/MediaPlayer.html
+	private enum State { IDLE, END, ERROR, PREPARING, INITIALIZED, PREPARED, STARTED, STOPPED, PAUSED, PLAYBACK_COMPLETED, NULL };
+	private State mpState = State.NULL;
+	
 	public TiSound(KrollProxy proxy)
 	{
 		this.proxy = proxy;
 		this.playOnResume = false;
 		this.remote = false;
 	}
-
+	
+	private void setMPState(State s){
+		Log.d(LCAT, "Expected Media Player state: " + s.toString());
+		mpState = s;
+	}
+	
 	protected void initialize()
 		throws IOException
 	{
 		try {
 			mp = new MediaPlayer();
-			String url = TiConvert.toString(proxy.getProperty(TiC.PROPERTY_URL));
-			if (URLUtil.isAssetUrl(url)) {
-				Context context = proxy.getTiContext().getTiApp();
-				String path = url.substring(TiConvert.ASSET_URL.length());
-				AssetFileDescriptor afd = null;
-				try {
-					afd = context.getAssets().openFd(path);
-					// Why mp.setDataSource(afd) doesn't work is a problem for another day.
-					// http://groups.google.com/group/android-developers/browse_thread/thread/225c4c150be92416
-					mp.setDataSource(afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength());
-				} catch (IOException e) {
-					Log.e(LCAT, "Error setting file descriptor: ", e);
-				} finally {
-					if (afd != null) {
-						afd.close();
-					}
-				}
-			} else {
-				Uri uri = Uri.parse(url);
-				if (uri.getScheme().equals(TiC.PROPERTY_FILE)) {
-					mp.setDataSource(uri.getPath());
-				} else {
-					remote = true;
-					mp.setDataSource(url);
-				}
-			}
-
+			
+			String url = lastUrl;
+			//if (url == null){
+			//	url = TiConvert.toString(proxy.getProperty(TiC.PROPERTY_URL));
+			//}
+			
+			Log.d(LCAT, "Initializing using url: " + url);
+			
+			mpSetDataSource(url);
+			
 			mp.setLooping(looping);
 			mp.setOnCompletionListener(this);
 			mp.setOnErrorListener(this);
 			mp.setOnInfoListener(this);
 			mp.setOnBufferingUpdateListener(this);
+			mp.setOnPreparedListener(this);
 			
-			mp.prepare(); // Probably need to allow for Async
-			setState(STATE_INITIALIZED);
+			//mp.prepare(); // Probably need to allow for Async
+			//setMPState(State.PREPARED);
+			//setState(STATE_INITIALIZED);
+			
+			mpPrepare();
 
-			setVolume(volume);
-			if (proxy.hasProperty(TiC.PROPERTY_TIME)) {
-				setTime(TiConvert.toInt(proxy.getProperty(TiC.PROPERTY_TIME)));
-			}
+			//setVolume(volume);
+			//if (proxy.hasProperty(TiC.PROPERTY_TIME)) {
+			//	setTime(TiConvert.toInt(proxy.getProperty(TiC.PROPERTY_TIME)));
+			//}
 		} catch (Throwable t) {
 			Log.w(LCAT, "Issue while initializing : " , t);
 			release();
@@ -162,6 +162,7 @@ public class TiSound
 						stopProgressTimer();
 					}
 					mp.pause();
+					setMPState(State.PAUSED);
 					paused = true;
 					setState(STATE_PAUSED);
 				}
@@ -189,6 +190,7 @@ public class TiSound
 						Log.d(LCAT, "Play: Volume set to " + volume);
 					}
 					mp.start();
+					setMPState(State.STARTED);
 					setState(STATE_PLAYING);
 					paused = false;
 					if (remote) {
@@ -216,8 +218,6 @@ public class TiSound
 				looping = false;
 				paused = false;
 				setState(STATE_STOPPED);
-				
-				mp.reset();
 			}
 		} catch (Throwable t) {
 			Log.w(LCAT, "Issue while resetting : " , t);
@@ -235,6 +235,7 @@ public class TiSound
 				mp.setOnInfoListener(null);
 
 				mp.release();
+				setMPState(State.END);
 				mp = null;
 				if (DBG) {
 					Log.d(LCAT, "Native resources released.");
@@ -291,13 +292,18 @@ public class TiSound
 	{
 		int duration = 0;
 		
-		if (mp != null) {
+		boolean validState = mpState != State.IDLE && 
+			mpState != State.INITIALIZED && 
+			mpState != State.END;
+		if (mp != null && validState) {
 			duration = mp.getDuration();
+			
+			Log.w(LCAT, "duration is: " + duration);
 		}
 		
 		return duration;
 	}
-
+	
 	public int getTime()
 	{
 		int time = 0;
@@ -385,12 +391,14 @@ public class TiSound
 					}
 					setState(STATE_STOPPING);
 					mp.stop();
+					setMPState(State.STOPPED);
 					setState(STATE_STOPPED);
 					if (remote) {
 						stopProgressTimer();
 					}
 					try {
 						mp.prepare();
+						setMPState(State.PREPARED);
 					} catch (IOException e) {
 						Log.e(LCAT,"Error while preparing audio after stop(). Ignoring.");
 					} catch (IllegalStateException e) {
@@ -407,9 +415,11 @@ public class TiSound
 		}
 	}
 
+	@Override
 	public void onCompletion(MediaPlayer mp)
 	{
 		proxy.fireEvent(EVENT_COMPLETE, null);
+		setMPState(State.PLAYBACK_COMPLETED);
 		stop();
 	}
 
@@ -455,7 +465,12 @@ public class TiSound
 		data.put("code", code);
 		data.put("message", msg);
 		proxy.fireEvent(EVENT_ERROR, data);
-
+		
+		if (!prepared){
+			Log.w(LCAT, "Failed to prepare; trying again (onError)...");
+			prepare(lastUrl);
+		}
+		
 		return true;
 	}
 
@@ -502,6 +517,7 @@ public class TiSound
 	{
 		if (mp != null) {
 			mp.release();
+			setMPState(State.END);
 			mp = null;
 		}
 		// TitaniumMedia clears out the references after onDestroy.
@@ -562,6 +578,120 @@ public class TiSound
 	{
 		for (KrollPropertyChange change : changes) {
 			propertyChanged(change.getName(), change.getOldValue(), change.getNewValue(), proxy);
+		}
+	}
+	
+	public void changeUrl(String url)
+	{
+		if (url == null){
+			Log.w(LCAT, "Issue while changing URL (changeUrl): url is null.");
+		}
+		
+		Log.d(LCAT, "Changing url to: " + url);
+		
+		prepared = false;
+		
+		url = TiConvert.toString(url);
+		lastUrl = url;
+		
+		prepare(url);
+	}
+	
+	@Override
+	public void onPrepared(MediaPlayer mp){
+		Log.w(LCAT, "MediaPlayer is prepared!");
+		prepared = true;
+		setMPState(State.PREPARED);
+		setState(STATE_INITIALIZED);
+		proxy.fireEvent(EVENT_PREPARED, null);
+		
+		setVolume(volume);
+		//if (proxy.hasProperty(TiC.PROPERTY_TIME)) {
+		//	setTime(0);
+		//}
+	}
+	
+	public boolean isPrepared(){
+		return prepared;
+	}
+	
+	private void prepare(String url){
+		try {
+			if (mp == null) {
+				setState(STATE_STARTING);
+				initialize();
+			}
+			else {
+				mpReset();
+				mpSetDataSource(url);
+				mpPrepare();
+			}
+		}
+		catch (Throwable t){
+			Log.w(LCAT, "Issue moving to prepared state with URL " + url + " (prepare): ", t);
+			release();
+			setState(STATE_STOPPED);
+			
+			if (!prepared){
+				Log.d(LCAT, "Retrying (prepare)...");
+				prepare(lastUrl);
+			}
+		}
+	}
+	
+	private void mpSetDataSource(String url) throws Exception
+	{
+		try {
+			if (URLUtil.isAssetUrl(url)) {
+				Context context = proxy.getTiContext().getTiApp();
+				String path = url.substring(TiConvert.ASSET_URL.length());
+				AssetFileDescriptor afd = null;
+				try {
+					afd = context.getAssets().openFd(path);
+					mp.setDataSource(afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength());
+					setMPState(State.INITIALIZED);
+				} catch (IOException e) {
+					Log.e(LCAT, "Error setting file descriptor (mpSetDataSource): ", e);
+				} finally {
+					if (afd != null) {
+						afd.close();
+					}
+				}
+			} else {
+				Uri uri = Uri.parse(url);
+				if (uri.getScheme().equals(TiC.PROPERTY_FILE)) {
+					mp.setDataSource(uri.getPath());
+					setMPState(State.INITIALIZED);
+				} else {
+					remote = true;
+					mp.setDataSource(url);
+					setMPState(State.INITIALIZED);
+				}
+			}
+		} catch (Throwable t){
+			Log.w(LCAT, "Issue while setting data source (mpSetDataSource): ", t);
+			throw new Exception("Unable to set data source to: " + url);
+		}
+	}
+	
+	private void mpReset() throws Exception
+	{
+		try {
+			mp.reset();
+			setMPState(State.IDLE);
+		} catch (Throwable t){
+			Log.w(LCAT, "Issue while resetting (mpReset): ", t);
+			throw new Exception("Unable to reset media player.");
+		}
+	}
+	
+	private void mpPrepare() throws Exception
+	{
+		try {
+			mp.prepareAsync();
+		} catch (Throwable t){
+			Log.w(LCAT, "Issue while preparing (mpPrepare): ", t);
+			throw new Exception("Unable to prepare media player.");
 		}
 	}
 }
