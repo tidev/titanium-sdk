@@ -187,7 +187,7 @@ public class TiUISlider extends TiUIView
 		if (key.equals("value")) {
 			pos = TiConvert.toInt(newValue);
 			seekBar.setProgress(pos + offset);
-			onProgressChanged(seekBar, pos, true);
+			onProgressChanged(seekBar, pos, false);
 		} else if (key.equals("min")) {
 			min = TiConvert.toInt(newValue);
 			minRange = min;
@@ -196,7 +196,7 @@ public class TiUISlider extends TiUIView
 				pos = minRange;
 			}
 			updateControl();
-			onProgressChanged(seekBar, pos, true);
+			onProgressChanged(seekBar, pos, false);
 		} else if (key.equals("minRange")) {
 			minRange = TiConvert.toInt(newValue);
 			updateRange();
@@ -204,7 +204,7 @@ public class TiUISlider extends TiUIView
 				pos = minRange;
 			}
 			updateControl();
-			onProgressChanged(seekBar, pos, true);
+			onProgressChanged(seekBar, pos, false);
 		} else if (key.equals("max")) {
 			max = TiConvert.toInt(newValue);
 			maxRange = max;
@@ -213,7 +213,7 @@ public class TiUISlider extends TiUIView
 				pos = maxRange;
 			}
 			updateControl();
-			onProgressChanged(seekBar, pos, true);
+			onProgressChanged(seekBar, pos, false);
 		} else if (key.equals("maxRange")) {
 			maxRange = TiConvert.toInt(newValue);
 			updateRange();
@@ -221,7 +221,7 @@ public class TiUISlider extends TiUIView
 				pos = maxRange;
 			}
 			updateControl();
-			onProgressChanged(seekBar, pos, true);
+			onProgressChanged(seekBar, pos, false);
 		} else if (key.equals("thumbImage")) {
 			//updateThumb(seekBar, proxy.getDynamicProperties());
 			//seekBar.invalidate();
@@ -270,6 +270,7 @@ public class TiUISlider extends TiUIView
 		data.put(TiC.PROPERTY_VALUE, scaledValue());
 		data.put(TiC.EVENT_PROPERTY_THUMB_OFFSET, offset);
 		data.put(TiC.EVENT_PROPERTY_THUMB_SIZE, size);
+		data.put("fromuser", fromUser);
 		proxy.setProperty(TiC.PROPERTY_VALUE, scaledValue(), false);
 
 		proxy.fireEvent(TiC.EVENT_CHANGE, data);
