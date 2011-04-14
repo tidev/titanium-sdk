@@ -15,7 +15,7 @@ static NSString* ARG_KEY = @"arg";
 
 @interface TiNetworkSocketTCPProxy (Private)
 -(void)cleanupSocket;
--(void)_setConnectedSocket:(AsyncSocket*)sock;
+-(void)setConnectedSocket:(AsyncSocket*)sock;
 -(void)startConnectingSocket;
 -(void)startListeningSocket;
 -(void)startAcceptedSocket:(NSDictionary*)info;
@@ -48,19 +48,20 @@ static NSString* ARG_KEY = @"arg";
     [super dealloc];
 }
 
-// TODO: Need to release our conditions safely
 -(void)_destroy
 {
     [listening lock];
-    [listening signal];
+    [listening broadcast];
     [listening unlock];
-    RELEASE_TO_NIL(listening);
     
     [ioCondition lock];
-    [ioCondition signal];
+    [ioCondition broadcast];
     [ioCondition unlock];
-    RELEASE_TO_NIL(ioCondition);
 
+    [acceptCondition lock];
+    [acceptCondition broadcast];
+    [acceptCondition unlock];
+    
     internalState = SOCKET_CLOSED;
     // Socket cleanup, if necessary
     if ([socketThread isExecuting]) {
@@ -68,14 +69,17 @@ static NSString* ARG_KEY = @"arg";
     }
 
     RELEASE_TO_NIL(operationInfo);
-    
     RELEASE_TO_NIL(acceptArgs);
-    RELEASE_TO_NIL(acceptCondition);
     
     RELEASE_TO_NIL(connected);
     RELEASE_TO_NIL(accepted);
     RELEASE_TO_NIL(closed);
     RELEASE_TO_NIL(error);
+    
+    // Release the conditions... but is this safe enough?
+    RELEASE_TO_NIL(listening);
+    RELEASE_TO_NIL(ioCondition);
+    RELEASE_TO_NIL(acceptCondition);
     
     RELEASE_TO_NIL(host);
     
@@ -89,9 +93,7 @@ static NSString* ARG_KEY = @"arg";
     RELEASE_TO_NIL(socket);
 }
 
-// _ prefix keeps setX: private
-// TODO: Or does it?  KVC seems to like to "automatically" interpret _ prefixes sometimes.
--(void)_setConnectedSocket:(AsyncSocket*)sock
+-(void)setConnectedSocket:(AsyncSocket*)sock
 {
     [self cleanupSocket];
     internalState = SOCKET_CONNECTED;
@@ -100,7 +102,6 @@ static NSString* ARG_KEY = @"arg";
     socketThread = [NSThread currentThread];
 }
 
-// TODO: Build a better run loop
 #define AUTORELEASE_LOOP 5
 -(void)socketRunLoop
 {
@@ -233,17 +234,23 @@ static NSString* ARG_KEY = @"arg";
 {
     NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
 
-    [acceptCondition lock];
+    // Here's a goofy pattern in sockets; because we may _destroy on the Kroll thread while other threads (i.e. sockets, or newly created thread)
+    // is blocking, we need to hold on to the conditions we wait on, and then release them once we're done with them. Introduces some extra
+    // overhead, but it probably prevents DUMB CRASHES from happening.
+    
+    NSCondition* tempConditionRef = [acceptCondition retain];
+    [tempConditionRef lock];
     acceptRunLoop = [NSRunLoop currentRunLoop];
-    [acceptCondition signal];
-    [acceptCondition wait];
-    [acceptCondition unlock];
+    [tempConditionRef signal];
+    [tempConditionRef wait];
+    [tempConditionRef unlock];
+    [tempConditionRef release];
     
     NSArray* arg = [info objectForKey:ARG_KEY];
     AsyncSocket* newSocket = [info objectForKey:SOCK_KEY];
     
     TiNetworkSocketTCPProxy* proxy = [[[TiNetworkSocketTCPProxy alloc] _initWithPageContext:[self executionContext] args:arg] autorelease];
-    [proxy _setConnectedSocket:newSocket];
+    [proxy setConnectedSocket:newSocket];
     
     // TODO: remoteHost/remotePort & host/port?
     [proxy setValue:[newSocket connectedHost] forKey:@"host"];
@@ -261,11 +268,26 @@ static NSString* ARG_KEY = @"arg";
 
 #pragma mark Public API : Functions
 
+// Used to bump API calls onto the socket thread if necessary
 #define ENSURE_SOCKET_THREAD(f,x) \
+if (socketThread == nil) { \
+return; \
+} \
 if ([NSThread currentThread] != socketThread) { \
 [self performSelector:@selector(f:) onThread:socketThread withObject:x waitUntilDone:YES]; \
 return; \
 } \
+
+// Convenience for io waits
+#define SAFE_WAIT(condition) \
+{\
+NSCondition* temp = [condition retain]; \
+[temp lock]; \
+[temp wait]; \
+[temp unlock]; \
+[temp release]; \
+}\
+
 
 -(void)connect:(id)_void
 {
@@ -298,11 +320,13 @@ return; \
     [self performSelectorInBackground:@selector(startListeningSocket) withObject:nil];
     
     // Call should block until we're listening or have an error
-    [listening lock];
+    NSCondition* tempConditionRef = [listening retain];
+    [tempConditionRef lock];
     if (!(internalState & (SOCKET_LISTENING | SOCKET_ERROR))) {
-        [listening wait];
+        [tempConditionRef wait];
     }
-    [listening unlock];
+    [tempConditionRef unlock];
+    [tempConditionRef release];
 }
 
 -(void)accept:(id)arg
@@ -328,6 +352,7 @@ return; \
 {
     // TODO: Signal everything under the sun & close
     // TODO: If the socket is ALREADY closed, we don't need to go to the thread...
+    // TODO: Need to make sure the socket thread isn't == nil
     ENSURE_SOCKET_THREAD(close,_void);
     
     if (!(internalState & (SOCKET_CONNECTED | SOCKET_LISTENING | SOCKET_INITIALIZED))) {
@@ -396,9 +421,7 @@ TYPESAFE_SETTER(setError, error, KrollCallback)
         [invocation performSelector:@selector(invoke) onThread:socketThread withObject:nil waitUntilDone:NO];
         
         if (callback == nil) {
-            [ioCondition lock];
-            [ioCondition wait];
-            [ioCondition unlock];
+            SAFE_WAIT(ioCondition);
         }
         
         return readDataLength;
@@ -438,9 +461,7 @@ TYPESAFE_SETTER(setError, error, KrollCallback)
         [invocation performSelector:@selector(invoke) onThread:socketThread withObject:nil waitUntilDone:NO];
         
         if (callback == nil) {
-            [ioCondition lock];
-            [ioCondition wait];
-            [ioCondition unlock];
+            SAFE_WAIT(ioCondition);
         }
         
         int result = 0;
@@ -476,9 +497,7 @@ TYPESAFE_SETTER(setError, error, KrollCallback)
         [invocation retainArguments];
         
         if (callback == nil) {
-            [ioCondition lock];
-            [ioCondition wait];
-            [ioCondition unlock];
+            SAFE_WAIT(ioCondition);
         }
         
         return readDataLength;
@@ -512,9 +531,7 @@ TYPESAFE_SETTER(setError, error, KrollCallback)
         [invocation retainArguments];
         
         if (!asynch) {
-            [ioCondition lock];
-            [ioCondition wait];
-            [ioCondition unlock];
+            SAFE_WAIT(ioCondition);
         }
     }
     else {
@@ -572,12 +589,15 @@ TYPESAFE_SETTER(setError, error, KrollCallback)
 -(NSRunLoop*)onSocket:(AsyncSocket *)sock wantsRunLoopForNewSocket:(AsyncSocket *)newSocket
 {
     // We start up the accepted socket thread, and wait for the run loop to be cached, and return it...
-    [acceptCondition lock];
+    NSCondition* tempConditionRef = [acceptCondition retain];
+    [tempConditionRef lock];
     if (acceptRunLoop == nil) {
-        [acceptCondition wait];
+        [tempConditionRef wait];
     }
-    [acceptCondition signal];
-    [acceptCondition unlock];
+    [tempConditionRef signal];
+    [tempConditionRef unlock];
+    [tempConditionRef release];
+    
     return acceptRunLoop;
 }
 
