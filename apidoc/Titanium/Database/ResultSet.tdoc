@@ -59,7 +59,7 @@ field[int | string] : the column name or index referencing the value to retrieve
 
 field[int | string] : the column name or index referencing the value to retrieve as a float.
 
-- method : getDouble, float
+- method : getDouble, double
 
 field[int | string] : the column name or index referencing the value to retrieve as a double.
 
