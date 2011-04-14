@@ -163,20 +163,21 @@
     ENSURE_ARG_OR_NIL_AT_INDEX(asynch, args, 3, NSObject);
     
     int size = [TiUtils intValue:chunkSize];
-
-    if ([TiUtils boolValue:asynch def:YES]) {
-        NSInvocation* invoke = [NSInvocation invocationWithMethodSignature:[stream methodSignatureForSelector:@selector(pumpToCallback:chunkSize:)]];
+    BOOL isAsynch = [TiUtils boolValue:asynch def:YES];
+    if (isAsynch) {
+        NSInvocation* invoke = [NSInvocation invocationWithMethodSignature:[stream methodSignatureForSelector:@selector(pumpToCallback:chunkSize:asynch:)]];
         [invoke setTarget:stream];
-        [invoke setSelector:@selector(pumpToCallback:chunkSize:)];
+        [invoke setSelector:@selector(pumpToCallback:chunkSize:asynch:)];
         [invoke setArgument:&callback atIndex:2];
         [invoke setArgument:&size atIndex:3];
+        [invoke setArgument:&isAsynch atIndex:4];
         [invoke retainArguments];
         
         [self performSelectorInBackground:@selector(performInvocation:) withObject:invoke];
         return;
     }
     
-    [stream pumpToCallback:callback chunkSize:size];
+    [stream pumpToCallback:callback chunkSize:size asynch:isAsynch];
 }
 
 @end

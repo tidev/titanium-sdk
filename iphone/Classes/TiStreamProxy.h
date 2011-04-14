@@ -22,7 +22,7 @@
 
 // Used for writeStream/pumping
 -(int)writeToStream:(id<TiStreamInternal>)output chunkSize:(int)size callback:(KrollCallback*)callback;
--(void)pumpToCallback:(KrollCallback*)callback chunkSize:(int)size;
+-(void)pumpToCallback:(KrollCallback*)callback chunkSize:(int)size asynch:(BOOL)asynch;
 
 // Public API : No defined behavior
 -(NSNumber*)isReadable:(id)_void; // PUBLIC API FUNCTION

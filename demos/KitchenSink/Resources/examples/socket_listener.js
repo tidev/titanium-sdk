@@ -2,16 +2,13 @@ var win = Titanium.UI.currentWindow;
 
 var connectedSockets = [];
 
-function readCallback(e) {
+function pumpCallback(e) {
 	if (e.errorDescription == null) {
-		readLabel.text = e.buffer.toString();
+		readLabel.text = "DATA: "+e.buffer.toString();
 	}
 	else {
-		messageLabel.text = "READ ERROR: "+e.errorDescription;
+		readLabel.text = "READ ERROR: "+e.errorDescription;
 	}
-	
-	e.buffer.clear();
-	Ti.Stream.read(e.source,e.buffer,readCallback);
 }
 
 var acceptedCallbacks = {
@@ -34,8 +31,7 @@ var socket = Titanium.Network.Socket.createTCP({
 		var sock = e.inbound;
 		connectedSockets.push(sock);
 		messageLabel.text = 'ACCEPTED: '+sock.host+':'+sock.port;
-		var readBuffer = Ti.createBuffer({length:1024});
-		Ti.Stream.read(sock, readBuffer, readCallback);
+		Ti.Stream.pump(sock, pumpCallback, 1024);
 		socket.accept(acceptedCallbacks);
 	},
 	closed: function(e) {
