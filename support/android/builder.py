@@ -1052,6 +1052,8 @@ class Builder(object):
 	def generate_stylesheet(self):
 		update_stylesheet = False
 		resources_dir = os.path.join(self.top_dir, 'Resources')
+		project_gen_pkg_dir = os.path.join(self.project_gen_dir, self.app_id.replace('.', os.sep))
+		app_stylesheet = os.path.join(project_gen_pkg_dir, 'ApplicationStylesheet.java')
 		for root, dirs, files in os.walk(resources_dir):
 			for file in files:
 				if file.endswith(".jss"):
@@ -1064,10 +1066,8 @@ class Builder(object):
 			return
 
 		cssc = csscompiler.CSSCompiler(resources_dir, 'android', self.app_id)
-		project_gen_pkg_dir = os.path.join(self.project_gen_dir, self.app_id.replace('.', os.sep))
 		if not os.path.exists(project_gen_pkg_dir):
 			os.makedirs(project_gen_pkg_dir)
-		app_stylesheet = os.path.join(project_gen_pkg_dir, 'ApplicationStylesheet.java')
 		debug("app stylesheet => %s" % app_stylesheet)
 		
 		asf = codecs.open(app_stylesheet, 'w', 'utf-8')
