@@ -19,6 +19,7 @@
 #pragma mark Setup
 -(void)dealloc
 {
+	[viewController setProxy:nil];
 	RELEASE_TO_NIL(viewController);
 	RELEASE_TO_NIL(navigationController);
 	RELEASE_TO_NIL(popoverController);

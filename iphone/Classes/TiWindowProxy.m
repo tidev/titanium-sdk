@@ -88,6 +88,7 @@ TiOrientationFlags TiOrientationFlagsFromObject(id args)
 
 -(void)_destroy
 {
+	[controller setProxy:nil];
 	RELEASE_TO_NIL(controller);
 	RELEASE_TO_NIL(navController);
 	RELEASE_TO_NIL(tab);
