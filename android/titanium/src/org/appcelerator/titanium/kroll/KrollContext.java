@@ -49,23 +49,30 @@ public class KrollContext implements Handler.Callback
 	public static final String CONTEXT_KEY = "krollContext";
 
 	private static AtomicInteger instanceCounter;
-	private static KrollEvaluator evaluator = new DefaultEvaluator();
+	private static KrollEvaluator defaultEvaluator = new DefaultEvaluator();
+	private static KrollEvaluator evaluator = defaultEvaluator;
+	private static KrollThreadListener threadListener;
 
 	private KrollHandlerThread thread;
 	private TiContext tiContext;
 	private ScriptableObject jsScope;
+	private String sourceUrl;
+	private int krollThreadId;
 
 	private CountDownLatch initialized;
 	private TiMessageQueue messageQueue;
 	private boolean useOptimization;
 
-	protected KrollContext(TiContext tiContext, String label)
+	protected KrollContext(TiContext tiContext, String sourceUrl)
 	{
 		this.tiContext = tiContext;
+		this.sourceUrl = sourceUrl;
+		this.krollThreadId = getInstanceCounter().incrementAndGet();
+
 		StringBuilder threadName= new StringBuilder();
-		threadName.append("kroll$").append(getInstanceCounter().incrementAndGet());
-		if (label != null) {
-			threadName.append(": ").append(label);
+		threadName.append("kroll$").append(krollThreadId);
+		if (sourceUrl != null) {
+			threadName.append(": ").append(sourceUrl);
 		}
 		// allow a configurable stack size to avoid StackOverflowErrors in some larger apps
 		thread = new KrollHandlerThread(
@@ -117,6 +124,34 @@ public class KrollContext implements Handler.Callback
 		{
 			return context.evaluateString(scope, src, sourceName, lineNo, securityDomain);
 		}
+
+		@Override
+		public void handleEcmaError(EcmaError error)
+		{
+			Log.e(LCAT, "ECMA Error evaluating source: " + error.getMessage(), error);
+			Context.reportRuntimeError(error.getMessage(), error.sourceName(),
+				error.lineNumber(), error.lineSource(), error.columnNumber());
+		}
+
+		@Override
+		public void handleEvaluatorException(EvaluatorException ex)
+		{
+			Log.e(LCAT, "Error evaluating source: " + ex.getMessage(), ex);
+			Context.reportRuntimeError(ex.getMessage(), ex.sourceName(),
+				ex.lineNumber(), ex.lineSource(), ex.columnNumber());
+		}
+
+		@Override
+		public void handleException(Exception ex)
+		{
+			Log.e(LCAT, "Error: " + ex.getMessage(), ex);
+			Context.throwAsScriptRuntimeEx(ex);
+		}
+	}
+
+	public static KrollEvaluator getDefaultKrollEvaluator()
+	{
+		return defaultEvaluator;
 	}
 
 	public static KrollEvaluator getKrollEvaluator()
@@ -129,10 +164,18 @@ public class KrollContext implements Handler.Callback
 		evaluator = e;
 	}
 
+	public static void setThreadListener(KrollThreadListener l)
+	{
+		threadListener = l;
+	}
+
 	protected void initContext()
 	{
 		if (DBG) {
 			Log.d(LCAT, "Context Thread: " + Thread.currentThread().getName());
+		}
+		if (threadListener != null) {
+			threadListener.threadStarted(thread);
 		}
 		messageQueue = TiMessageQueue.getMessageQueue();
 		messageQueue.setCallback(this);
@@ -148,6 +191,13 @@ public class KrollContext implements Handler.Callback
 			initialized.countDown();
 		} finally {
 			exit();
+		}
+	}
+
+	protected void threadEnded()
+	{
+		if (threadListener != null) {
+			threadListener.threadEnded(thread);
 		}
 	}
 
@@ -185,9 +235,24 @@ public class KrollContext implements Handler.Callback
 		return thread.getId() == Thread.currentThread().getId();
 	}
 
+	public KrollHandlerThread getThread()
+	{
+		return thread;
+	}
+
 	public TiContext getTiContext()
 	{
 		return tiContext;
+	}
+
+	public String getSourceUrl()
+	{
+		return sourceUrl;
+	}
+
+	public int getKrollThreadId()
+	{
+		return krollThreadId;
 	}
 
 	public Scriptable getScope()
@@ -253,14 +318,11 @@ public class KrollContext implements Handler.Callback
 				result = evaluateScript(filename);
 			}
 		} catch (EcmaError e) {
-			Log.e(LCAT, "ECMA Error evaluating source: " + e.getMessage(), e);
-			Context.reportRuntimeError(e.getMessage(), e.sourceName(), e.lineNumber(), e.lineSource(), e.columnNumber());
+			evaluator.handleEcmaError(e);
 		} catch (EvaluatorException e) {
-			Log.e(LCAT, "Error evaluating source: " + e.getMessage(), e);
-			Context.reportRuntimeError(e.getMessage(), e.sourceName(), e.lineNumber(), e.lineSource(), e.columnNumber());
+			evaluator.handleEvaluatorException(e);
 		} catch (Exception e) {
-			Log.e(LCAT, "Error: " + e.getMessage(), e);
-			Context.throwAsScriptRuntimeEx(e);
+			evaluator.handleException(e);
 		}
 
 		return result;
@@ -287,14 +349,11 @@ public class KrollContext implements Handler.Callback
 		try {
 			result = evaluator.evaluateString(ctx, jsScope, src, STRING_SOURCE, 1, null);
 		} catch (EcmaError e) {
-			Log.e(LCAT, "ECMA Error evaluating source: " + e.getMessage(), e);
-			Context.reportRuntimeError(e.getMessage(), e.sourceName(), e.lineNumber(), e.lineSource(), e.columnNumber());
+			evaluator.handleEcmaError(e);
 		} catch (EvaluatorException e) {
-			Log.e(LCAT, "Error evaluating source: " + e.getMessage(), e);
-			Context.reportRuntimeError(e.getMessage(), e.sourceName(), e.lineNumber(), e.lineSource(), e.columnNumber());
+			evaluator.handleEvaluatorException(e);
 		} catch (Exception e) {
-			Log.e(LCAT, "Error evaluating source: " + e.getMessage(), e);
-			Context.throwAsScriptRuntimeEx(e);
+			evaluator.handleException(e);
 		} finally {
 			exit();
 		}

@@ -1,5 +1,5 @@
 /**
-   * Appcelerator Titanium Mobile
+ * Appcelerator Titanium Mobile
  * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -179,7 +179,6 @@ public abstract class TiApplication extends Application
 	public void onCreate()
 	{
 		super.onCreate();
-
 		TiScriptRunner.getInstance().setAppPackageName(getPackageName());
 		if (DBG) {
 			Log.d(LCAT, "Application onCreate");
@@ -555,5 +554,17 @@ public abstract class TiApplication extends Application
 		// When the property is set, it overrides the default behavior
 		return getSystemProperties().getBool(TiApplication.PROPERTY_FASTDEV,
 			getDeployType().equals(TiApplication.DEPLOY_TYPE_DEVELOPMENT));
+	}
+
+	public void scheduleRestart(int delay)
+	{
+		Log.w(LCAT, "Scheduling application restart");
+		if (DBG) {
+			Log.d(LCAT, "Here is call stack leading to restart. (NOTE: this is not a real exception, just a stack trace.) :");
+			(new Exception()).printStackTrace();
+		}
+		if (getRootActivity() != null) {
+			getRootActivity().restartActivity(delay);
+		}
 	}
 }

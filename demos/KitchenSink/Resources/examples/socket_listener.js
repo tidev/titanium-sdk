@@ -2,14 +2,19 @@ var win = Titanium.UI.currentWindow;
 
 var connectedSockets = [];
 
+function pumpCallback(e) {
+	if (e.errorDescription == null) {
+		readLabel.text = "DATA: "+e.buffer.toString();
+	}
+	else {
+		readLabel.text = "READ ERROR: "+e.errorDescription;
+	}
+}
+
 var acceptedCallbacks = {
-	read: function(e) {
-		messageLabel.text = "Read from: "+e.socket.hostName;
-		readLabel.text = e.data.text;
-	},
 	error : function(e) {
 		Ti.UI.createAlertDialog({
-			title:"Socket error: "+e.socket.hostName,
+			title:"Socket error: "+e.socket.host,
 			message:e.error
 		}).show();
 		var index = connectedSockets.indexOf(e.socket);
@@ -19,14 +24,14 @@ var acceptedCallbacks = {
 	}
 };
 
-var socket = Titanium.Network.createSocket({
-	hostName:Ti.Platform.address,
+var socket = Titanium.Network.Socket.createTCP({
+	host:Ti.Platform.address,
 	port:40404,
-	type:Ti.Network.TCP,
 	accepted: function(e) {
 		var sock = e.inbound;
 		connectedSockets.push(sock);
-		messageLabel.text = 'ACCEPTED: '+sock.hostName+':'+sock.port;
+		messageLabel.text = 'ACCEPTED: '+sock.host+':'+sock.port;
+		Ti.Stream.pump(sock, pumpCallback, 1024);
 		socket.accept(acceptedCallbacks);
 	},
 	closed: function(e) {
@@ -69,7 +74,7 @@ win.add(connectButton);
 connectButton.addEventListener('click', function() {
 	try {
 		socket.listen();
-		messageLabel.text = "Listening on "+socket.hostName+":"+socket.port;
+		messageLabel.text = "Listening on "+socket.host+":"+socket.port;
 		socket.accept(acceptedCallbacks);
 	} catch (e) {
 		messageLabel.text = 'Exception: '+e;
@@ -86,6 +91,16 @@ win.add(closeButton);
 closeButton.addEventListener('click', function() {
 	try {
 		socket.close();
+		for (var index in connectedSockets) {
+			try {
+				var sock = connectedSockts[index];
+				sock.close();
+			}
+			catch (e) {
+				messageLabel.text = "Exception: " +e;
+			}
+		}
+		messageLabel.text = 'Closed socket';
 	} catch (e) {
 		messageLabel.text = 'Exception: '+e;
 	}
@@ -101,19 +116,19 @@ win.add(stateButton);
 stateButton.addEventListener('click', function() {
 	var stateString = "UNKNOWN";
 	switch (socket.state) {
-		case Ti.Network.SOCKET_INITIALIZED:
+		case Ti.Network.Socket.INITIALIZED:
 			stateString = "INITIALIZED";
 			break;
-		case Ti.Network.SOCKET_CONNECTED:
+		case Ti.Network.Socket.CONNECTED:
 			stateString = "CONNECTED";
 			break;
-		case Ti.Network.SOCKET_LISTENING:
+		case Ti.Network.Socket.LISTENING:
 			stateString = "LISTENING";
 			break;
-		case Ti.Network.SOCKET_CLOSED:
+		case Ti.Network.Socket.CLOSED:
 			stateString = "CLOSED";
 			break;
-		case Ti.Network.SOCKET_ERROR:
+		case Ti.Network.Socket.ERROR:
 			stateString = "ERROR";
 			break;
 	}
@@ -129,11 +144,11 @@ var writeButton = Titanium.UI.createButton({
 win.add(writeButton);
 writeButton.addEventListener('click', function() {
 	var plBlob = Titanium.Filesystem.getFile(Titanium.Filesystem.resourcesDirectory, 'paradise_lost.txt').read();
+	var buff = Ti.createBuffer({data:plBlob});
 
 	for (var index in connectedSockets) {
 		var sock = connectedSockets[index];
-		Ti.API.info('Writing to socket: '+sock);
-		sock.write(plBlob);
+		sock.write(buff);
 	}
 	messageLabel.text = "I'm a writer!";
 });
@@ -146,8 +161,9 @@ win.addEventListener('close', function(e) {
 	catch (e) {
 		// Don't care about exceptions; just means the socket was already closed
 	}
-	for (var sock in connectedSockets) {
+	for (var index in connectedSockets) {
 		try {
+			var sock = connectedSockets[index];
 			sock.close();
 		}
 		catch (e) {

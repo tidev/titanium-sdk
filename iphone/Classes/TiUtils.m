@@ -222,15 +222,19 @@ extern NSString * const TI_APPLICATION_RESOURCE_DIR;
 
 +(NSString*)stringValue:(id)value
 {
+	if(value == nil) {
+		return nil;
+	}
+	
 	if ([value isKindOfClass:[NSString class]])
 	{
 		return (NSString*)value;
 	}
-	else if ([value isKindOfClass:[NSNull class]])
+	if ([value isKindOfClass:[NSNull class]])
 	{
 		return nil;
 	}
-	else if ([value respondsToSelector:@selector(stringValue)])
+	if ([value respondsToSelector:@selector(stringValue)])
 	{
 		return [value stringValue];
 	}
@@ -253,11 +257,16 @@ extern NSString * const TI_APPLICATION_RESOURCE_DIR;
 
 +(double)doubleValue:(id)value
 {
+	return [self doubleValue:value def:0];
+}
+
++(double)doubleValue:(id)value def:(double) def
+{
 	if ([value respondsToSelector:@selector(doubleValue)])
 	{
 		return [value doubleValue];
 	}
-	return 0;
+	return def;
 }
 
 +(UIEdgeInsets)contentInsets:(id)value
@@ -336,6 +345,27 @@ extern NSString * const TI_APPLICATION_RESOURCE_DIR;
 }
 
 
++(NSNumber *) numberFromObject:(id) obj {
+	
+	if([obj isKindOfClass:[NSNumber class]]) {
+		return obj;
+	}
+	
+	NSNumberFormatter *formatter = [[[NSNumberFormatter alloc] init] autorelease];
+
+	return [formatter numberFromString:[self stringValue:obj]];
+}
+
++(CGFloat)floatValue:(id)value def:(CGFloat) def valid:(BOOL *)isValid
+{
+	if ([value respondsToSelector:@selector(floatValue)])
+	 {
+		return [value floatValue];
+	 }
+	
+	return def;
+}
+
 
 +(CGFloat)floatValue:(id)value def:(CGFloat) def
 {
@@ -348,13 +378,13 @@ extern NSString * const TI_APPLICATION_RESOURCE_DIR;
 
 +(CGFloat)floatValue:(id)value
 {
-	return [self floatValue:value def:0];
+	return [self floatValue:value def:NSNotFound];
 }
 
 +(int)intValue:(id)value def:(int)def
 {
 	if ([value respondsToSelector:@selector(intValue)])
-	{
+	{	
 		return [value intValue];
 	}
 	return def;

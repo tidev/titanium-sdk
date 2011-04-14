@@ -50,7 +50,7 @@ var accelerometerCallback = function(e) {
 	x.text = 'x: ' + e.x;
 	y.text = 'y:' + e.y;
 	z.text = 'z:' + e.z;
-}
+};
 
 Ti.Accelerometer.addEventListener('update', accelerometerCallback);
 accelerometerAdded = true;

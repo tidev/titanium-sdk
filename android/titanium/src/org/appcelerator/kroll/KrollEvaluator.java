@@ -8,6 +8,8 @@ package org.appcelerator.kroll;
 
 import org.appcelerator.titanium.io.TiBaseFile;
 import org.mozilla.javascript.Context;
+import org.mozilla.javascript.EcmaError;
+import org.mozilla.javascript.EvaluatorException;
 import org.mozilla.javascript.Scriptable;
 
 /**
@@ -29,4 +31,21 @@ public interface KrollEvaluator
 	public Object evaluateString(Context context, Scriptable scope,
 		String src, String sourceName, int lineNo, Object securityDomain);
 
+	/**
+	 * Handle an ECMA syntax or reference error when evaluating
+	 * @param error The error
+	 */
+	public void handleEcmaError(EcmaError error);
+
+	/**
+	 * Handle an Evaluator exception when evaluating
+	 * @param ex The exception
+	 */
+	public void handleEvaluatorException(EvaluatorException ex);
+
+	/**
+	 * Handle a general exception when evaluating
+	 * @param ex The exception
+	 */
+	public void handleException(Exception ex);
 }

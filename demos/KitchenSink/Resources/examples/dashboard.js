@@ -40,6 +40,15 @@ cancel.addEventListener('click', function()
 	dashboard.stopEditing();
 });
 
+var editable = Titanium.UI.createButton({
+	title:'Toggle editable'
+});
+editable.addEventListener('click', function()
+{
+	dashboard.editable = !dashboard.editable;
+});
+win.rightNavButton = editable;
+
 dashboard.addEventListener('edit',function()
 {
 	win.rightNavButton = cancel;
@@ -47,7 +56,7 @@ dashboard.addEventListener('edit',function()
 
 dashboard.addEventListener('commit',function()
 {
-	win.rightNavButton = null;
+	win.rightNavButton = editable;
 	Ti.API.info('data ' + dashboard.data);
 	for (var i=0;i<dashboard.data.length;i++)
 	{

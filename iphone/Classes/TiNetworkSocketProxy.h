@@ -1,58 +1,33 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-#ifdef USE_TI_NETWORK
+
 #import <Foundation/Foundation.h>
 #import "TiProxy.h"
-#import "AsyncSocket.h"
-#import "NetworkModule.h"
+#ifdef USE_TI_NETWORKSOCKET
+typedef enum {
+    SOCKET_INITIALIZED = 1<<0,
+    SOCKET_CONNECTED = 1<<1,
+    SOCKET_LISTENING = 1<<2,
+    SOCKET_CLOSED = 1<<3,
+    SOCKET_ERROR = 1<<4
+} SocketState;
 
-@interface TiNetworkSocketProxy : TiProxy<AsyncSocketDelegate> {
-    AsyncSocket* socket;
-    SocketState internalState;
-    NSMutableData* readBuffer;
-    NSCondition* listening;
+@interface TiNetworkSocketProxy : TiProxy {
     
-    NSThread* socketThread;
-    
-    KrollCallback* connected;
-    KrollCallback* accepted;
-    KrollCallback* closed;
-    KrollCallback* read;
-    KrollCallback* error;
-    KrollCallback* wrotedata;
 }
-// Properties:
-// -- Stored on TiProxy dynprops --
-// String hostName // TODO: Have to change spec to reflect new name
-// int port
-// int type
-// KrollCallback connected // TODO: Enforce type safety for KrollCallbacks
-// KrollCallback error
-// KrollCallback closed
-// KrollCallback accepted
-// KrollCallback read
-// KrollCallback wrotedata
-// ----
-@property (nonatomic, readonly) NSNumber* state; // Req's local processing
-@property (nonatomic, readwrite, assign) NSNumber* readBufferSize; // TODO: replace w/a Buffer object?
-@property (nonatomic, readwrite, retain) KrollCallback* connected;
-@property (nonatomic, readwrite, retain) KrollCallback* accepted;
-@property (nonatomic, readwrite, retain) KrollCallback* closed;
-@property (nonatomic, readwrite, retain) KrollCallback* read;
-@property (nonatomic, readwrite, retain) KrollCallback* error;
-@property (nonatomic, readwrite, retain) KrollCallback* wrotedata;
+// Properties
+@property(readonly, nonatomic) NSNumber* INITIALIZED;
+@property(readonly, nonatomic) NSNumber* CONNECTED;
+@property(readonly, nonatomic) NSNumber* LISTENING;
+@property(readonly, nonatomic) NSNumber* CLOSED;
+@property(readonly, nonatomic) NSNumber* ERROR;
 
 // Public API
--(void)connect:(id)_void;
--(void)listen:(id)arg; // arg[0]: int maxAcceptQueueSize : queue size
--(void)accept:(id)arg; // arg[0]: Object params : callbacks for created socket
--(void)close:(id)_void;
--(void)write:(id)arg; // arg[0]: Ti.Blob blob : blob to write
-
+-(id)createTCP:(id)args;
 
 
 

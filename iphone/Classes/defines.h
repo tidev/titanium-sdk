@@ -7,6 +7,8 @@
 
 // MODULES
 
+#define USE_TI_STREAM
+#define USE_TI_CODEC
 #define USE_TI_UTILS
 #define USE_TI_XML
 #define USE_TI_ACCELEROMETER
@@ -21,6 +23,7 @@
 #define USE_TI_MAP
 #define USE_TI_MEDIA
 #define USE_TI_NETWORK
+#define USE_TI_NETWORKSOCKET
 #define USE_TI_PLATFORM
 #define USE_TI_YAHOO
 #define USE_TI_UI

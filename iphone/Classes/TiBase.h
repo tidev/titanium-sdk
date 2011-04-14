@@ -154,8 +154,7 @@ if (out && ![out isKindOfClass:[type class]]) { \
 [self throwException:TiExceptionInvalidType subreason:[NSString stringWithFormat:@"expected: %@, was: %@",[out class],[type class]] location:CODELOCATION]; \
 } \
 } \
-
-
+    
 #define ENSURE_CLASS(x,t) \
 if (![x isKindOfClass:t]) \
 { \

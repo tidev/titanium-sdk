@@ -1166,7 +1166,9 @@ class Builder(object):
 				classpath = os.pathsep.join([classpath, jar])
 
 		if self.deploy_type != 'production':
-			classpath = os.pathsep.join([classpath, os.path.join(self.support_dir, 'lib', 'titanium-verify.jar')])
+			classpath = os.pathsep.join([classpath,
+				os.path.join(self.support_dir, 'lib', 'titanium-verify.jar'),
+				os.path.join(self.support_dir, 'lib', 'titanium-debug.jar')])
 
 		debug("Building Java Sources: " + " ".join(src_list))
 		javac_command = [self.javac, '-encoding', 'utf8', '-classpath', classpath, '-d', self.classes_dir, '-sourcepath', self.project_src_dir, '-sourcepath', self.project_gen_dir]
@@ -1392,15 +1394,6 @@ class Builder(object):
 			'-n', '%s/.%sActivity' % (self.app_id , self.classname))
 		trace("Launch output: %s" % output)
 
-	#def enable_debugger(self, debugger_host):
-	#	info("Enabling Debugger at %s" % debugger_host)
-	#	debugger_config = { "host": hostport[0], "port": hostport[1] }
-	#	debug_json = os.path.join(self.project_dir, 'bin', 'debug.json')
-	#	open(debug_json, 'w+').write(simplejson.dumps(debugger_config))
-	#	self.run_adb('shell', 'mkdir /sdcard/%s || echo' % self.app_id)
-	#	self.run_adb('push', debug_json, '/sdcard/%s/debug.json' % self.app_id)
-	#	os.unlink(debug_json)
-
 	def push_deploy_json(self):
 		deploy_data = {
 			"debuggerEnabled": self.debugger_host != None,
@@ -1612,6 +1605,7 @@ class Builder(object):
 				hostport = debugger_host.split(":")
 				self.debugger_host = hostport[0]
 				self.debugger_port = int(hostport[1])
+			debugger_enabled = self.debugger_host != None and len(self.debugger_host) > 0
 
 			# self.enable_debugger(debugger_host)
 			self.copy_project_resources()
@@ -1708,6 +1702,12 @@ class Builder(object):
 							break
 					if not has_network_jar:
 						dex_args.append(os.path.join(self.support_dir, 'modules', 'titanium-network.jar'))
+
+					# substitute for the debugging js jar in non production mode
+					for jar in self.android_jars:
+						if jar.endswith('js.jar'):
+							dex_args.remove(jar)
+							dex_args.append(os.path.join(self.support_dir, 'js-debug.jar'))
 	
 				info("Compiling Android Resources... This could take some time")
 				# TODO - Document Exit message
@@ -1769,6 +1769,11 @@ class Builder(object):
 				if relaunched:
 					info("Relaunched %s ... Application should be running." % self.name)
 
+			#intermediary code for on-device debugging (later)
+			#if debugger_host != None:
+				#import debugger
+				#debug("connecting to debugger: %s, debugger=%s" % (debugger_host, str(debugger)))
+				#debugger.run(debugger_host, '127.0.0.1:5999')
 		finally:
 			os.chdir(curdir)
 			sys.stdout.flush()

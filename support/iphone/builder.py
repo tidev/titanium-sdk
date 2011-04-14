@@ -488,6 +488,9 @@ def main(args):
 		version_file = None
 		log_id = None
 		provisioning_profile = None
+		debug_host = None
+		debug_port = None
+		debughost = None
 		
 		# starting in 1.4, you don't need to actually keep the build/iphone directory
 		# if we don't find it, we'll just simply re-generate it
@@ -523,6 +526,13 @@ def main(args):
 			else:
 				# 'universal' helpfully translates into iPhone here... just in case.
 				simtype = devicefamily
+			if argc > 8:
+				# this is host:port from the debugger
+				debughost = dequote(args[8].decode("utf-8"))
+				if debughost=='':
+					debughost = None
+				else:
+					debughost,debugport = debughost.split(":")
 		elif command == 'install':
 			iphone_version = check_iphone_sdk(iphone_version)
 			link_version = iphone_version
@@ -530,6 +540,13 @@ def main(args):
 			dist_name = dequote(args[7].decode("utf-8"))
 			if argc > 8:
 				devicefamily = dequote(args[8].decode("utf-8"))
+			if argc > 9:
+				# this is host:port from the debugger
+				debughost = dequote(args[9].decode("utf-8"))
+				if debughost=='':
+					debughost=None
+				else:
+					debughost,debugport = debughost.split(":")
 			deploytype = 'test'
 		
 		# setup up the useful directories we need in the script
@@ -604,7 +621,7 @@ def main(args):
 			for module in modules:
 				module_id = module.manifest.moduleid.lower()
 				module_version = module.manifest.version
-				module_lib_name = 'lib%s.a' % module_id
+				module_lib_name = ('lib%s.a' % module_id).lower()
 				# check first in the local project
 				local_module_lib = os.path.join(project_dir, 'modules', 'iphone', module_lib_name)
 				local = False
@@ -617,7 +634,7 @@ def main(args):
 						module_lib_path = module.get_resource(module_lib_name)
 						log("[ERROR] Third-party module: %s/%s missing library at %s" % (module_id, module_version, module_lib_path))
 						sys.exit(1)
-					module_lib_search_path.append([module_lib_name, os.path.abspath(module.lib)])
+					module_lib_search_path.append([module_lib_name, os.path.abspath(module.lib).rsplit('/',1)[0]])
 					log("[INFO] Detected third-party module: %s/%s" % (module_id, module_version))
 				force_xcode = True
 
@@ -670,7 +687,27 @@ def main(args):
 				ti.properties['version']=version
 				pp = os.path.expanduser("~/Library/MobileDevice/Provisioning Profiles/%s.mobileprovision" % appuuid)
 				provisioning_profile = read_provisioning_profile(pp,o)
-					
+			
+			
+			def write_debugger_plist(debuggerplist):
+				debugger_tmpl = os.path.join(template_dir,'debugger.plist')
+				plist = codecs.open(debugger_tmpl, encoding='utf-8').read()
+				if debughost:
+					plist = plist.replace('__DEBUGGER_HOST__',debughost)
+					plist = plist.replace('__DEBUGGER_PORT__',debugport)
+				else:
+					plist = plist.replace('__DEBUGGER_HOST__','')
+					plist = plist.replace('__DEBUGGER_PORT__','')
+				pf = codecs.open(debuggerplist,'w', encoding='utf-8')
+				pf.write(plist)
+				pf.close()	
+				o.write("+ writing debugger plist:\n\n")
+				pf = codecs.open(debuggerplist,'r', encoding='utf-8')
+				o.write(pf.read())
+				pf.close()
+				o.write("\n\n")
+				
+				
 # TODO:				
 # This code is used elsewhere, as well.  We should move stuff like this to
 # a common file.
@@ -837,12 +874,19 @@ def main(args):
 			if not os.path.exists(os.path.join(iphone_dir,'lib','libtiverify.a')):
 				shutil.copy(os.path.join(template_dir,'libtiverify.a'),os.path.join(iphone_dir,'lib','libtiverify.a'))
 
+			if not os.path.exists(os.path.join(iphone_dir,'lib','libti_ios_debugger.a')):
+				shutil.copy(os.path.join(template_dir,'libti_ios_debugger.a'),os.path.join(iphone_dir,'lib','libti_ios_debugger.a'))
+
 			# compile JSS files
 			cssc = csscompiler.CSSCompiler(os.path.join(project_dir,'Resources'),devicefamily,appid)
 			app_stylesheet = os.path.join(iphone_dir,'Resources','stylesheet.plist')
 			asf = codecs.open(app_stylesheet,'w','utf-8')
 			asf.write(cssc.code)
 			asf.close()
+
+			# compile debugger file
+			debug_plist = os.path.join(iphone_dir,'Resources','debugger.plist')
+			write_debugger_plist(debug_plist)
 
 			if command=='simulator':
 				debug_sim_dir = os.path.join(iphone_dir,'build','Debug-iphonesimulator','%s.app' % name)
@@ -851,7 +895,9 @@ def main(args):
 					asf = codecs.open(app_stylesheet,'w','utf-8')
 					asf.write(cssc.code)
 					asf.close()
-
+					
+					shutil.copy(debug_plist,os.path.join(iphone_dir,'build','Debug-iphonesimulator','%s.app' % name, 'debugger.plist'))
+					
 			if command!='simulator':
 				# compile plist into binary format so it's faster to load
 				# we can be slow on simulator
@@ -1095,8 +1141,12 @@ def main(args):
 				# this is a simulator build
 				if command == 'simulator':
 
+					debugstr = ''
+					if debughost:
+						debugstr = 'DEBUGGER_ENABLED=1'
+					
 					if force_rebuild or force_xcode or not os.path.exists(binary):
-						execute_xcode("iphonesimulator%s" % link_version,["GCC_PREPROCESSOR_DEFINITIONS=__LOG__ID__=%s DEPLOYTYPE=development TI_DEVELOPMENT=1 DEBUG=1 TI_VERSION=%s" % (log_id,sdk_version)],False)
+						execute_xcode("iphonesimulator%s" % link_version,["GCC_PREPROCESSOR_DEFINITIONS=__LOG__ID__=%s DEPLOYTYPE=development TI_DEVELOPMENT=1 DEBUG=1 TI_VERSION=%s %s" % (log_id,sdk_version,debugstr)],False)
 
 					# first make sure it's not running
 					kill_simulator()
@@ -1243,8 +1293,12 @@ def main(args):
 				#
 				elif command == 'install':
 
+					debugstr = ''
+					if debughost:
+						debugstr = 'DEBUGGER_ENABLED=1'
+						
 					args += [
-						"GCC_PREPROCESSOR_DEFINITIONS=DEPLOYTYPE=test TI_TEST=1",
+						"GCC_PREPROCESSOR_DEFINITIONS=DEPLOYTYPE=test TI_TEST=1 %s" % debugstr,
 						"PROVISIONING_PROFILE=%s" % appuuid,
 						"CODE_SIGN_IDENTITY=iPhone Developer: %s" % dist_name,
 						"DEPLOYMENT_POSTPROCESSING=YES"
@@ -1312,10 +1366,7 @@ def main(args):
 						"DEPLOYMENT_POSTPROCESSING=YES"
 					]
 					execute_xcode("iphoneos%s" % iphone_version,args,False)
-					
-					# In their infinite wisdom, Apple drastically changed how archives are presented
-					# in XC4 - bundle the distribution based on the version info
-					
+
 					# switch to app_bundle for zip
 					os.chdir(build_dir)
 					if xcode_version() >= 4.0:

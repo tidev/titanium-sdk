@@ -19,11 +19,8 @@
 
 package org.appcelerator.titanium.kroll;
 
-import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
-import org.mozilla.javascript.Context;
 
-import android.os.Handler;
 import android.os.Looper;
 import android.os.Process;
 
@@ -87,6 +84,7 @@ public class KrollHandlerThread extends Thread {
 		}
 		onLooperPrepared();
 		Looper.loop();
+		krollContext.threadEnded();
 		mTid = -1;
 	}
 
@@ -136,5 +134,9 @@ public class KrollHandlerThread extends Thread {
 	 */
 	public int getThreadId() {
 		return mTid;
+	}
+
+	public KrollContext getKrollContext() {
+		return krollContext;
 	}
 }
