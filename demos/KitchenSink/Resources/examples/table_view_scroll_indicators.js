@@ -1,7 +1,10 @@
 var win = Ti.UI.currentWindow;
 
+var showScrollIndicators = false;
+
 var tv = Ti.UI.createTableView({
-	style:Titanium.UI.iPhone.TableViewStyle.GROUPED
+	style:Titanium.UI.iPhone.TableViewStyle.GROUPED,
+	showVerticalScrollIndicator:showScrollIndicators
 });
 
 function setData()
@@ -24,6 +27,8 @@ var refresh = Titanium.UI.createButton({
 });
 refresh.addEventListener('click', function()
 {
+	showScrollIndicators = !showScrollIndicators;
+	tv.setShowVerticalScrollIndicator(showScrollIndicators);
 	tv.setData([]);
 	setTimeout(function()
 	{
