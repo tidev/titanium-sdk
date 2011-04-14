@@ -80,6 +80,7 @@ public class TiRootActivity extends TiLaunchActivity
 			}
 			tiContext.release();
 		}
+		TiFastDev.onDestroy();
 	}
 
 	public TiContext getTiContext()
