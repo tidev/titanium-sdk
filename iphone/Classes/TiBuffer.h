@@ -14,7 +14,7 @@
     NSMutableData* data;
     
 }
-@property(nonatomic, assign) NSMutableData* data;
+@property(nonatomic, retain) NSMutableData* data;
  
 // Public API
 -(NSNumber*)append:(id)args;

@@ -78,16 +78,18 @@
     
     if (data != nil) {
         if ([data isKindOfClass:[NSString class]]) {
-            return [[[TiBuffer alloc] initWithData:[data dataUsingEncoding:NSUTF8StringEncoding]] autorelease];
+            TiBuffer* buffer = [[[TiBuffer alloc] _initWithPageContext:[self executionContext]] autorelease];
+            [buffer setData:[NSMutableData dataWithData:[data dataUsingEncoding:NSUTF8StringEncoding]]];
+            return buffer;
         }
         else if ([data isKindOfClass:[TiBlob class]]) {
-            return [[[TiBuffer alloc] initWithData:[data data]] autorelease];
+            TiBuffer* buffer = [[[TiBuffer alloc] _initWithPageContext:[self executionContext]] autorelease];
+            [buffer setData:[NSMutableData dataWithData:[data data]]];
+            return buffer;
         }
     }
-    else {
-        return [[[TiBuffer alloc] initWithData:[NSMutableData dataWithLength:length]] autorelease];
-    }
-    return [[[TiBuffer alloc] initWithData:[NSData data]] autorelease];
+    
+    return [[[TiBuffer alloc] _initWithPageContext:[self executionContext] args:[NSArray arrayWithObject:arg]] autorelease];
 }
 
 @end

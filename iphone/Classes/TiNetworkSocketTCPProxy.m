@@ -311,6 +311,7 @@ return; \
 -(void)accept:(id)arg
 {
     // Only change the accept args if we have an accept in progress
+    // TODO: Probably want a lock for this...
     if (accepting) {
         [acceptArgs setValue:arg forKey:ARG_KEY];
     }
@@ -391,11 +392,15 @@ TYPESAFE_SETTER(setError, error, KrollCallback)
         [invocation setArgument:&offset atIndex:3];
         [invocation setArgument:&length atIndex:4];
         [invocation setArgument:&callback atIndex:5];
+        [invocation retainArguments];
+        
         [invocation performSelector:@selector(invoke) onThread:socketThread withObject:nil waitUntilDone:NO];
         
-        [ioCondition lock];
-        [ioCondition wait];
-        [ioCondition unlock];
+        if (callback == nil) {
+            [ioCondition lock];
+            [ioCondition wait];
+            [ioCondition unlock];
+        }
         
         return readDataLength;
     }
@@ -429,11 +434,15 @@ TYPESAFE_SETTER(setError, error, KrollCallback)
         [invocation setArgument:&offset atIndex:3];
         [invocation setArgument:&length atIndex:4];
         [invocation setArgument:&callback atIndex:5];
+        [invocation retainArguments];
+        
         [invocation performSelector:@selector(invoke) onThread:socketThread withObject:nil waitUntilDone:NO];
         
-        [ioCondition lock];
-        [ioCondition wait];
-        [ioCondition unlock];
+        if (callback == nil) {
+            [ioCondition lock];
+            [ioCondition wait];
+            [ioCondition unlock];
+        }
         
         int result = 0;
         [invocation getReturnValue:&result];
@@ -465,6 +474,7 @@ TYPESAFE_SETTER(setError, error, KrollCallback)
         [invocation setArgument:&size atIndex:3];
         [invocation setArgument:&callback atIndex:4];
         [invocation performSelector:@selector(invoke) onThread:socketThread withObject:nil waitUntilDone:NO];
+        [invocation retainArguments];
         
         [ioCondition lock];
         [ioCondition wait];
@@ -562,11 +572,7 @@ TYPESAFE_SETTER(setError, error, KrollCallback)
 
 -(void)onSocket:(AsyncSocket *)sock didWriteDataWithTag:(long)tag 
 {
-    // Signal the IO condition
-    [ioCondition lock];
-    [ioCondition signal];
-    [ioCondition unlock];
-    
+
     // Result of asynch write
     if (tag > -1) {
         NSDictionary* info = [operationInfo objectForKey:NUMINT(tag)];
@@ -576,6 +582,12 @@ TYPESAFE_SETTER(setError, error, KrollCallback)
         [self _fireEventToListener:@"write" withObject:event listener:callback thisObject:self];
         [operationInfo removeObjectForKey:NUMINT(tag)];
     } 
+    else {
+        // Signal the IO condition
+        [ioCondition lock];
+        [ioCondition signal];
+        [ioCondition unlock];
+    }
 }
 
 // 'Read' can also lead to a writeStream/pump operation
@@ -586,16 +598,10 @@ TYPESAFE_SETTER(setError, error, KrollCallback)
     
     // Specialized operation
     if (tag > -1) {
-        NSDictionary* info = [[[operationInfo objectForKey:NUMINT(tag)] retain] autorelease];
-        [operationInfo removeObjectForKey:NUMINT(tag)];
+        NSDictionary* info = [operationInfo objectForKey:NUMINT(tag)];
         ReadDestination type = [[info objectForKey:@"type"] intValue];
         switch (type) {
             case TO_BUFFER: {
-                // Signal the condition
-                [ioCondition lock];
-                [ioCondition signal];
-                [ioCondition unlock];
-                
                 KrollCallback* callback = [info valueForKey:@"callback"];
                 TiBuffer* buffer = [info valueForKey:@"buffer"];
                 
@@ -637,6 +643,7 @@ TYPESAFE_SETTER(setError, error, KrollCallback)
                 break;
             }
         }
+        [operationInfo removeObjectForKey:NUMINT(tag)];
     }
     else {
         // Only signal the condition for your standard blocking read
