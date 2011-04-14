@@ -2,16 +2,13 @@ var win = Ti.UI.currentWindow;
 
 var connectingSocket = null;
 
-function readCallback(e) {
+function pumpCallback(e) {
 	if (e.errorDescription == null) {
 		statusArea.value = "DATA: "+e.buffer.toString();
 	}
 	else {
 		statusArea.value = "READ ERROR: "+e.errorDescription;
 	}
-	
-	e.buffer.clear();
-	Ti.Stream.read(e.source,e.buffer,readCallback);
 }
 
 var hostField = Ti.UI.createTextField({
@@ -83,8 +80,7 @@ connectButton.addEventListener('click', function() {
 				port:portField.value,
 				connected:function(e) {
 					e.socket.write(Ti.createBuffer({data:"Well, hello there!"}));
-					var readBuffer = Ti.createBuffer({length:1024});
-					Ti.Stream.read(e.socket,readBuffer,readCallback);
+					Ti.Stream.pump(e.socket,pumpCallback,1024);
 				},
 				error:function(e) {
 					statusArea.value = "ERROR ("+e.errorCode+"): "+e.error;

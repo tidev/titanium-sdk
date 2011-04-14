@@ -60,17 +60,12 @@ static NSString* ARG_KEY = @"arg";
     [ioCondition signal];
     [ioCondition unlock];
     RELEASE_TO_NIL(ioCondition);
- 
-    // Can't call 'cleanupSocket' because these operations have to be performed in a specific order,
-    // AND we have to guarantee that the disconnect is called on the socket thread while the run loop
-    // is still active
-    [socket setDelegate:nil];
-    if ([socketThread isExecuting]) {
-        [socket performSelector:@selector(disconnect) onThread:socketThread withObject:nil waitUntilDone:YES];
-    }
+
     internalState = SOCKET_CLOSED;
-    RELEASE_TO_NIL(socket);
-    RELEASE_TO_NIL(socketThread);
+    // Socket cleanup, if necessary
+    if ([socketThread isExecuting]) {
+        [self performSelector:@selector(cleanupSocket) onThread:socketThread withObject:nil waitUntilDone:YES];
+    }
 
     RELEASE_TO_NIL(operationInfo);
     
@@ -102,7 +97,7 @@ static NSString* ARG_KEY = @"arg";
     internalState = SOCKET_CONNECTED;
     socket = [sock retain];
     [socket setDelegate:self];
-    socketThread = [[NSThread currentThread] retain];
+    socketThread = [NSThread currentThread];
 }
 
 // TODO: Build a better run loop
@@ -110,6 +105,7 @@ static NSString* ARG_KEY = @"arg";
 -(void)socketRunLoop
 {
     NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
+    [socketThread setName:[NSString stringWithFormat:@"Ti.Network.Socket.TCP (%x)",self]];
     // Begin the run loop for the socket
     int counter=0;
     while (!(internalState & (SOCKET_CLOSED | SOCKET_ERROR)) &&
@@ -121,7 +117,9 @@ static NSString* ARG_KEY = @"arg";
             counter = 0;
         }
     }
-
+    // No longer send messages to this thread!
+    socketThread = nil;
+    
     [pool release];
 }
 
@@ -145,7 +143,7 @@ static NSString* ARG_KEY = @"arg";
     }
     
     socket = [[AsyncSocket alloc] initWithDelegate:self];
-    socketThread = [[NSThread currentThread] retain];
+    socketThread = [NSThread currentThread];
     
     NSError* err = nil;
     BOOL success;
@@ -219,7 +217,7 @@ static NSString* ARG_KEY = @"arg";
     CFOptionFlags options = CFSocketGetSocketFlags(cfSocket);
     CFSocketSetSocketFlags(cfSocket, options & ~kCFSocketAutomaticallyReenableAcceptCallBack);
   
-    socketThread = [[NSThread currentThread] retain];
+    socketThread = [NSThread currentThread];
     
     [listening lock];
     internalState = SOCKET_LISTENING;
@@ -257,8 +255,7 @@ static NSString* ARG_KEY = @"arg";
     }
 
     [proxy socketRunLoop];
-
-    [newSocket release];
+    
     [pool release];
 }
 
@@ -314,6 +311,7 @@ return; \
     // TODO: Probably want a lock for this...
     if (accepting) {
         [acceptArgs setValue:arg forKey:ARG_KEY];
+        return;
     }
     
     ENSURE_SOCKET_THREAD(accept,arg);
@@ -329,6 +327,7 @@ return; \
 -(void)close:(id)_void
 {
     // TODO: Signal everything under the sun & close
+    // TODO: If the socket is ALREADY closed, we don't need to go to the thread...
     ENSURE_SOCKET_THREAD(close,_void);
     
     if (!(internalState & (SOCKET_CONNECTED | SOCKET_LISTENING | SOCKET_INITIALIZED))) {
@@ -458,7 +457,7 @@ TYPESAFE_SETTER(setError, error, KrollCallback)
             [operationInfo setObject:asynchInfo forKey:NUMINT(tag)];
             asynchTagCount = (asynchTagCount + 1) % INT_MAX;
         }
-        [socket writeData:subdata withTimeout:-1 tag:-1];
+        [socket writeData:subdata withTimeout:-1 tag:tag];
         
         return [subdata length];
     }
@@ -476,15 +475,17 @@ TYPESAFE_SETTER(setError, error, KrollCallback)
         [invocation performSelector:@selector(invoke) onThread:socketThread withObject:nil waitUntilDone:NO];
         [invocation retainArguments];
         
-        [ioCondition lock];
-        [ioCondition wait];
-        [ioCondition unlock];
+        if (callback == nil) {
+            [ioCondition lock];
+            [ioCondition wait];
+            [ioCondition unlock];
+        }
         
         return readDataLength;
     }
     else {
         int tag = asynchTagCount;
-        NSDictionary* info = [NSDictionary dictionaryWithObjectsAndKeys:output,@"destination",NUMINT(size),@"chunkSize",callback,"@callback", nil];
+        NSDictionary* info = [NSDictionary dictionaryWithObjectsAndKeys:output,@"destination",NUMINT(size),@"chunkSize",callback,@"callback",NUMINT(TO_STREAM),@"type", nil];
         [operationInfo setObject:info forKey:NUMINT(tag)];
         asynchTagCount = (asynchTagCount + 1) % INT_MAX;
         
@@ -498,9 +499,36 @@ TYPESAFE_SETTER(setError, error, KrollCallback)
     }
 }
 
--(void)pumpToCallback:(KrollCallback *)callback chunkSize:(int)size
+-(void)pumpToCallback:(KrollCallback *)callback chunkSize:(int)size asynch:(BOOL)asynch
 {
-    
+    if ([NSThread currentThread] != socketThread) {
+        NSInvocation* invocation = [NSInvocation invocationWithMethodSignature:[self methodSignatureForSelector:@selector(pumpToCallback:chunkSize:asynch:)]];
+        [invocation setTarget:self];
+        [invocation setSelector:@selector(pumpToCallback:chunkSize:asynch:)];
+        [invocation setArgument:&callback atIndex:2];
+        [invocation setArgument:&size atIndex:3];
+        [invocation setArgument:&asynch atIndex:4];
+        [invocation performSelector:@selector(invoke) onThread:socketThread withObject:nil waitUntilDone:NO];
+        [invocation retainArguments];
+        
+        if (!asynch) {
+            [ioCondition lock];
+            [ioCondition wait];
+            [ioCondition unlock];
+        }
+    }
+    else {
+        int tag = asynchTagCount;
+        NSDictionary* info = [NSDictionary dictionaryWithObjectsAndKeys:NUMINT(size),@"chunkSize",callback,@"callback",NUMINT(TO_CALLBACK),@"type", nil];
+        [operationInfo setObject:info forKey:NUMINT(tag)];
+        asynchTagCount = (asynchTagCount + 1) % INT_MAX;
+        
+        [socket readDataWithTimeout:-1
+                             buffer:nil
+                       bufferOffset:0
+                          maxLength:size
+                                tag:tag];
+    }    
 }
 
 #pragma mark AsyncSocketDelegate methods
@@ -635,11 +663,11 @@ TYPESAFE_SETTER(setError, error, KrollCallback)
                 [tempBuffer setData:[NSMutableData dataWithData:data]];
                 readDataLength += [data length];
                 
-                NSDictionary* event = [NSDictionary dictionaryWithObjectsAndKeys:self,@"source",tempBuffer,@"buffer",NUMINT([data length]),"@bytesProcessed",NUMINT(readDataLength),@"totalBytesProcessed", nil];
+                NSDictionary* event = [NSDictionary dictionaryWithObjectsAndKeys:self,@"source",tempBuffer,@"buffer",NUMINT([data length]),@"bytesProcessed",NUMINT(readDataLength),@"totalBytesProcessed", nil];
                 [self _fireEventToListener:@"pump" withObject:event listener:callback thisObject:nil];
                 
                 // ... And queue up the next pump.
-                [self pumpToCallback:callback chunkSize:size];
+                [self pumpToCallback:callback chunkSize:size asynch:YES]; // Only consider the 1st pump "synchronous", that's the one which blocks!
                 break;
             }
         }
