@@ -8,6 +8,7 @@
 #import "StreamModule.h"
 #import "TiStreamProxy.h"
 #import "TiBuffer.h"
+#import "TiDataStream.h"
 
 #ifdef USE_TI_STREAM
 @interface StreamModule(Private)
@@ -51,6 +52,13 @@
     int offsetValue = [TiUtils intValue:offset];
     int lengthValue = [TiUtils intValue:length def:[[buffer data] length]];
     
+    if (offsetValue >= [[buffer data] length]) {
+        NSString* errorStr = [NSString stringWithFormat:@"Offset %d is past buffer bounds (length %d)",offsetValue,[[buffer data] length]];
+        NSDictionary* event = [NSDictionary dictionaryWithObjectsAndKeys:stream,@"source",NUMINT(-1),@"bytesProcessed",errorStr,@"errorDescription", nil];
+        [self _fireEventToListener:@"io" withObject:event listener:callback thisObject:nil];
+        return;
+    }
+    
     NSInvocation* invoke = [NSInvocation invocationWithMethodSignature:[stream methodSignatureForSelector:operation]];
     [invoke setTarget:stream];
     [invoke setSelector:operation];
@@ -65,10 +73,22 @@
 
 #pragma mark Public API : Functions
 
+// TODO: Methods need to check isReadable() isWritable()
+// Note that this is kind of a stub; we may need to expand it later.
 -(TiStreamProxy*)createStream:(id)args
 {
-    // TODO: CREATE STREAMS
-    return nil;
+    id obj = nil;
+    ENSURE_ARG_AT_INDEX(obj, args, 0, NSObject);
+    if ([obj respondsToSelector:@selector(data)]) {
+        TiDataStream* stream = [[[TiDataStream alloc] _initWithPageContext:[self executionContext]] autorelease];
+        [stream setData:[obj data]];
+        return stream;
+    }
+    else {
+        [self throwException:[NSString stringWithFormat:@"Cannot create stream from object %@",obj]
+                   subreason:nil
+                    location:CODELOCATION];
+    }
 }
 
 -(void)read:(id)args
