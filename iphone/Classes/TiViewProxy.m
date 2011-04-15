@@ -825,7 +825,7 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
 		NSString *basename = [[self pageContext] basename];
 		NSString *density = [TiUtils isRetinaDisplay] ? @"high" : @"medium";
 
-		if (objectId!=nil || className != nil || classNames != nil || [stylesheet basename:basename density:density hasClass:type])
+		if (objectId!=nil || className != nil || classNames != nil || [stylesheet basename:basename density:density hasTag:type])
 		{
 			// get classes from proxy
 			NSString *className = [properties objectForKey:@"className"];
@@ -838,11 +838,9 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
 			{
 				[classNames addObject:className];
 			}
-			// add the widget type as a class
-			// TODO: What takes prescedence here?  Other specified class names, or the widget class name?  That will change where
-			// the type gets inserted into the array.
-			[classNames addObject:type];
-			NSDictionary *merge = [stylesheet stylesheet:objectId density:density basename:basename classes:classNames];
+
+		    
+		    NSDictionary *merge = [stylesheet stylesheet:objectId density:density basename:basename classes:classNames tags:[NSArray arrayWithObject:type]];
 			if (merge!=nil)
 			{
 				// incoming keys take precendence over existing stylesheet keys
@@ -1638,7 +1636,7 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
 		return;
 	}
 	if ([NSThread isMainThread])
-	{	//NOTE: This will cause problems with ScrollableView, or is a new wrapper needed?		
+	{	//NOTE: This will cause problems with ScrollableView, or is a new wrapper needed?
 		[self willChangeSize];
 		[self willChangePosition];
 	

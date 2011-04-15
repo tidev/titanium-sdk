@@ -3,7 +3,7 @@ var win = Titanium.UI.currentWindow;
 var l1 = Titanium.UI.createLabel({
 	id:'font_label_test',
 	text:'Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat',
-	width:200,
+//	width:200,
 	height:150,
 	top:10,
 	color:'#336699',
@@ -13,15 +13,10 @@ var l1 = Titanium.UI.createLabel({
 win.add(l1);
 
 var l2 = Titanium.UI.createLabel({
+	id:'label_two',
 	text:'Appcelerator',
-	height:50,
-	width:'auto',
 	shadowColor:'#aaa',
 	shadowOffset:{x:5,y:5},
-	color:'#900',
-	font:{fontSize:48, fontStyle:'italic'},
-	top:170,
-	textAlign:'center'
 });
 
 win.add(l2);
@@ -39,14 +34,13 @@ b1.addEventListener('click', function()
 	{
 		l1.hide();
 		l2.hide();
-		visible=false;
 	}
 	else
 	{
 		l1.show();
 		l2.show();
-		visible=true;
 	}
+	visible = !visible;
 });
 win.add(b1);
 
@@ -59,22 +53,13 @@ var b2 = Titanium.UI.createButton({
 var changed=false;
 b2.addEventListener('click', function()
 {
-	if (!changed)
-	{
-		l2.color = '#ff9900';
-		l2.shadowColor = '#336699';
-		l2.font = {fontSize:20};
-		changed=true;
-		size.text = l2.size.height + ' ' + l2.size.width;
-	}
-	else
-	{
-		l2.color = '#900';
-		l2.shadowColor = '#aaa';
-		l2.font = {fontSize:48};
-		size.text = l2.size.height + ' ' + l2.size.width;
-		changed=false;
-	}
+	l2.fontStyle   = (!changed) ? 'normal'  : 'italic';
+	l2.fontSize    = (!changed) ? 20 : 48;
+	l2.shadowColor = (!changed) ? '#336699' : '#aaa';
+	l2.color       = (!changed) ? '#ff9900' : '#900';
+	
+	changed = !changed;
+	size.text = l2.size.height + ' ' + l2.size.width;
 });
 win.add(b2);
 
