@@ -19,7 +19,7 @@
 @implementation	moduleName##Module (className##_generation)	\
 -(TiProxy *)create##className:(id)args	\
 {	\
-	TiProxy * result = [[Ti##moduleName##className##Proxy alloc] _initWithPageContext:[self pageContext] args:args];	\
+	TiProxy * result = [[Ti##moduleName##className##Proxy alloc] _initWithPageContext:[self executionContext] args:args];	\
 	return [result autorelease];	\
 }	\
 @end
