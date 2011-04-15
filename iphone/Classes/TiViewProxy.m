@@ -191,9 +191,14 @@
 
 -(void)animate:(id)arg
 {
-	ENSURE_UI_THREAD(animate,arg);
-	[parent contentsWillChange];
+	TiAnimation * newAnimation = [TiAnimation animationFromArg:arg context:[self executionContext] create:NO];
+	[self rememberProxy:newAnimation];
+	[self performSelectorOnMainThread:@selector(animateOnUIThread:) withObject:newAnimation waitUntilDone:NO];
+}
 
+-(void)animateOnUIThread:(TiAnimation *)newAnimation
+{
+	[parent contentsWillChange];
 	if ([view superview]==nil)
 	{
 		VerboseLog(@"Entering animation without a superview Parent is %@, props are %@",parent,dynprops);
@@ -201,7 +206,14 @@
 	}
 	[self windowWillOpen]; // we need to manually attach the window if you're animating
 	[parent layoutChildrenIfNeeded];
-	[[self view] animate:arg];
+	[[self view] animate:newAnimation];
+}
+
+-(void)setAnimation:(id)arg
+{	//We don't actually store the animation this way.
+	//Because the setter doesn't have the argument array, we will be passing a nonarray to animate:
+	//In this RARE case, this is okay, because TiAnimation animationFromArg handles with or without array.
+	[self animate:arg];
 }
 
 #define LAYOUTPROPERTIES_SETTER(methodName,layoutName,converter,postaction)	\
