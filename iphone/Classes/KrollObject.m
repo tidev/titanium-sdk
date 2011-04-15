@@ -548,12 +548,20 @@ bool KrollSetProperty(TiContextRef jsContext, TiObjectRef object, TiStringRef pr
 {
 	if (self = [self init])
 	{
+#if DEBUG
 		//TODO: See if this actually happens, and if not, remove this extra check.
 		if ([(KrollBridge *)[context_ delegate] usesProxy:target_] && [self isMemberOfClass:[KrollObject class]])
 		{
 			NSLog(@"[WARN] %@ already has %@!",[context_ delegate],target_);
 		}
-		
+
+		if (![context_ isKJSThread])
+		{
+			NSLog(@"[WARN] %@->%@ is being made in a thread not owned by %@",self,target_,context_);
+		}
+
+
+#endif
 		target = [target_ retain];
 		context = context_; // don't retain
 		jsobject = TiObjectMake([context context],KrollObjectClassRef,self);
@@ -986,12 +994,30 @@ bool KrollSetProperty(TiContextRef jsContext, TiObjectRef object, TiStringRef pr
 
 -(void)noteKeylessKrollObject:(KrollObject *)value
 {
+	if (![context isKJSThread])
+	{
+		NSOperation * safeProtect = [[NSInvocationOperation alloc] initWithTarget:self
+				selector:@selector(noteKeylessKrollObject:) object:value];
+		[context enqueue:safeProtect];
+		[safeProtect release];
+		return;
+	}
+
 	NSString * falseKey = [NSString stringWithFormat:@"__PX%X",value];
 	[self noteKrollObject:value forKey:falseKey];
 }
 
 -(void)forgetKeylessKrollObject:(KrollObject *)value
 {
+	if (![context isKJSThread])
+	{
+		NSOperation * safeUnprotect = [[NSInvocationOperation alloc] initWithTarget:self
+				selector:@selector(forgetKeylessKrollObject:) object:value];
+		[context enqueue:safeUnprotect];
+		[safeUnprotect release];
+		return;
+	}
+
 	NSString * falseKey = [NSString stringWithFormat:@"__PX%X",value];
 	TiStringRef nameRef = TiStringCreateWithCFString((CFStringRef)falseKey);
 	[self forgetObjectForTiString:nameRef context:[context context]];

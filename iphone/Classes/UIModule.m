@@ -236,7 +236,7 @@ MAKE_SYSTEM_PROP_IOS4(AUTODETECT_CALENDAR,UIDataDetectorTypeCalendarEvent,UIData
 			return a;
 		}
 	}
-	return [[[TiAnimation alloc] _initWithPageContext:[self pageContext]] autorelease];
+	return [[[TiAnimation alloc] _initWithPageContext:[self executionContext]] autorelease];
 }
 #endif
 
