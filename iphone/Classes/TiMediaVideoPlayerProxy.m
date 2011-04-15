@@ -842,16 +842,8 @@ NSArray* moviePlayerKeys = nil;
 -(void)stop:(id)args
 {
 	ENSURE_UI_THREAD(stop, args);
-	
-	if (!playing) {
-		return;
-	}
-	
 	playing = NO;
-	if (movie!=nil)
-	{
-		[movie stop];
-	}
+	[movie stop];
 	RELEASE_TO_NIL_AUTORELEASE(movie);
 }
 
@@ -868,11 +860,6 @@ NSArray* moviePlayerKeys = nil;
 		[self throwException:TiExceptionInvalidType
 				subreason:@"Tried to play movie player without a valid url, media, or contentURL property"
 				location:CODELOCATION];
-	}
-	
-	if (playing)
-	{
-		[self stop:nil];
 	}
 	
 	playing = YES;
@@ -892,9 +879,8 @@ NSArray* moviePlayerKeys = nil;
 		return;
 	}
 	
-	// For the purposes of cleanup, we're still playing, so don't toggle that.
-	if ([[self player] respondsToSelector:@selector(pause)])
-	{
+	if ([[self player] respondsToSelector:@selector(pause)]) {
+		playing = NO;
 		[[self player] performSelector:@selector(pause)];
 	}
 }
@@ -1173,6 +1159,7 @@ NSArray* moviePlayerKeys = nil;
 		[self fireEvent:@"playbackState" withObject:event];
 	}
 	switch ([movie playbackState]) {
+		case MPMoviePlaybackStatePaused:
 		case MPMoviePlaybackStateStopped:
 			playing = NO;
 			break;
