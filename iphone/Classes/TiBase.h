@@ -154,6 +154,32 @@ if (out && ![out isKindOfClass:[type class]]) { \
 [self throwException:TiExceptionInvalidType subreason:[NSString stringWithFormat:@"expected: %@, was: %@",[out class],[type class]] location:CODELOCATION]; \
 } \
 } \
+
+#define ENSURE_INT_AT_INDEX(out,args,index) \
+{\
+id tmp = nil; \
+ENSURE_ARG_AT_INDEX(tmp,args,index,NSObject); \
+if (![tmp respondsToSelector:@selector(intValue)]) {\
+[self throwException:TiExceptionInvalidType subreason:[NSString stringWithFormat:@"cannot coerce type %@ to int",[tmp type]] location:CODELOCATION]; \
+}\
+out = [tmp intValue]; \
+} \
+
+#define ENSURE_INT_OR_NIL_AT_INDEX(out,args,index,isNil) \
+{\
+id tmp = nil; \
+ENSURE_ARG_OR_NIL_AT_INDEX(tmp,args,index,NSObject); \
+if (tmp == nil) {\
+isNil = YES; \
+} \
+else { \
+isNil = NO; \
+if (![tmp respondsToSelector:@selector(intValue)]) {\
+[self throwException:TiExceptionInvalidType subreason:[NSString stringWithFormat:@"cannot coerce type %@ to int",[tmp type]] location:CODELOCATION]; \
+}\
+out = [tmp intValue]; \
+}\
+}\
     
 #define ENSURE_CLASS(x,t) \
 if (![x isKindOfClass:t]) \
