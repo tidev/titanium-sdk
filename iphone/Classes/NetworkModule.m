@@ -287,6 +287,8 @@ MAKE_SYSTEM_PROP(NOTIFICATION_TYPE_SOUND,3);
 
 #pragma mark Push Notification Delegates
 
+#ifdef USE_TI_NETWORKREGISTERFORPUSHNOTIFICATIONS
+
 -(void)application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken
 {
 	// called by TiApp
@@ -319,6 +321,8 @@ MAKE_SYSTEM_PROP(NOTIFICATION_TYPE_SOUND,3);
 		[self _fireEventToListener:@"remote" withObject:event listener:pushNotificationError thisObject:nil];
 	}
 }
+
+#endif
 
 @end
 
