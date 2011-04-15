@@ -188,7 +188,7 @@ def main(args):
 	if is_android(platform):
 		build_properties = read_properties(open(os.path.join(project_dir, 'build.properties')))
 		android_sdk_path = os.path.dirname(os.path.dirname(build_properties['android.platform']))
-		android_sdk = AndroidSDK(android_sdk_path, 4)
+		android_sdk = AndroidSDK(android_sdk_path)
 
 	if command == 'run':
 		def run_callback(gen_project_dir):
