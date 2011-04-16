@@ -155,32 +155,64 @@ if (out && ![out isKindOfClass:[type class]]) { \
 } \
 } \
 
+#define COERCE_TO_INT(out,in) \
+if (![in respondsToSelector:@selector(intValue)]) {\
+[self throwException:TiExceptionInvalidType subreason:[NSString stringWithFormat:@"cannot coerce type %@ to int",[in type]] location:CODELOCATION]; \
+}\
+out = [in intValue]; \
+
 #define ENSURE_INT_AT_INDEX(out,args,index) \
 {\
 id tmp = nil; \
 ENSURE_ARG_AT_INDEX(tmp,args,index,NSObject); \
-if (![tmp respondsToSelector:@selector(intValue)]) {\
-[self throwException:TiExceptionInvalidType subreason:[NSString stringWithFormat:@"cannot coerce type %@ to int",[tmp type]] location:CODELOCATION]; \
-}\
-out = [tmp intValue]; \
+COERCE_TO_INT(out,tmp); \
 } \
 
-#define ENSURE_INT_OR_NIL_AT_INDEX(out,args,index,isNil) \
+#define ENSURE_INT_OR_NIL_AT_INDEX(out,args,index,hasValue) \
 {\
 id tmp = nil; \
 ENSURE_ARG_OR_NIL_AT_INDEX(tmp,args,index,NSObject); \
 if (tmp == nil) {\
-isNil = YES; \
+hasValue = NO; \
 } \
 else { \
-isNil = NO; \
-if (![tmp respondsToSelector:@selector(intValue)]) {\
-[self throwException:TiExceptionInvalidType subreason:[NSString stringWithFormat:@"cannot coerce type %@ to int",[tmp type]] location:CODELOCATION]; \
-}\
-out = [tmp intValue]; \
+hasValue = YES; \
+COERCE_TO_INT(out,tmp)\
 }\
 }\
-    
+
+#define ENSURE_ARG_FOR_KEY(out,args,key,type) \
+{\
+out = [args objectForKey:key];\
+ENSURE_TYPE(out, type); \
+}\
+
+#define ENSURE_ARG_OR_NIL_FOR_KEY(out,args,key,type) \
+{\
+out = [args objectForKey:key];\
+ENSURE_TYPE_OR_NIL(out,type); \
+}\
+
+#define ENSURE_INT_FOR_KEY(out,args,key) \
+{\
+id tmp = nil;\
+ENSURE_ARG_FOR_KEY(tmp,args,key,NSObject);\
+COERCE_TO_INT(out,tmp);\
+}\
+
+#define ENSURE_INT_OR_NIL_FOR_KEY(out,args,key,hasValue) \
+{\
+id tmp = nil;\
+ENSURE_ARG_OR_NIL_FOR_KEY(tmp,args,key,NSObject);\
+if (tmp==nil) {\
+hasValue = NO;\
+}\
+else {\
+hasValue = YES; \
+COERCE_TO_INT(out,tmp);\
+}\
+}\
+
 #define ENSURE_CLASS(x,t) \
 if (![x isKindOfClass:t]) \
 { \
