@@ -38,6 +38,7 @@ public class AudioPlayerProxy extends KrollProxy
 	@Kroll.constant public static final int STATE_WAITING_FOR_QUEUE = TiSound.STATE_WAITING_FOR_QUEUE;
 	
 	protected TiSound snd;
+	private String lastUrl;
 
 	public AudioPlayerProxy(TiContext tiContext)
 	{
@@ -70,13 +71,19 @@ public class AudioPlayerProxy extends KrollProxy
 	
 	@Kroll.getProperty
 	public String getUrl() {
-		return TiConvert.toString(getProperty(TiC.PROPERTY_URL));
+		return lastUrl;
 	}
 	
 	@Kroll.setProperty @Kroll.method
 	public void setUrl(KrollInvocation kroll, String url) {
 		if (url != null) {
-			setProperty(TiC.PROPERTY_URL, kroll.getTiContext().resolveUrl(null, TiConvert.toString(url)));
+			url = TiConvert.toString(url);
+			lastUrl = url;
+
+			TiSound s = getSound();
+			if (s != null){
+				s.changeUrl(url);
+			}
 		}
 	}
 	
@@ -192,7 +199,16 @@ public class AudioPlayerProxy extends KrollProxy
 			s.stop();
 		}
 	}
-
+	
+	@Kroll.getProperty @Kroll.method
+	public boolean isPrepared() {
+		TiSound s = getSound();
+		if (s != null) {
+			return s.isPrepared();
+		}
+		return false;
+	}
+	
 	protected TiSound getSound()
 	{
 		if (snd == null) {
