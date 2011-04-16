@@ -90,7 +90,14 @@
 	ENSURE_SINGLE_ARG(proxy,TiUITableViewRowProxy);
 	if (rows!=nil)
 	{
-		[rows removeObject:proxy];
+		if (table) {
+            NSDictionary *anim = [NSDictionary dictionaryWithObjectsAndKeys:NUMINT(UITableViewRowAnimationFade), @"animationStyle", nil];
+            TiUITableViewAction *action = [[[TiUITableViewAction alloc] initWithObject:proxy animation:anim type:TiUITableViewActionDeleteRow] autorelease];
+            [table dispatchAction:action];
+        }
+        else {
+            [rows removeObject:proxy];
+        }
 	}
 }
 
