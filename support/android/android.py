@@ -287,6 +287,6 @@ if __name__ == '__main__':
 		print "Usage: %s <name> <id> <directory> <sdk>" % os.path.basename(sys.argv[0])
 		sys.exit(1)
 
-	sdk = AndroidSDK(sys.argv[4], 4)
+	sdk = AndroidSDK(sys.argv[4])
 	android = Android(sys.argv[1], sys.argv[2], sdk, None, 'java')
 	android.create(sys.argv[3])

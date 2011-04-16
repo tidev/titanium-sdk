@@ -5,6 +5,8 @@
 
 import os, sys, platform, glob, subprocess, types, re
 
+DEFAULT_API_LEVEL = 7
+
 android_api_levels = {
 	3: 'android-1.5',
 	4: 'android-1.6',
@@ -36,7 +38,7 @@ class Device:
 		return self.offline
 
 class AndroidSDK:
-	def __init__(self, android_sdk, api_level):
+	def __init__(self, android_sdk, api_level=DEFAULT_API_LEVEL):
 		self.android_sdk = self.find_sdk(android_sdk)
 		if self.android_sdk is None:
 			raise Exception('No Android SDK directory found')
@@ -305,7 +307,7 @@ if __name__ == "__main__":
 	if sdk_path == '-':
 		sdk_path = None
 
-	api_level = 7
+	api_level = DEFAULT_API_LEVEL
 	if len(sys.argv) > 2:
 		api_level = int(sys.argv[2])
 	try:
