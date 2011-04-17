@@ -245,7 +245,7 @@ public class FacebookModule extends KrollModule
 		getFBRunner().request(null, bundle, httpMethod, new TiRequestListener(method, false, callback));
 	}
 	
-	@Kroll.method
+	@Kroll.method(runOnUiThread=true)
 	public void dialog(KrollInvocation invocation, String action, KrollDict params, KrollCallback callback)
 	{
 		if (facebook == null) {
