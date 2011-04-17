@@ -596,7 +596,7 @@ def main(args):
 			for module in modules:
 				module_id = module.manifest.moduleid.lower()
 				module_version = module.manifest.version
-				module_lib_name = 'lib%s.a' % module_id
+				module_lib_name = ('lib%s.a' % module_id).lower()
 				# check first in the local project
 				local_module_lib = os.path.join(project_dir, 'modules', 'iphone', module_lib_name)
 				local = False
@@ -609,7 +609,7 @@ def main(args):
 						module_lib_path = module.get_resource(module_lib_name)
 						log("[ERROR] Third-party module: %s/%s missing library at %s" % (module_id, module_version, module_lib_path))
 						sys.exit(1)
-					module_lib_search_path.append([module_lib_name, os.path.abspath(module.lib)])
+					module_lib_search_path.append([module_lib_name, os.path.abspath(module.lib).rsplit('/',1)[0]])
 					log("[INFO] Detected third-party module: %s/%s" % (module_id, module_version))
 				force_xcode = True
 
