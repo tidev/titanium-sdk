@@ -11,6 +11,9 @@
 
 NSDictionary* encodingMap = nil;
 NSDictionary* typeMap = nil;
+
+
+
 @interface CodecModule(Private)
 -(NSStringEncoding)constantToEncodingType:(NSString*)type;
 -(TiDataType)constantToType:(NSString*)type;
@@ -48,6 +51,14 @@ NSDictionary* typeMap = nil;
     }
     return [[typeMap valueForKey:type] intValue];
 }
+
+// iOS is 32-bit, so we need to make sure that we convert NSNumbers to the right end type based on the number of bytes.
+// Note that simulator runs in 32-bit mode so we don't have to worry about 64-bit... yet.
+// In particular:
+// Float32 == float
+// Float64 == double
+// Int64 == long long (NOT long)
+// Other types match up as you'd expect.
 
 // Public API : Functions
 
@@ -133,7 +144,7 @@ NSDictionary* typeMap = nil;
             break;
         }
         case TI_LONG: {
-            uint64_t val = [data longValue];
+            uint64_t val = [data longLongValue];
             size = sizeof(val);
             switch (byteOrder) {
                 case CFByteOrderLittleEndian: {
@@ -262,9 +273,9 @@ NSDictionary* typeMap = nil;
             memcpy((void*)data+position, &longVal, sizeof(longVal));
             switch (byteOrder) {
                 case CFByteOrderLittleEndian:
-                    return [NSNumber numberWithLong:CFSwapInt64LittleToHost(longVal)];
+                    return [NSNumber numberWithLongLong:CFSwapInt64LittleToHost(longVal)];
                 case CFByteOrderBigEndian:
-                    return [NSNumber numberWithLong:CFSwapInt64BigToHost(longVal)];
+                    return [NSNumber numberWithLongLong:CFSwapInt64BigToHost(longVal)];
             }
             break;
         }
