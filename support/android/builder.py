@@ -1601,7 +1601,7 @@ class Builder(object):
 			if not os.path.exists(self.classes_dir):
 				os.makedirs(self.classes_dir)
 
-			if debugger_host != None:
+			if debugger_host != None and len(self.debugger_host) > 0:
 				hostport = debugger_host.split(":")
 				self.debugger_host = hostport[0]
 				self.debugger_port = int(hostport[1])
