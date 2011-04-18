@@ -31,5 +31,8 @@
 
 @property(nonatomic,assign) NSNumber* length;
 
+// SPECIAL NOTES:
+// Ti.Buffer objects have an 'overloaded' Ti.Buffer[x] operation for x==int (making them behave like arrays).
+// See the code for how this works.
 
 @end

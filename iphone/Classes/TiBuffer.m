@@ -32,6 +32,124 @@ NSArray* bufferKeySequence = nil;
 
 #pragma mark Public API : Functions
 
+-(NSNumber*)append:(id)args
+{
+    TiBuffer* source = nil;
+    int sourceOffset;
+    BOOL hasSourceOffset;
+    int sourceLength;
+    BOOL hasSourceLength;
+    
+    ENSURE_ARG_AT_INDEX(source, args, 0, TiBuffer);
+    ENSURE_INT_OR_NIL_AT_INDEX(sourceOffset, args, 1, hasSourceOffset);
+    ENSURE_INT_OR_NIL_AT_INDEX(sourceLength, args, 2, hasSourceLength);
+    
+    sourceOffset = (hasSourceOffset) ? sourceOffset : 0;
+    sourceLength = (hasSourceLength) ? sourceLength : [[source data] length];
+    
+    if (sourceOffset >= [[source data] length]) {
+        [self throwException:[NSString stringWithFormat:@"Source offset %d is past source bounds (length %d)",sourceOffset,[[source data] length]]
+                   subreason:nil
+                    location:CODELOCATION];
+    }
+    
+    int length = MIN(sourceLength, [[source data] length] - sourceOffset);
+    const void* bytes = [[source data] bytes];
+    [data appendBytes:(bytes+sourceOffset) length:length];
+    
+    return NUMINT(length);
+}
+
+-(NSNumber*)insert:(id)args
+{
+    TiBuffer* source = nil;
+    int offset;
+    int sourceOffset;
+    BOOL hasSourceOffset;
+    int sourceLength;
+    BOOL hasSourceLength;
+    
+    ENSURE_ARG_AT_INDEX(source, args, 0, TiBuffer);
+    ENSURE_INT_AT_INDEX(offset, args, 1);
+    ENSURE_INT_OR_NIL_AT_INDEX(sourceOffset, args, 2, hasSourceOffset);
+    ENSURE_INT_OR_NIL_AT_INDEX(sourceLength, args, 3, hasSourceLength);
+    
+    sourceOffset = (hasSourceOffset) ? sourceOffset : 0;
+    sourceLength = (hasSourceLength) ? sourceLength : [[source data] length];
+    
+    if (offset >= [data length]) {
+        [self throwException:[NSString stringWithFormat:@"Offset %d is past buffer bounds (length %d)",offset,[data length]]
+                   subreason:nil
+                    location:CODELOCATION];
+    }
+    if (sourceOffset >= [[source data] length]) {
+        [self throwException:[NSString stringWithFormat:@"Source offset %d is past source bounds (length %d)",sourceOffset,[[source data] length]]
+                   subreason:nil
+                    location:CODELOCATION];
+    }
+    
+    // There is no natural 'insert' operation on NSData, so we perform it as so:
+    // 1. Extend the data the amount of 'length'
+    // 2. "shift" the existing data from 'offset' over 'length'
+    // 3. Copy the bytes into the data starting at 'offset'.
+    
+    // Here we have 2 possible lengths: sourceLength, or the data from sourceOffset to the end of the source buffer.
+    // We're extending the buffer, so the end of our current data is IRRELEVANT.
+    int length = MIN(sourceLength, [[source data] length]-sourceOffset);
+    
+    // 1.
+    [data increaseLengthBy:length];
+    
+    // 2.
+    const void* currentBytes = [data bytes];
+    [data replaceBytesInRange:NSMakeRange(offset+length,[data length]-(offset+length)) withBytes:(currentBytes+offset)];
+    
+    // 3.
+    const void* newBytes = [[source data] bytes];
+    [data replaceBytesInRange:NSMakeRange(offset,length) withBytes:(newBytes+sourceOffset)];
+    
+    return NUMINT(length);  
+}
+
+-(NSNumber*)copy:(id)args
+{
+    TiBuffer* sourceBuffer = nil;
+    int offset;
+    int sourceOffset;
+    BOOL hasSourceOffset;
+    int sourceLength;
+    BOOL hasSourceLength;
+    
+    ENSURE_ARG_AT_INDEX(sourceBuffer, args, 0, TiBuffer);
+    ENSURE_INT_AT_INDEX(offset, args, 1);
+    ENSURE_INT_OR_NIL_AT_INDEX(sourceOffset, args, 2, hasSourceOffset);
+    ENSURE_INT_OR_NIL_AT_INDEX(sourceLength, args, 3, hasSourceLength);
+    
+    sourceOffset = (hasSourceOffset) ? sourceOffset : 0;
+    sourceLength = (hasSourceLength) ? sourceLength : [[sourceBuffer data] length];
+    
+    if (offset >= [data length]) {
+        [self throwException:[NSString stringWithFormat:@"Offset %d is past buffer bounds (length %d)",offset,[data length]]
+                   subreason:nil
+                    location:CODELOCATION];
+    }
+    if (sourceOffset >= [[sourceBuffer data] length]) {
+        [self throwException:[NSString stringWithFormat:@"Source offset %d is past source bounds (length %d)",sourceOffset,[[sourceBuffer data] length]]
+                   subreason:nil
+                    location:CODELOCATION];
+    }
+    
+    // Assume that "sourceLength" is a hint; don't throw an exception if it extends past the end of the source
+    const void* source = [[sourceBuffer data] bytes];
+    
+    // We have three possible lengths: sourceLength, the remaining length in our destination buffer, the remaining length in the source buffer.
+    // We pick the smallest one!
+    NSRange replacement = NSMakeRange(offset, MIN(MIN(sourceLength, [data length]-offset), [[sourceBuffer data] length]-sourceOffset));
+    [data replaceBytesInRange:replacement withBytes:(source+sourceOffset)];
+    
+    return NUMINT(replacement.length);
+}
+
 -(TiBuffer*)clone:(id)args
 {
     id offset = nil;
@@ -63,7 +181,7 @@ NSArray* bufferKeySequence = nil;
         lengthVal = [data length] - offsetVal;
     }
     
-    NSMutableData* cloneData = [[NSMutableData alloc] initWithData:[data subdataWithRange:NSMakeRange(offsetVal, lengthVal)]];
+    NSMutableData* cloneData = [[[NSMutableData alloc] initWithData:[data subdataWithRange:NSMakeRange(offsetVal, lengthVal)]] autorelease];
     
     TiBuffer* newBuffer = [[[TiBuffer alloc] _initWithPageContext:[self executionContext]] autorelease];
     [newBuffer setData:cloneData];
@@ -133,6 +251,8 @@ NSArray* bufferKeySequence = nil;
     return [[[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding] autorelease];
 }
 
+#pragma mark Public API : Properties
+
 -(void)setLength:(NSNumber*)length
 {
     int len = [TiUtils intValue:length];
@@ -152,6 +272,51 @@ NSArray* bufferKeySequence = nil;
 -(NSNumber*)length
 {
     return NUMINT([data length]);
+}
+
+#pragma mark "operator[] overload" (Array behavior)
+
+// TODO: Throw bounds exceptions
+-(void)setValue:(id)value forUndefinedKey:(NSString *)key
+{
+    int index = [key intValue];
+    // -[NSString intValue] returns 0 for unparsables; so check to for isEqual:@"0" on that value
+    if (index != 0 || [key isEqualToString:@"0"]) {
+        if (index < 0 || index >= [data length]) {
+            NSLog(@"[ERROR] Index %d out of bounds on buffer", index);
+            return;
+        }
+        if (![value respondsToSelector:@selector(charValue)]) {
+            NSLog(@"[ERROR] Object %@ cannot be converted to a byte",value);
+            return;
+        }
+        
+        void* bytes = [data mutableBytes];
+        *(char*)(bytes+index) = [value charValue];
+    }
+    else {
+        [super setValue:value forUndefinedKey:key];
+    }
+}
+
+// TODO: Throw bounds exceptions
+-(id)valueForUndefinedKey:(NSString *)key
+{
+    int index = [key intValue];
+    if (index != 0 || [key isEqualToString:@"0"]) {
+        if (index < 0 || index >= [data length]) {
+            NSLog(@"[ERROR] Index %d out of bounds on buffer", index);
+            return nil;
+        }
+        
+        void* bytes = [data mutableBytes];
+        // NOTE: We have to do this internal type conversion because in the id->TiValue process, a byte
+        // is autotranslated to a boolean.  So we get the value as a char, then coerce to int.
+        return [NSNumber numberWithInt:*(char*)(bytes+index)];
+    }
+    else {
+        return [super valueForUndefinedKey:key];
+    }
 }
 
 @end

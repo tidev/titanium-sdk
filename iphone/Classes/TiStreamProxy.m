@@ -38,7 +38,18 @@
                        subreason:@"Requires OFFSET or LENGTH value"
                         location:CODELOCATION];
         }
-        return NUMINT([self readToBuffer:buffer offset:[TiUtils intValue:offset] length:[TiUtils intValue:length def:[[buffer data] length]] callback:nil]);
+        
+        int offsetValue = [TiUtils intValue:offset];
+        int lengthValue = [TiUtils intValue:length def:[[buffer data] length]];
+        
+        // TODO: Throw exception
+        if (offsetValue >= [[buffer data] length]) {
+            NSString* errorStr = [NSString stringWithFormat:@"[ERROR] Offset %d is past buffer bounds (length %d)",offsetValue,[[buffer data] length]];
+            NSLog(errorStr);
+            return NUMINT(-1);
+        }
+        
+        return NUMINT([self readToBuffer:buffer offset:offsetValue length:lengthValue callback:nil]);
     }
     
     return NUMINT(-1);
@@ -71,7 +82,18 @@
                        subreason:@"Invalid OFFSET or LENGTH value"
                         location:CODELOCATION];
         }
-        return NUMINT([self writeFromBuffer:buffer offset:[TiUtils intValue:offset] length:[TiUtils intValue:length def:[[buffer data] length]] callback:nil]);
+        
+        int offsetValue = [TiUtils intValue:offset];
+        int lengthValue = [TiUtils intValue:length def:[[buffer data] length]];
+        
+        // TODO: Throw exception
+        if (offsetValue >= [[buffer data] length]) {
+            NSString* errorStr = [NSString stringWithFormat:@"[ERROR] Offset %d is past buffer bounds (length %d)",offsetValue,[[buffer data] length]];
+            NSLog(errorStr);
+            return NUMINT(-1);
+        }
+        
+        return NUMINT([self writeFromBuffer:buffer offset:offsetValue length:lengthValue callback:nil]);
     }
     
     return NUMINT(-1);
