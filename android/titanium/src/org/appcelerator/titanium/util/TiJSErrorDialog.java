@@ -6,8 +6,11 @@
  */
 package org.appcelerator.titanium.util;
 
+import java.io.IOException;
 import java.util.concurrent.Semaphore;
 
+import org.appcelerator.titanium.TiContext;
+import org.appcelerator.titanium.TiFastDev;
 import org.appcelerator.titanium.TiMessageQueue;
 
 import android.app.Activity;
@@ -37,7 +40,7 @@ public class TiJSErrorDialog
 		Log.e(TAG, "- Source: " + lineSource);
 	}
 
-	public static void openErrorDialog(final Activity activity, final String title, final String message,
+	public static void openErrorDialog(final TiContext tiContext, final Activity activity, final String title, final String message,
 		final String sourceName, final int line, final String lineSource, final int lineOffset)
 	{
 		printError(title, message, sourceName, line, lineSource, lineOffset);
@@ -51,7 +54,7 @@ public class TiJSErrorDialog
 		TiMessageQueue.getMainMessageQueue().post(new Runnable() {
 			public void run()
 			{
-				createDialog(semaphore, activity, title, message, sourceName, line, lineSource, lineOffset);
+				createDialog(tiContext, semaphore, activity, title, message, sourceName, line, lineSource, lineOffset);
 			}
 		});
 		try {
@@ -61,8 +64,8 @@ public class TiJSErrorDialog
 		}
 	}
 
-	protected static void createDialog(final Semaphore semaphore, Context context, String title, String message,
-		String sourceName, int line, String lineSource, int lineOffset)
+	protected static void createDialog(final TiContext tiContext, final Semaphore semaphore, Context context, String title, String message,
+		final String sourceName, int line, String lineSource, int lineOffset)
 	{
 		FrameLayout layout = new FrameLayout(context);
 		layout.setBackgroundColor(Color.rgb(128, 0, 0));
@@ -120,21 +123,36 @@ public class TiJSErrorDialog
 				} else if (which == DialogInterface.BUTTON_NEUTRAL) {
 					// Continue
 					semaphore.release();
+				} else if (which == DialogInterface.BUTTON_NEGATIVE) {
+					// Reload (Fastdev)
+					semaphore.release();
+					reload(tiContext, sourceName);
 				}
 			}
 		};
 
-		new AlertDialog.Builder(context)
+		AlertDialog.Builder builder = new AlertDialog.Builder(context)
 			.setTitle(title)
 			.setView(layout)
 			.setPositiveButton("Kill", clickListener)
 			.setNeutralButton("Continue", clickListener)
-			.setCancelable(false)
-			.create()
-			.show();
+			.setCancelable(false);
+		if (TiFastDev.isFastDevEnabled()) {
+			builder.setNegativeButton("Reload", clickListener);
+		}
+		builder.create().show();
 
 		if (TiMessageQueue.getMainMessageQueue().isBlocking()) {
 			semaphore.release();
+		}
+	}
+
+	protected static void reload(TiContext tiContext, String sourceName)
+	{
+		try {
+			tiContext.evalFile(sourceName);
+		} catch (IOException e) {
+			Log.e(TAG, e.getMessage(), e);
 		}
 	}
 }

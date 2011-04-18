@@ -44,8 +44,6 @@ public class KrollContext implements Handler.Callback
 	private static final int MSG_EVAL_STRING = 1000;
 	private static final int MSG_EVAL_FILE = 1001;
 
-	private static final String APP_SCHEME= "app://";
-	private static final String FILE_WITH_ASSET = "file:///android_asset/Resources/";
 	private static final String STRING_SOURCE = "<anonymous>";
 
 	public static final String CONTEXT_KEY = "krollContext";
@@ -281,29 +279,18 @@ public class KrollContext implements Handler.Callback
 
 	protected Object runCompiledScript(String filename)
 	{
-		if (filename.contains("://")) {
-			if (filename.startsWith(APP_SCHEME)) {
-				filename = filename.substring(APP_SCHEME.length());
-
-				// In some cases we might have a leading slash after the app:// URL
-				// normalize by trimming the leading slash
-				if (filename.length() > 0 && filename.charAt(0) == '/') {
-					filename = filename.substring(1);
-				}
-			} else if (filename.startsWith(FILE_WITH_ASSET)) {
-				filename = filename.substring(FILE_WITH_ASSET.length());
-			} else {
-				// we can only handle pre-compiled app:// and file:///android_asset/Resources/ scripts here
-				return evaluateScript(filename);
-			}
+		String relativePath = TiFileHelper2.getResourceRelativePath(filename);
+		if (relativePath == null) {
+			// we can only handle pre-compiled app:// and file:///android_asset/Resources/ scripts here
+			return evaluateScript(filename);
 		}
 		
 		Context context = enter(true);
 		try {
-			Log.d(LCAT, "Running pre-compiled script: "+filename);
-			return TiScriptRunner.getInstance().runScript(context, jsScope, filename);
+			Log.d(LCAT, "Running pre-compiled script: " + relativePath);
+			return TiScriptRunner.getInstance().runScript(context, jsScope, relativePath);
 		} catch (ClassNotFoundException e) {
-			Log.e(LCAT, "Couldn't find pre-compiled class for script: " + filename, e);
+			Log.e(LCAT, "Couldn't find pre-compiled class for script: " + relativePath, e);
 		} finally {
 			exit();
 		}

@@ -65,15 +65,39 @@ class Deltafy:
 		cls.db_path = path
 
 	@classmethod
-	def compare_paths(cls, path1, path2):
+	def get_modified_datetime(cls, path):
+		return datetime.fromtimestamp(os.stat(path).st_mtime)
+
+	@classmethod
+	def compare_datetime(cls, dt1, dt2, mindelta=None):
+		delta = dt1 - dt2
+		if mindelta is None:
+			mindelta = timedelta(microseconds=0)
+		if delta < mindelta: return -1
+		elif delta > mindelta: return 1
+		else: return 0
+
+	@classmethod
+	def compare_paths(cls, path1, path2, mindelta=None):
 		time1 = datetime.fromtimestamp(os.stat(path1).st_mtime)
 		time2 = datetime.fromtimestamp(os.stat(path2).st_mtime)
-		delta = time1 - time2
-		zero_timedelta = timedelta(microseconds=0)
-		if delta < zero_timedelta: return -1
-		elif delta > zero_timedelta: return 1
-		else: return 0
-		
+		return cls.compare_datetime(time1, time2, mindelta)
+
+	@classmethod
+	def needs_update(cls, src_path, dest_path, mindelta=None):
+		"checks if dest_path needs to be updated by src_path with a default minimum delta of 1 second"
+		if mindelta is None:
+			mindelta = timedelta(seconds=1)
+		return not os.path.exists(dest_path) or \
+			(os.path.exists(src_path) and \
+				Deltafy.compare_paths(src_path, dest_path, mindelta) > 0)
+
+	@classmethod
+	def needs_update_timestamp(cls, src_path, dest_ts, mindelta=None):
+		"checks if dest_ts needs to be updated by src_path with a default minimum delta of 1 second"
+		return os.path.exists(src_path) and \
+			cls.compare_datetime(cls.get_modified_datetime(src_path), dest_ts, mindelta) > 0
+
 	def __init__(self, dir, include_callback=None):
 		self.dir = dir
 		self.include_callback = include_callback
