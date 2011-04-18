@@ -7,7 +7,6 @@
 
 package org.appcelerator.titanium.io;
 
-import java.io.File;
 import java.io.IOException;
 
 import org.appcelerator.kroll.KrollDict;
@@ -16,19 +15,13 @@ import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.kroll.KrollCallback;
 import org.appcelerator.titanium.proxy.BufferProxy;
-import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
-import org.appcelerator.titanium.util.TiConvert;
 
 
 @Kroll.module
 public class StreamModule extends KrollModule
 {
-	@Kroll.constant public static int MODE_READ = 0;
-	@Kroll.constant public static int MODE_WRITE = 1;
-	@Kroll.constant public static int MODE_APPEND = 2;
-
-	private static final String LCAT = "TiFilesystem";
+	private static final String LCAT = "StreamModule";
 	private static final boolean DBG = TiConfig.LOGD;
 
 
@@ -38,17 +31,59 @@ public class StreamModule extends KrollModule
 	}
 
 	@Kroll.method
-	public void read(TiStream sourceStream, BufferProxy buffer, KrollCallback resultsCallback)
+	public void read(final TiStream sourceStream, final BufferProxy buffer, final KrollCallback resultsCallback)
 	{
-		// fire as async task
-		//sourceStream.read(buffer);
+		new Thread(
+				new Runnable()
+				{
+					public void run()
+					{
+						int bytesRead = -1;
+						String errorState = "";
+						String errorDescription = "";
+
+						try {
+							bytesRead = sourceStream.read(buffer);
+
+
+						} catch (IOException e) {
+							e.printStackTrace();
+							errorState = "error";
+							errorDescription = e.getMessage();
+						}
+
+						resultsCallback.callAsync(buildRWCallbackArgs(sourceStream, bytesRead, errorState, errorDescription));
+					}
+				}
+			) {}.start();
 	}
 
 	@Kroll.method
-	public void read(TiStream sourceStream, BufferProxy buffer, int offset, int length, KrollCallback resultsCallback)
+	public void read(final TiStream sourceStream, final BufferProxy buffer, final int offset, final int length, final KrollCallback resultsCallback)
 	{
-		// fire as async task
-		//sourceStream.read(buffer, offset, length);
+		new Thread(
+				new Runnable()
+				{
+					public void run()
+					{
+						int bytesRead = -1;
+						String errorState = "";
+						String errorDescription = "";
+
+						try {
+							bytesRead = sourceStream.read(buffer, offset, length);
+
+
+						} catch (IOException e) {
+							e.printStackTrace();
+							errorState = "error";
+							errorDescription = e.getMessage();
+						}
+
+						resultsCallback.callAsync(buildRWCallbackArgs(sourceStream, bytesRead, errorState, errorDescription));
+					}
+				}
+			) {}.start();
 	}
 
 	@Kroll.method
@@ -71,76 +106,230 @@ public class StreamModule extends KrollModule
 	}
 
 	@Kroll.method
-	public void readAll(TiStream sourceStream, BufferProxy buffer, KrollCallback resultsCallback)
+	public void readAll(final TiStream sourceStream, final BufferProxy buffer, final KrollCallback resultsCallback)
 	{
-		// call as async
-		int offset = 0;
+		new Thread(
+				new Runnable()
+				{
+					public void run()
+					{
+						int offset = 0;
+						String errorState = "";
+						String errorDescription = "";
 
-		if(buffer.getLength() < 1024) {
-			buffer.resize(1024);
-		}
+						if(buffer.getLength() < 1024) {
+							buffer.resize(1024);
+						}
 
-		KrollDict callbackArgs = new KrollDict();
-		callbackArgs.put("source", sourceStream);
+						try {
+							while(true) {
+								int bytesRead = sourceStream.read(buffer, offset, 1024);
+								if(bytesRead == -1) {
+									break;
+								}
 
-		try {
-			while(true) {
-				int bytesRead = sourceStream.read(buffer, offset, 1024);
-				if(bytesRead == -1) {
-					break;
+								buffer.resize(bytesRead);
+								offset += bytesRead;
+							}
+
+						} catch (IOException e) {
+							errorState = "error";
+							errorDescription = e.getMessage();
+						}
+
+						resultsCallback.callAsync(buildRWCallbackArgs(sourceStream, buffer.getLength(), errorState, errorDescription));
+					}
 				}
+			) {}.start();
+	}
 
-				buffer.resize(bytesRead);
-				offset += bytesRead;
+	@Kroll.method
+	public void write(final TiStream outputStream, final BufferProxy buffer, final KrollCallback resultsCallback)
+	{
+		new Thread(
+				new Runnable()
+				{
+					public void run()
+					{
+						int bytesWritten = -1;
+						String errorState = "";
+						String errorDescription = "";
+
+						try {
+							bytesWritten = outputStream.write(buffer);
+
+						} catch (IOException e) {
+							e.printStackTrace();
+							errorState = "error";
+							errorDescription = e.getMessage();
+						}
+
+						resultsCallback.callAsync(buildRWCallbackArgs(outputStream, bytesWritten, errorState, errorDescription));
+					}
+				}
+			) {}.start();
+	}
+
+	@Kroll.method
+	public void write(final TiStream outputStream, final BufferProxy buffer, final int offset, final int length, final KrollCallback resultsCallback)
+	{
+		new Thread(
+				new Runnable()
+				{
+					public void run()
+					{
+						int bytesWritten = -1;
+						String errorState = "";
+						String errorDescription = "";
+
+						try {
+							bytesWritten = outputStream.write(buffer, offset, length);
+
+						} catch (IOException e) {
+							e.printStackTrace();
+							errorState = "error";
+							errorDescription = e.getMessage();
+						}
+
+						resultsCallback.callAsync(buildRWCallbackArgs(outputStream, bytesWritten, errorState, errorDescription));
+					}
+				}
+			) {}.start();
+	}
+
+	@Kroll.method
+	public void writeStream(TiStream inputStream, TiStream outputStream, int maxChunkSize) throws IOException
+	{
+		BufferProxy buffer = new BufferProxy(getTiContext(), maxChunkSize);
+
+		while(true) {
+			int bytesWritten = inputStream.read(buffer, 0, maxChunkSize);
+			if(bytesWritten == -1) {
+				break;
 			}
 
-			callbackArgs.put("errorState", "OK");
-			callbackArgs.put("errorDescription", "");
-
-		} catch (IOException e) {
-			callbackArgs.put("errorState", "ERROR");
-			callbackArgs.put("errorDescription", "there was an error");
+			outputStream.write(buffer);
+			buffer.clear();
 		}
-
-		callbackArgs.put("bytesProcessed", buffer.getLength());
-		resultsCallback.callAsync(callbackArgs);
 	}
 
 	@Kroll.method
-	public void write(TiStream outputStream, BufferProxy buffer, KrollCallback resultsCallback)
+	public void writeStream(final TiStream inputStream, final TiStream outputStream, final int maxChunkSize, final KrollCallback resultsCallback)
 	{
-		// fire as async task
-		//outputStream.write(buffer);
-	}
+		new Thread(
+				new Runnable()
+				{
+					public void run()
+					{
+						BufferProxy buffer = new BufferProxy(getTiContext(), maxChunkSize);
+						int totalBytesWritten = 0;
+						String errorState = "";
+						String errorDescription = "";
 
-	@Kroll.method
-	public void write(TiStream outputStream, BufferProxy buffer, int offset, int length, KrollCallback resultsCallback)
-	{
-		// fire as async task
-		//outputStream.write(buffer, offset, length);
-	}
+						try {
+							while(true) {
+								int bytesWritten = inputStream.read(buffer, 0, maxChunkSize);
+								if(bytesWritten == -1) {
+									break;
+								}
 
-	@Kroll.method
-	public void writeStream(TiStream inputStream, TiStream outputStream, int maxChunkSize)
-	{
-		
-	}
+								outputStream.write(buffer);
+								totalBytesWritten += bytesWritten;
+								buffer.clear();
+							}
 
-	@Kroll.method
-	public void writeStream(TiStream inputStream, TiStream outputStream, int maxChunkSize, KrollCallback resultsCallback)
-	{
-		
+						} catch (IOException e) {
+							errorState = "error";
+							errorDescription = e.getMessage();
+						}
+
+						resultsCallback.callAsync(buildWriteStreamCallbackArgs(inputStream, outputStream, totalBytesWritten, errorState, errorDescription));
+					}
+				}
+			) {}.start();
 	}
 
 	@Kroll.method
 	public void pump(TiStream inputStream, KrollCallback handler, int maxChunkSize)
 	{
-		
+		BufferProxy buffer = new BufferProxy(getTiContext(), maxChunkSize);
+		int totalBytesWritten = 0;
+		String errorState = "";
+		String errorDescription = "";
+
+		try {
+			while(true) {
+				int bytesWritten = inputStream.read(buffer, 0, maxChunkSize);
+				if(bytesWritten == -1) {
+					break;
+				}
+
+				totalBytesWritten += bytesWritten;
+
+				handler.callAsync(buildPumpCallbackArgs(inputStream, buffer, bytesWritten, totalBytesWritten, errorState, errorDescription));
+				buffer.clear();
+			}
+
+		} catch (IOException e) {
+			errorState = "error";
+			errorDescription = e.getMessage();
+			handler.callAsync(buildPumpCallbackArgs(inputStream, buffer, 0, totalBytesWritten, errorState, errorDescription));
+		}
 	}
 
 	@Kroll.method
-	public void pump(TiStream inputStream, KrollCallback handler, int maxChunkSize, boolean isAsync)
+	public void pump(final TiStream inputStream, final KrollCallback handler, final int maxChunkSize, boolean isAsync)
 	{
-		
+		if(isAsync)
+		{
+			new Thread(
+					new Runnable()
+					{
+						public void run()
+						{
+							pump(inputStream, handler, maxChunkSize);
+						}
+					}
+				) {}.start();
+
+		} else {
+			pump(inputStream, handler, maxChunkSize);
+		}
+	}
+
+	private KrollDict buildRWCallbackArgs(TiStream sourceStream, int bytesProcessed, String errorState, String errorDescription)
+	{
+		KrollDict callbackArgs = new KrollDict();
+		callbackArgs.put("source", sourceStream);
+		callbackArgs.put("bytesProcessed", bytesProcessed);
+		callbackArgs.put("errorState", errorState);
+		callbackArgs.put("errorDescription", errorDescription);
+
+		return callbackArgs;
+	}
+
+	private KrollDict buildWriteStreamCallbackArgs(TiStream fromStream, TiStream toStream, int bytesProcessed, String errorState, String errorDescription)
+	{
+		KrollDict callbackArgs = new KrollDict();
+		callbackArgs.put("fromStream", fromStream);
+		callbackArgs.put("toStream", toStream);
+		callbackArgs.put("bytesProcessed", bytesProcessed);
+		callbackArgs.put("errorState", errorState);
+		callbackArgs.put("errorDescription", errorDescription);
+
+		return callbackArgs;
+	}
+
+	private KrollDict buildPumpCallbackArgs(TiStream sourceStream, BufferProxy buffer, int bytesProcessed, int totalBytesProcessed, String errorState, String errorDescription)
+	{
+		KrollDict callbackArgs = new KrollDict();
+		callbackArgs.put("source", sourceStream);
+		callbackArgs.put("buffer", buffer);
+		callbackArgs.put("bytesProcessed", bytesProcessed);
+		callbackArgs.put("totalBytesProcessed", totalBytesProcessed);
+		callbackArgs.put("errorState", errorState);
+		callbackArgs.put("errorDescription", errorDescription);
+
+		return callbackArgs;
 	}
 }
