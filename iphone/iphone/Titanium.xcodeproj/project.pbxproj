@@ -862,6 +862,9 @@
 		DABF3EDC134D2E4400836137 /* TiStreamProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = DABF3EDB134D2E4300836137 /* TiStreamProxy.m */; };
 		DABF3EDD134D2E4400836137 /* TiStreamProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = DABF3EDB134D2E4300836137 /* TiStreamProxy.m */; };
 		DABF3EDE134D2E4400836137 /* TiStreamProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = DABF3EDB134D2E4300836137 /* TiStreamProxy.m */; };
+		DAE541E313577BEC00A65123 /* TiDataStream.m in Sources */ = {isa = PBXBuildFile; fileRef = DAE541E213577BEC00A65123 /* TiDataStream.m */; };
+		DAE541E413577BEC00A65123 /* TiDataStream.m in Sources */ = {isa = PBXBuildFile; fileRef = DAE541E213577BEC00A65123 /* TiDataStream.m */; };
+		DAE541E513577BEC00A65123 /* TiDataStream.m in Sources */ = {isa = PBXBuildFile; fileRef = DAE541E213577BEC00A65123 /* TiDataStream.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -1457,6 +1460,8 @@
 		DABF3ED6134D2CA100836137 /* StreamModule.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = StreamModule.m; sourceTree = "<group>"; };
 		DABF3EDA134D2E4300836137 /* TiStreamProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiStreamProxy.h; sourceTree = "<group>"; };
 		DABF3EDB134D2E4300836137 /* TiStreamProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiStreamProxy.m; sourceTree = "<group>"; };
+		DAE541E113577BEC00A65123 /* TiDataStream.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiDataStream.h; sourceTree = "<group>"; };
+		DAE541E213577BEC00A65123 /* TiDataStream.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiDataStream.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -1966,6 +1971,8 @@
 				DABF3ECE134D210400836137 /* TiBuffer.m */,
 				DABF3EDA134D2E4300836137 /* TiStreamProxy.h */,
 				DABF3EDB134D2E4300836137 /* TiStreamProxy.m */,
+				DAE541E113577BEC00A65123 /* TiDataStream.h */,
+				DAE541E213577BEC00A65123 /* TiDataStream.m */,
 			);
 			name = API;
 			sourceTree = "<group>";
@@ -3295,6 +3302,7 @@
 				DABF3EDC134D2E4400836137 /* TiStreamProxy.m in Sources */,
 				DAA4B2B4134E75AC00AB6011 /* CodecModule.m in Sources */,
 				DA2556441353D2FC005D459C /* TiNetworkSocketProxy.m in Sources */,
+				DAE541E313577BEC00A65123 /* TiDataStream.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3561,6 +3569,7 @@
 				DABF3EDD134D2E4400836137 /* TiStreamProxy.m in Sources */,
 				DAA4B2B5134E75AC00AB6011 /* CodecModule.m in Sources */,
 				DA2556451353D2FC005D459C /* TiNetworkSocketProxy.m in Sources */,
+				DAE541E413577BEC00A65123 /* TiDataStream.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3827,6 +3836,7 @@
 				DABF3EDE134D2E4400836137 /* TiStreamProxy.m in Sources */,
 				DAA4B2B6134E75AC00AB6011 /* CodecModule.m in Sources */,
 				DA2556461353D2FC005D459C /* TiNetworkSocketProxy.m in Sources */,
+				DAE541E513577BEC00A65123 /* TiDataStream.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
