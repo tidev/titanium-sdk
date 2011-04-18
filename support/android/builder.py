@@ -1054,13 +1054,16 @@ class Builder(object):
 		resources_dir = os.path.join(self.top_dir, 'Resources')
 		project_gen_pkg_dir = os.path.join(self.project_gen_dir, self.app_id.replace('.', os.sep))
 		app_stylesheet = os.path.join(project_gen_pkg_dir, 'ApplicationStylesheet.java')
-		for root, dirs, files in os.walk(resources_dir):
-			for file in files:
-				if file.endswith(".jss"):
-					absolute_path = os.path.join(root, file)
-					if Deltafy.needs_update(absolute_path, app_stylesheet):
-						update_stylesheet = True
-						break
+		if not os.path.exists(app_stylesheet):
+			update_stylesheet = True
+		else:
+			for root, dirs, files in os.walk(resources_dir):
+				for file in files:
+					if file.endswith(".jss"):
+						absolute_path = os.path.join(root, file)
+						if Deltafy.needs_update(absolute_path, app_stylesheet):
+							update_stylesheet = True
+							break
 
 		if not update_stylesheet:
 			return
