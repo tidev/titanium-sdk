@@ -67,8 +67,10 @@ public class MediaModule extends KrollModule
 	@Kroll.constant public static final int NO_CAMERA = 2;
 	@Kroll.constant public static final int NO_VIDEO = 3;
 
-	@Kroll.constant public static final int VIDEO_SCALING_ASPECT_FILL = 0;
-	@Kroll.constant public static final int VIDEO_SCALING_MODE_FILL = 1;
+	@Kroll.constant public static final int VIDEO_SCALING_NONE = 0;
+	@Kroll.constant public static final int VIDEO_SCALING_ASPECT_FILL = 1;
+	@Kroll.constant public static final int VIDEO_SCALING_ASPECT_FIT = 2;
+	@Kroll.constant public static final int VIDEO_SCALING_MODE_FILL = 3;
 
 	@Kroll.constant public static final int VIDEO_CONTROL_DEFAULT = 0;
 	@Kroll.constant public static final int VIDEO_CONTROL_EMBEDDED = 1;

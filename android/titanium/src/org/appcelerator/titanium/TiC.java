@@ -128,6 +128,7 @@ public class TiC
 	public static final String PROPERTY_CONTENT_INTENT = "contentIntent";
 	public static final String PROPERTY_CONTENT_TEXT = "contentText";
 	public static final String PROPERTY_CONTENT_TITLE = "contentTitle";
+	public static final String PROPERTY_CONTENT_URL = "contentURL";
 	public static final String PROPERTY_CONTENT_VIEW = "contentView";
 	public static final String PROPERTY_COUNTRY = "country";
 	public static final String PROPERTY_COUNTRY_CODE = "countryCode";
@@ -194,8 +195,11 @@ public class TiC
 	public static final String PROPERTY_LONGITUDE_DELTA = "longitudeDelta";
 	public static final String PROPERTY_MAGNETIC_HEADING = "magneticHeading";
 	public static final String PROPERTY_MAP_TYPE = "mapType";
+	public static final String PROPERTY_MEDIA_CONTROL_STYLE = "mediaControlStyle";
 	public static final String PROPERTY_MENU = EVENT_PROPERTY_MENU;
 	public static final String PROPERTY_MESSAGE = "message";
+	public static final String PROPERTY_MESSENGER = "messenger";
+	public static final String PROPERTY_MESSENGER_RECEIVER = "messengerReceiver";
 	public static final String PROPERTY_MIN_ROW_HEIGHT = "minRowHeight";
 	public static final String PROPERTY_MINUTE_INTERVAL = "minuteInterval";
 	public static final String PROPERTY_MODAL = "modal";
@@ -213,6 +217,7 @@ public class TiC
 	public static final String PROPERTY_PIN_IMAGE = "pinImage";
 	public static final String PROPERTY_PINCOLOR = "pincolor";
 	public static final String PROPERTY_PLACES = "places";
+	public static final String PROPERTY_PLAY = "play";
 	public static final String PROPERTY_POSTAL_CODE = "postalCode";
 	public static final String PROPERTY_POWER = "power";
 	public static final String PROPERTY_PREFERRED_PROVIDER = "preferredProvider";
@@ -231,6 +236,7 @@ public class TiC
 	public static final String PROPERTY_ROW_DATA = "rowData";
 	public static final String PROPERTY_ROW_HEIGHT = "rowHeight";
 	public static final String PROPERTY_SCALE = "scale";
+	public static final String PROPERTY_SCALING_MODE = "scalingMode";
 	public static final String PROPERTY_SCALES_PAGE_TO_FIT = "scalesPageToFit";
 	public static final String PROPERTY_SCROLL_ENABLED = "scrollEnabled";
 	public static final String PROPERTY_SEARCH = "search";
