@@ -50,7 +50,7 @@ public class TCPProxy extends KrollProxy implements TiStream
 	public TCPProxy(TiContext context)
 	{
 		super(context);
-		state = SOCKET_INITIALIZED; // TODO is this the right place to init?
+		state = SOCKET_INITIALIZED;
 	}
 
 	@Kroll.method
@@ -68,15 +68,16 @@ public class TCPProxy extends KrollProxy implements TiStream
 	}
 
 	@Kroll.method
-	public void listen(int queueSize) throws Exception
+	public void listen() throws Exception
 	{
 		Object port = getProperty("port");
-		if(port != null) {
+		Object listenQueueSize = getProperty("listenQueueSize");
+		if((port != null) && (listenQueueSize != null)) {
 			initialized = true;
 
 			try {
-				serverSocket = new ServerSocket(TiConvert.toInt(port), queueSize);
-				new ListeningSocketThread(queueSize).start();
+				serverSocket = new ServerSocket(TiConvert.toInt(port), TiConvert.toInt(listenQueueSize));
+				new ListeningSocketThread().start();
 				state = SOCKET_LISTENING;
 
 			} catch (IOException e) {
@@ -145,6 +146,12 @@ public class TCPProxy extends KrollProxy implements TiStream
 	}
 
 	@Kroll.setProperty @Kroll.method
+	public void setListenQueueSize(int listenQueueSize)
+	{
+		setSocketProperty("listenQueueSize", listenQueueSize);
+	}
+
+	@Kroll.setProperty @Kroll.method
 	public void setConnected(KrollCallback connected)
 	{
 		setSocketProperty("connected", connected);
@@ -206,7 +213,7 @@ public class TCPProxy extends KrollProxy implements TiStream
 
 	private class ListeningSocketThread extends Thread
 	{
-		public ListeningSocketThread(int queueSize)
+		public ListeningSocketThread()
 		{
 			super("ListeningSocketThread");
 		}
