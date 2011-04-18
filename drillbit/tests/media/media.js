@@ -1,4 +1,13 @@
 describe("Ti.Media tests", {
+	constants: function() {
+		valueOf(Ti.Media).shouldNotBeNull();
+		
+		// Video Scaling
+		valueOf(Ti.Media.VIDEO_SCALING_NONE).shouldNotBeNull();
+		valueOf(Ti.Media.VIDEO_SCALING_ASPECT_FILL).shouldNotBeNull();
+		valueOf(Ti.Media.VIDEO_SCALING_ASPECT_FIT).shouldNotBeNull();
+		valueOf(Ti.Media.VIDEO_SCALING_MODE_FILL).shouldNotBeNull();
+	},
 	soundAPIs: function() {
 		valueOf(Ti.Media.createSound).shouldBeFunction();
 		
@@ -54,6 +63,7 @@ describe("Ti.Media tests", {
 		valueOf(player.hide).shouldBeFunction();
 		valueOf(player.setMediaControlStyle).shouldBeFunction();
 		valueOf(player.getMediaControlStyle).shouldBeFunction();
-		
+		valueOf(player.getScalingMode).shouldBeFunction();
+		valueOf(player.setScalingMode).shouldBeFunction();
 	}
 })
