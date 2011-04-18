@@ -65,3 +65,20 @@ var jsfile = Titanium.Filesystem.getFile(Titanium.Filesystem.resourcesDirectory,
 Ti.API.info("app.js exists? " + f.exists());
 Ti.API.info("app.js size? " + f.size);
 
+// test to make sure that #3385 is resolved - we can append files, blobs or strings to a file
+// this will go away once Streams are fully integrated into the Filesystem API.
+
+var testfile = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, 'text.txt');
+Ti.API.info('filesystem_test.txt exists? ' + testfile.exists());
+Ti.API.info('filesystem_test.txt size: ' + testfile.size + ' bytes');
+
+if(!testfile.append("\nappended text.\n")) {
+	Ti.API.info("could not append string to file.");
+}
+
+if(!testfile.write(Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, 'text_two.txt'), true)) {
+	Ti.API.info("could not append string to file via write method.");
+}
+
+Ti.API.info("\n------------\n");
+Ti.API.info("Test file contents:\n" + (testfile.read()).text);
