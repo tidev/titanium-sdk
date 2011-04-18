@@ -100,4 +100,14 @@ public class FilesystemModule extends KrollModule
 	public String getLineEnding() {
 		return System.getProperty("line.separator");
 	}
+
+	@Kroll.method
+	public FileStream openStream(int mode, Object[] parts) throws IOException
+	{
+		String[] sparts = TiConvert.toStringArray(parts);
+		FileProxy fileProxy = new FileProxy(getTiContext(), sparts);
+		fileProxy.tbf.open(mode, true);
+
+		return new FileStream(fileProxy);
+	}
 }
