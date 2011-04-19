@@ -520,6 +520,8 @@ class Builder(object):
 					warn('Unable to delete %s: %s. Execution will continue.' % (res_file, sys.exc_info()[0]))
 
 		def copy_resource_drawable(orig):
+			if '.svn' in orig:
+				return
 			partial_folder = resource_drawable_folder(orig)
 			if not partial_folder:
 				trace("Could not copy %s; resource folder not determined" % orig)
