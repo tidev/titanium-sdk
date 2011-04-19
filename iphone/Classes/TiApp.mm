@@ -120,7 +120,7 @@ void MyUncaughtExceptionHandler(NSException *exception)
 	}
 }
 
--(NSDictionary*)launchOptions
+-(NSMutableDictionary*)launchOptions
 {
 	return launchOptions;
 }
