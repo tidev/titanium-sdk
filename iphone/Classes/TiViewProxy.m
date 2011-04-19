@@ -1417,7 +1417,13 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
 		CGRect oldFrame = [[self view] frame];
 		if(![self suppressesRelayout])
 		{
-			sandboxBounds = [[[self view] superview] bounds];
+			UIView * ourSuperview = [[self view] superview];
+			sandboxBounds = [ourSuperview bounds];
+			if(ourSuperview == nil)
+			{
+				NSLog(@"[WARN] Nil view frame was requested for %@%@",self,CODELOCATION);
+				sandboxBounds = CGRectZero;
+			}
 			[self relayout];
 		}
 		[self layoutChildren:NO];

@@ -1057,6 +1057,12 @@ if ([str isEqualToString:@#orientation]) return orientation;
 	return [view frame];
 #endif
 
+	if(view == nil)
+	{
+		NSLog(@"[WARN] Nil view frame was requested%@",CODELOCATION);
+		return CGRectZero;
+	}
+	
 	CGPoint anchorPoint = [[view layer] anchorPoint];
 	CGRect bounds = [view bounds];
 	CGPoint center = [view center];
