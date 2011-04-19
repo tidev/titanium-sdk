@@ -147,6 +147,24 @@ public class PlatformModule extends KrollModule
 		}
 		return false;
 	}
+	
+    @Kroll.method
+	public boolean openURLWithType(String url, String type) {
+		if (DBG) {
+			Log.d(LCAT, "Launching viewer for: " + url);
+		}
+		Uri uri = Uri.parse(url);
+		Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+		intent.setDataAndType(uri, type);
+		intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+		try {
+			getTiContext().getActivity().startActivity(intent);
+			return true;
+		} catch (ActivityNotFoundException e) {
+			Log.e(LCAT,"Activity not found: " + url, e);
+		}
+		return false;
+	}
 
 	@Kroll.getProperty @Kroll.method
 	public String getMacaddress() {
