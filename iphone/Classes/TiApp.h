@@ -72,6 +72,8 @@
 -(void)startNetwork;
 -(void)stopNetwork;
 
+-(void)clearRemoteNotification;
+
 -(void)showModalError:(NSString*)message;
 
 -(void)showModalController:(UIViewController*)controller animated:(BOOL)animated;
