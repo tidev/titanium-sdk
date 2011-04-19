@@ -1418,11 +1418,14 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
 		if(![self suppressesRelayout])
 		{
 			UIView * ourSuperview = [[self view] superview];
-			sandboxBounds = [ourSuperview bounds];
 			if(ourSuperview == nil)
 			{
-				NSLog(@"[WARN] Nil view frame was requested for %@%@",self,CODELOCATION);
+				//TODO: Should we even be relaying out? I guess so.
 				sandboxBounds = CGRectZero;
+			}
+			else
+			{
+				sandboxBounds = [ourSuperview bounds];
 			}
 			[self relayout];
 		}

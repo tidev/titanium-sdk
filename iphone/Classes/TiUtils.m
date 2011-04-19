@@ -1059,7 +1059,6 @@ if ([str isEqualToString:@#orientation]) return orientation;
 
 	if(view == nil)
 	{
-		NSLog(@"[WARN] Nil view frame was requested%@",CODELOCATION);
 		return CGRectZero;
 	}
 	

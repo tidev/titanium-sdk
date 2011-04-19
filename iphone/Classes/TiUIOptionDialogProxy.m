@@ -146,12 +146,15 @@
 		CGRect rect;
 		if (CGRectIsEmpty(dialogRect))
 		{
-			rect = [view bounds];
 			if(view == nil)
 			{
-				NSLog(@"[WARN] Nil view frame was requested at %@",CODELOCATION);
 				rect = CGRectZero;
 			}
+			else
+			{
+				rect = [view bounds];
+			}
+
 		}
 		else
 		{
