@@ -1,9 +1,14 @@
 describe("Ti.Database tests", {
-	testModuleMethods: function() {
+	testModuleMethodsAndConstants: function() {
 		valueOf(Ti.Database).shouldNotBeNull();
 		valueOf(Ti.Database).shouldBeObject();
 		valueOf(Ti.Database.open).shouldBeFunction();
 		valueOf(Ti.Database.install).shouldBeFunction();
+		
+		valueOf(Ti.Database.FIELD_TYPE_STRING).shouldNotBeNull();
+		valueOf(Ti.Database.FIELD_TYPE_INT).shouldNotBeNull();
+		valueOf(Ti.Database.FIELD_TYPE_FLOAT).shouldNotBeNull();
+		valueOf(Ti.Database.FIELD_TYPE_DOUBLE).shouldNotBeNull();
 	},
 	testDatabaseMethods : function() {
 		var db = Ti.Database.open("Test");
@@ -249,7 +254,8 @@ describe("Ti.Database tests", {
 		rowCount = 10,
 		resultSet = null,
 		i, counter, current_float, float_factor = 0.5555;
-		
+
+		var isAndroid = (Ti.Platform.osname === 'android');		
 		valueOf(db).shouldBeObject();
 
 		try {
@@ -276,54 +282,53 @@ describe("Ti.Database tests", {
 				
 				current_float = counter * float_factor;
 				
-				valueOf(resultSet.getInt('id')).shouldBe(resultSet.getInt(0));
-				valueOf(resultSet.getInt('id')).shouldBe(counter);
+				valueOf(resultSet.fieldByName('id', Ti.Database.FIELD_TYPE_INT)).shouldBe(resultSet.field(0, Ti.Database.FIELD_TYPE_INT));
+				valueOf(resultSet.fieldByName('id', Ti.Database.FIELD_TYPE_INT)).shouldBe(counter);
 				
-			  valueOf(resultSet.getFloat('id')).shouldBe(counter);
-				valueOf(resultSet.getDouble('id')).shouldBe(counter);
+			  	valueOf(resultSet.fieldByName('id', Ti.Database.FIELD_TYPE_INT)).shouldBe(counter);
+				valueOf(resultSet.fieldByName('id', Ti.Database.FIELD_TYPE_INT)).shouldBe(counter);
 
-				valueOf(resultSet.getInt('f')).shouldBe(resultSet.getInt(1));
-				valueOf(resultSet.getInt('f')).shouldBe(parseInt(counter * float_factor));
+				valueOf(resultSet.fieldByName('f', Ti.Database.FIELD_TYPE_INT)).shouldBe(resultSet.field(1, Ti.Database.FIELD_TYPE_INT));
+				valueOf(resultSet.fieldByName('f', Ti.Database.FIELD_TYPE_INT)).shouldBe(parseInt(counter * float_factor));
 				
-				//Until we can figure out how to deal with getFloat's precision issues, this test will fail:
- 	  		valueOf(resultSet.getFloat('f')).shouldBe(current_float);
-
-				//This works however :)
-				valueOf(resultSet.getDouble('f')).shouldBe(current_float);
+				var f_val = resultSet.fieldByName('f', Ti.Database.FIELD_TYPE_FLOAT);
+ 	  			valueOf(Math.floor(Math.round(f_val * 10000))/10000).shouldBe(current_float);
+				valueOf(resultSet.fieldByName('f', Ti.Database.FIELD_TYPE_DOUBLE)).shouldBe(current_float);
 				
-				valueOf(resultSet.getString('val')).shouldBe('our value' + counter);
-				valueOf(resultSet.getString('id')).shouldBe(counter.toString());
-				valueOf(resultSet.getString('f')).shouldBe(current_float.toString());
+				valueOf(resultSet.fieldByName('val', Ti.Database.FIELD_TYPE_STRING)).shouldBe('our value' + counter);
+				valueOf(resultSet.fieldByName('id', Ti.Database.FIELD_TYPE_STRING)).shouldBe(counter.toString());
+				valueOf(resultSet.fieldByName('f', Ti.Database.FIELD_TYPE_STRING)).shouldBe(current_float.toString());
 				
 				
 				// WARNING: On iOS, the following functions throw an uncaught exception - 
-				// Commenting out until uncaught exceptions are correctly handled.
-/*			
-				valueOf(function() {
-					resultSet.getInt('val');
-				}).shouldThrowException();
 				
-				valueOf(function() {
-					resultSet.getDouble('val');
-				}).shouldThrowException();
+				if (isAndroid) {
+					valueOf(function() {
+						resultSet.fieldByName('val', Ti.Database.FIELD_TYPE_INT);
+					}).shouldThrowException();
 				
-				valueOf(function() {
-					resultSet.getFloat('val');
-				}).shouldThrowException();
+					valueOf(function() {
+						resultSet.fieldByName('val', Ti.Database.FIELD_TYPE_DOUBLE);
+					}).shouldThrowException();
 				
-				valueOf(function() {
-					resultSet.getDouble(2);
-				}).shouldThrowException();
+					valueOf(function() {
+						resultSet.fieldByName('val', Ti.Database.FIELD_TYPE_FLOAT);
+					}).shouldThrowException();
 				
-				valueOf(function() {
-					resultSet.getFloat(2);
-				}).shouldThrowException();
+					valueOf(function() {
+						resultSet.field(2, Ti.Database.FIELD_TYPE_DOUBLE);
+					}).shouldThrowException();
 				
-				valueOf(function() {
-					resultSet.getInt(2);
-				}).shouldThrowException();
-*/
-
+					valueOf(function() {
+						resultSet.field(2, Ti.Database.FIELD_TYPE_FLOAT);
+					}).shouldThrowException();
+				
+					valueOf(function() {
+						resultSet.field(2, Ti.Database.FIELD_TYPE_INT);
+					}).shouldThrowException();
+				} else {
+					fail("iOS does not yet handle exceptions in DB.");
+				}
 
 			  ++counter;
 
@@ -340,40 +345,45 @@ describe("Ti.Database tests", {
 			}
 		}
 	},
-	// testDatabaseExceptions : function() {
-	// 	valueOf( function() { Ti.Database.open("fred://\\"); }).shouldThrowException();
-	// 	var db = null;
-	// 	try {
-	// 		db = Titanium.Database.open('Test');
-	// 		
-	// 		valueOf( function() { 
-	// 			Ti.Database.execute("select * from notATable"); 
-	// 		}).shouldThrowException();
-	// 		
-	// 		db.execute('CREATE TABLE IF NOT EXISTS stuff (id INTEGER, val TEXT)');
-	// 		db.execute('INSERT INTO stuff (id, val) values (1, "One")');
-	// 		var rs = db.execute("SELECT id FROM stuff WHERE id = 1");
-	// 			
-	// 		valueOf( function() {
-	// 			rs.field(2);
-	// 		}).shouldThrowException();
-	// 
-	// 		valueOf( function() {
-	// 			rs.field(2);
-	// 		}).shouldThrowException();
-	// 		
-	// 		valueOf( function() {
-	// 			rs.fieldName(2);
-	// 		}).shouldThrowException();
-	// 		
-	// 		if (rs != null) {
-	// 			rs.close();
-	// 		}
-	// 	} finally {
-	// 		if (db != null) {
-	// 			db.close();
-	// 			db.remove();
-	// 		}
-	// 	}
-	// }
+	testDatabaseExceptions : function() {
+		var isAndroid = (Ti.Platform.osname === 'android');
+		if (isAndroid) {
+			valueOf( function() { Ti.Database.open("fred://\\"); }).shouldThrowException();
+			var db = null;
+			try {
+				db = Titanium.Database.open('Test');
+			
+				valueOf( function() { 
+					Ti.Database.execute("select * from notATable"); 
+				}).shouldThrowException();
+			
+				db.execute('CREATE TABLE IF NOT EXISTS stuff (id INTEGER, val TEXT)');
+				db.execute('INSERT INTO stuff (id, val) values (1, "One")');
+				var rs = db.execute("SELECT id FROM stuff WHERE id = 1");
+				
+				valueOf( function() {
+					rs.field(2);
+				}).shouldThrowException();
+	
+				valueOf( function() {
+					rs.field(2);
+				}).shouldThrowException();
+			
+				valueOf( function() {
+					rs.fieldName(2);
+				}).shouldThrowException();
+			
+				if (rs != null) {
+					rs.close();
+				}
+			} finally {
+				if (db != null) {
+					db.close();
+				db.remove();
+				}
+			}
+		} else {
+			 fail("iOS does not yet handle exceptions in DB.");
+		}
+	}
 });
