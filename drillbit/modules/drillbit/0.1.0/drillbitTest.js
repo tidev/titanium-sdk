@@ -119,6 +119,11 @@ function valueOf(obj)
 	return subject;
 }
 
+function fail(message, lineNumber)
+{
+	throw new DrillbitTest.Error(message, lineNumber);
+}
+
 DrillbitTest.Error = function(message,line)
 {
 	this.message = message;
