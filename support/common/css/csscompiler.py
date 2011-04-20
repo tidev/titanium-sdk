@@ -59,6 +59,12 @@ CSS_MAPPINGS = {
 	u'background-color':u'backgroundColor'
 }
 
+def update_dict_of_dict(orig, to_add):
+	for key in to_add:
+		if key in orig:
+			orig[key].update(to_add[key])
+		else:
+			orig[key] = to_add[key].copy()
 
 class CSSCompiler(object):
 	
@@ -143,13 +149,13 @@ class CSSCompiler(object):
 			self.code = self.generate_ios_code(self.classes,self.classes_density,self.ids,self.ids_density,self.tags,self.tags_density)
 		elif self.platform == 'android':
 			#merge classes and tags for backward compatibility with current Android implementation
-			self.classes.update(self.tags)
-			self.classes_density.update(self.tags_density)
+			update_dict_of_dict(self.classes, self.tags)
+			update_dict_of_dict(self.classes_density, self.tags_density)
 			self.code = self.generate_android_code(self.classes,self.classes_density,self.ids,self.ids_density)
 		elif self.platform == 'blackberry':
 			#merge classes and tags for backward compatibility with current BB implementation
-			self.classes.update(self.tags)
-			self.classes_density.update(self.tags_density)
+			update_dict_of_dict(self.classes, self.tags)
+			update_dict_of_dict(self.classes_density, self.tags_density)
 			self.code = self.generate_bb_code(self.classes,self.classes_density,self.ids,self.ids_density)
 		
 	def transform_fonts(self,dict):
