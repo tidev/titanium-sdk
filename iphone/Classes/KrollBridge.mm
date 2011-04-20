@@ -819,6 +819,34 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 	return results;
 }
 
++ (BOOL)krollBridgeExists:(KrollBridge *)bridge
+{
+	if(bridge == nil)
+	{
+		return NO;
+	}
+
+	bool result=NO;
+	OSSpinLockLock(&krollBridgeRegistryLock);
+	int bridgeCount = CFSetGetCount(krollBridgeRegistry);
+	KrollBridge * registryObjects[bridgeCount];
+	CFSetGetValues(krollBridgeRegistry, (const void **)registryObjects);
+	for (int currentBridgeIndex = 0; currentBridgeIndex < bridgeCount; currentBridgeIndex++)
+	{
+		KrollBridge * currentBridge = registryObjects[currentBridgeIndex];
+		if (currentBridge == bridge)
+		{
+			result = YES;
+			break;
+		}
+	}
+	//Why not CFSetContainsValue? Because bridge may not be a valid pointer, and SetContainsValue
+	//will ask it for a hash!
+	OSSpinLockUnlock(&krollBridgeRegistryLock);
+
+	return result;
+}
+
 -(int)forceGarbageCollectNow;
 {
 	[context gc];
