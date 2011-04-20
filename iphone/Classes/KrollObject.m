@@ -294,11 +294,11 @@ TiValueRef ConvertIdTiValue(KrollContext *context, id obj)
 	}
 	else if ([obj isKindOfClass:[KrollMethod class]])
 	{
-//		KrollContext * ourContext = [(KrollMethod *)obj context];
-//		if (context == ourContext)
-//		{
-//			return [(KrollMethod *)obj jsobject];
-//		}
+		KrollContext * ourContext = [(KrollMethod *)obj context];
+		if (context == ourContext)
+		{
+			return [(KrollMethod *)obj jsobject];
+		}
 		return TiObjectMake(jsContext,KrollMethodClassRef,obj);
 	}
 	else if ([obj isKindOfClass:[KrollObject class]])
@@ -383,11 +383,11 @@ void KrollFinalizer(TiObjectRef ref)
 	NSLog(@"KROLL FINALIZER: %@, retain:%d",o,[o retainCount]);
 #endif
 
+	[(KrollObject *)o setFinalized:YES];
 	if ([o isMemberOfClass:[KrollObject class]])
 	{
-		KrollContext * ourContext = [(KrollObject *)o context];
-		KrollBridge * ourBridge = (KrollBridge *)[ourContext delegate];
-		if (ourBridge != nil)
+		KrollBridge * ourBridge = [(KrollObject *)o bridge];
+		if ([KrollBridge krollBridgeExists:ourBridge])
 		{
 			TiProxy * ourTarget = [o target];
 #if LOG_FINALIZE
@@ -397,7 +397,6 @@ void KrollFinalizer(TiObjectRef ref)
 			{
 				[ourBridge unregisterProxy:ourTarget];
 			}
-			[(KrollObject *)o setFinalized:YES];
 		}
 	}
 
@@ -527,7 +526,7 @@ bool KrollSetProperty(TiContextRef jsContext, TiObjectRef object, TiStringRef pr
 
 @implementation KrollObject
 
-@synthesize propsObject, finalized;
+@synthesize propsObject, finalized, bridge;
 
 +(void)initialize
 {
@@ -542,6 +541,11 @@ bool KrollSetProperty(TiContextRef jsContext, TiObjectRef object, TiStringRef pr
 		classDef.deleteProperty = KrollDeleteProperty;
 		KrollObjectClassRef = TiClassCreate(&classDef);
 	}
+}
+
++(TiClassRef)jsClassRef
+{
+	return KrollObjectClassRef;
 }
 
 -(id)initWithTarget:(id)target_ context:(KrollContext*)context_
@@ -564,7 +568,8 @@ bool KrollSetProperty(TiContextRef jsContext, TiObjectRef object, TiStringRef pr
 #endif
 		target = [target_ retain];
 		context = context_; // don't retain
-		jsobject = TiObjectMake([context context],KrollObjectClassRef,self);
+		bridge = [context_ delegate];
+		jsobject = TiObjectMake([context context],[[self class] jsClassRef],self);
 		targetable = [target conformsToProtocol:@protocol(KrollTargetable)];
 	}
 	return self;

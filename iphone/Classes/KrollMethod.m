@@ -78,6 +78,11 @@ TiValueRef KrollCallAsFunction(TiContextRef jsContext, TiObjectRef func, TiObjec
 	return self;
 }
 
++(TiClassRef)jsClassRef
+{
+	return KrollMethodClassRef;
+}
+
 #ifdef DEBUG
 -(id)description
 {

@@ -28,6 +28,8 @@ bool KrollDeleteProperty(TiContextRef ctx, TiObjectRef object, TiStringRef prope
 // KrollObject is a generic native wrapper around a native object exposed as a JS object 
 // in JS land. 
 //
+
+@class KrollBridge;
 @interface KrollObject : NSObject {
 @private
 	NSMutableDictionary *properties;
@@ -40,8 +42,10 @@ bool KrollDeleteProperty(TiContextRef ctx, TiObjectRef object, TiStringRef prope
 @protected
 	id target;
 	KrollContext *context;
+	KrollBridge *bridge;	//Used only in finalizing for sake of safe lookup.
 }
 @property(nonatomic,assign) BOOL finalized;
+@property(nonatomic,readonly) KrollBridge *bridge;
 
 -(id)initWithTarget:(id)target_ context:(KrollContext*)context_;
 
