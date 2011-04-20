@@ -116,9 +116,11 @@ public class TiC
 	public static final String PROPERTY_BORDER_WIDTH = "borderWidth";
 	public static final String PROPERTY_BOTTOM = "bottom";
 	public static final String PROPERTY_BUTTON_NAMES = "buttonNames";
+	public static final String PROPERTY_BYTE_ORDER = "byteOrder";
 	public static final String PROPERTY_CAN_SCALE = "canScale";
 	public static final String PROPERTY_CANCEL = "cancel";
 	public static final String PROPERTY_CENTER = "center";
+	public static final String PROPERTY_CHARSET = "charset";
 	public static final String PROPERTY_CITY = "city";
 	public static final String PROPERTY_CLASS_NAME = "className";
 	public static final String PROPERTY_CLASS_NAMES = "classNames";
@@ -137,6 +139,8 @@ public class TiC
 	public static final String PROPERTY_DEFAULTS = "defaults";
 	public static final String PROPERTY_DELAY = "delay";
 	public static final String PROPERTY_DELETE_INTENT = "deleteIntent";
+	public static final String PROPERTY_DEST = "dest";
+	public static final String PROPERTY_DEST_POSITION = "destPosition";
 	public static final String PROPERTY_DIRECTION = "direction";
 	public static final String PROPERTY_DISPLAY_ADDRESS = "displayAddress";
 	public static final String PROPERTY_DURATION = "duration";
@@ -189,6 +193,7 @@ public class TiC
 	public static final String PROPERTY_LEFT = "left";
 	public static final String PROPERTY_LEFT_BUTTON = "leftButton";
 	public static final String PROPERTY_LEFT_IMAGE = "leftImage";
+	public static final String PROPERTY_LENGTH = "length";
 	public static final String PROPERTY_LEVEL = "level";
 	public static final String PROPERTY_LOCATION = "location";
 	public static final String PROPERTY_LONGITUDE = "longitude";
@@ -218,6 +223,7 @@ public class TiC
 	public static final String PROPERTY_PINCOLOR = "pincolor";
 	public static final String PROPERTY_PLACES = "places";
 	public static final String PROPERTY_PLAY = "play";
+	public static final String PROPERTY_POSITION = "position";
 	public static final String PROPERTY_POSTAL_CODE = "postalCode";
 	public static final String PROPERTY_POWER = "power";
 	public static final String PROPERTY_PREFERRED_PROVIDER = "preferredProvider";
@@ -250,6 +256,9 @@ public class TiC
 	public static final String PROPERTY_SOFT_KEYBOARD_ON_FOCUS = "softKeyboardOnFocus";
 	public static final String PROPERTY_SOUND = "sound";
 	public static final String PROPERTY_SPEED = "speed";
+	public static final String PROPERTY_SRC = "src";
+	public static final String PROPERTY_SRC_LENGTH = "srcLength";
+	public static final String PROPERTY_SRC_POSITION = "srcPosition";
 	public static final String PROPERTY_STATE = "state";
 	public static final String PROPERTY_STATUS = "status";
 	public static final String PROPERTY_STREET = "street";
