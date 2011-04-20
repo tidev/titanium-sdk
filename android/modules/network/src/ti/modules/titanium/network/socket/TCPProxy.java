@@ -71,12 +71,18 @@ public class TCPProxy extends KrollProxy implements TiStream
 	public void listen() throws Exception
 	{
 		Object port = getProperty("port");
-		Object listenQueueSize = getProperty("listenQueueSize");
-		if((port != null) && (listenQueueSize != null)) {
+		if(port != null) {
 			initialized = true;
 
 			try {
-				serverSocket = new ServerSocket(TiConvert.toInt(port), TiConvert.toInt(listenQueueSize));
+				Object listenQueueSize = getProperty("listenQueueSize");
+				if(listenQueueSize != null) {
+					serverSocket = new ServerSocket(TiConvert.toInt(port), TiConvert.toInt(listenQueueSize));
+
+				} else {
+					serverSocket = new ServerSocket(TiConvert.toInt(port));
+				}
+
 				new ListeningSocketThread().start();
 				state = SOCKET_LISTENING;
 
