@@ -950,7 +950,6 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 	context = TiGlobalContextCreate(NULL);
 	TiObjectRef globalRef = TiContextGetGlobalObject(context);
 		
-	TiGlobalContextRetain(context);
 
 #ifdef DEBUGGER_ENABLED
 	debugger = new Ti::TiDebuggerContext(self);
@@ -1202,7 +1201,7 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 	if (delegate!=nil && [delegate respondsToSelector:@selector(willStopNewContext:)])
 	{
 		[delegate performSelector:@selector(willStopNewContext:) withObject:self];
-	}	
+	}
 	
 	[timerLock lock];
 	// stop any running timers
@@ -1229,9 +1228,14 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 	NSLog(@"SHUTDOWN: %@",self);
 	NSLog(@"KROLL RETAIN COUNT: %d",[kroll retainCount]);
 #endif
-	 
 	[self destroy];
 
+	TiObjectSetPrivate(krollObj, NULL);	//Because we're unhooking the krollObj, we need to manually autorelease kroll later.
+	prop = TiStringCreateWithUTF8CString("Kroll");
+	TiObjectDeleteProperty(context, globalRef, prop, NULL);	//TODO: This still needed?
+	TiStringRelease(prop);
+	
+	[self forceGarbageCollectNow];
 	// cause the global context to be released and all objects internally to be finalized
 	TiGlobalContextRelease(context);
 	
