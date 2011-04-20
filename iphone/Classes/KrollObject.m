@@ -689,43 +689,77 @@ bool KrollSetProperty(TiContextRef jsContext, TiObjectRef object, TiStringRef pr
 		// setter can also have a special 2nd parameter, let's check that
 		// right now we only support 2 but easy to add more
 		// form is foo.setFoo('bar','foo')
-		selector = NSSelectorFromString([NSString stringWithFormat:@"%@:withObject:",key]);
+		
+		NSString * propertyKey = [self _propertyGetterSetterKey:key];
+		KrollMethod * result = [[KrollMethod alloc] initWithTarget:target context:[self context]];
+		[result setArgcount:1];
+		[result setPropertyKey:propertyKey];
+		[result setType:KrollMethodSetter];
+		[result setUpdatesProperty:[(TiProxy *)target retainsJsObjectForKey:propertyKey]];
+
+		selector = NSSelectorFromString([key stringByAppendingString:@":withObject:"]);
 		if ([target respondsToSelector:selector])
 		{
-			return [[[KrollMethod alloc] initWithTarget:target selector:selector argcount:2 type:KrollMethodSetter name:nil context:[self context]] autorelease];
+			[result setArgcount:2];
+			[result setSelector:selector];
 		}
-		selector = NSSelectorFromString([NSString stringWithFormat:@"%@:",key]);
-		if ([target respondsToSelector:selector])
+		else
 		{
-			return [[[KrollMethod alloc] initWithTarget:target selector:selector argcount:1 type:KrollMethodSetter name:nil context:[self context]] autorelease];
+			selector = NSSelectorFromString([key stringByAppendingString:@":"]);
+			if ([target respondsToSelector:selector])
+			{
+				[result setSelector:selector];
+			}
+			else
+			{
+				[result setType:KrollMethodPropertySetter];
+				[result setName:propertyKey];
+			}
+
 		}
-		// we simply return a method delegator against the target to set the property directly on the target
-		return [[[KrollMethod alloc] initWithTarget:target selector:selector argcount:1 type:KrollMethodPropertySetter name:[self _propertyGetterSetterKey:key] context:[self context]] autorelease];
+		
+		return [result autorelease];	// we simply return a method delegator against the target to set the property directly on the target
 	}
 	else if ([key hasPrefix:@"get"])
 	{
+		KrollMethod * result = [[KrollMethod alloc] initWithTarget:target context:[self context]];
+		NSString * propertyKey = [self _propertyGetterSetterKey:key];
+		[result setPropertyKey:propertyKey];
+		[result setArgcount:1];
+		[result setUpdatesProperty:[(TiProxy *)target retainsJsObjectForKey:propertyKey]];
+		
+
 		//first make sure we don't have a method with the fullname
 		SEL fullSelector = NSSelectorFromString([NSString stringWithFormat:@"%@:",key]);
 		if ([target respondsToSelector:fullSelector])
 		{
-			return [[[KrollMethod alloc] initWithTarget:target selector:fullSelector argcount:1 type:KrollMethodInvoke name:nil context:[self context]] autorelease];
+			[result setSelector:fullSelector];
+			[result setType:KrollMethodInvoke];
+			return [result autorelease];
 		}		
+
 		// this is a request for a getter method
 		// a.getFoo()
 		NSString *partkey = [self propercase:key index:3];
 		SEL selector = NSSelectorFromString(partkey);
 		if ([target respondsToSelector:selector])
 		{
-			return [[[KrollMethod alloc] initWithTarget:target selector:selector argcount:1 type:KrollMethodGetter name:nil context:[self context]] autorelease];
+			[result setSelector:selector];
+			[result setType:KrollMethodGetter];
+			return [result autorelease];
 		}
 		// see if its an actual method that takes an arg instead
 		selector = NSSelectorFromString([NSString stringWithFormat:@"%@:",partkey]);
 		if ([target respondsToSelector:selector])
 		{
-			return [[[KrollMethod alloc] initWithTarget:target selector:selector argcount:1 type:KrollMethodGetter name:nil context:[self context]] autorelease];
+			[result setSelector:selector];
+			[result setType:KrollMethodGetter];
+			return [result autorelease];
 		}
-		// we simply return a method delegator against the target to set the property directly on the target
-		return [[[KrollMethod alloc] initWithTarget:target selector:selector argcount:0 type:KrollMethodPropertyGetter name:[self _propertyGetterSetterKey:key] context:[self context]] autorelease];
+		[result setName:propertyKey];
+		[result setArgcount:0];
+		[result setType:KrollMethodPropertyGetter];
+		return [result autorelease];
 	}
 	else 
 	{

@@ -533,6 +533,11 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 	return [ourBridge krollObjectForProxy:self];
 }
 
+-(BOOL)retainsJsObjectForKey:(NSString *)key
+{
+	return YES;
+}
+
 -(void)rememberProxy:(TiProxy *)rememberedProxy
 {
 	for (KrollBridge * thisBridge in [KrollBridge krollBridgesUsingProxy:self])

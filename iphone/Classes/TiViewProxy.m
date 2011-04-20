@@ -911,6 +911,11 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
 	[super dealloc];
 }
 
+-(BOOL)retainsJsObjectForKey:(NSString *)key
+{
+	return ![key isEqualToString:@"animation"];
+}
+
 -(void)firePropertyChanges
 {
 	[self willFirePropertyChanges];

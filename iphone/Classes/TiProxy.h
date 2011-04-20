@@ -114,6 +114,8 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 #pragma mark Utility
 -(KrollObject *)krollObjectForContext:(KrollContext *)context;
 
+-(BOOL)retainsJsObjectForKey:(NSString *)key;
+
 //TODO: Find everywhere were we retain a proxy in a non-assignment way, and do remember/forget properly.
 -(void)rememberProxy:(TiProxy *)rememberedProxy;
 -(void)forgetProxy:(TiProxy *)forgottenProxy;
