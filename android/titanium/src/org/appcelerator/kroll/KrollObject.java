@@ -85,8 +85,7 @@ public class KrollObject extends ScriptableObject implements Function
 	@Override
 	public Object get(int index, Scriptable start)
 	{
-		// TODO: implement special array index getters in binding
-		return super.get(index, start);
+		return proxy.get(start, index);
 	}
 
 	@Override
@@ -115,15 +114,13 @@ public class KrollObject extends ScriptableObject implements Function
 	@Override
 	public void put(int index, Scriptable start, Object value)
 	{
-		// TODO: implement special array index setters in binding
-		super.put(index, start, value);
+		proxy.set(start, index, value);
 	}
 
 	@Override
 	public boolean has(int index, Scriptable start)
 	{
-		// TODO: implement special array "has" in binding
-		return super.has(index, start);
+		return proxy.has(start, index);
 	}
 
 	@Override
