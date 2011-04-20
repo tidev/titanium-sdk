@@ -72,36 +72,34 @@ public class CodecModule extends KrollModule
 
 	public static int encodeNumber(Number data, String type, byte dest[], int position, int byteOrder)
 	{
+		long l = data.longValue();
 		if (type.equals(TYPE_BYTE)) {
-			dest[position] = data.byteValue();
+			dest[position] = (byte)(l & 0xFF);
 			return position+1;
 		} else if (type.equals(TYPE_SHORT)) {
-			short s = data.shortValue();
 			int bits = byteOrder == BIG_ENDIAN ? 8 : 0;
 			int step = byteOrder == BIG_ENDIAN ? -8 : 8;
-			for (int i = position; i < 2; i++, bits += step) {
-				dest[i] = (byte)((s >>> bits) & 0xFF);
+			for (int i = position; i < position+2; i++, bits += step) {
+				dest[i] = (byte)((l >>> bits) & 0xFF);
 			}
 			return position+2;
 		} else if (type.equals(TYPE_INT) || type.equals(TYPE_FLOAT)) {
-			int i = data.intValue();
 			if (type.equals(TYPE_FLOAT)) {
-				i = Float.floatToIntBits(data.floatValue());
+				l = Float.floatToIntBits(data.floatValue());
 			}
 			int bits = byteOrder == BIG_ENDIAN ? 24 : 0;
 			int step = byteOrder == BIG_ENDIAN ? -8 : 8;
-			for (int j = position; j < 4; j++, bits += step) {
-				dest[j] = (byte)((i >>> bits) & 0xFF);
+			for (int j = position; j < position+4; j++, bits += step) {
+				dest[j] = (byte)((l >>> bits) & 0xFF);
 			}
 			return position+4;
 		} else if (type.equals(TYPE_LONG) || type.equals(TYPE_DOUBLE)) {
-			long l = data.longValue();
 			if (type.equals(TYPE_DOUBLE)) {
 				l = Double.doubleToLongBits(data.doubleValue());
 			}
 			int bits = byteOrder == BIG_ENDIAN ? 56 : 0;
 			int step = byteOrder == BIG_ENDIAN ? -8 : 8;
-			for (int i = position; i < 8; i++, bits += step) {
+			for (int i = position; i < position+8; i++, bits += step) {
 				dest[i] = (byte)((l >>> bits) & 0xFF);
 			}
 			return position+8;
