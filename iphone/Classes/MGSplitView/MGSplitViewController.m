@@ -570,7 +570,7 @@
 		_barButtonItem = [[UIBarButtonItem alloc] initWithTitle:NSLocalizedString(@"Master", nil) 
 														  style:UIBarButtonItemStyleBordered 
 														 target:self 
-														 action:@selector(showMasterPopover:)];
+														 action:@selector(toggleMasterPopover:)];
 		
 		// Inform delegate of this state of affairs.
 		if (_delegate && [_delegate respondsToSelector:@selector(splitViewController:willHideViewController:withBarButtonItem:forPopoverController:)]) {
@@ -710,6 +710,16 @@
 	[UIView commitAnimations];
 }
 
+- (void) toggleMasterPopover:(id)sender {
+    if ( _hiddenPopoverController ) {
+        if ( _hiddenPopoverController.popoverVisible ) {
+            [self showMasterPopover:sender];
+        }
+        else {
+            [self showMasterPopover:sender];
+        }
+    }
+}
 
 - (IBAction)showMasterPopover:(id)sender
 {
