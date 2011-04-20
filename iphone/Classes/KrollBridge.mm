@@ -609,16 +609,26 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 	{
 		return ourKrollObject;
 	}
-	
-	ourKrollObject = [[KrollObject alloc] initWithTarget:proxy context:context];
 
 	[proxyLock lock];
 	if (proxies==nil)
 	{
 		proxies = TiCreateNonRetainingArray();
 	}
-	[proxies addObject:proxy];
+	if (![proxies containsObject:proxy])
+	{
+		[proxies addObject:proxy];
+	}
 	[proxyLock unlock];
+
+
+	if (![context isKJSThread])
+	{
+		return nil;
+	}
+	
+	ourKrollObject = [[KrollObject alloc] initWithTarget:proxy context:context];
+
 	[self registerProxy:proxy krollObject:ourKrollObject];
 	return [ourKrollObject autorelease];
 }
