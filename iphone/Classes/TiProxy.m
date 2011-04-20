@@ -265,6 +265,9 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 		//One thing we missed from _destroy: Ensuring the page context stays gone.
 		pageContext = nil;
 	}
+	//Make sure we're not locked in.
+	KrollObject * ourKrollObject = [sender krollObjectForProxy:self];
+	[ourKrollObject unprotectJsobject];
 }
 
 -(void)setExecutionContext:(id<TiEvaluator>)context
