@@ -81,8 +81,10 @@ public class TiFastDev
 		Log.d(TAG, "Enabling Fastdev mode, port: " + port + ", listen: " + listen);
 		if (listen) {
 			acceptConnection();
-		} else {
+		} else if (port != -1) {
 			connect();
+		} else {
+			enabled = false;
 		}
 	}
 

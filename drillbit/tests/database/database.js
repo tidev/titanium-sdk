@@ -255,7 +255,7 @@ describe("Ti.Database tests", {
 		resultSet = null,
 		i, counter, current_float, float_factor = 0.5555;
 
-		var isAndroid = (Ti.Platform.osname === 'android');		
+		var isAndroid = (Ti.Platform.osname === 'android');
 		valueOf(db).shouldBeObject();
 
 		try {
