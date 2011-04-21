@@ -6,6 +6,7 @@
  */
 #ifdef USE_TI_DATABASE
 
+#import "DatabaseModule.h"
 #import "TiDatabaseResultSetProxy.h"
 #import "TiDatabaseProxy.h"
 #import "TiUtils.h"
@@ -49,6 +50,36 @@
 	return self;
 }
 
+-(id) _transformObject:(id) obj toType:(DatabaseFieldType) type {
+	
+	if(FieldTypeString == type) {
+		return [TiUtils stringValue:obj];		
+	}
+	
+	if(FieldTypeInt == type) {
+		int value = [TiUtils intValue:obj def:NSNotFound];
+		if(NSNotFound != value) {
+			return NUMINT(value);
+		}
+		[self throwException:TiExceptionInvalidType subreason:[NSString stringWithFormat:@"Couldn't cast from %@ to int", [obj class]] location:CODELOCATION];
+	}
+	
+	id result = nil;
+	
+	if(FieldTypeFloat == type ||
+	   FieldTypeDouble == type) {
+		BOOL valid = NO;
+		result = (FieldTypeFloat == type) ? NUMFLOAT([TiUtils floatValue:obj def:0.0 valid:&valid]) 
+		                                  : NUMDOUBLE([TiUtils doubleValue:obj def:0.0 valid:&valid]);
+		if(!valid) {
+			[self throwException:TiExceptionInvalidType subreason:[NSString stringWithFormat:@"Couldn't cast from %@ to %@", [obj class], (FieldTypeFloat == type) ? @"float" : @"double"] location:CODELOCATION];
+		}		
+	}
+	return result;
+}
+
+#pragma mark Public API
+
 -(void)close:(id)args
 {
 	if (database!=nil && results!=nil)
@@ -81,12 +112,18 @@
 
 -(id)field:(id)args
 {
-	ENSURE_SINGLE_ARG(args,NSObject);
+	ENSURE_ARRAY(args);
 	if (results!=nil)
 	{
-		id result = [results objectForColumnIndex:[TiUtils intValue:args]];
+	    id result = [results objectForColumnIndex:[TiUtils intValue:[args objectAtIndex:0]]];
 		if ([result isKindOfClass:[NSData class]]) {
 			result = [[[TiBlob alloc] initWithData:result mimetype:@"application/octet-stream"] autorelease];
+		}
+
+		if([args count] > 1) {
+			//cast result on the way out if type constant was passed
+			NSNumber *type = (NSNumber *) [args objectAtIndex:1];
+			result = [self _transformObject:result toType:[type intValue]];
 		}
 		return result;
 	}
@@ -95,13 +132,18 @@
 
 -(id)fieldByName:(id)args
 {
-	ENSURE_SINGLE_ARG(args,NSObject);
+	ENSURE_ARRAY(args);
 	if (results!=nil)
 	{
-		id result = [results objectForColumn:[TiUtils stringValue:args]];
+		id result = [results objectForColumn:[TiUtils stringValue:[args objectAtIndex:0]]];
 		if ([result isKindOfClass:[NSData class]]) {
 			result = [[[TiBlob alloc] initWithData:result mimetype:@"application/octet-stream"] autorelease];
 		}
+ 	    if([args count] > 1) {
+		   //cast result on the way out if type constant was passed
+		   NSNumber *type = (NSNumber *) [args objectAtIndex:1];
+		   result = [self _transformObject:result toType:[type intValue]];
+	    } 
 		return result;
 	}
 	return nil;
@@ -169,65 +211,6 @@
 -(NSNumber*)isValidRow:(id)args
 {
 	return [self validRow];
-}
-
-- (id) dynamicField:(id) args {
-	ENSURE_ARG_COUNT(args, 1)
-
-	id arg = [args objectAtIndex:0],
-	   ret = nil;
-	
-	if([arg isKindOfClass:[NSString class]]) {
-		ret = [self fieldByName:arg];
-	} else if([arg isKindOfClass:[NSNumber class]]) {
-		ret = [self field:arg];
-	}
-	
-	return ret;
-}
-
-#define THROW_IF_FAILED_CONVERSION(obj, type, location)\
-if(nil == obj) {\
-[NSException raise:TiExceptionInvalidType format:@"Conversion to %@ failed%@", type, location];\
-}\
-
-- (id) _baseNumericGetter:(NSArray *) args {
-	ENSURE_ARG_COUNT(args, 3)
-	
-	id value   = [self dynamicField:[args objectAtIndex:0]];
-	NSNumber *result = [TiUtils numberFromObject:value];
-	
-	THROW_IF_FAILED_CONVERSION(result, [args objectAtIndex:1], [args objectAtIndex:2])
-		
-	return result;
-}
-
-#pragma mark -
-#pragma mark Public API - Typed Getters
-
-- (id) getString:(id) args {
-	
-	id value = [self dynamicField:args];
-	NSString *result = [TiUtils stringValue:value];
-	
-	THROW_IF_FAILED_CONVERSION(result, @"string", CODELOCATION)
-
-	return result;
-}
-
-- (id) getInt:(id) args {
-	NSNumber *number = [self _baseNumericGetter:[NSArray arrayWithObjects: args, @"int", CODELOCATION, nil]];
-	return NUMLONG([number longValue]);
-}
-
-- (id) getFloat: (id) args {
-	NSNumber *number = [self _baseNumericGetter:[NSArray arrayWithObjects: args, @"float", CODELOCATION, nil]];
-	return NUMFLOAT([number floatValue]);
-}
-
-- (id) getDouble: (id) args {
-	NSNumber *number = [self _baseNumericGetter:[NSArray arrayWithObjects: args, @"double", CODELOCATION, nil]];
-	return NUMDOUBLE([number doubleValue]);
 }
 
 @end
