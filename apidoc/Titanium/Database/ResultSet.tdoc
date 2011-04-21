@@ -28,6 +28,10 @@ fieldByName: retrieve a row value by field name
 fieldCount: return the number of columns in the result set
 isValidRow: return true if the row is a valid row
 fieldName: return the field name for field index
+getInt: return the integer representation of the field
+getFloat: return the float representation of the field
+getDouble: return the double representation of the field
+getString: return the string representation of the field
 
 - method : fieldName, string
 
@@ -46,6 +50,22 @@ name[string] : column name from SQL query
 - method : fieldCount, int
 
 - method : isValidRow, boolean
+
+- method : getInt, int
+
+field[int | string] : the column name or index referencing the value to retrieve as an int.
+
+- method : getFloat, float
+
+field[int | string] : the column name or index referencing the value to retrieve as a float.
+
+- method : getDouble, double
+
+field[int | string] : the column name or index referencing the value to retrieve as a double.
+
+- method : getString, string
+
+field[int | string] : the column name or index referencing the value to retrieve as a string.
 
 - properties
 

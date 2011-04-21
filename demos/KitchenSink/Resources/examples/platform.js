@@ -264,7 +264,7 @@ b.addEventListener('click', function()
 		}
 		case 2:
 		{
-			url = 'sms:4043332222'
+			url = 'sms:4043332222';
 			b.title='Open URL (sms)';
 			break;
 		}

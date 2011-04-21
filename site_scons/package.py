@@ -130,7 +130,7 @@ def make_symbol(fn):
 		return fn[2:]
 	return fn
 
-def zip_iphone_ipad(zf,basepath,platform,version):
+def zip_iphone_ipad(zf,basepath,platform,version,version_tag):
 	  
 #	zf.writestr('%s/iphone/imports.json'%basepath,resolve_source_imports(platform))
 	
@@ -175,6 +175,12 @@ def zip_iphone_ipad(zf,basepath,platform,version):
 		if not os.path.exists(os.path.join(ticore_lib,'libtiverify.a')):
 			print "[ERROR] missing libtiverify.a!  make sure you checkout iphone/lib or edit your iphone/.gitignore and remove the lib entry"
 			sys.exit(1)
+
+	if not os.path.exists(os.path.join(ticore_lib,'libti_ios_debugger.a')):
+		os.system("git checkout iphone/lib")
+		if not os.path.exists(os.path.join(ticore_lib,'libti_ios_debugger.a')):
+			print "[ERROR] missing libti_ios_debugger.a!  make sure you checkout iphone/lib or edit your iphone/.gitignore and remove the lib entry"
+			sys.exit(1)
 		
 	if not os.path.exists(os.path.join(ticore_lib,'libTiCore.a')):
 		print "[ERROR] missing libTiCore.a!"
@@ -182,6 +188,7 @@ def zip_iphone_ipad(zf,basepath,platform,version):
 	
 	zf.write(os.path.join(ticore_lib,'libTiCore.a'),'%s/%s/libTiCore.a'%(basepath,platform))
 	zf.write(os.path.join(ticore_lib,'libtiverify.a'),'%s/%s/libtiverify.a'%(basepath,platform))
+	zf.write(os.path.join(ticore_lib,'libti_ios_debugger.a'),'%s/%s/libti_ios_debugger.a'%(basepath,platform))
 	
 	zip_dir(zf,osx_dir,basepath)
 	
@@ -193,16 +200,16 @@ def zip_iphone_ipad(zf,basepath,platform,version):
 				module_name = f.replace('Module','').lower()
 				zip_dir(zf,module_images,'%s/%s/modules/%s/images' % (basepath,platform,module_name))
 	
-def create_platform_zip(platform,dist_dir,osname,version):
+def create_platform_zip(platform,dist_dir,osname,version,version_tag):
 	if not os.path.exists(dist_dir):
 		os.makedirs(dist_dir)
-	basepath = '%s/%s/%s' % (platform,osname,version)
-	sdkzip = os.path.join(dist_dir,'%s-%s-%s.zip' % (platform,version,osname))
+	basepath = '%s/%s/%s' % (platform,osname,version_tag)
+	sdkzip = os.path.join(dist_dir,'%s-%s-%s.zip' % (platform,version_tag,osname))
 	zf = zipfile.ZipFile(sdkzip, 'w', zipfile.ZIP_DEFLATED)
 	return (zf,basepath)
 
-def zip_mobilesdk(dist_dir,osname,version,android,iphone,ipad):
-	zf, basepath = create_platform_zip('mobilesdk',dist_dir,osname,version)
+def zip_mobilesdk(dist_dir,osname,version,android,iphone,ipad,version_tag):
+	zf, basepath = create_platform_zip('mobilesdk',dist_dir,osname,version,version_tag)
 
 	version_txt = """version=%s
 timestamp=%s
@@ -216,25 +223,29 @@ githash=%s
 	zip_dir(zf,all_dir,basepath)
 	zip_dir(zf,template_dir,basepath)
 	if android: zip_android(zf,basepath)
-	if (iphone or ipad) and osname == "osx": zip_iphone_ipad(zf,basepath,'iphone',version)
+	if (iphone or ipad) and osname == "osx": zip_iphone_ipad(zf,basepath,'iphone',version,version_tag)
 	if osname == 'win32':
 		zip_dir(zf, win32_dir, basepath)
 	
 	zf.close()
 				
-def zip_it(dist_dir,osname,version,android,iphone,ipad):
-	zip_mobilesdk(dist_dir,osname,version,android,iphone,ipad)
+def zip_it(dist_dir,osname,version,android,iphone,ipad,version_tag):
+	zip_mobilesdk(dist_dir,osname,version,android,iphone,ipad,version_tag)
 
 class Packager(object):
 	def __init__(self):
 		self.os_names = { "Windows":"win32", "Linux":"linux", "Darwin":"osx" }
 	 
-	def build(self,dist_dir,version,android=True,iphone=True,ipad=True):
-		zip_it(dist_dir,self.os_names[platform.system()],version,android,iphone,ipad)
+	def build(self,dist_dir,version,android=True,iphone=True,ipad=True,version_tag=None):
+		if version_tag == None:
+			version_tag = version
+		zip_it(dist_dir,self.os_names[platform.system()],version,android,iphone,ipad,version_tag)
 
-	def build_all_platforms(self,dist_dir,version,android=True,iphone=True,ipad=True):
+	def build_all_platforms(self,dist_dir,version,android=True,iphone=True,ipad=True,version_tag=None):
+		if version_tag == None:
+			version_tag = version
 		for os in self.os_names.values():
-			zip_it(dist_dir,os,version,android,iphone,ipad)
+			zip_it(dist_dir,os,version,android,iphone,ipad,version_tag)
 		
 if __name__ == '__main__':
 	Packager().build(os.path.abspath('../dist'), "1.1.0")

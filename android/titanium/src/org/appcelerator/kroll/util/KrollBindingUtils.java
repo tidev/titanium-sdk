@@ -63,17 +63,8 @@ public class KrollBindingUtils {
 		return new KrollMethod(methodName) {
 			public Object invoke(KrollInvocation invocation, Object[] args) throws Exception
 			{
-				KrollModule createdInModule = (KrollModule) invocation.getProxy();
 				KrollProxy proxy = creator.create(invocation.getTiContext());
-				
-				Object createArgs[] = new Object[args.length];
-				for (int i = 0; i < args.length; i++) {
-					createArgs[i] = KrollConverter.getInstance().convertJavascript(
-						invocation, args[i], Object.class);
-				}
-				
-				proxy.handleCreationArgs(createdInModule, createArgs);
-				return KrollConverter.getInstance().convertNative(invocation, proxy);
+				return proxy.handleCreate(invocation, args);
 			}
 		};
 	}

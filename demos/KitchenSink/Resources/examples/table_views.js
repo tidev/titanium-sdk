@@ -28,6 +28,7 @@ var data = [
 	{title:'Empty Table View', hasChild:true, test:'../examples/table_view_empty.js'},
 	{title:'Table Auto Height', hasChild:true, test:'../examples/table_view_api_auto_height.js'},
 	{title:'Refresh Table View', hasChild:true, test:'../examples/table_view_refresh.js'},
+	{title:'Table View Scroll Indicators', hasChild:true, test:'../examples/table_view_scroll_indicators.js'},
 	{title:'Composite (Partial Size)', hasChild:true, test:'../examples/table_view_composite.js'},
 	{title:'Table View (Layout)', hasChild:true, test:'../examples/table_view_layout.js'},
 	{title:'Table View (Layout 2)', hasChild:true, test:'../examples/table_view_layout_2.js'},

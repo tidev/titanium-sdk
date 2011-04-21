@@ -214,7 +214,7 @@ class ModuleDetector(object):
 	def detect_modules(self):
 		system_modules_dir = os.path.abspath(os.path.join(sdk_dir, '..', '..', '..', 'modules'))
 		modules = self.get_modules(os.path.join(self.project_dir, 'modules'))
-		modules.extend(self.get_modules(system_modules_dir, auto_install=False))
+		modules.extend(self.get_modules(system_modules_dir, auto_install=True))
 		return modules
 
 	def is_any(self, module_dep, property):

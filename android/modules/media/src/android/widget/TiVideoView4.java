@@ -22,6 +22,8 @@ import java.net.URL;
 
 import org.apache.http.client.ClientProtocolException;
 
+import ti.modules.titanium.media.MediaModule;
+
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -91,16 +93,20 @@ public class TiVideoView4 extends SurfaceView implements MediaPlayerControl {
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+    	measureVideo(mVideoWidth, mVideoHeight, widthMeasureSpec, heightMeasureSpec);
+    }
+    
+    protected void measureVideo(int videoWidth, int videoHeight, int widthMeasureSpec, int heightMeasureSpec) {
         //Log.i("@@@@", "onMeasure");
-        int width = getDefaultSize(mVideoWidth, widthMeasureSpec);
-        int height = getDefaultSize(mVideoHeight, heightMeasureSpec);
-        if (mVideoWidth > 0 && mVideoHeight > 0) {
-            if ( mVideoWidth * height  > width * mVideoHeight ) {
+        int width = getDefaultSize(videoWidth, widthMeasureSpec);
+        int height = getDefaultSize(videoHeight, heightMeasureSpec);
+        if (videoWidth > 0 && videoHeight > 0) {        	
+            if ( videoWidth * height  > width * videoHeight ) {
                 //Log.i("@@@", "image too tall, correcting");
-                height = width * mVideoHeight / mVideoWidth;
-            } else if ( mVideoWidth * height  < width * mVideoHeight ) {
+                height = width * videoHeight / videoWidth;
+            } else if ( videoWidth * height  < width * videoHeight ) {
                 //Log.i("@@@", "image too wide, correcting");
-                width = height * mVideoWidth / mVideoHeight;
+                width = height * videoWidth / videoHeight;
             } else {
                 //Log.i("@@@", "aspect ratio is correct: " +
                         //width+"/"+height+"="+
@@ -108,7 +114,7 @@ public class TiVideoView4 extends SurfaceView implements MediaPlayerControl {
             }
         }
         //Log.i("@@@@@@@@@@", "setting size: " + width + 'x' + height);
-        setMeasuredDimension(width, height);
+        setMeasuredDimension(width, height);    	
     }
 
     public int resolveAdjustedSize(int desiredSize, int measureSpec) {

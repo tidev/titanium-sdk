@@ -382,6 +382,7 @@ public class TiUIText extends TiUIView
 		}
 		if (passwordMask) {
 			tv.setTransformationMethod(PasswordTransformationMethod.getInstance());
+			tv.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
 		} else {
 			if (tv.getTransformationMethod() instanceof PasswordTransformationMethod) {
 				tv.setTransformationMethod(null);

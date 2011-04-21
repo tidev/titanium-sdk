@@ -31,7 +31,7 @@ def main(args,argc):
 		from androidsdk import AndroidSDK
 		android_sdk = args[argc-1].decode("utf-8")
 		try:
-			sdk = AndroidSDK(android_sdk, 4)
+			sdk = AndroidSDK(android_sdk)
 		except Exception, e:
 			print >>sys.stderr, e
 			sys.exit(1)

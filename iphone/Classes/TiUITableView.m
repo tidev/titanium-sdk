@@ -1338,6 +1338,11 @@
 	}
 }
 
+-(void)setShowVerticalScrollIndicator_:(id)value
+{
+	[[self tableView] setShowsVerticalScrollIndicator:[TiUtils boolValue:value]];
+}
+
 -(void)configurationSet
 {
 	[super configurationSet];

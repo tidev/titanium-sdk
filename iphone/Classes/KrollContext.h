@@ -16,7 +16,7 @@
 
 @required
 -(id)require:(KrollContext*)kroll path:(NSString*)path;
-
+-(BOOL)shouldDebugContext;
 @optional
 
 -(void)willStartNewContext:(KrollContext*)kroll;
@@ -45,9 +45,7 @@
 	TiGlobalContextRef context;
 	NSMutableDictionary *timers;
 	NSRecursiveLock *timerLock;
-#ifdef DEBUGGER_ENABLED	
 	void *debugger;
-#endif
 }
 
 @property(nonatomic,readwrite,assign) id<KrollDelegate> delegate;
@@ -58,9 +56,7 @@
 -(BOOL)running;
 -(void)gc;
 -(TiGlobalContextRef)context;
-#ifdef DEBUGGER_ENABLED
 -(void*)debugger;
-#endif
 
 #ifdef DEBUG
 // used during debugging only

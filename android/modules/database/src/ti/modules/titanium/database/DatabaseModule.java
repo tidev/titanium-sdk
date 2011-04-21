@@ -35,6 +35,12 @@ public class DatabaseModule extends KrollModule
 	private static final String LCAT = "TiDatabase";
 	private static final boolean DBG = TiConfig.LOGD;
 
+	@Kroll.constant public static final int FIELD_TYPE_UNKNOWN = -1;
+	@Kroll.constant public static final int FIELD_TYPE_STRING = 0;
+	@Kroll.constant public static final int FIELD_TYPE_INT = 1;
+	@Kroll.constant public static final int FIELD_TYPE_FLOAT = 2;
+	@Kroll.constant public static final int FIELD_TYPE_DOUBLE = 3;
+	
 	public DatabaseModule(TiContext tiContext) {
 		super(tiContext);
 	}

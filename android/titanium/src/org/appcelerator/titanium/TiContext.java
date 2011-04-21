@@ -286,14 +286,14 @@ public class TiContext implements ErrorReporter
 	@Override
 	public void error(String message, String sourceName, int line, String lineSource, int lineOffset)
 	{
-		TiJSErrorDialog.openErrorDialog(getActivity(),
+		TiJSErrorDialog.openErrorDialog(this, getActivity(),
 			"Error", message, sourceName, line, lineSource, lineOffset);
 	}
 
 	@Override
 	public EvaluatorException runtimeError(String message, String sourceName, int line, String lineSource, int lineOffset)
 	{
-		TiJSErrorDialog.openErrorDialog(getActivity(),
+		TiJSErrorDialog.openErrorDialog(this, getActivity(),
 			"Runtime Error", message, sourceName, line, lineSource, lineOffset);
 		return null;
 	}
@@ -301,7 +301,7 @@ public class TiContext implements ErrorReporter
 	@Override
 	public void warning(String message, String sourceName, int line, String lineSource, int lineOffset)
 	{
-		TiJSErrorDialog.openErrorDialog(getActivity(),
+		TiJSErrorDialog.openErrorDialog(this, getActivity(),
 			"Warning", message, sourceName, line, lineSource, lineOffset);
 	}
 

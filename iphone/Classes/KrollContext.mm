@@ -11,14 +11,10 @@
 #import "KrollCallback.h"
 #import "TiUtils.h"
 #import "TiLocale.h"
-//#import "TiApp.h"
 
 #include <pthread.h>
+#import "TiDebugger.h"
 
-#ifdef DEBUGGER_ENABLED
-	#import "TiDebuggerContext.h"
-	#import "TiDebugger.h"
-#endif
 
 static unsigned short KrollContextIdCounter = 0;
 static unsigned short KrollContextCount = 0;
@@ -640,6 +636,7 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 		[lock setName:[NSString stringWithFormat:@"%@ Lock",[self threadName]]];
 		stopped = YES;
 		KrollContextCount++;
+        debugger = NULL;
 		
 		WARN_IF_BACKGROUND_THREAD_OBJ;	//NSNotificationCenter is not threadsafe!
 		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(suspend:) name:kTiSuspendNotification object:nil];
@@ -760,16 +757,12 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 	{
 		[condition lock];
 		stopped = YES;
-#ifdef DEBUGGER_ENABLED
 		if (debugger!=NULL)
 		{
 			TiObjectRef globalRef = TiContextGetGlobalObject(context);
-			static_cast<Ti::TiDebuggerContext*>(debugger)->detach((TI::TiGlobalObject*)globalRef);
-			[[TiDebugger sharedDebugger] detach:self];
-			delete static_cast<Ti::TiDebuggerContext*>(debugger);
+			TiDebuggerDestroy(self,globalRef,debugger);
 			debugger = NULL;
 		}
-#endif
 		[condition signal];
 		[condition unlock];
 	}
@@ -951,11 +944,11 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 	TiObjectRef globalRef = TiContextGetGlobalObject(context);
 		
 
-#ifdef DEBUGGER_ENABLED
-	debugger = new Ti::TiDebuggerContext(self);
-	[[TiDebugger sharedDebugger] attach:self];
-	static_cast<Ti::TiDebuggerContext*>(debugger)->attach((TI::TiGlobalObject*)globalRef);
-#endif
+    // TODO: We might want to be smarter than this, and do some KVO on the delegate's
+    // 'debugMode' property or something... and start/stop the debugger as necessary.
+    if ([[self delegate] shouldDebugContext]) {
+        debugger = TiDebuggerCreate(self,globalRef);
+    }
 	
 	// we register an empty kroll string that allows us to pluck out this instance
 	KrollObject *kroll = [[KrollObject alloc] initWithTarget:nil context:self];
@@ -1243,11 +1236,9 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 	[pool release];
 }
 
-#ifdef DEBUGGER_ENABLED
 -(void*)debugger
 {
 	return debugger;
 }
-#endif
 
 @end

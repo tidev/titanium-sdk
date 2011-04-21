@@ -22,6 +22,7 @@ import java.util.List;
 
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiContext;
+import org.appcelerator.titanium.TiFastDev;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiFileHelper;
@@ -33,29 +34,16 @@ import android.content.Context;
 public class TiResourceFile extends TiBaseFile
 {
 	private static final String LCAT = "TiResourceFile";
-	private static final String LOAD_FROM_SD_CARD = "ti.android.loadfromsdcard";
-	
+
 	@SuppressWarnings("unused")
 	private static final boolean DBG = TiConfig.LOGD;
 
 	private final String path;
-	private boolean loadFromSDCard;
-	private String sdCardPrefix;
-	
+
 	public TiResourceFile(TiContext tiContext, String path)
 	{
 		super(tiContext, TYPE_RESOURCE);
 		this.path = path;
-		this.loadFromSDCard = tiContext.getTiApp().getSystemProperties().getBool(LOAD_FROM_SD_CARD, false);
-		
-		if (loadFromSDCard) {
-			Log.d(LCAT, "Loading data from sdcard");
-		}
-	}
-	
-	private String getSDCardPath(String path) {
-		return TiFileHelper2.joinSegments(TiFileHelper.SD_CARD_PREFIX,
-			getTiContext().getTiApp().getAppInfo().getId(), path);
 	}
 
 	@Override
@@ -72,8 +60,8 @@ public class TiResourceFile extends TiBaseFile
 		Context context = getTiContext().getAndroidContext();
 		if (context != null) {
 			String p = TiFileHelper2.joinSegments("Resources", path);
-			if (loadFromSDCard) {
-				in = new FileInputStream(new File(getSDCardPath(p)));
+			if (TiFastDev.isFastDevEnabled()) {
+				in = TiFastDev.getInstance().openInputStream(path);
 			} else {
 				in = context.getAssets().open(p);
 			}
@@ -225,12 +213,9 @@ public class TiResourceFile extends TiBaseFile
 	}
 
 	public String toURL() {
-		if (loadFromSDCard) {
-			return "file:///"+getSDCardPath("Resources/"+path);
-		} else {
-			return "file:///android_asset/Resources/" + path;
-		}
+		return "file:///android_asset/Resources/" + path;
 	}
+
 	public double size()
 	{
 		long length = 0;

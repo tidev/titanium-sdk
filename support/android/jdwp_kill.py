@@ -11,7 +11,7 @@ android_sdk = sys.argv[1]
 device_id = sys.argv[2]
 app_id = sys.argv[3]
 
-sdk = androidsdk.AndroidSDK(android_sdk, 4)
+sdk = androidsdk.AndroidSDK(android_sdk)
 try:
 	sdk.jdwp_kill(app_id, adb_args=['-s', device_id])
 except Exception, e:

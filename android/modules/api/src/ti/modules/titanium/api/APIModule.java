@@ -10,20 +10,37 @@ import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.Log;
+import org.appcelerator.titanium.util.TiLogger;
 
 @Kroll.module
 public class APIModule extends KrollModule
 {
 	private static final String LCAT = "TiAPI";
-	
-	@Kroll.constant public static final int TRACE = 1;
-	@Kroll.constant public static final int DEBUG = 2;
-	@Kroll.constant public static final int INFO = 3;
-	@Kroll.constant public static final int NOTICE = 4;
-	@Kroll.constant public static final int WARN = 5;
-	@Kroll.constant public static final int ERROR = 6;
-	@Kroll.constant public static final int CRITICAL = 7;
-	@Kroll.constant public static final int FATAL = 8;
+
+	@Kroll.constant public static final int TRACE = TiLogger.TRACE;
+	@Kroll.constant public static final int DEBUG = TiLogger.DEBUG;
+	@Kroll.constant public static final int INFO = TiLogger.INFO;
+	@Kroll.constant public static final int NOTICE = TiLogger.NOTICE;
+	@Kroll.constant public static final int WARN = TiLogger.WARN;
+	@Kroll.constant public static final int ERROR = TiLogger.ERROR;
+	@Kroll.constant public static final int CRITICAL = TiLogger.CRITICAL;
+	@Kroll.constant public static final int FATAL = TiLogger.FATAL;
+
+	private TiLogger logger = new TiLogger() {
+		public void log(int level, String message) {
+			internalLog(level, message);
+		}
+	};
+
+	public TiLogger getLogger()
+	{
+		return logger;
+	}
+
+	public void setLogger(TiLogger logger)
+	{
+		this.logger = logger;
+	}
 
 	public APIModule(TiContext tiContext) {
 		super(tiContext);
@@ -38,42 +55,42 @@ public class APIModule extends KrollModule
 	
 	@Kroll.method
 	public void debug(Object msg) {
-		Log.d(LCAT, toString(msg));
+		logger.log(DEBUG, toString(msg));
 	}
 
 	@Kroll.method
 	public void info(Object msg) {
-		Log.i(LCAT, toString(msg));
+		logger.log(INFO, toString(msg));
 	}
 
 	@Kroll.method
 	public void warn(Object msg) {
-		Log.w(LCAT, toString(msg));
+		logger.log(WARN, toString(msg));
 	}
 
 	@Kroll.method
 	public void error(Object msg) {
-		Log.e(LCAT, toString(msg));
+		logger.log(ERROR, toString(msg));
 	}
 
 	@Kroll.method
 	public void trace(Object msg) {
-		Log.d(LCAT, toString(msg));
+		logger.log(TRACE, toString(msg));
 	}
 
 	@Kroll.method
 	public void notice(Object msg) {
-		Log.i(LCAT, toString(msg));
+		logger.log(NOTICE, toString(msg));
 	}
 
 	@Kroll.method
 	public void critical(Object msg) {
-		Log.e(LCAT, toString(msg));
+		logger.log(CRITICAL, toString(msg));
 	}
 
 	@Kroll.method
 	public void fatal(Object msg) {
-		Log.e(LCAT, toString(msg));
+		logger.log(FATAL, toString(msg));
 	}
 
 	@Kroll.method
@@ -102,7 +119,7 @@ public class APIModule extends KrollModule
 			msg = "[" + level + "] " + msg;
 		}
 
-		internalLog(severity, toString(msg));
+		logger.log(severity, toString(msg));
 	}
 
 	public void internalLog(int severity, String msg)

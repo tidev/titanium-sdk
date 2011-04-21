@@ -25,6 +25,7 @@ w.add(label);
 var harnessConsole = Ti.UI.createWebView({
 	top: 5, left: 5, right: 5, bottom: 5,
 	backgroundColor: 'white',
+	scalesPageToFit: false,
 	url: 'test_harness_console.html'
 });
 

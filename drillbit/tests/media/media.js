@@ -1,4 +1,13 @@
 describe("Ti.Media tests", {
+	constants: function() {
+		valueOf(Ti.Media).shouldNotBeNull();
+		
+		// Video Scaling
+		valueOf(Ti.Media.VIDEO_SCALING_NONE).shouldNotBeNull();
+		valueOf(Ti.Media.VIDEO_SCALING_ASPECT_FILL).shouldNotBeNull();
+		valueOf(Ti.Media.VIDEO_SCALING_ASPECT_FIT).shouldNotBeNull();
+		valueOf(Ti.Media.VIDEO_SCALING_MODE_FILL).shouldNotBeNull();
+	},
 	soundAPIs: function() {
 		valueOf(Ti.Media.createSound).shouldBeFunction();
 		
@@ -39,5 +48,22 @@ describe("Ti.Media tests", {
 		if (!isAndroid) valueOf(player.state).shouldBeNumber();
 		valueOf(player.paused).shouldBeBoolean();
 		if (!isAndroid) valueOf(player.waiting).shouldBeBoolean();
+	},
+	videoPlayerAPIs: function() {
+		var isAndroid = (Ti.Platform.osname === 'android');
+		
+		valueOf(Ti.Media.createVideoPlayer).shouldBeFunction();
+		var player = Ti.Media.createVideoPlayer();
+		valueOf(player).shouldNotBeNull();
+		valueOf(player.add).shouldBeFunction();
+		valueOf(player.pause).shouldBeFunction();
+		valueOf(player.start).shouldBeFunction();
+		valueOf(player.stop).shouldBeFunction();
+		if (!isAndroid) valueOf(player.setUrl).shouldBeFunction();
+		valueOf(player.hide).shouldBeFunction();
+		valueOf(player.setMediaControlStyle).shouldBeFunction();
+		valueOf(player.getMediaControlStyle).shouldBeFunction();
+		valueOf(player.getScalingMode).shouldBeFunction();
+		valueOf(player.setScalingMode).shouldBeFunction();
 	}
 })

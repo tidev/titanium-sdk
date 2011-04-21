@@ -260,27 +260,61 @@ FILENOOP(setHidden:(id)x);
 {
 	ENSURE_TYPE(args,NSArray);
 	id arg = [args objectAtIndex:0];
-	if ([arg isKindOfClass:[TiBlob class]]) {
-            TiBlob *blob = (TiBlob*)arg;
-            NSFileHandle *file = [[NSFileHandle fileHandleForUpdatingAtPath:path] retain];
-            if (file) {
-                [file seekToEndOfFile];
-                [file writeData:[blob data]];
-                [file closeFile];
-                [file release];
-                return NUMBOOL(YES);
-            } else {
-                NSLog(@"[ERROR] Can't open file for appending");
-            }
+
+	if([arg isKindOfClass:[TiFile class]]) {
+		//allow the ability to append files to another file
+		//e.g. file.append(Ti.Filesystem.getFile('somewhere'));
+		
+		TiFile *file_arg = (TiFile *) arg;
+		NSError *err = nil;
+		NSString *contents = [NSString stringWithContentsOfFile:[file_arg path] encoding:NSUTF8StringEncoding error:&err];
+		if(contents != nil && err == nil) {
+			arg = contents;
+		} else {
+			NSLog(@"[ERROR] Can't open file (%@) for reading!\n%@", [file_arg path], err);
+			return NUMBOOL(NO);
+		}
+	}		
+	
+	if ([arg isKindOfClass:[TiBlob class]] ||
+		[arg isKindOfClass:[NSString class]]) {
+				
+		NSFileHandle *file = [[NSFileHandle fileHandleForUpdatingAtPath:path] retain];
+		
+		if (file) {
+			TiBlob *blob = (TiBlob*) arg;
+			if([arg isKindOfClass:[NSString class]]) {
+				blob = [[[TiBlob alloc] initWithData:[arg dataUsingEncoding:NSUTF8StringEncoding] mimetype:@"text/plain"] autorelease];
+			}
+			
+			[file seekToEndOfFile];
+			[file writeData:[blob data]];
+			[file closeFile];
+			[file release];
+			return NUMBOOL(YES);
+		} else {
+			NSLog(@"[ERROR] Can't open file for appending");
+		}
 	} else {
-            NSLog(@"[ERROR] Can only append blobs");
-        }
-        return NUMBOOL(NO);
-}            
+		NSLog(@"[ERROR] Can only append blobs and strings");
+	}
+	return NUMBOOL(NO);
+}
 
 -(id)write:(id)args
 {
 	ENSURE_TYPE(args,NSArray);
+	if([args count] > 1) {
+		ENSURE_TYPE([args objectAtIndex:1], NSNumber);
+
+		//We have a second argument, is it truthy?
+		//If yes, we'll hand the args to -append:
+		NSNumber *mode = [args objectAtIndex:1];
+		if([mode boolValue] == YES) {
+			//we have a truthy value that isn't MODE_READ or MODE_WRITE
+			return [self append:[args subarrayWithRange:NSMakeRange(0, 1)]];
+		}
+	}
 	id arg = [args objectAtIndex:0];
 	if ([arg isKindOfClass:[TiBlob class]])
 	{

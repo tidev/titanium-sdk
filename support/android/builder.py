@@ -11,6 +11,8 @@ from compiler import Compiler
 from os.path import join, splitext, split, exists
 from shutil import copyfile
 from xml.dom.minidom import parseString
+from tilogger import *
+from datetime import datetime, timedelta
 
 template_dir = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
 top_support_dir = os.path.dirname(template_dir) 
@@ -30,6 +32,7 @@ ignoreFiles = ['.gitignore', '.cvsignore', '.DS_Store'];
 ignoreDirs = ['.git','.svn','_svn', 'CVS'];
 android_avd_hw = {'hw.camera': 'yes', 'hw.gps':'yes'}
 res_skips = ['style']
+log = None
 
 # Copied from frameworks/base/tools/aapt/Package.cpp
 uncompressed_types = [
@@ -85,26 +88,21 @@ def read_properties(propFile, separator=":= "):
 	return propDict
 
 def info(msg):
-	print "[INFO] "+msg
-	sys.stdout.flush()
+	log.info(msg)
 
 def debug(msg):
-	print "[DEBUG] "+msg
-	sys.stdout.flush()
+	log.debug(msg)
 
 def warn(msg):
-	print "[WARN] "+msg
-	sys.stdout.flush()
+	log.warn(msg)
 
 def trace(msg):
-	print "[TRACE] "+msg
-	sys.stdout.flush()
-
+	log.trace(msg)
+	
 def error(msg):
-	print "[ERROR] "+msg
-	sys.stdout.flush()
+	log.error(msg)
 
-def copy_all(source_folder, dest_folder, ignore_dirs=[], ignore_files=[], one_time_msg=""):
+def copy_all(source_folder, dest_folder, ignore_dirs=[], ignore_files=[], ignore_exts=[], one_time_msg=""):
 	msg_shown = False
 	for root, dirs, files in os.walk(source_folder):
 		for d in dirs:
@@ -112,6 +110,9 @@ def copy_all(source_folder, dest_folder, ignore_dirs=[], ignore_files=[], one_ti
 				dirs.remove(d)
 		for f in files:
 			if f in ignore_files:
+				continue
+			ext = os.path.splitext(f)[1]
+			if ext in ignore_exts:
 				continue
 			if one_time_msg and not msg_shown:
 				info(one_time_msg)
@@ -177,7 +178,11 @@ class Builder(object):
 		self.support_dir = support_dir
 		self.compiled_files = []
 		self.force_rebuild = False
-		
+		self.debugger_host = None
+		self.debugger_port = -1
+		self.fastdev_port = -1
+		self.fastdev = False
+
 		temp_tiapp = TiAppXML(self.project_tiappxml)
 		if temp_tiapp and temp_tiapp.android and 'tool-api-level' in temp_tiapp.android:
 			self.tool_api_level = int(temp_tiapp.android['tool-api-level'])
@@ -279,8 +284,7 @@ class Builder(object):
 		return True
 	
 	def wait_for_device(self, type):
-		print "[DEBUG] Waiting for device to be ready ..."
-		sys.stdout.flush()
+		debug("Waiting for device to be ready ...")
 		t = time.time()
 		max_wait = 30
 		max_zero = 6
@@ -441,7 +445,7 @@ class Builder(object):
 		return False
 		
 	def is_app_installed(self):
-		return self.check_file_exists('/data/app/%s.apk' % self.app_id)
+		return self.check_file_exists('/data/app/%s*.apk' % self.app_id)
 		
 	def are_resources_installed(self):
 		return self.check_file_exists(self.sdcard_resources+'/app.js')
@@ -467,11 +471,10 @@ class Builder(object):
 			if os.path.exists(platform_folder):
 				copy_all(platform_folder, self.project_dir, one_time_msg="Copying platform-specific files for '%s' module" % module.manifest.name)
 
-
 	def copy_project_platform_folder(self, ignore_dirs=[], ignore_files=[]):
 		if not os.path.exists(self.platform_dir):
 			return
-		copy_all(self.platform_dir, self.project_dir, ignore_dirs, ignore_files, "Copying platform-specific files ...")
+		copy_all(self.platform_dir, self.project_dir, ignore_dirs, ignore_files, one_time_msg="Copying platform-specific files ...")
 
 	def copy_resource_drawables(self):
 		debug('Processing Android resource drawables')
@@ -530,7 +533,8 @@ class Builder(object):
 		
 		fileset = []
 
-		if self.force_rebuild or self.deploy_type == 'production' or self.js_changed:
+		if self.force_rebuild or self.deploy_type == 'production' or \
+			(self.js_changed and not self.fastdev):
 			for root, dirs, files in os.walk(os.path.join(self.top_dir, "Resources")):
 				for f in files:
 					path = os.path.join(root, f)
@@ -545,12 +549,16 @@ class Builder(object):
 							delete_resource_drawable(path)
 						else:
 							fileset.append(path)
+
+		if len(fileset) == 0:
+			return False
+
 		for f in fileset:
 			copy_resource_drawable(f)
+		return True
 
 	def copy_project_resources(self):
 		info("Copying project resources..")
-		sys.stdout.flush()
 		
 		resources_dir = os.path.join(self.top_dir, 'Resources')
 		android_resources_dir = os.path.join(resources_dir, 'android')
@@ -674,11 +682,18 @@ class Builder(object):
 		android:name="ti.modules.titanium.facebook.FBActivity"
 		android:theme="@android:style/Theme.Translucent.NoTitleBar"
     />"""
+
+		CAMERA_ACTIVITY = """<activity 
+		android:name="ti.modules.titanium.media.TiCameraActivity"
+		android:configChanges="keyboardHidden|orientation"
+		android:theme="@android:style/Theme.Translucent.NoTitleBar.Fullscreen"
+    />"""
 		
 		activity_mapping = {
 		
 			# MEDIA
 			'Media.createVideoPlayer' : VIDEO_ACTIVITY,
+			'Media.showCamera' : CAMERA_ACTIVITY,
 			
 			# MAPS
 			'Map.createView' : MAP_ACTIVITY,
@@ -772,27 +787,35 @@ class Builder(object):
 
 
 		self.use_maps = False
+		self.res_changed = False
 		iconname = self.tiapp.properties['icon']
-		iconpath = os.path.join(self.assets_resources_dir,iconname)
+		iconpath = os.path.join(self.assets_resources_dir, iconname)
 		iconext = os.path.splitext(iconpath)[1]
-		if not os.path.exists(os.path.join('res','drawable')):
-			os.makedirs(os.path.join('res','drawable'))
-			
-		existingicon = os.path.join('res','drawable','appicon%s' % iconext)	
-		if os.path.exists(existingicon):	
-			os.remove(existingicon)
-		if os.path.exists(iconpath):
-			shutil.copy(iconpath,existingicon)
-		else:
-			shutil.copy(os.path.join(self.support_resources_dir, 'default.png'), existingicon)
+
+		res_drawable_dest = os.path.join(self.project_dir, 'res','drawable')
+		if not os.path.exists(res_drawable_dest):
+			os.makedirs(res_drawable_dest)
+
+		default_icon = os.path.join(self.support_resources_dir, 'default.png')
+		dest_icon = os.path.join(res_drawable_dest, 'appicon%s' % iconext)
+		if Deltafy.needs_update(iconpath, dest_icon):
+			self.res_changed = True
+			debug("copying app icon: %s" % iconpath)
+			shutil.copy(iconpath, dest_icon)
+		elif Deltafy.needs_update(default_icon, dest_icon):
+			self.res_changed = True
+			debug("copying default app icon")
+			shutil.copy(default_icon, dest_icon)
 
 		# make our Titanium theme for our icon
-		resfiledir = os.path.join('res','values')
-		if not os.path.exists(resfiledir):
-			os.makedirs(resfiledir)
-		resfilepath = os.path.join(resfiledir,'theme.xml')
-		if not os.path.exists(resfilepath):
-			resfile = open(resfilepath,'w')
+		res_values_dir = os.path.join(self.project_dir, 'res','values')
+		if not os.path.exists(res_values_dir):
+			os.makedirs(res_values_dir)
+		theme_xml = os.path.join(res_values_dir,'theme.xml')
+		if not os.path.exists(theme_xml):
+			self.res_changed = True
+			debug('generating theme.xml')
+			theme_file = open(theme_xml, 'w')
 			theme_flags = "Theme"
 			if (self.tiapp.properties.get("fullscreen") == "true" or 
 					self.tiapp.properties.get("statusbar-hidden") == "true"):
@@ -807,8 +830,8 @@ class Builder(object):
 </style>
 </resources>
 """ % theme_flags
-			resfile.write(TITANIUM_THEME)
-			resfile.close()
+			theme_file.write(TITANIUM_THEME)
+			theme_file.close()
 		
 		# create our background image which acts as splash screen during load	
 		resources_dir = os.path.join(self.top_dir, 'Resources')
@@ -826,19 +849,25 @@ class Builder(object):
 						dest_file = os.path.join(dest_path, 'background.png')
 						if not os.path.exists(dest_path):
 							os.makedirs(dest_path)
-						shutil.copy(path, dest_file)
+						if Deltafy.needs_update(path, dest_file):
+							self.res_changed = True
+							debug('copying %s splash screen to %s' % (path, dest_file))
+							shutil.copy(path, dest_file)
 
-		splashimage = os.path.join(self.assets_resources_dir,'default.png')
-		background_png = os.path.join('res','drawable','background.png')
-		if os.path.exists(splashimage):
-			debug("found splash screen at %s" % os.path.abspath(splashimage))
-			shutil.copy(splashimage, background_png)
-		else:
-			shutil.copy(os.path.join(self.support_resources_dir, 'default.png'), background_png)
+		default_png = os.path.join(self.assets_resources_dir, 'default.png')
+		support_default_png = os.path.join(self.support_resources_dir, 'default.png')
+		background_png = os.path.join(self.project_dir, 'res','drawable','background.png')
+		if os.path.exists(default_png) and Deltafy.needs_update(default_png, background_png):
+			self.res_changed = True
+			debug("found splash screen at %s" % os.path.abspath(default_png))
+			shutil.copy(default_png, background_png)
+		elif Deltafy.needs_update(support_default_png, background_png):
+			self.res_changed = True
+			debug("copying default splash screen")
+			shutil.copy(support_default_png, background_png)
 		
 
 		android_manifest = os.path.join(self.project_dir, 'AndroidManifest.xml')
-		
 		android_manifest_to_read = android_manifest
 
 		# NOTE: allow the user to use their own custom AndroidManifest if they put a file named
@@ -1007,24 +1036,41 @@ class Builder(object):
 			amf.write(new_manifest_contents)
 			amf.close()
 			manifest_changed = True
-		
-		res_dir = os.path.join(self.project_dir, 'res')
-		output = run.run([self.aapt, 'package', '-m', '-J', self.project_gen_dir, '-M', android_manifest, '-S', res_dir, '-I', self.android_jar],
-			warning_regex=r'skipping')
+
+		if self.res_changed or manifest_changed:
+			res_dir = os.path.join(self.project_dir, 'res')
+			output = run.run([self.aapt, 'package', '-m', '-J', self.project_gen_dir, '-M', android_manifest, '-S', res_dir, '-I', self.android_jar],
+				warning_regex=r'skipping')
 		
 		r_file = os.path.join(self.project_gen_dir, self.app_id.replace('.', os.sep), 'R.java')
-		if not os.path.exists(r_file) or output == None:
+		if not os.path.exists(r_file) or (self.res_changed and output == None):
 			error("Error generating R.java from manifest")
 			sys.exit(1)
 		
 		return manifest_changed
 
 	def generate_stylesheet(self):
-		cssc = csscompiler.CSSCompiler(os.path.join(self.top_dir, 'Resources'), 'android', self.app_id)
+		update_stylesheet = False
+		resources_dir = os.path.join(self.top_dir, 'Resources')
 		project_gen_pkg_dir = os.path.join(self.project_gen_dir, self.app_id.replace('.', os.sep))
+		app_stylesheet = os.path.join(project_gen_pkg_dir, 'ApplicationStylesheet.java')
+		if not os.path.exists(app_stylesheet):
+			update_stylesheet = True
+		else:
+			for root, dirs, files in os.walk(resources_dir):
+				for file in files:
+					if file.endswith(".jss"):
+						absolute_path = os.path.join(root, file)
+						if Deltafy.needs_update(absolute_path, app_stylesheet):
+							update_stylesheet = True
+							break
+
+		if not update_stylesheet:
+			return
+
+		cssc = csscompiler.CSSCompiler(resources_dir, 'android', self.app_id)
 		if not os.path.exists(project_gen_pkg_dir):
 			os.makedirs(project_gen_pkg_dir)
-		app_stylesheet = os.path.join(project_gen_pkg_dir, 'ApplicationStylesheet.java')
 		debug("app stylesheet => %s" % app_stylesheet)
 		
 		asf = codecs.open(app_stylesheet, 'w', 'utf-8')
@@ -1093,9 +1139,22 @@ class Builder(object):
 		src_list = []
 		self.module_jars = []
 
+		class_delta = timedelta(seconds=1)
 		for java_file in self.recurse([self.project_src_dir, self.project_gen_dir], '*.java'):
-			# the file list file still needs each file escaped apparently
-			src_list.append('"%s"' % java_file.replace("\\", "\\\\"))
+			if self.project_src_dir in java_file:
+				relative_path = java_file[len(self.project_src_dir)+1:]
+			else:
+				relative_path = java_file[len(self.project_gen_dir)+1:]
+			class_file = os.path.join(self.classes_dir, relative_path.replace('.java', '.class'))
+
+			if Deltafy.needs_update(java_file, class_file) > 0:
+				# the file list file still needs each file escaped apparently
+				debug("adding %s to javac build list" % java_file)
+				src_list.append('"%s"' % java_file.replace("\\", "\\\\"))
+
+		if len(src_list) == 0:
+			# No sources are older than their classfile counterparts, we can skip javac / dex
+			return False
 
 		classpath = os.pathsep.join([self.android_jar, os.pathsep.join(self.android_jars)])
 
@@ -1110,7 +1169,9 @@ class Builder(object):
 				classpath = os.pathsep.join([classpath, jar])
 
 		if self.deploy_type != 'production':
-			classpath = os.pathsep.join([classpath, os.path.join(self.support_dir, 'lib', 'titanium-verify.jar')])
+			classpath = os.pathsep.join([classpath,
+				os.path.join(self.support_dir, 'lib', 'titanium-verify.jar'),
+				os.path.join(self.support_dir, 'lib', 'titanium-debug.jar')])
 
 		debug("Building Java Sources: " + " ".join(src_list))
 		javac_command = [self.javac, '-encoding', 'utf8', '-classpath', classpath, '-d', self.classes_dir, '-sourcepath', self.project_src_dir, '-sourcepath', self.project_gen_dir]
@@ -1122,19 +1183,28 @@ class Builder(object):
 		javac_command.append('@' + src_list_filename)
 		out = run.run(javac_command)
 		os.remove(src_list_filename)
+		return True
 
 	def create_unsigned_apk(self, resources_zip_file):
 		unsigned_apk = os.path.join(self.project_dir, 'bin', 'app-unsigned.apk')
+		self.apk_updated = False
+
+		apk_modified = None
+		if os.path.exists(unsigned_apk):
+			apk_modified = Deltafy.get_modified_datetime(unsigned_apk)
+
 		debug("creating unsigned apk: " + unsigned_apk)
 		# copy existing resources into the APK
-		resources_zip = zipfile.ZipFile(resources_zip_file)
 		apk_zip = zipfile.ZipFile(unsigned_apk, 'w', zipfile.ZIP_DEFLATED)
 
 		def skip_jar_path(path):
-			return path.endswith('/') or \
-				path.startswith('META-INF/') or \
-				path.split('/')[-1].startswith('.')
-		
+			ext = os.path.splitext(path)[1]
+			if path.endswith('/'): return True
+			if path.startswith('META-INF/'): return True
+			if path.split('/')[-1].startswith('.'): return True
+			if ext == '.class': return True
+			if 'org/appcelerator/titanium/bindings' in path and ext == '.json': return True
+
 		def compression_type(path):
 			ext = os.path.splitext(path)[1]
 			if ext in uncompressed_types:
@@ -1146,30 +1216,39 @@ class Builder(object):
 			info.compress_type = compression_type(path)
 			return info
 
-		for path in resources_zip.namelist():
-			if skip_jar_path(path): continue
-			debug("from resource zip => " + path)
-			apk_zip.writestr(zipinfo(path), resources_zip.read(path))
-		resources_zip.close()
+		def is_modified(path):
+			return apk_modified is None or Deltafy.needs_update_timestamp(path, apk_modified)
+
+		if is_modified(resources_zip_file):
+			self.apk_updated = True
+			resources_zip = zipfile.ZipFile(resources_zip_file)
+			for path in resources_zip.namelist():
+				if skip_jar_path(path): continue
+				debug("from resource zip => " + path)
+				apk_zip.writestr(zipinfo(path), resources_zip.read(path))
+			resources_zip.close()
 		
 		# add classes.dex
-		apk_zip.write(self.classes_dex, 'classes.dex')
+		if is_modified(self.classes_dex):
+			apk_zip.write(self.classes_dex, 'classes.dex')
 		
 		# add all resource files from the project
 		for root, dirs, files in os.walk(self.project_src_dir):
 			for file in files:
 				if os.path.splitext(file)[1] != '.java':
+					absolute_path = os.path.join(root, file)
 					relative_path = os.path.join(root[len(self.project_src_dir)+1:], file)
-					debug("resource file => " + relative_path)
-					apk_zip.write(os.path.join(root, file), relative_path, compression_type(file))
+					if is_modified(absolute_path):
+						self.apk_updated = True
+						debug("resource file => " + relative_path)
+						apk_zip.write(os.path.join(root, file), relative_path, compression_type(file))
 		
 		def add_resource_jar(jar_file):
 			jar = zipfile.ZipFile(jar_file)
 			for path in jar.namelist():
 				if skip_jar_path(path): continue
-				if os.path.splitext(path)[1] != '.class':
-					debug("from JAR %s => %s" % (jar_file, path))
-					apk_zip.writestr(zipinfo(path), jar.read(path))
+				debug("from JAR %s => %s" % (jar_file, path))
+				apk_zip.writestr(zipinfo(path), jar.read(path))
 			jar.close()
 		
 		for jar_file in self.module_jars:
@@ -1184,7 +1263,11 @@ class Builder(object):
 					if not os.path.isdir(libs_abi_dir): continue
 					for file in os.listdir(libs_abi_dir):
 						if file.endswith('.so'):
-							apk_zip.write(os.path.join(libs_abi_dir, file), '/'.join(['lib', abi_dir, file]))
+							native_lib = os.path.join(libs_abi_dir, file)
+							if is_modified(native_lib):
+								self.apk_updated = True
+								debug("installing native lib: %s" % native_lib)
+								apk_zip.write(native_lib, '/'.join(['lib', abi_dir, file]))
 
 		# add any native libraries : libs/**/*.so -> lib/**/*.so
 		add_native_libs(os.path.join(self.project_dir, 'libs'))
@@ -1205,9 +1288,23 @@ class Builder(object):
 	def package_and_deploy(self):
 		ap_ = os.path.join(self.project_dir, 'bin', 'app.ap_')
 		rhino_jar = os.path.join(self.support_dir, 'js.jar')
-		run.run([self.aapt, 'package', '-f', '-M', 'AndroidManifest.xml', '-A', self.assets_dir,
+
+		# This is only to check if this has been overridden in production
+		has_compile_js = self.tiappxml.has_app_property("ti.android.compilejs")
+		compile_js = not has_compile_js or (has_compile_js and \
+			self.tiappxml.to_bool(self.tiappxml.get_app_property('ti.android.compilejs')))
+
+		pkg_assets_dir = self.assets_dir
+		if self.deploy_type == "production" and compile_js:
+			non_js_assets = os.path.join(self.project_dir, 'bin', 'non-js-assets')
+			if not os.path.exists(non_js_assets):
+				os.mkdir(non_js_assets)
+			copy_all(self.assets_dir, non_js_assets, ignore_exts=[".js"])
+			pkg_assets_dir = non_js_assets
+
+		run.run([self.aapt, 'package', '-f', '-M', 'AndroidManifest.xml', '-A', pkg_assets_dir,
 			'-S', 'res', '-I', self.android_jar, '-I', self.titanium_jar, '-F', ap_], warning_regex=r'skipping')
-	
+
 		unsigned_apk = self.create_unsigned_apk(ap_)
 		#unsigned_apk = os.path.join(self.project_dir, 'bin', 'app-unsigned.apk')
 		#apk_build_cmd = [self.apkbuilder, unsigned_apk, '-u', '-z', ap_, '-f', self.classes_dex, '-rf', self.project_src_dir]
@@ -1300,15 +1397,40 @@ class Builder(object):
 			'-n', '%s/.%sActivity' % (self.app_id , self.classname))
 		trace("Launch output: %s" % output)
 
-	def enable_debugger(self, debugger_host):
-		info("Enabling Debugger at %s" % debugger_host)
-		hostport = debugger_host.split(":")
-		debugger_config = { "host": hostport[0], "port": hostport[1] }
-		debug_json = os.path.join(self.project_dir, 'bin', 'debug.json')
-		open(debug_json, 'w+').write(simplejson.dumps(debugger_config))
+	def push_deploy_json(self):
+		deploy_data = {
+			"debuggerEnabled": self.debugger_host != None,
+			"debuggerPort": self.debugger_port,
+			"fastdevPort": self.fastdev_port
+		}
+		deploy_json = os.path.join(self.project_dir, 'bin', 'deploy.json')
+		open(deploy_json, 'w+').write(simplejson.dumps(deploy_data))
 		self.run_adb('shell', 'mkdir /sdcard/%s || echo' % self.app_id)
-		self.run_adb('push', debug_json, '/sdcard/%s/debug.json' % self.app_id)
-		os.unlink(debug_json)
+		self.run_adb('push', deploy_json, '/sdcard/%s/deploy.json' % self.app_id)
+		os.unlink(deploy_json)
+
+	def enable_fastdev(self):
+		lock_file = os.path.join(self.top_dir, ".fastdev.lock")
+		if not os.path.exists(lock_file):
+			info("Enabling Fastdev... (5s)")
+			fastdev = os.path.join(template_dir, "fastdev.py")
+			pid = subprocess.Popen([sys.executable, fastdev, "start", self.top_dir]).pid
+			# sleep a few seconds to give the server enough time
+			# to load and give us the info we need
+			time.sleep(5)
+
+		data = simplejson.loads(open(lock_file, 'r').read())
+		self.fastdev_port = data["port"]
+
+	def fastdev_kill_app(self):
+		lock_file = os.path.join(self.top_dir, ".fastdev.lock")
+		if os.path.exists(lock_file):
+			fastdev = os.path.join(template_dir, "fastdev.py")
+			process = subprocess.Popen([sys.executable, fastdev, "kill-app", self.top_dir])
+			process.communicate()
+			if process.returncode != 0:
+				return False
+		return True
 
 	def merge_internal_module_resources(self):
 		if not self.android_jars:
@@ -1326,7 +1448,6 @@ class Builder(object):
 				raise
 			finally:
 				res_zip_file.close()
-
 
 	def build_and_run(self, install, avd_id, keystore=None, keystore_pass='tirocks', keystore_alias='tidev', dist_dir=None, build_only=False, device_args=None, debugger_host=None):
 		deploy_type = 'development'
@@ -1354,8 +1475,7 @@ class Builder(object):
 			local_compiler_dir = os.path.abspath(os.path.join(self.top_dir,'plugins'))
 			tp_compiler_dir = os.path.abspath(os.path.join(titanium_dir,'plugins'))
 			if not os.path.exists(tp_compiler_dir) and not os.path.exists(local_compiler_dir):
-				print "[ERROR] Build Failed (Missing plugins directory)"
-				sys.stdout.flush()
+				error("Build Failed (Missing plugins directory)")
 				sys.exit(1)
 			compiler_config = {
 				'platform':'android',
@@ -1369,17 +1489,18 @@ class Builder(object):
 				'build_dir':s.project_dir,
 				'app_name':self.name,
 				'android_builder':self,
-				'deploy_type':deploy_type
+				'deploy_type':deploy_type,
+				'dist_dir':dist_dir,
+				'logger':log
 			}
 			for plugin in self.tiappxml.properties['plugins']:
 				local_plugin_file = os.path.join(local_compiler_dir,plugin['name'],'plugin.py')
 				plugin_file = os.path.join(tp_compiler_dir,plugin['name'],plugin['version'],'plugin.py')
-				print "[INFO] plugin=%s" % plugin_file
+				info("plugin=%s" % plugin_file)
 				if not os.path.exists(local_plugin_file) and not os.path.exists(plugin_file):
-					print "[ERROR] Build Failed (Missing plugin for %s)" % plugin['name']
-					sys.stdout.flush()
+					error("Build Failed (Missing plugin for %s)" % plugin['name'])
 					sys.exit(1)
-				print "[INFO] Detected compiler plugin: %s/%s" % (plugin['name'],plugin['version'])
+				info("Detected compiler plugin: %s/%s" % (plugin['name'],plugin['version']))
 				code_path = plugin_file
 				if os.path.exists(local_plugin_file):	
 					code_path = local_plugin_file
@@ -1438,9 +1559,9 @@ class Builder(object):
 		else:
 			self.app_installed = not build_only and self.is_app_installed()
 			debug("%s installed? %s" % (self.app_id, self.app_installed))
-			
-			self.resources_installed = not build_only and self.are_resources_installed()
-			debug("%s resources installed? %s" % (self.app_id, self.resources_installed))
+
+			#self.resources_installed = not build_only and self.are_resources_installed()
+			#debug("%s resources installed? %s" % (self.app_id, self.resources_installed))
 			
 		if keystore == None:
 			keystore = os.path.join(self.support_dir,'dev_keystore')
@@ -1474,18 +1595,29 @@ class Builder(object):
 			if self.tiapp.has_app_property(sdcard_property):
 				self.sdcard_copy = self.tiapp.to_bool(self.tiapp.get_app_property(sdcard_property))
 
+			fastdev_property = "ti.android.fastdev"
+			self.fastdev = self.deploy_type == 'development'
+			if self.tiapp.has_app_property(fastdev_property):
+				self.fastdev = self.tiapp.to_bool(self.tiapp.get_app_property(fastdev_property))
+
 			self.classes_dir = os.path.join(self.project_dir, 'bin', 'classes')	
 			if not os.path.exists(self.classes_dir):
 				os.makedirs(self.classes_dir)
 
-			if debugger_host != None:
-				self.enable_debugger(debugger_host)
+			if (not debugger_host is None) and (not self.debugger_host is None) and len(self.debugger_host) > 0:
+				hostport = debugger_host.split(":")
+				self.debugger_host = hostport[0]
+				self.debugger_port = int(hostport[1])
+			debugger_enabled = self.debugger_host != None and len(self.debugger_host) > 0
 
+			# self.enable_debugger(debugger_host)
 			self.copy_project_resources()
 
-			if self.tiapp_changed or self.js_changed or self.force_rebuild or self.deploy_type == "production":
+			if self.tiapp_changed or (self.js_changed and not self.fastdev) or \
+				self.force_rebuild or self.deploy_type == "production":
 				trace("Generating Java Classes")
-				self.android.create(os.path.abspath(os.path.join(self.top_dir,'..')), True, project_dir=self.top_dir)
+				self.android.create(os.path.abspath(os.path.join(self.top_dir,'..')),
+					True, project_dir = self.top_dir)
 			else:
 				info("Tiapp.xml unchanged, skipping class generation")
 
@@ -1500,7 +1632,7 @@ class Builder(object):
 			if not os.path.exists(self.assets_dir):
 				os.makedirs(self.assets_dir)
 
-			self.copy_resource_drawables()
+			self.resource_drawables_changed = self.copy_resource_drawables()
 
 			self.warn_dupe_drawable_folders()
 
@@ -1522,7 +1654,7 @@ class Builder(object):
 			self.generate_stylesheet()
 			self.generate_aidl()
 			
-			manifest_changed = self.generate_android_manifest(compiler)
+			self.manifest_changed = self.generate_android_manifest(compiler)
 			my_avd = None	
 			self.google_apis_supported = False
 				
@@ -1538,19 +1670,21 @@ class Builder(object):
 
 			remove_orphaned_files(resources_dir, os.path.join(self.project_dir, 'bin', 'assets', 'Resources'))
 
-			self.build_generated_classes()
-			generated_classes_built = True
-			
+			generated_classes_built = self.build_generated_classes()
+			if self.fastdev and not build_only:
+				self.enable_fastdev()
+
+			self.push_deploy_json()
 			self.classes_dex = os.path.join(self.project_dir, 'bin', 'classes.dex')
 			
 			def jar_includer(path, isfile):
 				if isfile and path.endswith(".jar"): return True
 				return False
 			support_deltafy = Deltafy(self.support_dir, jar_includer)
-			support_deltas = support_deltafy.scan()
+			self.support_deltas = support_deltafy.scan()
 			
 			dex_built = False
-			if len(support_deltas) > 0 or generated_classes_built or self.deploy_type == "production":
+			if len(self.support_deltas) > 0 or generated_classes_built or self.deploy_type == "production":
 				# the dx.bat that ships with android in windows doesn't allow command line
 				# overriding of the java heap space, so we call the jar directly
 				if platform.system() == 'Windows':
@@ -1571,9 +1705,14 @@ class Builder(object):
 							break
 					if not has_network_jar:
 						dex_args.append(os.path.join(self.support_dir, 'modules', 'titanium-network.jar'))
+
+					# substitute for the debugging js jar in non production mode
+					for jar in self.android_jars:
+						if jar.endswith('js.jar'):
+							dex_args.remove(jar)
+							dex_args.append(os.path.join(self.support_dir, 'js-debug.jar'))
 	
 				info("Compiling Android Resources... This could take some time")
-				sys.stdout.flush()
 				# TODO - Document Exit message
 				run_result = run.run(dex_args, warning_regex=r'warning: ')
 				if (run_result == None):
@@ -1582,8 +1721,9 @@ class Builder(object):
 					sys.exit(1)
 				else:
 					dex_built = True
+					debug("Android classes.dex built")
 			
-			if self.sdcard_copy and not build_only and \
+			"""if self.sdcard_copy and not build_only and \
 				(not self.resources_installed or not self.app_installed) and \
 				(self.deploy_type == 'development' or self.deploy_type == 'test'):
 				
@@ -1597,9 +1737,9 @@ class Builder(object):
 					android_resources_dir = os.path.join(self.top_dir, 'Resources', 'android')
 					if os.path.exists(android_resources_dir):
 						output = self.run_adb('push', android_resources_dir, self.sdcard_resources)
-						trace("result: %s" % output)
+						trace("result: %s" % output)"""
 						
-			if dex_built or generated_classes_built or self.tiapp_changed or manifest_changed or not self.app_installed or not self.sdcard_copy:
+			if dex_built or generated_classes_built or self.tiapp_changed or self.manifest_changed or not self.app_installed or not self.fastdev:
 				# metadata has changed, we need to do a full re-deploy
 				launched, launch_failed = self.package_and_deploy()
 				if launched:
@@ -1608,27 +1748,35 @@ class Builder(object):
 				elif launch_failed==False and not build_only:
 					info("Application installed. Launch from drawer on Home Screen")
 			elif not build_only:
-				
-				# we copied all the files to the sdcard, no need to package
-				# just kill from adb which forces a restart
+				# Relaunch app if nothing was built
 				info("Re-launching application ... %s" % self.name)
-				
+
 				relaunched = False
-				processes = self.run_adb('shell', 'ps')
-				for line in processes.splitlines():
-					columns = line.split()
-					if len(columns) > 1:
-						pid = columns[1]
-						id = columns[len(columns)-1]
-						
-						if id == self.app_id:
-							self.run_adb('shell', 'kill', pid)
-							relaunched = True
+				killed = False
+				if self.fastdev:
+					killed = self.fastdev_kill_app()
+				
+				if not killed:
+					processes = self.run_adb('shell', 'ps')
+					for line in processes.splitlines():
+						columns = line.split()
+						if len(columns) > 1:
+							pid = columns[1]
+							id = columns[len(columns)-1]
+							
+							if id == self.app_id:
+								self.run_adb('shell', 'kill', pid)
+								relaunched = True
 
 				self.run_app()
 				if relaunched:
 					info("Relaunched %s ... Application should be running." % self.name)
 
+			#intermediary code for on-device debugging (later)
+			#if debugger_host != None:
+				#import debugger
+				#debug("connecting to debugger: %s, debugger=%s" % (debugger_host, str(debugger)))
+				#debugger.run(debugger_host, '127.0.0.1:5999')
 		finally:
 			os.chdir(curdir)
 			sys.stdout.flush()
@@ -1654,7 +1802,7 @@ if __name__ == "__main__":
 		usage()
 	
 	command = sys.argv[1]
-	
+	log = TiLogger(os.path.join(os.path.abspath(os.path.expanduser(dequote(sys.argv[4]))), 'build.log'))
 	template_dir = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
 	get_values_from_tiapp = False
 	

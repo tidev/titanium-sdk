@@ -7,6 +7,7 @@
 package ti.modules.titanium.media;
 
 import org.appcelerator.titanium.TiApplication;
+import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
@@ -15,6 +16,7 @@ import org.appcelerator.titanium.view.TiUIView;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.media.MediaPlayer;
@@ -41,11 +43,16 @@ public class TiVideoActivity extends Activity
 	public static final int MSG_ADD_VIEW = 10001;
 	public static final int MSG_STOP_PLAYBACK = 10002;
 	public static final int MSG_HIDE = 10003;
+	public static final int MSG_MEDIA_CONTROL_STYLE_CHANGE = 10004;
+	public static final int MSG_PAUSE_PLAYBACK = 10005;
+	public static final int MSG_START_PLAYBACK = 10006;
+	public static final int MSG_SCALING_MODE_CHANGE = 10007;
 
 	private Handler handler;
 	private String contentUrl;
 	private Messenger proxyMessenger;
 	private ResultReceiver messengerReceiver;
+	private MediaController mediaController;
 
 	private TiCompositeLayout layout;
 	private TiVideoView4 videoView;
@@ -65,11 +72,60 @@ public class TiVideoActivity extends Activity
 		}
 		handler = new Handler(this);
 
-		Intent intent = getIntent();
+		final Intent intent = getIntent();
 
-		contentUrl = intent.getStringExtra("contentURL");
-		boolean play = intent.getBooleanExtra("play", false);
-		videoView = new TiVideoView4(this);
+		contentUrl = intent.getStringExtra(TiC.PROPERTY_CONTENT_URL);
+		boolean play = intent.getBooleanExtra(TiC.PROPERTY_PLAY, false);
+		videoView = new TiVideoView4(this) {
+
+			@Override
+			protected void measureVideo(int videoWidth, int videoHeight,
+					int widthMeasureSpec, int heightMeasureSpec) 
+			{
+		        //Log.i("@@@@", "onMeasure");
+		        int width = getDefaultSize(videoWidth, widthMeasureSpec);
+		        int height = getDefaultSize(videoHeight, heightMeasureSpec);
+		        if (videoWidth > 0 && videoHeight > 0) {
+		        	int mode = intent.getIntExtra(TiC.PROPERTY_SCALING_MODE, MediaModule.VIDEO_SCALING_ASPECT_FIT);
+		        	mode = MediaModule.VIDEO_SCALING_MODE_FILL;
+		        	
+		        	switch(mode) {
+			        	case MediaModule.VIDEO_SCALING_NONE : {
+			        		width = videoWidth;
+			        		height = videoHeight;
+			        		break;
+			        	}
+			        	case MediaModule.VIDEO_SCALING_ASPECT_FILL : {
+				            if ( videoWidth * height  > width * videoHeight ) {
+				                //Log.i("@@@", "image too tall, correcting");
+				                width = height * videoWidth / videoHeight;
+				            } else if ( videoWidth * height  < width * videoHeight ) {
+				                //Log.i("@@@", "image too wide, correcting");
+				                height = width * videoHeight / videoWidth;
+				            }
+			        		break;
+			        	}
+			        	case MediaModule.VIDEO_SCALING_ASPECT_FIT : {
+				            if ( videoWidth * height  > width * videoHeight ) {
+				                //Log.i("@@@", "image too tall, correcting");
+				                height = width * videoHeight / videoWidth;
+				            } else if ( videoWidth * height  < width * videoHeight ) {
+				                //Log.i("@@@", "image too wide, correcting");
+				                width = height * videoWidth / videoHeight;
+				            }
+				            break;
+			        	}
+			        	case MediaModule.VIDEO_SCALING_MODE_FILL : {
+			        		width = MeasureSpec.getSize(widthMeasureSpec) + 1;
+			        		height = MeasureSpec.getSize(heightMeasureSpec) + 1;
+			        		break;
+			        	}
+		        	}
+		        }
+ 		        Log.i("@@@@@@@@@@", "setting size: " + width + 'x' + height);
+		        setMeasuredDimension(width, height);    	
+			}			
+		};
 	
 		if (play) {
 			Thread t = new Thread(new Runnable(){
@@ -86,11 +142,11 @@ public class TiVideoActivity extends Activity
 			t.start();
 		}
 
-		proxyMessenger = intent.getParcelableExtra("messenger");
-		messengerReceiver = intent.getParcelableExtra("messengerReceiver");
+		proxyMessenger = intent.getParcelableExtra(TiC.PROPERTY_MESSENGER);
+		messengerReceiver = intent.getParcelableExtra(TiC.PROPERTY_MESSENGER_RECEIVER);
 		
-		if (intent.hasExtra("backgroundColor")) {
-			ColorDrawable d = new ColorDrawable(intent.getIntExtra("backgroundColor", Color.RED));
+		if (intent.hasExtra(TiC.PROPERTY_BACKGROUND_COLOR)) {
+			ColorDrawable d = new ColorDrawable(intent.getIntExtra(TiC.PROPERTY_BACKGROUND_COLOR, Color.RED));
 			getWindow().setBackgroundDrawable(d);
 		}
 
@@ -112,14 +168,19 @@ public class TiVideoActivity extends Activity
 			}
 		});
 
-		videoView.setMediaController(new MediaController(this));
+		int style = MediaModule.VIDEO_CONTROL_DEFAULT;
+		
+		if (intent.hasExtra(TiC.PROPERTY_MEDIA_CONTROL_STYLE)) {
+			style = intent.getIntExtra(TiC.PROPERTY_MEDIA_CONTROL_STYLE, MediaModule.VIDEO_CONTROL_DEFAULT);
+			handleControlVisibility(style);
+		}
 		videoView.requestFocus();
 
 		TiCompositeLayout.LayoutParams params = new TiCompositeLayout.LayoutParams();
 //		params.autoFillsHeight = true;
 //		params.autoFillsWidth = true;
-		params.autoHeight = true;
-		params.autoWidth = true;
+//		params.autoHeight = true;
+//		params.autoWidth = true;
 		layout.addView(videoView, params);
 
 		setContentView(layout);
@@ -132,8 +193,10 @@ public class TiVideoActivity extends Activity
 		switch (msg.what) {
 			case MSG_PLAY : {
 
-				Uri uri = Uri.parse(contentUrl);
-				videoView.setVideoURI(uri);
+				if (!started) {
+					Uri uri = Uri.parse(contentUrl);
+					videoView.setVideoURI(uri);
+				}
 				videoView.start();
 				started = true;
 
@@ -159,6 +222,22 @@ public class TiVideoActivity extends Activity
 				}
 				return false;
 			}
+			case MSG_PAUSE_PLAYBACK: {
+				if (videoView != null && started) {
+					videoView.pause();
+					started = false;
+					return true;
+				}
+				return false;
+			}
+			case MSG_START_PLAYBACK: {
+				if (videoView != null && !started) {
+					videoView.start();
+					started = true;
+					return true;
+				}
+				return false;				
+			}
 			case MSG_HIDE: {
 				if (videoView != null && started) {
 					videoView.stopPlayback();
@@ -166,9 +245,54 @@ public class TiVideoActivity extends Activity
 				}
 				finish();
 				return true;
+			} 
+			case MSG_MEDIA_CONTROL_STYLE_CHANGE : {
+				int style = msg.arg1;
+				handleControlVisibility(style);
+				return true;
+			}
+			case MSG_SCALING_MODE_CHANGE : {
+				int mode = msg.arg1;
+				getIntent().putExtra(TiC.PROPERTY_SCALING_MODE, mode);
+				layout.requestLayout();
+				return true;
 			}
 		}
 		return false;
+	}
+
+	private void handleControlVisibility(int style) 
+	{
+		boolean showController = true;
+		
+		switch(style) {
+		case MediaModule.VIDEO_CONTROL_DEFAULT:
+		case MediaModule.VIDEO_CONTROL_EMBEDDED:
+		case MediaModule.VIDEO_CONTROL_FULLSCREEN:
+			showController = true;
+			break;
+		case MediaModule.VIDEO_CONTROL_HIDDEN:
+		case MediaModule.VIDEO_CONTROL_NONE:
+			showController = false;
+			break;
+		}
+
+		if (showController) {
+			if (mediaController == null) {
+				mediaController = new MediaController(this);
+			}
+			videoView.setMediaController(mediaController);
+		} else {
+			videoView.setMediaController(null);
+		}
+	}
+	
+	@Override
+	public void onConfigurationChanged(Configuration newConfig) {
+		super.onConfigurationChanged(newConfig);
+		if (mediaController != null && mediaController.isShowing()) {
+			mediaController.hide();
+		}
 	}
 
 	@Override

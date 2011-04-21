@@ -75,6 +75,7 @@ public class PickerRowProxy extends TiViewProxy
 	@Override
 	public void handleCreationDict(KrollDict options)
 	{
+		super.handleCreationDict(options);
 		if (options.containsKey("title")) {
 			title = TiConvert.toString(options, "title");
 		}
