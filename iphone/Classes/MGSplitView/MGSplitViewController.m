@@ -713,7 +713,7 @@
 - (void) toggleMasterPopover:(id)sender {
     if ( _hiddenPopoverController ) {
         if ( _hiddenPopoverController.popoverVisible ) {
-            [self showMasterPopover:sender];
+            [self hideMasterPopover:sender];
         }
         else {
             [self showMasterPopover:sender];
