@@ -14,10 +14,8 @@ import org.appcelerator.titanium.proxy.BufferProxy;
 
 public interface TiStream
 {
-	int read(BufferProxy buffer) throws IOException;
-	int read(BufferProxy buffer, int offset, int length) throws IOException;
-	int write(BufferProxy buffer) throws IOException;
-	int write(BufferProxy buffer, int offset, int length) throws IOException;
+	int read(Object args[]) throws IOException;
+	int write(Object args[]) throws IOException;
 	boolean isWriteable();
 	boolean isReadable();
 }

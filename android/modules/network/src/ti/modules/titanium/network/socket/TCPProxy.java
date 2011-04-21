@@ -54,7 +54,7 @@ public class TCPProxy extends KrollProxy implements TiStream
 	}
 
 	@Kroll.method
-	public void connect() throws Exception
+	public void connect()
 	{
 		Object host = getProperty("host");
 		Object port = getProperty("port");
@@ -63,7 +63,7 @@ public class TCPProxy extends KrollProxy implements TiStream
 			new ConnectedSocketThread().start();
 
 		} else {
-			throw new Exception("unable to call connect, socket must have a valid host and port");
+			throw new IllegalArgumentException("unable to call connect, socket must have a valid host and port");
 		}
 	}
 
@@ -92,7 +92,7 @@ public class TCPProxy extends KrollProxy implements TiStream
 			}
 
 		} else {
-			throw new Exception("unable to call listen, socket must have a valid port");
+			throw new IllegalArgumentException("unable to call listen, socket must have a valid port");
 		}
 	}
 
@@ -212,7 +212,7 @@ public class TCPProxy extends KrollProxy implements TiStream
 
 			} catch (IOException e) {
 				e.printStackTrace();
-				updateState(SOCKET_ERROR, "error", buildErrorCallbackArgs("Unable to connect to , IO error", 0));
+				updateState(SOCKET_ERROR, "error", buildErrorCallbackArgs("Unable to connect, IO error", 0));
 			}
 		}
 	}
@@ -328,21 +328,43 @@ public class TCPProxy extends KrollProxy implements TiStream
 
 	// TiStream interface methods
 	@Kroll.method
-	public int read(BufferProxy bufferProxy) throws IOException
+	public int read(Object args[]) throws IOException
 	{
-		try{
-			return TiStreamHelper.read(clientSocket.getInputStream(), bufferProxy);
+		BufferProxy bufferProxy = null;
+		int offset = 0;
+		int length = 0;
 
-		} catch (IOException e) {
-			e.printStackTrace();
-			clientSocket.close();
-			throw new IOException("Unable to read from socket, IO error");
+		if(args.length == 1 || args.length == 3) {
+			if(args.length == 1) {
+				if(args[0] instanceof BufferProxy) {
+					bufferProxy = (BufferProxy) args[0];
+					length = bufferProxy.getLength();
+
+				} else {
+					throw new IllegalArgumentException("Invalid buffer argument");
+				}
+			}
+
+			if(args.length == 3) {
+				if(args[1] instanceof Double) {
+					offset = ((Double)args[1]).intValue();
+
+				} else{
+					throw new IllegalArgumentException("Invalid offset argument");
+				}
+
+				if(args[2] instanceof Double) {
+					length = ((Double)args[2]).intValue();
+
+				} else {
+					throw new IllegalArgumentException("Invalid length argument");
+				}
+			}
+
+		} else {
+			throw new IllegalArgumentException("Invalid number of arguments");
 		}
-	}
 
-	@Kroll.method
-	public int read(BufferProxy bufferProxy, int offset, int length) throws IOException
-	{
 		try {
 			return TiStreamHelper.read(clientSocket.getInputStream(), bufferProxy, offset, length);
 
@@ -354,21 +376,43 @@ public class TCPProxy extends KrollProxy implements TiStream
 	}
 
 	@Kroll.method
-	public int write(BufferProxy bufferProxy) throws IOException
+	public int write(Object args[]) throws IOException
 	{
-		try {
-			return TiStreamHelper.write(clientSocket.getOutputStream(), bufferProxy);
+		BufferProxy bufferProxy = null;
+		int offset = 0;
+		int length = 0;
 
-		} catch (IOException e) {
-			e.printStackTrace();
-			clientSocket.close();
-			throw new IOException("Unable to write to socket, IO error");
+		if(args.length == 1 || args.length == 3) {
+			if(args.length == 1) {
+				if(args[0] instanceof BufferProxy) {
+					bufferProxy = (BufferProxy) args[0];
+					length = bufferProxy.getLength();
+
+				} else {
+					throw new IllegalArgumentException("Invalid buffer argument");
+				}
+			}
+
+			if(args.length == 3) {
+				if(args[1] instanceof Double) {
+					offset = ((Double)args[1]).intValue();
+
+				} else{
+					throw new IllegalArgumentException("Invalid offset argument");
+				}
+
+				if(args[2] instanceof Double) {
+					length = ((Double)args[2]).intValue();
+
+				} else {
+					throw new IllegalArgumentException("Invalid length argument");
+				}
+			}
+
+		} else {
+			throw new IllegalArgumentException("Invalid number of arguments");
 		}
-	}
 
-	@Kroll.method
-	public int write(BufferProxy bufferProxy, int offset, int length) throws IOException
-	{
 		try {
 			return TiStreamHelper.write(clientSocket.getOutputStream(), bufferProxy, offset, length);
 

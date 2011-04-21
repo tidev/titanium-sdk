@@ -23,11 +23,6 @@ public class TiStreamHelper
 	public static final int DEFAULT_BUFFER_SIZE = 1024;
 
 
-	public static int read(InputStream inputStream, BufferProxy bufferProxy)
-	{
-		return read(inputStream, bufferProxy, 0, bufferProxy.getBuffer().length);
-	}
-
 	public static int read(InputStream inputStream, BufferProxy bufferProxy, int offset, int length)
 	{
 		byte[] buffer = bufferProxy.getBuffer();
@@ -46,11 +41,6 @@ public class TiStreamHelper
 		}
 
 		return bytesRead;
-	}
-
-	public static int write(OutputStream outputStream, BufferProxy bufferProxy)
-	{
-		return write(outputStream, bufferProxy, 0, bufferProxy.getBuffer().length);
 	}
 
 	public static int write(OutputStream outputStream, BufferProxy bufferProxy, int offset, int length)
