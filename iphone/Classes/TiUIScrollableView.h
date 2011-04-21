@@ -12,7 +12,6 @@
 @private
 	UIScrollView *scrollview;
 	UIPageControl *pageControl;
-	NSMutableArray *views;
 	int currentPage; // Duplicate some info, just in case we're not showing the page control
 	BOOL showPageControl;
 	CGFloat pageControlHeight;
