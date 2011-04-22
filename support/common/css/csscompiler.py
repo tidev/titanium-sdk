@@ -59,6 +59,12 @@ CSS_MAPPINGS = {
 	u'background-color':u'backgroundColor'
 }
 
+def update_dict_of_dict(orig, to_add):
+	for key in to_add:
+		if key in orig:
+			orig[key].update(to_add[key])
+		else:
+			orig[key] = to_add[key].copy()
 
 class CSSCompiler(object):
 	
@@ -104,38 +110,52 @@ class CSSCompiler(object):
 		
 		self.classes = {}
 		self.ids = {}
+		self.tags = {}
 		self.classes_density = {}
 		self.ids_density = {}
+		self.tags_density = {}
 					
 		for filepath in self.files:
 			file_entry = self.files[filepath]
 			classes = {}
 			ids = {}
+			tags = {}
 			classes_density = {}
 			ids_density = {}
+			tags_density = {}
 			if file_entry['base']!=None:
-				self.fill_entries(file_entry['base'],classes,ids)
+				self.fill_entries(file_entry['base'],classes,ids,tags)
 			if file_entry['platform']!=None:
-				self.fill_entries(file_entry['platform'],classes,ids)
+				self.fill_entries(file_entry['platform'],classes,ids,tags)
 			if file_entry['density']!=None:
 				for name in file_entry['density']:
 					d = {}
 					i = {}
-					self.fill_entries(file_entry['density'][name],d,i)
+					t = {}
+					self.fill_entries(file_entry['density'][name],d,i,t)
 					classes_density[name] = d
 					ids_density[name] = i
+					tags_density[name] = t
 			self.classes[filepath] = classes
 			self.ids[filepath] = ids
+			self.tags[filepath] = tags
 			self.classes_density[filepath] = classes_density
 			self.ids_density[filepath] = ids_density
+			self.tags_density[filepath] = tags_density
 		
 		self.transform_properties()
 		
 		if self.platform == 'iphone' or self.platform == 'ipad' or self.platform == 'ios' or self.platform == 'universal':
-			self.code = self.generate_ios_code(self.classes,self.classes_density,self.ids,self.ids_density)
+			self.code = self.generate_ios_code(self.classes,self.classes_density,self.ids,self.ids_density,self.tags,self.tags_density)
 		elif self.platform == 'android':
+			#merge classes and tags for backward compatibility with current Android implementation
+			update_dict_of_dict(self.classes, self.tags)
+			update_dict_of_dict(self.classes_density, self.tags_density)
 			self.code = self.generate_android_code(self.classes,self.classes_density,self.ids,self.ids_density)
 		elif self.platform == 'blackberry':
+			#merge classes and tags for backward compatibility with current BB implementation
+			update_dict_of_dict(self.classes, self.tags)
+			update_dict_of_dict(self.classes_density, self.tags_density)
 			self.code = self.generate_bb_code(self.classes,self.classes_density,self.ids,self.ids_density)
 		
 	def transform_fonts(self,dict):
@@ -163,11 +183,15 @@ class CSSCompiler(object):
 	def transform_properties(self):
 		self.classes = self.transform_fonts(self.classes)
 		self.ids = self.transform_fonts(self.ids)
+		self.tags = self.transform_fonts(self.tags)
+		
 		for density in self.classes_density.keys():
 			self.classes_density[density] = self.transform_fonts(self.classes_density[density])
 		for density in self.ids_density.keys():
 			self.ids_density[density] = self.transform_fonts(self.ids_density[density])
-			
+		for density in self.tags_density.keys():
+			self.tags_density[density] = self.transform_fonts(self.tags_density[density])
+				
 	def parse(self,data):
 		parser = cssyacc.yacc()
 		parser.lexer = csslex.lex()
@@ -222,7 +246,7 @@ class CSSCompiler(object):
 		str+='</dict>\n'
 		return str
 
-	def generate_ios_code(self,classes,classes_density,ids,ids_density):
+	def generate_ios_code(self,classes,classes_density,ids,ids_density,tags,tags_density):
 		
 		body = """<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
@@ -236,13 +260,19 @@ class CSSCompiler(object):
 		%s
 		<key>ids_density</key>
 		%s
+		<key>tags</key>
+		%s
+		<key>tags_density</key>
+		%s
 	</dict>
 </plist>"""
 		
 		return body % (self.create_ios_dict(classes),
 						self.create_ios_density_dict(classes_density),
 						self.create_ios_dict(ids),
-						self.create_ios_density_dict(ids_density))
+						self.create_ios_density_dict(ids_density),
+						self.create_ios_dict(tags),
+						self.create_ios_density_dict(tags_density))
 		
 	def generate_mapname(self):
 		c = time.time()
@@ -327,19 +357,20 @@ class CSSCompiler(object):
 			return CSS_MAPPINGS[str(key)]
 		return key 
 			
-	def fill_entries(self,filepath,classes={},ids={}):
+	def fill_entries(self,filepath,classes={},ids={},tags={}):
 		contents = codecs.open(filepath,'r').read()
 		x = self.parse(contents)
 		for rule in x:
 			if isinstance(rule,css.Ruleset):
 				for selector in rule.selectors:
 					for r in rule:
-						dest = classes
+						dest = tags
 						key = selector
 						if selector[0:1]=='#':
 							dest = ids
 							key = key[1:]
 						elif selector[0:1]=='.':
+							dest = classes
 							key = key[1:]
 						prop = self.translate_key(r.property)
 						if not dest.has_key(key):
@@ -350,7 +381,7 @@ class CSSCompiler(object):
 				if not os.path.exists(p):
 					print "[ERROR] Couldn't find import file: %s" % p
 				else:
-					self.fill_entries(p,classes,ids)
+					self.fill_entries(p,classes,ids,tags)
 
 if __name__ == "__main__":
 	if len(sys.argv)==1 or len(sys.argv) < 3:
@@ -383,7 +414,6 @@ if __name__ == "__main__":
 		output_dir = os.path.expanduser(sys.argv[3])
 	
 	c = CSSCompiler(resources_dir,platform,app_id)
-	
 	
 	if platform == 'android':
 		if output_dir==None:

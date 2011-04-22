@@ -9,6 +9,7 @@
 #import "KrollBridge.h"
 #import "TiApp.h"
 #import "TiUtils.h"
+#import "TiBuffer.h"
 
 @implementation TopTiModule
 
@@ -71,4 +72,29 @@
 	}
 }
 #endif
+
+// TODO: Temp for socket testing; remove/rework for release.
+-(TiBuffer*)createBuffer:(id)arg
+{
+    ENSURE_SINGLE_ARG(arg, NSDictionary);
+    
+    id data = [arg valueForKey:@"data"];
+    int length = [[arg valueForKey:@"length"] intValue];
+    
+    if (data != nil) {
+        if ([data isKindOfClass:[NSString class]]) {
+            TiBuffer* buffer = [[[TiBuffer alloc] _initWithPageContext:[self executionContext]] autorelease];
+            [buffer setData:[NSMutableData dataWithData:[data dataUsingEncoding:NSUTF8StringEncoding]]];
+            return buffer;
+        }
+        else if ([data isKindOfClass:[TiBlob class]]) {
+            TiBuffer* buffer = [[[TiBuffer alloc] _initWithPageContext:[self executionContext]] autorelease];
+            [buffer setData:[NSMutableData dataWithData:[data data]]];
+            return buffer;
+        }
+    }
+    
+    return [[[TiBuffer alloc] _initWithPageContext:[self executionContext] args:[NSArray arrayWithObject:arg]] autorelease];
+}
+
 @end

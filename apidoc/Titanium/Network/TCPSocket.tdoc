@@ -9,7 +9,7 @@ object
 
 - description
 
-The TCPSocket instance returned from `Titanium.Network.createTCPSocket`.  This object represents a socket which either listens locally on the device for connections, or connects to a remote machine.
+DEPRECATED: USE `Titanium.Network.Socket.TCP` WHERE POSSIBLE.  The TCPSocket instance returned from `Titanium.Network.createTCPSocket`.  This object represents a socket which either listens locally on the device for connections, or connects to a remote machine.
 
 - since
 

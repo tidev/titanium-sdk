@@ -269,17 +269,25 @@ public class FileProxy extends TiFileProxy
 	{
 		tbf.writeLine(data);
 	}
-	
+
 	@Kroll.method
-	public double createTimestamp() 
+	public double createTimestamp()
 	{
 		return tbf.createTimestamp();
 	}
-	
+
 	@Kroll.method
-	public double modificationTimestamp() 
+	public double modificationTimestamp()
 	{
 		return tbf.modificationTimestamp();
 	}
-	
+
+	@Kroll.method
+	public FileStream open(int mode) throws IOException
+	{
+		if(!(tbf.isOpen())) {
+			tbf.open(mode, true);
+		}
+		return new FileStream(this);
+	}
 }

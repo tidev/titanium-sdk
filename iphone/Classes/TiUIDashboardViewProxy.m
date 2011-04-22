@@ -15,6 +15,8 @@
 
 @implementation TiUIDashboardViewProxy
 
+DEFINE_DEF_BOOL_PROP(editable,YES);
+
 -(void)startEditing:(id)args
 {
 	[[self view] performSelectorOnMainThread:@selector(startEditing) withObject:nil waitUntilDone:NO];
@@ -32,7 +34,7 @@
 	{
 		TiUIDashboardView *v = (TiUIDashboardView*)[self view];
 		LauncherView *launcher = [v launcher];
-		if (launcher.editing)
+		if (launcher.editing || ![TiUtils boolValue:[self valueForKey:@"editable"] def:YES])
 		{
 			return;
 		}

@@ -115,15 +115,16 @@ if build_type in ['full', 'iphone', 'ipad'] and not only_package \
 		os.chdir(d)
 
 def package_sdk(target, source, env):
-	print "Packaging MobileSDK (%s)..." % version
 	android = build_type in ['full', 'android']
 	iphone = build_type in ['full', 'iphone']
 	ipad = build_type in ['full', 'ipad']
 	package_all = ARGUMENTS.get('package_all', 0)
+	version_tag = ARGUMENTS.get('version_tag', version)
+	print "Packaging MobileSDK (%s)..." % version_tag
 	if package_all:
-		package.Packager().build_all_platforms(os.path.abspath('dist'), version, android, iphone, ipad)
+		package.Packager().build_all_platforms(os.path.abspath('dist'), version, android, iphone, ipad, version_tag)
 	else:
-		package.Packager().build(os.path.abspath('dist'), version, android, iphone, ipad)
+		package.Packager().build(os.path.abspath('dist'), version, android, iphone, ipad, version_tag)
 
 def drillbit_builder(target, source, env):
 	sys.path.append("drillbit")

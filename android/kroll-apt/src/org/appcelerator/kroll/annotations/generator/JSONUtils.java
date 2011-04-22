@@ -7,6 +7,7 @@
 package org.appcelerator.kroll.annotations.generator;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -39,11 +40,13 @@ public class JSONUtils {
 		return list;
 	}
 	
-	public void appendUnique(Map<Object,Object> parent, String arrayName, Object value) {
+	public void appendUnique(Map<Object,Object> parent, String arrayName, Object value)
+	{
 		appendUnique(getOrCreateList(parent, arrayName), value);
 	}
 	
-	public void appendUnique(List<Object> list, Object value) {
+	public void appendUnique(List<Object> list, Object value)
+	{
 		// treat the array like a set
 		boolean found = false;
 		for (int i = 0; i < list.size(); i++) {
@@ -57,7 +60,32 @@ public class JSONUtils {
 			list.add(value);
 		}
 	}
-	
+
+	public void appendUniqueObject(Map<Object,Object> parent, String arrayName, Object key, Map<? extends Object, Object> value)
+	{
+		appendUniqueObject(getOrCreateList(parent, arrayName), key, value);
+	}
+
+	public void appendUniqueObject(List<Object> list, Object key, Map<? extends Object, Object> value)
+	{
+		boolean found = false;
+		for (int i = 0; i < list.size(); i++) {
+			Object v = list.get(i);
+			if (v instanceof Map) {
+				Map<Object,Object> map = (Map<Object,Object>) v;
+				Object mapValue = map.get(key);
+				if (mapValue != null && value.get(key).equals(mapValue)) {
+					found = true;
+					break;
+				}
+			}
+		}
+		
+		if (!found) {
+			list.add(value);
+		}
+	}
+
 	public void updateObjectFromAnnotation(Map<Object,Object> object, AnnotationMirror annotation) {
 		updateObjectFromAnnotationParams(object, annUtils.getAnnotationParams(annotation));
 	}

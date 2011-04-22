@@ -310,6 +310,36 @@ NSArray* moviePlayerKeys = nil;
 	}
 }
 
+-(void)setAllowsAirPlay:(NSNumber*)value
+{
+    if (movie != nil) {
+        if ([movie respondsToSelector:@selector(setAllowsAirPlay:)]) {
+            [movie setAllowsAirPlay:[value boolValue]];
+        }
+        else {
+            NSLog(@"[WARN] Canot use airplay; using pre-4.3 iOS");
+        }
+    }
+    else {
+        [loadProperties setValue:value forKey:@"allowsAirPlay"];
+    }
+}
+
+-(NSNumber*)allowsAirPlay
+{
+    if (movie != nil) {
+        if ([movie respondsToSelector:@selector(allowsAirPlay)]) {
+            return NUMBOOL([movie allowsAirPlay]);
+        }
+        else {
+            return NUMBOOL(NO);
+        }
+    }
+    else {
+        RETURN_FROM_LOAD_PROPERTIES(@"allowsAirPlay", NUMBOOL(NO));
+    }
+}
+
 // < 3.2 functions for controls
 -(void)updateControlMode:(id)value
 {
@@ -812,16 +842,8 @@ NSArray* moviePlayerKeys = nil;
 -(void)stop:(id)args
 {
 	ENSURE_UI_THREAD(stop, args);
-	
-	if (!playing) {
-		return;
-	}
-	
 	playing = NO;
-	if (movie!=nil)
-	{
-		[movie stop];
-	}
+	[movie stop];
 	RELEASE_TO_NIL_AUTORELEASE(movie);
 }
 
@@ -840,13 +862,14 @@ NSArray* moviePlayerKeys = nil;
 				location:CODELOCATION];
 	}
 	
-	if (playing)
-	{
-		[self stop:nil];
-	}
-	
 	playing = YES;
 	[[self player] play];
+}
+
+// Synonym for 'play' from the docs
+-(void)start:(id)args
+{
+    [self play:args];
 }
 
 -(void)pause:(id)args
@@ -856,9 +879,8 @@ NSArray* moviePlayerKeys = nil;
 		return;
 	}
 	
-	// For the purposes of cleanup, we're still playing, so don't toggle that.
-	if ([[self player] respondsToSelector:@selector(pause)])
-	{
+	if ([[self player] respondsToSelector:@selector(pause)]) {
+		playing = NO;
 		[[self player] performSelector:@selector(pause)];
 	}
 }
@@ -1137,6 +1159,7 @@ NSArray* moviePlayerKeys = nil;
 		[self fireEvent:@"playbackState" withObject:event];
 	}
 	switch ([movie playbackState]) {
+		case MPMoviePlaybackStatePaused:
 		case MPMoviePlaybackStateStopped:
 			playing = NO;
 			break;

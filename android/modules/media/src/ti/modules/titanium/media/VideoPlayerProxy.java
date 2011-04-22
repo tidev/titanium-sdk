@@ -13,6 +13,7 @@ import java.util.List;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
+import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.Log;
@@ -40,6 +41,8 @@ public class VideoPlayerProxy extends KrollProxy
 	private Messenger activityMessenger;
 	private List<TiViewProxy> children = Collections.synchronizedList(new ArrayList<TiViewProxy>());
 	private boolean play;
+	private int mediaControlStyle = MediaModule.VIDEO_CONTROL_DEFAULT;
+	private int scalingMode = MediaModule.VIDEO_SCALING_ASPECT_FIT;
 
 	public VideoPlayerProxy(TiContext tiContext)
 	{
@@ -52,11 +55,11 @@ public class VideoPlayerProxy extends KrollProxy
 		final Intent intent = new Intent(tiContext.getActivity(), TiVideoActivity.class);
 
 		String url = null;
-		if (options.containsKey("contentURL")) {
-			url = TiConvert.toString(options, "contentURL");
+		if (options.containsKey(TiC.PROPERTY_CONTENT_URL)) {
+			url = TiConvert.toString(options, TiC.PROPERTY_CONTENT_URL);
 			Log.w(LCAT, "contentURL is deprecated, use url instead");
-		} else if (options.containsKey("url")) {
-			url = TiConvert.toString(options, "url");
+		} else if (options.containsKey(TiC.PROPERTY_URL)) {
+			url = TiConvert.toString(options, TiC.PROPERTY_URL);
 		}
 		
 		if (url != null) {
@@ -64,17 +67,26 @@ public class VideoPlayerProxy extends KrollProxy
 			if (DBG) {
 				Log.d(LCAT, "Video source: " + url);
 			}
-			intent.putExtra("contentURL", url);
+			intent.putExtra(TiC.PROPERTY_CONTENT_URL, url);
 		}
-		if (options.containsKey("backgroundColor")) {
-			intent.putExtra("backgroundColor", TiConvert.toColor(options, "backgroundColor"));
+		if (options.containsKey(TiC.PROPERTY_BACKGROUND_COLOR)) {
+			intent.putExtra(TiC.PROPERTY_BACKGROUND_COLOR, TiConvert.toColor(options, TiC.PROPERTY_BACKGROUND_COLOR));
 		}
-		if (options.containsKey("play")) {
-			intent.putExtra("play", TiConvert.toBoolean(options, "play"));
+		if (options.containsKey(TiC.PROPERTY_PLAY)) {
+			intent.putExtra(TiC.PROPERTY_PLAY, TiConvert.toBoolean(options, TiC.PROPERTY_PLAY));
 		}
+		if (options.containsKey(TiC.PROPERTY_MEDIA_CONTROL_STYLE)) {
+			mediaControlStyle = TiConvert.toInt(options, TiC.PROPERTY_MEDIA_CONTROL_STYLE);
+		}
+		intent.putExtra(TiC.PROPERTY_MEDIA_CONTROL_STYLE, mediaControlStyle);
+		
+		if (options.containsKey(TiC.PROPERTY_SCALING_MODE)) {
+			scalingMode = TiConvert.toInt(options, TiC.PROPERTY_SCALING_MODE);
+		}
+		intent.putExtra(TiC.PROPERTY_SCALING_MODE, scalingMode);
 
 		controlHandler = createControlHandler();
-		intent.putExtra("messenger", new Messenger(controlHandler));
+		intent.putExtra(TiC.PROPERTY_MESSENGER, new Messenger(controlHandler));
 
 		ResultReceiver messengerReceiver = new ResultReceiver(controlHandler) {
 			@Override
@@ -86,7 +98,7 @@ public class VideoPlayerProxy extends KrollProxy
 				}
 			}
 		};
-		intent.putExtra("messengerReceiver", messengerReceiver);
+		intent.putExtra(TiC.PROPERTY_MESSENGER_RECEIVER, messengerReceiver);
 		tiContext.getActivity().startActivity(intent);
 	}
 
@@ -149,6 +161,34 @@ public class VideoPlayerProxy extends KrollProxy
 	}
 	
 	@Kroll.method
+	public void pause()
+	{
+		if (activityMessenger != null) {
+			try {
+				Message msg = Message.obtain();
+				msg.what = TiVideoActivity.MSG_PAUSE_PLAYBACK;
+				activityMessenger.send(msg);
+			} catch (RemoteException e) {
+				Log.w(LCAT, "Unable to send pause message: " + e.getMessage());
+			}
+		}
+	}
+
+	@Kroll.method
+	public void start()
+	{
+		if (activityMessenger != null) {
+			try {
+				Message msg = Message.obtain();
+				msg.what = TiVideoActivity.MSG_START_PLAYBACK;
+				activityMessenger.send(msg);
+			} catch (RemoteException e) {
+				Log.w(LCAT, "Unable to send start message: " + e.getMessage());
+			}
+		}
+	}
+
+	@Kroll.method
 	public void stop()
 	{
 		if (activityMessenger != null) {
@@ -178,6 +218,50 @@ public class VideoPlayerProxy extends KrollProxy
 		}
 	}
 	
+	@Kroll.getProperty @Kroll.method
+	public int getMediaControlStyle() {
+		return mediaControlStyle;
+	}
+	
+	@Kroll.setProperty @Kroll.method
+	public void setMediaControlStyle(int style) {
+		if (style != mediaControlStyle) {
+			mediaControlStyle = style;
+			if (activityMessenger != null) {
+				try {
+					Message msg = Message.obtain();
+					msg.what = TiVideoActivity.MSG_MEDIA_CONTROL_STYLE_CHANGE;
+					msg.arg1 = mediaControlStyle;
+					activityMessenger.send(msg);
+				} catch (RemoteException e) {
+					Log.w(LCAT, "Unable to send media control style change message: " + e.getMessage());
+				}
+			}
+		}
+	}
+
+	@Kroll.getProperty @Kroll.method
+	public int getScalingMode() {
+		return scalingMode;
+	}
+	
+	@Kroll.setProperty @Kroll.method
+	public void setScalingMode(int mode) {
+		if (mode != scalingMode) {
+			scalingMode = mode;
+			if (activityMessenger != null) {
+				try {
+					Message msg = Message.obtain();
+					msg.what = TiVideoActivity.MSG_SCALING_MODE_CHANGE;
+					msg.arg1 = scalingMode;
+					activityMessenger.send(msg);
+				} catch (RemoteException e) {
+					Log.w(LCAT, "Unable to send scaling mode message: " + e.getMessage());
+				}
+			}
+		}
+	}
+
 	private Handler createControlHandler()
 	{
 		return new Handler(new Handler.Callback() {

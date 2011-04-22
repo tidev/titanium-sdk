@@ -471,9 +471,13 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 		eventObject = [NSMutableDictionary dictionary];
 	}
 	
-	// common event properties for all events we fire
-	[eventObject setObject:type forKey:@"type"];
-	[eventObject setObject:self forKey:@"source"];
+	// common event properties for all events we fire.. IF they're undefined.
+    if ([eventObject objectForKey:@"type"] == nil) {
+        [eventObject setObject:type forKey:@"type"];
+    }
+    if ([eventObject objectForKey:@"source"] == nil) {
+        [eventObject setObject:self forKey:@"source"];
+    }
 	
 	KrollContext* context = [listener context];
 	if (context!=nil)

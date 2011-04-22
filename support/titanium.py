@@ -31,7 +31,7 @@ def is_module_project(dir):
 	if os.path.exists(os.path.join(dir,'manifest')):
 		if os.path.exists(os.path.join(dir,'titanium.xcconfig')):
 			return True
-		elif os.path.exists(os.path.join(dir, '.project')):
+		elif os.path.exists(os.path.join(dir, 'timodule.xml')):
 			return True
 	return False
 	

@@ -190,7 +190,7 @@ if (Titanium.Platform.osname == 'android')
 			titleOff:"LO",
 			titleOn:"HI",
 			value:false,
-			top:240,
+			top:240
 	});
 
 	win.add(checkBox);

@@ -19,6 +19,23 @@ describe("JSON tests", {
 		result = ((str == "[1, 2]") || (str == "[1,2]"));
 		valueOf(result).shouldBe(true);
 	},
+	
+	// https://appcelerator.lighthouseapp.com/projects/32238-titanium-mobile/tickets/2955-android-json-intake-inconsistency-compared-to-ios#ticket-2955-10
+	booleanType: function() {
+		var a = JSON.parse(JSON.stringify([true, false]));
+		valueOf(a[0]).shouldBe(true);
+		valueOf(a[1]).shouldBe(false);
+		
+		a = JSON.parse(JSON.stringify(["true", "false"]));
+		valueOf(a[0]).shouldBe("true");
+		valueOf(a[1]).shouldBe("false");
+		
+		var o = JSON.parse(JSON.stringify({ b1 : true, b2 : false, o1 : { b3 : true, b4 : false}}));
+		valueOf(o.b1).shouldBe(true);
+		valueOf(o.b2).shouldBe(false);
+		valueOf(o.o1.b3).shouldBe(true);
+		valueOf(o.o1.b4).shouldBe(false);
+	},
 
 	// https://appcelerator.lighthouseapp.com/projects/32238/tickets/2614-jsonstringify-failing-for-droid
 	wrappedObjects: function() {

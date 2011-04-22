@@ -137,6 +137,7 @@
 
 -(void)setSelected:(BOOL)yn
 {
+    [super setSelected:yn];
 	[super setHighlighted:yn];
 	[self updateGradientLayer:yn|[self isHighlighted]];
 }
@@ -1336,6 +1337,11 @@
 		[self.proxy replaceValue:NUMBOOL(NO) forKey:@"searchHidden" notification:NO];
 		[self updateSearchView];
 	}
+}
+
+-(void)setShowVerticalScrollIndicator_:(id)value
+{
+	[[self tableView] setShowsVerticalScrollIndicator:[TiUtils boolValue:value]];
 }
 
 -(void)configurationSet

@@ -42,6 +42,8 @@
 +(NSString*)stringValue:(id)value;
 +(NSString*)replaceString:(NSString *)string characters:(NSCharacterSet *)characterSet withString:(NSString *)replacementString;
 
++(NSNumber *) numberFromObject:(id) obj;
+
 +(BOOL)boolValue:(id)value;
 
 +(BOOL)boolValue:(id)value def:(BOOL)def;
@@ -55,7 +57,13 @@
 
 +(CGFloat)floatValue:(id)value def:(CGFloat) def;
 
++(CGFloat)floatValue:(id)value def:(CGFloat) def valid:(BOOL *) isValid;
+
 +(double)doubleValue:(id)value;
+
++(double)doubleValue:(id)value def:(double) def;
+
++(double)doubleValue:(id)value def:(double) def valid:(BOOL *) isValid;
 
 +(int)intValue:(id)value;
 

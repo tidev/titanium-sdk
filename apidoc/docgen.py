@@ -59,10 +59,10 @@ except:
 try:
 	import markdown
 except:
-	err("Crap, you don't have markdown!\n")
-	err("Easy install that bitch:\n")
-	err(">  easy_install ElementTree")
-	err(">  easy_install Markdown")
+	err("You don't have markdown!\n")
+	err("You can install it with:\n")
+	err(">  easy_install ElementTree\n")
+	err(">  easy_install Markdown\n")
 	err("")
 	sys.exit(1)
 
@@ -83,14 +83,14 @@ except:
 
 def template_dependencies():
 	if not Template or not TemplateLookup:
-		err("Crap, you don't have mako!\n")
-		err("Easy install that bitch:\n")
+		err("You don't have mako!\n")
+		err("You can install it with:\n")
 		err(">  easy_install Mako")
 		err("")
 		sys.exit(1)
 	if not highlight or not HtmlFormatter or not get_lexer_by_name:
-		err("Crap, you don't have Pygments!\n")
-		err("Easy install that bitch:\n")
+		err("You don't have Pygments!\n")
+		err("You can install it with:\n")
 		err(">  easy_install Pygments")
 		err("")
 		sys.exit(1)
@@ -1206,7 +1206,7 @@ def main():
 	format_handlers = {'json': produce_json, 'devhtml': produce_devhtml, 'vsdoc' : produce_vsdoc, 'jsca' : produce_jsca}
 	if options.format in format_handlers:
 		if options.format == 'jsca' and not use_ordered_dict:
-			err("Crap, you don't have an ordered dictionary module which you need for the jsca format!\n")
+			err("You don't have an ordered dictionary module which you need for the jsca format!\n")
 			err("But you can get one easily via easy_install:\n")
 			err(">  easy_install odict")
 			err("")

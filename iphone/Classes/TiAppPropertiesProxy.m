@@ -118,6 +118,13 @@ if (value==nil || value==[NSNull null]) {\
 	[defaultsObject synchronize];
 }
 
+-(void)removeAllProperties {
+	NSArray *keys = [[defaultsObject dictionaryRepresentation] allKeys];
+	for(NSString *key in keys) {
+		[defaultsObject removeObjectForKey:key];
+	}
+}
+
 -(id)hasProperty:(id)args
 {
 	ENSURE_SINGLE_ARG(args,NSString);
