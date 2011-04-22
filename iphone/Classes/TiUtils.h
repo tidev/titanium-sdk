@@ -9,6 +9,16 @@
 #import "TiDimension.h"
 #import "WebFont.h"
 #import "TiFile.h"
+#import "TiBuffer.h"
+
+typedef enum {
+    BAD_DEST_OFFSET = -1,
+    BAD_SRC_OFFSET = -2,
+    BAD_ENCODING = -4,
+    BAD_TYPE = -8,
+    BAD_ENDIAN = -16,
+    TOO_SMALL = -32,
+} EncodingError;
 
 @interface TiUtils : NSObject {
 
@@ -191,5 +201,15 @@
 +(BOOL)isIPhone4;
 
 +(BOOL)isRetinaDisplay;
+
++(NSStringEncoding)charsetToEncoding:(NSString*)charset;
+
++(TiDataType)constantToType:(NSString*)typeStr;
+
++(size_t)dataSize:(TiDataType)type;
+
++(int)encodeString:(NSString*)string toBuffer:(TiBuffer*)dest charset:(NSString*)charset offset:(int)destPosition sourceOffset:(int)srcPosition length:(int)srcLength;
+
++(int)encodeNumber:(NSNumber*)data toBuffer:(TiBuffer*)dest offset:(int)position type:(NSString*)type endianness:(CFByteOrder)byteOrder;
 
 @end

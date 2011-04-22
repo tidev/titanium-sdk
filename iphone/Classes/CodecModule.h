@@ -9,16 +9,6 @@
 
 #ifdef USE_TI_CODEC
 
-// TODO: Move this somewhere more generic?
-typedef enum {
-    TI_BYTE = 1,
-    TI_SHORT,
-    TI_INT,
-    TI_LONG,
-    TI_FLOAT,
-    TI_DOUBLE
-} TiDataType;
-
 @interface CodecModule : TiModule {
     
 }
