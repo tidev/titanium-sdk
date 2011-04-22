@@ -32,6 +32,7 @@ NSArray* bufferKeySequence = nil;
 
 #pragma mark Public API : Functions
 
+// TODO: Hey, JS Number is 64-bit; we're translating everything to 32-bit. Actually kind of important for working with large binary data indexing.
 -(NSNumber*)append:(id)args
 {
     TiBuffer* source = nil;

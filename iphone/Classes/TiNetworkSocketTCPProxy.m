@@ -50,33 +50,22 @@ static NSString* ARG_KEY = @"arg";
 
 -(void)_destroy
 {
-    [listening lock];
-    [listening broadcast];
-    [listening unlock];
-    
-    [ioCondition lock];
-    [ioCondition broadcast];
-    [ioCondition unlock];
-
-    [acceptCondition lock];
-    [acceptCondition broadcast];
-    [acceptCondition unlock];
-    
     internalState = SOCKET_CLOSED;
     // Socket cleanup, if necessary
     if ([socketThread isExecuting]) {
         [self performSelector:@selector(cleanupSocket) onThread:socketThread withObject:nil waitUntilDone:YES];
     }
-
+    
     RELEASE_TO_NIL(operationInfo);
     RELEASE_TO_NIL(acceptArgs);
+    RELEASE_TO_NIL(socketError);
     
     RELEASE_TO_NIL(connected);
     RELEASE_TO_NIL(accepted);
     RELEASE_TO_NIL(closed);
     RELEASE_TO_NIL(error);
     
-    // Release the conditions... each condition has been retained, so this is safe.
+    // Release the conditions... so long as each condition has been retained, this is safe.
     RELEASE_TO_NIL(listening);
     RELEASE_TO_NIL(ioCondition);
     RELEASE_TO_NIL(acceptCondition);
@@ -88,6 +77,19 @@ static NSString* ARG_KEY = @"arg";
 
 -(void)cleanupSocket
 {
+    // Signal anything that's still waiting on the socket, just to be safe
+    [listening lock];
+    [listening broadcast];
+    [listening unlock];
+    
+    [ioCondition lock];
+    [ioCondition broadcast];
+    [ioCondition unlock];
+    
+    [acceptCondition lock];
+    [acceptCondition broadcast];
+    [acceptCondition unlock];
+    
     [socket disconnect];
     [socket setDelegate:nil];
     RELEASE_TO_NIL(socket);
@@ -124,7 +126,7 @@ static NSString* ARG_KEY = @"arg";
     [pool release];
 }
 
--(void)startConnectingSocket
+-(void)startConnectingSocket;
 {
     NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
     
@@ -132,13 +134,6 @@ static NSString* ARG_KEY = @"arg";
     NSNumber* timeout = [self valueForUndefinedKey:@"timeout"];
     
     // TODO: We're on a BG thread... need to make sure this gets caught somehow.
-    if (host == nil || [host isEqual:@""]) {
-        [self throwException:@"Attempt to connect with bad host: nil or empty"
-                   subreason:nil
-                    location:CODELOCATION];
-        [pool release];
-        return;
-    }
     
     socket = [[AsyncSocket alloc] initWithDelegate:self];
     socketThread = [NSThread currentThread];
@@ -152,14 +147,15 @@ static NSString* ARG_KEY = @"arg";
         success = [socket connectToHost:host onPort:[port intValue] withTimeout:[timeout doubleValue] error:&err];
     }
     
-    // TODO: We're on a BG thread... need to make sure this gets caught somehow.
     if (err || !success) {
-        [self cleanupSocket];
         internalState = SOCKET_ERROR;
+        [self cleanupSocket];
         
-        [self throwException:[NSString stringWithFormat:@"Connection attempt error: %@",(err ? err : @"UNKNOWN ERROR")]
-                   subreason:nil
-                    location:CODELOCATION];
+        if (error != nil) {
+            NSDictionary* event = [NSDictionary dictionaryWithObjectsAndKeys:self,@"socket",[err localizedDescription],@"error",NUMINT([err code]),@"errorCode", nil];
+            [self _fireEventToListener:@"error" withObject:event listener:error thisObject:self];
+        }
+        
         [pool release];
         return;
     }
@@ -169,20 +165,11 @@ static NSString* ARG_KEY = @"arg";
     [pool release];
 }
 
--(void)startListeningSocket
+-(void)startListeningSocket;
 {
     NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
     
     id port = [self valueForKey:@"port"]; // Can be string or int
-
-    // TODO: We're on a BG thread... make sure that this gets caught somehow
-    if (host == nil || [host isEqual:@""]) {
-        [self throwException:@"Attempt to listen with bad host: nil or empty"
-                   subreason:nil
-                    location:CODELOCATION];
-        [pool release];
-        return;       
-    }
     
     socket = [[AsyncSocket alloc] initWithDelegate:self];
         
@@ -190,17 +177,10 @@ static NSString* ARG_KEY = @"arg";
     BOOL success = [socket acceptOnInterface:host port:[port intValue] autoaccept:NO error:&err];
     
     if (err || !success) {
-        [self cleanupSocket];
         internalState = SOCKET_ERROR;
+        socketError = [err retain];
+        [self cleanupSocket]; // Cleanup signals the condition
         
-        [listening lock];
-        [listening signal];
-        [listening unlock];
-        
-        // TODO: We're on a BG thread... make sure this gets caught somehow
-        [self throwException:[NSString stringWithFormat:@"Listening attempt error: %@",(err ? err : @"<UNKNOWN ERROR>")]
-                   subreason:nil
-                    location:CODELOCATION];
         [pool release];
         return;
     }
@@ -229,17 +209,16 @@ static NSString* ARG_KEY = @"arg";
     // is blocking, we need to hold on to the conditions we wait on, and then release them once we're done with them. Introduces some extra
     // overhead, but it probably prevents DUMB CRASHES from happening.
     
+    AsyncSocket* newSocket = [[[info objectForKey:SOCK_KEY] retain] autorelease];
+    
     NSCondition* tempConditionRef = [acceptCondition retain];
     [tempConditionRef lock];
     acceptRunLoop = [NSRunLoop currentRunLoop];
     [tempConditionRef signal];
-    [tempConditionRef wait];
     [tempConditionRef unlock];
     [tempConditionRef release];
     
     NSArray* arg = [info objectForKey:ARG_KEY];
-    AsyncSocket* newSocket = [info objectForKey:SOCK_KEY];
-    
     TiNetworkSocketTCPProxy* proxy = [[[TiNetworkSocketTCPProxy alloc] _initWithPageContext:[self executionContext] args:arg] autorelease];
     [proxy setConnectedSocket:newSocket];
     
@@ -289,10 +268,16 @@ NSCondition* temp = [condition retain]; \
         return;
     }
     
+    if (host == nil || [host isEqual:@""]) {
+        [self throwException:@"Attempt to connect with bad host: nil or empty"
+                   subreason:nil
+                    location:CODELOCATION];
+        return;
+    }
+    
     [self performSelectorInBackground:@selector(startConnectingSocket) withObject:nil];
 }
 
-// TODO: Can we actually implement the max queue size...?
 -(void)listen:(id)arg
 {
     if (!(internalState & SOCKET_INITIALIZED)) {
@@ -300,6 +285,12 @@ NSCondition* temp = [condition retain]; \
                    subreason:nil
                     location:CODELOCATION];
         return;
+    }
+    if (host == nil || [host isEqual:@""]) {
+        [self throwException:@"Attempt to listen with bad host: nil or empty"
+                   subreason:nil
+                    location:CODELOCATION];
+        return;       
     }
     
     [self performSelectorInBackground:@selector(startListeningSocket) withObject:nil];
@@ -312,6 +303,16 @@ NSCondition* temp = [condition retain]; \
     }
     [tempConditionRef unlock];
     [tempConditionRef release];
+    
+    if (internalState & SOCKET_ERROR) {
+        if (socketError != nil) {
+            // Have to autorelease because we need to hold onto it for throwing the exception
+            RELEASE_TO_NIL_AUTORELEASE(socketError);
+            [self throwException:@"TiSocketError"
+                       subreason:[socketError localizedDescription]
+                        location:CODELOCATION];
+        }        
+    }
 }
 
 -(void)accept:(id)arg
@@ -336,16 +337,15 @@ NSCondition* temp = [condition retain]; \
 // TODO: Bump into 'closed' state if socketThread==nil
 -(void)close:(id)_void
 {
-    // TODO: Signal everything under the sun & close
-    // TODO: If the socket is ALREADY closed, we don't need to go to the thread...
-    ENSURE_SOCKET_THREAD(close,_void);
-    
+    // Don't switch threads until after the state check; this allows us to throw the exception on the right thread
     if (!(internalState & (SOCKET_CONNECTED | SOCKET_LISTENING | SOCKET_INITIALIZED))) {
         [self throwException:[NSString stringWithFormat:@"Attempt to close in invalid state: %d",internalState]
                    subreason:nil
                     location:CODELOCATION];
         return;
     }
+    
+    ENSURE_SOCKET_THREAD(close,_void);
     
     [self cleanupSocket];
     internalState = SOCKET_CLOSED;
@@ -405,6 +405,13 @@ TYPESAFE_SETTER(setError, error, KrollCallback)
         
         if (callback == nil) {
             SAFE_WAIT(ioCondition);
+            if (socketError != nil) {
+                // Have to autorelease because we need to hold onto it for throwing the exception
+                RELEASE_TO_NIL_AUTORELEASE(socketError);
+                [self throwException:@"TiSocketError"
+                           subreason:[socketError localizedDescription]
+                            location:CODELOCATION];
+            }
         }
         
         return readDataLength;
@@ -445,6 +452,13 @@ TYPESAFE_SETTER(setError, error, KrollCallback)
         
         if (callback == nil) {
             SAFE_WAIT(ioCondition);
+            if (socketError != nil) {
+                // Have to autorelease because we need to hold onto it for throwing the exception
+                RELEASE_TO_NIL_AUTORELEASE(socketError);
+                [self throwException:@"TiSocketError"
+                           subreason:[socketError localizedDescription]
+                            location:CODELOCATION];
+            }
         }
         
         int result = 0;
@@ -481,6 +495,13 @@ TYPESAFE_SETTER(setError, error, KrollCallback)
         
         if (callback == nil) {
             SAFE_WAIT(ioCondition);
+            if (socketError != nil) {
+                // Have to autorelease because we need to hold onto it for throwing the exception
+                RELEASE_TO_NIL_AUTORELEASE(socketError);
+                [self throwException:@"TiSocketError"
+                           subreason:[socketError localizedDescription]
+                            location:CODELOCATION];
+            }
         }
         
         return readDataLength;
@@ -515,6 +536,13 @@ TYPESAFE_SETTER(setError, error, KrollCallback)
         
         if (!asynch) {
             SAFE_WAIT(ioCondition);
+            if (socketError != nil) {
+                // Have to autorelease because we need to hold onto it for throwing the exception
+                RELEASE_TO_NIL_AUTORELEASE(socketError);
+                [self throwException:@"TiSocketError"
+                           subreason:[socketError localizedDescription]
+                            location:CODELOCATION];
+            }
         }
     }
     else {
@@ -569,6 +597,16 @@ TYPESAFE_SETTER(setError, error, KrollCallback)
     [ioCondition unlock];
 }
 
+
+// Called 1st in the accept process
+- (void)onSocket:(AsyncSocket *)sock didAcceptNewSocket:(AsyncSocket *)newSocket
+{
+    [acceptArgs setValue:newSocket forKey:SOCK_KEY];
+    [self performSelectorInBackground:@selector(startAcceptedSocket:) withObject:acceptArgs];
+    accepting = NO;
+}
+     
+// Called 2nd in the accept process
 -(NSRunLoop*)onSocket:(AsyncSocket *)sock wantsRunLoopForNewSocket:(AsyncSocket *)newSocket
 {
     // We start up the accepted socket thread, and wait for the run loop to be cached, and return it...
@@ -577,19 +615,12 @@ TYPESAFE_SETTER(setError, error, KrollCallback)
     if (acceptRunLoop == nil) {
         [tempConditionRef wait];
     }
-    [tempConditionRef signal];
     [tempConditionRef unlock];
     [tempConditionRef release];
     
     return acceptRunLoop;
 }
 
-- (void)onSocket:(AsyncSocket *)sock didAcceptNewSocket:(AsyncSocket *)newSocket
-{
-    [acceptArgs setValue:newSocket forKey:SOCK_KEY];
-    [self performSelectorInBackground:@selector(startAcceptedSocket:) withObject:acceptArgs];
-    accepting = NO;
-}
 
 // TODO: As per AsyncSocket docs, may want to call "unreadData" and return that information, or at least allow access to it via some other method
 // TODO: Distinguish between R/W and Socket errors
@@ -609,6 +640,8 @@ TYPESAFE_SETTER(setError, error, KrollCallback)
         NSDictionary* event = [NSDictionary dictionaryWithObjectsAndKeys:self,@"socket",NUMINT([err code]),@"errorCode",[err localizedDescription],@"error",nil];
         [self _fireEventToListener:@"error" withObject:event listener:error thisObject:self];
     }
+    
+    socketError = [err retain]; // Used for synchronous I/O error handling
 }
 
 -(void)onSocket:(AsyncSocket *)sock didWriteDataWithTag:(long)tag 

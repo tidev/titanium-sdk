@@ -33,6 +33,7 @@ typedef enum {
     // complete.
     NSCondition* ioCondition;
     NSUInteger readDataLength;
+    NSError* socketError;
     
     // In order to put the accepted socket on the right run loop, and make sure it's constructed
     // properly, we need THESE as well...
