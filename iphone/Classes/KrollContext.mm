@@ -1092,6 +1092,7 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 			// we're stopped, nothing in the queue, time to bail
 			if (queue_count==0)
 			{
+				RELEASE_TO_NIL(innerpool);
 				break;
 			}
 		}
