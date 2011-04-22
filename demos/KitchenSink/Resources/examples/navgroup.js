@@ -36,7 +36,8 @@ var done = Titanium.UI.createButton({
 });
 
 modalWin.setRightNavButton(done);
-done.addEventListener('click',function()
+
+done.addEventListener('click',function() 
 {
 	modal.close();
 });
@@ -69,7 +70,6 @@ table.addEventListener('click',function(e)
 	});
 	b.addEventListener('click',function()
 	{
-		nav.close();
 		modal.close();
 	});
 	w.add(b);
