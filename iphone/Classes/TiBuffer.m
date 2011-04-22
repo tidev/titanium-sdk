@@ -292,7 +292,7 @@ NSArray* bufferKeySequence = nil;
         }
         
         void* bytes = [data mutableBytes];
-        *(char*)(bytes+index) = [value charValue];
+        *(unsigned char*)(bytes+index) = [value unsignedCharValue];
     }
     else {
         [super setValue:value forUndefinedKey:key];
@@ -309,10 +309,10 @@ NSArray* bufferKeySequence = nil;
             return nil;
         }
         
-        void* bytes = [data mutableBytes];
+        const void* bytes = [data bytes];
         // NOTE: We have to do this internal type conversion because in the id->TiValue process, a byte
         // is autotranslated to a boolean.  So we get the value as a char, then coerce to int.
-        return [NSNumber numberWithInt:*(char*)(bytes+index)];
+        return [NSNumber numberWithUnsignedChar:*(unsigned char*)(bytes+index)];
     }
     else {
         return [super valueForUndefinedKey:key];

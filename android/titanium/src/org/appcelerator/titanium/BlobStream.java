@@ -43,7 +43,7 @@ public class BlobStream extends KrollProxy implements TiStream
 		int length = 0;
 
 		if(args.length == 1 || args.length == 3) {
-			if(args.length == 1) {
+			if(args.length > 0) {
 				if(args[0] instanceof BufferProxy) {
 					bufferProxy = (BufferProxy) args[0];
 					length = bufferProxy.getLength();
@@ -54,14 +54,20 @@ public class BlobStream extends KrollProxy implements TiStream
 			}
 
 			if(args.length == 3) {
-				if(args[1] instanceof Double) {
+				if(args[1] instanceof Integer) {
+					offset = ((Integer)args[1]).intValue();
+
+				} else if(args[1] instanceof Double) {
 					offset = ((Double)args[1]).intValue();
 
-				} else{
+				} else {
 					throw new IllegalArgumentException("Invalid offset argument");
 				}
 
-				if(args[2] instanceof Double) {
+				if(args[2] instanceof Integer) {
+					length = ((Integer)args[2]).intValue();
+
+				} else if(args[2] instanceof Double) {
 					length = ((Double)args[2]).intValue();
 
 				} else {
