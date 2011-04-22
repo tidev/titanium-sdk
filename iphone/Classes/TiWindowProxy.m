@@ -394,30 +394,36 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 			modalFlag = YES;
 			attached = YES;
 			TiViewController *wc = (TiViewController*)[self controller];
-			UINavigationController *nc = nil;
+		   
+		    UINavigationController *nc = nil;
+		
+		    BOOL showNav = ![self argOrWindowProperty:@"navBarHidden" args:args];
+    
+			nc = [[[UINavigationController alloc] initWithRootViewController:wc] autorelease];
 			
-			if ([self argOrWindowProperty:@"navBarHidden" args:args]==NO)
-			{
-				nc = [[[UINavigationController alloc] initWithRootViewController:wc] autorelease];
-			}
-			
+		    [nc setNavigationBarHidden:showNav];
+
 			NSDictionary *dict = [args count] > 0 ? [args objectAtIndex:0] : nil;
 			int style = [TiUtils intValue:@"modalTransitionStyle" properties:dict def:-1];
 			if (style!=-1)
 			{
 				[wc setModalTransitionStyle:style];
-				[nc setModalTransitionStyle:style];
+			    if([nc respondsToSelector:@selector(setModalTransitionStyle:)]) {
+					[nc setModalTransitionStyle:style];					
+				}
 			}
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
 			style = [TiUtils intValue:@"modalStyle" properties:dict def:-1];
-			if (style!=-1 && [nc respondsToSelector:@selector(setModalPresentationStyle:)])
+			if (style!=-1)
 			{
 				// modal transition style page curl must be done only in fullscreen
 				// so only allow if not page curl
 				if ([wc modalTransitionStyle]!=UIModalTransitionStylePartialCurl)
 				{
 					[wc setModalPresentationStyle:style];
-					[nc setModalPresentationStyle:style];
+				    if([nc respondsToSelector:@selector(setModalPresentationStyle:)]) {
+	 				   [nc setModalPresentationStyle:style];					   
+				    }
 				}
 			}
 #endif			
