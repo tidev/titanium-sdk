@@ -57,9 +57,13 @@
 
 +(CGFloat)floatValue:(id)value def:(CGFloat) def;
 
++(CGFloat)floatValue:(id)value def:(CGFloat) def valid:(BOOL *) isValid;
+
 +(double)doubleValue:(id)value;
 
 +(double)doubleValue:(id)value def:(double) def;
+
++(double)doubleValue:(id)value def:(double) def valid:(BOOL *) isValid;
 
 +(int)intValue:(id)value;
 
