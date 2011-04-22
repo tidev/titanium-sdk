@@ -10,6 +10,7 @@
 #import "TiUtils.h"
 #import "TiAnimation.h"
 #import "TiAction.h"
+#import "TiErrorController.h"
 
 TiOrientationFlags TiOrientationFlagsFromObject(id args)
 {
@@ -336,6 +337,9 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 {
 	ENSURE_UI_THREAD(open,args);
 
+	if ([[[[TiApp app] controller] modalViewController] isKindOfClass:[TiErrorController class]]) { // we have an error dialog up
+		return;
+	}
 	// opening a window more than once does nothing
 	if (opened==YES)
 	{
