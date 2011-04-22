@@ -1094,6 +1094,11 @@ if ([str isEqualToString:@#orientation]) return orientation;
 	return [view frame];
 #endif
 
+	if(view == nil)
+	{
+		return CGRectZero;
+	}
+	
 	CGPoint anchorPoint = [[view layer] anchorPoint];
 	CGRect bounds = [view bounds];
 	CGPoint center = [view center];

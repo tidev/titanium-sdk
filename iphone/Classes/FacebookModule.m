@@ -520,7 +520,7 @@
  */
 -(id)createLoginButton:(id)args
 {
-	return [[[TiFacebookLoginButtonProxy alloc] _initWithPageContext:[self pageContext] args:args module:self] autorelease];
+	return [[[TiFacebookLoginButtonProxy alloc] _initWithPageContext:[self executionContext] args:args module:self] autorelease];
 }
 
 #pragma mark Listener work

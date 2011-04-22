@@ -10,31 +10,149 @@
 #import "TiUIScrollableView.h"
 
 @implementation TiUIScrollableViewProxy
+@synthesize viewProxies;
 
 -(void)_initWithProperties:(NSDictionary *)properties
 {
+	pthread_rwlock_init(&viewsLock, NULL);
 	[self replaceValue:NUMINT(0) forKey:@"currentPage" notification:NO];
 	[self replaceValue:NUMFLOAT(1) forKey:@"minZoomScale" notification:NO];
 	[self replaceValue:NUMFLOAT(1) forKey:@"maxZoomScale" notification:NO];
 	[super _initWithProperties:properties];
 }
 
--(void)scrollToView:(id)args
-{	//TODO: Refactor this properly.
-	ENSURE_SINGLE_ARG(args,NSObject);
-	[[self view] performSelectorOnMainThread:@selector(scrollToView:) withObject:args waitUntilDone:NO];
+- (void) dealloc
+{
+	pthread_rwlock_destroy(&viewsLock);
+	[super dealloc];
+}
+
+-(void)lockViews
+{
+	pthread_rwlock_rdlock(&viewsLock);
+}
+
+-(void)lockViewsForWriting
+{
+	pthread_rwlock_wrlock(&viewsLock);
+}
+
+-(void)unlockViews
+{
+	pthread_rwlock_unlock(&viewsLock);
+}
+
+-(NSArray *)views
+{
+	[self lockViews];
+	NSArray * result = [viewProxies copy];
+	[self unlockViews];
+	return result;
+}
+
+-(int)viewCount
+{
+	[self lockViews];
+	int result = [viewProxies count];
+	[self unlockViews];
+	return result;
+}
+
+-(void)setViews:(id)args
+{
+	ENSURE_ARRAY(args);
+	for (id newViewProxy in args)
+	{
+		[self rememberProxy:newViewProxy];
+		[newViewProxy setParent:self];
+	}
+	[self lockViewsForWriting];
+	for (id oldViewProxy in viewProxies)
+	{
+		if (![args containsObject:oldViewProxy])
+		{
+			[oldViewProxy setParent:nil];
+			[oldViewProxy performSelectorOnMainThread:@selector(detachView) withObject:nil waitUntilDone:NO];
+			[self forgetProxy:oldViewProxy];			
+		}
+	}
+	[viewProxies autorelease];
+	viewProxies = [args mutableCopy];
+	[self unlockViews];
+	[self replaceValue:args forKey:@"views" notification:YES];
 }
 
 -(void)addView:(id)args
-{	//TODO: Refactor this properly.
+{
 	ENSURE_SINGLE_ARG(args,TiViewProxy);
-	[[self view] performSelectorOnMainThread:@selector(addView:) withObject:args waitUntilDone:NO];
+
+	[self lockViewsForWriting];
+	[self rememberProxy:args];
+	[args setParent:self];
+	if (viewProxies != nil)
+	{
+		[viewProxies addObject:args];
+	}
+	else
+	{
+		viewProxies = [[NSMutableArray alloc] initWithObjects:args,nil];
+	}
+	[self unlockViews];	
+	[self makeViewPerformSelector:@selector(addView:) withObject:args createIfNeeded:YES waitUntilDone:NO];
 }
 
 -(void)removeView:(id)args
 {	//TODO: Refactor this properly.
 	ENSURE_SINGLE_ARG(args,NSObject);
+
+	[self lockViewsForWriting];
+	TiViewProxy * doomedView;
+	if ([args isKindOfClass:[TiViewProxy class]])
+	{
+		doomedView = args;
+
+		if (![viewProxies containsObject:doomedView])
+		{
+			[self unlockViews];
+			[self throwException:@"view not in the scrollableView" subreason:nil location:CODELOCATION];
+			return;
+		}
+	}
+	else if ([args respondsToSelector:@selector(intValue)])
+	{
+		int doomedIndex = [args intValue];
+		if ((doomedIndex >= 0) && (doomedIndex < [viewProxies count]))
+		{
+			doomedView = [viewProxies objectAtIndex:doomedIndex];
+		}
+		else
+		{
+			[self unlockViews];
+			[self throwException:TiExceptionRangeError subreason:@"invalid view index" location:CODELOCATION];
+			return;
+		}
+	}
+	else
+	{
+		[self unlockViews];
+		[self throwException:TiExceptionInvalidType subreason:
+				[NSString stringWithFormat:@"argument needs to be a number or view, but was %@ instead.",
+				[args class]] location:CODELOCATION];
+		return;
+	}
+
+	[doomedView performSelectorOnMainThread:@selector(detachView) withObject:nil waitUntilDone:NO];
+	[self forgetProxy:args];
+	[viewProxies removeObject:args];
+	[self unlockViews];	
+
 	[[self view] performSelectorOnMainThread:@selector(removeView:) withObject:args waitUntilDone:NO];
+}
+
+-(void)scrollToView:(id)args
+{	//TODO: Refactor this properly.
+	ENSURE_SINGLE_ARG(args,NSObject);
+	[[self view] performSelectorOnMainThread:@selector(scrollToView:) withObject:args waitUntilDone:NO];
 }
 
 -(void)childWillResize:(TiViewProxy *)child
@@ -49,13 +167,29 @@
 	[super childWillResize:child];
 }
 
+-(TiViewProxy *)viewAtIndex:(int)index
+{
+	[self lockViews];
+	TiViewProxy * result = [viewProxies objectAtIndex:index];
+	[self unlockViews];
+	return result;
+}
+
 -(UIView *)parentViewForChild:(TiViewProxy *)child
-{	//TODO: Refactor this properly.
-	UIView * result = [(id)[self view] parentViewForChild:child];
-	if (result != nil)
+{
+	[self lockViews];
+	int index = [viewProxies indexOfObject:child];
+	[self unlockViews];
+	
+	if (index != NSNotFound)
 	{
-		return result; 
+		NSArray * scrollWrappers = [[[self view] scrollview] subviews];
+		if (index < [scrollWrappers count])
+		{
+			return [scrollWrappers objectAtIndex:index];
+		}
 	}
+	//TODO: Generate the view?
 	return [super parentViewForChild:child];
 }
 

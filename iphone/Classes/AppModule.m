@@ -166,11 +166,17 @@ extern NSString * const TI_APPLICATION_GUID;
 	[self fireEvent:[NSArray arrayWithObjects:type,obj,nil]];
 }
 
+-(int)garbageCollect:(NSArray*)args
+{
+	KrollBridge * ourBridge = [self executionContext];
+	return [ourBridge forceGarbageCollectNow];
+}
+
 -(TiAppPropertiesProxy*)Properties
 {
 	if (properties == nil)
 	{
-		properties = [[TiAppPropertiesProxy alloc] _initWithPageContext:[self pageContext]];
+		properties = [[TiAppPropertiesProxy alloc] _initWithPageContext:[self executionContext]];
 	}
 	return properties;
 }
@@ -404,7 +410,7 @@ extern NSString * const TI_APPLICATION_GUID;
 {
 	if (iOS==nil)
 	{
-		iOS = [[TiAppiOSProxy alloc] _initWithPageContext:[self pageContext]];
+		iOS = [[TiAppiOSProxy alloc] _initWithPageContext:[self executionContext]];
 	}
 	return iOS;
 }

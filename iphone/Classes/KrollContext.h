@@ -35,7 +35,11 @@
 	NSCondition *condition;
 	NSMutableArray *queue;
 	BOOL stopped;
+
+//Garbage collection variables.
 	BOOL gcrequest;
+	unsigned int loopCount;
+
 	BOOL destroyed;
 	BOOL suspended;
 	TiGlobalContextRef context;
@@ -63,13 +67,30 @@
 -(void)invokeOnThread:(id)callback_ method:(SEL)method_ withObject:(id)obj callback:(id)callback selector:(SEL)selector_;
 -(void)evalJS:(NSString*)code;
 -(id)evalJSAndWait:(NSString*)code;
--(void)invokeEvent:(KrollCallback*)callback_ args:(NSArray*)args_ thisObject:(id)thisObject_;
+
+-(void)enqueue:(id)obj;
+
 -(void)registerTimer:(id)timer timerId:(double)timerId;
 -(void)unregisterTimer:(double)timerId;
+
+-(int)forceGarbageCollectNow;
 
 @end
 
 //====================================================================================================================
+
+@interface KrollUnprotectOperation : NSOperation
+{
+	TiContextRef jsContext;
+	TiObjectRef firstObject;
+	TiObjectRef secondObject;
+}
+
+-(id)initWithContext: (TiContextRef)newContext withJsobject: (TiObjectRef) newFirst;
+-(id)initWithContext: (TiContextRef)newContext withJsobject: (TiObjectRef) newFirst andJsobject: (TiObjectRef) newSecond;
+
+@end
+
 
 @interface KrollInvocation : NSObject {
 @private
@@ -94,13 +115,31 @@
 -(id)invokeWithResult:(KrollContext*)context;
 @end
 
+@class KrollObject;
 @interface KrollEvent : NSObject {
 @private
-	KrollCallback *callback;
-	NSArray *args;
+	KrollCallback * callback;
+
+	NSString * type;
+	KrollObject * callbackObject;
+
+	NSDictionary *eventObject;
 	id thisObject;
 }
--(id)initWithCallback:(KrollCallback*)callback_ args:(NSArray*)args_ thisObject:(id)thisObject_;
+-(id)initWithType:(NSString *)newType ForKrollObject:(KrollObject*)newCallbackObject eventObject:(NSDictionary*)newEventObject thisObject:(id)newThisObject;
+-(id)initWithCallback:(KrollCallback*)newCallback eventObject:(NSDictionary*)newEventObject thisObject:(id)newThisObject;
+-(void)invoke:(KrollContext*)context;
+@end
+
+@class KrollObject;
+@interface Kroll : NSObject {
+@private
+	NSString * type;
+	KrollObject * callbackObject;
+	NSDictionary *eventObject;
+	id thisObject;
+}
+-(id)initWithType:(NSString *)newType ForKrollObject:(KrollObject*)newCallbackObject eventObject:(NSDictionary*)newEventObject thisObject:(id)newThisObject;
 -(void)invoke:(KrollContext*)context;
 @end
 

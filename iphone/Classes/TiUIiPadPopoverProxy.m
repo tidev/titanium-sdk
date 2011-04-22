@@ -19,6 +19,7 @@
 #pragma mark Setup
 -(void)dealloc
 {
+	[viewController setProxy:nil];
 	RELEASE_TO_NIL(viewController);
 	RELEASE_TO_NIL(navigationController);
 	RELEASE_TO_NIL(popoverController);
@@ -197,6 +198,7 @@
 
 	isShowing = YES;
 	[self retain];
+	[self rememberSelf];
 	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(updatePopover:) name:UIApplicationWillChangeStatusBarOrientationNotification object:nil];
 	[self windowWillOpen];
 	[self reposition];
@@ -282,6 +284,7 @@
 	[self fireEvent:@"hide" withObject:nil]; //Checking for listeners are done by fireEvent anyways.
 	[[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationWillChangeStatusBarOrientationNotification object:nil];
 	[self windowDidClose];
+	[self forgetSelf];
 	RELEASE_TO_NIL(viewController);
 	RELEASE_TO_NIL_AUTORELEASE(popoverController);
 	RELEASE_TO_NIL(navigationController);

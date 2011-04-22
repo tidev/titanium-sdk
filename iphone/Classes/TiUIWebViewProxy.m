@@ -188,12 +188,25 @@ USE_VIEW_FOR_AUTO_WIDTH
 	return nil;
 }
 
-- (void)registerProxy:(id)proxy
+- (id)registerProxy:(id)proxy
 {
+	return nil;
 }
 
 - (void)unregisterProxy:(id)proxy
 {
+}
+
+//TODO: Is this correct?
+- (BOOL)usesProxy:(id)proxy;
+{
+	return NO;
+}
+
+//TODO: Is this correct?
+- (id)krollObjectForProxy:(id)proxy
+{
+	return nil;
 }
 
 -(void)evalJSWithoutResult:(NSString*)code

@@ -62,6 +62,8 @@
 		// back as a this pointer in JS land ... all others will be delegated directly
 		// to our delegate
 		
+		// TODO Unregistering while still valid may be not good and obsolete and orphans a JS object. Is this a good idea? --BTH
+		
 		responseHeaders = [[delegate responseHeaders] retain];
 		pthread_rwlock_wrlock(&dynpropsLock);
 		dynprops = [[NSMutableDictionary alloc] init];
