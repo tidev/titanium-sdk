@@ -21,8 +21,10 @@ import org.appcelerator.titanium.proxy.BufferProxy;
 import org.appcelerator.titanium.proxy.BufferStream;
 import org.appcelerator.titanium.util.TiConfig;
 
+import ti.modules.titanium.TitaniumModule;
 
-@Kroll.module
+
+@Kroll.module(parentModule=TitaniumModule.class)
 public class StreamModule extends KrollModule
 {
 	private static final String LCAT = "StreamModule";
