@@ -137,6 +137,7 @@
 
 -(void)setSelected:(BOOL)yn
 {
+    [super setSelected:yn];
 	[super setHighlighted:yn];
 	[self updateGradientLayer:yn|[self isHighlighted]];
 }

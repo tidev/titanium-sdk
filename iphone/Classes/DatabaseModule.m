@@ -34,6 +34,17 @@
 	return db;
 }
 
+#define DB_CONSTANT(name, num) \
+-(id)name {\
+return NUMINT(num);\
+}
+
+DB_CONSTANT(FIELD_TYPE_UNKNOWN, FieldTypeUnknown)
+DB_CONSTANT(FIELD_TYPE_STRING, FieldTypeString)
+DB_CONSTANT(FIELD_TYPE_INT, FieldTypeInt)
+DB_CONSTANT(FIELD_TYPE_FLOAT, FieldTypeFloat)
+DB_CONSTANT(FIELD_TYPE_DOUBLE, FieldTypeDouble);
+
 @end
 
 #endif

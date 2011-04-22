@@ -262,11 +262,16 @@ extern NSString * const TI_APPLICATION_RESOURCE_DIR;
 
 +(double)doubleValue:(id)value def:(double) def
 {
+	return [self doubleValue:value def:def valid:NULL];
+}
+
++(double)doubleValue:(id)value def:(double) def valid:(BOOL *) isValid {
 	if ([value respondsToSelector:@selector(doubleValue)])
 	{
-		return [value doubleValue];
+	   if(isValid != NULL) *isValid = YES;
+	   return [value doubleValue];
 	}
-	return def;
+	return def;	
 }
 
 +(UIEdgeInsets)contentInsets:(id)value
@@ -344,9 +349,7 @@ extern NSString * const TI_APPLICATION_RESOURCE_DIR;
 	return CGPointMake(result.x + bounds.origin.x,result.y + bounds.origin.y);
 }
 
-
 +(NSNumber *) numberFromObject:(id) obj {
-	
 	if([obj isKindOfClass:[NSNumber class]]) {
 		return obj;
 	}
@@ -356,21 +359,14 @@ extern NSString * const TI_APPLICATION_RESOURCE_DIR;
 	return [formatter numberFromString:[self stringValue:obj]];
 }
 
-+(CGFloat)floatValue:(id)value def:(CGFloat) def valid:(BOOL *)isValid
-{
-	if ([value respondsToSelector:@selector(floatValue)])
-	 {
-		return [value floatValue];
-	 }
-	
-	return def;
-}
-
-
 +(CGFloat)floatValue:(id)value def:(CGFloat) def
 {
-	if ([value respondsToSelector:@selector(floatValue)])
-	{
+	return [self floatValue:value def:def valid:NULL];
+}
+
++(CGFloat) floatValue:(id)value def:(CGFloat) def valid:(BOOL *) isValid {
+	if([value respondsToSelector:@selector(floatValue)]) {
+		if(isValid != NULL) *isValid = YES;
 		return [value floatValue];
 	}
 	return def;
@@ -381,13 +377,20 @@ extern NSString * const TI_APPLICATION_RESOURCE_DIR;
 	return [self floatValue:value def:NSNotFound];
 }
 
-+(int)intValue:(id)value def:(int)def
-{
++(int)intValue:(id)value def:(int)def valid:(BOOL *) isValid {
 	if ([value respondsToSelector:@selector(intValue)])
 	{	
+		if(isValid != NULL) {
+			*isValid = YES;			
+		}
 		return [value intValue];
 	}
-	return def;
+	return def;	
+}
+
++(int)intValue:(id)value def:(int)def
+{
+	return [self intValue:value def:def valid:NULL];
 }
 
 +(int)intValue:(id)value
