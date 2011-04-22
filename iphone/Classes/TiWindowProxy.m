@@ -412,9 +412,7 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 			if (style!=-1)
 			{
 				[wc setModalTransitionStyle:style];
-			    if([nc respondsToSelector:@selector(setModalTransitionStyle:)]) {
-					[nc setModalTransitionStyle:style];					
-				}
+				[nc setModalTransitionStyle:style];
 			}
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
 			style = [TiUtils intValue:@"modalStyle" properties:dict def:-1];
@@ -425,9 +423,7 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 				if ([wc modalTransitionStyle]!=UIModalTransitionStylePartialCurl)
 				{
 					[wc setModalPresentationStyle:style];
-				    if([nc respondsToSelector:@selector(setModalPresentationStyle:)]) {
-	 				   [nc setModalPresentationStyle:style];					   
-				    }
+				    [nc setModalPresentationStyle:style];
 				}
 			}
 #endif			
