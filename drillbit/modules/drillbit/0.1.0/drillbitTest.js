@@ -437,7 +437,11 @@ DrillbitTest.Subject.prototype.shouldThrowException = function(expected,lineNumb
 		// iOS 4.0+ Simulator doesn't correctly propagate exceptions, so we ignore
 		// for iOS and issue a warning. Ticket:
 		// http://jira.appcelerator.org/browse/TIMOB-3561
-		Ti.API.warn("ignoring shouldThrowException on line " + lineNumber + " in iOS, see http://jira.appcelerator.org/browse/TIMOB-3561")
+		Ti.API.warn("Not running test: ignoring shouldThrowException on line " + lineNumber + " in iOS, see http://jira.appcelerator.org/browse/TIMOB-3561");
+		
+		this.lineNumber = lineNumber;
+		DrillbitTest.assertion(this);
+		return;
 	}
 
 	this.lineNumber = lineNumber;

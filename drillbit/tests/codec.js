@@ -22,6 +22,8 @@ describe("Ti.Codec tests", {
 
 		valueOf(Ti.Codec.BIG_ENDIAN).shouldBeNumber();
 		valueOf(Ti.Codec.LITTLE_ENDIAN).shouldBeNumber();
+		// TODO: Spec explicitly says this is getNativeByteOrder(), not a property
+		// Decide on final value
 		valueOf(Ti.Codec.nativeByteOrder).shouldBeOneOf([Ti.Codec.BIG_ENDIAN, Ti.Codec.LITTLE_ENDIAN]);
 	},
 

@@ -213,6 +213,11 @@
 	return path;
 }
 
+-(NSNumber*)length
+{
+    return NUMLONGLONG([[self data] length]);
+}
+
 -(void)setMimeType:(NSString*)mime type:(TiBlobType)type_
 {
 	RELEASE_TO_NIL(mimetype);

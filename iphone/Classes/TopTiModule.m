@@ -68,28 +68,103 @@
 }
 #endif
 
-// TODO: Temp for socket testing; remove/rework for release.
 -(TiBuffer*)createBuffer:(id)arg
 {
-    ENSURE_SINGLE_ARG(arg, NSDictionary);
+    ENSURE_SINGLE_ARG_OR_NIL(arg, NSDictionary);
+
+    int length;
+    BOOL hasLength;
+    id data;
+    NSString* type;
+    int byteOrder;
+    BOOL hasByteOrder;
     
-    id data = [arg valueForKey:@"data"];
-    int length = [[arg valueForKey:@"length"] intValue];
+    ENSURE_INT_OR_NIL_FOR_KEY(length, arg, @"length", hasLength);
+    ENSURE_ARG_OR_NIL_FOR_KEY(data, arg, @"data", NSObject);
+    ENSURE_ARG_OR_NIL_FOR_KEY(type, arg, @"type", NSString);
+    ENSURE_INT_OR_NIL_FOR_KEY(byteOrder, arg, @"byteOrder", hasByteOrder);
     
-    if (data != nil) {
-        if ([data isKindOfClass:[NSString class]]) {
-            TiBuffer* buffer = [[[TiBuffer alloc] _initWithPageContext:[self executionContext]] autorelease];
-            [buffer setData:[NSMutableData dataWithData:[data dataUsingEncoding:NSUTF8StringEncoding]]];
-            return buffer;
-        }
-        else if ([data isKindOfClass:[TiBlob class]]) {
-            TiBuffer* buffer = [[[TiBuffer alloc] _initWithPageContext:[self executionContext]] autorelease];
-            [buffer setData:[NSMutableData dataWithData:[data data]]];
-            return buffer;
-        }
+    TiBuffer* buffer = [[[TiBuffer alloc] _initWithPageContext:[self executionContext]] autorelease];
+    if (hasLength) {
+        [buffer setLength:[NSNumber numberWithInt:length]];
     }
     
-    return [[[TiBuffer alloc] _initWithPageContext:[self executionContext] args:[NSArray arrayWithObject:arg]] autorelease];
+    // NOTE: We use the length of the buffer as a hint when encoding strings.  In this case, if [string length] > length,
+    // we only encode up to 'length' of the string.
+    if ([data isKindOfClass:[NSString class]]) {
+        int encodeLength = (hasLength) ? length : [data length];
+
+        NSString* charset = (type != nil) ? type : kTiUTF8Encoding;
+        
+        // Just put the string data directly into the buffer, if we can.
+        if (!hasLength){
+            NSStringEncoding encoding = [TiUtils charsetToEncoding:charset];
+            [buffer setData:[data dataUsingEncoding:encoding]];
+        }
+        else {
+            switch ([TiUtils encodeString:data toBuffer:buffer charset:charset offset:0 sourceOffset:0 length:encodeLength]) {
+                case BAD_DEST_OFFSET: // Data length == 0 : return our empty buffer
+                case BAD_SRC_OFFSET: { // String length == 0 : return our empty buffer (no string encoded into it)
+                    return buffer;
+                    break;
+                }
+                case BAD_ENCODING: {
+                    [self throwException:[NSString stringWithFormat:@"Invalid string encoding type '%@'",charset]
+                               subreason:nil 
+                                location:CODELOCATION];   
+                    break;
+                }
+            }
+        }
+    }
+    else if ([data isKindOfClass:[NSNumber class]]) {
+        if (type == nil) {
+            [self throwException:[NSString stringWithFormat:@"Missing required type information for buffer created with number %@",data]
+                       subreason:nil
+                        location:CODELOCATION];
+        }
+        
+        if (!hasLength) {
+            length = [TiUtils dataSize:[TiUtils constantToType:type]];
+            [buffer setLength:NUMINT(length)];
+        }
+        
+        byteOrder = (hasByteOrder) ? byteOrder : CFByteOrderGetCurrent();
+        switch ([TiUtils encodeNumber:data toBuffer:buffer offset:0 type:type endianness:byteOrder]) {
+            case BAD_ENDIAN: {
+                [self throwException:[NSString stringWithFormat:@"Invalid endianness: %d", byteOrder]
+                           subreason:nil
+                            location:CODELOCATION];
+                break;
+            }
+            case BAD_DEST_OFFSET: { // Buffer size == 0; throw exception for numbers (is this right?!?)
+                NSString* errorStr = [NSString stringWithFormat:@"Offset %d is past buffer bounds (length %d)",0,length];
+                [self throwException:errorStr
+                           subreason:nil
+                            location:CODELOCATION];
+                break;
+            }
+            case BAD_TYPE: {
+                [self throwException:[NSString stringWithFormat:@"Invalid type identifier '%@'",type]
+                           subreason:nil
+                            location:CODELOCATION];
+                break;
+            }
+            case TOO_SMALL: { // This makes sense, at least.
+                [self throwException:[NSString stringWithFormat:@"Buffer of length %d too small to hold type %@",length, type]
+                           subreason:nil
+                            location:CODELOCATION];
+                break;
+            }
+        }
+    }
+    else if (data != nil) {
+        [self throwException:[NSString stringWithFormat:@"Invalid data type '%@'",data]
+                   subreason:nil
+                    location:CODELOCATION];
+    }
+    
+    return buffer;
 }
 
 @end

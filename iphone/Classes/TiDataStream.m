@@ -29,27 +29,29 @@
 
 #pragma mark I/O Stream implementation
 
-// TODO: Throw bounds exceptions everywhere
-// TODO: Fire messages for asynch
 -(int)readToBuffer:(TiBuffer *)toBuffer offset:(int)offset length:(int)length callback:(KrollCallback *)callback
-{
+{    
+    // TODO: This is a dumb convention. Go back and fix it.
+    if (length == 0) {
+        length = [data length];
+        [toBuffer setLength:NUMINT(length)];
+    }
     const void* bytes = [data bytes];
     void* toBytes = [[toBuffer data] mutableBytes];
-    
-    int bytesWritten;
-    for (bytesWritten = 0; bytesWritten < length && position < [data length]; position++, bytesWritten++) {
-        *(char*)(toBytes+offset+bytesWritten) = *(char*)(bytes+position);
-    }
+   
+    int bytesToWrite = MIN([data length] - position, length);
+    memcpy(toBytes+offset, bytes+position, bytesToWrite);
+
+    position += bytesToWrite;
     
     if (callback != nil) {
-        NSDictionary* event = [NSDictionary dictionaryWithObjectsAndKeys:self,@"source",NUMINT(bytesWritten),@"bytesProcessed",nil];
+        NSDictionary* event = [NSDictionary dictionaryWithObjectsAndKeys:self,@"source",NUMINT(bytesToWrite),@"bytesProcessed",nil];
         [self _fireEventToListener:@"read" withObject:event listener:callback thisObject:nil];
     }
     
-    return bytesWritten;
+    return bytesToWrite;
 }
 
-// TODO: MAKE SURE isWritable() IS ALWAYS CALLED BEFORE writeFromBuffer
 -(int)writeFromBuffer:(TiBuffer *)fromBuffer offset:(int)offset length:(int)length callback:(KrollCallback *)callback
 {    
     // Sanity check for mutable data (just in case...)
@@ -63,20 +65,25 @@
         return -1;   
     }
     
+    // We've already thrown an exception if this is the result of a direct write; now we need treat it as a no-op, internally.
+    if (offset > [data length]) {
+        return 0;
+    }
+    
     void* bytes = [(NSMutableData*)data mutableBytes];
     const void* fromBytes = [[fromBuffer data] bytes];
     
-    int bytesWritten = 0;
-    for (bytesWritten = 0; bytesWritten < length && position < [data length]; position++, bytesWritten++) {
-        *(char*)(bytes+position) = *(char*)(fromBytes+offset+bytesWritten);
-    }
+    int bytesToWrite = MIN([data length] - position, length);
+    memcpy(bytes+position, fromBytes+offset, bytesToWrite);
+
+    position += bytesToWrite;
     
     if (callback != nil) {
-        NSDictionary* event = [NSDictionary dictionaryWithObjectsAndKeys:self,@"source",NUMINT(bytesWritten),@"bytesProcessed",nil];
+        NSDictionary* event = [NSDictionary dictionaryWithObjectsAndKeys:self,@"source",NUMINT(bytesToWrite),@"bytesProcessed",nil];
         [self _fireEventToListener:@"write" withObject:event listener:callback thisObject:nil];
     }
     
-    return bytesWritten;
+    return bytesToWrite;
 }
 
 -(int)writeToStream:(id<TiStreamInternal>)output chunkSize:(int)size callback:(KrollCallback *)callback
@@ -90,11 +97,13 @@
             subdataRange.length = position+size-length;
         }
         
-        [tempBuffer setData:[NSMutableData dataWithData:[data subdataWithRange:subdataRange]]];
+        void* bytes = malloc(subdataRange.length);
+        [data getBytes:bytes range:subdataRange];
+        [tempBuffer setData:[NSMutableData dataWithBytesNoCopy:bytes length:subdataRange.length freeWhenDone:YES]];
         
         int bytesWritten = 0;
         @try {
-            bytesWritten = [output writeFromBuffer:tempBuffer offset:totalBytes length:subdataRange.length callback:nil];
+            bytesWritten = [output writeFromBuffer:tempBuffer offset:0 length:subdataRange.length callback:nil];
         }
         @catch (NSException* e) {
             // TODO: We'll need some kind of information about:
@@ -109,13 +118,16 @@
                 @throw e;
             }
         }
+        if (bytesWritten == 0) {
+            break;
+        }
         
         totalBytes += bytesWritten;
         position += subdataRange.length;
     }
     
     if (callback != nil) {
-        NSDictionary* event = [NSDictionary dictionaryWithObjectsAndKeys:self,@"fromStream",output,@"toStream",NUMINT(totalBytes),@"bytesWritten",nil];
+        NSDictionary* event = [NSDictionary dictionaryWithObjectsAndKeys:self,@"fromStream",output,@"toStream",NUMINT(totalBytes),@"bytesProcessed",nil];
         [self _fireEventToListener:@"writeToStream" withObject:event listener:callback thisObject:nil];
     }
     
@@ -132,29 +144,28 @@
     const void* source = [data bytes];
     while (position < length) {
         TiBuffer* tempBuffer = [[[TiBuffer alloc] _initWithPageContext:[self executionContext]] autorelease];
-        [tempBuffer setLength:NUMINT(size)];
+
+        int bytesToWrite = MIN(size, length-position);
+        void* destination = malloc(bytesToWrite);
+        memcpy(destination, source+position, bytesToWrite);
+        [tempBuffer setData:[NSMutableData dataWithBytesNoCopy:destination length:bytesToWrite freeWhenDone:YES]];
+
+        totalBytes += bytesToWrite;
+        position += bytesToWrite;
         
-        void* destination = [[tempBuffer data] mutableBytes];
-        for (bytesWritten=0; bytesWritten < size && position + bytesWritten < length; bytesWritten++) {
-            *(char*)(destination+totalBytes+bytesWritten) = *(char*)(source+position+bytesWritten);
-        }
-        totalBytes += bytesWritten;
-        position += bytesWritten;
-        
-        NSDictionary* event = [NSDictionary dictionaryWithObjectsAndKeys:self,@"source",tempBuffer,@"buffer",NUMINT(bytesWritten),@"bytesProcessed",NUMINT(totalBytes),@"totalBytesProcessed", nil];
+        NSDictionary* event = [NSDictionary dictionaryWithObjectsAndKeys:self,@"source",tempBuffer,@"buffer",NUMINT(bytesToWrite),@"bytesProcessed",NUMINT(totalBytes),@"totalBytesProcessed", nil];
         [self _fireEventToListener:@"pump" withObject:event listener:callback thisObject:nil];
     }
 }
 
-// TODO: Need to standardize readable/writable behavior... is this right?
 -(NSNumber*)isReadable:(id)_void
 {
-    return NUMBOOL(position<[data length]);
+    return NUMBOOL(YES);
 }
 
 -(NSNumber*)isWritable:(id)_void
 {
-    return NUMBOOL([data isKindOfClass:[NSMutableData class]] && position<[data length]);
+    return NUMBOOL([data isKindOfClass:[NSMutableData class]]);
 }
 
 @end
