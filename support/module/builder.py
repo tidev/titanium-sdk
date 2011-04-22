@@ -12,7 +12,7 @@ sys.path.extend([sdk_dir, support_dir, android_support_dir])
 
 from androidsdk import AndroidSDK
 from manifest import Manifest
-import traceback, uuid, time, thread, string, markdown2
+import traceback, uuid, time, thread, string, markdown
 from os.path import join, splitext, split, exists
 
 def run_pipe(args, cwd=None):
@@ -158,7 +158,7 @@ def docgen(module_dir, dest_dir):
 
 	for file in os.listdir(doc_dir):
 		md = open(os.path.join(doc_dir, file), 'r').read()
-		html = markdown2.markdown(md)
+		html = markdown.markdown(md)
 		filename = string.replace(file, '.md', '.html')
 		filepath = os.path.join(dest_dir, filename)
 		print 'Generating %s' % filepath
@@ -188,7 +188,7 @@ def main(args):
 	if is_android(platform):
 		build_properties = read_properties(open(os.path.join(project_dir, 'build.properties')))
 		android_sdk_path = os.path.dirname(os.path.dirname(build_properties['android.platform']))
-		android_sdk = AndroidSDK(android_sdk_path, 4)
+		android_sdk = AndroidSDK(android_sdk_path)
 
 	if command == 'run':
 		def run_callback(gen_project_dir):

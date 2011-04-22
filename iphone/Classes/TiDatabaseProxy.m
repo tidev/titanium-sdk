@@ -121,8 +121,6 @@
 	}
 }
 
-#pragma mark Public APIs
-
 -(id)execute:(id)args
 {
 	ENSURE_TYPE(args, NSArray);

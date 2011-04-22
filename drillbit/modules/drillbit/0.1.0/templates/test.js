@@ -28,6 +28,9 @@ function runTests() {
 		for (var lineNumber = 0; lineNumber < lines.length; lineNumber++) {
 			var line = lines[lineNumber];
 			var idx = line.indexOf('.should');
+			if (idx == -1) {
+				idx = line.indexOf('fail(');
+			}
 			if (idx != -1) {
 				var endIdx = line.lastIndexOf(')');
 				var absoluteLine = lineNumber + entry.lineOffsets[fname] + 1;

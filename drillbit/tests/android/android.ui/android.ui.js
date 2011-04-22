@@ -259,6 +259,11 @@ describe("Ti.UI.Android tests", {
 			height: '5dp',
 			width: '5dp'
 		}));
+	},
+	// https://appcelerator.lighthouseapp.com/projects/32238-titanium-mobile/tickets/3225-android-picker-custom-attributes
+	pickerRowCustomAttr: function() {
+		var row = Ti.UI.createPickerRow({title: 'blah', custom: 'blee'});
+		valueOf(row.custom).shouldBe("blee");
 	}
 
 })

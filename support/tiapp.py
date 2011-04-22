@@ -58,6 +58,9 @@ class TiAppXML(object):
 			'url':'not specified',
 			'icon':None,
 			'analytics':'true',
+			'fullscreen':'true',
+			'navbar-hidden':'false',
+			'statusbar-hidden':'false',
 			'modules' : [],
 			'plugins' : []
 		}
@@ -334,7 +337,7 @@ class TiAppXML(object):
 			icon = self.properties['icon']
 	
 		# we want the icon without the extension for the plist
-		icon = os.path.splitext(icon)[0]
+		iconname = os.path.splitext(icon)[0]
 			
 		self.infoplist_properties = {}	
 		for p in self.properties:
@@ -382,7 +385,7 @@ class TiAppXML(object):
 				self.infoplist_properties[propertyName]=propertyValue
 		
 		plist = codecs.open(file,'r','utf-8','replace').read()
-		plist = plist.replace('__APPICON__',icon)
+		plist = plist.replace('__APPICON__',iconname)
 
 		# replace the bundle id with the app id 
 		# in case it's changed

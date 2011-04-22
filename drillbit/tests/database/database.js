@@ -1,9 +1,14 @@
 describe("Ti.Database tests", {
-	testModuleMethods: function() {
+	testModuleMethodsAndConstants: function() {
 		valueOf(Ti.Database).shouldNotBeNull();
 		valueOf(Ti.Database).shouldBeObject();
 		valueOf(Ti.Database.open).shouldBeFunction();
 		valueOf(Ti.Database.install).shouldBeFunction();
+		
+		valueOf(Ti.Database.FIELD_TYPE_STRING).shouldNotBeNull();
+		valueOf(Ti.Database.FIELD_TYPE_INT).shouldNotBeNull();
+		valueOf(Ti.Database.FIELD_TYPE_FLOAT).shouldNotBeNull();
+		valueOf(Ti.Database.FIELD_TYPE_DOUBLE).shouldNotBeNull();
 	},
 	testDatabaseMethods : function() {
 		var db = Ti.Database.open("Test");
@@ -85,7 +90,7 @@ describe("Ti.Database tests", {
 		valueOf(f.exists()).shouldBeFalse();
 	},
 	testDatabaseCount : function() {
-		var testRowCount = 1500;
+		var testRowCount = 100;
 		var db = Ti.Database.open('Test');
 		try {
 			valueOf(db).shouldNotBeNull();
@@ -105,7 +110,8 @@ describe("Ti.Database tests", {
 		        realCount += 1;
 		        rs.next();
 		    }
-
+			rs.close();
+			
 		    valueOf(realCount).shouldBe(testRowCount);
 		    valueOf(rowCount).shouldBe(testRowCount);
 		    valueOf(rowCount).shouldBe(realCount);
@@ -123,25 +129,70 @@ describe("Ti.Database tests", {
 			var rs = db.execute("drop table if exists data");
 			valueOf(rs).shouldBeNull();
 			
-			db.execute('BEGIN DEFERRED TRANSACTION');
 			db.execute('CREATE TABLE IF NOT EXISTS data (id INTEGER PRIMARY KEY, val TEXT)');
-			db.execute('SAVEPOINT FOO');
+			
+			db.execute('BEGIN TRANSACTION');
 			for (var i = 1; i <= testRowCount; i++) {
 			    db.execute('INSERT INTO data (val) VALUES(?)','our value:' + i);
 			}
-			db.execute('ROLLBACK TRANSACTION TO SAVEPOINT FOO');
-			db.execute('COMMIT TRANSACTION');
+			rs = db.execute("SELECT * FROM data");
+		    valueOf(rs.rowCount).shouldBe(testRowCount);
+			rs.close();
 			
+			db.execute('ROLLBACK TRANSACTION');
+		
 			rs = db.execute("SELECT * FROM data");
 			valueOf(rs.rowCount).shouldBe(0);
-			
-			db.execute('BEGIN TRANSACTION');
+			rs.close();
+		
 			db.execute('drop table if exists data');
-			db.execute('ROLLBACK TRANSACTION');
+		} finally {
+			db.close();
+			db.remove();
+		}
+	},
+	testDatabaseSavepointRollback : function () {
+		var db = Ti.Database.open('Test');
+		var testRowCount = 30;
+		try {
+			valueOf(db).shouldNotBeNull();
 			
-			rs = db.execute("SELECT * FROM data");
-			valueOf(rs).shouldNotBeNull();
+			var rs = db.execute("drop table if exists data");
+			valueOf(rs).shouldBeNull();
 			
+			// Devices with Android API Levels before 8 don't support savepoints causing
+			// a false failure on those devices. Try and detect and only do
+			// this complex test if savepoints work 
+			var savepointSupported = true;
+			try {
+				db.execute('SAVEPOINT test');
+				db.execute('RELEASE SAVEPOINT test');
+			} catch (E) {
+				savepointSupported = false;
+			}
+			
+			if (savepointSupported) {
+				db.execute('BEGIN DEFERRED TRANSACTION');
+				db.execute('CREATE TABLE IF NOT EXISTS data (id INTEGER PRIMARY KEY, val TEXT)');
+				db.execute('SAVEPOINT FOO');
+				for (var i = 1; i <= testRowCount; i++) {
+				    db.execute('INSERT INTO data (val) VALUES(?)','our value:' + i);
+				}
+				db.execute('ROLLBACK TRANSACTION TO SAVEPOINT FOO');
+				db.execute('COMMIT TRANSACTION');
+			
+				rs = db.execute("SELECT * FROM data");
+				valueOf(rs.rowCount).shouldBe(0);
+				rs.close();
+			
+				db.execute('BEGIN TRANSACTION');
+				db.execute('drop table if exists data');
+				db.execute('ROLLBACK TRANSACTION');
+			
+				rs = db.execute("SELECT * FROM data");
+				valueOf(rs).shouldNotBeNull();
+				rs.close();
+			}
 		} finally {
 			db.close();
 			db.remove();
@@ -188,11 +239,151 @@ describe("Ti.Database tests", {
 
 				resultSet.next();
 			}
+			resultSet.close()
 		} catch(e) {
 			Titanium.API.debug('error occurred: ' + e);
 		} finally {
 			db.close();
 			db.remove();
 	 	}
+	},
+	
+	//https://appcelerator.lighthouseapp.com/projects/32238/tickets/3393-db-get-api-extended-to-support-typed-return-value
+	testTypedGettersAndSetters: function() {
+		var db   = Ti.Database.open('Test'),
+		rowCount = 10,
+		resultSet = null,
+		i, counter, current_float, float_factor = 0.5555;
+
+		var isAndroid = (Ti.Platform.osname === 'android');
+		valueOf(db).shouldBeObject();
+
+		try {
+			counter = 1;
+			i = 1;
+			
+			db.execute('CREATE TABLE IF NOT EXISTS stuff (id INTEGER, f REAL, val TEXT)');
+			db.execute('DELETE FROM stuff;'); //clear table of all existing data
+	
+			var insert_float;
+			while(i <= rowCount) {
+			   insert_float = float_factor * i;
+				 db.execute('INSERT INTO stuff (id, f, val) VALUES(?, ?, ?)', [i, insert_float, 'our value' + i]);
+				 ++i;
+			}
+			
+			resultSet = db.execute('SELECT * FROM stuff');
+			
+			valueOf(resultSet).shouldNotBeNull();
+			valueOf(resultSet).shouldBeObject();
+			valueOf(resultSet.rowCount).shouldBe(rowCount);
+
+			while(resultSet.isValidRow()) {
+				
+				current_float = counter * float_factor;
+				
+				valueOf(resultSet.fieldByName('id', Ti.Database.FIELD_TYPE_INT)).shouldBe(resultSet.field(0, Ti.Database.FIELD_TYPE_INT));
+				valueOf(resultSet.fieldByName('id', Ti.Database.FIELD_TYPE_INT)).shouldBe(counter);
+				
+			  	valueOf(resultSet.fieldByName('id', Ti.Database.FIELD_TYPE_INT)).shouldBe(counter);
+				valueOf(resultSet.fieldByName('id', Ti.Database.FIELD_TYPE_INT)).shouldBe(counter);
+
+				valueOf(resultSet.fieldByName('f', Ti.Database.FIELD_TYPE_INT)).shouldBe(resultSet.field(1, Ti.Database.FIELD_TYPE_INT));
+				valueOf(resultSet.fieldByName('f', Ti.Database.FIELD_TYPE_INT)).shouldBe(parseInt(counter * float_factor));
+				
+				var f_val = resultSet.fieldByName('f', Ti.Database.FIELD_TYPE_FLOAT);
+ 	  			valueOf(Math.floor(Math.round(f_val * 10000))/10000).shouldBe(current_float);
+				valueOf(resultSet.fieldByName('f', Ti.Database.FIELD_TYPE_DOUBLE)).shouldBe(current_float);
+				
+				valueOf(resultSet.fieldByName('val', Ti.Database.FIELD_TYPE_STRING)).shouldBe('our value' + counter);
+				valueOf(resultSet.fieldByName('id', Ti.Database.FIELD_TYPE_STRING)).shouldBe(counter.toString());
+				valueOf(resultSet.fieldByName('f', Ti.Database.FIELD_TYPE_STRING)).shouldBe(current_float.toString());
+				
+				
+				// WARNING: On iOS, the following functions throw an uncaught exception - 
+				
+				if (isAndroid) {
+					valueOf(function() {
+						resultSet.fieldByName('val', Ti.Database.FIELD_TYPE_INT);
+					}).shouldThrowException();
+				
+					valueOf(function() {
+						resultSet.fieldByName('val', Ti.Database.FIELD_TYPE_DOUBLE);
+					}).shouldThrowException();
+				
+					valueOf(function() {
+						resultSet.fieldByName('val', Ti.Database.FIELD_TYPE_FLOAT);
+					}).shouldThrowException();
+				
+					valueOf(function() {
+						resultSet.field(2, Ti.Database.FIELD_TYPE_DOUBLE);
+					}).shouldThrowException();
+				
+					valueOf(function() {
+						resultSet.field(2, Ti.Database.FIELD_TYPE_FLOAT);
+					}).shouldThrowException();
+				
+					valueOf(function() {
+						resultSet.field(2, Ti.Database.FIELD_TYPE_INT);
+					}).shouldThrowException();
+				} else {
+					fail("iOS does not yet handle exceptions in DB.");
+				}
+
+			  ++counter;
+
+				resultSet.next();
+			}
+			
+		} finally {
+			if(null != db) {
+				db.close();
+			}
+
+			if(null != resultSet) {
+				resultSet.close();
+			}
+		}
+	},
+	testDatabaseExceptions : function() {
+		var isAndroid = (Ti.Platform.osname === 'android');
+		if (isAndroid) {
+			valueOf( function() { Ti.Database.open("fred://\\"); }).shouldThrowException();
+			var db = null;
+			try {
+				db = Titanium.Database.open('Test');
+			
+				valueOf( function() { 
+					Ti.Database.execute("select * from notATable"); 
+				}).shouldThrowException();
+			
+				db.execute('CREATE TABLE IF NOT EXISTS stuff (id INTEGER, val TEXT)');
+				db.execute('INSERT INTO stuff (id, val) values (1, "One")');
+				var rs = db.execute("SELECT id FROM stuff WHERE id = 1");
+				
+				valueOf( function() {
+					rs.field(2);
+				}).shouldThrowException();
+	
+				valueOf( function() {
+					rs.field(2);
+				}).shouldThrowException();
+			
+				valueOf( function() {
+					rs.fieldName(2);
+				}).shouldThrowException();
+			
+				if (rs != null) {
+					rs.close();
+				}
+			} finally {
+				if (db != null) {
+					db.close();
+				db.remove();
+				}
+			}
+		} else {
+			 fail("iOS does not yet handle exceptions in DB.");
+		}
 	}
 });

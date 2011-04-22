@@ -8,7 +8,7 @@ if len(sys.argv) == 1:
 	sys.exit(1)
 
 
-sdk = AndroidSDK(sys.argv[1], 4)
+sdk = AndroidSDK(sys.argv[1])
 devices = sdk.list_devices()
 
 json = "["

@@ -28,6 +28,7 @@ import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.io.TiBaseFile;
 import org.appcelerator.titanium.io.TiFileFactory;
 import org.appcelerator.titanium.kroll.KrollCallback;
+import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiActivityResultHandler;
 import org.appcelerator.titanium.util.TiActivitySupport;
@@ -36,6 +37,7 @@ import org.appcelerator.titanium.util.TiFileHelper;
 import org.appcelerator.titanium.util.TiIntentWrapper;
 import org.appcelerator.titanium.util.TiUIHelper;
 
+import ti.modules.titanium.media.android.AndroidModule.MediaScannerClient;
 import android.app.Activity;
 import android.content.ContentValues;
 import android.content.Context;
@@ -65,10 +67,17 @@ public class MediaModule extends KrollModule
 	@Kroll.constant public static final int NO_CAMERA = 2;
 	@Kroll.constant public static final int NO_VIDEO = 3;
 
-	@Kroll.constant public static final int VIDEO_SCALING_ASPECT_FILL = 0;
-	@Kroll.constant public static final int VIDEO_SCALING_MODE_FILL = 1;
+	@Kroll.constant public static final int VIDEO_SCALING_NONE = 0;
+	@Kroll.constant public static final int VIDEO_SCALING_ASPECT_FILL = 1;
+	@Kroll.constant public static final int VIDEO_SCALING_ASPECT_FIT = 2;
+	@Kroll.constant public static final int VIDEO_SCALING_MODE_FILL = 3;
 
 	@Kroll.constant public static final int VIDEO_CONTROL_DEFAULT = 0;
+	@Kroll.constant public static final int VIDEO_CONTROL_EMBEDDED = 1;
+	@Kroll.constant public static final int VIDEO_CONTROL_FULLSCREEN = 2;
+	@Kroll.constant public static final int VIDEO_CONTROL_NONE = 3;
+	@Kroll.constant public static final int VIDEO_CONTROL_HIDDEN = 4;
+	
 	@Kroll.constant public static final String MEDIA_TYPE_PHOTO = "public.image";
 	@Kroll.constant public static final String MEDIA_TYPE_VIDEO = "public.video";
 	
@@ -104,6 +113,9 @@ public class MediaModule extends KrollModule
 		}
 		if (options.containsKey("error")) {
 			errorCallback = (KrollCallback) options.get("error");
+		}
+		if (options.containsKey("overlay")) {
+			TiCameraActivity.overlayProxy = (TiViewProxy) options.get("overlay");
 		}
 
 		if (DBG) {
@@ -171,8 +183,14 @@ public class MediaModule extends KrollModule
 
 		String imageUrl = "file://" + imageFile.getAbsolutePath();
 		TiIntentWrapper cameraIntent = new TiIntentWrapper(new Intent());
-		cameraIntent.getIntent().setAction(MediaStore.ACTION_IMAGE_CAPTURE);
-		cameraIntent.getIntent().addCategory(Intent.CATEGORY_DEFAULT);
+
+		if(TiCameraActivity.overlayProxy == null) {
+			cameraIntent.getIntent().setAction(MediaStore.ACTION_IMAGE_CAPTURE);
+			cameraIntent.getIntent().addCategory(Intent.CATEGORY_DEFAULT);
+		} else {
+			cameraIntent.getIntent().setClass(invocation.getTiContext().getAndroidContext().getBaseContext(), TiCameraActivity.class);
+		}
+
 		cameraIntent.setWindowId(TiIntentWrapper.createActivityName("CAMERA"));
 
 		PackageManager pm = (PackageManager) activity.getPackageManager();
@@ -252,6 +270,10 @@ public class MediaModule extends KrollModule
 					values.put("_data", imageFile.getAbsolutePath());
 
 					Uri imageUri = activity.getContentResolver().insert(Images.Media.EXTERNAL_CONTENT_URI, values);
+
+					// puts newly captured photo into the gallery
+					MediaScannerClient mediaScanner = new MediaScannerClient(getTiContext(), new String[] {imageFile.getAbsolutePath()}, null);
+					mediaScanner.scan();
 
 					try {
 						if (successCallback != null) {
@@ -610,4 +632,16 @@ public class MediaModule extends KrollModule
 			callback.callAsync(new Object[] { image });
 		}
 	}
+
+	@Kroll.method
+	public void takePicture()
+	{
+		// make sure the preview / camera are open before trying to take photo
+		if (TiCameraActivity.cameraActivity != null) {
+			TiCameraActivity.takePicture();
+		} else {
+			Log.e(LCAT, "camera preview is not open, unable to take photo");
+		}
+	}
 }
+

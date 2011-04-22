@@ -426,6 +426,91 @@ bool KrollSetProperty(TiContextRef jsContext, TiObjectRef object, TiStringRef pr
 	return false;
 }	
 
+// forward declare these
+
+@interface TitaniumObject : NSObject
+@end
+
+@interface TitaniumObject (Private)
+-(NSDictionary*)modules;
+@end
+
+@interface TiProxy : NSObject
+@end
+
+
+//
+// handle property names which makes the object iterable
+//
+void KrollPropertyNames(TiContextRef ctx, TiObjectRef object, TiPropertyNameAccumulatorRef propertyNames)
+{
+	KrollObject* o = (KrollObject*) TiObjectGetPrivate(object);
+	if (o)
+	{
+		id target = [o target];
+		
+		if ([o isKindOfClass:[TitaniumObject class]])
+		{
+			for (NSString *key in [[(TitaniumObject*)o modules] allKeys])
+			{
+				TiStringRef value = TiStringCreateWithUTF8CString([key UTF8String]);
+				TiPropertyNameAccumulatorAddName(propertyNames,value);
+				TiStringRelease(value);
+			}
+		}
+		else if ([target isKindOfClass:[TiProxy class]])
+		{
+			for (NSString *key in [target allKeys])
+			{
+				TiStringRef value = TiStringCreateWithUTF8CString([key UTF8String]);
+				TiPropertyNameAccumulatorAddName(propertyNames,value);
+				TiStringRelease(value);
+			}
+		}
+	}
+}
+
+//
+// support casting
+//
+bool KrollHasInstance(TiContextRef ctx, TiObjectRef constructor, TiValueRef possibleInstance, TiValueRef* exception)
+{
+	KrollObject* o1 = (KrollObject*) TiObjectGetPrivate(constructor);
+	if (o1)
+	{
+		TiValueRef ex = NULL;
+		TiObjectRef objTarget = TiValueToObject(ctx, possibleInstance, &ex);
+		if (!ex)
+		{
+			KrollObject* o2 = (KrollObject*) TiObjectGetPrivate(objTarget);
+			if (o2)
+			{
+				id t1 = [o1 target];
+				id t2 = [o2 target];
+				Class c1 = [t1 class];
+				Class c2 = [t2 class];
+				Class ti = [TiProxy class];
+				while (c1!=c2 && c1!=nil && c2!=nil && c1!=ti && c2!=ti)
+				{
+					// if the proxies are the same class, we can cast
+					if (c1 == c2)
+					{
+						return true;
+					}
+					// if the target is a kind of class that matches this superclass, we can cast
+					if ([t2 isKindOfClass:c1])
+					{
+						return true;
+					}
+					c1 = [c1 superclass];
+					c2 = [c2 superclass];
+				}
+			}
+		}
+	}
+	return false;
+}
+
 @implementation KrollObject
 
 -(id)init
@@ -441,6 +526,8 @@ bool KrollSetProperty(TiContextRef jsContext, TiObjectRef object, TiStringRef pr
 			classDef.setProperty = KrollSetProperty;
 			classDef.getProperty = KrollGetProperty;
 			classDef.deleteProperty = KrollDeleteProperty;
+			classDef.getPropertyNames = KrollPropertyNames;
+			classDef.hasInstance = KrollHasInstance;
 			KrollObjectClassRef = TiClassCreate(&classDef);
 		}
 		//FIXME

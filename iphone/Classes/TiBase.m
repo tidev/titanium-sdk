@@ -30,6 +30,19 @@ CGPoint midpointBetweenPoints(CGPoint a, CGPoint b)
     return CGPointMake(x, y);
 }
 
+NSString * const kTiASCIIEncoding = @"ascii";
+NSString * const kTiISOLatin1Encoding = @"ios-latin-1";
+NSString * const kTiUTF8Encoding = @"utf8";
+NSString * const kTiUTF16Encoding = @"utf16";
+NSString * const kTiUTF16LEEncoding = @"utf16le";
+NSString * const kTiUTF16BEEncoding = @"utf16be";
+
+NSString * const kTiByteTypeName = @"byte";
+NSString * const kTiShortTypeName = @"short";
+NSString * const kTiIntTypeName = @"int";
+NSString * const kTiLongTypeName = @"long";
+NSString * const kTiFloatTypeName = @"float";
+NSString * const kTiDoubleTypeName = @"double";
 
 NSString * const kTiContextShutdownNotification = @"TiContextShutdown";
 NSString * const kTiWillShutdownNotification = @"TiWillShutdown";

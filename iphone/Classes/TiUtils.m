@@ -30,6 +30,10 @@
 extern NSString * const TI_APPLICATION_RESOURCE_DIR;
 #endif
 
+NSDictionary* encodingMap = nil;
+NSDictionary* typeMap = nil;
+NSDictionary* sizeMap = nil;
+
 @implementation TiUtils
 
 +(BOOL)isRetinaDisplay
@@ -222,15 +226,19 @@ extern NSString * const TI_APPLICATION_RESOURCE_DIR;
 
 +(NSString*)stringValue:(id)value
 {
+	if(value == nil) {
+		return nil;
+	}
+	
 	if ([value isKindOfClass:[NSString class]])
 	{
 		return (NSString*)value;
 	}
-	else if ([value isKindOfClass:[NSNull class]])
+	if ([value isKindOfClass:[NSNull class]])
 	{
 		return nil;
 	}
-	else if ([value respondsToSelector:@selector(stringValue)])
+	if ([value respondsToSelector:@selector(stringValue)])
 	{
 		return [value stringValue];
 	}
@@ -253,11 +261,21 @@ extern NSString * const TI_APPLICATION_RESOURCE_DIR;
 
 +(double)doubleValue:(id)value
 {
+	return [self doubleValue:value def:0];
+}
+
++(double)doubleValue:(id)value def:(double) def
+{
+	return [self doubleValue:value def:def valid:NULL];
+}
+
++(double)doubleValue:(id)value def:(double) def valid:(BOOL *) isValid {
 	if ([value respondsToSelector:@selector(doubleValue)])
 	{
-		return [value doubleValue];
+	   if(isValid != NULL) *isValid = YES;
+	   return [value doubleValue];
 	}
-	return 0;
+	return def;	
 }
 
 +(UIEdgeInsets)contentInsets:(id)value
@@ -335,12 +353,24 @@ extern NSString * const TI_APPLICATION_RESOURCE_DIR;
 	return CGPointMake(result.x + bounds.origin.x,result.y + bounds.origin.y);
 }
 
++(NSNumber *) numberFromObject:(id) obj {
+	if([obj isKindOfClass:[NSNumber class]]) {
+		return obj;
+	}
+	
+	NSNumberFormatter *formatter = [[[NSNumberFormatter alloc] init] autorelease];
 
+	return [formatter numberFromString:[self stringValue:obj]];
+}
 
 +(CGFloat)floatValue:(id)value def:(CGFloat) def
 {
-	if ([value respondsToSelector:@selector(floatValue)])
-	{
+	return [self floatValue:value def:def valid:NULL];
+}
+
++(CGFloat) floatValue:(id)value def:(CGFloat) def valid:(BOOL *) isValid {
+	if([value respondsToSelector:@selector(floatValue)]) {
+		if(isValid != NULL) *isValid = YES;
 		return [value floatValue];
 	}
 	return def;
@@ -348,16 +378,23 @@ extern NSString * const TI_APPLICATION_RESOURCE_DIR;
 
 +(CGFloat)floatValue:(id)value
 {
-	return [self floatValue:value def:0];
+	return [self floatValue:value def:NSNotFound];
+}
+
++(int)intValue:(id)value def:(int)def valid:(BOOL *) isValid {
+	if ([value respondsToSelector:@selector(intValue)])
+	{	
+		if(isValid != NULL) {
+			*isValid = YES;			
+		}
+		return [value intValue];
+	}
+	return def;	
 }
 
 +(int)intValue:(id)value def:(int)def
 {
-	if ([value respondsToSelector:@selector(intValue)])
-	{
-		return [value intValue];
-	}
-	return def;
+	return [self intValue:value def:def valid:NULL];
 }
 
 +(int)intValue:(id)value
@@ -1193,6 +1230,210 @@ if ([str isEqualToString:@#orientation]) return orientation;
 	}
 
 	return [[string componentsSeparatedByCharactersInSet:characterSet] componentsJoinedByString:replacementString];
+}
+
++(NSStringEncoding)charsetToEncoding:(NSString*)type
+{
+    if (encodingMap == nil) {
+        encodingMap = [[NSDictionary alloc] initWithObjectsAndKeys:
+                       NUMLONGLONG(NSASCIIStringEncoding),kTiASCIIEncoding,
+                       NUMLONGLONG(NSISOLatin1StringEncoding),kTiISOLatin1Encoding,
+                       NUMLONGLONG(NSUTF8StringEncoding),kTiUTF8Encoding,
+                       NUMLONGLONG(NSUTF16StringEncoding),kTiUTF16Encoding,
+                       NUMLONGLONG(NSUTF16BigEndianStringEncoding),kTiUTF16BEEncoding,
+                       NUMLONGLONG(NSUTF16LittleEndianStringEncoding),kTiUTF16LEEncoding,
+                       nil];
+    }
+    return [[encodingMap valueForKey:type] longLongValue];
+}
+
++(TiDataType)constantToType:(NSString *)type
+{
+    if (typeMap == nil) {
+        typeMap = [[NSDictionary alloc] initWithObjectsAndKeys:
+                   NUMINT(TI_BYTE),kTiByteTypeName,
+                   NUMINT(TI_SHORT),kTiShortTypeName,
+                   NUMINT(TI_INT),kTiIntTypeName,
+                   NUMINT(TI_LONG),kTiLongTypeName,
+                   NUMINT(TI_FLOAT),kTiFloatTypeName,
+                   NUMINT(TI_DOUBLE),kTiDoubleTypeName,
+                   nil];
+    }
+    return [[typeMap valueForKey:type] intValue];
+}
+
++(size_t)dataSize:(TiDataType)type
+{
+    if (sizeMap == nil) {
+        sizeMap = [[NSDictionary alloc] initWithObjectsAndKeys:
+                   NUMINT(sizeof(char)), NUMINT(TI_BYTE),
+                   NUMINT(sizeof(uint16_t)), NUMINT(TI_SHORT),
+                   NUMINT(sizeof(uint32_t)), NUMINT(TI_INT),
+                   NUMINT(sizeof(uint64_t)), NUMINT(TI_LONG),
+                   NUMINT(sizeof(Float32)), NUMINT(TI_FLOAT),
+                   NUMINT(sizeof(Float64)), NUMINT(TI_DOUBLE),
+                   nil];
+    }
+    return [[sizeMap objectForKey:NUMINT(type)] intValue];
+}
+
++(int)encodeString:(NSString *)string toBuffer:(TiBuffer *)dest charset:(NSString*)charset offset:(int)destPosition sourceOffset:(int)srcPosition length:(int)srcLength
+{
+    // TODO: Define standardized behavior.. but for now:
+    // 1. Throw exception if destPosition extends past [dest length]
+    // 2. Throw exception if srcPosition > [string length]
+    // 3. Use srcLength as a HINT (as in all other buffer ops)
+    
+    if (destPosition >= [[dest data] length]) {
+        return BAD_DEST_OFFSET;
+    }
+    if (srcPosition >= [string length]) {
+        return BAD_SRC_OFFSET;
+    }
+    
+    NSStringEncoding encoding = [TiUtils charsetToEncoding:charset];
+    
+    if (encoding == 0) {
+        return BAD_ENCODING;
+    }
+    
+    int length = MIN(srcLength, [string length] - srcPosition);
+    int maxBytes = MIN(length, [[dest data] length] - destPosition);
+    
+    switch (encoding) {
+        case NSUTF16StringEncoding:
+        case NSUTF16LittleEndianStringEncoding:
+        case NSUTF16BigEndianStringEncoding: {
+            // Encoding identifier
+            maxBytes++;
+            
+            // Recalculate max bytes
+            maxBytes *= 2;
+            maxBytes = MIN(maxBytes, [[dest data] length] - destPosition);
+            break;
+        }
+    }
+    
+    // TODO: This does not encode the null terminator... do we want it?
+    [string getBytes:([[dest data] mutableBytes]+destPosition)
+           maxLength:maxBytes
+          usedLength:NULL 
+            encoding:encoding
+             options:NSStringEncodingConversionAllowLossy // TODO: Is this always right? 
+               range:NSMakeRange(srcPosition,length) 
+      remainingRange:NULL];
+    
+    return destPosition+length;
+}
+
++(int)encodeNumber:(NSNumber *)data toBuffer:(TiBuffer *)dest offset:(int)position type:(NSString *)type endianness:(CFByteOrder)byteOrder
+{
+    switch (byteOrder) {
+        case CFByteOrderBigEndian:
+        case CFByteOrderLittleEndian:
+            break;
+        default:
+            return BAD_ENDIAN;
+    }
+    
+    if (position >= [[dest data] length]) {
+        return BAD_DEST_OFFSET;
+    }
+    
+    void* bytes = [[dest data] mutableBytes];
+    TiDataType dataType = [TiUtils constantToType:type];
+    size_t size = [TiUtils dataSize:dataType];
+    
+    if (size > MIN([[dest data] length], [[dest data] length] - position)) {
+        return TOO_SMALL;
+    }
+    
+    switch ([self constantToType:type]) {
+        case TI_BYTE: {
+            char byte = [data charValue];
+            memcpy(bytes+position, &bytes, size);
+            break;
+        }
+        case TI_SHORT: {
+            uint16_t val = [data shortValue];
+            switch (byteOrder) {
+                case CFByteOrderLittleEndian: {
+                    val = CFSwapInt16HostToLittle(val);
+                    break;
+                }
+                case CFByteOrderBigEndian: {
+                    val = CFSwapInt16HostToBig(val);
+                    break;
+                }
+            }
+            memcpy(bytes+position, &val, size);
+            break;
+        }
+        case TI_INT: {
+            uint32_t val = [data intValue];
+            switch (byteOrder) {
+                case CFByteOrderLittleEndian: {
+                    val = CFSwapInt32HostToLittle(val);
+                    break;
+                }
+                case CFByteOrderBigEndian: {
+                    val = CFSwapInt32HostToBig(val);
+                    break;
+                }
+            }
+            memcpy(bytes+position, &val, size);
+            break;
+        }
+        case TI_LONG: {
+            uint64_t val = [data longLongValue];
+            switch (byteOrder) {
+                case CFByteOrderLittleEndian: {
+                    val = CFSwapInt64HostToLittle(val);
+                    break;
+                }
+                case CFByteOrderBigEndian: {
+                    val = CFSwapInt64HostToBig(val);
+                    break;
+                }
+            }
+            memcpy(bytes+position, &val, size);
+            break;
+        }
+        case TI_FLOAT: {
+            CFSwappedFloat32 val = CFConvertFloat32HostToSwapped([data floatValue]);
+            switch (byteOrder) {
+                case CFByteOrderLittleEndian: {
+                    val.v = CFSwapInt32HostToLittle(val.v);
+                    break;
+                }
+                case CFByteOrderBigEndian: {
+                    val.v = CFSwapInt32HostToBig(val.v);
+                    break;
+                }
+            }
+            memcpy(bytes+position, &(val.v), size);
+            break;
+        }
+        case TI_DOUBLE: {
+            CFSwappedFloat64 val = CFConvertFloat64HostToSwapped([data doubleValue]);
+            switch (byteOrder) {
+                case CFByteOrderLittleEndian: {
+                    val.v = CFSwapInt64HostToLittle(val.v);
+                    break;
+                }
+                case CFByteOrderBigEndian: {
+                    val.v = CFSwapInt64HostToBig(val.v);
+                    break;
+                }
+            }
+            memcpy(bytes+position, &(val.v), size);
+            break;
+        }
+        default:
+            return BAD_TYPE;
+    }
+    
+    return (position+size);
 }
 
 @end

@@ -2,12 +2,7 @@ var win = Titanium.UI.currentWindow;
 
 var l1 = Titanium.UI.createLabel({
 	id:'font_label_test',
-	text:'Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat',
-	width:200,
-	height:150,
-	top:10,
-	color:'#336699',
-	textAlign:'center'
+	text:'Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat'
 });
 
 win.add(l1);
@@ -65,14 +60,14 @@ b2.addEventListener('click', function()
 		l2.shadowColor = '#336699';
 		l2.font = {fontSize:20};
 		changed=true;
-		size.text = l2.size.height + ' ' + l2.size.width;
+		size.text = l2.size.height + ' ' + l2.size.width
 	}
 	else
 	{
 		l2.color = '#900';
 		l2.shadowColor = '#aaa';
 		l2.font = {fontSize:48};
-		size.text = l2.size.height + ' ' + l2.size.width;
+		size.text = l2.size.height + ' ' + l2.size.width
 		changed=false;
 	}
 });
@@ -109,4 +104,4 @@ var size = Ti.UI.createLabel({
 	color:'#777',
 	bottom:10
 });
-win.add(size);
+win.add(size)

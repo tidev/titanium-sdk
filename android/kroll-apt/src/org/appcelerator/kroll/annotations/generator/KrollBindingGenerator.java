@@ -225,14 +225,16 @@ public class KrollBindingGenerator extends AbstractProcessor {
 				if (proxyAttrs.containsKey("creatableInModule")) {
 					String createInModuleClass = (String) proxyAttrs.get("creatableInModule");
 					if (!createInModuleClass.equals(Kroll_proxy_DEFAULT)) {
-						jsonUtils.appendUnique(getModule(createInModuleClass), "createProxies", proxyAttrs);
+						jsonUtils.appendUniqueObject(getModule(createInModuleClass), "createProxies",
+							"proxyClassName", proxyAttrs);
 					}
 				}
 				
 				if (proxyAttrs.containsKey("parentModule")) {
 					String parentModuleClass = (String) proxyAttrs.get("parentModule");
 					if (!parentModuleClass.equals(Kroll_module_DEFAULT)) {
-						jsonUtils.appendUnique(getModule(parentModuleClass), "childModules", proxyAttrs);
+						jsonUtils.appendUniqueObject(getModule(parentModuleClass), "childModules",
+							"proxyClassName", proxyAttrs);
 					} else {
 						proxyAttrs.remove("parentModule");
 					}

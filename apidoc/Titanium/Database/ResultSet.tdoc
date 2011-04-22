@@ -38,14 +38,32 @@ index[int]: field name column index (which is zero based)
 - method : field, object
 
 index[int] : column index (which is zero based)
+type[int] : [optional] one of (`Titanium.Database.FIELD_TYPE_STRING` | `Titanium.Database.FIELD_TYPE_INT` | `Titanium.Database.FIELD_TYPE_FLOAT` | `Titanium.Database.FIELD_TYPE_DOUBLE`)
 
 - method : fieldByName, object
 
 name[string] : column name from SQL query
+type[int] : [optional] one of (`Titanium.Database.FIELD_TYPE_STRING` | `Titanium.Database.FIELD_TYPE_INT` | `Titanium.Database.FIELD_TYPE_FLOAT` | `Titanium.Database.FIELD_TYPE_DOUBLE`)
 
 - method : fieldCount, int
 
 - method : isValidRow, boolean
+
+- method : getInt, int
+
+field[int | string] : the column name or index referencing the value to retrieve as an int.
+
+- method : getFloat, float
+
+field[int | string] : the column name or index referencing the value to retrieve as a float.
+
+- method : getDouble, double
+
+field[int | string] : the column name or index referencing the value to retrieve as a double.
+
+- method : getString, string
+
+field[int | string] : the column name or index referencing the value to retrieve as a string.
 
 - properties
 

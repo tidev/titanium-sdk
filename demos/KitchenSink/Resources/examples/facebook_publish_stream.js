@@ -75,7 +75,8 @@ wall.addEventListener('click', function() {
 		message: "Use Mozilla's online Javascript reference",
 		caption: "MDN Javascript Reference",
 		picture: "https://developer.mozilla.org/media/img/mdn-logo.png",
-		description: "This section of the site is dedicated to JavaScript-the-language, the parts that are not specific to web pages or other host environments..."
+		description: "This section of the site is dedicated to JavaScript-the-language, the parts that are not specific to web pages or other host environments...",
+		test: [ {foo:'Encoding test', bar:'Durp durp'}, 'test' ]
 	};
 	Titanium.Facebook.requestWithGraphPath('me/feed', data, 'POST', showRequestResult);
 });

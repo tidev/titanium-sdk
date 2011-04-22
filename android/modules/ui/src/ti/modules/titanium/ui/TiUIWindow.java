@@ -37,7 +37,6 @@ import org.appcelerator.titanium.view.TiUIView;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.os.Looper;
@@ -74,7 +73,7 @@ public class TiUIWindow extends TiUIView
 	protected int windowId;
 	protected TiCompositeLayout lightWindow;
 
-	protected boolean lightWeight, newActivity, animate;
+	protected boolean lightWeight, newActivity, animate, newContext = false;
 	protected TiPropertyResolver resolver;
 	protected Handler handler;
 
@@ -156,6 +155,7 @@ public class TiUIWindow extends TiUIView
 				}
 			}
 			windowContext = TiContext.createTiContext(activity, tiUrl.baseUrl, tiUrl.url);
+			newContext = true;
 			// if LW window, use the existing activityProxy from the activity rather than
 			// creating a new one which will cause the listeners on the duplicate activityProxy
 			// to not fire
@@ -174,6 +174,7 @@ public class TiUIWindow extends TiUIView
 			TiBindingHelper.bindCurrentWindowAndActivity(windowContext, proxy, activityProxy);
 		} else if (!lightWeight) {
 			windowContext = TiContext.createTiContext(windowActivity, proxy.getTiContext().getBaseUrl(), proxy.getTiContext().getCurrentUrl());
+			newContext = true;
 			ActivityProxy activityProxy = ((TiWindowProxy) proxy).getActivity(windowContext);
 			if (windowActivity != null) {
 				bindWindowActivity(windowContext, windowActivity);
@@ -442,8 +443,6 @@ public class TiUIWindow extends TiUIView
 				TiCompositeLayout layout = null;
 				if (windowActivity instanceof TiActivity) {
 					layout = ((TiActivity)windowActivity).getLayout();
-				} else if (windowActivity instanceof TiTabActivity) {
-					layout = ((TiTabActivity)windowActivity).getLayout();
 				}
 				if (layout != null) {
 					layout.setLayoutArrangement(TiConvert.toString(d, TiC.PROPERTY_LAYOUT));
@@ -503,8 +502,6 @@ public class TiUIWindow extends TiUIView
 				TiCompositeLayout layout = null;
 				if (windowActivity instanceof TiActivity) {
 					layout = ((TiActivity)windowActivity).getLayout();
-				} else if (windowActivity instanceof TiTabActivity) {
-					layout = ((TiTabActivity)windowActivity).getLayout();
 				}
 				if (layout != null) {
 					layout.setLayoutArrangement(TiConvert.toString(newValue));
@@ -603,6 +600,10 @@ public class TiUIWindow extends TiUIView
 		messenger = null;
 		handler = null;
 		windowActivity = null;
+		if (newContext && windowContext != null) {
+			windowContext.release();
+			windowContext = null;
+		}
 	}
 
 	public Activity getActivity()

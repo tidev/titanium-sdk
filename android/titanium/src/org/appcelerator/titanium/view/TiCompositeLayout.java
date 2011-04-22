@@ -243,6 +243,9 @@ public class TiCompositeLayout extends ViewGroup
 		int childDimension = LayoutParams.WRAP_CONTENT;
 		if (p.optionWidth != null) {
 			childDimension = p.optionWidth.getAsPixels(this);
+			if (childDimension == 0 && p.optionWidth.isUnitPercent() && width > 0) {
+				childDimension = (int) ((p.optionWidth.getValue() / 100.0) * width);
+			}
 		} else {
 			if (p.autoWidth && p.autoFillsWidth && !isHorizontalArrangement()) {
 				childDimension = LayoutParams.FILL_PARENT;
@@ -253,6 +256,9 @@ public class TiCompositeLayout extends ViewGroup
 		childDimension = LayoutParams.WRAP_CONTENT;
 		if (p.optionHeight != null) {
 			childDimension = p.optionHeight.getAsPixels(this);
+			if (childDimension == 0 && p.optionHeight.isUnitPercent() && height > 0) {
+				childDimension = (int) ((p.optionHeight.getValue() / 100.0) * height);
+			}
 		} else {
 			if (p.autoHeight && p.autoFillsHeight && !isVerticalArrangement()) {
 				childDimension = LayoutParams.FILL_PARENT;

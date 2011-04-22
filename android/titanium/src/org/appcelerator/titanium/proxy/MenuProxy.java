@@ -50,35 +50,44 @@ public class MenuProxy extends KrollProxy
 	}
 
 	@Override
-	public boolean handleMessage(Message msg) {
+	public boolean handleMessage(Message msg) 
+	{
+		AsyncResult result = null;
+		result = (AsyncResult) msg.obj;
+
 		switch(msg.what) {
 			case MSG_ADD: {
-				AsyncResult result = (AsyncResult) msg.obj;
 				result.setResult(handleAdd((KrollDict) result.getArg()));
 				return true;
 			}
 			case MSG_CLOSE: {
 				handleClose();
+				result.setResult(null);
 				return true;
 			}
 			case MSG_CLEAR: {
 				handleClear();
+				result.setResult(null);
 				return true;
 			}
 			case MSG_REMOVE_GROUP: {
 				handleRemoveGroup(msg.arg1);
+				result.setResult(null);
 				return true;
 			}
 			case MSG_REMOVE_ITEM: {
 				handleRemoveItem(msg.arg1);
+				result.setResult(null);
 				return true;
 			}
 			case MSG_SET_GROUP_ENABLED: {
-				handleSetGroupEnabled((HashMap) msg.obj);
+				handleSetGroupEnabled((HashMap) result.getArg());
+				result.setResult(null);
 				return true;
 			}
 			case MSG_SET_GROUP_VISIBLE: {
-				handleSetGroupVisible((HashMap) msg.obj);
+				handleSetGroupVisible((HashMap) result.getArg());
+				result.setResult(null);
 				return true;
 			}
 			default : {
@@ -139,8 +148,7 @@ public class MenuProxy extends KrollProxy
 			return;
 		}
 
-		Message msg = getUIHandler().obtainMessage(MSG_CLEAR);
-		msg.sendToTarget();
+		sendBlockingUiMessage(MSG_CLEAR, null);
 	}
 
 	public void handleClear() {
@@ -160,8 +168,7 @@ public class MenuProxy extends KrollProxy
 			return;
 		}
 
-		Message msg = getUIHandler().obtainMessage(MSG_CLOSE);
-		msg.sendToTarget();
+		sendBlockingUiMessage(MSG_CLOSE, null);
 	}
 
 	public void handleClose() {
@@ -216,9 +223,7 @@ public class MenuProxy extends KrollProxy
 			return;
 		}
 
-		Message msg = getUIHandler().obtainMessage(MSG_REMOVE_GROUP);
-		msg.arg1 = groupId;
-		msg.sendToTarget();
+		sendBlockingUiMessage(MSG_REMOVE_GROUP, groupId);
 	}
 
 	public void handleRemoveGroup(int groupId) {
@@ -245,9 +250,7 @@ public class MenuProxy extends KrollProxy
 			return;
 		}
 
-		Message msg = getUIHandler().obtainMessage(MSG_REMOVE_ITEM);
-		msg.arg1 = itemId;
-		msg.sendToTarget();
+		sendBlockingUiMessage(MSG_REMOVE_ITEM, itemId);
 	}
 
 	public void handleRemoveItem(int itemId) {
@@ -280,8 +283,7 @@ public class MenuProxy extends KrollProxy
 			return;
 		}
 
-		Message msg = getUIHandler().obtainMessage(MSG_SET_GROUP_ENABLED, args);
-		msg.sendToTarget();
+		sendBlockingUiMessage(MSG_SET_GROUP_ENABLED, args);
 	}
 
 	public void handleSetGroupEnabled(HashMap args) {
@@ -299,9 +301,8 @@ public class MenuProxy extends KrollProxy
 			handleSetGroupVisible(args);
 			return;
 		}
-;
-		Message msg = getUIHandler().obtainMessage(MSG_SET_GROUP_VISIBLE, args);
-		msg.sendToTarget();
+
+		sendBlockingUiMessage(MSG_SET_GROUP_VISIBLE, args);
 	}
 
 	public void handleSetGroupVisible(HashMap args) {

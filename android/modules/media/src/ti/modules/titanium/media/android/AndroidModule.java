@@ -58,7 +58,7 @@ public class AndroidModule extends KrollModule
 			Log.w(LCAT, "Unable to get bitmap to set wallpaper");
 		}
 	}
-	public class MediaScannerClient implements MediaScannerConnectionClient
+	public static class MediaScannerClient implements MediaScannerConnectionClient
 	{
 		private TiContext context;
 		private Object[] paths;
@@ -66,6 +66,7 @@ public class AndroidModule extends KrollModule
 		private KrollCallback callback;
 		private MediaScannerConnection connection;
 		private AtomicInteger completedScanCount = new AtomicInteger(0);
+
 		MediaScannerClient(TiContext context, Object[] paths, Object[] mimeTypes, KrollCallback callback)
 		{
 			this.context = context;
@@ -73,6 +74,14 @@ public class AndroidModule extends KrollModule
 			this.mimeTypes = mimeTypes;
 			this.callback = callback;
 		}
+
+		public MediaScannerClient(TiContext context, Object[] paths, Object[] mimeTypes)
+		{
+			this.context = context;
+			this.paths = paths;
+			this.mimeTypes = mimeTypes;
+		}
+
 		@Override
 		public void onMediaScannerConnected()
 		{

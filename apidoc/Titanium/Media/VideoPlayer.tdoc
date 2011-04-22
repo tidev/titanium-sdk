@@ -34,6 +34,8 @@ movieControlMode[int]: deprecated in 3.2+ of the iPhone SDK - use `mediaControlS
 
 mediaControlStyle[int]: The style of the playback controls. Defaults to [[Titanium.Media.VIDEO_CONTROL_DEFAULT]]
 
+allowsAirPlay[boolean]: Whether or not the movie can be played on a remote device.  iOS 4.3+ only.
+
 url[string]: url of the media.
 
 autoplay[boolean]: indicates if a movie should automatically start playback when it is likely to finish uninterrupted based on e.g. network conditions. Defaults to true.

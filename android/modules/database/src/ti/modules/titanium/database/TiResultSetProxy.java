@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2011 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -14,9 +14,11 @@ import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
+import org.appcelerator.titanium.util.TiConvert;
 
 import android.database.AbstractWindowedCursor;
 import android.database.Cursor;
+import android.database.SQLException;
 
 @Kroll.proxy
 public class TiResultSetProxy extends KrollProxy
@@ -75,13 +77,40 @@ public class TiResultSetProxy extends KrollProxy
 	}
 
 	@Kroll.method
-	public Object field(int index) 
+	public Object field(Object[] args) 
 	{
-		return getField(index);
+		return internalGetField(args);
 	}
 
 	@Kroll.method
-	public Object getField(int index)
+	public Object getField(Object[] args) 
+	{
+		return internalGetField(args);
+	}
+
+	private Object internalGetField(Object[] args) {
+		int index = -1;
+		int type = DatabaseModule.FIELD_TYPE_UNKNOWN;
+		if (args.length >= 1) {
+			if(args[0] instanceof Number) {
+				index = TiConvert.toInt(args[0]);
+			} else {
+				(new IllegalArgumentException("Expected int column index as first parameter was " + args[0].getClass().getSimpleName())).printStackTrace();
+				throw new IllegalArgumentException("Expected int column index as first parameter was " + args[0].getClass().getSimpleName());
+			}
+		}
+		if (args.length == 2) {
+			if (args[1] instanceof Number) {
+				type = TiConvert.toInt(args[1]);
+			} else {
+				throw new IllegalArgumentException("Expected int field type as second parameter was " + args[1].getClass().getSimpleName());
+			}
+		}
+		
+		 return internalGetField(index, type);
+	}
+
+	private Object internalGetField(int index, int type)
 	{
 		Object result = null;
 		if (rs != null) {
@@ -110,9 +139,33 @@ public class TiResultSetProxy extends KrollProxy
 				if (fromString) {
 					result = rs.getString(index);
 				}
-			} catch (Exception e) {
+			} catch (SQLException e) {
 				String msg = "No field at index " + index + ". msg=" + e.getMessage();
 				Log.e(LCAT, msg, e);
+				throw e;
+			}
+			
+			switch(type) {
+				case DatabaseModule.FIELD_TYPE_STRING :
+					if (! (result instanceof String)) {
+						result = TiConvert.toString(result);
+					}
+					break;
+				case DatabaseModule.FIELD_TYPE_INT :
+					if (! (result instanceof Integer)) {
+						result = TiConvert.toInt(result);
+					}
+					break;
+				case DatabaseModule.FIELD_TYPE_FLOAT :
+					if (! (result instanceof Float)) {
+						result = TiConvert.toFloat(result);
+					}
+					break;
+				case DatabaseModule.FIELD_TYPE_DOUBLE :
+					if (! (result instanceof Double)) {
+						result = TiConvert.toDouble(result);
+					}
+					break;					
 			}
 		}
 
@@ -120,37 +173,64 @@ public class TiResultSetProxy extends KrollProxy
 	}
 
 	@Kroll.method
-	public Object fieldByName(String fieldName) 
+	public Object fieldByName(Object[] args) 
 	{
-		return getFieldByName(fieldName);
+		return internalGetFieldByName(args);
 	}
 
 	@Kroll.method
-	public Object getFieldByName(String fieldName) 
+	public Object getFieldByName(Object[] args) {
+		return internalGetFieldByName(args);
+	}
+	
+	private Object internalGetFieldByName(Object[] args) {
+		String name = null;
+		int type = DatabaseModule.FIELD_TYPE_UNKNOWN;
+		if (args.length >= 1) {
+			if(args[0] instanceof String) {
+				name = (String) args[0];
+			} else {
+				throw new IllegalArgumentException("Expected string column name as first parameter" + args[0].getClass().getSimpleName());
+			}
+		}
+		if (args.length == 2) {
+			if (args[1] instanceof Number) {
+				type = TiConvert.toInt(args[1]);
+			} else {
+				throw new IllegalArgumentException("Expected int field type as second parameter" + args[1].getClass().getSimpleName());
+			}
+		}
+		
+		return internalGetFieldByName(name, type);
+	}
+	
+	private Object internalGetFieldByName(String fieldName, int type) 
 	{
 		Object result = null;
 		if (rs != null) {
 			try {
 				Integer ndx = columnNames.get(fieldName.toLowerCase());
 				if (ndx != null)
-					result = getField(ndx.intValue());
-			} catch (Exception e) {
+					result = internalGetField(ndx.intValue(), type);
+			} catch (SQLException e) {
 				String msg = "Field name " + fieldName + " not found. msg=" + e.getMessage();
 				Log.e(LCAT, msg);
+				throw e;
 			}
 		}
 		
 		return result;
 	}
-
+	
 	@Kroll.getProperty @Kroll.method
 	public int getFieldCount() 
 	{
 		if (rs != null) {
 			try {
 				return rs.getColumnCount();
-			} catch (Exception e) {
+			} catch (SQLException e) {
 				Log.e(LCAT, "No fields");
+				throw e;
 			}
 		}
 		
@@ -170,8 +250,9 @@ public class TiResultSetProxy extends KrollProxy
 		if (rs != null) {
 			try {
 				return rs.getColumnName(index);
-			} catch (Exception e) {
+			} catch (SQLException e) {
 				Log.e(LCAT, "No column at index: " + index);
+				throw e;
 			}
 		}
 		return null;
