@@ -1,18 +1,18 @@
 - namespace
 
+Titanium.IOStream
+
 - type
 
 object
 
-- subtype
-
-proxy
-
 - description
+
+IOStream is the interface that all stream types implement
 
 - since
 
-0.8
+1.7
 
 - platforms
 
@@ -20,8 +20,27 @@ android, iphone, ipad
 
 - properties
 
-
 - methods
+read: reads data from stream into a buffer
+read2: reads specified length worth of data from stream into buffer at specified offset
+write: writes data from buffer to stream
+write: writes specified length worth of data from buffer at specified offset to stream
+
+- method : read, int
+buffer[`Titanium.Buffer`]: buffer to read stream data into
+
+- method : read2, int
+buffer[`Titanium.Buffer`]: buffer to read stream data into
+offset[int]: offset to start reading buffer data from
+length[int]: length of data to read from buffer
+
+- method : write, int
+buffer[`Titanium.Buffer`]: buffer to write to stream
+
+- method : write, int
+buffer[`Titanium.Buffer`]: buffer to write to stream
+offset[int]: offset to start writing buffer data from
+length[int]: length of data to write from buffer
 
 - events
 

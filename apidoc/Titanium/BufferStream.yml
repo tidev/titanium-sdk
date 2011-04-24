@@ -1,0 +1,7 @@
+---
+name: Titanium.BufferStream
+type: Titanium.IOStream
+description: Wrapper around `Titanium.Buffer` that implements the `Titanium.IOStream` interface
+extends: Titanium.Proxy
+since: "1.7"
+

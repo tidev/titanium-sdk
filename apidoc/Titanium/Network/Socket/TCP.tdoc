@@ -24,19 +24,20 @@ android, iphone, ipad
 
 - properties
 
-host[string]: The host for the socket to connect to/listen on.  For listening, this should ALWAYS be the wifi address, unless you intend to use the loopback interface. Can only be modified when the socket is in the INITIALIZED state.
+host[string]: The host for the socket to connect to/listen on.  For listening, this should ALWAYS be the wifi address, unless you intend to use the loopback interface. Can only be modified when the socket is in the `Titanium.Network.Socket.INITIALIZED` state.  Supports both IPv4 and IPv6.
 port[int]: The port for the socket to connect to/listen on. Can only be modified when the socket is in the INITIALIZED state.  
-connected[function]: The callback to invoke when the socket transitions to the CONNECTED state. Note that it is not called for new sockets which are accepted. Can only be modified when the socket is in the INITIALIZED state.
-accepted[function]: The callback to invoke when the socket accepts a new connection. Can only be modified when the socket is in the INITIALIZED state.
-closed[function]: The callback to invoke when the socket closes. Can only be modified when the socket is in the INITIALIZED state.
+listenQueueSize[int]: Max number of pending incoming connections to be allowed when listen() is called. Any incoming connections received while the max number of pending connections has been reached will be rejected.
+timeout[int]: The timeout for connect() and I/O write() operations.  Cannot be modified when not in the initialized state.
+connected[function]: The callback to invoke when the socket transitions to the CONNECTED state. Note that it is not called for new sockets which are accepted. Can only be modified when the socket is in the `Titanium.Network.Socket.INITIALIZED` state.
+accepted[function]: The callback to invoke when the socket accepts a new connection. Can be modified by every call to accept().
 error[function]: The callback to invoke when the socket experiences an error (INCLUDING during any I/O operations). Can only be modified when the socket is in the INITIALIZED state.
 
 - methods
 
-connect: Connects the socket to the specified host/port endpoint.
-listen: Sets up the socket to listen on the specified host/port endpoint.
-accept: Tells the socket to accept the next available inbound connection. Note that unlike BSD, this function does NOT block.
-close: Closes the socket.
+connect: Attempts to connect to the host/port set on the socket. Throws exception if the socket is in a CONNECTED or LISTENING state. Throws exception if a valid host and port has not been set on the socket. Nonblocking; connection attempts are asynchronous.
+listen: Attempts to start listening on the host/port set on the socket. This function blocks execution and throws an exception on error (and sets the socket state to ERROR) but does not fire the error callback in this event. Throws exception if the socket is in a LISTENING or CONNECTED state.  Nonblocking.
+accept: Tells a LISTENING socket to accept a connection request at the top of a listener's request queue when one becomes available. Takes an argument, a box object which assigns callbacks to the created socket. Note that the connected callback is not called (the socket does not "transition to" the CONNECTED state - it's created in the CONNECTED state) on the newly created socket.  The accepted callback is called when a new connection is accepted as a result of calling accept().  If the socket is already flagged to accept the next connection when accept() is called, the existing accept options will be update to use the newly specified options object. Throws an exception if the socket is not in a LISTENING state.  Blocking call.
+close: Closes a socket. Throws exception if the socket is not in a CONNECTED or LISTENING state. Blocking call.
 
 
 ~~~

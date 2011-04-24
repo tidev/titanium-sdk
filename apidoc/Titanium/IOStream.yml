@@ -1,0 +1,83 @@
+---
+name: Titanium.IOStream
+description: IOStream is the interface that all stream types implement
+since: "1.7"
+
+methods:
+    - name: read
+        returns: Number
+        description: reads data from stream into a buffer
+        parameters:
+            - name: buffer
+                description: buffer to read stream data into
+                type: Titanium.Buffer
+
+    - name: read
+        returns: Number
+        description: reads data from stream into a buffer
+        parameters:
+            - name: buffer
+                description: buffer to read stream data into
+                type: Titanium.Buffer
+            - name: offset
+                description: offset to start reading buffer data from
+                type: Number
+            - name: length
+                description: length of data to read from buffer
+                type: Number
+
+    - name: write
+        returns: Number
+        description: writes data from buffer to stream
+        parameters:
+            - name: buffer
+                description: buffer to write to stream
+                type: Titanium.Buffer
+
+    - name: write
+        returns: Number
+        description: reads data from stream into a buffer
+        parameters:
+            - name: buffer
+                description: buffer to write to stream
+                type: Titanium.Buffer
+            - name: offset
+                description: offset to start writing buffer data from
+                type: Number
+            - name: length
+                description: length of data to write from buffer
+                type: Number
+
+    - name: isWriteable
+        returns:  Boolean
+        description: reads true if stream is writeable, false otherwise
+
+    - name: isReadable
+        returns:  Boolean
+        description: reads true if stream is readable, false otherwise
+
+examples: |
+    ## write data to stream
+
+      var outBuffer = Ti.createBuffer({data: "write me"});
+      var outStream = // stream object could be socket, file, buffer or blob
+
+      var bytesWritten = outStream.write(outBuffer);  // writes entire buffer to stream
+      Ti.API.info("Bytes written:" + bytesWritten);  // should be 8
+
+      bytesWritten = outStream.write(outBuffer, 2, 5);  // only writes "ite m" to stream
+      Ti.API.info("Bytes written:" + bytesWritten);  // should be 5
+
+    ## read data from stream
+
+      var inBuffer = Ti.createBuffer({length: 1024});
+
+      // assume the inStream contains the string "hello world"
+      var inStream = // stream object could be socket, file, buffer or blob
+
+      var bytesRead = inStream.read(inBuffer);  // reads "hello world" from stream
+      Ti.API.info("Bytes read:" + bytesRead);  // should be 11
+
+      bytesRead = inStream.read(inBuffer, 2, 5);  // only reads "llo w" from stream
+      Ti.API.info("Bytes read:" + bytesRead);  // should be 5
+
