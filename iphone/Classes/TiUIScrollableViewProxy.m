@@ -24,6 +24,8 @@
 - (void) dealloc
 {
 	pthread_rwlock_destroy(&viewsLock);
+	[viewProxies makeObjectsPerformSelector:@selector(setParent:) withObject:nil];
+	[viewProxies release];
 	[super dealloc];
 }
 
