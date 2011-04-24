@@ -40,4 +40,9 @@ name[string]: the name of the database
 
 - properties
 
+FIELD_TYPE_STRING[int]: constant for requesting a column's value returned in string form.
+FIELD_TYPE_INT[int]: constant for requesting a column's value returned in integer form.
+FIELD_TYPE_FLOAT[int]: constant for requesting a column's value returned in float form.
+FIELD_TYPE_DOUBLE[int]: constant for requesting a column's value returned in double form.
+
 - events

@@ -27,6 +27,19 @@ extern NSString * TI_APPLICATION_RESOURCE_DIR;
 	return [TiFilesystemFileProxy makeTemp:YES];
 }
 
+-(id)openStream:(id) args {
+	NSArray  *modes;
+	NSString *path;
+
+	ENSURE_ARG_AT_INDEX(modes, args, 0, NSArray);
+	ENSURE_ARG_AT_INDEX(path, args, 1, NSString);
+	
+	TiFilesystemFileProxy *fileProxy = [[[TiFilesystemFileProxy alloc] initWithPath:path] autorelease];
+	NSArray *payload = [NSArray arrayWithObjects:fileProxy, modes, nil];
+
+	return [[[TiFilesystemFileStreamProxy alloc] _initWithPageContext:[self executionContext] args:payload] autorelease];
+}
+
 -(id)MODE_APPEND
 {
 	return NUMINT((int)'A');

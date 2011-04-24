@@ -32,26 +32,7 @@
 	self.view = [proxy view];
 }
 
-//-(UIView*)view
-//{
-//	return [proxy view];
-//}
-//
-//- (void)viewDidUnload
-//{
-////TODO: The if is commented out for now since this check is not pushed yet and I want to keep it consistent with HEAD. Remove the comment when pushing.
-//	if ([proxy shouldDetachViewOnUnload])
-//	{
-//		[proxy detachView];
-//	}
-//	[super viewDidUnload];
-//}
-
-
--(id)proxy
-{
-	return proxy;
-}
+@synthesize proxy;
 
 - (BOOL) shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation
 {

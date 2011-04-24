@@ -10,6 +10,7 @@
 
 #import "TiUtils.h"
 #import "TiBlob.h"
+#import "TiFilesystemFileStreamProxy.h"
 
 
 #define FILE_TOSTR(x) \
@@ -151,6 +152,15 @@ FILENOOP(setHidden:(id)x);
 		result = [fm createDirectoryAtPath:path withIntermediateDirectories:recurse attributes:nil error:nil];
 	}
 	return NUMBOOL(result);
+}
+
+-(TiFilesystemFileStreamProxy *) open:(id) args {
+	NSArray *modes;
+	ENSURE_ARG_AT_INDEX(modes, args, 0, NSArray);
+	
+	NSArray *payload = [NSArray arrayWithObjects:self, modes];
+
+	return [[[TiFilesystemFileStreamProxy alloc] _initWithPageContext:[self executionContext] args:payload] autorelease];
 }
 
 -(id)createFile:(id)args

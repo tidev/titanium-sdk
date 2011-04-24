@@ -33,6 +33,7 @@
 	ENSURE_SINGLE_ARG_OR_NIL(args,NSDictionary);
 	ENSURE_UI_THREAD(show,args);
 	
+	[self rememberSelf];
 	NSMutableArray *options = [self valueForKey:@"options"];
 	if (options==nil)
 	{
@@ -95,6 +96,7 @@
 		[self fireEvent:@"click" withObject:event];
 	}
 	[[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationWillChangeStatusBarOrientationNotification object:nil];
+	[self forgetSelf];
 	[self release];
 }
 
@@ -144,7 +146,15 @@
 		CGRect rect;
 		if (CGRectIsEmpty(dialogRect))
 		{
-			rect = [view bounds];
+			if(view == nil)
+			{
+				rect = CGRectZero;
+			}
+			else
+			{
+				rect = [view bounds];
+			}
+
 		}
 		else
 		{

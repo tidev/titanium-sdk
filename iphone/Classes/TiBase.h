@@ -478,6 +478,28 @@ typedef enum {
 	TiNetworkConnectionStateUnknown = 4,	
 } TiNetworkConnectionState;
 
+typedef enum {
+    TI_BYTE = 1,
+    TI_SHORT,
+    TI_INT,
+    TI_LONG,
+    TI_FLOAT,
+    TI_DOUBLE
+} TiDataType;
+    
+extern NSString * const kTiASCIIEncoding;
+extern NSString * const kTiISOLatin1Encoding;
+extern NSString * const kTiUTF8Encoding;
+extern NSString * const kTiUTF16Encoding;
+extern NSString * const kTiUTF16LEEncoding;
+extern NSString * const kTiUTF16BEEncoding;
+
+extern NSString * const kTiByteTypeName;
+extern NSString * const kTiShortTypeName;
+extern NSString * const kTiIntTypeName;
+extern NSString * const kTiLongTypeName;
+extern NSString * const kTiFloatTypeName;
+extern NSString * const kTiDoubleTypeName;
 
 extern NSString * const kTiContextShutdownNotification;
 extern NSString * const kTiWillShutdownNotification;

@@ -32,6 +32,10 @@ NSArray* bufferKeySequence = nil;
 
 #pragma mark Public API : Functions
 
+// NOTE: Translating to 32-bit values is OK here... NSData is a 32-bit length max on iOS!  It's unsigned, as well.
+// However, SIGNED ints allow access to up to 1GB of data as far as addressing... but it might still be worthwhile to coerce.
+// Although we can always just place this limit in documentation, because it makes life easier on us (one conversion to int vs.
+// two conversions, to int and uint - one for typechecking, the other for indexing.)
 -(NSNumber*)append:(id)args
 {
     TiBuffer* source = nil;
@@ -48,8 +52,8 @@ NSArray* bufferKeySequence = nil;
     sourceLength = (hasSourceLength) ? sourceLength : [[source data] length];
     
     if (sourceOffset >= [[source data] length]) {
-        [self throwException:[NSString stringWithFormat:@"Source offset %d is past source bounds (length %d)",sourceOffset,[[source data] length]]
-                   subreason:nil
+        [self throwException:@"TiBoundsException"
+                   subreason:[NSString stringWithFormat:@"Source offset %d is past source bounds (length %d)",sourceOffset,[[source data] length]]
                     location:CODELOCATION];
     }
     
@@ -78,13 +82,13 @@ NSArray* bufferKeySequence = nil;
     sourceLength = (hasSourceLength) ? sourceLength : [[source data] length];
     
     if (offset >= [data length]) {
-        [self throwException:[NSString stringWithFormat:@"Offset %d is past buffer bounds (length %d)",offset,[data length]]
-                   subreason:nil
+        [self throwException:@"TiBoundsException"
+                   subreason:[NSString stringWithFormat:@"Offset %d is past buffer bounds (length %d)",offset,[data length]]
                     location:CODELOCATION];
     }
     if (sourceOffset >= [[source data] length]) {
-        [self throwException:[NSString stringWithFormat:@"Source offset %d is past source bounds (length %d)",sourceOffset,[[source data] length]]
-                   subreason:nil
+        [self throwException:@"TiBoundsException"
+                   subreason:[NSString stringWithFormat:@"Source offset %d is past source bounds (length %d)",sourceOffset,[[source data] length]]
                     location:CODELOCATION];
     }
     
@@ -129,13 +133,13 @@ NSArray* bufferKeySequence = nil;
     sourceLength = (hasSourceLength) ? sourceLength : [[sourceBuffer data] length];
     
     if (offset >= [data length]) {
-        [self throwException:[NSString stringWithFormat:@"Offset %d is past buffer bounds (length %d)",offset,[data length]]
-                   subreason:nil
+        [self throwException:@"TiBoundsException"
+                   subreason:[NSString stringWithFormat:@"Offset %d is past buffer bounds (length %d)",offset,[data length]]
                     location:CODELOCATION];
     }
     if (sourceOffset >= [[sourceBuffer data] length]) {
-        [self throwException:[NSString stringWithFormat:@"Source offset %d is past source bounds (length %d)",sourceOffset,[[sourceBuffer data] length]]
-                   subreason:nil
+        [self throwException:@"TiBoundsException"
+                   subreason:[NSString stringWithFormat:@"Source offset %d is past source bounds (length %d)",sourceOffset,[[sourceBuffer data] length]]
                     location:CODELOCATION];
     }
     
@@ -159,9 +163,9 @@ NSArray* bufferKeySequence = nil;
     ENSURE_ARG_OR_NIL_AT_INDEX(length, args, 1, NSObject);
     
     if (offset != nil && length == nil) {
-        // TODO: Throw exception
-        NSLog(@"[ERROR] Bad args to clone(): Expected (int offset, int length), found (int length)");
-        return nil;
+        [self throwException:@"TiArgsException"
+                   subreason:@"Bad args to clone(): Expected (int offset, int length), found (int length)"
+                    location:CODELOCATION];
     }
 
     int offsetVal = [TiUtils intValue:offset];
@@ -170,9 +174,9 @@ NSArray* bufferKeySequence = nil;
     // TODO: What do we do if offset goes past the end of the buffer?
     // For now, do the sensible thing... throw an exception.
     if (offsetVal > [data length]) {
-        // TODO: Actually throw an exception when we have the mechanisms for this in place...
-        NSLog(@"[ERROR] Offset %d extends past data length %ul", offsetVal, [data length]);
-        return nil;
+        [self throwException:@"TiBoundsException"
+                   subreason:[NSString stringWithFormat:@"Offset %d extends past data length %u", offsetVal, [data length]]
+                    location:CODELOCATION];
     }
     
     // TODO: What do we do if offset+length goes past the end of the buffer?
@@ -199,9 +203,9 @@ NSArray* bufferKeySequence = nil;
     ENSURE_ARG_OR_NIL_AT_INDEX(length, args, 2, NSObject);
     
     if (offset != nil && length == nil) {
-        // TODO: Throw exception
-        NSLog(@"[ERROR] Bad args to fill(): Expected (int offset, int length), found (int length)");
-        return nil;
+        [self throwException:@"TiArgsException"
+                   subreason:@"Bad args to fill(): Expected (int offset, int length), found (int length)"
+                    location:CODELOCATION];
     }
     
     char byte = [TiUtils intValue:fillByte];
@@ -211,9 +215,9 @@ NSArray* bufferKeySequence = nil;
     // TODO: What do we do if offset goes past the end of the buffer?
     // For now, do the sensible thing... throw an exception.
     if (offsetVal > [data length]) {
-        // TODO: Actually throw an exception when we have the mechanisms for this in place...
-        NSLog(@"[ERROR] Offset %d extends past data length %ul", offsetVal, [data length]);
-        return nil;
+        [self throwException:@"TiBoundsException"
+                   subreason:[NSString stringWithFormat:@"Offset %d extends past data length %u", offsetVal, [data length]]
+                    location:CODELOCATION];
     }
     
     // TODO: What do we do if offset+length goes past the end of the buffer?
@@ -276,43 +280,45 @@ NSArray* bufferKeySequence = nil;
 
 #pragma mark "operator[] overload" (Array behavior)
 
-// TODO: Throw bounds exceptions
 -(void)setValue:(id)value forUndefinedKey:(NSString *)key
 {
     int index = [key intValue];
     // -[NSString intValue] returns 0 for unparsables; so check to for isEqual:@"0" on that value
     if (index != 0 || [key isEqualToString:@"0"]) {
         if (index < 0 || index >= [data length]) {
-            NSLog(@"[ERROR] Index %d out of bounds on buffer", index);
-            return;
+            [self throwException:@"TiBoundsException"
+                       subreason:[NSString stringWithFormat:@"Index %d out of bounds on buffer (length %u)", index, [data length]]
+                        location:CODELOCATION];
         }
         if (![value respondsToSelector:@selector(charValue)]) {
-            NSLog(@"[ERROR] Object %@ cannot be converted to a byte",value);
+            [self throwException:@"TiTypeException"
+                       subreason:[NSString stringWithFormat:@"Object %@ cannot be converted to a byte",value]
+                        location:CODELOCATION];
             return;
         }
         
         void* bytes = [data mutableBytes];
-        *(char*)(bytes+index) = [value charValue];
+        *(unsigned char*)(bytes+index) = [value charValue];
     }
     else {
         [super setValue:value forUndefinedKey:key];
     }
 }
 
-// TODO: Throw bounds exceptions
 -(id)valueForUndefinedKey:(NSString *)key
 {
     int index = [key intValue];
     if (index != 0 || [key isEqualToString:@"0"]) {
         if (index < 0 || index >= [data length]) {
-            NSLog(@"[ERROR] Index %d out of bounds on buffer", index);
-            return nil;
+            [self throwException:@"TiBoundsException"
+                       subreason:[NSString stringWithFormat:@"Index %d out of bounds on buffer (length %u)", index, [data length]]
+                        location:CODELOCATION];
         }
         
-        void* bytes = [data mutableBytes];
+        const void* bytes = [data bytes];
         // NOTE: We have to do this internal type conversion because in the id->TiValue process, a byte
         // is autotranslated to a boolean.  So we get the value as a char, then coerce to int.
-        return [NSNumber numberWithInt:*(char*)(bytes+index)];
+        return [NSNumber numberWithInt:*(unsigned char*)(bytes+index)];
     }
     else {
         return [super valueForUndefinedKey:key];

@@ -114,7 +114,7 @@
 {	\
 	if (ivarName==nil)	\
 	{	\
-		ivarName = [[TiUI##methodName##Proxy alloc] _initWithPageContext:[self pageContext]];	\
+		ivarName = [[TiUI##methodName##Proxy alloc] _initWithPageContext:[self executionContext]];	\
 	}	\
 	return ivarName;	\
 }	\

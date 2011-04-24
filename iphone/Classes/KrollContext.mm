@@ -11,11 +11,47 @@
 #import "KrollCallback.h"
 #import "TiUtils.h"
 #import "TiLocale.h"
+
+#include <pthread.h>
 #import "TiDebugger.h"
 
 
 static unsigned short KrollContextIdCounter = 0;
 static unsigned short KrollContextCount = 0;
+
+static pthread_rwlock_t KrollGarbageCollectionLock;
+
+@implementation KrollUnprotectOperation
+
+-(id)initWithContext: (TiContextRef)newContext withJsobject: (TiObjectRef) newFirst
+{
+	return [self initWithContext:newContext withJsobject:newFirst andJsobject:NULL];
+}
+
+-(id)initWithContext: (TiContextRef)newContext withJsobject: (TiObjectRef) newFirst andJsobject: (TiObjectRef) newSecond
+{
+	self = [super init];
+	if (self != nil)
+	{
+		jsContext = newContext;
+		firstObject = newFirst;
+		secondObject = newSecond;
+	}
+	return self;
+}
+
+-(void)main
+{
+	TiValueUnprotect(jsContext, firstObject);
+	if(secondObject != NULL)
+	{
+		TiValueUnprotect(jsContext, secondObject);
+	}
+}
+
+@end
+
+
 
 @implementation KrollInvocation
 
@@ -72,7 +108,7 @@ static unsigned short KrollContextCount = 0;
 
 TiValueRef ThrowException (TiContextRef ctx, NSString *message, TiValueRef *exception)
 {
-	TiStringRef jsString = TiStringCreateWithUTF8CString([message UTF8String]);
+	TiStringRef jsString = TiStringCreateWithCFString((CFStringRef)message);
 	*exception = TiValueMakeString(ctx,jsString);
 	TiStringRelease(jsString);
 	return TiValueMakeUndefined(ctx);
@@ -476,7 +512,7 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 
 -(void)invoke:(KrollContext*)context
 {
-	TiStringRef js = TiStringCreateWithUTF8CString([code UTF8String]); 
+	TiStringRef js = TiStringCreateWithCFString((CFStringRef) code);
 	TiObjectRef global = TiContextGetGlobalObject([context context]);
 	
 	TiValueRef exception = NULL;
@@ -495,7 +531,7 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 
 -(id)invokeWithResult:(KrollContext*)context
 {
-	TiStringRef js = TiStringCreateWithUTF8CString([code UTF8String]); 
+	TiStringRef js = TiStringCreateWithCFString((CFStringRef) code);
 	TiObjectRef global = TiContextGetGlobalObject([context context]);
 	
 	TiValueRef exception = NULL;
@@ -520,26 +556,49 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 
 @implementation KrollEvent
 
--(id)initWithCallback:(KrollCallback*)callback_ args:(NSArray*)args_ thisObject:(id)thisObject_
+-(id)initWithType:(NSString *)newType ForKrollObject:(KrollObject*)newCallbackObject eventObject:(NSDictionary*)newEventObject thisObject:(id)newThisObject;
 {
 	if (self = [super init])
 	{
-		callback = [callback_ retain];
-		args = [args_ retain];
-		thisObject = [thisObject_ retain];
+		type = [newType copy];
+		callbackObject = [newCallbackObject retain];
+		eventObject = [newEventObject retain];
+		thisObject = [newThisObject retain];
 	}
 	return self;
 }
+
+-(id)initWithCallback:(KrollCallback*)newCallback eventObject:(NSDictionary*)newEventObject thisObject:(id)newThisObject
+{
+	if (self = [super init])
+	{
+		callback = [newCallback retain];
+		eventObject = [newEventObject retain];
+		thisObject = [newThisObject retain];
+	}
+	return self;
+}
+
+
 -(void)dealloc
 {
+	[type release];
 	[thisObject release];
-	[callback release];
-	[args release];
+	[callbackObject release];
+	[eventObject release];
 	[super dealloc];
 }
 -(void)invoke:(KrollContext*)context
 {
-	[callback call:args thisObject:thisObject];
+	if(callbackObject != nil)
+	{
+		[callbackObject triggerEvent:type withObject:eventObject thisObject:thisObject];
+	}
+
+	if(callback != nil)
+	{
+		[callback call:[NSArray arrayWithObject:eventObject] thisObject:thisObject];
+	}
 }
 @end
 
@@ -547,6 +606,14 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 @implementation KrollContext
 
 @synthesize delegate;
+
++(void)initialize
+{
+	if(self == [KrollContext class])
+	{
+		pthread_rwlock_init(&KrollGarbageCollectionLock, NULL);
+	}
+}
 
 -(NSString*)threadName
 {
@@ -746,6 +813,13 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 
 -(void)invoke:(id)object
 {
+	//Mwahahaha! Pre-emptively putting in NSOperations before the Queue.
+	if([object isKindOfClass:[NSOperation class]])
+	{
+		[(NSOperation *)object start];
+		return;
+	}
+
 	[object invoke:self];
 }
 
@@ -815,17 +889,10 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 	[self enqueue:invocation];
 }
 
--(void)invokeEvent:(KrollCallback*)callback_ args:(NSArray*)args_ thisObject:(id)thisObject_
-{
-	KrollEvent *event = [[KrollEvent alloc] initWithCallback:callback_ args:args_ thisObject:thisObject_];
-	[self enqueue:event];
-	[event release];
-}
-
 - (void)bindCallback:(NSString*)name callback:(TiObjectCallAsFunctionCallback)fn
 {
 	// create the invoker bridge
-	TiStringRef invokerFnName = TiStringCreateWithUTF8CString([name UTF8String]);
+	TiStringRef invokerFnName = TiStringCreateWithCFString((CFStringRef) name);
 	TiValueRef invoker = TiObjectMakeFunctionWithCallback(context, invokerFnName, fn);
 	if (invoker)
 	{
@@ -852,15 +919,30 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 	[condition unlock];
 }
 
+-(int)forceGarbageCollectNow
+{
+	NSAutoreleasePool * garbagePool = [[NSAutoreleasePool alloc] init];
+#if CONTEXT_DEBUG == 1	
+	NSLog(@"CONTEXT<%@>: forced garbage collection requested",self);
+#endif
+	pthread_rwlock_wrlock(&KrollGarbageCollectionLock);
+	TiGarbageCollect(context);
+	pthread_rwlock_unlock(&KrollGarbageCollectionLock);
+	gcrequest = NO;
+	loopCount = 0;
+	[garbagePool drain];
+	return 0;
+}
+
 -(void)main
 {
 	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 	[[NSThread currentThread] setName:[self threadName]];
-	
+	pthread_rwlock_rdlock(&KrollGarbageCollectionLock);
+//	context = TiGlobalContextCreateInGroup([TiApp contextGroup],NULL);
 	context = TiGlobalContextCreate(NULL);
 	TiObjectRef globalRef = TiContextGetGlobalObject(context);
 		
-	TiGlobalContextRetain(context);
 
     // TODO: We might want to be smarter than this, and do some KVO on the delegate's
     // 'debugMode' property or something... and start/stop the debugger as necessary.
@@ -889,7 +971,7 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 	prop = TiStringCreateWithUTF8CString("String");
 	
 	// create a special method -- String.format -- that will act as a string formatter
-	TiStringRef formatName = TiStringCreateWithUTF8CString([@"format" UTF8String]);
+	TiStringRef formatName = TiStringCreateWithUTF8CString("format");
 	TiValueRef invoker = TiObjectMakeFunctionWithCallback(context, formatName, &StringFormatCallback);
 	TiValueRef stringValueRef=TiObjectGetProperty(context, globalRef, prop, NULL);
 	TiObjectRef stringRef = TiValueToObject(context, stringValueRef, NULL);
@@ -901,7 +983,7 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 
 	
 	// create a special method -- String.formatDate -- that will act as a date formatter
-	formatName = TiStringCreateWithUTF8CString([@"formatDate" UTF8String]);
+	formatName = TiStringCreateWithUTF8CString("formatDate");
 	invoker = TiObjectMakeFunctionWithCallback(context, formatName, &StringFormatDateCallback);
 	stringValueRef=TiObjectGetProperty(context, globalRef, prop, NULL);
 	stringRef = TiValueToObject(context, stringValueRef, NULL);
@@ -912,7 +994,7 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 	TiStringRelease(formatName);	
 
 	// create a special method -- String.formatTime -- that will act as a time formatter
-	formatName = TiStringCreateWithUTF8CString([@"formatTime" UTF8String]);
+	formatName = TiStringCreateWithUTF8CString("formatTime");
 	invoker = TiObjectMakeFunctionWithCallback(context, formatName, &StringFormatTimeCallback);
 	stringValueRef=TiObjectGetProperty(context, globalRef, prop, NULL);
 	stringRef = TiValueToObject(context, stringValueRef, NULL);
@@ -923,7 +1005,7 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 	TiStringRelease(formatName);	
 	
 	// create a special method -- String.formatDecimal -- that will act as a decimal formatter
-	formatName = TiStringCreateWithUTF8CString([@"formatDecimal" UTF8String]);
+	formatName = TiStringCreateWithUTF8CString("formatDecimal");
 	invoker = TiObjectMakeFunctionWithCallback(context, formatName, &StringFormatDecimalCallback);
 	stringValueRef=TiObjectGetProperty(context, globalRef, prop, NULL);
 	stringRef = TiValueToObject(context, stringValueRef, NULL);
@@ -934,7 +1016,7 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 	TiStringRelease(formatName);	
 
 	// create a special method -- String.formatCurrency -- that will act as a currency formatter
-	formatName = TiStringCreateWithUTF8CString([@"formatCurrency" UTF8String]);
+	formatName = TiStringCreateWithUTF8CString("formatCurrency");
 	invoker = TiObjectMakeFunctionWithCallback(context, formatName, &StringFormatCurrencyCallback);
 	stringValueRef=TiObjectGetProperty(context, globalRef, prop, NULL);
 	stringRef = TiValueToObject(context, stringValueRef, NULL);
@@ -952,13 +1034,14 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 		[delegate performSelector:@selector(willStartNewContext:) withObject:self];
 	}
 	
-	unsigned int loopCount = 0;
+	loopCount = 0;
 	#define GC_LOOP_COUNT 5
 	
 	if (delegate!=nil && [delegate respondsToSelector:@selector(didStartNewContext:)])
 	{
 		[delegate performSelector:@selector(didStartNewContext:) withObject:self];
 	}
+	pthread_rwlock_unlock(&KrollGarbageCollectionLock);
 	
 	BOOL exit_after_flush = NO;
 	
@@ -1002,6 +1085,7 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 			// we're stopped, nothing in the queue, time to bail
 			if (queue_count==0)
 			{
+				RELEASE_TO_NIL(innerpool);
 				break;
 			}
 		}
@@ -1010,12 +1094,7 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 		// we have a pending GC request to try and reclaim memory
 		if (gcrequest)
 		{
-#if CONTEXT_DEBUG == 1	
-			NSLog(@"CONTEXT<%@>: forced garbage collection requested",self);
-#endif
-			TiGarbageCollect(context);
-			loopCount = 0;
-			gcrequest = NO;
+			[self forceGarbageCollectNow];
 		}
 		
 		BOOL stuff_in_queue = YES;
@@ -1073,11 +1152,7 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 		// TODO: experiment, attempt to collect more often than usual given our environment
 		if (loopCount == GC_LOOP_COUNT)
 		{
-#if CONTEXT_DEBUG == 1	
-			NSLog(@"CONTEXT<%@>: garbage collecting after loop count of %d exceeded (count=%d)",self,loopCount,KrollContextCount);
-#endif
-			TiGarbageCollect(context);
-			loopCount = 0;
+			[self forceGarbageCollectNow];
 		}
 		
 		// check to see if we're already stopped and in the flush queue state, in which case,
@@ -1120,7 +1195,7 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 	if (delegate!=nil && [delegate respondsToSelector:@selector(willStopNewContext:)])
 	{
 		[delegate performSelector:@selector(willStopNewContext:) withObject:self];
-	}	
+	}
 	
 	[timerLock lock];
 	// stop any running timers
@@ -1147,9 +1222,14 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 	NSLog(@"SHUTDOWN: %@",self);
 	NSLog(@"KROLL RETAIN COUNT: %d",[kroll retainCount]);
 #endif
-	 
 	[self destroy];
 
+	TiObjectSetPrivate(krollObj, NULL);	//Because we're unhooking the krollObj, we need to manually autorelease kroll later.
+	prop = TiStringCreateWithUTF8CString("Kroll");
+	TiObjectDeleteProperty(context, globalRef, prop, NULL);	//TODO: This still needed?
+	TiStringRelease(prop);
+	
+	[self forceGarbageCollectNow];
 	// cause the global context to be released and all objects internally to be finalized
 	TiGlobalContextRelease(context);
 	

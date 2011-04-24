@@ -103,6 +103,26 @@ NSArray * tableKeySequence;
 	return sectionProxy;
 }
 
+-(TiUITableViewSectionProxy *)sectionWithHeader:(NSString *)newHeader table:(TiUITableView *)table
+{
+	id<TiEvaluator> ourContext = [self executionContext];
+	TiUITableViewSectionProxy *result = [[TiUITableViewSectionProxy alloc] _initWithPageContext:ourContext args:nil];
+	[(KrollBridge *)ourContext registerProxy:result];
+	[self rememberProxy:result];
+
+	if (table != nil)
+	{
+		// Set up the new section
+		result.table = table;
+		result.parent = [table proxy];
+	}
+	if (newHeader != nil)
+	{
+		[result replaceValue:newHeader forKey:@"headerTitle" notification:NO];
+	}
+	return [result autorelease];
+}
+
 #pragma mark Public APIs
 
 -(void)setSearchHidden:(id)args
@@ -272,7 +292,7 @@ NSArray * tableKeySequence;
 
 -(void)insertRowBefore:(id)args
 {
-	ENSURE_UI_THREAD(insertRowBefore,args);
+//	ENSURE_UI_THREAD(insertRowBefore,args);
 	
 	int index = [TiUtils intValue:[args objectAtIndex:0]];
 	NSDictionary *data = [args objectAtIndex:1];
@@ -301,12 +321,7 @@ NSArray * tableKeySequence;
     TiUITableViewSectionProxy *actionSection = section;
     id header = [newrow valueForKey:@"header"];
     if (header != nil) {
-        TiUITableViewSectionProxy *newSection = [[[TiUITableViewSectionProxy alloc] _initWithPageContext:[self executionContext] args:nil] autorelease];
-        [newSection replaceValue:header forKey:@"headerTitle" notification:NO];
-        
-        // Set up the new section
-        newSection.table = table;
-        newSection.parent = [table proxy];
+        TiUITableViewSectionProxy *newSection = [self sectionWithHeader:header table:table];
         
         // Insert the new section into the array - but, exactly WHERE we insert depends.
         int sectionIndex = [sections indexOfObject:section];
@@ -356,7 +371,7 @@ NSArray * tableKeySequence;
 
 -(void)insertRowAfter:(id)args
 {
-	ENSURE_UI_THREAD(insertRowAfter,args);
+//	ENSURE_UI_THREAD(insertRowAfter,args);
 	
 	int index = [TiUtils intValue:[args objectAtIndex:0]];
 	NSDictionary *data = [args objectAtIndex:1];
@@ -385,13 +400,10 @@ NSArray * tableKeySequence;
     TiUITableViewSectionProxy *actionSection = section;
     id header = [newrow valueForKey:@"header"];
     if (header != nil) {
-        TiUITableViewSectionProxy *newSection = [[[TiUITableViewSectionProxy alloc] _initWithPageContext:[self executionContext] args:nil] autorelease];
-        [newSection replaceValue:header forKey:@"headerTitle" notification:NO];
+        TiUITableViewSectionProxy *newSection = [self sectionWithHeader:header table:table];
         
         // Set up the new section
         newSection.section = section.section + 1;
-        newSection.table = table;
-        newSection.parent = [table proxy];
         
         // Insert the new section into the array
         int sectionIndex = [sections indexOfObject:section] + 1;
@@ -435,7 +447,7 @@ NSArray * tableKeySequence;
 
 -(void)appendRow:(id)args
 {
-	ENSURE_UI_THREAD(appendRow,args);
+//	ENSURE_UI_THREAD(appendRow,args);
 	
 	id data = [args objectAtIndex:0];
 	NSDictionary *anim = [args count] > 1 ? [args objectAtIndex:1] : nil;
@@ -456,12 +468,8 @@ NSArray * tableKeySequence;
         TiUITableViewActionType actionType = TiUITableViewActionAppendRow;
 		TiUITableViewSectionProxy* section = [sections lastObject];
         if (header != nil) {
-            section = [[[TiUITableViewSectionProxy alloc] _initWithPageContext:[self executionContext] args:nil] autorelease];
-			[section replaceValue:header forKey:@"headerTitle" notification:NO];
-			
+			section = [self sectionWithHeader:header table:table];			
             section.section = [sections count];
-            section.table = table;
-			section.parent = [table proxy];
             
             actionType = TiUITableViewActionAppendRowWithSection;
         }
@@ -506,12 +514,8 @@ NSArray * tableKeySequence;
 			{
 				// if we don't yet have a section, that means we need to create one
 				// if we have a header property, that means start a new section
-				section = [[[TiUITableViewSectionProxy alloc] _initWithPageContext:[self executionContext] args:nil] autorelease];
+				section = [self sectionWithHeader:header table:nil];
 				[data addObject:section];
-			}
-			if (header!=nil)
-			{
-				[section replaceValue:header forKey:@"headerTitle" notification:NO];
 			}
 			NSString *footer = [dict objectForKey:@"footer"];
 			if (footer!=nil)
@@ -523,6 +527,7 @@ NSArray * tableKeySequence;
 		else if ([row isKindOfClass:sectionClass])
 		{
 			section = (TiUITableViewSectionProxy*)row;
+			[self rememberProxy:row];
 			[data addObject:section];
 		}
 		else if ([row isKindOfClass:rowClass])
@@ -531,15 +536,8 @@ NSArray * tableKeySequence;
 			id rowFooter = [row valueForKey:@"footer"];
 			if (section == nil || rowHeader!=nil)
 			{
-				section = [[[TiUITableViewSectionProxy alloc] _initWithPageContext:[self executionContext] args:nil] autorelease];
-				if (rowHeader!=nil)
-				{
-					[section replaceValue:rowHeader forKey:@"headerTitle" notification:NO];
-				}
+				section = [self sectionWithHeader:rowHeader table:[self tableView]];
 				section.section = [data count];
-				TiUITableView *table = [self tableView];
-				section.table = table;
-				section.parent = [table proxy];
 				[data addObject:section];
 			}
 			if (rowFooter!=nil)

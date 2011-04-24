@@ -36,6 +36,7 @@ NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._listeners={
 
  
 @implementation TiUIWebView
+@synthesize reloadData;
 
 -(void)dealloc
 {
@@ -58,6 +59,7 @@ NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._listeners={
 	RELEASE_TO_NIL(url);
 	RELEASE_TO_NIL(spinner);
 	RELEASE_TO_NIL(basicCredentials);
+	RELEASE_TO_NIL(reloadData);
 	[super dealloc];
 }
 
@@ -255,9 +257,9 @@ NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._listeners={
 
 - (void)reload:(id)args
 {
-	if (webview!=nil)
+	if ((webview!=nil) && (reloadData != nil))
 	{
-		[webview reload];
+		[self performSelector:reloadMethod withObject:reloadData];
 	}
 }
 
@@ -323,11 +325,15 @@ NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._listeners={
 
 -(void)setHtml_:(NSString*)content
 {
+	[self setReloadData:content];
+	reloadMethod = @selector(setHtml_:);
 	[self loadHTML:content encoding:NSUTF8StringEncoding textEncodingName:@"utf-8" mimeType:@"text/html" baseURL:nil];
 }
 
 -(void)setData_:(id)args
 {
+	[self setReloadData:args];
+	reloadMethod = @selector(setData_:);
 	RELEASE_TO_NIL(url);
 	ENSURE_SINGLE_ARG(args,NSObject);
 	if ([args isKindOfClass:[TiBlob class]])
@@ -388,6 +394,9 @@ NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._listeners={
 
 -(void)setUrl_:(id)args
 {
+	[self setReloadData:args];
+	reloadMethod = @selector(setUrl_:);
+
 	RELEASE_TO_NIL(url);
 	ENSURE_SINGLE_ARG(args,NSString);
 	

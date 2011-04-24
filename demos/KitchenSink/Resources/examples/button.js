@@ -47,7 +47,6 @@ b3.addEventListener('click', function()
 	switch (state)
 	{
 		case 0:
-		{
 			b3.enabled=false;
 			b3.title = 'I am Disabled';
 			state++;
@@ -59,9 +58,7 @@ b3.addEventListener('click', function()
 			},1000);
 
 			break;
-		}
 		case 1:
-		{
 			b3.font = {fontSize:25,fontFamily:'Marker Felt', fontWeight:'bold'};
 			b3.title = 'I am red';
 			b3.backgroundImage = '../images/BUTT_red_off.png';
@@ -69,16 +66,12 @@ b3.addEventListener('click', function()
 			b3.color = '#222';
 			state++;
 			break;
-		}
 		case 2:
-		{
 			b3.width = 200;
 			b3.color = '#fff';
 			b3.title = 'White text';
 			state=0;
 			break;
-		}
-
 	}
 });
 
