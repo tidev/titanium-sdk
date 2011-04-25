@@ -20,4 +20,5 @@
 		<screens small="false" normal="true" large="true" anyDensity="false"/>
 	</android>
 	<property name="ti.android.include_all_modules" type="bool">true</property>
+	<property name="ti.android.fastdev" type="bool">false</property>
 </ti:app>
