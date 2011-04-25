@@ -869,7 +869,8 @@ public class TiUIHelper
 			@Override
 			protected void onPostExecute(Void result)
 			{
-				runnable.run();
+				Handler handler = new Handler(Looper.getMainLooper());
+				handler.post(runnable);
 			}
 		}).execute();
 	}
