@@ -189,6 +189,12 @@ public class TCPProxy extends KrollProxy implements TiStream
 		}
 	}
 
+	@Kroll.getProperty @Kroll.method
+	public int getState()
+	{
+		return state;
+	}
+
 	private class ConnectedSocketThread extends Thread
 	{
 		public ConnectedSocketThread()
