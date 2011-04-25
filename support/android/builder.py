@@ -1219,6 +1219,13 @@ class Builder(object):
 		def is_modified(path):
 			return apk_modified is None or Deltafy.needs_update_timestamp(path, apk_modified)
 
+		def zip_contains(zip, entry):
+			try:
+				zip.getinfo(entry)
+			except:
+				return False
+			return True
+
 		if is_modified(resources_zip_file):
 			self.apk_updated = True
 			resources_zip = zipfile.ZipFile(resources_zip_file)
@@ -1229,7 +1236,7 @@ class Builder(object):
 			resources_zip.close()
 		
 		# add classes.dex
-		if is_modified(self.classes_dex):
+		if is_modified(self.classes_dex) or not zip_contains(apk_zip, 'classes.dex'):
 			apk_zip.write(self.classes_dex, 'classes.dex')
 		
 		# add all resource files from the project

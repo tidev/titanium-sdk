@@ -222,10 +222,8 @@ public class TiFastDev
 			byte lenBuffer[] = new byte[4];
 			if (blockRead(lenBuffer)) {
 				int length = toInt(lenBuffer);
-				System.out.println("read length: " + length + ", buffer: " + Arrays.toString(lenBuffer));
 				byte tokenData[] = new byte[length];
 				if (blockRead(tokenData)) {
-					System.out.println("read data: " + new String(tokenData));
 					return tokenData;
 				}
 			}
@@ -278,7 +276,6 @@ public class TiFastDev
 			byte tokenBuffer[] = new byte[4];
 			if (blockRead(tokenBuffer)) {
 				int tokenCount = toInt(tokenBuffer);
-				System.out.println("read token count: " + tokenCount + ", buffer: " + Arrays.toString(tokenBuffer));
 
 				if (tokenCount > MAX_TOKEN_COUNT) return null;
 				byte tokens[][] = new byte[tokenCount][];
@@ -325,7 +322,6 @@ public class TiFastDev
 		public synchronized byte[][] sendMessage(String... tokens)
 		{
 			checkingForMessage = false;
-			System.out.println("send message: " + Arrays.toString(tokens));
 			if (sendTokens(tokens)) {
 				byte message[][] = readMessage();
 				Log.d(TAG, "sent tokens successfully");
