@@ -202,7 +202,7 @@ public class KrollCallback extends KrollMethod implements KrollConvertable
 	}
 
 	public Object getJavascriptValue() {
-		return toJSFunction();
+		return getMethod();
 	}
 
 	public Object getNativeValue() {
