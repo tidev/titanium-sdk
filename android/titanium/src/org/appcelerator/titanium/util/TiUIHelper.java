@@ -25,6 +25,7 @@ import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiDimension;
+import org.appcelerator.titanium.TiMessageQueue;
 import org.appcelerator.titanium.view.TiBackgroundDrawable;
 import org.appcelerator.titanium.view.TiUIView;
 
@@ -51,7 +52,10 @@ import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.StateListDrawable;
+import android.os.AsyncTask;
 import android.os.Build;
+import android.os.Handler;
+import android.os.Looper;
 import android.os.Process;
 import android.util.TypedValue;
 import android.view.Gravity;
@@ -126,7 +130,6 @@ public class TiUIHelper
 					// Do nothing.
 				}};
 		}
-		
 		new AlertDialog.Builder(context).setTitle(title).setMessage(message)
 			.setPositiveButton(android.R.string.ok, listener)
 			.setCancelable(false).create().show();
@@ -844,5 +847,45 @@ public class TiUIHelper
 			return PORTRAIT;
 		}
 		return UNKNOWN;
+	}
+
+	/**
+	 * Run the Runnable "delayed" by using an AsyncTask to first require a new
+	 * thread and only then, in onPostExecute, run the Runnable on the UI thread.
+	 * @param runnable Runnable to run on UI thread.
+	 */
+	public static void runUiDelayed(final Runnable runnable)
+	{
+		(new AsyncTask<Void, Void, Void>()
+		{
+			@Override
+			protected Void doInBackground(Void... arg0)
+			{
+				return null;
+			}
+			/**
+			 * Always invoked on UI thread.
+			 */
+			@Override
+			protected void onPostExecute(Void result)
+			{
+				Handler handler = new Handler(Looper.getMainLooper());
+				handler.post(runnable);
+			}
+		}).execute();
+	}
+
+	/**
+	 * If there is a block on the UI message queue, run the Runnable "delayed".
+	 * @param runnable Runnable to run on UI thread.
+	 */
+	public static void runUiDelayedIfBlock(final Runnable runnable)
+	{
+		if (TiMessageQueue.getMainMessageQueue().isBlocking()) {
+			runUiDelayed(runnable);
+		} else {
+			Handler handler = new Handler(Looper.getMainLooper());
+			handler.post(runnable);
+		}
 	}
 }
