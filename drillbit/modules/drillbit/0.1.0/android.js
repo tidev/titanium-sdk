@@ -74,9 +74,11 @@ AndroidEmulator.prototype.createTestHarnessBuilderProcess = function(command, ar
 };
 
 AndroidEmulator.prototype.getTestHarnessPID = function() {
-	var processes = this.runADB(['shell', 'ps']).split(/\r?\n/);
+	var processes = this.runADB(['shell', 'ps']).split(/[\r\n]+/);
 
 	for (var i = 0; i < processes.length; i++) {
+		if (processes[i] == "") continue;
+
 		var columns = processes[i].split(/\s+/);
 		var pid = columns[1];
 		var id = columns[columns.length-1];
