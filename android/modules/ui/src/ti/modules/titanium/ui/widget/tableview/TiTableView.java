@@ -276,6 +276,9 @@ public class TiTableView extends FrameLayout
 		listView.setFocusableInTouchMode(true);
 		listView.setBackgroundColor(Color.TRANSPARENT);
 		listView.setCacheColorHint(Color.TRANSPARENT);
+		listView.setVerticalFadingEdgeEnabled(false);
+    listView.setHorizontalFadingEdgeEnabled(false);
+    
 		final KrollProxy fProxy = proxy;
 		listView.setOnScrollListener(new OnScrollListener()
 		{
