@@ -58,10 +58,6 @@ public class TiUIWebView extends TiUIView {
 	{
 		super(proxy);
 
-		if (proxy.getProperty(TiC.PROPERTY_SCALES_PAGE_TO_FIT) == null) {
-			proxy.setProperty(TiC.PROPERTY_SCALES_PAGE_TO_FIT, true);
-		}
-
 		TiWebView webView = new TiWebView(proxy.getContext());
 		webView.setVerticalScrollbarOverlay(true);
 
@@ -220,6 +216,12 @@ public class TiUIWebView extends TiUIView {
 		if (DBG) {
 			Log.d(LCAT, "WebView will load " + url + " directly without code injection.");
 		}
+		// iOS parity: for whatever reason, when a remote url is used, the iOS implementation
+		// explicitly sets the native webview's setScalesPageToFit to YES if the
+		// Ti scalesPageToFit property has _not_ been set.
+		if (!proxy.hasProperty(TiC.PROPERTY_SCALES_PAGE_TO_FIT)) {
+			getWebView().getSettings().setLoadWithOverviewMode(true);
+		}
 		getWebView().loadUrl(finalUrl);
 
 	}
@@ -281,6 +283,12 @@ public class TiUIWebView extends TiUIView {
 
 	private void setHtml(String html, String baseUrl)
 	{
+		// iOS parity: for whatever reason, when html is set directly, the iOS implementation
+		// explicitly sets the native webview's setScalesPageToFit to NO if the
+		// Ti scalesPageToFit property has _not_ been set.
+		if (!proxy.hasProperty(TiC.PROPERTY_SCALES_PAGE_TO_FIT)) {
+			getWebView().getSettings().setLoadWithOverviewMode(false);
+		}
 		if (html.contains(TiWebViewBinding.SCRIPT_INJECTION_ID)) {
 			// Our injection code is in there already, go ahead and show.
 			getWebView().loadDataWithBaseURL(baseUrl, html, "text/html", "utf-8", null);
@@ -306,6 +314,12 @@ public class TiUIWebView extends TiUIView {
 	public void setData(TiBlob blob)
 	{
 		String mimeType = "text/html";
+		// iOS parity: for whatever reason, in setData, the iOS implementation
+		// explicitly sets the native webview's setScalesPageToFit to YES if the
+		// Ti scalesPageToFit property has _not_ been set.
+		if (!proxy.hasProperty(TiC.PROPERTY_SCALES_PAGE_TO_FIT)) {
+			getWebView().getSettings().setLoadWithOverviewMode(true);
+		}
 		if (blob.getMimeType() != null) {
 			mimeType = blob.getMimeType();
 		}
